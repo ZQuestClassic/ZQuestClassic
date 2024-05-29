@@ -8,6 +8,7 @@
 #include <string>
 #include <set>
 #include <array>
+#include <sstream>
 using std::set;
 
 #include "base/qrs.h"

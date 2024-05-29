@@ -1,0 +1,1816 @@
+646 / 794 (81%) passed
+
+Failures:
+	00026-deku-leaf/script.zs
+	00044-animation-zh/script.zs
+	00055-enemy-stun-and-death-animations/script.zs
+	00066-homing-fireball-shooter-autoghost/script.zs
+	00076-lights-out/script.zs
+	00087-tree-layers/script.zs
+	00089-real-dungeon-map/script.zs
+	00094-water-air-counter/script.zs
+	00096-shallow-water-splash-and-tall-grass-sfx/script.zs
+	00121-stdextra-zh/script.zs
+	00121-stdextra-zh/stdExtra.zh
+	00132-automated-weapon-or-item-auto-fire/AutoFire_v2.1.z
+	00156-jump-drown-spawn/merge jumppit.z
+	00170-the-river-of-destiny-custom-maps/MapGlobal.z
+	00170-the-river-of-destiny-custom-maps/MapImport.z
+	00175-scripted-traps/script.zs
+	00196-links-awakening-alpha/LinksAwakening_0.63_Dist.z
+	00196-links-awakening-alpha/ffcscript_LA.zh
+	00196-links-awakening-alpha/stdExtra.zh
+	00215-pot-script/script.zs
+	00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects.zh
+	00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects_v1.1.zh
+	00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects_v1.2.zh
+	00234-zversion-zh-zcversion-zh/ZCVersion.zh
+	00235-stdweapons-zh/stdWeapons.zh
+	00235-stdweapons-zh/stdWeapons/CustomEnemyDefenses.zh
+	00235-stdweapons-zh/stdWeapons/EnemyStatusEffects.zh
+	00235-stdweapons-zh/stdWeapons/deprecated.zh
+	00235-stdweapons-zh/stdWeapons/example scripts/boomerang.z
+	00235-stdweapons-zh/stdWeapons/example scripts/bow_and_bomb_arrow.z
+	00235-stdweapons-zh/stdWeapons/example scripts/custom_wand.z
+	00235-stdweapons-zh/stdWeapons/example scripts/firerod.z
+	00235-stdweapons-zh/stdWeapons/example scripts/flamethrower.z
+	00235-stdweapons-zh/stdWeapons/example scripts/fullscreen.z
+	00235-stdweapons-zh/stdWeapons/example scripts/hammer.z
+	00235-stdweapons-zh/stdWeapons/example scripts/hookshot.z
+	00235-stdweapons-zh/stdWeapons/example scripts/ice_rod.z
+	00235-stdweapons-zh/stdWeapons/example scripts/orbiter_weapon.z
+	00235-stdweapons-zh/stdWeapons/example scripts/portal_wand.z
+	00235-stdweapons-zh/stdWeapons/example scripts/sand_rod.z
+	00235-stdweapons-zh/stdWeapons/example scripts/subweapons3.z
+	00235-stdweapons-zh/stdWeapons/example scripts/swordv3.z
+	00235-stdweapons-zh/stdWeapons/launcher.z
+	00235-stdweapons-zh/stdWeapons/stdWeaponsCombos.zh
+	00235-stdweapons-zh/stdWeapons/stdWeaponsCommon.zh
+	00235-stdweapons-zh/stdWeapons/stdWeaponsDestroy.zh
+	00235-stdweapons-zh/stdWeapons/stdWeaponsEnemies.zh
+	00235-stdweapons-zh/stdWeapons/stdWeaponsGlobal.zh
+	00235-stdweapons-zh/stdWeapons/stdWeaponsMelee.zh
+	00235-stdweapons-zh/stdWeapons/stdWeaponsMisc.zh
+	00235-stdweapons-zh/stdWeapons/stdWeaponsMovement.zh
+	00235-stdweapons-zh/stdWeapons/stdWeaponsParticles.zh
+	00235-stdweapons-zh/stdWeapons/subweapons.z
+	00235-stdweapons-zh/stdWeapons/subweapons2.z
+	00235-stdweapons-zh/stdWeapons/subweapons3.z
+	00235-stdweapons-zh/stdWeapons/update.zh
+	00236-empty-bottles/script.zs
+	00238-splitting-and-tribbling-enemies/script.zs
+	00238-splitting-and-tribbling-enemies/splitter_0.9.0.z
+	00238-splitting-and-tribbling-enemies/splitter_v0.6.2.z
+	00245-ffcscript-zh/ffcscript.zh
+	00246-ghost-zh/demo/ghzhDemo/Dragon.z
+	00246-ghost-zh/demo/ghzhDemo/Grell.z
+	00246-ghost-zh/demo/ghzhDemo/Iflyte.z
+	00246-ghost-zh/demo/ghzhDemo/Julius.z
+	00246-ghost-zh/demo/ghzhDemo/Lich.z
+	00246-ghost-zh/demo/ghzhDemo/SimpleGhostZHExample.z
+	00246-ghost-zh/demo/ghzhDemo/TwinAmoeba.z
+	00246-ghost-zh/header/ghost.zh
+	00246-ghost-zh/header/ghost_legacy.zh
+	00246-ghost-zh/header/ghost_zh/2.8/ghost2_common.zh
+	00246-ghost-zh/header/ghost_zh/2.8/ghost2_deprecated.zh
+	00246-ghost-zh/header/ghost_zh/2.8/ghost2_drawing.zh
+	00246-ghost-zh/header/ghost_zh/2.8/ghost2_eweapon.zh
+	00246-ghost-zh/header/ghost_zh/2.8/ghost2_eweaponDeath.zh
+	00246-ghost-zh/header/ghost_zh/2.8/ghost2_eweaponMovement.zh
+	00246-ghost-zh/header/ghost_zh/2.8/ghost2_eweapon_death.zh
+	00246-ghost-zh/header/ghost_zh/2.8/ghost2_eweapon_movement.zh
+	00246-ghost-zh/header/ghost_zh/2.8/ghost2_flags.zh
+	00246-ghost-zh/header/ghost_zh/2.8/ghost2_global.zh
+	00246-ghost-zh/header/ghost_zh/2.8/ghost2_init.zh
+	00246-ghost-zh/header/ghost_zh/2.8/ghost2_modification.zh
+	00246-ghost-zh/header/ghost_zh/2.8/ghost2_movement.zh
+	00246-ghost-zh/header/ghost_zh/2.8/ghost2_other.zh
+	00246-ghost-zh/header/ghost_zh/2.8/ghost2_scripts.zh
+	00246-ghost-zh/header/ghost_zh/2.8/ghost2_scripts.zs
+	00246-ghost-zh/header/ghost_zh/2.8/ghost2_update.zh
+	00252-monty-hall-minigame/script.zs
+	00254-zelda-style-chest-minigame/ChestGame/FFC_ChestGame_v0.4.4.zs
+	00255-swindle-haggle/script.zs
+	00266-advanced-gameboy-style-shields/script.zs
+	00282-oracle-minecarts/script.zs
+	00296-moosh-npc-dialogue-branch-add-on/DialogueBranch.zs
+	00310-newbie-item/script.zs
+	00313-la-hatrobe/Hatrobe.z
+	00330-dungeon-outside-inside/Dungeon Inside-Outside Script.z
+	00330-dungeon-outside-inside/script.zs
+	00332-lweapons-zh/lw_common.zs
+	00332-lweapons-zh/lw_deprecated.zs
+	00332-lweapons-zh/lw_global.zs
+	00332-lweapons-zh/lw_hookshots.zs
+	00332-lweapons-zh/lw_life.zs
+	00332-lweapons-zh/lw_medallions.zs
+	00332-lweapons-zh/lw_movement.zs
+	00332-lweapons-zh/lw_other.zs
+	00332-lweapons-zh/lw_scripts.zs
+	00332-lweapons-zh/lw_somaria.zs
+	00332-lweapons-zh/lw_update.zs
+	00332-lweapons-zh/lweapons.zh
+	00336-splitting-segmented-worm/SegmentWorm.zs
+	00337-emilymisc-zh/EmilyMisc.zh
+	00339-day-night-cycle-tint-zh/DayNight.zs
+	00352-betterconveyors/BetterConveyors.zs
+	00360-ffc-shop/FFCShop/2.53 Version/FFCShop.zs
+	00360-ffc-shop/FFCShop/2.55 Version/FFCShop.zs
+	00360-ffc-shop/FFCShop/2.55 Version/v1.03/FFCShop.zs
+	00361-simpletangohandler/SimpleTangoHandler/2.53 Version/customTango.zh
+	00361-simpletangohandler/SimpleTangoHandler/2.55 Version/customTango.zh
+	00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs
+	00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs
+	00362-power-bracelet-liftable/LiftPots/V2.1.0/LiftPotsV2.1.0.zs
+	00362-power-bracelet-liftable/LiftPots/V2.1.1/LiftPotsV2.1.1.zs
+	00363-thanos-snap-infinity-gauntlet/ThanosSnap.zs
+	00366-templinkstate-zh/TempLinkState.zh
+	00374-dodge-roll-action/script.zs
+	00381-better-ladder/script.zs
+	00415-grayswandir-sideview-engine/GSD_sideview/GSD/GSD_sideview_anim.z
+	00415-grayswandir-sideview-engine/GSD_sideview/GSD_extras/GSD_firebar.z
+	00415-grayswandir-sideview-engine/GSD_sideview/GSD_extras/GSD_jumping_fireball.z
+	00415-grayswandir-sideview-engine/GSD_sideview/GSD_extras/mooshbumper.z
+	00419-slab-connection-puzzle/script.zs
+	00431-no-cycle-spinning-tiles/script.zs
+	00457-magnets-and-iron-beams-puzzle/magnetswitch.z
+	00457-magnets-and-iron-beams-puzzle/script.zs
+	00479-mouse-header-for-debugging/tbt_mouse/tbt_mouse_global.zh
+	00498-enemy-hp-bars-damage-numbers/enemy_hpbars.zs
+	00499-npcanim-zh/NPCAnim.zh
+	00500--monarch-ascendant/MonarchAscendant.zs
+	00520-poker-monsters/NofaKind.z
+	00520-poker-monsters/script.zs
+	00532-status-effects/statusEffects.zs
+	00533-test-play-init-data-backups/script.zs
+	00536-poker-combos/pokercombos.z
+	00536-poker-combos/script.zs
+	00547--new-palette-based-day-night-system/DayNightNew.zs
+	00571-gumzol/gumzol.z
+	00571-gumzol/script.zs
+	00580-mani-s-script-header/script.zs
+
+=== 00026-deku-leaf/script.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+Pass 5: Checking code paths
+Pass 6: Generating object code
+00026-deku-leaf/script.zs Line 60 - Error T019: moduloAttempting to  by 0.
+Failure!
+Compile finished with exit code '19' (compiled with errors)
+
+=== 00044-animation-zh/script.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+syntax error, unexpected LOOP, expecting EMPTYBRACKETS or IDENTIFIER [00044-animation-zh/script.zs Line 25 Column 62 'loop']
+ZQ_BUFFER Line 5 - Error P001: Included file '00044-animation-zh/script.zs' encountered an error.
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00055-enemy-stun-and-death-animations/script.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+00055-enemy-stun-and-death-animations/script.zs Line 23 - Error S009: Variable FLIP_NO has not been declared.
+Failure!
+Compile finished with exit code '9' (compiled with errors)
+
+=== 00066-homing-fireball-shooter-autoghost/script.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+00066-homing-fireball-shooter-autoghost/script.zs Line 81 - Error T021: Function SetEWeaponmovement(eweapon, const int, int) has not been declared.
+Failure!
+Compile finished with exit code '21' (compiled with errors)
+
+=== 00076-lights-out/script.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+00076-lights-out/script.zs Line 20 - Error S009: Variable FFCMISC_PUZZLECHECK has not been declared.
+Failure!
+Compile finished with exit code '9' (compiled with errors)
+
+=== 00087-tree-layers/script.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+00087-tree-layers/script.zs Line 23 - Error S004: Function GetLayerComboC was already declared with that type signature.
+Failure!
+Compile finished with exit code '4' (compiled with errors)
+
+=== 00089-real-dungeon-map/script.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+00089-real-dungeon-map/script.zs Line 21 - Error S006: Duplicate script with name Slot_2 already exists.
+Failure!
+Compile finished with exit code '6' (compiled with errors)
+
+=== 00094-water-air-counter/script.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+00094-water-air-counter/script.zs Line 3 - Error S008: There is already a variable with name SCREEN_W in this scope.
+Failure!
+Compile finished with exit code '8' (compiled with errors)
+
+=== 00096-shallow-water-splash-and-tall-grass-sfx/script.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+syntax error, unexpected RPAREN [00096-shallow-water-splash-and-tall-grass-sfx/script.zs Line 16 Column 5 ')']
+ZQ_BUFFER Line 5 - Error P001: Included file '00096-shallow-water-splash-and-tall-grass-sfx/script.zs' encountered an error.
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00121-stdextra-zh/script.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+00121-stdextra-zh/script.zs Line 16 - Error S008: There is already a variable with name COLOR_WHITE in this scope.
+Failure!
+Compile finished with exit code '8' (compiled with errors)
+
+=== 00121-stdextra-zh/stdExtra.zh
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+00121-stdextra-zh/stdExtra.zh Line 19 - Error S008: There is already a variable with name COLOR_WHITE in this scope.
+Failure!
+Compile finished with exit code '8' (compiled with errors)
+
+=== 00132-automated-weapon-or-item-auto-fire/AutoFire_v2.1.z
+Pass 1: Parsing
+Pass 2: Preprocessing
+syntax error, unexpected REPEAT, expecting EMPTYBRACKETS or IDENTIFIER [00132-automated-weapon-or-item-auto-fire/AutoFire_v2.1.z Line 100 Column 21 'repeat']
+ZQ_BUFFER Line 5 - Error P001: Included file '00132-automated-weapon-or-item-auto-fire/AutoFire_v2.1.z' encountered an error.
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00156-jump-drown-spawn/merge jumppit.z
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+00156-jump-drown-spawn/merge jumppit.z Line 27 - Error T021: Function Update_HoleLava(int, int, int, int, int) has not been declared.
+Failure!
+Compile finished with exit code '21' (compiled with errors)
+
+=== 00170-the-river-of-destiny-custom-maps/MapGlobal.z
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+00170-the-river-of-destiny-custom-maps/MapGlobal.z Line 27 - Error T021: Function InitializeSList() has not been declared.
+Failure!
+Compile finished with exit code '21' (compiled with errors)
+
+=== 00170-the-river-of-destiny-custom-maps/MapImport.z
+Pass 1: Parsing
+Pass 2: Preprocessing
+00170-the-river-of-destiny-custom-maps/MapImport.z Line 7 - Error P083: Could not find included file 'MapHeader.zh'. Please check your include paths!
+00170-the-river-of-destiny-custom-maps/MapImport.z Line 8 - Error P083: Could not find included file 'MapGlobal.z'. Please check your include paths!
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00175-scripted-traps/script.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+00175-scripted-traps/script.zs Line 332 - Error P083: Could not find included file 'ghost_zh/common.z'. Please check your include paths!
+00175-scripted-traps/script.zs Line 333 - Error P083: Could not find included file 'ghost_zh/depreciated.z'. Please check your include paths!
+00175-scripted-traps/script.zs Line 334 - Error P083: Could not find included file 'ghost_zh/drawing.z'. Please check your include paths!
+00175-scripted-traps/script.zs Line 335 - Error P083: Could not find included file 'ghost_zh/eweapon.z'. Please check your include paths!
+00175-scripted-traps/script.zs Line 336 - Error P083: Could not find included file 'ghost_zh/eweaponDeath.z'. Please check your include paths!
+00175-scripted-traps/script.zs Line 337 - Error P083: Could not find included file 'ghost_zh/eweaponMovement.z'. Please check your include paths!
+00175-scripted-traps/script.zs Line 338 - Error P083: Could not find included file 'ghost_zh/flags.z'. Please check your include paths!
+00175-scripted-traps/script.zs Line 339 - Error P083: Could not find included file 'ghost_zh/global.z'. Please check your include paths!
+00175-scripted-traps/script.zs Line 340 - Error P083: Could not find included file 'ghost_zh/init.z'. Please check your include paths!
+00175-scripted-traps/script.zs Line 341 - Error P083: Could not find included file 'ghost_zh/modification.z'. Please check your include paths!
+00175-scripted-traps/script.zs Line 342 - Error P083: Could not find included file 'ghost_zh/movement.z'. Please check your include paths!
+00175-scripted-traps/script.zs Line 343 - Error P083: Could not find included file 'ghost_zh/other.z'. Please check your include paths!
+00175-scripted-traps/script.zs Line 344 - Error P083: Could not find included file 'ghost_zh/update.z'. Please check your include paths!
+00175-scripted-traps/script.zs Line 346 - Error P083: Could not find included file 'ghost_zh/scripts.z'. Please check your include paths!
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00196-links-awakening-alpha/LinksAwakening_0.63_Dist.z
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+00196-links-awakening-alpha/LinksAwakening_0.63_Dist.z Line 1518 - Error S008: There is already a variable with name FFCS_INVISIBLE_COMBO in this scope.
+Failure!
+Compile finished with exit code '8' (compiled with errors)
+
+=== 00196-links-awakening-alpha/ffcscript_LA.zh
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+00196-links-awakening-alpha/ffcscript_LA.zh Line 6 - Error S008: There is already a variable with name FFCS_INVISIBLE_COMBO in this scope.
+Failure!
+Compile finished with exit code '8' (compiled with errors)
+
+=== 00196-links-awakening-alpha/stdExtra.zh
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+00196-links-awakening-alpha/stdExtra.zh Line 15 - Error S008: There is already a variable with name COLOR_WHITE in this scope.
+Failure!
+Compile finished with exit code '8' (compiled with errors)
+
+=== 00215-pot-script/script.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+00215-pot-script/script.zs Line 2 - Error P083: Could not find included file 'screen_change.zh'. Please check your include paths!
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects.zh
+Pass 1: Parsing
+Pass 2: Preprocessing
+syntax error, unexpected LBRACE, expecting RPAREN [00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects.zh Line 162 Column 65 '{']
+ZQ_BUFFER Line 6 - Error P001: Included file '00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects.zh' encountered an error.
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects_v1.1.zh
+Pass 1: Parsing
+Pass 2: Preprocessing
+syntax error, unexpected LBRACE, expecting RPAREN [00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects_v1.1.zh Line 129 Column 65 '{']
+ZQ_BUFFER Line 6 - Error P001: Included file '00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects_v1.1.zh' encountered an error.
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects_v1.2.zh
+Pass 1: Parsing
+Pass 2: Preprocessing
+syntax error, unexpected LBRACE, expecting RPAREN [00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects_v1.2.zh Line 162 Column 65 '{']
+ZQ_BUFFER Line 6 - Error P001: Included file '00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects_v1.2.zh' encountered an error.
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00234-zversion-zh-zcversion-zh/ZCVersion.zh
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+00234-zversion-zh-zcversion-zh/ZCVersion.zh Line 57 - Error S004: Function InvertedCircle was already declared with that type signature.
+Failure!
+Compile finished with exit code '4' (compiled with errors)
+
+=== 00235-stdweapons-zh/stdWeapons.zh
+Pass 1: Parsing
+Pass 2: Preprocessing
+syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
+00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
+00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00235-stdweapons-zh/stdWeapons/CustomEnemyDefenses.zh
+Pass 1: Parsing
+Pass 2: Preprocessing
+syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
+00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00235-stdweapons-zh/stdWeapons/EnemyStatusEffects.zh
+Pass 1: Parsing
+Pass 2: Preprocessing
+syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
+00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00235-stdweapons-zh/stdWeapons/deprecated.zh
+Pass 1: Parsing
+Pass 2: Preprocessing
+syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
+00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00235-stdweapons-zh/stdWeapons/example scripts/boomerang.z
+Pass 1: Parsing
+Pass 2: Preprocessing
+syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
+00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00235-stdweapons-zh/stdWeapons/example scripts/bow_and_bomb_arrow.z
+Pass 1: Parsing
+Pass 2: Preprocessing
+syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
+00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00235-stdweapons-zh/stdWeapons/example scripts/custom_wand.z
+Pass 1: Parsing
+Pass 2: Preprocessing
+syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
+00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00235-stdweapons-zh/stdWeapons/example scripts/firerod.z
+Pass 1: Parsing
+Pass 2: Preprocessing
+syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
+00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00235-stdweapons-zh/stdWeapons/example scripts/flamethrower.z
+Pass 1: Parsing
+Pass 2: Preprocessing
+syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
+00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00235-stdweapons-zh/stdWeapons/example scripts/fullscreen.z
+Pass 1: Parsing
+Pass 2: Preprocessing
+syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
+00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00235-stdweapons-zh/stdWeapons/example scripts/hammer.z
+Pass 1: Parsing
+Pass 2: Preprocessing
+syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
+00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00235-stdweapons-zh/stdWeapons/example scripts/hookshot.z
+Pass 1: Parsing
+Pass 2: Preprocessing
+syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
+00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00235-stdweapons-zh/stdWeapons/example scripts/ice_rod.z
+Pass 1: Parsing
+Pass 2: Preprocessing
+syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
+00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00235-stdweapons-zh/stdWeapons/example scripts/orbiter_weapon.z
+Pass 1: Parsing
+Pass 2: Preprocessing
+syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
+00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00235-stdweapons-zh/stdWeapons/example scripts/portal_wand.z
+Pass 1: Parsing
+Pass 2: Preprocessing
+syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
+00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00235-stdweapons-zh/stdWeapons/example scripts/sand_rod.z
+Pass 1: Parsing
+Pass 2: Preprocessing
+syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
+00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00235-stdweapons-zh/stdWeapons/example scripts/subweapons3.z
+Pass 1: Parsing
+Pass 2: Preprocessing
+syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
+00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00235-stdweapons-zh/stdWeapons/example scripts/swordv3.z
+Pass 1: Parsing
+Pass 2: Preprocessing
+syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
+00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00235-stdweapons-zh/stdWeapons/launcher.z
+Pass 1: Parsing
+Pass 2: Preprocessing
+syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
+00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00235-stdweapons-zh/stdWeapons/stdWeaponsCombos.zh
+Pass 1: Parsing
+Pass 2: Preprocessing
+syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
+00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00235-stdweapons-zh/stdWeapons/stdWeaponsCommon.zh
+Pass 1: Parsing
+Pass 2: Preprocessing
+syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
+00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00235-stdweapons-zh/stdWeapons/stdWeaponsDestroy.zh
+Pass 1: Parsing
+Pass 2: Preprocessing
+syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
+00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00235-stdweapons-zh/stdWeapons/stdWeaponsEnemies.zh
+Pass 1: Parsing
+Pass 2: Preprocessing
+syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
+00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00235-stdweapons-zh/stdWeapons/stdWeaponsGlobal.zh
+Pass 1: Parsing
+Pass 2: Preprocessing
+syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
+00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00235-stdweapons-zh/stdWeapons/stdWeaponsMelee.zh
+Pass 1: Parsing
+Pass 2: Preprocessing
+syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
+00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00235-stdweapons-zh/stdWeapons/stdWeaponsMisc.zh
+Pass 1: Parsing
+Pass 2: Preprocessing
+syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
+00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00235-stdweapons-zh/stdWeapons/stdWeaponsMovement.zh
+Pass 1: Parsing
+Pass 2: Preprocessing
+syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
+00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00235-stdweapons-zh/stdWeapons/stdWeaponsParticles.zh
+Pass 1: Parsing
+Pass 2: Preprocessing
+syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
+00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00235-stdweapons-zh/stdWeapons/subweapons.z
+Pass 1: Parsing
+Pass 2: Preprocessing
+syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
+00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00235-stdweapons-zh/stdWeapons/subweapons2.z
+Pass 1: Parsing
+Pass 2: Preprocessing
+syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
+00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00235-stdweapons-zh/stdWeapons/subweapons3.z
+Pass 1: Parsing
+Pass 2: Preprocessing
+syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
+00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00235-stdweapons-zh/stdWeapons/update.zh
+Pass 1: Parsing
+Pass 2: Preprocessing
+syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
+00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
+ZQ_BUFFER Line 12 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00236-empty-bottles/script.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+00236-empty-bottles/script.zs Line 33 - Error S008: There is already a variable with name IC_BOTTLE in this scope.
+Failure!
+Compile finished with exit code '8' (compiled with errors)
+
+=== 00238-splitting-and-tribbling-enemies/script.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+00238-splitting-and-tribbling-enemies/script.zs Line 458 - Error T027: The left of the -> is not a pointer type (ffc, etc).
+Failure!
+Compile finished with exit code '27' (compiled with errors)
+
+=== 00238-splitting-and-tribbling-enemies/splitter_0.9.0.z
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+00238-splitting-and-tribbling-enemies/splitter_0.9.0.z Line 458 - Error T027: The left of the -> is not a pointer type (ffc, etc).
+Failure!
+Compile finished with exit code '27' (compiled with errors)
+
+=== 00238-splitting-and-tribbling-enemies/splitter_v0.6.2.z
+Pass 1: Parsing
+Pass 2: Preprocessing
+syntax error, unexpected LBRACE, expecting RPAREN [00238-splitting-and-tribbling-enemies/splitter_v0.6.2.z Line 88 Column 47 '{']
+ZQ_BUFFER Line 5 - Error P001: Included file '00238-splitting-and-tribbling-enemies/splitter_v0.6.2.z' encountered an error.
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00245-ffcscript-zh/ffcscript.zh
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+00245-ffcscript-zh/ffcscript.zh Line 6 - Error S008: There is already a variable with name FFCS_INVISIBLE_COMBO in this scope.
+Failure!
+Compile finished with exit code '8' (compiled with errors)
+
+=== 00246-ghost-zh/demo/ghzhDemo/Dragon.z
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+resources/headers/ghost_zh/2.8/ghost2_global.zh Line 262 - Error S009: Variable __GH_ETHEREAL has not been declared.
+Failure!
+Compile finished with exit code '9' (compiled with errors)
+
+=== 00246-ghost-zh/demo/ghzhDemo/Grell.z
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+resources/headers/ghost_zh/2.8/ghost2_global.zh Line 262 - Error S009: Variable __GH_ETHEREAL has not been declared.
+Failure!
+Compile finished with exit code '9' (compiled with errors)
+
+=== 00246-ghost-zh/demo/ghzhDemo/Iflyte.z
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+resources/headers/ghost_zh/2.8/ghost2_global.zh Line 262 - Error S009: Variable __GH_ETHEREAL has not been declared.
+Failure!
+Compile finished with exit code '9' (compiled with errors)
+
+=== 00246-ghost-zh/demo/ghzhDemo/Julius.z
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+resources/headers/ghost_zh/2.8/ghost2_global.zh Line 262 - Error S009: Variable __GH_ETHEREAL has not been declared.
+Failure!
+Compile finished with exit code '9' (compiled with errors)
+
+=== 00246-ghost-zh/demo/ghzhDemo/Lich.z
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+resources/headers/ghost_zh/2.8/ghost2_global.zh Line 262 - Error S009: Variable __GH_ETHEREAL has not been declared.
+Failure!
+Compile finished with exit code '9' (compiled with errors)
+
+=== 00246-ghost-zh/demo/ghzhDemo/SimpleGhostZHExample.z
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+resources/headers/ghost_zh/2.8/ghost2_global.zh Line 262 - Error S009: Variable __GH_ETHEREAL has not been declared.
+Failure!
+Compile finished with exit code '9' (compiled with errors)
+
+=== 00246-ghost-zh/demo/ghzhDemo/TwinAmoeba.z
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+resources/headers/ghost_zh/2.8/ghost2_global.zh Line 262 - Error S009: Variable __GH_ETHEREAL has not been declared.
+Failure!
+Compile finished with exit code '9' (compiled with errors)
+
+=== 00246-ghost-zh/header/ghost.zh
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+resources/headers/ghost_zh/2.8/ghost2_global.zh Line 262 - Error S009: Variable __GH_ETHEREAL has not been declared.
+Failure!
+Compile finished with exit code '9' (compiled with errors)
+
+=== 00246-ghost-zh/header/ghost_legacy.zh
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+resources/headers/ghost_zh/2.8/ghost2_global.zh Line 262 - Error S009: Variable __GH_ETHEREAL has not been declared.
+Failure!
+Compile finished with exit code '9' (compiled with errors)
+
+=== 00246-ghost-zh/header/ghost_zh/2.8/ghost2_common.zh
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+00246-ghost-zh/header/ghost_zh/2.8/ghost2_common.zh Line 5 - Error S008: There is already a variable with name __GHI_DRAW_COMBO in this scope.
+Failure!
+Compile finished with exit code '8' (compiled with errors)
+
+=== 00246-ghost-zh/header/ghost_zh/2.8/ghost2_deprecated.zh
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+00246-ghost-zh/header/ghost_zh/2.8/ghost2_deprecated.zh Line 7 - Error S008: There is already a variable with name EWM_SINE_WAVE_FAST in this scope.
+Failure!
+Compile finished with exit code '8' (compiled with errors)
+
+=== 00246-ghost-zh/header/ghost_zh/2.8/ghost2_drawing.zh
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+00246-ghost-zh/header/ghost_zh/2.8/ghost2_drawing.zh Line 4 - Error S008: There is already a variable with name __ghzhDrawData in this scope.
+Failure!
+Compile finished with exit code '8' (compiled with errors)
+
+=== 00246-ghost-zh/header/ghost_zh/2.8/ghost2_eweapon.zh
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+00246-ghost-zh/header/ghost_zh/2.8/ghost2_eweapon.zh Line 5 - Error S008: There is already a variable with name EWM_SINE_WAVE in this scope.
+Failure!
+Compile finished with exit code '8' (compiled with errors)
+
+=== 00246-ghost-zh/header/ghost_zh/2.8/ghost2_eweaponDeath.zh
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+00246-ghost-zh/header/ghost_zh/2.8/ghost2_eweaponDeath.zh Line 6 - Error S004: Function __DoEWeaponDeathPrototype was already declared with that type signature.
+Failure!
+Compile finished with exit code '4' (compiled with errors)
+
+=== 00246-ghost-zh/header/ghost_zh/2.8/ghost2_eweaponMovement.zh
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+00246-ghost-zh/header/ghost_zh/2.8/ghost2_eweaponMovement.zh Line 6 - Error S004: Function __UpdateEWMSineWave was already declared with that type signature.
+Failure!
+Compile finished with exit code '4' (compiled with errors)
+
+=== 00246-ghost-zh/header/ghost_zh/2.8/ghost2_eweapon_death.zh
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+00246-ghost-zh/header/ghost_zh/2.8/ghost2_eweapon_death.zh Line 6 - Error S004: Function __DoEWeaponDeathPrototype was already declared with that type signature.
+Failure!
+Compile finished with exit code '4' (compiled with errors)
+
+=== 00246-ghost-zh/header/ghost_zh/2.8/ghost2_eweapon_movement.zh
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+00246-ghost-zh/header/ghost_zh/2.8/ghost2_eweapon_movement.zh Line 6 - Error S004: Function __UpdateEWMSineWave was already declared with that type signature.
+Failure!
+Compile finished with exit code '4' (compiled with errors)
+
+=== 00246-ghost-zh/header/ghost_zh/2.8/ghost2_flags.zh
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+00246-ghost-zh/header/ghost_zh/2.8/ghost2_flags.zh Line 5 - Error S008: There is already a variable with name GHF_KNOCKBACK in this scope.
+Failure!
+Compile finished with exit code '8' (compiled with errors)
+
+=== 00246-ghost-zh/header/ghost_zh/2.8/ghost2_global.zh
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+00246-ghost-zh/header/ghost_zh/2.8/ghost2_global.zh Line 4 - Error S004: Function StartGhostZH was already declared with that type signature.
+Failure!
+Compile finished with exit code '4' (compiled with errors)
+
+=== 00246-ghost-zh/header/ghost_zh/2.8/ghost2_init.zh
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+00246-ghost-zh/header/ghost_zh/2.8/ghost2_init.zh Line 5 - Error S004: Function Ghost_Init was already declared with that type signature.
+Failure!
+Compile finished with exit code '4' (compiled with errors)
+
+=== 00246-ghost-zh/header/ghost_zh/2.8/ghost2_modification.zh
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+00246-ghost-zh/header/ghost_zh/2.8/ghost2_modification.zh Line 5 - Error S004: Function Ghost_Transform was already declared with that type signature.
+Failure!
+Compile finished with exit code '4' (compiled with errors)
+
+=== 00246-ghost-zh/header/ghost_zh/2.8/ghost2_movement.zh
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+00246-ghost-zh/header/ghost_zh/2.8/ghost2_movement.zh Line 5 - Error S004: Function Ghost_MoveXY was already declared with that type signature.
+Failure!
+Compile finished with exit code '4' (compiled with errors)
+
+=== 00246-ghost-zh/header/ghost_zh/2.8/ghost2_other.zh
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+00246-ghost-zh/header/ghost_zh/2.8/ghost2_other.zh Line 5 - Error S004: Function FindSpawnPoint was already declared with that type signature.
+Failure!
+Compile finished with exit code '4' (compiled with errors)
+
+=== 00246-ghost-zh/header/ghost_zh/2.8/ghost2_scripts.zh
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+00246-ghost-zh/header/ghost_zh/2.8/ghost2_scripts.zh Line 5 - Error S006: Duplicate script with name GhostZHActiveScript already exists.
+Failure!
+Compile finished with exit code '6' (compiled with errors)
+
+=== 00246-ghost-zh/header/ghost_zh/2.8/ghost2_scripts.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+00246-ghost-zh/header/ghost_zh/2.8/ghost2_scripts.zs Line 5 - Error S006: Duplicate script with name GhostZHActiveScript already exists.
+Failure!
+Compile finished with exit code '6' (compiled with errors)
+
+=== 00246-ghost-zh/header/ghost_zh/2.8/ghost2_update.zh
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+00246-ghost-zh/header/ghost_zh/2.8/ghost2_update.zh Line 5 - Error S004: Function Ghost_Waitframe was already declared with that type signature.
+Failure!
+Compile finished with exit code '4' (compiled with errors)
+
+=== 00252-monty-hall-minigame/script.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+00252-monty-hall-minigame/script.zs Line 38 - Error T021: Function LinkComboStepped(int, int, bool, int) has not been declared.
+Failure!
+Compile finished with exit code '21' (compiled with errors)
+
+=== 00254-zelda-style-chest-minigame/ChestGame/FFC_ChestGame_v0.4.4.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+00254-zelda-style-chest-minigame/ChestGame/FFC_ChestGame_v0.4.4.zs Line 254 - Error S009: Variable CMB_LEFT has not been declared.
+Failure!
+Compile finished with exit code '9' (compiled with errors)
+
+=== 00255-swindle-haggle/script.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+The 'try' keyword is reserved and may not be used as an identifier.
+syntax error, unexpected end of file, expecting EMPTYBRACKETS or IDENTIFIER [00255-swindle-haggle/script.zs Line 66 Column 7 'try']
+ZQ_BUFFER Line 5 - Error P001: Included file '00255-swindle-haggle/script.zs' encountered an error.
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00266-advanced-gameboy-style-shields/script.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+00266-advanced-gameboy-style-shields/script.zs Line 891 - Error S004: Function reverseDir was already declared with that type signature.
+Failure!
+Compile finished with exit code '4' (compiled with errors)
+
+=== 00282-oracle-minecarts/script.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+00282-oracle-minecarts/script.zs Line 72 - Error T021: Function ScrollingLinkX() has not been declared.
+Failure!
+Compile finished with exit code '21' (compiled with errors)
+
+=== 00296-moosh-npc-dialogue-branch-add-on/DialogueBranch.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+00296-moosh-npc-dialogue-branch-add-on/DialogueBranch.zs Line 15 - Error T021: Function String_Cap(int[]) has not been declared.
+Failure!
+Compile finished with exit code '21' (compiled with errors)
+
+=== 00310-newbie-item/script.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+00310-newbie-item/script.zs Line 966 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 967 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 968 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 969 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 970 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 971 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 972 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 973 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 974 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 975 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 976 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 977 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 978 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 981 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 981 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 982 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 982 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 983 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 983 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 984 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 984 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 985 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 985 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 986 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 986 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 987 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 987 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 988 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 988 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 989 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 989 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 990 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 990 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 991 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 991 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 992 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 992 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 993 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 993 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 994 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 994 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 997 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 999 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1079 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1082 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1086 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1090 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1094 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1098 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1102 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1106 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1110 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1114 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1119 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1002 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1003 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1004 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1005 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1006 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1007 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1008 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1009 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1010 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1011 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1012 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1013 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1014 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1018 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1019 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 1019 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 1019 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1020 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1020 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1020 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1021 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1021 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1021 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1022 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1022 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1022 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1023 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1023 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1023 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1024 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1024 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1024 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1025 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1025 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1025 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1026 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1026 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1026 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1027 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1027 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1027 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1028 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1028 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1028 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1029 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1029 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1029 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1030 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1030 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1030 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1031 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1031 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1031 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1032 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1032 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 1032 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 726 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 727 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 728 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 729 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 730 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 731 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 732 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 733 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 734 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 735 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 736 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 738 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 739 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 743 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 745 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 746 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 746 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 747 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 748 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 749 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 750 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 751 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 752 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 752 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 752 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 753 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 754 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 757 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 758 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 758 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 759 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 759 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 762 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 763 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 765 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 765 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 765 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 766 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 767 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 768 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 770 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 771 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 771 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 772 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 774 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 775 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 775 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 775 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 779 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 780 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 780 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 782 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 784 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 785 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 786 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 787 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 788 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 790 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 793 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 795 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 796 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 797 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 800 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 800 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 805 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 805 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 813 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 814 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 814 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 815 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 816 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 817 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 818 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 818 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 822 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 826 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 828 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 829 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 830 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 831 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 831 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 832 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 833 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 836 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 836 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 836 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 836 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 837 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 837 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 837 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 837 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 837 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 840 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 841 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 844 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 844 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 844 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 844 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 845 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 846 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 848 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 850 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 852 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 853 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 854 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 855 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 856 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 856 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 857 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 857 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 857 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 858 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 858 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 859 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 859 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 861 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 861 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 864 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 865 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 865 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 867 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 867 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 871 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 872 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 873 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 874 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 874 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 875 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 875 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 876 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 876 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 876 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 877 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 877 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 878 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 878 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 880 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 880 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 883 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 884 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 884 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 886 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 886 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 890 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 891 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 892 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 893 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 893 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 896 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 897 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 897 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 897 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+00310-newbie-item/script.zs Line 897 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00310-newbie-item/script.zs Line 897 - Error T021: Function DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int) has not been declared.
+Failure!
+Compile finished with exit code '21' (compiled with errors)
+
+=== 00313-la-hatrobe/Hatrobe.z
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+00313-la-hatrobe/Hatrobe.z Line 51 - Error T021: Function dirToRad(int) has not been declared.
+Failure!
+Compile finished with exit code '21' (compiled with errors)
+
+=== 00330-dungeon-outside-inside/Dungeon Inside-Outside Script.z
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+00330-dungeon-outside-inside/Dungeon Inside-Outside Script.z Line 36 - Error S006: Duplicate script with name DungeonOutside already exists.
+Failure!
+Compile finished with exit code '6' (compiled with errors)
+
+=== 00330-dungeon-outside-inside/script.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+00330-dungeon-outside-inside/script.zs Line 33 - Error S006: Duplicate script with name DungeonOutside already exists.
+Failure!
+Compile finished with exit code '6' (compiled with errors)
+
+=== 00332-lweapons-zh/lw_common.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
+00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00332-lweapons-zh/lw_deprecated.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+00332-lweapons-zh/lw_deprecated.zs Line 22 - Error T021: Function ComboFIT(int, int, int) has not been declared.
+Failure!
+Compile finished with exit code '21' (compiled with errors)
+
+=== 00332-lweapons-zh/lw_global.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+00332-lweapons-zh/lw_global.zs Line 21 - Error S009: Variable LW_ZH_I_FLAGS has not been declared.
+Failure!
+Compile finished with exit code '9' (compiled with errors)
+
+=== 00332-lweapons-zh/lw_hookshots.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
+00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00332-lweapons-zh/lw_life.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
+00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+syntax error, unexpected NEW, expecting SEMICOLON [00332-lweapons-zh/lw_life.zs Line 135 Column 24 'new']
+ZQ_BUFFER Line 7 - Error P001: Included file '00332-lweapons-zh/lw_life.zs' encountered an error.
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00332-lweapons-zh/lw_medallions.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
+00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00332-lweapons-zh/lw_movement.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+00332-lweapons-zh/lw_movement.zs Line 13 - Error S009: Variable LW_ZH_I_XPOS has not been declared.
+Failure!
+Compile finished with exit code '9' (compiled with errors)
+
+=== 00332-lweapons-zh/lw_other.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
+00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00332-lweapons-zh/lw_scripts.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
+00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00332-lweapons-zh/lw_somaria.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
+00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00332-lweapons-zh/lw_update.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
+00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00332-lweapons-zh/lweapons.zh
+Pass 1: Parsing
+Pass 2: Preprocessing
+syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
+00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+00332-lweapons-zh/lweapons.zh Line 7 - Error P083: Could not find included file 'headers/stdExtra.zh'. Please check your include paths!
+00332-lweapons-zh/lweapons.zh Line 8 - Error P083: Could not find included file 'headers/ffcscript.zh'. Please check your include paths!
+00332-lweapons-zh/lweapons.zh Line 11 - Error P083: Could not find included file 'CustomFunctions.zs'. Please check your include paths!
+00332-lweapons-zh/lweapons.zh Line 13 - Error P083: Could not find included file 'LW_ZH/lw_deprecated.zs'. Please check your include paths!
+00332-lweapons-zh/lweapons.zh Line 14 - Error P083: Could not find included file 'LW_ZH/lw_global.zs'. Please check your include paths!
+00332-lweapons-zh/lweapons.zh Line 15 - Error P083: Could not find included file 'LW_ZH/lw_generic.zs'. Please check your include paths!
+00332-lweapons-zh/lweapons.zh Line 16 - Error P083: Could not find included file 'LW_ZH/lw_common.zs'. Please check your include paths!
+00332-lweapons-zh/lweapons.zh Line 17 - Error P083: Could not find included file 'LW_ZH/lw_update.zs'. Please check your include paths!
+00332-lweapons-zh/lweapons.zh Line 18 - Error P083: Could not find included file 'LW_ZH/lw_movement.zs'. Please check your include paths!
+00332-lweapons-zh/lweapons.zh Line 19 - Error P083: Could not find included file 'LW_ZH/lw_life.zs'. Please check your include paths!
+00332-lweapons-zh/lweapons.zh Line 20 - Error P083: Could not find included file 'LW_ZH/lw_other.zs'. Please check your include paths!
+00332-lweapons-zh/lweapons.zh Line 21 - Error P083: Could not find included file 'LW_ZH/lw_scripts.zs'. Please check your include paths!
+00332-lweapons-zh/lweapons.zh Line 22 - Error P083: Could not find included file 'LW_ZH/lw_medallions.zs'. Please check your include paths!
+00332-lweapons-zh/lweapons.zh Line 23 - Error P083: Could not find included file 'LW_ZH/lw_hookshots.zs'. Please check your include paths!
+00332-lweapons-zh/lweapons.zh Line 24 - Error P083: Could not find included file 'LW_ZH/lw_somaria.zs'. Please check your include paths!
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00336-splitting-segmented-worm/SegmentWorm.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+syntax error, unexpected LBRACE, expecting COMMA or RPAREN [00336-splitting-segmented-worm/SegmentWorm.zs Line 47 Column 62 '{']
+ZQ_BUFFER Line 5 - Error P001: Included file '00336-splitting-segmented-worm/SegmentWorm.zs' encountered an error.
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00337-emilymisc-zh/EmilyMisc.zh
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+00337-emilymisc-zh/EmilyMisc.zh Line 28 - Error T021: Function Debug->NULL() has not been declared.
+Failure!
+Compile finished with exit code '21' (compiled with errors)
+
+=== 00339-day-night-cycle-tint-zh/DayNight.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+00339-day-night-cycle-tint-zh/DayNight.zs Line 9 - Error P083: Could not find included file 'Tint.zh'. Please check your include paths!
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00352-betterconveyors/BetterConveyors.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+Pass 5: Checking code paths
+00352-betterconveyors/BetterConveyors.zs Line 140 - Error S102: Function '_CanWalk' is not void, and must return a value!
+Failure!
+Compile finished with exit code '102' (compiled with errors)
+
+=== 00360-ffc-shop/FFCShop/2.53 Version/FFCShop.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+00360-ffc-shop/FFCShop/2.53 Version/FFCShop.zs Line 74 - Error S009: Variable tangoTemp has not been declared.
+Failure!
+Compile finished with exit code '9' (compiled with errors)
+
+=== 00360-ffc-shop/FFCShop/2.55 Version/FFCShop.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+00360-ffc-shop/FFCShop/2.55 Version/FFCShop.zs Line 9 - Error P083: Could not find included file 'TangoHandler.zh'. Please check your include paths!
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00360-ffc-shop/FFCShop/2.55 Version/v1.03/FFCShop.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+00360-ffc-shop/FFCShop/2.55 Version/v1.03/FFCShop.zs Line 4 - Error P083: Could not find included file 'TangoHandler.zh'. Please check your include paths!
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00361-simpletangohandler/SimpleTangoHandler/2.53 Version/customTango.zh
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+00361-simpletangohandler/SimpleTangoHandler/2.53 Version/customTango.zh Line 8 - Error S008: There is already a variable with name __TANGO_SCROLL_SPEED in this scope.
+Failure!
+Compile finished with exit code '8' (compiled with errors)
+
+=== 00361-simpletangohandler/SimpleTangoHandler/2.55 Version/customTango.zh
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+00361-simpletangohandler/SimpleTangoHandler/2.55 Version/customTango.zh Line 8 - Error S008: There is already a variable with name __TANGO_SCROLL_SPEED in this scope.
+Failure!
+Compile finished with exit code '8' (compiled with errors)
+
+=== 00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 467 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 468 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 469 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 470 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 471 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 472 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 482 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 483 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 484 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 485 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 486 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 487 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 488 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 489 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 492 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 494 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 504 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 518 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 523 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 526 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 527 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 528 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 528 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 528 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 529 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 529 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 530 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 531 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 534 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 535 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 536 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 538 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 539 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 540 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 543 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 544 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 546 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 547 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 548 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 549 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 552 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 553 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 553 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 553 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 554 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 554 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 555 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 556 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 557 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 560 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 561 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 568 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+Pass 5: Checking code paths
+Pass 6: Generating object code
+Pass 7: Assembling
+Internal error: couldn't find label
+Internal error: couldn't find label
+Internal error: couldn't find label
+Internal error: couldn't find label
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 618 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 625 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 511 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 512 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 513 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 514 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 515 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 516 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 526 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 527 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 528 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 529 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 530 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 531 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 532 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 533 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 536 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 538 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 548 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 562 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 567 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 570 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 571 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 572 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 572 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 572 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 573 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 573 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 574 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 575 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 578 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 579 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 580 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 582 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 583 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 584 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 587 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 588 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 590 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 591 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 592 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 593 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 596 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 597 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 597 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 597 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 598 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 598 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 599 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 600 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 601 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 604 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 605 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 612 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+Pass 5: Checking code paths
+Pass 6: Generating object code
+Pass 7: Assembling
+Internal error: couldn't find label
+Internal error: couldn't find label
+Internal error: couldn't find label
+Internal error: couldn't find label
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00362-power-bracelet-liftable/LiftPots/V2.1.0/LiftPotsV2.1.0.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+Pass 5: Checking code paths
+Pass 6: Generating object code
+Pass 7: Assembling
+Internal error: couldn't find label
+Internal error: couldn't find label
+Internal error: couldn't find label
+Internal error: couldn't find label
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00362-power-bracelet-liftable/LiftPots/V2.1.1/LiftPotsV2.1.1.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+Pass 5: Checking code paths
+Pass 6: Generating object code
+Pass 7: Assembling
+Internal error: couldn't find label
+Internal error: couldn't find label
+Internal error: couldn't find label
+Internal error: couldn't find label
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00363-thanos-snap-infinity-gauntlet/ThanosSnap.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+00363-thanos-snap-infinity-gauntlet/ThanosSnap.zs Line 104 - Error T017: Cannot cast from bool to void.
+Failure!
+Compile finished with exit code '17' (compiled with errors)
+
+=== 00366-templinkstate-zh/TempLinkState.zh
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+00366-templinkstate-zh/TempLinkState.zh Line 69 - Error T021: Function ScrollingLinkX() has not been declared.
+Failure!
+Compile finished with exit code '21' (compiled with errors)
+
+=== 00374-dodge-roll-action/script.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+00374-dodge-roll-action/script.zs Line 97 - Error T021: Function TempLinkState_UnsetCollDetection() has not been declared.
+Failure!
+Compile finished with exit code '21' (compiled with errors)
+
+=== 00381-better-ladder/script.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+00381-better-ladder/script.zs Line 6 - Error P083: Could not find included file 'headers/stdExtra.zh'. Please check your include paths!
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00415-grayswandir-sideview-engine/GSD_sideview/GSD/GSD_sideview_anim.z
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+00415-grayswandir-sideview-engine/GSD_sideview/GSD/GSD_sideview_anim.z Line 67 - Error S009: Variable LinkX has not been declared.
+Failure!
+Compile finished with exit code '9' (compiled with errors)
+
+=== 00415-grayswandir-sideview-engine/GSD_sideview/GSD_extras/GSD_firebar.z
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+00415-grayswandir-sideview-engine/GSD_sideview/GSD_extras/GSD_firebar.z Line 18 - Error T027: The left of the -> is not a pointer type (ffc, etc).
+Failure!
+Compile finished with exit code '27' (compiled with errors)
+
+=== 00415-grayswandir-sideview-engine/GSD_sideview/GSD_extras/GSD_jumping_fireball.z
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+00415-grayswandir-sideview-engine/GSD_sideview/GSD_extras/GSD_jumping_fireball.z Line 33 - Error S009: Variable CT_SIDEVIEW_WATER has not been declared.
+Failure!
+Compile finished with exit code '9' (compiled with errors)
+
+=== 00415-grayswandir-sideview-engine/GSD_sideview/GSD_extras/mooshbumper.z
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+00415-grayswandir-sideview-engine/GSD_sideview/GSD_extras/mooshbumper.z Line 44 - Error S009: Variable LinkX has not been declared.
+Failure!
+Compile finished with exit code '9' (compiled with errors)
+
+=== 00419-slab-connection-puzzle/script.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+00419-slab-connection-puzzle/script.zs Line 63 - Error S009: Variable FFC_MISC_PUSHBLOCK_IMPULSE has not been declared.
+Failure!
+Compile finished with exit code '9' (compiled with errors)
+
+=== 00431-no-cycle-spinning-tiles/script.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+syntax error, unexpected RBRACE, expecting SEMICOLON [00431-no-cycle-spinning-tiles/script.zs Line 231 Column 3 '}']
+ZQ_BUFFER Line 5 - Error P001: Included file '00431-no-cycle-spinning-tiles/script.zs' encountered an error.
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00457-magnets-and-iron-beams-puzzle/magnetswitch.z
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+00457-magnets-and-iron-beams-puzzle/magnetswitch.z Line 14 - Error T021: Function SwitchState(ffc, ffc) has not been declared.
+Failure!
+Compile finished with exit code '21' (compiled with errors)
+
+=== 00457-magnets-and-iron-beams-puzzle/script.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+00457-magnets-and-iron-beams-puzzle/script.zs Line 224 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00457-magnets-and-iron-beams-puzzle/script.zs Line 225 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00457-magnets-and-iron-beams-puzzle/script.zs Line 226 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00457-magnets-and-iron-beams-puzzle/script.zs Line 227 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+00457-magnets-and-iron-beams-puzzle/script.zs Line 461 - Error T021: Function SwitchState(ffc, ffc) has not been declared.
+Failure!
+Compile finished with exit code '21' (compiled with errors)
+
+=== 00479-mouse-header-for-debugging/tbt_mouse/tbt_mouse_global.zh
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+00479-mouse-header-for-debugging/tbt_mouse/tbt_mouse_global.zh Line 10 - Error S009: Variable MOUSE_LAYER has not been declared.
+Failure!
+Compile finished with exit code '9' (compiled with errors)
+
+=== 00498-enemy-hp-bars-damage-numbers/enemy_hpbars.zs
+
+=== 00499-npcanim-zh/NPCAnim.zh
+Pass 1: Parsing
+Pass 2: Preprocessing
+syntax error, unexpected LOOP, expecting EMPTYBRACKETS or IDENTIFIER [00499-npcanim-zh/NPCAnim.zh Line 272 Column 14 'loop']
+ZQ_BUFFER Line 6 - Error P001: Included file '00499-npcanim-zh/NPCAnim.zh' encountered an error.
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00500--monarch-ascendant/MonarchAscendant.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+00500--monarch-ascendant/MonarchAscendant.zs Line 11 - Error P073: 'using' found no matches for the namespace NPCAnim.
+Failure!
+Compile finished with exit code '73' (compiled with errors)
+
+=== 00520-poker-monsters/NofaKind.z
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+00520-poker-monsters/NofaKind.z Line 150 - Error T021: Function IsNoaKind(int[], int, bool, bool, int) has not been declared.
+Failure!
+Compile finished with exit code '21' (compiled with errors)
+
+=== 00520-poker-monsters/script.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+00520-poker-monsters/script.zs Line 150 - Error T021: Function IsNoaKind(int[], int, bool, bool, int) has not been declared.
+Failure!
+Compile finished with exit code '21' (compiled with errors)
+
+=== 00532-status-effects/statusEffects.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+00532-status-effects/statusEffects.zs Line 84 - Error T021: Function Min(const Status, int) has not been declared.
+Failure!
+Compile finished with exit code '21' (compiled with errors)
+
+=== 00533-test-play-init-data-backups/script.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+00533-test-play-init-data-backups/script.zs Line 543 - Warning S108: Arrays should be explicitly typed - change `TestPlayInitData` to `TestPlayInitData[]`
+00533-test-play-init-data-backups/script.zs Line 543 - Warning S108: Arrays should be explicitly typed - change `TestPlayInitData` to `TestPlayInitData[]`
+00533-test-play-init-data-backups/script.zs Line 402 - Error T021: Function TryFindDMapSlot(TestPlayInitData[], int) has not been declared.
+Failure!
+Compile finished with exit code '21' (compiled with errors)
+
+=== 00536-poker-combos/pokercombos.z
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+00536-poker-combos/pokercombos.z Line 116 - Error T021: Function IsNoaKind(int[], int, bool, bool, int) has not been declared.
+Failure!
+Compile finished with exit code '21' (compiled with errors)
+
+=== 00536-poker-combos/script.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+00536-poker-combos/script.zs Line 231 - Error T021: Function IsNoaKind(int[], int, bool, bool, int) has not been declared.
+Failure!
+Compile finished with exit code '21' (compiled with errors)
+
+=== 00547--new-palette-based-day-night-system/DayNightNew.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+00547--new-palette-based-day-night-system/DayNightNew.zs Line 331 - Error T017: Cannot cast from DMapDayNight to int.
+Failure!
+Compile finished with exit code '17' (compiled with errors)
+
+=== 00571-gumzol/gumzol.z
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+00571-gumzol/gumzol.z Line 80 - Error S009: Variable STATUS_STATE has not been declared.
+Failure!
+Compile finished with exit code '9' (compiled with errors)
+
+=== 00571-gumzol/script.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+00571-gumzol/script.zs Line 80 - Error S009: Variable STATUS_STATE has not been declared.
+Failure!
+Compile finished with exit code '9' (compiled with errors)
+
+=== 00580-mani-s-script-header/script.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+00580-mani-s-script-header/script.zs Line 312 - Error S009: Variable BLNK_SPRITE has not been declared.
+Failure!
+Compile finished with exit code '9' (compiled with errors)
+

@@ -1,5 +1,6 @@
 #include "ASTVisitors.h"
 
+#include "parser/CompileOption.h"
 #include "zsyssimple.h"
 #include "CompileError.h"
 #include "Scope.h"
@@ -124,6 +125,29 @@ void RecursiveVisitor::deprecWarn(AST* host, std::string const& s1, std::string 
 			break;
 	}
 }
+
+// Ignores, or creates a warning/error message, depending on the value of a compile option.
+void RecursiveVisitor::checkDeprecatedFeature(AST* host, std::string const& message, CompileOption option)
+{
+	switch (*ZScript::lookupOption(*scope, option) / 10000)
+	{
+		// Off / Error
+		case 0:
+		case 2:
+			handleError(CompileError::Error(host, message), nullptr);
+			break;
+
+		// On
+		case 1:
+			break;
+
+		// Warn
+		case 3:
+		default:
+			handleError(CompileError::Warn(host, message), nullptr);
+			break;
+	}
+}
 void RecursiveVisitor::visit(AST& node, void* param)
 {
 	if(node.isDisabled()) return; //Don't visit disabled nodes.
@@ -241,8 +265,23 @@ void RecursiveVisitor::visitFunctionInternals(ZScript::Program& program)
 void RecursiveVisitor::checkCast(
 		DataType const& sourceType, DataType const& targetType, AST* node, bool twoWay)
 {
-	if (sourceType.canCastTo(targetType, scope)) return;
-	if (twoWay && targetType.canCastTo(sourceType, scope)) return;
+	// Check if types can cast normally, without the legacy array conversion.
+	if (sourceType.canCastTo(targetType, false)) return;
+	if (twoWay && targetType.canCastTo(sourceType, false)) return;
+
+	// Before failing, check if cast works if allowed to use legacy array conversion.
+	bool passes = sourceType.canCastTo(targetType, true);
+	if (twoWay)
+		passes &= targetType.canCastTo(sourceType, true);
+	if (passes)
+	{
+		checkDeprecatedFeature(node,
+			fmt::format("Array mismatch for types {} and {}", sourceType.getName(), targetType.getName()),
+			CompileOption::OPT_LEGACY_ARRAYS);
+		return;
+	}
+
+	// Types are not compatabile - error.
 	handleError(
 		CompileError::IllegalCast(
 			node, sourceType.getName(), targetType.getName()));

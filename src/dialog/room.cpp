@@ -373,6 +373,11 @@ void RoomDialog::setArgField()
 		bshopDD->setSelectedValue(local_mapref.catchall);
 		argLabel->setText("B. Shop:");
 		break;
+	case rWARP:
+		argSwitcher->switchTo(argTEXT_FIELD);
+		argTF->setVal(local_mapref.catchall);
+		argLabel->setText("Warp Ring:");
+		break;
 	default:
 		argSwitcher->switchTo(argTEXT_FIELD);
 		argTF->setVal(local_mapref.catchall);

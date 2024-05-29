@@ -241,6 +241,7 @@ namespace ZScript
 
 		void deprecWarn(Function* func, AST* host, std::string const& s1, std::string const& s2);
 		void deprecWarn(AST* host, std::string const& s1, std::string const& s2, std::string const& info = "");
+		void checkDeprecatedFeature(AST* host, std::string const& message, CompileOption option);
 
 		// Visits a single node. The only virtual visit function as all others
 		// defer to this one.

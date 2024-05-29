@@ -4,6 +4,7 @@
 #include "gui/dialog_runner.h"
 #include "gui/jwin.h"
 #include <utility>
+#include <sstream>
 
 extern int32_t zq_screen_w, zq_screen_h;
 

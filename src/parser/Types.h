@@ -218,7 +218,12 @@ namespace ZScript
 		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler) const = 0;
 		// Basics
 		virtual std::string getName() const = 0;
-		virtual bool canCastTo(DataType const& target, Scope const* scope) const = 0;
+		virtual bool canCastTo(DataType const& target, bool allowDeprecatedArrayCast = true) const = 0;
+		bool canCastTo(DataType const& target, const Scope& scope) const
+		{
+			bool legacy_arrays_opt = *lookupOption(scope, CompileOption::OPT_LEGACY_ARRAYS) != 0;
+			return canCastTo(target, legacy_arrays_opt);
+		};
 		virtual DataType const& getShared(DataType const& target, Scope const* scope) const = 0;
 		virtual bool canBeGlobal() const {return true;}
 		virtual bool canHoldObject() const {return getScriptObjectTypeId() != script_object_type::none;}
@@ -310,7 +315,7 @@ namespace ZScript
 		
 		virtual std::string getName() const;
 		ASTExprIdentifier const* getIdentifier() const {return iden;}
-		virtual bool canCastTo(DataType const& target, Scope const* scope) const {return false;}
+		virtual bool canCastTo(DataType const& target, bool allowDeprecatedArrayCast = true) const {return false;}
 		virtual DataType const& getShared(DataType const& target, Scope const* scope) const;
 
 	private:
@@ -328,7 +333,7 @@ namespace ZScript
 		int unique_type_id() const { return 2; }
 
 		virtual std::string getName() const {return name;}
-		virtual bool canCastTo(DataType const& target, Scope const* scope) const;
+		virtual bool canCastTo(DataType const& target, bool allowDeprecatedArrayCast = true) const;
 		virtual DataType const& getShared(DataType const& target, Scope const* scope) const;
 		virtual bool canBeGlobal() const;
 		virtual bool isConstant() const {return false;}
@@ -375,7 +380,7 @@ namespace ZScript
 
 		virtual std::string getName() const {
 			return elementType.getName() + "[]";}
-		virtual bool canCastTo(DataType const& target, Scope const* scope) const;
+		virtual bool canCastTo(DataType const& target, bool allowDeprecatedArrayCast = true) const;
 		virtual DataType const& getShared(DataType const& target, Scope const* scope) const;
 		virtual bool canBeGlobal() const {return true;}
 		virtual bool canHoldObject() const {return elementType.canHoldObject();}
@@ -433,7 +438,7 @@ namespace ZScript
 		}
 		virtual UserClass* getUsrClass() const {return user_class;}
 		virtual std::string getName() const {return name;}
-		virtual bool canCastTo(DataType const& target, Scope const* scope) const;
+		virtual bool canCastTo(DataType const& target, bool allowDeprecatedArrayCast = true) const;
 		virtual DataType const& getShared(DataType const& target, Scope const* scope) const;
 		int32_t getCustomId() const {return id;}
 		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler) const;
@@ -472,7 +477,7 @@ namespace ZScript
 
 		virtual std::string getName() const {return name;}
 		uint32_t getId() const {return id;}
-		virtual bool canCastTo(DataType const& target, Scope const* scope) const;
+		virtual bool canCastTo(DataType const& target, bool allowDeprecatedArrayCast = true) const;
 		virtual DataType const& getShared(DataType const& target, Scope const* scope) const;
 		
 		virtual bool isTemplate() const {return true;}

@@ -15,12 +15,13 @@ global script Global
 		ArrayPushBack(numbers, obj);
 		ArrayPushBack(numbers, "");
 		ArrayPushBack(numbers, 1L); // TODO: this should be invalid (else: we perform an implicit cast and multiply by 10000...)
-		SizeOfArray(Hero);
 		Object choice_1 = Choose(1, 2, 3);
 		auto choice_2 = Choose(1, 2, obj);
 		auto max_1 = Max(1, 2, obj);
 		auto max_2 = Max(1, obj);
 		auto max_3 = Max(1);
+
+		SizeOfArray(Hero); // TODO: this should warn since the type was coerced to an array (LEGACY_ARRAYS).
 
 		// OK.
 		Object objects2[] = {new Object()};
@@ -35,13 +36,29 @@ global script Global
 		max_2 = Max(1, 2, 3, Max(3, 4));
     }
 
-	// The template checking code explicitly allows char32 as an "array" type,
-	// for compat.
 	void old_ptrs(char32 ptr)
 	{
-		#option OLD_ARRAY_TYPECASTING on
+		// For compatability with old scripts, the template deduction code allows
+		// matching char32 as an array type by default.
+
 		// OK
 		ArrayPushBack(ptr, 1);
 		ResizeArray(ptr, 1);
+
+		// OK
+		{
+			#option LEGACY_ARRAYS on
+
+			ArrayPushBack(ptr, 1);
+			ResizeArray(ptr, 1);
+		}
+
+		// Errors
+		{
+			#option LEGACY_ARRAYS off
+
+			ArrayPushBack(ptr, 1);
+			ResizeArray(ptr, 1);
+		}
 	}
 }

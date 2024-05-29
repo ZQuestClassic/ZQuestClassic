@@ -3,12 +3,17 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-ZQ_BUFFER Line 9 @ Columns 2-13 - Error T017: Cannot cast from int to int[].
-ZQ_BUFFER Line 10 @ Columns 2-15 - Error T017: Cannot cast from int[][] to int.
-ZQ_BUFFER Line 11 @ Columns 2-16 - Error T017: Cannot cast from int[][] to int[].
-ZQ_BUFFER Line 12 @ Columns 2-19 - Error T017: Cannot cast from npc[] to int[].
-ZQ_BUFFER Line 13 @ Columns 2-21 - Error T017: Cannot cast from npc to int.
-ZQ_BUFFER Line 14 @ Columns 2-25 - Error T017: Cannot cast from npc to int.
-ZQ_BUFFER Line 23 @ Columns 12-19 - Error T100: Temporary literals cannot be stored!
+ZQ_BUFFER Line 10 @ Columns 2-13 - Warning S108: Array mismatch for types int and int[]
+ZQ_BUFFER Line 11 @ Columns 2-15 - Warning S108: Array mismatch for types int[][] and int
+ZQ_BUFFER Line 12 @ Columns 2-16 - Warning S108: Array mismatch for types int[][] and int[]
+ZQ_BUFFER Line 13 @ Columns 8-16 - Warning S108: Array mismatch for types int[][] and int[]
+ZQ_BUFFER Line 18 @ Columns 3-14 - Error S109: Array mismatch for types int and int[]
+ZQ_BUFFER Line 19 @ Columns 3-16 - Error S109: Array mismatch for types int[][] and int
+ZQ_BUFFER Line 20 @ Columns 3-17 - Error S109: Array mismatch for types int[][] and int[]
+ZQ_BUFFER Line 21 @ Columns 9-17 - Error S109: Array mismatch for types int[][] and int[]
+ZQ_BUFFER Line 34 @ Columns 2-19 - Error T017: Cannot cast from npc[] to int[].
+ZQ_BUFFER Line 35 @ Columns 2-21 - Error T017: Cannot cast from npc to int.
+ZQ_BUFFER Line 36 @ Columns 2-25 - Error T017: Cannot cast from npc to int.
+ZQ_BUFFER Line 45 @ Columns 12-19 - Error T100: Temporary literals cannot be stored!
 Failure!
-Compile finished with exit code '17' (compiled with errors)
+Compile finished with exit code '109' (compiled with errors)

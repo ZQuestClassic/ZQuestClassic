@@ -172,14 +172,8 @@ bool ZScript::operator>=(DataType const& lhs, DataType const& rhs)
 
 DataType const& ZScript::getNaiveType(DataType const& type, Scope* scope)
 {
-
 	DataType const* t = &type;
-	while (t->isArray()) //Avoid dynamic_cast<>
-	{
-		DataTypeArray const* ta = static_cast<DataTypeArray const*>(t);
-		t = &ta->getElementType();
-	}
-	
+
 	//Convert constant types to their variable counterpart
 	if(t->isConstant())
 	{
@@ -272,24 +266,27 @@ int32_t DataTypeSimple::selfCompare(DataType const& rhs) const
 	return simpleId - o.simpleId;
 }
 
-bool DataTypeSimple::canCastTo(DataType const& target, Scope const* scope) const
+bool DataTypeSimple::canCastTo(DataType const& target, bool allowDeprecatedArrayCast) const
 {
 	if (isVoid() || target.isVoid()) return false;
 	if (isUntyped() || target.isUntyped()) return true;
 	if (target.isArray())
 	{
-		if(*lookupOption(scope, CompileOption::OPT_OLD_ARRAY_TYPECASTING) != 0)
-			return canCastTo(static_cast<DataTypeArray const*>(&target)->getBaseType(), scope);
+		// Allows simple types to cast to an array.
+		// Types that retain object references are not allowed to be cast like this, as that would break reference counting.
+		// This should avoid breaking the vast majority of legacy arrays (which was mostly int).
+		if (!canHoldObject() && allowDeprecatedArrayCast)
+			return canCastTo(static_cast<DataTypeArray const*>(&target)->getBaseType(), allowDeprecatedArrayCast);
 		return false;
 	}
 	if (simpleId == ZTID_CHAR || simpleId == ZTID_LONG)
-		return FLOAT.canCastTo(target, scope); //Char/Long cast the same as float.
+		return FLOAT.canCastTo(target, allowDeprecatedArrayCast); //Char/Long cast the same as float.
 
 	if (DataTypeSimple const* t =
 			dynamic_cast<DataTypeSimple const*>(&target))
 	{
 		if (t->simpleId == ZTID_CHAR || t->simpleId == ZTID_LONG)
-			return canCastTo(FLOAT, scope); //Char/Long cast the same as float.
+			return canCastTo(FLOAT, allowDeprecatedArrayCast); //Char/Long cast the same as float.
 		if (simpleId == ZTID_UNTYPED || t->simpleId == ZTID_UNTYPED)
 			return true;
 		if (simpleId == ZTID_VOID || t->simpleId == ZTID_VOID)
@@ -310,7 +307,8 @@ DataType const& DataTypeSimple::getShared(DataType const& target, Scope const* s
 	if(target.isUntyped()) return *this;
 	if(target.isArray())
 	{
-		if(*lookupOption(scope, CompileOption::OPT_OLD_ARRAY_TYPECASTING) != 0)
+		int opt = *lookupOption(scope, CompileOption::OPT_LEGACY_ARRAYS);
+		if (!canHoldObject() && (opt == OPTION_ON || opt == OPTION_WARN))
 			return getShared(static_cast<DataTypeArray const*>(&target)->getBaseType(), scope);
 		return UNTYPED;
 	}
@@ -365,19 +363,22 @@ DataType const* DataTypeSimpleConst::baseType(Scope& scope, CompileErrorHandler*
 ////////////////////////////////////////////////////////////////
 // DataTypeArray
 
-bool DataTypeArray::canCastTo(DataType const& target, Scope const* scope) const
+bool DataTypeArray::canCastTo(DataType const& target, bool allowDeprecatedArrayCast) const
 {
 	if (target.isVoid()) return false;
 	if (target.isUntyped()) return true;
 	if (!target.isArray())
 	{
-		if(*lookupOption(scope, CompileOption::OPT_OLD_ARRAY_TYPECASTING) != 0)
-			return getBaseType().canCastTo(target, scope);
+		// Allows simple types to cast to an array.
+		// Types that retain object references are not allowed to be cast like this, as that would break reference counting.
+		// This should avoid breaking the vast majority of legacy arrays (which was mostly int).
+		if (!canHoldObject() && allowDeprecatedArrayCast)
+			return getBaseType().canCastTo(target, allowDeprecatedArrayCast);
 		return false;
 	}
 	DataTypeArray const* targ_arr = static_cast<DataTypeArray const*>(&target);
 	
-	return getElementType().canCastTo(targ_arr->getElementType(), scope);
+	return getElementType().canCastTo(targ_arr->getElementType(), allowDeprecatedArrayCast);
 }
 
 DataType const& DataTypeArray::getShared(DataType const& target, Scope const* scope) const
@@ -386,7 +387,8 @@ DataType const& DataTypeArray::getShared(DataType const& target, Scope const* sc
 	if(target.isUntyped()) return *this;
 	if(!target.isArray())
 	{
-		if(*lookupOption(scope, CompileOption::OPT_OLD_ARRAY_TYPECASTING) != 0)
+		int opt = *lookupOption(scope, CompileOption::OPT_LEGACY_ARRAYS);
+		if (!canHoldObject() && (opt == OPTION_ON || opt == OPTION_WARN))
 			return getBaseType().getShared(target, scope);
 		return UNTYPED;
 	}
@@ -466,14 +468,17 @@ bool DataTypeCustom::canHoldObject() const {
 	return true;
 }
 
-bool DataTypeCustom::canCastTo(DataType const& target, Scope const* scope) const
+bool DataTypeCustom::canCastTo(DataType const& target, bool allowDeprecatedArrayCast) const
 {
 	if (target.isVoid()) return false;
 	if (target.isUntyped()) return true;
 	if (target.isArray())
 	{
-		if(*lookupOption(scope, CompileOption::OPT_OLD_ARRAY_TYPECASTING) != 0)
-			return canCastTo(static_cast<DataTypeArray const*>(&target)->getBaseType(), scope);
+		// Allows simple types to cast to an array.
+		// Types that retain object references are not allowed to be cast like this, as that would break reference counting.
+		// This should avoid breaking the vast majority of legacy arrays (which was mostly int).
+		if (!canHoldObject() && allowDeprecatedArrayCast)
+			return canCastTo(static_cast<DataTypeArray const*>(&target)->getBaseType(), allowDeprecatedArrayCast);
 		return false;
 	}
 	
@@ -508,7 +513,8 @@ DataType const& DataTypeCustom::getShared(DataType const& target, Scope const* s
 	if(target.isUntyped()) return *this;
 	if(target.isArray())
 	{
-		if(*lookupOption(scope, CompileOption::OPT_OLD_ARRAY_TYPECASTING) != 0)
+		int opt = *lookupOption(scope, CompileOption::OPT_LEGACY_ARRAYS);
+		if (!canHoldObject() && (opt == OPTION_ON || opt == OPTION_WARN))
 			return getShared(static_cast<DataTypeArray const*>(&target)->getBaseType(), scope);
 		return UNTYPED;
 	}
@@ -573,7 +579,7 @@ DataTypeTemplate::DataTypeTemplate(string const& name, uint32_t id, DataTypeTemp
 		constty->mut_type = this;
 }
 
-bool DataTypeTemplate::canCastTo(DataType const& target, Scope const* scope) const
+bool DataTypeTemplate::canCastTo(DataType const& target, bool allowDeprecatedArrayCast) const
 {
 	if(target.isUntyped()) return true;
 	if (DataTypeTemplate const* t = dynamic_cast<DataTypeTemplate const*>(&target))

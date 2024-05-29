@@ -2,6 +2,7 @@
 #include "base/zdefs.h"
 #include "parser/BuildVisitors.h"
 #include "parser/ByteCode.h"
+#include "parser/CompileOption.h"
 #include "parser/ParserHelper.h"
 #include "parserDefs.h"
 #include "Scope.h"
@@ -735,10 +736,8 @@ static int applyTemplateTypes(
     std::vector<DataType const *> const &parameter_types,
 	size_t num_params,
     Function** out_resolved_function,
-	Scope const* caller_scope)
+	bool allowDeprecatedArrayCast)
 {
-	bool found_template_type = false;
-	
 	if(!function->node || function->node->templates.empty())
 		return APPLY_TEMPLATE_RET_NA;
 	
@@ -746,8 +745,6 @@ static int applyTemplateTypes(
 	auto num_templates = tys.size();
 	
 	vector<DataType const*> bound_ts;
-	
-	bool old_array_casting = *lookupOption(caller_scope, CompileOption::OPT_OLD_ARRAY_TYPECASTING) != 0;
 	
 	for(uint tmpl_id = 0; tmpl_id < num_templates; ++tmpl_id)
 	{
@@ -764,7 +761,7 @@ static int applyTemplateTypes(
 			{
 				if(el_type->isUntyped())
 					el_type = &DataType::UNTYPED;
-				else if(old_array_casting)
+				else if (allowDeprecatedArrayCast)
 					el_type = &el_type->getBaseType();
 				else
 				{
@@ -776,15 +773,14 @@ static int applyTemplateTypes(
 						el_type = &static_cast<const DataTypeArray*>(el_type)->getElementType();
 				}
 			}
-			
-			found_template_type = true;
+
 			if (!bound_t)
 			{
 				bound_t = el_type;
 				continue;
 			}
 
-			if (!el_type->canCastTo(*bound_t, caller_scope))
+			if (!el_type->canCastTo(*bound_t, false))
 				return APPLY_TEMPLATE_RET_UNSATISFIABLE;
 		}
 		
@@ -811,15 +807,14 @@ static int applyTemplateTypes(
 								el_type = &static_cast<const DataTypeArray*>(el_type)->getElementType();
 						}
 					}
-					
-					found_template_type = true;
+
 					if (!bound_t)
 					{
 						varg_basety = bound_t = el_type;
 						continue;
 					}
 
-					if (!el_type->canCastTo(*bound_t, caller_scope))
+					if (!el_type->canCastTo(*bound_t, false))
 						return APPLY_TEMPLATE_RET_UNSATISFIABLE;
 
 					varg_basety = parameter_types[i];
@@ -842,22 +837,48 @@ static int applyTemplateTypes(
 	return APPLY_TEMPLATE_RET_APPLIED;
 }
 
+static bool trimBadFunctionsCheck(std::vector<DataType const*> const& parameterTypes, Function* function, bool allowDeprecatedArrayCast, int lowsize, bool user_vargs)
+{
+	auto targetSize = parameterTypes.size();
+
+	for (size_t i = 0; i < lowsize; ++i)
+	{
+		if (!parameterTypes[i]->canCastTo(*function->paramTypes[i], allowDeprecatedArrayCast))
+		{
+			return false;
+		}
+	}
+
+	if (user_vargs && lowsize < targetSize)
+	{
+		auto& vargty = static_cast<DataTypeArray const*>(function->paramTypes.back())->getElementType();
+		for(size_t i = lowsize; i < targetSize; ++i)
+		{
+			if (!parameterTypes[i]->canCastTo(vargty, allowDeprecatedArrayCast))
+			{
+				return false;
+			}
+		}
+	}
+
+	return true;
+}
+
 inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::vector<DataType const*> const& parameterTypes, Scope const* caller_scope, bool trimClasses)
 {
+	std::vector<Function*> viable_functions;
+	int legacy_arrays_opt = *lookupOption(caller_scope, CompileOption::OPT_LEGACY_ARRAYS);
 	bool any_from_type_template = false;
 
 	// Filter out invalid functions.
-	for (auto it = functions.begin(); it != functions.end();)
+	for (auto function : functions)
 	{
-		Function* function = *it;
 		if (function->getFlag(FUNCFLAG_NIL))
 		{
-			it = functions.erase(it);
 			continue;
 		}
 		if(trimClasses && function->getInternalScope()->getClass() && !function->getFlag(FUNCFLAG_STATIC))
 		{
-			it = functions.erase(it);
 			continue;
 		}
 		bool vargs = function->getFlag(FUNCFLAG_VARARGS);
@@ -869,7 +890,6 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 		// Match against parameter count, including optional params.
 		if (minSize > targetSize || (!vargs && maxSize < targetSize))
 		{
-			it = functions.erase(it);
 			continue;
 		}
 		auto lowsize = zc_min(maxSize, parameterTypes.size());
@@ -877,6 +897,7 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 		bool parametersMatch = true;
 		if(function->getFlag(FUNCFLAG_NOCAST)) //no casting params
 		{
+			// TODO: remove this branch?
 			Scope* scope = function->getInternalScope();
 			for (size_t i = 0; i < lowsize; ++i)
 			{
@@ -909,56 +930,71 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 					}
 				}
 			}
+
+			if (parametersMatch)
+				viable_functions.push_back(function);
 		}
 		else
 		{
+			bool allowDeprecatedArrayCast = false;
 			Function* resolved_function = nullptr;
-			int apply_ret = applyTemplateTypes(function, parameterTypes, lowsize, &resolved_function, caller_scope);
-			if (apply_ret == APPLY_TEMPLATE_RET_UNSATISFIABLE)
+			int apply_ret = applyTemplateTypes(function, parameterTypes, lowsize, &resolved_function, allowDeprecatedArrayCast);
+			if (apply_ret == APPLY_TEMPLATE_RET_NA)
 			{
-				it = functions.erase(it);
-				continue;
+				parametersMatch = trimBadFunctionsCheck(parameterTypes, function, allowDeprecatedArrayCast, lowsize, user_vargs);
 			}
-
-			if (apply_ret == APPLY_TEMPLATE_RET_APPLIED)
+			else if (apply_ret == APPLY_TEMPLATE_RET_UNSATISFIABLE)
 			{
+				parametersMatch = false;
+			}
+			else
+			{
+				assert(apply_ret == APPLY_TEMPLATE_RET_APPLIED);
 				assert(resolved_function);
-				*it = function = resolved_function;
+				function = resolved_function;
+				parametersMatch = trimBadFunctionsCheck(parameterTypes, function, allowDeprecatedArrayCast, lowsize, user_vargs);
 			}
 
-			for (size_t i = 0; i < lowsize; ++i)
+			if (parametersMatch)
+				viable_functions.push_back(function);
+
+			if (!parametersMatch && legacy_arrays_opt)
 			{
-				if (!parameterTypes[i]->canCastTo(*function->paramTypes[i], caller_scope))
+				allowDeprecatedArrayCast = true;
+				Function* resolved_function = nullptr;
+				int apply_ret = applyTemplateTypes(function, parameterTypes, lowsize, &resolved_function, allowDeprecatedArrayCast);
+				if (apply_ret == APPLY_TEMPLATE_RET_NA)
+				{
+					parametersMatch = trimBadFunctionsCheck(parameterTypes, function, allowDeprecatedArrayCast, lowsize, user_vargs);
+				}
+				else if (apply_ret == APPLY_TEMPLATE_RET_UNSATISFIABLE)
 				{
 					parametersMatch = false;
-					break;
 				}
-			}
-			if(user_vargs && lowsize < targetSize)
-			{
-				auto& vargty = static_cast<DataTypeArray const*>(function->paramTypes.back())->getElementType();
-				for(size_t i = lowsize; i < targetSize; ++i)
+				else
 				{
-					if(!parameterTypes[i]->canCastTo(vargty, caller_scope))
-					{
-						parametersMatch = false;
-						break;
-					}
+					assert(apply_ret == APPLY_TEMPLATE_RET_APPLIED);
+					assert(resolved_function);
+					function = resolved_function;
+					parametersMatch = trimBadFunctionsCheck(parameterTypes, function, allowDeprecatedArrayCast, lowsize, user_vargs);
 				}
+
+				if (parametersMatch)
+					viable_functions.push_back(function);
 			}
 		}
-		if (!parametersMatch)
-		{
-			it = functions.erase(it);
-			continue;
-		}
-
-		// Keep function.
-		if (function->isFromTypeTemplate)
-			any_from_type_template = true;
-		++it;
 	}
 
+	for (auto function : viable_functions)
+	{
+		if (function->isFromTypeTemplate)
+		{
+			any_from_type_template = true;
+			break;
+		}
+	}
+
+	functions = viable_functions;
 	if (!any_from_type_template || functions.size() == 0)
 		return;
 

@@ -1,0 +1,4160 @@
+#include "std.zh"
+#include "ghost.zh"
+
+//Three colors used for the lasers
+const int C_EZB_LASER1 = 0x77;
+const int C_EZB_LASER2 = 0x76;
+const int C_EZB_LASER3 = 0x7C;
+
+//Three colors used for shockwaves
+const int C_EZB_SHOCKWAVE1 = 0x77;
+const int C_EZB_SHOCKWAVE2 = 0x76;
+const int C_EZB_SHOCKWAVE3 = 0x7C;
+
+//Color for circle masking out transformations
+const int C_EZB_TRANSFORM = 0x0C;
+
+const int SFX_EZB_TELEPORT = 32; //Sound when a boss teleports
+const int SFX_EZB_LASERCHARGE = 36; //Sound when a laser is charged
+const int SFX_EZB_LASER = 37; //Sound when a laser is fired
+const int SFX_EZB_SUMMON = 56; //Sound for summoning enemies
+const int SFX_EZB_DASH = 1; //Sound when dashing
+const int SFX_EZB_BACKSTEP = 1; //Sound when backstepping
+const int SFX_EZB_SHOCKWAVE = 2; //Sound of the boss's shockwaves
+const int SFX_EZB_SHAKE = 3; //Sound of the ground shaking after a big jump
+const int SFX_EZB_LIGHTNING = 54; //Sound of lightning
+const int SFX_EZB_SWORD = 30; //Sound of sword slashing
+const int SFX_EZB_SWORDCHARGE = 35; //Sound of charging sword
+const int SFX_EZB_SWORDSPIN = 54; //Sound of spin attack
+const int SFX_EZB_BARRIERSHIFT = 56; //Sound of the enemy changing forms
+const int SFX_EZB_BARRIERSHIFT_ONDEATH = 56; //Sound of the enemy changing forms after dying
+
+const int EZB_SUMMON_CAP = 8; //Max number of enemies summoned by each instance of the script
+const int EZB_TOTAL_SUMMON_CAP = 40; //Max number of enemies onscreen at a time
+const int FRAMES_EZB_SPEEDUP = 300; //Frames it takes for the enemy to accelerate by one level
+
+const int EZB_DONT_REPEAT_LAST_ATTACK = 2; //0 - Attacks repeat freely, 1 - Attacks never repeat, 2 - Attacks never repeat unless <= 2 attacks
+const int EZB_DO_WINDUP_SHAKE = 2; //0 - No shake, 1 - Shake on strong attack, 2 - Shake on medium attack
+const int EZB_FORMCHANGE_ANIM = 2; //0 - No animation, 1 - Enemies animate when changing size, 2 - Enemies always animate
+const int EZB_TELEPORT_TYPE = 1; //0 - Flicker, 1 - Sprite stretch, 2 - Combo offset
+const int EZB_ENABLE_SPEEDTRAILS = 1; //If 1, faster movement attacks will have speed trails behind the enemy
+const int EZB_ALWAYS_FAKE_Z = 0; //If 1, the Fake Z axis flag will always be set
+
+const int EZB_WINDUP_ATTACK = 16; //Delay before a weak attack
+const int EZB_WINDUP_ATTACK_MED = 32; //Delay before a medium attack
+const int EZB_WINDUP_ATTACK_STRONG = 64; //Delay before a stronger attack (the boss shakes)
+
+const int EZB_FLYING_ZPOS = 8; //Z position for flying bosses
+
+const int STYLE_EZB_LASER = 1; //Style of lasers: 0 = 3-color, 1 = flashing
+const int LAYER_EZB_LASER = 3; //Layer lasers are drawn to
+
+const int SPR_EZB_DEATHEXPLOSION = 0; //Sprite to use for death explosions (0 for ZC default)
+const int WIDTH_EZB_DEATHEXPLOSION = 2; //Tile width for death explosions
+const int HEIGHT_EZB_DEATHEXPLOSION = 2; //Tile height for death explosions
+const int EZB_DEATH_FLASH = 1; //Set to 1 to make the enemy flash during death animations
+const int LW_EZB_DEATHEXPLOSION = 40; //LWeapon type used for death explosions. Script 10 by default
+
+//EZBoss Flags, do not change
+const int EZBF_4WAY              = 000000000001b; //1
+const int EZBF_8WAY              = 000000000010b; //2
+const int EZBF_FLYING            = 000000000100b; //4
+const int EZBF_AQUATIC           = 000000001000b; //8
+const int EZBF_NOFALL            = 000000010000b; //16
+const int EZBF_EXPLODEEATH       = 000000100000b; //32
+const int EZBF_FACELINK          = 000001000000b; //64
+const int EZBF_UNBLOCKABLE       = 000010000000b; //128
+const int EZBF_KNOCKBACK         = 000100000000b; //256
+const int EZBF_NOCOLL            = 001000000000b; //512
+const int EZBF_NOSTUN            = 010000000000b; //1024
+const int EZBF_SEQUENTIALATTACKS = 100000000000b; //2048
+
+//Array indices, do not change
+const int EZBI_BSTYPE 				= 200;
+const int EZBI_BSBUFFER 			= 201;
+const int EZBI_BSISDEAD 			= 202;
+const int EZBI_WALKTYPE 			= 300;
+const int EZBI_ATTACK1 				= 301;
+const int EZBI_ATTACK2 				= 302;
+const int EZBI_ATTACK3 				= 303;
+const int EZBI_SHAVE 				= 304;
+const int EZBI_SPECIAL				= 305;
+const int EZBI_SIZE 				= 306;
+const int EZBI_WPNSFX	 			= 307;
+const int EZBI_WPNSPR	 			= 308;
+const int EZBI_FLAGS	 			= 309;
+const int EZBI_COMBO	 			= 310;
+const int EZBI_CURFORMID			= 312;
+const int EZBI_TRANSFORMCOOLDOWN	= 313;
+const int EZBI_TRANSFORMVARIANCE	= 314;
+const int EZBI_SPEEDUPCOUNTER		= 315;
+const int EZBI_MAXSPEEDCOUNTER		= 316;
+const int EZBI_INITSPEED			= 317;
+const int EZBI_TOPSPEED 			= 318;
+const int EZBI_ATTACKFLAG			= 319; //Flags that the enemy is currently attacking
+
+//NOTE: To set shave offsets, set the enemy's Attribute 5 to (ShaveX+ShaveY*16)
+ffc script EZBoss{
+	void run(int enemyid){
+		int i; int j; int k; int m; 
+		int angle; int dist; 
+		int x; int y;
+		int vX; int vY;
+		int xy[2];
+		int arr1[256];
+		int arr2[256];
+		
+		npc ghost = Ghost_InitAutoGhost(this, enemyid);
+		npc summons[256];
+		npc enem;
+		eweapon e;
+		
+		int attackPool[200];
+		//0 - Num Attacks
+		//1-99 - Attack IDs
+		//100 - Num Transformations
+		//101-199 - Transformation IDs
+		//200-299 - Misc
+		//200 - Transform Cooldown
+		//201 - Transform Variance
+		int laserColors[6] = {C_EZB_LASER1, C_EZB_LASER2, C_EZB_LASER3, C_EZB_SHOCKWAVE1, C_EZB_SHOCKWAVE2, C_EZB_SHOCKWAVE3};
+		int vars[400];
+		//0 - CSet
+		//1 - Damage
+		//2 - Weapon Damage
+		//3 - Hunger
+		//4 - Rate
+		//5 - Haltrate
+		//6 - Homing
+		//7 - Step
+		//8 - Weapon
+		//9 - ItemSet
+		//10 - SFX
+		//11-21 - Attributes
+		//22-39 - Defenses
+		//40 - HP
+		//41 - ID
+		//0-99 and 100-199 are duplicates
+		//200 - Type of Barrier Shift active
+		//201 - Used for alternating data buffers between 0-99 and 100-199
+		//300-311 - Attributes
+		//312 - Current ID
+		
+		for(i=0; i<12; ++i){
+			vars[300+i] = ghost->Attributes[i];
+		}
+		vars[EZBI_CURFORMID] = ghost->ID;
+		
+		int movementStyle = vars[EZBI_WALKTYPE];
+		int attack1 = vars[EZBI_ATTACK1];
+		int attack2 = vars[EZBI_ATTACK2];
+		int attack3 = vars[EZBI_ATTACK3];
+        int shaveHitbox = vars[EZBI_SHAVE];
+		int special = vars[EZBI_SPECIAL];
+		int size = vars[EZBI_SIZE];
+		int fireSFX = vars[EZBI_WPNSFX];
+		int fireSPR = vars[EZBI_WPNSPR];
+		int flags = vars[EZBI_FLAGS];
+		
+		int constantAttack;
+		int doConstantAttack;
+		
+		//Certain attacks in Attack 1 do a constant attack instead
+		//This is triggered at certain parts of the enemy's walk pattern
+		if(attack1==44)
+			constantAttack = 44;
+		else if(attack1==45)
+			constantAttack = 45;
+		else if(attack1==46)
+			constantAttack = 46;
+		else if(attack1==47)
+			constantAttack = 47;
+		else if(attack1==48)
+			constantAttack = 48;
+		
+		//If there's a constant attack, shift all other attacks down
+		if(constantAttack>0){
+			attack1 = attack2;
+			attack2 = attack3;
+			attack3 = 0;
+		}
+		
+        int shaveX = shaveHitbox&1111b;
+        int shaveY = Floor(shaveHitbox>>4)&1111b;
+		
+		//An enemy with no collision uses stun to turn it off and so cannot be stunned normally
+		if(!(flags&EZBF_NOCOLL)&&!(flags&EZBF_NOSTUN)){
+			Ghost_SetFlag(GHF_STUN);
+			Ghost_SetFlag(GHF_CLOCK);
+		}
+		
+		EZB_GetExtraProperties(this, ghost, ghost->ID, vars, attack1, attack2, attack3, attackPool, laserColors);
+		
+		int w = size&1111b;
+		int h = (size>>4)&1111b;
+		if(h==0)
+			h = w;
+		w = Clamp(w, 1, 4);
+		h = Clamp(h, 1, 4);
+		
+		vars[EZBI_COMBO] = ghost->Attributes[10];
+		int combo = vars[EZBI_COMBO];
+		Ghost_Transform(this, ghost, -1, -1, w, h);
+		Ghost_SetHitOffsets(ghost, shaveY, shaveY, shaveX, shaveX);
+		
+		if(flags&EZBF_8WAY)
+			Ghost_SetFlag(GHF_8WAY);
+		else if(flags&EZBF_4WAY)
+			Ghost_SetFlag(GHF_4WAY);
+		if(flags&EZBF_NOFALL)
+			Ghost_SetFlag(GHF_NO_FALL);
+		if(flags&EZBF_FLYING){
+			Ghost_SetFlag(GHF_IGNORE_ALL_TERRAIN);
+			Ghost_SetFlag(GHF_FLYING_ENEMY);
+			this->Flags[FFCF_OVERLAY] = true;
+			if(EZB_FLYING_ZPOS&&(flags&EZBF_NOFALL)&&!IsSideview()){
+				Ghost_SetFlag(GHF_FAKE_Z);
+				Ghost_Z = 8;
+			}
+		}
+		else if(flags&EZBF_AQUATIC){
+			Ghost_SetFlag(GHF_WATER_ONLY);
+		}
+		if(flags&EZBF_KNOCKBACK){
+			Ghost_SetFlag(GHF_KNOCKBACK);
+		}
+		if(EZB_ALWAYS_FAKE_Z)
+			Ghost_SetFlag(GHF_FAKE_Z);
+		
+		int stepCounter = -1;
+		int attackCooldown = ghost->Haltrate*10;
+		int stepAngle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+		int stepCooldown = ghost->Rate;
+		int movementMisc[16];
+		int lastAttack = -1;
+		int lastAttackIndex = 0;
+		
+		if(movementStyle==4){ //Wall Bounce
+			angle = Rand(360);
+			vX = VectorX(ghost->Step/100, angle);
+			vY = VectorY(ghost->Step/100, angle);
+		}
+		if(movementStyle==11){ //Turn At Wall
+			stepAngle = Rand(4);
+		}
+		if(movementStyle==12||movementStyle==13) //Skitter
+			stepCooldown = ghost->Haltrate;
+			
+		
+		while(true){
+			bool attackCond = false;
+			//Handle Movement
+			if(movementStyle==0){ //4 Way Halting Walk
+				stepCounter = Ghost_HaltingWalk4(stepCounter, ghost->Step, ghost->Rate, ghost->Homing, ghost->Hunger, ghost->Haltrate, 48);
+				if(stepCounter==16)
+					attackCond = true;
+			}
+			else if(movementStyle==1){ //4 Way Constant Walk
+				stepCounter = Ghost_ConstantWalk4(stepCounter, ghost->Step, ghost->Rate, ghost->Homing, ghost->Hunger);
+				if(attackCooldown>0)
+					attackCooldown--;
+				else if(Rand(24)==0)
+					attackCond = true;
+			}
+			else if(movementStyle==2){ //8 Way Constant Walk
+				stepCounter = Ghost_ConstantWalk8(stepCounter, ghost->Step, ghost->Rate, ghost->Homing, ghost->Hunger);
+				if(attackCooldown>0)
+					attackCooldown--;
+				else if(Rand(24)==0)
+					attackCond = true;
+			}
+			else if(movementStyle==3){ //Homing in on Link
+				if(Distance(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY())>8){
+					EZB_FaceLink(this, ghost, vars);
+					Ghost_MoveAtAngle(Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY()), ghost->Step/100, 0);
+				}
+				if(ghost->Homing>0&&Link->Action==LA_ATTACKING&&Distance(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY())<ghost->Homing){
+					if(attackCooldown<ghost->Haltrate*5)
+						attackCond = true;
+				}
+				
+				if(attackCooldown>0)
+					attackCooldown--;
+				else if(Rand(24)==0)
+					attackCond = true;
+			}
+			else if(movementStyle==4){ //Wall Bounce
+				Ghost_MoveXY(vX, vY, 0);
+				if((vX<0&&!Ghost_CanMove(DIR_LEFT, 1, 0)) || (vX>0&&!Ghost_CanMove(DIR_RIGHT, 1, 0))){
+					vX = -vX;
+					doConstantAttack = 1;
+				}
+				if((vY<0&&!Ghost_CanMove(DIR_UP, 1, 0)) || (vY>0&&!Ghost_CanMove(DIR_DOWN, 1, 0))){
+					vY = -vY;
+					if(doConstantAttack==0)
+						doConstantAttack = 1;
+				}
+					
+				Ghost_Dir = EZB_AngleDir(this, ghost, vars, Angle(0, 0, vX*10, vY*10));
+				if(flags&EZBF_FACELINK)
+					EZB_FaceLink(this, ghost, vars);
+				if(attackCooldown>0)
+					attackCooldown--;
+				else if(Rand(24)==0)
+					attackCond = true;
+			}
+			else if(movementStyle==5){ //Periodic Reaim
+				Ghost_MoveAtAngle(stepAngle, ghost->Step/100, 0);
+				Ghost_Dir = EZB_AngleDir(this, ghost, vars, stepAngle);
+				if(flags&EZBF_FACELINK)
+					EZB_FaceLink(this, ghost, vars);
+					
+				if(attackCooldown>0)
+					attackCooldown--;
+				else if(Rand(24)==0)
+					attackCond = true;
+					
+				stepCounter++;
+				if(stepCounter>80&&Rand(10)==0){
+					stepAngle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+					stepCounter = 0;
+					if(doConstantAttack==0)
+						doConstantAttack = 1;
+				}
+			}
+			else if(movementStyle==6){ //Lazy chase
+				float homing = ghost->Homing*0.001;
+				float topSpeed = ghost->Step*0.01;
+				vX = Clamp(vX+Sign(CenterLinkX()-CenterX(ghost))*homing, -topSpeed, topSpeed);
+				vY = Clamp(vY+Sign(CenterLinkY()-CenterY(ghost))*homing, -topSpeed, topSpeed);
+				Ghost_MoveXY(vX, vY, 0);
+				if((vX<0&&!Ghost_CanMove(DIR_LEFT, 1, 0)) || (vX>0&&!Ghost_CanMove(DIR_RIGHT, 1, 0))){
+					vX = -vX;
+					if(doConstantAttack==0)
+						doConstantAttack = 1;
+				}
+				if((vY<0&&!Ghost_CanMove(DIR_UP, 1, 0)) || (vY>0&&!Ghost_CanMove(DIR_DOWN, 1, 0))){
+					vY = -vY;
+					if(doConstantAttack==0)
+						doConstantAttack = 1;
+				}
+					
+				Ghost_Dir = EZB_AngleDir(this, ghost, vars, Angle(0, 0, vX*10, vY*10));
+				if(flags&EZBF_FACELINK)
+					EZB_FaceLink(this, ghost, vars);
+				if(attackCooldown>0)
+					attackCooldown--;
+				else if(Rand(24)==0)
+					attackCond = true;
+			}
+			else if(movementStyle==7){ //Hopping
+				EZB_Waitframes(this, ghost, vars, ghost->Haltrate*8+Choose(0, 8, 16));
+				if(ghost->Homing==0)
+					stepAngle = WrapDegrees(Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY())+Rand(-30, 30));
+				else
+					stepAngle = WrapDegrees(Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY())+Rand(-ghost->Homing, ghost->Homing));
+				Game->PlaySound(SFX_JUMP);
+				Ghost_Jump = 2.6;
+				while(Ghost_Jump>0||Ghost_Z>0){
+					Ghost_Dir = EZB_AngleDir(this, ghost, vars, stepAngle);
+					Ghost_MoveAtAngle(stepAngle, ghost->Step/100, 0);
+					if(flags&EZBF_FACELINK)
+						EZB_FaceLink(this, ghost, vars);
+					EZB_Waitframe(this, ghost, vars);
+				}
+				if(stepCooldown>0)
+					stepCooldown--;
+				if(stepCooldown<=0||Rand(Max(Ceiling(ghost->Rate*0.5), 2))==0){
+					attackCond = true;
+					stepCooldown = ghost->Rate;
+				}
+				if(!attackCond)
+					doConstantAttack = 1;
+			}
+			else if(movementStyle==8){ //Teleport
+				EZB_Waitframes(this, ghost, vars, ghost->Haltrate*8+Choose(0, 8, 16));
+				EZB_Teleport(this, ghost, vars);
+				if(stepCooldown>0)
+					stepCooldown--;
+				if(stepCooldown<=0||Rand(Max(Ceiling(ghost->Rate*0.5), 2))==0){
+					attackCond = true;
+					stepCooldown = ghost->Rate;
+				}
+				if(!attackCond)
+					doConstantAttack = 1;
+			}
+			else if(movementStyle==9){ //Rapid hop
+				stepAngle = WrapDegrees(Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY())+Rand(-ghost->Haltrate, ghost->Haltrate));
+				Game->PlaySound(SFX_JUMP);
+				if(ghost->Homing==0)
+					Ghost_Jump = 2.6;
+				else
+					Ghost_Jump = 0.01*ghost->Homing;
+				if(ghost->Rate>0){
+					k = Ghost_Jump * Clamp(0.01*ghost->Rate, 0, 80);
+					Ghost_Jump += Rand(-100, 100)*0.01*k;
+				}
+				while(Ghost_Jump>0||Ghost_Z>0){
+					Ghost_Dir = EZB_AngleDir(this, ghost, vars, stepAngle);
+					Ghost_MoveAtAngle(stepAngle, ghost->Step/100, 0);
+					if(flags&EZBF_FACELINK)
+						EZB_FaceLink(this, ghost, vars);
+					
+					if(attackCooldown>0)
+						attackCooldown--;
+					else if(Rand(24)==0)
+						attackCond = true;
+					
+					EZB_Waitframe(this, ghost, vars);
+					
+					if(attackCond){
+						while(Ghost_Z>0){
+							Ghost_Dir = EZB_AngleDir(this, ghost, vars, stepAngle);
+							Ghost_MoveAtAngle(stepAngle, ghost->Step/100, 0);
+							if(flags&EZBF_FACELINK)
+								EZB_FaceLink(this, ghost, vars);
+							EZB_Waitframe(this, ghost, vars);
+						}
+					}
+				}
+				if(!attackCond)
+					doConstantAttack = 1;
+			}
+			else if(movementStyle==10){ //Run away
+				if(ghost->Homing==0||Distance(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY())<ghost->Homing){
+					angle = Angle(CenterLinkX(), CenterLinkY(), CenterX(ghost), CenterY(ghost));
+					x = Ghost_X+VectorX(6, angle);
+					y = Ghost_Y+VectorY(6, angle);
+					if(stepCounter>0&&stepAngle!=-1000){
+						stepCounter--;
+						EZB_FaceAngle(this, ghost, vars, stepAngle);
+						Ghost_MoveAtAngle(stepAngle, ghost->Step/100, 0);
+					}
+					else if(EZB_CanPlace(this, ghost, x, y)){
+						if(stepCounter>0)
+							stepCounter--;
+						stepAngle = -1000;
+						EZB_FaceAngle(this, ghost, vars, angle);
+						Ghost_MoveAtAngle(angle, ghost->Step/100, 0);
+					}
+					else{
+						stepAngle = WrapDegrees(angle + Choose(-140, 140));
+						stepCounter = Floor(32/(ghost->Step*0.01));
+						if(doConstantAttack==0)
+							doConstantAttack = 1;
+					}
+				}
+				else if(Distance(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY())>ghost->Homing+32){
+					EZB_FaceLink(this, ghost, vars);
+					Ghost_MoveAtAngle(Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY()), ghost->Step/100, 0);
+				}
+				if(flags&EZBF_FACELINK)
+					EZB_FaceLink(this, ghost, vars);
+				if(attackCooldown>0)
+					attackCooldown--;
+				else if(Rand(24)==0)
+					attackCond = true;
+			}
+			else if(movementStyle==11){ //Turn at wall
+				//0 - Direction
+				//15 - Reset
+				if(movementMisc[15]==0){
+					EZB_FaceDir(this, ghost, vars, Ghost_Dir);
+					movementMisc[0] = Ghost_Dir;
+					movementMisc[15] = 1;
+				}
+				if(!Ghost_CanMove(movementMisc[0], 1, 0)){
+					if(ghost->Rate==0){
+						if(movementMisc[0]==DIR_UP)
+							movementMisc[0] = DIR_RIGHT;
+						else if(movementMisc[0]==DIR_DOWN)
+							movementMisc[0] = DIR_LEFT;
+						else if(movementMisc[0]==DIR_LEFT)
+							movementMisc[0] = DIR_UP;
+						else if(movementMisc[0]==DIR_RIGHT)
+							movementMisc[0] = DIR_DOWN;
+					}
+					else if(ghost->Rate==1){
+						if(movementMisc[0]==DIR_UP)
+							movementMisc[0] = DIR_LEFT;
+						else if(movementMisc[0]==DIR_DOWN)
+							movementMisc[0] = DIR_RIGHT;
+						else if(movementMisc[0]==DIR_LEFT)
+							movementMisc[0] = DIR_DOWN;
+						else if(movementMisc[0]==DIR_RIGHT)
+							movementMisc[0] = DIR_UP;
+					}
+					else if(ghost->Rate==2){
+						if(movementMisc[0]==DIR_UP)
+							movementMisc[0] = DIR_DOWN;
+						else if(movementMisc[0]==DIR_DOWN)
+							movementMisc[0] = DIR_UP;
+						else if(movementMisc[0]==DIR_LEFT)
+							movementMisc[0] = DIR_RIGHT;
+						else if(movementMisc[0]==DIR_RIGHT)
+							movementMisc[0] = DIR_LEFT;
+					}
+					else{
+						if(movementMisc[0]==DIR_UP)
+							movementMisc[0] = Choose(DIR_LEFT, DIR_RIGHT);
+						else if(movementMisc[0]==DIR_DOWN)
+							movementMisc[0] = Choose(DIR_LEFT, DIR_RIGHT);
+						else if(movementMisc[0]==DIR_LEFT)
+							movementMisc[0] = Choose(DIR_UP, DIR_DOWN);
+						else if(movementMisc[0]==DIR_RIGHT)
+							movementMisc[0] = Choose(DIR_UP, DIR_DOWN);
+					}
+					if(doConstantAttack==0)
+						doConstantAttack = 1;
+				}
+				Ghost_Dir = movementMisc[0];
+				if(flags&EZBF_FACELINK)
+					EZB_FaceLink(this, ghost, vars);
+				Ghost_Move(movementMisc[0], ghost->Step/100, 0);
+				if(attackCooldown>0)
+					attackCooldown--;
+				else if(Rand(24)==0)
+					attackCond = true;
+			}
+			else if(movementStyle==12){ //Skitter 4 Way
+				//0 - Direction
+				//15 - Reset
+				if(movementMisc[15]==0){
+					movementMisc[0] = Rand(4);
+					EZB_FaceDir(this, ghost, vars, movementMisc[0]);
+					movementMisc[15] = 1;
+				}
+				if(stepCounter>0)
+					--stepCounter;
+				else{
+					movementMisc[0] = Rand(4);
+					i = Max(1, ghost->Rate);
+					if(Rand(i)==0)
+						movementMisc[0] = AngleDir4(Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY()));
+					if(!EZB_CanMoveAngle(EZB_DirAngle(movementMisc[0])))
+						movementMisc[0] = OppositeDir(movementMisc[0]);
+					j = movementMisc[0];
+					for(i=0; i<16; ++i){
+						Ghost_Move(j, ghost->Step/100, 0);
+						EZB_FaceDir(this, ghost, vars, movementMisc[0]);
+						if(flags&EZBF_FACELINK)
+							EZB_FaceLink(this, ghost, vars);
+						EZB_Waitframe(this, ghost, vars);
+					}
+					if(stepCooldown>0)
+						stepCooldown--;
+					if(stepCooldown<=0&&Rand(2)==0){
+						attackCond = true;
+						stepCooldown = ghost->Haltrate;
+					}
+					if(!attackCond)
+						doConstantAttack = 1;
+					stepCounter = ghost->Homing+Rand(ghost->Homing);
+				}
+				EZB_FaceDir(this, ghost, vars, movementMisc[0]);
+				if(flags&EZBF_FACELINK)
+					EZB_FaceLink(this, ghost, vars);
+			}
+			else if(movementStyle==13){ //Skitter 8 Way
+				//0 - Direction
+				//15 - Reset
+				if(movementMisc[15]==0){
+					movementMisc[0] = Rand(8);
+					EZB_FaceDir(this, ghost, vars, movementMisc[0]);
+					movementMisc[15] = 1;
+				}
+				if(stepCounter>0)
+					--stepCounter;
+				else{
+					movementMisc[0] = Rand(8);
+					i = Max(1, ghost->Rate);
+					if(Rand(i)==0)
+						movementMisc[0] = AngleDir8(Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY()));
+					if(!EZB_CanMoveAngle(EZB_DirAngle(movementMisc[0])))
+						movementMisc[0] = OppositeDir(movementMisc[0]);
+					j = movementMisc[0];
+					for(i=0; i<16; ++i){
+						Ghost_Move(j, ghost->Step/100, 0);
+						EZB_FaceDir(this, ghost, vars, movementMisc[0]);
+						if(flags&EZBF_FACELINK)
+							EZB_FaceLink(this, ghost, vars);
+						EZB_Waitframe(this, ghost, vars);
+					}
+					if(stepCooldown>0)
+						stepCooldown--;
+					if(stepCooldown<=0&&Rand(2)==0){
+						attackCond = true;
+						stepCooldown = ghost->Haltrate;
+					}
+					if(!attackCond)
+						doConstantAttack = 1;
+					stepCounter = ghost->Homing+Rand(ghost->Homing);
+				}
+				EZB_FaceDir(this, ghost, vars, movementMisc[0]);
+				if(flags&EZBF_FACELINK)
+					EZB_FaceLink(this, ghost, vars);
+			}
+			else if(movementStyle==14){ //Teleport (Fast)
+				EZB_Waitframes(this, ghost, vars, ghost->Haltrate*8+Choose(0, 4, 8));
+				EZB_Teleport(this, ghost, vars, -1000, -1000, 4);
+				if(stepCooldown>0)
+					stepCooldown--;
+				if(stepCooldown<=0||Rand(Max(Ceiling(ghost->Rate*0.5), 2))==0){
+					attackCond = true;
+					stepCooldown = ghost->Rate;
+				}
+				if(!attackCond)
+					doConstantAttack = 1;
+			}
+			else if(movementStyle==15){ //Follow Wall
+				//0 - Stepcounter
+				//1 - Turn direction
+				//2 - Direction
+				//15 - Reset
+				if(movementMisc[15]==0){
+					movementMisc[15] = 1;
+					if(ghost->Rate==0)
+						movementMisc[1] = 1;
+					else if(ghost->Rate==1)
+						movementMisc[1] = 2;
+					else
+						movementMisc[1] = Rand(1, 2);
+					EZB_FaceDir(this, ghost, vars, Ghost_Dir);
+					movementMisc[2] = Ghost_Dir;
+				}
+				movementMisc[0] += ghost->Step/100;
+				if(movementMisc[0]>=1){
+					for(i=0; i<movementMisc[0]; ++i){
+						if(movementMisc[1]==1){ //Clockwise
+							j = EZB_TurnDir4(movementMisc[2], true);
+							if(Ghost_CanMove(j, 1, 0)){
+								x = Ghost_X+EZB_DirX(j, 8);
+								y = Ghost_Y+EZB_DirY(j, 8);
+								if(!EZB_CanMoveAtPos(x+ghost->HitXOffset, y+ghost->HitYOffset, ghost->HitWidth, ghost->HitHeight, OppositeDir(movementMisc[2]))){
+									movementMisc[2] = j;
+								}
+							}
+						}
+						else{ //Counterclockwise 
+							j = EZB_TurnDir4(movementMisc[2], false);
+							if(Ghost_CanMove(j, 1, 0)){
+								x = Ghost_X+EZB_DirX(j, 8);
+								y = Ghost_Y+EZB_DirY(j, 8);
+								if(!EZB_CanMoveAtPos(x+ghost->HitXOffset, y+ghost->HitYOffset, ghost->HitWidth, ghost->HitHeight, OppositeDir(movementMisc[2]))){
+									movementMisc[2] = j;
+								}
+							}
+						}
+							
+						//When obstructed by a wall
+						if(!Ghost_CanMove(movementMisc[2], 1, 0)){
+							if(movementMisc[1]==1){ //Clockwise
+								movementMisc[2] = EZB_TurnDir4(movementMisc[2], false);
+							}
+							else{ //Counterclockwise 
+								movementMisc[2] = EZB_TurnDir4(movementMisc[2], true);
+							}
+						}
+						
+						Ghost_Move(movementMisc[2], 1, 0);
+					}
+				}
+				movementMisc[0] -= Floor(movementMisc[0]);
+				Ghost_Dir = movementMisc[2];
+				if(flags&EZBF_FACELINK)
+					EZB_FaceLink(this, ghost, vars);
+				
+				if(attackCooldown>0)
+					attackCooldown--;
+				else if(Rand(24)==0)
+					attackCond = true;
+			}
+			else if(movementStyle==16){ //Fishrobe
+				EZB_FishWizardUpdate(this, ghost, vars, movementMisc);
+				if(movementMisc[2])
+					attackCond = true;
+				else if(movementMisc[3])
+					doConstantAttack = 1;
+			}
+			
+			if(doConstantAttack==1){
+				if(constantAttack==44){ //Fireball (Directional)
+					EZB_Fire(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, EZB_DirAngle(Ghost_Dir), 150);
+				}
+				else if(constantAttack==45){ //Fireball (Angular)
+					EZB_Fire(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY()), 150);
+				}
+				else if(constantAttack==46){ //Summon
+					if ( Screen->NumNPCs() < EZB_TOTAL_SUMMON_CAP && EZB_NumSummons(summons) < EZB_SUMMON_CAP ) {
+						Game->PlaySound(SFX_EZB_SUMMON);
+						enem = CreateNPCAt(special, CenterX(ghost)-8, CenterY(ghost)-8);
+						EZB_AddSummon(enem, summons);
+					}
+				}
+				else if(constantAttack==47){ //4 Way (HV)
+					for(i=0; i<4; ++i){
+						EZB_Fire(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, 90*i, 150);
+					}
+				}
+				else if(constantAttack==48){ //4 Way (Diag)
+					for(i=0; i<4; ++i){
+						EZB_Fire(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, 45+90*i, 150);
+					}
+				}
+				doConstantAttack = -8;
+			}
+			if(doConstantAttack<0)
+				++doConstantAttack;
+			
+			if(attackCond&&(attackPool[0]||vars[EZBI_BSTYPE])){
+				vars[EZBI_ATTACKFLAG] = 1;
+				
+				//Select an attack
+				int attack;
+				i = Rand(attackPool[0]);
+				attack = attackPool[1+i];
+				if(flags&EZBF_SEQUENTIALATTACKS){
+					attack = attackPool[1+lastAttackIndex];
+					++lastAttackIndex;
+					lastAttackIndex %= (attackPool[0]);
+				}
+				else if(EZB_DONT_REPEAT_LAST_ATTACK){
+					if(lastAttack==attack&&(attackPool[0]>2||EZB_DONT_REPEAT_LAST_ATTACK==1)){
+						++i;
+						i %= (attackPool[0]);
+						attack = attackPool[1+i];
+					}
+				}
+				lastAttack = attack;
+				
+				if(attack==1){ //Dash
+					EZB_FaceLink(this, ghost, vars);
+					EZB_FiringAnim(this, ghost, vars, 1);
+					EZB_FaceLink(this, ghost, vars);
+					angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+					k = 2;
+					Ghost_Data = combo;
+					Game->PlaySound(SFX_EZB_DASH);
+					while(EZB_CanMoveAngle(angle)){
+						k = Min(k+0.2, 5);
+						Ghost_MoveAtAngle(angle, k, 0);
+						EZB_Trail(this, ghost, vars);
+						EZB_Waitframe(this, ghost, vars);
+					}
+				}
+				if(attack==2){ //Shoot (Directional)
+					EZB_FiringAnim(this, ghost, vars, 0);
+					EZB_Fire(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, EZB_DirAngle(Ghost_Dir), 150);
+					EZB_Waitframes(this, ghost, vars, 24);
+				}
+				if(attack==3){ //Shoot (Angular)
+					EZB_FaceLink(this, ghost, vars);
+					EZB_FiringAnim(this, ghost, vars, 0);
+					EZB_Fire(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY()), 150);
+					EZB_Waitframes(this, ghost, vars, 24);
+				}
+				if(attack==4){ //Tri Shot (Directional)
+					EZB_FiringAnim(this, ghost, vars, 0);
+					for(i=-1; i<=1; ++i){
+						EZB_Fire(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, EZB_DirAngle(Ghost_Dir)+30*i, 250);
+					}
+					EZB_Waitframes(this, ghost, vars, 24);
+				}
+				if(attack==5){ //Tri Shot (Angular)
+					EZB_FaceLink(this, ghost, vars);
+					EZB_FiringAnim(this, ghost, vars, 0);
+					for(i=-1; i<=1; ++i){
+						EZB_Fire(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY())+30*i, 250);
+					}
+					EZB_Waitframes(this, ghost, vars, 24);
+				}
+				if(attack==6){ //Stream (Directional)
+					EZB_FiringAnim(this, ghost, vars, 1);
+					angle = EZB_DirAngle(Ghost_Dir);
+					EZB_Waitframes(this, ghost, vars, 12);
+					for(i=0; i<10; ++i){
+						EZB_Fire(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, angle, 350);
+						EZB_Waitframes(this, ghost, vars, 8);
+					}
+					EZB_Waitframes(this, ghost, vars, 12);
+				}
+				if(attack==7){ //Stream (Angular)
+					EZB_FaceLink(this, ghost, vars);
+					EZB_FiringAnim(this, ghost, vars, 1);
+					angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+					EZB_Waitframes(this, ghost, vars, 12);
+					for(i=0; i<10; ++i){
+						EZB_Fire(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, angle, 350);
+						EZB_Waitframes(this, ghost, vars, 8);
+					}
+					EZB_Waitframes(this, ghost, vars, 12);
+				}
+				if(attack==8){ //Breath (Directional)
+					EZB_FiringAnim(this, ghost, vars, 1);
+					angle = EZB_DirAngle(Ghost_Dir);
+					EZB_Waitframes(this, ghost, vars, 24);
+					for(i=0; i<24; ++i){
+						EZB_Fire(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, angle+Rand(-10-i, 10+i), 250);
+						EZB_Waitframes(this, ghost, vars, 4);
+					}
+				}
+				if(attack==9){ //Breath (Angular)
+					EZB_FaceLink(this, ghost, vars);
+					EZB_FiringAnim(this, ghost, vars, 1);
+					angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+					EZB_Waitframes(this, ghost, vars, 24);
+					for(i=0; i<24; ++i){
+						EZB_Fire(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, angle+Rand(-10-i, 10+i), 250);
+						EZB_Waitframes(this, ghost, vars, 4);
+					}
+				}
+				if(attack==10){ //Sweep (Directional)
+					EZB_FiringAnim(this, ghost, vars, 1);
+					k = Choose(-1, 1);
+					angle = EZB_DirAngle(Ghost_Dir)-75*k;
+					for(i=0; i<7; ++i){
+						EZB_Fire(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, angle, 150);
+						angle += k*25;
+						EZB_Waitframes(this, ghost, vars, 4);
+					}
+					EZB_Waitframes(this, ghost, vars, 48);
+				}
+				if(attack==11){ //Sweep (Angular)
+					EZB_FaceLink(this, ghost, vars);
+					EZB_FiringAnim(this, ghost, vars, 1);
+					k = Choose(-1, 1);
+					angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY())-75*k;
+					for(i=0; i<7; ++i){
+						EZB_Fire(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, angle, 150);
+						angle += k*25;
+						EZB_Waitframes(this, ghost, vars, 2);
+					}
+					EZB_Waitframes(this, ghost, vars, 48);
+				}
+				if(attack==12){ //Bullet Barrage
+					EZB_FaceLink(this, ghost, vars);
+					EZB_FiringAnim(this, ghost, vars, 2);
+					angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY())-45;
+					for(i=0; i<3; ++i){
+						for(j=-4; j<=4; j+=2){
+							EZB_Fire(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, angle+16*j, 150);
+						}
+						EZB_Waitframes(this, ghost, vars, 16);
+						for(j=-5; j<=5; j+=2){
+							EZB_Fire(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, angle+16*j, 150);
+						}
+						EZB_Waitframes(this, ghost, vars, 24);
+					}
+					EZB_Waitframes(this, ghost, vars, 24);
+				}
+				if(attack==13){ //Bullet Swirl
+					EZB_FaceLink(this, ghost, vars);
+					EZB_FiringAnim(this, ghost, vars, 1);
+					k = Choose(-1, 1);
+					angle = Rand(360);
+					for(i=0; i<15; ++i){
+						for(j=0; j<5; ++j){
+							EZB_Fire(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, angle+72*j, 150);
+						}
+						angle += 4*k;
+						EZB_Waitframes(this, ghost, vars, 4);
+					}
+					EZB_Waitframes(this, ghost, vars, 24);
+				}
+				if(attack==14){ //Bullet Rings
+					EZB_FaceLink(this, ghost, vars);
+					EZB_FiringAnim(this, ghost, vars, 2);
+					for(i=0; i<3; ++i){
+						angle = Rand(360);
+						for(j=0; j<10; ++j){
+							EZB_Fire(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, angle+360/10*j, 180);
+						}
+						EZB_Waitframes(this, ghost, vars, 45);
+					}
+					EZB_Waitframes(this, ghost, vars, 24);
+				}
+				if(attack==15){ //Laser
+					EZB_FaceLink(this, ghost, vars);
+					EZB_FiringAnim(this, ghost, vars, 0);
+					angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+					Game->PlaySound(SFX_EZB_LASERCHARGE);
+					for(i=0; i<30; ++i){
+						EZB_DoLaser(LAYER_EZB_LASER, CenterX(ghost), CenterY(ghost), 8, angle, 0, laserColors, -1, 0, i, 30);
+						EZB_Waitframe(this, ghost, vars);
+					}
+					Game->PlaySound(SFX_EZB_LASER);
+					for(i=0; i<20; ++i){
+						EZB_DoLaser(LAYER_EZB_LASER, CenterX(ghost), CenterY(ghost), 8, angle, ghost->WeaponDamage, laserColors, -1, 1, i, 20);
+						EZB_Waitframe(this, ghost, vars);
+					}
+				}
+				if(attack==16){ //Big Laser
+					angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+					EZB_FaceLink(this, ghost, vars);
+					EZB_FiringAnim(this, ghost, vars, 2);
+					Game->PlaySound(SFX_EZB_LASERCHARGE);
+					for(i=0; i<60; ++i){
+						EZB_DoLaser(LAYER_EZB_LASER, CenterX(ghost), CenterY(ghost), 40, angle, 0, laserColors, -1, 0, i, 60);
+						EZB_Waitframe(this, ghost, vars);
+					}
+					Game->PlaySound(SFX_EZB_LASER);
+					for(i=0; i<40; ++i){
+						EZB_DoLaser(LAYER_EZB_LASER, CenterX(ghost), CenterY(ghost), 40, angle, ghost->WeaponDamage*2, laserColors, -1, 1, i, 40);
+						EZB_Waitframe(this, ghost, vars);
+					}
+				}
+				if(attack==17){ //Laser Spread
+					EZB_FaceLink(this, ghost, vars);
+					EZB_FiringAnim(this, ghost, vars, 1);
+					angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+					k = (w*8+h*8)/2;
+					Game->PlaySound(SFX_EZB_LASERCHARGE);
+					for(i=0; i<40; ++i){
+						m = Choose(laserColors[1], laserColors[2]);
+						for(j=-2; j<=2; ++j){
+							x = CenterX(ghost)+VectorX(k, angle+30*j);
+							y = CenterY(ghost)+VectorY(k, angle+30*j);
+							EZB_DoLaser(LAYER_EZB_LASER, x, y, 6, angle+30*j, 0, laserColors, m, 0, i, 40);
+						}
+						EZB_Waitframe(this, ghost, vars);
+					}
+					Game->PlaySound(SFX_EZB_LASER);
+					for(i=0; i<25; ++i){
+						m = Choose(laserColors[0], laserColors[1], laserColors[2]);
+						for(j=-2; j<=2; ++j){
+							x = CenterX(ghost)+VectorX(k, angle+30*j);
+							y = CenterY(ghost)+VectorY(k, angle+30*j);
+							EZB_DoLaser(LAYER_EZB_LASER, x, y, 6, angle+30*j, ghost->WeaponDamage, laserColors, m, 1, i, 25);
+						}
+						EZB_Waitframe(this, ghost, vars);
+					}
+				}
+				if(attack==18){ //Laser Cross
+					EZB_FaceLink(this, ghost, vars);
+					EZB_FiringAnim(this, ghost, vars, 2);
+					k = Choose(-1, 1);
+					angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY())+45;
+					Game->PlaySound(SFX_EZB_LASERCHARGE);
+					for(i=0; i<40; ++i){
+						m = Choose(laserColors[1], laserColors[2]);
+						if(Distance(CenterX(ghost), CenterY(ghost), 128, 88)>8){
+							Ghost_MoveAtAngle(Angle(CenterX(ghost), CenterY(ghost), 128, 88), 0.8, 0);
+						}
+						for(j=0; j<4; ++j){
+							EZB_DoLaser(LAYER_EZB_LASER, CenterX(ghost), CenterY(ghost), 6, angle+90*j, 0, laserColors, m, 0, i, 40);
+						}
+						EZB_Waitframe(this, ghost, vars);
+					}
+					Game->PlaySound(SFX_EZB_LASER);
+					for(i=0; i<30; ++i){
+						m = Choose(laserColors[0], laserColors[1], laserColors[2]);
+						for(j=0; j<4; ++j){
+							EZB_DoLaser(LAYER_EZB_LASER, CenterX(ghost), CenterY(ghost), 6, angle+90*j, ghost->WeaponDamage, laserColors, m, 1, i, 30);
+						}
+						EZB_Waitframe(this, ghost, vars);
+					}
+					for(i=0; i<30; ++i){
+						m = Choose(laserColors[0], laserColors[1], laserColors[2]);
+						for(j=0; j<4; ++j){
+							EZB_DoLaser(LAYER_EZB_LASER, CenterX(ghost), CenterY(ghost), 6, angle+90*j, ghost->WeaponDamage, laserColors, m, 1, i, 30);
+						}
+						angle += k;
+						EZB_Waitframe(this, ghost, vars);
+					}
+					for(i=0; i<120; ++i){
+						m = Choose(laserColors[0], laserColors[1], laserColors[2]);
+						for(j=0; j<4; ++j){
+							EZB_DoLaser(LAYER_EZB_LASER, CenterX(ghost), CenterY(ghost), 6, angle+90*j, ghost->WeaponDamage, laserColors, m, 1, i, 120);
+						}
+						angle += k*1.25;
+						EZB_Waitframe(this, ghost, vars);
+					}
+					for(i=0; i<30; ++i){
+						m = Choose(laserColors[0], laserColors[1], laserColors[2]);
+						for(j=0; j<4; ++j){
+							EZB_DoLaser(LAYER_EZB_LASER, CenterX(ghost), CenterY(ghost), 6, angle+90*j, ghost->WeaponDamage, laserColors, m, 1, i, 30);
+						}
+						angle += k;
+						EZB_Waitframe(this, ghost, vars);
+					}
+				}
+				if(attack==19){ //Summon 1 Enemy
+					if ( Screen->NumNPCs() < EZB_TOTAL_SUMMON_CAP && EZB_NumSummons(summons) < EZB_SUMMON_CAP ) {
+						EZB_FiringAnim(this, ghost, vars, 0);
+						Game->PlaySound(SFX_EZB_SUMMON);
+						enem = CreateNPCAt(special, CenterX(ghost)-8, CenterY(ghost)-8);
+						EZB_AddSummon(enem, summons);
+						EZB_Waitframes(this, ghost, vars, 24);
+					}
+				}
+				if(attack==20){ //Summon 2 Enemies
+					if ( Screen->NumNPCs() < EZB_TOTAL_SUMMON_CAP && EZB_NumSummons(summons) < EZB_SUMMON_CAP ) {
+						EZB_FiringAnim(this, ghost, vars, 0);
+						Game->PlaySound(SFX_EZB_SUMMON);
+						for(i=0; i<2; ++i){
+							enem = CreateNPCAt(special, CenterX(ghost)-8+Rand(-4, 4), CenterY(ghost)-8+Rand(-4, 4));
+							EZB_AddSummon(enem, summons);
+						}
+						EZB_Waitframes(this, ghost, vars, 24);
+					}
+				}
+				if(attack==21){ //Summon 3 Enemies
+					if ( Screen->NumNPCs() < EZB_TOTAL_SUMMON_CAP && EZB_NumSummons(summons) < EZB_SUMMON_CAP ) {
+						EZB_FiringAnim(this, ghost, vars, 0);
+						Game->PlaySound(SFX_EZB_SUMMON);
+						for(i=0; i<3; ++i){
+							enem = CreateNPCAt(special, CenterX(ghost)-8+Rand(-4, 4), CenterY(ghost)-8+Rand(-4, 4));
+							EZB_AddSummon(enem, summons);
+						}
+						EZB_Waitframes(this, ghost, vars, 24);
+					}
+				}
+				if(attack==22){ //Homing Shot
+					EZB_FaceLink(this, ghost, vars);
+					EZB_FiringAnim(this, ghost, vars, 0);
+					eweapon wpn = EZB_Fire(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY()), 100);
+					SetEWeaponMovement(wpn, EWM_HOMING, DegtoRad(2), 120);
+					EZB_Waitframes(this, ghost, vars, 24);
+				}
+				if(attack==23){ //5 Aimed Shots (With Delays)
+					EZB_FaceLink(this, ghost, vars);
+					EZB_FiringAnim(this, ghost, vars, 0);
+					for(i=0; i<5; ++i){
+						EZB_FaceLink(this, ghost, vars);
+						EZB_Fire(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY()), 200);
+						EZB_Waitframes(this, ghost, vars, 25);
+					}
+				}
+				if(attack==24){ //10 Aimed Shots (Quick)
+					EZB_FaceLink(this, ghost, vars);
+					EZB_FiringAnim(this, ghost, vars, 0);
+					for(i=0; i<10; ++i){
+						EZB_Fire(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY()), 200);
+						EZB_Waitframes(this, ghost, vars, 6);
+					}
+				}
+				if(attack==25){ //Aimed Bullet Circle
+					EZB_FaceLink(this, ghost, vars);
+					EZB_FiringAnim(this, ghost, vars, 1);
+					for(i=0; i<12; ++i){
+						eweapon wpn = EZB_Fire(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, 360/12*i, 200);
+						SetEWeaponMovement(wpn, EWM_HOMING_REAIM, 1, 30);
+					}
+					EZB_Waitframes(this, ghost, vars, 24);
+				}
+				if(attack==26){ //4 Way Shot (Normal)
+					EZB_FiringAnim(this, ghost, vars, 0);
+					for(i=0; i<4; ++i){
+						EZB_Fire(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, 90*i, 150);
+					}
+					EZB_Waitframes(this, ghost, vars, 24);
+				}
+				if(attack==27){ //4 Way Shot (Diagonal)
+					EZB_FiringAnim(this, ghost, vars, 0);
+					for(i=0; i<4; ++i){
+						EZB_Fire(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, 45+90*i, 150);
+					}
+					EZB_Waitframes(this, ghost, vars, 24);
+				}
+				if(attack==28){ //8 Way Shot
+					EZB_FiringAnim(this, ghost, vars, 1);
+					for(i=0; i<8; ++i){
+						EZB_Fire(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, 45*i, 150);
+					}
+					EZB_Waitframes(this, ghost, vars, 24);
+				}
+				if(attack==29){ //Bullet Storm
+					EZB_FiringAnim(this, ghost, vars, 1);
+					angle = 0;
+					if ( CenterLinkX() < 128 )
+						angle = 180;
+					for(i=0; i<20; ++i){
+						if ( angle == 0 )
+							EZB_Fire(this, ghost, vars, 0, Rand(8, 152), angle, 250);
+						else
+							EZB_Fire(this, ghost, vars, 240, Rand(8, 152), angle, 250);
+						EZB_Waitframes(this, ghost, vars, 8);
+					}
+					EZB_Waitframes(this, ghost, vars, 24);
+				}
+				if(attack==30){ //Laser Storm
+					EZB_FiringAnim(this, ghost, vars, 2);
+					k = Rand(8, 152);
+					Game->PlaySound(SFX_EZB_LASERCHARGE);
+					for(i=0; i<35; ++i){
+						EZB_DoLaser(LAYER_EZB_LASER, -32, k, 8, 0, 0, laserColors, -1, 0, i, 35);
+						EZB_Waitframe(this, ghost, vars);
+					}
+					for(j=0; j<8; ++j){
+						Game->PlaySound(SFX_EZB_LASER);
+						y = k;
+						k = Rand(8, 152);
+						while(k-y > -40 && k-y < 40) { //make sure next laser is not too close to current laser
+							k = Rand(8, 152);
+						}
+						for(i=0; i<35; ++i){
+							if(i<20){
+								EZB_DoLaser(LAYER_EZB_LASER, -32, y, 8, 0, ghost->WeaponDamage, laserColors, -1, 1, i, 20);
+							}
+							if(j<7){ //dont show the last laser
+								if(i==0)
+									Game->PlaySound(SFX_EZB_LASERCHARGE);
+								EZB_DoLaser(LAYER_EZB_LASER, -32, k, 8, 0, 0, laserColors, -1, 0, i, 7);
+							}
+							EZB_Waitframe(this, ghost, vars);
+						}
+					}
+				}
+				if(attack==31){ //Laser Expansion
+					EZB_FiringAnim(this, ghost, vars, 2);
+					k = 0;
+					while(true){
+						Game->PlaySound(SFX_EZB_LASERCHARGE);
+						for(i=0; i<30; ++i){
+							for(j=-1; j<=1; j+=2){
+								EZB_DoLaser(LAYER_EZB_LASER, CenterX(ghost)+24*k*j, -32, 12, 90, 0, laserColors, -1, 0, i, 30);
+							}
+							EZB_Waitframe(this, ghost, vars);
+						}
+						Game->PlaySound(SFX_EZB_LASER);
+						for(i=0; i<20; ++i){
+							for(j=-1; j<=1; j+=2){
+								EZB_DoLaser(LAYER_EZB_LASER, CenterX(ghost)+24*k*j, -32, 12, 90, ghost->WeaponDamage, laserColors, -1, 1, i, 20);
+							}
+							EZB_Waitframe(this, ghost, vars);
+						}
+						++k;
+						if ( CenterX(ghost)+24*k*-1 < 16 && CenterX(ghost)+24*k > 224 || k > 10 )
+							break;
+                        //stop if Link has crossed the attack
+                        if ( k > 2 && Link->X+8-16 > CenterX(ghost)+24*k*-1 && Link->X+8+16 < CenterX(ghost)+24*k )
+                            break;
+					}
+				}
+				if(attack==32){ //2 Shot Spread 40 degrees
+					EZB_FaceLink(this, ghost, vars);
+					EZB_FiringAnim(this, ghost, vars, 0);
+					for(i=0; i<2; ++i){
+						EZB_Fire(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY())-20+40*i, 250);
+					}
+					EZB_Waitframes(this, ghost, vars, 24);
+				}
+				if(attack==33){ //Bash
+					EZB_FaceLink(this, ghost, vars);
+					EZB_FiringAnim(this, ghost, vars, 1);
+					EZB_FaceLink(this, ghost, vars);
+					angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+					k = 1;
+					Ghost_Data = combo;
+					Game->PlaySound(SFX_EZB_DASH);
+					for(i=0; i<10; ++i){
+						k = Min(k+0.5, 5);
+						Ghost_MoveAtAngle(angle, k, 0);
+						EZB_Trail(this, ghost, vars);
+						EZB_Waitframe(this, ghost, vars);
+					}
+				}
+				if(attack==34){ //Shooting Dash
+					EZB_FaceLink(this, ghost, vars);
+					EZB_FiringAnim(this, ghost, vars, 1);
+					EZB_FaceLink(this, ghost, vars);
+					angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+					k = 2;
+					Game->PlaySound(SFX_EZB_DASH);
+					i = 0;
+					Ghost_Data = combo;
+					while(EZB_CanMoveAngle(angle)){
+						++i;
+						k = Min(k+0.2, 5);
+						Ghost_MoveAtAngle(angle, k, 0);
+						if(i%4==0){
+							if(ghost->Weapon==WPN_ENEMYFLAME||ghost->Weapon==WPN_ENEMYFIRETRAIL){
+								EZB_Fire(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY()), 0);
+							}
+							else{
+								EZB_Fire(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY()), 150);
+							}
+						}
+						EZB_Trail(this, ghost, vars);
+						EZB_Waitframe(this, ghost, vars);
+					}
+				}
+				if(attack==35){ //Double Dash
+					EZB_FaceLink(this, ghost, vars);
+					EZB_FiringAnim(this, ghost, vars, 1);
+					EZB_FaceLink(this, ghost, vars);
+					angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+					k = 2;
+					Game->PlaySound(SFX_EZB_DASH);
+					i = 0;
+					Ghost_Data = combo;
+					for(i=0; i<40; ++i){
+						k = Min(k+0.1, 4);
+						Ghost_MoveAtAngle(angle, k, 0);
+						EZB_Trail(this, ghost, vars);
+						EZB_Waitframe(this, ghost, vars);
+					}
+					EZB_FaceLink(this, ghost, vars);
+					angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+					EZB_FiringAnim(this, ghost, vars, 0);
+					EZB_FaceLink(this, ghost, vars);
+					k = 2;
+					Game->PlaySound(SFX_EZB_DASH);
+					i = 0;
+					Ghost_Data = combo;
+					for(i=0; i<40; ++i){
+						j = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+						if(i<20){
+							if(Abs(EZB_AngDiff(angle, j))>1)
+								angle = WrapDegrees(angle+1*Sign(EZB_AngDiff(angle, j)));
+						}
+						k = Min(k+0.1, 4);
+						Ghost_MoveAtAngle(angle, k, 0);
+						EZB_Trail(this, ghost, vars);
+						EZB_Waitframe(this, ghost, vars);
+					}
+				}
+				if(attack==36){ //Jump
+					EZB_FaceLink(this, ghost, vars);
+					EZB_FiringAnim(this, ghost, vars, 0);
+					angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+					EZB_FaceAngle(this, ghost, vars, angle);
+					Game->PlaySound(SFX_JUMP);
+					Ghost_Jump = 2.6;
+					dist = Distance(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+					k = 2;
+					if(dist<32)
+						k = 0.5;
+					else if(dist<64)
+						k = 1;
+					else if(dist<96)
+						k = 2;
+					else if(dist<128)
+						k = 3;
+					else
+						k = 4;
+					while(Ghost_Jump>0||Ghost_Z>0){
+						Ghost_MoveAtAngle(angle, k, 0);
+						EZB_Waitframe(this, ghost, vars);
+					}
+				}
+				if(attack==37){ //Double Jump
+					EZB_FaceLink(this, ghost, vars);
+					EZB_FiringAnim(this, ghost, vars, 0);
+					angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+					EZB_FaceAngle(this, ghost, vars, angle);
+					Game->PlaySound(SFX_JUMP);
+					Ghost_Jump = 2.6;
+					dist = Distance(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+					k = 2;
+					if(dist<32)
+						k = 0.5;
+					else if(dist<64)
+						k = 1;
+					else if(dist<96)
+						k = 2;
+					else if(dist<128)
+						k = 3;
+					else
+						k = 4;
+					Ghost_Data = combo;
+					while(Ghost_Jump>0||Ghost_Z>0){
+						Ghost_MoveAtAngle(angle, k, 0);
+						EZB_Waitframe(this, ghost, vars);
+					}
+					
+					angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+					EZB_FaceAngle(this, ghost, vars, angle);
+					
+					Game->PlaySound(SFX_JUMP);
+					Ghost_Jump = 2.6;
+					while(Ghost_Jump>0||Ghost_Z>0){
+						Ghost_MoveAtAngle(angle, k/2, 0);
+						EZB_Waitframe(this, ghost, vars);
+					}
+				}
+				if(attack==38){ //Jump, Shockwave
+					EZB_FaceLink(this, ghost, vars);
+					EZB_FiringAnim(this, ghost, vars, 0);
+					EZB_FaceLink(this, ghost, vars);
+					angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+					
+					Game->PlaySound(SFX_JUMP);
+					Ghost_Jump = 3.2;
+					dist = Distance(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+					k = 2;
+					if(dist<32)
+						k = 0.5;
+					else if(dist<64)
+						k = 1;
+					else if(dist<96)
+						k = 2;
+					else if(dist<128)
+						k = 3;
+					else
+						k = 4;
+					
+					Ghost_Data = combo;
+					while(Ghost_Jump>0||Ghost_Z>0){
+						Ghost_MoveAtAngle(angle, k, 0);
+						EZB_Waitframe(this, ghost, vars);
+					}
+					Game->PlaySound(SFX_EZB_SHOCKWAVE);
+					for(i=0; i<64+32; i+=3){
+						EZB_Shockwave(2, CenterX(ghost), CenterY(ghost), i, 64, 12, ghost->WeaponDamage, laserColors[3], laserColors[4], laserColors[5]);
+						EZB_Waitframe(this, ghost, vars);
+					}
+					
+				}
+				if(attack==39){ //High Jump, Shockwave
+					EZB_FaceLink(this, ghost, vars);
+					EZB_FiringAnim(this, ghost, vars, 2);
+					EZB_FaceLink(this, ghost, vars);
+					
+					Ghost_Data = combo;
+					Game->PlaySound(SFX_JUMP);
+					for(i=0; i<176; i+=4){
+						if(Distance(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY())>2){
+							x = Sign(CenterLinkX()-CenterX(ghost));
+							y = Sign(CenterLinkY()-CenterY(ghost));
+							Ghost_MoveXY(x, y, 0);
+						}
+						Ghost_Z += 4;
+						Ghost_Jump = 0;
+						EZB_Waitframe(this, ghost, vars);
+					}
+					for(i=0; i<180; ++i){
+						if(Distance(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY())>2){
+							x = Sign(CenterLinkX()-CenterX(ghost))*0.5;
+							y = Sign(CenterLinkY()-CenterY(ghost))*0.5;
+							Ghost_MoveXY(x, y, 0);
+						}
+						Ghost_Jump = 0;
+						EZB_Waitframe(this, ghost, vars);
+					}
+					Game->PlaySound(SFX_FALL);
+					while(Ghost_Z>0){
+						if(Distance(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY())>2){
+							x = Sign(CenterLinkX()-CenterX(ghost))*0.2;
+							y = Sign(CenterLinkY()-CenterY(ghost))*0.2;
+							Ghost_MoveXY(x, y, 0);
+						}
+						Ghost_Z = Max(Ghost_Z-4, 0);
+						EZB_Waitframe(this, ghost, vars);
+					}
+					Game->PlaySound(SFX_EZB_SHAKE);
+					Screen->Quake = 20;
+					Game->PlaySound(SFX_EZB_SHOCKWAVE);
+					for(i=0; i<80+48; i+=6){
+						EZB_Shockwave(2, CenterX(ghost), CenterY(ghost), i, 80, 16, ghost->WeaponDamage, laserColors[3], laserColors[4], laserColors[5]);
+						EZB_Waitframe(this, ghost, vars);
+					}
+				}
+				if(attack==40){ //High Jump, Rocks Fall
+					EZB_FaceLink(this, ghost, vars);
+					EZB_FiringAnim(this, ghost, vars, 2);
+					EZB_FaceLink(this, ghost, vars);
+					
+					Ghost_Data = combo;
+					Game->PlaySound(SFX_JUMP);
+					for(i=0; i<176; i+=4){
+						if(Distance(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY())>2){
+							x = Sign(CenterLinkX()-CenterX(ghost));
+							y = Sign(CenterLinkY()-CenterY(ghost));
+							Ghost_MoveXY(x, y, 0);
+						}
+						Ghost_Z += 4;
+						Ghost_Jump = 0;
+						EZB_Waitframe(this, ghost, vars);
+					}
+					for(i=0; i<120; ++i){
+						if(Distance(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY())>2){
+							x = Sign(CenterLinkX()-CenterX(ghost))*0.5;
+							y = Sign(CenterLinkY()-CenterY(ghost))*0.5;
+							Ghost_MoveXY(x, y, 0);
+						}
+						Ghost_Jump = 0;
+						EZB_Waitframe(this, ghost, vars);
+					}
+					Game->PlaySound(SFX_FALL);
+					while(Ghost_Z>0){
+						if(Distance(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY())>2){
+							x = Sign(CenterLinkX()-CenterX(ghost))*0.2;
+							y = Sign(CenterLinkY()-CenterY(ghost))*0.2;
+							Ghost_MoveXY(x, y, 0);
+						}
+						Ghost_Z = Max(Ghost_Z-4, 0);
+						EZB_Waitframe(this, ghost, vars);
+					}
+					Game->PlaySound(SFX_EZB_SHAKE);
+					Screen->Quake = 20;
+					for(i=0; i<30; ++i){
+						e = EZB_Fire(this, ghost, vars, Rand(16, 224), Rand(16, 144), Rand(360), Rand(50), EWF_SHADOW);
+						SetEWeaponMovement(e, EWM_FALL, 176, EWMF_DIE);
+						SetEWeaponDeathEffect(e, EWD_EXPLODE, e->Damage);
+						EZB_Waitframes(this, ghost, vars, Rand(2, 6));
+					}
+				}
+				if(attack==41){ //High Jump, Enemies Fall
+					EZB_FaceLink(this, ghost, vars);
+					EZB_FiringAnim(this, ghost, vars, 2);
+					EZB_FaceLink(this, ghost, vars);
+					
+					Ghost_Data = combo;
+					Game->PlaySound(SFX_JUMP);
+					for(i=0; i<176; i+=4){
+						if(Distance(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY())>2){
+							x = Sign(CenterLinkX()-CenterX(ghost));
+							y = Sign(CenterLinkY()-CenterY(ghost));
+							Ghost_MoveXY(x, y, 0);
+						}
+						Ghost_Z += 4;
+						Ghost_Jump = 0;
+						EZB_Waitframe(this, ghost, vars);
+					}
+					for(i=0; i<120; ++i){
+						if(Distance(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY())>2){
+							x = Sign(CenterLinkX()-CenterX(ghost))*0.5;
+							y = Sign(CenterLinkY()-CenterY(ghost))*0.5;
+							Ghost_MoveXY(x, y, 0);
+						}
+						Ghost_Jump = 0;
+						EZB_Waitframe(this, ghost, vars);
+					}
+					Game->PlaySound(SFX_FALL);
+					while(Ghost_Z>0){
+						if(Distance(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY())>2){
+							x = Sign(CenterLinkX()-CenterX(ghost))*0.2;
+							y = Sign(CenterLinkY()-CenterY(ghost))*0.2;
+							Ghost_MoveXY(x, y, 0);
+						}
+						Ghost_Z = Max(Ghost_Z-4, 0);
+						EZB_Waitframe(this, ghost, vars);
+					}
+					Game->PlaySound(SFX_EZB_SHAKE);
+					Screen->Quake = 20;
+					k = Rand(4, 7);
+					for(i=0; i<k&&(Screen->NumNPCs() < EZB_TOTAL_SUMMON_CAP && EZB_NumSummons(summons) < EZB_SUMMON_CAP); ++i){
+						j = Rand(176);
+						for(m=0; m<352&&!EZB_CanPlace(this, ghost, ComboX(j), ComboY(j), 16, 16); ++m){
+							if(k<176)
+								j = Rand(176);
+							else
+								j = m-176;
+						}
+						Game->PlaySound(SFX_FALL);
+						enem = CreateNPCAt(special, ComboX(j), ComboY(j));
+						EZB_AddSummon(enem, summons);
+						enem->Z = 176;
+						EZB_Waitframes(this, ghost, vars, Rand(6, 17));
+					}
+				}
+				if(attack==42){ //Chase
+					EZB_FaceLink(this, ghost, vars);
+					EZB_FiringAnim(this, ghost, vars, 1);
+					EZB_FaceLink(this, ghost, vars);
+					angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+					Ghost_Data = combo;
+					for(i=0; i<300; ++i){
+						angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+						Ghost_MoveAtAngle(angle, 1, 0);
+						EZB_FaceLink(this, ghost, vars);
+						EZB_Waitframe(this, ghost, vars);
+					}
+				}
+				if(attack==43){ //Backstep
+					EZB_FaceLink(this, ghost, vars);
+					angle = Angle(CenterLinkX(), CenterLinkY(), CenterX(ghost), CenterY(ghost));
+					x = Ghost_X+VectorX(32, angle);
+					y = Ghost_Y+VectorY(32, angle);
+					if(EZB_CanPlace(this, ghost, x, y)){
+						k = 3;
+						Ghost_Data = combo;
+						Game->PlaySound(SFX_EZB_BACKSTEP);
+						for(i=0; i<10&&EZB_CanMoveAngle(angle); ++i){
+							angle = Angle(CenterLinkX(), CenterLinkY(), CenterX(ghost), CenterY(ghost));
+							k = Min(k+0.5, 5);
+							Ghost_MoveAtAngle(angle, k, 0);
+							EZB_FaceLink(this, ghost, vars);
+							EZB_Trail(this, ghost, vars);
+							EZB_Waitframe(this, ghost, vars);
+						}
+					}
+					else{
+						EZB_FaceLink(this, ghost, vars);
+						EZB_FiringAnim(this, ghost, vars, 1);
+						EZB_FaceLink(this, ghost, vars);
+						angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+						k = 2;
+						Ghost_Data = combo;
+						Game->PlaySound(SFX_EZB_DASH);
+						while(EZB_CanMoveAngle(angle)){
+							k = Min(k+0.2, 5);
+							Ghost_MoveAtAngle(angle, k, 0);
+							EZB_Trail(this, ghost, vars);
+							EZB_Waitframe(this, ghost, vars);
+						}
+					}
+				}
+				//attack == 44 //Constant Attack (Fireball, Directional)
+				//attack == 45 //Constant Attack (Fireball, Angular)
+				//attack == 46 //Constant Attack (Summon)
+				//attack == 47 //Constant Attack (4 Way, HV)
+				//attack == 48 //Constant Attack (4 Way, Diag)
+				if(attack==49){ //Mega Laser
+					angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+					EZB_FaceLink(this, ghost, vars);
+					EZB_FiringAnim(this, ghost, vars, 2);
+					Game->PlaySound(SFX_EZB_LASERCHARGE);
+					for(i=0; i<90; ++i){
+						EZB_DoLaser(LAYER_EZB_LASER, CenterX(ghost), CenterY(ghost), 64, angle, 0, laserColors, -1, 0, i, 90);
+						EZB_Waitframe(this, ghost, vars);
+					}
+					Game->PlaySound(SFX_EZB_LASER);
+					for(i=0; i<40; ++i){
+						for(j=0; j<4; ++j){
+							x = Ghost_X+Sign(VectorX(1, angle+180));
+							y = Ghost_Y+Sign(VectorY(1, angle+180));
+							if(EZB_CanPlace(this, ghost, x, y)){
+								Ghost_MoveAtAngle(angle+180, 1, 0);
+							}
+						}
+						EZB_DoLaser(LAYER_EZB_LASER, CenterX(ghost), CenterY(ghost), 64, angle, ghost->WeaponDamage*2, laserColors, -1, 1, i, 40);
+						EZB_Waitframe(this, ghost, vars);
+					}
+				}
+				//attack = 50 //Barrier Shift
+				//attack = 51 //Enemy Shift
+				if(attack==52){ //Flying Slam, Shockwave
+					EZB_FaceLink(this, ghost, vars);
+					EZB_FiringAnim(this, ghost, vars, 2);
+					EZB_FaceLink(this, ghost, vars);
+					
+					Ghost_Jump = 4;
+					Ghost_Data = combo;
+					Game->PlaySound(SFX_JUMP);
+					while(Ghost_Jump>0){
+						EZB_FaceLink(this, ghost, vars);
+						if(Distance(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY())>2){
+							x = Sign(CenterLinkX()-CenterX(ghost))*1.3;
+							y = Sign(CenterLinkY()-CenterY(ghost))*1.3;
+							Ghost_MoveXY(x, y, 0);
+						}
+						EZB_Waitframe(this, ghost, vars);
+					}
+					k = Ghost_Z;
+					for(i=0; i<90; ++i){
+						EZB_FaceLink(this, ghost, vars);
+						if(Distance(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY())>2){
+							x = Sign(CenterLinkX()-CenterX(ghost))*0.7;
+							y = Sign(CenterLinkY()-CenterY(ghost))*0.7;
+							Ghost_MoveXY(x, y, 0);
+						}
+						Ghost_Jump = 0;
+						Ghost_Z = k+2*Sin(16*i);
+						EZB_Waitframe(this, ghost, vars);
+					}
+					Game->PlaySound(SFX_FALL);
+					while(Ghost_Z>0){
+						EZB_FaceLink(this, ghost, vars);
+						if(Distance(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY())>2){
+							x = Sign(CenterLinkX()-CenterX(ghost))*0.3;
+							y = Sign(CenterLinkY()-CenterY(ghost))*0.3;
+							Ghost_MoveXY(x, y, 0);
+						}
+						Ghost_Z = Max(Ghost_Z-4, 0);
+						EZB_Waitframe(this, ghost, vars);
+					}
+					Game->PlaySound(SFX_EZB_SHAKE);
+					Screen->Quake = 4;
+					Game->PlaySound(SFX_EZB_SHOCKWAVE);
+					for(i=0; i<48+48; i+=6){
+						EZB_Shockwave(2, CenterX(ghost), CenterY(ghost), i, 48, 16, ghost->WeaponDamage, laserColors[3], laserColors[4], laserColors[5]);
+						EZB_Waitframe(this, ghost, vars);
+					}
+				}
+				if(attack==53){ //Flying Slam, Rocks Fall
+					EZB_FaceLink(this, ghost, vars);
+					EZB_FiringAnim(this, ghost, vars, 2);
+					EZB_FaceLink(this, ghost, vars);
+					
+					Ghost_Jump = 4;
+					Ghost_Data = combo;
+					Game->PlaySound(SFX_JUMP);
+					while(Ghost_Jump>0){
+						EZB_FaceLink(this, ghost, vars);
+						if(Distance(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY())>2){
+							x = Sign(CenterLinkX()-CenterX(ghost))*1.3;
+							y = Sign(CenterLinkY()-CenterY(ghost))*1.3;
+							Ghost_MoveXY(x, y, 0);
+						}
+						EZB_Waitframe(this, ghost, vars);
+					}
+					k = Ghost_Z;
+					for(i=0; i<90; ++i){
+						EZB_FaceLink(this, ghost, vars);
+						if(Distance(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY())>2){
+							x = Sign(CenterLinkX()-CenterX(ghost))*0.7;
+							y = Sign(CenterLinkY()-CenterY(ghost))*0.7;
+							Ghost_MoveXY(x, y, 0);
+						}
+						Ghost_Jump = 0;
+						Ghost_Z = k+2*Sin(16*i);
+						EZB_Waitframe(this, ghost, vars);
+					}
+					Game->PlaySound(SFX_FALL);
+					while(Ghost_Z>0){
+						EZB_FaceLink(this, ghost, vars);
+						if(Distance(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY())>2){
+							x = Sign(CenterLinkX()-CenterX(ghost))*0.3;
+							y = Sign(CenterLinkY()-CenterY(ghost))*0.3;
+							Ghost_MoveXY(x, y, 0);
+						}
+						Ghost_Z = Max(Ghost_Z-4, 0);
+						EZB_Waitframe(this, ghost, vars);
+					}
+					Game->PlaySound(SFX_EZB_SHAKE);
+					Screen->Quake = 4;
+					for(i=0; i<10; ++i){
+						e = EZB_Fire(this, ghost, vars, Rand(16, 224), Rand(16, 144), Rand(360), Rand(50), EWF_SHADOW);
+						SetEWeaponMovement(e, EWM_FALL, 176, EWMF_DIE);
+						SetEWeaponDeathEffect(e, EWD_EXPLODE, e->Damage);
+						EZB_Waitframes(this, ghost, vars, Rand(4, 12));
+					}
+				}
+				if(attack==54){ //Flying Slam, Enemies Fall
+					EZB_FaceLink(this, ghost, vars);
+					EZB_FiringAnim(this, ghost, vars, 2);
+					EZB_FaceLink(this, ghost, vars);
+					
+					Ghost_Jump = 4;
+					Ghost_Data = combo;
+					Game->PlaySound(SFX_JUMP);
+					while(Ghost_Jump>0){
+						EZB_FaceLink(this, ghost, vars);
+						if(Distance(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY())>2){
+							x = Sign(CenterLinkX()-CenterX(ghost))*1.3;
+							y = Sign(CenterLinkY()-CenterY(ghost))*1.3;
+							Ghost_MoveXY(x, y, 0);
+						}
+						EZB_Waitframe(this, ghost, vars);
+					}
+					k = Ghost_Z;
+					for(i=0; i<90; ++i){
+						EZB_FaceLink(this, ghost, vars);
+						if(Distance(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY())>2){
+							x = Sign(CenterLinkX()-CenterX(ghost))*0.7;
+							y = Sign(CenterLinkY()-CenterY(ghost))*0.7;
+							Ghost_MoveXY(x, y, 0);
+						}
+						Ghost_Jump = 0;
+						Ghost_Z = k+2*Sin(16*i);
+						EZB_Waitframe(this, ghost, vars);
+					}
+					Game->PlaySound(SFX_FALL);
+					while(Ghost_Z>0){
+						EZB_FaceLink(this, ghost, vars);
+						if(Distance(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY())>2){
+							x = Sign(CenterLinkX()-CenterX(ghost))*0.3;
+							y = Sign(CenterLinkY()-CenterY(ghost))*0.3;
+							Ghost_MoveXY(x, y, 0);
+						}
+						Ghost_Z = Max(Ghost_Z-4, 0);
+						EZB_Waitframe(this, ghost, vars);
+					}
+					Game->PlaySound(SFX_EZB_SHAKE);
+					Screen->Quake = 4;
+					k = Rand(2, 3);
+					for(i=0; i<k&&(Screen->NumNPCs() < EZB_TOTAL_SUMMON_CAP && EZB_NumSummons(summons) < EZB_SUMMON_CAP); ++i){
+						j = Rand(176);
+						for(m=0; m<352&&!EZB_CanPlace(this, ghost, ComboX(j), ComboY(j), 16, 16); ++m){
+							if(k<176)
+								j = Rand(176);
+							else
+								j = m-176;
+						}
+						Game->PlaySound(SFX_FALL);
+						enem = CreateNPCAt(special, ComboX(j), ComboY(j));
+						EZB_AddSummon(enem, summons);
+						enem->Z = 176;
+						EZB_Waitframes(this, ghost, vars, Rand(6, 17));
+					}
+				}
+				if(attack==55){ //Sine Wave Stream, Directional
+					EZB_FiringAnim(this, ghost, vars, 1);
+					angle = EZB_DirAngle(Ghost_Dir);
+					EZB_Waitframes(this, ghost, vars, 12);
+					for(i=0; i<5; ++i){
+						e = EZB_Fire(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, angle, 350);
+						SetEWeaponMovement(e, EWM_SINE_WAVE, 16, 16);
+						EZB_Waitframes(this, ghost, vars, 8);
+					}
+					EZB_Waitframes(this, ghost, vars, 12);
+				}
+				if(attack==56){ //Sine Wave Stream, Angular
+					EZB_FaceLink(this, ghost, vars);
+					EZB_FiringAnim(this, ghost, vars, 1);
+					angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+					EZB_Waitframes(this, ghost, vars, 12);
+					for(i=0; i<5; ++i){
+						e = EZB_Fire(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, angle, 250);
+						SetEWeaponMovement(e, EWM_SINE_WAVE, 16, 16);
+						EZB_Waitframes(this, ghost, vars, 12);
+					}
+					EZB_Waitframes(this, ghost, vars, 12);
+				}
+				if(attack==57){ //Sine Wave, 5 Shot
+					EZB_FiringAnim(this, ghost, vars, 1);
+					angle = Rand(360);
+					EZB_Waitframes(this, ghost, vars, 12);
+					j = Choose(-40, 40);
+					for(k=0; k<3; ++k){
+						for(i=0; i<5; ++i){
+							e = EZB_Fire(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, angle+72*i, 250);
+							SetEWeaponMovement(e, EWM_SINE_WAVE, j, 4);
+						}
+						EZB_Waitframes(this, ghost, vars, 4);
+					}
+					EZB_Waitframes(this, ghost, vars, 32);
+				}
+				if(attack==58){ //Reaim, Cross, Directional
+					EZB_FiringAnim(this, ghost, vars, 1);
+					angle = EZB_DirAngle(Ghost_Dir);
+					EZB_Waitframes(this, ghost, vars, 12);
+					for(i=-1; i<=1; i+=2){
+						e = EZB_Fire(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, angle+25*i, 300);
+						j = 0;
+						if(ghost->Weapon==WPN_ENEMYFIREBALL)
+							j = 16;
+						SetEWeaponLifespan(e, EWL_TIMER, 24+j);
+						SetEWeaponDeathEffect(e, EWD_AIM_AT_LINK, 16);
+					}
+					EZB_Waitframes(this, ghost, vars, 24);
+				}
+				if(attack==59){ //Reaim, Cross, Angular
+					EZB_FaceLink(this, ghost, vars);
+					EZB_FiringAnim(this, ghost, vars, 1);
+					angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+					EZB_Waitframes(this, ghost, vars, 12);
+					for(i=-1; i<=1; i+=2){
+						e = EZB_Fire(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, angle+45*i, 300);
+						j = 0;
+						if(ghost->Weapon==WPN_ENEMYFIREBALL)
+							j = 16;
+						SetEWeaponLifespan(e, EWL_TIMER, 24+j);
+						SetEWeaponDeathEffect(e, EWD_AIM_AT_LINK, 16);
+					}
+					EZB_Waitframes(this, ghost, vars, 24);
+				}
+				if(attack==60){ //Throw, Fixed Dist
+					EZB_FaceLink(this, ghost, vars);
+					EZB_FiringAnim(this, ghost, vars, 0);
+					angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+					EZB_Waitframes(this, ghost, vars, 12);
+					
+					angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+					e = EZB_Fire(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, angle, 150, EWF_UNBLOCKABLE|EWF_SHADOW);
+					SetEWeaponMovement(e, EWM_THROW, 3.6, EWMF_DIE);
+					EZB_SetEWeaponDeathEffect(e);
+					
+					EZB_Waitframes(this, ghost, vars, 24);
+				}
+				if(attack==61){ //Throw, To Link
+					EZB_FaceLink(this, ghost, vars);
+					EZB_FiringAnim(this, ghost, vars, 0);
+					angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+					EZB_Waitframes(this, ghost, vars, 12);
+					
+					angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+					e = EZB_Fire(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, angle, 200, EWF_UNBLOCKABLE|EWF_SHADOW);
+					SetEWeaponMovement(e, EWM_THROW, -1, EWMF_DIE);
+					EZB_SetEWeaponDeathEffect(e);
+					
+					EZB_Waitframes(this, ghost, vars, 24);
+				}
+				if(attack==62){ //Throw, To Link, Stream
+					EZB_FaceLink(this, ghost, vars);
+					EZB_FiringAnim(this, ghost, vars, 1);
+					angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+					EZB_Waitframes(this, ghost, vars, 12);
+					
+					for(i=0; i<16; ++i){
+						angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+						e = EZB_Fire(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, angle, 200, EWF_UNBLOCKABLE|EWF_SHADOW);
+						SetEWeaponMovement(e, EWM_THROW, -1, EWMF_DIE);
+						EZB_SetEWeaponDeathEffect(e);
+						
+						EZB_Waitframes(this, ghost, vars, 6);
+					}
+					EZB_Waitframes(this, ghost, vars, 24);
+				}
+				if(attack==63){ //Throw, Five Shot
+					EZB_FaceLink(this, ghost, vars);
+					EZB_FiringAnim(this, ghost, vars, 1);
+					angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+					EZB_Waitframes(this, ghost, vars, 12);
+					
+					angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+					for(i=-2; i<=2; ++i){
+						e = EZB_Fire(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, angle+20*i, 200, EWF_UNBLOCKABLE|EWF_SHADOW);
+						SetEWeaponMovement(e, EWM_THROW, 3.6, EWMF_DIE);
+						EZB_SetEWeaponDeathEffect(e);
+					}
+					EZB_Waitframes(this, ghost, vars, 24);
+				}
+				if(attack==64){ //Throw, 6 Shot, Volley
+					EZB_FaceLink(this, ghost, vars);
+					EZB_FiringAnim(this, ghost, vars, 1);
+					angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+					EZB_Waitframes(this, ghost, vars, 12);
+					
+					angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+					for(i=0; i<=6; ++i){
+						e = EZB_Fire(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, angle+Rand(-30, 30), Rand(100, 300), EWF_UNBLOCKABLE|EWF_SHADOW);
+						SetEWeaponMovement(e, EWM_THROW, Rand(24, 36)/10, EWMF_DIE);
+						EZB_SetEWeaponDeathEffect(e);
+					}
+					EZB_Waitframes(this, ghost, vars, 24);
+				}
+				if(attack==65){ //Throw, Splash
+					EZB_FiringAnim(this, ghost, vars, 1);
+					EZB_Waitframes(this, ghost, vars, 12);
+					
+					angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+					for(i=0; i<=18; ++i){
+						e = EZB_Fire(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, Rand(360), Rand(100, 400), EWF_UNBLOCKABLE|EWF_SHADOW);
+						SetEWeaponMovement(e, EWM_THROW, Rand(24, 36)/10, EWMF_DIE);
+						EZB_SetEWeaponDeathEffect(e);
+					}
+				}
+				if(attack==66){ //8 Shots, Line, Directional
+					EZB_FiringAnim(this, ghost, vars, 1);
+					for(i=0; i<8; ++i){
+						EZB_Fire(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, EZB_DirAngle(Ghost_Dir), 200+400*(i/7));
+					}
+					EZB_Waitframes(this, ghost, vars, 24);
+				}
+				if(attack==67){ //8 Shots, Line, Angular
+					EZB_FiringAnim(this, ghost, vars, 1);
+					EZB_Waitframes(this, ghost, vars, 12);
+					angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+					for(i=0; i<8; ++i){
+						EZB_Fire(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, angle, 200+400*(i/7));
+					}
+					EZB_Waitframes(this, ghost, vars, 24);
+				}
+				if(attack==68){ //Teleport and Shoot
+					EZB_Teleport(this, ghost, vars);
+					
+					EZB_FiringAnim(this, ghost, vars, 0);
+					EZB_Waitframes(this, ghost, vars, 12);
+					angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+					EZB_Waitframes(this, ghost, vars, 12);
+					EZB_Fire(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, angle, 150);
+					
+					EZB_Waitframes(this, ghost, vars, 24);
+				}
+				if(attack==69){ //Teleport and Shoot Triple Shot
+					EZB_Teleport(this, ghost, vars);
+					
+					EZB_FiringAnim(this, ghost, vars, 0);
+					EZB_Waitframes(this, ghost, vars, 12);
+					angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+					EZB_Waitframes(this, ghost, vars, 12);
+					for(i=-1; i<=1; ++i){
+						EZB_Fire(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, angle+20*i, 250);
+					}
+					EZB_Waitframes(this, ghost, vars, 24);
+				}
+				if(attack==70){ //Teleport 3 Times, Shoot 8 Shots in a line
+					for(i=0; i<3; ++i){
+						EZB_Waitframes(this, ghost, vars, 4);
+						EZB_Teleport(this, ghost, vars);
+					}
+					
+					EZB_FiringAnim(this, ghost, vars, 0);
+					EZB_Waitframes(this, ghost, vars, 12);
+					angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+					for(i=0; i<8; ++i){
+						EZB_Fire(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, angle, 200+400*(i/7));
+					}
+					EZB_Waitframes(this, ghost, vars, 24);
+				}
+				//attack = 71 //Death Transform
+				if(attack==72){ //Laser Lattice (Bastille)
+					EZB_FiringAnim(this, ghost, vars, 2);
+					
+					x = -32+Rand(-32, 32);
+					y = -32+Rand(-32, 32);
+					Game->PlaySound(SFX_EZB_LASERCHARGE);
+					for(i=0; i<60; ++i){
+						m = Choose(laserColors[1], laserColors[2]);
+						EZB_DoLaser(LAYER_EZB_LASER, x, y, 2, 45, 0, laserColors, m, 0, i, 60);
+						for(j=1; j<12; ++j){
+							EZB_DoLaser(LAYER_EZB_LASER, x+48*j, y, 2, 45, 0, laserColors, m, 0, i, 60);
+							EZB_DoLaser(LAYER_EZB_LASER, x+48*j, y, 2, 135, 0, laserColors, m, 0, i, 60);
+						}
+						for(j=1; j<8; ++j){
+							EZB_DoLaser(LAYER_EZB_LASER, x, y+48*j, 2, 45, 0, laserColors, m, 0, i, 60);
+							EZB_DoLaser(LAYER_EZB_LASER, x, y+48*j, 2, -45, 0, laserColors, m, 0, i, 60);
+							
+						}
+						EZB_Waitframe(this, ghost, vars);
+					}
+					Game->PlaySound(SFX_EZB_LASER);
+					for(i=0; i<16; ++i){
+						m = Choose(laserColors[0], laserColors[1], laserColors[2]);
+						EZB_DoLaser(LAYER_EZB_LASER, x, y, 2, 45, ghost->WeaponDamage, laserColors, m, 1, i, 16);
+						for(j=1; j<12; ++j){
+							EZB_DoLaser(LAYER_EZB_LASER, x+48*j, y, 2, 45, ghost->WeaponDamage, laserColors, m, 1, i, 16);
+							EZB_DoLaser(LAYER_EZB_LASER, x+48*j, y, 2, 135, ghost->WeaponDamage, laserColors, m, 1, i, 16);
+						}
+						for(j=1; j<8; ++j){
+							EZB_DoLaser(LAYER_EZB_LASER, x, y+48*j, 2, 45, ghost->WeaponDamage, laserColors, m, 1, i, 16);
+							EZB_DoLaser(LAYER_EZB_LASER, x, y+48*j, 2, -45, ghost->WeaponDamage, laserColors, m, 1, i, 16);
+							
+						}
+						EZB_Waitframe(this, ghost, vars);
+					}
+				}
+				if(attack==73){ //Laser Dash
+					EZB_FiringAnim(this, ghost, vars, 0);
+					
+					angle = Angle(CenterX(ghost), CenterY(ghost), Link->X+8, Link->Y+8)+Choose(-60, 60)+Rand(-15, 15);
+					for(i=0; i<256; ++i)
+						arr1[i] = 0;
+					
+					for(i=0; i<8; ++i){
+						Ghost_MoveAtAngle(angle, 2, 0);
+						EZB_FaceLink(this, ghost, vars);
+						EZB_Waitframe(this, ghost, vars);
+					}
+					for(i=0; i<64; ++i){
+						if(i%4==0){
+							j = i/4;
+							k = Angle(CenterX(ghost), CenterY(ghost), Link->X+8, Link->Y+8);
+							m = (w*8+h*8)/2;
+							EZB_SetLaserArray(arr1, 16, j, CenterX(ghost)+VectorX(m, k), CenterY(ghost)+VectorY(m, k), 4, k, 32, 16, ghost->WeaponDamage);
+						}
+						
+						EZB_UpdateLaserArray(arr1, laserColors, 16);
+						
+						Ghost_MoveAtAngle(angle, 2, 0);
+						EZB_FaceLink(this, ghost, vars);
+						EZB_Waitframe(this, ghost, vars);
+					}
+					for(i=0; i<48; ++i){
+						EZB_UpdateLaserArray(arr1, laserColors, 16);
+						
+						EZB_FaceLink(this, ghost, vars);
+						EZB_Waitframe(this, ghost, vars);
+					}
+				}
+				if(attack==74){ //Laser Box
+					x = Link->X;
+					y = Link->Y;
+					EZB_FiringAnim(this, ghost, vars, 1);
+					if(Rand(2)){
+						x = Link->X;
+						y = Link->Y;
+					}
+					Game->PlaySound(SFX_EZB_LASERCHARGE);
+					for(i=0; i<40; ++i){
+						m = Choose(laserColors[1], laserColors[2]);
+						dist = Distance(CenterX(ghost), CenterY(ghost), 128, 88);
+						angle = Angle(CenterX(ghost), CenterY(ghost), 128, 88);
+						xy[0] = CenterX(ghost)+VectorX(dist*(i/40), angle);
+						xy[1] = CenterY(ghost)+VectorY(dist*(i/40), angle);
+						for(j=0; j<5; ++j){
+							arr1[j] = xy[0]+VectorX(i*4, i*5+90*j);
+							arr1[5+j] = xy[1]+VectorY(i*4, i*5+90*j);
+						}
+						for(j=0; j<4; j++){
+							angle = Angle(arr1[j], arr1[5+j], arr1[j+1], arr1[5+j+1]);
+							EZB_DoLaser(LAYER_EZB_LASER, arr1[j], arr1[5+j], 6, angle, 0, laserColors, m, 0, i, 40);
+						}
+						EZB_Waitframe(this, ghost, vars);
+					}
+					if(Rand(2)){
+						x = Link->X;
+						y = Link->Y;
+					}
+					Game->PlaySound(SFX_EZB_LASER);
+					for(i=0; i<80; ++i){
+						m = Choose(laserColors[0], laserColors[1], laserColors[2]);
+						dist = Distance(128, 88, x+8, y+8);
+						angle = Angle(128, 88, x+8, y+8);
+						xy[0] = 128+VectorX(dist*(i/80), angle);
+						xy[1] = 88+VectorY(dist*(i/80), angle);
+						for(j=0; j<5; ++j){
+							k = Max(40*4-i*2, 40);
+							arr1[j] = xy[0]+VectorX(k, 40*5+i*5+90*j);
+							arr1[5+j] = xy[1]+VectorY(k, 40*5+i*5+90*j);
+						}
+						for(j=0; j<4; j++){
+							angle = Angle(arr1[j], arr1[5+j], arr1[j+1], arr1[5+j+1]);
+							EZB_DoLaser(LAYER_EZB_LASER, arr1[j], arr1[5+j], 6, angle, ghost->WeaponDamage, laserColors, m, 1, i, 40);
+						}
+						EZB_Waitframe(this, ghost, vars);
+					}
+				}
+				if(attack==75){ //Fast Rebound
+					EZB_FiringAnim(this, ghost, vars, 1);
+					
+					for(i=0; i<80; ++i){
+						m = Choose(laserColors[1], laserColors[2]);
+						arr1[0] = CenterX(ghost);
+						arr1[1] = CenterY(ghost);
+						x = arr1[0];
+						y = arr1[1];
+						angle = Angle(CenterX(ghost), CenterY(ghost), Link->X+8, Link->Y+8);
+						EZB_FaceAngle(this, ghost, vars, angle);
+						vX = VectorX(8, angle);
+						vY = VectorY(8, angle);
+						for(j=0; j<10; ++j){
+							for(k=0; k<256&&!Screen->isSolid(x, y); k+=8){
+								x += vX;
+								y += vY;
+							}
+							arr1[(j+1)*2+0] = x;
+							arr1[(j+1)*2+1] = y;
+							if(i%4<2)
+								Screen->Line(4, arr1[j*2+0], arr1[j*2+1], x, y, m, 1, 0, 0, 0, 128);
+							
+							x -= vX;
+							y -= vY;
+							if((vX<0&&Screen->isSolid(x-8, y))||(vX>0&&Screen->isSolid(x+8, y))){
+								vX = -vX;
+								x = Floor(x/8)*8+4;
+							}
+							if((vY<0&&Screen->isSolid(x, y-8))||(vY>0&&Screen->isSolid(x, y+8))){
+								vY = -vY;
+								y = Floor(y/8)*8+4;
+							}
+						}
+						EZB_Waitframe(this, ghost, vars);
+					}
+					EZB_Waitframes(this, ghost, vars, 48);
+					for(i=0; i<10; ++i){
+						x = arr1[i*2+0];
+						y = arr1[i*2+1];
+						Ghost_X = x-ghost->TileWidth*8;
+						Ghost_Y = y-ghost->TileHeight*8;
+						Game->PlaySound(SFX_EZB_DASH);
+						for(j=0; j<64; ++j){
+							angle = Angle(x, y, arr1[(i+1)*2+0], arr1[(i+1)*2+1]);
+							EZB_FaceAngle(this, ghost, vars, angle);
+							x += VectorX(8, angle);
+							y += VectorY(8, angle);
+							Ghost_X = x-ghost->TileWidth*8;
+							Ghost_Y = y-ghost->TileHeight*8;
+							dist = Distance(x, y, arr1[(i+1)*2+0], arr1[(i+1)*2+1]);
+							if(dist<8||CenterX(ghost)<0||CenterX(ghost)>255||CenterY(ghost)<0||CenterY(ghost)>175)
+								break;
+							EZB_Waitframe(this, ghost, vars);
+						}
+						if(CenterX(ghost)<0||CenterX(ghost)>255||CenterY(ghost)<0||CenterY(ghost)>175)
+							break;
+						Game->PlaySound(SFX_EZB_SHAKE);
+						Screen->Quake = 10;
+					}
+					EZB_Teleport(this, ghost, vars, arr1[0]-ghost->TileWidth*8, arr1[1]-ghost->TileHeight*8, 16);
+				}
+				if(attack==76){ //Wall Bouncer
+					EZB_FiringAnim(this, ghost, vars, 1);
+					EZB_FaceLink(this, ghost, vars);
+					
+					angle = Angle(CenterX(ghost), CenterY(ghost), Link->X+8, Link->Y+8);
+					if(fireSFX)
+						Game->PlaySound(fireSFX);
+					EZB_RunEffect(1, EZB_WeaponTypeToID(ghost->Weapon), CenterX(ghost)-8, CenterY(ghost)-8, angle, 200, fireSPR, ghost->WeaponDamage);
+				}
+				if(attack==77){ //Triple Wall Bouncer
+					EZB_FiringAnim(this, ghost, vars, 2);
+					EZB_FaceLink(this, ghost, vars);
+					
+					angle = Angle(CenterX(ghost), CenterY(ghost), Link->X+8, Link->Y+8);
+					if(fireSFX)
+						Game->PlaySound(fireSFX);
+					for(i=-1; i<=1; ++i){
+						EZB_RunEffect(1, EZB_WeaponTypeToID(ghost->Weapon), CenterX(ghost)-8, CenterY(ghost)-8, angle+45*i, 200, fireSPR, ghost->WeaponDamage);
+					}
+				}
+				if(attack==78){ //Wall Bouncer (Fast)
+					EZB_FiringAnim(this, ghost, vars, 2);
+					EZB_FaceLink(this, ghost, vars);
+					
+					angle = Angle(CenterX(ghost), CenterY(ghost), Link->X+8, Link->Y+8);
+					if(fireSFX)
+						Game->PlaySound(fireSFX);
+					EZB_RunEffect(1, EZB_WeaponTypeToID(ghost->Weapon), CenterX(ghost)-8, CenterY(ghost)-8, angle, 400, fireSPR, ghost->WeaponDamage);
+				}
+				if(attack==79){ //Splitting Shot
+					EZB_FiringAnim(this, ghost, vars, 2);
+					EZB_FaceLink(this, ghost, vars);
+					
+					angle = Angle(CenterX(ghost), CenterY(ghost), Link->X+8, Link->Y+8);
+					EZB_RunEffect(2, EZB_WeaponTypeToID(ghost->Weapon), CenterX(ghost)-8, CenterY(ghost)-8, angle, fireSPR, fireSFX, ghost->WeaponDamage);
+				}
+				if(attack==80){ //Lightning (Downward)
+					EZB_FiringAnim(this, ghost, vars, -1);
+					Ghost_Dir = DIR_DOWN;
+					for(i=0; i<80; ++i){
+						if(Distance(CenterX(ghost), CenterY(ghost), CenterLinkX(), 40)<2)
+							break;
+						Ghost_MoveAtAngle(Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), 40), 2, 0);
+						EZB_Waitframe(this, ghost, vars);
+					}
+					EZB_FiringAnim(this, ghost, vars, 1);
+					Game->PlaySound(SFX_EZB_LIGHTNING);
+					EZB_RunEffect(3, CenterX(ghost), CenterY(ghost), 90+Sign(EZB_AngDiff(90, Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY())))*Rand(0, 35), laserColors[0], laserColors[1], laserColors[2], ghost->WeaponDamage);
+					EZB_Waitframes(this, ghost, vars, 40);
+				}
+				if(attack==81){ //Teleport, Lightning (4-Way)
+					EZB_Teleport(this, ghost, vars);
+					
+					EZB_Waitframes(this, ghost, vars, 12);
+					EZB_Waitframes(this, ghost, vars, 12);
+					
+					EZB_FaceAngle(this, ghost, vars, Angle(CenterX(ghost), CenterY(ghost), Link->X+8, Link->Y+8));
+					angle = EZB_DirAngle(Ghost_Dir);
+					EZB_FiringAnim(this, ghost, vars, 1);
+					Game->PlaySound(SFX_EZB_LIGHTNING);
+					EZB_RunEffect(3, CenterX(ghost), CenterY(ghost), angle, laserColors[0], laserColors[1], laserColors[2], ghost->WeaponDamage);
+					
+					EZB_Waitframes(this, ghost, vars, 40);
+				}
+				if(attack==82){ //5x teleport + Stream (Lightning)
+					for(i=0; i<5; ++i){
+						EZB_Waitframes(this, ghost, vars, 2);
+						EZB_Teleport(this, ghost, vars, -1000, -1000, 4);
+					}
+					
+					EZB_FaceLink(this, ghost, vars);
+					angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+					EZB_FiringAnim(this, ghost, vars, 2);
+					for(i=0; i<80; ++i){
+						angle = EZB_TurnToAngle(angle, Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY()), 1);
+						
+						if(i%10==0){
+							Game->PlaySound(SFX_EZB_LIGHTNING);
+							EZB_RunEffect(4, CenterX(ghost), CenterY(ghost), angle, laserColors[0], laserColors[1], laserColors[2], ghost->WeaponDamage);
+						}
+						
+						EZB_Waitframe(this, ghost, vars);
+					}
+				}
+				if(attack==83){ //Slash, Directional
+					EZB_FiringAnim(this, ghost, vars, 0);
+					
+					angle = EZB_DirAngle(Ghost_Dir);
+					
+					Game->PlaySound(SFX_EZB_SWORD);
+					arr1[0] = 16+(Max(w, h)-1)*8; //Total reach of sword
+					arr1[1] = Max(w, h)*8; //Starting reach of sword
+					arr1[2] = arr1[0]-arr1[1]; //Additional reach of sword
+					
+					for(i=0; i<20; ++i){
+						Ghost_MoveAtAngle(angle, 0.75+Sin(i*(180/20))*(3), 0);
+						
+						EZB_DrawSword(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, angle-80+i*8, angle-60+i*6, arr1[1]+arr1[2]*Sin(i*(180/20)), ghost->WeaponDamage);
+						EZB_Waitframe(this, ghost, vars);
+					}
+				}
+				if(attack==84){ //Slash, Angular
+					EZB_FiringAnim(this, ghost, vars, 0);
+					
+					EZB_FaceLink(this, ghost, vars);
+					angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+					
+					Game->PlaySound(SFX_EZB_SWORD);
+					arr1[0] = 16+(Max(w, h)-1)*8; //Total reach of sword
+					arr1[1] = Max(w, h)*8; //Starting reach of sword
+					arr1[2] = arr1[0]-arr1[1]; //Additional reach of sword
+					
+					for(i=0; i<20; ++i){
+						Ghost_MoveAtAngle(angle, 0.75+Sin(i*(180/20))*(3), 0);
+						
+						EZB_DrawSword(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, angle-80+i*8, angle-60+i*6, arr1[1]+arr1[2]*Sin(i*(180/20)), ghost->WeaponDamage);
+						EZB_Waitframe(this, ghost, vars);
+					}
+				}
+				if(attack==85){ //3 Slashes
+					EZB_FiringAnim(this, ghost, vars, 1);
+					
+					EZB_FaceLink(this, ghost, vars);
+					angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+					
+					arr1[0] = 16+(Max(w, h)-1)*8; //Total reach of sword
+					arr1[1] = Max(w, h)*8; //Starting reach of sword
+					arr1[2] = arr1[0]-arr1[1]; //Ending reach of sword
+					
+					m = -1;
+					for(j=0; j<3; ++j){
+						Game->PlaySound(SFX_EZB_SWORD);
+						for(i=0; i<20; ++i){
+							Ghost_MoveAtAngle(angle, 0.5+Sin(i*(180/20))*(2), 0);
+							
+							EZB_DrawSword(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, angle-80*m+i*8*m, angle-60*m+i*6*m, arr1[1]+arr1[2]*Sin(i*(180/20)), ghost->WeaponDamage);
+							EZB_Waitframe(this, ghost, vars);
+						}
+						EZB_Waitframes(this, ghost, vars, 8);
+						m = -m;
+						
+						if(j<2){
+							EZB_FaceLink(this, ghost, vars);
+							angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+						}
+					}
+				}
+				if(attack==86){ //5 Stabs
+					EZB_FaceLink(this, ghost, vars);
+					angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+					
+					EZB_FiringAnim(this, ghost, vars, 1);
+					
+					arr1[0] = 16+(Max(w, h)-1)*8; //Total reach of sword
+					arr1[1] = Max(w, h)*4; //Starting reach of sword
+					arr1[2] = arr1[0]-arr1[1]; //Additional reach of sword
+					
+					for(j=0; j<5; ++j){
+						Game->PlaySound(SFX_EZB_SWORD);
+						m = Rand(-20, 20);
+						for(i=0; i<12; ++i){
+							angle = EZB_TurnToAngle(angle, Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY()), 1);
+							EZB_FaceAngle(this, ghost, vars, angle);
+					
+							Ghost_MoveAtAngle(angle, 1.5+Sin(i*(180/12))*(2), 0);
+							
+							EZB_DrawSword(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, angle+m+5*Sin(i*(180/12)), angle+m, arr1[1]+arr1[2]*Sin(i*(180/12)), ghost->WeaponDamage);
+							EZB_Waitframe(this, ghost, vars);
+						}
+					}
+				}
+				if(attack==87){ //Spin Attack
+					EZB_FiringAnim(this, ghost, vars, 1);
+					
+					angle = EZB_DirAngle(Ghost_Dir);
+					
+					Game->PlaySound(SFX_EZB_SWORD);
+					arr1[0] = 16+(Max(w, h)-1)*8; //Total reach of sword
+					arr1[1] = Max(w, h)*8; //Starting reach of sword
+					arr1[2] = arr1[0]-arr1[1]; //Additional reach of sword
+					
+					for(i=0; i<10; ++i){
+						EZB_DrawSword(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, angle-80+i*8, angle-60+i*6, arr1[1]+arr1[2]*Sin(i*(180/20)), ghost->WeaponDamage);
+						EZB_Waitframe(this, ghost, vars);
+					}
+					for(i=0; i<30; ++i){
+						EZB_DrawSword(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, angle, angle, arr1[0], ghost->WeaponDamage);
+						EZB_Waitframe(this, ghost, vars);
+					}
+					Game->PlaySound(SFX_EZB_SWORDCHARGE);
+					for(i=0; i<30; ++i){
+						EZB_DrawSword(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, angle, angle, arr1[0], ghost->WeaponDamage);
+						EZB_Waitframe(this, ghost, vars);
+					}
+					for(i=0; i<18*8; ++i){
+						if(i%18==0)
+							Game->PlaySound(SFX_EZB_SWORDSPIN);
+						
+						EZB_FaceAngle(this, ghost, vars, WrapDegrees(angle+i*20));
+						Ghost_MoveAtAngle(Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY()), 0.75, 0);
+						
+						EZB_DrawSword(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, angle+i*20, angle+i*20, arr1[0], ghost->WeaponDamage);
+						EZB_Waitframe(this, ghost, vars);
+					}
+					for(i=0; i<10; ++i){
+						EZB_DrawSword(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, angle+i*8, angle+i*6, arr1[0]-arr1[2]*Sin(90+i*(180/20)), ghost->WeaponDamage*2);
+						EZB_Waitframe(this, ghost, vars);
+					}
+				}
+				if(attack==88){ //Greatsword Slash
+					EZB_FiringAnim(this, ghost, vars, 1);
+					
+					EZB_FaceLink(this, ghost, vars);
+					angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+					
+					Game->PlaySound(SFX_EZB_SWORD);
+					arr1[0] = 16+(Max(w, h)-1)*8; //Total reach of sword
+					arr1[1] = Max(w, h)*8; //Starting reach of sword
+					arr1[2] = arr1[0]-arr1[1]; //Additional reach of sword
+					
+					Game->PlaySound(SFX_EZB_SWORD);
+					for(i=0; i<10; ++i){
+						EZB_DrawGreatsword(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, angle-120, angle-130, arr1[1]+arr1[2]*Sin(i*(180/20)), ghost->WeaponDamage*2);
+						EZB_Waitframe(this, ghost, vars);
+					}
+					for(i=0; i<30; ++i){
+						EZB_FaceLink(this, ghost, vars);
+						angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+					
+						Ghost_MoveAtAngle(angle, 0.5, 0);
+						
+						EZB_DrawGreatsword(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, angle-120, angle-130, arr1[0], ghost->WeaponDamage);
+						EZB_Waitframe(this, ghost, vars);
+					}
+					Game->PlaySound(SFX_EZB_SWORD);
+					for(i=0; i<20; ++i){
+						Ghost_MoveAtAngle(angle, 0.75+Sin(i*(180/20))*(3), 0);
+						
+						EZB_DrawGreatsword(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, angle-120+i*10, angle-130+i*10, arr1[0]-arr1[2]*Sin(i*(180/20)), ghost->WeaponDamage*2);
+						EZB_Waitframe(this, ghost, vars);
+					}
+				}
+				if(attack==89){ //Greatsword Stab Rush
+					EZB_FaceLink(this, ghost, vars);
+					angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+					
+					EZB_FiringAnim(this, ghost, vars, 2);
+					
+					arr1[0] = 16+(Max(w, h)-1)*8+8; //Total reach of sword
+					arr1[1] = Max(w, h)*4; //Starting reach of sword
+					arr1[2] = arr1[0]-arr1[1]; //Additional reach of sword
+					
+					for(j=0; j<10; ++j){
+						Game->PlaySound(SFX_EZB_SWORD);
+						m = Rand(-20, 20);
+						for(i=0; i<8; ++i){
+							if(j<1)
+								Ghost_MoveAtAngle(angle, 4+Sin(i*(180/8))*(4), 0);
+							
+							EZB_DrawGreatsword(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, angle+m+5*Sin(i*(180/8)), angle+m, arr1[1]+arr1[2]*Sin(i*(180/8)), ghost->WeaponDamage*2);
+							EZB_Waitframe(this, ghost, vars);
+						}
+					}
+				}
+				if(attack==90){ //Greatsword Spin
+					EZB_FiringAnim(this, ghost, vars, 2);
+					
+					angle = EZB_DirAngle(Ghost_Dir);
+					
+					Game->PlaySound(SFX_EZB_SWORD);
+					arr1[0] = 16+(Max(w, h)-1)*8; //Total reach of sword
+					arr1[1] = Max(w, h)*8; //Starting reach of sword
+					arr1[2] = arr1[0]-arr1[1]; //Additional reach of sword
+					
+					for(i=0; i<20; ++i){
+						EZB_DrawGreatsword(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, angle-80+i*4, angle-60+i*3, arr1[1]+arr1[2]*Sin(i*(180/40)), ghost->WeaponDamage);
+						EZB_Waitframe(this, ghost, vars);
+					}
+					for(i=0; i<30; ++i){
+						EZB_DrawGreatsword(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, angle, angle, arr1[0], ghost->WeaponDamage);
+						EZB_Waitframe(this, ghost, vars);
+					}
+					Game->PlaySound(SFX_EZB_SWORDCHARGE);
+					for(i=0; i<30; ++i){
+						EZB_DrawGreatsword(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, angle, angle, arr1[0], ghost->WeaponDamage);
+						EZB_Waitframe(this, ghost, vars);
+					}
+					for(i=0; i<18*6; ++i){
+						if(i%18==0)
+							Game->PlaySound(SFX_EZB_SWORDSPIN);
+						
+						EZB_FaceAngle(this, ghost, vars, WrapDegrees(angle+i*20));
+						Ghost_MoveAtAngle(Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY()), 0.75, 0);
+						
+						EZB_DrawGreatsword(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, angle+i*20, angle+i*20, arr1[0], ghost->WeaponDamage);
+						EZB_Waitframe(this, ghost, vars);
+					}
+					for(i=0; i<3; ++i){
+						EZB_FaceAngle(this, ghost, vars, WrapDegrees(angle+i*20));
+						Ghost_MoveAtAngle(Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY()), 0.5, 0);
+						
+						EZB_DrawGreatsword(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, angle+i*20, angle+i*20, arr1[0], ghost->WeaponDamage);
+						EZB_Waitframe(this, ghost, vars);
+					}
+					Game->PlaySound(SFX_EZB_SHAKE);
+					Screen->Quake = 40;
+					for(i=0; i<=24; ++i){
+						e = EZB_Fire(this, ghost, vars, CenterX(ghost)-8+VectorX(arr1[0]+16, angle+60), CenterY(ghost)-8+VectorY(arr1[0]+16, angle+60), Rand(360), Rand(100, 400), EWF_UNBLOCKABLE|EWF_SHADOW);
+						SetEWeaponMovement(e, EWM_THROW, Rand(24, 36)/10, EWMF_DIE);
+						EZB_SetEWeaponDeathEffect(e);
+					}
+					for(i=0; i<60; ++i){
+						EZB_DrawGreatsword(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, angle+60, angle+60, arr1[0], ghost->WeaponDamage);
+						EZB_Waitframe(this, ghost, vars);
+					}
+					for(i=0; i<36; ++i){
+						if(i==0)
+							Game->PlaySound(SFX_EZB_SWORDSPIN);
+						EZB_DrawGreatsword(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, angle+60, angle+60+20*i, arr1[0], ghost->WeaponDamage);
+						EZB_Waitframe(this, ghost, vars);
+					}
+					for(i=0; i<10; ++i){
+						EZB_DrawGreatsword(this, ghost, vars, CenterX(ghost)-8, CenterY(ghost)-8, angle+60, angle+60, arr1[0]-arr1[2]*Sin(i*(180/20)), ghost->WeaponDamage);
+						EZB_Waitframe(this, ghost, vars);
+					}
+				}
+				//attack = 91 //Speed up x2
+				//attack = 92 //Speed up x3
+				//attack = 93 //Speed up x4
+				
+				i = 0;
+				if(vars[EZBI_BSTYPE]){
+					if(vars[EZBI_BSTYPE]==3){ //Death transform
+						if(vars[EZBI_BSISDEAD]){ //Has died
+							if(EZB_FORMCHANGE_ANIM){
+								j = EZB_BarrierShift_TransformAnimSize(ghost,  vars);
+								if(EZB_FORMCHANGE_ANIM==2||j!=Max(ghost->TileWidth, ghost->TileHeight)){
+									k = Max(j, Max(ghost->TileWidth, ghost->TileHeight))*8+8;
+									//Expanding circle effect
+									EZB_RunEffect(0, CenterX(this), CenterY(this), k, C_EZB_TRANSFORM, 0, 0, 0);
+									EZB_Waitframes(this, ghost, vars, 16);
+								}
+								Game->PlaySound(SFX_EZB_BARRIERSHIFT_ONDEATH);
+								EZB_Barriershift_Load(ghost, vars, false, true);
+							}
+							else{
+								Game->PlaySound(SFX_EZB_BARRIERSHIFT_ONDEATH);
+								EZB_Barriershift_Load(ghost, vars, false, true);
+							}
+							vars[EZBI_BSISDEAD] = 0;
+							i = 1;
+						}
+					}
+					else if(vars[EZBI_BSTYPE]==2){ //Full barrier shift
+						j = 0;
+						if(vars[EZBI_TRANSFORMVARIANCE]==0)
+							j = 1;
+						else if(Rand(vars[EZBI_TRANSFORMVARIANCE])==0)
+							j = 1;
+						if(vars[EZBI_TRANSFORMCOOLDOWN])
+							--vars[EZBI_TRANSFORMCOOLDOWN];
+						else if(j){
+							Game->PlaySound(SFX_EZB_BARRIERSHIFT);
+							EZB_Barriershift_Load(ghost, vars, false, false);
+							i = 1;
+						}
+					}
+					else{ //Only defense
+						j = 0;
+						if(vars[EZBI_TRANSFORMVARIANCE]==0)
+							j = 1;
+						else if(Rand(vars[EZBI_TRANSFORMVARIANCE])==0)
+							j = 1;
+						if(vars[EZBI_TRANSFORMCOOLDOWN])
+							--vars[EZBI_TRANSFORMCOOLDOWN];
+						else if(j){
+							Game->PlaySound(SFX_EZB_BARRIERSHIFT);
+							EZB_Barriershift_Load(ghost, vars, true, false);
+						}
+					}
+				}
+				if(i){ //If reloading all enemy data after barrier shift
+					//When morphing into a different enemy, reload all init stuff
+					Ghost_UnsetFlag(GHF_8WAY);
+					Ghost_UnsetFlag(GHF_4WAY);
+					Ghost_UnsetFlag(GHF_NO_FALL);
+					Ghost_UnsetFlag(GHF_IGNORE_ALL_TERRAIN);
+					Ghost_UnsetFlag(GHF_FLYING_ENEMY);
+					Ghost_UnsetFlag(GHF_FAKE_Z);
+					Ghost_UnsetFlag(GHF_WATER_ONLY);
+					Ghost_UnsetFlag(GHF_KNOCKBACK);
+					Ghost_UnsetFlag(GHF_FAKE_Z);
+					Ghost_UnsetFlag(GHF_CLOCK);
+					Ghost_UnsetFlag(GHF_STUN);
+					
+					movementStyle = vars[EZBI_WALKTYPE];
+					attack1 = vars[EZBI_ATTACK1];
+					attack2 = vars[EZBI_ATTACK2];
+					attack3 = vars[EZBI_ATTACK3];
+					shaveHitbox = vars[EZBI_SHAVE];
+					special = vars[EZBI_SPECIAL];
+					size = vars[EZBI_SIZE];
+					fireSFX = vars[EZBI_WPNSFX];
+					fireSPR = vars[EZBI_WPNSPR];
+					flags = vars[EZBI_FLAGS];
+					
+					attackPool[0] = 0;
+					attackPool[100] = 0;
+					
+					EZB_InitVars(vars);
+					
+					constantAttack = 0;
+					doConstantAttack = 0;
+					
+					//Certain attacks in Attack 1 do a constant attack instead
+					//This is triggered at certain parts of the enemy's walk pattern
+					if(attack1==44)
+						constantAttack = 44;
+					else if(attack1==45)
+						constantAttack = 45;
+					else if(attack1==46)
+						constantAttack = 46;
+					else if(attack1==47)
+						constantAttack = 47;
+					else if(attack1==48)
+						constantAttack = 48;
+					
+					//If there's a constant attack, shift all other attacks down
+					if(constantAttack>0){
+						attack1 = attack2;
+						attack2 = attack3;
+						attack3 = 0;
+					}
+					
+					shaveX = shaveHitbox&1111b;
+					shaveY = Floor(shaveHitbox>>4)&1111b;
+					
+					//An enemy with no collision uses stun to turn it off and so cannot be stunned normally
+					if(!(flags&EZBF_NOCOLL)&&!(flags&EZBF_NOSTUN)){
+						Ghost_SetFlag(GHF_STUN);
+						Ghost_SetFlag(GHF_CLOCK);
+					}
+					
+					EZB_GetExtraProperties(this, ghost, vars[EZBI_CURFORMID], vars, attack1, attack2, attack3, attackPool, laserColors);
+					
+					w = size&1111b;
+					h = (size>>4)&1111b;
+					if(h==0)
+						h = w;
+					w = Clamp(w, 1, 4);
+					h = Clamp(h, 1, 4);
+						
+					combo = vars[EZBI_COMBO];
+					if(Ghost_TileWidth!=w||Ghost_TileHeight!=h)
+						Ghost_Transform(this, ghost, -1, -1, w, h);
+					Ghost_SetHitOffsets(ghost, shaveY, shaveY, shaveX, shaveX);
+					
+					if(flags&EZBF_8WAY)
+						Ghost_SetFlag(GHF_8WAY);
+					else if(flags&EZBF_4WAY)
+						Ghost_SetFlag(GHF_4WAY);
+					if(flags&EZBF_NOFALL)
+						Ghost_SetFlag(GHF_NO_FALL);
+					if(flags&EZBF_FLYING){
+						Ghost_SetFlag(GHF_IGNORE_ALL_TERRAIN);
+						Ghost_SetFlag(GHF_FLYING_ENEMY);
+						this->Flags[FFCF_OVERLAY] = true;
+						if(EZB_FLYING_ZPOS&&(flags&EZBF_NOFALL)&&!IsSideview()){
+							Ghost_SetFlag(GHF_FAKE_Z);
+							Ghost_Z = 8;
+						}
+					}
+					else if(flags&EZBF_AQUATIC){
+						Ghost_SetFlag(GHF_WATER_ONLY);
+					}
+					if(flags&EZBF_KNOCKBACK){
+						Ghost_SetFlag(GHF_KNOCKBACK);
+					}
+					if(EZB_ALWAYS_FAKE_Z)
+						Ghost_SetFlag(GHF_FAKE_Z);
+					
+					stepCounter = -1;
+					attackCooldown = ghost->Haltrate*10;
+					stepAngle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+					stepCooldown = ghost->Rate;
+					vX = 0; vY = 0;
+					lastAttack = -1;
+					
+					if(movementStyle==4){ //Wall Bounce
+						angle = Rand(360);
+						vX = VectorX(ghost->Step/100, angle);
+						vY = VectorY(ghost->Step/100, angle);
+					}
+					if(movementStyle==11){ //Turn At Wall
+						stepAngle = Rand(4);
+					}
+					if(movementStyle==12||movementStyle==13) //Skitter
+						stepCooldown = ghost->Haltrate;
+					
+					if(vars[EZBI_BSTYPE]==3)
+						vars[EZBI_BSTYPE] = 0;
+					
+					for(i=0; i<16; ++i)
+						movementMisc[i] = 0;
+				}
+
+				Ghost_Data = combo;
+				
+				attackCooldown = ghost->Haltrate*10;
+				if(movementStyle==4){ //Wall bounce
+					angle = Rand(360);
+					vX = VectorX(ghost->Step/100, angle);
+					vY = VectorY(ghost->Step/100, angle);
+				}
+				//Normalize direction
+				EZB_FaceDir(this, ghost, vars, Ghost_Dir);
+				
+				vars[EZBI_ATTACKFLAG] = 0;
+			}
+			EZB_Waitframe(this, ghost, vars);
+		}
+	}
+	bool EZB_CanMoveAngle(int angle){
+		int vx = VectorX(10, angle);
+		int vy = VectorY(10, angle);
+		if((vx<0&&!Ghost_CanMove(DIR_LEFT, 1, 0))||(vx>0&&!Ghost_CanMove(DIR_RIGHT, 1, 0)))
+			return false;
+		if((vy<0&&!Ghost_CanMove(DIR_UP, 1, 0))||(vy>0&&!Ghost_CanMove(DIR_DOWN, 1, 0)))
+			return false;
+		return true;
+	}
+	void EZB_FiringAnim(ffc this, npc ghost, int vars, int delayType){
+		int i;
+		int movementStyle = vars[EZBI_WALKTYPE];
+		int flags = vars[EZBI_FLAGS];
+		int combo = vars[EZBI_COMBO];
+		if(flags&EZBF_8WAY)
+			Ghost_Data = combo+8;
+		else if(flags&EZBF_4WAY)
+			Ghost_Data = combo+4;
+		else
+			Ghost_Data = combo+1;
+		
+		int drawX = ghost->DrawXOffset;
+		int drawY = ghost->DrawYOffset;
+		if(delayType==0){ //Normal delay
+			for(i=0; i<EZB_WINDUP_ATTACK; ++i){
+				EZB_Waitframe(this, ghost, vars);
+			}
+		}
+		else if(delayType==1){ //Medium delay (shake)
+			int dX = 0;
+			int dY = 0;
+			for(i=0; i<EZB_WINDUP_ATTACK_MED; ++i){
+				if(EZB_DO_WINDUP_SHAKE>1){
+					dX = Rand(-1, 1);
+					dY = Rand(-1, 1);
+					ghost->DrawXOffset = drawX+dX;
+					ghost->DrawYOffset = drawY+dY;
+				}
+				EZB_Waitframe(this, ghost, vars);
+			}
+			ghost->DrawXOffset = drawX;
+			ghost->DrawYOffset = drawY;
+		}
+		else if(delayType==2){ //Big delay (shake)
+			int dX = 0;
+			int dY = 0;
+			for(i=0; i<EZB_WINDUP_ATTACK_STRONG; ++i){
+				if(EZB_DO_WINDUP_SHAKE>0){
+					dX = Rand(-2, 2);
+					dY = Rand(-2, 2);
+					ghost->DrawXOffset = drawX+dX;
+					ghost->DrawYOffset = drawY+dY;
+				}
+				EZB_Waitframe(this, ghost, vars);
+			}
+			ghost->DrawXOffset = drawX;
+			ghost->DrawYOffset = drawY;
+		}
+	}
+	void EZB_Trail(ffc this, npc ghost, int vars){
+		if(!EZB_ENABLE_SPEEDTRAILS)
+			return;
+		
+		int flags = vars[EZBI_FLAGS];
+		int tile = Game->ComboTile(Ghost_Data);
+		if(flags&EZBF_4WAY||flags&EZBF_8WAY)
+			tile = Game->ComboTile(Ghost_Data+Ghost_Dir);
+		lweapon trail = CreateLWeaponAt(LW_SCRIPT10, ghost->X+ghost->DrawXOffset, ghost->Y+ghost->DrawYOffset);
+		trail->Extend = 3;
+		trail->TileWidth = ghost->TileWidth;
+		trail->TileHeight = ghost->TileHeight;
+		trail->DrawYOffset = 0;
+		trail->CSet = this->CSet;
+		trail->Tile = tile;
+		trail->OriginalTile = tile;
+		trail->DrawStyle = DS_PHANTOM;
+		trail->DeadState = 8;
+	}
+	int EZB_DirAngle(int dir){
+		if(dir==DIR_UP)
+			return -90;
+		else if(dir==DIR_DOWN)
+			return 90;
+		else if(dir==DIR_LEFT)
+			return 180;
+		else if(dir==DIR_LEFTUP)
+			return -135;
+		else if(dir==DIR_RIGHTUP)
+			return -45;
+		else if(dir==DIR_LEFTDOWN)
+			return 135;
+		else if(dir==DIR_RIGHTDOWN)
+			return 45;
+		else
+			return 0;
+	}
+	eweapon EZB_Fire(ffc this, npc ghost, int vars, int x, int y, int angle, int step){
+		eweapon e = EZB_Fire(this, ghost, vars, x, y, angle, step, 0);
+		return e;
+	}
+	eweapon EZB_Fire(ffc this, npc ghost, int vars, int x, int y, int angle, int step, int wflags){
+		int flags = vars[EZBI_FLAGS];
+		int type = EZB_WeaponTypeToID(ghost->Weapon);
+		if(flags&EZBF_UNBLOCKABLE)
+			wflags |= EWF_UNBLOCKABLE;
+		int fireSFX = vars[EZBI_WPNSFX];
+		int fireSPR = vars[EZBI_WPNSPR];
+		if(fireSPR==0&&(type==EW_BEAM||type==EW_ARROW||type==EW_MAGIC||type==EW_BOMB||type==EW_SBOMB))
+			wflags |= EWF_ROTATE;
+		
+		if(fireSPR>=2000){
+			wflags |= EWF_ROTATE_360;
+			fireSPR -= 2000;
+		}
+		else if(fireSPR>=1000){
+			wflags |= EWF_ROTATE;
+			fireSPR -= 1000;
+		}
+		int sfx = fireSFX;
+		if(fireSFX<=0)
+			sfx = -1;
+		int spr = fireSPR;
+		if(fireSPR<=0)
+			spr = -1;
+			
+		eweapon e = FireEWeapon(type, x, y, DegtoRad(angle), step, ghost->WeaponDamage, spr, sfx, wflags);
+		return e;
+	}
+	int EZB_WeaponTypeToID(int wpnt){
+		if(wpnt == WPN_ENEMYFLAME) 		return EW_FIRE;
+		else if(wpnt == WPN_ENEMYWIND)		return EW_WIND;
+		else if(wpnt == WPN_ENEMYFIREBALL)	return EW_FIREBALL;
+		else if(wpnt == WPN_ENEMYARROW)		return EW_ARROW;
+		else if(wpnt == WPN_ENEMYBRANG)		return EW_BRANG;
+		else if(wpnt == WPN_ENEMYSWORD)		return EW_BEAM;
+		else if(wpnt == WPN_ENEMYROCK)		return EW_ROCK;
+		else if(wpnt == WPN_ENEMYMAGIC)		return EW_MAGIC;
+		else if(wpnt == WPN_ENEMYBOMB)		return EW_BOMBBLAST; //flipped bomb and lit bomb in older versions of this file. -Z ( 12th February, 2019 )
+		else if(wpnt == WPN_ENEMYSBOMB)		return EW_SBOMBBLAST;
+		else if(wpnt == WPN_ENEMYLITBOMB)	return EW_BOMB;
+		else if(wpnt == WPN_ENEMYLITSBOMB)	return EW_SBOMB;
+		else if(wpnt == WPN_ENEMYFIRETRAIL)	return EW_FIRETRAIL;
+		else if(wpnt == WPN_ENEMYFLAME2)	return EW_FIRE2;
+		else if(wpnt == WPN_ENEMYFIREBALL2)	return EW_FIREBALL2;
+		return EW_MAGIC;
+	}
+	void EZB_SetEWeaponDeathEffect(eweapon e){
+		if(e->ID==EW_FIRE||e->ID==EW_FIRE2){
+			SetEWeaponDeathEffect(e, EWD_8_FIRES, -1);
+		}
+		else if(e->ID==EW_FIRETRAIL){
+			SetEWeaponDeathEffect(e, EWD_FIRE, -1);
+		}
+		else if(e->ID==EW_BOMB){
+			SetEWeaponDeathEffect(e, EWD_EXPLODE, e->Damage);
+		}
+		else if(e->ID==EW_SBOMB){
+			SetEWeaponDeathEffect(e, EWD_SBOMB_EXPLODE, e->Damage);
+		}
+		else if(e->ID==EW_ARROW){
+			SetEWeaponDeathEffect(e, EWD_4_FIREBALLS_HV, -1);
+		}
+		else if(e->ID==EW_MAGIC){
+			SetEWeaponDeathEffect(e, EWD_AIM_AT_LINK, 16);
+		}
+		else{
+			SetEWeaponDeathEffect(e, EWD_VANISH, -1);
+		}
+	}
+	void EZB_DrawTeleport(ffc this, npc ghost, int vars, int x, int y, int frame, int maxFrame){
+		int w = Ghost_TileWidth;
+		int h = Ghost_TileHeight;
+		
+		int flags = vars[EZBI_FLAGS];
+		
+		int cmb = Ghost_Data;
+		if(flags&EZBF_4WAY||flags&EZBF_8WAY)
+			cmb+=Ghost_Dir;
+		
+		int layer = 2;
+		if(ScreenFlag(1, 4)) //Layer -2
+			layer = 1;
+		int i = frame/maxFrame;
+		int op = 128;
+		if(frame>maxFrame-8)
+			op = 64;
+		Screen->DrawCombo(layer, x+w*8*i, y-h*24*i, cmb, w, h, this->CSet, w*16-w*16*i, h*16+h*24*i, 0, 0, 0, -1, 0, true, op);
+	}
+	void EZB_Teleport(ffc this, npc ghost, int vars, int x, int y, int teleFrames){
+		int size = vars[EZBI_SIZE];
+		int flags = vars[EZBI_FLAGS];
+		int combo = vars[EZBI_COMBO];
+		int w = size&1111b;
+		int h = (size>>4)&1111b;
+		if(h==0)
+			h = w;
+		w = Clamp(w, 1, 4);
+		h = Clamp(h, 1, 4);
+		
+		Game->PlaySound(SFX_EZB_TELEPORT);
+		int tc;
+		ghost->CollDetection = false;
+		ghost->DrawYOffset = -1000;
+		int oldCombo = Ghost_Data;
+		for(int i=0; i<teleFrames; ++i){
+			if(EZB_TELEPORT_TYPE==1){
+				EZB_DrawTeleport(this, ghost, vars, Ghost_X, Ghost_Y-2, i, teleFrames);
+			}
+			else if(EZB_TELEPORT_TYPE==2){
+				ghost->DrawYOffset = -2;
+				if(flags&EZBF_4WAY)
+					Ghost_Data = combo+8;
+				else if(flags&EZBF_8WAY)
+					Ghost_Data = combo+16;
+				else
+					Ghost_Data = combo+2;
+			}
+			else{
+				if(i%2==0)
+					ghost->DrawYOffset = -1000;
+				else
+					ghost->DrawYOffset = -2;
+			}
+			EZB_Waitframe(this, ghost, vars);
+		}
+		ghost->DrawYOffset = -1000;
+		tc = Rand(176);
+		for(int i=0; i<352&&(!EZB_CanPlace(this, ghost, ComboX(tc), ComboY(tc))||Distance(ComboX(tc)+ghost->HitWidth/2, ComboY(tc)+ghost->HitHeight/2, CenterLinkX(), CenterLinkY())<((w+h)/2)*8+32); ++i){
+			if(i>=176)
+				tc = i-176;
+			else
+				tc = Rand(176);
+		}
+		Ghost_X = ComboX(tc);
+		Ghost_Y = ComboY(tc);
+		if(x>-1000&&y>-1000){
+			Ghost_X = x;
+			Ghost_Y = y;
+		}
+		EZB_Waitframe(this, ghost, vars);
+		EZB_FaceLink(this, ghost, vars);
+		for(int i=0; i<teleFrames; ++i){
+			if(EZB_TELEPORT_TYPE==1){
+				EZB_DrawTeleport(this, ghost, vars, Ghost_X, Ghost_Y-2, teleFrames-i, teleFrames);
+			}
+			else if(EZB_TELEPORT_TYPE==2){
+				ghost->DrawYOffset = -2;
+				if(flags&EZBF_4WAY)
+					Ghost_Data = combo+8;
+				else if(flags&EZBF_8WAY)
+					Ghost_Data = combo+16;
+				else
+					Ghost_Data = combo+2;
+			}
+			else{
+				if(i%2==0)
+					ghost->DrawYOffset = -1000;
+				else
+					ghost->DrawYOffset = -2;
+			}
+			EZB_Waitframe(this, ghost, vars);
+		}
+		ghost->DrawYOffset = -2;
+		Ghost_Data = oldCombo;
+		ghost->CollDetection = true;
+	}	
+	void EZB_Teleport(ffc this, npc ghost, int vars){
+		EZB_Teleport(this, ghost, vars, -1000, -1000, 16);
+	}
+	int EZB_AngleDir(ffc this, npc ghost, int vars, int angle){
+		int flags = vars[EZBI_FLAGS];
+		if(flags&EZBF_8WAY)
+			return AngleDir8(angle);
+		else
+			return AngleDir4(angle);
+	}
+	int EZB_DirX(int dir, int step){
+		if(dir==DIR_LEFT||dir==DIR_LEFTUP||dir==DIR_LEFTDOWN)
+			return -step;
+		if(dir==DIR_RIGHT||dir==DIR_RIGHTUP||dir==DIR_RIGHTDOWN)
+			return step;
+		return 0;
+	}
+	int EZB_DirY(int dir, int step){
+		if(dir==DIR_UP||dir==DIR_LEFTUP||dir==DIR_RIGHTUP)
+			return -step;
+		if(dir==DIR_DOWN||dir==DIR_LEFTDOWN||dir==DIR_RIGHTDOWN)
+			return step;
+		return 0;
+	}
+	int EZB_TurnDir4(int dir, bool ccw){
+		if(ccw){
+			if(dir==DIR_UP)
+				return DIR_LEFT;
+			else if(dir==DIR_DOWN)
+				return DIR_RIGHT;
+			else if(dir==DIR_LEFT)
+				return DIR_DOWN;
+			else if(dir==DIR_RIGHT)
+				return DIR_UP;
+			return 0;
+		}
+		else{
+			if(dir==DIR_UP)
+				return DIR_RIGHT;
+			else if(dir==DIR_DOWN)
+				return DIR_LEFT;
+			else if(dir==DIR_LEFT)
+				return DIR_UP;
+			else if(dir==DIR_RIGHT)
+				return DIR_DOWN;
+			return 0;
+		}
+	}
+	float EZB_AngDiff(float angle1, float angle2){
+		// Get the difference between the two angles
+		float dif = angle2 - angle1;
+		
+		// Compensate for the difference being outside of normal bounds
+		if(dif >= 180)
+			dif -= 360;
+		else if(dif <= -180)
+			dif += 360;
+			
+		return dif;
+	}
+	int EZB_TurnToAngle(int ang1, int ang2, int angStep){
+		if(Abs(EZB_AngDiff(ang1, ang2))<angStep)
+			return ang2;
+		return WrapDegrees(ang1+Sign(EZB_AngDiff(ang1, ang2))*angStep);
+	}
+	void EZB_FaceLink(ffc this, npc ghost, int vars){
+		int flags = vars[EZBI_FLAGS];
+		if(flags&EZBF_8WAY)
+			Ghost_Dir = AngleDir8(Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY()));
+		else
+			Ghost_Dir = AngleDir4(Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY()));
+	}
+	void EZB_FaceAngle(ffc this, npc ghost, int vars, int angle){
+		int flags = vars[EZBI_FLAGS];
+		if(flags&EZBF_8WAY)
+			Ghost_Dir = AngleDir8(angle);
+		else
+			Ghost_Dir = AngleDir4(angle);
+	}
+	void EZB_FaceDir(ffc this, npc ghost, int vars, int dir){
+		int flags = vars[EZBI_FLAGS];
+		if(flags&EZBF_8WAY)
+			Ghost_Dir = dir;
+		else{
+			if(dir<4)
+				Ghost_Dir = dir;
+			else{
+				if(dir==DIR_LEFTUP||dir==DIR_LEFTDOWN)
+					Ghost_Dir = DIR_LEFT;
+				else
+					Ghost_Dir = DIR_RIGHT;
+			}
+		}
+	}
+	void EZB_FaceDir4(ffc this, npc ghost, int vars, int dir){
+		if(dir<4)
+			Ghost_Dir = dir;
+		else{
+			if(dir==DIR_LEFTUP||dir==DIR_LEFTDOWN)
+				Ghost_Dir = DIR_LEFT;
+			else
+				Ghost_Dir = DIR_RIGHT;
+		}
+	}
+	bool EZB_CanPlace(ffc this, npc ghost, int X, int Y){
+		for(int x=ghost->HitXOffset; x<=ghost->HitXOffset+ghost->HitWidth-1; x=Min(x+8, ghost->HitXOffset+ghost->HitWidth-1)){
+			for(int y=ghost->HitYOffset; y<=ghost->HitYOffset+ghost->HitHeight-1; y=Min(y+8, ghost->HitYOffset+ghost->HitHeight-1)){
+				if(!Ghost_CanMovePixel(X+x, Y+y))
+					return false;
+				if(y==ghost->HitYOffset+ghost->HitHeight-1)
+					break;
+			}
+			if(x==ghost->HitXOffset+ghost->HitWidth-1)
+				break;
+		}
+		return true;
+	}
+	bool EZB_CanPlace(ffc this, npc ghost, int X, int Y, int W, int H){
+		for(int x=0; x<=W-1; x=Min(x+8, W-1)){
+			for(int y=0; y<=H-1; y=Min(y+8, H-1)){
+				if(!Ghost_CanMovePixel(X+x, Y+y))
+					return false;
+				if(y==H-1)
+					break;
+			}
+			if(x==W-1)
+				break;
+		}
+		return true;
+	}
+	bool EZB_RotRectCollision(float x1c, float y1c, float height1, float width1, float rot1, float x2c, float y2c, float height2, float width2, float rot2){
+		float rad1=Sqrt(height1*height1+width1*width1);
+		float rad2=Sqrt(height2*height2+width2*width2);
+		float angle1=RadtoDeg(ArcSin(height1/rad1));
+		float angle2=RadtoDeg(ArcSin(height2/rad2));
+		float x1[4];
+		float y1[4];
+		float x2[4];
+		float y2[4];
+		float axisX[4];
+		float axisY[4];
+		float proj;
+		float minProj1;
+		float maxProj1;
+		float minProj2;
+		float maxProj2;
+		x1[0]=x1c+rad1*Cos(rot1-angle1);
+		y1[0]=y1c+rad1*Sin(rot1-angle1);
+		x1[1]=x1c+rad1*Cos(rot1+angle1);
+		y1[1]=y1c+rad1*Sin(rot1+angle1);
+		x1[2]=x1c+rad1*Cos(rot1+180-angle1);
+		y1[2]=y1c+rad1*Sin(rot1+180-angle1);
+		x1[3]=x1c+rad1*Cos(rot1+180+angle1);
+		y1[3]=y1c+rad1*Sin(rot1+180+angle1);
+		x2[0]=x2c+rad2*Cos(rot2-angle2);
+		y2[0]=y2c+rad2*Sin(rot2-angle2);
+		x2[1]=x2c+rad2*Cos(rot2+angle2);
+		y2[1]=y2c+rad2*Sin(rot2+angle2);
+		x2[2]=x2c+rad2*Cos(rot2+180-angle2);
+		y2[2]=y2c+rad2*Sin(rot2+180-angle2);
+		x2[3]=x2c+rad2*Cos(rot2+180+angle2);
+		y2[3]=y2c+rad2*Sin(rot2+180+angle2);
+		axisX[0]=x1[0]-x1[1];
+		axisY[0]=y1[0]-y1[1];
+		axisX[1]=x1[2]-x1[1];
+		axisY[1]=y1[2]-y1[1];
+		axisX[2]=x2[0]-x2[1];
+		axisY[2]=y2[0]-y2[1];
+		axisX[3]=x2[2]-x2[1];
+		axisY[3]=y2[2]-y2[1];
+		// if(true){ //Debug draws
+			// Screen->Rectangle(5, x1c-width1, y1c-height1, x1c+width1, y1c+height1, 1, -1, x1c, y1c, rot1, true, 128);
+			// Screen->Rectangle(5, x2c-width2, y2c-height2, x2c+width2, y2c+height2, 2, -1, x2c, y2c, rot2, true, 128);
+		// }
+		for(int i=0; i<4; ++i){
+			proj=x1[0]*axisX[i]+y1[0]*axisY[i];
+			minProj1=proj;
+			maxProj1=proj;
+			for(int j=1; j<4; ++j){
+				proj=x1[j]*axisX[i]+y1[j]*axisY[i];
+				if(proj<minProj1)
+					minProj1=proj;
+				if(proj>maxProj1)
+					maxProj1=proj;
+			}
+			proj=x2[0]*axisX[i]+y2[0]*axisY[i];
+			minProj2=proj;
+			maxProj2=proj;
+			for(int j=1; j<4; ++j){
+				proj=x2[j]*axisX[i]+y2[j]*axisY[i];
+				if(proj<minProj2)
+					minProj2=proj;
+				if(proj>maxProj2)
+					maxProj2=proj;
+			}
+			if(maxProj2<minProj1 || maxProj1<minProj2)
+				return false;
+		}
+		return true;
+	}
+	void EZB_DrawLaser(int layer, int x, int y, int width, int angle, int color){
+		if(ScreenFlag(1, 4)&&layer==2) //Layer -2
+			layer = 1;
+		else if(ScreenFlag(1, 5)&&layer==3) //Layer -3
+			layer = 4;
+		Screen->Circle(layer, x+width, y, width, color, 1, x, y, angle, true, 128);
+		Screen->Rectangle(layer, x+width, y-width, x+width+512, y+width, color, 1, x, y, angle, true, 128);
+	}
+	void EZB_DrawLaser3Color(int layer, int x, int y, int width, int angle, int color1, int color2, int color3){
+		EZB_DrawLaser(layer, x, y, width, angle, color1);
+		EZB_DrawLaser(layer, x, y, width/4*3, angle, color2);
+		EZB_DrawLaser(layer, x, y, width/2, angle, color3);
+	}
+	bool EZB_LaserCollision(int x, int y, int width, int angle){
+		int hitWidth = Max(1, width-3);
+		int cX = x+VectorX(width, angle);
+		int cY = y+VectorY(width, angle);
+		if(Distance(CenterLinkX(), CenterLinkY(), cX, cY)<width)
+			return true;
+		return EZB_RotRectCollision(x+VectorX(width+128, angle), y+VectorY(width+128, angle), hitWidth, 128, angle, CenterLinkX(), CenterLinkY(), 4, 4, 0);
+	}
+	void EZB_DoLaser(int layer, int x, int y, int width, int angle, int damage, int laserColors, int forceColor, int state, int frame, int maxFrames){
+		if(ScreenFlag(1, 4)&&layer==2) //Layer -2
+			layer = 1;
+		else if(ScreenFlag(1, 5)&&layer==3) //Layer -3
+			layer = 4;
+		if(STYLE_EZB_LASER==0){
+			if(state==0){
+				if(frame%4<2)
+					EZB_DrawLaser(layer, x, y, width, angle, laserColors[2]);
+			}
+			else{
+				EZB_DrawLaser3Color(layer, x, y, width, angle, laserColors[0], laserColors[1], laserColors[2]);
+				if(EZB_LaserCollision(x, y, width, angle)){
+					EZB_DamageLink(damage);
+				}
+			}
+		}
+		else{
+			int clr;
+			int w; int wRand;
+			if(state==0){
+				clr = Choose(laserColors[1], laserColors[2]);
+				if(forceColor>-1)
+					clr = forceColor;
+				if(frame%4<2){
+					w = width*(frame/maxFrames)*0.8;
+					x += VectorX(w/2, angle);
+					y += VectorY(w/2, angle);
+					wRand = Max(1, Round(w/4));
+					Screen->Circle(layer, x+Rand(-wRand, wRand), y+Rand(-wRand, wRand), w, clr, 1, 0, 0, 0, true, 128);
+					
+					int xy[2];
+					xy[0] = x+VectorX(320, angle);
+					xy[1] = y+VectorY(320, angle);
+					if(width/16>=1){
+						w = Max(1, Round(width/16));
+						EZB_DrawThickLine(layer, x+Rand(-wRand, wRand), y+Rand(-wRand, wRand), xy[0]+Rand(-wRand, wRand), xy[1]+Rand(-wRand, wRand), w, clr, true, 128);
+					}
+					else{
+						Screen->Line(layer, x+Rand(-wRand, wRand), y+Rand(-wRand, wRand), xy[0]+Rand(-wRand, wRand), xy[1]+Rand(-wRand, wRand), clr, 1, 0, 0, 0, 128);
+					}
+				}
+			}
+			else{
+				clr = Choose(laserColors[0], laserColors[1], laserColors[2]);
+				if(forceColor>-1)
+					clr = forceColor;
+				wRand = Max(1, Round(width/8));
+				EZB_DrawLaser(layer, x+Rand(-wRand, wRand), y+Rand(-wRand, wRand), width, angle, clr);
+				if(EZB_LaserCollision(x, y, width, angle)){
+					EZB_DamageLink(damage);
+				}
+			}
+		}
+	}
+	int EZB_GetSpecialCombo(ffc this, npc ghost, int vars, int graphic){
+		int flags = vars[EZBI_FLAGS];
+		int combo = vars[EZBI_COMBO];
+		
+		int baseCombo = combo+2;
+		if(flags&EZBF_4WAY)
+			baseCombo = combo+8;
+		else if(flags&EZBF_8WAY)
+			baseCombo = combo+16;
+		
+		if(graphic==0){ //Regular Sword
+			return baseCombo;
+		}
+		else if(graphic==1){ //Giant Sword
+			return baseCombo+1;
+		}
+		return 0;
+	}
+	void EZB_DrawSword(ffc this, npc ghost, int vars, int x, int y, int angle, int angle2, int step, int damage){
+		if(Link->HP<=0)
+			return;
+		
+		x += VectorX(step, angle);
+		y += VectorY(step, angle);
+		
+		Screen->DrawCombo(6, x, y, EZB_GetSpecialCombo(this, ghost, vars, 0), 1, 1, Ghost_CSet, -1, -1, x, y, angle2, -1, 0, true, 128);
+		if(damage)
+			EZB_MakeHitbox(x, y, 16, 16, damage);
+	}
+	void EZB_DrawGreatsword(ffc this, npc ghost, int vars, int x, int y, int angle, int angle2, int step, int damage){
+		if(Link->HP<=0)
+			return;
+		
+		x += -8+VectorX(step, angle);
+		y += VectorY(step, angle);
+		
+		x += VectorX(8, angle2);
+		y += VectorY(8, angle2);
+		
+		Screen->DrawCombo(6, x, y, EZB_GetSpecialCombo(this, ghost, vars, 1), 2, 1, Ghost_CSet, -1, -1, x, y, angle2, -1, 0, true, 128);
+		if(damage){
+			EZB_MakeHitbox(x+8+VectorX(8, angle2), y+VectorY(8, angle2), 16, 16, damage);
+			EZB_MakeHitbox(x+8+VectorX(-8, angle2), y+VectorY(-8, angle2), 16, 16, damage);
+		}
+	}
+	void EZB_DrawThickLine(int layer,  int x1, int y1, int x2, int y2, int width, int color, bool fill, int op){
+		Screen->Rectangle(layer, x1, y1-width, x1+Distance(x1, y1, x2, y2), y1+width, color, 1, x1, y1, Angle(x1, y1, x2, y2), fill, op);
+	}
+	void EZB_Shockwave(int layer, int x, int y, int rad1, int rad2, int rings, int damage, int color1, int color2, int color3){
+		if(ScreenFlag(1, 4)&&layer==2) //Layer -2
+			layer = 1;
+		else if(ScreenFlag(1, 5)&&layer==3) //Layer -3
+			layer = 4;
+		int clr = Choose(color1, color2, color3);
+		for(int i=0; i<rings; ++i){
+			if(rad1-i*2>0&&rad1-i*2<rad2){
+				Screen->Circle(layer, x, y, rad1-i*2, clr, 1, 0, 0, 0, false, 128);
+			}
+		}
+		int r = Min(rad1, rad2);
+		if(Distance(CenterLinkX(), CenterLinkY(), x, y)<r){
+			EZB_DamageLink(damage);
+		}
+	}
+	void EZB_DamageLink(int damage){
+		eweapon e = FireEWeapon(EW_SCRIPT10, Link->X+InFrontX(Link->Dir, 12), Link->Y+InFrontY(Link->Dir, 12), 0, 0, damage, -1, -1, EWF_UNBLOCKABLE);
+		e->Dir = Link->Dir;
+		e->DrawYOffset = -1000;
+		SetEWeaponLifespan(e, EWL_TIMER, 1);
+		SetEWeaponDeathEffect(e, EWD_VANISH, 0);
+	}
+	void EZB_MakeHitbox(int x, int y, int w, int h, int damage){
+		eweapon e = FireEWeapon(EW_SCRIPT10, 120, 80, 0, 0, damage, -1, -1, EWF_UNBLOCKABLE);
+		e->HitXOffset = x-e->X;
+		e->HitYOffset = y-e->Y;
+		e->DrawYOffset = -1000;
+		e->HitWidth = w;
+		e->HitHeight = h;
+		SetEWeaponLifespan(e, EWL_TIMER, 1);
+		SetEWeaponDeathEffect(e, EWD_VANISH, 0);
+	}
+	void EZB_Explode(ffc this, npc ghost, bool flash){
+		int baseX=Ghost_X+ghost->DrawXOffset;
+		int baseY=(Ghost_Y+ghost->DrawYOffset)-(Ghost_Z+ghost->DrawZOffset);
+		
+		__DeathAnimStart(this, ghost);
+		__DeathAnimSFX(ghost->ID, ghost->X);
+		
+		if(flash)
+			__Ghost_FlashCounter=10000;
+		else
+			__Ghost_FlashCounter=0;
+		
+		// One explosion every 16 frames, 15 times
+		for(int i=0; i<15; ++i)
+		{
+			EZB_CreateDeathExplosion(baseX+Rand(16*Ghost_TileWidth)-8, baseY+Rand(16*Ghost_TileHeight)-8);
+			
+			for(int j=0; j<16; ++j)
+			{
+				Ghost_SetPosition(this, ghost); // Make sure it doesn't wander off
+				if(flash)
+					__Ghost_UpdateFlashing(this, ghost);
+				Ghost_WaitframeLight(this, ghost);
+			}
+		}
+		
+		__DeathAnimEnd(this, ghost);
+	}
+	void EZB_CreateDeathExplosion(int x, int y){
+		Game->PlaySound(SFX_BOMB);
+		
+		lweapon explosion=Screen->CreateLWeapon(LW_EZB_DEATHEXPLOSION);
+		explosion->X = x-(WIDTH_EZB_DEATHEXPLOSION-1)*8;
+		explosion->Y = y-(HEIGHT_EZB_DEATHEXPLOSION-1)*8;
+		
+		explosion->Extend = 3;
+		explosion->TileWidth = WIDTH_EZB_DEATHEXPLOSION;
+		explosion->TileHeight = HEIGHT_EZB_DEATHEXPLOSION;
+		
+		explosion->UseSprite(SPR_EZB_DEATHEXPLOSION);
+		explosion->CollDetection = false;
+		explosion->DeadState = explosion->NumFrames*explosion->ASpeed;
+	}
+	void EZB_Barriershift_Store(npc ghost, int newForm, int vars){
+		int i;
+		
+		npc n = CreateNPCAt(newForm, 128, -1000);
+		
+		vars[000] = Ghost_CSet;
+		vars[001] = ghost->Damage;
+		vars[002] = ghost->WeaponDamage;
+		vars[003] = ghost->Hunger;
+		vars[004] = ghost->Rate;
+		vars[005] = ghost->Haltrate;
+		vars[006] = ghost->Homing;
+		vars[007] = ghost->Step;
+		vars[008] = ghost->Weapon;
+		vars[009] = ghost->ItemSet;
+		vars[010] = ghost->SFX;
+		for(i=0; i<11; ++i){
+			vars[011+i] = ghost->Attributes[i];
+		}
+		for(i=0; i<18; ++i){
+			vars[022+i] = ghost->Defense[i];
+		}
+		vars[40] = ghost->HP;
+		vars[41] = ghost->ID;
+		
+		vars[100] = n->CSet;
+		vars[101] = n->Damage;
+		vars[102] = n->WeaponDamage;
+		vars[103] = n->Hunger;
+		vars[104] = n->Rate;
+		vars[105] = n->Haltrate;
+		vars[106] = n->Homing;
+		vars[107] = n->Step;
+		vars[108] = n->Weapon;
+		vars[109] = n->ItemSet;
+		vars[110] = n->SFX;
+		for(i=0; i<11; ++i){
+			vars[111+i] = n->Attributes[i];
+		}
+		for(i=0; i<18; ++i){
+			vars[122+i] = n->Defense[i];
+		}
+		vars[140] = n->HP;
+		vars[141] = n->ID;
+		
+		vars[EZBI_BSBUFFER] = 0;
+		
+		n->HP = -1000;
+		n->DrawXOffset = -1000;
+		n->DrawYOffset = -1000;
+		n->ItemSet = 0;
+		n->CollDetection = false;
+		
+		//Flag the enemy as already used by ghost.zh so it doesn't run a script
+		n->Misc[__GHI_NPC_DATA] = 0x10000;
+	}
+	void EZB_Barriershift_Load(npc ghost, int vars, bool onlyDefenses, bool includeHP){
+		int i;
+		int startIndex = 0;
+		if(vars[EZBI_BSBUFFER]==0)
+			startIndex = 100;
+		
+		Ghost_CSet = vars[startIndex+000];
+		if(!onlyDefenses){
+			ghost->Damage = vars[startIndex+001];
+			ghost->WeaponDamage = vars[startIndex+002];
+			ghost->Hunger = vars[startIndex+003];
+			ghost->Rate = vars[startIndex+004];
+			ghost->Haltrate = vars[startIndex+005];
+			ghost->Homing = vars[startIndex+006];
+			ghost->Step = vars[startIndex+007];
+			ghost->Weapon = vars[startIndex+008];
+			ghost->ItemSet = vars[startIndex+009];
+			ghost->SFX = vars[startIndex+010];
+			
+			for(i=0; i<11; ++i){
+				vars[300+i] = vars[startIndex+011+i];
+			}
+		}
+		
+		for(i=0; i<18; ++i){
+			ghost->Defense[i] = vars[startIndex+022+i];
+		}
+		if(includeHP){
+			ghost->HP = vars[startIndex+040];
+			Ghost_HP = ghost->HP;
+		}
+		vars[EZBI_CURFORMID] = vars[startIndex+041];
+	
+		if(vars[EZBI_BSBUFFER]==0)
+			vars[EZBI_BSBUFFER] = 1;
+		else
+			vars[EZBI_BSBUFFER] = 0;
+	}
+	int EZB_BarrierShift_TransformAnimSize(npc ghost, int vars){
+		int i;
+		int startIndex = 0;
+		if(vars[EZBI_BSBUFFER]==0)
+			startIndex = 100;
+		
+		int size = vars[startIndex+011+6];
+		int w = size&1111b;
+		int h = (size>>4)&1111b;
+		if(h==0)
+			h = w;
+		w = Clamp(w, 1, 4);
+		h = Clamp(h, 1, 4);
+		
+		return Max(w, h);
+	}
+	void EZB_InitVars(int vars){
+		vars[EZBI_TRANSFORMCOOLDOWN] = 0;
+		vars[EZBI_TRANSFORMVARIANCE] = 0;
+		
+		vars[EZBI_MAXSPEEDCOUNTER] = 0;
+	}
+	void EZB_GetExtraProperties(ffc this, npc ghost, int id, int vars, int attack1, int attack2, int attack3, int attackPool, int laserColors){
+		int i; int j;
+		int special = vars[EZBI_SPECIAL];
+		attackPool[0] = 0;
+		
+		int extraAttacks[] = "EZBoss_ExtraAttacks";
+		int slotExtraAttacks = Game->GetFFCScript(extraAttacks);
+		int changeLaser[] = "EZBoss_ChangeLaserColor";
+		int slotChangeLaser = Game->GetFFCScript(changeLaser);
+		int extraTransformations[] = "EZBoss_ExtraTransformations";
+		int slotExtraTransformations = Game->GetFFCScript(extraTransformations);
+		
+		//If attack 1 is a transformation, set which one
+		vars[EZBI_BSTYPE] = 0;
+		if(attack1==50||attack1==51||attack1==71){
+			EZB_AddTransformation(this, ghost, vars, special, attackPool);
+			vars[EZBI_BSTYPE] = 1;
+			if(attack1==51)
+				vars[EZBI_BSTYPE] = 2;
+			else if(attack1==71)
+				vars[EZBI_BSTYPE] = 3;
+			attack1 = attack2;
+			attack2 = attack3;
+			attack3 = 0;
+		}
+		
+		//Add the first three attacks to the pool if they're set
+		if(attack1){
+			EZB_AddAttack(this, ghost, vars, attack1, attackPool);
+		}
+		if(attack2){
+			EZB_AddAttack(this, ghost, vars, attack2, attackPool);
+		}
+		if(attack3){
+			EZB_AddAttack(this, ghost, vars, attack3, attackPool);
+		}
+		
+		//Find FFCs flagging extra behaviors
+		for(i=1; i<=32; ++i){
+			ffc f = Screen->LoadFFC(i);
+			//Extra attacks to add to the pool
+			if(f->Script==slotExtraAttacks){
+				if(f->InitD[0]==id){
+					for(j=1; j<=7; ++j){
+						if(f->InitD[j]){
+							EZB_AddAttack(this, ghost, vars, f->InitD[j], attackPool);
+						}
+					}
+				}
+			}
+			//Changing laser and shockwave colors per enemy
+			else if(f->Script==slotChangeLaser){
+				if(f->InitD[0]==id){
+					if(f->InitD[1]||f->InitD[2]||f->InitD[3]){
+						laserColors[0] = f->InitD[1];
+						laserColors[1] = f->InitD[2];
+						laserColors[2] = f->InitD[3];
+					}
+					if(f->InitD[4]||f->InitD[5]||f->InitD[6]){
+						laserColors[3] = f->InitD[4];
+						laserColors[4] = f->InitD[5];
+						laserColors[5] = f->InitD[6];
+					}
+				}
+			}
+			//Randomized transformation pools
+			else if(f->Script==slotExtraTransformations){
+				if(f->InitD[0]==id){
+					if(f->InitD[1]>0)
+						vars[EZBI_TRANSFORMCOOLDOWN] = f->InitD[1]-1;
+					if(f->InitD[2]>1)
+						vars[EZBI_TRANSFORMVARIANCE] = f->InitD[2];
+					for(j=3; j<=7; ++j){
+						if(f->InitD[j]){
+							EZB_AddTransformation(this, ghost, vars, f->InitD[j], attackPool);
+						}
+					}
+				}
+			}
+		}
+		
+		//If the enemy has transformations in the pool but no transforming attack, assume 51, a complete transformation
+		if(attackPool[100]&&vars[EZBI_BSTYPE]==0){
+			vars[EZBI_BSTYPE] = 2;
+		}
+		
+		//If the enemy has transformations in the pool, select one at random to load for the next transformation
+		if(attackPool[100]){
+			EZB_Barriershift_Store(ghost, attackPool[101+Rand(attackPool[100])], vars);
+		}
+	}
+	void EZB_AddAttack(ffc this, npc ghost, int vars, int attack, int attackPool){
+		if(attack==0)
+			return;
+		
+		if(attack>=91&&attack<=93){
+			vars[EZBI_SPEEDUPCOUNTER] = 0;
+			vars[EZBI_INITSPEED] = ghost->Step;
+			if(attack==91){
+				vars[EZBI_MAXSPEEDCOUNTER] = FRAMES_EZB_SPEEDUP;
+				vars[EZBI_TOPSPEED] = vars[EZBI_INITSPEED]*2;
+			}
+			else if(attack==92){
+				vars[EZBI_MAXSPEEDCOUNTER] = FRAMES_EZB_SPEEDUP*2;
+				vars[EZBI_TOPSPEED] = vars[EZBI_INITSPEED]*3;
+			}
+			else if(attack==93){
+				vars[EZBI_MAXSPEEDCOUNTER] = FRAMES_EZB_SPEEDUP*3;
+				vars[EZBI_TOPSPEED] = vars[EZBI_INITSPEED]*4;
+			}
+			return;
+		}
+		
+		attackPool[1+attackPool[0]] = attack;
+		++attackPool[0];
+	}
+	void EZB_AddTransformation(ffc this, npc ghost, int vars, int form, int attackPool){
+		if(form==0)
+			return;
+		attackPool[101+attackPool[100]] = form;
+		++attackPool[100];
+	}
+	int EZB_NumSummons(npc summons){
+		int count;
+		for(int i=0; i<256; ++i){
+			if(summons[i]->isValid()){
+				count++;
+			}
+		}
+		return count;
+	}
+	void EZB_AddSummon(npc n, npc summons){
+		for(int i=0; i<256; ++i){
+			if(!summons[i]->isValid()){
+				summons[i] = n;
+				return;
+			}
+		}
+	}
+	void EZB_UpdateLaserArray(int arr, int laserColors, int count){
+		for(int i=0; i<count; ++i){
+			if(arr[count*6+i]){
+				if(arr[count*6+i]==1){
+					EZB_DoLaser(LAYER_EZB_LASER, arr[i], arr[count+i], arr[count*2+i], arr[count*3+i], 0, laserColors, -1, 0, arr[count*7+i], arr[count*4+i]);
+					++arr[count*7+i];
+					if(arr[count*7+i]>=arr[count*4+i]){
+						Game->PlaySound(SFX_EZB_LASER);
+						arr[count*7+i] = 0;
+						arr[count*6+i] = 2;
+					}
+				}
+				else if(arr[count*6+i]==2){
+					EZB_DoLaser(LAYER_EZB_LASER, arr[i], arr[count+i], arr[count*2+i], arr[count*3+i], arr[count*8+i], laserColors, -1, 1, arr[count*7+i], arr[count*5+i]);
+					++arr[count*7+i];
+					if(arr[count*7+i]>=arr[count*5+i]){
+						arr[count*7+i] = 0;
+						arr[count*6+i] = 0;
+					}
+				}
+			}
+		}
+	}
+	void EZB_SetLaserArray(int arr, int count, int index, int x, int y, int scale, int angle, int chargeTime, int upTime, int damage){
+		Game->PlaySound(SFX_EZB_LASERCHARGE);
+		arr[index] = x;
+		arr[count+index] = y;
+		arr[count*2+index] = scale;
+		arr[count*3+index] = angle;
+		arr[count*4+index] = chargeTime;
+		arr[count*5+index] = upTime;
+		arr[count*6+index] = 1;
+		arr[count*7+index] = 0;
+		arr[count*8+index] = damage;
+	}
+	void EZB_RunEffect(int effect, int d1, int d2, int d3, int d4, int d5, int d6, int d7){
+		int effectsScript[] = "EZBoss_Effects";
+		int slotEffectsScript = Game->GetFFCScript(effectsScript);
+		
+		if(slotEffectsScript>0){
+			int args[8] = {effect, d1, d2, d3, d4, d5, d6, d7};
+			RunFFCScript(slotEffectsScript, args);
+		}
+		else{
+			int error[] = "ERROR: EZBoss_Effects script wasn't found. Did you forget to assign it?\n";
+			printf(error);
+		}
+	}
+	bool EZB_CanMoveAtPos(int x, int y, int w, int h, int dir){
+		int i;
+		if(dir==DIR_UP){
+			for(i=0; i<=w-1; i=Min(i+8, w-1)){
+				if(!Ghost_CanMovePixel(x+i, y-1))
+					return false;
+				if(i==w-1)
+					break;
+			}
+		}
+		else if(dir==DIR_DOWN){
+			for(i=0; i<=w-1; i=Min(i+8, w-1)){
+				if(!Ghost_CanMovePixel(x+i, y+h))
+					return false;
+				if(i==w-1)
+					break;
+			}
+		}
+		else if(dir==DIR_LEFT){
+			for(i=0; i<=h-1; i=Min(i+8, h-1)){
+				if(!Ghost_CanMovePixel(x-1, y+i))
+					return false;
+				if(i==h-1)
+					break;
+			}
+		}
+		else if(dir==DIR_RIGHT){
+			for(i=0; i<=h-1; i=Min(i+8, h-1)){
+				if(!Ghost_CanMovePixel(x+w, y+i))
+					return false;
+				if(i==h-1)
+					break;
+			}
+		}
+		return true;
+	}
+	bool EZB_InSight(npc ghost){
+		int cx = CenterX(ghost);
+		int cy = CenterY(ghost);
+		int lcx = CenterLinkX();
+		int lcy = CenterLinkY();
+		int w = ghost->TileWidth*8+8;
+		int h = ghost->TileHeight*8+8;
+		if(Ghost_Dir==DIR_UP){
+			return Abs(cx-lcx)<w&&lcy<cy;
+		}
+		else if(Ghost_Dir==DIR_DOWN){
+			return Abs(cx-lcx)<w&&lcy>cy;
+		}
+		else if(Ghost_Dir==DIR_LEFT){
+			return Abs(cy-lcy)<h&&lcx<cx;
+		}
+		else if(Ghost_Dir==DIR_RIGHT){
+			return Abs(cy-lcy)<h&&lcx>cx;
+		}
+		return false;
+	}
+	void EZB_FishWizardUpdate(ffc this, npc ghost, int vars, int movementMisc){
+		int i;
+		int flags = vars[EZBI_FLAGS];
+		//0 - Walk Counter
+		//1 - Attack Cooldown
+		//2 - Do Attack
+		//3 - Do Constant Attack
+		//4 - vX
+		//5 - vY
+		//6 - Phase Dist
+		//7 - State
+		//8 - Ignore All Terrain
+		//9 - Flying Enemy
+		//10 - Phase Speed
+		//11 - Phase Cooldown
+		//12 - Knockback
+		movementMisc[2] = 0;
+		movementMisc[3] = 0;
+		if(movementMisc[7]==0){ //Walking
+			if(movementMisc[1])
+				--movementMisc[1];
+			if(movementMisc[11])
+				--movementMisc[11];
+			movementMisc[0] = Ghost_ConstantWalk4(movementMisc[0], ghost->Step, ghost->Rate, ghost->Homing, ghost->Hunger);
+			//Ice Wave Attack
+			if(EZB_InSight(ghost)&&movementMisc[1]==0){
+				movementMisc[1] = ghost->Haltrate*10;
+				movementMisc[2] = 1; //Regular Attack
+			}
+			//Diagonal Dash Attack
+			else if(Rand(1, 90)==1&&movementMisc[1]==0){
+				int vX; int vY; int dist;
+				int tX; int tY;
+				int w = Max(ghost->TileWidth, ghost->TileHeight)-1;
+				bool foundTeleport;
+				for(i=0; i<128; ++i){
+					vX = Choose(-1, 1);
+					vY = Choose(-1, 1);
+					dist = w*16+16*Rand(2, 4);
+					tX = Ghost_X+vX*dist;
+					tY = Ghost_Y+vY*dist;
+					if(EZB_CanPlace(this, ghost, tX, tY)){
+						foundTeleport = true;
+						break;
+					}
+				}
+				if(foundTeleport){
+					if(flags&EZBF_8WAY){
+						Ghost_Dir = AngleDir8(Angle(0, 0, vX, vY));
+					}
+					else if(flags&EZBF_4WAY){
+						if(vX<0)
+							Ghost_Dir = DIR_LEFT;
+						else
+							Ghost_Dir = DIR_RIGHT;
+					}
+					int step = Clamp(0, Floor(ghost->Step/100), 4);
+					if(step==0)
+						step = 0.5;
+					movementMisc[3] = 1; //Constant Attack
+					movementMisc[4] = vX;
+					movementMisc[5] = vY;
+					movementMisc[6] = dist/step;
+					movementMisc[7] = 1; //Dash State
+					movementMisc[8] = vars[EZBI_FLAGS];
+					if(!Ghost_FlagIsSet(GHF_IGNORE_ALL_TERRAIN))
+						movementMisc[8] = GHF_IGNORE_ALL_TERRAIN;
+					if(!Ghost_FlagIsSet(GHF_IGNORE_NO_ENEMY))
+						movementMisc[9] = GHF_FLYING_ENEMY;
+					if(Ghost_FlagIsSet(GHF_KNOCKBACK))
+						movementMisc[12] = GHF_KNOCKBACK;
+					Ghost_SetFlag(GHF_IGNORE_ALL_TERRAIN);
+					Ghost_SetFlag(GHF_IGNORE_NO_ENEMY);
+					Ghost_UnsetFlag(GHF_KNOCKBACK);
+					movementMisc[10] = step;
+					movementMisc[11] = ghost->Haltrate*10;
+				}
+			}
+		}
+		else if(movementMisc[7]==1){
+			Ghost_MoveXY(movementMisc[4]*movementMisc[10], movementMisc[5]*movementMisc[10], 0);
+			if(movementMisc[6]%4<2)
+				ghost->DrawYOffset = -1000;
+			else
+				ghost->DrawYOffset = -2;
+			--movementMisc[6];
+			if(movementMisc[6]<=0){
+				ghost->DrawYOffset = -2;
+				if(movementMisc[4]<0)
+					Ghost_Dir = DIR_LEFT;
+				else
+					Ghost_Dir = DIR_RIGHT;
+				if(movementMisc[8])
+					Ghost_UnsetFlag(GHF_IGNORE_ALL_TERRAIN);
+				if(movementMisc[9])
+					Ghost_UnsetFlag(GHF_IGNORE_NO_ENEMY);
+				if(movementMisc[12])
+					Ghost_SetFlag(GHF_KNOCKBACK);
+				movementMisc[7] = 0;
+				movementMisc[0] = 0;
+				EZB_FaceDir4(this, ghost, vars, Ghost_Dir);
+			}
+		}
+	}
+	void EZB_Waitframes(ffc this, npc ghost, int vars, int frames){
+		for(int i=0; i<frames; ++i){
+			EZB_Waitframe(this, ghost, vars);
+		}
+	}
+	void EZB_Waitframe(ffc this, npc ghost, int vars){
+		int flags = vars[EZBI_FLAGS];
+		if(flags&EZBF_NOCOLL){
+			ghost->Stun = 60;
+		}
+		if(flags&EZBF_NOSTUN){
+			ghost->Stun = 0;
+		}
+		
+		if(!vars[EZBI_ATTACKFLAG]){
+			if(vars[EZBI_MAXSPEEDCOUNTER]){
+				if(vars[EZBI_SPEEDUPCOUNTER]<vars[EZBI_MAXSPEEDCOUNTER]){
+					++vars[EZBI_SPEEDUPCOUNTER];
+					ghost->Step = vars[EZBI_INITSPEED]+(vars[EZBI_TOPSPEED]-vars[EZBI_INITSPEED])*(vars[EZBI_SPEEDUPCOUNTER]/vars[EZBI_MAXSPEEDCOUNTER]);
+				}
+			}
+		}
+		
+		if(vars[EZBI_BSTYPE]==3){
+			if(!Ghost_Waitframe(this, ghost, false, false)){
+				ghost->HP = 1;
+				Ghost_HP = 1;
+				vars[EZBI_BSISDEAD] = 1;
+			}
+		}
+		else if(flags&EZBF_EXPLODEEATH){
+			if(SPR_EZB_DEATHEXPLOSION>0){
+				if(!Ghost_Waitframe(this, ghost, false, false)){
+					EZB_Explode(this, ghost, EZB_DEATH_FLASH);
+					Quit();
+				}
+			}
+			else
+				Ghost_Waitframe(this, ghost, 1, true);
+		}
+		else
+			Ghost_Waitframe(this, ghost);
+	}
+}
+
+ffc script EZBoss_Effects{
+	void run(int effect, int d1, int d2, int d3, int d4, int d5, int d6, int d7){
+		if(effect==0)
+			EZBE_ExpandingCircle(d1, d2, d3, d4);
+		if(effect==1)
+			EZBE_WallBounce(d1, d2, d3, d4, d5, d6, d7);
+		if(effect==2)
+			EZBE_HelmasaurShot(d1, d2, d3, d4, d5, d6, d7);
+		if(effect==3)
+			EZBE_Lightning(d1, d2, d3, d4, d5, d6, d7);
+		if(effect==4)
+			EZBE_LightningSingle(d1, d2, d3, d4, d5, d6, d7);
+		this->Data = 0;
+	}
+	void EZBE_ExpandingCircle(int x, int y, int width, int clr){
+		int i; int j;
+		for(i=0; i<16; ++i){
+			j = width*(i/16)*0.2;
+			Screen->Circle(4, x+Rand(-j, j), y+Rand(-j, j), width*(i/16), clr, 1, 0, 0, 0, true, 128);
+			Waitframe();
+		}
+		for(i=16; i>0; --i){
+			j = width*(i/16)*0.2;
+			Screen->Circle(4, x+Rand(-j, j), y+Rand(-j, j), width*(i/16), clr, 1, 0, 0, 0, true, 128);
+			Waitframe();
+		}
+		return;
+	}
+	void EZBE_WallBounce(int type, int x, int y, int angle, int step, int fireSPR, int damage){
+		int i;
+		int wflags = EWF_UNBLOCKABLE;
+		if(fireSPR==0&&(type==EW_BEAM||type==EW_ARROW||type==EW_MAGIC||type==EW_BOMB||type==EW_SBOMB))
+			wflags |= EWF_ROTATE;
+		
+		if(fireSPR>=2000){
+			wflags |= EWF_ROTATE_360;
+			fireSPR -= 2000;
+		}
+		else if(fireSPR>=1000){
+			wflags |= EWF_ROTATE;
+			fireSPR -= 1000;
+		}
+		
+		if(fireSPR==0)
+			fireSPR = -1;
+		
+		eweapon e = FireEWeapon(type, x, y, DegtoRad(angle), 0, damage, fireSPR, 0, wflags);
+		int rebounds = 10;
+		step /= 100;
+		while(e->isValid()){
+			int vX = VectorX(step/100, angle);
+			int vY = VectorY(step/100, angle);
+			bool bounce;
+			for(; i<step; ++i){
+				x += VectorX(1, angle);
+				y += VectorY(1, angle);
+				e->X = x;
+				e->Y = y;
+				if((vX<0&&!EZBE_CanWalk(e->X, e->Y, DIR_LEFT, 1, true))||(vX>0&&!EZBE_CanWalk(e->X, e->Y, DIR_RIGHT, 1, true))){
+					vX = -vX;
+					bounce = true;
+				}
+				if((vY<0&&!EZBE_CanWalk(e->X, e->Y, DIR_UP, 1, true))||(vY>0&&!EZBE_CanWalk(e->X, e->Y, DIR_DOWN, 1, true))){
+					vY = -vY;
+					bounce = true;
+				}
+				if(bounce){
+					angle = Angle(0, 0, vX, vY);
+					e->Angle = DegtoRad(angle);
+					--rebounds;
+					if(rebounds==0)
+						e->DeadState = 0;
+				}
+			}
+			i -= Floor(step);
+			
+			Waitframe();
+		}
+	}
+	void EZBE_HelmasaurShot(int type, int x, int y, int angle, int fireSPR, int fireSFX, int damage){
+		int i; int j;
+		int wflags = EWF_UNBLOCKABLE;
+		if(fireSPR==0&&(type==EW_BEAM||type==EW_ARROW||type==EW_MAGIC||type==EW_BOMB||type==EW_SBOMB))
+			wflags |= EWF_ROTATE;
+		
+		if(fireSPR>=2000){
+			wflags |= EWF_ROTATE_360;
+			fireSPR -= 2000;
+		}
+		else if(fireSPR>=1000){
+			wflags |= EWF_ROTATE;
+			fireSPR -= 1000;
+		}
+		
+		if(fireSPR==0)
+			fireSPR = -1;
+		
+		eweapon splitters[16];
+		int splitterTimer[16];
+		int splitterST[16];
+		int numSplitters;
+		
+		if(fireSFX)
+			Game->PlaySound(fireSFX);
+		splitters[numSplitters] = FireEWeapon(type, x, y, DegtoRad(angle), 200, damage, fireSPR, 0, wflags);
+		splitterTimer[numSplitters] = 48+16;
+		splitterST[numSplitters] = 1;
+		++numSplitters;
+		
+		while(true){
+			bool splittersValid;
+			for(i=0; i<16; ++i){
+				if(splitters[i]->isValid()){
+					if(splitterTimer[i]<16&&splitterST[i]<3)
+						splitters[i]->Step = 0;
+					--splitterTimer[i];
+					if(splitterTimer[i]==0){
+						if(splitterST[i]==1){
+							for(j=0; j<3; ++j){
+								if(fireSFX)
+									Game->PlaySound(fireSFX);
+								splitters[numSplitters] = FireEWeapon(type, splitters[i]->X, splitters[i]->Y, DegtoRad(-90+120*j), 200, damage, fireSPR, 0, wflags);
+								splitterTimer[numSplitters] = 40+16;
+								splitterST[numSplitters] = 2;
+								++numSplitters;
+								splitters[i]->DeadState = 0;
+							}
+						}
+						else if(splitterST[i]==2){
+							for(j=0; j<4; ++j){
+								if(fireSFX)
+									Game->PlaySound(fireSFX);
+								splitters[numSplitters] = FireEWeapon(type, splitters[i]->X, splitters[i]->Y, DegtoRad(-45+90*j), 200, damage, fireSPR, 0, wflags);
+								splitterTimer[numSplitters] = 40+16;
+								splitterST[numSplitters] = 3;
+								++numSplitters;
+								splitters[i]->DeadState = 0;
+							}
+						}
+					}
+				}
+			}
+			
+			Waitframe();
+		}
+		
+	}
+	bool EZBE_Lightning(int x, int y, int angle, int c1, int c2, int c3, int damage){
+		int i;
+		
+		int lightning1[64];
+		int lightning2[64];
+		int lightning3[64];
+		int lightning4[64];
+		EZBF_LightningInit(lightning1, x, y, 32, angle, -64, 32);
+		EZBF_LightningInit(lightning2, x, y, 32, angle, -32, 32);
+		EZBF_LightningInit(lightning3, x, y, 32, angle, 32, 32);
+		EZBF_LightningInit(lightning4, x, y, 32, angle, 64, 32);
+		
+		int clrs[] = {c1, c2, c3};
+		int clrT;
+		int tc1;
+		int tc2;
+		
+		for(i=0; i<20; ++i){
+			tc1 = clrs[clrT%3];
+			tc2 = clrs[(clrT+1)%3];
+			if(i%3==0){
+				++clrT;
+				clrT %= 3;
+			}
+			EZBF_LightningUpdate(lightning1, 32, 0, i, 20, tc1, tc2, damage);
+			EZBF_LightningUpdate(lightning2, 32, 0, i, 20, tc1, tc2, damage);
+			EZBF_LightningUpdate(lightning3, 32, 0, i, 20, tc1, tc2, damage);
+			EZBF_LightningUpdate(lightning4, 32, 0, i, 20, tc1, tc2, damage);
+			Waitframe();
+		}
+		for(i=0; i<20; ++i){
+			tc1 = clrs[clrT%3];
+			tc2 = clrs[(clrT+1)%3];
+			if(i%3==0){
+				++clrT;
+				clrT %= 3;
+			}
+			EZBF_LightningUpdate(lightning1, 32, i, 20, 20, tc1, tc2, damage);
+			EZBF_LightningUpdate(lightning2, 32, i, 20, 20, tc1, tc2, damage);
+			EZBF_LightningUpdate(lightning3, 32, i, 20, 20, tc1, tc2, damage);
+			EZBF_LightningUpdate(lightning4, 32, i, 20, 20, tc1, tc2, damage);
+			Waitframe();
+		}
+
+		return 0;
+	}
+	bool EZBE_LightningSingle(int x, int y, int angle, int c1, int c2, int c3, int damage){
+		int i;
+		
+		int lightning[64];
+		EZBF_LightningInit(lightning, x, y, 32, angle, 0, 32);
+		
+		int clrs[] = {c1, c2, c3};
+		int clrT;
+		int tc1;
+		int tc2;
+		
+		for(i=0; i<20; ++i){
+			tc1 = clrs[clrT%3];
+			tc2 = clrs[(clrT+1)%3];
+			if(i%3==0){
+				++clrT;
+				clrT %= 3;
+			}
+			EZBF_LightningUpdate(lightning, 32, 0, i, 20, tc1, tc2, damage);
+			Waitframe();
+		}
+		for(i=0; i<20; ++i){
+			tc1 = clrs[clrT%3];
+			tc2 = clrs[(clrT+1)%3];
+			if(i%3==0){
+				++clrT;
+				clrT %= 3;
+			}
+			EZBF_LightningUpdate(lightning, 32, i, 20, 20, tc1, tc2, damage);
+			Waitframe();
+		}
+		return false;
+	}
+	void EZBF_LightningInit(int lightning, int x, int y, int count, int angle, int skew, int rnd){
+		int tmpX; int tmpY;
+		int dist; int dist2; int randOff;
+		int angleSkew = Rand(-40, 40);
+		for(int i=0; i<count; ++i){
+			dist = 320*(i/(count-1));
+			dist2 = skew*(i/(count-1));
+			randOff = Rand(-rnd, rnd)*0.5;
+			randOff += randOff*(i/(count-1));
+			if(i==0)
+				randOff = 0;
+			tmpX = x+VectorX(dist, angle)+VectorX(dist2, angle+90)+VectorX(randOff, angle+90+angleSkew);
+			tmpY = y+VectorY(dist, angle)+VectorY(dist2, angle+90)+VectorY(randOff, angle+90+angleSkew);
+			lightning[2*i+0] = tmpX;
+			lightning[2*i+1] = tmpY;
+		}
+	}
+	void EZBF_LightningUpdate(int lightning, int count, int startDist, int endDist, int maxDist, int c1, int c2, int damage){
+		if(Link->HP<=0)
+			return;
+		int distPerSegment = maxDist/(count-1);
+		int tmpAngle;
+		int tmpDist;
+		int segPercent;
+		int x1; int y1; int x2; int y2;
+		for(int i=0; i<count-1; ++i){
+			if(endDist>distPerSegment*i&&endDist<distPerSegment*(i+1)){
+				x1 = lightning[i*2+0];
+				y1 = lightning[i*2+1];
+				x2 = lightning[(i+1)*2+0];
+				y2 = lightning[(i+1)*2+1];
+				tmpAngle = Angle(x1, y1, x2, y2);
+				tmpDist = Distance(x1, y1, x2, y2);
+				segPercent = (endDist-distPerSegment*i)/distPerSegment;
+				x2 = x1+VectorX(tmpDist*segPercent, tmpAngle);
+				y2 = y1+VectorY(tmpDist*segPercent, tmpAngle);
+				EZBoss.EZB_DrawThickLine(4, x1, y1, x2, y2, 1, c1, true, 128);
+				Screen->Line(4, x1, y1, x2, y2, c2, 1, 0, 0, 0, 128);
+				if(EZBE_LineBoxCollision(x1, y1, x2, y2, Link->X+4, Link->Y+4, Link->X+11, Link->Y+11, 0)){
+					EZBE_DamageLink(damage);
+				}
+			}
+			else if(startDist>distPerSegment*i&&startDist<distPerSegment*(i+1)){
+				x1 = lightning[i*2+0];
+				y1 = lightning[i*2+1];
+				x2 = lightning[(i+1)*2+0];
+				y2 = lightning[(i+1)*2+1];
+				tmpAngle = Angle(x1, y1, x2, y2);
+				tmpDist = Distance(x1, y1, x2, y2);
+				segPercent = (startDist-distPerSegment*i)/distPerSegment;
+				x1 = x1+VectorX(tmpDist*segPercent, tmpAngle);
+				y1 = y1+VectorY(tmpDist*segPercent, tmpAngle);
+				EZBoss.EZB_DrawThickLine(4, x1, y1, x2, y2, 1, c1, true, 128);
+				Screen->Line(4, x1, y1, x2, y2, c2, 1, 0, 0, 0, 128);
+				if(EZBE_LineBoxCollision(x1, y1, x2, y2, Link->X+4, Link->Y+4, Link->X+11, Link->Y+11, 0)){
+					EZBE_DamageLink(damage);
+				}
+			}
+			else if(startDist<=distPerSegment*i&&endDist>=distPerSegment*(i+1)){
+				x1 = lightning[i*2+0];
+				y1 = lightning[i*2+1];
+				x2 = lightning[(i+1)*2+0];
+				y2 = lightning[(i+1)*2+1];
+				EZBoss.EZB_DrawThickLine(4, x1, y1, x2, y2, 1, c1, true, 128);
+				Screen->Line(4, x1, y1, x2, y2, c2, 1, 0, 0, 0, 128);
+				if(EZBE_LineBoxCollision(x1, y1, x2, y2, Link->X+4, Link->Y+4, Link->X+11, Link->Y+11, 0)){
+					EZBE_DamageLink(damage);
+				}
+			}
+		}
+	}
+	bool EZBE_LineBoxCollision(int lineX1, int lineY1, int lineX2, int lineY2, int boxX1, int boxY1, int boxX2, int boxY2, int boxBorder)
+	{
+		// Shrink down the box for the border
+		boxX1 += boxBorder; boxY1 += boxBorder;
+		boxX2 -= boxBorder; boxY2 -= boxBorder;
+		
+		// If the line isn't vertical
+		if(lineX2!=lineX1)
+		{
+			
+			float i0 = (boxX1 - lineX1)/(lineX2-lineX1);
+			float i1 = (boxX2 - lineX1)/(lineX2-lineX1);
+			
+			float yA = lineY1 + i0*(lineY2-lineY1);
+			float yB = lineY1 + i1*(lineY2-lineY1);
+			
+			
+			if(Max(boxX1, boxX2) >= Min(lineX1, lineX2) && Min(boxX1, boxX2) <= Max(lineX1, lineX2) &&
+				Max(boxY1, boxY2) >= Min(lineY1, lineY2) && Min(boxY1, boxY2) <= Max(lineY1, lineY2))
+			{
+				if(Min(boxY1, boxY2) > Max(yA, yB) || Max(boxY1, boxY2) < Min(yA, yB))
+					return false;
+				else
+					return true;
+			}
+			else
+				return false;
+		}
+		// If the line is vertical
+		else if(lineX1 >= boxX1 && lineX1 <= boxX2)
+		{
+			// Basically we need to find the top and bottom y values of the line to check for intersection
+			float lineYMin = lineY1;
+			float lineYMax = lineY2;
+			
+			if(lineYMin > lineYMax)
+			{
+				lineYMin = lineY2;
+				lineYMax = lineY1;
+			}
+			
+			// If either point intersects
+			if((boxY1 >= lineYMin && boxY1 <= lineYMax) || (boxY2 >= lineYMin && boxY2 <= lineYMax))
+				return true;
+		}
+		
+		return false;
+	}
+	// Places a damaging weapon under Link for one frame, dealing damage and knocking him backwards
+	void EZBE_DamageLink(int damage){
+		eweapon e = FireEWeapon(EW_SCRIPT10, Link->X+InFrontX(Link->Dir, 12), Link->Y+InFrontY(Link->Dir, 12), 0, 0, damage, -1, -1, EWF_UNBLOCKABLE);
+		e->Dir = Link->Dir;
+		e->DrawYOffset = -1000;
+		SetEWeaponLifespan(e, EWL_TIMER, 1);
+		SetEWeaponDeathEffect(e, EWD_VANISH, 0);
+	}
+	bool EZBE_CanWalk(int x, int y, int dir, int step, bool full_tile) {
+		int c=8;
+		int xx = x+15;
+		int yy = y+15;
+		if(full_tile) c=0;
+		if(dir==0) return !(y-step<0||EZBE_isSolid(x,y+c-step)||EZBE_isSolid(x+8,y+c-step)||EZBE_isSolid(xx,y+c-step));
+		else if(dir==1) return !(yy+step>=176||EZBE_isSolid(x,yy+step)||EZBE_isSolid(x+8,yy+step)||EZBE_isSolid(xx,yy+step));
+		else if(dir==2) return !(x-step<0||EZBE_isSolid(x-step,y+c)||EZBE_isSolid(x-step,y+c+7)||EZBE_isSolid(x-step,yy));
+		else if(dir==3) return !(xx+step>=256||EZBE_isSolid(xx+step,y+c)||EZBE_isSolid(xx+step,y+c+7)||EZBE_isSolid(xx+step,yy));
+		return false; //invalid direction
+	}
+	bool EZBE_isSolid(int x, int y){
+		int ct = Screen->ComboT[ComboAt(x, y)];
+		if(ct==CT_WATER)
+			return false;
+		if(ct==CT_LADDERONLY||ct==CT_HOOKSHOTONLY||ct==CT_LADDERHOOKSHOT)
+			return false;
+		if(ct==CT_SWIMWARP||(ct>=CT_SWIMWARPB&&ct<=CT_SWIMWARPD))
+			return false;
+		if(ct==CT_DIVEWARP||(ct>=CT_DIVEWARPB&&ct<=CT_DIVEWARPD))
+			return false;
+		return Screen->isSolid(x, y);
+	}
+}
+
+ffc script EZBoss_ExtraAttacks{
+	void run(int enemyID, int attack1, int attack2, int attack3, int attack4, int attack5, int attack6, int attack7){
+		while(true){
+			Waitframe(); //This script only needs to run so enemies of the desired type can read off of it when spawning
+		}
+	}
+}
+
+ffc script EZBoss_ChangeLaserColor{
+	void run(int enemyID, int laserColor1, int laserColor2, int laserColor3, int shockwaveColor1, int shockwaveColor2, int shockwaveColor3){
+		while(true){
+			Waitframe(); //This script only needs to run so enemies of the desired type can read off of it when spawning
+		}
+	}
+}
+
+ffc script EZBoss_ExtraTransformations{
+	void run(int enemyID, int transformCooldown, int transformVariance, int extraForm1, int extraForm2, int extraForm3, int extraForm4, int extraForm5){
+		while(true){
+			Waitframe(); //This script only needs to run so enemies of the desired type can read off of it when spawning
+		}
+	}
+}

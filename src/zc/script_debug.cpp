@@ -10,6 +10,7 @@
 #include "zconsole/ConsoleLogger.h"
 #include <fmt/format.h>
 #include <iomanip>
+#include <sstream>
 
 extern refInfo *ri;
 

@@ -1417,8 +1417,8 @@ void SemanticAnalyzer::caseExprIndex(ASTExprIndex& host, void* param)
 		auto ty = readty ? readty : writety;
 		if(!ty || !(ty->isArray() || ty->isUntyped()))
 		{
-			handleError(CompileError::IndexNotArray(&host, ty ? ty->getName() : "??"));
-			return;
+			std::string type_name = ty ? ty->getName() : "??";
+			checkDeprecatedFeature(&host, fmt::format("Arrays should be explicitly typed - change `{}` to `{}[]`", type_name, type_name), CompileOption::OPT_LEGACY_ARRAYS);
 		}
 	}
 
@@ -1700,6 +1700,11 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 		}
 		else
 		{
+			// Sort to keep order same across platforms.
+			std::sort(bestFunctions.begin(), bestFunctions.end(), [](Function* a, Function* b) {
+				return a->id < b->id;
+			});
+
 			// Build list of function signatures.
 			ostringstream oss;
 			for (vector<Function*>::const_iterator it = bestFunctions.begin();

@@ -1339,6 +1339,11 @@ void RegistrationVisitor::caseExprCall(ASTExprCall& host, void* param)
 		}
 		else
 		{
+			// Sort to keep order same across platforms.
+			std::sort(bestFunctions.begin(), bestFunctions.end(), [](Function* a, Function* b) {
+				return a->id < b->id;
+			});
+
 			// Build list of function signatures.
 			ostringstream oss;
 			for (vector<Function*>::const_iterator it = bestFunctions.begin();

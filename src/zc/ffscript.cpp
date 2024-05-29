@@ -671,7 +671,7 @@ struct user_websocket : public user_abstract_obj
 		if (connection_id != -1)
 			websocket_pool_close(connection_id);
 		if (message_arrayptr)
-			FFScript::deallocateZScriptArray(message_arrayptr);
+			FFScript::deallocateArray(message_arrayptr);
 	}
 
 	bool connect(std::string url)
@@ -3404,39 +3404,6 @@ std::string ArrayManager::asString(std::function<char const*(int32_t)> formatter
 		oss << ", ...";
 	oss << " }";
 	return oss.str();
-}
-
-// TODO: this is a dupe of FFScript::deallocateZScriptArray
-// Called to deallocate arrays when a script stops running
-void deallocateArray(const int32_t ptrval)
-{
-	if(ptrval == 0) return;
-	if(ptrval==0 || ptrval >= NUM_ZSCRIPT_ARRAYS)
-		Z_scripterrlog("Script tried to deallocate memory at invalid address %ld\n", ptrval);
-	else if(ptrval<0)
-		Z_scripterrlog("Script tried to deallocate memory at object-based address %ld\n", ptrval);
-	else
-	{
-		if(arrayOwner[ptrval].specOwned) return; //ignore this deallocation
-		if(arrayOwner[ptrval].specCleared) return;
-		arrayOwner[ptrval].clear();
-		
-		if(!localRAM[ptrval].Valid())
-			Z_scripterrlog("Script tried to deallocate memory that was not allocated at address %ld\n", ptrval);
-		else
-		{
-			if (localRAM[ptrval].HoldsObjects())
-			{
-				auto&& aptr = localRAM[ptrval];
-				for (int i = 0; i < aptr.Size(); i++)
-				{
-					auto id = aptr[i];
-					script_object_ref_dec(id);
-				}
-			}
-			localRAM[ptrval].Clear();
-		}
-	}
 }
 
 void FFScript::deallocateAllScriptOwned(ScriptType scriptType, const int32_t UID, bool requireAlways)
@@ -29681,6 +29648,7 @@ void do_own_array(dword arrindx, ScriptType scriptType, const int32_t UID)
 		if(arrindx > 0 && arrindx < NUM_ZSCRIPT_ARRAYS)
 		{
 			arrayOwner[arrindx].reown(scriptType, UID);
+			arrayOwner[arrindx].specOwned = true;
 		}
 		else if(arrindx < 0) //object array
 			Z_scripterrlog("Cannot 'OwnArray()' an object-based array '%d'\n", arrindx);
@@ -29752,6 +29720,7 @@ static dword allocatemem(int32_t size, bool local, ScriptType type, const uint32
 				a[j] = 0; //initialize array
 				
 			// Keep track of which object created the array so we know which to deallocate
+			arrayOwner[ptrval].clear();
 			arrayOwner[ptrval].reown(type, UID);
 		}
 	}
@@ -29793,7 +29762,7 @@ void do_deallocatemem()
 {
 	const int32_t ptrval = get_register(sarg1) / 10000;
 	
-	FFScript::deallocateZScriptArray(ptrval);
+	FFScript::deallocateArray(ptrval);
 }
 
 void do_loada(const byte a)
@@ -42439,7 +42408,7 @@ int32_t FFScript::loadMapData()
 
 
 // Called when leaving a screen; deallocate arrays created by FFCs that aren't carried over
-void FFScript::deallocateZScriptArray(const int32_t ptrval)
+void FFScript::deallocateArray(const int32_t ptrval)
 {
 	if(ptrval == 0) return;
 	if(ptrval==0 || ptrval >= NUM_ZSCRIPT_ARRAYS)
@@ -46475,6 +46444,7 @@ void FFScript::do_varg_makearray(ScriptType type, const uint32_t UID)
 		for(size_t j = 0; j < num_args; ++j)
 			a[j] = zs_vargs[j]; //initialize array
 		
+		arrayOwner[ptrval].clear();
 		arrayOwner[ptrval].reown(type, UID);
 	}
 	//
