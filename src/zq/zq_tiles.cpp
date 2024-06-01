@@ -6531,15 +6531,19 @@ bool _handle_tile_move(TileMoveProcess dest_process, optional<TileMoveProcess> s
 				break;
 				
 			case iwDeath:
-				m=BSZ2?4:2;
+				if(get_qr(qr_HARDCODED_ENEMY_ANIMS))
+				{
+					ignore_frames = true;
+					m=BSZ2?4:2;
+				}
 				break;
 				
 			case iwSpawn:
-				m=3;
-				break;
-				
-			default:
-				m=0;
+				if(get_qr(qr_HARDCODED_ENEMY_ANIMS))
+				{
+					ignore_frames = true;
+					m=3;
+				}
 				break;
 			}
 			
