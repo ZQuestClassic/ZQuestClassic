@@ -13189,14 +13189,15 @@ int32_t readsfx(PACKFILE *f, zquestheader *Header)
 			{
 				return qe_invalid;
 			}
-			
-			// al_trace("F%i: L%i\n",i,temp_sample.len);
-			// temp_sample.data = new byte[(temp_sample.bits==8?1:2)*temp_sample.len];
+
 			auto len = (temp_sample.bits==8?1:2)*(temp_sample.stereo==0?1:2)*temp_sample.len;
-			if (len < 0 || len > 10000000)
+#ifdef ZC_FUZZ
+	const int32_t sfx_limit = 100000;
+			if (len < 0 || len > sfx_limit)
 			{
 				return qe_invalid;
 			}
+#endif
 			temp_sample.data = calloc(len,1);
 			
 			if(s_version < 3)
