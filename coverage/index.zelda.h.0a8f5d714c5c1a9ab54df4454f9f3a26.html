@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2024-05-26 01:44:15</td>
+      <td>2024-06-03 19:33:09</td>
     </tr>
   </table>
 </div>
@@ -1767,7 +1767,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">update_hw_screen</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">force</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">update_hw_screen</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l240" href="#l240">240</a></td>
@@ -3272,269 +3272,262 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">zc_throttle_fps</span><span class="p">();</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l455" href="#l455">455</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="c1">// quest file data</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l456" href="#l456">456</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">// quest file data</span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="n">zquestheader</span><span class="w"> </span><span class="n">QHeader</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l457" href="#l457">457</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="n">zquestheader</span><span class="w"> </span><span class="n">QHeader</span><span class="p">;</span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="n">byte</span><span class="w">                </span><span class="n">midi_flags</span><span class="p">[</span><span class="n">MIDIFLAGS_SIZE</span><span class="p">];</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l458" href="#l458">458</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="n">byte</span><span class="w">                </span><span class="n">midi_flags</span><span class="p">[</span><span class="n">MIDIFLAGS_SIZE</span><span class="p">];</span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="n">byte</span><span class="w">                </span><span class="n">music_flags</span><span class="p">[</span><span class="n">MUSICFLAGS_SIZE</span><span class="p">];</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l459" href="#l459">459</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="n">byte</span><span class="w">                </span><span class="n">music_flags</span><span class="p">[</span><span class="n">MUSICFLAGS_SIZE</span><span class="p">];</span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w">				   </span><span class="n">msg_strings_size</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l460" href="#l460">460</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w">				   </span><span class="n">msg_strings_size</span><span class="p">;</span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="n">byte</span><span class="w">                </span><span class="o">*</span><span class="n">quest_file</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l461" href="#l461">461</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="n">byte</span><span class="w">                </span><span class="o">*</span><span class="n">quest_file</span><span class="p">;</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l462" href="#l462">462</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="cm">/**********************************/</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l463" href="#l463">463</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">/**********************************/</span></td>
+      <td class="src "><span class="cm">/*********** Misc Data ************/</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l464" href="#l464">464</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">/*********** Misc Data ************/</span></td>
+      <td class="src "><span class="cm">/**********************************/</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l465" href="#l465">465</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">/**********************************/</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l466" href="#l466">466</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">startguy</span><span class="p">[</span><span class="mi">8</span><span class="p">];</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l467" href="#l467">467</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">startguy</span><span class="p">[</span><span class="mi">8</span><span class="p">];</span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">gambledat</span><span class="p">[</span><span class="mi">12</span><span class="o">*</span><span class="mi">6</span><span class="p">];</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l468" href="#l468">468</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">gambledat</span><span class="p">[</span><span class="mi">12</span><span class="o">*</span><span class="mi">6</span><span class="p">];</span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">stx</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="mi">9</span><span class="p">];</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l469" href="#l469">469</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">stx</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="mi">9</span><span class="p">];</span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">sty</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="mi">9</span><span class="p">];</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l470" href="#l470">470</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">sty</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="mi">9</span><span class="p">];</span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">ten_rupies_x</span><span class="p">[</span><span class="mi">10</span><span class="p">];</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l471" href="#l471">471</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">ten_rupies_x</span><span class="p">[</span><span class="mi">10</span><span class="p">];</span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">ten_rupies_y</span><span class="p">[</span><span class="mi">10</span><span class="p">];</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l472" href="#l472">472</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">ten_rupies_y</span><span class="p">[</span><span class="mi">10</span><span class="p">];</span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="n">zctune</span><span class="w"> </span><span class="n">tunes</span><span class="p">[</span><span class="n">MAXMIDIS</span><span class="p">];</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l473" href="#l473">473</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="n">zctune</span><span class="w"> </span><span class="n">tunes</span><span class="p">[</span><span class="n">MAXMIDIS</span><span class="p">];</span></td>
+      <td class="src "><span class="c1">//extern zcmidi_ tunes[MAXMIDIS];</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l474" href="#l474">474</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">//extern zcmidi_ tunes[MAXMIDIS];</span></td>
+      <td class="src "><span class="c1">//extern emusic enhancedMusic[MAXMUSIC];</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l475" href="#l475">475</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">//extern emusic enhancedMusic[MAXMUSIC];</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l476" href="#l476">476</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="c1">//Mouse stuff</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l477" href="#l477">477</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">//Mouse stuff</span></td>
+      <td class="src "><span class="k">enum</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l478" href="#l478">478</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">enum</span></td>
+      <td class="src "><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l479" href="#l479">479</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">{</span></td>
+      <td class="src "><span class="w">	</span><span class="n">ZCM_CUSTOM</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l480" href="#l480">480</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">ZCM_CUSTOM</span><span class="p">,</span></td>
+      <td class="src "><span class="w">	</span><span class="n">ZCM_BLANK</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l481" href="#l481">481</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">ZCM_BLANK</span><span class="p">,</span></td>
+      <td class="src "><span class="w">	</span><span class="n">ZCM_NORMAL</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l482" href="#l482">482</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">ZCM_NORMAL</span><span class="p">,</span></td>
+      <td class="src "><span class="w">	</span><span class="n">ZCM_MAX</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l483" href="#l483">483</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">ZCM_MAX</span></td>
+      <td class="src "><span class="p">};</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l484" href="#l484">484</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">};</span></td>
+      <td class="src "><span class="cp">#define GAMEFLAG_TRYQUIT            0x01</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l485" href="#l485">485</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define GAMEFLAG_TRYQUIT            0x01</span></td>
+      <td class="src "><span class="cp">#define GAMEFLAG_SCRIPTMENU_ACTIVE  0x02</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l486" href="#l486">486</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define GAMEFLAG_SCRIPTMENU_ACTIVE  0x02</span></td>
+      <td class="src "><span class="cp">#define GAMEFLAG_F6SCRIPT_ACTIVE    0x04</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l487" href="#l487">487</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define GAMEFLAG_F6SCRIPT_ACTIVE    0x04</span></td>
+      <td class="src "><span class="cp">#define GAMEFLAG_RESET_GAME_LOOP    0x08</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l488" href="#l488">488</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define GAMEFLAG_RESET_GAME_LOOP    0x08</span></td>
+      <td class="src "><span class="cp">#define GAMEFLAG_NO_F6              0x10</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l489" href="#l489">489</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define GAMEFLAG_NO_F6              0x10</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l490" href="#l490">490</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l491" href="#l491">491</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
       <td class="src "><span class="cp">#endif</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l492" href="#l492">492</a></td>
+      <td class="lineno"><a id="l491" href="#l491">491</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
