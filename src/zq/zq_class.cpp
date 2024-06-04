@@ -4182,6 +4182,8 @@ void set_combo_command::execute()
 {
     mapscr* mapscr_ptr = Map.AbsoluteScr(map, scr);
 	if(!mapscr_ptr) return;
+	
+	mapscr_ptr->valid |= mVALID;
     if (combo != -1) mapscr_ptr->data[pos] = combo;
     mapscr_ptr->cset[pos] = cset;
 }
@@ -4227,7 +4229,8 @@ void set_ffc_command::execute()
 {
     mapscr* mapscr_ptr = Map.AbsoluteScr(map, scr);
 	if(!mapscr_ptr) return;
-
+	
+	mapscr_ptr->valid |= mVALID;
     mapscr_ptr->ffcs[i].x = data.x;
 	mapscr_ptr->ffcs[i].y = data.y;
 	mapscr_ptr->ffcs[i].vx = data.vx;
@@ -4281,6 +4284,8 @@ void set_flag_command::execute()
 {
     mapscr* mapscr_ptr = Map.AbsoluteScr(map, scr);
 	if(!mapscr_ptr) return;
+	
+	mapscr_ptr->valid |= mVALID;
     mapscr_ptr->sflag[pos] = flag;
 }
 
@@ -4293,7 +4298,11 @@ void set_flag_command::undo()
 
 void set_door_command::execute()
 {
-	Map.AbsoluteScr(view_map, view_scr)->door[side] = door;
+	auto* mapscr_ptr = Map.AbsoluteScr(view_map, view_scr);
+	if(!mapscr_ptr) return;
+	
+	mapscr_ptr->valid |= mVALID;
+	mapscr_ptr->door[side] = door;
 }
 
 void set_door_command::undo()
@@ -4303,7 +4312,11 @@ void set_door_command::undo()
 
 void set_dcs_command::execute()
 {
-	Map.AbsoluteScr(view_map, view_scr)->door_combo_set = dcs;
+	auto* mapscr_ptr = Map.AbsoluteScr(view_map, view_scr);
+	if(!mapscr_ptr) return;
+	
+	mapscr_ptr->valid |= mVALID;
+	mapscr_ptr->door_combo_set = dcs;
 }
 
 void set_dcs_command::undo()
