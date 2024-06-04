@@ -30,6 +30,7 @@ bool hasItemWizard(int32_t type)
 	switch(type)
 	{
 		case itype_shield:
+		case itype_note:
 			return true;
 	}
 	return false;
@@ -83,6 +84,8 @@ void ItemWizardDialog::update(bool first)
 			disable(1, !move);
 			break;
 		}
+		case itype_note:
+			break;
 	}
 	disable(-1, true); //always disabled
 	pendDraw();
@@ -130,6 +133,8 @@ void ItemWizardDialog::endUpdate()
 			local_ref.misc1 |= local_ref.misc2; //blockflags are req for refl flags
 			break;
 		}
+		case itype_note:
+			break;
 	}
 }
 
@@ -164,6 +169,9 @@ void item_default(itemdata& ref)
 		case itype_shield:
 			ref.flags |= ITEM_FLAG1; //protects front
 			ref.misc1 = shROCK|shARROW|shBRANG;
+			break;
+		case itype_note:
+			ref.misc1 = 0;
 			break;
 	}
 }
@@ -376,6 +384,35 @@ std::shared_ptr<GUI::Widget> ItemWizardDialog::view()
 							))
 						)
 					)
+				)
+			));
+			break;
+		}
+		case itype_note:
+		{
+			auto& messagestr = local_ref.misc1;
+			
+			lists[0] = GUI::ZCListData::strings(true);
+			windowRow->add(Column(
+				Rows<3>(
+					Label(text = "String:", hAlign = 1.0),
+					DropDownList(data = lists[0],
+						fitParent = true, selectedValue = messagestr,
+						onSelectFunc = [&](int32_t val)
+						{
+							messagestr = val;
+						}),
+					INFOBTN("The string to play. Negative values are special, reading the string number from somewhere else.")
+				),
+				Rows<3>(
+					Label(text = "Opening Sound"),
+					DropDownList(data = list_sfx,
+						fitParent = true, selectedValue = local_ref.usesound,
+						onSelectFunc = [&](int32_t val)
+						{
+							local_ref.usesound = val;
+						}),
+					INFOBTN("Plays when the note is opened")
 				)
 			));
 			break;

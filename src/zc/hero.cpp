@@ -11868,11 +11868,13 @@ bool HeroClass::startwpn(int32_t itemid)
 			{
 				return item_error();
 			}
-			if(!msg_active && itm.misc1 > 0 && itm.misc1 < MAXMSGS)
+			if(!msg_active)
 			{
-				sfx(itm.usesound);
-				donewmsg(itm.misc1);
-				paymagiccost(itemid);
+				if(play_combo_string(itm.misc1))
+				{
+					sfx(itm.usesound);
+					paymagiccost(itemid);
+				}
 			}
 			dowpn = -1;
 			ret = false;

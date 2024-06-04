@@ -35,6 +35,8 @@ void spawn_decoration_xy(newcombo const& cmb, zfix x, zfix y);
 bool can_locked_combo(newcombo const& cmb);
 bool try_locked_combo(newcombo const& cmb);
 
+bool play_combo_string(int str);
+
 void trigger_sign(newcombo const& cmb);
 void trigger_cuttable(int32_t lyr, int32_t pos);
 void trigger_cuttable_ffc(int32_t pos);

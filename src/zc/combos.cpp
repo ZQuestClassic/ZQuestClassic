@@ -945,7 +945,7 @@ bool try_locked_combo(newcombo const& cmb) //cLOCKBLOCK or cLOCKEDCHEST specific
 	return false;
 }
 
-void play_combo_string(int str)
+bool play_combo_string(int str)
 {
 	switch(str)
 	{
@@ -960,10 +960,10 @@ void play_combo_string(int str)
 			str = game->screen_d[di][abs(str)-10] / 10000L;
 			break;
 	}
-	if(unsigned(str) >= MAXMSGS)
-		str = 0;
-	if(str)
-		donewmsg(str);
+	if(!str || unsigned(str) >= MAXMSGS)
+		return false;
+	donewmsg(str);
+	return true;
 }
 
 void trigger_sign(newcombo const& cmb)
