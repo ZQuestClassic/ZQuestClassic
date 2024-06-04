@@ -128,7 +128,8 @@ void SCCDialog::default_args()
 TextField( \
 	fitParent = true, width = 4.5_em, \
 	maxheight = 24_px, \
-	type = GUI::TextField::type::INT_DECIMAL, \
+	type = GUI::TextField::type::SWAP_ZSINT_NO_DEC, \
+	swap_type = nswapDEC, \
 	low = _min, high = _max, val = v, \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
@@ -139,7 +140,8 @@ TextField( \
 TextField( \
 	fitParent = true, width = 4.5_em, \
 	maxheight = 24_px, \
-	type = GUI::TextField::type::INT_HEX, \
+	type = GUI::TextField::type::SWAP_ZSINT_NO_DEC, \
+	swap_type = nswapHEX, \
 	low = _min, high = _max, val = v, \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
@@ -592,7 +594,7 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 						INFOBTN("DMap to warp to")
 					),
 					Row(padding = 0_px, hAlign = 1.0,
-						TXT("Screen: 0x"),
+						TXT("Screen:"),
 						HEX_FIELD(cur_args[1],0,255),
 						INFOBTN("Screen to warp to (relative to dmap offset)")
 					),
@@ -638,7 +640,7 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 						INFOBTN("DMap to warp to")
 					),
 					Row(padding = 0_px, hAlign = 1.0,
-						TXT("Screen: 0x"),
+						TXT("Screen:"),
 						HEX_FIELD(cur_args[1],0,255),
 						INFOBTN("Screen to warp to (relative to dmap offset)")
 					),
