@@ -1206,6 +1206,10 @@ static constexpr script_command command_list[]=
 	{ "STORE_OBJECT", STORE_OBJECT, 2, { REG_R, NUM }, 0, 0 },
 	{ "GC", GC, 0, { }, 0, 0 },
 	{ "SET_OBJECT", SET_OBJECT, 2, { REG_W, REG_R }, 0, 0 },
+	{ "TILEBLIT", TILEBLIT, 0, {}, 0, 0 },
+	{ "COMBOBLIT", COMBOBLIT, 0, {}, 0, 0 },
+	{ "BMPTILEBLIT", BMPTILEBLIT, 0, {}, 0, 0 },
+	{ "BMPCOMBOBLIT", BMPCOMBOBLIT, 0, {}, 0, 0 },
 };
 
 static constexpr script_variable variable_list[]=

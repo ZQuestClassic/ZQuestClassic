@@ -384,6 +384,66 @@ class bitmap {
 						 int dest_w, int dest_h, int rotation = 0, int cx = 0,
 						 int cy = 0, int mode = 0, int lit = 0,
 						 bool mask = true);
+	
+	// As 'BlitTo', but draws from a tile instead of a bitmap
+	//
+	// Blit supports multiple MODES, OR'd together as a bitmask:
+	//
+	// ```
+	// const int BITDX_NORMAL = 0;
+	// const int BITDX_TRANS = 0x01; //Translucent
+	// const int BITDX_PIVOT = 0x02; //THe sprite will rotate at a specific
+	// point, instead of its centre. const int BITDX_HFLIP = 0x04; //Horizontal
+	// Flip const int BITDX_VFLIP = 0x08; //Vertical Flip.
+	// ```
+	//
+	// You can also set a pivot point for the rotation, using 'int cx' and 'int
+	// cy'
+	//
+	// If these are non-zero, the rotation anchor point will centre on these
+	// coordinates.
+	//
+	// You may specify a colour to 'int lit' to use a lit mode. This tints the
+	// entire bitmap using that colour index of the main palette.
+	//
+	// @zasm
+	//   BMPTILEBLIT
+	//   POPARGS D5 0.0017
+	//   POP REFBITMAP
+	internal void TileBlit(int layer, int tile, int cset, int source_x, int source_y,
+					   int source_w, int source_h, int dest_x, int dest_y,
+					   int dest_w, int dest_h, int rotation = 0, int cx = 0,
+					   int cy = 0, int mode = 0, int lit = 0, bool mask = true);
+	
+	// As 'TileBlit', but uses the current tile of a specified combo.
+	//
+	// Blit supports multiple MODES, OR'd together as a bitmask:
+	//
+	// ```
+	// const int BITDX_NORMAL = 0;
+	// const int BITDX_TRANS = 0x01; //Translucent
+	// const int BITDX_PIVOT = 0x02; //THe sprite will rotate at a specific
+	// point, instead of its centre. const int BITDX_HFLIP = 0x04; //Horizontal
+	// Flip const int BITDX_VFLIP = 0x08; //Vertical Flip.
+	// ```
+	//
+	// You can also set a pivot point for the rotation, using 'int cx' and 'int
+	// cy'
+	//
+	// If these are non-zero, the rotation anchor point will centre on these
+	// coordinates.
+	//
+	// You may specify a colour to 'int lit' to use a lit mode. This tints the
+	// entire bitmap using that colour index of the main palette.
+	//
+	// @zasm
+	//   BMPCOMBOBLIT
+	//   POPARGS D5 0.0017
+	//   POP REFBITMAP
+	internal void ComboBlit(int layer, int combo, int cset, int source_x, int source_y,
+					   int source_w, int source_h, int dest_x, int dest_y,
+					   int dest_w, int dest_h, int rotation = 0, int cx = 0,
+					   int cy = 0, int mode = 0, int lit = 0, bool mask = true);
 
 	// Draws a scaled 'Mode 7' style effect, line-by-line, where each raster is
 	// scaled down toward a horizon point.
