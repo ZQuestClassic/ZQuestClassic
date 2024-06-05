@@ -8,6 +8,10 @@
 #define MAX_SCRIPT_DRAWING_COMMANDS 10000
 #define SCRIPT_DRAWING_COMMAND_VARIABLES 20
 
+#define DRAWCMD_MAX_ARG_COUNT  17
+#define DRAWCMD_BMP_TARGET     18
+#define DRAWCMD_CURRENT_TARGET 19
+
 // For Quad and Triangle. *allegro Bug-Fix* -Gleeok
 class SmallBitmapTextureCache
 {
