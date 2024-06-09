@@ -1,9 +1,0 @@
-//User definitions (feel free to edit this file)
-
-#include "std_zh/script_runners.zh"
-#include "std_zh/ghostBasedMovement.zh"
-
-typedef const int define;
-typedef itemsprite item;
-script typedef itemdata item;
-

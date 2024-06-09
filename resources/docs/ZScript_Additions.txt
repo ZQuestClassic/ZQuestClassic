@@ -2867,27 +2867,6 @@ Available annotations:
 		Default value: Unset. Setting this to ANYTHING stops the default
 		               behavior, and marks the script to be merged.
 
-/////////////////////////////
-///  Registration System  ///
-/////////////////////////////
-
-	A new registration handler has been added to the parser.
-	Now, global references do NOT need to be placed in order.
-	
-	[example--
-	
-		const int A = B;
-		const int B = 10;
-		const int C = B;
-	
-	--end example]
-	
-	Both 'A' and 'C' will be equal to '10'.
-	Previously, a compiler error 'Variable B has not been declared' would occur,
-	as 'B' would not have been processed by the time it is needed.
-	The registration system ensures that everything is registered beforehand, removing this issue.
-
-
 //////////////////////////////////
 /// Mechanical and AST Changes ///
 //////////////////////////////////

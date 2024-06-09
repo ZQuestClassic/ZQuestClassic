@@ -1,8 +1,0 @@
-//UK and International English
-
-//Constants
-
-// PrintString Text Formats. Use with Screen->DrawString.
-const int TF_CENTRED            = 1; // prints the string centered on (x)
-
-//Functions

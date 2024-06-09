@@ -1,5 +1,3 @@
-//string_functions.zh
-//14th February, 2021for ZC 2.55 Alpha 90
 //ZScript string handling functions, akin to those found in C
 
 //Returns the number of chracters of a given type in a specified string.
