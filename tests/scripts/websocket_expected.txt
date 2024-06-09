@@ -49,7 +49,7 @@ GOTOCMP 36 ==; Test 'if'
 WAITFRAME; InlineFunc[void Waitframe()] Body AND if() #160 Body Start
 GOTO 25; continue 1;
 GOTO 67; if() #160 Body End
-LOAD D2 0.0007; if() #448 Test AND if() #160 Else Start
+LOAD D2 0.0007; if() #447 Test AND if() #160 Else Start
 PUSHR D2
 POP REFWEBSOCKET
 SETR D2 WEBSOCKET_STATE
@@ -57,7 +57,7 @@ COMPAREV D2 0.0003
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 67 ==; Test 'if'
-ALLOCATEMEMV D2 0 0; if() #448 Body Start
+ALLOCATEMEMV D2 0 0; if() #447 Body Start
 STORE D2 0.0005
 LOAD D2 0.0007; InlineFunc[void websocket::GetError(char32[])] Params Start
 PUSHR D2
@@ -79,8 +79,8 @@ LOAD D3 0.0005
 DEALLOCATEMEMR D3
 GOTO 225; break 1;
 LOAD D3 0.0005
-DEALLOCATEMEMR D3; if() #448 Body End
-LOAD D2 0.0007; if() #160 Else End AND if() #449 Test
+DEALLOCATEMEMR D3; if() #447 Body End
+LOAD D2 0.0007; if() #160 Else End AND if() #448 Test
 PUSHR D2
 POP REFWEBSOCKET
 SETR D2 WEBSOCKET_STATE
@@ -88,7 +88,7 @@ COMPAREV D2 0.0001
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 89 ==; Test 'if'
-ALLOCATEMEMV D2 23 0; if() #449 Body Start
+ALLOCATEMEMV D2 23 0; if() #448 Body Start
 STORE D2 0.0005
 WRITEPODSTRING D2 "Failed to connect: %l\n"
 LOAD D2 0.0005; InlineFunc[void printf(char32[])] Params Start
@@ -101,11 +101,11 @@ PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0005
 DEALLOCATEMEMR D3
-GOTO 225; break 1; AND if() #449 Body End
-LOAD D2 0.0006; unless() #450 Test
+GOTO 225; break 1; AND if() #448 Body End
+LOAD D2 0.0006; unless() #449 Test
 COMPAREV D2 0
 GOTOCMP 129 !=; Test 'unless'
-ALLOCATEMEMV D2 12 0; unless() #450 Body Start
+ALLOCATEMEMV D2 12 0; unless() #449 Body Start
 STORE D2 0.0005
 WRITEPODSTRING D2 "Connected!\n"
 LOAD D2 0.0005; InlineFunc[void printf(char32[])] Params Start
@@ -141,7 +141,7 @@ WEBSOCKET_SEND D2 D3; InlineFunc[void websocket::Send(char32[], long)] Body End
 LOAD D3 0.0003
 DEALLOCATEMEMR D3
 SETV D2 1
-STORE D2 0.0006; unless() #450 Body End
+STORE D2 0.0006; unless() #449 Body End
 LOAD D2 0.0007; while() #3 Test
 PUSHR D2
 POP REFWEBSOCKET
@@ -193,16 +193,16 @@ PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0002
 DEALLOCATEMEMR D3
-STOREV 0 0.0001; for() #160 setup
-LOAD D2 0.0001; for() #160 LoopTest
+STOREV 0 0.0001; for() #156 setup
+LOAD D2 0.0001; for() #156 LoopTest
 PUSHR D2
 LOAD D2 0.0003
 POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 129 ==; for() #160 TestFail?
-ALLOCATEMEMV D2 8 0; for() #160 Body Start
+GOTOCMP 129 ==; for() #156 TestFail?
+ALLOCATEMEMV D2 8 0; for() #156 Body Start
 STORE D2 0
 WRITEPODSTRING D2 "%d: %l\n"
 LOAD D2 0; InlineFunc[void printf(char32[])] Params Start
@@ -218,11 +218,11 @@ PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0
-DEALLOCATEMEMR D3; for() #160 Body End
-LOAD D2 0.0001; for() #160 LoopIncrement
+DEALLOCATEMEMR D3; for() #156 Body End
+LOAD D2 0.0001; for() #156 LoopIncrement
 ADDV D2 1
 STORE D2 0.0001
-GOTO 181; for() #160 End
+GOTO 181; for() #156 End
 GOTO 129; if() #162 Body End
 ALLOCATEMEMV D2 40 0; if() #162 Else Start
 STORE D2 0.0003
@@ -243,6 +243,4 @@ POPARGS D5 0.0011
 QUIT; void run() Body End
 
 
-ALLOCATEGMEMV D2 4096 0; void run() Body Start
-SETR GD1 D2
-QUIT; void run() Body End
+QUIT; void run() Body

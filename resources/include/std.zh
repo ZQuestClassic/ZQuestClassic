@@ -1,7 +1,4 @@
-// Standard header for ZScript.
-// Please don't edit this file. Instead, create a new header file for your
-// quests' scripts,  add constants and procedures to that file,
-// and #include it separately.
+// Standard library for ZScript.
 
 //Options
 #option BINARY_32BIT off
@@ -11,33 +8,17 @@
 
 #includepath "include"
 
-//Version Metadata
-#include "std_zh/std_meta.zh"
+typedef const int define;
 
-//User Configuration Files
-#include "std_zh/std_user_defs.zh" //Typedefs: Always first.
 #include "std_zh/std.cfg"
-
-//Main Files
+#include "std_zh/std_extension.zh"
+#include "std_zh/script_runners.zh"
+#include "std_zh/ghostBasedMovement.zh"
 #include "std_zh/limits.zh"
 #include "std_zh/std_constants.zh"
 #include "std_zh/ffrules.zh"
 #include "std_zh/std_functions.zh"
-#include "std_zh/math.zh"
-#include "std_zh/weapon.zh"
-#include "std_zh/std_sideview.zh" //Sideview and platforming
-
-//ZScript string handling functions, akin to those found in C
-//#include "string.zh"
-#include "std_zh/string/string_constants.zh" //Now #includeed from here. This prevents conflicts for those people
-#include "std_zh/string/string_functions.zh" //who would #include string.zh from a secondary source, as that file is now 
-			     //empty, and the string.zh components load from here. 
-
-//Keyboard handling for 2.54 and above
+#include "std_zh/std_sideview.zh"
+#include "std_zh/string/string_constants.zh"
+#include "std_zh/string/string_functions.zh"
 #include "std_zh/std_keyboard.zh"
-
-//Locale
-#include "std_zh/locale/std_EnglishIntl.zh" //International English Localisation
-
-//Legacy Wrappers
-#include "std_zh/std_legacy.zh"

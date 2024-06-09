@@ -1,12 +1,7 @@
-//std_keyboard.zh for ZC 2.55
-//Document Revision: 5th July, 2020
-
 /* 
-
 Constants that define the keyboard layout. I need to check an EU and a US keyboard 
 visually to verify if I set the proper symbols;  and I do not think that ZScript
 can handle some symbols on the UK layout. 
-
 */
 
 const int KEYBOARD_TYPE = 0; //0 == US, 1 == UK, 2 == EU/GR

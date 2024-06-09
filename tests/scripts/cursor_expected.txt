@@ -47,6 +47,4 @@ WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #2 Body [Opt:Always
 GOTO 5; while() #2 End AND [Opt:NeverRet] AND void run(int) Body End
 
 
-ALLOCATEGMEMV D2 4096 0; void run() Body Start
-SETR GD1 D2
-QUIT; void run() Body End
+QUIT; void run() Body
