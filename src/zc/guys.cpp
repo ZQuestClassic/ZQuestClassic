@@ -1743,7 +1743,7 @@ void enemy::leave_item()
 // auomatically kill off enemy (for rooms with ringleaders)
 void enemy::kickbucket()
 {
-	if(!superman)
+	if(!superman && !(flags2&guy_ignorekill))
 		hp=-1000;                                               // don't call death_sfx()
 }
 
@@ -13546,8 +13546,6 @@ void eLilDig::draw(BITMAP *dest)
 
 eBigDig::eBigDig(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 {
-	superman=1;
-	
 	SIZEflags = d->SIZEflags;
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
 	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
