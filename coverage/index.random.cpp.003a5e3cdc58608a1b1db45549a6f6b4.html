@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2024-06-03 19:33:09</td>
+      <td>2024-06-14 07:26:05</td>
     </tr>
   </table>
 </div>
@@ -74,9 +74,9 @@
       <th>Block coverage</th>
     </tr>
     <tr><td><a href="#l5">zc_get_default_rand() (line 5)</a></td><td>called 744 times, returned 744 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l36">zc_oldrand(std::mersenne_twister_engine&lt;unsigned long, 32ul, 624ul, 397ul, 31ul, 2567483615ul, 11ul, 4294967295ul, 7ul, 2636928640ul, 15ul, 4022730752ul, 18ul, 1812433253ul&gt;*) (line 36)</a></td><td>called 394225941 times, returned 394225941 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l16">zc_rand(int, int, std::mersenne_twister_engine&lt;unsigned long, 32ul, 624ul, 397ul, 31ul, 2567483615ul, 11ul, 4294967295ul, 7ul, 2636928640ul, 15ul, 4022730752ul, 18ul, 1812433253ul&gt;*) (line 16)</a></td><td>called 394674509 times, returned 394674509 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l10">zc_rand(std::mersenne_twister_engine&lt;unsigned long, 32ul, 624ul, 397ul, 31ul, 2567483615ul, 11ul, 4294967295ul, 7ul, 2636928640ul, 15ul, 4022730752ul, 18ul, 1812433253ul&gt;*) (line 10)</a></td><td>called 395494124 times, returned 395494124 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l36">zc_oldrand(std::mersenne_twister_engine&lt;unsigned long, 32ul, 624ul, 397ul, 31ul, 2567483615ul, 11ul, 4294967295ul, 7ul, 2636928640ul, 15ul, 4022730752ul, 18ul, 1812433253ul&gt;*) (line 36)</a></td><td>called 394225937 times, returned 394225937 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l16">zc_rand(int, int, std::mersenne_twister_engine&lt;unsigned long, 32ul, 624ul, 397ul, 31ul, 2567483615ul, 11ul, 4294967295ul, 7ul, 2636928640ul, 15ul, 4022730752ul, 18ul, 1812433253ul&gt;*) (line 16)</a></td><td>called 394674505 times, returned 394674505 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l10">zc_rand(std::mersenne_twister_engine&lt;unsigned long, 32ul, 624ul, 397ul, 31ul, 2567483615ul, 11ul, 4294967295ul, 7ul, 2636928640ul, 15ul, 4022730752ul, 18ul, 1812433253ul&gt;*) (line 10)</a></td><td>called 395494120 times, returned 395494120 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l30">zc_srand(int, std::mersenne_twister_engine&lt;unsigned long, 32ul, 624ul, 397ul, 31ul, 2567483615ul, 11ul, 4294967295ul, 7ul, 2636928640ul, 15ul, 4022730752ul, 18ul, 1812433253ul&gt;*) (line 30)</a></td><td>called 7 times, returned 7 times</td><td>100.0%</td></tr>
   </table>
 </details>
@@ -159,7 +159,7 @@
       <td class="lineno"><a id="l10" href="#l10">10</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">395494124</td>
+      <td class="linecount coveredLine">395494120</td>
       <td class="src coveredLine"><span class="kt">int32_t</span><span class="w"> </span><span class="nf">zc_rand</span><span class="p">(</span><span class="n">zc_randgen</span><span class="o">*</span><span class="w"> </span><span class="n">rng</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -176,18 +176,18 @@
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
           <div class="takenBranch">&check; Branch 0 taken 3231 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 395490893 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 395490889 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">395494124</td>
+      <td class="linecount coveredLine">395494120</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">rng</span><span class="p">)</span><span class="w"> </span><span class="n">rng</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">default_rng</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l13" href="#l13">13</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">395494124</td>
+      <td class="linecount coveredLine">395494120</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">rng</span><span class="p">)();</span></td>
     </tr>
     <tr class="source-line">
@@ -208,7 +208,7 @@
       <td class="lineno"><a id="l16" href="#l16">16</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">394674509</td>
+      <td class="linecount coveredLine">394674505</td>
       <td class="src coveredLine"><span class="kt">int32_t</span><span class="w"> </span><span class="nf">zc_rand</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">upper</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">lower</span><span class="p">,</span><span class="w"> </span><span class="n">zc_randgen</span><span class="o">*</span><span class="w"> </span><span class="n">rng</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -225,11 +225,11 @@
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
           <div class="takenBranch">&check; Branch 0 taken 225491898 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 169182611 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 169182607 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">394674509</td>
+      <td class="linecount coveredLine">394674505</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">rng</span><span class="p">)</span><span class="w"> </span><span class="n">rng</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">default_rng</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -238,12 +238,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 394674411 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 394674407 times.</div>
           <div class="takenBranch">&check; Branch 1 taken 98 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">394674509</td>
+      <td class="linecount coveredLine">394674505</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">lower</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">upper</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -299,7 +299,7 @@
       <td class="lineno"><a id="l27" href="#l27">27</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">394674509</td>
+      <td class="linecount coveredLine">394674505</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="kt">signed</span><span class="p">(</span><span class="kt">unsigned</span><span class="p">(</span><span class="n">zc_rand</span><span class="p">(</span><span class="n">rng</span><span class="p">))</span><span class="o">%</span><span class="kt">unsigned</span><span class="p">((</span><span class="n">upper</span><span class="o">-</span><span class="n">lower</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span><span class="o">+</span><span class="n">lower</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -369,7 +369,7 @@
       <td class="lineno"><a id="l36" href="#l36">36</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">394225941</td>
+      <td class="linecount coveredLine">394225937</td>
       <td class="src coveredLine"><span class="kt">int32_t</span><span class="w"> </span><span class="nf">zc_oldrand</span><span class="p">(</span><span class="n">zc_randgen</span><span class="o">*</span><span class="w"> </span><span class="n">rng</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -397,7 +397,7 @@
       <td class="lineno"><a id="l40" href="#l40">40</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">394225941</td>
+      <td class="linecount coveredLine">394225937</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">zc_rand</span><span class="p">(</span><span class="mh">0x7fff</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">rng</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">

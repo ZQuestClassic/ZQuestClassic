@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2024-06-03 19:33:09</td>
+      <td>2024-06-14 07:26:05</td>
     </tr>
   </table>
 </div>
@@ -110,7 +110,7 @@
     <tr><td><a href="#l171">clear_a5_bmp(ALLEGRO_COLOR, ALLEGRO_BITMAP*) (line 171)</a></td><td>called 17013357 times, returned 17013357 times</td><td>83.0%</td></tr>
     <tr><td><a href="#l194">create_a5_bitmap(int, int) (line 194)</a></td><td>called 139 times, returned 139 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l921">dlg_tint_paused() (line 921)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l942">fake_vsync_callback() (line 942)</a></td><td>called 5458 times, returned 5458 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l942">fake_vsync_callback() (line 942)</a></td><td>called 5463 times, returned 5463 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l707">get_active_dialog(bool) (line 707)</a></td><td>called 4 times, returned 4 times</td><td>36.0%</td></tr>
     <tr><td><a href="#l233">get_backend_a5_col(RGB const&amp;) (line 233)</a></td><td>called 14109146 times, returned 14109146 times</td><td>71.0%</td></tr>
     <tr><td><a href="#l156">get_bitmap_create_flags(bool) (line 156)</a></td><td>called 18262 times, returned 18262 times</td><td>60.0%</td></tr>
@@ -133,7 +133,7 @@
     <tr><td><a href="#l521">render_set_debug(bool) (line 521)</a></td><td>called 364 times, returned 364 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l324">render_text(ALLEGRO_BITMAP*, ALLEGRO_FONT*, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;, int, int, int, ALLEGRO_COLOR, ALLEGRO_COLOR) (line 324)</a></td><td>called 4524 times, returned 4524 times</td><td>85.0%</td></tr>
     <tr><td><a href="#l358">render_text_lines(ALLEGRO_BITMAP*, ALLEGRO_FONT*, std::vector&lt;std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;, std::allocator&lt;std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; &gt; &gt;, TextJustify, TextAlign, int) (line 358)</a></td><td>called 9102 times, returned 9102 times</td><td>59.0%</td></tr>
-    <tr><td><a href="#l934">render_timer_callback() (line 934)</a></td><td>called 28501 times, returned 28501 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l934">render_timer_callback() (line 934)</a></td><td>called 28459 times, returned 28459 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l950">render_timer_start(int) (line 950)</a></td><td>called 22714 times, returned 22714 times</td><td>72.0%</td></tr>
     <tr><td><a href="#l1001">render_timer_wait() (line 1001)</a></td><td>called 22442 times, returned 22442 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l495">render_tree_draw(RenderTreeItem*) (line 495)</a></td><td>called 4551 times, returned 4551 times</td><td>100.0%</td></tr>
@@ -7292,7 +7292,7 @@
       <td class="lineno"><a id="l934" href="#l934">934</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">28501</td>
+      <td class="linecount coveredLine">28459</td>
       <td class="src coveredLine"><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">render_timer_callback</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
@@ -7306,35 +7306,35 @@
       <td class="lineno"><a id="l936" href="#l936">936</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">28501</td>
+      <td class="linecount coveredLine">28459</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">al_lock_mutex</span><span class="p">(</span><span class="n">render_timer_mutex</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l937" href="#l937">937</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">28501</td>
+      <td class="linecount coveredLine">28459</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">render_timer_counter</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l938" href="#l938">938</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">28501</td>
+      <td class="linecount coveredLine">28459</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">al_signal_cond</span><span class="p">(</span><span class="n">render_timer_cond</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l939" href="#l939">939</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">28501</td>
+      <td class="linecount coveredLine">28459</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">al_unlock_mutex</span><span class="p">(</span><span class="n">render_timer_mutex</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l940" href="#l940">940</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">28501</td>
+      <td class="linecount coveredLine">28459</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -7348,7 +7348,7 @@
       <td class="lineno"><a id="l942" href="#l942">942</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">5458</td>
+      <td class="linecount coveredLine">5463</td>
       <td class="src coveredLine"><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">fake_vsync_callback</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
@@ -7362,35 +7362,35 @@
       <td class="lineno"><a id="l944" href="#l944">944</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">5458</td>
+      <td class="linecount coveredLine">5463</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">al_lock_mutex</span><span class="p">(</span><span class="n">fake_vsync_timer_mutex</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l945" href="#l945">945</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">5458</td>
+      <td class="linecount coveredLine">5463</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">fake_vsync_counter</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l946" href="#l946">946</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">5458</td>
+      <td class="linecount coveredLine">5463</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">al_signal_cond</span><span class="p">(</span><span class="n">fake_vsync_timer_cond</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l947" href="#l947">947</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">5458</td>
+      <td class="linecount coveredLine">5463</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">al_unlock_mutex</span><span class="p">(</span><span class="n">fake_vsync_timer_mutex</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l948" href="#l948">948</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">5458</td>
+      <td class="linecount coveredLine">5463</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -7861,19 +7861,19 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 17426 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 17576 times.</div>
           <div class="takenBranch">&check; Branch 1 taken 22442 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">39868</td>
+      <td class="linecount coveredLine">40018</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">render_timer_counter</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1005" href="#l1005">1005</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">17426</td>
+      <td class="linecount coveredLine">17576</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">al_wait_cond</span><span class="p">(</span><span class="n">render_timer_cond</span><span class="p">,</span><span class="w"> </span><span class="n">render_timer_mutex</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">

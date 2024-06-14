@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2024-06-03 19:33:09</td>
+      <td>2024-06-14 07:26:05</td>
     </tr>
   </table>
 </div>
@@ -7243,7 +7243,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">27</td>
-      <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">play_combo_string</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">str</span><span class="p">)</span></td>
+      <td class="src coveredLine"><span class="kt">bool</span><span class="w"> </span><span class="nf">play_combo_string</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">str</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l949" href="#l949">949</a></td>
@@ -7356,43 +7356,38 @@
       <td class="lineno"><a id="l963" href="#l963">963</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
-        <summary class="linebranchSummary">1/2</summary>
+        <summary class="linebranchSummary">2/4</summary>
         <div class="linebranchContents">
           <div class="takenBranch">&check; Branch 0 taken 27 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
+          <div class="notTakenBranch">&cross; Branch 2 not taken.</div>
+          <div class="takenBranch">&check; Branch 3 taken 27 times.</div>
         </div>
         </details>
       </td>
       <td class="linecount partialCoveredLine">27</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="kt">unsigned</span><span class="p">(</span><span class="n">str</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">MAXMSGS</span><span class="p">)</span></td>
+      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">str</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="kt">unsigned</span><span class="p">(</span><span class="n">str</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">MAXMSGS</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l964" href="#l964">964</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="n">str</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l965" href="#l965">965</a></td>
       <td class="linebranch">
-        <details class="linebranchDetails">
-        <summary class="linebranchSummary">1/2</summary>
-        <div class="linebranchContents">
-          <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 27 times.</div>
-        </div>
-        </details>
       </td>
-      <td class="linecount partialCoveredLine">27</td>
-      <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">str</span><span class="p">)</span></td>
+      <td class="linecount coveredLine">27</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">donewmsg</span><span class="p">(</span><span class="n">str</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l966" href="#l966">966</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">27</td>
-      <td class="src coveredLine"><span class="w">		</span><span class="n">donewmsg</span><span class="p">(</span><span class="n">str</span><span class="p">);</span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l967" href="#l967">967</a></td>
