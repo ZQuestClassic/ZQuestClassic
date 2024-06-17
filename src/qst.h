@@ -171,6 +171,21 @@ extern word msg_count;
 extern word door_combo_set_count;
 extern int32_t favorite_combos[MAXFAVORITECOMBOS];
 extern byte favorite_combo_modes[MAXFAVORITECOMBOS];
+constexpr std::array<const char *, Z35> old_sfx_string =
+{
+	"Arrow", "Sword beam", "Bomb blast", "Boomerang",  "Subscreen cursor",
+	"Shield is hit", "Item chime",  "Roar (Dodongo, Gohma)", "Shutter", "Enemy dies",
+	"Enemy is hit", "Low hearts warning", "Fire", "Ganon's fanfare", "Boss is hit", "Hammer",
+	"Hookshot", "Message", "Player is hit", "Item fanfare", "Bomb placed", "Item pickup",
+	"Refill", "Roar (Aquamentus, Gleeok, Ganon)", "Item pickup 2", "Ocean ambience",
+	"Secret chime", "Player dies", "Stairs", "Sword", "Roar (Manhandla, Digdogger, Patra)",
+	"Wand magic", "Whistle", "Zelda's fanfare", "Charging weapon", "Charging weapon 2",
+	"Divine Fire", "Enemy falls from ceiling", "Divine Escape", "Fireball", "Tall Grass slashed",
+	"Pound pounded", "Hover Boots", "Ice magic", "Jump", "Lens of Truth off", "Lens of Truth on",
+	"Divine Protection shield", "Divine Protection 2", "Push block", "Rock", "Spell rocket down",
+	"Spell rocket up", "Sword spin attack", "Splash", "Summon magic", "Sword tapping",
+	"Sword tapping (secret)", "Whistle whirlwind", "Cane of Byrna orbit"
+};
 
 char *VerStrFromHex(int32_t version);
 char *ordinal(int32_t num);

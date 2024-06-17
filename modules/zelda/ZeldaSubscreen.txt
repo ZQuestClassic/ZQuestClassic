@@ -8,7 +8,6 @@ src/subscr.cpp
 src/new_subscr.cpp
 src/zc/zc_subscr.cpp
 src/md5.cpp
-src/midi.cpp
 src/zc/zc_sys.cpp
 
 ## End of Zelda Subscreen module

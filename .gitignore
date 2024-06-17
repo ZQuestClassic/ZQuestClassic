@@ -140,3 +140,8 @@ output/
 changelogs/nightly.txt
 src/base/version_header.h
 venv
+*.log
+scratch
+.idea
+cmake-build-release/
+cmake-build-debug/

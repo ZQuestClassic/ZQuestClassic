@@ -4,7 +4,7 @@
 #include "base/zdefs.h"
 #include "base/jwinfsel.h"
 #include "base/zsys.h"
-#include "sound/zcmusic.h"
+#include <sound/zcmusic.h>
 
 extern bool is_sys_pal;
 
@@ -216,7 +216,7 @@ void cache_tile_mod_clear();
 int32_t item_tile_mod();
 int32_t bunny_tile_mod();
 
-int32_t get_emusic_volume();
+zcmusic::volume_t get_emusic_volume();
 int32_t get_zcmusicpos();
 void set_zcmusicpos(int32_t position);
 void set_zcmusicspeed(int32_t speed);

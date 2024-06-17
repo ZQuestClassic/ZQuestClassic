@@ -3,13 +3,14 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 #include "base/initdata.h"
-#include "midi.h"
+#include <sound/midi.h>
 #include "gui/jwin.h"
 #include <base/new_menu.h>
 #include "base/jwinfsel.h"
-#include "sound/zcmusic.h"
-#include "sound/zcmixer.h"
+#include <sound/zcmusic.h>
+#include <sound/zcmixer.h>
 #include "sprite.h"
 #include "gamedata.h"
 #include "parser/parserDefs.h"
@@ -143,7 +144,7 @@ extern guydata  *guysbuf;
 extern item_drop_object    item_drop_sets[MAXITEMDROPSETS];
 extern newcombo curr_combo;
 extern PALETTE RAMpal;
-extern midi_info Midi_Info;
+extern midi::midi_info Midi_Info;
 extern bool zq_showpal;
 extern bool combo_cols;
 extern bool zoomed_minimap;
@@ -195,8 +196,6 @@ extern byte Color;
 
 extern byte compile_tune;
 
-extern ZCMUSIC *zcmusic;
-extern ZCMIXER* zcmixer;
 extern volatile int32_t myvsync;
 
 extern int32_t fill_type;

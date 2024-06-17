@@ -2,12 +2,12 @@
 #define __emscripten_utils_h_
 
 #include <emscripten/emscripten.h>
-#include <string>
+#include <string_view>
 
 void em_init_fs();
 void em_sync_fs();
-void em_fetch_file(std::string path);
-bool em_is_lazy_file(std::string path);
+void em_fetch_file(std::string_view path);
+bool em_is_lazy_file(std::string_view path);
 std::string get_initial_file_dialog_folder();
 void em_mark_initializing_status();
 void em_mark_ready_status();

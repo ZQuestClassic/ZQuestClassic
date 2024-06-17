@@ -21,6 +21,8 @@
 #include <malloc.h>
 #endif
 
+//#include <linux/soundcard.h>
+
 #include "zalleg/zalleg.h"
 #include "base/qrs.h"
 #include "base/dmap.h"
@@ -88,10 +90,10 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "qst.h"
 #include "base/zsys.h"
 #include "base/zapp.h"
-#include "play_midi.h"
-#include "sound/zcmusic.h"
+#include <sound/play_midi.h>
+#include <sound/zcmusic.h>
 
-#include "midi.h"
+#include <sound/midi.h>
 #include "sprite.h"
 #include "fontsdat.h"
 #include "base/jwinfsel.h"
@@ -173,8 +175,10 @@ static const char *qtpath_name      = "macosx_qtpath%d";
 
 // MSVC fix
 #if _MSC_VER >= 1900
+namespace {
 FILE _iob[] = { *stdin, *stdout, *stderr };
-extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
+FILE * __cdecl __iob_func(void) { return _iob; }
+} // namespace
 #endif
 
 extern byte monochrome_console;
@@ -447,7 +451,7 @@ guydata  *guysbuf;
 item_drop_object    item_drop_sets[MAXITEMDROPSETS];
 newcombo curr_combo;
 PALETTE RAMpal;
-midi_info Midi_Info;
+midi::midi_info Midi_Info;
 bool zq_showpal=false;
 bool combo_cols=true;
 bool is_compact = false;
@@ -649,8 +653,6 @@ bool first_save=false;
 char *filepath,*midipath,*datapath,*imagepath,*tmusicpath,*last_timed_save;
 string helpstr, zstringshelpstr;
 
-ZCMUSIC *zcmusic = NULL;
-ZCMIXER *zcmixer = NULL;
 int32_t midi_volume = 255;
 extern int32_t prv_mode;
 int32_t prv_warp = 0;
@@ -3742,17 +3744,19 @@ int32_t onGotoPage()
 static char track_number_str_buf[MIDI_TRACK_BUFFER_SIZE] = {0};
 const char *tracknumlist(int32_t index, int32_t *list_size)
 {
+	auto & current_track = g_zcmixer->current_track;
+	if (!current_track) return nullptr;
     //memset(track_number_str_buf,0,50);
     if(index>=0)
     {
         bound(index,0,255);
-        std::string name = zcmusic_get_track_name(zcmusic, index);
+        const std::string name{current_track->get_track_name(index)};
         sprintf(track_number_str_buf,"%02d %s",index+1, name.c_str());
         return track_number_str_buf;
     }
-    
-    *list_size=zcmusic_get_tracks(zcmusic);
-    return NULL;
+
+    *list_size = current_track->get_tracks();
+    return nullptr;
 }
 
 static ListData tracknum_list(tracknumlist, &font);
@@ -3780,7 +3784,10 @@ int32_t changeTrack()
     if(do_zqdialog(change_track_dlg,2)==3)
     {
         gme_track=change_track_dlg[2].d1;
-        zcmusic_change_track(zcmusic, gme_track);
+
+    	if (g_zcmixer->current_track) {
+    		g_zcmixer->current_track->change_track(gme_track);
+    	}
     }
     
     return D_O_K;
@@ -3797,14 +3804,14 @@ void set_media_tunes()
 	disable_hotkey(ZQKEY_CHANGE_TRACK, true);
 }
 
+static const std::string allmusic_types = std::string(zcmusic::zcmusic_types) + "mid";
+
 int32_t playMusic()
 {
 	char *ext;
 	bool ismidi=false;
-	char allmusic_types[256];
-	sprintf(allmusic_types, "%s;mid", zcmusic_types);
 	
-	if(prompt_for_existing_file_compat("Load Music",(char*)allmusic_types,NULL,midipath,false))
+	if(prompt_for_existing_file_compat("Load Music", allmusic_types.data(),NULL,midipath,false))
 	{
 		strcpy(midipath,temppath);
 		
@@ -3835,22 +3842,16 @@ int32_t playMusic()
 			return D_O_K;
 		}
 		
-		zc_stop_midi();
+		midi::play_midi::stop();
 		
-		if(zcmusic != NULL)
-		{
-			zcmusic_stop(zcmusic);
-			zcmusic_unload_file(zcmusic);
-			zcmusic = NULL;
-			zcmixer->newtrack = NULL;
-		}
+		g_zcmixer->stop_and_unload_current_track();
 		
 		if(ismidi)
 		{
 			packfile_password("");
 			if((song=load_midi(midipath))!=NULL)
 			{
-				if(zc_play_midi(song,true)==0)
+				if(midi::play_midi::play(song,true)==0)
 				{
 					media_menu.select_uid(MENUID_MEDIA_TUNES, false);
 					media_menu.select_uid(MENUID_MEDIA_PLAYMUSIC, true);
@@ -3865,20 +3866,21 @@ int32_t playMusic()
 		else
 		{
 			gme_track=0;
-			zcmusic = (ZCMUSIC*)zcmusic_load_file(midipath);
-			
-			if(zcmusic!=NULL)
+			auto & current_track = g_zcmixer->current_track;
+			current_track = std::move(zcmusic::load_for_quest(midipath));
+
+			if(current_track)
 			{
 				media_menu.select_uid(MENUID_MEDIA_TUNES, false);
 				media_menu.select_uid(MENUID_MEDIA_PLAYMUSIC, true);
 				disable_hotkey(ZQKEY_AMBIENT_MUSIC, false);
 				disable_hotkey(ZQKEY_PLAY_MUSIC, false);
-				
-				bool distrack = zcmusic_get_tracks(zcmusic)<2;
+
+				const bool distrack = current_track->get_tracks() < 2;
 				media_menu.disable_uid(MENUID_MEDIA_CHANGETRACK, distrack);
 				disable_hotkey(ZQKEY_CHANGE_TRACK, distrack);
-					
-				zcmusic_play(zcmusic, midi_volume);
+
+				current_track->play(zcmusic::volume_t{midi_volume});
 			}
 		}
 	}
@@ -3890,10 +3892,11 @@ int32_t playZCForever()
 {
 	stopMusic();
 
-	zcmusic = zcmusic_load_file("assets/zc/ZC_Forever_HD.mp3");
-	if (zcmusic)
+	auto & current_track = g_zcmixer->current_track;
+	current_track = zcmusic::load_for_quest("assets/zc/ZC_Forever_HD.mp3");
+	if (current_track)
 	{
-		zcmusic_play(zcmusic, midi_volume);
+		current_track->play(zcmusic::volume_t{midi_volume});
 		set_media_tunes();
 	}
 	return D_O_K;
@@ -3979,19 +3982,13 @@ int32_t playTune19()
 
 int32_t playTune(int32_t pos)
 {
-    zc_stop_midi();
+    midi::play_midi::stop();
+
+	g_zcmixer->stop_and_unload_current_track();
     
-    if(zcmusic != NULL)
+    if(midi::play_midi::play((MIDI*)zcdata[THETRAVELSOFLINK_MID].dat,true)==0)
     {
-        zcmusic_stop(zcmusic);
-        zcmusic_unload_file(zcmusic);
-        zcmusic = NULL;
-		zcmixer->newtrack = NULL;
-    }
-    
-    if(zc_play_midi((MIDI*)zcdata[THETRAVELSOFLINK_MID].dat,true)==0)
-    {
-        zc_midi_seek(pos);
+        midi::play_midi::seek(pos);
         set_media_tunes();
     }
     
@@ -4000,15 +3997,9 @@ int32_t playTune(int32_t pos)
 
 int32_t stopMusic()
 {
-    zc_stop_midi();
+    midi::play_midi::stop();
     
-    if(zcmusic != NULL)
-    {
-        zcmusic_stop(zcmusic);
-        zcmusic_unload_file(zcmusic);
-        zcmusic = NULL;
-		zcmixer->newtrack = NULL;
-    }
+	g_zcmixer->stop_and_unload_current_track();
     
 	media_menu.select_uid(MENUID_MEDIA_TUNES, false);
 	media_menu.select_uid(MENUID_MEDIA_PLAYMUSIC, false);
@@ -15867,7 +15858,7 @@ void edit_tune(int32_t i)
 
     void *data = customtunes[i].data;
     
-    if(customtunes[i].format == MFORMAT_MIDI) get_midi_info((MIDI*) data,&Midi_Info);
+    if(customtunes[i].format == MFORMAT_MIDI) Midi_Info = midi::midi_info(static_cast<MIDI*>(data));
     
     volume = customtunes[i].volume;
     loop = customtunes[i].loop;
@@ -15908,7 +15899,7 @@ void edit_tune(int32_t i)
         editmidi_dlg[19].dp = loop_end_str;
         editmidi_dlg[21].dp = pos_str;
         editmidi_dlg[23].dp = len_str;
-        editmidi_dlg[25].dp = timestr(Midi_Info.len_sec);
+        editmidi_dlg[25].dp = midi::timestr(Midi_Info.len_sec);
         editmidi_dlg[26].flags = (flags&tfDISABLESAVE)?D_SELECTED:0;
 
         popup_zqdialog_start();
@@ -15944,7 +15935,7 @@ void edit_tune(int32_t i)
         case 9:
             if(prompt_for_existing_file_compat("Load tune","mid;nsf",NULL,temppath,true))
             {
-                zc_stop_midi();
+                midi::play_midi::stop();
                 
                 if(data!=NULL && data!=customtunes[i].data)
                 {
@@ -15969,25 +15960,25 @@ void edit_tune(int32_t i)
                     
                     title[j]=0;
                 }
-                
-                get_midi_info((MIDI*)data,&Midi_Info);
+
+                Midi_Info = midi::midi_info(static_cast<MIDI *>(data));
             }
             
             break;
             
         case 10:
-            zc_stop_midi();
+            midi::play_midi::stop();
             break;
             
         case 12:
             if(midi_pos>0)
             {
                 int32_t pos=midi_pos;
-                zc_stop_midi();
+                midi::play_midi::stop();
                 midi_loop_start = -1;
                 midi_loop_end = -1;
-                zc_play_midi((MIDI*)data,loop);
-                zc_set_volume(-1,volume);
+                midi::play_midi::play((MIDI*)data,loop);
+                midi::play_midi::set_volume(-1,volume);
                 midi_loop_start = loop_start;
                 midi_loop_end = loop_end;
                 
@@ -16002,7 +15993,7 @@ void edit_tune(int32_t i)
                 
                 if(pos>0)
                 {
-                    zc_midi_seek(pos);
+                    midi::play_midi::seek(pos);
                 }
                 
                 break;
@@ -16014,11 +16005,11 @@ void edit_tune(int32_t i)
             if(midi_pos>0)
             {
                 int32_t pos=midi_pos;
-                zc_stop_midi();
+                midi::play_midi::stop();
                 midi_loop_end = -1;
                 midi_loop_start = -1;
-                zc_play_midi((MIDI*)data,loop);
-                zc_set_volume(-1,volume);
+                midi::play_midi::play((MIDI*)data,loop);
+                midi::play_midi::set_volume(-1,volume);
                 midi_loop_end = loop_end;
                 midi_loop_start = loop_start;
                 
@@ -16034,7 +16025,7 @@ void edit_tune(int32_t i)
                 
                 if(pos>0)
                 {
-                    zc_midi_seek(pos);
+                    midi::play_midi::seek(pos);
                 }
                 
                 break;
@@ -16045,12 +16036,12 @@ void edit_tune(int32_t i)
         case 11:
         {
             int32_t pos=midi_pos;
-            zc_stop_midi();
+            midi::play_midi::stop();
             midi_loop_start = -1;
             midi_loop_end = -1;
-            zc_play_midi((MIDI*)data,loop);
-            zc_set_volume(-1,volume);
-            zc_midi_seek(pos<0?start:pos);
+            midi::play_midi::play((MIDI*)data,loop);
+            midi::play_midi::set_volume(-1,volume);
+            midi::play_midi::seek(pos<0?start:pos);
             midi_loop_start = loop_start;
             midi_loop_end = loop_end;
         }
@@ -16059,7 +16050,7 @@ void edit_tune(int32_t i)
     }
     while(ret<26&&ret!=0);
     
-    zc_stop_midi();
+    midi::play_midi::stop();
     
     if(ret==27)
     {
@@ -23210,7 +23201,7 @@ auto_do_slots:
 				sfx_voice[compile_finish_sample]=allocate_voice((SAMPLE*)sfxdata[compile_finish_sample].dat);
 			else sfx_voice[compile_finish_sample]=allocate_voice(&customsfxdata[compile_finish_sample]);
 			voice_set_volume(sfx_voice[compile_finish_sample], compile_audio_volume);
-			//zc_set_volume(255,-1);
+			//midi::play_midi::zc_set_volume(255,-1);
 			//kill_sfx();
 			voice_start(sfx_voice[compile_finish_sample]);
 		}
@@ -23961,8 +23952,8 @@ bool saveWAV(int32_t slot, const char *filename)
 int32_t onEditSFX(int32_t index)
 {
 	kill_sfx();
-	zc_stop_midi();
-	zc_set_volume(255,-1);
+	midi::play_midi::stop();
+	midi::play_midi::set_volume(255,-1);
 	int32_t ret;
 	sfx_edit_dlg[0].dp2=get_zc_font(font_lfont);
 	uint8_t tempflag;
@@ -25149,16 +25140,17 @@ void custom_vsync()
 
 void switch_out()
 {
-	zcmusic_pause(zcmusic, ZCM_PAUSE);
-	zc_midi_pause();
+	if (g_zcmixer->current_track ) g_zcmixer->current_track->pause();
+	midi::play_midi::pause();
 }
 
 void switch_in()
 {
 	if(exiting_program)
 		return;
-	zcmusic_pause(zcmusic, ZCM_RESUME);
-	zc_midi_resume();
+	
+	if (g_zcmixer->current_track ) g_zcmixer->current_track->resume();
+	midi::play_midi::resume();
 }
 
 void Z_eventlog(const char *format,...)
@@ -25870,9 +25862,10 @@ int32_t main(int32_t argc,char **argv)
 		set_debug(!strcmp(zquestpwd,zc_get_config("zquest","debug_this","")));
 	}
 	
-	zcmusic_init();
-	zcmixer = zcmixer_create();
-	install_int_ex([](){ zcmusic_poll(); }, MSEC_TO_TIMER(25));
+	zcmusic::init();
+	g_zcmixer = zcmixer::create();
+	//TODO pete
+	install_int_ex([](){ g_zcmixer->current_track && g_zcmixer->current_track->poll(); }, MSEC_TO_TIMER(25));
 
 	set_color_depth(8);
 	
@@ -27013,7 +27006,7 @@ void quit_game()
     set_last_timed_save(nullptr);
     save_config_file();
     zc_set_palette(black_palette);
-    zc_stop_midi();
+    midi::play_midi::stop();
     
     remove_locked_params_on_exit();
     
@@ -27150,7 +27143,7 @@ void quit_game2()
     set_last_timed_save(nullptr);
     save_config_file();
     zc_set_palette(black_palette);
-    zc_stop_midi();
+    midi::play_midi::stop();
     
     remove_locked_params_on_exit();
     

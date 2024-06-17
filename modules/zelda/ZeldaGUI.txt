@@ -4,7 +4,6 @@ set(ZELDA_GUI_SOURCES
 ################################
 # Add or remove files here
 ################################
-src/play_midi.cpp
 src/zc/decorations.cpp
 src/zc/ending.cpp
 src/zc/matrix.cpp

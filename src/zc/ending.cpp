@@ -6,7 +6,7 @@
 #include "zc/ending.h"
 #include "zc/zelda.h"
 #include "base/zsys.h"
-#include "play_midi.h"
+#include <sound/play_midi.h>
 #include "sprite.h"
 #include "items.h"
 #include "pal.h"
@@ -353,7 +353,7 @@ void ending()
 		if(f==861)
 		{
 			blit(scrollbuf,framebuf,0,0,0,playing_field_offset!=0?168:0,256,passive_subscreen_height);
-			try_zcmusic("zelda.nsf", qstpath, moduledata.ending_track, ZC_MIDI_ENDING, get_emusic_volume());
+			playback::try_zcmusic("zelda.nsf", qstpath, moduledata.ending_track, ZC_MIDI_ENDING, get_emusic_volume());
 			
 			for(int32_t y=0; y<224; y++)
 			{
@@ -580,7 +580,7 @@ void ending()
 	
 	
 	
-	zc_stop_midi();
+	midi::play_midi::stop();
 	if (get_qr(qr_OLD_SCRIPT_VOLUME))
 	{
 		//restore user volume if it was changed by script
@@ -609,13 +609,7 @@ void ending()
 		pan_style = (int32_t)FFCore.usr_panstyle;
 	}
 
-	if(zcmusic != NULL)
-	{
-		zcmusic_stop(zcmusic);
-		zcmusic_unload_file(zcmusic);
-		zcmusic = NULL;
-		zcmixer->newtrack = NULL;
-	}
+	g_zcmixer->stop_and_unload_current_track();
 	FFCore.skip_ending_credits = 0;
 	
 	//  setPackfilePassword(datapwd);
@@ -691,7 +685,7 @@ void ending_scripted()
         }
         
         ringcolor(false);
-	zc_stop_midi();
+	midi::play_midi::stop();
 	if (get_qr(qr_OLD_SCRIPT_VOLUME))
 	{
 		//restore user volume if it was changed by script
@@ -720,13 +714,8 @@ void ending_scripted()
 	{
 		pan_style = (int32_t)FFCore.usr_panstyle;
 	}
-	if(zcmusic != NULL)
-	{
-		zcmusic_stop(zcmusic);
-		zcmusic_unload_file(zcmusic);
-		zcmusic = NULL;
-		zcmixer->newtrack = NULL;
-	}
+
+	g_zcmixer->stop_and_unload_current_track();
 	FFCore.skip_ending_credits = 0;
     
 	//  setPackfilePassword(datapwd);

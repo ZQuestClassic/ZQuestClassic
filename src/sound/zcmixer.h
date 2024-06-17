@@ -1,34 +1,48 @@
-#ifndef _ZCMIXER_H_
-#define _ZCMIXER_H_
+#pragma once
 
 #include <cstdint>
-#include "sound/zcmusic.h"
+#include <memory>
+#include <iostream>
 
-#if defined ZCM_DLL
-#define ZCM_EXTERN extern __declspec(dllexport)
-#elif defined ZCM_DLL_IMPORT
-#define ZCM_EXTERN extern __declspec(dllimport)
-#else
-#define ZCM_EXTERN extern
-#endif
+#include <sound/zcmusic.h>
 
-typedef struct
-{
-    ZCMUSIC *newtrack;
-    ZCMUSIC *oldtrack;
+namespace zcmixer {
+    class ZCMIXER {
+        static inline std::atomic<int32_t> cnt = 0;
+    public:
 
-    int32_t fadeinframes;
-    int32_t fadeinmaxframes;
-    int32_t fadeindelay;
+        int32_t id = cnt++;
+        zcmusic::ZCMUSIC_owner_ptr_t oldtrack;
+        zcmusic::ZCMUSIC_owner_ptr_t newtrack;
+        zcmusic::ZCMUSIC_owner_ptr_t current_track;
 
-    int32_t fadeoutframes;
-    int32_t fadeoutmaxframes;
-    int32_t fadeoutdelay;
-} ZCMIXER;
+        int32_t fadeinframes = 0;
+        int32_t fadeinmaxframes = 0;
+        int32_t fadeindelay = 0;
 
-ZCM_EXTERN ZCMIXER* zcmixer_create();
-ZCM_EXTERN void zcmixer_update(ZCMIXER* mix, int32_t basevol, int32_t uservol, bool oldscriptvol);
-ZCM_EXTERN void zcmixer_exit(ZCMIXER* &mix);
+        int32_t fadeoutframes = 0;
+        int32_t fadeoutmaxframes = 0;
+        int32_t fadeoutdelay = 0;
 
-#undef ZCM_EXTERN
-#endif
+    public :
+        virtual ~ZCMIXER();
+
+        void update(int32_t basevol, int32_t uservol, bool oldscriptvol);
+
+        void stop_and_unload_current_track();
+
+        bool setup_transition(int32_t fadeinframes, int32_t fadeoutframes, int32_t fademiddleframes);
+    };
+
+    using ZCMIXER_owner_ptr_t = std::unique_ptr<ZCMIXER>;
+
+    std::ostream &operator<<(std::ostream &os, const zcmixer::ZCMIXER &mix);
+
+    ZCMIXER_owner_ptr_t create();
+
+    void update(ZCMIXER *mix, int32_t basevol, int32_t uservol, bool oldscriptvol);
+
+    void exit(ZCMIXER_owner_ptr_t mix);
+} // nameaspace zcmixer
+
+inline zcmixer::ZCMIXER_owner_ptr_t g_zcmixer;

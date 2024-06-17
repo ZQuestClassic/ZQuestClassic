@@ -6,16 +6,16 @@
 // which will route to the original allegro4 api on all platforms except emscripten,
 // which will instead load the MIDI file upfront and kick it over to SDL_Mixer.
 
-#ifndef __play_midi_h_
-#define __play_midi_h_
+#pragma once
 
-#include "base/zc_alleg.h"
+#include <allegro/midi.h>
 
-int zc_play_midi(MIDI *midi, int loop);
-void zc_midi_pause();
-void zc_midi_resume();
-void zc_stop_midi();
-void zc_set_volume(int digi_volume, int midi_volume);
-void zc_midi_seek(int pos);
-
-#endif
+namespace midi::play_midi
+{
+    int play(MIDI* midi, int loop);
+    void pause();
+    void resume();
+    void stop();
+    void set_volume(int digi_volume, int midi_volume);
+    void seek(int pos);
+} // namespace midi::play_midi

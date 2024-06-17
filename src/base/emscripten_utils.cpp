@@ -61,7 +61,7 @@ void em_sync_fs() {
 
 // Many files don't have real data until we know the user needs it.
 // See em_init_fs
-EM_ASYNC_JS(void, em_fetch_file_, (const char *path), {
+EM_ASYNC_JS(void, em_fetch_file_, (std::string_view path), {
   try {
     path = UTF8ToString(path);
     if (!path.startsWith('/')) path = '/' + path;
@@ -80,26 +80,27 @@ EM_ASYNC_JS(void, em_fetch_file_, (const char *path), {
     console.error(`error loading ${path}`, e);
   }
 });
-void em_fetch_file(std::string path) {
-  em_fetch_file_(path.c_str());
+
+void em_fetch_file(std::string_view path) {
+  em_fetch_file_(path);
 }
 
 // TODO: is this necessary still? Can we just always attempt to fetch a file (em_fetch_file_ handles
 // when a file is already present)?
-bool em_is_lazy_file(std::string path) {
-  path = (fs::current_path() / path).string();
+bool em_is_lazy_file(std::string_view path) {
+  const std::string full_path = (fs::current_path() / path).string();
 
-  if (strncmp("/quests/purezc/", path.c_str(), strlen("/quests/purezc/")) == 0) {
+  if (full_path ==  "/quests/purezc/") {
     return true;
   }
 
-  if (strncmp("/tilesets/", path.c_str(), strlen("/tilesets/")) == 0) {
+  if (full_path == "/tilesets/") {
     return true;
   }
 
   return EM_ASM_INT({
     return ZC_Constants.files.includes(UTF8ToString($0));
-  }, path.c_str());
+  }, full_path.data());
 }
 
 std::string get_initial_file_dialog_folder() {

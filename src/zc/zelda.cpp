@@ -26,7 +26,7 @@
 #include "zc/zasm_optimize.h"
 #include "zc/zasm_utils.h"
 #include "zscriptversion.h"
-#include "sound/zcmusic.h"
+#include <sound/zcmusic.h>
 #include "base/zdefs.h"
 #include "zc/zelda.h"
 #include "tiles.h"
@@ -34,7 +34,7 @@
 #include "pal.h"
 #include "base/zsys.h"
 #include "base/zapp.h"
-#include "play_midi.h"
+#include <sound/play_midi.h>
 #include "qst.h"
 #include "zc/matrix.h"
 #include "gui/jwin.h"
@@ -118,8 +118,10 @@ static zc_randgen drunk_rng;
 
 // MSVC fix
 #if _MSC_VER >= 1900
+namespace {
 FILE _iob[] = { *stdin, *stdout, *stderr };
-extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
+FILE * __cdecl __iob_func(void) { return _iob; }
+} // namespace
 #endif
 
 #if DEVLEVEL > 0
@@ -128,8 +130,6 @@ bool dev_debug = false; //UNUSED
 bool dev_timestmp = false;
 #endif
 
-ZCMUSIC *zcmusic = NULL;
-ZCMIXER *zcmixer = NULL;
 int32_t colordepth;
 int32_t db=0;
 int32_t detail_int[10];                                         //temporary holder for things you want to detail
@@ -3159,10 +3159,10 @@ void game_loop()
 				int32_t digi_vol, midi_vol;
 			
 				get_volume(&digi_vol, &midi_vol);
-				zc_stop_midi();
+				midi::play_midi::stop();
 				jukebox(currmidi);
-				zc_set_volume(digi_vol, midi_vol);
-				zc_midi_seek(paused_midi_pos);
+				midi::play_midi::set_volume(digi_vol, midi_vol);
+				midi::play_midi::seek(paused_midi_pos);
 			}
 			midi_suspended = midissuspNONE;
 		}
@@ -4487,8 +4487,8 @@ int main(int argc, char **argv)
 	set_clip_state(pricesdisplaybuf, 1);
 	
 	Z_message("Initializing music... ");
-	zcmusic_init();
-	zcmixer = zcmixer_create();
+	zcmusic::init();
+	g_zcmixer = zcmixer::create();
 	Z_message("OK\n");
 	
 	//  int32_t mode = VidMode;                                       // from config file
@@ -5395,8 +5395,8 @@ void quit_game()
 	destroy_bitmap(lightbeam_bmp);
 		
 	al_trace("SFX... \n");
-	zcmusic_exit();
-	zcmixer_exit(zcmixer);
+	zcmusic::exit();
+	zcmixer::exit(std::move(g_zcmixer));
 	
 	for(int32_t i=0; i<WAV_COUNT; i++)
 	{

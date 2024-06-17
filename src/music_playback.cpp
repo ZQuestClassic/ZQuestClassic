@@ -1,153 +1,132 @@
 #include "music_playback.h"
-#include "sound/zcmusic.h"
-#include "sound/zcmixer.h"
-#include "base/general.h"
-#include "play_midi.h"
-#include "base/qrs.h"
+#include <sound/zcmusic.h>
+#include <sound/zcmixer.h>
+#include <sound/play_midi.h>
+// #include "base/qrs.h"
 #include "zc/zc_sys.h"
 
-extern ZCMUSIC* zcmusic;
-extern ZCMIXER* zcmixer;
+#include <iostream>
+// #include <base/zc_math.h>
 
-// Run an NSF, or a MIDI if the NSF is missing somehow.
-bool try_zcmusic(const char* filename, const char* path, int32_t track, int32_t midi, int32_t vol, int32_t fadeoutframes)
+namespace playback
 {
-	ZCMUSIC* newzcmusic = zcmusic_load_for_quest(filename, path);
+    // Run an NSF, or a MIDI if the NSF is missing somehow.
+    bool try_zcmusic(const std::string_view filename, const std::string_view path, const zcmusic::track_number_t track,
+                     const int32_t midi, const zcmusic::volume_t vol, const int32_t fadeoutframes)
+    {
+        std::cout << "try_zcmusic\nfilename: " << filename << "\npath: " << path << "\nvol: " << static_cast<int32_t>(vol)
+                  << "\n";
 
-	// Found it
-	if (newzcmusic != NULL)
-	{
-		newzcmusic->fadevolume = 10000;
-		newzcmusic->fadeoutframes = fadeoutframes;
+        auto newzcmusic{zcmusic::load_for_quest(filename, path)};
 
-		zcmixer->newtrack = newzcmusic;
+        // Found it
+        if (newzcmusic)
+        {
+            newzcmusic->fadevolume = 10000;
+            newzcmusic->fadeoutframes = fadeoutframes;
 
-		zcmusic_stop(zcmusic);
-		zcmusic_unload_file(zcmusic);
-		zc_stop_midi();
+            g_zcmixer->newtrack = std::move(newzcmusic);
 
-		zcmusic = newzcmusic;
-		zcmusic_play(zcmusic, vol);
+            auto &current_track{g_zcmixer->current_track};
+            current_track.reset();
+            midi::play_midi::stop();
 
-		if (track > 0)
-			zcmusic_change_track(zcmusic, track);
+            current_track = std::move(g_zcmixer->newtrack);
+            std::cout << "current_track: " << *g_zcmixer << "\n";
+            current_track->play(vol);
 
-		return true;
-	}
-	#ifndef IS_EDITOR
-	// Not found, play MIDI - unless this was called by a script (yay, magic numbers)
-	else if (midi > -1000)
-		jukebox(midi);
-	#endif
+            if (track > 0)
+            {
+                current_track->change_track(track);
+            }
 
-	return false;
-}
+            return true;
+        }
+#ifndef IS_EDITOR
+        // Not found, play MIDI - unless this was called by a script (yay, magic numbers)
+        else if (midi > -1000)
+            jukebox(midi);
+#endif
 
-bool play_enh_music_crossfade(const char* name, const char* path, int32_t track, int32_t vol, int32_t fadeinframes, int32_t fadeoutframes, int32_t fademiddleframes, int32_t startpos, bool revertonfail)
-{
-	double fadeoutpct = 1.0;
-	// If there was an old fade going, use that as a multiplier for the new fade out
-	if (zcmixer->newtrack != NULL)
-	{
-		fadeoutpct = double(zcmixer->newtrack->fadevolume) / 10000.0;
-	}
+        return false;
+    }
 
-	ZCMUSIC* oldold = zcmixer->oldtrack;
-	bool ret = false;
+    bool play_enh_music_crossfade(const std::string_view name, const std::string_view path,
+                                  const zcmusic::track_number_t track, const zcmusic::volume_t vol,
+                                  const int32_t fadeinframes, const int32_t fadeoutframes,
+                                  const int32_t fademiddleframes,
+                                  const zcmusic::cursor_pos_t startpos, const bool revertonfail)
+    {
+        std::cout << "play_enh_music_crossfade\nfilename: " << name << "\npath: " << path << "\n";
 
-	if (name == NULL)
-	{
-		// Pass currently playing music off to the mixer
-		zcmixer->oldtrack = zcmusic;
-		// Do not play new music
-		zcmusic = NULL;
-		zcmixer->newtrack = NULL;
+        // TODO: remove comments
+        // auto &oldtrack = zcmixer->current_track.get();
 
-		zcmixer->fadeinframes = fadeinframes;
-		zcmixer->fadeinmaxframes = fadeinframes;
-		zcmixer->fadeoutframes = zc_max(fadeoutframes * fadeoutpct, 1);
-		zcmixer->fadeoutmaxframes = fadeoutframes;
-		if (fademiddleframes < 0)
-		{
-			zcmixer->fadeindelay = 0;
-			zcmixer->fadeoutdelay = -fademiddleframes;
-		}
-		else
-		{
-			zcmixer->fadeindelay = fademiddleframes;
-			zcmixer->fadeoutdelay = 0;
-		}
-		if (zcmixer->oldtrack != NULL)
-			zcmixer->oldtrack->fadevolume = 10000;
-		if (zcmixer->newtrack != NULL)
-			zcmixer->newtrack->fadevolume = 0;
-	}
-	else // Pointer to a string..
-	{
-		// Pass currently playing music to the mixer
-		zcmixer->oldtrack = zcmusic;
-		zcmusic = NULL;
-		zcmixer->newtrack = NULL;
+        if (name.empty())
+        {
+            // Pass currently playing music off to the mixer
+            g_zcmixer->oldtrack = std::move(g_zcmixer->current_track);
+            // Do not play new music
+            g_zcmixer->newtrack.reset();
 
-		ret = try_zcmusic(name, path, track, -1000, vol, fadeoutframes);
-		// If new music was found
-		if (ret)
-		{
-			zcmixer->newtrack = zcmusic;
-			zcmixer->fadeinframes = fadeinframes;
-			zcmixer->fadeinmaxframes = fadeinframes;
-			zcmixer->fadeoutframes = zc_max(fadeoutframes * fadeoutpct, 1);
-			zcmixer->fadeoutmaxframes = fadeoutframes;
-			if (fademiddleframes < 0)
-			{
-				zcmixer->fadeindelay = 0;
-				zcmixer->fadeoutdelay = -fademiddleframes;
-			}
-			else
-			{
-				zcmixer->fadeindelay = fademiddleframes;
-				zcmixer->fadeoutdelay = 0;
-			}
-			if (startpos > 0)
-				zcmusic_set_curpos(zcmixer->newtrack, startpos);
-			if (zcmixer->oldtrack != NULL)
-				zcmixer->oldtrack->fadevolume = fadeoutframes > 0 ? 10000 : 0;
-			if (zcmixer->newtrack != NULL)
-				zcmixer->newtrack->fadevolume = fadeinframes > 0 ? 0 : 10000;
-		}
-		else if (revertonfail)
-		{
-			// Switch back to the old music
-			zcmusic = zcmixer->oldtrack;
-			zcmixer->newtrack = NULL;
-			zcmixer->oldtrack = NULL;
-		}
-	}
+            g_zcmixer->setup_transition(fadeinframes, fadeoutframes, fademiddleframes);
 
-	// If there was already an old track playing, stop it
-	if (oldold != NULL)
-	{
-		// Don't allow it to null both tracks if running twice in a row
-		if (zcmixer->newtrack == NULL && zcmixer->oldtrack == NULL)
-		{
-			zcmixer->oldtrack = oldold;
+            if (g_zcmixer->oldtrack)
+                g_zcmixer->oldtrack->fadevolume = 10000;
+            if (g_zcmixer->newtrack)
+                g_zcmixer->newtrack->fadevolume = 0;
 
-			if (oldold->fadeoutframes > 0)
-			{
-				zcmixer->fadeoutframes = zc_max(oldold->fadeoutframes * fadeoutpct, 1);
-				zcmixer->fadeoutmaxframes = oldold->fadeoutframes;
-				if (zcmixer->oldtrack != NULL)
-					zcmixer->oldtrack->fadevolume = 10000;
-				oldold->fadeoutframes = 0;
-			}
-		}
-		else
-		{
-			zcmusic_stop(oldold);
-			zcmusic_unload_file(oldold);
-			oldold = NULL;
-		}
-	}
+            return false;
+        }
+        else // Pointer to a string..
 
-	return ret;
-}
+            // Pass currently playing music to the mixer
+        g_zcmixer->oldtrack = std::move(g_zcmixer->current_track);
+        g_zcmixer->newtrack.reset();
+
+        // If new music was found try_zcmusic sets zcmixer->current_track
+        if (try_zcmusic(name, path, track, -1000, vol, fadeoutframes))
+        {
+            g_zcmixer->newtrack = std::move(g_zcmixer->current_track);
+
+            g_zcmixer->setup_transition(fadeinframes, fadeoutframes, fademiddleframes);
+
+            if (startpos > 0)
+                g_zcmixer->newtrack->set_curpos(startpos);
+            if (g_zcmixer->oldtrack)
+                g_zcmixer->oldtrack->fadevolume = fadeoutframes > 0 ? 10000 : 0;
+            if (g_zcmixer->newtrack)
+                g_zcmixer->newtrack->fadevolume = fadeinframes > 0 ? 0 : 10000;
+            return true;
+        }
+
+        if (revertonfail)
+        {
+            // Switch back to the old music
+            g_zcmixer->current_track = std::move(g_zcmixer->oldtrack);
+            g_zcmixer->newtrack.reset();
+        }
+
+        // TODO: Remove comment block
+        // // If there was already an old track playing, stop it
+        // if (oldold) {
+        //     // Don't allow it to null both tracks if running twice in a row
+        //     if (zcmixer->newtrack == nullptr && zcmixer->oldtrack == nullptr) {
+        //         zcmixer->oldtrack = oldold;
+        //
+        //         if (oldold->fadeoutframes > 0) {
+        //             zcmixer->fadeoutframes = zc_max(oldold->fadeoutframes * fadeoutpct, 1);
+        //             zcmixer->fadeoutmaxframes = oldold->fadeoutframes;
+        //             if (zcmixer->oldtrack != nullptr)
+        //                 zcmixer->oldtrack->fadevolume = 10000;
+        //             oldold->fadeoutframes = 0;
+        //         }
+        //     } else {
+        //         zcmusic::unload_file(oldold);
+        //         oldold = nullptr;
+        //     }
+        // }
+
+        return false;
+    }
+} // namespace playback

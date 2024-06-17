@@ -50,7 +50,7 @@ extern const char *imgstr[ftMAX];
 extern char ns_string[4];
 extern const char *old_item_string[iLast];
 extern const char *old_weapon_string[wLast];
-extern const char *old_sfx_string[Z35];
+//extern const char *old_sfx_string[Z35]; // ONLY used in qst.cpp
 extern char *item_string[MAXITEMS];
 extern char *weapon_string[MAXWPNS];
 extern char *sfx_string[WAV_COUNT];

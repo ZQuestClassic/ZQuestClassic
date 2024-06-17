@@ -773,11 +773,11 @@ int32_t CScriptDrawingCommands::GetCount()
 
 void FFScript::Waitframe(bool allowwavy, bool sfxcleanup)
 {
-	if(zcmusic!=NULL)
-	{
-		zcmusic_poll();
+	if (g_zcmixer->current_track) {
+		g_zcmixer->current_track->poll();
 	}
-	zcmixer_update(zcmixer, emusic_volume, FFCore.usr_music_volume, get_qr(qr_OLD_SCRIPT_VOLUME));
+
+	zcmixer::update(g_zcmixer.get(), emusic_volume, FFCore.usr_music_volume, get_qr(qr_OLD_SCRIPT_VOLUME));
 	
 	while(Paused && !Advance && !Quit)
 	{
@@ -794,13 +794,12 @@ void FFScript::Waitframe(bool allowwavy, bool sfxcleanup)
 		}
 		
 #endif
-		
+		if (g_zcmixer->current_track) {
 		// to keep music playing
-		if(zcmusic!=NULL)
-		{
-			zcmusic_poll();
+			g_zcmixer->current_track->poll();
 		}
-		zcmixer_update(zcmixer, emusic_volume, FFCore.usr_music_volume, get_qr(qr_OLD_SCRIPT_VOLUME));
+
+		zcmixer::update(g_zcmixer.get(), emusic_volume, FFCore.usr_music_volume, get_qr(qr_OLD_SCRIPT_VOLUME));
 
 		update_hw_screen();
 	}
@@ -24788,9 +24787,11 @@ void set_register(int32_t arg, int32_t value)
 			DMaps[ri->dmapsref].tmusic_loop_start = value; 
 			if (ri->dmapsref == currdmap)
 			{
-				if (FFCore.doing_dmap_enh_music(currdmap))
+				if (FFCore.doing_dmap_enh_music(currdmap) && g_zcmixer->current_track)
 				{
-					zcmusic_set_loop(zcmusic, double(DMaps[currdmap].tmusic_loop_start / 10000.0), double(DMaps[currdmap].tmusic_loop_end / 10000.0));
+					if (g_zcmixer->current_track) {
+						g_zcmixer->current_track->set_loop(double(DMaps[currdmap].tmusic_loop_start / 10000.0), double(DMaps[currdmap].tmusic_loop_end / 10000.0));
+					}
 				}
 			}
 			break;
@@ -24800,9 +24801,11 @@ void set_register(int32_t arg, int32_t value)
 			DMaps[ri->dmapsref].tmusic_loop_end = value;
 			if (ri->dmapsref == currdmap)
 			{
-				if (FFCore.doing_dmap_enh_music(currdmap))
+				if (FFCore.doing_dmap_enh_music(currdmap) && g_zcmixer->current_track)
 				{
-					zcmusic_set_loop(zcmusic, double(DMaps[currdmap].tmusic_loop_start / 10000.0), double(DMaps[currdmap].tmusic_loop_end / 10000.0));
+					if (g_zcmixer->current_track) {
+						g_zcmixer->current_track->set_loop(double(DMaps[currdmap].tmusic_loop_start / 10000.0), double(DMaps[currdmap].tmusic_loop_end / 10000.0));
+					}
 				}
 			}
 			break;
@@ -24814,10 +24817,11 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case DMAPDATAXFADEOUT:
 		{
+			auto & current_track = g_zcmixer->current_track;
 			DMaps[ri->dmapsref].tmusic_xfade_out = (value / 10000);
-			if (DMaps[currdmap].tmusic[0]!=0 && strcmp(DMaps[ri->dmapsref].tmusic, zcmusic->filename) == 0)
+			if (DMaps[currdmap].tmusic[0] != 0 && current_track->filename == DMaps[ri->dmapsref].tmusic)
 			{
-				zcmusic->fadeoutframes = (value / 10000);
+				current_track->fadeoutframes = (value / 10000);
 			}
 			break;
 		}
@@ -35362,15 +35366,16 @@ void FFScript::do_adjustvolume(const bool v)
 		int32_t perc = SH::get_arg(sarg1, v);
 		FFCore.usr_music_volume = vbound(perc, 0, 10000 * 100);
 
-		if (zcmusic != NULL)
+		auto & current_track = g_zcmixer->current_track;
+		if (current_track)
 		{
-			if (zcmusic->playing != ZCM_STOPPED)
+			if (current_track->get_play_status() != zcmusic::ZCM_PLAY_STATUS::STOPPED)
 			{
 				int32_t temp_volume = emusic_volume;
 				if (!get_qr(qr_OLD_SCRIPT_VOLUME))
 					temp_volume = (emusic_volume * FFCore.usr_music_volume) / 10000 / 100;
-				temp_volume = (temp_volume * zcmusic->fadevolume) / 10000;
-				zcmusic_play(zcmusic, temp_volume);
+				temp_volume = (temp_volume * current_track->fadevolume) / 10000;
+				current_track->play(zcmusic::volume_t{temp_volume});
 				return;
 			}
 		}
@@ -35466,7 +35471,7 @@ void do_enh_music(bool v)
 		ArrayH::getString(arrayptr, filename_str, 256);
 		strncpy(filename_char, filename_str.c_str(), 255);
 		filename_char[255]='\0';
-		ret=try_zcmusic(filename_char, qstpath, track, -1000, get_emusic_volume());
+		ret= playback::try_zcmusic(filename_char, qstpath, track, -1000, get_emusic_volume());
 		set_register(sarg2, ret ? 10000 : 0);
 	}
 }
@@ -35482,7 +35487,7 @@ void do_enh_music_crossfade()
 
 	if (arrayptr == 0)
 	{
-		bool ret = play_enh_music_crossfade(NULL, qstpath, track, get_emusic_volume(), fadeoutframes, fadeinframes, fademiddleframes, startpos);
+		const bool ret = playback::play_enh_music_crossfade("", qstpath, track, get_emusic_volume(), fadeoutframes, fadeinframes, fademiddleframes, startpos);
 		ri->d[rEXP1] = ret ? 10000 : 0;
 	}
 	else
@@ -35492,35 +35497,26 @@ void do_enh_music_crossfade()
 		ArrayH::getString(arrayptr, filename_str, 256);
 		strncpy(filename_char, filename_str.c_str(), 255);
 		filename_char[255] = '\0';
-		bool ret = play_enh_music_crossfade(filename_char, qstpath, track, get_emusic_volume(), fadeoutframes, fadeinframes, fademiddleframes, startpos, true);
+		bool ret = playback::play_enh_music_crossfade(filename_char, qstpath, track, get_emusic_volume(), fadeoutframes, fadeinframes, fademiddleframes, startpos, true);
 		ri->d[rEXP1] = ret ? 10000 : 0;
 	}
 }
 
 bool FFScript::doing_dmap_enh_music(int32_t dm)
 {
-	if (DMaps[dm].tmusic[0] != 0)
+	std::string_view tmusic = DMaps[dm].tmusic;
+	const auto &current_track = g_zcmixer->current_track;
+	if (current_track == nullptr)
+		return false;
+
+	switch (current_track->type)
 	{
-		if (zcmusic != NULL)
-		{
-			if (strcmp(zcmusic->filename, DMaps[dm].tmusic) == 0)
-			{
-				switch (zcmusic_get_type(zcmusic))
-				{
-				case ZCMF_OGG:
-				case ZCMF_MP3:
-					return true;
-				case ZCMF_DUH:
-				case ZCMF_GME:
-					if (zcmusic->track == DMaps[dm].tmusictrack)
-					{
-						return true;
-					}
-				}
-			}
-		}
+	case zcmusic::ZCMF_TYPE::DUH:
+	case zcmusic::ZCMF_TYPE::GME:
+		if (current_track->filename != tmusic)
+			return false;
 	}
-	return false;
+	return true;
 }
 
 bool FFScript::can_dmap_change_music(int32_t dm)
@@ -35547,7 +35543,7 @@ void FFScript::do_set_music_position(const bool v)
 void FFScript::do_get_music_position()
 {
 	int32_t pos = replay_get_state(ReplayStateType::MusicPosition, [](){
-		return zcmusic_get_curpos(zcmusic);
+		return g_zcmixer->current_track ? g_zcmixer->current_track->get_curpos() : 0;
 	});
 	set_register(sarg1, pos);
 }

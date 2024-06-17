@@ -15,7 +15,7 @@
 
 #include "base/zdefs.h"
 #include "music_playback.h"
-#include "sound/zcmusic.h"
+#include <sound/zcmusic.h>
 #include "zc/zc_sys.h"
 #include "zc/zelda.h"
 #include "base/zsys.h"
@@ -1476,14 +1476,15 @@ static void select_game(bool skip = false)
 
 static void actual_titlescreen()
 {
-	int starting_volume = 0;
+	zcmusic::volume_t starting_volume{0};
 	if (exists("assets/title_music.mp3"))
 	{
-		try_zcmusic("assets/title_music.mp3", "", 0, 0, starting_volume = get_emusic_volume());
+		playback::try_zcmusic("assets/title_music.mp3", "", 0, 0, starting_volume = get_emusic_volume());
 	}
 	else
 	{
-		try_zcmusic("assets/zc/ZC_Forever_HD.mp3", "", 0, 0, starting_volume = get_emusic_volume() * 0.7);
+		starting_volume = get_emusic_volume() * 0.7;
+		playback::try_zcmusic("assets/zc/ZC_Forever_HD.mp3", "", 0, 0, starting_volume = get_emusic_volume() * 0.7);
 	}
 
 	init_NES_mode();
@@ -1523,7 +1524,7 @@ static void actual_titlescreen()
 
 		if (!show_text)
 		{
-			int pos = zcmusic_get_curpos(zcmusic);
+			int pos = g_zcmixer->current_track ? g_zcmixer->current_track->get_curpos(): 0;
 			if (pos >= 0)
 			{
 				show_text = pos >= 59000;
@@ -1553,10 +1554,14 @@ static void actual_titlescreen()
 	final_y = -5;
 	duration = 30;
 	counter = 0;
+
+	auto & current_track = g_zcmixer->current_track;
 	while (!Quit && counter <= duration)
 	{
 		double ratio = (double)counter / duration;
-		zcmusic_set_volume(zcmusic, starting_volume - starting_volume * std::sqrt(ratio));
+		if (g_zcmixer->current_track) {
+			g_zcmixer->current_track->set_volume(starting_volume - starting_volume * std::sqrt(ratio));
+		}
 
 		auto t = logo->get_transform();
 		t.y = starting_y + (final_y - starting_y) * ratio;
@@ -1566,7 +1571,9 @@ static void actual_titlescreen()
 		advanceframe(true);
 	}
 
-	zcmusic_stop(zcmusic);
+	if (g_zcmixer->current_track) {
+		g_zcmixer->current_track->stop();
+	}
 }
 
 void titlescreen(int32_t lsave)
@@ -1641,7 +1648,9 @@ void titlescreen(int32_t lsave)
 
 	if(!Quit)
 	{
-		zcmusic_stop(zcmusic);
+		if (g_zcmixer->current_track) {
+			g_zcmixer->current_track->stop();
+		}
 		init_game();
 	}
 }

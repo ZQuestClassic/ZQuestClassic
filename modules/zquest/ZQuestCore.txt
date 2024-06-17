@@ -6,7 +6,6 @@ set(ZQUEST_CORE_SOURCES
 ################################
 src/defdata.cpp
 src/gamedata.cpp
-src/midi.cpp
 src/md5.cpp
 src/particles.cpp
 src/qst.cpp

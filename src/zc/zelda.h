@@ -12,8 +12,8 @@
 #include "base/zc_array.h"
 #include "zc/zc_sys.h"
 #include "sfx.h"
-#include "sound/zcmusic.h"
-#include "sound/zcmixer.h"
+#include <sound/zcmusic.h>
+#include <sound/zcmixer.h>
 #include "gui/jwin.h"
 #include "gamedata.h"
 #include "base/zsys.h"
@@ -244,10 +244,6 @@ void update_hw_screen();
 /**********************************/
 /******** Global Variables ********/
 /**********************************/
-
-
-extern ZCMUSIC *zcmusic;
-extern ZCMIXER* zcmixer;
 
 extern int32_t colordepth;
 extern int32_t db;

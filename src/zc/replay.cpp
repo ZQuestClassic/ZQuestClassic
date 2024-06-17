@@ -644,9 +644,11 @@ static void set_version()
 static void load_replay(std::filesystem::path path)
 {
 #ifdef __EMSCRIPTEN__
-    if (em_is_lazy_file(path))
     {
-        em_fetch_file(path);
+        const std::string path_as_string = path.string();
+        if (em_is_lazy_file(path_as_string)) {
+            em_fetch_file(path_as_string);
+        }
     }
 #endif
 

@@ -6,7 +6,7 @@
 #include "zq/zq_class.h"
 #include "zc_list_data.h"
 #include "zc/zc_sys.h"
-#include "play_midi.h"
+#include <sound/play_midi.h>
 #include "info.h"
 #include "subscr.h"
 #include <fmt/format.h>
@@ -18,6 +18,7 @@ static size_t editdmap_tab2 = 0;
 static int32_t dmap_use_script_data = 2;
 extern int32_t midi_volume;
 extern script_data* dmapscripts[NUMSCRIPTSDMAP];
+
 #define DSCRDATA_NONE    0x00
 #define DSCRDATA_ACTIVE  0x01
 #define DSCRDATA_PASSIVE 0x02
@@ -56,16 +57,16 @@ EditDMapDialog::EditDMapDialog(int32_t slot) :
 	list_items(GUI::ZCListData::items(false, false)),
 	list_dmapscript(GUI::ZCListData::dmap_script())
 {
-	ZCMUSIC* tempdmapzcmusic = zcmusic_load_for_quest(local_dmap.tmusic, filepath);
+	zcmusic::ZCMUSIC_owner_ptr_t tempdmapzcmusic = zcmusic::load_for_quest(local_dmap.tmusic, filepath);
 
 	int32_t numtracks = 1;
-	if (tempdmapzcmusic != NULL)
+	if (tempdmapzcmusic)
 	{
-		numtracks = zcmusic_get_tracks(tempdmapzcmusic);
+		numtracks = tempdmapzcmusic->get_tracks();
 		numtracks = (numtracks < 2) ? 1 : numtracks;
 		list_tracks = GUI::ListData::numbers(false, 1, numtracks);
 
-		zcmusic_unload_file(tempdmapzcmusic);
+		tempdmapzcmusic.reset();
 	}
 }
 
@@ -74,15 +75,12 @@ bool EditDMapDialog::disableEnhancedMusic(bool disableontracker)
 	if (local_dmap.tmusic[0] == 0)
 		return true;
 
-	ZCMUSIC* tempdmapzcmusic = zcmusic_load_for_quest(local_dmap.tmusic, filepath);
-	bool isTracker = true;
+	zcmusic::ZCMUSIC_owner_ptr_t tempdmapzcmusic = zcmusic::load_for_quest(local_dmap.tmusic, filepath);
 
-	if (tempdmapzcmusic != NULL)
-	{
-		if (disableontracker && !(tempdmapzcmusic->type == ZCMF_MP3 || tempdmapzcmusic->type == ZCMF_OGG))
-			return true;
-	}
-	else
+	if (!tempdmapzcmusic)
+		return true;
+
+	if (disableontracker && !(tempdmapzcmusic->type == zcmusic::ZCMF_TYPE::MP3 || tempdmapzcmusic->type == zcmusic::ZCMF_TYPE::OGG))
 		return true;
 
 	return false;
@@ -97,15 +95,9 @@ bool EditDMapDialog::disableMusicTracks()
 
 void EditDMapDialog::silenceMusicPreview()
 {
-	zc_stop_midi();
+	midi::play_midi::stop();
 
-	if (zcmusic != NULL)
-	{
-		zcmusic_stop(zcmusic);
-		zcmusic_unload_file(zcmusic);
-		zcmusic = NULL;
-		zcmixer->newtrack = NULL;
-	}
+	g_zcmixer->stop_and_unload_current_track();
 }
 
 void EditDMapDialog::musicPreview(bool previewloop)
@@ -115,22 +107,24 @@ void EditDMapDialog::musicPreview(bool previewloop)
 	if (local_dmap.tmusic[0] == 0)
 	{
 		if (local_dmap.midi > 3)
-			zc_play_midi((MIDI*)customtunes[local_dmap.midi-4].data, true);
+			midi::play_midi::play((MIDI*)customtunes[local_dmap.midi-4].data, true);
 	}
 	else
 	{
 		if(local_dmap.tmusic[0])
 		{
-			if(play_enh_music_crossfade(local_dmap.tmusic, filepath, local_dmap.tmusictrack, midi_volume, (previewloop || musicpreview_saved) ? 0 : local_dmap.tmusic_xfade_in, local_dmap.tmusic_xfade_out))
+			if(playback::play_enh_music_crossfade(local_dmap.tmusic, filepath, local_dmap.tmusictrack, zcmusic::volume_t{midi_volume}, (previewloop || musicpreview_saved) ? 0 : local_dmap.tmusic_xfade_in, local_dmap.tmusic_xfade_out))
 			{
-				if (previewloop)
+				const auto & current_track = g_zcmixer->current_track;
+				if (current_track && previewloop)
 				{
-					int32_t startpos = zc_max(local_dmap.tmusic_loop_end - 10000, 0);
-					zcmusic_set_curpos(zcmusic, startpos);
+					const int32_t startpos = zc_max(local_dmap.tmusic_loop_end - 10000, 0);
+					current_track->set_curpos(startpos);
 				}
-				if (musicpreview_saved)
-					zcmusic_set_curpos(zcmusic, musicpreview_saved);
-				zcmusic_set_loop(zcmusic, double(local_dmap.tmusic_loop_start / 10000.0), double(local_dmap.tmusic_loop_end / 10000.0));
+				if (musicpreview_saved) {
+					current_track->set_curpos(musicpreview_saved);
+				}
+				current_track->set_loop(double(local_dmap.tmusic_loop_start / 10000.0), double(local_dmap.tmusic_loop_end / 10000.0));
 			}
 		}
 	}
@@ -253,10 +247,12 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 		use_vsync = true,
 		onTick = [&]()
 		{
-			zcmixer_update(zcmixer, midi_volume, 1000000, false);
-			if (zcmusic)
+			zcmixer::update(g_zcmixer.get(), midi_volume, 1000000, false);
+
+			auto & current_track = g_zcmixer->current_track;
+			if (current_track)
 			{
-				int32_t pos = zcmusic_get_curpos(zcmusic);
+				const int32_t pos = current_track->get_curpos();
 				if (pos > 0)
 					tmusic_progress_lbl->setText(fmt::format("{:.4f}s", pos / 10000.0));
 				else
@@ -645,8 +641,9 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 										}
 										else
 										{
-											if (zcmusic)
-												musicpreview_saved = zcmusic_get_curpos(zcmusic);
+											auto & current_track = g_zcmixer->current_track;
+											if (current_track)
+												musicpreview_saved = current_track->get_curpos();
 											silenceMusicPreview();
 										}
 									})
@@ -656,17 +653,11 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 									maxheight = 24_px,
 									onPressFunc = [&]()
 									{
-										zc_stop_midi();
+										midi::play_midi::stop();
 
-										if (zcmusic != NULL)
-										{
-											zcmusic_stop(zcmusic);
-											zcmusic_unload_file(zcmusic);
-											zcmusic = NULL;
-											zcmixer->newtrack = NULL;
-										}
+										g_zcmixer->stop_and_unload_current_track();
 
-										if (prompt_for_existing_file_compat("Load DMap Music", (char*)zcmusic_types, NULL, tmusicpath, false))
+										if (prompt_for_existing_file_compat("Load DMap Music", zcmusic::zcmusic_types.data(), NULL, tmusicpath, false))
 										{
 											strcpy(tmusicpath, temppath);
 											char* tmfname = get_filename(tmusicpath);
@@ -678,22 +669,21 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 											}
 											else
 											{
-												ZCMUSIC* tempdmapzcmusic = zcmusic_load_for_quest(tmfname, filepath);
+												zcmusic::ZCMUSIC_owner_ptr_t tempdmapzcmusic = zcmusic::load_for_quest(tmfname, filepath);
 
 												int32_t numtracks = 1;
-												if (tempdmapzcmusic != NULL)
+												if (tempdmapzcmusic)
 												{
-													numtracks = zcmusic_get_tracks(tempdmapzcmusic);
+													numtracks = tempdmapzcmusic->get_tracks();
 													numtracks = (numtracks < 2) ? 1 : numtracks;
 													list_tracks = GUI::ListData::numbers(false, 1, numtracks);
 													tmusic_track_list->setSelectedValue(1);
 												
-													std::string str;
-													str.assign(tempdmapzcmusic->filename);
+													const std::string str{tempdmapzcmusic->filename};
 													strncpy(local_dmap.tmusic, str.c_str(), 56);
 													local_dmap.tmusic[55] = 0;
 
-													zcmusic_unload_file(tempdmapzcmusic);
+													tempdmapzcmusic.reset();
 												}
 												else
 												{
@@ -716,15 +706,9 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 									maxheight = 24_px,
 									onPressFunc = [&]()
 									{
-										zc_stop_midi();
+										midi::play_midi::stop();
 
-										if (zcmusic != NULL)
-										{
-											zcmusic_stop(zcmusic);
-											zcmusic_unload_file(zcmusic);
-											zcmusic = NULL;
-											zcmixer->newtrack = NULL;
-										}
+										g_zcmixer->stop_and_unload_current_track();
 
 										memset(local_dmap.tmusic, 0, 56);
 										tmusic_field->setText("");

@@ -36,11 +36,11 @@
 #include "base/zsys.h"
 #include "qst.h"
 #include "zc/zc_sys.h"
-#include "play_midi.h"
+#include <sound/play_midi.h>
 #include "gui/jwin_a5.h"
 #include "base/jwinfsel.h"
 #include "base/gui.h"
-#include "midi.h"
+#include <sound/midi.h>
 #include "subscr.h"
 #include "zc/maps.h"
 #include "sprite.h"
@@ -48,7 +48,7 @@
 #include "zc/hero.h"
 #include "zc/title.h"
 #include "particles.h"
-#include "sound/zcmusic.h"
+#include <sound/zcmusic.h>
 #include "zconsole.h"
 #include "zc/ffscript.h"
 #include "dialog/info.h"
@@ -4646,11 +4646,11 @@ bool CheatModifierKeys()
 
 void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 {
-	if(zcmusic!=NULL)
-	{
-		zcmusic_poll();
+	if (g_zcmixer->current_track) {
+		g_zcmixer->current_track->poll();
 	}
-	zcmixer_update(zcmixer, emusic_volume, FFCore.usr_music_volume, get_qr(qr_OLD_SCRIPT_VOLUME));
+
+	zcmixer::update(g_zcmixer.get(), emusic_volume, FFCore.usr_music_volume, get_qr(qr_OLD_SCRIPT_VOLUME));
 	
 	updatescr(allowwavy);
 
@@ -4674,10 +4674,7 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 #endif
 		
 		// to keep music playing
-		if(zcmusic!=NULL)
-		{
-			zcmusic_poll();
-		}
+		g_zcmixer->current_track->poll();
 
 		update_hw_screen();
 	}
@@ -6261,7 +6258,7 @@ const char *midilist(int32_t index, int32_t *list_size)
 /*  ------- MIDI info stuff -------- */
 
 char *text;
-midi_info *zmi;
+midi::midi_info *zmi;
 bool dialog_running;
 bool listening;
 
@@ -6355,7 +6352,7 @@ int32_t d_savemidi_proc(int32_t msg,DIALOG *d,int32_t c)
 		
 		// save midi i
 		
-		if (save_midi(fname.c_str(), (MIDI*)tunes[i].data) != 0)
+		if (midi::save_midi(fname, (MIDI*)tunes[i].data) != 0)
 			jwin_alert(title, "Error saving MIDI to", fname.c_str(), NULL, "Darn", NULL,13,27,get_zc_font(font_lfont));
 			
 done:
@@ -6400,8 +6397,7 @@ void get_info(int32_t index)
 		strcpy(text,"(null)");
 	else
 	{
-		get_midi_info((MIDI*)tunes[i].data,zmi);
-		get_midi_text((MIDI*)tunes[i].data,zmi,text);
+		*zmi = midi::midi_info(static_cast<MIDI*>(tunes[i].data));
 	}
 	
 	midi_dlg[0].dp2=get_zc_font(font_lfont);
@@ -6419,7 +6415,7 @@ void get_info(int32_t index)
 int32_t onMIDICredits()
 {
 	text = (char*)malloc(4096);
-	zmi = (midi_info*)malloc(sizeof(midi_info));
+	zmi = (midi::midi_info*)malloc(sizeof(midi::midi_info));
 	
 	if(!text || !zmi)
 	{
@@ -6867,8 +6863,7 @@ int32_t onSound()
 	if(ret==2)
 	{
 		master_volume(digi_volume,midi_volume);
-		if (zcmusic)
-			zcmusic_set_volume(zcmusic, emusic_volume);
+		g_zcmixer->current_track->set_volume(zcmusic::volume_t{emusic_volume});
 		
 		int32_t temp_volume = sfx_volume;
 		if (GameLoaded && !get_qr(qr_OLD_SCRIPT_VOLUME))
@@ -7728,19 +7723,18 @@ static char bar_str[] = "";
 void music_pause()
 {
 	//al_pause_duh(tmplayer);
-	zcmusic_pause(zcmusic, ZCM_PAUSE);
-	if(zcmixer->oldtrack)
-		zcmusic_pause(zcmixer->oldtrack, ZCM_PAUSE);
-	zc_midi_pause();
+
+	if (g_zcmixer->current_track) g_zcmixer->current_track->pause();
+	if (g_zcmixer->oldtrack) g_zcmixer->oldtrack->pause();
+	midi::play_midi::pause();
 }
 
 void music_resume()
 {
 	//al_resume_duh(tmplayer);
-	zcmusic_pause(zcmusic, ZCM_RESUME);
-	if (zcmixer->oldtrack)
-		zcmusic_pause(zcmixer->oldtrack, ZCM_RESUME);
-	zc_midi_resume();
+	if (g_zcmixer->current_track) g_zcmixer->current_track->resume();
+	if (g_zcmixer->oldtrack) g_zcmixer->oldtrack->resume();
+	midi::play_midi::resume();
 }
 
 void music_stop()
@@ -7749,15 +7743,10 @@ void music_stop()
 	//unload_duh(tmusic);
 	//tmusic=NULL;
 	//tmplayer=NULL;
-	zcmusic_stop(zcmusic);
-	zcmusic_unload_file(zcmusic);
-	if (zcmixer->oldtrack)
-	{
-		zcmusic_stop(zcmixer->oldtrack);
-		zcmusic_unload_file(zcmixer->oldtrack);
-	}
-	zcmixer->newtrack = NULL;
-	zc_stop_midi();
+	g_zcmixer->stop_and_unload_current_track();
+	g_zcmixer->oldtrack.reset();
+	g_zcmixer->newtrack.reset();
+	midi::play_midi::stop();
 	currmidi=-1;
 }
 
@@ -8024,41 +8013,47 @@ INLINE int32_t mixvol(int32_t v1,int32_t v2)
 	return (zc_min(v1,255)*zc_min(v2,255)) >> 8;
 }
 
-int32_t get_emusic_volume()
+#include<iostream>
+zcmusic::volume_t get_emusic_volume()
 {
 	int32_t temp_volume = emusic_volume;
 	if (GameLoaded && !get_qr(qr_OLD_SCRIPT_VOLUME))
 		temp_volume = (emusic_volume * FFCore.usr_music_volume) / 10000 / 100;
-	if (!zcmusic)
-		return temp_volume;
-	return (temp_volume * zcmusic->fadevolume) / 10000;
+
+	const auto & current_track = g_zcmixer->current_track;
+	if (!current_track)
+		return zcmusic::volume_t{temp_volume};
+	return zcmusic::volume_t{(temp_volume * current_track->fadevolume) / 10000};
 }
 
-int32_t get_zcmusicpos()
+zcmusic::cursor_pos_t get_zcmusicpos()
 {
-	int32_t debugtracething = zcmusic_get_curpos(zcmusic);
-	return debugtracething;
-	return 0;
+	return g_zcmixer->current_track && g_zcmixer->current_track->get_curpos();
 }
 
 void set_zcmusicpos(int32_t position)
 {
-	zcmusic_set_curpos(zcmusic, position);
+	if (g_zcmixer->current_track) {
+		g_zcmixer->current_track->set_curpos(position);
+	}
 }
 
 void set_zcmusicspeed(int32_t speed)
 {
-	zcmusic_set_speed(zcmusic, speed);
+	if (g_zcmixer->current_track)
+	g_zcmixer->current_track->set_speed(speed);
 }
 
 int32_t get_zcmusiclen()
 {
-	return zcmusic_get_length(zcmusic);
+	if (g_zcmixer->current_track) return g_zcmixer->current_track->get_length();
+	return 0;
 }
 
 void set_zcmusicloop(double start, double end)
 {
-	zcmusic_set_loop(zcmusic, start, end);
+	if (g_zcmixer->current_track)
+		g_zcmixer->current_track->set_loop(start, end);
 }
 
 void jukebox(int32_t index,int32_t loop)
@@ -8077,13 +8072,13 @@ void jukebox(int32_t index,int32_t loop)
 	// Allegro's DIGMID driver (the one normally used on on Linux) gets
 	// stuck notes when a song stops. This fixes it.
 	if(strcmp(midi_driver->name, "DIGMID")==0)
-		zc_set_volume(0, 0);
+		midi::play_midi::set_volume(0, 0);
 	
-	zc_set_volume(-1, mixvol(tunes[index].volume, midi_volume >>1));
-	zc_play_midi((MIDI*)tunes[index].data,loop);
+	midi::play_midi::set_volume(-1, mixvol(tunes[index].volume, midi_volume >>1));
+	midi::play_midi::play((MIDI*)tunes[index].data,loop);
 	
 	if(tunes[index].start>0)
-		zc_midi_seek(tunes[index].start);
+		midi::play_midi::seek(tunes[index].start);
 		
 	midi_loop_start = tunes[index].loop_start;
 	midi_loop_end = tunes[index].loop_end;
@@ -8118,50 +8113,44 @@ void play_DmapMusic()
 	bool domidi=false;
 	
 	int32_t fadeoutframes = 0;
-	if (zcmusic != NULL)
-		fadeoutframes = zcmusic->fadeoutframes;
+	auto & current_track = g_zcmixer->current_track;
+	if (current_track)
+		fadeoutframes = current_track->fadeoutframes;
 
 	if(DMaps[currdmap].tmusic[0]!=0)
 	{
-		if(zcmusic==NULL ||
-		   strcmp(zcmusic->filename,DMaps[currdmap].tmusic)!=0 ||
-		   (zcmusic->type==ZCMF_GME && zcmusic->track != DMaps[currdmap].tmusictrack))
+		if(current_track == nullptr ||
+		   current_track->filename != DMaps[currdmap].tmusic ||
+		   (current_track->type == zcmusic::ZCMF_TYPE::GME && current_track->track != DMaps[currdmap].tmusictrack))
 		{
 			if (DMaps[currdmap].tmusic_xfade_in > 0 || fadeoutframes > 0)
 			{
-				if (play_enh_music_crossfade(DMaps[currdmap].tmusic, qstpath, DMaps[currdmap].tmusictrack, get_emusic_volume(), DMaps[currdmap].tmusic_xfade_in, fadeoutframes))
+				if (playback::play_enh_music_crossfade(DMaps[currdmap].tmusic, qstpath, DMaps[currdmap].tmusictrack, get_emusic_volume(), DMaps[currdmap].tmusic_xfade_in, fadeoutframes))
 				{
-					if (zcmusic != NULL)
+					if (current_track)
 					{
-						zcmusic->fadeoutframes = DMaps[currdmap].tmusic_xfade_out;
-						zcmusic_set_loop(zcmusic, double(DMaps[currdmap].tmusic_loop_start / 10000.0), double(DMaps[currdmap].tmusic_loop_end / 10000.0));
+						current_track->fadeoutframes = DMaps[currdmap].tmusic_xfade_out;
+						current_track->set_loop(double(DMaps[currdmap].tmusic_loop_start / 10000.0), double(DMaps[currdmap].tmusic_loop_end / 10000.0));
 					}
 				}
 			}
 			else
 			{
-				if (zcmusic != NULL)
-				{
-					zcmusic_stop(zcmusic);
-					zcmusic_unload_file(zcmusic);
-					zcmusic = NULL;
-					zcmixer->newtrack = NULL;
-				}
+				g_zcmixer->stop_and_unload_current_track();
+				current_track = zcmusic::load_for_quest(DMaps[currdmap].tmusic, qstpath);
+				g_zcmixer->newtrack = std::move(current_track);
 
-				zcmusic = zcmusic_load_for_quest(DMaps[currdmap].tmusic, qstpath);
-				zcmixer->newtrack = zcmusic;
-
-				if (zcmusic != NULL)
+				if (current_track)
 				{
-					zc_stop_midi();
+					midi::play_midi::stop();
 					strcpy(tfile, DMaps[currdmap].tmusic);
-					zcmusic_play(zcmusic, emusic_volume);
+					current_track->play(zcmusic::volume_t{emusic_volume});
 					int32_t temptracks = 0;
-					temptracks = zcmusic_get_tracks(zcmusic);
+					temptracks = current_track->get_tracks();
 					temptracks = (temptracks < 2) ? 1 : temptracks;
 					ttrack = vbound(DMaps[currdmap].tmusictrack, 0, temptracks - 1);
-					zcmusic_change_track(zcmusic, ttrack);
-					zcmusic_set_loop(zcmusic, double(DMaps[currdmap].tmusic_loop_start / 10000.0), double(DMaps[currdmap].tmusic_loop_end / 10000.0));
+					current_track->change_track(ttrack);
+					current_track->set_loop(double(DMaps[currdmap].tmusic_loop_start / 10000.0), double(DMaps[currdmap].tmusic_loop_end / 10000.0));
 				}
 				else
 				{
@@ -8173,9 +8162,9 @@ void play_DmapMusic()
 	}
 	else
 	{
-		if (DMaps[currdmap].midi == 0 && fadeoutframes > 0 && zcmusic != NULL && strcmp(zcmusic->filename, DMaps[currdmap].tmusic) != 0)
+		if (DMaps[currdmap].midi == 0 && fadeoutframes > 0 && current_track && current_track->filename != DMaps[currdmap].tmusic)
 		{
-			play_enh_music_crossfade(NULL, qstpath, DMaps[currdmap].tmusictrack, get_emusic_volume(), DMaps[currdmap].tmusic_xfade_in, fadeoutframes);
+			playback::play_enh_music_crossfade("", qstpath, DMaps[currdmap].tmusictrack, get_emusic_volume(), DMaps[currdmap].tmusic_xfade_in, fadeoutframes);
 		}
 		else
 		{
@@ -8257,7 +8246,7 @@ void master_volume(int32_t dv,int32_t mv)
 	int32_t temp_vol = midi_volume;
 	if (!get_qr(qr_OLD_SCRIPT_VOLUME))
 		temp_vol = (midi_volume * FFCore.usr_music_volume) / 10000 / 100;
-	zc_set_volume(digi_volume,mixvol(tunes[i].volume, temp_vol));
+	midi::play_midi::set_volume(digi_volume,mixvol(tunes[i].volume, temp_vol));
 }
 
 /*****************/

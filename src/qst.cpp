@@ -13017,21 +13017,6 @@ extern SAMPLE customsfxdata[WAV_COUNT];
 extern uint8_t customsfxflag[WAV_COUNT>>3];
 extern int32_t sfxdat;
 extern DATAFILE *sfxdata;
-const char *old_sfx_string[Z35] =
-{
-    "Arrow", "Sword beam", "Bomb blast", "Boomerang",  "Subscreen cursor",
-    "Shield is hit", "Item chime",  "Roar (Dodongo, Gohma)", "Shutter", "Enemy dies",
-    "Enemy is hit", "Low hearts warning", "Fire", "Ganon's fanfare", "Boss is hit", "Hammer",
-    "Hookshot", "Message", "Player is hit", "Item fanfare", "Bomb placed", "Item pickup",
-    "Refill", "Roar (Aquamentus, Gleeok, Ganon)", "Item pickup 2", "Ocean ambience",
-    "Secret chime", "Player dies", "Stairs", "Sword", "Roar (Manhandla, Digdogger, Patra)",
-    "Wand magic", "Whistle", "Zelda's fanfare", "Charging weapon", "Charging weapon 2",
-    "Divine Fire", "Enemy falls from ceiling", "Divine Escape", "Fireball", "Tall Grass slashed",
-    "Pound pounded", "Hover Boots", "Ice magic", "Jump", "Lens of Truth off", "Lens of Truth on",
-    "Divine Protection shield", "Divine Protection 2", "Push block", "Rock", "Spell rocket down",
-    "Spell rocket up", "Sword spin attack", "Splash", "Summon magic", "Sword tapping",
-    "Sword tapping (secret)", "Whistle whirlwind", "Cane of Byrna orbit"
-};
 char *sfx_string[WAV_COUNT];
 
 int32_t readsfx(PACKFILE *f, zquestheader *Header)

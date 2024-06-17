@@ -2,7 +2,7 @@
 #define _HERO_H_
 
 #include "base/zc_alleg.h"
-#include "sound/zcmusic.h"
+#include <sound/zcmusic.h>
 #include "base/zdefs.h"
 #include "zc/zelda.h"
 #include "zc/maps.h"

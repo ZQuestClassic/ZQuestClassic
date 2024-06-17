@@ -25286,10 +25286,11 @@ RaftingStuff:
 		{
 			if (FFCore.can_dmap_change_music(tdm))
 			{
-				if (zcmusic != NULL)
+				auto & current_track = g_zcmixer->current_track;
+				if (current_track)
 				{
-					if (strcmp(zcmusic->filename, DMaps[tdm].tmusic) != 0 ||
-						(zcmusic->type == ZCMF_GME && zcmusic->track != DMaps[tdm].tmusictrack))
+					if (current_track->filename != DMaps[tdm].tmusic ||
+						(current_track->type == zcmusic::ZCMF_TYPE::GME && current_track->track != DMaps[tdm].tmusictrack))
 						music_stop();
 				}
 				else if (DMaps[tmpscr->tilewarpdmap[index]].midi != (currmidi - ZC_MIDI_COUNT + 4) &&
@@ -31117,7 +31118,7 @@ void HeroClass::getTriforce(int32_t id2)
 		if(itemsbuf[id2].misc1)
 			jukebox(itemsbuf[id2].misc1+ZC_MIDI_COUNT-1);
 		else
-			try_zcmusic("zelda.nsf",qstpath,moduledata.tf_track,ZC_MIDI_TRIFORCE,get_emusic_volume());
+			playback::try_zcmusic("zelda.nsf",qstpath,moduledata.tf_track,ZC_MIDI_TRIFORCE,get_emusic_volume());
 	}
 	if(itemsbuf[id2].flags & item_gamedata)
 	{
@@ -31129,15 +31130,14 @@ void HeroClass::getTriforce(int32_t id2)
 	int32_t curtain_x=0;
 	int32_t c=0;
 
+	auto & current_track = g_zcmixer->current_track;
 	do
 	{
-		
-		
 		if ( (itemsbuf[id2].flags & item_flag13) ) //Run action script on collection.
 		{
 			if ( itemsbuf[id2].script )
 			{
-				if ( !FFCore.doscript(ScriptType::Item, id2) ) 
+				if ( !FFCore.doscript(ScriptType::Item, id2) )
 				{
 					int i = id2;
 					FFCore.reset_script_engine_data(ScriptType::Item, i);
@@ -31163,8 +31163,8 @@ void HeroClass::getTriforce(int32_t id2)
 			action=oldaction;                                    // have to reset this flag
 			FFCore.setHeroAction(oldaction);
 		}
-	
-	
+
+
 		if(f>=40 && f<88)
 		{
 		    if(get_qr(qr_FADE))
@@ -31174,13 +31174,13 @@ void HeroClass::getTriforce(int32_t id2)
 			    fade_interpolate(RAMpal,flash_pal,RAMpal,42,0,CSET(6)-1);
 			    refreshpal=true;
 			}
-			
+
 			if((f&3)==2)
 			{
 			    loadpalset(0,0);
 			    loadpalset(1,1);
 			    loadpalset(5,5);
-			    
+
 			    if(currscr<128) loadlvlpal(DMaps[currdmap].color);
 			    else loadlvlpal(0xB); // TODO: Cave/Item Cellar distinction?
 			}
@@ -31196,21 +31196,21 @@ void HeroClass::getTriforce(int32_t id2)
 				    RAMpal[CSET(cs2)+i]=flash_pal[CSET(cs2)+i];
 				}
 			    }
-			    
+
 			    refreshpal=true;
 			}
-			
+
 			if((f&7)==4)
 			{
 			    if(currscr<128) loadlvlpal(DMaps[currdmap].color);
 			    else loadlvlpal(0xB);
-			    
+
 			    loadpalset(5,5);
 			}
 		    }
 		}
 
-	
+
 		if(itemsbuf[id2].flags & item_gamedata)
 		{
 			if(f==refill_frame)
@@ -31220,7 +31220,7 @@ void HeroClass::getTriforce(int32_t id2)
 				StartRefill(REFILL_ALL);
 				refill();
 			}
-	    
+
 			if(f==(refill_frame+1))
 			{
 				if(refill())
@@ -31229,13 +31229,13 @@ void HeroClass::getTriforce(int32_t id2)
 				}
 			}
 		}
-	
+
 		if(itemsbuf[id2].flags & item_flag1) // Warp out flag
 		{
 			if(f>=208 && f<288)
 			{
 				++x2;
-		
+
 				switch(++c)
 				{
 					case 5:
@@ -31248,9 +31248,9 @@ void HeroClass::getTriforce(int32_t id2)
 						break;
 				}
 			}
-	    
+
 			do_dcounters();
-	    
+
 			if(f<288)
 			{
 				curtain_x=x2&0xF8;
@@ -31261,22 +31261,22 @@ void HeroClass::getTriforce(int32_t id2)
 				//draw_screen(tmpscr);
 			}
 		}
-	
+
 		draw_screen(tmpscr);
 		//this causes bugs
 		//the subscreen appearing over the curtain effect should now be fixed in draw_screen
 		//so this is not necessary -DD
 		//put_passive_subscr(framebuf,0,passive_subscreen_offset,false,false);
-		
+
 		//Run Triforce Script
 		advanceframe(true);
 		++f;
 	}
 	while
 	(
-		(f < ( (itemsbuf[id2].misc4 > 0) ? itemsbuf[id2].misc4 : 408)) 
-		|| (!(itemsbuf[id2].flags & item_flag15) /*&& !(itemsbuf[id2].flags & item_flag11)*/ && (midi_pos > 0 && !replay_is_active())) 
-		|| (/*!(itemsbuf[id2].flags & item_flag15) &&*/ !(itemsbuf[id2].flags & item_flag11) && (zcmusic!=NULL) && (zcmusic->position<800 && !replay_is_active())
+		(f < ( (itemsbuf[id2].misc4 > 0) ? itemsbuf[id2].misc4 : 408))
+		|| (!(itemsbuf[id2].flags & item_flag11) /*&& !(itemsbuf[id2].flags & ITEM_FLAG11)*/ && (midi_pos > 0 && !replay_is_active()))
+		|| (/*!(itemsbuf[id2].flags & item_flag15) &&*/ !(itemsbuf[id2].flags & item_flag11) && (current_track) && (current_track->get_curpos() < 800 && !replay_is_active())
 		// Music is played at the same speed when fps is uncapped, so in replay mode we need to ignore the music position and instead
 		// just count frames. 480 is the number of frames it takes for the triforce song in classic_1st.qst to finish playing, but the exact
 		// value doesn't matter.
