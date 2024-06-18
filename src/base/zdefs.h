@@ -150,7 +150,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
 #define V_INITDATA        39
-#define V_GUYS            47
+#define V_GUYS            48
 #define V_MIDIS            4
 #define V_CHEATS           1
 #define V_SAVEGAME        41
@@ -1362,6 +1362,7 @@ struct item_drop_object
 #define guy_transparent 0x00008000
 
 #define guy_ignoretmpnr 0x00010000
+#define guy_ignorekill  0x00020000
 
 // Old flags
 #define weak_arrow		0x20000000
