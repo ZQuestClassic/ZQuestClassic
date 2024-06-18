@@ -21,8 +21,6 @@ void Z_init_sound();
 
 void load_game_configs();
 void save_game_configs();
-bool zc_getname(const char *prompt,const char *ext,EXT_LIST *list,const char *def,bool usefilename);
-bool zc_getname_nogo(const char *prompt,const char *ext,EXT_LIST *list,const char *def,bool usefilename);
 
 #ifdef _WIN32
 void do_DwmFlush();

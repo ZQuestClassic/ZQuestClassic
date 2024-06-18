@@ -1,4 +1,5 @@
 #include "zalleg/zalleg.h"
+#include "base/files.h"
 #include "base/fonts.h"
 #include "base/module.h"
 #include "base/render.h"
@@ -146,6 +147,7 @@ void zalleg_setup_allegro(App id, int argc, char **argv)
 	}
 
 	render_set_debug(zc_get_config("graphics","render_debug",0));
+	set_always_use_native_file_dialog(zc_get_config("gui","native_file_dialog",0));
 
 	packfile_password(datapwd);
 

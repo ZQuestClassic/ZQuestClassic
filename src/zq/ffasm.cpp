@@ -1,3 +1,4 @@
+#include "base/files.h"
 #include "parser/Types.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,7 +22,7 @@ using namespace util;
 using std::string;
 using std::ostringstream;
 
-extern char *datapath, *temppath;
+extern char *datapath;
 
 int32_t ffparse(char const* string)
 {
@@ -93,7 +94,7 @@ std::map<std::string, int32_t> labels;
 //The Dialogue that loads an ASM Script filename.
 int32_t parse_script(script_data **script)
 {
-	if(!getname("Import Script (.txt, .asm, .zasm)","txt,asm,zasm",NULL,datapath,false))
+	if(!prompt_for_existing_file_compat("Import Script (.txt, .asm, .zasm)","txt,asm,zasm",NULL,datapath,false))
 		return D_CLOSE;
 	labels.clear();
 	FILE *zscript = fopen(temppath,"r");

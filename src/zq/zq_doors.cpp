@@ -1,6 +1,7 @@
 #include <cstring>
 #include <vector>
 
+#include "base/files.h"
 #include "base/gui.h"
 #include "base/zc_alleg.h"
 #include "base/zdefs.h"
@@ -1546,7 +1547,7 @@ void doorlist_rclick_func(int32_t index, int32_t x, int32_t y)
 	{
 		{ "Save", [&]()
 			{
-				if(!getname("Save Doorset(.zdoors)", "zdoors", NULL,datapath,false))
+				if(!prompt_for_new_file_compat("Save Doorset(.zdoors)", "zdoors", NULL,datapath,false))
 					return;
 				PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
 				if(!f) return;
@@ -1569,7 +1570,7 @@ void doorlist_rclick_func(int32_t index, int32_t x, int32_t y)
 			} },
 		{ "Load", [&]()
 			{
-				if(!getname("Load Item(.zdoors)", "zdoors", NULL,datapath,false))
+				if(!prompt_for_existing_file_compat("Load Item(.zdoors)", "zdoors", NULL,datapath,false))
 					return;
 				char name[256] = {0};
 				extract_name(filepath,name,FILENAMEALL);

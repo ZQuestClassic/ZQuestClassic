@@ -1,6 +1,7 @@
 #include <cstring>
 #include <cmath>
 
+#include "base/files.h"
 #include "base/qrs.h"
 #include "base/dmap.h"
 #include "base/cpool.h"
@@ -5273,8 +5274,7 @@ void grab_tile(int32_t tile,int32_t &cs)
 			
 		if(dofile)
 		{
-		
-			if(getname_nogo("Load File",NULL,list,imagepath,true))
+			if (prompt_for_existing_file_compat("Load File", "", list, imagepath, true))
 			{
 				zc_set_palette(RAMpal);
 				pal=0;
@@ -9055,7 +9055,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 				
 				case KEY_S:
 				{
-					if(!getname("Save ZTILE(.ztile)", "ztile", NULL,datapath,false))
+					if(!prompt_for_new_file_compat("Save ZTILE(.ztile)", "ztile", NULL,datapath,false))
 						break;   
 					PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
 					if(!f) break;
@@ -9066,7 +9066,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 				}
 				case KEY_L:
 				{
-					if(!getname("Load ZTILE(.ztile)", "ztile", NULL,datapath,false))
+					if(!prompt_for_existing_file_compat("Load ZTILE(.ztile)", "ztile", NULL,datapath,false))
 						break;   
 					PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
 					if(!f) break;
@@ -10008,7 +10008,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 				if(do_text_button((150+28*2)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"Export"))
 				{
 					strcpy(datapath, "tileset.png");
-					if(getname("Export Tile Page (.png)","png",NULL,datapath,true))
+					if(prompt_for_new_file_compat("Export Tile Page (.png)","png",NULL,datapath,true))
 					{
 						PALETTE temppal;
 						get_palette(temppal);

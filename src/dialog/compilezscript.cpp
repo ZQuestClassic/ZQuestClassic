@@ -1,5 +1,6 @@
 #include "compilezscript.h"
 #include <gui/builder.h>
+#include "base/files.h"
 #include "zalleg/zalleg.h"
 #include "zq/zquest.h"
 #include "alert.h"
@@ -533,7 +534,7 @@ bool CompileZScriptDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 				saved = false;
 			}
 			
-			if(!getname("Load ZScript (.z, .zh, .zs, .zlib, etc.)", (char *)"z,zh,zs,zlib,zasm,zscript,squid" ,NULL,datapath,false))
+			if(!prompt_for_existing_file_compat("Load ZScript (.z, .zh, .zs, .zlib, etc.)", (char *)"z,zh,zs,zlib,zasm,zscript,squid" ,NULL,datapath,false))
 				return false;
 				
 			FILE *zscript = fopen(temppath,"r");
@@ -560,7 +561,7 @@ bool CompileZScriptDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		
 		case message::EXPORT:
 		{
-			if(!getname("Save ZScript (.zs)", "zs", NULL,datapath,false))
+			if(!prompt_for_new_file_compat("Save ZScript (.zs)", "zs", NULL,datapath,false))
 				break;
 				
 			if(exists(temppath))

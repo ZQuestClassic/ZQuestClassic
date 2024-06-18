@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <cstring>
 
+#include "base/files.h"
 #include "base/qrs.h"
 #include "base/packfile.h"
 #include "base/gui.h"
@@ -6491,7 +6492,7 @@ void save_enemy(int32_t index)
 	if(index < 0) index = elist_dlg[2].d1;
 	if(index==0)
 		return;
-	if(!getname("Save NPC(.znpc)", "znpc", NULL,datapath,false))
+	if(!prompt_for_new_file_compat("Save NPC(.znpc)", "znpc", NULL,datapath,false))
 		return;
 	int32_t iid = bie[index].i;
 	
@@ -6509,7 +6510,7 @@ void load_enemy(int32_t index)
 	if(index < 0) index = elist_dlg[2].d1;
 	if(index==0)
 		return;
-	if(!getname("Load NPC(.znpc)", "znpc", NULL,datapath,false))
+	if(!prompt_for_existing_file_compat("Load NPC(.znpc)", "znpc", NULL,datapath,false))
 		return;
 	PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
 	if(!f) return;

@@ -9,7 +9,7 @@
   *  or non-zero on error.
   */
 
-int32_t save_midi(char *filename, MIDI *midi)
+int32_t save_midi(const char *filename, MIDI *midi)
 {
     int32_t c;
     int32_t len;
