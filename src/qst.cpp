@@ -9771,6 +9771,11 @@ void init_guys(int32_t guyversion)
                     guysbuf[i].flags2 |= guy_transparent;
                 }
             }
+
+			if (i == eDIG1 || i == eDIG3)
+			{
+				guysbuf[i].flags2 |= guy_ignorekill;
+			}
         }
         
         // Darknut fix
@@ -14950,6 +14955,14 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 				if(tempguy.family == eeWALK && tempguy.misc9 == e9tPOLSVOICE)
 				{
 					tempguy.moveflags |= FLAG_CAN_WATERWALK;
+				}
+			}
+
+			if (guyversion < 47)
+			{
+				if (tempguy.family == eeDIG && tempguy.misc10!=1)
+				{
+					tempguy.flags2 |= guy_ignorekill;
 				}
 			}
 			
