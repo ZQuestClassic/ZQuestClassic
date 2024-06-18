@@ -1,6 +1,7 @@
 #include "info_lister.h"
 #include <gui/builder.h>
 #include <base/new_menu.h>
+#include "base/files.h"
 #include "itemeditor.h"
 #include "info.h"
 #include "zc_list_data.h"
@@ -278,7 +279,7 @@ void ItemListerDialog::save()
 {
 	if(selected_val < 0)
 		return;
-	if(!getname(fmt::format("Save Item '{}' #{} (.zitem)",itemsbuf[selected_val].get_name(true),selected_val).c_str(),"zitem",NULL,datapath,false))
+	if(!prompt_for_new_file_compat(fmt::format("Save Item '{}' #{} (.zitem)",itemsbuf[selected_val].get_name(true),selected_val).c_str(),"zitem",NULL,datapath,false))
 		return;
 	
 	PACKFILE *f=pack_fopen_password(temppath,F_WRITE,"");
@@ -294,7 +295,7 @@ bool ItemListerDialog::load()
 {
 	if(selected_val < 0)
 		return false;
-	if(!getname(fmt::format("Load Item (replacing '{}' #{}) (.zitem)",itemsbuf[selected_val].get_name(true),selected_val).c_str(),"zitem",NULL,datapath,false))
+	if(!prompt_for_existing_file_compat(fmt::format("Load Item (replacing '{}' #{}) (.zitem)",itemsbuf[selected_val].get_name(true),selected_val).c_str(),"zitem",NULL,datapath,false))
 		return false;
 	
 	PACKFILE *f=pack_fopen_password(temppath,F_READ,"");

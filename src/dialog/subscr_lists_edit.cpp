@@ -4,6 +4,7 @@
 #include <utility>
 #include <sstream>
 #include <fmt/format.h>
+#include "base/files.h"
 #include "new_subscr.h"
 #include "zq/zq_subscr.h"
 #include "zq/zq_misc.h"
@@ -133,13 +134,13 @@ void SubscrListEditDialog::rclick_menu(size_t cur_type, int mx, int my)
 			}, nullopt, ci<0 },
 		{ "&Save", [&]()
 			{
-				if(!getname("Export Subscreen (.sub)","sub",NULL,datapath,false))
+				if(!prompt_for_new_file_compat("Export Subscreen (.sub)","sub",NULL,datapath,false))
 					return;
 				save_subscreen(temppath, vec[si]);
 			}, nullopt, newslot },
 		{ "&Load", [&]()
 			{
-				if(!getname("Import Subscreen (.sub)","sub",NULL,datapath,false))
+				if(!prompt_for_existing_file_compat("Import Subscreen (.sub)","sub",NULL,datapath,false))
 					return;
 				ZCSubscreen tmp = ZCSubscreen();
 				tmp.sub_type = cur_type;

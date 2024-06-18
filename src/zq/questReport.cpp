@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string>
 
+#include "base/files.h"
 #include "base/qrs.h"
 #include "base/dmap.h"
 #include "gui/editbox.h"
@@ -138,7 +139,7 @@ void showQuestReport()
 			{
 				case 8:
 				{
-					if(!getname("Save Quest Report (.txt)","txt",NULL,datapath,false))
+					if(!prompt_for_new_file_compat("Save Quest Report (.txt)","txt",NULL,datapath,false))
 						return false;
 						
 					if(exists(temppath))

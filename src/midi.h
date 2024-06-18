@@ -14,7 +14,7 @@
 
   */
 
-int32_t save_midi(char *filename, MIDI *midi);
+int32_t save_midi(const char *filename, MIDI *midi);
 
 /* ---  All this code just to calculate the length of a MIDI song.  --- */
 

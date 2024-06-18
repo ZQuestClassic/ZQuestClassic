@@ -3,6 +3,7 @@
 #include <ctype.h>
 #include <cstring>
 #include <memory>
+#include "base/files.h"
 #include "base/zc_alleg.h"
 #include "base/qrs.h"
 #include "base/packfile.h"
@@ -959,7 +960,6 @@ int32_t custom_game(int32_t file)
 
 	zquestheader h;
 	char infostr[200];
-	char path[2048];
 	int32_t ret=0; 
 	int32_t focus_obj = 1; //Fixes the issue where the button tied to the enter key is stuck on 'browse'.
 
@@ -984,7 +984,7 @@ int32_t custom_game(int32_t file)
 	relativize_path(relpath, qstpath);
 	
 	gamemode_dlg[0].dp2 = get_zc_font(font_lfont);
-	gamemode_dlg[2].dp = relpath;//get_filename(qstpath);
+	gamemode_dlg[2].dp = relpath;
 	
 	if(get_quest_info(&h,infostr)==0)
 	{
@@ -1021,13 +1021,11 @@ int32_t custom_game(int32_t file)
 			{ NULL,                        NULL }
 		};
 		
-		strcpy(path, qstpath);
-		
-		if(jwin_file_browse_ex("Load Quest", path, list, &sel, 2048, -1, -1, get_zc_font(font_lfont)))
+		if (auto result = prompt_for_existing_file("Load Quest", "", list, qstpath))
 		{
+			std::string path = *result;
 			customized = true;
-			//      strcpy(qstpath, path);
-			replace_extension(qstpath,path,"qst",2047);
+			replace_extension(qstpath,path.data(),"qst",2047);
 			gamemode_dlg[2].dp = get_filename(qstpath);
 			
 			if(get_quest_info(&h,infostr)==0)

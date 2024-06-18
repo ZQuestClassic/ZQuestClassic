@@ -9,6 +9,7 @@
 #include <vector>
 #include <sstream>
 
+#include "base/files.h"
 #include "base/qrs.h"
 #include "base/dmap.h"
 #include "base/cpool.h"
@@ -4510,6 +4511,7 @@ int main(int argc, char **argv)
 	set_debug(debug_enabled);
 
 	render_set_debug(zc_get_config("graphics","render_debug",0));
+	set_always_use_native_file_dialog(zc_get_config("gui","native_file_dialog",0));
 
 	int32_t load_save=0;
 	

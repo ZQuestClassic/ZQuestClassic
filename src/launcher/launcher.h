@@ -10,7 +10,5 @@ extern char temppath[4096], rootpath[4096];
 
 void update_hw_screen();
 
-bool getname(const char *prompt,const char *ext,EXT_LIST *list,const char *def,bool usefilename);
-
 #endif
 

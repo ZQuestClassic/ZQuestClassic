@@ -1,6 +1,7 @@
 #include "zinfodlg.h"
 #include <gui/builder.h>
 #include <base/gui.h>
+#include "base/files.h"
 #include "gui/jwin.h"
 #include "zq/zquest.h"
 #include "dialog/alert.h"
@@ -576,7 +577,7 @@ bool load_zi(zinfo& tzi)
 		{ NULL, NULL }
 	};
 	
-	if(!getname("Load File",NULL,extlist,filepath,true))
+	if(!prompt_for_existing_file_compat("Load File","",extlist,filepath,true))
 		return false;
 	PACKFILE *inf=pack_fopen_password(temppath, F_READ, "");
 	if(!inf) return false;
@@ -587,7 +588,7 @@ bool load_zi(zinfo& tzi)
 
 bool save_zi(zinfo const& tzi)
 {
-	if(!getname("Save ZInfo (.zinfo)","zinfo",NULL,filepath,true))
+	if(!prompt_for_new_file_compat("Save ZInfo (.zinfo)","zinfo",NULL,filepath,true))
         return false;
         
     if(exists(temppath))

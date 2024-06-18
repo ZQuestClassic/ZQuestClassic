@@ -1,4 +1,5 @@
 #include "launcher/theme_editor.h"
+#include "base/files.h"
 #include "dialog/common.h"
 #include "dialog/alert.h"
 #include "base/jwinfsel.h"
@@ -266,7 +267,7 @@ bool ThemeEditor::handleMessage(const GUI::DialogMessage<message>& msg)
 			if(saved_path) saved_path[0] = 0;
 			//Save?
 			char path[4096] = {0};
-			if(getname("Save Theme", "ztheme", NULL, zthemepath, false))
+			if(prompt_for_new_file_compat("Save Theme", "ztheme", NULL, zthemepath, false))
 			{
 				relativize_path(path, temppath);
 				if(saved_path)
