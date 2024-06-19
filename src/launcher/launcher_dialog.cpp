@@ -591,7 +591,7 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 				)),
 				TabRef(name = "ZC Editor", Row(framed = true,
 					Rows<2>(fitParent = true,
-						CONFIG_CHECKBOX_I("Fullscreen",App::zquest,"zquest","fullscreen",0,"Exactly stable."),
+						CONFIG_CHECKBOX("Fullscreen",App::zquest,"zquest","fullscreen",0),
 						CONFIG_CHECKBOX_I("Native File Dialog",App::zquest,"gui","native_file_dialog",0,"Use the file dialog provided by the OS for file select prompts."),
 						CONFIG_CHECKBOX("Disable Resizing",App::zquest,"gui","disable_window_resizing",0),
 						CONFIG_CHECKBOX("Show FPS",App::zquest,"zquest","showfps",0),
