@@ -1,6 +1,7 @@
 #ifndef ZC_DIALOG_FFCDLG_H
 #define ZC_DIALOG_FFCDLG_H
 
+#include "ffc.h"
 #include <gui/dialog.h>
 #include <gui/grid.h>
 #include <gui/checkbox.h>
@@ -24,7 +25,7 @@ struct ffdata
 	word data;
 	byte cset;
 	word delay;
-	dword flags;
+	ffc_flags flags;
 	byte link;
 	byte twid : 2;
 	byte fwid : 6;

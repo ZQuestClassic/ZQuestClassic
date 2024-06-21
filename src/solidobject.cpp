@@ -20,7 +20,7 @@ static bool for_every_solid_object(const F& fn)
 	word c = tmpscr->numFFC();
 	for (word i=0; i < c; i++)
 	{
-		if (tmpscr->ffcs[i].flags & ffCHANGER) continue;
+		if (tmpscr->ffcs[i].flags & ffc_changer) continue;
 		solid_object* obj = &tmpscr->ffcs[i];
 		if (!obj->getSolid()) continue;
 		if (fn(obj)) return true;

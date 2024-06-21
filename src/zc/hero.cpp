@@ -171,7 +171,7 @@ bool HeroClass::on_ffc_platform(ffcdata const& ffc, bool old)
 	}
 	if(sideview_mode())
 	{
-		if((ffc.flags & (ffSOLID|ffPLATFORM|ffCHANGER)) != (ffSOLID|ffPLATFORM))
+		if((ffc.flags & (ffc_solid|ffc_platform|ffc_changer)) != (ffc_solid|ffc_platform))
 			return false;
 		zfix fx = old ? ffc.old_x : ffc.x, fy = old ? ffc.old_y : ffc.y;
 		static const zfix tol = 0.5_zf;
@@ -184,7 +184,7 @@ bool HeroClass::on_ffc_platform(ffcdata const& ffc, bool old)
 	}
 	else
 	{
-		if((ffc.flags & (ffPLATFORM|ffCHANGER)) != ffPLATFORM)
+		if((ffc.flags & (ffc_platform|ffc_changer)) != ffc_platform)
 			return false;
 		if(z)
 			return false;
@@ -258,7 +258,7 @@ bool usingActiveShield(int32_t itmid)
 	if(itmid < 0) return false;
 	if(item_disabled(itmid)) return false;
 	if(!checkitem_jinx(itmid)) return false;
-	if(!(itemsbuf[itmid].flags & ITEM_FLAG9)) return false;
+	if(!(itemsbuf[itmid].flags & item_flag9)) return false;
 	if(!isItmPressed(itmid)) return false;
 	return (checkbunny(itmid) && checkmagiccost(itmid));
 }
@@ -283,7 +283,7 @@ int32_t refreshActiveShield()
     if(DrunkcBbtn())
 	{
 		itemdata const& dat = itemsbuf[NEG_OR_MASK(Bwpn,0xFFF)];
-		if(dat.family == itype_shield && (dat.flags & ITEM_FLAG9))
+		if(dat.family == itype_shield && (dat.flags & item_flag9))
 		{
 			id = NEG_OR_MASK(Bwpn,0xFFF);
 		}
@@ -291,7 +291,7 @@ int32_t refreshActiveShield()
     if(id < 0 && DrunkcAbtn())
 	{
 		itemdata const& dat = itemsbuf[NEG_OR_MASK(Awpn,0xFFF)];
-		if(dat.family == itype_shield && (dat.flags & ITEM_FLAG9))
+		if(dat.family == itype_shield && (dat.flags & item_flag9))
 		{
 			id = NEG_OR_MASK(Awpn,0xFFF);
 		}
@@ -299,7 +299,7 @@ int32_t refreshActiveShield()
     if(id < 0 && DrunkcEx1btn())
 	{
 		itemdata const& dat = itemsbuf[NEG_OR_MASK(Xwpn,0xFFF)];
-		if(dat.family == itype_shield && (dat.flags & ITEM_FLAG9))
+		if(dat.family == itype_shield && (dat.flags & item_flag9))
 		{
 			id = NEG_OR_MASK(Xwpn,0xFFF);
 		}
@@ -307,7 +307,7 @@ int32_t refreshActiveShield()
     if(id < 0 && DrunkcEx2btn())
 	{
 		itemdata const& dat = itemsbuf[NEG_OR_MASK(Ywpn,0xFFF)];
-		if(dat.family == itype_shield && (dat.flags & ITEM_FLAG9))
+		if(dat.family == itype_shield && (dat.flags & item_flag9))
 		{
 			id = NEG_OR_MASK(Ywpn,0xFFF);
 		}
@@ -325,7 +325,7 @@ static bool is_immobile()
 	if(shieldid > -1)
 	{
 		itemdata const& shield = itemsbuf[shieldid];
-		if(shield.flags & ITEM_FLAG10) //Change Speed flag
+		if(shield.flags & item_flag10) //Change Speed flag
 		{
 			zfix perc = shield.misc7;
 			perc /= 100;
@@ -387,9 +387,9 @@ void HeroClass::set_liftflags(int liftid)
 	if(unsigned(liftid) >= MAXITEMS)
 		return;
 	itemdata const& itm = itemsbuf[liftid];
-	SETFLAG(liftflags, LIFTFL_DIS_SWIMMING, !(itm.flags & ITEM_FLAG2));
-	SETFLAG(liftflags, LIFTFL_DIS_SHIELD, itm.flags & ITEM_FLAG3);
-	SETFLAG(liftflags, LIFTFL_DIS_ITEMS, itm.flags & ITEM_FLAG4);
+	SETFLAG(liftflags, LIFTFL_DIS_SWIMMING, !(itm.flags & item_flag2));
+	SETFLAG(liftflags, LIFTFL_DIS_SHIELD, itm.flags & item_flag3);
+	SETFLAG(liftflags, LIFTFL_DIS_ITEMS, itm.flags & item_flag4);
 }
 
 void HeroClass::set_respawn_point(bool setwarp)
@@ -550,7 +550,7 @@ bool HeroClass::can_pitfall(bool ignore_hover)
 		|| (hoverclk && !ignore_hover)
 		|| inlikelike || inwallm || pull_hero || toogam
 		|| (ladderx||laddery) || getOnSideviewLadder()
-		|| drownclk || !(moveflags & FLAG_CAN_PITFALL)
+		|| drownclk || !(moveflags & move_can_pitfall)
 		|| platform_ffc);
 }
 
@@ -1654,7 +1654,7 @@ void HeroClass::init()
     sdir = up;
     ilswim=true;
     walkable=false;
-    moveflags = FLAG_OBEYS_GRAV | FLAG_CAN_PITFALL | FLAG_CAN_WATERDROWN;
+    moveflags = move_obeys_grav | move_can_pitfall | move_can_waterdrown;
     warp_sound = 0;
     subscr_speed = zinit.subscrSpeed;
 	steprate = zinit.heroStep;
@@ -1902,7 +1902,7 @@ void HeroClass::positionNet(weapon *w, int32_t itemid)
 		wx = 1, wy = 1;
 	
 	//Invert positioning clock if right-handed animation
-	int32_t clock = (itemsbuf[itemid].flags&ITEM_FLAG2 ? (NET_CLK_TOTAL-1)-attackclk : attackclk);
+	int32_t clock = (itemsbuf[itemid].flags&item_flag2 ? (NET_CLK_TOTAL-1)-attackclk : attackclk);
 	if(clock >= NET_CLK_TOTAL)
 		w->dead = 0;
 	int32_t tiledir = dir;
@@ -2020,7 +2020,7 @@ void HeroClass::positionSword(weapon *w, int32_t itemid)
         wx=-1;
         wy=-12;
         
-        if(game->get_canslash() && w->id==wSword && itemsbuf[itemid].flags & ITEM_FLAG4 && charging==0)
+        if(game->get_canslash() && w->id==wSword && itemsbuf[itemid].flags & item_flag4 && charging==0)
         {
             if(attackclk>10) //extended stab
             {
@@ -2056,7 +2056,7 @@ void HeroClass::positionSword(weapon *w, int32_t itemid)
         f=get_qr(qr_SWORDWANDFLIPFIX)?3:2;
         wy=11;
         
-        if(game->get_canslash() && w->id==wSword && itemsbuf[itemid].flags & ITEM_FLAG4 && charging==0)
+        if(game->get_canslash() && w->id==wSword && itemsbuf[itemid].flags & item_flag4 && charging==0)
         {
             if(attackclk>10) //extended stab
             {
@@ -2093,7 +2093,7 @@ void HeroClass::positionSword(weapon *w, int32_t itemid)
         wx=-11;
         ++t;
         
-        if(game->get_canslash() && w->id==wSword && itemsbuf[itemid].flags & ITEM_FLAG4 && charging==0)
+        if(game->get_canslash() && w->id==wSword && itemsbuf[itemid].flags & item_flag4 && charging==0)
         {
             if(attackclk>10)  //extended stab
             {
@@ -2129,7 +2129,7 @@ void HeroClass::positionSword(weapon *w, int32_t itemid)
         wx=11;
         ++t;
         
-        if(game->get_canslash() && w->id==wSword && itemsbuf[itemid].flags & ITEM_FLAG4 && charging==0)
+        if(game->get_canslash() && w->id==wSword && itemsbuf[itemid].flags & item_flag4 && charging==0)
         {
             if(attackclk>10) //extended stab
             {
@@ -2162,7 +2162,7 @@ void HeroClass::positionSword(weapon *w, int32_t itemid)
         break;
     }
     
-    if(game->get_canslash() && itemsbuf[itemid].flags & ITEM_FLAG4 && attackclk<11)
+    if(game->get_canslash() && itemsbuf[itemid].flags & item_flag4 && attackclk<11)
     {
         int32_t wpn2=itemsbuf[itemid].wpn2;
         wpn2=vbound(wpn2, 0, MAXWPNS);
@@ -2227,7 +2227,7 @@ void HeroClass::positionSword(weapon *w, int32_t itemid)
         case right:
             --t;
             
-            if(spins>0 || (itemsbuf[itemid].flags & ITEM_FLAG8))
+            if(spins>0 || (itemsbuf[itemid].flags & item_flag8))
             {
                 wx=1;
                 wy=13;
@@ -2247,7 +2247,7 @@ void HeroClass::positionSword(weapon *w, int32_t itemid)
                 t = wpnsbuf[wpn2].tile;
                 cs2 = wpnsbuf[wpn2].csets&15;
                 
-                if(spins>0 || (itemsbuf[itemid].flags & ITEM_FLAG8))
+                if(spins>0 || (itemsbuf[itemid].flags & item_flag8))
                 {
                     wx-=1;
                     wy-=2;
@@ -2444,7 +2444,7 @@ void HeroClass::draw(BITMAP* dest)
 						if (attackclk >= 13) tile += (extend==2?2:1);
 					}
 					
-					if(((game->get_canslash() && (attack==wSword || attack==wWand || attack==wFire || attack==wCByrna)) && itemsbuf[itemid].flags&ITEM_FLAG4 && (attackclk<7||FIXED_Z3_ANIMATION&&(attackclk < 16))))
+					if(((game->get_canslash() && (attack==wSword || attack==wWand || attack==wFire || attack==wCByrna)) && itemsbuf[itemid].flags&item_flag4 && (attackclk<7||FIXED_Z3_ANIMATION&&(attackclk < 16))))
 					{
 						herotile(&tile, &flip, &extend, (IsSideSwim())?ls_sideswimslash:ls_slash, dir, zinit.heroAnimationStyle);
 						if (FIXED_Z3_ANIMATION)
@@ -2456,7 +2456,7 @@ void HeroClass::draw(BITMAP* dest)
 					}
 					if (attack==wBugNet && !get_qr(qr_OLD_BUG_NET))
 					{
-						if ((dir == right && (itemsbuf[itemid].flags&ITEM_FLAG2)) || (dir != right && !(itemsbuf[itemid].flags&ITEM_FLAG2)))
+						if ((dir == right && (itemsbuf[itemid].flags&item_flag2)) || (dir != right && !(itemsbuf[itemid].flags&item_flag2)))
 						{
 							if (attackclk < 9) herotile(&tile, &flip, &extend, ls_revslash, dir, zinit.heroAnimationStyle);
 							if (attackclk > 15) herotile(&tile, &flip, &extend, (IsSideSwim())?ls_sideswimslash:ls_slash, dir, zinit.heroAnimationStyle);
@@ -3282,7 +3282,7 @@ void collectitem_script(int32_t id)
 void passiveitem_script(int32_t id, bool doRun = false)
 {
 	//Passive item scripts on colelction
-	if(itemsbuf[id].script && ( (itemsbuf[id].flags&ITEM_PASSIVESCRIPT) && (get_qr(qr_ITEMSCRIPTSKEEPRUNNING)) ))
+	if(itemsbuf[id].script && ( (itemsbuf[id].flags&item_passive_script) && (get_qr(qr_ITEMSCRIPTSKEEPRUNNING)) ))
 	{
 		FFCore.reset_script_engine_data(ScriptType::Item, id);
 		
@@ -3419,7 +3419,7 @@ bool HeroClass::checkstab()
 	// Don't use 2.10 for reference; it's pretty far off.
 	// - Saf
 	
-	if(game->get_canslash() && (attack==wSword || attack==wWand) && itemsbuf[itemid].flags & ITEM_FLAG4)
+	if(game->get_canslash() && (attack==wSword || attack==wWand) && itemsbuf[itemid].flags & item_flag4)
 	{
 		switch(w->dir)
 		{
@@ -3485,9 +3485,9 @@ bool HeroClass::checkstab()
 	{
 		if(attack==wBugNet) break;
 		// So that Hero can actually hit peahats while jumping, his weapons' hzsz becomes 16 in midair.
-		if((guys.spr(i)->hit(wx,wy,wz,wxsz,wysz,wz>0?16:8) && ((attack!=wWand && attack!=wHammer && attack!=wCByrna) || !(itemsbuf[itemid].flags & ITEM_FLAG3)))
-				|| ((attack==wWand || attack==wCByrna) && guys.spr(i)->hit(wx,wy-8,z,16,24,z>8) && !(itemsbuf[itemid].flags & ITEM_FLAG3))
-				|| (attack==wHammer && guys.spr(i)->hit(wx,wy-8,z,16,24,z>0?16:8) && !(itemsbuf[itemid].flags & ITEM_FLAG3)))
+		if((guys.spr(i)->hit(wx,wy,wz,wxsz,wysz,wz>0?16:8) && ((attack!=wWand && attack!=wHammer && attack!=wCByrna) || !(itemsbuf[itemid].flags & item_flag3)))
+				|| ((attack==wWand || attack==wCByrna) && guys.spr(i)->hit(wx,wy-8,z,16,24,z>8) && !(itemsbuf[itemid].flags & item_flag3))
+				|| (attack==wHammer && guys.spr(i)->hit(wx,wy-8,z,16,24,z>0?16:8) && !(itemsbuf[itemid].flags & item_flag3)))
 		{
 			// Checking the whimsical ring for every collision check causes
 			// an odd bug. It's much more likely to activate on a 0-damage
@@ -3550,14 +3550,14 @@ bool HeroClass::checkstab()
 		
 	if(attack == wBugNet
 		|| (parentitem==-1&&!get_qr(qr_NOITEMMELEE))
-		|| (parentitem>-1&&!(itemsbuf[parentitem].flags & ITEM_FLAG7)))
+		|| (parentitem>-1&&!(itemsbuf[parentitem].flags & item_flag7)))
 	{
 		int32_t bugnetid = attack != wBugNet ? -1 : (parentitem > -1 ? parentitem : current_item_id(itype_bugnet));
 		for(int32_t j=0; j<items.Count(); j++)
 		{
 			item* ptr = (item*)items.spr(j);
 			bool dofairy = (attack==wBugNet && itemsbuf[ptr->id].family == itype_fairy)
-				&& (bugnetid > -1 && !(itemsbuf[bugnetid].flags & ITEM_FLAG1));
+				&& (bugnetid > -1 && !(itemsbuf[bugnetid].flags & item_flag1));
 			
 			if((itemsbuf[ptr->id].family == itype_bottlefill || dofairy) && !game->canFillBottle())
 				continue; //No picking these up unless you have a bottle to fill!
@@ -5857,7 +5857,7 @@ int32_t HeroClass::defend(weapon *w)
 			w->dead = 0;
 			int32_t itemid = getCurrentShield();
 			//sfx(WAV_BREAKSHIELD,pan(int32_t(x)));
-			if(itemsbuf[itemid].flags&ITEM_EDIBLE)
+			if(itemsbuf[itemid].flags&item_edible)
 				game->set_item(itemid, false);
 			//Remove Hero's shield
 			return -1; 
@@ -5974,27 +5974,27 @@ int32_t HeroClass::compareDir(int32_t other)
 
 bool compareShield(int32_t cmpdir, itemdata const& shield)
 {
-	bool standard = !(shield.flags&ITEM_FLAG9) || usingActiveShield();
+	bool standard = !(shield.flags&item_flag9) || usingActiveShield();
 	if(standard) //Use standard sides, either a passive shield, or a held active shield
 	{
-		if((cmpdir&CMPDIR_FRONT) && (shield.flags&ITEM_FLAG1))
+		if((cmpdir&CMPDIR_FRONT) && (shield.flags&item_flag1))
 			return true;
-		else if((cmpdir&CMPDIR_BACK) && (shield.flags&ITEM_FLAG2))
+		else if((cmpdir&CMPDIR_BACK) && (shield.flags&item_flag2))
 			return true;
-		else if((cmpdir&CMPDIR_LEFT) && (shield.flags&ITEM_FLAG3))
+		else if((cmpdir&CMPDIR_LEFT) && (shield.flags&item_flag3))
 			return true;
-		else if((cmpdir&CMPDIR_RIGHT) && (shield.flags&ITEM_FLAG4))
+		else if((cmpdir&CMPDIR_RIGHT) && (shield.flags&item_flag4))
 			return true;
 	}
 	else //Active Shield that is NOT held down
 	{
-		if((cmpdir&CMPDIR_FRONT) && (shield.flags&ITEM_FLAG5))
+		if((cmpdir&CMPDIR_FRONT) && (shield.flags&item_flag5))
 			return true;
-		else if((cmpdir&CMPDIR_BACK) && (shield.flags&ITEM_FLAG6))
+		else if((cmpdir&CMPDIR_BACK) && (shield.flags&item_flag6))
 			return true;
-		else if((cmpdir&CMPDIR_LEFT) && (shield.flags&ITEM_FLAG7))
+		else if((cmpdir&CMPDIR_LEFT) && (shield.flags&item_flag7))
 			return true;
-		else if((cmpdir&CMPDIR_RIGHT) && (shield.flags&ITEM_FLAG8))
+		else if((cmpdir&CMPDIR_RIGHT) && (shield.flags&item_flag8))
 			return true;
 	}
 	return false;
@@ -6006,43 +6006,43 @@ static bool sh_check(uint fl_block, uint fl_ref, int wty, bool& reflect, bool bo
 	switch(wty)
 	{
 		case ewBrang:
-			if(!(fl_block & shBRANG)) break;
+			if(!(fl_block & sh_brang)) break;
 			
-			reflect = ((fl_ref & shBRANG) != 0);
+			reflect = ((fl_ref & sh_brang) != 0);
 			return true;
 		case ewArrow:
 		case wRefArrow:
-			if(!(fl_block & shARROW)) break;
+			if(!(fl_block & sh_arrow)) break;
 			
-			reflect = ((fl_ref & shARROW) != 0);
+			reflect = ((fl_ref & sh_arrow) != 0);
 			return true;
 			
 		case ewRock:
 		case wRefRock:
-			if(!(fl_block & shROCK)) break;
+			if(!(fl_block & sh_rock)) break;
 			
-			reflect = ((fl_ref & shROCK) != 0);
+			reflect = ((fl_ref & sh_rock) != 0);
 			return true;
 		case ewFlame:
 		case wRefFire:
-			if(!(fl_block & shFLAME)) break;
+			if(!(fl_block & sh_flame)) break;
 				
-			reflect = ((fl_ref & shFLAME) != 0);
+			reflect = ((fl_ref & sh_flame) != 0);
 			return true;
 		case ewFlame2:
 		case wRefFire2:
 			if(get_qr(qr_BROKEN_FLAME_ARROW_REFLECTING))
 				return true;
-			if(!(fl_block & shFLAME2)) break;
+			if(!(fl_block & sh_flame2)) break;
 				
-			reflect = ((fl_ref & shFLAME2) != 0);
+			reflect = ((fl_ref & sh_flame2) != 0);
 			return true;
 			
 		case ewFireball2:
 		case ewFireball:
 		case wRefFireball:
 		{
-			int32_t mask = (boss ? shFIREBALL2 : shFIREBALL);
+			int32_t mask = (boss ? sh_fireball2 : sh_fireball);
 			
 			if(!(fl_block & mask)) break;
 			
@@ -6052,32 +6052,32 @@ static bool sh_check(uint fl_block, uint fl_ref, int wty, bool& reflect, bool bo
 		
 		case ewSword:
 		case wRefBeam:
-			if(!(fl_block & shSWORD)) break;
+			if(!(fl_block & sh_sword)) break;
 			
-			reflect = ((fl_ref & shSWORD) != 0);
+			reflect = ((fl_ref & sh_sword) != 0);
 			return true;
 			
 		case wRefMagic:
 		case ewMagic:
-			if(!(fl_block & shMAGIC)) break;
+			if(!(fl_block & sh_magic)) break;
 			
-			reflect = ((fl_ref & shMAGIC) != 0);
+			reflect = ((fl_ref & sh_magic) != 0);
 			return true;
 			
 		#define SCRIPT_SHBLOCK(scrfl) \
-			if(!(fl_block & (shSCRIPT|scrfl))) break; \
-			reflect = ((fl_ref & (shSCRIPT|scrfl)) != 0); \
+			if(!(fl_block & (sh_script|scrfl))) break; \
+			reflect = ((fl_ref & (sh_script|scrfl)) != 0); \
 			return true
-		case wScript1: SCRIPT_SHBLOCK(shSCRIPT1);
-		case wScript2: SCRIPT_SHBLOCK(shSCRIPT2);
-		case wScript3: SCRIPT_SHBLOCK(shSCRIPT3);
-		case wScript4: SCRIPT_SHBLOCK(shSCRIPT4);
-		case wScript5: SCRIPT_SHBLOCK(shSCRIPT5);
-		case wScript6: SCRIPT_SHBLOCK(shSCRIPT6);
-		case wScript7: SCRIPT_SHBLOCK(shSCRIPT7);
-		case wScript8: SCRIPT_SHBLOCK(shSCRIPT8);
-		case wScript9: SCRIPT_SHBLOCK(shSCRIPT9);
-		case wScript10: SCRIPT_SHBLOCK(shSCRIPT10);
+		case wScript1: SCRIPT_SHBLOCK(sh_script1);
+		case wScript2: SCRIPT_SHBLOCK(sh_script2);
+		case wScript3: SCRIPT_SHBLOCK(sh_script3);
+		case wScript4: SCRIPT_SHBLOCK(sh_script4);
+		case wScript5: SCRIPT_SHBLOCK(sh_script5);
+		case wScript6: SCRIPT_SHBLOCK(sh_script6);
+		case wScript7: SCRIPT_SHBLOCK(sh_script7);
+		case wScript8: SCRIPT_SHBLOCK(sh_script8);
+		case wScript9: SCRIPT_SHBLOCK(sh_script9);
+		case wScript10: SCRIPT_SHBLOCK(sh_script10);
 		#undef SCRIPT_SHBLOCK
 			
 		case ewLitBomb:
@@ -6138,7 +6138,7 @@ bool HeroClass::check_ewpn_collide(weapon* w)
 	if(itemid<0 || !(checkbunny(itemid) && checkmagiccost(itemid)))
 		return true;
 	itemdata const& shield = itemsbuf[itemid];
-	bool allow_inactive = (shield.flags & ITEM_FLAG9);
+	bool allow_inactive = (shield.flags & item_flag9);
 	auto cmpdir = compareDir(w->dir);
 	bool hitshield = compareShield(cmpdir, shield);
 	
@@ -6219,7 +6219,7 @@ int32_t HeroClass::EwpnHit()
 			if(itemid<0 || !(checkbunny(itemid) && checkmagiccost(itemid)))
 				return i;
 			itemdata const& shield = itemsbuf[itemid];
-			bool allow_inactive = (shield.flags & ITEM_FLAG9);
+			bool allow_inactive = (shield.flags & item_flag9);
 			auto cmpdir = compareDir(ew->dir);
 			bool hitshield = compareShield(cmpdir, shield);
 			
@@ -6285,7 +6285,7 @@ int32_t HeroClass::LwpnHit()                                    //only here to c
 			if(!hitshield)
 				return i;
 			
-			bool allow_inactive = (shield.flags & ITEM_FLAG9);
+			bool allow_inactive = (shield.flags & item_flag9);
 			if(!allow_inactive && ((lift_wpn && (liftflags & LIFTFL_DIS_SHIELD)) || (action==attacking||action==sideswimattacking) || action==swimming || action == sideswimming || action == sideswimattacking || charging > 0 || spins > 0 || hopclk==0xFF))
 				return i;
 			
@@ -6305,9 +6305,9 @@ bool HeroClass::try_lwpn_hit(weapon* w)
 {
 	int32_t itemid = w->parentitem;
 	int indx = Lwpns.find(w);
-	//if ( itemdbuf[parentitem].flags&ITEM_FLAGS3 ) //can damage Hero
+	//if ( itemdbuf[parentitem].flags&item_flags3 ) //can damage Hero
 	//if ( itemsbuf[parentitem].misc1 > 0 ) //damages Hero by this amount. 
-	if((!(itemid==-1&&get_qr(qr_FIREPROOFHERO)||((itemid>-1&&itemsbuf[itemid].family==itype_candle||itemsbuf[itemid].family==itype_book)&&(itemsbuf[itemid].flags & ITEM_FLAG3)))) && scriptcoldet && !fallclk && (!superman || !get_qr(qr_FIREPROOFHERO2)))
+	if((!(itemid==-1&&get_qr(qr_FIREPROOFHERO)||((itemid>-1&&itemsbuf[itemid].family==itype_candle||itemsbuf[itemid].family==itype_book)&&(itemsbuf[itemid].flags & item_flag3)))) && scriptcoldet && !fallclk && (!superman || !get_qr(qr_FIREPROOFHERO2)))
 	{
 		if(w->id==wFire && (superman ? (diagonalMovement?w->hit(x+4,y+4-fakez,z,7,7,1):w->hit(x+7,y+7-fakez,z,2,2,1)) : w->hit(this))&&
 					(itemid < 0 || itemsbuf[itemid].family!=itype_divinefire))
@@ -6408,7 +6408,7 @@ bool HeroClass::try_lwpn_hit(weapon* w)
 	
 	//   check enemy weapons true, 1, -1
 	//
-	if((itemsbuf[itemid].flags & ITEM_FLAG6))
+	if((itemsbuf[itemid].flags & item_flag6))
 	{
 		if(w->id==wBrang || (w->id==wHookshot&&!pull_hero))
 		{
@@ -6438,7 +6438,7 @@ bool HeroClass::try_lwpn_hit(weapon* w)
 		}
 	}
 	
-	if((itemsbuf[itemid].flags & ITEM_FLAG2)||(itemid==-1&&get_qr(qr_OUCHBOMBS)))
+	if((itemsbuf[itemid].flags & item_flag2)||(itemid==-1&&get_qr(qr_OUCHBOMBS)))
 	{
 		if(((w->id==wBomb)||(w->id==wSBomb)) && !superman && scriptcoldet && !fallclk)
 		{
@@ -6785,9 +6785,9 @@ void HeroClass::checkhit()
 	{
 		sprite *s = Lwpns.spr(i);
 		int32_t itemid = ((weapon*)(Lwpns.spr(i)))->parentitem;
-		//if ( itemdbuf[parentitem].flags&ITEM_FLAGS3 ) //can damage Hero
+		//if ( itemdbuf[parentitem].flags&item_flags3 ) //can damage Hero
 		//if ( itemsbuf[parentitem].misc1 > 0 ) //damages Hero by this amount. 
-		if((!(itemid==-1&&get_qr(qr_FIREPROOFHERO)||((itemid>-1&&itemsbuf[itemid].family==itype_candle||itemsbuf[itemid].family==itype_book)&&(itemsbuf[itemid].flags & ITEM_FLAG3)))) && scriptcoldet && !fallclk && (!superman || !get_qr(qr_FIREPROOFHERO2)))
+		if((!(itemid==-1&&get_qr(qr_FIREPROOFHERO)||((itemid>-1&&itemsbuf[itemid].family==itype_candle||itemsbuf[itemid].family==itype_book)&&(itemsbuf[itemid].flags & item_flag3)))) && scriptcoldet && !fallclk && (!superman || !get_qr(qr_FIREPROOFHERO2)))
 		{
 			if(s->id==wFire && (superman ? (diagonalMovement?s->hit(x+4,y+4-fakez,z,7,7,1):s->hit(x+7,y+7-fakez,z,2,2,1)) : s->hit(this))&&
 						(itemid < 0 || itemsbuf[itemid].family!=itype_divinefire))
@@ -6889,7 +6889,7 @@ void HeroClass::checkhit()
 		
 		//   check enemy weapons true, 1, -1
 		//
-		if((itemsbuf[itemid].flags & ITEM_FLAG6))
+		if((itemsbuf[itemid].flags & item_flag6))
 		{
 			if(s->id==wBrang || (s->id==wHookshot&&!pull_hero))
 			{
@@ -6919,7 +6919,7 @@ void HeroClass::checkhit()
 			}
 		}
 		
-		if((itemsbuf[itemid].flags & ITEM_FLAG2)||(itemid==-1&&get_qr(qr_OUCHBOMBS)))
+		if((itemsbuf[itemid].flags & item_flag2)||(itemid==-1&&get_qr(qr_OUCHBOMBS)))
 		{
 			if(((s->id==wBomb)||(s->id==wSBomb)) && !superman && scriptcoldet && !fallclk)
 			{
@@ -7573,8 +7573,8 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 		best_type = 1;
 	}
 	
-	bool global_defring = ((itemsbuf[current_item_id(itype_ring)].flags & ITEM_FLAG1));
-	bool global_perilring = ((itemsbuf[current_item_id(itype_perilring)].flags & ITEM_FLAG1));
+	bool global_defring = ((itemsbuf[current_item_id(itype_ring)].flags & item_flag1));
+	bool global_perilring = ((itemsbuf[current_item_id(itype_perilring)].flags & item_flag1));
 	bool current_ring = ((tmpscr->flags6&fTOGGLERINGDAMAGE) != 0);
 	if(current_ring)
 	{
@@ -7583,8 +7583,8 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 	}
 	int32_t itemid = current_item_id(itype_boots);
 	
-	bool bootsnosolid = itemid >= 0 && 0 != (itemsbuf[itemid].flags & ITEM_FLAG1);
-	bool ignoreBoots = itemid >= 0 && (itemsbuf[itemid].flags & ITEM_FLAG3);
+	bool bootsnosolid = itemid >= 0 && 0 != (itemsbuf[itemid].flags & item_flag1);
+	bool ignoreBoots = itemid >= 0 && (itemsbuf[itemid].flags & item_flag3);
 	
 	if(hp_modmin<0)
 	{
@@ -7651,12 +7651,12 @@ int32_t HeroClass::hithero(int32_t hit2, int32_t force_hdir)
 		paymagiccost(stompid);
 		hit_enemy(hit2,wStomp,itemsbuf[stompid].power*game->get_hero_dmgmult(),x,y,0,stompid);
 		
-		if(itemsbuf[stompid].flags & ITEM_FLAG1)
+		if(itemsbuf[stompid].flags & item_flag1)
 		{
 			fall = -(itemsbuf[stompid].misc1);
 		}
 		
-		if(itemsbuf[stompid].flags & ITEM_DOWNGRADE)
+		if(itemsbuf[stompid].flags & item_downgrade)
 			game->set_item(stompid,false);
 			
 		// Stomp Boots script
@@ -7793,10 +7793,10 @@ int32_t HeroClass::hithero(int32_t hit2, int32_t force_hdir)
 				
 				case e7tPERMJINX:
 					if(dm8==0 || dm8==2)
-						if(sworddivisor) swordclk=(itemid >-1 && itemsbuf[itemid].flags & ITEM_FLAG1)? int32_t(150/sworddivisor) : -1;
+						if(sworddivisor) swordclk=(itemid >-1 && itemsbuf[itemid].flags & item_flag1)? int32_t(150/sworddivisor) : -1;
 						
 					if(dm8==1 || dm8==2)
-						if(itemdivisor) itemclk=(itemid >-1 && itemsbuf[itemid].flags & ITEM_FLAG1)? int32_t(150/itemdivisor) : -1;
+						if(itemdivisor) itemclk=(itemid >-1 && itemsbuf[itemid].flags & item_flag1)? int32_t(150/itemdivisor) : -1;
 						
 					break;
 				
@@ -8095,7 +8095,7 @@ bool HeroClass::animate(int32_t)
 					lift_wpn->limited_animate();
 					if(lift_wpn->id != oldid)
 					{
-						lift_wpn->moveflags &= ~FLAG_OBEYS_GRAV;
+						lift_wpn->moveflags &= ~move_obeys_grav;
 						drop_liftwpn();
 						goto heroanimate_skip_liftwpn;
 					}
@@ -8447,7 +8447,7 @@ heroanimate_skip_liftwpn:;
 	if(can_use_item(itype_hoverboots,i_hoverboots))
 	{
 		int32_t hoverid = current_item_id(itype_hoverboots);
-		if(!(itemsbuf[hoverid].flags & ITEM_FLAG1))
+		if(!(itemsbuf[hoverid].flags & item_flag1))
 		{
 			if(hoverclk < 0) hoverclk = 0;
 			hoverflags &= ~HOV_OUT;
@@ -8460,12 +8460,12 @@ heroanimate_skip_liftwpn:;
 	if (rocs != -1)
 	{
 		itemdata const& itm = itemsbuf[rocs];
-		if (itm.flags & ITEM_FLAG2) 
+		if (itm.flags & item_flag2) 
 		{
-			if ((!(itm.flags & ITEM_FLAG3) || fall < 0) && 
-				(!(itm.flags & ITEM_FLAG4) || fall > 0)) gravity3 = itm.misc3;
+			if ((!(itm.flags & item_flag3) || fall < 0) && 
+				(!(itm.flags & item_flag4) || fall > 0)) gravity3 = itm.misc3;
 		}
-		if (itm.flags & ITEM_FLAG5) 
+		if (itm.flags & item_flag5) 
 		{
 			termv = itm.misc4;
 			if (fall > termv) fall = termv;
@@ -8754,8 +8754,8 @@ heroanimate_skip_liftwpn:;
 	}
 	else // Topdown gravity
 	{
-		if (!(moveflags & FLAG_NO_FAKE_Z)) fakez-=fakefall/(spins && fakefall>0 ? 200:100);
-		if (!(moveflags & FLAG_NO_REAL_Z)) z-=fall/(spins && fall>0 ? 200:100);
+		if (!(moveflags & move_no_fake_z)) fakez-=fakefall/(spins && fakefall>0 ? 200:100);
+		if (!(moveflags & move_no_real_z)) z-=fall/(spins && fall>0 ? 200:100);
 		if(z>0||fakez>0)
 		{
 			switch(action)
@@ -8802,9 +8802,9 @@ heroanimate_skip_liftwpn:;
 			Lwpns.spr(Lwpns.idFirst(wHSHandle))->fakez=fakez;
 		}
 		
-		if(z<=0&&!(moveflags & FLAG_NO_REAL_Z))
+		if(z<=0&&!(moveflags & move_no_real_z))
 		{
-			if (fakez <= 0 || (moveflags & FLAG_NO_FAKE_Z)) 
+			if (fakez <= 0 || (moveflags & move_no_fake_z)) 
 			{
 				if(fall > 0)
 				{
@@ -8815,7 +8815,7 @@ heroanimate_skip_liftwpn:;
 				}
 			}
 			z = fall = 0;
-			if (fakez <= 0 || (moveflags & FLAG_NO_FAKE_Z)) 
+			if (fakez <= 0 || (moveflags & move_no_fake_z)) 
 			{
 				jumping = 0;
 				if(check_pitslide(true) == -1)
@@ -8832,9 +8832,9 @@ heroanimate_skip_liftwpn:;
 				}
 			}
 		}
-		if(fakez<=0&&!(moveflags & FLAG_NO_FAKE_Z))
+		if(fakez<=0&&!(moveflags & move_no_fake_z))
 		{
-			if (z <= 0 || (moveflags & FLAG_NO_REAL_Z))
+			if (z <= 0 || (moveflags & move_no_real_z))
 			{
 				if(fakefall > 0)
 				{
@@ -8845,7 +8845,7 @@ heroanimate_skip_liftwpn:;
 				}
 			}
 			fakez = fakefall = 0;
-			if (z <= 0 || (moveflags & FLAG_NO_REAL_Z)) 
+			if (z <= 0 || (moveflags & move_no_real_z)) 
 			{
 				jumping = 0;
 				if(check_pitslide(true) == -1)
@@ -8862,7 +8862,7 @@ heroanimate_skip_liftwpn:;
 				}
 			}
 		}
-		if(fall <= termv && !(moveflags & FLAG_NO_REAL_Z) && z>0 || fakefall <= termv && !(moveflags & FLAG_NO_FAKE_Z) && fakez > 0)
+		if(fall <= termv && !(moveflags & move_no_real_z) && z>0 || fakefall <= termv && !(moveflags & move_no_fake_z) && fakez > 0)
 		{
 			if(fall != 0 || fakefall != 0 || hoverclk>0)
 				jumping++;
@@ -8876,12 +8876,12 @@ heroanimate_skip_liftwpn:;
 				
 				if(!hoverclk)
 				{
-					if (fall <= termv && !(moveflags & FLAG_NO_REAL_Z) && z > 0) fall += gravity3;
-					if (fakefall <= termv && !(moveflags & FLAG_NO_FAKE_Z) && fakez > 0) fakefall += gravity3;
+					if (fall <= termv && !(moveflags & move_no_real_z) && z > 0) fall += gravity3;
+					if (fakefall <= termv && !(moveflags & move_no_fake_z) && fakez > 0) fakefall += gravity3;
 					hoverflags |= HOV_OUT | HOV_PITFALL_OUT;
 				}
 			}
-			else if(((fall+(int32_t)(zinit.gravity / 100) > 0 && fall<=0 && !(moveflags & FLAG_NO_REAL_Z) && z > 0) || (fakefall+gravity3 > 0 && fakefall<=0 && !(moveflags & FLAG_NO_FAKE_Z) && fakez > 0)) && can_use_item(itype_hoverboots,i_hoverboots) && !(hoverflags & HOV_OUT))
+			else if(((fall+(int32_t)(zinit.gravity / 100) > 0 && fall<=0 && !(moveflags & move_no_real_z) && z > 0) || (fakefall+gravity3 > 0 && fakefall<=0 && !(moveflags & move_no_fake_z) && fakez > 0)) && can_use_item(itype_hoverboots,i_hoverboots) && !(hoverflags & HOV_OUT))
 			{
 				if(hoverclk < 0)
 					hoverclk = -hoverclk;
@@ -8903,8 +8903,8 @@ heroanimate_skip_liftwpn:;
 			}
 			else 
 			{
-				if (fall <= termv && !(moveflags & FLAG_NO_REAL_Z) && z > 0) fall += gravity3;
-				if (fakefall <= termv && !(moveflags & FLAG_NO_FAKE_Z) && fakez > 0) fakefall += gravity3;
+				if (fall <= termv && !(moveflags & move_no_real_z) && z > 0) fall += gravity3;
+				if (fakefall <= termv && !(moveflags & move_no_fake_z) && fakez > 0) fakefall += gravity3;
 			}
 		}
 		if (fakez<0) fakez = 0;
@@ -9838,7 +9838,7 @@ heroanimate_skip_liftwpn:;
 	itemdata const& shield = itemsbuf[active_shield_id];
 	//Handle direction forcing. This runs every frame so that scripts can interact with dir still.
 	shield_forcedir = -1;
-	if(sh && action != rafting && (shield.flags & ITEM_FLAG11)) //Lock Dir
+	if(sh && action != rafting && (shield.flags & item_flag11)) //Lock Dir
 	{
 		shield_forcedir = dir;
 	}
@@ -10860,7 +10860,7 @@ bool HeroClass::onWater(bool drownonly)
 	if(water > 0)
 	{
 		if(!drownonly) return true;
-		if(current_item(itype_flippers) <= 0 || current_item(itype_flippers) < combobuf[water].attribytes[0] || ((combobuf[water].usrflags&cflag1) && !(itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG3))) 
+		if(current_item(itype_flippers) <= 0 || current_item(itype_flippers) < combobuf[water].attribytes[0] || ((combobuf[water].usrflags&cflag1) && !(itemsbuf[current_item_id(itype_flippers)].flags & item_flag3))) 
 		{
 			return true;
 		}
@@ -10919,7 +10919,7 @@ void HeroClass::doMirror(int32_t mirrorid)
 		if(mirror.usesound2) sfx(mirror.usesound2);
 		
 		doWarpEffect(mirror.misc2, true);
-		if(mirror.flags & ITEM_FLAG2) //Act as F6->Continue
+		if(mirror.flags & item_flag2) //Act as F6->Continue
 		{
 			Quit = qCONT;
 			skipcont = 1;
@@ -10975,7 +10975,7 @@ void HeroClass::doMirror(int32_t mirrorid)
 			FFCore.warp_player(wtIWARP, sourcedmap, sourcescr, -1, -1, mirror.misc1,
 				mirror.usesound, 0, -1);
 		}
-		else if(mirror.flags & ITEM_FLAG1) //Place portal!
+		else if(mirror.flags & item_flag1) //Place portal!
 		{
 			//Place the portal
 			game->set_portal(sourcedmap, destdmap, offscr, x.getZLong(), y.getZLong(), mirror.usesound, mirror.misc1, mirror.wpn);
@@ -11046,7 +11046,7 @@ bool HeroClass::do_jump(int32_t jumpid, bool passive)
 		if(hoverclk > 0)
 			hoverclk = -hoverclk;
 	}
-	if(itm.flags & ITEM_FLAG1)
+	if(itm.flags & item_flag1)
 		setFall(fall - itm.power);
 	else setFall(fall - (FEATHERJUMP*(itm.power+2)));
 	coyotetime = 65535; //jumped, so no coyotetime
@@ -11075,21 +11075,21 @@ void HeroClass::drop_liftwpn()
 	itemdata const& glove = itemsbuf[liftid];
 	if(isSideViewGravity())
 	{
-		lift_wpn->moveflags |= FLAG_NO_FAKE_Z;
+		lift_wpn->moveflags |= move_no_fake_z;
 	}
 	else
 	{
 		auto lheight = liftheight+z+fakez;
-		if(glove.flags & ITEM_FLAG1)
+		if(glove.flags & item_flag1)
 		{
 			lift_wpn->z = 0;
 			lift_wpn->fakez = lheight;
-			lift_wpn->moveflags |= FLAG_NO_REAL_Z;
+			lift_wpn->moveflags |= move_no_real_z;
 		}
 		else
 		{
 			lift_wpn->z = lheight;
-			lift_wpn->moveflags |= FLAG_NO_FAKE_Z;
+			lift_wpn->moveflags |= move_no_fake_z;
 		}
 	}
 	lift_wpn->dir = dir;
@@ -11188,23 +11188,23 @@ void HeroClass::do_liftglove(int32_t liftid, bool passive)
 						lift_wpn->step = 0;
 						break;
 				}
-				lift_wpn->moveflags |= FLAG_NO_FAKE_Z;
+				lift_wpn->moveflags |= move_no_fake_z;
 			}
 			else
 			{
 				auto lheight = liftheight+z+fakez;
-				if(glove.flags & ITEM_FLAG1)
+				if(glove.flags & item_flag1)
 				{
 					lift_wpn->z = 0;
 					lift_wpn->fakez = lheight;
 					lift_wpn->fakefall = -glove.misc3;
-					lift_wpn->moveflags |= FLAG_NO_REAL_Z;
+					lift_wpn->moveflags |= move_no_real_z;
 				}
 				else
 				{
 					lift_wpn->z = lheight;
 					lift_wpn->fall = -glove.misc3;
-					lift_wpn->moveflags |= FLAG_NO_FAKE_Z;
+					lift_wpn->moveflags |= move_no_fake_z;
 				}
 			}
 			Lwpns.add(lift_wpn);
@@ -11462,7 +11462,7 @@ bool HeroClass::can_lift(int32_t gloveid)
 			break;
 		
 		case swimming:
-			if(glove.flags & ITEM_FLAG2)
+			if(glove.flags & item_flag2)
 				break;
 			return false;
 		
@@ -11674,7 +11674,7 @@ bool HeroClass::startwpn(int32_t itemid)
 		{
 			case itype_bomb:
 			case itype_sbomb:
-				if(itm.flags & ITEM_FLAG4)
+				if(itm.flags & item_flag4)
 					do_liftglove(-1,false);
 				break;
 			case itype_liftglove:
@@ -11707,7 +11707,7 @@ bool HeroClass::startwpn(int32_t itemid)
 		wx+=16;
 		break;
 	}
-	if (IsSideSwim() && (itm.flags & ITEM_SIDESWIM_DISABLED)) return false;
+	if (IsSideSwim() && (itm.flags & item_sideswim_disabled)) return false;
 	
 	switch(itm.family)
 	{
@@ -11974,10 +11974,10 @@ bool HeroClass::startwpn(int32_t itemid)
 			if((whistleflag=findentrance(x,y,mfWHISTLE,get_qr(qr_PERMANENT_WHISTLE_SECRETS))))
 				didstuff |= did_whistle;
 				
-			if((didstuff&did_whistle && itm.flags&ITEM_FLAG1) || currscr>=128)
+			if((didstuff&did_whistle && itm.flags&item_flag1) || currscr>=128)
 				return false;
 				
-			if(itm.flags&ITEM_FLAG1) didstuff |= did_whistle;
+			if(itm.flags&item_flag1) didstuff |= did_whistle;
 			
 			if((tmpscr->flags&fWHISTLE) || (tmpscr->flags7 & fWHISTLEWATER)
 					|| (tmpscr->flags7&fWHISTLEPAL))
@@ -12033,7 +12033,7 @@ bool HeroClass::startwpn(int32_t itemid)
 				return false;
 			}
 			
-			if((itm.flags & ITEM_FLAG4) && lift_wpn)
+			if((itm.flags & item_flag4) && lift_wpn)
 			{
 				do_liftglove(-1,false); //Throw the already-held weapon
 				return false;
@@ -12056,7 +12056,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			weapon* wpn = new weapon((zfix)wx,(zfix)wy,(zfix)wz,wLitBomb,itm.fam_type,
 				itm.power*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true);
 			bool lifted = false;
-			if(itm.flags & ITEM_FLAG4)
+			if(itm.flags & item_flag4)
 			{
 				auto liftid = current_item_id(itype_liftglove);
 				itemdata const& glove = itemsbuf[liftid];
@@ -12094,7 +12094,7 @@ bool HeroClass::startwpn(int32_t itemid)
 				return false;
 			}
 			
-			if((itm.flags & ITEM_FLAG4) && lift_wpn)
+			if((itm.flags & item_flag4) && lift_wpn)
 			{
 				do_liftglove(-1,false); //Throw the already-held weapon
 				return false;
@@ -12111,7 +12111,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			
 			weapon* wpn = new weapon((zfix)wx,(zfix)wy,(zfix)wz,wLitSBomb,itm.fam_type,itm.power*game->get_hero_dmgmult(),dir, itemid,getUID(),false,false,true);
 			bool lifted = false;
-			if(itm.flags & ITEM_FLAG4)
+			if(itm.flags & item_flag4)
 			{
 				auto liftid = current_item_id(itype_liftglove);
 				itemdata const& glove = itemsbuf[liftid];
@@ -12141,7 +12141,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			int32_t bookid = current_item_id(itype_book);
 			bool paybook = (bookid>-1 && checkbunny(bookid) && checkmagiccost(bookid));
 			
-			if(!(itm.flags&ITEM_FLAG1) && !paybook)  //Can the wand shoot without the book?
+			if(!(itm.flags&item_flag1) && !paybook)  //Can the wand shoot without the book?
 			{
 				misc_internal_hero_flags &= ~LF_PAID_WAND_COST;
 				return false;
@@ -12184,7 +12184,7 @@ bool HeroClass::startwpn(int32_t itemid)
 				
 			if(bookid != -1)
 			{
-				if (( itemsbuf[bookid].flags & ITEM_FLAG4 ))
+				if (( itemsbuf[bookid].flags & item_flag4 ))
 				{
 					sfx(itemsbuf[bookid].misc2,pan(wx));
 				}
@@ -12242,7 +12242,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			else misc_internal_hero_flags &= ~LF_PAID_SWORD_COST;
 			float temppower;
 			
-			if(itm.flags & ITEM_FLAG2)
+			if(itm.flags & item_flag2)
 			{
 				temppower=game->get_hero_dmgmult()*itm.power;
 				temppower=temppower*itm.misc2;
@@ -12268,7 +12268,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			int32_t countid = itemid;
 			if(get_qr(qr_CANDLES_SHARED_LIMIT))
 				countid = -itype_candle;
-			if(itm.flags&ITEM_FLAG1 && usecounts[countid] >= zc_max(1, itm.misc3))
+			if(itm.flags&item_flag1 && usecounts[countid] >= zc_max(1, itm.misc3))
 			{
 				return false;
 			}
@@ -12285,7 +12285,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			
 			paymagiccost(itemid);
 			
-			if(itm.flags&ITEM_FLAG1) ++usecounts[countid];
+			if(itm.flags&item_flag1) ++usecounts[countid];
 			
 			Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wFire,
 								 //(itm.fam_type > 1), //To do with combo flags ... Needs to be changed to fix ->Level for wFire
@@ -12371,10 +12371,10 @@ bool HeroClass::startwpn(int32_t itemid)
 				return item_error();
 			
 			bool grumble = (tmpscr->room==rGRUMBLE && (!getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr->flags9&fBELOWRETURN)));
-			bool checkcost = grumble || !(itm.flags & ITEM_FLAG4);
-			bool paycost = grumble || !(itm.flags & (ITEM_FLAG4|ITEM_FLAG5));
+			bool checkcost = grumble || !(itm.flags & item_flag4);
+			bool paycost = grumble || !(itm.flags & (item_flag4|item_flag5));
 			
-			if(!grumble && (itm.flags & ITEM_FLAG2))
+			if(!grumble && (itm.flags & item_flag2))
 				return item_error(); //Only usable for grumble rooms
 			
 			if(checkcost && !checkmagiccost(itemid))
@@ -12392,7 +12392,7 @@ bool HeroClass::startwpn(int32_t itemid)
 				clear_bitmap(pricesdisplaybuf);
 				set_clip_state(pricesdisplaybuf, 1);
 				setmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
-				if(!(itm.flags & ITEM_FLAG3)) //"Don't remove when feeding" flag
+				if(!(itm.flags & item_flag3)) //"Don't remove when feeding" flag
 				{
 					removeItemsOfFamily(game,itemsbuf,itype_bait);
 					verifyBothWeapons();
@@ -12433,7 +12433,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			}
 			bool sw = itm.family == itype_switchhook;
 			
-			if(sw && (itm.flags&ITEM_FLAG8))
+			if(sw && (itm.flags&item_flag8))
 				switchhook_cost_item = itemid;
 			else paymagiccost(itemid);
 			
@@ -12499,7 +12499,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			{
 				int32_t hookitem = itm.fam_type;
 				int32_t hookpower = itm.power;
-				byte allow_diagonal = (itm.flags & ITEM_FLAG2) ? 1 : 0; 
+				byte allow_diagonal = (itm.flags & item_flag2) ? 1 : 0; 
 			
 				if(!Lwpns.has_space())
 				{
@@ -12743,9 +12743,9 @@ bool HeroClass::startwpn(int32_t itemid)
 		case itype_clock:
 		{
 			ret = false;
-			if(!(itm.flags & ITEM_FLAG1))
+			if(!(itm.flags & item_flag1))
 				break; //Passive clock, don't use
-			if((itm.flags & ITEM_FLAG2) && watch) //"Can't activate while clock active"
+			if((itm.flags & item_flag2) && watch) //"Can't activate while clock active"
 				break;
 			if(!(checkbunny(itemid) && checkmagiccost(itemid))) //cost/bunny check
 			{
@@ -12766,7 +12766,7 @@ bool HeroClass::startwpn(int32_t itemid)
 		case itype_killem:
 		{
 			ret = false;
-			if(!(itm.flags & ITEM_FLAG1))
+			if(!(itm.flags & item_flag1))
 				break; //Passive killemall, don't use
 			
 			if(!(checkbunny(itemid) && checkmagiccost(itemid))
@@ -12790,7 +12790,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			
 			bool did_something = false;
 			
-			if(itm.flags & ITEM_FLAG1) //Cure sword jinx
+			if(itm.flags & item_flag1) //Cure sword jinx
 			{
 				if(swordclk)
 					did_something = true;
@@ -12804,7 +12804,7 @@ bool HeroClass::startwpn(int32_t itemid)
 					continue;
 				int16_t amnt = vbound(itm.misc(q+5),-32768,32767);
 				if(!amnt) continue;
-				bool gradual = itm.flags & ITEM_FLAG2;
+				bool gradual = itm.flags & item_flag2;
 				if(amnt > 0)
 				{
 					if(game->get_counter(ctr) + game->get_dcounter(ctr) >= game->get_maxcounter(ctr))
@@ -12855,7 +12855,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			ret = false;
 	}
 	
-	if(itm.flags & ITEM_DOWNGRADE)
+	if(itm.flags & item_downgrade)
 	{
 		game->set_item(itemid,false);
 		
@@ -13001,7 +13001,7 @@ bool HeroClass::doattack()
 		// Once a charging threshold is reached, play the sound.
 		if(charging==normalcharge)
 		{
-			if(!(itemsbuf[scrollid].flags&ITEM_FLAG1))
+			if(!(itemsbuf[scrollid].flags&item_flag1))
 				paymagiccost(scrollid);
 			sfx(itemsbuf[scrollid].usesound2,pan(x.getInt()));
 		}
@@ -13009,7 +13009,7 @@ bool HeroClass::doattack()
 		{
 			if(scroll2id>-1 && checkbunny(scroll2id) && checkmagiccost(scroll2id))
 			{
-				if(!(itemsbuf[scroll2id].flags&ITEM_FLAG1))
+				if(!(itemsbuf[scroll2id].flags&item_flag1))
 					paymagiccost(scroll2id);
 				charging++; // charging>magiccharge signifies a successful supercharge.
 				sfx(itemsbuf[scroll2id].usesound2,pan(x.getInt()));
@@ -13072,7 +13072,7 @@ bool HeroClass::doattack()
 				bool super = charging>magiccharge && scroll2id > -1;
 				int id = super ? scroll2id : scrollid;
 				itemdata const& spinscroll = itemsbuf[id];
-				bool paid = !(spinscroll.flags&ITEM_FLAG1);
+				bool paid = !(spinscroll.flags&item_flag1);
 				if(!paid && checkbunny(id) && checkmagiccost(id))
 				{
 					paid = true;
@@ -13087,7 +13087,7 @@ bool HeroClass::doattack()
 						if(weapon* w = find_first_wtype(wSword))
 							w->reset_wgrids();
 					sfx(spinscroll.usesound,pan(x.getInt()));
-					if(spinscroll.flags&ITEM_FLAG1)
+					if(spinscroll.flags&item_flag1)
 						paymagiccost(id);
 				}
 			}
@@ -13096,7 +13096,7 @@ bool HeroClass::doattack()
 				bool super = charging>magiccharge && scroll2id > -1;
 				int id = super ? scroll2id : scrollid;
 				itemdata const& quakescroll = itemsbuf[id];
-				bool paid = !(quakescroll.flags&ITEM_FLAG1);
+				bool paid = !(quakescroll.flags&item_flag1);
 				if(!paid && checkbunny(id) && checkmagiccost(id))
 				{
 					paid = true;
@@ -13178,7 +13178,7 @@ bool HeroClass::doattack()
 		int32_t wpnid = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? directWpn : current_item_id(itype_sword);
 		int64_t templife = wpnid>=0? itemsbuf[wpnid].misc1 : 0;
 		
-		if(wpnid>=0 && itemsbuf[wpnid].flags & ITEM_FLAG1)
+		if(wpnid>=0 && itemsbuf[wpnid].flags & item_flag1)
 		{
 			templife=templife*game->get_maxlife();
 			templife=templife/100;
@@ -13193,7 +13193,7 @@ bool HeroClass::doattack()
 		bool perilbeam = (perilid>=0 && wpnid>=0 && game->get_life()<=itemsbuf[perilid].misc1*game->get_hp_per_heart()
 						  && checkbunny(perilid) && checkmagiccost(perilid)
 						  // Must actually be able to shoot sword beams
-						  && ((itemsbuf[wpnid].flags & ITEM_FLAG1)
+						  && ((itemsbuf[wpnid].flags & item_flag1)
 							  || itemsbuf[wpnid].misc1 <= game->get_maxlife()/game->get_hp_per_heart()));
 							  
 		if(attack==wSword && !tapping)
@@ -13238,7 +13238,7 @@ bool HeroClass::can_attack()
     if(action==hopping || action==swimming || action==freeze || action==sideswimfreeze
 		|| lstunclock > 0 || is_conveyor_stunned || spins>0 || usingActiveShield()
 		|| ((action==attacking||action==sideswimattacking)
-			&& ((attack!=wSword && attack!=wWand) || !(itemsbuf[currentSwordOrWand].flags & ITEM_FLAG5))
+			&& ((attack!=wSword && attack!=wWand) || !(itemsbuf[currentSwordOrWand].flags & item_flag5))
 			&& charging!=0))
     {
         return false;
@@ -13268,7 +13268,7 @@ bool isRaftFlag(int32_t flag)
 
 void handle_lens_triggers(int32_t l_id)
 {
-	bool enabled = l_id >= 0 && (itemsbuf[l_id].flags & ITEM_FLAG6);
+	bool enabled = l_id >= 0 && (itemsbuf[l_id].flags & item_flag6);
 	for(auto layer = 0; layer < 7; ++layer)
 	{
 		mapscr* tmp = FFCore.tempScreens[layer];
@@ -13408,14 +13408,14 @@ void HeroClass::do_hopping()
         if(diveclk>0)
 		{
             --diveclk;
-			if(flippers_id > -1 && itemsbuf[flippers_id].flags & ITEM_FLAG2 && DrunkrAbtn()) //Cancellable Diving -V
+			if(flippers_id > -1 && itemsbuf[flippers_id].flags & item_flag2 && DrunkrAbtn()) //Cancellable Diving -V
 			{
 				diveclk = itemsbuf[flippers_id].misc2;
 			}
 		}
         else if(DrunkrAbtn())
         {
-            bool global_diving=(flippers_id > -1 && itemsbuf[flippers_id].flags & ITEM_FLAG1);
+            bool global_diving=(flippers_id > -1 && itemsbuf[flippers_id].flags & item_flag1);
             bool screen_diving=(tmpscr->flags5&fTOGGLEDIVING) != 0;
             
             if(global_diving==screen_diving)
@@ -14471,13 +14471,13 @@ void HeroClass::mod_steps(std::vector<zfix*>& v)
 			}
 		}
 	}
-	bool slowcharging = charging>0 && (itemsbuf[getWpnPressed(itype_sword)].flags & ITEM_FLAG10);
+	bool slowcharging = charging>0 && (itemsbuf[getWpnPressed(itype_sword)].flags & item_flag10);
 	bool is_swimming = (action == swimming);
 	int32_t shieldid = getCurrentActiveShield();
 	if(shieldid > -1)
 	{
 		itemdata const& shield = itemsbuf[shieldid];
-		if(shield.flags & ITEM_FLAG10) //Change Speed flag
+		if(shield.flags & item_flag10) //Change Speed flag
 		{
 			zfix perc = shield.misc7;
 			perc /= 100;
@@ -14573,7 +14573,7 @@ void HeroClass::moveheroOld()
 	{
 		if (isSideViewHero() && get_qr(qr_SIDESWIM)) diveclk = 0;
 		--diveclk;
-		if(isDiving() && flippers_id > -1 && itemsbuf[flippers_id].flags & ITEM_FLAG2 && dive_pressed) //Cancellable Diving -V
+		if(isDiving() && flippers_id > -1 && itemsbuf[flippers_id].flags & item_flag2 && dive_pressed) //Cancellable Diving -V
 		{
 			diveclk = itemsbuf[flippers_id].misc2;
 			eatdive = true;
@@ -14581,7 +14581,7 @@ void HeroClass::moveheroOld()
 	}
 	else if(action == swimming && dive_pressed)
 	{
-		bool global_diving=(flippers_id > -1 && itemsbuf[flippers_id].flags & ITEM_FLAG1);
+		bool global_diving=(flippers_id > -1 && itemsbuf[flippers_id].flags & item_flag1);
 		bool screen_diving=(tmpscr->flags5&fTOGGLEDIVING) != 0;
 		
 		if(global_diving==screen_diving)
@@ -14613,7 +14613,7 @@ void HeroClass::moveheroOld()
 	//&0xFFF removes the "bow & arrows" bitmask
 	//The Quick Sword is allowed to interrupt attacks.
 	int32_t currentSwordOrWand = (itemsbuf[dowpn].family == itype_wand || itemsbuf[dowpn].family == itype_sword)?dowpn:-1;
-	if((!attackclk && action!=attacking && action != sideswimattacking) || ((attack==wSword || attack==wWand) && (itemsbuf[currentSwordOrWand].flags & ITEM_FLAG5)))
+	if((!attackclk && action!=attacking && action != sideswimattacking) || ((attack==wSword || attack==wWand) && (itemsbuf[currentSwordOrWand].flags & item_flag5)))
 	{
 		if(DrunkrBbtn())
 		{
@@ -14651,9 +14651,9 @@ void HeroClass::moveheroOld()
 	if(can_attack() && (swordid > -1 && itemsbuf[swordid].family==itype_sword) && checkitem_jinx(swordid) && btnwpn==itype_sword && charging==0)
 	{
 		attackid=directWpn>-1 ? directWpn : current_item_id(itype_sword);
-		if(checkbunny(attackid) && (checkmagiccost(attackid) || !(itemsbuf[attackid].flags & ITEM_FLAG6)))
+		if(checkbunny(attackid) && (checkmagiccost(attackid) || !(itemsbuf[attackid].flags & item_flag6)))
 		{
-			if((itemsbuf[attackid].flags & ITEM_FLAG6) && !(misc_internal_hero_flags & LF_PAID_SWORD_COST))
+			if((itemsbuf[attackid].flags & item_flag6) && !(misc_internal_hero_flags & LF_PAID_SWORD_COST))
 			{
 				paymagiccost(attackid,true);
 				misc_internal_hero_flags |= LF_PAID_SWORD_COST;
@@ -14753,9 +14753,9 @@ void HeroClass::moveheroOld()
 		{
 			attackid=directWpn>-1 ? directWpn : current_item_id(itype_wand);
 			no_jinx = checkitem_jinx(attackid);
-			if(no_jinx && checkbunny(attackid) && ((!(itemsbuf[attackid].flags & ITEM_FLAG6)) || checkmagiccost(attackid)))
+			if(no_jinx && checkbunny(attackid) && ((!(itemsbuf[attackid].flags & item_flag6)) || checkmagiccost(attackid)))
 			{
-				if((itemsbuf[attackid].flags & ITEM_FLAG6) && !(misc_internal_hero_flags & LF_PAID_WAND_COST)){
+				if((itemsbuf[attackid].flags & item_flag6) && !(misc_internal_hero_flags & LF_PAID_WAND_COST)){
 					paymagiccost(attackid,true);
 					misc_internal_hero_flags |= LF_PAID_WAND_COST;
 				}
@@ -14804,9 +14804,9 @@ void HeroClass::moveheroOld()
 		{
 			attackid=directWpn>-1 ? directWpn : current_item_id(itype_cbyrna);
 			no_jinx = checkitem_jinx(attackid);
-			if(no_jinx && checkbunny(attackid) && ((!(itemsbuf[attackid].flags & ITEM_FLAG6)) || checkmagiccost(attackid)))
+			if(no_jinx && checkbunny(attackid) && ((!(itemsbuf[attackid].flags & item_flag6)) || checkmagiccost(attackid)))
 			{
-				if((itemsbuf[attackid].flags & ITEM_FLAG6) && !(misc_internal_hero_flags & LF_PAID_CBYRNA_COST)){
+				if((itemsbuf[attackid].flags & item_flag6) && !(misc_internal_hero_flags & LF_PAID_CBYRNA_COST)){
 					paymagiccost(attackid,true);
 					misc_internal_hero_flags |= LF_PAID_CBYRNA_COST;
 				}
@@ -16900,7 +16900,7 @@ void HeroClass::moveheroOld()
 		int32_t wtrx8 = iswaterex(MAPCOMBO(x+15,y+(bigHitbox?0:8)), currmap, currscr, -1, x+15,y+(bigHitbox?0:8), true, false);
 		int32_t wtrc = iswaterex(MAPCOMBO(x+8,y+(bigHitbox?8:12)), currmap, currscr, -1, x+8,y+(bigHitbox?8:12), true, false);
 		
-		if(can_use_item(itype_flippers,i_flippers)&&current_item(itype_flippers) >= combobuf[wtrc].attribytes[0]&&(!(combobuf[wtrc].usrflags&cflag1) || (itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG3))&&!(ladderx+laddery)&&z==0&&fakez==0)
+		if(can_use_item(itype_flippers,i_flippers)&&current_item(itype_flippers) >= combobuf[wtrc].attribytes[0]&&(!(combobuf[wtrc].usrflags&cflag1) || (itemsbuf[current_item_id(itype_flippers)].flags & item_flag3))&&!(ladderx+laddery)&&z==0&&fakez==0)
 		{
 			if(wtrx&&wtrx8&&wtry&&wtry8 && !DRIEDLAKE)
 			{
@@ -18053,7 +18053,7 @@ bool HeroClass::scr_walkflag(zfix_round zdx,zfix_round zdy,int d2,bool kb, int* 
 		if(current_item(itype_flippers) && z==0 && fakez==0)
 		{
 			int32_t wtrx  = iswaterex(MAPCOMBO(dx,dy), currmap, currscr, -1, dx,dy);
-			if (current_item(itype_flippers) >= combobuf[wtrx].attribytes[0] && (!(combobuf[wtrx].usrflags&cflag1) || (itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG3))) //Don't swim if the water's required level is too high! -Dimi
+			if (current_item(itype_flippers) >= combobuf[wtrx].attribytes[0] && (!(combobuf[wtrx].usrflags&cflag1) || (itemsbuf[current_item_id(itype_flippers)].flags & item_flag3))) //Don't swim if the water's required level is too high! -Dimi
 			{
 				//ladder ignores water combos that are now walkable thanks to flippers -DD
 				unwalkablex = unwalkablex && (!wtrx);
@@ -18081,7 +18081,7 @@ bool HeroClass::scr_walkflag(zfix_round zdx,zfix_round zdy,int d2,bool kb, int* 
 			// Check if there's water to use the ladder over
 			bool wtrx = (iswaterex(MAPCOMBO(dx,dy), currmap, currscr, -1, dx,dy) != 0);
 			int32_t ldrid = current_item_id(itype_ladder);
-			bool ladderpits = ldrid > -1 && (itemsbuf[ldrid].flags&ITEM_FLAG1);
+			bool ladderpits = ldrid > -1 && (itemsbuf[ldrid].flags&item_flag1);
 			
 			if(wtrx)
 			{
@@ -18969,7 +18969,7 @@ bool HeroClass::premove()
 	{
 		if (isSideViewHero() && get_qr(qr_SIDESWIM)) diveclk = 0;
 		--diveclk;
-		if(isDiving() && flippers_id > -1 && itemsbuf[flippers_id].flags & ITEM_FLAG2 && dive_pressed) //Cancellable Diving -V
+		if(isDiving() && flippers_id > -1 && itemsbuf[flippers_id].flags & item_flag2 && dive_pressed) //Cancellable Diving -V
 		{
 			diveclk = itemsbuf[flippers_id].misc2;
 			eatdive = true;
@@ -18977,7 +18977,7 @@ bool HeroClass::premove()
 	}
 	else if(action == swimming && dive_pressed)
 	{
-		bool global_diving=(flippers_id > -1 && itemsbuf[flippers_id].flags & ITEM_FLAG1);
+		bool global_diving=(flippers_id > -1 && itemsbuf[flippers_id].flags & item_flag1);
 		bool screen_diving=(tmpscr->flags5&fTOGGLEDIVING) != 0;
 		
 		if(global_diving==screen_diving)
@@ -19009,7 +19009,7 @@ bool HeroClass::premove()
 	//&0xFFF removes the "bow & arrows" bitmask
 	//The Quick Sword is allowed to interrupt attacks.
 	int32_t currentSwordOrWand = (itemsbuf[dowpn].family == itype_wand || itemsbuf[dowpn].family == itype_sword)?dowpn:-1;
-	if((!attackclk && action!=attacking && action != sideswimattacking) || ((attack==wSword || attack==wWand) && (itemsbuf[currentSwordOrWand].flags & ITEM_FLAG5)))
+	if((!attackclk && action!=attacking && action != sideswimattacking) || ((attack==wSword || attack==wWand) && (itemsbuf[currentSwordOrWand].flags & item_flag5)))
 	{
 		if(DrunkrBbtn())
 		{
@@ -19047,9 +19047,9 @@ bool HeroClass::premove()
 	if(can_attack() && (swordid > -1 && itemsbuf[swordid].family==itype_sword) && checkitem_jinx(swordid) && btnwpn==itype_sword && charging==0)
 	{
 		attackid=directWpn>-1 ? directWpn : current_item_id(itype_sword);
-		if(checkbunny(attackid) && (checkmagiccost(attackid) || !(itemsbuf[attackid].flags & ITEM_FLAG6)))
+		if(checkbunny(attackid) && (checkmagiccost(attackid) || !(itemsbuf[attackid].flags & item_flag6)))
 		{
-			if((itemsbuf[attackid].flags & ITEM_FLAG6) && !(misc_internal_hero_flags & LF_PAID_SWORD_COST))
+			if((itemsbuf[attackid].flags & item_flag6) && !(misc_internal_hero_flags & LF_PAID_SWORD_COST))
 			{
 				paymagiccost(attackid,true);
 				misc_internal_hero_flags |= LF_PAID_SWORD_COST;
@@ -19147,9 +19147,9 @@ bool HeroClass::premove()
 		{
 			attackid=directWpn>-1 ? directWpn : current_item_id(itype_wand);
 			no_jinx = checkitem_jinx(attackid);
-			if(no_jinx && checkbunny(attackid) && ((!(itemsbuf[attackid].flags & ITEM_FLAG6)) || checkmagiccost(attackid)))
+			if(no_jinx && checkbunny(attackid) && ((!(itemsbuf[attackid].flags & item_flag6)) || checkmagiccost(attackid)))
 			{
-				if((itemsbuf[attackid].flags & ITEM_FLAG6) && !(misc_internal_hero_flags & LF_PAID_WAND_COST)){
+				if((itemsbuf[attackid].flags & item_flag6) && !(misc_internal_hero_flags & LF_PAID_WAND_COST)){
 					paymagiccost(attackid,true);
 					misc_internal_hero_flags |= LF_PAID_WAND_COST;
 				}
@@ -19198,9 +19198,9 @@ bool HeroClass::premove()
 		{
 			attackid=directWpn>-1 ? directWpn : current_item_id(itype_cbyrna);
 			no_jinx = checkitem_jinx(attackid);
-			if(no_jinx && checkbunny(attackid) && ((!(itemsbuf[attackid].flags & ITEM_FLAG6)) || checkmagiccost(attackid)))
+			if(no_jinx && checkbunny(attackid) && ((!(itemsbuf[attackid].flags & item_flag6)) || checkmagiccost(attackid)))
 			{
-				if((itemsbuf[attackid].flags & ITEM_FLAG6) && !(misc_internal_hero_flags & LF_PAID_CBYRNA_COST)){
+				if((itemsbuf[attackid].flags & item_flag6) && !(misc_internal_hero_flags & LF_PAID_CBYRNA_COST)){
 					paymagiccost(attackid,true);
 					misc_internal_hero_flags |= LF_PAID_CBYRNA_COST;
 				}
@@ -19575,7 +19575,7 @@ void HeroClass::movehero()
 			int32_t wtrx8 = iswaterex(MAPCOMBO(x+15,y+(bigHitbox?0:8)), currmap, currscr, -1, x+15,y+(bigHitbox?0:8), true, false);
 			int32_t wtrc = iswaterex(MAPCOMBO(x+8,y+(bigHitbox?8:12)), currmap, currscr, -1, x+8,y+(bigHitbox?8:12), true, false);
 			
-			if(can_use_item(itype_flippers,i_flippers)&&current_item(itype_flippers) >= combobuf[wtrc].attribytes[0]&&(!(combobuf[wtrc].usrflags&cflag1) || (itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG3))&&!(ladderx+laddery)&&z==0&&fakez==0)
+			if(can_use_item(itype_flippers,i_flippers)&&current_item(itype_flippers) >= combobuf[wtrc].attribytes[0]&&(!(combobuf[wtrc].usrflags&cflag1) || (itemsbuf[current_item_id(itype_flippers)].flags & item_flag3))&&!(ladderx+laddery)&&z==0&&fakez==0)
 			{
 				if(wtrx&&wtrx8&&wtry&&wtry8 && !DRIEDLAKE)
 				{
@@ -19850,7 +19850,7 @@ void HeroClass::moveOld(int32_t d2)
     int32_t z3diagskip=0;
     bool slowcombo = (combo_class_buf[combobuf[MAPCOMBO(x+7,y+8)].type].slow_movement && ((z==0 && fakez == 0) || tmpscr->flags2&fAIRCOMBOS)) ||
                      (isSideViewHero() && (on_sideview_solid_oldpos(this)||getOnSideviewLadder()) && combo_class_buf[combobuf[MAPCOMBO(x+7,y+8)].type].slow_movement);
-    bool slowcharging = charging>0 && (itemsbuf[getWpnPressed(itype_sword)].flags & ITEM_FLAG10);
+    bool slowcharging = charging>0 && (itemsbuf[getWpnPressed(itype_sword)].flags & item_flag10);
     bool is_swimming = (action == swimming);
     
     //slow walk combo, or charging, moves at 2/3 speed
@@ -20175,7 +20175,7 @@ void HeroClass::moveOld2(int32_t d2, int32_t forceRate)
 			}
 		}
 	}
-    bool slowcharging = charging>0 && (itemsbuf[getWpnPressed(itype_sword)].flags & ITEM_FLAG10);
+    bool slowcharging = charging>0 && (itemsbuf[getWpnPressed(itype_sword)].flags & item_flag10);
     bool is_swimming = (action == swimming);
 	bool fastSwim = (zinit.hero_swim_speed>60);
 	zfix rate(steprate);
@@ -20183,7 +20183,7 @@ void HeroClass::moveOld2(int32_t d2, int32_t forceRate)
 	if(shieldid > -1)
 	{
 		itemdata const& shield = itemsbuf[shieldid];
-		if(shield.flags & ITEM_FLAG10) //Change Speed flag
+		if(shield.flags & item_flag10) //Change Speed flag
 		{
 			zfix perc = shield.misc7;
 			perc /= 100;
@@ -20768,7 +20768,7 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
         {
 		int32_t wtrx  = iswaterex(MAPCOMBO(wx,wy), currmap, currscr, -1, wx,wy);
 		int32_t wtrx8 = iswaterex(MAPCOMBO(x+8,wy), currmap, currscr, -1, x+8,wy); //!DIMI: Still not sure if this should be x + 8...
-		if (current_item(itype_flippers) >= combobuf[wtrx8].attribytes[0] && (!(combobuf[wtrx8].usrflags&cflag1) || (itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG3))) //Don't swim if the water's required level is too high! -Dimi
+		if (current_item(itype_flippers) >= combobuf[wtrx8].attribytes[0] && (!(combobuf[wtrx8].usrflags&cflag1) || (itemsbuf[current_item_id(itype_flippers)].flags & item_flag3))) //Don't swim if the water's required level is too high! -Dimi
 		{
 		//ladder ignores water combos that are now walkable thanks to flippers -DD
 		    unwalkablex = unwalkablex && (!wtrx);
@@ -20817,7 +20817,7 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
             bool wtrx = (iswaterex(MAPCOMBO(wx,wy), currmap, currscr, -1, wx,wy) != 0);
             bool wtrx8 = (iswaterex(MAPCOMBO(x+8,wy), currmap, currscr, -1, x+8,wy) != 0);
 			int32_t ldrid = current_item_id(itype_ladder);
-			bool ladderpits = ldrid > -1 && (itemsbuf[ldrid].flags&ITEM_FLAG1);
+			bool ladderpits = ldrid > -1 && (itemsbuf[ldrid].flags&item_flag1);
             
             if(wtrx || wtrx8)
             {
@@ -21226,7 +21226,7 @@ void HeroClass::checkpushblock()
 	
 	int itemid=current_item_id(itype_bracelet);
 	size_t combopos = (by&0xF0)+(bx>>4);
-	bool limitedpush = (itemid>=0 && itemsbuf[itemid].flags & ITEM_FLAG1);
+	bool limitedpush = (itemid>=0 && itemsbuf[itemid].flags & item_flag1);
 	itemdata const* glove = itemid < 0 ? NULL : &itemsbuf[itemid];
 	for(int lyr = 2; lyr > -1; --lyr) //Top-down, in case of stacked push blocks
 	{
@@ -21413,7 +21413,7 @@ bool usekey()
 	int32_t itemid = current_item_id(itype_magickey);
 	
 	if(itemid<0 ||
-			(itemsbuf[itemid].flags & ITEM_FLAG1 ? itemsbuf[itemid].power<dlevel
+			(itemsbuf[itemid].flags & item_flag1 ? itemsbuf[itemid].power<dlevel
 			 : itemsbuf[itemid].power!=dlevel))
 	{
 		if(game->lvlkeys[dlevel]!=0)
@@ -21477,7 +21477,7 @@ bool canUseKey(int32_t num)
     int32_t itemid = current_item_id(itype_magickey);
     
     if(itemid<0 ||
-            (itemsbuf[itemid].flags & ITEM_FLAG1 ? itemsbuf[itemid].power<dlevel
+            (itemsbuf[itemid].flags & item_flag1 ? itemsbuf[itemid].power<dlevel
              : itemsbuf[itemid].power!=dlevel))
     {
         return game->lvlkeys[dlevel] + game->get_keys() >= num;
@@ -23390,10 +23390,10 @@ void HeroClass::handleSpotlights()
 		std::map<int32_t, spot_t*> maps;
 		std::map<int32_t, std::map<dword, spot_t>> ffmaps;
 		int32_t shieldid = getCurrentShield(false);
-		if((itemsbuf[shieldid].flags & ITEM_FLAG9) && !usingActiveShield(shieldid))
+		if((itemsbuf[shieldid].flags & item_flag9) && !usingActiveShield(shieldid))
 			shieldid = -1;
-		bool refl = shieldid > -1 && (itemsbuf[shieldid].misc2 & shLIGHTBEAM);
-		bool block = !refl && shieldid > -1 && (itemsbuf[shieldid].misc1 & shLIGHTBEAM);
+		bool refl = shieldid > -1 && (itemsbuf[shieldid].misc2 & sh_lightbeam);
+		bool block = !refl && shieldid > -1 && (itemsbuf[shieldid].misc1 & sh_lightbeam);
 		heropos = COMBOPOS_B(x.getInt()+8,y.getInt()+8);
 		memset(istrig, 0, sizeof(istrig));
 		clear_bitmap(lightbeam_bmp);
@@ -23459,7 +23459,7 @@ void HeroClass::handleSpotlights()
 		for(word i=0; i<c; i++)
 		{
 			ffcdata& ffc = tmpscr->ffcs[i];
-			if(ffc.flags & (ffCHANGER|ffETHEREAL))
+			if(ffc.flags & (ffc_changer|ffc_ethereal))
 				continue;
 			newcombo const& cmb = combobuf[ffc.data];
 			if(cmb.type == cSPOTLIGHT && (cmb.usrflags&cflag2))
@@ -24876,7 +24876,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 		&& ((get_qr(qr_DROWN) && z==0 && fakez==0 && fall>=0 && fakefall>=0) || CanSideSwim())
 		&& (sideview_mode() || !platform_ffc))
 	{
-		if(current_item(itype_flippers) <= 0 || current_item(itype_flippers) < combobuf[water].attribytes[0] || ((combobuf[water].usrflags&cflag1) && !(itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG3))) 
+		if(current_item(itype_flippers) <= 0 || current_item(itype_flippers) < combobuf[water].attribytes[0] || ((combobuf[water].usrflags&cflag1) && !(itemsbuf[current_item_id(itype_flippers)].flags & item_flag3))) 
 		{
 			if(!(ladderx+laddery)) drownCombo = water;
 			if (combobuf[water].usrflags&cflag1) Drown(1);
@@ -25449,7 +25449,7 @@ bool HeroClass::HasHeavyBoots()
 {
 	for ( int32_t q = 0; q < MAXITEMS; ++q )
 	{
-		if ( game->item[q] && ( itemsbuf[q].family == itype_boots ) && /*iron*/ (itemsbuf[q].flags&ITEM_FLAG2) ) return true;
+		if ( game->item[q] && ( itemsbuf[q].family == itype_boots ) && /*iron*/ (itemsbuf[q].flags&item_flag2) ) return true;
 	}
 	return false;
 }
@@ -26246,7 +26246,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		
 		int32_t checkwater = iswaterex(MAPCOMBO(x,y+8), currmap, currscr, -1, x,y+(bigHitbox?8:12)); //iswaterex can be intensive, so let's avoid as many calls as we can.
 		
-		if(checkwater && _walkflag(x,y+(bigHitbox?8:12),0,SWITCHBLOCK_STATE) && current_item(itype_flippers) > 0 && current_item(itype_flippers) >= combobuf[checkwater].attribytes[0] && (!(combobuf[checkwater].usrflags&cflag1) || (itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG3)))
+		if(checkwater && _walkflag(x,y+(bigHitbox?8:12),0,SWITCHBLOCK_STATE) && current_item(itype_flippers) > 0 && current_item(itype_flippers) >= combobuf[checkwater].attribytes[0] && (!(combobuf[checkwater].usrflags&cflag1) || (itemsbuf[current_item_id(itype_flippers)].flags & item_flag3)))
 		{
 			hopclk=0xFF;
 			SetSwim();
@@ -29348,7 +29348,7 @@ int32_t HeroClass::ringpower(int32_t dmg, bool noPeril, bool noRing)
 		{
 			usering = true;
 			paymagiccost(itemid);
-			if(itemsbuf[itemid].flags & ITEM_FLAG2)//"Divisor is Percentage Multiplier" flag
+			if(itemsbuf[itemid].flags & item_flag2)//"Divisor is Percentage Multiplier" flag
 			{
 				percentage *= itemsbuf[itemid].power/100.0;
 			}
@@ -29365,7 +29365,7 @@ int32_t HeroClass::ringpower(int32_t dmg, bool noPeril, bool noRing)
 		{
 			usering = true;
 			paymagiccost(itemid);
-			if(itemsbuf[itemid].flags & ITEM_FLAG2)//"Divisor is Percentage Multiplier" flag
+			if(itemsbuf[itemid].flags & item_flag2)//"Divisor is Percentage Multiplier" flag
 			{
 				percentage *= itemsbuf[itemid].power/100.0;
 			}
@@ -29396,7 +29396,7 @@ int32_t HeroClass::ringpower(int32_t dmg, bool noPeril, bool noRing)
 		{
 			usering = true;
 			paymagiccost(itemid);
-			if(itemsbuf[itemid].flags & ITEM_FLAG2)//"Divisor is Percentage Multiplier" flag
+			if(itemsbuf[itemid].flags & item_flag2)//"Divisor is Percentage Multiplier" flag
 			{
 				double perc = itemsbuf[itemid].power/100.0;
 				if(perc < 0) perc = -perc + 1; //Negative percentage = that percent MORE damage -V
@@ -29417,7 +29417,7 @@ int32_t HeroClass::ringpower(int32_t dmg, bool noPeril, bool noRing)
 		{
 			usering = true;
 			paymagiccost(itemid);
-			if(itemsbuf[itemid].flags & ITEM_FLAG2)//"Divisor is Percentage Multiplier" flag
+			if(itemsbuf[itemid].flags & item_flag2)//"Divisor is Percentage Multiplier" flag
 			{
 				double perc = itemsbuf[itemid].power/100.0;
 				if(perc < 0) perc = -perc + 1; //Negative percentage = that percent MORE damage -V
@@ -29520,20 +29520,20 @@ int32_t lwpn_dp(int32_t index)
 
 bool checkbunny(int32_t itemid)
 {
-	return !Hero.BunnyClock() || (itemid > 0 && itemsbuf[itemid].flags&ITEM_BUNNY_ENABLED);
+	return !Hero.BunnyClock() || (itemid > 0 && itemsbuf[itemid].flags&item_bunny_enabled);
 }
 
 bool usesSwordJinx(int32_t itemid)
 {
 	itemdata const& it = itemsbuf[itemid];
 	bool ret = (it.family==itype_sword);
-	if(it.flags & ITEM_FLIP_JINX) return !ret;
+	if(it.flags & item_flip_jinx) return !ret;
 	return ret;
 }
 bool checkitem_jinx(int32_t itemid)
 {
 	itemdata const& it = itemsbuf[itemid];
-	if(it.flags & ITEM_JINX_IMMUNE) return true;
+	if(it.flags & item_jinx_immune) return true;
 	if(usesSwordJinx(itemid)) return HeroSwordClk() == 0;
 	return HeroItemClk() == 0;
 }
@@ -29868,7 +29868,7 @@ void dospecialmoney(int32_t index)
 		int32_t wmedal = current_item_id(itype_wealthmedal);
 		if(wmedal >= 0)
 		{
-			if(itemsbuf[wmedal].flags & ITEM_FLAG1)
+			if(itemsbuf[wmedal].flags & item_flag1)
 				price*=(itemsbuf[wmedal].misc1/100.0);
 			else
 				price+=itemsbuf[wmedal].misc1;
@@ -29913,7 +29913,7 @@ void dospecialmoney(int32_t index)
 		int32_t wmedal = current_item_id(itype_wealthmedal);
 		if(wmedal >= 0)
 		{
-			if(itemsbuf[wmedal].flags & ITEM_FLAG1)
+			if(itemsbuf[wmedal].flags & item_flag1)
 				price*=(itemsbuf[wmedal].misc1/100.0);
 			else
 				price+=itemsbuf[wmedal].misc1;
@@ -29980,7 +29980,7 @@ void getitem(int32_t id, bool nosound, bool doRunPassive)
 		do
 		{
 			nextitem = -1;
-			if((itemsbuf[id].flags & ITEM_COMBINE) && game->get_item(id))
+			if((itemsbuf[id].flags & item_combine) && game->get_item(id))
 				// Item upgrade routine.
 			{
 				
@@ -30007,7 +30007,7 @@ void getitem(int32_t id, bool nosound, bool doRunPassive)
 	itemdata const& idat = itemsbuf[id&0xFF];
 	
 	bool equipment = idat.flags &
-		((idat.family == itype_triforcepiece) ? ITEM_FLAG8 : ITEM_GAMEDATA);
+		((idat.family == itype_triforcepiece) ? item_flag8 : item_gamedata);
 	
 	if(equipment)
 	{
@@ -30026,13 +30026,13 @@ void getitem(int32_t id, bool nosound, bool doRunPassive)
 		int32_t curitm = current_item_id(idat.family);
 		if(!get_qr(qr_KEEPOLD_APPLIES_RETROACTIVELY)
 			|| curitm < 0 || (itemsbuf[curitm].fam_type <= idat.fam_type)
-			|| (itemsbuf[curitm].flags & ITEM_KEEPOLD))
+			|| (itemsbuf[curitm].flags & item_keep_old))
 		{
 			game->set_item(id,true);
 			passiveitem_script(id, doRunPassive);
 		}
 		
-		if(!(idat.flags & ITEM_KEEPOLD))
+		if(!(idat.flags & item_keep_old))
 		{
 			if(!get_qr(qr_BROKEN_KEEPOLD_FLAG) || current_item(idat.family)<idat.fam_type)
 			{
@@ -30100,7 +30100,7 @@ void getitem(int32_t id, bool nosound, bool doRunPassive)
 	}
 	
 	//add lower-level items
-	if(idat.flags&ITEM_GAINOLD)
+	if(idat.flags&item_gain_old)
 	{
 		for(int32_t i=idat.fam_type-1; i>0; i--)
 		{
@@ -30119,7 +30119,7 @@ void getitem(int32_t id, bool nosound, bool doRunPassive)
 		{
 			int ids[10] = {idat.misc1, idat.misc2, idat.misc3, idat.misc4, idat.misc5,
 				idat.misc6, idat.misc7, idat.misc8, idat.misc9, idat.misc10};
-			bool pscript = (idat.flags & ITEM_FLAG1);
+			bool pscript = (idat.flags & item_flag1);
 			for(auto q = 0; q < 10; ++q)
 			{
 				if(unsigned(ids[q]) >= MAXITEMS) continue;
@@ -30149,9 +30149,9 @@ void getitem(int32_t id, bool nosound, bool doRunPassive)
 		
 		case itype_clock:
 		{
-			if(idat.flags & ITEM_FLAG1) //Active use, not passive
+			if(idat.flags & item_flag1) //Active use, not passive
 				break;
-			if((idat.flags & ITEM_FLAG2) && clockclk) //"Can't activate while clock active"
+			if((idat.flags & item_flag2) && clockclk) //"Can't activate while clock active"
 				break;
 			setClock(watch=true);
 			
@@ -30177,7 +30177,7 @@ void getitem(int32_t id, bool nosound, bool doRunPassive)
 			
 		case itype_whispring:
 		{
-			if(idat.flags & ITEM_FLAG1)
+			if(idat.flags & item_flag1)
 			{
 				if(HeroSwordClk()==-1) setSwordClk(150);  // Let's not bother applying the divisor.
 				
@@ -30208,8 +30208,8 @@ void getitem(int32_t id, bool nosound, bool doRunPassive)
 			
 		case itype_fairy:
 		
-			game->set_life(zc_min(game->get_life()+(idat.flags&ITEM_FLAG1 ?(int32_t)(game->get_maxlife()*(idat.misc1/100.0)):((idat.misc1*game->get_hp_per_heart()))),game->get_maxlife()));
-			game->set_magic(zc_min(game->get_magic()+(idat.flags&ITEM_FLAG2 ?(int32_t)(game->get_maxmagic()*(idat.misc2/100.0)):((idat.misc2*game->get_mp_per_block()))),game->get_maxmagic()));
+			game->set_life(zc_min(game->get_life()+(idat.flags&item_flag1 ?(int32_t)(game->get_maxlife()*(idat.misc1/100.0)):((idat.misc1*game->get_hp_per_heart()))),game->get_maxlife()));
+			game->set_magic(zc_min(game->get_magic()+(idat.flags&item_flag2 ?(int32_t)(game->get_maxmagic()*(idat.misc2/100.0)):((idat.misc2*game->get_mp_per_block()))),game->get_maxmagic()));
 			break;
 			
 		case itype_heartpiece:
@@ -30225,7 +30225,7 @@ void getitem(int32_t id, bool nosound, bool doRunPassive)
 			
 		case itype_killem:
 		{
-			if(idat.flags & ITEM_FLAG1) //Active use, not passive
+			if(idat.flags & item_flag1) //Active use, not passive
 				break;
 			kill_em_all();
 			sfx(idat.usesound);
@@ -30488,7 +30488,7 @@ void HeroClass::checkitems(int32_t index)
 		do
 		{
 			nextitem = -1;
-			if((itemsbuf[id2].flags & ITEM_COMBINE) && game->get_item(id2))
+			if((itemsbuf[id2].flags & item_combine) && game->get_item(id2))
 				// Item upgrade routine.
 			{
 				
@@ -30734,7 +30734,7 @@ void HeroClass::checkitems(int32_t index)
 			
 		}
 		
-		if(itemsbuf[id2].family!=itype_triforcepiece || !(itemsbuf[id2].flags & ITEM_GAMEDATA))
+		if(itemsbuf[id2].family!=itype_triforcepiece || !(itemsbuf[id2].flags & item_gamedata))
 		{
 			if (!ptr->noHoldSound) sfx(tmpscr[0].holdupsfx);
 		}
@@ -30883,13 +30883,13 @@ void HeroClass::StartRefill(int32_t refillWhat)
 			{
 				if(itemsbuf[refill_why].family==itype_potion)
 				{
-					if(itemsbuf[refill_why].flags & ITEM_FLAG3){swordclk=0;verifyAWpn();}
-					if(itemsbuf[refill_why].flags & ITEM_FLAG4)itemclk=0;
+					if(itemsbuf[refill_why].flags & item_flag3){swordclk=0;verifyAWpn();}
+					if(itemsbuf[refill_why].flags & item_flag4)itemclk=0;
 				}
 				else if(itemsbuf[refill_why].family==itype_triforcepiece)
 				{
-					if(itemsbuf[refill_why].flags & ITEM_FLAG3){swordclk=0;verifyAWpn();}
-					if(itemsbuf[refill_why].flags & ITEM_FLAG4)itemclk=0;
+					if(itemsbuf[refill_why].flags & item_flag3){swordclk=0;verifyAWpn();}
+					if(itemsbuf[refill_why].flags & item_flag4)itemclk=0;
 				}
 			}
 			else if(refill_why==REFILL_FAIRY)
@@ -30949,8 +30949,8 @@ bool HeroClass::refill()
     
     if(refill_why>=0 && itemsbuf[refill_why].family==itype_potion)
     {
-        refill_heart_stop=zc_min(potion_life+(itemsbuf[refill_why].flags & ITEM_FLAG1 ?int32_t(game->get_maxlife()*(itemsbuf[refill_why].misc1 /100.0)):((itemsbuf[refill_why].misc1 *game->get_hp_per_heart()))),game->get_maxlife());
-        refill_magic_stop=zc_min(potion_magic+(itemsbuf[refill_why].flags & ITEM_FLAG2 ?int32_t(game->get_maxmagic()*(itemsbuf[refill_why].misc2 /100.0)):((itemsbuf[refill_why].misc2 *game->get_mp_per_block()))),game->get_maxmagic());
+        refill_heart_stop=zc_min(potion_life+(itemsbuf[refill_why].flags & item_flag1 ?int32_t(game->get_maxlife()*(itemsbuf[refill_why].misc1 /100.0)):((itemsbuf[refill_why].misc1 *game->get_hp_per_heart()))),game->get_maxlife());
+        refill_magic_stop=zc_min(potion_magic+(itemsbuf[refill_why].flags & item_flag2 ?int32_t(game->get_maxmagic()*(itemsbuf[refill_why].misc2 /100.0)):((itemsbuf[refill_why].misc2 *game->get_mp_per_block()))),game->get_maxmagic());
     }
     
     if(refillclk%speed == 0)
@@ -31054,10 +31054,10 @@ void HeroClass::getTriforce(int32_t id2)
 	}
     
 	sfx(itemsbuf[id2].playsound);
-	if ( !(itemsbuf[id2].flags & ITEM_FLAG11) ) music_stop();
+	if ( !(itemsbuf[id2].flags & item_flag11) ) music_stop();
 	
 	//If item flag six is enabled, and a sound is set to attributes[2], play that sound.
-	if ( (itemsbuf[id2].flags & ITEM_FLAG14) )
+	if ( (itemsbuf[id2].flags & item_flag14) )
 	{
 		uint8_t playwav = itemsbuf[id2].misc3;
 		//zprint2("playwav is: %d\n", playwav);
@@ -31065,22 +31065,22 @@ void HeroClass::getTriforce(int32_t id2)
 		
 	}
 		
-	//itemsbuf[id2].flags & ITEM_FLAG9 : Don't dismiss Messages
-	//itemsbuf[id2].flags & ITEM_FLAG10 : Cutscene interrupts action script..
-	//itemsbuf[id2].flags & ITEM_FLAG11 : Don't change music.
-	//itemsbuf[id2].flags & ITEM_FLAG12 : Run Collect Script Script On Collection
-	//itemsbuf[id2].flags & ITEM_FLAG13 : Run Action Script On Collection
-	//itemsbuf[id2].flags & ITEM_FLAG14 : Play second sound (WAV) from Attributes[2] (misc2)
-	//itemsbuf[id2].flags & ITEM_FLAG15 : No MIDI
+	//itemsbuf[id2].flags & item_flag9 : Don't dismiss Messages
+	//itemsbuf[id2].flags & item_flag10 : Cutscene interrupts action script..
+	//itemsbuf[id2].flags & item_flag11 : Don't change music.
+	//itemsbuf[id2].flags & item_flag12 : Run Collect Script Script On Collection
+	//itemsbuf[id2].flags & item_flag13 : Run Action Script On Collection
+	//itemsbuf[id2].flags & item_flag14 : Play second sound (WAV) from Attributes[2] (misc2)
+	//itemsbuf[id2].flags & item_flag15 : No MIDI
     
-	if(!(itemsbuf[id2].flags & ITEM_FLAG15)) //No MIDI flag
+	if(!(itemsbuf[id2].flags & item_flag15)) //No MIDI flag
 	{
 		if(itemsbuf[id2].misc1)
 			jukebox(itemsbuf[id2].misc1+ZC_MIDI_COUNT-1);
 		else
 			try_zcmusic("zelda.nsf",qstpath,moduledata.tf_track,ZC_MIDI_TRIFORCE,get_emusic_volume());
 	}
-	if(itemsbuf[id2].flags & ITEM_GAMEDATA)
+	if(itemsbuf[id2].flags & item_gamedata)
 	{
 		game->lvlitems[dlevel]|=liTRIFORCE;
 	}
@@ -31094,7 +31094,7 @@ void HeroClass::getTriforce(int32_t id2)
 	{
 		
 		
-		if ( (itemsbuf[id2].flags & ITEM_FLAG13) ) //Run action script on collection.
+		if ( (itemsbuf[id2].flags & item_flag13) ) //Run action script on collection.
 		{
 			if ( itemsbuf[id2].script )
 			{
@@ -31107,20 +31107,20 @@ void HeroClass::getTriforce(int32_t id2)
 				}
 				else
 				{
-					if ( !(itemsbuf[id2].flags & ITEM_FLAG10) ) //Cutscene halts the script it resumes after cutscene.
+					if ( !(itemsbuf[id2].flags & item_flag10) ) //Cutscene halts the script it resumes after cutscene.
 						ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[id2].script, id2); //if flag is off, run the script every frame of the cutscene.
 				}
 			}
 		}
 		//if ( itemsbuf[id2].misc2 == 2 ) //No cutscene; what if people used '2' on older quests?
-		if ( (itemsbuf[id2].flags & ITEM_FLAG12) ) //No cutscene
+		if ( (itemsbuf[id2].flags & item_flag12) ) //No cutscene
 		{
 			return;
 		}
 		if(f==40)
 		{
 			actiontype oldaction = action;
-			ALLOFF((!(itemsbuf[id2].flags & ITEM_FLAG9)), false);
+			ALLOFF((!(itemsbuf[id2].flags & item_flag9)), false);
 			action=oldaction;                                    // have to reset this flag
 			FFCore.setHeroAction(oldaction);
 		}
@@ -31172,7 +31172,7 @@ void HeroClass::getTriforce(int32_t id2)
 		}
 
 	
-		if(itemsbuf[id2].flags & ITEM_GAMEDATA)
+		if(itemsbuf[id2].flags & item_gamedata)
 		{
 			if(f==refill_frame)
 			{
@@ -31191,7 +31191,7 @@ void HeroClass::getTriforce(int32_t id2)
 			}
 		}
 	
-		if(itemsbuf[id2].flags & ITEM_FLAG1) // Warp out flag
+		if(itemsbuf[id2].flags & item_flag1) // Warp out flag
 		{
 			if(f>=208 && f<288)
 			{
@@ -31236,8 +31236,8 @@ void HeroClass::getTriforce(int32_t id2)
 	while
 	(
 		(f < ( (itemsbuf[id2].misc4 > 0) ? itemsbuf[id2].misc4 : 408)) 
-		|| (!(itemsbuf[id2].flags & ITEM_FLAG15) /*&& !(itemsbuf[id2].flags & ITEM_FLAG11)*/ && (midi_pos > 0 && !replay_is_active())) 
-		|| (/*!(itemsbuf[id2].flags & ITEM_FLAG15) &&*/ !(itemsbuf[id2].flags & ITEM_FLAG11) && (zcmusic!=NULL) && (zcmusic->position<800 && !replay_is_active())
+		|| (!(itemsbuf[id2].flags & item_flag15) /*&& !(itemsbuf[id2].flags & item_flag11)*/ && (midi_pos > 0 && !replay_is_active())) 
+		|| (/*!(itemsbuf[id2].flags & item_flag15) &&*/ !(itemsbuf[id2].flags & item_flag11) && (zcmusic!=NULL) && (zcmusic->position<800 && !replay_is_active())
 		// Music is played at the same speed when fps is uncapped, so in replay mode we need to ignore the music position and instead
 		// just count frames. 480 is the number of frames it takes for the triforce song in classic_1st.qst to finish playing, but the exact
 		// value doesn't matter.
@@ -31254,14 +31254,14 @@ void HeroClass::getTriforce(int32_t id2)
     
 	//Warp Hero out of item cellars, in 2.10 and earlier quests. -Z ( 16th January, 2019 )
 	//Added a QR for this, to Other->2, as `Triforce in Cellar Warps Hero Out`. -Z 15th March, 2019 
-	if((itemsbuf[id2].flags & ITEM_FLAG1) && ( get_qr(qr_SIDEVIEWTRIFORCECELLAR) ? ( currscr < MAPSCRS192b136 ) : (currscr < MAPSCRSNORMAL) ) )
+	if((itemsbuf[id2].flags & item_flag1) && ( get_qr(qr_SIDEVIEWTRIFORCECELLAR) ? ( currscr < MAPSCRS192b136 ) : (currscr < MAPSCRSNORMAL) ) )
 	{
 		sdir=dir;
 		dowarp(1,0); //side warp
 	}
 	else
 	{
-		if ( !(itemsbuf[id2].flags & ITEM_FLAG11) ) playLevelMusic();
+		if ( !(itemsbuf[id2].flags & item_flag11) ) playLevelMusic();
 	}
 }
 
@@ -31891,7 +31891,7 @@ void HeroClass::ganon_intro()
             
             for(int32_t i=0; i<eMAXGUYS; i++)
             {
-                if(guysbuf[i].flags2&eneflag_ganon)
+                if(guysbuf[i].flags2&guy_ganon)
                 {
                     Id=i;
                     break;
@@ -32833,7 +32833,7 @@ void HeroClass::kill(bool bypassFairy)
 }
 bool HeroClass::sideview_mode() const
 {
-	return isSideViewHero() && (moveflags & FLAG_OBEYS_GRAV) && !toogam;
+	return isSideViewHero() && (moveflags & move_obeys_grav) && !toogam;
 }
 bool HeroClass::is_unpushable() const
 {

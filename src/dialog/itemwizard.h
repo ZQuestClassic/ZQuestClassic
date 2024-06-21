@@ -56,8 +56,9 @@ private:
 	map<int,vector<std::shared_ptr<GUI::Widget>>> widgs;
 	std::shared_ptr<GUI::Widget> push_widg(int id, std::shared_ptr<GUI::Widget> widg);
 	void disable(int id, bool dis);
-	
-	std::shared_ptr<GUI::Widget> CBOX_IMPL(string const& name, int32_t* mem, int32_t bit, optional<string> info = nullopt);
+
+	template <typename T1, typename T2>
+	std::shared_ptr<GUI::Widget> CBOX_IMPL(string const& name, T1* mem, T2 bit, optional<string> info = nullopt);
 	ItemWizardDialog(ItemEditorDialog& parent);
 	friend void call_item_wizard(ItemEditorDialog& dlg);
 };

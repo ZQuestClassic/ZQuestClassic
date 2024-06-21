@@ -65,7 +65,7 @@ public:
 		int data, cset, delay, link, script;
 		int tw, th;
 		int ew, eh;
-		dword flags;
+		ffc_flags flags;
 		std::array<int, 2> inita;
 		std::array<int, 8> initd;
 		bool operator==(data_t const&) const = default;

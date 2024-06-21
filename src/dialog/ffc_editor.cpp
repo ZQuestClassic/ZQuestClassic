@@ -336,58 +336,58 @@ std::shared_ptr<GUI::Widget> FFCDialog::view()
 				TabRef(name = "Flags", Column(
 					Rows<2>(
 						Label(text = "Standard Flags", colSpan = 2),
-						CHECKB("Draw Over", ffOVERLAY, "The FFC draws on a higher draw layer than it would otherwise if"
+						CHECKB("Draw Over", ffc_overlay, "The FFC draws on a higher draw layer than it would otherwise if"
 							" enabled."),
-						CHECKB("Ethereal", ffETHEREAL, "If enabled, the FFC has no 'effect', and is not checked"
+						CHECKB("Ethereal", ffc_ethereal, "If enabled, the FFC has no 'effect', and is not checked"
 							" for any combo type related effects."),
-						CHECKB("Translucent", ffTRANS, "The FFC draws transparently"),
-						CHECKB("Ignore Changers", ffIGNORECHANGER, "If enabled, this FFC will ignore collisions with"
+						CHECKB("Translucent", ffc_trans, "The FFC draws transparently"),
+						CHECKB("Ignore Changers", ffc_ignorechanger, "If enabled, this FFC will ignore collisions with"
 							" Changer FFCs."),
-						CHECKB("Is a Changer (Invisible, Ethereal)", ffCHANGER, "If enabled, this FFC is a changer."
+						CHECKB("Is a Changer (Invisible, Ethereal)", ffc_changer, "If enabled, this FFC is a changer."
 							" Changers are both invisible (not drawn) and ethereal (have no effect)."
 							" When a moving FFC collides with a changer, the changer will change some properties of"
 							" the colliding FFC. This can be used to make FFCs that move in patterns and such."),
-						CHECKB("Solid", ffSOLID, "If enabled, SHOULD make the FFC behave as solid."
+						CHECKB("Solid", ffc_solid, "If enabled, SHOULD make the FFC behave as solid."
 							"\nNOTE: This is not fully implemented, and may not work at all."),
-						CHECKB("Run Script at Screen Init", ffPRELOAD, "The script attached to this FFC runs during the"
+						CHECKB("Run Script at Screen Init", ffc_preload, "The script attached to this FFC runs during the"
 							" screen's initialization, before scrolling to the screen begins. This is useful for scripts"
 							" that want to, for instance, modify combos on the screen and have those changes visible"
 							" as you scroll onto the screen."),
-						CHECKB("Imprecise Collision", ffIMPRECISIONCHANGER, "Collision with changer FFCs is not"
+						CHECKB("Imprecise Collision", ffc_imprecisionchanger, "Collision with changer FFCs is not"
 							"subpixel-specific if enabled."),
-						CHECKB("Only Visible to Lens", ffLENSVIS, "If this is enabled, the FFC will not be drawn when"
+						CHECKB("Only Visible to Lens", ffc_lensvis, "If this is enabled, the FFC will not be drawn when"
 							" the lens is not active. Checking 'Invisible to Lens' as well will make the FFC entirely"
 							" invisible."),
-						CHECKB("Invisible to Lens", ffLENSINVIS, "If this is enabled, the FFC will not be drawn when"
+						CHECKB("Invisible to Lens", ffc_lensinvis, "If this is enabled, the FFC will not be drawn when"
 							" the lens is active. Checking 'Only Visible to Lens' as well will make the FFC entirely"
 							" invisible."),
-						CHECKB("Script Restarts when Carried Over", ffSCRIPTRESET, "If enabled, and 'Carry Over'"
+						CHECKB("Script Restarts when Carried Over", ffc_scriptreset, "If enabled, and 'Carry Over'"
 							" is enabled, then when the FFC is carried over to a new screen, the script starts over."),
-						CHECKB("Carry-Over", ffCARRYOVER, "If enabled, the FFC will 'Carry Over' to other screens."
+						CHECKB("Carry-Over", ffc_carryover, "If enabled, the FFC will 'Carry Over' to other screens."
 							" Upon loading a new screen, the FFC of the new screen with the same index as this FFC"
 							" will not be loaded, as this FFC will remain loaded in that slot instead. This FFC"
 							" will carry over until either a script toggles this flag off for it, or a screen with"
 							" the screen flag 'No FFC Carryover' is set is reached."),
-						CHECKB("Active during Item Holdup", ffIGNOREHOLDUP, "If disabled, the FFC will pause all activity"
+						CHECKB("Active during Item Holdup", ffc_ignoreholdup, "If disabled, the FFC will pause all activity"
 							" during item holdup animations. Does not pause draws."),
-						CHECKB("Stationary", ffSTATIONARY, "If enabled, the FFC will not move, even if it has"
+						CHECKB("Stationary", ffc_stationary, "If enabled, the FFC will not move, even if it has"
 							" movement values given to it."),
-						CHECKB("Platform", ffPLATFORM, "If enabled, the FFC will act as a platform,"
+						CHECKB("Platform", ffc_platform, "If enabled, the FFC will act as a platform,"
 							" moving the player with it if the player is standing on it."+QRHINT({qr_MULTI_PLATFORM_FFC}))
 					),
 					Rows<2>(
 						Label(text = "Changer-Specific Flags", colSpan = 2),
-						CHECKB("Swap w/ Next FFC", ffSWAPNEXT, "If enabled, FFCs that collide with this changer will:\n"
+						CHECKB("Swap w/ Next FFC", ffc_swapnext, "If enabled, FFCs that collide with this changer will:\n"
 							"Swap its' combo, cset, delay, link, movement, effect width/height, and flags with the"
 							" next combo in the list after it."),
-						CHECKB("Swap w/ Prev FFC", ffSWAPPREV, "If enabled, FFCs that collide with this changer will:\n"
+						CHECKB("Swap w/ Prev FFC", ffc_swapprev, "If enabled, FFCs that collide with this changer will:\n"
 							"Swap its' combo, cset, delay, link, movement, effect width/height, and flags with the"
 							" previous combo in the list before it. Overrides 'Swap w/ Next FFC'."),
-						CHECKB("Become Next Combo", ffCHANGENEXT, "If enabled, FFCs that collide with this changer will:\n"
+						CHECKB("Become Next Combo", ffc_changenext, "If enabled, FFCs that collide with this changer will:\n"
 							"Change its' combo to the next combo in the combo list."),
-						CHECKB("Become Prev Combo", ffCHANGEPREV, "If enabled, FFCs that collide with this changer will:\n"
+						CHECKB("Become Prev Combo", ffc_changeprev, "If enabled, FFCs that collide with this changer will:\n"
 							"Change its' combo to the previous combo in the combo list."),
-						CHECKB("Become This Combo+CSet", ffCHANGETHIS, "If enabled, FFCs that collide with this changer will:\n"
+						CHECKB("Become This Combo+CSet", ffc_changethis, "If enabled, FFCs that collide with this changer will:\n"
 							"Change its' combo and cset to the combo and cset of this changer.")
 					)
 				)),

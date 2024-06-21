@@ -106,28 +106,28 @@ void identifyCFEnemies()
 	
 	for(int32_t i=0; i<eMAXGUYS; i++)
 	{
-		if((guysbuf[i].flags2&cmbflag_trph) && trapLOSHorizontalID==-1)
+		if((guysbuf[i].flags2&guy_trph) && trapLOSHorizontalID==-1)
 			trapLOSHorizontalID=i;
-		if((guysbuf[i].flags2&cmbflag_trpv) && trapLOSVerticalID==-1)
+		if((guysbuf[i].flags2&guy_trpv) && trapLOSVerticalID==-1)
 			trapLOSVerticalID=i;
-		if((guysbuf[i].flags2&cmbflag_trp4) && trapLOS4WayID==-1)
+		if((guysbuf[i].flags2&guy_trp4) && trapLOS4WayID==-1)
 			trapLOS4WayID=i;
-		if((guysbuf[i].flags2&cmbflag_trplr) && trapConstantHorizontalID==-1)
+		if((guysbuf[i].flags2&guy_trplr) && trapConstantHorizontalID==-1)
 			trapConstantHorizontalID=i;
-		if((guysbuf[i].flags2&cmbflag_trpud) && trapConstantVerticalID==-1)
+		if((guysbuf[i].flags2&guy_trpud) && trapConstantVerticalID==-1)
 			trapConstantVerticalID=i;
 		
-		if((guysbuf[i].flags2&eneflag_trap) && cornerTrapID==-1)
+		if((guysbuf[i].flags2&guy_trap) && cornerTrapID==-1)
 			cornerTrapID=i;
-		if((guysbuf[i].flags2&eneflag_trp2) && centerTrapID==-1)
+		if((guysbuf[i].flags2&guy_trp2) && centerTrapID==-1)
 			centerTrapID=i;
 		
-		if((guysbuf[i].flags2&eneflag_rock) && rockID==-1)
+		if((guysbuf[i].flags2&guy_rock) && rockID==-1)
 			rockID=i;
-		if((guysbuf[i].flags2&eneflag_zora) && zoraID==-1)
+		if((guysbuf[i].flags2&guy_zora) && zoraID==-1)
 			zoraID=i;
 		
-		if((guysbuf[i].flags2 & eneflag_fire) && statueID==-1)
+		if((guysbuf[i].flags2 & guy_fire) && statueID==-1)
 			statueID=i;
 	}
 }
@@ -265,10 +265,10 @@ bool enemy::shadow_overpit(enemy *e)
 // Returns true iff a combo type or flag precludes enemy movement.
 bool enemy::groundblocked(int32_t dx, int32_t dy, bool isKB)
 {
-	if(moveflags & FLAG_IGNORE_BLOCKFLAGS) return false;
+	if(moveflags & move_ignore_blockflags) return false;
 	int32_t c = COMBOTYPE(dx,dy);
-	bool pit_blocks = (!(moveflags & (FLAG_CAN_PITWALK|FLAG_ONLY_PITWALK)) && (!(moveflags & FLAG_CAN_PITFALL) || !isKB));
-	bool water_blocks = (!(moveflags & (FLAG_CAN_WATERWALK|FLAG_ONLY_WATERWALK|FLAG_ONLY_SHALLOW_WATERWALK)) && (!(moveflags & FLAG_CAN_WATERDROWN) || !isKB) && get_qr(qr_DROWN));
+	bool pit_blocks = (!(moveflags & (move_can_pitwalk|move_only_pitwalk)) && (!(moveflags & move_can_pitfall) || !isKB));
+	bool water_blocks = (!(moveflags & (move_can_waterwalk|move_only_waterwalk|move_only_shallow_waterwalk)) && (!(moveflags & move_can_waterdrown) || !isKB) && get_qr(qr_DROWN));
 	return c==cPIT || c==cPITB || c==cPITC ||
 		   c==cPITD || c==cPITR || (pit_blocks && ispitfall(dx,dy)) ||
 		   // Block enemies type and block enemies flags
@@ -284,9 +284,9 @@ bool enemy::groundblocked(int32_t dx, int32_t dy, bool isKB)
 // Returns true iff enemy is floating and blocked by a combo type or flag.
 bool enemy::flyerblocked(int32_t dx, int32_t dy, int32_t special, bool isKB)
 {
-	if(moveflags & FLAG_IGNORE_BLOCKFLAGS) return false;
-	bool pit_blocks = (!(moveflags & FLAG_CAN_PITWALK) && (!(moveflags & FLAG_CAN_PITFALL) || !isKB));
-	bool water_blocks = (!(moveflags & FLAG_CAN_WATERWALK) && (!(moveflags & FLAG_CAN_WATERDROWN) || !isKB));
+	if(moveflags & move_ignore_blockflags) return false;
+	bool pit_blocks = (!(moveflags & move_can_pitwalk) && (!(moveflags & move_can_pitfall) || !isKB));
+	bool water_blocks = (!(moveflags & move_can_waterwalk) && (!(moveflags & move_can_waterdrown) || !isKB));
 	return ((special==spw_floater)&&
 			((COMBOTYPE(dx,dy)==cNOFLYZONE)||
 			 (combo_class_buf[COMBOTYPE(dx,dy)].block_enemies&4)||
@@ -299,8 +299,8 @@ bool enemy::flyerblocked(int32_t dx, int32_t dy, int32_t special, bool isKB)
 bool groundblocked(int32_t dx, int32_t dy, guydata const& gd)
 {
 	int32_t c = COMBOTYPE(dx,dy);
-	bool pit_blocks = !(gd.moveflags & FLAG_CAN_PITWALK);
-	bool water_blocks = !(gd.moveflags & FLAG_CAN_WATERWALK) && get_qr(qr_DROWN);
+	bool pit_blocks = !(gd.moveflags & move_can_pitwalk);
+	bool water_blocks = !(gd.moveflags & move_can_waterwalk) && get_qr(qr_DROWN);
 	return c==cPIT || c==cPITB || c==cPITC ||
 		   c==cPITD || c==cPITR || (pit_blocks && ispitfall(dx,dy)) ||
 		   // Block enemies type and block enemies flags
@@ -316,8 +316,8 @@ bool groundblocked(int32_t dx, int32_t dy, guydata const& gd)
 // Returns true iff enemy is floating and blocked by a combo type or flag.
 bool flyerblocked(int32_t dx, int32_t dy, int32_t special, guydata const& gd)
 {
-	bool pit_blocks = (!(gd.moveflags & FLAG_CAN_PITWALK) && !(gd.moveflags & FLAG_CAN_PITFALL));
-	bool water_blocks = !(gd.moveflags & FLAG_CAN_WATERWALK);
+	bool pit_blocks = (!(gd.moveflags & move_can_pitwalk) && !(gd.moveflags & move_can_pitfall));
+	bool water_blocks = !(gd.moveflags & move_can_waterwalk);
 	return ((special==spw_floater)&&
 			((COMBOTYPE(dx,dy)==cNOFLYZONE)||
 			 (combo_class_buf[COMBOTYPE(dx,dy)].block_enemies&4)||
@@ -440,9 +440,6 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 		initD[q] = d->initD[q];
 		//Z_scripterrlog("(enemy::enemy(zfix)): Loading weapon InitD[%d] to an enemy with a value of (%d)\n",q,d->weap_initiald[q]);
 		weap_initiald[q] = d->weap_initiald[q];
-		//al_trace("Guys.cpp: Assigning guy.initD[%d]: %d\n",q, d->initD.initD[q]);
-		//al_trace("Guys.cpp: Assigning guy.initD[%d] from d->initD[%d]: %d\n",q,q, d->initD[q]);
-		//al_trace("Guys.cpp: guy.initD[%d] is: %d\n",q, initD[q]);
 	}
 	for ( int32_t q = 0; q < 2; q++ ) 
 	{
@@ -513,12 +510,11 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 		
 	leader = itemguy = dying = scored = false;
 	canfreeze = count_enemy = true;
-	mainguy = !(flags & guy_doesntcount);
+	mainguy = !(flags & guy_doesnt_count);
 	dir = zc_oldrand()&3;
 	
 	//2.6 Enemy Editor Hit and TIle Sizes
 	if ( ((d->SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && d->txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
-	//al_trace("->txsz:%i\n", d->txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((d->SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && d->tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
 	if ( ((d->SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && d->hxsz >= 0 ) hit_width = d->hxsz;
@@ -549,8 +545,8 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 	if(!can_pitfall(false))
 	{
 		//Some enemies must not interact with pits. Force their flags, for sanity's sake.
-		moveflags &= ~FLAG_CAN_PITFALL;
-		moveflags &= ~FLAG_CAN_WATERDROWN;
+		moveflags &= ~move_can_pitfall;
+		moveflags &= ~move_can_waterdrown;
 	}
 
 	shieldCanBlock = get_qr(qr_GOHMA_UNDAMAGED_BUG)?true:false;
@@ -584,12 +580,12 @@ bool enemy::scr_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int
 	if(input_y == -1000)
 		input_y = dy;
 	
-	if(!(moveflags & FLAG_IGNORE_SCREENEDGE)
+	if(!(moveflags & move_ignore_screenedge)
 		&& ((input_x<(16-nb)) || (input_y<zc_max(16-yg-nb,0))
 			|| ((input_x+hit_width-1) >= (240+nb)) || ((input_y+hit_height-1) >= (160+nb))))
 		return true;
 	
-	if(!(moveflags & FLAG_CAN_PITWALK) && (!(moveflags & FLAG_CAN_PITFALL) || !kb)) //Don't walk into pits, unless being knocked back
+	if(!(moveflags & move_can_pitwalk) && (!(moveflags & move_can_pitfall) || !kb)) //Don't walk into pits, unless being knocked back
 	{
 		if(ispitfall(dx,dy))
 			return true;
@@ -597,7 +593,7 @@ bool enemy::scr_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int
 	
 	bool flying = false;
 	bool cansolid = false;
-	if(moveflags & FLAG_IGNORE_SOLIDITY)
+	if(moveflags & move_ignore_solidity)
 		cansolid = true;
 	switch(special)
 	{
@@ -610,12 +606,12 @@ bool enemy::scr_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int
 		case spw_wizzrobe: // fall through
 		case spw_floater: // Special case for fliers and wizzrobes - hack!
 			{
-				if(isdungeon() && !(moveflags & FLAG_IGNORE_SCREENEDGE))
+				if(isdungeon() && !(moveflags & move_ignore_screenedge))
 				{
 					if(dy < 32-yg || dy >= 144) return true;
 					if(dx < 32 || dx >= 224) return true;
 				}
-				if(!(moveflags & FLAG_IGNORE_BLOCKFLAGS) && flyerblocked(dx, dy, special, kb))
+				if(!(moveflags & move_ignore_blockflags) && flyerblocked(dx, dy, special, kb))
 					return true;
 				cansolid = true;
 				flying = true;
@@ -625,10 +621,10 @@ bool enemy::scr_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int
 	dx &= ~7;
 	dy &= ~7;
 	
-	if(!flying && !(moveflags & FLAG_IGNORE_BLOCKFLAGS) && groundblocked(dx,dy,kb)) return true;
+	if(!flying && !(moveflags & move_ignore_blockflags) && groundblocked(dx,dy,kb)) return true;
 
 	if (dx < 0 || dx > 255 || dy < 0 || dy > 175)
-		return !(moveflags & FLAG_IGNORE_SCREENEDGE);
+		return !(moveflags & move_ignore_screenedge);
 	//_walkflag code
 	mapscr *s1, *s2;
 	s1=(((*tmpscr).layermap[0]-1)>=0)?tmpscr2:NULL;
@@ -653,11 +649,11 @@ bool enemy::scr_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int
 	bool shwtr = iwtr(ci, dx, dy, true);
 	bool pit = ispitfall(dx,dy);
 	
-	bool canwtr = (moveflags & FLAG_CAN_WATERWALK) || ((moveflags & FLAG_CAN_WATERDROWN) && kb);
-	bool canpit = (moveflags & FLAG_CAN_PITWALK) || ((moveflags & FLAG_CAN_PITFALL) && kb);
-	bool needwtr = (moveflags & FLAG_ONLY_WATERWALK);
-	bool needshwtr = (moveflags & FLAG_ONLY_SHALLOW_WATERWALK);
-	bool needpit = (moveflags & FLAG_ONLY_PITWALK);
+	bool canwtr = (moveflags & move_can_waterwalk) || ((moveflags & move_can_waterdrown) && kb);
+	bool canpit = (moveflags & move_can_pitwalk) || ((moveflags & move_can_pitfall) && kb);
+	bool needwtr = (moveflags & move_only_waterwalk);
+	bool needshwtr = (moveflags & move_only_shallow_waterwalk);
+	bool needpit = (moveflags & move_only_pitwalk);
 
 	if(!cansolid)
 	{
@@ -717,11 +713,11 @@ bool enemy::scr_canmove(zfix dx, zfix dy, int32_t special, bool kb, bool ign_sv)
 	zfix rx = bx+hit_width-1, ry = by+hit_height-1; //right/bottom
 	if(!ign_sv && dy < 0) //check gravity
 	{
-		if((moveflags & FLAG_OBEYS_GRAV) && isSideViewGravity())
+		if((moveflags & move_obeys_grav) && isSideViewGravity())
 			return false;
 	}
 	
-	bool nosolid = !((moveflags & FLAG_IGNORE_SOLIDITY) || (special==spw_wizzrobe) || (special==spw_floater));
+	bool nosolid = !((moveflags & move_ignore_solidity) || (special==spw_wizzrobe) || (special==spw_floater));
 	
 	if(dx && !dy)
 	{
@@ -797,7 +793,7 @@ bool enemy::scr_canplace(zfix dx, zfix dy, int32_t special, bool kb)
 	zfix bx = dx+hxofs, by = dy+hyofs; //left/top
 	zfix rx = bx+hit_width-1, ry = by+hit_height-1; //right/bottom
 	
-	bool nosolid = !((moveflags & FLAG_IGNORE_SOLIDITY) || (special==spw_wizzrobe) || (special==spw_floater));
+	bool nosolid = !((moveflags & move_ignore_solidity) || (special==spw_wizzrobe) || (special==spw_floater));
 	
 	if(nosolid && collide_object(bx,by,hit_width,hit_height,this))
 		return false;
@@ -834,7 +830,7 @@ bool enemy::scr_canplace(zfix dx, zfix dy, int32_t special, bool kb, int32_t nwi
 bool enemy::movexy(zfix dx, zfix dy, int32_t special, bool kb, bool ign_sv, bool earlyret)
 {
 	bool ret = true;
-	if(!ign_sv && dy < 0 && (moveflags & FLAG_OBEYS_GRAV) && isSideViewGravity())
+	if(!ign_sv && dy < 0 && (moveflags & move_obeys_grav) && isSideViewGravity())
 		dy = 0;
 	const int scl = 2;
 	while(abs(dx) > scl || abs(dy) > scl)
@@ -995,7 +991,7 @@ bool enemy::do_falling(int32_t index)
 				++fallclk; //force another frame of falling.... forever.
 			else if(dying) //Give 1 frame for script revival
 			{
-				if(flags&guy_neverret)
+				if(flags&guy_never_return)
 					never_return(index);
 				
 				if(leader)
@@ -1035,7 +1031,7 @@ bool enemy::do_drowning(int32_t index)
 				++drownclk; //force another frame of falling.... forever.
 			else if(dying) //Give 1 frame for script revival
 			{
-				if(flags&guy_neverret)
+				if(flags&guy_never_return)
 					never_return(index);
 				
 				if(leader)
@@ -1099,7 +1095,7 @@ bool enemy::Dead(int32_t index)
 			
 		if(clk2==0)
 		{
-			if(flags&guy_neverret)
+			if(flags&guy_never_return)
 				never_return(index);
 				
 			if(leader)
@@ -1201,7 +1197,7 @@ bool enemy::animate(int32_t index)
 	{
 	//skip, as it can go out of bounds, from immortality
 	}
-	else if (   (moveflags & FLAG_IGNORE_SCREENEDGE) || (( (get_qr(qr_OUTOFBOUNDSENEMIES)) != bool(editorflags&ENEMY_FLAG11) ) && !NEWOUTOFBOUNDS(x,y,z+fakez))   )
+	else if (   (moveflags & move_ignore_screenedge) || (( (get_qr(qr_OUTOFBOUNDSENEMIES)) != bool(editorflags&ENEMY_FLAG11) ) && !NEWOUTOFBOUNDS(x,y,z+fakez))   )
 	{
 	//skip, it can go out of bounds, from a quest rule, or from the enemy editor (but not both!)
 	}
@@ -1210,7 +1206,7 @@ bool enemy::animate(int32_t index)
 		hp=-1000; //kill it, as it is not immortal, and no quest bit or rule is enabled
 	}
 	//fall down
-	if((enemycanfall(id) || (moveflags & FLAG_OBEYS_GRAV) )&& fading != fade_flicker && clk>=0)
+	if((enemycanfall(id) || (moveflags & move_obeys_grav) )&& fading != fade_flicker && clk>=0)
 	{
 		if(isSideViewGravity())
 		{
@@ -1290,7 +1286,7 @@ bool enemy::animate(int32_t index)
 		}
 		else
 		{
-			if (!(moveflags & FLAG_NO_FAKE_Z))
+			if (!(moveflags & move_no_fake_z))
 			{
 				if(fakefall!=0)
 					fakez-=(fakefall/100);
@@ -1302,7 +1298,7 @@ bool enemy::animate(int32_t index)
 				
 				if (fakez<=0 && fakefall > 0 && !get_qr(qr_FLUCTUATING_ENEMY_JUMP)) fakefall = 0;
 			}
-			if (!(moveflags & FLAG_NO_REAL_Z))
+			if (!(moveflags & move_no_real_z))
 			{
 				if(fall!=0)
 					z-=(fall/100);
@@ -1317,14 +1313,14 @@ bool enemy::animate(int32_t index)
 			
 		}
 	}
-	if(!isSideViewGravity() && (moveflags & FLAG_CAN_PITFALL))
+	if(!isSideViewGravity() && (moveflags & move_can_pitfall))
 	{
 		if(can_pitfall() && ((z <= 0 && fakez <= 0 && !isflier(id)) || (isflier(id) && (stunclk))) && !superman)
 		{
 			fallCombo = check_pits();
 		}
 	}
-	if(!isSideViewGravity() && (moveflags & FLAG_CAN_WATERDROWN))
+	if(!isSideViewGravity() && (moveflags & move_can_waterdrown))
 	{
 		if(can_pitfall() && ((z <= 0 && fakez <= 0 && !isflier(id)) || (isflier(id) && (stunclk))) && !superman)
 		{
@@ -1384,7 +1380,7 @@ void enemy::doContactDamage(int32_t hdir)
 void enemy::solid_push(solid_object *obj)
 {
 	if(obj == this) return; //can't push self
-	if(moveflags&FLAG_NOT_PUSHABLE) return; //not pushable
+	if(moveflags&move_not_pushable) return; //not pushable
 	zfix dx, dy;
 	int32_t hdir = -1;
 	solid_push_int(obj,dx,dy,hdir,true);
@@ -1411,7 +1407,7 @@ bool enemy::is_unpushable() const
 }
 bool enemy::sideview_mode() const
 {
-	return isSideViewGravity() && (moveflags&FLAG_OBEYS_GRAV) && !(moveflags&FLAG_NOT_PUSHABLE);
+	return isSideViewGravity() && (moveflags&move_obeys_grav) && !(moveflags&move_not_pushable);
 }
 
 bool enemy::m_walkflag_old(int32_t dx,int32_t dy,int32_t special, int32_t x, int32_t y)
@@ -1433,7 +1429,7 @@ bool enemy::m_walkflag_old(int32_t dx,int32_t dy,int32_t special, int32_t x, int
 				return true;
 	}
 	
-	if(!(moveflags & FLAG_CAN_PITWALK) && !(moveflags & FLAG_CAN_PITFALL)) //Don't walk into pits (knockback doesn't call this func)
+	if(!(moveflags & move_can_pitwalk) && !(moveflags & move_can_pitfall)) //Don't walk into pits (knockback doesn't call this func)
 	{
 		if(ispitfall(dx,dy) || ispitfall(dx+8,dy)
 		   || ispitfall(dx,dy+8) || ispitfall(dx+8,dy+8))
@@ -1487,7 +1483,7 @@ bool enemy::m_walkflag_simple(int32_t dx,int32_t dy)
 			return true;
 	}
 	
-	if(!(moveflags & FLAG_CAN_PITWALK) && (!(moveflags & FLAG_CAN_PITFALL))) //Don't walk into pits, unless being knocked back
+	if(!(moveflags & move_can_pitwalk) && (!(moveflags & move_can_pitfall))) //Don't walk into pits, unless being knocked back
 	{
 		if(ispitfall(dx,dy) || ispitfall(dx+8,dy)
 		   || ispitfall(dx,dy+8) || ispitfall(dx+8,dy+8))
@@ -1510,7 +1506,7 @@ bool enemy::m_walkflag_simple(int32_t dx,int32_t dy)
 
 bool enemy::m_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int32_t input_x, int32_t input_y, bool kb)
 {
-	if(moveflags & FLAG_USE_NEW_MOVEMENT)
+	if(moveflags & move_new_movement)
 		return scr_walkflag(dx,dy,special,dir,input_x,input_y,kb);
 	int32_t yg = (special==spw_floater)?8:0;
 	int32_t nb = get_qr(qr_NOBORDER) ? 16 : 0;
@@ -1570,7 +1566,7 @@ bool enemy::m_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int32
 				return true;
 	}
 	
-	if(!(moveflags & FLAG_CAN_PITWALK) && (!(moveflags & FLAG_CAN_PITFALL) || !kb)) //Don't walk into pits, unless being knocked back
+	if(!(moveflags & move_can_pitwalk) && (!(moveflags & move_can_pitfall) || !kb)) //Don't walk into pits, unless being knocked back
 	{
 		if(ispitfall(dx,dy) || ispitfall(dx+8,dy)
 		   || ispitfall(dx,dy+8) || ispitfall(dx+8,dy+8))
@@ -1671,7 +1667,7 @@ void enemy::move(zfix dx,zfix dy)
 	if(family >= eeSCRIPT01 && family <= eeFFRIENDLY10 ) return;
 	}
 	*/
-	if(!watch && (!(isSideViewGravity()) || isOnSideviewPlatform() || !(moveflags & FLAG_OBEYS_GRAV) || !enemycanfall(id)))
+	if(!watch && (!(isSideViewGravity()) || isOnSideviewPlatform() || !(moveflags & move_obeys_grav) || !enemycanfall(id)))
 	{
 		x+=dx;
 		y+=dy;
@@ -1691,7 +1687,7 @@ void enemy::move(zfix s)
 	}
 	if(family >= eeSCRIPT01 && family <= eeFFRIENDLY10 ) return;
 	}*/
-	if(!watch && (!(isSideViewGravity()) || isOnSideviewPlatform() || !enemycanfall(id) || !(moveflags & FLAG_OBEYS_GRAV)))
+	if(!watch && (!(isSideViewGravity()) || isOnSideviewPlatform() || !enemycanfall(id) || !(moveflags & move_obeys_grav)))
 	{
 		sprite::move(s);
 	}
@@ -1743,7 +1739,7 @@ void enemy::leave_item()
 // auomatically kill off enemy (for rooms with ringleaders)
 void enemy::kickbucket()
 {
-	if(!superman && !(flags2&guy_ignorekill))
+	if(!superman && !(flags2&guy_ignore_kill_all))
 		hp=-1000;                                               // don't call death_sfx()
 }
 
@@ -1821,7 +1817,7 @@ void enemy::FireBreath(bool seekhero)
 	
 	int32_t i=Ewpns.Count()-1;
 	weapon *ew = (weapon*)(Ewpns.spr(i));
-	ew->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+	ew->moveflags &= ~move_can_pitfall; //No falling in pits
 	
 	if(!seekhero && (zc_oldrand()&4))
 	{
@@ -1912,37 +1908,36 @@ void enemy::FireWeapon()
 	case e1t8SHOTS: //Fire Wizzrobe
 		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,0,wdp,l_up,-1, getUID(),false));
 		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
-		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
 		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,0,wdp,l_down,-1, getUID(),false));
 		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
-		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
 		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,0,wdp,r_up,-1, getUID(),false));
 		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
-		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
 		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,0,wdp,r_down,-1, getUID(),false));
 		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
-		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
 
 		[[fallthrough]];
 	case e1t4SHOTS: //Stalfos 3
 		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,0,wdp,up,-1, getUID(),false));
 		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
-		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
 		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,0,wdp,down,-1, getUID(),false));
 		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
-		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
 		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,0,wdp,left,-1, getUID(),false));
 		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
-		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
 		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,0,wdp,right,-1, getUID(),false));
 		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
-		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
 		sfx(wpnsfx(wpn),pan(int32_t(x)));
 		break;
 		
 	case e1tSUMMON: // Bat Wizzrobe
 	{
-		//al_trace("Summon Bats\n");
 		//zprint2("Summon Bats\n");
 		if(dmisc4==0) break;  // Summon 0
 		
@@ -1964,7 +1959,6 @@ void enemy::FireWeapon()
 			for(int32_t i=0; i<bats; i++)
 			{
 			//zprint2("summon\n");
-			//al_trace("summon\n");
 				if(addchild(x,y,dmisc3,-10, this->script_UID))
 		{
 					((enemy*)guys.spr(kids+i))->count_enemy = false;
@@ -2008,12 +2002,11 @@ void enemy::FireWeapon()
 					if((!m_walkflag(x2,y2,0,dir))&&((abs(x2-Hero.getX())>=32)||(abs(y2-Hero.getY())>=32)))
 					{
 						//zprint2("summon\n");
-						//al_trace("summon\n");
 						if(addchild(x2,y2,get_qr(qr_ENEMIESZAXIS) ? 64 : 0,id2,-10, this->script_UID))
 						{
 							((enemy*)guys.spr(kids+i))->count_enemy = false;
 							//((enemy*)guys.spr(guys.Count()-1))->parent_script_UID = this->script_UID;
-							if (get_qr(qr_ENEMIESZAXIS) && (((enemy*)guys.spr(kids+i))->moveflags & FLAG_USE_FAKE_Z)) 
+							if (get_qr(qr_ENEMIESZAXIS) && (((enemy*)guys.spr(kids+i))->moveflags & move_use_fake_z)) 
 							{
 								((enemy*)guys.spr(kids+i))->fakez = 64;
 								((enemy*)guys.spr(kids+i))->z = 0;
@@ -2048,11 +2041,11 @@ bool enemy::hitshield(int32_t wpnx, int32_t wpny, int32_t xdir)
 	bool ret = false;
 	
 	// TODO: There must be some bitwise operations that can simplify this...
-	if(wpny > y) ret = ((flags&inv_front && xdir==down) || (flags&inv_back && xdir==up) || (flags&inv_left && xdir==left) || (flags&inv_right && xdir==right));
-	else if(wpny < y) ret = ((flags&inv_front && xdir==up) || (flags&inv_back && xdir==down) || (flags&inv_left && xdir==right) || (flags&inv_right && xdir==left));
+	if(wpny > y) ret = ((flags&guy_shield_front && xdir==down) || (flags&guy_shield_back && xdir==up) || (flags&guy_shield_left && xdir==left) || (flags&guy_shield_right && xdir==right));
+	else if(wpny < y) ret = ((flags&guy_shield_front && xdir==up) || (flags&guy_shield_back && xdir==down) || (flags&guy_shield_left && xdir==right) || (flags&guy_shield_right && xdir==left));
 	
-	if(wpnx < x) ret = ret || ((flags&inv_front && xdir==left) || (flags&inv_back && xdir==right) || (flags&inv_left && xdir==up) || (flags&inv_right && xdir==down));
-	else if(wpnx > x) ret = ret || ((flags&inv_front && xdir==right) || (flags&inv_back && xdir==left) || (flags&inv_left && xdir==down) || (flags&inv_right && xdir==up));
+	if(wpnx < x) ret = ret || ((flags&guy_shield_front && xdir==left) || (flags&guy_shield_back && xdir==right) || (flags&guy_shield_left && xdir==up) || (flags&guy_shield_right && xdir==down));
+	else if(wpnx > x) ret = ret || ((flags&guy_shield_front && xdir==right) || (flags&guy_shield_back && xdir==left) || (flags&guy_shield_left && xdir==down) || (flags&guy_shield_right && xdir==up));
 	
 	return ret;
 }
@@ -2079,7 +2072,6 @@ int32_t weaponToDefence(int32_t wid)
 		case wFire: return edefFIRE;
 		case wWhistle:
 		{
-			//al_trace("Weapon resolved as a whistle, using edef: %s\n", "edefWhistle");
 			return edefWhistle;
 		}
 		case wBait: return edefBAIT;
@@ -2934,28 +2926,12 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 		}
 		case edSPLIT:
 		{
-			//int32_t ex = x; int32_t ey = y;
-			//al_trace("edSplit dmisc3: %d\n", dmisc3);
-			//al_trace("edSplit dmisc4: %d\n", dmisc4);
-			/*
-			if ( txsx > 1 ) 
-			{
-				ex += ( txsz-1 ) * 8; //from its middle
-			}
-			if ( tysx > 1 ) 
-			{
-				ey += ( tysz-1 ) * 8; //from its middle
-			}
-			*/
 			for ( int32_t q = 0; q < dmisc4; q++ )
 			{
-				
-				//addenemy((x+(txsz*16)/2),(y+(tysz*16)/2),dmisc3+0x1000,-15);
 				addenemy(
 					//ex,ey,
 					x,y,
 						dmisc3+0x1000,-15);
-				//addenemy(ex,ey,dmisc3,0);
 				
 			}
 			item_set = 0; //Do not make a drop. 
@@ -2965,20 +2941,14 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 		}
 		case edSUMMON: 
 		{
-			
-			
-			//al_trace("edSplit dmisc3: %d\n", dmisc3);
-			//al_trace("edSplit dmisc4: %d\n", dmisc4);
 			int32_t summon_count = (zc_oldrand()%dmisc4)+1;
 			for ( int32_t q = 0; q < summon_count; q++ )
 			{
 				int32_t x2=16*((zc_oldrand()%12)+2);
 				int32_t y2=16*((zc_oldrand()%7)+2);
 				addenemy(
-					//(x+(txsz*16)/2),(y+(tysz*16)/2)
 					x2,y2,
 						dmisc3+0x1000,-15);
-				//addenemy(ex,ey,dmisc3,0);
 				
 			}
 			sfx(get_qr(qr_MORESOUNDS) ? WAV_ZN1SUMMON : WAV_FIRE,pan(int32_t(x)));
@@ -3031,7 +3001,6 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 			}
 			else if(*power <= 0)
 			{
-			//al_trace("defendNew() is at: %s\n", "returning edSTUNORCHINK");
 				sfx(WAV_CHINK,pan(int32_t(x)));
 				return 1;
 			}
@@ -3050,7 +3019,6 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 		case edSTUNONLY:
 			if((wpnId==wFire || wpnId==wBomb || wpnId==wSBomb || wpnId==wHookshot || wpnId==wSword) && stunclk>=159)
 			{
-				//al_trace("enemy::defend(), edSTUNONLY found a weapon of type FIRE, BOMB, SBOMB, HOOKSHOT, or SWORD:, with wpnId:  \n", wpnId);
 			   // Z_message("enemy::defend(), edSTUNONLY found a weapon of type FIRE, BOMB, SBOMB, HOOKSHOT, or SWORD:, with wpnId:  \n", wpnId);
 					return 1;
 			}
@@ -3086,7 +3054,6 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 			if(*power >= 10*game->get_hero_dmgmult()) break;
 			[[fallthrough]];
 		case edCHINK:
-			//al_trace("defendNew() is at: %s\n", "returning edCHINK");
 			sfx(WAV_CHINK,pan(int32_t(x)));
 			return 1;
 			
@@ -3678,9 +3645,8 @@ int32_t enemy::takehit(weapon *w, weapon* realweap)
 	int32_t xdir = dir;
 	shieldCanBlock=false;
 	
-	//if (family==eeFLOAT && flags&(inv_front|inv_back_inv_left|inv_right)) xdir=down;
 	if(!(w->unblockable&WPNUNB_BLOCK)&&((wpnId==wHookshot && hitshield(wpnx, wpny, xdir))
-			|| ((flags&inv_front && wpnDir==(xdir^down)) || (flags&inv_back && wpnDir==(xdir^up)) || (flags&inv_left && wpnDir==(xdir^left)) || (flags&inv_right && wpnDir==(xdir^right))))
+			|| ((flags&guy_shield_front && wpnDir==(xdir^down)) || (flags&guy_shield_back && wpnDir==(xdir^up)) || (flags&guy_shield_left && wpnDir==(xdir^left)) || (flags&guy_shield_right && wpnDir==(xdir^right))))
 	  )
 		// The hammer should already be dealt with by subclasses (Walker etc.)
 	{
@@ -3774,9 +3740,8 @@ int32_t enemy::takehit(weapon *w, weapon* realweap)
 	case wWhistle: //No longer completely ignore whistle weapons! -Z
 	{
 		
-		if ( ((itemsbuf[parent_item].flags & ITEM_FLAG2) == 0) ||  ( parent_item == -1 )  )  //if the flag is set, or the weapon is scripted
+		if ( ((itemsbuf[parent_item].flags & item_flag2) == 0) ||  ( parent_item == -1 )  )  //if the flag is set, or the weapon is scripted
 		{
-			//al_trace("Whistle weapon in %s\n", "takehit flag == 0");
 			return 0; break;
 		}
 		else 
@@ -3903,7 +3868,7 @@ int32_t enemy::takehit(weapon *w, weapon* realweap)
 	
 	case wHSHandle:
 	{
-		if(itemsbuf[enemyHitWeapon>-1 ? enemyHitWeapon : current_item_id(itype_hookshot)].flags & ITEM_FLAG1)
+		if(itemsbuf[enemyHitWeapon>-1 ? enemyHitWeapon : current_item_id(itype_hookshot)].flags & item_flag1)
 			return 0;
 			
 		bool ignorehookshot = ((defense[edefHOOKSHOT] == edIGNORE) || ((defense[edefHOOKSHOT] == edIGNOREL1 || defense[edefHOOKSHOT] == edSTUNORIGNORE)
@@ -3911,7 +3876,7 @@ int32_t enemy::takehit(weapon *w, weapon* realweap)
 							   
 		// Peahats, Darknuts, Aquamentuses, Pols Voices, Wizzrobes, Manhandlas
 		if(!(family==eePEAHAT || family==eeAQUA || family==eeMANHAN || (family==eeWIZZ && !ignorehookshot)
-				|| (family==eeWALK && dmisc9==e9tPOLSVOICE) || (family==eeWALK && flags&(inv_back|inv_front|inv_left|inv_right))))
+				|| (family==eeWALK && dmisc9==e9tPOLSVOICE) || (family==eeWALK && flags&(guy_shield_back|guy_shield_front|guy_shield_left|guy_shield_right))))
 			return 0;
 			
 		power = game->get_hero_dmgmult();
@@ -3991,7 +3956,7 @@ hitclock:
 		if(wpnId==wArrow)
 		{
 			//If we use an arrow type for the item's Weapon type, the flags differ, so we need to rely on the flags from an arrow class. 
-			if(item>=0 && (itemsbuf[item].flags&ITEM_FLAG1) && (itemsbuf[parent_item].family == itype_arrow))
+			if(item>=0 && (itemsbuf[item].flags&item_flag1) && (itemsbuf[parent_item].family == itype_arrow))
 				return 0;
 			else if(get_qr(qr_ARROWS_ALWAYS_PENETRATE)) return 0;
 			//if(item<0)
@@ -4003,7 +3968,7 @@ hitclock:
 		{
 
 			//If we use an swordbeam type for the item's Weapon type, the flags differ, so we need to rely on the flags from an arrow class. 
-			if(item>=0 && (itemsbuf[item].flags&ITEM_FLAG3) && (itemsbuf[parent_item].family == itype_sword))
+			if(item>=0 && (itemsbuf[item].flags&item_flag3) && (itemsbuf[parent_item].family == itype_sword))
 				return 0;
 			
 			else if(get_qr(qr_SWORDBEAMS_ALWAYS_PENETRATE)) return 0;
@@ -4024,7 +3989,7 @@ bool enemy::dont_draw()
 	if(flags&guy_invisible)
 		return true;
 		
-	if(flags&lens_only && !lensclk)
+	if(flags&guy_lens_only && !lensclk)
 		return true;
 		
 	return false;
@@ -4073,19 +4038,19 @@ void enemy::draw(BITMAP *dest)
 	if (tmpscr->flags3&fINVISROOM)
 	{
 		if (canSee == DRAW_NORMAL && !(current_item(itype_amulet)) && 
-		!((itemsbuf[Hero.getLastLensID()].flags & ITEM_FLAG5) && lensclk) && family!=eeGANON) canSee = DRAW_CLOAKED;
+		!((itemsbuf[Hero.getLastLensID()].flags & item_flag5) && lensclk) && family!=eeGANON) canSee = DRAW_CLOAKED;
 	}
 	//Lens check
 	if (lensclk)
 	{
-		if(flags&lens_only)
+		if(flags&guy_lens_only)
 		{
 			if (canSee == DRAW_INVIS) canSee = DRAW_NORMAL;
 		}
 	}
 	else
 	{
-		if(flags&lens_only)
+		if(flags&guy_lens_only)
 			canSee = DRAW_INVIS;
 	}
 	if (canSee == DRAW_INVIS && (editorflags & ENEMY_FLAG4)) canSee = DRAW_CLOAKED;
@@ -4570,7 +4535,7 @@ void enemy::try_death(bool force_kill)
 void enemy::fix_coords(bool bound)
 {
 	if ((get_qr(qr_OUTOFBOUNDSENEMIES) ? 1 : 0) ^ ((editorflags&ENEMY_FLAG11)?1:0)) return;
-	if(moveflags & FLAG_IGNORE_SCREENEDGE) bound = false;
+	if(moveflags & move_ignore_screenedge) bound = false;
 	
 	
 	if(bound)
@@ -5192,7 +5157,7 @@ void enemy::newdir_8(int32_t newrate,int32_t newhoming,int32_t special,int32_t d
 							ndir = (by<y) ? up : down;
 						}
 					}
-					if (grumble < 0 || (itemsbuf[((weapon*)Lwpns.spr(i))->parentitem].flags & ITEM_FLAG1)) ndir = oppositeDir[ndir];
+					if (grumble < 0 || (itemsbuf[((weapon*)Lwpns.spr(i))->parentitem].flags & item_flag1)) ndir = oppositeDir[ndir];
 					if(canmove(ndir,special,false))
 					{
 						dir=ndir;
@@ -5757,7 +5722,7 @@ void enemy::newdir(int32_t newrate,int32_t newhoming,int32_t special)
 				if(abs(int32_t(y)-by)>14)
 				{
 					ndir = (by<y) ? up : down;
-					if (grumble < 0 || (itemsbuf[((weapon*)Lwpns.spr(i))->parentitem].flags & ITEM_FLAG1)) ndir = oppositeDir[ndir];
+					if (grumble < 0 || (itemsbuf[((weapon*)Lwpns.spr(i))->parentitem].flags & item_flag1)) ndir = oppositeDir[ndir];
 					if(canmove(ndir,special,false))
 					{
 						dir=ndir;
@@ -5766,7 +5731,7 @@ void enemy::newdir(int32_t newrate,int32_t newhoming,int32_t special)
 				}
 				
 				ndir = (bx<x) ? left : right;
-				if (grumble < 0 || (itemsbuf[((weapon*)Lwpns.spr(i))->parentitem].flags & ITEM_FLAG1)) ndir = oppositeDir[ndir];
+				if (grumble < 0 || (itemsbuf[((weapon*)Lwpns.spr(i))->parentitem].flags & item_flag1)) ndir = oppositeDir[ndir];
 				if(canmove(ndir,special,false))
 				{
 					dir=ndir;
@@ -6207,7 +6172,7 @@ void enemy::floater_walk(int32_t newrate,int32_t newclk,zfix ms,zfix ss,int32_t 
 			}
 			else
 			{
-				//if((moveflags&FLAG_CAN_PITFALL)) //don't check pits if the enemy ignores them
+				//if((moveflags&move_can_pitfall)) //don't check pits if the enemy ignores them
 				//this doesn't help keese, as they have a z of 0. 
 				//they always nee to run this check.
 				{
@@ -6245,7 +6210,7 @@ void enemy::floater_walk(int32_t newrate,int32_t newclk,zfix ms,zfix ss,int32_t 
 			}
 			else
 			{
-				//if((moveflags&FLAG_CAN_PITFALL)) //don't check pits if the enemy ignores them
+				//if((moveflags&move_can_pitfall)) //don't check pits if the enemy ignores them
 				//this doesn't help keese, as they have a z of 0. 
 				//they always nee to run this check.
 				if(over_pit) 
@@ -6413,7 +6378,7 @@ int32_t enemy::n_frame_n_dir(int32_t frames, int32_t ndir, int32_t f4)
 		break;
 		
 	case eeTRAP:
-		if(dummy_int[1] && guysbuf[id].flags2 & eneflag_trp2 && do_animation)  // Just to make sure
+		if(dummy_int[1] && guysbuf[id].flags2 & guy_trp2 && do_animation)  // Just to make sure
 		{
 			tile=s_tile;
 			t=s_tile;
@@ -7870,9 +7835,9 @@ void guy::draw(BITMAP *dest)
 eFire::eFire(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 {
 	clk4=0;
-	shield= (flags&(inv_left | inv_right | inv_back |inv_front)) != 0;
+	shield= (flags&(guy_shield_left | guy_shield_right | guy_shield_back |guy_shield_front)) != 0;
 	// Spawn type
-	if(flags & guy_fadeflicker)
+	if(flags & guy_fade_flicker)
 	{
 		clk=0;
 		superman = 1;
@@ -7883,13 +7848,12 @@ eFire::eFire(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 		if(!canmove(down,(zfix)8,spw_none,false))
 			clk3=int32_t(13.0/step);
 	}
-	else if(flags & guy_fadeinstant)
+	else if(flags & guy_fade_instant)
 	{
 		clk=0;
 	}
 	SIZEflags = d->SIZEflags;
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
-	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = d->hxsz;
@@ -7920,7 +7884,7 @@ bool eFire::animate(int32_t index)
 			superman=0;
 			fading=0;
 			
-			if(flags2&cmbflag_armos && z==0 && fakez==0)
+			if(flags2&guy_armos && z==0 && fakez==0)
 				removearmos(x,y,ffcactivated);
 				
 			clk2=0;
@@ -7933,7 +7897,7 @@ bool eFire::animate(int32_t index)
 			
 			return Dead(index);
 		}
-		else if(flags2&cmbflag_armos && z==0 && fakez==0 && clk==0)
+		else if(flags2&guy_armos && z==0 && fakez==0 && clk==0)
 			removearmos(x,y,ffcactivated);
 	}
 	
@@ -7952,11 +7916,11 @@ int32_t eFire::takehit(weapon *w, weapon* realweap)
 	int32_t wpnDir = w->dir;
 	
 	if(wpnId==wHammer && shield && (flags & guy_bkshield)
-			&& ((flags&inv_front && wpnDir==(dir^down)) || (flags&inv_back && wpnDir==(dir^up))
-				|| (flags&inv_left && wpnDir==(dir^left)) || (flags&inv_right && wpnDir==(dir^right))))
+			&& ((flags&guy_shield_front && wpnDir==(dir^down)) || (flags&guy_shield_back && wpnDir==(dir^up))
+				|| (flags&guy_shield_left && wpnDir==(dir^left)) || (flags&guy_shield_right && wpnDir==(dir^right))))
 	{
 		shield = false;
-		flags &= ~(inv_left|inv_right|inv_back|inv_front);
+		flags &= ~(guy_shield_left|guy_shield_right|guy_shield_back|guy_shield_front);
 		
 		if(get_qr(qr_BRKNSHLDTILES))
 			o_tile=s_tile;
@@ -7971,7 +7935,7 @@ void eFire::break_shield()
 	if(!shield)
 		return;
 		
-	flags&=~(inv_front | inv_back | inv_left | inv_right);
+	flags&=~(guy_shield_front | guy_shield_back | guy_shield_left | guy_shield_right);
 	shield=false;
 	
 	if(get_qr(qr_BRKNSHLDTILES))
@@ -7982,10 +7946,10 @@ eOther::eOther(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 {
 	//zprint2("npct other::other\n");
 	clk4=0;
-	shield= (flags&(inv_left | inv_right | inv_back |inv_front)) != 0;
+	shield= (flags&(guy_shield_left | guy_shield_right | guy_shield_back |guy_shield_front)) != 0;
 	
 	// Spawn type
-	if(flags & guy_fadeflicker)
+	if(flags & guy_fade_flicker)
 	{
 		clk=0;
 		superman = 1;
@@ -7996,13 +7960,12 @@ eOther::eOther(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 		if(!canmove(down,(zfix)8,spw_none,false))
 			clk3=int32_t(13.0/step);
 	}
-	else if(flags & guy_fadeinstant)
+	else if(flags & guy_fade_instant)
 	{
 		clk=0;
 	}
 	SIZEflags = d->SIZEflags;
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
-	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = d->hxsz;
@@ -8034,7 +7997,7 @@ bool eOther::animate(int32_t index)
 			superman=0;
 			fading=0;
 			
-			if(flags2&cmbflag_armos && z==0 && fakez==0)
+			if(flags2&guy_armos && z==0 && fakez==0)
 				removearmos(x,y,ffcactivated);
 				
 			clk2=0;
@@ -8047,7 +8010,7 @@ bool eOther::animate(int32_t index)
 			
 			return Dead(index);
 		}
-		else if(flags2&cmbflag_armos && z==0 && fakez==0 && clk==0)
+		else if(flags2&guy_armos && z==0 && fakez==0 && clk==0)
 			removearmos(x,y,ffcactivated);
 	}
 	
@@ -8066,11 +8029,11 @@ int32_t eOther::takehit(weapon *w, weapon* realweap)
 	int32_t wpnDir = w->dir;
 	
 	if(wpnId==wHammer && shield && (flags & guy_bkshield)
-			&& ((flags&inv_front && wpnDir==(dir^down)) || (flags&inv_back && wpnDir==(dir^up))
-				|| (flags&inv_left && wpnDir==(dir^left)) || (flags&inv_right && wpnDir==(dir^right))))
+			&& ((flags&guy_shield_front && wpnDir==(dir^down)) || (flags&guy_shield_back && wpnDir==(dir^up))
+				|| (flags&guy_shield_left && wpnDir==(dir^left)) || (flags&guy_shield_right && wpnDir==(dir^right))))
 	{
 		shield = false;
-		flags &= ~(inv_left|inv_right|inv_back|inv_front);
+		flags &= ~(guy_shield_left|guy_shield_right|guy_shield_back|guy_shield_front);
 		
 		if(get_qr(qr_BRKNSHLDTILES))
 			o_tile=s_tile;
@@ -8085,7 +8048,7 @@ void eOther::break_shield()
 	if(!shield)
 		return;
 		
-	flags&=~(inv_front | inv_back | inv_left | inv_right);
+	flags&=~(guy_shield_front | guy_shield_back | guy_shield_left | guy_shield_right);
 	shield=false;
 	
 	if(get_qr(qr_BRKNSHLDTILES))
@@ -8096,10 +8059,10 @@ void eOther::break_shield()
 eScript::eScript(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 {
 	clk4=0;
-	shield= (flags&(inv_left | inv_right | inv_back |inv_front)) != 0;
+	shield= (flags&(guy_shield_left | guy_shield_right | guy_shield_back |guy_shield_front)) != 0;
 	
 	// Spawn type
-	if(flags & guy_fadeflicker)
+	if(flags & guy_fade_flicker)
 	{
 		clk=0;
 		superman = 1;
@@ -8110,13 +8073,12 @@ eScript::eScript(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 		if(!canmove(down,(zfix)8,spw_none,false))
 			clk3=int32_t(13.0/step);
 	}
-	else if(flags & guy_fadeinstant)
+	else if(flags & guy_fade_instant)
 	{
 		clk=0;
 	}
 	SIZEflags = d->SIZEflags;
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
-	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = d->hxsz;
@@ -8147,7 +8109,7 @@ bool eScript::animate(int32_t index)
 			superman=0;
 			fading=0;
 			
-			if(flags2&cmbflag_armos && z==0 && fakez==0)
+			if(flags2&guy_armos && z==0 && fakez==0)
 				removearmos(x,y,ffcactivated);
 				
 			clk2=0;
@@ -8160,7 +8122,7 @@ bool eScript::animate(int32_t index)
 			
 			return Dead(index);
 		}
-		else if(flags2&cmbflag_armos && z==0 && fakez==0 && clk==0)
+		else if(flags2&guy_armos && z==0 && fakez==0 && clk==0)
 			removearmos(x,y,ffcactivated);
 	}
 	
@@ -8179,11 +8141,11 @@ int32_t eScript::takehit(weapon *w, weapon* realweap)
 	int32_t wpnDir = w->dir;
 	
 	if(wpnId==wHammer && shield && (flags & guy_bkshield)
-			&& ((flags&inv_front && wpnDir==(dir^down)) || (flags&inv_back && wpnDir==(dir^up))
-				|| (flags&inv_left && wpnDir==(dir^left)) || (flags&inv_right && wpnDir==(dir^right))))
+			&& ((flags&guy_shield_front && wpnDir==(dir^down)) || (flags&guy_shield_back && wpnDir==(dir^up))
+				|| (flags&guy_shield_left && wpnDir==(dir^left)) || (flags&guy_shield_right && wpnDir==(dir^right))))
 	{
 		shield = false;
-		flags &= ~(inv_left|inv_right|inv_back|inv_front);
+		flags &= ~(guy_shield_left|guy_shield_right|guy_shield_back|guy_shield_front);
 		
 		if(get_qr(qr_BRKNSHLDTILES))
 			o_tile=s_tile;
@@ -8198,7 +8160,7 @@ void eScript::break_shield()
 	if(!shield)
 		return;
 		
-	flags&=~(inv_front | inv_back | inv_left | inv_right);
+	flags&=~(guy_shield_front | guy_shield_back | guy_shield_left | guy_shield_right);
 	shield=false;
 	
 	if(get_qr(qr_BRKNSHLDTILES))
@@ -8210,10 +8172,10 @@ eFriendly::eFriendly(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 {
 	clk4=0;
 	hyofs = -32768; //No hitbox initially.
-	shield= (flags&(inv_left | inv_right | inv_back |inv_front)) != 0;
+	shield= (flags&(guy_shield_left | guy_shield_right | guy_shield_back |guy_shield_front)) != 0;
 	
 	// Spawn type
-	if(flags & guy_fadeflicker)
+	if(flags & guy_fade_flicker)
 	{
 		clk=0;
 		superman = 1;
@@ -8224,13 +8186,12 @@ eFriendly::eFriendly(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 		if(!canmove(down,(zfix)8,spw_none,false))
 			clk3=int32_t(13.0/step);
 	}
-	else if(flags & guy_fadeinstant)
+	else if(flags & guy_fade_instant)
 	{
 		clk=0;
 	}
 	SIZEflags = d->SIZEflags;
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
-	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = d->hxsz;
@@ -8261,7 +8222,7 @@ bool eFriendly::animate(int32_t index)
 			superman=0;
 			fading=0;
 			
-			if(flags2&cmbflag_armos && z==0 && fakez==0)
+			if(flags2&guy_armos && z==0 && fakez==0)
 				removearmos(x,y,ffcactivated);
 				
 			clk2=0;
@@ -8274,7 +8235,7 @@ bool eFriendly::animate(int32_t index)
 			
 			return Dead(index);
 		}
-		else if(flags2&cmbflag_armos && z==0 && fakez==0 && clk==0)
+		else if(flags2&guy_armos && z==0 && fakez==0 && clk==0)
 			removearmos(x,y,ffcactivated);
 	}
 	
@@ -8293,11 +8254,11 @@ int32_t eFriendly::takehit(weapon *w, weapon* realweap)
 	int32_t wpnDir = w->dir;
 	
 	if(wpnId==wHammer && shield && (flags & guy_bkshield)
-			&& ((flags&inv_front && wpnDir==(dir^down)) || (flags&inv_back && wpnDir==(dir^up))
-				|| (flags&inv_left && wpnDir==(dir^left)) || (flags&inv_right && wpnDir==(dir^right))))
+			&& ((flags&guy_shield_front && wpnDir==(dir^down)) || (flags&guy_shield_back && wpnDir==(dir^up))
+				|| (flags&guy_shield_left && wpnDir==(dir^left)) || (flags&guy_shield_right && wpnDir==(dir^right))))
 	{
 		shield = false;
-		flags &= ~(inv_left|inv_right|inv_back|inv_front);
+		flags &= ~(guy_shield_left|guy_shield_right|guy_shield_back|guy_shield_front);
 		
 		if(get_qr(qr_BRKNSHLDTILES))
 			o_tile=s_tile;
@@ -8312,7 +8273,7 @@ void eFriendly::break_shield()
 	if(!shield)
 		return;
 		
-	flags&=~(inv_front | inv_back | inv_left | inv_right);
+	flags&=~(guy_shield_front | guy_shield_back | guy_shield_left | guy_shield_right);
 	shield=false;
 	
 	if(get_qr(qr_BRKNSHLDTILES))
@@ -8419,7 +8380,6 @@ eGhini::eGhini(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	clk4=0;
 	SIZEflags = d->SIZEflags;
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
-	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = d->hxsz;
@@ -8509,7 +8469,6 @@ eTektite::eTektite(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	//nets+760;
 	SIZEflags = d->SIZEflags;
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
-	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = d->hxsz;
@@ -8712,7 +8671,7 @@ bool eTektite::animate(int32_t index)
 	
 	if(get_qr(qr_ENEMIESZAXIS) && misc==2)
 	{
-		if (moveflags & FLAG_USE_FAKE_Z)
+		if (moveflags & move_use_fake_z)
 		{
 			int32_t tempy = floor_y;
 			fakez=zc_max(0,zc_min(clk2start-clk2,clk2));
@@ -8796,7 +8755,6 @@ eItemFairy::eItemFairy(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	mainguy=false;
 	count_enemy=false;
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0 ) { txsz = txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
-	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = tysz; if ( tysz > 1 ) extend = 3; }
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = hit_width;
@@ -8853,7 +8811,6 @@ ePeahat::ePeahat(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	//nets+720;
 	SIZEflags = d->SIZEflags;
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
-	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = d->hxsz;
@@ -8897,7 +8854,7 @@ bool ePeahat::animate(int32_t index)
 	
 	if(get_qr(qr_ENEMIESZAXIS) && !(isSideViewGravity()))
 	{
-		if (moveflags & FLAG_USE_FAKE_Z) fakez=int32_t(step*1.1/((zslongToFix(dstep*10))*1.1));
+		if (moveflags & move_use_fake_z) fakez=int32_t(step*1.1/((zslongToFix(dstep*10))*1.1));
 		else z=int32_t(step*1.1/((zslongToFix(dstep*10))*1.1));
 	}
 	
@@ -8993,7 +8950,6 @@ eLeever::eLeever(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	submerged = false;
 	SIZEflags = d->SIZEflags;
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
-	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = d->hxsz;
@@ -9273,7 +9229,6 @@ eWallM::eWallM(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	//nets+1000;
 	SIZEflags = d->SIZEflags;
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
-	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = d->hxsz;
@@ -9522,7 +9477,6 @@ eTrap::eTrap(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	dummy_int[1]=0;
 	SIZEflags = d->SIZEflags;
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
-	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = d->hxsz;
@@ -9863,7 +9817,6 @@ eTrap2::eTrap2(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	dummy_int[1]=0;
 	SIZEflags = d->SIZEflags;
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
-	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = d->hxsz;
@@ -10184,7 +10137,7 @@ bool eBoulder::animate(int32_t index)
 	}
 	
 	zfix *vert;
-	vert = (moveflags & FLAG_USE_FAKE_Z) ? &fakez : get_qr(qr_ENEMIESZAXIS) ? &z : &y;
+	vert = (moveflags & move_use_fake_z) ? &fakez : get_qr(qr_ENEMIESZAXIS) ? &z : &y;
 	
 	if(++clk2==0)                                             // start it
 	{
@@ -10318,7 +10271,6 @@ eProjectile::eProjectile(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Cl
 	}
 	SIZEflags = d->SIZEflags;
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
-	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = d->hxsz;
@@ -10449,7 +10401,6 @@ eNPC::eNPC(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	if (!(editorflags&ENEMY_FLAG3)) count_enemy=false;
 	SIZEflags = d->SIZEflags;
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
-	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = d->hxsz;
@@ -10550,7 +10501,6 @@ eSpinTile::eSpinTile(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	mainguy=false;
 	SIZEflags = d->SIZEflags;
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
-	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = d->hxsz;
@@ -10685,7 +10635,6 @@ eZora::eZora(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,0)
 	//nets+880;
 	SIZEflags = d->SIZEflags;
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
-	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = d->hxsz;
@@ -10854,7 +10803,7 @@ eStalfos::eStalfos(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	multishot= timer = fired = dashing = 0;
 	hashero = false;
 	dummy_bool[0]=false;
-	shield= (flags&(inv_left | inv_right | inv_back |inv_front)) != 0;
+	shield= (flags&(guy_shield_left | guy_shield_right | guy_shield_back |guy_shield_front)) != 0;
 	if(dmisc9==e9tARMOS && zc_oldrand()&1)
 	{
 		step=zslongToFix(dmisc10*100);
@@ -10862,7 +10811,7 @@ eStalfos::eStalfos(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 		if(anim==aARMOS4) o_tile+=20;
 	}
 	
-	if(flags & guy_fadeflicker)
+	if(flags & guy_fade_flicker)
 	{
 		clk=0;
 		superman = 1;
@@ -10873,7 +10822,7 @@ eStalfos::eStalfos(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 		if(!canmove(down,(zfix)8,spw_none,false))
 			clk3=int32_t(13.0/step);
 	}
-	else if(flags & guy_fadeinstant)
+	else if(flags & guy_fade_instant)
 	{
 		clk=0;
 	}
@@ -10883,7 +10832,6 @@ eStalfos::eStalfos(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	//nets+2380;
 	SIZEflags = d->SIZEflags;
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
-	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = d->hxsz;
@@ -10947,21 +10895,21 @@ bool eStalfos::animate(int32_t index)
 				
 				dummy_bool[0]=true;
 				addEwpn(x,y,z,wpn2,0,dmisc4,up, getUID(), 0, fakez);
-				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
 				addEwpn(x,y,z,wpn2,0,dmisc4,down, getUID(), 0, fakez);
-				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
 				addEwpn(x,y,z,wpn2,0,dmisc4,left, getUID(), 0, fakez);
-				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
 				addEwpn(x,y,z,wpn2,0,dmisc4,right, getUID(), 0, fakez);
-				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
 				addEwpn(x,y,z,wpn2,0,dmisc4,l_up, getUID(), 0, fakez);
-				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
 				addEwpn(x,y,z,wpn2,0,dmisc4,r_up, getUID(), 0, fakez);
-				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
 				addEwpn(x,y,z,wpn2,0,dmisc4,l_down, getUID(), 0, fakez);
-				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
 				addEwpn(x,y,z,wpn2,0,dmisc4,r_down, getUID(), 0, fakez);
-				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
 				sfx(wpnsfx(wpn2),pan(int32_t(x)));
 			}
 		}
@@ -11040,7 +10988,7 @@ bool eStalfos::animate(int32_t index)
 			superman=0;
 			fading=0;
 			
-			if(flags2&cmbflag_armos && z==0 && fakez == 0)
+			if(flags2&guy_armos && z==0 && fakez == 0)
 		{
 		//if a custom size (not 16px by 16px)
 			
@@ -11104,7 +11052,7 @@ bool eStalfos::animate(int32_t index)
 		}
 		else return enemy::animate(index);
 	}
-	else if(flags2&cmbflag_armos && z==0 && fakez == 0 && clk==0)
+	else if(flags2&guy_armos && z==0 && fakez == 0 && clk==0)
 		removearmos(x,y,ffcactivated);
 		
 	
@@ -11122,7 +11070,7 @@ bool eStalfos::animate(int32_t index)
 			{
 				for(int32_t i=0; i<MAXITEMS; i++)
 				{
-					if(itemsbuf[i].flags&ITEM_EDIBLE)
+					if(itemsbuf[i].flags&item_edible)
 						game->set_item(i, false);
 				}
 				
@@ -11651,11 +11599,11 @@ int32_t eStalfos::takehit(weapon *w, weapon* realweap)
 	int32_t wpnDir = w->dir;
 	
 	if(wpnId==wHammer && shield && (flags & guy_bkshield)
-			&& ((flags&inv_front && wpnDir==(dir^down)) || (flags&inv_back && wpnDir==(dir^up))
-				|| (flags&inv_left && wpnDir==(dir^left)) || (flags&inv_right && wpnDir==(dir^right))))
+			&& ((flags&guy_shield_front && wpnDir==(dir^down)) || (flags&guy_shield_back && wpnDir==(dir^up))
+				|| (flags&guy_shield_left && wpnDir==(dir^left)) || (flags&guy_shield_right && wpnDir==(dir^right))))
 	{
 		shield = false;
-		flags &= ~(inv_left|inv_right|inv_back|inv_front);
+		flags &= ~(guy_shield_left|guy_shield_right|guy_shield_back|guy_shield_front);
 		
 		if(get_qr(qr_BRKNSHLDTILES))
 			o_tile=s_tile;
@@ -11750,7 +11698,7 @@ void eStalfos::vire_hop()
 		//z=0;
 		//if we're not in the middle of a jump or if we can't complete the current jump in the current direction
 		//if(clk2<=0 || !canmove(dir,(zfix)1,spw_floater,false) || (isSideViewGravity() && isOnSideviewPlatform()))
-		if(clk2<=0 || !canmove(dir,(zfix)1,spw_floater,false) || (isSideViewGravity() && (isOnSideviewPlatform() || !(moveflags & FLAG_OBEYS_GRAV)))) //Vires in old quests 
+		if(clk2<=0 || !canmove(dir,(zfix)1,spw_floater,false) || (isSideViewGravity() && (isOnSideviewPlatform() || !(moveflags & move_obeys_grav)))) //Vires in old quests 
 			newdir(rate,homing,dmisc9==e9tPOLSVOICE ? spw_floater : spw_none);
 			
 		if(clk2<=0)
@@ -11801,7 +11749,7 @@ void eStalfos::vire_hop()
 		
 		if(get_qr(qr_ENEMIESZAXIS) && !(isSideViewGravity()))
 		{
-			if (moveflags & FLAG_USE_FAKE_Z) fakez=h;
+			if (moveflags & move_use_fake_z) fakez=h;
 			else z=h;
 		}
 		else
@@ -11881,7 +11829,7 @@ void eStalfos::break_shield()
 	if(!shield)
 		return;
 		
-	flags&=~(inv_front | inv_back | inv_left | inv_right);
+	flags&=~(guy_shield_front | guy_shield_back | guy_shield_left | guy_shield_right);
 	shield=false;
 	
 	if(get_qr(qr_BRKNSHLDTILES))
@@ -11914,7 +11862,6 @@ eKeese::eKeese(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && d->hysz >= 0 ) hit_height = d->hysz;
 	
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && d->txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
-	//al_trace("->txsz:%i\n", d->txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && d->tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
 	
@@ -11993,7 +11940,7 @@ bool eKeese::animate(int32_t index)
 	{
 		if (get_qr(qr_OLD_KEESE_Z_AXIS))
 		{
-			if (moveflags & FLAG_USE_FAKE_Z)
+			if (moveflags & move_use_fake_z)
 			{
 				fakez=int32_t(step/zslongToFix(dstep*100));
 				// Some variance in keese flight heights when away from Hero
@@ -12009,7 +11956,7 @@ bool eKeese::animate(int32_t index)
 		}
 		else
 		{
-			if (moveflags & FLAG_USE_FAKE_Z)
+			if (moveflags & move_use_fake_z)
 			{
 				fakez=int32_t(step/zslongToFix(dstep*100));
 				// Some variance in keese flight heights when away from Hero
@@ -12090,7 +12037,6 @@ eWizzrobe::eWizzrobe(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	if(!dmisc1) frate=1200+146; //1200 = 20 seconds
 	SIZEflags = d->SIZEflags;
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && d->txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
-	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && d->tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && d->hxsz >= 0 ) hit_width = d->hxsz;
@@ -12318,21 +12264,21 @@ void eWizzrobe::wizzrobe_attack_for_real()
 	else if(dmisc2 == 1) // ring of fire
 	{
 		addEwpn(x,y,z,wpn,0,wdp,up,getUID(), 0, fakez);
-		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
 		addEwpn(x,y,z,wpn,0,wdp,down,getUID(), 0, fakez);
-		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
 		addEwpn(x,y,z,wpn,0,wdp,left,getUID(), 0, fakez);
-		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
 		addEwpn(x,y,z,wpn,0,wdp,right,getUID(), 0, fakez);
-		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
 		addEwpn(x,y,z,wpn,0,wdp,l_up,getUID(), 0, fakez);
-		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
 		addEwpn(x,y,z,wpn,0,wdp,r_up,getUID(), 0, fakez);
-		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
 		addEwpn(x,y,z,wpn,0,wdp,l_down,getUID(), 0, fakez);
-		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
 		addEwpn(x,y,z,wpn,0,wdp,r_down,getUID(), 0, fakez);
-		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
 		sfx(WAV_FIRE,pan(int32_t(x)));
 	if (get_qr(qr_8WAY_SHOT_SFX)) sfx(WAV_FIRE,pan(int32_t(x))); 
 	else
@@ -12419,7 +12365,7 @@ void eWizzrobe::wizzrobe_attack_for_real()
 						if(addchild(x2,y2,get_qr(qr_ENEMIESZAXIS) ? 64 : 0,id2,-10, this->script_UID))
 						{
 							((enemy*)guys.spr(kids+i))->count_enemy = false;
-							if (get_qr(qr_ENEMIESZAXIS) && (((enemy*)guys.spr(kids+i))->moveflags & FLAG_USE_FAKE_Z)) 
+							if (get_qr(qr_ENEMIESZAXIS) && (((enemy*)guys.spr(kids+i))->moveflags & move_use_fake_z)) 
 							{
 								((enemy*)guys.spr(kids+i))->fakez = 64;
 								((enemy*)guys.spr(kids+i))->z = 0;
@@ -12657,7 +12603,6 @@ eDodongo::eDodongo(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	}
 	SIZEflags = d->SIZEflags;
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
-	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = d->hxsz;
@@ -12805,7 +12750,6 @@ eDodongo2::eDodongo2(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	}
 	SIZEflags = d->SIZEflags;
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
-	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = d->hxsz;
@@ -13015,7 +12959,6 @@ eAquamentus::eAquamentus(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Cl
 	dir=left;
 	SIZEflags = d->SIZEflags;
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
-	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = d->hxsz;
@@ -13201,14 +13144,14 @@ eGohma::eGohma(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)  // ene
 	else { x = X; y = Y; }
 	
 	Clk=Clk;
-	if(flags & guy_fadeflicker)
+	if(flags & guy_fade_flicker)
 	{
 		clk=0;
 		superman = 1;
 		fading=fade_flicker;
 		if (!(editorflags&ENEMY_FLAG3)) count_enemy=false;
 	}
-	else if(flags & guy_fadeinstant)
+	else if(flags & guy_fade_instant)
 	{
 		clk=0;
 	}
@@ -13219,7 +13162,6 @@ eGohma::eGohma(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)  // ene
 	dir=zc_oldrand()%3+1;
 	SIZEflags = d->SIZEflags;
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0 ) { txsz = txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
-	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = tysz; if ( tysz > 1 ) extend = 3; }
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = hit_width;
@@ -13438,7 +13380,6 @@ eLilDig::eLilDig(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	//nets+4360+(((id&0xFF)-eDIGPUP2)*40);
 	SIZEflags = d->SIZEflags;
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
-	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = d->hxsz;
@@ -13548,7 +13489,6 @@ eBigDig::eBigDig(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 {
 	SIZEflags = d->SIZEflags;
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
-	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = d->hxsz;
@@ -14315,7 +14255,7 @@ void getBigTri(int32_t id2)
 	sfx(itemsbuf[id2].playsound);
 	guys.clear();
 	
-	if(itemsbuf[id2].flags & ITEM_GAMEDATA)
+	if(itemsbuf[id2].flags & item_gamedata)
 	{
 		game->lvlitems[dlevel]|=liTRIFORCE;
 	}
@@ -14364,7 +14304,7 @@ void getBigTri(int32_t id2)
 	//play_DmapMusic();
 	playLevelMusic();
 	
-	if(itemsbuf[id2].flags & ITEM_FLAG1 && currscr < 128)
+	if(itemsbuf[id2].flags & item_flag1 && currscr < 128)
 	{
 		Hero.dowarp(1,0); //side warp
 	}
@@ -14434,7 +14374,7 @@ bool eMoldorm::animate(int32_t index)
 	{
 		if(--clk2 == 0)
 		{
-			if(flags&guy_neverret)
+			if(flags&guy_never_return)
 				never_return(index);
 				
 			if(!dmisc2 || (editorflags & ENEMY_FLAG6))
@@ -14542,7 +14482,7 @@ esMoldorm::esMoldorm(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	mainguy=count_enemy=false;
 	parentclk = 0;
 	bgsfx=-1;
-	flags&=~guy_neverret;
+	flags&=~guy_never_return;
 	//deadsfx = WAV_EDEAD;
 	isCore = false;
 }
@@ -14913,7 +14853,7 @@ esLanmola::esLanmola(zfix X,zfix Y,int32_t Id,int32_t Clk) : eBaseLanmola(X,Y,Id
 		
 	bgsfx = -1;
 	isCore = false;
-	flags&=~guy_neverret;
+	flags&=~guy_never_return;
 }
 
 bool esLanmola::animate(int32_t index)
@@ -15032,7 +14972,6 @@ eManhandla::eManhandla(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,0)
 	adjusted=false;
 	SIZEflags = d->SIZEflags; //Probably will be buggy. -Z 12 AUG 2020
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
-	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = d->hxsz;
@@ -15426,12 +15365,11 @@ esManhandla::esManhandla(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Cl
 	item_set=0;
 	bgsfx=-1;
 	deadsfx = WAV_EDEAD;
-	flags &= (~guy_neverret);
+	flags &= (~guy_never_return);
 	isCore = false;
 	//Probably will be buggy. -Z 12 AUG 2020
 	SIZEflags = d->SIZEflags;
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
-	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = d->hxsz;
@@ -15697,7 +15635,7 @@ bool eGleeok::animate(int32_t index)
 		for(int32_t i=0; i<misc; i++)
 			((enemy*)guys.spr(index+i+1))->misc = -2;             // give the signal to disappear
 			
-		if(flags&guy_neverret) never_return(index);
+		if(flags&guy_never_return) never_return(index);
 	}
 	
 	return enemy::animate(index);
@@ -16137,7 +16075,6 @@ ePatra::ePatra(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)// enemy
 	SIZEflags = d->SIZEflags;
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0 ) { txsz = txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
 	else if (dmisc10 == 1) { txsz = 2; extend = 3; }
-	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = tysz; if ( tysz > 1 ) extend = 3; }
 	else if (dmisc10 == 1) { tysz = 2; extend = 3; }
@@ -16863,22 +16800,22 @@ void ePatra::FirePatraWeapon()
 			{
 				Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,1,wdp,l_up,-1, getUID(),false));
 				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
-				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
 				if (wpn != ewFlame && wpn != ewFlame2)  ((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->step *= .707; //Fire already does this internall for asome bizarre reason.
 				
 				Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,1,wdp,l_down,-1, getUID(),false));
 				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
-				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
 				if (wpn != ewFlame && wpn != ewFlame2)  ((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->step *= .707; //Fire already does this internall for asome bizarre reason.
 				
 				Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,1,wdp,r_up,-1, getUID(),false));
 				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
-				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
 				if (wpn != ewFlame && wpn != ewFlame2)  ((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->step *= .707; //Fire already does this internall for asome bizarre reason.
 				
 				Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,1,wdp,r_down,-1, getUID(),false));
 				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
-				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
 				if (wpn != ewFlame && wpn != ewFlame2)  ((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->step *= .707; //Fire already does this internall for asome bizarre reason.
 				
 				if (dmisc28 == patrat4SHOTDIAG || dmisc28 == patrat4SHOTRAND) break;
@@ -16888,16 +16825,16 @@ void ePatra::FirePatraWeapon()
 		case patrat4SHOTCARD: //Stalfos 3
 			Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,1,wdp,up,-1, getUID(),false));
 			((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
-			((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+			((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
 			Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,1,wdp,down,-1, getUID(),false));
 			((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
-			((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+			((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
 			Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,1,wdp,left,-1, getUID(),false));
 			((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
-			((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+			((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
 			Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,1,wdp,right,-1, getUID(),false));
 			((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
-			((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~FLAG_CAN_PITFALL; //No falling in pits
+			((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
 			break;
 		
 		default:
@@ -16982,7 +16919,6 @@ esPatra::esPatra(zfix X,zfix Y,int32_t Id,int32_t Clk, sprite * prnt) : enemy(X,
 		enemy *prntenemy = (enemy *) guys.getByUID(parent->getUID());
 		int32_t prntSIZEflags = prntenemy->SIZEflags;
 		if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0 ) { txsz = prntenemy->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
-		//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
 	   // al_trace("Enemy txsz:%i\n", txsz);
 		if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = prntenemy->tysz; if ( tysz > 1 ) extend = 3; }
 		if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hxsz >= 0 ) hxsz = prntenemy->hxsz;
@@ -17009,7 +16945,7 @@ esPatra::esPatra(zfix X,zfix Y,int32_t Id,int32_t Clk, sprite * prnt) : enemy(X,
 	mainguy=count_enemy=false;
 	bgsfx=-1;
 	//o_tile=0;
-	flags &= (~guy_neverret);
+	flags &= (~guy_never_return);
 	deadsfx = WAV_EDEAD;
 	hitsfx = WAV_EHIT;
 	isCore = false;
@@ -17096,7 +17032,6 @@ ePatraBS::ePatraBS(zfix ,zfix ,int32_t Id,int32_t Clk) : enemy((zfix)128,(zfix)4
 		
 		SIZEflags = d->SIZEflags;
 		if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
-		//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = d->hxsz;
@@ -17379,7 +17314,6 @@ esPatraBS::esPatraBS(zfix X,zfix Y,int32_t Id,int32_t Clk, sprite * prnt) : enem
 	enemy *prntenemy = (enemy *) guys.getByUID(parent->getUID());
 	int32_t prntSIZEflags = prntenemy->SIZEflags;
 	if ( ((prntSIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0 ) { txsz = prntenemy->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
-	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((prntSIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = prntenemy->tysz; if ( tysz > 1 ) extend = 3; }
 	if ( ((prntSIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = prntenemy->hit_width;
@@ -17403,7 +17337,7 @@ esPatraBS::esPatraBS(zfix X,zfix Y,int32_t Id,int32_t Clk, sprite * prnt) : enem
 	mainguy=count_enemy=false;
 	deadsfx = WAV_EDEAD;
 	hitsfx = WAV_EHIT;
-	flags &= ~guy_neverret;
+	flags &= ~guy_never_return;
 	isCore = false;
 }
 
@@ -18013,9 +17947,7 @@ int32_t addchild(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t p
 	
 	((enemy*)e)->ceiling = (z && canfall(id));
 	((enemy*)e)->parent_script_UID = parent_scriptUID;
-	//al_trace("Child Script UID: %d\n",((enemy*)e)->script_UID);
 	//zprint2("Child Script UID: %d\n",((enemy*)e)->script_UID);
-	//al_trace("Child's Parent UID: %d\n",((enemy*)e)->parent_script_UID);
 	//zprint2("Child's Parent UID: %d\n",((enemy*)e)->parent_script_UID);
 			
 	
@@ -18784,11 +18716,11 @@ bool enemy::enemycanfall(int32_t id, bool checkgrav)
 		return false;
 	}
 	//Z_scripterrlog("canfall family is %d:\n", family);
-	//Z_scripterrlog("canfall gravity is %s:\n", moveflags & FLAG_OBEYS_GRAV ? "true" : "false");
+	//Z_scripterrlog("canfall gravity is %s:\n", moveflags & move_obeys_grav ? "true" : "false");
 	//if ( family == eeFIRE && id >= eSTART ) 
 	//{
 	//	Z_scripterrlog("eeFire\n");
-	//	return moveflags & FLAG_OBEYS_GRAV; //'Other' enemy class, used by scripts. -Z
+	//	return moveflags & move_obeys_grav; //'Other' enemy class, used by scripts. -Z
 	//}
 	
 	//In ZQ, eeFIRE is Other(floating) and eeOTHER is 'other'.
@@ -18819,16 +18751,16 @@ bool enemy::enemycanfall(int32_t id, bool checkgrav)
 	}
 	
 	if(!checkgrav) return true;
-	return (moveflags & FLAG_OBEYS_GRAV);
+	return (moveflags & move_obeys_grav);
 	
 	// if ( isflier(id) || isjumper(id) || never_in_air(id) )
 	// {
-		// if ( moveflags & FLAG_OBEYS_GRAV ) return true;
+		// if ( moveflags & move_obeys_grav ) return true;
 		// else return false;
 	// }
 	// else
 	// {
-		// return (moveflags & FLAG_OBEYS_GRAV);    
+		// return (moveflags & move_obeys_grav);    
 	// }
 	//return !never_in_air(id) && !isflier(id) && !isjumper(id);
 }
@@ -19037,7 +18969,7 @@ void never_return(int32_t index)
 		goto doit;
 		
 	for(int32_t i=0; i<guys.Count(); i++)
-		if(((((enemy*)guys.spr(i))->d->flags)&guy_neverret) && i!=index)
+		if(((((enemy*)guys.spr(i))->d->flags)&guy_never_return) && i!=index)
 		{
 			goto dontdoit;
 		}
@@ -19079,7 +19011,7 @@ bool ok2add(int32_t id)
 		//zprint2("Invalid enemy ID (%d) passed to %s\n", id, "oktoadd()"); 
 		return false;
 	}
-	if(getmapflag(mNEVERRET) && (guysbuf[id].flags & guy_neverret))
+	if(getmapflag(mNEVERRET) && (guysbuf[id].flags & guy_never_return))
 		return false;
 		
 	switch(guysbuf[id].family)
@@ -19358,7 +19290,7 @@ void screen_ffc_modify_postroutine(word index)
 	auto it = slopes.find(id);
 	
 	bool wasSlope = it!=slopes.end();
-	bool isSlope = cmb.type == cSLOPE && !(ff.flags&ffCHANGER);
+	bool isSlope = cmb.type == cSLOPE && !(ff.flags&ffc_changer);
 	if(isSlope && !wasSlope)
 	{
 		slopes.try_emplace(id, nullptr, &ff, id);
@@ -19623,7 +19555,7 @@ void side_load_enemies()
 			{
 				for(int32_t i = 0; i<sle_cnt && tmpscr->enemy[i]>0; i++)
 				{
-					if (!(guysbuf[tmpscr->enemy[i]].flags & guy_doesntcount)) 
+					if (!(guysbuf[tmpscr->enemy[i]].flags & guy_doesnt_count)) 
 					{
 						unbeatablereload = false;
 					}
@@ -19948,7 +19880,7 @@ placed_enemy:
 		{
 			int32_t index = guys.idFirst(tmpscr->enemy[i],0xFFF);
 			
-			if(index!=-1 && (((enemy*)guys.spr(index))->flags&guy_doesntcount)==0)
+			if(index!=-1 && (((enemy*)guys.spr(index))->flags&guy_doesnt_count)==0)
 			{
 				((enemy*)guys.spr(index))->itemguy = true;
 				foundCarrier=true;
@@ -20108,7 +20040,7 @@ void loadenemies()
 		{
 			for(int32_t i = 0; i<loadcnt && tmpscr->enemy[i]>0; i++)
 			{
-				if (!(guysbuf[tmpscr->enemy[i]].flags & guy_doesntcount)) 
+				if (!(guysbuf[tmpscr->enemy[i]].flags & guy_doesnt_count)) 
 				{
 					unbeatablereload = false;
 				}
@@ -20249,7 +20181,7 @@ void setupscreen()
 				
 				if(itemid>=0 && prices[i]!=100000)
 				{
-					if(itemsbuf[itemid].flags & ITEM_FLAG1)
+					if(itemsbuf[itemid].flags & item_flag1)
 						prices[i]=((prices[i]*itemsbuf[itemid].misc1)/100);
 					else
 						prices[i]-=itemsbuf[itemid].misc1;
@@ -20358,7 +20290,7 @@ void setupscreen()
 				
 				if(itemid>=0 && prices[i]!=100000)
 				{
-					if(itemsbuf[itemid].flags & ITEM_FLAG1)
+					if(itemsbuf[itemid].flags & item_flag1)
 						prices[i]=((prices[i]*itemsbuf[itemid].misc1)/100);
 					else
 						prices[i]+=itemsbuf[itemid].misc1;
@@ -20441,7 +20373,7 @@ void setupscreen()
 			
 			if(itemid>=0 && prices[i]!=100000)
 			{
-				if(itemsbuf[itemid].flags & ITEM_FLAG1)
+				if(itemsbuf[itemid].flags & item_flag1)
 					prices[i]=((prices[i]*itemsbuf[itemid].misc1)/100);
 				else
 					prices[i]+=itemsbuf[itemid].misc1;
@@ -20487,7 +20419,7 @@ void setupscreen()
 		
 		if(itemid >= 0)
 		{
-			if(itemsbuf[itemid].flags & ITEM_FLAG1)
+			if(itemsbuf[itemid].flags & item_flag1)
 				prices[i]*=(itemsbuf[itemid].misc1/100.0);
 			else
 				prices[i]+=itemsbuf[itemid].misc1;
@@ -20743,7 +20675,7 @@ bool parsemsgcode()
 			if ( !FFCore.doscript(ScriptType::Item, itemID) && (((unsigned)itemID) < 256) )
 			{
 				FFCore.reset_script_engine_data(ScriptType::Item, itemID);
-				FFCore.doscript(ScriptType::Item, itemID) = (itemsbuf[itemID].flags&ITEM_PASSIVESCRIPT) > 0;
+				FFCore.doscript(ScriptType::Item, itemID) = (itemsbuf[itemID].flags&item_passive_script) > 0;
 			}
 			return true;
 		}
@@ -21740,9 +21672,9 @@ void check_enemy_lweapon_collision(weapon *w)
 		}
 
 		// Item flags added in 2.55:
-		// BRang/HShot/Arrows ITEM_FLAG4 is "Pick up anything" (port of qr_BRANGPICKUP)
-		// BRang/HShot ITEM_FLAG5 is "Drags Items" (port of qr_Z3BRANG_HSHOT)
-		// Arrows ITEM_FLAG2 is "Picks up items" (inverse port of qr_Z3BRANG_HSHOT)
+		// BRang/HShot/Arrows item_flag4 is "Pick up anything" (port of qr_BRANGPICKUP)
+		// BRang/HShot item_flag5 is "Drags Items" (port of qr_Z3BRANG_HSHOT)
+		// Arrows item_flag2 is "Picks up items" (inverse port of qr_Z3BRANG_HSHOT)
 		// -Em
 		if(w->id == wBrang || w->id == wHookshot || w->id == wArrow)
 		{
@@ -21756,7 +21688,7 @@ void check_enemy_lweapon_collision(weapon *w)
 					break;
 			}
 			if(pitem < 0) pitem = current_item_id(itype);
-			if(w->id == wHookshot && w->family_class == itype_switchhook && (itemsbuf[pitem].flags & ITEM_FLAG9))
+			if(w->id == wHookshot && w->family_class == itype_switchhook && (itemsbuf[pitem].flags & item_flag9))
 			{ //Swap with item
 				for(int32_t j=0; j<items.Count(); j++)
 				{
@@ -21766,7 +21698,7 @@ void check_enemy_lweapon_collision(weapon *w)
 						bool priced = theItem->PriceIndex >-1;
 						bool isKey = itemsbuf[theItem->id].family==itype_key||itemsbuf[theItem->id].family==itype_lkey;
 						if(!theItem->fallclk && !theItem->drownclk && ((theItem->pickup & ipTIMER && theItem->clk2 >= 32)
-							|| (((itemsbuf[w->parentitem].flags & ITEM_FLAG4)||(theItem->pickup & ipCANGRAB)||((itemsbuf[w->parentitem].flags & ITEM_FLAG7)&&isKey)) && !priced && !(theItem->pickup & ipDUMMY))))
+							|| (((itemsbuf[w->parentitem].flags & item_flag4)||(theItem->pickup & ipCANGRAB)||((itemsbuf[w->parentitem].flags & item_flag7)&&isKey)) && !priced && !(theItem->pickup & ipDUMMY))))
 						{
 							if(!Hero.switchhookclk)
 							{
@@ -21785,7 +21717,7 @@ void check_enemy_lweapon_collision(weapon *w)
 					}
 				}
 			}
-			else if((w->id==wArrow&&itemsbuf[pitem].flags & ITEM_FLAG2)||(w->id!=wArrow&&!(itemsbuf[pitem].flags & ITEM_FLAG5)))//An arrow with "Picks up items" or a BRang/HShot without "Drags items"
+			else if((w->id==wArrow&&itemsbuf[pitem].flags & item_flag2)||(w->id!=wArrow&&!(itemsbuf[pitem].flags & item_flag5)))//An arrow with "Picks up items" or a BRang/HShot without "Drags items"
 			{
 				for(int32_t j=0; j<items.Count(); j++)
 				{
@@ -21795,7 +21727,7 @@ void check_enemy_lweapon_collision(weapon *w)
 						bool priced = theItem->PriceIndex >-1;
 						bool isKey = itemsbuf[theItem->id].family==itype_key||itemsbuf[theItem->id].family==itype_lkey;
 						if(!theItem->fallclk && !theItem->drownclk && ((theItem->pickup & ipTIMER && theItem->clk2 >= 32)
-							|| (((itemsbuf[pitem].flags & ITEM_FLAG4)||(theItem->pickup & ipCANGRAB)||((itemsbuf[pitem].flags & ITEM_FLAG7)&&isKey))&& !priced)))
+							|| (((itemsbuf[pitem].flags & item_flag4)||(theItem->pickup & ipCANGRAB)||((itemsbuf[pitem].flags & item_flag7)&&isKey))&& !priced)))
 						{
 							if(itemsbuf[theItem->id].collect_script)
 							{
@@ -21817,7 +21749,7 @@ void check_enemy_lweapon_collision(weapon *w)
 						bool priced = theItem->PriceIndex >-1;
 						bool isKey = itemsbuf[theItem->id].family==itype_key||itemsbuf[theItem->id].family==itype_lkey;
 						if(!theItem->fallclk && !theItem->drownclk && ((theItem->pickup & ipTIMER && theItem->clk2 >= 32)
-							|| (((itemsbuf[pitem].flags & ITEM_FLAG4)||(theItem->pickup & ipCANGRAB)||((itemsbuf[pitem].flags & ITEM_FLAG7)&&isKey)) && !priced && !(theItem->pickup & ipDUMMY))))
+							|| (((itemsbuf[pitem].flags & item_flag4)||(theItem->pickup & ipCANGRAB)||((itemsbuf[pitem].flags & item_flag7)&&isKey)) && !priced && !(theItem->pickup & ipDUMMY))))
 						{
 							int32_t pickup = theItem->pickup;
 							int32_t id2 = theItem->id;
@@ -21869,7 +21801,7 @@ void dragging_item()
 	{
 		weapon *w = (weapon*)Lwpns.spr(i);
 		
-		if((w->id == wBrang || w->id==wHookshot)&&itemsbuf[w->parentitem].flags & ITEM_FLAG5)//ITEM_FLAG5 is a port for qr_Z3BRANG_HSHOT
+		if((w->id == wBrang || w->id==wHookshot)&&itemsbuf[w->parentitem].flags & item_flag5)//item_flag5 is a port for qr_Z3BRANG_HSHOT
 		{
 			if(w->dragging>=0 && w->dragging<items.Count())
 			{

@@ -5018,8 +5018,8 @@ void edit_enemydata(int32_t index)
 	for(int32_t i=0; i<32; i++)
 		enedata_dlg[74+i].flags = (guysbuf[index].flags & (1<<i)) ? D_SELECTED : 0;
 		
-	enedata_dlg[186].d1 = (guysbuf[index].flags & guy_fadeinstant ? 2
-						   : guysbuf[index].flags & guy_fadeflicker ? 1 : 0);
+	enedata_dlg[186].d1 = (guysbuf[index].flags & guy_fade_instant ? 2
+						   : guysbuf[index].flags & guy_fade_flicker ? 1 : 0);
 						   
 	for(int32_t i=0; i<16; i++)
 		enedata_dlg[106+i].flags = (guysbuf[index].flags2 & (1<<i)) ? D_SELECTED : 0;
@@ -5027,19 +5027,19 @@ void edit_enemydata(int32_t index)
 	for(int32_t i=0; i<16; i++)
 		enedata_dlg[399+i].flags = (guysbuf[index].flags2 & (1<<(i+16))) ? D_SELECTED : 0;
 	
-	enedata_dlg[371].flags = (guysbuf[index].moveflags & FLAG_OBEYS_GRAV) ? D_SELECTED : 0;
-	enedata_dlg[372].flags = (guysbuf[index].moveflags & FLAG_CAN_PITFALL) ? D_SELECTED : 0;
-	enedata_dlg[373].flags = (guysbuf[index].moveflags & FLAG_CAN_PITWALK) ? D_SELECTED : 0;
-	enedata_dlg[374].flags = (guysbuf[index].moveflags & FLAG_CAN_WATERDROWN) ? D_SELECTED : 0;
-	enedata_dlg[375].flags = (guysbuf[index].moveflags & FLAG_CAN_WATERWALK) ? D_SELECTED : 0;
-	enedata_dlg[417].flags = (guysbuf[index].moveflags & FLAG_ONLY_WATERWALK) ? D_SELECTED : 0;
-	enedata_dlg[418].flags = (guysbuf[index].moveflags & FLAG_ONLY_SHALLOW_WATERWALK) ? D_SELECTED : 0;
-	enedata_dlg[419].flags = (guysbuf[index].moveflags & FLAG_ONLY_PITWALK) ? D_SELECTED : 0;
-	enedata_dlg[420].flags = (guysbuf[index].moveflags & FLAG_IGNORE_SOLIDITY) ? D_SELECTED : 0;
-	enedata_dlg[421].flags = (guysbuf[index].moveflags & FLAG_IGNORE_BLOCKFLAGS) ? D_SELECTED : 0;
-	enedata_dlg[422].flags = (guysbuf[index].moveflags & FLAG_IGNORE_SCREENEDGE) ? D_SELECTED : 0;
-	enedata_dlg[423].flags = (guysbuf[index].moveflags & FLAG_USE_NEW_MOVEMENT) ? D_SELECTED : 0;
-	enedata_dlg[424].flags = (guysbuf[index].moveflags & FLAG_NOT_PUSHABLE) ? D_SELECTED : 0;
+	enedata_dlg[371].flags = (guysbuf[index].moveflags & move_obeys_grav) ? D_SELECTED : 0;
+	enedata_dlg[372].flags = (guysbuf[index].moveflags & move_can_pitfall) ? D_SELECTED : 0;
+	enedata_dlg[373].flags = (guysbuf[index].moveflags & move_can_pitwalk) ? D_SELECTED : 0;
+	enedata_dlg[374].flags = (guysbuf[index].moveflags & move_can_waterdrown) ? D_SELECTED : 0;
+	enedata_dlg[375].flags = (guysbuf[index].moveflags & move_can_waterwalk) ? D_SELECTED : 0;
+	enedata_dlg[417].flags = (guysbuf[index].moveflags & move_only_waterwalk) ? D_SELECTED : 0;
+	enedata_dlg[418].flags = (guysbuf[index].moveflags & move_only_shallow_waterwalk) ? D_SELECTED : 0;
+	enedata_dlg[419].flags = (guysbuf[index].moveflags & move_only_pitwalk) ? D_SELECTED : 0;
+	enedata_dlg[420].flags = (guysbuf[index].moveflags & move_ignore_solidity) ? D_SELECTED : 0;
+	enedata_dlg[421].flags = (guysbuf[index].moveflags & move_ignore_blockflags) ? D_SELECTED : 0;
+	enedata_dlg[422].flags = (guysbuf[index].moveflags & move_ignore_screenedge) ? D_SELECTED : 0;
+	enedata_dlg[423].flags = (guysbuf[index].moveflags & move_new_movement) ? D_SELECTED : 0;
+	enedata_dlg[424].flags = (guysbuf[index].moveflags & move_not_pushable) ? D_SELECTED : 0;
 	
 	int32_t ret;
 	guydata test;
@@ -5242,16 +5242,16 @@ void edit_enemydata(int32_t index)
 		
 		
 		for(int32_t i=0; i<32; i++)
-			test.flags |= (enedata_dlg[74+i].flags & D_SELECTED) ? (1<<i) : 0;
+			test.flags |= (guy_flags)((enedata_dlg[74+i].flags & D_SELECTED) ? (1<<i) : 0);
 			
-		test.flags &= ~(guy_fadeinstant|guy_fadeflicker);
-		test.flags |= (enedata_dlg[186].d1==2 ? guy_fadeinstant : enedata_dlg[186].d1==1 ? guy_fadeflicker : 0);
+		test.flags &= ~(guy_fade_instant|guy_fade_flicker);
+		test.flags |= (guy_flags)(enedata_dlg[186].d1==2 ? guy_fade_instant : enedata_dlg[186].d1==1 ? guy_fade_flicker : 0);
 		
 		for(int32_t i=0; i<16; i++)
-			test.flags2 |= (enedata_dlg[106+i].flags & D_SELECTED) ? (1<<i) : 0;
+			test.flags2 |= (guy_flags2)((enedata_dlg[106+i].flags & D_SELECTED) ? (1<<i) : 0);
 		
 		for(int32_t i=0; i<16; i++)
-			test.flags2 |= (enedata_dlg[399+i].flags & D_SELECTED) ? (1<<(i+16)) : 0;
+			test.flags2 |= (guy_flags2)((enedata_dlg[399+i].flags & D_SELECTED) ? (1<<(i+16)) : 0);
 			
 		if(enedata_dlg[143].flags & D_SELECTED)
 		{
@@ -5357,33 +5357,33 @@ void edit_enemydata(int32_t index)
 		//eweapon script
 		test.weaponscript = bieweapons[enedata_dlg[370].d1].second + 1; 
 		
-		test.moveflags = 0;
+		test.moveflags = move_none;
 		if(enedata_dlg[371].flags & D_SELECTED)
-			test.moveflags |= FLAG_OBEYS_GRAV;
+			test.moveflags |= move_obeys_grav;
 		if(enedata_dlg[372].flags & D_SELECTED)
-			test.moveflags |= FLAG_CAN_PITFALL;
+			test.moveflags |= move_can_pitfall;
 		if(enedata_dlg[373].flags & D_SELECTED)
-			test.moveflags |= FLAG_CAN_PITWALK;
+			test.moveflags |= move_can_pitwalk;
 		if(enedata_dlg[374].flags & D_SELECTED)
-			test.moveflags |= FLAG_CAN_WATERDROWN;
+			test.moveflags |= move_can_waterdrown;
 		if(enedata_dlg[375].flags & D_SELECTED)
-			test.moveflags |= FLAG_CAN_WATERWALK;
+			test.moveflags |= move_can_waterwalk;
 		if(enedata_dlg[417].flags & D_SELECTED)
-			test.moveflags |= FLAG_ONLY_WATERWALK;
+			test.moveflags |= move_only_waterwalk;
 		if(enedata_dlg[418].flags & D_SELECTED)
-			test.moveflags |= FLAG_ONLY_SHALLOW_WATERWALK;
+			test.moveflags |= move_only_shallow_waterwalk;
 		if(enedata_dlg[419].flags & D_SELECTED)
-			test.moveflags |= FLAG_ONLY_PITWALK;
+			test.moveflags |= move_only_pitwalk;
 		if(enedata_dlg[420].flags & D_SELECTED)
-			test.moveflags |= FLAG_IGNORE_SOLIDITY;
+			test.moveflags |= move_ignore_solidity;
 		if(enedata_dlg[421].flags & D_SELECTED)
-			test.moveflags |= FLAG_IGNORE_BLOCKFLAGS;
+			test.moveflags |= move_ignore_blockflags;
 		if(enedata_dlg[422].flags & D_SELECTED)
-			test.moveflags |= FLAG_IGNORE_SCREENEDGE;
+			test.moveflags |= move_ignore_screenedge;
 		if(enedata_dlg[423].flags & D_SELECTED)
-			test.moveflags |= FLAG_USE_NEW_MOVEMENT;
+			test.moveflags |= move_new_movement;
 		if(enedata_dlg[424].flags & D_SELECTED)
-			test.moveflags |= FLAG_NOT_PUSHABLE;
+			test.moveflags |= move_not_pushable;
 	
 		//end npc scripts
 	

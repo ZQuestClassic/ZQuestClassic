@@ -228,7 +228,7 @@ static void cheats_execute(Cheat cheat, int arg1, int arg2, std::string arg3)
     {
         for (int32_t i = 0; i < guys.Count(); i++)
         {
-            if (!(((enemy *)guys.spr(i))->flags & guy_doesntcount))
+            if (!(((enemy *)guys.spr(i))->flags & guy_doesnt_count))
                 ((enemy *)guys.spr(i))->kickbucket();
         }
     }

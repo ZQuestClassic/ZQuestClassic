@@ -35,16 +35,16 @@ void zc_ffc_modify(ffcdata& ffc, int32_t amount)
 void zc_ffc_changer(ffcdata& ffc, ffcdata& other, int32_t i, int32_t j)
 {
 	// TODO: could use `ffc = other;` to replace most of this.
-	if(other.flags&ffCHANGETHIS)
+	if(other.flags&ffc_changethis)
 	{
 		zc_ffc_set(ffc, other.data);
 		ffc.cset = other.cset;
 	}
 	
-	if(other.flags&ffCHANGENEXT)
+	if(other.flags&ffc_changenext)
 		zc_ffc_modify(ffc, 1);
 	
-	if(other.flags&ffCHANGEPREV)
+	if(other.flags&ffc_changeprev)
 		zc_ffc_modify(ffc, -1);
 	
 	ffc.delay=other.delay;
@@ -60,12 +60,12 @@ void zc_ffc_changer(ffcdata& ffc, ffcdata& other, int32_t i, int32_t j)
 	ffc.txsz=other.txsz;
 	ffc.tysz=other.tysz;
 	
-	if(ffc.flags&ffCARRYOVER)
-		ffc.flags=other.flags|ffCARRYOVER;
+	if(ffc.flags&ffc_carryover)
+		ffc.flags=other.flags|ffc_carryover;
 	else
 		ffc.flags=other.flags;
 	
-	ffc.flags&=~ffCHANGER;
+	ffc.flags&=~ffc_changer;
 	
 	if(combobuf[other.data].flag>15 && combobuf[other.data].flag<32)
 		zc_ffc_set(other, tmpscr->secretcombo[combobuf[other.data].flag-16+4]);
@@ -74,14 +74,14 @@ void zc_ffc_changer(ffcdata& ffc, ffcdata& other, int32_t i, int32_t j)
 	{
 		ffposx[i]=(other.x.getInt());
 		ffposy[i]=(other.y.getInt());
-		if((other.flags&ffSWAPNEXT)||(other.flags&ffSWAPPREV))
+		if((other.flags&ffc_swapnext)||(other.flags&ffc_swapprev))
 		{
 			int32_t k=0;
 			
-			if(other.flags&ffSWAPNEXT)
+			if(other.flags&ffc_swapnext)
 				k=j<(MAXFFCS-1)?j+1:0;
 				
-			if(other.flags&ffSWAPPREV)
+			if(other.flags&ffc_swapprev)
 				k=j>0?j-1:(MAXFFCS-1);
 			ffcdata& ffck = tmpscr->ffcs[k];
 			auto w = ffck.data;

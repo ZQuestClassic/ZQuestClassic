@@ -96,7 +96,7 @@ public:
     bool do_animation;
     int32_t rotation;
     int32_t scale; 
-    dword moveflags;
+    move_flags moveflags;
     byte drawflags;
 	byte knockbackflags;
 	byte screenedge;

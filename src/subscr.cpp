@@ -2962,7 +2962,7 @@ void defaultcounters(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t
         
         if(itemid>-1)
         {
-            if(itemsbuf[itemid].flags&ITEM_FLAG1)
+            if(itemsbuf[itemid].flags&item_flag1)
                 magickey = itemsbuf[itemid].power>=get_dlevel();
             else
                 magickey = itemsbuf[itemid].power==get_dlevel();
@@ -2980,7 +2980,7 @@ void defaultcounters(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t
         if(game)
         {
             int32_t itemid = current_item_id(itype_bombbag);
-            bool superbomb = (itemid>=0 && itemsbuf[itemid].power>0 && itemsbuf[itemid].flags & ITEM_FLAG1);
+            bool superbomb = (itemid>=0 && itemsbuf[itemid].power>0 && itemsbuf[itemid].flags & item_flag1);
             
             putxnum(dest,x+8,y+24,game->get_sbombs(),tempfont,color,shadowcolor,bgcolor,textstyle,usex,digits,superbomb,idigit);
         }

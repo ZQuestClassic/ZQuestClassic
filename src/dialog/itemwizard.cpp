@@ -78,8 +78,8 @@ void ItemWizardDialog::update(bool first)
 	{
 		case itype_shield:
 		{
-			bool active = (local_ref.flags & ITEM_FLAG9);
-			bool move = active && (local_ref.flags & ITEM_FLAG10);
+			bool active = (local_ref.flags & item_flag9);
+			bool move = active && (local_ref.flags & item_flag10);
 			disable(0, !active);
 			disable(1, !move);
 			break;
@@ -97,10 +97,10 @@ void ItemWizardDialog::endUpdate()
 	{
 		case itype_shield:
 		{
-			bool active = (local_ref.flags & ITEM_FLAG9);
-			bool move = active && (local_ref.flags & ITEM_FLAG10);
-			bool src_active = (src_ref.flags & ITEM_FLAG9);
-			bool src_move = src_active && (src_ref.flags & ITEM_FLAG10);
+			bool active = (local_ref.flags & item_flag9);
+			bool move = active && (local_ref.flags & item_flag10);
+			bool src_active = (src_ref.flags & item_flag9);
+			bool src_move = src_active && (src_ref.flags & item_flag10);
 			
 			if(!move)
 			{
@@ -120,14 +120,14 @@ void ItemWizardDialog::endUpdate()
 				if(src_active)
 				{
 					local_ref.misc6 = 0;
-					SETFLAG(local_ref.flags, ITEM_FLAG5|ITEM_FLAG6|
-						ITEM_FLAG7|ITEM_FLAG8|ITEM_FLAG10|ITEM_FLAG11, false);
+					SETFLAG(local_ref.flags, item_flag5|item_flag6|
+						item_flag7|item_flag8|item_flag10|item_flag11, false);
 				}
 				else
 				{
 					local_ref.misc6 = src_ref.misc6;
-					CPYFLAG(local_ref.flags, ITEM_FLAG5|ITEM_FLAG6|
-						ITEM_FLAG7|ITEM_FLAG8|ITEM_FLAG10|ITEM_FLAG11, src_ref.flags);
+					CPYFLAG(local_ref.flags, item_flag5|item_flag6|
+						item_flag7|item_flag8|item_flag10|item_flag11, src_ref.flags);
 				}
 			}
 			local_ref.misc1 |= local_ref.misc2; //blockflags are req for refl flags
@@ -160,22 +160,23 @@ void item_default(itemdata& ref)
 	ref.misc8 = 0;
 	ref.misc9 = 0;
 	ref.misc10 = 0;
-	ref.flags &= ~(ITEM_FLAG1|ITEM_FLAG2|ITEM_FLAG3|ITEM_FLAG4|
-		ITEM_FLAG5|ITEM_FLAG6|ITEM_FLAG7|ITEM_FLAG8|
-		ITEM_FLAG9|ITEM_FLAG10|ITEM_FLAG11|ITEM_FLAG12|
-		ITEM_FLAG13|ITEM_FLAG14|ITEM_FLAG15);
+	ref.flags &= ~(item_flag1|item_flag2|item_flag3|item_flag4|
+		item_flag5|item_flag6|item_flag7|item_flag8|
+		item_flag9|item_flag10|item_flag11|item_flag12|
+		item_flag13|item_flag14|item_flag15);
 	switch(ref.family)
 	{
 		case itype_shield:
-			ref.flags |= ITEM_FLAG1; //protects front
-			ref.misc1 = shROCK|shARROW|shBRANG;
+			ref.flags |= item_flag1; //protects front
+			ref.misc1 = sh_rock|sh_arrow|sh_brang;
 			break;
 		case itype_note:
 			ref.misc1 = 0;
 			break;
 	}
 }
-std::shared_ptr<GUI::Widget> ItemWizardDialog::CBOX_IMPL(string const& name, int32_t* mem, int32_t bit, optional<string> inf)
+template <typename T1, typename T2>
+std::shared_ptr<GUI::Widget> ItemWizardDialog::CBOX_IMPL(string const& name, T1* mem, T2 bit, optional<string> inf)
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
@@ -250,52 +251,52 @@ std::shared_ptr<GUI::Widget> ItemWizardDialog::view()
 					TabPanel(ptr = &tabpos2,
 						TabRef(name = "Block",
 							Columns<8>(
-								CBOX_DI("Rocks", misc1, shROCK),
-								CBOX_DI("Arrows", misc1, shARROW),
-								CBOX_DI("Boomerangs", misc1, shBRANG),
-								CBOX_DI("Fireballs", misc1, shFIREBALL),
-								CBOX_DI("Fireballs (Boss)", misc1, shFIREBALL2),
-								CBOX_DI("Swords", misc1, shSWORD),
-								CBOX_DI("Magic", misc1, shMAGIC),
-								CBOX_DI("Flames", misc1, shFLAME),
-								CBOX_I("Flames 2", misc1, shFLAME2, "Might ALWAYS be blocked regardless, depending on 'Broken Enemy Fire/Arrow Reflecting'."+QRHINT({qr_BROKEN_FLAME_ARROW_REFLECTING})),
-								CBOX_I("Custom W. (ALL)", misc1, shSCRIPT, "Checking this has the same effect as checking all 10 below."),
-								CBOX_DI("Custom W. 1", misc1, shSCRIPT1),
-								CBOX_DI("Custom W. 2", misc1, shSCRIPT2),
-								CBOX_DI("Custom W. 3", misc1, shSCRIPT3),
-								CBOX_DI("Custom W. 4", misc1, shSCRIPT4),
-								CBOX_DI("Custom W. 5", misc1, shSCRIPT5),
-								CBOX_DI("Custom W. 6", misc1, shSCRIPT6),
-								CBOX_DI("Custom W. 7", misc1, shSCRIPT7),
-								CBOX_DI("Custom W. 8", misc1, shSCRIPT8),
-								CBOX_DI("Custom W. 9", misc1, shSCRIPT9),
-								CBOX_DI("Custom W. 10", misc1, shSCRIPT10),
-								CBOX_DI("Light Beams", misc1, shLIGHTBEAM)
+								CBOX_DI("Rocks", misc1, sh_rock),
+								CBOX_DI("Arrows", misc1, sh_arrow),
+								CBOX_DI("Boomerangs", misc1, sh_brang),
+								CBOX_DI("Fireballs", misc1, sh_fireball),
+								CBOX_DI("Fireballs (Boss)", misc1, sh_fireball2),
+								CBOX_DI("Swords", misc1, sh_sword),
+								CBOX_DI("Magic", misc1, sh_magic),
+								CBOX_DI("Flames", misc1, sh_flame),
+								CBOX_I("Flames 2", misc1, sh_flame2, "Might ALWAYS be blocked regardless, depending on 'Broken Enemy Fire/Arrow Reflecting'."+QRHINT({qr_BROKEN_FLAME_ARROW_REFLECTING})),
+								CBOX_I("Custom W. (ALL)", misc1, sh_script, "Checking this has the same effect as checking all 10 below."),
+								CBOX_DI("Custom W. 1", misc1, sh_script1),
+								CBOX_DI("Custom W. 2", misc1, sh_script2),
+								CBOX_DI("Custom W. 3", misc1, sh_script3),
+								CBOX_DI("Custom W. 4", misc1, sh_script4),
+								CBOX_DI("Custom W. 5", misc1, sh_script5),
+								CBOX_DI("Custom W. 6", misc1, sh_script6),
+								CBOX_DI("Custom W. 7", misc1, sh_script7),
+								CBOX_DI("Custom W. 8", misc1, sh_script8),
+								CBOX_DI("Custom W. 9", misc1, sh_script9),
+								CBOX_DI("Custom W. 10", misc1, sh_script10),
+								CBOX_DI("Light Beams", misc1, sh_lightbeam)
 							)
 						),
 						TabRef(name = "Reflect",
 							Columns<8>(
-								CBOX_DI("Rocks", misc2, shROCK),
-								CBOX_I("Arrows", misc2, shARROW, "Might not be reflectable, depending on 'Broken Enemy Fire/Arrow Reflecting'."+QRHINT({qr_BROKEN_FLAME_ARROW_REFLECTING})),
-								push_widg(-1,CBOX_DI("Boomerangs", misc2, shBRANG)),
-								CBOX_DI("Fireballs", misc2, shFIREBALL),
-								CBOX_DI("Fireballs (Boss)", misc2, shFIREBALL2),
-								CBOX_DI("Swords", misc2, shSWORD),
-								CBOX_DI("Magic", misc2, shMAGIC),
-								CBOX_I("Flames", misc2, shFLAME, "Might not be reflectable, depending on 'Broken Enemy Fire/Arrow Reflecting'."+QRHINT({qr_BROKEN_FLAME_ARROW_REFLECTING})),
-								CBOX_I("Flames 2", misc2, shFLAME2, "Might not be reflectable, depending on 'Broken Enemy Fire/Arrow Reflecting'."+QRHINT({qr_BROKEN_FLAME_ARROW_REFLECTING})),
-								CBOX_I("Custom W. (ALL)", misc2, shSCRIPT, "Checking this has the same effect as checking all 10 below."),
-								CBOX_DI("Custom W. 1", misc2, shSCRIPT1),
-								CBOX_DI("Custom W. 2", misc2, shSCRIPT2),
-								CBOX_DI("Custom W. 3", misc2, shSCRIPT3),
-								CBOX_DI("Custom W. 4", misc2, shSCRIPT4),
-								CBOX_DI("Custom W. 5", misc2, shSCRIPT5),
-								CBOX_DI("Custom W. 6", misc2, shSCRIPT6),
-								CBOX_DI("Custom W. 7", misc2, shSCRIPT7),
-								CBOX_DI("Custom W. 8", misc2, shSCRIPT8),
-								CBOX_DI("Custom W. 9", misc2, shSCRIPT9),
-								CBOX_DI("Custom W. 10", misc2, shSCRIPT10),
-								CBOX_DI("Light Beams", misc2, shLIGHTBEAM)
+								CBOX_DI("Rocks", misc2, sh_rock),
+								CBOX_I("Arrows", misc2, sh_arrow, "Might not be reflectable, depending on 'Broken Enemy Fire/Arrow Reflecting'."+QRHINT({qr_BROKEN_FLAME_ARROW_REFLECTING})),
+								push_widg(-1,CBOX_DI("Boomerangs", misc2, sh_brang)),
+								CBOX_DI("Fireballs", misc2, sh_fireball),
+								CBOX_DI("Fireballs (Boss)", misc2, sh_fireball2),
+								CBOX_DI("Swords", misc2, sh_sword),
+								CBOX_DI("Magic", misc2, sh_magic),
+								CBOX_I("Flames", misc2, sh_flame, "Might not be reflectable, depending on 'Broken Enemy Fire/Arrow Reflecting'."+QRHINT({qr_BROKEN_FLAME_ARROW_REFLECTING})),
+								CBOX_I("Flames 2", misc2, sh_flame2, "Might not be reflectable, depending on 'Broken Enemy Fire/Arrow Reflecting'."+QRHINT({qr_BROKEN_FLAME_ARROW_REFLECTING})),
+								CBOX_I("Custom W. (ALL)", misc2, sh_script, "Checking this has the same effect as checking all 10 below."),
+								CBOX_DI("Custom W. 1", misc2, sh_script1),
+								CBOX_DI("Custom W. 2", misc2, sh_script2),
+								CBOX_DI("Custom W. 3", misc2, sh_script3),
+								CBOX_DI("Custom W. 4", misc2, sh_script4),
+								CBOX_DI("Custom W. 5", misc2, sh_script5),
+								CBOX_DI("Custom W. 6", misc2, sh_script6),
+								CBOX_DI("Custom W. 7", misc2, sh_script7),
+								CBOX_DI("Custom W. 8", misc2, sh_script8),
+								CBOX_DI("Custom W. 9", misc2, sh_script9),
+								CBOX_DI("Custom W. 10", misc2, sh_script10),
+								CBOX_DI("Light Beams", misc2, sh_lightbeam)
 							)
 						)
 					)
@@ -307,20 +308,20 @@ std::shared_ptr<GUI::Widget> ItemWizardDialog::view()
 								Frame(title = "Protects",
 									info = "These sides of the player are protected while the shield is in effect",
 									Column(padding = 0_px,
-										CBOX("Front", flags, ITEM_FLAG1),
-										CBOX("Back", flags, ITEM_FLAG2),
-										CBOX("Left", flags, ITEM_FLAG3),
-										CBOX("Right", flags, ITEM_FLAG4)
+										CBOX("Front", flags, item_flag1),
+										CBOX("Back", flags, item_flag2),
+										CBOX("Left", flags, item_flag3),
+										CBOX("Right", flags, item_flag4)
 									)
 								),
 								push_widg(0,Column(
 									Frame(title = "Inactive Prot",
 										info = "These sides of the player are protected while the shield is NOT in effect",
 										Column(padding = 0_px,
-											CBOX("Front", flags, ITEM_FLAG5),
-											CBOX("Back", flags, ITEM_FLAG6),
-											CBOX("Left", flags, ITEM_FLAG7),
-											CBOX("Right", flags, ITEM_FLAG8)
+											CBOX("Front", flags, item_flag5),
+											CBOX("Back", flags, item_flag6),
+											CBOX("Left", flags, item_flag7),
+											CBOX("Right", flags, item_flag8)
 										)
 									)
 								))
@@ -346,11 +347,11 @@ std::shared_ptr<GUI::Widget> ItemWizardDialog::view()
 							)
 						),
 						Column(
-							CBOX_I("Active Use", flags, ITEM_FLAG9,
+							CBOX_I("Active Use", flags, item_flag9,
 								"If enabled, the shield only protects the player (and provides"
 								" its' LTM) while it is equipped to a button that is being held."),
-							push_widg(0,CBOX_I("Change Speed", flags, ITEM_FLAG10, "Change the player's walking speed while the shield is active")),
-							push_widg(0,CBOX_I("Lock Direction", flags, ITEM_FLAG11, "When the shield is activated, lock the player's direction until it is released.")),
+							push_widg(0,CBOX_I("Change Speed", flags, item_flag10, "Change the player's walking speed while the shield is active")),
+							push_widg(0,CBOX_I("Lock Direction", flags, item_flag11, "When the shield is activated, lock the player's direction until it is released.")),
 							push_widg(0,Rows<3>(
 								Label(text = "Inactive PTM:", hAlign = 1.0),
 								TextField(maxLength = 11,

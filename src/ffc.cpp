@@ -27,10 +27,10 @@ void ffcdata::clear()
 void ffcdata::draw(BITMAP* dest, int32_t xofs, int32_t yofs, bool overlay)
 {
 	if (!data) return;
-	if (flags&ffCHANGER) return;
+	if (flags&ffc_changer) return;
 	#ifdef IS_PLAYER
-	if ((flags&ffLENSINVIS) && lensclk) return; //If lens is active and ffc is invis to lens, don't draw
-	if ((flags&ffLENSVIS) && !lensclk) return; //If FFC does not require lens, or lens is active, draw
+	if ((flags&ffc_lensinvis) && lensclk) return; //If lens is active and ffc is invis to lens, don't draw
+	if ((flags&ffc_lensvis) && !lensclk) return; //If FFC does not require lens, or lens is active, draw
 	
 	if (switch_hooked)
 	{
@@ -51,12 +51,12 @@ void ffcdata::draw(BITMAP* dest, int32_t xofs, int32_t yofs, bool overlay)
 	}
 	#endif
 	
-	if(!(flags&ffOVERLAY) == !overlay) //force cast both of these to boolean. They're both not, so same as if they weren't not.
+	if(!(flags&ffc_overlay) == !overlay) //force cast both of these to boolean. They're both not, so same as if they weren't not.
 	{
 		int32_t tx = x + xofs;
 		int32_t ty = y + yofs;
 		
-		if(flags&ffTRANS)
+		if(flags&ffc_trans)
 		{
 			overcomboblocktranslucent(dest, tx, ty, data, cset, txsz, tysz,128);
 		}
@@ -69,14 +69,14 @@ void ffcdata::draw(BITMAP* dest, int32_t xofs, int32_t yofs, bool overlay)
 
 bool ffcdata::setSolid(bool set) //exists so that ffcs can do special handling for whether to make something solid or not.
 {
-	bool actual = set && !(flags&ffCHANGER) && loaded;
+	bool actual = set && !(flags&ffc_changer) && loaded;
 	bool ret = solid_object::setSolid(actual);
 	solid = set;
 	return ret;
 }
 void ffcdata::updateSolid()
 {
-	if(setSolid(flags&ffSOLID))
+	if(setSolid(flags&ffc_solid))
 		solid_update(false);
 }
 
@@ -85,7 +85,7 @@ void ffcdata::solid_update(bool push)
 #ifdef IS_PLAYER
 	zfix dx = (x - old_x);
 	zfix dy = (y - old_y);
-	if((flags&ffPLATFORM) && Hero.on_ffc_platform(*this,true))
+	if((flags&ffc_platform) && Hero.on_ffc_platform(*this,true))
 	{
 		if(push)
 			Hero.movexy(dx,dy,false,false,false);
@@ -125,7 +125,7 @@ bool ffcdata::getLoaded() const
 void ffcdata::doContactDamage(int32_t hdir)
 {
 #ifdef IS_PLAYER
-	if(flags & (ffCHANGER | ffETHEREAL))
+	if(flags & (ffc_changer | ffc_ethereal))
 		return; //Changer or ethereal; has no type
 	newcombo const& cmb = combobuf[data];
 	if(data && isdamage_type(cmb.type))

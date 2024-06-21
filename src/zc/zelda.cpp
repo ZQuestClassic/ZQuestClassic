@@ -2739,7 +2739,7 @@ void do_magic_casting()
         
         if((magiccastclk++)>=226)
         {
-			if(itemsbuf[magicitem].flags & ITEM_FLAG1) //Act as F6->Continue
+			if(itemsbuf[magicitem].flags & item_flag1) //Act as F6->Continue
 			{
 				Quit = qCONT;
 				skipcont = 1;
@@ -3579,7 +3579,7 @@ void game_loop()
 						game->set_bombs(zc_min(game->get_bombs() + itemsbuf[itemid].misc1, game->get_maxbombs()));
 					}
 					
-					if((itemsbuf[itemid].flags & ITEM_FLAG1) && zinit.bomb_ratio)
+					if((itemsbuf[itemid].flags & item_flag1) && zinit.bomb_ratio)
 					{
 						int32_t ratio = zinit.bomb_ratio;
 						
@@ -5518,7 +5518,7 @@ bool checkCost(int32_t ctr, int32_t amnt)
 		case crSBOMBS:
 		{
 			if(current_item_power(itype_bombbag)
-				&& itemsbuf[current_item_id(itype_bombbag)].flags & ITEM_FLAG1)
+				&& itemsbuf[current_item_id(itype_bombbag)].flags & item_flag1)
 				return true;
 			break;
 		}
@@ -5586,7 +5586,7 @@ void payCost(int32_t ctr, int32_t amnt, int32_t tmr, bool ignoreTimer)
 		case crSBOMBS:
 		{
 			if(cost && current_item_power(itype_bombbag)
-				&& itemsbuf[current_item_id(itype_bombbag)].flags & ITEM_FLAG1)
+				&& itemsbuf[current_item_id(itype_bombbag)].flags & item_flag1)
 				return;
 			break;
 		}
@@ -5600,9 +5600,9 @@ void paymagiccost(int32_t itemid, bool ignoreTimer, bool onlyTimer)
 		return;
 	}
 	itemdata const& id = itemsbuf[itemid];
-	if(!(id.flags&ITEM_VALIDATEONLY) && (!onlyTimer || id.magiccosttimer[0]))
+	if(!(id.flags&item_validate_only) && (!onlyTimer || id.magiccosttimer[0]))
 		payCost(id.cost_counter[0], id.cost_amount[0], id.magiccosttimer[0], ignoreTimer);
-	if(!(id.flags&ITEM_VALIDATEONLY2) && (!onlyTimer || id.magiccosttimer[1]))
+	if(!(id.flags&item_validate_only_2) && (!onlyTimer || id.magiccosttimer[1]))
 		payCost(id.cost_counter[1], id.cost_amount[1], id.magiccosttimer[1], ignoreTimer);
 }
 

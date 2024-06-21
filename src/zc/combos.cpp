@@ -1401,7 +1401,7 @@ bool trigger_armos_grave(int32_t lyr, int32_t pos, int32_t trigdir)
 			{
 				for(int32_t i=0; i<eMAXGUYS; i++)
 				{
-					if(guysbuf[i].flags2&cmbflag_armos)
+					if(guysbuf[i].flags2&guy_armos)
 					{
 						id2=i;
 						
@@ -1575,7 +1575,7 @@ bool trigger_armos_grave(int32_t lyr, int32_t pos, int32_t trigdir)
 					enemy* en = ((enemy*)guys.spr(guys.Count()-1));
 					en->did_armos=false;
 					en->fading=fade_flicker;
-					en->flags2 |= cmbflag_armos;
+					en->flags2 |= guy_armos;
 				}
 				return true;
 			}
@@ -1595,7 +1595,7 @@ bool trigger_armos_grave(int32_t lyr, int32_t pos, int32_t trigdir)
 			{
 				for(int32_t i=0; i<eMAXGUYS; i++)
 				{
-					if(guysbuf[i].flags2&cmbflag_ghini)
+					if(guysbuf[i].flags2&guy_ghini)
 					{
 						id2=i;
 						eclk=0; // This is mostly for backwards-compatability
@@ -1649,7 +1649,7 @@ bool trigger_armos_grave_ffc(int32_t pos, int32_t trigdir)
 			{
 				for(int32_t i=0; i<eMAXGUYS; i++)
 				{
-					if(guysbuf[i].flags2&cmbflag_armos)
+					if(guysbuf[i].flags2&guy_armos)
 					{
 						id2=i;
 						
@@ -1679,7 +1679,7 @@ bool trigger_armos_grave_ffc(int32_t pos, int32_t trigdir)
 			{
 				for(int32_t i=0; i<eMAXGUYS; i++)
 				{
-					if(guysbuf[i].flags2&cmbflag_ghini)
+					if(guysbuf[i].flags2&guy_ghini)
 					{
 						id2=i;
 						eclk=0; // This is mostly for backwards-compatability
@@ -1715,8 +1715,8 @@ bool trigger_damage_combo(int32_t cid, int type, int ptrval, int32_t hdir, bool 
 		dmg = cmb.attributes[0] / -10000L;
 	else dmg = combo_class_buf[cmb.type].modify_hp_amount;
 	
-	bool global_defring = ((itemsbuf[current_item_id(itype_ring)].flags & ITEM_FLAG1));
-	bool global_perilring = ((itemsbuf[current_item_id(itype_perilring)].flags & ITEM_FLAG1));
+	bool global_defring = ((itemsbuf[current_item_id(itype_ring)].flags & item_flag1));
+	bool global_perilring = ((itemsbuf[current_item_id(itype_perilring)].flags & item_flag1));
 	bool current_ring = ((tmpscr->flags6&fTOGGLERINGDAMAGE) != 0);
 	if(current_ring)
 	{
@@ -1726,8 +1726,8 @@ bool trigger_damage_combo(int32_t cid, int type, int ptrval, int32_t hdir, bool 
 	
 	int32_t itemid = current_item_id(itype_boots);
 	
-	bool bootsnosolid = itemid >= 0 && 0 != (itemsbuf[itemid].flags & ITEM_FLAG1);
-	bool ignoreBoots = itemid >= 0 && (itemsbuf[itemid].flags & ITEM_FLAG3);
+	bool bootsnosolid = itemid >= 0 && 0 != (itemsbuf[itemid].flags & item_flag1);
+	bool ignoreBoots = itemid >= 0 && (itemsbuf[itemid].flags & item_flag3);
 	if(dmg < 0)
 	{
 		if(itemid < 0 || ignoreBoots || (tmpscr->flags5&fDAMAGEWITHBOOTS)
@@ -3027,7 +3027,7 @@ bool do_trigger_combo_ffc(int32_t pos, int32_t special, weapon* w)
 	if (get_qr(qr_OLD_FFC_FUNCTIONALITY)) return false;
 	if(unsigned(pos) >= MAXFFCS) return false;
 	ffcdata& ffc = tmpscr->ffcs[pos];
-	if (ffc.flags & ffCHANGER)
+	if (ffc.flags & ffc_changer)
 		return false; //Changers can't trigger!
 	cpos_info& timer = tmpscr->ffcs[pos].info;
 	int32_t cid = ffc.data;
@@ -3201,7 +3201,7 @@ bool do_trigger_combo_ffc(int32_t pos, int32_t special, weapon* w)
 			if(cmb.trigcopycat) //has a copycat set
 				trig_copycat(cid, pos);
 			
-			if(tmpscr->ffcs[pos].flags & ffCHANGER)
+			if(tmpscr->ffcs[pos].flags & ffc_changer)
 				timer.updateData(-1);
 			else timer.updateData(tmpscr->ffcs[pos].data);
 			
@@ -3317,7 +3317,7 @@ bool do_lift_combo(int32_t lyr, int32_t pos, int32_t gloveid)
 		}
 	}
 	
-	w->moveflags |= FLAG_OBEYS_GRAV;
+	w->moveflags |= move_obeys_grav;
 	if(cmb.liftflags & LF_BREAKONSOLID)
 		w->misc_wflags |= WFLAG_BREAK_ON_SOLID;
 	
@@ -3477,7 +3477,7 @@ void trig_trigger_groups()
 	for(word ffc = 0; ffc < c; ++ffc)
 	{
 		ffcdata& f = ffscr->ffcs[ffc];
-		if (f.flags & ffCHANGER)
+		if (f.flags & ffc_changer)
 			continue; //changers don't contribute
 		cpos_info& timer = f.info;
 		int cid = f.data;
@@ -3494,7 +3494,7 @@ void trig_trigger_groups()
 			int cid2 = f.data;
 			bool recheck = timer.data != cid2;
 			
-			if(f.flags & ffCHANGER)
+			if(f.flags & ffc_changer)
 				timer.updateData(-1);
 			else timer.updateData(cid2);
 			
@@ -3540,7 +3540,7 @@ void handle_ffcpos_type(newcombo const& cmb, cpos_info& timer, ffcdata& f)
 		{
 			word cid = f.data;
 			handle_crumble(cmb, timer, cid, f.x+f.hxofs, f.y+f.hyofs, f.hit_width, f.hit_height);
-			if(f.flags & ffCHANGER)
+			if(f.flags & ffc_changer)
 				timer.updateData(-1);
 			zc_ffc_update(f,cid);
 			break;
@@ -3617,7 +3617,7 @@ void cpos_force_update() //updates without side-effects
 	for(word ffc = 0; ffc < c; ++ffc)
 	{
 		ffcdata& f = tmpscr->ffcs[ffc];
-		if(f.flags & ffCHANGER)
+		if(f.flags & ffc_changer)
 			f.info.updateData(-1);
 		else f.info.updateData(f.data);
 	}
@@ -3672,7 +3672,7 @@ void cpos_update() //updates with side-effects
 	{
 		ffcdata& f = ffscr->ffcs[ffc];
 		cpos_info& timer = f.info;
-		if (f.flags & ffCHANGER)
+		if (f.flags & ffc_changer)
 		{
 			//changers don't contribute
 			timer.updateData(-1);

@@ -6747,7 +6747,7 @@ bool _handle_tile_move(TileMoveProcess dest_process, optional<TileMoveProcess> s
 			bool darknut=false;
 			int32_t gleeok=0;
 			
-			if(enemy.family==eeWALK && ((enemy.flags&(inv_back|inv_front|inv_left|inv_right))!=0))
+			if(enemy.family==eeWALK && ((enemy.flags&(guy_shield_back|guy_shield_front|guy_shield_left|guy_shield_right))!=0))
 				darknut=true;
 			else if(enemy.family==eeGLEEOK)
 			{

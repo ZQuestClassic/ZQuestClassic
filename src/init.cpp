@@ -980,7 +980,7 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool freshquest)
 	//set up the items
 	for(int32_t i=0; i<MAXITEMS; i++)
 	{
-		if(zinit2->get_item(i) && (itemsbuf[i].flags & ITEM_GAMEDATA))
+		if(zinit2->get_item(i) && (itemsbuf[i].flags & item_gamedata))
 		{
 #ifndef IS_EDITOR
 			if (!game2->get_item(i))

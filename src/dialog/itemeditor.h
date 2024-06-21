@@ -106,7 +106,7 @@ private:
 		list_weaptype, list_deftypes, list_bottletypes, list_sfx,
 		list_strings;
 	std::shared_ptr<GUI::Widget> ATTRIB_FIELD_IMPL(int32_t* mem, int index);
-	std::shared_ptr<GUI::Widget> FLAG_CHECK(int index, int bit);
+	std::shared_ptr<GUI::Widget> FLAG_CHECK(int index, item_flags bit);
 	template <typename T>
 	std::shared_ptr<GUI::Widget> SPRITE_DROP_IMPL(T* mem, int index);
 	friend void call_item_editor(int32_t index);

@@ -737,8 +737,8 @@ void dDivineProtectionShield::realdraw(BITMAP *dest, int32_t draw_what)
 	int32_t spd=wpnsbuf[fb].speed;
 	cs=wpnsbuf[fb].csets&15;
 	flip=0;
-	bool flickering = (itemsbuf[current_item_id(itype_divineprotection)].flags & ITEM_FLAG4) != 0;
-	bool translucent = (itemsbuf[current_item_id(itype_divineprotection)].flags & ITEM_FLAG3) != 0;
+	bool flickering = (itemsbuf[current_item_id(itype_divineprotection)].flags & item_flag4) != 0;
+	bool translucent = (itemsbuf[current_item_id(itype_divineprotection)].flags & item_flag3) != 0;
 	
 	if(((HeroDivineProtectionShieldClk()&0x20)||(HeroDivineProtectionShieldClk()&0xF00))&&(!flickering ||((misc==1)?(frame&1):(!(frame&1)))))
 	{

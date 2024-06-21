@@ -92,7 +92,7 @@ bool item::animate(int32_t)
 					(((fall<0 && !get_qr(qr_BROKEN_SIDEVIEW_SPRITE_JUMP)) || can_drop(x,y)) && ipDUMMY && linked_parent == eeGANON ) //Ganon's dust pile
 				) 
 				&& 
-				( moveflags & FLAG_OBEYS_GRAV ) //if the user set item->Gravity = false, let it float. -Z
+				( moveflags & move_obeys_grav ) //if the user set item->Gravity = false, let it float. -Z
 			)
 			{
 				item_fall(x, y, fall);
@@ -110,9 +110,9 @@ bool item::animate(int32_t)
 		}
 		else
 		{
-			if ( moveflags & FLAG_OBEYS_GRAV ) //if the user set item->Gravity = false, let it float. -Z
+			if ( moveflags & move_obeys_grav ) //if the user set item->Gravity = false, let it float. -Z
 			{
-				if (!(moveflags & FLAG_NO_FAKE_Z))
+				if (!(moveflags & move_no_fake_z))
 				{
 					fakez-=fakefall/100;
 				
@@ -131,7 +131,7 @@ bool item::animate(int32_t)
 						fakefall += (zinit.gravity / 100);
 					}
 				}
-				if (!(moveflags & FLAG_NO_REAL_Z))
+				if (!(moveflags & move_no_real_z))
 				{
 					z-=fall/100;
 					
@@ -151,14 +151,14 @@ bool item::animate(int32_t)
 					}
 				}
 			}
-			if ( moveflags & FLAG_CAN_PITFALL )
+			if ( moveflags & move_can_pitfall )
 			{
 				if(!subscreenItem && !force_grab && !is_dragged && z <= 0 && fakez <= 0 && !(pickup & ipDUMMY) && !(pickup & ipCHECK) && itemsbuf[id].family!=itype_fairy)
 				{
 					fallCombo = check_pits();
 				}
 			}
-			if ( moveflags & FLAG_CAN_WATERDROWN )
+			if ( moveflags & move_can_waterdrown )
 			{
 				if(!subscreenItem && !force_grab && !is_dragged && z <= 0 && fakez <= 0 && !(pickup & ipDUMMY) && !(pickup & ipCHECK) && itemsbuf[id].family!=itype_fairy)
 				{
@@ -352,7 +352,7 @@ item::item(zfix X,zfix Y,zfix Z,int32_t i,int32_t p,int32_t c, bool isDummy) : s
 	pstring = itm.pstring;
 	pickup_string_flags = itm.pickup_string_flags;
 	linked_parent = family == itype_progressive_itm ? -1 : 0;
-	moveflags = FLAG_OBEYS_GRAV | FLAG_CAN_PITFALL;
+	moveflags = move_obeys_grav | move_can_pitfall;
 	for ( int32_t q = 0; q < 8; q++ ) initD[q] = itm.initiald[q];
 	
 	//if ( itm.overrideFLAGS&itemdataOVERRIDE_PICKUP ) pickup = itm.pickup;
@@ -984,7 +984,7 @@ void itemdata::advpaste(itemdata const& other, bitstring const& pasteflags)
 	if(pasteflags.get(ITM_ADVP_ITMCLASS))
 		family = other.family;
 	if(pasteflags.get(ITM_ADVP_EQUIPMENTITM))
-		CPYFLAG(flags, ITEM_GAMEDATA, other.flags);
+		CPYFLAG(flags, item_gamedata, other.flags);
 	if(pasteflags.get(ITM_ADVP_ATTRIBS))
 	{
 		fam_type = other.fam_type;
@@ -1002,15 +1002,15 @@ void itemdata::advpaste(itemdata const& other, bitstring const& pasteflags)
 	}
 	if(pasteflags.get(ITM_ADVP_GENFLAGS))
 	{
-		CPYFLAG(flags, ITEM_EDIBLE|ITEM_SIDESWIM_DISABLED
-			|ITEM_BUNNY_ENABLED|ITEM_JINX_IMMUNE|ITEM_FLIP_JINX, other.flags);
+		CPYFLAG(flags, item_edible|item_sideswim_disabled
+			|item_bunny_enabled|item_jinx_immune|item_flip_jinx, other.flags);
 	}
 	if(pasteflags.get(ITM_ADVP_TYPEFLAGS))
 	{
-		CPYFLAG(flags, ITEM_FLAG1|ITEM_FLAG2|ITEM_FLAG3|ITEM_FLAG4
-			|ITEM_FLAG5|ITEM_FLAG6|ITEM_FLAG7|ITEM_FLAG8
-			|ITEM_FLAG9|ITEM_FLAG10|ITEM_FLAG11|ITEM_FLAG12
-			|ITEM_FLAG13|ITEM_FLAG14|ITEM_FLAG15, other.flags);
+		CPYFLAG(flags, item_flag1|item_flag2|item_flag3|item_flag4
+			|item_flag5|item_flag6|item_flag7|item_flag8
+			|item_flag9|item_flag10|item_flag11|item_flag12
+			|item_flag13|item_flag14|item_flag15, other.flags);
 	}
 	if(pasteflags.get(ITM_ADVP_USECOSTS))
 	{
@@ -1020,7 +1020,7 @@ void itemdata::advpaste(itemdata const& other, bitstring const& pasteflags)
 			cost_counter[q] = other.cost_counter[q];
 			magiccosttimer[q] = other.magiccosttimer[q];
 		}
-		CPYFLAG(flags, ITEM_VALIDATEONLY|ITEM_VALIDATEONLY2|ITEM_DOWNGRADE, other.flags);
+		CPYFLAG(flags, item_validate_only|item_validate_only_2|item_downgrade, other.flags);
 	}
 	if(pasteflags.get(ITM_ADVP_USESFX))
 	{
@@ -1035,7 +1035,7 @@ void itemdata::advpaste(itemdata const& other, bitstring const& pasteflags)
 		max = other.max;
 		playsound = other.playsound;
 		pickup_hearts = other.pickup_hearts;
-		CPYFLAG(flags, ITEM_KEEPOLD|ITEM_GAINOLD|ITEM_COMBINE, other.flags);
+		CPYFLAG(flags, item_keep_old|item_gain_old|item_combine, other.flags);
 	}
 	if(pasteflags.get(ITM_ADVP_PICKUPSTRS))
 	{
@@ -1079,7 +1079,7 @@ void itemdata::advpaste(itemdata const& other, bitstring const& pasteflags)
 		wpn8 = other.wpn8;
 		wpn9 = other.wpn9;
 		wpn10 = other.wpn10;
-		CPYFLAG(flags, ITEM_BURNING_SPRITES, other.flags);
+		CPYFLAG(flags, item_burning_sprites, other.flags);
 		for(int q = 0; q < BURNSPR_MAX; ++q)
 		{
 			burnsprs[q] = other.burnsprs[q];
@@ -1125,7 +1125,7 @@ void itemdata::advpaste(itemdata const& other, bitstring const& pasteflags)
 		script = other.script;
 		collect_script = other.collect_script;
 		sprite_script = other.sprite_script;
-		CPYFLAG(flags, ITEM_PASSIVESCRIPT, other.flags);
+		CPYFLAG(flags, item_passive_script, other.flags);
 	}
 	if(pasteflags.get(ITM_ADVP_WEAPONSCRIPT))
 	{

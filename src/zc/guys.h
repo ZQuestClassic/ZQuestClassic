@@ -54,15 +54,13 @@ class enemy : public sprite
 {
 public:
 	guydata *d;
-	// Approximately all of these variables are accessed by either ffscript.cpp or inherited classes
 	int32_t o_tile, frate, hp, hclk, clk3, stunclk, timer, fading, superman, mainguy, did_armos;
 	byte movestatus, item_set, posframe;
 	bool itemguy, count_enemy, dying, ceiling, leader, scored, script_spawned;
 	zfix  step, floor_y;
-	
-	//d variables
-	dword flags;
-	dword flags2;
+
+	guy_flags flags;
+	guy_flags2 flags2;
 	
 	int16_t  family, dcset, anim;
 	int16_t  dp, wdp, wpn;
