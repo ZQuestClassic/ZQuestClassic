@@ -7,6 +7,7 @@
 
 #include "base/general.h"
 #include "base/version.h"
+#include "base/zapp.h"
 #include "dialog/info.h"
 #include "metadata/metadata.h"
 
@@ -6591,6 +6592,9 @@ int32_t reverse_string(char* str)
 
 int32_t quest_access(const char *filename, zquestheader *hdr)
 {
+	if (is_headless())
+		return 1;
+
 #ifdef __EMSCRIPTEN__
     return 1;
 #endif
