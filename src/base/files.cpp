@@ -90,7 +90,8 @@ enum class FileMode
 
 static std::optional<std::string> open_native_dialog_impl(FileMode mode, std::string initial_path, std::vector<nfdfilteritem_t> filters)
 {
-	const char* initial_path_ = initial_path.empty() ? nullptr : initial_path.c_str();
+	// Note: on Windows the last folder used is always the initial path - see https://github.com/btzy/nativefiledialog-extended/issues/132#issuecomment-1993512443
+	const char* initial_path_ = initial_path.c_str();
 	nfdchar_t *outPath;
 	nfdresult_t result;
 
@@ -157,6 +158,7 @@ static void trim_filename(std::string& path)
 static int getname_nogo(std::string prompt, std::string ext, EXT_LIST *list, std::string initial_path, bool usefilename)
 {
     int sel = 0;
+    strcpy(temppath, initial_path.c_str());
     if (list == NULL)
         return jwin_file_select_ex(prompt.c_str(), temppath, ext.c_str(), 2048, -1, -1, get_zc_font(font_lfont));
     else
