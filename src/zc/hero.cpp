@@ -25771,6 +25771,12 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		stepoutscr = warpscr2;
 		stepoutdmap = wdmap;
 		stepoutwr=wrindex;
+		if (get_qr(qr_SCREEN80_OWN_MUSIC) && (updatemusic || !musicnocut))
+		{
+			playLevelMusic();
+			if (musicrevert)
+				FFCore.music_update_cond = MUSIC_UPDATE_SCREEN;
+		}
 	}
 	break;
 	
