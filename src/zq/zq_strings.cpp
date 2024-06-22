@@ -275,7 +275,7 @@ char *MsgString(int32_t index, bool show_number, bool pad_number)
 	}
 	
 	auto prevIndex = addtomsglist(index)-1;
-	bool indent = index>0 && MsgStrings[prevIndex].nextstring==index;
+	bool indent = index>0 && prevIndex>=0 && MsgStrings[prevIndex].nextstring==index;
 	sprintf(u, pad_number?"%s%3d":"%s%d",indent?"--> ":"",index);
 	char *s=strcat(u,": ");
 	
