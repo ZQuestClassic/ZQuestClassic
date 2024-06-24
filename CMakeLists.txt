@@ -937,11 +937,16 @@ if(WANT_SENTRY)
 	endforeach()
 endif()
 
+
 # See docs/versioning.md
+set(gen_version_header_deps scripts/generate_version_header.py)
+if(EXISTS ".git/refs/tags")
+   list(APPEND gen_version_header_deps .git/refs/tags)
+endif()
 add_custom_command(
 	COMMAND ${PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate_version_header.py --version "${ZC_VERSION}"
 	OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/src/base/version_header.h
-	DEPENDS .git/refs/tags scripts/generate_version_header.py
+	DEPENDS ${gen_version_header_deps}
 )
 add_custom_target(generate_version_header DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/base/version_header.h)
 add_dependencies(zcbase generate_version_header)
