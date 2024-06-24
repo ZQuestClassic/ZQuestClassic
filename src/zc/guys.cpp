@@ -4181,6 +4181,7 @@ void enemy::draw(BITMAP *dest)
 //old zc bosses
 void enemy::drawzcboss(BITMAP *dest)
 {
+	didScriptThisFrame = false; //Since there's no better place to put it
 	if(dont_draw())
 		return;
 		
