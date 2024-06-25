@@ -1,6 +1,6 @@
 Some prerequisites to building from source:
 
-- CMake (3.24 or later)
+- CMake (3.28 or later)
 - Install flexbison (Windows, use https://chocolatey.org/: `choco install winflexbison3`)
 - For Windows: Visual Studio 2019 (but later is better)
 
@@ -85,6 +85,12 @@ cmake --build build --config Debug
 # Run
 cd build/Debug
 ./zlauncher
+```
+
+## Installing
+
+```sh
+cmake --build build --config Release -t install
 ```
 
 # Building w/ OGG support on Windows

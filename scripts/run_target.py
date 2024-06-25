@@ -138,7 +138,10 @@ def _run(target_name: str, args: List, build_folder: Optional[str] = None):
         return p
 
     exe_name = get_exe_name(target_name)
-    args = [build_folder / exe_name] + args
+    exe_file = build_folder / exe_name
+    if not exe_file.exists():
+        exe_file = build_folder / 'bin' / exe_name
+    args = [exe_file] + args
     preexec_fn = None
 
     debug_method = get_debug_method()
