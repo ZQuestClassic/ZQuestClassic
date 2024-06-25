@@ -135,11 +135,6 @@ bool do_compile_and_slots(int assign_mode, bool delay)
 	int32_t code = em_compile_zscript(tmpfilename, consolefilename, quest_rules_hex.c_str());
 #else
 	int32_t code = -9999;
-	if(!fileexists(ZSCRIPT_FILE))
-	{
-		InfoDialog("Parser", ZSCRIPT_FILE " was not found!").show();
-		return false;
-	}
 	parser_console.kill();
 
 	std::vector<std::string> args = {

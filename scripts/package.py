@@ -15,6 +15,10 @@ parser = argparse.ArgumentParser(
     description='Packages the build binaries and necessary runtime files for distribution.')
 parser.add_argument('--build_folder',
                     help='The location of the build folder. ex: build/Release')
+parser.add_argument(
+    '--package_folder',
+    help='The location of the package folder. defaults to <build_folder>/packages/zc',
+)
 parser.add_argument('--extras', action='store_true',
                     help='package the extras instead of the main package')
 parser.add_argument('--clean_first', action='store_true',
@@ -37,6 +41,7 @@ root_dir = script_dir.parent
 resources_dir = root_dir / 'resources'
 build_dir: Path = Path.cwd() / args.build_folder
 packages_dir = build_dir / 'packages'
+package_dir = Path(args.package_folder) if args.package_folder else packages_dir / 'zc'
 
 
 def binary_file(base_dir: Path, path: str):
@@ -377,4 +382,4 @@ else:
         if system == 'Linux' and 'PACKAGE_DEBUG_INFO' in os.environ:
             zc_files += glob(build_dir, '*.debug')
 
-    do_packaging(packages_dir / 'zc', zc_files, exclude_files=extras, include_licenses=True)
+    do_packaging(package_dir, zc_files, exclude_files=extras, include_licenses=True)

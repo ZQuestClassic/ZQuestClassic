@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.24)
+cmake_minimum_required(VERSION 3.28)
 set(CMAKE_CONFIGURATION_TYPES Asan Debug Release RelWithDebInfo Coverage CACHE STRING INTERNAL FORCE)
 project (ZeldaClassic)
 
@@ -11,7 +11,7 @@ option(COPY_RESOURCES "Copy runtime resources to build folder, but only if they 
 set(USE_PCH FALSE CACHE BOOL "Use precompiled headers")
 set(UNITY_BUILD FALSE CACHE BOOL "Unity build")
 set(WANT_SENTRY FALSE CACHE BOOL "Include Sentry for crash dump handling")
-set(WANT_MAC_DEBUG_FILES FALSE CACHE BOOL "Generate .dSYM debug files on Mac")
+set(WANT_DEBUG_FILES FALSE CACHE BOOL "Generate separate debug files - .dSYM on Mac, .debug on Linux")
 set(WANT_FUZZ FALSE CACHE BOOL "Set FUZZ CXX definition")
 set(WANT_GIT_HOOKS TRUE CACHE BOOL "Install git hooks")
 set(RELEASE_TAG "" CACHE STRING "Release tag")
@@ -22,6 +22,8 @@ set(REPO "" CACHE STRING "Repo URL")
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+
+find_program(PYTHON python3 python REQUIRED)
 
 if(MSVC)
 	set(CMAKE_CXX_FLAGS_ASAN "${CMAKE_CXX_FLAGS_DEBUG} /fsanitize=address" CACHE STRING "" FORCE)
@@ -78,7 +80,7 @@ elseif(LINUX)
 	SET(CMAKE_BUILD_RPATH_USE_ORIGIN TRUE)
 endif()
 
-if(APPLE AND WANT_MAC_DEBUG_FILES)
+if(APPLE AND WANT_DEBUG_FILES)
 	find_program(DSYMUTIL_PROGRAM dsymutil)
 	if (DSYMUTIL_PROGRAM)
 		foreach(lang C CXX)
@@ -89,7 +91,7 @@ if(APPLE AND WANT_MAC_DEBUG_FILES)
 	endif()
 endif()
 
-if(LINUX)
+if(LINUX AND WANT_DEBUG_FILES)
 	find_program(EU_STRIP_PROGRAM eu-strip)
 	if (EU_STRIP_PROGRAM)
 		foreach(lang C CXX)
@@ -116,6 +118,27 @@ function(enable_unity_build UB_SUFFIX SOURCE_VARIABLE_NAME)
   set(${SOURCE_VARIABLE_NAME} ${${SOURCE_VARIABLE_NAME}} ${unit_build_file} PARENT_SCOPE)
 endfunction(enable_unity_build)
 
+function(zc_install_targets)
+	# The cmake `install` target is currently only supported for linux.
+	if(NOT LINUX)
+		return()
+	endif()
+
+	install(TARGETS ${ARGV}
+		RUNTIME DESTINATION bin
+		LIBRARY DESTINATION lib
+		ARCHIVE DESTINATION lib/zquestclassic)
+endfunction()
+
+if(NOT LINUX)
+	install(CODE "MESSAGE(FATAL_ERROR \"The cmake `install` target is currently only supported for linux. Use the `package` target instead.\")")
+else()
+	install(CODE "execute_process(COMMAND ${PYTHON} \"${CMAKE_CURRENT_SOURCE_DIR}/scripts/package.py\" --skip_binaries --skip_archive --build_folder \"\${BUILD_FOLDER}\" --package_folder \"$<INSTALL_PREFIX>\" --keep_existing_files COMMAND_ERROR_IS_FATAL ANY)")
+
+	set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
+	set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+endif()
+
 #############################################################
 # zlib/libpng
 #############################################################
@@ -127,7 +150,7 @@ if(NOT EMSCRIPTEN)
 			https://github.com/Mizux/zlib.git
 		GIT_TAG
 			19d7d6b32ee3af4ed4bdec415f42f518c93b5025
-		FIND_PACKAGE_ARGS NAMES ZLIB
+		EXCLUDE_FROM_ALL
 	)
 	set(BUILD_SHARED_LIBS ON)
 	FetchContent_MakeAvailable(zlib)
@@ -148,7 +171,7 @@ if(NOT EMSCRIPTEN)
 			https://github.com/glennrp/libpng.git
 		GIT_TAG
 			v1.6.38
-		FIND_PACKAGE_ARGS NAMES PNG
+		EXCLUDE_FROM_ALL
 	)
 	FetchContent_MakeAvailable(png)
 
@@ -159,7 +182,10 @@ if(NOT EMSCRIPTEN)
 	endif()
 endif()
 
-FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz)
+FetchContent_Declare(json
+	URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz
+	EXCLUDE_FROM_ALL
+)
 FetchContent_MakeAvailable(json)
 
 if (NOT EMSCRIPTEN)
@@ -169,8 +195,10 @@ if (NOT EMSCRIPTEN)
 			https://github.com/btzy/nativefiledialog-extended
 		GIT_TAG
 			17b6e8ce219c0677f94b63636abb9296b28841ca
+		EXCLUDE_FROM_ALL
 	)
 	FetchContent_MakeAvailable(nativefiledialog) # exposed as nfd
+	zc_install_targets(nfd)
 endif()
 
 #############################################################
@@ -199,6 +227,7 @@ FetchContent_Declare(
   allegro5
   GIT_REPOSITORY https://github.com/connorjclark/allegro5.git
   GIT_TAG        fe5332357416aa0b5d9ed69b0206a58ceea7cded
+  EXCLUDE_FROM_ALL
 )
 FetchContent_GetProperties(allegro5)
 if(NOT allegro5_POPULATED)
@@ -265,6 +294,9 @@ target_link_libraries(allegro_with_legacy INTERFACE allegro-legacy allegro_primi
 if (NOT EMSCRIPTEN)
 	target_link_libraries(allegro_with_legacy INTERFACE allegro_dialog)
 endif()
+
+get_target_property(ALLEGRO_LINK_LIBRARIES allegro_with_legacy INTERFACE_LINK_LIBRARIES)
+zc_install_targets(${ALLEGRO_LINK_LIBRARIES})
 
 #############################################################
 # Header and source file lists
@@ -569,6 +601,7 @@ if(BUILD_SOUND_LIBS_FROM_SOURCE)
 		gme_external
 		GIT_REPOSITORY https://bitbucket.org/mpyne/game-music-emu.git
 		GIT_TAG        6cd4bdb69be304f58c9253fb08b8362f541b3b4b
+		EXCLUDE_FROM_ALL
 	)
 	set(GME_YM2612_EMU "Nuked" CACHE STRING "Which YM2612 emulator to use: \"Nuked\" (LGPLv2.1+), \"MAME\" (GPLv2+), or \"GENS\" (LGPLv2.1+)")
 	option(ENABLE_UBSAN "" OFF)
@@ -586,12 +619,13 @@ if(BUILD_SOUND_LIBS_FROM_SOURCE)
 		GIT_REPOSITORY https://github.com/kode54/dumb.git
 		GIT_TAG        396caa4d31859045ccb5ef943fd430ca4026cce8
 		PATCH_COMMAND  git restore . && git apply ${CMAKE_SOURCE_DIR}/third_party/aldumb.patch
+		EXCLUDE_FROM_ALL
 	)
 	FetchContent_MakeAvailable(dumb_external)
 	add_library(dumb_headers INTERFACE)
 	target_include_directories(dumb_headers INTERFACE ${dumb_external_SOURCE_DIR}/include)
 
-	set(SOUNDLIBS alpng gme gme_headers aldmb dumb dumb_headers)
+	set(SOUNDLIBS gme gme_headers aldmb dumb dumb_headers)
 endif()
 
 if(MSVC AND (MSVC_VERSION GREATER 1600))
@@ -652,10 +686,12 @@ if(CMAKE_SIZEOF_VOID_P EQUAL 8)
 			https://github.com/connorjclark/asmjit.git
 		GIT_TAG
 			6d153ad8e13984841c2c642c0fa11e60f41e54dc
+		EXCLUDE_FROM_ALL
 	)
 	FetchContent_MakeAvailable(asmjit)
 	target_link_libraries(zplayer PRIVATE asmjit)
 	target_compile_definitions(zplayer PRIVATE ZC_JIT)
+	zc_install_targets(asmjit)
 
 	get_target_property(asm_compile_options asmjit COMPILE_OPTIONS)
 	string(REPLACE "$<NOT:$<CONFIG:Debug>>" "$<NOT:$<CONFIG:Debug,Asan>>" asm_compile_options "${asm_compile_options}")
@@ -783,6 +819,7 @@ if(CURL_FOUND AND WIN32)
 			https://github.com/richgel999/miniz.git
 		GIT_TAG
 			9ae305f6e109f8f1fbd2130458f1ee6197269b3b
+		EXCLUDE_FROM_ALL
 	)
 	FetchContent_MakeAvailable(miniz)
 	set(BUILD_SHARED_LIBS BUILD_SHARED_LIBS_PREV)
@@ -844,7 +881,10 @@ if(WANT_SENTRY)
 	set(SENTRY_VERSION 0.6.6)
 	set(SENTRY_BACKEND crashpad)
 	set(SENTRY_BUILD_SHARED_LIBS OFF)
-	FetchContent_Declare(sentry URL https://github.com/getsentry/sentry-native/releases/download/${SENTRY_VERSION}/sentry-native.zip)
+	FetchContent_Declare(sentry
+		URL https://github.com/getsentry/sentry-native/releases/download/${SENTRY_VERSION}/sentry-native.zip
+		EXCLUDE_FROM_ALL
+	)
 	FetchContent_MakeAvailable(sentry)
 
 	foreach(target IN LISTS zc_targets)
@@ -940,8 +980,6 @@ if(WIN32)
 else()
 	set_source_files_properties(src/parser/lex.yy.cpp PROPERTIES COMPILE_FLAGS -Wno-everything)
 endif()
-
-find_program(PYTHON python3 python REQUIRED)
 
 get_property(is_multi_config GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 if(is_multi_config)
@@ -1071,3 +1109,5 @@ endif()
 if(EMSCRIPTEN)
 	add_subdirectory(web)
 endif()
+
+zc_install_targets(allegro allegro-legacy allegro_with_legacy allegro_audio allegro_acodec zlauncher zplayer zeditor zscript zcsound ${SOUNDLIBS})

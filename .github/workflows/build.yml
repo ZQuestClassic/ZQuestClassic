@@ -186,7 +186,7 @@ jobs:
           -DRELEASE_CHANNEL="2.55"
           -DREPO="${{ github.repository }}"
           -DWANT_SENTRY="${{ inputs.sentry }}"
-          -DWANT_MAC_DEBUG_FILES="${{ inputs.config == 'RelWithDebInfo' }}"
+          -DWANT_DEBUG_FILES="${{ inputs.config == 'RelWithDebInfo' }}"
           -DCMAKE_WIN32_EXECUTABLE=1
           -DCMAKE_C_COMPILER_LAUNCHER=ccache
           -DCMAKE_CXX_COMPILER_LAUNCHER=ccache

@@ -27,6 +27,13 @@ static uint32_t __dummy_;
 	#define ZLAUNCHER_FILE "zlauncher.exe"
 	#define ZUPDATER_FILE "zupdater.exe"
 	#define PYTHON "pythonw"
+#elif defined(ALLEGRO_LINUX)
+	#define ZPLAYER_FILE "zplayer"
+	#define ZEDITOR_FILE "zeditor"
+	#define ZSCRIPT_FILE "zscript"
+	#define ZLAUNCHER_FILE "zlauncher"
+	#define ZUPDATER_FILE "zupdater"
+	#define PYTHON "python"
 #else
 	#define ZPLAYER_FILE "./zplayer"
 	#define ZEDITOR_FILE "./zeditor"
