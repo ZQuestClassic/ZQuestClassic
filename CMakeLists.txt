@@ -667,7 +667,7 @@ if(NOT EMSCRIPTEN)
 		GIT_REPOSITORY
 			https://github.com/zaphoyd/websocketpp.git
 		GIT_TAG
-			1b11fd301531e6df35a6107c1e8665b1e77a2d8e
+			b9aeec6eaf3d5610503439b4fae3581d9aff08e8
 	)
 	FetchContent_MakeAvailable(websocketpp)
 
