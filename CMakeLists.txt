@@ -517,7 +517,7 @@ endif()
 FetchContent_Declare(
 	poolSTL
 	GIT_REPOSITORY https://github.com/alugowski/poolSTL
-	GIT_TAG main
+	GIT_TAG 26d95b90aea7c36732a2df50df1c6fa26c96f93e
 	GIT_SHALLOW TRUE
 )
 FetchContent_MakeAvailable(poolSTL)
