@@ -251,9 +251,9 @@ def create_binary_paths(dir: Path, channel: str):
         binaries['zq'] = common.find_path(dir, ['zeditor.exe', 'zquest.exe'])
         binaries['zl'] = dir / 'zlauncher.exe'
     elif channel == 'linux':
-        binaries['zc'] = common.find_path(dir, ['zplayer', 'zelda'])
-        binaries['zq'] = common.find_path(dir, ['zeditor', 'zquest'])
-        binaries['zl'] = dir / 'zlauncher'
+        binaries['zc'] = common.find_path(dir, ['bin/zplayer', 'zplayer', 'zelda'])
+        binaries['zq'] = common.find_path(dir, ['bin/zeditor', 'zeditor', 'zquest'])
+        binaries['zl'] = common.find_path(dir, ['bin/zlauncher', 'zlauncher'])
 
     return binaries
 

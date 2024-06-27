@@ -1,0 +1,67 @@
+https://zquestclassic.com/releases/2.55.3
+
+# Bug Fixes
+
+correct the version string for 2.55.x releases
+incorrect default right string margin
+zc: visual text bug in sound panel
+zc: active shields interacting with light beams while inactive
+
+zc: reset playing_field_offset at beginning of scroll
+  This prevents the draw offset from a quake from persisting during a
+  scroll.
+  
+  See https://discord.com/channels/876899628556091432/1238226802867048529
+
+zq: "Used Tiles" completely failing to calculate
+zscript: TraceS parameter not compiling correctly
+zscript: handle engine subscreen in ScriptTypeToString
+zscript: dealloc owned objects for all combos in loadscr
+  For some reason, only the combo at position 0 had its owned objects
+  deallocated when loading a new screen. Now they all do.
+
+
+# Documentation
+
+zq: touch up attack/whimsical ring help text ('damage' -> 'power')
+
+# Refactors
+
+zc: rename the "ZScript Debugger" to "ZC Console"
+
+zscript: remove ZASM debugger
+  This was already made inaccessible from the GUI in 1da2d02, but now
+  it is removed entirely. Work on a real debugger will begin soon.
+
+zscript: tweak `Region->` and screen script internals in preparation for z3
+  `Region->OriginScreen` is now of type `screendata`, and
+  `Region->OriginScreenIndex` is added to return just the screen index.
+  
+  Similar change made to `Region->GetScreenForComoboPos(int pos)`.
+
+zscript: use faster register allocation in jit
+  asmjit's register allocation was using a bin-packing algorithm. This
+  turns out to be very slow for the assembly that our jit compiler emits,
+  since the vast majority of variables exist for only a single basic
+  block. Instead of bin-packing, the much faster and simpler linear scan
+  register allocation algorithm is now used.
+  
+  For a very large 200k-instruction script, compilation went from 19.5s to
+  2.8s (a 85% decrease).
+  
+  With this improvement, the 20k-instruction limit for jit has been
+  removed. One example of the impact of this is that `yuurand.zplay`,
+  which the jit compiler was previously mostly disabled for since most of
+  its scripts are huge, now has all its scripts compiled. This increased
+  the average FPS for `yuurand.zplay` from ~320 to ~2000, while still
+  reducing the total time spent compiling.
+  
+  Theoretically this change in register allocation may produce slower
+  runtime code, but there was no drop in FPS realized in the `maths.zs`
+  stress test.
+
+
+# Tests
+
+add eiyuu.zplay
+

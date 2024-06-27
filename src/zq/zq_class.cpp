@@ -10723,9 +10723,10 @@ int32_t writestrings_tsv(PACKFILE *f)
     new_return(0);
 }
 
+std::string parse_msg_str(std::string const& s);
+
 void parse_strings_tsv(std::string tsv)
 {
-	std::string parse_msg_str(std::string const& s);
 	std::map<std::string, std::function<void(MsgStr&, const std::string&)>> fields = {
 		{ "message", [](auto& msg, auto& text){ msg.s = parse_msg_str(text); } },
 		{ "next", [](auto& msg, auto& text){ msg.nextstring = std::stoi(text); } },
