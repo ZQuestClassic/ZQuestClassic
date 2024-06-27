@@ -76,13 +76,25 @@ clang-17 --version
 rm llvm.sh
 ```
 
+Configure:
+
 ```sh
 # be in the ZQuestClassic git checkout
 # Configure
 CC=clang-17 CXX=clang++-17 cmake -G 'Ninja Multi-Config' -B build -S .
-# Build
+```
+
+> NOTE: skip to "Installing" if you are not developing and just want a user installation
+
+Build:
+
+```sh
 cmake --build build --config Debug
-# Run
+```
+
+Run:
+
+```sh
 cd build/Debug
 ./zlauncher
 ```
@@ -92,6 +104,8 @@ cd build/Debug
 ```sh
 cmake --build build --config Release -t install
 ```
+
+By default this will install to `~/zquestclassic`. You can open the launcher with: `cd ~/zquestclassic; ./bin/zlauncher`
 
 # Building w/ OGG support on Windows
 

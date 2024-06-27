@@ -2,6 +2,14 @@ cmake_minimum_required(VERSION 3.28)
 set(CMAKE_CONFIGURATION_TYPES Asan Debug Release RelWithDebInfo Coverage CACHE STRING INTERNAL FORCE)
 project (ZeldaClassic)
 
+if(UNIX AND NOT APPLE)
+	set(LINUX TRUE)
+endif()
+
+if(LINUX AND CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+	set(CMAKE_INSTALL_PREFIX "$ENV{HOME}/zquestclassic" CACHE PATH "Default installation folder. Note that /usr/local is ill-advised since many resource files will be placed in the install folder" FORCE)
+endif()
+
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(FetchContent)
 include(CodeCoverage)
@@ -67,10 +75,6 @@ set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set_property(GLOBAL PROPERTY CTEST_TARGETS_ADDED 1)
 
 set(BUILD_TESTING OFF CACHE BOOL "")
-
-if(UNIX AND NOT APPLE)
-	set(LINUX TRUE)
-endif()
 
 if(APPLE)
 	# Makes binaries look in their directory for shared libraries.
