@@ -1,0 +1,104 @@
+https://zquestclassic.com/releases/2.55.2
+
+# Features
+
+zq: 'Notes' per-screen for editor use
+zq: ffc editor now previews large ffcs
+
+# Bug Fixes
+
+Improve dropdown numerical search
+
+update 'default.qst'
+  Several default subscreen fixes (some by P-Tux7, some by myself)
+
+reduce sfx buffer to decrease lag caused by e7c214e
+removed flag that was breaking mod playback
+zc: hardcode 120 for zscript alpha register
+  This fixes some quests that only look at the alpha version and,
+  seeing it was now 0 presented an error message to the user.
+
+zc: 'delete' within a destructor being buggy
+zc: 'Spotlight' combos on changer/ethereal ffcs still shooting light
+zc: fix buggy color flickering on big player sprites
+zc: some variables being improperly reset on 'Continue'
+zq: 'View Map' favorite command skipping menu
+zq: avoid overwriting screen bookmarks on quest load
+zq: 'Gen Flags' being missing from combo advanced paste
+zq: Crash in ZInfo menu if descriptions are long
+zq: crash on reducing map count
+zq: warp dialog selector mishandling negative dmap offsets
+zq: upgrade tile+combo 'move' code, more things now update on moving tiles/combos
+  Also fixes some issues with 'undo'ing moves, and adds Combo Protection for in-use combos.
+
+std_zh: update to remove use of 'deprecated' functions/vars
+std_zh: 'TRIGFLAG_' constants were off-by-one at a certain point in the list
+zscript: some array-related functions breaking for arrays >65535 in size
+zscript: class variables not shadowing global vars properly
+zscript: some wrong error messages related to mapdata FFC access
+zscript: disallow casting custom objects to unrelated types
+  A bug in type conversion allowed this code to compile:
+  
+  ```c++
+  Object obj = new Object();
+  int number = obj;
+  int numbers[] = {obj};
+  ```
+  
+  The above code now produces a compiler error.
+
+zscript: handful of zasm commands using wrong name
+zscript: handful of zasm commands using wrong name
+zscript: Trace(string) using wrong register
+zscript: wrong names for zasm npc InitD and item WeaponHitWidth
+zscript: various symbols with broken compiler output
+  * npc->Attack()
+  * npc->CanSlide()
+  * npc->ConstantWalk(int[])
+  * npc->ConstantWalk8(int[])
+  * npc->FloatingWalk(int[])
+  * npc->HaltingWalk(int[])
+  * npc->HaltingWalk8(int[])
+  * npc->isDead()
+  * npc->NewDir8(int[])
+  * npc->Remove()
+  * npc->Slide()
+  * npc->StopBGSFX()
+  * npc->VariableWalk(int[])
+  * npc->VariableWalk8(int[])
+  * Trace(char32[])
+
+zscript: remove some unimplemented symbols and correct some types
+
+# Documentation
+
+zscript: add documentation regarding 'Hero->Warp()' and its return square
+
+# Refactors
+
+zscript: better 'read-only' compile warnings
+
+zscript: deprecate many getters/setters, replace with variables
+  ~40 built-in methods exist in this style:
+  
+  ```c++
+  int Max(); // Returns the max.
+  void Max(int value); // Sets the max.
+  int GetCurDMapScreen();
+  ```
+  
+  These have been deprecated and replaced with a variable, like so:
+  
+  ```
+  int Max; // The max number.
+  int CurDMapScreen;
+  ```
+
+
+# Tests
+
+add tests for read-only vars and deprecation
+
+# Misc.
+
+update themes

@@ -281,11 +281,6 @@ bool TestQstDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 #ifdef __EMSCRIPTEN__
 			em_open_test_mode(filepath, test_start_dmap, test_start_screen, test_ret_sqr);
 #else
-			if(!fileexists(ZPLAYER_FILE))
-			{
-				InfoDialog("Error", ZPLAYER_FILE " not found!").show();
-				return true;
-			}
 			test_killer.kill();
 
 			bool should_record = zc_get_config("zquest", "test_mode_record", false);
