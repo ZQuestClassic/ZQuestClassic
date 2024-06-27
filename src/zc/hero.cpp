@@ -9655,6 +9655,8 @@ heroanimate_skip_liftwpn:;
 					}
 					if(bt->flags & BTFLAG_CUREITJINX)
 						itemclk = 0;
+					if(bt->flags & BTFLAG_CURESHJINX)
+						shieldjinxclk = 0;
 					if(word max = std::max(toFill[0], std::max(toFill[1], toFill[2])))
 					{
 						int32_t itemid = find_bottle_for_slot(slot,true);
