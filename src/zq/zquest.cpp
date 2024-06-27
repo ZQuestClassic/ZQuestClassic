@@ -17287,7 +17287,7 @@ static DIALOG editinfo_dlg[] =
 void EditInfoType(int32_t index)
 {
     char ps1[6],ps2[6],ps3[6];
-    char infoname[32];
+    char infoname[33];
     char caption[40];
     
     int32_t str1, str2, str3;
@@ -17299,7 +17299,8 @@ void EditInfoType(int32_t index)
     sprintf(ps1,"%d",QMisc.info[index].price[0]);
     sprintf(ps2,"%d",QMisc.info[index].price[1]);
     sprintf(ps3,"%d",QMisc.info[index].price[2]);
-    snprintf(infoname,32,"%s",QMisc.info[index].name);
+    strncpy(infoname,QMisc.info[index].name,32);
+    infoname[32] = 0;
     editinfo_dlg[8].dp  = ps1;
     editinfo_dlg[10].dp = ps2;
     editinfo_dlg[12].dp = ps3;
@@ -17325,7 +17326,7 @@ void EditInfoType(int32_t index)
         QMisc.info[index].price[0] = vbound(atoi(ps1), 0, 65535);
         QMisc.info[index].price[1] = vbound(atoi(ps2), 0, 65535);
         QMisc.info[index].price[2] = vbound(atoi(ps3), 0, 65535);
-        snprintf(QMisc.info[index].name,32,"%s",infoname);
+        strncpy(QMisc.info[index].name,infoname,32);
         str1 = editinfo_dlg[9].d1;
         str2 = editinfo_dlg[11].d1;
         str3 = editinfo_dlg[13].d1;

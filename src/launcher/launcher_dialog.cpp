@@ -767,7 +767,9 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 							strcpy(tmp_themefile, theme_saved_filepath);
 						}
 					})
-				)),
+				))
+#ifndef ALLEGRO_LINUX
+				,
 				TabRef(name = "Update", Column(padding = 0_px,
 					Row(framed = true,
 						Rows<2>(fitParent = true,
@@ -804,6 +806,7 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						)
 					)
 				))
+#endif
 			),
 			Row(
 				vAlign = 1.0,
