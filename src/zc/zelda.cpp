@@ -1168,6 +1168,10 @@ int32_t  HeroItemClk()
 {
     return Hero.getItemClk();
 }
+int32_t  HeroShieldClk()
+{
+	return Hero.getShieldClk();
+}
 void setSwordClk(int32_t newclk)
 {
     Hero.setSwordClk(newclk);
@@ -1175,6 +1179,10 @@ void setSwordClk(int32_t newclk)
 void setItemClk(int32_t newclk)
 {
     Hero.setItemClk(newclk);
+}
+void setShieldClk(int32_t newclk)
+{
+	Hero.setShieldClk(newclk);
 }
 int32_t  HeroLStep()
 {

@@ -1262,6 +1262,10 @@ int32_t  HeroClass::getItemClk()
 {
     return itemclk;
 }
+int32_t  HeroClass::getShieldClk()
+{
+	return shieldjinxclk;
+}
 void HeroClass::setSwordClk(int32_t newclk)
 {
     swordclk=newclk;
@@ -1270,6 +1274,10 @@ void HeroClass::setSwordClk(int32_t newclk)
 void HeroClass::setItemClk(int32_t newclk)
 {
     itemclk=newclk;
+}
+void HeroClass::setShieldClk(int32_t newclk)
+{
+	shieldjinxclk=newclk;
 }
 // TODO remove, no longer needed.
 zfix  HeroClass::getModifiedX()
