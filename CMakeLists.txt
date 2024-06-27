@@ -2,6 +2,14 @@ cmake_minimum_required(VERSION 3.28)
 set(CMAKE_CONFIGURATION_TYPES Asan Debug Release RelWithDebInfo Coverage CACHE STRING INTERNAL FORCE)
 project (ZeldaClassic)
 
+if(UNIX AND NOT APPLE)
+	set(LINUX TRUE)
+endif()
+
+if(LINUX AND CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+	set(CMAKE_INSTALL_PREFIX "$ENV{HOME}/zquestclassic" CACHE PATH "Default installation folder. Note that /usr/local is ill-advised since many resource files will be placed in the install folder" FORCE)
+endif()
+
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(FetchContent)
 include(CodeCoverage)
@@ -82,10 +90,6 @@ set_property(GLOBAL PROPERTY CTEST_TARGETS_ADDED 1)
 
 set(BUILD_TESTING OFF CACHE BOOL "")
 
-if(UNIX AND NOT APPLE)
-	set(LINUX TRUE)
-endif()
-
 if(APPLE)
 	# Makes binaries look in their directory for shared libraries.
 	list(APPEND CMAKE_BUILD_RPATH "@loader_path")
@@ -147,7 +151,7 @@ endfunction()
 if(NOT LINUX)
 	install(CODE "MESSAGE(FATAL_ERROR \"The cmake `install` target is currently only supported for linux. Use the `package` target instead.\")")
 else()
-	install(CODE "execute_process(COMMAND ${PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/package.py --skip_binaries --skip_archive --build_folder \"${BUILD_FOLDER}\" --package_folder \"${CMAKE_INSTALL_PREFIX}\" --keep_existing_files)")
+	install(CODE "execute_process(COMMAND ${PYTHON} \"${CMAKE_CURRENT_SOURCE_DIR}/scripts/package.py\" --skip_binaries --skip_archive --build_folder \"\${BUILD_FOLDER}\" --package_folder \"$<INSTALL_PREFIX>\" --keep_existing_files COMMAND_ERROR_IS_FATAL ANY)")
 
 	set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
 	set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
