@@ -7781,40 +7781,40 @@ int32_t HeroClass::hithero(int32_t hit2, int32_t force_hdir)
 			switch(dm7)
 			{
 				case e7tTEMPJINX:
-					if(dm8==e8tSWORD || dm8==e8tBOTH || dm8==e8tSHIELDSWORD || dm8==e8tALL)
+					if(dm8&e8tSWORD)
 						if(swordclk>=0 && !(sworddivisor==0))
 							swordclk=int32_t(150/sworddivisor);
 
-					if(dm8==e8tITEM || dm8==e8tBOTH || dm8==e8tSHIELDITEM || dm8==e8tALL)
+					if(dm8&e8tITEM)
 						if(itemclk>=0 && !(itemdivisor==0))
 							itemclk=int32_t(150/itemdivisor);
 
-					if(dm8==e8tSHIELD || dm8==e8tSHIELDSWORD || dm8==e8tSHIELDITEM || dm8==e8tALL)
-						if (shieldjinxclk >= 0 && !(shielddivisor == 0))
+					if(dm8&e8tSHIELD)
+						if (shieldjinxclk >= 0 && !(shielddivisor==0))
 							shieldjinxclk=int32_t(150/shielddivisor);
 							
 					break;
 				
 				case e7tPERMJINX:
-					if (dm8 == e8tSWORD || dm8 == e8tBOTH || dm8 == e8tSHIELDSWORD || dm8 == e8tALL)
+					if (dm8&e8tSWORD)
 						if(sworddivisor) swordclk=(itemid >-1 && itemsbuf[itemid].flags & item_flag1)? int32_t(150/sworddivisor) : -1;
 						
-					if (dm8 == e8tITEM || dm8 == e8tBOTH || dm8 == e8tSHIELDITEM || dm8 == e8tALL)
+					if (dm8&e8tITEM)
 						if(itemdivisor) itemclk=(itemid >-1 && itemsbuf[itemid].flags & item_flag1)? int32_t(150/itemdivisor) : -1;
 					
-					if (dm8 == e8tSHIELD || dm8 == e8tSHIELDSWORD || dm8 == e8tSHIELDITEM || dm8 == e8tALL)
+					if (dm8&e8tSHIELD)
 						if(shielddivisor) shieldjinxclk=(itemid >-1 && itemsbuf[itemid].flags & item_flag1)? int32_t(150/shielddivisor) : -1;
 
 					break;
 				
 				case e7tUNJINX:
-					if (dm8 == e8tSWORD || dm8 == e8tBOTH || dm8 == e8tSHIELDSWORD || dm8 == e8tALL)
+					if (dm8&e8tSWORD)
 						swordclk=0;
 						
-					if (dm8 == e8tITEM || dm8 == e8tBOTH || dm8 == e8tSHIELDITEM || dm8 == e8tALL)
+					if (dm8&e8tITEM)
 						itemclk=0;
 
-					if (dm8 == e8tSHIELD || dm8 == e8tSHIELDSWORD || dm8 == e8tSHIELDITEM || dm8 == e8tALL)
+					if (dm8&e8tSHIELD)
 						shieldjinxclk=0;
 
 					break;
