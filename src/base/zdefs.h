@@ -1025,7 +1025,7 @@ enum { e7tNORMAL, e7tTEMPJINX, e7tPERMJINX, e7tUNJINX, e7tTAKEMAGIC, e7tTAKERUPE
      };
 
 // Enemy misc8 types
-enum { e8tSWORD, e8tITEM, e8tALL, e8tLAST };
+enum { e8tSWORD, e8tITEM, e8tBOTH, e8tSHIELD, e8tSHIELDSWORD, e8tSHIELDITEM, e8tALL, e8tLAST};
 
 // Enemy misc9 types
 // Walker

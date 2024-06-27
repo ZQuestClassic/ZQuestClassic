@@ -7777,36 +7777,46 @@ int32_t HeroClass::hithero(int32_t hit2, int32_t force_hdir)
 			//I can only assume these are supposed to be int32_t, not bool ~pkmnfrk
 			int32_t sworddivisor = ((itemid>-1 && itemsbuf[itemid].misc1 & 1) ? itemsbuf[itemid].power : 1);
 			int32_t itemdivisor = ((itemid>-1 && itemsbuf[itemid].misc1 & 2) ? itemsbuf[itemid].power : 1);
-			
+			int32_t shielddivisor = ((itemid > -1 && itemsbuf[itemid].misc1 & 4) ? itemsbuf[itemid].power : 1);
 			switch(dm7)
 			{
 				case e7tTEMPJINX:
-					if(dm8==0 || dm8==2)
+					if(dm8==e8tSWORD || dm8==e8tBOTH || dm8==e8tSHIELDSWORD || dm8==e8tALL)
 						if(swordclk>=0 && !(sworddivisor==0))
-							swordclk=150;
-							
-					if(dm8==1 || dm8==2)
+							swordclk=int32_t(150/sworddivisor);
+
+					if(dm8==e8tITEM || dm8==e8tBOTH || dm8==e8tSHIELDITEM || dm8==e8tALL)
 						if(itemclk>=0 && !(itemdivisor==0))
-							itemclk=150;
+							itemclk=int32_t(150/itemdivisor);
+
+					if(dm8==e8tSHIELD || dm8==e8tSHIELDSWORD || dm8==e8tSHIELDITEM || dm8==e8tALL)
+						if (shieldjinxclk >= 0 && !(shielddivisor == 0))
+							shieldjinxclk=int32_t(150/shielddivisor);
 							
 					break;
 				
 				case e7tPERMJINX:
-					if(dm8==0 || dm8==2)
+					if (dm8 == e8tSWORD || dm8 == e8tBOTH || dm8 == e8tSHIELDSWORD || dm8 == e8tALL)
 						if(sworddivisor) swordclk=(itemid >-1 && itemsbuf[itemid].flags & item_flag1)? int32_t(150/sworddivisor) : -1;
 						
-					if(dm8==1 || dm8==2)
+					if (dm8 == e8tITEM || dm8 == e8tBOTH || dm8 == e8tSHIELDITEM || dm8 == e8tALL)
 						if(itemdivisor) itemclk=(itemid >-1 && itemsbuf[itemid].flags & item_flag1)? int32_t(150/itemdivisor) : -1;
-						
+					
+					if (dm8 == e8tSHIELD || dm8 == e8tSHIELDSWORD || dm8 == e8tSHIELDITEM || dm8 == e8tALL)
+						if(shielddivisor) shieldjinxclk=(itemid >-1 && itemsbuf[itemid].flags & item_flag1)? int32_t(150/shielddivisor) : -1;
+
 					break;
 				
 				case e7tUNJINX:
-					if(dm8==0 || dm8==2)
+					if (dm8 == e8tSWORD || dm8 == e8tBOTH || dm8 == e8tSHIELDSWORD || dm8 == e8tALL)
 						swordclk=0;
 						
-					if(dm8==1 || dm8==2)
+					if (dm8 == e8tITEM || dm8 == e8tBOTH || dm8 == e8tSHIELDITEM || dm8 == e8tALL)
 						itemclk=0;
-						
+
+					if (dm8 == e8tSHIELD || dm8 == e8tSHIELDSWORD || dm8 == e8tSHIELDITEM || dm8 == e8tALL)
+						shieldjinxclk=0;
+
 					break;
 				
 				case e7tTAKEMAGIC:
