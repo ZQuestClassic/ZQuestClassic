@@ -144,6 +144,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			_SET(flag[0], "Side Warp Out", "Warp out using sidewarp A upon completion");
 			_SET(flag[2], "Removes Sword Jinxes", "Heal sword jinxes on pickup");
 			_SET(flag[3], "Removes Item Jinxes", "Heal item jinxes on pickup");
+			_SET(flag[4], "Removes Shield Jinxes", "Heal shield jinxes on pickup");
 			_SET(flag[7], "Ownable", "Can be owned; this is normally handled by 'Equipment Item', but not for mcguffin piece items.");
 			_SET(flag[8], "Don't Dismiss Messages", "If not checked, the cutscene clears screen strings");
 			_SET(flag[9], "Cutscene Interrupts Action Script", "The action script, if running on collection, is paused for the duration of the cutscene.");
@@ -235,7 +236,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 				"If 'Perm. Jinx Are Temp' is checked, perm jinxes last for 150/[divisor] frames."
 				" If divisor is 0, player is immune to affected jinxes.\n"
 				"When picked up, regardless of flags, perm jinxes matching the Jinx Type become 150-frame temp jinxes.");
-			_SET(misc[0], "Jinx Type:", "1 = sword, 2 = item, 3 = both");
+			_SET(misc[0], "Jinx Type:", "Sum all of the values you want to apply. 1 = sword, 2 = item, 4 = shield");
 			_SET(flag[0], "Perm. Jinx Are Temp.", "Perm jinxes inflicted instead are temp for 150/[divisor] frames");
 			break;
 		}
@@ -729,8 +730,9 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 		{
 			_SET(flag[0], "Life is Percent", "HP Regained is a percentage out of max HP");
 			_SET(flag[1], "Magic is Percent", "MP Regained is a percentage out of max MP");
-			inf->flag[2] = "Removes Sword Jinxes";
-			inf->flag[3] = "Removes Item Jinxes";
+			_SET(flag[2], "Removes Sword Jinxes", "Heal sword jinxes on use");
+			_SET(flag[3], "Removes Item Jinxes", "Heal item jinxes on use");
+			_SET(flag[4], "Removes Shield Jinxes", "Heal shield jinxes on use");
 			
 			if(FLAG(1))
 				_SET(misc[0], "% HP Regained:", "Percentage of max life restored when collected.");

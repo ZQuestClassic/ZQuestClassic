@@ -30891,17 +30891,20 @@ void HeroClass::StartRefill(int32_t refillWhat)
 				{
 					if(itemsbuf[refill_why].flags & item_flag3){swordclk=0;verifyAWpn();}
 					if(itemsbuf[refill_why].flags & item_flag4)itemclk=0;
+					if(itemsbuf[refill_why].flags & item_flag5)shieldjinxclk=0;
 				}
 				else if(itemsbuf[refill_why].family==itype_triforcepiece)
 				{
 					if(itemsbuf[refill_why].flags & item_flag3){swordclk=0;verifyAWpn();}
 					if(itemsbuf[refill_why].flags & item_flag4)itemclk=0;
+					if(itemsbuf[refill_why].flags & item_flag5)shieldjinxclk=0;
 				}
 			}
 			else if(refill_why==REFILL_FAIRY)
 			{
 				if(!get_qr(qr_NONBUBBLEFAIRIES)){swordclk=0;verifyAWpn();}
 				if(get_qr(qr_ITEMBUBBLE))itemclk=0;
+				if(get_qr(qr_SHIELDBUBBLE))shieldjinxclk=0;
 			}
 		}
 	}
