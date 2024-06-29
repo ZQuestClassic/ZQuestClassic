@@ -80,6 +80,7 @@ struct bottletype
 #define BTFLAG_PERC0       0x01
 #define BTFLAG_PERC1       0x02
 #define BTFLAG_PERC2       0x04
+#define BTFLAG_CURESHJINX  0x08
 #define BTFLAG_CURESWJINX  0x10
 #define BTFLAG_CUREITJINX  0x20
 #define BTFLAG_ALLOWIFFULL 0x40
