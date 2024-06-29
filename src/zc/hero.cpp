@@ -7777,36 +7777,46 @@ int32_t HeroClass::hithero(int32_t hit2, int32_t force_hdir)
 			//I can only assume these are supposed to be int32_t, not bool ~pkmnfrk
 			int32_t sworddivisor = ((itemid>-1 && itemsbuf[itemid].misc1 & 1) ? itemsbuf[itemid].power : 1);
 			int32_t itemdivisor = ((itemid>-1 && itemsbuf[itemid].misc1 & 2) ? itemsbuf[itemid].power : 1);
-			
+			int32_t shielddivisor = ((itemid > -1 && itemsbuf[itemid].misc1 & 4) ? itemsbuf[itemid].power : 1);
 			switch(dm7)
 			{
 				case e7tTEMPJINX:
-					if(dm8==0 || dm8==2)
+					if(dm8&e8tSWORD)
 						if(swordclk>=0 && !(sworddivisor==0))
-							swordclk=150;
-							
-					if(dm8==1 || dm8==2)
+							swordclk=int32_t(150/sworddivisor);
+
+					if(dm8&e8tITEM)
 						if(itemclk>=0 && !(itemdivisor==0))
-							itemclk=150;
+							itemclk=int32_t(150/itemdivisor);
+
+					if(dm8&e8tSHIELD)
+						if (shieldjinxclk >= 0 && !(shielddivisor==0))
+							shieldjinxclk=int32_t(150/shielddivisor);
 							
 					break;
 				
 				case e7tPERMJINX:
-					if(dm8==0 || dm8==2)
+					if (dm8&e8tSWORD)
 						if(sworddivisor) swordclk=(itemid >-1 && itemsbuf[itemid].flags & item_flag1)? int32_t(150/sworddivisor) : -1;
 						
-					if(dm8==1 || dm8==2)
+					if (dm8&e8tITEM)
 						if(itemdivisor) itemclk=(itemid >-1 && itemsbuf[itemid].flags & item_flag1)? int32_t(150/itemdivisor) : -1;
-						
+					
+					if (dm8&e8tSHIELD)
+						if(shielddivisor) shieldjinxclk=(itemid >-1 && itemsbuf[itemid].flags & item_flag1)? int32_t(150/shielddivisor) : -1;
+
 					break;
 				
 				case e7tUNJINX:
-					if(dm8==0 || dm8==2)
+					if (dm8&e8tSWORD)
 						swordclk=0;
 						
-					if(dm8==1 || dm8==2)
+					if (dm8&e8tITEM)
 						itemclk=0;
-						
+
+					if (dm8&e8tSHIELD)
+						shieldjinxclk=0;
+
 					break;
 				
 				case e7tTAKEMAGIC:

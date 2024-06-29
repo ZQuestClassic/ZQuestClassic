@@ -152,7 +152,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
 #define V_INITDATA        39
-#define V_GUYS            48
+#define V_GUYS            49
 #define V_MIDIS            4
 #define V_CHEATS           1
 #define V_SAVEGAME        41
@@ -1025,7 +1025,7 @@ enum { e7tNORMAL, e7tTEMPJINX, e7tPERMJINX, e7tUNJINX, e7tTAKEMAGIC, e7tTAKERUPE
      };
 
 // Enemy misc8 types
-enum { e8tSWORD, e8tITEM, e8tALL, e8tLAST };
+enum { e8tSWORD=0x1, e8tITEM=0x2, e8tSHIELD=0x4, e8tLAST=0x8};
 
 // Enemy misc9 types
 // Walker
