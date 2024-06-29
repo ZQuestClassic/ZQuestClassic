@@ -2332,9 +2332,9 @@ int current_item_id(int itype, bool checkmagic, bool jinx_check, bool check_bunn
 			if(checkmagic && !checkmagiccost(ovid))
 				return -1;
 
-			if (jinx_check && !(itemsbuf[ovid].flags & item_jinx_immune))
+			if (jinx_check && !checkitem_jinx(ovid))
 			{
-				checkitem_jinx(ovid);
+				return -1;
 			}
 			return ovid;
 		}

@@ -1186,7 +1186,7 @@ void setShieldClk(int32_t newclk)
 }
 bool HeroIsJinxed()
 {
-	return (HeroSwordClk() == 0 && HeroItemClk() == 0 && HeroShieldClk() == 0);
+	return (HeroSwordClk() || HeroItemClk() || HeroShieldClk());
 }
 int32_t  HeroLStep()
 {
