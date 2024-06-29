@@ -104,6 +104,7 @@ int32_t  HeroItemClk();
 int32_t  HeroShieldClk();
 int32_t  HeroAction();
 int32_t  HeroCharged();
+bool HeroIsJinxed();
 byte HeroGetDontDraw();
 void setSwordClk(int32_t newclk);
 void setItemClk(int32_t newclk);

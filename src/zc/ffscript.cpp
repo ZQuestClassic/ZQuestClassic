@@ -4314,7 +4314,7 @@ int32_t get_register(int32_t arg)
 		}
 		
 		case HEROSHIELDJINX:
-			ret = (int32_t)(Hero.getShieldClk()) * 10000;
+			ret = Hero.shieldjinxclk * 10000;
 			break;
 		
 		case HEROISWARPING:
@@ -17317,7 +17317,7 @@ void set_register(int32_t arg, int32_t value)
 		
 		case HEROSHIELDJINX:
 		{
-			Hero.setShieldClk(value / 10000);
+			Hero.shieldjinxclk = value / 10000;
 			break;
 		}
 		

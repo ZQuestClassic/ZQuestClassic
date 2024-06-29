@@ -1184,6 +1184,10 @@ void setShieldClk(int32_t newclk)
 {
 	Hero.setShieldClk(newclk);
 }
+bool HeroIsJinxed()
+{
+	return (HeroSwordClk() == 0 && HeroItemClk() == 0 && HeroShieldClk() == 0);
+}
 int32_t  HeroLStep()
 {
     return Hero.getLStep();

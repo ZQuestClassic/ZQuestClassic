@@ -2334,12 +2334,7 @@ int current_item_id(int itype, bool checkmagic, bool jinx_check, bool check_bunn
 
 			if (jinx_check && !(itemsbuf[ovid].flags & item_jinx_immune))
 			{
-				// shields
-				if (itemsbuf[ovid].family == itype_shield && HeroShieldClk())
-					return -1;
-				// everything else (including active shields)
-				if (usesSwordJinx(ovid) ? HeroSwordClk() : HeroItemClk())
-					return -1;
+				checkitem_jinx(ovid);
 			}
 			return ovid;
 		}
@@ -2348,7 +2343,7 @@ int current_item_id(int itype, bool checkmagic, bool jinx_check, bool check_bunn
 	if(!jinx_check) //If not already a jinx-immune-only check...
 	{
 		//And the player IS jinxed...
-		if(HeroSwordClk() || HeroItemClk() || HeroShieldClk())
+		if(HeroIsJinxed())
 		{
 			//Then do a jinx-immune-only check here
 			auto ret2 = _c_item_id_internal(itype,checkmagic,true,check_bunny);
