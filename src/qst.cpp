@@ -15032,6 +15032,27 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 					tempguy.flags2 |= guy_ignore_kill_all;
 				}
 			}
+
+			if (guyversion < 48)
+			{
+				if (tempguy.family == eeWALK && (tempguy.misc7==e7tPERMJINX || tempguy.misc7==e7tTEMPJINX || tempguy.misc7==e7tUNJINX)) //BUBBLE CHECK
+				{
+					switch (tempguy.misc8) {
+						case 0: //Sword
+							tempguy.misc8 = e8tSWORD;
+							break;
+						case 1:	//Item
+							tempguy.misc8 = e8tITEM;
+							break;
+						case 2: //Both
+							tempguy.misc8 = e8tSWORD|e8tITEM;
+							break;
+						default: //this can actually happen since Misc8 can be set to any number.
+							tempguy.misc8 = 0;
+							break;
+					}
+				}
+			}
 			
 			if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
 			{

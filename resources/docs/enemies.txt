@@ -1,0 +1,121 @@
+===================
+Walker
+===================
+---------
+Shot Type
+---------
+-1 Shot 
+	Waits 16 frames then fires
+	Boomerangs will use this unless Rapidfire is Selected.
+
+-1 Shot End-Halt
+	Fires after it finishes Halting.
+	In the case of Pols Voice it is when they finish a jump and land on the ground.
+
+-Rapid Fire 
+	Doesn't halt and will fire a weapon randomly once every 64 frames
+	Boomerangs fly towards Link.
+
+-1 Shot (Fast)
+	1 Shot except projectile step is doubled.
+
+-1 Shot (Slanted)
+	1 Shot except projectile will slant in the direction towards the Hero.
+
+-3 Shots
+	Shoots a line of 3 projectiles that spread out similiar to Aquamentus.
+
+-4 Shots
+	Shoots a projectile in each of 4 cardinal directions.
+
+-5 Shots 
+	Same as 3 shots except 5 projectiles in a line.
+
+-3 (Fast) 
+	3 Shots except projectile step is doubled.
+
+-Breath
+	Fires projectiles in a widespread for 50-100 frames
+
+-8 Shots 
+	Shoots a direct in all 8 directions
+
+-Summon
+	Summons Enemies:
+	Death Attribute 1 Is the Enemy ID
+	Death Attribute 2 Is the Max Number To Summon.
+
+-Summon (Layer)
+	Same as above except determined by layers
+	Does not use Death Attributes
+
+----------
+Death Type
+----------
+-Split On Hit
+	Death Attribute 1 Is the Enemy ID
+	Death Attribute 2 Is the Max Number To Spawn.
+
+-Split On Death
+	Death Attribute 1 Is the Enemy ID
+	Death Attribute 2 Is the Max Number To Spawn.
+
+-8 Shots
+	Death Attribute 1 is the Offset Based off it's weapon.
+	e.g. if Fire is Select
+
+-Explode
+	Death Attribute 1 is unused
+	Death Attribute 2 is the Damage
+
+-Tribble
+	Death Attribute 1 is EnemyID to transform Into.
+	Death Attribute 2 is Number of Enemies to turn Into. 
+	Death Attribute 3 is Time it Takes before transforming. (default 256)
+
+-----------
+Extra Shots
+-----------
+When the halt clock runs out there is a 1/16 chance of firing once more. 
+This is amount of times this can happen.
+
+------------
+Touch Effect
+------------
+-Temp Jinx: Disables for 150 frames.
+-Cure Jinx: Renables for 150 frames.
+-Perm Jinx: Permanent Jinx
+	Effect Strength is the type(s) of Jinx to apply. OR the following values together
+	SwordJinx 1
+	ItemJinx 2
+	ShieldJinx 4
+
+-Take Magic: Effected by magic drain rate.
+-Take Rupees
+	Effect Strength is how much in both cases.
+
+-Drunk: Interfers with Link's Input.
+	Effect Strength is how long.
+
+-Eat Items: Removes ALL inventory items with can be eaten flag checked.
+-Eat Magic: Effected by magic drain rate.
+-Eat Rupees: Similiar to Eat Magic but eats Rupees instead.
+	Effect Strength determines how often the above three conditions happen.
+
+-Eat Damage: Continues to inflict damage to Link while he is being "Eaten"
+
+----------
+Walk Style
+----------
+-Rope
+	Charges at Link
+
+-Vire
+	Bounces from tile to tile when moving horizontally
+
+-Pols Voice
+	Jumps
+	Haltrate determines Jump Frequency
+
+-Armos
+	Walk attribute will determine its alternate step speed.

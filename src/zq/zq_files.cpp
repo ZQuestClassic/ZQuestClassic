@@ -172,6 +172,7 @@ void alwaysOnRules()
 	set_qr(qr_CMBCYCLELAYERS, 1);
 	set_qr(qr_KILLALL, 1);
 	set_qr(qr_ITEMBUBBLE, 1);
+	set_qr(qr_SHIELDBUBBLE, 1);
 	set_qr(qr_RINGAFFECTDAMAGE, 1);
 	set_qr(qr_NEW_COMBO_ANIMATION, 1);
 	set_qr(qr_BUSHESONLAYERS1AND2, 1);
