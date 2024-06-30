@@ -17316,8 +17316,10 @@ void set_register(int32_t arg, int32_t value)
 		}
 		
 		case HEROSHIELDJINX:
-			Hero.shieldjinxclk = value/10000;
+		{
+			Hero.shieldjinxclk = value / 10000;
 			break;
+		}
 		
 		case CLOCKACTIVE:
 		{

@@ -2253,7 +2253,10 @@ int _c_item_id_internal(int itemtype, bool checkmagic, bool jinx_check, bool che
 	bool use_cost_cache = replay_version_check(19);
 	if(jinx_check)
 	{
-		if(!(HeroSwordClk() || HeroItemClk()))
+		//special case for shields...
+		if (itemtype == itype_shield && !HeroShieldClk())
+			jinx_check = false;
+		else if(!(HeroSwordClk() || HeroItemClk()))
 			jinx_check = false; //not jinxed
 	}
 	if(!Hero.BunnyClock() || itemtype == itype_pearl) // bunny_check does not apply
@@ -2328,9 +2331,11 @@ int current_item_id(int itype, bool checkmagic, bool jinx_check, bool check_bunn
 			
 			if(checkmagic && !checkmagiccost(ovid))
 				return -1;
-			if(jinx_check && !(itemsbuf[ovid].flags & item_jinx_immune)
-				&& (usesSwordJinx(ovid) ? HeroSwordClk() : HeroItemClk()))
+
+			if (jinx_check && !checkitem_jinx(ovid))
+			{
 				return -1;
+			}
 			return ovid;
 		}
 	}
@@ -2338,7 +2343,7 @@ int current_item_id(int itype, bool checkmagic, bool jinx_check, bool check_bunn
 	if(!jinx_check) //If not already a jinx-immune-only check...
 	{
 		//And the player IS jinxed...
-		if(HeroSwordClk() || HeroItemClk())
+		if(HeroIsJinxed())
 		{
 			//Then do a jinx-immune-only check here
 			auto ret2 = _c_item_id_internal(itype,checkmagic,true,check_bunny);

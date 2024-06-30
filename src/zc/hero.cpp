@@ -267,7 +267,7 @@ int32_t getCurrentShield(bool requireActive)
 	if(Hero.shieldjinxclk) return -1;
 	if(Hero.active_shield_id > -1 && usingActiveShield(Hero.active_shield_id))
 		return Hero.active_shield_id;
-	if(!requireActive) return current_item_id(itype_shield);
+	if(!requireActive) return current_item_id(itype_shield,false,true);
 	return -1;
 }
 int32_t getCurrentActiveShield()
@@ -1262,6 +1262,10 @@ int32_t  HeroClass::getItemClk()
 {
     return itemclk;
 }
+int32_t  HeroClass::getShieldClk()
+{
+	return shieldjinxclk;
+}
 void HeroClass::setSwordClk(int32_t newclk)
 {
     swordclk=newclk;
@@ -1270,6 +1274,10 @@ void HeroClass::setSwordClk(int32_t newclk)
 void HeroClass::setItemClk(int32_t newclk)
 {
     itemclk=newclk;
+}
+void HeroClass::setShieldClk(int32_t newclk)
+{
+	shieldjinxclk=newclk;
 }
 // TODO remove, no longer needed.
 zfix  HeroClass::getModifiedX()
@@ -29552,6 +29560,16 @@ bool checkitem_jinx(int32_t itemid)
 {
 	itemdata const& it = itemsbuf[itemid];
 	if(it.flags & item_jinx_immune) return true;
+	if (it.family == itype_shield){
+		if(HeroShieldClk() != 0) return false;
+		if(it.flags & !item_flag9) //Active Shields should also check sword/item jinx flags
+		{
+			if (usesSwordJinx(itemid)) return HeroSwordClk() == 0;
+			return HeroItemClk() == 0;
+		}
+		return true;
+
+	}
 	if(usesSwordJinx(itemid)) return HeroSwordClk() == 0;
 	return HeroItemClk() == 0;
 }
@@ -30200,12 +30218,15 @@ void getitem(int32_t id, bool nosound, bool doRunPassive)
 				if(HeroSwordClk()==-1) setSwordClk(150);  // Let's not bother applying the divisor.
 				
 				if(HeroItemClk()==-1) setItemClk(150);  // Let's not bother applying the divisor.
+
+				if(HeroItemClk()== 1) setShieldClk(150);  // Let's not bother applying the divisor.
 			}
 			
 			if(idat.power==0)
 			{
 				setSwordClk(0);
 				setItemClk(0);
+				setShieldClk(0);
 			}
 			
 			break;
