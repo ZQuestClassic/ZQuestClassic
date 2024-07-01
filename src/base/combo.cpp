@@ -74,6 +74,7 @@ bool newcombo::is_blank(bool ignoreEff)
 	if(trigwavytime > -1) return false;
 	if(trig_swjinxtime > -2) return false;
 	if(trig_itmjinxtime > -2) return false;
+	if(trig_shieldjinxtime > -2) return false;
 	if(trig_stuntime > -2) return false;
 	if(trig_bunnytime > -2) return false;
 	if(trig_pushtime != 8) return false;
@@ -238,6 +239,7 @@ void newcombo::advpaste(newcombo const& other, bitstring const& flags)
 		trigwavytime = other.trigwavytime;
 		trig_swjinxtime = other.trig_swjinxtime;
 		trig_itmjinxtime = other.trig_itmjinxtime;
+		trig_shieldjinxtime = other.trig_shieldjinxtime;
 		trig_stuntime = other.trig_stuntime;
 		trig_bunnytime = other.trig_bunnytime;
 		trig_pushtime = other.trig_pushtime;

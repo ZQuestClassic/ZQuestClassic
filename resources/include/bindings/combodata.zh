@@ -394,6 +394,12 @@ class combodata {
 	// @zasm_var COMBODTRIGITEMJINX
 	internal int TrigItemJinx;
 
+	// The duration to Shield Jinx the player for. -2 for none, -1 for 'until
+	// cured', 0 to cure.
+	//
+	// @zasm_var COMBODTRIGSHIELDJINX
+	internal int TrigShieldJinx;
+
 	// The duration to Stun the player for. -2 for none, -1 for 'until cured', 0
 	// to cure.
 	//
