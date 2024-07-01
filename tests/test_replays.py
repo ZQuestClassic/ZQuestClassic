@@ -1,3 +1,4 @@
+import functools
 import json
 import os
 import re
@@ -18,6 +19,21 @@ output_dir = tmp_dir / 'output'
 
 sys.path.append(str((root_dir / 'scripts').absolute()))
 import run_target
+
+
+@functools.cache
+def read_replay_meta(path: Path):
+    meta = {}
+    with path.open('r', encoding='utf-8') as f:
+        while True:
+            line = f.readline()
+            if not line.startswith('M'):
+                break
+            _ , key, value = line.strip().split(' ', 2)
+            meta[key] = value
+    if not meta:
+        raise Exception(f'invalid replay {path}')
+    return meta
 
 
 def get_frame_from_snapshot_index(path: str) -> int:
@@ -269,6 +285,12 @@ class TestReplays(unittest.TestCase):
             '-replay-exit-when-done',
             '-assert', replay_path,
         ])
+        meta = read_replay_meta(replay_path)
+        self.assertEqual(meta['debug'], 'true')
+        self.assertEqual(meta['test_mode'], 'true')
+        self.assertEqual(meta['frames'], '100')
+        self.assertEqual(meta['qst_title'], 'Original NES 1st Quest')
+        self.assertEqual(meta['qst_hash'], '5833FF169985B186D58058417E918408')
 
 
 if __name__ == '__main__':
