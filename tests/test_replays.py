@@ -8,6 +8,7 @@ import unittest
 
 from pathlib import Path
 
+from lib.replay_helpers import read_replay_meta
 from replays import ReplayTestResults
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
@@ -319,6 +320,12 @@ class TestReplays(unittest.TestCase):
                 replay_path,
             ],
         )
+        meta = read_replay_meta(replay_path)
+        self.assertEqual(meta['debug'], 'true')
+        self.assertEqual(meta['test_mode'], 'true')
+        self.assertEqual(meta['frames'], '100')
+        self.assertEqual(meta['qst_title'], 'Original NES 1st Quest')
+        self.assertEqual(meta['qst_hash'], '5833FF169985B186D58058417E918408')
 
 
 if __name__ == '__main__':

@@ -9,6 +9,7 @@
 #include <vector>
 #include <sstream>
 
+#include "md5.h"
 #include "zalleg/zalleg.h"
 #include "base/qrs.h"
 #include "base/dmap.h"
@@ -1746,6 +1747,39 @@ int32_t init_game()
 		Quit = qERROR;
 		GameLoaded = false;
 		return 1;
+	}
+
+	if (replay_is_active())
+	{
+		replay_set_meta("qst_title", game->header.title);
+
+		std::optional<std::string> previous_hash;
+		if (replay_has_meta("qst_hash"))
+			previous_hash = replay_get_meta_str("qst_hash");
+
+		cvs_MD5Context ctx;
+		cvs_MD5Init(&ctx);
+		size_t buffer_size = 1<<20; // 1 MB
+		char *buffer = new char[buffer_size];
+
+		std::ifstream fin(qstpath, std::ifstream::binary);
+		while (fin)
+		{
+			fin.read(buffer, buffer_size);
+			size_t count = fin.gcount();
+			if (!count)
+				break;
+			cvs_MD5Update(&ctx, (const uint8_t*)buffer, count);
+		}
+
+		uint8_t md5sum[16];
+		cvs_MD5Final(md5sum, &ctx);
+		std::string hash = util::make_hex_string(std::begin(md5sum), std::end(md5sum));
+		replay_set_meta("qst_hash", hash);
+		delete[] buffer;
+
+		if (previous_hash && previous_hash != hash)
+			replay_set_meta_bool("qst_modified", true);
 	}
 
 	if (zasm_optimize_enabled() && (get_flag_bool("-test-bisect").has_value() || is_ci()))

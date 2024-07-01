@@ -56,6 +56,7 @@ std::string replay_get_meta_str(std::string key, std::string defaultValue);
 int replay_get_meta_int(std::string key);
 int replay_get_meta_int(std::string key, int defaultValue);
 bool replay_get_meta_bool(std::string key);
+bool replay_has_meta(std::string key);
 
 ReplayMode replay_get_mode();
 int replay_get_version();
