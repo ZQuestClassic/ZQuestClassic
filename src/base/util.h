@@ -5,6 +5,7 @@
 #define _UTIL_H_
 
 #include "base/zdefs.h"
+#include <sstream>
 #include <string>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -34,6 +35,18 @@ namespace util
 	void remove_if_exists(std::vector<T>& vec, const T& item)
 	{
 		vec.erase(std::remove(vec.begin(), vec.end(), item), vec.end());
+	}
+
+	template<typename TInputIter>
+	std::string make_hex_string(TInputIter first, TInputIter last)
+	{
+		std::ostringstream ss;
+		ss << std::hex << std::setfill('0') << std::uppercase;
+		while (first != last)
+		{
+			ss << std::setw(2) << static_cast<int>(*first++);
+		}
+		return ss.str();
 	}
 
 	std::string snip(std::string const& str, size_t length, std::string trail = "...");

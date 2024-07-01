@@ -1883,6 +1883,9 @@ void replay_step_gfx(uint32_t gfx_hash)
 
 void replay_set_meta(std::string key, std::string value)
 {
+    if (!replay_is_active())
+        return;
+
     if (key == "qst")
         std::replace_if(
             value.begin(), value.end(),
@@ -1892,8 +1895,7 @@ void replay_set_meta(std::string key, std::string value)
             },
             '/');
 
-    if (replay_is_active())
-        meta_map[key] = value;
+    meta_map[key] = value;
 }
 
 void replay_set_meta(std::string key, int value)
@@ -1945,6 +1947,11 @@ int replay_get_meta_int(std::string key, int defaultValue)
 bool replay_get_meta_bool(std::string key)
 {
     return get_meta_raw_value(key) == "true";
+}
+
+bool replay_has_meta(std::string key)
+{
+    return meta_map.find(key) != meta_map.end();
 }
 
 void replay_step_quit(int quit_state)
