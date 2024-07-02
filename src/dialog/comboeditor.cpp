@@ -2848,6 +2848,22 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							"\n'0' cures the status."
 							"\nAny value above 0 inflicts the status for that many frames."),
 						//
+						Label(text = "Shield Jinx:", fitParent = true),
+						TextField(
+							fitParent = true,
+							vPadding = 0_px,
+							type = GUI::TextField::type::INT_DECIMAL,
+							low = -2, high = MAX_ZSCRIPT_INT, val = local_comboref.trig_shieldjinxtime,
+							onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
+							{
+								local_comboref.trig_shieldjinxtime = val;
+							}),
+							INFOBTN("Sets the duration of the 'Shield Jinx' status effect."
+							"\n'-2' indicates not to do anything."
+							"\n'-1' inflicts the status indefinitely, until cured."
+							"\n'0' cures the status."
+							"\nAny value above 0 inflicts the status for that many frames."),
+						//
 						Label(text = "Stun:", fitParent = true),
 						TextField(
 							fitParent = true,

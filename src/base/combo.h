@@ -115,7 +115,7 @@ struct newcombo
 	int8_t trigtint[3]; //r,g,b range [-63,63]
 	int16_t triglvlpalette = -1, trigbosspalette = -1;
 	int16_t trigquaketime = -1, trigwavytime = -1;
-	int16_t trig_swjinxtime = -2, trig_itmjinxtime = -2, trig_stuntime = -2, trig_bunnytime = -2;
+	int16_t trig_swjinxtime = -2, trig_itmjinxtime = -2, trig_shieldjinxtime = -2, trig_stuntime = -2, trig_bunnytime = -2;
 	byte trig_pushtime = 8;
 	lift_flags liftflags;
 	byte liftlvl;

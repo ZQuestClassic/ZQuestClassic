@@ -2810,6 +2810,8 @@ void handle_trigger_results(newcombo const& cmb, int32_t cx, int32_t cy, bool& h
 			Hero.setSwordClk(cmb.trig_swjinxtime);
 		if(cmb.trig_itmjinxtime > -2)
 			Hero.setItemClk(cmb.trig_itmjinxtime);
+		if(cmb.trig_shieldjinxtime > -2)
+			Hero.setShieldClk(cmb.trig_shieldjinxtime);
 		if(cmb.trig_stuntime > -2)
 			Hero.setStunClock(cmb.trig_stuntime);
 		if(cmb.trig_bunnytime > -2)

@@ -18072,6 +18072,11 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 				if(!p_getc(&temp_combo.trig_pushtime,f))
 					return qe_invalid;
 			}
+			if(s_version >= 47)
+			{
+				if (!p_igetw(&temp_combo.trig_shieldjinxtime, f))
+					return qe_invalid;
+			}
 		}
 		if(combo_has_flags&CHAS_LIFT)
 		{

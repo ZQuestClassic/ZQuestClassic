@@ -12815,6 +12815,16 @@ int32_t get_register(int32_t arg)
 			else ret = 10000 * combobuf[ri->combosref].trig_itmjinxtime;
 			break;
 		}
+		case COMBODTRIGSHIELDJINX:
+		{
+			ret = -10000;
+			if (ri->combosref < 0 || ri->combosref >(MAXCOMBOS - 1))
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigShieldJinx: %d\n", (ri->combosref * 10000));
+			}
+			else ret = 10000 * combobuf[ri->combosref].trig_shieldjinxtime;
+			break;
+		}
 		case COMBODTRIGSTUN:
 		{
 			ret = -10000;
@@ -25836,6 +25846,15 @@ void set_register(int32_t arg, int32_t value)
 				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigItemJinx: %d\n", (ri->combosref*10000));
 			}
 			else combobuf[ri->combosref].trig_itmjinxtime = zc_max(value/10000, -2);
+			break;
+		}
+		case COMBODTRIGSHIELDJINX:
+		{
+			if (ri->combosref < 0 || ri->combosref >(MAXCOMBOS - 1))
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigShieldJinx: %d\n", (ri->combosref * 10000));
+			}
+			else combobuf[ri->combosref].trig_shieldjinxtime = zc_max(value / 10000, -2);
 			break;
 		}
 		case COMBODTRIGSTUN:

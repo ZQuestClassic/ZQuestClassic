@@ -9705,7 +9705,7 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 			break;
 		}
 	}
-	if(tmp_cmb.triggerflags[0] || tmp_cmb.triggerflags[1]
+	if (tmp_cmb.triggerflags[0] || tmp_cmb.triggerflags[1]
 		|| tmp_cmb.triggerflags[2] || tmp_cmb.triggerflags[3]
 		|| tmp_cmb.triggerflags[4] || tmp_cmb.triggerflags[5]
 		|| tmp_cmb.triggerlevel || tmp_cmb.trig_lstate
@@ -9726,7 +9726,7 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 		|| tmp_cmb.trigquaketime > -1 || tmp_cmb.trigwavytime > -1
 		|| tmp_cmb.trig_swjinxtime > -2 || tmp_cmb.trig_itmjinxtime > -2
 		|| tmp_cmb.trig_stuntime > -2 || tmp_cmb.trig_bunnytime > -2
-		|| tmp_cmb.trig_pushtime != 8
+		|| tmp_cmb.trig_pushtime != 8 || tmp_cmb.trig_shieldjinxtime > -2
 		|| tmp_cmb.prompt_cid || tmp_cmb.prompt_cs
 		|| tmp_cmb.prompt_x != 12 || tmp_cmb.prompt_y != -8)
 		combo_has_flags |= CHAS_TRIG;
@@ -9931,6 +9931,8 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 			return 101;
 		if(!p_putc(tmp_cmb.trig_pushtime,f))
 			return 102;
+		if (!p_iputw(tmp_cmb.trig_shieldjinxtime, f))
+			return 103;
 	}
 	if(combo_has_flags&CHAS_LIFT)
 	{
