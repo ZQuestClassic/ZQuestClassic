@@ -480,11 +480,34 @@ async function processId(page: puppeteer.Page, type: EntryType, index: number) {
     }
   };
 
+  const dateToString = (date: Date) => {
+    const dd = String(date.getDate()).padStart(2, '0');
+    const yyyy = date.getFullYear();
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return `${dd} ${monthNames[date.getMonth()]} ${yyyy}`;
+  };
+
+  const getDate = (dateStr: string) => {
+    if (dateStr.includes('Yesterday')) {
+      const date = new Date(new Date().setDate(new Date().getDate()-1));
+      return dateToString(date);
+    }
+    if (dateStr.includes('Today') || dateStr.includes(' PM') || dateStr.includes(' AM')) {
+      const date = new Date(new Date().setDate(new Date().getDate()));
+      return dateToString(date);
+    }
+
+    return dateStr;
+  };
+
   const authorRaw = findMetadata(/Creator: (.*)/ms) || '';
-  const dateAdded = findMetadata(/Added: (.*)/ms);
-  const dateUpdated = findMetadata(/Updated: (.*)/ms);
   const genre = findMetadata(/Genre: (.*)/ms)
   const zcVersion = findMetadata(/ZC Version: (.*)/ms);
+
+  let dateAdded = findMetadata(/Added: (.*)/ms);
+  let dateUpdated = findMetadata(/Updated: (.*)/ms);
+  if (dateAdded) dateAdded = getDate(dateAdded);
+  if (dateUpdated) dateUpdated = getDate(dateUpdated);
 
   for (const author of authorRaw.split(',').map(a => a.trim())) {
     if (authors.some(a => a.name === author)) continue;
