@@ -25421,8 +25421,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		else                                                  // item room
 		{
 			specialcave = ITEMCELLAR;
-			map_bkgsfx(false);
-			kill_enemy_sfx();
+			kill_sfx();
 			draw_screen(tmpscr,false);
 			
 			//unless the room is already dark, fade to black
@@ -25488,8 +25487,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 	
 	case wtPASS:                                            // passageway
 	{
-		map_bkgsfx(false);
-		kill_enemy_sfx();
+		kill_sfx();
 		ALLOFF();
 		//play sound
 		if(warpsfx > 0) sfx(warpsfx,pan(x.getInt()));
@@ -27037,8 +27035,7 @@ void HeroClass::stepout() // Step out of item cellars and passageways
 	int32_t sc = specialcave; // This gets erased by ALLOFF()
     ALLOFF();
     stop_sfx(QMisc.miscsfx[sfxLOWHEART]);
-    map_bkgsfx(false);
-    kill_enemy_sfx();
+	kill_sfx();
     draw_screen(tmpscr,false);
     fade(sc>=GUYCAVE?10:11,true,false);
     blackscr(30,true);
