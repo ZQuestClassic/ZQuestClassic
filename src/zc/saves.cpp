@@ -1506,7 +1506,7 @@ static int32_t write_save(save_t* save)
 	em_sync_fs();
 #endif
 
-	Z_message("write save: %s\n", save->path.c_str());
+	Z_message("write save: %s\n", save->path.string().c_str());
 	return ret;
 }
 
