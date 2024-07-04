@@ -539,7 +539,6 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 					),
 					Rows<2>(fitParent = true,
 						CONFIG_CHECKBOX("Force-reload Quest Icons",App::zelda,"zeldadx","reload_game_icons",0),
-						CONFIG_CHECKBOX_I("Allow Multiple Instances",App::zelda,"zeldadx","multiple_instances",0,"This can cause issues including but not limited to save file deletion."),
 						CONFIG_CHECKBOX("Click to Freeze",App::zelda,"zeldadx","clicktofreeze",1),
 						CONFIG_CHECKBOX_I("Quickload Last Quest",App::zelda,"zeldadx","quickload_last",0,"Unless 'Quickload Slot' is set, this will load the last quest played immediately upon launching."),
 						CONFIG_CHECKBOX_I("Autosave Window Size Changes",App::zelda,"zeldadx","save_drag_resize",0,"Makes any changes to the window size by dragging get saved for whenever you open the program next."),
