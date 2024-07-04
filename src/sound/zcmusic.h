@@ -6,13 +6,6 @@
 #ifndef _ZCMUSIC_H_
 #define _ZCMUSIC_H_
 
-#if defined ZCM_DLL
-#define ZCM_EXTERN extern __declspec(dllexport)
-#elif defined ZCM_DLL_IMPORT
-#define ZCM_EXTERN extern __declspec(dllimport)
-#else
-#define ZCM_EXTERN extern
-#endif
 #include <cstdint>
 #include <string>
 
@@ -33,7 +26,7 @@
 #define ZCM_RESUME  0
 #define ZCM_TOGGLE -1
 
-ZCM_EXTERN char const * zcmusic_types;
+constexpr char * zcmusic_types = "it;mod;mp3;ogg;s3m;spc;gym;nsf;gbs;vgm;xm";
 
 typedef struct
 {
@@ -49,27 +42,27 @@ typedef struct
 #endif
 } ZCMUSIC;
 
-ZCM_EXTERN ZCMUSIC* zcmusic_load_for_quest(const char* filename, const char* quest_path);
+ZCMUSIC* zcmusic_load_for_quest(const char* filename, const char* quest_path);
 
-ZCM_EXTERN bool zcmusic_init(int32_t flags = -1);
-ZCM_EXTERN bool zcmusic_poll(int32_t flags = -1);
-ZCM_EXTERN void zcmusic_exit();
+bool zcmusic_init(int32_t flags = -1);
+bool zcmusic_poll(int32_t flags = -1);
+void zcmusic_exit();
 
-ZCM_EXTERN ZCMUSIC * zcmusic_load_file(const char *filename);
-ZCM_EXTERN bool zcmusic_play(ZCMUSIC* zcm, int32_t vol);
-ZCM_EXTERN bool zcmusic_pause(ZCMUSIC* zcm, int32_t pause);
-ZCM_EXTERN bool zcmusic_stop(ZCMUSIC* zcm);
-ZCM_EXTERN bool zcmusic_set_volume(ZCMUSIC* zcm, int32_t vol);
-ZCM_EXTERN void zcmusic_unload_file(ZCMUSIC* &zcm);
-ZCM_EXTERN int32_t zcmusic_get_tracks(ZCMUSIC* zcm);
-ZCM_EXTERN int32_t zcmusic_change_track(ZCMUSIC* zcm, int32_t tracknum);
-ZCM_EXTERN std::string zcmusic_get_track_name(ZCMUSIC* zcm, int32_t tracknum);
-ZCM_EXTERN int32_t zcmusic_get_curpos(ZCMUSIC* zcm);
-ZCM_EXTERN void zcmusic_set_curpos(ZCMUSIC* zcm, int32_t value);
-ZCM_EXTERN void zcmusic_set_speed(ZCMUSIC* zcm, int32_t value);
-ZCM_EXTERN int32_t zcmusic_get_length(ZCMUSIC* zcm);
-ZCM_EXTERN void zcmusic_set_loop(ZCMUSIC* zcm, double start, double end);
-ZCM_EXTERN int32_t zcmusic_get_type(ZCMUSIC* zcm);
+ZCMUSIC * zcmusic_load_file(const char *filename);
+bool zcmusic_play(ZCMUSIC* zcm, int32_t vol);
+bool zcmusic_pause(ZCMUSIC* zcm, int32_t pause);
+bool zcmusic_stop(ZCMUSIC* zcm);
+bool zcmusic_set_volume(ZCMUSIC* zcm, int32_t vol);
+void zcmusic_unload_file(ZCMUSIC* &zcm);
+int32_t zcmusic_get_tracks(ZCMUSIC* zcm);
+int32_t zcmusic_change_track(ZCMUSIC* zcm, int32_t tracknum);
+std::string zcmusic_get_track_name(ZCMUSIC* zcm, int32_t tracknum);
+int32_t zcmusic_get_curpos(ZCMUSIC* zcm);
+void zcmusic_set_curpos(ZCMUSIC* zcm, int32_t value);
+void zcmusic_set_speed(ZCMUSIC* zcm, int32_t value);
+int32_t zcmusic_get_length(ZCMUSIC* zcm);
+void zcmusic_set_loop(ZCMUSIC* zcm, double start, double end);
+int32_t zcmusic_get_type(ZCMUSIC* zcm);
 
 #undef ZCM_EXTERN
 #endif

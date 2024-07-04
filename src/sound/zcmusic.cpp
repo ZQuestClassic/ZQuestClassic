@@ -57,8 +57,6 @@ extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
 #define DUH_SAMPLES   44100                                 //Hz
 #define DUH_RESAMPLE  1
 
-char const * zcmusic_types = "it;mod;mp3;ogg;s3m;spc;gym;nsf;gbs;vgm;xm";
-
 ALLEGRO_MUTEX* playlistmutex = NULL;
 
 ZCMUSIC* zcmusic_load_for_quest(const char* filename, const char* quest_path)

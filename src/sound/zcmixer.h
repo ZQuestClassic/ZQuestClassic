@@ -4,14 +4,6 @@
 #include <cstdint>
 #include "sound/zcmusic.h"
 
-#if defined ZCM_DLL
-#define ZCM_EXTERN extern __declspec(dllexport)
-#elif defined ZCM_DLL_IMPORT
-#define ZCM_EXTERN extern __declspec(dllimport)
-#else
-#define ZCM_EXTERN extern
-#endif
-
 typedef struct
 {
     ZCMUSIC *newtrack;
@@ -26,9 +18,9 @@ typedef struct
     int32_t fadeoutdelay;
 } ZCMIXER;
 
-ZCM_EXTERN ZCMIXER* zcmixer_create();
-ZCM_EXTERN void zcmixer_update(ZCMIXER* mix, int32_t basevol, int32_t uservol, bool oldscriptvol);
-ZCM_EXTERN void zcmixer_exit(ZCMIXER* &mix);
+ZCMIXER* zcmixer_create();
+void zcmixer_update(ZCMIXER* mix, int32_t basevol, int32_t uservol, bool oldscriptvol);
+void zcmixer_exit(ZCMIXER* &mix);
 
 #undef ZCM_EXTERN
 #endif
