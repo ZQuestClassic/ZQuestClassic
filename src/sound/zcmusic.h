@@ -26,7 +26,7 @@
 #define ZCM_RESUME  0
 #define ZCM_TOGGLE -1
 
-constexpr char * zcmusic_types = "it;mod;mp3;ogg;s3m;spc;gym;nsf;gbs;vgm;xm";
+constexpr const char * zcmusic_types = "it;mod;mp3;ogg;s3m;spc;gym;nsf;gbs;vgm;xm";
 
 typedef struct
 {
