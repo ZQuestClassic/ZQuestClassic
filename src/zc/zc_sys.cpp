@@ -7032,7 +7032,6 @@ int32_t onEpilepsy()
 		get_zc_font(font_lfont)) == 1)
 	{
 		epilepsyFlashReduction = epilepsyFlashReduction ? 0 : 1;
-		zc_set_config("zeldadx","checked_epilepsy",1);
 		zc_set_config(cfg_sect,"epilepsy_flash_reduction",epilepsyFlashReduction);
 	}
 	return D_O_K;

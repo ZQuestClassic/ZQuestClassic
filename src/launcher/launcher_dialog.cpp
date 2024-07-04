@@ -527,6 +527,7 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_CHECKBOX("Fullscreen",App::zelda,"zeldadx","fullscreen",0),
 						CONFIG_CHECKBOX_I("Native File Dialog",App::zelda,"gui","native_file_dialog",0,"Use the file dialog provided by the OS for file select prompts."),
 						CONFIG_CHECKBOX("Skip titlescreen",App::zelda,"zeldadx","skip_title",0),
+						CONFIG_CHECKBOX_I("Reduce Flashing",App::zelda,"zeldadx","epilepsy_flash_reduction",0,"Turn down the intensity of a few different effects (not exhaustive)"),
 						CONFIG_CHECKBOX("Disable Resizing",App::zelda,"gui","disable_window_resizing",0),
 						CONFIG_CHECKBOX("Cap FPS",App::zelda,"zeldadx","throttlefps",1),
 						CONFIG_CHECKBOX("Show FPS",App::zelda,"zeldadx","showfps",0),
