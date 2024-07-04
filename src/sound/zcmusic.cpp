@@ -47,12 +47,6 @@ using namespace util;
 #define stricmp _stricmp
 #endif
 
-// MSVC fix
-#if _MSC_VER >= 1900
-FILE _iob[] = { *stdin, *stdout, *stderr };
-extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
-#endif
-
 #define DUH_CHANNELS  2                                     // stereo
 #define DUH_SAMPLES   44100                                 //Hz
 #define DUH_RESAMPLE  1
