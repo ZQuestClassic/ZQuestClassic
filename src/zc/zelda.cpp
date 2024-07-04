@@ -4579,14 +4579,6 @@ int main(int argc, char **argv)
 		slot_arg2=1;
 	}
 	
-	int32_t fast_start = debug_enabled || used_switch(argc,argv,"-fast") || (!standalone_mode && (load_save || (slot_arg && (argc>(slot_arg+1)))));
-	
-	int32_t checked_epilepsy = zc_get_config("zeldadx","checked_epilepsy",0);
-	
-	// load the data files
-	//setPackfilePassword(datapwd);
-	packfile_password(datapwd);
-	
 	Z_message("Loading data files:\n");
 	set_color_conversion(COLORCONV_NONE);
 	
@@ -4869,10 +4861,6 @@ int main(int argc, char **argv)
 			return 0;
 		}
 	}
-
-#ifdef __EMSCRIPTEN__
-	checked_epilepsy = true;
-#endif
 	
 	// TODO: we are repeating this code (See few lines above) but different switch mode ...
 	if (!is_headless())
@@ -4993,27 +4981,6 @@ int main(int argc, char **argv)
 	}
 	if (snapshot_arg > 0)
 		replay_add_snapshot_frame(argv[snapshot_arg + 1]);
-	
-	if(!zqtesting_mode && !replay_is_active())
-	{
-		if (!checked_epilepsy)
-		{
-			clear_to_color(screen,BLACK);
-			enter_sys_pal();
-			if(jwin_alert("EPILEPSY Options",
-				"Do you desire epilepsy protection?",
-				"This will reduce the intensity of flashing effects",
-				"and reduce the amplitude of wavy screen effects.",
-				"No","Yes",13,27,get_zc_font(font_lfont))!=1)
-			{
-				epilepsyFlashReduction = 1;
-			}
-			exit_sys_pal();
-			zc_set_config("zeldadx","checked_epilepsy",1);
-			zc_set_config("zeldadx","epilepsy_flash_reduction",epilepsyFlashReduction);
-			checked_epilepsy = 1;
-		}
-	}
 
 	saves_init();
 
@@ -5067,7 +5034,6 @@ int main(int argc, char **argv)
 		{
 			load_save = save_index + 1;
 		}
-		fast_start = true;
 	}
 
 	set_display_switch_callback(SWITCH_IN,switch_in_callback);
