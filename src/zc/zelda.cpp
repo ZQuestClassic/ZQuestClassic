@@ -1691,22 +1691,13 @@ int32_t init_game()
 		if (firstplay && replay_new_saves)
 		{
 			std::string replay_path = create_replay_path_for_save(game->header);
-			enter_sys_pal();
-			if (jwin_alert("Recording",
-				"You are about to create a new recording at:",
-				relativize_path(replay_path).c_str(),
-				"Do you wish to record this save file?",
-				"Yes","No",13,27,get_zc_font(font_lfont))==1)
-			{
-				game->header.replay_file = replay_path;
-				replay_start(ReplayMode::Record, replay_path, -1);
-				replay_set_debug(replay_debug);
-				replay_set_sync_rng(true);
-				replay_set_meta("qst", relativize_path(game->header.qstpath));
-				replay_set_meta("name", game->get_name());
-				replay_save();
-			}
-			exit_sys_pal();
+			game->header.replay_file = replay_path;
+			replay_start(ReplayMode::Record, replay_path, -1);
+			replay_set_debug(replay_debug);
+			replay_set_sync_rng(true);
+			replay_set_meta("qst", relativize_path(game->header.qstpath));
+			replay_set_meta("name", game->get_name());
+			replay_save();
 		}
 		else if (!firstplay && !game->header.replay_file.empty())
 		{
