@@ -69,9 +69,9 @@ jobs:
         with:
           python-version: '3.11.4'
       - if: ${{ !contains(inputs.runs-on, 'ubuntu') }}
-        run: pip install requests PyGithub==1.58.2 requests discord.py watchdog Pillow intervaltree cutie
+        run: pip install requests PyGithub==1.58.2 requests discord.py watchdog Pillow intervaltree cutie flask boto3
       - if: ${{ contains(inputs.runs-on, 'ubuntu') }}
-        run: sudo pip install requests PyGithub==1.58.2 requests discord.py watchdog Pillow intervaltree cutie
+        run: sudo pip install requests PyGithub==1.58.2 requests discord.py watchdog Pillow intervaltree cutie flask boto3
       - if: inputs.config == 'Coverage'
         run: sudo pip install gcovr
 

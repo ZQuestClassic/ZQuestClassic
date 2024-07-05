@@ -11,6 +11,7 @@
 #include "base/misctypes.h"
 
 #include "base/zdefs.h"
+#include "zc/replay_upload.h"
 #include "zc/zelda.h"
 #include "base/zsys.h"
 #include "qst.h"
@@ -1428,6 +1429,36 @@ static void select_game(bool skip = false)
 	saveslot = -1;
 }
 
+static void prompt_for_uploading_replays()
+{
+#ifdef HAS_CURL
+	bool replay_upload_prompt = zc_get_config("zeldadx", "replay_upload_prompt", 0);
+	if (!replay_upload_auto_enabled() && !replay_upload_prompt)
+	{
+		enter_sys_pal();
+		if(jwin_alert3(
+			"Upload replays", 
+			"Would you like to periodically upload replays of your gameplay to the developers?",
+			"This helps development by preventing bugs and simplifying bug reports.",
+			NULL,
+		"&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		0, 
+		get_zc_font(font_lfont)) == 1)
+		{
+			zc_set_config("zeldadx", "replay_new_saves", true);
+			zc_set_config("zeldadx", "replay_upload", true);
+		}
+		exit_sys_pal();
+	}
+	if (!replay_upload_prompt)
+		zc_set_config("zeldadx", "replay_upload_prompt", 1);
+#endif
+}
+
 void titlescreen(int32_t lsave)
 {
 	int32_t q=Quit;
@@ -1493,6 +1524,8 @@ void titlescreen(int32_t lsave)
 	
 	if(!Quit)
 	{
+		if (!game->get_hasplayed())
+			prompt_for_uploading_replays();
 		init_game();
 	}
 }

@@ -197,6 +197,20 @@ FetchContent_Declare(json
 FetchContent_MakeAvailable(json)
 
 if (NOT EMSCRIPTEN)
+	set(UUID_SYSTEM_GENERATOR ON CACHE INTERNAL "")
+	FetchContent_Declare(
+		stduuid
+		GIT_REPOSITORY
+			https://github.com/mariusbancila/stduuid
+		GIT_TAG
+			3afe7193facd5d674de709fccc44d5055e144d7a
+		PATCH_COMMAND  git restore . && git apply ${CMAKE_SOURCE_DIR}/third_party/stduuid.patch
+		EXCLUDE_FROM_ALL
+	)
+	FetchContent_MakeAvailable(stduuid)
+endif()
+
+if (NOT EMSCRIPTEN)
 	FetchContent_Declare(
 		nativefiledialog
 		GIT_REPOSITORY
@@ -208,6 +222,8 @@ if (NOT EMSCRIPTEN)
 	FetchContent_MakeAvailable(nativefiledialog) # exposed as nfd
 	zc_install_targets(nfd)
 endif()
+
+find_package(CURL)
 
 #############################################################
 # Allegro
@@ -526,7 +542,14 @@ if (EMSCRIPTEN)
 endif()
 add_library(zcbase STATIC ${zcbase_sources})
 target_link_libraries(zcbase PUBLIC allegro_with_legacy fmt)
-target_include_directories(zcbase PUBLIC src)
+target_include_directories(zcbase PUBLIC src third_party/nonstd/include)
+if(CURL_FOUND)
+	target_sources(zcbase PRIVATE src/base/http.cpp)
+	target_link_libraries(zcbase PUBLIC CURL::libcurl)
+	target_compile_definitions(zcbase PUBLIC HAS_CURL)
+else()
+	message(WARNING "libcurl not found - disabling base/http.cpp")
+endif()
 if(NOT WIN32)
 	target_include_directories(zcbase PUBLIC include/pstream)
 endif()
@@ -677,7 +700,16 @@ add_executable(zplayer ${ZELDA_CORE_SOURCES} ${ZELDA_GUI_SOURCES} ${ZELDA_SPRITE
 target_compile_definitions(zplayer PRIVATE IS_PLAYER)
 set_property(TARGET zplayer PROPERTY VS_DPI_AWARE "PerMonitor")
 target_include_directories(zplayer PRIVATE include/xxhash)
-target_link_libraries(zplayer PRIVATE allegro_with_legacy)
+target_link_libraries(zplayer PRIVATE allegro_with_legacy nlohmann_json::nlohmann_json)
+if (NOT EMSCRIPTEN)
+	target_link_libraries(zplayer PRIVATE stduuid)
+	target_compile_definitions(zplayer PRIVATE HAS_UUID)
+endif()
+if(CURL_FOUND)
+	target_sources(zplayer PRIVATE src/zc/replay_upload.cpp)
+else()
+	message(WARNING "libcurl not found - disabling zc/replay_upload.cpp")
+endif()
 
 if(WIN32)
 	target_link_libraries(zplayer PRIVATE zconsolelogger zcbase zcgui zcsound winmm ${IMAGELIBS} ${ZELDALIBSEXTRA})
@@ -809,7 +841,6 @@ if(WIN32)
 	target_link_options(zupdater PRIVATE "/SUBSYSTEM:WINDOWS")
 endif()
 
-find_package(CURL)
 if(CURL_FOUND AND WIN32)
 	message(STATUS "Using curl for zupdater")
 

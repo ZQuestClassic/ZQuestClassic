@@ -27,8 +27,9 @@ enum ReplayMode
 };
 
 std::string replay_mode_to_string(ReplayMode mode);
-void replay_start(ReplayMode mode_, std::filesystem::path path_, int frame);
-void replay_continue(std::filesystem::path path_);
+std::map<std::string, std::string> replay_load_meta(std::filesystem::path path);
+void replay_start(ReplayMode mode_, std::filesystem::path path, int frame);
+void replay_continue(std::filesystem::path path);
 void replay_poll();
 bool replay_add_snapshot_frame(std::string frames_shorthand);
 void replay_peek_quit();
@@ -51,6 +52,7 @@ void replay_step_cheat(Cheat cheat, int arg1, int arg2, std::string arg3);
 void replay_set_meta(std::string key, std::string value);
 void replay_set_meta(std::string key, int value);
 void replay_set_meta_bool(std::string key, bool value);
+void replay_delete_meta(std::string key);
 std::string replay_get_meta_str(std::string key);
 std::string replay_get_meta_str(std::string key, std::string defaultValue);
 int replay_get_meta_int(std::string key);

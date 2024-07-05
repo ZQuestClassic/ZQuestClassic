@@ -8,9 +8,13 @@ A new save file can be recorded by selecting the `ZC > Replay > Enable recording
 
 At any time, you can playback a replay in the `ZC > Replay` menu to watch it again, and can even take manual control whenever you want. This will not modify any exiting saved games. Note that you currently aren't be able to persist a save file when replaying a `.zplay` from this menu.
 
-Later work on this system may introduce more user-facing features, such as savestates, rewinding, or creating a new game file from a replay.
+Later work on this system may introduce more user-facing features, such as savestates or rewinding.
 
-In the meantime, **a great way to contribute to ZC development** is to enable the recording feature for your new games, and provide us your `.zplay` files. You don't have to finish the game, any amount of playthroughs could be helpful. The more we have, the better coverage our testing system will have, and the fewer regressions/compatability bugs there will be!
+## Help out development by playing quests
+
+**A great way to contribute to ZC development** is to enable the recording feature for new games, and provide us your `.zplay` files. This process can be automated by checking the `ZC > Replay > Auto upload replays` menu option.
+
+You don't have to finish the quest, any amount of playthroughs could be helpful. The more we have, the better coverage our testing system will have, and the fewer regressions/compatability bugs there will be!
 
 ## Technical details
 

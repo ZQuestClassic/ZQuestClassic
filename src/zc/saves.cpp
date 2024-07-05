@@ -2093,7 +2093,7 @@ void saves_copy(int32_t from_index)
 	auto& new_save = saves.emplace_back();
 
 	save_t* from_save_mut;
-	int ret = get_save(from_save_mut, from_index, false);
+	int ret = get_save(from_save_mut, from_index, true);
 	const save_t* from_save = from_save_mut;
 	if (ret)
 	{
@@ -2118,6 +2118,17 @@ void saves_copy(int32_t from_index)
 		{
 			new_save.header->replay_file = create_replay_path_for_save(*new_save.header);
 			std::filesystem::copy(from_save->header->replay_file, new_save.header->replay_file);
+
+			// Need a new UUID - let's just delete it here and a new one when will be generated when
+			// the copy is played for the first time.
+			replay_continue(new_save.header->replay_file);
+			if (replay_has_meta("uuid"))
+			{
+				replay_set_meta("parent_uuid", replay_get_meta_str("uuid"));
+				replay_delete_meta("uuid");
+				replay_save();
+				replay_quit();
+			}
 		}
 		else
 		{
