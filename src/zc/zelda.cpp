@@ -4050,6 +4050,20 @@ int32_t isFullScreen()
     return !is_windowed_mode();
 }
 
+static bool load_replay_file_deffered_called = false;
+static std::string load_replay_file_filename;
+static ReplayMode load_replay_file_mode;
+// Because using "Load Replay" GUI menu can happen while another replay is
+// within an inner game-loop (like scrollscr), which can bleed the old replay
+// into the new one if `replay_start` is called from the GUI control code.
+// Instead, save the information needed to call load_replay_file later.
+void load_replay_file_deferred(ReplayMode mode, std::string replay_file)
+{
+	load_replay_file_deffered_called = true;
+	load_replay_file_mode = mode;
+	load_replay_file_filename = replay_file;
+}
+
 static bool current_session_is_replay = false;
 static void load_replay_file(ReplayMode mode, std::string replay_file, int frame)
 {
@@ -4066,6 +4080,32 @@ static void load_replay_file(ReplayMode mode, std::string replay_file, int frame
 		{
 			testingqst_name = resolved_qst.string();
 		}
+	}
+
+	// TODO: consolidate code from load_quest to resolve a quest file path.
+	if (std::filesystem::path(qst_meta).is_relative() && !std::filesystem::is_regular_file(testingqst_name))
+	{
+		fs::path qstpath_fs = fs::path(qstdir) / fs::path(qst_meta);
+		if (std::filesystem::is_regular_file(qstpath_fs))
+			testingqst_name = qstpath_fs.string();
+	}
+
+	if (!std::filesystem::is_regular_file(testingqst_name))
+	{
+		enter_sys_pal();
+		InfoDialog("Error loading replay", fmt::format("File not found: {}", testingqst_name)).show();
+		exit_sys_pal();
+
+		replay_quit();
+		testingqst_name = "";
+
+		Z_error("File not found: %s\n", testingqst_name.c_str());
+		if (!load_replay_file_deffered_called)
+		{
+			// This was called from the CLI, so abort.
+			abort();
+		}
+		return;
 	}
 
 	if (replay_get_meta_bool("test_mode"))
@@ -4087,20 +4127,6 @@ static void load_replay_file(ReplayMode mode, std::string replay_file, int frame
 	// Older quests don't have a misc section, and QMisc isn't set by default except via loading the default quest.
 	// So do that here, since not all code paths to this will have done it already.
 	init_NES_mode();
-}
-
-static bool load_replay_file_deffered_called = false;
-static std::string load_replay_file_filename;
-static ReplayMode load_replay_file_mode;
-// Because using "Load Replay" GUI menu can happen while another replay is
-// within an inner game-loop (like scrollscr), which can bleed the old replay
-// into the new one if `replay_start` is called from the GUI control code.
-// Instead, save the information needed to call load_replay_file later.
-void load_replay_file_deferred(ReplayMode mode, std::string replay_file)
-{
-	load_replay_file_deffered_called = true;
-	load_replay_file_mode = mode;
-	load_replay_file_filename = replay_file;
 }
 
 void zc_game_srand(int seed, zc_randgen* rng)
