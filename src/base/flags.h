@@ -1,7 +1,7 @@
 // Defines operator overloads for bitwise operators that work on enum classes.
 
-#ifndef _BASE_FLAGS_H_
-#define _BASE_FLAGS_H_
+#ifndef BASE_FLAGS_H_
+#define BASE_FLAGS_H_
 
 #include <type_traits>
 

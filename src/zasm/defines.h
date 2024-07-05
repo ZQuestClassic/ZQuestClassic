@@ -1,5 +1,5 @@
-#ifndef _ZASM_DEFINES_H_
-#define _ZASM_DEFINES_H_
+#ifndef ZASM_DEFINES_H_
+#define ZASM_DEFINES_H_
 
 // Defines for the ZASM commands
 enum ASM_DEFINE

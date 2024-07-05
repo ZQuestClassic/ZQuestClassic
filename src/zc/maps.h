@@ -1,5 +1,5 @@
-#ifndef _MAPS_H_
-#define _MAPS_H_
+#ifndef MAPS_H_
+#define MAPS_H_
 #include "base/zdefs.h"
 
 struct newcombo;

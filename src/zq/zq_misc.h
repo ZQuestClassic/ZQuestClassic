@@ -1,5 +1,5 @@
-#ifndef _ZQ_MISC_H_
-#define _ZQ_MISC_H_
+#ifndef ZQ_MISC_H_
+#define ZQ_MISC_H_
 
 #include "base/zc_alleg.h"
 #include "base/zdefs.h"

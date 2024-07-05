@@ -1,5 +1,5 @@
-#ifndef ZC_NEWMENU_H
-#define ZC_NEWMENU_H
+#ifndef ZC_NEWMENU_H_
+#define ZC_NEWMENU_H_
 
 #include "base/headers.h"
 #include "base/containers.h"

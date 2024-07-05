@@ -1,5 +1,5 @@
-#ifndef ZC_PROCESS_MANAGEMENT_H
-#define ZC_PROCESS_MANAGEMENT_H
+#ifndef ZC_PROCESS_MANAGEMENT_H_
+#define ZC_PROCESS_MANAGEMENT_H_
 
 #include <cstdio>
 #include <string>

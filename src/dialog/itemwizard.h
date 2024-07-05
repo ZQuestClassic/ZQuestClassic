@@ -1,5 +1,5 @@
-#ifndef ZC_DIALOG_ITEMWIZARD_H
-#define ZC_DIALOG_ITEMWIZARD_H
+#ifndef ZC_DIALOG_ITEMWIZARD_H_
+#define ZC_DIALOG_ITEMWIZARD_H_
 
 #include "itemeditor.h"
 #include <gui/switcher.h>

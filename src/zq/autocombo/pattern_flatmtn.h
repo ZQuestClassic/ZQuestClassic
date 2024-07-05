@@ -1,5 +1,5 @@
-#ifndef _AUTOPATTERN_FLATMTN_H_
-#define _AUTOPATTERN_FLATMTN_H_
+#ifndef AUTOPATTERN_FLATMTN_H_
+#define AUTOPATTERN_FLATMTN_H_
 
 #include <functional>
 #include "base/autocombo.h"

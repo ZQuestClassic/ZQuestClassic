@@ -1,5 +1,5 @@
-#ifndef ZC_DIALOG_FFCDLG_H
-#define ZC_DIALOG_FFCDLG_H
+#ifndef ZC_DIALOG_FFCDLG_H_
+#define ZC_DIALOG_FFCDLG_H_
 
 #include "ffc.h"
 #include <gui/dialog.h>

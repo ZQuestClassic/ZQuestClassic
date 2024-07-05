@@ -1,5 +1,5 @@
-#ifndef ZSCRIPT_TYPES_H
-#define ZSCRIPT_TYPES_H
+#ifndef ZSCRIPT_TYPES_H_
+#define ZSCRIPT_TYPES_H_
 
 #include <functional>
 #include <iostream>

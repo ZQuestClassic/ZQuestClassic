@@ -1,5 +1,5 @@
-#ifndef _RENDER_MINIMAP_H_
-#define _RENDER_MINIMAP_H_
+#ifndef RENDER_MINIMAP_H_
+#define RENDER_MINIMAP_H_
 
 #include "base/render.h"
 

@@ -1,5 +1,5 @@
-#ifndef _ZC_PAL_H_
-#define _ZC_PAL_H_
+#ifndef ZC_PAL_H_
+#define ZC_PAL_H_
 
 #include "base/zc_alleg.h"
 #include "base/zdefs.h"

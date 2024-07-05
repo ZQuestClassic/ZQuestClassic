@@ -1,5 +1,5 @@
-#ifndef _FFASM_H_
-#define _FFASM_H_
+#ifndef FFASM_H_
+#define FFASM_H_
 
 #include "base/zdefs.h"
 #include <utility>

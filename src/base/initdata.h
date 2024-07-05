@@ -1,5 +1,5 @@
-#ifndef _INITDATA_H_
-#define _INITDATA_H_
+#ifndef INITDATA_H_
+#define INITDATA_H_
 
 #include "base/headers.h"
 #include "base/containers.h"

@@ -1,5 +1,5 @@
-#ifndef ZC_DIALOG_QRS_H
-#define ZC_DIALOG_QRS_H
+#ifndef ZC_DIALOG_QRS_H_
+#define ZC_DIALOG_QRS_H_
 
 #include "base/qrs.h"
 #include <gui/dialog.h>

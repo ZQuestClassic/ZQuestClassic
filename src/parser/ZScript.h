@@ -1,5 +1,5 @@
-#ifndef ZSCRIPT_ZSCRIPT_H
-#define ZSCRIPT_ZSCRIPT_H
+#ifndef ZSCRIPT_ZSCRIPT_H_
+#define ZSCRIPT_ZSCRIPT_H_
 
 #include <vector>
 #include <map>

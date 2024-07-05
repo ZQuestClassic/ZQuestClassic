@@ -4,8 +4,8 @@
  * Author: Emily
  */
 
-#ifndef REGISTRATIONVISITOR_H
-#define REGISTRATIONVISITOR_H
+#ifndef REGISTRATIONVISITOR_H_
+#define REGISTRATIONVISITOR_H_
 
 #include "ASTVisitors.h"
 #include "DataStructs.h"

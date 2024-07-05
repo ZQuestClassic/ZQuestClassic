@@ -1,5 +1,5 @@
-#ifndef ZC_DIALOG_COMPILEZSCRIPT_H
-#define ZC_DIALOG_COMPILEZSCRIPT_H
+#ifndef ZC_DIALOG_COMPILEZSCRIPT_H_
+#define ZC_DIALOG_COMPILEZSCRIPT_H_
 
 #include <gui/dialog.h>
 #include "gui/radioset.h"

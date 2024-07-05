@@ -1,5 +1,5 @@
-#ifndef ZC_GUI_TOPLEVEL_H
-#define ZC_GUI_TOPLEVEL_H
+#ifndef ZC_GUI_TOPLEVEL_H_
+#define ZC_GUI_TOPLEVEL_H_
 
 #include "gui/widget.h"
 #include "gui/key.h"

@@ -1,5 +1,5 @@
-#ifndef ZC_DIALOG_SUBSCR_SETTINGS_H
-#define ZC_DIALOG_SUBSCR_SETTINGS_H
+#ifndef ZC_DIALOG_SUBSCR_SETTINGS_H_
+#define ZC_DIALOG_SUBSCR_SETTINGS_H_
 
 #include <gui/dialog.h>
 #include <gui/window.h>

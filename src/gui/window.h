@@ -1,5 +1,5 @@
-#ifndef ZC_GUI_WINDOW_H
-#define ZC_GUI_WINDOW_H
+#ifndef ZC_GUI_WINDOW_H_
+#define ZC_GUI_WINDOW_H_
 
 #include "gui/dialog_ref.h"
 #include "gui/top_level.h"

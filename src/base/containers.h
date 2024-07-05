@@ -1,5 +1,5 @@
-#ifndef _CONTAINERS_H_
-#define _CONTAINERS_H_
+#ifndef CONTAINERS_H_
+#define CONTAINERS_H_
 
 #include "base/headers.h"
 #include <array>

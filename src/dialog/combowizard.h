@@ -1,5 +1,5 @@
-#ifndef ZC_DIALOG_COMBOWIZARD_H
-#define ZC_DIALOG_COMBOWIZARD_H
+#ifndef ZC_DIALOG_COMBOWIZARD_H_
+#define ZC_DIALOG_COMBOWIZARD_H_
 
 #include "comboeditor.h"
 #include <gui/switcher.h>

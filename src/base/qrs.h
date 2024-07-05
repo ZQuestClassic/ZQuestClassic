@@ -1,5 +1,5 @@
-#ifndef _QRS_H_
-#define _QRS_H_
+#ifndef BASE_QRS_H_
+#define BASE_QRS_H_
 
 #include "base/ints.h"
 

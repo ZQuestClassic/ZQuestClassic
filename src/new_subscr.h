@@ -1,5 +1,5 @@
-#ifndef _NEW_SUBSCR_H_
-#define _NEW_SUBSCR_H_
+#ifndef NEW_SUBSCR_H_
+#define NEW_SUBSCR_H_
 
 #include "base/ints.h"
 #include "base/zc_alleg.h"

@@ -1,5 +1,5 @@
-#ifndef ZC_DLG_SUBSCR_MACROS_H
-#define ZC_DLG_SUBSCR_MACROS_H
+#ifndef ZC_DLG_SUBSCR_MACROS_H_
+#define ZC_DLG_SUBSCR_MACROS_H_
 
 
 #define NUM_FIELD(var,_min,_max) \

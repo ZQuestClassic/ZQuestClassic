@@ -1,5 +1,5 @@
-#ifndef _zscript_rendertarget_h_
-#define _zscript_rendertarget_h_
+#ifndef ZSCRIPT_RENDERTARGET_H_
+#define ZSCRIPT_RENDERTARGET_H_
 
 #include <allegro.h>
 

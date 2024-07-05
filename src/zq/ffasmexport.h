@@ -1,5 +1,5 @@
-#ifndef ZASM_EXPORT_H
-#define ZASM_EXPORT_H
+#ifndef ZASM_EXPORT_H_
+#define ZASM_EXPORT_H_
 
 #include "parser/Compiler.h"
 #include "base/zdefs.h"

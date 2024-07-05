@@ -1,5 +1,5 @@
-#ifndef ZC_DIALOG_SCREEN_NOTES_H
-#define ZC_DIALOG_SCREEN_NOTES_H
+#ifndef ZC_DIALOG_SCREEN_NOTES_H_
+#define ZC_DIALOG_SCREEN_NOTES_H_
 
 #include <gui/dialog.h>
 #include <gui/label.h>

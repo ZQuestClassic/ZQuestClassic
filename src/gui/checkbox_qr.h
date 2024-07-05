@@ -1,5 +1,5 @@
-#ifndef ZC_GUI_QRCHECKBOX_H
-#define ZC_GUI_QRCHECKBOX_H
+#ifndef ZC_GUI_QRCHECKBOX_H_
+#define ZC_GUI_QRCHECKBOX_H_
 
 #include "gui/widget.h"
 #include "gui/checkbox.h"

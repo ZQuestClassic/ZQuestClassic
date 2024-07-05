@@ -1,5 +1,5 @@
-#ifndef ZCGUI_PROPS_H
-#define ZCGUI_PROPS_H
+#ifndef ZCGUI_PROPS_H_
+#define ZCGUI_PROPS_H_
 
 namespace GUI::Props
 {

@@ -1,5 +1,5 @@
-#ifndef _ZASM_SERIALIZE_H_
-#define _ZASM_SERIALIZE_H_
+#ifndef ZASM_SERIALIZE_H_
+#define ZASM_SERIALIZE_H_
 
 #include "base/ints.h"
 #include "base/zdefs.h"

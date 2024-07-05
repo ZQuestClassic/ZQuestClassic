@@ -1,5 +1,5 @@
-#ifndef _PARTICLES_H_
-#define _PARTICLES_H_
+#ifndef PARTICLES_H_
+#define PARTICLES_H_
 
 #include "base/zdefs.h"
 #include "base/zfix.h"

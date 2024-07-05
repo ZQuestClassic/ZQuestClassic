@@ -1,5 +1,5 @@
-#ifndef _ZC_FFC_H_
-#define _ZC_FFC_H_
+#ifndef ZC_FFC_H_
+#define ZC_FFC_H_
 
 #include "ffc.h"
 

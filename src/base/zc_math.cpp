@@ -1,5 +1,5 @@
-#ifndef __zc_math_h_
-#define __zc_math_h_
+#ifndef ZC_MATH_H_
+#define ZC_MATH_H_
 
 #include <math.h>
 #include "base/sin1.h"

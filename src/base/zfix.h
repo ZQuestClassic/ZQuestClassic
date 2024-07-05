@@ -1,8 +1,8 @@
 /*
  * Custom ZFix: because Allegro's zfix is not precise
  */
-#ifndef ZFIX_H
-#define ZFIX_H
+#ifndef ZFIX_H_
+#define ZFIX_H_
 #include <cstdint>
 #include <math.h>
 #include <limits>

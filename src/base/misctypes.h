@@ -1,5 +1,5 @@
-#ifndef _MISCTYPES_H_
-#define _MISCTYPES_H_
+#ifndef MISCTYPES_H_
+#define MISCTYPES_H_
 
 #include "base/ints.h"
 #include "base/general.h"

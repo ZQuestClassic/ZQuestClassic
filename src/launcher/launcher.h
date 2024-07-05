@@ -1,5 +1,5 @@
-#ifndef ZC_LAUNCHER_H
-#define ZC_LAUNCHER_H
+#ifndef ZC_LAUNCHER_H_
+#define ZC_LAUNCHER_H_
 
 #include "base/zdefs.h"
 #include "base/jwinfsel.h"

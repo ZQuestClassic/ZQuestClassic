@@ -1,5 +1,5 @@
-#ifndef ZC_GUI_KEY_H
-#define ZC_GUI_KEY_H
+#ifndef ZC_GUI_KEY_H_
+#define ZC_GUI_KEY_H_
 
 #include <utility>
 

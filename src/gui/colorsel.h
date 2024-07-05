@@ -1,5 +1,5 @@
-#ifndef ZC_GUI_COLORSEL_H
-#define ZC_GUI_COLORSEL_H
+#ifndef ZC_GUI_COLORSEL_H_
+#define ZC_GUI_COLORSEL_H_
 
 #include "gui/widget.h"
 #include "gui/dialog_ref.h"

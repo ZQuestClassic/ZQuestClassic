@@ -1,5 +1,5 @@
-#ifndef _ITEMS_H_
-#define _ITEMS_H_
+#ifndef ITEMS_H_
+#define ITEMS_H_
 
 #include "sprite.h"
 #include "base/zdefs.h"

@@ -1,5 +1,5 @@
-#ifndef _ZQ_CLASS_H_
-#define _ZQ_CLASS_H_
+#ifndef ZQ_CLASS_H_
+#define ZQ_CLASS_H_
 
 #include "base/zdefs.h"
 #include "base/mapscr.h"

@@ -1,5 +1,5 @@
-#ifndef ZC_GUI_MACROS_H
-#define ZC_GUI_MACROS_H
+#ifndef ZC_GUI_MACROS_H_
+#define ZC_GUI_MACROS_H_
 
 #include <type_traits>
 #include <utility>

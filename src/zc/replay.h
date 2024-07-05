@@ -1,5 +1,5 @@
-#ifndef _REPLAY_H_
-#define _REPLAY_H_
+#ifndef REPLAY_H_
+#define REPLAY_H_
 
 #include "base/random.h"
 #include "zc/cheats.h"

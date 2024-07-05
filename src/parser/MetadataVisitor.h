@@ -1,5 +1,5 @@
-#ifndef META_DATA_VISITOR_H
-#define META_DATA_VISITOR_H
+#ifndef META_DATA_VISITOR_H_
+#define META_DATA_VISITOR_H_
 
 #include "ASTVisitors.h"
 #include "ZScript.h"

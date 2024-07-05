@@ -1,5 +1,5 @@
-#ifndef ZC_GUI_LISTDATA_H
-#define ZC_GUI_LISTDATA_H
+#ifndef ZC_GUI_LISTDATA_H_
+#define ZC_GUI_LISTDATA_H_
 
 #include "gui/jwin.h"
 #include <functional>

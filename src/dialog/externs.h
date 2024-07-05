@@ -1,5 +1,5 @@
-#ifndef ZC_DIALOG_EXTERNS_H
-#define ZC_DIALOG_EXTERNS_H
+#ifndef ZC_DIALOG_EXTERNS_H_
+#define ZC_DIALOG_EXTERNS_H_
 
 #include "base/headers.h"
 #include "base/containers.h"

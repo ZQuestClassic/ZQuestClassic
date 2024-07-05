@@ -1,5 +1,5 @@
-#ifndef _MUSIC_PLAYBACK_H_
-#define _MUSIC_PLAYBACK_H_
+#ifndef MUSIC_PLAYBACK_H_
+#define MUSIC_PLAYBACK_H_
 
 #include <cstdint>
 

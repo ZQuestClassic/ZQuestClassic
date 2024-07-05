@@ -1,5 +1,5 @@
-#ifndef _MIDI_H_
-#define _MIDI_H_
+#ifndef MIDI_H_
+#define MIDI_H_
 #include "base/zdefs.h"
 /*  Allegro MIDI struct
 

@@ -1,5 +1,5 @@
-#ifndef _ZABOUT_H_
-#define _ZABOUT_H_
+#ifndef ZABOUT_H_
+#define ZABOUT_H_
 
 int getProgramAlphaVer();
 char const* getProgramAlphaVerStr();

@@ -1,5 +1,5 @@
-#ifndef LIBRARY_SYMBOLS_H
-#define LIBRARY_SYMBOLS_H
+#ifndef LIBRARY_SYMBOLS_H_
+#define LIBRARY_SYMBOLS_H_
 
 #include "DataStructs.h"
 

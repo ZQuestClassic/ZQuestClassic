@@ -1,5 +1,5 @@
-#ifndef _ZC_TITLE_H_
-#define _ZC_TITLE_H_
+#ifndef ZC_TITLE_H_
+#define ZC_TITLE_H_
 
 extern DIALOG gamemode_dlg[];
 

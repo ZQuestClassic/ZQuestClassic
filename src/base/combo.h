@@ -1,5 +1,5 @@
-#ifndef _COMBO_H_
-#define _COMBO_H_
+#ifndef COMBO_H_
+#define COMBO_H_
 
 #include "base/ints.h"
 #include "base/zfix.h"

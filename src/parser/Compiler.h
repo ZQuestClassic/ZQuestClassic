@@ -1,5 +1,5 @@
-#ifndef COMPILER_H
-#define COMPILER_H
+#ifndef COMPILER_H_
+#define COMPILER_H_
 
 #include "CompilerUtils.h"
 #include "Types.h"

@@ -1,5 +1,5 @@
-#ifndef ZSCRIPT_DATASTRUCTS_H
-#define ZSCRIPT_DATASTRUCTS_H
+#ifndef ZSCRIPT_DATASTRUCTS_H_
+#define ZSCRIPT_DATASTRUCTS_H_
 
 #include <vector>
 #include "AST.h"

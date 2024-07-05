@@ -1,5 +1,5 @@
-#ifndef ZC_DIALOG_CHEATDLG_H
-#define ZC_DIALOG_CHEATDLG_H
+#ifndef ZC_DIALOG_CHEATDLG_H_
+#define ZC_DIALOG_CHEATDLG_H_
 
 #include <gui/dialog.h>
 #include <gui/label.h>

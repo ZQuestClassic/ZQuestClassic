@@ -1,5 +1,5 @@
-#ifndef _GUYS_H_
-#define _GUYS_H_
+#ifndef GUYS_H_
+#define GUYS_H_
 
 #include <list>
 #include "sprite.h"

@@ -1,5 +1,5 @@
-#ifndef _GAMEDATA_H_
-#define _GAMEDATA_H_
+#ifndef GAMEDATA_H_
+#define GAMEDATA_H_
 
 #include "base/general.h"
 #include "base/ints.h"

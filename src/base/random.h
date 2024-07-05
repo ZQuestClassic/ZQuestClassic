@@ -1,5 +1,5 @@
-#ifndef RANDOM_H
-#define RANDOM_H
+#ifndef BASE_RANDOM_H_
+#define BASE_RANDOM_H_
 
 #include "base/zdefs.h"
 #include <random>

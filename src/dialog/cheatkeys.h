@@ -1,5 +1,5 @@
-#ifndef ZC_DIALOG_CHEATKEYS_H
-#define ZC_DIALOG_CHEATKEYS_H
+#ifndef ZC_DIALOG_CHEATKEYS_H_
+#define ZC_DIALOG_CHEATKEYS_H_
 
 #include <gui/dialog.h>
 #include <gui/text_field.h>

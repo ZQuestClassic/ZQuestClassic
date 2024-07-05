@@ -1,5 +1,5 @@
-#ifndef _ZC_SYS_H_
-#define _ZC_SYS_H_
+#ifndef ZC_SYS_H_
+#define ZC_SYS_H_
 
 #include "base/zdefs.h"
 #include "base/jwinfsel.h"

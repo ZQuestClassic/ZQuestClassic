@@ -1,5 +1,5 @@
-#ifndef COMPILE_ERROR_H
-#define COMPILE_ERROR_H
+#ifndef COMPILE_ERROR_H_
+#define COMPILE_ERROR_H_
 
 #include <string>
 #include "CompilerUtils.h"

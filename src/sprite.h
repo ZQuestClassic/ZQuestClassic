@@ -1,5 +1,5 @@
-#ifndef _SPRITE_H_
-#define _SPRITE_H_
+#ifndef SPRITE_H_
+#define SPRITE_H_
 
 #include "base/zc_alleg.h"
 #include "base/headers.h"

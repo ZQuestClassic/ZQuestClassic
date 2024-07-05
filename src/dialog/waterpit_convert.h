@@ -1,5 +1,5 @@
-#ifndef ZC_DIALOG_PitConvert_H
-#define ZC_DIALOG_PitConvert_H
+#ifndef ZC_DIALOG_PITCONVERT_H_
+#define ZC_DIALOG_PITCONVERT_H_
 
 #include <gui/dialog.h>
 #include "gui/radioset.h"

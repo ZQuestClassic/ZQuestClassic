@@ -1,5 +1,5 @@
-#ifndef ZSCRIPT_AST_H
-#define ZSCRIPT_AST_H
+#ifndef ZSCRIPT_AST_H_
+#define ZSCRIPT_AST_H_
 
 // Declare for flex and bison.
 namespace ZScript

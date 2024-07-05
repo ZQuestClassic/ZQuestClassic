@@ -1,5 +1,5 @@
-#ifndef _DMAP_H_
-#define _DMAP_H_
+#ifndef DMAP_H_
+#define DMAP_H_
 
 #include "base/general.h"
 #include "base/ints.h"

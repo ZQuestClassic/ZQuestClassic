@@ -1,5 +1,5 @@
-#ifndef _AUTOPATTERN_REPLACE_H_
-#define _AUTOPATTERN_REPLACE_H_
+#ifndef AUTOPATTERN_REPLACE_H_
+#define AUTOPATTERN_REPLACE_H_
 
 #include <functional>
 #include "base/autocombo.h"

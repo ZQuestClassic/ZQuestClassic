@@ -1,5 +1,5 @@
-#ifndef _AUTOPATTERN_DGNCARVE_H_
-#define _AUTOPATTERN_DGNCARVE_H_
+#ifndef AUTOPATTERN_DGNCARVE_H_
+#define AUTOPATTERN_DGNCARVE_H_
 
 #include <functional>
 #include "base/autocombo.h"

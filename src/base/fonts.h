@@ -1,5 +1,5 @@
-#ifndef _FONTS_H_
-#define _FONTS_H_
+#ifndef FONTS_H_
+#define FONTS_H_
 
 #include "base/zc_alleg.h"
 #include "base/ints.h"

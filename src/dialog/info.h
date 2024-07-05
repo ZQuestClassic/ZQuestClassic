@@ -1,5 +1,5 @@
-#ifndef ZC_DIALOG_INFO_H
-#define ZC_DIALOG_INFO_H
+#ifndef ZC_DIALOG_INFO_H_
+#define ZC_DIALOG_INFO_H_
 
 #include "base/qrs.h"
 #include "base/headers.h"

@@ -1,5 +1,5 @@
-#ifndef ZSCRIPT_ASTVISITORS_H
-#define ZSCRIPT_ASTVISITORS_H
+#ifndef ZSCRIPT_ASTVISITORS_H_
+#define ZSCRIPT_ASTVISITORS_H_
 
 #include "AST.h"
 #include "CompileError.h"

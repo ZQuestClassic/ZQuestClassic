@@ -1,5 +1,5 @@
-#ifndef _MOVEINFO_H_
-#define _MOVEINFO_H_
+#ifndef MOVEINFO_H_
+#define MOVEINFO_H_
 
 #ifdef IS_EDITOR
 

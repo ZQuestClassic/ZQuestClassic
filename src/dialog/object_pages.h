@@ -1,5 +1,5 @@
-#ifndef ZC_DIALOG_OBJECTPAGES_H
-#define ZC_DIALOG_OBJECTPAGES_H
+#ifndef ZC_DIALOG_OBJECTPAGES_H_
+#define ZC_DIALOG_OBJECTPAGES_H_
 
 #include "base/zc_alleg.h"
 #include "base/ints.h"

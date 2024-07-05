@@ -1,7 +1,7 @@
 // Various utility functions for the compiler.
 
-#ifndef ZSCRIPT_COMPILER_UTILS_H
-#define ZSCRIPT_COMPILER_UTILS_H
+#ifndef ZSCRIPT_COMPILER_UTILS_H_
+#define ZSCRIPT_COMPILER_UTILS_H_
 
 // prevent compiler errors
 #ifdef ASTDINT_H

@@ -1,5 +1,5 @@
-#ifndef _ZQUEST_H_
-#define _ZQUEST_H_
+#ifndef ZQUEST_H_
+#define ZQUEST_H_
 
 #include <string>
 #include <vector>

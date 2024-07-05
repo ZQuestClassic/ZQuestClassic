@@ -1,5 +1,5 @@
-#ifndef ZC_GUI_WIDGET_H
-#define ZC_GUI_WIDGET_H
+#ifndef ZC_GUI_WIDGET_H_
+#define ZC_GUI_WIDGET_H_
 
 #include "gui/common.h"
 #include "dialog_message.h"

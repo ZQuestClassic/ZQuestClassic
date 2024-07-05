@@ -1,5 +1,5 @@
-#ifndef _ZELDA_H_
-#define _ZELDA_H_
+#ifndef ZELDA_H_
+#define ZELDA_H_
 
 /*********************************/
 /********** Definitions **********/

@@ -1,5 +1,5 @@
-#ifndef _BASE_FILES_H_
-#define _BASE_FILES_H_
+#ifndef BASE_FILES_H_
+#define BASE_FILES_H_
 
 #include "base/jwinfsel.h"
 #include <optional>

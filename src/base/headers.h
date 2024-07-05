@@ -1,5 +1,5 @@
-#ifndef _HEADERS_H_
-#define _HEADERS_H_
+#ifndef HEADERS_H_
+#define HEADERS_H_
 
 #include <optional>
 #include <string>

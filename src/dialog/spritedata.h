@@ -1,5 +1,5 @@
-#ifndef ZC_DIALOG_SPRITEDATA_H
-#define ZC_DIALOG_SPRITEDATA_H
+#ifndef ZC_DIALOG_SPRITEDATA_H_
+#define ZC_DIALOG_SPRITEDATA_H_
 
 #include <gui/dialog.h>
 #include <gui/drop_down_list.h>

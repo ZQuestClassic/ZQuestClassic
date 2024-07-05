@@ -1,5 +1,5 @@
-#ifndef _JWIN_H_
-#define _JWIN_H_
+#ifndef JWIN_H_
+#define JWIN_H_
 
 #include "base/zdefs.h"
 #include "base/zc_alleg.h"

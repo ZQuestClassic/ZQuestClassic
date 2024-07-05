@@ -1,5 +1,5 @@
-#ifndef _ZC_COLORS_H_
-#define _ZC_COLORS_H_
+#ifndef ZC_COLORS_H_
+#define ZC_COLORS_H_
 
 #include "base/zdefs.h"
 

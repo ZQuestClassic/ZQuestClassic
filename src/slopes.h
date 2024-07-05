@@ -1,5 +1,5 @@
-#ifndef _SLOPES_H_
-#define _SLOPES_H_
+#ifndef SLOPES_H_
+#define SLOPES_H_
 
 #include "base/zfix.h"
 #include "ffc.h"

@@ -1,5 +1,5 @@
-#ifndef _ZC_INIT_H_
-#define _ZC_INIT_H_
+#ifndef ZC_INIT_H_
+#define ZC_INIT_H_
 
 #include <string>
 #include "base/initdata.h"

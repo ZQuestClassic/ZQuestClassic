@@ -1,5 +1,5 @@
-#ifndef _ZSCRIPT_SYMBOLS_H
-#define _ZSCRIPT_SYMBOLS_H
+#ifndef ZSCRIPT_SYMBOLS_H_
+#define ZSCRIPT_SYMBOLS_H_
 
 #include "parser/ByteCode.h"
 #include "parser/parserDefs.h"

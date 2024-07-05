@@ -1,5 +1,5 @@
-#ifndef _CPOS_INFO_H_
-#define _CPOS_INFO_H_
+#ifndef CPOS_INFO_H_
+#define CPOS_INFO_H_
 
 #include "base/ints.h"
 #include "base/containers.h"

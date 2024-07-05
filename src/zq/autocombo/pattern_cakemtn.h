@@ -1,5 +1,5 @@
-#ifndef _AUTOPATTERN_CAKEMTN_H_
-#define _AUTOPATTERN_CAKEMTN_H_
+#ifndef AUTOPATTERN_CAKEMTN_H_
+#define AUTOPATTERN_CAKEMTN_H_
 
 #include <functional>
 #include "base/autocombo.h"

@@ -1,5 +1,5 @@
-#ifndef _ZC_RENDER_TREE_H_
-#define _ZC_RENDER_TREE_H_
+#ifndef ZC_RENDER_TREE_H_
+#define ZC_RENDER_TREE_H_
 
 #include "base/render.h"
 

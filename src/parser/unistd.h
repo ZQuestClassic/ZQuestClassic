@@ -5,8 +5,8 @@
  * unistd.h maps (roughly) to io.h
  */
 
-#ifndef _UNISTD_H
-#define _UNISTD_H
+#ifndef UNISTD_H_
+#define UNISTD_H_
 
 #include <io.h>
 #include <process.h>
@@ -31,7 +31,7 @@ int32_t ftruncate(int32_t, off_t);
 }
 #endif
 
-#endif /* _UNISTD_H */
+#endif /* UNISTD_H_ */
 
 #endif //_MSC_VER
 

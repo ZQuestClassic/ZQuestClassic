@@ -1,5 +1,5 @@
-#ifndef _AUTOPATTERN_DORMTN_H_
-#define _AUTOPATTERN_DORMTN_H_
+#ifndef AUTOPATTERN_DORMTN_H_
+#define AUTOPATTERN_DORMTN_H_
 
 #include <functional>
 #include "base/autocombo.h"

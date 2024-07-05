@@ -1,5 +1,5 @@
-#ifndef BYTECODE_H
-#define BYTECODE_H
+#ifndef BYTECODE_H_
+#define BYTECODE_H_
 
 #include "zasm/defines.h"
 #include "parser/Opcode.h"

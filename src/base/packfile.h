@@ -1,5 +1,5 @@
-#ifndef _PACKFILE_H_
-#define _PACKFILE_H_
+#ifndef PACKFILE_H_
+#define PACKFILE_H_
 
 #include "base/zc_alleg.h"
 #include "base/ints.h"

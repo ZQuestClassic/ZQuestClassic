@@ -1,5 +1,5 @@
-#ifndef _PARSERDEFS_H_
-#define _PARSERDEFS_H_
+#ifndef PARSERDEFS_H_
+#define PARSERDEFS_H_
 
 #include "base/zdefs.h"
 #include "base/headers.h"

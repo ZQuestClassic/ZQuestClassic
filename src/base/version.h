@@ -1,5 +1,5 @@
-#ifndef BASE_VERSION_H
-#define BASE_VERSION_H
+#ifndef BASE_VERSION_H_
+#define BASE_VERSION_H_
 
 struct ZCVersion {
 	const char* version_string;

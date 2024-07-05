@@ -1,5 +1,5 @@
-#ifndef _SUBSCR_H_
-#define _SUBSCR_H_
+#ifndef SUBSCR_H_
+#define SUBSCR_H_
 
 #include "sprite.h"
 #include "items.h"

@@ -1,5 +1,5 @@
-#ifndef ZC_DIALOG_TILESETWIZARD_H
-#define ZC_DIALOG_TILESETWIZARD_H
+#ifndef ZC_DIALOG_TILESETWIZARD_H_
+#define ZC_DIALOG_TILESETWIZARD_H_
 
 #include <gui/dialog.h>
 #include <gui/checkbox.h>

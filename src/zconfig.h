@@ -1,5 +1,5 @@
-#ifndef ZC_ZCONFIG_H
-#define ZC_ZCONFIG_H
+#ifndef ZC_ZCONFIG_H_
+#define ZC_ZCONFIG_H_
 
 #include "base/zapp.h"
 

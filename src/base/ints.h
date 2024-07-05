@@ -1,5 +1,5 @@
-#ifndef _INTS_H_
-#define _INTS_H_
+#ifndef INTS_H_
+#define INTS_H_
 
 #include <stdint.h>
 #include <cstring>

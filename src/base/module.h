@@ -1,5 +1,5 @@
-#ifndef _ZC_MODULE_H_
-#define _ZC_MODULE_H_
+#ifndef ZC_MODULE_H_
+#define ZC_MODULE_H_
 
 class ZModule
 {

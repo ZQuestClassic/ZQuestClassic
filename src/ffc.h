@@ -1,5 +1,5 @@
-#ifndef _FFC_H_
-#define _FFC_H_
+#ifndef FFC_H_
+#define FFC_H_
 
 #include "base/zdefs.h"
 #include "base/cpos_info.h"

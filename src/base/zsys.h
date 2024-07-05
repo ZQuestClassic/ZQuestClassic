@@ -2,8 +2,8 @@
 #include <conio.h>
 #endif
 
-#ifndef _ZSYS_H_
-#define _ZSYS_H_
+#ifndef ZSYS_H_
+#define ZSYS_H_
 
 #include "base/zdefs.h"
 #include "gui/jwin.h"

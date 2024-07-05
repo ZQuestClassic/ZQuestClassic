@@ -1,5 +1,5 @@
-#ifndef _HOTKEY_H_
-#define _HOTKEY_H_
+#ifndef HOTKEY_H_
+#define HOTKEY_H_
 
 #include "base/zc_alleg.h"
 #include <string>

@@ -1,5 +1,5 @@
-#ifndef _MAPSCR_H_
-#define _MAPSCR_H_
+#ifndef MAPSCR_H_
+#define MAPSCR_H_
 
 #include "base/zdefs.h"
 #include "ffc.h"

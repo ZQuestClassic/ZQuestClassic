@@ -1,5 +1,5 @@
-#ifndef _COMBOS_H_
-#define _COMBOS_H_
+#ifndef COMBOS_H_
+#define COMBOS_H_
 
 #include "base/zdefs.h"
 #include "base/cpos_info.h"

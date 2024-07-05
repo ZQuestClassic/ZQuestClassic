@@ -1,5 +1,5 @@
-#ifndef _FFSCRIPT_H_
-#define _FFSCRIPT_H_
+#ifndef FFSCRIPT_H_
+#define FFSCRIPT_H_
 
 #include "base/zdefs.h"
 #include "base/initdata.h"

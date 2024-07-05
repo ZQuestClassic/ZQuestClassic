@@ -1,8 +1,8 @@
 /**
  * A file for basic utility functions
  */
-#ifndef _UTIL_H_
-#define _UTIL_H_
+#ifndef UTIL_H_
+#define UTIL_H_
 
 #include "base/zdefs.h"
 #include <sstream>

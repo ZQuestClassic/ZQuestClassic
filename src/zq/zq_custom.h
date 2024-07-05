@@ -1,5 +1,5 @@
-#ifndef _ZQ_CUSTOM_H_
-#define _ZQ_CUSTOM_H_
+#ifndef ZQ_CUSTOM_H_
+#define ZQ_CUSTOM_H_
 
 #include "items.h"
 

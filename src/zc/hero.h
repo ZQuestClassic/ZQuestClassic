@@ -1,5 +1,5 @@
-#ifndef _HERO_H_
-#define _HERO_H_
+#ifndef HERO_H_
+#define HERO_H_
 
 #include "base/zc_alleg.h"
 #include "sound/zcmusic.h"

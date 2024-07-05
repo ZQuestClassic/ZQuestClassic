@@ -1,5 +1,5 @@
-#ifndef _DECORATIONS_H_
-#define _DECORATIONS_H_
+#ifndef DECORATIONS_H_
+#define DECORATIONS_H_
 
 #include "base/zfix.h"
 #include "sprite.h"

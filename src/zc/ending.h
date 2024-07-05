@@ -1,5 +1,5 @@
-#ifndef _ENDING_H_
-#define _ENDING_H_
+#ifndef ENDING_H_
+#define ENDING_H_
 
 #include <cstdint>
 
