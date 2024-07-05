@@ -1,6 +1,3 @@
-// This program is free software; you can redistribute it and/or modify it under the terms of the
-// modified version 3 of the GNU General Public License. See License.txt for details.
-
 //! ritate_sprite_trans doesn't seem to be supported by or allegro header !?
 
 //glibc 2.28 and later require this: -Z
