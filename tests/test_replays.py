@@ -327,6 +327,57 @@ class TestReplays(unittest.TestCase):
         self.assertEqual(meta['qst_title'], 'Original NES 1st Quest')
         self.assertEqual(meta['qst_hash'], '5833FF169985B186D58058417E918408')
 
+    def test_upload(self):
+        replay_path = root_dir / 'tests/replays/classic_1st_lvl1.zplay'
+        replays_folder = run_target.get_build_folder() / 'replays'
+        replays_folder.mkdir(exist_ok=True)
+        state_path = replays_folder / 'state.json'
+        if state_path.exists():
+            state_path.unlink()
+        shutil.copy(replay_path, replays_folder / 'test.zplay')
+
+        api_server_data_folder = tmp_dir / 'api_server'
+        if api_server_data_folder.exists():
+            shutil.rmtree(api_server_data_folder)
+        api_server_data_folder.mkdir()
+        shutil.copy(
+            root_dir / 'api_server/test_fixtures/manifest.json',
+            api_server_data_folder / 'manifest.json',
+        )
+        with open(tmp_dir / 'api_server.log', 'w') as f:
+            p = subprocess.Popen(
+                ['flask', '--app', 'server', 'run', '-p', '5000'],
+                cwd=root_dir / 'api_server',
+                env={**os.environ, 'FLASK_DATA_DIR': str(api_server_data_folder)},
+                stdout=f,
+                stderr=subprocess.STDOUT,
+            )
+
+        run_target.check_run(
+            'zplayer',
+            [
+                '-headless',
+                '-upload-replays',
+            ],
+            env={**os.environ, 'TEST_ZC_API_SERVER': 'http://localhost:5000'},
+        )
+        p.kill()
+        p.wait()
+
+        state = json.loads(state_path.read_text())
+        self.assertEqual(state['entries']['test.zplay']['state'], 'tracked')
+
+        replays = [
+            str(p.relative_to(api_server_data_folder).as_posix())
+            for p in api_server_data_folder.rglob('*.zplay')
+        ]
+        self.assertEqual(
+            replays,
+            [
+                'replays/5833FF169985B186D58058417E918408/c990976a-f5cf-4d2f-994d-c06ab841bc96.zplay'
+            ],
+        )
+
 
 if __name__ == '__main__':
     unittest.main()

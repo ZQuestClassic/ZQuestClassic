@@ -23,6 +23,7 @@
 
 #include <stdlib.h>
 
+#include "zc/replay_upload.h"
 #include "zc/zasm_optimize.h"
 #include "zc/zasm_utils.h"
 #include "zscriptversion.h"
@@ -60,6 +61,10 @@
 #include "zc/render.h"
 #include "zinfo.h"
 #include "music_playback.h"
+
+#ifdef HAS_UUID
+#include <uuid.h>
+#endif
 
 using namespace util;
 extern FFScript FFCore; //the core script engine.
@@ -1558,8 +1563,8 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 
 std::string create_replay_path_for_save(const gamedata_header& header)
 {
-	std::filesystem::path replay_file_dir = zc_get_config("zeldadx", "replay_file_dir", "replays/");
-	std::filesystem::create_directory(replay_file_dir);
+	fs::path replay_file_dir = zc_get_config("zeldadx", "replay_file_dir", "replays/");
+	fs::create_directory(replay_file_dir);
 	std::string filename_prefix = fmt::format("{}-{}", header.title, header.name);
 	sanitize(filename_prefix);
 	return create_new_file_path(replay_file_dir, filename_prefix, REPLAY_EXTENSION).string();
@@ -1697,6 +1702,13 @@ int32_t init_game()
 			replay_set_sync_rng(true);
 			replay_set_meta("qst", relativize_path(game->header.qstpath));
 			replay_set_meta("name", game->get_name());
+#ifdef HAS_UUID
+			if (!replay_has_meta("uuid"))
+			{
+				auto uuid = uuids::uuid_system_generator{}();
+				replay_set_meta("uuid", uuids::to_string(uuid));
+			}
+#endif
 			replay_save();
 		}
 		else if (!firstplay && !game->header.replay_file.empty())
@@ -1744,6 +1756,14 @@ int32_t init_game()
 	{
 		replay_set_meta("qst_title", game->header.title);
 
+#ifdef HAS_UUID
+		if (!replay_has_meta("uuid"))
+		{
+			auto uuid = uuids::uuid_system_generator{}();
+			replay_set_meta("uuid", uuids::to_string(uuid));
+		}
+#endif
+
 		std::optional<std::string> previous_hash;
 		if (replay_has_meta("qst_hash"))
 			previous_hash = replay_get_meta_str("qst_hash");
@@ -1766,11 +1786,13 @@ int32_t init_game()
 		uint8_t md5sum[16];
 		cvs_MD5Final(md5sum, &ctx);
 		std::string hash = util::make_hex_string(std::begin(md5sum), std::end(md5sum));
-		replay_set_meta("qst_hash", hash);
-		delete[] buffer;
+		if (!replay_has_meta("qst_hash"))
+			replay_set_meta("qst_hash", hash);
 
 		if (previous_hash && previous_hash != hash)
 			replay_set_meta_bool("qst_modified", true);
+
+		delete[] buffer;
 	}
 
 	if (zasm_optimize_enabled() && (get_flag_bool("-test-bisect").has_value() || is_ci()))
@@ -4283,6 +4305,12 @@ int main(int argc, char **argv)
 		return get_qr(qr_SCRIPTERRLOG) || DEVLEVEL > 0;
 	});
 
+	if (used_switch(argc, argv, "-upload-replays"))
+	{
+		replay_upload();
+		return 0;
+	}
+
 	int only_arg = used_switch(argc, argv, "-only");
 	if (only_arg)
 	{
@@ -5460,6 +5488,10 @@ void quit_game()
 	if(qstpath) free(qstpath);
 
 	FFCore.shutdown();
+
+#ifdef HAS_CURL
+	replay_upload_auto();
+#endif
 }
 
 bool isSideViewGravity(int32_t t)

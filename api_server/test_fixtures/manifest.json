@@ -1,0 +1,15 @@
+{
+	"quests/purezc/1": {
+		"releases": [
+			{
+				"name": "r01",
+				"resources": [
+					"classic_1st.qst"
+				],
+				"resourceHashes": [
+					"5833FF169985B186D58058417E918408"
+				]
+			}
+		]
+	}
+}

@@ -535,6 +535,7 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_CHECKBOX("Cont. Heart Beep",App::zelda,"zeldadx","heart_beep",0),
 						CONFIG_CHECKBOX("Disable Sound",App::zelda,"zeldadx","nosound",0),
 						CONFIG_CHECKBOX_I("Replay New Saves",App::zelda,"zeldadx","replay_new_saves",0,"Starting a new game will prompt recording to a .zplay file"),
+						CONFIG_CHECKBOX_I("Replay Upload",App::zelda,"zeldadx","replay_upload",0,"Upload .zplay files for debugging. No more than once a week replay files are automatically uploaded when the program exits."),
 						CONFIG_CHECKBOX_I("Replay Debug",App::zelda,"zeldadx","replay_debug",1,"Record debug information when making a .zplay file")
 					),
 					Rows<2>(fitParent = true,

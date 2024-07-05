@@ -19,6 +19,7 @@
 #include "base/version.h"
 #include "base/zc_alleg.h"
 #include "gamedata.h"
+#include "zc/replay_upload.h"
 #include "zc/zc_init.h"
 #include "init.h"
 #include "zc/replay.h"
@@ -5996,6 +5997,70 @@ int32_t onToggleRecordingNewSaves()
 	return D_O_K;
 }
 
+#ifdef HAS_CURL
+int32_t onToggleAutoUploadReplays()
+{
+	if (zc_get_config("zeldadx", "replay_upload", false))
+	{
+		zc_set_config("zeldadx", "replay_upload", false);
+	}
+	else
+	{
+		zc_set_config("zeldadx", "replay_upload", true);
+		jwin_alert("Replays", "Replays will be automatically uploaded. This helps development by",
+			" preventing bugs and simplifying bug reports.",
+			"Upload will happen no more than once a week when closing ZC",
+			"OK",NULL,13,27,get_zc_font(font_lfont));
+
+		if (!zc_get_config("zeldadx", "replay_new_saves", false))
+			onToggleRecordingNewSaves();
+	}
+	return D_O_K;
+}
+
+int32_t onUploadReplays()
+{
+	if(jwin_alert3(
+			"Upload replays", 
+			"Upload your replays now to assist in development?",
+			NULL,
+			NULL,
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		0, 
+		get_zc_font(font_lfont)) == 1)	
+	{
+		int num_uploaded = replay_upload();
+		jwin_alert("Upload replays", fmt::format("Uploaded {} replays", num_uploaded).c_str(),
+			NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
+	}
+	return D_O_K;
+}
+
+int32_t onClearUploadCache()
+{
+	if(jwin_alert3(
+			"Upload replays", 
+			"Clear the upload cache?",
+			"This simply deletes replays/state.json. There's no harm in doing this, but",
+			"likely is not necessary.",
+		 "&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		0, 
+		get_zc_font(font_lfont)) == 1)	
+	{
+		replay_upload_clear_cache();
+	}
+	return D_O_K;
+}
+#endif
+
 int32_t onToggleSnapshotAllFrames()
 {
 	replay_set_snapshot_all_frames(!replay_is_snapshot_all_frames());
@@ -6139,16 +6204,26 @@ enum
 	MENUID_REPLAY_STOP,
 	MENUID_REPLAY_SAVE,
 	MENUID_REPLAY_SNAP_ALL,
+	MENUID_REPLAY_AUTOUPLOAD,
+	MENUID_REPLAY_UPLOAD,
+	MENUID_REPLAY_CLEARUPLOADCACHE,
 };
 static NewMenu replay_menu
 {
 	{ "Record new saves", onToggleRecordingNewSaves, MENUID_REPLAY_RECORDNEW },
+	{},
 	{ "Stop replay", onStopReplayOrRecord, MENUID_REPLAY_STOP },
 	{ "Load replay", onLoadReplay },
 	{ "Load replay (assert)", onLoadReplayAssert },
 	{ "Load replay (update)", onLoadReplayUpdate },
 	{ "Save replay", onSaveReplay, MENUID_REPLAY_SAVE },
 	{ "Snapshot all frames", onToggleSnapshotAllFrames, MENUID_REPLAY_SNAP_ALL },
+#ifdef HAS_CURL
+	{},
+	{ "Auto upload replays", onToggleAutoUploadReplays, MENUID_REPLAY_AUTOUPLOAD },
+	{ "Upload replays", onUploadReplays, MENUID_REPLAY_UPLOAD },
+	{ "Clear upload cache", onClearUploadCache, MENUID_REPLAY_CLEARUPLOADCACHE },
+#endif
 };
 
 static DIALOG credits_dlg[] =
@@ -7865,6 +7940,9 @@ void System()
 				replay_get_mode() == ReplayMode::Record ? "recording" : "replaying");
 			
 			replay_menu.select_uid(MENUID_REPLAY_RECORDNEW, zc_get_config("zeldadx", "replay_new_saves", false));
+#ifdef HAS_CURL
+			replay_menu.select_uid(MENUID_REPLAY_AUTOUPLOAD, replay_upload_auto_enabled());
+#endif
 			replay_menu.disable_uid(MENUID_REPLAY_STOP, !replay_is_active());
 			replay_menu.disable_uid(MENUID_REPLAY_SAVE, replay_get_mode() != ReplayMode::Record);
 			replay_menu.select_uid(MENUID_REPLAY_SNAP_ALL, replay_is_snapshot_all_frames());
