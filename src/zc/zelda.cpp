@@ -4072,16 +4072,30 @@ static void load_replay_file(ReplayMode mode, std::string replay_file, int frame
 		}
 	}
 
+	// TODO: consolidate code from load_quest to resolve a quest file path.
+	if (std::filesystem::path(qst_meta).is_relative() && !std::filesystem::is_regular_file(testingqst_name))
+	{
+		fs::path qstpath_fs = fs::path(qstdir) / fs::path(qst_meta);
+		if (std::filesystem::is_regular_file(qstpath_fs))
+			testingqst_name = qstpath_fs.string();
+	}
+
 	if (!std::filesystem::is_regular_file(testingqst_name))
 	{
-		// TODO: not showing...
-		// InfoDialog("File Error", fmt::format("File not found: {}", testingqst_name)).show();
+		enter_sys_pal();
+		InfoDialog("Error loading replay", fmt::format("File not found: {}", testingqst_name)).show();
+		exit_sys_pal();
+
+		replay_quit();
+		testingqst_name = "";
+
 		Z_error("File not found: %s\n", testingqst_name.c_str());
 		if (!load_replay_file_deffered_called)
 		{
 			// This was called from the CLI, so abort.
 			abort();
 		}
+		return;
 	}
 
 	if (replay_get_meta_bool("test_mode"))
