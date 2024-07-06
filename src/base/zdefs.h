@@ -1783,6 +1783,7 @@ struct script_data
 	// The zasm instructions used by this script.
 	// In quests before 3.0, each script had its own chunk of zasm.
 	// Since 3.0 all scripts share the same chunk.
+	// TODO: The previous comment is not true _yet_, but will be when the "mergeslots3" branch is merged.
 	std::shared_ptr<::zasm_script> zasm_script = nullptr;
 	zasm_meta meta;
 	script_id id;
