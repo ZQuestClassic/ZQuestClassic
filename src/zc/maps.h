@@ -3,11 +3,12 @@
 
 #include <optional>
 #include <utility>
+#include "base/general.h"
 #include "base/handles.h"
-// TODO z3 ! extract direction so this can be removed.
-#include "base/zdefs.h"
 
 struct newcombo;
+struct BITMAP;
+class solid_object;
 
 #define DRIEDLAKE ((hero_scr->flags7 & fWHISTLEWATER) && (whistleclk>=88))
 

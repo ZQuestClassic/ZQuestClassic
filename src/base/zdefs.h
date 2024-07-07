@@ -2280,31 +2280,6 @@ extern void removeFromItemCache(int32_t itemclass);
 
 bool runscript_do_earlyret(int runscript_val);
 
-struct viewport_t
-{
-	int32_t x;
-	int32_t y;
-	int32_t w;
-	int32_t h;
-	int32_t centering_y_offset;
-
-	bool intersects_with(int x, int y, int w, int h) const;
-	bool contains_point(int x, int y) const;
-	bool contains(const viewport_t& other) const;
-	int32_t left() const;
-	int32_t right() const;
-	int32_t top() const;
-	int32_t bottom() const;
-};
-
-enum class ViewportMode
-{
-	CenterAndBound = 0,
-	Center = 1,
-	Script = 2,
-	Max = Script,
-};
-
 enum //Mapscr hardcodes for temp mapscrs
 {
 	MAPSCR_SCROLL6 = -14,

@@ -32157,7 +32157,6 @@ void HeroClass::ganon_intro()
     action=none; FFCore.setHeroAction(none);
     dir=up;
 
-	// TODO z3 !
     if((!getmapflag() || (tmpscr->flags9&fBELOWRETURN)) && (tunes[MAXMIDIS-1].data))
         jukebox(MAXMIDIS-1);
     else
