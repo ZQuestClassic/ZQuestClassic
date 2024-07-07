@@ -1480,11 +1480,8 @@ void titlescreen(int32_t lsave)
 		saves_unload(saves_current_selection());
 	}
 
-	if (replay_get_mode() == ReplayMode::Record)
-	{
-		replay_save();
-		replay_stop();
-	}
+	if (replay_is_active())
+		replay_quit();
 
 	if(!Quit)
 	{
