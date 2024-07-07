@@ -1,5 +1,5 @@
-#ifndef _AUTOCOMBO_H_
-#define _AUTOCOMBO_H_
+#ifndef AUTOCOMBO_H_
+#define AUTOCOMBO_H_
 
 #include <vector>
 #include <map>

@@ -1,0 +1,15 @@
+[Unit]
+Description=ZQuest Classic api service
+After=network.target
+
+[Service]
+User=zc
+Group=www-data
+WorkingDirectory=/home/zc/ZQuestClassic/api_server
+Environment="PATH=/home/zc/ZQuestClassic/venv/bin:/usr/bin/"
+Environment="FLASK_PRODUCTION=1"
+Environment="FLASK_DATA_DIR=/home/zc/api-server-data"
+ExecStart=bash /home/zc/ZQuestClassic/api_server/start.sh
+
+[Install]
+WantedBy=multi-user.target

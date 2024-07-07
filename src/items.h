@@ -1,10 +1,50 @@
-#ifndef _ITEMS_H_
-#define _ITEMS_H_
+#ifndef ITEMS_H_
+#define ITEMS_H_
 
 #include "sprite.h"
 #include "base/zdefs.h"
+#include "base/flags.h"
 #include "base/initdata.h"
 #include "base/zfix.h"
+
+namespace flags {
+// TODO: these generically named flags need to be renamed / documented.
+enum item_flags : uint32_t
+{
+	item_none                = 0,
+	item_gamedata            = F(0), // Whether this item sets the corresponding gamedata value or not
+	item_edible              = F(1), // can be eaten by Like Like
+	item_combine             = F(2), // blue potion + blue potion = red potion
+	item_downgrade           = F(3),
+	item_flag1               = F(4),
+	item_flag2               = F(5),
+	item_keep_old            = F(6),
+	item_rupee_magic         = F(7),
+	item_unused              = F(8),
+	item_gain_old            = F(9),
+	item_flag3               = F(10),
+	item_flag4               = F(11),
+	item_flag5               = F(12),
+	item_flag6               = F(13),
+	item_flag7               = F(14),
+	item_flag8               = F(15),
+	item_flag9               = F(16),
+	item_flag10              = F(17),
+	item_flag11              = F(18),
+	item_flag12              = F(19),
+	item_flag13              = F(20),
+	item_flag14              = F(21),
+	item_flag15              = F(22),
+	item_passive_script      = F(23),
+	item_validate_only       = F(24),
+	item_sideswim_disabled   = F(25),
+	item_bunny_enabled       = F(26),
+	item_validate_only_2     = F(27),
+	item_jinx_immune         = F(28),
+	item_flip_jinx           = F(29),
+	item_burning_sprites     = F(30),
+};
+} // ends namespace
 
 class item;
 struct itemdata;
@@ -136,38 +176,7 @@ struct itemdata
     int32_t family;												// What family the item is in
     byte fam_type;	//level										// What type in this family the item is
     int32_t power;	// Damage, height, etc. //changed from byte to int32_t in V_ITEMS 31
-    int32_t flags;
-#define ITEM_GAMEDATA           0x00000001  // Whether this item sets the corresponding gamedata value or not
-#define ITEM_EDIBLE             0x00000002  // can be eaten by Like Like
-#define ITEM_COMBINE            0x00000004  // blue potion + blue potion = red potion
-#define ITEM_DOWNGRADE          0x00000008
-#define ITEM_FLAG1              0x00000010
-#define ITEM_FLAG2              0x00000020
-#define ITEM_KEEPOLD            0x00000040
-#define ITEM_RUPEE_MAGIC        0x00000080
-#define ITEM_UNUSED             0x00000100
-#define ITEM_GAINOLD            0x00000200
-#define ITEM_FLAG3              0x00000400
-#define ITEM_FLAG4              0x00000800
-#define ITEM_FLAG5              0x00001000
-#define ITEM_FLAG6              0x00002000
-#define ITEM_FLAG7              0x00004000
-#define ITEM_FLAG8              0x00008000
-#define ITEM_FLAG9              0x00010000
-#define ITEM_FLAG10             0x00020000
-#define ITEM_FLAG11             0x00040000
-#define ITEM_FLAG12             0x00080000
-#define ITEM_FLAG13             0x00100000
-#define ITEM_FLAG14             0x00200000
-#define ITEM_FLAG15             0x00400000
-#define ITEM_PASSIVESCRIPT      0x00800000
-#define ITEM_VALIDATEONLY       0x01000000
-#define ITEM_SIDESWIM_DISABLED  0x02000000
-#define ITEM_BUNNY_ENABLED      0x04000000
-#define ITEM_VALIDATEONLY2      0x08000000
-#define ITEM_JINX_IMMUNE        0x10000000
-#define ITEM_FLIP_JINX          0x20000000
-#define ITEM_BURNING_SPRITES    0x40000000
+    item_flags flags;
     word script;												// Which script the item is using
     char count;
     word amount;

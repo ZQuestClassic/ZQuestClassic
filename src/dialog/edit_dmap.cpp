@@ -1,6 +1,7 @@
 #include "edit_dmap.h"
 #include <gui/builder.h>
 #include "base/process_management.h"
+#include "base/files.h"
 #include "gui/jwin.h"
 #include "zq/zquest.h"
 #include "zq/zq_class.h"
@@ -675,7 +676,7 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 											zcmixer->newtrack = NULL;
 										}
 
-										if (getname("Load DMap Music", (char*)zcmusic_types, NULL, tmusicpath, false))
+										if (prompt_for_existing_file_compat("Load DMap Music", (char*)zcmusic_types, NULL, tmusicpath, false))
 										{
 											strcpy(tmusicpath, temppath);
 											char* tmfname = get_filename(tmusicpath);

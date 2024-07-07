@@ -1,5 +1,5 @@
-#ifndef QUESTREPORT_H
-#define QUESTREPORT_H
+#ifndef QUESTREPORT_H_
+#define QUESTREPORT_H_
 
 #include "base/zc_alleg.h"
 

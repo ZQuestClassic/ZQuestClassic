@@ -1,5 +1,5 @@
-#ifndef _COMBOS_H_
-#define _COMBOS_H_
+#ifndef COMBOS_H_
+#define COMBOS_H_
 
 #include "base/zdefs.h"
 #include "base/cpos_info.h"
@@ -35,6 +35,9 @@ bool can_locked_combo(newcombo const& cmb);
 bool try_locked_combo(newcombo const& cmb);
 
 void trigger_sign(newcombo const& cmb, int screen);
+bool play_combo_string(int str);
+bool play_combo_string(int str, int scr);
+
 void trigger_sign(newcombo const& cmb);
 void trigger_cuttable(const rpos_handle_t& rpos_handle);
 void trigger_cuttable_ffc(const ffc_handle_t& ffc_handle);

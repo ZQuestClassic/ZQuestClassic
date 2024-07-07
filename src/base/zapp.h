@@ -1,5 +1,5 @@
-#ifndef _ZAPP_H_
-#define _ZAPP_H_
+#ifndef ZAPP_H_
+#define ZAPP_H_
 
 #include <optional>
 #include <string>

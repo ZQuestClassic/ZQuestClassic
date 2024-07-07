@@ -1,5 +1,5 @@
-#ifndef _ZCMIXER_H_
-#define _ZCMIXER_H_
+#ifndef ZCMIXER_H_
+#define ZCMIXER_H_
 
 #include <cstdint>
 #include "sound/zcmusic.h"

@@ -1,5 +1,5 @@
-#ifndef _HERO_H_
-#define _HERO_H_
+#ifndef HERO_H_
+#define HERO_H_
 
 #include "base/zc_alleg.h"
 #include "sound/zcmusic.h"
@@ -554,8 +554,10 @@ public:
 	void  setAttackClk(int32_t new_clk);
 	int32_t  getSwordClk();
 	int32_t  getItemClk();
+	int32_t  getShieldClk();
 	void  setSwordClk(int32_t newclk);
 	void  setItemClk(int32_t newclk);
+	void  setShieldClk(int32_t newclk);
 	zfix  getModifiedX();
 	zfix  getModifiedY();
 	int32_t  getDir();

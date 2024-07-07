@@ -1,5 +1,5 @@
-#ifndef _SPRITE_H_
-#define _SPRITE_H_
+#ifndef SPRITE_H_
+#define SPRITE_H_
 
 #include "base/zc_alleg.h"
 #include "base/headers.h"
@@ -96,7 +96,7 @@ public:
     bool do_animation;
     int32_t rotation;
     int32_t scale; 
-    dword moveflags;
+    move_flags moveflags;
     byte drawflags;
 	byte knockbackflags;
 	byte screenedge;

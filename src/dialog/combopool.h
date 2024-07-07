@@ -1,5 +1,5 @@
-#ifndef ZC_DIALOG_COMBOPOOL_H
-#define ZC_DIALOG_COMBOPOOL_H
+#ifndef ZC_DIALOG_COMBOPOOL_H_
+#define ZC_DIALOG_COMBOPOOL_H_
 
 #include <gui/dialog.h>
 #include <gui/drop_down_list.h>

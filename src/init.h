@@ -1,5 +1,5 @@
-#ifndef _INIT_H_
-#define _INIT_H_
+#ifndef INIT_H_
+#define INIT_H_
 
 #include "tab_ctl.h"
 #include "base/zc_alleg.h"

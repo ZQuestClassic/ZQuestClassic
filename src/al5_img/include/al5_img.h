@@ -1,5 +1,5 @@
-#ifndef _AL5IMG_H_
-#define _AL5IMG_H_
+#ifndef AL5IMG_H_
+#define AL5IMG_H_
 
 #ifdef __cplusplus
 extern "C" {

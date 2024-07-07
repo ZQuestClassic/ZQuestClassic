@@ -1,5 +1,5 @@
-#ifndef _ZASM_OPTIMIZE_H_
-#define _ZASM_OPTIMIZE_H_
+#ifndef ZASM_OPTIMIZE_H_
+#define ZASM_OPTIMIZE_H_
 
 #include "base/zdefs.h"
 

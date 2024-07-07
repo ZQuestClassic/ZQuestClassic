@@ -1,5 +1,5 @@
-#ifndef ZC_GUI_MENU_H
-#define ZC_GUI_MENU_H
+#ifndef ZC_GUI_MENU_H_
+#define ZC_GUI_MENU_H_
 
 #include "gui/widget.h"
 #include "base/new_menu.h"

@@ -1,5 +1,5 @@
-#ifndef ZC_PARSER_HELPER_H
-#define ZC_PARSER_HELPER_H
+#ifndef ZC_PARSER_HELPER_H_
+#define ZC_PARSER_HELPER_H_
 
 #include "parser/AST.h"
 

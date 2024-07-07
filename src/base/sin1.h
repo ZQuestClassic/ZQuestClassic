@@ -7,8 +7,8 @@
  * @author stfwi
  *
  */
-#ifndef __SW__SIN1_H__
-#define __SW__SIN1_H__
+#ifndef SW__SIN1_H_
+#define SW__SIN1_H_
  
 #include <stdint.h>
  

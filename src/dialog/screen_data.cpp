@@ -218,7 +218,7 @@ std::shared_ptr<GUI::Widget> ScreenDataDialog::view()
 	
 	std::string ene_str[5];
 	byte ene_found = 0;
-	static const int ene_flag[] = {eneflag_zora,eneflag_trap,eneflag_trp2,eneflag_rock,eneflag_fire};
+	static const int ene_flag[] = {guy_zora,guy_trap,guy_trp2,guy_rock,guy_fire};
 	for(int32_t i=0; i<eMAXGUYS && ene_found != 0b11111; i++)
 	{
 		for(auto q = 0; q < 5; ++q)

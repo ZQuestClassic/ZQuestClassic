@@ -242,7 +242,7 @@ word get_ssc_ctr(int ctr, bool* infptr = nullptr)
 		case crSBOMBS:
 		{
 			int32_t itemid = get_subscr_item_id(itype_bombbag, true);
-			if(itemid>-1 && itemsbuf[itemid].power>0 && itemsbuf[itemid].flags & ITEM_FLAG1)
+			if(itemid>-1 && itemsbuf[itemid].power>0 && itemsbuf[itemid].flags & item_flag1)
 				inf = true;
 			break;
 		}
@@ -274,7 +274,7 @@ word get_ssc_ctr(int ctr, bool* infptr = nullptr)
 			int32_t itemid = get_subscr_item_id(itype_magickey, true);
 			if(itemid>-1)
 			{
-				if(itemsbuf[itemid].flags&ITEM_FLAG1)
+				if(itemsbuf[itemid].flags&item_flag1)
 					inf = itemsbuf[itemid].power>=get_dlevel();
 				else
 					inf = itemsbuf[itemid].power==get_dlevel();
@@ -3096,7 +3096,7 @@ static bool check_sbomb(optional<int> iid = nullopt)
 	if(get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN))
 		return true;
 	auto bombbagid = get_subscr_item_id(itype_bombbag, true);
-	if(bombbagid > -1 && itemsbuf[bombbagid].power && (itemsbuf[bombbagid].flags & ITEM_FLAG1))
+	if(bombbagid > -1 && itemsbuf[bombbagid].power && (itemsbuf[bombbagid].flags & item_flag1))
 		return true;
 	if(get_qr(qr_BROKEN_BOMB_AMMO_COSTS) ? game->get_sbombs() : (iid ? checkmagiccost(*iid) : current_item_id(itype_sbomb,true) > -1))
 		return true;

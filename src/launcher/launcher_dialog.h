@@ -1,5 +1,5 @@
-#ifndef ZC_LAUNCHER_DIALOG_H
-#define ZC_LAUNCHER_DIALOG_H
+#ifndef ZC_LAUNCHER_DIALOG_H_
+#define ZC_LAUNCHER_DIALOG_H_
 
 #include <gui/dialog.h>
 #include <gui/text_field.h>

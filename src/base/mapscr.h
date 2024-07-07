@@ -1,5 +1,5 @@
-#ifndef _MAPSCR_H_
-#define _MAPSCR_H_
+#ifndef MAPSCR_H_
+#define MAPSCR_H_
 
 #include "ffc.h"
 #include <vector>
@@ -314,4 +314,3 @@ extern std::vector<word>   map_autolayers;
 extern word map_count;
 
 #endif
-

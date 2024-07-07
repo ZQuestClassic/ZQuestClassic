@@ -1,6 +1,7 @@
 #include <cstring>
 #include <cmath>
 
+#include "base/files.h"
 #include "base/qrs.h"
 #include "base/dmap.h"
 #include "base/cpool.h"
@@ -5273,8 +5274,7 @@ void grab_tile(int32_t tile,int32_t &cs)
 			
 		if(dofile)
 		{
-		
-			if(getname_nogo("Load File",NULL,list,imagepath,true))
+			if (prompt_for_existing_file_compat("Load File", "", list, imagepath, true))
 			{
 				zc_set_palette(RAMpal);
 				pal=0;
@@ -6509,15 +6509,19 @@ bool _handle_tile_move(TileMoveProcess dest_process, optional<TileMoveProcess> s
 				break;
 				
 			case iwDeath:
-				m=BSZ2?4:2;
+				if(get_qr(qr_HARDCODED_ENEMY_ANIMS))
+				{
+					ignore_frames = true;
+					m=BSZ2?4:2;
+				}
 				break;
 				
 			case iwSpawn:
-				m=3;
-				break;
-				
-			default:
-				m=0;
+				if(get_qr(qr_HARDCODED_ENEMY_ANIMS))
+				{
+					ignore_frames = true;
+					m=3;
+				}
 				break;
 			}
 			
@@ -6743,7 +6747,7 @@ bool _handle_tile_move(TileMoveProcess dest_process, optional<TileMoveProcess> s
 			bool darknut=false;
 			int32_t gleeok=0;
 			
-			if(enemy.family==eeWALK && ((enemy.flags&(inv_back|inv_front|inv_left|inv_right))!=0))
+			if(enemy.family==eeWALK && ((enemy.flags&(guy_shield_back|guy_shield_front|guy_shield_left|guy_shield_right))!=0))
 				darknut=true;
 			else if(enemy.family==eeGLEEOK)
 			{
@@ -9051,7 +9055,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 				
 				case KEY_S:
 				{
-					if(!getname("Save ZTILE(.ztile)", "ztile", NULL,datapath,false))
+					if(!prompt_for_new_file_compat("Save ZTILE(.ztile)", "ztile", NULL,datapath,false))
 						break;   
 					PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
 					if(!f) break;
@@ -9062,7 +9066,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 				}
 				case KEY_L:
 				{
-					if(!getname("Load ZTILE(.ztile)", "ztile", NULL,datapath,false))
+					if(!prompt_for_existing_file_compat("Load ZTILE(.ztile)", "ztile", NULL,datapath,false))
 						break;   
 					PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
 					if(!f) break;
@@ -10004,7 +10008,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 				if(do_text_button((150+28*2)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"Export"))
 				{
 					strcpy(datapath, "tileset.png");
-					if(getname("Export Tile Page (.png)","png",NULL,datapath,true))
+					if(prompt_for_new_file_compat("Export Tile Page (.png)","png",NULL,datapath,true))
 					{
 						PALETTE temppal;
 						get_palette(temppal);
@@ -10519,7 +10523,7 @@ void combo_info(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copyc
 		sprintf(cbuf,"-%d",tile2);
 	}
 	
-	textprintf_ex(screen2,tfont,(73*mul),(216*mul)+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"combo:");
+	textprintf_ex(screen2,tfont,(73*mul),(216*mul)+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"combo: CSet %d", cs);
 	textprintf_ex(screen2,tfont,(73*mul),(224*mul)+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d%s",tile,cbuf);
 	
 	if(tile2==tile)

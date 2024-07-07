@@ -1,5 +1,5 @@
-#ifndef _DEFDATA_H_
-#define _DEFDATA_H_
+#ifndef DEFDATA_H_
+#define DEFDATA_H_
 
 #include "base/zdefs.h"
 #include "items.h"

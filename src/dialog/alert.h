@@ -1,5 +1,5 @@
-#ifndef ZC_DIALOG_ALERT_H
-#define ZC_DIALOG_ALERT_H
+#ifndef ZC_DIALOG_ALERT_H_
+#define ZC_DIALOG_ALERT_H_
 
 #include "info.h"
 

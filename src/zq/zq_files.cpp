@@ -1,6 +1,7 @@
 #include <cstring>
 #include <stdio.h>
 
+#include "base/files.h"
 #include "base/qrs.h"
 #include "base/dmap.h"
 #include "base/packfile.h"
@@ -171,6 +172,7 @@ void alwaysOnRules()
 	set_qr(qr_CMBCYCLELAYERS, 1);
 	set_qr(qr_KILLALL, 1);
 	set_qr(qr_ITEMBUBBLE, 1);
+	set_qr(qr_SHIELDBUBBLE, 1);
 	set_qr(qr_RINGAFFECTDAMAGE, 1);
 	set_qr(qr_NEW_COMBO_ANIMATION, 1);
 	set_qr(qr_BUSHESONLAYERS1AND2, 1);
@@ -445,13 +447,24 @@ int32_t onSaveAs()
 		return D_O_K;
 	}
 #ifdef __EMSCRIPTEN__
-	if(!getname("Save Quest As (.qst)","qst",list,get_initial_file_dialog_folder().c_str(),true))
+	std::string path;
+	if (auto result = prompt_for_new_file("Save Quest As (.qst)","qst",list,get_initial_file_dialog_folder(),true); !result)
+	{
 		return D_O_K;
+	}
+	else path = *result;
 #else
-	if(!getname("Save Quest As (.qst)","qst",list,filepath,true))
+	std::string path;
+	if (auto result = prompt_for_new_file("Save Quest As (.qst)", "qst", list, filepath, true); !result)
+	{
 		return D_O_K;
+	}
+	else path = *result;
 #endif
-		
+
+	// TODO: stop using temppath.
+	strcpy(temppath, path.c_str());
+
 	if(exists(temppath))
 	{
 		if(OverwriteProtection)
@@ -568,9 +581,9 @@ char* get_qst_name(char const* def_path)
 	};
 	
 #ifdef __EMSCRIPTEN__
-	return getname("Load File",NULL,list,get_initial_file_dialog_folder().c_str(),true)
+	return prompt_for_existing_file_compat("Load File","",list,get_initial_file_dialog_folder().c_str(),true)
 #else
-	return getname("Load File",NULL,list,def_path ? def_path : filepath,true)
+	return prompt_for_existing_file_compat("Load File","",list,def_path ? def_path : filepath,true)
 #endif
 		? temppath : nullptr;
 }
@@ -698,7 +711,7 @@ int32_t onImport_Map()
         return D_O_K;
     }
     
-    if(!getname("Import Map (.map)","map",NULL,datapath,false))
+    if(!prompt_for_existing_file_compat("Import Map (.map)","map",NULL,datapath,false))
         return D_O_K;
         
     saved=false;
@@ -751,7 +764,7 @@ int32_t onExport_Map()
     if(Map.getCurrMap()>=Map.getMapCount())
         return D_O_K;
         
-    if(!getname("Export Map (.map)","map",NULL,datapath,false))
+    if(!prompt_for_new_file_compat("Export Map (.map)","map",NULL,datapath,false))
         return D_O_K;
         
     int32_t ret = Map.save(temppath);
@@ -775,7 +788,7 @@ int32_t onExport_Map()
 
 int32_t onImport_DMaps_old()
 {
-    if(!getname("Import DMaps (.dmp)","dmp",NULL,datapath,false))
+    if(!prompt_for_existing_file_compat("Import DMaps (.dmp)","dmp",NULL,datapath,false))
         return D_O_K;
         
     saved=false;
@@ -844,7 +857,7 @@ int32_t onExport_DMaps()
 
 int32_t onImport_DMaps()
 {
-    if(!getname("Import DMaps (.zdmap)","zdmap",NULL,datapath,false))
+    if(!prompt_for_existing_file_compat("Import DMaps (.zdmap)","zdmap",NULL,datapath,false))
         return D_O_K;
     
     PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
@@ -906,7 +919,7 @@ int32_t onImport_DMaps()
 
 int32_t onImport_Tilepack()
 {
-		if(getname("Load ZTILE(.ztile)", "ztile", NULL,datapath,false))
+		if(prompt_for_existing_file_compat("Load ZTILE(.ztile)", "ztile", NULL,datapath,false))
 		{  
 			char name[256];
 			extract_name(temppath,name,FILENAMEALL);
@@ -966,7 +979,7 @@ int32_t onImport_Comboaliaspack_To()
 
 int32_t onImport_Comboaliaspack()
 {
-		if(getname("Load ZALIAS(.zalias)", "zalias", NULL,datapath,false))
+		if(prompt_for_existing_file_compat("Load ZALIAS(.zalias)", "zalias", NULL,datapath,false))
 		{  
 			char name[256];
 			extract_name(temppath,name,FILENAMEALL);
@@ -992,7 +1005,7 @@ int32_t onImport_Comboaliaspack()
 
 int32_t onExport_DMaps_old()
 {
-    if(!getname("Export DMaps (.dmp)","dmp",NULL,datapath,false))
+    if(!prompt_for_new_file_compat("Export DMaps (.dmp)","dmp",NULL,datapath,false))
         return D_O_K;
         
     char buf[256+20],buf2[256+20],name[256];
@@ -1015,7 +1028,7 @@ int32_t onExport_DMaps_old()
 
 int32_t onImport_Pals()
 {
-    if(!getname("Import Palettes (.zpl)","zpl",NULL,datapath,false))
+    if(!prompt_for_existing_file_compat("Import Palettes (.zpl)","zpl",NULL,datapath,false))
         return D_O_K;
         
     saved=false;
@@ -1033,7 +1046,7 @@ int32_t onImport_Pals()
 
 int32_t onExport_Pals()
 {
-    if(!getname("Export Palettes (.zpl)","zpl",NULL,datapath,false))
+    if(!prompt_for_new_file_compat("Export Palettes (.zpl)","zpl",NULL,datapath,false))
         return D_O_K;
         
     char buf[256+20],buf2[256+20],name[256];
@@ -1056,7 +1069,7 @@ int32_t onExport_Pals()
 
 int32_t onImport_Msgs()
 {
-    if(!getname("Import String Table (.zqs)","zqs",NULL,datapath,false))
+    if(!prompt_for_existing_file_compat("Import String Table (.zqs)","zqs",NULL,datapath,false))
         return D_O_K;
         
     saved=false;
@@ -1074,7 +1087,7 @@ int32_t onImport_Msgs()
 
 int32_t onExport_Msgs()
 {
-    if(!getname("Export String Table (.zqs)","zqs",NULL,datapath,false))
+    if(!prompt_for_new_file_compat("Export String Table (.zqs)","zqs",NULL,datapath,false))
         return D_O_K;
         
     char buf[256+20],buf2[256+20],name[256];
@@ -1097,7 +1110,7 @@ int32_t onExport_Msgs()
 
 int32_t onImport_StringsTSV()
 {
-    if(!getname("Import Strings (.tsv)","tsv",NULL,datapath,false))
+    if(!prompt_for_existing_file_compat("Import Strings (.tsv)","tsv",NULL,datapath,false))
         return D_O_K;
         
     saved=false;
@@ -1115,7 +1128,7 @@ int32_t onImport_StringsTSV()
 
 int32_t onExport_StringsTSV()
 {
-    if(!getname("Export Strings (.tsv)","tsv",NULL,datapath,false))
+    if(!prompt_for_new_file_compat("Export Strings (.tsv)","tsv",NULL,datapath,false))
         return D_O_K;
         
     char buf[256+20],buf2[256+20],name[256];
@@ -1139,7 +1152,7 @@ int32_t onExport_StringsTSV()
 
 int32_t onExport_MsgsText()
 {
-    if(!getname("Export Text Dump (.txt)","txt",NULL,datapath,false))
+    if(!prompt_for_new_file_compat("Export Text Dump (.txt)","txt",NULL,datapath,false))
         return D_O_K;
         
     char buf[256+20],buf2[256+20],name[256];
@@ -1178,7 +1191,7 @@ int32_t onImport_Combos_old()
     
     bound(ret,0,COMBO_PAGES-1);
     
-    if(!getname("Import Combo Table (.cmb)","cmb",NULL,datapath,false))
+    if(!prompt_for_existing_file_compat("Import Combo Table (.cmb)","cmb",NULL,datapath,false))
         return D_O_K;
         
     if(!load_combos(temppath, ret*COMBOS_PER_PAGE))
@@ -1199,7 +1212,7 @@ int32_t onImport_Combos_old()
 
 int32_t onExport_Combos()
 {
-    if(!getname("Export Combos (.zcombo)","zcombo",NULL,datapath,false))
+    if(!prompt_for_new_file_compat("Export Combos (.zcombo)","zcombo",NULL,datapath,false))
         return D_O_K;
         
     char buf[256+20],buf2[256+20],name[256];
@@ -1228,7 +1241,7 @@ int32_t onExport_Combos()
 
 int32_t onExport_Combos_old()
 {
-    if(!getname("Export Combo Table (.cmb)","cmb",NULL,datapath,false))
+    if(!prompt_for_new_file_compat("Export Combo Table (.cmb)","cmb",NULL,datapath,false))
         return D_O_K;
         
     char buf[256+20],buf2[256+20],name[256];
@@ -1260,7 +1273,7 @@ int32_t onImport_Tiles()
     
     bound(ret,0,TILE_PAGES-1);
     
-    if(!getname("Import Tiles (.ztileset)","ztileset",NULL,datapath,false))
+    if(!prompt_for_existing_file_compat("Import Tiles (.ztileset)","ztileset",NULL,datapath,false))
         return D_O_K;
         
     saved=false;
@@ -1292,7 +1305,7 @@ int32_t onImport_Tiles()
 
 int32_t onExport_Tiles()
 {
-    if(!getname("Export Tiles (.ztileset)","ztileset",NULL,datapath,false))
+    if(!prompt_for_new_file_compat("Export Tiles (.ztileset)","ztileset",NULL,datapath,false))
         return D_O_K;
         
     char buf[256+20],buf2[256+20],name[256];
@@ -1323,7 +1336,7 @@ int32_t onExport_Tiles()
 
 int32_t onImport_Guys()
 {
-    if(!getname("Import Enemies (.guy)","guy",NULL,datapath,false))
+    if(!prompt_for_existing_file_compat("Import Enemies (.guy)","guy",NULL,datapath,false))
         return D_O_K;
         
     if(!load_guys(temppath))
@@ -1340,7 +1353,7 @@ int32_t onImport_Guys()
 
 int32_t onExport_Guys()
 {
-    if(!getname("Export Enemies (.guy)","guy",NULL,datapath,false))
+    if(!prompt_for_new_file_compat("Export Enemies (.guy)","guy",NULL,datapath,false))
         return D_O_K;
         
     char buf[256+20],buf2[256+20],name[256];
@@ -1369,7 +1382,7 @@ bool save_combo_alias(const char *path);
 bool load_combo_alias(const char *path);
 int32_t onImport_ComboAlias()
 {
-    if(!getname("Import Combo Alias (.zca)","zca",NULL,datapath,false))
+    if(!prompt_for_existing_file_compat("Import Combo Alias (.zca)","zca",NULL,datapath,false))
         return D_O_K;
         
     if(!load_combo_alias(temppath))
@@ -1386,7 +1399,7 @@ int32_t onImport_ComboAlias()
 
 int32_t onExport_ComboAlias()
 {
-    if(!getname("Export Combo Alias (.zca)","zca",NULL,datapath,false))
+    if(!prompt_for_new_file_compat("Export Combo Alias (.zca)","zca",NULL,datapath,false))
         return D_O_K;
         
     char buf[256+20],buf2[256+20],name[256];
@@ -1409,7 +1422,7 @@ int32_t onExport_ComboAlias()
 
 int32_t onImport_ZGP()
 {
-    if(!getname("Import Graphics Pack (.zgp)","zgp",NULL,datapath,false))
+    if(!prompt_for_existing_file_compat("Import Graphics Pack (.zgp)","zgp",NULL,datapath,false))
         return D_O_K;
         
     saved=false;
@@ -1429,7 +1442,7 @@ int32_t onImport_ZGP()
 
 int32_t onExport_ZGP()
 {
-    if(!getname("Export Graphics Pack (.zgp)","zgp",NULL,datapath,false))
+    if(!prompt_for_new_file_compat("Export Graphics Pack (.zgp)","zgp",NULL,datapath,false))
         return D_O_K;
         
     char buf[256+20],buf2[256+20],name[256];

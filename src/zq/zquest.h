@@ -1,5 +1,5 @@
-#ifndef _ZQUEST_H_
-#define _ZQUEST_H_
+#ifndef ZQUEST_H_
+#define ZQUEST_H_
 
 #include <string>
 #include <vector>
@@ -203,7 +203,8 @@ extern volatile int32_t myvsync;
 extern int32_t fill_type;
 
 extern bool first_save;
-extern char *filepath,*temppath,*midipath,*datapath,*imagepath,*tmusicpath,*last_timed_save;
+extern char *filepath,*midipath,*datapath,*imagepath,*tmusicpath,*last_timed_save;
+extern char temppath[4096];
 extern std::string helpstr;
 
 extern int32_t rules_page, rules_pages;
@@ -341,10 +342,6 @@ int32_t onPgDn();
 int32_t onIncreaseCSet();
 int32_t onDecreaseCSet();
 int32_t onGotoPage();
-
-bool getname(const char *prompt,const char *ext,EXT_LIST *list,const char *def,bool usefilename);
-bool getname_nogo(const char *prompt,const char *ext,EXT_LIST *list,const char *def,bool usefilename);
-//bool getname_nogo(char *prompt,char *ext,char *def,bool usefilename);
 
 int32_t playZCForever();
 int32_t playTune1();

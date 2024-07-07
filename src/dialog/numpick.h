@@ -1,5 +1,5 @@
-#ifndef ZC_DIALOG_VECTORPICK_H
-#define ZC_DIALOG_VECTORPICK_H
+#ifndef ZC_DIALOG_VECTORPICK_H_
+#define ZC_DIALOG_VECTORPICK_H_
 
 #include <gui/dialog.h>
 #include <gui/button.h>

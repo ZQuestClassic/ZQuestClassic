@@ -1,5 +1,5 @@
-#ifndef ZC_DIALOG_AUTOCOMBO_H
-#define ZC_DIALOG_AUTOCOMBO_H
+#ifndef ZC_DIALOG_AUTOCOMBO_H_
+#define ZC_DIALOG_AUTOCOMBO_H_
 
 #include "base/autocombo.h"
 #include <gui/dialog.h>

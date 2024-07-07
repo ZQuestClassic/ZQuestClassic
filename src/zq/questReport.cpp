@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string>
 
+#include "base/files.h"
 #include "base/qrs.h"
 #include "base/dmap.h"
 #include "gui/editbox.h"
@@ -125,7 +126,7 @@ void showQuestReport()
 			{
 				case 8:
 				{
-					if(!getname("Save Quest Report (.txt)","txt",NULL,datapath,false))
+					if(!prompt_for_new_file_compat("Save Quest Report (.txt)","txt",NULL,datapath,false))
 						return false;
 						
 					if(exists(temppath))
@@ -771,11 +772,11 @@ void integrityCheckSideWarpDest()
                 int32_t ctype = combobuf[(c>=176 ? ts->secretcombo[c-176] : ts->data[c])].type;
                 
                 // Check Triforce items as well.
-                bool triforce = (itemsbuf[ts->item].family==itype_triforcepiece && itemsbuf[ts->item].flags & ITEM_FLAG1);
+                bool triforce = (itemsbuf[ts->item].family==itype_triforcepiece && itemsbuf[ts->item].flags & item_flag1);
                 
                 if(ts->room==rSP_ITEM && !triforce)
                 {
-                    triforce = (itemsbuf[ts->item].family==itype_triforcepiece && itemsbuf[ts->item].flags & ITEM_FLAG1);
+                    triforce = (itemsbuf[ts->item].family==itype_triforcepiece && itemsbuf[ts->item].flags & item_flag1);
                 }
                 
                 if(ctype==cAWARPA || triforce)

@@ -1,5 +1,5 @@
-#ifndef COLORNAME_H
-#define COLORNAME_H
+#ifndef COLORNAME_H_
+#define COLORNAME_H_
 
 #include <string>
 

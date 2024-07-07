@@ -1,3 +1,4 @@
+#include "base/files.h"
 #ifdef __GNUG__
 	#define ALLEGRO_NO_FIX_ALIASES
 #endif
@@ -81,6 +82,7 @@ static DIALOG file_selector[] =
     { fs_edit_proc,         16,   28,   272,  8,    0,    0,    0,    0,       79,   0,    NULL,                      NULL, NULL  },
     { fs_elist_proc,        16,   154,  176,  16,   0,    0,    0,    D_EXIT,  0,    0, (void *) &fs_elist__getter,  NULL, NULL },
     { fs_flist_proc,        16,   46,   177,  100,  0,    0,    0,    D_EXIT,  0,    0, (void *) &fs_flist__getter,  NULL, NULL  },
+    { jwin_button_proc,     250,  160,  81,   17,   0,    0,    27,   D_EXIT,  0,    0,    NULL,                      NULL, NULL  },
     { fs_dlist_proc,        208,  46,   81,   52,   0,    0,    0,    D_EXIT,  0,    0, (void *) &fs_dlist__getter,  NULL, NULL  },
     { d_yield_proc,         0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,                      NULL, NULL  },
     
@@ -93,6 +95,7 @@ static DIALOG file_selector[] =
     { fs_edit_proc,         16,   28,   272,  8,    0,    0,    0,    0,       79,   0,    NULL,                      NULL, NULL  },
     { fs_elist_proc,        16,   154,  176,  16,   0,    0,    0,    D_EXIT,  0,    0, (void *) &fs_elist__getter,  NULL, NULL },
     { fs_flist_proc,        16,   46,   273,  100,  0,    0,    0,    D_EXIT,  0,    0, (void *) &fs_flist__getter,  NULL, NULL  },
+    { jwin_button_proc,     250,  160,  81,   17,   0,    0,    27,   D_EXIT,  0,    0,    NULL,                      NULL, NULL  },
     { d_yield_proc,         0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,                      NULL, NULL  },
 #endif
     
@@ -105,11 +108,18 @@ static DIALOG file_selector[] =
 #define FS_EDIT         3
 #define FS_TYPES        4
 #define FS_FILES        5
+#define FS_EXPLORER     6
+
+#ifdef __APPLE__
+#define EXPLORER_LABEL "Finder"
+#else
+#define EXPLORER_LABEL "File Explorer"
+#endif
 
 #ifdef HAVE_DIR_LIST                                        /* not all platforms need a directory list */
 
-#define FS_DISKS        6
-#define FS_YIELD        7
+#define FS_DISKS        7
+#define FS_YIELD        8
 
 #ifdef _MSC_VER
 #define stricmp _stricmp
@@ -233,7 +243,7 @@ static int32_t fs_dlist_proc(int32_t msg, DIALOG *d, int32_t c)
 
 #else
 
-#define FS_YIELD        6
+#define FS_YIELD        7
 #endif                                                      /* HAVE_DIR_LIST */
 
 /* fs_edit_proc:
@@ -762,6 +772,8 @@ static void stretch_dialog(DIALOG *d, int32_t width, int32_t height, int32_t sho
     d[FS_TYPES].w   = d[FS_OK].x - 2*hpad;
     d[FS_FILES].w   = d[FS_TYPES].w;
     d[FS_FILES].x   = d[FS_TYPES].x;
+    d[FS_EXPLORER].w = d[FS_CANCEL].w;
+    d[FS_EXPLORER].x = d[FS_CANCEL].x;
     d[FS_DISKS].w   = d[FS_OK].w;
     d[FS_DISKS].x   = d[FS_OK].x;
     d[FS_YIELD].x   = 0;
@@ -786,6 +798,8 @@ static void stretch_dialog(DIALOG *d, int32_t width, int32_t height, int32_t sho
     d[FS_TYPES].y   = d[FS_WIN].h-d[FS_TYPES].h-vpad;
     d[FS_FILES].h   = ((((d[FS_WIN].h - 2*vpad - d[FS_EDIT].y - d[FS_EDIT].h - (show_extlist?(d[FS_TYPES].h+vpad):0))-8)/font_h)*font_h)+8;
     d[FS_FILES].y   = (show_extlist?d[FS_TYPES].y:d[FS_WIN].h)-vpad-d[FS_FILES].h;
+    d[FS_EXPLORER].h = d[FS_OK].h;
+    d[FS_EXPLORER].y = d[FS_OK].y - vpad/2 - d[FS_OK].h;
     d[FS_DISKS].y   = d[FS_FILES].y;
     d[FS_DISKS].h   = font_h+8;
     d[FS_YIELD].y   = 0;
@@ -812,6 +826,8 @@ static void stretch_dialog(DIALOG *d, int32_t width, int32_t height, int32_t sho
     d[FS_TYPES].w   = d[FS_WIN].w - 2*hpad;
     d[FS_FILES].x   = d[FS_TYPES].x;
     d[FS_FILES].w   = d[FS_TYPES].w;
+    d[FS_EXPLORER].w = 45;
+    d[FS_EXPLORER].x = width - 50;
     d[FS_YIELD].x   = 0;
     
     /* vertical settings */
@@ -834,6 +850,8 @@ static void stretch_dialog(DIALOG *d, int32_t width, int32_t height, int32_t sho
     d[FS_TYPES].y   = d[FS_OK].y-d[FS_TYPES].h-vpad;
     d[FS_FILES].h   = ((((d[FS_OK].y - 2*vpad - d[FS_EDIT].y - d[FS_EDIT].h - (show_extlist?(d[FS_TYPES].h+vpad):0))-8)/font_h)*font_h)+8;
     d[FS_FILES].y   = (show_extlist?d[FS_TYPES].y:d[FS_OK].y)-vpad-d[FS_FILES].h;
+    d[FS_EXPLORER].h = d[FS_OK].h;
+    d[FS_EXPLORER].y = d[FS_OK].y;
     d[FS_YIELD].y   = 0;
 #endif
 }
@@ -883,6 +901,8 @@ void enlarge_file_selector(int32_t width, int32_t height)
 }
 
 /* jwin_file_select_ex:
+  *  NOTE: do not call directly, see base/files.h
+  *
   *  Displays the JWin file selector, with the message as caption.
   *  Allows the user to select a file, and stores the selection in the
   *  path buffer, whose length in bytes is given by size and should have
@@ -896,7 +916,6 @@ int32_t jwin_file_select_ex(AL_CONST char *message, char *path, AL_CONST char *e
     if (ext && ext[0] == '.' && strlen(ext) > 1)
         ext = &ext[1];
 
-	// Z_message("jwin_file_select_ex\n");
     static attrb_state_t default_attrb_state[ATTRB_MAX] = DEFAULT_ATTRB_STATE;
     int32_t ret;
     char *p;
@@ -933,6 +952,10 @@ int32_t jwin_file_select_ex(AL_CONST char *message, char *path, AL_CONST char *e
     file_selector[FS_EDIT].dp = path;
     file_selector[FS_OK].dp = (void*)get_config_text("OK");
     file_selector[FS_CANCEL].dp = (void*)get_config_text("Cancel");
+    file_selector[FS_EXPLORER].dp = (void*)EXPLORER_LABEL;
+#ifdef __EMSCRIPTEN__
+    file_selector[FS_EXPLORER].flags |= D_HIDDEN;
+#endif
     
     /* Set default attributes. */
     memcpy(attrb_state, default_attrb_state, sizeof(default_attrb_state));
@@ -972,7 +995,10 @@ int32_t jwin_file_select_ex(AL_CONST char *message, char *path, AL_CONST char *e
         _al_free(fext_p);
         fext_p = NULL;
     }
-    
+
+    if (ret == FS_EXPLORER)
+        return ret;
+
     if((ret == FS_CANCEL) || (ret == FS_WIN) || (!ugetc(get_filename(path))))
         return FALSE;
         
@@ -1085,6 +1111,8 @@ static int32_t fs_elist_proc(int32_t msg, DIALOG *d, int32_t c)
 }
 
 /* jwin_dfile_select_ex:
+  *  NOTE: do not call directly, see base/files.h
+  *
   *  Same as jwin_file_select_ex except that it returns TRUE on OK, even
   *  if the selected path doesn't include a file name.
   *  This is for getting directories instead of files, so a blank filename isn't an issue.
@@ -1127,6 +1155,10 @@ int32_t jwin_dfile_select_ex(AL_CONST char *message, char *path, AL_CONST char *
     file_selector[FS_EDIT].dp = path;
     file_selector[FS_OK].dp = (void*)get_config_text("OK");
     file_selector[FS_CANCEL].dp = (void*)get_config_text("Cancel");
+    file_selector[FS_EXPLORER].dp = (void*)EXPLORER_LABEL;
+#ifdef __EMSCRIPTEN__
+    file_selector[FS_EXPLORER].flags |= D_HIDDEN;
+#endif
     
     /* Set default attributes. */
     memcpy(attrb_state, default_attrb_state, sizeof(default_attrb_state));
@@ -1165,6 +1197,9 @@ int32_t jwin_dfile_select_ex(AL_CONST char *message, char *path, AL_CONST char *
         _al_free(fext_p);
         fext_p = NULL;
     }
+
+    if (ret == FS_EXPLORER)
+        return ret;
     
     if((ret == FS_CANCEL) || (ret == FS_WIN))
         return FALSE;
@@ -1247,6 +1282,8 @@ std::string derelativize_path(std::string src_path)
 }
 
 /* jwin_file_browse_ex:
+  *  NOTE: do not call directly, see base/files.h
+  *
   *  Same as jwin_file_select but it lets you give it a list of
   *  possible extensions to choose from.
   */
@@ -1288,7 +1325,11 @@ int32_t jwin_file_browse_ex(AL_CONST char *message, char *path, EXT_LIST *list, 
     file_selector[FS_EDIT].dp = path;
     file_selector[FS_OK].dp = (void*)get_config_text("OK");
     file_selector[FS_CANCEL].dp = (void*)get_config_text("Cancel");
-    
+    file_selector[FS_EXPLORER].dp = (void*)EXPLORER_LABEL;
+#ifdef __EMSCRIPTEN__
+    file_selector[FS_EXPLORER].flags |= D_HIDDEN;
+#endif
+
     fext_list = list;
     const char* ext2 = list[*list_sel].ext == NULL ? "" : list[*list_sel].ext;
     fext = (char*) malloc(strlen(ext2) + 1);
@@ -1321,7 +1362,7 @@ int32_t jwin_file_browse_ex(AL_CONST char *message, char *path, EXT_LIST *list, 
     enlarge_file_selector(width,height);
     ret = do_zqdialog(file_selector, FS_EDIT);
     
-    if((ret == FS_CANCEL) || (ret == FS_WIN) || (!ugetc(get_filename(path))))
+    if((ret == FS_EXPLORER) || (ret == FS_CANCEL) || (ret == FS_WIN) || (!ugetc(get_filename(path))))
     {
         if(fext)
         {
@@ -1334,6 +1375,9 @@ int32_t jwin_file_browse_ex(AL_CONST char *message, char *path, EXT_LIST *list, 
             _al_free(fext_p);
             fext_p = NULL;
         }
+
+        if (ret == FS_EXPLORER)
+            return ret;
         return FALSE;
     }
         

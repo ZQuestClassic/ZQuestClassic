@@ -1363,7 +1363,10 @@ void midi_resume(void)
    if (!midifile)
       return;
 
-   install_int_ex(midi_player, midi_timer_speed);
+   if (midi_timer_speed)
+      install_int_ex(midi_player, midi_timer_speed);
+   else
+      play_midi(midifile, midi_loop);
 }
 
 END_OF_FUNCTION(midi_resume);

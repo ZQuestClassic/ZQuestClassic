@@ -1,5 +1,5 @@
-#ifndef ZC_GUI_DIALOGRUNNER_H
-#define ZC_GUI_DIALOGRUNNER_H
+#ifndef ZC_GUI_DIALOGRUNNER_H_
+#define ZC_GUI_DIALOGRUNNER_H_
 
 #include "dialog_message.h"
 #include "gui/dialog_ref.h"

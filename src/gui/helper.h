@@ -1,5 +1,5 @@
-#ifndef ZC_GUI_HELPER_H
-#define ZC_GUI_HELPER_H
+#ifndef ZC_GUI_HELPER_H_
+#define ZC_GUI_HELPER_H_
 
 // This is to make static_assert failures stand out, since they can easily
 // get lost in all the other output errors produce with metaprogramming.

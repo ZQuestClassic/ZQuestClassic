@@ -1,5 +1,5 @@
-#ifndef EDITBOXNEW_H
-#define EDITBOXNEW_H
+#ifndef EDITBOXNEW_H_
+#define EDITBOXNEW_H_
 
 #include <string>
 #include <list>

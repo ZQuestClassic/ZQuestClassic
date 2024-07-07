@@ -1,8 +1,3 @@
-// std_functions.zh
-// 10th Jun, 2022 for ZC 2.55 Alpha 107
-
-//A
-
 //Returns if Link is above an npc.
 bool Above(npc n){ return Link->Y < n->Y; }
 

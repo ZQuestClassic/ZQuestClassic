@@ -1,5 +1,5 @@
-#ifndef _MSGSTR_H_
-#define _MSGSTR_H_
+#ifndef MSGSTR_H_
+#define MSGSTR_H_
 
 #include <string>
 #include "base/ints.h"

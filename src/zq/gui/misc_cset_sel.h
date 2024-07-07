@@ -1,5 +1,5 @@
-#ifndef ZC_GUI_MISC_CSET_SEL_H
-#define ZC_GUI_MISC_CSET_SEL_H
+#ifndef ZC_GUI_MISC_CSET_SEL_H_
+#define ZC_GUI_MISC_CSET_SEL_H_
 
 #include "gui/widget.h"
 #include "gui/label.h"

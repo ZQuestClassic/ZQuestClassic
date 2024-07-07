@@ -1,5 +1,5 @@
-#ifndef ZSCRIPT_SCOPE_H
-#define ZSCRIPT_SCOPE_H
+#ifndef ZSCRIPT_SCOPE_H_
+#define ZSCRIPT_SCOPE_H_
 
 #include <map>
 #include <string>

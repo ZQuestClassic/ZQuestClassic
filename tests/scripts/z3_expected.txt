@@ -66,7 +66,7 @@ SETR D2 VIEWPORT_Y
 POP D3
 ADDR D2 D3
 STORE D2 0
-LOAD D2 0.0002; if() #448 Test
+LOAD D2 0.0002; if() #447 Test
 PUSHR D2
 POP REFFFC
 SETR D2 X
@@ -109,12 +109,10 @@ GOTO 94
 SETV D2 0
 COMPAREV D2 0
 GOTOCMP 98 ==; Test 'if'
-LOAD D2 0.0003; InlineFunc[void Region::TriggerSecrets(int)] Params AND if() #448 Body Start
-REGION_TRIGGER_SECRETS D2; InlineFunc[void Region::TriggerSecrets(int)] Body AND if() #448 Body End
+LOAD D2 0.0003; InlineFunc[void Region::TriggerSecrets(int)] Params AND if() #447 Body Start
+REGION_TRIGGER_SECRETS D2; InlineFunc[void Region::TriggerSecrets(int)] Body AND if() #447 Body End
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #2 Body [Opt:AlwaysOn] End
 GOTO 16; while() #2 End AND [Opt:NeverRet] AND void run(int, int) Body End
 
 
-ALLOCATEGMEMV D2 4096 0; void run() Body Start
-SETR GD1 D2
-QUIT; void run() Body End
+QUIT; void run() Body

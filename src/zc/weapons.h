@@ -1,5 +1,5 @@
-#ifndef _WEAPONS_H_
-#define _WEAPONS_H_
+#ifndef WEAPONS_H_
+#define WEAPONS_H_
 
 #include "base/zdefs.h"
 #include "sprite.h"

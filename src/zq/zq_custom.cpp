@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <cstring>
 
+#include "base/files.h"
 #include "base/qrs.h"
 #include "base/packfile.h"
 #include "base/gui.h"
@@ -1589,12 +1590,12 @@ static int32_t enedata_data4_list[] =
 
 static int32_t enedata_flags_list[] =
 {
-	74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,98,99,100,101,102,103,104,105,106,120,121,-1
+	74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,98,99,100,101,102,103,104,105,106,120,121,400,-1
 };
 
 static int32_t enedata_flags2_list[] =
 {
-	90,91,92,93,94,95,96,97,400,401,402,403,404,405,406,407,408,409,410,411,412,413,414,-1
+	90,91,92,93,94,95,96,97,401,402,403,404,405,406,407,408,409,410,411,412,413,414,-1
 };
 
 static int32_t enedata_editorflags_list[]=
@@ -3851,16 +3852,16 @@ static DIALOG enedata_dlg[] =
 	{  d_dummy_proc,             6,    110,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Unused",											   NULL,   NULL                 },
 	{  d_dummy_proc,             6,    120,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Unused",											   NULL,   NULL                 },
 	//98
-	{  jwin_check_proc,          6,    130,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Shielded In Front",                                   NULL,   NULL                 },
-	{  jwin_check_proc,          6,    140,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Shielded On Left",                                    NULL,   NULL                 },
-	{  jwin_check_proc,          6,    150,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Shielded On Right",                                   NULL,   NULL                 },
-	{  jwin_check_proc,          6,    160,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Shielded In Back",                                    NULL,   NULL                 },
-	{  jwin_check_proc,          6,    170,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Hammer Can Break Shield",                             NULL,   NULL                 },
+	{  jwin_check_proc,          6,    140,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Shielded In Front",                                   NULL,   NULL                 },
+	{  jwin_check_proc,          6,    150,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Shielded On Left",                                    NULL,   NULL                 },
+	{  jwin_check_proc,          6,    160,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Shielded On Right",                                   NULL,   NULL                 },
+	{  jwin_check_proc,          6,    170,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Shielded In Back",                                    NULL,   NULL                 },
+	{  jwin_check_proc,          6,    180,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Hammer Can Break Shield",                             NULL,   NULL                 },
 	{  d_dummy_proc,             6,    190,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Shield Is Mirrored",                                  NULL,   NULL                 },
 	{  d_dummy_proc,             6,    200,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Unused",											   NULL,   NULL                 },
-	{  jwin_check_proc,          6,     90,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Can Only Be Seen By Lens Of Truth",                   NULL,   NULL                 },
+	{  jwin_check_proc,          6,    100,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Can Only Be Seen By Lens Of Truth",                   NULL,   NULL                 },
 	//106
-	{  jwin_check_proc,          6,    100,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Is Flashing",                                         NULL,   NULL                 },
+	{  jwin_check_proc,          6,    110,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Is Flashing",                                         NULL,   NULL                 },
 	{  jwin_check_proc,          6,     50,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Spawned By \"Zora\" Screen Flag",                      NULL,   NULL                 },
 	{  jwin_check_proc,          6,     60,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Spawned By \"Falling Rocks\" Screen Flag",             NULL,   NULL                 },
 	{  jwin_check_proc,          6,     70,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Spawned By \"Corner Traps\" Screen Flag",              NULL,   NULL                 },
@@ -3875,8 +3876,8 @@ static DIALOG enedata_dlg[] =
 	{  jwin_check_proc,          6,    150,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Spawned By \"Armos\" Combo Type",                     NULL,   NULL                 },
 	{  jwin_check_proc,          6,    160,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Spawned By \"Grave\" Combo Type",                     NULL,   NULL                 },
 	{  jwin_check_proc,          6,    170,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Spawned By \"Ganon\" Room Type",                      NULL,   NULL                 },
-	{  jwin_check_proc,          6,    110,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Is Flickering",                                       NULL,   NULL                 },
-	{  jwin_check_proc,          6,    120,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Is Translucent",                                      NULL,   NULL                 },
+	{  jwin_check_proc,          6,    120,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Is Flickering",                                       NULL,   NULL                 },
+	{  jwin_check_proc,          6,    130,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Is Translucent",                                      NULL,   NULL                 },
 	//122
 	{  d_dummy_proc,           160,     40,      0,      8,    vc(15),                 vc(1),                   0,    0,           0,    0,  NULL,                                                           NULL,   NULL                 },
 	{  d_dummy_proc,           160,     40,      0,      8,    vc(15),                 vc(1),                   0,    0,           0,    0,  NULL,                                                           NULL,   NULL                 },
@@ -4274,7 +4275,7 @@ static DIALOG enedata_dlg[] =
 	{  jwin_droplist_proc,  126,   140-36,   151,    16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,           0,    0, (void *) &weapon_list,                            NULL,   NULL                  },
 	//399
 	{  jwin_check_proc,          6,    180,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Ignores \"Temp No Return\".",                                         NULL,   NULL                 },
-	{  d_dummy_proc,          6,    60,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Flag2 0x00020000",                                         NULL,   NULL                 },
+	{  jwin_check_proc,          6,    90,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Ignored by Kill All Enemies effects.",                                         NULL,   NULL                 },
 	{  d_dummy_proc,          6,    70,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Flag2 0x00040000",                                         NULL,   NULL                 },
 	{  d_dummy_proc,          6,    80,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Flag2 0x00080000",                                         NULL,   NULL                 },
 	{  d_dummy_proc,          6,    90,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Flag2 0x00100000",                                         NULL,   NULL                 },
@@ -5017,8 +5018,8 @@ void edit_enemydata(int32_t index)
 	for(int32_t i=0; i<32; i++)
 		enedata_dlg[74+i].flags = (guysbuf[index].flags & (1<<i)) ? D_SELECTED : 0;
 		
-	enedata_dlg[186].d1 = (guysbuf[index].flags & guy_fadeinstant ? 2
-						   : guysbuf[index].flags & guy_fadeflicker ? 1 : 0);
+	enedata_dlg[186].d1 = (guysbuf[index].flags & guy_fade_instant ? 2
+						   : guysbuf[index].flags & guy_fade_flicker ? 1 : 0);
 						   
 	for(int32_t i=0; i<16; i++)
 		enedata_dlg[106+i].flags = (guysbuf[index].flags2 & (1<<i)) ? D_SELECTED : 0;
@@ -5026,19 +5027,19 @@ void edit_enemydata(int32_t index)
 	for(int32_t i=0; i<16; i++)
 		enedata_dlg[399+i].flags = (guysbuf[index].flags2 & (1<<(i+16))) ? D_SELECTED : 0;
 	
-	enedata_dlg[371].flags = (guysbuf[index].moveflags & FLAG_OBEYS_GRAV) ? D_SELECTED : 0;
-	enedata_dlg[372].flags = (guysbuf[index].moveflags & FLAG_CAN_PITFALL) ? D_SELECTED : 0;
-	enedata_dlg[373].flags = (guysbuf[index].moveflags & FLAG_CAN_PITWALK) ? D_SELECTED : 0;
-	enedata_dlg[374].flags = (guysbuf[index].moveflags & FLAG_CAN_WATERDROWN) ? D_SELECTED : 0;
-	enedata_dlg[375].flags = (guysbuf[index].moveflags & FLAG_CAN_WATERWALK) ? D_SELECTED : 0;
-	enedata_dlg[417].flags = (guysbuf[index].moveflags & FLAG_ONLY_WATERWALK) ? D_SELECTED : 0;
-	enedata_dlg[418].flags = (guysbuf[index].moveflags & FLAG_ONLY_SHALLOW_WATERWALK) ? D_SELECTED : 0;
-	enedata_dlg[419].flags = (guysbuf[index].moveflags & FLAG_ONLY_PITWALK) ? D_SELECTED : 0;
-	enedata_dlg[420].flags = (guysbuf[index].moveflags & FLAG_IGNORE_SOLIDITY) ? D_SELECTED : 0;
-	enedata_dlg[421].flags = (guysbuf[index].moveflags & FLAG_IGNORE_BLOCKFLAGS) ? D_SELECTED : 0;
-	enedata_dlg[422].flags = (guysbuf[index].moveflags & FLAG_IGNORE_SCREENEDGE) ? D_SELECTED : 0;
-	enedata_dlg[423].flags = (guysbuf[index].moveflags & FLAG_USE_NEW_MOVEMENT) ? D_SELECTED : 0;
-	enedata_dlg[424].flags = (guysbuf[index].moveflags & FLAG_NOT_PUSHABLE) ? D_SELECTED : 0;
+	enedata_dlg[371].flags = (guysbuf[index].moveflags & move_obeys_grav) ? D_SELECTED : 0;
+	enedata_dlg[372].flags = (guysbuf[index].moveflags & move_can_pitfall) ? D_SELECTED : 0;
+	enedata_dlg[373].flags = (guysbuf[index].moveflags & move_can_pitwalk) ? D_SELECTED : 0;
+	enedata_dlg[374].flags = (guysbuf[index].moveflags & move_can_waterdrown) ? D_SELECTED : 0;
+	enedata_dlg[375].flags = (guysbuf[index].moveflags & move_can_waterwalk) ? D_SELECTED : 0;
+	enedata_dlg[417].flags = (guysbuf[index].moveflags & move_only_waterwalk) ? D_SELECTED : 0;
+	enedata_dlg[418].flags = (guysbuf[index].moveflags & move_only_shallow_waterwalk) ? D_SELECTED : 0;
+	enedata_dlg[419].flags = (guysbuf[index].moveflags & move_only_pitwalk) ? D_SELECTED : 0;
+	enedata_dlg[420].flags = (guysbuf[index].moveflags & move_ignore_solidity) ? D_SELECTED : 0;
+	enedata_dlg[421].flags = (guysbuf[index].moveflags & move_ignore_blockflags) ? D_SELECTED : 0;
+	enedata_dlg[422].flags = (guysbuf[index].moveflags & move_ignore_screenedge) ? D_SELECTED : 0;
+	enedata_dlg[423].flags = (guysbuf[index].moveflags & move_new_movement) ? D_SELECTED : 0;
+	enedata_dlg[424].flags = (guysbuf[index].moveflags & move_not_pushable) ? D_SELECTED : 0;
 	
 	int32_t ret;
 	guydata test;
@@ -5241,16 +5242,16 @@ void edit_enemydata(int32_t index)
 		
 		
 		for(int32_t i=0; i<32; i++)
-			test.flags |= (enedata_dlg[74+i].flags & D_SELECTED) ? (1<<i) : 0;
+			test.flags |= (guy_flags)((enedata_dlg[74+i].flags & D_SELECTED) ? (1<<i) : 0);
 			
-		test.flags &= ~(guy_fadeinstant|guy_fadeflicker);
-		test.flags |= (enedata_dlg[186].d1==2 ? guy_fadeinstant : enedata_dlg[186].d1==1 ? guy_fadeflicker : 0);
+		test.flags &= ~(guy_fade_instant|guy_fade_flicker);
+		test.flags |= (guy_flags)(enedata_dlg[186].d1==2 ? guy_fade_instant : enedata_dlg[186].d1==1 ? guy_fade_flicker : 0);
 		
 		for(int32_t i=0; i<16; i++)
-			test.flags2 |= (enedata_dlg[106+i].flags & D_SELECTED) ? (1<<i) : 0;
+			test.flags2 |= (guy_flags2)((enedata_dlg[106+i].flags & D_SELECTED) ? (1<<i) : 0);
 		
 		for(int32_t i=0; i<16; i++)
-			test.flags2 |= (enedata_dlg[399+i].flags & D_SELECTED) ? (1<<(i+16)) : 0;
+			test.flags2 |= (guy_flags2)((enedata_dlg[399+i].flags & D_SELECTED) ? (1<<(i+16)) : 0);
 			
 		if(enedata_dlg[143].flags & D_SELECTED)
 		{
@@ -5356,33 +5357,33 @@ void edit_enemydata(int32_t index)
 		//eweapon script
 		test.weaponscript = bieweapons[enedata_dlg[370].d1].second + 1; 
 		
-		test.moveflags = 0;
+		test.moveflags = move_none;
 		if(enedata_dlg[371].flags & D_SELECTED)
-			test.moveflags |= FLAG_OBEYS_GRAV;
+			test.moveflags |= move_obeys_grav;
 		if(enedata_dlg[372].flags & D_SELECTED)
-			test.moveflags |= FLAG_CAN_PITFALL;
+			test.moveflags |= move_can_pitfall;
 		if(enedata_dlg[373].flags & D_SELECTED)
-			test.moveflags |= FLAG_CAN_PITWALK;
+			test.moveflags |= move_can_pitwalk;
 		if(enedata_dlg[374].flags & D_SELECTED)
-			test.moveflags |= FLAG_CAN_WATERDROWN;
+			test.moveflags |= move_can_waterdrown;
 		if(enedata_dlg[375].flags & D_SELECTED)
-			test.moveflags |= FLAG_CAN_WATERWALK;
+			test.moveflags |= move_can_waterwalk;
 		if(enedata_dlg[417].flags & D_SELECTED)
-			test.moveflags |= FLAG_ONLY_WATERWALK;
+			test.moveflags |= move_only_waterwalk;
 		if(enedata_dlg[418].flags & D_SELECTED)
-			test.moveflags |= FLAG_ONLY_SHALLOW_WATERWALK;
+			test.moveflags |= move_only_shallow_waterwalk;
 		if(enedata_dlg[419].flags & D_SELECTED)
-			test.moveflags |= FLAG_ONLY_PITWALK;
+			test.moveflags |= move_only_pitwalk;
 		if(enedata_dlg[420].flags & D_SELECTED)
-			test.moveflags |= FLAG_IGNORE_SOLIDITY;
+			test.moveflags |= move_ignore_solidity;
 		if(enedata_dlg[421].flags & D_SELECTED)
-			test.moveflags |= FLAG_IGNORE_BLOCKFLAGS;
+			test.moveflags |= move_ignore_blockflags;
 		if(enedata_dlg[422].flags & D_SELECTED)
-			test.moveflags |= FLAG_IGNORE_SCREENEDGE;
+			test.moveflags |= move_ignore_screenedge;
 		if(enedata_dlg[423].flags & D_SELECTED)
-			test.moveflags |= FLAG_USE_NEW_MOVEMENT;
+			test.moveflags |= move_new_movement;
 		if(enedata_dlg[424].flags & D_SELECTED)
-			test.moveflags |= FLAG_NOT_PUSHABLE;
+			test.moveflags |= move_not_pushable;
 	
 		//end npc scripts
 	
@@ -6491,7 +6492,7 @@ void save_enemy(int32_t index)
 	if(index < 0) index = elist_dlg[2].d1;
 	if(index==0)
 		return;
-	if(!getname("Save NPC(.znpc)", "znpc", NULL,datapath,false))
+	if(!prompt_for_new_file_compat("Save NPC(.znpc)", "znpc", NULL,datapath,false))
 		return;
 	int32_t iid = bie[index].i;
 	
@@ -6509,7 +6510,7 @@ void load_enemy(int32_t index)
 	if(index < 0) index = elist_dlg[2].d1;
 	if(index==0)
 		return;
-	if(!getname("Load NPC(.znpc)", "znpc", NULL,datapath,false))
+	if(!prompt_for_existing_file_compat("Load NPC(.znpc)", "znpc", NULL,datapath,false))
 		return;
 	PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
 	if(!f) return;

@@ -1,5 +1,5 @@
-#ifndef _CHEATS_H_
-#define _CHEATS_H_
+#ifndef CHEATS_H_
+#define CHEATS_H_
 
 #include <vector>
 #include <string>

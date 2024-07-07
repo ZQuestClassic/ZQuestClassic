@@ -62,9 +62,11 @@ interface QuestManifest {
   releases: Array<{
     name: string;
     date: string;
-    /** Hash of the zip downloaded from PZC. Does not include external music. */
+    /** sha1 hash of the zip downloaded from PZC. Does not include external music. */
     hash: string;
     resources: string[];
+    /** md5 hash of each resource. */
+    resourceHashes: string[];
   }>;
   defaultPath: string;
   /** External music. */
@@ -199,10 +201,10 @@ function download(url: string, outputPath: string) {
     });
 }
 
-function getFileHash(path: string): Promise<string> {
+function getFileHash(path: string, algorithm: string): Promise<string> {
   return new Promise(resolve => {
     const fd = fs.createReadStream(path);
-    const hash = crypto.createHash('sha1');
+    const hash = crypto.createHash(algorithm);
     hash.setEncoding('hex');
     fd.on('end', function() {
       hash.end();
@@ -210,6 +212,11 @@ function getFileHash(path: string): Promise<string> {
     });
     fd.pipe(hash);
   });
+}
+
+async function getMd5Hash(path: string): Promise<string> {
+  const hash = await getFileHash(path, 'md5');
+  return hash.toUpperCase();
 }
 
 async function downloadGoogleDriveUrl(page: puppeteer.Page, url: string, destination: string) {
@@ -473,11 +480,34 @@ async function processId(page: puppeteer.Page, type: EntryType, index: number) {
     }
   };
 
+  const dateToString = (date: Date) => {
+    const dd = String(date.getDate()).padStart(2, '0');
+    const yyyy = date.getFullYear();
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return `${dd} ${monthNames[date.getMonth()]} ${yyyy}`;
+  };
+
+  const getDate = (dateStr: string) => {
+    if (dateStr.includes('Yesterday')) {
+      const date = new Date(new Date().setDate(new Date().getDate()-1));
+      return dateToString(date);
+    }
+    if (dateStr.includes('Today') || dateStr.includes(' PM') || dateStr.includes(' AM')) {
+      const date = new Date(new Date().setDate(new Date().getDate()));
+      return dateToString(date);
+    }
+
+    return dateStr;
+  };
+
   const authorRaw = findMetadata(/Creator: (.*)/ms) || '';
-  const dateAdded = findMetadata(/Added: (.*)/ms);
-  const dateUpdated = findMetadata(/Updated: (.*)/ms);
   const genre = findMetadata(/Genre: (.*)/ms)
   const zcVersion = findMetadata(/ZC Version: (.*)/ms);
+
+  let dateAdded = findMetadata(/Added: (.*)/ms);
+  let dateUpdated = findMetadata(/Updated: (.*)/ms);
+  if (dateAdded) dateAdded = getDate(dateAdded);
+  if (dateUpdated) dateUpdated = getDate(dateUpdated);
 
   for (const author of authorRaw.split(',').map(a => a.trim())) {
     if (authors.some(a => a.name === author)) continue;
@@ -519,7 +549,7 @@ async function processId(page: puppeteer.Page, type: EntryType, index: number) {
     fs.rmSync(archivePath, {force: true});
     await download(`https://www.purezc.net/index.php?page=download&section=${capitalize(type)}&id=${index}`, archivePath);
   }
-  const contentHash = await getFileHash(archivePath);
+  const contentHash = await getFileHash(archivePath, 'sha1');
 
   let thisRelease;
   const releases = existingManifestEntry?.releases || [];
@@ -536,6 +566,7 @@ async function processId(page: puppeteer.Page, type: EntryType, index: number) {
       date: dateUpdated || dateAdded || '',
       hash: contentHash,
       resources: [],
+      resourceHashes: [],
     };
     releases.unshift(thisRelease);
   } else {
@@ -619,10 +650,20 @@ async function processId(page: puppeteer.Page, type: EntryType, index: number) {
     }
   }
 
+  if (thisRelease.resources.length === 0) {
+    console.log(`[${id}] WARNING - no resources found, ignoring update`);
+    fs.rmSync(resourcesDir, {recursive: true, force: true});
+    return;
+  }
+
   const qsts = thisRelease.resources.filter(r => r.endsWith('.qst'));
   const qst = qsts[0];
   // TODO: Don't forget previous value.
   const defaultPath = `${id}/${thisRelease.name}/${qst}`;
+
+  thisRelease.resourceHashes = await Promise.all(thisRelease.resources.map(resource => {
+    return getMd5Hash(`${DB}/${id}/${thisRelease.name}/${resource}`);
+  }));
 
   const quest: QuestManifest = {
     id,

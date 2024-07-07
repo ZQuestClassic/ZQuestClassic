@@ -1,10 +1,10 @@
-#ifndef _MAPS_H_
-#define _MAPS_H_
+#ifndef MAPS_H_
+#define MAPS_H_
 
 #include <optional>
 #include <utility>
 #include "base/handles.h"
-// TODO: extract direction so this can be removed.
+// TODO z3 ! extract direction so this can be removed.
 #include "base/zdefs.h"
 
 struct newcombo;

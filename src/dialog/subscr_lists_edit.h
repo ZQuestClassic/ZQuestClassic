@@ -1,5 +1,5 @@
-#ifndef ZC_DIALOG_SUBSCR_LISTS_EDIT_H
-#define ZC_DIALOG_SUBSCR_LISTS_EDIT_H
+#ifndef ZC_DIALOG_SUBSCR_LISTS_EDIT_H_
+#define ZC_DIALOG_SUBSCR_LISTS_EDIT_H_
 
 #include <gui/dialog.h>
 #include <gui/window.h>

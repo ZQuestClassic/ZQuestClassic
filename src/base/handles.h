@@ -1,5 +1,5 @@
-#ifndef _HANDLES_H_
-#define _HANDLES_H_
+#ifndef BASE_HANDLES_H_
+#define BASE_HANDLES_H_
 
 #include "base/combo.h"
 #include "base/cpos_info.h"

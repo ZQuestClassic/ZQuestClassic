@@ -1,6 +1,7 @@
 #include <cstring>
 #include <stdio.h>
 
+#include "base/files.h"
 #include "base/gui.h"
 #include "base/zc_alleg.h"
 #include "base/zdefs.h"
@@ -1452,7 +1453,7 @@ int32_t EditColors(const char *caption,int32_t first,int32_t count,byte *label)
 		}
 		if ( ret == 43 )
 		{
-			if(getname("Save Palette (.png)","png",NULL,datapath,false))
+			if(prompt_for_new_file_compat("Save Palette (.png)","png",NULL,datapath,false))
 			{
 				//bool cancel;
 				//char buf[80],buf2[80],

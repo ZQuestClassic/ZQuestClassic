@@ -1,5 +1,5 @@
-#ifndef _ZASM_TABLE_H_
-#define _ZASM_TABLE_H_
+#ifndef ZASM_TABLE_H_
+#define ZASM_TABLE_H_
 
 #include "base/ints.h"
 #include "zasm/defines.h"

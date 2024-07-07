@@ -1,5 +1,5 @@
-#ifndef ZC_GUI_LIST_H
-#define ZC_GUI_LIST_H
+#ifndef ZC_GUI_LIST_H_
+#define ZC_GUI_LIST_H_
 
 #include "gui/widget.h"
 #include "gui/dialog_ref.h"

@@ -1,3 +1,4 @@
+#include "base/files.h"
 #define MIDI_TRACK_BUFFER_SIZE 50
 
 #include <memory>
@@ -646,7 +647,7 @@ bool trip=false;
 int32_t fill_type=1;
 
 bool first_save=false;
-char *filepath,*temppath,*midipath,*datapath,*imagepath,*tmusicpath,*last_timed_save;
+char *filepath,*midipath,*datapath,*imagepath,*tmusicpath,*last_timed_save;
 string helpstr, zstringshelpstr;
 
 ZCMUSIC *zcmusic = NULL;
@@ -1895,7 +1896,7 @@ void savesometiles(const char *prompt,int32_t initialval)
 	{
 		first_tile_id = vbound(atoi(firsttile), 0, NEWMAXTILES);
 		the_tile_count = vbound(atoi(tilecount), 1, NEWMAXTILES-first_tile_id);
-		if(getname("Save ZTILE(.ztile)", "ztile", NULL,datapath,false))
+		if(prompt_for_new_file_compat("Save ZTILE(.ztile)", "ztile", NULL,datapath,false))
 		{  
 			char name[PATH_MAX];
 			extract_name(temppath,name,FILENAMEALL);
@@ -1961,7 +1962,7 @@ void writesometiles_to(const char *prompt,int32_t initialval)
 	{
 		first_tile_id = vbound(atoi(firsttile), 0, NEWMAXTILES);
 		//the_tile_count = vbound(atoi(tilecount), 1, NEWMAXTILES-first_tile_id);
-		if(getname("Load ZTILE(.ztile)", "ztile", NULL,datapath,false))
+		if(prompt_for_existing_file_compat("Load ZTILE(.ztile)", "ztile", NULL,datapath,false))
 		{  
 			
 			char name[256];
@@ -2037,7 +2038,7 @@ void savesomecombos(const char *prompt,int32_t initialval)
 	{
 		first_tile_id = vbound(atoi(firsttile), 0, (MAXCOMBOS-1));
 		the_tile_count = vbound(atoi(tilecount), 1, (MAXCOMBOS-1)-first_tile_id);
-		if(getname("Save ZCOMBO(.zcombo)", "zcombo", NULL,datapath,false))
+		if(prompt_for_new_file_compat("Save ZCOMBO(.zcombo)", "zcombo", NULL,datapath,false))
 		{  
 			char name[PATH_MAX];
 			extract_name(temppath,name,FILENAMEALL);
@@ -2111,7 +2112,7 @@ void writesomecombos(const char *prompt,int32_t initialval)
 		al_trace("Nooverwrite is: %d\n", nooverwrite);
 		first_tile_id = vbound(atoi(firsttile), 0, (MAXCOMBOS-1));
 		//the_tile_count = vbound(atoi(tilecount), 1, NEWMAXTILES-first_tile_id);
-		if(getname("Load ZCOMBO(.zcombo)", "zcombo", NULL,datapath,false))
+		if(prompt_for_existing_file_compat("Load ZCOMBO(.zcombo)", "zcombo", NULL,datapath,false))
 		{  
 			char name[256];
 			extract_name(temppath,name,FILENAMEALL);
@@ -2192,7 +2193,7 @@ void loadcombopack(const char *prompt,int32_t initialval)
 		al_trace("Nooverwrite is: %d\n", nooverwrite);
 		first_tile_id = vbound(atoi(firsttile), 0, (MAXCOMBOS-1));
 		//the_tile_count = vbound(atoi(tilecount), 1, NEWMAXTILES-first_tile_id);
-		if(getname("Load ZCOMBO(.zcombo)", "zcombo", NULL,datapath,false))
+		if(prompt_for_existing_file_compat("Load ZCOMBO(.zcombo)", "zcombo", NULL,datapath,false))
 		{  
 			char name[256];
 			extract_name(temppath,name,FILENAMEALL);
@@ -2289,7 +2290,7 @@ void writesomecombos_to(const char *prompt,int32_t initialval)
 		al_trace("skipover is: %d\n", skipover);
 		//skipover = vbound(skipover, 0, (MAXCOMBOS-1-skipover));
 		//the_tile_count = vbound(atoi(tilecount), 1, NEWMAXTILES-first_tile_id);
-		if(getname("Load ZCOMBO(.zcombo)", "zcombo", NULL,datapath,false))
+		if(prompt_for_existing_file_compat("Load ZCOMBO(.zcombo)", "zcombo", NULL,datapath,false))
 		{  
 			char name[256];
 			extract_name(temppath,name,FILENAMEALL);
@@ -2374,7 +2375,7 @@ void savesomedmaps(const char *prompt,int32_t initialval)
 			last_dmap_id = first_dmap_id;
 			first_dmap_id = swap;			
 		}
-		if(!getname("Export DMaps (.zdmap)","zdmap",NULL,datapath,false))
+		if(!prompt_for_new_file_compat("Export DMaps (.zdmap)","zdmap",NULL,datapath,false))
 		
 		
 		saved=false;
@@ -2453,7 +2454,7 @@ void savesomecomboaliases(const char *prompt,int32_t initialval)
 	{
 		first_tile_id = vbound(atoi(firsttile), 0, (MAXCOMBOALIASES-1));
 		the_tile_count = vbound(atoi(tilecount), 1, (MAXCOMBOALIASES-1)-first_tile_id);
-		if(getname("Save ZALIAS(.zalias)", "zalias", NULL,datapath,false))
+		if(prompt_for_new_file_compat("Save ZALIAS(.zalias)", "zalias", NULL,datapath,false))
 		{  
 			char name[PATH_MAX];
 			extract_name(temppath,name,FILENAMEALL);
@@ -2520,7 +2521,7 @@ void writesomecomboaliases_to(const char *prompt,int32_t initialval)
 	{
 		first_tile_id = vbound(atoi(firsttile), 0, (MAXCOMBOALIASES-1));
 		//the_tile_count = vbound(atoi(tilecount), 1, NEWMAXTILES-first_tile_id);
-		if(getname("Load ZALIAS(.zalias)", "zalias", NULL,datapath,false))
+		if(prompt_for_existing_file_compat("Load ZALIAS(.zalias)", "zalias", NULL,datapath,false))
 		{  
 			char name[256];
 			extract_name(temppath,name,FILENAMEALL);
@@ -2596,7 +2597,7 @@ void do_exportdoorset(const char *prompt,int32_t initialval)
 		first_doorset_id = vbound(atoi(firstdoor), 0, (MAXCOMBOS-1));
 		the_doorset_count = vbound(atoi(doorct), 1, (MAXCOMBOS-1)-first_doorset_id);
 		*/
-		if(getname("Save ZDOORS(.zdoors)", "zdoors", NULL,datapath,false))
+		if(prompt_for_new_file_compat("Save ZDOORS(.zdoors)", "zdoors", NULL,datapath,false))
 		{  
 			char name[256];
 			extract_name(temppath,name,FILENAMEALL);
@@ -2673,7 +2674,7 @@ void do_importdoorset(const char *prompt,int32_t initialval)
 		first_doorset_id = vbound(atoi(firstdoor), 0, door_combo_set_count);
 		the_doorset_count = vbound(atoi(doorct), 1, door_combo_set_count);
 		the_dest_id = vbound(atoi(destid), 0, door_combo_set_count);
-		if(getname("Load ZDOORS(.zdoors)", "zdoors", NULL,datapath,false))
+		if(prompt_for_existing_file_compat("Load ZDOORS(.zdoors)", "zdoors", NULL,datapath,false))
 		{  
 			char name[256];
 			extract_name(temppath,name,FILENAMEALL);
@@ -3735,46 +3736,6 @@ int32_t onGotoPage()
     return D_O_K;
 }
 
-bool getname(const char *prompt,const char *ext,EXT_LIST *list,const char *def,bool usefilename)
-{
-    go();
-    int32_t ret=0;
-    ret = getname_nogo(prompt,ext,list,def,usefilename);
-    comeback();
-    return ret != 0;
-}
-
-
-bool getname_nogo(const char *prompt,const char *ext,EXT_LIST *list,const char *def,bool usefilename)
-{
-    if(def!=temppath)
-        strcpy(temppath,def);
-        
-    if(!usefilename)
-    {
-        int32_t i=(int32_t)strlen(temppath);
-        
-        while(i>=0 && temppath[i]!='\\' && temppath[i]!='/')
-            temppath[i--]=0;
-    }
-    
-    //  int32_t ret = file_select_ex(prompt,temppath,ext,255,-1,-1);
-    int32_t ret=0;
-    int32_t sel=0;
-    
-    if(list==NULL)
-    {
-        ret = jwin_file_select_ex(prompt,temppath,ext,2048,-1,-1,get_zc_font(font_lfont));
-    }
-    else
-    {
-        ret = jwin_file_browse_ex(prompt, temppath, list, &sel, 2048, -1, -1, get_zc_font(font_lfont));
-    }
-    
-    return ret!=0;
-}
-
-
 static char track_number_str_buf[MIDI_TRACK_BUFFER_SIZE] = {0};
 const char *tracknumlist(int32_t index, int32_t *list_size)
 {
@@ -3840,7 +3801,7 @@ int32_t playMusic()
 	char allmusic_types[256];
 	sprintf(allmusic_types, "%s;mid", zcmusic_types);
 	
-	if(getname("Load Music",(char*)allmusic_types,NULL,midipath,false))
+	if(prompt_for_existing_file_compat("Load Music",(char*)allmusic_types,NULL,midipath,false))
 	{
 		strcpy(midipath,temppath);
 		
@@ -4405,7 +4366,7 @@ int32_t load_the_pic(BITMAP **dst, PALETTE dstpal)
 	#pragma GCC diagnostic pop
 #endif
     
-    int32_t gotit = getname(extbuf[0],extbuf[1],NULL,imagepath,true);
+    int32_t gotit = prompt_for_existing_file_compat(extbuf[0],extbuf[1],NULL,imagepath,true);
     
     if(!gotit)
     {
@@ -4475,7 +4436,7 @@ int load_the_pic_new(BITMAP **dst, PALETTE dstpal)
 	#pragma GCC diagnostic pop
 #endif
     
-    int32_t gotit = getname(extbuf[0],extbuf[1],NULL,imagepath,true);
+    int32_t gotit = prompt_for_existing_file_compat(extbuf[0],extbuf[1],NULL,imagepath,true);
     
     if(!gotit)
         return 1;
@@ -5536,16 +5497,6 @@ void draw_screenunit(int32_t unit, int32_t flags)
 						
 						safe_rect(mapscreenbmp,x1,y1,x1+15,y1+15,clr);
 					}
-					
-				/*
-					  for (int32_t i=0; i<4; i++) for (int32_t j=0; j<9; i++)
-					  {
-						int32_t x1 = stx[i][j]+(showedges?16:0);
-						int32_t y1 = sty[i][j]+(showedges?16:0);
-						rect(mapscreenbmp,x1,y1,x1+15,y1+15,vc(15));
-					  }
-				*/
-				
 			}
 			
 			if(ShowFFCs)
@@ -5554,7 +5505,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				for(int32_t i=MAXFFCS-1; i>=0; i--)
 				{
 					ffcdata& ff = ffscr->ffcs[i];
-					if(ff.data !=0 && (CurrentLayer<2 || (ff.flags&ffOVERLAY)))
+					if(ff.data !=0 && (CurrentLayer<2 || (ff.flags&ffc_overlay)))
 					{
 						auto x = ff.x+(showedges?16:0);
 						auto y = ff.y+(showedges?16:0);
@@ -10019,7 +9970,7 @@ void domouse()
 		static int mapscr_tooltip_id = ttip_register_id();
 		bool did_ffttip = false;
 		for(int32_t i=MAXFFCS-1; i>=0; i--)
-			if(Map.CurrScr()->ffcs[i].data !=0 && (CurrentLayer<2 || (Map.CurrScr()->ffcs[i].flags&ffOVERLAY)))
+			if(Map.CurrScr()->ffcs[i].data !=0 && (CurrentLayer<2 || (Map.CurrScr()->ffcs[i].flags&ffc_overlay)))
 			{
 				int32_t ffx = Map.CurrScr()->ffcs[i].x.getFloor();
 				int32_t ffy = Map.CurrScr()->ffcs[i].y.getFloor();
@@ -10594,7 +10545,7 @@ void domouse()
 				
 				// Move FFCs
 				for(int32_t i=MAXFFCS-1; i>=0; i--)
-					if(Map.CurrScr()->ffcs[i].data !=0 && (CurrentLayer<2 || (Map.CurrScr()->ffcs[i].flags&ffOVERLAY)))
+					if(Map.CurrScr()->ffcs[i].data !=0 && (CurrentLayer<2 || (Map.CurrScr()->ffcs[i].flags&ffc_overlay)))
 					{
 						int32_t ffx = Map.CurrScr()->ffcs[i].x.getFloor();
 						int32_t ffy = Map.CurrScr()->ffcs[i].y.getFloor();
@@ -10686,7 +10637,7 @@ void domouse()
 					if(clickedffc || !(Map.CurrScr()->valid&mVALID))
 						continue;
 						
-					if(data!=0 && (CurrentLayer<2 || (Map.CurrScr()->ffcs[i].flags&ffOVERLAY)))
+					if(data!=0 && (CurrentLayer<2 || (Map.CurrScr()->ffcs[i].flags&ffc_overlay)))
 					{
 						int32_t ffx = Map.CurrScr()->ffcs[i].x.getFloor();
 						int32_t ffy = Map.CurrScr()->ffcs[i].y.getFloor();
@@ -10745,7 +10696,7 @@ void domouse()
 												.th = 1,
 												.ew = 16,
 												.eh = 16,
-												.flags = 0,
+												.flags = ffc_none,
 												.inita = 10000,
 												.initd = 0,
 											});
@@ -13046,7 +12997,7 @@ void save_wsprite(int32_t index = -1)
 	if(index < 0) index = wlist_dlg[2].d1;
 	if(unsigned(index)>255)
 		return;
-	if(!getname("Save ZWPNSPR(.zwpnspr)", "zwpnspr", NULL,datapath,false))
+	if(!prompt_for_new_file_compat("Save ZWPNSPR(.zwpnspr)", "zwpnspr", NULL,datapath,false))
 		return;
 	
 	PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
@@ -13063,7 +13014,7 @@ void load_wsprite(int32_t index = -1)
 	if(index < 0) index = wlist_dlg[2].d1;
 	if(unsigned(index)>255)
 		return;
-	if(!getname("Load ZWPNSPR(.zwpnspr)", "zwpnspr", NULL,datapath,false))
+	if(!prompt_for_existing_file_compat("Load ZWPNSPR(.zwpnspr)", "zwpnspr", NULL,datapath,false))
 		return;
 	PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
 	if(!f) return;
@@ -15759,7 +15710,7 @@ void dmap_rclick_func(int32_t index, int32_t x, int32_t y)
 			}, 0, !dmapcopied },
 		{ "&Save", [&]()
 			{
-				if(!getname("Save DMAP(.zdmap)", "zdmap", NULL,datapath,false))
+				if(!prompt_for_new_file_compat("Save DMAP(.zdmap)", "zdmap", NULL,datapath,false))
 					return;
 				PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
 				if(!f) return;
@@ -15768,7 +15719,7 @@ void dmap_rclick_func(int32_t index, int32_t x, int32_t y)
 			} },
 		{ "&Load", [&]()
 			{
-				if(!getname("Load DMAP(.zdmap)", "zdmap", NULL,datapath,false))
+				if(!prompt_for_existing_file_compat("Load DMAP(.zdmap)", "zdmap", NULL,datapath,false))
 					return;
 				PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
 				if(!f) return;
@@ -15986,7 +15937,7 @@ void edit_tune(int32_t i)
         switch(ret)
         {
         case 9:
-            if(getname("Load tune","mid;nsf",NULL,temppath,true))
+            if(prompt_for_existing_file_compat("Load tune","mid;nsf",NULL,temppath,true))
             {
                 zc_stop_midi();
                 
@@ -17331,7 +17282,7 @@ static DIALOG editinfo_dlg[] =
 void EditInfoType(int32_t index)
 {
     char ps1[6],ps2[6],ps3[6];
-    char infoname[32];
+    char infoname[33];
     char caption[40];
     
     int32_t str1, str2, str3;
@@ -17343,7 +17294,8 @@ void EditInfoType(int32_t index)
     sprintf(ps1,"%d",QMisc.info[index].price[0]);
     sprintf(ps2,"%d",QMisc.info[index].price[1]);
     sprintf(ps3,"%d",QMisc.info[index].price[2]);
-    snprintf(infoname,32,"%s",QMisc.info[index].name);
+    strncpy(infoname,QMisc.info[index].name,32);
+    infoname[32] = 0;
     editinfo_dlg[8].dp  = ps1;
     editinfo_dlg[10].dp = ps2;
     editinfo_dlg[12].dp = ps3;
@@ -17369,7 +17321,7 @@ void EditInfoType(int32_t index)
         QMisc.info[index].price[0] = vbound(atoi(ps1), 0, 65535);
         QMisc.info[index].price[1] = vbound(atoi(ps2), 0, 65535);
         QMisc.info[index].price[2] = vbound(atoi(ps3), 0, 65535);
-        snprintf(QMisc.info[index].name,32,"%s",infoname);
+        strncpy(QMisc.info[index].name,infoname,32);
         str1 = editinfo_dlg[9].d1;
         str2 = editinfo_dlg[11].d1;
         str3 = editinfo_dlg[13].d1;
@@ -23460,7 +23412,7 @@ int32_t onImportZASM()
 {
 	importzasm_dlg[0].dp2 = get_zc_font(font_lfont);
 	importzasm_dlg[4].dp = (void*)&ffscript_list;
-	if(!getname("Import Script (.zasm)","zasm",zasm_extlist,datapath,false))
+	if(!prompt_for_existing_file_compat("Import Script (.zasm)","zasm",zasm_extlist,datapath,false))
 	{
 		return D_O_K;
 	}
@@ -24052,7 +24004,7 @@ int32_t onEditSFX(int32_t index)
 				break;
 				
 			case 3:
-				if(getname("Open .WAV file", "wav", NULL,temppath, true))
+				if(prompt_for_existing_file_compat("Open .WAV file", "wav", NULL,temppath, true))
 				{
 					SAMPLE * temp_sample;
 					
@@ -24137,7 +24089,7 @@ int32_t onEditSFX(int32_t index)
 				//save
 				if(templist[index].data != NULL)
 				{
-					if (getname("Save .WAV file", "wav", NULL, temppath, true))
+					if (prompt_for_new_file_compat("Save .WAV file", "wav", NULL, temppath, true))
 					{
 						if(!saveWAV(index, temppath))
 						{
@@ -25325,14 +25277,13 @@ bool no_subscreen()
 static void allocate_crap()
 {
 	filepath=(char*)malloc(2048);
-	temppath=(char*)malloc(2048);
 	datapath=(char*)malloc(2048);
 	midipath=(char*)malloc(2048);
 	imagepath=(char*)malloc(2048);
 	tmusicpath=(char*)malloc(2048);
 	last_timed_save=(char*)malloc(2048);
 	
-	if(!filepath || !datapath || !temppath || !imagepath || !midipath || !tmusicpath || !last_timed_save)
+	if(!filepath || !datapath || !imagepath || !midipath || !tmusicpath || !last_timed_save)
 	{
 		Z_error_fatal("Error: no memory for file paths!");
 	}
@@ -27183,8 +27134,6 @@ void quit_game()
     
     if(filepath) free(filepath);
     
-    if(temppath) free(temppath);
-    
     if(datapath) free(datapath);
     
     if(midipath) free(midipath);
@@ -27321,8 +27270,6 @@ void quit_game2()
     }
     
     if(filepath) free(filepath);
-    
-    if(temppath) free(temppath);
     
     if(datapath) free(datapath);
     
@@ -28504,7 +28451,7 @@ bool checkCost(int32_t ctr, int32_t amnt)
 		case crSBOMBS:
 		{
 			if(current_item_power(itype_bombbag)
-				&& itemsbuf[current_item_id(itype_bombbag)].flags & ITEM_FLAG1)
+				&& itemsbuf[current_item_id(itype_bombbag)].flags & item_flag1)
 				return true;
 			break;
 		}

@@ -1,5 +1,5 @@
-#ifndef ZC_GUI_USESIZE_H
-#define ZC_GUI_USESIZE_H
+#ifndef ZC_GUI_USESIZE_H_
+#define ZC_GUI_USESIZE_H_
 
 #include "gui/size.h"
 

@@ -4,6 +4,7 @@
 #include <ctype.h>
 #include <cstring>
 #include <memory>
+#include "base/files.h"
 #include "base/fonts.h"
 #include "base/render.h"
 #include "base/zc_alleg.h"
@@ -15,6 +16,8 @@
 #include "base/zdefs.h"
 #include "music_playback.h"
 #include "sound/zcmusic.h"
+#include "zc/replay.h"
+#include "zc/replay_upload.h"
 #include "zc/zc_sys.h"
 #include "zc/zelda.h"
 #include "base/zsys.h"
@@ -1005,7 +1008,6 @@ int32_t custom_game(int32_t file)
 
 	zquestheader h;
 	char infostr[200];
-	char path[2048];
 	int32_t ret=0; 
 	int32_t focus_obj = 1; //Fixes the issue where the button tied to the enter key is stuck on 'browse'.
 
@@ -1030,7 +1032,7 @@ int32_t custom_game(int32_t file)
 	relativize_path(relpath, qstpath);
 	
 	gamemode_dlg[0].dp2 = get_zc_font(font_lfont);
-	gamemode_dlg[2].dp = relpath;//get_filename(qstpath);
+	gamemode_dlg[2].dp = relpath;
 	
 	if(get_quest_info(&h,infostr)==0)
 	{
@@ -1067,13 +1069,11 @@ int32_t custom_game(int32_t file)
 			{ NULL,                        NULL }
 		};
 		
-		strcpy(path, qstpath);
-		
-		if(jwin_file_browse_ex("Load Quest", path, list, &sel, 2048, -1, -1, get_zc_font(font_lfont)))
+		if (auto result = prompt_for_existing_file("Load Quest", "", list, qstpath))
 		{
+			std::string path = *result;
 			customized = true;
-			//      strcpy(qstpath, path);
-			replace_extension(qstpath,path,"qst",2047);
+			replace_extension(qstpath,path.data(),"qst",2047);
 			gamemode_dlg[2].dp = get_filename(qstpath);
 			
 			if(get_quest_info(&h,infostr)==0)
@@ -1571,6 +1571,36 @@ static void actual_titlescreen()
 	zcmusic_stop(zcmusic);
 }
 
+static void prompt_for_uploading_replays()
+{
+#ifdef HAS_CURL
+	bool replay_upload_prompt = zc_get_config("zeldadx", "replay_upload_prompt", 0);
+	if (!replay_upload_auto_enabled() && !replay_upload_prompt)
+	{
+		enter_sys_pal();
+		if(jwin_alert3(
+			"Upload replays", 
+			"Would you like to periodically upload replays of your gameplay to the developers?",
+			"This helps development by preventing bugs and simplifying bug reports.",
+			NULL,
+		"&Yes", 
+		"&No", 
+		NULL, 
+		'y', 
+		'n', 
+		0, 
+		get_zc_font(font_lfont)) == 1)
+		{
+			zc_set_config("zeldadx", "replay_new_saves", true);
+			zc_set_config("zeldadx", "replay_upload", true);
+		}
+		exit_sys_pal();
+	}
+	if (!replay_upload_prompt)
+		zc_set_config("zeldadx", "replay_upload_prompt", 1);
+#endif
+}
+
 void titlescreen(int32_t lsave)
 {
 	int32_t q=Quit;
@@ -1598,12 +1628,9 @@ void titlescreen(int32_t lsave)
 	{
 		actual_titlescreen();
 	}
-	
-	if (replay_get_mode() == ReplayMode::Record)
-	{
-		replay_save();
-		replay_stop();
-	}
+
+	if (replay_is_active())
+		replay_quit();
 
 	if(!Quit)
 	{
@@ -1643,6 +1670,8 @@ void titlescreen(int32_t lsave)
 
 	if(!Quit)
 	{
+		if (!game->get_hasplayed())
+			prompt_for_uploading_replays();
 		zcmusic_stop(zcmusic);
 		init_game();
 	}

@@ -1,5 +1,5 @@
-#ifndef _ZQ_PACKAGE_H_
-#define _ZQ_PACKAGE_H_
+#ifndef ZQ_PACKAGE_H_
+#define ZQ_PACKAGE_H_
 
 #include <string>
 #include <optional>

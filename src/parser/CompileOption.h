@@ -1,5 +1,5 @@
-#ifndef ZSCRIPT_COMPILE_OPTION_H
-#define ZSCRIPT_COMPILE_OPTION_H
+#ifndef ZSCRIPT_COMPILE_OPTION_H_
+#define ZSCRIPT_COMPILE_OPTION_H_
 
 #include <string>
 #include "CompilerUtils.h"

@@ -1,5 +1,5 @@
-#ifndef ZC_DIALOG_ALERTFUNC_H
-#define ZC_DIALOG_ALERTFUNC_H
+#ifndef ZC_DIALOG_ALERTFUNC_H_
+#define ZC_DIALOG_ALERTFUNC_H_
 
 #include "info.h"
 #include <gui/button.h>

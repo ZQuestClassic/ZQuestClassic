@@ -1,5 +1,5 @@
-#ifndef _MIDI_H_
-#define _MIDI_H_
+#ifndef MIDI_H_
+#define MIDI_H_
 #include "base/zdefs.h"
 /*  Allegro MIDI struct
 
@@ -14,7 +14,7 @@
 
   */
 
-int32_t save_midi(char *filename, MIDI *midi);
+int32_t save_midi(const char *filename, MIDI *midi);
 
 /* ---  All this code just to calculate the length of a MIDI song.  --- */
 

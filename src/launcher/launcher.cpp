@@ -34,7 +34,7 @@ BITMAP *tmp_scr;
 BITMAP *mouse_bmp;
 int32_t gui_colorset = 99;
 
-char temppath[4096] = {0}, rootpath[4096] = {0};
+char rootpath[4096] = {0};
 
 
 void init_launcher_palette();
@@ -550,44 +550,6 @@ void update_hw_screen()
 
 	render_timer_wait();
 	render_launcher();
-}
-
-bool getname_nogo(const char *prompt,const char *ext,EXT_LIST *list,const char *def,bool usefilename)
-{
-    if(def!=temppath)
-        strcpy(temppath,def);
-        
-    if(!usefilename)
-    {
-        int32_t i=(int32_t)strlen(temppath);
-        
-        while(i>=0 && temppath[i]!='\\' && temppath[i]!='/')
-            temppath[i--]=0;
-    }
-    
-    //  int32_t ret = file_select_ex(prompt,temppath,ext,255,-1,-1);
-    int32_t ret=0;
-    int32_t sel=0;
-    
-    if(list==NULL)
-    {
-        ret = jwin_file_select_ex(prompt,temppath,ext,2048,-1,-1,get_zc_font(font_lfont));
-    }
-    else
-    {
-        ret = jwin_file_browse_ex(prompt, temppath, list, &sel, 2048, -1, -1, get_zc_font(font_lfont));
-    }
-    
-    return ret!=0;
-}
-
-bool getname(const char *prompt,const char *ext,EXT_LIST *list,const char *def,bool usefilename)
-{
-    go();
-    int32_t ret=0;
-    ret = getname_nogo(prompt,ext,list,def,usefilename);
-    comeback();
-    return ret != 0;
 }
 
 void clear_tooltip()

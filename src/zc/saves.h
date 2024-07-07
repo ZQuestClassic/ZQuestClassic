@@ -1,5 +1,5 @@
-#ifndef _ZC_SAVES_H_
-#define _ZC_SAVES_H_
+#ifndef ZC_SAVES_H_
+#define ZC_SAVES_H_
 
 #include "gamedata.h"
 #include <filesystem>

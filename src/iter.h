@@ -1,4 +1,5 @@
 #include "base/handles.h"
+#include "base/mapscr.h"
 #include "base/qrs.h"
 #include "base/zdefs.h"
 #include "zc/maps.h"

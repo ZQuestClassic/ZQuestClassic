@@ -1,5 +1,5 @@
-#ifndef _ZINFO_H
-#define _ZINFO_H
+#ifndef ZINFO_H_
+#define ZINFO_H_
 #include "base/mapscr.h"
 
 void assignchar(char** p, char const* str);

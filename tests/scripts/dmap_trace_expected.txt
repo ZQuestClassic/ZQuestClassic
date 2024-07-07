@@ -21,6 +21,4 @@ POP D5
 QUIT; void run() Body End
 
 
-ALLOCATEGMEMV D2 4096 0; void run() Body Start
-SETR GD1 D2
-QUIT; void run() Body End
+QUIT; void run() Body

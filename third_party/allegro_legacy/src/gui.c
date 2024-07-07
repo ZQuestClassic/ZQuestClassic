@@ -339,15 +339,6 @@ int object_message(DIALOG *dialog, int msg, int c)
       if (dialog->flags & D_HIDDEN)
 	 return D_O_K;
 
-// #ifdef ALLEGRO_LEGACY_WINDOWS
-//       if (dialog->proc == _d_clear_proc)
-// #else
-//       if (dialog->proc == d_clear_proc)
-// #endif
-// 	 scare_mouse();
-//       else
-// 	 scare_mouse_area(dialog->x, dialog->y, dialog->w, dialog->h);
-
       acquire_screen();
    }
 

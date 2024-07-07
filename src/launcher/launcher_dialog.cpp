@@ -1,4 +1,5 @@
 #include "allegro5/allegro_native_dialog.h"
+#include "base/files.h"
 #include "base/version.h"
 #include "base/zc_alleg.h"
 #include "launcher/launcher_dialog.h"
@@ -524,7 +525,9 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 				TabRef(name = "ZC Player", Row(framed = true,
 					Rows<2>(fitParent = true,
 						CONFIG_CHECKBOX("Fullscreen",App::zelda,"zeldadx","fullscreen",0),
+						CONFIG_CHECKBOX_I("Native File Dialog",App::zelda,"gui","native_file_dialog",0,"Use the file dialog provided by the OS for file select prompts."),
 						CONFIG_CHECKBOX("Skip titlescreen",App::zelda,"zeldadx","skip_title",0),
+						CONFIG_CHECKBOX_I("Reduce Flashing",App::zelda,"zeldadx","epilepsy_flash_reduction",0,"Turn down the intensity of a few different effects (not exhaustive)"),
 						CONFIG_CHECKBOX("Disable Resizing",App::zelda,"gui","disable_window_resizing",0),
 						CONFIG_CHECKBOX("Cap FPS",App::zelda,"zeldadx","throttlefps",1),
 						CONFIG_CHECKBOX("Show FPS",App::zelda,"zeldadx","showfps",0),
@@ -532,11 +535,11 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_CHECKBOX("Cont. Heart Beep",App::zelda,"zeldadx","heart_beep",0),
 						CONFIG_CHECKBOX("Disable Sound",App::zelda,"zeldadx","nosound",0),
 						CONFIG_CHECKBOX_I("Replay New Saves",App::zelda,"zeldadx","replay_new_saves",0,"Starting a new game will prompt recording to a .zplay file"),
+						CONFIG_CHECKBOX_I("Replay Upload",App::zelda,"zeldadx","replay_upload",0,"Upload .zplay files for debugging. No more than once a week replay files are automatically uploaded when the program exits."),
 						CONFIG_CHECKBOX_I("Replay Debug",App::zelda,"zeldadx","replay_debug",1,"Record debug information when making a .zplay file")
 					),
 					Rows<2>(fitParent = true,
 						CONFIG_CHECKBOX("Force-reload Quest Icons",App::zelda,"zeldadx","reload_game_icons",0),
-						CONFIG_CHECKBOX_I("Allow Multiple Instances",App::zelda,"zeldadx","multiple_instances",0,"This can cause issues including but not limited to save file deletion."),
 						CONFIG_CHECKBOX("Click to Freeze",App::zelda,"zeldadx","clicktofreeze",1),
 						CONFIG_CHECKBOX_I("Quickload Last Quest",App::zelda,"zeldadx","quickload_last",0,"Unless 'Quickload Slot' is set, this will load the last quest played immediately upon launching."),
 						CONFIG_CHECKBOX_I("Autosave Window Size Changes",App::zelda,"zeldadx","save_drag_resize",0,"Makes any changes to the window size by dragging get saved for whenever you open the program next."),
@@ -564,15 +567,16 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						Button(hAlign = 1.0, forceFitH = true,
 							text = "Select Save Folder", onPressFunc = [&]()
 							{
-								char save_folder[4096] = {0};
-								strncpy(save_folder, zc_get_config("zeldadx", "save_folder", "saves", App::zelda), 4096);
-								if(jwin_dfile_select_ex("Save Folder", save_folder, "", 2048, -1, -1, get_zc_font(font_lfont)))
+								char cur_save_folder[4096] = {0};
+								strncpy(cur_save_folder, zc_get_config("zeldadx", "save_folder", "saves", App::zelda), 4096);
+								if (auto result = prompt_for_existing_folder("Save Folder", cur_save_folder))
 								{
-									const char* ext = get_extension(save_folder);
+									std::string save_folder = *result;
+									const char* ext = get_extension(save_folder.c_str());
 									if (strlen(ext))
 										return;
 									char path[4096] = {0};
-									relativize_path(path, save_folder);
+									relativize_path(path, save_folder.c_str());
 									tf_savefile->setText(path);
 									zc_set_config("zeldadx", "save_folder", path, App::zelda);
 								}
@@ -590,7 +594,8 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 				)),
 				TabRef(name = "ZC Editor", Row(framed = true,
 					Rows<2>(fitParent = true,
-						CONFIG_CHECKBOX_I("Fullscreen",App::zquest,"zquest","fullscreen",0,"Exactly stable."),
+						CONFIG_CHECKBOX("Fullscreen",App::zquest,"zquest","fullscreen",0),
+						CONFIG_CHECKBOX_I("Native File Dialog",App::zquest,"gui","native_file_dialog",0,"Use the file dialog provided by the OS for file select prompts."),
 						CONFIG_CHECKBOX("Disable Resizing",App::zquest,"gui","disable_window_resizing",0),
 						CONFIG_CHECKBOX("Show FPS",App::zquest,"zquest","showfps",0),
 						CONFIG_CHECKBOX("Disable Sound",App::zquest,"zquest","nosound",0),
@@ -604,10 +609,10 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_CHECKBOX("Palette Cycle",App::zquest,"zquest","cycle_on",1),
 						CONFIG_CHECKBOX_I("Reload Last Quest",App::zquest,"zquest","open_last_quest",1,"On launching, immediately attempt to open the last file edited."),
 						CONFIG_CHECKBOX("Save Paths",App::zquest,"zquest","save_paths",1),
-						CONFIG_CHECKBOX_I("Show Misalignments",App::zquest,"zquest","show_misalignments",0,"Shows blinking arrows on the sides of the screen where the solidity does not match across the screen border."),
-						CONFIG_CHECKBOX("Tile Protection",App::zquest,"zquest","tile_protection",1)
+						CONFIG_CHECKBOX_I("Show Misalignments",App::zquest,"zquest","show_misalignments",0,"Shows blinking arrows on the sides of the screen where the solidity does not match across the screen border.")
 					),
 					Rows<2>(fitParent = true,
+						CONFIG_CHECKBOX("Tile Protection",App::zquest,"zquest","tile_protection",1),
 						CONFIG_CHECKBOX("Uncompressed Autosaves",App::zquest,"zquest","uncompressed_auto_saves",1),
 						CONFIG_CHECKBOX_I("Warn on Init Script Change",App::zquest,"zquest","warn_initscript_changes",1,"When compiling ZScript, receive a warning when the global init script changes (which may break existing save files for the quest)"),
 						CONFIG_CHECKBOX_I("Show Ruleset Dialog on New Quest",App::zquest,"zquest","rulesetdialog",0,"On creating a 'New' quest, automatically pop up the 'Pick Ruleset' menu. (This can be found any time at 'Quest->Options->Pick Ruleset')"),
@@ -647,7 +652,7 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 					tf_theme[0] = TextField(read_only = true, maxLength = 255),
 					Button(text = "Browse", fitParent = true, onPressFunc = [&]()
 						{
-							if(getname("Load Theme", "ztheme", NULL, zthemepath, false))
+							if(prompt_for_existing_file_compat("Load Theme", "ztheme", NULL, zthemepath, false))
 							{
 								char path[4096] = {0};
 								relativize_path(path, temppath);
@@ -687,7 +692,7 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 					tf_theme[1] = TextField(read_only = true, maxLength = 255),
 					Button(text = "Browse", fitParent = true, onPressFunc = [&]()
 						{
-							if(getname("Load Theme", "ztheme", NULL, zthemepath, false))
+							if(prompt_for_existing_file_compat("Load Theme", "ztheme", NULL, zthemepath, false))
 							{
 								char path[4096] = {0};
 								relativize_path(path, temppath);
@@ -728,7 +733,7 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 					tf_theme[2] = TextField(read_only = true, maxLength = 255),
 					Button(text = "Browse", fitParent = true, onPressFunc = [&]()
 						{
-							if(getname("Load Theme", "ztheme", NULL, zthemepath, false))
+							if(prompt_for_existing_file_compat("Load Theme", "ztheme", NULL, zthemepath, false))
 							{
 								char path[4096] = {0};
 								relativize_path(path, temppath);
@@ -763,7 +768,9 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 							strcpy(tmp_themefile, theme_saved_filepath);
 						}
 					})
-				)),
+				))
+#ifndef ALLEGRO_LINUX
+				,
 				TabRef(name = "Update", Column(padding = 0_px,
 					Row(framed = true,
 						Rows<2>(fitParent = true,
@@ -800,6 +807,7 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						)
 					)
 				))
+#endif
 			),
 			Row(
 				vAlign = 1.0,

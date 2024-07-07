@@ -1,5 +1,5 @@
-#ifndef ZC_DIALOG_SCC_H
-#define ZC_DIALOG_SCC_H
+#ifndef ZC_DIALOG_SCC_H_
+#define ZC_DIALOG_SCC_H_
 
 #include "base/msgstr.h"
 #include <gui/dialog.h>

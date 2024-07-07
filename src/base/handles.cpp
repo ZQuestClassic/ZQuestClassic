@@ -1,5 +1,6 @@
 #include "base/handles.h"
 #include "base/combo.h"
+#include "base/mapscr.h"
 #include "zc/combos.h"
 #include "zc/maps.h"
 #include "zc/zc_ffc.h"

@@ -112,7 +112,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 		inf->mem = str; \
 		inf->h_##mem = helpstr; \
 	}while(false)
-	#define FLAG(val) (ref.flags & ITEM_FLAG##val)
+	#define FLAG(val) (ref.flags & item_flag##val)
 	std::string classname(ZI.getItemClassName(ref.family));
 	
 	switch(ref.family)
@@ -144,6 +144,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			_SET(flag[0], "Side Warp Out", "Warp out using sidewarp A upon completion");
 			_SET(flag[2], "Removes Sword Jinxes", "Heal sword jinxes on pickup");
 			_SET(flag[3], "Removes Item Jinxes", "Heal item jinxes on pickup");
+			_SET(flag[4], "Removes Shield Jinxes", "Heal shield jinxes on pickup");
 			_SET(flag[7], "Ownable", "Can be owned; this is normally handled by 'Equipment Item', but not for mcguffin piece items.");
 			_SET(flag[8], "Don't Dismiss Messages", "If not checked, the cutscene clears screen strings");
 			_SET(flag[9], "Cutscene Interrupts Action Script", "The action script, if running on collection, is paused for the duration of the cutscene.");
@@ -235,7 +236,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 				"If 'Perm. Jinx Are Temp' is checked, perm jinxes last for 150/[divisor] frames."
 				" If divisor is 0, player is immune to affected jinxes.\n"
 				"When picked up, regardless of flags, perm jinxes matching the Jinx Type become 150-frame temp jinxes.");
-			_SET(misc[0], "Jinx Type:", "1 = sword, 2 = item, 3 = both");
+			_SET(misc[0], "Jinx Type:", "Sum all of the values you want to apply. 1 = sword, 2 = item, 4 = shield");
 			_SET(flag[0], "Perm. Jinx Are Temp.", "Perm jinxes inflicted instead are temp for 150/[divisor] frames");
 			break;
 		}
@@ -729,8 +730,9 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 		{
 			_SET(flag[0], "Life is Percent", "HP Regained is a percentage out of max HP");
 			_SET(flag[1], "Magic is Percent", "MP Regained is a percentage out of max MP");
-			inf->flag[2] = "Removes Sword Jinxes";
-			inf->flag[3] = "Removes Item Jinxes";
+			_SET(flag[2], "Removes Sword Jinxes", "Heal sword jinxes on use");
+			_SET(flag[3], "Removes Item Jinxes", "Heal item jinxes on use");
+			_SET(flag[4], "Removes Shield Jinxes", "Heal shield jinxes on use");
 			
 			if(FLAG(1))
 				_SET(misc[0], "% HP Regained:", "Percentage of max life restored when collected.");
@@ -1065,7 +1067,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::ATTRIB_FIELD_IMPL(int32_t* mem, i
 
 #define ATTRIB_FIELD(member, index) ATTRIB_FIELD_IMPL(&local_itemref.member, index)
 
-std::shared_ptr<GUI::Widget> ItemEditorDialog::FLAG_CHECK(int index, int bit)
+std::shared_ptr<GUI::Widget> ItemEditorDialog::FLAG_CHECK(int index, item_flags bit)
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
@@ -1225,11 +1227,11 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 					),
 					_d,
 					Checkbox(
-						checked = (local_itemref.flags & ITEM_GAMEDATA),
+						checked = (local_itemref.flags & item_gamedata),
 						text = "Equipment Item", _EX_RBOX,
 						onToggleFunc = [&](bool state)
 						{
-							SETFLAG(local_itemref.flags,ITEM_GAMEDATA,state);
+							SETFLAG(local_itemref.flags,item_gamedata,state);
 						}
 					),
 					INFOBTN("Only 'Equipment Item's can be 'owned' by the player,"
@@ -1321,24 +1323,24 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 							DINFOBTN(),
 							Checkbox(
 								width = FLAGS_WID,
-								checked = (local_itemref.flags & ITEM_EDIBLE),
+								checked = (local_itemref.flags & item_edible),
 								text = "Can Be Eaten By Enemies",
 								onToggleFunc = [&](bool state)
 								{
-									SETFLAG(local_itemref.flags,ITEM_EDIBLE,state);
+									SETFLAG(local_itemref.flags,item_edible,state);
 								}
 							),
 							INFOBTN("The item's 'Action Script' runs every frame while the item is owned,"
 								"\ninstead of when the item is 'used'."),
-							FLAG_CHECK_NOINFO(15,ITEM_PASSIVESCRIPT),
+							FLAG_CHECK_NOINFO(15,item_passive_script),
 							DINFOBTN(),
 							Checkbox(
 								width = FLAGS_WID,
-								checked = (local_itemref.flags & ITEM_SIDESWIM_DISABLED),
+								checked = (local_itemref.flags & item_sideswim_disabled),
 								text = "Disabled In Sideview Water",
 								onToggleFunc = [&](bool state)
 								{
-									SETFLAG(local_itemref.flags,ITEM_SIDESWIM_DISABLED,state);
+									SETFLAG(local_itemref.flags,item_sideswim_disabled,state);
 								}
 							),
 							INFOBTN("If checked, this item can be used even while the player"
@@ -1346,31 +1348,31 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								" Player Tile Modifier."),
 							Checkbox(
 								width = FLAGS_WID,
-								checked = (local_itemref.flags & ITEM_BUNNY_ENABLED),
+								checked = (local_itemref.flags & item_bunny_enabled),
 								text = "Usable as a Bunny",
 								onToggleFunc = [&](bool state)
 								{
-									SETFLAG(local_itemref.flags,ITEM_BUNNY_ENABLED,state);
+									SETFLAG(local_itemref.flags,item_bunny_enabled,state);
 								}
 							),
 							DINFOBTN(),
 							Checkbox(
 								width = FLAGS_WID,
-								checked = (local_itemref.flags & ITEM_JINX_IMMUNE),
+								checked = (local_itemref.flags & item_jinx_immune),
 								text = "Immune to jinxes",
 								onToggleFunc = [&](bool state)
 								{
-									SETFLAG(local_itemref.flags,ITEM_JINX_IMMUNE,state);
+									SETFLAG(local_itemref.flags,item_jinx_immune,state);
 								}
 							),
 							INFOBTN("With this checked, swords will use the item jinx, and vice-versa."),
 							Checkbox(
 								width = FLAGS_WID,
-								checked = (local_itemref.flags & ITEM_FLIP_JINX),
+								checked = (local_itemref.flags & item_flip_jinx),
 								text = "Uses Other Jinx",
 								onToggleFunc = [&](bool state)
 								{
-									SETFLAG(local_itemref.flags,ITEM_FLIP_JINX,state);
+									SETFLAG(local_itemref.flags,item_flip_jinx,state);
 								}
 							)
 						),
@@ -1379,21 +1381,21 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 							frameText = "Variable Flags",
 							topPadding = DEFAULT_PADDING+0.4_em,
 							bottomPadding = DEFAULT_PADDING+1_px,
-							FLAG_CHECK(0,ITEM_FLAG1),
-							FLAG_CHECK(1,ITEM_FLAG2),
-							FLAG_CHECK(2,ITEM_FLAG3),
-							FLAG_CHECK(3,ITEM_FLAG4),
-							FLAG_CHECK(4,ITEM_FLAG5),
-							FLAG_CHECK(5,ITEM_FLAG6),
-							FLAG_CHECK(6,ITEM_FLAG7),
-							FLAG_CHECK(7,ITEM_FLAG8),
-							FLAG_CHECK(8,ITEM_FLAG9),
-							FLAG_CHECK(9,ITEM_FLAG10),
-							FLAG_CHECK(10,ITEM_FLAG11),
-							FLAG_CHECK(11,ITEM_FLAG12),
-							FLAG_CHECK(12,ITEM_FLAG13),
-							FLAG_CHECK(13,ITEM_FLAG14),
-							FLAG_CHECK(14,ITEM_FLAG15)
+							FLAG_CHECK(0,item_flag1),
+							FLAG_CHECK(1,item_flag2),
+							FLAG_CHECK(2,item_flag3),
+							FLAG_CHECK(3,item_flag4),
+							FLAG_CHECK(4,item_flag5),
+							FLAG_CHECK(5,item_flag6),
+							FLAG_CHECK(6,item_flag7),
+							FLAG_CHECK(7,item_flag8),
+							FLAG_CHECK(8,item_flag9),
+							FLAG_CHECK(9,item_flag10),
+							FLAG_CHECK(10,item_flag11),
+							FLAG_CHECK(11,item_flag12),
+							FLAG_CHECK(12,item_flag13),
+							FLAG_CHECK(13,item_flag14),
+							FLAG_CHECK(14,item_flag15)
 						)
 					)),
 					TabRef(name = "Action", Row(
@@ -1431,11 +1433,11 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								INFOBTN_EX("Requires that the cost be met, but does not consume it.", hAlign = 1.0, nopad = true, forceFitH = true),
 								Checkbox(
 									hAlign = 0.0,
-									checked = (local_itemref.flags & ITEM_VALIDATEONLY),
+									checked = (local_itemref.flags & item_validate_only),
 									text = "Only Validate Cost",
 									onToggleFunc = [&](bool state)
 									{
-										SETFLAG(local_itemref.flags,ITEM_VALIDATEONLY,state);
+										SETFLAG(local_itemref.flags,item_validate_only,state);
 									}
 								)
 							),
@@ -1472,11 +1474,11 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								INFOBTN_EX("Requires that the cost be met, but does not consume it.", hAlign = 1.0, nopad = true, forceFitH = true),
 								Checkbox(
 									hAlign = 0.0,
-									checked = (local_itemref.flags & ITEM_VALIDATEONLY2),
+									checked = (local_itemref.flags & item_validate_only_2),
 									text = "Only Validate Cost 2",
 									onToggleFunc = [&](bool state)
 									{
-										SETFLAG(local_itemref.flags,ITEM_VALIDATEONLY2,state);
+										SETFLAG(local_itemref.flags,item_validate_only_2,state);
 									}
 								)
 							)
@@ -1515,11 +1517,11 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 							Rows<2>(
 								Checkbox(
 									hAlign = 0.0,
-									checked = (local_itemref.flags & ITEM_DOWNGRADE),
+									checked = (local_itemref.flags & item_downgrade),
 									text = "Remove Item When Used",
 									onToggleFunc = [&](bool state)
 									{
-										SETFLAG(local_itemref.flags,ITEM_DOWNGRADE,state);
+										SETFLAG(local_itemref.flags,item_downgrade,state);
 									}
 								)
 							)
@@ -1607,29 +1609,29 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 							Column(framed = true, fitParent = true,
 								Checkbox(
 									hAlign = 0.0,
-									checked = (local_itemref.flags & ITEM_KEEPOLD),
+									checked = (local_itemref.flags & item_keep_old),
 									text = "Keep Lower Level Items",
 									onToggleFunc = [&](bool state)
 									{
-										SETFLAG(local_itemref.flags,ITEM_KEEPOLD,state);
+										SETFLAG(local_itemref.flags,item_keep_old,state);
 									}
 								),
 								Checkbox(
 									hAlign = 0.0,
-									checked = (local_itemref.flags & ITEM_GAINOLD),
+									checked = (local_itemref.flags & item_gain_old),
 									text = "Gain All Lower Level Items",
 									onToggleFunc = [&](bool state)
 									{
-										SETFLAG(local_itemref.flags,ITEM_GAINOLD,state);
+										SETFLAG(local_itemref.flags,item_gain_old,state);
 									}
 								),
 								Checkbox(
 									hAlign = 0.0,
-									checked = (local_itemref.flags & ITEM_COMBINE),
+									checked = (local_itemref.flags & item_combine),
 									text = "Upgrade When Collected Twice",
 									onToggleFunc = [&](bool state)
 									{
-										SETFLAG(local_itemref.flags,ITEM_COMBINE,state);
+										SETFLAG(local_itemref.flags,item_combine,state);
 									}
 								)
 							)
@@ -2110,11 +2112,11 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									"\nAdditionally, the weapon will use the specified light radius."),
 								Checkbox(
 									width = FLAGS_WID,
-									checked = (local_itemref.flags & ITEM_BURNING_SPRITES),
+									checked = (local_itemref.flags & item_burning_sprites),
 									text = "Use Burning Sprites",
 									onToggleFunc = [&](bool state)
 									{
-										SETFLAG(local_itemref.flags,ITEM_BURNING_SPRITES,state);
+										SETFLAG(local_itemref.flags,item_burning_sprites,state);
 									}
 								)
 							),

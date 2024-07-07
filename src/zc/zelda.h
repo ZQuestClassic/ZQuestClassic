@@ -1,5 +1,5 @@
-#ifndef _ZELDA_H_
-#define _ZELDA_H_
+#ifndef ZELDA_H_
+#define ZELDA_H_
 
 /*********************************/
 /********** Definitions **********/
@@ -102,12 +102,15 @@ int32_t  HeroDivineProtectionShieldClk();
 int32_t  HeroHoverClk();
 int32_t  HeroSwordClk();
 int32_t  HeroItemClk();
+int32_t  HeroShieldClk();
 int32_t  HeroAction();
 int32_t  HeroCharged();
+bool HeroIsJinxed();
 byte HeroGetDontDraw();
 void  HeroSuperDebug();
 void setSwordClk(int32_t newclk);
 void setItemClk(int32_t newclk);
+void setShieldClk(int32_t newclk);
 int32_t  HeroLStep();
 void HeroCheckItems(int32_t index = -1);
 zfix  HeroModifiedX();

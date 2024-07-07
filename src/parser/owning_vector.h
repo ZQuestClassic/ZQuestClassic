@@ -1,5 +1,5 @@
-#ifndef ZSCRIPT_OWNING_VECTOR_H
-#define ZSCRIPT_OWNING_VECTOR_H
+#ifndef ZSCRIPT_OWNING_VECTOR_H_
+#define ZSCRIPT_OWNING_VECTOR_H_
 
 ////////////////////////////////////////////////////////////////
 // owning_vector - a quick replacement for vector<unique_ptr<T*> >.

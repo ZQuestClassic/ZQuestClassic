@@ -1,5 +1,5 @@
-#ifndef ZQ_HOTKEY_H
-#define ZQ_HOTKEY_H
+#ifndef ZQ_HOTKEY_H_
+#define ZQ_HOTKEY_H_
 
 struct Hotkey;
 

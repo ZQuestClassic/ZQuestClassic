@@ -1,4 +1,4 @@
-646 / 794 (81%) passed
+650 / 794 (81%) passed
 
 Failures:
 	00026-deku-leaf/script.zs
@@ -119,10 +119,6 @@ Failures:
 	00360-ffc-shop/FFCShop/2.55 Version/v1.03/FFCShop.zs
 	00361-simpletangohandler/SimpleTangoHandler/2.53 Version/customTango.zh
 	00361-simpletangohandler/SimpleTangoHandler/2.55 Version/customTango.zh
-	00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs
-	00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs
-	00362-power-bracelet-liftable/LiftPots/V2.1.0/LiftPotsV2.1.0.zs
-	00362-power-bracelet-liftable/LiftPots/V2.1.1/LiftPotsV2.1.1.zs
 	00363-thanos-snap-infinity-gauntlet/ThanosSnap.zs
 	00366-templinkstate-zh/TempLinkState.zh
 	00374-dodge-roll-action/script.zs
@@ -1418,172 +1414,6 @@ Pass 3: Registration
 00361-simpletangohandler/SimpleTangoHandler/2.55 Version/customTango.zh Line 8 - Error S008: There is already a variable with name __TANGO_SCROLL_SPEED in this scope.
 Failure!
 Compile finished with exit code '8' (compiled with errors)
-
-=== 00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 467 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 468 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 469 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 470 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 471 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 472 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 482 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 483 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 484 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 485 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 486 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 487 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 488 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 489 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 492 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 494 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 504 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 518 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 523 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 526 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 527 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 528 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 528 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 528 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 529 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 529 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 530 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 531 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 534 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 535 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 536 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 538 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 539 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 540 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 543 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 544 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 546 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 547 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 548 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 549 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 552 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 553 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 553 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 553 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 554 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 554 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 555 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 556 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 557 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 560 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 561 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V1.0.1/LiftPotsV1.01.zs Line 568 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-Pass 5: Checking code paths
-Pass 6: Generating object code
-Pass 7: Assembling
-Internal error: couldn't find label
-Internal error: couldn't find label
-Internal error: couldn't find label
-Internal error: couldn't find label
-Failure!
-Compile finished with exit code '-1' (compiled with warnings)
-
-=== 00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 618 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 625 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 511 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 512 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 513 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 514 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 515 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 516 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 526 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 527 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 528 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 529 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 530 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 531 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 532 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 533 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 536 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 538 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 548 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 562 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 567 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 570 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 571 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 572 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 572 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 572 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 573 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 573 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 574 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 575 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 578 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 579 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 580 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 582 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 583 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 584 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 587 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 588 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 590 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 591 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 592 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 593 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 596 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 597 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 597 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 597 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 598 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 598 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 599 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 600 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 601 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 604 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 605 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-00362-power-bracelet-liftable/LiftPots/V2.0.0/LiftPotsV2.0.zs Line 612 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-Pass 5: Checking code paths
-Pass 6: Generating object code
-Pass 7: Assembling
-Internal error: couldn't find label
-Internal error: couldn't find label
-Internal error: couldn't find label
-Internal error: couldn't find label
-Failure!
-Compile finished with exit code '-1' (compiled with warnings)
-
-=== 00362-power-bracelet-liftable/LiftPots/V2.1.0/LiftPotsV2.1.0.zs
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-Pass 5: Checking code paths
-Pass 6: Generating object code
-Pass 7: Assembling
-Internal error: couldn't find label
-Internal error: couldn't find label
-Internal error: couldn't find label
-Internal error: couldn't find label
-Failure!
-Compile finished with exit code '-1' (compiled with warnings)
-
-=== 00362-power-bracelet-liftable/LiftPots/V2.1.1/LiftPotsV2.1.1.zs
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-Pass 5: Checking code paths
-Pass 6: Generating object code
-Pass 7: Assembling
-Internal error: couldn't find label
-Internal error: couldn't find label
-Internal error: couldn't find label
-Internal error: couldn't find label
-Failure!
-Compile finished with exit code '-1' (compiled with warnings)
 
 === 00363-thanos-snap-infinity-gauntlet/ThanosSnap.zs
 Pass 1: Parsing

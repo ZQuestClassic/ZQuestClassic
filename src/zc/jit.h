@@ -1,7 +1,7 @@
 #include "base/zdefs.h"
 
-#ifndef _ZC_JIT_H_
-#define _ZC_JIT_H_
+#ifndef ZC_JIT_H_
+#define ZC_JIT_H_
 
 struct JittedScriptHandle;
 typedef void* JittedFunction;

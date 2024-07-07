@@ -1,5 +1,5 @@
-#ifndef _ZC_CUSTOM_H_
-#define _ZC_CUSTOM_H_
+#ifndef ZC_CUSTOM_H_
+#define ZC_CUSTOM_H_
 
 #include "base/zdefs.h"
 

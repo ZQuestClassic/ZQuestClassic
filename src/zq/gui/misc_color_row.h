@@ -1,5 +1,5 @@
-#ifndef ZC_GUI_MISC_COLOR_ROW_H
-#define ZC_GUI_MISC_COLOR_ROW_H
+#ifndef ZC_GUI_MISC_COLOR_ROW_H_
+#define ZC_GUI_MISC_COLOR_ROW_H_
 
 #include "gui/widget.h"
 #include <vector>

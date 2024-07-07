@@ -9,6 +9,7 @@
 #include <vector>
 #include <sstream>
 
+#include "md5.h"
 #include "zalleg/zalleg.h"
 #include "base/qrs.h"
 #include "base/dmap.h"
@@ -22,6 +23,7 @@
 
 #include <stdlib.h>
 
+#include "zc/replay_upload.h"
 #include "zc/zasm_optimize.h"
 #include "zc/zasm_utils.h"
 #include "zscriptversion.h"
@@ -60,6 +62,10 @@
 #include "zinfo.h"
 #include "music_playback.h"
 #include "iter.h"
+
+#ifdef HAS_UUID
+#include <uuid.h>
+#endif
 
 using namespace util;
 extern FFScript FFCore; //the core script engine.
@@ -1176,6 +1182,10 @@ int32_t  HeroItemClk()
 {
     return Hero.getItemClk();
 }
+int32_t  HeroShieldClk()
+{
+	return Hero.getShieldClk();
+}
 void setSwordClk(int32_t newclk)
 {
     Hero.setSwordClk(newclk);
@@ -1183,6 +1193,14 @@ void setSwordClk(int32_t newclk)
 void setItemClk(int32_t newclk)
 {
     Hero.setItemClk(newclk);
+}
+void setShieldClk(int32_t newclk)
+{
+	Hero.setShieldClk(newclk);
+}
+bool HeroIsJinxed()
+{
+	return (HeroSwordClk() || HeroItemClk() || HeroShieldClk());
 }
 int32_t  HeroLStep()
 {
@@ -1221,6 +1239,10 @@ void HeroSuperDebug()
 	#define SUPER_DEBUG_(f) { \
 		static auto prev_##f = Hero.f; \
 		SUPER_DEBUG(STR_VALUE(f), Hero.f, prev_##f); \
+	}
+	#define SUPER_DEBUG_ENUM_(f) { \
+		static auto prev_##f = (int)Hero.f; \
+		SUPER_DEBUG(STR_VALUE(f), (int)Hero.f, prev_##f); \
 	}
 
 	return;
@@ -1319,7 +1341,7 @@ void HeroSuperDebug()
 	SUPER_DEBUG_(lstunclock);
 	SUPER_DEBUG_(misc);
 	SUPER_DEBUG_(misc_internal_hero_flags);
-	SUPER_DEBUG_(moveflags);
+	SUPER_DEBUG_ENUM_(moveflags);
 	SUPER_DEBUG_(old_cset);
 	SUPER_DEBUG_(on_sideview_ladder);
 	SUPER_DEBUG_(onpassivedmg);
@@ -1772,8 +1794,8 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 
 std::string create_replay_path_for_save(const gamedata_header& header)
 {
-	std::filesystem::path replay_file_dir = zc_get_config("zeldadx", "replay_file_dir", "replays/");
-	std::filesystem::create_directory(replay_file_dir);
+	fs::path replay_file_dir = zc_get_config("zeldadx", "replay_file_dir", "replays/");
+	fs::create_directory(replay_file_dir);
 	std::string filename_prefix = fmt::format("{}-{}", header.title, header.name);
 	sanitize(filename_prefix);
 	return create_new_file_path(replay_file_dir, filename_prefix, REPLAY_EXTENSION).string();
@@ -1908,22 +1930,20 @@ int32_t init_game()
 		if (firstplay && replay_new_saves)
 		{
 			std::string replay_path = create_replay_path_for_save(game->header);
-			enter_sys_pal();
-			if (jwin_alert("Recording",
-				"You are about to create a new recording at:",
-				relativize_path(replay_path).c_str(),
-				"Do you wish to record this save file?",
-				"Yes","No",13,27,get_zc_font(font_lfont))==1)
+			game->header.replay_file = replay_path;
+			replay_start(ReplayMode::Record, replay_path, -1);
+			replay_set_debug(replay_debug);
+			replay_set_sync_rng(true);
+			replay_set_meta("qst", relativize_path(game->header.qstpath));
+			replay_set_meta("name", game->get_name());
+#ifdef HAS_UUID
+			if (!replay_has_meta("uuid"))
 			{
-				game->header.replay_file = replay_path;
-				replay_start(ReplayMode::Record, replay_path, -1);
-				replay_set_debug(replay_debug);
-				replay_set_sync_rng(true);
-				replay_set_meta("qst", relativize_path(game->header.qstpath));
-				replay_set_meta("name", game->get_name());
-				replay_save();
+				auto uuid = uuids::uuid_system_generator{}();
+				replay_set_meta("uuid", uuids::to_string(uuid));
 			}
-			exit_sys_pal();
+#endif
+			replay_save();
 		}
 		else if (!firstplay && !game->header.replay_file.empty())
 		{
@@ -1964,6 +1984,49 @@ int32_t init_game()
 		Quit = qERROR;
 		GameLoaded = false;
 		return 1;
+	}
+
+	if (replay_is_active())
+	{
+		replay_set_meta("qst_title", game->header.title);
+
+#ifdef HAS_UUID
+		if (!replay_has_meta("uuid"))
+		{
+			auto uuid = uuids::uuid_system_generator{}();
+			replay_set_meta("uuid", uuids::to_string(uuid));
+		}
+#endif
+
+		std::optional<std::string> previous_hash;
+		if (replay_has_meta("qst_hash"))
+			previous_hash = replay_get_meta_str("qst_hash");
+
+		cvs_MD5Context ctx;
+		cvs_MD5Init(&ctx);
+		size_t buffer_size = 1<<20; // 1 MB
+		char *buffer = new char[buffer_size];
+
+		std::ifstream fin(qstpath, std::ifstream::binary);
+		while (fin)
+		{
+			fin.read(buffer, buffer_size);
+			size_t count = fin.gcount();
+			if (!count)
+				break;
+			cvs_MD5Update(&ctx, (const uint8_t*)buffer, count);
+		}
+
+		uint8_t md5sum[16];
+		cvs_MD5Final(md5sum, &ctx);
+		std::string hash = util::make_hex_string(std::begin(md5sum), std::end(md5sum));
+		if (!replay_has_meta("qst_hash"))
+			replay_set_meta("qst_hash", hash);
+
+		if (previous_hash && previous_hash != hash)
+			replay_set_meta_bool("qst_modified", true);
+
+		delete[] buffer;
 	}
 
 	if (zasm_optimize_enabled() && (get_flag_bool("-test-bisect").has_value() || is_ci()))
@@ -2976,7 +3039,7 @@ void do_magic_casting()
         
         if((magiccastclk++)>=226)
         {
-			if(itemsbuf[magicitem].flags & ITEM_FLAG1) //Act as F6->Continue
+			if(itemsbuf[magicitem].flags & item_flag1) //Act as F6->Continue
 			{
 				Quit = qCONT;
 				skipcont = 1;
@@ -3716,7 +3779,7 @@ void game_loop()
 						game->set_bombs(zc_min(game->get_bombs() + itemsbuf[itemid].misc1, game->get_maxbombs()));
 					}
 					
-					if((itemsbuf[itemid].flags & ITEM_FLAG1) && zinit.bomb_ratio)
+					if((itemsbuf[itemid].flags & item_flag1) && zinit.bomb_ratio)
 					{
 						int32_t ratio = zinit.bomb_ratio;
 						
@@ -4142,16 +4205,30 @@ static void load_replay_file(ReplayMode mode, std::string replay_file, int frame
 		}
 	}
 
+	// TODO: consolidate code from load_quest to resolve a quest file path.
+	if (std::filesystem::path(qst_meta).is_relative() && !std::filesystem::is_regular_file(testingqst_name))
+	{
+		fs::path qstpath_fs = fs::path(qstdir) / fs::path(qst_meta);
+		if (std::filesystem::is_regular_file(qstpath_fs))
+			testingqst_name = qstpath_fs.string();
+	}
+
 	if (!std::filesystem::is_regular_file(testingqst_name))
 	{
-		// TODO: not showing...
-		// InfoDialog("File Error", fmt::format("File not found: {}", testingqst_name)).show();
+		enter_sys_pal();
+		InfoDialog("Error loading replay", fmt::format("File not found: {}", testingqst_name)).show();
+		exit_sys_pal();
+
+		replay_quit();
+		testingqst_name = "";
+
 		Z_error("File not found: %s\n", testingqst_name.c_str());
 		if (!load_replay_file_deffered_called)
 		{
 			// This was called from the CLI, so abort.
 			abort();
 		}
+		return;
 	}
 
 	if (replay_get_meta_bool("test_mode"))
@@ -4374,6 +4451,16 @@ int main(int argc, char **argv)
 	set_should_zprint_cb([]() {
 		return get_qr(qr_SCRIPTERRLOG) || DEVLEVEL > 0;
 	});
+
+	if (used_switch(argc, argv, "-upload-replays"))
+	{
+#ifdef HAS_CURL
+		replay_upload();
+		return 0;
+#else
+		return 1;
+#endif
+	}
 
 	int only_arg = used_switch(argc, argv, "-only");
 	if (only_arg)
@@ -4619,10 +4706,6 @@ int main(int argc, char **argv)
 		slot_arg2=1;
 	}
 	
-	int32_t fast_start = debug_enabled || used_switch(argc,argv,"-fast") || (!standalone_mode && (load_save || (slot_arg && (argc>(slot_arg+1)))));
-	
-	int32_t checked_epilepsy = zc_get_config("zeldadx","checked_epilepsy",0);
-	
 	set_color_conversion(COLORCONV_NONE);
 	
 	//script drawing bitmap allocation
@@ -4816,10 +4899,6 @@ int main(int argc, char **argv)
 			return 0;
 		}
 	}
-
-#ifdef __EMSCRIPTEN__
-	checked_epilepsy = true;
-#endif
 	
 	// TODO: we are repeating this code (See few lines above) but different switch mode ...
 	if (!is_headless())
@@ -4940,27 +5019,6 @@ int main(int argc, char **argv)
 	}
 	if (snapshot_arg > 0)
 		replay_add_snapshot_frame(argv[snapshot_arg + 1]);
-	
-	if(!zqtesting_mode && !replay_is_active())
-	{
-		if (!checked_epilepsy)
-		{
-			clear_to_color(screen,BLACK);
-			enter_sys_pal();
-			if(jwin_alert("EPILEPSY Options",
-				"Do you desire epilepsy protection?",
-				"This will reduce the intensity of flashing effects",
-				"and reduce the amplitude of wavy screen effects.",
-				"No","Yes",13,27,get_zc_font(font_lfont))!=1)
-			{
-				epilepsyFlashReduction = 1;
-			}
-			exit_sys_pal();
-			zc_set_config("zeldadx","checked_epilepsy",1);
-			zc_set_config("zeldadx","epilepsy_flash_reduction",epilepsyFlashReduction);
-			checked_epilepsy = 1;
-		}
-	}
 
 	saves_init();
 
@@ -5014,7 +5072,6 @@ int main(int argc, char **argv)
 		{
 			load_save = save_index + 1;
 		}
-		fast_start = true;
 	}
 
 	set_display_switch_callback(SWITCH_IN,switch_in_callback);
@@ -5578,6 +5635,10 @@ void quit_game()
 	if(qstpath) free(qstpath);
 
 	FFCore.shutdown();
+
+#ifdef HAS_CURL
+	replay_upload_auto();
+#endif
 }
 
 bool isSideViewGravity(int32_t t)
@@ -5644,7 +5705,7 @@ bool checkCost(int32_t ctr, int32_t amnt)
 		case crSBOMBS:
 		{
 			if(current_item_power(itype_bombbag)
-				&& itemsbuf[current_item_id(itype_bombbag)].flags & ITEM_FLAG1)
+				&& itemsbuf[current_item_id(itype_bombbag)].flags & item_flag1)
 				return true;
 			break;
 		}
@@ -5712,7 +5773,7 @@ void payCost(int32_t ctr, int32_t amnt, int32_t tmr, bool ignoreTimer)
 		case crSBOMBS:
 		{
 			if(cost && current_item_power(itype_bombbag)
-				&& itemsbuf[current_item_id(itype_bombbag)].flags & ITEM_FLAG1)
+				&& itemsbuf[current_item_id(itype_bombbag)].flags & item_flag1)
 				return;
 			break;
 		}
@@ -5726,9 +5787,9 @@ void paymagiccost(int32_t itemid, bool ignoreTimer, bool onlyTimer)
 		return;
 	}
 	itemdata const& id = itemsbuf[itemid];
-	if(!(id.flags&ITEM_VALIDATEONLY) && (!onlyTimer || id.magiccosttimer[0]))
+	if(!(id.flags&item_validate_only) && (!onlyTimer || id.magiccosttimer[0]))
 		payCost(id.cost_counter[0], id.cost_amount[0], id.magiccosttimer[0], ignoreTimer);
-	if(!(id.flags&ITEM_VALIDATEONLY2) && (!onlyTimer || id.magiccosttimer[1]))
+	if(!(id.flags&item_validate_only_2) && (!onlyTimer || id.magiccosttimer[1]))
 		payCost(id.cost_counter[1], id.cost_amount[1], id.magiccosttimer[1], ignoreTimer);
 }
 

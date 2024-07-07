@@ -133,7 +133,7 @@ def run_bisect(revisions: List[Revision]):
         )
 
         print(f'checking {rev}')
-        binaries = rev.binaries()
+        binaries = rev.binaries(args.channel)
 
         down_pivot = int((pivot - lower) / 2) + lower
         up_pivot = int((upper - pivot) / 2) + pivot

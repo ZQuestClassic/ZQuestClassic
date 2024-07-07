@@ -1,5 +1,5 @@
-#ifndef ZSCR_DATA_H
-#define ZSCR_DATA_H
+#ifndef ZSCR_DATA_H_
+#define ZSCR_DATA_H_
 
 #include "base/zdefs.h"
 #include "zconsole/ConsoleLogger.h"

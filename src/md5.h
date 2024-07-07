@@ -4,8 +4,9 @@
  * $FreeBSD: src/contrib/cvs/lib/md5.h,v 1.2 1999/12/11 15:10:02 peter Exp $
  */
 
-#ifndef MD5_H
-#define MD5_H
+#ifndef BASE_MD5_H_
+#define BASE_MD5_H_
+
 #include <cstdint>
 
 #ifdef __cplusplus
@@ -36,4 +37,4 @@ void cvs_MD5Transform(cvs_uint32 buf[4], const uint8_t in[64]);
 } /* extern "C" */
 #endif
 
-#endif /* !MD5_H */
+#endif

@@ -1,5 +1,5 @@
-#ifndef ZC_GUI_BUILDUTIL_H
-#define ZC_GUI_BUILDUTIL_H
+#ifndef ZC_GUI_BUILDUTIL_H_
+#define ZC_GUI_BUILDUTIL_H_
 
 #include "builder.h"
 

@@ -1,5 +1,5 @@
-#ifndef _JWIN_FSEL_H_
-#define _JWIN_FSEL_H_
+#ifndef JWIN_FSEL_H_
+#define JWIN_FSEL_H_
 
 #include "gui/jwin.h"
 

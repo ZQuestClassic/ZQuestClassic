@@ -1804,14 +1804,14 @@ public:
 		clear_ornextflag();
 		flagpos = 5;
 		// Must be in the same order as in the Enemy Editor pane
-		ornextflag(tempenemy->flags&(lens_only));
+		ornextflag(tempenemy->flags&(guy_lens_only));
 		ornextflag(tempenemy->flags2&(guy_flashing));
 		ornextflag(tempenemy->flags2&(guy_blinking));
 		ornextflag(tempenemy->flags2&(guy_transparent));
-		ornextflag(tempenemy->flags&(inv_front));
-		ornextflag(tempenemy->flags&(inv_left));
-		ornextflag(tempenemy->flags&(inv_right));
-		ornextflag(tempenemy->flags&(inv_back));
+		ornextflag(tempenemy->flags&(guy_shield_front));
+		ornextflag(tempenemy->flags&(guy_shield_left));
+		ornextflag(tempenemy->flags&(guy_shield_right));
+		ornextflag(tempenemy->flags&(guy_shield_back));
 		ornextflag(tempenemy->flags&(guy_bkshield));
 		return (tempenemy->flags&0x1F) | flagval;
 	}
@@ -2879,7 +2879,7 @@ void FFScript::initZScriptItemScripts()
 	{
 		auto& data = get_script_engine_data(ScriptType::Item, q);
 		data.reset();
-		data.doscript = (itemsbuf[q].flags&ITEM_PASSIVESCRIPT) && game->item[q];
+		data.doscript = (itemsbuf[q].flags&item_passive_script) && game->item[q];
 	}
 
 	for ( int32_t q = -256; q < 0; q++ )
@@ -3857,7 +3857,7 @@ int32_t whichlayer(int32_t scr)
 
 sprite *s;
 
-int32_t item_flag(int32_t flag)
+int32_t item_flag(item_flags flag)
 {
 	if(unsigned(ri->idata) >= MAXITEMS)
 	{
@@ -3866,7 +3866,7 @@ int32_t item_flag(int32_t flag)
 	}
 	return (itemsbuf[ri->idata].flags & flag) ? 10000 : 0;
 }
-void item_flag(int32_t flag, bool val)
+void item_flag(item_flags flag, bool val)
 {
 	if(unsigned(ri->idata) >= MAXITEMS)
 	{
@@ -4127,7 +4127,7 @@ int32_t get_register(int32_t arg)
 			break;
 		
 		case LINKGRAVITY:
-			ret = ( (Hero.moveflags & FLAG_OBEYS_GRAV) ? 10000 : 0 );
+			ret = ( (Hero.moveflags & move_obeys_grav) ? 10000 : 0 );
 			break;
 		
 		case HERONOSTEPFORWARD:
@@ -5109,7 +5109,7 @@ int32_t get_register(int32_t arg)
 		case ITEMGRAVITY:
 			if(0!=(s=checkItem(ri->itemref)))
 			{
-				ret=((((item*)(s))->moveflags & FLAG_OBEYS_GRAV) ? 10000 : 0);
+				ret=((((item*)(s))->moveflags & move_obeys_grav) ? 10000 : 0);
 			}
 			break;
 			
@@ -5823,7 +5823,7 @@ int32_t get_register(int32_t arg)
 			break;
 			
 		case IDATAKEEP:
-			ret = item_flag(ITEM_GAMEDATA);
+			ret = item_flag(item_gamedata);
 			break;
 			
 		case IDATAAMOUNT:
@@ -5850,22 +5850,22 @@ int32_t get_register(int32_t arg)
 			break;
 		}
 		case IDATACONSTSCRIPT:
-			ret = item_flag(ITEM_PASSIVESCRIPT);
+			ret = item_flag(item_passive_script);
 			break;
 		case IDATASSWIMDISABLED:
-			ret = item_flag(ITEM_SIDESWIM_DISABLED);
+			ret = item_flag(item_sideswim_disabled);
 			break;
 		case IDATABUNNYABLE:
-			ret = item_flag(ITEM_BUNNY_ENABLED);
+			ret = item_flag(item_bunny_enabled);
 			break;
 		case IDATAJINXIMMUNE:
-			ret = item_flag(ITEM_JINX_IMMUNE);
+			ret = item_flag(item_jinx_immune);
 			break;
 		case IDATAJINXSWAP:
-			ret = item_flag(ITEM_FLIP_JINX);
+			ret = item_flag(item_flip_jinx);
 			break;
 		case IDATAUSEBURNSPR:
-			ret = item_flag(ITEM_BURNING_SPRITES);
+			ret = item_flag(item_burning_sprites);
 			break;
 			
 		case IDATASETMAX:
@@ -6236,18 +6236,18 @@ int32_t get_register(int32_t arg)
 			break;
 		// teo of this item upgrades
 		case IDATACOMBINE:
-			ret = item_flag(ITEM_COMBINE);
+			ret = item_flag(item_combine);
 			break;
 		//Use item, and get the lower level one
 		case IDATADOWNGRADE:
-			ret = item_flag(ITEM_DOWNGRADE);
+			ret = item_flag(item_downgrade);
 			break;
 		//Only validate the cost, don't charge it
 		case IDATAVALIDATE:
-			ret = item_flag(ITEM_VALIDATEONLY);
+			ret = item_flag(item_validate_only);
 			break;
 		case IDATAVALIDATE2:
-			ret = item_flag(ITEM_VALIDATEONLY2);
+			ret = item_flag(item_validate_only_2);
 			break;
 		//->Flags[5]
 		case IDATAFLAGS:
@@ -6262,37 +6262,37 @@ int32_t get_register(int32_t arg)
 			switch(index)
 			{
 				case 0:
-					ret=(itemsbuf[ri->idata].flags & ITEM_FLAG1)?10000:0; break;
+					ret=(itemsbuf[ri->idata].flags & item_flag1)?10000:0; break;
 				case 1:
-					ret=(itemsbuf[ri->idata].flags & ITEM_FLAG2)?10000:0; break;
+					ret=(itemsbuf[ri->idata].flags & item_flag2)?10000:0; break;
 				case 2:
-					ret=(itemsbuf[ri->idata].flags & ITEM_FLAG3)?10000:0; break;
+					ret=(itemsbuf[ri->idata].flags & item_flag3)?10000:0; break;
 				case 3:
-					ret=(itemsbuf[ri->idata].flags & ITEM_FLAG4)?10000:0; break;
+					ret=(itemsbuf[ri->idata].flags & item_flag4)?10000:0; break;
 				case 4:
-					ret=(itemsbuf[ri->idata].flags & ITEM_FLAG5)?10000:0; break;
+					ret=(itemsbuf[ri->idata].flags & item_flag5)?10000:0; break;
 				case 5:
-					ret=(itemsbuf[ri->idata].flags & ITEM_FLAG6)?10000:0; break;
+					ret=(itemsbuf[ri->idata].flags & item_flag6)?10000:0; break;
 				case 6:
-					ret=(itemsbuf[ri->idata].flags & ITEM_FLAG7)?10000:0; break;
+					ret=(itemsbuf[ri->idata].flags & item_flag7)?10000:0; break;
 				case 7:
-					ret=(itemsbuf[ri->idata].flags & ITEM_FLAG8)?10000:0; break;
+					ret=(itemsbuf[ri->idata].flags & item_flag8)?10000:0; break;
 				case 8:
-					ret=(itemsbuf[ri->idata].flags & ITEM_FLAG9)?10000:0; break;
+					ret=(itemsbuf[ri->idata].flags & item_flag9)?10000:0; break;
 				case 9:
-					ret=(itemsbuf[ri->idata].flags & ITEM_FLAG10)?10000:0; break;
+					ret=(itemsbuf[ri->idata].flags & item_flag10)?10000:0; break;
 				case 10:
-					ret=(itemsbuf[ri->idata].flags & ITEM_FLAG11)?10000:0; break;
+					ret=(itemsbuf[ri->idata].flags & item_flag11)?10000:0; break;
 				case 11:
-					ret=(itemsbuf[ri->idata].flags & ITEM_FLAG12)?10000:0; break;
+					ret=(itemsbuf[ri->idata].flags & item_flag12)?10000:0; break;
 				case 12:
-					ret=(itemsbuf[ri->idata].flags & ITEM_FLAG13)?10000:0; break;
+					ret=(itemsbuf[ri->idata].flags & item_flag13)?10000:0; break;
 				case 13:
-					ret=(itemsbuf[ri->idata].flags & ITEM_FLAG14)?10000:0; break;
+					ret=(itemsbuf[ri->idata].flags & item_flag14)?10000:0; break;
 				case 14:
-					ret=(itemsbuf[ri->idata].flags & ITEM_FLAG15)?10000:0; break;
+					ret=(itemsbuf[ri->idata].flags & item_flag15)?10000:0; break;
 				case 15:
-					ret=(itemsbuf[ri->idata].flags & ITEM_PASSIVESCRIPT)?10000:0; break;
+					ret=(itemsbuf[ri->idata].flags & item_passive_script)?10000:0; break;
 				
 				
 				default:
@@ -6305,23 +6305,23 @@ int32_t get_register(int32_t arg)
 			
 		//->Keep Old
 		case IDATAKEEPOLD:
-			ret = item_flag(ITEM_KEEPOLD);
+			ret = item_flag(item_keep_old);
 			break;
 		//Use rupees instead of magic
 		case IDATARUPEECOST:
-			ret = item_flag(ITEM_RUPEE_MAGIC);
+			ret = item_flag(item_rupee_magic);
 			break;
 		//Can be eaten
 		case IDATAEDIBLE:
-			ret = item_flag(ITEM_EDIBLE);
+			ret = item_flag(item_edible);
 			break;
 		//currently unused
 		case IDATAFLAGUNUSED:
-			ret = item_flag(ITEM_UNUSED);
+			ret = item_flag(item_unused);
 			break;
 		//Gain lower level items when collected
 		case IDATAGAINLOWER:
-			ret = item_flag(ITEM_GAINOLD);
+			ret = item_flag(item_gain_old);
 			break;
 		//Unchanged from master
 		case IDATAINITDD:
@@ -6744,7 +6744,7 @@ int32_t get_register(int32_t arg)
 			if(GuyH::loadNPC(ri->guyref, "npc->Gravity") != SH::_NoError)
 				ret = -10000;
 			else
-				ret = ((GuyH::getNPC()->moveflags & FLAG_OBEYS_GRAV) ? 10000 : 0);
+				ret = ((GuyH::getNPC()->moveflags & move_obeys_grav) ? 10000 : 0);
 				
 			break;
 		
@@ -6957,22 +6957,22 @@ int32_t get_register(int32_t arg)
 				{
 					case 0:
 					{
-						ret = ((GuyH::getNPC()->flags&inv_front) ? 10000 : 0);
+						ret = ((GuyH::getNPC()->flags&guy_shield_front) ? 10000 : 0);
 						break;
 					}
 					case 1:
 					{
-						ret = ((GuyH::getNPC()->flags&inv_left) ? 10000 : 0);
+						ret = ((GuyH::getNPC()->flags&guy_shield_left) ? 10000 : 0);
 						break;
 					}
 					case 2:
 					{
-						ret = ((GuyH::getNPC()->flags&inv_right) ? 10000 : 0);
+						ret = ((GuyH::getNPC()->flags&guy_shield_right) ? 10000 : 0);
 						break;
 					}
 					case 3:
 					{
-						ret = ((GuyH::getNPC()->flags&inv_back) ? 10000 : 0);
+						ret = ((GuyH::getNPC()->flags&guy_shield_back) ? 10000 : 0);
 						break;
 					}
 					case 4: //shield can be broken
@@ -7271,7 +7271,7 @@ int32_t get_register(int32_t arg)
 		 
 		case LWPNGRAVITY:
 			if(0!=(s=checkLWpn(ri->lwpn,"Gravity")))
-				ret= (((weapon*)(s))->moveflags & FLAG_OBEYS_GRAV) ? 10000 : 0;
+				ret= (((weapon*)(s))->moveflags & move_obeys_grav) ? 10000 : 0;
 				
 			break;
 			
@@ -7930,7 +7930,7 @@ int32_t get_register(int32_t arg)
 			
 		case EWPNGRAVITY:
 			if(0!=(s=checkEWpn(ri->ewpn, "Gravity")))
-				ret=((((weapon*)(s))->moveflags & FLAG_OBEYS_GRAV) ? 10000 : 0);
+				ret=((((weapon*)(s))->moveflags & move_obeys_grav) ? 10000 : 0);
 				
 			break;
 			
@@ -12894,6 +12894,16 @@ int32_t get_register(int32_t arg)
 			else ret = 10000 * combobuf[ri->combosref].trig_itmjinxtime;
 			break;
 		}
+		case COMBODTRIGSHIELDJINX:
+		{
+			ret = -10000;
+			if (ri->combosref < 0 || ri->combosref >(MAXCOMBOS - 1))
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigShieldJinx: %d\n", (ri->combosref * 10000));
+			}
+			else ret = 10000 * combobuf[ri->combosref].trig_shieldjinxtime;
+			break;
+		}
 		case COMBODTRIGSTUN:
 		{
 			ret = -10000;
@@ -13497,22 +13507,22 @@ int32_t get_register(int32_t arg)
 				{
 					case 0:
 					{
-						ret = ((guysbuf[ri->npcdataref].flags&inv_front) ? 10000 : 0);
+						ret = ((guysbuf[ri->npcdataref].flags&guy_shield_front) ? 10000 : 0);
 						break;
 					}
 					case 1:
 					{
-						ret = ((guysbuf[ri->npcdataref].flags&inv_left) ? 10000 : 0);
+						ret = ((guysbuf[ri->npcdataref].flags&guy_shield_left) ? 10000 : 0);
 						break;
 					}
 					case 2:
 					{
-						ret = ((guysbuf[ri->npcdataref].flags&inv_right) ? 10000 : 0);
+						ret = ((guysbuf[ri->npcdataref].flags&guy_shield_right) ? 10000 : 0);
 						break;
 					}
 					case 3:
 					{
-						ret = ((guysbuf[ri->npcdataref].flags&inv_back) ? 10000 : 0);
+						ret = ((guysbuf[ri->npcdataref].flags&guy_shield_back) ? 10000 : 0);
 						break;
 					}
 					case 4:
@@ -16489,10 +16499,10 @@ void set_register(int32_t arg, int32_t value)
 		case FFFLAGSD:
 			if(BC::checkFFC(ri->ffcref, "ffc->Flags[]") == SH::_NoError)
 			{
-				auto flag = 1<<((ri->d[rINDEX])/10000);
+				auto flag = (ffc_flags)(1<<((ri->d[rINDEX])/10000));
 				ffcdata* ff = get_ffc_raw(ri->ffcref);
 				SETFLAG(ff->flags, flag, value);
-				if (flag == ffSOLID || flag == ffCHANGER)
+				if (flag == ffc_solid || flag == ffc_changer)
 					ff->updateSolid();
 			}
 			break;
@@ -16616,9 +16626,9 @@ void set_register(int32_t arg, int32_t value)
 		
 		case LINKGRAVITY:
 			if(value)
-				Hero.moveflags |= FLAG_OBEYS_GRAV;
+				Hero.moveflags |= move_obeys_grav;
 			else
-				Hero.moveflags &= ~FLAG_OBEYS_GRAV;
+				Hero.moveflags &= ~move_obeys_grav;
 			break;
 		
 		case HERONOSTEPFORWARD:
@@ -16725,12 +16735,12 @@ void set_register(int32_t arg, int32_t value)
 			{
 				//Clear the item refInfo and stack for use.
 				data.ref.Clear();
-				if ( (itemsbuf[itemID].flags&ITEM_PASSIVESCRIPT) ) data.doscript = 1;
+				if ( (itemsbuf[itemID].flags&item_passive_script) ) data.doscript = 1;
 			}
 			else if ( value && data.doscript == 4 ) 
 			{
 				// Arbitrary event number 49326: Writing the item false, then true, in the same frame. -Z
-				if ( (itemsbuf[itemID].flags&ITEM_PASSIVESCRIPT) ) data.doscript = 1;
+				if ( (itemsbuf[itemID].flags&item_passive_script) ) data.doscript = 1;
 			}
 			
 			bool settrue = ( value != 0 );
@@ -17372,7 +17382,7 @@ void set_register(int32_t arg, int32_t value)
 			if(BC::checkBounds(indx, 0, 10, "Hero->MoveFlags[]") == SH::_NoError)
 			{
 				//All bits, in order, of a single byte; just use bitwise
-				int32_t bit = 1<<indx;
+				move_flags bit = (move_flags)(1<<indx);
 				if(value)
 					Hero.moveflags |= bit;
 				else
@@ -17385,7 +17395,7 @@ void set_register(int32_t arg, int32_t value)
 			int32_t indx = ri->d[rINDEX]/10000;
 			if(BC::checkBounds(indx, 0, NUM_LIFTFL-1, "Hero->LiftFlags[]") == SH::_NoError)
 			{
-				int32_t bit = 1<<indx;
+				lift_flags bit = (lift_flags)(1<<indx);
 				if(value)
 					Hero.liftflags |= bit;
 				else
@@ -17395,8 +17405,10 @@ void set_register(int32_t arg, int32_t value)
 		}
 		
 		case HEROSHIELDJINX:
-			Hero.shieldjinxclk = value/10000;
+		{
+			Hero.shieldjinxclk = value / 10000;
 			break;
+		}
 		
 		case CLOCKACTIVE:
 		{
@@ -18029,9 +18041,9 @@ void set_register(int32_t arg, int32_t value)
 			if(0!=(s=checkItem(ri->itemref)))
 			{
 				if(value)
-					((item *)s)->moveflags |= FLAG_OBEYS_GRAV;
+					((item *)s)->moveflags |= move_obeys_grav;
 				else
-					((item *)s)->moveflags &= ~FLAG_OBEYS_GRAV;
+					((item *)s)->moveflags &= ~move_obeys_grav;
 			}
 			
 			break;
@@ -18449,7 +18461,7 @@ void set_register(int32_t arg, int32_t value)
 				if(BC::checkBounds(indx, 0, 10, "itemsprite->MoveFlags[]") == SH::_NoError)
 				{
 					//All bits, in order, of a single byte; just use bitwise
-					int32_t bit = 1<<indx;
+					move_flags bit = (move_flags)(1<<indx);
 					if(value)
 						((item*)(s))->moveflags |= bit;
 					else
@@ -18832,7 +18844,7 @@ void set_register(int32_t arg, int32_t value)
 			flushItemCache();
 			break;
 		case IDATAKEEP:
-			item_flag(ITEM_GAMEDATA, value);
+			item_flag(item_gamedata, value);
 			break;
 		case IDATAAMOUNT:
 		{
@@ -18857,22 +18869,22 @@ void set_register(int32_t arg, int32_t value)
 			break;
 		}
 		case IDATACONSTSCRIPT:
-			item_flag(ITEM_PASSIVESCRIPT, value);
+			item_flag(item_passive_script, value);
 			break;
 		case IDATASSWIMDISABLED:
-			item_flag(ITEM_SIDESWIM_DISABLED, value);
+			item_flag(item_sideswim_disabled, value);
 			break;
 		case IDATABUNNYABLE:
-			item_flag(ITEM_BUNNY_ENABLED, value);
+			item_flag(item_bunny_enabled, value);
 			break;
 		case IDATAJINXIMMUNE:
-			item_flag(ITEM_JINX_IMMUNE, value);
+			item_flag(item_jinx_immune, value);
 			break;
 		case IDATAJINXSWAP:
-			item_flag(ITEM_FLIP_JINX, value);
+			item_flag(item_flip_jinx, value);
 			break;
 		case IDATAUSEBURNSPR:
-			item_flag(ITEM_BURNING_SPRITES, value);
+			item_flag(item_burning_sprites, value);
 			break;
 		case IDATASETMAX:
 			if(unsigned(ri->idata) >= MAXITEMS)
@@ -18941,18 +18953,18 @@ void set_register(int32_t arg, int32_t value)
 		//My additions begin here. -Z
 		//Stack item to gain next level
 		case IDATACOMBINE:
-			item_flag(ITEM_COMBINE, value);
+			item_flag(item_combine, value);
 			break;
 		//using a level of an item downgrades to a lower one
 		case IDATADOWNGRADE:
-			item_flag(ITEM_DOWNGRADE, value);
+			item_flag(item_downgrade, value);
 			break;
 		  //Only validate the cost, don't charge it
 		case IDATAVALIDATE:
-			item_flag(ITEM_VALIDATEONLY, value);
+			item_flag(item_validate_only, value);
 			break;
 		case IDATAVALIDATE2:
-			item_flag(ITEM_VALIDATEONLY2, value);
+			item_flag(item_validate_only_2, value);
 			break;
 		
 		//Flags[5]
@@ -18967,53 +18979,53 @@ void set_register(int32_t arg, int32_t value)
 			switch(index)
 			{
 				case 0:
-					SETFLAG(itemsbuf[ri->idata].flags, ITEM_FLAG1, value);
+					SETFLAG(itemsbuf[ri->idata].flags, item_flag1, value);
 					break;
 				case 1:
-					SETFLAG(itemsbuf[ri->idata].flags, ITEM_FLAG2, value);
+					SETFLAG(itemsbuf[ri->idata].flags, item_flag2, value);
 					break;
 				case 2:
-					SETFLAG(itemsbuf[ri->idata].flags, ITEM_FLAG3, value);
+					SETFLAG(itemsbuf[ri->idata].flags, item_flag3, value);
 					break;
 				case 3:
-					SETFLAG(itemsbuf[ri->idata].flags, ITEM_FLAG4, value);
+					SETFLAG(itemsbuf[ri->idata].flags, item_flag4, value);
 					break;
 				case 4:
-					SETFLAG(itemsbuf[ri->idata].flags, ITEM_FLAG5, value);
+					SETFLAG(itemsbuf[ri->idata].flags, item_flag5, value);
 					break;
 				case 5:
-					SETFLAG(itemsbuf[ri->idata].flags, ITEM_FLAG6, value);
+					SETFLAG(itemsbuf[ri->idata].flags, item_flag6, value);
 					break;
 				case 6:
-					SETFLAG(itemsbuf[ri->idata].flags, ITEM_FLAG7, value);
+					SETFLAG(itemsbuf[ri->idata].flags, item_flag7, value);
 					break;
 				case 7:
-					SETFLAG(itemsbuf[ri->idata].flags, ITEM_FLAG8, value);
+					SETFLAG(itemsbuf[ri->idata].flags, item_flag8, value);
 					break;
 				case 8:
-					SETFLAG(itemsbuf[ri->idata].flags, ITEM_FLAG9, value);
+					SETFLAG(itemsbuf[ri->idata].flags, item_flag9, value);
 					cache_tile_mod_clear();
 					break;
 				case 9:
-					SETFLAG(itemsbuf[ri->idata].flags, ITEM_FLAG10, value);
+					SETFLAG(itemsbuf[ri->idata].flags, item_flag10, value);
 					break;
 				case 10:
-					SETFLAG(itemsbuf[ri->idata].flags, ITEM_FLAG11, value);
+					SETFLAG(itemsbuf[ri->idata].flags, item_flag11, value);
 					break;
 				case 11:
-					SETFLAG(itemsbuf[ri->idata].flags, ITEM_FLAG12, value);
+					SETFLAG(itemsbuf[ri->idata].flags, item_flag12, value);
 					break;
 				case 12:
-					SETFLAG(itemsbuf[ri->idata].flags, ITEM_FLAG13, value);
+					SETFLAG(itemsbuf[ri->idata].flags, item_flag13, value);
 					break;
 				case 13:
-					SETFLAG(itemsbuf[ri->idata].flags, ITEM_FLAG14, value);
+					SETFLAG(itemsbuf[ri->idata].flags, item_flag14, value);
 					break;
 				case 14:
-					SETFLAG(itemsbuf[ri->idata].flags, ITEM_FLAG15, value);
+					SETFLAG(itemsbuf[ri->idata].flags, item_flag15, value);
 					break;
 				case 15:
-					SETFLAG(itemsbuf[ri->idata].flags, ITEM_PASSIVESCRIPT, value);
+					SETFLAG(itemsbuf[ri->idata].flags, item_passive_script, value);
 					break;
 			}
 				
@@ -19021,23 +19033,23 @@ void set_register(int32_t arg, int32_t value)
 		}
 		//Keep Old in editor
 		case IDATAKEEPOLD:
-			item_flag(ITEM_KEEPOLD, value);
+			item_flag(item_keep_old, value);
 			break;
 		//Ruppes for magic
 		case IDATARUPEECOST:
-			item_flag(ITEM_RUPEE_MAGIC, value);
+			item_flag(item_rupee_magic, value);
 			break;
 		//can be eaten
 		case IDATAEDIBLE:
-			item_flag(ITEM_EDIBLE, value);
+			item_flag(item_edible, value);
 			break;
 		//Unused at this time
 		case IDATAFLAGUNUSED:
-			item_flag(ITEM_UNUSED, value);
+			item_flag(item_unused, value);
 			break;
 		//gain lower level items
 		case IDATAGAINLOWER:
-			item_flag(ITEM_GAINOLD, value);
+			item_flag(item_gain_old, value);
 			break;
 		//Set the action script
 		case IDATASCRIPT:
@@ -19414,9 +19426,9 @@ void set_register(int32_t arg, int32_t value)
 			if(0!=(s=checkLWpn(ri->lwpn,"Gravity")))
 			{
 				if(value)
-					((weapon*)s)->moveflags |= FLAG_OBEYS_GRAV;
+					((weapon*)s)->moveflags |= move_obeys_grav;
 				else
-					((weapon*)s)->moveflags &= ~FLAG_OBEYS_GRAV;
+					((weapon*)s)->moveflags &= ~move_obeys_grav;
 			}
 			break;
 			
@@ -19888,7 +19900,7 @@ void set_register(int32_t arg, int32_t value)
 				if(BC::checkBounds(indx, 0, 10, "lweapon->MoveFlags[]") == SH::_NoError)
 				{
 					//All bits, in order, of a single byte; just use bitwise
-					int32_t bit = 1<<indx;
+					move_flags bit = (move_flags)(1<<indx);
 					if(value)
 						((weapon*)(s))->moveflags |= bit;
 					else
@@ -20092,9 +20104,9 @@ void set_register(int32_t arg, int32_t value)
 			if(0!=(s=checkEWpn(ri->ewpn,"Gravity")))
 			{
 				if(value)
-					((weapon*)s)->moveflags |= FLAG_OBEYS_GRAV;
+					((weapon*)s)->moveflags |= move_obeys_grav;
 				else
-					((weapon*)s)->moveflags &= ~FLAG_OBEYS_GRAV;
+					((weapon*)s)->moveflags &= ~move_obeys_grav;
 			}
 			break;
 			
@@ -20536,7 +20548,7 @@ void set_register(int32_t arg, int32_t value)
 				if(BC::checkBounds(indx, 0, 10, "eweapon->MoveFlags[]") == SH::_NoError)
 				{
 					//All bits, in order, of a single byte; just use bitwise
-					int32_t bit = 1<<indx;
+					move_flags bit = (move_flags)(1<<indx);
 					if(value)
 						((weapon*)(s))->moveflags |= bit;
 					else
@@ -20830,9 +20842,9 @@ void set_register(int32_t arg, int32_t value)
 			if(GuyH::loadNPC(ri->guyref, "npc->Gravity") == SH::_NoError)
 			{
 				if(value)
-					GuyH::getNPC()->moveflags |= FLAG_OBEYS_GRAV;
+					GuyH::getNPC()->moveflags |= move_obeys_grav;
 				else
-					GuyH::getNPC()->moveflags &= ~FLAG_OBEYS_GRAV;
+					GuyH::getNPC()->moveflags &= ~move_obeys_grav;
 			}
 		}
 		break;
@@ -21323,22 +21335,22 @@ void set_register(int32_t arg, int32_t value)
 				{
 					case 0:
 					{
-						(ri->d[rINDEX2])? (GuyH::getNPC()->flags |= inv_front) : (GuyH::getNPC()->flags &= ~inv_front);
+						(ri->d[rINDEX2])? (GuyH::getNPC()->flags |= guy_shield_front) : (GuyH::getNPC()->flags &= ~guy_shield_front);
 						break;
 					}
 					case 1:
 					{
-						(ri->d[rINDEX2])? (GuyH::getNPC()->flags |= inv_left) : (GuyH::getNPC()->flags &= ~inv_left);
+						(ri->d[rINDEX2])? (GuyH::getNPC()->flags |= guy_shield_left) : (GuyH::getNPC()->flags &= ~guy_shield_left);
 						break;
 					}
 					case 2:
 					{
-						(ri->d[rINDEX2])? (GuyH::getNPC()->flags |= inv_right) : (GuyH::getNPC()->flags &= ~inv_right);
+						(ri->d[rINDEX2])? (GuyH::getNPC()->flags |= guy_shield_right) : (GuyH::getNPC()->flags &= ~guy_shield_right);
 						break;
 					}
 					case 3:
 					{
-						(ri->d[rINDEX2])? (GuyH::getNPC()->flags |= inv_back) : (GuyH::getNPC()->flags &= ~inv_back);
+						(ri->d[rINDEX2])? (GuyH::getNPC()->flags |= guy_shield_back) : (GuyH::getNPC()->flags &= ~guy_shield_back);
 						break;
 					}
 					case 4: //shield can be broken
@@ -21488,7 +21500,7 @@ void set_register(int32_t arg, int32_t value)
 				if(BC::checkBounds(indx, 0, 15, "npc->MoveFlags[]") == SH::_NoError)
 				{
 					//All bits, in order, of a single byte; just use bitwise
-					int32_t bit = 1<<indx;
+					move_flags bit = (move_flags)(1<<indx);
 					if(value)
 						GuyH::getNPC()->moveflags |= bit;
 					else
@@ -23898,7 +23910,7 @@ void set_register(int32_t arg, int32_t value)
 
 			if (auto handle = ResolveMapRefFFC(ri->mapsref, id, "FFCFlags"); handle.scr != nullptr)
 			{
-				handle.ffc->flags = value/10000;
+				handle.ffc->flags = (ffc_flags)(value/10000);
 				handle.ffc->updateSolid();
 			}
 			break;
@@ -25857,6 +25869,15 @@ void set_register(int32_t arg, int32_t value)
 			else combobuf[ri->combosref].trig_itmjinxtime = zc_max(value/10000, -2);
 			break;
 		}
+		case COMBODTRIGSHIELDJINX:
+		{
+			if (ri->combosref < 0 || ri->combosref >(MAXCOMBOS - 1))
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigShieldJinx: %d\n", (ri->combosref * 10000));
+			}
+			else combobuf[ri->combosref].trig_shieldjinxtime = zc_max(value / 10000, -2);
+			break;
+		}
 		case COMBODTRIGSTUN:
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
@@ -25960,7 +25981,7 @@ void set_register(int32_t arg, int32_t value)
 				Z_scripterrlog("Invalid index supplied to combodata->LiftFlags[]: %d\n", indx);
 				break;
 			}
-			SETFLAG(combobuf[ri->combosref].liftflags, (1<<indx), value);
+			SETFLAG(combobuf[ri->combosref].liftflags, (lift_flags)(1<<indx), value);
 			break;
 		}
 		case COMBODLIFTGFXTYPE:
@@ -26189,6 +26210,18 @@ void set_register(int32_t arg, int32_t value)
 			} \
 		} \
 
+		#define	SET_NPCDATA_VAR_ENUM(member, str) \
+		{ \
+			if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
+			{ \
+				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
+			} \
+			else \
+			{ \
+				guysbuf[ri->npcdataref].member = (decltype(guysbuf[ri->npcdataref].member))vbound((value / 10000),0,32767); \
+			} \
+		} \
+
 		#define	SET_NPCDATA_VAR_BYTE(member, str) \
 		{ \
 			if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
@@ -26255,8 +26288,8 @@ void set_register(int32_t arg, int32_t value)
 		case NPCDATATILE: SET_NPCDATA_VAR_BYTE(tile, "Tile"); break;
 		case NPCDATAWIDTH: SET_NPCDATA_VAR_BYTE(width, "Width"); break;
 		case NPCDATAHEIGHT: SET_NPCDATA_VAR_BYTE(height, "Height"); break;
-		case NPCDATAFLAGS: SET_NPCDATA_VAR_DWORD(flags, "Flags"); break; //16 b its
-		case NPCDATAFLAGS2: SET_NPCDATA_VAR_DWORD(flags2, "Flags2"); break; //16 bits
+		case NPCDATAFLAGS: SET_NPCDATA_VAR_ENUM(flags, "Flags"); break; //16 b its
+		case NPCDATAFLAGS2: SET_NPCDATA_VAR_ENUM(flags2, "Flags2"); break; //16 bits
 		case NPCDATASTILE: SET_NPCDATA_VAR_BYTE(s_tile, "STile"); break;
 		case NPCDATASWIDTH: SET_NPCDATA_VAR_BYTE(s_width, "SWidth"); break;
 		case NPCDATASHEIGHT: SET_NPCDATA_VAR_BYTE(s_height, "SHeight"); break;
@@ -26444,22 +26477,22 @@ void set_register(int32_t arg, int32_t value)
 				{
 					case 0:
 					{
-						(ri->d[rINDEX2])? (guysbuf[ri->npcdataref].flags |= inv_front) : (guysbuf[ri->npcdataref].flags &= ~inv_front);
+						(ri->d[rINDEX2])? (guysbuf[ri->npcdataref].flags |= guy_shield_front) : (guysbuf[ri->npcdataref].flags &= ~guy_shield_front);
 						break;
 					}
 					case 1:
 					{
-						(ri->d[rINDEX2])? (guysbuf[ri->npcdataref].flags |= inv_left) : (guysbuf[ri->npcdataref].flags &= ~inv_left);
+						(ri->d[rINDEX2])? (guysbuf[ri->npcdataref].flags |= guy_shield_left) : (guysbuf[ri->npcdataref].flags &= ~guy_shield_left);
 						break;
 					}
 					case 2:
 					{
-						(ri->d[rINDEX2])? (guysbuf[ri->npcdataref].flags |= inv_right) : (guysbuf[ri->npcdataref].flags &= ~inv_right);
+						(ri->d[rINDEX2])? (guysbuf[ri->npcdataref].flags |= guy_shield_right) : (guysbuf[ri->npcdataref].flags &= ~guy_shield_right);
 						break;
 					}
 					case 3:
 					{
-						(ri->d[rINDEX2])? (guysbuf[ri->npcdataref].flags |= inv_back) : (guysbuf[ri->npcdataref].flags &= ~inv_back);
+						(ri->d[rINDEX2])? (guysbuf[ri->npcdataref].flags |= guy_shield_back) : (guysbuf[ri->npcdataref].flags &= ~guy_shield_back);
 						break;
 					}
 					case 4:
@@ -41265,7 +41298,7 @@ int32_t run_script_int(bool is_jitted)
 				auto& data = get_script_engine_data(ScriptType::Item, i);
 				if ( !collect )
 				{
-					if ( (itemsbuf[i].flags&ITEM_PASSIVESCRIPT) && game->item[i] ) itemsbuf[i].script = 0; //Quit perpetual scripts, too.
+					if ( (itemsbuf[i].flags&item_passive_script) && game->item[i] ) itemsbuf[i].script = 0; //Quit perpetual scripts, too.
 					data.doscript = 0;
 					data.ref.Clear();
 				}
@@ -41372,10 +41405,10 @@ int32_t ffscript_engine(const bool preload)
 			if(ffc_handle.ffc->script == 0)
 				return;
 				
-			if(preload && !(ffc_handle.ffc->flags&ffPRELOAD))
+			if(preload && !(ffc_handle.ffc->flags&ffc_preload))
 				return;
 				
-			if((ffc_handle.ffc->flags&ffIGNOREHOLDUP)==0 && Hero.getHoldClk()>0)
+			if((ffc_handle.ffc->flags&ffc_ignoreholdup)==0 && Hero.getHoldClk()>0)
 				return;
 
 			ZScriptVersion::RunScript(ScriptType::FFC, ffc_handle.ffc->script, ffc_handle.id);
@@ -42718,6 +42751,15 @@ void do_getdmapintro(const bool v)
 		guysbuf[ID].member = vbound(val,0,bound); \
 }
 
+#define SET_NPCDATA_FUNCTION_VAR_ENUM(member, bound) \
+{ \
+	int32_t ID = get_register(sarg1) / 10000; \
+	int32_t val = get_register(sarg2) / 10000; \
+	if(ID < 1 || ID > (MAXGUYS-1)) \
+		set_register(sarg1, -10000); \
+	else \
+		guysbuf[ID].member = (decltype(guysbuf[ID].member))vbound(val,0,bound); \
+}
 
 
 #define SET_NPCDATA_FUNCTION_VAR_INT_NOBOUND(member) \
@@ -42756,8 +42798,8 @@ void do_getdmapintro(const bool v)
 	}\
 }
 
-void FFScript::setNPCData_flags(){SET_NPCDATA_FUNCTION_VAR_INT(flags,ZS_DWORD);} //word
-void FFScript::setNPCData_flags2(){SET_NPCDATA_FUNCTION_VAR_INT(flags2,ZS_DWORD);}
+void FFScript::setNPCData_flags(){SET_NPCDATA_FUNCTION_VAR_ENUM(flags,ZS_DWORD);} //word
+void FFScript::setNPCData_flags2(){SET_NPCDATA_FUNCTION_VAR_ENUM(flags2,ZS_DWORD);}
 void FFScript::setNPCData_width(){SET_NPCDATA_FUNCTION_VAR_INT(width,ZS_BYTE);}
 void FFScript::setNPCData_tile(){SET_NPCDATA_FUNCTION_VAR_INT(tile,ZS_WORD);}
 void FFScript::setNPCData_e_height(){SET_NPCDATA_FUNCTION_VAR_INT(e_height,ZS_BYTE);}
@@ -44026,7 +44068,7 @@ bool FFScript::itemScriptEngine()
 		if ( data.doscript < 1 ) continue;
 		
 		//Passive items
-		if (((itemsbuf[q].flags&ITEM_PASSIVESCRIPT)))
+		if (((itemsbuf[q].flags&item_passive_script)))
 		{
 			if(game->item[q] && (get_qr(qr_ITEMSCRIPTSKEEPRUNNING)))
 			{
@@ -44125,7 +44167,7 @@ bool FFScript::itemScriptEngineOnWaitdraw()
 			  This allows passive item scripts to function. 
 		*/
 		//Passive items
-		if ((itemsbuf[q].flags&ITEM_PASSIVESCRIPT))
+		if ((itemsbuf[q].flags&item_passive_script))
 		{
 			if(game->item[q] && (get_qr(qr_ITEMSCRIPTSKEEPRUNNING)))
 			{
@@ -52488,18 +52530,6 @@ int32_t FFScript::LongDistance(double x1, double y1, double x2, double y2, int32
 	//double total = sqrt(sum)*10;
 	//return int32_t(total*scale);
 	return (FFCore.LongDistance(x1, y1, x3, y3)*scale);
-}
-
-void FFScript::do_distance()
-{
-	double x1 = double(ri->d[rSFTEMP] / 10000.0);
-	double x2 = double(ri->d[rINDEX] / 10000.0);
-	double y1 = double(ri->d[rINDEX2] / 10000.0);
-	double y2 = double(ri->d[rEXP1] / 10000.0);
-	
-	int32_t result = FFCore.Distance(x1, x2, y1, y2);
-	//ret = result*10000;
-
 }
 
 bool command_is_wait(int command)

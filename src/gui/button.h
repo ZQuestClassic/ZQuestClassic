@@ -1,5 +1,5 @@
-#ifndef ZC_GUI_BUTTON_H
-#define ZC_GUI_BUTTON_H
+#ifndef ZC_GUI_BUTTON_H_
+#define ZC_GUI_BUTTON_H_
 
 #include "base/hotkey.h"
 #include "gui/widget.h"

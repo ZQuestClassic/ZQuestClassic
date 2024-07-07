@@ -1,5 +1,5 @@
-#ifndef ZC_GUI_TABPANEL_H
-#define ZC_GUI_TABPANEL_H
+#ifndef ZC_GUI_TABPANEL_H_
+#define ZC_GUI_TABPANEL_H_
 
 #include "gui/widget.h"
 #include "gui/tabref.h"

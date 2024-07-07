@@ -1,7 +1,7 @@
 //jwin for a5
 
-#ifndef _JWIN_A5_H_
-#define _JWIN_A5_H_
+#ifndef JWIN_A5_H_
+#define JWIN_A5_H_
 
 #include "gui/jwin.h"
 

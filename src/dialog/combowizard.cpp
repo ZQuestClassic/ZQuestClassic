@@ -3144,7 +3144,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 				[](GUI::ListItem& itm)
 				{
 					if(unsigned(itm.value) >= MAXITEMS) return false;
-					return (itemsbuf[itm.value].flags & ITEM_GAMEDATA) != 0;
+					return (itemsbuf[itm.value].flags & item_gamedata) != 0;
 				});
 			lists[2] = GUI::ZCListData::strings(true);
 			windowRow->add(Column(
@@ -3592,7 +3592,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 				[](GUI::ListItem& itm)
 				{
 					if(unsigned(itm.value) >= MAXITEMS) return false;
-					return (itemsbuf[itm.value].flags & ITEM_GAMEDATA) != 0;
+					return (itemsbuf[itm.value].flags & item_gamedata) != 0;
 				});
 			lists[2] = GUI::ZCListData::strings(true);
 			windowRow->add(Column(

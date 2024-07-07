@@ -1,5 +1,5 @@
-#ifndef _GENERAL_H_
-#define _GENERAL_H_
+#ifndef GENERAL_H_
+#define GENERAL_H_
 
 #include "base/ints.h"
 #include "base/zfix.h"

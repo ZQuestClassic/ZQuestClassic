@@ -1,5 +1,5 @@
-#ifndef ZC_DIALOG_ZINFODLG_H
-#define ZC_DIALOG_ZINFODLG_H
+#ifndef ZC_DIALOG_ZINFODLG_H_
+#define ZC_DIALOG_ZINFODLG_H_
 
 #include <gui/dialog.h>
 #include <gui/checkbox.h>

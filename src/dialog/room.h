@@ -1,5 +1,5 @@
-#ifndef ZC_DIALOG_ROOM_H
-#define ZC_DIALOG_ROOM_H
+#ifndef ZC_DIALOG_ROOM_H_
+#define ZC_DIALOG_ROOM_H_
 
 #include <gui/dialog.h>
 #include <gui/drop_down_list.h>

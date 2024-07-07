@@ -1,5 +1,5 @@
-#ifndef ZC_GUI_COMMON_H
-#define ZC_GUI_COMMON_H
+#ifndef ZC_GUI_COMMON_H_
+#define ZC_GUI_COMMON_H_
 
 #include <string_view>
 #include <cstdint>

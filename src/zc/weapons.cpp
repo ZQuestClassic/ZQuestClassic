@@ -58,11 +58,11 @@ bool weapon::no_triggers() const
 {
 	switch(id)
 	{
-		case wHammer: //Hammers don't trigger anything while in the air if ITEM_FLAG1 is set!
+		case wHammer: //Hammers don't trigger anything while in the air if item_flag1 is set!
 		{
 			if(parentitem < 0) break;
 			itemdata const& itm = itemsbuf[parentitem];
-			if(itm.family == itype_hammer && (itm.flags & ITEM_FLAG1) && Hero.getHammerState() < 3)
+			if(itm.family == itype_hammer && (itm.flags & item_flag1) && Hero.getHammerState() < 3)
 				return true;
 			break;
 		}
@@ -1119,7 +1119,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	{
 		case wFire:
 			// Divine Fire shouldn't fall
-			if(parentitem >= 0 && parent.family==itype_divinefire && !(parent.flags & ITEM_FLAG3))
+			if(parentitem >= 0 && parent.family==itype_divinefire && !(parent.flags & item_flag3))
 				break;
 		[[fallthrough]];
 		case wLitBomb:
@@ -1128,7 +1128,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 		case ewFlame:
 		case ewFireTrail:
 		case wThrown:
-			moveflags |= FLAG_OBEYS_GRAV | FLAG_CAN_PITFALL;
+			moveflags |= move_obeys_grav | move_can_pitfall;
 	}
 	
 	switch(id) //flags
@@ -1142,9 +1142,9 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			{
 				if(parent.family==itype_bomb || parent.family==itype_sbomb)
 				{
-					if(parent.flags&ITEM_FLAG3)
+					if(parent.flags&item_flag3)
 						misc_wflags |= WFLAG_STOP_WHEN_LANDING;
-					if(parent.flags&ITEM_FLAG5)
+					if(parent.flags&item_flag5)
 						misc_wflags |= WFLAG_STOP_WHEN_HIT_SOLID;
 				}
 			}
@@ -1341,7 +1341,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			if ( parentitem > -1 )
 			{
 				//Whistle damage
-				if ((parent.flags & ITEM_FLAG2)!=0 ) //Flags[1]
+				if ((parent.flags & item_flag2)!=0 ) //Flags[1]
 				{
 					power = parent.misc5; //Attributews[5]
 				}
@@ -1504,7 +1504,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				{
 					case itype_divinefire: // Divine Fire. This uses magicitem rather than itemid
 						step = 0; 
-						if(itemsbuf[magicitem].flags & ITEM_FLAG2)
+						if(itemsbuf[magicitem].flags & item_flag2)
 							glowRad = 0;
 						break;
 						
@@ -1513,7 +1513,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						break;
 						
 					case itype_candle:
-						if(parent.flags & ITEM_FLAG2)
+						if(parent.flags & item_flag2)
 							glowRad = 0;
 						hxofs = hyofs = 1;
 						hit_width = hit_height = 14;
@@ -2141,7 +2141,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						sfx(WAV_ZN1ROCKETUP,(int32_t)x);
 						
 					step = 4;
-					drawstyle=parent.flags & ITEM_FLAG2 ? 1 : 0;
+					drawstyle=parent.flags & item_flag2 ? 1 : 0;
 					break;
 					
 				case pDIVINEPROTECTIONROCKETRETURN1:
@@ -2149,33 +2149,33 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						sfx(WAV_ZN1ROCKETDOWN,(int32_t)x);
 						
 					step = 4;
-					drawstyle=parent.flags & ITEM_FLAG2 ? 1 : 0;
+					drawstyle=parent.flags & item_flag2 ? 1 : 0;
 					break;
 					
 				case pDIVINEPROTECTIONROCKETTRAIL1:
-					drawstyle=parent.flags & ITEM_FLAG2 ? 1 : 0;
+					drawstyle=parent.flags & item_flag2 ? 1 : 0;
 					break;
 					
 				case pDIVINEPROTECTIONROCKETTRAILRETURN1:
-					drawstyle=parent.flags & ITEM_FLAG2 ? 1 : 0;
+					drawstyle=parent.flags & item_flag2 ? 1 : 0;
 					break;
 					
 				case pDIVINEPROTECTIONROCKET2:
 					step = 4;
-					drawstyle=parent.flags & ITEM_FLAG2 ? 1 : 0;
+					drawstyle=parent.flags & item_flag2 ? 1 : 0;
 					break;
 					
 				case pDIVINEPROTECTIONROCKETRETURN2:
 					step = 4;
-					drawstyle=parent.flags & ITEM_FLAG2 ? 1 : 0;
+					drawstyle=parent.flags & item_flag2 ? 1 : 0;
 					break;
 					
 				case pDIVINEPROTECTIONROCKETTRAIL2:
-					drawstyle=parent.flags & ITEM_FLAG2 ? 1 : 0;
+					drawstyle=parent.flags & item_flag2 ? 1 : 0;
 					break;
 					
 				case pDIVINEPROTECTIONROCKETTRAILRETURN2:
-					drawstyle=parent.flags & ITEM_FLAG2 ? 1 : 0;
+					drawstyle=parent.flags & item_flag2 ? 1 : 0;
 					break;
 					
 				case pDIVINEFIREROCKETTRAIL:
@@ -2211,7 +2211,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 		case wFSparkle:
 			break; //These weapon types don't support burn sprites
 		default:
-			if(parentitem > -1 && (parent.flags & ITEM_BURNING_SPRITES))
+			if(parentitem > -1 && (parent.flags & item_burning_sprites))
 			{
 				misc_wflags |= WFLAG_UPDATE_IGNITE_SPRITE;
 				for(int q = 0; q < BURNSPR_MAX; ++q)
@@ -2270,7 +2270,7 @@ optional<byte> weapon::_handle_loadsprite(optional<byte> spr, bool isDummy, bool
 				LOADGFX(*ret);
 				if(parentitem > -1)
 				{
-					if(!(parent.flags & ITEM_FLAG1))
+					if(!(parent.flags & item_flag1))
 					{
 						switch(dir)
 						{
@@ -3437,7 +3437,7 @@ void weapon::limited_animate()
 				hxofs=2000;
 				step = 0;
 				rundeath = true;
-				if(fixboom) moveflags &= ~FLAG_OBEYS_GRAV;
+				if(fixboom) moveflags &= ~move_obeys_grav;
 			}
 			
 			if(clk==(misc-1) && canboom)
@@ -3458,16 +3458,16 @@ void weapon::limited_animate()
 				useweapon = useweapondummy;
 				hzsz=16;
 				step = 0;
-				if(fixboom) moveflags &= ~FLAG_OBEYS_GRAV;
+				if(fixboom) moveflags &= ~move_obeys_grav;
 			}
 			
-			int32_t boomend = misc+((parentitem>-1 && itemsbuf[parentitem].flags & ITEM_FLAG1) ? 35 : 31);
+			int32_t boomend = misc+((parentitem>-1 && itemsbuf[parentitem].flags & item_flag1) ? 35 : 31);
 								  
 			if(clk==boomend && canboom)
 			{
 				hxofs=2000;
 				step = 0;
-				if(fixboom) moveflags &= ~FLAG_OBEYS_GRAV;
+				if(fixboom) moveflags &= ~move_obeys_grav;
 			}
 			
 			if(clk==(misc-1))
@@ -3907,7 +3907,7 @@ bool weapon::animate(int32_t index)
 	else findcombotriggers();
 	
 	// fall down
-	if ( moveflags & FLAG_OBEYS_GRAV ) // from above, or if scripted
+	if ( moveflags & move_obeys_grav ) // from above, or if scripted
 	{
 		if(isSideViewGravity())
 		{
@@ -3944,7 +3944,7 @@ bool weapon::animate(int32_t index)
 		}
 		else
 		{
-			if (!(moveflags & FLAG_NO_FAKE_Z))
+			if (!(moveflags & move_no_fake_z))
 			{
 				bool didfall = fakez > 0;
 				fakez-=fakefall/100;
@@ -3968,7 +3968,7 @@ bool weapon::animate(int32_t index)
 					fakefall += (zinit.gravity/100);
 				}
 			}
-			if (!(moveflags & FLAG_NO_REAL_Z))
+			if (!(moveflags & move_no_real_z))
 			{
 				bool didfall = z > 0;
 				z-=fall/100;
@@ -3994,7 +3994,7 @@ bool weapon::animate(int32_t index)
 			}
 		}
 	}
-	if(moveflags & FLAG_CAN_PITFALL)
+	if(moveflags & move_can_pitfall)
 	{
 		switch(id)
 		{
@@ -4018,7 +4018,7 @@ bool weapon::animate(int32_t index)
 				}
 		}
 	}
-	if(moveflags & FLAG_CAN_WATERDROWN)
+	if(moveflags & move_can_waterdrown)
 	{
 		switch(id)
 		{
@@ -4195,7 +4195,7 @@ bool weapon::animate(int32_t index)
 				dead=0;
 			}
 			
-			if(id==ewSword && get_qr(qr_SWORDMIRROR) || id!=ewSword && (parentitem > -1 ? itemsbuf[parentitem].flags & ITEM_FLAG9 : get_qr(qr_SWORDMIRROR))) //TODO: First qr_SWORDMIRROR port to enemy weapon flag, second qr_SWORDMIRROR port to script default flag -V
+			if(id==ewSword && get_qr(qr_SWORDMIRROR) || id!=ewSword && (parentitem > -1 ? itemsbuf[parentitem].flags & item_flag9 : get_qr(qr_SWORDMIRROR))) //TODO: First qr_SWORDMIRROR port to enemy weapon flag, second qr_SWORDMIRROR port to script default flag -V
 			{
 				zfix checkx=0, checky=0;
 				int32_t check_x_ofs=0, check_y_ofs=0;
@@ -4528,7 +4528,7 @@ bool weapon::animate(int32_t index)
 			else if(get_qr(qr_MORESOUNDS) && dead < 1)
 				sfx(WAV_ZN1WHIRLWIND,pan(int32_t(x)),true,false);
 				
-			if((parentitem==-1 && get_qr(qr_WHIRLWINDMIRROR)) || (parentitem > -1 && itemsbuf[parentitem].flags & ITEM_FLAG3))
+			if((parentitem==-1 && get_qr(qr_WHIRLWINDMIRROR)) || (parentitem > -1 && itemsbuf[parentitem].flags & item_flag3))
 				goto mirrors;
 				
 			if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
@@ -4580,11 +4580,11 @@ bool weapon::animate(int32_t index)
 				{
 					step=0;
 					
-					if(parentitem<0 || !(parent.flags & ITEM_FLAG2))
+					if(parentitem<0 || !(parent.flags & item_flag2))
 					{
 						isLit = true;
 						if(parentitem==-1 ? get_qr(qr_TEMPCANDLELIGHT)
-							: (parent.flags & ITEM_FLAG5))
+							: (parent.flags & item_flag5))
 						{
 							checkLightSources();
 						}
@@ -4600,8 +4600,8 @@ bool weapon::animate(int32_t index)
 					dead=1;
 					
 					if((parentitem==-1 ? (get_qr(qr_TEMPCANDLELIGHT))
-					    : (!(parent.flags & ITEM_FLAG2)
-							&&(parent.flags & ITEM_FLAG5))) && flame_count()==1)
+					    : (!(parent.flags & item_flag2)
+							&&(parent.flags & item_flag5))) && flame_count()==1)
 					{
 						isLit = false;
 						checkLightSources();
@@ -4611,8 +4611,8 @@ bool weapon::animate(int32_t index)
 				if(clk==94 || get_qr(qr_INSTABURNFLAGS))
 				{
 					triggerfire(x,y,true,
-						true,parentitem < 0 ? type > 1 : (parent.flags & ITEM_FLAG9),
-						parent.flags & ITEM_FLAG10,parent.flags & ITEM_FLAG11);
+						true,parentitem < 0 ? type > 1 : (parent.flags & item_flag9),
+						parent.flags & item_flag10,parent.flags & item_flag11);
 				}
 			}
 			else //book+wand fire
@@ -4620,7 +4620,7 @@ bool weapon::animate(int32_t index)
 				if(clk==1)
 				{
 					isLit = true;
-					if(parent.flags & ITEM_FLAG5)
+					if(parent.flags & item_flag5)
 					{
 						checkLightSources();
 					} 
@@ -4634,11 +4634,11 @@ bool weapon::animate(int32_t index)
 				{
 					dead=1;
 					triggerfire(x,y,true,
-						true,parent.flags & ITEM_FLAG9,
-						parent.flags & ITEM_FLAG10,parent.flags & ITEM_FLAG11);
+						true,parent.flags & item_flag9,
+						parent.flags & item_flag10,parent.flags & item_flag11);
 					
 					if((parentitem==-1 ? (get_qr(qr_TEMPCANDLELIGHT))
-						: ((parent.flags & ITEM_FLAG5))) && flame_count()==1)
+						: ((parent.flags & item_flag5))) && flame_count()==1)
 					{
 						isLit=false;
 						checkLightSources();
@@ -4648,7 +4648,7 @@ bool weapon::animate(int32_t index)
 			
 			// Killed by script?
 			if(dead==0 && (parentitem==-1 ? get_qr(qr_TEMPCANDLELIGHT)
-				: (parent.flags & ITEM_FLAG5)) && flame_count()==1)
+				: (parent.flags & item_flag5)) && flame_count()==1)
 			{
 				isLit=false;
 				checkLightSources();
@@ -4858,7 +4858,7 @@ bool weapon::animate(int32_t index)
 			}
 			
 			
-			int32_t deadval=(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].flags & ITEM_FLAG3)?-2:1;
+			int32_t deadval=(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].flags & item_flag3)?-2:1;
 			
 			/* This causes brang weapons with a level > 3 to hit OTHER flags. 
 			// e.g., a brang with a level of 5 would trigger mfBRANG through mfGARROW! -Z
@@ -4903,8 +4903,8 @@ bool weapon::animate(int32_t index)
 			if(trigger_secrets_if_flag(x,y,mfSTRIKE,true)) dead=deadval;
 			itemdata const& brangitm = itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)];
 			if(triggerfire(x,y,true,
-				brangitm.flags & ITEM_FLAG8,brangitm.flags & ITEM_FLAG9,
-				brangitm.flags & ITEM_FLAG10,brangitm.flags & ITEM_FLAG11))
+				brangitm.flags & item_flag8,brangitm.flags & item_flag9,
+				brangitm.flags & item_flag10,brangitm.flags & item_flag11))
 				dead=deadval;
 			
 			if(blocked())
@@ -5033,7 +5033,7 @@ bool weapon::animate(int32_t index)
 			}
 			//Diagonal Hookshot (8)
 			itemdata const& hshot = itemsbuf[parentitem>-1 ? parentitem : current_item_id(family_class)];
-			byte allow_diagonal = (hshot.flags & ITEM_FLAG2) ? 1 : 0;
+			byte allow_diagonal = (hshot.flags & item_flag2) ? 1 : 0;
 			bool sw = family_class == itype_switchhook;
 			//zprint2("allow_diagonal: %s\n", allow_diagonal ? "true" : "false");
 			//if ( allow_diagonal && misc2 == 0 ) 
@@ -5339,7 +5339,7 @@ bool weapon::animate(int32_t index)
 			}
 			//Diagonal Hookshot Handle
 			itemdata const& hshot = itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)];
-			byte allow_diagonal = (hshot.flags & ITEM_FLAG2) ? 1 : 0; 
+			byte allow_diagonal = (hshot.flags & item_flag2) ? 1 : 0; 
 			//zprint2("allow_diagonal: %s\n", allow_diagonal ? "true" : "false");
 			//if ( allow_diagonal && misc2 == 0 ) 
 			if(clk==0 && allow_diagonal)                                            // delay a frame ere setting a dir
@@ -5462,7 +5462,7 @@ bool weapon::animate(int32_t index)
 			
 			//Diagonal Hookshot Handle
 			itemdata const& hshot = itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)];
-			byte allow_diagonal = (hshot.flags & ITEM_FLAG2) ? 1 : 0; 
+			byte allow_diagonal = (hshot.flags & item_flag2) ? 1 : 0; 
 			//zprint2("allow_diagonal: %s\n", allow_diagonal ? "true" : "false");
 			//if ( allow_diagonal && misc2 == 0 ) 
 			if(clk==0 && allow_diagonal)                                            // delay a frame ere setting a dir
@@ -5678,7 +5678,7 @@ bool weapon::animate(int32_t index)
 			if (isLWeapon && linkedItem)
 			{
 				itemdata const& book = itemsbuf[linkedItem];
-				if(book.flags&ITEM_FLAG6)
+				if(book.flags&item_flag6)
 					step = zslongToFix(book.misc3*100);
 			}
 			
@@ -5691,11 +5691,11 @@ bool weapon::animate(int32_t index)
 			bool brokebook = get_qr(qr_BROKENBOOKCOST);
 			itemdata const& book = itemsbuf[brokebook ? (parentitem>-1 ? parentitem : current_item_id(itype_book)) : linkedItem];
 			if((id==wMagic && (brokebook ? current_item(itype_book) : (linkedItem && book.family == itype_book)) &&
-				book.flags&ITEM_FLAG1) && get_qr(qr_INSTABURNFLAGS))
+				book.flags&item_flag1) && get_qr(qr_INSTABURNFLAGS))
 			{
 				triggerfire(x,y,true,
-					true,book.flags & ITEM_FLAG9,
-					book.flags & ITEM_FLAG10,book.flags & ITEM_FLAG11);
+					true,book.flags & item_flag9,
+					book.flags & item_flag10,book.flags & item_flag11);
 			}
 			
 			
@@ -7174,7 +7174,7 @@ offscreenCheck:
     case wCByrna:
     
         // byrna keeps going
-        if(parentitem<0 || !(itemsbuf[parentitem].flags&ITEM_FLAG1))
+        if(parentitem<0 || !(itemsbuf[parentitem].flags&item_flag1))
             dead=0;
             
         break;
@@ -7194,7 +7194,7 @@ offscreenCheck:
 		}
 		if(misc==0)
 		{
-			int32_t deadval=(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].flags & ITEM_FLAG3)?-2:4;
+			int32_t deadval=(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].flags & item_flag3)?-2:4;
 			clk2=256;
 			if(clipped)
 			{
@@ -7287,7 +7287,7 @@ offscreenCheck:
 			//Create an ER to sue this in older quests -V
 			//used a QR. -Z
 			if(((id==wMagic && current_item(itype_book) &&
-				(itemsbuf[current_item_id(itype_book)].flags&ITEM_FLAG1))) && Lwpns.idCount(wFire)<2)
+				(itemsbuf[current_item_id(itype_book)].flags&item_flag1))) && Lwpns.idCount(wFire)<2)
 			{
 				Lwpns.add(new weapon(x,y-fakez,z,wFire,2,zc_max(1, itemsbuf[current_item_id(itype_book)].misc4)*game->get_hero_dmgmult(),0,current_item_id(itype_book),-1,false,0,1));
 				if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) 
@@ -7301,7 +7301,7 @@ offscreenCheck:
 		else
 		{
 			if(((id==wMagic && linkedItem && itemsbuf[linkedItem].family==itype_book &&
-				(itemsbuf[linkedItem].flags&ITEM_FLAG1))) && Lwpns.idCount(wFire)<2)
+				(itemsbuf[linkedItem].flags&item_flag1))) && Lwpns.idCount(wFire)<2)
 			{
 				Lwpns.add(new weapon(x,y-fakez,z,wFire,2,zc_max(1, itemsbuf[linkedItem].misc4)*game->get_hero_dmgmult(),0,linkedItem,-1,false,0,1));
 				if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) 
@@ -7730,7 +7730,7 @@ void weapon::draw(BITMAP *dest)
 			{
 				cs = o_cset&15;
 				
-				if((id == wBrang && (parentitem<0 || !(itemsbuf[parentitem].flags & ITEM_FLAG1)))
+				if((id == wBrang && (parentitem<0 || !(itemsbuf[parentitem].flags & item_flag1)))
 					|| (id == ewBrang && !get_qr(qr_CORRECTED_EW_BRANG_ANIM)))
 				{
 					if ( do_animation ) 
@@ -7755,7 +7755,7 @@ void weapon::draw(BITMAP *dest)
 							flip = boomframe[(clk&0xE)+1];
 						}
 						
-						if(parentitem>=0 && itemsbuf[parentitem].flags & ITEM_FLAG2)
+						if(parentitem>=0 && itemsbuf[parentitem].flags & item_flag2)
 						{
 						update_weapon_frame((BSZ?1:4)*dir,tile);
 						}
@@ -7763,7 +7763,7 @@ void weapon::draw(BITMAP *dest)
 				}
 				else
 				{
-					if(parentitem>=0 && itemsbuf[parentitem].flags & ITEM_FLAG2)
+					if(parentitem>=0 && itemsbuf[parentitem].flags & item_flag2)
 					{
 						if ( do_animation )update_weapon_frame(zc_max(frames,1)*dir,tile);
 					}
@@ -7771,11 +7771,11 @@ void weapon::draw(BITMAP *dest)
 				
 				if(dead>0)
 				{
-					if(parentitem>=0 && itemsbuf[parentitem].flags & ITEM_FLAG1)
+					if(parentitem>=0 && itemsbuf[parentitem].flags & item_flag1)
 					{
 						if ( do_animation ) 
 						{
-							tile=o_tile+(frames*(itemsbuf[parentitem].flags & ITEM_FLAG2)?8:1);
+							tile=o_tile+(frames*(itemsbuf[parentitem].flags & item_flag2)?8:1);
 						}
 					}
 					else
@@ -7825,7 +7825,7 @@ void weapon::draw(BITMAP *dest)
 			case pDIVINEPROTECTIONROCKETRETURN2:
 			case pDIVINEPROTECTIONROCKETTRAIL2:
 			case pDIVINEPROTECTIONROCKETTRAILRETURN2:
-				if(parentitem>=0 && (itemsbuf[parentitem].flags & ITEM_FLAG1 ? 1 : 0)&&!(frame&1))
+				if(parentitem>=0 && (itemsbuf[parentitem].flags & item_flag1 ? 1 : 0)&&!(frame&1))
 				{
 					return;
 				}

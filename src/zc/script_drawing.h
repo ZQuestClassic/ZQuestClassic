@@ -1,6 +1,5 @@
-
-#ifndef _zc_script_drawing_h
-#define _zc_script_drawing_h
+#ifndef ZC_SCRIPT_DRAWING_H_
+#define ZC_SCRIPT_DRAWING_H_
 
 #include <vector>
 #include <string>

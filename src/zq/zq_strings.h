@@ -1,5 +1,5 @@
-#ifndef _ZQ_STRINGS_H_
-#define _ZQ_STRINGS_H_
+#ifndef ZQ_STRINGS_H_
+#define ZQ_STRINGS_H_
 
 #include <map>
 #include <cstdint>

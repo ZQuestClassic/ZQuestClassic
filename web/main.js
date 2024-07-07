@@ -152,7 +152,7 @@ async function main() {
   window.Module = Object.assign(Module, {
     arguments: [],
     canvas: document.querySelector('canvas'),
-    instantiateWasm,
+    // instantiateWasm,
     onRuntimeInitialized: () => {
       if (TARGET === 'zplayer') setupTouchControls();
       else {
@@ -291,41 +291,40 @@ async function main() {
 // TODO: no it doesn't, because of a chrome bug where caching won't work with a wrapper Response object,
 // which is used for progress tracking. So for now, this just won't give a progress indicator.
 // https://bugs.chromium.org/p/chromium/issues/detail?id=719172#c102
-function instantiateWasm(info, receiveInstance) {
-  function instantiateArrayBuffer(receiver) {
-    return getBinaryPromise().then(function (binary) {
-      return WebAssembly.instantiate(binary, info);
-    }).then(function (instance) {
-      return instance;
-    }).then(receiver, function (reason) {
-      err("failed to asynchronously prepare wasm: " + reason);
-      if (isFileURI(wasmBinaryFile)) {
-        err("warning: Loading from a file URI (" + wasmBinaryFile + ") is not supported in most browsers. See https://emscripten.org/docs/getting_started/FAQ.html#how-do-i-run-a-local-webserver-for-testing-why-does-my-program-stall-in-downloading-or-preparing");
-      }
-      abort(reason);
-    });
-  }
+// function instantiateWasm(info, receiveInstance) {
+//   function instantiateArrayBuffer(receiver) {
+//     return getBinaryPromise().then(function (binary) {
+//       return WebAssembly.instantiate(binary, info);
+//     }).then(function (instance) {
+//       return instance;
+//     }).then(receiver, function (reason) {
+//       err("failed to asynchronously prepare wasm: " + reason);
+//       if (isFileURI(wasmBinaryFile)) {
+//         err("warning: Loading from a file URI (" + wasmBinaryFile + ") is not supported in most browsers. See https://emscripten.org/docs/getting_started/FAQ.html#how-do-i-run-a-local-webserver-for-testing-why-does-my-program-stall-in-downloading-or-preparing");
+//       }
+//       abort(reason);
+//     });
+//   }
 
-  function receiveInstantiationResult(result) {
-    receiveInstance(result["instance"], result["module"]);
-  }
+//   function receiveInstantiationResult(result) {
+//     receiveInstance(result["instance"], result["module"]);
+//   }
 
-  if (!wasmBinary && typeof WebAssembly.instantiateStreaming == "function" && !isDataURI(wasmBinaryFile) && !isFileURI(wasmBinaryFile) && typeof fetch == "function") {
-    // TODO should be ZC.fetch, but see above TODO comment.
-    return fetch(wasmBinaryFile, {
-      credentials: "same-origin"
-    }).then(function (response) {
-      var result = WebAssembly.instantiateStreaming(response, info);
-      return result.then(receiveInstantiationResult, function (reason) {
-        err("wasm streaming compile failed: " + reason);
-        err("falling back to ArrayBuffer instantiation");
-        return instantiateArrayBuffer(receiveInstantiationResult);
-      });
-    });
-  } else {
-    return instantiateArrayBuffer(receiveInstantiationResult);
-  }
-}
+//   if (!wasmBinary && typeof WebAssembly.instantiateStreaming == "function" && !isDataURI(wasmBinaryFile) && !isFileURI(wasmBinaryFile) && typeof fetch == "function") {
+//     return ZC.fetch(wasmBinaryFile, {
+//       credentials: "same-origin"
+//     }).then(function (response) {
+//       var result = WebAssembly.instantiateStreaming(response, info);
+//       return result.then(receiveInstantiationResult, function (reason) {
+//         err("wasm streaming compile failed: " + reason);
+//         err("falling back to ArrayBuffer instantiation");
+//         return instantiateArrayBuffer(receiveInstantiationResult);
+//       });
+//     });
+//   } else {
+//     return instantiateArrayBuffer(receiveInstantiationResult);
+//   }
+// }
 
 function resize() {
   let w = 640;

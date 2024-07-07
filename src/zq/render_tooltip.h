@@ -1,5 +1,5 @@
-#ifndef _RENDER_TOOLTIP_H_
-#define _RENDER_TOOLTIP_H_
+#ifndef RENDER_TOOLTIP_H_
+#define RENDER_TOOLTIP_H_
 
 #include "base/zdefs.h"
 #include <string>

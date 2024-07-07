@@ -1,5 +1,5 @@
-#ifndef ZC_PARSER_H
-#define ZC_PARSER_H
+#ifndef ZC_PARSER_H_
+#define ZC_PARSER_H_
 
 extern FFScript FFCore;
 

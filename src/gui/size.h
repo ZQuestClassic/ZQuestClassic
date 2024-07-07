@@ -1,5 +1,5 @@
-#ifndef ZC_GUI_SIZE_H
-#define ZC_GUI_SIZE_H
+#ifndef ZC_GUI_SIZE_H_
+#define ZC_GUI_SIZE_H_
 
 #include <cstddef>
 #include <cstdint>

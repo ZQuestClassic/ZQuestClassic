@@ -1,5 +1,5 @@
-#ifndef ZC_GUI_SWITCHER_H
-#define ZC_GUI_SWITCHER_H
+#ifndef ZC_GUI_SWITCHER_H_
+#define ZC_GUI_SWITCHER_H_
 
 #include "gui/widget.h"
 #include <vector>

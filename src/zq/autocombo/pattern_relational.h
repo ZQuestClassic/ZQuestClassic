@@ -1,5 +1,5 @@
-#ifndef _AUTOPATTERN_RELATIONAL_H_
-#define _AUTOPATTERN_RELATIONAL_H_
+#ifndef AUTOPATTERN_RELATIONAL_H_
+#define AUTOPATTERN_RELATIONAL_H_
 
 #include <functional>
 #include "base/autocombo.h"

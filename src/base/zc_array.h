@@ -1,5 +1,5 @@
-#ifndef __zc_array_h_
-#define __zc_array_h_
+#ifndef ZC_ARRAY_H_
+#define ZC_ARRAY_H_
 
 #include "base/zdefs.h"
 #include "base/general.h"

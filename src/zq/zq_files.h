@@ -1,5 +1,5 @@
-#ifndef _ZQ_FILES_H_
-#define _ZQ_FILES_H_
+#ifndef ZQ_FILES_H_
+#define ZQ_FILES_H_
 
 #include "base/zc_alleg.h"
 

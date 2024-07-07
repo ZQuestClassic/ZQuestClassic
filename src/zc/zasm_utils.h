@@ -1,5 +1,5 @@
-#ifndef _ZASM_UTILS_H_
-#define _ZASM_UTILS_H_
+#ifndef ZASM_UTILS_H_
+#define ZASM_UTILS_H_
 
 #include "base/zdefs.h"
 #include <map>

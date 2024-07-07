@@ -7,6 +7,7 @@
 
 #include "base/general.h"
 #include "base/version.h"
+#include "base/zapp.h"
 #include "dialog/info.h"
 #include "metadata/metadata.h"
 
@@ -2665,14 +2666,14 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 	{
 		if(basescr->ffcs[i].data)
 		{
-			if(!(basescr->ffcs[i].flags&ffCHANGER))
+			if(!(basescr->ffcs[i].flags&ffc_changer))
 			{
-				if(!(basescr->ffcs[i].flags&ffOVERLAY))
+				if(!(basescr->ffcs[i].flags&ffc_overlay))
 				{
 					int32_t tx=(basescr->ffcs[i].x.getInt())+x;
 					int32_t ty=(basescr->ffcs[i].y.getInt())+y;
 					
-					if(basescr->ffcs[i].flags&ffTRANS)
+					if(basescr->ffcs[i].flags&ffc_trans)
 					{
 						overcomboblocktranslucent(dest, tx, ty, basescr->ffcs[i].data, basescr->ffcs[i].cset,basescr->ffTileWidth(i), basescr->ffTileHeight(i),128);
 						//overtiletranslucent16(dest, combo_tile(basescr->ffcs[i].data,tx,ty)+(j*20)+(l), tx, ty, basescr->ffcs[i].cset, combobuf[basescr->ffcs[i].data].flip, 128);
@@ -2864,14 +2865,14 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 	{
 		if(basescr->ffcs[i].data)
 		{
-			if(!(basescr->ffcs[i].flags&ffCHANGER))
+			if(!(basescr->ffcs[i].flags&ffc_changer))
 			{
 				int32_t tx=(basescr->ffcs[i].x.getInt())+x;
 				int32_t ty=(basescr->ffcs[i].y.getInt())+y;
 				
-				if(basescr->ffcs[i].flags&ffOVERLAY)
+				if(basescr->ffcs[i].flags&ffc_overlay)
 				{
-					if(basescr->ffcs[i].flags&ffTRANS)
+					if(basescr->ffcs[i].flags&ffc_trans)
 					{
 						//overtiletranslucent16(dest, combo_tile(basescr->ffcs[i].data,tx,ty)+(j*20)+(l), tx, ty, basescr->ffcs[i].cset, combobuf[basescr->ffcs[i].data].flip, 128);
 						overcomboblocktranslucent(dest,tx,ty,basescr->ffcs[i].data, basescr->ffcs[i].cset, basescr->ffTileWidth(i), basescr->ffTileHeight(i),128);
@@ -2890,7 +2891,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 	
 	for(int32_t i=MAXFFCS-1; i>=0; i--)
 		if(basescr->ffcs[i].data)
-			if(basescr->ffcs[i].flags&ffCHANGER)
+			if(basescr->ffcs[i].flags&ffc_changer)
 				putpixel(dest,(basescr->ffcs[i].x.getInt())+x,(basescr->ffcs[i].y.getInt())+y,vc(zc_oldrand()%16));
 	
 	if(flags&cWALK)
@@ -2909,13 +2910,13 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 		{
 			if(auto data = basescr->ffcs[i].data)
 			{
-				if(!(basescr->ffcs[i].flags&ffCHANGER))
+				if(!(basescr->ffcs[i].flags&ffc_changer))
 				{
 					newcombo const& cmb = combobuf[data];
 					int32_t tx=(basescr->ffcs[i].x.getInt())+x;
 					int32_t ty=(basescr->ffcs[i].y.getInt())+y;
 					
-					if(basescr->ffcs[i].flags&ffSOLID)
+					if(basescr->ffcs[i].flags&ffc_solid)
 					{
 						rectfill(dest, tx, ty, tx + basescr->ffEffectWidth(i) - 1, ty + basescr->ffEffectHeight(i) - 1, COLOR_SOLID);
 					}
@@ -4158,6 +4159,8 @@ void set_combo_command::execute()
 {
     mapscr* mapscr_ptr = Map.AbsoluteScr(map, scr);
 	if(!mapscr_ptr) return;
+	
+	mapscr_ptr->valid |= mVALID;
     if (combo != -1) mapscr_ptr->data[pos] = combo;
     mapscr_ptr->cset[pos] = cset;
 }
@@ -4203,7 +4206,8 @@ void set_ffc_command::execute()
 {
     mapscr* mapscr_ptr = Map.AbsoluteScr(map, scr);
 	if(!mapscr_ptr) return;
-
+	
+	mapscr_ptr->valid |= mVALID;
     mapscr_ptr->ffcs[i].x = data.x;
 	mapscr_ptr->ffcs[i].y = data.y;
 	mapscr_ptr->ffcs[i].vx = data.vx;
@@ -4257,6 +4261,8 @@ void set_flag_command::execute()
 {
     mapscr* mapscr_ptr = Map.AbsoluteScr(map, scr);
 	if(!mapscr_ptr) return;
+	
+	mapscr_ptr->valid |= mVALID;
     mapscr_ptr->sflag[pos] = flag;
 }
 
@@ -4269,7 +4275,11 @@ void set_flag_command::undo()
 
 void set_door_command::execute()
 {
-	Map.AbsoluteScr(view_map, view_scr)->door[side] = door;
+	auto* mapscr_ptr = Map.AbsoluteScr(view_map, view_scr);
+	if(!mapscr_ptr) return;
+	
+	mapscr_ptr->valid |= mVALID;
+	mapscr_ptr->door[side] = door;
 }
 
 void set_door_command::undo()
@@ -4279,7 +4289,11 @@ void set_door_command::undo()
 
 void set_dcs_command::execute()
 {
-	Map.AbsoluteScr(view_map, view_scr)->door_combo_set = dcs;
+	auto* mapscr_ptr = Map.AbsoluteScr(view_map, view_scr);
+	if(!mapscr_ptr) return;
+	
+	mapscr_ptr->valid |= mVALID;
+	mapscr_ptr->door_combo_set = dcs;
 }
 
 void set_dcs_command::undo()
@@ -5197,13 +5211,13 @@ void zmap::update_freeform_combos()
 	word maxffc = prvscr.numFFC();
     for(int32_t i=0; i<maxffc; i++)
     {
-        if(!(prvscr.ffcs[i].flags&ffCHANGER) && prvscr.ffcs[i].data!=0 && !(prvscr.ffcs[i].flags&ffSTATIONARY))
+        if(!(prvscr.ffcs[i].flags&ffc_changer) && prvscr.ffcs[i].data!=0 && !(prvscr.ffcs[i].flags&ffc_stationary))
         {
             for(int32_t j=0; j<maxffc; j++)
             {
                 if(i!=j)
                 {
-                    if(prvscr.ffcs[j].flags&ffCHANGER && prvscr.ffcs[j].data != 0)
+                    if(prvscr.ffcs[j].flags&ffc_changer && prvscr.ffcs[j].data != 0)
                     {
                         if((((prvscr.ffcs[j].x.getInt())!=prvscr.ffcs[i].changer_x)||((prvscr.ffcs[j].y.getInt())!=prvscr.ffcs[i].changer_y))&&(prvscr.ffcs[i].link==0))
                         {
@@ -5212,16 +5226,16 @@ void zmap::update_freeform_combos()
                             {
                                 //prvscr.ffcs[i].data=prvscr.ffcs[j].data;
                                 //prvscr.ffcs[i].cset=prvscr.ffcs[j].cset;
-                                if(prvscr.ffcs[j].flags&ffCHANGETHIS)
+                                if(prvscr.ffcs[j].flags&ffc_changethis)
                                 {
                                     prvscr.ffcs[i].data = prvscr.ffcs[j].data;
                                     prvscr.ffcs[i].cset = prvscr.ffcs[j].cset;
                                 }
                                 
-                                if(prvscr.ffcs[j].flags&ffCHANGENEXT)
+                                if(prvscr.ffcs[j].flags&ffc_changenext)
                                     prvscr.ffcs[i].data += 1;
                                     
-                                if(prvscr.ffcs[j].flags&ffCHANGEPREV)
+                                if(prvscr.ffcs[j].flags&ffc_changeprev)
                                     prvscr.ffcs[i].data -= 1;
                                     
                                 prvscr.ffcs[i].delay=prvscr.ffcs[j].delay;
@@ -5239,11 +5253,11 @@ void zmap::update_freeform_combos()
 								prvscr.ffcs[i].txsz=prvscr.ffcs[j].txsz;
                                 prvscr.ffcs[i].tysz=prvscr.ffcs[j].tysz;
                                 
-                                if(prvscr.ffcs[i].flags&ffCARRYOVER)
-                                    prvscr.ffcs[i].flags=prvscr.ffcs[j].flags&ffCARRYOVER;
+                                if(prvscr.ffcs[i].flags&ffc_carryover)
+                                    prvscr.ffcs[i].flags=prvscr.ffcs[j].flags&ffc_carryover;
                                 else prvscr.ffcs[i].flags=prvscr.ffcs[j].flags;
                                 
-                                prvscr.ffcs[i].flags&=~ffCHANGER;
+                                prvscr.ffcs[i].flags&=~ffc_changer;
                                 prvscr.ffcs[i].changer_x=(prvscr.ffcs[j].x.getInt());
                                 prvscr.ffcs[i].changer_y=(prvscr.ffcs[j].y.getInt());
                                 
@@ -5252,14 +5266,14 @@ void zmap::update_freeform_combos()
                                     prvscr.ffcs[j].data = prvscr.secretcombo[combobuf[prvscr.ffcs[j].data].flag - 16 + 4];
                                 }
                                 
-                                if((prvscr.ffcs[j].flags&ffSWAPNEXT)||(prvscr.ffcs[j].flags&ffSWAPPREV))
+                                if((prvscr.ffcs[j].flags&ffc_swapnext)||(prvscr.ffcs[j].flags&ffc_swapprev))
                                 {
                                     int32_t k=0;
                                     
-                                    if(prvscr.ffcs[j].flags&ffSWAPNEXT)
+                                    if(prvscr.ffcs[j].flags&ffc_swapnext)
                                         k=j<(MAXFFCS-1)?j+1:0;
                                         
-                                    if(prvscr.ffcs[j].flags&ffSWAPPREV)
+                                    if(prvscr.ffcs[j].flags&ffc_swapprev)
                                         k=j>0?j-1:(MAXFFCS-1);
                                         
                                     zc_swap(prvscr.ffcs[j].vx,prvscr.ffcs[k].vx);
@@ -5325,7 +5339,7 @@ void zmap::update_freeform_combos()
                 else
                 {
                     prvscr.ffcs[i].data = 0;
-                    prvscr.ffcs[i].flags&=~ffCARRYOVER;
+                    prvscr.ffcs[i].flags&=~ffc_carryover;
                 }
             }
             
@@ -5339,7 +5353,7 @@ void zmap::update_freeform_combos()
                 else
                 {
                     prvscr.ffcs[i].data = 0;
-                    prvscr.ffcs[i].flags&=~ffCARRYOVER;
+                    prvscr.ffcs[i].flags&=~ffc_carryover;
                 }
             }
             
@@ -5353,7 +5367,7 @@ void zmap::update_freeform_combos()
                 else
                 {
                     prvscr.ffcs[i].data = 0;
-                    prvscr.ffcs[i].flags&=~ffCARRYOVER;
+                    prvscr.ffcs[i].flags&=~ffc_carryover;
                 }
             }
             
@@ -5367,7 +5381,7 @@ void zmap::update_freeform_combos()
                 else
                 {
                     prvscr.ffcs[i].data = 0;
-                    prvscr.ffcs[i].flags&=~ffCARRYOVER;
+                    prvscr.ffcs[i].flags&=~ffc_carryover;
                 }
             }
             
@@ -6548,6 +6562,9 @@ int32_t reverse_string(char* str)
 
 int32_t quest_access(const char *filename, zquestheader *hdr)
 {
+	if (is_headless())
+		return 1;
+
 	return 1; // TODO ~z3 final remove
 #ifdef __EMSCRIPTEN__
     return 1;
@@ -9658,7 +9675,7 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 			break;
 		}
 	}
-	if(tmp_cmb.triggerflags[0] || tmp_cmb.triggerflags[1]
+	if (tmp_cmb.triggerflags[0] || tmp_cmb.triggerflags[1]
 		|| tmp_cmb.triggerflags[2] || tmp_cmb.triggerflags[3]
 		|| tmp_cmb.triggerflags[4] || tmp_cmb.triggerflags[5]
 		|| tmp_cmb.triggerlevel || tmp_cmb.trig_lstate
@@ -9679,7 +9696,7 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 		|| tmp_cmb.trigquaketime > -1 || tmp_cmb.trigwavytime > -1
 		|| tmp_cmb.trig_swjinxtime > -2 || tmp_cmb.trig_itmjinxtime > -2
 		|| tmp_cmb.trig_stuntime > -2 || tmp_cmb.trig_bunnytime > -2
-		|| tmp_cmb.trig_pushtime != 8
+		|| tmp_cmb.trig_pushtime != 8 || tmp_cmb.trig_shieldjinxtime > -2
 		|| tmp_cmb.prompt_cid || tmp_cmb.prompt_cs
 		|| tmp_cmb.prompt_x != 12 || tmp_cmb.prompt_y != -8)
 		combo_has_flags |= CHAS_TRIG;
@@ -9884,6 +9901,8 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 			return 101;
 		if(!p_putc(tmp_cmb.trig_pushtime,f))
 			return 102;
+		if (!p_iputw(tmp_cmb.trig_shieldjinxtime, f))
+			return 103;
 	}
 	if(combo_has_flags&CHAS_LIFT)
 	{
@@ -10676,9 +10695,10 @@ int32_t writestrings_tsv(PACKFILE *f)
     new_return(0);
 }
 
+std::string parse_msg_str(std::string const& s);
+
 void parse_strings_tsv(std::string tsv)
 {
-	std::string parse_msg_str(std::string const& s);
 	std::map<std::string, std::function<void(MsgStr&, const std::string&)>> fields = {
 		{ "message", [](auto& msg, auto& text){ msg.s = parse_msg_str(text); } },
 		{ "next", [](auto& msg, auto& text){ msg.nextstring = std::stoi(text); } },

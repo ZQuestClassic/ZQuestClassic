@@ -1,5 +1,5 @@
-#ifndef _ZQ_SUBSCR_H_
-#define _ZQ_SUBSCR_H_
+#ifndef ZQ_SUBSCR_H_
+#define ZQ_SUBSCR_H_
 
 //subscreen object alignment
 enum { ssoaLEFT, ssoaCENTER, ssoaRIGHT, ssoaTOP, ssoaMIDDLE, ssoaBOTTOM };

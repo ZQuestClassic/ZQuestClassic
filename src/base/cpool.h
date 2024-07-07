@@ -1,5 +1,5 @@
-#ifndef _CPOOL_H_
-#define _CPOOL_H_
+#ifndef CPOOL_H_
+#define CPOOL_H_
 
 #include "base/headers.h"
 #include "base/containers.h"

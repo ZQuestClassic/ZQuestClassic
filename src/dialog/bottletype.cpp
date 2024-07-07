@@ -158,6 +158,15 @@ std::shared_ptr<GUI::Widget> BottleTypeDialog::view()
 					{
 						SETFLAG(tempBottle.flags,BTFLAG_CUREITJINX,state);
 					}
+				),
+				Checkbox(
+					text = "Cure Shield Jinx",
+					colSpan = 3, hAlign = 0.0,
+					checked = tempBottle.flags & BTFLAG_CURESHJINX,
+					onToggleFunc = [&](bool state)
+					{
+						SETFLAG(tempBottle.flags, BTFLAG_CURESHJINX, state);
+					}
 				)
 			),
 			Row(

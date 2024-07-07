@@ -34,7 +34,7 @@ struct ReplayStep;
 
 static const int ASSERT_SNAPSHOT_BUFFER = 10;
 static const int ASSERT_FAILED_EXIT_CODE = 120;
-static const int VERSION = 32;
+static const int VERSION = 33;
 
 static const std::string ANNOTATION_MARKER = "«";
 static const char TypeMeta = 'M';
@@ -642,8 +642,10 @@ static void set_version()
 	version = std::stoi(version_str);
 }
 
-static void load_replay(std::filesystem::path path)
+static void load_replay(std::map<std::string, std::string>& meta_map, std::filesystem::path path, bool only_meta = false)
 {
+	meta_map.clear();
+
 #ifdef __EMSCRIPTEN__
     if (em_is_lazy_file(path))
     {
@@ -694,6 +696,9 @@ static void load_replay(std::filesystem::path path)
 
         if (!done_with_meta && type != TypeMeta)
         {
+            if (only_meta)
+                return;
+
             done_with_meta = true;
             set_version();
             if (version < 5)
@@ -1190,6 +1195,14 @@ std::string replay_mode_to_string(ReplayMode mode)
 	return "unknown";
 }
 
+std::map<std::string, std::string> replay_load_meta(std::filesystem::path path)
+{
+	std::map<std::string, std::string> meta_map;
+	bool only_meta = true;
+	load_replay(meta_map, path, only_meta);
+	return meta_map;
+}
+
 void replay_start(ReplayMode mode_, std::filesystem::path path, int frame)
 {
     ASSERT(mode == ReplayMode::Off);
@@ -1244,7 +1257,7 @@ void replay_start(ReplayMode mode_, std::filesystem::path path, int frame)
     case ReplayMode::Replay:
     case ReplayMode::Assert:
     case ReplayMode::Update:
-        load_replay(replay_path);
+        load_replay(meta_map, replay_path);
         break;
     }
 
@@ -1281,7 +1294,7 @@ void replay_continue(std::filesystem::path path)
     current_mouse_state = {0, 0, 0, 0};
     replay_forget_input();
     replay_path = path;
-    load_replay(replay_path);
+    load_replay(meta_map, replay_path);
     record_log = replay_log;
     frame_count = record_log.back()->frame + 1;
 }
@@ -1884,6 +1897,9 @@ void replay_step_gfx(uint32_t gfx_hash)
 
 void replay_set_meta(std::string key, std::string value)
 {
+    if (!replay_is_active())
+        return;
+
     if (key == "qst")
         std::replace_if(
             value.begin(), value.end(),
@@ -1893,8 +1909,7 @@ void replay_set_meta(std::string key, std::string value)
             },
             '/');
 
-    if (replay_is_active())
-        meta_map[key] = value;
+    meta_map[key] = value;
 }
 
 void replay_set_meta(std::string key, int value)
@@ -1909,6 +1924,11 @@ void replay_set_meta_bool(std::string key, bool value)
         replay_set_meta(key, "true");
     else
         meta_map.erase(key);
+}
+
+void replay_delete_meta(std::string key)
+{
+	meta_map.erase(key);
 }
 
 static std::string get_meta_raw_value(std::string key)
@@ -1946,6 +1966,11 @@ int replay_get_meta_int(std::string key, int defaultValue)
 bool replay_get_meta_bool(std::string key)
 {
     return get_meta_raw_value(key) == "true";
+}
+
+bool replay_has_meta(std::string key)
+{
+    return meta_map.find(key) != meta_map.end();
 }
 
 void replay_step_quit(int quit_state)

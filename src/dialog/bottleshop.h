@@ -1,5 +1,5 @@
-#ifndef ZC_DIALOG_BOTTLESHOPTYPE_H
-#define ZC_DIALOG_BOTTLESHOPTYPE_H
+#ifndef ZC_DIALOG_BOTTLESHOPTYPE_H_
+#define ZC_DIALOG_BOTTLESHOPTYPE_H_
 
 #include <gui/dialog.h>
 #include <gui/drop_down_list.h>

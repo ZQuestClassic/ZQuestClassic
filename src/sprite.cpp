@@ -132,7 +132,7 @@ sprite::sprite(): solid_object()
     do_animation = true;
     rotation = 0;
     scale = 0;
-    moveflags = 0;
+    moveflags = move_none;
     drawflags = 0;
 	knockbackflags = 0;
 	knockbackSpeed = 4; //default speed
@@ -276,7 +276,7 @@ sprite::sprite(zfix X,zfix Y,int32_t T,int32_t CS,int32_t F,int32_t Clk,int32_t 
     scripttile = -1;
     scriptflip = -1;
     rotation = 0;
-    moveflags = 0;
+    moveflags = move_none;
 	knockbackflags = 0;
 	knockbackSpeed = 4; //default speed
 	script_knockback_clk = 0;

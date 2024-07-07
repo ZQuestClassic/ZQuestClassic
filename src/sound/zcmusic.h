@@ -3,8 +3,8 @@
 /* Wrapper for transparently extending	*/
 /* supported music file formats.      	*/
 
-#ifndef _ZCMUSIC_H_
-#define _ZCMUSIC_H_
+#ifndef ZCMUSIC_H_
+#define ZCMUSIC_H_
 
 #if defined ZCM_DLL
 #define ZCM_EXTERN extern __declspec(dllexport)

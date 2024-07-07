@@ -1,4 +1,5 @@
 #include "allegro/file.h"
+#include "base/flags.h"
 #include "base/util.h"
 #include "base/version.h"
 #include "base/zapp.h"
@@ -6437,7 +6438,8 @@ int32_t readitems(PACKFILE *f, word version, word build)
                 }
                 
                 tempitem.count=-1;
-                tempitem.flags=tempitem.wpn=tempitem.wpn2=tempitem.wpn3=tempitem.wpn3=tempitem.pickup_hearts=
+				tempitem.flags=item_none;
+                tempitem.wpn=tempitem.wpn2=tempitem.wpn3=tempitem.wpn3=tempitem.pickup_hearts=
                                                 tempitem.misc1=tempitem.misc2=tempitem.usesound=0;
                 tempitem.family=0xFF;
                 tempitem.playsound=WAV_SCALE;
@@ -6533,7 +6535,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
                     return qe_invalid;
                 }
                 
-                tempitem.flags |= (tempchar ? ITEM_GAMEDATA : 0);
+                if (tempchar) tempitem.flags |= item_gamedata;
             }
             
             if(!p_igetw(&tempitem.script,f))
@@ -6693,12 +6695,12 @@ int32_t readitems(PACKFILE *f, word version, word build)
                             return qe_invalid;
                         }
                         
-                        // Version 24: shICE -> shSCRIPT; previously, all shields could block script weapons
+                        // Version 24: sh_ice -> sh_script; previously, all shields could block script weapons
                         if(s_version<24)
                         {
                             if(tempitem.family==itype_shield)
                             {
-                                tempitem.misc1|=shSCRIPT;
+                                tempitem.misc1|=sh_script;
                             }
                         }
                     }
@@ -6732,7 +6734,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
                         return qe_invalid;
                     }
                     
-                    tempitem.flags |= (tempchar ? ITEM_EDIBLE : 0);
+                    if (tempchar) tempitem.flags |= item_edible;
                 }
                 
                 // June 2007: more misc. attributes
@@ -7088,7 +7090,8 @@ int32_t readitems(PACKFILE *f, word version, word build)
         {
             tempitem.count=-1;
             tempitem.family=itype_misc;
-            tempitem.flags=tempitem.wpn=tempitem.wpn2=tempitem.wpn3=tempitem.wpn3=tempitem.pickup_hearts=tempitem.misc1=tempitem.misc2=tempitem.usesound=0;
+			tempitem.flags=item_none;
+            tempitem.wpn=tempitem.wpn2=tempitem.wpn3=tempitem.wpn3=tempitem.pickup_hearts=tempitem.misc1=tempitem.misc2=tempitem.usesound=0;
             tempitem.playsound=WAV_SCALE;
             reset_itembuf(&tempitem,i);
         }
@@ -7205,7 +7208,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		if(s_version < 6)  // April 2007: Advanced item editing capabilities.
 		{
 			if(i!=iBPotion && i!=iRPotion)
-				tempitem.flags |= get_bit(deprecated_rules,32) ? ITEM_KEEPOLD : 0;
+				if (get_bit(deprecated_rules,32)) tempitem.flags |= item_keep_old;
 				
 			switch(i)
 			{
@@ -7248,14 +7251,14 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				case iSArrow:
 					tempitem.wpn2 = get_bit(deprecated_rules,27) ? wSSPARKLE : 0; //qr_SASPARKLES
 					tempitem.power=4;
-					tempitem.flags|=ITEM_GAMEDATA;
+					tempitem.flags|=item_gamedata;
 					tempitem.wpn=wSARROW;
 					break;
 					
 				case iGArrow:
 					tempitem.wpn2 = get_bit(deprecated_rules,28) ? wGSPARKLE : 0; //qr_GASPARKLES
 					tempitem.power=8;
-					tempitem.flags|=(ITEM_GAMEDATA|ITEM_FLAG1);
+					tempitem.flags|=(item_gamedata|item_flag1);
 					tempitem.wpn=wGARROW;
 					break;
 					
@@ -7292,7 +7295,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				case iBCandle:
 					tempitem.cost_amount[0] = get_bit(deprecated_rules,qr_MAGICCANDLE_DEP) ? 4 : 0;
 					tempitem.power=1;
-					tempitem.flags|=(ITEM_GAMEDATA|ITEM_FLAG1);
+					tempitem.flags|=(item_gamedata|item_flag1);
 					tempitem.wpn3=wFIRE;
 					break;
 					
@@ -7304,35 +7307,35 @@ int32_t readitems(PACKFILE *f, word version, word build)
 					
 				case iSword:
 					tempitem.power=1;
-					tempitem.flags|= ITEM_FLAG4 |ITEM_FLAG2;
+					tempitem.flags|= item_flag4 |item_flag2;
 					tempitem.wpn=tempitem.wpn3=wSWORD;
 					tempitem.wpn2=wSWORDSLASH;
 					break;
 					
 				case iWSword:
 					tempitem.power=2;
-					tempitem.flags|= ITEM_FLAG4 |ITEM_FLAG2;
+					tempitem.flags|= item_flag4 |item_flag2;
 					tempitem.wpn=tempitem.wpn3=wWSWORD;
 					tempitem.wpn2=wWSWORDSLASH;
 					break;
 					
 				case iMSword:
 					tempitem.power=4;
-					tempitem.flags|= ITEM_FLAG4 |ITEM_FLAG2;
+					tempitem.flags|= item_flag4 |item_flag2;
 					tempitem.wpn=tempitem.wpn3=wMSWORD;
 					tempitem.wpn2=wMSWORDSLASH;
 					break;
 					
 				case iXSword:
 					tempitem.power=8;
-					tempitem.flags|= ITEM_FLAG4 |ITEM_FLAG2;
+					tempitem.flags|= item_flag4 |item_flag2;
 					tempitem.wpn=tempitem.wpn3=wXSWORD;
 					tempitem.wpn2=wXSWORDSLASH;
 					break;
 					
 				case iDivineProtection:
-					tempitem.flags |= get_bit(deprecated_rules,qr_FLICKERINGDIVINEPROTECTIONROCKET_DEP) ? ITEM_FLAG1 : 0;
-					tempitem.flags |= get_bit(deprecated_rules,qr_TRANSLUCENTDIVINEPROTECTIONROCKET_DEP) ? ITEM_FLAG2 : 0;
+					tempitem.flags |= get_bit(deprecated_rules,qr_FLICKERINGDIVINEPROTECTIONROCKET_DEP) ? item_flag1 : item_none;
+					tempitem.flags |= get_bit(deprecated_rules,qr_TRANSLUCENTDIVINEPROTECTIONROCKET_DEP) ? item_flag2 : item_none;
 					tempitem.wpn=wDIVINEPROTECTION1A;
 					tempitem.wpn2=wDIVINEPROTECTION1B;
 					tempitem.wpn3=wDIVINEPROTECTIONS1A;
@@ -7349,7 +7352,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 					
 				case iLens:
 					tempitem.misc1=60;
-					tempitem.flags |= get_qr(qr_ENABLEMAGIC) ? 0 : ITEM_RUPEE_MAGIC;
+					tempitem.flags |= get_qr(qr_ENABLEMAGIC) ? item_none : item_rupee_magic;
 					tempitem.cost_amount[0] = get_qr(qr_ENABLEMAGIC) ? 2 : 1;
 					break;
 					
@@ -7380,7 +7383,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 					
 				case iHookshot:
 					tempitem.power=0;
-					tempitem.flags&=~ITEM_FLAG1;
+					tempitem.flags&=~item_flag1;
 					tempitem.wpn=wHSHEAD;
 					tempitem.wpn2=wHSCHAIN_H;
 					tempitem.wpn4=wHSHANDLE;
@@ -7391,7 +7394,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 					
 				case iLongshot:
 					tempitem.power=0;
-					tempitem.flags&=~ITEM_FLAG1;
+					tempitem.flags&=~item_flag1;
 					tempitem.wpn=wLSHEAD;
 					tempitem.wpn2=wLSCHAIN_H;
 					tempitem.wpn4=wLSHANDLE;
@@ -7420,7 +7423,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				case iWhistle:
 					tempitem.wpn=wWIND;
 					tempitem.misc1=3;
-					tempitem.flags|=ITEM_FLAG1;
+					tempitem.flags|=item_flag1;
 					break;
 					
 				case iBRing:
@@ -7476,7 +7479,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 					break;
 					
 				case iOldGlove:
-					tempitem.flags |= ITEM_FLAG1;
+					tempitem.flags |= item_flag1;
 					
 					//fallthrough
 				case iBombBagL4:
@@ -7492,7 +7495,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 					
 				case iMKey:
 					tempitem.power=0xFF;
-					tempitem.flags |= ITEM_FLAG1;
+					tempitem.flags |= item_flag1;
 					break;
 			}
 		}
@@ -7518,38 +7521,38 @@ int32_t readitems(PACKFILE *f, word version, word build)
 			switch(i)
 			{
 				case iMShield:
-					tempitem.misc1|=shFLAME;
-					tempitem.misc2|=shFIREBALL|shMAGIC;
+					tempitem.misc1|=sh_flame;
+					tempitem.misc2|=sh_fireball|sh_magic;
 					
 					if(get_qr(qr_SWORDMIRROR))
 					{
-						tempitem.misc2 |= shSWORD;
+						tempitem.misc2 |= sh_sword;
 					}
 					
 					// fallthrough
 				case iShield:
-					tempitem.misc1|=shFIREBALL|shSWORD|shMAGIC;
+					tempitem.misc1|=sh_fireball|sh_sword|sh_magic;
 					
 					// fallthrough
 				case iSShield:
-					tempitem.misc1|=shROCK|shARROW|shBRANG|shSCRIPT;
+					tempitem.misc1|=sh_rock|sh_arrow|sh_brang|sh_script;
 					
 					if(get_bit(deprecated_rules,102))  //qr_REFLECTROCKS
 					{
-						tempitem.misc2 |= shROCK;
+						tempitem.misc2 |= sh_rock;
 					}
 					
 					break;
 					
 				case iWhispRing:
 					tempitem.power=1;
-					tempitem.flags|=ITEM_GAMEDATA|ITEM_FLAG1;
+					tempitem.flags|=item_gamedata|item_flag1;
 					tempitem.misc1 = 3;
 					break;
 					
 				case iL2WhispRing:
 					tempitem.power=0;
-					tempitem.flags|=ITEM_GAMEDATA|ITEM_FLAG1;
+					tempitem.flags|=item_gamedata|item_flag1;
 					tempitem.misc1 = 3;
 					break;
 					
@@ -7569,12 +7572,12 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		//add the misc flag for bomb
 		if(s_version < 10 && tempitem.family == itype_bomb)
 		{
-			tempitem.flags = (tempitem.flags & ~ITEM_FLAG1) | (get_qr(qr_LONGBOMBBOOM_DEP) ? ITEM_FLAG1 : 0);
+			tempitem.flags = (tempitem.flags & ~item_flag1) | (get_qr(qr_LONGBOMBBOOM_DEP) ? item_flag1 : item_none);
 		}
 		
 		if(s_version < 11 && tempitem.family == itype_triforcepiece)
 		{
-			tempitem.flags = (tempitem.fam_type ? ITEM_GAMEDATA : 0);
+			tempitem.flags = (tempitem.fam_type ? item_gamedata : item_none);
 			tempitem.playsound = (tempitem.fam_type ? WAV_SCALE : WAV_CLEARED);
 		}
 		
@@ -7583,20 +7586,20 @@ int32_t readitems(PACKFILE *f, word version, word build)
 			switch(i)
 			{
 			case iFBrang:
-				tempitem.misc4 |= shFIREBALL|shSWORD|shMAGIC;
+				tempitem.misc4 |= sh_fireball|sh_sword|sh_magic;
 				
 				//fallthrough
 			case iMBrang:
-				tempitem.misc3 |= shSWORD|shMAGIC;
+				tempitem.misc3 |= sh_sword|sh_magic;
 				
 				//fallthrough
 			case iHookshot:
 			case iLongshot:
 				//fallthrough
-				tempitem.misc3 |= shFIREBALL;
+				tempitem.misc3 |= sh_fireball;
 				
 			case iBrang:
-				tempitem.misc3 |= shBRANG|shROCK|shARROW;
+				tempitem.misc3 |= sh_brang|sh_rock|sh_arrow;
 				break;
 			}
 			
@@ -7674,13 +7677,13 @@ int32_t readitems(PACKFILE *f, word version, word build)
 			{
 				tempitem.misc1 = (tempitem.power==2 ? 4 : 3);
 				tempitem.power = 1;
-				tempitem.flags|=ITEM_FLAG1;
+				tempitem.flags|=item_flag1;
 			}
 			else if(tempitem.family == itype_wand)
-				tempitem.flags|=ITEM_FLAG1;
+				tempitem.flags|=item_flag1;
 			else if(tempitem.family == itype_book)
 			{
-				tempitem.flags|=ITEM_FLAG1;
+				tempitem.flags|=item_flag1;
 				tempitem.power = 2;
 			}
 		}
@@ -7696,7 +7699,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 			}
 			else if(tempitem.family == itype_potion)
 			{
-				tempitem.flags |= ITEM_GAINOLD;
+				tempitem.flags |= item_gain_old;
 			}
 		}
 		
@@ -7708,7 +7711,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 			}
 			else if(tempitem.family == itype_arrow && tempitem.power>4)
 			{
-				tempitem.flags|=ITEM_FLAG1;
+				tempitem.flags|=item_flag1;
 			}
 		}
 		
@@ -7720,10 +7723,10 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				tempitem.misc1 = 768; // Frames until it goes
 			else if(tempitem.family == itype_triforcepiece)
 			{
-				if(tempitem.flags & ITEM_GAMEDATA)
+				if(tempitem.flags & item_gamedata)
 				{
 					tempitem.misc2 = 1; // Cutscene 1
-					tempitem.flags |= ITEM_FLAG1; // Side Warp Out
+					tempitem.flags |= item_flag1; // Side Warp Out
 				}
 			}
 		}
@@ -7732,8 +7735,8 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		{
 			if(tempitem.family == itype_divineprotection)
 			{
-				tempitem.flags |= get_bit(deprecated_rules,qr_NOBOMBPALFLASH+1)?ITEM_FLAG3:0;
-				tempitem.flags |= get_bit(deprecated_rules,qr_NOBOMBPALFLASH+2)?ITEM_FLAG4:0;
+				if (get_bit(deprecated_rules,qr_NOBOMBPALFLASH+1)) tempitem.flags |= item_flag3;
+				if (get_bit(deprecated_rules,qr_NOBOMBPALFLASH+2)) tempitem.flags |= item_flag4;
 			}
 		}
 		
@@ -7752,16 +7755,16 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		
 		if(s_version < 21)  // November 2008
 		{
-			if(tempitem.flags & 0x0100)  // ITEM_SLASH
+			if(tempitem.flags & 0x0100)  // item_slash
 			{
-				tempitem.flags &= ~0x0100;
+				tempitem.flags &= ~item_unused;
 				
 				if(tempitem.family == itype_sword ||
 						tempitem.family == itype_wand ||
 						tempitem.family == itype_candle ||
 						tempitem.family == itype_cbyrna)
 				{
-					tempitem.flags |= ITEM_FLAG4;
+					tempitem.flags |= item_flag4;
 				}
 			}
 		}
@@ -7788,10 +7791,10 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		if(s_version < 25)    // January 2012
 		{
 			if(tempitem.family == itype_bombbag)
-				tempitem.flags |= 16;
+				tempitem.flags |= item_flag1;
 				
 			if(tempitem.family == itype_divinefire)
-				tempitem.flags |= ITEM_FLAG3; // Sideview gravity flag
+				tempitem.flags |= item_flag3; // Sideview gravity flag
 		}
 		
 		if( version < 0x254) //Nuke greyed-out flags/values from <=2.53, in case they are used in 2.54/2.55
@@ -7800,7 +7803,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 			{
 				case itype_sword:
 				{
-					tempitem.flags &= ~(ITEM_FLAG5);
+					tempitem.flags &= ~(item_flag5);
 					tempitem.misc3 = 0;
 					tempitem.misc4 = 0;
 					tempitem.misc5 = 0;
@@ -7820,7 +7823,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_brang:
 				{
-					tempitem.flags &= ~(ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~(item_flag4 | item_flag5);
 					tempitem.misc2 = 0;
 					tempitem.misc5 = 0;
 					tempitem.misc6 = 0;
@@ -7839,7 +7842,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_arrow:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag2 | item_flag3 | item_flag4 | item_flag5);
 					tempitem.misc2 = 0;
 					tempitem.misc3 = 0;
 					tempitem.misc4 = 0;
@@ -7860,7 +7863,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_candle:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG3 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag3 | item_flag5);
 					tempitem.misc1 = 0;
 					tempitem.misc2 = 0;
 					tempitem.misc3 = 0;
@@ -7882,7 +7885,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_whistle:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag2 | item_flag3 | item_flag4 | item_flag5);
 					tempitem.misc3 = 0;
 					tempitem.misc4 = 0;
 					tempitem.misc5 = 0;
@@ -7904,7 +7907,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_bait:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag1 | item_flag2 | item_flag3 | item_flag4 | item_flag5);
 					tempitem.misc2 = 0;
 					tempitem.misc3 = 0;
 					tempitem.misc4 = 0;
@@ -7927,7 +7930,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_letter:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag1 | item_flag2 | item_flag3 | item_flag4 | item_flag5);
 					tempitem.misc1 = 0;
 					tempitem.misc2 = 0;
 					tempitem.misc3 = 0;
@@ -7952,7 +7955,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_potion:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag3 | item_flag4 | item_flag5);
 					tempitem.misc3 = 0;
 					tempitem.misc4 = 0;
 					tempitem.misc5 = 0;
@@ -7975,7 +7978,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_wand:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag2 | item_flag3 | item_flag5);
 					tempitem.misc1 = 0;
 					tempitem.misc2 = 0;
 					tempitem.misc3 = 0;
@@ -7997,7 +8000,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_ring:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag1 | item_flag2 | item_flag3 | item_flag4 | item_flag5);
 					tempitem.misc2 = 0;
 					tempitem.misc3 = 0;
 					tempitem.misc4 = 0;
@@ -8021,7 +8024,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_wallet:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag1 | item_flag2 | item_flag3 | item_flag4 | item_flag5);
 					tempitem.misc3 = 0;
 					tempitem.misc4 = 0;
 					tempitem.misc5 = 0;
@@ -8044,7 +8047,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_amulet:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag1 | item_flag2 | item_flag3 | item_flag4 | item_flag5);
 					tempitem.misc1 = 0;
 					tempitem.misc2 = 0;
 					tempitem.misc3 = 0;
@@ -8069,7 +8072,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_shield:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag1 | item_flag2 | item_flag3 | item_flag4 | item_flag5);
 					tempitem.misc3 = 0;
 					tempitem.misc4 = 0;
 					tempitem.misc5 = 0;
@@ -8092,7 +8095,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_bow:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag1 | item_flag2 | item_flag3 | item_flag4 | item_flag5);
 					tempitem.misc1 = 0;
 					tempitem.misc2 = 0;
 					tempitem.misc3 = 0;
@@ -8117,7 +8120,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_raft:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag1 | item_flag2 | item_flag3 | item_flag4 | item_flag5);
 					tempitem.misc1 = 0;
 					tempitem.misc2 = 0;
 					tempitem.misc3 = 0;
@@ -8142,7 +8145,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_ladder:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag1 | item_flag2 | item_flag3 | item_flag4 | item_flag5);
 					tempitem.misc1 = 0;
 					tempitem.misc2 = 0;
 					tempitem.misc3 = 0;
@@ -8167,7 +8170,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_book:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag2 | item_flag3 | item_flag4 | item_flag5);
 					tempitem.misc1 = 0;
 					tempitem.misc2 = 0;
 					tempitem.misc3 = 0;
@@ -8190,7 +8193,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_magickey:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag2 | item_flag3 | item_flag4 | item_flag5);
 					tempitem.misc1 = 0;
 					tempitem.misc2 = 0;
 					tempitem.misc3 = 0;
@@ -8215,7 +8218,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_bracelet:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag2 | item_flag3 | item_flag4 | item_flag5);
 					tempitem.misc1 = 0;
 					tempitem.misc2 = 0;
 					tempitem.misc3 = 0;
@@ -8240,7 +8243,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_flippers:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag1 | item_flag2 | item_flag3 | item_flag4 | item_flag5);
 					tempitem.misc1 = 0;
 					tempitem.misc2 = 0;
 					tempitem.misc3 = 0;
@@ -8265,7 +8268,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_boots:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag2 | item_flag3 | item_flag4 | item_flag5);
 					tempitem.misc1 = 0;
 					tempitem.misc2 = 0;
 					tempitem.misc3 = 0;
@@ -8290,7 +8293,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_hookshot:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag2 | item_flag3 | item_flag4 | item_flag5);
 					tempitem.misc5 = 0;
 					tempitem.misc6 = 0;
 					tempitem.misc7 = 0;
@@ -8307,7 +8310,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_lens:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag1 | item_flag2 | item_flag3 | item_flag4 | item_flag5);
 					tempitem.misc2 = 0;
 					tempitem.misc3 = 0;
 					tempitem.misc4 = 0;
@@ -8331,7 +8334,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_hammer:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag1 | item_flag2 | item_flag3 | item_flag4 | item_flag5);
 					tempitem.misc1 = 0;
 					tempitem.misc2 = 0;
 					tempitem.misc3 = 0;
@@ -8354,7 +8357,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_divinefire:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag1 | item_flag4 | item_flag5);
 					tempitem.misc3 = 0;
 					tempitem.misc4 = 0;
 					tempitem.misc5 = 0;
@@ -8372,7 +8375,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_divineescape:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag1 | item_flag2 | item_flag3 | item_flag4 | item_flag5);
 					tempitem.misc2 = 0;
 					tempitem.misc3 = 0;
 					tempitem.misc4 = 0;
@@ -8396,7 +8399,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_divineprotection:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag5);
 					tempitem.misc2 = 0;
 					tempitem.misc3 = 0;
 					tempitem.misc4 = 0;
@@ -8410,7 +8413,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_bomb:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag2 | item_flag3 | item_flag4 | item_flag5);
 					tempitem.misc4 = 0;
 					tempitem.misc5 = 0;
 					tempitem.misc6 = 0;
@@ -8430,7 +8433,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_sbomb:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag1 | item_flag2 | item_flag3 | item_flag4 | item_flag5);
 					tempitem.misc4 = 0;
 					tempitem.misc5 = 0;
 					tempitem.misc6 = 0;
@@ -8450,7 +8453,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_clock:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag1 | item_flag2 | item_flag3 | item_flag4 | item_flag5);
 					tempitem.misc2 = 0;
 					tempitem.misc3 = 0;
 					tempitem.misc4 = 0;
@@ -8474,7 +8477,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_key:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag1 | item_flag2 | item_flag3 | item_flag4 | item_flag5);
 					tempitem.misc1 = 0;
 					tempitem.misc2 = 0;
 					tempitem.misc3 = 0;
@@ -8499,7 +8502,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_magiccontainer:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag1 | item_flag2 | item_flag3 | item_flag4 | item_flag5);
 					tempitem.misc1 = 0;
 					tempitem.misc2 = 0;
 					tempitem.misc3 = 0;
@@ -8524,7 +8527,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_triforcepiece:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag2 | item_flag3 | item_flag4 | item_flag5);
 					tempitem.misc3 = 0;
 					tempitem.misc4 = 0;
 					tempitem.misc5 = 0;
@@ -8547,7 +8550,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_map:	case itype_compass:	case itype_bosskey:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag1 | item_flag2 | item_flag3 | item_flag4 | item_flag5);
 					tempitem.misc1 = 0;
 					tempitem.misc2 = 0;
 					tempitem.misc3 = 0;
@@ -8572,7 +8575,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_quiver:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag1 | item_flag2 | item_flag3 | item_flag4 | item_flag5);
 					tempitem.misc3 = 0;
 					tempitem.misc4 = 0;
 					tempitem.misc5 = 0;
@@ -8595,7 +8598,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_lkey:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag1 | item_flag2 | item_flag3 | item_flag4 | item_flag5);
 					tempitem.misc1 = 0;
 					tempitem.misc2 = 0;
 					tempitem.misc3 = 0;
@@ -8620,7 +8623,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_cbyrna:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag2 | item_flag3 | item_flag5);
 					tempitem.misc4 = 0;
 					tempitem.misc5 = 0;
 					tempitem.misc6 = 0;
@@ -8637,7 +8640,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_rupee: case itype_arrowammo:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag1 | item_flag2 | item_flag3 | item_flag4 | item_flag5);
 					tempitem.misc1 = 0;
 					tempitem.misc2 = 0;
 					tempitem.misc3 = 0;
@@ -8662,7 +8665,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_fairy:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag3 | item_flag4 | item_flag5);
 					tempitem.misc4 = 0;
 					tempitem.misc5 = 0;
 					tempitem.misc6 = 0;
@@ -8684,7 +8687,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_magic: case itype_heart: case itype_heartcontainer: case itype_heartpiece: case itype_killem: case itype_bombammo:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag1 | item_flag2 | item_flag3 | item_flag4 | item_flag5);
 					tempitem.misc1 = 0;
 					tempitem.misc2 = 0;
 					tempitem.misc3 = 0;
@@ -8709,7 +8712,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_bombbag:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag2 | item_flag3 | item_flag4 | item_flag5);
 					tempitem.misc3 = 0;
 					tempitem.misc4 = 0;
 					tempitem.misc5 = 0;
@@ -8732,7 +8735,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_rocs:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag1 | item_flag2 | item_flag3 | item_flag4 | item_flag5);
 					tempitem.misc1 = 0;
 					tempitem.misc2 = 0;
 					tempitem.misc3 = 0;
@@ -8757,7 +8760,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_hoverboots:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag1 | item_flag2 | item_flag3 | item_flag4 | item_flag5);
 					tempitem.misc2 = 0;
 					tempitem.misc3 = 0;
 					tempitem.misc4 = 0;
@@ -8780,7 +8783,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_spinscroll:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag1 | item_flag2 | item_flag3 | item_flag4 | item_flag5);
 					tempitem.misc2 = 0;
 					tempitem.misc3 = 0;
 					tempitem.misc4 = 0;
@@ -8804,7 +8807,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_crossscroll:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag1 | item_flag2 | item_flag3 | item_flag4 | item_flag5);
 					tempitem.misc1 = 0;
 					tempitem.misc2 = 0;
 					tempitem.misc3 = 0;
@@ -8829,7 +8832,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_quakescroll:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag1 | item_flag2 | item_flag3 | item_flag4 | item_flag5);
 					tempitem.misc3 = 0;
 					tempitem.misc4 = 0;
 					tempitem.misc5 = 0;
@@ -8852,7 +8855,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_whispring:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag2 | item_flag3 | item_flag4 | item_flag5);
 					tempitem.misc2 = 0;
 					tempitem.misc3 = 0;
 					tempitem.misc4 = 0;
@@ -8876,7 +8879,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_chargering:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag1 | item_flag2 | item_flag3 | item_flag4 | item_flag5);
 					tempitem.misc3 = 0;
 					tempitem.misc4 = 0;
 					tempitem.misc5 = 0;
@@ -8899,7 +8902,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_perilscroll:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag1 | item_flag2 | item_flag3 | item_flag4 | item_flag5);
 					tempitem.misc2 = 0;
 					tempitem.misc3 = 0;
 					tempitem.misc4 = 0;
@@ -8923,7 +8926,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_wealthmedal:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag2 | item_flag3 | item_flag4 | item_flag5);
 					tempitem.misc2 = 0;
 					tempitem.misc3 = 0;
 					tempitem.misc4 = 0;
@@ -8947,7 +8950,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_heartring:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag1 | item_flag2 | item_flag3 | item_flag4 | item_flag5);
 					tempitem.misc3 = 0;
 					tempitem.misc4 = 0;
 					tempitem.misc5 = 0;
@@ -8970,7 +8973,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_magicring:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag1 | item_flag2 | item_flag3 | item_flag4 | item_flag5);
 					tempitem.misc3 = 0;
 					tempitem.misc4 = 0;
 					tempitem.misc5 = 0;
@@ -8993,7 +8996,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_spinscroll2:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag1 | item_flag2 | item_flag3 | item_flag4 | item_flag5);
 					tempitem.misc2 = 0;
 					tempitem.misc3 = 0;
 					tempitem.misc4 = 0;
@@ -9017,7 +9020,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_quakescroll2:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag1 | item_flag2 | item_flag3 | item_flag4 | item_flag5);
 					tempitem.misc3 = 0;
 					tempitem.misc4 = 0;
 					tempitem.misc5 = 0;
@@ -9040,7 +9043,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_agony:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag1 | item_flag2 | item_flag3 | item_flag4 | item_flag5);
 					tempitem.misc2 = 0;
 					tempitem.misc3 = 0;
 					tempitem.misc4 = 0;
@@ -9064,7 +9067,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_stompboots:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag1 | item_flag2 | item_flag3 | item_flag4 | item_flag5);
 					tempitem.misc1 = 0;
 					tempitem.misc2 = 0;
 					tempitem.misc3 = 0;
@@ -9089,7 +9092,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_whimsicalring:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag1 | item_flag2 | item_flag3 | item_flag4 | item_flag5);
 					tempitem.misc2 = 0;
 					tempitem.misc3 = 0;
 					tempitem.misc4 = 0;
@@ -9113,7 +9116,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				case itype_perilring:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag1 | item_flag2 | item_flag3 | item_flag4 | item_flag5);
 					tempitem.misc2 = 0;
 					tempitem.misc3 = 0;
 					tempitem.misc4 = 0;
@@ -9141,7 +9144,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				case itype_custom16: case itype_custom17: case itype_custom18: case itype_custom19: case itype_custom20:
 				case itype_bowandarrow: case itype_letterpotion: case itype_misc:
 				{
-					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.flags &= ~ (item_flag1 | item_flag2 | item_flag3 | item_flag4 | item_flag5);
 					tempitem.misc1 = 0;
 					tempitem.misc2 = 0;
 					tempitem.misc3 = 0;
@@ -9171,24 +9174,24 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		{
 			if(tempitem.family == itype_bomb)
 			{
-				if ( get_qr(qr_OUCHBOMBS) )  tempitem.flags |= ITEM_FLAG2;
-				else tempitem.flags &= ~ ITEM_FLAG2;
+				if ( get_qr(qr_OUCHBOMBS) )  tempitem.flags |= item_flag2;
+				else tempitem.flags &= ~ item_flag2;
 			}
 			else if(tempitem.family == itype_sbomb)
 			{
-				if ( get_qr(qr_OUCHBOMBS) )  tempitem.flags |= ITEM_FLAG2;
-				else tempitem.flags &= ~ ITEM_FLAG2;
+				if ( get_qr(qr_OUCHBOMBS) )  tempitem.flags |= item_flag2;
+				else tempitem.flags &= ~ item_flag2;
 			}
 			
 			else if(tempitem.family == itype_brang)
 			{
-				if ( get_qr(qr_BRANGPICKUP) )  tempitem.flags |= ITEM_FLAG4;
-				else tempitem.flags &= ~ ITEM_FLAG4;
+				if ( get_qr(qr_BRANGPICKUP) )  tempitem.flags |= item_flag4;
+				else tempitem.flags &= ~ item_flag4;
 			}	
 			else if(tempitem.family == itype_wand)
 			{
-				if ( get_qr(qr_NOWANDMELEE) )  tempitem.flags |= ITEM_FLAG3;
-				else tempitem.flags &= ~ ITEM_FLAG3;
+				if ( get_qr(qr_NOWANDMELEE) )  tempitem.flags |= item_flag3;
+				else tempitem.flags &= ~ item_flag3;
 			}
 		}
 		
@@ -9197,24 +9200,24 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		{
 			if(tempitem.family == itype_flippers)
 			{
-				if ( (get_qr(qr_NODIVING)) ) tempitem.flags |= ITEM_FLAG1;
-				else tempitem.flags &= ~ ITEM_FLAG1;
+				if ( (get_qr(qr_NODIVING)) ) tempitem.flags |= item_flag1;
+				else tempitem.flags &= ~ item_flag1;
 			}
 			else if(tempitem.family == itype_sword)
 			{
-				if ( (get_qr(qr_QUICKSWORD)) ) tempitem.flags |= ITEM_FLAG5;
-				else tempitem.flags &= ~ ITEM_FLAG5;
+				if ( (get_qr(qr_QUICKSWORD)) ) tempitem.flags |= item_flag5;
+				else tempitem.flags &= ~ item_flag5;
 			}
 			else if(tempitem.family == itype_wand)
 			{
-				if ( (get_qr(qr_QUICKSWORD)) ) tempitem.flags |= ITEM_FLAG5;
-				else tempitem.flags &= ~ ITEM_FLAG5;
+				if ( (get_qr(qr_QUICKSWORD)) ) tempitem.flags |= item_flag5;
+				else tempitem.flags &= ~ item_flag5;
 			}
 			else if(tempitem.family == itype_book || tempitem.family == itype_candle)
 			{
 				//@Emily: What was qrFIREPROOFHERO2 again, and does that also need to enable this?
-				if ( (get_qr(qr_FIREPROOFHERO)) ) tempitem.flags |= ITEM_FLAG3;
-				else tempitem.flags &= ~ ITEM_FLAG3;
+				if ( (get_qr(qr_FIREPROOFHERO)) ) tempitem.flags |= item_flag3;
+				else tempitem.flags &= ~ item_flag3;
 			}
 		}
 		
@@ -9222,19 +9225,19 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		{
 			if(tempitem.family == itype_brang || tempitem.family == itype_hookshot)
 			{
-				if(get_qr(qr_BRANGPICKUP)) tempitem.flags |= ITEM_FLAG4;
-				else tempitem.flags &= ~ITEM_FLAG4;
+				if(get_qr(qr_BRANGPICKUP)) tempitem.flags |= item_flag4;
+				else tempitem.flags &= ~item_flag4;
 				
-				if(get_qr(qr_Z3BRANG_HSHOT)) tempitem.flags |= ITEM_FLAG5 | ITEM_FLAG6;
-				else tempitem.flags &= ~(ITEM_FLAG5|ITEM_FLAG6);
+				if(get_qr(qr_Z3BRANG_HSHOT)) tempitem.flags |= item_flag5 | item_flag6;
+				else tempitem.flags &= ~(item_flag5|item_flag6);
 			} 
 			else if(tempitem.family == itype_arrow)
 			{
-				if(get_qr(qr_BRANGPICKUP)) tempitem.flags |= ITEM_FLAG4;
-				else tempitem.flags &= ~ITEM_FLAG4;
+				if(get_qr(qr_BRANGPICKUP)) tempitem.flags |= item_flag4;
+				else tempitem.flags &= ~item_flag4;
 				
-				if(get_qr(qr_Z3BRANG_HSHOT)) tempitem.flags &= ~ITEM_FLAG2;
-				else tempitem.flags |= ITEM_FLAG2;
+				if(get_qr(qr_Z3BRANG_HSHOT)) tempitem.flags &= ~item_flag2;
+				else tempitem.flags |= item_flag2;
 			}
 		}
 		
@@ -9242,33 +9245,33 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		{
 			if(tempitem.family == itype_divinefire || tempitem.family == itype_book || tempitem.family == itype_candle)
 			{
-				if(get_qr(qr_TEMPCANDLELIGHT)) tempitem.flags |= ITEM_FLAG5;
-				else tempitem.flags &= ~ITEM_FLAG5;
+				if(get_qr(qr_TEMPCANDLELIGHT)) tempitem.flags |= item_flag5;
+				else tempitem.flags &= ~item_flag5;
 			}
 			else if(tempitem.family == itype_potion)
 			{
 				if(get_qr(qr_NONBUBBLEMEDICINE))
 				{
-					tempitem.flags &= ~(ITEM_FLAG3|ITEM_FLAG4);
+					tempitem.flags &= ~(item_flag3|item_flag4);
 				}
 				else
 				{
-					tempitem.flags |= ITEM_FLAG3;
-					if(get_qr(qr_ITEMBUBBLE))tempitem.flags |= ITEM_FLAG4;
-					else tempitem.flags &= ~ITEM_FLAG4;
+					tempitem.flags |= item_flag3;
+					if(get_qr(qr_ITEMBUBBLE))tempitem.flags |= item_flag4;
+					else tempitem.flags &= ~item_flag4;
 				}
 			}
 			else if(tempitem.family == itype_triforcepiece)
 			{
 				if(get_qr(qr_NONBUBBLETRIFORCE))
 				{
-					tempitem.flags |= ITEM_FLAG3;
-					if(get_qr(qr_ITEMBUBBLE))tempitem.flags |= ITEM_FLAG4;
-					else tempitem.flags &= ~ITEM_FLAG4;
+					tempitem.flags |= item_flag3;
+					if(get_qr(qr_ITEMBUBBLE))tempitem.flags |= item_flag4;
+					else tempitem.flags &= ~item_flag4;
 				}
 				else
 				{
-					tempitem.flags &= ~(ITEM_FLAG3|ITEM_FLAG4);
+					tempitem.flags &= ~(item_flag3|item_flag4);
 				}
 			}
 		}
@@ -9277,22 +9280,22 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		{
 			if(tempitem.family == itype_ring || tempitem.family == itype_perilring)
 			{
-				if(get_qr(qr_RINGAFFECTDAMAGE))tempitem.flags |= ITEM_FLAG1;
-				else tempitem.flags &= ~ITEM_FLAG1;
+				if(get_qr(qr_RINGAFFECTDAMAGE))tempitem.flags |= item_flag1;
+				else tempitem.flags &= ~item_flag1;
 			} 
 			else if(tempitem.family == itype_candle || tempitem.family == itype_sword || tempitem.family == itype_wand || tempitem.family == itype_cbyrna)
 			{
-				if(get_qr(qr_SLASHFLIPFIX))tempitem.flags |= ITEM_FLAG8;
-				else tempitem.flags &= ~ITEM_FLAG8;
+				if(get_qr(qr_SLASHFLIPFIX))tempitem.flags |= item_flag8;
+				else tempitem.flags &= ~item_flag8;
 			}
 			if(tempitem.family == itype_sword || tempitem.family == itype_wand || tempitem.family == itype_hammer)
 			{
-				if(get_qr(qr_NOITEMMELEE))tempitem.flags |= ITEM_FLAG7;
-				else tempitem.flags &= ~ITEM_FLAG7;
+				if(get_qr(qr_NOITEMMELEE))tempitem.flags |= item_flag7;
+				else tempitem.flags &= ~item_flag7;
 			} 
 			else if(tempitem.family == itype_cbyrna)
 			{
-				tempitem.flags |= ITEM_FLAG7;
+				tempitem.flags |= item_flag7;
 			}
 		}
 		
@@ -9300,11 +9303,11 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		{
 			if(tempitem.family == itype_sword)
 			{
-				if(get_qr(qr_SWORDMIRROR))tempitem.flags |= ITEM_FLAG9;
-				else tempitem.flags &= ~ITEM_FLAG9;
+				if(get_qr(qr_SWORDMIRROR))tempitem.flags |= item_flag9;
+				else tempitem.flags &= ~item_flag9;
 				
-				if(get_qr(qr_SLOWCHARGINGWALK))tempitem.flags |= ITEM_FLAG10;
-				else tempitem.flags &= ~ITEM_FLAG10;
+				if(get_qr(qr_SLOWCHARGINGWALK))tempitem.flags |= item_flag10;
+				else tempitem.flags &= ~item_flag10;
 			}
 		}
 		
@@ -9312,25 +9315,25 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		{
 			if(tempitem.family == itype_wand)
 			{
-				if(get_qr(qr_NOWANDMELEE))tempitem.flags |= ITEM_FLAG3;
-				else tempitem.flags &= ~ITEM_FLAG3;
+				if(get_qr(qr_NOWANDMELEE))tempitem.flags |= item_flag3;
+				else tempitem.flags &= ~item_flag3;
 				
-				tempitem.flags &= ~ITEM_FLAG6;
+				tempitem.flags &= ~item_flag6;
 			} 
 			else if(tempitem.family == itype_hammer)
 			{
-				tempitem.flags &= ~ITEM_FLAG3;
+				tempitem.flags &= ~item_flag3;
 			} 
 			else if(tempitem.family == itype_cbyrna)
 			{
-				tempitem.flags |= ITEM_FLAG3;
+				tempitem.flags |= item_flag3;
 				
-				tempitem.flags &= ~ITEM_FLAG6;
+				tempitem.flags &= ~item_flag6;
 			} 
 			else if(tempitem.family == itype_sword)
 			{
-				if(get_qr(qr_MELEEMAGICCOST))tempitem.flags |= ITEM_FLAG6;
-				else tempitem.flags &= ~ITEM_FLAG6;
+				if(get_qr(qr_MELEEMAGICCOST))tempitem.flags |= item_flag6;
+				else tempitem.flags &= ~item_flag6;
 			}
 		}
 		
@@ -9338,8 +9341,8 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		{
 			if(tempitem.family == itype_whistle)
 			{
-				if(get_qr(qr_WHIRLWINDMIRROR))tempitem.flags |= ITEM_FLAG3;
-				else tempitem.flags &= ~ITEM_FLAG3;
+				if(get_qr(qr_WHIRLWINDMIRROR))tempitem.flags |= item_flag3;
+				else tempitem.flags &= ~item_flag3;
 			}
 		}
 		
@@ -9361,7 +9364,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		}
 		if ( s_version < 34 )  //! set the default counter for older quests. 
 		{
-			if ( (tempitem.flags & ITEM_RUPEE_MAGIC) )
+			if ( (tempitem.flags & item_rupee_magic) )
 			{
 				tempitem.cost_counter[0] = 1;
 			}
@@ -9383,15 +9386,15 @@ int32_t readitems(PACKFILE *f, word version, word build)
 			{
 				if ( get_qr(qr_RAFTLENS) ) 
 				{
-					tempitem.flags |= ITEM_FLAG4;
+					tempitem.flags |= item_flag4;
 				}
 				if ( get_qr(qr_LENSHINTS) ) 
 				{
-					tempitem.flags |= ITEM_FLAG1;
+					tempitem.flags |= item_flag1;
 				}
 				if ( get_qr(qr_LENSSEESENEMIES) ) 
 				{
-					tempitem.flags |= ITEM_FLAG5;
+					tempitem.flags |= item_flag5;
 				}
 			}
 		}
@@ -9423,7 +9426,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		if( s_version < 52 )
 		{
 			if( tempitem.family == itype_shield )
-				tempitem.flags |= ITEM_FLAG1; //'Block Front' flag
+				tempitem.flags |= item_flag1; //'Block Front' flag
 		}
 		if(s_version < 53)
 		{
@@ -9471,19 +9474,19 @@ int32_t readitems(PACKFILE *f, word version, word build)
 			switch(tempitem.family)
 			{
 				case itype_divinefire:
-					SETFLAG(tempitem.flags, ITEM_FLAG9, version < 0x255); //Strong Fire
-					SETFLAG(tempitem.flags, ITEM_FLAG10, version < 0x250); //Magic Fire
-					tempitem.flags |= ITEM_FLAG11; //Divine Fire
+					SETFLAG(tempitem.flags, item_flag9, version < 0x255); //Strong Fire
+					SETFLAG(tempitem.flags, item_flag10, version < 0x250); //Magic Fire
+					tempitem.flags |= item_flag11; //Divine Fire
 					break;
 				case itype_candle:
-					SETFLAG(tempitem.flags, ITEM_FLAG9, tempitem.fam_type > 1); //Strong Fire
-					tempitem.flags &= ~ITEM_FLAG10; //Magic Fire
-					tempitem.flags &= ~ITEM_FLAG11; //Divine Fire
+					SETFLAG(tempitem.flags, item_flag9, tempitem.fam_type > 1); //Strong Fire
+					tempitem.flags &= ~item_flag10; //Magic Fire
+					tempitem.flags &= ~item_flag11; //Divine Fire
 					break;
 				case itype_book:
-					tempitem.flags |= ITEM_FLAG9; //Strong Fire
-					tempitem.flags |= ITEM_FLAG10; //Magic Fire
-					tempitem.flags &= ~ITEM_FLAG11; //Divine Fire
+					tempitem.flags |= item_flag9; //Strong Fire
+					tempitem.flags |= item_flag10; //Magic Fire
+					tempitem.flags &= ~item_flag11; //Divine Fire
 					break;
 			}
 		}
@@ -9797,6 +9800,11 @@ void init_guys(int32_t guyversion)
                     guysbuf[i].flags2 |= guy_transparent;
                 }
             }
+
+			if (i == eDIG1 || i == eDIG3)
+			{
+				guysbuf[i].flags2 |= guy_ignore_kill_all;
+			}
         }
         
         // Darknut fix
@@ -13190,14 +13198,15 @@ int32_t readsfx(PACKFILE *f, zquestheader *Header)
 			{
 				return qe_invalid;
 			}
-			
-			// al_trace("F%i: L%i\n",i,temp_sample.len);
-			// temp_sample.data = new byte[(temp_sample.bits==8?1:2)*temp_sample.len];
+
 			auto len = (temp_sample.bits==8?1:2)*(temp_sample.stereo==0?1:2)*temp_sample.len;
-			if (len < 0 || len > 10000000)
+#ifdef ZC_FUZZ
+	const int32_t sfx_limit = 100000;
+			if (len < 0 || len > sfx_limit)
 			{
 				return qe_invalid;
 			}
+#endif
 			temp_sample.data = calloc(len,1);
 			
 			if(s_version < 3)
@@ -13512,55 +13521,55 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 		
 		if (replay_version_check(20))
 		{
-			guysbuf[eGHINI2].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
-			guysbuf[eMOLDORM].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
-			guysbuf[eKEESETRIB].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
-			guysbuf[eKEESE3].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
-			guysbuf[eKEESE2].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
-			guysbuf[eKEESE1].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
-			guysbuf[eTEK1].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
-			guysbuf[eTEK2].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
-			guysbuf[ePEAHAT].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
-			guysbuf[eROCK].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
-			guysbuf[eTRAP].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
-			guysbuf[eWALLM].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
-			guysbuf[ePOLSV].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
-			guysbuf[eMANHAN].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
-			guysbuf[eGLEEOK1].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
-			guysbuf[eGLEEOK2].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
-			guysbuf[eGLEEOK3].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
-			guysbuf[eGLEEOK4].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
-			guysbuf[eDIG1].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
-			guysbuf[eDIG3].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
-			guysbuf[eDIGPUP1].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
-			guysbuf[eDIGPUP2].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
-			guysbuf[eDIGPUP3].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
-			guysbuf[eDIGPUP4].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
-			guysbuf[eRAQUAM].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
-			guysbuf[eITEMFAIRY].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
-			guysbuf[eFIRE].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
-			guysbuf[eMANHAN2].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
-			guysbuf[eTRAP_H].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
-			guysbuf[eTRAP_V].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
-			guysbuf[eTRAP_LR].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
-			guysbuf[eTRAP_UD].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
-			guysbuf[ePATRA1].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
-			guysbuf[ePATRA2].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
-			guysbuf[ePATRABS].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
-			guysbuf[eBAT].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
-			guysbuf[eGLEEOK1F].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
-			guysbuf[eGLEEOK2F].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
-			guysbuf[eGLEEOK3F].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
-			guysbuf[eGLEEOK4F].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
-			guysbuf[eTRIGGER].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
-			guysbuf[ePATRAL2].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
-			guysbuf[ePATRAL3].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
-			guysbuf[eGOHMA1].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
-			guysbuf[eGOHMA2].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
-			guysbuf[eGOHMA3].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
-			guysbuf[eGOHMA4].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
-			guysbuf[eMPOLSV].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
-			guysbuf[eWPOLSV].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+			guysbuf[eGHINI2].moveflags |= (move_can_waterwalk|move_can_pitwalk);
+			guysbuf[eMOLDORM].moveflags |= (move_can_waterwalk|move_can_pitwalk);
+			guysbuf[eKEESETRIB].moveflags |= (move_can_waterwalk|move_can_pitwalk);
+			guysbuf[eKEESE3].moveflags |= (move_can_waterwalk|move_can_pitwalk);
+			guysbuf[eKEESE2].moveflags |= (move_can_waterwalk|move_can_pitwalk);
+			guysbuf[eKEESE1].moveflags |= (move_can_waterwalk|move_can_pitwalk);
+			guysbuf[eTEK1].moveflags |= (move_can_waterwalk|move_can_pitwalk);
+			guysbuf[eTEK2].moveflags |= (move_can_waterwalk|move_can_pitwalk);
+			guysbuf[ePEAHAT].moveflags |= (move_can_waterwalk|move_can_pitwalk);
+			guysbuf[eROCK].moveflags |= (move_can_waterwalk|move_can_pitwalk);
+			guysbuf[eTRAP].moveflags |= (move_can_waterwalk|move_can_pitwalk);
+			guysbuf[eWALLM].moveflags |= (move_can_waterwalk|move_can_pitwalk);
+			guysbuf[ePOLSV].moveflags |= (move_can_waterwalk|move_can_pitwalk);
+			guysbuf[eMANHAN].moveflags |= (move_can_waterwalk|move_can_pitwalk);
+			guysbuf[eGLEEOK1].moveflags |= (move_can_waterwalk|move_can_pitwalk);
+			guysbuf[eGLEEOK2].moveflags |= (move_can_waterwalk|move_can_pitwalk);
+			guysbuf[eGLEEOK3].moveflags |= (move_can_waterwalk|move_can_pitwalk);
+			guysbuf[eGLEEOK4].moveflags |= (move_can_waterwalk|move_can_pitwalk);
+			guysbuf[eDIG1].moveflags |= (move_can_waterwalk|move_can_pitwalk);
+			guysbuf[eDIG3].moveflags |= (move_can_waterwalk|move_can_pitwalk);
+			guysbuf[eDIGPUP1].moveflags |= (move_can_waterwalk|move_can_pitwalk);
+			guysbuf[eDIGPUP2].moveflags |= (move_can_waterwalk|move_can_pitwalk);
+			guysbuf[eDIGPUP3].moveflags |= (move_can_waterwalk|move_can_pitwalk);
+			guysbuf[eDIGPUP4].moveflags |= (move_can_waterwalk|move_can_pitwalk);
+			guysbuf[eRAQUAM].moveflags |= (move_can_waterwalk|move_can_pitwalk);
+			guysbuf[eITEMFAIRY].moveflags |= (move_can_waterwalk|move_can_pitwalk);
+			guysbuf[eFIRE].moveflags |= (move_can_waterwalk|move_can_pitwalk);
+			guysbuf[eMANHAN2].moveflags |= (move_can_waterwalk|move_can_pitwalk);
+			guysbuf[eTRAP_H].moveflags |= (move_can_waterwalk|move_can_pitwalk);
+			guysbuf[eTRAP_V].moveflags |= (move_can_waterwalk|move_can_pitwalk);
+			guysbuf[eTRAP_LR].moveflags |= (move_can_waterwalk|move_can_pitwalk);
+			guysbuf[eTRAP_UD].moveflags |= (move_can_waterwalk|move_can_pitwalk);
+			guysbuf[ePATRA1].moveflags |= (move_can_waterwalk|move_can_pitwalk);
+			guysbuf[ePATRA2].moveflags |= (move_can_waterwalk|move_can_pitwalk);
+			guysbuf[ePATRABS].moveflags |= (move_can_waterwalk|move_can_pitwalk);
+			guysbuf[eBAT].moveflags |= (move_can_waterwalk|move_can_pitwalk);
+			guysbuf[eGLEEOK1F].moveflags |= (move_can_waterwalk|move_can_pitwalk);
+			guysbuf[eGLEEOK2F].moveflags |= (move_can_waterwalk|move_can_pitwalk);
+			guysbuf[eGLEEOK3F].moveflags |= (move_can_waterwalk|move_can_pitwalk);
+			guysbuf[eGLEEOK4F].moveflags |= (move_can_waterwalk|move_can_pitwalk);
+			guysbuf[eTRIGGER].moveflags |= (move_can_waterwalk|move_can_pitwalk);
+			guysbuf[ePATRAL2].moveflags |= (move_can_waterwalk|move_can_pitwalk);
+			guysbuf[ePATRAL3].moveflags |= (move_can_waterwalk|move_can_pitwalk);
+			guysbuf[eGOHMA1].moveflags |= (move_can_waterwalk|move_can_pitwalk);
+			guysbuf[eGOHMA2].moveflags |= (move_can_waterwalk|move_can_pitwalk);
+			guysbuf[eGOHMA3].moveflags |= (move_can_waterwalk|move_can_pitwalk);
+			guysbuf[eGOHMA4].moveflags |= (move_can_waterwalk|move_can_pitwalk);
+			guysbuf[eMPOLSV].moveflags |= (move_can_waterwalk|move_can_pitwalk);
+			guysbuf[eWPOLSV].moveflags |= (move_can_waterwalk|move_can_pitwalk);
 		}
     }
 	
@@ -14788,10 +14797,10 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
                 }
                 
                 // Spawn animation flags
-                if(tempguy.family == eeWALK && (tempguy.flags2&cmbflag_armos || tempguy.flags2&cmbflag_ghini))
-                    tempguy.flags |= guy_fadeflicker;
+                if(tempguy.family == eeWALK && (tempguy.flags2&guy_armos || tempguy.flags2&guy_ghini))
+                    tempguy.flags |= guy_fade_flicker;
                 else
-                    tempguy.flags &= 0x0F00000F; // Get rid of the unused flags!
+                    tempguy.flags &= (guy_flags)0x0F00000F; // Get rid of the unused flags!
             }
             
             if(guyversion < 20)  // April 2010
@@ -14916,7 +14925,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 					{
 						return qe_invalid;
 					}
-					tempguy.moveflags = fl;
+					tempguy.moveflags = (move_flags)fl;
 				}
 			}
 			else
@@ -14930,22 +14939,22 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 					case eeFAIRY: case eeGUY: case eeNONE: case eeZORA:
 					case eeAQUA: case eeDIG: case eeGHOMA: case eeGANON:
 					case eePATRA: case eeGLEEOK: case eeMOLD: case eeMANHAN:
-						tempguy.moveflags = FLAG_CAN_PITWALK;
+						tempguy.moveflags = move_can_pitwalk;
 						break;
 					//No gravity, but falls in pits
 					case eeLEV:
-						tempguy.moveflags = FLAG_CAN_PITFALL;
+						tempguy.moveflags = move_can_pitfall;
 						break;
 					//Bosses that respect pits
 					case eeDONGO:
-						tempguy.moveflags = FLAG_OBEYS_GRAV;
+						tempguy.moveflags = move_obeys_grav;
 						break;
 					case eeLANM:
-						tempguy.moveflags = 0;
+						tempguy.moveflags = move_none;
 						break;
 					//Gravity, floats over pits
 					case eeWIZZ: case eeWALLM: case eeGHINI:
-						tempguy.moveflags = FLAG_OBEYS_GRAV | FLAG_CAN_PITWALK;
+						tempguy.moveflags = move_obeys_grav | move_can_pitwalk;
 						break;
 					//Gravity and falls in pits
 					case eeWALK:
@@ -14959,7 +14968,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 					case eeSCRIPT16: case eeSCRIPT17: case eeSCRIPT18: case eeSCRIPT19: case eeSCRIPT20:
 					case eeFFRIENDLY01: case eeFFRIENDLY02: case eeFFRIENDLY03: case eeFFRIENDLY04: case eeFFRIENDLY05:
 					case eeFFRIENDLY06: case eeFFRIENDLY07: case eeFFRIENDLY08: case eeFFRIENDLY09: case eeFFRIENDLY10:
-						tempguy.moveflags = FLAG_OBEYS_GRAV | FLAG_CAN_PITFALL;
+						tempguy.moveflags = move_obeys_grav | move_can_pitfall;
 				}
 			}
 			if(guyversion < 43)
@@ -14975,8 +14984,8 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 					case eePATRA: case eeGLEEOK: case eeMOLD: case eeMANHAN:
 					case eeWIZZ: case eeWALLM: case eeGHINI:
 					//Gravity, floats over pits
-						tempguy.moveflags |= FLAG_CAN_WATERWALK;
-						tempguy.moveflags |= FLAG_CAN_PITWALK;
+						tempguy.moveflags |= move_can_waterwalk;
+						tempguy.moveflags |= move_can_pitwalk;
 						break;
 				}
 			}
@@ -14984,7 +14993,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 			{
 				if ( tempguy.family == eeGHOMA )
 				{
-					tempguy.flags |= guy_fadeinstant;
+					tempguy.flags |= guy_fade_instant;
 				}
 			}
 			if (guyversion > 44)
@@ -15013,7 +15022,36 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 			{
 				if(tempguy.family == eeWALK && tempguy.misc9 == e9tPOLSVOICE)
 				{
-					tempguy.moveflags |= FLAG_CAN_WATERWALK;
+					tempguy.moveflags |= move_can_waterwalk;
+				}
+			}
+
+			if (guyversion < 47)
+			{
+				if (tempguy.family == eeDIG && tempguy.misc10!=1)
+				{
+					tempguy.flags2 |= guy_ignore_kill_all;
+				}
+			}
+
+			if (guyversion < 48)
+			{
+				if (tempguy.family == eeWALK && (tempguy.misc7==e7tPERMJINX || tempguy.misc7==e7tTEMPJINX || tempguy.misc7==e7tUNJINX)) //BUBBLE CHECK
+				{
+					switch (tempguy.misc8) {
+						case 0: //Sword
+							tempguy.misc8 = e8tSWORD;
+							break;
+						case 1:	//Item
+							tempguy.misc8 = e8tITEM;
+							break;
+						case 2: //Both
+							tempguy.misc8 = e8tSWORD|e8tITEM;
+							break;
+						default: //this can actually happen since Misc8 can be set to any number.
+							tempguy.misc8 = 0;
+							break;
+					}
 				}
 			}
 			
@@ -15033,7 +15071,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 void update_guy_1(guydata *tempguy) // November 2009
 {
     bool doesntcount = false;
-    tempguy->flags &= ~weak_arrow; // Formerly 'weak to arrow' which wasn't implemented
+    tempguy->flags &= ~guy_weak_arrow; // Formerly 'weak to arrow' which wasn't implemented
     
     switch(tempguy->family)
     {
@@ -15107,7 +15145,7 @@ darknuts:
             }
             else tempguy->misc1 = 0;
             
-            tempguy->flags |= inv_front;
+            tempguy->flags |= guy_shield_front;
             
             if(get_bit(deprecated_rules,qr_BRKBLSHLDS_DEP))
                 tempguy->flags |= guy_bkshield;
@@ -15271,7 +15309,7 @@ darknuts:
     tempguy->flags &= ~(guy_superman|guy_sbombonly);
     
     if(doesntcount)
-        tempguy->flags |= (guy_doesntcount);
+        tempguy->flags |= (guy_doesnt_count);
 }
 
 
@@ -16472,7 +16510,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 					tempffc.hit_height=16; 
 					tempffc.txsz=1;
 					tempffc.tysz=1;
-					tempffc.flags=0;
+					tempffc.flags=ffc_none;
 				}
 		
 				tempffc.updateSolid();
@@ -16480,7 +16518,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 				
 				if(Header->zelda_version == 0x211 || (Header->zelda_version == 0x250 && Header->build<20))
 				{
-					tempffc.flags|=ffIGNOREHOLDUP;
+					tempffc.flags|=ffc_ignoreholdup;
 				}
 				
 				if(version>9)
@@ -18033,6 +18071,11 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 				if(!p_igetw(&temp_combo.trig_bunnytime,f))
 					return qe_invalid;
 				if(!p_getc(&temp_combo.trig_pushtime,f))
+					return qe_invalid;
+			}
+			if(s_version >= 47)
+			{
+				if (!p_igetw(&temp_combo.trig_shieldjinxtime, f))
 					return qe_invalid;
 			}
 		}
@@ -20346,59 +20389,59 @@ int32_t readinitdata_old(PACKFILE *f, zquestheader *Header, word s_version, word
 					itemsbuf[i].misc1 = stationary_fairy_hearts;
 					itemsbuf[i].misc2 = stationary_fairy_magic;
 					itemsbuf[i].misc3 = 0;
-					itemsbuf[i].flags |= stationary_fairy_heart_percent ? ITEM_FLAG1 : 0;
-					itemsbuf[i].flags |= stationary_fairy_magic_percent ? ITEM_FLAG2 : 0;
+					if (stationary_fairy_heart_percent) itemsbuf[i].flags |= item_flag1;
+					if (stationary_fairy_magic_percent) itemsbuf[i].flags |= item_flag2;
 					break;
 					
 				case iFairyMoving:
 					itemsbuf[i].misc1 = moving_fairy_hearts;
 					itemsbuf[i].misc2 = moving_fairy_magic;
 					itemsbuf[i].misc3 = 50;
-					itemsbuf[i].flags |= moving_fairy_heart_percent ? ITEM_FLAG1 : 0;
-					itemsbuf[i].flags |= moving_fairy_magic_percent ? ITEM_FLAG2 : 0;
+					if (moving_fairy_heart_percent) itemsbuf[i].flags |= item_flag1;
+					if (moving_fairy_magic_percent) itemsbuf[i].flags |= item_flag2;
 					break;
 					
 				case iRPotion:
 					itemsbuf[i].misc1 = red_potion_hearts;
 					itemsbuf[i].misc2 = red_potion_magic;
-					itemsbuf[i].flags |= red_potion_heart_percent ? ITEM_FLAG1 : 0;
-					itemsbuf[i].flags |= red_potion_magic_percent ? ITEM_FLAG2 : 0;
+					if (red_potion_heart_percent) itemsbuf[i].flags |= item_flag1;
+					if (red_potion_magic_percent) itemsbuf[i].flags |= item_flag2;
 					break;
 					
 				case iBPotion:
 					itemsbuf[i].misc1 = blue_potion_hearts;
 					itemsbuf[i].misc2 = blue_potion_magic;
-					itemsbuf[i].flags |= blue_potion_heart_percent ? ITEM_FLAG1 : 0;
-					itemsbuf[i].flags |= blue_potion_magic_percent ? ITEM_FLAG2 : 0;
+					if (blue_potion_heart_percent) itemsbuf[i].flags |= item_flag1;
+					if (blue_potion_magic_percent) itemsbuf[i].flags |= item_flag2;
 					break;
 					
 				case iSword:
 					itemsbuf[i].pickup_hearts = sword_hearts[0];
 					itemsbuf[i].misc1 = beam_hearts[0];
 					itemsbuf[i].misc2 = beam_power[0];
-					// It seems that ITEM_FLAG1 was already added by reset_itembuf()...
-					itemsbuf[i].flags &= (!get_bit(&beam_percent,0)) ? ~ITEM_FLAG1 : ~0;
+					// It seems that item_flag1 was already added by reset_itembuf()...
+					itemsbuf[i].flags &= (!get_bit(&beam_percent,0)) ? ~item_flag1 : ~item_none;
 					break;
 					
 				case iWSword:
 					itemsbuf[i].pickup_hearts = sword_hearts[1];
 					itemsbuf[i].misc1 = beam_hearts[1];
 					itemsbuf[i].misc2 = beam_power[1];
-					itemsbuf[i].flags &= (!get_bit(&beam_percent,1)) ? ~ITEM_FLAG1 : ~0;
+					itemsbuf[i].flags &= (!get_bit(&beam_percent,1)) ? ~item_flag1 : ~item_none;
 					break;
 					
 				case iMSword:
 					itemsbuf[i].pickup_hearts = sword_hearts[2];
 					itemsbuf[i].misc1 = beam_hearts[2];
 					itemsbuf[i].misc2 = beam_power[2];
-					itemsbuf[i].flags &= (!get_bit(&beam_percent,2)) ? ~ITEM_FLAG1 : ~0;
+					itemsbuf[i].flags &= (!get_bit(&beam_percent,2)) ? ~item_flag1 : ~item_none;
 					break;
 					
 				case iXSword:
 					itemsbuf[i].pickup_hearts = sword_hearts[3];
 					itemsbuf[i].misc1 = beam_hearts[3];
 					itemsbuf[i].misc2 = beam_power[3];
-					itemsbuf[i].flags &= (!get_bit(&beam_percent,3)) ? ~ITEM_FLAG1 : ~0;
+					itemsbuf[i].flags &= (!get_bit(&beam_percent,3)) ? ~item_flag1 : ~item_none;
 					break;
 					
 				case iHookshot:
@@ -21217,8 +21260,8 @@ void portCandleRules()
 	{
 		if ( itemsbuf[q].family == itype_candle )
 		{
-			if ( hurtshero ) itemsbuf[q].flags |= ITEM_FLAG2;
-			else itemsbuf[q].flags &= ~ ITEM_FLAG2;
+			if ( hurtshero ) itemsbuf[q].flags |= item_flag2;
+			else itemsbuf[q].flags &= ~ item_flag2;
 		}
 	}
 }
@@ -21231,8 +21274,8 @@ void portBombRules()
 	{
 		if ( itemsbuf[q].family == itype_bomb )
 		{
-			if ( hurtshero ) itemsbuf[q].flags |= ITEM_FLAG2;
-			else itemsbuf[q].flags &= ~ ITEM_FLAG2;
+			if ( hurtshero ) itemsbuf[q].flags |= item_flag2;
+			else itemsbuf[q].flags &= ~ item_flag2;
 		}
 	}
 }
@@ -22136,7 +22179,7 @@ static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Mi
                 for(int32_t m=0; m<32; m++)
                 {
                     if(combobuf[TheMaps[(i*MAPSCRS)+j].ffcs[m].data].type == cCHANGE)
-                        TheMaps[(i*MAPSCRS)+j].ffcs[m].flags|=ffCHANGER;
+                        TheMaps[(i*MAPSCRS)+j].ffcs[m].flags|=ffc_changer;
                 }
             }
         }

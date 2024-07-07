@@ -960,7 +960,7 @@ bool ffcIsAt(const ffc_handle_t& ffc_handle, int32_t x, int32_t y)
 	if (ffc_handle.data()<=0)
         return false;
 
-    if((ffc_handle.ffc->flags&(ffCHANGER|ffETHEREAL))!=0)
+    if((ffc_handle.ffc->flags&(ffc_changer|ffc_ethereal))!=0)
         return false;
 
     int32_t fx=ffc_handle.ffc->x.getInt();
@@ -1983,7 +1983,7 @@ int32_t iswaterex(int32_t combo, int32_t map, int32_t screen, int32_t layer, int
 					}
 					if (iswater_type(cmb.type) && (cmb.walk&(1<<b)) && ((cmb.usrflags&cflag3) || (cmb.usrflags&cflag4)
 						|| (hero && current_item(itype_flippers) < cmb.attribytes[0])
-						|| (hero && ((cmb.usrflags&cflag1) && !(itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG3)))))
+						|| (hero && ((cmb.usrflags&cflag1) && !(itemsbuf[current_item_id(itype_flippers)].flags & item_flag3)))))
 					{
 						if (!(ShallowCheck && (cmb.walk&(1<<b)) && (cmb.usrflags&cflag4))) return 0;
 					}
@@ -2219,7 +2219,7 @@ bool isstepable(int32_t combo)                                  //can use ladder
 		if(combobuf[combo].usrflags&cflag4)
 		{
 			int32_t ldrid = current_item_id(itype_ladder);
-			return (ldrid > -1 && itemsbuf[ldrid].flags & ITEM_FLAG1);
+			return (ldrid > -1 && itemsbuf[ldrid].flags & item_flag1);
 		}
 	}
 	return false;
@@ -2615,7 +2615,7 @@ void delete_fireball_shooter(const rpos_handle_t& rpos_handle)
     for(int32_t j=0; j<guys.Count(); j++)
     {
         // Finds the smallest enemy ID
-        if((int32_t(guys.spr(j)->x)==cx)&&(int32_t(guys.spr(j)->y)==cy)&&(guysbuf[(guys.spr(j)->id)&0xFFF].flags2 & eneflag_fire))
+        if((int32_t(guys.spr(j)->x)==cx)&&(int32_t(guys.spr(j)->y)==cy)&&(guysbuf[(guys.spr(j)->id)&0xFFF].flags2 & guy_fire))
         {
             guys.del(j);
         }
@@ -3216,15 +3216,15 @@ void update_freeform_combos()
 				return;
 				
 			// Changer?
-			if(thisffc.flags&ffCHANGER)
+			if(thisffc.flags&ffc_changer)
 				return;
 				
 			// Stationary?
-			if(thisffc.flags&ffSTATIONARY)
+			if(thisffc.flags&ffc_stationary)
 				return;
 				
 			// Frozen because Hero's holding up an item?
-			if(Hero.getHoldClk()>0 && (thisffc.flags&ffIGNOREHOLDUP)==0)
+			if(Hero.getHoldClk()>0 && (thisffc.flags&ffc_ignoreholdup)==0)
 				return;
 				
 			// Check for changers
@@ -3240,11 +3240,11 @@ void update_freeform_combos()
 						return true;
 						
 					// Not a changer?
-					if(!(otherffc.flags&ffCHANGER))
+					if(!(otherffc.flags&ffc_changer))
 						return true;
 						
 					// Ignore this changer?
-					if((otherffc.x.getInt()==thisffc.changer_x&&otherffc.y.getInt()==thisffc.changer_y) || thisffc.flags&ffIGNORECHANGER)
+					if((otherffc.x.getInt()==thisffc.changer_x&&otherffc.y.getInt()==thisffc.changer_y) || thisffc.flags&ffc_ignorechanger)
 						return true;
 						
 					if((isonline(thisffc.x.getZLong(), thisffc.y.getZLong(), thisffc.prev_changer_x, thisffc.prev_changer_y, otherffc.x.getZLong(), otherffc.y.getZLong()) || // Along the line, or...
@@ -3252,7 +3252,7 @@ void update_freeform_combos()
 							(thisffc.x==otherffc.x && thisffc.y==otherffc.y)) 
 							||
 							//or imprecision and close enough
-							( (thisffc.flags&ffIMPRECISIONCHANGER) && ((abs(thisffc.x.getZLong() - otherffc.x.getZLong()) < 10000) && abs(thisffc.y.getZLong() - otherffc.y.getZLong()) < 10000) )
+							( (thisffc.flags&ffc_imprecisionchanger) && ((abs(thisffc.x.getZLong() - otherffc.x.getZLong()) < 10000) && abs(thisffc.y.getZLong() - otherffc.y.getZLong()) < 10000) )
 						)
 					&& //and...
 						(thisffc.prev_changer_x>-10000000 && thisffc.prev_changer_y>-10000000)) // This isn't the first frame on this screen
@@ -3320,7 +3320,7 @@ void update_freeform_combos()
 				else if(thisffc.x<-64)
 				{
 					zc_ffc_set(thisffc, 0);
-					thisffc.flags&=~ffCARRYOVER;
+					thisffc.flags&=~ffc_carryover;
 				}
 			}
 			// Right
@@ -3337,7 +3337,7 @@ void update_freeform_combos()
 				else
 				{
 					zc_ffc_set(thisffc, 0);
-					thisffc.flags&=~ffCARRYOVER;
+					thisffc.flags&=~ffc_carryover;
 				}
 			}
 			
@@ -3355,7 +3355,7 @@ void update_freeform_combos()
 				else if(thisffc.y<-64)
 				{
 					zc_ffc_set(thisffc, 0);
-					thisffc.flags&=~ffCARRYOVER;
+					thisffc.flags&=~ffc_carryover;
 				}
 			}
 			// Bottom
@@ -3372,7 +3372,7 @@ void update_freeform_combos()
 				else
 				{
 					zc_ffc_set(thisffc, 0);
-					thisffc.flags&=~ffCARRYOVER;
+					thisffc.flags&=~ffc_carryover;
 				}
 			}
 			thisffc.solid_update();
@@ -3663,7 +3663,7 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen
 			if (base_scr->ffcs[i].data == 0)
 				continue;
 
-			if (screenscrolling && (base_scr->ffcs[i].flags & ffCARRYOVER) != 0 && screen_handle.screen != scrolling_scr)
+			if (screenscrolling && (base_scr->ffcs[i].flags & ffc_carryover) != 0 && screen_handle.screen != scrolling_scr)
 				continue; //If scrolling, only draw carryover ffcs from newscr and not oldscr.
 
 			base_scr->ffcs[i].draw(bmp, x, y, (type==-4));
@@ -6055,11 +6055,11 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 	{
 		for(word i = 0; i < MAXFFCS; i++)
 		{
-			if((previous_scr.ffcs[i].flags&ffCARRYOVER) && !(previous_scr.flags5&fNOFFCARRYOVER))
+			if((previous_scr.ffcs[i].flags&ffc_carryover) && !(previous_scr.flags5&fNOFFCARRYOVER))
 			{
 				scr->ffcs[i] = previous_scr.ffcs[i];
 				
-				if (previous_scr.ffcs[i].flags&ffSCRIPTRESET)
+				if (previous_scr.ffcs[i].flags&ffc_scriptreset)
 				{
 					int ffc_id = get_region_screen_index_offset(screen)*MAXFFCS + i;
 					FFCore.reset_script_engine_data(ScriptType::FFC, ffc_id);

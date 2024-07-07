@@ -1,6 +1,6 @@
 Some prerequisites to building from source:
 
-- CMake (3.24 or later)
+- CMake (3.28 or later)
 - Install flexbison (Windows, use https://chocolatey.org/: `choco install winflexbison3`)
 - For Windows: Visual Studio 2019 (but later is better)
 
@@ -36,17 +36,22 @@ Click "Generate." This will create a Visual Studio project file for you in the b
 
 # Building on Linux
 
-These instructions are specific to Ubuntu.
+## Install Dependencies
+
+### Linux Mint
+
+```sh
+sudo apt update
+sudo apt install python3-pip ninja-build libgtk-3-dev libasound2-dev libssl-dev libcurl4-openssl-dev libstdc++-12-dev
+# Can skip this if already have cmake 3.24 or higher
+pip install cmake --upgrade
+```
+
+### Ubuntu
 
 ```sh
 sudo apt update
 sudo apt install build-essential gcc-multilib g++-multilib libx11-dev libglu1-mesa-dev freeglut3-dev mesa-common-dev libxcursor1 libasound2-dev libgtk-3-dev flex bison
-
-# Note: We do not build or test with gcc, so gcc is not guarenteed to work. clang 14+ is advised.
-CC=clang CXX=clang++ cmake -B build -S .
-
-# Build!
-cmake --build build
 ```
 
 Then before running, you need some additional packages installed:
@@ -54,6 +59,53 @@ Then before running, you need some additional packages installed:
 ```sh
 sudo apt install libopengl0 libglu1
 ```
+
+## Building
+
+> NOTE: currently gcc cannot be used, so use clang 17+
+
+Install clang 17:
+
+```sh
+wget https://apt.llvm.org/llvm.sh
+chmod u+x llvm.sh
+sudo ./llvm.sh 17
+# verify
+clang-17 --version
+# clean up
+rm llvm.sh
+```
+
+Configure:
+
+```sh
+# be in the ZQuestClassic git checkout
+# Configure
+CC=clang-17 CXX=clang++-17 cmake -G 'Ninja Multi-Config' -B build -S .
+```
+
+> NOTE: skip to "Installing" if you are not developing and just want a user installation
+
+Build:
+
+```sh
+cmake --build build --config Debug
+```
+
+Run:
+
+```sh
+cd build/Debug
+./zlauncher
+```
+
+## Installing
+
+```sh
+cmake --build build --config Release -t install
+```
+
+By default this will install to `~/zquestclassic`. You can open the launcher with: `cd ~/zquestclassic; ./bin/zlauncher`
 
 # Building w/ OGG support on Windows
 

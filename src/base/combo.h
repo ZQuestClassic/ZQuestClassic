@@ -1,11 +1,25 @@
-#ifndef _COMBO_H_
-#define _COMBO_H_
+#ifndef COMBO_H_
+#define COMBO_H_
 
 #include "base/ints.h"
 #include "base/zfix.h"
 #include "base/headers.h"
 #include "base/containers.h"
+#include "base/flags.h"
 #include <functional>
+
+namespace flags {
+enum lift_flags : uint8_t
+{
+	LF_LIFTABLE             = F(0),
+	LF_DROPSET              = F(1),
+	LF_DROPONLIFT           = F(2),
+	LF_SPECIALITEM          = F(3),
+	LF_NOUCSET              = F(4),
+	LF_NOWPNCMBCSET         = F(5),
+	LF_BREAKONSOLID         = F(6),
+};
+} // ends namespace
 
 #define NUM_COMBO_ATTRIBUTES            4
 #define NUM_COMBO_ATTRIBYTES            8
@@ -101,9 +115,9 @@ struct newcombo
 	int8_t trigtint[3]; //r,g,b range [-63,63]
 	int16_t triglvlpalette = -1, trigbosspalette = -1;
 	int16_t trigquaketime = -1, trigwavytime = -1;
-	int16_t trig_swjinxtime = -2, trig_itmjinxtime = -2, trig_stuntime = -2, trig_bunnytime = -2;
+	int16_t trig_swjinxtime = -2, trig_itmjinxtime = -2, trig_shieldjinxtime = -2, trig_stuntime = -2, trig_bunnytime = -2;
 	byte trig_pushtime = 8;
-	byte liftflags;
+	lift_flags liftflags;
 	byte liftlvl;
 	byte liftsfx;
 	byte liftitm;
@@ -148,15 +162,6 @@ struct newcombo
 #define AF_CYCLE                        0x02
 #define AF_CYCLENOCSET                  0x04
 #define AF_TRANSPARENT                  0x08
-
-#define LF_LIFTABLE                     0x01
-#define LF_DROPSET                      0x02
-#define LF_DROPONLIFT                   0x04
-#define LF_SPECIALITEM                  0x08
-#define LF_NOUCSET                      0x10
-#define LF_NOWPNCMBCSET                 0x20
-#define LF_BREAKONSOLID                 0x40
-
 
 //triggerflags[0]
 #define combotriggerSWORD               0x00000001

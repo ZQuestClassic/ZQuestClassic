@@ -1,5 +1,5 @@
-#ifndef ZC_CONSOLE_LOGGER_H
-#define ZC_CONSOLE_LOGGER_H
+#ifndef ZC_CONSOLE_LOGGER_H_
+#define ZC_CONSOLE_LOGGER_H_
 
 #include "base/zdefs.h"
 #include "base/process_management.h"

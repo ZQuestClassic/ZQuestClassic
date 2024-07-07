@@ -1,5 +1,5 @@
-#ifndef ZSYSSIMPLE_H
-#define ZSYSSIMPLE_H
+#ifndef ZSYSSIMPLE_H_
+#define ZSYSSIMPLE_H_
 
 #include <cstdint>
 

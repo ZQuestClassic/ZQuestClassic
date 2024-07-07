@@ -1,5 +1,5 @@
-#ifndef ZC_GUI_DIALOGMESSAGE_H
-#define ZC_GUI_DIALOGMESSAGE_H
+#ifndef ZC_GUI_DIALOGMESSAGE_H_
+#define ZC_GUI_DIALOGMESSAGE_H_
 
 #include <functional>
 #include <memory>

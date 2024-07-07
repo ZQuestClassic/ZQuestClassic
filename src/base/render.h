@@ -1,5 +1,5 @@
-#ifndef _BASE_RENDER_TREE_H_
-#define _BASE_RENDER_TREE_H_
+#ifndef BASE_RENDER_TREE_H_
+#define BASE_RENDER_TREE_H_
 
 #include "allegro5/color.h"
 #include "base/zc_alleg.h"

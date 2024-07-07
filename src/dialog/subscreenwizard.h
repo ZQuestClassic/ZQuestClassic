@@ -1,5 +1,5 @@
-#ifndef ZC_DIALOG_SUBSCREENWIZARD_H
-#define ZC_DIALOG_SUBSCREENWIZARD_H
+#ifndef ZC_DIALOG_SUBSCREENWIZARD_H_
+#define ZC_DIALOG_SUBSCREENWIZARD_H_
 
 #include "base/gui.h"
 #include "gui/dialog.h"

@@ -1,5 +1,5 @@
-#ifndef ZSCRIPT_SEMANTIC_ANALYZER_H
-#define ZSCRIPT_SEMANTIC_ANALYZER_H
+#ifndef ZSCRIPT_SEMANTIC_ANALYZER_H_
+#define ZSCRIPT_SEMANTIC_ANALYZER_H_
 
 #include "ASTVisitors.h"
 #include "DataStructs.h"

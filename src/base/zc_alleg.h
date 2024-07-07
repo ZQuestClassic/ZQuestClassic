@@ -1,5 +1,5 @@
-#ifndef _ZC_ALLEG_H_
-#define _ZC_ALLEG_H_
+#ifndef ZC_ALLEG_H_
+#define ZC_ALLEG_H_
 
 #include <allegro.h>
 #include <allegro/internal/aintern.h>

@@ -1,5 +1,5 @@
-#ifndef _ZDEFS_H_
-#define _ZDEFS_H_
+#ifndef ZDEFS_H_
+#define ZDEFS_H_
 
 #define DEVLEVEL 0
 #define COLLECT_SCRIPT_ITEM_ZERO -32767
@@ -45,9 +45,9 @@
 #include "base/render.h"
 #include "fontsdat.h"
 #include "zconfig.h"
-#include "base/mapscr.h"
 #include "base/handles.h"
 #include "dcheck.h"
+#include "flags.h"
 
 struct mapscr;
 class solid_object;
@@ -150,7 +150,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_STRINGS         10
 #define V_MISC            16
 #define V_TILES            3 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
-#define V_COMBOS          46
+#define V_COMBOS          47
 #define V_CSETS            5 //palette data
 #define V_MAPS            30
 #define V_DMAPS           21
@@ -161,7 +161,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
 #define V_INITDATA        39
-#define V_GUYS            47
+#define V_GUYS            49
 #define V_MIDIS            4
 #define V_CHEATS           1
 #define V_SAVEGAME        41
@@ -680,35 +680,6 @@ enum                                                        // value matters bec
     iLast
 };
 
-// Shield projectile blocking
-#define shROCK        0x00000001
-#define shARROW       0x00000002
-#define shBRANG       0x00000004
-#define shFIREBALL    0x00000008
-#define shSWORD       0x00000010
-#define shMAGIC       0x00000020
-#define shFLAME       0x00000040
-#define shSCRIPT      0x00000080 // If set, blocks all of Script1 through Script10
-#define shFIREBALL2   0x00000100 // Boss fireball, not ewFireball2
-#define shLIGHTBEAM   0x00000200 // Light puzzle beams
-//Individual script blockers:
-#define shSCRIPT1     0x00000400
-#define shSCRIPT2     0x00000800
-#define shSCRIPT3     0x00001000
-#define shSCRIPT4     0x00002000
-#define shSCRIPT5     0x00004000
-#define shSCRIPT6     0x00008000
-#define shSCRIPT7     0x00010000
-#define shSCRIPT8     0x00020000
-#define shSCRIPT9     0x00040000
-#define shSCRIPT10    0x00080000
-#define shFLAME2      0x00100000
-
-
-#define sh_ALL_SCR    0x000FFC00
-
-
-
 // item sets
 enum
 {
@@ -1059,7 +1030,7 @@ enum { e7tNORMAL, e7tTEMPJINX, e7tPERMJINX, e7tUNJINX, e7tTAKEMAGIC, e7tTAKERUPE
      };
 
 // Enemy misc8 types
-enum { e8tSWORD, e8tITEM, e8tALL, e8tLAST };
+enum { e8tSWORD=0x1, e8tITEM=0x2, e8tSHIELD=0x4, e8tLAST=0x8};
 
 // Enemy misc9 types
 // Walker
@@ -1306,75 +1277,6 @@ struct item_drop_object
     word chance[11]; //0=none
 };
 
-#define guy_bhit        0x00000001
-#define guy_invisible   0x00000002
-#define guy_neverret    0x00000004
-#define guy_doesntcount 0x00000008
-
-#define guy_fadeflicker 0x00000010
-#define guy_fadeinstant 0x00000020
-/*
-#define inv_bomb        0x00000040
-#define inv_sbomb       0x00000080
-
-#define inv_arrow       0x00000100
-#define inv_L2arrow     0x00000200
-#define inv_fire        0x00000400
-#define inv_wand        0x00000800
-
-#define inv_magic       0x00001000
-#define inv_hookshot    0x00002000
-#define inv_hammer      0x00004000
-#define inv_L3brang     0x00008000
-
-#define inv_L1sword     0x00010000
-#define inv_L3sword     0x00020000
-#define inv_L1beam      0x00040000
-#define inv_L3beam      0x00080000
-
-#define inv_refbeam     0x00100000
-#define inv_refmagic    0x00200000
-#define inv_refball     0x00400000
-#define inv_extra       0x00800000
-*/
-#define inv_front       0x01000000
-#define inv_left        0x02000000
-#define inv_right       0x04000000
-#define inv_back        0x08000000
-
-#define guy_bkshield    0x10000000 // Shield can't be broken
-//#define guy_mirror      0x20000000 // Shield is mirrored
-//#define weak_L3brang    0x40000000
-
-#define lens_only       0x80000000
-
-#define guy_flashing    0x00000001
-#define eneflag_zora    0x00000002
-#define eneflag_rock    0x00000004
-#define eneflag_trap    0x00000008
-
-#define cmbflag_trph    0x00000010
-#define cmbflag_trpv    0x00000020
-#define cmbflag_trp4    0x00000040
-#define cmbflag_trplr   0x00000080
-
-#define cmbflag_trpud   0x00000100
-#define eneflag_trp2    0x00000200
-#define eneflag_fire    0x00000400
-#define cmbflag_armos   0x00000800
-
-#define cmbflag_ghini   0x00001000
-#define eneflag_ganon   0x00002000
-#define guy_blinking    0x00004000
-#define guy_transparent 0x00008000
-
-#define guy_ignoretmpnr 0x00010000
-
-// Old flags
-#define weak_arrow		0x20000000
-#define guy_superman    0x00000008
-#define guy_sbombonly   0x00000010
-
 //Guydata Enemy Editor Size Panel FLags
 #define guyflagOVERRIDE_TILE_WIDTH	0x00000001
 #define guyflagOVERRIDE_TILE_HEIGHT	0x00000002
@@ -1391,8 +1293,8 @@ struct item_drop_object
 
 struct guydata
 {
-    dword flags;
-    dword flags2;
+    guy_flags flags;
+    guy_flags2 flags2;
     int32_t  tile;
     byte  width;
     byte  height; //0=striped, 1+=rectangular
@@ -1441,7 +1343,7 @@ struct guydata
     word script; //For future npc action scripts. 
     //int16_t parentCore; //Probably not needed here. -Z
     int32_t editorflags;
-	dword moveflags;
+	move_flags moveflags;
     
     char initD_label[8][65];
     char weapon_initD_label[8][65];
@@ -1470,23 +1372,6 @@ struct guydata
 #define ENEMY_FLAG16     0x8000
     
 };
-//Moveflags
-#define FLAG_OBEYS_GRAV               0x00000001
-#define FLAG_CAN_PITFALL              0x00000002
-#define FLAG_CAN_PITWALK              0x00000004
-#define FLAG_CAN_WATERDROWN           0x00000008
-#define FLAG_CAN_WATERWALK            0x00000010
-#define FLAG_ONLY_WATERWALK           0x00000020 //Only walks on water
-#define FLAG_ONLY_SHALLOW_WATERWALK   0x00000040 //Only walks on shallow water
-#define FLAG_ONLY_PITWALK             0x00000080 //Only walks on pitfalls
-#define FLAG_NO_FAKE_Z                0x00000100
-#define FLAG_NO_REAL_Z                0x00000200
-#define FLAG_USE_FAKE_Z               0x00000400
-#define FLAG_IGNORE_SOLIDITY          0x00000800
-#define FLAG_IGNORE_BLOCKFLAGS        0x00001000
-#define FLAG_IGNORE_SCREENEDGE        0x00002000
-#define FLAG_USE_NEW_MOVEMENT         0x00004000
-#define FLAG_NOT_PUSHABLE             0x00008000
 
 #define LIFTFL_DIS_SHIELD             0x00000001
 #define LIFTFL_DIS_ITEMS              0x00000002
@@ -1903,7 +1788,8 @@ struct script_data
 	// The zasm instructions used by this script.
 	// In quests before 3.0, each script had its own chunk of zasm.
 	// Since 3.0 all scripts share the same chunk.
-	std::shared_ptr<zasm_script> zasm_script = nullptr;
+	// TODO: The previous comment is not true _yet_, but will be when the "mergeslots3" branch is merged.
+	std::shared_ptr<::zasm_script> zasm_script = nullptr;
 	zasm_meta meta;
 	script_id id;
 

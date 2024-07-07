@@ -78,18 +78,16 @@ LOAD D2 0.0001; if() #163 Body Start
 ADDV D2 360
 STORE D2 0.0001
 GOTO 73; if() #163 Body End
-LOAD D2 0.0001; if() #448 Test AND if() #163 Else Start
+LOAD D2 0.0001; if() #447 Test AND if() #163 Else Start
 COMPAREV D2 360
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 73 ==; Test 'if'
-LOAD D2 0.0001; if() #448 Body Start
+LOAD D2 0.0001; if() #447 Body Start
 SUBV D2 360
-STORE D2 0.0001; if() #448 Body End
+STORE D2 0.0001; if() #447 Body End
 WAITFRAME; if() #163 Else End AND InlineFunc[void Waitframe()] Body AND while(true) #2 Body [Opt:AlwaysOn] End
 GOTO 6; while() #2 End AND [Opt:NeverRet] AND void run() Body End
 
 
-ALLOCATEGMEMV D2 4096 0; void run() Body Start
-SETR GD1 D2
-QUIT; void run() Body End
+QUIT; void run() Body

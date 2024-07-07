@@ -1,5 +1,5 @@
-#ifndef _WASM_COMPILER_H_
-#define _WASM_COMPILER_H_
+#ifndef WASM_COMPILER_H_
+#define WASM_COMPILER_H_
 
 #include <cstring>
 #include <stdint.h>

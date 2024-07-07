@@ -1,5 +1,5 @@
-#ifndef _ZQ_TILES_H_
-#define _ZQ_TILES_H_
+#ifndef ZQ_TILES_H_
+#define ZQ_TILES_H_
 
 #include "base/zdefs.h"
 

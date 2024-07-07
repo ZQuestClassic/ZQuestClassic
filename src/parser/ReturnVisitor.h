@@ -4,8 +4,8 @@
  * Author: Emily
  */
 
-#ifndef RETURNVISITOR_H
-#define RETURNVISITOR_H
+#ifndef RETURNVISITOR_H_
+#define RETURNVISITOR_H_
 
 #include "ASTVisitors.h"
 #include "DataStructs.h"

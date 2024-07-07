@@ -1,5 +1,5 @@
-#ifndef ZC_DIALOG_COMMON_H
-#define ZC_DIALOG_COMMON_H
+#ifndef ZC_DIALOG_COMMON_H_
+#define ZC_DIALOG_COMMON_H_
 
 #ifndef _WIN32
 #include <memory>

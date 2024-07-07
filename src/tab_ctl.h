@@ -1,5 +1,5 @@
-#ifndef _TAB_INTERN_H_
-#define _TAB_INTERN_H_
+#ifndef TAB_INTERN_H_
+#define TAB_INTERN_H_
 
 #include "base/zc_alleg.h"
 

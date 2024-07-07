@@ -1,4 +1,5 @@
 #include "paledit.h"
+#include "base/files.h"
 #include "info.h"
 #include "base/zsys.h"
 #include <gui/builder.h>
@@ -174,7 +175,7 @@ std::shared_ptr<GUI::Widget> PalEditDialog::view()
 					colSpan = 2,
 					onPressFunc = [&]()
 					{
-						if(getname("Save Palette (.png)","png",NULL,datapath,false))
+						if(prompt_for_new_file_compat("Save Palette (.png)","png",NULL,datapath,false))
 						{
 							if (paltab == 0)
 							{

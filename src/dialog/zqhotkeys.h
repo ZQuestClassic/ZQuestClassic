@@ -1,5 +1,5 @@
-#ifndef ZQ_DIALOG_HOTKEYS_H
-#define ZQ_DIALOG_HOTKEYS_H
+#ifndef ZQ_DIALOG_HOTKEYS_H_
+#define ZQ_DIALOG_HOTKEYS_H_
 
 #include <gui/dialog.h>
 #include <gui/label.h>

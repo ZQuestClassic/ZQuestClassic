@@ -430,6 +430,8 @@ static GUI::ListData comboRulesList
 		"If enabled, fairy ring flags will heal item jinxes when the player steps on them."
 		" This used to also affect potions and triforce pieces, but this behavior has since"
 		" been relocated to the respective item flags."},
+	{ "Fairy Rings Remove Shield Jinxes", qr_SHIELDBUBBLE,
+		"If enabled, fairy ring flags will heal shield jinxes when the player steps on them."},
 	{ "Light Beams draw Transparently", qr_LIGHTBEAM_TRANSPARENT, 
 		"Light Beams from Spotlight combos are transparently drawn."},
 	{ "Less Arbitrary Dock Combos", qr_BETTER_RAFT, 

@@ -1,5 +1,5 @@
-#ifndef _ZASM_DEFINES_H_
-#define _ZASM_DEFINES_H_
+#ifndef ZASM_DEFINES_H_
+#define ZASM_DEFINES_H_
 
 // Defines for the ZASM commands
 enum ASM_DEFINE
@@ -3081,8 +3081,9 @@ enum ASM_DEFINE
 #define COMBODTRIGSTUN          0x15BC
 #define COMBODTRIGBUNNY         0x15BD
 #define COMBODTRIGPUSHTIME      0x15BE
+#define COMBODTRIGSHIELDJINX    0x15BF
 
-#define NUMVARIABLES            0x15BF
+#define NUMVARIABLES            0x15C0
 
 //} End variables
 

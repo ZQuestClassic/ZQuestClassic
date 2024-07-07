@@ -1,5 +1,5 @@
-#ifndef OPCODE_H
-#define OPCODE_H
+#ifndef OPCODE_H_
+#define OPCODE_H_
 
 #include "Compiler.h"
 #include "zasm/defines.h"

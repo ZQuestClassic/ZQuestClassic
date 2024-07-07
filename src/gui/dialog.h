@@ -1,5 +1,5 @@
-#ifndef ZC_GUI_DIALOG_H
-#define ZC_GUI_DIALOG_H
+#ifndef ZC_GUI_DIALOG_H_
+#define ZC_GUI_DIALOG_H_
 
 #include "base/zapp.h"
 #include "dialog_message.h"

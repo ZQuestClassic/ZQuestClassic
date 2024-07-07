@@ -1,5 +1,5 @@
-#ifndef ZC_GUI_DDPANEL_H
-#define ZC_GUI_DDPANEL_H
+#ifndef ZC_GUI_DDPANEL_H_
+#define ZC_GUI_DDPANEL_H_
 
 #include "gui/widget.h"
 #include "gui/tabpanel.h"

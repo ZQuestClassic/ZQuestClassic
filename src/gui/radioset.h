@@ -1,5 +1,5 @@
-#ifndef ZC_GUI_RADIOSET_H
-#define ZC_GUI_RADIOSET_H
+#ifndef ZC_GUI_RADIOSET_H_
+#define ZC_GUI_RADIOSET_H_
 
 #include "gui/widget.h"
 #include "gui/radio.h"

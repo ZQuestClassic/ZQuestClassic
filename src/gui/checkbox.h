@@ -1,5 +1,5 @@
-#ifndef ZC_GUI_CHECKBOX_H
-#define ZC_GUI_CHECKBOX_H
+#ifndef ZC_GUI_CHECKBOX_H_
+#define ZC_GUI_CHECKBOX_H_
 
 #include "gui/widget.h"
 #include "gui/dialog_ref.h"

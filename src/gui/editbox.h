@@ -1,5 +1,5 @@
-#ifndef _EDITBOX_H_
-#define _EDITBOX_H_
+#ifndef EDITBOX_H_
+#define EDITBOX_H_
 
 #include "base/zc_alleg.h"
 #include "base/headers.h"

@@ -1,5 +1,5 @@
-#ifndef ZSCRIPT_OWNING_PTR_H
-#define ZSCRIPT_OWNING_PTR_H
+#ifndef ZSCRIPT_OWNING_PTR_H_
+#define ZSCRIPT_OWNING_PTR_H_
 
 ////////////////////////////////////////////////////////////////
 // owning_ptr - Owns its pointer, calls clone() on copy

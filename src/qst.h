@@ -1,5 +1,5 @@
-#ifndef _ZC_QST_H_
-#define _ZC_QST_H_
+#ifndef ZC_QST_H_
+#define ZC_QST_H_
 
 #include "base/zdefs.h"
 #include "subscr.h"

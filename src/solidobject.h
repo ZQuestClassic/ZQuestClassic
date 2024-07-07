@@ -1,5 +1,5 @@
-#ifndef _SOLIDOBJECT_H_
-#define _SOLIDOBJECT_H_
+#ifndef SOLIDOBJECT_H_
+#define SOLIDOBJECT_H_
 
 #include "base/zfix.h"
 #include "base/zc_alleg.h"

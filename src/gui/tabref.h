@@ -1,5 +1,5 @@
-#ifndef ZC_GUI_TABREF_H
-#define ZC_GUI_TABREF_H
+#ifndef ZC_GUI_TABREF_H_
+#define ZC_GUI_TABREF_H_
 
 #include "gui/widget.h"
 #include <vector>

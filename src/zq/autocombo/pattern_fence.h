@@ -1,5 +1,5 @@
-#ifndef _AUTOPATTERN_FENCE_H_
-#define _AUTOPATTERN_FENCE_H_
+#ifndef AUTOPATTERN_FENCE_H_
+#define AUTOPATTERN_FENCE_H_
 
 #include <functional>
 #include "base/autocombo.h"

@@ -3,8 +3,8 @@
 //which would otherwise break scripts from the LI build
 //~Joe123
 
-#ifndef _ZSCRIPTVER_H
-#define _ZSCRIPTVER_H
+#ifndef ZSCRIPTVER_H_
+#define ZSCRIPTVER_H_
 
 #include "base/zdefs.h"
 #include "zc/ffscript.h"

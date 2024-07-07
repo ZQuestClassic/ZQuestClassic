@@ -1,5 +1,5 @@
-#ifndef ZC_GUI_DIALOGREF_H
-#define ZC_GUI_DIALOGREF_H
+#ifndef ZC_GUI_DIALOGREF_H_
+#define ZC_GUI_DIALOGREF_H_
 
 #include <cstddef>
 #include <cstdint>

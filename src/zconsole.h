@@ -1,5 +1,5 @@
-#ifndef _zc_win_console_h_
-#define _zc_win_console_h_
+#ifndef ZC_WIN_CONSOLE_H_
+#define ZC_WIN_CONSOLE_H_
 
 
 #ifdef _WIN32

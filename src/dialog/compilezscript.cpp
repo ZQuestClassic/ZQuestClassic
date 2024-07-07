@@ -1,5 +1,6 @@
 #include "compilezscript.h"
 #include <gui/builder.h>
+#include "base/files.h"
 #include "zalleg/zalleg.h"
 #include "zq/zquest.h"
 #include "alert.h"
@@ -135,11 +136,6 @@ bool do_compile_and_slots(int assign_mode, bool delay)
 	int32_t code = em_compile_zscript(tmpfilename, consolefilename, quest_rules_hex.c_str());
 #else
 	int32_t code = -9999;
-	if(!fileexists(ZSCRIPT_FILE))
-	{
-		InfoDialog("Parser", ZSCRIPT_FILE " was not found!").show();
-		return false;
-	}
 	parser_console.kill();
 
 	std::vector<std::string> args = {
@@ -533,7 +529,7 @@ bool CompileZScriptDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 				saved = false;
 			}
 			
-			if(!getname("Load ZScript (.z, .zh, .zs, .zlib, etc.)", (char *)"z,zh,zs,zlib,zasm,zscript,squid" ,NULL,datapath,false))
+			if(!prompt_for_existing_file_compat("Load ZScript (.z, .zh, .zs, .zlib, etc.)", (char *)"z,zh,zs,zlib,zasm,zscript,squid" ,NULL,datapath,false))
 				return false;
 				
 			FILE *zscript = fopen(temppath,"r");
@@ -560,7 +556,7 @@ bool CompileZScriptDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		
 		case message::EXPORT:
 		{
-			if(!getname("Save ZScript (.zs)", "zs", NULL,datapath,false))
+			if(!prompt_for_new_file_compat("Save ZScript (.zs)", "zs", NULL,datapath,false))
 				break;
 				
 			if(exists(temppath))
