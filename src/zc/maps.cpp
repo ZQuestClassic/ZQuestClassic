@@ -5673,11 +5673,17 @@ void load_a_screen_and_layers(int dmap, int map, int screen, int ldir)
 	{
 		if(source->layermap[i]>0)
 		{
-			screens.push_back(new mapscr(*get_canonical_scr(source->layermap[i]-1, source->layerscreen[i])));
+			mapscr* layer_scr = new mapscr(*get_canonical_scr(source->layermap[i]-1, source->layerscreen[i]));
+			layer_scr->map = map;
+			layer_scr->screen = screen;
+			screens.push_back(layer_scr);
 		}
 		else
 		{
-			screens.push_back(new mapscr());
+			mapscr* layer_scr = new mapscr();
+			layer_scr->map = map;
+			layer_scr->screen = screen;
+			screens.push_back(layer_scr);
 		}
 		if (map == currmap) temporary_screens_currmap[screen*7+i+1] = screens[i+1];
 	}
@@ -6082,6 +6088,8 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 			if(scr->layermap[i]>0)
 			{
 				tmpscr2[i]=TheMaps[(scr->layermap[i]-1)*MAPSCRS+scr->layerscreen[i]];
+				tmpscr2[i].map = currmap;
+				tmpscr2[i].screen = screen;
 				
 				if(overlay)
 				{
@@ -6104,6 +6112,8 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 			else
 			{
 				(tmpscr2+i)->zero_memory();
+				tmpscr2[i].map = currmap;
+				tmpscr2[i].screen = screen;
 			}
 		}
 	}
@@ -6300,10 +6310,14 @@ void loadscr2(int32_t tmp,int32_t screen,int32_t)
 			if(scr.layermap[i]>0)
 			{
 				tmpscr2[i]=TheMaps[(scr.layermap[i]-1)*MAPSCRS+scr.layerscreen[i]];
+				tmpscr2[i].screen = screen;
+				tmpscr2[i].map = currmap;
 			}
 			else
 			{
 				(tmpscr2+i)->zero_memory();
+				tmpscr2[i].screen = screen;
+				tmpscr2[i].map = currmap;
 			}
 		}
 	}
