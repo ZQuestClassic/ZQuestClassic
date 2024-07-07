@@ -4,6 +4,7 @@
 #include <string>
 #include <cstddef>
 #include <optional>
+#include <filesystem>
 #include <fmt/format.h>
 
 #ifndef __EMSCRIPTEN__
@@ -14,6 +15,8 @@
 #include <dispatch/dispatch.h>
 #include <dispatch/queue.h>
 #endif
+
+namespace fs = std::filesystem;
 
 char temppath[4096];
 
@@ -90,8 +93,16 @@ enum class FileMode
 
 static std::optional<std::string> open_native_dialog_impl(FileMode mode, std::string initial_path, std::vector<nfdfilteritem_t> filters)
 {
+#ifdef _WIN32
 	// Note: on Windows the last folder used is always the initial path - see https://github.com/btzy/nativefiledialog-extended/issues/132#issuecomment-1993512443
+	// It also doesn't like paths of the form `./tilesets` (the leading `./`), and must be an absolute path if set ... for now lets just ignore this thing
+	// entirely on Windows.
+	// At least with NFD, there's no way to simply "open at this folder" due to this behavior.
+	fs::path current_path = fs::current_path();
+	const char* initial_path_ = current_path.string().c_str();
+#else
 	const char* initial_path_ = initial_path.c_str();
+#endif
 	nfdchar_t *outPath;
 	nfdresult_t result;
 
