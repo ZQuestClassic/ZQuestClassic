@@ -1156,27 +1156,27 @@ static void apply_state_changes_to_screen(mapscr& scr, int32_t map, int32_t scre
 	}
 	if(flags&mLOCKBLOCK)              // if special stuff done before
 	{
-	    remove_screenstatecombos2(&scr, screen, false, cLOCKBLOCK, cLOCKBLOCK2);
+	    remove_screenstatecombos2(&scr, false, cLOCKBLOCK, cLOCKBLOCK2);
 	}
 
 	if(flags&mBOSSLOCKBLOCK)          // if special stuff done before
 	{
-	    remove_screenstatecombos2(&scr, screen, false, cBOSSLOCKBLOCK, cBOSSLOCKBLOCK2);
+	    remove_screenstatecombos2(&scr, false, cBOSSLOCKBLOCK, cBOSSLOCKBLOCK2);
 	}
 
 	if(flags&mCHEST)              // if special stuff done before
 	{
-	    remove_screenstatecombos2(&scr, screen, false, cCHEST, cCHEST2);
+	    remove_screenstatecombos2(&scr, false, cCHEST, cCHEST2);
 	}
 
 	if(flags&mCHEST)              // if special stuff done before
 	{
-	    remove_screenstatecombos2(&scr, screen, false, cLOCKEDCHEST, cLOCKEDCHEST2);
+	    remove_screenstatecombos2(&scr, false, cLOCKEDCHEST, cLOCKEDCHEST2);
 	}
 
 	if(flags&mBOSSCHEST)              // if special stuff done before
 	{
-	    remove_screenstatecombos2(&scr, screen, false, cBOSSCHEST, cBOSSCHEST2);
+	    remove_screenstatecombos2(&scr, false, cBOSSCHEST, cBOSSCHEST2);
 	}
 
 	int32_t mi = (map*MAPSCRSNORMAL)+screen;
@@ -1186,7 +1186,7 @@ static void apply_state_changes_to_screen(mapscr& scr, int32_t map, int32_t scre
 
 static int32_t MAPCOMBO3_impl(int32_t map, int32_t screen, int32_t layer, int32_t pos, bool secrets)
 {
-	const mapscr *m = &TheMaps[(map*MAPSCRS)+screen];
+	const mapscr *m = get_canonical_scr(map, screen);
 	if(!m->valid) return 0;
 
 	int32_t mi = (map*MAPSCRSNORMAL)+screen;
@@ -2324,12 +2324,8 @@ bool reveal_hidden_stairs(mapscr *s, int32_t screen, bool redraw)
     return false;
 }
 
-// TODO z3 remove screen
-bool remove_screenstatecombos2(mapscr *s, int32_t screen, bool do_layers, int32_t what1, int32_t what2)
+bool remove_screenstatecombos2(mapscr *s, bool do_layers, int32_t what1, int32_t what2)
 {
-	if (screen >= 128) s = &special_warp_return_screen;
-	DCHECK(s);
-	
 	bool didit=false;
 	
 	for(int32_t i=0; i<176; i++)
@@ -2347,7 +2343,7 @@ bool remove_screenstatecombos2(mapscr *s, int32_t screen, bool do_layers, int32_
 	{
 		for(int32_t j=0; j<6; j++)
 		{
-			mapscr* layer_scr = get_layer_scr_valid(screen, j);
+			mapscr* layer_scr = get_layer_scr_valid(s->screen, j);
 			if (!layer_scr) continue;
 			
 			for(int32_t i=0; i<176; i++)
@@ -2551,27 +2547,27 @@ void clear_xdoors_mi(mapscr *scr, int32_t mi, bool triggers)
 
 bool remove_lockblocks(mapscr* s)
 {
-    return remove_screenstatecombos2(s, s->screen, true, cLOCKBLOCK, cLOCKBLOCK2);
+    return remove_screenstatecombos2(s, true, cLOCKBLOCK, cLOCKBLOCK2);
 }
 
 bool remove_bosslockblocks(mapscr* s)
 {
-    return remove_screenstatecombos2(s, s->screen, true, cBOSSLOCKBLOCK, cBOSSLOCKBLOCK2);
+    return remove_screenstatecombos2(s, true, cBOSSLOCKBLOCK, cBOSSLOCKBLOCK2);
 }
 
 bool remove_chests(mapscr* s)
 {
-    return remove_screenstatecombos2(s, s->screen, true, cCHEST, cCHEST2);
+    return remove_screenstatecombos2(s, true, cCHEST, cCHEST2);
 }
 
 bool remove_lockedchests(mapscr* s)
 {
-    return remove_screenstatecombos2(s, s->screen, true, cLOCKEDCHEST, cLOCKEDCHEST2);
+    return remove_screenstatecombos2(s, true, cLOCKEDCHEST, cLOCKEDCHEST2);
 }
 
 bool remove_bosschests(mapscr* s)
 {
-    return remove_screenstatecombos2(s, s->screen, true, cBOSSCHEST, cBOSSCHEST2);
+    return remove_screenstatecombos2(s, true, cBOSSCHEST, cBOSSCHEST2);
 }
 
 
