@@ -2336,7 +2336,6 @@ void HeroClass::draw(BITMAP* dest)
 		textout_shadowed_ex(framebuf,font, buf, 2,72,WHITE,BLACK,-1);
 	}*/
 	int32_t oxofs = xofs, oyofs = yofs;
-	bool shieldModify = false;
 	bool invisible=(dontdraw>0) || (hero_scr->flags3&fINVISHERO);
 	
 	{
@@ -2835,7 +2834,6 @@ void HeroClass::draw(BITMAP* dest)
 					if(dir>up)
 					{
 						useltm=true;
-						shieldModify=true;
 					}
 					
 					if(advancetile && lstep>=6)
@@ -2950,7 +2948,6 @@ void HeroClass::draw(BITMAP* dest)
 					if(dir > up)
 					{
 						useltm=true;
-						shieldModify=true;
 					}
 					if(advancetile) tile += anim_3_4(lstep,7)*(extend==2?2:1);
 				}
@@ -3052,7 +3049,6 @@ void HeroClass::draw(BITMAP* dest)
 					if(dir>up)
 					{
 						useltm=true;
-						shieldModify=true;
 					}
 					
 					if(advancetile && (action == walking || action == hopping || action == climbcoverbottom || action == climbcovertop))
@@ -14499,8 +14495,7 @@ void HeroClass::mod_steps(std::vector<zfix*>& v)
 		rpos_t slow_rpos = COMBOPOS_REGION(x+7, y+8);
 		for (int q = 6; q >= 0; --q)
 		{
-			int cid = get_rpos_handle(slow_rpos, q).data();
-			newcombo const& cmb = combobuf[cid];
+			auto& cmb = get_rpos_handle(slow_rpos, q).combo();
 
 			if (cmb.speed_mult != 1 || cmb.speed_div || cmb.speed_add)
 			{
@@ -32959,7 +32954,6 @@ void HeroClass::explode(int32_t type)
 	static byte herotilebuf[256];
 	int32_t ltile=0;
 	int32_t lflip=0;
-	bool shieldModify=true;
 	unpack_tile(newtilebuf, tile, flip, true);
 	memcpy(herotilebuf, unpackbuf, 256);
 	tempx=Hero.getX();

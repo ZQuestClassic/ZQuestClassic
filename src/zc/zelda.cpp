@@ -2863,7 +2863,6 @@ void do_magic_casting()
     static byte herotilebuf[256];
     int32_t ltile=0;
     int32_t lflip=0;
-    bool shieldModify=true;
     
     if(magicitem==-1)
     {

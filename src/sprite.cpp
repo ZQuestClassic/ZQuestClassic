@@ -1180,10 +1180,9 @@ void sprite::draw(BITMAP* dest)
 				BITMAP *temp = create_bitmap_ex(8,48,32);
 				BITMAP *temp2 = create_bitmap_ex(8, 32, 32);
 				blit(dest, temp, sx-16, sy-16, 0, 0, 48, 32);
-				//clear_bitmap(temp);
 				clear_bitmap(sprBMP2);
 
-				BITMAP* temp3 = create_bitmap_ex(8, 32, 32);
+				BITMAP* temp3 = create_bitmap_ex(8, 48, 32);
 				clear_bitmap(temp3);
             
 				overtile16(temp3,TILEBOUND(((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW),16,0,cs,((scriptflip > -1) ? scriptflip : flip));
@@ -1197,7 +1196,7 @@ void sprite::draw(BITMAP* dest)
 				if (sprite_flicker_color)
 					SPRITE_MONOCOLOR(temp3);
 
-				masked_blit(temp3, temp, 0, 0, 0, 0, 32, 32);
+				masked_blit(temp3, temp, 0, 0, 0, 0, 48, 32);
 
 				if ( rotation )
 				{
