@@ -113,7 +113,9 @@ extern region current_region, scrolling_region;
 
 int get_region_id(int dmap, int screen);
 int get_current_region_id();
-bool is_in_current_region(int scr);
+bool is_in_current_region(int map, int screen);
+bool is_in_current_region(int screen);
+bool is_in_current_region(mapscr* scr);
 bool is_valid_rpos(rpos_t rpos);
 void z3_calculate_region(int dmap, int screen, region& region, int& region_scr_dx, int& region_scr_dy);
 void z3_load_region(int screen, int dmap = -1);
@@ -122,6 +124,7 @@ void z3_load_region(int screen, int dmap = -1);
 // The first item is the first element of the array of rpos_handles,
 // and the second item is the number of elements.
 std::tuple<const rpos_handle_t*, int> z3_get_current_region_handles();
+std::tuple<const rpos_handle_t*, int> z3_get_current_region_handles(mapscr* scr);
 void z3_mark_current_region_handles_dirty();
 void z3_clear_temporary_screens();
 std::vector<mapscr*> z3_take_temporary_screens();

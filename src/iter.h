@@ -209,17 +209,32 @@ ZC_FORCE_INLINE std::optional<ffc_handle_t> find_ffc(T&& fn)
 	return std::nullopt;
 }
 
-// __attribute__((pure)) static mapscr* get_layer_pure(int map, int screen, int layer)
-// {
-// 	return get_layer_scr(map, screen, layer);
-// }
-
 // Iterates over every rpos for a specified screen.
 // Callback function: void fn(const pos_handle_t& pos_handle_t)
 template<typename T>
 requires std::is_invocable_v<T, const rpos_handle_t&>
 ZC_FORCE_INLINE void for_every_rpos_in_screen(mapscr* scr, T&& fn)
 {
+	auto [handles, count] = z3_get_current_region_handles(scr);
+
+	if (handles != nullptr)
+	{
+		for (int i = 0; i < count; i++)
+		{
+			rpos_handle_t rpos_handle = handles[i];
+			for (int j = 0; j < 176; j++)
+			{
+				fn(rpos_handle);
+				rpos_handle.rpos = (rpos_t)((int)rpos_handle.rpos + 1);
+				rpos_handle.pos += 1;
+			}
+		}
+
+		return;
+	}
+
+	// Not in this region.
+
 	rpos_handle_t rpos_handle;
 	int map = scr->map;
 	int screen = scr->screen;
@@ -227,7 +242,6 @@ ZC_FORCE_INLINE void for_every_rpos_in_screen(mapscr* scr, T&& fn)
 	rpos_t base_rpos = POS_TO_RPOS(0, z3_get_region_relative_dx(screen), z3_get_region_relative_dy(screen));
 	for (int lyr = 0; lyr <= 6; ++lyr)
 	{
-		// TODO z3 would `__attribute__((pure))` on get_layer_scr allow compiler to optimize more here?
 		rpos_handle.scr = lyr == 0 ? scr : get_layer_scr(map, screen, lyr - 1);
 		rpos_handle.layer = lyr;
 		for (int pos = 0; pos < 176; ++pos)

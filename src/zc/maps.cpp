@@ -51,10 +51,12 @@ extern HeroClass Hero;
 
 static std::map<int, std::vector<mapscr*>> temporary_screens;
 static mapscr* temporary_screens_currmap[136*7];
-static bool screen_in_current_region[176];
+// Set by z3_load_region.
+static bool screen_in_current_region[136];
 static rpos_handle_t current_region_rpos_handles[136*7];
 static bool current_region_rpos_handles_dirty;
 static int current_region_screen_count;
+static std::pair<const rpos_handle_t*, int> current_region_rpos_handles_scr[136];
 
 viewport_t viewport;
 ViewportMode viewport_mode;
@@ -93,10 +95,19 @@ static bool is_same_region_id(int region_origin_scr, int dmap, int scr)
 	return region_id && region_id == get_region_id(dmap, scr);
 }
 
-bool is_in_current_region(int scr)
+bool is_in_current_region(int map, int screen)
 {
-	// Set by z3_load_region.
-	return screen_in_current_region[scr];
+	return map == currmap && screen >= 0 && screen < 128 && screen_in_current_region[screen];
+}
+
+bool is_in_current_region(int screen)
+{
+	return screen < 128 && screen_in_current_region[screen];
+}
+
+bool is_in_current_region(mapscr* scr)
+{
+	return scr->map == currmap && scr->screen >= 0 && scr->screen < 128 && screen_in_current_region[scr->screen];
 }
 
 bool is_valid_rpos(rpos_t rpos)
@@ -229,8 +240,9 @@ void z3_load_region(int screen, int dmap)
 	{
 		for (int y = 0; y < current_region.screen_height; y++)
 		{
-			int scr = cur_origin_screen_index + x + y*16;
-			screen_in_current_region[scr] = true;
+			int screen = cur_origin_screen_index + x + y*16;
+			if (screen < 136)
+				screen_in_current_region[screen] = true;
 		}
 	}
 }
@@ -245,9 +257,10 @@ std::tuple<const rpos_handle_t*, int> z3_get_current_region_handles()
 		{
 			for (int x = 0; x < current_region.screen_width; x++)
 			{
+				int screen = cur_origin_screen_index + x + y*16;
+				int index_start = current_region_screen_count;
 				for (int layer = 0; layer <= 6; layer++)
 				{
-					int screen = cur_origin_screen_index + x + y*16;
 					mapscr* scr = get_layer_scr(screen, layer - 1);
 					if (!scr->valid)
 					{
@@ -259,11 +272,24 @@ std::tuple<const rpos_handle_t*, int> z3_get_current_region_handles()
 					current_region_rpos_handles[current_region_screen_count] = {scr, screen, layer, base_rpos, 0};
 					current_region_screen_count += 1;
 				}
+
+				int num_handles_for_scr = current_region_screen_count - index_start;
+				current_region_rpos_handles_scr[screen] = {&current_region_rpos_handles[index_start], num_handles_for_scr};
 			}
 		}
 	}
 
 	return {current_region_rpos_handles, current_region_screen_count};
+}
+
+std::tuple<const rpos_handle_t*, int> z3_get_current_region_handles(mapscr* scr)
+{
+	if (scr == &special_warp_return_screen)
+		return {nullptr, 0};
+
+	DCHECK(is_in_current_region(scr));
+	z3_get_current_region_handles();
+	return current_region_rpos_handles_scr[scr->screen];
 }
 
 void z3_mark_current_region_handles_dirty()
@@ -357,12 +383,12 @@ void z3_update_heroscr()
 	int y = vbound(Hero.getY().getInt(), 0, world_h - 1);
 	int dx = x / 256;
 	int dy = y / 176;
-	int newscr = cur_origin_screen_index + dx + dy * 16;
-	if (hero_screen != newscr && dx >= 0 && dy >= 0 && dx < 16 && dy < 8 && is_in_current_region(newscr))
+	int new_screen = cur_origin_screen_index + dx + dy * 16;
+	if (hero_screen != new_screen && dx >= 0 && dy >= 0 && dx < 16 && dy < 8 && is_in_current_region(new_screen))
 	{
 		region_scr_dx = dx;
 		region_scr_dy = dy;
-		hero_screen = newscr;
+		hero_screen = new_screen;
 		hero_scr = get_scr(hero_screen);
 		playLevelMusic();
 	}
@@ -372,14 +398,14 @@ bool edge_of_region(direction dir)
 {
 	if (!is_z3_scrolling_mode()) return true;
 
-	int scr_x = hero_screen % 16;
-	int scr_y = hero_screen / 16;
-	if (dir == up) scr_y -= 1;
-	if (dir == down) scr_y += 1;
-	if (dir == left) scr_x -= 1;
-	if (dir == right) scr_x += 1;
-	if (scr_x < 0 || scr_x > 16 || scr_y < 0 || scr_y > 8) return true;
-	return !is_in_current_region(scr_xy_to_index(scr_x, scr_y));
+	int screen_x = hero_screen % 16;
+	int screen_y = hero_screen / 16;
+	if (dir == up) screen_y -= 1;
+	if (dir == down) screen_y += 1;
+	if (dir == left) screen_x -= 1;
+	if (dir == right) screen_x += 1;
+	if (screen_x < 0 || screen_x > 16 || screen_y < 0 || screen_y > 8) return true;
+	return !is_in_current_region(scr_xy_to_index(screen_x, screen_y));
 }
 
 // x, y are world coordinates (aka, in relation to origin screen at the top-left)
@@ -1218,7 +1244,7 @@ int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, int32_t x, int32_t
 	DCHECK_LAYER_NEG1_INDEX(layer);
 	DCHECK(map >= 0 && screen >= 0);
 
-	if (map == currmap && is_in_current_region(screen)) return MAPCOMBO2(layer, x, y);
+	if (is_in_current_region(map, screen)) return MAPCOMBO2(layer, x, y);
 
 	// Screen is not in the current region, so we have to load and trigger some secrets.
 	int pos = COMBOPOS(x, y);
@@ -1231,7 +1257,7 @@ int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, rpos_t rpos, bool 
 	DCHECK(map >= 0 && screen >= 0);
 	DCHECK(is_valid_rpos(rpos));
 	
-	if (map == currmap && is_in_current_region(screen)) return MAPCOMBO(get_rpos_handle(rpos, layer + 1));
+	if (is_in_current_region(map, screen)) return MAPCOMBO(get_rpos_handle(rpos, layer + 1));
 	
 	// Screen is not currently loaded, so we have to load and trigger some secrets.
 	return MAPCOMBO3_impl(map, screen, layer, RPOS_TO_POS(rpos), secrets);
@@ -1449,7 +1475,7 @@ void setmapflag_mi(mapscr* scr, int32_t mi2, int32_t flag)
                 if (replay_is_active())
                     replay_step_comment(fmt::format("map {} scr {} flag {} carry", nmap, nscr, flag > 0 ? screenstate_string[(int32_t)temp] : "<Unknown>"));
                 game->maps[((nmap-1)<<7)+nscr] |= flag;
-				if (flag == mSECRET && nmap-1 == currmap && is_in_current_region(nscr))
+				if (flag == mSECRET && is_in_current_region(nmap - 1, nscr))
 				{
 					trigger_secrets_for_screen(TriggerSource::SecretsScreenState, nscr);
 				}
