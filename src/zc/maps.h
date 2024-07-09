@@ -119,6 +119,7 @@ bool is_in_current_region(mapscr* scr);
 bool is_valid_rpos(rpos_t rpos);
 void z3_calculate_region(int dmap, int screen, region& region, int& region_scr_dx, int& region_scr_dy);
 void z3_load_region(int screen, int dmap = -1);
+void z3_prepare_current_region_handles();
 // Returns a rpos_handle of the top-left position for every valid
 // screen (including each layer) for the current region.
 // The first item is the first element of the array of rpos_handles,

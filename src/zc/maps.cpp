@@ -247,48 +247,48 @@ void z3_load_region(int screen, int dmap)
 	}
 }
 
-std::tuple<const rpos_handle_t*, int> z3_get_current_region_handles()
+void z3_prepare_current_region_handles()
 {
-	if (current_region_rpos_handles_dirty)
+	current_region_rpos_handles_dirty = false;
+	current_region_screen_count = 0;
+	for (int y = 0; y < current_region.screen_height; y++)
 	{
-		current_region_rpos_handles_dirty = false;
-		current_region_screen_count = 0;
-		for (int y = 0; y < current_region.screen_height; y++)
+		for (int x = 0; x < current_region.screen_width; x++)
 		{
-			for (int x = 0; x < current_region.screen_width; x++)
+			int screen = cur_origin_screen_index + x + y*16;
+			int index_start = current_region_screen_count;
+			for (int layer = 0; layer <= 6; layer++)
 			{
-				int screen = cur_origin_screen_index + x + y*16;
-				int index_start = current_region_screen_count;
-				for (int layer = 0; layer <= 6; layer++)
+				mapscr* scr = get_layer_scr(screen, layer - 1);
+				if (!scr->valid)
 				{
-					mapscr* scr = get_layer_scr(screen, layer - 1);
-					if (!scr->valid)
-					{
-						if (layer == 0) break;
-						continue;
-					}
-
-					rpos_t base_rpos = POS_TO_RPOS(0, z3_get_region_relative_dx(screen), z3_get_region_relative_dy(screen));
-					current_region_rpos_handles[current_region_screen_count] = {scr, screen, layer, base_rpos, 0};
-					current_region_screen_count += 1;
+					if (layer == 0) break;
+					continue;
 				}
 
-				int num_handles_for_scr = current_region_screen_count - index_start;
-				current_region_rpos_handles_scr[screen] = {&current_region_rpos_handles[index_start], num_handles_for_scr};
+				rpos_t base_rpos = POS_TO_RPOS(0, z3_get_region_relative_dx(screen), z3_get_region_relative_dy(screen));
+				current_region_rpos_handles[current_region_screen_count] = {scr, screen, layer, base_rpos, 0};
+				current_region_screen_count += 1;
 			}
+
+			int num_handles_for_scr = current_region_screen_count - index_start;
+			current_region_rpos_handles_scr[screen] = {&current_region_rpos_handles[index_start], num_handles_for_scr};
 		}
 	}
+}
 
+std::tuple<const rpos_handle_t*, int> z3_get_current_region_handles()
+{
+	DCHECK(!current_region_rpos_handles_dirty);
 	return {current_region_rpos_handles, current_region_screen_count};
 }
 
 std::tuple<const rpos_handle_t*, int> z3_get_current_region_handles(mapscr* scr)
 {
-	if (scr == &special_warp_return_screen)
+	if (scr == &special_warp_return_screen || current_region_rpos_handles_dirty)
 		return {nullptr, 0};
 
 	DCHECK(is_in_current_region(scr));
-	z3_get_current_region_handles();
 	return current_region_rpos_handles_scr[scr->screen];
 }
 
@@ -5718,8 +5718,7 @@ void load_a_screen_and_layers(int dmap, int map, int screen, int ldir)
 		if(game->maps[map*MAPSCRSNORMAL + screen] & mSECRET)    // if special stuff done before
 		{
 			reveal_hidden_stairs(base_scr, screen, false);
-			bool do_layers = true;
-			trigger_secrets_for_screen(TriggerSource::SecretsScreenState, screen, false);
+			trigger_secrets_for_screen(TriggerSource::SecretsScreenState, screen, base_scr, false);
 		}
 		if(game->maps[map*MAPSCRSNORMAL + screen] & mLIGHTBEAM) // if special stuff done before
 		{
@@ -5932,6 +5931,8 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 			}
 		}
 	}
+
+	z3_prepare_current_region_handles();
 
 	// Temp set currdmap so that get_layer_scr -> load_a_screen_and_layers will know if this is a region.
 	int o_currdmap = currdmap;
