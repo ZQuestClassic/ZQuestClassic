@@ -1502,6 +1502,13 @@ void unsetmapflag(int32_t flag, bool anyflag)
     unsetmapflag((currmap*MAPSCRSNORMAL)+homescr,flag,anyflag);
 }
 
+void unsetmapflag(mapscr* scr, int32_t flag, bool anyflag)
+{
+	if (scr->screen >= 0x80) scr = &special_warp_return_screen;
+	int mi = (currmap * MAPSCRSNORMAL) + scr->screen;
+	unsetmapflag(mi, flag, anyflag);
+}
+
 void unsetmapflag(int32_t mi2, int32_t flag, bool anyflag)
 {
     byte cscr = mi2&((1<<7)-1);

@@ -20654,10 +20654,9 @@ bool parsemsgcode()
 		case MSGC_TRIGSECRETS:
 		{
 			bool perm = (bool)grab_next_argument();
-			// TODO z3 get screen that msg came from
-			trigger_secrets_for_screen(TriggerSource::SCC, currscr, false);
+			trigger_secrets_for_screen(TriggerSource::SCC, msgscr->screen, false);
 			if(perm)
-				setmapflag(mSECRET);
+				setmapflag(msgscr, mSECRET);
 			return true;
 		}
 		case MSGC_TRIG_CMB_COPYCAT:
@@ -20677,9 +20676,9 @@ bool parsemsgcode()
 			}
 			bool state = bool(grab_next_argument());
 			if(state)
-				setmapflag(1<<flag);
+				setmapflag(msgscr, 1<<flag);
 			else
-				unsetmapflag(1<<flag,true);
+				unsetmapflag(msgscr, 1<<flag, true);
 			return true;
 		}
 		case MSGC_SETSCREENSTATER:
@@ -21237,7 +21236,7 @@ disappear:
 				}
 				adjustmagic = false;
 				sfx(WAV_SCALE);
-				setmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
+				setmapflag(msgscr, (currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
 			}
 			
 			if(learnslash)
@@ -21245,7 +21244,7 @@ disappear:
 				game->set_canslash(1);
 				learnslash = false;
 				sfx(WAV_SCALE);
-				setmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
+				setmapflag(msgscr, (currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
 			}
 		}
 	}

@@ -216,6 +216,7 @@ void setmapflag_mi(int32_t mi2, int32_t flag);
 void setmapflag_mi(mapscr* scr, int32_t mi2, int32_t flag);
 void unsetmapflag(int32_t mi2, int32_t flag, bool anyflag=false);
 void unsetmapflag(int32_t flag = 32,bool anyflag = false);
+void unsetmapflag(mapscr* scr, int32_t flag = 32, bool anyflag = false);
 bool getmapflag(int32_t flag = 32); // 32 = mSPECIALITEM
 bool getmapflag(int32_t screen, int32_t flag);
 
