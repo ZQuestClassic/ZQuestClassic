@@ -34,6 +34,7 @@
 #include "zq/render.h"
 #include "zinfo.h"
 #include <fmt/format.h>
+#include <functional>
 #include "zq/moveinfo.h"
 using std::set;
 
@@ -5798,6 +5799,27 @@ static NewMenu select_tile_view_menu
 	{ "Hide 8-bit marker", hide_8bit_marker, MENUID_SELTILE_VIEW_HIDE_8BIT },
 };
 
+static std::function<void(int)> select_tile_color_depth_cb;
+
+static void set_tile_color_depth_4()
+{
+	select_tile_color_depth_cb(tf4Bit);
+}
+static void set_tile_color_depth_8()
+{
+	select_tile_color_depth_cb(tf8Bit);
+}
+enum
+{
+	MENUID_SELTILE_COLOR_DEPTH_4_BIT,
+	MENUID_SELTILE_COLOR_DEPTH_8_BIT,
+};
+static NewMenu select_tile_color_depth_menu
+{
+	{ "4-bit", set_tile_color_depth_4, MENUID_SELTILE_COLOR_DEPTH_4_BIT },
+	{ "8-bit", set_tile_color_depth_8, MENUID_SELTILE_COLOR_DEPTH_8_BIT },
+};
+
 //returns the row the tile is in on its page
 int32_t tile_page_row(int32_t tile)
 {
@@ -8494,17 +8516,24 @@ void show_blank_tile(int32_t t)
 	jwin_alert("Blank Tile Information",tbuf,tbuf2,tbuf3,"&OK",NULL,13,27,get_zc_font(font_lfont));
 }
 
-void do_convert_tile(int32_t tile, int32_t tile2, int32_t cs, bool rect_sel, bool fourbit, bool shift, bool alt)
+static void do_convert_tile(int32_t tile, int32_t tile2, int32_t cs, bool rect_sel, int format, bool shift, bool alt, bool skip_prompt = false)
 {
+	int num_bits;
+	if (format == tf4Bit)
+		num_bits = 4;
+	else if (format == tf8Bit)
+		num_bits = 8;
+	else assert(false);
+
 	char buf[80];
-	sprintf(buf, "Do you want to convert the selected %s to %d-bit color?", tile==tile2?"tile":"tiles",fourbit?4:8);
+	sprintf(buf, "Do you want to convert the selected %s to %d-bit color?", tile==tile2?"tile":"tiles",num_bits);
 	
-	if(jwin_alert("Convert Tile?",buf,NULL,NULL,"&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
+	if (skip_prompt || jwin_alert("Convert Tile?",buf,NULL,NULL,"&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
 	{
 		go_tiles();
 		saved=false;
 		
-		if(fourbit)
+		if(format == tf4Bit)
 		{
 			memset(cset_reduce_table, 0, 256);
 			memset(col_diff,0,3*128);
@@ -8524,8 +8553,8 @@ void do_convert_tile(int32_t tile, int32_t tile2, int32_t cs, bool rect_sel, boo
 			if(!rect_sel ||
 					((TILECOL(t)>=TILECOL(firsttile)) &&
 					 (TILECOL(t)<=TILECOL(lasttile))))
-				convert_tile(t, fourbit?tf4Bit:tf8Bit, cs, shift, alt);
-				
+				convert_tile(t, format, cs, shift, alt);
+
 		tile=tile2=zc_min(tile,tile2);
 	}
 }
@@ -9865,8 +9894,9 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 					bool shift=(key[KEY_LSHIFT] || key[KEY_RSHIFT]);
 					bool control=(CHECK_CTRL_CMD);
 					bool alt=(key[KEY_ALT] || key[KEY_ALTGR]);
+					int format = control ? tf4Bit : tf8Bit;
 					
-					do_convert_tile(tile, tile2, cs, rect_sel, control, shift, alt);
+					do_convert_tile(tile, tile2, cs, rect_sel, format, shift, alt);
 					register_blank_tiles();
 				}
 				break;
@@ -10151,6 +10181,19 @@ REDRAW:
 			select_tile_view_menu.select_uid(MENUID_SELTILE_VIEW_HIDE_UNUSED, HIDE_UNUSED);
 			select_tile_view_menu.select_uid(MENUID_SELTILE_VIEW_HIDE_BLANK, HIDE_BLANK);
 			select_tile_view_menu.select_uid(MENUID_SELTILE_VIEW_HIDE_8BIT, HIDE_8BIT_MARKER);
+
+			int current_tile_format = MENUID_SELTILE_COLOR_DEPTH_4_BIT;
+			if (newtilebuf[tile].format == tf8Bit)
+				current_tile_format = MENUID_SELTILE_COLOR_DEPTH_8_BIT;
+			select_tile_color_depth_menu.select_only_uid(current_tile_format);
+			select_tile_color_depth_cb = [&](int format){
+				if (newtilebuf[tile].format == format)
+					return;
+
+				bool skip_prompt = true;
+				do_convert_tile(tile, tile2, cs, rect_sel, format, false, false, skip_prompt);
+			};
+
 			NewMenu rcmenu
 			{
 				{ "Copy", [&]()
@@ -10194,11 +10237,7 @@ REDRAW:
 						bool b = scale_or_rotate_tiles(tile, tile2, cs, true);
 						if(saved) saved = !b;
 					}, nullopt, type != 0 },
-				{ "Color Depth", [&]()
-					{
-						do_convert_tile(tile, tile2, cs, rect_sel,
-							(newtilebuf[tile].format!=tf4Bit), false, false);
-					} },
+				{ "Color Depth", &select_tile_color_depth_menu },
 				{},
 				{ "Blank?", [&]()
 					{
