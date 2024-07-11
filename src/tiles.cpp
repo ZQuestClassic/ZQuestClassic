@@ -52,7 +52,7 @@ bool isblanktile(tiledata *buf, int32_t i)
 
 const char *tileformat_string[tfMax] =
 {
-    "(Invalid)", "4-bit", "8-bit", "16-bit", "24-bit", "32-bit"
+    "(Invalid)", "4-bit", "8-bit", "16-bit (unsupported)", "24-bit (unsupported)", "32-bit (unsupported)"
 };
 
 void register_blank_tile_quarters(int32_t tile)
