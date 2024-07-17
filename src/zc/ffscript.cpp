@@ -32219,16 +32219,6 @@ void FFScript::do_paldata_write_sprite()
 				loadpalset(14, poSPRITE255 + currspal14, false);
 			}
 
-			if (isMonochrome()) {
-				if (lastMonoPreset) {
-					restoreMonoPreset();
-				}
-				else {
-					setMonochrome(false);
-					setMonochrome(true);
-				}
-			}
-
 			if (isUserTinted()) {
 				restoreTint();
 			}
@@ -32283,16 +32273,6 @@ void FFScript::do_paldata_write_spritecset()
 			if (changed14)
 			{
 				loadpalset(14, poSPRITE255 + currspal14, false);
-			}
-
-			if (isMonochrome()) {
-				if (lastMonoPreset) {
-					restoreMonoPreset();
-				}
-				else {
-					setMonochrome(false);
-					setMonochrome(true);
-				}
 			}
 
 			if (isUserTinted()) {
@@ -39163,14 +39143,6 @@ int32_t run_script_int(bool is_jitted)
 				break;
 			}
 			
-			//Monochrome
-			case GREYSCALEON:
-				setMonochrome(true);
-				break;
-			case GREYSCALEOFF:
-				setMonochrome(false);
-				break;
-			
 			case TINT:
 			{
 				FFCore.Tint();
@@ -43649,14 +43621,12 @@ int32_t FFScript::getSubscreenScrollSpeed()
 
 void FFScript::do_greyscale(const bool v)
 {
-	bool on = (SH::get_arg(sarg1, v)) != 0;
-	setMonochrome(on);
+	// This has been removed.
 }
 
 void FFScript::do_monochromatic(const bool v)
 {
-	int32_t colour = SH::get_arg(sarg1, v)/10000;
-	setMonochromatic(colour);
+	// This has been removed.
 }
 
 void FFScript::gfxmonohue()

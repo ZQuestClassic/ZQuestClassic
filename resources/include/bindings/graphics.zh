@@ -39,21 +39,6 @@ class Graphics {
 	//   FXZAPR D3
 	internal void Zap(bool style_in);
 
-	// Enables or disables 'greyscale' mode. [MonochromeHue] works similarly,
-	// but with more options.
-	//
-	// @zasm
-	//   POP D3
-	//   GREYSCALER D3
-	internal void Greyscale(bool enable);
-
-	// Activates a monochrome preset.
-	//
-	// @zasm
-	//   POP D3
-	//   MONOCHROMER D3
-	internal void Monochrome(int preset);
-
 	// Tints the palette by adding `red`, `green`, and `blue` to the respective
 	// values of every palette swatch. Subsequent calls to these functions will
 	// SUM the tint with all previous tints.

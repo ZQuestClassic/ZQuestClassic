@@ -159,41 +159,16 @@ int32_t get_bmaps(int32_t si);
 bool no_subscreen();
 bool is_editor();
 bool screenIsScrolling();
-//void quit_game();
 int32_t d_timer_proc(int32_t msg, DIALOG *d, int32_t c);
 
-/*ZScript
-const int32_t TINT_NONE = 0;
-const int32_t TINT_GREY = 0;
-const int32_t TINT_RED = 0;
-const int32_t TINT_GREEN = 0;
-const int32_t TINT_BLUE = 0;
-const int32_t TINT_VIOLET = 0;
-const int32_t TINT_TEAL = 0;
-const int32_t TINT_AMBER = 0;
-const int32_t TINT_CYAN = 0;
-const int32_t TINT_MODE_UNIFORM = 0;
-const int32_t TINT_MODE_DISTRIBUTED = 10;
-
-Graphics->Tint(mode)
-Graphics->Tint(TINT_MODE_DISTRIBUTED+TINT_VIOLET)
-*/
-//2.54
-extern int16_t lastMonoPreset;
 extern int16_t lastCustomTint[4];
 
-//extern byte __isZQuest;
-
-void setMonochromatic(int32_t mode); //GFX are monochrome. 
-void setMonochrome(bool state); //GFX are monochrome. 
-bool isMonochrome();
 bool isUserTinted();
 void isUserTinted(bool state);
 void addColour(int32_t radd, int32_t gadd, int32_t badd, int32_t base);
 void shiftColour(int32_t rshift, int32_t gshift, int32_t bshift, int32_t base);
 void doClearTint();
 void restoreTint();
-void restoreMonoPreset();
 void refreshTints();
 
 void doGFXMonohue(int32_t _r, int32_t _g, int32_t _b, bool m);

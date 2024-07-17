@@ -3942,9 +3942,6 @@ void EndSound(int soundid)
 void GreyscaleOn()
  * Renders the entire display in greyscale.
 
-void GreyscaleOff() 
- * Returns the display rendering to colour. 
-
 int DMapPalette[512]
  * Set or get the Level Palette for each DMap
 
