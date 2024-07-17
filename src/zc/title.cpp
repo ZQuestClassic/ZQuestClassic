@@ -1709,7 +1709,7 @@ void game_over(int32_t type)
 		{
 			//run save scripts
 			FFCore.runOnSaveEngine();
-			setMonochrome(false); //Clear monochrome before drawing the file select.
+			// reset palette before drawing the file select.
 			doClearTint();
 			
 			game->save_user_objects();
