@@ -1753,7 +1753,8 @@ int32_t init_game()
 
 	if (replay_is_active())
 	{
-		replay_set_meta("qst_title", game->header.title);
+		if (!game->header.title.empty())
+			replay_set_meta("qst_title", game->header.title);
 
 #ifdef HAS_UUID
 		if (!replay_has_meta("uuid"))
