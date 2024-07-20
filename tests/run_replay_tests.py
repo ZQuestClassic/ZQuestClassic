@@ -900,7 +900,7 @@ def on_update(progress: RunReplayTestsProgress):
     if args.for_dev_server:
         test_results = progress.all_results
         pending_results = [
-            RunResult(str(t.relative_to(replays_dir)), '', str(t))
+            RunResult(str(t.path.relative_to(replays_dir)), '', str(t))
             for t in progress.pending
         ]
         test_results.runs.append(progress.active + pending_results + progress.results)

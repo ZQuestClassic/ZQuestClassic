@@ -69,6 +69,14 @@ async def update_view(view: str, data: dict):
             await client.send_view_msg(view, data)
 
 
+def try_parse_json(text: str):
+    try:
+        return json.loads(text)
+    except:
+        print('failed to parse json, ignoring')
+        return None
+
+
 async def update_views():
     views = set()
     for client in clients:
@@ -93,10 +101,14 @@ async def update_views():
 
             mtime = os.path.getmtime(test_results_path)
             if test_results_last_update.get(test_results_path, None) != mtime:
-                data = {
-                    'name': test_results_path.parent.name,
-                    'results': json.loads(test_results_path.read_text()),
-                }
+                # It's possible that the json file is in the middle of being written to,
+                # so check for failure.
+                results = try_parse_json(test_results_path.read_text())
+                if results:
+                    data = {
+                        'name': test_results_path.parent.name,
+                        'results': results,
+                    }
 
             if not data:
                 continue
