@@ -653,6 +653,9 @@ async function processId(page: puppeteer.Page, type: EntryType, index: number) {
   if (thisRelease.resources.length === 0) {
     console.log(`[${id}] WARNING - no resources found, ignoring update`);
     fs.rmSync(resourcesDir, {recursive: true, force: true});
+    if (isNew || contentHashUpdated) {
+      releases.pop();
+    }
     return;
   }
 
