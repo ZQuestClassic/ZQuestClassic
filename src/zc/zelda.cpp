@@ -513,7 +513,14 @@ PALETTE* hw_palette = NULL;
 void update_hw_screen()
 {
 	if (is_headless())
+	{
+		if (update_hw_pal && hw_palette)
+		{
+			zc_set_palette(*hw_palette);
+			update_hw_pal = false;
+		}
 		return;
+	}
 
 	framecnt++;
 
