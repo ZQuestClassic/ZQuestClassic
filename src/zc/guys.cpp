@@ -14271,7 +14271,7 @@ void getBigTri(int32_t id2)
 		{
 			for(int32_t i=1; i<16; i++)
 			{
-				RAMpal[CSET(9)+i]=_RGB(63,63,63);
+				RAMpal[CSET(9)+i]=_RGB(255,255,255);
 			}
 		}
 		
@@ -14281,7 +14281,7 @@ void getBigTri(int32_t id2)
 			{
 				for(int32_t i=1; i<16; i++)
 				{
-					RAMpal[CSET(cs)+i]=_RGB(63,63,63);
+					RAMpal[CSET(cs)+i]=_RGB(255,255,255);
 				}
 			}
 			

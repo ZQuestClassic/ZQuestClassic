@@ -1622,7 +1622,7 @@ void draw_edit_scr(int32_t tile,int32_t flip,int32_t cs,byte *oldtile, bool crea
 			strcpy(buf, get_color_name(realcol, is8b).c_str());
 			gui_textout_ln(screen2,font,(unsigned char*)buf,hover_info.x,hover_info.y+(1*hover_info.yscale),jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
 			
-			sprintf(buf, "#%02X%02X%02X", tpal[realcol].r*4,tpal[realcol].g*4,tpal[realcol].b*4);
+			sprintf(buf, "#%02X%02X%02X", tpal[realcol].r,tpal[realcol].g,tpal[realcol].b);
 			gui_textout_ln(screen2,font,(unsigned char*)buf,hover_info.x,hover_info.y+(0),jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
 			
 			rect(screen2, hov_prev.x, hov_prev.y, hov_prev.x+hov_prev.w-1, hov_prev.y+hov_prev.h-1, jwin_pal[jcTEXTFG]);
@@ -2135,11 +2135,11 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 	
 	if(newtilebuf[tile].format==tf4Bit)
 	{
-		invcol=makecol8((63-tpal[CSET(cs)].r)*255/63,(63-tpal[CSET(cs)].g)*255/63,(63-tpal[CSET(cs)].b)*255/63);
+		invcol=makecol8(255 - tpal[CSET(cs)].r, 255 - tpal[CSET(cs)].g, 255 - tpal[CSET(cs)].b);
 	}
 	else
 	{
-		invcol=makecol8((63-tpal[0].r)*255/63,(63-tpal[0].g)*255/63,(63-tpal[0].b)*255/63);
+		invcol=makecol8(255 - tpal[0].r, 255 - tpal[0].g, 255 - tpal[0].b);
 	}
 	
 	custom_vsync();
@@ -2882,11 +2882,11 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 					
 					if(newtilebuf[tile].format==tf4Bit)
 					{
-						invcol=makecol8((63-tpal[CSET(cs)].r)*255/63,(63-tpal[CSET(cs)].g)*255/63,(63-tpal[CSET(cs)].b)*255/63);
+						invcol=makecol8(255 - tpal[CSET(cs)].r, 255 - tpal[CSET(cs)].g, 255 - tpal[CSET(cs)].b);
 					}
 					else
 					{
-						invcol=makecol8((63-tpal[0].r)*255/63,(63-tpal[0].g)*255/63,(63-tpal[0].b)*255/63);
+						invcol=makecol8(255 - tpal[0].r, 255 - tpal[0].g, 255 - tpal[0].b);
 					}
 					
 					redraw=true;

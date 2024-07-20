@@ -66,19 +66,22 @@ AL_LEGACY_INLINE(int, makeacol32, (int r, int g, int b, int a),
 
 AL_LEGACY_INLINE(int, getr8, (int c),
 {
-   return _rgb_scale_6[(int)_current_palette[c].r];
+	// local edit
+   return (int)_current_palette[c].r;
 })
 
 
 AL_LEGACY_INLINE(int, getg8, (int c),
 {
-   return _rgb_scale_6[(int)_current_palette[c].g];
+	// local edit
+   return (int)_current_palette[c].g;
 })
 
 
 AL_LEGACY_INLINE(int, getb8, (int c),
 {
-   return _rgb_scale_6[(int)_current_palette[c].b];
+	// local edit
+   return (int)_current_palette[c].b;
 })
 
 

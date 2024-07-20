@@ -394,7 +394,6 @@ int d_button_proc(int msg, DIALOG *d, int c)
 	       d->flags ^= D_SELECTED;
 	       state1 = d->flags & D_SELECTED;
 	       object_message(d, MSG_DRAW, 0);
-//           allegro_render_screen();
 	    }
 
 	    /* let other objects continue to animate */
@@ -912,7 +911,6 @@ void _handle_scrollable_scroll_click(DIALOG *d, int listsize, int *offset, int h
 	    if (yy != *offset) {
 	       *offset = yy;
 	       object_message(d, MSG_DRAW, 0);
-//           allegro_render_screen();
 	    }
 
 	    /* let other objects continue to animate */
@@ -1259,7 +1257,6 @@ int d_list_proc(int msg, DIALOG *d, int c)
 	       d->flags |= D_INTERNAL;
 	       _handle_listbox_click(d);
 	       d->flags &= ~D_INTERNAL;
-//           allegro_render_screen();
 	    }
 	 }
 	 else {
@@ -2029,7 +2026,6 @@ int d_slider_proc(int msg, DIALOG *d, int c)
 	       }
 
 	       object_message(d, MSG_DRAW, 0);
-//           allegro_render_screen();
 	    }
 
 	    /* let other objects continue to animate */

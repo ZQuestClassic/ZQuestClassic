@@ -202,9 +202,10 @@ BITMAP *load_gif(const char *filename, RGB *pal)
     {
         for(i = 0; i < (1 << depth); i ++)
         {
-            pal[i].r = pack_getc(f) / 4;
-            pal[i].g = pack_getc(f) / 4;
-            pal[i].b = pack_getc(f) / 4;
+			// local edit
+            pal[i].r = pack_getc(f);
+            pal[i].g = pack_getc(f);
+            pal[i].b = pack_getc(f);
         }
     }
     else if(depth)
@@ -240,9 +241,10 @@ BITMAP *load_gif(const char *filename, RGB *pal)
                 {
                     for(i = 0; i < (1 << depth); i ++)
                     {
-                        pal[i].r = pack_getc(f) / 4;
-                        pal[i].g = pack_getc(f) / 4;
-                        pal[i].b = pack_getc(f) / 4;
+						// local edit
+                        pal[i].r = pack_getc(f);
+                        pal[i].g = pack_getc(f);
+                        pal[i].b = pack_getc(f);
                     }
                 }
                 else

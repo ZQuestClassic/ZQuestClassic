@@ -37,6 +37,13 @@ extern void cycle_palette();
 
 INLINE RGB NESpal(int32_t i)
 {
+	static bool has_converted;
+	if (!has_converted)
+	{
+		for (int i = 0; i < 64*3; i++)
+			nes_pal[i] = _rgb_scale_6[nes_pal[i]];
+		has_converted = true;
+	}
     return _RGB(nes_pal+i*3);
 }
 extern int32_t reverse_NESpal(RGB c);

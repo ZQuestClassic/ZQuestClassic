@@ -1615,7 +1615,8 @@ GUI::ListData scriptRulesList
 	{ "Combos Run Scripts on Layer 5", qr_COMBOSCRIPTS_LAYER_5 },
 	{ "Combos Run Scripts on Layer 6", qr_COMBOSCRIPTS_LAYER_6 },
 	{ "Use Old Global Init and SaveLoad Timing", qr_OLD_INIT_SCRIPT_TIMING },
-	{ "Passive Subscreen Script runs during wipes/refills", qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN }
+	{ "Passive Subscreen Script runs during wipes/refills", qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN },
+	{ "Scripts use 6-bit color (0-63) instead of 8-bit (0-255)", qr_SCRIPTS_6_BIT_COLOR},
 };
 
 GUI::ListData instructionRulesList
@@ -1768,7 +1769,7 @@ void applyRuleTemplate(int32_t ruleTemplate, byte* qrptr)
 				qr_OLD_PRINTF_ARGS, qr_COMBODATA_INITD_MULT_TENK,
 				qr_OLDQUESTMISC, qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS,
 				qr_BROKEN_GETPIXEL_VALUE, qr_ZS_NO_NEG_ARRAY, qr_SCRIPT_CONTHP_IS_HEARTS,
-				qr_OLD_BROKEN_WARPEX_MUSIC, qr_OLD_HERO_WARP_RETSQUARE,
+				qr_OLD_BROKEN_WARPEX_MUSIC, qr_OLD_HERO_WARP_RETSQUARE, qr_SCRIPTS_6_BIT_COLOR
 			};
 			for(int qr : zsOnRules)
 				set_qr(qr, 1, qrptr);

@@ -497,6 +497,9 @@ struct user_rng : public user_abstract_obj
 	}
 };
 
+extern bool scripting_use_8bit_colors;
+extern int scripting_max_color_val;
+
 #define MAX_USER_PALDATAS 256
 #define PALDATA_NUM_COLORS 256
 #define PALDATA_BITSTREAM_SIZE 32
@@ -510,9 +513,9 @@ struct user_paldata : public user_abstract_obj
 	//Sets a color index on the paldata
 	void set_color(int32_t ind, RGB c)
 	{
-		c.r = vbound(c.r, 0, 63);
-		c.g = vbound(c.g, 0, 63);
-		c.b = vbound(c.b, 0, 63);
+		c.r = vbound(c.r, 0, scripting_max_color_val);
+		c.g = vbound(c.g, 0, scripting_max_color_val);
+		c.b = vbound(c.b, 0, scripting_max_color_val);
 		colors[ind] = c;
 		set_bit(colors_used, ind, true);
 	}

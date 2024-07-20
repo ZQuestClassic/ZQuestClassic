@@ -3610,6 +3610,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_NEWDARK_TRANS_STACKING,1);
 	if(compatrule_version < 67)
 		set_qr(qr_OLD_HERO_WARP_RETSQUARE,1);
+	if(compatrule_version < 68)
+		set_qr(qr_SCRIPTS_6_BIT_COLOR,1);
 	
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
@@ -18050,9 +18052,24 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 					return qe_invalid;
 				if(!p_igetw(&temp_combo.trigdmlevel,f))
 					return qe_invalid;
-				for(int q = 0; q < 3; ++q)
-					if(!p_getc(&temp_combo.trigtint[q],f))
-						return qe_invalid;
+				if(s_version >= 48)
+				{
+					for(int q = 0; q < 3; ++q)
+						if(!p_igetw(&temp_combo.trigtint[q],f))
+							return qe_invalid;
+				}
+				else
+				{
+					for(int q = 0; q < 3; ++q)
+						if(!p_getc(&temp_combo.trigtint[q],f))
+							return qe_invalid;
+					for(int q = 0; q < 3; ++q)
+					{
+						int v = temp_combo.trigtint[q];
+						int va = abs(v);
+						temp_combo.trigtint[q] = _rgb_scale_6[va] * sign(v);
+					}
+				}
 				if(!p_igetw(&temp_combo.triglvlpalette,f))
 					return qe_invalid;
 				if(!p_igetw(&temp_combo.trigbosspalette,f))
@@ -18685,7 +18702,15 @@ int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, wo
 			memcpy(&colordata[i*48], temp_colordata, 48);
 		}
 	}
-	
+
+	if (!should_skip && s_version < 6)
+	{
+		for (int i = 0; i < psTOTAL255; i++)
+		{
+			colordata[i] = _rgb_scale_6[colordata[i]];
+		}
+	}
+
 	if((version < 0x192)||((version == 0x192)&&(build<76)))
 	{
 		if (!should_skip)

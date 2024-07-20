@@ -819,247 +819,6 @@ qword trianglelines[16]=
 };
 
 word screen_triangles[28][32];
-/*
-  qword triangles[4][16]= //[direction][value]
-  {
-  {
-  0x00000000, 0x10000000, 0x21000000, 0x32100000, 0x43210000, 0x54321000, 0x65432100, 0x76543210, 0x87654321, 0x88765432, 0x88876543, 0x88887654, 0x88888765, 0x88888876, 0x88888887, 0x88888888
-  },
-  {
-  0x00000000, 0xF0000000, 0xEF000000, 0xFDF00000, 0xCFDF0000, 0xBCFDF000, 0xABCFDF00, 0x9ABCFDF0, 0x89ABCFDF, 0x889ABCFD, 0x8889ABCD, 0x88889ABC, 0x888889AB, 0x8888889A, 0x88888889, 0x88888888
-  },
-  {
-  0x00000000, 0x00000001, 0x00000012, 0x00000123, 0x00001234, 0x00012345, 0x00123456, 0x01234567, 0x12345678, 0x23456788, 0x34567888, 0x45678888, 0x56788888, 0x67888888, 0x78888888, 0x88888888
-  },
-  {
-  0x00000000, 0x0000000F, 0x000000FE, 0x00000FED, 0x0000FEDC, 0x000FEDCB, 0x00FEDCBA, 0x0FEDCBA9, 0xFEDCBA98, 0xEDCBA988, 0xDCBA9888, 0xCBA98888, 0xBA988888, 0xA9888888, 0x98888888, 0x88888888
-  }
-  };
-  */
-
-
-/*
-  byte triangles[4][16][8]= //[direction][value][line]
-  {
-  {
-  {
-  0,  0,  0,  0,  0,  0,  0,  0
-  },
-  {
-  1,  0,  0,  0,  0,  0,  0,  0
-  },
-  {
-  2,  1,  0,  0,  0,  0,  0,  0
-  },
-  {
-  3,  2,  1,  0,  0,  0,  0,  0
-  },
-  {
-  4,  3,  2,  1,  0,  0,  0,  0
-  },
-  {
-  5,  4,  3,  2,  1,  0,  0,  0
-  },
-  {
-  6,  5,  4,  3,  2,  1,  0,  0
-  },
-  {
-  7,  6,  5,  4,  3,  2,  1,  0
-  },
-  {
-  8,  7,  6,  5,  4,  3,  2,  1
-  },
-  {
-  8,  8,  7,  6,  5,  4,  3,  2
-  },
-  {
-  8,  8,  8,  7,  6,  5,  4,  3
-  },
-  {
-  8,  8,  8,  8,  7,  6,  5,  4
-  },
-  {
-  8,  8,  8,  8,  8,  7,  6,  5
-  },
-  {
-  8,  8,  8,  8,  8,  8,  7,  6
-  },
-  {
-  8,  8,  8,  8,  8,  8,  8,  7
-  },
-  {
-  8,  8,  8,  8,  8,  8,  8,  8
-  }
-  },
-  {
-  {
-  0,  0,  0,  0,  0,  0,  0,  0
-  },
-  {
-  15,  0,  0,  0,  0,  0,  0,  0
-  },
-  {
-  14, 15,  0,  0,  0,  0,  0,  0
-  },
-  {
-  13, 14, 15,  0,  0,  0,  0,  0
-  },
-  {
-  12, 13, 14, 15,  0,  0,  0,  0
-  },
-  {
-  11, 12, 13, 14, 15,  0,  0,  0
-  },
-  {
-  10, 11, 12, 13, 14, 15,  0,  0
-  },
-  {
-  9, 10, 11, 12, 13, 14, 15,  0
-  },
-  {
-  8,  9, 10, 11, 12, 13, 14, 15
-  },
-  {
-  8,  8,  9, 10, 11, 12, 13, 14
-  },
-  {
-  8,  8,  8,  9, 10, 11, 12, 13
-  },
-  {
-  8,  8,  8,  8,  9, 10, 11, 12
-  },
-  {
-  8,  8,  8,  8,  8,  9, 10, 11
-  },
-  {
-  8,  8,  8,  8,  8,  8,  9, 10
-  },
-  {
-  8,  8,  8,  8,  8,  8,  8,  9
-  },
-  {
-  8,  8,  8,  8,  8,  8,  8,  8
-  }
-  },
-  {
-  {
-  0,  0,  0,  0,  0,  0,  0,  0
-  },
-  {
-  0,  0,  0,  0,  0,  0,  0,  1
-  },
-  {
-  0,  0,  0,  0,  0,  0,  1,  2
-  },
-  {
-  0,  0,  0,  0,  0,  1,  2,  3
-  },
-  {
-  0,  0,  0,  0,  1,  2,  3,  4
-  },
-  {
-  0,  0,  0,  1,  2,  3,  4,  5
-  },
-  {
-  0,  0,  1,  2,  3,  4,  5,  6
-  },
-  {
-  0,  1,  2,  3,  4,  5,  6,  7
-  },
-  {
-  1,  2,  3,  4,  5,  6,  7,  8
-  },
-  {
-  2,  3,  4,  5,  6,  7,  8,  8
-  },
-  {
-  3,  4,  5,  6,  7,  8,  8,  8
-  },
-  {
-  4,  5,  6,  7,  8,  8,  8,  8
-  },
-  {
-  5,  6,  7,  8,  8,  8,  8,  8
-  },
-  {
-  6,  7,  8,  8,  8,  8,  8,  8
-  },
-  {
-  7,  8,  8,  8,  8,  8,  8,  8
-  },
-  {
-  8,  8,  8,  8,  8,  8,  8,  8
-  }
-  },
-  {
-  {
-  0,  0,  0,  0,  0,  0,  0,  0
-  },
-  {
-  0,  0,  0,  0,  0,  0,  0, 15
-  },
-  {
-  0,  0,  0,  0,  0,  0, 15, 14
-  },
-  {
-  0,  0,  0,  0,  0, 15, 14, 13
-  },
-  {
-  0,  0,  0,  0, 15, 14, 13, 12
-  },
-  {
-  0,  0,  0, 15, 14, 13, 12, 11
-  },
-  {
-  0,  0, 15, 14, 13, 12, 11, 10
-  },
-  {
-  0, 15, 14, 13, 12, 11, 10,  9
-  },
-  {
-  15, 14, 13, 12, 11, 10,  9,  8
-  },
-  {
-  14, 13, 12, 11, 10,  9,  8,  8
-  },
-  {
-  13, 12, 11, 10,  9,  8,  8,  8
-  },
-  {
-  12, 11, 10,  9,  8,  8,  8,  8
-  },
-  {
-  11, 10,  9,  8,  8,  8,  8,  8
-  },
-  {
-  10,  9,  8,  8,  8,  8,  8,  8
-  },
-  {
-  9,  8,  8,  8,  8,  8,  8,  8
-  },
-  {
-  8,  8,  8,  8,  8,  8,  8,  8
-  }
-  }
-  };
-  */
-
-
-
-/*
-  for (int32_t blockrow=0; blockrow<30; ++i)
-  {
-  for (int32_t linerow=0; linerow<8; ++i)
-  {
-  qword *triangleline=(qword*)(tmp_scr->line[(blockrow*8+linerow)]);
-  for (int32_t blockcolumn=0; blockcolumn<40; ++i)
-  {
-  triangleline=triangles[0][screen_triangles[blockrow][blockcolumn]][linerow];
-  ++triangleline;
-  }
-  }
-  }
-  */
 
 // the ULL suffixes are to prevent this warning:
 // warning: integer constant is too large for "int32_t" type
@@ -1935,14 +1694,15 @@ void black_opening(BITMAP *dest,int32_t x,int32_t y,int32_t a,int32_t max_a)
 	masked_blit(tmp_scr,dest,0,0,0,0,320,240);
 }
 
-
+// fadeamnt is 0-63
 void black_fade(int32_t fadeamnt)
 {
+	fadeamnt = _rgb_scale_6[fadeamnt];
 	for(int32_t i=0; i < 0xEF; i++)
 	{
-		RAMpal[i].r = vbound(tempblackpal[i].r-fadeamnt,0,63);
-		RAMpal[i].g = vbound(tempblackpal[i].g-fadeamnt,0,63);
-		RAMpal[i].b = vbound(tempblackpal[i].b-fadeamnt,0,63);
+		RAMpal[i].r = vbound(tempblackpal[i].r-fadeamnt,0,255);
+		RAMpal[i].g = vbound(tempblackpal[i].g-fadeamnt,0,255);
+		RAMpal[i].b = vbound(tempblackpal[i].b-fadeamnt,0,255);
 	}
 	
 	refreshpal = true;
@@ -2121,15 +1881,6 @@ bool has_item(int32_t item_type, int32_t it)						//does Hero possess this item?
 		}
 		
 		default:
-			//it=(1<<(it-1));
-			/*if (item_type>=itype_max)
-			{
-			  enter_sys_pal();
-			  jwin_alert("Error","has_item exception",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-			  exit_sys_pal();
-			
-			  return false;
-			}*/
 			int32_t itemid = getItemID(itemsbuf, item_type, it);
 			
 			if(itemid == -1)
@@ -3881,7 +3632,7 @@ void updatescr(bool allowwavy)
 	{
 		refreshpal=false;
 		RAMpal[253] = _RGB(0,0,0);
-		RAMpal[254] = _RGB(63,63,63);
+		RAMpal[254] = _RGB(255,255,255);
 		hw_palette = &RAMpal;
 		update_hw_pal = true;
 
@@ -4505,7 +4256,6 @@ void syskeys()
 	
 	if(zc_readkey(KEY_P))   Paused=!Paused;
 	
-	//if(zc_readkey(KEY_P))   centerHero();
 	if(zc_readkey(KEY_A))
 	{
 		Paused=true;
@@ -4750,7 +4500,6 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 	
 #endif
 	
-	//textprintf_ex(screen,font,0,72,254,BLACK,"%d %d", lastentrance, lastentrance_dmap);
 	if(sfxcleanup)
 		sfx_cleanup();
 	
@@ -4817,7 +4566,6 @@ void zapin()
 	FFCore.warpScriptCheck();
 	draw_screen(tmpscr);
 	set_clip_rect(scrollbuf, 0, 0, scrollbuf->w, scrollbuf->h);
-	//put_passive_subscr(framebuf,0,passive_subscreen_offset,false,sspUP);
 	blit(framebuf,scrollbuf,0,0,256,0,256,224);
 	
 	// zap out
@@ -4838,7 +4586,6 @@ void zapin()
 void wavyout(bool showhero)
 {
 	draw_screen(tmpscr, showhero);
-	//put_passive_subscr(framebuf,0,passive_subscreen_offset,false,sspUP);
 	
 	BITMAP *wavebuf = create_bitmap_ex(8,288,224);
 	clear_to_color(wavebuf,0);
@@ -4857,9 +4604,9 @@ void wavyout(bool showhero)
 	{
 		for(int32_t l=0; l<256; l++)
 		{
-			wavepal[l].r=vbound(int32_t(RAMpal[l].r+((palpos/palstop)*(63-RAMpal[l].r))),0,63);
-			wavepal[l].g=vbound(int32_t(RAMpal[l].g+((palpos/palstop)*(63-RAMpal[l].g))),0,63);
-			wavepal[l].b=vbound(int32_t(RAMpal[l].b+((palpos/palstop)*(63-RAMpal[l].b))),0,63);
+			wavepal[l].r=vbound(int32_t(RAMpal[l].r+((palpos/palstop)*(255-RAMpal[l].r))),0,255);
+			wavepal[l].g=vbound(int32_t(RAMpal[l].g+((palpos/palstop)*(255-RAMpal[l].g))),0,255);
+			wavepal[l].b=vbound(int32_t(RAMpal[l].b+((palpos/palstop)*(255-RAMpal[l].b))),0,255);
 		}
 		
 		palpos+=palstep;
@@ -4891,8 +4638,7 @@ void wavyout(bool showhero)
 		}
 		
 		advanceframe(true);
-		
-		//	animate_combos();
+
 		if(Quit)
 			break;
 	}
@@ -4903,21 +4649,13 @@ void wavyout(bool showhero)
 void wavyin()
 {
 	draw_screen(tmpscr);
-	//put_passive_subscr(framebuf,0,passive_subscreen_offset,false,sspUP);
 	
 	BITMAP *wavebuf = create_bitmap_ex(8,288,224);
 	clear_to_color(wavebuf,0);
 	blit(framebuf,wavebuf,0,0,16,0,256,224);
 	
 	static PALETTE wavepal;
-	
-	//Breaks dark rooms.
-	//In any case I don't think we need this, since palette is already loaded in doWarp() (famous last words...) -DD
-	/*
-	  loadfullpal();
-	  loadlvlpal(DMaps[currdmap].color);
-	  ringcolor(false);
-	*/
+
 	refreshpal=false;
 	int32_t ofs;
 	int32_t amplitude=8;
@@ -4929,9 +4667,9 @@ void wavyin()
 	{
 		for(int32_t l=0; l<256; l++)
 		{
-			wavepal[l].r=vbound(int32_t(RAMpal[l].r+((palpos/palstop)*(63-RAMpal[l].r))),0,63);
-			wavepal[l].g=vbound(int32_t(RAMpal[l].g+((palpos/palstop)*(63-RAMpal[l].g))),0,63);
-			wavepal[l].b=vbound(int32_t(RAMpal[l].b+((palpos/palstop)*(63-RAMpal[l].b))),0,63);
+			wavepal[l].r=vbound(int32_t(RAMpal[l].r+((palpos/palstop)*(255-RAMpal[l].r))),0,255);
+			wavepal[l].g=vbound(int32_t(RAMpal[l].g+((palpos/palstop)*(255-RAMpal[l].g))),0,255);
+			wavepal[l].b=vbound(int32_t(RAMpal[l].b+((palpos/palstop)*(255-RAMpal[l].b))),0,255);
 		}
 		
 		palpos-=palstep;
@@ -4963,7 +4701,6 @@ void wavyin()
 		}
 		
 		advanceframe(true);
-		//	animate_combos();
 		
 		if(Quit)
 			break;
@@ -5025,8 +4762,6 @@ void openscreen(int32_t shape)
 	for(int32_t i=0; i<80; i++)
 	{
 		draw_screen(tmpscr);
-		//? draw_screen already draws the subscreen -DD
-		//put_passive_subscr(framebuf,0,passive_subscreen_offset,false,sspUP);
 		x=128-(((i*128/80)/8)*8);
 		
 		if(x>0)
@@ -5075,8 +4810,6 @@ void closescreen(int32_t shape)
 	for(int32_t i=79; i>=0; --i)
 	{
 		draw_screen(tmpscr);
-		//? draw_screen already draws the subscreen -DD
-		//put_passive_subscr(framebuf,0,passive_subscreen_offset,false,sspUP);
 		x=128-(((i*128/80)/8)*8);
 		
 		if(x>0)
@@ -5123,11 +4856,6 @@ int32_t onCustomGame()
 int32_t onContinue()
 {
 	return D_CLOSE;
-}
-
-int32_t onEsc() // Unused?? -L
-{
-	return zc_getrawkey(KEY_ESC, true)?D_CLOSE:D_O_K;
 }
 
 int32_t onThrottleFPS()

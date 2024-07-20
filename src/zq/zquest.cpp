@@ -24846,10 +24846,20 @@ END_OF_FUNCTION(fps_callback)
   }
   }
   */
-void create_rgb_table2(RGB_MAP *table, AL_CONST PALETTE pal, void (*callback)(int32_t pos))
+void create_rgb_table2(RGB_MAP *table, AL_CONST PALETTE pal_8bit, void (*callback)(int32_t pos))
 {
 #define UNUSED 65535
 #define LAST 65532
+
+   // Allegro has been modified to use an 8 bit palette, but this method and RGB_MAP still use 6 bit.
+   PALETTE pal;
+   for (int i = 0; i < 256; i++)
+   {
+      pal[i] = pal_8bit[i];
+      pal[i].r /= 4;
+      pal[i].g /= 4;
+      pal[i].b /= 4;
+   }
 
     /* macro add adds to single linked list */
 #define add(i)    (next[(i)] == UNUSED ? (next[(i)] = LAST, \
@@ -26032,7 +26042,15 @@ int32_t main(int32_t argc,char **argv)
 
 	if (!is_headless())
 	{
-		zc_set_palette((RGB*)zcdata[PAL_ZQUEST].dat);
+		RGB* zquest_pal = (RGB*)zcdata[PAL_ZQUEST].dat;
+		for (int i = 0; i < 256; i++)
+		{
+			zquest_pal[i].r = _rgb_scale_6[zquest_pal[i].r];
+			zquest_pal[i].g = _rgb_scale_6[zquest_pal[i].g];
+			zquest_pal[i].b = _rgb_scale_6[zquest_pal[i].b];
+		}
+
+		zc_set_palette(zquest_pal);
 		get_palette(RAMpal);
 		load_colorset(gui_colorset);
 		zc_set_palette(RAMpal);

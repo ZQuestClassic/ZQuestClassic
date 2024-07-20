@@ -1,5 +1,6 @@
 #include "zc/saves.h"
 
+#include "allegro/color.h"
 #include "allegro/file.h"
 #include "base/general.h"
 #include "base/packfile.h"
@@ -545,6 +546,14 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 		if(!pfread(game.header.pal,sizeof(game.header.pal),f))
 		{
 			return 41;
+		}
+
+		if (section_version < 42)
+		{
+			for (int i = 0; i < sizeof(game.header.pal); i++)
+			{
+				game.header.pal[i] = _rgb_scale_6[game.header.pal[i]];
+			}
 		}
 
 		if(section_version < 37)
@@ -1972,17 +1981,6 @@ static void update_icon(int index)
 
 static int32_t do_save_games()
 {
-	// Not sure why this happens, but apparently it does...
-	for (const auto& save : saves)
-	{
-		if (!save.header) continue;
-
-		for(int32_t j=0; j<48; j++)
-		{
-			save.header->pal[j]&=63;
-		}
-	}
-
 	if (currgame >= 0)
 	{
 		saves[currgame].game->Copy(*game);

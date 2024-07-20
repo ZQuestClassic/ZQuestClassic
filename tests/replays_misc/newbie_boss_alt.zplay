@@ -1,9 +1,10 @@
 M comment See test_compile_and_quick_assign
 M debug true
-M frames 3001
-M length 5035
+M frames 3002
+M length 5036
 M qst newbie_boss.qst
 M qst_hash E17A109502D11FCC0578854EDE8F5ECB
+M qst_modified true
 M qst_title Newbie Boss
 M starting_dmap 0
 M starting_retsqr 0
@@ -11,7 +12,7 @@ M starting_scr 119
 M sync_rng true
 M test_mode true
 M time_created Thu May 23 00:30:41 2024
-M time_updated Sat Jul 20 14:59:32 2024
+M time_updated Sun Jul 21 19:47:53 2024
 M uuid 4eed54c4-13f2-454e-b74d-046ba0aa1051
 M version 32
 M zc_version_created 3.0.0-prerelease.53+2024-05-08.local
@@ -436,65 +437,65 @@ C 305 h 97 75
 C 305 g G^Y
 C 306 sfx Arrow
 C 306 h 99 75
-C 306 g H1&
+C 306 g C{c
 C 307 h 9a 75
-C 307 g C?i
+C 307 g D}m
 C 308 h 9c 75
-C 308 g B)9
+C 308 g Can
 C 309 h 9d 75
-C 309 g G2O
+C 309 g C@d
 C 310 h 9f 75
-C 310 g BQ&
+C 310 g Dj#
 C 311 h a0 75
-C 311 g Bp*
+C 311 g GbQ
 C 312 h a2 75
-C 312 g C8H
+C 312 g D}U
 C 313 h a3 75
-C 313 g C<R
+C 313 g HG5
 C 314 h a5 75
-C 314 g HLR
+C 314 g F~B
 C 315 h a6 75
-C 315 g FKG
+C 315 g D6N
 C 316 h a7 74
-C 316 g D[y
+C 316 g BL$
 D 316 Up
 C 317 h a8 73
-C 317 g C=}
+C 317 g BSA
 C 318 h a9 72
-C 318 g Gdn
+C 318 g HZF
 C 319 h a9 70
-C 319 g Dye
+C 319 g EU/
 U 319 Right
 C 320 sfx Link is hit
-C 320 g !g
+C 320 g G`A
 C 321 h a9 74
-C 321 g _M
+C 321 g B_|
 C 322 h a9 78
-C 322 g C1R
+C 322 g FF*
 C 323 h a9 7c
-C 323 g Edj
+C 323 g CG%
 C 324 h a9 80
-C 324 g Fg7
+C 324 g Cgx
 C 325 h a9 7f
-C 325 g Eab
+C 325 g DSP
 C 326 h a9 7d
-C 326 g G`i
+C 326 g HSi
 C 327 h a9 7c
-C 327 g F7!
+C 327 g E;v
 C 328 h a9 7a
-C 328 g H3n
+C 328 g F|,
 C 329 h a9 79
-C 329 g EI2
+C 329 g *,
 C 330 h a9 77
-C 330 g G0S
+C 330 g E0"
 C 331 h a9 76
-C 331 g G?Z
+C 331 g 9m
 C 332 h a9 74
-C 332 g EHE
+C 332 g D@?
 C 333 h a9 73
-C 333 g C%R
+C 333 g GDq
 C 334 h a9 71
-C 334 g F3}
+C 334 g .l
 C 335 h a9 70
 C 335 g EXR
 C 336 h a9 6e
@@ -732,62 +733,62 @@ C 450 h 39 72
 C 450 g CB/
 D 450 Up
 C 451 h 38 71
-C 451 g GGe
+C 451 g CN.
 C 452 h 37 70
-C 452 g Gx&
+C 452 g .Q
 C 453 h 36 6f
-C 453 g E^n
+C 453 g H6k
 C 454 h 35 6e
-C 454 g C]1
+C 454 g F9)
 C 455 h 34 6d
-C 455 g EhJ
+C 455 g BZg
 C 456 h 34 6b
-C 456 g Hj4
+C 456 g DUX
 U 456 Left
 C 457 h 34 6a
-C 457 g E%g
+C 457 g GrY
 C 458 h 34 68
-C 458 g Er`
+C 458 g B~s
 C 459 h 34 67
-C 459 g DU5
+C 459 g E4s
 C 460 h 34 65
-C 460 g Ghb
+C 460 g CVD
 C 461 h 34 64
-C 461 g HFv
+C 461 g HDJ
 C 462 h 34 62
-C 462 g Gg4
+C 462 g CY@
 C 463 h 34 61
-C 463 g C1!
+C 463 g DRk
 C 464 h 34 5f
-C 464 g rD
+C 464 g Fap
 C 465 h 34 5e
-C 465 g D/9
+C 465 g CPo
 C 466 h 34 5c
-C 466 g ET|
+C 466 g CC7
 C 467 h 34 5b
-C 467 g ?H
+C 467 g B{b
 C 468 h 34 59
-C 468 g F0b
+C 468 g CbA
 C 469 h 34 58
-C 469 g Bbw
+C 469 g ch
 C 470 h 34 56
-C 470 g GAM
+C 470 g CFP
 C 471 h 34 55
-C 471 g Hi[
+C 471 g DDk
 C 472 h 34 53
-C 472 g C"k
+C 472 g D[=
 C 473 h 34 52
-C 473 g F,w
+C 473 g 9O
 C 474 h 34 50
-C 474 g D)?
+C 474 g Btt
 C 475 h 34 4f
-C 475 g H)]
+C 475 g F/!
 C 476 h 34 4d
-C 476 g Fl*
+C 476 g FJB
 C 477 h 34 4c
-C 477 g F5q
+C 477 g EA_
 C 478 h 34 4a
-C 478 g DE$
+C 478 g DcR
 C 479 h 34 49
 C 479 g E4.
 C 480 h 34 47
@@ -1028,83 +1029,83 @@ C 602 g Hfs
 C 603 g F=y
 C 604 sfx Arrow
 C 604 g Lp
-C 605 g HRm
+C 605 g Gjc
 C 606 h ac 35
-C 606 g Bk*
+C 606 g G`f
 D 606 Down
 C 607 h ac 37
-C 607 g E)~
+C 607 g C)?
 C 608 h ac 38
-C 608 g DPG
+C 608 g Bk<
 C 609 h ac 3a
-C 609 g ]H
+C 609 g EGb
 C 610 h ac 3b
-C 610 g F/C
+C 610 g X<
 C 611 h ac 3d
-C 611 g EaU
+C 611 g HuH
 C 612 h ac 3e
-C 612 g B{A
+C 612 g GUt
 C 613 h ac 40
-C 613 g EpT
+C 613 g Hb
 C 614 h ac 41
-C 614 g GZ[
+C 614 g CMj
 C 615 h ac 43
-C 615 g Gui
+C 615 g yj
 C 616 h ac 44
-C 616 g C">
+C 616 g pj
 C 617 h ac 46
-C 617 g BP!
+C 617 g Fji
 C 618 h ac 47
-C 618 g Ea}
+C 618 g H]<
 C 619 h ac 49
-C 619 g GLp
+C 619 g GtH
 C 620 h ac 4a
-C 620 g CM}
+C 620 g sW
 C 621 h ac 4c
-C 621 g B3R
+C 621 g Fgl
 C 622 h ac 4d
-C 622 g Ce[
+C 622 g H>g
 C 623 h ac 4f
-C 623 g HCM
+C 623 g DHP
 C 624 h ac 50
-C 624 g C?^
+C 624 g Je
 C 625 h ac 52
-C 625 g BgI
+C 625 g EBh
 C 626 h ac 53
-C 626 g E+c
+C 626 g GOu
 C 627 h ac 55
-C 627 g 3J
+C 627 g DOh
 C 628 h ac 56
-C 628 g CIf
+C 628 g Em^
 C 629 h ac 58
-C 629 g H7i
+C 629 g E~Q
 C 630 h ac 59
-C 630 g <&
+C 630 g F`P
 C 631 h ac 5b
-C 631 g H<(
+C 631 g D`m
 C 632 h ac 5c
-C 632 g FgQ
+C 632 g BR5
 U 632 A
 C 633 h ac 5e
-C 633 g EQT
+C 633 g FAn
 C 634 h ac 5f
-C 634 g Ji
+C 634 g c%
 C 635 h ac 61
-C 635 g Ch<
+C 635 g q:
 C 636 h ac 62
-C 636 g Fs^
+C 636 g H,4
 C 637 h ac 64
-C 637 g B{@
+C 637 g F%s
 C 638 h ac 65
-C 638 g HP6
+C 638 g Es[
 C 639 h ac 67
-C 639 g HfO
+C 639 g DS
 C 640 h ac 68
-C 640 g D)|
+C 640 g EBt
 C 641 h ac 6a
-C 641 g Bdh
+C 641 g F${
 C 642 h ac 6b
-C 642 g Et?
+C 642 g F2#
 C 643 h ac 6d
 C 643 g Hm+
 C 644 h ac 6e
@@ -1322,62 +1323,62 @@ C 758 g Euh
 U 758 B
 C 759 sfx Arrow
 C 759 g F~X
-C 760 g HGZ
-C 761 g V4
-C 762 g FT~
-C 763 g D#m
-C 764 g FzX
-C 765 g Dl1
-C 766 g C&3
-C 767 g J
-C 768 g F^i
-C 769 g G~0
-C 770 g Gp.
-C 771 g o
-C 772 g CO{
-C 773 g Ge[
-C 774 g Y{
-C 775 g G|D
+C 760 g BMT
+C 761 g p<
+C 762 g BBm
+C 763 g *~
+C 764 g :^
+C 765 g Fy|
+C 766 g DlO
+C 767 g F7i
+C 768 g Ggw
+C 769 g GCo
+C 770 g GM5
+C 771 g HL@
+C 772 g Dqr
+C 773 g Dwd
+C 774 g Be@
+C 775 g (x
 C 776 h 3f 68
-C 776 g GUG
+C 776 g H7A
 D 776 Up
 C 777 h 3f 67
-C 777 g =p
+C 777 g @J
 C 778 h 3f 65
-C 778 g FNC
+C 778 g DaC
 C 779 h 3f 64
-C 779 g D[_
+C 779 g GjL
 C 780 h 3f 62
-C 780 g GmD
+C 780 g CRV
 C 781 h 3f 61
-C 781 g u9
+C 781 g B67
 C 782 h 3f 5f
-C 782 g CCo
+C 782 g E":
 C 783 h 3f 5e
-C 783 g G,f
+C 783 g G^c
 C 784 sfx Link is hit
-C 784 g GIf
+C 784 g Dp4
 C 785 h 3f 5a
-C 785 g ".
+C 785 g FzT
 C 786 h 3f 56
-C 786 g Erh
+C 786 g Co`
 C 787 h 3f 52
-C 787 g D%|
+C 787 g Dw5
 C 788 h 3f 4e
-C 788 g G!
+C 788 g BJK
 C 789 h 3f 4a
-C 789 g H%j
+C 789 g DBP
 C 790 h 3f 46
-C 790 g Cv/
+C 790 g Cy
 C 791 h 3f 42
-C 791 g Gd|
+C 791 g B.n
 C 792 h 3f 3e
-C 792 g b
-C 793 g CyN
+C 792 g Emk
+C 793 g `_
 C 794 h 3f 3c
-C 794 g Ba2
+C 794 g DTr
 C 795 h 3f 3b
-C 795 g G=r
+C 795 g C#3
 C 796 h 3f 39
 C 796 g DJk
 C 797 h 3f 38
@@ -1614,78 +1615,78 @@ C 917 h aa 4b
 C 917 g Dp#
 C 918 sfx Arrow
 C 918 h aa 4c
-C 918 g HKN
+C 918 g D)A
 C 919 h aa 4e
-C 919 g Es1
+C 919 g F7d
 C 920 h aa 4f
-C 920 g E~1
+C 920 g BE#
 C 921 h aa 51
-C 921 g HVV
+C 921 g 3
 C 922 h aa 52
-C 922 g F`I
+C 922 g B?$
 C 923 h aa 54
-C 923 g FY.
+C 923 g BHi
 C 924 h aa 55
-C 924 g F0z
+C 924 g Fft
 C 925 h aa 57
-C 925 g D%!
+C 925 g E:{
 C 926 h aa 58
-C 926 g D:%
+C 926 g CP6
 C 927 h aa 5a
-C 927 g D69
+C 927 g Hf
 C 928 h aa 5b
-C 928 g hG
+C 928 g HTQ
 C 929 h aa 5d
-C 929 g #v
+C 929 g FtC
 C 930 h aa 5e
-C 930 g Bw3
+C 930 g BP?
 C 931 h aa 60
-C 931 g G!R
+C 931 g B`F
 C 932 h aa 61
-C 932 g CI+
+C 932 g ?m
 C 933 h aa 63
-C 933 g xz
+C 933 g BR/
 C 934 h aa 64
-C 934 g D>H
+C 934 g u)
 C 935 h aa 66
-C 935 g G%P
+C 935 g B_Z
 C 936 h aa 67
-C 936 g B{H
+C 936 g ?/
 C 937 h aa 69
-C 937 g B)U
+C 937 g )m
 C 938 h aa 6a
-C 938 g +Y
+C 938 g B%B
 C 939 h aa 6c
-C 939 g FwM
+C 939 g C0+
 C 940 h aa 6d
-C 940 g G5q
+C 940 g OH
 C 941 h aa 6f
-C 941 g FHC
+C 941 g D,z
 C 942 h aa 70
-C 942 g DPp
+C 942 g BJn
 C 943 h aa 72
-C 943 g H2w
+C 943 g C{N
 C 944 h aa 73
-C 944 g C}o
+C 944 g E?1
 C 945 h aa 75
-C 945 g :Y
+C 945 g F`;
 C 946 h aa 76
-C 946 g F5Z
+C 946 g FC:
 C 947 h aa 78
-C 947 g Efq
+C 947 g H?4
 C 948 h aa 79
-C 948 g Ht)
+C 948 g C8)
 C 949 h aa 7b
-C 949 g C`%
-C 950 g E*K
+C 949 g DBE
+C 950 g Jf
 U 950 Down
 C 951 h a9 7b
-C 951 g Fs8
+C 951 g ue
 D 951 Left
 C 952 h a7 7b
-C 952 g E~V
+C 952 g C|d
 C 953 h a6 7b
-C 953 g F>u
+C 953 g CIG
 C 954 h a4 7b
 C 954 g FjI
 C 955 h a3 7b
@@ -1941,54 +1942,54 @@ C 1084 g HHM
 C 1085 g Hkc
 C 1086 g HGH
 C 1087 sfx Arrow
-C 1087 g Gla
-C 1088 g p>
-C 1089 g F}=
-C 1090 g CeC
-C 1091 g Guy
-C 1092 g Bg:
-C 1093 g FE3
-C 1094 g FTn
-C 1095 g GBk
-C 1096 g ,y
-C 1097 g F>?
-C 1098 g +K
-C 1099 g ^?
-C 1100 g e{
-C 1101 g E>b
-C 1102 g @*
-C 1103 g dU
-C 1104 g BS0
-C 1105 g F.K
-C 1106 g E%H
-C 1107 g G37
+C 1087 g nw
+C 1088 g Fjb
+C 1089 g F*A
+C 1090 g G7=
+C 1091 g BKm
+C 1092 g GFb
+C 1093 g BxC
+C 1094 g BSa
+C 1095 g H2,
+C 1096 g C"p
+C 1097 g Bg+
+C 1098 g G:K
+C 1099 g B#/
+C 1100 g H4
+C 1101 g HiG
+C 1102 g Et2
+C 1103 g EV6
+C 1104 g EeV
+C 1105 g 3P
+C 1106 g C5G
+C 1107 g Cwf
 C 1108 h 35 34
-C 1108 g G;7
+C 1108 g Bp>
 D 1108 Up
 C 1109 h 35 33
-C 1109 g H<7
+C 1109 g CO+
 C 1110 h 35 31
-C 1110 g DJ~
+C 1110 g C=R
 C 1111 h 35 30
-C 1111 g GS?
+C 1111 g GN`
 C 1112 sfx Link is hit
-C 1112 g B|
+C 1112 g (B
 C 1113 h 35 2c
-C 1113 g Gd]
+C 1113 g Ex@
 C 1114 h 35 28
-C 1114 g ECr
+C 1114 g Hwy
 C 1115 h 35 24
-C 1115 g B_4
+C 1115 g EmN
 C 1116 h 35 20
-C 1116 g E_+
+C 1116 g H*[
 C 1117 h 35 1c
-C 1117 g D<]
+C 1117 g NN
 C 1118 h 35 18
-C 1118 g C$C
-C 1119 g Hl!
-C 1120 g <Q
-C 1121 g Do~
-C 1122 g C3%
+C 1118 g Btp
+C 1119 g G:0
+C 1120 g CKp
+C 1121 g CZ(
+C 1122 g Bzo
 C 1123 g F#O
 C 1124 g Fd/
 C 1125 g DN/
@@ -2251,68 +2252,68 @@ U 1278 Right
 C 1279 g CG}
 C 1280 g DNe
 C 1282 sfx Arrow
-C 1282 g C,+
-C 1283 g C+@
-C 1284 g Cq6
-C 1285 g C|O
-C 1286 g BG/
-C 1287 g ,`
-C 1288 g D8Z
-C 1289 g Chy
+C 1282 g Fn~
+C 1283 g HR,
+C 1284 g C1Z
+C 1285 g GiO
+C 1286 g C#A
+C 1287 g G[*
+C 1288 g CL7
+C 1289 g DBb
 C 1290 h bd 2b
-C 1290 g GEe
+C 1290 g EAP
 D 1290 Down
 C 1291 h bd 2c
-C 1291 g FP
+C 1291 g CAq
 C 1292 h bd 2e
-C 1292 g Htk
+C 1292 g Fos
 C 1293 h bd 2f
-C 1293 g Fs^
+C 1293 g EI!
 C 1294 h bd 31
-C 1294 g B73
+C 1294 g B6w
 C 1295 h bd 32
-C 1295 g <A
+C 1295 g FD_
 C 1296 h bd 34
-C 1296 g D!l
+C 1296 g x8
 C 1297 h bd 35
-C 1297 g B8R
+C 1297 g DKn
 C 1298 h bd 37
-C 1298 g F.$
+C 1298 g J*
 C 1299 h bd 38
-C 1299 g Be(
+C 1299 g C5d
 C 1300 h bd 3a
-C 1300 g G!,
+C 1300 g BT(
 C 1301 h bd 3b
-C 1301 g By~
+C 1301 g G7>
 C 1302 h bd 3d
-C 1302 g EUr
+C 1302 g C1"
 C 1303 h bd 3e
-C 1303 g Dof
+C 1303 g YY
 C 1304 h bd 40
-C 1304 g HVt
+C 1304 g H(2
 C 1305 h bd 41
-C 1305 g BMt
+C 1305 g H>k
 C 1306 h bd 43
-C 1306 g GZV
+C 1306 g BX}
 C 1307 h bd 44
-C 1307 g BDi
+C 1307 g C75
 C 1308 h bd 46
-C 1308 g H(f
+C 1308 g DxL
 C 1309 h bd 47
-C 1309 g DW{
+C 1309 g Caf
 C 1310 h bd 49
-C 1310 g HtF
+C 1310 g BoM
 C 1311 h bd 4a
-C 1311 g Cf3
-C 1312 g G:g
+C 1311 g H0V
+C 1312 g Fi{
 U 1312 Down
-C 1313 g Dyu
-C 1314 g D10
-C 1315 g D0i
-C 1316 g BIr
-C 1317 g Cq
+C 1313 g D1i
+C 1314 g E~k
+C 1315 g F?F
+C 1316 g BYs
+C 1317 g Dd/
 C 1318 h bd 48
-C 1318 g E~c
+C 1318 g D0;
 D 1318 Up
 C 1319 h bd 47
 C 1319 g cr
@@ -2445,30 +2446,30 @@ C 1402 h bd 6a
 C 1402 g Cq3
 C 1403 sfx Arrow
 C 1403 h bd 6c
-C 1403 g F:a
+C 1403 g ul
 C 1404 h bd 6d
-C 1404 g EJE
+C 1404 g D,n
 C 1405 h bd 6f
-C 1405 g G)s
+C 1405 g Gs=
 C 1406 h bd 70
-C 1406 g Gx>
+C 1406 g DD5
 C 1407 h bd 72
-C 1407 g eG
-C 1408 g =P
+C 1407 g EpP
+C 1408 g Bjh
 U 1408 Down
-C 1409 g HYp
-C 1410 g FZe
-C 1411 g H=5
-C 1412 g aA
-C 1413 g dH
-C 1414 g H<x
+C 1409 g H/D
+C 1410 g BBW
+C 1411 g C]h
+C 1412 g G@m
+C 1413 g ?q
+C 1414 g uO
 C 1415 h bd 71
-C 1415 g Fm8
+C 1415 g D}*
 D 1415 Up
 C 1416 h bd 6f
-C 1416 g 8.
+C 1416 g B)?
 C 1417 h bd 6e
-C 1417 g BrU
+C 1417 g G)m
 C 1418 h bd 6c
 C 1418 g F!)
 C 1419 h bd 6b
@@ -2714,40 +2715,40 @@ U 1544 A
 C 1545 g GFf
 C 1546 g G41
 C 1547 sfx Arrow
-C 1547 g B`[
-C 1548 g EQp
-C 1549 g DtK
-C 1550 g GuL
-C 1551 g GOk
-C 1552 g C,>
-C 1553 g Iw
+C 1547 g F2<
+C 1548 g E#6
+C 1549 g CU>
+C 1550 g Dq,
+C 1551 g 7X
+C 1552 g B;M
+C 1553 g GLM
 C 1554 h 95 80
-C 1554 g E@v
+C 1554 g HN^
 D 1554 Left
 C 1555 h 93 80
-C 1555 g FVY
+C 1555 g DH=
 C 1556 h 92 80
-C 1556 g Rn
+C 1556 g BwG
 C 1557 h 90 80
-C 1557 g G9D
+C 1557 g BO1
 C 1558 h 8f 80
-C 1558 g F/+
+C 1558 g D9I
 C 1559 sfx Link is hit
-C 1559 g E}P
+C 1559 g Cdu
 C 1560 h 8b 80
-C 1560 g GY=
+C 1560 g F~E
 C 1561 h 87 80
-C 1561 g E8j
+C 1561 g H2j
 C 1562 h 83 80
-C 1562 g Nr
+C 1562 g E{T
 C 1563 h 7f 80
-C 1563 g B|M
+C 1563 g 6n
 C 1564 h 7b 80
-C 1564 g B/A
+C 1564 g B<`
 C 1565 h 77 80
-C 1565 g BI^
+C 1565 g B;p
 C 1566 h 73 80
-C 1566 g DF0
+C 1566 g GyR
 C 1567 h 6f 80
 C 1567 g E2e
 C 1568 g FkO
@@ -2934,56 +2935,56 @@ C 1680 sfx Sword
 C 1680 g G[!
 D 1680 A
 C 1681 sfx Arrow
-C 1681 g H]:
-C 1682 g xh
-C 1683 g FA*
-C 1684 g Hqk
+C 1681 g EOW
+C 1682 g BYN
+C 1683 g H+D
+C 1684 g Df0
 U 1684 A
-C 1685 g HA1
-C 1686 g B/B
+C 1685 g EoR
+C 1686 g Gi)
 D 1686 Right
-C 1687 g GC[
-C 1688 g B0(
-C 1689 g DCY
-C 1690 g FUj
+C 1687 g B}2
+C 1688 g Cvg
+C 1689 g Eb8
+C 1690 g FL!
 D 1690 Up
-C 1691 g Hcg
-C 1692 g B!8
+C 1691 g DH>
+C 1692 g Cbv
 U 1692 Right
-C 1693 g Gw@
+C 1693 g DDM
 C 1694 h 67 7e
-C 1694 g B55
+C 1694 g HBB
 C 1695 h 67 7d
-C 1695 g H!?
+C 1695 g F@z
 C 1696 h 67 7b
-C 1696 g Hs0
+C 1696 g B8/
 C 1697 h 67 7a
-C 1697 g F;m
+C 1697 g ?W
 C 1698 h 67 78
-C 1698 g EJc
+C 1698 g %F
 C 1699 h 67 77
-C 1699 g F!o
+C 1699 g GhZ
 C 1700 h 67 75
-C 1700 g FY}
+C 1700 g Btq
 C 1701 h 67 74
-C 1701 g HfI
+C 1701 g Hdz
 C 1702 h 67 72
-C 1702 g H%g
+C 1702 g H@k
 C 1703 h 67 71
-C 1703 g GGw
+C 1703 g EPm
 C 1704 h 67 6f
-C 1704 g E[/
+C 1704 g FO>
 C 1705 h 67 6e
-C 1705 g HcR
+C 1705 g F2C
 C 1706 h 67 6c
-C 1706 g F)1
+C 1706 g Fu5
 C 1707 h 67 6b
-C 1707 g HjS
+C 1707 g ELc
 C 1708 h 67 69
-C 1708 g F2+
-C 1709 g "P
+C 1708 g DXM
+C 1709 g Hh$
 U 1709 Up
-C 1710 g Fs7
+C 1710 g Ggw
 C 1711 g ^{
 C 1712 g Hip
 C 1714 g D9@
@@ -5051,3 +5052,4 @@ U 2998 A
 C 2999 g G"2
 C 3000 g ERE
 C 3001 g Eb2
+C 3002 g Fk0

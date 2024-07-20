@@ -159,7 +159,7 @@ int32_t jwin_hsl_proc(int32_t msg, DIALOG *d, int32_t c)
 				}
 				if(d->d1 & HSL_FLAG_SATURATION)
 				{
-					ratio = vbound(y-(d->y+sat_y_offs),0,c_hei-1);
+					ratio = vbound(y-(d->y+sat_y_offs),0,c_hei);
 				}
 			}
 			else
@@ -169,8 +169,9 @@ int32_t jwin_hsl_proc(int32_t msg, DIALOG *d, int32_t c)
 			//Fallthrough
 		case MSG_DRAW:
 			clr /= 1.5;
-			gr /= 1.5;
+			gr = _rgb_scale_6[int(gr / 1.5)];
 			rat /= 1.5;
+
 			custom_vsync();
 			//Hue
 			jwin_draw_frame(screen, d->x+hue_x_offs-2, d->y+hue_y_offs-2, int32_t(128*1.5+4), misc_wh+4, FR_DEEP);
@@ -204,9 +205,7 @@ int32_t jwin_hsl_proc(int32_t msg, DIALOG *d, int32_t c)
 			_allegro_hline(screen,d->x+c_x_offs,gray+d->y+c_y_offs,d->x+c_x_offs+c_wid-1,edi);
 			_allegro_vline(screen,color+d->x+c_x_offs,d->y+c_y_offs,d->y+c_y_offs+c_hei-1,edi);
 			_allegro_hline(screen,d->x+sat_x_offs,ratio+d->y+sat_y_offs,d->x+sat_x_offs+misc_wh-1,edi);
-			if((edit_cset_dlg[19].flags & D_SELECTED))
-				textprintf_centre_ex(screen,font,d->x+(d->w/2),int32_t(d->y+c_y_offs+c_hei+10*(1.5)),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"  RGB - %3d %3d %3d  ",RAMpal[edc].r*4,RAMpal[edc].g*4,RAMpal[edc].b*4);
-			else textprintf_centre_ex(screen,font,d->x+(d->w/2),int32_t(d->y+c_y_offs+c_hei+10*(1.5)),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"  RGB - %2d %2d %2d  ",RAMpal[edc].r,RAMpal[edc].g,RAMpal[edc].b);
+			textprintf_centre_ex(screen,font,d->x+(d->w/2),int32_t(d->y+c_y_offs+c_hei+10*(1.5)),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"  RGB - %3d %3d %3d  ",RAMpal[edc].r,RAMpal[edc].g,RAMpal[edc].b);
 			SCRFIX();
 			break;
 	}
@@ -225,19 +224,11 @@ int jwin_cset_proc(int msg, DIALOG* d, int c)
 		char* c2 = (char*)edit_cset_dlg[11].dp;
 		char* c3 = (char*)edit_cset_dlg[12].dp;
 		int32_t r = atoi(c1), g = atoi(c2), b = atoi(c3);
-		
-		if(!lastshow16) //Just turned off
-		{
-			r /= 4;
-			g /= 4;
-			b /= 4;
-		}
+
 		jumpText(r,g,b);
 		ret |= D_REDRAW | D_REDRAWME;
 	}
 	d->h = cs_hei * 3;
-	int32_t x = gui_mouse_x();
-	int32_t y = gui_mouse_y();
 	switch(msg)
 	{
 		case MSG_START:
@@ -304,16 +295,8 @@ int jwin_cset_proc(int msg, DIALOG* d, int c)
 			
 			jwin_draw_icon(screen,color_index*cs_hei+d->x+cs_hei/2,d->y + d->h + 3,jwin_pal[jcBOXFG],BTNICON_ARROW_UP,4,true);
 			
-			if((edit_cset_dlg[19].flags & D_SELECTED))
-			{
-				textprintf_centre_ex(screen,(get_zc_font(font_lfont_l)),d->x + d->w/2,d->y + d->h + 18,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Old: %2d - %3d %3d %3d",color_index, RAMpal[12*16+color_index].r*4,RAMpal[12*16+color_index].g*4,RAMpal[12*16+color_index].b*4);
-				textprintf_centre_ex(screen,(get_zc_font(font_lfont_l)),d->x + d->w/2,d->y + d->h + 33,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"New: %2d - %3d %3d %3d",color_index, RAMpal[14*16+color_index].r*4,RAMpal[14*16+color_index].g*4,RAMpal[14*16+color_index].b*4);
-			}
-			else
-			{
-				textprintf_centre_ex(screen,(get_zc_font(font_lfont_l)),d->x + d->w/2,d->y + d->h + 18,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Old: %2d - %2d %2d %2d",color_index, RAMpal[12*16+color_index].r,RAMpal[12*16+color_index].g,RAMpal[12*16+color_index].b);
-				textprintf_centre_ex(screen,(get_zc_font(font_lfont_l)),d->x + d->w/2,d->y + d->h + 33,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"New: %2d - %2d %2d %2d",color_index, RAMpal[14*16+color_index].r,RAMpal[14*16+color_index].g,RAMpal[14*16+color_index].b);
-			}
+			textprintf_centre_ex(screen,(get_zc_font(font_lfont_l)),d->x + d->w/2,d->y + d->h + 18,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Old: %2d - %3d %3d %3d",color_index, RAMpal[12*16+color_index].r,RAMpal[12*16+color_index].g,RAMpal[12*16+color_index].b);
+			textprintf_centre_ex(screen,(get_zc_font(font_lfont_l)),d->x + d->w/2,d->y + d->h + 33,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"New: %2d - %3d %3d %3d",color_index, RAMpal[14*16+color_index].r,RAMpal[14*16+color_index].g,RAMpal[14*16+color_index].b);
 			break;
 	}
 	return ret;
@@ -360,7 +343,7 @@ int32_t edit_cset_kb_handler(int32_t msg, DIALOG* d, int32_t c)
 				case KEY_7:
 				case KEY_7_PAD:
 					++RAMpal[14*16+color_index].r;
-					RAMpal[14*16+color_index].r&=0x3F;
+					RAMpal[14*16+color_index].r&=0xFF;
 					edit_cset_dlg[9].flags |= D_DIRTY;
 					break;
 					
@@ -368,7 +351,7 @@ int32_t edit_cset_kb_handler(int32_t msg, DIALOG* d, int32_t c)
 				case KEY_1:
 				case KEY_1_PAD:
 					--RAMpal[14*16+color_index].r;
-					RAMpal[14*16+color_index].r&=0x3F;
+					RAMpal[14*16+color_index].r&=0xFF;
 					edit_cset_dlg[9].flags |= D_DIRTY;
 					break;
 					
@@ -376,7 +359,7 @@ int32_t edit_cset_kb_handler(int32_t msg, DIALOG* d, int32_t c)
 				case KEY_8:
 				case KEY_8_PAD:
 					++RAMpal[14*16+color_index].g;
-					RAMpal[14*16+color_index].g&=0x3F;
+					RAMpal[14*16+color_index].g&=0xFF;
 					edit_cset_dlg[9].flags |= D_DIRTY;
 					break;
 					
@@ -384,7 +367,7 @@ int32_t edit_cset_kb_handler(int32_t msg, DIALOG* d, int32_t c)
 				case KEY_2:
 				case KEY_2_PAD:
 					--RAMpal[14*16+color_index].g;
-					RAMpal[14*16+color_index].g&=0x3F;
+					RAMpal[14*16+color_index].g&=0xFF;
 					edit_cset_dlg[9].flags |= D_DIRTY;
 					break;
 					
@@ -392,7 +375,7 @@ int32_t edit_cset_kb_handler(int32_t msg, DIALOG* d, int32_t c)
 				case KEY_9:
 				case KEY_9_PAD:
 					++RAMpal[14*16+color_index].b;
-					RAMpal[14*16+color_index].b&=0x3F;
+					RAMpal[14*16+color_index].b&=0xFF;
 					edit_cset_dlg[9].flags |= D_DIRTY;
 					break;
 					
@@ -400,7 +383,7 @@ int32_t edit_cset_kb_handler(int32_t msg, DIALOG* d, int32_t c)
 				case KEY_3:
 				case KEY_3_PAD:
 					--RAMpal[14*16+color_index].b;
-					RAMpal[14*16+color_index].b&=0x3F;
+					RAMpal[14*16+color_index].b&=0xFF;
 					edit_cset_dlg[9].flags |= D_DIRTY;
 					break;
 					
@@ -466,32 +449,32 @@ int32_t edit_cset_kb_handler(int32_t msg, DIALOG* d, int32_t c)
 						
 						case '7':
 							++RAMpal[14*16+color_index].r;
-							RAMpal[14*16+color_index].r&=0x3F;
+							RAMpal[14*16+color_index].r&=0xFF;
 							break;
 							
 						case '1':
 							--RAMpal[14*16+color_index].r;
-							RAMpal[14*16+color_index].r&=0x3F;
+							RAMpal[14*16+color_index].r&=0xFF;
 							break;
 							
 						case '8':
 							++RAMpal[14*16+color_index].g;
-							RAMpal[14*16+color_index].g&=0x3F;
+							RAMpal[14*16+color_index].g&=0xFF;
 							break;
 							
 						case '2':
 							--RAMpal[14*16+color_index].g;
-							RAMpal[14*16+color_index].g&=0x3F;
+							RAMpal[14*16+color_index].g&=0xFF;
 							break;
 							
 						case '9':
 							++RAMpal[14*16+color_index].b;
-							RAMpal[14*16+color_index].b&=0x3F;
+							RAMpal[14*16+color_index].b&=0xFF;
 							break;
 							
 						case '3':
 							--RAMpal[14*16+color_index].b;
-							RAMpal[14*16+color_index].b&=0x3F;
+							RAMpal[14*16+color_index].b&=0xFF;
 							break;
 						
 						default:
@@ -519,18 +502,9 @@ void onInsertColor_Text()
 	int32_t r = atoi((char*)edit_cset_dlg[10].dp),
 		g = atoi((char*)edit_cset_dlg[11].dp),
 		b = atoi((char*)edit_cset_dlg[12].dp);
-	if(edit_cset_dlg[19].flags & D_SELECTED)
-	{
-		r = vbound(r, 0, 252)/4;
-		g = vbound(g, 0, 252)/4;
-		b = vbound(b, 0, 252)/4;
-	}
-	else
-	{
-		r = vbound(r, 0, 63);
-		g = vbound(g, 0, 63);
-		b = vbound(b, 0, 63);
-	}
+	r = vbound(r, 0, 255);
+	g = vbound(g, 0, 255);
+	b = vbound(b, 0, 255);
 	RAMpal[14*16+color_index].r = r;
 	RAMpal[14*16+color_index].g = g;
 	RAMpal[14*16+color_index].b = b;
@@ -540,12 +514,6 @@ void onInsertColor_Text()
 
 void jumpText(int32_t r, int32_t g, int32_t b)
 {
-	if(edit_cset_dlg[19].flags & D_SELECTED)
-	{
-		r*=4;
-		g*=4;
-		b*=4;
-	}
 	char* c1 = (char*)edit_cset_dlg[10].dp;
 	char* c2 = (char*)edit_cset_dlg[11].dp;
 	char* c3 = (char*)edit_cset_dlg[12].dp;
@@ -575,9 +543,9 @@ void onInsertColor_Hex()
 	auto g = (col&0x00FF00)>>8;
 	auto b = (col&0x0000FF)>>0;
 	
-	r = vbound(r, 0, 252)/4;
-	g = vbound(g, 0, 252)/4;
-	b = vbound(b, 0, 252)/4;
+	r = vbound(r, 0, 255);
+	g = vbound(g, 0, 255);
+	b = vbound(b, 0, 255);
 	RAMpal[14*16+color_index].r = r;
 	RAMpal[14*16+color_index].g = g;
 	RAMpal[14*16+color_index].b = b;
@@ -587,9 +555,6 @@ void onInsertColor_Hex()
 
 void jumpHex(int32_t r, int32_t g, int32_t b)
 {
-	r*=4;
-	g*=4;
-	b*=4;
 	char* hexbuf = (char*)edit_cset_dlg[21].dp;
 	sprintf(hexbuf, "%06X", (r<<16)|(g<<8)|(b<<0));
 	object_message(&edit_cset_dlg[21], MSG_DRAW, 0);
@@ -607,13 +572,23 @@ void onJumpHSL()
 
 void init_gfxpal()
 {
+	static bool scaled_gfx_pal;
+	if (!scaled_gfx_pal)
+	{
+		for (int i=0; i<128*3; i++)
+		{
+			gfx_pal[i] = _rgb_scale_6[gfx_pal[i]];
+		}
+		scaled_gfx_pal = true;
+	}
+
 	for(int32_t i=0; i<128; i++)
 	{
 		RAMpal[i] = _RGB(gfx_pal+i*3); //hue
 	}
 	for(int32_t i=0; i<32; i++)
 	{
-		RAMpal[i+128] = _RGB(i<<1,i<<1,i<<1); //lightness
+		RAMpal[i+128] = _RGB(i<<3,i<<3,i<<3); //lightness
 	}
 }
 
@@ -621,6 +596,9 @@ bool edit_dataset(int32_t dataset)
 {
 	PALETTE holdpal;
 	memcpy(holdpal,RAMpal,sizeof(RAMpal));
+
+	// TODO: remove defunct dialog option
+	edit_cset_dlg[19].flags |= D_HIDDEN;
 	
 	large_dialog(edit_cset_dlg);
 	
@@ -885,9 +863,6 @@ bool cset_ready = false;
 int32_t cset_count,cset_first;
 PALETTE pal,undopal;
 RGB** gUndoPal = NULL;
-
-//#define FLASH 243
-//byte rc[16] = {253,248,0,0,0,0,0,246,247,249,250,251,252,240,255,254};
 
 void undo_pal()
 {

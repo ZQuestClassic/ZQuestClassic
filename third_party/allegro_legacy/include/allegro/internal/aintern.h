@@ -437,6 +437,7 @@ AL_LEGACY_VAR(int, _color_depth);
 
 AL_LEGACY_VAR(int, _current_palette_changed);
 AL_LEGACY_VAR(PALETTE, _prev_current_palette);
+AL_LEGACY_VAR(PALETTE, _prev_current_palette_6bit);
 AL_LEGACY_VAR(int, _got_prev_current_palette);
 
 AL_LEGACY_ARRAY(int, _palette_color8);

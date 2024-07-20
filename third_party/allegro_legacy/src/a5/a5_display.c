@@ -461,7 +461,7 @@ static void a5_palette_from_a4_palette(const PALETTE a4_palette, ALLEGRO_COLOR *
     {
         for(i = from; i <= to; i++)
         {
-            a5_palette[i] = al_map_rgba_f((float)a4_palette[i].r / 63.0, (float)a4_palette[i].g / 63.0, (float)a4_palette[i].b / 63.0, i == 0 ? 0 : 1);
+            a5_palette[i] = al_map_rgb(a4_palette[i].r, a4_palette[i].g, a4_palette[i].b);
 
             /* create palette of pre-packed pixels for various pixel formats */
             al_unmap_rgb(a5_palette[i], &r, &g, &b);
@@ -491,10 +491,6 @@ static void a5_palette_from_a4_palette(const PALETTE a4_palette, ALLEGRO_COLOR *
 static void a5_display_set_palette(const struct RGB * palette, int from, int to, int vsync)
 {
     a5_palette_from_a4_palette(palette, _a5_screen_palette, from, to);
-    /*if (vsync)
-    {
-        a5_display_vsync();
-    }*/
 }
 
 static void a5_display_move_mouse(int x, int y)

@@ -636,9 +636,9 @@ int32_t reverse_NESpal(RGB c)
     
     for(int32_t i = 0; (i < 64) && (dist != 0); i++)
     {
-        int32_t r = (c.r - NESpal(i).r);
-        int32_t g = (c.g - NESpal(i).g);
-        int32_t b = (c.b - NESpal(i).b);
+        int32_t r = (c.r - NESpal(i).r) / 4;
+        int32_t g = (c.g - NESpal(i).g) / 4;
+        int32_t b = (c.b - NESpal(i).b) / 4;
         int32_t d = r*r + g*g + b*b;
         
         if(d < dist)

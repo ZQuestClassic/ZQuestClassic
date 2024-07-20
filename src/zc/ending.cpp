@@ -157,6 +157,8 @@ void endingpal()
 		26,34,63,                                               // blue
 		22,54,21                                                // green
 	};
+	for (int i = 0; i < 16*3; i++)
+		pal[i] = _rgb_scale_6[pal[i]];
 	byte *hold = colordata;
 	colordata = pal;
 	loadpalset(csBOSS,0);

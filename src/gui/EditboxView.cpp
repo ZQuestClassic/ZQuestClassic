@@ -158,9 +158,9 @@ void EditboxView::invertRectangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2
 				if(it == invmap.end())
 				{
 					get_color(c, &color);
-					uint8_t r = 4*(((~color.r)&0x3F)+1)-1;
-					uint8_t g = 4*(((~color.g)&0x3F)+1)-1;
-					uint8_t b = 4*(((~color.b)&0x3F)+1)-1;
+					uint8_t r = 4*(((~color.r)&0xFF)+1)-1;
+					uint8_t g = 4*(((~color.g)&0xFF)+1)-1;
+					uint8_t b = 4*(((~color.b)&0xFF)+1)-1;
 					invcolor = makecol(r,g,b);
 					invmap[c] = invcolor;
 				}

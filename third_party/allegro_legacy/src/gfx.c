@@ -235,7 +235,14 @@ void set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync)
       _current_palette[c] = p[c];
 
       if (_color_depth != 8)
-	 palette_color[c] = makecol(_rgb_scale_6[p[c].r], _rgb_scale_6[p[c].g], _rgb_scale_6[p[c].b]);
+	 palette_color[c] = makecol(p[c].r, p[c].g, p[c].b); // local edit
+      else
+      {
+         _current_palette_6bit[c] = p[c];
+         _current_palette_6bit[c].r /= 4;
+         _current_palette_6bit[c].g /= 4;
+         _current_palette_6bit[c].b /= 4;
+      }
    }
 
    _current_palette_changed = 0xFFFFFFFF & ~(1<<(_color_depth-1));
@@ -253,6 +260,7 @@ void set_palette_range(AL_CONST PALETTE p, int from, int to, int vsync)
 /* previous palette, so the image loaders can restore it when they are done */
 int _got_prev_current_palette = FALSE;
 PALETTE _prev_current_palette;
+PALETTE _prev_current_palette_6bit;
 static int prev_palette_color[PAL_SIZE];
 
 
@@ -269,13 +277,19 @@ void select_palette(AL_CONST PALETTE p)
 
    for (c=0; c<PAL_SIZE; c++) {
       _prev_current_palette[c] = _current_palette[c];
+      _prev_current_palette_6bit[c] = _current_palette_6bit[c];
       _current_palette[c] = p[c];
+
+      _current_palette_6bit[c] = p[c];
+      _current_palette_6bit[c].r /= 4;
+      _current_palette_6bit[c].g /= 4;
+      _current_palette_6bit[c].b /= 4;
    }
 
    if (_color_depth != 8) {
       for (c=0; c<PAL_SIZE; c++) {
 	 prev_palette_color[c] = palette_color[c];
-	 palette_color[c] = makecol(_rgb_scale_6[p[c].r], _rgb_scale_6[p[c].g], _rgb_scale_6[p[c].b]);
+	 palette_color[c] = makecol(p[c].r, p[c].g, p[c].b);
       }
    }
 
@@ -294,7 +308,11 @@ void unselect_palette(void)
    int c;
 
    for (c=0; c<PAL_SIZE; c++)
+   {
       _current_palette[c] = _prev_current_palette[c];
+      _current_palette_6bit[c] = _prev_current_palette_6bit[c];
+
+   }
 
    if (_color_depth != 8) {
       for (c=0; c<PAL_SIZE; c++)
@@ -327,10 +345,10 @@ static int *palette_expansion_table(int bpp)
 
    if (_current_palette_changed & (1<<(bpp-1))) {
       for (c=0; c<PAL_SIZE; c++) {
-	 table[c] = makecol_depth(bpp,
-				  _rgb_scale_6[_current_palette[c].r],
-				  _rgb_scale_6[_current_palette[c].g],
-				  _rgb_scale_6[_current_palette[c].b]);
+   table[c] = makecol_depth(bpp,
+				  _current_palette[c].r,
+				  _current_palette[c].g,
+				  _current_palette[c].b);
       }
 
       _current_palette_changed &= ~(1<<(bpp-1));
@@ -425,9 +443,9 @@ void fade_interpolate(AL_CONST PALETTE source, AL_CONST PALETTE dest, PALETTE ou
    ASSERT(to >= 0 && to < PAL_SIZE);
 
    for (c=from; c<=to; c++) {
-      output[c].r = ((int)source[c].r * (63-pos) + (int)dest[c].r * pos) / 64;
-      output[c].g = ((int)source[c].g * (63-pos) + (int)dest[c].g * pos) / 64;
-      output[c].b = ((int)source[c].b * (63-pos) + (int)dest[c].b * pos) / 64;
+      output[c].r = ((int)source[c].r * (64-pos) + (int)dest[c].r * pos) / 64;
+      output[c].g = ((int)source[c].g * (64-pos) + (int)dest[c].g * pos) / 64;
+      output[c].b = ((int)source[c].b * (64-pos) + (int)dest[c].b * pos) / 64;
    }
 }
 
@@ -463,12 +481,10 @@ void fade_from_range(AL_CONST PALETTE source, AL_CONST PALETTE dest, int speed, 
         {
             fade_interpolate(source, dest, temp, c, from, to);
             set_palette_range(temp, from, to, TRUE);
-//            allegro_render_screen();
             last = c;
         }
     }
     set_palette_range(dest, from, to, TRUE);
-//    allegro_render_screen();
 }
 
 

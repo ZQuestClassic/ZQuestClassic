@@ -505,7 +505,12 @@ static int generate_optimized_palette_ex(BITMAP *image, PALETTE pal, AL_CONST si
    /* copy used colors to 'pal', skipping 'rsvd' */
    for (i = rsvduse, j = 0; i < numcols; j++)
       if (!rsvdcols[j])
-	 copy_color(&pal[j], colors[i++].color);
+      {
+	      copy_color(&pal[j], colors[i++].color);
+         pal[j].r = _rgb_scale_6[pal[j].r];
+         pal[j].g = _rgb_scale_6[pal[j].g];
+         pal[j].b = _rgb_scale_6[pal[j].b];
+      }
 
    _AL_FREE(colors);
 

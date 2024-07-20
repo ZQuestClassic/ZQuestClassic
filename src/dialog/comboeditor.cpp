@@ -3353,7 +3353,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						fitParent = true, padding = 0_px,
 						type = GUI::TextField::type::NOSWAP_ZSINT,
 						swap_type = nswapLDEC,
-						low = -63, high = 63, val = local_comboref.trigtint[0],
+						low = -255, high = 255, val = local_comboref.trigtint[0],
 						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 						{
 							local_comboref.trigtint[0] = val;
@@ -3362,7 +3362,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						fitParent = true, padding = 0_px,
 						type = GUI::TextField::type::NOSWAP_ZSINT,
 						swap_type = nswapLDEC,
-						low = -63, high = 63, val = local_comboref.trigtint[1],
+						low = -255, high = 255, val = local_comboref.trigtint[1],
 						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 						{
 							local_comboref.trigtint[1] = val;
@@ -3371,7 +3371,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						fitParent = true, padding = 0_px,
 						type = GUI::TextField::type::NOSWAP_ZSINT,
 						swap_type = nswapLDEC,
-						low = -63, high = 63, val = local_comboref.trigtint[2],
+						low = -255, high = 255, val = local_comboref.trigtint[2],
 						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 						{
 							local_comboref.trigtint[2] = val;

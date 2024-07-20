@@ -44,6 +44,7 @@ AL_LEGACY_VAR(RGB_MAP *, rgb_map);
 AL_LEGACY_VAR(COLOR_MAP *, color_map);
 
 AL_LEGACY_VAR(PALETTE, _current_palette);
+AL_LEGACY_VAR(PALETTE, _current_palette_6bit);
 
 AL_LEGACY_VAR(int, _rgb_r_shift_15);
 AL_LEGACY_VAR(int, _rgb_g_shift_15);

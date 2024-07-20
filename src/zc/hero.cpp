@@ -31072,7 +31072,7 @@ void HeroClass::getTriforce(int32_t id2)
 	
 	for(int32_t i=0; i<256; i++)
 	{
-		flash_pal[i] = get_qr(qr_FADE) ? _RGB(63,63,0) : _RGB(63,63,63); 
+		flash_pal[i] = get_qr(qr_FADE) ? _RGB(255,255,0) : _RGB(255,255,255); 
 	}
 
 
@@ -31312,9 +31312,9 @@ void red_shift()
     for(int32_t i=CSET(2); i < CSET(4); i++)
     {
         int32_t r = (i-CSET(2)) << 1;
-        RAMpal[i+tnum].r = r;
-        RAMpal[i+tnum].g = r >> 3;
-        RAMpal[i+tnum].b = r >> 4;
+        RAMpal[i+tnum].r = _rgb_scale_6[r];
+        RAMpal[i+tnum].g = _rgb_scale_6[r >> 3];
+        RAMpal[i+tnum].b = _rgb_scale_6[r >> 4];
     }
     
     // color scale the game screen
@@ -31322,9 +31322,12 @@ void red_shift()
     {
         for(int32_t x=0; x<256; x++)
         {
-            int32_t c = framebuf->line[y+playing_field_offset][x];
-            int32_t r = zc_min(int32_t(RAMpal[c].r*0.4 + RAMpal[c].g*0.6 + RAMpal[c].b*0.4)>>1,31);
-            framebuf->line[y+playing_field_offset][x] = (c ? (r+tnum+CSET(2)) : 0);
+            int c = framebuf->line[y+playing_field_offset][x];
+			int r = RAMpal[c].r / 4;
+			int g = RAMpal[c].g / 4;
+			int b = RAMpal[c].b / 4;
+            int v = zc_min(int32_t(r*0.4 + g*0.6 + b*0.4)>>1,31);
+			putpixel(framebuf, x, y + playing_field_offset, c ? (v + tnum+CSET(2)) : 0);
         }
     }
     

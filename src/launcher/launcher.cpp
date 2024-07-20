@@ -414,7 +414,14 @@ void init_launcher_palette()
 	RAMpal[254].r = 34; RAMpal[254].g = 42; RAMpal[254].b = 53;
 	RAMpal[255].r = 41; RAMpal[255].g = 49; RAMpal[255].b = 59;
 	//}
-	
+
+	for (int i = 0; i < 256; i++)
+	{
+		RAMpal[i].r = _rgb_scale_6[RAMpal[i].r];
+		RAMpal[i].g = _rgb_scale_6[RAMpal[i].g];
+		RAMpal[i].b = _rgb_scale_6[RAMpal[i].b];
+	}
+
 	load_colorset(gui_colorset);
 	
 	zc_set_palette(RAMpal);

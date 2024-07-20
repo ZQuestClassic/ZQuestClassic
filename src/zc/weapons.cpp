@@ -3706,9 +3706,9 @@ void weapon::limited_animate()
 							{
 								int32_t g = zc_min((RAMpal[i].r*42 + RAMpal[i].g*75 + RAMpal[i].b*14) >> 7, 63);
 								g = (g >> 1) + 32;
+								g = _rgb_scale_6[g];
 								RAMpal[i] = _RGB(g,g,g);
 							}
-							
 						}
 						else
 						{

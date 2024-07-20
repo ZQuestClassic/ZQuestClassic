@@ -638,7 +638,8 @@ long		-2,147,483,648 -> 2,147,483,647
 		00011bL (== 0.0003, == 3L) //Binary long
 		17oL, 17Lo (== 0.0015, == 15L) //Octal long
 		
-rgb         0L -> 0x3F3F3FL
+rgb         0L -> 0xFFFFFFL
+	NOTE: if compat QR "Scripts use 6-bit color (0-63) instead of 8-bit (0-255)" is enabled: 0L -> 0x3F3F3FL
 	rgb is a special type used by paldata for color operations.
 	rgb values cannot inherently cast to other primitive types.
 	
@@ -7812,7 +7813,9 @@ int TrigDMapLvl;
 int TrigTintR;
 int TrigTintG;
 int TrigTintB;
- * The R/G/B values to tint the palette by when triggered. -63 to 63.
+ * The R/G/B values to tint the palette by when triggered. -255 to 255.
+ * If compat QR "Scripts use 6-bit color (0-63) instead of 8-bit (0-255)" is enabled,
+   then it is -63 to 63.
 
 int TrigLvlPal;
  * The level palette to change to when triggered. -1 for none.
@@ -8266,11 +8269,15 @@ rgb MixColor(rgb clr_start, rgb clr_end, float percent, int color_space = CSPACE
 
 rgb CreateRGB(int r, int g, int b);
  * Returns an rgb based on the R/G/B values
- * Values range 0-63
+ * Values range 0-255
+ * If compat QR "Scripts use 6-bit color (0-63) instead of 8-bit (0-255)" is enabled,
+   then it is 0-63
 
 rgb CreateRGB(long hexcode);
- * Returns an rgb based on a long hexcode (0xRRGGBBL)
- * R/G/B values will be converted from 0-255 to 0-63
+ * Returns an rgb based on a long hexcode (0xRRGGBBL), where each color component ranges
+   from 0 to FF (255).
+ * When compat QR "Scripts use 6-bit color (0-63) instead of 8-bit (0-255)" is disabled,
+   the RGB values are converted from 0-255 to 0-63
 
 void ConvertRGBTo(float[] buf, rgb clr, int color_space)
  * Converts an rgb into another color space and copies the values into the buffer.

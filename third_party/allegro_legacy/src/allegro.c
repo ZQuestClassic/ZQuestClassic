@@ -90,7 +90,8 @@ unsigned int _drawing_y_mask = 0;
 
 /* default palette structures */
 PALETTE black_palette;
-PALETTE _current_palette;
+PALETTE _current_palette; // 8-bit
+PALETTE _current_palette_6bit; // local edit
 
 int _current_palette_changed = 0xFFFFFFFF;
 
@@ -328,6 +329,19 @@ static int _install_allegro(int system_id, int *errno_ptr, int (*atexit_ptr)(voi
    for (i=0; i<256; i++)
       black_palette[i] = black_rgb;
 
+   // local edit
+   for (i=0; i<256; i++)
+   {
+      default_palette[i].r = _rgb_scale_6[default_palette[i].r];
+      default_palette[i].g = _rgb_scale_6[default_palette[i].g];
+      default_palette[i].b = _rgb_scale_6[default_palette[i].b];
+   }
+   for (i=0; i<16; i++)
+   {
+      desktop_palette[i].r = _rgb_scale_6[desktop_palette[i].r];
+      desktop_palette[i].g = _rgb_scale_6[desktop_palette[i].g];
+      desktop_palette[i].b = _rgb_scale_6[desktop_palette[i].b];
+   }
    for (i=16; i<256; i++)
       desktop_palette[i] = desktop_palette[i & 15];
 

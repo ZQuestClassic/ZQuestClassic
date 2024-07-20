@@ -9911,7 +9911,7 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 		if(!p_iputw(tmp_cmb.trigdmlevel,f))
 			return 92;
 		for(int q = 0; q < 3; ++q)
-			if(!p_putc(tmp_cmb.trigtint[q],f))
+			if(!p_iputw(tmp_cmb.trigtint[q],f))
 				return 93;
 		if(!p_iputw(tmp_cmb.triglvlpalette,f))
 			return 94;

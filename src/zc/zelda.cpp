@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include <memory>
 #include <filesystem>
 #include <stdio.h>
@@ -88,7 +89,7 @@ extern char zc_builddate[80];
 extern char zc_aboutstr[80];
 
 int32_t DMapEditorLastMaptileUsed = 0;
-int32_t switch_type = 0; //Init here to avoid Linux building error in g++.
+int32_t switch_type = 0;
 bool saved = true;
 bool zqtesting_mode = false;
 static std::string testingqst_name;
@@ -736,19 +737,6 @@ FONT *setmsgfont()
 	return get_zc_font(MsgStrings[msgstr].font);
 }
 
-void zc_trans_blit(BITMAP* dest, BITMAP* src, int32_t sx, int32_t sy, int32_t dx, int32_t dy, int32_t w, int32_t h)
-{
-	for(int32_t tx = 0; tx < w; ++tx)
-		for(int32_t ty = 0; ty < h; ++ty)
-		{
-			int32_t c1 = src->line[sy+ty][sx+tx];
-			int32_t c2 = dest->line[dy+ty][dx+tx];
-			if(c1)
-			{
-				dest->line[dy+ty][dx+tx] = trans_table.data[c1][c2];
-			}
-		}
-}
 void msg_bg(MsgStr const& msg)
 {
 	if(msg.tile == 0) return;
@@ -787,7 +775,6 @@ void blit_msgstr_bg(BITMAP* dest, int32_t sx, int32_t sy, int32_t dx, int32_t dy
 			destroy_bitmap(subbmp);
 			color_map = &trans_table;
 		}
-		//zc_trans_blit(dest, msg_bg_display_buf, sx, sy, dx, dy, w, h);
 	}
 	else
 	{
@@ -808,7 +795,6 @@ void blit_msgstr_fg(BITMAP* dest, int32_t sx, int32_t sy, int32_t dx, int32_t dy
 			destroy_bitmap(subbmp);
 			color_map = &trans_table;
 		}
-		//zc_trans_blit(dest, msg_txt_display_buf, sx, sy, dx, dy, w, h);
 	}
 	else
 	{
@@ -3782,19 +3768,19 @@ void shiftColour(int32_t rshift, int32_t gshift, int32_t bshift, int32_t base)
 		}
 		//Bit-shifting negatives throws errors. If negative, shift in the other direction.
 		if(rshift>=0){
-			RAMpal[i].r = zc_min(RAMpal[i].r >> rshift,63);
+			RAMpal[i].r = zc_min(RAMpal[i].r >> rshift,255);
 		} else {
-			RAMpal[i].r = zc_min(RAMpal[i].r << -rshift,63);
+			RAMpal[i].r = zc_min(RAMpal[i].r << -rshift,255);
 		}
 		if(gshift>=0){
-			RAMpal[i].g = zc_min(RAMpal[i].g >> gshift,63);
+			RAMpal[i].g = zc_min(RAMpal[i].g >> gshift,255);
 		} else {
-			RAMpal[i].g = zc_min(RAMpal[i].g << -gshift,63);
+			RAMpal[i].g = zc_min(RAMpal[i].g << -gshift,255);
 		}
 		if(bshift>=0){
-			RAMpal[i].b = zc_min(RAMpal[i].b >> bshift,63);
+			RAMpal[i].b = zc_min(RAMpal[i].b >> bshift,255);
 		} else {
-			RAMpal[i].b = zc_min(RAMpal[i].b << -bshift,63);
+			RAMpal[i].b = zc_min(RAMpal[i].b << -bshift,255);
 		}
 	}
 }
@@ -3810,10 +3796,10 @@ void addColour(int32_t radd, int32_t gadd, int32_t badd, int32_t base)
 			int32_t grey = 0.299*RAMpal[i].r + 0.587*RAMpal[i].g + 0.114*RAMpal[i].b;
 			RAMpal[i] = _RGB(grey,grey,grey);
 		}
-		//Add the r/g/b adds to the r/g/b values, clamping between 0 and 63.
-		RAMpal[i].r = vbound(RAMpal[i].r + radd,0,63);
-		RAMpal[i].g = vbound(RAMpal[i].g + gadd,0,63);
-		RAMpal[i].b = vbound(RAMpal[i].b + badd,0,63);
+		//Add the r/g/b adds to the r/g/b values, clamping between 0 and 255.
+		RAMpal[i].r = vbound(RAMpal[i].r + radd,0,255);
+		RAMpal[i].g = vbound(RAMpal[i].g + gadd,0,255);
+		RAMpal[i].b = vbound(RAMpal[i].b + badd,0,255);
 	}
 }
 

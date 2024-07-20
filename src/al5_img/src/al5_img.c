@@ -12,6 +12,7 @@ BITMAP *al5_bitmap_to_al4_bitmap(ALLEGRO_BITMAP *a5bmp, RGB *pal)
     unsigned char r, g, b;
     int i, j, k;
     ALLEGRO_COLOR a5pal[256];
+    RGB pal_6bit[256];
 
     if (!a5bmp)
     {
@@ -34,10 +35,12 @@ BITMAP *al5_bitmap_to_al4_bitmap(ALLEGRO_BITMAP *a5bmp, RGB *pal)
 
         for (int i = 0; i < ncolors; i++)
         {
-            pal[i].r = a5pal[i].r * 63.0f;
-            pal[i].g = a5pal[i].g * 63.0f;
-            pal[i].b = a5pal[i].b * 63.0f;
-            // no alpha in allegro 4.
+            pal[i].r = a5pal[i].r * 255;
+            pal[i].g = a5pal[i].g * 255;
+            pal[i].b = a5pal[i].b * 255;
+            pal_6bit[i].r = pal[i].r / 4;
+            pal_6bit[i].g = pal[i].g / 4;
+            pal_6bit[i].b = pal[i].b / 4;
         }
 
         al_lock_bitmap(a5bmp, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_READONLY);
@@ -49,7 +52,7 @@ BITMAP *al5_bitmap_to_al4_bitmap(ALLEGRO_BITMAP *a5bmp, RGB *pal)
                 r = color.r * 255;
                 g = color.g * 255;
                 b = color.b * 255;
-                putpixel(bmp, j, i, bestfit_color(pal, r>>2, g>>2, b>>2));
+                putpixel(bmp, j, i, bestfit_color(pal_6bit, r/4, g/4, b/4));
             }
         }
         al_unlock_bitmap(a5bmp);
@@ -117,7 +120,7 @@ int save_al4_bitmap_through_al5(AL_CONST char *filename, BITMAP *bmp, AL_CONST P
         for (j = 0; j < bmp->w; j++)
         {
             c = getpixel(bmp, j, i);
-            al_put_pixel(j, i, al_map_rgb(pal[c].r * 4, pal[c].g * 4, pal[c].b * 4));
+            al_put_pixel(j, i, al_map_rgb(pal[c].r, pal[c].g, pal[c].b));
         }
     }
     al_unlock_bitmap(a5bmp);

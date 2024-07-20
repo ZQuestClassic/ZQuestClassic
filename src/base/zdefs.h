@@ -141,8 +141,8 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_STRINGS         10
 #define V_MISC            16
 #define V_TILES            3 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
-#define V_COMBOS          47
-#define V_CSETS            5 //palette data
+#define V_COMBOS          48
+#define V_CSETS            6 //palette data
 #define V_MAPS            30
 #define V_DMAPS           21
 #define V_DOORS            1
@@ -155,7 +155,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_GUYS            49
 #define V_MIDIS            4
 #define V_CHEATS           1
-#define V_SAVEGAME        41
+#define V_SAVEGAME        42
 #define V_COMBOALIASES     5
 #define V_HEROSPRITES      16
 #define V_SUBSCREEN        11
@@ -164,7 +164,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_SFX              8
 #define V_FAVORITES        4
 
-#define V_COMPATRULE       67
+#define V_COMPATRULE       68
 #define V_ZINFO            3
 
 //= V_SHOPS is under V_MISC
@@ -2331,6 +2331,8 @@ char *VerStrFromHex(int32_t version);
 
 RGB _RGB(byte *si);
 RGB _RGB(int32_t r,int32_t g,int32_t b);
+// Converts 6-bit RGB to 8-bit.
+void convertRGB(RGB& c);
 RGB invRGB(RGB s);
 RGB mixRGB(int32_t r1,int32_t g1,int32_t b1,int32_t r2,int32_t g2,int32_t b2,int32_t ratio);
 

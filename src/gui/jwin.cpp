@@ -445,12 +445,12 @@ void jwin_draw_titlebar(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h
     PALETTE temp_pal;
     get_palette(temp_pal);
     dither_rect(dest, &temp_pal, x, y, x+w-1, y+h-1,
-                makecol15(temp_pal[scheme[jcTITLEL]].r*255/63,
-                          temp_pal[scheme[jcTITLEL]].g*255/63,
-                          temp_pal[scheme[jcTITLEL]].b*255/63),
-                makecol15(temp_pal[scheme[jcTITLER]].r*255/63,
-                          temp_pal[scheme[jcTITLER]].g*255/63,
-                          temp_pal[scheme[jcTITLER]].b*255/63),
+                makecol15(temp_pal[scheme[jcTITLEL]].r,
+                          temp_pal[scheme[jcTITLEL]].g,
+                          temp_pal[scheme[jcTITLEL]].b),
+                makecol15(temp_pal[scheme[jcTITLER]].r,
+                          temp_pal[scheme[jcTITLER]].g,
+                          temp_pal[scheme[jcTITLER]].b),
                 scheme[jcTITLEL], scheme[jcTITLER]);
                 
                 
@@ -6276,7 +6276,7 @@ int32_t jwin_color_swatch(int32_t msg, DIALOG *d, int32_t c)
 				PALETTE foopal;
 				get_palette(foopal);
 				foopal[BLACK] = _RGB(0,0,0);
-				foopal[WHITE] = _RGB(63,63,63);
+				foopal[WHITE] = _RGB(255,255,255);
 				zc_set_palette(foopal);
 			}
 			
@@ -7467,10 +7467,20 @@ int32_t makecol8_map(int32_t r, int32_t g, int32_t b, RGB_MAP *table)
   *  times better than normal 256*32000 tests so the calculation time
   *  is now less than one second at all computers I tested.
   */
-void create_rgb_table_range(RGB_MAP *table, AL_CONST PALETTE pal, uint8_t start, uint8_t end, void (*callback)(int32_t pos))
+void create_rgb_table_range(RGB_MAP *table, AL_CONST PALETTE pal_8bit, uint8_t start, uint8_t end, void (*callback)(int32_t pos))
 {
 #define UNUSED 65535
 #define LAST 65532
+
+	// Allegro has been modified to use an 8 bit palette, but this method and RGB_MAP still use 6 bit.
+	PALETTE pal;
+	for (int i = 0; i < 256; i++)
+	{
+		pal[i] = pal_8bit[i];
+		pal[i].r /= 4;
+		pal[i].g /= 4;
+		pal[i].b /= 4;
+	}
 
     /* macro add adds to single linked list */
 #define add(i)    (next[(i)] == UNUSED ? (next[(i)] = LAST, \

@@ -3689,6 +3689,56 @@ void item_flag(item_flags flag, bool val)
 	SETFLAG(itemsbuf[ri->idata].flags, flag, val);
 }
 
+bool scripting_use_8bit_colors;
+int scripting_max_color_val;
+
+static int scripting_read_pal_color(int c)
+{
+	return scripting_use_8bit_colors ? c : c / 4;
+}
+
+static int scripting_write_pal_color(int c)
+{
+	return scripting_use_8bit_colors ? c : _rgb_scale_6[c];
+}
+
+static void apply_qr_rule(int qr_id)
+{
+	bool value = get_qr(qr_id);
+	switch (qr_id)
+	{
+		case qr_LTTPWALK:
+			Hero.setDiagMove(value?1:0);
+			break;
+		case qr_LTTPCOLLISION:
+			Hero.setBigHitbox(value?1:0);
+			break;
+		case qr_ZS_NO_NEG_ARRAY:
+			can_neg_array = !value;
+			break;
+		case qr_SCRIPTS_6_BIT_COLOR:
+			if (get_qr(qr_SCRIPTS_6_BIT_COLOR))
+			{
+				scripting_use_8bit_colors = false;
+				scripting_max_color_val = 63;
+			}
+			else
+			{
+				scripting_use_8bit_colors = true;
+				scripting_max_color_val = 255;
+			}
+			break;
+	}
+}
+
+static void apply_qr_rules()
+{
+	apply_qr_rule(qr_LTTPCOLLISION);
+	apply_qr_rule(qr_LTTPWALK);
+	apply_qr_rule(qr_SCRIPTS_6_BIT_COLOR);
+	apply_qr_rule(qr_ZS_NO_NEG_ARRAY);
+}
+
 //Forward decl
 int32_t do_msgheight(int32_t msg, char const* str);
 int32_t do_msgwidth(int32_t msg, char const* str);
@@ -12733,8 +12783,9 @@ int32_t get_register(int32_t arg)
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
 			{
 				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigTintR: %d\n", (ri->combosref*10000));
+				break;
 			}
-			else ret = (combobuf[ri->combosref].trigtint[0]) * 10000;
+			else ret = scripting_read_pal_color(combobuf[ri->combosref].trigtint[0]) * 10000;
 			break;
 		}
 		case COMBODTRIGTINTG:
@@ -12743,7 +12794,7 @@ int32_t get_register(int32_t arg)
 			{
 				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigTintG: %d\n", (ri->combosref*10000));
 			}
-			else ret = (combobuf[ri->combosref].trigtint[1]) * 10000;
+			else ret = scripting_read_pal_color(combobuf[ri->combosref].trigtint[1]) * 10000;
 			break;
 		}
 		case COMBODTRIGTINTB:
@@ -12752,7 +12803,7 @@ int32_t get_register(int32_t arg)
 			{
 				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigTintG: %d\n", (ri->combosref*10000));
 			}
-			else ret = (combobuf[ri->combosref].trigtint[2]) * 10000;
+			else ret = scripting_read_pal_color(combobuf[ri->combosref].trigtint[2]) * 10000;
 			break;
 		}
 		case COMBODTRIGLVLPAL:
@@ -17652,18 +17703,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			int32_t ruleid = vbound((ri->d[rINDEX]/10000),0,qr_MAX);
 			set_qr(ruleid, (value?true:false));
-			switch(ruleid)
-			{
-				case qr_LTTPWALK:
-					Hero.setDiagMove(value?1:0);
-					break;
-				case qr_LTTPCOLLISION:
-					Hero.setBigHitbox(value?1:0);
-					break;
-				case qr_ZS_NO_NEG_ARRAY:
-					can_neg_array = !value;
-					break;
-			}
+			apply_qr_rule(ruleid);
 		}
 		break;
 		
@@ -25773,7 +25813,8 @@ void set_register(int32_t arg, int32_t value)
 			{
 				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigTintR: %d\n", (ri->combosref*10000));
 			}
-			else combobuf[ri->combosref].trigtint[0] = vbound(value/10000, -63, 63);
+			else combobuf[ri->combosref].trigtint[0] =
+				scripting_write_pal_color(vbound(value/10000, -scripting_max_color_val, scripting_max_color_val));
 			break;
 		}
 		case COMBODTRIGTINTG:
@@ -25782,7 +25823,8 @@ void set_register(int32_t arg, int32_t value)
 			{
 				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigTintG: %d\n", (ri->combosref*10000));
 			}
-			else combobuf[ri->combosref].trigtint[1] = vbound(value/10000, -63, 63);
+			else combobuf[ri->combosref].trigtint[1] =
+				scripting_write_pal_color(vbound(value/10000, -scripting_max_color_val, scripting_max_color_val));
 			break;
 		}
 		case COMBODTRIGTINTB:
@@ -25791,7 +25833,8 @@ void set_register(int32_t arg, int32_t value)
 			{
 				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigTintB: %d\n", (ri->combosref*10000));
 			}
-			else combobuf[ri->combosref].trigtint[2] = vbound(value/10000, -63, 63);
+			else combobuf[ri->combosref].trigtint[2] =
+				scripting_write_pal_color(vbound(value/10000, -scripting_max_color_val, scripting_max_color_val));
 			break;
 		}
 		case COMBODTRIGLVLPAL:
@@ -26810,9 +26853,9 @@ void set_register(int32_t arg, int32_t value)
 				{
 					Z_scripterrlog("Invalid rgb (%d) passed to paldata->SetColor().\n", clri);
 				}
-				c.r = vbound(c.r, 0, 63);
-				c.g = vbound(c.g, 0, 63);
-				c.b = vbound(c.b, 0, 63);
+				c.r = vbound(c.r, 0, scripting_max_color_val);
+				c.g = vbound(c.g, 0, scripting_max_color_val);
+				c.b = vbound(c.b, 0, scripting_max_color_val);
 
 				pd->set_color(ind, c);
 			}
@@ -31762,9 +31805,9 @@ void FFScript::do_create_paldata_clr()
 		{
 			Z_scripterrlog("Invalid rgb (%d) passed to Graphics->CreatePalData().\n", clri);
 		}
-		c.r = vbound(c.r, 0, 63);
-		c.g = vbound(c.g, 0, 63);
-		c.b = vbound(c.b, 0, 63);
+		c.r = vbound(c.r, 0, scripting_max_color_val);
+		c.g = vbound(c.g, 0, scripting_max_color_val);
+		c.b = vbound(c.b, 0, scripting_max_color_val);
 
 		for (int32_t q = 0; q < 240; ++q)
 			pd.set_color(q, c);
@@ -31783,9 +31826,9 @@ void FFScript::do_mix_clr()
 	RGB ref2c = _RGB((clr_end >> 16) & 0xFF, (clr_end >> 8) & 0xFF, clr_end & 0xFF);
 	RGB outputc = user_paldata::mix_color(ref1c, ref2c, percent, color_space);
 
-	int32_t r = vbound(outputc.r, 0, 63);
-	int32_t g = vbound(outputc.g, 0, 63);
-	int32_t b = vbound(outputc.b, 0, 63);
+	int32_t r = vbound(outputc.r, 0, scripting_max_color_val);
+	int32_t g = vbound(outputc.g, 0, scripting_max_color_val);
+	int32_t b = vbound(outputc.b, 0, scripting_max_color_val);
 
 	ri->d[rEXP1] = (r << 16) | (g << 8) | b;
 }
@@ -31798,10 +31841,18 @@ void FFScript::do_create_rgb_hex()
 	int32_t g = (hexrgb >> 8) & 0xFF;
 	int32_t b = hexrgb & 0xFF;
 
-	//Convert rgb from 8-bit to 6-bit
-	r = vbound(r / 4, 0, 63);
-	g = vbound(g / 4, 0, 63);
-	b = vbound(b / 4, 0, 63);
+	if (scripting_use_8bit_colors)
+	{
+		r = vbound(r, 0, 255);
+		g = vbound(g, 0, 255);
+		b = vbound(b, 0, 255);
+	}
+	else
+	{
+		r = vbound(r / 4, 0, 63);
+		g = vbound(g / 4, 0, 63);
+		b = vbound(b / 4, 0, 63);
+	}
 
 	ri->d[rEXP1] = (r << 16) | (g << 8) | b;
 }
@@ -31812,13 +31863,15 @@ void FFScript::do_create_rgb()
 	int32_t g = SH::read_stack(ri->sp + 1) / 10000;
 	int32_t b = SH::read_stack(ri->sp + 0) / 10000;
 
-	if (unsigned(r) > 63 || unsigned(g) > 63 || unsigned(b) > 63)
+	int max_value = scripting_max_color_val;
+	if (unsigned(r) > max_value || unsigned(g) > max_value || unsigned(b) > max_value)
 	{
-		Z_scripterrlog("R/G/B values passed to Graphics->CreateRGB() should range from 0-63.\n");
+		Z_scripterrlog("R/G/B values passed to Graphics->CreateRGB() should range from 0-%d.\n", max_value);
 	}
-	r = vbound(r, 0, 63);
-	g = vbound(g, 0, 63);
-	b = vbound(b, 0, 63);
+
+	r = vbound(r, 0, max_value);
+	g = vbound(g, 0, max_value);
+	b = vbound(b, 0, max_value);
 
 	ri->d[rEXP1] = (r << 16) | (g << 8) | b;
 }
@@ -32495,10 +32548,10 @@ void FFScript::do_paldata_setrgb(int32_t v, int32_t val)
 			Z_scripterrlog("Invalid color index (%d) passed to %s. Valid indices are 0-255. Aborting.\n", ind, fname);
 			return;
 		}
-		if (unsigned(val) > 63)
+		if (unsigned(val) > scripting_max_color_val)
 		{
-			Z_scripterrlog("RGB value(%d) passed to %s is out of range. RGB values range from 0 - 63.\n", val, fname);
-			val = vbound(val, 0, 63);
+			Z_scripterrlog("RGB value(%d) passed to %s is out of range. RGB values range from 0 - %d.\n", val, fname, scripting_max_color_val);
+			val = vbound(val, 0, scripting_max_color_val);
 		}
 		if (!get_bit(pd->colors_used, ind))
 		{
@@ -32614,9 +32667,9 @@ void user_paldata::load_cset(int32_t cset, int32_t dataset)
 	for (int32_t q = 0; q < 16; ++q)
 	{
 		int32_t ind = CSET(cset) + q;
-		colors[ind].r = si[0];
-		colors[ind].g = si[1];
-		colors[ind].b = si[2];
+		colors[ind].r = scripting_read_pal_color(si[0]);
+		colors[ind].g = scripting_read_pal_color(si[1]);
+		colors[ind].b = scripting_read_pal_color(si[2]);
 		set_bit(colors_used, ind, true);
 		si += 3;
 	}
@@ -32628,9 +32681,9 @@ void user_paldata::load_cset_main(int32_t cset)
 	for (int32_t q = 0; q < 16; ++q)
 	{
 		int32_t ind = CSET(cset) + q;
-		colors[ind].r = RAMpal[ind].r;
-		colors[ind].g = RAMpal[ind].g;
-		colors[ind].b = RAMpal[ind].b;
+		colors[ind].r = scripting_read_pal_color(RAMpal[ind].r);
+		colors[ind].g = scripting_read_pal_color(RAMpal[ind].g);
+		colors[ind].b = scripting_read_pal_color(RAMpal[ind].b);
 		set_bit(colors_used, ind, true);
 	}
 }
@@ -32644,9 +32697,9 @@ void user_paldata::write_cset(int32_t cset, int32_t dataset)
 		int32_t ind = CSET(cset) + q;
 		if (get_bit(colors_used, ind))
 		{
-			si[0] = colors[ind].r;
-			si[1] = colors[ind].g;
-			si[2] = colors[ind].b;
+			si[0] = scripting_write_pal_color(colors[ind].r);
+			si[1] = scripting_write_pal_color(colors[ind].g);
+			si[2] = scripting_write_pal_color(colors[ind].b);
 		}
 		si += 3;
 	}
@@ -32661,6 +32714,8 @@ void user_paldata::write_cset_main(int32_t cset)
 		if (get_bit(colors_used, ind))
 		{
 			RAMpal[ind] = colors[ind];
+			if (!scripting_use_8bit_colors)
+				convertRGB(RAMpal[ind]);
 		}
 	}
 }
@@ -32679,11 +32734,11 @@ bool user_paldata::check_cset(int32_t cset, int32_t dataset)
 		int32_t ind = CSET(cset) + q;
 		if (get_bit(colors_used, ind))
 		{
-			if (si[0] != colors[ind].r)
+			if (scripting_read_pal_color(si[0]) != colors[ind].r)
 				return true;
-			if (si[1] != colors[ind].g)
+			if (scripting_read_pal_color(si[1]) != colors[ind].g)
 				return true;
-			if (si[2] != colors[ind].b)
+			if (scripting_read_pal_color(si[2]) != colors[ind].b)
 				return true;
 		}
 		si += 3;
@@ -32699,11 +32754,11 @@ bool user_paldata::check_cset_main(int32_t cset)
 		int32_t ind = CSET(cset) + q;
 		if (get_bit(colors_used, ind))
 		{
-			if (RAMpal[ind].r != colors[ind].r)
+			if (scripting_read_pal_color(RAMpal[ind].r) != colors[ind].r)
 				return true;
-			if (RAMpal[ind].g != colors[ind].g)
+			if (scripting_read_pal_color(RAMpal[ind].g) != colors[ind].g)
 				return true;
-			if (RAMpal[ind].b != colors[ind].b)
+			if (scripting_read_pal_color(RAMpal[ind].b) != colors[ind].b)
 				return true;
 		}
 	}
@@ -32713,13 +32768,14 @@ bool user_paldata::check_cset_main(int32_t cset)
 //Mixes a color between two paldatas
 RGB user_paldata::mix_color(RGB start, RGB end, double percent, int32_t color_space)
 {
+	double upper = scripting_max_color_val;
 	int32_t direction = 0;
 	switch (color_space)
 	{
 	case CSPACE_RGB:
-		return _RGB(byte(vbound(double(zc::math::Lerp(start.r, end.r, percent)), 0.0, 63.0)),
-			byte(vbound(double(zc::math::Lerp(start.g, end.g, percent)), 0.0, 63.0)),
-			byte(vbound(double(zc::math::Lerp(start.b, end.b, percent)), 0.0, 63.0)));
+		return _RGB(byte(vbound(double(zc::math::Lerp(start.r, end.r, percent)), 0.0, upper)),
+			byte(vbound(double(zc::math::Lerp(start.g, end.g, percent)), 0.0, upper)),
+			byte(vbound(double(zc::math::Lerp(start.b, end.b, percent)), 0.0, upper)));
 	case CSPACE_CMYK:
 	{
 		double convert_start[4];
@@ -32812,9 +32868,10 @@ RGB user_paldata::mix_color(RGB start, RGB end, double percent, int32_t color_sp
 void user_paldata::RGBTo(RGB c, double arr[], int32_t color_space)
 {
 	//From easyrgb.com/en/math.php
-	double r = vbound(c.r / 63.0, 0.0, 1.0);
-	double g = vbound(c.g / 63.0, 0.0, 1.0);
-	double b = vbound(c.b / 63.0, 0.0, 1.0);
+	double upper = scripting_max_color_val;
+	double r = vbound(c.r / upper, 0.0, 1.0);
+	double g = vbound(c.g / upper, 0.0, 1.0);
+	double b = vbound(c.b / upper, 0.0, 1.0);
 	switch (color_space)
 	{
 	case CSPACE_CMYK:
@@ -32985,6 +33042,7 @@ void user_paldata::RGBTo(RGB c, double arr[], int32_t color_space)
 
 RGB user_paldata::RGBFrom(double arr[], int32_t color_space)
 {
+	double upper = scripting_max_color_val;
 	double r = 0.0;
 	double g = 0.0;
 	double b = 0.0;
@@ -32996,9 +33054,9 @@ RGB user_paldata::RGBFrom(double arr[], int32_t color_space)
 		double m = (arr[1] * (1 - arr[3]) + arr[3]);
 		double y = (arr[2] * (1 - arr[3]) + arr[3]);
 
-		r = vbound((1 - c) * 63.0, 0.0, 63.0);
-		g = vbound((1 - m) * 63.0, 0.0, 63.0);
-		b = vbound((1 - y) * 63.0, 0.0, 63.0);
+		r = vbound((1 - c) * upper, 0.0, upper);
+		g = vbound((1 - m) * upper, 0.0, upper);
+		b = vbound((1 - y) * upper, 0.0, upper);
 		return _RGB(r, g, b);
 		break;
 	}
@@ -33059,9 +33117,9 @@ RGB user_paldata::RGBFrom(double arr[], int32_t color_space)
 			}
 		}
 
-		r = vbound(r * 63.0, 0.0, 63.0);
-		g = vbound(g * 63.0, 0.0, 63.0);
-		b = vbound(b * 63.0, 0.0, 63.0);
+		r = vbound(r * upper, 0.0, upper);
+		g = vbound(g * upper, 0.0, upper);
+		b = vbound(b * upper, 0.0, upper);
 
 		return _RGB(r, g, b);
 	}
@@ -33093,9 +33151,9 @@ RGB user_paldata::RGBFrom(double arr[], int32_t color_space)
 			b = HueToRGB(var_1, var_2, h - (1.0 / 3.0));
 		}
 
-		r = vbound(r * 63.0, 0.0, 63.0);
-		g = vbound(g * 63.0, 0.0, 63.0);
-		b = vbound(b * 63.0, 0.0, 63.0);
+		r = vbound(r * upper, 0.0, upper);
+		g = vbound(g * upper, 0.0, upper);
+		b = vbound(b * upper, 0.0, upper);
 
 		return _RGB(r, g, b);
 	}
@@ -33127,9 +33185,9 @@ RGB user_paldata::RGBFrom(double arr[], int32_t color_space)
 		if (b > 0.0031308) b = 1.055 * pow(b, (1 / 2.4)) - 0.055;
 		else b = 12.92 * b;
 
-		r = vbound(r * 63.0, 0.0, 63.0);
-		g = vbound(g * 63.0, 0.0, 63.0);
-		b = vbound(b * 63.0, 0.0, 63.0);
+		r = vbound(r * upper, 0.0, upper);
+		g = vbound(g * upper, 0.0, upper);
+		b = vbound(b * upper, 0.0, upper);
 
 		return _RGB(r, g, b);
 	}
@@ -33163,9 +33221,9 @@ RGB user_paldata::RGBFrom(double arr[], int32_t color_space)
 		if (b > 0.0031308) b = 1.055 * pow(b, (1 / 2.4)) - 0.055;
 		else b = 12.92 * b;
 
-		r = vbound(r * 63.0, 0.0, 63.0);
-		g = vbound(g * 63.0, 0.0, 63.0);
-		b = vbound(b * 63.0, 0.0, 63.0);
+		r = vbound(r * upper, 0.0, upper);
+		g = vbound(g * upper, 0.0, upper);
+		b = vbound(b * upper, 0.0, upper);
 
 		return _RGB(r, g, b);
 	}
@@ -35760,7 +35818,7 @@ void do_setdmapname(const bool v)
 
 	string filename_str;
 	
-	if(BC::checkDMapID(ID, "Game->Game->SetDMapName") != SH::_NoError)
+	if(BC::checkDMapID(ID, "Game->SetDMapName") != SH::_NoError)
 		return;
 		
 	ArrayH::getString(arrayptr, filename_str, 22);
@@ -35792,7 +35850,7 @@ void do_setdmaptitle(const bool v)
 	int32_t arrayptr = get_register(sarg2) / 10000;
 	string filename_str;
 	
-	if(BC::checkDMapID(ID, "Game->Game->SetDMapTitle") != SH::_NoError)
+	if(BC::checkDMapID(ID, "Game->SetDMapTitle") != SH::_NoError)
 		return;
 		
 	if (get_qr(qr_OLD_DMAP_INTRO_STRINGS))
@@ -35829,7 +35887,7 @@ void do_setdmapintro(const bool v)
 	int32_t arrayptr = get_register(sarg2) / 10000;
 	string filename_str;
 	
-	if(BC::checkDMapID(ID, "Game->Game->SetDMapIntro") != SH::_NoError)
+	if(BC::checkDMapID(ID, "Game->SetDMapIntro") != SH::_NoError)
 		return;
 		
 	ArrayH::getString(arrayptr, filename_str, 73);
@@ -35883,17 +35941,6 @@ void FFScript::do_getnpcdata_getname()
 void do_getffcscript()
 {
 	do_get_script_index_by_name(name_to_slot_index_ffcmap);
-}
-
-void do_npc_hero_in_range()
-{
-	int32_t dist = get_register(sarg1) / 10000;
-	if(GuyH::loadNPC(ri->guyref, "npc->LinedUp()") == SH::_NoError)
-	{
-		bool in_range = GuyH::getNPC()->HeroInRange(dist);
-		set_register(sarg1, 0);
-	}
-	else set_register(sarg1, 0);
 }
 
 void do_getitemscript()
@@ -43500,15 +43547,12 @@ int32_t FFScript::GetScriptObjectUID(int32_t type)
 
 void FFScript::init()
 {
+	apply_qr_rules();
 	eventData.clear();
 	countGenScripts();
 	for ( int32_t q = 0; q < wexLast; q++ ) warpex[q] = 0;
-	
 	temp_no_stepforward = 0;
 	nostepforward = 0;
-	
-	can_neg_array = !get_qr(qr_ZS_NO_NEG_ARRAY);
-	
 	numscriptdraws = 0;
 	skipscriptdraws = false;
 	max_ff_rules = qr_MAX;
@@ -43629,13 +43673,30 @@ void FFScript::do_monochromatic(const bool v)
 	// This has been removed.
 }
 
+static int convert_6bit_to_8bit_color_shift_arg(int v)
+{
+	int va = abs(v);
+	if (va < 64)
+		return _rgb_scale_6[va] * sign(v);
+
+	int vdiv = va / 63;
+	int vmod = va % 63;
+	return (vdiv * 255 + _rgb_scale_6[vmod]) * sign(v);
+}
+
 void FFScript::gfxmonohue()
 {
-	int32_t _r   = SH::read_stack(ri->sp + 3) / 10000;
-	int32_t _g = SH::read_stack(ri->sp + 2) / 10000;
-	int32_t _b   = SH::read_stack(ri->sp + 1) / 10000;
+	int32_t r   = SH::read_stack(ri->sp + 3) / 10000;
+	int32_t g = SH::read_stack(ri->sp + 2) / 10000;
+	int32_t b   = SH::read_stack(ri->sp + 1) / 10000;
+	if (!scripting_use_8bit_colors)
+	{
+		r = convert_6bit_to_8bit_color_shift_arg(r);
+		g = convert_6bit_to_8bit_color_shift_arg(g);
+		b = convert_6bit_to_8bit_color_shift_arg(b);
+	}
 	bool m   = (SH::read_stack(ri->sp + 0) / 10000);
-	doGFXMonohue(_r,_g,_b,m);
+	doGFXMonohue(r,g,b,m);
 }
 
 void FFScript::clearTint()
@@ -43645,10 +43706,16 @@ void FFScript::clearTint()
 
 void FFScript::Tint()
 {
-	int32_t _r   = SH::read_stack(ri->sp + 2) / 10000;
-	int32_t _g = SH::read_stack(ri->sp + 1) / 10000;
-	int32_t _b   = SH::read_stack(ri->sp + 0) / 10000;
-	doTint(_r,_g,_b);
+	int32_t r   = SH::read_stack(ri->sp + 2) / 10000;
+	int32_t g = SH::read_stack(ri->sp + 1) / 10000;
+	int32_t b   = SH::read_stack(ri->sp + 0) / 10000;
+	if (!scripting_use_8bit_colors)
+	{
+		r = convert_6bit_to_8bit_color_shift_arg(r);
+		g = convert_6bit_to_8bit_color_shift_arg(g);
+		b = convert_6bit_to_8bit_color_shift_arg(b);
+	}
+	doTint(r,g,b);
 }
 
 void FFScript::do_fx_zap(const bool v)
