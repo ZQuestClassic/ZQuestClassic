@@ -7,9 +7,6 @@
 
 struct newcombo;
 
-/*********************************/
-/*****    Tiles & Combos    ******/
-/*********************************/
 extern tiledata     *newundotilebuf;
 extern std::vector<newcombo> undocombobuf;
 extern byte cset_reduce_table[PAL_SIZE];
@@ -52,21 +49,12 @@ void do_layerradio(BITMAP *dest,int32_t x,int32_t y,int32_t bg,int32_t fg,int32_
 
 //*************** tile flood fill stuff **************
 
-//extern byte tf_c;
-//extern byte tf_u;
-
 void tile_floodfill_rec(int32_t x,int32_t y);
 void tile_floodfill(int32_t tile,int32_t x,int32_t y,byte c);
 
 //***************** tile editor  stuff *****************
 
-//extern int32_t c1;
-//extern int32_t c2;
-//extern int32_t bgc;
 enum { t_pen, t_fill, t_recolor, t_eyedropper, t_move, t_select, t_wand, t_max };
-//extern int32_t tool;
-//extern int32_t tool_cur;
-//extern int32_t drawing;
 
 void update_tool_cursor();
 void draw_edit_scr(int32_t tile,int32_t flip,int32_t cs,byte *oldtile, bool create_tbar);
@@ -77,14 +65,6 @@ void shift_tile_colors(int32_t tile, int32_t amount, bool ignore_transparent);
 void edit_tile(int32_t tile,int32_t flip,int32_t &cs);
 
 /*  Grab Tile Code  */
-
-//extern void *imagebuf;
-//extern int32_t imagesize;
-//extern int32_t  imagetype;
-//extern int32_t imagex,imagey,selx,sely;
-//extern int32_t bp,grabmode,romofs,romtilemode, romtilecols;
-//extern int32_t grabmask;
-//extern PALETTE imagepal;
 
 void puttileROM(BITMAP *dest,int32_t x,int32_t y,byte *src,int32_t cs);
 void draw_grab_scr(int32_t tile,int32_t cs,byte *newtile,int32_t black,int32_t white,int32_t width, int32_t height, byte *newformat);
@@ -100,7 +80,6 @@ int32_t tile_page(int32_t tile);
 int32_t tile_page_row(int32_t tile);
 void tile_info_0(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copycnt,int32_t page,bool rect_sel);
 void tile_info_1(int32_t oldtile,int32_t oldflip,int32_t oldcs,int32_t tile,int32_t flip,int32_t cs,int32_t copy,int32_t page, bool always_use_flip=false);
-//void reset_tile(tiledata *buf, int32_t t, int32_t format);
 bool copy_tiles(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bool rect_sel, bool move);
 bool copy_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bool rect_sel, bool move);
 bool copy_tiles_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &copycnt, bool rect_sel, bool move);
@@ -125,8 +104,6 @@ bool select_combo_2(int32_t &cmb,int32_t &cs);
 bool select_combo_3(int32_t &cmb,int32_t &cs);
 int32_t combo_screen(int32_t pg, int32_t tl);
 int32_t onCombos();
-
-//extern int32_t edit_combo_cset;
 
 int32_t d_ctile_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t d_combo_loader(int32_t msg,DIALOG *d,int32_t c);

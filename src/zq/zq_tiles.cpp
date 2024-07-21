@@ -379,10 +379,6 @@ enum
 	BGMODE_MAX
 };
 
-/*********************************/
-/*****    Tiles & Combos    ******/
-/*********************************/
-
 void merge_tiles(int32_t dest_tile, int32_t src_quarter1, int32_t src_quarter2, int32_t src_quarter3, int32_t src_quarter4)
 {
 	int32_t size=tilesize(newtilebuf[dest_tile].format)>>4;
@@ -465,7 +461,6 @@ static void make_combos(int32_t startTile, int32_t endTile, int32_t cs)
 
 static void make_combos_rect(int32_t top, int32_t left, int32_t numRows, int32_t numCols, int32_t cs)
 {
-	//al_trace("inside make_combos_rect()\n");
 	int32_t startCombo=0;
 	
 	if(!select_combo_2(startCombo, cs))
@@ -1260,9 +1255,6 @@ size_and_pos bgmodebtn_grid(390,610,1,2,90,21);
 
 int32_t c1=1;
 int32_t c2=0;
-//int32_t bgc=dvc(4+5);
-//int32_t bgc=vc(1);
-//enum { t_pen, t_fill, t_recolor, t_eyedropper, t_move, t_select, t_wand, t_max };
 int32_t floating_tile = -1;
 int32_t tool = t_pen;
 int32_t old_tool = -1;
@@ -1300,10 +1292,6 @@ void set_tool_sprite(int tool, int type)
 }
 void update_tool_cursor()
 {
-//  int32_t screen_xofs=(zq_screen_w-320)>>1;
-//  int32_t screen_yofs=(zq_screen_h-240)>>1;
-//  int32_t temp_mouse_x=gui_mouse_x()-screen_xofs;
-//  int32_t temp_mouse_y=gui_mouse_y()-screen_yofs;
 	int32_t temp_mouse_x=gui_mouse_x();
 	int32_t temp_mouse_y=gui_mouse_y();
 	
@@ -1320,7 +1308,6 @@ void update_tool_cursor()
 		}
 	}
 	
-//  if(isinRect(temp_mouse_x,temp_mouse_y,80,32,206,158)) //inside the zoomed tile window
 	if(isinRect(temp_mouse_x,temp_mouse_y,zoomtile.x,zoomtile.y-(tool==t_fill ? (14) : 0),zoomtile.x+(zoomtile.w*zoomtile.xscale)-2,zoomtile.y+(zoomtile.h*zoomtile.yscale)-2-(tool==t_fill ? (14) : 0))) //inside the zoomed tile window
 	{
 		if(tool_cur==-1)
@@ -8902,12 +8889,10 @@ int32_t writetilefile(PACKFILE *f, int32_t index, int32_t count)
 	
 	for ( int32_t tilect = 0; tilect < count; tilect++ )
 	{
-		//al_trace("Tile id: %d\n",index+(tilect));
 		if(!p_putc(newtilebuf[index+(tilect)].format,f))
 		{
 			return 0;
 		}
-		//al_trace("Tile format: %d\n", newtilebuf[index+(tilect)].format);
 		if(!pfwrite(newtilebuf[index+(tilect)].data,tilesize(newtilebuf[index+(tilect)].format),f))
 		{
 			return 0;
@@ -10719,7 +10704,6 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 	int32_t done=0;
 	int32_t tile_clicked=-1;
 	int32_t t2;
-	// int32_t cs = CSet;
 	int32_t copy=-1;
 	int32_t copycnt=0;
 	
@@ -13204,20 +13188,15 @@ int32_t readcomboaliasfile(PACKFILE *f)
 			{
 				if(!p_igetw(&tempword,f))
 				{
-			//al_trace("Could not reas alias.combos[%d]\n",k);
 					return 0;
 				}
 		else
 		{
-			//al_trace("Read Combo Alias Combo [%d] as: %d\n", k, tempword);
 			
 			
-			//al_trace("tempword is: %d\n", tempword);
 			temp_alias.combos[k] = tempword;
-			//al_trace("Combo Alias Combo [%d] is: %d\n", k, temp_alias.combos[k]);
 		}
 			}
-		//al_trace("Read alias combos.\n");
 			
 			for(int32_t k=0; k<count2; k++)
 			{
@@ -13228,14 +13207,10 @@ int32_t readcomboaliasfile(PACKFILE *f)
 				}
 		else
 		{
-			//al_trace("Read Combo Alias CSet [%d] as: %d\n", k, tempcset);
 			
 			temp_alias.csets[k] = tempcset;
-			//al_trace("Combo Alias CSet [%d] is: %d\n", k, temp_alias.csets[k]);
 		}
 			}
-		//al_trace("Read alias csets.\n");
-		//al_trace("About to memcpy a combo alias\n");
 		memcpy(&combo_aliases[index+(tilect)],&temp_alias,sizeof(combo_alias));
 	}
 	

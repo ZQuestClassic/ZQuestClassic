@@ -120,9 +120,6 @@ typedef struct map_and_screen
 } map_and_screen;
 #define MAX_MAPPAGE_BTNS 9
 extern map_and_screen map_page[MAX_MAPPAGE_BTNS];
-// define these in main code
-//extern bool init_tiles(bool validate);
-//extern bool init_combos(bool validate);
 
 #define checkstatus(ret)\
           switch (ret)  \
@@ -183,11 +180,7 @@ void clear_combo(int32_t i);
 void clear_combos();
 void pack_combos();
 void fix_maps(mapscr *buf,int32_t cnt);
-//void reset_midi(zcmidi_ *m);
-//void reset_midis(zcmidi_ *m);
 void reset_scr(int32_t scr);
-//bool reset_items();
-//bool reset_wpns();
 
 int32_t get_qst_buffers();
 void del_qst_buffers();

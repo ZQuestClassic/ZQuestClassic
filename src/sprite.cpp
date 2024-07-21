@@ -48,10 +48,6 @@ fixed rad_to_fixed(T d)
     return ftofix(radtoFix(d));
 }
 
-/**********************************/
-/******* Sprite Base Class ********/
-/**********************************/
-
 sprite::sprite(): solid_object()
 {
     uid = getNextUID();
@@ -68,15 +64,7 @@ sprite::sprite(): solid_object()
     angular=canfreeze=false;
     drawstyle=0;
     extend=0;
-    wpnsprite = 0; //wpnsprite is new for 2.6 -Z
-    
-    /*ewpnclass=0;
-    lwpnclass=0;
-    guyclass=0;*/ //Not implemented
-    //ewpnref=0;
-    //lwpnref=0;
-    //guyref=0;
-    //itemref=0;
+    wpnsprite = 0;
     lasthitclk=0;
     lasthit=0;
     angle=0;
@@ -99,27 +87,10 @@ sprite::sprite(): solid_object()
         dummy_bool[i]=false;
     }
     
-    //for(int32_t i=0;i<8;i++)
-    //{
-    //  if(i<2) a[i]=0;
-    //  d[i]=0;
-    //}
     scriptflag=0;
-    //pc=0;
-    //sp=0;
-    //itemclass=0;
-    //ffcref=0;
     for(int32_t i=0; i<32; i++) miscellaneous[i] = 0;
     
     scriptcoldet = true;
-    
-    //itemref = 0;
-    //guyref = 0;
-    //lwpnref = 0;
-    //ewpnref = 0;
-    //guyclass = 0; //Not implemented
-    //lwpnclass = 0;
-    //ewpnclass = 0;
     script = 0;
     weaponscript = 0;
     scripttile = -1;
@@ -200,15 +171,7 @@ sprite::sprite(sprite const & other):
         dummy_float[i]=other.dummy_float[i];
         dummy_bool[i]=other.dummy_bool[i];
     }
-    
-    //for (int32_t i=0; i<8; ++i)
-    //{
-    //  d[i]=other.d[i];
-    //}
-    //for (int32_t i=0; i<2; ++i)
-    //{
-    //  a[i]=other.a[i];
-    //}
+
     for(int32_t i=0; i<32; i++) miscellaneous[i] = other.miscellaneous[i];
     
     scriptcoldet = other.scriptcoldet;
@@ -244,26 +207,10 @@ sprite::sprite(zfix X,zfix Y,int32_t T,int32_t CS,int32_t F,int32_t Clk,int32_t 
     angular=canfreeze=false;
     extend=0;
     
-    //for(int32_t i=0;i<8;i++)
-    //{
-    //  if(i<2) a[i]=0;
-    //  d[i]=0;
-    //}
     scriptflag=0;
-    //pc=0;
-    //sp=0;
-    //ffcref=0;
-    //itemclass=0;
     for(int32_t i=0; i<32; i++) miscellaneous[i] = 0;
     
     scriptcoldet = true;
-    //ewpnclass=0;
-    //lwpnclass=0;
-    //guyclass=0;
-    //ewpnref=0;
-    //lwpnref=0;
-    //guyref=0;
-    //itemref=0;
     script = 0;
     weaponscript = 0;
     scripttile = -1;
@@ -2071,14 +2018,6 @@ ALLEGRO_COLOR sprite::hitboxColor(byte opacity) const
 {
 	return al_map_rgba(255,0,255,opacity);
 }
-
-/***************************************************************************/
-
-/**********************************/
-/********** Sprite List ***********/
-/**********************************/
-
-//class enemy;
 
 sprite_list::sprite_list() : count(0), active_iterator(0), max_sprites(255),
 	lastUIDRequested(0), lastSpriteRequested(0) {}

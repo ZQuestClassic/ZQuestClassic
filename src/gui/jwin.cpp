@@ -743,10 +743,6 @@ int32_t gui_textheight(uint8_t* s)
 	return gui_textheight(font, s);
 }
 
-/*******************************/
-/*****  Misc Dialog Procs  *****/
-/*******************************/
-
 /* typedef for the listbox callback functions */
 typedef char *(*getfuncptr)(int32_t, int32_t *);
 
@@ -4830,7 +4826,6 @@ void _jwin_draw_abclistbox(DIALOG *d)
 	vline(screen, d->x+3, d->y+4, d->y+d->h-3, bg_color);
 	vline(screen, d->x+w+1, d->y+4, d->y+d->h-3, bg_color);
 	vline(screen, d->x+w+2, d->y+4, d->y+d->h-3, bg_color);
-	//al_trace("Drawing %s\n", abc_keypresses);
 	{
 		rectfill(screen, d->x+1,  d->y+d->h+2, d->x+d->w-2, d->y+1+d->h+text_height(font), bg_color);
 		strncpy(s, abc_keypresses, 1023);
@@ -4923,8 +4918,6 @@ void _jwin_draw_listbox(DIALOG *d)
     vline(screen, d->x+3, d->y+4, d->y+d->h-3, bg_color);
     vline(screen, d->x+w+1, d->y+4, d->y+d->h-3, bg_color);
     vline(screen, d->x+w+2, d->y+4, d->y+d->h-3, bg_color);
-	//al_trace("Drawing %s\n", abc_keypresses);
-    //d->flags|=D_DIRTY;
     
     /* draw box contents */
     for(i=0; i<height; i++)
@@ -6133,15 +6126,6 @@ int32_t jwin_selcolor_proc(int32_t msg, DIALOG *d, int32_t c)
 			{
 				int32_t col = ((gui_mouse_x() - d->x) / csz) + 16*((gui_mouse_y() - d->y) / csz);
 
-				// for(int32_t c = 0; c < 0xC0; ++c) //to cset 11
-				// {
-					// int32_t x = (c%16)*csz, y = (c/16)*csz;
-					// if(mouse_in_rect(d->x+x, d->y+y, d->x+x+csz-1, d->y+y+csz-1))
-					// {
-						// col = c;
-						// break;
-					// }
-				// }
 				if(col>-1 && col != d->d1)
 				{
 					d->d1 = col;
@@ -6712,9 +6696,6 @@ int32_t jwin_auto_alert(const char *title, const char *s1, int32_t lenlim, int32
     return ret;
 }
 
-/*****************************************/
-/***********  drop list proc  ************/
-/*****************************************/
 int32_t last_droplist_sel = -1;
 static int32_t d_dropcancel_proc(int32_t msg,DIALOG *d,int32_t c)
 {
@@ -6880,11 +6861,6 @@ dropit:
 	return ((d1 != d->d1) && (d->flags&D_EXIT)) ? D_CLOSE : D_O_K;
 }
 
-/*****************************************/
-/************  ABC list proc  ************/
-/*****************************************/
-
-
 
 int32_t jwin_abclist_proc(int32_t msg,DIALOG *d,int32_t c)
 {
@@ -7021,7 +6997,7 @@ int32_t jwin_abclist_proc(int32_t msg,DIALOG *d,int32_t c)
 			}
 			return D_USED_CHAR;
 		}
-		if ( gui_mouse_b() ) { wipe_abc_keypresses(); } //al_trace("keypresses: %s\n", abc_keypresses); }
+		if ( gui_mouse_b() ) { wipe_abc_keypresses(); }
 	}
 	else // Windows Explorer style jumping
 	{
@@ -7038,7 +7014,6 @@ int32_t jwin_abclist_proc(int32_t msg,DIALOG *d,int32_t c)
 			bool foundmatch = false;
 			for(i=cur+1; (cur ? (i != cur) : (cur < max)); ++i) //don't infinite loop this. 
 			{
-				//al_trace("loop running\n");
 				if(i>=max) i=0;
 				if(toupper((data->listFunc(i,&dummy))[0]) == c)
 				{
@@ -7053,7 +7028,7 @@ int32_t jwin_abclist_proc(int32_t msg,DIALOG *d,int32_t c)
 			return foundmatch ? D_USED_CHAR : D_O_K;
 		}
 	}
-	if ( gui_mouse_b() ) { wipe_abc_keypresses(); } //al_trace("keypresses: %s\n", abc_keypresses); }
+	if ( gui_mouse_b() ) { wipe_abc_keypresses(); }
 	return ((abc_patternmatch) ? jwin_do_abclist_proc(msg,d,c) : jwin_list_proc(msg,d,c));
 }
 
@@ -7738,7 +7713,6 @@ void dither_rect(BITMAP *bmp, PALETTE *pal, int32_t x1, int32_t y1, int32_t x2, 
     int32_t r, g, b, direction=1;
     int32_t c;
     int32_t r1, r2, g1, g2, b1, b2;
-    //  int32_t diff[2][x2-x1+3][3];
     int32_t (*diff[2])[3];
     diff[0] = new int32_t[x2-x1+3][3];
     diff[1] = new int32_t[x2-x1+3][3];
@@ -9542,6 +9516,3 @@ void box_pause()
 		box_load_x();
 	}
 }
-
-
-/***  The End  ***/

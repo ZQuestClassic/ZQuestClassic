@@ -1,10 +1,6 @@
 #ifndef ZELDA_H_
 #define ZELDA_H_
 
-/*********************************/
-/********** Definitions **********/
-/*********************************/
-
 #include <vector>
 #include <map>
 #include "base/zdefs.h"
@@ -51,10 +47,6 @@ extern bool dev_timestmp;
 #define MAX_IDLE      72000                                 // 20 minutes
 #define MAX_ACTIVE    72000                                 // 20 minutes
 
-/*********************************/
-/******** Enums & Structs ********/
-/*********************************/
-
 enum { qQUIT=1, qRESET, qEXIT, qGAMEOVER, qCONT, qSAVE, qSAVECONT, qWON, qRELOAD, qERROR, qINCQST, qLAST };
 
 // "special" walk flags
@@ -70,10 +62,6 @@ enum
     fade_none, fade_flicker, fade_invisible, fade_flash_die,
     fade_blue_poof
 };
-
-/*********************************/
-/*********** Procedures **********/
-/*********************************/
 
 void port250QuestRules();
 
@@ -209,17 +197,10 @@ INLINE void sfx_no_repeat(int32_t index, int32_t pan = 128)
 bool isSideViewGravity(int32_t t = 0);
 bool isSideViewHero(int32_t t = 0);
 
-//INLINE void SCRFIX() { putpixel(screen,0,0,getpixel(screen,0,0)); }
-
 //Script Clearing
 void initZScriptGlobalScript(int32_t ID);
 
 void update_hw_screen();
-
-/**********************************/
-/******** Global Variables ********/
-/**********************************/
-
 
 extern ZCMUSIC *zcmusic;
 extern ZCMIXER* zcmixer;
@@ -251,7 +232,6 @@ extern SAMPLE   wav_refill;
 extern PALETTE  RAMpal;
 extern PALETTE  pal_gui;
 extern byte     *colordata;
-//extern byte     *tilebuf;
 extern itemdata *itemsbuf;
 extern wpndata  *wpnsbuf;
 extern comboclass *combo_class_buf;
@@ -437,10 +417,6 @@ extern byte                music_flags[MUSICFLAGS_SIZE];
 extern int32_t				   msg_strings_size;
 extern byte                *quest_file;
 
-/**********************************/
-/*********** Misc Data ************/
-/**********************************/
-
 extern const char startguy[8];
 extern const char gambledat[12*6];
 extern const byte stx[4][9];
@@ -448,8 +424,6 @@ extern const byte sty[4][9];
 extern const byte ten_rupies_x[10];
 extern const byte ten_rupies_y[10];
 extern zctune tunes[MAXMIDIS];
-//extern zcmidi_ tunes[MAXMIDIS];
-//extern emusic enhancedMusic[MAXMUSIC];
 
 //Mouse stuff
 enum

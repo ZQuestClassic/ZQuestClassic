@@ -45,7 +45,6 @@
 #include "base/misctypes.h"
 #include "base/initdata.h"
 
-//FFScript FFCore;
 extern FFScript FFCore;
 extern ZModule zcm;
 extern zcmodule moduledata;
@@ -53,7 +52,6 @@ extern uint8_t __isZQuest;
 extern sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations;
 extern particle_list particles;
 extern void setZScriptVersion(int32_t s_version);
-//FFSCript   FFEngine;
 
 static bool read_ext_zinfo = false, read_zinfo = false;
 static bool loadquest_report = false;
@@ -77,10 +75,8 @@ map_and_screen map_page[MAX_MAPPAGE_BTNS]= {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},
 using std::string;
 using std::pair;
 
-// extern bool                debug;
 extern int32_t                 hero_animation_speed; //lower is faster animation
 extern byte                *colordata;
-//extern byte              *tilebuf;
 extern tiledata            *newtilebuf;
 extern byte                *trashbuf;
 extern itemdata            *itemsbuf;
@@ -2905,7 +2901,6 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		}
 	}
 
-	//al_trace("Rules version %d\n", s_version);
 	//{ bunch of compat stuff
 	memcpy(deprecated_rules, quest_rules, QUESTRULES_NEW_SIZE);
 
@@ -3807,7 +3802,6 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header)
 			return qe_invalid;
 		}
 		
-		//al_trace("Strings version %d\n", s_version);
 		//section size
 		if(!p_igetl(&dummy_int,f))
 		{
@@ -4095,7 +4089,6 @@ int32_t readdoorcombosets(PACKFILE *f, zquestheader *Header)
 	
         FFCore.quest_format[vDoors] = s_version;
 	
-        //al_trace("Door combo sets version %d\n", dummy_word);
         if(!p_igetw(&dummy_word,f))
         {
             return qe_invalid;
@@ -4567,7 +4560,6 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 		
 		FFCore.quest_format[vDMaps] = s_version;
 		
-		//al_trace("DMaps version %d\n", s_version);
 		
 		if(!p_igetw(&s_cversion,f))
 		{
@@ -5190,7 +5182,6 @@ int32_t readmisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 	
 	al_trace("Misc Colours section version: %d\n", s_version);
 	
-	//al_trace("Misc. colors version %d\n", s_version);
 	if(!p_igetw(&s_cversion,f))
 	{
 		return qe_invalid;
@@ -5409,7 +5400,6 @@ int32_t readgameicons(PACKFILE *f, zquestheader *, miscQdata *Misc)
     
     FFCore.quest_format[vIcons] = s_version;
     
-    //al_trace("Game icons version %d\n", s_version);
     if(!p_igetw(&s_cversion,f))
     {
         return qe_invalid;
@@ -5489,7 +5479,6 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 		
 		FFCore.quest_format[vMisc] = s_version;
 		
-		//al_trace("Misc. data version %d\n", s_version);
 		if(!p_igetw(&s_cversion,f))
 		{
 			return qe_invalid;
@@ -6308,7 +6297,6 @@ int32_t readitems(PACKFILE *f, word version, word build)
 	
 	FFCore.quest_format[vItems] = s_version;
         
-        //al_trace("Items version %d\n", s_version);
         if(!p_igetw(&s_cversion,f))
         {
             return qe_invalid;
@@ -9574,7 +9562,6 @@ int32_t readweapons(PACKFILE *f, zquestheader *Header)
 	
 	FFCore.quest_format[vWeaponSprites] = s_version;
         
-        //al_trace("Weapons version %d\n", s_version);
         if(!p_igetw(&s_cversion,f))
         {
             return qe_invalid;
@@ -11210,7 +11197,6 @@ int32_t readherosprites(PACKFILE *f, zquestheader *Header)
     
     FFCore.quest_format[vHeroSprites] = s_version;
     
-    //al_trace("Player sprites version %d\n", s_version);
     if(!p_igetw(&s_cversion,f))
     {
         return qe_invalid;
@@ -11223,7 +11209,6 @@ int32_t readherosprites(PACKFILE *f, zquestheader *Header)
     }
     if ( s_version >= 6 ) 
     {
-	    //al_trace("Reading Player Sprites v6\n");
 	    return readherosprites3(f, s_version, dummy);
     }
     else return readherosprites2(f, s_version, dummy);
@@ -11956,7 +11941,6 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 		}
 	}
 	
-	//al_trace("Scripts version %d\n", s_version);
 	//section size
 	if(!p_igetl(&dummy,f))
 	{
@@ -13057,7 +13041,6 @@ int32_t readsfx(PACKFILE *f, zquestheader *Header)
 	
 	FFCore.quest_format[vSFX] = s_version;
 	
-	//al_trace("SFX version %d\n", s_version);
 	if(!p_igetw(&s_cversion,f))
 	{
 		return qe_invalid;
@@ -13351,7 +13334,6 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
         
 	FFCore.quest_format[vGuys] = guyversion;
 	
-        //al_trace("Guys version %d\n", guyversion);
         if(!p_igetw(&guy_cversion,f))
         {
             return qe_invalid;
@@ -14276,7 +14258,6 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 		{
 			return qe_invalid;
 		} 
-                //al_trace("NPC Script ID is: %d\n",tempguy.script);
 		for ( int32_t q = 0; q < 8; q++ )
 		{
 			if(!p_igetl(&(tempguy.initD[q]),f))
@@ -15318,7 +15299,6 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 {
 	byte tempbyte, padding;
 	int32_t extras, secretcombos;
-	//al_trace("readmapscreen Header->zelda_version: %x\n",Header->zelda_version);
 	if(!p_getc(&(temp_mapscr->valid),f))
 	{
 		return qe_invalid;
@@ -17219,7 +17199,6 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header)
 	
 		FFCore.quest_format[vMaps] = version;
 		
-		//al_trace("Maps version %d\n", version);
 		if(!p_igetw(&dummy,f))
 		{
 			return qe_invalid;
@@ -17379,7 +17358,6 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 		
 		// FFCore.quest_format[vCombos] = section_version;
 		
-		// //al_trace("Combos version %d\n", section_version);
 		// if(!p_igetw(&section_cversion,f))
 		// {
 			// return qe_invalid;
@@ -17614,7 +17592,6 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 					if(!p_igetl(&temp_combo.initd[q],f))
 						return qe_invalid;
 			}
-			//al_trace("Read combo script data\n");
 			if(section_version>=15)
 			{
 				if(!p_igetl(&temp_combo.o_tile,f)) return qe_invalid;
@@ -18276,7 +18253,6 @@ int32_t readcomboaliases(PACKFILE *f, zquestheader *Header, word version, word b
     
     FFCore.quest_format[vComboAliases] = sversion;
     
-    //al_trace("Combo aliases version %d\n", sversion);
     if(!p_igetw(&c_sversion,f))
     {
         return qe_invalid;
@@ -18518,7 +18494,6 @@ int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, wo
 	
 		FFCore.quest_format[vCSets] = s_version;
 		
-		//al_trace("Color data version %d\n", s_version);
 		if(!p_igetw(&dummy,f))
 		{
 			return qe_invalid;
@@ -18814,11 +18789,9 @@ int32_t readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version
     //if ( version >= 0x254 && build >= 41 )
     if (version < 0x254 && build < 41)
     {
-	    //al_trace("Build was < 41 when reading tiles\n");
 	    max_tiles = ZC250MAXTILES;
     }
     
-	//al_trace("Max Tiles: %d\n", max_tiles);
 	
     if(Header!=NULL&&(!Header->data_flags[ZQ_TILES]&&!from_init))         //keep for old quests
     {
@@ -18908,7 +18881,6 @@ int32_t readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version
 		
 		//if ( section_version > 1 ) tiles_used = NEWMAXTILES;
 			
-		//al_trace("tiles_used = %d\n", tiles_used);
 	
         for(int32_t i=0; i<tiles_used; ++i)
         {
@@ -18975,7 +18947,6 @@ int32_t readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version
     
 	if ( section_version < 2 ) //write blank tile data --check s_version with this again instead?
 	{
-		//al_trace("Writing blank tile data to new tiles for build < 41\n");
 		for ( int32_t q = ZC250MAXTILES; q < NEWMAXTILES; ++q )
 		{
 			
@@ -19003,7 +18974,6 @@ int32_t readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version
 	{
 		for(int32_t i=start_tile+tiles_used; i<max_tiles; ++i)
 		{
-			//al_trace("Resetting tiles for ZC250MAXTILES, iteration: %d\n", i);
 			reset_tile(buf,i,tf4Bit);
 		}
 	}
@@ -19011,7 +18981,6 @@ int32_t readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version
 	{
 		for(int32_t i=start_tile+tiles_used; i<max_tiles; ++i)
 		{
-			//al_trace("Resetting tiles for build 41+\n");
 			reset_tile(buf,i,tf4Bit);
 		}
 	}
@@ -19107,7 +19076,6 @@ int32_t readtunes(PACKFILE *f, zquestheader *Header, zctune *tunes /*zcmidi_ *mi
 		if (!should_skip)
 			FFCore.quest_format[vMIDIs] = section_version;
         
-        //al_trace("Tunes version %d\n", section_version);
         if(!p_igetw(&dummy2,f))
         {
             return qe_invalid;
@@ -19278,7 +19246,6 @@ int32_t readcheatcodes(PACKFILE *f, zquestheader *Header)
         }
         
 	FFCore.quest_format[vCheats] = s_version;
-        //al_trace("Cheats version %d\n", dummy);
         if(!p_igetw(&dummy,f))
         {
             return qe_invalid;
@@ -20990,7 +20957,6 @@ int32_t readitemdropsets(PACKFILE *f, int32_t version, word build)
 	
 	FFCore.quest_format[vItemDropsets] = s_version;
         
-        //al_trace("Item drop sets version %d\n", s_version);
         if(!p_igetw(&s_cversion,f))
         {
             return qe_invalid;

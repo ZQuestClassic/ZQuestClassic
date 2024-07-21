@@ -197,8 +197,6 @@ int32_t hero_on_wall()
 	zfix ly = Hero.getY();
 	
 	
-	//zprint2("hero_on_wall x is: %d\n", lx);
-	//zprint2("hero_on_wall y is: %d\n", ly);
 	
 	if(lx>=48 && lx<=192)
 	{
@@ -326,10 +324,6 @@ bool flyerblocked(int32_t dx, int32_t dy, int32_t special, guydata const& gd)
 			 (water_blocks && iswaterex(MAPCOMBO(dx,dy), currmap, currscr, -1, dx, dy, false, false, true)) ||
 			 (pit_blocks && ispitfall(dx,dy))));
 }
-
-/**********************************/
-/*******  Enemy Base Class  *******/
-/**********************************/
 
 enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 {
@@ -1938,7 +1932,6 @@ void enemy::FireWeapon()
 		
 	case e1tSUMMON: // Bat Wizzrobe
 	{
-		//zprint2("Summon Bats\n");
 		if(dmisc4==0) break;  // Summon 0
 		
 		int32_t bc=0;
@@ -1958,12 +1951,9 @@ void enemy::FireWeapon()
 			
 			for(int32_t i=0; i<bats; i++)
 			{
-			//zprint2("summon\n");
 				if(addchild(x,y,dmisc3,-10, this->script_UID))
 		{
 					((enemy*)guys.spr(kids+i))->count_enemy = false;
-			//((enemy*)guys.spr(guys.Count()-1))->parent_script_UID = this->script_UID;
-			//zprint2("Summoner Script UID: %d\n",this->script_UID);
 			
 		}
 			}
@@ -2001,11 +1991,9 @@ void enemy::FireWeapon()
 					
 					if((!m_walkflag(x2,y2,0,dir))&&((abs(x2-Hero.getX())>=32)||(abs(y2-Hero.getY())>=32)))
 					{
-						//zprint2("summon\n");
 						if(addchild(x2,y2,get_qr(qr_ENEMIESZAXIS) ? 64 : 0,id2,-10, this->script_UID))
 						{
 							((enemy*)guys.spr(kids+i))->count_enemy = false;
-							//((enemy*)guys.spr(guys.Count()-1))->parent_script_UID = this->script_UID;
 							if (get_qr(qr_ENEMIESZAXIS) && (((enemy*)guys.spr(kids+i))->moveflags & move_use_fake_z)) 
 							{
 								((enemy*)guys.spr(kids+i))->fakez = 64;
@@ -2368,7 +2356,6 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 						gleeok = new eGleeok(x,y,new_id,guysbuf[new_id&0xFFF].misc1);
 						guys.add(gleeok);
 						((enemy*)guys.spr(guys.Count()-1))->hclk = delay_timer;
-						//((enemy*)guys.spr(guys.Count()-1))->stunclk = delay_timer;
 						new_id &= 0xFFF;
 						int32_t head_cnt = zc_max(1,zc_min(254,guysbuf[new_id&0xFFF].misc1));
 							Z_scripterrlog("Gleeok head count is %d\n",head_cnt);
@@ -2389,7 +2376,6 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 							else
 							{
 							((enemy*)guys.spr(guys.Count()-1))->hclk = delay_timer;
-							//((enemy*)guys.spr(guys.Count()-1))->stunclk = delay_timer;
 							}
 							
 							c-=guysbuf[new_id].misc4;
@@ -2852,7 +2838,6 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 			((enemy*)guys.spr(guys.Count()-1))->angular = this->angular;
 			((enemy*)guys.spr(guys.Count()-1))->angle = this->angle;
 			((enemy*)guys.spr(guys.Count()-1))->rotation = this->rotation;
-			//((enemy*)guys.spr(guys.Count()-1))->mainguy = this->mainguy; //This might mean that it is a core. 
 			((enemy*)guys.spr(guys.Count()-1))->itemguy = this->itemguy;
 			((enemy*)guys.spr(guys.Count()-1))->leader = this->leader;
 			((enemy*)guys.spr(guys.Count()-1))->hclk = delay_timer;
@@ -7767,9 +7752,6 @@ ALLEGRO_COLOR enemy::hitboxColor(byte opacity) const
 {
 	return al_map_rgba(255,0,0,opacity);
 }
-/********************************/
-/*********  Guy Class  **********/
-/********************************/
 
 // good guys, fires, fairy, and other non-enemies
 // based on enemy class b/c guys in dungeons act sort of like enemies
@@ -7828,10 +7810,6 @@ void guy::draw(BITMAP *dest)
 	if(!mainguy || fadeclk<0 || fadeclk&1)
 		enemy::draw(dest);
 }
-
-/*******************************/
-/*********   Enemies   *********/
-/*******************************/
 
 eFire::eFire(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 {
@@ -7945,7 +7923,6 @@ void eFire::break_shield()
 
 eOther::eOther(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 {
-	//zprint2("npct other::other\n");
 	clk4=0;
 	shield= (flags&(guy_shield_left | guy_shield_right | guy_shield_back |guy_shield_front)) != 0;
 	
@@ -7989,7 +7966,6 @@ bool eOther::animate(int32_t index)
 {
 	if(switch_hooked) return enemy::animate(index);
 	if(fallclk||drownclk) return enemy::animate(index);
-	//zprint2("npct other::animate\n");
 	if(fading)
 	{
 		if(++clk4 > 60)
@@ -9225,7 +9201,6 @@ void eLeever::draw(BITMAP *dest)
 
 eWallM::eWallM(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 {
-	//zprint2("eWallM::eWallM\n");
 	hashero=false;
 	//nets+1000;
 	SIZEflags = d->SIZEflags;
@@ -9266,14 +9241,9 @@ bool eWallM::animate(int32_t index)
 	hxofs=1000;
 	if(misc==0) //inside wall, ready to spawn?
 	{
-	//zprint2("Wallmaster is ready to spawn, clk is: %d\n",clk);
-	//zprint2("frame is: %d\n",frame);
-	//zprint2("wallm_load_clk is: %d\n",wallm_load_clk);
 		if(frame-wallm_load_clk>80 && clk>=0)
 		{
-		//zprint2("getting wall\n");
 			int32_t wall=hero_on_wall();
-		//zprint2("Wallmaster wall is %d\n",wall);
 			int32_t wallm_cnt=0;
 			
 			for(int32_t i=0; i<guys.Count(); i++)
@@ -9291,7 +9261,6 @@ bool eWallM::animate(int32_t index)
 			{
 				--wall;
 				misc=1; //emerging from the wall?
-		//zprint2("Wallmaster is emerging\n");
 				clk2=0;
 				clk3=wall^1;
 				wallm_load_clk=frame;
@@ -9330,8 +9299,6 @@ bool eWallM::animate(int32_t index)
 					break;
 				}
 		
-		//zprint2("Wallmaster (p1) x is %d\n",x);
-		//zprint2("Wallmaster (p1) y is %d\n",y);
 				
 				switch(dir)
 				{
@@ -9356,8 +9323,6 @@ bool eWallM::animate(int32_t index)
 					break;
 				}
 		
-		//zprint2("Wallmaster (p2) x is %d\n",x);
-		//zprint2("Wallmaster (p2) y is %d\n",y);
 			}
 		}
 	}
@@ -9386,15 +9351,10 @@ void eWallM::wallm_crawl()
 	watch=false;
 	++clk2;
 	// Misc1: slightly different movement
-	//zprint2("wallmaster crawl\n");
-	//zprint2("wallmaster tmpdstep is %d\n",tmpdstep);
 	float tmpmisc3 = ((40.0/(int32_t)dstep)*40);
 	
 	//int32_t tmpmisc = int32_t((40.0/dstep)*40);
-	//zprint2("wallmaster crawl tmpmisc is: %d\n", tmpmisc);
-	//zprint2("wallmaster crawl tmpmisc4 is: %d\n", tmpmisc4);
 	misc=(clk2/(dmisc1==1?40:(int32_t)tmpmisc3))+1;
-	//zprint2("wallmaster crawl misc is: %d\n", misc);
 	if(w&&misc>=3&&misc<=5)
 	{
 		--clk2;
@@ -12585,14 +12545,9 @@ void eWizzrobe::draw(BITMAP *dest)
 	enemy::draw(dest);
 }
 
-/*********************************/
-/**********   Bosses   ***********/
-/*********************************/
-
 eDodongo::eDodongo(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 {
 	fading=fade_flash_die;
-	//nets+5120;
 	if(dir==down&&y>=128)
 	{
 		dir=up;
@@ -14311,11 +14266,6 @@ void getBigTri(int32_t id2)
 	}
 }
 
-/**********************************/
-/***  Multiple-Segment Enemies  ***/
-/**********************************/
-
-
 //! No. I am not adding SIZEflags to Moldorm and Lanmola. -Z 12 Aug 2020
 eMoldorm::eMoldorm(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 {
@@ -14618,7 +14568,6 @@ eLanmola::eLanmola(zfix X,zfix Y,int32_t Id,int32_t Clk) : eBaseLanmola(X,Y,Id,C
 		y=80;
 	}
 	//else { x = X; y = Y; }
-	//zprint2("lanmola index is %d\n", index);
 	//byte legaldirs = 0;
 	int32_t incr = 16;
 	//int32_t possiiblepos = 0;
@@ -14627,49 +14576,40 @@ eLanmola::eLanmola(zfix X,zfix Y,int32_t Id,int32_t Clk) : eBaseLanmola(X,Y,Id,C
 	//Don't spawn in pits. 
 	if ( m_walkflag_simple(x, y) )
 	{
-		//zprint2("Can't spawn here.\n");
 		for ( ; incr < 240; incr += 16 )
 		{
 			//move if we spawn over a pit
 			//check each direction
 			if ( !m_walkflag_simple(x-incr, y) ) //legaldirs |= 0x1; //left
 			{
-				//zprint2("Spawn adjustment: -x (%d)\n", incr);
 				x-=incr; break;
 			}
 			else if ( !m_walkflag_simple(x+incr, y) ) //legaldirs |= 0x2; //right
 			{
-				//zprint2("Spawn adjustment: +x (%d)\n", incr);
 				x+=incr; break;
 			}
 			else if ( !m_walkflag_simple(x-incr, y-incr) ) //legaldirs |= 0x4; //left-up
 			{
-				//zprint2("Spawn adjustment: -x (%d), -y (%d)\n", incr, incr);
 				x-=incr; y-=incr; break;
 			}
 			else if ( !m_walkflag_simple(x+incr, y-incr) ) //legaldirs |= 0x8; //right-up
 			{
-				//zprint2("Spawn adjustment: +x (%d), -y (%d)\n", incr, incr);
 				x+=incr; y-=incr; break;
 			}
 			else if ( !m_walkflag_simple(x, y-incr) ) // legaldirs |= 0x10; //up
 			{
-				//zprint2("Spawn adjustment: -y (%d)\n", incr);
 				y -= incr; break;
 			}
 			else if ( !m_walkflag_simple(x, y+incr) ) //legaldirs |= 0x20; //down
 			{
-				//zprint2("Spawn adjustment: +y (%d)\n", incr);
 				y+=incr; break;
 			}
 			else if ( !m_walkflag_simple(x-incr, y+incr) ) //legaldirs |= 0x40; //left-down
 			{
-				//zprint2("Spawn adjustment: -x (%d), +y (%d)\n", incr, incr);
 				x-=incr; y+=incr; break;
 			}
 			else if ( !m_walkflag_simple(x+incr, y+incr) ) //legaldirs |= 0x80; //right-down
 			{
-				//zprint2("Spawn adjustment: +x (%d), +y (%d)\n", incr, incr);
 				x+=incr; y+=incr; break;
 			}
 			else continue;
@@ -14792,49 +14732,40 @@ esLanmola::esLanmola(zfix X,zfix Y,int32_t Id,int32_t Clk) : eBaseLanmola(X,Y,Id
 	//Don't spawn in pits. 
 	if ( m_walkflag_simple(x, y) )
 	{
-		//zprint2("Can't spawn here.\n");
 		for ( ; incr < 240; incr += 16 )
 		{
 			//move if we spawn over a pit
 			//check each direction
 			if ( !m_walkflag_simple(x-incr, y) ) //legaldirs |= 0x1; //left
 			{
-				//zprint2("Spawn adjustment: -x (%d)\n", incr);
 				x-=incr; break;
 			}
 			else if ( !m_walkflag_simple(x+incr, y) ) //legaldirs |= 0x2; //right
 			{
-				//zprint2("Spawn adjustment: +x (%d)\n", incr);
 				x+=incr; break;
 			}
 			else if ( !m_walkflag_simple(x-incr, y-incr) ) //legaldirs |= 0x4; //left-up
 			{
-				//zprint2("Spawn adjustment: -x (%d), -y (%d)\n", incr, incr);
 				x-=incr; y-=incr; break;
 			}
 			else if ( !m_walkflag_simple(x+incr, y-incr) ) //legaldirs |= 0x8; //right-up
 			{
-				//zprint2("Spawn adjustment: +x (%d), -y (%d)\n", incr, incr);
 				x+=incr; y-=incr; break;
 			}
 			else if ( !m_walkflag_simple(x, y-incr) ) // legaldirs |= 0x10; //up
 			{
-				//zprint2("Spawn adjustment: -y (%d)\n", incr);
 				y -= incr; break;
 			}
 			else if ( !m_walkflag_simple(x, y+incr) ) //legaldirs |= 0x20; //down
 			{
-				//zprint2("Spawn adjustment: +y (%d)\n", incr);
 				y+=incr; break;
 			}
 			else if ( !m_walkflag_simple(x-incr, y+incr) ) //legaldirs |= 0x40; //left-down
 			{
-				//zprint2("Spawn adjustment: -x (%d), +y (%d)\n", incr, incr);
 				x-=incr; y+=incr; break;
 			}
 			else if ( !m_walkflag_simple(x+incr, y+incr) ) //legaldirs |= 0x80; //right-down
 			{
-				//zprint2("Spawn adjustment: +x (%d), +y (%d)\n", incr, incr);
 				x+=incr; y+=incr; break;
 			}
 			else continue;
@@ -17410,11 +17341,6 @@ void esPatraBS::draw(BITMAP *dest)
 		enemy::draw(dest);
 }
 
-
-/**********************************/
-/**********  Misc Code  ***********/
-/**********************************/
-
 void addEwpn(int32_t x,int32_t y,int32_t z,int32_t id,int32_t type,int32_t power,int32_t dir, int32_t parentid, byte script_generated, int32_t fakez)
 {
 	if(id>wEnemyWeapons || (id >= wScript1 && id <= wScript10))
@@ -17948,8 +17874,6 @@ int32_t addchild(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t p
 	
 	((enemy*)e)->ceiling = (z && canfall(id));
 	((enemy*)e)->parent_script_UID = parent_scriptUID;
-	//zprint2("Child Script UID: %d\n",((enemy*)e)->script_UID);
-	//zprint2("Child's Parent UID: %d\n",((enemy*)e)->parent_script_UID);
 			
 	
 	if(!guys.add(e))
@@ -18119,11 +18043,9 @@ int32_t addchild(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t p
 // Returns number of enemies/segments created
 int32_t addenemy(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk)
 {
-	//zprint2("addenemy id is: %d\n", (id&0xFFF));
 	int32_t realid = id&0xFFF;
 	if( realid > MAXGUYS ) 
 	{
-		//zprint2("Invalid enemy ID (%d) passed to %s\n", id, "addenemy()"); 
 		return 0;
 	}
 	if(id <= 0) return 0;
@@ -18579,7 +18501,6 @@ bool isjumper(int32_t id)
 {
 	if( ((unsigned)(id&0xFFF)) > MAXGUYS ) 
 	{
-		//zprint2("Invalid enemy ID (%d) passed to %s\n", id, "isjumper()"); 
 		return false;
 	}
 	switch(guysbuf[id&0xFFF].family)
@@ -18600,7 +18521,6 @@ bool isfixedtogrid(int32_t id)
 {
 	if( ((unsigned)(id&0xFFF)) > MAXGUYS ) 
 	{
-		//zprint2("Invalid enemy ID (%d) passed to %s\n", id, "isfixedtogrid()"); 
 		return false;
 	}
 	switch(guysbuf[id&0xFFF].family)
@@ -18625,7 +18545,6 @@ bool isflier(int32_t id)
 {
 	if( ((unsigned)(id&0xFFF)) > MAXGUYS ) 
 	{
-		//zprint2("Invalid enemy ID (%d) passed to %s\n", id, "isflier()"); 
 		return false;
 	}
 	switch(guysbuf[id&0xFFF].family) //id&0x0FFF)
@@ -18650,7 +18569,6 @@ bool never_in_air(int32_t id)
 {
 	if( ((unsigned)(id&0xFFF)) > MAXGUYS ) 
 	{
-		//zprint2("Invalid enemy ID (%d) passed to %s\n", id, "never_in_air()"); 
 		return false;
 	}
 	switch(guysbuf[id&0xFFF].family)
@@ -18677,7 +18595,6 @@ bool canfall(int32_t id)
 {
 	if( ((unsigned)(id&0xFFF)) > MAXGUYS ) 
 	{
-		//zprint2("Invalid enemy ID (%d) passed to %s\n", id, "canfall()"); 
 		return false;
 	}
 	switch(guysbuf[id&0xFFF].family)
@@ -18713,7 +18630,6 @@ bool enemy::enemycanfall(int32_t id, bool checkgrav)
 {
 	if( ((unsigned)(id&0xFFF)) > MAXGUYS ) 
 	{
-		//zprint2("Invalid enemy ID (%d) passed to %s\n", id, "enemycanfall()"); 
 		return false;
 	}
 	//Z_scripterrlog("canfall family is %d:\n", family);
@@ -18985,7 +18901,6 @@ bool slowguy(int32_t id)
 {
 	if( ((unsigned)(id&0xFFF)) > MAXGUYS ) 
 	{
-		//zprint2("Invalid enemy ID (%d) passed to %s\n", id, "slowguy()"); 
 		return false;
 	}
 //return (guysbuf[id].step<100);
@@ -19009,7 +18924,6 @@ bool ok2add(int32_t id)
 {
 	if( ((unsigned)(id&0xFFF)) > MAXGUYS || id <= 0) 
 	{
-		//zprint2("Invalid enemy ID (%d) passed to %s\n", id, "oktoadd()"); 
 		return false;
 	}
 	if(getmapflag(mNEVERRET) && (guysbuf[id].flags & guy_never_return))
@@ -19432,7 +19346,6 @@ bool can_side_load(int32_t id)
 {
 	if( ((unsigned)(id&0xFFF)) > MAXGUYS ) 
 	{
-		//zprint2("Invalid enemy ID (%d) passed to %s\n", id, "can_side_load()"); 
 		return false;
 	}
 	switch(guysbuf[id].family) //id&0x0FFF)
@@ -19633,7 +19546,6 @@ bool is_starting_pos(int32_t i, int32_t x, int32_t y, int32_t t)
 	
 	if(tmpscr->enemy[i]<1||tmpscr->enemy[i]>=MAXGUYS) //Hackish fix for crash in Waterford.st on screen 0x65 of dmap 0 (map 1).
 	{
-		//zprint2("is_starting_pos(), tmpscr->enemy[i] is: %d\n", tmpscr->enemy[i]);
 		return false; //never 0, never OoB.
 	}
 	// No corner enemies

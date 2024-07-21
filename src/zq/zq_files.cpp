@@ -2245,12 +2245,6 @@ int32_t readonezdoorset(PACKFILE *f, int32_t index)
 	
 	//section data for doors
 	{
-		//if(i+deststart >= door_combo_set_count)
-		//{
-		//	al_trace("Reached the current door count trying to import doorsets.\n");
-		//	ret = 2; break;
-		//}
-		//al_trace("Door readcycle %d\n", i-deststart);
 		//Clear per set
 		memset(&tempDoorComboSet, 0, sizeof(DoorComboSet));
 		//name

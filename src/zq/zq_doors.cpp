@@ -230,31 +230,6 @@ int32_t onDoors()
 	return D_O_K;
 }
 
-/************************************/
-/**********  onDoorCombos  **********/
-/************************************/
-
-/*
-  word doorcombo_u[7][4];   //[door type][door combo]
-  byte doorcset_u[7][4];    //[door type][door combo]
-  word doorcombo_d[7][4];   //[door type][door combo]
-  byte doorcset_d[7][4];    //[door type][door combo]
-  word doorcombo_l[7][6];   //[door type][door combo]
-  byte doorcset_l[7][6];    //[door type][door combo]
-  word doorcombo_r[7][6];   //[door type][door combo]
-  byte doorcset_r[7][6];    //[door type][door combo]
-  word bombdoorcombo_u[6];   //[door type][door combo]
-  byte bombdoorcset_u[6];    //[door type][door combo]
-  word bombdoorcombo_d[6];   //[door type][door combo]
-  byte bombdoorcset_d[6];    //[door type][door combo]
-  word bombdoorcombo_l[9];   //[door type][door combo]
-  byte bombdoorcset_l[9];    //[door type][door combo]
-  word bombdoorcombo_r[9];   //[door type][door combo]
-  byte bombdoorcset_r[9];    //[door type][door combo]
-  word walkthroughcombo[4]; //[n, s, e, w]
-  byte walkthroughcset[4];  //[n, s, e, w]
-  */
-
 DoorComboSet working_dcs;
 
 void fix_dcs(int32_t dir)

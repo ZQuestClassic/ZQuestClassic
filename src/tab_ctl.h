@@ -13,7 +13,6 @@ int32_t vc2(int32_t x);
 typedef struct TABPANEL
 {
     char *text;                   /* menu item text */
-    // AL_METHOD(int32_t, proc, (void)); /* callback function */
     int32_t flags;                    /* flags about the menu state */
     int32_t *dialog;                  /* pointer to group of dialog objects that this tab contains */
     int32_t objects;                  /* count of number of objects this tab handles; auto-calculated */
@@ -28,5 +27,3 @@ int32_t d_tab_proc(int32_t msg, DIALOG *d, int32_t c);
 }
 #endif
 #endif
-
-/***  The End  ***/

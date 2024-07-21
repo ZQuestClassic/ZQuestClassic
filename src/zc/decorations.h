@@ -3,9 +3,6 @@
 
 #include "base/zfix.h"
 #include "sprite.h"
-/***************************************/
-/*******  Decoration Base Class  *******/
-/***************************************/
 
 class decoration : public sprite
 {
@@ -14,10 +11,6 @@ public:
 	int32_t the_deco_sprite; 
 	virtual ~decoration();
 };
-
-/*******************************/
-/*******   Decorations   *******/
-/*******************************/
 
 class comboSprite : public decoration
 {

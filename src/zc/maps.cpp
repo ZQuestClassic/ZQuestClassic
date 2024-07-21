@@ -2592,14 +2592,6 @@ void hidden_entrance2(mapscr *s, mapscr *t, bool high16only,int32_t single) //Pe
 				Z_eventlog("Hit All Triggers->16-31 not fulfilled (%d trigger flag%s remain).\n", tr, tr>1?"s":"");
 				goto endhe;
 			}
-			
-			// int32_t ftr = findtrigger(-1,true); //FFCs
-			
-			// if(ftr)
-			// {
-				// Z_eventlog("Hit All Triggers->16-31 not fulfilled (%d trigger FFC%s remain).\n", ftr, ftr>1?"s":"");
-				// goto endhe;
-			// }
 		}
 	}
 	
@@ -2853,16 +2845,8 @@ bool findentrance(int x, int y, int flag, bool setflag)
             Z_eventlog("Hit All Triggers->Perm Secret not fulfilled (%d trigger flag%s remain).\n", tr, tr>1?"s":"");
             setflag=false;
         }
-        
-        // int32_t ftr = findtrigger(-1,true); //FFCs
-        
-        // if(ftr)
-        // {
-            // Z_eventlog("Hit All Triggers->Perm Secret not fulfilled (%d trigger FFC%s remain).\n", ftr, ftr>1?"s":"");
-            // setflag=false;
-        // }
 		
-		if(!(tr/*|| ftr*/) && !get_qr(qr_ALLTRIG_PERMSEC_NO_TEMP))
+		if(!tr && !get_qr(qr_ALLTRIG_PERMSEC_NO_TEMP))
 		{
 			hidden_entrance(0,true,(tmpscr->flags6&fTRIGGERF1631));
 		}
@@ -5117,7 +5101,6 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 	clear_darkroom_bitmaps();
 	int32_t destlvl = DMaps[destdmap < 0 ? currdmap : destdmap].level;
 	
-	//  introclk=intropos=msgclk=msgpos=dmapmsgclk=0;
 	for(word x=0; x<animated_combos; x++)
 	{
 		if(combobuf[animated_combo_table4[x][0]].nextcombo!=0)

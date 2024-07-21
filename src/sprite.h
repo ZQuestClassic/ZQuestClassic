@@ -26,10 +26,6 @@ extern byte newconveyorclk;
 extern byte sprite_flicker_color;
 extern byte sprite_flicker_transp_passes;
 
-/**********************************/
-/******* Sprite Base Class ********/
-/**********************************/
-
 //Sprite Offscreen Bits
 #define SPRITE_MOVESOFFSCREEN 0x01
 
@@ -181,12 +177,6 @@ enum //run_script modes
 	MODE_WAITDRAW
 };
 
-/***************************************************************************/
-
-/**********************************/
-/********** Sprite List ***********/
-/**********************************/
-
 #define SLMAX 255*(511*4)+1
 
 class sprite_list
@@ -257,10 +247,6 @@ private:
 
     void checkConsistency(); //for debugging
 };
-
-/**********************************/
-/********** Moving Block **********/
-/**********************************/
 
 class movingblock : public sprite
 {

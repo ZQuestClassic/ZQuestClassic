@@ -4,8 +4,6 @@
 
 void update_hw_screen();
 
-extern bool is_editor();
-
 int32_t vc2(int32_t x)
 {
     switch(x)
@@ -646,5 +644,3 @@ int32_t d_tab_proc(int32_t msg, DIALOG *d, int32_t c)
     
     return D_O_K;
 }
-
-/***  The End  ***/

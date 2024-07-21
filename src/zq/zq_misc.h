@@ -56,7 +56,6 @@ extern char *weapon_string[MAXWPNS];
 extern char *sfx_string[WAV_COUNT];
 extern const char *warptype_string[MAXWARPTYPES];
 extern const char *warpeffect_string[MAXWARPEFFECTS];
-//extern const char *combotype_string[MAXCOMBOTYPES];
 extern const char	*old_guy_string[OLDMAXGUYS];
 extern char *guy_string[eMAXGUYS];
 extern const char *pattern_string[MAXPATTERNS];
@@ -70,7 +69,6 @@ extern const char *midi_string[MAXCUSTOMMIDIS_ZQ];
 extern const char *screen_midi_string[MAXCUSTOMMIDIS_ZQ+1];
 extern const char *enetype_string[eeMAX];
 extern const char *eneanim_string[aMAX];
-//extern char *itemset_string[isMAX];
 extern const char *eweapon_string[wMax-wEnemyWeapons];
 extern int32_t gocnt;
 

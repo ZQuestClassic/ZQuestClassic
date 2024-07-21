@@ -416,11 +416,6 @@ int main(int argc, char* argv[])
 
 	CloseHandle(g_hPipe);
 
-	//std::ios_base::sync_with_stdio(false);
-	//int x;
-	//std::cin >> x;
-	//std::cin.ignore(std::cin.rdbuf()->in_avail());
-	
 	printf("\r\nPress any key to end...\r\n");
 	getch(); //getchar(); //getchar() only allows pressing RETURN/ENTER, but getch() allows any key to exit. 
 	printf("\r\nConsoleHelper Ended\r\n");

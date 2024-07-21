@@ -427,7 +427,6 @@ bool zmap::reset_templates(bool validate)
         delete_file(deletefilename);
     }
     
-//  setPackfilePassword(NULL);
 
     return true;
 }
@@ -1329,12 +1328,10 @@ void put_walkflags(BITMAP *dest,int32_t x,int32_t y,word cmbdat,int32_t layer)
 			if ((layer==0 || (get_qr(qr_WATER_ON_LAYER_1) && layer == 1) || (get_qr(qr_WATER_ON_LAYER_2) && layer == 2)) && get_qr(qr_DROWN))
 			{
 				rectfill(dest,tx,ty,tx+7,ty+7,vc(11));
-				//al_trace("water, drown\n");
 			}
 			else
 			{
 				rectfill(dest,tx,ty,tx+7,ty+7,vc(11));
-				//al_trace("water, no drown\n");
 			}
 		}
 		
@@ -3040,7 +3037,6 @@ void zmap::drawrow(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,int3
 		rectfill(dest,x,y,x+255,y+15,0);
 	}
 	
-	// int32_t cs=2;
 	
 	for(int32_t k=1; k<3; k++)
 	{
@@ -3343,7 +3339,6 @@ void zmap::drawcolumn(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,i
 		rectfill(dest,x,y,x+15,y+175,0);
 	}
 	
-	// int32_t cs=2;
 	
 	for(int32_t k=1; k<3; k++)
 	{
@@ -3640,7 +3635,6 @@ void zmap::drawblock(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,in
 		}
 	}
 	
-	// int32_t cs=2;
 	if(LayerMaskInt[0]!=0)
 	{
 		word cmbdat = layer->data[c];
@@ -5548,10 +5542,6 @@ void zmap::warpback()
 	warpbackscreen = s;
 }
 
-/******************************/
-/******** ZQuest stuff ********/
-/******************************/
-
 bool save_msgstrs(const char *path)
 {
     PACKFILE *f = pack_fopen_password(path,F_WRITE, "");
@@ -5808,7 +5798,6 @@ bool load_combos(const char *path, int32_t startcombo)
         else
         {
             pack_fclose(f);
-            //      init_combos(true, &header);
             return false;
         }
     }
@@ -5997,7 +5986,6 @@ bool load_zgp(const char *path)
     dword section_id;
     dword section_version;
     dword section_cversion;
-//  setPackfilePassword(NULL);
     PACKFILE *f=pack_fopen_password(path,F_READ,"");
     
     if(!f)
@@ -6060,7 +6048,6 @@ bool load_zgp(const char *path)
         if(readcombos(f, NULL, ZELDA_VERSION, VERSION_BUILD, 0, MAXCOMBOS)!=0)
         {
             pack_fclose(f);
-            //      init_combos(true, &header);
             return false;
         }
     }
@@ -6212,8 +6199,6 @@ bool load_zgp(const char *path)
 
 bool save_zgp(const char *path)
 {
-//  jwin_alert("Error","This feature not yet implemented.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-//  return false;
     reset_combo_animations();
     reset_combo_animations2();
     
@@ -6727,7 +6712,6 @@ int32_t load_quest(const char *filename, bool show_progress)
 	for(int32_t i=0; i<qr_MAX; i++)
 				set_qr(i,0);
 	int32_t ret=loadquest(filename,&header,&QMisc,customtunes,show_progress,skip_flags);
-//  setPackfilePassword(NULL);
 
 	if(ret!=qe_OK)
 	{
@@ -14635,7 +14619,6 @@ void zmap::prv_secrets(bool high16only)
                 {
                     s->ffcs[i].data = s->secretcombo[checkflag - 16 + 4];
                     s->ffcs[i].cset = s->secretcset[checkflag-16+4];
-                    //        putit = true;
                 }
             }
         }

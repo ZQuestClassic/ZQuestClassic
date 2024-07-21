@@ -36,10 +36,6 @@ void broadcast_dialog_message(DIALOG* dialog, int32_t msg, int32_t c)
 	}
 }
 
-/****************************/
-/**********  GUI  ***********/
-/****************************/
-
 static int run_zq_dialog(DIALOG *dlg, int focus_obj, bool checkexit)
 {
 	DIALOG_PLAYER *player = init_dialog(dlg,focus_obj);

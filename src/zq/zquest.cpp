@@ -2668,7 +2668,6 @@ void do_importdoorset(const char *prompt,int32_t initialval)
 	{
 		//if (load_doorset_dlg[10].flags & D_SELECTED) nooverwrite = 1;
 	
-		//al_trace("Nooverwrite is: %d\n", nooverwrite);
 		//sanity bound
 		first_doorset_id = vbound(atoi(firstdoor), 0, door_combo_set_count);
 		the_doorset_count = vbound(atoi(doorct), 1, door_combo_set_count);
@@ -2790,10 +2789,6 @@ void fix_layers(mapscr *tempscr, bool showwarning)
                    buf, "O&K", NULL, 'o', 0, get_zc_font(font_lfont));
     }
 }
-
-/***********************/
-/*** dialog handlers ***/
-/***********************/
 
 extern const char *colorlist(int32_t index, int32_t *list_size);
 
@@ -8503,13 +8498,10 @@ static void fill2(mapscr* fillscr, int32_t targetcombo, int32_t targetcset, int3
 }
 
 
-/**************************/
-/*****     Mouse      *****/
-/**************************/
-
 #define SNAP_NONE  0xFF
 #define SNAP_HALF  0xF8
 #define SNAP_WHOLE 0xF0
+
 static void doxypos(byte &px2, byte &py2, int32_t color, int32_t mask,
 	int32_t shiftmask, bool immediately, int32_t cursoroffx,
 	int32_t cursoroffy, int32_t iconw, int32_t iconh)
@@ -13962,11 +13954,7 @@ int32_t d_wlist_proc(int32_t msg,DIALOG *d,int32_t c)
 	return ret;
 }
 
-
-/**********************************/
-//        Triforce Pieces         //
-/**********************************/
-
+// Triforce pieces
 static byte triframe_points[9*4] =
 {
     0,2,2,0,  2,0,4,2,  0,2,4,2,  1,1,3,1,  2,0,2,2,
@@ -14090,11 +14078,6 @@ int32_t onTriPieces()
     
     return D_O_K;
 }
-
-
-/**********************************/
-/***********  onDMaps  ************/
-/**********************************/
 
 int32_t d_maptile_proc(int32_t msg,DIALOG *d,int32_t c);
 bool small_dmap=false;
@@ -15801,10 +15784,6 @@ int32_t onDmaps()
     return D_O_K;
 }
 
-/*******************************/
-/**********  onMidis  **********/
-/*******************************/
-
 static DIALOG editmidi_dlg[] =
 {
     /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
@@ -15850,7 +15829,7 @@ static DIALOG editmidi_dlg[] =
 
 void edit_tune(int32_t i)
 {
-    // TO DO : adapt for non-midi formats
+    // TODO : adapt for non-midi formats
     int32_t ret,loop,volume;
     byte flags;
     int32_t start,loop_start,loop_end;
@@ -15862,8 +15841,6 @@ void edit_tune(int32_t i)
     char loop_end_str[16];
     char len_str[16];
     char pos_str[16];
-//  char format_str[8];
-//  int32_t format;
 
     void *data = customtunes[i].data;
     
@@ -16192,10 +16169,6 @@ int32_t onMidis()
     return D_O_K;
 }
 
-/*******************************/
-/******  onEnhancedMusic  ******/
-/*******************************/
-
 static DIALOG editmusic_dlg[] =
 {
     /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
@@ -16255,45 +16228,6 @@ static DIALOG selectmusic_dlg[] =
     { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,             KEY_DEL, (void *) close_dlg, NULL, NULL },
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
-
-int32_t onEnhancedMusic()
-{
-    // to be taken out - the custom music can all be found in one place
-    /*stopMusic();
-    int32_t ret;
-    char buf[40];
-    number_list_size=MAXCUSTOMMIDIS;
-    number_list_zero=false;
-    strcpy(temppath,midipath);
-    selectmusic_dlg[0].dp2=get_zc_font(font_lfont);
-    go();
-    ret=do_zqdialog(selectmusic_dlg,2);
-    while(ret!=4&&ret!=0)
-    {
-      int32_t d=selectmusic_dlg[2].d1;
-      if(ret==5)
-      {
-        sprintf(buf,"Delete MIDI %d?",d+1);
-        if(jwin_alert("Confirm Delete",buf,NULL,NULL,"&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
-        {
-          reset_midi(customMIDIs+d);
-          saved=false;
-        }
-      }
-      else
-      {
-        edit_midi(d);
-      }
-      ret=do_zqdialog(selectmusic_dlg,2);
-    }
-    comeback();
-    */
-    return D_O_K;
-}
-
-/*******************************/
-/**********  onWarp  ***********/
-/*******************************/
 
 const char *warptypelist(int32_t index, int32_t *list_size)
 {
@@ -17838,10 +17772,6 @@ int32_t onItemDropSets()
     return D_O_K;
 }
 
-/********************************/
-/********* onWarpRings **********/
-/********************************/
-
 int32_t curr_ring = 0;
 
 void EditWarpRingScr(int32_t ring,int32_t index)
@@ -18034,10 +17964,6 @@ int32_t onWarpRings()
     
     return D_O_K;
 }
-
-/********************************/
-/********** onEnemies ***********/
-/********************************/
 
 
 const char *pattern_list(int32_t index, int32_t *list_size)
@@ -18624,10 +18550,6 @@ int32_t onEnemies()
 	refresh(rALL);
 	return D_O_K;
 }
-
-/*******************************/
-/********** onHeader ***********/
-/*******************************/
 
 char author[65],title[65],password[32];
 
@@ -23201,7 +23123,6 @@ auto_do_slots:
 		char buf[256] = {0};
 		sprintf(buf, "ZScripts successfully loaded into script slots"
 			"\nAssign Slots took %d ms", compile_time_ms);
-		//al_trace("Module SFX datafile is %s \n",moduledata.datafiles[sfx_dat]);
 		compile_finish_sample = vbound(zc_get_config("Compiler","compile_finish_sample",20),0,255);
 		compile_audio_volume = vbound(zc_get_config("Compiler","compile_audio_volume",200),0,255);
 		if ( compile_finish_sample > 0 )
@@ -23210,8 +23131,6 @@ auto_do_slots:
 				sfx_voice[compile_finish_sample]=allocate_voice((SAMPLE*)sfxdata[compile_finish_sample].dat);
 			else sfx_voice[compile_finish_sample]=allocate_voice(&customsfxdata[compile_finish_sample]);
 			voice_set_volume(sfx_voice[compile_finish_sample], compile_audio_volume);
-			//zc_set_volume(255,-1);
-			//kill_sfx();
 			voice_start(sfx_voice[compile_finish_sample]);
 		}
 		if(!assign_mode)
@@ -23667,9 +23586,6 @@ static DIALOG sfx_edit_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-/*****************/
-/*****  SFX  *****/
-/*****************/
 
 // array of voices, one for each sfx sample in the data file
 // 0+ = voice #
@@ -24089,8 +24005,6 @@ int32_t onEditSFX(int32_t index)
 				
 				strcpy(temppath,tempname);
 				
-				//zprint2("temppath is: %s\n", temppath);
-				//zprint2("tempname is: %s\n", tempname);
 				//save
 				if(templist[index].data != NULL)
 				{
@@ -24178,22 +24092,16 @@ int32_t onMapStyles()
     }
     
     mapstyles_dlg[0].dp2 = get_zc_font(font_lfont);
-    //al_trace("onMapStyles() read blueframe_tile as: %d\n", QMisc.colors.blueframe_tile);
     mapstyles_dlg[17].d1  = QMisc.colors.blueframe_tile;
     mapstyles_dlg[17].fg  = QMisc.colors.blueframe_cset;
-    //al_trace("onMapStyles() read triforce_tile as: %d\n", QMisc.colors.triforce_tile);
     mapstyles_dlg[18].d1  = QMisc.colors.triforce_tile;
     mapstyles_dlg[18].fg  = QMisc.colors.triforce_cset;
-    //al_trace("onMapStyles() read triframe_tile as: %d\n", QMisc.colors.triframe_tile);
     mapstyles_dlg[19].d1  = QMisc.colors.triframe_tile;
     mapstyles_dlg[19].fg  = QMisc.colors.triframe_cset;
-    //al_trace("onMapStyles() read overworld_map_tile as: %d\n", QMisc.colors.overworld_map_tile);
     mapstyles_dlg[20].d1  = QMisc.colors.overworld_map_tile;
     mapstyles_dlg[20].fg  = QMisc.colors.overworld_map_cset;
-     //al_trace("onMapStyles() read HCpieces_tile as: %d\n", QMisc.colors.HCpieces_tile);
     mapstyles_dlg[21].d1 = QMisc.colors.HCpieces_tile;
     mapstyles_dlg[21].fg = QMisc.colors.HCpieces_cset;
-    //al_trace("onMapStyles() read dungeon_map_tile as: %d\n", QMisc.colors.dungeon_map_tile);
     mapstyles_dlg[22].d1  = QMisc.colors.dungeon_map_tile;
     mapstyles_dlg[22].fg  = QMisc.colors.dungeon_map_cset;
     
@@ -24537,10 +24445,6 @@ void cycle_palette()
     }
 }
 
-
-/********************/
-/******  Help  ******/
-/********************/
 
 void doHelp()
 {
@@ -25096,29 +25000,7 @@ void hit_close_button()
     return;
 }
 
-/********************/
-/******  MAIN  ******/
-/********************/
-
-/*
-  enum { jcBOX, jcLIGHT, jcMEDLT, jcMEDDARK, jcDARK, jcBOXFG,
-  jcTITLEL, jcTITLER, jcTITLEFG, jcTEXTBG, jcTEXTFG, jcSELBG, jcSELFG,
-  jcMAX };
-
-  enum { light gray, white, off-white, gray, dark gray, black,
-  jcTITLEL, jcTITLER, jcTITLEFG, jcTEXTBG, jcTEXTFG, jcSELBG, jcSELFG,
-  jcMAX };
-  */
-
 extern bool dirty_screen;
-
-/*
-  static int32_t jwin_pal[jcMAX] =
-  {
-  vc(11),vc(15),vc(4),vc(7),vc(6),vc(0),
-  192,223,vc(14),vc(15),vc(0),vc(1),vc(14)
-  };
-  */
 
 void anim_hw_screen(bool force)
 {
@@ -27801,9 +27683,6 @@ int32_t onSmartCompile()
 	return 0;
 }
 
-/********************************/
-/*****      Tool Tips      ******/
-/********************************/
 int32_t strchrnum(char const* str, char c)
 {
 	for(int32_t i=0; str[i]; ++i)
@@ -28296,7 +28175,6 @@ int32_t FFScript::getTime(int32_t type)
 		{
 			int32_t year = tm_struct->tm_year + 1900;        /* year */
 			//year format starts at 1900, so we add it to the return
-			//al_trace("The current year is: %d\n",year);
 			return year;
 			
 		}
@@ -28304,49 +28182,41 @@ int32_t FFScript::getTime(int32_t type)
 		{
 			int32_t month = tm_struct->tm_mon +1;         /* month */
 			//Months start at 0, but we want 1->12
-			//al_trace("The current month is: %d\n",month);
 			return month;
 		}
 		case curday_month:
 		{
 			int32_t day_month = tm_struct->tm_mday;        /* day of the month */
-			//al_trace("The current day of the month is: %d\n",day_month);
 			return day_month;
 		}
 		case curday_week: 
 		{
 			int32_t day_week = tm_struct->tm_wday;        /* day of the week */
-			//al_trace("The current day of the week is: %d\n",day_week);
 			return day_week;
 		}
 		case curhour:
 		{
 			int32_t hour = tm_struct->tm_hour;        /* hours */
-			//al_trace("The current hour is: %d\n",hour);
 			return hour;
 		}
 		case curminute: 
 		{
 			int32_t minutes = tm_struct->tm_min;         /* minutes */
-			//al_trace("The current hour is: %d\n",minutes);
 			return minutes;
 		}
 		case cursecond:
 		{
 			int32_t secs = tm_struct->tm_sec;         /* seconds */
-			//al_trace("The current second is: %d\n",secs);
 			return secs;
 		}
 		case curdayyear:
 		{
 			int32_t day_year = tm_struct->tm_yday;        /* day in the year */
-			//al_trace("The current day out of the year is: %d\n",day_year);
 			return day_year;
 		}
 		case curDST:
 		{
 			int32_t isDST = tm_struct->tm_isdst;       /* daylight saving time */
-			//al_trace("The current DSTis: %d\n",isDST);
 			return isDST;
 		}
 		default: return -1;

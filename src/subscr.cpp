@@ -2149,7 +2149,6 @@ void draw_textbox(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, FONT
 
 
 
-//void frame2x2(BITMAP *dest,int32_t x,int32_t y,int32_t xsize,int32_t ysize,int32_t t,int32_t c)
 void frame2x2(BITMAP *dest,int32_t x,int32_t y,int32_t tile,int32_t cset,int32_t w,int32_t h,int32_t /*flip*/,bool overlay,bool trans)
 {
     /*

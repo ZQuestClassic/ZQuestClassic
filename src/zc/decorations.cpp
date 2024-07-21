@@ -7,10 +7,6 @@
 #include "base/zsys.h"
 #include "zc/hero.h"
 
-/***************************************/
-/*******  Decoration Base Class  *******/
-/***************************************/
-
 decoration::decoration(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr) : sprite()
 {
 	x=X;
@@ -24,10 +20,6 @@ decoration::decoration(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr) : s
 }
 
 decoration::~decoration() {}
-
-/*******************************/
-/*******   Decorations   *******/
-/*******************************/
 
 int32_t dBushLeaves::ft[4][8][3];
 int32_t dFlowerClippings::ft[4][8][3];
@@ -198,17 +190,7 @@ comboSprite::comboSprite(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr) :
 
 bool comboSprite::animate(int32_t)
 {
-	/*
-	clk++;
-	if ( (clk%spd) == 0 ) tile++;
-	al_trace("Animating combo sprite.z\n");
-	//if ( clk > tframes ) dead=1;
-	return clk()<=0;
-	*/
 	int32_t dur = zc_max(1,wpnsbuf[the_deco_sprite].frames) * zc_max(1,wpnsbuf[the_deco_sprite].speed);
-	//al_trace("dur: %d\n", dur);
-	//al_trace("clk: %d\n", clk);
-	//zprint2("Animating comboSprite: %d / %d\n", clk, dur);
 	return (clk++>=dur);
 }
 
@@ -226,7 +208,6 @@ void comboSprite::realdraw(BITMAP *dest, int32_t draw_what)
 	
 	tile = t+(((clk-1)/spd)%fr);
 	
-	//zprint2("Drawing comboSprite: %d / %d (tile %d)\n", clk-1, fr*spd, tile);
 	decoration::draw(dest);
 }
 

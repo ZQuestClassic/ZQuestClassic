@@ -46,10 +46,6 @@ void identifyCFEnemies();
 byte get_def_ignrflag(int32_t edef);
 int32_t conv_edef_unblockable(int32_t edef, byte unblockable);
 
-/**********************************/
-/*******  Enemy Base Class  *******/
-/**********************************/
-
 class enemy : public sprite
 {
 public:
@@ -122,7 +118,6 @@ public:
 	
 	int32_t getScriptUID();
 	void setScriptUID(int32_t new_id);
-	//void explode(int32_t type);
 	
 	zfix  getX();
 	zfix  getY();
@@ -317,10 +312,6 @@ private:
 	bool shieldCanBlock;
 };
 
-/********************************/
-/*********  Guy Class  **********/
-/********************************/
-
 // good guys, fires, fairy, and other non-enemies
 // based on enemy class b/c guys in dungeons act sort of like enemies
 // also easier to manage all the guys this way
@@ -335,10 +326,6 @@ public:
 		return true;
 	}
 };
-
-/*******************************/
-/*********   Enemies   *********/
-/*******************************/
 
 class eFire : public enemy
 {
@@ -599,10 +586,6 @@ public:
 	virtual void draw(BITMAP *dest);
 };
 
-/*********************************/
-/**********   Bosses   ***********/
-/*********************************/
-
 class eDodongo : public enemy
 {
 public:
@@ -677,10 +660,6 @@ public:
 };
 
 void getBigTri(int32_t id2);
-
-/**********************************/
-/***  Multiple-Segment Enemies  ***/
-/**********************************/
 
 // segment manager
 class eMoldorm : public enemy
@@ -843,9 +822,6 @@ public:
 	virtual void draw(BITMAP *dest);
 };
 
-/**********************************/
-/**********  Misc Code  ***********/
-/**********************************/
 void addEwpn(int32_t x,int32_t y,int32_t z,int32_t id,int32_t type,int32_t power,int32_t dir, int32_t parentid, byte script_gen = 0, int32_t fakez = 0);
 // Used by Hero's swords & stomp boots
 int32_t hit_enemy(int32_t index,int32_t wpnId,int32_t power,int32_t wpnx,int32_t wpny,int32_t dir, int32_t enemyHitWeapon, weapon* realweap = nullptr);

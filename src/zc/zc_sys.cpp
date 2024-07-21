@@ -248,11 +248,6 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 	jwin_center_dialog(d);
 }
 
-
-/**********************************/
-/******** System functions ********/
-/**********************************/
-
 static char cfg_sect[] = "zeldadx"; //We need to rename this.
 static char ctrl_sect[] = "Controls";
 static char sfx_sect[] = "Volume";
@@ -2325,10 +2320,8 @@ void draw_lens_under(BITMAP *dest, bool layer)
 		mfREFFIREBALL, mfHAMMER, mfSWORDBEAM, mfWAND
 	};
 	
-	//  int32_t page = tmpscr->cpage;
 	{
 		int32_t blink_rate=flash_reduction_enabled()?6:1;
-		//	int32_t temptimer=0;
 		int32_t tempitem, tempweapon=0;
 		strike_hint=strike_hint_table[strike_hint_counter];
 		
@@ -3493,8 +3486,6 @@ void draw_wavy(BITMAP *source, BITMAP *target, int32_t amplitude, bool interpol)
 	blit(source,wavebuf,0,original_playing_field_offset,16,0,256,224-original_playing_field_offset);
 	
 	int32_t ofs;
-	//  int32_t amplitude=8;
-	//  int32_t wavelength=4;
 	amplitude = zc_min(2048,amplitude); // some arbitrary limit to prevent crashing
 	if(flash_reduction_enabled() && !get_qr(qr_WAVY_NO_EPILEPSY)) amplitude = zc_min(16,amplitude);
 	int32_t amp2=168;
@@ -3704,20 +3695,6 @@ void updatescr(bool allowwavy)
 		if(!(msg_txt_display_buf->clip))
 			blit_msgstr_fg(framebuf,0,0,0,playing_field_offset,256,168);
 	}
-	
-	/*
-	if(!(msg_txt_display_buf->clip) && Playing && msgpos && !screenscrolling)
-	{
-		BITMAP* subBmp = 0;
-		masked_blit(msg_txt_display_buf,subBmp,0,0,0,playing_field_offset,256,168);
-		// masked_blit(msg_txt_display_buf,subBmp,0,playing_field_offset,256,168);
-		 draw_trans_sprite(framebuf, subBmp, 0, playing_field_offset);
-		destroy_bitmap(subBmp);
-		//void draw_sprite_ex(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t mode, int32_t flip);
-	   // masked_blit(msg_txt_display_buf,framebuf,0,0,0,playing_field_offset,256,168);
-		//void masked_blit(BITMAP *source, BITMAP *dest, int32_t source_x, int32_t source_y, int32_t dest_x, int32_t dest_y, int32_t width, int32_t height);
-	}
-	*/
 	
 	bool nosubscr = (tmpscr->flags3&fNOSUBSCR && !(tmpscr->flags3&fNOSUBSCROFFSET));
 	
@@ -7820,10 +7797,6 @@ void fix_dialogs()
 	jwin_center_dialog(triforce_dlg);
 }
 
-/*****************************/
-/**** Custom Sound System ****/
-/*****************************/
-
 INLINE int32_t mixvol(int32_t v1,int32_t v2)
 {
 	return (zc_min(v1,255)*zc_min(v2,255)) >> 8;
@@ -8064,10 +8037,6 @@ void master_volume(int32_t dv,int32_t mv)
 		temp_vol = (midi_volume * FFCore.usr_music_volume) / 10000 / 100;
 	zc_set_volume(digi_volume,mixvol(tunes[i].volume, temp_vol));
 }
-
-/*****************/
-/*****  SFX  *****/
-/*****************/
 
 // array of voices, one for each sfx sample in the data file
 // 0+ = voice #
@@ -8367,10 +8336,6 @@ int32_t pan(int32_t x)
 	return vbound(x,0,255);
 }
 
-/*******************************/
-/******* Input Handlers ********/
-/*******************************/
-
 bool joybtn(int32_t b)
 {
 	if(b == 0)
@@ -8608,7 +8573,6 @@ void load_control_state()
 			raw_control_state[15] = STICK_2_Y.pos - js_stick_2_y_offset > STICK_PRECISION;
 			raw_control_state[16] = STICK_2_X.pos - js_stick_2_x_offset < -STICK_PRECISION;
 			raw_control_state[17] = STICK_2_X.pos - js_stick_2_x_offset > STICK_PRECISION;
-			// zprint2("Detected %d joysticks... %d%d%d%d\n", num_joysticks, raw_control_state[14]?1:0, raw_control_state[15]?1:0, raw_control_state[16]?1:0, raw_control_state[17]?1:0);
 		}
 		else
 		{
@@ -8616,7 +8580,6 @@ void load_control_state()
 			raw_control_state[15] = false;
 			raw_control_state[16] = false;
 			raw_control_state[17] = false;
-			// zprint2("Detected 0 joysticks... clearing inputaxis values.\n");
 		}
 	}
 	if (replay_is_active())

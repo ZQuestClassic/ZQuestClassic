@@ -2,7 +2,6 @@
 #include "zc/zelda.h"
 #include "base/zdefs.h"
 
-//extern itemdata   *itemsbuf;
 extern wpndata    *wpnsbuf;
 
 int32_t script_hero_sprite = 0;

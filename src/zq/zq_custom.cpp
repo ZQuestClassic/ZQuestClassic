@@ -221,10 +221,6 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 	jwin_center_dialog(d);
 }
 
-/*****************************/
-/******  onCustomItems  ******/
-/*****************************/
-
 static ListData weapon_list(weaponlist_num, &a4fonts[font_pfont]);
 
 const char *defenselist(int32_t index, int32_t *list_size)
@@ -1405,10 +1401,6 @@ int32_t onCustomItems()
 	return D_O_K;
 }
 
-/****************************/
-/******  onCustomWpns  ******/
-/****************************/
-
 static DIALOG wpndata_dlg[] =
 {
 	// (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
@@ -1528,10 +1520,6 @@ int32_t onCustomWpns()
 	return D_O_K;
 }
 
-/****************************/
-/******  onMiscSprites ******/
-/****************************/
-
 int32_t onMiscSprites()
 {
 	MiscSprsDialog(QMisc.sprites, 20, [](int32_t* newsprs)
@@ -1553,11 +1541,6 @@ int32_t onMiscSFX()
 	}).show();
 	return D_O_K;
 }
-
-/****************************/
-/***** onCustomEnemies  *****/
-/****************************/
-
 
 static int32_t enedata_data_list[] =
 {

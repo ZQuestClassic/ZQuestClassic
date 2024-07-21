@@ -1,14 +1,12 @@
 #include <cstring>
 #include <stdio.h>
-
-
 #include "midi.h"
 #include "base/zsys.h"
+
 /* save_midi:
   *  Saves a standard MIDI file, returning 0 on success,
   *  or non-zero on error.
   */
-
 int32_t save_midi(const char *filename, MIDI *midi)
 {
     int32_t c;
@@ -58,46 +56,6 @@ err:
     delete_file(filename);
     return 3;
 }
-
-/* ---  All this code just to calculate the length of a MIDI song.  --- */
-
-/*
-  #define MAX_TEMPO_CHANGES 512
-
-  typedef struct midi_info
-  {
-  // midi info
-  int32_t format;
-  int32_t num_tracks;
-  int32_t divisions;
-  int32_t len_beats;
-  double len_sec;
-  int32_t tempo_changes;
-  double tempo[MAX_TEMPO_CHANGES];         // tempo can change during song
-  dword  tempo_c[MAX_TEMPO_CHANGES];       // store the total delta time before each change in tempo
-
-  // MTrk event info (used by parse_mtrk())
-  dword dt,nbytes;
-  byte event,running_status,type,byte2;
-  byte *buf;
-
-  } midi_info;
-
-  typedef struct mtrkevent
-  // sort of... it's actually not a true MTrk event because it can be a
-  // combination of events, such as a "note on" event plus a "note off" event
-  {
-  // basic mtrk event but with total time instead of delta-time
-  byte *buf;       // buffer for extra data
-  dword t;         // total time from start in delta-time units
-  word dur;        // duration of note
-  word event;      // event + extra byte of info
-  word nbytes;     // number of bytes in "buf" or note off velocity
-  byte type;       // meta type, note number, etc.
-  byte byte2;      // byte 2 or note on velocity
-  } mtrkevent;
-
-  */
 
 dword getval(byte *buf,int32_t nbytes)
 {

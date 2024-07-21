@@ -20,10 +20,6 @@ int32_t COMBOY(int32_t pos);
 
 void set_preview_mode(int32_t prv);
 
-/************************/
-/****** ZMAP class ******/
-/************************/
-
 class user_input_command
 {
 public:
@@ -167,7 +163,6 @@ public:
 
 void reset_dmap(int32_t index);
 void truncate_dmap_title(std::string& title);
-//void mapfix_0x166(mapscr *scr);
 bool setMapCount2(int32_t c);
 class zmap
 {
@@ -369,7 +364,6 @@ public:
 
 extern zmap Map;
 
-//bool read_old_mapfile(mapscr *scr, FILE *f);
 extern const char *loaderror[];
 
 void put_walkflags(BITMAP *dest,int32_t x,int32_t y,word cmbdat,int32_t layer);
@@ -381,12 +375,6 @@ void put_engraving(BITMAP* dest, int32_t x, int32_t y, int32_t slot, int32_t sca
 void copy_mapscr(mapscr *dest, const mapscr *src);
 void delete_mapscr(mapscr *dest);
 
-/******************************/
-/******** ZQuest stuff ********/
-/******************************/
-
-//word msg_count=0;
-//const char zqsheader[30];
 
 bool setMapCount2(int32_t c);
 int32_t init_quest();

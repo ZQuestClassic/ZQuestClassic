@@ -497,7 +497,6 @@ namespace ZScript
 		DataTypeTemplateConst(std::string const& name, uint32_t id)
 			: DataTypeTemplate(name, id, nullptr), mut_type(nullptr) {}
 		DataTypeTemplateConst* clone() const {return new DataTypeTemplateConst(*this);};
-		//int unique_type_id() const { return 7; } //should be able to be same as the non-const base?
 		
 		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler) const {return this;}
 		

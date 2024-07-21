@@ -1309,9 +1309,6 @@ struct guydata
     int32_t   misc1, misc2, misc3, misc4, misc5, misc6, misc7, misc8, misc9, misc10, misc11, misc12, misc13, misc14, misc15;
     int16_t  bgsfx, bosspal, extend;
     byte defense[edefLAST255];
-   // byte scriptdefense[
-    //  int16_t  startx, starty;
-    //  int16_t  foo1,foo2,foo3,foo4,foo5,foo6;
     byte  hitsfx, deadsfx;
     //Add all new guydata variables after this point, if you do not want to edit defdata to fit.
     //Adding earlier will offset defdata arrays. -Z
@@ -1399,9 +1396,6 @@ public:
 	int32_t portalref, saveportalref;
 	int32_t websocketref;
 	dword subdataref, subpageref, subwidgref;
-	//byte ewpnclass, lwpnclass, guyclass; //Not implemented
-	
-	//byte ewpnclass, lwpnclass, guyclass; //Not implemented
 	
 	int32_t switchkey; //used for switch statements
 	dword thiskey, thiskey2; //used for user class 'this' pointers
@@ -1928,8 +1922,6 @@ struct zquestheader
     char  version[17];
     char  title[65];
     char  author[65];
-    //byte  padding;
-    //  int16_t pwdkey;
     bool  dirty_password;
     char  password[256];
     uint8_t pwd_hash[16];
@@ -1946,7 +1938,6 @@ struct zquestheader
     byte  old_rules9[2];
     byte  old_rules10[2];
     byte  old_midi_flags[MIDIFLAGS_SIZE];
-    //304
     byte  old_foo2[18];
     // No one used custom quest templates, so we stopped supporting it.
     char  templatepath[2048];
@@ -2227,10 +2218,6 @@ enum {
 #define titleScreen250 0
 #define titleScreen210 10
 #define titleScreenMAIN 20
-
-/******************/
-/**  Misc Stuff  **/
-/******************/
 
 INLINE bool isinRect(int32_t x,int32_t y,int32_t rx1,int32_t ry1,int32_t rx2,int32_t ry2)
 {

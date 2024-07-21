@@ -17,17 +17,9 @@ struct list_data_struct
     int32_t i;
 };
 
-/*****************************/
-/******  onCustomItems  ******/
-/*****************************/
-
 void test_item(itemdata test);
 void edit_itemdata(int32_t index);
 int32_t onCustomItems();
-
-/****************************/
-/******  onCustomWpns  ******/
-/****************************/
 
 enum { ws_2_frame, ws_3_frame, ws_max };
 

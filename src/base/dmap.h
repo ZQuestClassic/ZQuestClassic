@@ -15,24 +15,16 @@ struct dmap
 	byte midi;
 	byte cont;
 	byte type;
-	//8
 	byte grid[8];
-	//16
 	char name[22];
 	std::string title;
 	char intro[74];
-	//byte padding;
-	//132
 	int32_t minimap_1_tile;                                      //before getting map
 	byte minimap_1_cset;                                      //cset for minimap 1
-	//byte padding;
 	int32_t minimap_2_tile;                                      //after getting map
 	byte minimap_2_cset;                                      //cset for minimap 2
-	//byte padding;
-	//140
 	int32_t largemap_1_tile;                                     //large map
 	byte largemap_1_cset;                                     //cset for large
-	//byte padding;
 	int32_t largemap_2_tile;                                     //large map
 	byte largemap_2_cset;                                     //cset for large
 	char tmusic[57];
@@ -40,11 +32,7 @@ struct dmap
 	byte active_subscreen;
 	byte passive_subscreen;
 	byte overlay_subscreen;
-	// int32_t emusic;
-	//byte padding;
-	//204
 	byte disableditems[MAXITEMS];
-	// 460
 	int32_t flags;
 	char sideview;
 	word script;

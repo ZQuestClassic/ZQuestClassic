@@ -233,10 +233,6 @@ const char *dmaplist(int32_t index, int32_t *list_size)
 
 int32_t startdmapxy[6] = {0,0,0,0,0,0};
 
-/**********************************/
-/******** Global Variables ********/
-/**********************************/
-
 int32_t curr_tb_page=0;
 
 RGB_MAP rgb_table;
@@ -685,11 +681,6 @@ void ChangeSubscreenText(int32_t index, const char *f)
 }
 
 
-
-/**********************************/
-/*********** Misc Data ************/
-/**********************************/
-
 const char startguy[8] = {-13,-13,-13,-14,-15,-18,-21,-40};
 const char gambledat[12*6] =
 {
@@ -817,8 +808,6 @@ void donewmsg(int32_t str)
 	if(msg_onscreen || msg_active)
 		dismissmsg();
 	clr_msg_data();
-    //al_trace("donewmsg %d\n",str);
-    
         
     linkedmsgclk=0;
     msg_active = true;
@@ -927,11 +916,6 @@ extern char *weapon_string[];
 extern char *item_string[];
 extern char *sfx_string[];
 extern char *guy_string[];
-
-
-/**********************************/
-/******* Other Source Files *******/
-/**********************************/
 
 bool get_debug()
 {
@@ -1292,10 +1276,6 @@ void CatchBrang()
 {
     Hero.Catch();
 }
-
-/**************************/
-/***** Main Game Code *****/
-/**************************/
 
 int8_t smart_vercmp(char const* a, char const* b)
 {
@@ -2266,7 +2246,6 @@ int32_t cont_game()
 	GameLoaded = true;
 	timeExitAllGenscript(GENSCR_ST_CONTINUE);
 	throwGenScriptEvent(GENSCR_EVENT_CONTINUE);
-	//  introclk=intropos=msgclk=msgpos=dmapmsgclk=0;
 	FFCore.init();
 	onload_gswitch_timers();
 	didpit=false;
@@ -3881,10 +3860,6 @@ int32_t getTint(int32_t color)
 	return lastCustomTint[color];
 }
 
-/**************************/
-/********** Main **********/
-/**************************/
-
 bool is_editor()
 {
     return false;
@@ -4388,7 +4363,6 @@ int main(int argc, char **argv)
 	zcmixer = zcmixer_create();
 	Z_message("OK\n");
 	
-	//  int32_t mode = VidMode;                                       // from config file
 	int32_t tempmode=GFX_AUTODETECT;
 	int32_t res_arg = used_switch(argc,argv,"-res");
 	

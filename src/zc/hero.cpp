@@ -708,7 +708,6 @@ void HeroClass::setSwimDownRate(int32_t newrate)
 }
 
 
-//void HeroClass::herostep() { lstep = lstep<(BSZ?27:11) ? lstep+1 : 0; }
 void HeroClass::herostep()
 {
     lstep = lstep<((zinit.heroAnimationStyle==las_bszelda)?27:11) ? lstep+1 : 0;
@@ -1768,7 +1767,6 @@ void HeroClass::init()
 	for ( int32_t q = 0; q < wMax; q++ ) 
 	{
 		defence[q] = hero_defence[q]; //we will need to have a Hero section in the quest load/save code! -Z Added 3/26/21 - Jman
-		//zprint2("defence[%d] is: %d\n", q, defence[q]);
 	}
 	
 	clear_ice();
@@ -8524,8 +8522,6 @@ heroanimate_skip_liftwpn:;
 		if(!(toogam && Up()) && !drownclk && action!=rafting && !IsSideSwim() && !pull_hero && !((ladderx || laddery) && fall>0) && !getOnSideviewLadder())
 		{
 			int32_t ydiff = fall/(spins && fall<0 ? 200:100);
-			//zprint2("ydif is: %d\n", ydiff);
-			//zprint2("ydif is: %d\n", (int32_t)fall);
 			falling_oldy = y; // Stomp Boots-related variable
 			if(fall > 0 && (checkSVLadderPlatform(x+4,y+ydiff+15)||checkSVLadderPlatform(x+12,y+ydiff+15)) && (((y.getInt()+ydiff+15)&0xF0)!=((y.getInt()+15)&0xF0)) && !platform_fallthrough())
 			{
@@ -19714,7 +19710,6 @@ void HeroClass::get_move(int movedir, zfix& dx, zfix& dy, int32_t& facedir)
 
 	if (diagonalMovement)
 	{
-		//zprint2("Player's X is %d, Y is %d\n", x, y);
 		if (((movedir == up || movedir == down) && (shiftdir == left || shiftdir == right)) ||
 			(movedir == left || movedir == right) && (shiftdir == up || shiftdir == down))
 		{
@@ -19857,7 +19852,6 @@ bool HeroClass::new_engine_move(zfix dx, zfix dy) //no collision check
 
 void HeroClass::moveOld(int32_t d2)
 {
-	//al_trace("%s\n",d2==up?"up":d2==down?"down":d2==left?"left":d2==right?"right":"?");
     static bool totalskip = false;
     
     if( inlikelike || lstunclock > 0 || is_conveyor_stunned)
@@ -20253,7 +20247,6 @@ void HeroClass::moveOld2(int32_t d2, int32_t forceRate)
 	
 	if(diagonalMovement)
 	{
-		//zprint2("Player's X is %d, Y is %d\n", x, y);
 		if(((d2 == up || d2 == down) && (shiftdir == left || shiftdir == right)) ||
 			(d2 == left || d2 == right) && (shiftdir == up || shiftdir == down))
 		{
@@ -21475,8 +21468,6 @@ bool usekey()
 						key_item = q; break;
 					}
 				}
-				//zprint2("key_item is: %d\n",key_item);
-				//zprint2("key_item script is: %d\n",itemsbuf[key_item].script);
 				if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(ScriptType::Item, key_item) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING)) ) 
 				{
 					int i = key_item;
@@ -24119,7 +24110,6 @@ void HeroClass::checkspecial2(int32_t *ls)
 			int32_t pos = COMBOPOS(x+j, y+i);
 			if((stype==cSTRIGNOFLAG || stype==cSTRIGFLAG) && stepsecret!=pos)
 			{
-				// zprint("Step Secs\n");
 				if(stype==cSTRIGFLAG && canPermSecret())
 				{ 
 					if(!didstrig)
@@ -24130,8 +24120,6 @@ void HeroClass::checkspecial2(int32_t *ls)
 						{
 							setmapflag(mSECRET);
 						}
-						//int32_t thesfx = combobuf[MAPCOMBO(x+j,y+i)].attribytes[0];
-						//zprint("Step Secrets SFX: %d\n", thesfx);
 						sfx(warpsound,pan((int32_t)x));
 						hidden_entrance(0,true,false); 
 						didstrig = true;
@@ -24916,7 +24904,6 @@ void HeroClass::checkspecial2(int32_t *ls)
 	
 	if(type==cSTEP)
 	{ 
-	//zprint2("Hero.HasHeavyBoots(): is: %s\n", ( (Hero.HasHeavyBoots()) ? "true" : "false" ));
 		if((((ty+8)&0xF0)+((tx+8)>>4))!=stepnext)
 		{
 			stepnext=((ty+8)&0xF0)+((tx+8)>>4);
@@ -27058,7 +27045,6 @@ void HeroClass::walkdown(bool opening) //entering cave
     stop_item_sfx(itype_brang);
     sfx(WAV_STAIRS,pan(x.getInt()));
     clk=0;
-    //  int32_t cmby=(y.getInt()&0xF0)+16;
     // Fix Hero's position to the grid
     y=y.getInt()&0xF0;
     action=climbcoverbottom; FFCore.setHeroAction(climbcoverbottom);
@@ -27172,7 +27158,6 @@ void HeroClass::walkup(bool opening) //exiting cave
     sfx(WAV_STAIRS,pan(x.getInt()));
     dir=down;
     clk=0;
-    //  int32_t cmby=y.getInt()&0xF0;
     action=climbcoverbottom; FFCore.setHeroAction(climbcoverbottom);
     attack=wNone;
     attackid=-1;
@@ -27219,7 +27204,6 @@ void HeroClass::walkup2(bool opening) //entering cave2
     sfx(WAV_STAIRS,pan(x.getInt()));
     dir=up;
     clk=0;
-    //  int32_t cmby=y.getInt()&0xF0;
     action=climbcovertop; FFCore.setHeroAction(climbcovertop);
     attack=wNone;
     attackid=-1;
@@ -29521,10 +29505,6 @@ bool HeroClass::sideviewhammerpound()
     return false;
 }
 
-/************************************/
-/********  More Items Code  *********/
-/************************************/
-
 // The following are only used for Hero damage. Damage is in quarter hearts.
 int32_t enemy_dp(int32_t index)
 {
@@ -29607,7 +29587,6 @@ void HeroClass::cleanupByrna()
 {
 	if ( last_cane_of_byrna_item_id > -1 )
 	{
-		//al_trace("Last cane id is: %d\n", last_cane_of_byrna_item_id);
 		if ( !(Lwpns.idCount(wCByrna)) )
 		{
 			stop_sfx(itemsbuf[last_cane_of_byrna_item_id].usesound);
@@ -31099,7 +31078,6 @@ void HeroClass::getTriforce(int32_t id2)
 	if ( (itemsbuf[id2].flags & item_flag14) )
 	{
 		uint8_t playwav = itemsbuf[id2].misc3;
-		//zprint2("playwav is: %d\n", playwav);
 		sfx(playwav);
 		
 	}

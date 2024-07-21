@@ -655,10 +655,6 @@ bool usekey();
 bool canUseKey(int32_t num = 1);
 bool usekey(int32_t num);
 
-/************************************/
-/********  More Items Code  *********/
-/************************************/
-
 int32_t enemy_dp(int32_t index);
 int32_t ewpn_dp(int32_t index);
 int32_t lwpn_dp(int32_t index);
@@ -666,7 +662,6 @@ bool checkbunny(int32_t itemid);
 bool usesSwordJinx(int32_t itemid);
 bool checkitem_jinx(int32_t itemid);
 void stopCaneOfByrna();
-//void selectWpn(int32_t xstep, int32_t ystep, bool b);
 bool isWpnPressed(int32_t wpn);
 int32_t getWpnPressed(int32_t wpn);
 int32_t getRocsPressed();

@@ -8,8 +8,6 @@
 #include <fmt/format.h>
 #include "base/misctypes.h"
 
-#include <queue>
-
 char *item_string[MAXITEMS];
 
 #ifndef IS_EDITOR
