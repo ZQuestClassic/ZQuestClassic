@@ -1818,7 +1818,8 @@ void game_over(int32_t type)
 			Quit=qCONT;
 		}
 		
-		if(pos==1&&(!type))
+		// Save and quit.
+		if (pos == 1)
 		{
 			//run save scripts
 			FFCore.runOnSaveEngine();
@@ -1828,7 +1829,14 @@ void game_over(int32_t type)
 			game->save_user_objects();
 			saves_write();
 			replay_step_comment("save game");
+		}
+
+		// Anything but Continue.
+		if (pos != 0)
+		{
 			if (replay_get_mode() == ReplayMode::Record) replay_save();
+			if (!replay_is_replaying())
+				replay_stop();
 		}
 	}
 }
