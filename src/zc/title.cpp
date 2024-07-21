@@ -1620,13 +1620,13 @@ void titlescreen(int32_t lsave)
 		saves_unload(saves_current_selection());
 	}
 
+	if (replay_is_active())
+		replay_quit();
+
 	if (!SkipTitle && load_qstpath.empty() && lsave == 0)
 	{
 		actual_titlescreen();
 	}
-
-	if (replay_is_active())
-		replay_quit();
 
 	if(!Quit)
 	{
