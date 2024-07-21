@@ -5835,12 +5835,12 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				
 				for(int32_t x=16; x<w*16; x+=16)
 				{
-					_allegro_vline(menu1, (x*mapscreensize)+mapscreen_x, mapscreen_y, mapscreen_y+(h*16*mapscreensize)-1, vc(GridColor));
+					vline(menu1, (x*mapscreensize)+mapscreen_x, mapscreen_y, mapscreen_y+(h*16*mapscreensize)-1, vc(GridColor));
 				}
 				
 				for(int32_t y=16; y<h*16; y+=16)
 				{
-					_allegro_hline(menu1, mapscreen_x, (y*mapscreensize)+mapscreen_y, mapscreen_x+(w*16*mapscreensize)-1, vc(GridColor));
+					hline(menu1, mapscreen_x, (y*mapscreensize)+mapscreen_y, mapscreen_x+(w*16*mapscreensize)-1, vc(GridColor));
 				}
 			}
 			
@@ -5875,7 +5875,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 					
 					for(int32_t i=0; i<3; i++)
 					{
-						_allegro_hline(menu1, p.x+5-i, p.y+4+i, p.x+5+i, jwin_pal[jcBOXFG]);
+						hline(menu1, p.x+5-i, p.y+4+i, p.x+5+i, jwin_pal[jcBOXFG]);
 					}
 				}
 				
@@ -5885,7 +5885,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 					
 					for(int32_t i=0; i<3; i++)
 					{
-						_allegro_hline(menu1,p.x+5-i,p.y+6-i, p.x+5+i, jwin_pal[jcBOXFG]);
+						hline(menu1,p.x+5-i,p.y+6-i, p.x+5+i, jwin_pal[jcBOXFG]);
 					}
 				}
 			}
@@ -27989,13 +27989,13 @@ void highlight_frag(BITMAP* dest, int color, int x1, int y1, int w, int h, int f
 	int x2 = x1+w-1;
 	int y2 = y1+h-1;
 	
-    _allegro_hline(dest, x1, y1, x2, color);
-    _allegro_vline(dest, x1, y1, y2, color);
+    hline(dest, x1, y1, x2, color);
+    vline(dest, x1, y1, y2, color);
     
-    _allegro_hline(dest, x1, y2, xc, color);
-    _allegro_vline(dest, x2, y1, yc, color);
-    _allegro_hline(dest, xc, yc, x2, color);
-    _allegro_vline(dest, xc, yc, y2, color);
+    hline(dest, x1, y2, xc, color);
+    vline(dest, x2, y1, yc, color);
+    hline(dest, xc, yc, x2, color);
+    vline(dest, xc, yc, y2, color);
 }
 void highlight_frag(BITMAP* dest, int color, size_and_pos const& rec, int thick)
 {

@@ -443,9 +443,9 @@ int32_t d_tab_proc(int32_t msg, DIALOG *d, int32_t c)
             fg = (d->flags & D_DISABLED) ? jwin_pal[jcDISABLED_FG] : d->fg;
             rectfill(screen, d->x+1, d->y+sd+text_height(font)+7, d->x+d->w-2, d->y+sd+d->h-2, d->bg); //panel
             //left, right, and bottom borders of the tab control
-            _allegro_vline(screen, d->x, d->y+sd+7+text_height(font), d->y+sd+d->h-1, fg);
-            _allegro_vline(screen, d->x+d->w-1, d->y+sd+7+text_height(font), d->y+sd+d->h-1, fg);
-            _allegro_hline(screen, d->x+1, d->y+sd+d->h-1, d->x+d->w-2, fg);
+            vline(screen, d->x, d->y+sd+7+text_height(font), d->y+sd+d->h-1, fg);
+            vline(screen, d->x+d->w-1, d->y+sd+7+text_height(font), d->y+sd+d->h-1, fg);
+            hline(screen, d->x+1, d->y+sd+d->h-1, d->x+d->w-2, fg);
             //tx=tab control x position
             tx=d->x;
             
@@ -456,7 +456,7 @@ int32_t d_tab_proc(int32_t msg, DIALOG *d, int32_t c)
                 if(!(panel[((d->d1&0xFF00)>>8)].flags&D_SELECTED))
                 {
                     //draw the initial tab panel top border
-                    _allegro_hline(screen, tx, d->y+sd+6+text_height(font), tx+1, fg); //initial bottom
+                    hline(screen, tx, d->y+sd+6+text_height(font), tx+1, fg); //initial bottom
                 }
                 
                 tx+=2;
@@ -479,17 +479,17 @@ int32_t d_tab_proc(int32_t msg, DIALOG *d, int32_t c)
                     if((i==((d->d1&0xFF00)>>8)) || (!(panel[i-1].flags&D_SELECTED)))
                     {
                         //draw the left side of the tab
-                        _allegro_vline(screen, tx-(2-sd), d->y+sd+2, d->y+8+text_height(font), fg); //left side
+                        vline(screen, tx-(2-sd), d->y+sd+2, d->y+8+text_height(font), fg); //left side
                         putpixel(screen, tx+1-(2-sd), d->y+sd+1, fg);                               //left angle
                     }
                     
-                    _allegro_hline(screen, tx+2-(2-sd), d->y+sd, tx+12+(2-sd)+text_length(font, (char *)panel[i].text), fg); //top
+                    hline(screen, tx+2-(2-sd), d->y+sd, tx+12+(2-sd)+text_length(font, (char *)panel[i].text), fg); //top
                     
                     //if the tab is not selected...
                     if(!(panel[i].flags&D_SELECTED))
                     {
                         //draw the top border of the tab panel under the tab itself
-                        _allegro_hline(screen, tx+1, d->y+sd+6+text_height(font), tx+13+text_length(font, (char *)panel[i].text), fg); //bottom
+                        hline(screen, tx+1, d->y+sd+6+text_height(font), tx+13+text_length(font, (char *)panel[i].text), fg); //bottom
                     }
                     
                     tx+=4;
@@ -502,7 +502,7 @@ int32_t d_tab_proc(int32_t msg, DIALOG *d, int32_t c)
                     {
                         //draw the right side of this tab
                         putpixel(screen, tx-1+(2-sd), d->y+sd+1, fg); //right angle
-                        _allegro_vline(screen, tx+(2-sd), d->y+sd+2, d->y+8+text_height(font), fg); //right side
+                        vline(screen, tx+(2-sd), d->y+sd+2, d->y+8+text_height(font), fg); //right side
                     }
                     
                     tx++;
@@ -516,7 +516,7 @@ int32_t d_tab_proc(int32_t msg, DIALOG *d, int32_t c)
             }
             
             //draw the remaining top border of the tab panel control
-            _allegro_hline(screen, tx+(2-sd), d->y+8+text_height(font), d->x+d->w-1, fg); //ending bottom
+            hline(screen, tx+(2-sd), d->y+8+text_height(font), d->x+d->w-1, fg); //ending bottom
             //restore the default font
             font = oldfont;
             

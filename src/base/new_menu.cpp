@@ -197,8 +197,8 @@ void MenuItem::draw(BITMAP* dest, uint x, uint y, uint style, byte drawflags, op
 			uint arrowsz = text_height(font)/2;
 			if(isEmpty())
 			{
-				_allegro_hline(dest, x+1, y+h/2-1, x+w-2, jwin_pal[jcMEDDARK]);
-				_allegro_hline(dest, x+1, y+h/2, x+w-2, jwin_pal[jcLIGHT]);
+				hline(dest, x+1, y+h/2-1, x+w-2, jwin_pal[jcMEDDARK]);
+				hline(dest, x+1, y+h/2, x+w-2, jwin_pal[jcLIGHT]);
 			}
 			else
 			{
@@ -247,8 +247,8 @@ void MenuItem::draw(BITMAP* dest, uint x, uint y, uint style, byte drawflags, op
 			constexpr uint lb = t_hborder, rb = t_hborder, vb = t_vborder;
 			if(isEmpty())
 			{
-				_allegro_hline(dest, x+1, y+h/2-1, x+w-2, jwin_pal[jcMEDDARK]);
-				_allegro_hline(dest, x+1, y+h/2, x+w-2, jwin_pal[jcLIGHT]);
+				hline(dest, x+1, y+h/2-1, x+w-2, jwin_pal[jcMEDDARK]);
+				hline(dest, x+1, y+h/2, x+w-2, jwin_pal[jcLIGHT]);
 			}
 			else
 			{

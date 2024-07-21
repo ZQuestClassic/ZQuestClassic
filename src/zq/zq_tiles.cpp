@@ -661,12 +661,12 @@ void draw_selection_outline(BITMAP *dest, int32_t x, int32_t y, int32_t scale2)
 			//  zoomtile16(screen2,tile,79,31,cs,flip,8);
 			if(selection_grid[i-1][j]!=selection_grid[i][j])
 			{
-				_allegro_vline(dest, x+((i-1)*scale2), y+((j-1)*scale2), y+(j*scale2), 255);
+				vline(dest, x+((i-1)*scale2), y+((j-1)*scale2), y+(j*scale2), 255);
 			}
 			
 			if(selection_grid[i][j-1]!=selection_grid[i][j])
 			{
-				_allegro_hline(dest, x+((i-1)*scale2), y+((j-1)*scale2), x+(i*scale2), 255);
+				hline(dest, x+((i-1)*scale2), y+((j-1)*scale2), x+(i*scale2), 255);
 			}
 		}
 	}
@@ -701,7 +701,7 @@ void draw_selecting_outline(BITMAP *dest, int32_t x, int32_t y, int32_t scale2)
 					drawing_mode(DRAW_MODE_COPY_PATTERN, intersection_pattern, selection_anchor>>3, 0);
 				}
 				
-				_allegro_vline(dest, x+((i-1)*scale2), y+((j-1)*scale2), y+(j*scale2), 255);
+				vline(dest, x+((i-1)*scale2), y+((j-1)*scale2), y+(j*scale2), 255);
 			}
 			
 			if(((i>=x1+1)&&(i<=x2+1))&&((j==y1+1)||(j==y2+2)))
@@ -711,7 +711,7 @@ void draw_selecting_outline(BITMAP *dest, int32_t x, int32_t y, int32_t scale2)
 					drawing_mode(DRAW_MODE_COPY_PATTERN, intersection_pattern, selection_anchor>>3, 0);
 				}
 				
-				_allegro_hline(dest, x+((i-1)*scale2), y+((j-1)*scale2), x+(i*scale2), 255);
+				hline(dest, x+((i-1)*scale2), y+((j-1)*scale2), x+(i*scale2), 255);
 			}
 		}
 	}
@@ -819,9 +819,9 @@ void zoomtile16(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32
 	if(!hide_grid)
 	{
 		for(int cx = 0; cx <= 16; ++cx)
-			_allegro_vline(dest,x+(cx*m),y,y+(16*m)-1,gridcol);
+			vline(dest,x+(cx*m),y,y+(16*m)-1,gridcol);
 		for(int cy = 0; cy <= 16; ++cy)
-			_allegro_hline(dest,x,y+(cy*m),x+(16*m)-1,gridcol);
+			hline(dest,x,y+(cy*m),x+(16*m)-1,gridcol);
 	}
 	
 	if(show_quartgrid)
@@ -3526,8 +3526,8 @@ void draw_grab_scr(int32_t tile,int32_t cs,byte *newtile,int32_t black,int32_t w
 	//clear_to_color(screen2,bg);
 	rectfill(screen2, 0, 0, 319, 159, black);
 	rectfill(screen2,0,162,319,239,jwin_pal[jcBOX]);
-	_allegro_hline(screen2, 0, 160, 319, jwin_pal[jcMEDLT]);
-	_allegro_hline(screen2, 0, 161, 319, jwin_pal[jcLIGHT]);
+	hline(screen2, 0, 160, 319, jwin_pal[jcMEDLT]);
+	hline(screen2, 0, 161, 319, jwin_pal[jcLIGHT]);
 	yofs=3;
 	
 	// text_mode(-1);
@@ -5545,8 +5545,8 @@ void tile_info_0(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copy
 	FONT *tfont = get_zc_font(font_pfont);
 	
 	rectfill(screen2,0,210*2,(320*2)-1,(240*2),jwin_pal[jcBOX]);
-	_allegro_hline(screen2, 0, (210*2)-2, (320*2)-1, jwin_pal[jcMEDLT]);
-	_allegro_hline(screen2, 0, (210*2)-1, (320*2)-1, jwin_pal[jcLIGHT]);
+	hline(screen2, 0, (210*2)-2, (320*2)-1, jwin_pal[jcMEDLT]);
+	hline(screen2, 0, (210*2)-1, (320*2)-1, jwin_pal[jcLIGHT]);
 	tfont = get_zc_font(font_lfont_l);
 	
 	// Copied tile and numbers
@@ -5657,8 +5657,8 @@ void tile_info_1(int32_t oldtile,int32_t oldflip,int32_t oldcs,int32_t tile,int3
 	FONT *tfont = get_zc_font(font_pfont);
 	
 	rectfill(screen2,0,210*2,(320*2)-1,(240*2),jwin_pal[jcBOX]);
-	_allegro_hline(screen2, 0, (210*2)-2, (320*2)-1, jwin_pal[jcMEDLT]);
-	_allegro_hline(screen2, 0, (210*2)-1, (320*2)-1, jwin_pal[jcLIGHT]);
+	hline(screen2, 0, (210*2)-2, (320*2)-1, jwin_pal[jcMEDLT]);
+	hline(screen2, 0, (210*2)-1, (320*2)-1, jwin_pal[jcLIGHT]);
 	tfont = get_zc_font(font_lfont_l);
 	
 	jwin_draw_frame(screen2,(124*mul)-2,((216*mul)+yofs)-2,(16*mul)+4,(16*mul)+4,FR_DEEP);
@@ -10486,7 +10486,7 @@ void draw_combos(int32_t page,int32_t cs,bool cols)
 	
 	for(int32_t x=(64*mul); x<(320*mul); x+=(64*mul))
 	{
-		_allegro_vline(screen2,x,0,(208*mul)-1,vc(15));
+		vline(screen2,x,0,(208*mul)-1,vc(15));
 	}
 	
 	destroy_bitmap(buf);
@@ -10500,8 +10500,8 @@ void combo_info(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copyc
 	FONT *tfont = get_zc_font(font_lfont_l);
 	
 	rectfill(screen2,0,210*2,(320*2)-1,(240*2)-1,jwin_pal[jcBOX]);
-	_allegro_hline(screen2, 0, (210*2)-2, (320*2)-1, jwin_pal[jcMEDLT]);
-	_allegro_hline(screen2, 0, (210*2)-1, (320*2)-1, jwin_pal[jcLIGHT]);
+	hline(screen2, 0, (210*2)-2, (320*2)-1, jwin_pal[jcMEDLT]);
+	hline(screen2, 0, (210*2)-1, (320*2)-1, jwin_pal[jcLIGHT]);
 	
 	jwin_draw_frame(screen2,(31*mul)-2,((216*mul)+yofs)-2,(16*mul)+4,(16*mul)+4,FR_DEEP);
 	

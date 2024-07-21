@@ -3021,10 +3021,10 @@ void puttriframe(BITMAP *dest, int32_t x, int32_t y, int32_t triframecolor, int3
             {
                 line(dest,x+47,y,x+1,y+46,triframecolor);
                 line(dest,x+48,y,x+94,y+46,triframecolor);
-                _allegro_hline(dest,x,y+47,x+95,triframecolor);
+                hline(dest,x,y+47,x+95,triframecolor);
                 line(dest,x+47,y+7,x+15,y+39,triframecolor);
                 line(dest,x+48,y+7,x+80,y+39,triframecolor);
-                _allegro_hline(dest,x+15,y+40,x+80,triframecolor);
+                hline(dest,x+15,y+40,x+80,triframecolor);
             }
         }
         
@@ -3063,31 +3063,31 @@ void puttriframe(BITMAP *dest, int32_t x, int32_t y, int32_t triframecolor, int3
                 if(!get_qr(qr_4TRI))
                 {
                     //left inside vertical
-                    _allegro_vline(dest,x+31,y+56,y+103,triframecolor);
-                    _allegro_vline(dest,x+32,y+56,y+103,triframecolor);
+                    vline(dest,x+31,y+56,y+103,triframecolor);
+                    vline(dest,x+32,y+56,y+103,triframecolor);
                     
                     //center inside vertical top
-                    _allegro_vline(dest,x+55,y+8   ,y+55,triframecolor);
-                    _allegro_vline(dest,x+56,y+8   ,y+55,triframecolor);
+                    vline(dest,x+55,y+8   ,y+55,triframecolor);
+                    vline(dest,x+56,y+8   ,y+55,triframecolor);
                     
                     //right inside vertical
-                    _allegro_vline(dest,x+79,y+56,y+103,triframecolor);
-                    _allegro_vline(dest,x+80,y+56,y+103,triframecolor);
+                    vline(dest,x+79,y+56,y+103,triframecolor);
+                    vline(dest,x+80,y+56,y+103,triframecolor);
                     
                     if(!get_qr(qr_3TRI))
                     {
                         //center inside vertical bottom
-                        _allegro_vline(dest,x+55,y+56,y+103,triframecolor);
-                        _allegro_vline(dest,x+56,y+56,y+103,triframecolor);
+                        vline(dest,x+55,y+56,y+103,triframecolor);
+                        vline(dest,x+56,y+56,y+103,triframecolor);
                     }
                 }
                 
                 //middle inside horizontal
-                _allegro_hline(dest,x+32,y+55,x+79,triframecolor);
-                _allegro_hline(dest,x+32,y+56,x+79,triframecolor);
+                hline(dest,x+32,y+55,x+79,triframecolor);
+                hline(dest,x+32,y+56,x+79,triframecolor);
                 
                 //bottom outside horizontal
-                _allegro_hline(dest,x+8,y+103,x+103,triframecolor);
+                hline(dest,x+8,y+103,x+103,triframecolor);
                 
                 //left outside diagonal
                 line(dest,x+8,y+103,x+55,y+8,triframecolor);
@@ -3311,13 +3311,13 @@ void putBmap(BITMAP *dest, int32_t x, int32_t y,bool showmap, bool showrooms, bo
                 {
                     rectfill(dest,x2+1,y2+1,x2+6,y2+6,roomcolor);
                     
-                    if(get_bmaps(si)&1) _allegro_hline(dest,x2+3,y2,  x2+4,roomcolor);  //top door
+                    if(get_bmaps(si)&1) hline(dest,x2+3,y2,  x2+4,roomcolor);  //top door
                     
-                    if(get_bmaps(si)&2) _allegro_hline(dest,x2+3,y2+7,x2+4,roomcolor);  //bottom door
+                    if(get_bmaps(si)&2) hline(dest,x2+3,y2+7,x2+4,roomcolor);  //bottom door
                     
-                    if(get_bmaps(si)&4) _allegro_vline(dest,x2,  y2+3,y2+4,roomcolor);  //left door
+                    if(get_bmaps(si)&4) vline(dest,x2,  y2+3,y2+4,roomcolor);  //left door
                     
-                    if(get_bmaps(si)&8) _allegro_vline(dest,x2+7,y2+3,y2+4,roomcolor);  //right door
+                    if(get_bmaps(si)&8) vline(dest,x2+7,y2+3,y2+4,roomcolor);  //right door
                 }
                 
                 ++si;
@@ -3421,30 +3421,30 @@ void sso_bounding_box(BITMAP *bmp, SubscrWidget* widg, int32_t color)
         {
             rect(bmp, c-1, y-1,   c+1, y+1, color);
             rect(bmp, c-1, y+h-2, c+1, y+h, color);
-            _allegro_hline(bmp, x+2,  y,     c-2,  color);
-            _allegro_hline(bmp, c+2, y,     x+w-3, color);
-            _allegro_hline(bmp, x+2,  y+h-1, c-2,  color);
-            _allegro_hline(bmp, c+2, y+h-1, x+w-3, color);
+            hline(bmp, x+2,  y,     c-2,  color);
+            hline(bmp, c+2, y,     x+w-3, color);
+            hline(bmp, x+2,  y+h-1, c-2,  color);
+            hline(bmp, c+2, y+h-1, x+w-3, color);
         }
         else
         {
-            _allegro_hline(bmp, x+2,  y,     x+w-3, color);
-            _allegro_hline(bmp, x+2,  y+h-1, x+w-3, color);
+            hline(bmp, x+2,  y,     x+w-3, color);
+            hline(bmp, x+2,  y+h-1, x+w-3, color);
         }
         
         if(h>=9)
         {
             rect(bmp, x-1,   m-1, x+1, m+1, color);
             rect(bmp, x+w-2, m-1, x+w, m+1, color);
-            _allegro_vline(bmp, x,     y+2,  m-2,  color);
-            _allegro_vline(bmp, x,     m+2, y+h-3, color);
-            _allegro_vline(bmp, x+w-1, y+2,  m-2,  color);
-            _allegro_vline(bmp, x+w-1, m+2, y+h-3, color);
+            vline(bmp, x,     y+2,  m-2,  color);
+            vline(bmp, x,     m+2, y+h-3, color);
+            vline(bmp, x+w-1, y+2,  m-2,  color);
+            vline(bmp, x+w-1, m+2, y+h-3, color);
         }
         else
         {
-            _allegro_vline(bmp, x,     y+2,  y+h-3, color);
-            _allegro_vline(bmp, x+w-1, y+2,  y+h-3, color);
+            vline(bmp, x,     y+2,  y+h-3, color);
+            vline(bmp, x+w-1, y+2,  y+h-3, color);
         }
     }
 }

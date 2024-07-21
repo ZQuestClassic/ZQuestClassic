@@ -226,24 +226,24 @@ void jwin_draw_frame(BITMAP *dest,int32_t x,int32_t y,int32_t w,int32_t h,int32_
 	}
 	if(c1)
 	{
-		_allegro_hline(dest, vbound(x,0,dest->w-1), vbound(y,0,dest->h-1)  , vbound(x+w-2, 0,dest->w-1), *c1);
-		_allegro_vline(dest, vbound(x,0,dest->w-1), vbound(y+1,0,dest->h-1), vbound(y+h-2, 0, dest->h-1), *c1);
+		hline(dest, vbound(x,0,dest->w-1), vbound(y,0,dest->h-1)  , vbound(x+w-2, 0,dest->w-1), *c1);
+		vline(dest, vbound(x,0,dest->w-1), vbound(y+1,0,dest->h-1), vbound(y+h-2, 0, dest->h-1), *c1);
 	}
 	if(c2)
 	{
-		_allegro_hline(dest, vbound(x+1,0,dest->w-1), vbound(y+1,0,dest->h-1), vbound(x+w-3,0,dest->w-1), *c2);
-		_allegro_vline(dest, vbound(x+1,0,dest->w-1), vbound(y+2,0,dest->h-1), vbound(y+h-3,0,dest->h-1), *c2);
+		hline(dest, vbound(x+1,0,dest->w-1), vbound(y+1,0,dest->h-1), vbound(x+w-3,0,dest->w-1), *c2);
+		vline(dest, vbound(x+1,0,dest->w-1), vbound(y+2,0,dest->h-1), vbound(y+h-3,0,dest->h-1), *c2);
 	}
 	if(c3)
 	{
-		_allegro_hline(dest, vbound(x+1,0,dest->w-1), vbound(y+h-2,0,dest->h-1), vbound(x+w-2,0,dest->w-1), *c3);
-		_allegro_vline(dest, vbound(x+w-2,0,dest->w-1), vbound(y+1,0,dest->h-1), vbound(y+h-3,0,dest->h-1), *c3);
+		hline(dest, vbound(x+1,0,dest->w-1), vbound(y+h-2,0,dest->h-1), vbound(x+w-2,0,dest->w-1), *c3);
+		vline(dest, vbound(x+w-2,0,dest->w-1), vbound(y+1,0,dest->h-1), vbound(y+h-3,0,dest->h-1), *c3);
 	}
 	if(c4)
 	{
 	
-		_allegro_hline(dest, vbound(x,0,dest->w-1), vbound(y+h-1,0,dest->h-1), vbound(x+w-1,0, dest->w-1), *c4);
-		_allegro_vline(dest, vbound(x+w-1,0,dest->w-1), vbound(y,0,dest->h-1), vbound(y+h-2,0,dest->h-1), *c4);
+		hline(dest, vbound(x,0,dest->w-1), vbound(y+h-1,0,dest->h-1), vbound(x+w-1,0, dest->w-1), *c4);
+		vline(dest, vbound(x+w-1,0,dest->w-1), vbound(y,0,dest->h-1), vbound(y+h-2,0,dest->h-1), *c4);
 	}
 }
 void jwin_draw_frag_frame(BITMAP* dest, int x1, int y1, int w, int h, int fw, int fh, int style)
@@ -311,23 +311,23 @@ void jwin_draw_frag_frame(BITMAP* dest, int x1, int y1, int w, int h, int fw, in
 	rectfill(dest, x1, y1, x2, yc, vc(0));
 	rectfill(dest, x1, yc, xc, y2, vc(0));
 	
-    _allegro_hline(dest, x1-2, y1-2, x2+2, scheme[c1]);
-    _allegro_hline(dest, x1-1, y1-1, x2+1, scheme[c2]);
+    hline(dest, x1-2, y1-2, x2+2, scheme[c1]);
+    hline(dest, x1-1, y1-1, x2+1, scheme[c2]);
     
-    _allegro_vline(dest, x1-2, y1-2, y2+2, scheme[c1]);
-    _allegro_vline(dest, x1-1, y1-1, y2+1, scheme[c2]);
+    vline(dest, x1-2, y1-2, y2+2, scheme[c1]);
+    vline(dest, x1-1, y1-1, y2+1, scheme[c2]);
     
-    _allegro_hline(dest, x1-2, y2+2, xc+2, scheme[c3]);
-    _allegro_hline(dest, x1-1, y2+1, xc+1, scheme[c4]);
+    hline(dest, x1-2, y2+2, xc+2, scheme[c3]);
+    hline(dest, x1-1, y2+1, xc+1, scheme[c4]);
 	
-    _allegro_vline(dest, x2+2, y1-2, yc+2, scheme[c3]);
-    _allegro_vline(dest, x2+1, y1-1, yc+1, scheme[c4]);
+    vline(dest, x2+2, y1-2, yc+2, scheme[c3]);
+    vline(dest, x2+1, y1-1, yc+1, scheme[c4]);
 	
-    _allegro_hline(dest, xc+2, yc+2, x2+2, scheme[c3]);
-    _allegro_hline(dest, xc+1, yc+1, x2+1, scheme[c4]);
+    hline(dest, xc+2, yc+2, x2+2, scheme[c3]);
+    hline(dest, xc+1, yc+1, x2+1, scheme[c4]);
 	
-    _allegro_vline(dest, xc+2, yc+2, y2+2, scheme[c3]);
-    _allegro_vline(dest, xc+1, yc+1, y2+1, scheme[c4]);
+    vline(dest, xc+2, yc+2, y2+2, scheme[c3]);
+    vline(dest, xc+1, yc+1, y2+1, scheme[c4]);
 }
 void jwin_draw_minimap_frame(BITMAP *dest,int x,int y,int w,int h,int scrsz,int style)
 {
@@ -526,14 +526,14 @@ void draw_arrow(BITMAP *dest, int c, int x, int y, int h, bool up, bool center)
 	if(!center)
 		x += h-1;
 	for(int i = 0; i<h; i++)
-		_allegro_hline(dest, x-(up?i:h-i-1), y+i, x+(up?i:h-i-1), c);
+		hline(dest, x-(up?i:h-i-1), y+i, x+(up?i:h-i-1), c);
 }
 void draw_arrow_horz(BITMAP *dest, int c, int x, int y, int w, bool left, bool center)
 {
 	if(!center)
 		y += w-1;
 	for(int i = 0; i<w; i++)
-		_allegro_vline(dest, x+i, y-(left?i:w-i-1), y+(left?i:w-i-1), c);
+		vline(dest, x+i, y-(left?i:w-i-1), y+(left?i:w-i-1), c);
 }
 void draw_arrow_button(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, int32_t up, int32_t state)
 {
@@ -547,7 +547,7 @@ void draw_arrow_button(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h,
     
     for(; i<ah; i++)
     {
-        _allegro_hline(dest, x-(up?i:ah-i-1), y+i, x+(up?i:ah-i-1), c);
+        hline(dest, x-(up?i:ah-i-1), y+i, x+(up?i:ah-i-1), c);
     }
 }
 
@@ -563,7 +563,7 @@ void draw_arrow_button_horiz(BITMAP *dest, int32_t x, int32_t y, int32_t w, int3
     
     for(; i<aw; i++)
     {
-        _allegro_vline(dest, x+i,y-(up?i:aw-i-1), y+(up?i:aw-i-1), c);
+        vline(dest, x+i,y-(up?i:aw-i-1), y+(up?i:aw-i-1), c);
     }
 }
 
@@ -704,7 +704,7 @@ int32_t gui_textout_ln(BITMAP *bmp, FONT *f, unsigned const char *s, int32_t x, 
                 tmp[0] = i;
                 tmp[1] = 0;
                 i = text_length(f, tmp);
-                _allegro_hline(bmp, x+hline_pos, y+text_height(f)-gui_font_baseline, x+hline_pos+i-1, color);
+                hline(bmp, x+hline_pos, y+text_height(f)-gui_font_baseline, x+hline_pos+i-1, color);
             }
         }
         
@@ -2485,7 +2485,7 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 			
 			rectfill(screen, d->x+2, d->y+2, d->x+d->w-3, d->y+d->h-3, bg3);
 			
-			_allegro_vline(screen, d->x+2, d->y+2, d->y+d->h-3, bg3);
+			vline(screen, d->x+2, d->y+2, d->y+d->h-3, bg3);
 			
 			/* now the text */
 			
@@ -4826,10 +4826,10 @@ void _jwin_draw_abclistbox(DIALOG *d)
 	bg_color = (d->flags & D_DISABLED) ? scheme[jcDISABLED_BG] : (d->bg ? d->bg : scheme[jcTEXTBG]);
 	
 	rectfill(screen, d->x+2,  d->y+2, d->x+w+2, d->y+3, bg_color);
-	_allegro_vline(screen, d->x+2, d->y+4, d->y+d->h-3, bg_color);
-	_allegro_vline(screen, d->x+3, d->y+4, d->y+d->h-3, bg_color);
-	_allegro_vline(screen, d->x+w+1, d->y+4, d->y+d->h-3, bg_color);
-	_allegro_vline(screen, d->x+w+2, d->y+4, d->y+d->h-3, bg_color);
+	vline(screen, d->x+2, d->y+4, d->y+d->h-3, bg_color);
+	vline(screen, d->x+3, d->y+4, d->y+d->h-3, bg_color);
+	vline(screen, d->x+w+1, d->y+4, d->y+d->h-3, bg_color);
+	vline(screen, d->x+w+2, d->y+4, d->y+d->h-3, bg_color);
 	//al_trace("Drawing %s\n", abc_keypresses);
 	{
 		rectfill(screen, d->x+1,  d->y+d->h+2, d->x+d->w-2, d->y+1+d->h+text_height(font), bg_color);
@@ -4919,10 +4919,10 @@ void _jwin_draw_listbox(DIALOG *d)
     bg_color = (d->flags & D_DISABLED) ? scheme[jcDISABLED_BG] : (d->bg ? d->bg : scheme[jcTEXTBG]);
     
     rectfill(screen, d->x+2,  d->y+2, d->x+w+2, d->y+3, bg_color);
-    _allegro_vline(screen, d->x+2, d->y+4, d->y+d->h-3, bg_color);
-    _allegro_vline(screen, d->x+3, d->y+4, d->y+d->h-3, bg_color);
-    _allegro_vline(screen, d->x+w+1, d->y+4, d->y+d->h-3, bg_color);
-    _allegro_vline(screen, d->x+w+2, d->y+4, d->y+d->h-3, bg_color);
+    vline(screen, d->x+2, d->y+4, d->y+d->h-3, bg_color);
+    vline(screen, d->x+3, d->y+4, d->y+d->h-3, bg_color);
+    vline(screen, d->x+w+1, d->y+4, d->y+d->h-3, bg_color);
+    vline(screen, d->x+w+2, d->y+4, d->y+d->h-3, bg_color);
 	//al_trace("Drawing %s\n", abc_keypresses);
     //d->flags|=D_DIRTY;
     
@@ -8101,20 +8101,20 @@ int32_t jwin_tab_proc(int32_t msg, DIALOG *d, int32_t c)
 			panel_dialog=(DIALOG *)d->dp3;
 			rectfill(screen, d->x, d->y, d->x+d->w-1, d->y+8+text_height(font), scheme[jcBOX]); //tab area
 			rectfill(screen, d->x+1, d->y+sd+text_height(font)+7, d->x+d->w-2, d->y+sd+d->h-2, scheme[jcBOX]); //panel
-			_allegro_vline(screen, d->x, d->y+sd+7+text_height(font), d->y+sd+d->h-2, scheme[jcLIGHT]);
-			_allegro_vline(screen, d->x+1, d->y+sd+7+text_height(font), d->y+sd+d->h-3, scheme[jcMEDLT]);
-			_allegro_vline(screen, d->x+d->w-2, d->y+sd+7+text_height(font), d->y+sd+d->h-2, scheme[jcMEDDARK]);
-			_allegro_vline(screen, d->x+d->w-1, d->y+sd+7+text_height(font)-1, d->y+sd+d->h-1, scheme[jcDARK]);
-			_allegro_hline(screen, d->x+1, d->y+sd+d->h-2, d->x+d->w-3, scheme[jcMEDDARK]);
-			_allegro_hline(screen, d->x, d->y+sd+d->h-1, d->x+d->w-2, scheme[jcDARK]);
+			vline(screen, d->x, d->y+sd+7+text_height(font), d->y+sd+d->h-2, scheme[jcLIGHT]);
+			vline(screen, d->x+1, d->y+sd+7+text_height(font), d->y+sd+d->h-3, scheme[jcMEDLT]);
+			vline(screen, d->x+d->w-2, d->y+sd+7+text_height(font), d->y+sd+d->h-2, scheme[jcMEDDARK]);
+			vline(screen, d->x+d->w-1, d->y+sd+7+text_height(font)-1, d->y+sd+d->h-1, scheme[jcDARK]);
+			hline(screen, d->x+1, d->y+sd+d->h-2, d->x+d->w-3, scheme[jcMEDDARK]);
+			hline(screen, d->x, d->y+sd+d->h-1, d->x+d->w-2, scheme[jcDARK]);
 			tx=d->x;
 			
 			if(d->dp)
 			{
 				if(!(panel[((d->d1&0xFF00)>>8)].flags&D_SELECTED))
 				{
-					_allegro_hline(screen, tx+1, d->y+sd+6+text_height(font)+1, tx+2, scheme[jcMEDLT]); //initial bottom
-					_allegro_hline(screen, tx, d->y+sd+6+text_height(font), tx+1, scheme[jcLIGHT]);     //initial bottom
+					hline(screen, tx+1, d->y+sd+6+text_height(font)+1, tx+2, scheme[jcMEDLT]); //initial bottom
+					hline(screen, tx, d->y+sd+6+text_height(font), tx+1, scheme[jcLIGHT]);     //initial bottom
 				}
 				
 				tx+=2;
@@ -8133,18 +8133,18 @@ int32_t jwin_tab_proc(int32_t msg, DIALOG *d, int32_t c)
 					
 					if((i==((d->d1&0xFF00)>>8)) || (!(panel[i-1].flags&D_SELECTED)))
 					{
-						_allegro_vline(screen, tx-(2-sd), d->y+sd+2, d->y+8+text_height(font), scheme[jcLIGHT]); //left side
-						_allegro_vline(screen, tx-(2-sd)+1, d->y+sd+2, d->y+8+text_height(font), scheme[jcMEDLT]); //left side
+						vline(screen, tx-(2-sd), d->y+sd+2, d->y+8+text_height(font), scheme[jcLIGHT]); //left side
+						vline(screen, tx-(2-sd)+1, d->y+sd+2, d->y+8+text_height(font), scheme[jcMEDLT]); //left side
 						putpixel(screen, tx+1-(2-sd), d->y+sd+1, scheme[jcLIGHT]);                               //left angle
 					}
 					
-					_allegro_hline(screen, tx+2-(2-sd), d->y+sd, tx+12+(2-sd)+text_length(font, (char *)panel[i].text), scheme[jcLIGHT]); //top
-					_allegro_hline(screen, tx+2-(2-sd), d->y+sd+1, tx+12+(2-sd)+text_length(font, (char *)panel[i].text), scheme[jcMEDLT]); //top
+					hline(screen, tx+2-(2-sd), d->y+sd, tx+12+(2-sd)+text_length(font, (char *)panel[i].text), scheme[jcLIGHT]); //top
+					hline(screen, tx+2-(2-sd), d->y+sd+1, tx+12+(2-sd)+text_length(font, (char *)panel[i].text), scheme[jcMEDLT]); //top
 					
 					if(!(panel[i].flags&D_SELECTED))
 					{
-						_allegro_hline(screen, tx+1, d->y+sd+6+text_height(font), tx+13+text_length(font, (char *)panel[i].text)+1, scheme[jcLIGHT]); //bottom
-						_allegro_hline(screen, tx, d->y+sd+6+text_height(font)+1, tx+13+text_length(font, (char *)panel[i].text)+1, scheme[jcMEDLT]); //bottom
+						hline(screen, tx+1, d->y+sd+6+text_height(font), tx+13+text_length(font, (char *)panel[i].text)+1, scheme[jcLIGHT]); //bottom
+						hline(screen, tx, d->y+sd+6+text_height(font)+1, tx+13+text_length(font, (char *)panel[i].text)+1, scheme[jcMEDLT]); //bottom
 					}
 					
 					tx+=4;
@@ -8154,8 +8154,8 @@ int32_t jwin_tab_proc(int32_t msg, DIALOG *d, int32_t c)
 					if(!(panel[i+1].text) || (!(panel[i+1].flags&D_SELECTED)))
 					{
 						putpixel(screen, tx-1+(2-sd), d->y+sd+1, scheme[jcDARK]); //right angle
-						_allegro_vline(screen, tx+(2-sd), d->y+sd+2, d->y+8+text_height(font)-1, scheme[jcDARK]); //right side
-						_allegro_vline(screen, tx+(2-sd)-1, d->y+sd+2, d->y+8+text_height(font)-(sd?1:0), scheme[jcMEDDARK]); //right side
+						vline(screen, tx+(2-sd), d->y+sd+2, d->y+8+text_height(font)-1, scheme[jcDARK]); //right side
+						vline(screen, tx+(2-sd)-1, d->y+sd+2, d->y+8+text_height(font)-(sd?1:0), scheme[jcMEDDARK]); //right side
 					}
 					
 					tx++;
@@ -8170,8 +8170,8 @@ int32_t jwin_tab_proc(int32_t msg, DIALOG *d, int32_t c)
 			
 			if((tx+(2-sd))<(d->x+d->w))
 			{
-				_allegro_hline(screen, tx+(2-sd)-1, d->y+8+text_height(font), d->x+d->w-1, scheme[jcLIGHT]); //ending bottom
-				_allegro_hline(screen, tx+(2-sd)-2, d->y+8+text_height(font)+1, d->x+d->w-2, scheme[jcMEDLT]); //ending bottom
+				hline(screen, tx+(2-sd)-1, d->y+8+text_height(font), d->x+d->w-1, scheme[jcLIGHT]); //ending bottom
+				hline(screen, tx+(2-sd)-2, d->y+8+text_height(font)+1, d->x+d->w-2, scheme[jcMEDLT]); //ending bottom
 			}
 			
 			font = oldfont;
@@ -8410,20 +8410,20 @@ int32_t new_tab_proc(int32_t msg, DIALOG *d, int32_t c)
 			{
 				rectfill(screen, d->x, d->y, d->x+d->w-1, d->y+8+text_height(font), scheme[jcBOX]); //tab area
 				rectfill(screen, d->x+1, d->y+sd+text_height(font)+7, d->x+d->w-2, d->y+sd+d->h-2, scheme[jcBOX]); //panel
-				_allegro_vline(screen, d->x, d->y+sd+7+text_height(font), d->y+sd+d->h-2, scheme[jcLIGHT]);
-				_allegro_vline(screen, d->x+1, d->y+sd+7+text_height(font), d->y+sd+d->h-3, scheme[jcMEDLT]);
-				_allegro_vline(screen, d->x+d->w-2, d->y+sd+7+text_height(font), d->y+sd+d->h-2, scheme[jcMEDDARK]);
-				_allegro_vline(screen, d->x+d->w-1, d->y+sd+7+text_height(font)-1, d->y+sd+d->h-1, scheme[jcDARK]);
-				_allegro_hline(screen, d->x+1, d->y+sd+d->h-2, d->x+d->w-3, scheme[jcMEDDARK]);
-				_allegro_hline(screen, d->x, d->y+sd+d->h-1, d->x+d->w-2, scheme[jcDARK]);
+				vline(screen, d->x, d->y+sd+7+text_height(font), d->y+sd+d->h-2, scheme[jcLIGHT]);
+				vline(screen, d->x+1, d->y+sd+7+text_height(font), d->y+sd+d->h-3, scheme[jcMEDLT]);
+				vline(screen, d->x+d->w-2, d->y+sd+7+text_height(font), d->y+sd+d->h-2, scheme[jcMEDDARK]);
+				vline(screen, d->x+d->w-1, d->y+sd+7+text_height(font)-1, d->y+sd+d->h-1, scheme[jcDARK]);
+				hline(screen, d->x+1, d->y+sd+d->h-2, d->x+d->w-3, scheme[jcMEDDARK]);
+				hline(screen, d->x, d->y+sd+d->h-1, d->x+d->w-2, scheme[jcDARK]);
 				tx=d->x;
 				
 				if(d->dp)
 				{
 					if(panel->getCurrentIndex() != d->d1)
 					{
-						_allegro_hline(screen, tx+1, d->y+sd+6+text_height(font)+1, tx+2, scheme[jcMEDLT]); //initial bottom
-						_allegro_hline(screen, tx, d->y+sd+6+text_height(font), tx+1, scheme[jcLIGHT]);     //initial bottom
+						hline(screen, tx+1, d->y+sd+6+text_height(font)+1, tx+2, scheme[jcMEDLT]); //initial bottom
+						hline(screen, tx, d->y+sd+6+text_height(font), tx+1, scheme[jcLIGHT]);     //initial bottom
 					}
 					
 					tx+=2;
@@ -8434,23 +8434,23 @@ int32_t new_tab_proc(int32_t msg, DIALOG *d, int32_t c)
 						
 						if((i==d->d1) || (i-1 != panel->getCurrentIndex()))
 						{
-							_allegro_vline(screen, tx-(2-sd), d->y+sd+2, d->y+8+text_height(font), scheme[jcLIGHT]); //left side
-							_allegro_vline(screen, tx-(2-sd)+1, d->y+sd+2, d->y+8+text_height(font), scheme[jcMEDLT]); //left side
+							vline(screen, tx-(2-sd), d->y+sd+2, d->y+8+text_height(font), scheme[jcLIGHT]); //left side
+							vline(screen, tx-(2-sd)+1, d->y+sd+2, d->y+8+text_height(font), scheme[jcMEDLT]); //left side
 							putpixel(screen, tx+1-(2-sd), d->y+sd+1, scheme[jcLIGHT]);                               //left angle
 						}
 						
-						_allegro_hline(screen, tx+2-(2-sd), d->y+sd, tx+12+(2-sd)+text_length(font, panel->getName(i)), scheme[jcLIGHT]); //top
-						_allegro_hline(screen, tx+2-(2-sd), d->y+sd+1, tx+12+(2-sd)+text_length(font, panel->getName(i)), scheme[jcMEDLT]); //top
+						hline(screen, tx+2-(2-sd), d->y+sd, tx+12+(2-sd)+text_length(font, panel->getName(i)), scheme[jcLIGHT]); //top
+						hline(screen, tx+2-(2-sd), d->y+sd+1, tx+12+(2-sd)+text_length(font, panel->getName(i)), scheme[jcMEDLT]); //top
 						
 						if(i!=panel->getCurrentIndex())
 						{
-							_allegro_hline(screen, tx+1, d->y+sd+6+text_height(font), tx+13+text_length(font, panel->getName(i))+1, scheme[jcLIGHT]); //bottom
-							_allegro_hline(screen, tx, d->y+sd+6+text_height(font)+1, tx+13+text_length(font, panel->getName(i))+1, scheme[jcMEDLT]); //bottom
+							hline(screen, tx+1, d->y+sd+6+text_height(font), tx+13+text_length(font, panel->getName(i))+1, scheme[jcLIGHT]); //bottom
+							hline(screen, tx, d->y+sd+6+text_height(font)+1, tx+13+text_length(font, panel->getName(i))+1, scheme[jcMEDLT]); //bottom
 						}
 						else if(d->flags & D_GOTFOCUS)
 						{
-							_allegro_hline(screen, tx+1, d->y+sd+6+text_height(font), tx+13+text_length(font, panel->getName(i))+1, scheme[jcBOXFG]); //bottom
-							_allegro_hline(screen, tx, d->y+sd+6+text_height(font)+1, tx+13+text_length(font, panel->getName(i))+1, scheme[jcBOXFG]); //bottom
+							hline(screen, tx+1, d->y+sd+6+text_height(font), tx+13+text_length(font, panel->getName(i))+1, scheme[jcBOXFG]); //bottom
+							hline(screen, tx, d->y+sd+6+text_height(font)+1, tx+13+text_length(font, panel->getName(i))+1, scheme[jcBOXFG]); //bottom
 						}
 						
 						tx+=4;
@@ -8464,8 +8464,8 @@ int32_t new_tab_proc(int32_t msg, DIALOG *d, int32_t c)
 						if((i+1>=panel->getSize()) || (i+1!=panel->getCurrentIndex()))
 						{
 							putpixel(screen, tx-1+(2-sd), d->y+sd+1, scheme[jcDARK]); //right angle
-							_allegro_vline(screen, tx+(2-sd), d->y+sd+2, d->y+8+text_height(font)-1, scheme[jcDARK]); //right side
-							_allegro_vline(screen, tx+(2-sd)-1, d->y+sd+2, d->y+8+text_height(font)-(sd?1:0), scheme[jcMEDDARK]); //right side
+							vline(screen, tx+(2-sd), d->y+sd+2, d->y+8+text_height(font)-1, scheme[jcDARK]); //right side
+							vline(screen, tx+(2-sd)-1, d->y+sd+2, d->y+8+text_height(font)-(sd?1:0), scheme[jcMEDDARK]); //right side
 						}
 						
 						tx++;
@@ -8480,8 +8480,8 @@ int32_t new_tab_proc(int32_t msg, DIALOG *d, int32_t c)
 				
 				if((tx+(2-sd))<(d->x+d->w))
 				{
-					_allegro_hline(screen, tx+(2-sd)-1, d->y+8+text_height(font), d->x+d->w-1, scheme[jcLIGHT]); //ending bottom
-					_allegro_hline(screen, tx+(2-sd)-2, d->y+8+text_height(font)+1, d->x+d->w-2, scheme[jcMEDLT]); //ending bottom
+					hline(screen, tx+(2-sd)-1, d->y+8+text_height(font), d->x+d->w-1, scheme[jcLIGHT]); //ending bottom
+					hline(screen, tx+(2-sd)-2, d->y+8+text_height(font)+1, d->x+d->w-2, scheme[jcMEDLT]); //ending bottom
 				}
 				
 			}
@@ -8604,12 +8604,12 @@ int32_t jwin_hline_proc(int32_t msg, DIALOG *d, int32_t)
 		{
 			if(d->d2&1)
 			{
-				_allegro_hline(screen, d->x, d->y+q, d->x+d->w-1, d->fg);
+				hline(screen, d->x, d->y+q, d->x+d->w-1, d->fg);
 			}
 			else
 			{
-				_allegro_hline(screen, d->x, d->y-q,   d->x+d->w-1, scheme[jcMEDDARK]);
-				_allegro_hline(screen, d->x, d->y+1+q, d->x+d->w-1, scheme[jcLIGHT]);
+				hline(screen, d->x, d->y-q,   d->x+d->w-1, scheme[jcMEDDARK]);
+				hline(screen, d->x, d->y+1+q, d->x+d->w-1, scheme[jcLIGHT]);
 			}
 		}
     }
@@ -8628,12 +8628,12 @@ int32_t jwin_vline_proc(int32_t msg, DIALOG *d, int32_t)
 		{
 			if(d->d2&1)
 			{
-				_allegro_vline(screen, d->x+q,   d->y, d->y+d->h-1, d->fg);
+				vline(screen, d->x+q,   d->y, d->y+d->h-1, d->fg);
 			}
 			else
 			{
-				_allegro_vline(screen, d->x+q,   d->y, d->y+d->h-1, scheme[jcMEDDARK]);
-				_allegro_vline(screen, d->x+1-q, d->y, d->y+d->h-1, scheme[jcLIGHT]);
+				vline(screen, d->x+q,   d->y, d->y+d->h-1, scheme[jcMEDDARK]);
+				vline(screen, d->x+1-q, d->y, d->y+d->h-1, scheme[jcLIGHT]);
 			}
 		}
     }
