@@ -44,7 +44,7 @@ jobs:
           python-version: '3.11.4'
           cache: pip
       - run: pip install -r requirements.txt
-      - run: python scripts/archives.py download 2.55-alpha-120
+      - run: python scripts/archives.py download 2.55.4
 
       - run: npm install
         working-directory: scripts/database
