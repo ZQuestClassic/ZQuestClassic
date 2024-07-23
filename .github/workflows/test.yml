@@ -65,13 +65,14 @@ jobs:
     steps:
       - name: git clone
         uses: connorjclark/action-cached-lfs-checkout@e9e548e0068e62830582e21febff8da4bd4e8ca5
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.11.4'
+          cache: pip
       - if: ${{ !contains(inputs.runs-on, 'ubuntu') }}
-        run: pip install requests PyGithub==1.58.2 requests discord.py watchdog Pillow intervaltree cutie flask boto3
+        run: pip install -r requirements.txt
       - if: ${{ contains(inputs.runs-on, 'ubuntu') }}
-        run: sudo pip install requests PyGithub==1.58.2 requests discord.py watchdog Pillow intervaltree cutie flask boto3
+        run: sudo pip install -r requirements.txt
       - if: inputs.config == 'Coverage'
         run: sudo pip install gcovr
 
