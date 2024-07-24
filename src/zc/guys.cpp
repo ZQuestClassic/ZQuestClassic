@@ -2032,8 +2032,8 @@ bool enemy::hitshield(int32_t wpnx, int32_t wpny, int32_t xdir)
 	if(wpny > y) ret = ((flags&guy_shield_front && xdir==down) || (flags&guy_shield_back && xdir==up) || (flags&guy_shield_left && xdir==left) || (flags&guy_shield_right && xdir==right));
 	else if(wpny < y) ret = ((flags&guy_shield_front && xdir==up) || (flags&guy_shield_back && xdir==down) || (flags&guy_shield_left && xdir==right) || (flags&guy_shield_right && xdir==left));
 	
-	if(wpnx < x) ret = ret || ((flags&guy_shield_front && xdir==left) || (flags&guy_shield_back && xdir==right) || (flags&guy_shield_left && xdir==up) || (flags&guy_shield_right && xdir==down));
-	else if(wpnx > x) ret = ret || ((flags&guy_shield_front && xdir==right) || (flags&guy_shield_back && xdir==left) || (flags&guy_shield_left && xdir==down) || (flags&guy_shield_right && xdir==up));
+	if(wpnx < x) ret = ret || ((flags&guy_shield_front && xdir==left) || (flags&guy_shield_back && xdir==right) || (flags&guy_shield_left && xdir==down) || (flags&guy_shield_right && xdir==up));
+	else if(wpnx > x) ret = ret || ((flags&guy_shield_front && xdir==right) || (flags&guy_shield_back && xdir==left) || (flags&guy_shield_left && xdir==up) || (flags&guy_shield_right && xdir==down));
 	
 	return ret;
 }
@@ -3631,7 +3631,8 @@ int32_t enemy::takehit(weapon *w, weapon* realweap)
 	shieldCanBlock=false;
 	
 	if(!(w->unblockable&WPNUNB_BLOCK)&&((wpnId==wHookshot && hitshield(wpnx, wpny, xdir))
-			|| ((flags&guy_shield_front && wpnDir==(xdir^down)) || (flags&guy_shield_back && wpnDir==(xdir^up)) || (flags&guy_shield_left && wpnDir==(xdir^left)) || (flags&guy_shield_right && wpnDir==(xdir^right))))
+			|| ((flags&guy_shield_front && wpnDir==(xdir^down)) || (flags&guy_shield_back && wpnDir==(xdir^up)) || 
+				(flags&guy_shield_left && wpnDir==(xdir&2?(xdir^right):(xdir^left)))||(flags&guy_shield_right && wpnDir==(xdir^2?(xdir^left):(xdir^right)))))
 	  )
 		// The hammer should already be dealt with by subclasses (Walker etc.)
 	{
