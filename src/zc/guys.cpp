@@ -10020,8 +10020,20 @@ bool eRock::animate(int32_t index)
 
 void eRock::drawshadow(BITMAP *dest, bool translucent)
 {
-	if(clk2>=0)
+	if (dont_draw() || isSideViewGravity())
 	{
+		return;
+	}
+	if (dying) //technically it is possible to kill these with scripts.
+	{
+		return;
+	}
+	if (((tmpscr->flags3 & fINVISROOM) && !(current_item(itype_amulet))) ||
+		(darkroom))
+	{
+		return;
+	}
+	else if (clk2 >= 0) {
 		int32_t tempy=yofs;
 		flip = 0;
 		int32_t fdiv = frate/4;
@@ -10033,7 +10045,7 @@ void eRock::drawshadow(BITMAP *dest, bool translucent)
 		yofs+=8;
 		yofs+=zc_max(0,zc_min(29-clk3,clk3));
 		if(!shadow_overpit(this))
-			enemy::drawshadow(dest, translucent);
+			sprite::drawshadow(dest, translucent);
 		yofs=tempy;
 	}
 }
@@ -10162,8 +10174,20 @@ bool eBoulder::animate(int32_t index)
 
 void eBoulder::drawshadow(BITMAP *dest, bool translucent)
 {
-	if(clk2>=0)
+	if (dont_draw() || isSideViewGravity())
 	{
+		return;
+	}
+	if (dying) //technically it is possible to kill these with scripts.
+	{
+		return;
+	}
+	if (((tmpscr->flags3 & fINVISROOM) && !(current_item(itype_amulet))) ||
+		(darkroom))
+	{
+		return;
+	}
+	else if(clk2>=0){
 		int32_t tempy=yofs;
 		flip = 0;
 		int32_t f2=((clk<<2)/frate)<<1;
@@ -10173,19 +10197,19 @@ void eBoulder::drawshadow(BITMAP *dest, bool translucent)
 		yofs+=8;
 		xofs-=8;
 		if(!shadow_overpit(this))
-			enemy::drawshadow(dest, translucent);
+			sprite::drawshadow(dest, translucent);
 		xofs+=16;
 		++shadowtile;
 		if(!shadow_overpit(this))
-			enemy::drawshadow(dest, translucent);
+			sprite::drawshadow(dest, translucent);
 		yofs+=16;
 		shadowtile+=20;
 		if(!shadow_overpit(this))
-			enemy::drawshadow(dest, translucent);
+			sprite::drawshadow(dest, translucent);
 		xofs-=16;
 		--shadowtile;
 		if(!shadow_overpit(this))
-			enemy::drawshadow(dest, translucent);
+			sprite::drawshadow(dest, translucent);
 		xofs+=8;
 		yofs=tempy;
 	}
