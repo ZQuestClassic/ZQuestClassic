@@ -765,7 +765,7 @@ enum
     wScript5, wScript6, wScript7, wScript8,
 	//39
     wScript9, wScript10, wIce, wFlame, //ice rod, fire rod
-    wSound, // -Z: sound + defence split == digdogger, sound + one hit kill == pols voice -Z
+    wRefIce, // -Z: sound + defence split == digdogger, sound + one hit kill == pols voice //merged into wWhistle... -J
 	wThrown, wPot, //Thrown pot or rock -Z //Just gonna use a single 'wThrown' -Em
 	wLit, //Lightning or Electric -Z
 	wBombos, wEther, wQuake,// -Z
@@ -1062,7 +1062,7 @@ enum
 	edefSTOMP, edefBYRNA, edefSCRIPT, edefLAST250, edefQUAKE, //19
 	edefSCRIPT01, edefSCRIPT02, edefSCRIPT03, edefSCRIPT04, edefSCRIPT05, //24
 	edefSCRIPT06, edefSCRIPT07, edefSCRIPT08, edefSCRIPT09, edefSCRIPT10, //29
-	edefICE, edefBAIT, edefWIND, edefSPARKLE, edefSONIC, //34
+	edefICE, edefBAIT, edefWIND, edefSPARKLE, edefREFICE, //34
 	edefWhistle, edefSwitchHook, edefTHROWN, edefREFARROW, edefREFFIRE, //39
 	edefREFFIRE2, //x40
 	edefLAST255 //41

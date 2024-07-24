@@ -1903,7 +1903,7 @@ public:
 			case wIce: return wsIce; //new
 			case wFlame: return wsEFire2; //new
 			//not implemented; t/b/a
-			case wSound:
+			case wRefIce:
 			case wThrown: 
 			case wPot:
 			case wLit:
@@ -2043,7 +2043,7 @@ public:
 			case wIce: return wsIce; //new
 			case wFlame: return wsEFire2; //new
 			//not implemented; t/b/a
-			case wSound:
+			case wRefIce:
 			case wThrown: 
 			case wPot:
 			case wLit:
@@ -50593,7 +50593,7 @@ defWpnSprite FFScript::getDefWeaponSprite(int32_t wpnid)
 		case wIce: return wsIce; //new
 		case wFlame: return wsEFire2; //new
 		//not implemented; t/b/a
-		case wSound:
+		case wRefIce:
 		case wThrown: 
 		case wPot:
 		case wLit:

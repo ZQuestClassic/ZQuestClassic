@@ -1845,7 +1845,7 @@ bool trigger_stepfx(int32_t lyr, int32_t pos, bool stepped)
 			case wRefBeam:
 			case wIce:
 			case wFlame: 
-			case wSound: // -Z: sound + defence split == digdogger, sound + one hit kill == pols voice -Z
+			case wRefIce: // -Z: sound + defence split == digdogger, sound + one hit kill == pols voice -Z
 			//case wThrown: 
 			//case wPot: //Thrown pot or rock -Z
 			//case wLit: //Lightning or Electric -Z
@@ -2028,7 +2028,7 @@ bool trigger_stepfx_ffc(int32_t pos, bool stepped)
 			case wRefBeam:
 			case wIce:
 			case wFlame: 
-			case wSound: // -Z: sound + defence split == digdogger, sound + one hit kill == pols voice -Z
+			case wRefIce: // -Z: sound + defence split == digdogger, sound + one hit kill == pols voice -Z
 			//case wThrown: 
 			//case wPot: //Thrown pot or rock -Z
 			//case wLit: //Lightning or Electric -Z
