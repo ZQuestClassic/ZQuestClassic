@@ -142,11 +142,19 @@
 					"match": "\\b(and_eq|and_equal|xor_eq|xor_equal|or_eq|or_equal|bitnot_eq|bitnot_equal)\\b"
 				},
 				{
-					"name": "storage.type.zscript",
-					"match": "\\b(script|class|namespace)\\b"
+					"name": "storage.type.namespace.zscript",
+					"match": "\\b(namespace)\\b"
 				},
 				{
-					"name": "storage.type.zscript",
+					"name": "storage.type.class.zscript",
+					"match": "\\b(class)\\b"
+				},
+				{
+					"name": "storage.type.script.zscript",
+					"match": "\\b(script)\\b"
+				},
+				{
+					"name": "storage.type.primitive.zscript",
 					"match": "\\b(auto|void|untyped|bool|float|int|char32|long|rgb|bitmap|cheatdata|combodata|doorsetdat|dropsetdata|dmapdata|eweapon|ffc|gamedata|itemdata|lweapon|mapdata|messagedata|misccolordata|misccolourdata|npc|npcdata|palcycledata|ponddata|shopdata|spritedata|musicdata|screendata|player|link|hero|itemsprite|file|directory|stack|randgen|paldata|bottledata|bottleshopdata|subscreendata|subscreenpage|subscreenwidget|generic|genericdata|portal|savedportal|particlesprite|decorationsprite|global)\\b"
 				},
 				{

@@ -125,6 +125,7 @@ resources/docs/ZScript_Docs.html
 
 # Other
 .tmp
+dist
 *.zplay.roundtrip
 *.zplay.result.txt
 *.zplay.*.bmp
@@ -142,5 +143,7 @@ src/base/version_header.h
 venv
 *.log
 ZQ_BUFFER
+web/playground/zscript.data.js
+web/playground/zscript.mjs
 
 api_server/secrets.sh

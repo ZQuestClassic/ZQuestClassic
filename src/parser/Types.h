@@ -288,7 +288,7 @@ namespace ZScript
 		static DataTypeSimple LONG;
 		static DataTypeSimple BOOL;
 		static DataTypeSimple RGBDATA;
-		static DataTypeArray const& STRING;
+		static const DataTypeArray* STRING;
 	};
 
 	bool operator==(DataType const&, DataType const&);
@@ -401,12 +401,13 @@ namespace ZScript
 		virtual DataType const* getConstType() const;
 		virtual DataType const* getMutType() const;
 
+		static std::vector<std::unique_ptr<DataTypeArray>> created_arr_types;
+
 	private:
 		DataType const& elementType;
 		std::shared_ptr<DataType> owned_type;
 		
 		int32_t selfCompare(DataType const& other) const;
-		static std::vector<std::unique_ptr<DataTypeArray>> created_arr_types;
 	};
 	
 	class DataTypeCustom : public DataType
