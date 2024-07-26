@@ -105,6 +105,11 @@ def create_compare_git_ref(gh: Github, repo_str: str, sha: str):
     try:
         repo.create_git_ref(ref, sha)
     except GithubException as e:
+        # This error happens when running from fork, since lack write permissions.
+        if e.data['message'] == 'Resource not accessible by integration':
+            print(e)
+            print('assuming baseline is head of main branch ...')
+            return 'main'
         if e.data['message'] != 'Reference already exists':
             raise e
 
