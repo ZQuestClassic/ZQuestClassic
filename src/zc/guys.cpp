@@ -10033,7 +10033,7 @@ void eRock::drawshadow(BITMAP *dest, bool translucent)
 		yofs+=8;
 		yofs+=zc_max(0,zc_min(29-clk3,clk3));
 		if(!shadow_overpit(this))
-			enemy::drawshadow(dest, translucent);
+			sprite::drawshadow(dest, translucent);
 		yofs=tempy;
 	}
 }
@@ -10173,19 +10173,19 @@ void eBoulder::drawshadow(BITMAP *dest, bool translucent)
 		yofs+=8;
 		xofs-=8;
 		if(!shadow_overpit(this))
-			enemy::drawshadow(dest, translucent);
+			sprite::drawshadow(dest, translucent);
 		xofs+=16;
 		++shadowtile;
 		if(!shadow_overpit(this))
-			enemy::drawshadow(dest, translucent);
+			sprite::drawshadow(dest, translucent);
 		yofs+=16;
 		shadowtile+=20;
 		if(!shadow_overpit(this))
-			enemy::drawshadow(dest, translucent);
+			sprite::drawshadow(dest, translucent);
 		xofs-=16;
 		--shadowtile;
 		if(!shadow_overpit(this))
-			enemy::drawshadow(dest, translucent);
+			sprite::drawshadow(dest, translucent);
 		xofs+=8;
 		yofs=tempy;
 	}
