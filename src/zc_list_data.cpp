@@ -1,6 +1,7 @@
 #include "zc_list_data.h"
 #include "base/dmap.h"
 #include "zq/zquest.h"
+#include "zq/zq_misc.h"
 #include "qst.h"
 #include "zinfo.h"
 #include "base/misctypes.h"
@@ -215,6 +216,66 @@ GUI::ListData GUI::ZCListData::enemies(bool numbered, bool defaultFilter)
 	for(auto it = names.begin(); it != names.end(); ++it)
 	{
 		ls.add(*it, ids[*it]);
+	}
+	return ls;
+}
+
+GUI::ListData GUI::ZCListData::efamilies(bool defaultFilter)
+{
+	map<std::string, int32_t> fams;
+	std::set<std::string> names;
+
+	for (int32_t q = 0; q < eeMAX; ++q)
+	{
+		if (defaultFilter)
+		{
+			if (enetype_string[q][0] == '-')
+				continue; //'Hidden' enemies
+		}
+		if (q == eeNONE)
+			continue; //None gets filtered out and put at the beginning
+		char const* famname = enetype_string[q];
+		std::string name = famname;
+
+		fams[name] = q;
+		names.insert(name);
+	}
+
+	GUI::ListData ls;
+	ls.add("(None)", eeNONE);
+	for (auto it = names.begin(); it != names.end(); ++it)
+	{
+		ls.add(*it, fams[*it]);
+	}
+	return ls;
+}
+
+GUI::ListData GUI::ZCListData::eanimations(bool defaultFilter)
+{
+	map<std::string, int32_t> fams;
+	std::set<std::string> names;
+
+	for (int32_t q = 0; q < aMAX; ++q)
+	{
+		if (defaultFilter)
+		{
+			if (eneanim_string[q][0] == '-')
+				continue; //'Hidden' enemies
+		}
+		if (q == eeNONE)
+			continue; //None gets filtered out and put at the beginning
+		char const* famname = eneanim_string[q];
+		std::string name = famname;
+
+		fams[name] = q;
+		names.insert(name);
+	}
+
+	GUI::ListData ls;
+	ls.add("(None)", eeNONE);
+	for (auto it = names.begin(); it != names.end(); ++it)
+	{
+		ls.add(*it, fams[*it]);
 	}
 	return ls;
 }
@@ -513,6 +574,33 @@ GUI::ListData GUI::ZCListData::lweaptypes()
 		ls.add(sname, i);
 	}
 	
+	return ls;
+}
+
+GUI::ListData GUI::ZCListData::eweaptypes()
+{
+	std::map<std::string, int32_t> vals;
+
+	std::string none(moduledata.enemy_weapon_names[0]);
+	if (skipchar(moduledata.enemy_weapon_names[0][0]))
+		none = "(None)";
+
+	GUI::ListData ls;
+	ls.add(none, 0);
+	for (int32_t i = 1; i < wMax-wEnemyWeapons; ++i)
+	{
+		if (skipchar(moduledata.enemy_weapon_names[i][0]))
+			continue;
+
+		std::string sname(moduledata.enemy_weapon_names[i]);
+		ls.add(sname, wEnemyWeapons+i);
+	}
+	for (int32_t i = 1; i <= 10; ++i)
+	{
+		std::string sname(moduledata.enemy_scriptweaponweapon_names[i]);
+		ls.add(sname, 30+i);
+	}
+
 	return ls;
 }
 
