@@ -11602,7 +11602,7 @@ void eStalfos::charge_attack()
 				if(dmisc10<=0 || replay_version_check(0,33))
 					step=zslongToFix(dstep*100)+1;
 				else
-					step=zslongToFix(dstep*100)+(dmisc10/100);
+					step=zslongToFix(dmisc10*100);
 			}
 			else newdir(4,0,0);
 		}
