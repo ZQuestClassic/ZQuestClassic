@@ -288,7 +288,7 @@ static const GUI::ListData list_walkerspawn
 
 void EnemyEditorDialog::refreshScript()
 {
-	loadEnemyType();
+	//loadEnemyType();
 	//active
 	int32_t sw_initd[8];
 	for (auto q = 0; q < 8; ++q)
@@ -357,15 +357,11 @@ void EnemyEditorDialog::refreshScript()
 	}
 }
 
+/*
 void EnemyEditorDialog::loadEnemyType()
 {
-for (int i = 1; i <= 32; i++)
-	{
-		char buf[32];
-		sprintf(buf, "Misc Attr. %d:", i);
-		string str = buf;
-		l_attribute[0] = str;
-	}
+	for (int q = 0; q < 32; ++q)
+		l_attribute[q] = fmt::format("Misc Attr. {}:", q + 1);
 	w_attributes[0] = MiscAttribute(&local_guyref.misc1);
 	w_attributes[1] = MiscAttribute(&local_guyref.misc2);
 	w_attributes[2] = MiscAttribute(&local_guyref.misc3);
@@ -397,7 +393,7 @@ for (int i = 1; i <= 32; i++)
 	w_attributes[28] = MiscAttribute(&local_guyref.misc29);
 	w_attributes[29] = MiscAttribute(&local_guyref.misc30);
 	w_attributes[30] = MiscAttribute(&local_guyref.misc31);
-	w_attributes[32] = MiscAttribute(&local_guyref.misc32);
+	w_attributes[31] = MiscAttribute(&local_guyref.misc32);
 	l_bflag[0] = "Enemy is Completely Invisible";
 	l_bflag[1] = "Item Specified in Attributes 13 Dispels Invisibility";
 	l_bflag[2] = "Doesn't always return";
@@ -688,6 +684,9 @@ for (int i = 1; i <= 32; i++)
 
 	for (size_t q = 0; q < 32; ++q)
 	{
+		auto column = Column()
+			for (int q = 0; q < 32; ++q)
+				column->add(Label(text = std::to_string(q + 1)));
 		l_attributes[q]->setText(l_attribute[q]);
 		if (q > 15) continue;
 		l_bflags[q]->setText(l_bflag[q]);
@@ -695,6 +694,7 @@ for (int i = 1; i <= 32; i++)
 	updateWarnings();
 	pendDraw();
 }
+*/
 
 void EnemyEditorDialog::updateWarnings()
 {
@@ -912,9 +912,9 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 					)
 				)
 			)),
-			/*
 			TabRef(name = "Attributes 1", Row(
 				Columns<16>(
+					/*
 					l_attributes[0],
 					l_attributes[1],
 					l_attributes[2],
@@ -947,10 +947,12 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 					w_attributes[13],
 					w_attributes[14],
 					w_attributes[15]
+					*/
 				)
 			)),
 			TabRef(name = "Attributes 2", Row(
 				Columns<16>(
+					/*
 					l_attributes[16],
 					l_attributes[17],
 					l_attributes[18],
@@ -983,9 +985,9 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 					w_attributes[29],
 					w_attributes[30],
 					w_attributes[31]
+					*/
 				)
 			)),
-			*/
 			TabRef(name = "Size Flags", Row(
 				Columns<10>(
 					NumberField(&local_guyref.txsz,0,4,"TileWidth:"),
@@ -1064,7 +1066,7 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 		},
 		Column(
 			TabPanel(
-				TabRef(name = "Basics",basics_tab)
+				TabRef(name = "Basics", basics_tab)
 				/*
 				TabRef(name = "Defenses",defenses_tab),
 				TabRef(name = "Flags",flags_tab),
@@ -1101,6 +1103,8 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 			)
 		)
 	);
+	refreshScript();
+	updateWarnings();
 	return window;
 }
 
