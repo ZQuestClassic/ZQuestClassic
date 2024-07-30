@@ -272,7 +272,7 @@ GUI::ListData GUI::ZCListData::eanimations(bool defaultFilter)
 	}
 
 	GUI::ListData ls;
-	ls.add("(None)", eeNONE);
+	ls.add("(None)", aNONE);
 	for (auto it = names.begin(); it != names.end(); ++it)
 	{
 		ls.add(*it, fams[*it]);
