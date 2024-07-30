@@ -262,7 +262,7 @@ GUI::ListData GUI::ZCListData::eanimations(bool defaultFilter)
 			if (eneanim_string[q][0] == '-')
 				continue; //'Hidden' enemies
 		}
-		if (q == eeNONE)
+		if (q == aNONE)
 			continue; //None gets filtered out and put at the beginning
 		char const* famname = eneanim_string[q];
 		std::string name = famname;
