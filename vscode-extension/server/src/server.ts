@@ -182,6 +182,173 @@ function fileMatches(f1:string, f2:string)
 	return cleanupFile(f1) == cleanupFile(f2);
 }
 
+function parseOutput(settings: Settings, textDocument: TextDocument, stdout: string, stderr: string): {diagnostics: Diagnostic[], metadata?: DocumentMetaData} {
+	if (stdout.startsWith('{')) {
+		if (settings.printCompilerOutput) {
+			console.log(stderr);
+		}
+		const result = JSON.parse(stdout) as {diagnostics: Diagnostic[], metadata?: DocumentMetaData};
+		return result;
+	}
+
+	// For older releases, diagnostics and metadata must be parsed from stdout.
+
+	const [compilerOutput, metadataStr] = stdout.split('=== METADATA', 2);
+	if (settings.printCompilerOutput) {
+		console.log(compilerOutput);
+	}
+
+	const diagnostics: Diagnostic[] = [];
+	for (const line of compilerOutput.split('\n')) {
+		if (line.includes('syntax error')) {
+			const m = line.match(/syntax error, (.*) \[(.*) Line (\d+) Column (\d+).*\].*/);
+			let message = '';
+			let lineNum = 0;
+			let colNum = 0;
+			let fname = '';
+			if (m) {
+				fname = cleanupFile(m[2]);
+				message = m[1].trim();
+				if (fileMatches(fname, "ZQ_BUFFER") || fileMatches(fname, tmpInput))
+				{
+					lineNum = 0;
+					colNum = 0;
+					message = `Syntax error in temp file (check your ZScript Extension settings):\n${message}`;
+				}
+				else if (fileMatches(fname, tmpScript))
+				{
+					lineNum = Number(m[3]) - 1;
+					colNum = Number(m[4]);
+				}
+				else
+				{
+					lineNum = 0;
+					colNum = 0;
+					message = `Syntax error in "${fname}":\n${message}`;
+				}
+			} else {
+				message = line.split('syntax error, ', 2)[1].trim();
+			}
+
+			const start = textDocument.offsetAt({line: lineNum, character: 0});
+			const end = textDocument.offsetAt({line: lineNum, character: colNum});
+			const diagnostic: Diagnostic = {
+				severity: DiagnosticSeverity.Error,
+				range: {
+					start: textDocument.positionAt(start),
+					end: textDocument.positionAt(end),
+				},
+				message,
+				source: 'zscript',
+			};
+			diagnostics.push(diagnostic);
+		} else if (line.includes('Error') || line.includes('Warning')) {
+			const m = line.match(/(.*)Line (\d+).*Columns (\d+)-(\d+) - (.*)/);
+			let message = '';
+			let lineNum = 0;
+			let colStartNum = 0;
+			let colEndNum = 0;
+			let sev = 'Warning';
+			let fname = '';
+			if (m) {
+				fname = cleanupFile(m[1]);
+				message = m[5].trim();
+				if (message.startsWith('Error'))
+					sev = 'Error';
+				if (fname.length == 0 || fileMatches(fname, "ZQ_BUFFER") || fileMatches(fname, tmpInput)) //error in temp file
+				{
+					lineNum = 0;
+					colStartNum = 0;
+					colEndNum = 0;
+					message = `${sev} in temp file (check your ZScript Extension settings):\n${message}`;
+				}
+				else if(fileMatches(fname, tmpScript))
+				{
+					lineNum = Number(m[2]) - 1;
+					colStartNum = Number(m[3]) - 1;
+					colEndNum = Number(m[4]) - 1;
+				}
+				else
+				{
+					lineNum = 0;
+					colStartNum = 0;
+					colEndNum = 0;
+					message = `${sev} in "${fname}":\n${message}`;
+				}
+			} else {
+				message = line.trim();
+			}
+
+			const start = textDocument.offsetAt({ line: lineNum, character: colStartNum });
+			const end = textDocument.offsetAt({ line: lineNum, character: colEndNum });
+			const diagnostic: Diagnostic = {
+				severity: sev=='Error' ? DiagnosticSeverity.Error : DiagnosticSeverity.Warning,
+				range: {
+					start: textDocument.positionAt(start),
+					end: textDocument.positionAt(end),
+				},
+				message,
+				source: 'zscript',
+			};
+			diagnostics.push(diagnostic);
+		} else if (line.includes('ERROR:') || line.includes('WARNING:')) {
+			const m = line.match(/(.*) \[(.*) Line (\d+) Column (\d+).*/);
+			let message = '';
+			let lineNum = 0;
+			let colNum = 0;
+			let sev = 'Warning';
+			let fname = '';
+			if (m) {
+				fname = cleanupFile(m[2]);
+				message = m[1].trim();
+				if(message.startsWith('ERROR:'))
+					sev = 'Error';
+				if (fileMatches(fname, "ZQ_BUFFER") || fileMatches(fname, tmpInput))
+				{
+					lineNum = 0;
+					colNum = 0;
+					message = `${sev} in temp file (check your ZScript Extension settings):\n${message}`;
+				}
+				else if (fileMatches(fname, tmpScript))
+				{
+					lineNum = Number(m[3]) - 1;
+					colNum = Number(m[4]);
+				}
+				else
+				{
+					lineNum = 0;
+					colNum = 0;
+					message = `${sev} in "${fname}":\n${message}`;
+				}
+			} else {
+				message = line.trim();
+			}
+
+			const start = textDocument.offsetAt({ line: lineNum, character: 0 });
+			const end = textDocument.offsetAt({ line: lineNum, character: colNum });
+			const diagnostic: Diagnostic = {
+				severity: sev=='Error' ? DiagnosticSeverity.Error : DiagnosticSeverity.Warning,
+				range: {
+					start: textDocument.positionAt(start),
+					end: textDocument.positionAt(end),
+				},
+				message,
+				source: 'zscript',
+			};
+			diagnostics.push(diagnostic);
+		}
+	}
+
+	let metadata;
+	try {
+		metadata = JSON.parse(metadataStr);
+	} catch (e: any) {
+		connection.console.error(e.toString());
+	}
+
+	return {diagnostics, metadata};
+}
+
 interface SymbolPos {
 	line: number;
 	character: number;
@@ -235,6 +402,7 @@ async function processScript(textDocument: TextDocument): Promise<void> {
 
 	includeText += `#include "${tmpScript}"\n`;
 	let stdout = '';
+	let stderr = '';
 	let success = false;
 	fs.writeFileSync(tmpInput, includeText);
 	fs.writeFileSync(tmpScript, text);
@@ -258,6 +426,7 @@ async function processScript(textDocument: TextDocument): Promise<void> {
 			'-metadata',
 			'-metadata-tmp-path', tmpScript,
 			'-metadata-orig-path', originPath,
+			'-json',
 		];
 		if (settings.ignoreConstAssert)
 			args.push('-ignore_cassert');
@@ -267,157 +436,14 @@ async function processScript(textDocument: TextDocument): Promise<void> {
 		});
 		success = true;
 		stdout = cp.stdout;
+		stderr = cp.stderr;
 	} catch (e: any) {
 		console.error(e);
 		if (e.code === undefined) throw e;
 		stdout = e.stdout || e.toString();
 	}
 
-	const [compilerOutput, metadataStr] = stdout.split('=== METADATA', 2);
-	if (settings.printCompilerOutput) {
-		console.log(compilerOutput);
-	}
-	
-	const diagnostics: Diagnostic[] = [];
-	for (const line of compilerOutput.split('\n')) {
-		if (line.includes('syntax error')) {
-			const m = line.match(/syntax error, (.*) \[(.*) Line (\d+) Column (\d+).*\].*/);
-			let message = '';
-			let lineNum = 0;
-			let colNum = 0;
-			let fname = '';
-			if (m) {
-				fname = cleanupFile(m[2]);
-				message = m[1].trim();
-				if (fileMatches(fname, "ZQ_BUFFER") || fileMatches(fname, tmpInput))
-				{
-					lineNum = 0;
-					colNum = 0;
-					message = `Syntax error in temp file (check your ZScript Extension settings):\n${message}`;
-				}
-				else if (fileMatches(fname, tmpScript))
-				{
-					lineNum = Number(m[3]) - 1;
-					colNum = Number(m[4]);
-				}
-				else
-				{
-					lineNum = 0;
-					colNum = 0;
-					message = `Syntax error in "${fname}":\n${message}`;
-				}
-			} else {
-				message = line.split('syntax error, ', 2)[1].trim();
-			}
-
-			const start = textDocument.offsetAt({line: lineNum, character: 0});
-			const end = textDocument.offsetAt({line: lineNum, character: colNum});
-			const diagnostic: Diagnostic = {
-				severity: DiagnosticSeverity.Error,
-				range: {
-					start: textDocument.positionAt(start),
-					end: textDocument.positionAt(end),
-				},
-				message,
-				source: exe,
-			};
-			diagnostics.push(diagnostic);
-		} else if (line.includes('Error') || line.includes('Warning')) {
-			const m = line.match(/(.*)Line (\d+).*Columns (\d+)-(\d+) - (.*)/);
-			let message = '';
-			let lineNum = 0;
-			let colStartNum = 0;
-			let colEndNum = 0;
-			let sev = 'Warning';
-			let fname = '';
-			if (m) {
-				fname = cleanupFile(m[1]);
-				message = m[5].trim();
-				if (message.startsWith('Error'))
-					sev = 'Error';
-				if (fname.length == 0 || fileMatches(fname, "ZQ_BUFFER") || fileMatches(fname, tmpInput)) //error in temp file
-				{
-					lineNum = 0;
-					colStartNum = 0;
-					colEndNum = 0;
-					message = `${sev} in temp file (check your ZScript Extension settings):\n${message}`;
-				}
-				else if(fileMatches(fname, tmpScript))
-				{
-					lineNum = Number(m[2]) - 1;
-					colStartNum = Number(m[3]) - 1;
-					colEndNum = Number(m[4]) - 1;
-				}
-				else
-				{
-					lineNum = 0;
-					colStartNum = 0;
-					colEndNum = 0;
-					message = `${sev} in "${fname}":\n${message}`;
-				}
-			} else {
-				message = line.trim();
-			}
-
-			const start = textDocument.offsetAt({ line: lineNum, character: colStartNum });
-			const end = textDocument.offsetAt({ line: lineNum, character: colEndNum });
-			const diagnostic: Diagnostic = {
-				severity: sev=='Error' ? DiagnosticSeverity.Error : DiagnosticSeverity.Warning,
-				range: {
-					start: textDocument.positionAt(start),
-					end: textDocument.positionAt(end),
-				},
-				message,
-				source: exe,
-			};
-			diagnostics.push(diagnostic);
-		} else if (line.includes('ERROR:') || line.includes('WARNING:')) {
-			const m = line.match(/(.*) \[(.*) Line (\d+) Column (\d+).*/);
-			let message = '';
-			let lineNum = 0;
-			let colNum = 0;
-			let sev = 'Warning';
-			let fname = '';
-			if (m) {
-				fname = cleanupFile(m[2]);
-				message = m[1].trim();
-				if(message.startsWith('ERROR:'))
-					sev = 'Error';
-				if (fileMatches(fname, "ZQ_BUFFER") || fileMatches(fname, tmpInput))
-				{
-					lineNum = 0;
-					colNum = 0;
-					message = `${sev} in temp file (check your ZScript Extension settings):\n${message}`;
-				}
-				else if (fileMatches(fname, tmpScript))
-				{
-					lineNum = Number(m[3]) - 1;
-					colNum = Number(m[4]);
-				}
-				else
-				{
-					lineNum = 0;
-					colNum = 0;
-					message = `${sev} in "${fname}":\n${message}`;
-				}
-			} else {
-				message = line.trim();
-			}
-
-			const start = textDocument.offsetAt({ line: lineNum, character: 0 });
-			const end = textDocument.offsetAt({ line: lineNum, character: colNum });
-			const diagnostic: Diagnostic = {
-				severity: sev=='Error' ? DiagnosticSeverity.Error : DiagnosticSeverity.Warning,
-				range: {
-					start: textDocument.positionAt(start),
-					end: textDocument.positionAt(end),
-				},
-				message,
-				source: exe,
-			};
-			diagnostics.push(diagnostic);
-		}
-	}
+	const {diagnostics, metadata} = parseOutput(settings, textDocument, stdout, stderr);
 
 	// Fallback, incase compiling failed but we failed to parse out an error.
 	if (!success && diagnostics.length === 0) {
@@ -427,24 +453,18 @@ async function processScript(textDocument: TextDocument): Promise<void> {
 				start: textDocument.positionAt(0),
 				end: textDocument.positionAt(0),
 			},
-			message: compilerOutput,
-			source: exe,
+			message: [stdout, stderr].join('\n\n'),
+			source: 'zscript',
 		});
 	}
 
 	// Send the computed diagnostics to VSCode.
 	connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
 
-	if (!metadataStr || !success) return;
+	if (!metadata || !success) return;
 
-	try {
-		const metadata: DocumentMetaData = JSON.parse(metadataStr);
-		if (!metadata.currentFileSymbols.length)
-			return;
+	if (metadata.currentFileSymbols.length)
 		docMetadataMap.set(textDocument.uri, metadata);
-	} catch (e: any) {
-		connection.console.error(e.toString());
-	}
 }
 
 connection.onDidChangeWatchedFiles(_change => {
