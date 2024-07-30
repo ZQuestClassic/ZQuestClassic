@@ -1149,7 +1149,7 @@ bool EnemyEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			else
 			{
 				local_guyref = default_guys[eNONE]; //enemies above 176 dont have defaults!
-				sprintf(guy_string[index], "e%d", index);
+				sprintf(guy_string[index], "e%03d", index);
 			}
 			rerun_dlg = true;
 			return true;
