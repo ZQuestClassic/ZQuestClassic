@@ -1059,7 +1059,7 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 		},
 		Column(
 			TabPanel(
-				TabRef(name = "Basics", basics_tab)
+				TabRef(name = "Basics", basics_tab),
 				TabRef(name = "Defenses",defenses_tab),
 				TabRef(name = "Flags",flags_tab),
 				TabRef(name = "Movement",movement_tab),
