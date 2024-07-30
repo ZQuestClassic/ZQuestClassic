@@ -357,7 +357,6 @@ void EnemyEditorDialog::refreshScript()
 	}
 }
 
-/*
 void EnemyEditorDialog::loadEnemyType()
 {
 	for (int q = 0; q < 32; ++q)
@@ -694,7 +693,6 @@ void EnemyEditorDialog::loadEnemyType()
 	updateWarnings();
 	pendDraw();
 }
-*/
 
 void EnemyEditorDialog::updateWarnings()
 {
@@ -914,7 +912,6 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 			)),
 			TabRef(name = "Attributes 1", Row(
 				Columns<16>(
-					/*
 					l_attributes[0],
 					l_attributes[1],
 					l_attributes[2],
@@ -947,12 +944,10 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 					w_attributes[13],
 					w_attributes[14],
 					w_attributes[15]
-					*/
 				)
 			)),
 			TabRef(name = "Attributes 2", Row(
 				Columns<16>(
-					/*
 					l_attributes[16],
 					l_attributes[17],
 					l_attributes[18],
@@ -985,7 +980,6 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 					w_attributes[29],
 					w_attributes[30],
 					w_attributes[31]
-					*/
 				)
 			)),
 			TabRef(name = "Size Flags", Row(
@@ -1024,7 +1018,7 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 			))
 		))
 	);
-	/*
+
 	auto defenses_tab = TabPanel(
 		ptr = &guy_tabs[2],
 		TabRef(name = "Defenses", TabPanel(
@@ -1055,7 +1049,6 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 		TabRef(name = "Scripts", TabPanel(
 		))
 	);
-	*/
 	window = Window(
 		use_vsync = true,
 		title = titlebuf,
@@ -1067,14 +1060,12 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 		Column(
 			TabPanel(
 				TabRef(name = "Basics", basics_tab)
-				/*
 				TabRef(name = "Defenses",defenses_tab),
 				TabRef(name = "Flags",flags_tab),
 				TabRef(name = "Movement",movement_tab),
 				TabRef(name = "Attack",attack_tab),
 				TabRef(name = "Effects",effects_tab),
 				TabRef(name = "Scripts",scripts_tab)
-				*/
 			),
 			Row(
 				vAlign = 1.0,
