@@ -1124,7 +1124,7 @@ bool EnemyEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		if (doclear)
 		{
 			local_guyref = guysbuf[eNONE];
-			printf(guy_string[index], "e%d", index);
+			sprintf(guy_string[index], "e%03d", index);
 			rerun_dlg = true;
 			return true;
 		}
