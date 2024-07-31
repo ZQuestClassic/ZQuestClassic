@@ -364,7 +364,7 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 	dmisc2=d->attributes[1];
 	dmisc3=d->attributes[2];
 	dmisc4=d->attributes[3];
-	dmisc4=d->attributes[4];
+	dmisc5=d->attributes[4];
 	dmisc6=d->attributes[5];
 	dmisc7=d->attributes[6];
 	dmisc8=d->attributes[7];
