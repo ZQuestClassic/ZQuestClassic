@@ -2397,7 +2397,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 					
 					case eeLANM:
 					{
-					enemy *e = new eLanmola(x,y,new_id,zc_max(1,zc_min(253,guysbuf[new_id&0xFFF].attributes[1])));
+					enemy *e = new eLanmola(x,y,new_id,zc_max(1,zc_min(253,guysbuf[new_id&0xFFF].attributes[0])));
 					guys.add(e);
 						e->x = x;
 						e->y = y;
@@ -2672,7 +2672,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 					byte is=((enemy*)guys.spr(guys.Count()-1))->item_set;
 					new_id &= 0xFFF;
 					
-					for(int32_t i=0; i<zc_max(1,zc_min(254,guysbuf[new_id].attributes[1])); i++)
+					for(int32_t i=0; i<zc_max(1,zc_min(254,guysbuf[new_id].attributes[0])); i++)
 					{
 						//christ this is messy -DD
 						int32_t segclk = -i*((int32_t)(8.0/(zslongToFix(guysbuf[new_id&0xFFF].step*100))));
@@ -2714,7 +2714,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 					
 					
 					
-					for(int32_t i=1; i<zc_max(1,zc_min(253,guysbuf[new_id&0xFFF].attributes[1])); i++)
+					for(int32_t i=1; i<zc_max(1,zc_min(253,guysbuf[new_id&0xFFF].attributes[0])); i++)
 					{
 						enemy *e2 = new esLanmola((zfix)x,(zfix)y,new_id+0x2000,-(i<<shft));
 						if(!guys.add(e2))
@@ -2753,7 +2753,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 						}
 						
 						
-						((enemy*)guys.spr(guys.Count()-1))->frate=guysbuf[new_id].attributes[1];
+						((enemy*)guys.spr(guys.Count()-1))->frate=guysbuf[new_id].attributes[0];
 					}
 					
 					break;
@@ -2762,7 +2762,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 					{
 					/*
 					new_id &= 0xFFF;
-					int32_t head_cnt = zc_max(1,zc_min(254,guysbuf[new_id&0xFFF].attributes[1]));
+					int32_t head_cnt = zc_max(1,zc_min(254,guysbuf[new_id&0xFFF].attributes[0]));
 						Z_scripterrlog("Gleeok head count is %d\n",head_cnt);
 					for(int32_t i=0; i<head_cnt; i++)
 					{
@@ -2793,7 +2793,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 					int32_t outeyes = 0;
 						ptra = new ePatraBS((zfix)x,(zfix)y,id,clk);
 					
-					for(int32_t i=0; i<zc_min(254,guysbuf[new_id&0xFFF].attributes[1]); i++)
+					for(int32_t i=0; i<zc_min(254,guysbuf[new_id&0xFFF].attributes[0]); i++)
 					{
 						if(!((guysbuf[new_id].attributes[9] &&get_qr(qr_HARDCODED_BS_PATRA))?guys.add(new esPatraBS((zfix)x,(zfix)y,new_id+0x1000,i,ptra)):guys.add(new esPatra((zfix)x,(zfix)y,new_id+0x1000,i,ptra))))
 						{
@@ -17659,7 +17659,7 @@ int32_t addchild(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t p
 		break;
 		
 	case eeMOLD:
-		e = new eMoldorm((zfix)x,(zfix)y,id,zc_max(1,zc_min(254,guysbuf[id&0xFFF].attributes[1])));
+		e = new eMoldorm((zfix)x,(zfix)y,id,zc_max(1,zc_min(254,guysbuf[id&0xFFF].attributes[0])));
 		break;
 		
 	case eeMANHAN:
@@ -17667,7 +17667,7 @@ int32_t addchild(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t p
 		break;
 		
 	case eeGLEEOK:
-		e = new eGleeok((zfix)x,(zfix)y,id,zc_max(1,zc_min(254,guysbuf[id&0xFFF].attributes[1])));
+		e = new eGleeok((zfix)x,(zfix)y,id,zc_max(1,zc_min(254,guysbuf[id&0xFFF].attributes[0])));
 		break;
 		
 	case eeGHOMA:
@@ -17675,7 +17675,7 @@ int32_t addchild(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t p
 		break;
 		
 	case eeLANM:
-		e = new eLanmola((zfix)x,(zfix)y,id,zc_max(1,zc_min(253,guysbuf[id&0xFFF].attributes[1])));
+		e = new eLanmola((zfix)x,(zfix)y,id,zc_max(1,zc_min(253,guysbuf[id&0xFFF].attributes[0])));
 		break;
 		
 	case eeGANON:
@@ -17892,7 +17892,7 @@ int32_t addchild(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t p
 		byte is=((enemy*)guys.spr(guys.Count()-1))->item_set;
 		id &= 0xFFF;
 		
-		for(int32_t i=0; i<zc_max(1,zc_min(254,guysbuf[id].attributes[1])); i++)
+		for(int32_t i=0; i<zc_max(1,zc_min(254,guysbuf[id].attributes[0])); i++)
 		{
 			//christ this is messy -DD
 			int32_t segclk = -i*((int32_t)(8.0/(zslongToFix(guysbuf[id&0xFFF].step*100))));
@@ -17931,7 +17931,7 @@ int32_t addchild(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t p
 		
 		ret++;
 		
-		for(int32_t i=1; i<zc_max(1,zc_min(253,guysbuf[id&0xFFF].attributes[1])); i++)
+		for(int32_t i=1; i<zc_max(1,zc_min(253,guysbuf[id&0xFFF].attributes[0])); i++)
 		{
 			if(!guys.add(new esLanmola((zfix)x,(zfix)y,id+0x2000,-(i<<shft))))
 			{
@@ -17967,7 +17967,7 @@ int32_t addchild(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t p
 			}
 			
 			ret++;
-			((enemy*)guys.spr(guys.Count()-1))->frate=guysbuf[id].attributes[1];
+			((enemy*)guys.spr(guys.Count()-1))->frate=guysbuf[id].attributes[0];
 		}
 		
 		break;
@@ -17976,7 +17976,7 @@ int32_t addchild(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t p
 	{
 		id &= 0xFFF;
 		
-		for(int32_t i=0; i<zc_max(1,zc_min(254,guysbuf[id&0xFFF].attributes[1])); i++)
+		for(int32_t i=0; i<zc_max(1,zc_min(254,guysbuf[id&0xFFF].attributes[0])); i++)
 		{
 			if(!guys.add(new esGleeok((zfix)x,(zfix)y,id+0x1000,c, e)))
 			{
@@ -18002,7 +18002,7 @@ int32_t addchild(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t p
 		id &= 0xFFF;
 		int32_t outeyes = 0;
 		
-		for(int32_t i=0; i<zc_min(254,guysbuf[id&0xFFF].attributes[1]); i++)
+		for(int32_t i=0; i<zc_min(254,guysbuf[id&0xFFF].attributes[0]); i++)
 		{
 			if(!((guysbuf[id].attributes[9] &&get_qr(qr_HARDCODED_BS_PATRA))?guys.add(new esPatraBS((zfix)x,(zfix)y,id+0x1000,i,e)):guys.add(new esPatra((zfix)x,(zfix)y,id+0x1000,i,e))))
 			{
@@ -18102,7 +18102,7 @@ int32_t addenemy(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk)
 		break;
 		
 	case eeMOLD:
-		e = new eMoldorm((zfix)x,(zfix)y,id,zc_max(1,zc_min(254,guysbuf[id&0xFFF].attributes[1])));
+		e = new eMoldorm((zfix)x,(zfix)y,id,zc_max(1,zc_min(254,guysbuf[id&0xFFF].attributes[0])));
 		break;
 		
 	case eeMANHAN:
@@ -18110,7 +18110,7 @@ int32_t addenemy(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk)
 		break;
 		
 	case eeGLEEOK:
-		e = new eGleeok((zfix)x,(zfix)y,id,zc_max(1,zc_min(254,guysbuf[id&0xFFF].attributes[1])));
+		e = new eGleeok((zfix)x,(zfix)y,id,zc_max(1,zc_min(254,guysbuf[id&0xFFF].attributes[0])));
 		break;
 		
 	case eeGHOMA:
@@ -18118,7 +18118,7 @@ int32_t addenemy(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk)
 		break;
 		
 	case eeLANM:
-		e = new eLanmola((zfix)x,(zfix)y,id,zc_max(1,zc_min(253,guysbuf[id&0xFFF].attributes[1])));
+		e = new eLanmola((zfix)x,(zfix)y,id,zc_max(1,zc_min(253,guysbuf[id&0xFFF].attributes[0])));
 		break;
 		
 	case eeGANON:
@@ -18333,7 +18333,7 @@ int32_t addenemy(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk)
 		byte is=((enemy*)guys.spr(guys.Count()-1))->item_set;
 		id &= 0xFFF;
 		
-		for(int32_t i=0; i<zc_max(1,zc_min(254,guysbuf[id].attributes[1])); i++)
+		for(int32_t i=0; i<zc_max(1,zc_min(254,guysbuf[id].attributes[0])); i++)
 		{
 			//christ this is messy -DD
 			int32_t segclk = -i*((int32_t)(8.0/(zslongToFix(guysbuf[id&0xFFF].step*100))));
@@ -18372,7 +18372,7 @@ int32_t addenemy(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk)
 		
 		ret++;
 		
-		for(int32_t i=1; i<zc_max(1,zc_min(253,guysbuf[id&0xFFF].attributes[1])); i++)
+		for(int32_t i=1; i<zc_max(1,zc_min(253,guysbuf[id&0xFFF].attributes[0])); i++)
 		{
 			if(!guys.add(new esLanmola((zfix)x,(zfix)y,id+0x2000,-(i<<shft))))
 			{
@@ -18408,7 +18408,7 @@ int32_t addenemy(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk)
 			}
 			
 			ret++;
-			((enemy*)guys.spr(guys.Count()-1))->frate=guysbuf[id].attributes[1];
+			((enemy*)guys.spr(guys.Count()-1))->frate=guysbuf[id].attributes[0];
 		}
 		
 		break;
@@ -18418,7 +18418,7 @@ int32_t addenemy(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk)
 		id &= 0xFFF;
 		eGleeok* parent = (eGleeok*)e;
 
-		for(int32_t i=0; i<zc_max(1,zc_min(254,guysbuf[id&0xFFF].attributes[1])); i++)
+		for(int32_t i=0; i<zc_max(1,zc_min(254,guysbuf[id&0xFFF].attributes[0])); i++)
 		{
 			esGleeok* head = new esGleeok((zfix)x,(zfix)y,id+0x1000,c, e);
 			if(!guys.add(head))
@@ -18459,7 +18459,7 @@ int32_t addenemy(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk)
 		id &= 0xFFF;
 		int32_t outeyes = 0;
 		
-		for(int32_t i=0; i<zc_min(254,guysbuf[id&0xFFF].attributes[1]); i++)
+		for(int32_t i=0; i<zc_min(254,guysbuf[id&0xFFF].attributes[0]); i++)
 		{
 			if(!((guysbuf[id].attributes[9] &&get_qr(qr_HARDCODED_BS_PATRA))?guys.add(new esPatraBS((zfix)x,(zfix)y,id+0x1000,i,e)):guys.add(new esPatra((zfix)x,(zfix)y,id+0x1000,i,e))))
 			{
@@ -19741,7 +19741,7 @@ void spawnEnemy(int& pos, int& clk, int& x, int& y, int& fastguys, int& i, int& 
 		if(BSZ&&((tmpscr->enemy[i]>0&&tmpscr->enemy[i]<MAXGUYS))) // Hackish fix for crash in Waterford.qst on screen 0x65 of dmap 0 (map 1).
 		{
 			// Special case for blue leevers
-			if(guysbuf[tmpscr->enemy[i]].family==eeLEV && guysbuf[tmpscr->enemy[i]].attributes[1]==1)
+			if(guysbuf[tmpscr->enemy[i]].family==eeLEV && guysbuf[tmpscr->enemy[i]].attributes[0]==1)
 				c=-15*(i+1);
 			else
 				c=-15;
