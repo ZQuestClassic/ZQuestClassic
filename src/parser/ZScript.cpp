@@ -633,7 +633,7 @@ bool ZScript::isRun(Function const& function)
 	//al_trace("Parser sees run string as: %s\n", FFCore.scriptRunString);
 	return function.internalScope->getParent()->isScript()
 		&& *function.returnType == DataType::ZVOID
-		&& (!( strcmp(function.name.c_str(), FFCore.scriptRunString )))
+		&& (!( strcmp(function.name.c_str(), "run" )))
 		&& (!(function.getFlag(FUNCFLAG_INLINE))) ;
 }
 

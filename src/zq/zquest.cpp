@@ -28793,7 +28793,6 @@ void FFScript::init()
 	kb_typing_mode = false;
 	FFCore.user_bitmaps_init();
 	initIncludePaths();
-	initRunString();
 	for(int32_t q = 0; q < 7; ++q)
 	{
 		tempScreens[q] = NULL;
@@ -28819,12 +28818,6 @@ void FFScript::updateIncludePaths()
 		string str(buf);
 		includePaths.push_back(str);
 	}
-}
-
-void FFScript::initRunString()
-{
-	memset(scriptRunString,0,sizeof(scriptRunString));
-	strcpy(scriptRunString,zc_get_config("Compiler","run_string","run",App::zscript));
 }
 
 void FFScript::initIncludePaths()

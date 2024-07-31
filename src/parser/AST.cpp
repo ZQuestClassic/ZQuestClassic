@@ -1093,7 +1093,7 @@ void ASTFuncDecl::setFlag(int32_t flag, bool state)
 
 bool ASTFuncDecl::isRun() const
 {
-	return name == FFCore.scriptRunString;
+	return name == "run";
 }
 
 // ASTDataDeclList
