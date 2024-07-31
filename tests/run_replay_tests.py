@@ -529,7 +529,7 @@ if args.shard and args.print_shards:
 
 if args.shard:
     replays = get_shards(replays, num_shards)[shard_index - 1]
-    if not tests:
+    if not replays:
         print('nothing to run for this shard')
         exit(0)
 
