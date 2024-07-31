@@ -18163,7 +18163,7 @@ int32_t efrontfacingtile(int32_t id)
 	    
     case aNONE: break;
     case aAQUA:
-        if(!(get_qr(qr_NEWENEMYTILES) && guysbuf[id].attributes[1]))
+        if(!(get_qr(qr_NEWENEMYTILES) && guysbuf[id].attributes[0]))
             break;
             
     case aWALLM:
