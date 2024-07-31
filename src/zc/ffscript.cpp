@@ -13353,51 +13353,11 @@ int32_t get_register(int32_t arg)
 			} 
 			else 
 			{ 
-				switch(indx)
+				if (indx < 0|| indx >= 32)
 				{
-					case 0: ret = (guysbuf[ri->npcdataref].misc1 * 10000); break;
-					case 1: ret = (guysbuf[ri->npcdataref].misc2 * 10000); break;
-					case 2: ret = (guysbuf[ri->npcdataref].misc3 * 10000); break;
-					case 3: ret = (guysbuf[ri->npcdataref].misc4 * 10000); break;
-					case 4: ret = (guysbuf[ri->npcdataref].misc5 * 10000); break;
-					case 5: ret = (guysbuf[ri->npcdataref].misc6 * 10000); break;
-					case 6: ret = (guysbuf[ri->npcdataref].misc7 * 10000); break;
-					case 7: ret = (guysbuf[ri->npcdataref].misc8 * 10000); break;
-					case 8: ret = (guysbuf[ri->npcdataref].misc9 * 10000); break;
-					case 9: ret = (guysbuf[ri->npcdataref].misc10 * 10000); break;
-					case 10: ret = (guysbuf[ri->npcdataref].misc11 * 10000); break;
-					case 11: ret = (guysbuf[ri->npcdataref].misc12 * 10000); break;
-					case 12: ret = (guysbuf[ri->npcdataref].misc13 * 10000); break;
-					case 13: ret = (guysbuf[ri->npcdataref].misc14 * 10000); break;
-					case 14: ret = (guysbuf[ri->npcdataref].misc15 * 10000); break;
-					case 15: ret = (guysbuf[ri->npcdataref].misc16 * 10000); break;
-					case 16: ret = (guysbuf[ri->npcdataref].misc17 * 10000); break;
-					case 17: ret = (guysbuf[ri->npcdataref].misc18* 10000); break;
-					case 18: ret = (guysbuf[ri->npcdataref].misc19 * 10000); break;
-					case 19: ret = (guysbuf[ri->npcdataref].misc20 * 10000); break;
-					case 20: ret = (guysbuf[ri->npcdataref].misc21 * 10000); break;
-					case 21: ret = (guysbuf[ri->npcdataref].misc22 * 10000); break;
-					case 22: ret = (guysbuf[ri->npcdataref].misc23 * 10000); break;
-					case 23: ret = (guysbuf[ri->npcdataref].misc24 * 10000); break;
-					case 24: ret = (guysbuf[ri->npcdataref].misc25 * 10000); break;
-					case 25: ret = (guysbuf[ri->npcdataref].misc26 * 10000); break;
-					case 26: ret = (guysbuf[ri->npcdataref].misc27 * 10000); break;
-					case 27: ret = (guysbuf[ri->npcdataref].misc28 * 10000); break;
-					case 28: ret = (guysbuf[ri->npcdataref].misc29 * 10000); break;
-					case 29: ret = (guysbuf[ri->npcdataref].misc30 * 10000); break;
-					case 30: ret = (guysbuf[ri->npcdataref].misc31 * 10000); break;
-					case 31: ret = (guysbuf[ri->npcdataref].misc32 * 10000); break;
-					
-					
-					
-					default: 
-					{
-						Z_scripterrlog("Invalid Array Index passed to npcdata->Attributes[]: %d\n", (ri->npcdataref*10000)); 
-						ret = -10000;
-						break;
-					}
+					Z_scripterrlog("Invalid Array Index passed to npcdata->Attributes[]: %d\n", (ri->npcdataref * 10000));
 				}
-					
+				ret = (guysbuf[ri->npcdataref].attributes[indx] * 10000);					
 			} 
 			break;
 		}
@@ -26344,49 +26304,7 @@ void set_register(int32_t arg, int32_t value)
 			} 
 			else 
 			{ 
-				switch(indx)
-				{
-					case 0: guysbuf[ri->npcdataref].misc1 = (value / 10000); break;
-					case 1: guysbuf[ri->npcdataref].misc2 = (value / 10000); break;
-					case 2: guysbuf[ri->npcdataref].misc3 = (value / 10000); break;
-					case 3: guysbuf[ri->npcdataref].misc4 = (value / 10000); break;
-					case 4: guysbuf[ri->npcdataref].misc5 = (value / 10000); break;
-					case 5: guysbuf[ri->npcdataref].misc6 = (value / 10000); break;
-					case 6: guysbuf[ri->npcdataref].misc7 = (value / 10000); break;
-					case 7: guysbuf[ri->npcdataref].misc8 = (value / 10000); break;
-					case 8: guysbuf[ri->npcdataref].misc9 = (value / 10000); break;
-					case 9: guysbuf[ri->npcdataref].misc10 = (value / 10000); break;
-					case 10: guysbuf[ri->npcdataref].misc11 = (value / 10000); break;
-					case 11: guysbuf[ri->npcdataref].misc12 = (value / 10000); break;
-					case 12: guysbuf[ri->npcdataref].misc13 = (value / 10000); break;
-					case 13: guysbuf[ri->npcdataref].misc14 = (value / 10000); break;
-					case 14: guysbuf[ri->npcdataref].misc15 = (value / 10000); break;
-					
-					case 15: guysbuf[ri->npcdataref].misc16 = value / 10000; break;
-					case 16: guysbuf[ri->npcdataref].misc17 = value / 10000; break;
-					case 17: guysbuf[ri->npcdataref].misc18 = value / 10000; break;
-					case 18: guysbuf[ri->npcdataref].misc19 = value / 10000; break;
-					case 19: guysbuf[ri->npcdataref].misc20 = value / 10000; break;
-					case 20: guysbuf[ri->npcdataref].misc21 = value / 10000; break;
-					case 21: guysbuf[ri->npcdataref].misc22 = value / 10000; break;
-					case 22: guysbuf[ri->npcdataref].misc23 = value / 10000; break;
-					case 23: guysbuf[ri->npcdataref].misc24 = value / 10000; break;
-					case 24: guysbuf[ri->npcdataref].misc25 = value / 10000; break;
-					case 25: guysbuf[ri->npcdataref].misc26 = value / 10000; break;
-					case 26: guysbuf[ri->npcdataref].misc27 = value / 10000; break;
-					case 27: guysbuf[ri->npcdataref].misc28 = value / 10000; break;
-					case 28: guysbuf[ri->npcdataref].misc29 = value / 10000; break;
-					case 29: guysbuf[ri->npcdataref].misc30 = value / 10000; break;
-					case 30: guysbuf[ri->npcdataref].misc31 = value / 10000; break;
-					case 31: guysbuf[ri->npcdataref].misc32 = value / 10000; break;
-					
-						default: 
-					{
-						Z_scripterrlog("Invalid Array Index passed to npcdata->Attributes[]: %d\n", (ri->npcdataref*10000)); 
-						break;
-					}
-				}
-					
+				guysbuf[ri->npcdataref].attributes[indx] = (value / 10000);					
 			} 
 			break;
 		}
@@ -42697,27 +42615,9 @@ void FFScript::getNPCData_misc()
 {
 	int32_t ID = int32_t(ri->d[rINDEX] / 10000); //the enemy ID value
 	int32_t indx = int32_t(ri->d[rINDEX2] / 10000); //the misc index ID
-	if ((ID < 1 || ID > 511) || ( indx < 0 || indx > 15 ))
+	if ((ID < 1 || ID > 511) || ( indx < 0 || indx > MAX_NPC_ATRIBUTES ))
 		set_register(sarg1, -10000); 
-	switch ( indx )
-	{
-		case 0: set_register(sarg1, guysbuf[ID].misc1 * 10000); break;
-		case 1: set_register(sarg1, guysbuf[ID].misc2 * 10000); break;
-		case 2: set_register(sarg1, guysbuf[ID].misc3 * 10000); break;
-		case 3: set_register(sarg1, guysbuf[ID].misc4 * 10000); break;
-		case 4: set_register(sarg1, guysbuf[ID].misc5 * 10000); break;
-		case 5: set_register(sarg1, guysbuf[ID].misc6 * 10000); break;
-		case 6: set_register(sarg1, guysbuf[ID].misc7 * 10000); break;
-		case 7: set_register(sarg1, guysbuf[ID].misc8 * 10000); break;
-		case 8: set_register(sarg1, guysbuf[ID].misc9 * 10000); break;
-		case 9: set_register(sarg1, guysbuf[ID].misc10 * 10000); break;
-		case 10: set_register(sarg1, guysbuf[ID].misc11 * 10000); break;
-		case 11: set_register(sarg1, guysbuf[ID].misc12 * 10000); break;
-		case 12: set_register(sarg1, guysbuf[ID].misc13 * 10000); break;
-		case 13: set_register(sarg1, guysbuf[ID].misc14 * 10000); break;
-		case 14: set_register(sarg1, guysbuf[ID].misc15 * 10000); break;
-		default: set_register(sarg1, -10000); break;
-	}
+	set_register(sarg1, guysbuf[ID].attributes[indx] * 10000);
 }
 
 //NPCData Setters, two inputs, no return; similar to void GetDMapIntro(int32_t DMap, int32_t buffer[]);
@@ -42859,26 +42759,8 @@ void FFScript::setNPCData_misc(int32_t val)
 {
 	int32_t ID = int32_t(ri->d[rINDEX] / 10000); //the enemy ID value
 	int32_t indx = int32_t(ri->d[rINDEX2] / 10000); //the misc index ID
-	if ((ID < 1 || ID > 511) || ( indx < 0 || indx > 15 )) return;
-	switch ( indx )
-	{
-		case 0: guysbuf[ID].misc1 = val; break;
-		case 1: guysbuf[ID].misc2 = val; break;
-		case 2: guysbuf[ID].misc3 = val; break;
-		case 3: guysbuf[ID].misc4 = val; break;
-		case 4: guysbuf[ID].misc5 = val; break;
-		case 5: guysbuf[ID].misc6 = val; break;
-		case 6: guysbuf[ID].misc7 = val; break;
-		case 7: guysbuf[ID].misc8 = val; break;
-		case 8: guysbuf[ID].misc9 = val; break;
-		case 9: guysbuf[ID].misc10 = val; break;
-		case 10: guysbuf[ID].misc11 = val; break;
-		case 11: guysbuf[ID].misc12 = val; break;
-		case 12: guysbuf[ID].misc13 = val; break;
-		case 13: guysbuf[ID].misc14 = val; break;
-		case 14: guysbuf[ID].misc15 = val; break;
-		default: break;
-	}
+	if ((ID < 1 || ID > 511) || ( indx < 0 || indx > MAX_NPC_ATRIBUTES )) return;
+	guysbuf[ID].attributes[indx] = val;
 	
 };
 
@@ -47904,6 +47786,7 @@ void FFScript::read_enemies(PACKFILE *f, int32_t vers_id)
 				Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",98);
 			}
 			}
+
 			
 	}
 }
