@@ -951,7 +951,7 @@ if mode == 'assert':
             and replays_dir == script_dir / 'replays'
         ):
             prompt_to_create_compare_report()
-        exit(1)
+        exit(2)
 else:
     # We should still return a failing exit code if any replay failed to run, or had an
     # rng desync, or a bad exit code. Graphical differences won't count as failure
@@ -962,4 +962,4 @@ else:
         print('all replays ran successfully')
     else:
         print(f'{len(failing_replays)} replays did not finish')
-        exit(1)
+        exit(2)
