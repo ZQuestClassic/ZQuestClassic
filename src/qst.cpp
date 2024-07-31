@@ -14071,74 +14071,13 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 		{
 			return qe_invalid;
 		}  
-		if(!p_igetl(&(tempguy.attributes[15]),f))
+		for(int q=15;q<32;++q)
 		{
-			return qe_invalid;
-		}  
-		if(!p_igetl(&(tempguy.attributes[16]),f))
-		{
-			return qe_invalid;
-		} 
-		if(!p_igetl(&(tempguy.attributes[17]),f))
-		{
-			return qe_invalid;
-		} 
-		if(!p_igetl(&(tempguy.attributes[18]),f))
-		{
-			return qe_invalid;
-		} 
-		if(!p_igetl(&(tempguy.attributes[19]),f))
-		{
-			return qe_invalid;
-		} 
-		if(!p_igetl(&(tempguy.attributes[20]),f))
-		{
-			return qe_invalid;
-		} 
-		if(!p_igetl(&(tempguy.attributes[21]),f))
-		{
-			return qe_invalid;
-		} 
-		if(!p_igetl(&(tempguy.attributes[22]),f))
-		{
-			return qe_invalid;
-		} 
-		if(!p_igetl(&(tempguy.attributes[23]),f))
-		{
-			return qe_invalid;
-		} 
-		if(!p_igetl(&(tempguy.attributes[24]),f))
-		{
-			return qe_invalid;
-		} 
-		if(!p_igetl(&(tempguy.attributes[25]),f))
-		{
-			return qe_invalid;
-		} 
-		if(!p_igetl(&(tempguy.attributes[26]),f))
-		{
-			return qe_invalid;
-		} 
-		if(!p_igetl(&(tempguy.attributes[27]),f))
-		{
-			return qe_invalid;
-		} 
-		if(!p_igetl(&(tempguy.attributes[28]),f))
-		{
-			return qe_invalid;
-		} 
-		if(!p_igetl(&(tempguy.attributes[29]),f))
-		{
-			return qe_invalid;
-		} 
-		if(!p_igetl(&(tempguy.attributes[30]),f))
-		{
-			return qe_invalid;
-		} 
-		if(!p_igetl(&(tempguy.attributes[31]),f))
-		{
-			return qe_invalid;
-		} 
+			if(!p_igetl(&(tempguy.attributes[q]),f))
+			{
+				return qe_invalid;
+			} 
+		}
 		
 		for ( int32_t q = 0; q < 32; q++ ) {
 			if(!p_igetl(&(tempguy.movement[q]),f))

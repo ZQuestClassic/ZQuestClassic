@@ -13353,12 +13353,13 @@ int32_t get_register(int32_t arg)
 			} 
 			else 
 			{ 
-				if (indx < 0|| indx >= 32)
+				if (indx < 0|| indx > MAX_NPC_ATRIBUTES)
 				{
-					Z_scripterrlog("Invalid Array Index passed to npcdata->Attributes[]: %d\n", (ri->npcdataref * 10000));
+					Z_scripterrlog("Invalid Array Index passed to npcdata->Attributes[]: %d\n", indx);
 				}
-				ret = (guysbuf[ri->npcdataref].attributes[indx] * 10000);					
+				else ret = (guysbuf[ri->npcdataref].attributes[indx] * 10000);
 			} 
+
 			break;
 		}
 
@@ -26304,7 +26305,11 @@ void set_register(int32_t arg, int32_t value)
 			} 
 			else 
 			{ 
-				guysbuf[ri->npcdataref].attributes[indx] = (value / 10000);					
+				if (indx < 0 || indx > MAX_NPC_ATRIBUTES)
+				{
+					Z_scripterrlog("Invalid Array Index passed to npcdata->Attributes[]: %d\n", indx);
+				}
+				else guysbuf[ri->npcdataref].attributes[indx] = (value / 10000);
 			} 
 			break;
 		}
