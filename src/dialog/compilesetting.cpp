@@ -66,9 +66,6 @@ void CompileSettingsDlg::load()
 	old_timeout_secs = timeout_secs = zc_get_config("Compiler","compiler_timeout",30,App::zscript);
 	memcpy(old_dd_cfg,dd_cfg,sizeof(dd_cfg));
 	
-	strcpy(run_str,FFCore.scriptRunString);
-	run_str[20] = 0;
-	
 	strcpy(include_str,FFCore.includePathString);
 	include_str[MAX_INCLUDE_PATH_CHARS-1] = 0;
 	
@@ -96,9 +93,6 @@ void CompileSettingsDlg::save()
 		zc_set_config("Compiler","LEGACY_ARRAYS",dd_cfg[4],App::zscript);
 	if(timeout_secs != old_timeout_secs)
 		zc_set_config("Compiler","compiler_timeout",timeout_secs,App::zscript);
-	run_str[20] = 0;
-	memset(FFCore.scriptRunString,0,sizeof(FFCore.scriptRunString));
-	strcpy(FFCore.scriptRunString,run_str);
 	
 	include_str[MAX_INCLUDE_PATH_CHARS-1] = 0;
 	memset(FFCore.includePathString,0,sizeof(FFCore.includePathString));
@@ -193,21 +187,6 @@ std::shared_ptr<GUI::Widget> CompileSettingsDlg::view()
 							" ends without returning a value, the return value will be random garbage. To avoid this,"
 							" the compiler can warn or error when it detects missing return statements."
 							"\n\nThe compiler should be quite smart about detecting these situations."),
-						//
-						Label(text = "void run() label", hAlign = 1.0),
-						TextField(
-							forceFitW = true,
-							//maxwidth = 8_em,
-							maxLength = 21,
-							text = run_str,
-							onValChangedFunc = [&](GUI::TextField::type,std::string_view str,int32_t)
-							{
-								std::string name(str);
-								strncpy(run_str, name.c_str(), 20);
-								run_str[20] = 0;
-							}
-						),
-						INFOBTN("Change this to change the name of the starting function of scripts."),
 						//
 						Label(text = "Timeout Seconds", hAlign = 1.0),
 						TextField(type = GUI::TextField::type::INT_DECIMAL,

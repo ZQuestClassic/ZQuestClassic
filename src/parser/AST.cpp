@@ -1282,7 +1282,7 @@ void ASTFuncDecl::setFlag(int32_t flag, bool state)
 
 bool ASTFuncDecl::isRun() const
 {
-	return getName() == FFCore.scriptRunString;
+	return getName() == "run";
 }
 
 const std::string& ASTFuncDecl::getName() const

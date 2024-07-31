@@ -367,9 +367,6 @@ int32_t main(int32_t argc, char **argv)
 	{
 		cph->write(&syncthing, sizeof(int32_t));
 	}
-	
-	std::string runstr = zscript_get_config_string("run_string", "run");
-	strncpy(FFCore.scriptRunString, runstr.c_str(), sizeof(FFCore.scriptRunString));
 
 	int32_t include_paths_index = used_switch(argc, argv, "-include");
 	if (include_paths_index)
