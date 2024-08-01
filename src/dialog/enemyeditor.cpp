@@ -288,7 +288,7 @@ static const GUI::ListData list_walkerspawn
 
 void EnemyEditorDialog::refreshScript()
 {
-	//loadEnemyType();
+	loadEnemyType();
 	//active
 	int32_t sw_initd[8];
 	for (auto q = 0; q < 8; ++q)
@@ -797,134 +797,125 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 	if (local_guyref.family == eeKEESE || local_guyref.family == eeGHINI || local_guyref.family == eePEAHAT || local_guyref.family == eeMANHAN
 		|| local_guyref.family == eeGLEEOK || local_guyref.family == eePATRA || local_guyref.family == eeDIG) turnfreqorhaltrate = "Turn Freq:";
 
+	= Switcher(
 	w_attributes[0] = MiscAttribute(&local_guyref.misc1);
-	w_attributes[1] = MiscAttribute(&local_guyref.misc2);
-	w_attributes[2] = MiscAttribute(&local_guyref.misc3);
-	w_attributes[3] = MiscAttribute(&local_guyref.misc4);
-	w_attributes[4] = MiscAttribute(&local_guyref.misc5);
-	w_attributes[5] = MiscAttribute(&local_guyref.misc6);
-	w_attributes[6] = MiscAttribute(&local_guyref.misc7);
-	w_attributes[7] = MiscAttribute(&local_guyref.misc8);
-	w_attributes[8] = MiscAttribute(&local_guyref.misc9);
-	w_attributes[9] = MiscAttribute(&local_guyref.misc10);
-	w_attributes[10] = MiscAttribute(&local_guyref.misc11);
-	w_attributes[11] = MiscAttribute(&local_guyref.misc12);
-	w_attributes[12] = MiscAttribute(&local_guyref.misc13);
-	w_attributes[13] = MiscAttribute(&local_guyref.misc14);
-	w_attributes[14] = MiscAttribute(&local_guyref.misc15);
-	w_attributes[15] = MiscAttribute(&local_guyref.misc16);
-	w_attributes[16] = MiscAttribute(&local_guyref.misc17);
-	w_attributes[17] = MiscAttribute(&local_guyref.misc18);
-	w_attributes[18] = MiscAttribute(&local_guyref.misc19);
-	w_attributes[19] = MiscAttribute(&local_guyref.misc20);
-	w_attributes[20] = MiscAttribute(&local_guyref.misc21);
-	w_attributes[21] = MiscAttribute(&local_guyref.misc22);
-	w_attributes[22] = MiscAttribute(&local_guyref.misc23);
-	w_attributes[23] = MiscAttribute(&local_guyref.misc24);
-	w_attributes[24] = MiscAttribute(&local_guyref.misc25);
-	w_attributes[25] = MiscAttribute(&local_guyref.misc26);
-	w_attributes[26] = MiscAttribute(&local_guyref.misc27);
-	w_attributes[27] = MiscAttribute(&local_guyref.misc28);
-	w_attributes[28] = MiscAttribute(&local_guyref.misc29);
-	w_attributes[29] = MiscAttribute(&local_guyref.misc30);
-	w_attributes[30] = MiscAttribute(&local_guyref.misc31);
-	w_attributes[31] = MiscAttribute(&local_guyref.misc32);
+
+
+	tf_attributes[1] = MiscAttribute(&local_guyref.misc2);
+	tf_attributes[2] = MiscAttribute(&local_guyref.misc3);
+	tf_attributes[3] = MiscAttribute(&local_guyref.misc4);
+	tf_attributes[4] = MiscAttribute(&local_guyref.misc5);
+	tf_attributes[5] = MiscAttribute(&local_guyref.misc6);
+	tf_attributes[6] = MiscAttribute(&local_guyref.misc7);
+	tf_attributes[7] = MiscAttribute(&local_guyref.misc8);
+	tf_attributes[8] = MiscAttribute(&local_guyref.misc9);
+	tf_attributes[9] = MiscAttribute(&local_guyref.misc10);
+	tf_attributes[10] = MiscAttribute(&local_guyref.misc11);
+	tf_attributes[11] = MiscAttribute(&local_guyref.misc12);
+	tf_attributes[12] = MiscAttribute(&local_guyref.misc13);
+	tf_attributes[13] = MiscAttribute(&local_guyref.misc14);
+	tf_attributes[14] = MiscAttribute(&local_guyref.misc15);
+	tf_attributes[15] = MiscAttribute(&local_guyref.misc16);
+	tf_attributes[16] = MiscAttribute(&local_guyref.misc17);
+	tf_attributes[17] = MiscAttribute(&local_guyref.misc18);
+	tf_attributes[18] = MiscAttribute(&local_guyref.misc19);
+	tf_attributes[19] = MiscAttribute(&local_guyref.misc20);
+	tf_attributes[20] = MiscAttribute(&local_guyref.misc21);
+	tf_attributes[21] = MiscAttribute(&local_guyref.misc22);
+	tf_attributes[22] = MiscAttribute(&local_guyref.misc23);
+	tf_attributes[23] = MiscAttribute(&local_guyref.misc24);
+	tf_attributes[24] = MiscAttribute(&local_guyref.misc25);
+	tf_attributes[25] = MiscAttribute(&local_guyref.misc26);
+	tf_attributes[26] = MiscAttribute(&local_guyref.misc27);
+	tf_attributes[27] = MiscAttribute(&local_guyref.misc28);
+	tf_attributes[28] = MiscAttribute(&local_guyref.misc29);
+	tf_attributes[29] = MiscAttribute(&local_guyref.misc30);
+	tf_attributes[30] = MiscAttribute(&local_guyref.misc31);
+	tf_attributes[31] = MiscAttribute(&local_guyref.misc32);
 	
 	switch (local_guyref.family)
 	{
 		case eeWALK:
-			w_attributes[0] = DropDownField(&local_guyref.misc1, list_walkmisc1);
-			w_attributes[1] = DropDownField(&local_guyref.misc2, list_walkmisc2);
-			w_attributes[6] = DropDownField(&local_guyref.misc7, list_walkmisc7);
-			w_attributes[8] = DropDownField(&local_guyref.misc9, list_walkmisc9);
+			ddl_attributes[0] = DropDownField(&local_guyref.misc1, list_walkmisc1);
+			ddl_attributes[1] = DropDownField(&local_guyref.misc2, list_walkmisc2);
+			ddl_attributes[6] = DropDownField(&local_guyref.misc7, list_walkmisc7);
+			ddl_attributes[8] = DropDownField(&local_guyref.misc9, list_walkmisc9);
 			break;
 			//case eeFLOATER:
 			//case eeWORM:
 		case eeGLEEOK:
-			w_attributes[2] = DropDownField(&local_guyref.misc3, list_gleeokmisc3);
+			ddl_attributes[2] = DropDownField(&local_guyref.misc3, list_gleeokmisc3);
 			break;
 		case eeDIG:
-			w_attributes[0] = DropDownField(&local_guyref.misc1, list_enemies);
-			w_attributes[1] = DropDownField(&local_guyref.misc2, list_enemies);
-			w_attributes[2] = DropDownField(&local_guyref.misc3, list_enemies);
-			w_attributes[3] = DropDownField(&local_guyref.misc4, list_enemies);
-			w_attributes[9] = DropDownField(&local_guyref.misc10, list_digdoggermisc10);
+			ddl_attributes[0] = DropDownField(&local_guyref.misc1, list_enemies);
+			ddl_attributes[1] = DropDownField(&local_guyref.misc2, list_enemies);
+			ddl_attributes[2] = DropDownField(&local_guyref.misc3, list_enemies);
+			ddl_attributes[3] = DropDownField(&local_guyref.misc4, list_enemies);
+			ddl_attributes[9] = DropDownField(&local_guyref.misc10, list_digdoggermisc10);
 			break;
 		case eePATRA:
-			w_attributes[3] = DropDownField(&local_guyref.misc4, list_patramisc4);
-			w_attributes[4] = DropDownField(&local_guyref.misc5, list_patramisc5);
-			w_attributes[9] = DropDownField(&local_guyref.misc10, list_patramisc10);
-			w_attributes[19] = DropDownField(&local_guyref.misc20, list_patramisc20);
-			w_attributes[21] = DropDownField(&local_guyref.misc22, list_patramisc22);
-			w_attributes[24] = DropDownField(&local_guyref.misc25, list_patramisc25);
-			w_attributes[25] = DropDownField(&local_guyref.misc26, list_patramisc26);
-			w_attributes[28] = DropDownField(&local_guyref.misc28, list_patramisc28);
+			ddl_attributes[3] = DropDownField(&local_guyref.misc4, list_patramisc4);
+			ddl_attributes[4] = DropDownField(&local_guyref.misc5, list_patramisc5);
+			ddl_attributes[9] = DropDownField(&local_guyref.misc10, list_patramisc10);
+			ddl_attributes[19] = DropDownField(&local_guyref.misc20, list_patramisc20);
+			ddl_attributes[21] = DropDownField(&local_guyref.misc22, list_patramisc22);
+			ddl_attributes[24] = DropDownField(&local_guyref.misc25, list_patramisc25);
+			ddl_attributes[25] = DropDownField(&local_guyref.misc26, list_patramisc26);
+			ddl_attributes[28] = DropDownField(&local_guyref.misc28, list_patramisc28);
 			break;
 		case eePROJECTILE:
-			w_attributes[0] = DropDownField(&local_guyref.misc1, list_walkmisc1);
+			ddl_attributes[0] = DropDownField(&local_guyref.misc1, list_walkmisc1);
 			break;
 		case eeGHOMA:
-			w_attributes[0] = DropDownField(&local_guyref.misc1, list_gohmamisc1);
+			ddl_attributes[0] = DropDownField(&local_guyref.misc1, list_gohmamisc1);
 			break;
 		case eeAQUA:
-			w_attributes[0] = DropDownField(&local_guyref.misc1, list_aquamisc1);
+			ddl_attributes[0] = DropDownField(&local_guyref.misc1, list_aquamisc1);
 			break;
 		case eeMANHAN:
-			w_attributes[1] = DropDownField(&local_guyref.misc2, list_manhandlamisc2);
+			ddl_attributes[1] = DropDownField(&local_guyref.misc2, list_manhandlamisc2);
 			break;
 		case eeLANM:
-			w_attributes[2] = DropDownField(&local_guyref.misc3, list_yesnomisc);
+			ddl_attributes[2] = DropDownField(&local_guyref.misc3, list_yesnomisc);
 			break;
 		case eeMOLD:
-			w_attributes[1] = DropDownField(&local_guyref.misc2, list_yesnomisc);
+			ddl_attributes[1] = DropDownField(&local_guyref.misc2, list_yesnomisc);
 			break;
 		case eeWIZZ:
-			w_attributes[0] = DropDownField(&local_guyref.misc1, list_wizzrobemisc1);
-			w_attributes[1] = DropDownField(&local_guyref.misc2, list_wizzrobemisc2);
-			w_attributes[3] = DropDownField(&local_guyref.misc4, list_yesnomisc);
+			ddl_attributes[0] = DropDownField(&local_guyref.misc1, list_wizzrobemisc1);
+			ddl_attributes[1] = DropDownField(&local_guyref.misc2, list_wizzrobemisc2);
+			ddl_attributes[3] = DropDownField(&local_guyref.misc4, list_yesnomisc);
 			break;
 		case eeDONGO:
-			w_attributes[9] = DropDownField(&local_guyref.misc10, list_dodongomisc10);
+			ddl_attributes[9] = DropDownField(&local_guyref.misc10, list_dodongomisc10);
 			break;
 		case eeKEESE:
-			w_attributes[0] = DropDownField(&local_guyref.misc1, list_keesemisc1);
-			w_attributes[1] = DropDownField(&local_guyref.misc2, list_keesemisc2);
-			w_attributes[2] = DropDownField(&local_guyref.misc3, list_enemies);
+			ddl_attributes[0] = DropDownField(&local_guyref.misc1, list_keesemisc1);
+			ddl_attributes[1] = DropDownField(&local_guyref.misc2, list_keesemisc2);
+			ddl_attributes[2] = DropDownField(&local_guyref.misc3, list_enemies);
 			break;
 		case eeLEV:
-			w_attributes[0] = DropDownField(&local_guyref.misc1, list_leevermisc1);
+			ddl_attributes[0] = DropDownField(&local_guyref.misc1, list_leevermisc1);
 			break;
 		case eeWALLM:
-			w_attributes[0] = DropDownField(&local_guyref.misc1, list_noyesmisc);
+			ddl_attributes[0] = DropDownField(&local_guyref.misc1, list_noyesmisc);
 			break;
 		case eeTRAP:
-			w_attributes[0] = DropDownField(&local_guyref.misc1, list_trapmisc1);
-			w_attributes[1] = DropDownField(&local_guyref.misc2, list_trapmisc2);
+			ddl_attributes[0] = DropDownField(&local_guyref.misc1, list_trapmisc1);
+			ddl_attributes[1] = DropDownField(&local_guyref.misc2, list_trapmisc2);
 			break;
 		case eeROCK:
-			w_attributes[9] = DropDownField(&local_guyref.misc10, list_rockmisc10);
+			ddl_attributes[9] = DropDownField(&local_guyref.misc10, list_rockmisc10);
 			break;
 		case eeNONE: //(Boss Death Triggers)
-			w_attributes[9] = DropDownField(&local_guyref.misc10, list_yesnomisc);
+			ddl_attributes[9] = DropDownField(&local_guyref.misc10, list_yesnomisc);
 			break;
 		default:
 			break;
 	}
-	//
-	auto attributes1_tab = Rows_Columns<2,8>();
-	for (int q = 0; q < 16; q++)
-	{
-		attributes1_tab->add(l_attributes[q]);
-		attributes1_tab->add(w_attributes[q]);
-	}
-	//
-	auto attributes2_tab = Rows_Columns<2, 8>();
-	for (int q = 16; q < 32; q++)
-	{
-		attributes1_tab->add(l_attributes[q]);
-		attributes1_tab->add(w_attributes[q]);
-	}
-	//
+	// ATTRIBUTE SWITCHERS
+	
+	// BFLAGS TODO
 	auto behaviors_tab = Rows<2>();
 	for (int q = 8; q < 16; q++)
 	{

@@ -42,8 +42,11 @@ private:
 	std::shared_ptr<GUI::Button> warnbtn;
 	std::shared_ptr<GUI::SelTileSwatch> tswatch[4];
 	std::shared_ptr<GUI::Label> l_attributes[32];
-	std::shared_ptr<GUI::Widget> w_attributes[32];
+	std::shared_ptr<GUI::Switcher> sw_attributes[32];
+	std::shared_ptr<GUI::TextField> tf_attributes[32];
+	std::shared_ptr<GUI::DropDownList> ddl_attributes[32];
 	std::shared_ptr<GUI::Button> ib_attributes[32];
+
 	std::shared_ptr<GUI::Label> l_bflags[16];
 	std::shared_ptr<GUI::Checkbox> cb_bflags[16];
 	std::shared_ptr<GUI::Button> ib_bflags[16];
