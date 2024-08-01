@@ -819,7 +819,6 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 	//NONE (Boss Death Triggers)
 	w_attributes[9] = DropDownField(&local_guyref.misc10, list_yesnomisc);
 
-	{
 	auto basics_tab = TabPanel(
 		ptr = &guy_tabs[0],
 		TabRef(name = "Basics", TabPanel(
