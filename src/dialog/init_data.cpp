@@ -890,11 +890,10 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::view()
 					Label(text = "Data Size:"),
 					TextField(
 						type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
-						low = 0, high = 2147480000,
-						val = local_zinit.gen_data[index].size()*10000,
+						low = 0, high = 214748,
+						val = local_zinit.gen_data[index].size(),
 						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 						{
-							val /= 10000;
 							local_zinit.gen_data[index].resize(val);
 							databtn->setDisabled(!val);
 						}),

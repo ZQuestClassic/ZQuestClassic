@@ -627,11 +627,10 @@ std::shared_ptr<GUI::Widget> ScreenDataDialog::view()
 						Label(text = "Data Size:"),
 						TextField(
 							type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
-							low = 0, high = 2147480000,
-							val = screen_misc_data.size()*10000,
+							low = 0, high = 214748,
+							val = screen_misc_data.size(),
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
-								val /= 10000;
 								screen_misc_data.resize(val);
 								databtn->setDisabled(!val);
 							}),

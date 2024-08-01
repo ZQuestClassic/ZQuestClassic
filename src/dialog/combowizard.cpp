@@ -1518,10 +1518,10 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						tfs[1] = TextField(
 							fitParent = true, minwidth = 8_em,
 							type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
-							val = drown_damage,
+							val = drown_damage / 10000,
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
-								drown_damage = val;
+								drown_damage = val * 10000;
 							}),
 						INFOBTN("The amount of damage dealt when drowning, in HP points."
 							" If negative, drowning will heal the player."),
@@ -1589,10 +1589,10 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						tfs[2] = TextField(
 							fitParent = true, minwidth = 8_em,
 							type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
-							val = hp_mod,
+							val = hp_mod / 10000,
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
-								hp_mod = val;
+								hp_mod = val * 10000;
 							}),
 						INFOBTN("How much HP should be modified by (negative for damage)"),
 						//
@@ -2235,7 +2235,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						tfs[0] = TextField(
 							fitParent = true, minwidth = 8_em,
 							type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
-							low = 10000, high = 2147480000, val = damage,
+							low = 1, high = 214748, val = damage,
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
 								damage = val;
@@ -3350,7 +3350,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 									tfs[3] = TextField(
 										fitParent = true, minwidth = 8_em,
 										type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
-										low = 10000, high = MAX_SIGNED_32, val = amount,
+										low = 1, high = 65535, val = amount,
 										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											amount = val;
@@ -3821,7 +3821,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 									tfs[3] = TextField(
 										fitParent = true, minwidth = 8_em,
 										type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
-										low = 10000, high = MAX_SIGNED_32, val = amount,
+										low = 1, high = 65535, val = amount,
 										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											amount = val;
