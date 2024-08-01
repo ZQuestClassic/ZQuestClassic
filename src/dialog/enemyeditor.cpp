@@ -742,6 +742,39 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 	if (local_guyref.family == eeKEESE || local_guyref.family == eeGHINI || local_guyref.family == eePEAHAT || local_guyref.family == eeMANHAN
 		|| local_guyref.family == eeGLEEOK || local_guyref.family == eePATRA || local_guyref.family == eeDIG) turnfreqorhaltrate = "Turn Freq:";
 
+	w_attributes[0] = MiscAttribute(&local_guyref.misc1);
+	w_attributes[1] = MiscAttribute(&local_guyref.misc2);
+	w_attributes[2] = MiscAttribute(&local_guyref.misc3);
+	w_attributes[3] = MiscAttribute(&local_guyref.misc4);
+	w_attributes[4] = MiscAttribute(&local_guyref.misc5);
+	w_attributes[5] = MiscAttribute(&local_guyref.misc6);
+	w_attributes[6] = MiscAttribute(&local_guyref.misc7);
+	w_attributes[7] = MiscAttribute(&local_guyref.misc8);
+	w_attributes[8] = MiscAttribute(&local_guyref.misc9);
+	w_attributes[9] = MiscAttribute(&local_guyref.misc10);
+	w_attributes[10] = MiscAttribute(&local_guyref.misc11);
+	w_attributes[11] = MiscAttribute(&local_guyref.misc12);
+	w_attributes[12] = MiscAttribute(&local_guyref.misc13);
+	w_attributes[13] = MiscAttribute(&local_guyref.misc14);
+	w_attributes[14] = MiscAttribute(&local_guyref.misc15);
+	w_attributes[15] = MiscAttribute(&local_guyref.misc16);
+	w_attributes[16] = MiscAttribute(&local_guyref.misc17);
+	w_attributes[17] = MiscAttribute(&local_guyref.misc18);
+	w_attributes[18] = MiscAttribute(&local_guyref.misc19);
+	w_attributes[19] = MiscAttribute(&local_guyref.misc20);
+	w_attributes[20] = MiscAttribute(&local_guyref.misc21);
+	w_attributes[21] = MiscAttribute(&local_guyref.misc22);
+	w_attributes[22] = MiscAttribute(&local_guyref.misc23);
+	w_attributes[23] = MiscAttribute(&local_guyref.misc24);
+	w_attributes[24] = MiscAttribute(&local_guyref.misc25);
+	w_attributes[25] = MiscAttribute(&local_guyref.misc26);
+	w_attributes[26] = MiscAttribute(&local_guyref.misc27);
+	w_attributes[27] = MiscAttribute(&local_guyref.misc28);
+	w_attributes[28] = MiscAttribute(&local_guyref.misc29);
+	w_attributes[29] = MiscAttribute(&local_guyref.misc30);
+	w_attributes[30] = MiscAttribute(&local_guyref.misc31);
+	w_attributes[31] = MiscAttribute(&local_guyref.misc32);
+
 	//WALKER
 	w_attributes[0] = DropDownField(&local_guyref.misc1, list_walkmisc1);
 	w_attributes[1] = DropDownField(&local_guyref.misc2, list_walkmisc2);
@@ -923,6 +956,9 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 			)),
 			TabRef(name = "Attributes 1", Row(
 				Columns<16>(
+					Switcher(
+
+					)
 				)
 			)),
 			TabRef(name = "Attributes 2", Row(
