@@ -361,38 +361,6 @@ void EnemyEditorDialog::loadEnemyType()
 {
 	for (int q = 0; q < 32; ++q)
 		l_attribute[q] = fmt::format("Misc Attr. {}:", q + 1);
-	w_attributes[0] = MiscAttribute(&local_guyref.misc1);
-	w_attributes[1] = MiscAttribute(&local_guyref.misc2);
-	w_attributes[2] = MiscAttribute(&local_guyref.misc3);
-	w_attributes[3] = MiscAttribute(&local_guyref.misc4);
-	w_attributes[4] = MiscAttribute(&local_guyref.misc5);
-	w_attributes[5] = MiscAttribute(&local_guyref.misc6);
-	w_attributes[6] = MiscAttribute(&local_guyref.misc7);
-	w_attributes[7] = MiscAttribute(&local_guyref.misc8);
-	w_attributes[8] = MiscAttribute(&local_guyref.misc9);
-	w_attributes[9] = MiscAttribute(&local_guyref.misc10);
-	w_attributes[10] = MiscAttribute(&local_guyref.misc11);
-	w_attributes[11] = MiscAttribute(&local_guyref.misc12);
-	w_attributes[12] = MiscAttribute(&local_guyref.misc13);
-	w_attributes[13] = MiscAttribute(&local_guyref.misc14);
-	w_attributes[14] = MiscAttribute(&local_guyref.misc15);
-	w_attributes[15] = MiscAttribute(&local_guyref.misc16);
-	w_attributes[16] = MiscAttribute(&local_guyref.misc17);
-	w_attributes[17] = MiscAttribute(&local_guyref.misc18);
-	w_attributes[18] = MiscAttribute(&local_guyref.misc19);
-	w_attributes[19] = MiscAttribute(&local_guyref.misc20);
-	w_attributes[20] = MiscAttribute(&local_guyref.misc21);
-	w_attributes[21] = MiscAttribute(&local_guyref.misc22);
-	w_attributes[22] = MiscAttribute(&local_guyref.misc23);
-	w_attributes[23] = MiscAttribute(&local_guyref.misc24);
-	w_attributes[24] = MiscAttribute(&local_guyref.misc25);
-	w_attributes[25] = MiscAttribute(&local_guyref.misc26);
-	w_attributes[26] = MiscAttribute(&local_guyref.misc27);
-	w_attributes[27] = MiscAttribute(&local_guyref.misc28);
-	w_attributes[28] = MiscAttribute(&local_guyref.misc29);
-	w_attributes[29] = MiscAttribute(&local_guyref.misc30);
-	w_attributes[30] = MiscAttribute(&local_guyref.misc31);
-	w_attributes[31] = MiscAttribute(&local_guyref.misc32);
 	l_bflag[0] = "Enemy is Completely Invisible";
 	l_bflag[1] = "Item Specified in Attributes 13 Dispels Invisibility";
 	l_bflag[2] = "Doesn't always return";
@@ -409,24 +377,20 @@ void EnemyEditorDialog::loadEnemyType()
 	l_bflag[13] = "Ignore Sideview Ladders/Platforms";
 	l_bflag[14] = "Move Off-Grid (WIP)";
 	l_bflag[15] = "Render Cloaked Instead of VISIBLE";
-	turnfreqorhaltrate = "Halt Rate:";
+	
 	switch(local_guyref.family)
 	{
 		case eeWALK:
 		{
 			l_attribute[0] = "Shot Type:";
-			w_attributes[0] = DropDownField(&local_guyref.misc1, list_walkmisc1);
 			l_attribute[1] = "Death Type:";
-			w_attributes[1] = DropDownField(&local_guyref.misc2, list_walkmisc2);
 			l_attribute[2] = "Death Attr. 1:";
 			l_attribute[3] = "Death Attr. 2:";
 			l_attribute[4] = "Death Attr. 3:";
 			l_attribute[5] = "Extra Shots:";
 			l_attribute[6] = "Touch Effects:";
-			w_attributes[6] = DropDownField(&local_guyref.misc7, list_walkmisc7);
 			l_attribute[7] = "Effect Strength:";
-			l_attribute[8] = "Walk Style:";
-			w_attributes[8] = DropDownField(&local_guyref.misc9, list_walkmisc9);
+			l_attribute[8] = "Walk Style:";			
 			l_attribute[9] = "Walk Attribute:";
 			l_bflag[4] = "Split in Place";
 			break;
@@ -436,7 +400,6 @@ void EnemyEditorDialog::loadEnemyType()
 			l_attribute[0] = "Heads:";
 			l_attribute[1] = "Head HP:";
 			l_attribute[2] = "Shot Type:";
-			w_attributes[2] = DropDownField(&local_guyref.misc3, list_gleeokmisc3);
 			l_attribute[3] = "Unused";
 			l_attribute[4] = "Neck Segments:";
 			l_attribute[5] = "Neck Offset 1:";
@@ -448,28 +411,21 @@ void EnemyEditorDialog::loadEnemyType()
 			l_bflag[4] = "Obeys Spawn Points";
 			l_bflag[5] = "Center Spawn X Point";
 			l_bflag[6] = "Heads Block Projectiles";
-			turnfreqorhaltrate = "Turn Freq:";
 			break;
 		}
 		case eeDIG:
 		{
 			l_attribute[0] = "Enemy 1 ID:";
-			w_attributes[0] = DropDownField(&local_guyref.misc1, list_enemies);
 			l_attribute[1] = "Enemy 2 ID:";
-			w_attributes[1] = DropDownField(&local_guyref.misc2, list_enemies);
 			l_attribute[2] = "Enemy 3 ID:";
-			w_attributes[2] = DropDownField(&local_guyref.misc3, list_enemies);
 			l_attribute[3] = "Enemy 4 ID";
-			w_attributes[3] = DropDownField(&local_guyref.misc4, list_enemies);
 			l_attribute[4] = "Enemy 1 Qty:";
 			l_attribute[5] = "Enemy 2 Qty:";
 			l_attribute[6] = "Enemy 3 Qty:";
 			l_attribute[7] = "Enemy 4 Qty:";
 			l_attribute[8] = "Unused";
 			l_attribute[9] = "Type";
-			w_attributes[9] = DropDownField(&local_guyref.misc10, list_digdoggermisc10);
 			l_bflag[2] = "BFlags[2]";
-			turnfreqorhaltrate = "Turn Freq:";
 			break;
 		}
 		case eePATRA:
@@ -478,31 +434,23 @@ void EnemyEditorDialog::loadEnemyType()
 			l_attribute[1] = "Inner Eyes:";
 			l_attribute[2] = "Eyes' HP:";
 			l_attribute[3] = "Eye Movement:";
-			w_attributes[3] = DropDownField(&local_guyref.misc4, list_patramisc4);
 			l_attribute[4] = "Shooters:";
-			w_attributes[4] = DropDownField(&local_guyref.misc5, list_patramisc5);
 			l_attribute[5] = "Pattern Odds:";
 			l_attribute[6] = "Pattern Cycles:";
 			l_attribute[7] = "Eye Offset:";
 			l_attribute[8] = "Eye CSet:";
 			l_attribute[9] = "Type:";
-			w_attributes[9] = DropDownField(&local_guyref.misc10, list_patramisc10);
 			l_attribute[17] = "Shot chance (1/N per frame):";
 			l_attribute[18] = "Firing cooldown:";
 			l_attribute[19] = "Inner Eyes Firing Pattern:";
-			w_attributes[19] = DropDownField(&local_guyref.misc20, list_patramisc20);
 			l_attribute[20] = "Warning Spins:";
 			l_attribute[21] = "Stays Still:";
-			w_attributes[21] = DropDownField(&local_guyref.misc22, list_patramisc22);
 			l_attribute[22] = "Outer Ring Loss Speed Boost:";
 			l_attribute[23] = "Inner Ring Loss Speed Boost:";
 			l_attribute[24] = "Can Fire:";
-			w_attributes[24] = DropDownField(&local_guyref.misc25, list_patramisc25);
 			l_attribute[25] = "Can Expand:";
-			w_attributes[25] = DropDownField(&local_guyref.misc26, list_patramisc26);
 			l_attribute[26] = "Inner Eye HP:";
 			l_attribute[27] = "Center Eye Firing Pattern:";
-			w_attributes[28] = DropDownField(&local_guyref.misc28, list_patramisc28);
 			l_attribute[28] = "Outer Eye Radius:";
 			l_attribute[29] = "Inner Eye Radius:";
 			l_attribute[30] = "Outer Eye Expanded Radius:";
@@ -514,13 +462,11 @@ void EnemyEditorDialog::loadEnemyType()
 			l_bflag[7] = "Don't expand when spawned";
 			l_bflag[8] = "Pattern Odds reset when Expanding";
 			l_bflag[9] = "Don't 'expand' without orbiters";
-			turnfreqorhaltrate = "Turn Freq:";
 			break;
 		}
 		case eePROJECTILE:
 		{
 			l_attribute[0] = "Shot Type:";
-			w_attributes[0] = DropDownField(&local_guyref.misc1, list_walkmisc1);
 			l_attribute[2] = "Shot Attribute 1:";
 			l_attribute[3] = "Shot Attribute 2:";
 			break;
@@ -528,7 +474,6 @@ void EnemyEditorDialog::loadEnemyType()
 		case eeGHOMA:
 		{
 			l_attribute[0] = "Shot Type:";
-			w_attributes[0] = DropDownField(&local_guyref.misc1, list_gohmamisc1);
 			l_bflag[2] = "BFlags[2]";
 			l_bflag[4] = "Obeys Spawn Points";
 			break;
@@ -536,7 +481,6 @@ void EnemyEditorDialog::loadEnemyType()
 		case eeAQUA:
 		{
 			l_attribute[0] = "Side:";
-			w_attributes[0] = DropDownField(&local_guyref.misc1, list_aquamisc1);
 			l_bflag[2] = "BFlags[2]";
 			l_bflag[4] = "Obeys Spawn Points";
 			break;
@@ -545,7 +489,6 @@ void EnemyEditorDialog::loadEnemyType()
 		{
 			l_attribute[0] = "Frame Rate:";
 			l_attribute[1] = "Size";
-			w_attributes[1] = DropDownField(&local_guyref.misc2, list_manhandlamisc2);
 			l_bflag[2] = "BFlags[2]";
 			break;
 		}
@@ -554,7 +497,6 @@ void EnemyEditorDialog::loadEnemyType()
 			l_attribute[0] = "Segments:";
 			l_attribute[1] = "Segment Lag:";
 			l_attribute[2] = "Item per segment:";
-			w_attributes[2] = DropDownField(&local_guyref.misc3, list_yesnomisc);
 			l_bflag[2] = "BFlags[2]";
 			l_bflag[4] = "Obeys Spawn Points";
 			break;
@@ -563,7 +505,7 @@ void EnemyEditorDialog::loadEnemyType()
 		{
 			l_attribute[0] = "Segments:";
 			l_attribute[1] = "Item per segment:";
-			w_attributes[1] = DropDownField(&local_guyref.misc2, list_yesnomisc);
+=
 			l_bflag[2] = "BFlags[2]";
 			l_bflag[4] = "Obeys Spawn Points";
 			break;
@@ -571,30 +513,24 @@ void EnemyEditorDialog::loadEnemyType()
 		case eeWIZZ:
 		{
 			l_attribute[0] = "Walk Style:";
-			w_attributes[0] = DropDownField(&local_guyref.misc1, list_wizzrobemisc1);
 			l_attribute[1] = "Shot Type:";
-			w_attributes[1] = DropDownField(&local_guyref.misc2, list_wizzrobemisc2);
 			l_attribute[2] = "Shot Attr. 1:";
 			l_attribute[3] = "Solid Combos OK:";
-			w_attributes[3] = DropDownField(&local_guyref.misc4, list_yesnomisc);
 			l_attribute[4] = "Teleport Delay:";
 			l_bflag[4] = "Old Windrobe Teleport";
+			break;
 		}
 		case eeDONGO:
 		{
 			l_attribute[9] = "Type:";
-			w_attributes[9] = DropDownField(&local_guyref.misc10, list_dodongomisc10);
 			l_bflag[2] = "BFlags[2]";
 			break;
 		}
 		case eeKEESE:
 		{
 			l_attribute[0] = "Walk Style:";
-			w_attributes[0] = DropDownField(&local_guyref.misc1, list_keesemisc1);
 			l_attribute[1] = "Death Type:";
-			w_attributes[1] = DropDownField(&local_guyref.misc2, list_keesemisc2);
 			l_attribute[2] = "Enemy Id:";
-			w_attributes[2] = DropDownField(&local_guyref.misc3, list_enemies);
 			l_attribute[13] = "Landing Chance (1/N):",
 			l_attribute[14] = "Landing Cooldown:",
 			l_attribute[15] = "Halt Duration:";
@@ -614,7 +550,6 @@ void EnemyEditorDialog::loadEnemyType()
 		case eeLEV:
 		{
 			l_attribute[0] = "Emerge style:";
-			w_attributes[0] = DropDownField(&local_guyref.misc1, list_leevermisc1);
 			l_attribute[1] = "Submerged CSet:";
 			l_attribute[2] = "Emerge step:";
 			break;
@@ -622,30 +557,27 @@ void EnemyEditorDialog::loadEnemyType()
 		case eeWALLM:
 		{
 			l_attribute[0] = "Fixed Distance";
-			DropDownField(&local_guyref.misc1, list_noyesmisc);
 			break;
 		}
 		case eeTRAP:
 		{
 			l_attribute[0] = "Direction:";
-			w_attributes[0] = DropDownField(&local_guyref.misc1, list_trapmisc1);
 			l_attribute[1] = "Move Style:";
-			w_attributes[1] = DropDownField(&local_guyref.misc2, list_trapmisc2);
 			break;
 		}
 		case eeROCK:
 		{
 			l_attribute[9] = "Size:";
-			w_attributes[9] = DropDownField(&local_guyref.misc10, list_rockmisc10);
+			
 			break;
 		}
 		case eeNONE:
 		{
 			l_attribute[9] = "Boss Death Trigger:";
-			w_attributes[9] = DropDownField(&local_guyref.misc10, list_yesnomisc);
+
 			break;
 		}
-		case eeGHINI: case eePEAHAT:
+		case eeGHINI: case eePEAHAT: //TODO DEPRECIATE ME
 		{
 			l_attribute[0] = "Stop On Pits";
 			l_attribute[13] = "Landing Chance (1/N):",
@@ -664,8 +596,7 @@ void EnemyEditorDialog::loadEnemyType()
 		}
 		case eeSPINTILE:
 		{
-			//no attributes (yet)
-			//no flags either (yet)
+			//no attributes or flags either (yet)
 			break;
 		}
 		case eeGANON:
@@ -683,9 +614,6 @@ void EnemyEditorDialog::loadEnemyType()
 
 	for (size_t q = 0; q < 32; ++q)
 	{
-		auto column = Column()
-			for (int q = 0; q < 32; ++q)
-				column->add(Label(text = std::to_string(q + 1)));
 		l_attributes[q]->setText(l_attribute[q]);
 		if (q > 15) continue;
 		l_bflags[q]->setText(l_bflag[q]);
@@ -808,6 +736,90 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 	
 	char titlebuf[256];
 	sprintf(titlebuf, "Enemy %d: %s", index, guy_string[index]);
+	
+	//Family Specific
+	string turnfreqorhaltrate = "Halt Rate:";
+	if (local_guyref.family == eeKEESE || local_guyref.family == eeGHINI || local_guyref.family == eePEAHAT || local_guyref.family == eeMANHAN
+		|| local_guyref.family == eeGLEEOK || local_guyref.family == eePATRA || local_guyref.family == eeDIG) turnfreqorhaltrate = "Turn Freq:";
+
+	//WALKER
+	w_attributes[0] = DropDownField(&local_guyref.misc1, list_walkmisc1);
+	w_attributes[1] = DropDownField(&local_guyref.misc2, list_walkmisc2);
+	w_attributes[6] = DropDownField(&local_guyref.misc7, list_walkmisc7);
+	w_attributes[8] = DropDownField(&local_guyref.misc9, list_walkmisc9);
+
+	//FLOATER (unimplemented) (should i just use keese for em?)
+
+	//WORM (unimplemented)
+
+	//GLEEOK
+	w_attributes[2] = DropDownField(&local_guyref.misc3, list_gleeokmisc3);
+
+	//DIG
+	w_attributes[0] = DropDownField(&local_guyref.misc1, list_enemies);
+	w_attributes[1] = DropDownField(&local_guyref.misc2, list_enemies);
+	w_attributes[2] = DropDownField(&local_guyref.misc3, list_enemies);
+	w_attributes[3] = DropDownField(&local_guyref.misc4, list_enemies);
+	w_attributes[9] = DropDownField(&local_guyref.misc10, list_digdoggermisc10);
+
+	//PATRA
+	w_attributes[3] = DropDownField(&local_guyref.misc4, list_patramisc4);
+	w_attributes[4] = DropDownField(&local_guyref.misc5, list_patramisc5);
+	w_attributes[9] = DropDownField(&local_guyref.misc10, list_patramisc10);
+	w_attributes[19] = DropDownField(&local_guyref.misc20, list_patramisc20);
+	w_attributes[21] = DropDownField(&local_guyref.misc22, list_patramisc22);
+	w_attributes[24] = DropDownField(&local_guyref.misc25, list_patramisc25);
+	w_attributes[25] = DropDownField(&local_guyref.misc26, list_patramisc26);
+	w_attributes[28] = DropDownField(&local_guyref.misc28, list_patramisc28);
+
+	//PROJECTILE
+	w_attributes[0] = DropDownField(&local_guyref.misc1, list_walkmisc1);
+	
+	//GHOMA
+	w_attributes[0] = DropDownField(&local_guyref.misc1, list_gohmamisc1);
+	
+	//AQUAMENTUS
+	w_attributes[0] = DropDownField(&local_guyref.misc1, list_aquamisc1);
+
+	//MANHANDLA
+	w_attributes[1] = DropDownField(&local_guyref.misc2, list_manhandlamisc2);
+
+	//LANMOLA
+	w_attributes[2] = DropDownField(&local_guyref.misc3, list_yesnomisc);
+
+	//MOLDORM
+	w_attributes[1] = DropDownField(&local_guyref.misc2, list_yesnomisc);
+
+	//WIZZ
+	w_attributes[0] = DropDownField(&local_guyref.misc1, list_wizzrobemisc1);
+	w_attributes[1] = DropDownField(&local_guyref.misc2, list_wizzrobemisc2);
+	w_attributes[3] = DropDownField(&local_guyref.misc4, list_yesnomisc);
+
+	//DODONGO
+	w_attributes[9] = DropDownField(&local_guyref.misc10, list_dodongomisc10);
+
+	//KEESE
+	w_attributes[0] = DropDownField(&local_guyref.misc1, list_keesemisc1);
+	w_attributes[1] = DropDownField(&local_guyref.misc2, list_keesemisc2);
+	w_attributes[2] = DropDownField(&local_guyref.misc3, list_enemies);
+
+	//LEV
+	w_attributes[0] = DropDownField(&local_guyref.misc1, list_leevermisc1);
+
+	//WALLM
+	w_attributes[0] = DropDownField(&local_guyref.misc1, list_noyesmisc);
+
+	//TRAP
+	w_attributes[0] = DropDownField(&local_guyref.misc1, list_trapmisc1);
+	w_attributes[1] = DropDownField(&local_guyref.misc2, list_trapmisc2);
+
+	//ROCK
+	w_attributes[9] = DropDownField(&local_guyref.misc10, list_rockmisc10);
+
+	//NONE (Boss Death Triggers)
+	w_attributes[9] = DropDownField(&local_guyref.misc10, list_yesnomisc);
+
+	{
 	auto basics_tab = TabPanel(
 		ptr = &guy_tabs[0],
 		TabRef(name = "Basics", TabPanel(
@@ -912,74 +924,10 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 			)),
 			TabRef(name = "Attributes 1", Row(
 				Columns<16>(
-					l_attributes[0],
-					l_attributes[1],
-					l_attributes[2],
-					l_attributes[3],
-					l_attributes[4],
-					l_attributes[5],
-					l_attributes[6],
-					l_attributes[7],
-					l_attributes[8],
-					l_attributes[9],
-					l_attributes[10],
-					l_attributes[11],
-					l_attributes[12],
-					l_attributes[13],
-					l_attributes[14],
-					l_attributes[15],
-					w_attributes[0],
-					w_attributes[1],
-					w_attributes[2],
-					w_attributes[3],
-					w_attributes[4],
-					w_attributes[5],
-					w_attributes[6],
-					w_attributes[7],
-					w_attributes[8],
-					w_attributes[9],
-					w_attributes[10],
-					w_attributes[11],
-					w_attributes[12],
-					w_attributes[13],
-					w_attributes[14],
-					w_attributes[15]
 				)
 			)),
 			TabRef(name = "Attributes 2", Row(
 				Columns<16>(
-					l_attributes[16],
-					l_attributes[17],
-					l_attributes[18],
-					l_attributes[19],
-					l_attributes[20],
-					l_attributes[21],
-					l_attributes[22],
-					l_attributes[23],
-					l_attributes[24],
-					l_attributes[25],
-					l_attributes[26],
-					l_attributes[27],
-					l_attributes[28],
-					l_attributes[29],
-					l_attributes[30],
-					l_attributes[31],
-					w_attributes[16],
-					w_attributes[17],
-					w_attributes[18],
-					w_attributes[19],
-					w_attributes[20],
-					w_attributes[21],
-					w_attributes[22],
-					w_attributes[23],
-					w_attributes[24],
-					w_attributes[25],
-					w_attributes[26],
-					w_attributes[27],
-					w_attributes[28],
-					w_attributes[29],
-					w_attributes[30],
-					w_attributes[31]
 				)
 			)),
 			TabRef(name = "Size Flags", Row(

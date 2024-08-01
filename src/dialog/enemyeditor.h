@@ -54,7 +54,6 @@ private:
 
 	string l_attribute[32], l_bflag[16];
 	string enemy_name;
-	string turnfreqorhaltrate;
 
 	vector<string> warnings;
 
