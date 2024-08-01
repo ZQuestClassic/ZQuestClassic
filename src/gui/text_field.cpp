@@ -259,9 +259,8 @@ void TextField::setVal(int32_t val)
 		}
 		case type::SWAP_ZSINT_NO_DEC:
 		{
-			auto v = val / 10000;
-			startVal = v*10000;
-			sprintf(buf,"%d",v);
+			startVal = val * 10000;
+			sprintf(buf,"%d",val);
 			break;
 		}
 		case type::FIXED_DECIMAL:
@@ -379,12 +378,16 @@ int32_t TextField::getVal()
 		case type::SWAP_BYTE:
 		case type::SWAP_SSHORT:
 		case type::SWAP_ZSINT:
-		case type::SWAP_ZSINT_NO_DEC:
 		case type::SWAP_ZSINT2:
 		case type::NOSWAP_ZSINT:
 			if(alDialog)
 				value = alDialog->fg;
 			else value = startVal;
+			break;
+		case type::SWAP_ZSINT_NO_DEC:
+			if(alDialog)
+				value = alDialog->fg / 10000;
+			else value = startVal / 10000;
 			break;
 			
 		case type::FIXED_DECIMAL:
@@ -414,6 +417,7 @@ int32_t TextField::getVal()
 			break;
 		}
 	}
+	
 	if(ubound > lbound)
 		return vbound(value, lbound, ubound);
 	return value;
