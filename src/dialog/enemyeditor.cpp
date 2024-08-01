@@ -629,6 +629,12 @@ void EnemyEditorDialog::updateWarnings()
 }
 
 //{ Widgets
+#define ATTR_WID 6_em
+#define ATTR_LAB_WID 12_em
+#define SPR_LAB_WID 10_em
+#define ACTION_LAB_WID 6_em
+#define ACTION_FIELD_WID 6_em
+#define FLAGS_WID 18_em
 
 std::shared_ptr<GUI::Widget> EnemyEditorDialog::NumberField(auto* data, auto _min, auto _max, string str)
 {
@@ -722,6 +728,54 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::MiscFlag(auto* bitstring, auto i
 	);
 }
 
+std::shared_ptr<GUI::Widget> EnemyEditorDialog::ScriptField(int index)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+
+	return Row(padding = 0_px,
+		l_initds[index] = Label(minwidth = ATTR_LAB_WID, textAlign = 2),
+		ib_initds[index] = Button(forceFitH = true, text = "?",
+			disabled = true,
+			onPressFunc = [&, index]()
+			{
+				InfoDialog("InitD Info", h_initd[index]).show();
+			}),
+		tf_initd[index] = TextField(
+			fitParent = true, minwidth = 8_em,
+			type = GUI::TextField::type::SWAP_ZSINT2,
+			val = local_guyref.initD[index],
+			onValChangedFunc = [&, index](GUI::TextField::type, std::string_view, int32_t val)
+			{
+				local_guyref.initD[index] = val;
+			})
+	);
+}
+
+std::shared_ptr<GUI::Widget> EnemyEditorDialog::WeaponScriptField(int index)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+
+	return Row(padding = 0_px,
+		l_wpninitds[index] = Label(minwidth = ATTR_LAB_WID, textAlign = 2),
+		ib_wpninitds[index] = Button(forceFitH = true, text = "?",
+			disabled = true,
+			onPressFunc = [&, index]()
+			{
+				InfoDialog("InitD Info", h_wpninitd[index]).show();
+			}),
+		tf_wpninitd[index] = TextField(
+			fitParent = true, minwidth = 8_em,
+			type = GUI::TextField::type::SWAP_ZSINT2,
+			val = local_guyref.weap_initiald[index],
+			onValChangedFunc = [&, index](GUI::TextField::type, std::string_view, int32_t val)
+			{
+				local_guyref.weap_initiald[index] = val;
+			})
+	);
+}
+
 std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 {
 	using namespace GUI::Builder;
@@ -733,7 +787,8 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 #define MAXRATE (local_guyref.family==eeFIRE||local_guyref.family==eeOTHER||(local_guyref.family>=eeSCRIPT01&&local_guyref.family<=eeFFRIENDLY10))?999:16
 #define MAXHOMING (local_guyref.family==eeFIRE||local_guyref.family==eeOTHER||(local_guyref.family>=eeSCRIPT01&&local_guyref.family<=eeFFRIENDLY10))?9999:256
 #define MAXSTEP (local_guyref.family==eeFIRE||local_guyref.family==eeOTHER||(local_guyref.family>=eeSCRIPT01&&local_guyref.family<=eeFFRIENDLY10))?9999:256
-	
+#define HAS_SHIELD (local_guyref.family==eeWALK||local_guyref.family==eeFIRE||local_guyref.family==eeOTHER)
+
 	char titlebuf[256];
 	sprintf(titlebuf, "Enemy %d: %s", index, guy_string[index]);
 	
@@ -852,27 +907,30 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 		case eeNONE: //(Boss Death Triggers)
 			w_attributes[9] = DropDownField(&local_guyref.misc10, list_yesnomisc);
 			break;
+		default:
+			break;
 	}
-	auto attributes1_tab = Columns<8>();
-	for (int q = 0; q < 8; q++)
-		attributes1_tab->add(Label(text=l_attributes[q]));
-	for (int q = 0; q < 8; q++)
+	//
+	auto attributes1_tab = Rows_Columns<2,8>();
+	for (int q = 0; q < 16; q++)
+	{
+		attributes1_tab->add(l_attributes[q]);
 		attributes1_tab->add(w_attributes[q]);
-	for (int q = 8; q < 16; q++)
-		attributes1_tab->add(Label(text=l_attributes[q]));
-	for (int q = 8; q < 16; q++)
+	}
+	//
+	auto attributes2_tab = Rows_Columns<2, 8>();
+	for (int q = 16; q < 32; q++)
+	{
+		attributes1_tab->add(l_attributes[q]);
 		attributes1_tab->add(w_attributes[q]);
-	auto attributes2_tab = Columns<8>();
-	for (int q = 0; q < 8; q++)
-		attributes1_tab->add(Label(text=l_attributes[q]));
-	for (int q = 0; q < 8; q++)
-		attributes1_tab->add(w_attributes[q]);
+	}
+	//
+	auto behaviors_tab = Rows<2>();
 	for (int q = 8; q < 16; q++)
-		attributes1_tab->add(Label(text=l_attributes[q]));
-	for (int q = 8; q < 16; q++)
-		attributes1_tab->add(w_attributes[q]);
-	auto attributes2_tab = Columns<8>();
-
+	{
+		behaviors_tab->add(MiscFlag(&local_guyref.editorflags, 1<<q));
+		behaviors_tab->add(l_bflags[q]);
+	}
 
 	auto basics_tab = TabPanel(
 		ptr = &guy_tabs[0],
@@ -1080,30 +1138,6 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 					
 				)
 			)),
-			TabRef(name = "Defenses 2", Row(
-				Columns<9>(vAlign = 0.0,
-					Label(text = "Sword Beam Defense"),
-					Label(text = "Ref. Beam Defense"),
-					Label(text = "Ref. Magic Defense"),
-					Label(text = "Ref. Fireball Defense"),
-					Label(text = "Ref. Rock Defense"),
-					Label(text = "Stomp Defense"),
-					Label(text = "Byrna Defense"),
-					//Label(text = "Quake Hammer Defense"),
-					Label(text = "Whistle Defense"),
-					Label(text = "SwitchHook Defense"),
-					DropDownField(&local_guyref.defense[edefBEAM], list_deftypes),
-					DropDownField(&local_guyref.defense[edefREFBEAM], list_deftypes),
-					DropDownField(&local_guyref.defense[edefREFMAGIC], list_deftypes),
-					DropDownField(&local_guyref.defense[edefREFBALL], list_deftypes),
-					DropDownField(&local_guyref.defense[edefREFROCK], list_deftypes),
-					DropDownField(&local_guyref.defense[edefSTOMP], list_deftypes),
-					DropDownField(&local_guyref.defense[edefBYRNA], list_deftypes),
-					//DropDownField(&local_guyref.defense[edefQUAKE], list_deftypes),
-					DropDownField(&local_guyref.defense[edefWhistle], list_deftypes),
-					DropDownField(&local_guyref.defense[edefSwitchHook], list_deftypes)
-				)
-			)),
 			TabRef(name = "Script", Row(
 				Columns<9>(vAlign = 0.0,
 					Label(text = "Custom Weapon 1 Defense"),
@@ -1136,18 +1170,113 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 		TabRef(name = "Flags", TabPanel(
 			ptr = &guy_tabs[5],
 			TabRef(name = "Basic Flags",
+				Columns<14>(
+					MiscFlag(&local_guyref.flags, guy_bhit),
+					MiscFlag(&local_guyref.flags, guy_invisible),
+					MiscFlag(&local_guyref.flags, guy_never_return),
+					MiscFlag(&local_guyref.flags, guy_doesnt_count),
+					MiscFlag(&local_guyref.flags2, guy_ignore_kill_all),
+					MiscFlag(&local_guyref.flags, guy_lens_only),
+					MiscFlag(&local_guyref.flags2, guy_flashing),
+					MiscFlag(&local_guyref.flags2, guy_blinking),
+					MiscFlag(&local_guyref.flags2, guy_transparent),
+					MiscFlag(&local_guyref.flags, guy_shield_front),
+					MiscFlag(&local_guyref.flags, guy_shield_left),
+					MiscFlag(&local_guyref.flags, guy_shield_right),
+					MiscFlag(&local_guyref.flags, guy_shield_back),
+					MiscFlag(&local_guyref.flags, guy_bkshield),
+					Label(text = "Damaged By Power 0 weapons"),
+					Label(text = "Does not draw"),
+					Label(text = "Never Returns After Death"),
+					Label(text = "Doesn't Count as Beatable Enemy"),
+					Label(text = "Ignored by \"Kill All Enemies\" effects"),
+					Label(text = "Can Only Be Seen By Lens of Truth"),
+					Label(text = "Is Flashing"),
+					Label(text = "Is Flickering"),
+					Label(text = "Is Translucent"),
+					Label(text = "Shield In Front", disabled = !HAS_SHIELD),
+					Label(text = "Shield On Left", disabled = !HAS_SHIELD),
+					Label(text = "Shield On Right", disabled = !HAS_SHIELD),
+					Label(text = "Shield In Back", disabled = !HAS_SHIELD),
+					Label(text = "Hammer Can Break Shield", disabled = !HAS_SHIELD)
+				)
 			),
 			TabRef(name = "Behavior Flags",
+				Column(
+					behaviors_tab
+				)
 			),
 			TabRef(name = "Spawn Flags",
-
+				Columns<14>(
+					MiscFlag(&local_guyref.flags2, guy_zora),
+					MiscFlag(&local_guyref.flags2, guy_rock),
+					MiscFlag(&local_guyref.flags2, guy_trap),
+					MiscFlag(&local_guyref.flags2, guy_trph),
+					MiscFlag(&local_guyref.flags2, guy_trpv),
+					MiscFlag(&local_guyref.flags2, guy_trp4),
+					MiscFlag(&local_guyref.flags2, guy_trplr),
+					MiscFlag(&local_guyref.flags2, guy_trpud),
+					MiscFlag(&local_guyref.flags2, guy_trp2),
+					MiscFlag(&local_guyref.flags2, guy_fire),
+					MiscFlag(&local_guyref.flags2, guy_armos),
+					MiscFlag(&local_guyref.flags2, guy_ghini),
+					MiscFlag(&local_guyref.flags2, guy_ganon),
+					MiscFlag(&local_guyref.flags2, guy_ignoretmpnr),
+					Label(text = "Damaged By Power 0 weapons"),
+					Label(text = "Does not draw"),
+					Label(text = "Never Returns After Death"),
+					Label(text = "Doesn't Count as Beatable Enemy"),
+					Label(text = "Ignored by \"Kill All Enemies\" effects"),
+					Label(text = "Can Only Be Seen By Lens of Truth"),
+					Label(text = "Is Flashing"),
+					Label(text = "Is Flickering"),
+					Label(text = "Is Translucent"),
+					Label(text = "Shield In Front", disabled = !HAS_SHIELD),
+					Label(text = "Shield On Left", disabled = !HAS_SHIELD),
+					Label(text = "Shield On Right", disabled = !HAS_SHIELD),
+					Label(text = "Shield In Back", disabled = !HAS_SHIELD),
+					Label(text = "Hammer Can Break Shield", disabled = !HAS_SHIELD)
+				)
 			)
 		))
 	);
 	auto movement_tab = TabPanel(
 		ptr = &guy_tabs[6],
 		TabRef(name = "Movement", TabPanel(
-			ptr = &guy_tabs[7]
+			ptr = &guy_tabs[7],
+			TabRef(name = "Move Flags",Row(
+				Columns<7>(
+					MiscFlag(&local_guyref.moveflags, move_obeys_grav),
+					MiscFlag(&local_guyref.moveflags, move_can_pitfall),
+					MiscFlag(&local_guyref.moveflags, move_can_pitwalk),
+					MiscFlag(&local_guyref.moveflags, move_can_waterdrown),
+					MiscFlag(&local_guyref.moveflags, move_can_waterwalk),
+					MiscFlag(&local_guyref.moveflags, move_new_movement),
+					MiscFlag(&local_guyref.moveflags, move_not_pushable),
+					Label(text = "Obeys Gravity"),
+					Label(text = "Can Fall Into Pitfalls"),
+					Label(text = "Can Walk Over Pitfalls"),
+					Label(text = "Can Drown In Liquid"),
+					Label(text = "Can Walk On Liquid"),
+					Label(text = "Use \'scripted movement flags\' for engine movement"),
+					Label(text = "Cannot be pushed by moving solid objects")
+				),
+				Label(text="Below flags are for scripted movement"),
+				Columns<6>(
+					MiscFlag(&local_guyref.moveflags, move_only_waterwalk),
+					MiscFlag(&local_guyref.moveflags, move_only_shallow_waterwalk),
+					MiscFlag(&local_guyref.moveflags, move_only_pitwalk),
+					MiscFlag(&local_guyref.moveflags, move_ignore_solidity),
+					MiscFlag(&local_guyref.moveflags, move_ignore_blockflags),
+					MiscFlag(&local_guyref.moveflags, move_ignore_screenedge),
+					Label(text = "Can ONLY walk on Liquid"),
+					Label(text = "Can ONLY walk on Shallow Liquid"),
+					Label(text = "Can ONLY walk on Pitfalls"),
+					Label(text = "Can walk through Solidity"),
+					Label(text = "Can walk through No Enemies Flags"),
+					Label(text = "Can walk through Screen Edge")
+				)
+			))
 		))
 	);
 	auto attack_tab = TabPanel(
@@ -1165,7 +1294,59 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 	auto scripts_tab = TabPanel(
 		ptr = &guy_tabs[12],
 		TabRef(name = "Scripts", TabPanel(
-			ptr = &guy_tabs[13]
+			ptr = &guy_tabs[13],
+			TabRef(name = "Action Script", Row(
+				Column(
+					ScriptField(0),
+					ScriptField(1),
+					ScriptField(2),
+					ScriptField(3),
+					ScriptField(4),
+					ScriptField(5),
+					ScriptField(6),
+					ScriptField(7)
+				),
+				Column(vAlign = 0.0,
+					Row(
+						padding = 0_px,
+						SCRIPT_LIST_PROC("NPC Action Script:", list_guyscripts, local_guyref.script, refreshScript)
+					)/*,
+					Checkbox(text = "Show Script Attrib Metadata",
+						checked = guy_use_script_data,
+						onToggleFunc = [&](bool state)
+						{
+							guy_use_script_data = state;
+							zc_set_config("zquest", "show_enemyscript_meta_attribs", state ? 1 : 0);
+							loadEnemyType();
+						})*/
+				)
+			)),
+			TabRef(name = "Weapon Script", Row(
+				Column(
+					WeaponScriptField(0),
+					WeaponScriptField(1),
+					WeaponScriptField(2),
+					WeaponScriptField(3),
+					WeaponScriptField(4),
+					WeaponScriptField(5),
+					WeaponScriptField(6),
+					WeaponScriptField(7)
+				),
+				Column(vAlign = 0.0,
+					Row(
+						padding = 0_px,
+						SCRIPT_LIST_PROC("Weapon Script:", list_ewpnscripts, local_guyref.weaponscript, refreshScript)
+					)/*,
+					Checkbox(text = "Show Script Attrib Metadata",
+						checked = guy_use_script_data,
+						onToggleFunc = [&](bool state)
+						{
+							guy_use_script_data = state;
+							zc_set_config("zquest", "show_enemyscript_meta_attribs", state ? 1 : 0);
+							loadEnemyType();
+						})*/
+				)
+			))
 		))
 	);
 	window = Window(

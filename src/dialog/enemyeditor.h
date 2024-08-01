@@ -41,7 +41,6 @@ private:
 	std::shared_ptr<GUI::Button> ib_initds[8], ib_wpninitds[8];
 	std::shared_ptr<GUI::Button> warnbtn;
 	std::shared_ptr<GUI::SelTileSwatch> tswatch[4];
-
 	std::shared_ptr<GUI::Label> l_attributes[32];
 	std::shared_ptr<GUI::Widget> w_attributes[32];
 	std::shared_ptr<GUI::Button> ib_attributes[32];
@@ -72,6 +71,10 @@ private:
 	std::shared_ptr<GUI::Widget> DropDownField(auto* field, GUI::ListData ls);
 
 	std::shared_ptr<GUI::Widget> MiscFlag(auto* bitstring, auto index);
+
+	std::shared_ptr<GUI::Widget> ScriptField(int index);
+
+	std::shared_ptr<GUI::Widget> WeaponScriptField(int index);
 	
 	friend bool call_enemy_editor(int32_t index);
 };
