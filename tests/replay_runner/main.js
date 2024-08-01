@@ -190,13 +190,19 @@ function render(view, state) {
 			break;
 		}
 		case 'results': {
+			if (state.error) {
+				find('.results__error', sectionEl).textContent = state.error;
+				return;
+			}
+
+			find('.results__error', sectionEl).textContent = '';
 			find('.results__name', sectionEl).textContent = state.name;
 
 			const listEl = find('.replays-list', sectionEl);
 			listEl.textContent = '';
 			const { results } = state || {};
 			if (!results) {
-				listEl.textContent = 'loading ...';
+				listEl.textContent = 'loading ... (this should only take a few seconds)';
 				return;
 			}
 

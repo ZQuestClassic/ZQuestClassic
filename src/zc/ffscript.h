@@ -793,7 +793,6 @@ bool runOnMapScriptEngine();
 void doScriptMenuDraws();
 void runOnSaveEngine();
 void initIncludePaths();
-void initRunString();
 void updateRunString();
 void updateIncludePaths();
 bool checkExtension(std::string &filename, const std::string &extension);
@@ -1049,7 +1048,6 @@ int32_t FF_lweapon_removal_bounds[4]; //left, right, top, bottom coordinates for
 
 std::vector<std::string> includePaths;
 char includePathString[MAX_INCLUDE_PATH_CHARS];
-char scriptRunString[21];
 int32_t warpex[wexLast];
 int32_t StdArray[256];
 int32_t GhostArray[256];

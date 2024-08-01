@@ -43284,7 +43284,6 @@ void FFScript::init()
 	subscreen_scroll_speed = 0; //make a define for a default and read quest override! -Z
 	kb_typing_mode = false;
 	initIncludePaths();
-	initRunString();
 	//clearRunningItemScripts();
 	tempScreens[0] = tmpscr;
 	ScrollingScreens[0] = tmpscr+1;
@@ -44345,12 +44344,6 @@ void FFScript::updateIncludePaths()
 		std::string str(buf);
 		includePaths.push_back(str);
 	}
-}
-
-void FFScript::initRunString()
-{
-	memset(scriptRunString,0,sizeof(scriptRunString));
-	strcpy(scriptRunString,zc_get_config("Compiler","run_string","run",App::zscript));
 }
 
 void FFScript::initIncludePaths()

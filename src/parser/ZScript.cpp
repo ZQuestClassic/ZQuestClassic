@@ -752,7 +752,7 @@ bool ZScript::isRun(Function const& function)
 {
 	return function.getExternalScope()->getParent()->isScript()
 		&& *function.returnType == DataType::ZVOID
-		&& (!( strcmp(function.name.c_str(), FFCore.scriptRunString )))
+		&& (!( strcmp(function.name.c_str(), "run" )))
 		&& (!(function.getFlag(FUNCFLAG_INLINE))) ;
 }
 

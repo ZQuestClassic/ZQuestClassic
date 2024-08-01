@@ -79,10 +79,10 @@ std::shared_ptr<GUI::Widget> VectorPickDialog<Sz>::view()
 			row->add(TextField(
 				maxwidth = 8_em, hPadding = 0_px,
 				type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
-				val = local_vec[ind]*10000,
+				val = local_vec[ind],
 				onValChangedFunc = [&, ind](GUI::TextField::type,std::string_view,int32_t val)
 				{
-					local_vec[ind] = val/10000;
+					local_vec[ind] = val;
 				}));
 		}
 		row->add(Button(
@@ -269,10 +269,10 @@ std::shared_ptr<GUI::Widget> MapPickDialog<Sz>::view()
 			row->add(TextField(
 				maxwidth = 8_em, hPadding = 0_px,
 				type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
-				val = local_map[k]*10000,
+				val = local_map[k],
 				onValChangedFunc = [&, k=k](GUI::TextField::type,std::string_view,int32_t val)
 				{
-					local_map[k] = val/10000;
+					local_map[k] = val;
 				}));
 		}
 		row->add(Button(
@@ -393,10 +393,10 @@ std::shared_ptr<GUI::Widget> NumPickDialog::view()
 			focused = true,
 			width = 8_em, hPadding = 0_px,
 			type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
-			val = local_val*10000, low = min*10000, high = max*10000,
+			val = local_val, low = min, high = max,
 			onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 			{
-				local_val = val/10000;
+				local_val = val;
 			});
 	}
 	std::shared_ptr<GUI::Widget> w, inflbl;

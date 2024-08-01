@@ -77,6 +77,11 @@ def glob(base_dir: Path, pattern: str):
     return [(base_dir, f) for f in files if f.is_file()]
 
 
+def glob_maybe(base_dir: Path, pattern: str):
+    files = list(base_dir.glob(pattern))
+    return [(base_dir, f) for f in files if f.is_file()]
+
+
 def files(base_dir: Path, files: List[str] = None):
     if files == None:
         return glob(base_dir, '**/*')
@@ -523,6 +528,6 @@ else:
             zc_files.append(crashpad_binary)
 
         if system == 'Linux' and 'PACKAGE_DEBUG_INFO' in os.environ:
-            zc_files += glob(build_dir, '*.debug')
+            zc_files += glob_maybe(build_dir, '*.debug')
 
     do_packaging(package_dir, zc_files, exclude_files=extras, include_licenses=True)
