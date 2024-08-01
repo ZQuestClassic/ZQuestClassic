@@ -617,6 +617,7 @@ void EnemyEditorDialog::loadEnemyType()
 		if (q > 15) continue;
 		l_bflags[q]->setText(l_bflag[q]);
 	}
+
 	updateWarnings();
 	pendDraw();
 }
@@ -1125,15 +1126,22 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 					DropDownField(&local_guyref.defense[edefSCRIPT08], list_deftypes),
 					DropDownField(&local_guyref.defense[edefSCRIPT09], list_deftypes),
 					DropDownField(&local_guyref.defense[edefSCRIPT10], list_deftypes)
-
 				)
 			))
+			//TODO ADD UNIMPLEMENTED DEFENSES
 		))
 	);
 	auto flags_tab = TabPanel(
 		ptr = &guy_tabs[4],
 		TabRef(name = "Flags", TabPanel(
-			ptr = &guy_tabs[5]
+			ptr = &guy_tabs[5],
+			TabRef(name = "Basic Flags",
+			),
+			TabRef(name = "Behavior Flags",
+			),
+			TabRef(name = "Spawn Flags",
+
+			)
 		))
 	);
 	auto movement_tab = TabPanel(
