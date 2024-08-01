@@ -25,7 +25,7 @@ char* ordinal(int32_t num);
 using std::string;
 using std::to_string;
 
-static size_t guy_tabs[8] = { 0 };
+static size_t guy_tabs[14] = { 0 };
 static bool guy_use_script_data = true;
 
 static bool edited = false;
@@ -505,7 +505,6 @@ void EnemyEditorDialog::loadEnemyType()
 		{
 			l_attribute[0] = "Segments:";
 			l_attribute[1] = "Item per segment:";
-=
 			l_bflag[2] = "BFlags[2]";
 			l_bflag[4] = "Obeys Spawn Points";
 			break;
@@ -774,83 +773,105 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 	w_attributes[29] = MiscAttribute(&local_guyref.misc30);
 	w_attributes[30] = MiscAttribute(&local_guyref.misc31);
 	w_attributes[31] = MiscAttribute(&local_guyref.misc32);
-
-	//WALKER
-	w_attributes[0] = DropDownField(&local_guyref.misc1, list_walkmisc1);
-	w_attributes[1] = DropDownField(&local_guyref.misc2, list_walkmisc2);
-	w_attributes[6] = DropDownField(&local_guyref.misc7, list_walkmisc7);
-	w_attributes[8] = DropDownField(&local_guyref.misc9, list_walkmisc9);
-
-	//FLOATER (unimplemented) (should i just use keese for em?)
-
-	//WORM (unimplemented)
-
-	//GLEEOK
-	w_attributes[2] = DropDownField(&local_guyref.misc3, list_gleeokmisc3);
-
-	//DIG
-	w_attributes[0] = DropDownField(&local_guyref.misc1, list_enemies);
-	w_attributes[1] = DropDownField(&local_guyref.misc2, list_enemies);
-	w_attributes[2] = DropDownField(&local_guyref.misc3, list_enemies);
-	w_attributes[3] = DropDownField(&local_guyref.misc4, list_enemies);
-	w_attributes[9] = DropDownField(&local_guyref.misc10, list_digdoggermisc10);
-
-	//PATRA
-	w_attributes[3] = DropDownField(&local_guyref.misc4, list_patramisc4);
-	w_attributes[4] = DropDownField(&local_guyref.misc5, list_patramisc5);
-	w_attributes[9] = DropDownField(&local_guyref.misc10, list_patramisc10);
-	w_attributes[19] = DropDownField(&local_guyref.misc20, list_patramisc20);
-	w_attributes[21] = DropDownField(&local_guyref.misc22, list_patramisc22);
-	w_attributes[24] = DropDownField(&local_guyref.misc25, list_patramisc25);
-	w_attributes[25] = DropDownField(&local_guyref.misc26, list_patramisc26);
-	w_attributes[28] = DropDownField(&local_guyref.misc28, list_patramisc28);
-
-	//PROJECTILE
-	w_attributes[0] = DropDownField(&local_guyref.misc1, list_walkmisc1);
 	
-	//GHOMA
-	w_attributes[0] = DropDownField(&local_guyref.misc1, list_gohmamisc1);
-	
-	//AQUAMENTUS
-	w_attributes[0] = DropDownField(&local_guyref.misc1, list_aquamisc1);
+	switch (local_guyref.family)
+	{
+		case eeWALK:
+			w_attributes[0] = DropDownField(&local_guyref.misc1, list_walkmisc1);
+			w_attributes[1] = DropDownField(&local_guyref.misc2, list_walkmisc2);
+			w_attributes[6] = DropDownField(&local_guyref.misc7, list_walkmisc7);
+			w_attributes[8] = DropDownField(&local_guyref.misc9, list_walkmisc9);
+			break;
+			//case eeFLOATER:
+			//case eeWORM:
+		case eeGLEEOK:
+			w_attributes[2] = DropDownField(&local_guyref.misc3, list_gleeokmisc3);
+			break;
+		case eeDIG:
+			w_attributes[0] = DropDownField(&local_guyref.misc1, list_enemies);
+			w_attributes[1] = DropDownField(&local_guyref.misc2, list_enemies);
+			w_attributes[2] = DropDownField(&local_guyref.misc3, list_enemies);
+			w_attributes[3] = DropDownField(&local_guyref.misc4, list_enemies);
+			w_attributes[9] = DropDownField(&local_guyref.misc10, list_digdoggermisc10);
+			break;
+		case eePATRA:
+			w_attributes[3] = DropDownField(&local_guyref.misc4, list_patramisc4);
+			w_attributes[4] = DropDownField(&local_guyref.misc5, list_patramisc5);
+			w_attributes[9] = DropDownField(&local_guyref.misc10, list_patramisc10);
+			w_attributes[19] = DropDownField(&local_guyref.misc20, list_patramisc20);
+			w_attributes[21] = DropDownField(&local_guyref.misc22, list_patramisc22);
+			w_attributes[24] = DropDownField(&local_guyref.misc25, list_patramisc25);
+			w_attributes[25] = DropDownField(&local_guyref.misc26, list_patramisc26);
+			w_attributes[28] = DropDownField(&local_guyref.misc28, list_patramisc28);
+			break;
+		case eePROJECTILE:
+			w_attributes[0] = DropDownField(&local_guyref.misc1, list_walkmisc1);
+			break;
+		case eeGHOMA:
+			w_attributes[0] = DropDownField(&local_guyref.misc1, list_gohmamisc1);
+			break;
+		case eeAQUA:
+			w_attributes[0] = DropDownField(&local_guyref.misc1, list_aquamisc1);
+			break;
+		case eeMANHAN:
+			w_attributes[1] = DropDownField(&local_guyref.misc2, list_manhandlamisc2);
+			break;
+		case eeLANM:
+			w_attributes[2] = DropDownField(&local_guyref.misc3, list_yesnomisc);
+			break;
+		case eeMOLD:
+			w_attributes[1] = DropDownField(&local_guyref.misc2, list_yesnomisc);
+			break;
+		case eeWIZZ:
+			w_attributes[0] = DropDownField(&local_guyref.misc1, list_wizzrobemisc1);
+			w_attributes[1] = DropDownField(&local_guyref.misc2, list_wizzrobemisc2);
+			w_attributes[3] = DropDownField(&local_guyref.misc4, list_yesnomisc);
+			break;
+		case eeDONGO:
+			w_attributes[9] = DropDownField(&local_guyref.misc10, list_dodongomisc10);
+			break;
+		case eeKEESE:
+			w_attributes[0] = DropDownField(&local_guyref.misc1, list_keesemisc1);
+			w_attributes[1] = DropDownField(&local_guyref.misc2, list_keesemisc2);
+			w_attributes[2] = DropDownField(&local_guyref.misc3, list_enemies);
+			break;
+		case eeLEV:
+			w_attributes[0] = DropDownField(&local_guyref.misc1, list_leevermisc1);
+			break;
+		case eeWALLM:
+			w_attributes[0] = DropDownField(&local_guyref.misc1, list_noyesmisc);
+			break;
+		case eeTRAP:
+			w_attributes[0] = DropDownField(&local_guyref.misc1, list_trapmisc1);
+			w_attributes[1] = DropDownField(&local_guyref.misc2, list_trapmisc2);
+			break;
+		case eeROCK:
+			w_attributes[9] = DropDownField(&local_guyref.misc10, list_rockmisc10);
+			break;
+		case eeNONE: //(Boss Death Triggers)
+			w_attributes[9] = DropDownField(&local_guyref.misc10, list_yesnomisc);
+			break;
+	}
+	auto attributes1_tab = Columns<8>();
+	for (int q = 0; q < 8; q++)
+		attributes1_tab->add(Label(text=l_attributes[q]));
+	for (int q = 0; q < 8; q++)
+		attributes1_tab->add(w_attributes[q]);
+	for (int q = 8; q < 16; q++)
+		attributes1_tab->add(Label(text=l_attributes[q]));
+	for (int q = 8; q < 16; q++)
+		attributes1_tab->add(w_attributes[q]);
+	auto attributes2_tab = Columns<8>();
+	for (int q = 0; q < 8; q++)
+		attributes1_tab->add(Label(text=l_attributes[q]));
+	for (int q = 0; q < 8; q++)
+		attributes1_tab->add(w_attributes[q]);
+	for (int q = 8; q < 16; q++)
+		attributes1_tab->add(Label(text=l_attributes[q]));
+	for (int q = 8; q < 16; q++)
+		attributes1_tab->add(w_attributes[q]);
+	auto attributes2_tab = Columns<8>();
 
-	//MANHANDLA
-	w_attributes[1] = DropDownField(&local_guyref.misc2, list_manhandlamisc2);
-
-	//LANMOLA
-	w_attributes[2] = DropDownField(&local_guyref.misc3, list_yesnomisc);
-
-	//MOLDORM
-	w_attributes[1] = DropDownField(&local_guyref.misc2, list_yesnomisc);
-
-	//WIZZ
-	w_attributes[0] = DropDownField(&local_guyref.misc1, list_wizzrobemisc1);
-	w_attributes[1] = DropDownField(&local_guyref.misc2, list_wizzrobemisc2);
-	w_attributes[3] = DropDownField(&local_guyref.misc4, list_yesnomisc);
-
-	//DODONGO
-	w_attributes[9] = DropDownField(&local_guyref.misc10, list_dodongomisc10);
-
-	//KEESE
-	w_attributes[0] = DropDownField(&local_guyref.misc1, list_keesemisc1);
-	w_attributes[1] = DropDownField(&local_guyref.misc2, list_keesemisc2);
-	w_attributes[2] = DropDownField(&local_guyref.misc3, list_enemies);
-
-	//LEV
-	w_attributes[0] = DropDownField(&local_guyref.misc1, list_leevermisc1);
-
-	//WALLM
-	w_attributes[0] = DropDownField(&local_guyref.misc1, list_noyesmisc);
-
-	//TRAP
-	w_attributes[0] = DropDownField(&local_guyref.misc1, list_trapmisc1);
-	w_attributes[1] = DropDownField(&local_guyref.misc2, list_trapmisc2);
-
-	//ROCK
-	w_attributes[9] = DropDownField(&local_guyref.misc10, list_rockmisc10);
-
-	//NONE (Boss Death Triggers)
-	w_attributes[9] = DropDownField(&local_guyref.misc10, list_yesnomisc);
 
 	auto basics_tab = TabPanel(
 		ptr = &guy_tabs[0],
@@ -925,18 +946,18 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 					),
 					Row(
 						Columns<3>(
-							Label(text="Type"),
-							Label(text="Old Anim:"),
-							Label(text="New Anim:"),
-							DropDownField(&local_guyref.family,list_families),
+							Label(text = "Type"),
+							Label(text = "Old Anim:"),
+							Label(text = "New Anim:"),
+							DropDownField(&local_guyref.family, list_families),
 							DropDownField(&local_guyref.anim, list_animations),
 							DropDownField(&local_guyref.e_anim, list_animations),
 							Row(
 								//this one is a bit special there is no flag it just sets cset to 14
 								Checkbox(
 									text = "Use Boss Pal", hAlign = 0.0,
-									checked = local_guyref.cset==14,
-									fitParent=true,
+									checked = local_guyref.cset == 14,
+									fitParent = true,
 									onToggleFunc = [&](bool state)
 									{
 										local_guyref.cset = state ? 14 : 8;
@@ -949,21 +970,16 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 						)
 					),
 					Row(
-						Label(text="Item Set:"),
+						Label(text = "Item Set:"),
 						DropDownField(&local_guyref.item_set, list_dropsets)
 					)
 				)
 			)),
 			TabRef(name = "Attributes 1", Row(
-				Columns<16>(
-					Switcher(
-
-					)
-				)
+				attributes1_tab
 			)),
 			TabRef(name = "Attributes 2", Row(
-				Columns<16>(
-				)
+				attributes2_tab
 			)),
 			TabRef(name = "Size Flags", Row(
 				Columns<10>(
@@ -1005,31 +1021,143 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 	auto defenses_tab = TabPanel(
 		ptr = &guy_tabs[2],
 		TabRef(name = "Defenses", TabPanel(
+			ptr = &guy_tabs[3],
+			TabRef(name = "Defenses 1", Row(
+				Columns<10>(vAlign = 0.0,
+					Label(text = "Brang Defense"),
+					Label(text = "Bomb Defense"),
+					Label(text = "Super Bomb Defense"),
+					Label(text = "Arrow Defense"),
+					Label(text = "Fire Defense"),
+					Label(text = "Wand Defense"),
+					Label(text = "Magic Defense"),
+					Label(text = "Hookshot Defense"),
+					Label(text = "Hammer Defense"),
+					Label(text = "Sword Defense"),
+					DropDownField(&local_guyref.defense[edefBRANG], list_deftypes),
+					DropDownField(&local_guyref.defense[edefBOMB], list_deftypes),
+					DropDownField(&local_guyref.defense[edefSBOMB], list_deftypes),
+					DropDownField(&local_guyref.defense[edefARROW], list_deftypes),
+					DropDownField(&local_guyref.defense[edefFIRE], list_deftypes),
+					DropDownField(&local_guyref.defense[edefWAND], list_deftypes),
+					DropDownField(&local_guyref.defense[edefMAGIC], list_deftypes),
+					DropDownField(&local_guyref.defense[edefHOOKSHOT], list_deftypes),
+					DropDownField(&local_guyref.defense[edefHAMMER], list_deftypes),
+					DropDownField(&local_guyref.defense[edefSWORD], list_deftypes),
+					Button(text = "Set All",
+						disabled = false, //this should always be enabled
+						onPressFunc = [&]()
+						{
+							for(int q=0; q<edefLAST255;++q)
+								local_guyref.defense[q] = local_guyref.defense[edefBRANG];
+						}
+					)
+				)
+			)),
+			TabRef(name = "Defenses 2", Row(
+				Columns<9>(vAlign = 0.0,
+					Label(text = "Sword Beam Defense"),
+					Label(text = "Ref. Beam Defense"),
+					Label(text = "Ref. Magic Defense"),
+					Label(text = "Ref. Fireball Defense"),
+					Label(text = "Ref. Rock Defense"),
+					Label(text = "Stomp Defense"),
+					Label(text = "Byrna Defense"),
+					//Label(text = "Quake Hammer Defense"),
+					Label(text = "Whistle Defense"),
+					Label(text = "SwitchHook Defense"),
+					DropDownField(&local_guyref.defense[edefBEAM], list_deftypes),
+					DropDownField(&local_guyref.defense[edefREFBEAM], list_deftypes),
+					DropDownField(&local_guyref.defense[edefREFMAGIC], list_deftypes),
+					DropDownField(&local_guyref.defense[edefREFBALL], list_deftypes),
+					DropDownField(&local_guyref.defense[edefREFROCK], list_deftypes),
+					DropDownField(&local_guyref.defense[edefSTOMP], list_deftypes),
+					DropDownField(&local_guyref.defense[edefBYRNA], list_deftypes),
+					//DropDownField(&local_guyref.defense[edefQUAKE], list_deftypes),
+					DropDownField(&local_guyref.defense[edefWhistle], list_deftypes),
+					DropDownField(&local_guyref.defense[edefSwitchHook], list_deftypes)
+					
+				)
+			)),
+			TabRef(name = "Defenses 2", Row(
+				Columns<9>(vAlign = 0.0,
+					Label(text = "Sword Beam Defense"),
+					Label(text = "Ref. Beam Defense"),
+					Label(text = "Ref. Magic Defense"),
+					Label(text = "Ref. Fireball Defense"),
+					Label(text = "Ref. Rock Defense"),
+					Label(text = "Stomp Defense"),
+					Label(text = "Byrna Defense"),
+					//Label(text = "Quake Hammer Defense"),
+					Label(text = "Whistle Defense"),
+					Label(text = "SwitchHook Defense"),
+					DropDownField(&local_guyref.defense[edefBEAM], list_deftypes),
+					DropDownField(&local_guyref.defense[edefREFBEAM], list_deftypes),
+					DropDownField(&local_guyref.defense[edefREFMAGIC], list_deftypes),
+					DropDownField(&local_guyref.defense[edefREFBALL], list_deftypes),
+					DropDownField(&local_guyref.defense[edefREFROCK], list_deftypes),
+					DropDownField(&local_guyref.defense[edefSTOMP], list_deftypes),
+					DropDownField(&local_guyref.defense[edefBYRNA], list_deftypes),
+					//DropDownField(&local_guyref.defense[edefQUAKE], list_deftypes),
+					DropDownField(&local_guyref.defense[edefWhistle], list_deftypes),
+					DropDownField(&local_guyref.defense[edefSwitchHook], list_deftypes)
+				)
+			)),
+			TabRef(name = "Script", Row(
+				Columns<9>(vAlign = 0.0,
+					Label(text = "Custom Weapon 1 Defense"),
+					Label(text = "Custom Weapon 2 Defense"),
+					Label(text = "Custom Weapon 3 Defense"),
+					Label(text = "Custom Weapon 4 Defense"),
+					Label(text = "Custom Weapon 5 Defense"),
+					Label(text = "Custom Weapon 6 Defense"),
+					Label(text = "Custom Weapon 7 Defense"),
+					Label(text = "Custom Weapon 8 Defense"),
+					Label(text = "Custom Weapon 9 Defense"),
+					Label(text = "Custom Weapon 10 Defense"),
+					DropDownField(&local_guyref.defense[edefSCRIPT01], list_deftypes),
+					DropDownField(&local_guyref.defense[edefSCRIPT02], list_deftypes),
+					DropDownField(&local_guyref.defense[edefSCRIPT03], list_deftypes),
+					DropDownField(&local_guyref.defense[edefSCRIPT04], list_deftypes),
+					DropDownField(&local_guyref.defense[edefSCRIPT05], list_deftypes),
+					DropDownField(&local_guyref.defense[edefSCRIPT06], list_deftypes),
+					DropDownField(&local_guyref.defense[edefSCRIPT07], list_deftypes),
+					DropDownField(&local_guyref.defense[edefSCRIPT08], list_deftypes),
+					DropDownField(&local_guyref.defense[edefSCRIPT09], list_deftypes),
+					DropDownField(&local_guyref.defense[edefSCRIPT10], list_deftypes)
+
+				)
+			))
 		))
 	);
 	auto flags_tab = TabPanel(
-		ptr = &guy_tabs[3],
+		ptr = &guy_tabs[4],
 		TabRef(name = "Flags", TabPanel(
+			ptr = &guy_tabs[5]
 		))
 	);
 	auto movement_tab = TabPanel(
-		ptr = &guy_tabs[4],
+		ptr = &guy_tabs[6],
 		TabRef(name = "Movement", TabPanel(
+			ptr = &guy_tabs[7]
 		))
 	);
 	auto attack_tab = TabPanel(
-		ptr = &guy_tabs[5],
+		ptr = &guy_tabs[8],
 		TabRef(name = "Attack", TabPanel(
+			ptr = &guy_tabs[9]
 		))
 	);
 	auto effects_tab = TabPanel(
-		ptr = &guy_tabs[6],
+		ptr = &guy_tabs[10],
 		TabRef(name = "Effects", TabPanel(
+			ptr = &guy_tabs[11]
 		))
 	);
 	auto scripts_tab = TabPanel(
-		ptr = &guy_tabs[7],
+		ptr = &guy_tabs[12],
 		TabRef(name = "Scripts", TabPanel(
+			ptr = &guy_tabs[13]
 		))
 	);
 	window = Window(
