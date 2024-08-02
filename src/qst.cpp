@@ -14321,7 +14321,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 		for ( int32_t q = 0; q < 8; q++ ) tempguy.initD[q] = 0; //Script Data
 		for ( int32_t q = 0; q < 2; q++ ) tempguy.initA[q] = 0; //Script Data
 		
-		for ( int32_t q = 0; q < 32; q++) tempguy.attributes[15+q] = 0; //misc 16-32
+		for ( int32_t q = 15; q < 32; q++) tempguy.attributes[q] = 0; //misc 16-32
 
 		//old default sounds
 		if ( tempguy.firesfx <= 0 )
