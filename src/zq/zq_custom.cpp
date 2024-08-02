@@ -4673,7 +4673,6 @@ void edit_enemydata(int32_t index)
 		 frt[8], efr[8], bsp[8];
 	char w[8],h[8],sw[8],sh[8],ew[8],eh[8];
 	char name[64];
-	char ms[12][8];
 	char attribs[32][8];
 	char enemynumstr[75];
 	char hitx[8], hity[8], hitz[8], tiley[8], tilex[8], hitofsx[8], hitofsy[8], hitofsz[8], drawofsx[8], drawofsy[8];
@@ -4828,7 +4827,6 @@ void edit_enemydata(int32_t index)
 	
 	for (int q = 0; q < 32; ++q)
 	{
-		sprintf(ms[q], "%d", guysbuf[index].attributes[q]);
 		sprintf(attribs[q], "%d", guysbuf[index].attributes[q]);
 	}
 	
@@ -5003,11 +5001,11 @@ void edit_enemydata(int32_t index)
 				int32_t size = 0;
 				((ListData*)enedata_dlg[64+i].dp)->listFunc(-1,&size);
 				// Bound ms[i] as well as enedata_dlg[64+i].d1
-				sprintf(ms[i],"%d",vbound(atoi(ms[i]), 0, size));
-				enedata_dlg[64+i].d1 = atoi(ms[i]);
+				sprintf(attribs[i],"%d",vbound(atoi(attribs[i]), 0, size));
+				enedata_dlg[64+i].d1 = atoi(attribs[i]);
 			}
 			else
-				enedata_dlg[64+i].dp = ms[i];
+				enedata_dlg[64+i].dp = attribs[i];
 		}
 		for ( int32_t q = 10; q < 16; q++ )
 		{
@@ -5046,10 +5044,6 @@ void edit_enemydata(int32_t index)
 				enedata_dlg[326+(q-24)].dp = attribs[q];
 		}
 		
-		enedata_dlg[189].dp = ms[10]; //These two are unused. Misc 11 and Misc 12 use attribs now
-		enedata_dlg[190].dp = ms[11];
-		
-		
 		enedata_dlg[278].dp = attribs[0];
 		enedata_dlg[279].dp = attribs[1];
 		enedata_dlg[280].dp = attribs[2];
@@ -5061,7 +5055,7 @@ void edit_enemydata(int32_t index)
 		
 		enedata_dlg[294].dp = attribs[8];
 		enedata_dlg[295].dp = attribs[9];
-		/*
+		
 		enedata_dlg[296].dp = attribs[10];
 		enedata_dlg[297].dp = attribs[11];
 		enedata_dlg[298].dp = attribs[12];
@@ -5085,7 +5079,7 @@ void edit_enemydata(int32_t index)
 		enedata_dlg[330].dp = attribs[28];
 		enedata_dlg[331].dp = attribs[29];
 		enedata_dlg[332].dp = attribs[30];
-		enedata_dlg[333].dp = attribs[31];*/
+		enedata_dlg[333].dp = attribs[31];
 		
 		ret = do_zqdialog(enedata_dlg,3);
 		
@@ -5139,16 +5133,16 @@ void edit_enemydata(int32_t index)
 				test.spr_spawn = biw[j].i;
 		}
 		
-		test.attributes[0] = (enedata_dlg[64].proc == jwin_droplist_proc) ? enedata_dlg[64].d1 : atol(ms[0]);
-		test.attributes[1] = (enedata_dlg[65].proc==jwin_droplist_proc) ? enedata_dlg[65].d1 : atol(ms[1]);
-		test.attributes[2] = (enedata_dlg[66].proc==jwin_droplist_proc) ? enedata_dlg[66].d1 : atol(ms[2]);
-		test.attributes[3] = (enedata_dlg[67].proc==jwin_droplist_proc) ? enedata_dlg[67].d1 : atol(ms[3]);
-		test.attributes[4] = (enedata_dlg[68].proc==jwin_droplist_proc) ? enedata_dlg[68].d1 : atol(ms[4]);
-		test.attributes[5] = (enedata_dlg[69].proc==jwin_droplist_proc) ? enedata_dlg[69].d1 : atol(ms[5]);
-		test.attributes[6] = (enedata_dlg[70].proc==jwin_droplist_proc) ? enedata_dlg[70].d1 : atol(ms[6]);
-		test.attributes[7] = (enedata_dlg[71].proc==jwin_droplist_proc) ? enedata_dlg[71].d1 : atol(ms[7]);
-		test.attributes[8] = (enedata_dlg[72].proc==jwin_droplist_proc) ? enedata_dlg[72].d1 : atol(ms[8]);
-		test.attributes[9] = (enedata_dlg[73].proc==jwin_droplist_proc) ? enedata_dlg[73].d1 : atol(ms[9]);
+		test.attributes[0] = (enedata_dlg[64].proc == jwin_droplist_proc) ? enedata_dlg[64].d1 : atol(attribs[0]);
+		test.attributes[1] = (enedata_dlg[65].proc==jwin_droplist_proc) ? enedata_dlg[65].d1 : atol(attribs[1]);
+		test.attributes[2] = (enedata_dlg[66].proc==jwin_droplist_proc) ? enedata_dlg[66].d1 : atol(attribs[2]);
+		test.attributes[3] = (enedata_dlg[67].proc==jwin_droplist_proc) ? enedata_dlg[67].d1 : atol(attribs[3]);
+		test.attributes[4] = (enedata_dlg[68].proc==jwin_droplist_proc) ? enedata_dlg[68].d1 : atol(attribs[4]);
+		test.attributes[5] = (enedata_dlg[69].proc==jwin_droplist_proc) ? enedata_dlg[69].d1 : atol(attribs[5]);
+		test.attributes[6] = (enedata_dlg[70].proc==jwin_droplist_proc) ? enedata_dlg[70].d1 : atol(attribs[6]);
+		test.attributes[7] = (enedata_dlg[71].proc==jwin_droplist_proc) ? enedata_dlg[71].d1 : atol(attribs[7]);
+		test.attributes[8] = (enedata_dlg[72].proc==jwin_droplist_proc) ? enedata_dlg[72].d1 : atol(attribs[8]);
+		test.attributes[9] = (enedata_dlg[73].proc==jwin_droplist_proc) ? enedata_dlg[73].d1 : atol(attribs[9]);
 		test.attributes[10] = (enedata_dlg[296].proc==jwin_droplist_proc) ? enedata_dlg[296].d1 : atol(attribs[10]);
 		test.attributes[11] = (enedata_dlg[297].proc==jwin_droplist_proc) ? enedata_dlg[297].d1 : atol(attribs[11]);
 		test.attributes[12] = (enedata_dlg[298].proc==jwin_droplist_proc) ? enedata_dlg[298].d1 : atol(attribs[12]);
