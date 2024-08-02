@@ -25,7 +25,7 @@ char* ordinal(int32_t num);
 using std::string;
 using std::to_string;
 
-static size_t guy_tabs[14] = { 0 };
+static size_t guy_tabs[15] = { 0 };
 static bool guy_use_script_data = true;
 
 static bool edited = false;
@@ -41,8 +41,8 @@ bool call_enemy_editor(int32_t index)
 EnemyEditorDialog::EnemyEditorDialog(guydata const& ref, int32_t index) :
 	index(index), local_guyref(ref), enemy_name(guy_string[index]),
 	list_enemies(GUI::ZCListData::enemies(true)),
-	list_families(GUI::ZCListData::efamilies(true)),
-	list_animations(GUI::ZCListData::eanimations(true)),
+	list_families(GUI::ZCListData::efamilies()),
+	list_animations(GUI::ZCListData::eanimations()),
 	list_guyscripts(GUI::ZCListData::npc_script()),
 	list_ewpnscripts(GUI::ZCListData::eweapon_script()),
 	list_sfx(GUI::ZCListData::sfxnames(true)),
@@ -1001,9 +1001,9 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 	}
 
 	auto basics_tab = TabPanel(
-		ptr = &guy_tabs[0],
+		ptr = &guy_tabs[1],
 		TabRef(name = "Basics", TabPanel(
-			ptr = &guy_tabs[1],
+			ptr = &guy_tabs[2],
 			TabRef(name = "Data", Row(
 				Column(
 					Row(
@@ -1146,9 +1146,9 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 	);
 
 	auto defenses_tab = TabPanel(
-		ptr = &guy_tabs[2],
+		ptr = &guy_tabs[3],
 		TabRef(name = "Defenses", TabPanel(
-			ptr = &guy_tabs[3],
+			ptr = &guy_tabs[4],
 			TabRef(name = "Defenses 1", Row(
 				Columns<10>(vAlign = 0.0,
 					Label(text = "Brang Defense"),
@@ -1200,7 +1200,7 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 					DropDownField(&local_guyref.defense[edefREFROCK], list_deftypes),
 					DropDownField(&local_guyref.defense[edefSTOMP], list_deftypes),
 					DropDownField(&local_guyref.defense[edefBYRNA], list_deftypes),
-					//DropDownField(&local_guyref.defense[edefQUAKE], list_deftypes),
+					DropDownField(&local_guyref.defense[edefQUAKE], list_deftypes),
 					DropDownField(&local_guyref.defense[edefWhistle], list_deftypes),
 					DropDownField(&local_guyref.defense[edefSwitchHook], list_deftypes)
 					
@@ -1230,13 +1230,12 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 					DropDownField(&local_guyref.defense[edefSCRIPT10], list_deftypes)
 				)
 			))
-			//TODO ADD UNIMPLEMENTED DEFENSES
 		))
 	);
 	auto flags_tab = TabPanel(
-		ptr = &guy_tabs[4],
+		ptr = &guy_tabs[5],
 		TabRef(name = "Flags", TabPanel(
-			ptr = &guy_tabs[5],
+			ptr = &guy_tabs[6],
 			TabRef(name = "Basic Flags",
 				Columns<14>(
 					MiscFlag(&local_guyref.flags, guy_bhit),
@@ -1309,9 +1308,9 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 		))
 	);
 	auto movement_tab = TabPanel(
-		ptr = &guy_tabs[6],
+		ptr = &guy_tabs[7],
 		TabRef(name = "Movement", TabPanel(
-			ptr = &guy_tabs[7],
+			ptr = &guy_tabs[8],
 			TabRef(name = "Move Flags",Row(
 				Columns<7>(
 					MiscFlag(&local_guyref.moveflags, move_obeys_grav),
@@ -1348,21 +1347,21 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 		))
 	);
 	auto attack_tab = TabPanel(
-		ptr = &guy_tabs[8],
+		ptr = &guy_tabs[9],
 		TabRef(name = "Attack", TabPanel(
-			ptr = &guy_tabs[9]
+			ptr = &guy_tabs[10]
 		))
 	);
 	auto effects_tab = TabPanel(
-		ptr = &guy_tabs[10],
+		ptr = &guy_tabs[11],
 		TabRef(name = "Effects", TabPanel(
-			ptr = &guy_tabs[11]
+			ptr = &guy_tabs[12]
 		))
 	);
 	auto scripts_tab = TabPanel(
-		ptr = &guy_tabs[12],
+		ptr = &guy_tabs[13],
 		TabRef(name = "Scripts", TabPanel(
-			ptr = &guy_tabs[13],
+			ptr = &guy_tabs[14],
 			TabRef(name = "Action Script", Row(
 				Column(
 					ScriptField(0),
@@ -1378,7 +1377,7 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 					Row(
 						padding = 0_px,
 						SCRIPT_LIST_PROC("NPC Action Script:", list_guyscripts, local_guyref.script, refreshScript)
-					)/*,
+					),
 					Checkbox(text = "Show Script Attrib Metadata",
 						checked = guy_use_script_data,
 						onToggleFunc = [&](bool state)
@@ -1386,7 +1385,7 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 							guy_use_script_data = state;
 							zc_set_config("zquest", "show_enemyscript_meta_attribs", state ? 1 : 0);
 							loadEnemyType();
-						})*/
+						})
 				)
 			)),
 			TabRef(name = "Weapon Script", Row(
@@ -1404,7 +1403,7 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 					Row(
 						padding = 0_px,
 						SCRIPT_LIST_PROC("Weapon Script:", list_ewpnscripts, local_guyref.weaponscript, refreshScript)
-					)/*,
+					),
 					Checkbox(text = "Show Script Attrib Metadata",
 						checked = guy_use_script_data,
 						onToggleFunc = [&](bool state)
@@ -1412,7 +1411,7 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 							guy_use_script_data = state;
 							zc_set_config("zquest", "show_enemyscript_meta_attribs", state ? 1 : 0);
 							loadEnemyType();
-						})*/
+						})
 				)
 			))
 		))
@@ -1427,13 +1426,14 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 		},
 		Column(
 			TabPanel(
-				TabRef(name = "Basics", basics_tab),
-				TabRef(name = "Defenses",defenses_tab),
-				TabRef(name = "Flags",flags_tab),
-				TabRef(name = "Movement",movement_tab),
-				TabRef(name = "Attack",attack_tab),
-				TabRef(name = "Effects",effects_tab),
-				TabRef(name = "Scripts",scripts_tab)
+				ptr = &guy_tabs[0],
+				TabRef(name = "Basics", basics_tab)//,
+				//TabRef(name = "Defenses",defenses_tab),
+				//TabRef(name = "Flags",flags_tab),
+				//TabRef(name = "Movement",movement_tab),
+				//TabRef(name = "Attack",attack_tab),
+				//TabRef(name = "Effects",effects_tab),
+				//TabRef(name = "Scripts",scripts_tab)
 			),
 			Row(
 				vAlign = 1.0,

@@ -220,63 +220,47 @@ GUI::ListData GUI::ZCListData::enemies(bool numbered, bool defaultFilter)
 	return ls;
 }
 
-GUI::ListData GUI::ZCListData::efamilies(bool defaultFilter)
+GUI::ListData GUI::ZCListData::efamilies()
 {
-	map<std::string, int32_t> fams;
-	std::set<std::string> names;
+	std::map<std::string, int32_t> vals;
 
-	for (int32_t q = 0; q < eeMAX; ++q)
-	{
-		if (defaultFilter)
-		{
-			if (enetype_string[q][0] == '-')
-				continue; //'Hidden' enemies
-		}
-		if (q == eeNONE)
-			continue; //None gets filtered out and put at the beginning
-		char const* famname = enetype_string[q];
-		std::string name = famname;
-
-		fams[name] = q;
-		names.insert(name);
-	}
+	std::string none(moduledata.enem_type_names[0]);
+	if (skipchar(moduledata.enem_type_names[0][0]))
+		none = "(None)";
 
 	GUI::ListData ls;
-	ls.add("(None)", eeNONE);
-	for (auto it = names.begin(); it != names.end(); ++it)
+	ls.add(none, 0);
+	for (int32_t i = 1; i < 41; ++i)
 	{
-		ls.add(*it, fams[*it]);
+		if (skipchar(moduledata.enem_type_names[i][0]))
+			continue;
+
+		std::string sname(moduledata.enem_type_names[i]);
+		ls.add(sname, i);
 	}
+
 	return ls;
 }
 
-GUI::ListData GUI::ZCListData::eanimations(bool defaultFilter)
+GUI::ListData GUI::ZCListData::eanimations()
 {
-	map<std::string, int32_t> fams;
-	std::set<std::string> names;
+	std::map<std::string, int32_t> vals;
 
-	for (int32_t q = 0; q < aMAX; ++q)
-	{
-		if (defaultFilter)
-		{
-			if (eneanim_string[q][0] == '-')
-				continue; //'Hidden' enemies
-		}
-		if (q == aNONE)
-			continue; //None gets filtered out and put at the beginning
-		char const* famname = eneanim_string[q];
-		std::string name = famname;
-
-		fams[name] = q;
-		names.insert(name);
-	}
+	std::string none(moduledata.enem_anim_type_names[0]);
+	if (skipchar(moduledata.enem_anim_type_names[0][0]))
+		none = "(None)";
 
 	GUI::ListData ls;
-	ls.add("(None)", aNONE);
-	for (auto it = names.begin(); it != names.end(); ++it)
+	ls.add(none, 0);
+	for (int32_t i = 1; i < 41; ++i)
 	{
-		ls.add(*it, fams[*it]);
+		if (skipchar(moduledata.enem_anim_type_names[i][0]))
+			continue;
+
+		std::string sname(moduledata.enem_anim_type_names[i]);
+		ls.add(sname, i);
 	}
+
 	return ls;
 }
 
