@@ -614,6 +614,13 @@ void EnemyEditorDialog::loadEnemyType()
 	for (size_t q = 0; q < 32; ++q)
 	{
 		l_attributes[q]->setText(l_attribute[q]);
+		tf_attributes[q]->setLowBound(-999999);
+		tf_attributes[q]->setHighBound(999999);
+		if (sw_attributes[q]->getCurrentIndex() != 0) // change this 0 to a constant representing the textfield spot in the switcher
+		{
+			sw_attributes[q]->switchTo(0); // change this 0 to a constant representing the textfield spot in the switcher
+			tf_attributes[q]->setVal(local_guyref.attributes[q]); //update the value
+		}
 		if (q > 15) continue;
 		l_bflags[q]->setText(l_bflag[q]);
 	}
@@ -777,183 +784,20 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 	string turnfreqorhaltrate = "Halt Rate:";
 	if (local_guyref.family == eeKEESE || local_guyref.family == eeGHINI || local_guyref.family == eePEAHAT || local_guyref.family == eeMANHAN
 		|| local_guyref.family == eeGLEEOK || local_guyref.family == eePATRA || local_guyref.family == eeDIG) turnfreqorhaltrate = "Turn Freq:";
-
-	for(int q = 0; q < 32; ++q)
-	{
-		tf_attributes[q]->setLowBound(-999999);
-		tf_attributes[q]->setHighBound(999999);
-		if(sw_attributes[q]->getCurrentIndex() != 0) // change this 0 to a constant representing the textfield spot in the switcher
-		{
-			sw_attributes[q]->switchTo(0); // change this 0 to a constant representing the textfield spot in the switcher
-			tf_attributes[q]->setVal(local_guyref.attributes[q]); //update the value
-		}
-	}
 	
-	switch (local_guyref.family)
-	{
-		case eeWALK:
-			ddl_attributes[0]->setSelectedValue(local_guyref.attributes[0]);
-			ddl_attributes[0]->setListData(list_walkmisc1);
-			sw_attributes[0]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
-			ddl_attributes[1]->setSelectedValue(local_guyref.attributes[1]);
-			ddl_attributes[1]->setListData(list_walkmisc2);
-			sw_attributes[1]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
-			ddl_attributes[6]->setSelectedValue(local_guyref.attributes[6]);
-			ddl_attributes[6]->setListData(list_walkmisc7);
-			sw_attributes[6]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
-			ddl_attributes[8]->setSelectedValue(local_guyref.attributes[8]);
-			ddl_attributes[8]->setListData(list_walkmisc9);
-			sw_attributes[8]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
-			break;
-		case eeGLEEOK:
-			ddl_attributes[2]->setSelectedValue(local_guyref.attributes[3]);
-			ddl_attributes[2]->setListData(list_gleeokmisc3);
-			sw_attributes[2]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
-			break;
-		case eeDIG:
-			ddl_attributes[0]->setSelectedValue(local_guyref.attributes[0]);
-			ddl_attributes[0]->setListData(list_enemies);
-			sw_attributes[0]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
-			ddl_attributes[1]->setSelectedValue(local_guyref.attributes[1]);
-			ddl_attributes[1]->setListData(list_enemies);
-			sw_attributes[1]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
-			ddl_attributes[2]->setSelectedValue(local_guyref.attributes[2]);
-			ddl_attributes[2]->setListData(list_enemies);
-			sw_attributes[2]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
-			ddl_attributes[3]->setSelectedValue(local_guyref.attributes[3]);
-			ddl_attributes[3]->setListData(list_enemies);
-			sw_attributes[3]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
-			ddl_attributes[9]->setSelectedValue(local_guyref.attributes[9]);
-			ddl_attributes[9]->setListData(list_enemies);
-			sw_attributes[9]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
-			break;
-		case eePATRA:
-			ddl_attributes[3]->setSelectedValue(local_guyref.attributes[3]);
-			ddl_attributes[3]->setListData(list_patramisc4);
-			sw_attributes[3]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
-			ddl_attributes[4]->setSelectedValue(local_guyref.attributes[4]);
-			ddl_attributes[4]->setListData(list_patramisc5);
-			sw_attributes[4]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
-			ddl_attributes[9]->setSelectedValue(local_guyref.attributes[9]);
-			ddl_attributes[9]->setListData(list_patramisc10);
-			sw_attributes[9]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
-			ddl_attributes[19]->setSelectedValue(local_guyref.attributes[19]);
-			ddl_attributes[19]->setListData(list_patramisc20);
-			sw_attributes[19]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
-			ddl_attributes[21]->setSelectedValue(local_guyref.attributes[21]);
-			ddl_attributes[21]->setListData(list_patramisc22);
-			sw_attributes[21]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
-			ddl_attributes[24]->setSelectedValue(local_guyref.attributes[24]);
-			ddl_attributes[24]->setListData(list_patramisc25);
-			sw_attributes[24]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
-			ddl_attributes[25]->setSelectedValue(local_guyref.attributes[25]);
-			ddl_attributes[25]->setListData(list_patramisc26);
-			sw_attributes[25]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
-			ddl_attributes[27]->setSelectedValue(local_guyref.attributes[27]);
-			ddl_attributes[27]->setListData(list_patramisc28);
-			sw_attributes[27]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
-			break;
-		case eePROJECTILE:
-			ddl_attributes[0]->setSelectedValue(local_guyref.attributes[0]);
-			ddl_attributes[0]->setListData(list_walkmisc1);
-			sw_attributes[0]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
-			break;
-		case eeGHOMA:
-			ddl_attributes[0]->setSelectedValue(local_guyref.attributes[0]);
-			ddl_attributes[0]->setListData(list_gohmamisc1);
-			sw_attributes[0]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
-			break;
-		case eeAQUA:
-			ddl_attributes[0]->setSelectedValue(local_guyref.attributes[0]);
-			ddl_attributes[0]->setListData(list_aquamisc1);
-			sw_attributes[0]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
-			break;
-		case eeMANHAN:
-			ddl_attributes[1]->setSelectedValue(local_guyref.attributes[1]);
-			ddl_attributes[1]->setListData(list_manhandlamisc2);
-			sw_attributes[1]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
-			break;
-		case eeLANM:
-			ddl_attributes[2]->setSelectedValue(local_guyref.attributes[2]);
-			ddl_attributes[2]->setListData(list_yesnomisc);
-			sw_attributes[2]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
-			break;
-		case eeMOLD:
-			ddl_attributes[1]->setSelectedValue(local_guyref.attributes[1]);
-			ddl_attributes[1]->setListData(list_yesnomisc);
-			sw_attributes[1]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
-			break;
-		case eeWIZZ:
-			ddl_attributes[0]->setSelectedValue(local_guyref.attributes[0]);
-			ddl_attributes[0]->setListData(list_wizzrobemisc1);
-			sw_attributes[0]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
-			ddl_attributes[1]->setSelectedValue(local_guyref.attributes[1]);
-			ddl_attributes[1]->setListData(list_wizzrobemisc2);
-			sw_attributes[1]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
-			ddl_attributes[3]->setSelectedValue(local_guyref.attributes[3]);
-			ddl_attributes[3]->setListData(list_yesnomisc);
-			sw_attributes[3]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
-			break;
-		case eeDONGO:
-			ddl_attributes[9]->setSelectedValue(local_guyref.attributes[9]);
-			ddl_attributes[9]->setListData(list_dodongomisc10);
-			sw_attributes[9]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
-			break;
-		case eeKEESE: //FLOATER
-			ddl_attributes[0]->setSelectedValue(local_guyref.attributes[0]);
-			ddl_attributes[0]->setListData(list_keesemisc1);
-			sw_attributes[0]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
-			ddl_attributes[1]->setSelectedValue(local_guyref.attributes[1]);
-			ddl_attributes[1]->setListData(list_keesemisc2);
-			sw_attributes[1]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
-			ddl_attributes[2]->setSelectedValue(local_guyref.attributes[2]);
-			ddl_attributes[2]->setListData(list_enemies);
-			sw_attributes[2]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
-			break;
-		case eeLEV:
-			ddl_attributes[0]->setSelectedValue(local_guyref.attributes[0]);
-			ddl_attributes[0]->setListData(list_leevermisc1);
-			sw_attributes[0]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
-			break;
-		case eeWALLM:
-			ddl_attributes[0]->setSelectedValue(local_guyref.attributes[0]);
-			ddl_attributes[0]->setListData(list_noyesmisc);
-			sw_attributes[0]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
-			break;
-		case eeTRAP:
-			ddl_attributes[0]->setSelectedValue(local_guyref.attributes[0]);
-			ddl_attributes[0]->setListData(list_trapmisc1);
-			sw_attributes[0]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
-			ddl_attributes[1]->setSelectedValue(local_guyref.attributes[1]);
-			ddl_attributes[1]->setListData(list_trapmisc2);
-			sw_attributes[1]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
-			break;
-		case eeROCK:
-			ddl_attributes[9]->setSelectedValue(local_guyref.attributes[9]);
-			ddl_attributes[9]->setListData(list_rockmisc10);
-			sw_attributes[9]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
-			break;
-		case eeNONE: //(Boss Death Triggers)
-			ddl_attributes[9]->setSelectedValue(local_guyref.attributes[9]);
-			ddl_attributes[9]->setListData(list_yesnomisc);
-			sw_attributes[9]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
-			break;
-		default:
-			break;
-	}
 	// ATTRIBUTE SWITCHERS
-	auto attributes1_tab = Rows_Columns<3,8>();
-	auto attributes2_tab = Rows_Columns<3,8>();
-	std::shared_ptr<GUI::Grid> attrib_tabs[] = {attributes1_tab,attributes2_tab};
-	for(int q = 0; q < 32; ++q)
+	auto attributes1_tab = Rows_Columns<3, 8>();
+	auto attributes2_tab = Rows_Columns<3, 8>();
+	std::shared_ptr<GUI::Grid> attrib_tabs[] = { attributes1_tab,attributes2_tab };
+	for (int q = 0; q < 32; ++q)
 	{
-		auto& tab = attrib_tabs[q/16];
+		auto& tab = attrib_tabs[q / 16];
 		tab->add(l_attributes[q] = Label(fitParent = true, textAlign = 2));
 		tab->add(ib_attributes[q] = Button(forceFitH = true, text = "?",
 			disabled = true,
-			onPressFunc = [&,q]()
+			onPressFunc = [&, q]()
 			{
-				InfoDialog("Attribute Info",h_attribute[q]).show();
+				InfoDialog("Attribute Info", h_attribute[q]).show();
 			}));
 		tab->add(sw_attributes[q] = Switcher(
 			tf_attributes[q] = TextField(
@@ -963,22 +807,173 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 				high = 999999,
 				val = local_guyref.attributes[q],
 				fitParent = true,
-				onValChangedFunc = [&,q](GUI::TextField::type, std::string_view, int32_t val)
+				onValChangedFunc = [&, q](GUI::TextField::type, std::string_view, int32_t val)
 				{
 					local_guyref.attributes[q] = val;
 				}),
 			ddl_attributes[q] = DropDownList(
 				vPadding = 0_px,
 				fitParent = true, selectedValue = local_guyref.attributes[q],
-				onSelectFunc = [&,q](int32_t val)
+				onSelectFunc = [&, q](int32_t val)
 				{
 					local_guyref.attributes[q] = val;
 				})
-			));
+		));
+	}
+	switch (local_guyref.family)
+	{
+	case eeWALK:
+		ddl_attributes[0]->setSelectedValue(local_guyref.attributes[0]);
+		ddl_attributes[0]->setListData(list_walkmisc1);
+		sw_attributes[0]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
+		ddl_attributes[1]->setSelectedValue(local_guyref.attributes[1]);
+		ddl_attributes[1]->setListData(list_walkmisc2);
+		sw_attributes[1]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
+		ddl_attributes[6]->setSelectedValue(local_guyref.attributes[6]);
+		ddl_attributes[6]->setListData(list_walkmisc7);
+		sw_attributes[6]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
+		ddl_attributes[8]->setSelectedValue(local_guyref.attributes[8]);
+		ddl_attributes[8]->setListData(list_walkmisc9);
+		sw_attributes[8]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
+		break;
+	case eeGLEEOK:
+		ddl_attributes[2]->setSelectedValue(local_guyref.attributes[3]);
+		ddl_attributes[2]->setListData(list_gleeokmisc3);
+		sw_attributes[2]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
+		break;
+	case eeDIG:
+		ddl_attributes[0]->setSelectedValue(local_guyref.attributes[0]);
+		ddl_attributes[0]->setListData(list_enemies);
+		sw_attributes[0]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
+		ddl_attributes[1]->setSelectedValue(local_guyref.attributes[1]);
+		ddl_attributes[1]->setListData(list_enemies);
+		sw_attributes[1]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
+		ddl_attributes[2]->setSelectedValue(local_guyref.attributes[2]);
+		ddl_attributes[2]->setListData(list_enemies);
+		sw_attributes[2]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
+		ddl_attributes[3]->setSelectedValue(local_guyref.attributes[3]);
+		ddl_attributes[3]->setListData(list_enemies);
+		sw_attributes[3]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
+		ddl_attributes[9]->setSelectedValue(local_guyref.attributes[9]);
+		ddl_attributes[9]->setListData(list_enemies);
+		sw_attributes[9]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
+		break;
+	case eePATRA:
+		ddl_attributes[3]->setSelectedValue(local_guyref.attributes[3]);
+		ddl_attributes[3]->setListData(list_patramisc4);
+		sw_attributes[3]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
+		ddl_attributes[4]->setSelectedValue(local_guyref.attributes[4]);
+		ddl_attributes[4]->setListData(list_patramisc5);
+		sw_attributes[4]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
+		ddl_attributes[9]->setSelectedValue(local_guyref.attributes[9]);
+		ddl_attributes[9]->setListData(list_patramisc10);
+		sw_attributes[9]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
+		ddl_attributes[19]->setSelectedValue(local_guyref.attributes[19]);
+		ddl_attributes[19]->setListData(list_patramisc20);
+		sw_attributes[19]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
+		ddl_attributes[21]->setSelectedValue(local_guyref.attributes[21]);
+		ddl_attributes[21]->setListData(list_patramisc22);
+		sw_attributes[21]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
+		ddl_attributes[24]->setSelectedValue(local_guyref.attributes[24]);
+		ddl_attributes[24]->setListData(list_patramisc25);
+		sw_attributes[24]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
+		ddl_attributes[25]->setSelectedValue(local_guyref.attributes[25]);
+		ddl_attributes[25]->setListData(list_patramisc26);
+		sw_attributes[25]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
+		ddl_attributes[27]->setSelectedValue(local_guyref.attributes[27]);
+		ddl_attributes[27]->setListData(list_patramisc28);
+		sw_attributes[27]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
+		break;
+	case eePROJECTILE:
+		ddl_attributes[0]->setSelectedValue(local_guyref.attributes[0]);
+		ddl_attributes[0]->setListData(list_walkmisc1);
+		sw_attributes[0]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
+		break;
+	case eeGHOMA:
+		ddl_attributes[0]->setSelectedValue(local_guyref.attributes[0]);
+		ddl_attributes[0]->setListData(list_gohmamisc1);
+		sw_attributes[0]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
+		break;
+	case eeAQUA:
+		ddl_attributes[0]->setSelectedValue(local_guyref.attributes[0]);
+		ddl_attributes[0]->setListData(list_aquamisc1);
+		sw_attributes[0]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
+		break;
+	case eeMANHAN:
+		ddl_attributes[1]->setSelectedValue(local_guyref.attributes[1]);
+		ddl_attributes[1]->setListData(list_manhandlamisc2);
+		sw_attributes[1]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
+		break;
+	case eeLANM:
+		ddl_attributes[2]->setSelectedValue(local_guyref.attributes[2]);
+		ddl_attributes[2]->setListData(list_yesnomisc);
+		sw_attributes[2]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
+		break;
+	case eeMOLD:
+		ddl_attributes[1]->setSelectedValue(local_guyref.attributes[1]);
+		ddl_attributes[1]->setListData(list_yesnomisc);
+		sw_attributes[1]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
+		break;
+	case eeWIZZ:
+		ddl_attributes[0]->setSelectedValue(local_guyref.attributes[0]);
+		ddl_attributes[0]->setListData(list_wizzrobemisc1);
+		sw_attributes[0]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
+		ddl_attributes[1]->setSelectedValue(local_guyref.attributes[1]);
+		ddl_attributes[1]->setListData(list_wizzrobemisc2);
+		sw_attributes[1]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
+		ddl_attributes[3]->setSelectedValue(local_guyref.attributes[3]);
+		ddl_attributes[3]->setListData(list_yesnomisc);
+		sw_attributes[3]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
+		break;
+	case eeDONGO:
+		ddl_attributes[9]->setSelectedValue(local_guyref.attributes[9]);
+		ddl_attributes[9]->setListData(list_dodongomisc10);
+		sw_attributes[9]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
+		break;
+	case eeKEESE: //FLOATER
+		ddl_attributes[0]->setSelectedValue(local_guyref.attributes[0]);
+		ddl_attributes[0]->setListData(list_keesemisc1);
+		sw_attributes[0]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
+		ddl_attributes[1]->setSelectedValue(local_guyref.attributes[1]);
+		ddl_attributes[1]->setListData(list_keesemisc2);
+		sw_attributes[1]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
+		ddl_attributes[2]->setSelectedValue(local_guyref.attributes[2]);
+		ddl_attributes[2]->setListData(list_enemies);
+		sw_attributes[2]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
+		break;
+	case eeLEV:
+		ddl_attributes[0]->setSelectedValue(local_guyref.attributes[0]);
+		ddl_attributes[0]->setListData(list_leevermisc1);
+		sw_attributes[0]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
+		break;
+	case eeWALLM:
+		ddl_attributes[0]->setSelectedValue(local_guyref.attributes[0]);
+		ddl_attributes[0]->setListData(list_noyesmisc);
+		sw_attributes[0]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
+		break;
+	case eeTRAP:
+		ddl_attributes[0]->setSelectedValue(local_guyref.attributes[0]);
+		ddl_attributes[0]->setListData(list_trapmisc1);
+		sw_attributes[0]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
+		ddl_attributes[1]->setSelectedValue(local_guyref.attributes[1]);
+		ddl_attributes[1]->setListData(list_trapmisc2);
+		sw_attributes[1]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
+		break;
+	case eeROCK:
+		ddl_attributes[9]->setSelectedValue(local_guyref.attributes[9]);
+		ddl_attributes[9]->setListData(list_rockmisc10);
+		sw_attributes[9]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
+		break;
+	case eeNONE: //(Boss Death Triggers)
+		ddl_attributes[9]->setSelectedValue(local_guyref.attributes[9]);
+		ddl_attributes[9]->setListData(list_yesnomisc);
+		sw_attributes[9]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
+		break;
+	default:
+		break;
 	}
 	
 	// BEHAVIOR FLAGS
-
 	auto behaviors_tab = Rows<3>();
 	for (int q = 0; q < 16; ++q)
 	{
