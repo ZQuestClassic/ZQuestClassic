@@ -42614,7 +42614,7 @@ void FFScript::getNPCData_misc()
 	int32_t indx = int32_t(ri->d[rINDEX2] / 10000); //the misc index ID
 	if ((ID < 1 || ID > 511) || ( indx < 0 || indx > MAX_NPC_ATTRIBUTES ))
 		set_register(sarg1, -10000); 
-	set_register(sarg1, guysbuf[ID].attributes[indx] * 10000);
+	else set_register(sarg1, guysbuf[ID].attributes[indx] * 10000);
 }
 
 //NPCData Setters, two inputs, no return; similar to void GetDMapIntro(int32_t DMap, int32_t buffer[]);
