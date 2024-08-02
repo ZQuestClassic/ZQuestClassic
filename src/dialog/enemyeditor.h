@@ -72,8 +72,6 @@ private:
 
 	std::shared_ptr<GUI::Widget> NameField(string str);
 
-	std::shared_ptr<GUI::Widget> MiscAttribute(int32_t* index);
-
 	std::shared_ptr<GUI::Widget> DropDownField(auto* field, GUI::ListData ls);
 
 	std::shared_ptr<GUI::Widget> MiscFlag(auto* bitstring, auto index);
