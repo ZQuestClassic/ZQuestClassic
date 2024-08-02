@@ -56,7 +56,8 @@ private:
 	string h_initd[8], h_wpninitd[8];
 	string l_initd[8], l_wpninitd[8];
 
-	string l_attribute[32], l_bflag[16];
+	string l_attribute[32], l_bflag[16]; 
+	string h_attribute[32], h_bflag[16];
 	string enemy_name;
 
 	vector<string> warnings;

@@ -804,7 +804,7 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 		if(sw_attributes[q]->getCurrentIndex() != 0) // change this 0 to a constant representing the textfield spot in the switcher
 		{
 			sw_attributes[q]->switchTo(0); // change this 0 to a constant representing the textfield spot in the switcher
-			tf_attributes[q]->setVal(local_guyref->attributes[q]); //update the value
+			tf_attributes[q]->setVal(local_guyref.attributes[q]); //update the value
 		}
 	}
 	
@@ -814,7 +814,7 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 			ddl_attributes[0]->setSelectedValue(local_guyref.attributes[0]);
 			ddl_attributes[0]->setListData(list_walkmisc1);
 			sw_attributes[0]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
-			ddl_attributes[1]->setSelectedValue(local_guyref.attributes[1]
+			ddl_attributes[1]->setSelectedValue(local_guyref.attributes[1]);
 			ddl_attributes[1]->setListData(list_walkmisc2);
 			sw_attributes[1]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
 			ddl_attributes[6]->setSelectedValue(local_guyref.attributes[6]);
@@ -899,16 +899,16 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 	// ATTRIBUTE SWITCHERS
 	auto attributes1_tab = Rows_Columns<3,8>();
 	auto attributes2_tab = Rows_Columns<3,8>();
-	auto attrib_tabs[] = {attributes1_tab,attributes2_tab};
+	std::shared_ptr<GUI::Grid> attrib_tabs[] = {attributes1_tab,attributes2_tab};
 	for(int q = 0; q < 32; ++q)
 	{
 		auto& tab = attrib_tabs[q/16];
 		tab->add(l_attributes[q] = Label(fitParent = true, textAlign = 2));
 		tab->add(ib_attributes[index] = Button(forceFitH = true, text = "?",
 			disabled = true,
-			onPressFunc = [&, index]()
+			onPressFunc = [&,q]()
 			{
-				InfoDialog("Attribute Info",h_attribute[index]).show();
+				InfoDialog("Attribute Info",h_attribute[q]).show();
 			}));
 		tab->add(sw_attributes[q] = Switcher(
 			tf_attributes[q] = TextField(
