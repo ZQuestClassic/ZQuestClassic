@@ -13856,7 +13856,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
                 if(guyversion < 13)  // April 2009 - a tiny Wizzrobe update
                 {
                     if(tempguy.family == eeWIZZ && !(tempguy.attributes[0]))
-                        tempguy.attributes[5] = 74;
+                        tempguy.attributes[4] = 74;
                 }
 
             }
