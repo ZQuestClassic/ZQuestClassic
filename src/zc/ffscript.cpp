@@ -13346,18 +13346,14 @@ int32_t get_register(int32_t arg)
 				Z_scripterrlog("Invalid Sprite ID passed to npcdata->Attributes[]: %d\n", (ri->npcdataref*10000)); 
 				ret = -10000;
 			}
-			else if ( indx < 0 || indx > MAX_NPC_ATRIBUTES )
+			else if ( indx < 0 || indx > MAX_NPC_ATTRIBUTES )
 			{ 
-				Z_scripterrlog("Invalid Array Index passed to npcdata->Attributes[]: %d\n", (ri->npcdataref*10000)); 
+				Z_scripterrlog("Invalid Array Index passed to npcdata->Attributes[]: %d\n", indx);
 				ret = -10000; 
 			} 
 			else 
 			{ 
-				if (indx < 0|| indx > MAX_NPC_ATRIBUTES)
-				{
-					Z_scripterrlog("Invalid Array Index passed to npcdata->Attributes[]: %d\n", indx);
-				}
-				else ret = (guysbuf[ri->npcdataref].attributes[indx] * 10000);
+				ret = (guysbuf[ri->npcdataref].attributes[indx] * 10000);
 			} 
 
 			break;
@@ -26299,17 +26295,13 @@ void set_register(int32_t arg, int32_t value)
 			{
 				Z_scripterrlog("Invalid Sprite ID passed to npcdata->Attributes[]: %d\n", (ri->npcdataref*10000)); 
 			}
-			else if ( indx < 0 || indx > MAX_NPC_ATRIBUTES )
+			else if ( indx < 0 || indx > MAX_NPC_ATTRIBUTES )
 			{ 
-				Z_scripterrlog("Invalid Array Index passed to npcdata->Attributes[]: %d\n", (ri->npcdataref*10000)); 
+				Z_scripterrlog("Invalid Array Index passed to npcdata->Attributes[]: %d\n", indx);
 			} 
 			else 
 			{ 
-				if (indx < 0 || indx > MAX_NPC_ATRIBUTES)
-				{
-					Z_scripterrlog("Invalid Array Index passed to npcdata->Attributes[]: %d\n", indx);
-				}
-				else guysbuf[ri->npcdataref].attributes[indx] = (value / 10000);
+				guysbuf[ri->npcdataref].attributes[indx] = (value / 10000);
 			} 
 			break;
 		}
@@ -42620,7 +42612,7 @@ void FFScript::getNPCData_misc()
 {
 	int32_t ID = int32_t(ri->d[rINDEX] / 10000); //the enemy ID value
 	int32_t indx = int32_t(ri->d[rINDEX2] / 10000); //the misc index ID
-	if ((ID < 1 || ID > 511) || ( indx < 0 || indx > MAX_NPC_ATRIBUTES ))
+	if ((ID < 1 || ID > 511) || ( indx < 0 || indx > MAX_NPC_ATTRIBUTES ))
 		set_register(sarg1, -10000); 
 	set_register(sarg1, guysbuf[ID].attributes[indx] * 10000);
 }
@@ -42764,7 +42756,7 @@ void FFScript::setNPCData_misc(int32_t val)
 {
 	int32_t ID = int32_t(ri->d[rINDEX] / 10000); //the enemy ID value
 	int32_t indx = int32_t(ri->d[rINDEX2] / 10000); //the misc index ID
-	if ((ID < 1 || ID > 511) || ( indx < 0 || indx > MAX_NPC_ATRIBUTES )) return;
+	if ((ID < 1 || ID > 511) || ( indx < 0 || indx > MAX_NPC_ATTRIBUTES )) return;
 	guysbuf[ID].attributes[indx] = val;
 	
 };
