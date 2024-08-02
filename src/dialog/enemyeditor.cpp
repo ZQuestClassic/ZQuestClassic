@@ -613,6 +613,7 @@ void EnemyEditorDialog::loadEnemyType()
 
 	for (size_t q = 0; q < 32; ++q)
 	{
+		/*
 		l_attributes[q]->setText(l_attribute[q]);
 		tf_attributes[q]->setLowBound(-999999);
 		tf_attributes[q]->setHighBound(999999);
@@ -621,9 +622,11 @@ void EnemyEditorDialog::loadEnemyType()
 			sw_attributes[q]->switchTo(0); // change this 0 to a constant representing the textfield spot in the switcher
 			tf_attributes[q]->setVal(local_guyref.attributes[q]); //update the value
 		}
+		*/
 		if (q > 15) continue;
-		l_bflags[q]->setText(l_bflag[q]);
+		l_bflags[q]->setText(l_bflag[q]);	
 	}
+
 
 	updateWarnings();
 	pendDraw();
@@ -785,41 +788,12 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 	if (local_guyref.family == eeKEESE || local_guyref.family == eeGHINI || local_guyref.family == eePEAHAT || local_guyref.family == eeMANHAN
 		|| local_guyref.family == eeGLEEOK || local_guyref.family == eePATRA || local_guyref.family == eeDIG) turnfreqorhaltrate = "Turn Freq:";
 	
+	/*
 	// ATTRIBUTE SWITCHERS
 	auto attributes1_tab = Rows_Columns<3, 8>();
 	auto attributes2_tab = Rows_Columns<3, 8>();
 	std::shared_ptr<GUI::Grid> attrib_tabs[] = { attributes1_tab,attributes2_tab };
-	for (int q = 0; q < 32; ++q)
-	{
-		auto& tab = attrib_tabs[q / 16];
-		tab->add(l_attributes[q] = Label(fitParent = true, textAlign = 2));
-		tab->add(ib_attributes[q] = Button(forceFitH = true, text = "?",
-			disabled = true,
-			onPressFunc = [&, q]()
-			{
-				InfoDialog("Attribute Info", h_attribute[q]).show();
-			}));
-		tab->add(sw_attributes[q] = Switcher(
-			tf_attributes[q] = TextField(
-				type = GUI::TextField::type::INT_DECIMAL,
-				maxLength = 7,
-				low = -999999,
-				high = 999999,
-				val = local_guyref.attributes[q],
-				fitParent = true,
-				onValChangedFunc = [&, q](GUI::TextField::type, std::string_view, int32_t val)
-				{
-					local_guyref.attributes[q] = val;
-				}),
-			ddl_attributes[q] = DropDownList(
-				vPadding = 0_px,
-				fitParent = true, selectedValue = local_guyref.attributes[q],
-				onSelectFunc = [&, q](int32_t val)
-				{
-					local_guyref.attributes[q] = val;
-				})
-		));
-	}
+	
 	switch (local_guyref.family)
 	{
 	case eeWALK:
@@ -973,6 +947,39 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 		break;
 	}
 	
+	for (int q = 0; q < 32; ++q)
+	{
+		auto& tab = attrib_tabs[q / 16];
+		tab->add(l_attributes[q] = Label(fitParent = true, textAlign = 2));
+		tab->add(ib_attributes[q] = Button(forceFitH = true, text = "?",
+			disabled = true,
+			onPressFunc = [&, q]()
+			{
+				InfoDialog("Attribute Info", h_attribute[q]).show();
+			}));
+		tab->add(sw_attributes[q] = Switcher(
+			tf_attributes[q] = TextField(
+				type = GUI::TextField::type::INT_DECIMAL,
+				maxLength = 7,
+				low = -999999,
+				high = 999999,
+				val = local_guyref.attributes[q],
+				fitParent = true,
+				onValChangedFunc = [&, q](GUI::TextField::type, std::string_view, int32_t val)
+				{
+					local_guyref.attributes[q] = val;
+				}),
+			ddl_attributes[q] = DropDownList(
+				vPadding = 0_px,
+				fitParent = true, selectedValue = local_guyref.attributes[q],
+				onSelectFunc = [&, q](int32_t val)
+				{
+					local_guyref.attributes[q] = val;
+				})
+		));
+	}
+	*/
+
 	// BEHAVIOR FLAGS
 	auto behaviors_tab = Rows<3>();
 	for (int q = 0; q < 16; ++q)
@@ -1096,10 +1103,10 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 				)
 			)),
 			TabRef(name = "Attributes 1", Row(
-				attributes1_tab
+				//attributes1_tab
 			)),
 			TabRef(name = "Attributes 2", Row(
-				attributes2_tab
+				//attributes2_tab
 			)),
 			TabRef(name = "Size Flags", Row(
 				Columns<10>(
