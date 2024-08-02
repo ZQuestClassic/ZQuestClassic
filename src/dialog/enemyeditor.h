@@ -6,6 +6,8 @@
 #include <gui/checkbox.h>
 #include <gui/label.h>
 #include <gui/text_field.h>
+#include <gui/drop_down_list.h>
+#include <gui/switcher.h>
 #include <gui/window.h>
 #include <gui/list_data.h>
 #include <zq/gui/seltile_swatch.h>
