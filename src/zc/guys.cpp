@@ -360,38 +360,38 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 	hrate=d->hrate;
 	dstep=d->step;
 	homing=d->homing;
-	dmisc1=d->misc1;
-	dmisc2=d->misc2;
-	dmisc3=d->misc3;
-	dmisc4=d->misc4;
-	dmisc5=d->misc5;
-	dmisc6=d->misc6;
-	dmisc7=d->misc7;
-	dmisc8=d->misc8;
-	dmisc9=d->misc9;
-	dmisc10=d->misc10;
-	dmisc11=d->misc11;
-	dmisc12=d->misc12;
-	dmisc13=d->misc13;
-	dmisc14=d->misc14;
-	dmisc15=d->misc15;
-	dmisc16=d->misc16;
-	dmisc17=d->misc17;
-	dmisc18=d->misc18;
-	dmisc19=d->misc19;
-	dmisc20=d->misc20;
-	dmisc21=d->misc21;
-	dmisc22=d->misc22;
-	dmisc23=d->misc23;
-	dmisc24=d->misc24;
-	dmisc25=d->misc25;
-	dmisc26=d->misc26;
-	dmisc27=d->misc27;
-	dmisc28=d->misc28;
-	dmisc29=d->misc29;
-	dmisc30=d->misc30;
-	dmisc31=d->misc31;
-	dmisc32=d->misc32;
+	dmisc1=d->attributes[0];
+	dmisc2=d->attributes[1];
+	dmisc3=d->attributes[2];
+	dmisc4=d->attributes[3];
+	dmisc5=d->attributes[4];
+	dmisc6=d->attributes[5];
+	dmisc7=d->attributes[6];
+	dmisc8=d->attributes[7];
+	dmisc9=d->attributes[8];
+	dmisc10=d->attributes[9];
+	dmisc11=d->attributes[10];
+	dmisc12=d->attributes[11];
+	dmisc13=d->attributes[12];
+	dmisc14=d->attributes[13];
+	dmisc15=d->attributes[14];
+	dmisc16=d->attributes[15];
+	dmisc17=d->attributes[16];
+	dmisc18=d->attributes[17];
+	dmisc19=d->attributes[18];
+	dmisc20=d->attributes[19];
+	dmisc21=d->attributes[20];
+	dmisc22=d->attributes[21];
+	dmisc23=d->attributes[22];
+	dmisc24=d->attributes[23];
+	dmisc25=d->attributes[24];
+	dmisc26=d->attributes[25];
+	dmisc27=d->attributes[26];
+	dmisc28=d->attributes[27];
+	dmisc29=d->attributes[28];
+	dmisc30=d->attributes[29];
+	dmisc31=d->attributes[30];
+	dmisc32=d->attributes[31];
 	if (get_qr(qr_BROKEN_ATTRIBUTE_31_32))
 	{
 		dmisc31 = dmisc32;
@@ -2334,7 +2334,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 					
 					case eeMOLD:
 					{
-					enemy *e = new eMoldorm(x,y,new_id,zc_max(1,zc_min(254,guysbuf[new_id&0xFFF].misc1)));
+					enemy *e = new eMoldorm(x,y,new_id,zc_max(1,zc_min(254,guysbuf[new_id&0xFFF].attributes[0])));
 					guys.add(e);
 						e->x = x;
 						e->y = y;
@@ -2353,11 +2353,11 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 					case eeGLEEOK:
 					{
 						*power = 0; 
-						gleeok = new eGleeok(x,y,new_id,guysbuf[new_id&0xFFF].misc1);
+						gleeok = new eGleeok(x,y,new_id,guysbuf[new_id&0xFFF].attributes[0]);
 						guys.add(gleeok);
 						((enemy*)guys.spr(guys.Count()-1))->hclk = delay_timer;
 						new_id &= 0xFFF;
-						int32_t head_cnt = zc_max(1,zc_min(254,guysbuf[new_id&0xFFF].misc1));
+						int32_t head_cnt = zc_max(1,zc_min(254,guysbuf[new_id&0xFFF].attributes[0]));
 							Z_scripterrlog("Gleeok head count is %d\n",head_cnt);
 						for(int32_t i=0; i<head_cnt; i++)
 						{
@@ -2378,7 +2378,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 							((enemy*)guys.spr(guys.Count()-1))->hclk = delay_timer;
 							}
 							
-							c-=guysbuf[new_id].misc4;
+							c-=guysbuf[new_id].attributes[3];
 							//gleeok->x = x;
 							//gleeok->y = y;
 							//gleeok = e;
@@ -2397,7 +2397,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 					
 					case eeLANM:
 					{
-					enemy *e = new eLanmola(x,y,new_id,zc_max(1,zc_min(253,guysbuf[new_id&0xFFF].misc1)));
+					enemy *e = new eLanmola(x,y,new_id,zc_max(1,zc_min(253,guysbuf[new_id&0xFFF].attributes[0])));
 					guys.add(e);
 						e->x = x;
 						e->y = y;
@@ -2452,7 +2452,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 					// and these enemies use the misc10/misc2 value
 					case eeROCK:
 					{
-						switch(guysbuf[new_id&0xFFF].misc10)
+						switch(guysbuf[new_id&0xFFF].attributes[9])
 						{
 							case 1:
 							{
@@ -2479,7 +2479,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 					
 					case eeTRAP:
 					{
-						switch(guysbuf[new_id&0xFFF].misc2)
+						switch(guysbuf[new_id&0xFFF].attributes[1])
 						{
 							case 1:
 							{
@@ -2506,7 +2506,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 					
 					case eeDONGO:
 					{
-						switch(guysbuf[new_id&0xFFF].misc10)
+						switch(guysbuf[new_id&0xFFF].attributes[9])
 						{
 							case 1:
 							{
@@ -2533,7 +2533,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 					
 					case eeDIG:
 					{
-						switch(guysbuf[new_id&0xFFF].misc10)
+						switch(guysbuf[new_id&0xFFF].attributes[9])
 						{
 							case 1:
 							{
@@ -2560,7 +2560,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 					
 					case eePATRA:
 					{
-						switch(guysbuf[new_id&0xFFF].misc10)
+						switch(guysbuf[new_id&0xFFF].attributes[9])
 						{
 							case 1:
 							{
@@ -2590,7 +2590,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 					
 					case eeGUY:
 					{
-						switch(guysbuf[new_id&0xFFF].misc10)
+						switch(guysbuf[new_id&0xFFF].attributes[9])
 						{
 							case 1:
 							{
@@ -2672,7 +2672,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 					byte is=((enemy*)guys.spr(guys.Count()-1))->item_set;
 					new_id &= 0xFFF;
 					
-					for(int32_t i=0; i<zc_max(1,zc_min(254,guysbuf[new_id].misc1)); i++)
+					for(int32_t i=0; i<zc_max(1,zc_min(254,guysbuf[new_id].attributes[0])); i++)
 					{
 						//christ this is messy -DD
 						int32_t segclk = -i*((int32_t)(8.0/(zslongToFix(guysbuf[new_id&0xFFF].step*100))));
@@ -2699,7 +2699,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 					case eeLANM:
 					{
 					new_id &= 0xFFF;
-					int32_t shft = guysbuf[new_id].misc2;
+					int32_t shft = guysbuf[new_id].attributes[1];
 					byte is=((enemy*)guys.spr(guys.Count()-1))->item_set;
 					enemy *e = new esLanmola((zfix)x,(zfix)y,new_id+0x1000,0);
 						
@@ -2714,7 +2714,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 					
 					
 					
-					for(int32_t i=1; i<zc_max(1,zc_min(253,guysbuf[new_id&0xFFF].misc1)); i++)
+					for(int32_t i=1; i<zc_max(1,zc_min(253,guysbuf[new_id&0xFFF].attributes[0])); i++)
 					{
 						enemy *e2 = new esLanmola((zfix)x,(zfix)y,new_id+0x2000,-(i<<shft));
 						if(!guys.add(e2))
@@ -2738,7 +2738,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 					case eeMANHAN:
 					new_id &= 0xFFF;
 					
-					for(int32_t i=0; i<((!(guysbuf[new_id].misc2))?4:8); i++)
+					for(int32_t i=0; i<((!(guysbuf[new_id].attributes[1]))?4:8); i++)
 					{
 						if(!guys.add(new esManhandla((zfix)x,(zfix)y,new_id+0x1000,i)))
 						{
@@ -2753,7 +2753,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 						}
 						
 						
-						((enemy*)guys.spr(guys.Count()-1))->frate=guysbuf[new_id].misc1;
+						((enemy*)guys.spr(guys.Count()-1))->frate=guysbuf[new_id].attributes[0];
 					}
 					
 					break;
@@ -2762,7 +2762,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 					{
 					/*
 					new_id &= 0xFFF;
-					int32_t head_cnt = zc_max(1,zc_min(254,guysbuf[new_id&0xFFF].misc1));
+					int32_t head_cnt = zc_max(1,zc_min(254,guysbuf[new_id&0xFFF].attributes[0]));
 						Z_scripterrlog("Gleeok head count is %d\n",head_cnt);
 					for(int32_t i=0; i<head_cnt; i++)
 					{
@@ -2793,9 +2793,9 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 					int32_t outeyes = 0;
 						ptra = new ePatraBS((zfix)x,(zfix)y,id,clk);
 					
-					for(int32_t i=0; i<zc_min(254,guysbuf[new_id&0xFFF].misc1); i++)
+					for(int32_t i=0; i<zc_min(254,guysbuf[new_id&0xFFF].attributes[0]); i++)
 					{
-						if(!((guysbuf[new_id].misc10&&get_qr(qr_HARDCODED_BS_PATRA))?guys.add(new esPatraBS((zfix)x,(zfix)y,new_id+0x1000,i,ptra)):guys.add(new esPatra((zfix)x,(zfix)y,new_id+0x1000,i,ptra))))
+						if(!((guysbuf[new_id].attributes[9] &&get_qr(qr_HARDCODED_BS_PATRA))?guys.add(new esPatraBS((zfix)x,(zfix)y,new_id+0x1000,i,ptra)):guys.add(new esPatra((zfix)x,(zfix)y,new_id+0x1000,i,ptra))))
 						{
 						al_trace("Patra outer eye %d could not be created!\n",i+1);
 						
@@ -2810,7 +2810,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 						
 					}
 					
-					for(int32_t i=0; i<zc_min(254,guysbuf[new_id&0xFFF].misc2); i++)
+					for(int32_t i=0; i<zc_min(254,guysbuf[new_id&0xFFF].attributes[1]); i++)
 					{
 						if(!guys.add(new esPatra((zfix)x,(zfix)y,new_id+0x1000,i,ptra)))
 						{
@@ -15426,7 +15426,7 @@ eGleeok::eGleeok(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk) //ene
 	clk=0;
 	clk2=60;                                                  // fire ball clock
 	//    hp=(guysbuf[eGLEEOK2+(misc-2)].misc2)*(misc-1)*game->get_hero_dmgmult()+guysbuf[eGLEEOK2+(misc-2)].hp;
-	hp=(guysbuf[id&0xFFF].misc2)*(misc-1)*game->get_hero_dmgmult()+guysbuf[id&0xFFF].hp;
+	hp=(guysbuf[id&0xFFF].attributes[1])*(misc-1)*game->get_hero_dmgmult()+guysbuf[id&0xFFF].hp;
 	dir = down;
 	hxofs=4;
 	hit_width=8;
@@ -15536,10 +15536,10 @@ bool eGleeok::animate(int32_t index)
 		head->hp = 1000;
 	}
 	
-	if(hp<=(guysbuf[id&0xFFF].misc2)*(clk3-1)*game->get_hero_dmgmult())
+	if(hp<=(guysbuf[id&0xFFF].attributes[1]) * (clk3 - 1) * game->get_hero_dmgmult())
 	{
 		((enemy*)guys.spr(index+clk3))->misc = -1;              // give signal to fly off
-		hp=(guysbuf[id&0xFFF].misc2)*(--clk3)*game->get_hero_dmgmult();
+		hp=(guysbuf[id&0xFFF].attributes[1])*(--clk3)*game->get_hero_dmgmult();
 	}
 	
 	if(!dmisc3)
@@ -17659,7 +17659,7 @@ int32_t addchild(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t p
 		break;
 		
 	case eeMOLD:
-		e = new eMoldorm((zfix)x,(zfix)y,id,zc_max(1,zc_min(254,guysbuf[id&0xFFF].misc1)));
+		e = new eMoldorm((zfix)x,(zfix)y,id,zc_max(1,zc_min(254,guysbuf[id&0xFFF].attributes[0])));
 		break;
 		
 	case eeMANHAN:
@@ -17667,7 +17667,7 @@ int32_t addchild(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t p
 		break;
 		
 	case eeGLEEOK:
-		e = new eGleeok((zfix)x,(zfix)y,id,zc_max(1,zc_min(254,guysbuf[id&0xFFF].misc1)));
+		e = new eGleeok((zfix)x,(zfix)y,id,zc_max(1,zc_min(254,guysbuf[id&0xFFF].attributes[0])));
 		break;
 		
 	case eeGHOMA:
@@ -17675,7 +17675,7 @@ int32_t addchild(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t p
 		break;
 		
 	case eeLANM:
-		e = new eLanmola((zfix)x,(zfix)y,id,zc_max(1,zc_min(253,guysbuf[id&0xFFF].misc1)));
+		e = new eLanmola((zfix)x,(zfix)y,id,zc_max(1,zc_min(253,guysbuf[id&0xFFF].attributes[0])));
 		break;
 		
 	case eeGANON:
@@ -17750,7 +17750,7 @@ int32_t addchild(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t p
 		// and these enemies use the misc10/misc2 value
 	case eeROCK:
 	{
-		switch(guysbuf[id&0xFFF].misc10)
+		switch(guysbuf[id&0xFFF].attributes[9])
 		{
 		case 1:
 			e = new eBoulder((zfix)x,(zfix)y,id,clk);
@@ -17767,7 +17767,7 @@ int32_t addchild(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t p
 	
 	case eeTRAP:
 	{
-		switch(guysbuf[id&0xFFF].misc2)
+		switch(guysbuf[id&0xFFF].attributes[1])
 		{
 		case 1:
 			e = new eTrap2((zfix)x,(zfix)y,id,clk);
@@ -17784,7 +17784,7 @@ int32_t addchild(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t p
 	
 	case eeDONGO:
 	{
-		switch(guysbuf[id&0xFFF].misc10)
+		switch(guysbuf[id&0xFFF].attributes[9])
 		{
 		case 1:
 			e = new eDodongo2((zfix)x,(zfix)y,id,clk);
@@ -17801,7 +17801,7 @@ int32_t addchild(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t p
 	
 	case eeDIG:
 	{
-		switch(guysbuf[id&0xFFF].misc10)
+		switch(guysbuf[id&0xFFF].attributes[9])
 		{
 		case 1:
 			e = new eLilDig((zfix)x,(zfix)y,id,clk);
@@ -17818,7 +17818,7 @@ int32_t addchild(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t p
 	
 	case eePATRA:
 	{
-		switch(guysbuf[id&0xFFF].misc10)
+		switch(guysbuf[id&0xFFF].attributes[9])
 		{
 		case 1:
 			if (get_qr(qr_HARDCODED_BS_PATRA))
@@ -17838,7 +17838,7 @@ int32_t addchild(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t p
 	
 	case eeGUY:
 	{
-		switch(guysbuf[id&0xFFF].misc10)
+		switch(guysbuf[id&0xFFF].attributes[9])
 		{
 		case 1:
 			e = new eTrigger((zfix)x,(zfix)y,id,clk);
@@ -17854,7 +17854,7 @@ int32_t addchild(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t p
 	}
 	
 	case eeNONE:
-		if(guysbuf[id&0xFFF].misc10 ==1)
+		if(guysbuf[id&0xFFF].attributes[9] ==1)
 		{
 			e = new eTrigger((zfix)x,(zfix)y,id,clk);
 			break;
@@ -17892,7 +17892,7 @@ int32_t addchild(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t p
 		byte is=((enemy*)guys.spr(guys.Count()-1))->item_set;
 		id &= 0xFFF;
 		
-		for(int32_t i=0; i<zc_max(1,zc_min(254,guysbuf[id].misc1)); i++)
+		for(int32_t i=0; i<zc_max(1,zc_min(254,guysbuf[id].attributes[0])); i++)
 		{
 			//christ this is messy -DD
 			int32_t segclk = -i*((int32_t)(8.0/(zslongToFix(guysbuf[id&0xFFF].step*100))));
@@ -17919,7 +17919,7 @@ int32_t addchild(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t p
 	case eeLANM:
 	{
 		id &= 0xFFF;
-		int32_t shft = guysbuf[id].misc2;
+		int32_t shft = guysbuf[id].attributes[1];
 		byte is=((enemy*)guys.spr(guys.Count()-1))->item_set;
 		
 		if(!guys.add(new esLanmola((zfix)x,(zfix)y,id+0x1000,0)))
@@ -17931,7 +17931,7 @@ int32_t addchild(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t p
 		
 		ret++;
 		
-		for(int32_t i=1; i<zc_max(1,zc_min(253,guysbuf[id&0xFFF].misc1)); i++)
+		for(int32_t i=1; i<zc_max(1,zc_min(253,guysbuf[id&0xFFF].attributes[0])); i++)
 		{
 			if(!guys.add(new esLanmola((zfix)x,(zfix)y,id+0x2000,-(i<<shft))))
 			{
@@ -17952,7 +17952,7 @@ int32_t addchild(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t p
 	case eeMANHAN:
 		id &= 0xFFF;
 		
-		for(int32_t i=0; i<((!(guysbuf[id].misc2))?4:8); i++)
+		for(int32_t i=0; i<((!(guysbuf[id].attributes[1]))?4:8); i++)
 		{
 			if(!guys.add(new esManhandla((zfix)x,(zfix)y,id+0x1000,i)))
 			{
@@ -17967,7 +17967,7 @@ int32_t addchild(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t p
 			}
 			
 			ret++;
-			((enemy*)guys.spr(guys.Count()-1))->frate=guysbuf[id].misc1;
+			((enemy*)guys.spr(guys.Count()-1))->frate=guysbuf[id].attributes[0];
 		}
 		
 		break;
@@ -17976,7 +17976,7 @@ int32_t addchild(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t p
 	{
 		id &= 0xFFF;
 		
-		for(int32_t i=0; i<zc_max(1,zc_min(254,guysbuf[id&0xFFF].misc1)); i++)
+		for(int32_t i=0; i<zc_max(1,zc_min(254,guysbuf[id&0xFFF].attributes[0])); i++)
 		{
 			if(!guys.add(new esGleeok((zfix)x,(zfix)y,id+0x1000,c, e)))
 			{
@@ -17990,7 +17990,7 @@ int32_t addchild(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t p
 				return false;
 			}
 			
-			c-=guysbuf[id].misc4;
+			c-=guysbuf[id].attributes[3];
 			ret++;
 		}
 	}
@@ -18002,9 +18002,9 @@ int32_t addchild(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t p
 		id &= 0xFFF;
 		int32_t outeyes = 0;
 		
-		for(int32_t i=0; i<zc_min(254,guysbuf[id&0xFFF].misc1); i++)
+		for(int32_t i=0; i<zc_min(254,guysbuf[id&0xFFF].attributes[0]); i++)
 		{
-			if(!((guysbuf[id].misc10&&get_qr(qr_HARDCODED_BS_PATRA))?guys.add(new esPatraBS((zfix)x,(zfix)y,id+0x1000,i,e)):guys.add(new esPatra((zfix)x,(zfix)y,id+0x1000,i,e))))
+			if(!((guysbuf[id].attributes[9] &&get_qr(qr_HARDCODED_BS_PATRA))?guys.add(new esPatraBS((zfix)x,(zfix)y,id+0x1000,i,e)):guys.add(new esPatra((zfix)x,(zfix)y,id+0x1000,i,e))))
 			{
 				al_trace("Patra outer eye %d could not be created!\n",i+1);
 				
@@ -18019,7 +18019,7 @@ int32_t addchild(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t p
 			ret++;
 		}
 		
-		for(int32_t i=0; i<zc_min(254,guysbuf[id&0xFFF].misc2); i++)
+		for(int32_t i=0; i<zc_min(254,guysbuf[id&0xFFF].attributes[1]); i++)
 		{
 			if(!guys.add(new esPatra((zfix)x,(zfix)y,id+0x1000,i,e)))
 			{
@@ -18102,7 +18102,7 @@ int32_t addenemy(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk)
 		break;
 		
 	case eeMOLD:
-		e = new eMoldorm((zfix)x,(zfix)y,id,zc_max(1,zc_min(254,guysbuf[id&0xFFF].misc1)));
+		e = new eMoldorm((zfix)x,(zfix)y,id,zc_max(1,zc_min(254,guysbuf[id&0xFFF].attributes[0])));
 		break;
 		
 	case eeMANHAN:
@@ -18110,7 +18110,7 @@ int32_t addenemy(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk)
 		break;
 		
 	case eeGLEEOK:
-		e = new eGleeok((zfix)x,(zfix)y,id,zc_max(1,zc_min(254,guysbuf[id&0xFFF].misc1)));
+		e = new eGleeok((zfix)x,(zfix)y,id,zc_max(1,zc_min(254,guysbuf[id&0xFFF].attributes[0])));
 		break;
 		
 	case eeGHOMA:
@@ -18118,7 +18118,7 @@ int32_t addenemy(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk)
 		break;
 		
 	case eeLANM:
-		e = new eLanmola((zfix)x,(zfix)y,id,zc_max(1,zc_min(253,guysbuf[id&0xFFF].misc1)));
+		e = new eLanmola((zfix)x,(zfix)y,id,zc_max(1,zc_min(253,guysbuf[id&0xFFF].attributes[0])));
 		break;
 		
 	case eeGANON:
@@ -18193,7 +18193,7 @@ int32_t addenemy(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk)
 		// and these enemies use the misc10/misc2 value
 	case eeROCK:
 	{
-		switch(guysbuf[id&0xFFF].misc10)
+		switch(guysbuf[id&0xFFF].attributes[9])
 		{
 		case 1:
 			e = new eBoulder((zfix)x,(zfix)y,id,clk);
@@ -18210,7 +18210,7 @@ int32_t addenemy(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk)
 	
 	case eeTRAP:
 	{
-		switch(guysbuf[id&0xFFF].misc2)
+		switch(guysbuf[id&0xFFF].attributes[1])
 		{
 		case 1:
 			e = new eTrap2((zfix)x,(zfix)y,id,clk);
@@ -18227,7 +18227,7 @@ int32_t addenemy(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk)
 	
 	case eeDONGO:
 	{
-		switch(guysbuf[id&0xFFF].misc10)
+		switch(guysbuf[id&0xFFF].attributes[9])
 		{
 		case 1:
 			e = new eDodongo2((zfix)x,(zfix)y,id,clk);
@@ -18244,7 +18244,7 @@ int32_t addenemy(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk)
 	
 	case eeDIG:
 	{
-		switch(guysbuf[id&0xFFF].misc10)
+		switch(guysbuf[id&0xFFF].attributes[9])
 		{
 		case 1:
 			e = new eLilDig((zfix)x,(zfix)y,id,clk);
@@ -18261,7 +18261,7 @@ int32_t addenemy(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk)
 	
 	case eePATRA:
 	{
-		switch(guysbuf[id&0xFFF].misc10)
+		switch(guysbuf[id&0xFFF].attributes[9])
 		{
 		case 1:
 			if (get_qr(qr_HARDCODED_BS_PATRA))
@@ -18281,7 +18281,7 @@ int32_t addenemy(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk)
 	
 	case eeGUY:
 	{
-		switch(guysbuf[id&0xFFF].misc10)
+		switch(guysbuf[id&0xFFF].attributes[9])
 		{
 		case 1:
 			e = new eTrigger((zfix)x,(zfix)y,id,clk);
@@ -18297,7 +18297,7 @@ int32_t addenemy(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk)
 	}
 	
 	case eeNONE:
-		if(guysbuf[id&0xFFF].misc10 ==1)
+		if(guysbuf[id&0xFFF].attributes[9] ==1)
 		{
 			e = new eTrigger((zfix)x,(zfix)y,id,clk);
 			break;
@@ -18333,7 +18333,7 @@ int32_t addenemy(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk)
 		byte is=((enemy*)guys.spr(guys.Count()-1))->item_set;
 		id &= 0xFFF;
 		
-		for(int32_t i=0; i<zc_max(1,zc_min(254,guysbuf[id].misc1)); i++)
+		for(int32_t i=0; i<zc_max(1,zc_min(254,guysbuf[id].attributes[0])); i++)
 		{
 			//christ this is messy -DD
 			int32_t segclk = -i*((int32_t)(8.0/(zslongToFix(guysbuf[id&0xFFF].step*100))));
@@ -18360,7 +18360,7 @@ int32_t addenemy(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk)
 	case eeLANM:
 	{
 		id &= 0xFFF;
-		int32_t shft = guysbuf[id].misc2;
+		int32_t shft = guysbuf[id].attributes[1];
 		byte is=((enemy*)guys.spr(guys.Count()-1))->item_set;
 		
 		if(!guys.add(new esLanmola((zfix)x,(zfix)y,id+0x1000,0)))
@@ -18372,7 +18372,7 @@ int32_t addenemy(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk)
 		
 		ret++;
 		
-		for(int32_t i=1; i<zc_max(1,zc_min(253,guysbuf[id&0xFFF].misc1)); i++)
+		for(int32_t i=1; i<zc_max(1,zc_min(253,guysbuf[id&0xFFF].attributes[0])); i++)
 		{
 			if(!guys.add(new esLanmola((zfix)x,(zfix)y,id+0x2000,-(i<<shft))))
 			{
@@ -18393,7 +18393,7 @@ int32_t addenemy(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk)
 	case eeMANHAN:
 		id &= 0xFFF;
 		
-		for(int32_t i=0; i<((!(guysbuf[id].misc2))?4:8); i++)
+		for(int32_t i=0; i<((!(guysbuf[id].attributes[1]))?4:8); i++)
 		{
 			if(!guys.add(new esManhandla((zfix)x,(zfix)y,id+0x1000,i)))
 			{
@@ -18408,7 +18408,7 @@ int32_t addenemy(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk)
 			}
 			
 			ret++;
-			((enemy*)guys.spr(guys.Count()-1))->frate=guysbuf[id].misc1;
+			((enemy*)guys.spr(guys.Count()-1))->frate=guysbuf[id].attributes[0];
 		}
 		
 		break;
@@ -18418,7 +18418,7 @@ int32_t addenemy(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk)
 		id &= 0xFFF;
 		eGleeok* parent = (eGleeok*)e;
 
-		for(int32_t i=0; i<zc_max(1,zc_min(254,guysbuf[id&0xFFF].misc1)); i++)
+		for(int32_t i=0; i<zc_max(1,zc_min(254,guysbuf[id&0xFFF].attributes[0])); i++)
 		{
 			esGleeok* head = new esGleeok((zfix)x,(zfix)y,id+0x1000,c, e);
 			if(!guys.add(head))
@@ -18447,7 +18447,7 @@ int32_t addenemy(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk)
 			}
 			head->tile = head->dummy_int[2];
 
-			c-=guysbuf[id].misc4;
+			c-=guysbuf[id].attributes[3];
 			ret++;
 		}
 	}
@@ -18459,9 +18459,9 @@ int32_t addenemy(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk)
 		id &= 0xFFF;
 		int32_t outeyes = 0;
 		
-		for(int32_t i=0; i<zc_min(254,guysbuf[id&0xFFF].misc1); i++)
+		for(int32_t i=0; i<zc_min(254,guysbuf[id&0xFFF].attributes[0]); i++)
 		{
-			if(!((guysbuf[id].misc10&&get_qr(qr_HARDCODED_BS_PATRA))?guys.add(new esPatraBS((zfix)x,(zfix)y,id+0x1000,i,e)):guys.add(new esPatra((zfix)x,(zfix)y,id+0x1000,i,e))))
+			if(!((guysbuf[id].attributes[9] &&get_qr(qr_HARDCODED_BS_PATRA))?guys.add(new esPatraBS((zfix)x,(zfix)y,id+0x1000,i,e)):guys.add(new esPatra((zfix)x,(zfix)y,id+0x1000,i,e))))
 			{
 				al_trace("Patra outer eye %d could not be created!\n",i+1);
 				
@@ -18476,7 +18476,7 @@ int32_t addenemy(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk)
 			ret++;
 		}
 		
-		for(int32_t i=0; i<zc_min(254,guysbuf[id&0xFFF].misc2); i++)
+		for(int32_t i=0; i<zc_min(254,guysbuf[id&0xFFF].attributes[1]); i++)
 		{
 			if(!guys.add(new esPatra((zfix)x,(zfix)y,id+0x1000,i,e)))
 			{
@@ -18511,7 +18511,7 @@ bool isjumper(int32_t id)
 		return true;
 		
 	case eeWALK:
-		if(guysbuf[id&0xFFF].misc9==e9tVIRE || guysbuf[id&0xFFF].misc9==e9tPOLSVOICE) return true;
+		if(guysbuf[id&0xFFF].attributes[8] == e9tVIRE || guysbuf[id & 0xFFF].attributes[8] == e9tPOLSVOICE) return true;
 	}
 	
 	return false;
@@ -18605,7 +18605,7 @@ bool canfall(int32_t id)
 		if(id < eOCTO1S)
 			return false;
 			
-		switch(guysbuf[id&0xFFF].misc10)
+		switch(guysbuf[id&0xFFF].attributes[9])
 		{
 		case 1:
 		case 2:
@@ -18650,7 +18650,7 @@ bool enemy::enemycanfall(int32_t id, bool checkgrav)
 		if(id < eOCTO1S) //screen guys and fires that aren't real enemies, and never fall
 			return false;
 			
-		switch(guysbuf[id&0xFFF].misc10) //I'm unsure what these specify off-hand. Needs better comments. -Z
+		switch(guysbuf[id&0xFFF].attributes[9]) //I'm unsure what these specify off-hand. Needs better comments. -Z
 		{
 		case 1:
 		case 2:
@@ -18941,7 +18941,7 @@ bool ok2add(int32_t id)
 		
 	case eeDIG:
 	{
-		switch(guysbuf[id].misc10)
+		switch(guysbuf[id].attributes[9])
 		{
 		case 1:
 			if(!get_qr(qr_NOTMPNORET))
@@ -19601,7 +19601,7 @@ bool is_starting_pos(int32_t i, int32_t x, int32_t y, int32_t t)
 		return false;
 		
 	//BS Dodongos need at least 2 spaces.
-	if((guysbuf[tmpscr->enemy[i]].family==eeDONGO)&&(guysbuf[tmpscr->enemy[i]].misc10==1))
+	if((guysbuf[tmpscr->enemy[i]].family==eeDONGO)&&(guysbuf[tmpscr->enemy[i]].attributes[9] ==1))
 	{
 		if(((x<16) ||_walkflag(x-16,y+8, 2))&&
 				((x>224)||_walkflag(x+16,y+8, 2))&&
@@ -19741,7 +19741,7 @@ void spawnEnemy(int& pos, int& clk, int& x, int& y, int& fastguys, int& i, int& 
 		if(BSZ&&((tmpscr->enemy[i]>0&&tmpscr->enemy[i]<MAXGUYS))) // Hackish fix for crash in Waterford.qst on screen 0x65 of dmap 0 (map 1).
 		{
 			// Special case for blue leevers
-			if(guysbuf[tmpscr->enemy[i]].family==eeLEV && guysbuf[tmpscr->enemy[i]].misc1==1)
+			if(guysbuf[tmpscr->enemy[i]].family==eeLEV && guysbuf[tmpscr->enemy[i]].attributes[0]==1)
 				c=-15*(i+1);
 			else
 				c=-15;
@@ -20205,7 +20205,7 @@ void setupscreen()
 				if(itemid>=0 && prices[i]!=100000)
 				{
 					if(itemsbuf[itemid].flags & item_flag1)
-						prices[i]=((prices[i]*itemsbuf[itemid].misc1)/100);
+						prices[i]=((prices[i]*itemsbuf[itemid].misc1) / 100);
 					else
 						prices[i]+=itemsbuf[itemid].misc1;
 					prices[i]=vbound(prices[i], 0, 99999);
@@ -20334,7 +20334,7 @@ void setupscreen()
 		if(itemid >= 0)
 		{
 			if(itemsbuf[itemid].flags & item_flag1)
-				prices[i]*=(itemsbuf[itemid].misc1/100.0);
+				prices[i]*=(itemsbuf[itemid].misc1 /100.0);
 			else
 				prices[i]+=itemsbuf[itemid].misc1;
 		}

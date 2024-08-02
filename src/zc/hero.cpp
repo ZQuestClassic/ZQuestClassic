@@ -23901,7 +23901,7 @@ void HeroClass::checkspecial()
 			// if room has traps, guys don't come back
 			for(int32_t i=0; i<eMAXGUYS; i++)
 			{
-				if(guysbuf[i].family==eeTRAP&&guysbuf[i].misc2)
+				if(guysbuf[i].family==eeTRAP&&guysbuf[i].attributes[1])
 					if(guys.idCount(i) && !getmapflag(mTMPNORET))
 						setmapflag(mTMPNORET);
 			}

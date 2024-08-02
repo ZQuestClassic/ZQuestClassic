@@ -152,7 +152,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
 #define V_INITDATA        39
-#define V_GUYS            49
+#define V_GUYS            50
 #define V_MIDIS            4
 #define V_CHEATS           1
 #define V_SAVEGAME        42
@@ -1284,7 +1284,7 @@ struct item_drop_object
 #define guyflagOVERRIDE_DRAW_Y_OFFSET	0x00000100
 #define guyflagOVERRIDE_DRAW_Z_OFFSET	0x00000200
 
-#define MAX_NPC_ATRIBUTES 31
+#define MAX_NPC_ATTRIBUTES 31
 
 struct guydata
 {
@@ -1306,7 +1306,8 @@ struct guydata
     int16_t  dp, wdp, weapon;
     
     int16_t  rate, hrate, step, homing, grumble, item_set;
-    int32_t   misc1, misc2, misc3, misc4, misc5, misc6, misc7, misc8, misc9, misc10, misc11, misc12, misc13, misc14, misc15;
+    
+	int32_t attributes[32]; //refactored this into an array, no more madness.
     int16_t  bgsfx, bosspal, extend;
     byte defense[edefLAST255];
     byte  hitsfx, deadsfx;
@@ -1325,9 +1326,6 @@ struct guydata
     int16_t frozenmisc[10];
     //v 34
     int16_t firesfx; //weapon fire (attack) sound
-    //expanded ->Attributes[] to size of 32.
-    int32_t misc16, misc17, misc18, misc19, misc20, misc21, misc22, misc23, 
-	misc24, misc25, misc26, misc27, misc28, misc29, misc30, misc31, misc32;
     int32_t movement[32]; //Reserved for npc movement types and args. 
     int32_t new_weapon[32]; //Reserved for weapon patterns and args.
     int32_t initD[8], initA[2];

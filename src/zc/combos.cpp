@@ -1406,7 +1406,7 @@ bool trigger_armos_grave(int32_t lyr, int32_t pos, int32_t trigdir)
 						id2=i;
 						
 						// This is mostly for backwards-compatability
-						if(guysbuf[i].family==eeWALK && guysbuf[i].misc9==e9tARMOS)
+						if(guysbuf[i].family==eeWALK && guysbuf[i].attributes[8] == e9tARMOS)
 						{
 							eclk=0;
 						}
@@ -1654,7 +1654,7 @@ bool trigger_armos_grave_ffc(int32_t pos, int32_t trigdir)
 						id2=i;
 						
 						// This is mostly for backwards-compatability
-						if(guysbuf[i].family==eeWALK && guysbuf[i].misc9==e9tARMOS)
+						if(guysbuf[i].family==eeWALK && guysbuf[i].attributes[8] == e9tARMOS)
 						{
 							eclk=0;
 						}

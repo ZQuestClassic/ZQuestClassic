@@ -6761,7 +6761,7 @@ bool _handle_tile_move(TileMoveProcess dest_process, optional<TileMoveProcess> s
 			else if(enemy.family==eeGLEEOK)
 			{
 				// Not certain this is the right thing to check...
-				if(enemy.misc3==0)
+				if(enemy.attributes[2] == 0)
 					gleeok=1;
 				else
 					gleeok=2;
