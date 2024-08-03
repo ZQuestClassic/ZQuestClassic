@@ -5,6 +5,7 @@ import re
 import shutil
 import subprocess
 import sys
+import time
 import unittest
 
 from pathlib import Path
@@ -317,6 +318,8 @@ class TestReplays(unittest.TestCase):
                 stdout=f,
                 stderr=subprocess.STDOUT,
             )
+        # Give the server enough time to start up.
+        time.sleep(5)
 
         run_target.check_run(
             'zplayer',
