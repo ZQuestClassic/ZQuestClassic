@@ -5000,7 +5000,6 @@ void edit_enemydata(int32_t index)
 			{
 				int32_t size = 0;
 				((ListData*)enedata_dlg[64+i].dp)->listFunc(-1,&size);
-				// Bound ms[i] as well as enedata_dlg[64+i].d1
 				sprintf(attribs[i],"%d",vbound(atoi(attribs[i]), 0, size));
 				enedata_dlg[64+i].d1 = atoi(attribs[i]);
 			}
