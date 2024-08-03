@@ -1713,10 +1713,18 @@ std::optional<int32_t> ASTExprAssign::getCompileTimeValue(
 // ASTExprIdentifier
 
 ASTExprIdentifier::ASTExprIdentifier(string const& name,
-									 LocationData const& location)
+	LocationData const& location)
 	: ASTExpr(location), binding(NULL), noUsing(false), constant_(false)
 {
 	if (name != "") components.push_back(name);
+}
+
+ASTExprIdentifier::ASTExprIdentifier(std::shared_ptr<ASTString> identifier,
+	LocationData const& location)
+	: ASTExpr(location), binding(NULL), noUsing(false), constant_(false)
+{
+	componentNodes.push_back(identifier);
+	components.push_back(identifier->getValue());
 }
 
 void ASTExprIdentifier::execute(ASTVisitor& visitor, void* param)

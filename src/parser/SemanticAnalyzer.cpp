@@ -170,8 +170,11 @@ void SemanticAnalyzer::caseStmtIf(ASTStmtIf& host, void*)
 	Scope* oldscope = scope;
 	scope = host.getScope();
 
-	if(host.isDecl() && !host.condition.get())
-		host.condition = new ASTExprIdentifier(host.declaration->getName(), host.location);
+	if (host.isDecl() && !host.condition.get())
+	{
+		std::shared_ptr<ASTString> identifier(host.declaration->identifier.clone());
+		host.condition = new ASTExprIdentifier(identifier, host.location);
+	}
 	
 	while(ASTExprNot* ptr = dynamic_cast<ASTExprNot*>(host.condition.get()))
 	{

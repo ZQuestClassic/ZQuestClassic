@@ -2002,8 +2002,7 @@ idlist_dot:
 Ambigious_Iden_List:
 	Identifier {
 		ASTString* name = (ASTString*)$1;
-		ASTExprIdentifier* identifier = new ASTExprIdentifier(name->getValue(), @$);
-		identifier->componentNodes.push_back(std::shared_ptr<ASTString>(name));
+		ASTExprIdentifier* identifier = new ASTExprIdentifier(std::shared_ptr<ASTString>(name), @$);
 		identifier->doc_comment = std::move(name->doc_comment);
 		if (!first_identifier_for_line) first_identifier_for_line = identifier;
 		$$ = identifier;}

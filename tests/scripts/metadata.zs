@@ -73,6 +73,10 @@ ffc script Metadata {
             // TODO: make symbol lookup find `v`
             Trace(v);
         }
+        if (int ahhh = 1)
+        {
+            Trace(ahhh);
+        }
     }
 }
 

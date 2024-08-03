@@ -1369,6 +1369,8 @@ namespace ZScript
 	public:
 		ASTExprIdentifier(std::string const& name = "",
 		                  LocationData const& location = LOC_NONE);
+		ASTExprIdentifier(std::shared_ptr<ASTString> identifier,
+			LocationData const& location = LOC_NONE);
 		ASTExprIdentifier* clone() const {return new ASTExprIdentifier(*this);}
 
 		void execute(ASTVisitor& visitor, void* param = NULL);

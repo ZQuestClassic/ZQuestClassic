@@ -447,7 +447,7 @@ void MetadataVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 void MetadataVisitor::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 {
 	// TODO: create identifiers for namespace components
-	if (host.binding)
+	if (host.binding && !host.componentNodes.empty())
 		appendIdentifier(std::to_string(host.binding->id), host.binding->getNode(), host.componentNodes.back()->location);
 
 	RecursiveVisitor::caseExprIdentifier(host, param);
