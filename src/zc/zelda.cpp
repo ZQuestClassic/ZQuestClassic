@@ -4116,6 +4116,10 @@ void do_load_and_quit_command(const char* quest_path)
 
 int main(int argc, char **argv)
 {
+	// Before anything else, let's register our custom trace handler:
+	register_trace_handler(zc_trace_handler);
+	al_register_trace_handler([](const char* str){zc_trace_handler(str);});
+
 	qstdir = (char*)malloc(2048);
 	qstpath = (char*)malloc(2048);
 	qstdir[0] = 0;
@@ -4249,7 +4253,7 @@ int main(int argc, char **argv)
 	sprintf(zc_aboutstr,"%s, Version %s", ZC_PLAYER_NAME, getReleaseTag());
 	
 
-	Z_title("ZC Launched: %s, v.%s",ZC_PLAYER_NAME, getReleaseTag());
+	Z_title("ZC Launched: %s, %s",ZC_PLAYER_NAME, getReleaseTag());
 	
 	if(!get_qst_buffers())
 	{
@@ -4291,9 +4295,6 @@ int main(int argc, char **argv)
 			standalone_save_path = "standalone-" + standalone_quest.stem().string() + ".sav";
 		}
 	}
-
-	// Before anything else, let's register our custom trace handler:
-	register_trace_handler(zc_trace_handler);
 	
 	all_disable_threaded_display();
 	

@@ -25980,6 +25980,10 @@ template <typename ...Params>
 
 int32_t main(int32_t argc,char **argv)
 {
+	// Before anything else, let's register our custom trace handler:
+	register_trace_handler(zc_trace_handler);
+	al_register_trace_handler([](const char* str){zc_trace_handler(str);});
+
 	common_main_setup(App::zquest, argc, argv);
 	set_should_zprint_cb([]() {
 		return get_qr(qr_SCRIPTERRLOG) || DEVLEVEL > 0;
@@ -26040,10 +26044,7 @@ int32_t main(int32_t argc,char **argv)
 		do_copy_qst_command(input_filename, output_filename);
 	}
 
-	Z_title("%s, v.%s",ZQ_EDITOR_NAME, getReleaseTag());
-	
-	// Before anything else, let's register our custom trace handler:
-	register_trace_handler(zc_trace_handler);
+	Z_title("%s, %s",ZQ_EDITOR_NAME, getReleaseTag());
 
 	allocate_crap();
 	if(!get_qst_buffers())
