@@ -105,6 +105,7 @@ jobs:
         if: inputs.config == 'Coverage'
         run: |
             echo "BUILD_FOLDER=build/Coverage" >> "$GITHUB_ENV"
+            mkdir -p build
             tar -xvzf ${{ needs.build.outputs.artifact-name }}/${{ needs.build.outputs.package-name }} -C build
             cp -r build/tmp-src/* src/
 
