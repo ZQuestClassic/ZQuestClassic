@@ -179,6 +179,9 @@ def create_compare_report(test_runs: List[ReplayTestResults]):
                     if run.unexpected_gfx_segments:
                         for begin, _ in run.unexpected_gfx_segments:
                             segments.append([begin - 30, begin + 30])
+                if not segments:
+                    # No gfx failures, ignore.
+                    continue
                 tree = intervaltree.IntervalTree.from_tuples(segments)
                 tree.merge_overlaps(strict=False)
                 segments = [[x.begin, x.end] for x in tree.items()]
