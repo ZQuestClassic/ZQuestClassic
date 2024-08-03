@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2024-06-14 07:26:05</td>
+      <td>2024-08-03 06:15:10</td>
     </tr>
   </table>
 </div>
@@ -73,7 +73,7 @@
       <th>Call count</th>
       <th>Block coverage</th>
     </tr>
-    <tr><td><a href="#l78">HeroClass::WalkflagInfo::WalkflagInfo() (line 78)</a></td><td>called 80881142 times, returned 80881142 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l78">HeroClass::WalkflagInfo::WalkflagInfo() (line 78)</a></td><td>called 80877162 times, returned 80877162 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l99">HeroClass::WalkflagInfo::getDir() (line 99)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l155">HeroClass::WalkflagInfo::getFlags() (line 155)</a></td><td>called 9888249 times, returned 9888249 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l88">HeroClass::WalkflagInfo::getHopClk() (line 88)</a></td><td>called 1288 times, returned 1288 times</td><td>100.0%</td></tr>
@@ -106,14 +106,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#ifndef _HERO_H_</span></td>
+      <td class="src "><span class="cp">#ifndef HERO_H_</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2" href="#l2">2</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define _HERO_H_</span></td>
+      <td class="src "><span class="cp">#define HERO_H_</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l3" href="#l3">3</a></td>
@@ -644,14 +644,14 @@
       <td class="lineno"><a id="l78" href="#l78">78</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">80881142</td>
+      <td class="linecount coveredLine">80877162</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">WalkflagInfo</span><span class="p">()</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">flags</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span><span class="w"> </span><span class="n">newhopclk</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span><span class="w"> </span><span class="n">newhopdir</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span><span class="w"> </span><span class="n">newdir</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span><span class="w"> </span><span class="n">newladderdir</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l79" href="#l79">79</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">80881142</td>
+      <td class="linecount coveredLine">80877162</td>
       <td class="src coveredLine"><span class="w">			</span><span class="n">newladderx</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span><span class="w"> </span><span class="n">newladdery</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span><span class="w"> </span><span class="n">newladderstart</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{}</span></td>
     </tr>
     <tr class="source-line">
@@ -4019,927 +4019,906 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w">  </span><span class="nf">setSwordClk</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">newclk</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w">  </span><span class="nf">getShieldClk</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l559" href="#l559">559</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w">  </span><span class="nf">setItemClk</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">newclk</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w">  </span><span class="nf">setSwordClk</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">newclk</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l560" href="#l560">560</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">zfix</span><span class="w">  </span><span class="nf">getModifiedX</span><span class="p">();</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w">  </span><span class="nf">setItemClk</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">newclk</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l561" href="#l561">561</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">zfix</span><span class="w">  </span><span class="nf">getModifiedY</span><span class="p">();</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w">  </span><span class="nf">setShieldClk</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">newclk</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l562" href="#l562">562</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w">  </span><span class="nf">getDir</span><span class="p">();</span></td>
+      <td class="src "><span class="w">	</span><span class="n">zfix</span><span class="w">  </span><span class="nf">getModifiedX</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l563" href="#l563">563</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">setDir</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">new_dir</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="n">zfix</span><span class="w">  </span><span class="nf">getModifiedY</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l564" href="#l564">564</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w">  </span><span class="nf">getHitDir</span><span class="p">();</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w">  </span><span class="nf">getDir</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l565" href="#l565">565</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">setHitDir</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">new_dir</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">setDir</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">new_dir</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l566" href="#l566">566</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w">  </span><span class="nf">getClk</span><span class="p">();</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w">  </span><span class="nf">getHitDir</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l567" href="#l567">567</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w">  </span><span class="nf">getPushing</span><span class="p">();</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">setHitDir</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">new_dir</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l568" href="#l568">568</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">reset_swordcharge</span><span class="p">();</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w">  </span><span class="nf">getClk</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l569" href="#l569">569</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">reset_hookshot</span><span class="p">();</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w">  </span><span class="nf">getPushing</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l570" href="#l570">570</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">can_deploy_ladder</span><span class="p">();</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">reset_swordcharge</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l571" href="#l571">571</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">reset_ladder</span><span class="p">();</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">reset_hookshot</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l572" href="#l572">572</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">refill</span><span class="p">();</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">can_deploy_ladder</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l573" href="#l573">573</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">Catch</span><span class="p">();</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">reset_ladder</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l574" href="#l574">574</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">getClock</span><span class="p">();</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">refill</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l575" href="#l575">575</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">setClock</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">state</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">Catch</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l576" href="#l576">576</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">getFlashingCSet</span><span class="p">();</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">getClock</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l577" href="#l577">577</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">is_hitflickerframe</span><span class="p">();</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">setClock</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">state</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l578" href="#l578">578</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w">  </span><span class="nf">getAction</span><span class="p">();</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">getFlashingCSet</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l579" href="#l579">579</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w">  </span><span class="nf">getAction2</span><span class="p">();</span><span class="w"> </span><span class="c1">//used by the new ffcore.actions</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">is_hitflickerframe</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l580" href="#l580">580</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">setAction</span><span class="p">(</span><span class="n">actiontype</span><span class="w"> </span><span class="n">new_action</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w">  </span><span class="nf">getAction</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l581" href="#l581">581</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">getHeldItem</span><span class="p">();</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w">  </span><span class="nf">getAction2</span><span class="p">();</span><span class="w"> </span><span class="c1">//used by the new ffcore.actions</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l582" href="#l582">582</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">setHeldItem</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">newitem</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">setAction</span><span class="p">(</span><span class="n">actiontype</span><span class="w"> </span><span class="n">new_action</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l583" href="#l583">583</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">isDiving</span><span class="p">();</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">getHeldItem</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l584" href="#l584">584</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">isSwimming</span><span class="p">();</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">setHeldItem</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">newitem</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l585" href="#l585">585</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">setDontDraw</span><span class="p">(</span><span class="n">byte</span><span class="w"> </span><span class="n">new_dontdraw</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">isDiving</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l586" href="#l586">586</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="nf">getDontDraw</span><span class="p">();</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">isSwimming</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l587" href="#l587">587</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">setHClk</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">newhclk</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">setDontDraw</span><span class="p">(</span><span class="n">byte</span><span class="w"> </span><span class="n">new_dontdraw</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l588" href="#l588">588</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">getHClk</span><span class="p">();</span></td>
+      <td class="src "><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="nf">getDontDraw</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l589" href="#l589">589</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">setDivineProtectionShieldClk</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">newclk</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">setHClk</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">newhclk</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l590" href="#l590">590</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">getDivineProtectionShieldClk</span><span class="p">();</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">getHClk</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l591" href="#l591">591</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">getHoverClk</span><span class="p">();</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">setDivineProtectionShieldClk</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">newclk</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l592" href="#l592">592</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">getHoldClk</span><span class="p">();</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">getDivineProtectionShieldClk</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l593" href="#l593">593</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">getSpecialCave</span><span class="p">();</span><span class="w"> </span><span class="c1">// used only by maps.cpp</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">getHoverClk</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l594" href="#l594">594</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="n">ffwarp</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">getHoldClk</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l595" href="#l595">595</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="n">ffpit</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">getSpecialCave</span><span class="p">();</span><span class="w"> </span><span class="c1">// used only by maps.cpp</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l596" href="#l596">596</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">setscriptnohit</span><span class="p">(</span><span class="kt">bool</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="n">ffwarp</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l597" href="#l597">597</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">getscriptnohit</span><span class="p">();</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="n">ffpit</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l598" href="#l598">598</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">setscriptnohit</span><span class="p">(</span><span class="kt">bool</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l599" href="#l599">599</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">sethitHeroUID</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">screen_index</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">getscriptnohit</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l600" href="#l600">600</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">ClearhitHeroUIDs</span><span class="p">();</span></td>
+      <td class="src "><span class="w">	</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l601" href="#l601">601</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">set_defence</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">def</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">v</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">sethitHeroUID</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">screen_index</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l602" href="#l602">602</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">get_defence</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">def</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">ClearhitHeroUIDs</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l603" href="#l603">603</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">gethitHeroUID</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">type</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">set_defence</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">def</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">v</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l604" href="#l604">604</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">get_defence</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">def</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l605" href="#l605">605</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">setHurtSFX</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">sfx</span><span class="p">);</span><span class="w"> </span><span class="c1">//Set Hero;s hurt sfx</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">gethitHeroUID</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">type</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l606" href="#l606">606</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">getHurtSFX</span><span class="p">();</span></td>
+      <td class="src "><span class="w">	</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l607" href="#l607">607</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">setHurtSFX</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">sfx</span><span class="p">);</span><span class="w"> </span><span class="c1">//Set Hero;s hurt sfx</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l608" href="#l608">608</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	  </span><span class="c1">//Prevent the subscreen from falling by script.</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">getHurtSFX</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l609" href="#l609">609</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">stopSubscreenFalling</span><span class="p">();</span></td>
+      <td class="src "><span class="w">	</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l610" href="#l610">610</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">stopSubscreenFalling</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">v</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	  </span><span class="c1">//Prevent the subscreen from falling by script.</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l611" href="#l611">611</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">stopSubscreenFalling</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l612" href="#l612">612</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">getDiagMove</span><span class="p">();</span><span class="w"> </span><span class="c1">//Diagonal movement.</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">stopSubscreenFalling</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">v</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l613" href="#l613">613</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">setDiagMove</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">newdiag</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l614" href="#l614">614</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">getBigHitbox</span><span class="p">();</span><span class="w"> </span><span class="c1">//Large H-itbox</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">getDiagMove</span><span class="p">();</span><span class="w"> </span><span class="c1">//Diagonal movement.</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l615" href="#l615">615</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">setBigHitbox</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">newbighitbox</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">setDiagMove</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">newdiag</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l616" href="#l616">616</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">getStepRate</span><span class="p">();</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">getBigHitbox</span><span class="p">();</span><span class="w"> </span><span class="c1">//Large H-itbox</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l617" href="#l617">617</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">setStepRate</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">newrate</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">setBigHitbox</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">newbighitbox</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l618" href="#l618">618</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">getSwimUpRate</span><span class="p">();</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">getStepRate</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l619" href="#l619">619</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">setSwimUpRate</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">newrate</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">setStepRate</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">newrate</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l620" href="#l620">620</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">getSwimSideRate</span><span class="p">();</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">getSwimUpRate</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l621" href="#l621">621</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">setSwimSideRate</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">newrate</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">setSwimUpRate</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">newrate</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l622" href="#l622">622</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">getSwimDownRate</span><span class="p">();</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">getSwimSideRate</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l623" href="#l623">623</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">setSwimDownRate</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">newrate</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">setSwimSideRate</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">newrate</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l624" href="#l624">624</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">getSwimDownRate</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l625" href="#l625">625</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">setSwimDownRate</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">newrate</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l626" href="#l626">626</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l627" href="#l627">627</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">getLastLensID</span><span class="p">();</span><span class="w">	</span></td>
+      <td class="src "><span class="w">	</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l628" href="#l628">628</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">setLastLensID</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">p_item</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l629" href="#l629">629</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">cleanupByrna</span><span class="p">();</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">getLastLensID</span><span class="p">();</span><span class="w">	</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l630" href="#l630">630</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">getOnSideviewLadder</span><span class="p">();</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">setLastLensID</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">p_item</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l631" href="#l631">631</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">setOnSideviewLadder</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">val</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">cleanupByrna</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l632" href="#l632">632</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">canSideviewLadder</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">down</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">getOnSideviewLadder</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l633" href="#l633">633</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">trySideviewLadder</span><span class="p">();</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">setOnSideviewLadder</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">val</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l634" href="#l634">634</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">canSideviewLadderRemote</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">wx</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">wy</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">down</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">canSideviewLadder</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">down</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l635" href="#l635">635</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">virtual</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">sideview_mode</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">trySideviewLadder</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l636" href="#l636">636</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">virtual</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">is_unpushable</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">canSideviewLadderRemote</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">wx</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">wy</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">down</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l637" href="#l637">637</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">on_ffc_platform</span><span class="p">(</span><span class="n">ffcdata</span><span class="w"> </span><span class="k">const</span><span class="o">&amp;</span><span class="w"> </span><span class="n">ffc</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">old</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="n">virtual</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">sideview_mode</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l638" href="#l638">638</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">on_ffc_platform</span><span class="p">();</span></td>
+      <td class="src "><span class="w">	</span><span class="n">virtual</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">is_unpushable</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l639" href="#l639">639</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">check_platform_ffc</span><span class="p">();</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">on_ffc_platform</span><span class="p">(</span><span class="n">ffcdata</span><span class="w"> </span><span class="k">const</span><span class="o">&amp;</span><span class="w"> </span><span class="n">ffc</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">old</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l640" href="#l640">640</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">clear_platform_ffc</span><span class="p">();</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">on_ffc_platform</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l641" href="#l641">641</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">};</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">check_platform_ffc</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l642" href="#l642">642</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">clear_platform_ffc</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l643" href="#l643">643</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">usingActiveShield</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">itmid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">-1</span><span class="p">);</span></td>
+      <td class="src "><span class="p">};</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l644" href="#l644">644</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">getCurrentShield</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">requireActive</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">);</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l645" href="#l645">645</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">isRaftFlag</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">flag</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">usingActiveShield</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">itmid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">-1</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l646" href="#l646">646</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">do_lens</span><span class="p">();</span></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">getCurrentShield</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">requireActive</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l647" href="#l647">647</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">do_210_lens</span><span class="p">();</span></td>
+      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">isRaftFlag</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">flag</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l648" href="#l648">648</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">touchcombo</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">y</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">do_lens</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l649" href="#l649">649</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">did_secret</span><span class="p">;</span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">do_210_lens</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l650" href="#l650">650</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">selectWlevel</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">d</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">touchcombo</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">y</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l651" href="#l651">651</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">computeMaxArrows</span><span class="p">();</span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">did_secret</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l652" href="#l652">652</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">usekey</span><span class="p">();</span></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">selectWlevel</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">d</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l653" href="#l653">653</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">canUseKey</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">num</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">computeMaxArrows</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l654" href="#l654">654</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">usekey</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">num</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">usekey</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l655" href="#l655">655</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">canUseKey</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">num</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l656" href="#l656">656</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">/************************************/</span></td>
+      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">usekey</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">num</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l657" href="#l657">657</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">/********  More Items Code  *********/</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l658" href="#l658">658</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">/************************************/</span></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">enemy_dp</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">index</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l659" href="#l659">659</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">ewpn_dp</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">index</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l660" href="#l660">660</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">enemy_dp</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">index</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">lwpn_dp</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">index</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l661" href="#l661">661</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">ewpn_dp</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">index</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">checkbunny</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">itemid</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l662" href="#l662">662</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">lwpn_dp</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">index</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">usesSwordJinx</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">itemid</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l663" href="#l663">663</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">checkbunny</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">itemid</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">checkitem_jinx</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">itemid</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l664" href="#l664">664</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">usesSwordJinx</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">itemid</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">stopCaneOfByrna</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l665" href="#l665">665</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">checkitem_jinx</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">itemid</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">isWpnPressed</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">wpn</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l666" href="#l666">666</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">stopCaneOfByrna</span><span class="p">();</span></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">getWpnPressed</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">wpn</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l667" href="#l667">667</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">//void selectWpn(int32_t xstep, int32_t ystep, bool b);</span></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">getRocsPressed</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l668" href="#l668">668</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">isWpnPressed</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">wpn</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">isItmPressed</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">itmid</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l669" href="#l669">669</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">getWpnPressed</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">wpn</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">selectSword</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l670" href="#l670">670</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">getRocsPressed</span><span class="p">();</span></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">selectItemclass</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">itemclass</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l671" href="#l671">671</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">isItmPressed</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">itmid</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">selectNextAWpn</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">type</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l672" href="#l672">672</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">selectSword</span><span class="p">();</span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">selectNextBWpn</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">type</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l673" href="#l673">673</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">selectItemclass</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">itemclass</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">selectNextXWpn</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">type</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l674" href="#l674">674</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">selectNextAWpn</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">type</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">selectNextYWpn</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">type</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l675" href="#l675">675</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">selectNextBWpn</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">type</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">verifyBothWeapons</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l676" href="#l676">676</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">selectNextXWpn</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">type</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">verifyAWpn</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l677" href="#l677">677</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">selectNextYWpn</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">type</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">verifyBWpn</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l678" href="#l678">678</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">verifyBothWeapons</span><span class="p">();</span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">verifyXWpn</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l679" href="#l679">679</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">verifyAWpn</span><span class="p">();</span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">verifyYWpn</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l680" href="#l680">680</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">verifyBWpn</span><span class="p">();</span></td>
+      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">canget</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">id</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l681" href="#l681">681</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">verifyXWpn</span><span class="p">();</span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">dospecialmoney</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">index</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l682" href="#l682">682</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">verifyYWpn</span><span class="p">();</span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">getitem</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">nosound</span><span class="o">=</span><span class="nb">false</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">doRunPassive</span><span class="o">=</span><span class="nb">false</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l683" href="#l683">683</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">canget</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">id</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">takeitem</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">id</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l684" href="#l684">684</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">dospecialmoney</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">index</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">red_shift</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l685" href="#l685">685</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">getitem</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">nosound</span><span class="o">=</span><span class="nb">false</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">doRunPassive</span><span class="o">=</span><span class="nb">false</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">slide_in_color</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">color</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l686" href="#l686">686</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">takeitem</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">id</span><span class="p">);</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l687" href="#l687">687</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">red_shift</span><span class="p">();</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l688" href="#l688">688</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">slide_in_color</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">color</span><span class="p">);</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l689" href="#l689">689</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
       <td class="src "><span class="cp">#endif</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l690" href="#l690">690</a></td>
+      <td class="lineno"><a id="l687" href="#l687">687</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>

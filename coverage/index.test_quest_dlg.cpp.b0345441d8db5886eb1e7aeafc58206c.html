@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2024-06-14 07:26:05</td>
+      <td>2024-08-03 06:15:10</td>
     </tr>
   </table>
 </div>
@@ -42,8 +42,8 @@
     <tr>
       <th scope="row">Lines:</th>
       <td>8</td>
-      <td>209</td>
-      <td class="coverage-low">3.8%</td>
+      <td>206</td>
+      <td class="coverage-low">3.9%</td>
     </tr>
     <tr>
       <th scope="row">Functions:</th>
@@ -54,8 +54,8 @@
     <tr>
       <th scope="row">Branches:</th>
       <td>5</td>
-      <td>373</td>
-      <td class="coverage-low">1.3%</td>
+      <td>363</td>
+      <td class="coverage-low">1.4%</td>
     </tr>
   </table>
 </div>
@@ -2125,42 +2125,42 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">fileexists</span><span class="p">(</span><span class="n">ZPLAYER_FILE</span><span class="p">))</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">test_killer</span><span class="p">.</span><span class="n">kill</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l285" href="#l285">285</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">			</span><span class="p">{</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l286" href="#l286">286</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="n">InfoDialog</span><span class="p">(</span><span class="s">&quot;Error&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">ZPLAYER_FILE</span><span class="w"> </span><span class="s">&quot; not found!&quot;</span><span class="p">).</span><span class="n">show</span><span class="p">();</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="kt">bool</span><span class="w"> </span><span class="n">should_record</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zc_get_config</span><span class="p">(</span><span class="s">&quot;zquest&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;test_mode_record&quot;</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l287" href="#l287">287</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">std</span><span class="o">::</span><span class="n">filesystem</span><span class="o">::</span><span class="n">path</span><span class="w"> </span><span class="n">replay_file_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zc_get_config</span><span class="p">(</span><span class="s">&quot;zquest&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;replay_file_dir&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;replays/&quot;</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l288" href="#l288">288</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">			</span><span class="p">}</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">std</span><span class="o">::</span><span class="n">filesystem</span><span class="o">::</span><span class="n">create_directory</span><span class="p">(</span><span class="n">replay_file_dir</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l289" href="#l289">289</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">test_killer</span><span class="p">.</span><span class="n">kill</span><span class="p">();</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="k">auto</span><span class="w"> </span><span class="n">replay_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">replay_file_dir</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">fmt</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;test_{}.zplay&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">time</span><span class="p">(</span><span class="k">nullptr</span><span class="p">));</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l290" href="#l290">290</a></td>
@@ -2174,91 +2174,91 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="kt">bool</span><span class="w"> </span><span class="n">should_record</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zc_get_config</span><span class="p">(</span><span class="s">&quot;zquest&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;test_mode_record&quot;</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">args</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l292" href="#l292">292</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">std</span><span class="o">::</span><span class="n">filesystem</span><span class="o">::</span><span class="n">path</span><span class="w"> </span><span class="n">replay_file_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zc_get_config</span><span class="p">(</span><span class="s">&quot;zquest&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;replay_file_dir&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;replays/&quot;</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="s">&quot;-test&quot;</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l293" href="#l293">293</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">std</span><span class="o">::</span><span class="n">filesystem</span><span class="o">::</span><span class="n">create_directory</span><span class="p">(</span><span class="n">replay_file_dir</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="n">filepath</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l294" href="#l294">294</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="k">auto</span><span class="w"> </span><span class="n">replay_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">replay_file_dir</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">fmt</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;test_{}.zplay&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">time</span><span class="p">(</span><span class="k">nullptr</span><span class="p">));</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l295" href="#l295">295</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l296" href="#l296">296</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">args</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l297" href="#l297">297</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="s">&quot;-test&quot;</span><span class="p">,</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l298" href="#l298">298</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="n">filepath</span><span class="p">,</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l299" href="#l299">299</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">				</span><span class="n">fmt</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;{}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">test_start_dmap</span><span class="p">),</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l300" href="#l300">300</a></td>
+      <td class="lineno"><a id="l295" href="#l295">295</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">				</span><span class="n">fmt</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;{}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">test_start_screen</span><span class="p">),</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l301" href="#l301">301</a></td>
+      <td class="lineno"><a id="l296" href="#l296">296</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">				</span><span class="n">fmt</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;{}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">test_ret_sqr</span><span class="p">),</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l302" href="#l302">302</a></td>
+      <td class="lineno"><a id="l297" href="#l297">297</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">			</span><span class="p">};</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l303" href="#l303">303</a></td>
+      <td class="lineno"><a id="l298" href="#l298">298</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">test_init_data_val</span><span class="p">)</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l299" href="#l299">299</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">			</span><span class="p">{</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l300" href="#l300">300</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="n">args</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="s">&quot;-test-init-data&quot;</span><span class="p">);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l301" href="#l301">301</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="n">args</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">test_init_data</span><span class="p">[</span><span class="n">test_init_data_val</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">]);</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l302" href="#l302">302</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="p">}</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l303" href="#l303">303</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">should_record</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l304" href="#l304">304</a></td>
@@ -2272,14 +2272,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="n">args</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="s">&quot;-test-init-data&quot;</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="n">args</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="s">&quot;-record&quot;</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l306" href="#l306">306</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="n">args</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">test_init_data</span><span class="p">[</span><span class="n">test_init_data_val</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">]);</span></td>
+      <td class="src uncoveredLine"><span class="w">				</span><span class="n">args</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">replay_path</span><span class="p">.</span><span class="n">string</span><span class="p">().</span><span class="n">c_str</span><span class="p">());</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l307" href="#l307">307</a></td>
@@ -2293,108 +2293,73 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">should_record</span><span class="p">)</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">test_killer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">launch_process</span><span class="p">(</span><span class="n">ZPLAYER_FILE</span><span class="p">,</span><span class="w"> </span><span class="n">args</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l309" href="#l309">309</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">			</span><span class="p">{</span></td>
+      <td class="src "><span class="cp">#endif</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l310" href="#l310">310</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="n">args</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="s">&quot;-record&quot;</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l311" href="#l311">311</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">				</span><span class="n">args</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">replay_path</span><span class="p">.</span><span class="n">string</span><span class="p">().</span><span class="n">c_str</span><span class="p">());</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l312" href="#l312">312</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="p">}</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l313" href="#l313">313</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">test_killer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">launch_process</span><span class="p">(</span><span class="n">ZPLAYER_FILE</span><span class="p">,</span><span class="w"> </span><span class="n">args</span><span class="p">);</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l314" href="#l314">314</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="cp">#endif</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l315" href="#l315">315</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="p">}</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l316" href="#l316">316</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l317" href="#l317">317</a></td>
+      <td class="lineno"><a id="l312" href="#l312">312</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">		</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l318" href="#l318">318</a></td>
+      <td class="lineno"><a id="l313" href="#l313">313</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">		</span><span class="k">case</span><span class="w"> </span><span class="no">message</span><span class="o">::</span><span class="no">CANCEL</span><span class="p">:</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l319" href="#l319">319</a></td>
+      <td class="lineno"><a id="l314" href="#l314">314</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">			</span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l320" href="#l320">320</a></td>
+      <td class="lineno"><a id="l315" href="#l315">315</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">	</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l321" href="#l321">321</a></td>
+      <td class="lineno"><a id="l316" href="#l316">316</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l322" href="#l322">322</a></td>
+      <td class="lineno"><a id="l317" href="#l317">317</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l323" href="#l323">323</a></td>
+      <td class="lineno"><a id="l318" href="#l318">318</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>

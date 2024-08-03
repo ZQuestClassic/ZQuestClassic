@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2024-06-14 07:26:05</td>
+      <td>2024-08-03 06:15:10</td>
     </tr>
   </table>
 </div>
@@ -74,8 +74,8 @@
       <th>Block coverage</th>
     </tr>
     <tr><td><a href="#l212">LinePointDist(slope_info const&amp;, zfix, zfix) (line 212)</a></td><td>called 3217 times, returned 3217 times</td><td>71.0%</td></tr>
-    <tr><td><a href="#l178">check_new_slope(zfix, zfix, zfix, zfix, zfix, zfix, bool, bool, zfix) (line 178)</a></td><td>called 21910326 times, returned 21910326 times</td><td>75.0%</td></tr>
-    <tr><td><a href="#l313">check_slope(solid_object*, bool) (line 313)</a></td><td>called 14176744 times, returned 14176744 times</td><td>75.0%</td></tr>
+    <tr><td><a href="#l178">check_new_slope(zfix, zfix, zfix, zfix, zfix, zfix, bool, bool, zfix) (line 178)</a></td><td>called 21908336 times, returned 21908336 times</td><td>75.0%</td></tr>
+    <tr><td><a href="#l313">check_slope(solid_object*, bool) (line 313)</a></td><td>called 14174754 times, returned 14174754 times</td><td>75.0%</td></tr>
     <tr><td><a href="#l147">check_slope(zfix, zfix, zfix, zfix, bool, bool) (line 147)</a></td><td>called 390506 times, returned 390506 times</td><td>82.0%</td></tr>
     <tr><td><a href="#l76">draw_slopes(BITMAP*, int, int, int) (line 76)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l81">draw_slopes_a5(int, int, ALLEGRO_COLOR) (line 81)</a></td><td>not called</td><td>0.0%</td></tr>
@@ -173,7 +173,7 @@
       <td class="lineno"><a id="l8" href="#l8">8</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">364</td>
+      <td class="linecount coveredLine">365</td>
       <td class="src coveredLine"><span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="kt">int32_t</span><span class="p">,</span><span class="w"> </span><span class="n">slope_object</span><span class="o">&gt;</span><span class="w"> </span><span class="n">slopes</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -1593,7 +1593,7 @@
       <td class="lineno"><a id="l178" href="#l178">178</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">21910326</td>
+      <td class="linecount coveredLine">21908336</td>
       <td class="src coveredLine"><span class="n">zfix</span><span class="w"> </span><span class="n">check_new_slope</span><span class="p">(</span><span class="n">zfix</span><span class="w"> </span><span class="n">tx</span><span class="p">,</span><span class="w"> </span><span class="n">zfix</span><span class="w"> </span><span class="n">ty</span><span class="p">,</span><span class="w"> </span><span class="n">zfix</span><span class="w"> </span><span class="n">tw</span><span class="p">,</span><span class="w"> </span><span class="n">zfix</span><span class="w"> </span><span class="n">th</span><span class="p">,</span><span class="w"> </span><span class="n">zfix</span><span class="w"> </span><span class="n">otx</span><span class="p">,</span><span class="w"> </span><span class="n">zfix</span><span class="w"> </span><span class="n">oty</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">fallthrough</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">platformonly</span><span class="p">,</span><span class="w"> </span><span class="n">zfix</span><span class="w"> </span><span class="n">ID</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -1609,12 +1609,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 21881596 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 21879606 times.</div>
           <div class="takenBranch">&check; Branch 1 taken 1341187 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">23222783</td>
+      <td class="linecount coveredLine">23220793</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">for</span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="k">const</span><span class="o">&amp;</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">slopes</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -1876,14 +1876,14 @@
       <td class="lineno"><a id="l209" href="#l209">209</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">21881596</td>
+      <td class="linecount coveredLine">21879606</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l210" href="#l210">210</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">21910326</td>
+      <td class="linecount coveredLine">21908336</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -2685,7 +2685,7 @@
       <td class="lineno"><a id="l313" href="#l313">313</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">14176744</td>
+      <td class="linecount coveredLine">14174754</td>
       <td class="src coveredLine"><span class="n">zfix</span><span class="w"> </span><span class="n">check_slope</span><span class="p">(</span><span class="n">solid_object</span><span class="o">*</span><span class="w"> </span><span class="n">o</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">onlyNew</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -2701,47 +2701,47 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 14176744 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 14174754 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">14176744</td>
+      <td class="linecount partialCoveredLine">14174754</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">onlyNew</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">check_new_slope</span><span class="p">(</span><span class="n">o</span><span class="o">-&gt;</span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">o</span><span class="o">-&gt;</span><span class="n">hxofs</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">o</span><span class="o">-&gt;</span><span class="n">sxofs</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l316" href="#l316">316</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">14176744</td>
+      <td class="linecount coveredLine">14174754</td>
       <td class="src coveredLine"><span class="w">	               </span><span class="n">o</span><span class="o">-&gt;</span><span class="n">y</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">o</span><span class="o">-&gt;</span><span class="n">hyofs</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">o</span><span class="o">-&gt;</span><span class="n">syofs</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l317" href="#l317">317</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">14176744</td>
+      <td class="linecount coveredLine">14174754</td>
       <td class="src coveredLine"><span class="w">	               </span><span class="n">o</span><span class="o">-&gt;</span><span class="n">hit_width</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">o</span><span class="o">-&gt;</span><span class="n">sxsz_ofs</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l318" href="#l318">318</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">14176744</td>
+      <td class="linecount coveredLine">14174754</td>
       <td class="src coveredLine"><span class="w">	               </span><span class="n">o</span><span class="o">-&gt;</span><span class="n">hit_height</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">o</span><span class="o">-&gt;</span><span class="n">sysz_ofs</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l319" href="#l319">319</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">14176744</td>
+      <td class="linecount coveredLine">14174754</td>
       <td class="src coveredLine"><span class="w">		       </span><span class="n">o</span><span class="o">-&gt;</span><span class="n">old_x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">o</span><span class="o">-&gt;</span><span class="n">hxofs</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">o</span><span class="o">-&gt;</span><span class="n">sxofs</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l320" href="#l320">320</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">14176744</td>
+      <td class="linecount coveredLine">14174754</td>
       <td class="src coveredLine"><span class="w">	               </span><span class="n">o</span><span class="o">-&gt;</span><span class="n">old_y</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">o</span><span class="o">-&gt;</span><span class="n">hyofs</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">o</span><span class="o">-&gt;</span><span class="n">syofs</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -2776,7 +2776,7 @@
       <td class="lineno"><a id="l325" href="#l325">325</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">14176744</td>
+      <td class="linecount coveredLine">14174754</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">

@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2024-06-14 07:26:05</td>
+      <td>2024-08-03 06:15:10</td>
     </tr>
   </table>
 </div>
@@ -73,10 +73,10 @@
       <th>Call count</th>
       <th>Block coverage</th>
     </tr>
-    <tr><td><a href="#l65">get_conveyor(int, int) (line 65)</a></td><td>called 17087923 times, returned 17087923 times</td><td>76.0%</td></tr>
-    <tr><td><a href="#l59">is_conveyor(int) (line 59)</a></td><td>called 20724158 times, returned 20724158 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l65">get_conveyor(int, int) (line 65)</a></td><td>called 17085933 times, returned 17085933 times</td><td>76.0%</td></tr>
+    <tr><td><a href="#l59">is_conveyor(int) (line 59)</a></td><td>called 20718184 times, returned 20718184 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l334">movingblock::active() const (line 334)</a></td><td>called 42994695 times, returned 42994695 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l339">movingblock::animate(int) (line 339)</a></td><td>called 14169529 times, returned 14027830 times</td><td>73.0%</td></tr>
+    <tr><td><a href="#l339">movingblock::animate(int) (line 339)</a></td><td>called 14167539 times, returned 14025861 times</td><td>73.0%</td></tr>
     <tr><td><a href="#l292">movingblock::check_hole() const (line 292)</a></td><td>called 535 times, returned 535 times</td><td>88.0%</td></tr>
     <tr><td><a href="#l312">movingblock::check_trig() const (line 312)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l161">movingblock::clear() (line 161)</a></td><td>called 40745 times, returned 40745 times</td><td>100.0%</td></tr>
@@ -84,7 +84,7 @@
     <tr><td><a href="#l241">movingblock::push_new(zfix, zfix, int, int, zfix) (line 241)</a></td><td>called 205 times, returned 205 times</td><td>76.0%</td></tr>
     <tr><td><a href="#l180">movingblock::set(int, int, int, int, int, int) (line 180)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l120">sprite::check_conveyor() (line 120)</a></td><td>called 2969959 times, returned 2969959 times</td><td>92.0%</td></tr>
-    <tr><td><a href="#l52">sprite::handle_sprlighting() (line 52)</a></td><td>called 114042666 times, returned 114042666 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l52">sprite::handle_sprlighting() (line 52)</a></td><td>called 114040486 times, returned 114040486 times</td><td>100.0%</td></tr>
   </table>
 </details>
 
@@ -460,7 +460,7 @@
       <td class="lineno"><a id="l52" href="#l52">52</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">114042666</td>
+      <td class="linecount coveredLine">114040486</td>
       <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">sprite::handle_sprlighting</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
@@ -476,12 +476,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 106440333 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 7602333 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 106440358 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 7600128 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">114042666</td>
+      <td class="linecount coveredLine">114040486</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">get_qr</span><span class="p">(</span><span class="n">qr_NEW_DARKROOM</span><span class="p">))</span><span class="w"> </span><span class="k">return</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -490,12 +490,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 5576063 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 5573858 times.</div>
           <div class="takenBranch">&check; Branch 1 taken 2026270 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">7602333</td>
+      <td class="linecount coveredLine">7600128</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">room_is_dark</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -509,7 +509,7 @@
       <td class="lineno"><a id="l57" href="#l57">57</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">114042666</td>
+      <td class="linecount coveredLine">114040486</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -523,7 +523,7 @@
       <td class="lineno"><a id="l59" href="#l59">59</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">20724158</td>
+      <td class="linecount coveredLine">20718184</td>
       <td class="src coveredLine"><span class="kt">bool</span><span class="w"> </span><span class="nf">is_conveyor</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">type</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -537,7 +537,7 @@
       <td class="lineno"><a id="l61" href="#l61">61</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">20724158</td>
+      <td class="linecount coveredLine">20718184</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">auto</span><span class="o">&amp;</span><span class="w"> </span><span class="n">cc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">combo_class_buf</span><span class="p">[</span><span class="n">type</span><span class="p">];</span></td>
     </tr>
     <tr class="source-line">
@@ -546,12 +546,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 20681137 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 20675163 times.</div>
           <div class="takenBranch">&check; Branch 1 taken 43021 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">20724158</td>
+      <td class="linecount coveredLine">20718184</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">cc</span><span class="p">.</span><span class="n">conveyor_x_speed</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">cc</span><span class="p">.</span><span class="n">conveyor_y_speed</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -572,7 +572,7 @@
       <td class="lineno"><a id="l65" href="#l65">65</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">17087923</td>
+      <td class="linecount coveredLine">17085933</td>
       <td class="src coveredLine"><span class="kt">int32_t</span><span class="w"> </span><span class="nf">get_conveyor</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">y</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -586,14 +586,14 @@
       <td class="lineno"><a id="l67" href="#l67">67</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">17087923</td>
+      <td class="linecount coveredLine">17085933</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vbound</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="mi">16</span><span class="o">*</span><span class="mi">16</span><span class="p">)</span><span class="mi">-1</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l68" href="#l68">68</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">17087923</td>
+      <td class="linecount coveredLine">17085933</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vbound</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="mi">11</span><span class="o">*</span><span class="mi">16</span><span class="p">)</span><span class="mi">-1</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -603,39 +603,39 @@
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
           <div class="takenBranch">&check; Branch 0 taken 513571 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 16574352 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 16572362 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">17087923</td>
+      <td class="linecount coveredLine">17085933</td>
       <td class="src coveredLine"><span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">maxlayer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_qr</span><span class="p">(</span><span class="n">qr_CONVEYORS_ALL_LAYERS</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">6</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="n">get_qr</span><span class="p">(</span><span class="n">qr_CONVEYORS_L1_L2</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l70" href="#l70">70</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">17087923</td>
+      <td class="linecount coveredLine">17085933</td>
       <td class="src coveredLine"><span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">pos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">COMBOPOS</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l71" href="#l71">71</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">17087923</td>
+      <td class="linecount coveredLine">17085933</td>
       <td class="src coveredLine"><span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">found_layer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l72" href="#l72">72</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">17087923</td>
+      <td class="linecount coveredLine">17085933</td>
       <td class="src coveredLine"><span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">cmbid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l73" href="#l73">73</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">17087923</td>
+      <td class="linecount coveredLine">17085933</td>
       <td class="src coveredLine"><span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">ffcid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MAPFFCOMBO</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -645,7 +645,7 @@
         <summary class="linebranchSummary">5/6</summary>
         <div class="linebranchContents">
           <div class="takenBranch">&check; Branch 0 taken 513571 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 16574352 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 16572362 times.</div>
           <div class="takenBranch">&check; Branch 2 taken 236 times.</div>
           <div class="takenBranch">&check; Branch 3 taken 513335 times.</div>
           <div class="takenBranch">&check; Branch 4 taken 236 times.</div>
@@ -653,7 +653,7 @@
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">17087923</td>
+      <td class="linecount partialCoveredLine">17085933</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">maxlayer</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">6</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">ffcid</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">is_conveyor</span><span class="p">(</span><span class="n">combobuf</span><span class="p">[</span><span class="n">ffcid</span><span class="p">].</span><span class="n">type</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
@@ -690,12 +690,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 17028648 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 20702115 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 17026658 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 20696141 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">37730763</td>
+      <td class="linecount coveredLine">37722799</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">else</span><span class="w"> </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">q</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">maxlayer</span><span class="p">;</span><span class="w"> </span><span class="n">q</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="o">--</span><span class="n">q</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -709,14 +709,14 @@
       <td class="lineno"><a id="l81" href="#l81">81</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">20702115</td>
+      <td class="linecount coveredLine">20696141</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">mapscr</span><span class="o">*</span><span class="w"> </span><span class="n">m</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FFCore</span><span class="p">.</span><span class="n">tempScreens</span><span class="p">[</span><span class="n">q</span><span class="p">];</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l82" href="#l82">82</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">20702115</td>
+      <td class="linecount coveredLine">20696141</td>
       <td class="src coveredLine"><span class="w">		</span><span class="kt">int</span><span class="w"> </span><span class="n">cid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">[</span><span class="n">pos</span><span class="p">];</span></td>
     </tr>
     <tr class="source-line">
@@ -730,7 +730,7 @@
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">20702115</td>
+      <td class="linecount partialCoveredLine">20696141</td>
       <td class="src partialCoveredLine"><span class="w">		</span><span class="k">if</span><span class="p">(</span><span class="n">is_conveyor</span><span class="p">(</span><span class="n">combobuf</span><span class="p">[</span><span class="n">cid</span><span class="p">].</span><span class="n">type</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -740,11 +740,11 @@
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
           <div class="takenBranch">&check; Branch 0 taken 59275 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 20642840 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 20636866 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">20702115</td>
+      <td class="linecount coveredLine">20696141</td>
       <td class="src coveredLine"><span class="w">			</span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">_effectflag_layer</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">m</span><span class="p">,</span><span class="nb">true</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
@@ -786,7 +786,7 @@
       <td class="lineno"><a id="l90" href="#l90">90</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">20642840</td>
+      <td class="linecount coveredLine">20636866</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -795,12 +795,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 17028648 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 17026658 times.</div>
           <div class="takenBranch">&check; Branch 1 taken 59275 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">17087923</td>
+      <td class="linecount coveredLine">17085933</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">cmbid</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -1037,7 +1037,7 @@
       <td class="lineno"><a id="l118" href="#l118">118</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">17087923</td>
+      <td class="linecount coveredLine">17085933</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -2759,7 +2759,7 @@
       <td class="lineno"><a id="l339" href="#l339">339</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">14169529</td>
+      <td class="linecount coveredLine">14167539</td>
       <td class="src coveredLine"><span class="kt">bool</span><span class="w"> </span><span class="nf">movingblock::animate</span><span class="p">(</span><span class="kt">int32_t</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -2773,7 +2773,7 @@
       <td class="lineno"><a id="l341" href="#l341">341</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">14169529</td>
+      <td class="linecount coveredLine">14167539</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">mapscr</span><span class="o">*</span><span class="w"> </span><span class="n">m</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FFCore</span><span class="p">.</span><span class="n">tempScreens</span><span class="p">[</span><span class="n">blockLayer</span><span class="p">];</span></td>
     </tr>
     <tr class="source-line">
@@ -2782,19 +2782,19 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 13489355 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 13487365 times.</div>
           <div class="takenBranch">&check; Branch 1 taken 680174 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">14169529</td>
+      <td class="linecount coveredLine">14167539</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">get_qr</span><span class="p">(</span><span class="n">qr_MOVINGBLOCK_FAKE_SOLID</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l343" href="#l343">343</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">13489355</td>
+      <td class="linecount coveredLine">13487365</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">setSolid</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -2820,11 +2820,11 @@
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 14169529 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 14167539 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">14169529</td>
+      <td class="linecount partialCoveredLine">14167539</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">fallclk</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -2897,11 +2897,11 @@
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 14169529 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 14167539 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">14169529</td>
+      <td class="linecount partialCoveredLine">14167539</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">drownclk</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -2980,12 +2980,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 14042028 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 14040038 times.</div>
           <div class="takenBranch">&check; Branch 1 taken 127501 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">14169529</td>
+      <td class="linecount coveredLine">14167539</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">clk</span><span class="o">&lt;=</span><span class="mi">0</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -2999,14 +2999,14 @@
       <td class="lineno"><a id="l368" href="#l368">368</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">14042028</td>
+      <td class="linecount coveredLine">14040038</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">solid_update</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l369" href="#l369">369</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">14042028</td>
+      <td class="linecount coveredLine">14040038</td>
       <td class="src coveredLine"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -8496,7 +8496,7 @@
       <td class="lineno"><a id="l1003" href="#l1003">1003</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">14169493</td>
+      <td class="linecount coveredLine">14167503</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
