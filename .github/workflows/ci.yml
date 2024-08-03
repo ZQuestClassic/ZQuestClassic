@@ -14,8 +14,8 @@ env:
   CCACHE_SLOPPINESS: time_macros
 
 jobs:
-  # Get the LFS cache ready. This avoids every shard of each environment downloads the LFS objects
-  # at the same time whenever any change, which is disastrous for quota.
+  # Get the LFS cache ready. This avoids every shard of each environment downloading the LFS objects
+  # at the same time on any change, which is bad for quota.
   warm-lfs-cache:
     runs-on: ubuntu-latest
     steps:
