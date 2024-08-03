@@ -125,6 +125,7 @@ public:
 	
 	enemy(zfix X,zfix Y,int32_t Id,int32_t Clk);                      // : sprite()
 	virtual ~enemy();
+	void init_size_flags();
 	
 	bool is_move_paused();
 	bool scr_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int32_t input_x, int32_t input_y, bool kb);
@@ -305,7 +306,6 @@ protected:
 	//   Movement routines that can be used by derived classes as needed
 	//                         --==**==--
 	void fix_coords(bool bound=false);
-   
 	
 	
 private:
