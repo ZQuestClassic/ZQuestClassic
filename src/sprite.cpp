@@ -1154,6 +1154,7 @@ void sprite::draw(BITMAP* dest)
 					
 				
 				destroy_bitmap(temp);
+				destroy_bitmap(temp2);
 				destroy_bitmap(temp3);
 				break;
 			}
