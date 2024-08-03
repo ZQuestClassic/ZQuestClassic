@@ -16580,7 +16580,7 @@ ePatraBS::ePatraBS(zfix ,zfix ,int32_t Id,int32_t Clk) : enemy((zfix)128,(zfix)4
 	flycnt=dmisc1;
 	flycnt2=0; // PatraBS doesn't have inner rings!
 		loopcnt=0;
-	
+	init_size_flags();
 	if(dmisc6<int16_t(1))dmisc6=1; // ratio cannot be 0!
 	
 	//nets+4480;
