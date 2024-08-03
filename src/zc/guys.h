@@ -125,7 +125,7 @@ public:
 	
 	enemy(zfix X,zfix Y,int32_t Id,int32_t Clk);                      // : sprite()
 	virtual ~enemy();
-	
+		
 	bool is_move_paused();
 	bool scr_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int32_t input_x, int32_t input_y, bool kb);
 	bool scr_canmove(zfix dx, zfix dy, int32_t special, bool kb = false, bool ign_sv = false);
@@ -300,6 +300,7 @@ protected:
 	void drawblock(BITMAP *dest,int32_t mask);
 	virtual void drawshadow(BITMAP *dest, bool translucent);
 	void masked_draw(BITMAP *dest,int32_t mx,int32_t my,int32_t mw,int32_t mh);
+	virtual void init_size_flags();
 	
 	//                         --==**==--
 	//   Movement routines that can be used by derived classes as needed
@@ -475,6 +476,7 @@ public:
 	virtual void drawshadow(BITMAP *dest, bool translucent);
 	virtual void draw(BITMAP *dest);
 	virtual int32_t takehit(weapon *w, weapon* realweap = nullptr);
+	virtual void init_size_flags();
 };
 
 class eBoulder : public enemy
@@ -485,6 +487,7 @@ public:
 	virtual void drawshadow(BITMAP *dest, bool translucent);
 	virtual void draw(BITMAP *dest);
 	virtual int32_t takehit(weapon *w, weapon* realweap = nullptr);
+	virtual void init_size_flags();
 };
 
 // Helper for launching fireballs from statues, etc.
@@ -569,6 +572,7 @@ public:
 	virtual bool animate(int32_t index);
 	virtual void drawshadow(BITMAP *dest, bool translucent);
 	virtual void draw(BITMAP *dest);
+	virtual void init_size_flags();
 };
 
 class eWizzrobe : public enemy
@@ -640,6 +644,7 @@ public:
 	virtual bool animate(int32_t index);
 	virtual void draw(BITMAP *dest);
 	virtual int32_t takehit(weapon *w, weapon* realweap = nullptr);
+	virtual void init_size_flags();
 };
 
 class eGanon : public enemy
@@ -781,6 +786,7 @@ public:
 	virtual void draw(BITMAP *dest);
 	virtual int32_t defend(int32_t wpnId, int32_t *power, int32_t edef);
 	virtual int32_t defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblockable);
+	virtual void init_size_flags();
 };
 
 // segment class
@@ -808,6 +814,7 @@ public:
 	virtual void draw(BITMAP *dest);
 	virtual int32_t defend(int32_t wpnId, int32_t *power, int32_t edef);
 	virtual int32_t defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblockable);
+	virtual void init_size_flags();
 };
 
 // segment class
