@@ -568,7 +568,6 @@ async function processId(page: puppeteer.Page, type: EntryType, index: number) {
       resources: [],
       resourceHashes: [],
     };
-    releases.unshift(thisRelease);
   } else {
     if (!mostRecentRelease) throw new Error('unexpected');
 
@@ -653,9 +652,6 @@ async function processId(page: puppeteer.Page, type: EntryType, index: number) {
   if (thisRelease.resources.length === 0) {
     console.log(`[${id}] WARNING - no resources found, ignoring update`);
     fs.rmSync(resourcesDir, {recursive: true, force: true});
-    if (isNew || contentHashUpdated) {
-      releases.pop();
-    }
     return;
   }
 
@@ -703,6 +699,10 @@ async function processId(page: puppeteer.Page, type: EntryType, index: number) {
   }
 
   questsMap.set(quest.id, quest);
+
+  if (isNew || contentHashUpdated) {
+    releases.unshift(thisRelease);
+  }
 }
 
 async function waitUntilDownload(page: puppeteer.Page) {
