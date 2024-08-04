@@ -6,6 +6,9 @@ on:
       - 'compare-baseline-*'
   pull_request:
 
+permissions:
+  actions: write
+
 env:
   PYTHONUNBUFFERED: '1'
   CCACHE_BASEDIR: ${{ github.workspace }}
