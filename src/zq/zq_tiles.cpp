@@ -10037,8 +10037,10 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 				
 				if(do_text_button((150+28*2)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"Export"))
 				{
-					strcpy(datapath, "tileset.png");
-					if(prompt_for_new_file_compat("Export Tile Page (.png)","png",NULL,datapath,true))
+					std::string initial_path = "tileset.png";
+					if (strlen(datapath))
+						initial_path = fmt::format("{}/{}", datapath, initial_path);
+					if(prompt_for_new_file_compat("Export Tile Page (.png)","png",NULL,initial_path,true))
 					{
 						PALETTE temppal;
 						get_palette(temppal);

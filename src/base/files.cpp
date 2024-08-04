@@ -162,7 +162,7 @@ static void trim_filename(std::string& path)
 	if (path.empty())
 		return;
 
-	size_t i = path.size();
+	int i = path.size();
 	while (i >= 0 && path[i] != '\\' && path[i] != '/')
 		path[i--] = 0;
 }
