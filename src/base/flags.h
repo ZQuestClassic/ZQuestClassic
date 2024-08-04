@@ -16,7 +16,7 @@ constexpr uint32_t F(uint32_t n)
 
 constexpr uint64_t LLF(uint64_t n)
 {
-	return 1LL<<n;
+	return 1ULL<<n;
 }
 
 // These are all purposefully unscoped enums (`guy_bhit` instead of `flags::guy_flags::guy_bhit`)
