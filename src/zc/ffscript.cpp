@@ -74,7 +74,6 @@
 #include "zc/websocket_pool.h"
 
 using namespace util;
-using namespace flags;
 
 #ifdef _WIN32
 #define SCRIPT_FILE_MODE	(_S_IREAD | _S_IWRITE)
@@ -26474,7 +26473,10 @@ void set_register(int32_t arg, int32_t value)
 				break;
 			}
 			int32_t index = vbound(ri->d[rINDEX] / 10000, 0, 63);
-			(value) ? guysbuf[ri->npcdataref].flags |= LLF(index) : guysbuf[ri->npcdataref].flags &= ~LLF(index);
+			if (value)
+				guysbuf[ri->npcdataref].flags |= (guy_flags)LLF(index);
+			else
+				guysbuf[ri->npcdataref].flags &= (guy_flags)~LLF(index);
 		}
 	///----------------------------------------------------------------------------------------------------//
 	//Dropset Variables
@@ -42789,9 +42791,12 @@ void FFScript::setNPCData_flags(bool v)
 	int32_t ID = int32_t(ri->d[rINDEX] / 10000); //the enemy ID value
 	int32_t indx = vbound(int32_t(ri->d[rINDEX2] / 10000),0,63); //the misc index ID
 	if ((ID < 1 || ID > 511) || (indx < 0 || indx > MAX_NPC_ATTRIBUTES)) return;
-	guysbuf[ID].flags = v ? guysbuf[ID].flags|=LLF(indx) : guysbuf[ID].flags&=(~guysbuf[ID].flags&LLF(indx));
+
+	if (v)
+		guysbuf[ID].flags |= (guy_flags)LLF(indx);
+	else
+		guysbuf[ID].flags &= (guy_flags)~LLF(indx);
 }
-;
 
 //ComboData
 
