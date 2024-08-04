@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2024-08-04 01:16:27</td>
+      <td>2024-08-04 23:08:25</td>
     </tr>
   </table>
 </div>
@@ -85,7 +85,7 @@
     <tr><td><a href="#l119">ScriptDebugHandle::printf(int, char const*, ...) (line 119)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l65">ScriptDebugHandle::update_file() (line 65)</a></td><td>called 2416 times, returned 2416 times</td><td>40.0%</td></tr>
     <tr><td><a href="#l59">ScriptDebugHandle::~ScriptDebugHandle() (line 59)</a></td><td>called 2416 times, returned 2416 times</td><td>80.0%</td></tr>
-    <tr><td><a href="#l244">script_debug_is_runtime_debugging() (line 244)</a></td><td>called 1183182272 times, returned 1183182272 times</td><td>66.0%</td></tr>
+    <tr><td><a href="#l244">script_debug_is_runtime_debugging() (line 244)</a></td><td>called 1183182310 times, returned 1183182310 times</td><td>66.0%</td></tr>
     <tr><td><a href="#l255">script_debug_registers_and_stack_to_string[abi:cxx11]() (line 255)</a></td><td>not called</td><td>0.0%</td></tr>
   </table>
 </details>
@@ -1914,7 +1914,7 @@
       <td class="lineno"><a id="l244" href="#l244">244</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1183182272</td>
+      <td class="linecount coveredLine">1183182310</td>
       <td class="src coveredLine"><span class="kt">int</span><span class="w"> </span><span class="n">script_debug_is_runtime_debugging</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
@@ -1931,13 +1931,13 @@
         <summary class="linebranchSummary">1/4</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 1183182272 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 1183182310 times.</div>
           <div class="notTakenBranch">&cross; Branch 2 not taken.</div>
           <div class="notTakenBranch">&cross; Branch 3 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">1183182272</td>
+      <td class="linecount partialCoveredLine">1183182310</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">DEBUG_PRINT_TO_FILE</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="n">DEBUG_PRINT_TO_CONSOLE</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -1974,9 +1974,9 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">6/8</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 286 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 1183181986 times.</div>
-          <div class="takenBranch">&check; Branch 2 taken 20 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 277 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 1183182033 times.</div>
+          <div class="takenBranch">&check; Branch 2 taken 11 times.</div>
           <div class="takenBranch">&check; Branch 3 taken 266 times.</div>
           <div class="takenBranch">&check; Branch 4 taken 266 times.</div>
           <div class="notTakenBranch">&cross; Branch 5 not taken.</div>
@@ -1985,21 +1985,21 @@
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">1183182272</td>
+      <td class="linecount partialCoveredLine">1183182310</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">runtime_debug</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_flag_int</span><span class="p">(</span><span class="s">&quot;-script-runtime-debug&quot;</span><span class="p">).</span><span class="n">value_or</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l252" href="#l252">252</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1183182272</td>
+      <td class="linecount coveredLine">1183182310</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">runtime_debug</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l253" href="#l253">253</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1183182272</td>
+      <td class="linecount coveredLine">1183182310</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
