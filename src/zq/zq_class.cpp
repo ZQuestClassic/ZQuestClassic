@@ -4786,6 +4786,7 @@ void zmap::PasteFFCombos(mapscr& copymapscr)
             screens[currscr].ffcs[i] = copymapscr.ffcs[i];
 		for(word i = c; i < MAXFFCS; ++i)
 			screens[currscr].ffcs[i].clear();
+		screens[currscr].ffcCountMarkDirty();
         
         saved=false;
     }
