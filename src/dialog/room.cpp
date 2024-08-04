@@ -399,7 +399,7 @@ int32_t RoomDialog::getArgument() const
 	case argINFO_LIST:
 		return infoShopDD->getSelectedValue();
 	default:
-		return local_mapref.catchall >= 0 ? local_mapref.catchall : -local_mapref.catchall;
+		return local_mapref.catchall;
 	}
 }
 

@@ -2967,7 +2967,7 @@ int32_t jwin_hexedit_proc(int32_t msg,DIALOG *d,int32_t c)
 	{
 		char* s = (char*)d->dp;
 		caps_paste = false;
-		for(auto q = strlen(s)-1; q >= 0; --q)
+		for(int q = strlen(s)-1; q >= 0; --q)
 		{
 			switch(s[q])
 			{

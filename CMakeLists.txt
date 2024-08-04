@@ -972,6 +972,7 @@ set(zc_clang_errors
 	-Werror=format
 	-Werror=inconsistent-missing-override
 	-Werror=return-type
+	-Werror=type-limits
 	-Werror=unreachable-code
 	# -Werror=reorder
 	# -Werror=unused

@@ -929,8 +929,8 @@ dword get_subref(int sub, byte ty, byte pg = 0, word ind = 0)
 	byte s;
 	if(sub == -1) //special; load current
 	{
+		if (new_sub_indexes[ty] < 0) return 0;
 		s = new_sub_indexes[ty];
-		if(s < 0) return 0;
 	}
 	else if(unsigned(sub) < 256)
 		s = sub;
@@ -13341,7 +13341,7 @@ int32_t get_register(int32_t arg)
 		case NPCDATAATTRIBUTE: 
 		{
 			int32_t indx = ri->d[rINDEX] / 10000; 
-			if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) 
+			if(ri->npcdataref > (MAXNPCS-1) ) 
 			{
 				Z_scripterrlog("Invalid Sprite ID passed to npcdata->Attributes[]: %d\n", (ri->npcdataref*10000)); 
 				ret = -10000;
@@ -13361,7 +13361,7 @@ int32_t get_register(int32_t arg)
 
 		case NPCDATABEHAVIOUR: 
 		{
-			if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) 
+			if(ri->npcdataref > (MAXNPCS-1) ) 
 			{
 				ret = -10000;
 				break;
@@ -13413,7 +13413,7 @@ int32_t get_register(int32_t arg)
 		case NPCDATASHIELD:
 		{
 			int32_t indx = ri->d[rINDEX] / 10000; 
-			if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) 
+			if(ri->npcdataref > (MAXNPCS-1) ) 
 			{ 
 				Z_scripterrlog("Invalid NPC ID passed to npcdata->Shield[]: %d\n", (ri->npcdataref*10000)); 
 				ret = -10000; 
@@ -13461,7 +13461,7 @@ int32_t get_register(int32_t arg)
 
 		case NPCDSHADOWSPR:
 		{
-			if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) 
+			if(ri->npcdataref > (MAXNPCS-1) ) 
 			{ 
 				Z_scripterrlog("Invalid NPC ID passed to npcdata->ShadowSprite: %d\n", (ri->npcdataref*10000));
 				ret = -10000; 
@@ -13474,7 +13474,7 @@ int32_t get_register(int32_t arg)
 		}
 		case NPCDSPAWNSPR:
 		{
-			if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) 
+			if(ri->npcdataref > (MAXNPCS-1) ) 
 			{ 
 				Z_scripterrlog("Invalid NPC ID passed to npcdata->SpawnSprite: %d\n", (ri->npcdataref*10000));
 				ret = -10000; 
@@ -13487,7 +13487,7 @@ int32_t get_register(int32_t arg)
 		}
 		case NPCDDEATHSPR:
 		{
-			if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) 
+			if(ri->npcdataref > (MAXNPCS-1) ) 
 			{ 
 				Z_scripterrlog("Invalid NPC ID passed to npcdata->DeathSprite: %d\n", (ri->npcdataref*10000));
 				ret = -10000; 
@@ -13527,7 +13527,7 @@ int32_t get_register(int32_t arg)
 
 		case DROPSETITEMS:
 		{
-			if(ri->dropsetref < 0 || ri->dropsetref > MAXITEMDROPSETS)
+			if(ri->dropsetref > MAXITEMDROPSETS)
 			{
 				Z_scripterrlog("Invalid dropset pointer %d\n", ri->dropsetref);
 				ret = -10000;
@@ -13547,7 +13547,7 @@ int32_t get_register(int32_t arg)
 		}
 		case DROPSETCHANCES:
 		{
-			if(ri->dropsetref < 0 || ri->dropsetref > MAXITEMDROPSETS)
+			if(ri->dropsetref > MAXITEMDROPSETS)
 			{
 				Z_scripterrlog("Invalid dropset pointer %d\n", ri->dropsetref);
 				ret = -10000;
@@ -13567,7 +13567,7 @@ int32_t get_register(int32_t arg)
 		}
 		case DROPSETNULLCHANCE:
 		{
-			if(ri->dropsetref < 0 || ri->dropsetref > MAXITEMDROPSETS)
+			if(ri->dropsetref > MAXITEMDROPSETS)
 			{
 				Z_scripterrlog("Invalid dropset pointer %d\n", ri->dropsetref);
 				ret = -10000;
@@ -13578,7 +13578,7 @@ int32_t get_register(int32_t arg)
 		}
 		case DROPSETCHOOSE:
 		{
-			if(ri->dropsetref < 0 || ri->dropsetref > MAXITEMDROPSETS)
+			if(ri->dropsetref > MAXITEMDROPSETS)
 			{
 				Z_scripterrlog("Invalid dropset pointer %d\n", ri->dropsetref);
 				ret = -10000;
@@ -26291,7 +26291,7 @@ void set_register(int32_t arg, int32_t value)
 		case NPCDATAATTRIBUTE: 
 		{
 			int32_t indx = ri->d[rINDEX] / 10000; 
-			if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) 
+			if(ri->npcdataref > (MAXNPCS-1) ) 
 			{
 				Z_scripterrlog("Invalid Sprite ID passed to npcdata->Attributes[]: %d\n", (ri->npcdataref*10000)); 
 			}
@@ -26308,7 +26308,7 @@ void set_register(int32_t arg, int32_t value)
 
 		case NPCDATABEHAVIOUR: 
 		{
-			if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) 
+			if(ri->npcdataref > (MAXNPCS-1) ) 
 			{
 				break;
 			}
@@ -26376,7 +26376,7 @@ void set_register(int32_t arg, int32_t value)
 		case NPCDATASHIELD:
 		{
 			int32_t indx = ri->d[rINDEX] / 10000; 
-			if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) 
+			if(ri->npcdataref > (MAXNPCS-1) ) 
 			{ 
 				Z_scripterrlog("Invalid NPC ID passed to npcdata->Shield[]: %d\n", (ri->npcdataref*10000));
 				break;
@@ -26422,7 +26422,7 @@ void set_register(int32_t arg, int32_t value)
 
 		case NPCDSHADOWSPR:
 		{
-			if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) 
+			if(ri->npcdataref > (MAXNPCS-1) ) 
 			{ 
 				Z_scripterrlog("Invalid NPC ID passed to npcdata->ShadowSprite: %d\n", (ri->npcdataref*10000));
 			} 
@@ -26434,7 +26434,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case NPCDSPAWNSPR:
 		{
-			if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) 
+			if(ri->npcdataref > (MAXNPCS-1) ) 
 			{ 
 				Z_scripterrlog("Invalid NPC ID passed to npcdata->SpawnSprite: %d\n", (ri->npcdataref*10000));
 			} 
@@ -26446,7 +26446,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case NPCDDEATHSPR:
 		{
-			if(ri->npcdataref < 0 || ri->npcdataref > (MAXNPCS-1) ) 
+			if(ri->npcdataref > (MAXNPCS-1) ) 
 			{ 
 				Z_scripterrlog("Invalid NPC ID passed to npcdata->DeathSprite: %d\n", (ri->npcdataref*10000));
 			} 
@@ -26463,7 +26463,7 @@ void set_register(int32_t arg, int32_t value)
 
 		case DROPSETITEMS:
 		{
-			if(ri->dropsetref < 0 || ri->dropsetref > MAXITEMDROPSETS)
+			if(ri->dropsetref > MAXITEMDROPSETS)
 			{
 				Z_scripterrlog("Invalid dropset pointer %d\n", ri->dropsetref);
 				break;
@@ -26481,7 +26481,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case DROPSETCHANCES:
 		{
-			if(ri->dropsetref < 0 || ri->dropsetref > MAXITEMDROPSETS)
+			if(ri->dropsetref > MAXITEMDROPSETS)
 			{
 				Z_scripterrlog("Invalid dropset pointer %d\n", ri->dropsetref);
 				break;
@@ -26499,7 +26499,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case DROPSETNULLCHANCE:
 		{
-			if(ri->dropsetref < 0 || ri->dropsetref > MAXITEMDROPSETS)
+			if(ri->dropsetref > MAXITEMDROPSETS)
 			{
 				Z_scripterrlog("Invalid dropset pointer %d\n", ri->dropsetref);
 				break;
@@ -26735,10 +26735,6 @@ void set_register(int32_t arg, int32_t value)
 
 				RGB c = _RGB((clri >> 16) & 0xFF, (clri >> 8) & 0xFF, clri & 0xFF);
 
-				if (c.r < 0 || c.g < 0 || c.b < 0)
-				{
-					Z_scripterrlog("Invalid rgb (%d) passed to paldata->SetColor().\n", clri);
-				}
 				c.r = vbound(c.r, 0, scripting_max_color_val);
 				c.g = vbound(c.g, 0, scripting_max_color_val);
 				c.b = vbound(c.b, 0, scripting_max_color_val);
@@ -29562,7 +29558,7 @@ void do_resize_array()
 	am.resize(size);
 }
 
-void do_own_array(dword arrindx, ScriptType scriptType, const int32_t UID)
+void do_own_array(int arrindx, ScriptType scriptType, const int32_t UID)
 {
 	ArrayManager am(arrindx);
 	
@@ -29589,7 +29585,7 @@ void do_own_array(dword arrindx, ScriptType scriptType, const int32_t UID)
 }
 void do_destroy_array()
 {
-	dword arrindx = get_register(sarg1) / 10000;
+	int arrindx = get_register(sarg1) / 10000;
 	
 	ArrayManager am(arrindx);
 	
@@ -31675,10 +31671,6 @@ void FFScript::do_create_paldata_clr()
 
 		RGB c = _RGB((clri >> 16) & 0xFF, (clri >> 8) & 0xFF, clri & 0xFF);
 
-		if (c.r < 0 || c.g < 0 || c.b < 0)
-		{
-			Z_scripterrlog("Invalid rgb (%d) passed to Graphics->CreatePalData().\n", clri);
-		}
 		c.r = vbound(c.r, 0, scripting_max_color_val);
 		c.g = vbound(c.g, 0, scripting_max_color_val);
 		c.b = vbound(c.b, 0, scripting_max_color_val);
@@ -34372,15 +34364,14 @@ static int get_sfx_completion()
 		return -10000;
 	}
 
-	uint64_t sample_pos = voice_get_position(sfx_voice[ID]);
-
+	int sample_pos = voice_get_position(sfx_voice[ID]);
 	if (sample_pos < 0)
 	{
 		return -10000;
 	}
 
 	uint32_t sample_length = sfx_get_length(ID);
-	uint64_t res = (sample_pos * 10000 * 100) / sample_length;
+	uint64_t res = ((uint64_t)sample_pos * 10000 * 100) / sample_length;
 	return int32_t(res);
 }
 
@@ -41634,7 +41625,7 @@ void FFScript::do_file_writebytes()
 		    Z_scripterrlog("Pos (%d) passed to %s is outside the bounds of array %d. Aborting.\n", pos, "WriteBytes()", arrayptr);
 		    return;
 		}
-		if(count < 0 || unsigned(count) > sz-pos) count = sz-pos;
+		if (count > sz-pos) count = sz-pos;
 		std::vector<uint8_t> data(count);
 		for(uint32_t q = 0; q < count; ++q)
 		{
@@ -50464,9 +50455,7 @@ int32_t FFScript::combo_script_engine(const bool preload, const bool waitdraw)
 			int32_t idval = get_combopos_ref(c, q);
 			mapscr* m = FFCore.tempScreens[q]; //get templayer mapscr for any layer (including 0)
 			word cid = m->data[c];
-			if(combo_id_cache[idval] < 0)
-				combo_id_cache[idval] = cid;
-			else if(combo_id_cache[idval] != cid)
+			if(combo_id_cache[idval] != cid)
 			{
 				combopos_modified = idval;
 				combo_id_cache[idval] = cid;

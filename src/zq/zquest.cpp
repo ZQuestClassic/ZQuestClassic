@@ -6262,7 +6262,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				char buf[256];
 				strcpy(buf,combo_class_buf[combobuf[Combo].type].name);
 				sprintf(comboprev_buf,"Combo: %d\nCSet: %d\n%s",Combo,CSet,buf);
-				auto ind = strlen(buf)-1;
+				int ind = strlen(buf)-1;
 				int x2 = x;
 				if(x2 - text_length(txfont, buf) <= combolist_window.x)
 				{
@@ -6338,7 +6338,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 					char buf[256];
 					strcpy(buf,combo_class_buf[combobuf[NextCombo].type].name);
 					sprintf(comboprev_buf2, "Cycle: %d\nCSet: %d\n%s", NextCombo, NextCSet, buf);
-					auto ind = strlen(buf)-1;
+					int ind = strlen(buf)-1;
 					int x2 = combo_preview_text2.x;
 					if(x2 + text_length(txfont, buf) > zq_screen_w-2)
 					{

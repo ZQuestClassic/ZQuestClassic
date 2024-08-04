@@ -4107,7 +4107,7 @@ int32_t readdoorcombosets(PACKFILE *f, zquestheader *Header)
         return qe_invalid;
     }
 
-	if (!(temp_door_combo_set_count >= 0 && temp_door_combo_set_count <= MAXDOORCOMBOSETS))
+	if (temp_door_combo_set_count > MAXDOORCOMBOSETS)
 	{
 		return qe_invalid;
 	}
@@ -5504,7 +5504,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 		}
 	}
 
-	if (!(shops >= 0 && shops <= NUM_SHOPS))
+	if (shops > NUM_SHOPS)
 	{
 		return qe_invalid;
 	}
@@ -5600,7 +5600,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 		}
 	}
 
-	if (!(infos >= 0 && infos <= NUM_INFOS))
+	if (infos > NUM_INFOS)
 	{
 		return qe_invalid;
 	}
@@ -5694,7 +5694,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 			return qe_invalid;
 		}
 
-		if (!(warprings >= 0 && warprings <= NUM_WARP_RINGS))
+		if (warprings > NUM_WARP_RINGS)
 		{
 			// return qe_invalid;
 			// Note: we can't actually fail here because for some reason, some quest files have more than the max
@@ -5811,7 +5811,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 			}
 		}
 
-		if (!(windwarps >= 0 && windwarps <= NUM_WARP_RINGS))
+		if (windwarps > NUM_WARP_RINGS)
 		{
 			return qe_invalid;
 		}
@@ -6314,7 +6314,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
             return qe_invalid;
         }
 
-        if (!(items_to_read >= 0 && items_to_read <= MAXITEMS))
+        if (items_to_read > MAXITEMS)
         {
             return qe_invalid;
         }
@@ -9579,7 +9579,7 @@ int32_t readweapons(PACKFILE *f, zquestheader *Header)
             return qe_invalid;
         }
 
-        if (!(weapons_to_read >= 0 && weapons_to_read <= MAXWPNS))
+        if (weapons_to_read > MAXWPNS)
         {
             return qe_invalid;
         }
@@ -12319,7 +12319,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 			// id in principle should be valid, since slot assignment cannot assign a global script to a bogus slot.
 			// However, because of a corruption bug, some 2.50.x quests contain bogus entries in the global bindings table.
 			// Ignore these. -DD
-			if(id >= 0 && id < NUMSCRIPTGLOBAL)
+			if (id < NUMSCRIPTGLOBAL)
 			{
 				//Disable old '~Continue's, they'd wreak havoc. Bit messy, apologies ~Joe
 				if(strcmp(buf,"~Continue") == 0)
@@ -17042,7 +17042,7 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header)
 		temp_map_count=map_count;
 	}
 
-	if (!(temp_map_count >= 0 && temp_map_count <= MAXMAPS))
+	if (temp_map_count > MAXMAPS)
 	{
 		return qe_invalid;
 	}
@@ -18558,7 +18558,7 @@ int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, wo
 			return qe_invalid;
 		}
 
-		if (!(palcycles >= 0 && palcycles <= NUM_PAL_CYCLES))
+		if (palcycles > NUM_PAL_CYCLES)
 		{
 			return qe_invalid;
 		}
@@ -20470,7 +20470,7 @@ int32_t readinitdata_old(PACKFILE *f, zquestheader *Header, word s_version, word
 		word numgenscript = 0;
 		if(!p_igetw(&numgenscript,f))
 			return qe_invalid;
-		if (!(numgenscript >= 0 && numgenscript <= NUMSCRIPTSGENERIC))
+		if (numgenscript > NUMSCRIPTSGENERIC)
 			return qe_invalid;
 		for(auto q = 1; q < numgenscript; ++q)
 		{
@@ -20795,7 +20795,7 @@ int32_t readitemdropsets(PACKFILE *f, int32_t version, word build)
             return qe_invalid;
         }
 
-        if (!(item_drop_sets_to_read >= 0 && item_drop_sets_to_read <= MAXITEMDROPSETS))
+        if (item_drop_sets_to_read > MAXITEMDROPSETS)
         {
             return qe_invalid;
         }

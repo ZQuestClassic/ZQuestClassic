@@ -426,8 +426,8 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 	for ( int32_t q = 0; q < 32; q++ ) movement[q] = d->movement[q];
 	for ( int32_t q = 0; q < 32; q++ ) new_weapon[q] = d->new_weapon[q];
 	
-	script = (d->script >= 0) ? d->script : 0; //Dont assign invalid data. 
-	weaponscript = (d->weaponscript >= 0) ? d->weaponscript : 0; //Dont assign invalid data. 
+	script = d->script;
+	weaponscript = d->weaponscript;
 	
 	for ( int32_t q = 0; q < 8; q++ ) 
 	{
