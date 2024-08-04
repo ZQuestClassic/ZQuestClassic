@@ -31840,7 +31840,6 @@ int32_t get_conveyor(int32_t x, int32_t y);
 void HeroClass::check_conveyor()
 {
 	++newconveyorclk;
-	if (newconveyorclk < 0) newconveyorclk = 0;
 
 	if (is_conveyor_stunned)
 		--is_conveyor_stunned;

@@ -1048,7 +1048,7 @@ optional<uint> TopMenu::hovered_ind() const
 bool TopMenu::has_mouse() const
 {
 	int mx = gui_mouse_x()-xpos, my = gui_mouse_y()-ypos;
-	if(mx < hborder || mx >= width()-hborder
+	if(mx < (int)hborder || mx >= width()-hborder
 		|| my < vborder || my >= height()-vborder)
 		return false;
 	return true;

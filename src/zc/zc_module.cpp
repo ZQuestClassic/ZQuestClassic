@@ -341,7 +341,7 @@ bool ZModule::init(bool d) //bool default
 		//al_trace("Module Base NSF: %s\n", moduledata.module_base_nsf);
 		
 		al_trace("Module Version: %d.%d.%d.%d\n", moduledata.modver_1,moduledata.modver_2,moduledata.modver_3, moduledata.modver_4);
-		al_trace("Module Build: %d, %s: %d\n", moduledata.modbuild, (moduledata.modbeta<0) ? "Alpha" : "Beta", moduledata.modbeta );
+		al_trace("Module Build: %d, %s: %d\n", moduledata.modbuild, "Beta", moduledata.modbeta );
 		
 		//al_trace("Build Day: %s\n",dayextension(moduledata.modday).c_str());
 		//al_trace("Build Month: %s\n",(char*)months[moduledata.modmonth]);
