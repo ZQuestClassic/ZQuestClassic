@@ -11182,7 +11182,7 @@ int32_t writeguys(PACKFILE *f, zquestheader *Header)
 				new_return(6);
 			}
 			
-			if(!p_iputl(guysbuf[i].flags2,f))
+			if(!p_iputl(guysbuf[i].flags,f))
 			{
 				new_return(7);
 			}

@@ -224,7 +224,7 @@ std::shared_ptr<GUI::Widget> ScreenDataDialog::view()
 		for(auto q = 0; q < 5; ++q)
 		{
 			if(ene_found & (1<<q)) continue;
-			if(guysbuf[i].flags2 & ene_flag[q])
+			if(guysbuf[i].flags & ene_flag[q])
 			{
 				ene_str[q] = guy_string[i];
 				ene_found |= 1<<q;
