@@ -5,7 +5,6 @@
 import argparse
 import json
 import os
-import subprocess
 
 from argparse import ArgumentTypeError
 from pathlib import Path
@@ -60,28 +59,11 @@ def find_baseline(gh: Github, repo_str: str):
 
         return False
 
-    def is_ancestor(sha: str):
-        print(f'checking if {sha} is ancestor...')
-        ret = subprocess.call(
-            [
-                'git',
-                'merge-base',
-                '--is-ancestor',
-                sha,
-                'HEAD',
-            ]
-        )
-        return ret
-
     repo = gh.get_repo(repo_str)
     ci_workflow = repo.get_workflow('ci.yml')
-    main_runs = ci_workflow.get_runs()
+    main_runs = ci_workflow.get_runs(branch='main')
     most_recent_ok = next(
-        (
-            r
-            for r in main_runs
-            if is_passing_workflow_run(r) and is_ancestor(r.head_sha)
-        ),
+        (r for r in main_runs if is_passing_workflow_run(r)),
         None,
     )
     if not most_recent_ok:
