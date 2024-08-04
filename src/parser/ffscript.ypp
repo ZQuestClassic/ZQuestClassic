@@ -157,7 +157,7 @@ ASTExpr* handle_statement_expr(ASTExpr* expr)
 	namespace ZScript
 	{
 		class ASTFile;
-		std::unique_ptr<ZScript::ASTFile> parseFile(std::string const& filename, bool is_buf = false);
+		std::unique_ptr<ZScript::ASTFile> parseFile(std::string const& filename);
 	};
 }
 
@@ -2478,11 +2478,12 @@ void yymsg(string const& message, int32_t row, int32_t col, char const* txt)
 }
 void yywarn(string const& message, int32_t row, int32_t col, char const* txt)
 {
+	zparser_warn_out(message);
 	zconsole_warn(yyerrstr(message,row,col,txt).c_str());
 }
 void yyerrmsg(string const& message, int32_t row, int32_t col, char const* txt)
 {
-	zparser_error_out();
+	zparser_error_out(message);
 	zconsole_error(yyerrstr(message,row,col,txt).c_str());
 }
 void yydb(string const& message, int32_t row, int32_t col, char const* txt)
@@ -2497,7 +2498,7 @@ void yyerror(std::unique_ptr<ASTFile>&, const char *s)
 
 namespace ZScript
 {
-	std::unique_ptr<ASTFile> parseFile(std::string const& filename, bool is_buf)
+	std::unique_ptr<ASTFile> parseFile(std::string const& filename)
 	{
 		std::unique_ptr<ASTFile> result;
 
@@ -2513,7 +2514,7 @@ namespace ZScript
 			zconsole_error("Can't open input file");
 			return nullptr;
 		}
-		curfilename = is_buf ? "ZQ_BUFFER" : filename;
+		curfilename = filename;
 
 		// Run the parser.
 		if (yyparse(result))

@@ -178,6 +178,7 @@ namespace ZScript
 
 		std::string asString() const;
 	};
+
 	LocationData const LOC_NONE;
 
 	////////////////////////////////////////////////////////////////

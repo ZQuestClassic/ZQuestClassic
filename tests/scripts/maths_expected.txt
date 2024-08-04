@@ -15,6 +15,7 @@ stdout:
 
 {
   "success": true,
+  "diagnostics": [],
   "metadata": {
     "currentFileSymbols": 6,
     "symbols": 11,
@@ -29,13 +30,13 @@ PUSHR REFFFC; void run() Body Start
 PUSHARGSV 0 0.0002
 SETR D4 SP2
 STOREV 1 0.0001
-STOREV -10 0; for() #1 setup AND while(true) #1 Body [Opt:AlwaysOn] Start
-LOAD D2 0; for() #1 LoopTest
+STOREV -10 0; for() #156 setup AND while(true) #2 Body [Opt:AlwaysOn] Start
+LOAD D2 0; for() #156 LoopTest
 COMPAREV D2 10
 SETCMP D2 I<=
 COMPAREV D2 0
-GOTOCMP 36 ==; for() #1 TestFail?
-PUSHR D4; for() #1 Body Start
+GOTOCMP 36 ==; for() #156 TestFail?
+PUSHR D4; for() #156 Body Start
 LOAD D2 0.0001; UsrFunc[void doMaths(bool, int)] Params Start
 PUSHR D2
 LOAD D2 0
@@ -55,15 +56,15 @@ LOAD D2 0
 MULTV D2 100000
 PUSHR D2; UsrFunc[void doMaths(bool, int)] Params End
 CALLFUNC 0.0040; UsrFunc[void doMaths(bool, int)] Call
-POP D4; for() #1 Body End
-LOAD D2 0; for() #1 LoopIncrement
+POP D4; for() #156 Body End
+LOAD D2 0; for() #156 LoopIncrement
 ADDV D2 1
 STORE D2 0
-GOTO 6; for() #1 End
+GOTO 6; for() #156 End
 WAITFRAME; InlineFunc[void Waitframe()] Body
 SETV D2 0
-STORE D2 0.0001; while(true) #1 Body [Opt:AlwaysOn] End
-GOTO 5; while() #1 End AND [Opt:NeverRet] AND void run() Body End
+STORE D2 0.0001; while(true) #2 Body [Opt:AlwaysOn] End
+GOTO 5; while() #2 End AND [Opt:NeverRet] AND void run() Body End
 PUSHARGSV 0 0.0020; Func[void doMaths(bool, int)] Body Start
 SETR D4 SP2
 ALLOCATEMEMV D2 15 0
@@ -402,15 +403,15 @@ DEALLOCATEMEMR D3
 POPARGS D5 0.0022
 RETURNFUNC; Func[void doMaths(bool, int)] Body End
 SETR D4 SP2; Func[void maybePrint(bool, char32[], int)] Body Start
-LOAD D2 0.0002; if() #1 Test
+LOAD D2 0.0002; if() #447 Test
 COMPAREV D2 0
 GOTOCMP 387 ==; Test 'if'
-LOAD D2 0.0001; InlineFunc[void printf(char32[])] Params Start AND if() #1 Body Start
+LOAD D2 0.0001; InlineFunc[void printf(char32[])] Params Start AND if() #447 Body Start
 PUSHR D2
 LOAD D2 0
 PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
-POP D5; InlineFunc[void printf(char32[])] Body End AND if() #1 Body End
+POP D5; InlineFunc[void printf(char32[])] Body End AND if() #447 Body End
 POPARGS D5 0.0003
 RETURNFUNC; Func[void maybePrint(bool, char32[], int)] Body End
 

@@ -4,6 +4,8 @@
 #include <string>
 #include <thread>
 #include <chrono>
+#include "parser/AST.h"
+#include "parser/CompileError.h"
 #include "zc/ffscript.h"
 #include "base/util.h"
 #include "parser/ZScript.h"
@@ -15,8 +17,11 @@
 #include "base/zapp.h"
 #include "base/qrs.h"
 #include "base/zsys.h"
+#include <nlohmann/json.hpp>
 
 using namespace std::chrono_literals;
+using json = nlohmann::ordered_json;
+
 FFScript FFCore;
 
 std::vector<std::string> ZQincludePaths;
@@ -26,8 +31,10 @@ extern byte monochrome_console;
 
 io_manager* ConsoleWrite;
 
+extern std::string input_script_filename;
 extern uint32_t zscript_failcode;
 extern bool zscript_error_out;
+extern std::vector<Diagnostic>* current_diagnostics;
 
 const int BUILDTM_YEAR = (
     __DATE__[7] == '?' ? 1900
@@ -70,9 +77,32 @@ bool zparser_errored_out()
 {
 	return zscript_error_out;
 }
-void zparser_error_out()
+void zparser_error_out(std::string message)
 {
 	zscript_error_out = true;
+
+	if (!current_diagnostics || curfilename != input_script_filename) return;
+
+	auto& diag = current_diagnostics->emplace_back();
+	diag.severity = DiagnosticSeverity::Error;
+	diag.message = message;
+	diag.range.start.line = yylloc.first_line - 1;
+	diag.range.start.character = yylloc.first_column - 1;
+	diag.range.end.line = yylloc.last_line - 1;
+	diag.range.end.character = yylloc.last_column - 1;
+}
+
+void zparser_warn_out(std::string message)
+{
+	if (!current_diagnostics || curfilename != input_script_filename) return;
+
+	auto& diag = current_diagnostics->emplace_back();
+	diag.severity = DiagnosticSeverity::Warning;
+	diag.message = message;
+	diag.range.start.line = yylloc.first_line - 1;
+	diag.range.start.character = yylloc.first_column - 1;
+	diag.range.end.line = yylloc.last_line - 1;
+	diag.range.end.character = yylloc.last_column - 1;
 }
 
 static const int32_t WARN_COLOR = CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_GREEN;
@@ -213,22 +243,8 @@ std::unique_ptr<ZScript::ScriptsData> compile(std::string script_path, bool incl
 		zscript_failcode = -404;
 		return NULL;
 	}
-
-	// copy to tmp file
-	char tmpfilename[L_tmpnam];
-	std::tmpnam(tmpfilename);
-
-	std::error_code ec;
-	std::filesystem::copy_file(script_path, tmpfilename, ec);
-	if (ec)
-	{
-		zconsole_error("%s", "Unable to create a temporary file!");
-		zscript_failcode = -404;
-		return NULL;
-	}
 	
-	std::unique_ptr<ZScript::ScriptsData> res(ZScript::compile(tmpfilename, include_metadata));
-	unlink(tmpfilename);
+	std::unique_ptr<ZScript::ScriptsData> res(ZScript::compile(script_path, include_metadata));
 	return res;
 }
 
@@ -406,9 +422,9 @@ int32_t main(int32_t argc, char **argv)
 	
 	ZScript::ScriptParser::initialize(has_qrs);
 	unique_ptr<ZScript::ScriptsData> result(compile(script_path, metadata));
-	if(!result)
+	if(!result || !result->success)
 		zconsole_info("%s", "Failure!");
-	int32_t res = (result ? 0 : (zscript_failcode ? zscript_failcode : -1));
+	int32_t res = (result && result->success ? 0 : (zscript_failcode ? zscript_failcode : -1));
 	
 	if(linked)
 	{
@@ -438,6 +454,7 @@ int32_t main(int32_t argc, char **argv)
 				data["success"] = res == 0;
 				if (res)
 					data["code"] = res;
+				data["diagnostics"] = result->diagnostics;
 				if (!result->metadata.empty())
 					data["metadata"] = result->metadata;
 				std::cout << data.dump(2);

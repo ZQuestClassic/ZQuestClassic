@@ -225,7 +225,6 @@ namespace ZScript
 		}
 		bool reachable(AST& node) const;
 	private:
-		ZScript::Program& program;
 		bool extra_pass, marked_never_ret, missing_ret;
 		
 		map<Function*,map<Variable*, bool>> var_map;

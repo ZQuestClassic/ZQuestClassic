@@ -15,6 +15,7 @@ stdout:
 
 {
   "success": true,
+  "diagnostics": [],
   "metadata": {
     "currentFileSymbols": 4,
     "symbols": 21,

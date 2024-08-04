@@ -46,6 +46,7 @@ namespace ZScript
 		std::vector<Script*> scripts;
 		std::vector<UserClass*> classes;
 		std::vector<Namespace*> namespaces;
+		CompileErrorHandler* errorHandler;
 		Script* getScript(std::string const& name) const;
 		Script* getScript(ASTScript* node) const;
 		Script* addScript(ASTScript& node, Scope& parentScope, CompileErrorHandler* handler);

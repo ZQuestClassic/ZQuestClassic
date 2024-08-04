@@ -12,7 +12,7 @@ namespace ZScript
 	class MetadataVisitor : public RecursiveVisitor
 	{
 	public:
-		MetadataVisitor(ZScript::Program& program);
+		MetadataVisitor(ZScript::Program& program, std::string root_file_name);
 		using RecursiveVisitor::visit;
 		void visit(AST& node, void* param = NULL);
 		////////////////
@@ -28,9 +28,9 @@ namespace ZScript
 		void caseExprCall(ASTExprCall& host, void* param);
 
 		json takeOutput();
-
+	
 	private:
-		ZScript::Program& program;
+		std::string root_file_name;
 	};
 }
 

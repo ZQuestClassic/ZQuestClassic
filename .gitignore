@@ -141,5 +141,6 @@ changelogs/nightly.txt
 src/base/version_header.h
 venv
 *.log
+ZQ_BUFFER
 
 api_server/secrets.sh

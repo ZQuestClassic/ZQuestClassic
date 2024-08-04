@@ -19,7 +19,9 @@ void* const RecursiveVisitor::paramRead = new tag();
 void* const RecursiveVisitor::paramWrite = new tag();
 void* const RecursiveVisitor::paramReadWrite = new tag();
 
+std::string input_script_filename;
 uint32_t zscript_failcode = 0;
+std::vector<Diagnostic>* current_diagnostics;
 bool zscript_error_out = false;
 
 ////////////////////////////////////////////////////////////////
@@ -78,17 +80,9 @@ void RecursiveVisitor::handleError(CompileError const& error, std::string const*
 		failure_temp = true;
 		if(!zscript_failcode)
 			zscript_failcode = *error.getId();
-		if(inf && inf->size())
-			zconsole_error("%s\nINFO: %s",err_str_ptr,inf->c_str());
-		else zconsole_error("%s",err_str_ptr);
 	}
-	else
-	{
-		if(inf && inf->size())
-			zconsole_warn("%s\nINFO: %s",err_str_ptr,inf->c_str());
-		else zconsole_warn("%s",err_str_ptr);
-	}
-	//log_error(error);
+
+	program.errorHandler->handleError(error, inf);
 }
 
 void RecursiveVisitor::deprecWarn(Function* func, AST* host, std::string const& s1, std::string const& s2)

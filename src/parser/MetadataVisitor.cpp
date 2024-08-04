@@ -1,5 +1,6 @@
 #include "base/util.h"
 #include "parser/AST.h"
+#include "parser/ASTVisitors.h"
 #include "parserDefs.h"
 #include "MetadataVisitor.h"
 #include <cassert>
@@ -52,7 +53,7 @@ enum class SymbolKind
 
 static std::string make_uri(std::string path)
 {
-	if (path == "ZQ_BUFFER" || path == metadata_tmp_path)
+	if (path == metadata_tmp_path)
 		path = metadata_orig_path;
 
 	// For consistent test results no matter the machine.
@@ -368,8 +369,8 @@ static void appendIdentifier(std::string symbol_id, const AST* symbol_node, cons
 	});
 }
 
-MetadataVisitor::MetadataVisitor(Program& program)
-	: program(program)
+MetadataVisitor::MetadataVisitor(Program& program, std::string root_file_name)
+	: RecursiveVisitor(program), root_file_name(root_file_name)
 {
 	root = {
 		{"currentFileSymbols", json::array()},
@@ -388,7 +389,7 @@ void MetadataVisitor::visit(AST& node, void* param)
 void MetadataVisitor::caseFile(ASTFile& host, void* param)
 {
 	auto name = getName(host);
-	if (name != "ZQ_BUFFER" && !name.ends_with("tmp.zs"))
+	if (name != root_file_name && name != metadata_tmp_path)
 		return;
 
 	RecursiveVisitor::caseFile(host, param);

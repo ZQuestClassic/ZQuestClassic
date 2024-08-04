@@ -5,19 +5,164 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-ZQ_BUFFER Line 71 @ Columns 37-43 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 82 @ Columns 3-9 - Error S109: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 9 @ Columns 6-10 - Warning S108: Array mismatch for types int[] and int
-ZQ_BUFFER Line 10 @ Columns 8-12 - Warning S108: Array mismatch for types int and int[]
-ZQ_BUFFER Line 15 @ Columns 7-11 - Error S109: Array mismatch for types int[] and int
-ZQ_BUFFER Line 16 @ Columns 9-13 - Error S109: Array mismatch for types int and int[]
-ZQ_BUFFER Line 43 @ Columns 2-26 - Warning S108: Array mismatch for types int[][] and int[]
-ZQ_BUFFER Line 46 @ Columns 9-24 - Error T017: Cannot cast from bitmap[] to bitmap.
-ZQ_BUFFER Line 48 @ Columns 2-41 - Error T021: Function fnNewStyleArrayObjects(bitmap) has not been declared.
-ZQ_BUFFER Line 53 @ Columns 10-28 - Warning S108: Array mismatch for types untyped[] and lweapon
+arrays.zs Line 71 @ Columns 37-43 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+arrays.zs Line 82 @ Columns 3-9 - Error S109: Arrays should be explicitly typed - change `int` to `int[]`
+arrays.zs Line 9 @ Columns 6-10 - Warning S108: Array mismatch for types int[] and int
+arrays.zs Line 10 @ Columns 8-12 - Warning S108: Array mismatch for types int and int[]
+arrays.zs Line 15 @ Columns 7-11 - Error S109: Array mismatch for types int[] and int
+arrays.zs Line 16 @ Columns 9-13 - Error S109: Array mismatch for types int and int[]
+arrays.zs Line 43 @ Columns 2-26 - Warning S108: Array mismatch for types int[][] and int[]
+arrays.zs Line 46 @ Columns 9-24 - Error T017: Cannot cast from bitmap[] to bitmap.
+arrays.zs Line 48 @ Columns 2-41 - Error T021: Function fnNewStyleArrayObjects(bitmap) has not been declared.
+arrays.zs Line 53 @ Columns 10-28 - Warning S108: Array mismatch for types untyped[] and lweapon
 Failure!
 Compile finished with exit code '109' (compiled with errors)
 
 stdout:
 
-
+{
+  "success": false,
+  "code": 109,
+  "diagnostics": [
+    {
+      "range": {
+        "start": {
+          "line": 70,
+          "character": 36
+        },
+        "end": {
+          "line": 70,
+          "character": 42
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 81,
+          "character": 2
+        },
+        "end": {
+          "line": 81,
+          "character": 8
+        }
+      },
+      "severity": 1,
+      "message": "S109: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 8,
+          "character": 5
+        },
+        "end": {
+          "line": 8,
+          "character": 9
+        }
+      },
+      "severity": 2,
+      "message": "S108: Array mismatch for types int[] and int"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 9,
+          "character": 7
+        },
+        "end": {
+          "line": 9,
+          "character": 11
+        }
+      },
+      "severity": 2,
+      "message": "S108: Array mismatch for types int and int[]"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 14,
+          "character": 6
+        },
+        "end": {
+          "line": 14,
+          "character": 10
+        }
+      },
+      "severity": 1,
+      "message": "S109: Array mismatch for types int[] and int"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 15,
+          "character": 8
+        },
+        "end": {
+          "line": 15,
+          "character": 12
+        }
+      },
+      "severity": 1,
+      "message": "S109: Array mismatch for types int and int[]"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 42,
+          "character": 1
+        },
+        "end": {
+          "line": 42,
+          "character": 25
+        }
+      },
+      "severity": 2,
+      "message": "S108: Array mismatch for types int[][] and int[]"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 45,
+          "character": 8
+        },
+        "end": {
+          "line": 45,
+          "character": 23
+        }
+      },
+      "severity": 1,
+      "message": "T017: Cannot cast from bitmap[] to bitmap."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 47,
+          "character": 1
+        },
+        "end": {
+          "line": 47,
+          "character": 40
+        }
+      },
+      "severity": 1,
+      "message": "T021: Function fnNewStyleArrayObjects(bitmap) has not been declared."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 52,
+          "character": 9
+        },
+        "end": {
+          "line": 52,
+          "character": 27
+        }
+      },
+      "severity": 2,
+      "message": "S108: Array mismatch for types untyped[] and lweapon"
+    }
+  ]
+}

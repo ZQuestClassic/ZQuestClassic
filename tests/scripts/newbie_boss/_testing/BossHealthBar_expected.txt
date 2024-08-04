@@ -5,19 +5,19 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-ZQ_BUFFER Line 233 @ Columns 7-13 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 234 @ Columns 5-13 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 405 @ Columns 7-13 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 406 @ Columns 5-13 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 699 @ Columns 7-13 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 700 @ Columns 5-13 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 928 @ Columns 7-13 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 929 @ Columns 5-13 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+BossHealthBar.z Line 233 @ Columns 7-13 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+BossHealthBar.z Line 234 @ Columns 5-13 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+BossHealthBar.z Line 405 @ Columns 7-13 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+BossHealthBar.z Line 406 @ Columns 5-13 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+BossHealthBar.z Line 699 @ Columns 7-13 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+BossHealthBar.z Line 700 @ Columns 5-13 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+BossHealthBar.z Line 928 @ Columns 7-13 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+BossHealthBar.z Line 929 @ Columns 5-13 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
 Pass 5: Checking code paths
-ZQ_BUFFER Line 155 @ Columns 6-22 - Warning S101: Function 'HealthBar_GetNPC' is not void, and should return a value!
-ZQ_BUFFER Line 565 @ Columns 6-22 - Warning S101: Function 'HealthBar_GetNPC' is not void, and should return a value!
-ZQ_BUFFER Line 155 @ Columns 6-22 - Warning S101: Function 'HealthBar_GetNPC' is not void, and should return a value!
-ZQ_BUFFER Line 565 @ Columns 6-22 - Warning S101: Function 'HealthBar_GetNPC' is not void, and should return a value!
+BossHealthBar.z Line 155 @ Columns 6-22 - Warning S101: Function 'HealthBar_GetNPC' is not void, and should return a value!
+BossHealthBar.z Line 565 @ Columns 6-22 - Warning S101: Function 'HealthBar_GetNPC' is not void, and should return a value!
+BossHealthBar.z Line 155 @ Columns 6-22 - Warning S101: Function 'HealthBar_GetNPC' is not void, and should return a value!
+BossHealthBar.z Line 565 @ Columns 6-22 - Warning S101: Function 'HealthBar_GetNPC' is not void, and should return a value!
 Pass 6: Generating object code
 Pass 7: Assembling
 Success!
@@ -27,6 +27,176 @@ stdout:
 
 {
   "success": true,
+  "diagnostics": [
+    {
+      "range": {
+        "start": {
+          "line": 232,
+          "character": 6
+        },
+        "end": {
+          "line": 232,
+          "character": 12
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 233,
+          "character": 4
+        },
+        "end": {
+          "line": 233,
+          "character": 12
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 404,
+          "character": 6
+        },
+        "end": {
+          "line": 404,
+          "character": 12
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 405,
+          "character": 4
+        },
+        "end": {
+          "line": 405,
+          "character": 12
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 698,
+          "character": 6
+        },
+        "end": {
+          "line": 698,
+          "character": 12
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 699,
+          "character": 4
+        },
+        "end": {
+          "line": 699,
+          "character": 12
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 927,
+          "character": 6
+        },
+        "end": {
+          "line": 927,
+          "character": 12
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 928,
+          "character": 4
+        },
+        "end": {
+          "line": 928,
+          "character": 12
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 154,
+          "character": 5
+        },
+        "end": {
+          "line": 154,
+          "character": 21
+        }
+      },
+      "severity": 2,
+      "message": "S101: Function 'HealthBar_GetNPC' is not void, and should return a value!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 564,
+          "character": 5
+        },
+        "end": {
+          "line": 564,
+          "character": 21
+        }
+      },
+      "severity": 2,
+      "message": "S101: Function 'HealthBar_GetNPC' is not void, and should return a value!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 154,
+          "character": 5
+        },
+        "end": {
+          "line": 154,
+          "character": 21
+        }
+      },
+      "severity": 2,
+      "message": "S101: Function 'HealthBar_GetNPC' is not void, and should return a value!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 564,
+          "character": 5
+        },
+        "end": {
+          "line": 564,
+          "character": 21
+        }
+      },
+      "severity": 2,
+      "message": "S101: Function 'HealthBar_GetNPC' is not void, and should return a value!"
+    }
+  ],
   "metadata": {
     "currentFileSymbols": 181,
     "symbols": 356,

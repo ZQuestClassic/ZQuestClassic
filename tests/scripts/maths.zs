@@ -1,3 +1,5 @@
+#include "std.zh"
+
 ffc script Maths
 {
     void run()

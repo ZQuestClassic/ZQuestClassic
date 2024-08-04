@@ -5,16 +5,105 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-ZQ_BUFFER Line 9 @ Columns 3-22 - Error C036: Variable Game->CurScreen is constant and cannot be changed.
-ZQ_BUFFER Line 10 @ Columns 3-20 - Error C036: Variable Game->CurDMap is constant and cannot be changed.
-ZQ_BUFFER Line 11 @ Columns 3-21 - Error C036: Variable Hero->IceCombo is constant and cannot be changed.
-ZQ_BUFFER Line 13 @ Columns 3-12 - Error S095: Function 'Untype(untyped)' is deprecated, and cannot be used due to current compiler settings.
-ZQ_BUFFER Line 14 @ Columns 3-31 - Error S095: Function 'TraceNPC(untyped)' is deprecated, and cannot be used due to current compiler settings.
+errors_5.zs Line 9 @ Columns 3-22 - Error C036: Variable Game->CurScreen is constant and cannot be changed.
+errors_5.zs Line 10 @ Columns 3-20 - Error C036: Variable Game->CurDMap is constant and cannot be changed.
+errors_5.zs Line 11 @ Columns 3-21 - Error C036: Variable Hero->IceCombo is constant and cannot be changed.
+errors_5.zs Line 13 @ Columns 3-12 - Error S095: Function 'Untype(untyped)' is deprecated, and cannot be used due to current compiler settings.
+errors_5.zs Line 14 @ Columns 3-31 - Error S095: Function 'TraceNPC(untyped)' is deprecated, and cannot be used due to current compiler settings.
 INFO: Use Trace instead
-ZQ_BUFFER Line 15 @ Columns 9-28 - Error S095: Variable 'screendata->ScriptEntry' is deprecated, and cannot be used due to current compiler settings.
+errors_5.zs Line 15 @ Columns 9-28 - Error S095: Variable 'screendata->ScriptEntry' is deprecated, and cannot be used due to current compiler settings.
 Failure!
 Compile finished with exit code '36' (compiled with errors)
 
 stdout:
 
-
+{
+  "success": false,
+  "code": 36,
+  "diagnostics": [
+    {
+      "range": {
+        "start": {
+          "line": 8,
+          "character": 2
+        },
+        "end": {
+          "line": 8,
+          "character": 21
+        }
+      },
+      "severity": 1,
+      "message": "C036: Variable Game->CurScreen is constant and cannot be changed."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 9,
+          "character": 2
+        },
+        "end": {
+          "line": 9,
+          "character": 19
+        }
+      },
+      "severity": 1,
+      "message": "C036: Variable Game->CurDMap is constant and cannot be changed."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 10,
+          "character": 2
+        },
+        "end": {
+          "line": 10,
+          "character": 20
+        }
+      },
+      "severity": 1,
+      "message": "C036: Variable Hero->IceCombo is constant and cannot be changed."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 12,
+          "character": 2
+        },
+        "end": {
+          "line": 12,
+          "character": 11
+        }
+      },
+      "severity": 1,
+      "message": "S095: Function 'Untype(untyped)' is deprecated, and cannot be used due to current compiler settings."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 13,
+          "character": 2
+        },
+        "end": {
+          "line": 13,
+          "character": 30
+        }
+      },
+      "severity": 1,
+      "message": "S095: Function 'TraceNPC(untyped)' is deprecated, and cannot be used due to current compiler settings.\nUse Trace instead"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 14,
+          "character": 8
+        },
+        "end": {
+          "line": 14,
+          "character": 27
+        }
+      },
+      "severity": 1,
+      "message": "S095: Variable 'screendata->ScriptEntry' is deprecated, and cannot be used due to current compiler settings."
+    }
+  ]
+}

@@ -1,4 +1,3 @@
-//2.53 Updated to 16th Jan, 2017
 #include "parser/MetadataVisitor.h"
 #include "zsyssimple.h"
 #include "ByteCode.h"
@@ -49,18 +48,10 @@ static void get_root_path(char* path, int32_t size)
 	put_backslash(path);
 }
 
-static std::filesystem::path relativize_path(std::string src_path)
-{
-	char rootpath[PATH_MAX] = {0};
-	get_root_path(rootpath, PATH_MAX);
-    return std::filesystem::relative(src_path, rootpath);
-}
-
 static std::filesystem::path derelativize_path(std::string src_path)
 {
 	char rootpath[PATH_MAX] = {0};
 	get_root_path(rootpath, PATH_MAX);
-	char buf[PATH_MAX*2] = {0};
 	return (std::filesystem::path(rootpath) / src_path).lexically_normal();
 }
 
@@ -79,28 +70,38 @@ void ScriptParser::initialize(bool has_qrs)
 	includePaths.clear();
 	includePaths.resize(0);
 }
+
+extern std::string input_script_filename;
+extern std::string metadata_tmp_path;
 extern uint32_t zscript_failcode;
+extern std::vector<Diagnostic>* current_diagnostics;
 extern bool zscript_error_out;
 extern bool delay_asserts, ignore_asserts;
 vector<ZScript::BasicCompileError> casserts;
+
 static unique_ptr<ScriptsData> _compile_helper(string const& filename, bool include_metadata)
 {
 	using namespace ZScript;
+
+	input_script_filename = metadata_tmp_path.empty() ? filename : metadata_tmp_path;
 	zscript_failcode = 0;
 	zscript_error_out = false;
 	if(ignore_asserts) delay_asserts = true;
 	casserts.clear();
 	try
 	{
+		auto result = std::make_unique<ScriptsData>();
+		current_diagnostics = &result->diagnostics;
+
 		zconsole_info("%s", "Pass 1: Parsing");
 		zconsole_idle();
 
-		unique_ptr<ASTFile> root(parseFile(filename, true));
-		if(zscript_error_out) return nullptr;
+		unique_ptr<ASTFile> root(parseFile(filename));
+		if(zscript_error_out) return result;
 		if (!root.get())
 		{
 			log_error(CompileError::CantOpenSource(NULL));
-			return nullptr;
+			return result;
 		}
 
 		zconsole_info("%s", "Pass 2: Preprocessing");
@@ -108,81 +109,90 @@ static unique_ptr<ScriptsData> _compile_helper(string const& filename, bool incl
 
 		root->imports.insert(root->imports.begin(), new ASTImportDecl("bindings.zh"));
 		if (!ScriptParser::preprocess(root.get(), ScriptParser::recursionLimit))
-			return nullptr;
-		if(zscript_error_out) return nullptr;
+			return result;
+		if(zscript_error_out) return result;
 
-		SimpleCompileErrorHandler handler;
+		SimpleCompileErrorHandler handler(result.get());
 		Program program(*root, &handler);
+
 		if (handler.hasError())
-			return nullptr;
-		if(zscript_error_out) return nullptr;
+			return result;
+		if(zscript_error_out) return result;
 
 		zconsole_info("%s", "Pass 3: Registration");
 		zconsole_idle();
 
 		RegistrationVisitor regVisitor(program);
-		if(regVisitor.hasFailed()) return nullptr;
-		if(zscript_error_out) return nullptr;
+		if(regVisitor.hasFailed()) return result;
+		if(zscript_error_out) return result;
 
 		zconsole_info("%s", "Pass 4: Analyzing Code");
 		zconsole_idle();
 
 		SemanticAnalyzer semanticAnalyzer(program);
 		if (semanticAnalyzer.hasFailed() || regVisitor.hasFailed())
-			return nullptr;
-		if(zscript_error_out) return nullptr;
+			return result;
+		if(zscript_error_out) return result;
 
 		FunctionData fd(program);
-		if(zscript_error_out) return nullptr;
+		if(zscript_error_out) return result;
 		if (fd.globalVariables.size() > MAX_SCRIPT_REGISTERS)
 		{
 			log_error(CompileError::TooManyGlobal(NULL));
-			return nullptr;
+			return result;
 		}
 
 		zconsole_info("%s", "Pass 5: Checking code paths");
 		zconsole_idle();
 		
 		ReturnVisitor rv(program);
-		if(zscript_error_out) return nullptr;
-		if(rv.hasFailed()) return nullptr;
+		if(zscript_error_out) return result;
+		if(rv.hasFailed()) return result;
 		
 		zconsole_info("%s", "Pass 6: Generating object code");
 		zconsole_idle();
 
 		unique_ptr<IntermediateData> id(ScriptParser::generateOCode(fd));
 		if (!id.get())
-			return nullptr;
-		if(zscript_error_out) return nullptr;
+			return result;
+		if(zscript_error_out) return result;
 		
 		zconsole_info("%s", "Pass 7: Assembling");
 		zconsole_idle();
 
 		ScriptParser::assemble_err = false;
 		ScriptParser::assemble(id.get());
-		if (ScriptParser::assemble_err) return nullptr;
+		if (ScriptParser::assemble_err) return result;
 
-		auto result = std::make_unique<ScriptsData>(program);
-		if(!ignore_asserts && casserts.size()) return nullptr;
-		if(zscript_error_out) return nullptr;
+		result->fillFromProgram(program);
+		if(!ignore_asserts && casserts.size()) return result;
+		if(zscript_error_out) return result;
 
 		if (include_metadata)
 		{
-			MetadataVisitor md(program);
-			if(zscript_error_out) return nullptr;
-			if(rv.hasFailed()) return nullptr;
+			MetadataVisitor md(program, filename);
+			if(zscript_error_out) return result;
+			if(rv.hasFailed()) return result;
 			result->metadata = md.takeOutput();
 		}
 
 		zconsole_info("%s", "Success!");
-
+		result->success = true;
 		return result;
 	}
 	catch (compile_exception &e)
 	{
-		zconsole_error(fmt::format("An unexpected compile error has occurred:\n{}",e.what()));
+		std::string error = fmt::format("An unexpected compile error has occurred:\n{}", e.what());
+		zconsole_error(error);
 		zscript_error_out = true;
-		return nullptr;
+
+		auto result = std::make_unique<ScriptsData>();
+		result->success = false;
+		Diagnostic diag{};
+		diag.severity = DiagnosticSeverity::Error;
+		diag.message = error;
+		result->diagnostics.push_back(diag);
+		return result;
 	}
 #ifndef _DEBUG
 	catch (std::exception &e)
@@ -195,9 +205,17 @@ static unique_ptr<ScriptsData> _compile_helper(string const& filename, bool incl
 		sentry_capture_event(event);
 #endif
 
-		zconsole_error(fmt::format("An unexpected runtime error has occurred:\n{}",e.what()));
+		std::string error = fmt::format("An unexpected runtime error has occurred:\n{}", e.what());
+		zconsole_error(error);
 		zscript_error_out = true;
-		return nullptr;
+
+		auto result = std::make_unique<ScriptsData>();
+		result->success = false;
+		Diagnostic diag{};
+		diag.severity = DiagnosticSeverity::Error;
+		diag.message = error;
+		result->diagnostics.push_back(diag);
+		return result;
 	}
 #endif
 }
@@ -426,12 +444,12 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 		Datum& variable = **it;
 		AST& node = *variable.getNode();
 		
-		CleanupVisitor cv(scope);
+		CleanupVisitor cv(program, scope);
 		node.execute(cv);
 
 		OpcodeContext oc(typeStore);
 
-		BuildOpcodes bo(scope);
+		BuildOpcodes bo(program, scope);
 		node.execute(bo, &oc);
 		if (bo.hasError()) failure = true;
 		appendElements(rval->globalsInit, oc.initCode);
@@ -549,7 +567,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 												new VarArgument(SP2)));
 			if (puc == puc_construct)
 				addOpcode2(funccode, new OPushRegister(new VarArgument(CLASS_THISKEY2)));
-			CleanupVisitor cv(scope);
+			CleanupVisitor cv(program, scope);
 			node.execute(cv);
 			OpcodeContext oc(typeStore);
 			if (puc != puc_construct)
@@ -557,7 +575,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 				auto returnType = function.returnType;
 				oc.returns_object = returnType && returnType->isObject();
 			}
-			BuildOpcodes bo(scope);
+			BuildOpcodes bo(program, scope);
 			bo.parsing_user_class = puc;
 			node.execute(bo, &oc);
 			
@@ -680,12 +698,12 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 				}
 			}
 
-			CleanupVisitor cv(scope);
+			CleanupVisitor cv(program, scope);
 			node.execute(cv);
 			OpcodeContext oc(typeStore);
 			auto returnType = function.returnType;
 			oc.returns_object = returnType && returnType->isObject();
-			BuildOpcodes bo(scope);
+			BuildOpcodes bo(program,scope);
 			node.execute(bo, &oc);
 
 			if (bo.hasError()) failure = true;
@@ -1528,7 +1546,7 @@ std::pair<int32_t,bool> ScriptParser::parseLong(std::pair<string, string> parts,
 	return rval;
 }
 
-ScriptsData::ScriptsData(Program& program)
+void ScriptsData::fillFromProgram(Program& program)
 {
 	for (vector<Script*>::const_iterator it = program.scripts.begin();
 	     it != program.scripts.end(); ++it)

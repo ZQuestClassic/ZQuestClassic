@@ -7,6 +7,7 @@
 #include "CompileError.h"
 #include "base/headers.h"
 #include "parser/AST.h"
+#include "parser/ASTVisitors.h"
 #include "parser/CompilerUtils.h"
 #include "parser/parserDefs.h"
 using std::ostringstream;
@@ -18,7 +19,7 @@ using namespace ZScript;
 // SemanticAnalyzer
 
 SemanticAnalyzer::SemanticAnalyzer(Program& program)
-	: program(program), returnType(NULL), deprecateGlobals(false)
+	: RecursiveVisitor(program), returnType(NULL), deprecateGlobals(false)
 {
 	scope = &program.getScope();
 	caseFile(program.getRoot());

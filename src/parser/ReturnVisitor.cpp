@@ -4,6 +4,7 @@
  * Author: Emily
  */
 
+#include "parser/ASTVisitors.h"
 #include "parserDefs.h"
 #include "ReturnVisitor.h"
 #include <cassert>
@@ -20,6 +21,8 @@ using std::unique_ptr;
 class ResetVisitor : public RecursiveVisitor
 {
 public:
+	ResetVisitor(ZScript::Program& program) : RecursiveVisitor(program) {}
+
 	using RecursiveVisitor::visit;
 	void visit(AST& node, void* param = NULL)
 	{
@@ -32,7 +35,7 @@ public:
 // ReturnVisitor
 
 ReturnVisitor::ReturnVisitor(Program& program)
-	: program(program), marked_never_ret(false), missing_ret(false),
+	: RecursiveVisitor(program), marked_never_ret(false), missing_ret(false),
 	var_map()
 {
 	mode = MODE_START;
@@ -138,7 +141,7 @@ void ReturnVisitor::analyzeFunctionInternals(Function& function)
 			if(function.isNil())
 				return; //nothing more to possibly do here
 		}
-		ResetVisitor resetter;
+		ResetVisitor resetter(program);
 		resetter.visit(*block); //reset the 'reachable' state to false
 		func_var_map.clear();
 		

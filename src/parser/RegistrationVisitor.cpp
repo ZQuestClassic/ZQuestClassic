@@ -4,6 +4,7 @@
  * Author: Emily
  */
 
+#include "parser/ASTVisitors.h"
 #include "parser/LibrarySymbols.h"
 #include "parser/Types.h"
 #include "parser/ZScript.h"
@@ -28,7 +29,7 @@ int32_t StringToVar(std::string var);
 // RegistrationVisitor
 
 RegistrationVisitor::RegistrationVisitor(Program& program)
-	: program(program), hasChanged(false)
+	: RecursiveVisitor(program), hasChanged(false)
 {
 	scope = &program.getScope();
 	caseRoot(program.getRoot());

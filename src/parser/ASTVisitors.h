@@ -229,7 +229,7 @@ namespace ZScript
 		// Used as a parameter to signal that both lval and rval are needed.
 		static void* const paramReadWrite;
 		
-		RecursiveVisitor() : breakNode(NULL), failure(false),
+		RecursiveVisitor(ZScript::Program& program) : program(program), breakNode(NULL), failure(false),
 			failure_temp(false), failure_halt(false) {}
 	
 		// Mark as having failed.
@@ -376,6 +376,8 @@ namespace ZScript
 		// each action that can fail.
 		virtual bool breakRecursion(AST& host, void* param = NULL) const;
 		virtual bool breakRecursion(void* param = NULL) const;
+
+		ZScript::Program& program;
 
 		// Current stack of visited nodes.
 		std::vector<AST*> recursionStack;

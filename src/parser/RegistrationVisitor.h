@@ -106,8 +106,6 @@ namespace ZScript
 		template <class Container>
 		void block_regvisit_vec(Container const& nodes, void* param = NULL);
 	private:
-		ZScript::Program& program;
-		
 		void analyzeUnaryExpr(ASTUnaryExpr& host);
 		void analyzeBinaryExpr(ASTBinaryExpr& host);
 		

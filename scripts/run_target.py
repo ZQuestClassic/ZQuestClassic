@@ -19,10 +19,13 @@ def print_run_target(message):
     prefix = 'run_target.py >'
     for line in message.splitlines(keepends=True):
         print(prefix, line, end='', file=sys.stderr)
-    print()
+    print(prefix, file=sys.stderr)
 
 
 def get_debug_method():
+    if 'ZC_DISABLE_DEBUG' in os.environ:
+        return {'method': DEBUG_METHOD_NONE}
+
     debug_method = _get_debug_method()
     if debug_method['method'] == DEBUG_METHOD_NONE and platform.system() != 'Windows':
         print_run_target('WARNING: if there is a crash, you will not see a backtrace')

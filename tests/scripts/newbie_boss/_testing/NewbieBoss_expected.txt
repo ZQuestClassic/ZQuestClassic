@@ -5,231 +5,231 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-ZQ_BUFFER Line 3463 @ Columns 4-29 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3464 @ Columns 4-24 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3466 @ Columns 5-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3467 @ Columns 5-24 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3467 @ Columns 27-47 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3470 @ Columns 5-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3471 @ Columns 5-24 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3471 @ Columns 27-47 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3474 @ Columns 5-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3475 @ Columns 5-24 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3475 @ Columns 27-47 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3480 @ Columns 3-30 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3480 @ Columns 16-29 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3481 @ Columns 5-18 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3500 @ Columns 8-18 - Warning S108: Arrays should be explicitly typed - change `npc` to `npc[]`
-ZQ_BUFFER Line 3501 @ Columns 5-15 - Warning S108: Arrays should be explicitly typed - change `npc` to `npc[]`
-ZQ_BUFFER Line 3486 @ Columns 3-34 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3486 @ Columns 18-33 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3487 @ Columns 5-20 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 2855 @ Columns 15-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3348 @ Columns 6-25 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3351 @ Columns 14-36 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3310 @ Columns 6-25 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3313 @ Columns 16-36 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3315 @ Columns 20-40 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3316 @ Columns 26-46 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3317 @ Columns 20-40 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3318 @ Columns 18-38 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3319 @ Columns 22-42 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3320 @ Columns 20-40 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3321 @ Columns 18-38 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3322 @ Columns 20-40 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3323 @ Columns 21-41 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3324 @ Columns 17-37 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3327 @ Columns 5-16 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3327 @ Columns 19-41 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3332 @ Columns 24-46 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3335 @ Columns 16-36 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3338 @ Columns 3-23 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3338 @ Columns 26-46 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3340 @ Columns 6-25 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3341 @ Columns 4-23 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3343 @ Columns 4-23 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3256 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3257 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3258 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3259 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3260 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3261 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3262 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3263 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3264 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3265 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3266 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3268 @ Columns 4-15 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3271 @ Columns 4-15 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3273 @ Columns 3-11 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3274 @ Columns 3-11 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3276 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3277 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3278 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3279 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3280 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3281 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3282 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3283 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3284 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3285 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3286 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3288 @ Columns 4-15 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3291 @ Columns 4-15 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3293 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3294 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3296 @ Columns 3-22 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3080 @ Columns 47-61 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3083 @ Columns 52-66 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3083 @ Columns 68-82 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3083 @ Columns 84-98 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3093 @ Columns 18-32 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3093 @ Columns 34-48 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3116 @ Columns 18-32 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3116 @ Columns 34-48 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3116 @ Columns 50-64 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 2758 @ Columns 15-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 2924 @ Columns 15-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 2931 @ Columns 15-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 2917 @ Columns 15-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 2686 @ Columns 15-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 2690 @ Columns 17-34 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 2691 @ Columns 17-34 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 2596 @ Columns 23-42 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 2597 @ Columns 15-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 2598 @ Columns 15-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3613 @ Columns 15-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3627 @ Columns 3-18 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3628 @ Columns 3-18 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3629 @ Columns 6-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3630 @ Columns 7-22 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3631 @ Columns 7-22 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3632 @ Columns 7-23 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3633 @ Columns 7-23 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3634 @ Columns 4-19 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3634 @ Columns 42-57 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3636 @ Columns 27-42 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3637 @ Columns 5-20 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3638 @ Columns 5-20 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3641 @ Columns 28-43 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3670 @ Columns 6-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3671 @ Columns 6-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3672 @ Columns 6-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3673 @ Columns 6-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3674 @ Columns 6-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3675 @ Columns 6-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3675 @ Columns 24-40 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3677 @ Columns 7-22 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3679 @ Columns 7-22 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3681 @ Columns 7-23 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3685 @ Columns 6-22 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3686 @ Columns 6-22 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3690 @ Columns 11-26 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3691 @ Columns 17-32 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3691 @ Columns 33-49 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3691 @ Columns 51-66 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3691 @ Columns 67-83 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3692 @ Columns 7-22 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3696 @ Columns 6-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3697 @ Columns 7-22 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3699 @ Columns 8-23 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3703 @ Columns 8-23 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3705 @ Columns 8-23 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3707 @ Columns 8-24 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3709 @ Columns 5-20 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3710 @ Columns 5-20 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3369 @ Columns 17-35 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3370 @ Columns 3-16 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3380 @ Columns 3-20 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3383 @ Columns 4-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3385 @ Columns 5-22 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3387 @ Columns 5-22 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3421 @ Columns 7-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3422 @ Columns 7-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3423 @ Columns 7-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3426 @ Columns 7-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3427 @ Columns 7-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3428 @ Columns 7-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3436 @ Columns 7-35 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3438 @ Columns 7-35 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3449 @ Columns 6-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3449 @ Columns 23-40 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3450 @ Columns 4-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3454 @ Columns 6-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3455 @ Columns 34-71 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3455 @ Columns 54-69 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3128 @ Columns 15-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3129 @ Columns 15-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3362 @ Columns 3-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3363 @ Columns 3-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3365 @ Columns 3-29 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3492 @ Columns 7-17 - Warning S108: Arrays should be explicitly typed - change `npc` to `npc[]`
-ZQ_BUFFER Line 3531 @ Columns 3-13 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3532 @ Columns 3-19 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3533 @ Columns 3-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3534 @ Columns 3-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3535 @ Columns 3-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3536 @ Columns 3-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3537 @ Columns 3-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3538 @ Columns 3-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3539 @ Columns 3-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 2774 @ Columns 14-29 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 2775 @ Columns 15-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 2776 @ Columns 15-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 2648 @ Columns 15-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3508 @ Columns 7-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3509 @ Columns 8-22 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3510 @ Columns 35-41 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3510 @ Columns 43-55 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3510 @ Columns 57-71 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3510 @ Columns 73-87 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3510 @ Columns 112-126 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3510 @ Columns 128-142 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3511 @ Columns 8-22 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3512 @ Columns 9-23 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3512 @ Columns 25-39 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3514 @ Columns 7-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3515 @ Columns 7-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3518 @ Columns 13-27 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3519 @ Columns 35-41 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3519 @ Columns 43-55 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3519 @ Columns 57-71 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3519 @ Columns 73-87 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3519 @ Columns 89-103 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3519 @ Columns 125-139 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3519 @ Columns 141-155 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3520 @ Columns 8-22 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3521 @ Columns 9-23 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3521 @ Columns 25-39 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3522 @ Columns 7-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3523 @ Columns 7-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3721 @ Columns 15-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3729 @ Columns 7-28 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3730 @ Columns 7-33 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3731 @ Columns 8-33 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3731 @ Columns 34-60 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3732 @ Columns 8-33 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3733 @ Columns 20-40 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3733 @ Columns 42-61 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3733 @ Columns 62-82 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3733 @ Columns 85-110 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3733 @ Columns 111-137 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3738 @ Columns 6-23 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3742 @ Columns 5-24 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 3999 @ Columns 4-20 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 4000 @ Columns 4-20 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 4013 @ Columns 10-26 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 4014 @ Columns 10-26 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 4015 @ Columns 10-30 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 4016 @ Columns 10-30 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 4029 @ Columns 10-26 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 4030 @ Columns 10-26 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 4031 @ Columns 10-30 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 4032 @ Columns 10-30 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 4045 @ Columns 10-26 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 4046 @ Columns 10-26 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 4047 @ Columns 10-30 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-ZQ_BUFFER Line 4048 @ Columns 10-30 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3463 @ Columns 4-29 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3464 @ Columns 4-24 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3466 @ Columns 5-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3467 @ Columns 5-24 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3467 @ Columns 27-47 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3470 @ Columns 5-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3471 @ Columns 5-24 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3471 @ Columns 27-47 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3474 @ Columns 5-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3475 @ Columns 5-24 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3475 @ Columns 27-47 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3480 @ Columns 3-30 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3480 @ Columns 16-29 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3481 @ Columns 5-18 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3500 @ Columns 8-18 - Warning S108: Arrays should be explicitly typed - change `npc` to `npc[]`
+NewbieBoss.z Line 3501 @ Columns 5-15 - Warning S108: Arrays should be explicitly typed - change `npc` to `npc[]`
+NewbieBoss.z Line 3486 @ Columns 3-34 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3486 @ Columns 18-33 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3487 @ Columns 5-20 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 2855 @ Columns 15-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3348 @ Columns 6-25 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3351 @ Columns 14-36 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3310 @ Columns 6-25 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3313 @ Columns 16-36 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3315 @ Columns 20-40 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3316 @ Columns 26-46 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3317 @ Columns 20-40 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3318 @ Columns 18-38 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3319 @ Columns 22-42 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3320 @ Columns 20-40 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3321 @ Columns 18-38 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3322 @ Columns 20-40 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3323 @ Columns 21-41 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3324 @ Columns 17-37 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3327 @ Columns 5-16 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3327 @ Columns 19-41 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3332 @ Columns 24-46 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3335 @ Columns 16-36 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3338 @ Columns 3-23 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3338 @ Columns 26-46 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3340 @ Columns 6-25 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3341 @ Columns 4-23 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3343 @ Columns 4-23 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3256 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3257 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3258 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3259 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3260 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3261 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3262 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3263 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3264 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3265 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3266 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3268 @ Columns 4-15 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3271 @ Columns 4-15 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3273 @ Columns 3-11 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3274 @ Columns 3-11 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3276 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3277 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3278 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3279 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3280 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3281 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3282 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3283 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3284 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3285 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3286 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3288 @ Columns 4-15 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3291 @ Columns 4-15 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3293 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3294 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3296 @ Columns 3-22 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3080 @ Columns 47-61 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3083 @ Columns 52-66 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3083 @ Columns 68-82 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3083 @ Columns 84-98 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3093 @ Columns 18-32 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3093 @ Columns 34-48 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3116 @ Columns 18-32 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3116 @ Columns 34-48 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3116 @ Columns 50-64 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 2758 @ Columns 15-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 2924 @ Columns 15-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 2931 @ Columns 15-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 2917 @ Columns 15-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 2686 @ Columns 15-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 2690 @ Columns 17-34 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 2691 @ Columns 17-34 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 2596 @ Columns 23-42 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 2597 @ Columns 15-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 2598 @ Columns 15-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3613 @ Columns 15-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3627 @ Columns 3-18 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3628 @ Columns 3-18 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3629 @ Columns 6-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3630 @ Columns 7-22 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3631 @ Columns 7-22 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3632 @ Columns 7-23 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3633 @ Columns 7-23 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3634 @ Columns 4-19 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3634 @ Columns 42-57 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3636 @ Columns 27-42 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3637 @ Columns 5-20 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3638 @ Columns 5-20 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3641 @ Columns 28-43 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3670 @ Columns 6-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3671 @ Columns 6-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3672 @ Columns 6-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3673 @ Columns 6-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3674 @ Columns 6-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3675 @ Columns 6-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3675 @ Columns 24-40 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3677 @ Columns 7-22 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3679 @ Columns 7-22 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3681 @ Columns 7-23 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3685 @ Columns 6-22 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3686 @ Columns 6-22 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3690 @ Columns 11-26 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3691 @ Columns 17-32 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3691 @ Columns 33-49 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3691 @ Columns 51-66 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3691 @ Columns 67-83 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3692 @ Columns 7-22 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3696 @ Columns 6-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3697 @ Columns 7-22 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3699 @ Columns 8-23 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3703 @ Columns 8-23 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3705 @ Columns 8-23 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3707 @ Columns 8-24 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3709 @ Columns 5-20 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3710 @ Columns 5-20 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3369 @ Columns 17-35 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3370 @ Columns 3-16 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3380 @ Columns 3-20 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3383 @ Columns 4-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3385 @ Columns 5-22 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3387 @ Columns 5-22 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3421 @ Columns 7-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3422 @ Columns 7-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3423 @ Columns 7-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3426 @ Columns 7-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3427 @ Columns 7-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3428 @ Columns 7-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3436 @ Columns 7-35 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3438 @ Columns 7-35 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3449 @ Columns 6-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3449 @ Columns 23-40 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3450 @ Columns 4-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3454 @ Columns 6-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3455 @ Columns 34-71 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3455 @ Columns 54-69 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3128 @ Columns 15-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3129 @ Columns 15-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3362 @ Columns 3-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3363 @ Columns 3-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3365 @ Columns 3-29 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3492 @ Columns 7-17 - Warning S108: Arrays should be explicitly typed - change `npc` to `npc[]`
+NewbieBoss.z Line 3531 @ Columns 3-13 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3532 @ Columns 3-19 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3533 @ Columns 3-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3534 @ Columns 3-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3535 @ Columns 3-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3536 @ Columns 3-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3537 @ Columns 3-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3538 @ Columns 3-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3539 @ Columns 3-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 2774 @ Columns 14-29 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 2775 @ Columns 15-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 2776 @ Columns 15-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 2648 @ Columns 15-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3508 @ Columns 7-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3509 @ Columns 8-22 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3510 @ Columns 35-41 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3510 @ Columns 43-55 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3510 @ Columns 57-71 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3510 @ Columns 73-87 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3510 @ Columns 112-126 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3510 @ Columns 128-142 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3511 @ Columns 8-22 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3512 @ Columns 9-23 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3512 @ Columns 25-39 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3514 @ Columns 7-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3515 @ Columns 7-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3518 @ Columns 13-27 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3519 @ Columns 35-41 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3519 @ Columns 43-55 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3519 @ Columns 57-71 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3519 @ Columns 73-87 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3519 @ Columns 89-103 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3519 @ Columns 125-139 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3519 @ Columns 141-155 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3520 @ Columns 8-22 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3521 @ Columns 9-23 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3521 @ Columns 25-39 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3522 @ Columns 7-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3523 @ Columns 7-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3721 @ Columns 15-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3729 @ Columns 7-28 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3730 @ Columns 7-33 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3731 @ Columns 8-33 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3731 @ Columns 34-60 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3732 @ Columns 8-33 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3733 @ Columns 20-40 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3733 @ Columns 42-61 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3733 @ Columns 62-82 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3733 @ Columns 85-110 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3733 @ Columns 111-137 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3738 @ Columns 6-23 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3742 @ Columns 5-24 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 3999 @ Columns 4-20 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 4000 @ Columns 4-20 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 4013 @ Columns 10-26 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 4014 @ Columns 10-26 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 4015 @ Columns 10-30 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 4016 @ Columns 10-30 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 4029 @ Columns 10-26 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 4030 @ Columns 10-26 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 4031 @ Columns 10-30 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 4032 @ Columns 10-30 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 4045 @ Columns 10-26 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 4046 @ Columns 10-26 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 4047 @ Columns 10-30 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+NewbieBoss.z Line 4048 @ Columns 10-30 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
 Pass 5: Checking code paths
 Pass 6: Generating object code
 Pass 7: Assembling
@@ -241,6 +241,3158 @@ stdout:
 
 {
   "success": true,
+  "diagnostics": [
+    {
+      "range": {
+        "start": {
+          "line": 3462,
+          "character": 3
+        },
+        "end": {
+          "line": 3462,
+          "character": 28
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3463,
+          "character": 3
+        },
+        "end": {
+          "line": 3463,
+          "character": 23
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3465,
+          "character": 4
+        },
+        "end": {
+          "line": 3465,
+          "character": 30
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3466,
+          "character": 4
+        },
+        "end": {
+          "line": 3466,
+          "character": 23
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3466,
+          "character": 26
+        },
+        "end": {
+          "line": 3466,
+          "character": 46
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3469,
+          "character": 4
+        },
+        "end": {
+          "line": 3469,
+          "character": 30
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3470,
+          "character": 4
+        },
+        "end": {
+          "line": 3470,
+          "character": 23
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3470,
+          "character": 26
+        },
+        "end": {
+          "line": 3470,
+          "character": 46
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3473,
+          "character": 4
+        },
+        "end": {
+          "line": 3473,
+          "character": 30
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3474,
+          "character": 4
+        },
+        "end": {
+          "line": 3474,
+          "character": 23
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3474,
+          "character": 26
+        },
+        "end": {
+          "line": 3474,
+          "character": 46
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3479,
+          "character": 2
+        },
+        "end": {
+          "line": 3479,
+          "character": 29
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3479,
+          "character": 15
+        },
+        "end": {
+          "line": 3479,
+          "character": 28
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3480,
+          "character": 4
+        },
+        "end": {
+          "line": 3480,
+          "character": 17
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3499,
+          "character": 7
+        },
+        "end": {
+          "line": 3499,
+          "character": 17
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `npc` to `npc[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3500,
+          "character": 4
+        },
+        "end": {
+          "line": 3500,
+          "character": 14
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `npc` to `npc[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3485,
+          "character": 2
+        },
+        "end": {
+          "line": 3485,
+          "character": 33
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3485,
+          "character": 17
+        },
+        "end": {
+          "line": 3485,
+          "character": 32
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3486,
+          "character": 4
+        },
+        "end": {
+          "line": 3486,
+          "character": 19
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 2854,
+          "character": 14
+        },
+        "end": {
+          "line": 2854,
+          "character": 30
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3347,
+          "character": 5
+        },
+        "end": {
+          "line": 3347,
+          "character": 24
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3350,
+          "character": 13
+        },
+        "end": {
+          "line": 3350,
+          "character": 35
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3309,
+          "character": 5
+        },
+        "end": {
+          "line": 3309,
+          "character": 24
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3312,
+          "character": 15
+        },
+        "end": {
+          "line": 3312,
+          "character": 35
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3314,
+          "character": 19
+        },
+        "end": {
+          "line": 3314,
+          "character": 39
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3315,
+          "character": 25
+        },
+        "end": {
+          "line": 3315,
+          "character": 45
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3316,
+          "character": 19
+        },
+        "end": {
+          "line": 3316,
+          "character": 39
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3317,
+          "character": 17
+        },
+        "end": {
+          "line": 3317,
+          "character": 37
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3318,
+          "character": 21
+        },
+        "end": {
+          "line": 3318,
+          "character": 41
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3319,
+          "character": 19
+        },
+        "end": {
+          "line": 3319,
+          "character": 39
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3320,
+          "character": 17
+        },
+        "end": {
+          "line": 3320,
+          "character": 37
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3321,
+          "character": 19
+        },
+        "end": {
+          "line": 3321,
+          "character": 39
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3322,
+          "character": 20
+        },
+        "end": {
+          "line": 3322,
+          "character": 40
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3323,
+          "character": 16
+        },
+        "end": {
+          "line": 3323,
+          "character": 36
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3326,
+          "character": 4
+        },
+        "end": {
+          "line": 3326,
+          "character": 15
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3326,
+          "character": 18
+        },
+        "end": {
+          "line": 3326,
+          "character": 40
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3331,
+          "character": 23
+        },
+        "end": {
+          "line": 3331,
+          "character": 45
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3334,
+          "character": 15
+        },
+        "end": {
+          "line": 3334,
+          "character": 35
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3337,
+          "character": 2
+        },
+        "end": {
+          "line": 3337,
+          "character": 22
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3337,
+          "character": 25
+        },
+        "end": {
+          "line": 3337,
+          "character": 45
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3339,
+          "character": 5
+        },
+        "end": {
+          "line": 3339,
+          "character": 24
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3340,
+          "character": 3
+        },
+        "end": {
+          "line": 3340,
+          "character": 22
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3342,
+          "character": 3
+        },
+        "end": {
+          "line": 3342,
+          "character": 22
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3255,
+          "character": 2
+        },
+        "end": {
+          "line": 3255,
+          "character": 11
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3256,
+          "character": 2
+        },
+        "end": {
+          "line": 3256,
+          "character": 11
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3257,
+          "character": 2
+        },
+        "end": {
+          "line": 3257,
+          "character": 11
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3258,
+          "character": 2
+        },
+        "end": {
+          "line": 3258,
+          "character": 11
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3259,
+          "character": 2
+        },
+        "end": {
+          "line": 3259,
+          "character": 11
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3260,
+          "character": 2
+        },
+        "end": {
+          "line": 3260,
+          "character": 11
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3261,
+          "character": 2
+        },
+        "end": {
+          "line": 3261,
+          "character": 11
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3262,
+          "character": 2
+        },
+        "end": {
+          "line": 3262,
+          "character": 11
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3263,
+          "character": 2
+        },
+        "end": {
+          "line": 3263,
+          "character": 11
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3264,
+          "character": 2
+        },
+        "end": {
+          "line": 3264,
+          "character": 11
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3265,
+          "character": 2
+        },
+        "end": {
+          "line": 3265,
+          "character": 11
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3267,
+          "character": 3
+        },
+        "end": {
+          "line": 3267,
+          "character": 14
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3270,
+          "character": 3
+        },
+        "end": {
+          "line": 3270,
+          "character": 14
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3272,
+          "character": 2
+        },
+        "end": {
+          "line": 3272,
+          "character": 10
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3273,
+          "character": 2
+        },
+        "end": {
+          "line": 3273,
+          "character": 10
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3275,
+          "character": 2
+        },
+        "end": {
+          "line": 3275,
+          "character": 11
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3276,
+          "character": 2
+        },
+        "end": {
+          "line": 3276,
+          "character": 11
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3277,
+          "character": 2
+        },
+        "end": {
+          "line": 3277,
+          "character": 11
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3278,
+          "character": 2
+        },
+        "end": {
+          "line": 3278,
+          "character": 11
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3279,
+          "character": 2
+        },
+        "end": {
+          "line": 3279,
+          "character": 11
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3280,
+          "character": 2
+        },
+        "end": {
+          "line": 3280,
+          "character": 11
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3281,
+          "character": 2
+        },
+        "end": {
+          "line": 3281,
+          "character": 11
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3282,
+          "character": 2
+        },
+        "end": {
+          "line": 3282,
+          "character": 11
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3283,
+          "character": 2
+        },
+        "end": {
+          "line": 3283,
+          "character": 11
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3284,
+          "character": 2
+        },
+        "end": {
+          "line": 3284,
+          "character": 11
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3285,
+          "character": 2
+        },
+        "end": {
+          "line": 3285,
+          "character": 11
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3287,
+          "character": 3
+        },
+        "end": {
+          "line": 3287,
+          "character": 14
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3290,
+          "character": 3
+        },
+        "end": {
+          "line": 3290,
+          "character": 14
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3292,
+          "character": 2
+        },
+        "end": {
+          "line": 3292,
+          "character": 11
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3293,
+          "character": 2
+        },
+        "end": {
+          "line": 3293,
+          "character": 11
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3295,
+          "character": 2
+        },
+        "end": {
+          "line": 3295,
+          "character": 21
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3079,
+          "character": 46
+        },
+        "end": {
+          "line": 3079,
+          "character": 60
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3082,
+          "character": 51
+        },
+        "end": {
+          "line": 3082,
+          "character": 65
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3082,
+          "character": 67
+        },
+        "end": {
+          "line": 3082,
+          "character": 81
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3082,
+          "character": 83
+        },
+        "end": {
+          "line": 3082,
+          "character": 97
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3092,
+          "character": 17
+        },
+        "end": {
+          "line": 3092,
+          "character": 31
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3092,
+          "character": 33
+        },
+        "end": {
+          "line": 3092,
+          "character": 47
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3115,
+          "character": 17
+        },
+        "end": {
+          "line": 3115,
+          "character": 31
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3115,
+          "character": 33
+        },
+        "end": {
+          "line": 3115,
+          "character": 47
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3115,
+          "character": 49
+        },
+        "end": {
+          "line": 3115,
+          "character": 63
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 2757,
+          "character": 14
+        },
+        "end": {
+          "line": 2757,
+          "character": 30
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 2923,
+          "character": 14
+        },
+        "end": {
+          "line": 2923,
+          "character": 30
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 2930,
+          "character": 14
+        },
+        "end": {
+          "line": 2930,
+          "character": 30
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 2916,
+          "character": 14
+        },
+        "end": {
+          "line": 2916,
+          "character": 30
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 2685,
+          "character": 14
+        },
+        "end": {
+          "line": 2685,
+          "character": 30
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 2689,
+          "character": 16
+        },
+        "end": {
+          "line": 2689,
+          "character": 33
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 2690,
+          "character": 16
+        },
+        "end": {
+          "line": 2690,
+          "character": 33
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 2595,
+          "character": 22
+        },
+        "end": {
+          "line": 2595,
+          "character": 41
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 2596,
+          "character": 14
+        },
+        "end": {
+          "line": 2596,
+          "character": 30
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 2597,
+          "character": 14
+        },
+        "end": {
+          "line": 2597,
+          "character": 30
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3612,
+          "character": 14
+        },
+        "end": {
+          "line": 3612,
+          "character": 30
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3626,
+          "character": 2
+        },
+        "end": {
+          "line": 3626,
+          "character": 17
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3627,
+          "character": 2
+        },
+        "end": {
+          "line": 3627,
+          "character": 17
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3628,
+          "character": 5
+        },
+        "end": {
+          "line": 3628,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3629,
+          "character": 6
+        },
+        "end": {
+          "line": 3629,
+          "character": 21
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3630,
+          "character": 6
+        },
+        "end": {
+          "line": 3630,
+          "character": 21
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3631,
+          "character": 6
+        },
+        "end": {
+          "line": 3631,
+          "character": 22
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3632,
+          "character": 6
+        },
+        "end": {
+          "line": 3632,
+          "character": 22
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3633,
+          "character": 3
+        },
+        "end": {
+          "line": 3633,
+          "character": 18
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3633,
+          "character": 41
+        },
+        "end": {
+          "line": 3633,
+          "character": 56
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3635,
+          "character": 26
+        },
+        "end": {
+          "line": 3635,
+          "character": 41
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3636,
+          "character": 4
+        },
+        "end": {
+          "line": 3636,
+          "character": 19
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3637,
+          "character": 4
+        },
+        "end": {
+          "line": 3637,
+          "character": 19
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3640,
+          "character": 27
+        },
+        "end": {
+          "line": 3640,
+          "character": 42
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3669,
+          "character": 5
+        },
+        "end": {
+          "line": 3669,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3670,
+          "character": 5
+        },
+        "end": {
+          "line": 3670,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3671,
+          "character": 5
+        },
+        "end": {
+          "line": 3671,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3672,
+          "character": 5
+        },
+        "end": {
+          "line": 3672,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3673,
+          "character": 5
+        },
+        "end": {
+          "line": 3673,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3674,
+          "character": 5
+        },
+        "end": {
+          "line": 3674,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3674,
+          "character": 23
+        },
+        "end": {
+          "line": 3674,
+          "character": 39
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3676,
+          "character": 6
+        },
+        "end": {
+          "line": 3676,
+          "character": 21
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3678,
+          "character": 6
+        },
+        "end": {
+          "line": 3678,
+          "character": 21
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3680,
+          "character": 6
+        },
+        "end": {
+          "line": 3680,
+          "character": 22
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3684,
+          "character": 5
+        },
+        "end": {
+          "line": 3684,
+          "character": 21
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3685,
+          "character": 5
+        },
+        "end": {
+          "line": 3685,
+          "character": 21
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3689,
+          "character": 10
+        },
+        "end": {
+          "line": 3689,
+          "character": 25
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3690,
+          "character": 16
+        },
+        "end": {
+          "line": 3690,
+          "character": 31
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3690,
+          "character": 32
+        },
+        "end": {
+          "line": 3690,
+          "character": 48
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3690,
+          "character": 50
+        },
+        "end": {
+          "line": 3690,
+          "character": 65
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3690,
+          "character": 66
+        },
+        "end": {
+          "line": 3690,
+          "character": 82
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3691,
+          "character": 6
+        },
+        "end": {
+          "line": 3691,
+          "character": 21
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3695,
+          "character": 5
+        },
+        "end": {
+          "line": 3695,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3696,
+          "character": 6
+        },
+        "end": {
+          "line": 3696,
+          "character": 21
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3698,
+          "character": 7
+        },
+        "end": {
+          "line": 3698,
+          "character": 22
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3702,
+          "character": 7
+        },
+        "end": {
+          "line": 3702,
+          "character": 22
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3704,
+          "character": 7
+        },
+        "end": {
+          "line": 3704,
+          "character": 22
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3706,
+          "character": 7
+        },
+        "end": {
+          "line": 3706,
+          "character": 23
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3708,
+          "character": 4
+        },
+        "end": {
+          "line": 3708,
+          "character": 19
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3709,
+          "character": 4
+        },
+        "end": {
+          "line": 3709,
+          "character": 19
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3368,
+          "character": 16
+        },
+        "end": {
+          "line": 3368,
+          "character": 34
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3369,
+          "character": 2
+        },
+        "end": {
+          "line": 3369,
+          "character": 15
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3379,
+          "character": 2
+        },
+        "end": {
+          "line": 3379,
+          "character": 19
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3382,
+          "character": 3
+        },
+        "end": {
+          "line": 3382,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3384,
+          "character": 4
+        },
+        "end": {
+          "line": 3384,
+          "character": 21
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3386,
+          "character": 4
+        },
+        "end": {
+          "line": 3386,
+          "character": 21
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3420,
+          "character": 6
+        },
+        "end": {
+          "line": 3420,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3421,
+          "character": 6
+        },
+        "end": {
+          "line": 3421,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3422,
+          "character": 6
+        },
+        "end": {
+          "line": 3422,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3425,
+          "character": 6
+        },
+        "end": {
+          "line": 3425,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3426,
+          "character": 6
+        },
+        "end": {
+          "line": 3426,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3427,
+          "character": 6
+        },
+        "end": {
+          "line": 3427,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3435,
+          "character": 6
+        },
+        "end": {
+          "line": 3435,
+          "character": 34
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3437,
+          "character": 6
+        },
+        "end": {
+          "line": 3437,
+          "character": 34
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3448,
+          "character": 5
+        },
+        "end": {
+          "line": 3448,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3448,
+          "character": 22
+        },
+        "end": {
+          "line": 3448,
+          "character": 39
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3449,
+          "character": 3
+        },
+        "end": {
+          "line": 3449,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3453,
+          "character": 5
+        },
+        "end": {
+          "line": 3453,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3454,
+          "character": 33
+        },
+        "end": {
+          "line": 3454,
+          "character": 70
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3454,
+          "character": 53
+        },
+        "end": {
+          "line": 3454,
+          "character": 68
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3127,
+          "character": 14
+        },
+        "end": {
+          "line": 3127,
+          "character": 30
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3128,
+          "character": 14
+        },
+        "end": {
+          "line": 3128,
+          "character": 30
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3361,
+          "character": 2
+        },
+        "end": {
+          "line": 3361,
+          "character": 30
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3362,
+          "character": 2
+        },
+        "end": {
+          "line": 3362,
+          "character": 30
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3364,
+          "character": 2
+        },
+        "end": {
+          "line": 3364,
+          "character": 28
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3491,
+          "character": 6
+        },
+        "end": {
+          "line": 3491,
+          "character": 16
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `npc` to `npc[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3530,
+          "character": 2
+        },
+        "end": {
+          "line": 3530,
+          "character": 12
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3531,
+          "character": 2
+        },
+        "end": {
+          "line": 3531,
+          "character": 18
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3532,
+          "character": 2
+        },
+        "end": {
+          "line": 3532,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3533,
+          "character": 2
+        },
+        "end": {
+          "line": 3533,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3534,
+          "character": 2
+        },
+        "end": {
+          "line": 3534,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3535,
+          "character": 2
+        },
+        "end": {
+          "line": 3535,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3536,
+          "character": 2
+        },
+        "end": {
+          "line": 3536,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3537,
+          "character": 2
+        },
+        "end": {
+          "line": 3537,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3538,
+          "character": 2
+        },
+        "end": {
+          "line": 3538,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 2773,
+          "character": 13
+        },
+        "end": {
+          "line": 2773,
+          "character": 28
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 2774,
+          "character": 14
+        },
+        "end": {
+          "line": 2774,
+          "character": 30
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 2775,
+          "character": 14
+        },
+        "end": {
+          "line": 2775,
+          "character": 30
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 2647,
+          "character": 14
+        },
+        "end": {
+          "line": 2647,
+          "character": 30
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3507,
+          "character": 6
+        },
+        "end": {
+          "line": 3507,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3508,
+          "character": 7
+        },
+        "end": {
+          "line": 3508,
+          "character": 21
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3509,
+          "character": 34
+        },
+        "end": {
+          "line": 3509,
+          "character": 40
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3509,
+          "character": 42
+        },
+        "end": {
+          "line": 3509,
+          "character": 54
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3509,
+          "character": 56
+        },
+        "end": {
+          "line": 3509,
+          "character": 70
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3509,
+          "character": 72
+        },
+        "end": {
+          "line": 3509,
+          "character": 86
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3509,
+          "character": 111
+        },
+        "end": {
+          "line": 3509,
+          "character": 125
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3509,
+          "character": 127
+        },
+        "end": {
+          "line": 3509,
+          "character": 141
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3510,
+          "character": 7
+        },
+        "end": {
+          "line": 3510,
+          "character": 21
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3511,
+          "character": 8
+        },
+        "end": {
+          "line": 3511,
+          "character": 22
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3511,
+          "character": 24
+        },
+        "end": {
+          "line": 3511,
+          "character": 38
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3513,
+          "character": 6
+        },
+        "end": {
+          "line": 3513,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3514,
+          "character": 6
+        },
+        "end": {
+          "line": 3514,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3517,
+          "character": 12
+        },
+        "end": {
+          "line": 3517,
+          "character": 26
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3518,
+          "character": 34
+        },
+        "end": {
+          "line": 3518,
+          "character": 40
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3518,
+          "character": 42
+        },
+        "end": {
+          "line": 3518,
+          "character": 54
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3518,
+          "character": 56
+        },
+        "end": {
+          "line": 3518,
+          "character": 70
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3518,
+          "character": 72
+        },
+        "end": {
+          "line": 3518,
+          "character": 86
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3518,
+          "character": 88
+        },
+        "end": {
+          "line": 3518,
+          "character": 102
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3518,
+          "character": 124
+        },
+        "end": {
+          "line": 3518,
+          "character": 138
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3518,
+          "character": 140
+        },
+        "end": {
+          "line": 3518,
+          "character": 154
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3519,
+          "character": 7
+        },
+        "end": {
+          "line": 3519,
+          "character": 21
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3520,
+          "character": 8
+        },
+        "end": {
+          "line": 3520,
+          "character": 22
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3520,
+          "character": 24
+        },
+        "end": {
+          "line": 3520,
+          "character": 38
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3521,
+          "character": 6
+        },
+        "end": {
+          "line": 3521,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3522,
+          "character": 6
+        },
+        "end": {
+          "line": 3522,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3720,
+          "character": 14
+        },
+        "end": {
+          "line": 3720,
+          "character": 30
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3728,
+          "character": 6
+        },
+        "end": {
+          "line": 3728,
+          "character": 27
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3729,
+          "character": 6
+        },
+        "end": {
+          "line": 3729,
+          "character": 32
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3730,
+          "character": 7
+        },
+        "end": {
+          "line": 3730,
+          "character": 32
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3730,
+          "character": 33
+        },
+        "end": {
+          "line": 3730,
+          "character": 59
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3731,
+          "character": 7
+        },
+        "end": {
+          "line": 3731,
+          "character": 32
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3732,
+          "character": 19
+        },
+        "end": {
+          "line": 3732,
+          "character": 39
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3732,
+          "character": 41
+        },
+        "end": {
+          "line": 3732,
+          "character": 60
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3732,
+          "character": 61
+        },
+        "end": {
+          "line": 3732,
+          "character": 81
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3732,
+          "character": 84
+        },
+        "end": {
+          "line": 3732,
+          "character": 109
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3732,
+          "character": 110
+        },
+        "end": {
+          "line": 3732,
+          "character": 136
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3737,
+          "character": 5
+        },
+        "end": {
+          "line": 3737,
+          "character": 22
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3741,
+          "character": 4
+        },
+        "end": {
+          "line": 3741,
+          "character": 23
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3998,
+          "character": 3
+        },
+        "end": {
+          "line": 3998,
+          "character": 19
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3999,
+          "character": 3
+        },
+        "end": {
+          "line": 3999,
+          "character": 19
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 4012,
+          "character": 9
+        },
+        "end": {
+          "line": 4012,
+          "character": 25
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 4013,
+          "character": 9
+        },
+        "end": {
+          "line": 4013,
+          "character": 25
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 4014,
+          "character": 9
+        },
+        "end": {
+          "line": 4014,
+          "character": 29
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 4015,
+          "character": 9
+        },
+        "end": {
+          "line": 4015,
+          "character": 29
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 4028,
+          "character": 9
+        },
+        "end": {
+          "line": 4028,
+          "character": 25
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 4029,
+          "character": 9
+        },
+        "end": {
+          "line": 4029,
+          "character": 25
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 4030,
+          "character": 9
+        },
+        "end": {
+          "line": 4030,
+          "character": 29
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 4031,
+          "character": 9
+        },
+        "end": {
+          "line": 4031,
+          "character": 29
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 4044,
+          "character": 9
+        },
+        "end": {
+          "line": 4044,
+          "character": 25
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 4045,
+          "character": 9
+        },
+        "end": {
+          "line": 4045,
+          "character": 25
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 4046,
+          "character": 9
+        },
+        "end": {
+          "line": 4046,
+          "character": 29
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 4047,
+          "character": 9
+        },
+        "end": {
+          "line": 4047,
+          "character": 29
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    }
+  ],
   "metadata": {
     "currentFileSymbols": 392,
     "symbols": 887,

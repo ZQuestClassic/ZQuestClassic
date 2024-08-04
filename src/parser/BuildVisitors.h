@@ -1,4 +1,4 @@
-#ifndef BUILDVISITORS_H //2.53 Updated to 16th Jan, 2017
+#ifndef BUILDVISITORS_H
 #define BUILDVISITORS_H
 
 #include "ASTVisitors.h"
@@ -19,8 +19,8 @@ namespace ZScript
 	class BuildOpcodes : public RecursiveVisitor
 	{
 	public:
-		BuildOpcodes(Scope* curScope);
-		BuildOpcodes(LValBOHelper* helper);
+		BuildOpcodes(Program& program, Scope* curScope);
+		BuildOpcodes(Program& program, LValBOHelper* helper);
 
 		using RecursiveVisitor::visit;
 		void visit(AST& node, void* param = NULL);
@@ -110,7 +110,7 @@ namespace ZScript
 		std::list<int32_t> const *getArrayRefs() const {return &arrayRefs;}
 
 	private:
-		BuildOpcodes();
+		BuildOpcodes(Program& program);
 		void addOpcode(Opcode* code);
 		void addOpcode(std::shared_ptr<Opcode> &code);
 		Opcode* backOpcode();
@@ -254,8 +254,8 @@ namespace ZScript
 	class LValBOHelper : public ASTVisitor
 	{
 	public:
-		LValBOHelper(Scope* scope);
-		LValBOHelper(BuildOpcodes* bo);
+		LValBOHelper(Program& program, Scope* scope);
+		LValBOHelper(Program& program, BuildOpcodes* bo);
 		virtual void caseDefault(void *param);
 		//virtual void caseDataDecl(ASTDataDecl& host, void* param);
 		virtual void caseExprIdentifier(ASTExprIdentifier &host, void *param);
@@ -270,6 +270,7 @@ namespace ZScript
 		void addOpcodes(Container const& container);
 	
 		std::vector<std::shared_ptr<Opcode>> result;
+		Program& program;
 	};
 	
 	class CleanupVisitor : public RecursiveVisitor
@@ -279,9 +280,12 @@ namespace ZScript
 		void visit(AST& node, void* param = NULL);
 		ASTExprBoolTree* booltree;
 		BoolTreeNode* active_node;
-		CleanupVisitor(Scope* curScope) : CleanupVisitor() {scope = curScope;}
-	private:
-		CleanupVisitor() = default;
+		CleanupVisitor(Program& program, Scope* curScope) : RecursiveVisitor(program)
+		{
+			scope = curScope;
+			booltree = nullptr;
+			active_node = nullptr;
+		}
 	};
 
 

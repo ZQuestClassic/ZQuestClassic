@@ -3,6 +3,7 @@
 
 #include "CompilerUtils.h"
 #include "Types.h"
+#include "parser/CompileError.h"
 #include "parserDefs.h"
 #include "base/headers.h"
 #include <fmt/format.h>
@@ -201,7 +202,11 @@ namespace ZScript
 	class ScriptsData
 	{
 	public:
-		ScriptsData(Program&);
+		void fillFromProgram(Program&);
+
+		bool success;
+		// Just the errors/warnings for the main input script.
+		std::vector<Diagnostic> diagnostics;
 		std::map<std::string, disassembled_script_data> theScripts;
 		std::map<std::string, ParserScriptType> scriptTypes;
 		json metadata;
