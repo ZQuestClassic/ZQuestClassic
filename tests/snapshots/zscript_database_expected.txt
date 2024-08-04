@@ -1534,6 +1534,12 @@ Failure!
 Compile finished with exit code '9' (compiled with errors)
 
 === 00498-enemy-hp-bars-damage-numbers/enemy_hpbars.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+Pass 5: Checking code paths
+Pass 6: Generating object code
 
 === 00499-npcanim-zh/NPCAnim.zh
 Pass 1: Parsing

@@ -3,6 +3,9 @@
 
 #include "ASTVisitors.h"
 #include "ZScript.h"
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::ordered_json;
 
 namespace ZScript
 {
@@ -24,7 +27,7 @@ namespace ZScript
 		void caseExprArrow(ASTExprArrow& host, void* param);
 		void caseExprCall(ASTExprCall& host, void* param);
 
-		std::string getOutput();
+		json takeOutput();
 
 	private:
 		ZScript::Program& program;

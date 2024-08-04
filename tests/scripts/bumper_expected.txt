@@ -1,3 +1,5 @@
+stderr:
+
 Compiling 'bumper.zs'
 Pass 1: Parsing
 Pass 2: Preprocessing
@@ -8,12 +10,21 @@ Pass 6: Generating object code
 Pass 7: Assembling
 Success!
 Compile finished with exit code '0' (success)
-=== METADATA (elided)
+
+stdout:
+
 {
-  "currentFileSymbols": 16,
-  "symbols": 38,
-  "identifiers": 117
+  "success": true,
+  "metadata": {
+    "currentFileSymbols": 16,
+    "symbols": 38,
+    "identifiers": 117,
+    "elided": true
+  }
 }
+
+zasm:
+
 PUSHR D0; void run(int) Params
 PUSHR REFFFC; void run(int) Body Start
 PUSHARGSV 0 0.0007

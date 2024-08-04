@@ -8,6 +8,7 @@
 #include <fmt/format.h>
 #include "zq/ffasmexport.h"
 #include "zq/ffasm.h"
+#include <nlohmann/json.hpp>
 
 #include <cstdio>
 #include <map>
@@ -15,7 +16,9 @@
 #include <vector>
 #include <string>
 #include <sstream>
+
 using std::unique_ptr;
+using json = nlohmann::ordered_json;
 
 namespace ZScript
 {
@@ -201,7 +204,7 @@ namespace ZScript
 		ScriptsData(Program&);
 		std::map<std::string, disassembled_script_data> theScripts;
 		std::map<std::string, ParserScriptType> scriptTypes;
-		std::string metadata;
+		json metadata;
 	};
 
 	unique_ptr<ScriptsData> compile(std::string const& filename, bool include_metadata);

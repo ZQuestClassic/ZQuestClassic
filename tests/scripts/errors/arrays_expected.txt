@@ -1,3 +1,5 @@
+stderr:
+
 Compiling 'arrays.zs'
 Pass 1: Parsing
 Pass 2: Preprocessing
@@ -15,3 +17,7 @@ ZQ_BUFFER Line 48 @ Columns 2-41 - Error T021: Function fnNewStyleArrayObjects(b
 ZQ_BUFFER Line 53 @ Columns 10-28 - Warning S108: Array mismatch for types untyped[] and lweapon
 Failure!
 Compile finished with exit code '109' (compiled with errors)
+
+stdout:
+
+

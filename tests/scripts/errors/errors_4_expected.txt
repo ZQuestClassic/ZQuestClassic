@@ -1,3 +1,5 @@
+stderr:
+
 Compiling 'errors_4.zs'
 Pass 1: Parsing
 Pass 2: Preprocessing
@@ -15,3 +17,7 @@ ZQ_BUFFER Line 21 @ Columns 16-27 - Error T021: Function Max(int, Object) has no
 ZQ_BUFFER Line 22 @ Columns 16-22 - Error T021: Function Max(int) has not been declared.
 Failure!
 Compile finished with exit code '21' (compiled with errors)
+
+stdout:
+
+

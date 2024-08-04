@@ -1,4 +1,3 @@
-//2.53 Updated to 16th Jan, 2017
 #include <assert.h>
 #include <iostream>
 #include "zsyssimple.h"
@@ -9,8 +8,6 @@
 #include "Types.h"
 #include "ZScript.h"
 
-using std::cout;
-using std::endl;
 using namespace ZScript;
 
 ////////////////////////////////////////////////////////////////

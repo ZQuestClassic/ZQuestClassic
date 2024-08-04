@@ -1,3 +1,5 @@
+stderr:
+
 Compiling 'errors_5.zs'
 Pass 1: Parsing
 Pass 2: Preprocessing
@@ -12,3 +14,7 @@ INFO: Use Trace instead
 ZQ_BUFFER Line 15 @ Columns 9-28 - Error S095: Variable 'screendata->ScriptEntry' is deprecated, and cannot be used due to current compiler settings.
 Failure!
 Compile finished with exit code '36' (compiled with errors)
+
+stdout:
+
+

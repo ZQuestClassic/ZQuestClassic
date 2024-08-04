@@ -1,3 +1,5 @@
+stderr:
+
 Compiling 'errors_7.zs'
 Pass 1: Parsing
 Pass 2: Preprocessing
@@ -17,3 +19,7 @@ ZQ_BUFFER Line 36 @ Columns 2-25 - Error T017: Cannot cast from npc to int.
 ZQ_BUFFER Line 45 @ Columns 12-19 - Error T100: Temporary literals cannot be stored!
 Failure!
 Compile finished with exit code '109' (compiled with errors)
+
+stdout:
+
+

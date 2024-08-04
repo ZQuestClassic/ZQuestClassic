@@ -846,7 +846,7 @@ endif()
 add_executable(zeditor ${ZQUEST_CORE_SOURCES} ${ZQUEST_GUI_SOURCES} ${ZQUEST_MISC_SOURCES} ${ZQUESTEXTRASOURCES} ${ZQUEST_MODULES})
 set_property(TARGET zeditor PROPERTY VS_DPI_AWARE "PerMonitor")
 
-target_link_libraries(zeditor PUBLIC zalleg zconsolelogger zcbase zcgui zcsound zasm ${IMAGELIBS} ${ZQUESTLIBSEXTRA})
+target_link_libraries(zeditor PUBLIC zalleg zconsolelogger zcbase zcgui zcsound zasm ${IMAGELIBS} ${ZQUESTLIBSEXTRA} nlohmann_json::nlohmann_json)
 target_include_directories(zeditor PRIVATE src)
 
 if(MSVC)

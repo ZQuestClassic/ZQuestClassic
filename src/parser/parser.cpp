@@ -1,5 +1,6 @@
 // TODO: do not link allegro w/ zscript compiler.
 
+#include <iostream>
 #include <string>
 #include <thread>
 #include <chrono>
@@ -94,7 +95,7 @@ void _console_print(char const* str, int32_t code)
 		ConsoleWrite->write(&code, sizeof(int32_t));
 		ConsoleWrite->read(&code, sizeof(int32_t));
 	}
-	else printf("%s\n", str);
+	else fprintf(stderr, "%s\n", str);
 }
 void zconsole_db(const char *format,...)
 {
@@ -390,6 +391,8 @@ int32_t main(int32_t argc, char **argv)
 		}
 	}
 
+	bool do_json_output = used_switch(argc, argv, "-json") > 0;
+
 	bool metadata = used_switch(argc, argv, "-metadata") > 0;
 	int metadata_tmp_path_idx = used_switch(argc, argv, "-metadata-tmp-path");
 	int metadata_orig_path_idx = used_switch(argc, argv, "-metadata-orig-path");
@@ -416,17 +419,6 @@ int32_t main(int32_t argc, char **argv)
 		int32_t errorcode = ZC_CONSOLE_TERM_CODE;
 		cph->write(&errorcode, sizeof(int32_t));
 		cph->write(&res, sizeof(int32_t));
-		/*
-		if(zscript_had_warn_err)
-			zconsole_warn("%s", "Leaving console open; there were errors or warnings during compile!");
-		else if(used_switch(argc, argv, "-noclose"))
-		{
-			zconsole_info("%s", "Leaving console open; '-noclose' switch used");
-		}
-		else
-		{
-			parser_console.kill();
-		}*/
 	}
 	else
 	{
@@ -438,8 +430,24 @@ int32_t main(int32_t argc, char **argv)
 		}
 		else zconsole_info("Compile finished with exit code '0' (success)");
 
-		if (result && !result->metadata.empty())
-			printf("=== METADATA\n%s\n", result->metadata.c_str());
+		if (result)
+		{
+			if (do_json_output)
+			{
+				json data;
+				data["success"] = res == 0;
+				if (res)
+					data["code"] = res;
+				if (!result->metadata.empty())
+					data["metadata"] = result->metadata;
+				std::cout << data.dump(2);
+			}
+			else if (!result->metadata.empty())
+			{
+				// TODO: remove once extension uses `-json`.
+				printf("=== METADATA\n%s\n", result->metadata.dump(2).c_str());
+			}
+		}
 	}
 	if(!zasm_out.empty() && result)
 	{

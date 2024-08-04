@@ -1,3 +1,5 @@
+stderr:
+
 Compiling 'errors_3.zs'
 Pass 1: Parsing
 Pass 2: Preprocessing
@@ -19,3 +21,7 @@ ZQ_BUFFER Line 43 @ Columns 12-20 - Error S097: 'auto[][]' must have an initiali
 ZQ_BUFFER Line 44 @ Columns 8-9 - Error S097: 'auto' must have an initializer with valid type to mimic.
 Failure!
 Compile finished with exit code '17' (compiled with errors)
+
+stdout:
+
+

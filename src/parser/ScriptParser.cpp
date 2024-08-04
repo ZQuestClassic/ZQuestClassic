@@ -171,7 +171,7 @@ static unique_ptr<ScriptsData> _compile_helper(string const& filename, bool incl
 			MetadataVisitor md(program);
 			if(zscript_error_out) return nullptr;
 			if(rv.hasFailed()) return nullptr;
-			result->metadata = md.getOutput();
+			result->metadata = md.takeOutput();
 		}
 
 		zconsole_info("%s", "Success!");

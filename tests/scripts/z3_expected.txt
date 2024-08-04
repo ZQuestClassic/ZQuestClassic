@@ -1,3 +1,5 @@
+stderr:
+
 Compiling 'z3.zs'
 Pass 1: Parsing
 Pass 2: Preprocessing
@@ -9,12 +11,21 @@ Pass 7: Assembling
 Debug: could not resolve symbol "Viewport"
 Success!
 Compile finished with exit code '0' (success)
-=== METADATA (elided)
+
+stdout:
+
 {
-  "currentFileSymbols": 4,
-  "symbols": 20,
-  "identifiers": 33
+  "success": true,
+  "metadata": {
+    "currentFileSymbols": 4,
+    "symbols": 20,
+    "identifiers": 33,
+    "elided": true
+  }
 }
+
+zasm:
+
 PUSHR D0; void run(int, int) Params
 PUSHR D1
 PUSHR REFFFC; void run(int, int) Body Start

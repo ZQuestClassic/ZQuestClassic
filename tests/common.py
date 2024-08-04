@@ -1,6 +1,8 @@
 import difflib
+import json
 import os
 import subprocess
+import sys
 import unittest
 
 from pathlib import Path
@@ -15,6 +17,14 @@ test_builds_dir = root_dir / '.tmp/test_builds'
 def get_recent_release_tag(args: List[str]):
     command = f'git describe --tags --abbrev=0 ' + ' '.join(args)
     return subprocess.check_output(command.split(' '), encoding='utf-8').strip()
+
+
+def parse_json(json_str: str):
+    try:
+        return json.loads(json_str)
+    except Exception as e:
+        print(f'could not parse json:\n{json_str}', file=sys.stderr)
+        raise e
 
 
 class ZCTestCase(unittest.TestCase):

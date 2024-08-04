@@ -1,3 +1,5 @@
+stderr:
+
 Compiling 'credits.zs'
 Pass 1: Parsing
 Pass 2: Preprocessing
@@ -8,12 +10,21 @@ Pass 6: Generating object code
 Pass 7: Assembling
 Success!
 Compile finished with exit code '0' (success)
-=== METADATA (elided)
+
+stdout:
+
 {
-  "currentFileSymbols": 56,
-  "symbols": 109,
-  "identifiers": 302
+  "success": true,
+  "metadata": {
+    "currentFileSymbols": 56,
+    "symbols": 109,
+    "identifiers": 302,
+    "elided": true
+  }
 }
+
+zasm:
+
 PUSHR REFFFC; void run() Body Start
 SETR D4 SP2
 CALLFUNC 0.0548; UsrFunc[void runTestCredits()] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND void run() Body End

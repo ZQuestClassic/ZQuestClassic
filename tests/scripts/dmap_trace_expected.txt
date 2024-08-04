@@ -1,3 +1,5 @@
+stderr:
+
 Compiling 'dmap_trace.zs'
 Pass 1: Parsing
 Pass 2: Preprocessing
@@ -8,12 +10,21 @@ Pass 6: Generating object code
 Pass 7: Assembling
 Success!
 Compile finished with exit code '0' (success)
-=== METADATA (elided)
+
+stdout:
+
 {
-  "currentFileSymbols": 2,
-  "symbols": 1,
-  "identifiers": 1
+  "success": true,
+  "metadata": {
+    "currentFileSymbols": 2,
+    "symbols": 1,
+    "identifiers": 1,
+    "elided": true
+  }
 }
+
+zasm:
+
 PUSHR REFDMAPDATA; void run() Body Start
 SETR D4 SP2
 TRACEV 999; InlineFunc[void Trace(untyped)] Params AND InlineFunc[void Trace(untyped)] Body

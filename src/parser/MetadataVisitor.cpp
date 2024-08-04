@@ -476,7 +476,7 @@ void MetadataVisitor::caseExprCall(ASTExprCall& host, void* param)
 	RecursiveVisitor::caseExprCall(host, param);
 }
 
-std::string MetadataVisitor::getOutput()
+json MetadataVisitor::takeOutput()
 {
-	return root.dump(2);
+	return std::move(root);
 }

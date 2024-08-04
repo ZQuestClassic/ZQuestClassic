@@ -1,3 +1,5 @@
+stderr:
+
 Compiling 'scrolling_debug.zs'
 Pass 1: Parsing
 Pass 2: Preprocessing
@@ -8,12 +10,21 @@ Pass 6: Generating object code
 Pass 7: Assembling
 Success!
 Compile finished with exit code '0' (success)
-=== METADATA (elided)
+
+stdout:
+
 {
-  "currentFileSymbols": 4,
-  "symbols": 21,
-  "identifiers": 106
+  "success": true,
+  "metadata": {
+    "currentFileSymbols": 4,
+    "symbols": 21,
+    "identifiers": 106,
+    "elided": true
+  }
 }
+
+zasm:
+
 PUSHR REFDMAPDATA; void run() Body Start
 PUSHARGSV 0 0.0006
 SETR D4 SP2

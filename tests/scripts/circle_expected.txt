@@ -1,3 +1,5 @@
+stderr:
+
 Compiling 'circle.zs'
 Pass 1: Parsing
 Pass 2: Preprocessing
@@ -8,12 +10,21 @@ Pass 6: Generating object code
 Pass 7: Assembling
 Success!
 Compile finished with exit code '0' (success)
-=== METADATA (elided)
+
+stdout:
+
 {
-  "currentFileSymbols": 4,
-  "symbols": 13,
-  "identifiers": 53
+  "success": true,
+  "metadata": {
+    "currentFileSymbols": 4,
+    "symbols": 13,
+    "identifiers": 53,
+    "elided": true
+  }
 }
+
+zasm:
+
 PUSHR D0; void run(int, int, int, int, int) Params
 PUSHR D1
 PUSHR D2
