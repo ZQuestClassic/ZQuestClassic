@@ -1482,7 +1482,6 @@ void TopMenu::run(bool allow_focus, GuiMenu* parent)
 		}
 		mb = gui_mouse_b();
 	}
-	update_hw_screen();
 	return;
 }
 
