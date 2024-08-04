@@ -80,7 +80,7 @@ def find_baseline(gh: Github, repo_str: str):
         (
             r
             for r in main_runs
-            if not r.head_branch.starts_with('releases/')
+            if not r.head_branch.startswith('releases/')
             and is_passing_workflow_run(r)
             and is_ancestor(r.head_sha)
         ),
