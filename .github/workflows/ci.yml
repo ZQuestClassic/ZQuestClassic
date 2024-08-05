@@ -4,7 +4,7 @@ on:
   push:
     branches-ignore:
       - 'compare-baseline-*'
-  pull_request:
+  pull_request_target:
 
 permissions:
   actions: write
