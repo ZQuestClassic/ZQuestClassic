@@ -921,7 +921,7 @@ Class :
 	ZCLASS Class_Ident Class_Block {
 		ASTString* name = (ASTString*)$2;
 		ASTClass* user_class = (ASTClass*)$3;
-		user_class->location = @$;
+		user_class->location = name->location;
 		user_class->identifier = name;
 		user_class->doc_comment = std::move(name->doc_comment);
 		if (!first_identifier_for_line) first_identifier_for_line = user_class;

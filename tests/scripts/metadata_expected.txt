@@ -581,11 +581,11 @@ stdout:
         "range": {
           "start": {
             "line": 21,
-            "character": 0
+            "character": 6
           },
           "end": {
-            "line": 39,
-            "character": 1
+            "line": 21,
+            "character": 9
           }
         },
         "selectionRange": {
@@ -707,11 +707,11 @@ stdout:
         "range": {
           "start": {
             "line": 41,
-            "character": 0
+            "character": 6
           },
           "end": {
-            "line": 42,
-            "character": 1
+            "line": 41,
+            "character": 19
           }
         },
         "selectionRange": {
@@ -807,6 +807,22 @@ stdout:
           "uri": "URI"
         },
         "doc": "A lovely function. See [`utils::fn()`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A85%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A85%2C%22character%22%3A11%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A16%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A16%2C%22character%22%3A5%7D%7D%7D) or [`fn()`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A85%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A85%2C%22character%22%3A11%7D%7D%7D) or [`Car`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A21%2C%22character%22%3A6%7D%2C%22end%22%3A%7B%22line%22%3A21%2C%22character%22%3A9%7D%7D%7D)"
+      },
+      "custom.43": {
+        "loc": {
+          "range": {
+            "start": {
+              "line": 21,
+              "character": 6
+            },
+            "end": {
+              "line": 21,
+              "character": 9
+            }
+          },
+          "uri": "URI"
+        },
+        "doc": "A car, duh"
       },
       "2469": {
         "loc": {
@@ -967,6 +983,21 @@ stdout:
         },
         "doc": "meh"
       },
+      "custom.44": {
+        "loc": {
+          "range": {
+            "start": {
+              "line": 41,
+              "character": 6
+            },
+            "end": {
+              "line": 41,
+              "character": 19
+            }
+          },
+          "uri": "URI"
+        }
+      },
       "3539": {
         "loc": {
           "range": {
@@ -981,6 +1012,22 @@ stdout:
           },
           "uri": "URI"
         }
+      },
+      "custom.45": {
+        "loc": {
+          "range": {
+            "start": {
+              "line": 21,
+              "character": 6
+            },
+            "end": {
+              "line": 21,
+              "character": 9
+            }
+          },
+          "uri": "URI"
+        },
+        "doc": "A car, duh"
       },
       "1557": {
         "loc": {
@@ -1168,6 +1215,14 @@ stdout:
       {
         "loc": {
           "line": 61,
+          "character": 8,
+          "length": 4
+        },
+        "symbol": "custom.43"
+      },
+      {
+        "loc": {
+          "line": 61,
           "character": 21,
           "length": 3
         },
@@ -1256,10 +1311,26 @@ stdout:
       {
         "loc": {
           "line": 63,
+          "character": 8,
+          "length": 4
+        },
+        "symbol": "custom.44"
+      },
+      {
+        "loc": {
+          "line": 63,
           "character": 21,
           "length": 13
         },
         "symbol": "3539"
+      },
+      {
+        "loc": {
+          "line": 64,
+          "character": 8,
+          "length": 3
+        },
+        "symbol": "custom.45"
       },
       {
         "loc": {

@@ -347,6 +347,10 @@ static void appendIdentifier(std::string symbol_id, const AST* symbol_node, cons
 
 	if (!root["symbols"].contains(symbol_id))
 	{
+		if (symbol_id.starts_with("custom."))
+		{
+			printf("");
+		}
 		root["symbols"][symbol_id] = {
 			// TODO LocationData_location_json
 			{"loc", {
@@ -421,6 +425,13 @@ void MetadataVisitor::caseClass(ASTClass& host, void* param)
 
 void MetadataVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 {
+	auto user_class = host.resolvedType ? host.resolvedType->getUsrClass() : nullptr;
+	if (user_class && host.list && host.list->baseType)
+	{
+		std::string symbol_id = fmt::format("custom.{}", user_class->getType()->getUniqueCustomId());
+		appendIdentifier(symbol_id, user_class->getNode(), getSelectionRange(*host.list->baseType));
+	}
+
 	auto prev_active = active;
 	appendDocSymbol(SymbolKind::Variable, host);
 	RecursiveVisitor::caseDataDecl(host, param);
