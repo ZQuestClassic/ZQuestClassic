@@ -1289,7 +1289,6 @@ struct item_drop_object
 struct guydata
 {
     guy_flags flags;
-    guy_flags2 flags2;
     int32_t  tile;
     byte  width;
     byte  height; //0=striped, 1+=rectangular

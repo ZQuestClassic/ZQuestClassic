@@ -4963,10 +4963,10 @@ void edit_enemydata(int32_t index)
 						   : guysbuf[index].flags & guy_fade_flicker ? 1 : 0);
 						   
 	for(int32_t i=0; i<16; i++)
-		enedata_dlg[106+i].flags = (guysbuf[index].flags2 & (1<<i)) ? D_SELECTED : 0;
+		enedata_dlg[106+i].flags = (guysbuf[index].flags & (1<<i)) ? D_SELECTED : 0;
 	
 	for(int32_t i=0; i<16; i++)
-		enedata_dlg[399+i].flags = (guysbuf[index].flags2 & (1<<(i+16))) ? D_SELECTED : 0;
+		enedata_dlg[399+i].flags = (guysbuf[index].flags & (1<<(i+16))) ? D_SELECTED : 0;
 	
 	enedata_dlg[371].flags = (guysbuf[index].moveflags & move_obeys_grav) ? D_SELECTED : 0;
 	enedata_dlg[372].flags = (guysbuf[index].moveflags & move_can_pitfall) ? D_SELECTED : 0;
@@ -5184,10 +5184,10 @@ void edit_enemydata(int32_t index)
 		test.flags |= (guy_flags)(enedata_dlg[186].d1==2 ? guy_fade_instant : enedata_dlg[186].d1==1 ? guy_fade_flicker : 0);
 		
 		for(int32_t i=0; i<16; i++)
-			test.flags2 |= (guy_flags2)((enedata_dlg[106+i].flags & D_SELECTED) ? (1<<i) : 0);
+			test.flags |= (guy_flags)((enedata_dlg[106+i].flags & D_SELECTED) ? (1<<i) : 0);
 		
 		for(int32_t i=0; i<16; i++)
-			test.flags2 |= (guy_flags2)((enedata_dlg[399+i].flags & D_SELECTED) ? (1<<(i+16)) : 0);
+			test.flags |= (guy_flags)((enedata_dlg[399+i].flags & D_SELECTED) ? (1<<(i+16)) : 0);
 			
 		if(enedata_dlg[143].flags & D_SELECTED)
 		{
@@ -5431,7 +5431,7 @@ int32_t readonenpc(PACKFILE *f, int32_t index)
 			return 0;
 			}
 			
-			if(!p_igetl(&tempguy.flags2,f))
+			if(!p_igetl(&tempguy.flags,f))
 			{
 			return 0;
 			}
@@ -5815,7 +5815,7 @@ int32_t writeonenpc(PACKFILE *f, int32_t i)
 		return 0;
 		}
 		
-		if(!p_iputl(guysbuf[i].flags2,f))
+		if(!p_iputl(guysbuf[i].flags,f))
 		{
 		return 0;
 		}

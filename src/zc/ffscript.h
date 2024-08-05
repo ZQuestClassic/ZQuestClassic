@@ -1241,8 +1241,6 @@ static void setHeroBigHitbox(bool v);
 
 
 //NPCData getters One Input, One Return
-	static void getNPCData_flags(); //word
-	static void getNPCData_flags2();
 	static void getNPCData_width();
 	static void getNPCData_height();
 	static void getNPCData_s_tile();
@@ -1289,12 +1287,11 @@ static void setHeroBigHitbox(bool v);
 	static void getNPCData_misc();//switch-case
 	static void getNPCData_defense(); //extra arg
 	static void getNPCData_SIZEflags();
+	static void getNPCData_flags(); //array
 
 
 	//NPCData Setters, two inputs, no return.
 
-	static void setNPCData_flags(); //word
-	static void setNPCData_flags2();
 	static void setNPCData_width();
 	static void setNPCData_height();
 	static void setNPCData_s_tile();
@@ -1338,6 +1335,7 @@ static void setHeroBigHitbox(bool v);
 	static void setNPCData_defense(int32_t v); //extra arg
 	static void setNPCData_SIZEflags(int32_t v);
 	static void setNPCData_misc(int32_t val);
+	static void setNPCData_flags(bool v); //word
 	
 	static void setNPCData_tile();
 	static void setNPCData_e_height();
