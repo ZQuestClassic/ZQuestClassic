@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2024-08-04 23:08:25</td>
+      <td>2024-08-05 05:53:33</td>
     </tr>
   </table>
 </div>
@@ -117,206 +117,227 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;nlohmann/json.hpp&gt;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l7" href="#l7">7</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="n">namespace</span><span class="w"> </span><span class="n">ZScript</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l8" href="#l8">8</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">{</span></td>
+      <td class="src "><span class="n">using</span><span class="w"> </span><span class="n">json</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nlohmann</span><span class="o">::</span><span class="n">ordered_json</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l9" href="#l9">9</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">class</span><span class="w"> </span><span class="n">MetadataVisitor</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">public</span><span class="w"> </span><span class="n">RecursiveVisitor</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l10" href="#l10">10</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="p">{</span></td>
+      <td class="src "><span class="n">namespace</span><span class="w"> </span><span class="n">ZScript</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l11" href="#l11">11</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">public</span><span class="o">:</span></td>
+      <td class="src "><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l12" href="#l12">12</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">MetadataVisitor</span><span class="p">(</span><span class="n">ZScript</span><span class="o">::</span><span class="n">Program</span><span class="o">&amp;</span><span class="w"> </span><span class="n">program</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="n">class</span><span class="w"> </span><span class="n">MetadataVisitor</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">public</span><span class="w"> </span><span class="n">RecursiveVisitor</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l13" href="#l13">13</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">using</span><span class="w"> </span><span class="n">RecursiveVisitor</span><span class="o">::</span><span class="n">visit</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l14" href="#l14">14</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="kt">void</span><span class="w"> </span><span class="nf">visit</span><span class="p">(</span><span class="n">AST</span><span class="o">&amp;</span><span class="w"> </span><span class="n">node</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">param</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="n">public</span><span class="o">:</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l15" href="#l15">15</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="c1">////////////////</span></td>
+      <td class="src "><span class="w">		</span><span class="n">MetadataVisitor</span><span class="p">(</span><span class="n">ZScript</span><span class="o">::</span><span class="n">Program</span><span class="o">&amp;</span><span class="w"> </span><span class="n">program</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">root_file_name</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l16" href="#l16">16</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="c1">// Cases</span></td>
+      <td class="src "><span class="w">		</span><span class="n">using</span><span class="w"> </span><span class="n">RecursiveVisitor</span><span class="o">::</span><span class="n">visit</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l17" href="#l17">17</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="kt">void</span><span class="w"> </span><span class="nf">caseFile</span><span class="p">(</span><span class="n">ASTFile</span><span class="o">&amp;</span><span class="w"> </span><span class="n">host</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">param</span><span class="p">);</span></td>
+      <td class="src "><span class="w">		</span><span class="kt">void</span><span class="w"> </span><span class="nf">visit</span><span class="p">(</span><span class="n">AST</span><span class="o">&amp;</span><span class="w"> </span><span class="n">node</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">param</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l18" href="#l18">18</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="kt">void</span><span class="w"> </span><span class="nf">caseNamespace</span><span class="p">(</span><span class="n">ASTNamespace</span><span class="o">&amp;</span><span class="w"> </span><span class="n">host</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">param</span><span class="p">);</span></td>
+      <td class="src "><span class="w">		</span><span class="c1">////////////////</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l19" href="#l19">19</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="kt">void</span><span class="w"> </span><span class="nf">caseScript</span><span class="p">(</span><span class="n">ASTScript</span><span class="o">&amp;</span><span class="w"> </span><span class="n">host</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">param</span><span class="p">);</span></td>
+      <td class="src "><span class="w">		</span><span class="c1">// Cases</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l20" href="#l20">20</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="kt">void</span><span class="w"> </span><span class="nf">caseClass</span><span class="p">(</span><span class="n">ASTClass</span><span class="o">&amp;</span><span class="w"> </span><span class="n">host</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">param</span><span class="p">);</span></td>
+      <td class="src "><span class="w">		</span><span class="kt">void</span><span class="w"> </span><span class="nf">caseFile</span><span class="p">(</span><span class="n">ASTFile</span><span class="o">&amp;</span><span class="w"> </span><span class="n">host</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">param</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l21" href="#l21">21</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="kt">void</span><span class="w"> </span><span class="nf">caseDataDecl</span><span class="p">(</span><span class="n">ASTDataDecl</span><span class="o">&amp;</span><span class="w"> </span><span class="n">host</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">param</span><span class="p">);</span></td>
+      <td class="src "><span class="w">		</span><span class="kt">void</span><span class="w"> </span><span class="nf">caseNamespace</span><span class="p">(</span><span class="n">ASTNamespace</span><span class="o">&amp;</span><span class="w"> </span><span class="n">host</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">param</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l22" href="#l22">22</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="kt">void</span><span class="w"> </span><span class="nf">caseFuncDecl</span><span class="p">(</span><span class="n">ASTFuncDecl</span><span class="o">&amp;</span><span class="w"> </span><span class="n">host</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">param</span><span class="p">);</span></td>
+      <td class="src "><span class="w">		</span><span class="kt">void</span><span class="w"> </span><span class="nf">caseScript</span><span class="p">(</span><span class="n">ASTScript</span><span class="o">&amp;</span><span class="w"> </span><span class="n">host</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">param</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l23" href="#l23">23</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="kt">void</span><span class="w"> </span><span class="nf">caseExprIdentifier</span><span class="p">(</span><span class="n">ASTExprIdentifier</span><span class="o">&amp;</span><span class="w"> </span><span class="n">host</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">param</span><span class="p">);</span></td>
+      <td class="src "><span class="w">		</span><span class="kt">void</span><span class="w"> </span><span class="nf">caseClass</span><span class="p">(</span><span class="n">ASTClass</span><span class="o">&amp;</span><span class="w"> </span><span class="n">host</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">param</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l24" href="#l24">24</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="kt">void</span><span class="w"> </span><span class="nf">caseExprArrow</span><span class="p">(</span><span class="n">ASTExprArrow</span><span class="o">&amp;</span><span class="w"> </span><span class="n">host</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">param</span><span class="p">);</span></td>
+      <td class="src "><span class="w">		</span><span class="kt">void</span><span class="w"> </span><span class="nf">caseDataDecl</span><span class="p">(</span><span class="n">ASTDataDecl</span><span class="o">&amp;</span><span class="w"> </span><span class="n">host</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">param</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l25" href="#l25">25</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="kt">void</span><span class="w"> </span><span class="nf">caseExprCall</span><span class="p">(</span><span class="n">ASTExprCall</span><span class="o">&amp;</span><span class="w"> </span><span class="n">host</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">param</span><span class="p">);</span></td>
+      <td class="src "><span class="w">		</span><span class="kt">void</span><span class="w"> </span><span class="nf">caseFuncDecl</span><span class="p">(</span><span class="n">ASTFuncDecl</span><span class="o">&amp;</span><span class="w"> </span><span class="n">host</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">param</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l26" href="#l26">26</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">		</span><span class="kt">void</span><span class="w"> </span><span class="nf">caseExprIdentifier</span><span class="p">(</span><span class="n">ASTExprIdentifier</span><span class="o">&amp;</span><span class="w"> </span><span class="n">host</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">param</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l27" href="#l27">27</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="nf">getOutput</span><span class="p">();</span></td>
+      <td class="src "><span class="w">		</span><span class="kt">void</span><span class="w"> </span><span class="nf">caseExprArrow</span><span class="p">(</span><span class="n">ASTExprArrow</span><span class="o">&amp;</span><span class="w"> </span><span class="n">host</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">param</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l28" href="#l28">28</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">		</span><span class="kt">void</span><span class="w"> </span><span class="nf">caseExprCall</span><span class="p">(</span><span class="n">ASTExprCall</span><span class="o">&amp;</span><span class="w"> </span><span class="n">host</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">param</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l29" href="#l29">29</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">private</span><span class="o">:</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l30" href="#l30">30</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">ZScript</span><span class="o">::</span><span class="n">Program</span><span class="o">&amp;</span><span class="w"> </span><span class="n">program</span><span class="p">;</span></td>
+      <td class="src "><span class="w">		</span><span class="n">json</span><span class="w"> </span><span class="nf">takeOutput</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l31" href="#l31">31</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="p">};</span></td>
+      <td class="src "><span class="w">	</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l32" href="#l32">32</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">}</span></td>
+      <td class="src "><span class="w">	</span><span class="n">private</span><span class="o">:</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l33" href="#l33">33</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">		</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">root_file_name</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l34" href="#l34">34</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#endif</span></td>
+      <td class="src "><span class="w">	</span><span class="p">};</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l35" href="#l35">35</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="p">}</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l36" href="#l36">36</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l37" href="#l37">37</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">#endif</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l38" href="#l38">38</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>

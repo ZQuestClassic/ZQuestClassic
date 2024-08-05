@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2024-08-04 23:08:25</td>
+      <td>2024-08-05 05:53:33</td>
     </tr>
   </table>
 </div>
@@ -754,143 +754,136 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">ZScript</span><span class="o">::</span><span class="n">Program</span><span class="o">&amp;</span><span class="w"> </span><span class="n">program</span><span class="p">;</span></td>
+      <td class="src "><span class="w">		</span><span class="c1">// Current function return type.</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l98" href="#l98">98</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="c1">// Current function return type.</span></td>
+      <td class="src "><span class="w">		</span><span class="n">ZScript</span><span class="o">::</span><span class="n">DataType</span><span class="w"> </span><span class="k">const</span><span class="o">*</span><span class="w"> </span><span class="n">returnType</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l99" href="#l99">99</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">ZScript</span><span class="o">::</span><span class="n">DataType</span><span class="w"> </span><span class="k">const</span><span class="o">*</span><span class="w"> </span><span class="n">returnType</span><span class="p">;</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l100" href="#l100">100</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">		</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Function</span><span class="o">*&gt;</span><span class="w"> </span><span class="n">inlineStack</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l101" href="#l101">101</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Function</span><span class="o">*&gt;</span><span class="w"> </span><span class="n">inlineStack</span><span class="p">;</span></td>
+      <td class="src "><span class="w">		</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l102" href="#l102">102</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span></td>
+      <td class="src "><span class="w">		</span><span class="kt">bool</span><span class="w"> </span><span class="n">deprecateGlobals</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l103" href="#l103">103</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="kt">bool</span><span class="w"> </span><span class="n">deprecateGlobals</span><span class="p">;</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l104" href="#l104">104</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">		</span><span class="c1">////////////////////////////////////////////////////////////////</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l105" href="#l105">105</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="c1">////////////////////////////////////////////////////////////////</span></td>
+      <td class="src "><span class="w">		</span><span class="c1">// Helper Functions.</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l106" href="#l106">106</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="c1">// Helper Functions.</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l107" href="#l107">107</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">		</span><span class="kt">void</span><span class="w"> </span><span class="nf">analyzeUnaryExpr</span><span class="p">(</span><span class="n">ASTUnaryExpr</span><span class="o">&amp;</span><span class="w"> </span><span class="n">host</span><span class="p">,</span><span class="w"> </span><span class="n">ZScript</span><span class="o">::</span><span class="n">DataType</span><span class="w"> </span><span class="k">const</span><span class="o">&amp;</span><span class="w"> </span><span class="n">type</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l108" href="#l108">108</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="kt">void</span><span class="w"> </span><span class="nf">analyzeUnaryExpr</span><span class="p">(</span><span class="n">ASTUnaryExpr</span><span class="o">&amp;</span><span class="w"> </span><span class="n">host</span><span class="p">,</span><span class="w"> </span><span class="n">ZScript</span><span class="o">::</span><span class="n">DataType</span><span class="w"> </span><span class="k">const</span><span class="o">&amp;</span><span class="w"> </span><span class="n">type</span><span class="p">);</span></td>
+      <td class="src "><span class="w">		</span><span class="kt">void</span><span class="w"> </span><span class="nf">analyzeIncrement</span><span class="p">(</span><span class="n">ASTUnaryExpr</span><span class="o">&amp;</span><span class="w"> </span><span class="n">host</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l109" href="#l109">109</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="kt">void</span><span class="w"> </span><span class="nf">analyzeIncrement</span><span class="p">(</span><span class="n">ASTUnaryExpr</span><span class="o">&amp;</span><span class="w"> </span><span class="n">host</span><span class="p">);</span></td>
+      <td class="src "><span class="w">		</span><span class="kt">void</span><span class="w"> </span><span class="nf">analyzeBinaryExpr</span><span class="p">(</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l110" href="#l110">110</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="kt">void</span><span class="w"> </span><span class="nf">analyzeBinaryExpr</span><span class="p">(</span></td>
+      <td class="src "><span class="w">				</span><span class="n">ASTBinaryExpr</span><span class="o">&amp;</span><span class="w"> </span><span class="n">host</span><span class="p">,</span><span class="w"> </span><span class="n">ZScript</span><span class="o">::</span><span class="n">DataType</span><span class="w"> </span><span class="k">const</span><span class="o">&amp;</span><span class="w"> </span><span class="n">leftType</span><span class="p">,</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l111" href="#l111">111</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">				</span><span class="n">ASTBinaryExpr</span><span class="o">&amp;</span><span class="w"> </span><span class="n">host</span><span class="p">,</span><span class="w"> </span><span class="n">ZScript</span><span class="o">::</span><span class="n">DataType</span><span class="w"> </span><span class="k">const</span><span class="o">&amp;</span><span class="w"> </span><span class="n">leftType</span><span class="p">,</span></td>
+      <td class="src "><span class="w">				</span><span class="n">ZScript</span><span class="o">::</span><span class="n">DataType</span><span class="w"> </span><span class="k">const</span><span class="o">&amp;</span><span class="w"> </span><span class="n">rightType</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l112" href="#l112">112</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">				</span><span class="n">ZScript</span><span class="o">::</span><span class="n">DataType</span><span class="w"> </span><span class="k">const</span><span class="o">&amp;</span><span class="w"> </span><span class="n">rightType</span><span class="p">);</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l113" href="#l113">113</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">	</span><span class="p">};</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l114" href="#l114">114</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="p">};</span></td>
+      <td class="src "><span class="p">}</span><span class="w">	</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l115" href="#l115">115</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">}</span><span class="w">	</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l116" href="#l116">116</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
       <td class="src "><span class="cp">#endif</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l117" href="#l117">117</a></td>
+      <td class="lineno"><a id="l116" href="#l116">116</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
