@@ -165,6 +165,7 @@ public:
 	void stop_bgsfx(int32_t index);
 	bool m_walkflag_simple(int32_t dx,int32_t dy);
 	bool m_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int32_t x=-1000,int32_t y=-1000, bool kb = false);
+	bool m_walkflag_old(int32_t dx,int32_t dy,int32_t special, int32_t x=-1000, int32_t y=-1000);
 	// Take damage or ignore it
 	virtual int32_t takehit(weapon *w, weapon* realweap = nullptr);
 	// override hit detection to check for invicibility, stunned, etc
@@ -179,12 +180,15 @@ public:
 	void try_death(bool force_kill = false);
 	 // returns true if next step is ok, false if there is something there
 	bool canmove(int32_t ndir,zfix s,int32_t special,int32_t dx1,int32_t dy1,int32_t dx2,int32_t dy2, bool kb);
+	bool canmove_old(int32_t ndir,zfix s,int32_t special,int32_t dx1,int32_t dy1,int32_t dx2,int32_t dy2);
 	bool canmove(int32_t ndir,zfix s,int32_t special, bool kb);
 	bool canmove(int32_t ndir,int32_t special, bool kb);
 	bool canmove(int32_t ndir, bool kb);
 	bool enemycanfall(int32_t id, bool checkgrav = true);
 	// 8-directional
+	void newdir_8_old(int32_t rate,int32_t homing, int32_t special,int32_t dx1,int32_t dy1,int32_t dx2,int32_t dy2);
 	void newdir_8(int32_t rate,int32_t homing, int32_t special,int32_t dx1,int32_t dy1,int32_t dx2,int32_t dy2);
+	void newdir_8_old(int32_t rate,int32_t homing, int32_t special);
 	void newdir_8(int32_t rate,int32_t homing, int32_t special);
 	// makes the enemy slide backwards when hit
 	// sclk: first byte is clk, second byte is dir
@@ -213,6 +217,7 @@ public:
 	// pauses for a while after it makes a complete move (to a new square)
 	void halting_walk(int32_t rate,int32_t homing,int32_t special,int32_t hrate, int32_t haltcnt);
 	// 8-directional movement, aligns to 8 pixels
+	void constant_walk_8_old(int32_t rate,int32_t homing,int32_t special);
 	void constant_walk_8(int32_t rate,int32_t homing,int32_t special);
 	// 8-directional movement, halting
 	void halting_walk_8(int32_t newrate,int32_t newhoming, int32_t newclk,int32_t special,int32_t newhrate, int32_t haltcnt);
