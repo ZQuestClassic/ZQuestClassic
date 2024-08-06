@@ -13339,7 +13339,7 @@ int32_t get_register(int32_t arg)
 		case NPCDATAATTRIBUTE: 
 		{
 			int32_t indx = ri->d[rINDEX] / 10000; 
-			if(ri->npcdataref > (MAXNPCS-1) ) 
+			if((unsigned)ri->npcdataref > (MAXNPCS - 1))
 			{
 				Z_scripterrlog("Invalid Sprite ID passed to npcdata->Attributes[]: %d\n", (ri->npcdataref*10000)); 
 				ret = -10000;
@@ -13359,7 +13359,7 @@ int32_t get_register(int32_t arg)
 
 		case NPCDATABEHAVIOUR: 
 		{
-			if(ri->npcdataref > (MAXNPCS-1) ) 
+			if((unsigned)ri->npcdataref > (MAXNPCS - 1))
 			{
 				ret = -10000;
 				break;
@@ -13411,7 +13411,7 @@ int32_t get_register(int32_t arg)
 		case NPCDATASHIELD:
 		{
 			int32_t indx = ri->d[rINDEX] / 10000; 
-			if(ri->npcdataref > (MAXNPCS-1) ) 
+			if((unsigned)ri->npcdataref > (MAXNPCS - 1))
 			{ 
 				Z_scripterrlog("Invalid NPC ID passed to npcdata->Shield[]: %d\n", (ri->npcdataref*10000)); 
 				ret = -10000; 
@@ -13459,7 +13459,7 @@ int32_t get_register(int32_t arg)
 
 		case NPCDSHADOWSPR:
 		{
-			if(ri->npcdataref > (MAXNPCS-1) ) 
+			if((unsigned)ri->npcdataref > (MAXNPCS - 1))
 			{ 
 				Z_scripterrlog("Invalid NPC ID passed to npcdata->ShadowSprite: %d\n", (ri->npcdataref*10000));
 				ret = -10000; 
@@ -13472,7 +13472,7 @@ int32_t get_register(int32_t arg)
 		}
 		case NPCDSPAWNSPR:
 		{
-			if(ri->npcdataref > (MAXNPCS-1) ) 
+			if((unsigned)ri->npcdataref > (MAXNPCS - 1))
 			{ 
 				Z_scripterrlog("Invalid NPC ID passed to npcdata->SpawnSprite: %d\n", (ri->npcdataref*10000));
 				ret = -10000; 
@@ -13485,7 +13485,7 @@ int32_t get_register(int32_t arg)
 		}
 		case NPCDDEATHSPR:
 		{
-			if(ri->npcdataref > (MAXNPCS-1) ) 
+			if((unsigned)ri->npcdataref > (MAXNPCS - 1))
 			{ 
 				Z_scripterrlog("Invalid NPC ID passed to npcdata->DeathSprite: %d\n", (ri->npcdataref*10000));
 				ret = -10000; 
@@ -13501,7 +13501,7 @@ int32_t get_register(int32_t arg)
 			//bool npcdata->MatchInitDLabel("label", d)
 		{
 			
-			if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
+			if((unsigned)ri->npcdataref > (MAXNPCS - 1)) \
 			{ 
 				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), "MatchInitDLabel()"); 
 				ret = 0; 
@@ -13522,7 +13522,7 @@ int32_t get_register(int32_t arg)
 		
 		case NPCDATAFLAGS:
 		{
-			if (ri->npcdataref < 0 || ri->npcdataref >(MAXNPCS - 1))
+			if ((unsigned)ri->npcdataref > (MAXNPCS - 1))
 			{
 				ret = 0;
 				break;
