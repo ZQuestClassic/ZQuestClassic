@@ -1,6 +1,7 @@
 #include "zc_list_data.h"
 #include "base/dmap.h"
 #include "zq/zquest.h"
+#include "zq/zq_misc.h"
 #include "qst.h"
 #include "zinfo.h"
 #include "base/misctypes.h"
@@ -216,6 +217,50 @@ GUI::ListData GUI::ZCListData::enemies(bool numbered, bool defaultFilter)
 	{
 		ls.add(*it, ids[*it]);
 	}
+	return ls;
+}
+
+GUI::ListData GUI::ZCListData::efamilies()
+{
+	std::map<std::string, int32_t> vals;
+
+	std::string none(moduledata.enem_type_names[0]);
+	if (skipchar(moduledata.enem_type_names[0][0]))
+		none = "(None)";
+
+	GUI::ListData ls;
+	ls.add(none, 0);
+	for (int32_t i = 1; i < 41; ++i)
+	{
+		if (skipchar(moduledata.enem_type_names[i][0]))
+			continue;
+
+		std::string sname(moduledata.enem_type_names[i]);
+		ls.add(sname, i);
+	}
+
+	return ls;
+}
+
+GUI::ListData GUI::ZCListData::eanimations()
+{
+	std::map<std::string, int32_t> vals;
+
+	std::string none(moduledata.enem_anim_type_names[0]);
+	if (skipchar(moduledata.enem_anim_type_names[0][0]))
+		none = "(None)";
+
+	GUI::ListData ls;
+	ls.add(none, 0);
+	for (int32_t i = 1; i < 41; ++i)
+	{
+		if (skipchar(moduledata.enem_anim_type_names[i][0]))
+			continue;
+
+		std::string sname(moduledata.enem_anim_type_names[i]);
+		ls.add(sname, i);
+	}
+
 	return ls;
 }
 
@@ -513,6 +558,33 @@ GUI::ListData GUI::ZCListData::lweaptypes()
 		ls.add(sname, i);
 	}
 	
+	return ls;
+}
+
+GUI::ListData GUI::ZCListData::eweaptypes()
+{
+	std::map<std::string, int32_t> vals;
+
+	std::string none(moduledata.enemy_weapon_names[0]);
+	if (skipchar(moduledata.enemy_weapon_names[0][0]))
+		none = "(None)";
+
+	GUI::ListData ls;
+	ls.add(none, 0);
+	for (int32_t i = 1; i < wMax-wEnemyWeapons; ++i)
+	{
+		if (skipchar(moduledata.enemy_weapon_names[i][0]))
+			continue;
+
+		std::string sname(moduledata.enemy_weapon_names[i]);
+		ls.add(sname, wEnemyWeapons+i);
+	}
+	for (int32_t i = 1; i <= 10; ++i)
+	{
+		std::string sname(moduledata.enemy_scriptweaponweapon_names[i]);
+		ls.add(sname, 30+i);
+	}
+
 	return ls;
 }
 

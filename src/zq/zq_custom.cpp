@@ -27,6 +27,7 @@
 #include "dialog/spritedata.h"
 #include "dialog/info_lister.h"
 #include "zinfo.h"
+#include "dialog/enemyeditor.h"
 extern FFScript FFCore;
 
 extern int32_t ex;
@@ -4668,6 +4669,9 @@ void showEnemyScriptMetaHelp(const guydata& test, int32_t i)
 
 void edit_enemydata(int32_t index)
 {
+	call_enemy_editor(index);
+	return;
+	//OLD SHIT NO LONGER USED!
 	//guysbuf[index].script = 1;
 	char hp[8], dp[8], wdp[8], rat[8], hrt[8], hom[8], grm[8], spd[8],
 		 frt[8], efr[8], bsp[8];
