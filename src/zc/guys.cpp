@@ -1403,62 +1403,6 @@ bool enemy::sideview_mode() const
 	return isSideViewGravity() && (moveflags&move_obeys_grav) && !(moveflags&move_not_pushable);
 }
 
-bool enemy::m_walkflag_old(int32_t dx,int32_t dy,int32_t special, int32_t x, int32_t y)
-{
-	int32_t yg = (special==spw_floater)?8:0;
-	int32_t nb = get_qr(qr_NOBORDER) ? 16 : 0;
-	
-	if(dx<16-nb || dy<zc_max(16-yg-nb,0) || dx>=240+nb || dy>=160+nb)
-		return true;
-		
-	bool isInDungeon = isdungeon();
-	if(isInDungeon || special==spw_wizzrobe)
-	{
-		if((x>=32 && dy<32-yg) || (y>-1000 && y<=144 && dy>=144))
-			return true;
-			
-		if((x>=32 && dx<32) || (x>-1000 && x<224 && dx>=224))
-			if(special!=spw_door) // walk in door way
-				return true;
-	}
-	
-	if(!(moveflags & move_can_pitwalk) && !(moveflags & move_can_pitfall)) //Don't walk into pits (knockback doesn't call this func)
-	{
-		if(ispitfall(dx,dy) || ispitfall(dx+8,dy)
-		   || ispitfall(dx,dy+8) || ispitfall(dx+8,dy+8))
-		   return true;
-	}
-	
-	switch(special)
-	{
-	case spw_clipbottomright:
-		if(dy>=128 || dx>=208) return true;
-		break;
-	case spw_clipright:
-		break; //if(x>=208) return true; break;
-		
-	case spw_wizzrobe: // fall through
-	case spw_floater: // Special case for fliers and wizzrobes - hack!
-		{
-			if(isInDungeon)
-			{
-				if(dy < 32-yg || dy >= 144) return true;
-				if(dx < 32 || dx >= 224) return true;
-			}
-			return false;
-		}
-	}
-	
-	dx&=(special==spw_halfstep)?(~7):(~15);
-	dy&=(special==spw_halfstep || isSideViewGravity())?(~7):(~15);
-	
-	if(special==spw_water)
-		return (water_walkflag(dx,dy+8,1) || water_walkflag(dx+8,dy+8,1));
-		
-	return _walkflag(dx,dy+8,1) || _walkflag(dx+8,dy+8,1) ||
-		   groundblocked(dx,dy+8) || groundblocked(dx+8,dy+8);
-}
-
 bool enemy::m_walkflag_simple(int32_t dx,int32_t dy)
 {
 	bool kb = false;
@@ -4576,90 +4520,6 @@ bool enemy::cannotpenetrate()
 	return (family == eeAQUA || family == eeMANHAN || family == eeGHOMA);
 }
 
-bool enemy::canmove_old(int32_t ndir,zfix s,int32_t special,int32_t dx1,int32_t dy1,int32_t dx2,int32_t dy2)
-{
-	bool ok;
-	int32_t dx = 0, dy = 0;
-	int32_t sv = 8;
-	
-	//Why is this here??? Why is it needed???
-	s += 0.5; // Make the ints round; doesn't seem to cause any problems.
-	
-	switch(ndir)
-	{
-	case 8:
-	case up:
-		if(canfall(id) && isSideViewGravity())
-			return false;
-			
-		dy = dy1-s;
-		special = (special==spw_clipbottomright)?spw_none:special;
-		ok = !m_walkflag_old(x,y+dy,special, x, y) && !flyerblocked(x,y+dy, special);
-		break;
-		
-	case 12:
-	case down:
-		if(canfall(id) && isSideViewGravity())
-			return false;
-			
-		dy = dy2+s;
-		ok = !m_walkflag_old(x,y+dy,special, x, y) && !flyerblocked(x,y+dy, special);
-		break;
-		
-	case 14:
-	case left:
-		dx = dx1-s;
-		sv = ((isSideViewGravity())?7:8);
-		special = (special==spw_clipbottomright||special==spw_clipright)?spw_none:special;
-		ok = !m_walkflag_old(x+dx,y+sv,special, x, y) && !flyerblocked(x+dx,y+8, special);
-		break;
-		
-	case 10:
-	case right:
-		dx = dx2+s;
-		sv = ((isSideViewGravity())?7:8);
-		ok = !m_walkflag_old(x+dx,y+sv,special, x, y) && !flyerblocked(x+dx,y+8, special);
-		break;
-		
-	case 9:
-	case r_up:
-		dx = dx2+s;
-		dy = dy1-s;
-		ok = !m_walkflag_old(x,y+dy,special, x, y) && !m_walkflag_old(x+dx,y+sv,special, x, y) &&
-			 !flyerblocked(x,y+dy, special) && !flyerblocked(x+dx,y+8, special);
-		break;
-		
-	case 11:
-	case r_down:
-		dx = dx2+s;
-		dx = dy2+s;
-		ok = !m_walkflag_old(x,y+dy,special, x, y) && !m_walkflag_old(x+dx,y+sv,special, x, y) &&
-			 !flyerblocked(x,y+dy, special) && !flyerblocked(x+dx,y+8, special);
-		break;
-		
-	case 13:
-	case l_down:
-		dx = dx1-s;
-		dy = dy2+s;
-		ok = !m_walkflag_old(x,y+dy,special, x, y) && !m_walkflag_old(x+dx,y+sv,special, x, y) &&
-			 !flyerblocked(x,y+dy, special) && !flyerblocked(x+dx,y+8, special);
-		break;
-		
-	case 15:
-	case l_up:
-		dx = dx1-s;
-		dy = dy1-s;
-		ok = !m_walkflag_old(x,y+dy,special, x, y) && !m_walkflag_old(x+dx,y+sv,special, x, y) &&
-			 !flyerblocked(x,y+dy, special) && !flyerblocked(x+dx,y+8, special);
-		break;
-		
-	default:
-		db=99;
-		return true;
-	}
-	
-	return ok;
-}
 
 
 
@@ -5003,109 +4863,6 @@ bool enemy::canmove(int32_t ndir, bool kb)
 }
 
 // 8-directional
-void enemy::newdir_8_old(int32_t newrate,int32_t newhoming,int32_t special,int32_t dx1,int32_t dy1,int32_t dx2,int32_t dy2)
-{
-	int32_t ndir=0;
-	
-	// can move straight, check if it wants to turn
-	if(canmove_old(dir,step,special,dx1,dy1,dx2,dy2))
-	{
-		if(grumble && (zc_oldrand()&4)<grumble) //Homing
-		{
-			int32_t w = Lwpns.idFirst(wBait);
-			
-			if(w>=0)
-			{
-				int32_t bx = Lwpns.spr(w)->x;
-				int32_t by = Lwpns.spr(w)->y;
-				
-				ndir = (bx<x) ? left : (bx!=x) ? right : 0;
-				
-				if(abs(int32_t(y)-by)>14)
-				{
-					if(ndir>0)  // Already left or right
-					{
-						// Making the diagonal directions
-						ndir += (by<y) ? 2 : 4;
-					}
-					else
-					{
-						ndir = (by<y) ? up : down;
-					}
-				}
-				
-				if(canmove(ndir,special,false))
-				{
-					dir=ndir;
-					return;
-				}
-			}
-		}
-		
-		// Homing added.
-		if(newhoming && (zc_oldrand()&255)<newhoming)
-		{
-			ndir = lined_up(8,true);
-			
-			if(ndir>=0 && canmove(ndir,special,false))
-			{
-				dir=ndir;
-			}
-			
-			return;
-		}
-		
-		int32_t r=zc_oldrand();
-		
-		if(newrate>0 && !(r%newrate))
-		{
-			ndir = ((dir+((r&64)?-1:1))&7)+8;
-			int32_t ndir2=((dir+((r&64)?1:-1))&7)+8;
-			
-			if(canmove(ndir,step,special,dx1,dy1,dx2,dy2,false))
-				dir=ndir;
-			else if(canmove(ndir2,step,special,dx1,dy1,dx2,dy2,false))
-				dir=ndir2;
-				
-			if(dir==ndir && (newrate>=4)) // newrate>=4, otherwise movement is biased toward upper-left
-				// due to numerous lost fractional components. -L
-			{
-				x.doFloor();
-				y.doFloor();
-			}
-		}
-		
-		return;
-	}
-	
-	// can't move straight, must turn
-	int32_t i=0;
-	
-	for(; i<32; i++)  // Try random dir
-	{
-		ndir=(zc_oldrand()&7)+8;
-		
-		if(canmove(ndir,step,special,dx1,dy1,dx2,dy2,false))
-			break;
-	}
-	
-	if(i==32)
-	{
-		for(ndir=8; ndir<16; ndir++)
-		{
-			if(canmove(ndir,step,special,dx1,dy1,dx2,dy2,false))
-				goto ok;
-		}
-		
-		ndir = (isSideViewGravity()) ? (zc_oldrand()&1 ? left : right) : -1;  // Sideview enemies get trapped if their dir becomes -1
-	}
-	
-ok:
-	dir=ndir;
-	x.doFloor();
-	y.doFloor();
-}
-
 void enemy::newdir_8(int32_t newrate,int32_t newhoming,int32_t special,int32_t dx1,int32_t dy1,int32_t dx2,int32_t dy2)
 {
 	int32_t ndir=0;
@@ -5238,11 +4995,6 @@ ok:
 void enemy::newdir_8(int32_t newrate,int32_t newhoming,int32_t special)
 {
 	newdir_8(newrate,newhoming,special,0,-8,15,15);
-}
-
-void enemy::newdir_8_old(int32_t newrate,int32_t newhoming,int32_t special)
-{
-	newdir_8_old(newrate,newhoming,special,0,-8,15,15);
 }
 
 // makes the enemy slide backwards when hit
@@ -5974,22 +5726,6 @@ void enemy::halting_walk(int32_t newrate,int32_t newhoming,int32_t special,int32
 
 // 8-directional movement, aligns to 8 pixels
 void enemy::constant_walk_8(int32_t newrate,int32_t newhoming,int32_t special)
-{
-	if(clk<0 || dying || stunclk || watch || ceiling || frozenclock)
-		return;
-		
-	if(clk3<=0)
-	{
-		newdir_8(newrate,newhoming,special);
-		clk3=int32_t(8.0/step);
-		if (step == 0) clk3 = 32767;
-	}
-	
-	if (step != 0) --clk3;
-	move(step);
-}
-// 8-directional movement, aligns to 8 pixels
-void enemy::constant_walk_8_old(int32_t newrate,int32_t newhoming,int32_t special)
 {
 	if(clk<0 || dying || stunclk || watch || ceiling || frozenclock)
 		return;
@@ -13960,7 +13696,7 @@ bool eMoldorm::animate(int32_t index)
 	if ( stickclk > 45 )
 	{
 		stickclk = 0;
-		newdir_8_old(rate,homing,spw_floater); //chage dir to keep from getting stuck.
+		newdir_8(rate,homing,spw_floater); //chage dir to keep from getting stuck.
 	}
 	
 
@@ -13987,7 +13723,7 @@ bool eMoldorm::animate(int32_t index)
 	{
 		if(stunclk>0)
 			stunclk=0;
-		constant_walk_8_old(rate,homing,spw_floater);
+		constant_walk_8(rate,homing,spw_floater);
 	
 		
 		misc=dir;
