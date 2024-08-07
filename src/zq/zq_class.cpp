@@ -11177,14 +11177,9 @@ int32_t writeguys(PACKFILE *f, zquestheader *Header)
 		
 		for(int32_t i=0; i<MAXGUYS; i++)
 		{
-			if(!p_iputl(guysbuf[i].flags,f))
+			if(!p_iputll(guysbuf[i].flags,f))
 			{
 				new_return(6);
-			}
-			
-			if(!p_iputl(guysbuf[i].flags2,f))
-			{
-				new_return(7);
 			}
 			
 			if(!p_iputl(guysbuf[i].tile,f))
