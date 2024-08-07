@@ -174,6 +174,56 @@ inline bool p_igetl(void *p,PACKFILE *f)
 	return true;
 }
 
+/* pack_igetll:
+ *  Reads a 64 bit long from a file, using intel byte ordering.
+ */
+inline int64_t pack_igetll(PACKFILE* f)
+{
+	int b1, b2, b3, b4, b5, b6, b7, b8;;
+	ASSERT(f);
+
+	if ((b1 = pack_getc(f)) != EOF)
+		if ((b2 = pack_getc(f)) != EOF)
+			if ((b3 = pack_getc(f)) != EOF)
+				if ((b4 = pack_getc(f)) != EOF)
+					if ((b5 = pack_getc(f)) != EOF)
+						if ((b6 = pack_getc(f)) != EOF)
+							if ((b7 = pack_getc(f)) != EOF)
+								if ((b8 = pack_getc(f)) != EOF)
+					return (((int64_t)b8 << 56) | ((int64_t)b7 << 48) | ((int64_t)b6 << 40) | ((int64_t)b5 << 32));
+							(((int64_t)b4 << 24) | ((int64_t)b3 << 16) | ((int64_t)b2 << 8) | (int64_t)b1);
+
+	return EOF;
+}
+
+inline bool p_igetll(void* p, PACKFILE* f)
+{
+	uint64_t* cp = (uint64_t*)p;
+	int64_t c;
+
+	if (!f) return false;
+
+
+	if (f->normal.flags & PACKFILE_FLAG_WRITE) return false;     //must not be writing to file
+
+	if (pack_feof(f))
+	{
+		return false;
+	}
+
+	c = pack_igetll(f);
+
+	if (pack_ferror(f))
+	{
+		return false;
+	}
+
+	*cp = c;
+
+	readsize += 8;
+	return true;
+}
+
 inline bool p_igetzf(void *p,PACKFILE *f)
 {
 	zfix *cp = (zfix *)p;
@@ -271,6 +321,60 @@ inline bool p_iputl(int32_t c,PACKFILE *f)
 	
 	return success;
 }
+
+/* pack_iputl:
+ *  Writes a 32 bit long to a file, using intel byte ordering.
+ */
+inline int64_t pack_iputll(int64_t l, PACKFILE* f)
+{
+	int b1, b2, b3, b4, b5, b6, b7, b8;
+	ASSERT(f);
+
+	b1 = (int)((l & 0xFF00000000000000LL) >> 56);
+	b2 = (int)((l & 0x00FF000000000000LL) >> 48);
+	b3 = (int)((l & 0x0000FF0000000000LL) >> 40);
+	b4 = (int)((l & 0x000000FF00000000LL) >> 32);
+	b5 = (int)((l & 0x00000000FF000000LL) >> 24);
+	b6 = (int)((l & 0x0000000000FF0000LL) >> 16);
+	b7 = (int)((l & 0x000000000000FF00LL) >> 8);
+	b8 = (int)(l & 0x00000000000000FFLL);
+
+	if (pack_putc(b8, f) == b8)
+		if (pack_putc(b7, f) == b7)
+			if (pack_putc(b6, f) == b6)
+				if (pack_putc(b5, f) == b5)
+					if (pack_putc(b4, f) == b4)
+						if (pack_putc(b3, f) == b3)
+							if (pack_putc(b2, f) == b2)
+								if (pack_putc(b1, f) == b1)
+					return l;
+
+	return EOF;
+}
+
+inline bool p_iputll(int64_t c, PACKFILE* f)
+{
+	bool success = true;
+
+	if (!fake_pack_writing)
+	{
+		if (!f) return false;
+
+
+		if (!(f->normal.flags & PACKFILE_FLAG_WRITE)) return false;  //must be writing to file
+
+		pack_iputll(c, f);
+		success = (pack_ferror(f) == 0);
+	}
+
+	if (success)
+	{
+		writesize += 4;
+	}
+
+	return success;
+}
+
 
 inline bool p_iputzf(zfix const& c,PACKFILE *f)
 {
