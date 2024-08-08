@@ -41,6 +41,8 @@ def load_manifest():
 
         for release in qst['releases']:
             for i, resource in enumerate(release['resources']):
+                if not release['resourceHashes']:
+                    break
                 if resource.endswith('.qst'):
                     qst_hash = release['resourceHashes'][i]
                     path = f'{entry_id}/{release["name"]}/{resource}'
