@@ -6,9 +6,6 @@ on:
       - 'compare-baseline-*'
   pull_request:
 
-permissions:
-  actions: write
-
 env:
   PYTHONUNBUFFERED: '1'
   CCACHE_BASEDIR: ${{ github.workspace }}
@@ -60,77 +57,6 @@ jobs:
       config: ${{ matrix.config }}
       extra-args: ${{ matrix.extra-args }} --prune_test_results
       from-ci-workflow: true
-
-  compare:
-    needs: ["test"]
-    runs-on: ubuntu-latest
-    if: failure()
-    env:
-      REPLAY_FAILURE_DISCORD_WEBHOOK: ${{ secrets.REPLAY_FAILURE_DISCORD_WEBHOOK }}
-
-    steps:
-      - name: Install Node.js 18.x
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18.x
-      - name: git clone
-        uses: actions/checkout@v4
-        with:
-          # Need history to find baseline commit.
-          fetch-depth: 0
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11.4'
-          cache: pip
-      - run: pip install -r requirements.txt
-
-      - uses: actions/download-artifact@v4
-        with:
-          path: test-results
-          pattern: replays-*
-
-      # TODO: instead of starting baseline workflow runs when all platforms finish,
-      # kick each off as necessary in `test.yml` and just poll for their completion here.
-      - name: Collect baseline
-        run: python3 tests/run_test_workflow.py --test_results test-results --repo ${{ github.repository }} --token ${{ secrets.GITHUB_TOKEN }}
-        id: collect-baseline
-      - name: Generate report
-        run: python3 tests/compare_replays.py --workflow_run ${{ steps.collect-baseline.outputs.baseline_run_id }} --local test-results --repo ${{ github.repository }} --token ${{ secrets.GITHUB_TOKEN }}
-
-      - run: npx surge ${{ github.workspace }}/tests/compare-report zc-replay-compare-${{ github.run_id }}.surge.sh --token ${{ secrets.SURGE_TOKEN }}
-        name: Upload to https://zc-replay-compare-${{ github.run_id }}.surge.sh
-
-      - name: Discord notification
-        shell: python
-        run: |
-          import inspect
-          import discord
-
-          url = '${{ secrets.REPLAY_FAILURE_DISCORD_WEBHOOK }}'
-          ref_name = '${{ github.ref_name }}'
-          run_id = '${{ github.run_id }}'
-          repository = '${{ github.repository }}'
-          actor = '${{ github.actor }}'
-
-          content = inspect.cleandoc(f'''
-              Report: https://zc-replay-compare-{run_id}.surge.sh
-              CI: https://github.com/{repository}/actions/runs/{run_id}
-              Actor: {actor}
-          ''')
-
-          webhook = discord.SyncWebhook.from_url(url)
-          webhook.send(
-              content,
-              thread_name=f'Replay tests failed for {ref_name}',
-              wait=True,
-          )
-
-      # Upload as artifact, so that if publishing to surge fails the report is still accessible.
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: report
-          path: ${{ github.workspace }}/tests/compare-report
 
   # web:
   #   needs: warm-lfs-cache

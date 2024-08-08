@@ -1,0 +1,99 @@
+name: compare
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types:
+      - completed
+
+env:
+  PYTHONUNBUFFERED: '1'
+
+jobs:
+  compare:
+    if: github.event.workflow_run.conclusion == 'failure'
+    runs-on: ubuntu-latest
+    env:
+      REPLAY_FAILURE_DISCORD_WEBHOOK: ${{ secrets.REPLAY_FAILURE_DISCORD_WEBHOOK }}
+
+    steps:
+      - run: mkdir test-results
+      - name: 'Download artifact'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            let allArtifacts = await github.rest.actions.listWorkflowRunArtifacts({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: context.payload.workflow_run.id,
+            });
+            let matchArtifacts = allArtifacts.data.artifacts.filter((artifact) => {
+              return artifact.name.startsWith('replays-');
+            });
+            console.log(`found ${matchArtifacts.length} artifacts to download`);
+            for (const artifact of matchArtifacts) {
+              let download = await github.rest.actions.downloadArtifact({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                artifact_id: artifact.id,
+                archive_format: 'tar',
+              });
+              let fs = require('fs');
+              fs.writeFileSync(`${process.env.GITHUB_WORKSPACE}/test-results/${artifact.name}.tar`, Buffer.from(download.data));
+            }
+
+      - name: Install Node.js 18.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+      - name: git clone
+        uses: actions/checkout@v4
+        with:
+          # Need history to find baseline commit.
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11.4'
+          cache: pip
+      - run: pip install -r requirements.txt
+
+      - name: Collect baseline
+        run: python3 tests/run_test_workflow.py --test_results test-results --repo ${{ github.repository }} --token ${{ secrets.GITHUB_TOKEN }}
+        id: collect-baseline
+      - name: Generate report
+        run: python3 tests/compare_replays.py --workflow_run ${{ steps.collect-baseline.outputs.baseline_run_id }} --local test-results --repo ${{ github.repository }} --token ${{ secrets.GITHUB_TOKEN }}
+
+      - run: npx surge ${{ github.workspace }}/tests/compare-report zc-replay-compare-${{ github.run_id }}.surge.sh --token ${{ secrets.SURGE_TOKEN }}
+        name: Upload to https://zc-replay-compare-${{ github.run_id }}.surge.sh
+
+      - name: Discord notification
+        shell: python
+        run: |
+          import inspect
+          import discord
+
+          url = '${{ secrets.REPLAY_FAILURE_DISCORD_WEBHOOK }}'
+          ref_name = '${{ github.ref_name }}'
+          run_id = '${{ github.run_id }}'
+          repository = '${{ github.repository }}'
+          actor = '${{ github.actor }}'
+
+          content = inspect.cleandoc(f'''
+              Report: https://zc-replay-compare-{run_id}.surge.sh
+              CI: https://github.com/{repository}/actions/runs/{run_id}
+              Actor: {actor}
+          ''')
+
+          webhook = discord.SyncWebhook.from_url(url)
+          webhook.send(
+              content,
+              thread_name=f'Replay tests failed for {ref_name}',
+              wait=True,
+          )
+
+      # Upload as artifact, so that if publishing to surge fails the report is still accessible.
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: report
+          path: ${{ github.workspace }}/tests/compare-report
