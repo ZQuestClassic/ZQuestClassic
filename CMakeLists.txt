@@ -579,7 +579,6 @@ FetchContent_Declare(
 	EXCLUDE_FROM_ALL
 )
 FetchContent_MakeAvailable(poolSTL)
-target_link_libraries(zcbase PUBLIC poolSTL::poolSTL)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 	target_link_options(zcbase PRIVATE "/WHOLEARCHIVE")
@@ -767,7 +766,7 @@ add_executable(zplayer ${ZELDA_CORE_SOURCES} ${ZELDA_GUI_SOURCES} ${ZELDA_SPRITE
 target_compile_definitions(zplayer PRIVATE IS_PLAYER)
 set_property(TARGET zplayer PROPERTY VS_DPI_AWARE "PerMonitor")
 target_include_directories(zplayer PRIVATE include/xxhash)
-target_link_libraries(zplayer PRIVATE allegro_with_legacy zasm nlohmann_json::nlohmann_json)
+target_link_libraries(zplayer PRIVATE allegro_with_legacy zasm nlohmann_json::nlohmann_json poolSTL)
 if (NOT EMSCRIPTEN)
 	target_link_libraries(zplayer PRIVATE stduuid)
 	target_compile_definitions(zplayer PRIVATE HAS_UUID)
