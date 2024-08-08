@@ -12,6 +12,7 @@ from time import sleep
 from typing import List
 
 import intervaltree
+import requests
 
 from github import Github, GithubException, PaginatedList, WorkflowRun
 from replays import ReplayTestResults
@@ -123,8 +124,18 @@ def start_test_workflow_run(
 
     workflow_run_started = test_workflow.create_dispatch(branch, inputs)
     if not workflow_run_started:
-        print('failed to start workflow run')
-        return
+        print('failed to start workflow run. trying again via api_server proxy')
+
+        origin = 'https://api.zquestclassic.com'
+        url = f'{origin}/api/v1/ci/start_test_workflow_run'
+        response = requests.post(url, json={'branch': branch, 'inputs': inputs})
+        if response.ok:
+            run_id = response.json['workflow_run_id']
+            print(f'run started: {run_id}')
+            return run_id
+
+        print('api_proxy failed')
+        return None
 
     while True:
         for w in test_workflow.get_runs(branch=branch):

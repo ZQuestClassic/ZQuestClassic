@@ -4,11 +4,13 @@ import uuid
 
 from http import HTTPStatus
 from pathlib import Path
+from time import sleep
 from typing import Dict, List, Tuple
 
 import boto3
 
 from flask import Flask, flash, redirect, request, url_for
+from github import Github
 from werkzeug.exceptions import HTTPException
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
@@ -127,7 +129,9 @@ def replays(uuid):
         return {'error': 'replay is too old'}, HTTPStatus.BAD_REQUEST
 
     if uuid_from_replay != uuid:
-        return {'error': 'replay uuid does not match uuid from url'}, HTTPStatus.BAD_REQUEST
+        return {
+            'error': 'replay uuid does not match uuid from url'
+        }, HTTPStatus.BAD_REQUEST
 
     if not qst_hash.isalnum():
         return {'error': 'invalid qst_hash'}, HTTPStatus.BAD_REQUEST
@@ -162,6 +166,41 @@ def replays(uuid):
         s3.upload_file(path, app.config['S3_BUCKET'], key)
 
     return {'key': key}, status
+
+
+# This is used by run_test_workflow.py to allow forks on GitHub to start workflow jobs when
+# replays fail, to get the baseline replay images in order to generate a compare report.
+@app.route('/api/v1/ci/start_test_workflow_run', methods=['POST'])
+def start_test_workflow_run():
+    gh_token = app.config.get('GH_TOKEN')
+    if not gh_token:
+        return {'error': 'server is missing GH_TOKEN'}, HTTPStatus.INTERNAL_SERVER_ERROR
+
+    data = request.get_json()
+    branch = data['branch']
+    inputs = data['inputs']
+
+    gh = Github(gh_token)
+    repo = gh.get_repo('ZQuestClassic/ZQuestClassic')
+    test_workflow = repo.get_workflow('test.yml')
+    existing_run_ids = [w.id for w in test_workflow.get_runs(branch=branch)]
+    workflow_run_started = test_workflow.create_dispatch(branch, inputs)
+    if not workflow_run_started:
+        return {'error': 'invalid replay'}, HTTPStatus.BAD_REQUEST
+
+    workflow_run_id = None
+    while workflow_run_id is None:
+        for w in test_workflow.get_runs(branch=branch):
+            # TODO this is just a good guess. should do https://stackoverflow.com/a/69500478/2788187
+            if w.id not in existing_run_ids:
+                print(f'run started: {w.id}')
+                workflow_run_id = w.id
+                break
+
+        print('waiting for run to start')
+        sleep(5)
+
+    return {'workflow_run_id': workflow_run_id}, HTTPStatus.CREATED
 
 
 @app.errorhandler(HTTPException)
