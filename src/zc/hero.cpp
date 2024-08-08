@@ -2316,6 +2316,8 @@ weapon* find_first_wtype(int wtype)
 }
 void HeroClass::draw(BITMAP* dest)
 {
+	if (dest) return;
+
 	/*{
 		char buf[36];
 		//sprintf(buf,"%d %d %d %d %d %d %d",dir, action, attack, attackclk, charging, spins, tapping);

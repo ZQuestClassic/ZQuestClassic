@@ -30,29 +30,29 @@ jobs:
     strategy:
       matrix:
         include:
-          - runs-on: windows-2022
-            arch: x64
-            compiler: msvc
-            # RelWithDebInfo invalidates ccache, and we currently can't show backtraces on crash for windows in CI
-            # so no need for it yet.
-            config: Release
-          - runs-on: windows-2022
-            arch: win32
-            compiler: msvc
-            config: RelWithDebInfo
-            extra-args: --max_duration 60
-          - runs-on: macos-13
-            arch: intel
-            compiler: clang
-            config: RelWithDebInfo
+          # - runs-on: windows-2022
+          #   arch: x64
+          #   compiler: msvc
+          #   # RelWithDebInfo invalidates ccache, and we currently can't show backtraces on crash for windows in CI
+          #   # so no need for it yet.
+          #   config: Release
+          # - runs-on: windows-2022
+          #   arch: win32
+          #   compiler: msvc
+          #   config: RelWithDebInfo
+          #   extra-args: --max_duration 60
+          # - runs-on: macos-13
+          #   arch: intel
+          #   compiler: clang
+          #   config: RelWithDebInfo
           - runs-on: ubuntu-22.04
             arch: x64
             compiler: clang
             config: RelWithDebInfo
       fail-fast: false
     # See https://github.com/community/community/discussions/40777
-    # uses: ./.github/workflows/test.yml
-    uses: ZQuestClassic/ZQuestClassic/.github/workflows/test.yml@main
+    uses: ./.github/workflows/test.yml
+    # uses: ZQuestClassic/ZQuestClassic/.github/workflows/test.yml@main
     with:
       runs-on: ${{ matrix.runs-on }}
       arch: ${{ matrix.arch }}

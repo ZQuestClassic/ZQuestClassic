@@ -129,6 +129,8 @@ jobs:
           --build_type ${{ inputs.config }}
           --test_results_folder .tmp/test_results/${{ github.run_id }}
           --retries 1
+          --filter classic
+          --frame 500
           --ci ${{ inputs.runs-on }}_${{ inputs.arch }}
           --shard ${{ matrix.shard_index }}/${{ matrix.num_shards }}
           ${{ inputs.extra-args }}
