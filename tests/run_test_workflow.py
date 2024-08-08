@@ -130,7 +130,7 @@ def start_test_workflow_run(
         url = f'{origin}/api/v1/ci/start_test_workflow_run'
         response = requests.post(url, json={'branch': branch, 'inputs': inputs})
         if response.ok:
-            run_id = response.json['workflow_run_id']
+            run_id = response.json()['workflow_run_id']
             print(f'run started: {run_id}')
             return run_id
 
