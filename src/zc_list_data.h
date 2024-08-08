@@ -10,6 +10,8 @@ namespace GUI::ZCListData
 	GUI::ListData strings(bool combostr = false, bool respect_order = true, bool numbered = true);
 	GUI::ListData ss_counters(bool numbered = false, bool skipNone = false);
 	GUI::ListData enemies(bool numbered = false, bool defaultFilter = true);
+	GUI::ListData efamilies();
+	GUI::ListData eanimations();
 	GUI::ListData items(bool numbered = false, bool none = true);
 	GUI::ListData dropsets(bool numbered = false, bool none = false);
 	GUI::ListData itemclass(bool numbered = false, bool zero_none = false);
@@ -20,6 +22,7 @@ namespace GUI::ZCListData
 	GUI::ListData bottletype();
 	GUI::ListData dmaps(bool numbered = false);
 	GUI::ListData lweaptypes();
+	GUI::ListData eweaptypes();
 	GUI::ListData weaptypes(bool numbered = false);
 	GUI::ListData sfxnames(bool numbered = false);
 	GUI::ListData midinames(bool numbered = false, bool incl_engine = false);

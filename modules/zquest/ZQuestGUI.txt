@@ -89,6 +89,7 @@ src/dialog/tilesetwizard.cpp
 src/dialog/view_script_slots.cpp
 src/dialog/object_pages.cpp
 src/dialog/screen_notes.cpp
+src/dialog/enemyeditor.cpp
 
 
 ## End of ZQuest GUI module
