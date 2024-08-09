@@ -9,9 +9,14 @@
 // enum types, which could be problematic for non-flag enums.
 namespace flags {
 
-constexpr unsigned int F(unsigned int n)
+constexpr uint32_t F(uint32_t n)
 {
 	return 1 << n;
+}
+
+constexpr uint64_t LLF(uint64_t n)
+{
+	return 1ULL<<n;
 }
 
 // These are all purposefully unscoped enums (`guy_bhit` instead of `flags::guy_flags::guy_bhit`)
@@ -23,48 +28,46 @@ constexpr unsigned int F(unsigned int n)
 
 // TODO: combine guy_flags and guy_flags_2 (be sure to handle npcdata scripting).
 
-enum guy_flags : uint32_t
+enum guy_flags : uint64_t
 {
-	guy_bhit                = F(0), // Boomerangs will stun.
-	guy_invisible           = F(1), // Skip drawing.
-	guy_never_return        = F(2), // Once dead, never returns even after leaving the screen.
-	guy_doesnt_count        = F(3), // Doesn't count as beatable enemy.
+	guy_bhit                = LLF(0), // Boomerangs will stun.
+	guy_invisible           = LLF(1), // Skip drawing.
+	guy_never_return        = LLF(2), // Once dead, never returns even after leaving the screen.
+	guy_doesnt_count        = LLF(3), // Doesn't count as beatable enemy.
 	                                // qr_UNBEATABLES_DONT_KEEP_DEAD impacts this behavior.
-	guy_fade_flicker        = F(4),
-	guy_fade_instant        = F(5),
-	guy_shield_front        = F(24), // Invulnerable in the front (relative to direction of movement).
-	guy_shield_left         = F(25), // Invulnerable on the left (relative to direction of movement).
-	guy_shield_right        = F(26), // Invulnerable on the right (relative to direction of movement).
-	guy_shield_back         = F(27), // Invulnerable in the back (relative to direction of movement).
-	guy_bkshield            = F(28), // Shield can be broken by hammer.
-	guy_lens_only           = F(31), // Only draw when lens item is active.
+	guy_fade_flicker        = LLF(4),
+	guy_fade_instant        = LLF(5),
+	guy_shield_front        = LLF(24), // Invulnerable in the front (relative to direction of movement).
+	guy_shield_left         = LLF(25), // Invulnerable on the left (relative to direction of movement).
+	guy_shield_right        = LLF(26), // Invulnerable on the right (relative to direction of movement).
+	guy_shield_back         = LLF(27), // Invulnerable in the back (relative to direction of movement).
+	guy_bkshield            = LLF(28), // Shield can be broken by hammer.
+	guy_lens_only           = LLF(31), // Only draw when lens item is active.
 
 	// Old flags, some reused.
-	guy_superman            = F(3),
-	guy_sbombonly           = F(4),
-	guy_weak_arrow          = F(29),
-};
+	guy_superman            = LLF(3),
+	guy_sbombonly           = LLF(4),
+	guy_weak_arrow          = LLF(29),
 
-enum guy_flags2 : uint32_t
-{
-	guy_flashing            = F(0),
-	guy_zora                = F(1),
-	guy_rock                = F(2),
-	guy_trap                = F(3),
-	guy_trph                = F(4),
-	guy_trpv                = F(5),
-	guy_trp4                = F(6),
-	guy_trplr               = F(7),
-	guy_trpud               = F(8),
-	guy_trp2                = F(9),
-	guy_fire                = F(10),
-	guy_armos               = F(11),
-	guy_ghini               = F(12),
-	guy_ganon               = F(13),
-	guy_blinking            = F(14),
-	guy_transparent         = F(15),
-	guy_ignoretmpnr         = F(16),
-	guy_ignore_kill_all     = F(17),
+	//previous guyflags 2
+	guy_flashing            = LLF(32),
+	guy_zora                = LLF(33),
+	guy_rock                = LLF(34),
+	guy_trap                = LLF(35),
+	guy_trph                = LLF(36),
+	guy_trpv                = LLF(37),
+	guy_trp4                = LLF(38),
+	guy_trplr               = LLF(39),
+	guy_trpud               = LLF(40),
+	guy_trp2                = LLF(41),
+	guy_fire                = LLF(42),
+	guy_armos               = LLF(43),
+	guy_ghini               = LLF(44),
+	guy_ganon               = LLF(45),
+	guy_blinking            = LLF(46),
+	guy_transparent         = LLF(47),
+	guy_ignoretmpnr         = LLF(48),
+	guy_ignore_kill_all     = LLF(49),
 };
 
 enum move_flags : uint32_t

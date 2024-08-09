@@ -1791,8 +1791,6 @@ static constexpr script_variable variable_list[]=
 	//npcdata nd->
 	{"NPCDATATILE", NPCDATATILE, 0},
 	{"NPCDATAHEIGHT", NPCDATAHEIGHT, 0},
-	{"NPCDATAFLAGS", NPCDATAFLAGS, 0},
-	{"NPCDATAFLAGS2", NPCDATAFLAGS2, 0},
 	{"NPCDATAWIDTH", NPCDATAWIDTH, 0},
 	{"NPCDATAHITSFX", NPCDATAHITSFX, 0},
 	{"NPCDATASTILE", NPCDATASTILE, 0},
@@ -2922,6 +2920,7 @@ static constexpr script_variable variable_list[]=
 	{ "COMBODTRIGBUNNY", COMBODTRIGBUNNY, 0 },
 	{ "COMBODTRIGPUSHTIME", COMBODTRIGPUSHTIME, 0 },
 	{ "COMBODTRIGSHIELDJINX", COMBODTRIGSHIELDJINX, 0 },
+	{ "NPCDATAFLAGS", NPCDATAFLAGS, 0 },
 };
 
 // Don't rely on `command_list` to be indexed by command.

@@ -218,13 +218,13 @@ std::shared_ptr<GUI::Widget> ScreenDataDialog::view()
 	
 	std::string ene_str[5];
 	byte ene_found = 0;
-	static const int ene_flag[] = {guy_zora,guy_trap,guy_trp2,guy_rock,guy_fire};
-	for(int32_t i=0; i<eMAXGUYS && ene_found != 0b11111; i++)
+	static const uint64_t ene_flag[] = {guy_zora,guy_trap,guy_trp2,guy_rock,guy_fire};
+	for(int32_t i=0; i<eMAXGUYS && ene_found != uint64_t(0b11111); i++)
 	{
 		for(auto q = 0; q < 5; ++q)
 		{
 			if(ene_found & (1<<q)) continue;
-			if(guysbuf[i].flags2 & ene_flag[q])
+			if(guysbuf[i].flags & ene_flag[q])
 			{
 				ene_str[q] = guy_string[i];
 				ene_found |= 1<<q;

@@ -226,8 +226,8 @@ class npc {
 	// @zasm_var NPCDD
 	internal untyped Attributes[];
 
-	// @zasm_var NPCMFLAGS
-	internal int MiscFlags;
+	// @zasm_var NPCFLAGS
+	internal bool Flags[]
 
 	// @zasm_var NPCCOLLDET
 	internal bool CollDetection;

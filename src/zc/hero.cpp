@@ -31911,7 +31911,7 @@ void HeroClass::ganon_intro()
             
             for(int32_t i=0; i<eMAXGUYS; i++)
             {
-                if(guysbuf[i].flags2&guy_ganon)
+                if(guysbuf[i].flags&guy_ganon)
                 {
                     Id=i;
                     break;

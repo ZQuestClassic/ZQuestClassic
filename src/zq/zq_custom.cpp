@@ -4963,10 +4963,10 @@ void edit_enemydata(int32_t index)
 						   : guysbuf[index].flags & guy_fade_flicker ? 1 : 0);
 						   
 	for(int32_t i=0; i<16; i++)
-		enedata_dlg[106+i].flags = (guysbuf[index].flags2 & (1<<i)) ? D_SELECTED : 0;
+		enedata_dlg[106+i].flags = (guysbuf[index].flags & (1<<i)) ? D_SELECTED : 0;
 	
 	for(int32_t i=0; i<16; i++)
-		enedata_dlg[399+i].flags = (guysbuf[index].flags2 & (1<<(i+16))) ? D_SELECTED : 0;
+		enedata_dlg[399+i].flags = (guysbuf[index].flags & (1<<(i+16))) ? D_SELECTED : 0;
 	
 	enedata_dlg[371].flags = (guysbuf[index].moveflags & move_obeys_grav) ? D_SELECTED : 0;
 	enedata_dlg[372].flags = (guysbuf[index].moveflags & move_can_pitfall) ? D_SELECTED : 0;
@@ -5184,10 +5184,10 @@ void edit_enemydata(int32_t index)
 		test.flags |= (guy_flags)(enedata_dlg[186].d1==2 ? guy_fade_instant : enedata_dlg[186].d1==1 ? guy_fade_flicker : 0);
 		
 		for(int32_t i=0; i<16; i++)
-			test.flags2 |= (guy_flags2)((enedata_dlg[106+i].flags & D_SELECTED) ? (1<<i) : 0);
+			test.flags |= (guy_flags)((enedata_dlg[106+i].flags & D_SELECTED) ? (1<<i) : 0);
 		
 		for(int32_t i=0; i<16; i++)
-			test.flags2 |= (guy_flags2)((enedata_dlg[399+i].flags & D_SELECTED) ? (1<<(i+16)) : 0);
+			test.flags |= (guy_flags)((enedata_dlg[399+i].flags & D_SELECTED) ? (1<<(i+16)) : 0);
 			
 		if(enedata_dlg[143].flags & D_SELECTED)
 		{
@@ -5426,184 +5426,185 @@ int32_t readonenpc(PACKFILE *f, int32_t index)
 	}
 	
 	//section data
-	if(!p_igetl(&tempguy.flags,f))
-			{
-			return 0;
-			}
+	uint32_t flags1;
+	uint32_t flags2;
+	if (!p_igetl(&(flags1), f))
+	{
+		return qe_invalid;
+	}
+	if (!p_igetl(&(flags2), f))
+	{
+		return qe_invalid;
+	}
+	tempguy.flags = guy_flags(flags1) | guy_flags(uint64_t(flags2) << 32ULL);
+
+	if(!p_igetl(&tempguy.tile,f))
+	{
+	return 0;
+	}
 			
-			if(!p_igetl(&tempguy.flags2,f))
-			{
-			return 0;
-			}
+	if(!p_getc(&tempguy.width,f))
+	{
+	return 0;
+	}
+
+	if(!p_getc(&tempguy.height,f))
+	{
+	return 0;
+	}
+
+	if(!p_igetl(&tempguy.s_tile,f))
+	{
+	return 0;
+	}
+
+	if(!p_getc(&tempguy.s_width,f))
+	{
+	return 0;
+	}
+
+	if(!p_getc(&tempguy.s_height,f))
+	{
+	return 0;
+	}
+
+	if(!p_igetl(&tempguy.e_tile,f))
+	{
+	return 0;
+	}
+
+	if(!p_getc(&tempguy.e_width,f))
+	{
+	return 0;
+	}
+
+	if(!p_getc(&tempguy.e_height,f))
+	{
+	return 0;
+	}
+
+	if(!p_igetw(&tempguy.hp,f))
+	{
+	return 0;
+	}
+
+	if(!p_igetw(&tempguy.family,f))
+	{
+	return 0;
+	}
+
+	if(!p_igetw(&tempguy.cset,f))
+	{
+	return 0;
+	}
+
+	if(!p_igetw(&tempguy.anim,f))
+	{
+	return 0;
+	}
+
+	if(!p_igetw(&tempguy.e_anim,f))
+	{
+	return 0;
+	}
+
+	if(!p_igetw(&tempguy.frate,f))
+	{
+	return 0;
+	}
+
+	if(!p_igetw(&tempguy.e_frate,f))
+	{
+	return 0;
+	}
+
+	if(!p_igetw(&tempguy.dp,f))
+	{
+	return 0;
+	}
+
+	if(!p_igetw(&tempguy.wdp,f))
+	{
+	return 0;
+	}
+
+	if(!p_igetw(&tempguy.weapon,f))
+	{
+	return 0;
+	}
+
+	if(!p_igetw(&tempguy.rate,f))
+	{
+	return 0;
+	}
+
+	if(!p_igetw(&tempguy.hrate,f))
+	{
+	return 0;
+	}
+
+	if(!p_igetw(&tempguy.step,f))
+	{
+	return 0;
+	}
+
+	if(!p_igetw(&tempguy.homing,f))
+	{
+	return 0;
+	}
+
+	if(!p_igetw(&tempguy.grumble,f))
+	{
+	return 0;
+	}
+
+	if(!p_igetw(&tempguy.item_set,f))
+	{
+	return 0;
+	}
+
+	if(!p_igetw(&tempguy.bgsfx,f))
+	{
+	return 0;
+	}
+
+	if(!p_igetw(&tempguy.bosspal,f))
+	{
+	return 0;
+	}
+
+	if(!p_igetw(&tempguy.extend,f))
+	{
+	return 0;
+	}
+
+	for(int32_t j=0; j < edefLAST; j++)
+	{
+	if(!p_getc(&tempguy.defense[j],f))
+	{
+		return 0;
+	}
+	}
 			
-			if(!p_igetl(&tempguy.tile,f))
-			{
-			return 0;
-			}
+	if(!p_getc(&tempguy.hitsfx,f))
+	{
+	return 0;
+	}
 			
-			if(!p_getc(&tempguy.width,f))
-			{
-			return 0;
-			}
+	if(!p_getc(&tempguy.deadsfx,f))
+	{
+	return 0;
+	}
 			
-			if(!p_getc(&tempguy.height,f))
-			{
-			return 0;
-			}
+	if(!p_igetl(&tempguy.attributes[10],f))
+	{
+	return 0;
+	}
 			
-			if(!p_igetl(&tempguy.s_tile,f))
-			{
-			return 0;
-			}
-			
-			if(!p_getc(&tempguy.s_width,f))
-			{
-			return 0;
-			}
-			
-			if(!p_getc(&tempguy.s_height,f))
-			{
-			return 0;
-			}
-			
-			if(!p_igetl(&tempguy.e_tile,f))
-			{
-			return 0;
-			}
-			
-			if(!p_getc(&tempguy.e_width,f))
-			{
-			return 0;
-			}
-			
-			if(!p_getc(&tempguy.e_height,f))
-			{
-			return 0;
-			}
-			
-			if(!p_igetw(&tempguy.hp,f))
-			{
-			return 0;
-			}
-			
-			if(!p_igetw(&tempguy.family,f))
-			{
-			return 0;
-			}
-			
-			if(!p_igetw(&tempguy.cset,f))
-			{
-			return 0;
-			}
-			
-			if(!p_igetw(&tempguy.anim,f))
-			{
-			return 0;
-			}
-			
-			if(!p_igetw(&tempguy.e_anim,f))
-			{
-			return 0;
-			}
-			
-			if(!p_igetw(&tempguy.frate,f))
-			{
-			return 0;
-			}
-			
-			if(!p_igetw(&tempguy.e_frate,f))
-			{
-			return 0;
-			}
-			
-			if(!p_igetw(&tempguy.dp,f))
-			{
-			return 0;
-			}
-			
-			if(!p_igetw(&tempguy.wdp,f))
-			{
-			return 0;
-			}
-			
-			if(!p_igetw(&tempguy.weapon,f))
-			{
-			return 0;
-			}
-			
-			if(!p_igetw(&tempguy.rate,f))
-			{
-			return 0;
-			}
-			
-			if(!p_igetw(&tempguy.hrate,f))
-			{
-			return 0;
-			}
-			
-			if(!p_igetw(&tempguy.step,f))
-			{
-			return 0;
-			}
-			
-			if(!p_igetw(&tempguy.homing,f))
-			{
-			return 0;
-			}
-			
-			if(!p_igetw(&tempguy.grumble,f))
-			{
-			return 0;
-			}
-			
-			if(!p_igetw(&tempguy.item_set,f))
-			{
-			return 0;
-			}
-			
-			if(!p_igetw(&tempguy.bgsfx,f))
-			{
-			return 0;
-			}
-			
-			if(!p_igetw(&tempguy.bosspal,f))
-			{
-			return 0;
-			}
-			
-			if(!p_igetw(&tempguy.extend,f))
-			{
-			return 0;
-			}
-			
-			for(int32_t j=0; j < edefLAST; j++)
-			{
-			if(!p_getc(&tempguy.defense[j],f))
-			{
-			   return 0;
-			}
-			}
-			
-			if(!p_getc(&tempguy.hitsfx,f))
-			{
-			return 0;
-			}
-			
-			if(!p_getc(&tempguy.deadsfx,f))
-			{
-			return 0;
-			}
-			
-			if(!p_igetl(&tempguy.attributes[10],f))
-			{
-			return 0;
-			}
-			
-			if(!p_igetl(&tempguy.attributes[11],f))
-			{
-			return 0;
-			}
-			
+	if(!p_igetl(&tempguy.attributes[11],f))
+	{
+	return 0;
+	}
 	
 	if ( zversion >= 0x255 )
 	{
@@ -5810,16 +5811,17 @@ int32_t writeonenpc(PACKFILE *f, int32_t i)
 				new_return(5);
 			}
 		
-	   if(!p_iputl(guysbuf[i].flags,f))
+		uint32_t flags1 = uint32_t(guysbuf[i].flags);
+		uint32_t flags2 = uint32_t(guysbuf[i].flags >> 32ULL);
+		if (!p_iputl(flags1, f))
 		{
-		return 0;
+			return 0;
 		}
-		
-		if(!p_iputl(guysbuf[i].flags2,f))
+		if (!p_iputl(flags2, f))
 		{
-		return 0;
+			return 0;
 		}
-		
+
 		if(!p_iputl(guysbuf[i].tile,f))
 		{
 		return 0;

@@ -1958,7 +1958,7 @@ void delete_fireball_shooter(mapscr *s, int32_t i)
     for(int32_t j=0; j<guys.Count(); j++)
     {
         // Finds the smallest enemy ID
-        if((int32_t(guys.spr(j)->x)==cx)&&(int32_t(guys.spr(j)->y)==cy)&&(guysbuf[(guys.spr(j)->id)&0xFFF].flags2 & guy_fire))
+        if((int32_t(guys.spr(j)->x)==cx)&&(int32_t(guys.spr(j)->y)==cy)&&(guysbuf[(guys.spr(j)->id)&0xFFF].flags & guy_fire))
         {
             guys.del(j);
         }

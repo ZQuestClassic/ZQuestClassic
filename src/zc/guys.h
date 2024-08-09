@@ -56,7 +56,6 @@ public:
 	zfix  step, floor_y;
 
 	guy_flags flags;
-	guy_flags2 flags2;
 	
 	int16_t  family, dcset, anim;
 	int16_t  dp, wdp, wpn;

@@ -8,11 +8,8 @@ class npcdata {
 	// @zasm_var NPCDATATILE
 	internal int Tile;
 
-	// @zasm_var NPCDATAFLAGS
-	internal int Flags;
-
-	// @zasm_var NPCDATAFLAGS2
-	internal int Flags2;
+	// @zasm_var NPCFLAGS
+	internal bool Flags[];
 
 	// The 'width' (W) of base tile used by the enemy.
 	//
