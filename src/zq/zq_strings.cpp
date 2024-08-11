@@ -9,6 +9,7 @@
 #include "base/zc_alleg.h"
 #include "base/zdefs.h"
 #include "base/msgstr.h"
+#include "zc/ffscript.h"
 #include "zq/zq_custom.h"
 #include "zq/zq_misc.h"
 #include "zq/zq_tiles.h"

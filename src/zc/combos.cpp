@@ -13,6 +13,7 @@
 #include "zc/title.h"
 #include "base/mapscr.h"
 #include "base/misctypes.h"
+#include "zscriptversion.h"
 
 extern sprite_list items, decorations;
 extern FFScript FFCore;

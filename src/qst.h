@@ -2,13 +2,11 @@
 #define ZC_QST_H_
 
 #include "base/zdefs.h"
-#include "subscr.h"
-#include "zscriptversion.h"
+#include "items.h"
+#include "new_subscr.h"
 
 struct miscQdata;
-
-#include "zc/ffscript.h"
-extern FFScript ffengine;
+struct MsgStr;
 
 struct script_slot_data
 {

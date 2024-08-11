@@ -11,6 +11,7 @@
 #include "base/combo.h"
 #include "base/msgstr.h"
 #include "base/zdefs.h"
+#include "subscr.h"
 #include "zq/zquestdat.h"
 #include "zq/zq_tiles.h"
 #include "zq/zquest.h"

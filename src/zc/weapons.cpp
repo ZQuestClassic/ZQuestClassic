@@ -18,6 +18,7 @@
 #include "base/mapscr.h"
 #include "base/misctypes.h"
 #include "base/initdata.h"
+#include "zscriptversion.h"
 
 #ifndef IS_EDITOR
 #include "zc/render.h"
