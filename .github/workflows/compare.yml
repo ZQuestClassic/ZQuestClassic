@@ -56,7 +56,7 @@ jobs:
               let fs = require('fs');
               fs.writeFileSync(`${process.env.GITHUB_WORKSPACE}/test-results/${artifact.name}.zip`, Buffer.from(download.data));
             }
-      - run: for f in *.zip; do unzip $f -d ${f%.*}; done
+      - run: shopt -s nullglob; for f in *.zip; do unzip $f -d ${f%.*}; done
         working-directory: test-results
 
       - name: Collect baseline
