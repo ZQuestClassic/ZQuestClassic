@@ -224,5 +224,11 @@ stdout:
       "severity": 1,
       "message": "S097: 'auto' must have an initializer with valid type to mimic."
     }
-  ]
+  ],
+  "metadata": {
+    "currentFileSymbols": 25,
+    "symbols": 27,
+    "identifiers": 46,
+    "elided": true
+  }
 }

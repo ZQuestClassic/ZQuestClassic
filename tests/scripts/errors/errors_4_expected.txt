@@ -164,5 +164,11 @@ stdout:
       "severity": 1,
       "message": "T021: Function Max(int) has not been declared."
     }
-  ]
+  ],
+  "metadata": {
+    "currentFileSymbols": 18,
+    "symbols": 18,
+    "identifiers": 47,
+    "elided": true
+  }
 }

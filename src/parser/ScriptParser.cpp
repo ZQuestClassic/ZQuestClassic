@@ -79,6 +79,15 @@ extern bool zscript_error_out;
 extern bool delay_asserts, ignore_asserts;
 vector<ZScript::BasicCompileError> casserts;
 
+static void _fill_metadata(std::string filename, Program* program, ScriptsData* result)
+{
+	zscript_error_out = false;
+	MetadataVisitor md(*program, filename);
+	if (zscript_error_out || md.hasFailed()) return;
+
+	result->metadata = md.takeOutput();
+}
+
 static unique_ptr<ScriptsData> _compile_helper(string const& filename, bool include_metadata)
 {
 	using namespace ZScript;
@@ -123,22 +132,33 @@ static unique_ptr<ScriptsData> _compile_helper(string const& filename, bool incl
 		zconsole_idle();
 
 		RegistrationVisitor regVisitor(program);
-		if(regVisitor.hasFailed()) return result;
-		if(zscript_error_out) return result;
+		if (zscript_error_out || regVisitor.hasFailed())
+		{
+			if (include_metadata)
+				_fill_metadata(filename, &program, result.get());
+			return result;	
+		} 
 
 		zconsole_info("%s", "Pass 4: Analyzing Code");
 		zconsole_idle();
 
+		// TODO: figure out how to make this continue even after a strict error, for purposes
+		// of metadata. Otherwise can't do 'Go To Definition' past the first strict error.
 		SemanticAnalyzer semanticAnalyzer(program);
-		if (semanticAnalyzer.hasFailed() || regVisitor.hasFailed())
+		if (zscript_error_out || semanticAnalyzer.hasFailed() || regVisitor.hasFailed())
+		{
+			if (include_metadata)
+				_fill_metadata(filename, &program, result.get());
 			return result;
-		if(zscript_error_out) return result;
+		}
 
 		FunctionData fd(program);
 		if(zscript_error_out) return result;
 		if (fd.globalVariables.size() > MAX_SCRIPT_REGISTERS)
 		{
 			log_error(CompileError::TooManyGlobal(NULL));
+			if (include_metadata)
+				_fill_metadata(filename, &program, result.get());
 			return result;
 		}
 
@@ -146,35 +166,46 @@ static unique_ptr<ScriptsData> _compile_helper(string const& filename, bool incl
 		zconsole_idle();
 		
 		ReturnVisitor rv(program);
-		if(zscript_error_out) return result;
-		if(rv.hasFailed()) return result;
+		if (zscript_error_out || rv.hasFailed())
+		{
+			if (include_metadata)
+				_fill_metadata(filename, &program, result.get());
+			return result;
+		}
 		
 		zconsole_info("%s", "Pass 6: Generating object code");
 		zconsole_idle();
 
 		unique_ptr<IntermediateData> id(ScriptParser::generateOCode(fd));
-		if (!id.get())
+		if (zscript_error_out || !id.get())
+		{
+			if (include_metadata)
+				_fill_metadata(filename, &program, result.get());
 			return result;
-		if(zscript_error_out) return result;
+		}
 		
 		zconsole_info("%s", "Pass 7: Assembling");
 		zconsole_idle();
 
 		ScriptParser::assemble_err = false;
 		ScriptParser::assemble(id.get());
-		if (ScriptParser::assemble_err) return result;
+		if (ScriptParser::assemble_err)
+		{
+			if (include_metadata)
+				_fill_metadata(filename, &program, result.get());
+			return result;
+		}
 
 		result->fillFromProgram(program);
-		if(!ignore_asserts && casserts.size()) return result;
-		if(zscript_error_out) return result;
+		if (zscript_error_out || (!ignore_asserts && casserts.size()))
+		{
+			if (include_metadata)
+				_fill_metadata(filename, &program, result.get());
+			return result;
+		}
 
 		if (include_metadata)
-		{
-			MetadataVisitor md(program, filename);
-			if(zscript_error_out) return result;
-			if(rv.hasFailed()) return result;
-			result->metadata = md.takeOutput();
-		}
+			_fill_metadata(filename, &program, result.get());
 
 		zconsole_info("%s", "Success!");
 		result->success = true;

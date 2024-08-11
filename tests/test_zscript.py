@@ -69,17 +69,6 @@ class TestZScript(ZCTestCase):
         stderr = p.stderr.replace(str(script_path), script_path.name).strip()
         stdout = p.stdout.replace(str(script_path), script_path.name)
 
-        if p.returncode:
-            return f'stderr:\n\n{stderr}\n\nstdout:\n\n{stdout}\n'
-
-        zasm = zasm_path.read_text()
-
-        # Remove the metadata (ex: `#ZASM_VERSION`) from ZASM.
-        # This metadata is unrelated to the -metadata switch.
-        zasm = '\n'.join(
-            [l.strip() for l in zasm.splitlines() if not l.startswith('#')]
-        ).strip()
-
         # Run the compiler '-metadata' for every script for coverage, but only keep
         # the full results in the stdout for this one script.
         elide_metadata = script_path.name != 'metadata.zs'
@@ -94,18 +83,30 @@ class TestZScript(ZCTestCase):
                 return c
 
         data = parse_json(stdout)
-        metadata = data["metadata"]
-        if elide_metadata:
-            metadata['currentFileSymbols'] = recursive_len(
-                metadata['currentFileSymbols']
-            )
-            metadata['symbols'] = len(metadata['symbols'])
-            metadata['identifiers'] = len(metadata['identifiers'])
-            metadata['elided'] = True
-        else:
-            for symbol in metadata['symbols'].values():
-                symbol['loc']['uri'] = 'URI'
-        stdout = json.dumps(data, indent=2)
+        metadata = data.get('metadata')
+        if metadata:
+            if elide_metadata:
+                metadata['currentFileSymbols'] = recursive_len(
+                    metadata['currentFileSymbols']
+                )
+                metadata['symbols'] = len(metadata['symbols'])
+                metadata['identifiers'] = len(metadata['identifiers'])
+                metadata['elided'] = True
+            else:
+                for symbol in metadata['symbols'].values():
+                    symbol['loc']['uri'] = 'URI'
+            stdout = json.dumps(data, indent=2)
+
+        if p.returncode:
+            return f'stderr:\n\n{stderr}\n\nstdout:\n\n{stdout}\n'
+
+        zasm = zasm_path.read_text()
+
+        # Remove the metadata (ex: `#ZASM_VERSION`) from ZASM.
+        # This metadata is unrelated to the -metadata switch.
+        zasm = '\n'.join(
+            [l.strip() for l in zasm.splitlines() if not l.startswith('#')]
+        ).strip()
 
         return f'stderr:\n\n{stderr}\n\nstdout:\n\n{stdout}\n\nzasm:\n\n{zasm}\n'
 

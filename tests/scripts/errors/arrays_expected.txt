@@ -164,5 +164,11 @@ stdout:
       "severity": 2,
       "message": "S108: Array mismatch for types untyped[] and lweapon"
     }
-  ]
+  ],
+  "metadata": {
+    "currentFileSymbols": 18,
+    "symbols": 23,
+    "identifiers": 45,
+    "elided": true
+  }
 }
