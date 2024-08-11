@@ -1,9 +1,9 @@
-#include "base/zdefs.h"
 #include "slopes.h"
-#include "zc/maps.h"
-#include "base/zc_math.h"
-#include "sprite.h"
 #include "base/combo.h"
+#include "base/zc_math.h"
+#include "ffc.h"
+#include "sprite.h"
+#include "zc/maps.h"
 
 std::map<int32_t, slope_object> slopes;
 
@@ -525,7 +525,3 @@ void slope_push_int(slope_info const& s, solid_object* obj, zfix& dx, zfix& dy, 
 	dx += (rx - orx);
 	dy += (ry - ory);
 }
-
-
-
-
