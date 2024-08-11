@@ -10,6 +10,7 @@
 #include "base/dmap.h"
 #include "base/combo.h"
 #include "base/msgstr.h"
+#include "base/flags.h"
 #include <filesystem>
 #include <memory>
 #include <optional>
@@ -9764,7 +9765,7 @@ void init_guys(int32_t guyversion)
             {
                 if(i==eROPE2)
                 {
-                    guysbuf[i].flags2 &= ~guy_flashing;
+                    guysbuf[i].flags &= ~guy_flashing;
                 }
             }
             
@@ -9772,7 +9773,7 @@ void init_guys(int32_t guyversion)
             {
                 if(i==eBUBBLEST || i==eBUBBLESP || i==eBUBBLESR || i==eBUBBLEIT || i==eBUBBLEIP || i==eBUBBLEIR)
                 {
-                    guysbuf[i].flags2 &= ~guy_flashing;
+                    guysbuf[i].flags &= ~guy_flashing;
                 }
             }
             
@@ -9780,18 +9781,18 @@ void init_guys(int32_t guyversion)
             {
                 if(get_bit(deprecated_rules, qr_GHINI2BLINK_DEP))
                 {
-                    guysbuf[i].flags2 |= guy_blinking;
+                    guysbuf[i].flags |= guy_blinking;
                 }
                 
                 if(get_bit(deprecated_rules, qr_PHANTOMGHINI2_DEP))
                 {
-                    guysbuf[i].flags2 |= guy_transparent;
+                    guysbuf[i].flags |= guy_transparent;
                 }
             }
 
 			if (i == eDIG1 || i == eDIG3)
 			{
-				guysbuf[i].flags2 |= guy_ignore_kill_all;
+				guysbuf[i].flags |= guy_ignore_kill_all;
 			}
         }
         
@@ -13579,15 +13580,17 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
             
             memset(&tempguy, 0, sizeof(guydata));
             
-            if(!p_igetl(&(tempguy.flags),f))
+			uint32_t flags1;
+			uint32_t flags2;
+            if(!p_igetl(&(flags1),f))
             {
                 return qe_invalid;
             }
-            
-            if(!p_igetl(&(tempguy.flags2),f))
-            {
-                return qe_invalid;
-            }
+			if(!p_igetl(&(flags2),f))
+			{
+				return qe_invalid;
+			}
+			tempguy.flags = guy_flags(flags1) | guy_flags(uint64_t(flags2)<<32ULL);
             
 	    if ( guyversion >= 36 ) //expanded tiles
 	    {
@@ -14488,7 +14491,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
                 {
                     if(tempguy.family==eeROPE)
                     {
-                        tempguy.flags2 &= ~guy_flashing;
+                        tempguy.flags &= ~guy_flashing;
                     }
                 }
                 
@@ -14496,7 +14499,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
                 {
                     if(tempguy.family==eeBUBBLE)
                     {
-                        tempguy.flags2 &= ~guy_flashing;
+                        tempguy.flags &= ~guy_flashing;
                     }
                 }
                 
@@ -14504,12 +14507,12 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
                 {
                     if(get_bit(deprecated_rules, qr_GHINI2BLINK_DEP))
                     {
-                        tempguy.flags2 |= guy_blinking;
+                        tempguy.flags |= guy_blinking;
                     }
                     
                     if(get_bit(deprecated_rules, qr_PHANTOMGHINI2_DEP))
                     {
-                        tempguy.flags2 |= guy_transparent;
+                        tempguy.flags |= guy_transparent;
                     }
                 }
             }
@@ -14600,7 +14603,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
                 }
                 
                 // Spawn animation flags
-                if(tempguy.family == eeWALK && (tempguy.flags2&guy_armos || tempguy.flags2&guy_ghini))
+                if(tempguy.family == eeWALK && (tempguy.flags&guy_armos || tempguy.flags&guy_ghini))
                     tempguy.flags |= guy_fade_flicker;
                 else
                     tempguy.flags &= (guy_flags)0x0F00000F; // Get rid of the unused flags!
@@ -14833,7 +14836,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 			{
 				if (tempguy.family == eeDIG && tempguy.attributes[9]!=1)
 				{
-					tempguy.flags2 |= guy_ignore_kill_all;
+					tempguy.flags |= guy_ignore_kill_all;
 				}
 			}
 
