@@ -1,10 +1,8 @@
 #ifndef SUBSCR_H_
 #define SUBSCR_H_
 
-#include "sprite.h"
-#include "items.h"
 #include "new_subscr.h"
-#include <stdio.h>
+#include "base/zc_alleg.h"
 
 #define ssflagSHOWGRID  1
 #define ssflagSHOWINVIS 2
