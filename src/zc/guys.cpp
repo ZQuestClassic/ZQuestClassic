@@ -9437,7 +9437,7 @@ bool eTrap::trapmove(int32_t ndir)
 {
 	if(get_qr(qr_MEANTRAPS))
 	{
-		if(tmpscr->flags&fFLOATTRAPS)
+		if(tmpscr->flags2&fFLOATTRAPS)
 			return canmove(ndir,(zfix)1,spw_floater, 0, 0, 15, 15,false);
 			
 		return canmove(ndir,(zfix)1,spw_water, 0, 0, 15, 15,false);
