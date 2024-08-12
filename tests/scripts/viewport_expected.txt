@@ -1,3 +1,5 @@
+stderr:
+
 Compiling 'viewport.zs'
 Pass 1: Parsing
 Pass 2: Preprocessing
@@ -8,12 +10,22 @@ Pass 6: Generating object code
 Pass 7: Assembling
 Success!
 Compile finished with exit code '0' (success)
-=== METADATA (elided)
+
+stdout:
+
 {
-  "currentFileSymbols": 5,
-  "symbols": 16,
-  "identifiers": 31
+  "success": true,
+  "diagnostics": [],
+  "metadata": {
+    "currentFileSymbols": 5,
+    "symbols": 16,
+    "identifiers": 31,
+    "elided": true
+  }
 }
+
+zasm:
+
 PUSHARGSV 0 0.0004; void run() Body Start
 SETR D4 SP2
 STOREV 20 0.0002

@@ -14,20 +14,14 @@ Compile finished with exit code '0' (success)
 stdout:
 
 {
-<<<<<<< HEAD
-  "currentFileSymbols": 4,
-  "symbols": 23,
-  "identifiers": 41
-=======
   "success": true,
   "diagnostics": [],
   "metadata": {
     "currentFileSymbols": 4,
-    "symbols": 20,
-    "identifiers": 33,
+    "symbols": 23,
+    "identifiers": 41,
     "elided": true
   }
->>>>>>> upstream/main
 }
 
 zasm:

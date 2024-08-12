@@ -14,20 +14,14 @@ Compile finished with exit code '0' (success)
 stdout:
 
 {
-<<<<<<< HEAD
-  "currentFileSymbols": 56,
-  "symbols": 108,
-  "identifiers": 302
-=======
   "success": true,
   "diagnostics": [],
   "metadata": {
     "currentFileSymbols": 56,
-    "symbols": 113,
+    "symbols": 112,
     "identifiers": 306,
     "elided": true
   }
->>>>>>> upstream/main
 }
 
 zasm:
@@ -283,37 +277,22 @@ PUSHR D2
 POP D0
 SETR D2 FFRULE
 COMPAREV D2 0
-<<<<<<< HEAD
-GOTOCMP 259 ==; Test 'if'
-LOAD D2 0; InlineFunc[bitmap Game::CreateBitmap(int, int)] Params Start AND return Start AND if() #163 Body Start
-=======
 GOTOCMP 261 ==; Test 'if'
-LOAD D2 0; InlineFunc[bitmap Game::CreateBitmap(int, int)] Params Start AND return Start AND if() #160 Body Start
->>>>>>> upstream/main
+LOAD D2 0; InlineFunc[bitmap Game::CreateBitmap(int, int)] Params Start AND return Start AND if() #163 Body Start
 PUSHR D2
 LOAD D2 0.0001
 SETR D1 D2; InlineFunc[bitmap Game::CreateBitmap(int, int)] Params End
 POP D0; InlineFunc[bitmap Game::CreateBitmap(int, int)] Body Start
 SETR D2 CREATEBITMAP; InlineFunc[bitmap Game::CreateBitmap(int, int)] Body End
-<<<<<<< HEAD
-GOTO 267; return End
-GOTO 266; if() #163 Body End
-LOAD D2 0.0001; InlineFunc[bitmap Game::CreateBitmap(int, int)] Params Start AND return Start AND if() #163 Else Start
-=======
 GOTO 269; return End
-GOTO 268; if() #160 Body End
-LOAD D2 0.0001; InlineFunc[bitmap Game::CreateBitmap(int, int)] Params Start AND return Start AND if() #160 Else Start
->>>>>>> upstream/main
+GOTO 268; if() #163 Body End
+LOAD D2 0.0001; InlineFunc[bitmap Game::CreateBitmap(int, int)] Params Start AND return Start AND if() #163 Else Start
 PUSHR D2
 LOAD D2 0
 SETR D1 D2; InlineFunc[bitmap Game::CreateBitmap(int, int)] Params End
 POP D0; InlineFunc[bitmap Game::CreateBitmap(int, int)] Body Start
 SETR D2 CREATEBITMAP; InlineFunc[bitmap Game::CreateBitmap(int, int)] Body End
-<<<<<<< HEAD
-GOTO 267; return End AND if() #163 Else End
-=======
-GOTO 269; return End AND if() #160 Else End
->>>>>>> upstream/main
+GOTO 269; return End AND if() #163 Else End
 REF_AUTORELEASE D2
 POPARGS D5 0.0002
 RETURNFUNC; Func[bitmap create(int, int)] Body End
