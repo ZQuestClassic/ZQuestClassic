@@ -1,3 +1,5 @@
+stderr:
+
 Compiling 'z3.zs'
 Pass 1: Parsing
 Pass 2: Preprocessing
@@ -8,12 +10,28 @@ Pass 6: Generating object code
 Pass 7: Assembling
 Success!
 Compile finished with exit code '0' (success)
-=== METADATA (elided)
+
+stdout:
+
 {
+<<<<<<< HEAD
   "currentFileSymbols": 4,
   "symbols": 23,
   "identifiers": 41
+=======
+  "success": true,
+  "diagnostics": [],
+  "metadata": {
+    "currentFileSymbols": 4,
+    "symbols": 20,
+    "identifiers": 33,
+    "elided": true
+  }
+>>>>>>> upstream/main
 }
+
+zasm:
+
 PUSHR D0; void run(int, int) Params
 PUSHR D1
 PUSHR REFFFC; void run(int, int) Body Start

@@ -13,8 +13,6 @@ extern RGB_MAP rgb_table;
 extern COLOR_MAP trans_table;
 extern itemdata   *itemsbuf;
 extern wpndata    *wpnsbuf;
-//extern byte *tilebuf;
-//BITMAP* tilebuf[NEWMAXTILES];
 tiledata *newtilebuf, *grabtilebuf;
 int32_t animated_combo_table[MAXCOMBOS][2];                    //[0]=position in act2, [1]=original tile
 int32_t animated_combo_table4[MAXCOMBOS][2];                   //[0]=combo, [1]=clock
@@ -36,7 +34,6 @@ extern bool is_z3_scrolling_mode();
 
 bool isblanktile(tiledata *buf, int32_t i)
 {
-    //  byte *tilestart=tilebuf+(i*128);
     byte *tilestart=buf[i].data;
     qword *di=(qword*)tilestart;
     int32_t parts=tilesize(buf[i].format)>>3;
@@ -55,7 +52,7 @@ bool isblanktile(tiledata *buf, int32_t i)
 
 const char *tileformat_string[tfMax] =
 {
-    "(Invalid)", "4-bit", "8-bit", "16-bit", "24-bit", "32-bit"
+    "(Invalid)", "4-bit", "8-bit", "16-bit (unsupported)", "24-bit (unsupported)", "32-bit (unsupported)"
 };
 
 void register_blank_tile_quarters(int32_t tile)
@@ -86,10 +83,8 @@ void register_blank_tile_quarters(int32_t tile)
 
 void register_blank_tiles()
 {
-    //int32_t tiles_used=count_tiles(newtilebuf);
     for(int32_t i=0; i<NEWMAXTILES; ++i)
     {
-	    //al_trace("Registering a blank tile\n");
         register_blank_tile_quarters(i);
         blank_tile_table[i]=isblanktile(newtilebuf, i);
     }
@@ -97,10 +92,8 @@ void register_blank_tiles()
 
 void register_blank_tiles(int32_t max)
 {
-    //int32_t tiles_used=count_tiles(newtilebuf);
     for(int32_t i=0; i<max; ++i)
     {
-	    //al_trace("Registering a blank tile, iteration: \n", i);
         register_blank_tile_quarters(i);
         blank_tile_table[i]=isblanktile(newtilebuf, i);
     }
@@ -111,22 +104,8 @@ int32_t count_tiles(tiledata *buf)
 {
     int32_t tiles_used;
     
-    //  bool used;
-    //  int32_t x;
     for(tiles_used=(NEWMAXTILES); tiles_used>0; --tiles_used)
     {
-        /*
-          used=false;
-          for (x=0; x<128; ++x)
-          {
-          used=used || (tilebuf[(tiles_used-1)*128+x]!=0);
-          }
-          if (used)
-          {
-          break;
-          }
-          */
-	    //al_trace("count_tiles() is checking if tile %d is blank.\n", tiles_used-1);
         if(!isblanktile(buf, tiles_used-1))
         {
             break;
@@ -1899,9 +1878,6 @@ void puttile8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t
     //     draw_tile8_unified(dest, cl, ct, cr, cb, si, x, y, cset, flip, false);
     //     return;
     // }
-
-    //  to go to 24-bit color, do this kind of thing...
-    //  ((int32_t *)bmp->line[y])[x] = color;
     
     switch(flip&3)
     {

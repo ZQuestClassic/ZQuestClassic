@@ -99,7 +99,8 @@ static std::optional<std::string> open_native_dialog_impl(FileMode mode, std::st
 	// entirely on Windows.
 	// At least with NFD, there's no way to simply "open at this folder" due to this behavior.
 	fs::path current_path = fs::current_path();
-	const char* initial_path_ = current_path.string().c_str();
+	std::string initial_path_str = current_path.string();
+	const char* initial_path_ = initial_path_str.c_str();
 #else
 	const char* initial_path_ = initial_path.c_str();
 #endif
@@ -161,7 +162,7 @@ static void trim_filename(std::string& path)
 	if (path.empty())
 		return;
 
-	size_t i = path.size();
+	int i = path.size();
 	while (i >= 0 && path[i] != '\\' && path[i] != '/')
 		path[i--] = 0;
 }

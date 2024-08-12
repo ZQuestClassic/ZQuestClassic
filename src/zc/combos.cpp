@@ -17,6 +17,7 @@
 #include "base/mapscr.h"
 #include "base/misctypes.h"
 #include "iter.h"
+#include "zscriptversion.h"
 
 extern sprite_list items, decorations;
 extern FFScript FFCore;
@@ -1363,7 +1364,7 @@ bool trigger_armos_grave(const rpos_handle_t& rpos_handle, int32_t trigdir)
 						id2=i;
 						
 						// This is mostly for backwards-compatability
-						if(guysbuf[i].family==eeWALK && guysbuf[i].misc9==e9tARMOS)
+						if(guysbuf[i].family==eeWALK && guysbuf[i].attributes[8] == e9tARMOS)
 						{
 							eclk=0;
 						}
@@ -1612,7 +1613,7 @@ bool trigger_armos_grave_ffc(const ffc_handle_t& ffc_handle, int32_t trigdir)
 						id2=i;
 						
 						// This is mostly for backwards-compatability
-						if(guysbuf[i].family==eeWALK && guysbuf[i].misc9==e9tARMOS)
+						if(guysbuf[i].family==eeWALK && guysbuf[i].attributes[8] == e9tARMOS)
 						{
 							eclk=0;
 						}

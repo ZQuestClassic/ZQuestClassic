@@ -10,7 +10,16 @@ env:
   PYTHONUNBUFFERED: "1"
 
 jobs:
+  # Get the LFS cache ready. This avoids every shard of each environment downloading the LFS objects
+  # at the same time on any change, which is bad for quota.
+  warm-lfs-cache:
+    runs-on: ubuntu-latest
+    steps:
+      - name: git clone
+        uses: connorjclark/action-cached-lfs-checkout@e9e548e0068e62830582e21febff8da4bd4e8ca5
+
   collect-coverage:
+    needs: warm-lfs-cache
     if: github.repository == 'ZQuestClassic/ZQuestClassic'
     # See https://github.com/community/community/discussions/40777
     # uses: ./.github/workflows/test.yml

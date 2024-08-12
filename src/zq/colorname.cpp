@@ -1,9 +1,10 @@
 #include "base/zdefs.h"
 #include "colorname.h"
-#include "base/util.h"
 #include <sstream>
 #include "zq/zquest.h"
 #include "tiles.h"
+
+// TODO: remove 6-bit numbers ("hex63") from this file.
 
 using std::map, std::string, std::vector, std::pair;
 
@@ -574,6 +575,7 @@ void init_color_names()
 	initialized = true;
 }
 
+// TODO: update to 8-bit numbers.
 std::string const& get_color_name(int r, int g, int b)
 {
 	init_color_names();
@@ -610,14 +612,14 @@ std::string const& get_color_name(int r, int g, int b)
 std::string const& get_color_name(int c, bool is8b)
 {
 	static std::string tmp;
-	tmp = get_color_name(RAMpal[c].r, RAMpal[c].g, RAMpal[c].b);
+	tmp = get_color_name(RAMpal[c].r / 4, RAMpal[c].g / 4, RAMpal[c].b / 4);
 	if(!(is8b ? c : c%16))
 		tmp += " (Trans)";
 	return tmp;
 }
 std::string const& get_color_name(int c)
 {
-	return get_color_name(RAMpal[c].r, RAMpal[c].g, RAMpal[c].b);
+	return get_color_name(RAMpal[c].r / 4, RAMpal[c].g / 4, RAMpal[c].b / 4);
 }
 
 void get_tile_colornames(int tile, int cs, map<string,int>& res)

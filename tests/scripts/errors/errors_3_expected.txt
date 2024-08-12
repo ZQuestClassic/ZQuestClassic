@@ -1,21 +1,234 @@
+stderr:
+
 Compiling 'errors_3.zs'
 Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-ZQ_BUFFER Line 13 @ Columns 13-19 - Error T017: Cannot cast from Object to int.
-ZQ_BUFFER Line 14 @ Columns 3-15 - Error T017: Cannot cast from int to Object.
-ZQ_BUFFER Line 15 @ Columns 7-14 - Error T017: Cannot cast from Object[] to int[].
-ZQ_BUFFER Line 16 @ Columns 10-17 - Error T017: Cannot cast from int[] to Object[].
-ZQ_BUFFER Line 17 @ Columns 10-18 - Error T017: Cannot cast from Object to Object[].
-ZQ_BUFFER Line 18 @ Columns 7-15 - Error T017: Cannot cast from Object[] to int[].
-ZQ_BUFFER Line 37 @ Columns 3-17 - Error C036: Variable enemy3 is constant and cannot be changed.
-ZQ_BUFFER Line 38 @ Columns 3-22 - Error T017: Cannot cast from Object[] to int[].
-ZQ_BUFFER Line 39 @ Columns 3-21 - Error C036: Variable enemies1[0] is constant and cannot be changed.
-ZQ_BUFFER Line 40 @ Columns 3-28 - Error C036: Variable enemies3[2] is constant and cannot be changed.
-ZQ_BUFFER Line 41 @ Columns 12-20 - Error S097: 'auto[][]' must have an initializer with type that is at least 2-depth array
-ZQ_BUFFER Line 42 @ Columns 16-24 - Error S097: 'auto[][][][]' must have an initializer with type that is at least 4-depth array
-ZQ_BUFFER Line 43 @ Columns 12-20 - Error S097: 'auto[][]' must have an initializer with type that is at least 2-depth array
-ZQ_BUFFER Line 44 @ Columns 8-9 - Error S097: 'auto' must have an initializer with valid type to mimic.
+errors_3.zs Line 13 @ Columns 13-19 - Error T017: Cannot cast from Object to int.
+errors_3.zs Line 14 @ Columns 3-15 - Error T017: Cannot cast from int to Object.
+errors_3.zs Line 15 @ Columns 7-14 - Error T017: Cannot cast from Object[] to int[].
+errors_3.zs Line 16 @ Columns 10-17 - Error T017: Cannot cast from int[] to Object[].
+errors_3.zs Line 17 @ Columns 10-18 - Error T017: Cannot cast from Object to Object[].
+errors_3.zs Line 18 @ Columns 7-15 - Error T017: Cannot cast from Object[] to int[].
+errors_3.zs Line 37 @ Columns 3-17 - Error C036: Variable enemy3 is constant and cannot be changed.
+errors_3.zs Line 38 @ Columns 3-22 - Error T017: Cannot cast from Object[] to int[].
+errors_3.zs Line 39 @ Columns 3-21 - Error C036: Variable enemies1[0] is constant and cannot be changed.
+errors_3.zs Line 40 @ Columns 3-28 - Error C036: Variable enemies3[2] is constant and cannot be changed.
+errors_3.zs Line 41 @ Columns 12-20 - Error S097: 'auto[][]' must have an initializer with type that is at least 2-depth array
+errors_3.zs Line 42 @ Columns 16-24 - Error S097: 'auto[][][][]' must have an initializer with type that is at least 4-depth array
+errors_3.zs Line 43 @ Columns 12-20 - Error S097: 'auto[][]' must have an initializer with type that is at least 2-depth array
+errors_3.zs Line 44 @ Columns 8-9 - Error S097: 'auto' must have an initializer with valid type to mimic.
 Failure!
 Compile finished with exit code '17' (compiled with errors)
+
+stdout:
+
+{
+  "success": false,
+  "code": 17,
+  "diagnostics": [
+    {
+      "range": {
+        "start": {
+          "line": 12,
+          "character": 12
+        },
+        "end": {
+          "line": 12,
+          "character": 18
+        }
+      },
+      "severity": 1,
+      "message": "T017: Cannot cast from Object to int."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 13,
+          "character": 2
+        },
+        "end": {
+          "line": 13,
+          "character": 14
+        }
+      },
+      "severity": 1,
+      "message": "T017: Cannot cast from int to Object."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 14,
+          "character": 6
+        },
+        "end": {
+          "line": 14,
+          "character": 13
+        }
+      },
+      "severity": 1,
+      "message": "T017: Cannot cast from Object[] to int[]."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 15,
+          "character": 9
+        },
+        "end": {
+          "line": 15,
+          "character": 16
+        }
+      },
+      "severity": 1,
+      "message": "T017: Cannot cast from int[] to Object[]."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 16,
+          "character": 9
+        },
+        "end": {
+          "line": 16,
+          "character": 17
+        }
+      },
+      "severity": 1,
+      "message": "T017: Cannot cast from Object to Object[]."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 17,
+          "character": 6
+        },
+        "end": {
+          "line": 17,
+          "character": 14
+        }
+      },
+      "severity": 1,
+      "message": "T017: Cannot cast from Object[] to int[]."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 36,
+          "character": 2
+        },
+        "end": {
+          "line": 36,
+          "character": 16
+        }
+      },
+      "severity": 1,
+      "message": "C036: Variable enemy3 is constant and cannot be changed."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 37,
+          "character": 2
+        },
+        "end": {
+          "line": 37,
+          "character": 21
+        }
+      },
+      "severity": 1,
+      "message": "T017: Cannot cast from Object[] to int[]."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 38,
+          "character": 2
+        },
+        "end": {
+          "line": 38,
+          "character": 20
+        }
+      },
+      "severity": 1,
+      "message": "C036: Variable enemies1[0] is constant and cannot be changed."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 39,
+          "character": 2
+        },
+        "end": {
+          "line": 39,
+          "character": 27
+        }
+      },
+      "severity": 1,
+      "message": "C036: Variable enemies3[2] is constant and cannot be changed."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 40,
+          "character": 11
+        },
+        "end": {
+          "line": 40,
+          "character": 19
+        }
+      },
+      "severity": 1,
+      "message": "S097: 'auto[][]' must have an initializer with type that is at least 2-depth array"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 41,
+          "character": 15
+        },
+        "end": {
+          "line": 41,
+          "character": 23
+        }
+      },
+      "severity": 1,
+      "message": "S097: 'auto[][][][]' must have an initializer with type that is at least 4-depth array"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 42,
+          "character": 11
+        },
+        "end": {
+          "line": 42,
+          "character": 19
+        }
+      },
+      "severity": 1,
+      "message": "S097: 'auto[][]' must have an initializer with type that is at least 2-depth array"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 43,
+          "character": 7
+        },
+        "end": {
+          "line": 43,
+          "character": 8
+        }
+      },
+      "severity": 1,
+      "message": "S097: 'auto' must have an initializer with valid type to mimic."
+    }
+  ],
+  "metadata": {
+    "currentFileSymbols": 25,
+    "symbols": 27,
+    "identifiers": 46,
+    "elided": true
+  }
+}

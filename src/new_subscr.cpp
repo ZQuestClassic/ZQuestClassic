@@ -17,6 +17,8 @@
 #include <set>
 #include <fmt/format.h>
 #include "zc/maps.h"
+#include "zc/ffscript.h"
+#include "zc/zelda.h"
 #include "zc_list_data.h"
 
 #ifdef IS_PLAYER
@@ -622,7 +624,7 @@ int32_t SubscrColorInfo::get_int_color() const
 	}
 	if(type == ssctMISC)
 		return -(color+1+NUM_SYS_COLORS);
-	if(type >= 0 && type < 16)
+	if(type < 16)
 		return (type*16)+color;
 	return 0;
 }
@@ -705,7 +707,7 @@ int32_t SubscrColorInfo::get_int_cset() const
 {
 	if(type == ssctMISC)
 		return -(type+1);
-	if(type >= 0 && type < 16)
+	if(type < 16)
 		return type;
 	return 0;
 }

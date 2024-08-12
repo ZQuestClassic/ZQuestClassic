@@ -3,13 +3,16 @@
 
 #include "ASTVisitors.h"
 #include "ZScript.h"
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::ordered_json;
 
 namespace ZScript
 {
 	class MetadataVisitor : public RecursiveVisitor
 	{
 	public:
-		MetadataVisitor(ZScript::Program& program);
+		MetadataVisitor(ZScript::Program& program, std::string root_file_name);
 		using RecursiveVisitor::visit;
 		void visit(AST& node, void* param = NULL);
 		////////////////
@@ -24,10 +27,10 @@ namespace ZScript
 		void caseExprArrow(ASTExprArrow& host, void* param);
 		void caseExprCall(ASTExprCall& host, void* param);
 
-		std::string getOutput();
-
+		json takeOutput();
+	
 	private:
-		ZScript::Program& program;
+		std::string root_file_name;
 	};
 }
 

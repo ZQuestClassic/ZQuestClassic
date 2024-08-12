@@ -232,7 +232,7 @@ void _init_render(int fmt)
 }
 uint32_t get_backend_a5_col(RGB const& c)
 {
-	unsigned char r = c.r*4, g = c.g*4, b = c.b*4, a = 255;
+	unsigned char r = c.r, g = c.g, b = c.b, a = 255;
 	switch(backend_fmt)
 	{
 		case ALLEGRO_PIXEL_FORMAT_ABGR_8888: default:

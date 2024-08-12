@@ -221,10 +221,6 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 	jwin_center_dialog(d);
 }
 
-/*****************************/
-/******  onCustomItems  ******/
-/*****************************/
-
 static ListData weapon_list(weaponlist_num, &a4fonts[font_pfont]);
 
 const char *defenselist(int32_t index, int32_t *list_size)
@@ -1405,10 +1401,6 @@ int32_t onCustomItems()
 	return D_O_K;
 }
 
-/****************************/
-/******  onCustomWpns  ******/
-/****************************/
-
 static DIALOG wpndata_dlg[] =
 {
 	// (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
@@ -1528,10 +1520,6 @@ int32_t onCustomWpns()
 	return D_O_K;
 }
 
-/****************************/
-/******  onMiscSprites ******/
-/****************************/
-
 int32_t onMiscSprites()
 {
 	MiscSprsDialog(QMisc.sprites, 20, [](int32_t* newsprs)
@@ -1553,11 +1541,6 @@ int32_t onMiscSFX()
 	}).show();
 	return D_O_K;
 }
-
-/****************************/
-/***** onCustomEnemies  *****/
-/****************************/
-
 
 static int32_t enedata_data_list[] =
 {
@@ -4690,7 +4673,6 @@ void edit_enemydata(int32_t index)
 		 frt[8], efr[8], bsp[8];
 	char w[8],h[8],sw[8],sh[8],ew[8],eh[8];
 	char name[64];
-	char ms[12][8];
 	char attribs[32][8];
 	char enemynumstr[75];
 	char hitx[8], hity[8], hitz[8], tiley[8], tilex[8], hitofsx[8], hitofsy[8], hitofsz[8], drawofsx[8], drawofsy[8];
@@ -4843,52 +4825,11 @@ void edit_enemydata(int32_t index)
 	sprintf(name,"%s",guy_string[index]);
 	enedata_dlg[36].dp = name;
 	
-	sprintf(ms[0],"%d",guysbuf[index].misc1);
-	sprintf(ms[1],"%d",guysbuf[index].misc2);
-	sprintf(ms[2],"%d",guysbuf[index].misc3);
-	sprintf(ms[3],"%d",guysbuf[index].misc4);
-	sprintf(ms[4],"%d",guysbuf[index].misc5);
-	sprintf(ms[5],"%d",guysbuf[index].misc6);
-	sprintf(ms[6],"%d",guysbuf[index].misc7);
-	sprintf(ms[7],"%d",guysbuf[index].misc8);
-	sprintf(ms[8],"%d",guysbuf[index].misc9);
-	sprintf(ms[9],"%d",guysbuf[index].misc10);
-	sprintf(ms[10],"%d",guysbuf[index].misc11);
-	sprintf(ms[11],"%d",guysbuf[index].misc12);
+	for (int q = 0; q < 32; ++q)
+	{
+		sprintf(attribs[q], "%d", guysbuf[index].attributes[q]);
+	}
 	
-	//four pages of attributes, 1 through 32
-	sprintf(attribs[0],"%d",guysbuf[index].misc1);
-	sprintf(attribs[1],"%d",guysbuf[index].misc2);
-	sprintf(attribs[2],"%d",guysbuf[index].misc3);
-	sprintf(attribs[3],"%d",guysbuf[index].misc4);
-	sprintf(attribs[4],"%d",guysbuf[index].misc5);
-	sprintf(attribs[5],"%d",guysbuf[index].misc6);
-	sprintf(attribs[6],"%d",guysbuf[index].misc7);
-	sprintf(attribs[7],"%d",guysbuf[index].misc8);
-	sprintf(attribs[8],"%d",guysbuf[index].misc9);
-	sprintf(attribs[9],"%d",guysbuf[index].misc10);
-	sprintf(attribs[10],"%d",guysbuf[index].misc11);
-	sprintf(attribs[11],"%d",guysbuf[index].misc12);
-	sprintf(attribs[12],"%d",guysbuf[index].misc13);
-	sprintf(attribs[13],"%d",guysbuf[index].misc14);
-	sprintf(attribs[14],"%d",guysbuf[index].misc15);
-	sprintf(attribs[15],"%d",guysbuf[index].misc16);
-	sprintf(attribs[16],"%d",guysbuf[index].misc17);
-	sprintf(attribs[17],"%d",guysbuf[index].misc18);
-	sprintf(attribs[18],"%d",guysbuf[index].misc19);
-	sprintf(attribs[19],"%d",guysbuf[index].misc20);
-	sprintf(attribs[20],"%d",guysbuf[index].misc21);
-	sprintf(attribs[21],"%d",guysbuf[index].misc22);
-	sprintf(attribs[22],"%d",guysbuf[index].misc23);
-	sprintf(attribs[23],"%d",guysbuf[index].misc24);
-	sprintf(attribs[24],"%d",guysbuf[index].misc25);
-	sprintf(attribs[25],"%d",guysbuf[index].misc26);
-	sprintf(attribs[26],"%d",guysbuf[index].misc27);
-	sprintf(attribs[27],"%d",guysbuf[index].misc28);
-	sprintf(attribs[28],"%d",guysbuf[index].misc29);
-	sprintf(attribs[29],"%d",guysbuf[index].misc30);
-	sprintf(attribs[30],"%d",guysbuf[index].misc31);
-	sprintf(attribs[31],"%d",guysbuf[index].misc32);
 	
 	for(int32_t j=0; j <= edefBYRNA; j++)
 	{
@@ -5059,12 +5000,11 @@ void edit_enemydata(int32_t index)
 			{
 				int32_t size = 0;
 				((ListData*)enedata_dlg[64+i].dp)->listFunc(-1,&size);
-				// Bound ms[i] as well as enedata_dlg[64+i].d1
-				sprintf(ms[i],"%d",vbound(atoi(ms[i]), 0, size));
-				enedata_dlg[64+i].d1 = atoi(ms[i]);
+				sprintf(attribs[i],"%d",vbound(atoi(attribs[i]), 0, size));
+				enedata_dlg[64+i].d1 = atoi(attribs[i]);
 			}
 			else
-				enedata_dlg[64+i].dp = ms[i];
+				enedata_dlg[64+i].dp = attribs[i];
 		}
 		for ( int32_t q = 10; q < 16; q++ )
 		{
@@ -5103,10 +5043,6 @@ void edit_enemydata(int32_t index)
 				enedata_dlg[326+(q-24)].dp = attribs[q];
 		}
 		
-		enedata_dlg[189].dp = ms[10]; //These two are unused. Misc 11 and Misc 12 use attribs now
-		enedata_dlg[190].dp = ms[11];
-		
-		
 		enedata_dlg[278].dp = attribs[0];
 		enedata_dlg[279].dp = attribs[1];
 		enedata_dlg[280].dp = attribs[2];
@@ -5118,7 +5054,7 @@ void edit_enemydata(int32_t index)
 		
 		enedata_dlg[294].dp = attribs[8];
 		enedata_dlg[295].dp = attribs[9];
-		/*
+		
 		enedata_dlg[296].dp = attribs[10];
 		enedata_dlg[297].dp = attribs[11];
 		enedata_dlg[298].dp = attribs[12];
@@ -5142,7 +5078,7 @@ void edit_enemydata(int32_t index)
 		enedata_dlg[330].dp = attribs[28];
 		enedata_dlg[331].dp = attribs[29];
 		enedata_dlg[332].dp = attribs[30];
-		enedata_dlg[333].dp = attribs[31];*/
+		enedata_dlg[333].dp = attribs[31];
 		
 		ret = do_zqdialog(enedata_dlg,3);
 		
@@ -5196,38 +5132,38 @@ void edit_enemydata(int32_t index)
 				test.spr_spawn = biw[j].i;
 		}
 		
-		test.misc1 = (enedata_dlg[64].proc==jwin_droplist_proc) ? enedata_dlg[64].d1 : atol(ms[0]);
-		test.misc2 = (enedata_dlg[65].proc==jwin_droplist_proc) ? enedata_dlg[65].d1 : atol(ms[1]);
-		test.misc3 = (enedata_dlg[66].proc==jwin_droplist_proc) ? enedata_dlg[66].d1 : atol(ms[2]);
-		test.misc4 = (enedata_dlg[67].proc==jwin_droplist_proc) ? enedata_dlg[67].d1 : atol(ms[3]);
-		test.misc5 = (enedata_dlg[68].proc==jwin_droplist_proc) ? enedata_dlg[68].d1 : atol(ms[4]);
-		test.misc6 = (enedata_dlg[69].proc==jwin_droplist_proc) ? enedata_dlg[69].d1 : atol(ms[5]);
-		test.misc7 = (enedata_dlg[70].proc==jwin_droplist_proc) ? enedata_dlg[70].d1 : atol(ms[6]);
-		test.misc8 = (enedata_dlg[71].proc==jwin_droplist_proc) ? enedata_dlg[71].d1 : atol(ms[7]);
-		test.misc9 = (enedata_dlg[72].proc==jwin_droplist_proc) ? enedata_dlg[72].d1 : atol(ms[8]);
-		test.misc10 = (enedata_dlg[73].proc==jwin_droplist_proc) ? enedata_dlg[73].d1 : atol(ms[9]);
-		test.misc11 = (enedata_dlg[296].proc==jwin_droplist_proc) ? enedata_dlg[296].d1 : atol(attribs[10]);
-		test.misc12 = (enedata_dlg[297].proc==jwin_droplist_proc) ? enedata_dlg[297].d1 : atol(attribs[11]); 
-		test.misc13 = (enedata_dlg[298].proc==jwin_droplist_proc) ? enedata_dlg[298].d1 : atol(attribs[12]);
-		test.misc14 = (enedata_dlg[299].proc==jwin_droplist_proc) ? enedata_dlg[299].d1 : atol(attribs[13]); 
-		test.misc15 = (enedata_dlg[300].proc==jwin_droplist_proc) ? enedata_dlg[300].d1 : atol(attribs[14]);
-		test.misc16 = (enedata_dlg[301].proc==jwin_droplist_proc) ? enedata_dlg[301].d1 : atol(attribs[15]); 
-		test.misc17 = (enedata_dlg[310].proc==jwin_droplist_proc) ? enedata_dlg[310].d1 : atol(attribs[16]); 
-		test.misc18 = (enedata_dlg[311].proc==jwin_droplist_proc) ? enedata_dlg[311].d1 : atol(attribs[17]); 
-		test.misc19 = (enedata_dlg[312].proc==jwin_droplist_proc) ? enedata_dlg[312].d1 : atol(attribs[18]); 
-		test.misc20 = (enedata_dlg[313].proc==jwin_droplist_proc) ? enedata_dlg[313].d1 : atol(attribs[19]); 
-		test.misc21 = (enedata_dlg[314].proc==jwin_droplist_proc) ? enedata_dlg[314].d1 : atol(attribs[20]); 
-		test.misc22 = (enedata_dlg[315].proc==jwin_droplist_proc) ? enedata_dlg[315].d1 : atol(attribs[21]); 
-		test.misc23 = (enedata_dlg[316].proc==jwin_droplist_proc) ? enedata_dlg[316].d1 : atol(attribs[22]); 
-		test.misc24 = (enedata_dlg[317].proc==jwin_droplist_proc) ? enedata_dlg[317].d1 : atol(attribs[23]); 
-		test.misc25 = (enedata_dlg[326].proc==jwin_droplist_proc) ? enedata_dlg[326].d1 : atol(attribs[24]); 
-		test.misc26 = (enedata_dlg[327].proc==jwin_droplist_proc) ? enedata_dlg[327].d1 : atol(attribs[25]); 
-		test.misc27 = (enedata_dlg[328].proc==jwin_droplist_proc) ? enedata_dlg[328].d1 : atol(attribs[26]); 
-		test.misc28 = (enedata_dlg[329].proc==jwin_droplist_proc) ? enedata_dlg[329].d1 : atol(attribs[27]); 
-		test.misc29 = (enedata_dlg[330].proc==jwin_droplist_proc) ? enedata_dlg[330].d1 : atol(attribs[28]); 
-		test.misc30 = (enedata_dlg[331].proc==jwin_droplist_proc) ? enedata_dlg[331].d1 : atol(attribs[29]); 
-		test.misc31 = (enedata_dlg[332].proc==jwin_droplist_proc) ? enedata_dlg[332].d1 : atol(attribs[30]); 
-		test.misc32 = (enedata_dlg[333].proc==jwin_droplist_proc) ? enedata_dlg[333].d1 : atol(attribs[31]); 
+		test.attributes[0] = (enedata_dlg[64].proc == jwin_droplist_proc) ? enedata_dlg[64].d1 : atol(attribs[0]);
+		test.attributes[1] = (enedata_dlg[65].proc==jwin_droplist_proc) ? enedata_dlg[65].d1 : atol(attribs[1]);
+		test.attributes[2] = (enedata_dlg[66].proc==jwin_droplist_proc) ? enedata_dlg[66].d1 : atol(attribs[2]);
+		test.attributes[3] = (enedata_dlg[67].proc==jwin_droplist_proc) ? enedata_dlg[67].d1 : atol(attribs[3]);
+		test.attributes[4] = (enedata_dlg[68].proc==jwin_droplist_proc) ? enedata_dlg[68].d1 : atol(attribs[4]);
+		test.attributes[5] = (enedata_dlg[69].proc==jwin_droplist_proc) ? enedata_dlg[69].d1 : atol(attribs[5]);
+		test.attributes[6] = (enedata_dlg[70].proc==jwin_droplist_proc) ? enedata_dlg[70].d1 : atol(attribs[6]);
+		test.attributes[7] = (enedata_dlg[71].proc==jwin_droplist_proc) ? enedata_dlg[71].d1 : atol(attribs[7]);
+		test.attributes[8] = (enedata_dlg[72].proc==jwin_droplist_proc) ? enedata_dlg[72].d1 : atol(attribs[8]);
+		test.attributes[9] = (enedata_dlg[73].proc==jwin_droplist_proc) ? enedata_dlg[73].d1 : atol(attribs[9]);
+		test.attributes[10] = (enedata_dlg[296].proc==jwin_droplist_proc) ? enedata_dlg[296].d1 : atol(attribs[10]);
+		test.attributes[11] = (enedata_dlg[297].proc==jwin_droplist_proc) ? enedata_dlg[297].d1 : atol(attribs[11]);
+		test.attributes[12] = (enedata_dlg[298].proc==jwin_droplist_proc) ? enedata_dlg[298].d1 : atol(attribs[12]);
+		test.attributes[13] = (enedata_dlg[299].proc==jwin_droplist_proc) ? enedata_dlg[299].d1 : atol(attribs[13]);
+		test.attributes[14] = (enedata_dlg[300].proc==jwin_droplist_proc) ? enedata_dlg[300].d1 : atol(attribs[14]);
+		test.attributes[15] = (enedata_dlg[301].proc==jwin_droplist_proc) ? enedata_dlg[301].d1 : atol(attribs[15]);
+		test.attributes[16] = (enedata_dlg[310].proc==jwin_droplist_proc) ? enedata_dlg[310].d1 : atol(attribs[16]);
+		test.attributes[17] = (enedata_dlg[311].proc==jwin_droplist_proc) ? enedata_dlg[311].d1 : atol(attribs[17]);
+		test.attributes[18] = (enedata_dlg[312].proc==jwin_droplist_proc) ? enedata_dlg[312].d1 : atol(attribs[18]);
+		test.attributes[19] = (enedata_dlg[313].proc==jwin_droplist_proc) ? enedata_dlg[313].d1 : atol(attribs[19]);
+		test.attributes[20] = (enedata_dlg[314].proc==jwin_droplist_proc) ? enedata_dlg[314].d1 : atol(attribs[20]);
+		test.attributes[21] = (enedata_dlg[315].proc==jwin_droplist_proc) ? enedata_dlg[315].d1 : atol(attribs[21]);
+		test.attributes[22] = (enedata_dlg[316].proc==jwin_droplist_proc) ? enedata_dlg[316].d1 : atol(attribs[22]);
+		test.attributes[23] = (enedata_dlg[317].proc==jwin_droplist_proc) ? enedata_dlg[317].d1 : atol(attribs[23]);
+		test.attributes[24] = (enedata_dlg[326].proc==jwin_droplist_proc) ? enedata_dlg[326].d1 : atol(attribs[24]);
+		test.attributes[25] = (enedata_dlg[327].proc==jwin_droplist_proc) ? enedata_dlg[327].d1 : atol(attribs[25]);
+		test.attributes[26] = (enedata_dlg[328].proc==jwin_droplist_proc) ? enedata_dlg[328].d1 : atol(attribs[26]);
+		test.attributes[27] = (enedata_dlg[329].proc==jwin_droplist_proc) ? enedata_dlg[329].d1 : atol(attribs[27]);
+		test.attributes[28] = (enedata_dlg[330].proc==jwin_droplist_proc) ? enedata_dlg[330].d1 : atol(attribs[28]);
+		test.attributes[29] = (enedata_dlg[331].proc==jwin_droplist_proc) ? enedata_dlg[331].d1 : atol(attribs[29]);
+		test.attributes[30] = (enedata_dlg[332].proc==jwin_droplist_proc) ? enedata_dlg[332].d1 : atol(attribs[30]);
+		test.attributes[31] = (enedata_dlg[333].proc==jwin_droplist_proc) ? enedata_dlg[333].d1 : atol(attribs[31]);
 		
 	
 	
@@ -5625,56 +5561,6 @@ int32_t readonenpc(PACKFILE *f, int32_t index)
 			return 0;
 			}
 			
-			if(!p_igetl(&tempguy.misc1,f))
-			{
-			return 0;
-			}
-			
-			if(!p_igetl(&tempguy.misc2,f))
-			{
-			return 0;
-			}
-			
-			if(!p_igetl(&tempguy.misc3,f))
-			{
-			return 0;
-			}
-			
-			if(!p_igetl(&tempguy.misc4,f))
-			{
-			return 0;
-			}
-			
-			if(!p_igetl(&tempguy.misc5,f))
-			{
-			return 0;
-			}
-			
-			if(!p_igetl(&tempguy.misc6,f))
-			{
-			return 0;
-			}
-			
-			if(!p_igetl(&tempguy.misc7,f))
-			{
-			return 0;
-			}
-			
-			if(!p_igetl(&tempguy.misc8,f))
-			{
-			return 0;
-			}
-			
-			if(!p_igetl(&tempguy.misc9,f))
-			{
-			return 0;
-			}
-			
-			if(!p_igetl(&tempguy.misc10,f))
-			{
-			return 0;
-			}
-			
 			if(!p_igetw(&tempguy.bgsfx,f))
 			{
 			return 0;
@@ -5708,12 +5594,12 @@ int32_t readonenpc(PACKFILE *f, int32_t index)
 			return 0;
 			}
 			
-			if(!p_igetl(&tempguy.misc11,f))
+			if(!p_igetl(&tempguy.attributes[10],f))
 			{
 			return 0;
 			}
 			
-			if(!p_igetl(&tempguy.misc12,f))
+			if(!p_igetl(&tempguy.attributes[11],f))
 			{
 			return 0;
 			}
@@ -5809,81 +5695,12 @@ int32_t readonenpc(PACKFILE *f, int32_t index)
 			{
 			return 0;
 			}
-			//misc 16->31
-			if(!p_igetl(&tempguy.misc16,f))
+			for (int32_t q = 0; q < 32; q++)
 			{
-			return 0;
-			}
-			if(!p_igetl(&tempguy.misc17,f))
-			{
-			return 0;
-			}
-			if(!p_igetl(&tempguy.misc18,f))
-			{
-			return 0;
-			}
-			if(!p_igetl(&tempguy.misc19,f))
-			{
-			return 0;
-			}
-			if(!p_igetl(&tempguy.misc20,f))
-			{
-			return 0;
-			}
-			if(!p_igetl(&tempguy.misc21,f))
-			{
-			return 0;
-			}
-			if(!p_igetl(&tempguy.misc22,f))
-			{
-			return 0;
-			}
-			if(!p_igetl(&tempguy.misc23,f))
-			{
-			return 0;
-			}
-			if(!p_igetl(&tempguy.misc24,f))
-			{
-			return 0;
-			}
-			if(!p_igetl(&tempguy.misc25,f))
-			{
-			return 0;
-			}
-			if(!p_igetl(&tempguy.misc26,f))
-			{
-			return 0;
-			}
-			if(!p_igetl(&tempguy.misc27,f))
-			{
-			return 0;
-			}
-			if(!p_igetl(&tempguy.misc28,f))
-			{
-			return 0;
-			}
-			if(!p_igetl(&tempguy.misc29,f))
-			{
-			return 0;
-			}
-			if(!p_igetl(&tempguy.misc30,f))
-			{
-			return 0;
-			}
-			if(!p_igetl(&tempguy.misc31,f))
-			{
-			return 0;
-			}
-			if(!p_igetl(&tempguy.misc32,f))
-			{
-			return 0;
-			}
-			for ( int32_t q = 0; q < 32; q++ )
-			{
-			if(!p_igetl(&tempguy.movement[q],f))
-			{
-				return 0;
-			}
+				if(!p_igetl(&tempguy.movement[q],f))
+				{
+					return 0;
+				}
 			}
 			for ( int32_t q = 0; q < 32; q++ )
 			{
@@ -5911,19 +5728,6 @@ int32_t readonenpc(PACKFILE *f, int32_t index)
 			}
 			}
 			if(!p_igetl(&tempguy.editorflags,f))
-			{
-			return 0;
-			}
-			//somehow forgot these in the older builds -Z
-			if(!p_igetl(&tempguy.misc13,f))
-			{
-			return 0;
-			}
-			if(!p_igetl(&tempguy.misc14,f))
-			{
-			return 0;
-			}
-			if(!p_igetl(&tempguy.misc15,f))
 			{
 			return 0;
 			}
@@ -5957,6 +5761,11 @@ int32_t readonenpc(PACKFILE *f, int32_t index)
 			{
 				return 0;
 			}
+			}
+			//enemy editor misc merge
+			for (int32_t q = 0; q < 32; q++)
+			{
+				if (!p_igetl(&tempguy.attributes[q], f)) return 0;
 			}
 		}
 	}
@@ -6136,56 +5945,6 @@ int32_t writeonenpc(PACKFILE *f, int32_t i)
 		return 0;
 		}
 		
-		if(!p_iputl(guysbuf[i].misc1,f))
-		{
-		return 0;
-		}
-		
-		if(!p_iputl(guysbuf[i].misc2,f))
-		{
-		return 0;
-		}
-		
-		if(!p_iputl(guysbuf[i].misc3,f))
-		{
-		return 0;
-		}
-		
-		if(!p_iputl(guysbuf[i].misc4,f))
-		{
-		return 0;
-		}
-		
-		if(!p_iputl(guysbuf[i].misc5,f))
-		{
-		return 0;
-		}
-		
-		if(!p_iputl(guysbuf[i].misc6,f))
-		{
-		return 0;
-		}
-		
-		if(!p_iputl(guysbuf[i].misc7,f))
-		{
-		return 0;
-		}
-		
-		if(!p_iputl(guysbuf[i].misc8,f))
-		{
-		return 0;
-		}
-		
-		if(!p_iputl(guysbuf[i].misc9,f))
-		{
-		return 0;
-		}
-		
-		if(!p_iputl(guysbuf[i].misc10,f))
-		{
-		return 0;
-		}
-		
 		if(!p_iputw(guysbuf[i].bgsfx,f))
 		{
 		return 0;
@@ -6215,16 +5974,6 @@ int32_t writeonenpc(PACKFILE *f, int32_t i)
 		}
 		
 		if(!p_putc(guysbuf[i].deadsfx,f))
-		{
-		return 0;
-		}
-		
-		if(!p_iputl(guysbuf[i].misc11,f))
-		{
-		return 0;
-		}
-		
-		if(!p_iputl(guysbuf[i].misc12,f))
 		{
 		return 0;
 		}
@@ -6312,75 +6061,6 @@ int32_t writeonenpc(PACKFILE *f, int32_t i)
 		{
 		return 0;
 		}
-		//misc 16->31
-		if(!p_iputl(guysbuf[i].misc16,f))
-		{
-		return 0;
-		}
-		if(!p_iputl(guysbuf[i].misc17,f))
-		{
-		return 0;
-		}
-		if(!p_iputl(guysbuf[i].misc18,f))
-		{
-		return 0;
-		}
-		if(!p_iputl(guysbuf[i].misc19,f))
-		{
-		return 0;
-		}
-		if(!p_iputl(guysbuf[i].misc20,f))
-		{
-		return 0;
-		}
-		if(!p_iputl(guysbuf[i].misc21,f))
-		{
-		return 0;
-		}
-		if(!p_iputl(guysbuf[i].misc22,f))
-		{
-		return 0;
-		}
-		if(!p_iputl(guysbuf[i].misc23,f))
-		{
-		return 0;
-		}
-		if(!p_iputl(guysbuf[i].misc24,f))
-		{
-		return 0;
-		}
-		if(!p_iputl(guysbuf[i].misc25,f))
-		{
-		return 0;
-		}
-		if(!p_iputl(guysbuf[i].misc26,f))
-		{
-		return 0;
-		}
-		if(!p_iputl(guysbuf[i].misc27,f))
-		{
-		return 0;
-		}
-		if(!p_iputl(guysbuf[i].misc28,f))
-		{
-		return 0;
-		}
-		if(!p_iputl(guysbuf[i].misc29,f))
-		{
-		return 0;
-		}
-		if(!p_iputl(guysbuf[i].misc30,f))
-		{
-		return 0;
-		}
-		if(!p_iputl(guysbuf[i].misc31,f))
-		{
-		return 0;
-		}
-		if(!p_iputl(guysbuf[i].misc32,f))
-		{
-		return 0;
-		}
 		for ( int32_t q = 0; q < 32; q++ )
 		{
 			if(!p_iputl(guysbuf[i].movement[q],f))
@@ -6417,20 +6097,7 @@ int32_t writeonenpc(PACKFILE *f, int32_t i)
 		{
 		return 0;
 		}
-		//somehow forgot these in the older builds -Z
-		if(!p_iputl(guysbuf[i].misc13,f))
-		{
-		return 0;
-		}
-		if(!p_iputl(guysbuf[i].misc14,f))
-		{
-		return 0;
-		}
-		if(!p_iputl(guysbuf[i].misc15,f))
-		{
-		return 0;
-		}
-		
+
 		//Enemy Editor InitD[] labels
 		for ( int32_t q = 0; q < 8; q++ )
 		{
@@ -6460,6 +6127,14 @@ int32_t writeonenpc(PACKFILE *f, int32_t i)
 		{
 			return 0;
 		}
+		}
+		//enemy editor misc merge
+		for (int32_t q = 0; q < 32; q++)
+		{
+			if (!p_iputl(guysbuf[i].attributes[q], f))
+			{
+				return 0;
+			}
 		}
 	return 1;
 }

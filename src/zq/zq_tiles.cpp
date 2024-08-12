@@ -11,6 +11,7 @@
 #include "base/combo.h"
 #include "base/msgstr.h"
 #include "base/zdefs.h"
+#include "subscr.h"
 #include "zq/zquestdat.h"
 #include "zq/zq_tiles.h"
 #include "zq/zquest.h"
@@ -34,6 +35,7 @@
 #include "zq/render.h"
 #include "zinfo.h"
 #include <fmt/format.h>
+#include <functional>
 #include "zq/moveinfo.h"
 using std::set;
 
@@ -378,10 +380,6 @@ enum
 	BGMODE_MAX
 };
 
-/*********************************/
-/*****    Tiles & Combos    ******/
-/*********************************/
-
 void merge_tiles(int32_t dest_tile, int32_t src_quarter1, int32_t src_quarter2, int32_t src_quarter3, int32_t src_quarter4)
 {
 	int32_t size=tilesize(newtilebuf[dest_tile].format)>>4;
@@ -464,7 +462,6 @@ static void make_combos(int32_t startTile, int32_t endTile, int32_t cs)
 
 static void make_combos_rect(int32_t top, int32_t left, int32_t numRows, int32_t numCols, int32_t cs)
 {
-	//al_trace("inside make_combos_rect()\n");
 	int32_t startCombo=0;
 	
 	if(!select_combo_2(startCombo, cs))
@@ -660,12 +657,12 @@ void draw_selection_outline(BITMAP *dest, int32_t x, int32_t y, int32_t scale2)
 			//  zoomtile16(screen2,tile,79,31,cs,flip,8);
 			if(selection_grid[i-1][j]!=selection_grid[i][j])
 			{
-				_allegro_vline(dest, x+((i-1)*scale2), y+((j-1)*scale2), y+(j*scale2), 255);
+				vline(dest, x+((i-1)*scale2), y+((j-1)*scale2), y+(j*scale2), 255);
 			}
 			
 			if(selection_grid[i][j-1]!=selection_grid[i][j])
 			{
-				_allegro_hline(dest, x+((i-1)*scale2), y+((j-1)*scale2), x+(i*scale2), 255);
+				hline(dest, x+((i-1)*scale2), y+((j-1)*scale2), x+(i*scale2), 255);
 			}
 		}
 	}
@@ -700,7 +697,7 @@ void draw_selecting_outline(BITMAP *dest, int32_t x, int32_t y, int32_t scale2)
 					drawing_mode(DRAW_MODE_COPY_PATTERN, intersection_pattern, selection_anchor>>3, 0);
 				}
 				
-				_allegro_vline(dest, x+((i-1)*scale2), y+((j-1)*scale2), y+(j*scale2), 255);
+				vline(dest, x+((i-1)*scale2), y+((j-1)*scale2), y+(j*scale2), 255);
 			}
 			
 			if(((i>=x1+1)&&(i<=x2+1))&&((j==y1+1)||(j==y2+2)))
@@ -710,7 +707,7 @@ void draw_selecting_outline(BITMAP *dest, int32_t x, int32_t y, int32_t scale2)
 					drawing_mode(DRAW_MODE_COPY_PATTERN, intersection_pattern, selection_anchor>>3, 0);
 				}
 				
-				_allegro_hline(dest, x+((i-1)*scale2), y+((j-1)*scale2), x+(i*scale2), 255);
+				hline(dest, x+((i-1)*scale2), y+((j-1)*scale2), x+(i*scale2), 255);
 			}
 		}
 	}
@@ -818,9 +815,9 @@ void zoomtile16(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32
 	if(!hide_grid)
 	{
 		for(int cx = 0; cx <= 16; ++cx)
-			_allegro_vline(dest,x+(cx*m),y,y+(16*m)-1,gridcol);
+			vline(dest,x+(cx*m),y,y+(16*m)-1,gridcol);
 		for(int cy = 0; cy <= 16; ++cy)
-			_allegro_hline(dest,x,y+(cy*m),x+(16*m)-1,gridcol);
+			hline(dest,x,y+(cy*m),x+(16*m)-1,gridcol);
 	}
 	
 	if(show_quartgrid)
@@ -1259,9 +1256,6 @@ size_and_pos bgmodebtn_grid(390,610,1,2,90,21);
 
 int32_t c1=1;
 int32_t c2=0;
-//int32_t bgc=dvc(4+5);
-//int32_t bgc=vc(1);
-//enum { t_pen, t_fill, t_recolor, t_eyedropper, t_move, t_select, t_wand, t_max };
 int32_t floating_tile = -1;
 int32_t tool = t_pen;
 int32_t old_tool = -1;
@@ -1299,10 +1293,6 @@ void set_tool_sprite(int tool, int type)
 }
 void update_tool_cursor()
 {
-//  int32_t screen_xofs=(zq_screen_w-320)>>1;
-//  int32_t screen_yofs=(zq_screen_h-240)>>1;
-//  int32_t temp_mouse_x=gui_mouse_x()-screen_xofs;
-//  int32_t temp_mouse_y=gui_mouse_y()-screen_yofs;
 	int32_t temp_mouse_x=gui_mouse_x();
 	int32_t temp_mouse_y=gui_mouse_y();
 	
@@ -1319,7 +1309,6 @@ void update_tool_cursor()
 		}
 	}
 	
-//  if(isinRect(temp_mouse_x,temp_mouse_y,80,32,206,158)) //inside the zoomed tile window
 	if(isinRect(temp_mouse_x,temp_mouse_y,zoomtile.x,zoomtile.y-(tool==t_fill ? (14) : 0),zoomtile.x+(zoomtile.w*zoomtile.xscale)-2,zoomtile.y+(zoomtile.h*zoomtile.yscale)-2-(tool==t_fill ? (14) : 0))) //inside the zoomed tile window
 	{
 		if(tool_cur==-1)
@@ -1621,7 +1610,7 @@ void draw_edit_scr(int32_t tile,int32_t flip,int32_t cs,byte *oldtile, bool crea
 			strcpy(buf, get_color_name(realcol, is8b).c_str());
 			gui_textout_ln(screen2,font,(unsigned char*)buf,hover_info.x,hover_info.y+(1*hover_info.yscale),jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
 			
-			sprintf(buf, "#%02X%02X%02X", tpal[realcol].r*4,tpal[realcol].g*4,tpal[realcol].b*4);
+			sprintf(buf, "#%02X%02X%02X", tpal[realcol].r,tpal[realcol].g,tpal[realcol].b);
 			gui_textout_ln(screen2,font,(unsigned char*)buf,hover_info.x,hover_info.y+(0),jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
 			
 			rect(screen2, hov_prev.x, hov_prev.y, hov_prev.x+hov_prev.w-1, hov_prev.y+hov_prev.h-1, jwin_pal[jcTEXTFG]);
@@ -2134,11 +2123,11 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 	
 	if(newtilebuf[tile].format==tf4Bit)
 	{
-		invcol=makecol8((63-tpal[CSET(cs)].r)*255/63,(63-tpal[CSET(cs)].g)*255/63,(63-tpal[CSET(cs)].b)*255/63);
+		invcol=makecol8(255 - tpal[CSET(cs)].r, 255 - tpal[CSET(cs)].g, 255 - tpal[CSET(cs)].b);
 	}
 	else
 	{
-		invcol=makecol8((63-tpal[0].r)*255/63,(63-tpal[0].g)*255/63,(63-tpal[0].b)*255/63);
+		invcol=makecol8(255 - tpal[0].r, 255 - tpal[0].g, 255 - tpal[0].b);
 	}
 	
 	custom_vsync();
@@ -2881,11 +2870,11 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 					
 					if(newtilebuf[tile].format==tf4Bit)
 					{
-						invcol=makecol8((63-tpal[CSET(cs)].r)*255/63,(63-tpal[CSET(cs)].g)*255/63,(63-tpal[CSET(cs)].b)*255/63);
+						invcol=makecol8(255 - tpal[CSET(cs)].r, 255 - tpal[CSET(cs)].g, 255 - tpal[CSET(cs)].b);
 					}
 					else
 					{
-						invcol=makecol8((63-tpal[0].r)*255/63,(63-tpal[0].g)*255/63,(63-tpal[0].b)*255/63);
+						invcol=makecol8(255 - tpal[0].r, 255 - tpal[0].g, 255 - tpal[0].b);
 					}
 					
 					redraw=true;
@@ -3525,8 +3514,8 @@ void draw_grab_scr(int32_t tile,int32_t cs,byte *newtile,int32_t black,int32_t w
 	//clear_to_color(screen2,bg);
 	rectfill(screen2, 0, 0, 319, 159, black);
 	rectfill(screen2,0,162,319,239,jwin_pal[jcBOX]);
-	_allegro_hline(screen2, 0, 160, 319, jwin_pal[jcMEDLT]);
-	_allegro_hline(screen2, 0, 161, 319, jwin_pal[jcLIGHT]);
+	hline(screen2, 0, 160, 319, jwin_pal[jcMEDLT]);
+	hline(screen2, 0, 161, 319, jwin_pal[jcLIGHT]);
 	yofs=3;
 	
 	// text_mode(-1);
@@ -5544,8 +5533,8 @@ void tile_info_0(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copy
 	FONT *tfont = get_zc_font(font_pfont);
 	
 	rectfill(screen2,0,210*2,(320*2)-1,(240*2),jwin_pal[jcBOX]);
-	_allegro_hline(screen2, 0, (210*2)-2, (320*2)-1, jwin_pal[jcMEDLT]);
-	_allegro_hline(screen2, 0, (210*2)-1, (320*2)-1, jwin_pal[jcLIGHT]);
+	hline(screen2, 0, (210*2)-2, (320*2)-1, jwin_pal[jcMEDLT]);
+	hline(screen2, 0, (210*2)-1, (320*2)-1, jwin_pal[jcLIGHT]);
 	tfont = get_zc_font(font_lfont_l);
 	
 	// Copied tile and numbers
@@ -5656,8 +5645,8 @@ void tile_info_1(int32_t oldtile,int32_t oldflip,int32_t oldcs,int32_t tile,int3
 	FONT *tfont = get_zc_font(font_pfont);
 	
 	rectfill(screen2,0,210*2,(320*2)-1,(240*2),jwin_pal[jcBOX]);
-	_allegro_hline(screen2, 0, (210*2)-2, (320*2)-1, jwin_pal[jcMEDLT]);
-	_allegro_hline(screen2, 0, (210*2)-1, (320*2)-1, jwin_pal[jcLIGHT]);
+	hline(screen2, 0, (210*2)-2, (320*2)-1, jwin_pal[jcMEDLT]);
+	hline(screen2, 0, (210*2)-1, (320*2)-1, jwin_pal[jcLIGHT]);
 	tfont = get_zc_font(font_lfont_l);
 	
 	jwin_draw_frame(screen2,(124*mul)-2,((216*mul)+yofs)-2,(16*mul)+4,(16*mul)+4,FR_DEEP);
@@ -5796,6 +5785,27 @@ static NewMenu select_tile_view_menu
 	{ "Hide Unused", hide_unused, MENUID_SELTILE_VIEW_HIDE_UNUSED },
 	{ "Hide Blank", hide_blank, MENUID_SELTILE_VIEW_HIDE_BLANK },
 	{ "Hide 8-bit marker", hide_8bit_marker, MENUID_SELTILE_VIEW_HIDE_8BIT },
+};
+
+static std::function<void(int)> select_tile_color_depth_cb;
+
+static void set_tile_color_depth_4()
+{
+	select_tile_color_depth_cb(tf4Bit);
+}
+static void set_tile_color_depth_8()
+{
+	select_tile_color_depth_cb(tf8Bit);
+}
+enum
+{
+	MENUID_SELTILE_COLOR_DEPTH_4_BIT,
+	MENUID_SELTILE_COLOR_DEPTH_8_BIT,
+};
+static NewMenu select_tile_color_depth_menu
+{
+	{ "4-bit", set_tile_color_depth_4, MENUID_SELTILE_COLOR_DEPTH_4_BIT },
+	{ "8-bit", set_tile_color_depth_8, MENUID_SELTILE_COLOR_DEPTH_8_BIT },
 };
 
 //returns the row the tile is in on its page
@@ -6752,7 +6762,7 @@ bool _handle_tile_move(TileMoveProcess dest_process, optional<TileMoveProcess> s
 			else if(enemy.family==eeGLEEOK)
 			{
 				// Not certain this is the right thing to check...
-				if(enemy.misc3==0)
+				if(enemy.attributes[2] == 0)
 					gleeok=1;
 				else
 					gleeok=2;
@@ -8494,17 +8504,24 @@ void show_blank_tile(int32_t t)
 	jwin_alert("Blank Tile Information",tbuf,tbuf2,tbuf3,"&OK",NULL,13,27,get_zc_font(font_lfont));
 }
 
-void do_convert_tile(int32_t tile, int32_t tile2, int32_t cs, bool rect_sel, bool fourbit, bool shift, bool alt)
+static void do_convert_tile(int32_t tile, int32_t tile2, int32_t cs, bool rect_sel, int format, bool shift, bool alt, bool skip_prompt = false)
 {
+	int num_bits;
+	if (format == tf4Bit)
+		num_bits = 4;
+	else if (format == tf8Bit)
+		num_bits = 8;
+	else assert(false);
+
 	char buf[80];
-	sprintf(buf, "Do you want to convert the selected %s to %d-bit color?", tile==tile2?"tile":"tiles",fourbit?4:8);
+	sprintf(buf, "Do you want to convert the selected %s to %d-bit color?", tile==tile2?"tile":"tiles",num_bits);
 	
-	if(jwin_alert("Convert Tile?",buf,NULL,NULL,"&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
+	if (skip_prompt || jwin_alert("Convert Tile?",buf,NULL,NULL,"&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
 	{
 		go_tiles();
 		saved=false;
 		
-		if(fourbit)
+		if(format == tf4Bit)
 		{
 			memset(cset_reduce_table, 0, 256);
 			memset(col_diff,0,3*128);
@@ -8524,8 +8541,8 @@ void do_convert_tile(int32_t tile, int32_t tile2, int32_t cs, bool rect_sel, boo
 			if(!rect_sel ||
 					((TILECOL(t)>=TILECOL(firsttile)) &&
 					 (TILECOL(t)<=TILECOL(lasttile))))
-				convert_tile(t, fourbit?tf4Bit:tf8Bit, cs, shift, alt);
-				
+				convert_tile(t, format, cs, shift, alt);
+
 		tile=tile2=zc_min(tile,tile2);
 	}
 }
@@ -8873,12 +8890,10 @@ int32_t writetilefile(PACKFILE *f, int32_t index, int32_t count)
 	
 	for ( int32_t tilect = 0; tilect < count; tilect++ )
 	{
-		//al_trace("Tile id: %d\n",index+(tilect));
 		if(!p_putc(newtilebuf[index+(tilect)].format,f))
 		{
 			return 0;
 		}
-		//al_trace("Tile format: %d\n", newtilebuf[index+(tilect)].format);
 		if(!pfwrite(newtilebuf[index+(tilect)].data,tilesize(newtilebuf[index+(tilect)].format),f))
 		{
 			return 0;
@@ -9865,8 +9880,9 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 					bool shift=(key[KEY_LSHIFT] || key[KEY_RSHIFT]);
 					bool control=(CHECK_CTRL_CMD);
 					bool alt=(key[KEY_ALT] || key[KEY_ALTGR]);
+					int format = control ? tf4Bit : tf8Bit;
 					
-					do_convert_tile(tile, tile2, cs, rect_sel, control, shift, alt);
+					do_convert_tile(tile, tile2, cs, rect_sel, format, shift, alt);
 					register_blank_tiles();
 				}
 				break;
@@ -10007,8 +10023,10 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 				
 				if(do_text_button((150+28*2)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"Export"))
 				{
-					strcpy(datapath, "tileset.png");
-					if(prompt_for_new_file_compat("Export Tile Page (.png)","png",NULL,datapath,true))
+					std::string initial_path = "tileset.png";
+					if (strlen(datapath))
+						initial_path = fmt::format("{}/{}", datapath, initial_path);
+					if(prompt_for_new_file_compat("Export Tile Page (.png)","png",NULL,initial_path,true))
 					{
 						PALETTE temppal;
 						get_palette(temppal);
@@ -10151,6 +10169,19 @@ REDRAW:
 			select_tile_view_menu.select_uid(MENUID_SELTILE_VIEW_HIDE_UNUSED, HIDE_UNUSED);
 			select_tile_view_menu.select_uid(MENUID_SELTILE_VIEW_HIDE_BLANK, HIDE_BLANK);
 			select_tile_view_menu.select_uid(MENUID_SELTILE_VIEW_HIDE_8BIT, HIDE_8BIT_MARKER);
+
+			int current_tile_format = MENUID_SELTILE_COLOR_DEPTH_4_BIT;
+			if (newtilebuf[tile].format == tf8Bit)
+				current_tile_format = MENUID_SELTILE_COLOR_DEPTH_8_BIT;
+			select_tile_color_depth_menu.select_only_uid(current_tile_format);
+			select_tile_color_depth_cb = [&](int format){
+				if (newtilebuf[tile].format == format)
+					return;
+
+				bool skip_prompt = true;
+				do_convert_tile(tile, tile2, cs, rect_sel, format, false, false, skip_prompt);
+			};
+
 			NewMenu rcmenu
 			{
 				{ "Copy", [&]()
@@ -10194,11 +10225,7 @@ REDRAW:
 						bool b = scale_or_rotate_tiles(tile, tile2, cs, true);
 						if(saved) saved = !b;
 					}, nullopt, type != 0 },
-				{ "Color Depth", [&]()
-					{
-						do_convert_tile(tile, tile2, cs, rect_sel,
-							(newtilebuf[tile].format!=tf4Bit), false, false);
-					} },
+				{ "Color Depth", &select_tile_color_depth_menu },
 				{},
 				{ "Blank?", [&]()
 					{
@@ -10447,7 +10474,7 @@ void draw_combos(int32_t page,int32_t cs,bool cols)
 	
 	for(int32_t x=(64*mul); x<(320*mul); x+=(64*mul))
 	{
-		_allegro_vline(screen2,x,0,(208*mul)-1,vc(15));
+		vline(screen2,x,0,(208*mul)-1,vc(15));
 	}
 	
 	destroy_bitmap(buf);
@@ -10461,8 +10488,8 @@ void combo_info(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copyc
 	FONT *tfont = get_zc_font(font_lfont_l);
 	
 	rectfill(screen2,0,210*2,(320*2)-1,(240*2)-1,jwin_pal[jcBOX]);
-	_allegro_hline(screen2, 0, (210*2)-2, (320*2)-1, jwin_pal[jcMEDLT]);
-	_allegro_hline(screen2, 0, (210*2)-1, (320*2)-1, jwin_pal[jcLIGHT]);
+	hline(screen2, 0, (210*2)-2, (320*2)-1, jwin_pal[jcMEDLT]);
+	hline(screen2, 0, (210*2)-1, (320*2)-1, jwin_pal[jcLIGHT]);
 	
 	jwin_draw_frame(screen2,(31*mul)-2,((216*mul)+yofs)-2,(16*mul)+4,(16*mul)+4,FR_DEEP);
 	
@@ -10680,7 +10707,6 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 	int32_t done=0;
 	int32_t tile_clicked=-1;
 	int32_t t2;
-	// int32_t cs = CSet;
 	int32_t copy=-1;
 	int32_t copycnt=0;
 	
@@ -13165,20 +13191,15 @@ int32_t readcomboaliasfile(PACKFILE *f)
 			{
 				if(!p_igetw(&tempword,f))
 				{
-			//al_trace("Could not reas alias.combos[%d]\n",k);
 					return 0;
 				}
 		else
 		{
-			//al_trace("Read Combo Alias Combo [%d] as: %d\n", k, tempword);
 			
 			
-			//al_trace("tempword is: %d\n", tempword);
 			temp_alias.combos[k] = tempword;
-			//al_trace("Combo Alias Combo [%d] is: %d\n", k, temp_alias.combos[k]);
 		}
 			}
-		//al_trace("Read alias combos.\n");
 			
 			for(int32_t k=0; k<count2; k++)
 			{
@@ -13189,14 +13210,10 @@ int32_t readcomboaliasfile(PACKFILE *f)
 				}
 		else
 		{
-			//al_trace("Read Combo Alias CSet [%d] as: %d\n", k, tempcset);
 			
 			temp_alias.csets[k] = tempcset;
-			//al_trace("Combo Alias CSet [%d] is: %d\n", k, temp_alias.csets[k]);
 		}
 			}
-		//al_trace("Read alias csets.\n");
-		//al_trace("About to memcpy a combo alias\n");
 		memcpy(&combo_aliases[index+(tilect)],&temp_alias,sizeof(combo_alias));
 	}
 	

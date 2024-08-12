@@ -157,9 +157,10 @@ static void read_bmicolors(int bytes, RGB *pal, PACKFILE *f, int win_flag)
    int i, j;
 
    for (i=j=0; (i+3 <= bytes && j < PAL_SIZE); j++) {
-      pal[j].b = pack_getc(f) / 4;
-      pal[j].g = pack_getc(f) / 4;
-      pal[j].r = pack_getc(f) / 4;
+      // local edit
+      pal[j].b = pack_getc(f);
+      pal[j].g = pack_getc(f);
+      pal[j].r = pack_getc(f);
 
       i += 3;
 
@@ -836,9 +837,10 @@ int save_bmp_pf(PACKFILE *f, BITMAP *bmp, AL_CONST RGB *pal)
 
       /* palette */
       for (i=0; i<256; i++) {
-	 pack_putc(_rgb_scale_6[pal[i].b], f);
-	 pack_putc(_rgb_scale_6[pal[i].g], f);
-	 pack_putc(_rgb_scale_6[pal[i].r], f);
+         // local edit
+	 pack_putc(pal[i].b, f);
+	 pack_putc(pal[i].g, f);
+	 pack_putc(pal[i].r, f);
 	 pack_putc(0, f);
       }
    }

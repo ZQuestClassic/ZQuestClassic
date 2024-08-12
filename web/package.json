@@ -6,10 +6,15 @@
   },
   "dependencies": {
     "browser-fs-access": "^0.35.0",
+    "firebase": "^10.12.5",
     "idb-keyval": "^6.2.1",
+    "monaco-editor": "^0.50.0",
+    "monaco-editor-textmate": "^4.0.0",
+    "vscode-oniguruma": "^2.0.1",
     "workbox-cli": "^7.0.0"
   },
   "devDependencies": {
+    "esbuild": "^0.23.0",
     "expect": "^29.4.3",
     "mocha": "^10.2.0",
     "puppeteer": "^21.1.1",

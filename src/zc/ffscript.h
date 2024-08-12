@@ -509,6 +509,9 @@ struct user_rng : public user_abstract_obj
 	}
 };
 
+extern bool scripting_use_8bit_colors;
+extern int scripting_max_color_val;
+
 #define MAX_USER_PALDATAS 256
 #define PALDATA_NUM_COLORS 256
 #define PALDATA_BITSTREAM_SIZE 32
@@ -522,9 +525,9 @@ struct user_paldata : public user_abstract_obj
 	//Sets a color index on the paldata
 	void set_color(int32_t ind, RGB c)
 	{
-		c.r = vbound(c.r, 0, 63);
-		c.g = vbound(c.g, 0, 63);
-		c.b = vbound(c.b, 0, 63);
+		c.r = vbound(c.r, 0, scripting_max_color_val);
+		c.g = vbound(c.g, 0, scripting_max_color_val);
+		c.b = vbound(c.b, 0, scripting_max_color_val);
 		colors[ind] = c;
 		set_bit(colors_used, ind, true);
 	}
@@ -803,7 +806,6 @@ bool runOnMapScriptEngine();
 void doScriptMenuDraws();
 void runOnSaveEngine();
 void initIncludePaths();
-void initRunString();
 void updateRunString();
 void updateIncludePaths();
 bool checkExtension(std::string &filename, const std::string &extension);
@@ -862,11 +864,8 @@ int32_t IsBlankTile(int32_t i);
 int32_t Is8BitTile(int32_t i);
 
 defWpnSprite getDefWeaponSprite(int32_t wpnid);
-//defWpnSprite getDefWeaponSprite(weapon *wp);
 
 //ZC SRAM
-//void read_maps(PACKFILE *f, int32_t vers_id);
-//void write_maps(PACKFILE *f, int32_t vers_id);
 void read_dmaps(PACKFILE *f, int32_t vers_id);
 void write_dmaps(PACKFILE *f, int32_t vers_id);
 void read_combos(PACKFILE *f, int32_t vers_id);
@@ -1062,7 +1061,6 @@ int32_t FF_lweapon_removal_bounds[4]; //left, right, top, bottom coordinates for
 
 std::vector<std::string> includePaths;
 char includePathString[MAX_INCLUDE_PATH_CHARS];
-char scriptRunString[21];
 int32_t warpex[wexLast];
 int32_t StdArray[256];
 int32_t GhostArray[256];
@@ -1124,13 +1122,7 @@ int32_t getCombodataPos(int32_t c, ScriptType scripttype);
 int32_t getCombodataY(int32_t c, ScriptType scripttype);
 int32_t getCombodataX(int32_t c, ScriptType scripttype);
 
-//tba
-//void deallocateComboArrays();
-
 int32_t GetScriptObjectUID(int32_t type);
-    
-//byte item_messages_played[MAXITEMS]; //Each field is set when an item pickup message plays the first time per session
-				//so that they do not play every time an item is collected, unless one of the flags is set for it.
 
 void SetFFEngineFlag(int32_t flag, bool v);
 void SetItemMessagePlayed(int32_t itm);

@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include <memory>
 #include <filesystem>
 #include <stdio.h>
@@ -10,6 +11,7 @@
 #include <sstream>
 
 #include "md5.h"
+#include "subscr.h"
 #include "zalleg/zalleg.h"
 #include "base/qrs.h"
 #include "base/dmap.h"
@@ -89,7 +91,7 @@ extern char zc_builddate[80];
 extern char zc_aboutstr[80];
 
 int32_t DMapEditorLastMaptileUsed = 0;
-int32_t switch_type = 0; //Init here to avoid Linux building error in g++.
+int32_t switch_type = 0;
 bool saved = true;
 bool zqtesting_mode = false;
 static std::string testingqst_name;
@@ -231,10 +233,6 @@ const char *dmaplist(int32_t index, int32_t *list_size)
 
 int32_t startdmapxy[6] = {0,0,0,0,0,0};
 
-/**********************************/
-/******** Global Variables ********/
-/**********************************/
-
 int32_t curr_tb_page=0;
 
 RGB_MAP rgb_table;
@@ -340,7 +338,6 @@ int32_t checkx = 0, checky = 0;
 int32_t loadlast=0;
 int32_t skipcont=0;
 
-bool monochrome = false; //GFX are monochrome.
 bool palette_user_tinted = false;
 
 bool show_layer_0=true, show_layer_1=true, show_layer_2=true, show_layer_3=true, show_layer_4=true, show_layer_5=true, show_layer_6=true,
@@ -525,7 +522,14 @@ PALETTE* hw_palette = NULL;
 void update_hw_screen()
 {
 	if (is_headless())
+	{
+		if (update_hw_pal && hw_palette)
+		{
+			zc_set_palette(*hw_palette);
+			update_hw_pal = false;
+		}
 		return;
+	}
 
 	framecnt++;
 
@@ -689,11 +693,6 @@ void ChangeSubscreenText(int32_t index, const char *f)
 }
 
 
-
-/**********************************/
-/*********** Misc Data ************/
-/**********************************/
-
 const char startguy[8] = {-13,-13,-13,-14,-15,-18,-21,-40};
 const char gambledat[12*6] =
 {
@@ -741,19 +740,6 @@ FONT *setmsgfont()
 	return get_zc_font(MsgStrings[msgstr].font);
 }
 
-void zc_trans_blit(BITMAP* dest, BITMAP* src, int32_t sx, int32_t sy, int32_t dx, int32_t dy, int32_t w, int32_t h)
-{
-	for(int32_t tx = 0; tx < w; ++tx)
-		for(int32_t ty = 0; ty < h; ++ty)
-		{
-			int32_t c1 = src->line[sy+ty][sx+tx];
-			int32_t c2 = dest->line[dy+ty][dx+tx];
-			if(c1)
-			{
-				dest->line[dy+ty][dx+tx] = trans_table.data[c1][c2];
-			}
-		}
-}
 void msg_bg(MsgStr const& msg)
 {
 	if(msg.tile == 0) return;
@@ -792,7 +778,6 @@ void blit_msgstr_bg(BITMAP* dest, int32_t sx, int32_t sy, int32_t dx, int32_t dy
 			destroy_bitmap(subbmp);
 			color_map = &trans_table;
 		}
-		//zc_trans_blit(dest, msg_bg_display_buf, sx, sy, dx, dy, w, h);
 	}
 	else
 	{
@@ -813,7 +798,6 @@ void blit_msgstr_fg(BITMAP* dest, int32_t sx, int32_t sy, int32_t dx, int32_t dy
 			destroy_bitmap(subbmp);
 			color_map = &trans_table;
 		}
-		//zc_trans_blit(dest, msg_txt_display_buf, sx, sy, dx, dy, w, h);
 	}
 	else
 	{
@@ -945,11 +929,6 @@ extern char *weapon_string[];
 extern char *item_string[];
 extern char *sfx_string[];
 extern char *guy_string[];
-
-
-/**********************************/
-/******* Other Source Files *******/
-/**********************************/
 
 bool get_debug()
 {
@@ -1532,10 +1511,6 @@ void CatchBrang()
     Hero.Catch();
 }
 
-/**************************/
-/***** Main Game Code *****/
-/**************************/
-
 int8_t smart_vercmp(char const* a, char const* b)
 {
 	// TODO: Attempting to make this not overflow given version
@@ -1988,7 +1963,8 @@ int32_t init_game()
 
 	if (replay_is_active())
 	{
-		replay_set_meta("qst_title", game->header.title);
+		if (!game->header.title.empty())
+			replay_set_meta("qst_title", game->header.title);
 
 #ifdef HAS_UUID
 		if (!replay_has_meta("uuid"))
@@ -2511,7 +2487,6 @@ int32_t cont_game()
 	GameLoaded = true;
 	timeExitAllGenscript(GENSCR_ST_CONTINUE);
 	throwGenScriptEvent(GENSCR_EVENT_CONTINUE);
-	//  introclk=intropos=msgclk=msgpos=dmapmsgclk=0;
 	FFCore.init();
 	onload_gswitch_timers();
 	didpit=false;
@@ -3879,10 +3854,6 @@ bool no_subscreen()
     return (tmpscr->flags3&fNOSUBSCR)!=0;
 }
 
-bool isMonochrome(){
-	return monochrome;
-}
-
 bool isUserTinted()
 {
 	return palette_user_tinted;
@@ -3892,51 +3863,10 @@ void isUserTinted(bool state)
 	palette_user_tinted = state;
 }
 
-void setMonochrome(bool v){
-	if ( v && (!monochrome || lastMonoPreset) ) { //lastMonoPreset check to allow overwriting a mono preset with setMonochrome's greyscale
-		if(isUserTinted()){ // If a user tint is active, disable it and restore RAMpal
-			memcpy(RAMpal, tempgreypal, PAL_SIZE*sizeof(RGB));
-			isUserTinted(false);
-		} else if(lastMonoPreset){ // If a monochrome preset was loaded, restore RAMpal, and disable it
-			memcpy(RAMpal, tempgreypal, PAL_SIZE*sizeof(RGB));
-			lastMonoPreset = 0;
-		} else { // else back up RAMpal to tempgreypal
-			memcpy(tempgreypal, RAMpal, PAL_SIZE*sizeof(RGB));
-		}
-		if(get_qr(qr_FADE)) {
-		for(int32_t i=CSET(0); i < CSET(15); i++)
-		{
-			int32_t g = zc_min((RAMpal[i].r*42 + RAMpal[i].g*75 + RAMpal[i].b*14) >> 7, 63);
-			g = (g >> 1) + 32;
-			RAMpal[i] = _RGB(g,g,g);
-		}
-    
-		}
-		else
-		{
-			// this is awkward. NES Z1 converts colors based on the global
-			// NES palette. Something like RAMpal[i] = NESpal( reverse_NESpal(RAMpal[i]) & 0x30 );
-			for(int32_t i=CSET(0); i < CSET(15); i++)
-			{
-				RAMpal[i] = NESpal(reverse_NESpal(RAMpal[i]) & 0x30);
-			}
-		} 
-		refreshpal = true;
-		monochrome = true; 
-	}
-	
-	else if ( !v && monochrome && !lastMonoPreset ) {
-		memcpy(RAMpal, tempgreypal, PAL_SIZE*sizeof(RGB));
-		refreshpal = true;
-		monochrome = false;
-	}
-}
-
 enum { colourNONE, colourGREY, colourRED, colourGREEN, colourBLUE, colourVIOLET, colourTEAL, colourAMBER, colourCYAN };
 enum { baseUNIFORM, baseDISTRIBUTED = 1000 };
 enum { tint_r, tint_g, tint_b, tint_bool_dist};
 
-int16_t lastMonoPreset = 0; // The current Monochrome preset loaded
 int16_t lastCustomTint[4] = {0,0,0,0}; // The current custom tint information. 0/1/2: R/G/B, 3: Base
 
 void shiftColour(int32_t rshift, int32_t gshift, int32_t bshift, int32_t base)
@@ -3952,78 +3882,20 @@ void shiftColour(int32_t rshift, int32_t gshift, int32_t bshift, int32_t base)
 		}
 		//Bit-shifting negatives throws errors. If negative, shift in the other direction.
 		if(rshift>=0){
-			RAMpal[i].r = zc_min(RAMpal[i].r >> rshift,63);
+			RAMpal[i].r = zc_min(RAMpal[i].r >> rshift,255);
 		} else {
-			RAMpal[i].r = zc_min(RAMpal[i].r << -rshift,63);
+			RAMpal[i].r = zc_min(RAMpal[i].r << -rshift,255);
 		}
 		if(gshift>=0){
-			RAMpal[i].g = zc_min(RAMpal[i].g >> gshift,63);
+			RAMpal[i].g = zc_min(RAMpal[i].g >> gshift,255);
 		} else {
-			RAMpal[i].g = zc_min(RAMpal[i].g << -gshift,63);
+			RAMpal[i].g = zc_min(RAMpal[i].g << -gshift,255);
 		}
 		if(bshift>=0){
-			RAMpal[i].b = zc_min(RAMpal[i].b >> bshift,63);
+			RAMpal[i].b = zc_min(RAMpal[i].b >> bshift,255);
 		} else {
-			RAMpal[i].b = zc_min(RAMpal[i].b << -bshift,63);
+			RAMpal[i].b = zc_min(RAMpal[i].b << -bshift,255);
 		}
-	}
-}
-
-void setMonochromatic(int32_t mode)
-{
-	int32_t base = mode < baseDISTRIBUTED ? baseUNIFORM : baseDISTRIBUTED; //distributed is an additive flag adding 10
-	int32_t colour_mode = mode - base;
-	if(isUserTinted()){
-		memcpy(RAMpal, tempgreypal, PAL_SIZE*sizeof(RGB));
-		isUserTinted(false); //Disable custom tint, override with monochrome
-	}
-	lastMonoPreset = mode;
-	if (colour_mode <= 0 && monochrome ) //restore
-	{
-		memcpy(RAMpal, tempgreypal, PAL_SIZE*sizeof(RGB));
-		refreshpal = true;
-		monochrome = false; 
-	}
-	else if ( colour_mode ) 
-	{ 
-		//If a preset was already active, restore RAMpal before continuing; else, back up RAMpal.
-		if ( monochrome ) {
-			memcpy(RAMpal, tempgreypal, PAL_SIZE*sizeof(RGB));
-		} else {
-			memcpy(tempgreypal, RAMpal, PAL_SIZE*sizeof(RGB));
-		}
-		switch(colour_mode)
-		{
-			case colourGREY:
-				shiftColour(0,0,0,base);
-				break;
-			case colourRED:
-				shiftColour(0,4,4,base);
-				break;
-			case colourGREEN:
-				shiftColour(4,0,4,base);
-				break;
-			case colourBLUE:
-				shiftColour(4,4,0,base);
-				break;
-			case colourVIOLET:
-				shiftColour(1,4,0,base);
-				break;
-			case colourTEAL:
-				shiftColour(4,1,0,base);
-				break;
-			case colourAMBER:
-				shiftColour(0,1,4,base);
-				break;
-			case colourCYAN:
-				addColour(-63,-6,-2,base);
-				break;
-			default: shiftColour(0,0,0,base);
-				break;
-		}
-
-		refreshpal = true;
-		monochrome = true; 
 	}
 }
 
@@ -4038,20 +3910,15 @@ void addColour(int32_t radd, int32_t gadd, int32_t badd, int32_t base)
 			int32_t grey = 0.299*RAMpal[i].r + 0.587*RAMpal[i].g + 0.114*RAMpal[i].b;
 			RAMpal[i] = _RGB(grey,grey,grey);
 		}
-		//Add the r/g/b adds to the r/g/b values, clamping between 0 and 63.
-		RAMpal[i].r = vbound(RAMpal[i].r + radd,0,63);
-		RAMpal[i].g = vbound(RAMpal[i].g + gadd,0,63);
-		RAMpal[i].b = vbound(RAMpal[i].b + badd,0,63);
+		//Add the r/g/b adds to the r/g/b values, clamping between 0 and 255.
+		RAMpal[i].r = vbound(RAMpal[i].r + radd,0,255);
+		RAMpal[i].g = vbound(RAMpal[i].g + gadd,0,255);
+		RAMpal[i].b = vbound(RAMpal[i].b + badd,0,255);
 	}
 }
 
 void doGFXMonohue(int32_t _r, int32_t _g, int32_t _b, bool m)
 {
-	if(monochrome) { // If a mono preset or greyscale was active, disable it and restore RAMpal before continuing.
-		memcpy(RAMpal, tempgreypal, PAL_SIZE*sizeof(RGB));
-		monochrome = false;
-		lastMonoPreset = 0;
-	}
 	if(isUserTinted()) { // A tint already is active. Tint should then cascade.
 		//Restore RAMpal
 		memcpy(RAMpal, tempgreypal, PAL_SIZE*sizeof(RGB));
@@ -4071,18 +3938,12 @@ void doGFXMonohue(int32_t _r, int32_t _g, int32_t _b, bool m)
 		lastCustomTint[3] = m?baseDISTRIBUTED:baseUNIFORM;
 		addColour(_r,_g,_b,m?baseDISTRIBUTED:baseUNIFORM);
 	}
-	lastMonoPreset = 0; // Clear mono preset to use tint instead
 	isUserTinted(true);
 	refreshpal = true;
 }
 
 void doTint(int32_t _r, int32_t _g, int32_t _b)
 {
-	if(monochrome) { // If a mono preset or greyscale was active, disable it and restore RAMpal before continuing.
-		memcpy(RAMpal, tempgreypal, PAL_SIZE*sizeof(RGB));
-		monochrome = false;
-		lastMonoPreset = 0;
-	}
 	if(isUserTinted()) { // A tint already is active. Tint should then cascade.
 		//Restore RAMpal
 		memcpy(RAMpal, tempgreypal, PAL_SIZE*sizeof(RGB));
@@ -4102,7 +3963,6 @@ void doTint(int32_t _r, int32_t _g, int32_t _b)
 		lastCustomTint[3] = -1;
 		addColour(_r,_g,_b,-1);
 	}
-	lastMonoPreset = 0; // Clear mono preset to use tint instead
 	isUserTinted(true);
 	refreshpal = true;
 }
@@ -4110,13 +3970,9 @@ void doTint(int32_t _r, int32_t _g, int32_t _b)
 void doClearTint()
 {
 	//If a color mode was active, restore RAMpal from the backup
-	if(monochrome || isUserTinted()){
+	if(isUserTinted()){
 		memcpy(RAMpal, tempgreypal, PAL_SIZE*sizeof(RGB));
-		//Disable the booleans
-		monochrome = false;
 		isUserTinted(false);
-		//Clear the storage
-		lastMonoPreset = 0;
 		refreshpal = true;
 	}
 }
@@ -4129,33 +3985,15 @@ void restoreTint(){
 	}
 }
 
-void restoreMonoPreset(){
-	if(monochrome && lastMonoPreset){
-		memcpy(RAMpal, tempgreypal, PAL_SIZE*sizeof(RGB));
-		setMonochromatic(lastMonoPreset);
-		refreshpal = true;
-	}
-}
-
 void refreshTints()
 {
-	if(isMonochrome() && !lastMonoPreset)
-	{
-		setMonochrome(false);
-		setMonochrome(true);
-	}
 	restoreTint();
-	restoreMonoPreset();
 }
 
 int32_t getTint(int32_t color)
 {
 	return lastCustomTint[color];
 }
-
-/**************************/
-/********** Main **********/
-/**************************/
 
 bool is_editor()
 {
@@ -4660,7 +4498,6 @@ int main(int argc, char **argv)
 	zcmixer = zcmixer_create();
 	Z_message("OK\n");
 	
-	//  int32_t mode = VidMode;                                       // from config file
 	int32_t tempmode=GFX_AUTODETECT;
 	int32_t res_arg = used_switch(argc,argv,"-res");
 	
@@ -5368,7 +5205,6 @@ reload_for_replay_file:
 		}
 		FFCore.deallocateAllScriptOwned(ScriptType::Global, GLOBAL_SCRIPT_END);
 		//Restore original palette before exiting for any reason!
-		setMonochrome(false);
 		doClearTint();
 		Hero.setDontDraw(0);
 		if(Quit != qCONT)

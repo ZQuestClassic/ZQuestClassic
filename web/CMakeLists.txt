@@ -34,6 +34,24 @@ add_custom_command(
 add_custom_target(main_bundle DEPENDS ${BUILD_FOLDER}/main.js)
 add_dependencies(main_bundle zscript)
 
+set(playground_bundle_command
+    npm install --quiet && npx esbuild --bundle main.js --outfile=${BUILD_FOLDER}/main.js --sourcemap
+    $<$<NOT:$<CONFIG:Debug>>:--minify>
+)
+add_custom_command(
+    OUTPUT ${BUILD_FOLDER}/playground.js
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    COMMAND ${playground_bundle_command}
+    COMMAND_EXPAND_LISTS
+    DEPENDS
+        playground/playground.ts
+        package-lock.json
+        package.json
+    VERBATIM
+)
+add_custom_target(playground_bundle DEPENDS ${BUILD_FOLDER}/playground.js)
+add_dependencies(playground_bundle zscript)
+
 function (create_web_target target)
     add_custom_command(
         OUTPUT ${BUILD_FOLDER}/${target}.html
@@ -69,5 +87,5 @@ add_custom_command(
     VERBATIM
 )
 add_custom_target(web DEPENDS web.stamp)
-add_dependencies(web zplayer html_zplayer zeditor html_zeditor zscript main_bundle)
+add_dependencies(web zplayer html_zplayer zeditor html_zeditor zscript main_bundle playground_bundle)
 set_source_files_properties(web.stamp PROPERTIES SYMBOLIC 1)

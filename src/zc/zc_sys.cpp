@@ -248,11 +248,6 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 	jwin_center_dialog(d);
 }
 
-
-/**********************************/
-/******** System functions ********/
-/**********************************/
-
 static char cfg_sect[] = "zeldadx"; //We need to rename this.
 static char ctrl_sect[] = "Controls";
 static char sfx_sect[] = "Volume";
@@ -819,247 +814,6 @@ qword trianglelines[16]=
 };
 
 word screen_triangles[28][32];
-/*
-  qword triangles[4][16]= //[direction][value]
-  {
-  {
-  0x00000000, 0x10000000, 0x21000000, 0x32100000, 0x43210000, 0x54321000, 0x65432100, 0x76543210, 0x87654321, 0x88765432, 0x88876543, 0x88887654, 0x88888765, 0x88888876, 0x88888887, 0x88888888
-  },
-  {
-  0x00000000, 0xF0000000, 0xEF000000, 0xFDF00000, 0xCFDF0000, 0xBCFDF000, 0xABCFDF00, 0x9ABCFDF0, 0x89ABCFDF, 0x889ABCFD, 0x8889ABCD, 0x88889ABC, 0x888889AB, 0x8888889A, 0x88888889, 0x88888888
-  },
-  {
-  0x00000000, 0x00000001, 0x00000012, 0x00000123, 0x00001234, 0x00012345, 0x00123456, 0x01234567, 0x12345678, 0x23456788, 0x34567888, 0x45678888, 0x56788888, 0x67888888, 0x78888888, 0x88888888
-  },
-  {
-  0x00000000, 0x0000000F, 0x000000FE, 0x00000FED, 0x0000FEDC, 0x000FEDCB, 0x00FEDCBA, 0x0FEDCBA9, 0xFEDCBA98, 0xEDCBA988, 0xDCBA9888, 0xCBA98888, 0xBA988888, 0xA9888888, 0x98888888, 0x88888888
-  }
-  };
-  */
-
-
-/*
-  byte triangles[4][16][8]= //[direction][value][line]
-  {
-  {
-  {
-  0,  0,  0,  0,  0,  0,  0,  0
-  },
-  {
-  1,  0,  0,  0,  0,  0,  0,  0
-  },
-  {
-  2,  1,  0,  0,  0,  0,  0,  0
-  },
-  {
-  3,  2,  1,  0,  0,  0,  0,  0
-  },
-  {
-  4,  3,  2,  1,  0,  0,  0,  0
-  },
-  {
-  5,  4,  3,  2,  1,  0,  0,  0
-  },
-  {
-  6,  5,  4,  3,  2,  1,  0,  0
-  },
-  {
-  7,  6,  5,  4,  3,  2,  1,  0
-  },
-  {
-  8,  7,  6,  5,  4,  3,  2,  1
-  },
-  {
-  8,  8,  7,  6,  5,  4,  3,  2
-  },
-  {
-  8,  8,  8,  7,  6,  5,  4,  3
-  },
-  {
-  8,  8,  8,  8,  7,  6,  5,  4
-  },
-  {
-  8,  8,  8,  8,  8,  7,  6,  5
-  },
-  {
-  8,  8,  8,  8,  8,  8,  7,  6
-  },
-  {
-  8,  8,  8,  8,  8,  8,  8,  7
-  },
-  {
-  8,  8,  8,  8,  8,  8,  8,  8
-  }
-  },
-  {
-  {
-  0,  0,  0,  0,  0,  0,  0,  0
-  },
-  {
-  15,  0,  0,  0,  0,  0,  0,  0
-  },
-  {
-  14, 15,  0,  0,  0,  0,  0,  0
-  },
-  {
-  13, 14, 15,  0,  0,  0,  0,  0
-  },
-  {
-  12, 13, 14, 15,  0,  0,  0,  0
-  },
-  {
-  11, 12, 13, 14, 15,  0,  0,  0
-  },
-  {
-  10, 11, 12, 13, 14, 15,  0,  0
-  },
-  {
-  9, 10, 11, 12, 13, 14, 15,  0
-  },
-  {
-  8,  9, 10, 11, 12, 13, 14, 15
-  },
-  {
-  8,  8,  9, 10, 11, 12, 13, 14
-  },
-  {
-  8,  8,  8,  9, 10, 11, 12, 13
-  },
-  {
-  8,  8,  8,  8,  9, 10, 11, 12
-  },
-  {
-  8,  8,  8,  8,  8,  9, 10, 11
-  },
-  {
-  8,  8,  8,  8,  8,  8,  9, 10
-  },
-  {
-  8,  8,  8,  8,  8,  8,  8,  9
-  },
-  {
-  8,  8,  8,  8,  8,  8,  8,  8
-  }
-  },
-  {
-  {
-  0,  0,  0,  0,  0,  0,  0,  0
-  },
-  {
-  0,  0,  0,  0,  0,  0,  0,  1
-  },
-  {
-  0,  0,  0,  0,  0,  0,  1,  2
-  },
-  {
-  0,  0,  0,  0,  0,  1,  2,  3
-  },
-  {
-  0,  0,  0,  0,  1,  2,  3,  4
-  },
-  {
-  0,  0,  0,  1,  2,  3,  4,  5
-  },
-  {
-  0,  0,  1,  2,  3,  4,  5,  6
-  },
-  {
-  0,  1,  2,  3,  4,  5,  6,  7
-  },
-  {
-  1,  2,  3,  4,  5,  6,  7,  8
-  },
-  {
-  2,  3,  4,  5,  6,  7,  8,  8
-  },
-  {
-  3,  4,  5,  6,  7,  8,  8,  8
-  },
-  {
-  4,  5,  6,  7,  8,  8,  8,  8
-  },
-  {
-  5,  6,  7,  8,  8,  8,  8,  8
-  },
-  {
-  6,  7,  8,  8,  8,  8,  8,  8
-  },
-  {
-  7,  8,  8,  8,  8,  8,  8,  8
-  },
-  {
-  8,  8,  8,  8,  8,  8,  8,  8
-  }
-  },
-  {
-  {
-  0,  0,  0,  0,  0,  0,  0,  0
-  },
-  {
-  0,  0,  0,  0,  0,  0,  0, 15
-  },
-  {
-  0,  0,  0,  0,  0,  0, 15, 14
-  },
-  {
-  0,  0,  0,  0,  0, 15, 14, 13
-  },
-  {
-  0,  0,  0,  0, 15, 14, 13, 12
-  },
-  {
-  0,  0,  0, 15, 14, 13, 12, 11
-  },
-  {
-  0,  0, 15, 14, 13, 12, 11, 10
-  },
-  {
-  0, 15, 14, 13, 12, 11, 10,  9
-  },
-  {
-  15, 14, 13, 12, 11, 10,  9,  8
-  },
-  {
-  14, 13, 12, 11, 10,  9,  8,  8
-  },
-  {
-  13, 12, 11, 10,  9,  8,  8,  8
-  },
-  {
-  12, 11, 10,  9,  8,  8,  8,  8
-  },
-  {
-  11, 10,  9,  8,  8,  8,  8,  8
-  },
-  {
-  10,  9,  8,  8,  8,  8,  8,  8
-  },
-  {
-  9,  8,  8,  8,  8,  8,  8,  8
-  },
-  {
-  8,  8,  8,  8,  8,  8,  8,  8
-  }
-  }
-  };
-  */
-
-
-
-/*
-  for (int32_t blockrow=0; blockrow<30; ++i)
-  {
-  for (int32_t linerow=0; linerow<8; ++i)
-  {
-  qword *triangleline=(qword*)(tmp_scr->line[(blockrow*8+linerow)]);
-  for (int32_t blockcolumn=0; blockcolumn<40; ++i)
-  {
-  triangleline=triangles[0][screen_triangles[blockrow][blockcolumn]][linerow];
-  ++triangleline;
-  }
-  }
-  }
-  */
 
 // the ULL suffixes are to prevent this warning:
 // warning: integer constant is too large for "int32_t" type
@@ -1934,14 +1688,15 @@ void black_opening(BITMAP *dest,int32_t x,int32_t y,int32_t a,int32_t max_a)
 	masked_blit(tmp_scr,dest,0,0,0,0,320,240);
 }
 
-
+// fadeamnt is 0-63
 void black_fade(int32_t fadeamnt)
 {
+	fadeamnt = _rgb_scale_6[fadeamnt];
 	for(int32_t i=0; i < 0xEF; i++)
 	{
-		RAMpal[i].r = vbound(tempblackpal[i].r-fadeamnt,0,63);
-		RAMpal[i].g = vbound(tempblackpal[i].g-fadeamnt,0,63);
-		RAMpal[i].b = vbound(tempblackpal[i].b-fadeamnt,0,63);
+		RAMpal[i].r = vbound(tempblackpal[i].r-fadeamnt,0,255);
+		RAMpal[i].g = vbound(tempblackpal[i].g-fadeamnt,0,255);
+		RAMpal[i].b = vbound(tempblackpal[i].b-fadeamnt,0,255);
 	}
 	
 	refreshpal = true;
@@ -2120,15 +1875,6 @@ bool has_item(int32_t item_type, int32_t it)						//does Hero possess this item?
 		}
 		
 		default:
-			//it=(1<<(it-1));
-			/*if (item_type>=itype_max)
-			{
-			  enter_sys_pal();
-			  jwin_alert("Error","has_item exception",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-			  exit_sys_pal();
-			
-			  return false;
-			}*/
 			int32_t itemid = getItemID(itemsbuf, item_type, it);
 			
 			if(itemid == -1)
@@ -2573,10 +2319,8 @@ void draw_lens_under(BITMAP *dest, bool layer)
 		mfREFFIREBALL, mfHAMMER, mfSWORDBEAM, mfWAND
 	};
 	
-	//  int32_t page = tmpscr->cpage;
 	{
 		int32_t blink_rate=flash_reduction_enabled()?6:1;
-		//	int32_t temptimer=0;
 		int32_t tempitem, tempweapon=0;
 		strike_hint=strike_hint_table[strike_hint_counter];
 		
@@ -3743,8 +3487,6 @@ void draw_wavy(BITMAP *source, BITMAP *target, int32_t amplitude, bool interpol)
 	blit(source,wavebuf,0,original_playing_field_offset,16,0,256,224-original_playing_field_offset);
 	
 	int32_t ofs;
-	//  int32_t amplitude=8;
-	//  int32_t wavelength=4;
 	amplitude = zc_min(2048,amplitude); // some arbitrary limit to prevent crashing
 	if(flash_reduction_enabled() && !get_qr(qr_WAVY_NO_EPILEPSY)) amplitude = zc_min(16,amplitude);
 	int32_t amp2=168;
@@ -3882,7 +3624,7 @@ void updatescr(bool allowwavy)
 	{
 		refreshpal=false;
 		RAMpal[253] = _RGB(0,0,0);
-		RAMpal[254] = _RGB(63,63,63);
+		RAMpal[254] = _RGB(255,255,255);
 		hw_palette = &RAMpal;
 		update_hw_pal = true;
 
@@ -3954,20 +3696,6 @@ void updatescr(bool allowwavy)
 		if(!(msg_txt_display_buf->clip))
 			blit_msgstr_fg(framebuf,0,0,0,playing_field_offset,256,168);
 	}
-	
-	/*
-	if(!(msg_txt_display_buf->clip) && Playing && msgpos && !screenscrolling)
-	{
-		BITMAP* subBmp = 0;
-		masked_blit(msg_txt_display_buf,subBmp,0,0,0,playing_field_offset,256,168);
-		// masked_blit(msg_txt_display_buf,subBmp,0,playing_field_offset,256,168);
-		 draw_trans_sprite(framebuf, subBmp, 0, playing_field_offset);
-		destroy_bitmap(subBmp);
-		//void draw_sprite_ex(BITMAP *bmp, BITMAP *sprite, int32_t x, int32_t y, int32_t mode, int32_t flip);
-	   // masked_blit(msg_txt_display_buf,framebuf,0,0,0,playing_field_offset,256,168);
-		//void masked_blit(BITMAP *source, BITMAP *dest, int32_t source_x, int32_t source_y, int32_t dest_x, int32_t dest_y, int32_t width, int32_t height);
-	}
-	*/
 	
 	bool nosubscr = (tmpscr->flags3&fNOSUBSCR && !(tmpscr->flags3&fNOSUBSCROFFSET));
 	
@@ -4502,7 +4230,6 @@ void syskeys()
 	
 	if(zc_readkey(KEY_P))   Paused=!Paused;
 	
-	//if(zc_readkey(KEY_P))   centerHero();
 	if(zc_readkey(KEY_A))
 	{
 		Paused=true;
@@ -4747,7 +4474,6 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 	
 #endif
 	
-	//textprintf_ex(screen,font,0,72,254,BLACK,"%d %d", lastentrance, lastentrance_dmap);
 	if(sfxcleanup)
 		sfx_cleanup();
 	
@@ -4852,9 +4578,9 @@ void wavyout(bool showhero)
 	{
 		for(int32_t l=0; l<256; l++)
 		{
-			wavepal[l].r=vbound(int32_t(RAMpal[l].r+((palpos/palstop)*(63-RAMpal[l].r))),0,63);
-			wavepal[l].g=vbound(int32_t(RAMpal[l].g+((palpos/palstop)*(63-RAMpal[l].g))),0,63);
-			wavepal[l].b=vbound(int32_t(RAMpal[l].b+((palpos/palstop)*(63-RAMpal[l].b))),0,63);
+			wavepal[l].r=vbound(int32_t(RAMpal[l].r+((palpos/palstop)*(255-RAMpal[l].r))),0,255);
+			wavepal[l].g=vbound(int32_t(RAMpal[l].g+((palpos/palstop)*(255-RAMpal[l].g))),0,255);
+			wavepal[l].b=vbound(int32_t(RAMpal[l].b+((palpos/palstop)*(255-RAMpal[l].b))),0,255);
 		}
 		
 		palpos+=palstep;
@@ -4886,8 +4612,7 @@ void wavyout(bool showhero)
 		}
 		
 		advanceframe(true);
-		
-		//	animate_combos();
+
 		if(Quit)
 			break;
 	}
@@ -4904,14 +4629,7 @@ void wavyin()
 	blit(framebuf,wavebuf,0,0,16,0,256,224);
 	
 	static PALETTE wavepal;
-	
-	//Breaks dark rooms.
-	//In any case I don't think we need this, since palette is already loaded in doWarp() (famous last words...) -DD
-	/*
-	  loadfullpal();
-	  loadlvlpal(DMaps[currdmap].color);
-	  ringcolor(false);
-	*/
+
 	refreshpal=false;
 	int32_t ofs;
 	int32_t amplitude=8;
@@ -4923,9 +4641,9 @@ void wavyin()
 	{
 		for(int32_t l=0; l<256; l++)
 		{
-			wavepal[l].r=vbound(int32_t(RAMpal[l].r+((palpos/palstop)*(63-RAMpal[l].r))),0,63);
-			wavepal[l].g=vbound(int32_t(RAMpal[l].g+((palpos/palstop)*(63-RAMpal[l].g))),0,63);
-			wavepal[l].b=vbound(int32_t(RAMpal[l].b+((palpos/palstop)*(63-RAMpal[l].b))),0,63);
+			wavepal[l].r=vbound(int32_t(RAMpal[l].r+((palpos/palstop)*(255-RAMpal[l].r))),0,255);
+			wavepal[l].g=vbound(int32_t(RAMpal[l].g+((palpos/palstop)*(255-RAMpal[l].g))),0,255);
+			wavepal[l].b=vbound(int32_t(RAMpal[l].b+((palpos/palstop)*(255-RAMpal[l].b))),0,255);
 		}
 		
 		palpos-=palstep;
@@ -4957,7 +4675,6 @@ void wavyin()
 		}
 		
 		advanceframe(true);
-		//	animate_combos();
 		
 		if(Quit)
 			break;
@@ -5019,8 +4736,6 @@ void openscreen(int32_t shape)
 	for(int32_t i=0; i<80; i++)
 	{
 		draw_screen();
-		//? draw_screen already draws the subscreen -DD
-		//put_passive_subscr(framebuf,0,passive_subscreen_offset,false,sspUP);
 		x=128-(((i*128/80)/8)*8);
 		
 		if(x>0)
@@ -5069,8 +4784,6 @@ void closescreen(int32_t shape)
 	for(int32_t i=79; i>=0; --i)
 	{
 		draw_screen();
-		//? draw_screen already draws the subscreen -DD
-		//put_passive_subscr(framebuf,0,passive_subscreen_offset,false,sspUP);
 		x=128-(((i*128/80)/8)*8);
 		
 		if(x>0)
@@ -5117,11 +4830,6 @@ int32_t onCustomGame()
 int32_t onContinue()
 {
 	return D_CLOSE;
-}
-
-int32_t onEsc() // Unused?? -L
-{
-	return zc_getrawkey(KEY_ESC, true)?D_CLOSE:D_O_K;
 }
 
 int32_t onThrottleFPS()
@@ -8086,10 +7794,6 @@ void fix_dialogs()
 	jwin_center_dialog(triforce_dlg);
 }
 
-/*****************************/
-/**** Custom Sound System ****/
-/*****************************/
-
 INLINE int32_t mixvol(int32_t v1,int32_t v2)
 {
 	return (zc_min(v1,255)*zc_min(v2,255)) >> 8;
@@ -8330,10 +8034,6 @@ void master_volume(int32_t dv,int32_t mv)
 		temp_vol = (midi_volume * FFCore.usr_music_volume) / 10000 / 100;
 	zc_set_volume(digi_volume,mixvol(tunes[i].volume, temp_vol));
 }
-
-/*****************/
-/*****  SFX  *****/
-/*****************/
 
 // array of voices, one for each sfx sample in the data file
 // 0+ = voice #
@@ -8643,10 +8343,6 @@ int32_t pan(int32_t x)
 	}
 }
 
-/*******************************/
-/******* Input Handlers ********/
-/*******************************/
-
 bool joybtn(int32_t b)
 {
 	if(b == 0)
@@ -8884,7 +8580,6 @@ void load_control_state()
 			raw_control_state[15] = STICK_2_Y.pos - js_stick_2_y_offset > STICK_PRECISION;
 			raw_control_state[16] = STICK_2_X.pos - js_stick_2_x_offset < -STICK_PRECISION;
 			raw_control_state[17] = STICK_2_X.pos - js_stick_2_x_offset > STICK_PRECISION;
-			// zprint2("Detected %d joysticks... %d%d%d%d\n", num_joysticks, raw_control_state[14]?1:0, raw_control_state[15]?1:0, raw_control_state[16]?1:0, raw_control_state[17]?1:0);
 		}
 		else
 		{
@@ -8892,7 +8587,6 @@ void load_control_state()
 			raw_control_state[15] = false;
 			raw_control_state[16] = false;
 			raw_control_state[17] = false;
-			// zprint2("Detected 0 joysticks... clearing inputaxis values.\n");
 		}
 	}
 	if (replay_is_active())

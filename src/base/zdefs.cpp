@@ -49,12 +49,19 @@ RGB _RGB(int32_t r,int32_t g,int32_t b)
 	return x;
 }
 
+void convertRGB(RGB& c)
+{
+	c.r = _rgb_scale_6[c.r];
+	c.g = _rgb_scale_6[c.g];
+	c.b = _rgb_scale_6[c.b];
+}
+
 RGB invRGB(RGB s)
 {
 	RGB x;
-	x.r = 63-s.r;
-	x.g = 63-s.g;
-	x.b = 63-s.b;
+	x.r = 255-s.r;
+	x.g = 255-s.g;
+	x.b = 255-s.b;
 	x.filler=0;
 	return x;
 }
@@ -95,7 +102,7 @@ static void update_theme(int fromver)
 	{
 		RGB cols[9];
 		cols[1] = _RGB(zc_get_config_basic("Theme","dvc1_r",4),zc_get_config_basic("Theme","dvc1_g",38),zc_get_config_basic("Theme","dvc1_b",46)); //box fg is text
-		cols[2] = _RGB(zc_get_config_basic("Theme","dvc2_r",(16*63/255)), zc_get_config_basic("Theme","dvc2_g",(10*63/255)), zc_get_config_basic("Theme","dvc2_b",0));
+		cols[2] = _RGB(zc_get_config_basic("Theme","dvc2_r",16), zc_get_config_basic("Theme","dvc2_g",10), zc_get_config_basic("Theme","dvc2_b",0));
 		cols[3] = _RGB(zc_get_config_basic("Theme","dvc3_r",17),zc_get_config_basic("Theme","dvc3_g",20),zc_get_config_basic("Theme","dvc3_b",20)); //slate
 		cols[4] = _RGB(zc_get_config_basic("Theme","dvc4_r",13),zc_get_config_basic("Theme","dvc4_g",14),zc_get_config_basic("Theme","dvc4_b",14)); //menu background
 		cols[5] = _RGB(zc_get_config_basic("Theme","dvc5_r",0),zc_get_config_basic("Theme","dvc5_g",0),zc_get_config_basic("Theme","dvc5_b",0));//menu text bg
@@ -105,12 +112,14 @@ static void update_theme(int fromver)
 		
 		for(int q = 1; q <= 8; ++q)
 		{
+			convertRGB(cols[q]);
+
 			//Clear the old color vars
 			zc_set_config_basic("Theme",fmt::format("dvc{}_r",q).c_str(),(char*)nullptr);
 			zc_set_config_basic("Theme",fmt::format("dvc{}_g",q).c_str(),(char*)nullptr);
 			zc_set_config_basic("Theme",fmt::format("dvc{}_b",q).c_str(),(char*)nullptr);
 			//Add the new hex var
-			int hexval = ((cols[q].r * 4) << 16) | ((cols[q].g * 4) << 8) | (cols[q].b * 4);
+			int hexval = ((cols[q].r) << 16) | ((cols[q].g) << 8) | (cols[q].b);
 			zc_set_config_basic_hex("Theme",fmt::format("color_{}",q).c_str(),hexval);
 		}
 	}
@@ -161,7 +170,7 @@ void load_themefile(char const* fpath, PALETTE pal, ALLEGRO_COLOR* colors)
 		int r = (hexval>>16)&0xFF;
 		int g = (hexval>>8)&0xFF;
 		int b = (hexval>>0)&0xFF;
-		pal[dvc(q)] = _RGB(r/4,g/4,b/4);
+		pal[dvc(q)] = _RGB(r,g,b);
 		colors[q] = al_map_rgb(r,g,b);
 	}
 	
@@ -260,18 +269,18 @@ void load_colorset(int32_t colorset, PALETTE pal, ALLEGRO_COLOR* colors)
 	{
 		case 1:  //Windows 98
 		{
-			pal[dvc(1)] = _RGB(0*63/255,   0*63/255,   0*63/255);
-			pal[dvc(2)] = _RGB(128*63/255, 128*63/255, 128*63/255);
-			pal[dvc(3)] = _RGB(192*63/255, 192*63/255, 192*63/255);
-			pal[dvc(4)] = _RGB(223*63/255, 223*63/255, 223*63/255);
-			pal[dvc(5)] = _RGB(255*63/255, 255*63/255, 255*63/255);
-			pal[dvc(6)] = _RGB(255*63/255, 255*63/255, 225*63/255);
-			pal[dvc(7)] = _RGB(255*63/255, 225*63/255, 160*63/255);
-			pal[dvc(8)] = _RGB(0*63/255,   0*63/255,  80*63/255);
+			pal[dvc(1)] = _RGB(0,   0,   0);
+			pal[dvc(2)] = _RGB(128, 128, 128);
+			pal[dvc(3)] = _RGB(192, 192, 192);
+			pal[dvc(4)] = _RGB(223, 223, 223);
+			pal[dvc(5)] = _RGB(255, 255, 255);
+			pal[dvc(6)] = _RGB(255, 255, 225);
+			pal[dvc(7)] = _RGB(255, 225, 160);
+			pal[dvc(8)] = _RGB(0,   0,  80);
 			
-			byte palrstart=  0*63/255, palrend=166*63/255,
-				 palgstart=  0*63/255, palgend=202*63/255,
-				 palbstart=128*63/255, palbend=240*63/255,
+			byte palrstart=  0, palrend=166,
+				 palgstart=  0, palgend=202,
+				 palbstart=128, palbend=240,
 				 paldivs=7;
 				 
 			for(int32_t i=0; i<paldivs; i++)
@@ -299,19 +308,19 @@ void load_colorset(int32_t colorset, PALETTE pal, ALLEGRO_COLOR* colors)
 		
 		case 2:  //Windows 99
 		{
-			pal[dvc(1)] = _RGB(0*63/255,   0*63/255,   0*63/255);
-			pal[dvc(2)] = _RGB(64*63/255,  64*63/255,  64*63/255);
-			pal[dvc(3)] = _RGB(128*63/255, 128*63/255, 128*63/255);
-			pal[dvc(4)] = _RGB(192*63/255, 192*63/255, 192*63/255);
-			pal[dvc(5)] = _RGB(223*63/255, 223*63/255, 223*63/255);
-			pal[dvc(6)] = _RGB(255*63/255, 255*63/255, 255*63/255);
-			pal[dvc(7)] = _RGB(255*63/255, 255*63/255, 225*63/255);
-			pal[dvc(8)] = _RGB(255*63/255, 225*63/255, 160*63/255);
-			pal[dvc(9)] = _RGB(0*63/255,   0*63/255,  80*63/255);
+			pal[dvc(1)] = _RGB(0,   0,   0);
+			pal[dvc(2)] = _RGB(64,  64,  64);
+			pal[dvc(3)] = _RGB(128, 128, 128);
+			pal[dvc(4)] = _RGB(192, 192, 192);
+			pal[dvc(5)] = _RGB(223, 223, 223);
+			pal[dvc(6)] = _RGB(255, 255, 255);
+			pal[dvc(7)] = _RGB(255, 255, 225);
+			pal[dvc(8)] = _RGB(255, 225, 160);
+			pal[dvc(9)] = _RGB(0,   0,  80);
 			
-			byte palrstart=  0*63/255, palrend=166*63/255,
-				 palgstart=  0*63/255, palgend=202*63/255,
-				 palbstart=128*63/255, palbend=240*63/255,
+			byte palrstart=  0, palrend=166,
+				 palgstart=  0, palgend=202,
+				 palbstart=128, palbend=240,
 				 paldivs=6;
 				 
 			for(int32_t i=0; i<paldivs; i++)
@@ -339,18 +348,18 @@ void load_colorset(int32_t colorset, PALETTE pal, ALLEGRO_COLOR* colors)
 		
 		case 3:  //Windows 2000 Blue
 		{
-			pal[dvc(1)] = _RGB(0*63/255,   0*63/255,   0*63/255);
-			pal[dvc(2)] = _RGB(16*63/255,  15*63/255, 116*63/255);
-			pal[dvc(3)] = _RGB(82*63/255,  80*63/255, 182*63/255);
-			pal[dvc(4)] = _RGB(162*63/255, 158*63/255, 250*63/255);
-			pal[dvc(5)] = _RGB(255*63/255, 255*63/255, 255*63/255);
-			pal[dvc(6)] = _RGB(255*63/255, 255*63/255, 127*63/255);
-			pal[dvc(7)] = _RGB(255*63/255, 225*63/255,  63*63/255);
-			pal[dvc(8)] = _RGB(0*63/255,   0*63/255,  80*63/255);
+			pal[dvc(1)] = _RGB(0,   0,   0);
+			pal[dvc(2)] = _RGB(16,  15, 116);
+			pal[dvc(3)] = _RGB(82,  80, 182);
+			pal[dvc(4)] = _RGB(162, 158, 250);
+			pal[dvc(5)] = _RGB(255, 255, 255);
+			pal[dvc(6)] = _RGB(255, 255, 127);
+			pal[dvc(7)] = _RGB(255, 225,  63);
+			pal[dvc(8)] = _RGB(0,   0,  80);
 			
-			byte palrstart=  0*63/255, palrend=162*63/255,
-				 palgstart=  0*63/255, palgend=158*63/255,
-				 palbstart= 80*63/255, palbend=250*63/255,
+			byte palrstart=  0, palrend=162,
+				 palgstart=  0, palgend=158,
+				 palbstart= 80, palbend=250,
 				 paldivs=7;
 				 
 			for(int32_t i=0; i<paldivs; i++)
@@ -378,19 +387,19 @@ void load_colorset(int32_t colorset, PALETTE pal, ALLEGRO_COLOR* colors)
 		
 		case 687:  //Windows 2000 Gold (6-87 was the North American release date of LoZ)
 		{
-			pal[dvc(1)] = _RGB(0*63/255,   0*63/255,   0*63/255);
-			pal[dvc(2)] = _RGB(64*63/255,  64*63/255,  43*63/255);
-			pal[dvc(3)] = _RGB(170*63/255, 154*63/255,  96*63/255);
-			pal[dvc(4)] = _RGB(223*63/255, 200*63/255, 128*63/255); // Old Gold
-			pal[dvc(5)] = _RGB(240*63/255, 223*63/255, 136*63/255);
-			pal[dvc(6)] = _RGB(255*63/255, 223*63/255, 128*63/255);
-			pal[dvc(7)] = _RGB(255*63/255, 223*63/255, 128*63/255);
-			pal[dvc(8)] = _RGB(255*63/255, 225*63/255, 160*63/255);
-			pal[dvc(9)] = _RGB(80*63/255,  80*63/255,   0*63/255);
+			pal[dvc(1)] = _RGB(0,   0,   0);
+			pal[dvc(2)] = _RGB(64,  64,  43);
+			pal[dvc(3)] = _RGB(170, 154,  96);
+			pal[dvc(4)] = _RGB(223, 200, 128); // Old Gold
+			pal[dvc(5)] = _RGB(240, 223, 136);
+			pal[dvc(6)] = _RGB(255, 223, 128);
+			pal[dvc(7)] = _RGB(255, 223, 128);
+			pal[dvc(8)] = _RGB(255, 225, 160);
+			pal[dvc(9)] = _RGB(80,  80,   0);
 			
-			byte palrstart=128*63/255, palrend=240*63/255,
-				 palgstart=128*63/255, palgend=202*63/255,
-				 palbstart=  0*63/255, palbend=166*63/255,
+			byte palrstart=128, palrend=240,
+				 palgstart=128, palgend=202,
+				 palbstart=  0, palbend=166,
 				 paldivs=6;
 				 
 			for(int32_t i=0; i<paldivs; i++)
@@ -418,18 +427,18 @@ void load_colorset(int32_t colorset, PALETTE pal, ALLEGRO_COLOR* colors)
 		
 		case 4104:  //Windows 2000 Easter (4-1-04 is April Fools Day, the date of this release)
 		{
-			pal[dvc(1)] = _RGB(0*63/255,   0*63/255,   0*63/255);
-			pal[dvc(2)] = _RGB(64*63/255,  64*63/255,  64*63/255);
-			pal[dvc(3)] = _RGB(128*63/255, 128*63/255, 128*63/255);
-			pal[dvc(4)] = _RGB(252*63/255, 186*63/255, 188*63/255);
-			pal[dvc(5)] = _RGB(254*63/255, 238*63/255, 238*63/255);
-			pal[dvc(6)] = _RGB(244*63/255, 243*63/255, 161*63/255);
-			pal[dvc(7)] = _RGB(120*63/255, 173*63/255, 189*63/255);
-			pal[dvc(8)] = _RGB(220*63/255, 183*63/255, 227*63/255);
+			pal[dvc(1)] = _RGB(0,   0,   0);
+			pal[dvc(2)] = _RGB(64,  64,  64);
+			pal[dvc(3)] = _RGB(128, 128, 128);
+			pal[dvc(4)] = _RGB(252, 186, 188);
+			pal[dvc(5)] = _RGB(254, 238, 238);
+			pal[dvc(6)] = _RGB(244, 243, 161);
+			pal[dvc(7)] = _RGB(120, 173, 189);
+			pal[dvc(8)] = _RGB(220, 183, 227);
 			
-			byte palrstart=244*63/255, palrend=220*63/255,
-				 palgstart=243*63/255, palgend=183*63/255,
-				 palbstart=161*63/255, palbend=227*63/255,
+			byte palrstart=244, palrend=220,
+				 palgstart=243, palgend=183,
+				 palbstart=161, palbend=227,
 				 paldivs=7;
 				 
 			for(int32_t i=0; i < paldivs; i++)
@@ -457,16 +466,17 @@ void load_colorset(int32_t colorset, PALETTE pal, ALLEGRO_COLOR* colors)
 		
 		case 2019:  //2.55 DARK Theme
 		{
-		   
 			pal[dvc(1)] = _RGB(4,38,46); //box fg is text
-			pal[dvc(2)] = _RGB(16*63/255, 10*63/255, 0*63/255);
+			pal[dvc(2)] = _RGB(16, 10, 0);
 			pal[dvc(3)] = _RGB(17,20,20); //slate
 			pal[dvc(4)] = _RGB(13,14,14); //menu background
 			pal[dvc(5)] = _RGB(0,0,0);//menu text bg
 			pal[dvc(6)] = _RGB(13,14,14);//menu selected text
 			pal[dvc(7)] = _RGB(42,60,48);
 			pal[dvc(8)] = _RGB(6,49,35);//highlight on selected menu text
-		   
+			for (int i = dvc(1); i <= dvc(8); i++)
+				convertRGB(pal[i]);
+
 			jwin_pal[jcBOX]	=dvc(4);
 			jwin_pal[jcLIGHT]  =dvc(5);
 			jwin_pal[jcMEDLT]  =dvc(4);
@@ -498,16 +508,15 @@ void load_colorset(int32_t colorset, PALETTE pal, ALLEGRO_COLOR* colors)
 			//63,23,0 orange
 			//46,32,4 tan
 			pal[dvc(1)] = _RGB(63,23,0); //box fg is text
-			pal[dvc(2)] = _RGB(16*63/255, 10*63/255, 0*63/255);
+			pal[dvc(2)] = _RGB(16, 10, 0);
 			pal[dvc(3)] = _RGB(39,19,0);
-		   // pal[dvc(4)] = _RGB(212*63/255, 208*63/255, 200*63/255);
 			pal[dvc(4)] = _RGB(16,10,0); //menu background
 			pal[dvc(5)] = _RGB(0,0,0);
-			//pal[dvc(5)] = _RGB(63*63/255, 23*63/255, 0*63/255);
-			//pal[dvc(5)] = _
 			pal[dvc(6)] = _RGB(0,0,0);
-			pal[dvc(7)] = _RGB(255*63/255, 225*63/255, 160*63/255);
+			pal[dvc(7)] = _RGB(255, 225, 160);
 			pal[dvc(8)] = _RGB(63,49,0);
+			for (int i = dvc(1); i <= dvc(8); i++)
+				convertRGB(pal[i]);
 			
 			jwin_pal[jcBOX]	=dvc(4);
 			jwin_pal[jcLIGHT]  =dvc(5);
@@ -527,18 +536,18 @@ void load_colorset(int32_t colorset, PALETTE pal, ALLEGRO_COLOR* colors)
 		
 		default:  //Windows 2000
 		{
-			pal[dvc(1)] = _RGB(0*63/255,   0*63/255,   0*63/255);
-			pal[dvc(2)] = _RGB(66*63/255,  65*63/255,  66*63/255);
-			pal[dvc(3)] = _RGB(132*63/255, 130*63/255, 132*63/255);
-			pal[dvc(4)] = _RGB(212*63/255, 208*63/255, 200*63/255);
-			pal[dvc(5)] = _RGB(255*63/255, 255*63/255, 255*63/255);
-			pal[dvc(6)] = _RGB(255*63/255, 255*63/255, 225*63/255);
-			pal[dvc(7)] = _RGB(255*63/255, 225*63/255, 160*63/255);
-			pal[dvc(8)] = _RGB(0*63/255,   0*63/255,  80*63/255);
+			pal[dvc(1)] = _RGB(0,   0,   0);
+			pal[dvc(2)] = _RGB(66,  65,  66);
+			pal[dvc(3)] = _RGB(132, 130, 132);
+			pal[dvc(4)] = _RGB(212, 208, 200);
+			pal[dvc(5)] = _RGB(255, 255, 255);
+			pal[dvc(6)] = _RGB(255, 255, 225);
+			pal[dvc(7)] = _RGB(255, 225, 160);
+			pal[dvc(8)] = _RGB(0,   0,  80);
 			
-			byte palrstart= 10*63/255, palrend=166*63/255,
-				 palgstart= 36*63/255, palgend=202*63/255,
-				 palbstart=106*63/255, palbend=240*63/255,
+			byte palrstart= 10, palrend=166,
+				 palgstart= 36, palgend=202,
+				 palbstart=106, palbend=240,
 				 paldivs=7;
 				 
 			for(int32_t i=0; i<paldivs; i++)

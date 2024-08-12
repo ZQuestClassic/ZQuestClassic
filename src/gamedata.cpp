@@ -125,10 +125,6 @@ word gamedata::get_counter(byte c) const
 
 void gamedata::set_counter(word change, byte c)
 {
-#ifdef DEBUG_GD_COUNTERS
-	al_trace("Changing counter %i from %i to %i\n", c, _counter[c], change);
-#endif
-	
 	if(c>=MAX_COUNTERS)  // Sanity check
 		return;
 	
@@ -151,10 +147,6 @@ void gamedata::set_counter(word change, byte c)
 
 void gamedata::change_counter(int16_t change, byte c)
 {
-#ifdef DEBUG_GD_COUNTERS
-	al_trace("Changing counter %i from %i by %i\n", c, _counter[c], change);
-#endif
-	
 	if(c>=MAX_COUNTERS)  // Sanity check
 		return;
 		
@@ -184,12 +176,6 @@ word gamedata::get_maxcounter(byte c) const
 
 void gamedata::set_maxcounter(word change, byte c)
 {
-#ifdef DEBUG_GD_COUNTERS
-
-    if(c==0) al_trace("Changing max counter %i from %i to %i\n", c, _maxcounter[c], change);
-    
-#endif
-    
     if(c==2)
     {
         set_maxbombs(change);
@@ -205,10 +191,6 @@ void gamedata::set_maxcounter(word change, byte c)
 
 void gamedata::change_maxcounter(int16_t change, byte c)
 {
-#ifdef DEBUG_GD_COUNTERS
-    al_trace("Changing max counter %i from %i by +%i\n", c, _maxcounter[c], change);
-#endif
-    
     if(c==2)
     {
         change_maxbombs(change);
@@ -232,13 +214,6 @@ int16_t gamedata::get_dcounter(byte c) const
 
 void gamedata::set_dcounter(int16_t change, byte c)
 {
-#ifdef DEBUG_GD_COUNTERS
-
-    if(c==0)
-        al_trace("Changing D counter %i from %i to %i\n", c, _dcounter[c], change);
-        
-#endif
-        
     if(c>=MAX_COUNTERS)  // Sanity check
         return;
         
@@ -258,12 +233,6 @@ void gamedata::set_dcounter(int16_t change, byte c)
 
 void gamedata::change_dcounter(int16_t change, byte c)
 {
-#ifdef DEBUG_GD_COUNTERS
-
-    if(c==0) al_trace("Changing D counter %i from %i by %i\n", c, _dcounter[c], change);
-    
-#endif
-    
     if(c>=MAX_COUNTERS)  // Sanity check
         return;
         

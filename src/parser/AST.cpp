@@ -1282,7 +1282,7 @@ void ASTFuncDecl::setFlag(int32_t flag, bool state)
 
 bool ASTFuncDecl::isRun() const
 {
-	return getName() == FFCore.scriptRunString;
+	return getName() == "run";
 }
 
 const std::string& ASTFuncDecl::getName() const
@@ -1713,10 +1713,18 @@ std::optional<int32_t> ASTExprAssign::getCompileTimeValue(
 // ASTExprIdentifier
 
 ASTExprIdentifier::ASTExprIdentifier(string const& name,
-									 LocationData const& location)
+	LocationData const& location)
 	: ASTExpr(location), binding(NULL), noUsing(false), constant_(false)
 {
 	if (name != "") components.push_back(name);
+}
+
+ASTExprIdentifier::ASTExprIdentifier(std::shared_ptr<ASTString> identifier,
+	LocationData const& location)
+	: ASTExpr(location), binding(NULL), noUsing(false), constant_(false)
+{
+	componentNodes.push_back(identifier);
+	components.push_back(identifier->getValue());
 }
 
 void ASTExprIdentifier::execute(ASTVisitor& visitor, void* param)
@@ -2821,7 +2829,7 @@ std::string ASTStringLiteral::asString() const
 
 DataTypeArray const* ASTStringLiteral::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
 {
-	return &DataType::STRING;
+	return DataType::STRING;
 }
 
 

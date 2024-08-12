@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, user-scalable=no">
+  <title>ZQuest Classic - ZScript Playground</title>
+  <meta name="description" content="Explore the ZScript language for ZQuest Classic">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: none;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .app {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background-color: var(--vscode-editor-background);
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      padding: 3px;
+      background-color: var(--vscode-menu-background, #00212b);
+      color: var(--vscode-menu-foreground, #f0f0f0);
+      border-bottom: 1px solid var(--vscode-menu-foreground, #f0f0f0);
+    }
+
+    .editor {
+      flex-grow: 1;
+    }
+
+    .loading {
+      height: 100%;
+      background-color: #002b36;
+      display: flex;
+      color: white;
+      justify-content: space-around;
+      align-items: center;
+      font-size: 3em;
+    }
+
+    .editor-container {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    .current-model {
+      flex-grow: 1;
+    }
+
+    .tabs {
+      display: flex;
+      color: var(--vscode-menu-foreground, #f0f0f0);
+      background-color: var(--vscode-menu-background, #00212b);
+      overflow-x: auto;
+    }
+    .tab {
+      display: flex;
+      padding: 2px 5px;
+      margin: 2px;
+      cursor: pointer;
+      text-align: center;
+      user-select: none;
+    }
+    .tab--selected {
+      background-color: var(--vscode-editor-lineHighlightBackground);
+    }
+    .tab + .tab {
+      border-left: 1px solid var(--vscode-menu-foreground, #f0f0f0);
+    }
+    .tab__close {
+      padding-left: 5px;
+      font-size: smaller;
+    }
+    .tabs__add {
+      padding: 5px;
+      user-select: none;
+      cursor: pointer;
+    }
+  </style>
+
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+  <link rel="stylesheet" href="./playground.css">
+</head>
+
+<body>
+  <div class="app monaco-component">
+    <div class="toolbar">
+      <div>
+        <label for="theme">Theme</label>
+        <select name="theme" id="theme">
+          <option value="solarized-dark">Solarized Dark</option>
+          <option value="solarized-light">Solarized Light</option>
+          <option value="tomorrow-night-blue">Tomorrow Night Blue</option>
+          <option value="dark_modern">Dark Modern</option>
+          <option value="dark_plus">Dark Plus</option>
+          <option value="dark_vs">Dark VS</option>
+          <option value="hc_black">High Contrast Black</option>
+          <option value="hc_light">High Contrast Light</option>
+          <option value="light_modern">Light Modern</option>
+          <option value="light_plus">Light Plus</option>
+          <option value="light_vs">Light VS</option>
+        </select>
+      </div>
+      <div>
+        <button class="share-btn hidden">
+          Share
+        </button>
+        <button class="embed-btn hidden">
+          Embed
+        </button>
+        <a href="#" class="open-btn hidden" target="_blank">
+          <button>
+            Open in Playground
+          </button>
+        </a>
+      </div>
+    </div>
+    <div class="editor">
+      <div class="loading">loading ...</div>
+      <div class="editor-container hidden">
+        <div class="tabs">
+          <div class="tabs__add">+</div>
+        </div>
+        <div class="current-model"></div>
+      </div>
+    </div>
+    <div id="zc-log"></div>
+  </div>
+
+  <script src="./playground.js"></script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-36Y8HGSBRW"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'G-36Y8HGSBRW');
+  </script>
+</body>
+
+</html>

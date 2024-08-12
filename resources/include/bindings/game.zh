@@ -1083,18 +1083,6 @@ class Game {
 	//   SETMESSAGE D3 D2
 	internal void SetMessage(int message, char32[] str);
 
-	// Renders the entire display in greyscale.
-	//
-	// @zasm
-	//   GREYSCALEON
-	internal void GreyscaleOn();
-
-	// Returns the display rendering to colour.
-	//
-	// @zasm
-	//   GREYSCALEOFF
-	internal void GreyscaleOff();
-
 	// @zasm
 	//   POP D3
 	//   COMBOTILE D2 D3

@@ -30,11 +30,6 @@ extern zcmodule moduledata;
 
 #define vc(x)  ((x)+224)                                    // offset to 'VGA color' x (row 14)
 
-//using namespace std;
-
-//modules
-
-
 extern int32_t jwin_pal[jcMAX];
 extern itemdata *itemsbuf;
 extern char *item_string[];
@@ -43,8 +38,6 @@ extern byte *colordata;
 void initPopulate(int32_t &i, DIALOG_PROC proc, int32_t x, int32_t y, int32_t w, int32_t h, int32_t fg, int32_t bg, int32_t key, int32_t flags, int32_t d1, int32_t d2,
                   void *dp, void *dp2 = NULL, void *dp3 = NULL);
 void getitem(int32_t id, bool nosound, bool doRunPassive);
-
-static const int32_t endEquipField = 33;
 
 void doFamily(int32_t family, zinitdata *data);
 
@@ -1057,7 +1050,6 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool freshquest)
 	
 	game2->set_magic(zc_min(zinit2->counter[crMAGIC],zinit2->mcounter[crMAGIC]));
 	game2->set_magicdrainrate(zinit2->magicdrainrate);
-	//zprint2("gd2: %d, zi2: %d\n", game2->get_magicdrainrate(), zinit2->magicdrainrate);
 	game2->set_canslash(zinit2->flags.get(INIT_FL_CANSLASH)?1:0);
 	
 	game2->set_arrows(zinit2->counter[crARROWS]);

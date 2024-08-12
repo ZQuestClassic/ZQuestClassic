@@ -347,17 +347,23 @@ class combodata {
 	// @zasm_var COMBODTRIGDMAPLVL
 	internal int TrigDMapLvl;
 
-	// The R/G/B values to tint the palette by when triggered. -63 to 63.
+	// When triggered, the palette is tinted on the red channel by this amount. -255 to 255.
+	//
+	// -63 to 63 if compat QR "Scripts use 6-bit color (0-63) instead of 8-bit (0-255)" is enabled.
 	//
 	// @zasm_var COMBODTRIGTINTR
 	internal int TrigTintR;
 
-	// The R/G/B values to tint the palette by when triggered. -63 to 63.
+	// When triggered, the palette is tinted on the green channel by this amount. -255 to 255.
+	//
+	// -63 to 63 if compat QR "Scripts use 6-bit color (0-63) instead of 8-bit (0-255)" is enabled.
 	//
 	// @zasm_var COMBODTRIGTINTG
 	internal int TrigTintG;
 
-	// The R/G/B values to tint the palette by when triggered. -63 to 63.
+	// When triggered, the palette is tinted on the blue channel by this amount. -255 to 255.
+	//
+	// -63 to 63 if compat QR "Scripts use 6-bit color (0-63) instead of 8-bit (0-255)" is enabled.
 	//
 	// @zasm_var COMBODTRIGTINTB
 	internal int TrigTintB;

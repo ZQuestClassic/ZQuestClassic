@@ -1,3 +1,5 @@
+stderr:
+
 Compiling 'websocket.zs'
 Pass 1: Parsing
 Pass 2: Preprocessing
@@ -8,12 +10,22 @@ Pass 6: Generating object code
 Pass 7: Assembling
 Success!
 Compile finished with exit code '0' (success)
-=== METADATA (elided)
+
+stdout:
+
 {
-  "currentFileSymbols": 9,
-  "symbols": 24,
-  "identifiers": 57
+  "success": true,
+  "diagnostics": [],
+  "metadata": {
+    "currentFileSymbols": 9,
+    "symbols": 25,
+    "identifiers": 58,
+    "elided": true
+  }
 }
+
+zasm:
+
 PUSHR REFGENERICDATA; void run() Body Start
 PUSHARGSV 0 0.0010
 SETR D4 SP2

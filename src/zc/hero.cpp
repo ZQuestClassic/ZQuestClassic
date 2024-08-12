@@ -720,7 +720,6 @@ void HeroClass::setSwimDownRate(int32_t newrate)
 }
 
 
-//void HeroClass::herostep() { lstep = lstep<(BSZ?27:11) ? lstep+1 : 0; }
 void HeroClass::herostep()
 {
     lstep = lstep<((zinit.heroAnimationStyle==las_bszelda)?27:11) ? lstep+1 : 0;
@@ -1780,7 +1779,6 @@ void HeroClass::init()
 	for ( int32_t q = 0; q < wMax; q++ ) 
 	{
 		defence[q] = hero_defence[q]; //we will need to have a Hero section in the quest load/save code! -Z Added 3/26/21 - Jman
-		//zprint2("defence[%d] is: %d\n", q, defence[q]);
 	}
 	
 	clear_ice();
@@ -19694,7 +19692,6 @@ void HeroClass::get_move(int movedir, zfix& dx, zfix& dy, int32_t& facedir)
 
 	if (diagonalMovement)
 	{
-		//zprint2("Player's X is %d, Y is %d\n", x, y);
 		if (((movedir == up || movedir == down) && (shiftdir == left || shiftdir == right)) ||
 			(movedir == left || movedir == right) && (shiftdir == up || shiftdir == down))
 		{
@@ -19837,7 +19834,6 @@ bool HeroClass::new_engine_move(zfix dx, zfix dy) //no collision check
 
 void HeroClass::moveOld(int32_t d2)
 {
-	//al_trace("%s\n",d2==up?"up":d2==down?"down":d2==left?"left":d2==right?"right":"?");
     static bool totalskip = false;
     
     if( inlikelike || lstunclock > 0 || is_conveyor_stunned)
@@ -20233,7 +20229,6 @@ void HeroClass::moveOld2(int32_t d2, int32_t forceRate)
 	
 	if(diagonalMovement)
 	{
-		//zprint2("Player's X is %d, Y is %d\n", x, y);
 		if(((d2 == up || d2 == down) && (shiftdir == left || shiftdir == right)) ||
 			(d2 == left || d2 == right) && (shiftdir == up || shiftdir == down))
 		{
@@ -21457,8 +21452,6 @@ bool usekey()
 						key_item = q; break;
 					}
 				}
-				//zprint2("key_item is: %d\n",key_item);
-				//zprint2("key_item script is: %d\n",itemsbuf[key_item].script);
 				if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(ScriptType::Item, key_item) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING)) ) 
 				{
 					int i = key_item;
@@ -24038,7 +24031,7 @@ void HeroClass::checkspecial()
 				// if room has traps, guys don't come back
 				for (int32_t i=0; i<eMAXGUYS; i++)
 				{
-					if (guysbuf[i].family==eeTRAP&&guysbuf[i].misc2)
+					if (guysbuf[i].family==eeTRAP&&guysbuf[i].attributes[1])
 						if (guys.idCount(i, screen) && !getmapflag(screen, mTMPNORET))
 							setmapflag(scr, mTMPNORET);
 				}
@@ -25053,8 +25046,6 @@ void HeroClass::checkspecial2(int32_t *ls)
 	
 	if(type==cSTEP)
 	{ 
-	//zprint2("Hero.HasHeavyBoots(): is: %s\n", ( (Hero.HasHeavyBoots()) ? "true" : "false" ));
-
 		if (COMBOPOS_REGION(tx+8, ty+8) != stepnext)
 		{
 			stepnext = COMBOPOS_REGION(tx+8, ty+8);
@@ -29834,10 +29825,6 @@ bool HeroClass::sideviewhammerpound()
     return false;
 }
 
-/************************************/
-/********  More Items Code  *********/
-/************************************/
-
 // The following are only used for Hero damage. Damage is in quarter hearts.
 int32_t enemy_dp(int32_t index)
 {
@@ -29920,7 +29907,6 @@ void HeroClass::cleanupByrna()
 {
 	if ( last_cane_of_byrna_item_id > -1 )
 	{
-		//al_trace("Last cane id is: %d\n", last_cane_of_byrna_item_id);
 		if ( !(Lwpns.idCount(wCByrna)) )
 		{
 			stop_sfx(itemsbuf[last_cane_of_byrna_item_id].usesound);
@@ -31388,7 +31374,7 @@ void HeroClass::getTriforce(int32_t id2)
 	
 	for(int32_t i=0; i<256; i++)
 	{
-		flash_pal[i] = get_qr(qr_FADE) ? _RGB(63,63,0) : _RGB(63,63,63); 
+		flash_pal[i] = get_qr(qr_FADE) ? _RGB(255,255,0) : _RGB(255,255,255); 
 	}
 
 
@@ -31415,7 +31401,6 @@ void HeroClass::getTriforce(int32_t id2)
 	if ( (itemsbuf[id2].flags & item_flag14) )
 	{
 		uint8_t playwav = itemsbuf[id2].misc3;
-		//zprint2("playwav is: %d\n", playwav);
 		sfx(playwav);
 		
 	}
@@ -31627,9 +31612,9 @@ void red_shift()
     for(int32_t i=CSET(2); i < CSET(4); i++)
     {
         int32_t r = (i-CSET(2)) << 1;
-        RAMpal[i+tnum].r = r;
-        RAMpal[i+tnum].g = r >> 3;
-        RAMpal[i+tnum].b = r >> 4;
+        RAMpal[i+tnum].r = _rgb_scale_6[r];
+        RAMpal[i+tnum].g = _rgb_scale_6[r >> 3];
+        RAMpal[i+tnum].b = _rgb_scale_6[r >> 4];
     }
     
     // color scale the game screen
@@ -31637,9 +31622,12 @@ void red_shift()
     {
         for(int32_t x=0; x<256; x++)
         {
-            int32_t c = framebuf->line[y+original_playing_field_offset][x];
-            int32_t r = zc_min(int32_t(RAMpal[c].r*0.4 + RAMpal[c].g*0.6 + RAMpal[c].b*0.4)>>1,31);
-            framebuf->line[y+original_playing_field_offset][x] = (c ? (r+tnum+CSET(2)) : 0);
+            int c = framebuf->line[y+original_playing_field_offset][x];
+			int r = RAMpal[c].r / 4;
+			int g = RAMpal[c].g / 4;
+			int b = RAMpal[c].b / 4;
+            int v = zc_min(int32_t(r*0.4 + g*0.6 + b*0.4)>>1,31);
+			putpixel(framebuf, x, y + original_playing_field_offset, c ? (v + tnum+CSET(2)) : 0);
         }
     }
     
@@ -32254,7 +32242,6 @@ int32_t get_conveyor(int32_t x, int32_t y);
 void HeroClass::check_conveyor()
 {
 	++newconveyorclk;
-	if (newconveyorclk < 0) newconveyorclk = 0;
 
 	if (is_conveyor_stunned)
 		--is_conveyor_stunned;

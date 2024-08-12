@@ -120,29 +120,6 @@ void loadlvlpal(int32_t level)
 		trans_table2.data[q][q] = q;
 	}
 	
-	//! We need to store the new palette into the monochrome scratch palette. 
-	//memcpy(tempgreypal, RAMpal, PAL_SIZE*sizeof(RGB));
-	//! Doing this is bad, because we are also copying over the sprite palettes.
-	
-	
-	/* Old handling for monochrome, before tint features added -V
-	if ( isMonochrome () ) {
-	//memcpy(tempgreypal, RAMpal, PAL_SIZE*sizeof(RGB));
-		
-	//Refresh the monochrome palette to avoid gfx glitches from loading the lpal.  
-	setMonochrome(false);
-	setMonochrome(true);
-	}*/
-	
-	if(isMonochrome()){
-		if(lastMonoPreset){
-			restoreMonoPreset();
-		} else {
-			setMonochrome(false);
-			setMonochrome(true);
-		}
-	}
-	
 	if(isUserTinted()){
 		restoreTint();
 	}
@@ -156,23 +133,12 @@ void loadpalset(int32_t cset, int32_t dataset, bool update_tint)
 
 	for (int32_t i = 0; i < 16; i++, j += 3)
 	{
-		// if ( isMonochrome() ) tempgreypal[CSET(2)+i] = _RGB(&colordata[j]); //Use monochrome sprites and Hero pal... 
-		if (isMonochrome() || isUserTinted()) tempgreypal[CSET(cset) + i] = _RGB(&colordata[j]); //Use monochrome sprites and Hero pal... 
+		if (isUserTinted()) tempgreypal[CSET(cset) + i] = _RGB(&colordata[j]); //Use monochrome sprites and Hero pal... 
 		else
 			RAMpal[CSET(cset) + i] = _RGB(&colordata[j]);
 	}
 
 	if (update_tint){
-		if (isMonochrome()) {
-			if (lastMonoPreset) {
-				restoreMonoPreset();
-			}
-			else {
-				setMonochrome(false);
-				setMonochrome(true);
-			}
-		}
-
 		if (isUserTinted()) {
 			restoreTint();
 		}
@@ -228,21 +194,12 @@ void loadfadepal(int32_t dataset)
     
     for(int32_t i=0; i<pdFADE*16; i++)
     {
-        if(isMonochrome() || isUserTinted())tempgreypal[CSET(2)+i] = _RGB(si);
+        if(isUserTinted())tempgreypal[CSET(2)+i] = _RGB(si);
 		else RAMpal[CSET(2)+i] = _RGB(si);
         si+=3;
     }
     
     refreshpal=true;
-	
-	if(isMonochrome()){
-	    if(lastMonoPreset){
-		    restoreMonoPreset();
-	    } else {
-			setMonochrome(false);
-		    setMonochrome(true);
-	    }
-    }
     
     if(isUserTinted()){
 	    restoreTint();
@@ -679,9 +636,9 @@ int32_t reverse_NESpal(RGB c)
     
     for(int32_t i = 0; (i < 64) && (dist != 0); i++)
     {
-        int32_t r = (c.r - NESpal(i).r);
-        int32_t g = (c.g - NESpal(i).g);
-        int32_t b = (c.b - NESpal(i).b);
+        int32_t r = (c.r - NESpal(i).r) / 4;
+        int32_t g = (c.g - NESpal(i).g) / 4;
+        int32_t b = (c.b - NESpal(i).b) / 4;
         int32_t d = r*r + g*g + b*b;
         
         if(d < dist)

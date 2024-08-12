@@ -5,6 +5,7 @@
 #include "CompileError.h"
 #include "Types.h"
 #include "ZScript.h"
+#include "parser/ASTVisitors.h"
 #include "parser/ByteCode.h"
 #include "parser/parserDefs.h"
 
@@ -104,22 +105,22 @@ do { \
 /////////////////////////////////////////////////////////////////////////////////
 // BuildOpcodes
 
-BuildOpcodes::BuildOpcodes()
-	: returnlabelid(-1), returnRefCount(0), continuelabelids(), 
+BuildOpcodes::BuildOpcodes(Program& program)
+	: RecursiveVisitor(program), returnlabelid(-1), returnRefCount(0), continuelabelids(), 
 	  continueRefCounts(), breaklabelids(), breakRefCounts(),
 	  break_past_counts(), break_to_counts(), break_depth(0),
 	  continue_past_counts(), continue_to_counts(), continue_depth(0)
 {
 	opcodeTargets.push_back(&result);
 }
-BuildOpcodes::BuildOpcodes(Scope* curScope)
-	: BuildOpcodes()
+BuildOpcodes::BuildOpcodes(Program& program, Scope* curScope)
+	: BuildOpcodes(program)
 {
 	scope = curScope;
 }
 
-BuildOpcodes::BuildOpcodes(LValBOHelper* helper)
-	: BuildOpcodes()
+BuildOpcodes::BuildOpcodes(Program& program, LValBOHelper* helper)
+	: BuildOpcodes(program)
 {
 	scope = helper->scope;
 	parsing_user_class = helper->parsing_user_class;
@@ -328,14 +329,17 @@ void BuildOpcodes::caseBlock(ASTBlock &host, void *param)
 	{
 		host.setScope(scope->makeChild());
 	}
-	scope = host.getScope();
 	
 	OpcodeContext *c = (OpcodeContext *)param;
 
 	int32_t startRefCount = arrayRefs.size();
+	scope = host.getScope();
 
 	for (auto it = host.statements.begin(); it != host.statements.end(); ++it)
 		literal_visit(*it, param);
+
+	if (host.getScope() != scope)
+		throw compile_exception("host.getScope() != scope");
 
 	deallocateRefsUntilCount(startRefCount);
 	while ((int32_t)arrayRefs.size() > startRefCount)
@@ -399,8 +403,9 @@ void BuildOpcodes::caseStmtIf(ASTStmtIf &host, void *param)
 				while ((int32_t)arrayRefs.size() > startRefCount)
 					arrayRefs.pop_back();
 				
-				scope = scope->getParent();
 			} //Either true or false, it's constant, so no checks required.
+
+			scope = scope->getParent();
 			return;
 		}
 		
@@ -435,11 +440,13 @@ void BuildOpcodes::caseStmtIf(ASTStmtIf &host, void *param)
 		
 		while ((int32_t)arrayRefs.size() > startRefCount)
 			arrayRefs.pop_back();
-		
+
 		scope = scope->getParent();
 	}
 	else
 	{
+		auto orig_scope = scope;
+
 		if(auto val = host.condition->getCompileTimeValue(this, scope))
 		{
 			if((inv) == (*val==0)) //True, so go straight to the 'then'
@@ -448,6 +455,7 @@ void BuildOpcodes::caseStmtIf(ASTStmtIf &host, void *param)
 				visit(host.thenStatement.get(), param);
 				commentAt(targ_sz, fmt::format("{}({}) #{} [Opt:AlwaysOn]",ifstr,truestr,ifid));
 			} //Either true or false, it's constant, so no checks required.
+			scope = orig_scope;
 			return;
 		}
 		//run the test
@@ -478,6 +486,7 @@ void BuildOpcodes::caseStmtIf(ASTStmtIf &host, void *param)
 		commentStartEnd(targ_sz, fmt::format("{}() #{} Body",ifstr,ifid));
 		//nop
 		addOpcode(new ONoOp(endif));
+		scope = orig_scope;
 	}
 }
 
@@ -577,6 +586,8 @@ void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
 	}
 	else
 	{
+		auto orig_scope = scope;
+
 		if(auto val = host.condition->getCompileTimeValue(this, scope))
 		{
 			auto targ_sz = commentTarget();
@@ -591,6 +602,7 @@ void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
 				commentAt(targ_sz, fmt::format("{}({}) #{} [Opt:AlwaysOff]",ifstr,falsestr,ifid));
 			}
 			//Either way, ignore the rest and return.
+			scope = orig_scope;
 			return;
 		}
 		//run the test
@@ -626,6 +638,7 @@ void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
 		visit(host.elseStatement.get(), param);
 		commentStartEnd(targ_sz, fmt::format("{}() #{} Else",ifstr,ifid));
 		addOpcode(new ONoOp(endif));
+		scope = orig_scope;
 	}
 }
 
@@ -1738,7 +1751,7 @@ void BuildOpcodes::caseExprAssign(ASTExprAssign &host, void *param)
 	//load the rval into EXP1
 	VISIT_USEVAL(host.right.get(), param);
 	//and store it
-	LValBOHelper helper(this);
+	LValBOHelper helper(program, this);
 	helper.parsing_user_class = parsing_user_class;
 	host.left->execute(helper, param);
 	addOpcodes(helper.getResult());
@@ -2126,7 +2139,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 					bool isVoid = func.returnType->isVoid();
 					if(!isVoid) addOpcode(new OPushRegister(new VarArgument(EXP1)));
 					addOpcode(new OSetRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
-					LValBOHelper helper(this);
+					LValBOHelper helper(program, this);
 					helper.parsing_user_class = parsing_user_class;
 					arr->left->execute(helper, INITC_CTXT);
 					addOpcodes(helper.getResult());
@@ -2411,7 +2424,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 						bool isVoid = func.returnType->isVoid();
 						if(!isVoid) addOpcode(new OPushRegister(new VarArgument(EXP1)));
 						addOpcode(new OSetRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
-						LValBOHelper helper(this);
+						LValBOHelper helper(program, this);
 						helper.parsing_user_class = parsing_user_class;
 						arr->left->execute(helper, INITC_CTXT);
 						addOpcodes(helper.getResult());
@@ -4095,7 +4108,7 @@ void BuildOpcodes::buildPreOp(ASTExpr* operand, void* param, vector<shared_ptr<O
 	addOpcodes(ops);
 
 	// Store it
-	LValBOHelper helper(this);
+	LValBOHelper helper(program, this);
 	helper.parsing_user_class = parsing_user_class;
 	operand->execute(helper, param);
 	addOpcodes(helper.getResult());
@@ -4115,7 +4128,7 @@ void BuildOpcodes::buildPostOp(ASTExpr* operand, void* param, vector<shared_ptr<
 	addOpcodes(ops);
 	
 	// Store it
-	LValBOHelper helper(this);
+	LValBOHelper helper(program, this);
 	helper.parsing_user_class = parsing_user_class;
 	operand->execute(helper, param);
 	addOpcodes(helper.getResult());
@@ -4196,11 +4209,11 @@ void BuildOpcodes::pop_params(uint count)
 /////////////////////////////////////////////////////////////////////////////////
 // LValBOHelper
 
-LValBOHelper::LValBOHelper(Scope* scope)
+LValBOHelper::LValBOHelper(Program& program, Scope* scope) : program(program)
 {
 	ASTVisitor::scope = scope;
 }
-LValBOHelper::LValBOHelper(BuildOpcodes* bo)
+LValBOHelper::LValBOHelper(Program& program, BuildOpcodes* bo) : program(program)
 {
 	ASTVisitor::scope = bo->scope;
 	parsing_user_class = bo->parsing_user_class;
@@ -4269,7 +4282,7 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 {
 	if(UserClassVar* ucv = host.u_datum; ucv && !ucv->is_internal)
 	{
-		BuildOpcodes oc(this);
+		BuildOpcodes oc(program, this);
 		oc.parsing_user_class = parsing_user_class;
 		if(ucv->is_arr)
 		{
@@ -4298,7 +4311,7 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 		if (!skipptr)
 		{
 			//Get lval
-			BuildOpcodes oc(this);
+			BuildOpcodes oc(program, this);
 			oc.parsing_user_class = parsing_user_class;
 			oc.visit(host.left.get(), param);
 			addOpcodes(oc.getResult());
@@ -4306,7 +4319,7 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 		
 		if(isIndexed)
 		{
-			BuildOpcodes oc2(this);
+			BuildOpcodes oc2(program, this);
 			oc2.parsing_user_class = parsing_user_class;
 			oc2.visit(host.index.get(), param);
 			addOpcodes(oc2.getResult());
@@ -4321,7 +4334,7 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 			//Push rval
 			addOpcode(new OPushRegister(new VarArgument(EXP1)));
 			//Get lval
-			BuildOpcodes oc(this);
+			BuildOpcodes oc(program, this);
 			oc.parsing_user_class = parsing_user_class;
 			oc.visit(host.left.get(), param);
 			addOpcodes(oc.getResult());
@@ -4340,7 +4353,7 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 		
 		if(isIndexed)
 		{
-			BuildOpcodes oc2(this);
+			BuildOpcodes oc2(program, this);
 			oc2.parsing_user_class = parsing_user_class;
 			oc2.visit(host.index.get(), param);
 			addOpcodes(oc2.getResult());
@@ -4367,7 +4380,7 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 			//Push rval
 			addOpcode(new OPushRegister(new VarArgument(EXP1)));
 			//Get lval
-			BuildOpcodes oc(this);
+			BuildOpcodes oc(program, this);
 			oc.parsing_user_class = parsing_user_class;
 			oc.visit(host.left.get(), param);
 			addOpcodes(oc.getResult());
@@ -4387,7 +4400,7 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 		//and push the index, if indexed
 		if(isIndexed)
 		{
-			BuildOpcodes oc2(this);
+			BuildOpcodes oc2(program, this);
 			oc2.parsing_user_class = parsing_user_class;
 			oc2.visit(host.index.get(), param);
 			addOpcodes(oc2.getResult());
@@ -4418,7 +4431,7 @@ void LValBOHelper::caseExprIndex(ASTExprIndex& host, void* param)
 	}
 
 	vector<shared_ptr<Opcode>> opcodes;
-	BuildOpcodes bo(this);
+	BuildOpcodes bo(program, this);
 	bo.parsing_user_class = parsing_user_class;
 	auto arrVal = host.array->getCompileTimeValue(&bo, scope);
 	auto indxVal = host.index->getCompileTimeValue(&bo, scope);
@@ -4431,7 +4444,7 @@ void LValBOHelper::caseExprIndex(ASTExprIndex& host, void* param)
 	if(!arrVal)
 	{
 		// Get and push the array pointer.
-		BuildOpcodes buildOpcodes1(this);
+		BuildOpcodes buildOpcodes1(program, this);
 		buildOpcodes1.parsing_user_class = parsing_user_class;
 		buildOpcodes1.visit(host.array.get(), param);
 		opcodes = buildOpcodes1.getResult();
@@ -4446,7 +4459,7 @@ void LValBOHelper::caseExprIndex(ASTExprIndex& host, void* param)
 	if(!indxVal)
 	{
 		// Get the index.
-		BuildOpcodes buildOpcodes2(this);
+		BuildOpcodes buildOpcodes2(program, this);
 		buildOpcodes2.parsing_user_class = parsing_user_class;
 		buildOpcodes2.visit(host.index.get(), param);
 		opcodes = buildOpcodes2.getResult();

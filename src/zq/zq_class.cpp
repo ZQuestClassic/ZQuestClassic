@@ -412,7 +412,6 @@ bool zmap::reset_templates(bool validate)
         delete_file(deletefilename);
     }
     
-//  setPackfilePassword(NULL);
 
     return true;
 }
@@ -1319,12 +1318,10 @@ void put_walkflags(BITMAP *dest,int32_t x,int32_t y,word cmbdat,int32_t layer)
 			if ((layer==0 || (get_qr(qr_WATER_ON_LAYER_1) && layer == 1) || (get_qr(qr_WATER_ON_LAYER_2) && layer == 2)) && get_qr(qr_DROWN))
 			{
 				rectfill(dest,tx,ty,tx+7,ty+7,vc(11));
-				//al_trace("water, drown\n");
 			}
 			else
 			{
 				rectfill(dest,tx,ty,tx+7,ty+7,vc(11));
-				//al_trace("water, no drown\n");
 			}
 		}
 		
@@ -3016,7 +3013,6 @@ void zmap::drawrow(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,int3
 		rectfill(dest,x,y,x+255,y+15,0);
 	}
 	
-	// int32_t cs=2;
 	
 	for(int32_t k=1; k<3; k++)
 	{
@@ -3319,7 +3315,6 @@ void zmap::drawcolumn(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,i
 		rectfill(dest,x,y,x+15,y+175,0);
 	}
 	
-	// int32_t cs=2;
 	
 	for(int32_t k=1; k<3; k++)
 	{
@@ -3616,7 +3611,6 @@ void zmap::drawblock(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,in
 		}
 	}
 	
-	// int32_t cs=2;
 	if(LayerMaskInt[0]!=0)
 	{
 		word cmbdat = layer->data[c];
@@ -4768,6 +4762,7 @@ void zmap::PasteFFCombos(mapscr& copymapscr)
             screens[currscr].ffcs[i] = copymapscr.ffcs[i];
 		for(word i = c; i < MAXFFCS; ++i)
 			screens[currscr].ffcs[i].clear();
+		screens[currscr].ffcCountMarkDirty();
         
         saved=false;
     }
@@ -5518,10 +5513,6 @@ void zmap::warpback()
 	warpbackscreen = s;
 }
 
-/******************************/
-/******** ZQuest stuff ********/
-/******************************/
-
 bool save_msgstrs(const char *path)
 {
     PACKFILE *f = pack_fopen_password(path,F_WRITE, "");
@@ -5778,7 +5769,6 @@ bool load_combos(const char *path, int32_t startcombo)
         else
         {
             pack_fclose(f);
-            //      init_combos(true, &header);
             return false;
         }
     }
@@ -5967,7 +5957,6 @@ bool load_zgp(const char *path)
     dword section_id;
     dword section_version;
     dword section_cversion;
-//  setPackfilePassword(NULL);
     PACKFILE *f=pack_fopen_password(path,F_READ,"");
     
     if(!f)
@@ -6030,7 +6019,6 @@ bool load_zgp(const char *path)
         if(readcombos(f, NULL, ZELDA_VERSION, VERSION_BUILD, 0, MAXCOMBOS)!=0)
         {
             pack_fclose(f);
-            //      init_combos(true, &header);
             return false;
         }
     }
@@ -6182,8 +6170,6 @@ bool load_zgp(const char *path)
 
 bool save_zgp(const char *path)
 {
-//  jwin_alert("Error","This feature not yet implemented.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-//  return false;
     reset_combo_animations();
     reset_combo_animations2();
     
@@ -6698,7 +6684,6 @@ int32_t load_quest(const char *filename, bool show_progress)
 	for(int32_t i=0; i<qr_MAX; i++)
 				set_qr(i,0);
 	int32_t ret=loadquest(filename,&header,&QMisc,customtunes,show_progress,skip_flags);
-//  setPackfilePassword(NULL);
 
 	if(ret!=qe_OK)
 	{
@@ -9881,7 +9866,7 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 		if(!p_iputw(tmp_cmb.trigdmlevel,f))
 			return 92;
 		for(int q = 0; q < 3; ++q)
-			if(!p_putc(tmp_cmb.trigtint[q],f))
+			if(!p_iputw(tmp_cmb.trigtint[q],f))
 				return 93;
 		if(!p_iputw(tmp_cmb.triglvlpalette,f))
 			return 94;
@@ -11297,52 +11282,52 @@ int32_t writeguys(PACKFILE *f, zquestheader *Header)
 				new_return(32);
 			}
 			
-			if(!p_iputl(guysbuf[i].misc1,f))
+			if(!p_iputl(guysbuf[i].attributes[0], f))
 			{
 				new_return(33);
 			}
 			
-			if(!p_iputl(guysbuf[i].misc2,f))
+			if(!p_iputl(guysbuf[i].attributes[1],f))
 			{
 				new_return(34);
 			}
 			
-			if(!p_iputl(guysbuf[i].misc3,f))
+			if(!p_iputl(guysbuf[i].attributes[2],f))
 			{
 				new_return(35);
 			}
 			
-			if(!p_iputl(guysbuf[i].misc4,f))
+			if(!p_iputl(guysbuf[i].attributes[3],f))
 			{
 				new_return(36);
 			}
 			
-			if(!p_iputl(guysbuf[i].misc5,f))
+			if(!p_iputl(guysbuf[i].attributes[4],f))
 			{
 				new_return(37);
 			}
 			
-			if(!p_iputl(guysbuf[i].misc6,f))
+			if(!p_iputl(guysbuf[i].attributes[5],f))
 			{
 				new_return(38);
 			}
 			
-			if(!p_iputl(guysbuf[i].misc7,f))
+			if(!p_iputl(guysbuf[i].attributes[6],f))
 			{
 				new_return(39);
 			}
 			
-			if(!p_iputl(guysbuf[i].misc8,f))
+			if(!p_iputl(guysbuf[i].attributes[7],f))
 			{
 				new_return(40);
 			}
 			
-			if(!p_iputl(guysbuf[i].misc9,f))
+			if(!p_iputl(guysbuf[i].attributes[8],f))
 			{
 				new_return(41);
 			}
 			
-			if(!p_iputl(guysbuf[i].misc10,f))
+			if(!p_iputl(guysbuf[i].attributes[9],f))
 			{
 				new_return(42);
 			}
@@ -11388,12 +11373,12 @@ int32_t writeguys(PACKFILE *f, zquestheader *Header)
 				new_return(48);
 			}
 			
-			if(!p_iputl(guysbuf[i].misc11,f))
+			if(!p_iputl(guysbuf[i].attributes[10],f))
 			{
 				new_return(49);
 			}
 			
-			if(!p_iputl(guysbuf[i].misc12,f))
+			if(!p_iputl(guysbuf[i].attributes[11],f))
 			{
 				new_return(50);
 			}
@@ -11482,71 +11467,71 @@ int32_t writeguys(PACKFILE *f, zquestheader *Header)
 				new_return(68);
 			}
 			//misc 16->31
-			if(!p_iputl(guysbuf[i].misc16,f))
+			if(!p_iputl(guysbuf[i].attributes[15],f))
 			{
 				new_return(69);
 			}
-			if(!p_iputl(guysbuf[i].misc17,f))
+			if(!p_iputl(guysbuf[i].attributes[16],f))
 			{
 				new_return(70);
 			}
-			if(!p_iputl(guysbuf[i].misc18,f))
+			if(!p_iputl(guysbuf[i].attributes[17],f))
 			{
 				new_return(71);
 			}
-			if(!p_iputl(guysbuf[i].misc19,f))
+			if(!p_iputl(guysbuf[i].attributes[18],f))
 			{
 				new_return(72);
 			}
-			if(!p_iputl(guysbuf[i].misc20,f))
+			if(!p_iputl(guysbuf[i].attributes[19],f))
 			{
 				new_return(73);
 			}
-			if(!p_iputl(guysbuf[i].misc21,f))
+			if(!p_iputl(guysbuf[i].attributes[20],f))
 			{
 				new_return(74);
 			}
-			if(!p_iputl(guysbuf[i].misc22,f))
+			if(!p_iputl(guysbuf[i].attributes[21],f))
 			{
 				new_return(75);
 			}
-			if(!p_iputl(guysbuf[i].misc23,f))
+			if(!p_iputl(guysbuf[i].attributes[22],f))
 			{
 				new_return(76);
 			}
-			if(!p_iputl(guysbuf[i].misc24,f))
+			if(!p_iputl(guysbuf[i].attributes[23],f))
 			{
 				new_return(77);
 			}
-			if(!p_iputl(guysbuf[i].misc25,f))
+			if(!p_iputl(guysbuf[i].attributes[24],f))
 			{
 				new_return(78);
 			}
-			if(!p_iputl(guysbuf[i].misc26,f))
+			if(!p_iputl(guysbuf[i].attributes[25],f))
 			{
 				new_return(79);
 			}
-			if(!p_iputl(guysbuf[i].misc27,f))
+			if(!p_iputl(guysbuf[i].attributes[26],f))
 			{
 				new_return(80);
 			}
-			if(!p_iputl(guysbuf[i].misc28,f))
+			if(!p_iputl(guysbuf[i].attributes[27],f))
 			{
 				new_return(81);
 			}
-			if(!p_iputl(guysbuf[i].misc29,f))
+			if(!p_iputl(guysbuf[i].attributes[28],f))
 			{
 				new_return(82);
 			}
-			if(!p_iputl(guysbuf[i].misc30,f))
+			if(!p_iputl(guysbuf[i].attributes[29],f))
 			{
 				new_return(83);
 			}
-			if(!p_iputl(guysbuf[i].misc31,f))
+			if(!p_iputl(guysbuf[i].attributes[30],f))
 			{
 				new_return(84);
 			}
-			if(!p_iputl(guysbuf[i].misc32,f))
+			if(!p_iputl(guysbuf[i].attributes[31],f))
 			{
 				new_return(85);
 			}
@@ -11587,15 +11572,15 @@ int32_t writeguys(PACKFILE *f, zquestheader *Header)
 				new_return(91);
 			}
 			//somehow forgot these in the older builds -Z
-			if(!p_iputl(guysbuf[i].misc13,f))
+			if(!p_iputl(guysbuf[i].attributes[12],f))
 			{
 				new_return(92);
 			}
-			if(!p_iputl(guysbuf[i].misc14,f))
+			if(!p_iputl(guysbuf[i].attributes[13],f))
 			{
 				new_return(93);
 			}
-			if(!p_iputl(guysbuf[i].misc15,f))
+			if(!p_iputl(guysbuf[i].attributes[14],f))
 			{
 				new_return(94);
 			}
@@ -14370,7 +14355,6 @@ void zmap::prv_secrets(bool high16only)
                 {
                     s->ffcs[i].data = s->secretcombo[checkflag - 16 + 4];
                     s->ffcs[i].cset = s->secretcset[checkflag-16+4];
-                    //        putit = true;
                 }
             }
         }

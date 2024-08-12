@@ -41,6 +41,8 @@ def load_manifest():
 
         for release in qst['releases']:
             for i, resource in enumerate(release['resources']):
+                if not release['resourceHashes']:
+                    break
                 if resource.endswith('.qst'):
                     qst_hash = release['resourceHashes'][i]
                     path = f'{entry_id}/{release["name"]}/{resource}'
@@ -93,7 +95,7 @@ def parse_replay(replay_text: str) -> Tuple[Dict[str, str], List[str]]:
     return meta, steps
 
 
-s3 = connect_s3() if app.config.get('FLASK_PRODUCTION') == '1' else None
+s3 = connect_s3() if app.config.get('PRODUCTION') else None
 quest_list, qst_hash_dict = load_manifest()
 
 replay_guid_to_path = {}

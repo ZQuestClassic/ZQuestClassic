@@ -149,8 +149,8 @@ static const char *combotype_help_string[cMAX] =
 	"The player is warped via Tile Warp A if they swim on this combo. Otherwise, this is identical to Water.",
 	"The player is warped via Tile Warp A if they dive on this combo. Otherwise, this is identical to Water.",
 	"If this combo is solid, the Ladder and Hookshot can be used to cross over it. It only permits the Ladder if its on Layer 0.",
-	"This triggers Screen Secrets when the bottom half of this combo is stepped on, but it does not set the screen's 'Secret' Screen State.",
-	"This triggers Screen Secrets when the bottom half of this combo is stepped on, and sets the screen's 'Secret' Screen State, making the secrets permanent.",
+	"This activates Screen Secrets when the bottom half of this combo is stepped on, but it does not set the screen's 'Secret' Screen State.",
+	"This activates Screen Secrets when the bottom half of this combo is stepped on, and sets the screen's 'Secret' Screen State, making the secrets permanent.",
 	"", // Unused
 	"When stabbed or slashed with a Sword, this combo changes into the screen's Under Combo.",
 	"Identical to Slash, but an item from Item Drop Set 12 is created when this combo is slashed.",
@@ -220,18 +220,18 @@ static const char *combotype_help_string[cMAX] =
 	"The player is warped via Tile Warp D if they dive on this combo. Otherwise, this is identical to Water.",
 	"Identical to Stairs [A], but the Tile Warp used (A, B, C, or D) is chosen at random. Use this only in screens where all four Tile Warps are defined.",
 	"Identical to Direct Warp [A], but the Tile Warp used (A, B, C, or D) is chosen at random. Use this only in screens where all four Tile Warps are defined.",
-	"As soon as this combo appears on the screen, Side Warp A is triggered. This is best used with secret combos or combo cycling.",
-	"As soon as this combo appears on the screen, Side Warp B is triggered. This is best used with secret combos or combo cycling.",
-	"As soon as this combo appears on the screen, Side Warp C is triggered. This is best used with secret combos or combo cycling.",
-	"As soon as this combo appears on the screen, Side Warp D is triggered. This is best used with secret combos or combo cycling.",
+	"As soon as this combo appears on the screen, Side Warp A is activated. This is best used with secret combos or combo cycling.",
+	"As soon as this combo appears on the screen, Side Warp B is activated. This is best used with secret combos or combo cycling.",
+	"As soon as this combo appears on the screen, Side Warp C is activated. This is best used with secret combos or combo cycling.",
+	"As soon as this combo appears on the screen, Side Warp D is activated. This is best used with secret combos or combo cycling.",
 	"Identical to Auto Side Warp [A], but the Side Warp used (A, B, C, or D) is chosen at random. Use this only in screens where all four Side Warps are defined.",
 	"Identical to Stairs [A], but the player will be warped as soon as they touch the edge of this combo.",
 	"Identical to Stairs [B], but the player will be warped as soon as they touch the edge of this combo.",
 	"Identical to Stairs [C], but the player will be warped as soon as they touch the edge of this combo.",
 	"Identical to Stairs [D], but the player will be warped as soon as they touch the edge of this combo.",
 	"Identical to Stairs [Random], but the player will be warped as soon as they touch the edge of this combo.",
-	"Identical to Step->Secrets (Temporary), but Screen Secrets are triggered as soon as the player touches the edge of this combo.",
-	"Identical to Step->Secrets (Permanent), but Screen Secrets are triggered as soon as the player touches the edge of this combo.",
+	"Identical to Step->Secrets (Temporary), but Screen Secrets are activated as soon as the player touches the edge of this combo.",
+	"Identical to Step->Secrets (Permanent), but Screen Secrets are activated as soon as the player touches the edge of this combo.",
 	"When the player steps on this combo, it will change into the next combo in the list.",
 	"Identical to Step->Next, but if other instances of this particular combo are stepped on, this also changes to the next combo in the list.",
 	"When the player steps on this combo, each of the Step->Next combos on screen will change to the next combo after them in the list.",
@@ -379,7 +379,7 @@ std::string getComboTypeHelpText(int32_t id)
 			break;
 		
 		case cLIGHTTARGET:
-			typehelp = "If all targets onscreen are lit by light beams, secrets will be triggered.";
+			typehelp = "If all targets onscreen are lit by light beams, secrets will be activated.";
 			break;
 		case cCSWITCH:
 			typehelp = "Switch combos, when triggered (Triggers tab w/ 'ComboType Effects' checked), toggle a switch state for the current 'level'."
@@ -414,7 +414,7 @@ std::string getComboTypeHelpText(int32_t id)
 				" Only functions on layer 0, even with ComboType Effects triggerflag.";
 			break;
 		case cCUTSCENETRIG:
-			typehelp = "When triggered with ComboType Effects, either stops an active cutscene, or"
+			typehelp = "When activated with ComboType Effects, either stops an active cutscene, or"
 				" sets the active cutscene rules.";
 			break;
 		case cPUSHBLOCK:
@@ -447,10 +447,10 @@ std::string getMapFlagHelpText(int32_t id)
 			flaghelp = "Select a Flag, then click this button to find out what it does.";
 			break;
 		case mfPUSHUD:
-			flaghelp = "Allows the Player to push the combo up or down once, triggering Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.";
+			flaghelp = "Allows the Player to push the combo up or down once, activating Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.";
 			break;
 		case mfPUSH4:
-			flaghelp = "Allows the Player to push the combo in any direction once, triggering Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.";
+			flaghelp = "Allows the Player to push the combo in any direction once, activating Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.";
 			break;
 		case mfWHISTLE:
 			flaghelp = "Triggers Screen Secrets when the Player plays the Whistle on it. Is replaced with the 'Whistle' Secret Combo. Doesn't interfere with Whistle related Screen Flags.";
@@ -468,7 +468,7 @@ std::string getMapFlagHelpText(int32_t id)
 			flaghelp = "Place in paths to define the path the Player travels when using the Raft. Use with Dock-type combos. If a path branches, the Player takes the clockwise-most path.";
 			break;
 		case mfARMOS_SECRET:
-			flaghelp = "When placed on an Armos-type combo, causes the 'Stairs'  Secret Combo to appear when the Armos is triggered, instead of the screen's Under Combo.";
+			flaghelp = "When placed on an Armos-type combo, causes the 'Stairs'  Secret Combo to appear when the Armos is activated, instead of the screen's Under Combo.";
 			break;
 		case mfARMOS_ITEM:
 			flaghelp = "When placed on an Armos or treasure chest, causes the room's Special Item to appear when the combo is activated. Requires the 'Special Item' Room Type.";
@@ -505,11 +505,11 @@ std::string getMapFlagHelpText(int32_t id)
 		case mfPUSHR:
 		{
 			static const char* name[]{"left or right","up","down","left","right"};
-			flaghelp = fmt::format("Allows the Player to push the combo {} once, triggering Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.",name[id-mfPUSHLR]);
+			flaghelp = fmt::format("Allows the Player to push the combo {} once, activating Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.",name[id-mfPUSHLR]);
 			break;
 		}
 		case mfBLOCKTRIGGER:
-			flaghelp = "Pushing blocks onto ALL Block Triggers will trigger Screen Secrets (or just the 'Stairs' secret combo) as well as Block->Shutters."
+			flaghelp = "Pushing blocks onto ALL Block Triggers will activate Screen Secrets (or just the 'Stairs' secret combo) as well as Block->Shutters."
 				+ QRHINT({qr_NONHEAVY_BLOCKTRIGGER_PERM,qr_BLOCKHOLE_SAME_ONLY,qr_BLOCKS_DONT_LOCK_OTHER_LAYERS,qr_PUSHBLOCK_LAYER_1_2});
 			break;
 		case mfNOBLOCKS:
@@ -589,7 +589,7 @@ std::string getMapFlagHelpText(int32_t id)
 				+ QRHINT({qr_BLOCKHOLE_SAME_ONLY,qr_PUSHBLOCK_LAYER_1_2});
 			break;
 		case mfSINGLE:
-			flaghelp = "When stacked with a Trigger Combo Flag, it prevents the triggered Secrets process from changing all other flagged combos on-screen.";
+			flaghelp = "When stacked with a Trigger Combo Flag, it prevents the activated Secrets process from changing all other flagged combos on-screen.";
 			break;
 		case mfSINGLE16:
 			flaghelp = "Similar to 'Trigger->Self Only', but the Secret Tile (16-31) flagged combos will still change. (The 'Hit All Triggers->16-31' Screen Flag overrides this.)";
@@ -619,7 +619,7 @@ std::string getMapFlagHelpText(int32_t id)
 		case mfSECRETS05: case mfSECRETS06: case mfSECRETS07: case mfSECRETS08:
 		case mfSECRETS09: case mfSECRETS10: case mfSECRETS11: case mfSECRETS12:
 		case mfSECRETS13: case mfSECRETS14: case mfSECRETS15: case mfSECRETS16:
-			flaghelp = "When Screen Secrets are triggered, this is replaced with Secret Combo "
+			flaghelp = "When Screen Secrets are activated, this is replaced with Secret Combo "
 				+ std::to_string(id) + ". (Also, flagged Destructible Combos"
 				" will use that Secret Combo instead of the Under Combo.)";
 			break;
@@ -641,7 +641,7 @@ std::string getMapFlagHelpText(int32_t id)
 			flaghelp = "Allows the Player to push the combo "
 				+ std::string((t == 0) ? "up and down" : (t == 1) ? "left and right" : (t == 2) ? "in any direction" : (t == 3) ? "up" : (t == 4) ? "down" : (t == 5) ? "left" : "right")
 				+ std::string((id>=mfPUSHUDINS) ? "many times":"once")
-				+ " triggering Block->Shutters but not Screen Secrets.";
+				+ " activating Block->Shutters but not Screen Secrets.";
 			break;
 		}
 		case mfPUSHED:
@@ -674,7 +674,7 @@ std::string getMapFlagHelpText(int32_t id)
 		}
 		case mfSECRETSNEXT:
 		{
-			flaghelp = "When secrets are triggered, the combo in this position becomes the next"
+			flaghelp = "When secrets are activated, the combo in this position becomes the next"
 				" combo in the list.";
 			break;
 		}
@@ -821,17 +821,17 @@ void ComboEditorDialog::loadComboType()
 		case cTRIGFLAG: case cSTRIGFLAG:
 		{
 			l_attribyte[0] = "Sound:";
-			h_attribyte[0] = "SFX to play when triggered";
+			h_attribyte[0] = "SFX to play when activated";
 			break;
 		}
 		case cSTEP: case cSTEPSAME: case cSTEPALL:
 		{
 			l_flag[0] = "Heavy";
-			h_flag[0] = "Requires Heavy Boots to trigger";
+			h_flag[0] = "Requires Heavy Boots to activate";
 			l_attribyte[0] = "Sound:";
-			h_attribyte[0] = "SFX to play when triggered";
+			h_attribyte[0] = "SFX to play when activated";
 			l_attribyte[1] = "Req. Item";
-			h_attribyte[1] = "Item ID that must be owned in order to trigger. If '0', no item is required.";
+			h_attribyte[1] = "Item ID that must be owned in order to activate. If '0', no item is required.";
 			break;
 		}
 		case cWATER:
@@ -863,7 +863,7 @@ void ComboEditorDialog::loadComboType()
 				l_flag[5] = "Mod SFX only on HP change";
 				h_flag[5] = "Only play the HP Mod SFX when HP actually changes";
 				l_flag[6] = "Damage causes hit anim";
-				h_flag[6] = "HP Mod Damage triggers the hit animation and invincibility frames";
+				h_flag[6] = "HP Mod Damage activates the hit animation and invincibility frames";
 				l_attribute[1] = "HP Modification:";
 				h_attribute[1] = "How much HP should be modified by (negative for damage)";
 				l_attribute[2] = "HP Mod SFX:";
@@ -901,7 +901,7 @@ void ComboEditorDialog::loadComboType()
 				l_flag[5] = "Mod SFX only on HP change";
 				h_flag[5] = "Only play the HP Mod SFX when HP actually changes";
 				l_flag[6] = "Damage causes hit anim";
-				h_flag[6] = "HP Mod Damage triggers the hit animation and invincibility frames";
+				h_flag[6] = "HP Mod Damage activates the hit animation and invincibility frames";
 				l_attribute[1] = "HP Modification:";
 				h_attribute[1] = "How much HP should be modified by (negative for damage)";
 				l_attribute[2] = "HP Mod SFX:";
@@ -1169,7 +1169,7 @@ void ComboEditorDialog::loadComboType()
 				"Must set: Combo, Xoffset, Yoffset, CSet";
 			l_attribyte[2] = "Button:";
 			h_attribyte[2] = "Sum all the buttons you want to be usable:\n(A=1, B=2, L=4, R=8, Ex1=16, Ex2=32, Ex3=64, Ex4=128)\n"
-				"If no buttons are selected, walking into the block will trigger it.";
+				"If no buttons are selected, walking into the block will activate it.";
 			l_attribyte[3] = "Unlock Sound:";
 			h_attribyte[3] = "The sound to play when unlocking the block";
 			if(FL(cflag13))
@@ -1292,7 +1292,7 @@ void ComboEditorDialog::loadComboType()
 				"Must set: Combo, Xoffset, Yoffset, CSet";
 			l_attribyte[2] = "Button:";
 			h_attribyte[2] = "Sum all the buttons you want to be usable:\n(A=1, B=2, L=4, R=8, Ex1=16, Ex2=32, Ex3=64, Ex4=128)\n"
-				"If no buttons are selected, walking into the chest will trigger it.";
+				"If no buttons are selected, walking into the chest will activate it.";
 			l_attribyte[3] = "Open Sound:";
 			h_attribyte[3] = "The sound to play when opening the chest";
 			if(FL(cflag13))
@@ -1352,7 +1352,7 @@ void ComboEditorDialog::loadComboType()
 				"Must set: Combo, Xoffset, Yoffset, CSet";
 			l_attribyte[2] = "Button:";
 			h_attribyte[2] = "Sum all the buttons you want to be usable:\n(A=1, B=2, L=4, R=8, Ex1=16, Ex2=32, Ex3=64, Ex4=128)\n"
-				"If no buttons are selected, walking into the signpost will trigger it.";
+				"If no buttons are selected, walking into the signpost will activate it.";
 			l_attribute[0] = "String:";
 			h_attribute[0] = "1+: Use specified string\n"
 				"-1: Use screen string\n"
@@ -1540,7 +1540,7 @@ void ComboEditorDialog::loadComboType()
 		case cTRIGGERGENERIC:
 		{
 			l_flag[0] = "Decoration Sprite";
-			h_flag[0] = "Spawn a decoration when triggered";
+			h_flag[0] = "Spawn a decoration when activated";
 			if(FL(cflag1))
 			{
 				l_flag[9] = "Use Clippings Sprite";
@@ -1557,7 +1557,7 @@ void ComboEditorDialog::loadComboType()
 				}
 			}
 			l_flag[1] = "Drop Item";
-			h_flag[1] = "Drop an item when triggered";
+			h_flag[1] = "Drop an item when activated";
 			if(FL(cflag2)) //Drop item
 			{
 				l_flag[10] = "Specific Item";
@@ -1574,7 +1574,7 @@ void ComboEditorDialog::loadComboType()
 				}
 			}
 			l_flag[3] = "Change Combo";
-			h_flag[3] = "Become the next combo in the combo list when triggered";
+			h_flag[3] = "Become the next combo in the combo list when activated";
 			if(FL(cflag4))
 			{
 				l_flag[11] = "Undercombo";
@@ -1586,9 +1586,9 @@ void ComboEditorDialog::loadComboType()
 				}
 			}
 			l_flag[7] = "Kill Wpn";
-			h_flag[7] = "Destroy the weapon that triggers this combo";
+			h_flag[7] = "Destroy the weapon that activates this combo";
 			l_flag[13] = "Drop Enemy";
-			h_flag[13] = "Spawn an Enemy when triggered";
+			h_flag[13] = "Spawn an Enemy when activated";
 			if(FL(cflag14))
 			{
 				l_attribyte[4] = "Enemy ID";
@@ -1606,17 +1606,17 @@ void ComboEditorDialog::loadComboType()
 						h_attribyte[2] = "SFX to play when changing combo.";
 						break;
 					case cflag7:
-						h_attribyte[2] = "SFX to play when triggering singular secret.";
+						h_attribyte[2] = "SFX to play when activating singular secret.";
 						break;
 					case cflag4|cflag7:
-						h_attribyte[2] = "SFX to play when triggering singular secret or changing combo";
+						h_attribyte[2] = "SFX to play when activating singular secret or changing combo";
 						break;
 				}
 			}
 			if(FL(cflag7))
 			{
 				l_attribyte[3] = "Singular Secret:";
-				h_attribyte[3] = "Which single secret combo to trigger, using the 'SECCMB_' constants from 'include/std_zh/std_constants.zh'";
+				h_attribyte[3] = "Which single secret combo to activate, using the 'SECCMB_' constants from 'include/std_zh/std_constants.zh'";
 			}
 			if(FL(cflag14)) //Drop Enemy flag
 			{
@@ -1624,7 +1624,7 @@ void ComboEditorDialog::loadComboType()
 				h_flag[12] = "Skip spawn poof for dropped enemy";
 			}
 			l_flag[5] = "Room Item";
-			h_flag[5] = "Drop the room's Special Item on trigger"
+			h_flag[5] = "Drop the room's Special Item on activation"
 				" (room does not need to be 'Special Item' type, the Catchall value will be used)";
 			break;
 		}
@@ -1660,7 +1660,7 @@ void ComboEditorDialog::loadComboType()
 		case cSTEPSFX:
 		{
 			l_flag[0] = "Landmine (Step->Wpn)";
-			h_flag[0] = "Spawns a weapon when triggered, and by default advances to the next combo in the combo list.";
+			h_flag[0] = "Spawns a weapon when activated, and by default advances to the next combo in the combo list.";
 			l_attribyte[0] = "Sound:";
 			h_attribyte[0] = "SFX to play when stepped on";
 			if(FL(cflag1)) //Landmine
@@ -1668,8 +1668,8 @@ void ComboEditorDialog::loadComboType()
 				l_flag[1] = "Script weapon IDs spawn LWeapons";
 				h_flag[1] = "Script weapon IDs for 'Weapon Type' are EWeapons by default; if checked, they will be LWeapons instead.";
 				l_flag[2] = "Don't Advance";
-				h_flag[2] = "If checked, the combo will not advance to the next combo when triggered."
-					" This may cause the landmine to trigger multiple times in a row.";
+				h_flag[2] = "If checked, the combo will not advance to the next combo when activated."
+					" This may cause the landmine to activate multiple times in a row.";
 				l_flag[3] = "Direct Damage Script LW / Sparkles";
 				h_flag[3] = "If the weapon type is a Script weapon and 'Script Weapon IDs spawn LWeapons' is checked, or the weapon type is"
 					" a sparkle type, it will immediately damage the player (knocking them back none).";
@@ -1691,32 +1691,32 @@ void ComboEditorDialog::loadComboType()
 		case cCSWITCH:
 		{
 			l_flag[0] = "Kill Wpn";
-			h_flag[0] = "Destroy the weapon that triggers the combo";
+			h_flag[0] = "Destroy the weapon that activates the combo";
 			l_flag[7] = "Skip Cycle on Screen Entry";
 			h_flag[7] = "Combo cycle the switch combo on screen entry, to skip any switching animation";
 			
 			l_attribute[0] = "Combo Change:";
-			h_attribute[0] = "Value to add to the combo ID when triggered";
+			h_attribute[0] = "Value to add to the combo ID when activated";
 			l_attribute[1] = "CSet Change:";
-			h_attribute[1] = "Value to add to the cset when triggered";
+			h_attribute[1] = "Value to add to the cset when activated";
 			l_attribyte[1] = "SFX:";
-			h_attribyte[1] = "SFX to play when triggered";
+			h_attribyte[1] = "SFX to play when activated";
 			l_flag[10] = "Global State";
 			h_flag[10] = "Use a global state instead of a level-based state.";
 			if(FL(cflag11)) //Global State
 			{
 				l_attribyte[0] = "State Num:";
-				h_attribyte[0] = "Range 0-255 inclusive, which of the global switch states to trigger from";
-				l_attribute[2] = "Timed Trigger";
-				h_attribute[2] = "If > 0, the trigger will revert after this many frames."
-					" If used, the trigger will NOT remain through save/load."
+				h_attribyte[0] = "Range 0-255 inclusive, which of the global switch states to activate from";
+				l_attribute[2] = "Timed State";
+				h_attribute[2] = "If > 0, the state will revert after this many frames."
+					" If used, the state will NOT remain through save/load."
 					" Also, timed switches can only turn the switch state 'on', cannot toggle it back 'off'."
 					" Hitting the switch while already on will reset the timer.";
 			}
 			else
 			{
 				l_attribyte[0] = "State Num:";
-				h_attribyte[0] = "Range 0-31 inclusive, which of the level's switch states to trigger from";
+				h_attribyte[0] = "Range 0-31 inclusive, which of the level's switch states to activate from";
 			}
 			break;
 		}
@@ -1726,21 +1726,21 @@ void ComboEditorDialog::loadComboType()
 			l_flag[2] = "Change L2"; l_flag[3] = "Change L3";
 			l_flag[4] = "Change L4"; l_flag[5] = "Change L5";
 			l_flag[6] = "Change L6";
-			h_flag[0] = "Changes the combo on layer 0 in the same pos as this combo when triggered.";
-			h_flag[1] = "Changes the combo on layer 1 in the same pos as this combo when triggered.";
-			h_flag[2] = "Changes the combo on layer 2 in the same pos as this combo when triggered.";
-			h_flag[3] = "Changes the combo on layer 3 in the same pos as this combo when triggered.";
-			h_flag[4] = "Changes the combo on layer 4 in the same pos as this combo when triggered.";
-			h_flag[5] = "Changes the combo on layer 5 in the same pos as this combo when triggered.";
-			h_flag[6] = "Changes the combo on layer 6 in the same pos as this combo when triggered.";
+			h_flag[0] = "Changes the combo on layer 0 in the same pos as this combo when activated.";
+			h_flag[1] = "Changes the combo on layer 1 in the same pos as this combo when activated.";
+			h_flag[2] = "Changes the combo on layer 2 in the same pos as this combo when activated.";
+			h_flag[3] = "Changes the combo on layer 3 in the same pos as this combo when activated.";
+			h_flag[4] = "Changes the combo on layer 4 in the same pos as this combo when activated.";
+			h_flag[5] = "Changes the combo on layer 5 in the same pos as this combo when activated.";
+			h_flag[6] = "Changes the combo on layer 6 in the same pos as this combo when activated.";
 			l_flag[7] = "Skip Cycle on Screen Entry";
 			h_flag[7] = "Combo cycle the switch combo on screen entry, to skip any rising/falling animation";
 			l_flag[8] = "Allow walk-on-top";
 			h_flag[8] = "Allows the player to walk along solid switchblocks if they are on them";
 			l_attribute[0] = "Combo Change:";
-			h_attribute[0] = "Value to add to the combo ID when triggered";
+			h_attribute[0] = "Value to add to the combo ID when activated";
 			l_attribute[1] = "CSet Change:";
-			h_attribute[1] = "Value to add to the cset when triggered";
+			h_attribute[1] = "Value to add to the cset when activated";
 			if(FL(cflag9)) //Allow walk-on-top
 			{
 				l_flag[9] = "-8px DrawYOffset";
@@ -1758,12 +1758,12 @@ void ComboEditorDialog::loadComboType()
 			if(FL(cflag11)) //Global State
 			{
 				l_attribyte[0] = "State Num:";
-				h_attribyte[0] = "Range 0-255 inclusive, which of the global switch states to trigger from";
+				h_attribyte[0] = "Range 0-255 inclusive, which of the global switch states to activate from";
 			}
 			else
 			{
 				l_attribyte[0] = "State Num:";
-				h_attribyte[0] = "Range 0-31 inclusive, which of the level's switch states to trigger from";
+				h_attribyte[0] = "Range 0-31 inclusive, which of the level's switch states to activate from";
 			}
 			break;
 		}
@@ -1786,7 +1786,7 @@ void ComboEditorDialog::loadComboType()
 			l_attribyte[0] = "Dir:";
 			h_attribyte[0] = "0-3 = Up,Down,Left,Right\n4-7 = Unused (For Now)\n8 = at the ground";
 			l_attribyte[4] = "Trigger Set:";
-			h_attribyte[4] = "0-32; if 0 will trigger any targets, otherwise only triggers matching targets";
+			h_attribyte[4] = "0-32; if 0 will activate any targets, otherwise only activates matching targets";
 			if(FL(cflag1))
 			{
 				l_attribute[0] = "Start Tile:";
@@ -1818,11 +1818,11 @@ void ComboEditorDialog::loadComboType()
 			h_flag[0] = "If checked, reverts to previous combo when not hit by a spotlight."
 				"\nIf unchecked, becomes the next combo when hit by a spotlight.";
 			l_flag[1] = "Invert";
-			h_flag[1] = "If checked, counts as triggered when light is NOT hitting it.";
+			h_flag[1] = "If checked, counts as activated when light is NOT hitting it.";
 			l_flag[2] = "Blocks Light";
-			h_flag[2] = "Light that hits will trigger, but not pass, the target";
+			h_flag[2] = "Light that hits will activate, but not pass, the target";
 			l_attribyte[4] = "Trigger Set:";
-			h_attribyte[4] = "0-32; if 0 will be triggered by any beams, otherwise only by matching beams";
+			h_attribyte[4] = "0-32; if 0 will be activated by any beams, otherwise only by matching beams";
 			break;
 		}
 		case cSWITCHHOOK:
@@ -3353,7 +3353,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						fitParent = true, padding = 0_px,
 						type = GUI::TextField::type::NOSWAP_ZSINT,
 						swap_type = nswapLDEC,
-						low = -63, high = 63, val = local_comboref.trigtint[0],
+						low = -255, high = 255, val = local_comboref.trigtint[0],
 						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 						{
 							local_comboref.trigtint[0] = val;
@@ -3362,7 +3362,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						fitParent = true, padding = 0_px,
 						type = GUI::TextField::type::NOSWAP_ZSINT,
 						swap_type = nswapLDEC,
-						low = -63, high = 63, val = local_comboref.trigtint[1],
+						low = -255, high = 255, val = local_comboref.trigtint[1],
 						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 						{
 							local_comboref.trigtint[1] = val;
@@ -3371,7 +3371,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						fitParent = true, padding = 0_px,
 						type = GUI::TextField::type::NOSWAP_ZSINT,
 						swap_type = nswapLDEC,
-						low = -63, high = 63, val = local_comboref.trigtint[2],
+						low = -255, high = 255, val = local_comboref.trigtint[2],
 						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 						{
 							local_comboref.trigtint[2] = val;

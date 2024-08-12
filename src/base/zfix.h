@@ -13,7 +13,6 @@
 #include <fmt/format.h>
 
 #define FIX_NAN 0
-//std::numeric_limits<t>::quiet_NaN()
 
 // Weird internal compiler error, but only for RelWithDebInfo 32bit...
 // Also may be only VS2020

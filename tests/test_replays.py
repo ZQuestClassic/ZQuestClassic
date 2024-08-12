@@ -58,7 +58,7 @@ class TestReplays(unittest.TestCase):
         if not test_results_path.exists():
             print(output.stdout)
             raise Exception('could not find test_results.json')
-        self.assertEqual(output.returncode, 1)
+        self.assertEqual(output.returncode, 2)
 
         test_results_json = json.loads(test_results_path.read_text('utf-8'))
         return ReplayTestResults(**test_results_json)
@@ -68,10 +68,10 @@ class TestReplays(unittest.TestCase):
             root_dir / 'tests/replays/classic_1st_lvl1.zplay'
         ).read_text()
         failing_replay_contents = failing_replay_contents.replace(
-            'C 549 g HNN', 'C 549 g blah'
+            'C 549 g Gbu', 'C 549 g blah'
         )
         failing_replay_contents = failing_replay_contents.replace(
-            'C 1574 g "W', 'C 1574 g blah'
+            'C 1574 g GE%', 'C 1574 g blah'
         )
         create_test_replay(failing_replay_contents)
 
@@ -134,8 +134,8 @@ class TestReplays(unittest.TestCase):
         failing_replay_contents = (
             root_dir / 'tests/replays/classic_1st_lvl1.zplay'
         ).read_text()
-        failing_replay_contents = failing_replay_contents.replace('C 549 g HNN\n', '')
-        failing_replay_contents = failing_replay_contents.replace('C 1574 g "W\n', '')
+        failing_replay_contents = failing_replay_contents.replace('C 549 g Gbu\n', '')
+        failing_replay_contents = failing_replay_contents.replace('C 1574 g GE%\n', '')
         create_test_replay(failing_replay_contents)
 
         test_results = self.run_replay()

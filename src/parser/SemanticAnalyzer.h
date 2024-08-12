@@ -94,7 +94,6 @@ namespace ZScript
 		//internals
 		virtual void analyzeFunctionInternals(ZScript::Function& function);
 	private:
-		ZScript::Program& program;
 		// Current function return type.
 		ZScript::DataType const* returnType;
 

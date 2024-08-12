@@ -35,7 +35,7 @@ void jwin_set_a5_colors(ALLEGRO_COLOR* colors)
 
 ALLEGRO_COLOR a5color(RGB c)
 {
-	return al_map_rgb(c.r*4,c.g*4,c.b*4);
+	return al_map_rgb(c.r,c.g,c.b);
 }
 ALLEGRO_COLOR a5color(int index)
 {

@@ -6,7 +6,6 @@ import argparse
 import itertools as it
 import json
 import os
-import subprocess
 
 from argparse import ArgumentTypeError
 from pathlib import Path
@@ -39,7 +38,7 @@ def set_action_output(output_name, value):
             print('{0}={1}'.format(output_name, value), file=f)
 
 
-def find_baseline_commit(gh: Github, repo_str: str):
+def find_baseline(gh: Github, repo_str: str):
     def is_passing_workflow_run(r: WorkflowRun.WorkflowRun):
         if r.conclusion == 'success':
             return True
@@ -74,7 +73,7 @@ def find_baseline_commit(gh: Github, repo_str: str):
         )
         return ret
 
-    # TODO z3 !!! upstream
+    # TODO z3 !!! revert file
     def look_for_workflow(workflow: Workflow.Workflow, branch: str):
         # Only consider 30 most recent runs.
         main_runs = it.islice(workflow.get_runs(branch=branch), 300)
@@ -122,6 +121,11 @@ def create_compare_git_ref(gh: Github, repo_str: str, sha: str):
     try:
         repo.create_git_ref(ref, sha)
     except GithubException as e:
+        # This error happens when running from fork, since lack write permissions.
+        if e.data['message'] == 'Resource not accessible by integration':
+            print(e)
+            print('assuming baseline is head of main branch ...')
+            return 'main'
         if e.data['message'] != 'Reference already exists':
             raise e
 
@@ -246,18 +250,18 @@ def get_args_for_collect_baseline_from_test_results(
 
 # Collect all the test failures described by the provided test_results.json
 # files, and dispatch and wait for a workflow run to finish using a baseline
-# commit.
+# branch.
 # Returns the workflow run id, after job finishes.
 def collect_baseline_from_test_results(
-    gh: Github, repo: str, baseline_commit: str, test_results_paths: List[Path]
+    gh: Github, repo: str, baseline_branch: str, test_results_paths: List[Path]
 ) -> int:
     extra_args = get_args_for_collect_baseline_from_test_results(test_results_paths)
-    if not baseline_commit:
-        baseline_commit = find_baseline_commit(gh, repo)
+    if not baseline_branch:
+        baseline_branch = find_baseline(gh, repo)
 
     # For baseline purposes, only need to run on a single platform.
     run_id = start_test_workflow_run(
-        gh, repo, baseline_commit, 'ubuntu-22.04', 'x64', 'clang', extra_args
+        gh, repo, baseline_branch, 'ubuntu-22.04', 'x64', 'clang', extra_args
     )
     poll_workflow_run(gh, repo, run_id)
     print('run finished')
@@ -265,12 +269,12 @@ def collect_baseline_from_test_results(
 
 
 def collect_baseline_from_failing_workflow_run(
-    gh: Github, repo: str, baseline_commit: str, run_id: int
+    gh: Github, repo: str, baseline_branch: str, run_id: int
 ):
     workflow_run_dir = get_gha_artifacts(gh, repo, run_id)
     test_results_paths = list(workflow_run_dir.rglob('test_results.json'))
     return collect_baseline_from_test_results(
-        gh, repo, baseline_commit, test_results_paths
+        gh, repo, baseline_branch, test_results_paths
     )
 
 
@@ -298,10 +302,14 @@ if __name__ == '__main__':
             'can only choose one of --test_results or --failing_workflow_run'
         )
 
+    # This could be a commit sha or a branch.
     if args.commit:
-        commit = create_compare_git_ref(gh, args.repo, args.commit)
+        if len(args.commit) == 40:
+            branch = create_compare_git_ref(gh, args.repo, args.commit)
+        else:
+            branch = args.commit
     else:
-        commit = find_baseline_commit(gh, args.repo)
+        branch = find_baseline(gh, args.repo)
 
     if args.test_results:
         test_results_paths = []
@@ -311,12 +319,12 @@ if __name__ == '__main__':
         else:
             test_results_paths = [args.test_results]
         baseline_run_id = collect_baseline_from_test_results(
-            gh, args.repo, commit, test_results_paths
+            gh, args.repo, branch, test_results_paths
         )
         set_action_output('baseline_run_id', baseline_run_id)
     elif args.failing_workflow_run:
         baseline_run_id = collect_baseline_from_failing_workflow_run(
-            gh, args.repo, commit, args.failing_workflow_run
+            gh, args.repo, branch, args.failing_workflow_run
         )
         set_action_output('baseline_run_id', baseline_run_id)
     else:
@@ -334,6 +342,6 @@ if __name__ == '__main__':
             compiler = 'clang'
 
         run_id = start_test_workflow_run(
-            gh, args.repo, commit, args.runs_on, args.arch, compiler, extra_args
+            gh, args.repo, branch, args.runs_on, args.arch, compiler, extra_args
         )
         poll_workflow_run(gh, args.repo, run_id)

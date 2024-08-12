@@ -285,6 +285,7 @@ static void bestfit_init(void)
 
 /* bestfit_color:
  *  Searches a palette for the color closest to the requested R, G, B value.
+ *  `pal` must be a 6-bit palette.
  */
 int bestfit_color(AL_CONST PALETTE pal, int r, int g, int b)
 {
@@ -339,7 +340,7 @@ int makecol8(int r, int g, int b)
    if (rgb_map)
       return rgb_map->data[r>>3][g>>3][b>>3];
    else
-      return bestfit_color(_current_palette, r>>2, g>>2, b>>2);
+      return bestfit_color(_current_palette_6bit, r>>2, g>>2, b>>2);
 }
 
 
@@ -489,10 +490,21 @@ void rgb_to_hsv(int r, int g, int b, float *h, float *s, float *v)
  *  times better than normal 256*32000 tests so the calculation time
  *  is now less than one second at all computers I tested.
  */
-void create_rgb_table(RGB_MAP *table, AL_CONST PALETTE pal, void (*callback)(int pos))
+void create_rgb_table(RGB_MAP *table, AL_CONST PALETTE pal_8bit, void (*callback)(int pos))
 {
    #define UNUSED 65535
    #define LAST 65532
+
+   // local edit
+   // Allegro has been modified to use an 8 bit palette, but this method and RGB_MAP still use 6 bit.
+   PALETTE pal;
+   for (int i = 0; i < 256; i++)
+   {
+      pal[i] = pal_8bit[i];
+      pal[i].r /= 4;
+      pal[i].g /= 4;
+      pal[i].b /= 4;
+   }
 
    /* macro add adds to single linked list */
    #define add(i)    (next[(i)] == UNUSED ? (next[(i)] = LAST, \
@@ -673,10 +685,21 @@ void create_rgb_table(RGB_MAP *table, AL_CONST PALETTE pal, void (*callback)(int
  *  not NULL, it will be called 256 times during the calculation, allowing
  *  you to display a progress indicator.
  */
-void create_light_table(COLOR_MAP *table, AL_CONST PALETTE pal, int r, int g, int b, void (*callback)(int pos))
+void create_light_table(COLOR_MAP *table, AL_CONST PALETTE pal_8bit, int r, int g, int b, void (*callback)(int pos))
 {
    int r1, g1, b1, r2, g2, b2, x, y;
    unsigned int t1, t2;
+
+   // local edit
+   // Allegro has been modified to use an 8 bit palette, but this method and RGB_MAP still use 6 bit.
+   PALETTE pal;
+   for (int i = 0; i < 256; i++)
+   {
+      pal[i] = pal_8bit[i];
+      pal[i].r /= 4;
+      pal[i].g /= 4;
+      pal[i].b /= 4;
+   }
 
    ASSERT(table);
    ASSERT(r >= 0 && r <= 63);
@@ -693,6 +716,7 @@ void create_light_table(COLOR_MAP *table, AL_CONST PALETTE pal, int r, int g, in
 	 b1 = (1 << 24) + b * t2;
 
 	 for (y=0; y<PAL_SIZE; y++) {
+      // local edit
 	    r2 = (r1 + pal[y].r * t1) >> 25;
 	    g2 = (g1 + pal[y].g * t1) >> 25;
 	    b2 = (b1 + pal[y].b * t1) >> 25;
@@ -740,13 +764,24 @@ void create_light_table(COLOR_MAP *table, AL_CONST PALETTE pal, int r, int g, in
  *  function is not NULL, it will be called 256 times during the calculation, 
  *  allowing you to display a progress indicator.
  */
-void create_trans_table(COLOR_MAP *table, AL_CONST PALETTE pal, int r, int g, int b, void (*callback)(int pos))
+void create_trans_table(COLOR_MAP *table, AL_CONST PALETTE pal_8bit, int r, int g, int b, void (*callback)(int pos))
 {
    int tmp[768], *q;
    int x, y, i, j, k;
    unsigned char *p;
    int tr, tg, tb;
    int add;
+
+   // local edit
+   // Allegro has been modified to use an 8 bit palette, but this method still uses 6 bit.
+   PALETTE pal;
+   for (int i = 0; i < 256; i++)
+   {
+      pal[i] = pal_8bit[i];
+      pal[i].r /= 4;
+      pal[i].g /= 4;
+      pal[i].b /= 4;
+   }
 
    ASSERT(table);
    ASSERT(r >= 0 && r <= 255);
@@ -824,10 +859,21 @@ void create_trans_table(COLOR_MAP *table, AL_CONST PALETTE pal, int r, int g, in
  *  256 times during the calculation, allowing you to display a progress 
  *  indicator.
  */
-void create_color_table(COLOR_MAP *table, AL_CONST PALETTE pal, void (*blend)(AL_CONST PALETTE pal, int x, int y, RGB *rgb), void (*callback)(int pos))
+void create_color_table(COLOR_MAP *table, AL_CONST PALETTE pal_8bit, void (*blend)(AL_CONST PALETTE pal, int x, int y, RGB *rgb), void (*callback)(int pos))
 {
    int x, y;
    RGB c;
+
+   // local edit
+   // Allegro has been modified to use an 8 bit palette, but this method still uses 6 bit.
+   PALETTE pal;
+   for (int i = 0; i < 256; i++)
+   {
+      pal[i] = pal_8bit[i];
+      pal[i].r /= 4;
+      pal[i].g /= 4;
+      pal[i].b /= 4;
+   }
 
    for (x=0; x<PAL_SIZE; x++) {
       for (y=0; y<PAL_SIZE; y++) {

@@ -21,6 +21,7 @@
 #include "base/misctypes.h"
 #include "base/initdata.h"
 #include "iter.h"
+#include "zscriptversion.h"
 
 #ifndef IS_EDITOR
 #include "zc/render.h"
@@ -446,10 +447,6 @@ static void MatchComboTrigger2(weapon *w, int32_t bx, int32_t by, newcombo *cbuf
 	do_trigger_combo(rpos_handle, 0, w);
 }
 
-/**************************************/
-/***********  Weapon Class  ***********/
-/**************************************/
-
 byte boomframe[16] = {0,0,1,0,2,0,1,1,0,1,1,3,2,2,1,2};
 byte bszboomflip[4] = {0,2,3,1};
 
@@ -601,7 +598,6 @@ int32_t weapon::seekEnemy2(int32_t j)
         return j;
     }
     
-    //al_trace("Guy: %d, gx: %f, gy: %f, x: %f, y: %f\n", j, float(GuyX(j)), float(GuyY(j)), float(dummy_fix[0]), float(dummy_fix[1]));
     double _MSVC2022_tmp1, _MSVC2022_tmp2;
     angle = atan2_MSVC2022_FIX(double(GuyY(j)-dummy_fix[1]),double(GuyX(j)-dummy_fix[0]));
     doAutoRotate();
@@ -3527,9 +3523,9 @@ void weapon::limited_animate()
 							{
 								int32_t g = zc_min((RAMpal[i].r*42 + RAMpal[i].g*75 + RAMpal[i].b*14) >> 7, 63);
 								g = (g >> 1) + 32;
+								g = _rgb_scale_6[g];
 								RAMpal[i] = _RGB(g,g,g);
 							}
-							
 						}
 						else
 						{
@@ -5035,7 +5031,6 @@ bool weapon::animate(int32_t index)
 			itemdata const& hshot = itemsbuf[parentitem>-1 ? parentitem : current_item_id(family_class)];
 			byte allow_diagonal = (hshot.flags & item_flag2) ? 1 : 0;
 			bool sw = family_class == itype_switchhook;
-			//zprint2("allow_diagonal: %s\n", allow_diagonal ? "true" : "false");
 			//if ( allow_diagonal && misc2 == 0 ) 
 			if(clk==0 && allow_diagonal)                                            // delay a frame ere setting a dir
 			{
@@ -5049,12 +5044,8 @@ bool weapon::animate(int32_t index)
 			//This sets the direction for digaonals based on controller input. 
 			if(clk==1 && allow_diagonal)    
 			{
-				//zprint2("(int32_t)(Hero.dir): %d\n", (int32_t)(Hero.dir));
-				//zprint2("clk is 1\n");
 				if(Up())
 				{
-					//dir=up; //Up would already have been set if facing up.
-					//zprint2("UP\n");
 					if(Left() )  
 					{
 						LOADGFX(hshot.wpn5);
@@ -5074,7 +5065,6 @@ bool weapon::animate(int32_t index)
 								break;
 						}
 						
-						//zprint2("LEFT\n");
 					}
 					
 					else if(Right() ) 
@@ -5098,13 +5088,11 @@ bool weapon::animate(int32_t index)
 						}
 						
 						
-						//zprint2("RIGHT\n");
 					}
 					misc2 = 1; //to prevent wagging it all over the screen, we set it once. 
 				}
 				else if(Down())
 				{
-					//zprint2("DOWN\n");
 					//dir=down; //Up would already have been set if facing down.
 					
 					if(Left() )  
@@ -5126,7 +5114,6 @@ bool weapon::animate(int32_t index)
 								break;
 						}
 						
-						//zprint2("LEFT\n");
 					}
 					
 					else if(Right() ) 
@@ -5148,7 +5135,6 @@ bool weapon::animate(int32_t index)
 								break;
 						}
 						
-						//zprint2("RIGHT\n");
 					}
 					misc2 = 1; //to prevent wagging it all over the screen, we set it once. 
 				}
@@ -5340,7 +5326,6 @@ bool weapon::animate(int32_t index)
 			//Diagonal Hookshot Handle
 			itemdata const& hshot = itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)];
 			byte allow_diagonal = (hshot.flags & item_flag2) ? 1 : 0; 
-			//zprint2("allow_diagonal: %s\n", allow_diagonal ? "true" : "false");
 			//if ( allow_diagonal && misc2 == 0 ) 
 			if(clk==0 && allow_diagonal)                                            // delay a frame ere setting a dir
 			{
@@ -5372,7 +5357,6 @@ bool weapon::animate(int32_t index)
 								break;
 						}
 						
-						//zprint2("LEFT\n");
 					}
 					
 					else if(Right() ) 
@@ -5396,14 +5380,12 @@ bool weapon::animate(int32_t index)
 						}
 						
 						
-						//zprint2("RIGHT\n");
 					}
 					misc2 = 1; //to prevent wagging it all over the screen, we set it once. 
 				}
 			
 				else if(Down())
 				{
-					//zprint2("DOWN\n");
 					//dir=down; //Up would already have been set if facing down.
 					
 					if(Left() )  
@@ -5425,7 +5407,6 @@ bool weapon::animate(int32_t index)
 								break;
 						}
 						
-						//zprint2("LEFT\n");
 					}
 					
 					else if(Right() ) 
@@ -5447,7 +5428,6 @@ bool weapon::animate(int32_t index)
 								break;
 						}
 						
-						//zprint2("RIGHT\n");
 					}
 					misc2 = 1; //to prevent wagging it all over the screen, we set it once. 
 				}
@@ -5463,7 +5443,6 @@ bool weapon::animate(int32_t index)
 			//Diagonal Hookshot Handle
 			itemdata const& hshot = itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_hookshot)];
 			byte allow_diagonal = (hshot.flags & item_flag2) ? 1 : 0; 
-			//zprint2("allow_diagonal: %s\n", allow_diagonal ? "true" : "false");
 			//if ( allow_diagonal && misc2 == 0 ) 
 			if(clk==0 && allow_diagonal)                                            // delay a frame ere setting a dir
 			{
@@ -5495,7 +5474,6 @@ bool weapon::animate(int32_t index)
 						//		break;
 						//}
 						
-						//zprint2("LEFT\n");
 					}
 					
 					else if(Right() ) 
@@ -5519,14 +5497,12 @@ bool weapon::animate(int32_t index)
 						//}
 						
 						
-						//zprint2("RIGHT\n");
 					}
 					misc2 = 1; //to prevent wagging it all over the screen, we set it once. 
 				}
 			
 				else if(Down())
 				{
-					//zprint2("DOWN\n");
 					//dir=down; //Up would already have been set if facing down.
 					
 					if(Left() )  
@@ -5548,7 +5524,6 @@ bool weapon::animate(int32_t index)
 						//		break;
 						//}
 						
-						//zprint2("LEFT\n");
 					}
 					
 					else if(Right() ) 
@@ -5570,7 +5545,6 @@ bool weapon::animate(int32_t index)
 						//		break;
 						//}
 						
-						//zprint2("RIGHT\n");
 					}
 					misc2 = 1; //to prevent wagging it all over the screen, we set it once. 
 				}
@@ -7860,7 +7834,6 @@ void weapon::draw(BITMAP *dest)
 					update_weapon_frame(aframe,o_tile);
 				}
 				*/
-				//al_trace("script_wrote_otile = %d\n",script_wrote_otile);
 				//if ( ScriptGenerated && script_wrote_otile && aframe > 0 ) 
 				//{ 
 				//	script_wrote_otile = 0; // NOTES and ISSUES

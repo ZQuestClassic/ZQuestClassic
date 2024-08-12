@@ -15,13 +15,20 @@ DEBUG_METHOD_WRAP = 1
 DEBUG_METHOD_CORE = 2
 
 
+def print_run_target(message):
+    prefix = 'run_target.py >'
+    for line in message.splitlines(keepends=True):
+        print(prefix, line, end='', file=sys.stderr)
+    print(prefix, file=sys.stderr)
+
+
 def get_debug_method():
+    if 'ZC_DISABLE_DEBUG' in os.environ:
+        return {'method': DEBUG_METHOD_NONE}
+
     debug_method = _get_debug_method()
     if debug_method['method'] == DEBUG_METHOD_NONE and platform.system() != 'Windows':
-        print(
-            'WARNING: if there is a crash, you will not see a backtrace',
-            file=sys.stderr,
-        )
+        print_run_target('WARNING: if there is a crash, you will not see a backtrace')
     return debug_method
 
 
@@ -32,7 +39,7 @@ def _get_debug_method():
 
         # If not installed, can't use!
         if not shutil.which('lldb'):
-            print('WARNING: could not find lldb', file=sys.stderr)
+            print_run_target('WARNING: could not find lldb')
             return False
 
         # Using the python extension of lldb is tricky to set up... so check if it even works first.
@@ -50,12 +57,13 @@ def _get_debug_method():
                     script_dir / 'lldb_wrapper.py',
                     '__TEST__',
                 ]
-            subprocess.check_call(lldb_wrapper_args)
+            subprocess.check_call(
+                lldb_wrapper_args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+            )
         except Exception as e:
-            print(e, file=sys.stderr)
-            print(
-                'WARNING: lldb is installed, but could not import the Python extension',
-                file=sys.stderr,
+            print_run_target(str(e))
+            print_run_target(
+                'WARNING: lldb is installed, but could not import the Python extension'
             )
             return False
 
@@ -237,11 +245,10 @@ def _run(target_name: str, args: List, build_folder: Optional[str] = None):
                 sys.stderr.write(backtrace)
                 sys.stderr.write('\n')
         else:
-            print(
-                'WARNING: could not find core dump. Can\'t print backtrace.',
-                file=sys.stderr,
+            print_run_target(
+                'WARNING: could not find core dump. Can\'t print backtrace.'
             )
-            print(f'\ndebug_method: {debug_method}', file=sys.stderr)
+            print_run_target(f'\ndebug_method: {debug_method}')
 
     return p
 

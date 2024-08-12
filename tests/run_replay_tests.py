@@ -529,7 +529,7 @@ if args.shard and args.print_shards:
 
 if args.shard:
     replays = get_shards(replays, num_shards)[shard_index - 1]
-    if not tests:
+    if not replays:
         print('nothing to run for this shard')
         exit(0)
 
@@ -626,7 +626,7 @@ def prompt_to_create_compare_report():
         )
         print('Select a release build to use: ')
         # TODO ~z3 !!! delete me
-        most_recent_nightly = '3.0.0-prerelease.17+2024-01-28.z3'
+        most_recent_nightly = '3.0.0-prerelease.20+2024-07-09.z3'
         selected_index = cutie.select(
             [
                 # TODO
@@ -917,7 +917,7 @@ def on_update(progress: RunReplayTestsProgress):
     if args.for_dev_server:
         test_results = progress.all_results
         pending_results = [
-            RunResult(str(t.relative_to(replays_dir)), '', str(t))
+            RunResult(str(t.path.relative_to(replays_dir)), '', str(t))
             for t in progress.pending
         ]
         test_results.runs.append(progress.active + pending_results + progress.results)
@@ -968,7 +968,7 @@ if mode == 'assert':
             and replays_dir == script_dir / 'replays'
         ):
             prompt_to_create_compare_report()
-        exit(1)
+        exit(2)
 else:
     # We should still return a failing exit code if any replay failed to run, or had an
     # rng desync, or a bad exit code. Graphical differences won't count as failure
@@ -979,4 +979,4 @@ else:
         print('all replays ran successfully')
     else:
         print(f'{len(failing_replays)} replays did not finish')
-        exit(1)
+        exit(2)

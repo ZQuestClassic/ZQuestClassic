@@ -16,6 +16,7 @@
 #include "base/zfix.h"
 #include "base/fonts.h"
 #include "base/cpool.h"
+#include "base/misctypes.h"
 
 #define  INTERNAL_VERSION  0xA721
 
@@ -127,16 +128,14 @@ extern bool resize_mouse_pos;                               //for eyeball combos
 
 extern int32_t lens_hint_item[MAXITEMS][2];                     //aclk, aframe
 extern int32_t lens_hint_weapon[MAXWPNS][5];                    //aclk, aframe, dir, x, y
-//extern int32_t mode, switch_mode, orig_mode;
 extern RGB_MAP rgb_table;
 extern COLOR_MAP trans_table, trans_table2;
 extern RGB_MAP zq_rgb_table;
 extern DATAFILE *zcdata;
 extern MIDI *song;
 extern BITMAP *menu1,*menu3, *mapscreenbmp, *tmp_scr, *screen2, *mouse_bmp[MOUSE_BMP_MAX][4], *mouse_bmp_1x[MOUSE_BMP_MAX][4], *icon_bmp[ICON_BMP_MAX][4], *flag_bmp[16][4], *panel_button_icon_bmp[m_menucount][4], *select_bmp[2],*dmapbmp_small, *dmapbmp_large;
-extern BITMAP *arrow_bmp[MAXARROWS],*brushbmp, *brushscreen; //, *brushshadowbmp;
+extern BITMAP *arrow_bmp[MAXARROWS],*brushbmp, *brushscreen;
 extern byte *colordata, *trashbuf;
-//extern byte *tilebuf;
 extern comboclass *combo_class_buf;
 extern wpndata  *wpnsbuf;
 extern guydata  *guysbuf;
@@ -222,19 +221,16 @@ bool get_debug();
 void set_debug(bool d);
 
 
-#include "base/misctypes.h"
 // quest data
 extern zquestheader        header;
 extern byte                midi_flags[MIDIFLAGS_SIZE];
 extern byte                music_flags[MUSICFLAGS_SIZE];
 extern int32_t				   msg_strings_size;
 extern class zctune        *customtunes;
-//extern emusic            *enhancedMusic;
 extern ZCHEATS             zcheats;
 extern byte                use_cheats;
 extern byte                use_tiles;
 extern char                palnames[MAXLEVELS][17];
-//extern byte              *undotilebuf;
 
 extern char   fontsdat_sig[52];
 
@@ -412,10 +408,6 @@ void draw(bool);
 void replace(int32_t c);
 void draw_block(int32_t start,int32_t w,int32_t h);
 int32_t d_wflag_proc(int32_t msg,DIALOG *d,int32_t c);
-
-/**************************/
-/*****     Mouse      *****/
-/**************************/
 
 void doflags();
 void set_brush_width(int32_t width);
@@ -643,26 +635,9 @@ INLINE int32_t d_enelistnoabc_proc(int32_t msg,DIALOG *d,int32_t c)
     return enelist_proc(msg,d,c,false);
 }
 
-
-/**********************************/
-//        Triforce Pieces         //
-/**********************************/
-
-/*
-  static byte triframe_points[9*4] =
-  {
-  0,2,2,0,  2,0,4,2,  0,2,4,2,  1,1,3,1,  2,0,2,2,
-  1,1,1,2,  1,1,2,2,  3,1,3,2,  3,1,2,2
-  };
-  */
-
 int32_t d_tri_frame_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t d_tri_edit_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t onTriPieces();
-
-/**********************************/
-/***********  onDMaps  ************/
-/**********************************/
 
 int32_t d_maptile_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t editdmapmaps(int32_t index);
@@ -678,14 +653,8 @@ void drawxmap(ALLEGRO_BITMAP* dest, int32_t map, int32_t xoff, bool large, int d
 void put_legacy_edit_str(char* s, int32_t x, int32_t y, int32_t w, int32_t h, int32_t fg, int32_t bg, int32_t pos);
 int32_t d_legacy_edit_proc(int32_t msg, DIALOG* d, int32_t c);
 
-//int32_t selectdmapxy[6] = {164-74,108+8+24,164,80+44+24,164,90+44+24};
-
 int32_t onDmaps();
 int32_t onEditSFX(int32_t index);
-
-/************************************/
-/**********  onDoorCombos  **********/
-/************************************/
 
 void fix_dcs(int32_t index, int32_t dir);
 void editdoorcomboset(int32_t index);
@@ -701,36 +670,17 @@ void fix_door_combo_set(word &door_combo_set, byte index);
 void init_doorcombosets();
 int32_t onDoorCombos();
 
-/*******************************/
-/**********  onMidis  **********/
-/*******************************/
-
 void edit_tune(int32_t i);
 int32_t d_midilist_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t onMidis();
 
-/*******************************/
-/******  onEnhancedMusic  ******/
-/*******************************/
-
 void edit_music(int32_t i);
 int32_t d_musiclist_proc(int32_t msg,DIALOG *d,int32_t c);
-int32_t onEnhancedMusic();
-
-/*******************************/
-/****  onTest/onTestOptions  ***/
-/*******************************/
 
 int32_t onTest();
 int32_t onTestOptions();
 
-/*******************************/
-/**********  onWarp  ***********/
-/*******************************/
-
 const char *warptypelist(int32_t index, int32_t *list_size);
-
-//int32_t warpdmapxy[6] = {188,126,188,100,188,112};
 
 int32_t onTileWarpIndex(int32_t index);
 int32_t onTileWarp();
@@ -760,26 +710,14 @@ int32_t count_item_drop_sets();
 void EditItemDropSet(int32_t index);
 int32_t onItemDropSets();
 
-/********************************/
-/********* onWarpRings **********/
-/********************************/
-
-//int32_t curr_ring;
-
 void EditWarpRingScr(int32_t ring,int32_t index);
 int32_t d_warplist_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t d_wclist_proc(int32_t msg,DIALOG *d,int32_t c);
 const char *wclist(int32_t index, int32_t *list_size);
 
-//int32_t warpringdmapxy[8] = {160,106,160,80,160,92,160,144};
-
 int32_t select_warp();
 void EditWarpRing(int32_t ring);
 int32_t onWarpRings();
-
-/********************************/
-/********** onEnemies ***********/
-/********************************/
 
 const char *pattern_list(int32_t index, int32_t *list_size);
 int32_t onPattern();
@@ -803,15 +741,8 @@ const char *guylist(int32_t index, int32_t *list_size);
 int32_t efrontfacingtile(int32_t id);
 int32_t select_enemy(const char *prompt,int32_t enemy,bool hide,bool edit,int32_t& exit_status);
 
-//uint8_t check[2] = { ';'+128,0 };
-
 int32_t onEnemies();
 
-/*******************************/
-/********** onHeader ***********/
-/*******************************/
-
-//char author[65],title[65],password[32];
 int32_t d_showedit_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t onHeader();
 
@@ -859,14 +790,6 @@ bool edit_dataset(int32_t dataset);
 int32_t pal_index(RGB *pal,RGB c);
 bool grab_dataset(int32_t dataset);
 
-//byte cset_hold[15][16*3];
-//byte cset_hold_cnt;
-//bool cset_ready = false;
-//int32_t cset_count,cset_first;
-//PALETTE pal,undopal;
-
-//byte rc[16] = {253,248,0,0,0,0,0,246,247,249,250,251,252,240,255,254};
-
 void undo_pal();
 void calc_dark(int32_t first);
 void edit_cycles(int32_t level);
@@ -875,16 +798,7 @@ int32_t d_cset_proc(int32_t msg,DIALOG *d,int32_t c);
 
 int32_t d_dummy_proc(int32_t msg,DIALOG *d,int32_t c);
 
-//byte mainpal_csets[30]    = { 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14, 11,11,12,12,12,11, 10,10,10,12,10,10,10,10,9 };
-//byte levelpal_csets[26]   = { 2,3,4,9,2,3,4,2,3,4, 2, 3, 4,       15,15,15,15, 7,7,7, 8,8,8, 0,0,0 };
-//byte levelpal2_csets[26]  = { 2,3,4,9,2,0,1,2,3,4, 5, 6, 7,       15,15,15,15, 8,  9,9,9,9,9,9,9,9 };
-//byte spritepal_csets[30]  = { 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14, 14,14,14,14,14,14, 14,14,14,14,14,14,14,14,14 };
-//byte spritepal2_csets[30] = { 15,16,17,18,19,20,21,22,23,24,25,26,27,28,29, 14,14,14,14,14,14, 14,14,14,14,14,14,14,14,14 };
-
 int32_t EditColors(const char *caption,int32_t first,int32_t count,byte *label);
-//int32_t onColors_Main();
-//int32_t onColors_Levels();
-//int32_t onColors_Sprites();
 int32_t d_maptile_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t onMapStyles();
 int32_t d_misccolors_proc(int32_t msg,DIALOG *d,int32_t c);
@@ -894,17 +808,8 @@ int32_t onTestBox();
 
 int32_t d_ticsedit_proc(int32_t msg,DIALOG *d,int32_t c);
 
-// ****  Palette cycling  ****
-
-//static int32_t palclk[3];
-//static int32_t palpos[3];
-
 void reset_pal_cycling();
 void cycle_palette();
-
-/********************/
-/******  Help  ******/
-/********************/
 
 void doHelp();
 int32_t onZstringshelp();
@@ -914,10 +819,6 @@ int32_t edit_layers(mapscr* tempscr);
 void autolayer(mapscr* tempscr, int32_t layer, int32_t al[6][3]);
 int32_t onLayers();
 
-// **** Timers ****
-
-//volatile int32_t lastfps=0;
-//volatile int32_t framecnt=0;
 extern volatile int32_t myvsync;
 
 void myvsync_callback();
@@ -925,10 +826,6 @@ void fps_callback();
 
 extern bool update_hw_pal;
 void update_hw_screen();
-
-/********************/
-/******  MAIN  ******/
-/********************/
 
 void custom_vsync();
 void switch_out();

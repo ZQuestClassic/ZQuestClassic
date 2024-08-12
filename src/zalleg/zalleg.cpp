@@ -26,6 +26,7 @@ void zalleg_setup_allegro(App id, int argc, char **argv)
 	common_main_setup(id, argc, argv);
 
 	register_trace_handler(zc_trace_handler);
+	al_register_trace_handler([](const char* str){zc_trace_handler(str);});
 	all_disable_threaded_display();
 
 	if (used_switch(argc, argv, "-headless") || std::getenv("ZC_HEADLESS") != nullptr)

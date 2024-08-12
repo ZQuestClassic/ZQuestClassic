@@ -1,12 +1,16 @@
 #ifndef SLOPES_H_
 #define SLOPES_H_
 
+#include "base/handles.h"
+#include "base/ints.h"
+#include "base/zc_alleg.h"
 #include "base/zfix.h"
-#include "ffc.h"
 #include <map>
 
-struct slope_object;
+class ffcdata;
+class solid_object;
 struct newcombo;
+struct slope_object;
 
 #define SLOPE_ID(index, layer) ((rpos_t)(region_num_rpos * (layer) + (index)))
 extern std::map<rpos_t, slope_object> slopes;
@@ -69,4 +73,3 @@ bool slide_slope(solid_object* obj, zfix& dx, zfix& dy, zfix& ID);
 void slope_push_int(slope_info const& s, solid_object* obj, zfix& dx, zfix& dy, bool onplatform = false, bool fallthrough = false);
 
 #endif
-

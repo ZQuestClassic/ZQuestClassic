@@ -39,21 +39,6 @@ class Graphics {
 	//   FXZAPR D3
 	internal void Zap(bool style_in);
 
-	// Enables or disables 'greyscale' mode. [MonochromeHue] works similarly,
-	// but with more options.
-	//
-	// @zasm
-	//   POP D3
-	//   GREYSCALER D3
-	internal void Greyscale(bool enable);
-
-	// Activates a monochrome preset.
-	//
-	// @zasm
-	//   POP D3
-	//   MONOCHROMER D3
-	internal void Monochrome(int preset);
-
 	// Tints the palette by adding `red`, `green`, and `blue` to the respective
 	// values of every palette swatch. Subsequent calls to these functions will
 	// SUM the tint with all previous tints.
@@ -134,16 +119,16 @@ class Graphics {
 	//   POPARGS D5 0.0004
 	internal rgb MixColor(rgb start, rgb end, int percent, int color_space = 0);
 
-	// Takes either an (r,g,b) ranging 0 <= n <= 63, or takes a long hexcode
-	// (0xRRGGBBL), with each rgb section 0 <= n <= 255.
+	// Takes a long hexcode (0xRRGGBBL), with each rgb section 0 <= n <= 255.
 	//
 	// @zasm
 	//   POP D2
 	//   CREATERGBHEX D2
 	internal rgb CreateRGB(long hexcode);
 
-	// Takes either an (r,g,b) ranging 0 <= n <= 63, or takes a long hexcode
-	// (0xRRGGBBL), with each rgb section 0 <= n <= 255.
+	// Takes an (r,g,b) ranging 0 <= n <= 255.
+	//
+	// 0 <= n <= 63 if compat QR "Scripts use 6-bit color (0-63) instead of 8-bit (0-255)" is enabled.
 	//
 	// @zasm
 	//   CREATERGB
@@ -158,7 +143,7 @@ class Graphics {
 	// @zasm
 	//   CONVERTTORGB
 	//   POPARGS D5 0.0002
-	internal rgb ConvertToRGB(int arg1, int arg2);
+	internal rgb ConvertToRGB(int color_space, int[] arr);
 
 	// Returns the color index at an x,y coordinate of a tile.
 	//

@@ -1,3 +1,5 @@
+stderr:
+
 Compiling 'control_flow.zs'
 Pass 1: Parsing
 Pass 2: Preprocessing
@@ -8,12 +10,22 @@ Pass 6: Generating object code
 Pass 7: Assembling
 Success!
 Compile finished with exit code '0' (success)
-=== METADATA (elided)
+
+stdout:
+
 {
-  "currentFileSymbols": 10,
-  "symbols": 17,
-  "identifiers": 55
+  "success": true,
+  "diagnostics": [],
+  "metadata": {
+    "currentFileSymbols": 10,
+    "symbols": 17,
+    "identifiers": 55,
+    "elided": true
+  }
 }
+
+zasm:
+
 PUSHR D0; void run(int) Params
 PUSHR REFFFC; void run(int) Body Start
 SETR D4 SP2

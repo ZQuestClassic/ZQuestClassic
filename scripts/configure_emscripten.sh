@@ -15,7 +15,7 @@ fi
 cd "$ROOT"
 mkdir -p build_emscripten
 
-EMCC_VERSION=3.1.60
+EMCC_VERSION=3.1.64
 emsdk install $EMCC_VERSION
 emsdk activate $EMCC_VERSION
 source emsdk_env.sh
@@ -40,7 +40,7 @@ EMCC_FLAGS=(
   -s USE_SDL_MIXER=2
   -s USE_LIBPNG=1
   -s USE_ZLIB=1
-  -s USE_PTHREADS=1
+  -pthread
   -I "$EMCC_CACHE_INCLUDE_DIR/AL"
 )
 LINKER_FLAGS=(
@@ -60,10 +60,11 @@ LINKER_FLAGS=(
   # https://chromium.googlesource.com/external/github.com/emscripten-core/emscripten.git/+log/1a0b77c572ad..c48f73a5c763
   -s EXIT_RUNTIME=1
   -s MINIFY_HTML=0
+  -s ENVIRONMENT=web,worker
   -lidbfs.js
   -lproxyfs.js
   -lembind
-  -lpthread
+  -pthread
 )
 EMCC_AND_LINKER_FLAGS=(
   # Error when using -fwasm-exceptions:

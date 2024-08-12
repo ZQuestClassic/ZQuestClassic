@@ -18,7 +18,7 @@ import unittest
 
 from pathlib import Path
 
-from common import ZCTestCase
+from common import ZCTestCase, parse_json
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
@@ -59,19 +59,16 @@ class TestZScript(ZCTestCase):
             ';'.join(include_paths),
             '-unlinked',
             '-delay_cassert',
+            '-json',
             '-metadata',
         ]
-        p = run_target.run('zscript', args, env={**os.environ, 'TEST_ZSCRIPT': '1'})
+        p = run_target.run(
+            'zscript',
+            args,
+            env={**os.environ, 'TEST_ZSCRIPT': '1', 'ZC_DISABLE_DEBUG': '1'},
+        )
+        stderr = p.stderr.replace(str(script_path), script_path.name).strip()
         stdout = p.stdout.replace(str(script_path), script_path.name)
-        if p.returncode:
-            return stdout
-
-        zasm = zasm_path.read_text()
-
-        # Remove metadata from ZASM.
-        zasm = '\n'.join(
-            [l.strip() for l in zasm.splitlines() if not l.startswith('#')]
-        ).strip()
 
         # Run the compiler '-metadata' for every script for coverage, but only keep
         # the full results in the stdout for this one script.
@@ -86,27 +83,38 @@ class TestZScript(ZCTestCase):
                     c += recursive_len(child['children'])
                 return c
 
-        lines = stdout.splitlines(keepends=True)
-        start = lines.index('=== METADATA\n') + 1
-        end = lines.index('}\n', start) + 1
-        metadata = json.loads(''.join(lines[start:end]))
-        if elide_metadata:
-            metadata['currentFileSymbols'] = recursive_len(
-                metadata['currentFileSymbols']
-            )
-            metadata['symbols'] = len(metadata['symbols'])
-            metadata['identifiers'] = len(metadata['identifiers'])
-        else:
-            for symbol in metadata['symbols'].values():
-                symbol['loc']['uri'] = 'URI'
-        lines[start:end] = json.dumps(metadata, indent=2).splitlines(keepends=True)
-        lines[start - 1] = '=== METADATA (elided)\n'
-        stdout = ''.join(lines)
+        data = parse_json(stdout)
+        metadata = data.get('metadata')
+        if metadata:
+            if elide_metadata:
+                metadata['currentFileSymbols'] = recursive_len(
+                    metadata['currentFileSymbols']
+                )
+                metadata['symbols'] = len(metadata['symbols'])
+                metadata['identifiers'] = len(metadata['identifiers'])
+                metadata['elided'] = True
+            else:
+                for symbol in metadata['symbols'].values():
+                    symbol['loc']['uri'] = 'URI'
+            stdout = json.dumps(data, indent=2)
 
-        return '\n'.join([stdout, zasm])
+        if p.returncode:
+            return f'stderr:\n\n{stderr}\n\nstdout:\n\n{stdout}\n'
+
+        zasm = zasm_path.read_text()
+
+        # Remove the metadata (ex: `#ZASM_VERSION`) from ZASM.
+        # This metadata is unrelated to the -metadata switch.
+        zasm = '\n'.join(
+            [l.strip() for l in zasm.splitlines() if not l.startswith('#')]
+        ).strip()
+
+        return f'stderr:\n\n{stderr}\n\nstdout:\n\n{stdout}\n\nzasm:\n\n{zasm}\n'
 
     def test_zscript_compiler_expected_zasm(self):
-        for script_path in test_scripts_dir.rglob('*.zs'):
+        script_paths = list(test_scripts_dir.rglob('*.zs'))
+        script_paths += list((test_scripts_dir / 'newbie_boss').rglob('*.z'))
+        for script_path in script_paths:
             with self.subTest(msg=f'compile {script_path.name}'):
                 output = self.compile_script(script_path)
                 script_subpath = script_path.relative_to(test_scripts_dir)

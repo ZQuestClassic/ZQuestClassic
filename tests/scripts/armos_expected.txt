@@ -1,3 +1,5 @@
+stderr:
+
 Compiling 'armos.zs'
 Pass 1: Parsing
 Pass 2: Preprocessing
@@ -8,12 +10,22 @@ Pass 6: Generating object code
 Pass 7: Assembling
 Success!
 Compile finished with exit code '0' (success)
-=== METADATA (elided)
+
+stdout:
+
 {
-  "currentFileSymbols": 13,
-  "symbols": 39,
-  "identifiers": 107
+  "success": true,
+  "diagnostics": [],
+  "metadata": {
+    "currentFileSymbols": 13,
+    "symbols": 40,
+    "identifiers": 108,
+    "elided": true
+  }
 }
+
+zasm:
+
 PUSHR D0; void run(int) Params
 PUSHR REFFFC; void run(int) Body Start
 PUSHARGSV 0 0.0003

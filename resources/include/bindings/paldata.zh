@@ -16,21 +16,21 @@ class paldata {
 	// @zasm_var PALDATACOLOR
 	internal rgb Color[];
 
-	// Access the Red values of the paldata, ranging from 0-63. Reading an
+	// Access the Red values of the paldata, ranging from 0-255. Reading an
 	// invalid color will return -1. To write a color as invalid, use
 	// ClearColor() instead.
 	//
 	// @zasm_var PALDATAR
 	internal int R[];
 
-	// Access the Green values of the paldata, ranging from 0-63. Reading an
+	// Access the Green values of the paldata, ranging from 0-255. Reading an
 	// invalid color will return -1. To write a color as invalid, use
 	// ClearColor() instead.
 	//
 	// @zasm_var PALDATAG
 	internal int G[];
 
-	// Access the Blue values of the paldata, ranging from 0-63. Reading an
+	// Access the Blue values of the paldata, ranging from 0-255. Reading an
 	// invalid color will return -1. To write a color as invalid, use
 	// ClearColor() instead.
 	//

@@ -14,6 +14,7 @@
 #include "zc/replay.h"
 #include "base/mapscr.h"
 #include "base/misctypes.h"
+#include "zscriptversion.h"
 
 extern HeroClass Hero;
 extern FFScript FFCore;

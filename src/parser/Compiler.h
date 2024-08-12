@@ -3,11 +3,13 @@
 
 #include "CompilerUtils.h"
 #include "Types.h"
+#include "parser/CompileError.h"
 #include "parserDefs.h"
 #include "base/headers.h"
 #include <fmt/format.h>
 #include "zq/ffasmexport.h"
 #include "zq/ffasm.h"
+#include <nlohmann/json.hpp>
 
 #include <cstdio>
 #include <map>
@@ -15,7 +17,9 @@
 #include <vector>
 #include <string>
 #include <sstream>
+
 using std::unique_ptr;
+using json = nlohmann::ordered_json;
 
 namespace ZScript
 {
@@ -198,10 +202,14 @@ namespace ZScript
 	class ScriptsData
 	{
 	public:
-		ScriptsData(Program&);
+		void fillFromProgram(Program&);
+
+		bool success;
+		// Just the errors/warnings for the main input script.
+		std::vector<Diagnostic> diagnostics;
 		std::map<std::string, disassembled_script_data> theScripts;
 		std::map<std::string, ParserScriptType> scriptTypes;
-		std::string metadata;
+		json metadata;
 	};
 
 	unique_ptr<ScriptsData> compile(std::string const& filename, bool include_metadata);

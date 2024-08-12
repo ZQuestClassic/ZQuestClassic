@@ -10,8 +10,6 @@
 #include <vector>
 #include <memory>
 
-#define NEWALLEGRO
-
 extern int32_t readsize, writesize;
 extern bool fake_pack_writing;
 #define new_return(x) {assert(x == 0); fake_pack_writing = false; return x; }
@@ -53,15 +51,8 @@ inline bool p_getc(void *p,PACKFILE *f)
 	
 	if(!f) return false;
 	
-#ifdef NEWALLEGRO
-	
+
 	if(f->normal.flags&PACKFILE_FLAG_WRITE) return false;     //must not be writing to file
-	
-#else
-	
-	if(f->flags&PACKFILE_FLAG_WRITE) return false;            //must not be writing to file
-	
-#endif
 	
 	if(pack_feof(f))
 	{
@@ -89,15 +80,8 @@ inline bool p_putc(int32_t c,PACKFILE *f)
 	{
 		if(!f) return false;
 		
-#ifdef NEWALLEGRO
-		
+
 		if(!(f->normal.flags&PACKFILE_FLAG_WRITE)) return false;  //must be writing to file
-		
-#else
-		
-		if(!(f->flags&PACKFILE_FLAG_WRITE)) return false;         //must be writing to file
-		
-#endif
 		
 		pack_putc(c,f);
 		success=(pack_ferror(f)==0);
@@ -118,15 +102,8 @@ inline bool p_igetw(void *p,PACKFILE *f)
 	
 	if(!f) return false;
 	
-#ifdef NEWALLEGRO
-	
+
 	if(f->normal.flags&PACKFILE_FLAG_WRITE) return false;     //must not be writing to file
-	
-#else
-	
-	if(f->flags&PACKFILE_FLAG_WRITE) return false;            //must not be writing to file
-	
-#endif
 	
 	if(pack_feof(f))
 	{
@@ -154,15 +131,8 @@ inline bool p_iputw(int32_t c,PACKFILE *f)
 	{
 		if(!f) return false;
 		
-#ifdef NEWALLEGRO
-		
+
 		if(!(f->normal.flags&PACKFILE_FLAG_WRITE)) return false;  //must be writing to file
-		
-#else
-		
-		if(!(f->flags&PACKFILE_FLAG_WRITE)) return false;         //must be writing to file
-		
-#endif
 		
 		pack_iputw(c,f);
 		success=(pack_ferror(f)==0);
@@ -183,15 +153,8 @@ inline bool p_igetl(void *p,PACKFILE *f)
 	
 	if(!f) return false;
 	
-#ifdef NEWALLEGRO
-	
+
 	if(f->normal.flags&PACKFILE_FLAG_WRITE) return false;     //must not be writing to file
-	
-#else
-	
-	if(f->flags&PACKFILE_FLAG_WRITE) return false;            //must not be writing to file
-	
-#endif
 	
 	if(pack_feof(f))
 	{
@@ -218,15 +181,8 @@ inline bool p_igetzf(void *p,PACKFILE *f)
 	
 	if(!f) return false;
 	
-#ifdef NEWALLEGRO
-	
+
 	if(f->normal.flags&PACKFILE_FLAG_WRITE) return false;     //must not be writing to file
-	
-#else
-	
-	if(f->flags&PACKFILE_FLAG_WRITE) return false;            //must not be writing to file
-	
-#endif
 	
 	if(pack_feof(f))
 	{
@@ -259,15 +215,8 @@ inline bool p_igetf_DO_NOT_USE(void *p,PACKFILE *f)
 {
 	if(!f) return false;
 	
-#ifdef NEWALLEGRO
-	
+
 	if(f->normal.flags&PACKFILE_FLAG_WRITE) return false;     //must not be writing to file
-	
-#else
-	
-	if(f->flags&PACKFILE_FLAG_WRITE) return false;            //must not be writing to file
-	
-#endif
 	
 	if(pack_feof(f))
 	{
@@ -308,15 +257,8 @@ inline bool p_iputl(int32_t c,PACKFILE *f)
 	{
 		if(!f) return false;
 		
-#ifdef NEWALLEGRO
-		
+
 		if(!(f->normal.flags&PACKFILE_FLAG_WRITE)) return false;  //must be writing to file
-		
-#else
-		
-		if(!(f->flags&PACKFILE_FLAG_WRITE)) return false;         //must be writing to file
-		
-#endif
 		
 		pack_iputl(c,f);
 		success=(pack_ferror(f)==0);
@@ -338,15 +280,8 @@ inline bool p_iputzf(zfix const& c,PACKFILE *f)
 	{
 		if(!f) return false;
 		
-#ifdef NEWALLEGRO
-		
+
 		if(!(f->normal.flags&PACKFILE_FLAG_WRITE)) return false;  //must be writing to file
-		
-#else
-		
-		if(!(f->flags&PACKFILE_FLAG_WRITE)) return false;         //must be writing to file
-		
-#endif
 		
 		pack_iputl(c.getZLong(),f);
 		success=(pack_ferror(f)==0);
@@ -367,15 +302,8 @@ inline bool p_mgetw(void *p,PACKFILE *f)
 	
 	if(!f) return false;
 	
-#ifdef NEWALLEGRO
-	
+
 	if(f->normal.flags&PACKFILE_FLAG_WRITE) return false;     //must not be writing to file
-	
-#else
-	
-	if(f->flags&PACKFILE_FLAG_WRITE) return false;            //must not be writing to file
-	
-#endif
 	
 	if(pack_feof(f))
 	{
@@ -403,15 +331,8 @@ inline bool p_mputw(int32_t c,PACKFILE *f)
 	{
 		if(!f) return false;
 		
-#ifdef NEWALLEGRO
-		
+
 		if(!(f->normal.flags&PACKFILE_FLAG_WRITE)) return false;  //must be writing to file
-		
-#else
-		
-		if(!(f->flags&PACKFILE_FLAG_WRITE)) return false;         //must be writing to file
-		
-#endif
 		
 		pack_mputw(c,f);
 		success=(pack_ferror(f)==0);
@@ -432,15 +353,8 @@ inline bool p_mgetl(void *p,PACKFILE *f)
 	
 	if(!f) return false;
 	
-#ifdef NEWALLEGRO
-	
+
 	if(f->normal.flags&PACKFILE_FLAG_WRITE) return false;     //must not be writing to file
-	
-#else
-	
-	if(f->flags&PACKFILE_FLAG_WRITE) return false;            //must not be writing to file
-	
-#endif
 	
 	if(pack_feof(f))
 	{
@@ -468,15 +382,8 @@ inline bool p_mputl(int32_t c,PACKFILE *f)
 	{
 		if(!f) return false;
 		
-#ifdef NEWALLEGRO
-		
+
 		if(!(f->normal.flags&PACKFILE_FLAG_WRITE)) return false;  //must be writing to file
-		
-#else
-		
-		if(!(f->flags&PACKFILE_FLAG_WRITE)) return false;         //must be writing to file
-		
-#endif
 		
 		pack_mputl(c,f);
 		success=(pack_ferror(f)==0);

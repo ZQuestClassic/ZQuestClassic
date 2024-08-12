@@ -108,8 +108,8 @@ bool docancel()
 bool do_compile_and_slots(int assign_mode, bool delay)
 {
 	bool noquick_compile = !assign_mode;
-	char tmpfilename[L_tmpnam];
-	std::tmpnam(tmpfilename);
+
+	const char* tmpfilename = "ZQ_BUFFER";
 	FILE *tempfile = fopen(tmpfilename,"w");
 
 	char consolefilename[L_tmpnam];
@@ -153,6 +153,7 @@ bool do_compile_and_slots(int assign_mode, bool delay)
 	if(!pm)
 	{
 		InfoDialog("Parser","Failed to launch " ZSCRIPT_FILE).show();
+		delete_file(tmpfilename);
 		return false;
 	}
 	
@@ -241,10 +242,13 @@ bool do_compile_and_slots(int assign_mode, bool delay)
 		}
 		delete pm;
 		if(console) fclose(console);
+		delete_file(tmpfilename);
 		return false;
 	}
 	delete pm;
 	if(console) fclose(console);
+	delete_file(tmpfilename);
+	
 #endif
 	auto end_compile_time = std::chrono::steady_clock::now();
 	int compile_time_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end_compile_time - start_compile_time).count();

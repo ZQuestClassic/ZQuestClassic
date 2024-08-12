@@ -69,6 +69,24 @@ async def update_view(view: str, data: dict):
             await client.send_view_msg(view, data)
 
 
+def try_parse_json(text: str):
+    try:
+        return json.loads(text)
+    except:
+        print('failed to parse json, ignoring')
+        return None
+
+
+def create_proc(program: str, args: List[str]):
+    return asyncio.create_subprocess_exec(
+        program,
+        *args,
+        cwd=root_dir,
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE,
+    )
+
+
 async def update_views():
     views = set()
     for client in clients:
@@ -93,10 +111,14 @@ async def update_views():
 
             mtime = os.path.getmtime(test_results_path)
             if test_results_last_update.get(test_results_path, None) != mtime:
-                data = {
-                    'name': test_results_path.parent.name,
-                    'results': json.loads(test_results_path.read_text()),
-                }
+                # It's possible that the json file is in the middle of being written to,
+                # so check for failure.
+                results = try_parse_json(test_results_path.read_text())
+                if results:
+                    data = {
+                        'name': test_results_path.parent.name,
+                        'results': results,
+                    }
 
             if not data:
                 continue
@@ -162,7 +184,6 @@ async def handle_run_command(client: Client, params):
 
     build_folder = os.environ.get('BUILD_FOLDER', None)
     args = [
-        sys.executable,
         root_dir / 'tests/run_replay_tests.py',
         '--test_results',
         test_results_dir,
@@ -175,20 +196,20 @@ async def handle_run_command(client: Client, params):
             value = [value]
         for v in value:
             args.extend([f'--{key}', str(v)])
-    # TODO: send client error message if this fails
-    subprocess.Popen(args, cwd=root_dir, stdout=subprocess.DEVNULL)
+    p = await create_proc(sys.executable, args)
+    exit_code = await p.wait()
+    # Exit code of 2 is "replays failed, but there is still a final test_results.json".
+    # Ignore that here because update_views will handle it.
+    if exit_code != 0 and exit_code != 2:
+        stderr = (await p.stderr.read()).decode('utf-8')
+        view = f'/results/{test_results_name}'
+        print(view, stderr)
+        await update_view(
+            view, {'error': f'[FAILED] error running replays:\n' + stderr}
+        )
 
 
 async def handle_compare_command(client: Client, params):
-    def create_proc(program: str, args: List[str]):
-        return asyncio.create_subprocess_exec(
-            program,
-            *args,
-            cwd=root_dir,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
-        )
-
     test_results_name = params['name']
     test_results_dir = root_dir / '.tmp/test_results' / test_results_name
     test_results_path = test_results_dir / 'test_results.json'

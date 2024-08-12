@@ -4,6 +4,7 @@
  * Author: Emily
  */
 
+#include "parser/ASTVisitors.h"
 #include "parser/LibrarySymbols.h"
 #include "parser/Types.h"
 #include "parser/ZScript.h"
@@ -28,7 +29,7 @@ int32_t StringToVar(std::string var);
 // RegistrationVisitor
 
 RegistrationVisitor::RegistrationVisitor(Program& program)
-	: program(program), hasChanged(false)
+	: RecursiveVisitor(program), hasChanged(false)
 {
 	scope = &program.getScope();
 	caseRoot(program.getRoot());
@@ -178,24 +179,20 @@ void RegistrationVisitor::caseScript(ASTScript& host, void* param)
 	}
 	//
 	// Check for a valid run function.
-	vector<Function*> possibleRuns =
-		//script.getScope().getLocalFunctions("run");
-		script.getScope().getLocalFunctions(FFCore.scriptRunString);
+	vector<Function*> possibleRuns = script.getScope().getLocalFunctions("run");
 	if (possibleRuns.size() == 0)
 	{
 		return; //Don't register
-		//handleError(CompileError::ScriptNoRun(&host, name, FFCore.scriptRunString));
-		//if (breakRecursion(host)) return;
 	}
 	doRegister(host);
 	if (possibleRuns.size() > 1)
 	{
-		handleError(CompileError::TooManyRun(&host, name, FFCore.scriptRunString));
+		handleError(CompileError::TooManyRun(&host, name, "run"));
 		if (breakRecursion(host)) return;
 	}
 	if (*possibleRuns[0]->returnType != DataType::ZVOID)
 	{
-		handleError(CompileError::ScriptRunNotVoid(&host, name, FFCore.scriptRunString));
+		handleError(CompileError::ScriptRunNotVoid(&host, name, "run"));
 		if (breakRecursion(host)) return;
 	}
 	script.setRun(possibleRuns[0]);

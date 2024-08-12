@@ -6,10 +6,6 @@
 #include "base/zfix.h"
 #include <set>
 
-/**************************************/
-/***********  Weapon Class  ***********/
-/**************************************/
-
 class enemy;
 extern byte boomframe[16];
 extern byte bszboomflip[4];

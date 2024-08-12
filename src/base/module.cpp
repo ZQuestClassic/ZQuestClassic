@@ -43,7 +43,6 @@ bool ZModule::init(bool d) //bool default
 	memset(moduledata.moduleinfo3, 0, sizeof(moduledata.moduleinfo3));
 	memset(moduledata.moduleinfo4, 0, sizeof(moduledata.moduleinfo4));
 	memset(moduledata.moduletimezone, 0, sizeof(moduledata.moduletimezone));
-	//memset(moduledata.module_base_nsf, 0, sizeof(moduledata.module_base_nsf));
 	
 	moduledata.modver_1 = 0;
 	moduledata.modver_2 = 0;	
@@ -57,8 +56,6 @@ bool ZModule::init(bool d) //bool default
 	moduledata.modhour = 0;
 	moduledata.modminute = 0;
 	
-	//strcpy(moduledata.module_name,"default.zmod");
-	//al_trace("Module name set to %s\n",moduledata.module_name);
 	//We load the current module name from zc.cfg or zquest.cfg!
 	//Otherwise, we don't know what file to access to load the module vars! 
 	strcpy(moduledata.module_name,zc_get_config("ZCMODULE","current_module","modules/classic.zmod"));
@@ -75,7 +72,6 @@ bool ZModule::init(bool d) //bool default
 	
 	{
 		//zcm path
-		//al_trace("Module name set to %s\n",moduledata.module_name);
 		
 		//Metadata
 		strcpy(moduledata.moduletitle,zc_get_config_basic("METADATA","title",""));
@@ -203,7 +199,6 @@ bool ZModule::init(bool d) //bool default
 		for ( int32_t q = 0; q < eeMAX; q++ )
 		{
 			strcpy(moduledata.enem_type_names[q],zc_get_config_basic("ENEMIES",enemy_family_strings[q],default_enemy_types[q]));
-			//al_trace("Enemy family ID %d is: %s\n", q, moduledata.enem_type_names[q]);
 		}
 		const char default_enemy_anims[aMAX][255] =
 		{
@@ -238,7 +233,6 @@ bool ZModule::init(bool d) //bool default
 		for ( int32_t q = 0; q < aMAX; q++ )
 		{
 			strcpy(moduledata.enem_anim_type_names[q],zc_get_config_basic("ENEMIES",enemy_anim_strings[q],default_enemy_anims[q]));
-			//al_trace("Enemy animation type ID %d is: %s\n", q, moduledata.enem_anim_type_names[q]);
 		}
 		
 		const char roomtype_cats[rMAX][256] =
@@ -258,7 +252,6 @@ bool ZModule::init(bool d) //bool default
 		for ( int32_t q = 0; q < rMAX; q++ )
 		{
 			strcpy(moduledata.roomtype_names[q],zc_get_config_basic("ROOMTYPES",roomtype_cats[q],roomtype_defaults[q]));
-			//al_trace("Map Flag ID %d is: %s\n", q, moduledata.roomtype_names[q]);
 		}
 		
 		const char enemy_walk_type_defaults[e9tARMOS+1][255] =
@@ -273,7 +266,6 @@ bool ZModule::init(bool d) //bool default
 		for ( int32_t q = 0; q < e9tARMOS+1; q++ )
 		{
 			strcpy(moduledata.walkmisc9_names[q],zc_get_config_basic("ENEMYWALKSTYLE",enemy_walk_style_cats[q],enemy_walk_type_defaults[q]));
-			//al_trace("Map Flag ID %d is: %s\n", q, moduledata.walkmisc9_names[q]);
 		}
 		const char guy_types[gDUMMY1][255]=
 		{
@@ -290,7 +282,6 @@ bool ZModule::init(bool d) //bool default
 		for ( int32_t q = 0; q < gDUMMY1; q++ )
 		{
 			strcpy(moduledata.guy_type_names[q],zc_get_config_basic("GUYS",guy_types[q],guy_default_names[q]));
-			//al_trace("Map Flag ID %d is: %s\n", q, moduledata.guy_type_names[q]);
 		}
 		
 		const char enemy_weapon_cats[wMax-wEnemyWeapons][255]=
@@ -340,7 +331,6 @@ bool ZModule::init(bool d) //bool default
 		for ( int32_t q = 0; q < sizeof(enemy_weapon_default_names)/255; q++ )
 		{
 			strcpy(moduledata.enemy_weapon_names[q],zc_get_config_basic("EWEAPONS",enemy_weapon_cats[q],enemy_weapon_default_names[q]));
-			//al_trace("EWeapon ID %d is: %s\n", q, moduledata.enemy_weapon_names[q]);
 		}
 		
 		
@@ -381,20 +371,15 @@ bool ZModule::init(bool d) //bool default
 		{
 			if(lweapon_cats[q][0] != '-')
 				strcpy(moduledata.player_weapon_names[q],(lweapon_cats[q][0] ? zc_get_config_basic("LWEAPONS",lweapon_cats[q],lweapon_default_names[q]) : lweapon_default_names[q]));
-			//al_trace("LWeapon ID %d is: %s\n", q, moduledata.player_weapon_names[q]);
 		}
 		
 		al_trace("Module Title: %s\n", moduledata.moduletitle);
 		al_trace("Module Author: %s\n", moduledata.moduleauthor);
 		al_trace("Module Info: \n%s\n%s\n%s\n%s\n%s\n", moduledata.moduleinfo0, moduledata.moduleinfo1, moduledata.moduleinfo2, moduledata.moduleinfo3, moduledata.moduleinfo4);
-		//al_trace("Module Base NSF: %s\n", moduledata.module_base_nsf);
 		
 		al_trace("Module Version: %d.%d.%d.%d\n", moduledata.modver_1,moduledata.modver_2,moduledata.modver_3, moduledata.modver_4);
-		al_trace("Module Build: %d, %s: %d\n", moduledata.modbuild, (moduledata.modbeta<0) ? "Alpha" : "Beta", moduledata.modbeta );
+		al_trace("Module Build: %d, %s: %d\n", moduledata.modbuild, "Beta", moduledata.modbeta );
 		
-		//al_trace("Build Day: %s\n",dayextension(moduledata.modday).c_str());
-		//al_trace("Build Month: %s\n",(char*)months[moduledata.modmonth]);
-		//al_trace("Build Year: %d\n",moduledata.modyear);
 		al_trace("Module Date: %s %s, %d at @ %d:%d %s\n", dayextension(moduledata.modday).c_str(), 
 			(char*)months[moduledata.modmonth], moduledata.modyear, moduledata.modhour, moduledata.modminute, moduledata.moduletimezone);
 	}
@@ -403,4 +388,3 @@ bool ZModule::init(bool d) //bool default
 	zc_pop_config();
 	return true;
 }
-

@@ -1,18 +1,7 @@
 #ifndef MIDI_H_
 #define MIDI_H_
+
 #include "base/zdefs.h"
-/*  Allegro MIDI struct
-
-  typedef struct MIDI                    // a midi file
-  {
-  int32_t divisions;                      // number of ticks per quarter note
-  struct {
-  uint8_t *data;             // MIDI message stream
-  int32_t len;                         // length of the track data
-  } track[MIDI_TRACKS];
-  } MIDI;
-
-  */
 
 int32_t save_midi(const char *filename, MIDI *midi);
 

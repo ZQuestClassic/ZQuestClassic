@@ -7,6 +7,7 @@
 #include "CompileError.h"
 #include "base/headers.h"
 #include "parser/AST.h"
+#include "parser/ASTVisitors.h"
 #include "parser/CompilerUtils.h"
 #include "parser/parserDefs.h"
 using std::ostringstream;
@@ -18,7 +19,7 @@ using namespace ZScript;
 // SemanticAnalyzer
 
 SemanticAnalyzer::SemanticAnalyzer(Program& program)
-	: program(program), returnType(NULL), deprecateGlobals(false)
+	: RecursiveVisitor(program), returnType(NULL), deprecateGlobals(false)
 {
 	scope = &program.getScope();
 	caseFile(program.getRoot());
@@ -170,8 +171,11 @@ void SemanticAnalyzer::caseStmtIf(ASTStmtIf& host, void*)
 	Scope* oldscope = scope;
 	scope = host.getScope();
 
-	if(host.isDecl() && !host.condition.get())
-		host.condition = new ASTExprIdentifier(host.declaration->getName(), host.location);
+	if (host.isDecl() && !host.condition.get())
+	{
+		std::shared_ptr<ASTString> identifier(host.declaration->identifier.clone());
+		host.condition = new ASTExprIdentifier(identifier, host.location);
+	}
 	
 	while(ASTExprNot* ptr = dynamic_cast<ASTExprNot*>(host.condition.get()))
 	{
@@ -222,7 +226,7 @@ void SemanticAnalyzer::caseStmtSwitch(ASTStmtSwitch& host, void* param)
 	RecursiveVisitor::caseStmtSwitch(host);
 	if (breakRecursion(host)) return;
 	
-	checkCast(*host.key->getReadType(scope, this), host.isString ? static_cast<DataType const&>(DataType::STRING) : DataType::FLOAT, &host);
+	checkCast(*host.key->getReadType(scope, this), host.isString ? static_cast<DataType const&>(*DataType::STRING) : DataType::FLOAT, &host);
 }
 
 void SemanticAnalyzer::caseRange(ASTRange& host, void*)
@@ -1005,22 +1009,20 @@ void SemanticAnalyzer::caseScript(ASTScript& host, void* param)
 	
 	// Check for a valid run function.
 	// Always run this, to ensure it is correct after all registration phase.
-	vector<Function*> possibleRuns =
-		//script.getScope().getLocalFunctions("run");
-		script.getScope().getLocalFunctions(FFCore.scriptRunString);
+	vector<Function*> possibleRuns = script.getScope().getLocalFunctions("run");
 	if (possibleRuns.size() == 0)
 	{
-		handleError(CompileError::ScriptNoRun(&host, name, FFCore.scriptRunString));
+		handleError(CompileError::ScriptNoRun(&host, name, "run"));
 		return;
 	}
 	if (possibleRuns.size() > 1)
 	{
-		handleError(CompileError::TooManyRun(&host, name, FFCore.scriptRunString));
+		handleError(CompileError::TooManyRun(&host, name, "run"));
 		return;
 	}
 	if (*possibleRuns[0]->returnType != DataType::ZVOID)
 	{
-		handleError(CompileError::ScriptRunNotVoid(&host, name, FFCore.scriptRunString));
+		handleError(CompileError::ScriptRunNotVoid(&host, name, "run"));
 		return;
 	}
 	script.setRun(possibleRuns[0]);

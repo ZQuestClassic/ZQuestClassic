@@ -18,6 +18,8 @@ using std::ostringstream;
 using std::setfill;
 using std::setw;
 
+extern std::string input_script_filename;
+
 ////////////////////////////////////////////////////////////////
 // CompileError::Impl interface
 
@@ -259,6 +261,22 @@ std::optional<CompileError::Id> CompileError::getId() const
 	return std::nullopt;
 }
 
+bool CompileError::isForInputScript() const
+{
+	if (!pimpl_) return false;
+
+	if (AST const* source = pimpl_->getSource())
+	{
+		LocationData location;
+		if (auto loc = source->getIdentifierLocation())
+			return loc->fname == input_script_filename;
+		else
+			return source->location.fname == input_script_filename;
+	}
+
+	return false;
+}
+
 bool CompileError::isStrict() const
 {
 	if (!pimpl_) return true;
@@ -296,6 +314,41 @@ string CompileError::toString() const
 	return oss.str();
 }
 
+Diagnostic CompileError::toDiagnostic(std::string const* inf) const
+{
+	Diagnostic diagnostic{};
+
+	if (!pimpl_)
+	{
+		diagnostic.severity = DiagnosticSeverity::Error;
+		diagnostic.message = "unknown error";
+		if (inf && !inf->empty())
+			diagnostic.message += "\n" + *inf;
+		return diagnostic;
+	}
+
+	diagnostic.severity = isStrict() ? DiagnosticSeverity::Error : DiagnosticSeverity::Warning;
+
+	Id id = pimpl_->getId();
+	Entry& entry = entries[id];
+	diagnostic.message = fmt::format("{}{:03}: {}", entry.code, (int)id, pimpl_->getMessage());
+	if (inf && !inf->empty())
+		diagnostic.message += "\n" + *inf;
+
+	if (AST const* source = pimpl_->getSource())
+	{
+		LocationData location;
+		if (auto loc = source->getIdentifierLocation())
+			location = loc.value();
+		else
+			location = source->location;
+		diagnostic.range.start = {location.first_line - 1, location.first_column - 1};
+		diagnostic.range.end = {location.last_line - 1, location.last_column - 1};
+	}
+
+	return diagnostic;
+}
+
 BasicCompileError::BasicCompileError(CompileError const& err)
 {
 	errmsg = err.toString();
@@ -312,8 +365,11 @@ void BasicCompileError::print() const
 	else
 		zconsole_warn("%s",ptr);
 }
+
+extern std::vector<Diagnostic>* current_diagnostics;
 extern bool zscript_error_out;
 extern uint32_t zscript_failcode;
+
 void BasicCompileError::handle() const
 {
 	print();
@@ -327,6 +383,11 @@ CompileError::CompileError(CompileError::Impl* pimpl) : pimpl_(pimpl) {}
 void ZScript::log_error(CompileError const& error)
 {
 	zconsole_error("%s", error.toString().c_str());
+	if (current_diagnostics && error.isForInputScript())
+	{
+		auto diagnostic = error.toDiagnostic(nullptr);  
+		current_diagnostics->push_back(diagnostic);
+	}
 }
 
 void ZScript::logDebugMessage(const char* msg)
@@ -353,4 +414,7 @@ void SimpleCompileErrorHandler::handleError(CompileError const& error, std::stri
 			zconsole_warn("%s\nINFO: %s",error.toString().c_str(),inf->c_str());
 		else zconsole_warn("%s",error.toString().c_str());
 	}
+
+	if (error.isForInputScript())
+		result_->diagnostics.push_back(error.toDiagnostic(inf));
 }

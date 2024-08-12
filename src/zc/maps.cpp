@@ -107,7 +107,7 @@ bool is_in_current_region(int screen)
 
 bool is_in_current_region(mapscr* scr)
 {
-	return scr->map == currmap && scr->screen >= 0 && scr->screen < 128 && screen_in_current_region[scr->screen];
+	return scr->map == currmap && scr->screen < 128 && screen_in_current_region[scr->screen];
 }
 
 bool is_valid_rpos(rpos_t rpos)
@@ -7612,8 +7612,6 @@ void ViewMap()
 			line(framebuf,x+7,y-7,x-7,y+7,(frame&3)+252);
 		}
 		
-		//    text_mode(BLACK);
-		
 		if(view_map_show_mode&2 || r)
 			textprintf_ex(framebuf,font,224,216,WHITE,BLACK,"%1.2f",scale);
 			
@@ -7645,7 +7643,6 @@ int32_t onViewMap()
     if(Playing && currscr<128 && DMaps[currdmap].flags&dmfVIEWMAP)
     {
         clear_to_color(framebuf,BLACK);
-        //      text_mode(BLACK);
         textout_centre_ex(framebuf,font,"Drawing map...",128,108,WHITE,BLACK);
         advanceframe(true);
         ViewMap();

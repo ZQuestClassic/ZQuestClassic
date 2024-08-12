@@ -2,13 +2,11 @@
 #define ZC_QST_H_
 
 #include "base/zdefs.h"
-#include "subscr.h"
-#include "zscriptversion.h"
+#include "items.h"
+#include "new_subscr.h"
 
 struct miscQdata;
-
-#include "zc/ffscript.h"
-extern FFScript ffengine;
+struct MsgStr;
 
 struct script_slot_data
 {
@@ -18,19 +16,8 @@ struct script_slot_data
 	std::string output;
 	
 	script_slot_data() : slotname(""), scriptname(""), format(SCRIPT_FORMAT_DEFAULT), output("") {}
-	void update()
-	{
-		char const* formatstr = getFormatStr()->c_str();
-		char const* slotstr = slotname.c_str();
-		char const* scriptstr = scriptname.c_str();
-		size_t len = strlen(formatstr) + strlen(slotstr) + strlen(scriptstr) - 4 + 1;
-		char* temp = (char*)malloc(len);
-		ASSERT(temp);
-		sprintf(temp, formatstr, slotstr, scriptstr);
-		temp[len - 1] = 0;
-		output = temp;
-		free(temp);
-	}
+
+	void update();
 	
 	void updateName(std::string newname)
 	{
@@ -74,27 +61,6 @@ struct script_slot_data
 	{
 		return (isDisassembled() || isImportedZASM());
 	}
-	
-	std::string const* getFormatStr()
-	{
-		switch(format)
-		{
-			case SCRIPT_FORMAT_DEFAULT:
-				return &DEFAULT_FORMAT;
-			case SCRIPT_FORMAT_INVALID:
-				return &INVALID_FORMAT;
-			case SCRIPT_FORMAT_DISASSEMBLED:
-				return &DISASSEMBLED_FORMAT;
-			case SCRIPT_FORMAT_ZASM:
-				return &ZASM_FORMAT;
-		}
-		return &DEFAULT_FORMAT;
-	}
-	
-	static const std::string DEFAULT_FORMAT;
-	static const std::string INVALID_FORMAT;
-	static const std::string ZASM_FORMAT;
-	static const std::string DISASSEMBLED_FORMAT;
 };
 
 extern std::map<int32_t, script_slot_data > ffcmap;
@@ -122,9 +88,6 @@ typedef struct map_and_screen
 } map_and_screen;
 #define MAX_MAPPAGE_BTNS 9
 extern map_and_screen map_page[MAX_MAPPAGE_BTNS];
-// define these in main code
-//extern bool init_tiles(bool validate);
-//extern bool init_combos(bool validate);
 
 #define checkstatus(ret)\
           switch (ret)  \
@@ -185,11 +148,7 @@ void clear_combo(int32_t i);
 void clear_combos();
 void pack_combos();
 void fix_maps(mapscr *buf,int32_t cnt);
-//void reset_midi(zcmidi_ *m);
-//void reset_midis(zcmidi_ *m);
 void reset_scr(int32_t scr);
-//bool reset_items();
-//bool reset_wpns();
 
 int32_t get_qst_buffers();
 void del_qst_buffers();

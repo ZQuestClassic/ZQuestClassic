@@ -1,5 +1,7 @@
 #include "zc_list_data.h"
 #include "base/dmap.h"
+#include "subscr.h"
+#include "zc/zelda.h"
 #include "zq/zquest.h"
 #include "qst.h"
 #include "zinfo.h"

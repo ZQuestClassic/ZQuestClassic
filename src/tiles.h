@@ -5,7 +5,6 @@
 #include "base/zdefs.h"
 #include "base/combo.h"
 
-//extern byte *tilebuf;
 extern tiledata *newtilebuf, *grabtilebuf;
 extern int32_t animated_combo_table[MAXCOMBOS][2];             //[0]=position in act2, [1]=original tile
 extern int32_t animated_combo_table4[MAXCOMBOS][2];            //[0]=combo, [1]=clock
@@ -39,7 +38,6 @@ void animate(newcombo& cdata, bool forceNextFrame = false);
 void animate_combos();
 bool isonline(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3);
 void reset_tile(tiledata *buf, int32_t t, int32_t format);
-//void clear_tile(tiledata *buf, word tile);
 void clear_tiles(tiledata *buf);
 void overlay_tile(tiledata *buf,int32_t dest,int32_t src,int32_t cs,bool backwards);
 bool copy_tile(tiledata *buf, int32_t src, int32_t dest, bool swap);

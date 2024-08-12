@@ -1,10 +1,8 @@
 #ifndef SUBSCR_H_
 #define SUBSCR_H_
 
-#include "sprite.h"
-#include "items.h"
 #include "new_subscr.h"
-#include <stdio.h>
+#include "base/zc_alleg.h"
 
 #define ssflagSHOWGRID  1
 #define ssflagSHOWINVIS 2
@@ -50,8 +48,6 @@ extern sso_struct bisso[widgMAX];
 /****  Subscr items code  ****/
 extern subscreen_object default_subscreen_active[ssdtMAX][2][66];
 extern subscreen_object default_subscreen_passive[ssdtMAX][2][21];
-//extern subscreen_object z3_active[200];
-//extern subscreen_object z3_passive[200];
 extern subscreen_object z3_active_a[80];
 extern subscreen_object z3_passive_a[66];
 extern subscreen_object z3_active_ab[82];

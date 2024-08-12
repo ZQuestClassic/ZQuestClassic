@@ -161,7 +161,7 @@ Compile finished with exit code '19' (compiled with errors)
 Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected LOOP, expecting EMPTYBRACKETS or IDENTIFIER [00044-animation-zh/script.zs Line 25 Column 62 'loop']
-ZQ_BUFFER Line 5 - Error P001: Included file '00044-animation-zh/script.zs' encountered an error.
+.tmp/test_zscript_database/00044-animation-zh/script.zs Line 5 - Error P001: Included file '00044-animation-zh/script.zs' encountered an error.
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -220,7 +220,7 @@ Compile finished with exit code '8' (compiled with errors)
 Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected RPAREN [00096-shallow-water-splash-and-tall-grass-sfx/script.zs Line 16 Column 5 ')']
-ZQ_BUFFER Line 5 - Error P001: Included file '00096-shallow-water-splash-and-tall-grass-sfx/script.zs' encountered an error.
+.tmp/test_zscript_database/00096-shallow-water-splash-and-tall-grass-sfx/script.zs Line 5 - Error P001: Included file '00096-shallow-water-splash-and-tall-grass-sfx/script.zs' encountered an error.
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -244,7 +244,7 @@ Compile finished with exit code '8' (compiled with errors)
 Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected REPEAT, expecting EMPTYBRACKETS or IDENTIFIER [00132-automated-weapon-or-item-auto-fire/AutoFire_v2.1.z Line 100 Column 21 'repeat']
-ZQ_BUFFER Line 5 - Error P001: Included file '00132-automated-weapon-or-item-auto-fire/AutoFire_v2.1.z' encountered an error.
+.tmp/test_zscript_database/00132-automated-weapon-or-item-auto-fire/AutoFire_v2.1.z Line 5 - Error P001: Included file '00132-automated-weapon-or-item-auto-fire/AutoFire_v2.1.z' encountered an error.
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -329,7 +329,7 @@ Compile finished with exit code '-1' (compiled with warnings)
 Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected LBRACE, expecting RPAREN [00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects.zh Line 162 Column 65 '{']
-ZQ_BUFFER Line 6 - Error P001: Included file '00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects.zh' encountered an error.
+.tmp/test_zscript_database/00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects.zh Line 6 - Error P001: Included file '00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects.zh' encountered an error.
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -337,7 +337,7 @@ Compile finished with exit code '-1' (compiled with warnings)
 Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected LBRACE, expecting RPAREN [00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects_v1.1.zh Line 129 Column 65 '{']
-ZQ_BUFFER Line 6 - Error P001: Included file '00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects_v1.1.zh' encountered an error.
+.tmp/test_zscript_database/00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects_v1.1.zh Line 6 - Error P001: Included file '00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects_v1.1.zh' encountered an error.
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -345,7 +345,7 @@ Compile finished with exit code '-1' (compiled with warnings)
 Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected LBRACE, expecting RPAREN [00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects_v1.2.zh Line 162 Column 65 '{']
-ZQ_BUFFER Line 6 - Error P001: Included file '00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects_v1.2.zh' encountered an error.
+.tmp/test_zscript_database/00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects_v1.2.zh Line 6 - Error P001: Included file '00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects_v1.2.zh' encountered an error.
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -613,7 +613,7 @@ Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
-ZQ_BUFFER Line 12 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+.tmp/test_zscript_database/00235-stdweapons-zh/stdWeapons/update.zh Line 12 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -647,7 +647,7 @@ Compile finished with exit code '27' (compiled with errors)
 Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected LBRACE, expecting RPAREN [00238-splitting-and-tribbling-enemies/splitter_v0.6.2.z Line 88 Column 47 '{']
-ZQ_BUFFER Line 5 - Error P001: Included file '00238-splitting-and-tribbling-enemies/splitter_v0.6.2.z' encountered an error.
+.tmp/test_zscript_database/00238-splitting-and-tribbling-enemies/splitter_v0.6.2.z Line 5 - Error P001: Included file '00238-splitting-and-tribbling-enemies/splitter_v0.6.2.z' encountered an error.
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -899,7 +899,7 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 The 'try' keyword is reserved and may not be used as an identifier.
 syntax error, unexpected end of file, expecting EMPTYBRACKETS or IDENTIFIER [00255-swindle-haggle/script.zs Line 66 Column 7 'try']
-ZQ_BUFFER Line 5 - Error P001: Included file '00255-swindle-haggle/script.zs' encountered an error.
+.tmp/test_zscript_database/00255-swindle-haggle/script.zs Line 5 - Error P001: Included file '00255-swindle-haggle/script.zs' encountered an error.
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -1266,7 +1266,7 @@ Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
 syntax error, unexpected NEW, expecting SEMICOLON [00332-lweapons-zh/lw_life.zs Line 135 Column 24 'new']
-ZQ_BUFFER Line 7 - Error P001: Included file '00332-lweapons-zh/lw_life.zs' encountered an error.
+.tmp/test_zscript_database/00332-lweapons-zh/lw_life.zs Line 7 - Error P001: Included file '00332-lweapons-zh/lw_life.zs' encountered an error.
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -1346,7 +1346,7 @@ Compile finished with exit code '-1' (compiled with warnings)
 Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected LBRACE, expecting COMMA or RPAREN [00336-splitting-segmented-worm/SegmentWorm.zs Line 47 Column 62 '{']
-ZQ_BUFFER Line 5 - Error P001: Included file '00336-splitting-segmented-worm/SegmentWorm.zs' encountered an error.
+.tmp/test_zscript_database/00336-splitting-segmented-worm/SegmentWorm.zs Line 5 - Error P001: Included file '00336-splitting-segmented-worm/SegmentWorm.zs' encountered an error.
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -1498,7 +1498,7 @@ Compile finished with exit code '9' (compiled with errors)
 Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected RBRACE, expecting SEMICOLON [00431-no-cycle-spinning-tiles/script.zs Line 231 Column 3 '}']
-ZQ_BUFFER Line 5 - Error P001: Included file '00431-no-cycle-spinning-tiles/script.zs' encountered an error.
+.tmp/test_zscript_database/00431-no-cycle-spinning-tiles/script.zs Line 5 - Error P001: Included file '00431-no-cycle-spinning-tiles/script.zs' encountered an error.
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -1534,12 +1534,18 @@ Failure!
 Compile finished with exit code '9' (compiled with errors)
 
 === 00498-enemy-hp-bars-damage-numbers/enemy_hpbars.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+Pass 5: Checking code paths
+Pass 6: Generating object code
 
 === 00499-npcanim-zh/NPCAnim.zh
 Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected LOOP, expecting EMPTYBRACKETS or IDENTIFIER [00499-npcanim-zh/NPCAnim.zh Line 272 Column 14 'loop']
-ZQ_BUFFER Line 6 - Error P001: Included file '00499-npcanim-zh/NPCAnim.zh' encountered an error.
+.tmp/test_zscript_database/00499-npcanim-zh/NPCAnim.zh Line 6 - Error P001: Included file '00499-npcanim-zh/NPCAnim.zh' encountered an error.
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 

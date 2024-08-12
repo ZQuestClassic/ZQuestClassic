@@ -5,10 +5,6 @@
 #include "base/headers.h"
 #include <functional>
 #include <string>
-//#ifdef __cplusplus
-//extern "C"
-//{
-//#endif
 
 enum {eb_wrap_none, eb_wrap_char, eb_wrap_word};
 enum {eb_crlf_n, eb_crlf_nr, eb_crlf_r, eb_crlf_rn, eb_crlf_any};
@@ -19,7 +15,6 @@ int32_t d_editbox_proc(int32_t msg, DIALOG *d, int32_t c);
 
 typedef struct editbox_data
 {
-	// char **text;
 	std::string text;
 	int32_t showcursor;
 	int32_t lines;
@@ -62,9 +57,4 @@ bool do_box_edit(DIALOG* dlg, std::function<bool(int)> proc, FILE* f, string con
 
 void do_box_setup(DIALOG* dlg);
 
-//#ifdef __cplusplus
-//}
-//#endif
 #endif
-
-/***  The End  ***/

@@ -16,6 +16,7 @@
 #include "base/zdefs.h"
 #include "music_playback.h"
 #include "sound/zcmusic.h"
+#include "subscr.h"
 #include "zc/replay.h"
 #include "zc/replay_upload.h"
 #include "zc/zc_sys.h"
@@ -49,10 +50,6 @@ extern zcmodule moduledata;
 bool load_custom_game(int32_t file);
 
 static bool chosecustomquest = false;
-
-/***********************************/
-/****  Game Selection Screens  *****/
-/***********************************/
 
 static void select_mode()
 {
@@ -1624,13 +1621,13 @@ void titlescreen(int32_t lsave)
 		saves_unload(saves_current_selection());
 	}
 
+	if (replay_is_active())
+		replay_quit();
+
 	if (!SkipTitle && load_qstpath.empty() && lsave == 0)
 	{
 		actual_titlescreen();
 	}
-
-	if (replay_is_active())
-		replay_quit();
 
 	if(!Quit)
 	{
@@ -1680,44 +1677,13 @@ void titlescreen(int32_t lsave)
 void game_over(int32_t type)
 {
 	FFCore.kb_typing_mode = false; 
-	/*
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
-	{
-	Z_scripterrlog("Trying to restore master MIDI volume to: %d\n", FFCore.usr_midi_volume);
-	midi_volume = FFCore.usr_midi_volume;
-//	master_volume(-1,FFCore.usr_midi_volume);
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
-	{
-	digi_volume = FFCore.usr_digi_volume;
-	//master_volume((int32_t)(FFCore.usr_digi_volume),1);
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
-	{
-	emusic_volume = (int32_t)FFCore.usr_music_volume;
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
-	{
-	sfx_volume = (int32_t)FFCore.usr_sfx_volume;
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
-	{
-	pan_style = (int32_t)FFCore.usr_panstyle;
-	}
-	*/
 	FFCore.skip_ending_credits = 0;
 	kill_sfx();
 	music_stop();
 	clear_bitmap(screen);
 	clear_info_bmp();
-	//clear_to_color(screen,SaveScreenSettings[SAVESC_BACKGROUND]);
 	loadfullpal();
 	
-	//if(get_qr(qr_INSTANT_RESPAWN))
-	//{	zprint2("Reloading/n");
-	//	Quit = qRELOAD;
-	//	return;
-	//}
 	
 	if(Quit==qGAMEOVER)
 		jukebox(SaveScreenSettings[SAVESC_MIDI] + (ZC_MIDI_COUNT - 1));
@@ -1725,7 +1691,6 @@ void game_over(int32_t type)
 	Quit=0;
 	
 	clear_to_color(framebuf,SaveScreenSettings[SAVESC_BACKGROUND]);
-	//  text_mode(-1);
 	
 	//Setting the colour via the array isn't working. Perhaps misc colours need to be assigned to the array in init.
 	textout_ex(framebuf,get_zc_font(font_zfont),SaveScreenText[SAVESC_CONTINUE],88,72,( SaveScreenSettings[SAVESC_TEXT_CONTINUE_COLOUR] > 0 ? SaveScreenSettings[SAVESC_TEXT_CONTINUE_COLOUR] : QMisc.colors.msgtext) ,-1);
@@ -1740,7 +1705,6 @@ void game_over(int32_t type)
 		
 	int32_t pos = 0;
 	int32_t f=-1;
-	//  int32_t htile = QHeader.old_dat_flags[ZQ_TILES] ? 2 : 0;
 	int32_t htile = SaveScreenSettings[SAVESC_USETILE];
 	int32_t curcset = SaveScreenSettings[SAVESC_CURSOR_CSET];
 	bool done=false;
@@ -1855,17 +1819,25 @@ void game_over(int32_t type)
 			Quit=qCONT;
 		}
 		
-		if(pos==1&&(!type))
+		// Save and quit.
+		if (pos == 1)
 		{
 			//run save scripts
 			FFCore.runOnSaveEngine();
-			setMonochrome(false); //Clear monochrome before drawing the file select.
+			// reset palette before drawing the file select.
 			doClearTint();
 			
 			game->save_user_objects();
 			saves_write();
 			replay_step_comment("save game");
+		}
+
+		// Anything but Continue.
+		if (pos != 0)
+		{
 			if (replay_get_mode() == ReplayMode::Record) replay_save();
+			if (!replay_is_replaying())
+				replay_stop();
 		}
 	}
 }
@@ -1898,10 +1870,8 @@ bool save_game(bool savepoint, int32_t type)
 	//music_stop();
 	clear_bitmap(screen);
 	clear_info_bmp();
-	//clear_to_color(screen,SaveScreenSettings[SAVESC_BACKGROUND]);
 	loadfullpal();
 	
-	//  int32_t htile = QHeader.old_dat_flags[ZQ_TILES] ? 2 : 0;
 	int32_t htile = SaveScreenSettings[SAVESC_USETILE];
 	int32_t curcset = SaveScreenSettings[SAVESC_CURSOR_CSET];
 	bool done=false;
@@ -1914,7 +1884,6 @@ bool save_game(bool savepoint, int32_t type)
 		bool done2=false;
 		clear_to_color(framebuf,SaveScreenSettings[SAVESC_BACKGROUND]);
 		
-		//  text_mode(-1);
 		if(type)
 		{
 		//Migrate this to use SaveScreenColours[SAVESC_TEXT] and set that to a default
@@ -2032,7 +2001,6 @@ bool save_game(bool savepoint, int32_t type)
 			if(pos==2)
 			{
 				clear_to_color(framebuf,SaveScreenSettings[SAVESC_BACKGROUND]);
-				//  text_mode(-1);
 				textout_ex(framebuf,get_zc_font(font_zfont),"ARE YOU SURE?",88,72,( SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] > 0 ? SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] : QMisc.colors.msgtext),-1);
 				textout_ex(framebuf,get_zc_font(font_zfont),"YES",88,96,( SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] > 0 ? SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] : QMisc.colors.msgtext),-1);
 				textout_ex(framebuf,get_zc_font(font_zfont),"NO",88,120,( SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] > 0 ? SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] : QMisc.colors.msgtext),-1);

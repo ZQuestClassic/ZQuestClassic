@@ -1,0 +1,94 @@
+https://zquestclassic.com/releases/2.55.4
+
+# Features
+
+add 'Note' item wizard, notes can play relative strings now
+add enemy flag to control if affected by "Kill All Enemies"
+
+add option to use the native OS dialog to select/create files
+  A new button allows using the OS dialog to select/create a file. This
+  can be used directly by setting the `Native File Dialog` option in the
+  launcher.
+
+zq: show CSet in combo pages
+zq: hex entry for string control code dialog
+zscript: allow function return and parameter types to use `[]`
+  This doesn't enforce array types, but allows 3.0 scripts to be
+  backwards-compatabile with 2.55
+
+
+# Bug Fixes
+
+
+zc: npc scripts for many enemies ending after one frame
+  Enemies larger than one tile use a different code path than other enemies,
+  and that path was mistakenly only allowing scripts to run for a single frame.
+
+zq: prevent invalid string access resulting in crash
+launcher: hide update tab on linux
+
+# Build
+
+add cmake install commands for linux
+update GME, which should resolve the final gcc build issue
+set default install folder on linux to ~/zquestclassic
+generate changelog when doing linux install
+
+# Refactors
+
+
+remove expensive busy loop in render throttler
+  Replaces a busy loop with a much cheaper mutex condition variable to
+  control FPS.
+  
+  The `maxfps` option now works for values less than 60 fps.
+
+zc: add cache to generation of translucency tables
+  This took up a lot of CPU time during the titlescreen and during
+  animations such as screen wipes / triforce pickup / etc.
+
+std_zh: delete unused and unwanted stuff
+  These files have been deleted from the `std` library:
+  
+  * std_zh/assert.zh
+  * std_zh/astar.zh
+  * std_zh/infostring.zh
+  * std_zh/math.zh
+  * std_zh/std_legacy.zh
+  * std_zh/std_meta.zh
+  * std_zh/std_update.zh
+  * std_zh/std_user_defs.zh
+  * std_zh/std_vars.zh
+  * std_zh/weapon.zh
+  
+  These files either do not belong in a standard library (too specific),
+  are not finished, or otherwise provide little to no value so are just
+  a maintenance burden.
+
+zscript: reduce the scripts included by default
+  This removes some scripts that aren't useful, or aren't a good fit for
+  default inclusion.
+  
+  * delete `gameover_menus.zh`
+  * delete `LISP.zh`
+  * delete `Music.zh`
+  * delete `sprites.zh`
+  * delete `styles.zh`
+  * delete `theRandomHeader_v2.zh`
+  * delete `ZVersion.zh`
+  * delete `tango/1.0` and `tango/1.2` (keeping just 1.3)
+  * move `sram.zh` to `deprecated/sram.zh`
+  * move `theRandomHeader_v3.zh` to `deprecated/theRandomHeader.zh`
+  * move `time.zh` to `deprecated/time.zh`
+  * move example scripts to `headers/examples`
+  * remove `std` including `EmilyMisc.zh` - include yourself as needed
+
+
+# Tests
+
+add newbie_boss.zplay and recompile test
+
+# Misc.
+
+launcher: remove tounge-in-cheek tooltip from Fullscreen checkbox
+

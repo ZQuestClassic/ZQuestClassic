@@ -80,22 +80,22 @@ bool isBrokenFont(int32_t index)
 }
 
 static PALETTE fontpal;
-static bool did_init_fontpal;
 void init_fontpal()
 {
+	static bool did_init_fontpal;
 	if(did_init_fontpal) return;
 	
 	memset(fontpal, 32, sizeof(PALETTE));
-	fontpal[0].r = 63;
+	fontpal[0].r = 255;
 	fontpal[0].g = 0;
-	fontpal[0].b = 63;
-	fontpal[1].r = 63;
-	fontpal[1].g = 63;
-	fontpal[1].b = 63;
+	fontpal[0].b = 255;
+	fontpal[1].r = 255;
+	fontpal[1].g = 255;
+	fontpal[1].b = 255;
 	fontpal[255].r = 0;
 	fontpal[255].g = 0;
 	fontpal[255].b = 0;
-	
+
 	did_init_fontpal = true;
 }
 BITMAP* get_font_bitmap(FONT* savefont)

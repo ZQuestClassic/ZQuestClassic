@@ -300,6 +300,7 @@ class TestZScriptDatabase(ZCTestCase):
                 ],
                 cwd=run_target.get_build_folder(),
                 stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
                 text=True,
             )
             workers[worker_index] = (script_path, p)
@@ -319,10 +320,6 @@ class TestZScriptDatabase(ZCTestCase):
             if success:
                 passed += 1
                 continue
-
-            if '=== METADATA' in output:
-                index = output.index('=== METADATA')
-                output = output[0:index]
 
             output = output.replace('\\', '/')
             output = output.replace(database_dir.as_posix() + '/', '')

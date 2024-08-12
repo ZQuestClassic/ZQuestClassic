@@ -53,7 +53,6 @@ extern void create_zc_trans_table(COLOR_MAP *table, AL_CONST PALETTE pal, int32_
 #define psTOTAL255 ((pdTOTAL255<<4)*3)
 
 extern byte nes_pal[];
-extern byte nes_colors[];
 
 //bool init_colordata();
 extern bool init_palnames();

@@ -44,7 +44,16 @@ env:
   PYTHONUNBUFFERED: '1'
 
 jobs:
+  # Get the LFS cache ready. This avoids every shard of each environment downloading the LFS objects
+  # at the same time on any change, which is bad for quota.
+  warm-lfs-cache:
+    runs-on: ubuntu-latest
+    steps:
+      - name: git clone
+        uses: connorjclark/action-cached-lfs-checkout@e9e548e0068e62830582e21febff8da4bd4e8ca5
+
   build:
+    needs: warm-lfs-cache
     # See https://github.com/community/community/discussions/40777
     uses: ./.github/workflows/build.yml
     # uses: ZQuestClassic/ZQuestClassic/.github/workflows/build.yml@main
@@ -56,7 +65,7 @@ jobs:
       debug-info: true
 
   test:
-    needs: ["build"]
+    needs: build
     strategy:
       matrix:
         num_shards: [6]
@@ -105,6 +114,7 @@ jobs:
         if: inputs.config == 'Coverage'
         run: |
             echo "BUILD_FOLDER=build/Coverage" >> "$GITHUB_ENV"
+            mkdir -p build
             tar -xvzf ${{ needs.build.outputs.artifact-name }}/${{ needs.build.outputs.package-name }} -C build
             cp -r build/tmp-src/* src/
 

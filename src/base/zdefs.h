@@ -150,8 +150,8 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_STRINGS         10
 #define V_MISC            16
 #define V_TILES            3 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
-#define V_COMBOS          47
-#define V_CSETS            5 //palette data
+#define V_COMBOS          48
+#define V_CSETS            6 //palette data
 #define V_MAPS            30
 #define V_DMAPS           21
 #define V_DOORS            1
@@ -161,10 +161,10 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
 #define V_INITDATA        39
-#define V_GUYS            49
+#define V_GUYS            50
 #define V_MIDIS            4
 #define V_CHEATS           1
-#define V_SAVEGAME        41
+#define V_SAVEGAME        42
 #define V_COMBOALIASES     5
 #define V_HEROSPRITES      16
 #define V_SUBSCREEN        11
@@ -173,7 +173,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_SFX              8
 #define V_FAVORITES        4
 
-#define V_COMPATRULE       67
+#define V_COMPATRULE       68
 #define V_ZINFO            3
 
 //= V_SHOPS is under V_MISC
@@ -1289,7 +1289,7 @@ struct item_drop_object
 #define guyflagOVERRIDE_DRAW_Y_OFFSET	0x00000100
 #define guyflagOVERRIDE_DRAW_Z_OFFSET	0x00000200
 
-#define MAX_NPC_ATRIBUTES 31
+#define MAX_NPC_ATTRIBUTES 31
 
 struct guydata
 {
@@ -1311,12 +1311,10 @@ struct guydata
     int16_t  dp, wdp, weapon;
     
     int16_t  rate, hrate, step, homing, grumble, item_set;
-    int32_t   misc1, misc2, misc3, misc4, misc5, misc6, misc7, misc8, misc9, misc10, misc11, misc12, misc13, misc14, misc15;
+    
+	int32_t attributes[32]; //refactored this into an array, no more madness.
     int16_t  bgsfx, bosspal, extend;
     byte defense[edefLAST255];
-   // byte scriptdefense[
-    //  int16_t  startx, starty;
-    //  int16_t  foo1,foo2,foo3,foo4,foo5,foo6;
     byte  hitsfx, deadsfx;
     //Add all new guydata variables after this point, if you do not want to edit defdata to fit.
     //Adding earlier will offset defdata arrays. -Z
@@ -1333,9 +1331,6 @@ struct guydata
     int16_t frozenmisc[10];
     //v 34
     int16_t firesfx; //weapon fire (attack) sound
-    //expanded ->Attributes[] to size of 32.
-    int32_t misc16, misc17, misc18, misc19, misc20, misc21, misc22, misc23, 
-	misc24, misc25, misc26, misc27, misc28, misc29, misc30, misc31, misc32;
     int32_t movement[32]; //Reserved for npc movement types and args. 
     int32_t new_weapon[32]; //Reserved for weapon patterns and args.
     int32_t initD[8], initA[2];
@@ -1404,9 +1399,6 @@ public:
 	int32_t portalref, saveportalref;
 	int32_t websocketref;
 	dword subdataref, subpageref, subwidgref;
-	//byte ewpnclass, lwpnclass, guyclass; //Not implemented
-	
-	//byte ewpnclass, lwpnclass, guyclass; //Not implemented
 	
 	int32_t switchkey; //used for switch statements
 	dword thiskey, thiskey2; //used for user class 'this' pointers
@@ -1935,8 +1927,6 @@ struct zquestheader
     char  version[17];
     char  title[65];
     char  author[65];
-    //byte  padding;
-    //  int16_t pwdkey;
     bool  dirty_password;
     char  password[256];
     uint8_t pwd_hash[16];
@@ -1953,7 +1943,6 @@ struct zquestheader
     byte  old_rules9[2];
     byte  old_rules10[2];
     byte  old_midi_flags[MIDIFLAGS_SIZE];
-    //304
     byte  old_foo2[18];
     // No one used custom quest templates, so we stopped supporting it.
     char  templatepath[2048];
@@ -2236,10 +2225,6 @@ enum {
 #define titleScreen210 10
 #define titleScreenMAIN 20
 
-/******************/
-/**  Misc Stuff  **/
-/******************/
-
 INLINE bool isinRect(int32_t x,int32_t y,int32_t rx1,int32_t ry1,int32_t rx2,int32_t ry2)
 {
     return x>=rx1 && x<=rx2 && y>=ry1 && y<=ry2;
@@ -2339,6 +2324,8 @@ char *VerStrFromHex(int32_t version);
 
 RGB _RGB(byte *si);
 RGB _RGB(int32_t r,int32_t g,int32_t b);
+// Converts 6-bit RGB to 8-bit.
+void convertRGB(RGB& c);
 RGB invRGB(RGB s);
 RGB mixRGB(int32_t r1,int32_t g1,int32_t b1,int32_t r2,int32_t g2,int32_t b2,int32_t ratio);
 

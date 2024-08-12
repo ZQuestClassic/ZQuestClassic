@@ -1,9 +1,54 @@
+stderr:
+
 Compiling 'errors_1.zs'
 Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-ZQ_BUFFER Line 3 @ Columns 15-21 - Error S011: Script Global needs a void run() function.
-ZQ_BUFFER Line 8 @ Columns 37-48 - Error S009: Variable number_oops has not been declared.
+errors_1.zs Line 3 @ Columns 15-21 - Error S011: Script Global needs a void run() function.
+errors_1.zs Line 8 @ Columns 37-48 - Error S009: Variable number_oops has not been declared.
 Failure!
 Compile finished with exit code '11' (compiled with errors)
+
+stdout:
+
+{
+  "success": false,
+  "code": 11,
+  "diagnostics": [
+    {
+      "range": {
+        "start": {
+          "line": 2,
+          "character": 14
+        },
+        "end": {
+          "line": 2,
+          "character": 20
+        }
+      },
+      "severity": 1,
+      "message": "S011: Script Global needs a void run() function."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 7,
+          "character": 36
+        },
+        "end": {
+          "line": 7,
+          "character": 47
+        }
+      },
+      "severity": 1,
+      "message": "S009: Variable number_oops has not been declared."
+    }
+  ],
+  "metadata": {
+    "currentFileSymbols": 3,
+    "symbols": 0,
+    "identifiers": 0,
+    "elided": true
+  }
+}

@@ -1,11 +1,18 @@
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wtype-limits"
+#endif
+
 #include "websocket_pool.h"
 #include "websocketpp/frame.hpp"
-
 #include <websocketpp/config/asio_no_tls_client.hpp>
 #include <websocketpp/client.hpp>
-
 #include <websocketpp/common/thread.hpp>
 #include <websocketpp/common/memory.hpp>
+
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 
 #include <iostream>
 #include <string>

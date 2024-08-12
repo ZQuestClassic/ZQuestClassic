@@ -1,5 +1,6 @@
 #include "base/util.h"
 #include "parser/AST.h"
+#include "parser/ASTVisitors.h"
 #include "parserDefs.h"
 #include "MetadataVisitor.h"
 #include <cassert>
@@ -52,7 +53,7 @@ enum class SymbolKind
 
 static std::string make_uri(std::string path)
 {
-	if (path == "ZQ_BUFFER" || path == metadata_tmp_path)
+	if (path == metadata_tmp_path)
 		path = metadata_orig_path;
 
 	// For consistent test results no matter the machine.
@@ -346,6 +347,10 @@ static void appendIdentifier(std::string symbol_id, const AST* symbol_node, cons
 
 	if (!root["symbols"].contains(symbol_id))
 	{
+		if (symbol_id.starts_with("custom."))
+		{
+			printf("");
+		}
 		root["symbols"][symbol_id] = {
 			// TODO LocationData_location_json
 			{"loc", {
@@ -368,8 +373,8 @@ static void appendIdentifier(std::string symbol_id, const AST* symbol_node, cons
 	});
 }
 
-MetadataVisitor::MetadataVisitor(Program& program)
-	: program(program)
+MetadataVisitor::MetadataVisitor(Program& program, std::string root_file_name)
+	: RecursiveVisitor(program), root_file_name(root_file_name)
 {
 	root = {
 		{"currentFileSymbols", json::array()},
@@ -388,7 +393,7 @@ void MetadataVisitor::visit(AST& node, void* param)
 void MetadataVisitor::caseFile(ASTFile& host, void* param)
 {
 	auto name = getName(host);
-	if (name != "ZQ_BUFFER" && !name.ends_with("tmp.zs"))
+	if (name != root_file_name && name != metadata_tmp_path)
 		return;
 
 	RecursiveVisitor::caseFile(host, param);
@@ -420,6 +425,13 @@ void MetadataVisitor::caseClass(ASTClass& host, void* param)
 
 void MetadataVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 {
+	auto user_class = host.resolvedType ? host.resolvedType->getUsrClass() : nullptr;
+	if (user_class && host.list && host.list->baseType)
+	{
+		std::string symbol_id = fmt::format("custom.{}", user_class->getType()->getUniqueCustomId());
+		appendIdentifier(symbol_id, user_class->getNode(), getSelectionRange(*host.list->baseType));
+	}
+
 	auto prev_active = active;
 	appendDocSymbol(SymbolKind::Variable, host);
 	RecursiveVisitor::caseDataDecl(host, param);
@@ -447,7 +459,7 @@ void MetadataVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 void MetadataVisitor::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 {
 	// TODO: create identifiers for namespace components
-	if (host.binding)
+	if (host.binding && !host.componentNodes.empty())
 		appendIdentifier(std::to_string(host.binding->id), host.binding->getNode(), host.componentNodes.back()->location);
 
 	RecursiveVisitor::caseExprIdentifier(host, param);
@@ -465,6 +477,12 @@ void MetadataVisitor::caseExprArrow(ASTExprArrow& host, void* param)
 
 void MetadataVisitor::caseExprCall(ASTExprCall& host, void* param)
 {
+	if (!host.binding)
+	{
+		RecursiveVisitor::caseExprCall(host, param);
+		return;
+	}
+
 	// TODO: create identifiers for namespace components
 	if (auto expr_ident = dynamic_cast<ASTExprIdentifier*>(host.left.get()))
 	{
@@ -476,7 +494,7 @@ void MetadataVisitor::caseExprCall(ASTExprCall& host, void* param)
 	RecursiveVisitor::caseExprCall(host, param);
 }
 
-std::string MetadataVisitor::getOutput()
+json MetadataVisitor::takeOutput()
 {
-	return root.dump(2);
+	return std::move(root);
 }

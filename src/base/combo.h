@@ -112,7 +112,7 @@ struct newcombo
 	word trig_group_val;
 	byte trig_levelitems;
 	int16_t trigdmlevel = -1;
-	int8_t trigtint[3]; //r,g,b range [-63,63]
+	int16_t trigtint[3]; //r,g,b range [-255,255]
 	int16_t triglvlpalette = -1, trigbosspalette = -1;
 	int16_t trigquaketime = -1, trigwavytime = -1;
 	int16_t trig_swjinxtime = -2, trig_itmjinxtime = -2, trig_shieldjinxtime = -2, trig_stuntime = -2, trig_bunnytime = -2;

@@ -7,14 +7,6 @@
 #include "base/initdata.h"
 #include "gamedata.h"
 
-#define MAXINITTABS 5
-
-typedef struct item_class_struct
-{
-    char *s;
-    int32_t i;
-} item_class_struct;
-
 extern const char *itype_names[itype_max];
 extern const char *itype_new_names[itype_max];
 

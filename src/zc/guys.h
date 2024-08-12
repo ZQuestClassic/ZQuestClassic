@@ -45,10 +45,6 @@ void identifyCFEnemies();
 byte get_def_ignrflag(int32_t edef);
 int32_t conv_edef_unblockable(int32_t edef, byte unblockable);
 
-/**********************************/
-/*******  Enemy Base Class  *******/
-/**********************************/
-
 class enemy : public sprite
 {
 public:
@@ -121,7 +117,6 @@ public:
 	
 	int32_t getScriptUID();
 	void setScriptUID(int32_t new_id);
-	//void explode(int32_t type);
 	
 	zfix  getX();
 	zfix  getY();
@@ -129,7 +124,7 @@ public:
 	
 	enemy(zfix X,zfix Y,int32_t Id,int32_t Clk);                      // : sprite()
 	virtual ~enemy();
-	
+		
 	bool is_move_paused();
 	bool scr_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int32_t input_x, int32_t input_y, bool kb);
 	bool scr_canmove(zfix dx, zfix dy, int32_t special, bool kb = false, bool ign_sv = false);
@@ -304,6 +299,7 @@ protected:
 	void drawblock(BITMAP *dest,int32_t mask);
 	virtual void drawshadow(BITMAP *dest, bool translucent);
 	void masked_draw(BITMAP *dest,int32_t mx,int32_t my,int32_t mw,int32_t mh);
+	virtual void init_size_flags();
 	
 	//                         --==**==--
 	//   Movement routines that can be used by derived classes as needed
@@ -315,10 +311,6 @@ protected:
 private:
 	bool shieldCanBlock;
 };
-
-/********************************/
-/*********  Guy Class  **********/
-/********************************/
 
 // good guys, fires, fairy, and other non-enemies
 // based on enemy class b/c guys in dungeons act sort of like enemies
@@ -334,10 +326,6 @@ public:
 		return true;
 	}
 };
-
-/*******************************/
-/*********   Enemies   *********/
-/*******************************/
 
 class eFire : public enemy
 {
@@ -487,6 +475,7 @@ public:
 	virtual void drawshadow(BITMAP *dest, bool translucent);
 	virtual void draw(BITMAP *dest);
 	virtual int32_t takehit(weapon *w, weapon* realweap = nullptr);
+	virtual void init_size_flags();
 };
 
 class eBoulder : public enemy
@@ -497,6 +486,7 @@ public:
 	virtual void drawshadow(BITMAP *dest, bool translucent);
 	virtual void draw(BITMAP *dest);
 	virtual int32_t takehit(weapon *w, weapon* realweap = nullptr);
+	virtual void init_size_flags();
 };
 
 // Helper for launching fireballs from statues, etc.
@@ -581,6 +571,7 @@ public:
 	virtual bool animate(int32_t index);
 	virtual void drawshadow(BITMAP *dest, bool translucent);
 	virtual void draw(BITMAP *dest);
+	virtual void init_size_flags();
 };
 
 class eWizzrobe : public enemy
@@ -597,10 +588,6 @@ public:
 	void submerge(bool set);
 	virtual void draw(BITMAP *dest);
 };
-
-/*********************************/
-/**********   Bosses   ***********/
-/*********************************/
 
 class eDodongo : public enemy
 {
@@ -656,6 +643,7 @@ public:
 	virtual bool animate(int32_t index);
 	virtual void draw(BITMAP *dest);
 	virtual int32_t takehit(weapon *w, weapon* realweap = nullptr);
+	virtual void init_size_flags();
 };
 
 class eGanon : public enemy
@@ -676,10 +664,6 @@ public:
 };
 
 void getBigTri(int32_t id2);
-
-/**********************************/
-/***  Multiple-Segment Enemies  ***/
-/**********************************/
 
 // segment manager
 class eMoldorm : public enemy
@@ -801,6 +785,7 @@ public:
 	virtual void draw(BITMAP *dest);
 	virtual int32_t defend(int32_t wpnId, int32_t *power, int32_t edef);
 	virtual int32_t defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblockable);
+	virtual void init_size_flags();
 };
 
 // segment class
@@ -828,6 +813,7 @@ public:
 	virtual void draw(BITMAP *dest);
 	virtual int32_t defend(int32_t wpnId, int32_t *power, int32_t edef);
 	virtual int32_t defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblockable);
+	virtual void init_size_flags();
 };
 
 // segment class
@@ -842,9 +828,6 @@ public:
 	virtual void draw(BITMAP *dest);
 };
 
-/**********************************/
-/**********  Misc Code  ***********/
-/**********************************/
 void addEwpn(int32_t x,int32_t y,int32_t z,int32_t id,int32_t type,int32_t power,int32_t dir, int32_t parentid, byte script_gen = 0, int32_t fakez = 0);
 // Used by Hero's swords & stomp boots
 int32_t hit_enemy(int32_t index,int32_t wpnId,int32_t power,int32_t wpnx,int32_t wpny,int32_t dir, int32_t enemyHitWeapon, weapon* realweap = nullptr);

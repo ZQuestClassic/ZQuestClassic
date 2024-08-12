@@ -19,18 +19,20 @@ using std::shared_ptr;
 ////////////////////////////////////////////////////////////////
 // ZScript::Program
 
-Program::Program(ASTFile& root, CompileErrorHandler* errorHandler)
+Program::Program(ASTFile& root, CompileErrorHandler* errorHandler_)
 	: rootScope_(new RootScope(typeStore_)), root_(root)
 {
 	// Create the ~Init script.
 	if (Script* initScript =
 	    	createScript(
 				*this, *rootScope_, ParserScriptType::global,
-				"~Init", errorHandler))
+				"~Init", errorHandler_))
 	{
 		scripts.push_back(initScript);
 		scriptsByName_[initScript->getName()] = initScript;
 	}
+
+	errorHandler = errorHandler_;
 }
 
 Program::~Program()
@@ -750,10 +752,9 @@ Function* Function::apply_templ_func(vector<DataType const*> const& bound_ts)
 
 bool ZScript::isRun(Function const& function)
 {
-	//al_trace("Parser sees run string as: %s\n", FFCore.scriptRunString);
 	return function.getExternalScope()->getParent()->isScript()
 		&& *function.returnType == DataType::ZVOID
-		&& (!( strcmp(function.name.c_str(), FFCore.scriptRunString )))
+		&& (!( strcmp(function.name.c_str(), "run" )))
 		&& (!(function.getFlag(FUNCFLAG_INLINE))) ;
 }
 
