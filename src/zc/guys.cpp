@@ -9686,7 +9686,7 @@ bool eTrap2::animate(int32_t index)
 
 bool eTrap2::trapmove(int32_t ndir)
 {
-	if(tmpscr->flags&fFLOATTRAPS)
+	if(tmpscr->flags2&fFLOATTRAPS)
 		return canmove(ndir,(zfix)1,spw_floater, 0, 0, 15, 15,false);
 		
 	return canmove(ndir,(zfix)1,spw_water, 0, 0, 15, 15,false);
