@@ -16,6 +16,7 @@
 #include "base/zdefs.h"
 #include "music_playback.h"
 #include "sound/zcmusic.h"
+#include "subscr.h"
 #include "zc/replay.h"
 #include "zc/replay_upload.h"
 #include "zc/zc_sys.h"

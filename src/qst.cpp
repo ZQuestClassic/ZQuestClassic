@@ -108,10 +108,24 @@ bool mapsread=false;
 bool fixffcs=false;
 bool fixpolsvoice=false;
 
-const std::string script_slot_data::DEFAULT_FORMAT = "%s %s";
-const std::string script_slot_data::INVALID_FORMAT = "%s --%s";
-const std::string script_slot_data::DISASSEMBLED_FORMAT = "%s ++%s";
-const std::string script_slot_data::ZASM_FORMAT = "%s ==%s";
+void script_slot_data::update()
+{
+	switch (format)
+	{
+		case SCRIPT_FORMAT_INVALID:
+			output = fmt::format("{} --{}", slotname, scriptname);
+			break;
+		case SCRIPT_FORMAT_DISASSEMBLED:
+			output = fmt::format("{} ++{}", slotname, scriptname);
+			break;
+		case SCRIPT_FORMAT_ZASM:
+			output = fmt::format("{} =={}", slotname, scriptname);
+			break;
+		case SCRIPT_FORMAT_DEFAULT:
+		default:
+			output = fmt::format("{} {}", slotname, scriptname);
+	}
+}
 
 char qstdat_string[2048] = { 0 };
 

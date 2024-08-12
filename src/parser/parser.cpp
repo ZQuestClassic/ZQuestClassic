@@ -4,8 +4,10 @@
 #include <string>
 #include <thread>
 #include <chrono>
+#include <fstream>
 #include "parser/AST.h"
 #include "parser/CompileError.h"
+#include "parser/CompileOption.h"
 #include "zc/ffscript.h"
 #include "base/util.h"
 #include "parser/ZScript.h"
@@ -286,6 +288,16 @@ void updateIncludePaths()
 	ZQincludePaths = split(includePathString, ';');
 }
 
+static void fill_result(json& data, int code, ZScript::ScriptsData* result)
+{
+	data["success"] = code == 0;
+	if (code)
+		data["code"] = code;
+	data["diagnostics"] = result->diagnostics;
+	if (!result->metadata.empty())
+		data["metadata"] = result->metadata;
+}
+
 bool delay_asserts = false, ignore_asserts = false;
 std::vector<std::filesystem::path> force_ignores;
 int32_t main(int32_t argc, char **argv)
@@ -314,16 +326,6 @@ int32_t main(int32_t argc, char **argv)
 		}
 	}
 	
-	int32_t console_path_index = used_switch(argc, argv, "-console");
-	if (linked && !console_path_index)
-	{
-		zconsole_error("%s", "Error: missing required flag: -console");
-		return 1;
-	}
-	if(console_path_index)
-		console_path = argv[console_path_index + 1];
-	else console_path = "";
-	
 	int32_t zasm_out_index = used_switch(argc, argv, "-zasm");
 	bool zasm_out_append = used_switch(argc, argv, "-append");
 	bool zasm_commented = used_switch(argc, argv, "-commented");
@@ -339,22 +341,8 @@ int32_t main(int32_t argc, char **argv)
 		zconsole_error("%s", "Error: failed to load base config");
 		return 1;
 	}
-
 	zscript_load_user_config("zscript.cfg");
 
-	int32_t script_path_index = used_switch(argc, argv, "-input");
-	if (!script_path_index)
-	{
-		zconsole_error("%s", "Error: missing required flag: -input");
-		return 1;
-	}
-	
-	if(console_path.size())
-	{
-		FILE *console=fopen(console_path.c_str(), "w");
-		fclose(console);
-	}
-	
 	bool has_qrs = false;
 	if(int32_t qr_hex_index = used_switch(argc, argv, "-qr"))
 	{
@@ -377,7 +365,30 @@ int32_t main(int32_t argc, char **argv)
 		unpack_qrs();
 	}
 
+	int32_t script_path_index = used_switch(argc, argv, "-input");
+	if (!script_path_index)
+	{
+		zconsole_error("%s", "Error: missing required flag: -input");
+		return 1;
+	}
 	std::string script_path = argv[script_path_index + 1];
+
+	int32_t console_path_index = used_switch(argc, argv, "-console");
+	if (linked && !console_path_index)
+	{
+		zconsole_error("%s", "Error: missing required flag: -console");
+		return 1;
+	}
+	if(console_path_index)
+		console_path = argv[console_path_index + 1];
+	else console_path = "";
+	
+	if(console_path.size())
+	{
+		FILE *console=fopen(console_path.c_str(), "w");
+		fclose(console);
+	}
+
 	int32_t syncthing = 0;
 	
 	if(linked)
@@ -451,12 +462,7 @@ int32_t main(int32_t argc, char **argv)
 			if (do_json_output)
 			{
 				json data;
-				data["success"] = res == 0;
-				if (res)
-					data["code"] = res;
-				data["diagnostics"] = result->diagnostics;
-				if (!result->metadata.empty())
-					data["metadata"] = result->metadata;
+				fill_result(data, res, result.get());
 				std::cout << data.dump(2);
 			}
 			else if (!result->metadata.empty())
@@ -481,6 +487,27 @@ int32_t main(int32_t argc, char **argv)
 	return res;
 }
 END_OF_MAIN()
+
+extern "C" int compile_script(const char* script_path)
+{
+	updateIncludePaths();
+	bool metadata = true;
+	bool has_qrs = false;
+	ZScript::CompileOption::OPT_NO_ERROR_HALT.setDefault(ZScript::OPTION_ON);
+	ZScript::ScriptParser::initialize(has_qrs);
+	unique_ptr<ZScript::ScriptsData> result(compile(script_path, metadata));
+	int32_t code = (result && result->success ? 0 : (zscript_failcode ? zscript_failcode : -1));
+
+	json data;
+	fill_result(data, code, result.get());
+	std::ofstream out("out.txt");
+	out << data.dump(2);
+	out.close();
+
+	if (!result)
+		zconsole_info("%s", "Failure!");
+	return code;
+}
 
 // TODO: make this not needed to compile...
 bool DragAspect = false;

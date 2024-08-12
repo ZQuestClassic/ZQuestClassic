@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.28)
+cmake_minimum_required(VERSION 3.27)
 set(CMAKE_CONFIGURATION_TYPES Asan Debug Release RelWithDebInfo Coverage CACHE STRING INTERNAL FORCE)
 project (ZeldaClassic)
 
@@ -279,6 +279,7 @@ if(NOT allegro5_POPULATED)
 	option(WANT_MODAUDIO "" OFF)
 	# We don't support FLAC.
 	option(WANT_FLAC "" OFF)
+	option(WANT_VIDEO "" OFF)
   add_subdirectory(${allegro5_SOURCE_DIR} ${allegro5_BINARY_DIR} EXCLUDE_FROM_ALL)
   # Allegro 5 CMakeLists sets CMAKE_CONFIGURATION_TYPES in a way that doesn't work for us,
   # so set it back to our value.
@@ -579,7 +580,6 @@ FetchContent_Declare(
 	EXCLUDE_FROM_ALL
 )
 FetchContent_MakeAvailable(poolSTL)
-target_link_libraries(zcbase PUBLIC poolSTL::poolSTL)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 	target_link_options(zcbase PRIVATE "/WHOLEARCHIVE")
@@ -767,7 +767,7 @@ add_executable(zplayer ${ZELDA_CORE_SOURCES} ${ZELDA_GUI_SOURCES} ${ZELDA_SPRITE
 target_compile_definitions(zplayer PRIVATE IS_PLAYER)
 set_property(TARGET zplayer PROPERTY VS_DPI_AWARE "PerMonitor")
 target_include_directories(zplayer PRIVATE include/xxhash)
-target_link_libraries(zplayer PRIVATE allegro_with_legacy zasm nlohmann_json::nlohmann_json)
+target_link_libraries(zplayer PRIVATE allegro_with_legacy zasm nlohmann_json::nlohmann_json poolSTL)
 if (NOT EMSCRIPTEN)
 	target_link_libraries(zplayer PRIVATE stduuid)
 	target_compile_definitions(zplayer PRIVATE HAS_UUID)
@@ -958,7 +958,7 @@ endif()
 if (EMSCRIPTEN)
 	target_link_options(zplayer PRIVATE "SHELL:-s EXPORTED_FUNCTIONS=_main,_get_shareable_url,_create_synthetic_key_event,_em_do_commands,_em_get_register,_em_set_register,_em_runtime_script_debug")
 	target_link_options(zeditor PRIVATE "SHELL:-s EXPORTED_FUNCTIONS=_main,_get_shareable_url,_create_synthetic_key_event,_open_test_mode")
-	target_link_options(zscript PRIVATE "SHELL:-s PTHREAD_POOL_SIZE=1" "SHELL:-s EXTRA_EXPORTED_RUNTIME_METHODS=['FS','PROXYFS']")
+	target_link_options(zscript PRIVATE "SHELL:-no-pthread -s EXPORTED_FUNCTIONS=_compile_script -s EXTRA_EXPORTED_RUNTIME_METHODS=['FS','PROXYFS']")
 	set_target_properties(zscript PROPERTIES SUFFIX ".mjs")
 endif()
 

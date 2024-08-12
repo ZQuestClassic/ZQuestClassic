@@ -11,6 +11,7 @@
 #include <sstream>
 
 #include "md5.h"
+#include "subscr.h"
 #include "zalleg/zalleg.h"
 #include "base/qrs.h"
 #include "base/dmap.h"

@@ -461,7 +461,7 @@ async function processScript(textDocument: TextDocument): Promise<void> {
 	// Send the computed diagnostics to VSCode.
 	connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
 
-	if (!metadata || !success) return;
+	if (!metadata) return;
 
 	if (metadata.currentFileSymbols.length)
 		docMetadataMap.set(textDocument.uri, metadata);

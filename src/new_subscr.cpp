@@ -16,6 +16,8 @@
 #include "sprite.h"
 #include <set>
 #include <fmt/format.h>
+#include "zc/ffscript.h"
+#include "zc/zelda.h"
 #include "zc_list_data.h"
 
 #ifdef IS_PLAYER

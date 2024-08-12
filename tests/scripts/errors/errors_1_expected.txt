@@ -44,5 +44,11 @@ stdout:
       "severity": 1,
       "message": "S009: Variable number_oops has not been declared."
     }
-  ]
+  ],
+  "metadata": {
+    "currentFileSymbols": 3,
+    "symbols": 0,
+    "identifiers": 0,
+    "elided": true
+  }
 }

@@ -88,5 +88,11 @@ stdout:
       "severity": 1,
       "message": "S004: Function blah was already declared with that type signature."
     }
-  ]
+  ],
+  "metadata": {
+    "currentFileSymbols": 10,
+    "symbols": 0,
+    "identifiers": 0,
+    "elided": true
+  }
 }

@@ -105,5 +105,11 @@ stdout:
       "severity": 1,
       "message": "S095: Variable 'screendata->ScriptEntry' is deprecated, and cannot be used due to current compiler settings."
     }
-  ]
+  ],
+  "metadata": {
+    "currentFileSymbols": 2,
+    "symbols": 10,
+    "identifiers": 12,
+    "elided": true
+  }
 }

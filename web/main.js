@@ -101,7 +101,8 @@ globalThis.ZC = {
     scriptPath = PATH.join('/root-fs', scriptPath);
     consolePath = PATH.join('/root-fs', consolePath);
 
-    const {default: ZScript} = await import('./zscript.mjs' + (Math.random() ? '' : ''));
+    const zscriptPath = './zscript.mjs';
+    const {default: ZScript} = await import(zscriptPath);
     let onExitPromiseResolve;
     const onExitPromise = new Promise(resolve => onExitPromiseResolve = resolve);
     await ZScript({
@@ -638,7 +639,7 @@ function goFullscreen() {
 }
 
 // Don't run this in the workers.
-if (typeof window !== 'undefined') {
+if (typeof window !== 'undefined' && TARGET !== 'playground') {
   main().catch(err => {
     console.error(err);
     document.querySelector('.content').textContent = err.toString();

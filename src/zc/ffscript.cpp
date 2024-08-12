@@ -1185,8 +1185,6 @@ PALETTE tempgreypal; //Palettes go here. This is used for Greyscale() / Monochro
 PALETTE userPALETTE[256]; //Palettes go here. This is used for Greyscale() / Monochrome()
 PALETTE tempblackpal; //Used for storing the palette while fading to black
 
-FFScript ffengine;
-
 byte FF_hero_action; //This way, we can make safe replicas of internal Hero actions to be set by script. 
 	
 int32_t FF_screenbounds[4]; //edges of the screen, left, right, top, bottom used for where to scroll. 

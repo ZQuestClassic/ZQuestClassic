@@ -1,16 +1,14 @@
 #include "subscr.h"
-#include "base/zapp.h"
 #include "base/qrs.h"
 #include "base/dmap.h"
 #include "tiles.h"
 #include "base/zsys.h"
-#include "base/util.h"
+#include "zc/ffscript.h"
 #include "zc/hero.h"
 #include "gamedata.h"
 #include "items.h"
 #include <stdio.h>
 #include <cstring>
-#include "base/mapscr.h"
 #include "base/misctypes.h"
 
 using namespace util;

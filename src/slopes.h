@@ -1,12 +1,15 @@
 #ifndef SLOPES_H_
 #define SLOPES_H_
 
+#include "base/ints.h"
+#include "base/zc_alleg.h"
 #include "base/zfix.h"
-#include "ffc.h"
 #include <map>
 
-struct slope_object;
+class ffcdata;
+class solid_object;
 struct newcombo;
+struct slope_object;
 
 extern std::map<int32_t, slope_object> slopes;
 void draw_slopes(BITMAP *dest, int32_t x, int32_t y, int32_t col);
@@ -68,4 +71,3 @@ bool slide_slope(solid_object* obj, zfix& dx, zfix& dy, zfix& ID);
 void slope_push_int(slope_info const& s, solid_object* obj, zfix& dx, zfix& dy, bool onplatform = false, bool fallthrough = false);
 
 #endif
-

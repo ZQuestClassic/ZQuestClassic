@@ -477,6 +477,12 @@ void MetadataVisitor::caseExprArrow(ASTExprArrow& host, void* param)
 
 void MetadataVisitor::caseExprCall(ASTExprCall& host, void* param)
 {
+	if (!host.binding)
+	{
+		RecursiveVisitor::caseExprCall(host, param);
+		return;
+	}
+
 	// TODO: create identifiers for namespace components
 	if (auto expr_ident = dynamic_cast<ASTExprIdentifier*>(host.left.get()))
 	{

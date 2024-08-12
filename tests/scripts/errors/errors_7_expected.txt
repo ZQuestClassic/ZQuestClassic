@@ -194,5 +194,11 @@ stdout:
       "severity": 1,
       "message": "T100: Temporary literals cannot be stored!"
     }
-  ]
+  ],
+  "metadata": {
+    "currentFileSymbols": 8,
+    "symbols": 7,
+    "identifiers": 40,
+    "elided": true
+  }
 }
