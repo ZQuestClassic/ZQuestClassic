@@ -1402,7 +1402,7 @@ bool trigger_armos_grave(int32_t lyr, int32_t pos, int32_t trigdir)
 			{
 				for(int32_t i=0; i<eMAXGUYS; i++)
 				{
-					if(guysbuf[i].flags2&guy_armos)
+					if(guysbuf[i].flags&guy_armos)
 					{
 						id2=i;
 						
@@ -1576,7 +1576,7 @@ bool trigger_armos_grave(int32_t lyr, int32_t pos, int32_t trigdir)
 					enemy* en = ((enemy*)guys.spr(guys.Count()-1));
 					en->did_armos=false;
 					en->fading=fade_flicker;
-					en->flags2 |= guy_armos;
+					en->flags |= guy_armos;
 				}
 				return true;
 			}
@@ -1596,7 +1596,7 @@ bool trigger_armos_grave(int32_t lyr, int32_t pos, int32_t trigdir)
 			{
 				for(int32_t i=0; i<eMAXGUYS; i++)
 				{
-					if(guysbuf[i].flags2&guy_ghini)
+					if(guysbuf[i].flags&guy_ghini)
 					{
 						id2=i;
 						eclk=0; // This is mostly for backwards-compatability
@@ -1650,7 +1650,7 @@ bool trigger_armos_grave_ffc(int32_t pos, int32_t trigdir)
 			{
 				for(int32_t i=0; i<eMAXGUYS; i++)
 				{
-					if(guysbuf[i].flags2&guy_armos)
+					if(guysbuf[i].flags&guy_armos)
 					{
 						id2=i;
 						
@@ -1680,7 +1680,7 @@ bool trigger_armos_grave_ffc(int32_t pos, int32_t trigdir)
 			{
 				for(int32_t i=0; i<eMAXGUYS; i++)
 				{
-					if(guysbuf[i].flags2&guy_ghini)
+					if(guysbuf[i].flags&guy_ghini)
 					{
 						id2=i;
 						eclk=0; // This is mostly for backwards-compatability

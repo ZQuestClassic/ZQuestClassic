@@ -1762,9 +1762,9 @@ public:
 		flagpos = 5;
 		// Must be in the same order as in the Enemy Editor pane
 		ornextflag(tempenemy->flags&(guy_lens_only));
-		ornextflag(tempenemy->flags2&(guy_flashing));
-		ornextflag(tempenemy->flags2&(guy_blinking));
-		ornextflag(tempenemy->flags2&(guy_transparent));
+		ornextflag(tempenemy->flags&(guy_flashing));
+		ornextflag(tempenemy->flags&(guy_blinking));
+		ornextflag(tempenemy->flags&(guy_transparent));
 		ornextflag(tempenemy->flags&(guy_shield_front));
 		ornextflag(tempenemy->flags&(guy_shield_left));
 		ornextflag(tempenemy->flags&(guy_shield_right));
@@ -13287,8 +13287,8 @@ int32_t get_register(int32_t arg)
 		case NPCDATATILE: GET_NPCDATA_VAR_BYTE(tile, "Tile"); break;
 		case NPCDATAWIDTH: GET_NPCDATA_VAR_BYTE(width, "Width"); break;
 		case NPCDATAHEIGHT: GET_NPCDATA_VAR_BYTE(height, "Height"); break;
-		case NPCDATAFLAGS: GET_NPCDATA_VAR_INT16(flags, "Flags"); break; //16 b its
-		case NPCDATAFLAGS2: GET_NPCDATA_VAR_INT16(flags2, "Flags2"); break; //16 bits
+		case NPCDATAFLAGS: GET_NPCDATA_VAR_INT16(flags, "Flags"); break; //FIX ME
+		case NPCDATAFLAGS2: GET_NPCDATA_VAR_INT16(flags, "Flags2"); break; //FIX ME
 		case NPCDATASTILE: GET_NPCDATA_VAR_BYTE(s_tile, "STile"); break;
 		case NPCDATASWIDTH: GET_NPCDATA_VAR_BYTE(s_width, "SWidth"); break;
 		case NPCDATASHEIGHT: GET_NPCDATA_VAR_BYTE(s_height, "SHeight"); break;
@@ -26238,8 +26238,8 @@ void set_register(int32_t arg, int32_t value)
 		case NPCDATATILE: SET_NPCDATA_VAR_BYTE(tile, "Tile"); break;
 		case NPCDATAWIDTH: SET_NPCDATA_VAR_BYTE(width, "Width"); break;
 		case NPCDATAHEIGHT: SET_NPCDATA_VAR_BYTE(height, "Height"); break;
-		case NPCDATAFLAGS: SET_NPCDATA_VAR_ENUM(flags, "Flags"); break; //16 b its
-		case NPCDATAFLAGS2: SET_NPCDATA_VAR_ENUM(flags2, "Flags2"); break; //16 bits
+		case NPCDATAFLAGS: SET_NPCDATA_VAR_ENUM(flags, "Flags"); break; //FIX ME
+		case NPCDATAFLAGS2: SET_NPCDATA_VAR_ENUM(flags, "Flags2"); break; //FIX ME
 		case NPCDATASTILE: SET_NPCDATA_VAR_BYTE(s_tile, "STile"); break;
 		case NPCDATASWIDTH: SET_NPCDATA_VAR_BYTE(s_width, "SWidth"); break;
 		case NPCDATASHEIGHT: SET_NPCDATA_VAR_BYTE(s_height, "SHeight"); break;
@@ -39462,10 +39462,10 @@ int32_t run_script_int(bool is_jitted)
 			
 			case GETNPCDATATILE: FFScript::getNPCData_tile(); break;
 			case GETNPCDATAEHEIGHT: FFScript::getNPCData_e_height(); break;
-			case GETNPCDATAFLAGS: FFScript::getNPCData_flags(); break;
-			case GETNPCDATAFLAGS2: FFScript::getNPCData_flags2(); break;
-			case GETNPCDATAWIDTH: FFScript::getNPCData_flags2(); break;
-			case GETNPCDATAHEIGHT: FFScript::getNPCData_flags2(); break;
+			case GETNPCDATAFLAGS: FFScript::getNPCData_flags(); break; //fixme
+			case GETNPCDATAFLAGS2: FFScript::getNPCData_flags2(); break; //fixme
+			case GETNPCDATAWIDTH: FFScript::getNPCData_width(); break;
+			case GETNPCDATAHEIGHT: FFScript::getNPCData_height(); break;
 			case GETNPCDATASTILE: FFScript::getNPCData_s_tile(); break;
 			case GETNPCDATASWIDTH: FFScript::getNPCData_s_width(); break;
 			case GETNPCDATASHEIGHT: FFScript::getNPCData_s_height(); break;
@@ -42548,10 +42548,9 @@ void FFScript::do_triggersecret(const bool v)
 		set_register(sarg1, (guysbuf[ID].member&flag) ? 10000 : 0); \
 }
 
-void FFScript::getNPCData_tile(){ GET_NPCDATA_FUNCTION_VAR_INT(tile); } //word
-void FFScript::getNPCData_e_height(){ GET_NPCDATA_FUNCTION_VAR_INT(e_height); } 
-void FFScript::getNPCData_flags(){ GET_NPCDATA_FUNCTION_VAR_INT(flags); } //word
-void FFScript::getNPCData_flags2(){ GET_NPCDATA_FUNCTION_VAR_INT(flags2); } 
+void FFScript::getNPCData_flags(){ GET_NPCDATA_FUNCTION_VAR_INT(flags); } //FIX ME
+void FFScript::getNPCData_flags2(){ GET_NPCDATA_FUNCTION_VAR_INT(flags); } //FIX ME
+void FFScript::getNPCData_tile() { GET_NPCDATA_FUNCTION_VAR_INT(tile); }
 void FFScript::getNPCData_width(){ GET_NPCDATA_FUNCTION_VAR_INT(width); } 
 void FFScript::getNPCData_height(){ GET_NPCDATA_FUNCTION_VAR_INT(height); } 
 void FFScript::getNPCData_s_tile(){ GET_NPCDATA_FUNCTION_VAR_INT(s_tile); } 
@@ -42559,6 +42558,7 @@ void FFScript::getNPCData_s_width(){ GET_NPCDATA_FUNCTION_VAR_INT(s_width); }
 void FFScript::getNPCData_s_height(){ GET_NPCDATA_FUNCTION_VAR_INT(s_height); } 
 void FFScript::getNPCData_e_tile(){ GET_NPCDATA_FUNCTION_VAR_INT(e_tile); } 
 void FFScript::getNPCData_e_width(){ GET_NPCDATA_FUNCTION_VAR_INT(e_width); } 
+void FFScript::getNPCData_e_height() { GET_NPCDATA_FUNCTION_VAR_INT(e_height); }
 void FFScript::getNPCData_hp(){ GET_NPCDATA_FUNCTION_VAR_INT(hp); } 
 void FFScript::getNPCData_family(){ GET_NPCDATA_FUNCTION_VAR_INT(family); } 
 void FFScript::getNPCData_cset(){ GET_NPCDATA_FUNCTION_VAR_INT(cset); } 
@@ -42689,17 +42689,17 @@ void do_getdmapintro(const bool v)
 	}\
 }
 
-void FFScript::setNPCData_flags(){SET_NPCDATA_FUNCTION_VAR_ENUM(flags,ZS_DWORD);} //word
-void FFScript::setNPCData_flags2(){SET_NPCDATA_FUNCTION_VAR_ENUM(flags2,ZS_DWORD);}
+void FFScript::setNPCData_flags(){SET_NPCDATA_FUNCTION_VAR_ENUM(flags,ZS_DWORD);} //FIX ME
+void FFScript::setNPCData_flags2(){SET_NPCDATA_FUNCTION_VAR_ENUM(flags,ZS_DWORD);} //FIX ME
+void FFScript::setNPCData_tile() { SET_NPCDATA_FUNCTION_VAR_INT(tile, ZS_WORD); }
 void FFScript::setNPCData_width(){SET_NPCDATA_FUNCTION_VAR_INT(width,ZS_BYTE);}
-void FFScript::setNPCData_tile(){SET_NPCDATA_FUNCTION_VAR_INT(tile,ZS_WORD);}
-void FFScript::setNPCData_e_height(){SET_NPCDATA_FUNCTION_VAR_INT(e_height,ZS_BYTE);}
 void FFScript::setNPCData_height(){SET_NPCDATA_FUNCTION_VAR_INT(height,ZS_BYTE);}
 void FFScript::setNPCData_s_tile(){SET_NPCDATA_FUNCTION_VAR_INT(s_tile,ZS_WORD);}
 void FFScript::setNPCData_s_width(){SET_NPCDATA_FUNCTION_VAR_INT(s_width,ZS_BYTE);}
 void FFScript::setNPCData_s_height(){SET_NPCDATA_FUNCTION_VAR_INT(s_height,ZS_BYTE);}
 void FFScript::setNPCData_e_tile(){SET_NPCDATA_FUNCTION_VAR_INT(e_tile,ZS_WORD);}
 void FFScript::setNPCData_e_width(){SET_NPCDATA_FUNCTION_VAR_INT(e_width,ZS_BYTE);}
+void FFScript::setNPCData_e_height() { SET_NPCDATA_FUNCTION_VAR_INT(e_height, ZS_BYTE); }
 void FFScript::setNPCData_hp(){SET_NPCDATA_FUNCTION_VAR_INT(hp,ZS_SHORT);}
 void FFScript::setNPCData_family(){SET_NPCDATA_FUNCTION_VAR_INT(family,ZS_SHORT);}
 void FFScript::setNPCData_cset(){SET_NPCDATA_FUNCTION_VAR_INT(cset,ZS_SHORT);}
@@ -47305,15 +47305,17 @@ void FFScript::read_enemies(PACKFILE *f, int32_t vers_id)
 	if ( !f ) return;
 	for(int32_t i=0; i<MAXGUYS; i++)
 	{
-			if(!p_igetl(&guysbuf[i].flags,f))
+			uint32_t flags1;
+			uint32_t flags2;
+			if (!p_igetl(&(flags1), f))
 			{
-			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",6);
+				Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d", 6);
 			}
-			
-			if(!p_igetl(&guysbuf[i].flags2,f))
+			if (!p_igetl(&(flags2), f))
 			{
-			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",7);
+				Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d", 7);;
 			}
+			guysbuf[i].flags = guy_flags(flags1) | guy_flags(uint64_t(flags2) << 32ULL);
 			
 			if(!p_igetl(&guysbuf[i].tile,f))
 			{
@@ -47665,14 +47667,15 @@ void FFScript::write_enemies(PACKFILE *f, int32_t vers_id)
 	if ( !f ) return;
 	for(int32_t i=0; i<MAXGUYS; i++)
 	{
-		if(!p_iputl(guysbuf[i].flags,f))
+		uint32_t flags1 = uint32_t(guysbuf[i].flags);
+		uint32_t flags2 = uint32_t(guysbuf[i].flags >> 32ULL);
+		if (!p_iputl(flags1, f))
 		{
-		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",6);
+			Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d", 6);
 		}
-		
-		if(!p_iputl(guysbuf[i].flags2,f))
+		if (!p_iputl(flags2, f))
 		{
-		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",7);
+			Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d", 7);
 		}
 		
 		if(!p_iputl(guysbuf[i].tile,f))
