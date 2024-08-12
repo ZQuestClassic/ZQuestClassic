@@ -1612,7 +1612,7 @@ bool enemy::isOnSideviewPlatform()
 	int32_t usehei = (SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) ? hit_height : 16;
 	if(!get_qr(qr_BROKEN_SIDEVIEW_SPRITE_JUMP)&&fall<0)
 		return false;
-	if(y + usehei >= 176 && currscr>=0x70 && !(tmpscr->flags&wfDOWN)) return true; //Bottom of the map
+	if(y + usehei >= 176 && currscr>=0x70 && !(tmpscr->flags2&wfDOWN)) return true; //Bottom of the map
 	if(check_slope(x, y+1, usewid, usehei)) return true;
 	for(int32_t nx = x + 4; nx <= x + usewid - 4; nx+=16)
 	{
