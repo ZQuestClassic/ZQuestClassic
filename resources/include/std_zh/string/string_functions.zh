@@ -1,5 +1,8 @@
 //ZScript string handling functions, akin to those found in C
 
+#include "std_zh/std_functions.zh"
+#include "std_zh/string/string_constants.zh"
+
 //Returns the number of chracters of a given type in a specified string.
 int NumCharsOf(char32[] ptr, char32 chr)
 {

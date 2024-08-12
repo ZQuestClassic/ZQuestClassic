@@ -1,3 +1,6 @@
+#include "std_zh/std_constants.zh"
+#include "std_zh/script_runners.zh"
+
 //Returns if Link is above an npc.
 bool Above(npc n){ return Link->Y < n->Y; }
 

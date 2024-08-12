@@ -1,6 +1,10 @@
 // Contains required constants for std.zh and ZScript functions.
 
+#include "std_zh/std.cfg"
+#include "std_zh/limits.zh"
+
 //some type shorthands
+typedef const int define;
 typedef const int DEFINE;
 typedef const float DEFINEF;
 typedef const long DEFINEL;

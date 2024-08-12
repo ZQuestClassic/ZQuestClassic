@@ -8,8 +8,6 @@
 
 #includepath "include"
 
-typedef const int define;
-
 #include "std_zh/std.cfg"
 #include "std_zh/std_extension.zh"
 #include "std_zh/script_runners.zh"
