@@ -1032,7 +1032,7 @@ void sprite::draw(BITMAP* dest)
 #endif
 	if (FFCore.getQuestHeaderInfo(0) < 0x255 || ( FFCore.getQuestHeaderInfo(0) == 0x255 && FFCore.getQuestHeaderInfo(2) < 42 ) || get_qr(qr_OLDSPRITEDRAWS) || (drawflags & sprdrawflagALWAYSOLDDRAWS))
 	{
-		drawzcboss(dest);
+		drawold(dest);
 		yofs = tyoffs;
 		return; //don't run the rest, use the old code
 	}
@@ -1511,6 +1511,536 @@ void sprite::draw(BITMAP* dest)
 	sprite_flicker_transp_passes = 0;
 }
 
+void sprite::drawblock(BITMAP* dest, int32_t mask)
+{
+	//Handle glowing sprites
+	handle_sprlighting();
+	if (!show_sprites)
+	{
+		return;
+	}
+	zfix tyoffs = yofs;
+#ifdef IS_PLAYER
+	if (switch_hooked)
+	{
+		switch (Hero.switchhookstyle)
+		{
+		default: case swPOOF:
+			break; //Nothing special here
+		case swFLICKER:
+		{
+			if (abs(Hero.switchhookclk - 33) & 0b1000)
+				break; //Drawn this frame
+			return; //Not drawn this frame
+		}
+		case swRISE:
+		{
+			//Draw rising up
+			yofs -= 8 - (abs(Hero.switchhookclk - 32) / 4);
+			break;
+		}
+		}
+	}
+#endif
+	if (FFCore.getQuestHeaderInfo(0) < 0x255 || (FFCore.getQuestHeaderInfo(0) == 0x255 && FFCore.getQuestHeaderInfo(2) < 42) || get_qr(qr_OLDSPRITEDRAWS) || (drawflags & sprdrawflagALWAYSOLDDRAWS))
+	{
+		drawold(dest);
+		yofs = tyoffs;
+		return; //don't run the rest, use the old code
+	}
+	int32_t sx = real_x(x + xofs);
+	int32_t sy = real_y(y + yofs) - real_z(z + zofs);
+	sy -= fake_z(fakez);
+
+	int32_t bw, bh;
+	switch (mask) {
+	case 1: //1x1
+		bw = 1; bh = 1; break;
+	case 3: //1x2
+		bw = 1; bh = 2; break;
+	case 5: //2x1
+		bw = 2; bh = 1; break;
+		break;
+	case 15: //2x2
+		bw = 2; bh = 2; break;
+		break;
+	case 16: //3x1 Gohma
+		bw = 3; bh = 1; break;
+	}
+
+	if (id < 0)
+	{
+		yofs = tyoffs;
+		return;
+	}
+	BITMAP* sprBMP2 = create_bitmap_ex(8, 256, 256); //run after above failsafe, so that we always destroy it
+	int32_t e = extend >= 3 ? 3 : extend;
+	int32_t flip_type = ((scriptflip > -1) ? scriptflip : flip);
+	isspawning = false;
+#define TILEBOUND(t) vbound(t,0,NEWMAXTILES)
+	if (clk >= 0)
+	{
+		switch (e)
+		{
+		//LARGE ENEMIES ARE NOT TO BE EXTENDED I AM DISABLING IT -Jambu
+		/*
+		case 1:
+		{
+			BITMAP* temp = create_bitmap_ex(8, 16, 32);
+			blit(dest, temp, sx, sy - 16, 0, 0, 16, 32);
+			//clear_bitmap(temp);
+			if (sprBMP2) clear_bitmap(sprBMP2);
+
+			BITMAP* temp2 = create_bitmap_ex(8, 16, 32);
+			clear_bitmap(temp2);
+			//Draw sprite tiles to the temp (scratch) bitmap.
+			overtile16(temp2, TILEBOUND(((scripttile > -1) ? scripttile : tile) - TILES_PER_ROW), 0, 0, cs, ((scriptflip > -1) ? scriptflip : flip));
+			overtile16(temp2, TILEBOUND((scripttile > -1) ? scripttile : tile), 0, 16, cs, ((scriptflip > -1) ? scriptflip : flip));
+
+			//Recolor for flicker animations
+			if (sprite_flicker_color)
+				SPRITE_MONOCOLOR(temp2);
+
+			masked_blit(temp2, temp, 0, 0, 0, 0, 16, 32);
+
+			//Blit to the screen...
+			if (rotation)
+			{
+				//First rotating and scaling as needed to a scratch-bitmap.
+				if (scale)
+				{
+					double new_scale = scale / 100.0;
+					rotate_scaled_sprite(sprBMP2, temp, 0, 0, deg_to_fixed(rotation), ftofix(new_scale));
+				}
+				else rotate_sprite(sprBMP2, temp, 0, 0, deg_to_fixed(rotation));
+				doSpriteDraw(drawstyle, dest, sprBMP2, sx, sy);
+			}
+			else
+			{
+				if (scale)
+				{
+					double new_scale = scale / 100.0;
+					rotate_scaled_sprite(sprBMP2, temp, 0, 0, deg_to_fixed(0), ftofix(new_scale));
+					doSpriteDraw(drawstyle, dest, sprBMP2, sx, sy);
+				}
+				else doSpriteDraw(drawstyle, dest, temp, sx, sy - 16);
+			}
+			//clean-up
+			destroy_bitmap(temp);
+			destroy_bitmap(temp2);
+			break;
+		}
+		case 2:
+		{
+			BITMAP* temp = create_bitmap_ex(8, 48, 32);
+			BITMAP* temp2 = create_bitmap_ex(8, 32, 32);
+			blit(dest, temp, sx - 16, sy - 16, 0, 0, 48, 32);
+			//clear_bitmap(temp);
+			clear_bitmap(sprBMP2);
+
+			BITMAP* temp3 = create_bitmap_ex(8, 32, 32);
+			clear_bitmap(temp3);
+
+			overtile16(temp3, TILEBOUND(((scripttile > -1) ? scripttile : tile) - TILES_PER_ROW), 16, 0, cs, ((scriptflip > -1) ? scriptflip : flip));
+			overtile16(temp3, TILEBOUND(((scripttile > -1) ? scripttile : tile) - TILES_PER_ROW - ((scriptflip > -1) ? (scriptflip ? -1 : 1) : (flip ? -1 : 1))), 0, 0, cs, ((scriptflip > -1) ? scriptflip : flip));
+			overtile16(temp3, TILEBOUND(((scripttile > -1) ? scripttile : tile) - TILES_PER_ROW + ((scriptflip > -1) ? (scriptflip ? -1 : 1) : (flip ? -1 : 1))), 32, 0, cs, ((scriptflip > -1) ? scriptflip : flip));
+			overtile16(temp3, TILEBOUND(((scripttile > -1) ? scripttile : tile)), 16, 16, cs, ((scriptflip > -1) ? scriptflip : flip));
+			overtile16(temp3, TILEBOUND(((scripttile > -1) ? scripttile : tile) - ((scriptflip > -1) ? (scriptflip ? -1 : 1) : (flip ? -1 : 1))), 0, 16, cs, ((scriptflip > -1) ? scriptflip : flip));
+			overtile16(temp3, TILEBOUND(((scripttile > -1) ? scripttile : tile) + ((scriptflip > -1) ? (scriptflip ? -1 : 1) : (flip ? -1 : 1))), 32, 16, cs, ((scriptflip > -1) ? scriptflip : flip));
+
+			//Recolor for flicker animations
+			if (sprite_flicker_color)
+				SPRITE_MONOCOLOR(temp3);
+
+			masked_blit(temp3, temp, 0, 0, 0, 0, 32, 32);
+
+			if (rotation)
+			{
+				if (scale)
+				{
+					double new_scale = scale / 100.0;
+					rotate_scaled_sprite(sprBMP2, temp, 0, 0, deg_to_fixed(rotation), ftofix(new_scale));
+				}
+				else rotate_sprite(sprBMP2, temp, 0, 0, deg_to_fixed(rotation));
+				blit(sprBMP2, temp2, 8, 0, 0, 0, 32, 32);
+				doSpriteDraw(drawstyle, dest, sprBMP2, sx, sy);
+			}
+			else
+			{
+				if (scale)
+				{
+					double new_scale = scale / 100.0;
+					rotate_scaled_sprite(sprBMP2, temp, 0, 0, deg_to_fixed(0), ftofix(new_scale));
+					blit(sprBMP2, temp2, 8, 0, 0, 0, 32, 32);
+					doSpriteDraw(drawstyle, dest, sprBMP2, sx, sy);
+				}
+				else
+				{
+					blit(temp, temp2, 8, 0, 0, 0, 32, 32);
+					doSpriteDraw(drawstyle, dest, temp2, sx - 8, sy - 16);
+				}
+			}
+
+
+			destroy_bitmap(temp);
+			destroy_bitmap(temp2);
+			destroy_bitmap(temp3);
+			break;
+		}
+		case 3:
+		{
+			int32_t tileToDraw;
+
+			switch (flip_type)
+			{
+			case 1:
+			{
+				BITMAP* sprBMP = create_bitmap_ex(8, txsz * 16, tysz * 16);
+				//BITMAP* sprBMP2 = create_bitmap_ex(8,256,256);
+				clear_bitmap(sprBMP);
+				clear_bitmap(sprBMP2);
+				for (int32_t i = 0; i < tysz; i++)
+				{
+					for (int32_t j = txsz - 1; j >= 0; j--)
+					{
+						tileToDraw = ((scripttile > -1) ? scripttile : tile) + (i * TILES_PER_ROW) + j;
+
+						if (tileToDraw % TILES_PER_ROW < j) // Wrapped around
+							tileToDraw += TILES_PER_ROW * (tysz - 1);
+
+						overtile16(sprBMP, tileToDraw, 0 + (txsz - j - 1) * 16, 0 + i * 16, cs, ((scriptflip > -1) ? scriptflip : flip));
+					}
+				}
+
+				//Recolor for flicker animations
+				if (sprite_flicker_color)
+					SPRITE_MONOCOLOR(sprBMP);
+
+				if (rotation)
+				{
+					if (scale)
+					{
+						double new_scale = scale / 100.0;
+						rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation), ftofix(new_scale));
+					}
+					else rotate_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation));
+					doSpriteDraw(drawstyle, dest, sprBMP2, sx, sy);
+
+				}
+				else
+				{
+					if (scale)
+					{
+						double new_scale = scale / 100.0;
+						rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(0), ftofix(new_scale));
+						doSpriteDraw(drawstyle, dest, sprBMP2, sx, sy);
+					}
+					else doSpriteDraw(drawstyle, dest, sprBMP, sx, sy);
+				}
+
+				destroy_bitmap(sprBMP);
+			} //end extend == 3 && flip == 1
+			break;
+
+			case 2:
+			{
+				BITMAP* sprBMP = create_bitmap_ex(8, txsz * 16, tysz * 16);
+				//BITMAP* sprBMP2 = create_bitmap_ex(8,256,256);
+				clear_bitmap(sprBMP);
+				clear_bitmap(sprBMP2);
+				for (int32_t i = tysz - 1; i >= 0; i--)
+				{
+					for (int32_t j = 0; j < txsz; j++)
+					{
+						tileToDraw = ((scripttile > -1) ? scripttile : tile) + (i * TILES_PER_ROW) + j;
+
+						if (tileToDraw % TILES_PER_ROW < j)
+							tileToDraw += TILES_PER_ROW * (tysz - 1);
+
+						overtile16(sprBMP, tileToDraw, 0 + j * 16, 0 + (tysz - i - 1) * 16, cs, ((scriptflip > -1) ? scriptflip : flip));
+					}
+				}
+
+				//Recolor for flicker animations
+				if (sprite_flicker_color)
+					SPRITE_MONOCOLOR(sprBMP);
+
+				if (rotation)
+				{
+					if (scale)
+					{
+						double new_scale = scale / 100.0;
+						rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation), ftofix(new_scale));
+					}
+					else rotate_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation));
+					doSpriteDraw(drawstyle, dest, sprBMP2, sx, sy);
+				}
+				else
+				{
+					if (scale)
+					{
+						double new_scale = scale / 100.0;
+						rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(0), ftofix(new_scale));
+						doSpriteDraw(drawstyle, dest, sprBMP2, sx, sy);
+					}
+					else doSpriteDraw(drawstyle, dest, sprBMP, sx, sy);
+				}
+
+				destroy_bitmap(sprBMP);
+			}//end extend == 3 &7 flip == 2
+			break;
+
+			case 3:
+			{
+				BITMAP* sprBMP = create_bitmap_ex(8, txsz * 16, tysz * 16);
+				//BITMAP* sprBMP2 = create_bitmap_ex(8,256,256);
+				clear_bitmap(sprBMP);
+				clear_bitmap(sprBMP2);
+				for (int32_t i = tysz - 1; i >= 0; i--)
+				{
+					for (int32_t j = txsz - 1; j >= 0; j--)
+					{
+						tileToDraw = ((scripttile > -1) ? scripttile : tile) + (i * TILES_PER_ROW) + j;
+
+						if (tileToDraw % TILES_PER_ROW < j)
+							tileToDraw += TILES_PER_ROW * (tysz - 1);
+
+						overtile16(sprBMP, tileToDraw, 0 + (txsz - j - 1) * 16, 0 + (tysz - i - 1) * 16, cs, ((scriptflip > -1) ? scriptflip : flip));
+					}
+				}
+
+				//Recolor for flicker animations
+				if (sprite_flicker_color)
+					SPRITE_MONOCOLOR(sprBMP);
+
+				if (rotation)
+				{
+					if (scale)
+					{
+						double new_scale = scale / 100.0;
+						rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation), ftofix(new_scale));
+					}
+					else rotate_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation));
+					doSpriteDraw(drawstyle, dest, sprBMP2, sx, sy);
+				}
+				else
+				{
+					if (scale)
+					{
+						double new_scale = scale / 100.0;
+						rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(0), ftofix(new_scale));
+						doSpriteDraw(drawstyle, dest, sprBMP2, sx, sy);
+					}
+					else doSpriteDraw(drawstyle, dest, sprBMP, sx, sy);
+				}
+
+				destroy_bitmap(sprBMP);
+			} //end extend == 3 && flip == 3
+			break;
+
+			case 0:
+			{
+				BITMAP* sprBMP = create_bitmap_ex(8, txsz * 16, tysz * 16);
+				//BITMAP* sprBMP2 = create_bitmap_ex(8,256,256);
+				clear_bitmap(sprBMP);
+				clear_bitmap(sprBMP2);
+
+				for (int32_t i = 0; i < tysz; i++)
+				{
+					for (int32_t j = 0; j < txsz; j++)
+					{
+						tileToDraw = ((scripttile > -1) ? scripttile : tile) + (i * TILES_PER_ROW) + j;
+
+						if (tileToDraw % TILES_PER_ROW < j)
+							tileToDraw += TILES_PER_ROW * (tysz - 1);
+
+						overtile16(sprBMP, tileToDraw, 0 + j * 16, 0 + i * 16, cs, ((scriptflip > -1) ? scriptflip : flip));
+					}
+				}
+
+				//Recolor for flicker animations
+				if (sprite_flicker_color)
+					SPRITE_MONOCOLOR(sprBMP);
+
+				//rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, 0,ftofix(new_scale));
+				if (rotation)
+				{
+					if (scale)
+					{
+						double new_scale = scale / 100.0;
+						rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation), ftofix(new_scale));
+					}
+					else rotate_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation));
+					doSpriteDraw(drawstyle, dest, sprBMP2, sx, sy);
+				}
+				else
+				{
+					if (scale)
+					{
+						double new_scale = scale / 100.0;
+						rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(0), ftofix(new_scale));
+						doSpriteDraw(drawstyle, dest, sprBMP2, sx, sy);
+					}
+					else doSpriteDraw(drawstyle, dest, sprBMP, sx, sy);
+				}
+
+				destroy_bitmap(sprBMP);
+
+				break;
+			} //end extend == 0 && flip == 3
+			}
+			break;
+		}
+		*/
+		default:
+		{
+			BITMAP* sprBMP = create_bitmap_ex(8, bw*16, bh*16);
+			//BITMAP* sprBMP2 = create_bitmap_ex(8,256,256);
+			clear_bitmap(sprBMP);
+			clear_bitmap(sprBMP2);
+			overtileblock16(sprBMP, TILEBOUND(scripttile > -1 ? scripttile : tile), 0, 0, bw, bh, cs, ((scriptflip > -1) ? scriptflip : flip));
+
+			//Recolor for flicker animations
+			if (sprite_flicker_color)
+				SPRITE_MONOCOLOR(sprBMP);
+
+			if (rotation)
+			{
+				if (scale)
+				{
+					double new_scale = scale / 100.0;
+					rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation), ftofix(new_scale));
+				}
+				else rotate_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(rotation));
+				doSpriteDraw(drawstyle, dest, sprBMP2, sx, sy);
+			}
+			else
+			{
+				if (scale)
+				{
+					double new_scale = scale / 100.0;
+					rotate_scaled_sprite(sprBMP2, sprBMP, 0, 0, deg_to_fixed(0), ftofix(new_scale));
+					doSpriteDraw(drawstyle, dest, sprBMP2, sx, sy);
+				}
+				else doSpriteDraw(drawstyle, dest, sprBMP, sx, sy);
+			}
+			if (sprBMP) destroy_bitmap(sprBMP);
+			break;
+		}
+		break; //Aye, we break switch(e) here.
+		}
+	} //end if(clk>=0)
+	else if (!fallclk && !drownclk) //I'm unsure when the clk is < 0 -Z
+	{
+		isspawning = true;
+		if (e != 3) //if extend != 3 
+		{
+			int32_t t = wpnsbuf[spr_spawn].tile;
+			int32_t cs2 = wpnsbuf[spr_spawn].csets & 15;
+
+			if (!get_qr(qr_HARDCODED_ENEMY_ANIMS))
+			{
+				if (clk < -2)
+				{
+					spr_spawn_anim_clk = 0;
+					clk = -1;
+				}
+				if (clk == -1 && spr_spawn_anim_clk > -1)
+				{
+					--clk;
+					spr_spawn_anim_frm = (spr_spawn_anim_clk / zc_max(wpnsbuf[spr_spawn].speed, 1));
+					if (++spr_spawn_anim_clk >= (zc_max(wpnsbuf[spr_spawn].speed, 1) * zc_max(wpnsbuf[spr_spawn].frames, 1)))
+					{
+						spr_spawn_anim_clk = -1;
+						clk = -1;
+					}
+				}
+				t += spr_spawn_anim_frm;
+			}
+			else if (BSZ)
+			{
+				if (clk >= -10) ++t;
+
+				if (clk >= -5) ++t;
+			}
+			else
+			{
+				if (clk >= -12) ++t;
+
+				if (clk >= -6) ++t;
+			}
+
+			overtile16(dest, t, sx, sy, cs2, 0);
+		}
+		else //extend == 3?
+		{
+			sprite w((zfix)sx, (zfix)sy, wpnsbuf[extend].tile, wpnsbuf[extend].csets & 15, 0, 0, 0);
+			w.xofs = xofs;
+			w.yofs = yofs;
+			w.zofs = zofs;
+			w.txsz = txsz;
+			w.tysz = tysz;
+			w.extend = 3;
+
+			if (w.scripttile <= -1)
+			{
+				if (BSZ)
+				{
+					if (clk >= -10)
+					{
+						if (tile / TILES_PER_ROW == (tile + txsz) / TILES_PER_ROW)
+							w.tile += txsz;
+						else
+							w.tile += txsz + (tysz - 1) * TILES_PER_ROW;
+					}
+
+					if (clk >= -5)
+					{
+						if (tile / TILES_PER_ROW == (tile + txsz) / TILES_PER_ROW)
+							w.tile += txsz;
+						else
+							w.tile += txsz + (tysz - 1) * TILES_PER_ROW;
+					}
+				}
+				else
+				{
+					if (clk >= -12)
+					{
+						if (tile / TILES_PER_ROW == (tile + txsz) / TILES_PER_ROW)
+							w.tile += txsz;
+						else
+							w.tile += txsz + (tysz - 1) * TILES_PER_ROW;
+					}
+
+					if (clk >= -6)
+					{
+						if (tile / TILES_PER_ROW == (tile + txsz) / TILES_PER_ROW)
+							w.tile += txsz;
+						else
+							w.tile += txsz + (tysz - 1) * TILES_PER_ROW;
+					}
+				}
+			}
+
+			w.draw(dest);
+		}
+	}
+
+	if (show_hitboxes)
+		draw_hitbox();
+
+	if (sprBMP2)
+	{
+		//if there is still somehow data in the scaling bitmap
+		destroy_bitmap(sprBMP2);
+	}
+
+	yofs = tyoffs;
+
+	sprite_flicker_color = 0;
+	sprite_flicker_transp_passes = 0;
+}
+
 void sprite::draw_hitbox()
 {
 	if(hide_hitbox) return;
@@ -1522,8 +2052,8 @@ void sprite::draw_hitbox()
 }
 
 
-//Z1 bosses draw tiles from guys.cpp, direct to the 'dest'
-void sprite::drawzcboss(BITMAP* dest)
+//Older faster drawing.
+void sprite::drawold(BITMAP* dest)
 {
 	if(!show_sprites)
 	{
@@ -1978,6 +2508,79 @@ void sprite::drawcloaked(BITMAP* dest)
     
     if(get_debug() && key[KEY_O])
         rectfill(dest,x+hxofs,sy+hyofs-fakez,x+hxofs+hit_width-1,sy+hyofs+hit_height-fakez-1,vc(id));
+}
+
+void sprite::drawblockcloaked(BITMAP* dest, int32_t mask)
+{
+	int32_t sx = real_x(x + xofs);
+	int32_t sy = real_y(y + yofs) - real_z(z + zofs);
+	sy -= fake_z(fakez);
+
+	int32_t bw, bh;
+	switch (mask) {
+		case 1: //1x1
+			bw = 1; bh = 1; break;
+		case 3: //1x2
+			bw = 1; bh = 2; break;
+		case 5: //2x1
+			bw = 2; bh = 1; break;
+			break;
+		case 15: //2x2
+			bw = 2; bh = 2; break;
+			break;
+		case 16: //3x1 Gohma
+			bw = 3; bh = 1; break;
+	}
+
+	if (id < 0)
+		return;
+
+	if (clk >= 0)
+	{
+		overtileblockcloaked16(dest, ((scripttile > -1) ? scripttile : tile), sx, sy, bw, bh, ((scriptflip > -1) ? scriptflip : flip));
+	}
+	else
+	{
+		int32_t t = wpnsbuf[spr_spawn].tile;
+		int32_t cs2 = wpnsbuf[spr_spawn].csets & 15;
+
+		if (!get_qr(qr_HARDCODED_ENEMY_ANIMS))
+		{
+			if (clk < -2)
+			{
+				spr_spawn_anim_clk = 0;
+				clk = -1;
+			}
+			if (clk == -1 && spr_spawn_anim_clk > -1)
+			{
+				--clk;
+				spr_spawn_anim_frm = (spr_spawn_anim_clk / zc_max(wpnsbuf[spr_spawn].speed, 1));
+				if (++spr_spawn_anim_clk >= (zc_max(wpnsbuf[spr_spawn].speed, 1) * zc_max(wpnsbuf[spr_spawn].frames, 1)))
+				{
+					spr_spawn_anim_clk = -1;
+					clk = -1;
+				}
+			}
+			t += spr_spawn_anim_frm;
+		}
+		else if (BSZ)
+		{
+			if (clk >= -10) ++t;
+
+			if (clk >= -5) ++t;
+		}
+		else
+		{
+			if (clk >= -12) ++t;
+
+			if (clk >= -6) ++t;
+		}
+
+		overtile16(dest, t, x, sy, cs2, 0);
+	}
+
+	if (get_debug() && key[KEY_O])
+		rectfill(dest, x + hxofs, sy + hyofs - fakez, x + hxofs + hit_width - 1, sy + hyofs + hit_height - fakez - 1, vc(id));
 }
 
 void sprite::drawshadow(BITMAP* dest,bool translucent)

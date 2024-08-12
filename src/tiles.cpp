@@ -1129,6 +1129,47 @@ void puttiletranslucent16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t 
     }
 }
 
+void overtileblocktranslucent16(BITMAP* _Dest, int32_t tile, int32_t x, int32_t y, int32_t w, int32_t h, int32_t cset, int32_t flip, int32_t opacity, byte skiprows)
+{
+    if (skiprows > 0 && tile % TILES_PER_ROW + w >= TILES_PER_ROW)
+    {
+        byte w2 = (tile + w) % TILES_PER_ROW;
+        overtileblocktranslucent16(_Dest, tile, x, y, w - w2, h, cset, flip, opacity);
+        overtileblocktranslucent16(_Dest, tile + (w - w2) + (skiprows * TILES_PER_ROW), x + 16 * (w - w2), y, w2, h, cset, flip, opacity);
+        return;
+    }
+
+    switch (flip)
+    {
+    case 1:
+        for (int32_t j = 0; j < h; j++)
+            for (int32_t k = w - 1; k >= 0; k--)
+                overtiletranslucent16(_Dest, tile + (j * TILES_PER_ROW) + k, x + ((w - 1) - k) * 16, y + j * 16, cset, flip, opacity);
+
+        break;
+
+    case 2:
+        for (int32_t j = h - 1; j >= 0; j--)
+            for (int32_t k = 0; k < w; k++)
+                overtiletranslucent16(_Dest, tile + (j * TILES_PER_ROW) + k, x + k * 16, y + ((h - 1) - j) * 16, cset, flip, opacity);
+
+        break;
+
+    case 3:
+        for (int32_t j = h - 1; j >= 0; j--)
+            for (int32_t k = w - 1; k >= 0; k--)
+                overtiletranslucent16(_Dest, tile + (j * TILES_PER_ROW) + k, x + ((w - 1) - k) * 16, y + ((h - 1) - j) * 16, cset, flip, opacity);
+
+        break;
+
+    default:
+        for (int32_t j = 0; j < h; j++)
+            for (int32_t k = 0; k < w; k++)
+                overtiletranslucent16(_Dest, tile + (j * TILES_PER_ROW) + k, x + k * 16, y + j * 16, cset, flip, opacity);
+
+        break;
+    }
+}
 void overtiletranslucent16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip,int32_t opacity)
 {
     //these are here to bypass compiler warnings about unused arguments
@@ -1263,6 +1304,47 @@ void overtiletranslucent16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t
     }
 }
 
+void overtileblockcloaked16(BITMAP* _Dest, int32_t tile, int32_t x, int32_t y, int32_t w, int32_t h, int32_t flip, byte skiprows)
+{
+    if (skiprows > 0 && tile % TILES_PER_ROW + w >= TILES_PER_ROW)
+    {
+        byte w2 = (tile + w) % TILES_PER_ROW;
+        overtileblockcloaked16(_Dest, tile, x, y, w - w2, h, flip);
+        overtileblockcloaked16(_Dest, tile + (w - w2) + (skiprows * TILES_PER_ROW), x + 16 * (w - w2), y, w2, h, flip);
+        return;
+    }
+
+    switch (flip)
+    {
+    case 1:
+        for (int32_t j = 0; j < h; j++)
+            for (int32_t k = w - 1; k >= 0; k--)
+                overtilecloaked16(_Dest, tile + (j * TILES_PER_ROW) + k, x + ((w - 1) - k) * 16, y + j * 16, flip);
+
+        break;
+
+    case 2:
+        for (int32_t j = h - 1; j >= 0; j--)
+            for (int32_t k = 0; k < w; k++)
+                overtilecloaked16(_Dest, tile + (j * TILES_PER_ROW) + k, x + k * 16, y + ((h - 1) - j) * 16, flip);
+
+        break;
+
+    case 3:
+        for (int32_t j = h - 1; j >= 0; j--)
+            for (int32_t k = w - 1; k >= 0; k--)
+                overtilecloaked16(_Dest, tile + (j * TILES_PER_ROW) + k, x + ((w - 1) - k) * 16, y + ((h - 1) - j) * 16, flip);
+
+        break;
+
+    default:
+        for (int32_t j = 0; j < h; j++)
+            for (int32_t k = 0; k < w; k++)
+                overtilecloaked16(_Dest, tile + (j * TILES_PER_ROW) + k, x + k * 16, y + j * 16, flip);
+
+        break;
+    }
+}
 void overtilecloaked16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t flip)
 {
     if(x<-15 || y<-15)

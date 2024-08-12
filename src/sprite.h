@@ -127,9 +127,11 @@ public:
     virtual ~sprite();
 	virtual void handle_sprlighting();
     virtual void draw(BITMAP* dest);                        // main layer
-    virtual void drawzcboss(BITMAP* dest);                        // main layer
+    virtual void drawblock(BITMAP* dest, int32_t mask);     // main layer
+    virtual void drawold(BITMAP* dest);                     // main layer
     virtual void draw8(BITMAP* dest);                       // main layer
     virtual void drawcloaked(BITMAP* dest);                 // main layer
+    virtual void drawblockcloaked(BITMAP* dest, int32_t mask);// main layer
     virtual void drawshadow(BITMAP* dest, bool translucent);// main layer
     virtual void draw2(BITMAP* dest);                       // top layer for special needs
     virtual void drawcloaked2(BITMAP* dest);                // top layer for special needs

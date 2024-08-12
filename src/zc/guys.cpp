@@ -1,3 +1,4 @@
+#include "guys.h"
 #include <cstring>
 #include <stdio.h>
 #include "base/zc_alleg.h"
@@ -4164,7 +4165,7 @@ void enemy::draw(BITMAP *dest)
 }
 
 //old zc bosses
-void enemy::drawzcboss(BITMAP *dest)
+void enemy::drawold(BITMAP *dest)
 {
 	didScriptThisFrame = false; //Since there's no better place to put it
 	if(dont_draw())
@@ -4177,7 +4178,7 @@ void enemy::drawzcboss(BITMAP *dest)
 		if(clk2>=19)
 		{
 			if(!(clk2&2))
-				sprite::drawzcboss(dest);
+				sprite::drawold(dest);
 				
 			return;
 		}
@@ -4243,90 +4244,194 @@ void enemy::drawzcboss(BITMAP *dest)
 			{
 				sprite_flicker_transp_passes = (flickertransp < 0 ? game->get_spriteflickertransp() : flickertransp);
 				sprite_flicker_color = temp_flicker_color;
-				sprite::drawzcboss(dest);
+				sprite::drawold(dest);
 			}
 		}
 		else
-			sprite::drawzcboss(dest);
+			sprite::drawold(dest);
 	}
 	
 	cs=cshold;
 }
 
-
-// similar to the overblock function--can do up to a 32x32 sprite
-//will this play nicely with scripttile, solely using the modifications in sprite::draw()?
+// as enemy::draw but called for large enemies instead.
+// sprite::drawblock()
 void enemy::drawblock(BITMAP *dest,int32_t mask)
 {
-	int32_t thold=tile;
-	int32_t t1=tile;
-	int32_t t2=tile+20;
-	int32_t t3=tile+1;
-	int32_t t4=tile+21;
-	
-	switch(mask)
+	didScriptThisFrame = false; //Since there's no better place to put it
+	if (fading == fade_invisible || (((flags & guy_blinking) || (fading == fade_flicker)) && (clk & 1)))
+		return;
+	if (flags & guy_invisible)
+		return;
+
+	//We did the normal don't_draw stuff here so we can make exceptions; specifically the lens check (which should make enemies
+	// be cloaked if they have "invisible displays as cloaked" checked.
+
+	byte canSee = DRAW_NORMAL;
+	//Enemy specific stuff
+	if (editorflags & ENEMY_FLAG1)
 	{
-	case 1:
-		enemy::drawzcboss(dest);
-		break;
-		
-	case 3:
-		if(flip&2)
-			zc_swap(t1,t2);
-			
-		tile=t1;
-		enemy::drawzcboss(dest);
-		tile=t2;
-		yofs+=16;
-		enemy::drawzcboss(dest);
-		yofs-=16;
-		break;
-		
-	case 5:
-		t2=tile+1;
-		
-		if(flip&1)
-			zc_swap(t1,t2);
-			
-		tile=t1;
-		enemy::drawzcboss(dest);
-		tile=t2;
-		xofs+=16;
-		enemy::drawzcboss(dest);
-		xofs-=16;
-		break;
-		
-	case 15:
-		if(flip&1)
+		canSee = DRAW_INVIS;
+		if (editorflags & ENEMY_FLAG4) canSee = DRAW_CLOAKED;
+		if (dmisc13 >= 0 && (editorflags & ENEMY_FLAG2))
 		{
-			zc_swap(t1,t3);
-			zc_swap(t2,t4);
+			if (game->item[dmisc13])
+			{
+				canSee = DRAW_NORMAL;
+			}
+			//else if ( lensclk && getlensid.flags SHOWINVIS )
+			//{
+			//
+			//}
+			//else
+			//{
+			//	if ( (editorflags & ENEMY_FLAG4) ) canSee = DRAW_CLOAKED;
+			//	//otherwisem invisible
+			//}
 		}
-		
-		if(flip&2)
-		{
-			zc_swap(t1,t2);
-			zc_swap(t3,t4);
-		}
-		
-		tile=t1;
-		enemy::drawzcboss(dest);
-		tile=t2;
-		yofs+=16;
-		enemy::drawzcboss(dest);
-		yofs-=16;
-		tile=t3;
-		xofs+=16;
-		enemy::drawzcboss(dest);
-		tile=t4;
-		yofs+=16;
-		enemy::drawzcboss(dest);
-		xofs-=16;
-		yofs-=16;
-		break;
 	}
-	
-	tile=thold;
+	//Room specific
+	if (tmpscr->flags3 & fINVISROOM)
+	{
+		if (canSee == DRAW_NORMAL && !(current_item(itype_amulet)) &&
+			!((itemsbuf[Hero.getLastLensID()].flags & item_flag5) && lensclk) && family != eeGANON) canSee = DRAW_CLOAKED;
+	}
+	//Lens check
+	if (lensclk)
+	{
+		if (flags & guy_lens_only)
+		{
+			if (canSee == DRAW_INVIS) canSee = DRAW_NORMAL;
+		}
+	}
+	else
+	{
+		if (flags & guy_lens_only)
+			canSee = DRAW_INVIS;
+	}
+	if (canSee == DRAW_INVIS && (editorflags & ENEMY_FLAG4)) canSee = DRAW_CLOAKED;
+	if (canSee == DRAW_NORMAL && (editorflags & ENEMY_FLAG16)) canSee = DRAW_CLOAKED;
+
+	if (canSee == DRAW_INVIS)
+		return;
+
+	if (fallclk || drownclk)
+	{
+		if (canSee == DRAW_CLOAKED)
+		{
+			sprite::drawblockcloaked(dest,mask);
+		}
+		else if (canSee == DRAW_NORMAL)
+		{
+			sprite::drawblock(dest,mask);
+		}
+		return;
+	}
+	int32_t cshold = cs;
+
+	if (dying)
+	{
+		if (clk2 >= 19)
+		{
+			if (!(clk2 & 2))
+			{
+				//if the enemy isn't totally invisible, or if it is, but Hero has the item needed to reveal it, draw it.
+				if (canSee == DRAW_CLOAKED)
+				{
+					sprite::drawblockcloaked(dest,mask);
+				}
+				else if (canSee == DRAW_NORMAL)
+				{
+					sprite::drawblock(dest,mask);
+				}
+			}
+			return;
+		}
+
+		flip = 0;
+		tile = wpnsbuf[spr_death].tile;
+		if (do_animation)
+		{
+			int32_t offs = 0;
+			if (!get_qr(qr_HARDCODED_ENEMY_ANIMS))
+			{
+				if (clk2 > 2)
+				{
+					spr_death_anim_clk = 0;
+					clk2 = 1;
+					if (hp > -1000)
+						death_sfx();
+				}
+				if (clk2 == 1 && spr_death_anim_clk > -1)
+				{
+					++clk2;
+					spr_death_anim_frm = (spr_death_anim_clk / zc_max(wpnsbuf[spr_death].speed, 1));
+					spr_death_anim_frm *= zc_max(1, txsz);
+					int32_t rows = TILEROW(tile + spr_death_anim_frm) - TILEROW(tile);
+					spr_death_anim_frm += TILES_PER_ROW * (zc_min(0, tysz - 1) * rows);
+					if (++spr_death_anim_clk >= (zc_max(wpnsbuf[spr_death].speed, 1) * zc_max(wpnsbuf[spr_death].frames, 1)))
+					{
+						spr_death_anim_clk = -1;
+						clk2 = 1;
+					}
+				}
+				tile += spr_death_anim_frm;
+			}
+			else if (BSZ)
+			{
+				offs = zc_min((15 - clk2) / 3, 4);
+			}
+			else if (clk2 > 6 && clk2 <= 12)
+			{
+				offs = 1;
+			}
+
+			if (offs)
+			{
+				offs *= zc_max(1, txsz);
+				int32_t rows = TILEROW(tile + offs) - TILEROW(tile);
+				offs += TILES_PER_ROW * (zc_min(0, tysz - 1) * rows);
+			}
+			tile += offs;
+		}
+
+		if (!get_qr(qr_HARDCODED_ENEMY_ANIMS) || BSZ || fading == fade_blue_poof)
+			cs = wpnsbuf[spr_death].csets & 15;
+		else
+			cs = (((clk2 + 5) >> 1) & 3) + 6;
+	}
+	else if (hclk > 0 && getCanFlicker())
+	{
+		cs = getFlashingCSet();
+	}
+	//draw every other frame for flickering enemies
+	if (is_hitflickerframe(false))
+	{
+		int32_t temp_flicker_color = (hp > 0 || immortal) ? (flickercolor < 0 ? game->get_spriteflickercolor() : flickercolor) : 0;
+		if (game->get_spriteflickercolor() || temp_flicker_color)
+		{
+			sprite_flicker_transp_passes = (flickertransp < 0 ? game->get_spriteflickertransp() : flickertransp);
+			sprite_flicker_color = temp_flicker_color;
+			sprite::drawblock(dest,mask);
+		}
+	}
+	else
+	{
+		if (canSee == DRAW_CLOAKED)
+		{
+			sprite::drawblockcloaked(dest,mask);
+		}
+		else if (canSee == DRAW_NORMAL)
+		{
+			if (frozenclock < 0)
+			{
+				if (frozentile > 0) tile = frozentile;
+				loadpalset(csBOSS, frozencset);
+			}
+			sprite::drawblock(dest,mask);
+		}
+	}
+	cs = cshold;
 }
 
 void enemy::drawshadow(BITMAP *dest, bool translucent)
@@ -12323,18 +12428,18 @@ void eDodongo::draw(BITMAP *dest)
 	
 	if(clk<0)
 	{
-		enemy::drawzcboss(dest);
+		enemy::drawold(dest);
 		return;
 	}
 	
 	update_enemy_frame();
-	enemy::drawzcboss(dest);
+	enemy::drawold(dest);
 	
 	if(dummy_int[1]!=0)  //additional tiles
 	{
 		tile+=dummy_int[1]; //second tile is previous tile
 		xofs-=16;           //new xofs change
-		enemy::drawzcboss(dest);
+		enemy::drawold(dest);
 		xofs+=16;
 	}
 	
@@ -12453,18 +12558,18 @@ void eDodongo2::draw(BITMAP *dest)
 {
 	if(clk<0)
 	{
-		enemy::drawzcboss(dest);
+		enemy::drawold(dest);
 		return;
 	}
 	
 	int32_t tempx=xofs;
 	int32_t tempy=yofs;
 	update_enemy_frame();
-	enemy::drawzcboss(dest);
+	enemy::drawold(dest);
 	tile+=dummy_int[1]; //second tile change
 	xofs+=dummy_int[2]; //new xofs change
 	yofs+=dummy_int[3]; //new yofs change
-	enemy::drawzcboss(dest);
+	enemy::drawold(dest);
 	xofs=tempx;
 	yofs=tempy;
 }
@@ -12892,7 +12997,7 @@ void eGohma::draw(BITMAP *dest)
 	
 	if(clk<0 || dying)
 	{
-		enemy::drawzcboss(dest);
+		enemy::drawold(dest);
 		return;
 	}
 	
@@ -12906,14 +13011,14 @@ void eGohma::draw(BITMAP *dest)
 		//      if(clk&16) tile=180;
 		//      else { tile=182; flip=1; }
 		tile+=(3*((clk&48)>>4));
-		enemy::drawzcboss(dest);
+		enemy::drawold(dest);
 		
 		// right side
 		xofs=16;
 		//      tile=(180+182)-tile;
 		tile=o_tile;
 		tile+=(3*((clk&48)>>4))+2;
-		enemy::drawzcboss(dest);
+		enemy::drawold(dest);
 		
 		// body
 		xofs=0;  //Gohma may need more adjustments for SIZEflags. -Z 14 Aug 2020
@@ -12929,7 +13034,7 @@ void eGohma::draw(BITMAP *dest)
 		else
 			tile+=((clk3-132)&24)?4:1;
 			
-		enemy::drawzcboss(dest);
+		enemy::drawold(dest);
 		
 	}
 	else

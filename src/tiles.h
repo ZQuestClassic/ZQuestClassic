@@ -75,7 +75,9 @@ void overcombo2(BITMAP* dest,int32_t x,int32_t y,int32_t cmbdat,int32_t cset);
 void puttiletranslucent8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip,int32_t opacity);
 void overtiletranslucent8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip,int32_t opacity);
 void puttiletranslucent16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip,int32_t opacity);
+void overtileblocktranslucent16(BITMAP* _Dest, int32_t tile, int32_t x, int32_t y, int32_t w, int32_t h, int32_t cset, int32_t flip, int32_t opacity, byte skiprows = 0);
 void overtiletranslucent16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip,int32_t opacity);
+void overtileblockcloaked16(BITMAP* _Dest, int32_t tile, int32_t x, int32_t y, int32_t w, int32_t h, int32_t flip, byte skiprows = 0);
 void overtilecloaked16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t flip);
 void draw_cloaked_sprite(BITMAP* dest,BITMAP* src,int32_t x,int32_t y);
 
