@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2024-08-05 05:53:33</td>
+      <td>2024-08-12 01:20:23</td>
     </tr>
   </table>
 </div>
@@ -73,11 +73,11 @@
       <th>Call count</th>
       <th>Block coverage</th>
     </tr>
-    <tr><td><a href="#l23">cpos_info::clear() (line 23)</a></td><td>called 56423624 times, returned 56423624 times</td><td>50.0%</td></tr>
+    <tr><td><a href="#l23">cpos_info::clear() (line 23)</a></td><td>called 56422212 times, returned 56422212 times</td><td>50.0%</td></tr>
     <tr><td><a href="#l29">cpos_info::clearInfo() (line 29)</a></td><td>called 205 times, returned 205 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l7">cpos_info::push(int, bool) (line 7)</a></td><td>called 205 times, returned 205 times</td><td>71.0%</td></tr>
     <tr><td><a href="#l17">cpos_info::sumpush() const (line 17)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l36">cpos_info::updateData(int) (line 36)</a></td><td>called 18535508635 times, returned 18535508635 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l36">cpos_info::updateData(int) (line 36)</a></td><td>called 18535506169 times, returned 18535506169 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l58">cpos_info::updateInfo(cpos_info const&amp;) (line 58)</a></td><td>called 205 times, returned 205 times</td><td>100.0%</td></tr>
   </table>
 </details>
@@ -267,7 +267,7 @@
       <td class="lineno"><a id="l23" href="#l23">23</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">56423624</td>
+      <td class="linecount coveredLine">56422212</td>
       <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">cpos_info::clear</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
@@ -283,19 +283,19 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 56423624 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 56422212 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">56423624</td>
+      <td class="linecount partialCoveredLine">56422212</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="o">*</span><span class="k">this</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cpos_info</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l26" href="#l26">26</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">56423624</td>
+      <td class="linecount coveredLine">56422212</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -365,7 +365,7 @@
       <td class="lineno"><a id="l36" href="#l36">36</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">18535508635</td>
+      <td class="linecount coveredLine">18535506169</td>
       <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">cpos_info::updateData</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">newdata</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -381,12 +381,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 18523716557 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 11792078 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 18523714268 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 11791901 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">18535508635</td>
+      <td class="linecount coveredLine">18535506169</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">data</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">newdata</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -400,7 +400,7 @@
       <td class="lineno"><a id="l40" href="#l40">40</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">11792078</td>
+      <td class="linecount coveredLine">11791901</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">byte</span><span class="w"> </span><span class="n">csfx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sfx_onchange</span><span class="p">,</span><span class="w"> </span><span class="n">cspr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">spr_onchange</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -409,12 +409,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 11223738 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 11223561 times.</div>
           <div class="takenBranch">&check; Branch 1 taken 568340 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">11792078</td>
+      <td class="linecount coveredLine">11791901</td>
       <td class="src coveredLine"><span class="w">		</span><span class="k">if</span><span class="p">(</span><span class="n">flags</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="n">CPOS_FL_APPEARED</span><span class="p">))</span></td>
     </tr>
     <tr class="source-line">
@@ -463,21 +463,21 @@
       <td class="lineno"><a id="l48" href="#l48">48</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">11792078</td>
+      <td class="linecount coveredLine">11791901</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">cpos_update_cache</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">newdata</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l49" href="#l49">49</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">11792078</td>
+      <td class="linecount coveredLine">11791901</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">clear</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l50" href="#l50">50</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">11792078</td>
+      <td class="linecount coveredLine">11791901</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">newdata</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -491,28 +491,28 @@
       <td class="lineno"><a id="l52" href="#l52">52</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">11792078</td>
+      <td class="linecount coveredLine">11791901</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">sfx_onchange</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">csfx</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l53" href="#l53">53</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">11792078</td>
+      <td class="linecount coveredLine">11791901</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">spr_onchange</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cspr</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l54" href="#l54">54</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">11792078</td>
+      <td class="linecount coveredLine">11791901</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l55" href="#l55">55</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">18535508635</td>
+      <td class="linecount coveredLine">18535506169</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
