@@ -164,14 +164,14 @@ bool ASTFile::hasDeclarations() const
 // ASTFloat
 
 ASTFloat::ASTFloat(char* val, Type type, LocationData const& location)
-	: AST(location), type(type), value(static_cast<string>(val)),
+	: AST(location), type(type), value(val),
 	negative(false)
 {
 	initNeg();
 }
     
 ASTFloat::ASTFloat(char const* val, Type type, LocationData const& location)
-	: AST(location), type(type), value(static_cast<string>(val)),
+	: AST(location), type(type), value(val),
 	negative(false)
 {
 	initNeg();
@@ -651,11 +651,11 @@ int32_t ASTFloat::getValue(Scope* scope)
 // ASTString
 
 ASTString::ASTString(const char* str, LocationData const& location)
-	: AST(location), str(static_cast<string>(str))
+	: AST(location), str(str)
 {}
 
 ASTString::ASTString(const char* str, std::string comment, LocationData const& location)
-	: AST(location), str(static_cast<string>(str))
+	: AST(location), str(str)
 {
 	doc_comment = comment;
 }
@@ -1221,9 +1221,9 @@ void ASTNamespace::execute(ASTVisitor& visitor, void* param)
 // ASTImportDecl
 
 ASTImportDecl::ASTImportDecl(
-		string const& filename, LocationData const& location, bool isInclude)
-	: ASTDecl(location), filename_(filename), checked(false), validated(false),
-	include_(isInclude)
+		ASTString* import_str, LocationData const& location, bool isInclude)
+	: ASTDecl(location), checked(false), validated(false), include_(isInclude),
+	import_str_(import_str)
 {}
 
 void ASTImportDecl::execute(ASTVisitor& visitor, void* param)

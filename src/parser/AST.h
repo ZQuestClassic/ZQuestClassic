@@ -165,8 +165,8 @@ namespace ZScript
 		std::string fname;
 
 		LocationData()
-			: first_line(-1), last_line(-1),
-			  first_column(-1), last_column(-1),
+			: first_line(1), last_line(1),
+			  first_column(1), last_column(1),
 			  fname(curfilename)
 		{}
 
@@ -389,6 +389,7 @@ namespace ZScript
 		
 		void append(std::string const& newstr) {str += newstr;}
 		const std::string& getValue() const {return str;}
+		void setValue(std::string v) {str = v;}
 	private:
 		std::string str;
 	};
@@ -922,18 +923,19 @@ namespace ZScript
 	class ASTImportDecl : public ASTDecl
 	{
 	public:
-		ASTImportDecl(std::string const& filename,
+		ASTImportDecl(ASTString* import_str,
 		              LocationData const& location = LOC_NONE,
 					  bool isInclude = false);
 		ASTImportDecl* clone() /*override*/ const {
-			return new ASTImportDecl(*this);}
+			return new ASTImportDecl(import_str_->clone(), location, include_);}
     
 		void execute(ASTVisitor& visitor, void* param = NULL) /*override*/;
 
 		Type getDeclarationType() const /*override*/ {return TYPE_IMPORT;}
 
-		void setFilename(std::string name) {filename_ = name;}
-		std::string const& getFilename() const {return filename_;}
+		void setFilename(std::string name) {import_str_->setValue(name);}
+		std::string getFilename() const {return import_str_->getValue();}
+		const ASTString* getImportString() const {return import_str_.get();}
 		ASTFile* getTree() {return tree_.get();}
 		ASTFile const* getTree() const {return tree_.get();}
 		void giveTree(ASTFile* tree) {tree_ = tree;}
@@ -944,11 +946,11 @@ namespace ZScript
 		void validate() {validated = true;}
 	
 	private:
-		std::string filename_;
 		bool checked;
 		bool validated;
 		bool include_;
 		owning_ptr<ASTFile> tree_;
+		owning_ptr<ASTString> import_str_;
 	};
 	
 	class ASTImportCondDecl : public ASTDecl

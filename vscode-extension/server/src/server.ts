@@ -463,8 +463,7 @@ async function processScript(textDocument: TextDocument): Promise<void> {
 
 	if (!metadata) return;
 
-	if (metadata.currentFileSymbols.length)
-		docMetadataMap.set(textDocument.uri, metadata);
+	docMetadataMap.set(textDocument.uri, metadata);
 }
 
 connection.onDidChangeWatchedFiles(_change => {

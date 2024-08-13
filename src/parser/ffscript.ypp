@@ -487,18 +487,18 @@ AlwaysUsing :
 Import :
 	IMPORT IMPORTSTRING {
 		ASTString* str = (ASTString*)$2;
-		$$ = new ASTImportDecl(str->getValue(), @$);
-		delete str;}
+		$$ = new ASTImportDecl(str, @$);
+		}
 	| HASH INCLUDE IMPORTSTRING {
 		ASTString* str = (ASTString*)$3;
-		$$ = new ASTImportDecl(str->getValue(), @$, true);
-		delete str;}
+		$$ = new ASTImportDecl(str, @$, true);
+		}
 	| HASH INCLUDEIF LPAREN Expression_Constant COMMA IMPORTSTRING RPAREN {
 		ASTString* str = (ASTString*)$6;
 		ASTExprConst* cond = (ASTExprConst*)$4;
-		ASTImportDecl* decl = new ASTImportDecl(str->getValue(), @$, true);
+		ASTImportDecl* decl = new ASTImportDecl(str, @$, true);
 		$$ = new ASTImportCondDecl(cond, decl, @$);
-		delete str;}
+		}
 	;
 
 IncludePath :

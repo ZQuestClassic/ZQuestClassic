@@ -116,7 +116,7 @@ static unique_ptr<ScriptsData> _compile_helper(string const& filename, bool incl
 		zconsole_info("%s", "Pass 2: Preprocessing");
 		zconsole_idle();
 
-		root->imports.insert(root->imports.begin(), new ASTImportDecl("bindings.zh"));
+		root->imports.insert(root->imports.begin(), new ASTImportDecl(new ASTString("bindings.zh")));
 		if (!ScriptParser::preprocess(root.get(), ScriptParser::recursionLimit))
 			return result;
 		if(zscript_error_out) return result;

@@ -6,6 +6,7 @@
 #include <cassert>
 #include "Scope.h"
 #include "CompileError.h"
+#include <filesystem>
 #include <nlohmann/json.hpp>
 #include <fmt/format.h>
 #include <regex>
@@ -59,6 +60,8 @@ static std::string make_uri(std::string path)
 	// For consistent test results no matter the machine.
 	if (std::getenv("TEST_ZSCRIPT") != nullptr)
 		return !path.empty() ? fs::path(path).filename().string() : "";
+
+	path = (fs::current_path() / path).string();
 
 #ifdef _WIN32
 		std::string uri = "file:///" + path;
@@ -348,10 +351,6 @@ static void appendIdentifier(std::string symbol_id, const AST* symbol_node, cons
 
 	if (!root["symbols"].contains(symbol_id))
 	{
-		if (symbol_id.starts_with("custom."))
-		{
-			printf("");
-		}
 		root["symbols"][symbol_id] = {
 			// TODO LocationData_location_json
 			{"loc", {
@@ -375,7 +374,7 @@ static void appendIdentifier(std::string symbol_id, const AST* symbol_node, cons
 }
 
 MetadataVisitor::MetadataVisitor(Program& program, std::string root_file_name)
-	: RecursiveVisitor(program), root_file_name(root_file_name)
+	: RecursiveVisitor(program), root_file_name(root_file_name), is_enabled(false)
 {
 	root = {
 		{"currentFileSymbols", json::array()},
@@ -398,7 +397,31 @@ void MetadataVisitor::caseFile(ASTFile& host, void* param)
 	if (name != root_file_name && name != metadata_tmp_path)
 		return;
 
+	is_enabled = name == metadata_tmp_path || metadata_tmp_path.empty();
 	RecursiveVisitor::caseFile(host, param);
+}
+
+void MetadataVisitor::caseImportDecl(ASTImportDecl& host, void* param)
+{
+	if (!is_enabled)
+	{
+		RecursiveVisitor::caseImportDecl(host, param);
+		return;
+	}
+
+	if (host.location.fname.empty())
+	{
+		RecursiveVisitor::caseImportDecl(host, param);
+		return;
+	}
+
+	auto prev = host.location;
+	host.location = {};
+	host.location.fname = (fs::current_path() / host.getFilename()).string();
+	appendIdentifier(fmt::format("import-{}", host.location.fname), &host, getSelectionRange(*host.getImportString()));
+	host.location = prev;
+
+	RecursiveVisitor::caseImportDecl(host, param);
 }
 
 void MetadataVisitor::caseNamespace(ASTNamespace& host, void* param)

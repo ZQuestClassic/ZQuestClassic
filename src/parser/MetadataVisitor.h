@@ -18,6 +18,7 @@ namespace ZScript
 		////////////////
 		// Cases
 		void caseFile(ASTFile& host, void* param);
+		void caseImportDecl(ASTImportDecl& host, void* param);
 		void caseNamespace(ASTNamespace& host, void* param);
 		void caseScript(ASTScript& host, void* param);
 		void caseClass(ASTClass& host, void* param);
@@ -31,6 +32,7 @@ namespace ZScript
 	
 	private:
 		std::string root_file_name;
+		bool is_enabled;
 	};
 }
 
