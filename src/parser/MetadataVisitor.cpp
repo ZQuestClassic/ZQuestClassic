@@ -281,6 +281,7 @@ static std::string getName(const T& node)
 }
 static std::string getName(const ASTFile& node)
 {
+	if (!node.scope) return node.location.fname;
 	return node.scope->getName().value_or("<file>");
 }
 
@@ -387,6 +388,7 @@ MetadataVisitor::MetadataVisitor(Program& program, std::string root_file_name)
 
 void MetadataVisitor::visit(AST& node, void* param)
 {
+	node.undisable();
 	RecursiveVisitor::visit(node, param);
 }
 

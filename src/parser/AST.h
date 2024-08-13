@@ -264,6 +264,7 @@ namespace ZScript
 		
 		bool isDisabled() const {return disabled_;}
 		void disable() {disabled_ = true;}
+		void undisable() {disabled_ = false;}
 		bool registered() const {return isRegistered;}
 		void mark_registered() {isRegistered = true;}
 		bool reachable() const {return isReachable;}
