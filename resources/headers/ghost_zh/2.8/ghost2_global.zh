@@ -375,7 +375,7 @@ void __AutoGhostKill(npc enemy)
     enemy->X=1024;
     enemy->Y=1024;
     enemy->HP=HP_SILENT;
-    enemy->ItemSet=0;
+    enemy->ItemSet=IS_NONE;
 }
 
 bool __IsScriptNameChar(int character, bool first)

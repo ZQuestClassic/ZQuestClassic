@@ -339,22 +339,6 @@ DEFINE SP_WIND 			= 36; //Wind Magic (Enemy)
 
 //User-Defined Sprites Range 088 to 255
 
-//Directions. Use with Link->Dir, etc.
-DEFINE DIR_UP                = 0; //000b
-DEFINE DIR_DOWN              = 1; //001b
-DEFINE DIR_LEFT              = 2; //010b
-DEFINE DIR_RIGHT             = 3; //011b
-DEFINE DIR_LEFTUP            = 4; //100b
-DEFINE DIR_RIGHTUP           = 5; //101b
-DEFINE DIR_LEFTDOWN          = 6; //110b
-DEFINE DIR_RIGHTDOWN         = 7; //111b
-
-//Repeat in DOWN*/UP* format
-DEFINE DIR_UPLEFT            = 4; //100b
-DEFINE DIR_UPRIGHT           = 5; //101b
-DEFINE DIR_DOWNLEFT          = 6; //110b
-DEFINE DIR_DOWNRIGHT         = 7; //111b
-
 
 //Extra Directions. Used with some stuff?
 DEFINE DIR2_UP                = 8;
@@ -404,28 +388,6 @@ DEFINEF RAD_DIR_RIGHT 	= 0;
 
 
 
-//Flip Types for Tiles, or Sprites
-DEFINE FLIP_NONE 		= 0;
-DEFINE FLIP_HORIZONTAL 	= 1; //Horizontal Flip
-//!This is already called in stdExtra.zh
-//Fixed
-DEFINE FLIP_VERTICAL 	= 2; //Vertical Flip
-//!This is already called in stdExtra.zh
-//Fixed
-DEFINE FLIP_HV 		= 3; //Horizontal and vertical Flip
-DEFINE FLIP_VH 		= 3;
-DEFINE FLIP_BOTH 		= 3;
-
-//Rotations + Flip
-DEFINE ROT_CW 		= 4;
-DEFINE ROT_CW_FLIP 		= 5;
-DEFINE ROT_CCW_FLIP 		= 6;
-DEFINE ROT_CCW 		= 7; 
-DEFINE ROT_ACW_FLIP 		= 6; //Anticlockwise, please.
-DEFINE ROT_ACW 		= 7; 
-
-
-
 
 //Sprite extending methods. Use with item->Extend,
 //npc->Extend, eweapon->Extend and lweapon->Extend.
@@ -437,94 +399,6 @@ DEFINE EXT_EXTENDED          = 3; // Extended
 DEFINE EXT_NOSHADOW          = 4; // Extended; NPC has no shadow.
 
 //! We need some better names for Extend constants. 
-
-//Generic counters. Use with itemclass->Counter, Game->Counter[], Game->MCounter[] and Game->DCounter[]
-enum
-{
-	CR_NONE = -1,
-	CR_LIFE, CR_MONEY, CR_BOMBS, CR_ARROWS, CR_MAGIC,
-	CR_KEYS, CR_SBOMBS, CR_CUSTOM1, CR_CUSTOM2, CR_CUSTOM3,
-	CR_CUSTOM4,  CR_CUSTOM5,  CR_CUSTOM6,  CR_CUSTOM7,  CR_CUSTOM8,
-	CR_CUSTOM9,  CR_CUSTOM10, CR_CUSTOM11, CR_CUSTOM12, CR_CUSTOM13,
-	CR_CUSTOM14, CR_CUSTOM15, CR_CUSTOM16, CR_CUSTOM17, CR_CUSTOM18,
-	CR_CUSTOM19, CR_CUSTOM20, CR_CUSTOM21, CR_CUSTOM22, CR_CUSTOM23,
-	CR_CUSTOM24, CR_CUSTOM25, CR_CUSTOM26, CR_CUSTOM27, CR_CUSTOM28,
-	CR_CUSTOM29, CR_CUSTOM30, CR_CUSTOM31, CR_CUSTOM32, CR_CUSTOM33,
-	CR_CUSTOM34, CR_CUSTOM35, CR_CUSTOM36, CR_CUSTOM37, CR_CUSTOM38,
-	CR_CUSTOM39, CR_CUSTOM40, CR_CUSTOM41, CR_CUSTOM42, CR_CUSTOM43,
-	CR_CUSTOM44, CR_CUSTOM45, CR_CUSTOM46, CR_CUSTOM47, CR_CUSTOM48,
-	CR_CUSTOM49, CR_CUSTOM50, CR_CUSTOM51, CR_CUSTOM52, CR_CUSTOM53,
-	CR_CUSTOM54, CR_CUSTOM55, CR_CUSTOM56, CR_CUSTOM57, CR_CUSTOM58,
-	CR_CUSTOM59, CR_CUSTOM60, CR_CUSTOM61, CR_CUSTOM62, CR_CUSTOM63,
-	CR_CUSTOM64, CR_CUSTOM65, CR_CUSTOM66, CR_CUSTOM67, CR_CUSTOM68,
-	CR_CUSTOM69, CR_CUSTOM70, CR_CUSTOM71, CR_CUSTOM72, CR_CUSTOM73,
-	CR_CUSTOM74, CR_CUSTOM75, CR_CUSTOM76, CR_CUSTOM77, CR_CUSTOM78,
-	CR_CUSTOM79, CR_CUSTOM80, CR_CUSTOM81, CR_CUSTOM82, CR_CUSTOM83,
-	CR_CUSTOM84, CR_CUSTOM85, CR_CUSTOM86, CR_CUSTOM87, CR_CUSTOM88,
-	CR_CUSTOM89, CR_CUSTOM90, CR_CUSTOM91, CR_CUSTOM92, CR_CUSTOM93,
-	CR_CUSTOM94, CR_CUSTOM95, CR_CUSTOM96, CR_CUSTOM97, CR_CUSTOM98,
-	CR_CUSTOM99, CR_CUSTOM100,
-	//
-	CR_SCRIPT1 = CR_CUSTOM1, CR_SCRIPT2, CR_SCRIPT3,
-	CR_SCRIPT4,  CR_SCRIPT5,  CR_SCRIPT6,  CR_SCRIPT7,  CR_SCRIPT8,
-	CR_SCRIPT9,  CR_SCRIPT10, CR_SCRIPT11, CR_SCRIPT12, CR_SCRIPT13,
-	CR_SCRIPT14, CR_SCRIPT15, CR_SCRIPT16, CR_SCRIPT17, CR_SCRIPT18,
-	CR_SCRIPT19, CR_SCRIPT20, CR_SCRIPT21, CR_SCRIPT22, CR_SCRIPT23,
-	CR_SCRIPT24, CR_SCRIPT25, CR_SCRIPT26, CR_SCRIPT27, CR_SCRIPT28,
-	CR_SCRIPT29, CR_SCRIPT30, CR_SCRIPT31, CR_SCRIPT32, CR_SCRIPT33,
-	CR_SCRIPT34, CR_SCRIPT35, CR_SCRIPT36, CR_SCRIPT37, CR_SCRIPT38,
-	CR_SCRIPT39, CR_SCRIPT40, CR_SCRIPT41, CR_SCRIPT42, CR_SCRIPT43,
-	CR_SCRIPT44, CR_SCRIPT45, CR_SCRIPT46, CR_SCRIPT47, CR_SCRIPT48,
-	CR_SCRIPT49, CR_SCRIPT50, CR_SCRIPT51, CR_SCRIPT52, CR_SCRIPT53,
-	CR_SCRIPT54, CR_SCRIPT55, CR_SCRIPT56, CR_SCRIPT57, CR_SCRIPT58,
-	CR_SCRIPT59, CR_SCRIPT60, CR_SCRIPT61, CR_SCRIPT62, CR_SCRIPT63,
-	CR_SCRIPT64, CR_SCRIPT65, CR_SCRIPT66, CR_SCRIPT67, CR_SCRIPT68,
-	CR_SCRIPT69, CR_SCRIPT70, CR_SCRIPT71, CR_SCRIPT72, CR_SCRIPT73,
-	CR_SCRIPT74, CR_SCRIPT75, CR_SCRIPT76, CR_SCRIPT77, CR_SCRIPT78,
-	CR_SCRIPT79, CR_SCRIPT80, CR_SCRIPT81, CR_SCRIPT82, CR_SCRIPT83,
-	CR_SCRIPT84, CR_SCRIPT85, CR_SCRIPT86, CR_SCRIPT87, CR_SCRIPT88,
-	CR_SCRIPT89, CR_SCRIPT90, CR_SCRIPT91, CR_SCRIPT92, CR_SCRIPT93,
-	CR_SCRIPT94, CR_SCRIPT95, CR_SCRIPT96, CR_SCRIPT97, CR_SCRIPT98,
-	CR_SCRIPT99, CR_SCRIPT100,
-	//
-	CR_MAX
-};
-DEFINE CR_RUPEES = CR_MONEY;
-
-//Generic data indices. Use this with Game->Generic[]
-DEFINE GEN_HEARTPIECES        = 0; // Heart Pieces currently possessed
-DEFINE GEN_MAGICDRAINRATE     = 1; // Link's magic usage equals n / 2.
-DEFINE GEN_CANSLASH           = 2; // Link can slash with the sword.
-DEFINE GEN_WARPLEVEL          = 3; // Warp Ring number that a Whirlwind warp will send Link to.
-							  // It is set every time that Link uses the Whistle.
-DEFINE GEN_HCPPERHC           = 4; // How many Pieces of Heart form a complete Heart Container?
-DEFINE GEN_CONTINUEHEARTS     = 5; // Amount of life that Link continues with
-DEFINE GEN_CONTINUEISPERCENT  = 6; // ...Or a percentage of his total life
-DEFINE GEN_HP_PER_HEART       = 7; //How much HP makes a 'heart'
-DEFINE GEN_MP_PER_BLOCK       = 8; //How much MP makes a 'block'
-DEFINE GEN_HERO_DMG_MULT      = 9; //Damage multiplier for damage by Link
-DEFINE GEN_ENEM_DMG_MULT      = 10; //Damage multiplier for damage by enemies
-DEFINE GEN_DITHER_TYPE        = 11; //Type of dithering used with dark rooms
-DEFINE GEN_DITHER_ARG         = 12; //Dithering argument used with dark rooms
-DEFINE GEN_DITHER_PERCENT     = 13; //Percent of light circles taken up by dithering
-DEFINE GEN_DEFAULT_LIGHT_RAD  = 14; //Default light radius initialized to enemies
-DEFINE GEN_TRANS_PERCENT      = 15; //Percent of light circles taken up by transparency
-DEFINE GEN_DARKNESS_COLOR     = 16; //Color of darkness
-
-DEFINE GEN_WATERGRAVITY       = 17; //Y position addition when not moving when sideview swimming,
-                                       //can be negative
-DEFINE GEN_SIDESWIM_STEP_UP   = 18; //Hero step speed when sideview swimming, moving up
-DEFINE GEN_SIDESWIM_STEP_SIDE = 19; //Hero step speed when sideview swimming, moving left and right
-DEFINE GEN_SIDESWIM_STEP_DOWN = 20; //Hero step speed when sideview swimming, moving down
-DEFINE GEN_SIDESWIM_EXITJUMP  = 21; //Jump value when exiting water from the top.
-                                       //If 0, Link can only leave the top of the water via
-                                       //sideview ladder.
-DEFINE GEN_BUNNY_TILEMOD      = 22; //Tile modifier to apply while player is bunnified
-DEFINE GEN_SWITCHHOOK_STYLE   = 23; //Which 'SW_EFF' style to use for the 'Switch w/ Player' enemy defense
-DEFINE GEN_FLICKER_FRAMES     = 24; //How many frames Link / enemies flicker for with the flicker damage effect
-DEFINE GEN_FLICKER_COLOR      = 25; //Color used for the flicker effect
-DEFINE GEN_FLICKER_TRANSP     = 26; //Number of transparency passes for the flicker effect
-DEFINE GEN_MAX                = 27;
 
 //Level item flags. Or (|) these together and use with Game->LItems[]
 DEFINE LI_TRIFORCE           = 0x01; // The Triforce of this Level has been obtained
@@ -570,142 +444,6 @@ DEFINE CB_MAX        = 18;
 ////////////////////
 /// Items & Itemdata
 
-//Item class ids. Use as comparisons with Itemdata->Family
-DEFINE IC_SWORD              = 0;
-DEFINE IC_BRANG              = 1;
-DEFINE IC_ARROW              = 2;
-DEFINE IC_CANDLE             = 3;
-DEFINE IC_WHISTLE            = 4;
-DEFINE IC_BAIT               = 5;
-DEFINE IC_LETTER             = 6;
-DEFINE IC_POTION             = 7;
-DEFINE IC_WAND               = 8;
-DEFINE IC_RING               = 9;
-DEFINE IC_WALLET             = 10;
-DEFINE IC_AMULET             = 11;
-DEFINE IC_SHIELD             = 12;
-DEFINE IC_BOW                = 13;
-DEFINE IC_RAFT               = 14;
-DEFINE IC_LADDER             = 15;
-DEFINE IC_BOOK               = 16;
-DEFINE IC_MAGICKEY           = 17;
-DEFINE IC_BRACELET           = 18;
-DEFINE IC_FLIPPERS           = 19;
-DEFINE IC_BOOTS              = 20;
-DEFINE IC_HOOKSHOT           = 21;
-DEFINE IC_LENS               = 22;
-DEFINE IC_HAMMER             = 23;
-DEFINE IC_DINSFIRE           = 24;
-DEFINE IC_FARORESWIND        = 25;
-DEFINE IC_NAYRUSLOVE         = 26;
-DEFINE IC_BOMB               = 27;
-DEFINE IC_SBOMB              = 28;
-DEFINE IC_CLOCK              = 29;
-DEFINE IC_KEY                = 30;
-DEFINE IC_MAGICCONTAINER     = 31;
-DEFINE IC_TRIFORCE           = 32;
-DEFINE IC_MAP                = 33;
-DEFINE IC_COMPASS            = 34;
-DEFINE IC_BOSSKEY            = 35;
-DEFINE IC_QUIVER             = 36;
-DEFINE IC_LEVELKEY           = 37;
-DEFINE IC_CBYRNA             = 38;
-DEFINE IC_RUPEE              = 39;
-DEFINE IC_ARROWAMMO          = 40;
-DEFINE IC_FAIRY              = 41;
-DEFINE IC_MAGIC              = 42;
-DEFINE IC_HEART              = 43;
-DEFINE IC_HEARTCONTAINER     = 44;
-DEFINE IC_HEARTPIECE         = 45;
-DEFINE IC_KILLALL            = 46;
-DEFINE IC_BOMBAMMO           = 47;
-DEFINE IC_BOMBBAG            = 48;
-DEFINE IC_ROCS               = 49;
-DEFINE IC_HOVERBOOTS         = 50;
-DEFINE IC_SPINSCROLL         = 51;
-DEFINE IC_CROSSSCROLL        = 52;
-DEFINE IC_QUAKESCROLL        = 53;
-DEFINE IC_WHISPRING          = 54;
-DEFINE IC_CHARGERING         = 55;
-DEFINE IC_PERILSCROLL        = 56;
-DEFINE IC_WEALTHMEDAL        = 57;
-DEFINE IC_HEARTRING          = 58;
-DEFINE IC_MAGICRING          = 59;
-DEFINE IC_HURRICANESCROLL    = 60;
-DEFINE IC_SQUAKESCROLL       = 61;
-DEFINE IC_STONEAGONY         = 62;
-DEFINE IC_STOMPBOOTS         = 63;
-DEFINE IC_WHIMSICALRING      = 64;
-DEFINE IC_PERILRING          = 65;
-DEFINE IC_MISC               = 66;
-DEFINE IC_CUSTOM1            = 67;
-DEFINE IC_CUSTOM2            = 68;
-DEFINE IC_CUSTOM3            = 69;
-DEFINE IC_CUSTOM4            = 70;
-DEFINE IC_CUSTOM5            = 71;
-DEFINE IC_CUSTOM6            = 72;
-DEFINE IC_CUSTOM7            = 73;
-DEFINE IC_CUSTOM8            = 74;
-DEFINE IC_CUSTOM9            = 75;
-DEFINE IC_CUSTOM10           = 76;
-DEFINE IC_CUSTOM11           = 77;
-DEFINE IC_CUSTOM12           = 78;
-DEFINE IC_CUSTOM13           = 79;
-DEFINE IC_CUSTOM14           = 80;
-DEFINE IC_CUSTOM15           = 81;
-DEFINE IC_CUSTOM16           = 82;
-DEFINE IC_CUSTOM17           = 83;
-DEFINE IC_CUSTOM18           = 84;
-DEFINE IC_CUSTOM19           = 85;
-DEFINE IC_CUSTOM20           = 86;
-DEFINE IC_BOWANDARROW        = 87;
-DEFINE IC_LETTERPOTION       = 88;
-
-// 89-255 free use
-
-// These item classes create a projectile of the 
-// type LW_CUSTOM/LW_SCRIPT, 01 to 10
-DEFINE IC_WPN_CUSTOM_01           = 256;
-DEFINE IC_WPN_SCRIPT_01           = 256;
-DEFINE IC_WPN_CUSTOM_02           = 257;
-DEFINE IC_WPN_SCRIPT_02           = 257;
-DEFINE IC_WPN_CUSTOM_03           = 258;
-DEFINE IC_WPN_SCRIPT_03           = 258;
-DEFINE IC_WPN_CUSTOM_04           = 259;
-DEFINE IC_WPN_SCRIPT_04           = 259;
-DEFINE IC_WPN_CUSTOM_05           = 260;
-DEFINE IC_WPN_SCRIPT_05           = 260;
-DEFINE IC_WPN_CUSTOM_06           = 261;
-DEFINE IC_WPN_SCRIPT_06           = 261;
-DEFINE IC_WPN_CUSTOM_07           = 262;
-DEFINE IC_WPN_SCRIPT_07           = 262;
-DEFINE IC_WPN_CUSTOM_08           = 263;
-DEFINE IC_WPN_SCRIPT_08           = 263;
-DEFINE IC_WPN_CUSTOM_09           = 264;
-DEFINE IC_WPN_SCRIPT_09           = 264;
-DEFINE IC_WPN_CUSTOM_10           = 265;
-DEFINE IC_WPN_SCRIPT_10           = 265;
-
-DEFINE IC_ICEROD          	     = 266; //Not Implemented
-
-DEFINE IC_ATKRING                 = 267;
-DEFINE IC_LANTERN                 = 268;
-DEFINE IC_PEARL                   = 269;
-DEFINE IC_BOTTLE                  = 270;
-DEFINE IC_BOTTLE_FILL             = 271;
-DEFINE IC_BUG_NET                 = 272;
-DEFINE IC_MIRRORS                 = 273;
-DEFINE IC_SWITCHHOOK              = 274;
-DEFINE IC_ITEM_BUNDLE             = 275;
-DEFINE IC_PROGRESSIVE             = 276;
-DEFINE IC_NOTE                    = 277;
-DEFINE IC_REFILL                  = 278;
-DEFINE IC_LIFTGLOVE               = 279;
-
-//Itemclasses not less than this are reserved for future engine itemclasses
-DEFINE IC_MAXUSABLE               = 280;
-
-DEFINE IC_MAX                     = 512; //Last of enum. All itemclassesare < this.
 
 
 
@@ -942,94 +680,6 @@ DEFINE WDS_BOUNCE            = 1;  // Use with LW_BRANGs or LW_HOOKSHOTs to
 
 ////////////////////
 /// NPCs and Enemies
-
-
-//NPC Types. Compare against npc->Type.
-DEFINE NPCT_GUY			= 0;
-DEFINE NPCT_WALK			= 1;
-DEFINE NPCT_TEKTITE			= 3;
-DEFINE NPCT_LEEVER			= 4;
-DEFINE NPCT_PEAHAT			= 5;
-DEFINE NPCT_ZORA			= 6;
-DEFINE NPCT_ROCK			= 7;
-DEFINE NPCT_GHINI			= 8;
-DEFINE NPCT_ARMOS			= 9;
-DEFINE NPCT_KEESE			= 10;
-DEFINE NPCT_TRAP			= 15;
-DEFINE NPCT_WALLMASTER		= 16;
-DEFINE NPCT_WIZZROBE			= 21;
-DEFINE NPCT_AQUAMENTUS		= 22;
-DEFINE NPCT_MOLDORM			= 23;
-DEFINE NPCT_DODONGO			= 24;
-DEFINE NPCT_MANHANDLA		= 25;
-DEFINE NPCT_GLEEOK			= 26;
-DEFINE NPCT_DIGDOGGER		= 27;
-DEFINE NPCT_GOHMA			= 28;
-DEFINE NPCT_LANMOLA			= 29;
-DEFINE NPCT_PATRA			= 30;
-DEFINE NPCT_GANON			= 31;
-DEFINE NPCT_PROJECTILE		= 32;
-DEFINE NPCT_SPINTILE			= 37;
-DEFINE NPCT_NONE			= 38;
-DEFINE NPCT_FAIRY			= 39;
-DEFINE NPCT_OTHERFLOAT		= 40;
-DEFINE NPCT_OTHER			= 41;
-
-DEFINE NPCT_CUSTOM_01		= 43;
-DEFINE NPCT_SCRIPT_01		= 43;
-DEFINE NPCT_CUSTOM_02		= 44;
-DEFINE NPCT_SCRIPT_02		= 44;
-DEFINE NPCT_CUSTOM_03		= 45;
-DEFINE NPCT_SCRIPT_03		= 45;
-DEFINE NPCT_CUSTOM_04		= 46;
-DEFINE NPCT_SCRIPT_04		= 46;
-DEFINE NPCT_CUSTOM_05		= 47;
-DEFINE NPCT_SCRIPT_05		= 47;
-DEFINE NPCT_CUSTOM_06		= 48;
-DEFINE NPCT_SCRIPT_06		= 48;
-DEFINE NPCT_CUSTOM_07		= 49;
-DEFINE NPCT_SCRIPT_07		= 49;
-DEFINE NPCT_CUSTOM_08		= 50;
-DEFINE NPCT_SCRIPT_08		= 50;
-DEFINE NPCT_CUSTOM_09		= 51;
-DEFINE NPCT_SCRIPT_09		= 51;
-DEFINE NPCT_CUSTOM_10		= 52;
-DEFINE NPCT_SCRIPT_10		= 52;
-
-DEFINE NPCT_CUSTOM_11		= 53;
-DEFINE NPCT_SCRIPT_11		= 53;
-DEFINE NPCT_CUSTOM_12		= 54;
-DEFINE NPCT_SCRIPT_12		= 54;
-DEFINE NPCT_CUSTOM_13		= 55;
-DEFINE NPCT_SCRIPT_13		= 55;
-DEFINE NPCT_CUSTOM_14		= 56;
-DEFINE NPCT_SCRIPT_14		= 56;
-DEFINE NPCT_CUSTOM_15		= 57;
-DEFINE NPCT_SCRIPT_15		= 57;
-DEFINE NPCT_CUSTOM_16		= 58;
-DEFINE NPCT_SCRIPT_16		= 58;
-DEFINE NPCT_CUSTOM_17		= 59;
-DEFINE NPCT_SCRIPT_17		= 59;
-DEFINE NPCT_CUSTOM_18		= 60;
-DEFINE NPCT_SCRIPT_18		= 60;
-DEFINE NPCT_CUSTOM_19		= 61;
-DEFINE NPCT_SCRIPT_19		= 61;
-DEFINE NPCT_CUSTOM_20		= 62;
-DEFINE NPCT_SCRIPT_20		= 62;
-
-DEFINE NPCT_FRIENDLY_01		= 63;
-DEFINE NPCT_FRIENDLY_02		= 64;
-DEFINE NPCT_FRIENDLY_03		= 65;
-DEFINE NPCT_FRIENDLY_04		= 66;
-DEFINE NPCT_FRIENDLY_05		= 67;
-DEFINE NPCT_FRIENDLY_06		= 68;
-DEFINE NPCT_FRIENDLY_07		= 69;
-DEFINE NPCT_FRIENDLY_08		= 70;
-DEFINE NPCT_FRIENDLY_09		= 71;
-DEFINE NPCT_FRIENDLY_10		= 72;
-
-
-
 
 //Guy IDs. Use with CreateNPC().
 DEFINE NPC_ABEI              = 1;
@@ -1412,119 +1062,6 @@ DEFINE NPCA_TEKTITE_JUMP_START 	= 0;
 DEFINE NPCA_TEKTITE_JUMP_CONT 	= 1;
 DEFINE NPCA_TEKTITE_JUMP_VELOCITY 	= 2;
 
-//NPC Defenses. Use as indices to npc->Defense[].
-DEFINE NPCD_ARROW            = 3;
-DEFINE NPCD_BEAM             = 10;
-DEFINE NPCD_BRANG            = 0;
-DEFINE NPCD_BOMB             = 1;
-DEFINE NPCD_BYRNA            = 16;
-DEFINE NPCD_FIRE             = 4;
-DEFINE NPCD_HAMMER           = 8;
-DEFINE NPCD_HOOKSHOT         = 7;
-DEFINE NPCD_MAGIC            = 6;
-DEFINE NPCD_REFBEAM          = 11;
-DEFINE NPCD_REFMAGIC         = 12;
-DEFINE NPCD_REFFIREBALL      = 13;
-DEFINE NPCD_REFROCK          = 14;
-DEFINE NPCD_SBOMB            = 2;
-DEFINE NPCD_SCRIPT           = 17;
-DEFINE NPCD_STOMP            = 15;
-DEFINE NPCD_SWITCHHOOK       = 36;
-DEFINE NPCD_SWORD            = 9;
-DEFINE NPCD_THROWN           = 37;
-DEFINE NPCD_WAND             = 5;
-DEFINE NPCD_WHISTLE          = 35; //whistle lweapon
-DEFINE NPCD_REFARROW         = 38;
-DEFINE NPCD_REFFIRE          = 39;
-DEFINE NPCD_REFFIRE2          = 40;
-
-//NPC Script Weapon Defences
-DEFINE NPCD_SCRIPT1 = 20;
-DEFINE NPCD_SCRIPT2 = 21;
-DEFINE NPCD_SCRIPT3 = 22;
-DEFINE NPCD_SCRIPT4 = 23;
-DEFINE NPCD_SCRIPT5 = 24;
-DEFINE NPCD_SCRIPT6 = 25;
-DEFINE NPCD_SCRIPT7 = 26;
-DEFINE NPCD_SCRIPT8 = 27;
-DEFINE NPCD_SCRIPT9 = 28;
-DEFINE NPCD_SCRIPT10 = 29;
-
-
-/* Unimplemented
-DEFINE NPCD_ICE = 30;
-DEFINE NPCD_BAIT = 31;
-DEFINE NPCD_WIND = 32;
-DEFINE NPCD_SPARKLE = 33;
-DEFINE NPCD_SONIC = 34;
-//35 to 42 reserved, but non-descript in zdefs.
-//the following are defined, but unused. 
-DEFINE NPCD_ETHER = 43;
-DEFINE NPCD_BOMBOS = 44;
-DEFINE NPCD_POT = 45;
-DEFINE NPCD_THROWNROCK = 46;
-DEFINE NPCD_ELECTRICITY = 47;
-DEFINE NPCD_SHIELD = 48;
-DEFINE NPCD_TROWEL = 49;
-DEFINE NPCD_SPINATTACK = 50;
-DEFINE NPCD_Z3SWORD = 51;
-DEFINE NPCD_GBSWORD = 52;
-*/
-
-
-//NPC Defense types. Use with npc->Defense[].
-DEFINE NPCDT_NONE			= 0;
-DEFINE NPCDT_HALFDAMAGE		= 1;
-DEFINE NPCDT_QUARTERDAMAGE		= 2;
-DEFINE NPCDT_STUN			= 3;
-DEFINE NPCDT_STUNORBLOCK		= 4;
-DEFINE NPCDT_STUNORIGNORE		= 5;
-DEFINE NPCDT_BLOCK1			= 6;
-DEFINE NPCDT_BLOCK2			= 7;
-DEFINE NPCDT_BLOCK4			= 8;
-DEFINE NPCDT_BLOCK6			= 9;
-DEFINE NPCDT_BLOCK8			= 10;
-DEFINE NPCDT_BLOCK			= 11;
-DEFINE NPCDT_IGNORE1			= 12;
-DEFINE NPCDT_IGNORE			= 13;
-DEFINE NPCDT_ONEHITKILL		= 14;
-DEFINE NPCDT_BLOCK10			= 15;
-DEFINE NPCDT_2XDAMAGE		= 16;
-DEFINE NPCDT_3XDAMAGE		= 17;
-DEFINE NPCDT_4XDAMAGE		= 18;
-DEFINE NPCDT_HEAL			= 19;
-DEFINE NPCDT_TRIGGERSECRETS		= 20;
-DEFINE NPCDT_SWITCH		= 50;
-
-/*
-DEFINE NPCDT_FREEZE			= 21; //not implemented
-DEFINE NPCDT_LVLDAMAGE			= 24; //not implemented
-DEFINE NPCDT_LVLREDUCTION			= 25; //not implemented
-DEFINE NPCDT_SPLIT				= 26; //not implemented
-DEFINE NPCDT_REPLACE				= 27; //not implemented
-DEFINE NPCDT_LVLBLOCK2			= 28; //not implemented
-DEFINE NPCDT_LVLBLOCK3			= 29 //not implemented
-DEFINE NPCDT_LVLBLOCK4			= 30; //not implemented
-DEFINE NPCDT_LVLBLOCK5			= 31; //not implemented
-DEFINE NPCDT_SHOCK				= 32; //not implemented
-DEFINE NPCDT_EXPLODESMALL			= 33; //not implemented
-DEFINE NPCDT_EXPLODELARGE			= 34; //not implemented
-DEFINE NPCDT_TURNTOSTONE			= 35; //not implemented
-DEFINE NPCDT_BREAKSHIELD			= 36; //not implemented
-DEFINE NPCDT_RESTORESHIELD			= 37; //not implemented
-DEFINE NPCDT_SPECIALDROP			= 38; //not implemented
-DEFINE NPCDT_INCREASECOUNTER			= 39; //not implemented
-DEFINE NPCDT_EXPLODEHARMLESS			= 40; //not implemented
-DEFINE NPCDT_KILLNOSPLIOT			= 41; //not implemented
-DEFINE NPCDT_TRIBBLE				= 42; //not implemented
-DEFINE NPCDT_FIREBALL			= 43; //not implemented
-DEFINE NPCDT_FIREBALLLARGE			= 44; //not implemented
-DEFINE NPCDT_SUMMON				= 45; //not implemented
-DEFINE NPCDT_WINGAME				= 46; //not implemented
-DEFINE NPCDT_JUMP				= 47; //not implemented
-DEFINE NPCDT_EATLINK				= 48; //not implemented
-*/
-
 //NPC Misc. Flags
 DEFINE NPCMF_0POWERWEAPS 		= 0x0001; //Damaged by 0-Power Weapons
 DEFINE NPCMF_ISINVISIBLE 		= 0x0002; //Is Invisible
@@ -1561,58 +1098,6 @@ DEFINE NPCSF_GRAVE			= 0x0800; //Spawned by Grave Combo Type
 DEFINE NPCSF_GANONROOM		= 0x1000; //Spawned by Ganon Room Type
 DEFINE NPCSF_SPAWNANIM		= 0x2000; //Spawn Animation Type
 
-//Enemy projectile weapon selections. Use with npc->Weapon.
-//Note: Don't use these with Screen->CreateEWeapon! Use the EW_ constants instead.
-DEFINE WPN_NONE              = 0;
-DEFINE WPN_ENEMYFLAME        = 140;
-DEFINE WPN_ENEMYWIND         = 141;
-DEFINE WPN_ENEMYFIREBALL     = 129;
-DEFINE WPN_ENEMYARROW        = 130;
-DEFINE WPN_ENEMYBRANG        = 131;
-DEFINE WPN_ENEMYSWORD        = 132;
-DEFINE WPN_ENEMYROCK         = 133;
-DEFINE WPN_ENEMYMAGIC        = 134;
-DEFINE WPN_ENEMYBOMB         = 135;
-DEFINE WPN_ENEMYSBOMB        = 136;
-DEFINE WPN_ENEMYLITBOMB      = 137;
-DEFINE WPN_ENEMYLITSBOMB     = 138;
-DEFINE WPN_ENEMYFIRETRAIL    = 139;
-DEFINE WPN_ENEMYFLAME2       = 142;
-DEFINE WPN_ENEMYFLAME2TRAIL  = 143; // Not implemented
-DEFINE WPN_ENEMYICE          = 144; // Not implemented
-DEFINE WPN_ENEMYFIREBALL2    = 145; // A fireball that doesn't fly toward Link
-
-//Default item drop sets. Use with npc->ItemSet
-DEFINE IS_NONE               = 0;
-DEFINE IS_DEFAULT            = 1;
-DEFINE IS_BOMBS              = 2;
-DEFINE IS_MONEY              = 3;
-DEFINE IS_LIFE               = 4;
-DEFINE IS_BOMB100            = 5; // Used by Dodongos
-DEFINE IS_SBOMB100           = 6; // Used by Dodongos
-DEFINE IS_MAGIC              = 7;
-DEFINE IS_MAGICBOMBS         = 8;
-DEFINE IS_MAGICMONEY         = 9;
-DEFINE IS_MAGICLIFE          = 10;
-DEFINE IS_MAGIC2             = 11;
-DEFINE IS_COMBOS		= 12; // Used by Tall Grass / Bush / Slash combos.
-
-//Boss palettes. Use with npc->BossPal
-DEFINE BPAL_AQUA             = 0;
-DEFINE BPAL_GLEEOK           = 1;
-DEFINE BPAL_DODONGO          = 2;
-DEFINE BPAL_GANON            = 3;
-DEFINE BPAL_BROWN            = 4;
-DEFINE BPAL_PILE             = 5;  // Used for the Dust Pile.
-DEFINE BPAL_BLUE             = 6;
-DEFINE BPAL_RED              = 7;
-DEFINE BPAL_GOLD             = 8;
-DEFINE BPAL_ICON1            = 9;  // Used for Quest Icon 1.
-DEFINE BPAL_ICON2            = 10; // Used for Quest Icon 2.
-DEFINE BPAL_ICON3            = 11; // Used for Quest Icon 3.
-DEFINE BPAL_ICON4            = 12; // Used for Quest Icon 4.
-DEFINE BPAL_GLEEOKF          = 13;
-DEFINE BPAL_FROZEN           = 14; // Unused
 
 
 
@@ -1620,31 +1105,6 @@ DEFINE BPAL_FROZEN           = 14; // Unused
 
 ///////////////////
 /// Script Drawing
-
-//Draw styles. Use with item->DrawStyle
-DEFINE DS_NORMAL             = 0;
-DEFINE DS_PHANTOM            = 1;
-DEFINE DS_CLOAKED            = 2;
-DEFINE DS_LINK               = 3;
-
-enum ShadowType //For '->DrawString()'
-{
-	SHD_NORMAL, //No Shadow
-	//These draw ONLY a shadow, no actual text
-	SHD_SHADOW,
-	SHD_SHADOWU,
-	SHD_OUTLINE8,
-	SHD_OUTLINEPLUS,
-	SHD_OUTLINEX,
-	//These draw a shadow behind the actual text
-	SHD_SHADOWED,
-	SHD_SHADOWEDU,
-	SHD_OUTLINED8,
-	SHD_OUTLINEDPLUS,
-	SHD_OUTLINEDX,
-	//Max number; not an actual value to use
-	SHD_MAX
-};
 
 // Font types. Use with Screen->DrawCharacter *note -some of these fonts may not represent normal ascii characters,
 //and all of these are completely undocumented. Use at your own peril
@@ -2480,185 +1940,6 @@ DEFINE CF_SECRETS_NEXT       = 165; //Secrets->Next
 
 // 200 :  Reserved for CF_STEP from TheRandomHeader.zh
 
-
-//Combo types. Use with Screen->ComboT[]
-DEFINE CT_NONE               = 0;
-DEFINE CT_STAIR              = 1;
-DEFINE CT_CAVE               = 2;
-DEFINE CT_WATER              = 3;
-DEFINE CT_ARMOS              = 4;
-DEFINE CT_GRAVE              = 5;
-DEFINE CT_DOCK               = 6;
-DEFINE CT_PUSHWAIT           = 8;
-DEFINE CT_PUSHHEAVY          = 9;
-DEFINE CT_PUSHHEAVYWAIT      = 10;
-DEFINE CT_LEFTSTATUE         = 11;
-DEFINE CT_RIGHTSTATUE        = 12;
-DEFINE CT_WALKSLOW           = 13;
-DEFINE CT_CVUP               = 14;
-DEFINE CT_CVDOWN             = 15;
-DEFINE CT_CVLEFT             = 16;
-DEFINE CT_CVRIGHT            = 17;
-DEFINE CT_SWIMWARP           = 18;
-DEFINE CT_DIVEWARP           = 19;
-DEFINE CT_LADDERHOOKSHOT     = 20;
-DEFINE CT_TRIGNOFLAG         = 21;
-DEFINE CT_TRIGFLAG           = 22;
-DEFINE CT_ZELDA              = 23;
-DEFINE CT_SLASH              = 24;
-DEFINE CT_SLASHITEM          = 25;
-DEFINE CT_PUSHHEAVY2         = 26;
-DEFINE CT_PUSHHEAVY2WAIT     = 27;
-DEFINE CT_POUND              = 28;
-DEFINE CT_HSGRAB             = 29;
-DEFINE CT_HSBRIDGE           = 30;
-DEFINE CT_DAMAGE1            = 31;
-DEFINE CT_DAMAGE2            = 32;
-DEFINE CT_DAMAGE3            = 33;
-DEFINE CT_DAMAGE4            = 34;
-DEFINE CT_CENTRESTATUE       = 35;
-DEFINE CT_TRAPH              = 36;
-DEFINE CT_TRAPV              = 37;
-DEFINE CT_TRAP4WAY           = 38;
-DEFINE CT_TRAPLEFTRIGHT      = 39;
-DEFINE CT_TRAPUPDOWN         = 40;
-DEFINE CT_PIT                = 41;
-DEFINE CT_HOOKSHOTONLY       = 42;
-DEFINE CT_OVERHEAD           = 43;
-DEFINE CT_NOFLYZONE          = 44;
-DEFINE CT_MIRROR             = 45;
-DEFINE CT_MIRRORSLASH        = 46;
-DEFINE CT_MIRRORBACKSLASH    = 47;
-DEFINE CT_MAGICPRISM         = 48;
-DEFINE CT_MAGICPRISM4WAY     = 49;
-DEFINE CT_BLOCKMAGIC         = 50;
-DEFINE CT_CAVE2              = 51;
-DEFINE CT_EYEBALLA           = 52;
-DEFINE CT_EYEBALLB           = 53;
-DEFINE CT_NOJUMPZONE         = 54;
-DEFINE CT_BUSH               = 55;
-DEFINE CT_FLOWERS            = 56;
-DEFINE CT_TALLGRASS          = 57;
-DEFINE CT_SHALLOWWATER       = 58;
-DEFINE CT_LOCKBLOCK          = 59;
-DEFINE CT_LOCKBLOCK2         = 60;
-DEFINE CT_BOSSLOCKBLOCK      = 61;
-DEFINE CT_BOSSLOCKBLOCK2     = 62;
-DEFINE CT_LADDERONLY         = 63;
-DEFINE CT_BSGRAVE            = 64;
-DEFINE CT_CHEST              = 65;
-DEFINE CT_CHEST2             = 66;
-DEFINE CT_LOCKEDCHEST        = 67;
-DEFINE CT_LOCKEDCHEST2       = 68;
-DEFINE CT_BOSSCHEST          = 69;
-DEFINE CT_BOSSCHEST2         = 70;
-DEFINE CT_RESET              = 71;
-DEFINE CT_SAVE               = 72;
-DEFINE CT_SAVE2              = 73;
-DEFINE CT_CAVEB              = 74;
-DEFINE CT_CAVEC              = 75;
-DEFINE CT_CAVED              = 76;
-DEFINE CT_STAIRB             = 77;
-DEFINE CT_STAIRC             = 78;
-DEFINE CT_STAIRD             = 79;
-DEFINE CT_PITB               = 80;
-DEFINE CT_PITC               = 81;
-DEFINE CT_PITD               = 82;
-DEFINE CT_CAVE2B             = 83;
-DEFINE CT_CAVE2C             = 84;
-DEFINE CT_CAVE2D             = 85;
-DEFINE CT_SWIMWARPB          = 86;
-DEFINE CT_SWIMWARPC          = 87;
-DEFINE CT_SWIMWARPD          = 88;
-DEFINE CT_DIVEWARPB          = 89;
-DEFINE CT_DIVEWARPC          = 90;
-DEFINE CT_DIVEWARPD          = 91;
-DEFINE CT_STAIRR             = 92;
-DEFINE CT_PITR               = 93;
-DEFINE CT_AWARPA             = 94;
-DEFINE CT_AWARPB             = 95;
-DEFINE CT_AWARPC             = 96;
-DEFINE CT_AWARPD             = 97;
-DEFINE CT_AWARPR             = 98;
-DEFINE CT_SWARPA             = 99;
-DEFINE CT_SWARPB             = 100;
-DEFINE CT_SWARPC             = 101;
-DEFINE CT_SWARPD             = 102;
-DEFINE CT_SWARPR             = 103;
-DEFINE CT_STRIGNOFLAG        = 104;
-DEFINE CT_STRIGFLAG          = 105;
-DEFINE CT_STEP               = 106;
-DEFINE CT_STEPSAME           = 107;
-DEFINE CT_STEPALL            = 108;
-DEFINE CT_STEPCOPY           = 109;
-DEFINE CT_NOENEMY            = 110;
-DEFINE CT_BLOCKARROW1        = 111;
-DEFINE CT_BLOCKARROW2        = 112;
-DEFINE CT_BLOCKARROW3        = 113;
-DEFINE CT_BLOCKBRANG1        = 114;
-DEFINE CT_BLOCKBRANG2        = 115;
-DEFINE CT_BLOCKBRANG3        = 116;
-DEFINE CT_BLOCKSWORDBEAM     = 117;
-DEFINE CT_BLOCKALL           = 118;
-DEFINE CT_BLOCKFIREBALL      = 119;
-DEFINE CT_DAMAGE5            = 120;
-DEFINE CT_DAMAGE6            = 121;
-DEFINE CT_DAMAGE7            = 122;
-DEFINE CT_SPINTILE1          = 124;
-DEFINE CT_SPINTILE2          = 125;
-DEFINE CT_SCREENFREEZE       = 126;
-DEFINE CT_SCREENFREEZEFF     = 127;
-DEFINE CT_NOGROUNDENEMY      = 128;
-DEFINE CT_SLASHNEXT          = 129;
-DEFINE CT_SLASHNEXTITEM      = 130;
-DEFINE CT_BUSHNEXT           = 131;
-DEFINE CT_SLASHC             = 132;
-DEFINE CT_SLASHITEMC         = 133;
-DEFINE CT_BUSHC              = 134;
-DEFINE CT_FLOWERSC           = 135;
-DEFINE CT_TALLGRASSC         = 136;
-DEFINE CT_SLASHNEXTC         = 137;
-DEFINE CT_SLASHNEXTITEMC     = 138;
-DEFINE CT_BUSHNEXTC          = 139;
-DEFINE CT_EYEBALL4WAY        = 140;
-DEFINE CT_TALLGRASSNEXT      = 141;
-DEFINE CT_SCRIPT1            = 142;
-DEFINE CT_SCRIPT2            = 143;
-DEFINE CT_SCRIPT3            = 144;
-DEFINE CT_SCRIPT4            = 145;
-DEFINE CT_SCRIPT5            = 146;
-DEFINE CT_SCRIPT6            = 147;
-DEFINE CT_SCRIPT7            = 148;
-DEFINE CT_SCRIPT8            = 149;
-DEFINE CT_SCRIPT9            = 150;
-DEFINE CT_SCRIPT10           = 151;
-DEFINE CT_SCRIPT11           = 152;
-DEFINE CT_SCRIPT12           = 153;
-DEFINE CT_SCRIPT13           = 154;
-DEFINE CT_SCRIPT14           = 155;
-DEFINE CT_SCRIPT15           = 156;
-DEFINE CT_SCRIPT16           = 157;
-DEFINE CT_SCRIPT17           = 158;
-DEFINE CT_SCRIPT18           = 159;
-DEFINE CT_SCRIPT19           = 160;
-DEFINE CT_SCRIPT20           = 161;
-DEFINE CT_GENERIC            = 162;
-DEFINE CT_PITFALL            = 163;
-DEFINE CT_STEPFX             = 164;
-DEFINE CT_BRIDGE             = 165;
-DEFINE CT_SIGNPOST           = 166;
-DEFINE CT_SWITCH             = 167;
-DEFINE CT_SWITCHBLOCK        = 168;
-DEFINE CT_LANTERN            = 169;
-DEFINE CT_SPOTLIGHT          = 170;
-DEFINE CT_GLASS              = 171;
-DEFINE CT_LIGHT_TARGET       = 172;
-DEFINE CT_SWITCHHOOK_BLOCK   = 173;
-DEFINE CT_CUSTOM_BLOCKER     = 174;
-DEFINE CT_SHOOTER            = 175;
-DEFINE CT_MAX                = 176;
-
-
 //////////////////
 /// FFC Properties
 
@@ -2703,24 +1984,6 @@ DEFINE AT_ANGULAR		= 3;
 DEFINE AT_RAND4DIR		= 4;
 DEFINE AT_RAND8DIR		= 5;
 DEFINE AT_RANDANGULAR	= 6;
-
-//Tile and Side Warps
-DEFINE TILEWARP_A        = 0;
-DEFINE TILEWARP_B        = 1;
-DEFINE TILEWARP_C        = 2;
-DEFINE TILEWARP_D        = 3;
-
-DEFINE SIDEWARP_NONE     = -1;
-DEFINE SIDEWARP_A        = 0;
-DEFINE SIDEWARP_B        = 1;
-DEFINE SIDEWARP_C        = 2;
-DEFINE SIDEWARP_D        = 3;
-
-DEFINE WARP_NONE         = -1;
-DEFINE WARP_A            = 0;
-DEFINE WARP_B            = 1;
-DEFINE WARP_C            = 2;
-DEFINE WARP_D            = 3;
 
 
 //Game Over Screen
@@ -2835,13 +2098,6 @@ DEFINE MOUSE_Z = 2;
 DEFINE MOUSE_LEFT = 3;
 DEFINE MOUSE_RIGHT = 4;
 DEFINE MOUSE_MIDDLE = 5;
-
-//Game->MouseCursor values
-enum
-{
-	ZCM_CUSTOM, ZCM_BLANK, ZCM_NORMAL,
-	ZCM_MAX
-};
 
 //MapData
 
@@ -3035,19 +2291,6 @@ DEFINE RTC_DAYOFYEAR	= 7;
 DEFINE RTC_DAYLIGHTTIME	= 8;
 DEFINE RTC_LAST		= 9;
 
-//Warp types. Use with Screen->SetSideWarp
-//and Link->WarpEx()
-DEFINE WT_CAVE			= 0;
-DEFINE WT_PASSAGE			= 1;
-DEFINE WT_ENTRANCEEXIT		= 2;
-DEFINE WT_SCROLLING			= 3;
-DEFINE WT_IWARP			= 4;
-DEFINE WT_IWARPBLACKOUT		= 5;
-DEFINE WT_IWARPOPENWIPE		= 6;
-DEFINE WT_IWARPZAP			= 7;
-DEFINE WT_IWARPWAVE		  	= 8;
-DEFINE WT_NOWARP			= 9;
-
 //Warp Effects for Link->WarpEx
 DEFINE WARPEFFECT_NONE = 0;
 DEFINE WARPEFFECT_ZAP = 1;
@@ -3167,17 +2410,6 @@ enum
  DEFINE SRAM_DMAPDATA 	=	0x10;
  DEFINE SRAM_MAPDATA 	=	0x20;
 
-enum EnemyPattern
-{
-	PATTERN_STANDARD,
-	PATTERN_SIDES,
-	PATTERN_SIDES_RANDOM,
-	PATTERN_CEILING,
-	PATTERN_CEILING_RANDOM,
-	PATTERN_STANDARD_RANDOM,
-	PATTERN_NO_SPAWNING
-};
-
 //MIDI values, used for 'Screen->MIDI', 'dmapdata->MIDI', 'mapdata->MIDI', 'Audio->PlayMIDI'
 enum
 {
@@ -3238,12 +2470,6 @@ enum {
 	susptLAST };
 
 
-enum openingWipeShape
-{
-	WIPE_CIRCLE, WIPE_OVAL, WIPE_TRIANGLE,
-	WIPE_SMAS, WIPE_FADEBLACK, WIPE_MAX
-};
-
 define NOCARRY_B_SECRET =			0x2000;
 define NOCARRY_B_ITEM =				0x0010;
 define NOCARRY_B_SPECIALITEM =		0x0020;
@@ -3265,23 +2491,6 @@ define NORESET_B_DOOR_B_UP =		0x0001;
 define NORESET_B_DOOR_B_DOWN =		0x0002;
 define NORESET_B_DOOR_B_LEFT =		0x0004;
 define NORESET_B_DOOR_B_RIGHT =		0x0008;
-
-enum //Indexes for Game->Gravity[]
-{
-	GR_STRENGTH,
-	GR_TERMINALV,
-	GR_SPRLAYER,
-	GR_AIRDRAG
-};
-
-enum //Indexes for Game->Scrolling[]
-{
-	SCROLL_DIR,
-	SCROLL_NX,
-	SCROLL_NY,
-	SCROLL_OX,
-	SCROLL_OY
-};
 
 enum //Indexes for messagedata->Flags
 {
@@ -3372,26 +2581,6 @@ enum WeaponMoveFlag
 	WPNMV_NO_REAL_Z
 };
 
-enum NPCMoveFlag
-{
-	NPCMV_OBEYS_GRAVITY,
-	NPCMV_CAN_PITFALL,
-	NPCMV_CAN_PIT_WALK,
-	NPCMV_CAN_WATERDROWN,
-	NPCMV_CAN_WATER_WALK,
-	NPCMV_ONLY_WATER_WALK,
-	NPCMV_ONLY_SHALLOW_WATER_WALK,
-	NPCMV_ONLY_PIT_WALK,
-	NPCMV_NO_FAKE_Z,
-	NPCMV_NO_REAL_Z,
-	NPCMV_USE_FAKE_Z,
-	NPCMV_IGNORE_SOLIDITY,
-	NPCMV_IGNORE_BLOCKFLAGS,
-	NPCMV_IGNORE_SCREENEDGE,
-	NPCMV_USE_SCRIPTED_MOVEMENT_ENGINE,
-	NPCMV_NOT_PUSHABLE_BY_SOLIDS
-};
-
 define CHRT_VISITED = 10000000b;
 define CHRT_UP =      00000001b;
 define CHRT_DOWN =    00000010b;
@@ -3403,12 +2592,6 @@ enum NPCWalkType
 {
 	SPW_NONE, SPW_DOOR, SPW_CLIPRIGHT, SPW_FLOATER, SPW_TRAP, SPW_HALFSTEP, 
 	SPW_WATER, SPW_WIZZROBE, SPW_CLIPBOTTOMRIGHT
-};
-
-// death & fade defs
-enum NPCFadeType
-{
-	NPCF_NONE, NPCF_FLICKER, NPCF_INVISIBLE, NPCF_FLASH, NPCF_POOF
 };
 
 enum NPCMoveStatus
@@ -3669,39 +2852,6 @@ DEFINEL L_BLOCKFLAG_SCRIPT8      = 0x00020000L;
 DEFINEL L_BLOCKFLAG_SCRIPT9      = 0x00040000L;
 DEFINEL L_BLOCKFLAG_SCRIPT10     = 0x00080000L;
 
-enum SwitchEffect
-{
-	SW_EFF_POOF,
-	SW_EFF_FLICKER,
-	SW_EFF_RISE
-};
-
-enum miscSpr
-{
-	MISCSPR_FALL,
-	MISCSPR_DROWN,
-	MISCSPR_LAVADROWN,
-	MISCSPR_SWITCHPOOF,
-	
-	MISCSPR_MAX
-};
-
-enum miscSFX
-{
-	MISCSFX_BUSH,
-	MISCSFX_SWITCHED,
-	MISCSFX_LOWHEART,
-	MISCSFX_ERROR,
-	MISCSFX_PLAYER_HURT,
-	MISCSFX_HAMMER_PEG,
-	MISCSFX_SUBSCR_ITEM_ASSIGN,
-	MISCSFX_SUBSCR_CURSOR_MOVE,
-	MISCSFX_REFILL,
-	MISCSFX_RUPEEDRAIN,
-	
-	MISCSFX_MAX
-};
-
 enum scr_timing
 {
 	SCR_TIMING_INIT = -1,
@@ -3836,21 +2986,6 @@ enum //constants for 'GENEV_HEROHIT_HITTYPE' / 'GENEV_HEROHIT_HITTYPE2'
 	NUM_OBJTYPE
 };
 
-enum //*weapon->Flags[] indexes
-{
-	WFLAG_PICKUP_ITEMS,
-	WFLAG_BREAKS_ON_LANDING,
-	WFLAG_BREAKS_ON_SOLID,
-	WFLAG_BURN_ANYFIRE,
-	WFLAG_BURN_STRONGFIRE,
-	WFLAG_BURN_MAGICFIRE,
-	WFLAG_BURN_DIVINEFIRE,
-	WFLAG_STOP_ON_LANDING,
-	WFLAG_STOP_ON_SOLID,
-	WFLAG_UPDATE_BURNSPR,
-	WFLAG_MAX
-};
-
 //For Screen->LoadNPC() and etc; the screen index of the thing
 DEFINE HIT_BY_NPC                   = 0; //Player only
 DEFINE HIT_BY_EWEAPON               = 1; //Player only
@@ -3865,7 +3000,7 @@ DEFINE HIT_BY_FFC_UID               = 7; //Unimplemented
 DEFINE HIT_BY_LWEAPON_PARENT_ID     = 8;
 //Returns the item class of the item that the weapon that hit came from (see IC_ constants); -1 if the lweapon is script created
 DEFINE HIT_BY_LWEAPON_PARENT_FAMILY = 9;
-//Returns the enemy class of the enemy that hit the player (see NPCT_ constants)
+//Returns the enemy class of the enemy that hit the player (see [NpcType] (`NPCT_`) constants)
 DEFINE HIT_BY_NPC_TYPE              = 10; //Player only
 //Returns the ID of the weapon that hit (see LW_ and EW_ constants)
 DEFINE HIT_BY_EWEAPON_TYPE          = 11; //Player only
@@ -3955,12 +3090,6 @@ enum //Light shapes for torch combos, lantern itemdata, and GlowShape variables
 	LIGHT_SQUARE
 };
 
-enum
-{
-	SHLD_FRONT, SHLD_BACK, SHLD_LEFT, SHLD_RIGHT,
-	SHLD_CAN_BREAK
-};
-
 //Override Flag constants, compare with itemdata->OverrideFlags, itemdata->WeaponOverrideFlags and npcdata->OverrideFlags. These correspond to the "Enabled" checkboxes in the Graphics->Size tab in the Item and Enemy Editors. Add or OR (|) these together 
 const int SZOF_TILEWIDTH      = 1;     //0000000001b, 0x001
 const int SZOF_TILEHEIGHT     = 2;     //0000000010b, 0x002
@@ -4027,16 +3156,6 @@ enum
 DEFINE CIID_FLAG_CHECKCOST     = 0x01;
 DEFINE CIID_FLAG_CHECKJINX     = 0x02;
 DEFINE CIID_FLAG_CHECKBUNNY    = 0x04;
-
-enum
-{
-	WPN_SPRITE_BASE,
-	WPN_SPRITE_BURN_ANY,
-	WPN_SPRITE_BURN_STRONG,
-	WPN_SPRITE_BURN_MAGIC,
-	WPN_SPRITE_BURN_DIVINE,
-	WPN_SPRITE_MAX
-};
 
 enum
 {
@@ -4362,23 +3481,3 @@ enum // Flags for SUBWIDG_BTNCOUNTER
 
 //} End section for subscreen type-specific flag constants
 //} End section for engine subscreen stuff
-
-enum //Hero->Sliding constants
-{
-	SLD_NONE,
-	SLD_ICE,
-	SLD_AIR,
-	SLD_MAX
-};
-
-enum = long {
-    WEBSOCKET_STATE_CONNECTING,
-    WEBSOCKET_STATE_OPEN,
-    WEBSOCKET_STATE_CLOSING,
-    WEBSOCKET_STATE_CLOSED
-};
-
-enum = long {
-    WEBSOCKET_MESSAGE_TYPE_TEXT = 1L,
-    WEBSOCKET_MESSAGE_TYPE_BINARY = 2L
-};

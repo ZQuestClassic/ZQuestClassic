@@ -199,7 +199,7 @@ stdout:
   ],
   "metadata": {
     "currentFileSymbols": 181,
-    "symbols": 367,
+    "symbols": 369,
     "identifiers": 1547,
     "elided": true
   }

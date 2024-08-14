@@ -1,3 +1,97 @@
+import "bindings/qrs.zh"
+
+// Use as index for [Game->Gravity[]].
+enum GravityIndex
+{
+	GR_STRENGTH,
+	GR_TERMINALV,
+	GR_SPRLAYER,
+	GR_AIRDRAG
+};
+
+// Use as index for [Game->Scrolling[]].
+enum ScrollingIndex
+{
+	SCROLL_DIR,
+	SCROLL_NX,
+	SCROLL_NY,
+	SCROLL_OX,
+	SCROLL_OY
+};
+
+// Use as index for [Game->MiscSprites[]].
+enum MiscSpriteIndex
+{
+	MISCSPR_FALL,
+	MISCSPR_DROWN,
+	MISCSPR_LAVADROWN,
+	MISCSPR_SWITCHPOOF,
+	MISCSPR_MAX
+};
+
+// Use as index for [Game->MiscSFX[]].
+enum MiscSfx
+{
+	MISCSFX_BUSH,
+	MISCSFX_SWITCHED,
+	MISCSFX_LOWHEART,
+	MISCSFX_ERROR,
+	MISCSFX_PLAYER_HURT,
+	MISCSFX_HAMMER_PEG,
+	MISCSFX_SUBSCR_ITEM_ASSIGN,
+	MISCSFX_SUBSCR_CURSOR_MOVE,
+	MISCSFX_REFILL,
+	MISCSFX_RUPEEDRAIN,
+	MISCSFX_MAX
+};
+
+// Use as index for [Game->Generic[]].
+enum GenericIndex
+{
+	GEN_HEARTPIECES        = 0, // Heart Pieces currently possessed
+	GEN_MAGICDRAINRATE     = 1, // Link's magic usage equals n / 2.
+	GEN_CANSLASH           = 2, // Link can slash with the sword.
+	// Warp Ring number that a Whirlwind warp will send Link to.
+	// It is set every time that Link uses the Whistle.
+	GEN_WARPLEVEL          = 3,
+	GEN_HCPPERHC           = 4, // How many Pieces of Heart form a complete Heart Container?
+	GEN_CONTINUEHEARTS     = 5, // Amount of life that Link continues with
+	GEN_CONTINUEISPERCENT  = 6, // Percentage of life that Link continues with
+	GEN_HP_PER_HEART       = 7, //How much HP makes a 'heart'
+	GEN_MP_PER_BLOCK       = 8, //How much MP makes a 'block'
+	GEN_HERO_DMG_MULT      = 9, //Damage multiplier for damage by Link
+	GEN_ENEM_DMG_MULT      = 10, //Damage multiplier for damage by enemies
+	GEN_DITHER_TYPE        = 11, //Type of dithering used with dark rooms
+	GEN_DITHER_ARG         = 12, //Dithering argument used with dark rooms
+	GEN_DITHER_PERCENT     = 13, //Percent of light circles taken up by dithering
+	GEN_DEFAULT_LIGHT_RAD  = 14, //Default light radius initialized to enemies
+	GEN_TRANS_PERCENT      = 15, //Percent of light circles taken up by transparency
+	GEN_DARKNESS_COLOR     = 16, //Color of darkness
+	GEN_WATERGRAVITY       = 17, //Y position addition when not moving when sideview swimming. can be negative
+	GEN_SIDESWIM_STEP_UP   = 18, //Hero step speed when sideview swimming, moving up
+	GEN_SIDESWIM_STEP_SIDE = 19, //Hero step speed when sideview swimming, moving left and right
+	GEN_SIDESWIM_STEP_DOWN = 20, //Hero step speed when sideview swimming, moving down
+	// Jump value when exiting water from the top.
+	// If 0, Link can only leave the top of the water via
+	// sideview ladder.
+	GEN_SIDESWIM_EXITJUMP  = 21,
+	GEN_BUNNY_TILEMOD      = 22, //Tile modifier to apply while player is bunnified
+	GEN_SWITCHHOOK_STYLE   = 23, //Which 'SW_EFF' style to use for the 'Switch w/ Player' enemy defense
+	GEN_FLICKER_FRAMES     = 24, //How many frames Link / enemies flicker for with the flicker damage effect
+	GEN_FLICKER_COLOR      = 25, //Color used for the flicker effect
+	GEN_FLICKER_TRANSP     = 26, //Number of transparency passes for the flicker effect
+	GEN_MAX                = 27
+};
+
+// Values for [Game->MouseCursor].
+enum MouseCursor
+{
+	ZCM_CUSTOM,
+	ZCM_BLANK,
+	ZCM_NORMAL,
+	ZCM_MAX
+};
+
 class Game {
 	// @delete
 	internal Game();
@@ -87,25 +181,33 @@ class Game {
 	// @zasm_var GAMECONTDMAP
 	internal int ContinueDMap;
 
-	// The value of each of the game's counters (using `CR_` constants). Values
-	// `0 to 65535`.
+	// The value of each of the game's counters.
+	//
+	// Valid indices: [CounterIndex] (`CR_`).
+	// Valid values: `0 to 65535`.
 	//
 	// @zasm_var GAMECOUNTERD
 	internal int Counter[];
 
-	// The max value of each of the game's counters (using `CR_` constants).
-	// Values `0 to 65535`.
+	// The max value of each of the game's counters.
+	//
+	// Valid indices: [CounterIndex] (`CR_`).
+	// Valid values: `0 to 65535`.
 	//
 	// @zasm_var GAMEMCOUNTERD
 	internal int MCounter[];
 
-	// The value of each of the game's drain counters (using `CR_` constants).
-	// Values `-32768 to 32767`.
+	// The value of each of the game's drain counters.
+	//
+	// Valid indices: [CounterIndex] (`CR_`).
+	// Valid values: `-32768 to 32767`.
 	//
 	// @zasm_var GAMEDCOUNTERD
 	internal int DCounter[];
 
 	// Generic values related to the game.
+	//
+	// Valid indices: [GenericIndex] (`GEN_`).
 	//
 	// @zasm_var GAMEGENERICD
 	internal untyped Generic[];
@@ -169,8 +271,9 @@ class Game {
 	// @zasm_var GAMECLICKFREEZE
 	internal bool ClickToFreezeEnabled;
 
-	// The values of all Quest Rules. Access this array using the `qr_`
-	// constants in `include/std_zh/ffrules.zh`.
+	// The values of all Quest Rules.
+	//
+	// Valid indices: [QR] (`qr_`).
 	//
 	// @zasm_var FFRULE
 	internal bool FFRules[];
@@ -245,22 +348,28 @@ class Game {
 
 	// Values related to gravity.
 	//
+	// Valid indices: [GravityIndex] (`GR_`).
+	//
 	// @zasm_var GAMEGRAVITY
 	internal int Gravity[];
 
 	// values related to scrolling.
 	//
+	// Valid indices: [ScrollingIndex] (`SCROLL_`).
+	//
 	// @zasm_var GAMESCROLLING
 	internal const int Scrolling[];
 
-	// The `Quest->Graphics->Sprites->Misc Sprites` values, accessed with the
-	// `MISCSPR_` constants.
+	// The `Quest->Graphics->Sprites->Misc Sprites` values.
+	//
+	// Valid indices: [MiscSpriteIndex] (`MISCSPR_`).
 	//
 	// @zasm_var GAMEMISCSPR
 	internal int MiscSprites[];
 
-	// The `Quest->Audio->Misc SFX` values, accessed with the `MISCSFX_`
-	// constants.
+	// The `Quest->Audio->Misc SFX` values.
+	//
+	// Valid indices: [MiscSfx] (`MISCSFX_`).
 	//
 	// @zasm_var GAMEMISCSFX
 	internal int MiscSFX[];
@@ -283,9 +392,10 @@ class Game {
 	// @zasm_var TANGOARR
 	internal untyped Misc3[];
 
-	// Which mouse cursor (using the `ZCM_` constants) should be displayed
-	// during gameplay. ZCM_BLANK is the default, and it resets on visiting the
-	// title screen.
+	// Which mouse cursor should be displayed during gameplay.
+	// [ZCM_BLANK] is the default, and it resets on visiting the title screen.
+	//
+	// Valid values: [MouseCursor] (`ZCM_`).
 	//
 	// @zasm_var GAMEMOUSECURSOR
 	internal int MouseCursor;
@@ -332,17 +442,17 @@ class Game {
 	// @zasm_var GAMEASUBYOFF
 	internal const int ActiveSubscreenY;
 
-	// Returns the total number of active/passive/overlay subscreens
+	// Returns the total number of active subscreens
 	//
 	// @zasm_var GAMENUMASUB
 	internal int NumActiveSubscreens;
 
-	// Returns the total number of active/passive/overlay subscreens
+	// Returns the total number of passive subscreens
 	//
 	// @zasm_var GAMENUMPSUB
 	internal int NumPassiveSubscreens;
 
-	// Returns the total number of active/passive/overlay subscreens
+	// Returns the total number of overlay subscreens
 	//
 	// @zasm_var GAMENUMOSUB
 	internal int NumOverlaySubscreens;

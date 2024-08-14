@@ -2627,7 +2627,7 @@ int NumLWeaponsOf(int type)
 	return ret;
 }
 
-//Use NPCT_* constants.
+// Valid values for [type]: [NpcType] (`NPCT_`).
 int NumNPCsOf(int type)
 {
 	int ret = 0;

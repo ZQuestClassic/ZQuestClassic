@@ -1,3 +1,259 @@
+enum NpcType
+{
+	NPCT_GUY,
+	NPCT_WALK,
+
+	NPCT_TEKTITE = 3,
+	NPCT_LEEVER,
+	NPCT_PEAHAT,
+	NPCT_ZORA,
+	NPCT_ROCK,
+	NPCT_GHINI,
+	NPCT_ARMOS,
+	NPCT_KEESE,
+
+	NPCT_TRAP = 15,
+	NPCT_WALLMASTER = 16,
+
+	NPCT_WIZZROBE = 21,
+	NPCT_AQUAMENTUS,
+	NPCT_MOLDORM,
+	NPCT_DODONGO,
+	NPCT_MANHANDLA,
+	NPCT_GLEEOK,
+	NPCT_DIGDOGGER,
+	NPCT_GOHMA,
+	NPCT_LANMOLA,
+	NPCT_PATRA,
+	NPCT_GANON,
+	NPCT_PROJECTILE,
+
+	NPCT_SPINTILE = 37,
+	NPCT_NONE,
+	NPCT_FAIRY,
+	NPCT_OTHERFLOAT,
+	NPCT_OTHER,
+
+	NPCT_CUSTOM_01 = 43,
+	NPCT_SCRIPT_01 = 43,
+	NPCT_CUSTOM_02 = 44,
+	NPCT_SCRIPT_02 = 44,
+	NPCT_CUSTOM_03 = 45,
+	NPCT_SCRIPT_03 = 45,
+	NPCT_CUSTOM_04 = 46,
+	NPCT_SCRIPT_04 = 46,
+	NPCT_CUSTOM_05 = 47,
+	NPCT_SCRIPT_05 = 47,
+	NPCT_CUSTOM_06 = 48,
+	NPCT_SCRIPT_06 = 48,
+	NPCT_CUSTOM_07 = 49,
+	NPCT_SCRIPT_07 = 49,
+	NPCT_CUSTOM_08 = 50,
+	NPCT_SCRIPT_08 = 50,
+	NPCT_CUSTOM_09 = 51,
+	NPCT_SCRIPT_09 = 51,
+	NPCT_CUSTOM_10 = 52,
+	NPCT_SCRIPT_10 = 52,
+	NPCT_CUSTOM_11 = 53,
+	NPCT_SCRIPT_11 = 53,
+	NPCT_CUSTOM_12 = 54,
+	NPCT_SCRIPT_12 = 54,
+	NPCT_CUSTOM_13 = 55,
+	NPCT_SCRIPT_13 = 55,
+	NPCT_CUSTOM_14 = 56,
+	NPCT_SCRIPT_14 = 56,
+	NPCT_CUSTOM_15 = 57,
+	NPCT_SCRIPT_15 = 57,
+	NPCT_CUSTOM_16 = 58,
+	NPCT_SCRIPT_16 = 58,
+	NPCT_CUSTOM_17 = 59,
+	NPCT_SCRIPT_17 = 59,
+	NPCT_CUSTOM_18 = 60,
+	NPCT_SCRIPT_18 = 60,
+	NPCT_CUSTOM_19 = 61,
+	NPCT_SCRIPT_19 = 61,
+	NPCT_CUSTOM_20 = 62,
+	NPCT_SCRIPT_20 = 62,
+	NPCT_FRIENDLY_01 = 63,
+	NPCT_FRIENDLY_02 = 64,
+	NPCT_FRIENDLY_03 = 65,
+	NPCT_FRIENDLY_04 = 66,
+	NPCT_FRIENDLY_05 = 67,
+	NPCT_FRIENDLY_06 = 68,
+	NPCT_FRIENDLY_07 = 69,
+	NPCT_FRIENDLY_08 = 70,
+	NPCT_FRIENDLY_09 = 71,
+	NPCT_FRIENDLY_10 = 72
+};
+
+// Use as index for npc->Defense[].
+enum NpcDefenseIndex
+{
+	NPCD_BRANG,
+	NPCD_BOMB,
+	NPCD_SBOMB,
+	NPCD_ARROW,
+	NPCD_FIRE,
+	NPCD_WAND,
+	NPCD_MAGIC,
+	NPCD_HOOKSHOT,
+	NPCD_HAMMER,
+	NPCD_SWORD,
+	NPCD_BEAM,
+	NPCD_REFBEAM,
+	NPCD_REFMAGIC,
+	NPCD_REFFIREBALL,
+	NPCD_REFROCK,
+	NPCD_STOMP,
+	NPCD_BYRNA,
+	NPCD_SCRIPT,
+
+	NPCD_SCRIPT1 = 20,
+	NPCD_SCRIPT2,
+	NPCD_SCRIPT3,
+	NPCD_SCRIPT4,
+	NPCD_SCRIPT5,
+	NPCD_SCRIPT6,
+	NPCD_SCRIPT7,
+	NPCD_SCRIPT8,
+	NPCD_SCRIPT9,
+	NPCD_SCRIPT10,
+
+	NPCD_WHISTLE = 35,
+	NPCD_SWITCHHOOK,
+	NPCD_THROWN,
+	NPCD_REFARROW,
+	NPCD_REFFIRE,
+	NPCD_REFFIRE2
+};
+
+// Use as value type for npc->Defense[].
+enum NpcDefenseType
+{
+	NPCDT_NONE,
+	NPCDT_HALFDAMAGE,
+	NPCDT_QUARTERDAMAGE,
+	NPCDT_STUN,
+	NPCDT_STUNORBLOCK,
+	NPCDT_STUNORIGNORE,
+	NPCDT_BLOCK1,
+	NPCDT_BLOCK2,
+	NPCDT_BLOCK4,
+	NPCDT_BLOCK6,
+	NPCDT_BLOCK8,
+	NPCDT_BLOCK,
+	NPCDT_IGNORE1,
+	NPCDT_IGNORE,
+	NPCDT_ONEHITKILL,
+	NPCDT_BLOCK10,
+	NPCDT_2XDAMAGE,
+	NPCDT_3XDAMAGE,
+	NPCDT_4XDAMAGE,
+	NPCDT_HEAL,
+	NPCDT_TRIGGERSECRETS,
+
+	NPCDT_SWITCH = 50
+};
+
+// Enemy projectile weapon selections. Use with npc->Weapon.
+// Note: Don't use these with Screen->CreateEWeapon! Use the `EW_` constants instead.
+// Use WeaponTypeToID to convert this enum to a `EW_` value.
+enum NpcWeapon {
+	WPN_NONE              = 0,
+	WPN_ENEMYFLAME        = 140,
+	WPN_ENEMYWIND         = 141,
+	WPN_ENEMYFIREBALL     = 129,
+	WPN_ENEMYARROW        = 130,
+	WPN_ENEMYBRANG        = 131,
+	WPN_ENEMYSWORD        = 132,
+	WPN_ENEMYROCK         = 133,
+	WPN_ENEMYMAGIC        = 134,
+	WPN_ENEMYBOMB         = 135,
+	WPN_ENEMYSBOMB        = 136,
+	WPN_ENEMYLITBOMB      = 137,
+	WPN_ENEMYLITSBOMB     = 138,
+	WPN_ENEMYFIRETRAIL    = 139,
+	WPN_ENEMYFLAME2       = 142,
+	WPN_ENEMYFLAME2TRAIL  = 143, // Not implemented
+	WPN_ENEMYICE          = 144, // Not implemented
+	WPN_ENEMYFIREBALL2    = 145  // A fireball that doesn't fly toward Link
+};
+
+// Default item drop sets.
+enum ItemSet {
+	IS_NONE,
+	IS_DEFAULT,
+	IS_BOMBS,
+	IS_MONEY,
+	IS_LIFE,
+	IS_BOMB100, // Used by Dodongos
+	IS_SBOMB100, // Used by Dodongos
+	IS_MAGIC,
+	IS_MAGICBOMBS,
+	IS_MAGICMONEY,
+	IS_MAGICLIFE,
+	IS_MAGIC2,
+	IS_COMBOS // Used by Tall Grass / Bush / Slash combos.
+};
+
+// Boss palettes.
+enum BossPal
+{
+	BPAL_AQUA,
+	BPAL_GLEEOK,
+	BPAL_DODONGO,
+	BPAL_GANON,
+	BPAL_BROWN,
+	BPAL_PILE, // Used for the Dust Pile.
+	BPAL_BLUE,
+	BPAL_RED,
+	BPAL_GOLD,
+	BPAL_ICON1, // Used for Quest Icon 1.
+	BPAL_ICON2, // Used for Quest Icon 2.
+	BPAL_ICON3, // Used for Quest Icon 3.
+	BPAL_ICON4, // Used for Quest Icon 4.
+	BPAL_GLEEOKF,
+	BPAL_FROZEN // Unused
+};
+
+enum NpcMoveFlagIndex
+{
+	NPCMV_OBEYS_GRAVITY,
+	NPCMV_CAN_PITFALL,
+	NPCMV_CAN_PIT_WALK,
+	NPCMV_CAN_WATERDROWN,
+	NPCMV_CAN_WATER_WALK,
+	NPCMV_ONLY_WATER_WALK,
+	NPCMV_ONLY_SHALLOW_WATER_WALK,
+	NPCMV_ONLY_PIT_WALK,
+	NPCMV_NO_FAKE_Z,
+	NPCMV_NO_REAL_Z,
+	NPCMV_USE_FAKE_Z,
+	NPCMV_IGNORE_SOLIDITY,
+	NPCMV_IGNORE_BLOCKFLAGS,
+	NPCMV_IGNORE_SCREENEDGE,
+	NPCMV_USE_SCRIPTED_MOVEMENT_ENGINE,
+	NPCMV_NOT_PUSHABLE_BY_SOLIDS
+};
+
+enum NpcShieldIndex
+{
+	SHLD_FRONT,
+	SHLD_BACK,
+	SHLD_LEFT,
+	SHLD_RIGHT,
+	SHLD_CAN_BREAK
+};
+
+enum NpcFade
+{
+	NPCF_NONE,
+	NPCF_FLICKER,
+	NPCF_INVISIBLE,
+	NPCF_FLASH,
+	NPCF_POOF
+};
+
 // @zasm_ref REFNPC
 class npc {
 	// @delete
@@ -41,7 +297,9 @@ class npc {
 	// @zasm_var NPCSLIDECLK
 	internal int SlideClock;
 
-	// The death effect for the npc. Use the enum NPCFadeType in std_constants.
+	// The death effect for the npc.
+	//
+	// Valid values: [NpcFade] (`NPCF_`).
 	//
 	// @zasm_var NPCFADING
 	internal int Fading;
@@ -89,12 +347,16 @@ class npc {
 	// @zasm_var NPCID
 	internal const int ID;
 
-	// The type, or 'enemy class' of the enemy. Use the `NPCT_` constants.
+	// The type, or 'enemy class' of the enemy.
+	//
+	// Valid values: [NpcType] (`NPCT_`).
 	//
 	// @zasm_var NPCTYPE
 	internal int Type;
 
-	// The type, or 'enemy class' of the enemy. Use the `NPCT_` constants.
+	// The type, or 'enemy class' of the enemy. Same as [Type].
+	//
+	// Valid values: [NpcType] (`NPCT_`).
 	//
 	// @zasm_var NPCTYPE
 	internal int Family;
@@ -126,10 +388,14 @@ class npc {
 	// @zasm_var NPCOTILE
 	internal int OriginalTile;
 
+	// Valid values: [NpcWeapon] (`WPN_`).
+	//
 	// @zasm_var NPCWEAPON
 	internal int Weapon;
 
-	// The Dropset ID that this enemy will drop from when killed
+	// The Dropset ID that this enemy will drop from when killed.
+	//
+	// Valid values: [ItemSet] (`IS_`).
 	//
 	// @zasm_var NPCITEMSET
 	internal int ItemSet;
@@ -144,8 +410,10 @@ class npc {
 	// @zasm_var NPCCSET
 	internal int CSet;
 
+	// Valid values: [BossPal] (`BPAL_`).
+	//
 	// @zasm_var NPCBOSSPAL
-	internal int BossPal;
+	internal BossPal BossPal;
 
 	// @zasm_var NPCBGSFX
 	internal int SFX;
@@ -255,6 +523,9 @@ class npc {
 
 	// Expanded to a size of 42 to cover new defense categories.
 	//
+	// Valid indices are [NpcDefenseIndex] (`NPCD_`).
+	// Valid values: [NpcDefenseType] (`NPCDT_`).
+	//
 	// @zasm_var NPCDEFENSED
 	internal int Defense[];
 
@@ -327,7 +598,9 @@ class npc {
 	// @zasm_var NPCHASITEM
 	internal bool HasItem;
 
-	// Flags related to the enemy's shield. Use the `SHLD_` constants to access.
+	// Flags related to the enemy's shield.
+	//
+	// Valid indices are [NpcShieldIndex] (`SHLD_`).
 	//
 	// @zasm_var NPCSHIELD
 	internal bool Shield[];
@@ -407,7 +680,9 @@ class npc {
 	// @zasm_var NPCFALLCMB
 	internal int FallCombo;
 
-	// The movement flags of the npc. See `NPCMV_` constants.
+	// The movement flags of the npc.
+	//
+	// Valid indices are [NpcMoveFlagIndex] (`NPCMV_`).
 	//
 	// @zasm_var NPCMOVEFLAGS
 	internal bool MoveFlags[];
@@ -839,8 +1114,9 @@ class npc {
 	//   NPCKNOCKBACK D2 D3
 	internal bool Knockback(int time, int dir, int speed = 4);
 
-	// Switch the player with this sprite. Use the `SW_EFF_` constants for
-	// 'effect' to select a visual style for the switch.
+	// Switch the player with this sprite.
+	//
+	// Valid values for [effect] is [SwitchEffect] (`SW_EFF_`).
 	//
 	// @zasm
 	//   POP D2

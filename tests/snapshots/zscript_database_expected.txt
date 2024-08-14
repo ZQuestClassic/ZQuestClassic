@@ -1,4 +1,4 @@
-650 / 794 (81%) passed
+649 / 794 (81%) passed
 
 Failures:
 	00026-deku-leaf/script.zs
@@ -17,6 +17,7 @@ Failures:
 	00170-the-river-of-destiny-custom-maps/MapGlobal.z
 	00170-the-river-of-destiny-custom-maps/MapImport.z
 	00175-scripted-traps/script.zs
+	00188-solid-ffc/script.zs
 	00196-links-awakening-alpha/LinksAwakening_0.63_Dist.z
 	00196-links-awakening-alpha/ffcscript_LA.zh
 	00196-links-awakening-alpha/stdExtra.zh
@@ -293,6 +294,15 @@ Pass 2: Preprocessing
 00175-scripted-traps/script.zs Line 346 - Error P083: Could not find included file 'ghost_zh/scripts.z'. Please check your include paths!
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
+
+=== 00188-solid-ffc/script.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+00188-solid-ffc/script.zs Line 58 - Error T021: Function Cond(bool, const ComboType, const int) has not been declared.
+Failure!
+Compile finished with exit code '21' (compiled with errors)
 
 === 00196-links-awakening-alpha/LinksAwakening_0.63_Dist.z
 Pass 1: Parsing
