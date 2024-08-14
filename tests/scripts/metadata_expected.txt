@@ -23,61 +23,11 @@ stdout:
   "metadata": {
     "currentFileSymbols": [
       {
-        "name": "Fancy",
-        "kind": 13,
+        "name": "Brand",
+        "kind": 10,
         "range": {
           "start": {
             "line": 47,
-            "character": 4
-          },
-          "end": {
-            "line": 47,
-            "character": 9
-          }
-        },
-        "selectionRange": {
-          "start": {
-            "line": 47,
-            "character": 4
-          },
-          "end": {
-            "line": 47,
-            "character": 9
-          }
-        },
-        "children": []
-      },
-      {
-        "name": "Dull",
-        "kind": 13,
-        "range": {
-          "start": {
-            "line": 49,
-            "character": 4
-          },
-          "end": {
-            "line": 49,
-            "character": 8
-          }
-        },
-        "selectionRange": {
-          "start": {
-            "line": 49,
-            "character": 4
-          },
-          "end": {
-            "line": 49,
-            "character": 8
-          }
-        },
-        "children": []
-      },
-      {
-        "name": "Mid",
-        "kind": 13,
-        "range": {
-          "start": {
-            "line": 50,
             "character": 4
           },
           "end": {
@@ -87,7 +37,7 @@ stdout:
         },
         "selectionRange": {
           "start": {
-            "line": 50,
+            "line": 47,
             "character": 4
           },
           "end": {
@@ -95,7 +45,83 @@ stdout:
             "character": 7
           }
         },
-        "children": []
+        "children": [
+          {
+            "name": "Fancy",
+            "kind": 22,
+            "range": {
+              "start": {
+                "line": 47,
+                "character": 4
+              },
+              "end": {
+                "line": 47,
+                "character": 9
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 47,
+                "character": 4
+              },
+              "end": {
+                "line": 47,
+                "character": 9
+              }
+            },
+            "children": []
+          },
+          {
+            "name": "Dull",
+            "kind": 22,
+            "range": {
+              "start": {
+                "line": 49,
+                "character": 4
+              },
+              "end": {
+                "line": 49,
+                "character": 8
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 49,
+                "character": 4
+              },
+              "end": {
+                "line": 49,
+                "character": 8
+              }
+            },
+            "children": []
+          },
+          {
+            "name": "Mid",
+            "kind": 22,
+            "range": {
+              "start": {
+                "line": 50,
+                "character": 4
+              },
+              "end": {
+                "line": 50,
+                "character": 7
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 50,
+                "character": 4
+              },
+              "end": {
+                "line": 50,
+                "character": 7
+              }
+            },
+            "children": []
+          }
+        ]
       },
       {
         "name": "postfix",
@@ -804,6 +830,21 @@ stdout:
       }
     ],
     "symbols": {
+      "custom.43": {
+        "loc": {
+          "range": {
+            "start": {
+              "line": 45,
+              "character": 5
+            },
+            "end": {
+              "line": 45,
+              "character": 10
+            }
+          },
+          "uri": "URI"
+        }
+      },
       "1343": {
         "loc": {
           "range": {
@@ -813,7 +854,7 @@ stdout:
             },
             "end": {
               "line": 2,
-              "character": 15
+              "character": 11
             }
           },
           "uri": "URI"
@@ -829,7 +870,7 @@ stdout:
             },
             "end": {
               "line": 92,
-              "character": 8
+              "character": 6
             }
           },
           "uri": "URI"
@@ -859,7 +900,7 @@ stdout:
             },
             "end": {
               "line": 699,
-              "character": 37
+              "character": 20
             }
           },
           "uri": "URI"
@@ -875,7 +916,7 @@ stdout:
             },
             "end": {
               "line": 3,
-              "character": 22
+              "character": 12
             }
           },
           "uri": "URI"
@@ -907,14 +948,14 @@ stdout:
             },
             "end": {
               "line": 85,
-              "character": 18
+              "character": 11
             }
           },
           "uri": "URI"
         },
         "doc": "A lovely function. See [`utils::fn()`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A85%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A85%2C%22character%22%3A11%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A16%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A16%2C%22character%22%3A5%7D%7D%7D) or [`fn()`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A85%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A85%2C%22character%22%3A11%7D%7D%7D) or [`Car`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A21%2C%22character%22%3A6%7D%2C%22end%22%3A%7B%22line%22%3A21%2C%22character%22%3A9%7D%7D%7D)"
       },
-      "custom.43": {
+      "custom.44": {
         "loc": {
           "range": {
             "start": {
@@ -939,7 +980,7 @@ stdout:
             },
             "end": {
               "line": 27,
-              "character": 18
+              "character": 7
             }
           },
           "uri": "URI"
@@ -983,7 +1024,7 @@ stdout:
           "range": {
             "start": {
               "line": 56,
-              "character": 13
+              "character": 17
             },
             "end": {
               "line": 56,
@@ -1089,7 +1130,7 @@ stdout:
         },
         "doc": "meh"
       },
-      "custom.44": {
+      "custom.45": {
         "loc": {
           "range": {
             "start": {
@@ -1119,7 +1160,7 @@ stdout:
           "uri": "URI"
         }
       },
-      "custom.45": {
+      "custom.46": {
         "loc": {
           "range": {
             "start": {
@@ -1176,7 +1217,7 @@ stdout:
             },
             "end": {
               "line": 74,
-              "character": 32
+              "character": 19
             }
           },
           "uri": "URI"
@@ -1188,11 +1229,11 @@ stdout:
           "range": {
             "start": {
               "line": 71,
-              "character": 8
+              "character": 13
             },
             "end": {
-              "line": 74,
-              "character": 9
+              "line": 71,
+              "character": 14
             }
           },
           "uri": "URI"
@@ -1203,11 +1244,11 @@ stdout:
           "range": {
             "start": {
               "line": 75,
-              "character": 12
+              "character": 16
             },
             "end": {
               "line": 75,
-              "character": 24
+              "character": 20
             }
           },
           "uri": "URI"
@@ -1238,7 +1279,7 @@ stdout:
             },
             "end": {
               "line": 32,
-              "character": 16
+              "character": 14
             }
           },
           "uri": "URI"
@@ -1250,7 +1291,7 @@ stdout:
           "range": {
             "start": {
               "line": 27,
-              "character": 8
+              "character": 12
             },
             "end": {
               "line": 27,
@@ -1262,6 +1303,14 @@ stdout:
       }
     },
     "identifiers": [
+      {
+        "loc": {
+          "line": 45,
+          "character": 5,
+          "length": 5
+        },
+        "symbol": "custom.43"
+      },
       {
         "loc": {
           "line": 3,
@@ -1340,7 +1389,7 @@ stdout:
           "character": 8,
           "length": 4
         },
-        "symbol": "custom.43"
+        "symbol": "custom.44"
       },
       {
         "loc": {
@@ -1436,7 +1485,7 @@ stdout:
           "character": 8,
           "length": 4
         },
-        "symbol": "custom.44"
+        "symbol": "custom.45"
       },
       {
         "loc": {
@@ -1452,7 +1501,7 @@ stdout:
           "character": 8,
           "length": 3
         },
-        "symbol": "custom.45"
+        "symbol": "custom.46"
       },
       {
         "loc": {

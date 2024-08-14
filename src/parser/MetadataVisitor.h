@@ -23,6 +23,7 @@ namespace ZScript
 		void caseScript(ASTScript& host, void* param);
 		void caseClass(ASTClass& host, void* param);
 		void caseDataDecl(ASTDataDecl& host, void* param);
+		void caseDataEnum(ASTDataEnum& host, void* param);
 		void caseFuncDecl(ASTFuncDecl& host, void* param);
 		void caseExprIdentifier(ASTExprIdentifier& host, void* param);
 		void caseExprArrow(ASTExprArrow& host, void* param);

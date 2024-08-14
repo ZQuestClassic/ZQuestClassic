@@ -4,6 +4,7 @@
 #include "Scope.h"
 
 #include <assert.h>
+#include <optional>
 #include <sstream>
 
 #include "parser/ParserHelper.h"
@@ -1292,6 +1293,8 @@ const std::string& ASTFuncDecl::getName() const
 
 std::optional<LocationData> ASTFuncDecl::getIdentifierLocation() const
 {
+	if (identifier->componentNodes.empty())
+		return std::nullopt;
 	return identifier->componentNodes.back()->location;
 }
 
@@ -1368,6 +1371,22 @@ ASTDataEnum::ASTDataEnum(LocationData const& location)
 ASTDataEnum::ASTDataEnum(ASTDataEnum const& other)
 	: ASTDataDeclList(other)
 {}
+
+std::optional<LocationData> ASTDataEnum::getIdentifierLocation() const
+{
+	// TODO: need to work out enum location data.
+	// if (auto custom_type = dynamic_cast<const DataTypeCustom*>(baseType->type.get()); custom_type && custom_type->getSource())
+	// 	return custom_type->getSource()->getIdentifierLocation();
+
+	return std::nullopt;
+}
+
+std::string ASTDataEnum::getName() const {
+	std::string name = baseType.get()->type->getBaseType().getName();
+	if (name.starts_with("const "))
+		return name.substr(6);
+	return name;
+}
 
 void ASTDataEnum::execute(ASTVisitor& visitor, void* param)
 {
@@ -1531,9 +1550,9 @@ void ASTDataTypeDef::execute(ASTVisitor& visitor, void* param)
 //ASTCustomDataTypeDef
 
 ASTCustomDataTypeDef::ASTCustomDataTypeDef(
-		ASTDataType* type, std::string const& name, ASTDataEnum* defn,
+		ASTDataType* type, ASTString* identifier, ASTDataEnum* defn,
 			LocationData const& location)
-		: ASTDataTypeDef(type, name, location), definition(defn)
+		: ASTDataTypeDef(type, identifier->getValue(), location), identifier(identifier), definition(defn)
 {}
 
 void ASTCustomDataTypeDef::execute(ASTVisitor& visitor, void* param)

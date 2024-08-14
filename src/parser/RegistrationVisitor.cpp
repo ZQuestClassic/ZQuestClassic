@@ -224,6 +224,8 @@ void RegistrationVisitor::caseClass(ASTClass& host, void* param)
 		DataTypeCustomConst* newConstType = new DataTypeCustomConst("const " + host.getName(), &user_class);
 		//Construct the base type
 		DataTypeCustom* newBaseType = new DataTypeCustom(host.getName(), newConstType, &user_class, newConstType->getCustomId());
+		newBaseType->setSource(&host);
+		newConstType->setSource(&host);
 		
 		//Set the type to the base type
 		host.type.reset(new ASTDataType(newBaseType, host.location));
@@ -543,6 +545,8 @@ void RegistrationVisitor::caseCustomDataTypeDef(ASTCustomDataTypeDef& host, void
 		DataTypeCustomConst* newConstType = new DataTypeCustomConst("const " + host.name);
 		//Construct the base type
 		DataTypeCustom* newBaseType = new DataTypeCustom(host.name, newConstType, nullptr, newConstType->getCustomId());
+		newBaseType->setSource(&host);
+		newConstType->setSource(&host);
 		
 		//Set the type to the base type
 		host.type.reset(new ASTDataType(newBaseType, host.location));

@@ -1,6 +1,7 @@
 #include "base/util.h"
 #include "parser/AST.h"
 #include "parser/ASTVisitors.h"
+#include "parser/Types.h"
 #include "parserDefs.h"
 #include "MetadataVisitor.h"
 #include <cassert>
@@ -249,8 +250,8 @@ static void parseCommentForLinks(std::string& comment, const AST* node)
 			auto ident = parseExprIdentifier(symbol_name);
 			if (auto type = lookupDataType(*scope, ident, nullptr))
 			{
-				if (type->isUsrClass())
-					symbol_node = type->getUsrClass()->getNode();
+				if (auto custom_type = dynamic_cast<const DataTypeCustom*>(type); custom_type)
+					symbol_node = custom_type->getSource();
 			}
 		}
 
@@ -266,11 +267,10 @@ static void parseCommentForLinks(std::string& comment, const AST* node)
 		else if (is_fn)
 			link_text += "()";
 
-		auto location = symbol_node->getIdentifierLocation();
-		std::string path = location ? location->fname : symbol_node->location.fname;
+		auto location = symbol_node->getIdentifierLocation().value_or(symbol_node->location);
 		auto args = json{
-			{"file", make_uri(path)},
-			{"position", LocationData_json(*location)},
+			{"file", make_uri(location.fname)},
+			{"position", LocationData_json(location)},
 		};
 		std::string command = fmt::format("zscript.openLink?{}", url_encode(args.dump()));
 		comment.replace(pos, len, fmt::format("[`{}`](command:{})", link_text, command));
@@ -351,11 +351,12 @@ static void appendIdentifier(std::string symbol_id, const AST* symbol_node, cons
 
 	if (!root["symbols"].contains(symbol_id))
 	{
+		auto loc = symbol_node->getIdentifierLocation().value_or(symbol_node->location);
 		root["symbols"][symbol_id] = {
 			// TODO LocationData_location_json
 			{"loc", {
-				{"range", LocationData_json(symbol_node->location)},
-				{"uri", make_uri(symbol_node->location.fname)},
+				{"range", LocationData_json(loc)},
+				{"uri", make_uri(loc.fname)},
 			}},
 		};
 
@@ -453,13 +454,50 @@ void MetadataVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 	auto user_class = host.resolvedType ? host.resolvedType->getUsrClass() : nullptr;
 	if (user_class && host.list && host.list->baseType)
 	{
+		// TODO: this user_class branch could be removed, but it catches things like `const npc[]`
+		// (ex: auto npcs = Screen->NPCs), since in that case `custom_type->getSource()` is currently null
+		// for some reason.
 		std::string symbol_id = fmt::format("custom.{}", user_class->getType()->getUniqueCustomId());
 		appendIdentifier(symbol_id, user_class->getNode(), getSelectionRange(*host.list->baseType));
+	}
+	else if (host.resolvedType)
+	{
+		auto resolvedType = host.resolvedType;
+		if (host.resolvedType->isArray())
+			resolvedType = &host.resolvedType->getBaseType();
+		if (auto custom_type = dynamic_cast<const DataTypeCustom*>(resolvedType); custom_type)
+		{
+			std::string symbol_id = fmt::format("custom.{}", custom_type->getUniqueCustomId());
+			appendIdentifier(symbol_id, custom_type->getSource(), getSelectionRange(*host.list->baseType));
+		}
 	}
 
 	auto prev_active = active;
 	appendDocSymbol(SymbolKind::Variable, host);
 	RecursiveVisitor::caseDataDecl(host, param);
+	active = prev_active;
+}
+
+void MetadataVisitor::caseDataEnum(ASTDataEnum& host, void* param)
+{
+	auto* base_type = host.baseType.get();
+	if (base_type)
+	{
+		if (auto custom_type = dynamic_cast<const DataTypeCustom*>(base_type->type.get()); custom_type)
+		{
+			std::string symbol_id = fmt::format("custom.{}", custom_type->getUniqueCustomId());
+			appendIdentifier(symbol_id, custom_type->getSource(), getSelectionRange(*custom_type->getSource()));
+		}
+	}
+
+	auto prev_active = active;
+	appendDocSymbol(SymbolKind::Enum, host);
+	for (auto* decl : host.getDeclarations())
+	{
+		auto prev_active = active;
+		appendDocSymbol(SymbolKind::EnumMember, *decl);
+		active = prev_active;
+	}
 	active = prev_active;
 }
 

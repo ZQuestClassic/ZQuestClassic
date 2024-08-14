@@ -1061,6 +1061,8 @@ namespace ZScript
 		ASTDataEnum(ASTDataEnum const&);
 		ASTDataEnum* clone() const {return new ASTDataEnum(*this);}
 
+		std::optional<LocationData> getIdentifierLocation() const;
+		std::string getName() const;
 		void execute(ASTVisitor& visitor, void* param = NULL);
 		virtual bool isEnum() const {return true;}
 	private:
@@ -1175,16 +1177,19 @@ namespace ZScript
 	class ASTCustomDataTypeDef : public ASTDataTypeDef
 	{
 	public:
-		ASTCustomDataTypeDef(ASTDataType* type = NULL,
-					std::string const& name = "",
-					ASTDataEnum* defn = NULL,
+		ASTCustomDataTypeDef(ASTDataType* type,
+					ASTString* identifier,
+					ASTDataEnum* defn,
 					LocationData const& location = LOC_NONE);
 		ASTCustomDataTypeDef* clone() const {return new ASTCustomDataTypeDef(*this);}
 		
 		void execute(ASTVisitor& visitor, void* param = NULL);
 		
 		bool isCustomDataType() const {return true;}
-		
+
+		std::optional<LocationData> getIdentifierLocation() const {return identifier->location;}
+
+		owning_ptr<ASTString> identifier;
 		owning_ptr<ASTDataEnum> definition;
 	};
 

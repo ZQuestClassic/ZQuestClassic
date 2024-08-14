@@ -592,8 +592,8 @@ StandardDataTypedef : TYPEDEF DataType IDENTIFIER {
 EnumDataTypedef : ENUM IDENTIFIER LBRACE Enum_Block RBRACE {
 	ASTDataEnum* en = (ASTDataEnum*)$4;
 	ASTString* identifier = (ASTString*)$2;
-	$$ = new ASTCustomDataTypeDef(NULL, identifier->getValue(), en, @$);
-	delete identifier;}
+	$$ = new ASTCustomDataTypeDef(NULL, identifier, en, @$);
+	}
 
 DataType :
 	DataType EMPTYBRACKETS {
