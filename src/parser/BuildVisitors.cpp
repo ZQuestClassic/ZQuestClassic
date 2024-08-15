@@ -333,6 +333,7 @@ void BuildOpcodes::caseBlock(ASTBlock &host, void *param)
 	OpcodeContext *c = (OpcodeContext *)param;
 
 	int32_t startRefCount = arrayRefs.size();
+	auto orig_scope = scope;
 	scope = host.getScope();
 
 	for (auto it = host.statements.begin(); it != host.statements.end(); ++it)
@@ -370,7 +371,7 @@ void BuildOpcodes::caseBlock(ASTBlock &host, void *param)
 	else
 		addOpcodes(ops_stack_refs);
 
-	scope = scope->getParent();
+	scope = orig_scope;
 }
 
 void BuildOpcodes::caseStmtIf(ASTStmtIf &host, void *param)
