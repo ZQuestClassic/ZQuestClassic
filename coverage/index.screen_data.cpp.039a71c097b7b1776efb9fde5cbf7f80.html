@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2024-08-12 01:20:23</td>
+      <td>2024-08-15 03:54:42</td>
     </tr>
   </table>
 </div>
@@ -1955,14 +1955,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">ene_flag</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">guy_zora</span><span class="p">,</span><span class="n">guy_trap</span><span class="p">,</span><span class="n">guy_trp2</span><span class="p">,</span><span class="n">guy_rock</span><span class="p">,</span><span class="n">guy_fire</span><span class="p">};</span></td>
+      <td class="src "><span class="w">	</span><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">ene_flag</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">guy_zora</span><span class="p">,</span><span class="n">guy_trap</span><span class="p">,</span><span class="n">guy_trp2</span><span class="p">,</span><span class="n">guy_rock</span><span class="p">,</span><span class="n">guy_fire</span><span class="p">};</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l222" href="#l222">222</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="k">for</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;</span><span class="n">eMAXGUYS</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">ene_found</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mb">0b11111</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span></td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="k">for</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;</span><span class="n">eMAXGUYS</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">ene_found</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kt">uint64_t</span><span class="p">(</span><span class="mb">0b11111</span><span class="p">);</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l223" href="#l223">223</a></td>
@@ -1997,7 +1997,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="k">if</span><span class="p">(</span><span class="n">guysbuf</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">flags2</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">ene_flag</span><span class="p">[</span><span class="n">q</span><span class="p">])</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="k">if</span><span class="p">(</span><span class="n">guysbuf</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">flags</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">ene_flag</span><span class="p">[</span><span class="n">q</span><span class="p">])</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l228" href="#l228">228</a></td>

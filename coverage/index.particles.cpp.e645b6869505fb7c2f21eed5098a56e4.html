@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2024-08-12 01:20:23</td>
+      <td>2024-08-15 03:54:42</td>
     </tr>
   </table>
 </div>
@@ -87,14 +87,14 @@
     <tr><td><a href="#l168">particle_list::add(particle*) (line 168)</a></td><td>called 1344 times, returned 1344 times</td><td>50.0%</td></tr>
     <tr><td><a href="#l289">particle_list::animate() (line 289)</a></td><td>called 14165508 times, returned 14165508 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l147">particle_list::at(int) (line 147)</a></td><td>called 1344 times, returned 1344 times</td><td>80.0%</td></tr>
-    <tr><td><a href="#l140">particle_list::clear() (line 140)</a></td><td>called 35482 times, returned 35482 times</td><td>75.0%</td></tr>
+    <tr><td><a href="#l140">particle_list::clear() (line 140)</a></td><td>called 35483 times, returned 35483 times</td><td>75.0%</td></tr>
     <tr><td><a href="#l237">particle_list::del(int) (line 237)</a></td><td>called 1344 times, returned 1344 times</td><td>88.0%</td></tr>
-    <tr><td><a href="#l267">particle_list::draw(BITMAP*, bool, int) (line 267)</a></td><td>called 123024728 times, returned 123024728 times</td><td>55.0%</td></tr>
+    <tr><td><a href="#l267">particle_list::draw(BITMAP*, bool, int) (line 267)</a></td><td>called 123024736 times, returned 123024736 times</td><td>55.0%</td></tr>
     <tr><td><a href="#l315">particle_list::getByUID(int) (line 315)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l217">particle_list::getX(int) (line 217)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l227">particle_list::getY(int) (line 227)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l310">particle_list::has_space(int) (line 310)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l139">particle_list::particle_list() (line 139)</a></td><td>called 364 times, returned 364 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l139">particle_list::particle_list() (line 139)</a></td><td>called 365 times, returned 365 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l182">particle_list::remove(particle*) (line 182)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l155">particle_list::swap(int, int) (line 155)</a></td><td>not called</td><td>0.0%</td></tr>
   </table>
@@ -1111,14 +1111,14 @@
       <td class="lineno"><a id="l139" href="#l139">139</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">364</td>
+      <td class="linecount coveredLine">365</td>
       <td class="src coveredLine"><span class="n">particle_list</span><span class="o">::</span><span class="n">particle_list</span><span class="p">()</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">count</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span><span class="w"> </span><span class="n">active_iterator</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span><span class="w"> </span><span class="n">max_particles</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span><span class="w"> </span><span class="p">{}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l140" href="#l140">140</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">35482</td>
+      <td class="linecount coveredLine">35483</td>
       <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="n">particle_list</span><span class="o">::</span><span class="n">clear</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
@@ -1135,32 +1135,32 @@
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 35482 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 35483 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">35482</td>
+      <td class="linecount partialCoveredLine">35483</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">while</span><span class="p">(</span><span class="n">count</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">del</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l143" href="#l143">143</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">35482</td>
+      <td class="linecount coveredLine">35483</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">lastUIDRequested</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l144" href="#l144">144</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">35482</td>
+      <td class="linecount coveredLine">35483</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">lastRequested</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l145" href="#l145">145</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">35482</td>
+      <td class="linecount coveredLine">35483</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -2074,7 +2074,7 @@
       <td class="lineno"><a id="l267" href="#l267">267</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">123024728</td>
+      <td class="linecount coveredLine">123024736</td>
       <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="n">particle_list</span><span class="o">::</span><span class="n">draw</span><span class="p">(</span><span class="n">BITMAP</span><span class="o">*</span><span class="w"> </span><span class="n">dest</span><span class="p">,</span><span class="kt">bool</span><span class="w"> </span><span class="n">lowfirst</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">lyr</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -2090,12 +2090,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 123024728 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 123024736 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">123024728</td>
+      <td class="linecount partialCoveredLine">123024736</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">lowfirst</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -2111,12 +2111,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 123024728 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 123024736 times.</div>
           <div class="takenBranch">&check; Branch 1 taken 495152 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">123519880</td>
+      <td class="linecount coveredLine">123519888</td>
       <td class="src coveredLine"><span class="w">		</span><span class="k">for</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;</span><span class="n">count</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -2167,7 +2167,7 @@
       <td class="lineno"><a id="l277" href="#l277">277</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">123024728</td>
+      <td class="linecount coveredLine">123024736</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -2237,7 +2237,7 @@
       <td class="lineno"><a id="l287" href="#l287">287</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">123024728</td>
+      <td class="linecount coveredLine">123024736</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
