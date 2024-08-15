@@ -1,5 +1,145 @@
 script typedef itemdata item;
 
+// Item class ids, used by [itemdata::Family].
+enum ItemClass {
+	// Item class ids, used by [itemdata->Family].
+	IC_SWORD              = 0,
+	IC_BRANG              = 1,
+	IC_ARROW              = 2,
+	IC_CANDLE             = 3,
+	IC_WHISTLE            = 4,
+	IC_BAIT               = 5,
+	IC_LETTER             = 6,
+	IC_POTION             = 7,
+	IC_WAND               = 8,
+	IC_RING               = 9,
+	IC_WALLET             = 10,
+	IC_AMULET             = 11,
+	IC_SHIELD             = 12,
+	IC_BOW                = 13,
+	IC_RAFT               = 14,
+	IC_LADDER             = 15,
+	IC_BOOK               = 16,
+	IC_MAGICKEY           = 17,
+	IC_BRACELET           = 18,
+	IC_FLIPPERS           = 19,
+	IC_BOOTS              = 20,
+	IC_HOOKSHOT           = 21,
+	IC_LENS               = 22,
+	IC_HAMMER             = 23,
+	IC_DINSFIRE           = 24,
+	IC_FARORESWIND        = 25,
+	IC_NAYRUSLOVE         = 26,
+	IC_BOMB               = 27,
+	IC_SBOMB              = 28,
+	IC_CLOCK              = 29,
+	IC_KEY                = 30,
+	IC_MAGICCONTAINER     = 31,
+	IC_TRIFORCE           = 32,
+	IC_MAP                = 33,
+	IC_COMPASS            = 34,
+	IC_BOSSKEY            = 35,
+	IC_QUIVER             = 36,
+	IC_LEVELKEY           = 37,
+	IC_CBYRNA             = 38,
+	IC_RUPEE              = 39,
+	IC_ARROWAMMO          = 40,
+	IC_FAIRY              = 41,
+	IC_MAGIC              = 42,
+	IC_HEART              = 43,
+	IC_HEARTCONTAINER     = 44,
+	IC_HEARTPIECE         = 45,
+	IC_KILLALL            = 46,
+	IC_BOMBAMMO           = 47,
+	IC_BOMBBAG            = 48,
+	IC_ROCS               = 49,
+	IC_HOVERBOOTS         = 50,
+	IC_SPINSCROLL         = 51,
+	IC_CROSSSCROLL        = 52,
+	IC_QUAKESCROLL        = 53,
+	IC_WHISPRING          = 54,
+	IC_CHARGERING         = 55,
+	IC_PERILSCROLL        = 56,
+	IC_WEALTHMEDAL        = 57,
+	IC_HEARTRING          = 58,
+	IC_MAGICRING          = 59,
+	IC_HURRICANESCROLL    = 60,
+	IC_SQUAKESCROLL       = 61,
+	IC_STONEAGONY         = 62,
+	IC_STOMPBOOTS         = 63,
+	IC_WHIMSICALRING      = 64,
+	IC_PERILRING          = 65,
+	IC_MISC               = 66,
+	IC_CUSTOM1            = 67,
+	IC_CUSTOM2            = 68,
+	IC_CUSTOM3            = 69,
+	IC_CUSTOM4            = 70,
+	IC_CUSTOM5            = 71,
+	IC_CUSTOM6            = 72,
+	IC_CUSTOM7            = 73,
+	IC_CUSTOM8            = 74,
+	IC_CUSTOM9            = 75,
+	IC_CUSTOM10           = 76,
+	IC_CUSTOM11           = 77,
+	IC_CUSTOM12           = 78,
+	IC_CUSTOM13           = 79,
+	IC_CUSTOM14           = 80,
+	IC_CUSTOM15           = 81,
+	IC_CUSTOM16           = 82,
+	IC_CUSTOM17           = 83,
+	IC_CUSTOM18           = 84,
+	IC_CUSTOM19           = 85,
+	IC_CUSTOM20           = 86,
+	IC_BOWANDARROW        = 87,
+	IC_LETTERPOTION       = 88,
+
+	// 89-255 free use
+
+	// These item classes create a projectile of the 
+	// type LW_CUSTOM/LW_SCRIPT, 01 to 10
+	IC_WPN_CUSTOM_01           = 256,
+	IC_WPN_SCRIPT_01           = 256,
+	IC_WPN_CUSTOM_02           = 257,
+	IC_WPN_SCRIPT_02           = 257,
+	IC_WPN_CUSTOM_03           = 258,
+	IC_WPN_SCRIPT_03           = 258,
+	IC_WPN_CUSTOM_04           = 259,
+	IC_WPN_SCRIPT_04           = 259,
+	IC_WPN_CUSTOM_05           = 260,
+	IC_WPN_SCRIPT_05           = 260,
+	IC_WPN_CUSTOM_06           = 261,
+	IC_WPN_SCRIPT_06           = 261,
+	IC_WPN_CUSTOM_07           = 262,
+	IC_WPN_SCRIPT_07           = 262,
+	IC_WPN_CUSTOM_08           = 263,
+	IC_WPN_SCRIPT_08           = 263,
+	IC_WPN_CUSTOM_09           = 264,
+	IC_WPN_SCRIPT_09           = 264,
+	IC_WPN_CUSTOM_10           = 265,
+	IC_WPN_SCRIPT_10           = 265,
+
+	IC_ICEROD          	     = 266, //Not Implemented
+
+	IC_ATKRING                 = 267,
+	IC_LANTERN                 = 268,
+	IC_PEARL                   = 269,
+	IC_BOTTLE                  = 270,
+	IC_BOTTLE_FILL             = 271,
+	IC_BUG_NET                 = 272,
+	IC_MIRRORS                 = 273,
+	IC_SWITCHHOOK              = 274,
+	IC_ITEM_BUNDLE             = 275,
+	IC_PROGRESSIVE             = 276,
+	IC_NOTE                    = 277,
+	IC_REFILL                  = 278,
+	IC_LIFTGLOVE               = 279,
+
+	//Itemclasses not less than this are reserved for future engine itemclasses
+	IC_MAXUSABLE               = 280,
+
+	IC_MAX                     = 512 //Last of enum. All itemclassesare < this.
+};
+
 // @zasm_ref REFITEMCLASS
 class itemdata {
 	// @delete
@@ -44,6 +184,8 @@ class itemdata {
 	internal bool EquipmentItem;
 
 	// The counter to increase when this item is picked up.
+	//
+	// Valid values: [CounterIndex] (`CR_`).
 	//
 	// @zasm_var IDATACOUNTER
 	internal int Counter;
@@ -480,7 +622,7 @@ class itemdata {
 
 	// The distance that the weapon is allowed to travel.
 	//
-	// See [lweapon::>Distance]
+	// See [lweapon::Distance]
 	//
 	// Not implemented at this time.
 	//

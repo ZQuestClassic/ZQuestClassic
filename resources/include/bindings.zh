@@ -16,6 +16,8 @@
 ░░░░░░░▀▀▀▀▀▀▀▀▀▀░░░░░░░
 */
 
+import "bindings/common.zh"
+
 import "bindings/audio.zh"
 import "bindings/bitmap.zh"
 import "bindings/bottledata.zh"

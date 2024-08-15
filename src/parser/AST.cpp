@@ -4,6 +4,7 @@
 #include "Scope.h"
 
 #include <assert.h>
+#include <optional>
 #include <sstream>
 
 #include "parser/ParserHelper.h"
@@ -164,14 +165,14 @@ bool ASTFile::hasDeclarations() const
 // ASTFloat
 
 ASTFloat::ASTFloat(char* val, Type type, LocationData const& location)
-	: AST(location), type(type), value(static_cast<string>(val)),
+	: AST(location), type(type), value(val),
 	negative(false)
 {
 	initNeg();
 }
     
 ASTFloat::ASTFloat(char const* val, Type type, LocationData const& location)
-	: AST(location), type(type), value(static_cast<string>(val)),
+	: AST(location), type(type), value(val),
 	negative(false)
 {
 	initNeg();
@@ -651,11 +652,11 @@ int32_t ASTFloat::getValue(Scope* scope)
 // ASTString
 
 ASTString::ASTString(const char* str, LocationData const& location)
-	: AST(location), str(static_cast<string>(str))
+	: AST(location), str(str)
 {}
 
 ASTString::ASTString(const char* str, std::string comment, LocationData const& location)
-	: AST(location), str(static_cast<string>(str))
+	: AST(location), str(str)
 {
 	doc_comment = comment;
 }
@@ -1221,9 +1222,9 @@ void ASTNamespace::execute(ASTVisitor& visitor, void* param)
 // ASTImportDecl
 
 ASTImportDecl::ASTImportDecl(
-		string const& filename, LocationData const& location, bool isInclude)
-	: ASTDecl(location), filename_(filename), checked(false), validated(false),
-	include_(isInclude)
+		ASTString* import_str, LocationData const& location, bool isInclude)
+	: ASTDecl(location), checked(false), validated(false), include_(isInclude),
+	import_str_(import_str)
 {}
 
 void ASTImportDecl::execute(ASTVisitor& visitor, void* param)
@@ -1292,6 +1293,8 @@ const std::string& ASTFuncDecl::getName() const
 
 std::optional<LocationData> ASTFuncDecl::getIdentifierLocation() const
 {
+	if (identifier->componentNodes.empty())
+		return std::nullopt;
 	return identifier->componentNodes.back()->location;
 }
 
@@ -1368,6 +1371,22 @@ ASTDataEnum::ASTDataEnum(LocationData const& location)
 ASTDataEnum::ASTDataEnum(ASTDataEnum const& other)
 	: ASTDataDeclList(other)
 {}
+
+std::optional<LocationData> ASTDataEnum::getIdentifierLocation() const
+{
+	// TODO: need to work out enum location data.
+	// if (auto custom_type = dynamic_cast<const DataTypeCustom*>(baseType->type.get()); custom_type && custom_type->getSource())
+	// 	return custom_type->getSource()->getIdentifierLocation();
+
+	return std::nullopt;
+}
+
+std::string ASTDataEnum::getName() const {
+	std::string name = baseType.get()->type->getBaseType().getName();
+	if (name.starts_with("const "))
+		return name.substr(6);
+	return name;
+}
 
 void ASTDataEnum::execute(ASTVisitor& visitor, void* param)
 {
@@ -1531,9 +1550,9 @@ void ASTDataTypeDef::execute(ASTVisitor& visitor, void* param)
 //ASTCustomDataTypeDef
 
 ASTCustomDataTypeDef::ASTCustomDataTypeDef(
-		ASTDataType* type, std::string const& name, ASTDataEnum* defn,
+		ASTDataType* type, ASTString* identifier, ASTDataEnum* defn,
 			LocationData const& location)
-		: ASTDataTypeDef(type, name, location), definition(defn)
+		: ASTDataTypeDef(type, identifier->getValue(), location), identifier(identifier), definition(defn)
 {}
 
 void ASTCustomDataTypeDef::execute(ASTVisitor& visitor, void* param)

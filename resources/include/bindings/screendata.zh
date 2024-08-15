@@ -1,3 +1,13 @@
+enum WipeEffect
+{
+	WIPE_CIRCLE,
+	WIPE_OVAL,
+	WIPE_TRIANGLE,
+	WIPE_SMAS,
+	WIPE_FADEBLACK,
+	WIPE_MAX
+};
+
 class screendata {
 	// @delete
 	internal screendata();
@@ -19,6 +29,8 @@ class screendata {
 	// @zasm_var COMBOID
 	internal int ComboI[];
 
+	// Valid values: [ComboType] (`CT_`).
+	//
 	// @zasm_var COMBOTD
 	internal int ComboT[];
 
@@ -166,7 +178,8 @@ class screendata {
 	// The Tile Warp type for Tile Warps A, B, C, and D; [0], [1], [2], and [3]
 	// respectively.
 	//
-	// See std_constants.zh TWTYPE_* constants for valid types.
+	// Valid indices: [TileWarpIndex] (`TILEWARP_`).
+	// Valid values: [WarpType] (`WT_`).
 	//
 	// @zasm_var SCREENDATATILEWARPTYPE
 	internal int TileWarpType[];
@@ -234,7 +247,7 @@ class screendata {
 
 	// The enemy 'Spawn Pattern'.
 	//
-	// Use the PATTERN_* constants in std.zh for the valid values
+	// Valid values: [EnemyPattern] (`PATTERN_`).
 	//
 	// @zasm_var SCREENDATAPATTERN
 	internal int Pattern;
@@ -242,7 +255,8 @@ class screendata {
 	// The Sidewarp type for Sidewarps A, B, C, and D; [0], [1], [2], and [3]
 	// respectively.
 	//
-	// See std_constants.zh SWTYPE_* constants for valid types.
+	// Valid indices: [SideWarpIndex] (`SIDEWARP_`).
+	// Valid values: [WarpType] (`WT_`).
 	//
 	// @zasm_var SCREENDATASIDEWARPTYPE
 	internal int SideWarpType[];
@@ -275,12 +289,10 @@ class screendata {
 
 	// Returns the sidewarp ID for a given screen edge, as SideWarpID[dir];
 	//
-	// Returns -1 if there is no sidewarp in that direction.
+	// Returns [SIDEWARP_NONE] if there is no sidewarp in that direction.
 	//
-	// Use the SIDEWARP_* constants in std.zh for the value of this (read return
-	// value, or write value).
-	//
-	// Use the `DIR_` constants in std.zh for the index values.
+	// Valid indices: [DIR_UP], [DIR_DOWN], [DIR_LEFT], [DIR_RIGHT]
+	// Valid values: [SideWarpIndex] (`SIDEWARP_`)
 	//
 	// @zasm_var SCREENSIDEWARPID
 	internal int SideWarpID[];
@@ -666,9 +678,7 @@ class screendata {
 	//   SETR D2 REFNPC
 	internal npc LoadNPC(int n);
 
-	// Creates a new sprite object, with the given ID. Use the `LW_` and `EW_`
-	// constants for `CreateLWeapon()`/`CreateEWeapon()`. Use the item editor
-	// IDs and enemy editor IDs for `CreateItem()`/`CreateNPC()`.
+	// Creates a new sprite object, with the given ID. Use the NPC_ constants.
 	//
 	// @zasm
 	//   POP D2
@@ -882,7 +892,7 @@ class screendata {
 
 	// As DrawString(), but includes a shadow on the text.
 	//
-	// Use the 'SHD_' constants for 'shadow_type'.
+	// Valid values for [shadow_type]: [ShadowType] (`SHD_`).
 	//
 	// @zasm
 	//   DRAWSTRINGR2
@@ -1114,21 +1124,23 @@ class screendata {
 	//   CLOSEWIPE
 	internal void ClosingWipe();
 
-	// Plays the warping screen 'wipe' effect with the specified shape, using
-	// the `WIPE_` constants for the shape.
+	// Plays the warping screen 'wipe' effect.
+	//
+	// Valid values for [effect]: [WipeEffect] (`WIPE_`).
 	//
 	// @zasm
 	//   POP D2
 	//   OPENWIPESHAPE D2
-	internal void OpeningWipe(int shape);
+	internal void OpeningWipe(int effect);
 
-	// Plays the warping screen 'wipe' effect with the specified shape, using
-	// the `WIPE_` constants for the shape.
+	// Plays the warping screen 'wipe' effect.
+	//
+	// Valid values for [effect]: [WipeEffect] (`WIPE_`).
 	//
 	// @zasm
 	//   POP D2
 	//   CLOSEWIPESHAPE D2
-	internal void ClosingWipe(int shape);
+	internal void ClosingWipe(int effect);
 
 	// @zasm
 	//   POLYGONR
@@ -1242,13 +1254,15 @@ class screendata {
 	//   POPARGS D5 0.0002
 	internal void SetExDoor(int dir, int index, bool state);
 
+	// Valid values for [type]: [WarpType] (`WT_`).
+	//
 	// @zasm
 	//   SETSIDEWARP
 	//   POP D3
 	//   POP D3
 	//   POP D3
 	//   POP D3
-	internal void SetSideWarp(int arg1, int arg2, int arg3, int arg4);
+	internal void SetSideWarp(int side, int screen, int dmap, int type);
 
 	// @zasm
 	//   SETTILEWARP

@@ -116,7 +116,7 @@ static unique_ptr<ScriptsData> _compile_helper(string const& filename, bool incl
 		zconsole_info("%s", "Pass 2: Preprocessing");
 		zconsole_idle();
 
-		root->imports.insert(root->imports.begin(), new ASTImportDecl("bindings.zh"));
+		root->imports.insert(root->imports.begin(), new ASTImportDecl(new ASTString("bindings.zh")));
 		if (!ScriptParser::preprocess(root.get(), ScriptParser::recursionLimit))
 			return result;
 		if(zscript_error_out) return result;
@@ -172,7 +172,7 @@ static unique_ptr<ScriptsData> _compile_helper(string const& filename, bool incl
 				_fill_metadata(filename, &program, result.get());
 			return result;
 		}
-		
+
 		zconsole_info("%s", "Pass 6: Generating object code");
 		zconsole_idle();
 
@@ -183,7 +183,7 @@ static unique_ptr<ScriptsData> _compile_helper(string const& filename, bool incl
 				_fill_metadata(filename, &program, result.get());
 			return result;
 		}
-		
+
 		zconsole_info("%s", "Pass 7: Assembling");
 		zconsole_idle();
 
@@ -199,8 +199,6 @@ static unique_ptr<ScriptsData> _compile_helper(string const& filename, bool incl
 		result->fillFromProgram(program);
 		if (zscript_error_out || (!ignore_asserts && casserts.size()))
 		{
-			if (include_metadata)
-				_fill_metadata(filename, &program, result.get());
 			return result;
 		}
 

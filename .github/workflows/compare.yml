@@ -56,8 +56,24 @@ jobs:
               let fs = require('fs');
               fs.writeFileSync(`${process.env.GITHUB_WORKSPACE}/test-results/${artifact.name}.zip`, Buffer.from(download.data));
             }
-      - run: shopt -s nullglob; for f in *.zip; do unzip $f -d ${f%.*}; done
+      - run: |
+          if [ -f *.zip ] ; then
+            for f in *.zip; do unzip $f -d ${f%.*}; done
+            if [[ $(find . -name test_results.json) ]] ; then
+              echo "Found test_results.json file(s)"
+            else
+              echo "Found no test_results.json file"
+              gh run cancel ${{ github.run_id }}
+              gh run watch ${{ github.run_id }}
+            fi
+          else
+            echo "Found no zip files"
+            gh run cancel ${{ github.run_id }}
+            gh run watch ${{ github.run_id }}
+          fi 
         working-directory: test-results
+        env:
+          GH_TOKEN: ${{ github.token }}
 
       - name: Collect baseline
         run: python3 tests/run_test_workflow.py --test_results test-results --repo ${{ github.repository }} --token ${{ secrets.GITHUB_TOKEN }}

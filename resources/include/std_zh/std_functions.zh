@@ -1,3 +1,6 @@
+#include "std_zh/std_constants.zh"
+#include "std_zh/script_runners.zh"
+
 //Returns if Link is above an npc.
 bool Above(npc n){ return Link->Y < n->Y; }
 
@@ -2624,7 +2627,7 @@ int NumLWeaponsOf(int type)
 	return ret;
 }
 
-//Use NPCT_* constants.
+// Valid values for [type]: [NpcType] (`NPCT_`).
 int NumNPCsOf(int type)
 {
 	int ret = 0;

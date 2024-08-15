@@ -414,7 +414,7 @@ namespace ZScript
 	{
 	public:
 		DataTypeCustom(std::string name, DataType* constType, UserClass* usrclass = nullptr, int32_t id = getUniqueCustomId())
-			: DataType(constType), id(id), name(name), user_class(usrclass)
+			: DataType(constType), id(id), name(name), user_class(usrclass), source(nullptr)
 		{}
 		DataTypeCustom* clone() const {return new DataTypeCustom(*this);}
 		int unique_type_id() const { return 5; }
@@ -443,11 +443,15 @@ namespace ZScript
 		virtual DataType const& getShared(DataType const& target, Scope const* scope) const;
 		int32_t getCustomId() const {return id;}
 		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler) const;
+
+		void setSource(AST* source_) {source = source_;}
+		const AST* getSource() const {return source;}
 		
 	protected:
 		int32_t id;
 		std::string name;
 		UserClass* user_class;
+		AST* source;
 
 		int32_t selfCompare(DataType const& other) const;
 	};

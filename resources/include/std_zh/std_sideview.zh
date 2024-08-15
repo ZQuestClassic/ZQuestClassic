@@ -1,3 +1,5 @@
+#include "std_zh/std_functions.zh"
+
 const bool ONSIDEVIEWPLATFORM_CHECK_OBJ_WIDTH = true;
 const int ONSIDEVIEWPLATFORM_OVERHANG_DEPTH = 4;
 
