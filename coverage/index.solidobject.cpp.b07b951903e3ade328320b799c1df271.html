@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2024-08-15 03:54:42</td>
+      <td>2024-08-15 07:17:26</td>
     </tr>
   </table>
 </div>
@@ -95,11 +95,11 @@
     <tr><td><a href="#l93">solid_object::getSolid() const (line 93)</a></td><td>called 4246438749 times, returned 4246438749 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l106">solid_object::getTempNonsolid() const (line 106)</a></td><td>called 589 times, returned 589 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l494">solid_object::push_dir() const (line 494)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l86">solid_object::setSolid(bool) (line 86)</a></td><td>called 89672530 times, returned 89672530 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l86">solid_object::setSolid(bool) (line 86)</a></td><td>called 89672352 times, returned 89672352 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l102">solid_object::setTempNonsolid(bool) (line 102)</a></td><td>called 1178 times, returned 1178 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l170">solid_object::solid_push(solid_object*) (line 170)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l175">solid_object::solid_push_int(solid_object const*, zfix&amp;, zfix&amp;, int&amp;, bool) (line 175)</a></td><td>called 40487 times, returned 40487 times</td><td>19.0%</td></tr>
-    <tr><td><a href="#l153">solid_object::solid_update(bool) (line 153)</a></td><td>called 104055441 times, returned 104055441 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l153">solid_object::solid_update(bool) (line 153)</a></td><td>called 104055311 times, returned 104055311 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l97">solid_object::updateSolid() (line 97)</a></td><td>called 70697447 times, returned 70697447 times</td><td>66.0%</td></tr>
   </table>
 </details>
@@ -827,7 +827,7 @@
       <td class="lineno"><a id="l86" href="#l86">86</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">89672530</td>
+      <td class="linecount coveredLine">89672352</td>
       <td class="src coveredLine"><span class="kt">bool</span><span class="w"> </span><span class="n">solid_object</span><span class="o">::</span><span class="n">setSolid</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">set</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -841,14 +841,14 @@
       <td class="lineno"><a id="l88" href="#l88">88</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">89672530</td>
+      <td class="linecount coveredLine">89672352</td>
       <td class="src coveredLine"><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="n">changed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">solid</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">set</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l89" href="#l89">89</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">89672530</td>
+      <td class="linecount coveredLine">89672352</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">solid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">set</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -862,7 +862,7 @@
       <td class="lineno"><a id="l91" href="#l91">91</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">89672530</td>
+      <td class="linecount coveredLine">89672352</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">changed</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -1349,7 +1349,7 @@
       <td class="lineno"><a id="l153" href="#l153">153</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">104055441</td>
+      <td class="linecount coveredLine">104055311</td>
       <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="n">solid_object</span><span class="o">::</span><span class="n">solid_update</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">push</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -1373,13 +1373,13 @@
         <summary class="linebranchSummary">4/4</summary>
         <div class="linebranchContents">
           <div class="takenBranch">&check; Branch 0 taken 85421520 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 18633921 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 18633791 times.</div>
           <div class="takenBranch">&check; Branch 2 taken 85325977 times.</div>
           <div class="takenBranch">&check; Branch 3 taken 95543 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">104055441</td>
+      <td class="linecount coveredLine">104055311</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">push</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">solid</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -1451,35 +1451,35 @@
       <td class="lineno"><a id="l165" href="#l165">165</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">104055441</td>
+      <td class="linecount coveredLine">104055311</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">old_x2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">old_x</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l166" href="#l166">166</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">104055441</td>
+      <td class="linecount coveredLine">104055311</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">old_y2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">old_y</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l167" href="#l167">167</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">104055441</td>
+      <td class="linecount coveredLine">104055311</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">old_x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">x</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l168" href="#l168">168</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">104055441</td>
+      <td class="linecount coveredLine">104055311</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">old_y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">y</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l169" href="#l169">169</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">104055441</td>
+      <td class="linecount coveredLine">104055311</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">

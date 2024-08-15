@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2024-08-15 03:54:42</td>
+      <td>2024-08-15 07:17:26</td>
     </tr>
   </table>
 </div>
@@ -79,8 +79,8 @@
     <tr><td><a href="#l40">Diagnostic::~Diagnostic() (line 40)</a></td><td>called 964 times, returned 964 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l122">ZScript::BasicCompileError::~BasicCompileError() (line 122)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l135">ZScript::CompileErrorHandler::CompileErrorHandler() (line 135)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l148">ZScript::SimpleCompileErrorHandler::SimpleCompileErrorHandler(ZScript::ScriptsData*) (line 148)</a></td><td>called 765 times, returned 765 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l152">ZScript::SimpleCompileErrorHandler::hasError() const (line 152)</a></td><td>called 765 times, returned 765 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l148">ZScript::SimpleCompileErrorHandler::SimpleCompileErrorHandler(ZScript::ScriptsData*) (line 148)</a></td><td>called 766 times, returned 766 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l152">ZScript::SimpleCompileErrorHandler::hasError() const (line 152)</a></td><td>called 766 times, returned 766 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l46">to_json(nlohmann::json_abi_v3_11_3::basic_json&lt;nlohmann::json_abi_v3_11_3::ordered_map, std::vector, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;, bool, long, unsigned long, double, std::allocator, nlohmann::json_abi_v3_11_3::adl_serializer, std::vector&lt;unsigned char, std::allocator&lt;unsigned char&gt; &gt;, void&gt;&amp;, Diagnostic const&amp;) (line 46)</a></td><td>called 297 times, returned 297 times</td><td>50.0%</td></tr>
     <tr><td><a href="#l30">to_json(nlohmann::json_abi_v3_11_3::basic_json&lt;nlohmann::json_abi_v3_11_3::ordered_map, std::vector, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;, bool, long, unsigned long, double, std::allocator, nlohmann::json_abi_v3_11_3::adl_serializer, std::vector&lt;unsigned char, std::allocator&lt;unsigned char&gt; &gt;, void&gt;&amp;, Position const&amp;) (line 30)</a></td><td>called 594 times, returned 594 times</td><td>50.0%</td></tr>
     <tr><td><a href="#l37">to_json(nlohmann::json_abi_v3_11_3::basic_json&lt;nlohmann::json_abi_v3_11_3::ordered_map, std::vector, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;, bool, long, unsigned long, double, std::allocator, nlohmann::json_abi_v3_11_3::adl_serializer, std::vector&lt;unsigned char, std::allocator&lt;unsigned char&gt; &gt;, void&gt;&amp;, Range const&amp;) (line 37)</a></td><td>called 297 times, returned 297 times</td><td>50.0%</td></tr>
@@ -1160,7 +1160,7 @@
       <td class="lineno"><a id="l148" href="#l148">148</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">765</td>
+      <td class="linecount coveredLine">766</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">SimpleCompileErrorHandler</span><span class="p">(</span><span class="n">ScriptsData</span><span class="o">*</span><span class="w"> </span><span class="n">result</span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">result_</span><span class="p">(</span><span class="n">result</span><span class="p">),</span><span class="w"> </span><span class="n">errorCount_</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span><span class="w"> </span><span class="n">warningCount_</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{}</span></td>
     </tr>
     <tr class="source-line">
@@ -1188,7 +1188,7 @@
       <td class="lineno"><a id="l152" href="#l152">152</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">765</td>
+      <td class="linecount coveredLine">766</td>
       <td class="src coveredLine"><span class="w">		</span><span class="kt">bool</span><span class="w"> </span><span class="nf">hasError</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="p">{</span><span class="k">return</span><span class="w"> </span><span class="n">errorCount_</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">;}</span></td>
     </tr>
     <tr class="source-line">
