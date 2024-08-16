@@ -35867,13 +35867,10 @@ int32_t get_object_arr(size_t sz)
 			}
 		}
 	}
-	ZScriptArray arr;
+	ZScriptArray arr{};
 	arr.Resize(sz);
 	arr.setValid(true);
 	objectRAM[free_ptr] = arr;
-	// auto res = objectRAM.emplace(free_ptr);
-	// ZScriptArray& arr = res.first->second;
-	// arr.Resize(sz);
 	
 	return -free_ptr;
 }
