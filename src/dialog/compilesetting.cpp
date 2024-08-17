@@ -6,7 +6,6 @@
 #include "zc/ffscript.h"
 #include "base/qrs.h"
 
-extern FFScript FFCore;
 extern std::vector<std::string> ZQincludePaths;
 
 void write_includepaths();

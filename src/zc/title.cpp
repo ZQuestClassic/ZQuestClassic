@@ -45,7 +45,6 @@
 
 extern int32_t loadlast;
 extern int32_t skipcont;
-extern FFScript FFCore;
 extern zcmodule moduledata;
 bool load_custom_game(int32_t file);
 

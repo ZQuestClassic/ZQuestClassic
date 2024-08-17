@@ -25,7 +25,6 @@
 #include "zc/combos.h"
 extern particle_list particles;
 
-extern FFScript FFCore;
 extern ZModule zcm;
 extern HeroClass   Hero;
 extern sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations;

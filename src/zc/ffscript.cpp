@@ -27,6 +27,9 @@
 #include "zasm/serialize.h"
 #include "zasm/table.h"
 #include "zc/replay.h"
+#include "zc/scripting/script_object.h"
+#include "zc/scripting/types.h"
+#include "zc/scripting/types/websocket.h"
 #include "zc/zasm_optimize.h"
 #include "zc/zasm_utils.h"
 #include "zc/zc_ffc.h"
@@ -71,7 +74,6 @@
 
 #include "zc/zc_custom.h"
 #include "qst.h"
-#include "zc/websocket_pool.h"
 
 using namespace util;
 
@@ -91,30 +93,8 @@ using namespace util;
 using namespace util;
 using std::ostringstream;
 
-struct ScriptEngineData {
-	refInfo ref;
-	int32_t stack[MAX_SCRIPT_REGISTERS];
-	bounded_vec<word, int32_t> ret_stack {65535};
-	// This is used as a boolean for all but ScriptType::Item.
-	byte doscript = true;
-	bool waitdraw;
-	bool initialized;
-
-	void reset()
-	{
-		// No need to zero the stack.
-		ref = refInfo();
-		doscript = true;
-		waitdraw = false;
-		initialized = false;
-	}
-};
-
 // (type, index) => ScriptEngineData
-static std::map<std::pair<ScriptType, word>, ScriptEngineData> scriptEngineDatas;
-
-static int allocations_since_last_gc;
-static int deallocations_since_last_gc;
+std::map<std::pair<ScriptType, word>, ScriptEngineData> scriptEngineDatas;
 
 extern byte use_dwm_flush;
 uint8_t using_SRAM = 0;
@@ -135,505 +115,8 @@ FFScript FFCore;
 extern ZModule zcm;
 extern zcmodule moduledata;
 
-// Returns true if an id is not usable for an object id.
-bool is_reserved_object_id(uint32_t id)
-{
-	// Used by internal bitmaps (see do_loadbitmapid).
-	if (id >= 9 && id <= 16)
-		return true;
-
-	return false;
-}
-
-static std::map<uint32_t, std::unique_ptr<user_abstract_obj>> script_objects;
-static std::map<script_object_type, std::vector<uint32_t>> script_object_ids_by_type;
-static std::vector<uint32_t> script_object_autorelease_pool;
-static std::vector<uint32_t> next_script_object_id_freelist;
-
-uint32_t get_next_script_object_id()
-{
-	const auto ID_FREELIST_FILL_AMOUNT = 1000;
-
-	if (next_script_object_id_freelist.empty())
-	{
-		// Don't start at 1 because the first objects are expected to remain allocated.
-		uint32_t id = 1000;
-		while (next_script_object_id_freelist.size() < ID_FREELIST_FILL_AMOUNT)
-		{
-			if (!script_objects.contains(id))
-				next_script_object_id_freelist.push_back(id);
-			id++;
-		}
-	}
-
-	// ~4 billion objects is a lot, so it's unlikely this condition will ever be true.
-	// But just in case...
-	if (next_script_object_id_freelist.empty())
-		Z_error_fatal("Ran out of storage for script objects\n");
-
-	auto id = next_script_object_id_freelist.back();
-	next_script_object_id_freelist.pop_back();
-	return id;
-}
-
-template <typename T>
-static T* create_script_object(script_object_type type, uint32_t id = -1)
-{
-	if (id == -1)
-		id = get_next_script_object_id();
-
-	auto object = new T{};
-	object->type = type;
-	object->id = id;
-	script_objects[id] = std::unique_ptr<T>(object);
-	script_object_ids_by_type[type].push_back(id);
-
-	allocations_since_last_gc++;
-	object->ref_count = 1;
-	script_object_autorelease_pool.push_back(id);
-
-	return object;
-}
-
-static user_abstract_obj* get_script_object(uint32_t id)
-{
-	auto it = script_objects.find(id);
-	if (it != script_objects.end())
-		return it->second.get();
-	return nullptr;
-}
-
-static user_abstract_obj* get_script_object_checked(uint32_t id)
-{
-	if (is_reserved_object_id(id))
-		return nullptr;
-
-	auto object = get_script_object(id);
-	if (!object)
-		Z_error_fatal("Invalid object pointer used in get_script_object_checked\n");
-	return object;
-}
-
-static void script_object_ref_inc(user_abstract_obj* object)
-{
-	object->ref_count++;
-}
-
-static void script_object_ref_inc(uint32_t id)
-{
-	if (!id)
-		return;
-
-	auto object = get_script_object_checked(id);
-	if (object)
-		script_object_ref_inc(object);
-}
-
-static void delete_script_object(uint32_t id);
-
-static void script_object_ref_dec(user_abstract_obj* object)
-{
-	assert(object->ref_count > 0);
-	object->ref_count--;
-
-	if (auto usr_object = dynamic_cast<user_object*>(object))
-		if (usr_object->isGlobal())
-			return;
-
-	if (ZScriptVersion::gc() && object->ref_count == 0)
-		delete_script_object(object->id);
-}
-
-static void script_object_ref_dec(uint32_t id)
-{
-	if (!id)
-		return;
-
-	auto object = get_script_object_checked(id);
-	if (object)
-		script_object_ref_dec(object);
-}
-
-static void delete_script_object(uint32_t id)
-{
-	auto it = script_objects.find(id);
-	if (it == script_objects.end())
-		return;
-
-	auto& object = it->second;
-
-	// Bitmap objects can't be deleted right away, since drawing operations are deferred slightly.
-	// We must wait for the script drawing to be done with it, which is signaled by script_bitmaps::update
-	if (object->type == script_object_type::bitmap)
-	{
-		auto bitmap = static_cast<user_bitmap*>(object.get());
-		if (!bitmap->can_del())
-		{
-			bitmap->free_obj();
-			return;
-		}
-	}
-
-	if (object->type == script_object_type::object)
-	{
-		auto usr_object = static_cast<user_object*>(object.get());
-		for (int i = 0; i < usr_object->owned_vars; i++)
-		{
-			if (usr_object->isMemberObjectType(i))
-				script_object_ref_dec(usr_object->data[i]);
-		}
-
-		usr_object->destruct.execute();
-		usr_object->clear_nodestruct();
-	}
-
-	util::remove_if_exists(script_object_ids_by_type[object->type], id);
-	script_objects.erase(it);
-	deallocations_since_last_gc++;
-
-	if (next_script_object_id_freelist.size() < 10000)
-		next_script_object_id_freelist.push_back(id);
-}
-
-static void own_script_object(user_abstract_obj* object, ScriptType type, int i)
-{
-	if (!ZScriptVersion::gc())
-	{
-		object->own(type, i);
-		return;
-	}
-
-	bool was_owned = object->owned_type != ScriptType::None;
-	object->own(type, i);
-	bool is_owned = type != ScriptType::None;
-	if (was_owned && !is_owned)
-		script_object_ref_dec(object);
-	else if (!was_owned && is_owned)
-		script_object_ref_inc(object);
-}
-
-static void free_script_object(uint32_t id)
-{
-	if (!ZScriptVersion::gc())
-		delete_script_object(id);
-}
-
-// Find unreachable objects via mark-and-sweep, and destroy them.
-// This handles cyclical objects.
-// It should not be called very often as it can be expensive.
-// Note: Most objects are cleared up via reference counting
-// (when ref_count is zero in script_object_ref_dec).
-static void run_gc()
-{
-	std::vector<user_abstract_obj*> all_objects;
-	for (auto& [id, object] : script_objects)
-		all_objects.push_back(object.get());
-
-	std::set<uint32_t> live_object_ids;
-
-	for (auto& object : all_objects)
-	{
-		if (object->type != script_object_type::object)
-			continue;
-
-		auto usr_object = static_cast<user_object*>(object);
-		if (usr_object->isGlobal())
-			live_object_ids.insert(object->id);
-	}
-	for (auto& aptr : game->globalRAM)
-	{
-		if (aptr.HoldsObjects())
-		{
-			for (int i = 0; i < aptr.Size(); i++)
-			{
-				live_object_ids.insert(aptr[i]);
-			}
-		}
-	}
-	for (auto& aptr : localRAM)
-	{
-		if (aptr.HoldsObjects())
-		{
-			for (int i = 0; i < aptr.Size(); i++)
-			{
-				live_object_ids.insert(aptr[i]);
-			}
-		}
-	}
-	for (size_t i = 0; i < MAX_SCRIPT_REGISTERS; i++)
-	{
-		if (game->global_d_types[i] != script_object_type::none)
-			live_object_ids.insert(game->global_d[i]);
-	}
-	for (auto& data : scriptEngineDatas | std::views::values)
-	{
-		for (int i : data.ref.stack_pos_is_object)
-			live_object_ids.insert(data.stack[i]);
-	}
-
-	// Insert all root objects into worklist.
-	std::set<user_abstract_obj*> worklist;
-	for (auto& id : live_object_ids)
-	{
-		if (is_reserved_object_id(id))
-			continue;
-
-		auto object = get_script_object(id);
-		assert(id == 0 || object);
-		if (!object)
-			continue;
-
-		bool can_hold_objects = false;
-		switch (object->type)
-		{
-			case script_object_type::object:
-			// TODO: handle stacks?
-			// case script_object_type::stack:
-				can_hold_objects = true;
-				break;
-		}
-		if (!can_hold_objects)
-			continue;
-
-		auto usr_object = dynamic_cast<user_object*>(object);
-		assert(usr_object);
-		if (!usr_object)
-			continue;
-
-		worklist.insert(usr_object);
-	}
-
-	// Find all the reachable objects.
-	while (worklist.size())
-	{
-		auto base_object = *worklist.begin();
-		worklist.erase(worklist.begin());
-
-		// Currently only user objects retain references.
-		if (base_object->type != script_object_type::object)
-			continue;
-
-		auto object = static_cast<user_object*>(base_object);
-		for (int i = 0; i < object->owned_vars; i++)
-		{
-			if (!object->isMemberObjectType(i))
-				continue;
-
-			auto id = object->data[i];
-			if (id && !live_object_ids.contains(id))
-			{
-				live_object_ids.insert(id);
-				worklist.insert(get_script_object(id));
-			}
-		}
-
-		for (int i = object->owned_vars; i < object->data.size(); i++)
-		{
-			auto ptr = object->data[i]/10000;
-			if (ptr == 0)
-				continue;
-
-			auto& aptr = objectRAM.at(-ptr);
-			if (!aptr.HoldsObjects())
-				continue;
-
-			for (int i = 0; i < aptr.Size(); i++)
-			{
-				auto id = aptr[i];
-				if (id && !live_object_ids.contains(id))
-				{
-					live_object_ids.insert(id);
-					worklist.insert(get_script_object(id));
-				}
-			}
-		}
-	}
-
-	// Delete unreachable objects.
-	for (auto& object : all_objects)
-	{
-		if (live_object_ids.contains(object->id))
-			continue;
-
-		// This object is not reachable.
-
-		if (auto usr_object = dynamic_cast<user_object*>(object))
-		{
-			// To avoid problems when `delete_script_object` deletes the object, clear the
-			// members here.
-			// Any references held in members are also not reachable, so this is fine to do
-			// because they will also be deleted by this gc call.
-			for (int i = usr_object->owned_vars; i < usr_object->data.size(); i++)
-			{
-				auto ptr = usr_object->data[i]/10000;
-				void destroy_object_arr(int32_t ptr, bool dec_refs);
-				destroy_object_arr(ptr, false);
-			}
-			usr_object->owned_vars = 0;
-			usr_object->data.clear();
-		}
-
-		util::remove_if_exists(script_object_autorelease_pool, object->id);
-		delete_script_object(object->id);
-	}
-
-	allocations_since_last_gc = 0;
-	deallocations_since_last_gc = 0;
-}
-
-static void maybe_run_gc()
-{
-	if (allocations_since_last_gc - deallocations_since_last_gc > 700)
-		run_gc();
-}
-
-void init_script_objects()
-{
-	next_script_object_id_freelist.clear();
-	// See `is_reserved_object_id` for why ids do not begin at 1.
-	for (uint32_t id = 1000; id >= 100; id--)
-		next_script_object_id_freelist.push_back(id);
-	script_objects.clear();
-	script_object_ids_by_type.clear();
-	script_object_autorelease_pool.clear();
-	allocations_since_last_gc = 0;
-	deallocations_since_last_gc = 0;
-
-	// Load globals and set their reference counts.
-	// Only custom user objects can be restored right now, so
-	// any other object type will be set to NULL.
-	game->load_user_objects();
-	if (!ZScriptVersion::gc())
-		return;
-	for (size_t i = 0; i < MAX_SCRIPT_REGISTERS; i++)
-	{
-		auto type = game->global_d_types[i];
-		if (type == script_object_type::object && script_objects.contains(game->global_d[i]))
-			script_object_ref_inc(game->global_d[i]);
-		else if (type != script_object_type::none)
-			game->global_d[i] = 0;
-	}
-	for (auto& aptr : game->globalRAM)
-	{
-		if (!aptr.HoldsObjects())
-			continue;
-
-		if (aptr.ObjectType() != script_object_type::object)
-		{
-			for (int i = 0; i < aptr.Size(); i++)
-				aptr[i] = 0;
-			continue;
-		}
-
-		for (int i = 0; i < aptr.Size(); i++)
-		{
-			if (script_objects.contains(aptr[i]))
-				script_object_ref_inc(aptr[i]);
-			else
-				aptr[i] = 0;
-		}
-	}
-	// This covers any arrays held by saved objects.
-	for (auto& aptr : objectRAM | std::views::values)
-	{
-		if (!aptr.HoldsObjects())
-			continue;
-
-		if (aptr.ObjectType() != script_object_type::object)
-		{
-			for (int i = 0; i < aptr.Size(); i++)
-				aptr[i] = 0;
-			continue;
-		}
-
-		for (int i = 0; i < aptr.Size(); i++)
-		{
-			if (script_objects.contains(aptr[i]))
-				script_object_ref_inc(aptr[i]);
-			else
-				aptr[i] = 0;
-		}
-	}
-	for (auto& object : FFCore.get_user_objects())
-	{
-		assert(object->isGlobal());
-		for (int i = 0; i < object->owned_vars; i++)
-		{
-			if (!object->isMemberObjectType(i))
-				continue;
-
-			if (object->var_types[i] == script_object_type::object && script_objects.contains(object->data[i]))
-				script_object_ref_inc(object->data[i]);
-			else
-				object->data[i] = 0;
-		}
-	}
-}
-
-template <typename T, uint32_t Max>
-struct UserDataContainer
-{
-	script_object_type type;
-	const char* name;
-
-	T& operator[](uint32_t id)
-	{
-		auto& t = script_objects.at(id);
-		assert(t->type == type);
-		T* ptr = static_cast<T*>(t.get());
-		return *ptr;
-	}
-
-	void clear()
-	{
-		auto ids = script_object_ids_by_type[type];
-		for (auto id : ids)
-			delete_script_object(id);
-	}
-
-	T* create(bool skipError = false)
-	{
-		if (script_object_ids_by_type[type].size() >= Max)
-			run_gc();
-
-		if (script_object_ids_by_type[type].size() >= Max)
-		{
-			if (!skipError) Z_scripterrlog("could not find a valid free %s pointer!\n", name);
-			return nullptr;
-		}
-
-		return create_script_object<T>(type);
-	}
-
-	uint32_t get_free(bool skipError = false)
-	{
-		T* object = create(skipError);
-		if (!object) return 0;
-		return object->id;
-	}
-
-	T* check(uint32_t id, const char* what, bool skipError = false)
-	{
-		if (util::contains(script_object_ids_by_type[type], id))
-		{
-			auto& t = script_objects.at(id);
-			return static_cast<T*>(t.get());
-		}
-
-		if (skipError) return NULL;
-
-		Z_scripterrlog("Script attempted to reference a nonexistent %s!\n", name);
-		if (what)
-			Z_scripterrlog("You were trying to reference the '%s' of a %s with UID = %ld\n", what, name, id);
-		else
-			Z_scripterrlog("You were trying to reference with UID = %ld\n", id);
-		return NULL;
-	}
-};
-
 static UserDataContainer<user_dir, MAX_USER_DIRS> user_dirs = {script_object_type::dir, "directory"};
 static UserDataContainer<user_file, MAX_USER_FILES> user_files = {script_object_type::file, "file"};
-static UserDataContainer<user_object, MAX_USER_OBJECTS> user_objects = {script_object_type::object, "object"};
 static UserDataContainer<user_paldata, MAX_USER_PALDATAS> user_paldatas = {script_object_type::paldata, "paldata"};
 static UserDataContainer<user_rng, MAX_USER_RNGS> user_rngs = {script_object_type::rng, "rng"};
 static UserDataContainer<user_stack, MAX_USER_STACKS> user_stacks = {script_object_type::stack, "stack"};
@@ -659,87 +142,6 @@ user_bitmap& script_bitmaps::get(int32_t id)
 	if (auto bitmap = user_bitmaps.check(id, "script drawing"))
 		return *bitmap;
 	return fake;
-}
-
-struct user_websocket : public user_abstract_obj
-{
-	~user_websocket()
-	{
-		if (connection_id != -1)
-			websocket_pool_close(connection_id);
-		if (message_arrayptr)
-			FFScript::deallocateArray(message_arrayptr);
-	}
-
-	bool connect(std::string url)
-	{
-		connection_id = websocket_pool_connect(url, err);
-		this->url = url;
-		return connection_id != -1;
-	}
-
-	void send(WebSocketMessageType type, std::string message)
-	{
-		if (connection_id == -1 || type == WebSocketMessageType::None) return;
-		websocket_pool_send(connection_id, type, message);
-	}
-
-	bool has_message()
-	{
-		if (connection_id == -1) return false;
-		return websocket_pool_has_message(connection_id);
-	}
-
-	std::string receive_message()
-	{
-		if (connection_id == -1) return "";
-		auto [type, message] = websocket_pool_receive(connection_id);
-		last_message_type = type;
-		return message;
-	}
-
-	WebSocketStatus get_state() const
-	{
-		if (connection_id == -1) return WebSocketStatus::Closed;
-		return websocket_pool_status(connection_id);
-	}
-
-	std::string get_error() const
-	{
-		if (connection_id == -1) return err;
-		return websocket_pool_error(connection_id);
-	}
-
-	int connection_id = -1;
-	std::string url;
-	std::string err;
-	int message_arrayptr;
-	WebSocketMessageType last_message_type;
-};
-#define MAX_USER_WEBSOCKETS 3
-static UserDataContainer<user_websocket, MAX_USER_WEBSOCKETS> user_websockets = {script_object_type::websocket, "websocket"};
-
-user_object& FFScript::create_user_object(uint32_t id)
-{
-	auto& vec = next_script_object_id_freelist;
-	vec.erase(std::remove(vec.begin(), vec.end(), id), vec.end());
-	create_script_object<user_object>(script_object_type::object, id);
-	return user_objects[id];
-}
-
-std::vector<user_object*> FFScript::get_user_objects()
-{
-	std::vector<user_object*> result;
-	for (auto id : script_object_ids_by_type[user_objects.type])
-	{
-		result.push_back(&user_objects[id]);
-	}
-	return result;
-}
-
-user_object* FFScript::get_user_object(uint32_t id)
-{
-	return user_objects.check(id, "", true);
 }
 
 script_bitmaps scb;
@@ -1265,62 +667,35 @@ void pop_ri()
 ///-------------------------------------//
 //           Helper Functions           //
 ///-------------------------------------//
-
-//ScriptHelper
-class SH
+	
+//only if the player is messing with their pointers...
+ZScriptArray& SH::InvalidError(const int32_t ptr)
 {
+	Z_scripterrlog("Invalid pointer (%i) passed to array (don't change the values of your array pointers)\n", ptr);
+	return INVALIDARRAY;
+}
 
-///-----------------------------//
-//           Errors             //
-///-----------------------------//
+void SH::write_stack(const uint32_t stackoffset, const int32_t value)
+{
+	if(stackoffset >= MAX_SCRIPT_REGISTERS)
+	{
+		Z_scripterrlog("Stack over or underflow, stack pointer = %ld\n", stackoffset);
+		return;
+	}
+	
+	(*stack)[stackoffset] = value;
+}
 
-public:
-
-	enum __Error
+int32_t SH::read_stack(const uint32_t stackoffset)
+{
+	if(stackoffset >= MAX_SCRIPT_REGISTERS)
 	{
-		_NoError, //OK!
-		_Overflow, //script array too small
-		_InvalidPointer, //passed NULL pointer or similar
-		_OutOfBounds, //library array out of bounds
-		_InvalidSpriteUID //bad npc, ffc, etc.
-	};
-	
-#define INVALIDARRAY localRAM[0]  //localRAM[0] is never used
-	
-	//only if the player is messing with their pointers...
-	static ZScriptArray& InvalidError(const int32_t ptr)
-	{
-		Z_scripterrlog("Invalid pointer (%i) passed to array (don't change the values of your array pointers)\n", ptr);
-		return INVALIDARRAY;
+		Z_scripterrlog("Stack over or underflow, stack pointer = %ld\n", stackoffset);
+		return -10000;
 	}
 	
-	static void write_stack(const uint32_t stackoffset, const int32_t value)
-	{
-		if(stackoffset >= MAX_SCRIPT_REGISTERS)
-		{
-			Z_scripterrlog("Stack over or underflow, stack pointer = %ld\n", stackoffset);
-			return;
-		}
-		
-		(*stack)[stackoffset] = value;
-	}
-	
-	static int32_t read_stack(const uint32_t stackoffset)
-	{
-		if(stackoffset >= MAX_SCRIPT_REGISTERS)
-		{
-			Z_scripterrlog("Stack over or underflow, stack pointer = %ld\n", stackoffset);
-			return -10000;
-		}
-		
-		return (*stack)[stackoffset];
-	}
-	
-	static INLINE int32_t get_arg(int32_t arg, bool v)
-	{
-		return v ? arg : get_register(arg);
-	}
-};
+	return (*stack)[stackoffset];
+}
 
 ///----------------------------//
 //           Misc.             //
@@ -1492,298 +867,9 @@ int32_t get_total_mi(int32_t ref = MAPSCR_TEMP0)
 }
 
 ///------------------------------------------------//
-//           Bounds Checking Functions             //
-///------------------------------------------------//
-
-//Bounds Checker
-class BC : public SH
-{
-public:
-
-	static INLINE int32_t checkMapID(const int32_t ID, const char * const str)
-	{
-		//return checkBounds(ID, 0, map_count-1, str);
-		if(ID < 0 || ID > map_count-1)
-		{
-			Z_scripterrlog("Invalid value (%i) passed to '%s'\n", ID+1, str);
-			return _OutOfBounds;
-		}
-		
-		return _NoError;
-	}
-	
-	static INLINE int32_t checkDMapID(const int32_t ID, const char * const str)
-	{
-		return checkBounds(ID, 0, MAXDMAPS-1, str);
-	}
-	
-	static INLINE int32_t checkComboPos(const int32_t pos, const char * const str)
-	{
-		return checkBoundsPos(pos, 0, 175, str);
-	}
-	
-	static INLINE int32_t checkTile(const int32_t pos, const char * const str)
-	{
-		return checkBounds(pos, 0, NEWMAXTILES-1, str);
-	}
-	
-	static INLINE int32_t checkCombo(const int32_t pos, const char * const str)
-	{
-		return checkBounds(pos, 0, MAXCOMBOS-1, str);
-	}
-	
-	static INLINE int32_t checkMisc(const int32_t a, const char * const str)
-	{
-		return checkBounds(a, 0, 15, str);
-	}
-	
-	 static INLINE int32_t checkMisc32(const int32_t a, const char * const str)
-	{
-		return checkBounds(a, 0, 31, str);
-	}
-	
-	static INLINE int32_t checkMessage(const int32_t ID, const char * const str)
-	{
-		return checkBounds(ID, 0, msg_strings_size-1, str);
-	}
-	
-	static INLINE int32_t checkLayer(const int32_t layer, const char * const str)
-	{
-		return checkBounds(layer, 0, 6, str);
-	}
-	
-	static INLINE int32_t checkFFC(const int32_t ffc, const char * const str)
-	{
-		return checkBounds(ffc, 0, MAXFFCS-1, str);
-	}
-	
-	static INLINE int32_t checkGuyIndex(const int32_t index, const char * const str)
-	{
-		return checkBoundsOneIndexed(index, 0, guys.Count()-1, str);
-	}
-	
-	static INLINE int32_t checkItemIndex(const int32_t index, const char * const str)
-	{
-		return checkBoundsOneIndexed(index, 0, items.Count()-1, str);
-	}
-	
-	static INLINE int32_t checkEWeaponIndex(const int32_t index, const char * const str)
-	{
-		return checkBoundsOneIndexed(index, 0, Ewpns.Count()-1, str);
-	}
-	
-	static INLINE int32_t checkLWeaponIndex(const int32_t index, const char * const str)
-	{
-		return checkBoundsOneIndexed(index, 0, Lwpns.Count()-1, str);
-	}
-	
-	static INLINE int32_t checkGuyID(const int32_t ID, const char * const str)
-	{
-		//return checkBounds(ID, 0, MAXGUYS-1, str); //Can't create NPC ID 0
-		return checkBounds(ID, 1, MAXGUYS-1, str);
-	}
-	
-	static INLINE int32_t checkItemID(const int32_t ID, const char * const str)
-	{
-		return checkBounds(ID, 0, MAXITEMS-1, str);
-	}
-	
-	static INLINE int32_t checkWeaponID(const int32_t ID, const char * const str)
-	{
-		return checkBounds(ID, 0, MAXWPNS-1, str);
-	}
-	
-	static INLINE int32_t checkWeaponMiscSprite(const int32_t ID, const char * const str)
-	{
-		return checkBounds(ID, 0, MAXWPNS-1, str);
-	}
-	
-	static INLINE int32_t checkSFXID(const int32_t ID, const char * const str)
-	{
-		return checkBounds(ID, 0, WAV_COUNT-1, str);
-	}
-	
-	static INLINE int32_t checkBounds(const int32_t n, const int32_t boundlow, const int32_t boundup, const char * const funcvar)
-	{
-		if(n < boundlow || n > boundup)
-		{
-			Z_scripterrlog("Invalid value (%i) passed to '%s'\n", n, funcvar);
-			return _OutOfBounds;
-		}
-		
-		return _NoError;
-	}
-	
-	static INLINE int32_t checkBoundsPos(const int32_t n, const int32_t boundlow, const int32_t boundup, const char * const funcvar)
-	{
-		if(n < boundlow || n > boundup)
-		{
-			Z_scripterrlog("Invalid position [%i] used to read to '%s'\n", n, funcvar);
-			return _OutOfBounds;
-		}
-        
-		return _NoError;
-	}
-	
-	static INLINE int32_t checkBoundsOneIndexed(const int32_t n, const int32_t boundlow, const int32_t boundup, const char * const funcvar)
-	{
-		if(n < boundlow || n > boundup)
-		{
-			Z_scripterrlog("Invalid value (%i) passed to '%s'\n", n+1, funcvar);
-			return _OutOfBounds;
-		}
-		
-		return _NoError;
-	}
-	
-	static INLINE int32_t checkUserArrayIndex(const int32_t index, const dword size, const bool neg = false)
-	{
-		
-		if(index < (neg ? -int32_t(size) : 0) || index >= int32_t(size))
-		{
-			Z_scripterrlog("Invalid index (%ld) to local array of size %ld\n", index, size);
-			return _OutOfBounds;
-		}
-		
-		return _NoError;
-	}
-};
-
-///------------------------------------------------//
 //           Pointer Handling Functions          //
 ///------------------------------------------------//
 //MUST call AND check load functions before trying to use other functions
-
-
-	
-
-//Guy Helper
-class GuyH : public SH
-{
-
-public:
-	static int32_t loadNPC(const int32_t eid, const char * const funcvar)
-	{
-		if ( !eid ) 
-		{
-			//can never be zero?
-			Z_scripterrlog("The npc pointer used for %s is NULL or uninitialised.", funcvar);
-			return _InvalidSpriteUID;
-		}
-		tempenemy = (enemy *) guys.getByUID(eid);
-		
-		if(tempenemy == NULL)
-		{
-			Z_scripterrlog("Invalid NPC with UID %ld passed to %s\nNPCs on screen have UIDs ", eid, funcvar);
-			
-			for(word i = 0; i < guys.Count(); i++)
-				Z_scripterrlog("%ld ", guys.spr(i)->getUID());
-				
-			Z_scripterrlog("\n");
-			return _InvalidSpriteUID;
-		}
-		
-		return _NoError;
-	}
-	
-	static INLINE enemy *getNPC()
-	{
-		return tempenemy;
-	}
-	
-	// Currently only used in a context where the enemy is known to be valid,
-	// so there's no need to print an error
-	static int32_t getNPCIndex(const int32_t eid)
-	{
-		for(word i = 0; i < guys.Count(); i++)
-		{
-			if(guys.spr(i)->getUID() == eid)
-				return i;
-		}
-		
-		return -1;
-	}
-	
-	static int32_t getNPCDMisc(const byte a)
-	{
-		switch(a)
-		{
-			case 0: return tempenemy->dmisc1;
-			case 1: return tempenemy->dmisc2;
-			case 2: return tempenemy->dmisc3;
-			case 3: return tempenemy->dmisc4;
-			case 4: return tempenemy->dmisc5;
-			case 5: return tempenemy->dmisc6;
-			case 6: return tempenemy->dmisc7;
-			case 7: return tempenemy->dmisc8;
-			case 8: return tempenemy->dmisc9;
-			case 9: return tempenemy->dmisc10;
-			case 10: return tempenemy->dmisc11;
-			case 11: return tempenemy->dmisc12;
-			case 12: return tempenemy->dmisc13;
-			case 13: return tempenemy->dmisc14;
-			case 14: return tempenemy->dmisc15;
-			case 15: return tempenemy->dmisc16;
-			case 16: return tempenemy->dmisc17;
-			case 17: return tempenemy->dmisc18;
-			case 18: return tempenemy->dmisc19;
-			case 19: return tempenemy->dmisc20;
-			case 20: return tempenemy->dmisc21;
-			case 21: return tempenemy->dmisc22;
-			case 22: return tempenemy->dmisc23;
-			case 23: return tempenemy->dmisc24;
-			case 24: return tempenemy->dmisc25;
-			case 25: return tempenemy->dmisc26;
-			case 26: return tempenemy->dmisc27;
-			case 27: return tempenemy->dmisc28;
-			case 28: return tempenemy->dmisc29;
-			case 29: return tempenemy->dmisc30;
-			case 30: return tempenemy->dmisc31;
-			case 31: return tempenemy->dmisc32;
-		}
-		
-		return 0;
-	}
-	
-	static bool hasHero()
-	{
-		if(tempenemy->family == eeWALLM)
-			return ((eWallM *) tempenemy)->hashero;
-			
-		if(tempenemy->family == eeWALK)
-			return ((eStalfos *) tempenemy)->hashero;
-			
-		return false;
-	}
-	
-	static int32_t getMFlags()
-	{
-		clear_ornextflag();
-		flagpos = 5;
-		// Must be in the same order as in the Enemy Editor pane
-		ornextflag(tempenemy->flags&(guy_lens_only));
-		ornextflag(tempenemy->flags&(guy_flashing));
-		ornextflag(tempenemy->flags&(guy_blinking));
-		ornextflag(tempenemy->flags&(guy_transparent));
-		ornextflag(tempenemy->flags&(guy_shield_front));
-		ornextflag(tempenemy->flags&(guy_shield_left));
-		ornextflag(tempenemy->flags&(guy_shield_right));
-		ornextflag(tempenemy->flags&(guy_shield_back));
-		ornextflag(tempenemy->flags&(guy_bkshield));
-		return (tempenemy->flags&0x1F) | flagval;
-	}
-	
-	static INLINE void clearTemp()
-	{
-		tempenemy = NULL;
-	}
-	
-private:
-
-	static enemy *tempenemy;
-};
-
-enemy *GuyH::tempenemy = NULL;
 
 //Item Helper
 class ItemH : public SH
@@ -2736,266 +1822,143 @@ static int get_mouse_state(int index)
 ///---------------------------------------------//
 
 #define ZCARRAY_MAX_SIZE 214748
-class ArrayManager
-{
-public:
-	ArrayManager(int32_t ptr, bool neg);
-	ArrayManager(int32_t ptr);
-	
-	int32_t get(int32_t indx) const;
-	void set(int32_t indx, int32_t val);
-	int32_t size() const;
-	
-	bool resize(size_t newsize);
-	bool resize_min(size_t minsz);
-	bool can_resize();
-	bool push(int32_t val, int indx = -1);
-	int32_t pop(int indx = -1);
-	
-	bool invalid() const {return _invalid;}
-	bool internal() const {return !_invalid && !aptr;}
-	
-	std::string asString(std::function<char const*(int32_t)> formatter, const size_t& limit) const;
-	
-	bool negAccess;
-private:
-	int32_t ptr;
-	ZScriptArray* aptr;
-	bool _invalid;
-};
 
-//Array Helper
-class ArrayH : public SH
+size_t ArrayH::getSize(const int32_t ptr)
 {
-public:
-	static size_t getSize(const int32_t ptr)
-	{
-		ArrayManager am(ptr);
-		return am.size();
-	}
+	ArrayManager am(ptr);
+	return am.size();
+}
+
+//Can't you get the std::string and then check its length?
+int32_t ArrayH::strlen(const int32_t ptr)
+{
+	ArrayManager am(ptr);
+	if (am.invalid() || am.size() == 0)
+		return -1;
+		
+	word count;
+	size_t sz = am.size();
+	for(count = 0; BC::checkUserArrayIndex(count, sz) == _NoError
+		&& am.get(count) != '\0'; count++);
 	
-	//Can't you get the std::string and then check its length?
-	static int32_t strlen(const int32_t ptr)
-	{
-		ArrayManager am(ptr);
-		if (am.invalid() || am.size() == 0)
-			return -1;
-			
-		word count;
-		size_t sz = am.size();
-		for(count = 0; BC::checkUserArrayIndex(count, sz) == _NoError
-			&& am.get(count) != '\0'; count++);
-		
-		return count;
-	}
+	return count;
+}
+
+//Returns values of a zscript array as an std::string.
+void ArrayH::getString(const int32_t ptr, string &str, dword num_chars, dword offset)
+{
+	ArrayManager am(ptr);
 	
-	//Returns values of a zscript array as an std::string.
-	static void getString(const int32_t ptr, string &str, dword num_chars = ZSCRIPT_MAX_STRING_CHARS, dword offset = 0)
+	if(am.invalid())
 	{
-		ArrayManager am(ptr);
-		
-		if(am.invalid())
-		{
-			str.clear();
-			return;
-		}
-		
 		str.clear();
-		size_t sz = am.size();
-		for(word i = offset; BC::checkUserArrayIndex(i, sz) == _NoError && am.get(i) != '\0' && num_chars != 0; i++)
+		return;
+	}
+	
+	str.clear();
+	size_t sz = am.size();
+	for(word i = offset; BC::checkUserArrayIndex(i, sz) == _NoError && am.get(i) != '\0' && num_chars != 0; i++)
+	{
+		int32_t c = am.get(i) / 10000;
+		if(byte(c) != c)
 		{
-			int32_t c = am.get(i) / 10000;
-			if(byte(c) != c)
-			{
-				Z_scripterrlog("Illegal char value (%d) at position [%d] in string pointer %d\n", c, i, ptr);
-				Z_scripterrlog("Value of invalid char will overflow.\n");
-			}
-			str += byte(c);
-			--num_chars;
+			Z_scripterrlog("Illegal char value (%d) at position [%d] in string pointer %d\n", c, i, ptr);
+			Z_scripterrlog("Value of invalid char will overflow.\n");
 		}
+		str += byte(c);
+		--num_chars;
 	}
+}
+
+//Used for issues where reading the ZScript array floods the console with errors 'Accessing array index [12] size of 12.
+//Happens with Quad3D and some other functions, and I have no clue why. -Z ( 28th April, 2019 )
+//Like getString but for an array of longs instead of chars. *(arrayPtr is not checked for validity)
+void ArrayH::getValues2(const int32_t ptr, int32_t* arrayPtr, dword num_values, dword offset) //a hack -Z
+{
+	ArrayManager am(ptr);
 	
-	//Used for issues where reading the ZScript array floods the console with errors 'Accessing array index [12] size of 12.
-	//Happens with Quad3D and some other functions, and I have no clue why. -Z ( 28th April, 2019 )
-	//Like getString but for an array of longs instead of chars. *(arrayPtr is not checked for validity)
-	static void getValues2(const int32_t ptr, int32_t* arrayPtr, dword num_values, dword offset = 0) //a hack -Z
+	if(am.invalid())
+		return;
+	
+	size_t sz = am.size();
+	for(word i = offset; BC::checkUserArrayIndex(i, sz+1) == _NoError && num_values != 0; i++)
 	{
-		ArrayManager am(ptr);
-		
-		if(am.invalid())
-			return;
-		
-		size_t sz = am.size();
-		for(word i = offset; BC::checkUserArrayIndex(i, sz+1) == _NoError && num_values != 0; i++)
+		arrayPtr[i] = (am.get(i) / 10000);
+		num_values--;
+	}
+}
+
+//Like getString but for an array of longs instead of chars. *(arrayPtr is not checked for validity)
+void ArrayH::getValues(const int32_t ptr, int32_t* arrayPtr, dword num_values, dword offset)
+{
+	ArrayManager am(ptr);
+	
+	if (am.invalid())
+		return;
+	size_t sz = am.size();
+	for(word i = offset; num_values != 0 && BC::checkUserArrayIndex(i, sz) == _NoError; i++)
+	{
+		arrayPtr[i] = (am.get(i) / 10000);
+		num_values--;
+	}
+}
+
+void ArrayH::copyValues(const int32_t ptr, const int32_t ptr2, size_t num_values)
+{
+	ArrayManager am1(ptr), am2(ptr2);
+	if(am1.invalid() || am2.invalid())
+		return;
+	size_t sz = std::min(am1.size(),am2.size());
+	for(word i = 0; (BC::checkUserArrayIndex(i, sz) == _NoError) && num_values != 0; i++)
+	{
+		am1.set(i,am2.get(i));
+		num_values--;
+	}
+}
+//Get element from array
+INLINE int32_t ArrayH::getElement(const int32_t ptr, int32_t offset, const bool neg)
+{
+	ArrayManager am(ptr,neg);
+	return am.get(offset);
+}
+
+//Set element in array
+INLINE void ArrayH::setElement(const int32_t ptr, int32_t offset, const int32_t value, const bool neg)
+{
+	ArrayManager am(ptr,neg);
+	am.set(offset,value);
+}
+
+int32_t ArrayH::setArray(const int32_t ptr, string const& s2, bool resize)
+{
+	ArrayManager am(ptr);
+	
+	if (am.invalid())
+		return _InvalidPointer;
+	
+	size_t i;
+	
+	if(am.can_resize() && resize)
+		am.resize_min(s2.size()+1);
+	
+	size_t sz = am.size();
+	for(i = 0; i < s2.size(); i++)
+	{
+		if(i >= sz)
 		{
-			arrayPtr[i] = (am.get(i) / 10000);
-			num_values--;
-		}
-	}
-	
-	//Like getString but for an array of longs instead of chars. *(arrayPtr is not checked for validity)
-	static void getValues(const int32_t ptr, int32_t* arrayPtr, dword num_values, dword offset = 0)
-	{
-		ArrayManager am(ptr);
-		
-		if (am.invalid())
-			return;
-		size_t sz = am.size();
-		for(word i = offset; num_values != 0 && BC::checkUserArrayIndex(i, sz) == _NoError; i++)
-		{
-			arrayPtr[i] = (am.get(i) / 10000);
-			num_values--;
-		}
-	}
-	
-	static void copyValues(const int32_t ptr, const int32_t ptr2, size_t num_values)
-	{
-		ArrayManager am1(ptr), am2(ptr2);
-		if(am1.invalid() || am2.invalid())
-			return;
-		size_t sz = std::min(am1.size(),am2.size());
-		for(word i = 0; (BC::checkUserArrayIndex(i, sz) == _NoError) && num_values != 0; i++)
-		{
-			am1.set(i,am2.get(i));
-			num_values--;
-		}
-	}
-	//Get element from array
-	static INLINE int32_t getElement(const int32_t ptr, int32_t offset,
-		const bool neg = false)
-	{
-		ArrayManager am(ptr,neg);
-		return am.get(offset);
-	}
-	
-	//Set element in array
-	static INLINE void setElement(const int32_t ptr, int32_t offset,
-		const int32_t value, const bool neg = false)
-	{
-		ArrayManager am(ptr,neg);
-		am.set(offset,value);
-	}
-	
-	//Puts values of a zscript array into a client <type> array. returns 0 on success. Overloaded
-	template <typename T>
-	static int32_t getArray(const int32_t ptr, T *refArray)
-	{
-		return getArray(ptr, getSize(ptr), 0, 0, 0, refArray);
-	}
-	
-	template <typename T>
-	static int32_t getArray(const int32_t ptr, const size_t size, T *refArray)
-	{
-		return getArray(ptr, size, 0, 0, 0, refArray);
-	}
-	
-	template <typename T>
-	static int32_t getArray(const int32_t ptr, const size_t size, size_t userOffset, const size_t userStride, const size_t refArrayOffset, T *refArray)
-	{
-		ArrayManager am(ptr);
-		
-		if (am.invalid())
-			return _InvalidPointer;
-			
-		size_t j = 0, k = userStride;
-		
-		size_t sz = am.size();
-		for(size_t i = 0; j < size; i++)
-		{
-			if(i >= sz)
-				return _Overflow;
-				
-			if(userOffset-- > 0)
-				continue;
-				
-			if(k > 0)
-				k--;
-			else if(BC::checkUserArrayIndex(i, sz) == _NoError)
-			{
-				refArray[j + refArrayOffset] = T(am.get(i));
-				k = userStride;
-				j++;
-			}
-		}
-		
-		return _NoError;
-	}
-	
-	static int32_t setArray(const int32_t ptr, string const& s2, bool resize = false)
-	{
-		ArrayManager am(ptr);
-		
-		if (am.invalid())
-			return _InvalidPointer;
-		
-		size_t i;
-		
-		if(am.can_resize() && resize)
-			am.resize_min(s2.size()+1);
-		
-		size_t sz = am.size();
-		for(i = 0; i < s2.size(); i++)
-		{
-			if(i >= sz)
-			{
-				am.set(sz-1,'\0');
-				return _Overflow;
-			}
-			
-			if(BC::checkUserArrayIndex(i, sz) == _NoError)
-				am.set(i,s2[i] * 10000);
+			am.set(sz-1,'\0');
+			return _Overflow;
 		}
 		
 		if(BC::checkUserArrayIndex(i, sz) == _NoError)
-			am.set(i,'\0');
-			
-		return _NoError;
+			am.set(i,s2[i] * 10000);
 	}
 	
-	//Puts values of a client <type> array into a zscript array. returns 0 on success. Overloaded
-	template <typename T>
-	static int32_t setArray(const int32_t ptr, const size_t size, T *refArray, bool x10k = true, bool resize = false)
-	{
-		return setArray(ptr, size, 0, 0, 0, refArray, x10k, resize);
-	}
-	
-	template <typename T>
-	static int32_t setArray(const int32_t ptr, const size_t size, word userOffset, const word userStride, const word refArrayOffset, T *refArray, bool x10k = true, bool resize = false)
-	{
-		ArrayManager am(ptr);
+	if(BC::checkUserArrayIndex(i, sz) == _NoError)
+		am.set(i,'\0');
 		
-		if (am.invalid())
-			return _InvalidPointer;
-		
-		if(am.can_resize() && resize)
-			am.resize_min((userStride+1)*size);
-			
-		word j = 0, k = userStride;
-		size_t sz = am.size();
-		for(word i = 0; j < size; i++)
-		{
-			if(i >= sz)
-				return _Overflow; //Resize?
-				
-			if (userOffset > 0)
-			{
-				--userOffset;
-				continue;
-			}
-				
-			if(k > 0)
-				k--;
-			else if(BC::checkUserArrayIndex(i, sz) == _NoError)
-			{
-				am.set(i,int32_t(refArray[j + refArrayOffset]) * (x10k ? 10000 : 1));
-				k = userStride;
-				j++;
-			}
-		}
-		
-		return _NoError;
-	}
-};
+	return _NoError;
+}
 
 ArrayManager::ArrayManager(int32_t ptr, bool neg) : negAccess(neg), ptr(ptr)
 {
@@ -3435,11 +2398,6 @@ user_file *checkFile(int32_t ref, const char *what, bool req_file = false, bool 
 	return file;
 }
 
-user_object *checkObject(int32_t ref, bool skipError = false)
-{
-	return user_objects.check(ref, nullptr, skipError);
-}
-
 user_genscript *checkGenericScr(int32_t ref, const char *what)
 {
 	if(ref < 1 || ref >= NUMSCRIPTSGENERIC)
@@ -3743,9 +2701,13 @@ int32_t do_msgwidth(int32_t msg, char const* str);
 int32_t earlyretval = -1;
 int32_t get_register(int32_t arg)
 {
+	if (arg >= D(0) && arg <= D(7))
+		return ri->d[arg - D(0)];
+
+	if (arg >= GD(0) && arg <= GD(MAX_SCRIPT_REGISTERS))
+		return game->global_d[arg - GD(0)];
+
 	int32_t ret = 0;
-	
-	//Macros
 	
 	#define GET_SPRITEDATA_VAR_INT(member, str) \
 	{ \
@@ -6185,845 +5147,7 @@ int32_t get_register(int32_t arg)
 				ret = itemsbuf[ri->idata].initiald[a];
 		}
 		break;
-		
-		///----------------------------------------------------------------------------------------------------//
-		//NPC Variables
 
-		//Reduces accessing integer members to one line
-		#define GET_NPC_VAR_INT(member, str) \
-		{ \
-			if(GuyH::loadNPC(ri->guyref, str) != SH::_NoError) \
-				ret = -10000; \
-			else \
-				ret = GuyH::getNPC()->member * 10000; \
-		}
-
-		case NPCDIR:
-			if(GuyH::loadNPC(ri->guyref, "npc->Dir") != SH::_NoError)
-				ret = -10000;
-			else
-				ret = zc_max(GuyH::getNPC()->dir * 10000, 0);
-				
-			break;
-			
-		case NPCHITDIR:
-			if(GuyH::loadNPC(ri->guyref, "npc->HitDir") != SH::_NoError)
-				ret = -10000;
-			else
-				ret = (GuyH::getNPC()->hitdir * 10000);
-				
-			break;
-			
-		case NPCSLIDECLK:
-			if(GuyH::loadNPC(ri->guyref, "npc->SlideClock") != SH::_NoError)
-				ret = -10000;
-			else
-				ret = (GuyH::getNPC()->sclk * 10000);
-				
-			break;
-			
-		case NPCHALTCLK:
-			if(GuyH::loadNPC(ri->guyref, "npc->Halt") != SH::_NoError)
-				ret = -10000;
-			else
-				ret = (GuyH::getNPC()->clk2 * 10000);
-				
-			break;
-			
-		case NPCFRAME:
-			if(GuyH::loadNPC(ri->guyref, "npc->Frame") != SH::_NoError)
-				ret = -10000;
-			else
-				ret = (GuyH::getNPC()->clk * 10000);
-				
-			break;
-			
-		case NPCMOVESTATUS:
-			if(GuyH::loadNPC(ri->guyref, "npc->MoveStatus") != SH::_NoError)
-				ret = -10000;
-			else
-				ret = (GuyH::getNPC()->movestatus * 10000);
-				
-			break;
-			
-		case NPCFADING:
-			if(GuyH::loadNPC(ri->guyref, "npc->Fading") != SH::_NoError)
-				ret = -10000;
-			else
-				ret = (GuyH::getNPC()->fading * 10000);
-				
-			break;
-			
-		case NPCRATE:
-			GET_NPC_VAR_INT(rate, "npc->Rate") break;
-			
-		case NPCHOMING:
-			GET_NPC_VAR_INT(homing, "npc->Homing") break;
-			
-		case NPCFRAMERATE:
-			GET_NPC_VAR_INT(frate, "npc->ASpeed") break;
-			
-		case NPCHALTRATE:
-			GET_NPC_VAR_INT(hrate, "npc->HaltRate") break;
-		
-		case NPCRANDOM:
-			GET_NPC_VAR_INT(rate, "npc->Random") break;
-			
-		case NPCDRAWTYPE:
-			GET_NPC_VAR_INT(drawstyle, "npc->DrawStyle") break;
-		
-		case NPCHP:
-			GET_NPC_VAR_INT(hp, "npc->HP") break;
-
-		case NPCORIGINALHP:
-			GET_NPC_VAR_INT(starting_hp, "npc->OriginalHP") break;
-			
-		case NPCCOLLDET:
-			GET_NPC_VAR_INT(scriptcoldet, "npc->ColDetection") break;
-		
-		case NPCENGINEANIMATE:
-			GET_NPC_VAR_INT(do_animation, "npc->Animation") break;
-			
-		case NPCSTUN:
-			GET_NPC_VAR_INT(stunclk, "npc->Stun") break;
-			
-		case NPCHUNGER:
-			GET_NPC_VAR_INT(grumble, "npc->Hunger") break;
-		
-		case NPCWEAPSPRITE:
-			GET_NPC_VAR_INT(wpnsprite, "npc->WeaponSprite") break;
-			
-		case NPCTYPE:
-			GET_NPC_VAR_INT(family, "npc->Type") break;
-			
-		case NPCDP:
-			GET_NPC_VAR_INT(dp, "npc->Damage") break;
-			
-		case NPCWDP:
-			GET_NPC_VAR_INT(wdp, "npc->WeaponDamage") break;
-			
-		case NPCOTILE:
-			GET_NPC_VAR_INT(o_tile, "npc->OriginalTile") break;
-			
-		case NPCTILE:
-			GET_NPC_VAR_INT(tile, "npc->Tile") break;
-		
-		case NPCSCRIPTTILE:
-			GET_NPC_VAR_INT(scripttile, "npc->ScriptTile") break;
-			
-		case NPCSCRIPTFLIP:
-			GET_NPC_VAR_INT(scriptflip, "npc->ScriptFlip") break;
-			
-		case NPCWEAPON:
-			GET_NPC_VAR_INT(wpn, "npc->Weapon") break;
-			
-		case NPCITEMSET:
-			GET_NPC_VAR_INT(item_set, "npc->ItemSet") break;
-			
-		case NPCCSET:
-			GET_NPC_VAR_INT(cs, "npc->CSet") break;
-			
-		case NPCBOSSPAL:
-			GET_NPC_VAR_INT(bosspal, "npc->BossPal") break;
-			
-		case NPCBGSFX:
-			GET_NPC_VAR_INT(bgsfx, "npc->SFX") break;
-			
-		case NPCEXTEND:
-			GET_NPC_VAR_INT(extend, "npc->Extend") break;
-			
-		case NPCHXOFS:
-			GET_NPC_VAR_INT(hxofs, "npc->HitXOffset") break;
-			
-		case NPCHYOFS:
-			GET_NPC_VAR_INT(hyofs, "npc->HitYOffset") break;
-			
-		case NPCHXSZ:
-			GET_NPC_VAR_INT(hit_width, "npc->HitWidth") break;
-			
-		case NPCHYSZ:
-			GET_NPC_VAR_INT(hit_height, "npc->HitHeight") break;
-			
-		case NPCHZSZ:
-			GET_NPC_VAR_INT(hzsz, "npc->HitZHeight") break;
-		
-		case NPCROTATION:
-			if ( get_qr(qr_OLDSPRITEDRAWS) ) 
-			{
-				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
-					"npc->Rotation");
-				ret = -1; break;
-			}
-			GET_NPC_VAR_INT(rotation, "npc->Rotation") break;
-
-		case NPCTXSZ:
-			GET_NPC_VAR_INT(txsz, "npc->TileWidth") break;
-			
-		case NPCTYSZ:
-			GET_NPC_VAR_INT(tysz, "npc->TileHeight") break;
-			
-		//And zfix
-		#define GET_NPC_VAR_FIX(member, str) \
-		{ \
-			if(GuyH::loadNPC(ri->guyref, str) != SH::_NoError) \
-			{ \
-				ret = -10000; \
-				break; \
-			} \
-			else \
-				ret = (int32_t(GuyH::getNPC()->member) * 10000); \
-		}
-
-		case NPCX:
-		//GET_NPC_VAR_FIX(x, "npc->X") break;     
-		{
-			if(GuyH::loadNPC(ri->guyref, "X") != SH::_NoError) 
-			{
-				ret = -10000; 
-			}
-			else 
-			{
-				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
-				{
-					ret = ((GuyH::getNPC()->x).getZLong()); 
-				}
-				else
-				{
-					ret = (int32_t(GuyH::getNPC()->x) * 10000);   
-				}
-			}
-			break;
-		}
-		
-		case SPRITEMAXNPC:
-		{
-			//No bounds check, as this is a universal function and works from NULL pointers!
-			ret = guys.getMax() * 10000;
-			break;
-		}
-		
-		case NPCSUBMERGED:
-		{
-			if(GuyH::loadNPC(ri->guyref, "Submerged()") != SH::_NoError) 
-			{
-				ret = -10000; 
-			}    
-			else
-			{
-				ret = ((GuyH::getNPC()->isSubmerged()) ? 10000 : 0);
-				
-			}
-			break;	
-		}
-			
-			
-		case NPCY:
-			//GET_NPC_VAR_FIX(y, "npc->Y") break;
-		{
-			if(GuyH::loadNPC(ri->guyref, "Y") != SH::_NoError) 
-			{
-				ret = -10000; 
-			}
-			else 
-			{
-				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
-				{
-					ret = ((GuyH::getNPC()->y).getZLong()); 
-				}
-				else
-				{
-					ret = (int32_t(GuyH::getNPC()->y) * 10000);   
-				}
-			}
-			break;
-		}
-		
-			
-		case NPCZ:
-			//GET_NPC_VAR_FIX(z, "npc->Z") break;
-		{
-			if(GuyH::loadNPC(ri->guyref, "Z") != SH::_NoError) 
-			{
-				ret = -10000; 
-			}
-			else 
-			{
-				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
-				{
-					ret = ((GuyH::getNPC()->z).getZLong()); 
-				}
-				else
-				{
-					ret = (int32_t(GuyH::getNPC()->z) * 10000);   
-				}
-			}
-			break;
-		}
-			
-		case NPCXOFS:
-			GET_NPC_VAR_FIX(xofs, "npc->DrawXOffset") break;
-			
-		case NPCYOFS:
-			GET_NPC_VAR_FIX(yofs, "npc->DrawYOffset") ret-=(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)*10000;
-			break;
-		case NPCSHADOWXOFS:
-			GET_NPC_VAR_FIX(shadowxofs, "npc->ShadowXOffset") break;
-			
-		case NPCSHADOWYOFS:
-			GET_NPC_VAR_FIX(shadowyofs, "npc->ShadowYOffset") break;
-			
-		case NPCTOTALDYOFFS:
-		{
-			if(GuyH::loadNPC(ri->guyref, "npc->TotalDYOffset") != SH::_NoError)
-			{
-				ret = -10000;
-			}
-			else
-			{
-				ret = ((int32_t(GuyH::getNPC()->yofs - (get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset))
-					+ ((GuyH::getNPC()->switch_hooked && Hero.switchhookstyle == swRISE)
-						? -(8-(abs(Hero.switchhookclk-32)/4)) : 0)) * 10000);
-			}
-			break;
-		}
-			
-		case NPCZOFS:
-			GET_NPC_VAR_FIX(zofs, "npc->DrawZOffset") break;
-			
-			//These variables are all different to the templates (casting for jump and step is slightly non-standard)
-		case NPCJUMP:
-			if(GuyH::loadNPC(ri->guyref, "npc->Jump") != SH::_NoError)
-				ret = -10000;
-			else
-			{
-				ret = GuyH::getNPC()->fall.getZLong() / -100;
-				if (get_qr(qr_SPRITE_JUMP_IS_TRUNCATED)) ret = trunc(ret / 10000) * 10000;
-			}
-				
-			break;
-		
-		case NPCFAKEJUMP:
-			if(GuyH::loadNPC(ri->guyref, "npc->FakeJump") != SH::_NoError)
-				ret = -10000;
-			else
-			{
-				ret = GuyH::getNPC()->fakefall.getZLong() / -100;
-				if (get_qr(qr_SPRITE_JUMP_IS_TRUNCATED)) ret = trunc(ret / 10000) * 10000;
-			}
-				
-			break;
-		
-		
-		case NPCSCALE:
-			if ( get_qr(qr_OLDSPRITEDRAWS) ) 
-			{
-				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
-					"npc->Scale");
-				ret = -1; break;
-			}
-			if(GuyH::loadNPC(ri->guyref, "npc->Scale") != SH::_NoError)
-				ret = -10000;
-			else
-				ret = (int32_t(GuyH::getNPC()->scale) * 100.0);
-				
-			break;
-		
-		case NPCIMMORTAL:
-			if(GuyH::loadNPC(ri->guyref, "npc->Immortal") != SH::_NoError)
-				ret = -10000;
-			else
-				ret = GuyH::getNPC()->immortal ? 10000 : 0;
-			break;
-		
-		case NPCNOSLIDE:
-			if(GuyH::loadNPC(ri->guyref, "npc->NoSlide") != SH::_NoError)
-				ret = -10000;
-			else
-				ret = (GuyH::getNPC()->knockbackflags & FLAG_NOSLIDE) ? 10000 : 0;
-			break;
-		
-		case NPCNOSCRIPTKB:
-			if(GuyH::loadNPC(ri->guyref, "npc->NoScriptKnockback") != SH::_NoError)
-				ret = -10000;
-			else
-				ret = (GuyH::getNPC()->knockbackflags & FLAG_NOSCRIPTKNOCKBACK) ? 10000 : 0;
-			break;
-		
-		case NPCKNOCKBACKSPEED:
-			if(GuyH::loadNPC(ri->guyref, "npc->SlideSpeed") != SH::_NoError)
-				ret = -10000;
-			else
-				ret = GuyH::getNPC()->knockbackSpeed * 10000;
-			break;
-			
-		case NPCSTEP:
-			if(GuyH::loadNPC(ri->guyref, "npc->Step") != SH::_NoError)
-				ret = -10000;
-			else
-			{
-				if ( get_qr(qr_STEP_IS_FLOAT) || replay_is_active() )
-				{
-					ret = ( ( (GuyH::getNPC()->step).getZLong() ) * 100 );
-				}
-				//old, buggy code replication, round two: Go! -Z
-				//else ret = ( ( (GuyH::getNPC()->step) * 100.0 ).getZLong() );
-				else 
-				{
-					double s2 = ( (GuyH::getNPC()->step).getZLong() );
-					ret = int32_t(s2*100);
-					//ret = int32_t( ( (GuyH::getNPC()->step) * 100.0 )) * 10000;
-				}
-				//else ret = int32_t(GuyH::getNPC()->step * fix(100.0)) * 10000;
-				
-				//else 
-				//{
-					//old, buggy code replication, round THREE: Go! -Z
-				//	double tmp = ( (GuyH::getNPC()->step) ) * 1000000.0;
-				//	ret = (int32_t)tmp;
-				//}
-			}
-				
-			break;
-		
-		case NPCGRAVITY:
-			if(GuyH::loadNPC(ri->guyref, "npc->Gravity") != SH::_NoError)
-				ret = -10000;
-			else
-				ret = ((GuyH::getNPC()->moveflags & move_obeys_grav) ? 10000 : 0);
-				
-			break;
-		
-			
-		case NPCID:
-			if(GuyH::loadNPC(ri->guyref, "npc->ID") != SH::_NoError)
-				ret = -10000;
-			else
-				ret = (GuyH::getNPC()->id & 0xFFF) * 10000;
-				
-			break;
-		
-		case NPCISCORE:
-			if(GuyH::loadNPC(ri->guyref, "npc->isCore") != SH::_NoError)
-				ret = -10000;
-			else
-				ret = ((GuyH::getNPC()->isCore) ? 10000 : 0);
-				
-			break;
-		
-		case NPCSCRIPTUID:
-			if(GuyH::loadNPC(ri->guyref, "npc->ScriptUID") != SH::_NoError)
-				ret = -10000;
-			else
-				ret = ((GuyH::getNPC()->getScriptUID())); //literal, not *10000
-				
-			break;
-		
-		case NPCPARENTUID:
-			if(GuyH::loadNPC(ri->guyref, "npc->ParentUID") != SH::_NoError)
-				ret = -10000;
-			else
-				ret = ((GuyH::getNPC()->parent_script_UID)); //literal, not *10000
-				
-			break;
-		
-		//case EWPNPARENTUID:
-			//if(0!=(s=checkEWpn(ri->ewpn, "ScriptUID")))
-			//	ret=(((weapon*)(s))->parent_script_UID); //literal, not *10000
-				
-			
-		case NPCMFLAGS:
-			if(GuyH::loadNPC(ri->guyref, "npc->MiscFlags") != SH::_NoError)
-				ret = -10000;
-			else
-				ret = GuyH::getMFlags() * 10000;
-				
-			break;
-			
-		//Indexed (two checks)
-		case NPCDEFENSED:
-		{
-			int32_t a = ri->d[rINDEX] / 10000;
-			
-			if(GuyH::loadNPC(ri->guyref, "npc->Defense[]") != SH::_NoError ||
-					BC::checkBounds(a, 0, (edefLAST255), "npc->Defense[]") != SH::_NoError)
-				ret = -10000;
-			else
-				ret = GuyH::getNPC()->defense[a] * 10000;
-		}
-		break;
-		
-		case NPCHITBY:
-		{
-			int32_t indx = ri->d[rINDEX] / 10000;
-
-			if(GuyH::loadNPC(ri->guyref, "npc->HitBy[]") != SH::_NoError )
-			{
-				ret = -10000; break;
-			}
-			else
-			{
-				switch(indx)
-				{
-					//screen indixes
-					case 0:
-					case 1:
-					case 2:
-					case 3:
-					case 8:
-					case 9:
-					case 10:
-					case 11:
-					case 12:
-					case 16:
-					{
-						ret = GuyH::getNPC()->hitby[indx] * 10000; // * 10000; //do not multiply by 10000! UIDs are not *10000!
-						break;
-					}
-					//UIDs
-					case 4:
-					case 5:
-					case 6:
-					case 7:
-					case 13:
-					case 14:
-					case 15:
-					{
-						ret = GuyH::getNPC()->hitby[indx]; // * 10000; //do not multiply by 10000! UIDs are not *10000!
-						break;
-					}
-					default: { Z_scripterrlog("Invalid index used for npc->HitBy[%d]. /n", indx); ret = -10000; break; }
-				}
-				break;
-			}
-		}
-		
-		//2.fuure compat.
-		
-		case NPCSCRDEFENSED:
-		{
-			int32_t a = ri->d[rINDEX] / 10000;
-			
-			if(GuyH::loadNPC(ri->guyref, "npc->ScriptDefense") != SH::_NoError ||
-					BC::checkBounds(a, 0, edefSCRIPTDEFS_MAX, "npc->ScriptDefense") != SH::_NoError)
-				ret = -10000;
-			else
-				ret = GuyH::getNPC()->defense[a+edefSCRIPT01] * 10000;
-		}
-		break;
-		
-		
-		case NPCMISCD:
-		{
-			int32_t a = ri->d[rINDEX] / 10000;
-			
-			if(GuyH::loadNPC(ri->guyref, "npc->Misc") != SH::_NoError ||
-					BC::checkMisc32(a, "npc->Misc") != SH::_NoError)
-				ret = -10000;
-			else
-				ret = GuyH::getNPC()->miscellaneous[a];
-		}
-		break;
-		case NPCINITD:
-		{
-			int32_t a = ri->d[rINDEX] / 10000;
-			
-			if(GuyH::loadNPC(ri->guyref, "npc->InitD[]") != SH::_NoError )
-				ret = -10000;
-			else
-			{
-				//enemy *e = (enemy*)guys.spr(ri->guyref);
-				ret = (int32_t)GuyH::getNPC()->initD[a];
-			}
-		}
-		break;
-		
-		case NPCSCRIPT:
-		{
-			if(GuyH::loadNPC(ri->guyref, "npc->Script") != SH::_NoError )
-				ret = -10000;
-			else
-			{
-				//enemy *e = (enemy*)guys.spr(ri->guyref);
-				ret = (int32_t)GuyH::getNPC()->script * 10000;
-			}
-		}
-		break;
-		
-		case NPCDD: //Fized the size of this array. There are 15 total attribs, [0] to [14], not [0] to [9]. -Z
-		{
-			int32_t a = ri->d[rINDEX] / 10000;
-			
-			if(GuyH::loadNPC(ri->guyref, "npc->Attributes") != SH::_NoError ||
-					BC::checkBounds(a, 0, ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ? 31 : 15 ), "npc->Attributes") != SH::_NoError)
-				ret = -10000;
-			else
-				ret = GuyH::getNPCDMisc(a) * 10000;
-		}
-		break;
-		
-			case NPCINVINC:
-			if(GuyH::loadNPC(ri->guyref, "npc->InvFrames") != SH::_NoError)
-				ret = -10000;
-			else
-				ret = (int32_t)GuyH::getNPC()->hclk * 10000;
-				
-			break;
-		
-		case NPCHASITEM:
-			if(GuyH::loadNPC(ri->guyref, "npc->HasItem") != SH::_NoError)
-				ret = 0;
-			else
-				ret = GuyH::getNPC()->itemguy?10000:0;
-				
-			break;
-		
-		case NPCRINGLEAD:
-			if(GuyH::loadNPC(ri->guyref, "npc->Ringleader") != SH::_NoError)
-				ret = 0;
-			else
-				ret = GuyH::getNPC()->leader?10000:0;
-				
-			break;
-		
-		case NPCSUPERMAN:
-			if(GuyH::loadNPC(ri->guyref, "npc->Invincible") != SH::_NoError)
-				ret = -10000;
-			else
-				ret = (int32_t)GuyH::getNPC()->superman * 10000;
-				
-			break;
-		
-		case NPCSHIELD:
-		{
-			int32_t indx = ri->d[rINDEX];
-			if(GuyH::loadNPC(ri->guyref, "npc->Shield[]") == SH::_NoError)
-			{
-				switch(indx)
-				{
-					case 0:
-					{
-						ret = ((GuyH::getNPC()->flags&guy_shield_front) ? 10000 : 0);
-						break;
-					}
-					case 1:
-					{
-						ret = ((GuyH::getNPC()->flags&guy_shield_left) ? 10000 : 0);
-						break;
-					}
-					case 2:
-					{
-						ret = ((GuyH::getNPC()->flags&guy_shield_right) ? 10000 : 0);
-						break;
-					}
-					case 3:
-					{
-						ret = ((GuyH::getNPC()->flags&guy_shield_back) ? 10000 : 0);
-						break;
-					}
-					case 4: //shield can be broken
-					{
-						ret = ((GuyH::getNPC()->flags&guy_bkshield) ? 10000 : 0);
-						break;
-					}
-					default:
-					{
-						Z_scripterrlog("Invalid Array Index passed to npc->Shield[]: %d\n", indx); 
-						break;
-					}
-				}
-			}
-			else
-			{
-				ret = -10000;
-				break;
-			}
-		}
-		break;
-		
-		case NPCFROZENTILE:
-			GET_NPC_VAR_INT(frozentile, "npc->FrozenTile"); break;
-		
-		case NPCFROZENCSET:
-			GET_NPC_VAR_INT(frozencset, "npc->FrozenCSet"); break;
-		
-		case NPCFROZEN:
-			GET_NPC_VAR_INT(frozenclock, "npc->Frozen"); break;
-		
-		
-		case NPCBEHAVIOUR: 
-		{
-			if(GuyH::loadNPC(ri->guyref, "npc->Behaviour[]") != SH::_NoError) 
-			{
-				ret = -10000;
-				break;
-			}
-			
-			int32_t index = vbound(ri->d[rINDEX]/10000,0,4);
-			switch(index)
-			{
-				case 0:
-					ret=(GuyH::getNPC()->editorflags & ENEMY_FLAG1)?10000:0; break;
-				case 1:
-					ret=(GuyH::getNPC()->editorflags & ENEMY_FLAG2)?10000:0; break;
-				case 2:
-					ret=(GuyH::getNPC()->editorflags & ENEMY_FLAG3)?10000:0; break;
-				case 3:
-					ret=(GuyH::getNPC()->editorflags & ENEMY_FLAG4)?10000:0; break;
-				case 4:
-					ret=(GuyH::getNPC()->editorflags & ENEMY_FLAG5)?10000:0; break;
-				case 5:
-					ret=(GuyH::getNPC()->editorflags & ENEMY_FLAG6)?10000:0; break;
-				case 6:
-					ret=(GuyH::getNPC()->editorflags & ENEMY_FLAG7)?10000:0; break;
-				case 7:
-					ret=(GuyH::getNPC()->editorflags & ENEMY_FLAG8)?10000:0; break;
-				case 8:
-					ret=(GuyH::getNPC()->editorflags & ENEMY_FLAG9)?10000:0; break;
-				case 9:
-					ret=(GuyH::getNPC()->editorflags & ENEMY_FLAG10)?10000:0; break;
-				case 10:
-					ret=(GuyH::getNPC()->editorflags & ENEMY_FLAG11)?10000:0; break;
-				case 11:
-					ret=(GuyH::getNPC()->editorflags & ENEMY_FLAG12)?10000:0; break;
-				case 12:
-					ret=(GuyH::getNPC()->editorflags & ENEMY_FLAG13)?10000:0; break;
-				case 13:
-					ret=(GuyH::getNPC()->editorflags & ENEMY_FLAG14)?10000:0; break;
-				case 14:
-					ret=(GuyH::getNPC()->editorflags & ENEMY_FLAG15)?10000:0; break;
-				case 15:
-					ret=(GuyH::getNPC()->editorflags & ENEMY_FLAG16)?10000:0; break;
-				
-				default: 
-					ret = 0; break;
-			}
-				
-			break;
-		}
-		
-		case NPCFALLCLK:
-			if(GuyH::loadNPC(ri->guyref, "npc->Falling") == SH::_NoError)
-			{
-				ret = GuyH::getNPC()->fallclk * 10000;
-			}
-			break;
-		
-		case NPCFALLCMB:
-			if(GuyH::loadNPC(ri->guyref, "npc->FallCombo") == SH::_NoError)
-			{
-				ret = GuyH::getNPC()->fallCombo * 10000;
-			}
-			break;
-			
-		case NPCDROWNCLK:
-			if(GuyH::loadNPC(ri->guyref, "npc->Drowning") == SH::_NoError)
-			{
-				ret = GuyH::getNPC()->drownclk * 10000;
-			}
-			break;
-		
-		case NPCDROWNCMB:
-			if(GuyH::loadNPC(ri->guyref, "npc->DrownCombo") == SH::_NoError)
-			{
-				ret = GuyH::getNPC()->drownCombo * 10000;
-			}
-			break;
-		
-		case NPCFAKEZ:
-		{
-			if(GuyH::loadNPC(ri->guyref, "FakeZ") != SH::_NoError) 
-			{
-				ret = -10000; 
-			}
-			else 
-			{
-				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
-				{
-					ret = ((GuyH::getNPC()->fakez).getZLong()); 
-				}
-				else
-				{
-					ret = (int32_t(GuyH::getNPC()->fakez) * 10000);   
-				}
-			}
-			break;
-		}
-		
-		case NPCMOVEFLAGS:
-		{
-			if(GuyH::loadNPC(ri->guyref, "npc->MoveFlags[]") == SH::_NoError)
-			{
-				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, 15, "npc->MoveFlags[]") != SH::_NoError)
-					ret = 0; //false
-				else
-				{
-					//All bits, in order, of a single byte; just use bitwise
-					ret = (GuyH::getNPC()->moveflags & (1<<indx)) ? 10000 : 0;
-				}
-			}
-			break;
-		}
-		
-		case NPCGLOWRAD:
-			if(GuyH::loadNPC(ri->guyref, "npc->LightRadius") == SH::_NoError)
-			{
-				ret = GuyH::getNPC()->glowRad * 10000;
-			}
-			break;
-			
-		case NPCGLOWSHP:
-			if(GuyH::loadNPC(ri->guyref, "npc->LightShape") == SH::_NoError)
-			{
-				ret = GuyH::getNPC()->glowShape * 10000;
-			}
-			break;
-			
-		case NPCSHADOWSPR:
-			if(GuyH::loadNPC(ri->guyref, "npc->ShadowSprite") == SH::_NoError)
-			{
-				ret = GuyH::getNPC()->spr_shadow * 10000;
-			}
-			break;
-		case NPCSPAWNSPR:
-			if(GuyH::loadNPC(ri->guyref, "npc->SpawnSprite") == SH::_NoError)
-			{
-				ret = GuyH::getNPC()->spr_spawn * 10000;
-			}
-			break;
-		case NPCDEATHSPR:
-			if(GuyH::loadNPC(ri->guyref, "npc->DeathSprite") == SH::_NoError)
-			{
-				ret = GuyH::getNPC()->spr_death * 10000;
-			}
-			break;
-		case NPCSWHOOKED:
-			if(GuyH::loadNPC(ri->guyref, "npc->SwitchHooked") == SH::_NoError)
-			{
-				ret = GuyH::getNPC()->switch_hooked ? 10000 : 0;
-			}
-			break;
-		case NPCCANFLICKER:
-			if(GuyH::loadNPC(ri->guyref, "npc->InvFlicker") == SH::_NoError)
-			{
-				ret = GuyH::getNPC()->getCanFlicker() ? 10000 : 0;
-			}
-			break;
-		case NPCFLICKERCOLOR:
-			GET_NPC_VAR_INT(flickercolor, "npc->FlickerColor") break;
-		case NPCFLASHINGCSET:
-		{
-			if (GuyH::loadNPC(ri->guyref, "npc->FlashingCSet") != SH::_NoError)
-				ret = -10000;
-			else
-				ret = GuyH::getNPC()->getFlashingCSet() * 10000;
-			break;
-		}
-		case NPCFLICKERTRANSP:
-			GET_NPC_VAR_INT(flickertransp, "npc->FlickerTransparencyPasses") break;
-		
-		
-		
 		///----------------------------------------------------------------------------------------------------//
 		//LWeapon Variables
 		case LWPNSPECIAL:
@@ -10585,14 +8709,6 @@ int32_t get_register(int32_t arg)
 			
 		case LOADMAPDATA:
 				ret=FFScript::loadMapData();
-				break;
-
-		case NPCCOLLISION:
-				ret=FFCore.npc_collision();
-				break;
-
-		case NPCLINEDUP:
-				ret=FFCore.npc_linedup();
 				break;
 
 		case CREATEBITMAP:
@@ -16258,39 +14374,12 @@ int32_t get_register(int32_t arg)
 		}
 		///----------------------------------------------------------------------------------------------------//
 
-		case WEBSOCKET_STATE:
-		{
-			ret = 0;
-			auto ws = user_websockets.check(ri->websocketref, "->State");
-			if (!ws) break;
-
-			ret = (int)ws->get_state();
-			break;
-		}
-		case WEBSOCKET_HAS_MESSAGE:
-		{
-			ret = 0;
-			auto ws = user_websockets.check(ri->websocketref, "->HasMessage");
-			if (!ws) break;
-
-			ret = ws->has_message() * 10000;
-			break;
-		}
-		case WEBSOCKET_MESSAGE_TYPE:
-		{
-			ret = 0;
-			auto ws = user_websockets.check(ri->websocketref, "->MessageType");
-			if (!ws) break;
-
-			ret = (int)ws->last_message_type;
-			break;
-		}
-
 		default:
 		{
-			if(arg >= D(0) && arg <= D(7))			ret = ri->d[arg - D(0)];
-			else if(arg >= A(0) && arg <= A(1))		ret = ri->a[arg - A(0)];
-			else if(arg >= GD(0) && arg <= GD(MAX_SCRIPT_REGISTERS))	ret = game->global_d[arg - GD(0)];
+			if (auto r = scripting_engine_get_register(arg))
+				return *r;
+
+			if(arg >= A(0) && arg <= A(1))		ret = ri->a[arg - A(0)];
 			
 			break;
 		}
@@ -16304,6 +14393,17 @@ int32_t get_register(int32_t arg)
 
 void set_register(int32_t arg, int32_t value)
 {
+	if (arg >= D(0) && arg <= D(7))
+	{
+		ri->d[arg - D(0)] = value;
+		return;
+	}
+	else if (arg >= GD(0) && arg <= GD(MAX_SCRIPT_REGISTERS))
+	{
+		game->global_d[arg-GD(0)] = value;
+		return;
+	}
+
 	//Macros
 	
 	#define	SET_SPRITEDATA_VAR_INT(member, str) \
@@ -20573,891 +18673,6 @@ void set_register(int32_t arg, int32_t value)
 				((weapon*)(s))->lift_height = zslongToFix(value);
 			}
 			break;
-			
-	///----------------------------------------------------------------------------------------------------//
-	//NPC Variables
-
-		//Fixs are all a bit different
-		case NPCX:
-		{
-			if(GuyH::loadNPC(ri->guyref, "npc->X") == SH::_NoError)
-			{
-				GuyH::getNPC()->x = get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
-				
-				if(GuyH::hasHero())
-					Hero.setXfix(get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000));
-			}
-		}
-		break;
-		
-		case NPCSCALE:
-		{
-			if ( get_qr(qr_OLDSPRITEDRAWS) ) 
-			{
-				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
-					"npc->Scale");
-				break;
-			}
-			if(GuyH::loadNPC(ri->guyref, "npc->Scale") == SH::_NoError)
-			{
-				GuyH::getNPC()->scale = (value / 100.0);
-			}
-		}
-		break;
-		
-		case NPCIMMORTAL:
-			if(GuyH::loadNPC(ri->guyref, "npc->Immortal") == SH::_NoError)
-			{
-				GuyH::getNPC()->immortal = (value ? true : false);
-			}
-			break;
-		
-		case NPCNOSLIDE:
-			if(GuyH::loadNPC(ri->guyref, "npc->NoSlide") == SH::_NoError)
-			{
-				if(value)
-				{
-					GuyH::getNPC()->knockbackflags |= FLAG_NOSLIDE;
-				}
-				else
-				{
-					GuyH::getNPC()->knockbackflags &= ~FLAG_NOSLIDE;
-				}
-			}
-			break;
-		
-		case NPCNOSCRIPTKB:
-			if(GuyH::loadNPC(ri->guyref, "npc->NoScriptKnockback") == SH::_NoError)
-			{
-				if(value)
-				{
-					GuyH::getNPC()->knockbackflags |= FLAG_NOSCRIPTKNOCKBACK;
-				}
-				else
-				{
-					GuyH::getNPC()->knockbackflags &= ~FLAG_NOSCRIPTKNOCKBACK;
-				}
-			}
-			break;
-		
-		case NPCKNOCKBACKSPEED:
-			if(GuyH::loadNPC(ri->guyref, "npc->NoKnockback") == SH::_NoError)
-			{
-				GuyH::getNPC()->knockbackSpeed = vbound(value/10000, 0, 255);
-			}
-			break;
-		
-		case SPRITEMAXNPC:
-		{
-			//No bounds check, as this is a universal function and works from NULL pointers!
-			guys.setMax(vbound((value/10000),1,MAX_NPC_SPRITES));
-			break;
-		}
-			
-		case NPCY:
-		{
-			if(GuyH::loadNPC(ri->guyref, "npc->Y") == SH::_NoError)
-			{
-				zfix oldy = GuyH::getNPC()->y;
-				GuyH::getNPC()->y = get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
-				GuyH::getNPC()->floor_y += ((get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000)) - oldy);
-				
-				if(GuyH::hasHero())
-					Hero.setYfix(get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000));
-			}
-		}
-		break;
-		
-		case NPCZ:
-		{
-			if(GuyH::loadNPC(ri->guyref, "npc->Z") == SH::_NoError)
-			{
-				if(!never_in_air(GuyH::getNPC()->id))
-				{
-					if(value < 0)
-						GuyH::getNPC()->z = 0_zf;
-					else
-						GuyH::getNPC()->z = get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
-						
-					if(GuyH::hasHero())
-						Hero.setZfix(get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000));
-				}
-			}
-		}
-		break;
-		
-		case NPCJUMP:
-		{
-			if(GuyH::loadNPC(ri->guyref, "npc->Jump") == SH::_NoError)
-			{
-				if(canfall(GuyH::getNPC()->id))
-					GuyH::getNPC()->fall =zslongToFix(value)*-100;
-					
-				if(GuyH::hasHero())
-					Hero.setFall(zslongToFix(value)*-100);
-			}
-		}
-		break;
-		
-		case NPCFAKEJUMP:
-		{
-			if(GuyH::loadNPC(ri->guyref, "npc->FakeJump") == SH::_NoError)
-			{
-				if(canfall(GuyH::getNPC()->id))
-					GuyH::getNPC()->fakefall =zslongToFix(value)*-100;
-					
-				if(GuyH::hasHero())
-					Hero.setFakeFall(zslongToFix(value)*-100);
-			}
-		}
-		break;
-		
-		case NPCSTEP:
-		{
-			if(GuyH::loadNPC(ri->guyref, "npc->Step") == SH::_NoError)
-			{
-				if ( get_qr(qr_STEP_IS_FLOAT) || replay_is_active() )
-				{	
-					GuyH::getNPC()->step = zslongToFix(value / 100);
-				}
-				else
-				{
-					//old, buggy code replication, round two: Go! -Z
-					//zfix val = zslongToFix(value);
-					//val.doFloor();
-					//GuyH::getNPC()->step = ((val / 100.0).getFloat());
-					
-					//old, buggy code replication, round THREE: Go! -Z
-					GuyH::getNPC()->step = ((value/10000)/100.0);
-				}
-			}
-		}
-		break;
-		
-		case NPCGRAVITY:
-		{
-			if(GuyH::loadNPC(ri->guyref, "npc->Gravity") == SH::_NoError)
-			{
-				if(value)
-					GuyH::getNPC()->moveflags |= move_obeys_grav;
-				else
-					GuyH::getNPC()->moveflags &= ~move_obeys_grav;
-			}
-		}
-		break;
-		
-		case NPCXOFS:
-		{
-			if(GuyH::loadNPC(ri->guyref, "npc->DrawXOffset") == SH::_NoError)
-				GuyH::getNPC()->xofs = zfix(value / 10000);
-		}
-		break;
-		
-		case NPCYOFS:
-		{
-			if(GuyH::loadNPC(ri->guyref, "npc->DrawYOffset") == SH::_NoError)
-				GuyH::getNPC()->yofs = zfix(value / 10000) + (get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
-		}
-		break;
-		
-		case NPCSHADOWXOFS:
-		{
-			if(GuyH::loadNPC(ri->guyref, "npc->ShadowXOffset") == SH::_NoError)
-				GuyH::getNPC()->shadowxofs = zfix(value / 10000);
-		}
-		break;
-		
-		case NPCSHADOWYOFS:
-		{
-			if(GuyH::loadNPC(ri->guyref, "npc->ShadowYOffset") == SH::_NoError)
-				GuyH::getNPC()->shadowyofs = zfix(value / 10000);
-		}
-		break;
-		
-		case NPCTOTALDYOFFS:
-			break; //READ-ONLY
-		
-		case NPCROTATION:
-		{
-			if ( get_qr(qr_OLDSPRITEDRAWS) ) 
-			{
-				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
-					"npc->Rotation");
-				break;
-			}
-			if(GuyH::loadNPC(ri->guyref, "npc->Rotation") == SH::_NoError)
-				GuyH::getNPC()->rotation = (value / 10000);
-		}
-		break;
-		
-		case NPCZOFS:
-		{
-			if(GuyH::loadNPC(ri->guyref, "npc->DrawZOffset") == SH::_NoError)
-				GuyH::getNPC()->zofs = zfix(value / 10000);
-		}
-		break;
-		
-		#define SET_NPC_VAR_INT(member, str) \
-		{ \
-			if(GuyH::loadNPC(ri->guyref, str) == SH::_NoError) \
-				GuyH::getNPC()->member = value / 10000; \
-		}
-		
-		
-		case NPCISCORE:
-			if(GuyH::loadNPC(ri->guyref, "npc->isCore") == SH::_NoError)
-			GuyH::getNPC()->isCore = ( (value / 10000) ? true : false );
-			break;
-		
-		
-		case NPCDIR:
-			SET_NPC_VAR_INT(dir, "npc->Dir") break;
-			
-		case NPCHITDIR:
-			if(GuyH::loadNPC(ri->guyref, "npc->HitDir") != SH::_NoError)
-				(GuyH::getNPC()->hitdir) = vbound(value/10000, 0, 3);
-				
-			break;
-			
-		case NPCSLIDECLK:
-			if(GuyH::loadNPC(ri->guyref, "npc->SlideClock") != SH::_NoError)
-				GuyH::getNPC()->sclk = value/10000;//vbound(value/10000,0,255);
-				
-			break;
-			
-		case NPCFADING:
-			if(GuyH::loadNPC(ri->guyref, "npc->Fading") != SH::_NoError)
-				(GuyH::getNPC()->fading) = vbound(value/10000,0,4);
-				
-			break;
-			
-		case NPCHALTCLK:
-			if(GuyH::loadNPC(ri->guyref, "npc->Halt") != SH::_NoError)
-				(GuyH::getNPC()->clk2) = vbound(value/10000,0,214748);
-				
-			break;
-			
-		case NPCFRAME:
-			if(GuyH::loadNPC(ri->guyref, "npc->Frame") != SH::_NoError)
-				(GuyH::getNPC()->clk2) = vbound(value/10000,0,214748);
-				
-			break;
-		
-		case NPCMOVESTATUS:
-			if(GuyH::loadNPC(ri->guyref, "npc->MoveStatus") != SH::_NoError)
-				(GuyH::getNPC()->movestatus) = vbound(value/10000,0,3);
-				
-			break;
-			
-		case NPCRATE:
-			SET_NPC_VAR_INT(rate, "npc->Rate") break;
-			
-		case NPCHOMING:
-			SET_NPC_VAR_INT(homing, "npc->Homing") break;
-			
-		case NPCFRAMERATE:
-			SET_NPC_VAR_INT(frate, "npc->ASpeed") break;
-			
-		case NPCHALTRATE:
-			SET_NPC_VAR_INT(hrate, "npc->HaltRate") break;
-		
-		case NPCRANDOM:
-			SET_NPC_VAR_INT(rate, "npc->Random") break;
-			
-		case NPCDRAWTYPE:
-			SET_NPC_VAR_INT(drawstyle, "npc->DrawStyle") break;
-			
-		case NPCHP:
-			SET_NPC_VAR_INT(hp, "npc->HP") break;
-		
-		case NPCORIGINALHP:
-			SET_NPC_VAR_INT(starting_hp, "npc->OriginalHP") break;
-			
-			//case NPCID:        SET_NPC_VAR_INT(id, "npc->ID") break; ~Disallowed
-		case NPCDP:
-			SET_NPC_VAR_INT(dp, "npc->Damage") break;
-			
-		case NPCTYPE:
-		{
-			SET_NPC_VAR_INT(family, "npc->Type") break;
-		}
-		
-		case NPCWDP:
-			SET_NPC_VAR_INT(wdp, "npc->WeaponDamage") break;
-			
-		case NPCITEMSET:
-			SET_NPC_VAR_INT(item_set, "npc->ItemSet") break;
-			
-		case NPCBOSSPAL:
-			SET_NPC_VAR_INT(bosspal, "npc->BossPal") break;
-			
-		case NPCBGSFX:
-			if(GuyH::loadNPC(ri->guyref, "npc->SFX") == SH::_NoError)
-			{
-				enemy *en=GuyH::getNPC();
-				int32_t newSFX = value / 10000;
-				
-				// Stop the old sound and start the new one
-				if(en->bgsfx != newSFX)
-				{
-					en->stop_bgsfx(GuyH::getNPCIndex(ri->guyref));
-					cont_sfx(newSFX);
-					en->bgsfx = newSFX;
-				}
-			}
-			break;
-			
-			
-		case NPCEXTEND:
-			SET_NPC_VAR_INT(extend, "npc->Extend") break;
-			
-		case NPCHXOFS:
-			SET_NPC_VAR_INT(hxofs, "npc->HitXOffset") break;
-			
-		case NPCHYOFS:
-			SET_NPC_VAR_INT(hyofs, "npc->HitYOffset") break;
-			
-		case NPCHXSZ:
-			SET_NPC_VAR_INT(hit_width, "npc->HitWidth") break;
-			
-		case NPCHYSZ:
-			SET_NPC_VAR_INT(hit_height, "npc->HitHeight") break;
-			
-		case NPCHZSZ:
-			SET_NPC_VAR_INT(hzsz, "npc->HitZHeight") break;
-			
-		case NPCCOLLDET:
-			SET_NPC_VAR_INT(scriptcoldet, "npc->CollDetection") break;
-			
-		case NPCENGINEANIMATE:
-			SET_NPC_VAR_INT(do_animation, "npc->Animation") break;
-			
-		case NPCSTUN:
-			SET_NPC_VAR_INT(stunclk, "npc->Stun") break;
-			
-		case NPCHUNGER:
-			SET_NPC_VAR_INT(grumble, "npc->Hunger") break;
-		
-		case NPCWEAPSPRITE:
-			SET_NPC_VAR_INT(wpnsprite, "npc->WeaponSprite") break;
-			
-		case NPCCSET:
-		{
-			if(GuyH::loadNPC(ri->guyref, "npc->CSet") == SH::_NoError)
-			{
-				GuyH::getNPC()->cs = (value / 10000) & 0xF;
-				if(GuyH::getNPC()->family == eeLEV) GuyH::getNPC()->dcset = (value / 10000) & 0xF;
-			}
-		}
-		break;
-		
-		//Bounds on value
-		case NPCTXSZ:
-		{
-			int32_t height = value / 10000;
-			
-			if(GuyH::loadNPC(ri->guyref, "npc->TileWidth") == SH::_NoError &&
-					BC::checkBounds(height, 0, 20, "npc->TileWidth") == SH::_NoError)
-				GuyH::getNPC()->txsz = height;
-		}
-		break;
-		
-		case NPCTYSZ:
-		{
-			int32_t width = value / 10000;
-			
-			if(GuyH::loadNPC(ri->guyref, "npc->TileHeight") == SH::_NoError &&
-					BC::checkBounds(width, 0, 20, "npc->TileHeight") == SH::_NoError)
-				GuyH::getNPC()->tysz = width;
-		}
-		break;
-		
-		case NPCOTILE:
-		{
-			int32_t tile = value / 10000;
-			
-			if(GuyH::loadNPC(ri->guyref, "npc->OriginalTile") == SH::_NoError &&
-					BC::checkTile(tile, "npc->OriginalTile") == SH::_NoError)
-				GuyH::getNPC()->o_tile = tile;
-		}
-		break;
-		
-		case NPCTILE:
-		{
-			int32_t tile = value / 10000;
-			
-			if(GuyH::loadNPC(ri->guyref, "npc->Tile") == SH::_NoError &&
-					BC::checkTile(tile, "npc->Tile") == SH::_NoError)
-				GuyH::getNPC()->tile = tile;
-		}
-		break;
-		
-		case NPCSCRIPTTILE:
-		{
-			if(GuyH::loadNPC(ri->guyref, "npc->ScriptTile") == SH::_NoError)
-				GuyH::getNPC()->scripttile = vbound((value/10000),-1, NEWMAXTILES-1);
-		}
-		break;
-		
-		case NPCSCRIPTFLIP:
-		{
-			if(GuyH::loadNPC(ri->guyref, "npc->ScriptFlip") == SH::_NoError )
-				GuyH::getNPC()->scriptflip = vbound(value/10000, -1, 127);
-		}
-		break;
-		
-		case NPCWEAPON:
-		{
-			int32_t weapon = value / 10000;
-			
-			if(GuyH::loadNPC(ri->guyref, "npc->Weapon") == SH::_NoError &&
-					BC::checkBounds(weapon, 0, MAXWPNS-1, "npc->Weapon") == SH::_NoError)
-			{
-				GuyH::getNPC()->wpn = weapon;
-			
-				if ( get_qr(qr_SETENEMYWEAPONSPRITESONWPNCHANGE) ) //this should probably just be an extra_rule
-				{
-					GuyH::getNPC()->wpnsprite = FFCore.GetDefaultWeaponSprite(weapon);
-				}
-				//else GuyH::getNPC()->wpnsprite = FFCore.GetDefaultWeaponSprite(weapon); //just to test that this works. 
-			}
-		}
-		break;
-		
-		//Indexed
-		case NPCDEFENSED:
-		{
-			int32_t a = ri->d[rINDEX] / 10000;
-			
-			if(GuyH::loadNPC(ri->guyref, "npc->Defense") == SH::_NoError &&
-					BC::checkBounds(a, 0, (edefLAST255), "npc->Defense") == SH::_NoError)
-			{
-				if ( ( get_qr(qr_250WRITEEDEFSCRIPT) ) && a == edefSCRIPT ) 
-				{
-					for ( int32_t sd = edefSCRIPT01; sd <= edefSCRIPT10; sd++ )
-					{
-						GuyH::getNPC()->defense[sd] = vbound((value / 10000),0,255);
-					}
-				}
-				//no else here, is intentional as a fallthrough. -Z
-				GuyH::getNPC()->defense[a] = vbound((value / 10000),0,255);
-			}
-		}
-		break;
-		
-		case NPCPARENTUID:
-			if(GuyH::loadNPC(ri->guyref, "npc->ParentUID") == SH::_NoError)
-			{
-				GuyH::getNPC()->parent_script_UID = value; //literal, not *10000
-			}
-			break;
-		
-		case NPCHITBY:
-		{
-			int32_t indx = ri->d[rINDEX] / 10000;
-			
-			if(GuyH::loadNPC(ri->guyref, "npc->HitBy[]") == SH::_NoError)
-			{
-				switch(indx)
-				{
-					//screen index objects
-					case 0:
-					case 1:
-					case 2:
-					case 3:
-					case 8:
-					case 9:
-					case 10:
-					case 11:
-					case 12:
-					case 16:
-					{
-						GuyH::getNPC()->hitby[indx] = vbound((value / 10000),0,255); //Once again, why did I vbound this, and why did I allow it to be written? UIDs are LONGs, with a starting value of 0.0001. -Z
-							break;
-					}
-					//UIDs
-					case 4:
-					case 5:
-					case 6:
-					case 7:
-					case 13:
-					case 14:
-					case 15:
-					{
-						GuyH::getNPC()->hitby[indx] = value; //Once again, why did I vbound this, and why did I allow it to be written? UIDs are LONGs, with a starting value of 0.0001. -Z
-							break;
-					}
-					default: al_trace("Invalid index used with npc->hitBy[%d]. /n", indx); break;
-				}
-			}
-			break;
-		}
-		
-		//2.future compat. -Z
-		
-		
-		case NPCSCRDEFENSED:
-		{
-			int32_t a = ri->d[rINDEX] / 10000;
-			
-			if(GuyH::loadNPC(ri->guyref, "npc->ScriptDefense") == SH::_NoError &&
-					BC::checkBounds(a, 0, edefSCRIPTDEFS_MAX, "npc->ScriptDefense") == SH::_NoError)
-				GuyH::getNPC()->defense[a+edefSCRIPT01] = value / 10000;
-		}
-		break;
-		
-		case NPCMISCD:
-		{
-			int32_t a = ri->d[rINDEX] / 10000;
-			
-			if(GuyH::loadNPC(ri->guyref, "npc->Misc") == SH::_NoError &&
-					BC::checkMisc32(a, "npc->Misc") == SH::_NoError)
-				GuyH::getNPC()->miscellaneous[a] = value;
-				
-		}
-		
-		break;
-		
-		case NPCINITD:
-		{
-			int32_t a = ri->d[rINDEX] / 10000;
-			
-			if(GuyH::loadNPC(ri->guyref, "npc->InitD[]") == SH::_NoError)
-			{
-				//enemy *e = (enemy*)guys.spr(ri->guyref);
-				//e->initD[a] = value; 
-				GuyH::getNPC()->initD[a] = value;
-			}
-		}
-		break;
-		
-		case NPCSCRIPT:
-		{
-			if(GuyH::loadNPC(ri->guyref, "npc->Script") == SH::_NoError)
-			{
-				if ( get_qr(qr_CLEARINITDONSCRIPTCHANGE))
-				{
-					for(int32_t q=0; q<8; q++)
-						GuyH::getNPC()->initD[q] = 0;
-				}
-				GuyH::getNPC()->script = vbound((value/10000), 0, NUMSCRIPTGUYS-1);
-				on_reassign_script_engine_data(ScriptType::NPC, ri->guyref);
-			}
-		}
-		break;
-		
-		//npc->Attributes[] setter -Z
-		case NPCDD:
-		{
-			int32_t a = ri->d[rINDEX] / 10000;
-			
-			if(GuyH::loadNPC(ri->guyref, "npc->Attributes") == SH::_NoError &&
-					BC::checkBounds(a, 0, 31, "npc->Attributes") == SH::_NoError)
-		
-			switch(a)
-			{
-				case 0: GuyH::getNPC()->dmisc1 = value / 10000; break;
-				case 1: GuyH::getNPC()->dmisc2 = value / 10000; break;
-				case 2: GuyH::getNPC()->dmisc3 = value / 10000; break;
-				case 3: GuyH::getNPC()->dmisc4 = value / 10000; break;
-				case 4: GuyH::getNPC()->dmisc5 = value / 10000; break;
-				case 5: GuyH::getNPC()->dmisc6 = value / 10000; break;
-				case 6: GuyH::getNPC()->dmisc7 = value / 10000; break;
-				case 7: GuyH::getNPC()->dmisc8 = value / 10000; break;
-				case 8: GuyH::getNPC()->dmisc9 = value / 10000; break;
-				case 9: GuyH::getNPC()->dmisc10 = value / 10000; break;
-				case 10: GuyH::getNPC()->dmisc11 = value / 10000; break;
-				case 11: GuyH::getNPC()->dmisc12 = value / 10000; break;
-				case 12: GuyH::getNPC()->dmisc13 = value / 10000; break;
-				case 13: GuyH::getNPC()->dmisc14 = value / 10000; break;
-				case 14: GuyH::getNPC()->dmisc15 = value / 10000; break;
-				case 15: GuyH::getNPC()->dmisc16 = value / 10000; break;
-				case 16: GuyH::getNPC()->dmisc17 = value / 10000; break;
-				case 17: GuyH::getNPC()->dmisc18 = value / 10000; break;
-				case 18: GuyH::getNPC()->dmisc19 = value / 10000; break;
-				case 19: GuyH::getNPC()->dmisc20 = value / 10000; break;
-				case 20: GuyH::getNPC()->dmisc21 = value / 10000; break;
-				case 21: GuyH::getNPC()->dmisc22 = value / 10000; break;
-				case 22: GuyH::getNPC()->dmisc23 = value / 10000; break;
-				case 23: GuyH::getNPC()->dmisc24 = value / 10000; break;
-				case 24: GuyH::getNPC()->dmisc25 = value / 10000; break;
-				case 25: GuyH::getNPC()->dmisc26 = value / 10000; break;
-				case 26: GuyH::getNPC()->dmisc27 = value / 10000; break;
-				case 27: GuyH::getNPC()->dmisc28 = value / 10000; break;
-				case 28: GuyH::getNPC()->dmisc28 = value / 10000; break;
-				case 29: GuyH::getNPC()->dmisc30 = value / 10000; break;
-				case 30: GuyH::getNPC()->dmisc31 = value / 10000; break;
-				case 31: GuyH::getNPC()->dmisc32 = value / 10000; break;
-				default: break;
-			}
-			break;
-		}
-		
-			
-		case NPCINVINC:
-		{
-			if(GuyH::loadNPC(ri->guyref, "npc->InvFrames") == SH::_NoError)
-				GuyH::getNPC()->hclk = (int32_t)value/10000;
-		}
-		break;
-		
-		case NPCSUPERMAN:
-		{
-			if(GuyH::loadNPC(ri->guyref, "npc->Invincible") == SH::_NoError)
-				GuyH::getNPC()->superman = (int32_t)value/10000;
-		}
-		break;
-		
-		case NPCHASITEM:
-		{
-			if(GuyH::loadNPC(ri->guyref, "npc->HasItem") == SH::_NoError)
-				GuyH::getNPC()->itemguy = (value/10000)?1:0;
-		}
-		break;
-		
-		case NPCRINGLEAD:
-		{
-			if(GuyH::loadNPC(ri->guyref, "npc->Ringleader") == SH::_NoError)
-				GuyH::getNPC()->leader = (value/10000)?1:0;
-		}
-		break;
-		
-		case NPCSHIELD:
-		{
-			int32_t indx = ri->d[rINDEX];
-			if(GuyH::loadNPC(ri->guyref, "npc->Shield[]") == SH::_NoError)
-			{
-				switch(indx)
-				{
-					case 0:
-					{
-						(ri->d[rINDEX2])? (GuyH::getNPC()->flags |= guy_shield_front) : (GuyH::getNPC()->flags &= ~guy_shield_front);
-						break;
-					}
-					case 1:
-					{
-						(ri->d[rINDEX2])? (GuyH::getNPC()->flags |= guy_shield_left) : (GuyH::getNPC()->flags &= ~guy_shield_left);
-						break;
-					}
-					case 2:
-					{
-						(ri->d[rINDEX2])? (GuyH::getNPC()->flags |= guy_shield_right) : (GuyH::getNPC()->flags &= ~guy_shield_right);
-						break;
-					}
-					case 3:
-					{
-						(ri->d[rINDEX2])? (GuyH::getNPC()->flags |= guy_shield_back) : (GuyH::getNPC()->flags &= ~guy_shield_back);
-						break;
-					}
-					case 4: //shield can be broken
-					{
-						(ri->d[rINDEX2])? (GuyH::getNPC()->flags |= guy_bkshield) : (GuyH::getNPC()->flags &= ~guy_bkshield);
-						break;
-					}
-					default:
-					{
-						Z_scripterrlog("Invalid Array Index passed to npc->Shield[]: %d\n", indx); 
-						break;
-					}
-				}
-			}
-		}
-		break;
-		
-		case NPCFROZENTILE:
-			SET_NPC_VAR_INT(frozentile, "npc->FrozenTile"); break;
-		case NPCFROZENCSET:
-			SET_NPC_VAR_INT(frozencset, "npc->FrozenCSet"); break;
-		case NPCFROZEN:
-			SET_NPC_VAR_INT(frozenclock, "npc->Frozen"); break;
-		
-		case NPCBEHAVIOUR: 
-		{
-			if(GuyH::loadNPC(ri->guyref, "npc->Behaviour[]") != SH::_NoError) 
-			{
-				break;
-			}
-			int32_t index = vbound(ri->d[rINDEX]/10000,0,4);
-			switch(index)
-			{
-				case 0:
-					(value) ? GuyH::getNPC()->editorflags|=ENEMY_FLAG1 : GuyH::getNPC()->editorflags&= ~ENEMY_FLAG1;
-					break;
-				case 1:
-					(value) ? GuyH::getNPC()->editorflags|=ENEMY_FLAG2 : GuyH::getNPC()->editorflags&= ~ENEMY_FLAG2;
-					break;
-				case 2:
-					(value) ? GuyH::getNPC()->editorflags|=ENEMY_FLAG3 : GuyH::getNPC()->editorflags&= ~ENEMY_FLAG3;
-					break;
-				case 3:
-					(value) ? GuyH::getNPC()->editorflags|=ENEMY_FLAG4 : GuyH::getNPC()->editorflags&= ~ENEMY_FLAG4; 
-					break;
-				case 4:
-					(value) ? GuyH::getNPC()->editorflags|=ENEMY_FLAG5 : GuyH::getNPC()->editorflags&= ~ENEMY_FLAG5;
-					break;
-				case 5:
-					(value) ? GuyH::getNPC()->editorflags|=ENEMY_FLAG6 : GuyH::getNPC()->editorflags&= ~ENEMY_FLAG6; 
-					break;
-				case 6:
-					(value) ? GuyH::getNPC()->editorflags|=ENEMY_FLAG7 : GuyH::getNPC()->editorflags&= ~ENEMY_FLAG7;
-					break;
-				case 7:
-					(value) ? GuyH::getNPC()->editorflags|=ENEMY_FLAG8 : GuyH::getNPC()->editorflags&= ~ENEMY_FLAG8;
-					break;
-				case 8:
-					(value) ? GuyH::getNPC()->editorflags|=ENEMY_FLAG9 : GuyH::getNPC()->editorflags&= ~ENEMY_FLAG9;
-					break;		    
-				case 9:
-					(value) ? GuyH::getNPC()->editorflags|=ENEMY_FLAG10 : GuyH::getNPC()->editorflags&= ~ENEMY_FLAG10;
-					break;
-				case 10:
-					(value) ? GuyH::getNPC()->editorflags|=ENEMY_FLAG11 : GuyH::getNPC()->editorflags&= ~ENEMY_FLAG11; 
-					break;
-				case 11:
-					(value) ? GuyH::getNPC()->editorflags|=ENEMY_FLAG12 : GuyH::getNPC()->editorflags&= ~ENEMY_FLAG12;
-					break;
-				case 12:
-					(value) ? GuyH::getNPC()->editorflags|=ENEMY_FLAG13 : GuyH::getNPC()->editorflags&= ~ENEMY_FLAG13;
-					break;
-				case 13:
-					(value) ? GuyH::getNPC()->editorflags|=ENEMY_FLAG14 : GuyH::getNPC()->editorflags&= ~ENEMY_FLAG14;
-					break;
-				case 14:
-					(value) ? GuyH::getNPC()->editorflags|=ENEMY_FLAG15 : GuyH::getNPC()->editorflags&= ~ENEMY_FLAG15; 
-					break;
-				case 15:
-					(value) ? GuyH::getNPC()->editorflags|=ENEMY_FLAG16 : GuyH::getNPC()->editorflags&= ~ENEMY_FLAG16; 
-					break;
-				
-				
-				default: 
-					break;
-			}
-				
-			break;
-		}
-		case NPCFALLCLK:
-			if(GuyH::loadNPC(ri->guyref, "npc->Falling") == SH::_NoError)
-			{
-				if(GuyH::getNPC()->fallclk != 0 && value == 0)
-				{
-					GuyH::getNPC()->cs = GuyH::getNPC()->old_cset;
-					GuyH::getNPC()->tile = GuyH::getNPC()->o_tile;
-				}
-				else if(GuyH::getNPC()->fallclk == 0 && value != 0) GuyH::getNPC()->old_cset = GuyH::getNPC()->cs;
-				GuyH::getNPC()->fallclk = vbound(value/10000,0,70);
-			}
-			break;
-		case NPCFALLCMB:
-			if(GuyH::loadNPC(ri->guyref, "npc->FallCombo") == SH::_NoError)
-			{
-				GuyH::getNPC()->fallCombo = vbound(value/10000,0,MAXCOMBOS-1);
-			}
-			break;
-		case NPCDROWNCLK:
-			if(GuyH::loadNPC(ri->guyref, "npc->Drowning") == SH::_NoError)
-			{
-				if(GuyH::getNPC()->drownclk != 0 && value == 0)
-				{
-					GuyH::getNPC()->cs = GuyH::getNPC()->old_cset;
-					GuyH::getNPC()->tile = GuyH::getNPC()->o_tile;
-				}
-				else if(GuyH::getNPC()->drownclk == 0 && value != 0) GuyH::getNPC()->old_cset = GuyH::getNPC()->cs;
-				GuyH::getNPC()->drownclk = vbound(value/10000,0,70);
-			}
-			break;
-		case NPCDROWNCMB:
-			if(GuyH::loadNPC(ri->guyref, "npc->DrowningCombo") == SH::_NoError)
-			{
-				GuyH::getNPC()->drownCombo = vbound(value/10000,0,MAXCOMBOS-1);
-			}
-		case NPCFAKEZ:
-			{
-				if(GuyH::loadNPC(ri->guyref, "npc->FakeZ") == SH::_NoError)
-				{
-					if(!never_in_air(GuyH::getNPC()->id))
-					{
-						if(value < 0)
-							GuyH::getNPC()->fakez = 0_zf;
-						else
-							GuyH::getNPC()->fakez = get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
-							
-						if(GuyH::hasHero())
-							Hero.setFakeZfix(get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000));
-					}
-				}
-			}
-			break;
-		case NPCMOVEFLAGS:
-		{
-			if(GuyH::loadNPC(ri->guyref, "npc->MoveFlags[]") == SH::_NoError)
-			{
-				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, 15, "npc->MoveFlags[]") == SH::_NoError)
-				{
-					//All bits, in order, of a single byte; just use bitwise
-					move_flags bit = (move_flags)(1<<indx);
-					if(value)
-						GuyH::getNPC()->moveflags |= bit;
-					else
-						GuyH::getNPC()->moveflags &= ~bit;
-				}
-			}
-			break;
-		}
-		
-		case NPCGLOWRAD:
-			if(GuyH::loadNPC(ri->guyref, "npc->LightRadius") == SH::_NoError)
-			{
-				GuyH::getNPC()->glowRad = vbound(value/10000,0,255);
-			}
-			break;
-		case NPCGLOWSHP:
-			if(GuyH::loadNPC(ri->guyref, "npc->LightShape") == SH::_NoError)
-			{
-				GuyH::getNPC()->glowShape = vbound(value/10000,0,255);
-			}
-			break;
-			
-		case NPCSHADOWSPR:
-			if(GuyH::loadNPC(ri->guyref, "npc->ShadowSprite") == SH::_NoError)
-			{
-				GuyH::getNPC()->spr_shadow = vbound(value/10000,0,255);
-			}
-			break;
-		case NPCSPAWNSPR:
-			if(GuyH::loadNPC(ri->guyref, "npc->SpawnSprite") == SH::_NoError)
-			{
-				GuyH::getNPC()->spr_spawn = vbound(value/10000,0,255);
-			}
-			break;
-		case NPCDEATHSPR:
-			if(GuyH::loadNPC(ri->guyref, "npc->DeathSprite") == SH::_NoError)
-			{
-				GuyH::getNPC()->spr_death = vbound(value/10000,0,255);
-			}
-			break;
-		case NPCSWHOOKED:
-			break; //read-only
-		case NPCCANFLICKER:
-			if(GuyH::loadNPC(ri->guyref, "npc->InvFlicker") == SH::_NoError)
-			{
-				GuyH::getNPC()->setCanFlicker(value != 0);
-			}
-			break;
-		case NPCFLICKERCOLOR:
-			if (GuyH::loadNPC(ri->guyref, "npc->FlickerColor") == SH::_NoError)
-			{
-				GuyH::getNPC()->flickercolor = vbound(value/10000,-1,255);
-			}
-			break;
-		case NPCFLICKERTRANSP:
-			if (GuyH::loadNPC(ri->guyref, "npc->FlickerTransparencyPasses") == SH::_NoError)
-			{
-				GuyH::getNPC()->flickertransp = vbound(value / 10000, -1, 255);
-			}
-			break;
-		
 		
 	///----------------------------------------------------------------------------------------------------//
 	//Game Information
@@ -29063,10 +26278,11 @@ void set_register(int32_t arg, int32_t value)
 		
 		default:
 		{
-			if(arg >= D(0) && arg <= D(7))			ri->d[arg - D(0)] = value;
-			else if(arg >= A(0) && arg <= A(1))		ri->a[arg - A(0)] = value;
-			else if(arg >= GD(0) && arg <= GD(MAX_SCRIPT_REGISTERS))	game->global_d[arg-GD(0)] = value;
-			
+			if (scripting_engine_set_register(arg, value))
+				return;
+
+			if(arg >= A(0) && arg <= A(1))		ri->a[arg - A(0)] = value;
+
 			break;
 		}
 	}
@@ -29614,7 +26830,7 @@ void do_destroy_array()
 	else Z_scripterrlog("Tried to 'DestroyArray()' an invalid array '%d'\n", arrindx);
 }
 
-static dword allocatemem(int32_t size, bool local, ScriptType type, const uint32_t UID, script_object_type object_type = script_object_type::none)
+dword allocatemem(int32_t size, bool local, ScriptType type, const uint32_t UID, script_object_type object_type)
 {
 	dword ptrval;
 	
@@ -35643,34 +32859,6 @@ void do_getitemname()
 		Z_scripterrlog("Array supplied to 'itemdata->GetName' not large enough\n");
 }
 
-void do_getnpcname()
-{
-	int32_t arrayptr = get_register(sarg1) / 10000;
-	
-	if(GuyH::loadNPC(ri->guyref, "npc->GetName") != SH::_NoError)
-		return;
-		
-	word ID = (GuyH::getNPC()->id & 0xFFF);
-	
-	if(ArrayH::setArray(arrayptr, guy_string[ID]) == SH::_Overflow)
-		Z_scripterrlog("Array supplied to 'npc->GetName' not large enough\n");
-}
-
-//npcdata->GetName
-void FFScript::do_getnpcdata_getname()
-{
-	int32_t arrayptr = get_register(sarg1) / 10000;
-	int32_t npc_id = ri->npcdataref;
-	if((unsigned)npc_id > 511)
-	{
-		Z_scripterrlog("Invalid npc ID (%d) passed to npcdata->GetName().\n", npc_id);
-		return;
-	}
-		
-	if(ArrayH::setArray(arrayptr, guy_string[npc_id]) == SH::_Overflow)
-		Z_scripterrlog("Array supplied to 'npcdata->GetName()' not large enough\n");
-}
-
 void do_getffcscript()
 {
 	do_get_script_index_by_name(name_to_slot_index_ffcmap);
@@ -35851,29 +33039,8 @@ void do_writepodarr()
 	auto ptr = get_register(sarg1) / 10000;
 	ArrayH::setArray(ptr, sargvec->size(), sargvec->data(), false);
 }
-int32_t get_object_arr(size_t sz)
-{
-	if(sz > 214748) return 0;
-	int32_t free_ptr = 1;
-	auto it = objectRAM.begin();
-	if(it != objectRAM.end())
-	{
-		if(it->first == 1)
-		{
-			for(free_ptr = 2; ; ++free_ptr)
-			{
-				if(objectRAM.find(free_ptr) == objectRAM.end())
-					break;
-			}
-		}
-	}
-	ZScriptArray arr{};
-	arr.Resize(sz);
-	arr.setValid(true);
-	objectRAM[free_ptr] = arr;
-	
-	return -free_ptr;
-}
+
+// TODO: move somewhere else.
 void destroy_object_arr(int32_t ptr, bool dec_refs)
 {
 	if(ptr < 0)
@@ -35890,86 +33057,6 @@ void destroy_object_arr(int32_t ptr, bool dec_refs)
 			objectRAM.erase(it);
 		}
 	}
-}
-void do_constructclass(ScriptType type, word script, int32_t i)
-{
-	if(!sargvec) return;
-	
-	size_t num_vars = sargvec->at(0);
-	size_t total_vars = num_vars + sargvec->size()-1;
-	auto destr_pc = ri->d[rEXP1];
-
-	if (auto obj = user_objects.create())
-	{
-		// Before gc/reference counting, allocating a custom object automatically assigns
-		// ownership to the current script. Not needed anymore, but important to keep
-		// doing for compat.
-		if (!ZScriptVersion::gc())
-			own_script_object(obj, type, i);
-		obj->owned_vars = num_vars;
-		for(size_t q = 0; q < total_vars; ++q)
-		{
-			if(q < num_vars)
-			{
-				obj->data.push_back(0);
-			}
-			else
-			{
-				size_t sz = sargvec->at(q-num_vars+1);
-				if(auto id = get_object_arr(sz))
-					obj->data.push_back(10000*id);
-				else obj->data.push_back(0); //nullptr
-			}
-		}
-		set_register(sarg1, obj->id);
-		ri->thiskey = obj->id;
-		obj->prep(destr_pc,type,script,i);
-	}
-	else set_register(sarg1, 0);
-}
-
-void do_readclass()
-{
-	dword objref = get_register(sarg1);
-	ri->d[rEXP1] = 0;
-	int32_t ind = sarg2;
-	if(user_object* obj = checkObject(objref))
-	{
-		if(unsigned(ind) >= obj->data.size())
-		{
-			Z_scripterrlog("Script tried to read position '%d' out of bounds on a '%d' size object (%d).", ind, obj->data.size(), objref);
-		}
-		else
-		{
-			ri->d[rEXP1] = obj->data.at(ind);
-		}
-	}
-}
-void do_writeclass()
-{
-	dword objref = get_register(sarg1);
-	int32_t ind = sarg2;
-	if(user_object* obj = checkObject(objref))
-	{
-		if(unsigned(ind) >= obj->data.size())
-		{
-			Z_scripterrlog("Script tried to write position '%d' out of bounds on a '%d' size object (%d).", ind, obj->data.size(), objref);
-		}
-		else
-		{
-			bool is_object = obj->isMemberObjectType(ind);
-			if (is_object)
-				script_object_ref_dec(obj->data[ind]);
-			obj->data[ind] = ri->d[rEXP1];
-			if (is_object)
-				script_object_ref_inc(obj->data[ind]);
-		}
-	}
-}
-void do_freeclass()
-{
-	// Deleting is no longer needed. To keep reference counting simpler, simply do nothing on delete.
-	ri->d[rEXP1] = 0;
 }
 
 int32_t get_own_i(ScriptType type)
@@ -36725,51 +33812,6 @@ int32_t run_script_int(bool is_jitted)
 			case WRITEPODARRAY:
 			{
 				do_writepodarr();
-				break;
-			}
-			case ZCLASS_CONSTRUCT:
-			{
-				do_constructclass(type,script,i);
-				break;
-			}
-			case ZCLASS_READ:
-			{
-				do_readclass();
-				break;
-			}
-			case ZCLASS_WRITE:
-			{
-				do_writeclass();
-				break;
-			}
-			case ZCLASS_FREE:
-			{
-				do_freeclass();
-				break;
-			}
-			case ZCLASS_OWN:
-			{
-				if(user_object* obj = checkObject(get_register(sarg1), true))
-				{
-					obj->setGlobal(false);
-					own_script_object(obj, type, i);
-				}
-				break;
-			}
-			case STARTDESTRUCTOR:
-			{
-				zprint2("STARTDESTRUCTOR: %s\n", sargstr->c_str());
-				//This opcode's EXISTENCE indicates the first opcode
-				//of a user_object destructor function.
-				break;
-			}
-			case ZCLASS_GLOBALIZE:
-			{
-				if(user_object* obj = checkObject(get_register(sarg1), true))
-				{
-					obj->setGlobal(true);
-					own_script_object(obj, ScriptType::None, 0);
-				}
 				break;
 			}
 			
@@ -37699,14 +34741,6 @@ int32_t run_script_int(bool is_jitted)
 				do_getitemname();
 				break;
 				
-			case NPCNAME:
-				do_getnpcname();
-				break;
-			
-			case NPCDATAGETNAME:
-				FFCore.do_getnpcdata_getname();
-				break;
-				
 			case GETSAVENAME:
 				do_getsavename();
 				break;
@@ -38631,16 +35665,6 @@ int32_t run_script_int(bool is_jitted)
 				ScriptType own_type = (ScriptType)sarg2;
 				int32_t own_i = get_own_i(own_type);
 				own_script_object(r, own_type, own_i);
-				break;
-			}
-			case OBJ_OWN_CLASS:
-			{
-				int classid = get_register(sarg1);
-				user_object* obj = checkObject(classid, false);
-				if(!obj) break;
-				ScriptType own_type = (ScriptType)sarg2;
-				int32_t own_i = get_own_i(own_type);
-				own_script_object(obj, own_type, own_i);
 				break;
 			}
 			case OBJ_OWN_ARRAY:
@@ -39737,31 +36761,6 @@ int32_t run_script_int(bool is_jitted)
 			case SETCONTINUESCREEN: FFScript::FFChangeSubscreenText(); break;
 			case SETCONTINUESTRING: FFScript::FFSetSaveScreenSetting(); break;
 			
-			//new npc functions for npc scripts
-			
-			case NPCDEAD:
-				FFCore.do_isdeadnpc();
-				break;
-			
-			case NPCCANSLIDE:
-				FFCore.do_canslidenpc();
-				break;
-			
-			case NPCSLIDE:
-				FFCore.do_slidenpc();
-				break;
-			
-			case NPCKICKBUCKET:
-			{
-				FFScript::deallocateAllScriptOwned(ScriptType::NPC, ri->guyref);
-				if(type == ScriptType::NPC && ri->guyref == i)
-				{
-					FFCore.do_npc_delete();
-					return RUNSCRIPT_SELFDELETE;
-				}
-				FFCore.do_npc_delete();
-				break;
-			}
 			case LWPNDEL:
 			{
 				FFScript::deallocateAllScriptOwned(ScriptType::Lwpn, ri->lwpn);
@@ -39793,187 +36792,6 @@ int32_t run_script_int(bool is_jitted)
 						return RUNSCRIPT_SELFDELETE;
 				}
 				else FFCore.do_itemsprite_delete();
-				break;
-			}
-			
-			case NPCSTOPBGSFX:
-				FFCore.do_npc_stopbgsfx();
-				break;
-			
-			case NPCATTACK:
-				FFCore.do_npcattack();
-				break;
-			
-			case NPCNEWDIR:
-				FFCore.do_npc_newdir();
-				break;
-			
-			case NPCCONSTWALK:
-				FFCore.do_npc_constwalk();
-				break;
-			
-			
-			
-			case NPCVARWALK:
-				FFCore.do_npc_varwalk();
-				break;
-			
-			case NPCVARWALK8:
-				FFCore.do_npc_varwalk8();
-				break;
-			
-			case NPCCONSTWALK8:
-				FFCore.do_npc_constwalk8();
-				break;
-			
-			case NPCHALTWALK:
-				FFCore.do_npc_haltwalk();
-				break;
-			
-			case NPCHALTWALK8:
-				FFCore.do_npc_haltwalk8();
-				break;
-			
-			case NPCFLOATWALK:
-				FFCore.do_npc_floatwalk();
-				break;
-			
-			case NPCFIREBREATH:
-				FFCore.do_npc_breathefire();
-				break;
-			
-			case NPCNEWDIR8:
-				FFCore.do_npc_newdir8();
-				break;
-			
-			case NPCLINKINRANGE:
-				FFCore.do_npc_hero_in_range(false);
-				break;
-			
-			case NPCCANMOVE:
-				FFCore.do_npc_canmove(false);
-				break;
-			
-			case NPCHITWITH:
-				FFCore.do_npc_simulate_hit(false);
-				break;
-				
-			case NPCKNOCKBACK:
-				FFCore.do_npc_knockback(false);
-				break;
-			
-			case NPCGETINITDLABEL:
-				FFCore.get_npcdata_initd_label(false);
-				break;
-			
-			case NPCADD:
-				FFCore.do_npc_add(false);
-				break;
-			
-			case NPCMOVEPAUSED:
-			{
-				ri->d[rEXP1] = 0;
-				if(GuyH::loadNPC(ri->guyref, "npc->MovePaused()") == SH::_NoError)
-				{
-					ri->d[rEXP1] = GuyH::getNPC()->is_move_paused() ? 10000 : 0;
-				}
-				break;
-			}
-			case NPCMOVE:
-			{
-				int32_t dir = ri->d[rINDEX] / 10000;
-				zfix px = zslongToFix(ri->d[rEXP2]);
-				int32_t special = ri->d[rEXP1] / 10000;
-				ri->d[rEXP1] = 0;
-				if(GuyH::loadNPC(ri->guyref, "npc->Move()") == SH::_NoError)
-				{
-					ri->d[rEXP1] = GuyH::getNPC()->moveDir(dir, px, special) ? 10000 : 0;
-				}
-				break;
-			}
-			case NPCMOVEANGLE:
-			{
-				zfix degrees = zslongToFix(ri->d[rINDEX]);
-				zfix px = zslongToFix(ri->d[rEXP2]);
-				int32_t special = ri->d[rEXP1] / 10000;
-				ri->d[rEXP1] = 0;
-				if(GuyH::loadNPC(ri->guyref, "npc->MoveAtAngle()") == SH::_NoError)
-				{
-					ri->d[rEXP1] = GuyH::getNPC()->moveAtAngle(degrees, px, special) ? 10000 : 0;
-				}
-				break;
-			}
-			case NPCMOVEXY:
-			{
-				zfix dx = zslongToFix(ri->d[rINDEX]);
-				zfix dy = zslongToFix(ri->d[rEXP2]);
-				int32_t special = ri->d[rEXP1] / 10000;
-				ri->d[rEXP1] = 0;
-				if(GuyH::loadNPC(ri->guyref, "npc->MoveXY()") == SH::_NoError)
-				{
-					ri->d[rEXP1] = GuyH::getNPC()->movexy(dx, dy, special) ? 10000 : 00;
-				}
-				break;
-			}
-			case NPCCANMOVEDIR:
-			{
-				int32_t dir = ri->d[rINDEX] / 10000;
-				zfix px = zslongToFix(ri->d[rEXP2]);
-				int32_t special = ri->d[rEXP1] / 10000;
-				ri->d[rEXP1] = 0;
-				if(GuyH::loadNPC(ri->guyref, "npc->CanMove()") == SH::_NoError)
-				{
-					ri->d[rEXP1] = GuyH::getNPC()->can_moveDir(dir, px, special) ? 10000 : 0;
-				}
-				break;
-			}
-			case NPCCANMOVEANGLE:
-			{
-				zfix degrees = zslongToFix(ri->d[rINDEX]);
-				zfix px = zslongToFix(ri->d[rEXP2]);
-				int32_t special = ri->d[rEXP1] / 10000;
-				ri->d[rEXP1] = 0;
-				if(GuyH::loadNPC(ri->guyref, "npc->CanMoveAtAngle()") == SH::_NoError)
-				{
-					ri->d[rEXP1] = GuyH::getNPC()->can_moveAtAngle(degrees, px, special) ? 10000 : 0;
-				}
-				break;
-			}
-			case NPCCANMOVEXY:
-			{
-				zfix dx = zslongToFix(ri->d[rINDEX]);
-				zfix dy = zslongToFix(ri->d[rEXP2]);
-				int32_t special = ri->d[rEXP1] / 10000;
-				ri->d[rEXP1] = 0;
-				if(GuyH::loadNPC(ri->guyref, "npc->CanMoveXY()") == SH::_NoError)
-				{
-					ri->d[rEXP1] = GuyH::getNPC()->can_movexy(dx, dy, special) ? 10000 : 0;
-				}
-				break;
-			}
-			case NPCCANPLACE:
-			{
-				ri->guyref = SH::read_stack(ri->sp + 6);
-				ri->d[rEXP1] = 0;
-				if(GuyH::loadNPC(ri->guyref, "npc->CanPlace()") == SH::_NoError)
-				{
-					zfix nx = zslongToFix(SH::read_stack(ri->sp + 5));
-					zfix ny = zslongToFix(SH::read_stack(ri->sp + 4));
-					int special = SH::read_stack(ri->sp + 3) / 10000;
-					bool kb = SH::read_stack(ri->sp + 2)!=0;
-					int nw = SH::read_stack(ri->sp + 1) / 10000;
-					int nh = SH::read_stack(ri->sp + 0) / 10000;
-					ri->d[rEXP1] = GuyH::getNPC()->scr_canplace(nx, ny, special, kb, nw, nh) ? 10000 : 0;
-				}
-				break;
-			}
-			case NPCISFLICKERFRAME:
-			{
-				ri->d[rEXP1] = 0;
-				if (GuyH::loadNPC(ri->guyref, "npc->isFlickerFrame()") == SH::_NoError)
-				{
-					ri->d[rEXP1] = GuyH::getNPC()->is_hitflickerframe(get_qr(qr_OLDSPRITEDRAWS)) ? 10000 : 0;
-				}
 				break;
 			}
 			
@@ -40663,103 +37481,6 @@ int32_t run_script_int(bool is_jitted)
 				break;
 			}
 
-			case WEBSOCKET_OWN:
-			{
-				if (auto ws = user_websockets.check(ri->websocketref, "Own()"))
-				{
-					own_script_object(ws, type, i);
-				}
-				break;
-			}
-			case WEBSOCKET_LOAD:
-			{
-				int arrayptr = SH::get_arg(sarg1, false) / 10000;
-				std::string url;
-				ArrayH::getString(arrayptr, url, 512);
-
-				ri->websocketref = 0;
-				ri->d[rEXP1] = 0;
-
-				if (url.size() == 0 || !url.starts_with("ws"))
-				{
-					break;
-				}
-
-				auto ws = user_websockets.create();
-				if (!ws)
-				{
-					break;
-				}
-
-				ws->connect(url);
-
-				ri->websocketref = ws->id;
-				ri->d[rEXP1] = ws->id;
-				break;
-			}
-			case WEBSOCKET_FREE:
-			{
-				if (auto ws = checkPalData(ri->websocketref, "Free()", true))
-				{
-					free_script_object(ws->id);
-				}
-				break;
-			}
-			case WEBSOCKET_ERROR:
-			{
-				int32_t arrayptr = get_register(sarg1) / 10000;
-				if (auto ws = user_websockets.check(ri->websocketref, "GetError()"))
-				{
-					ArrayH::setArray(arrayptr, ws->get_error(), true);
-				}
-				else
-				{
-					ArrayH::setArray(arrayptr, "Invalid pointer", true);
-				}
-				break;
-			}
-			case WEBSOCKET_SEND:
-			{
-				int32_t type = get_register(sarg1);
-				int32_t arrayptr = get_register(sarg2) / 10000;
-				if (BC::checkBounds(type, 1, 2, "Send() type") != SH::_NoError)
-				{
-					break;
-				}
-
-				std::string message;
-				ArrayH::getString(arrayptr, message);
-				if (auto ws = user_websockets.check(ri->websocketref, "Send()"))
-				{
-					ws->send((WebSocketMessageType)type, message);
-				}
-				break;
-			}
-			case WEBSOCKET_RECEIVE:
-			{
-				if (auto ws = user_websockets.check(ri->websocketref, "Receive()"))
-				{
-					if (!ws->has_message())
-					{
-						set_register(sarg1, 0);
-						break;
-					}
-					std::string message = ws->receive_message();
-					auto message_type = ws->last_message_type;
-
-					if(!(ws->message_arrayptr && is_valid_array(ws->message_arrayptr)))
-						ws->message_arrayptr = allocatemem(message.size() + 1, true, ScriptType::None, -1);
-
-					if (message_type == WebSocketMessageType::Text)
-						ArrayH::setArray(ws->message_arrayptr, message, true);
-					else
-						ArrayH::setArray(ws->message_arrayptr, message.size(), message.data(), false, true);
-
-					set_register(sarg1, ws->message_arrayptr * 10000);
-				}
-				break;
-			}
-
 			case REF_INC:
 			{
 				int offset = ri->d[rSFRAME] + sarg1;
@@ -40851,38 +37572,6 @@ int32_t run_script_int(bool is_jitted)
 				script_remove_object_ref(offset);
 				break;
 			}
-			case ZCLASS_MARK_TYPE:
-			{
-				auto& vec = *sargvec;
-				assert(vec.size() % 2 == 0);
-
-				uint32_t id = ri->thiskey;
-				if (auto obj = user_objects.check(id, "ZCLASS_MARK_TYPE"))
-				{
-					for (size_t i = 0; i < vec.size(); i += 2)
-					{
-						int index = vec[i];
-						assert(vec[i + 1] >= 0 && vec[i + 1] <= (int)script_object_type::last);
-						auto type = (script_object_type)vec[i + 1];
-						if (index >= obj->owned_vars)
-						{
-							int ptr = -obj->data[index] / 10000;
-							if (ptr)
-							{
-								ZScriptArray& a = objectRAM.at(ptr);
-								a.setObjectType(type);
-							}
-						}
-						else
-						{
-							if (obj->var_types.size() <= index)
-								obj->var_types.resize(index + 1);
-							obj->var_types[index] = type;
-						}
-					}
-				}
-				break;
-			}
 			case GC:
 			{
 				if (!use_testingst_start)
@@ -40913,6 +37602,13 @@ int32_t run_script_int(bool is_jitted)
 
 			default:
 			{
+				if (auto r = scripting_engine_run_command(scommand))
+				{
+					if (*r != RUNSCRIPT_OK)
+						return *r;
+					break;
+				}
+
 				Z_scripterrlog("Invalid ZASM command %lu reached; terminating\n", scommand);
 				hit_invalid_zasm = true;
 				scommand = 0xFFFF;
@@ -41240,10 +37936,7 @@ void FFScript::user_dirs_init()
 }
 void FFScript::user_objects_init()
 {
-	for (auto id : script_object_ids_by_type[user_objects.type])
-	{
-		user_objects[id].clear_nodestruct();
-	}
+	::user_object_init();
 }
 
 void FFScript::user_stacks_init()
@@ -41271,8 +37964,7 @@ void FFScript::user_paldata_init()
 
 void FFScript::user_websockets_init()
 {
-	user_websockets.clear();
-	websocket_pool_destroy();
+	websocket_init();
 }
 
 // Gotten from 'https://fileinfo.com/filetypes/executable'
@@ -44198,67 +40890,6 @@ int32_t FFScript::getTime(int32_t type)
 	return rval;
 }
 
-void FFScript::do_isdeadnpc()
-{
-	//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
-	if(GuyH::loadNPC(ri->guyref, "npc->isDead") == SH::_NoError)
-	{
-		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
-		//int32_t dead = (int32_t)e->Dead(GuyH::getNPCIndex(ri->guyref));
-		//GuyH::getNPC()->Dead(GuyH::getNPCIndex(ri->guyref));
-		set_register(sarg1,
-			((GuyH::getNPC()->dying && !GuyH::getNPC()->immortal)
-				? 10000 : 0));
-	}
-	else set_register(sarg1, 0);
-}
-
-
-void FFScript::do_canslidenpc()
-{
-	
-	if(GuyH::loadNPC(ri->guyref, "npc->CanSlide") == SH::_NoError)
-	{
-		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
-		//bool candoit = e->can_slide();
-		set_register(sarg1, ((GuyH::getNPC()->can_slide()) ? 10000 : 0));
-	}
-	else set_register(sarg1, -10000);
-}
-
-void FFScript::do_slidenpc()
-{
-	
-	if(GuyH::loadNPC(ri->guyref, "npc->Slide()") == SH::_NoError)
-	{
-		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
-		//bool candoit = e->slide();
-		set_register(sarg1, ((GuyH::getNPC()->slide())*10000));
-	}
-	else set_register(sarg1, -10000);
-}
-
-void FFScript::do_npc_stopbgsfx()
-{
-	//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
-	if(GuyH::loadNPC(ri->guyref, "npc->StopBGSFX()") == SH::_NoError)
-	{
-		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
-		//e->stop_bgsfx(GuyH::getNPCIndex(ri->guyref));
-		GuyH::getNPC()->stop_bgsfx(GuyH::getNPCIndex(ri->guyref));
-	}
-}
-
-void FFScript::do_npc_delete()
-{
-	if(GuyH::loadNPC(ri->guyref, "npc->Remove()") == SH::_NoError)
-	{
-		auto ind = GuyH::getNPCIndex(ri->guyref);
-		GuyH::getNPC()->stop_bgsfx(ind);
-		guys.del(ind);
-	}
-}
-
 void FFScript::do_lweapon_delete()
 {
 	if(0!=(s=checkLWpn(ri->lwpn,"Remove()")))
@@ -44355,441 +40986,6 @@ void FFScript::initIncludePaths()
 		al_trace("Include path %zu: ",q);
 		safe_al_trace(includePaths.at(q));
 		al_trace("\n");
-	}
-}
-
-void FFScript::do_npcattack()
-{
-	
-	if(GuyH::loadNPC(ri->guyref, "npc->Attack()") == SH::_NoError)
-	{
-		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
-		//e->FireWeapon();
-		//we could just do: 
-		GuyH::getNPC()->FireWeapon();
-	}
-}
-void FFScript::do_npc_newdir()
-{
-	int32_t arrayptr = get_register(sarg1) / 10000;
-	ArrayManager am(arrayptr);
-	if(am.invalid()) return;
-	int32_t sz = am.size();
-	
-	if(GuyH::loadNPC(ri->guyref, "npc->NewDir()") == SH::_NoError)
-	{
-		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
-		
-		if ( sz != -1 ) 
-		{
-			if ( sz != 3 ) 
-			{
-				Z_scripterrlog("Invalid array size (%d) passed to npc->VariableWalk(int32_t arr[])\n",sz);
-				return;
-			}
-			GuyH::getNPC()->newdir((am.get(0)/10000), (am.get(1)/10000),
-				(am.get(2)/10000));
-		}
-		//else e->newdir();
-		else GuyH::getNPC()->newdir();
-	}
-}
-
-void FFScript::do_npc_constwalk()
-{
-	int32_t arrayptr = get_register(sarg1) / 10000;
-	ArrayManager am(arrayptr);
-	if(am.invalid()) return;
-	int32_t sz = am.size();
-	
-	if(GuyH::loadNPC(ri->guyref, "npc->ConstantWalk()") == SH::_NoError)
-	{
-		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
-		
-		if ( sz != -1 ) 
-		{
-			if ( sz != 3 ) 
-			{
-				Z_scripterrlog("Invalid array size (%d) passed to npc->VariableWalk(int32_t arr[])\n",sz);
-				return;
-			}
-			GuyH::getNPC()->constant_walk( (am.get(0)/10000), (am.get(1)/10000),
-				(am.get(2)/10000) );
-		}
-		else GuyH::getNPC()->constant_walk();//e->constant_walk();
-	}
-}
-
-void FFScript::do_npc_varwalk()
-{
-	int32_t arrayptr = get_register(sarg1) / 10000;
-	ArrayManager am(arrayptr);
-	if(am.invalid()) return;
-	int32_t sz = am.size();
-	
-	if(GuyH::loadNPC(ri->guyref, "npc->VariableWalk()") == SH::_NoError)
-	{
-		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
-		
-		if ( sz == 3 ) 
-		{
-			
-			GuyH::getNPC()->variable_walk( (am.get(0)/10000), (am.get(1)/10000),
-				(am.get(2)/10000) );
-		}
-		else Z_scripterrlog("Invalid array size (%d) passed to npc->VariableWalk(int32_t arr[])\n",sz);
-	}
-}
-
-void FFScript::do_npc_varwalk8()
-{
-	int32_t arrayptr = get_register(sarg1) / 10000;
-	ArrayManager am(arrayptr);
-	if(am.invalid()) return;
-	int32_t sz = am.size();
-	
-	if(GuyH::loadNPC(ri->guyref, "npc->VariableWalk8()") == SH::_NoError)
-	{
-		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
-		
-		if ( sz == 4 ) 
-		{
-			GuyH::getNPC()->variable_walk_8( (am.get(0)/10000), (am.get(1)/10000),
-				(am.get(2)/10000), (am.get(3)/10000) );
-		}
-		else if ( sz == 8 ) 
-		{
-			GuyH::getNPC()->variable_walk_8( (am.get(0)/10000), (am.get(1)/10000),
-				(am.get(2)/10000), (am.get(3)/10000),
-				(am.get(4)/10000), (am.get(5)/10000),
-				(am.get(6)/10000), (am.get(7)/10000)
-			);
-		}
-		else Z_scripterrlog("Invalid array size (%d) passed to npc->VariableWalk(int32_t arr[])\n",sz);
-	}
-}
-
-void FFScript::do_npc_constwalk8()
-{
-	int32_t arrayptr = get_register(sarg1) / 10000;
-	ArrayManager am(arrayptr);
-	if(am.invalid()) return;
-	int32_t sz = am.size();
-	
-	if(GuyH::loadNPC(ri->guyref, "npc->ConstantWalk8()") == SH::_NoError)
-	{
-		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
-		
-		if ( sz == 3 ) 
-		{
-			GuyH::getNPC()->constant_walk_8( (am.get(0)/10000), (am.get(1)/10000),
-				(am.get(2)/10000) );
-		}
-		
-		else Z_scripterrlog("Invalid array size (%d) passed to npc->VariableWalk(int32_t arr[])\n",sz);
-	}
-}
-
-
-void FFScript::do_npc_haltwalk()
-{
-	int32_t arrayptr = get_register(sarg1) / 10000;
-	ArrayManager am(arrayptr);
-	if(am.invalid()) return;
-	int32_t sz = am.size();
-	
-	if(GuyH::loadNPC(ri->guyref, "npc->HaltingWalk()") == SH::_NoError)
-	{
-		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
-		
-		if ( sz == 5 ) 
-		{
-			GuyH::getNPC()->halting_walk( (am.get(0)/10000), (am.get(1)/10000),
-				(am.get(2)/10000), (am.get(3)/10000),
-				(am.get(4)/10000));
-		}
-		else Z_scripterrlog("Invalid array size (%d) passed to npc->VariableWalk(int32_t arr[])\n",sz);
-	}
-}
-
-void FFScript::do_npc_haltwalk8()
-{
-	int32_t arrayptr = get_register(sarg1) / 10000;
-	ArrayManager am(arrayptr);
-	if(am.invalid()) return;
-	int32_t sz = am.size();
-	
-	if(GuyH::loadNPC(ri->guyref, "npc->HaltingWalk8()") == SH::_NoError)
-	{
-		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
-		
-		if ( sz == 6 ) 
-		{
-			
-			GuyH::getNPC()->halting_walk_8( (am.get(0)/10000), (am.get(1)/10000),
-				(am.get(2)/10000), (am.get(3)/10000),
-				(am.get(4)/10000),(am.get(5)/10000));
-		}
-		else Z_scripterrlog("Invalid array size (%d) passed to npc->VariableWalk(int32_t arr[])\n",sz);
-	}
-}
-
-
-void FFScript::do_npc_floatwalk()
-{
-	int32_t arrayptr = get_register(sarg1) / 10000;
-	ArrayManager am(arrayptr);
-	if(am.invalid()) return;
-	int32_t sz = am.size();
-	
-	if(GuyH::loadNPC(ri->guyref, "npc->FloatingWalk()") == SH::_NoError)
-	{
-		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
-		
-		if ( sz == 3 ) 
-		{
-			
-			GuyH::getNPC()->floater_walk( (am.get(0)/10000), (am.get(1)/10000),
-				(zfix)(am.get(2)/10000));
-		
-		}
-		else if ( sz == 7 ) 
-		{
-			
-			GuyH::getNPC()->floater_walk( (am.get(0)/10000), (am.get(1)/10000),
-				(zfix)(am.get(2)/10000), (zfix)(am.get(3)/10000),
-				(am.get(4)/10000),(am.get(5)/10000),
-				(am.get(6)/10000));
-		}
-		else Z_scripterrlog("Invalid array size (%d) passed to npc->VariableWalk(int32_t arr[])\n",sz);
-	}
-}
-
-void FFScript::do_npc_breathefire()
-{
-	bool seek = (get_register(sarg1));
-	if(GuyH::loadNPC(ri->guyref, "npc->BreathAttack()") == SH::_NoError)
-	{
-		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
-		GuyH::getNPC()->FireBreath(seek);
-		
-	}
-}
-
-
-void FFScript::do_npc_newdir8()
-{
-	int32_t arrayptr = get_register(sarg1) / 10000;
-	ArrayManager am(arrayptr);
-	if(am.invalid()) return;
-	int32_t sz = am.size();
-	
-	if(GuyH::loadNPC(ri->guyref, "npc->NewDir8()") == SH::_NoError)
-	{
-		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
-		
-		if ( sz == 3 ) 
-		{
-			
-			GuyH::getNPC()->newdir_8( (am.get(0)/10000), (am.get(1)/10000),
-				(am.get(2)/10000));
-		
-		}
-		else if ( sz == 7 ) 
-		{
-			
-			GuyH::getNPC()->newdir_8( (am.get(0)/10000), (am.get(1)/10000),
-				(am.get(2)/10000), (am.get(3)/10000),
-				(am.get(4)/10000),(am.get(5)/10000),
-				(am.get(6)/10000));
-		}
-		else Z_scripterrlog("Invalid array size (%d) passed to npc->VariableWalk(int32_t arr[])\n",sz);
-	}
-}
-
-	
-int32_t FFScript::npc_collision()
-{
-	int32_t isColl = 0;
-	if(GuyH::loadNPC(ri->guyref, "npc->Collision()") == SH::_NoError)
-	{
-		int32_t _obj_type = (ri->d[rINDEX] / 10000);
-		int32_t _obj_ptr = (ri->d[rINDEX2]);
-		
-		switch(_obj_type)
-		{
-			case obj_type_lweapon:
-			{
-				isColl = 0;
-				break;
-			}
-			case obj_type_eweapon:
-			{
-				isColl = 0;
-				break;
-			}
-			case obj_type_npc:
-			{
-				isColl = 0;
-				break;
-			}
-			case obj_type_player:
-			{
-				isColl = 0;
-				break;
-			}
-			case obj_type_ffc:
-			{
-				_obj_ptr *= 10000; _obj_ptr -= 1;
-				isColl = 0;
-				break;
-			}
-			case obj_type_combo_pos:
-			{
-				_obj_ptr *= 10000;
-				isColl = 0;
-				break;
-			}
-			case obj_type_item:
-			{
-				isColl = 0;
-				break;
-			}
-			default: 
-			{
-				Z_scripterrlog("Invalid object type (%d) passed to npc->Collision(int32_t type, int32_t ptr)\n", _obj_type);
-				isColl = 0;
-				break;
-			}
-		}
-	}
-	
-	return isColl;
-}
-
-
-int32_t FFScript::npc_linedup()
-{
-	if(GuyH::loadNPC(ri->guyref, "npc->LinedUp()") == SH::_NoError)
-	{
-		int32_t range = (ri->d[rINDEX] / 10000);
-		bool dir8 = (ri->d[rINDEX2]);
-		return (int32_t)(GuyH::getNPC()->lined_up(range,dir8)*10000);
-	}
-	
-	return 0;
-}
-
-
-void FFScript::do_npc_hero_in_range(const bool v)
-{
-	int32_t dist = get_register(sarg1) / 10000;
-	if(GuyH::loadNPC(ri->guyref, "npc->LinedUp()") == SH::_NoError)
-	{
-		bool in_range = GuyH::getNPC()->HeroInRange(dist);
-		set_register(sarg1, (in_range ? 10000 : 0)); //This isn't setting the right value, it seems. 
-	}
-	else set_register(sarg2, 0);
-}
-
-
-
-
-
-
-void FFScript::do_npc_simulate_hit(const bool v)
-{
-	int32_t arrayptr = SH::get_arg(sarg1, v) / 10000;
-	ArrayManager am(arrayptr);
-	if(am.invalid()) return;
-	int32_t sz = am.size();
-	bool ishit = false;
-	
-	if(GuyH::loadNPC(ri->guyref, "npc->SimulateHit()") == SH::_NoError)
-	{
-		if ( sz == 2 ) //type and pointer
-		{
-			ishit = false;
-		}
-		if ( sz == 6 ) //hit(int32_t tx,int32_t ty,int32_t tz,int32_t txsz,int32_t tysz,int32_t tzsz);
-		{
-			ishit = GuyH::getNPC()->hit( (am.get(0)/10000), (am.get(1)/10000),
-				(am.get(2)/10000), (am.get(3)/10000), 
-				(am.get(4)/10000), (am.get(5)/10000) );			
-			
-		}
-		else 
-		{
-			Z_scripterrlog("Invalid array size (%d) passed to npc->SimulateHit(). The array size must be [1] or [3].\n", sz);
-			ishit = false;
-		}
-	}
-	set_register(sarg1, ( ishit ? 10000 : 0));
-}
-
-void FFScript::do_npc_knockback(const bool v)
-{
-	int32_t time = SH::get_arg(sarg1, v) / 10000;
-	int32_t dir = SH::get_arg(sarg2, v) / 10000;
-	int32_t spd = vbound(ri->d[rINDEX] / 10000, 0, 255);
-	bool ret = false;
-	
-	if(GuyH::loadNPC(ri->guyref, "npc->Knockback()") == SH::_NoError)
-	{
-		ret = GuyH::getNPC()->knockback(time, dir, spd);
-	}
-	set_register(sarg1, ( ret ? 10000 : 0));
-}
-
-void FFScript::do_npc_add(const bool v)
-{
-	
-	int32_t arrayptr = SH::get_arg(sarg1, v) / 10000;
-	ArrayManager am(arrayptr);
-	if(am.invalid()) return;
-	int32_t sz = am.size();
-	
-	int32_t id = 0, nx = 0, ny = 0;
-	
-	if ( sz < 1 ) 
-	{
-		Z_scripterrlog("Invalid array size (%d) passed to npc->Create(). The array size must be [1] or [3].\n", sz);
-		return;
-	}
-	else //size is valid
-	{
-		id = (am.get(0)/10000);
-		
-		if ( sz == 3 ) //x and y
-		{
-			nx = (am.get(1)/10000);
-			ny = (am.get(2)/10000);
-		}
-	}
-	
-	
-	if(BC::checkGuyID(id, "npc->Create()") != SH::_NoError)
-		return;
-		
-	//If we make a segmented enemy there'll be more than one sprite created
-	word numcreated = addenemy(nx, ny, id, -10);
-	
-	if(numcreated == 0)
-	{
-		ri->guyref = MAX_DWORD;
-		Z_scripterrlog("Couldn't create NPC \"%s\", screen NPC limit reached\n", guy_string[id]);
-	}
-	else
-	{
-		word index = guys.Count() - numcreated; //Get the main enemy, not a segment
-		ri->guyref = guys.spr(index)->getUID();
-		
-		for(; index<guys.Count(); index++)
-			((enemy*)guys.spr(index))->script_spawned=true;
-		
-		ri->d[rEXP1] = ri->guyref;
-		ri->d[rEXP2] = ri->guyref;
-		Z_eventlog("Script created NPC \"%s\" with UID = %ld\n", guy_string[id], ri->guyref);
 	}
 }
 
@@ -45529,56 +41725,6 @@ void FFScript::do_strnicmp()
 	ArrayH::getString(arrayptr_a, strA);
 	ArrayH::getString(arrayptr_b, strB);
 	set_register(sarg1, (ustrnicmp(strA.c_str(), strB.c_str(), len) * 10000));
-}
-
-void FFScript::do_npc_canmove(const bool v)
-{
-	int32_t arrayptr = SH::get_arg(sarg1, v) / 10000;
-	int32_t sz = ArrayH::getSize(arrayptr);
-	//bool can_mv = false;
-	if(GuyH::loadNPC(ri->guyref, "npc->CanMove()") == SH::_NoError)
-	{
-		ArrayManager am(arrayptr);
-		if(am.invalid()) return;
-		if ( sz == 1 ) //bool canmove(int32_t ndir): dir only, uses 'step' IIRC
-		{
-			set_register(sarg1, ( GuyH::getNPC()->canmove((am.get(0)/10000),false)) ? 10000 : 0);
-		}
-		else if ( sz == 2 ) //bool canmove(int32_t ndir, int32_t special): I think that this also uses the default 'step'
-		{
-			set_register(sarg1, ( GuyH::getNPC()->canmove((am.get(0)/10000),(zfix)(am.get(1)/10000), false)) ? 10000 : 0);
-		}
-		else if ( sz == 3 ) //bool canmove(int32_t ndir,zfix s,int32_t special) : I'm pretty sure that 'zfix s' is 'step' here. 
-		{
-			set_register(sarg1, ( GuyH::getNPC()->canmove((am.get(0)/10000),(zfix)(am.get(1)/10000),(am.get(2)/10000),false)) ? 10000 : 0);
-		}
-		else if ( sz == 7 ) //bool canmove(int32_t ndir,zfix s,int32_t special) : I'm pretty sure that 'zfix s' is 'step' here. 
-		{
-			set_register(sarg1, ( GuyH::getNPC()->canmove((am.get(0)/10000),(zfix)(am.get(1)/10000),(am.get(2)/10000),(am.get(3)/10000),(am.get(4)/10000),(am.get(5)/10000),(am.get(6)/10000),false)) ? 10000 : 0);
-		}
-		else 
-		{
-			Z_scripterrlog("Invalid array size (%d) passed to npc->CanMove(). The array size must be [1], [2], [3], or [7].\n", sz);
-			//can_mv = false;
-			set_register(sarg1, 0);
-		}
-	}
-	//set_register(sarg1, ( can_mv ? 10000 : 0));
-}
-
-void FFScript::get_npcdata_initd_label(const bool v)
-{
-	int32_t init_d_index = SH::get_arg(sarg1, v) / 10000;
-	int32_t arrayptr = get_register(sarg2) / 10000;
-	
-	if((unsigned)init_d_index > 7)
-	{
-	Z_scripterrlog("Invalid InitD[] index (%d) passed to npcdata->GetInitDLabel().\n", init_d_index);
-	return;
-	}
-		
-	if(ArrayH::setArray(arrayptr, string(guysbuf[ri->npcdataref].initD_label[init_d_index])) == SH::_Overflow)
-		Z_scripterrlog("Array supplied to 'npcdata->GetInitDLabel()' not large enough\n");
 }
 
 /////////////////////
@@ -52358,4 +48504,3 @@ int32_t combopos_ref_to_layer(int32_t combopos_ref)
 {
 	return combopos_ref / 176;
 }
-

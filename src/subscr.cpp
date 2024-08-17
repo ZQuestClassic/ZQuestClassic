@@ -20,7 +20,6 @@ bool show_subscreen_life=true;
 
 extern sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations;
 extern HeroClass   Hero;
-extern FFScript FFCore;
 
 int get_sub_dmap();
 

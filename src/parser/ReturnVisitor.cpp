@@ -13,7 +13,7 @@
 #include "CompileError.h"
 
 #include "zc/ffscript.h"
-extern FFScript FFCore;
+
 using std::ostringstream;
 using namespace ZScript;
 using std::unique_ptr;

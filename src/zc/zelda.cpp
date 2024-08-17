@@ -46,6 +46,7 @@
 #include "particles.h"
 #include "gamedata.h"
 #include "zc/ffscript.h"
+#include "zc/scripting/script_object.h"
 #include "zc/jit.h"
 #include "zc/script_debug.h"
 #include "zc/combos.h"
@@ -69,7 +70,7 @@
 #endif
 
 using namespace util;
-extern FFScript FFCore; //the core script engine.
+
 extern bool epilepsyFlashReduction;
 #include "zconsole/ConsoleLogger.h"
 #ifndef _WIN32 //Unix

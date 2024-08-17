@@ -16,7 +16,6 @@
 #include "zscriptversion.h"
 
 extern sprite_list items, decorations;
-extern FFScript FFCore;
 extern HeroClass Hero;
 
 // CUTSCENE STUFF

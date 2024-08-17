@@ -38,8 +38,6 @@ extern int zq_subscr_override_dmap;
 
 extern dword loading_tileset_flags;
 
-extern FFScript FFCore;
-
 extern const GUI::ListData subscrWidgets;
 
 int32_t get_dlevel();

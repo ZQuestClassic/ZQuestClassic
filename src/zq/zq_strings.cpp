@@ -18,7 +18,6 @@
 #include <map>
 #include <string>
 
-extern FFScript FFCore;
 static bool strlist_numerical_sort = false;
 void editmsg(int32_t index, int32_t addAfter);
 int32_t strlist_del();

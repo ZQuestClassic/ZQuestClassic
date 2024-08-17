@@ -10,9 +10,10 @@
 #include "base/qrs.h"
 #include "base/dmap.h"
 #include "base/initdata.h"
+#include "zc/scripting/types/user_object.h"
 
 using namespace util;
-extern FFScript FFCore;
+
 gamedata *game=NULL;
 #ifndef IS_EDITOR
 extern portal mirror_portal;
@@ -41,7 +42,7 @@ void gamedata::save_user_objects()
 	user_objects.clear();
 
 #ifndef IS_EDITOR
-	for (auto obj : FFCore.get_user_objects())
+	for (auto obj : get_user_objects())
 	{
 		if (obj->isGlobal())
 		{
@@ -62,13 +63,13 @@ void gamedata::load_user_objects()
 	for(saved_user_object& obj : user_objects)
 	{
 		auto id = obj.obj.id;
-		auto& object = FFCore.create_user_object(id);
-		object = obj.obj;
-		assert(object.ref_count == 0);
-		object.ref_count = 1; // FFCore.create_user_object added to autorelease pool.
-		object.type = script_object_type::object;
-		object.setGlobal(true);
-		object.load_arrays(obj.held_arrays);
+		auto object = create_user_object(id);
+		*object = obj.obj;
+		assert(object->ref_count == 0);
+		object->ref_count = 1; // create_user_object added to autorelease pool.
+		object->type = script_object_type::object;
+		object->setGlobal(true);
+		object->load_arrays(obj.held_arrays);
 	}
 #endif
 }

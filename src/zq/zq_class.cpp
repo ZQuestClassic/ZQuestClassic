@@ -54,7 +54,6 @@
 namespace fs = std::filesystem;
 
 using namespace util;
-extern FFScript FFCore;
 
 extern ZModule zcm;
 extern zcmodule moduledata;

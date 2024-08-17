@@ -46,7 +46,6 @@
 #include "base/misctypes.h"
 #include "base/initdata.h"
 
-extern FFScript FFCore;
 extern ZModule zcm;
 extern zcmodule moduledata;
 extern uint8_t __isZQuest;

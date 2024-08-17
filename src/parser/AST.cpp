@@ -9,7 +9,6 @@
 
 #include "parser/ParserHelper.h"
 #include "zc/ffscript.h"
-extern FFScript FFCore;
 
 using std::pair;
 using std::string;

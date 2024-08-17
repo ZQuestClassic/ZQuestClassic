@@ -11,7 +11,6 @@
 char *item_string[MAXITEMS];
 
 #ifndef IS_EDITOR
-	extern FFScript FFCore;
 	extern ZModule zcm;
 #endif
 

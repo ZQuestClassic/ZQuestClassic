@@ -29,7 +29,6 @@ using std::set;
 #include "zc/combos.h"
 #include "zc/replay.h"
 #include "slopes.h"
-extern FFScript FFCore;
 #include "particles.h"
 #include <fmt/format.h>
 #include "zc/render.h"

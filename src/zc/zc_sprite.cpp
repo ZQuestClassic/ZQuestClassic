@@ -8,7 +8,6 @@
 #include "drawing.h"
 #include "base/mapscr.h"
 
-extern FFScript FFCore;
 /*
 void sprite::check_conveyor()
 {

@@ -17,7 +17,7 @@
 
 #include "zasm/table.h"
 #include "zc/ffscript.h"
-extern FFScript FFCore;
+
 using std::ostringstream;
 using namespace ZScript;
 using std::shared_ptr;

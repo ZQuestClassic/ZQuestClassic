@@ -1,6 +1,7 @@
 #ifndef FFSCRIPT_H_
 #define FFSCRIPT_H_
 
+#include "base/mapscr.h"
 #include "base/zdefs.h"
 #include "base/initdata.h"
 #include "parser/parserDefs.h"
@@ -12,6 +13,7 @@
 #include "zasm/defines.h"
 #include "zc/zelda.h"
 #include "zc/replay.h"
+#include "zc/hero.h"
 
 #define ZS_BYTE 255
 #define ZS_CHAR 255
@@ -1138,34 +1140,7 @@ int32_t getEnemyByScriptUID(int32_t sUID);
 int32_t getLWeaponByScriptUID(int32_t sUID);
 int32_t getEWeaponByScriptUID(int32_t sUID);
 
-//new npc functions for npc scripts
-void do_isdeadnpc();
-void do_canslidenpc();
-void do_slidenpc();
-void do_npc_stopbgsfx();
-void do_npcattack();
-void do_npc_newdir();
-void do_npc_constwalk();
-void do_npc_varwalk();
-void do_npc_varwalk8();
-void do_npc_constwalk8();
-void do_npc_haltwalk();
-void do_npc_haltwalk8();
-void do_npc_floatwalk();
-void do_npc_breathefire();
-void do_npc_newdir8();
-int32_t npc_collision();
-int32_t npc_linedup();
-void do_npc_hero_in_range(const bool v);
-void do_npc_simulate_hit(const bool v);
-void do_npc_knockback(const bool v);
-void do_npc_add(const bool v);
-void do_npc_canmove(const bool v);
-void get_npcdata_initd_label(const bool v);
-void do_getnpcdata_getname();
-
 //Deletion functions
-void do_npc_delete();
 void do_lweapon_delete();
 void do_eweapon_delete();
 bool do_itemsprite_delete();
@@ -1599,10 +1574,6 @@ enum __Error
 	static void deallocateAllScriptOwnedOfType(ScriptType scriptType);
 	static void deallocateAllScriptOwned();
 	static void deallocateAllScriptOwnedCont();
-
-	user_object& create_user_object(uint32_t id);
-	std::vector<user_object*> get_user_objects();
-	user_object* get_user_object(uint32_t id);
 	
     private:
     int32_t sid;
@@ -1619,6 +1590,8 @@ int32_t get_register(int32_t arg);
 void set_register(int32_t arg, int32_t value);
 int32_t run_script(ScriptType type, const word script, const int32_t i = -1); //Global scripts don't need 'i'
 int32_t ffscript_engine(const bool preload);
+
+int32_t get_own_i(ScriptType type);
 
 void deallocateArray(const int32_t ptrval);
 void clearScriptHelperData();
@@ -1706,7 +1679,343 @@ int32_t get_combopos_ref(int32_t pos, int32_t layer);
 int32_t combopos_ref_to_pos(int32_t combopos_ref);
 int32_t combopos_ref_to_layer(int32_t combopos_ref);
 
-void init_script_objects();
+bool is_valid_array(int32_t ptr);
+dword allocatemem(int32_t size, bool local, ScriptType type, const uint32_t UID, script_object_type object_type = script_object_type::none);
+
+class SH
+{
+
+public:
+
+	enum __Error
+	{
+		_NoError, //OK!
+		_Overflow, //script array too small
+		_InvalidPointer, //passed NULL pointer or similar
+		_OutOfBounds, //library array out of bounds
+		_InvalidSpriteUID //bad npc, ffc, etc.
+	};
+
+#define INVALIDARRAY localRAM[0]  //localRAM[0] is never used
+
+	static ZScriptArray& InvalidError(const int32_t ptr);
+	static void write_stack(const uint32_t stackoffset, const int32_t value);
+	static int32_t read_stack(const uint32_t stackoffset);
+	static INLINE int32_t get_arg(int32_t arg, bool v)
+	{
+		return v ? arg : get_register(arg);
+	}
+};
+
+class ArrayManager
+{
+public:
+	ArrayManager(int32_t ptr, bool neg);
+	ArrayManager(int32_t ptr);
+	
+	int32_t get(int32_t indx) const;
+	void set(int32_t indx, int32_t val);
+	int32_t size() const;
+	
+	bool resize(size_t newsize);
+	bool resize_min(size_t minsz);
+	bool can_resize();
+	bool push(int32_t val, int indx = -1);
+	int32_t pop(int indx = -1);
+	
+	bool invalid() const {return _invalid;}
+	bool internal() const {return !_invalid && !aptr;}
+	
+	std::string asString(std::function<char const*(int32_t)> formatter, const size_t& limit) const;
+	
+	bool negAccess;
+private:
+	int32_t ptr;
+	ZScriptArray* aptr;
+	bool _invalid;
+};
+
+class ArrayH : public SH
+{
+public:
+	static size_t getSize(const int32_t ptr);
+	
+	//Can't you get the std::string and then check its length?
+	static int32_t strlen(const int32_t ptr);
+	
+	//Returns values of a zscript array as an std::string.
+	static void getString(const int32_t ptr, string &str, dword num_chars = ZSCRIPT_MAX_STRING_CHARS, dword offset = 0);
+	
+	//Used for issues where reading the ZScript array floods the console with errors 'Accessing array index [12] size of 12.
+	//Happens with Quad3D and some other functions, and I have no clue why. -Z ( 28th April, 2019 )
+	//Like getString but for an array of longs instead of chars. *(arrayPtr is not checked for validity)
+	static void getValues2(const int32_t ptr, int32_t* arrayPtr, dword num_values, dword offset = 0);
+	
+	//Like getString but for an array of longs instead of chars. *(arrayPtr is not checked for validity)
+	static void getValues(const int32_t ptr, int32_t* arrayPtr, dword num_values, dword offset = 0);
+	
+	static void copyValues(const int32_t ptr, const int32_t ptr2, size_t num_values);
+
+	//Get element from array
+	static INLINE int32_t getElement(const int32_t ptr, int32_t offset, const bool neg = false);
+	
+	//Set element in array
+	static INLINE void setElement(const int32_t ptr, int32_t offset, const int32_t value, const bool neg = false);
+	
+	//Puts values of a zscript array into a client <type> array. returns 0 on success. Overloaded
+	template <typename T>
+	static int32_t getArray(const int32_t ptr, T *refArray)
+	{
+		return getArray(ptr, getSize(ptr), 0, 0, 0, refArray);
+	}
+	
+	template <typename T>
+	static int32_t getArray(const int32_t ptr, const size_t size, T *refArray)
+	{
+		return getArray(ptr, size, 0, 0, 0, refArray);
+	}
+	
+	template <typename T>
+	static int32_t getArray(const int32_t ptr, const size_t size, size_t userOffset, const size_t userStride, const size_t refArrayOffset, T *refArray);
+	
+	static int32_t setArray(const int32_t ptr, string const& s2, bool resize = false);
+
+	//Puts values of a client <type> array into a zscript array. returns 0 on success. Overloaded
+	template <typename T>
+	static int32_t setArray(const int32_t ptr, const size_t size, T *refArray, bool x10k = true, bool resize = false)
+	{
+		return setArray(ptr, size, 0, 0, 0, refArray, x10k, resize);
+	}
+
+	static INLINE int32_t checkUserArrayIndex(const int32_t index, const dword size, const bool neg = false)
+	{
+		if(index < (neg ? -int32_t(size) : 0) || index >= int32_t(size))
+		{
+			Z_scripterrlog("Invalid index (%ld) to local array of size %ld\n", index, size);
+			return _OutOfBounds;
+		}
+		
+		return _NoError;
+	}
+
+	template <typename T>
+	static int32_t setArray(const int32_t ptr, const size_t size, word userOffset, const word userStride, const word refArrayOffset, T *refArray, bool x10k = true, bool resize = false)
+	{
+		ArrayManager am(ptr);
+		
+		if (am.invalid())
+			return _InvalidPointer;
+		
+		if(am.can_resize() && resize)
+			am.resize_min((userStride+1)*size);
+			
+		word j = 0, k = userStride;
+		size_t sz = am.size();
+		for(word i = 0; j < size; i++)
+		{
+			if(i >= sz)
+				return _Overflow; //Resize?
+				
+			if (userOffset > 0)
+			{
+				--userOffset;
+				continue;
+			}
+				
+			if(k > 0)
+				k--;
+			else if(checkUserArrayIndex(i, sz) == _NoError)
+			{
+				am.set(i,int32_t(refArray[j + refArrayOffset]) * (x10k ? 10000 : 1));
+				k = userStride;
+				j++;
+			}
+		}
+		
+		return _NoError;
+	}
+};
+
+class BC : public SH
+{
+public:
+
+	static INLINE int32_t checkMapID(const int32_t ID, const char * const str)
+	{
+		//return checkBounds(ID, 0, map_count-1, str);
+		if(ID < 0 || ID > map_count-1)
+		{
+			Z_scripterrlog("Invalid value (%i) passed to '%s'\n", ID+1, str);
+			return _OutOfBounds;
+		}
+		
+		return _NoError;
+	}
+	
+	static INLINE int32_t checkDMapID(const int32_t ID, const char * const str)
+	{
+		return checkBounds(ID, 0, MAXDMAPS-1, str);
+	}
+	
+	static INLINE int32_t checkComboPos(const int32_t pos, const char * const str)
+	{
+		return checkBoundsPos(pos, 0, 175, str);
+	}
+	
+	static INLINE int32_t checkTile(const int32_t pos, const char * const str)
+	{
+		return checkBounds(pos, 0, NEWMAXTILES-1, str);
+	}
+	
+	static INLINE int32_t checkCombo(const int32_t pos, const char * const str)
+	{
+		return checkBounds(pos, 0, MAXCOMBOS-1, str);
+	}
+	
+	static INLINE int32_t checkMisc(const int32_t a, const char * const str)
+	{
+		return checkBounds(a, 0, 15, str);
+	}
+	
+	 static INLINE int32_t checkMisc32(const int32_t a, const char * const str)
+	{
+		return checkBounds(a, 0, 31, str);
+	}
+	
+	static INLINE int32_t checkMessage(const int32_t ID, const char * const str)
+	{
+		return checkBounds(ID, 0, msg_strings_size-1, str);
+	}
+	
+	static INLINE int32_t checkLayer(const int32_t layer, const char * const str)
+	{
+		return checkBounds(layer, 0, 6, str);
+	}
+	
+	static INLINE int32_t checkFFC(const int32_t ffc, const char * const str)
+	{
+		return checkBounds(ffc, 0, MAXFFCS-1, str);
+	}
+	
+	static INLINE int32_t checkGuyIndex(const int32_t index, const char * const str)
+	{
+		return checkBoundsOneIndexed(index, 0, guys.Count()-1, str);
+	}
+	
+	static INLINE int32_t checkItemIndex(const int32_t index, const char * const str)
+	{
+		return checkBoundsOneIndexed(index, 0, items.Count()-1, str);
+	}
+	
+	static INLINE int32_t checkEWeaponIndex(const int32_t index, const char * const str)
+	{
+		return checkBoundsOneIndexed(index, 0, Ewpns.Count()-1, str);
+	}
+	
+	static INLINE int32_t checkLWeaponIndex(const int32_t index, const char * const str)
+	{
+		return checkBoundsOneIndexed(index, 0, Lwpns.Count()-1, str);
+	}
+	
+	static INLINE int32_t checkGuyID(const int32_t ID, const char * const str)
+	{
+		//return checkBounds(ID, 0, MAXGUYS-1, str); //Can't create NPC ID 0
+		return checkBounds(ID, 1, MAXGUYS-1, str);
+	}
+	
+	static INLINE int32_t checkItemID(const int32_t ID, const char * const str)
+	{
+		return checkBounds(ID, 0, MAXITEMS-1, str);
+	}
+	
+	static INLINE int32_t checkWeaponID(const int32_t ID, const char * const str)
+	{
+		return checkBounds(ID, 0, MAXWPNS-1, str);
+	}
+	
+	static INLINE int32_t checkWeaponMiscSprite(const int32_t ID, const char * const str)
+	{
+		return checkBounds(ID, 0, MAXWPNS-1, str);
+	}
+	
+	static INLINE int32_t checkSFXID(const int32_t ID, const char * const str)
+	{
+		return checkBounds(ID, 0, WAV_COUNT-1, str);
+	}
+	
+	static INLINE int32_t checkBounds(const int32_t n, const int32_t boundlow, const int32_t boundup, const char * const funcvar)
+	{
+		if(n < boundlow || n > boundup)
+		{
+			Z_scripterrlog("Invalid value (%i) passed to '%s'\n", n, funcvar);
+			return _OutOfBounds;
+		}
+		
+		return _NoError;
+	}
+	
+	static INLINE int32_t checkBoundsPos(const int32_t n, const int32_t boundlow, const int32_t boundup, const char * const funcvar)
+	{
+		if(n < boundlow || n > boundup)
+		{
+			Z_scripterrlog("Invalid position [%i] used to read to '%s'\n", n, funcvar);
+			return _OutOfBounds;
+		}
+        
+		return _NoError;
+	}
+	
+	static INLINE int32_t checkBoundsOneIndexed(const int32_t n, const int32_t boundlow, const int32_t boundup, const char * const funcvar)
+	{
+		if(n < boundlow || n > boundup)
+		{
+			Z_scripterrlog("Invalid value (%i) passed to '%s'\n", n+1, funcvar);
+			return _OutOfBounds;
+		}
+		
+		return _NoError;
+	}
+	
+	static INLINE int32_t checkUserArrayIndex(const int32_t index, const dword size, const bool neg = false)
+	{
+		if(index < (neg ? -int32_t(size) : 0) || index >= int32_t(size))
+		{
+			Z_scripterrlog("Invalid index (%ld) to local array of size %ld\n", index, size);
+			return _OutOfBounds;
+		}
+		
+		return _NoError;
+	}
+};
+
+struct ScriptEngineData {
+	refInfo ref;
+	int32_t stack[MAX_SCRIPT_REGISTERS];
+	bounded_vec<word, int32_t> ret_stack {65535};
+	// This is used as a boolean for all but ScriptType::Item.
+	byte doscript = true;
+	bool waitdraw;
+	bool initialized;
+
+	void reset()
+	{
+		// No need to zero the stack.
+		ref = refInfo();
+		doscript = true;
+		waitdraw = false;
+		initialized = false;
+	}
+};
+
+// (type, index) => ScriptEngineData
+extern std::map<std::pair<ScriptType, word>, ScriptEngineData> scriptEngineDatas;
+
+void on_reassign_script_engine_data(ScriptType type, int index);
+
+extern FFScript FFCore;
+extern byte flagpos;
+extern int32_t flagval;
+void clear_ornextflag();
+void ornextflag(bool flag);
 
 #endif
-

@@ -12,7 +12,6 @@
 #include "base/util.h"
 #include "parser/ZScript.h"
 #include "parser/config.h"
-#include "parser/parser.h"
 #include "zconfig.h"
 #include "zconsole/ConsoleLogger.h"
 #include "zscrdata.h"

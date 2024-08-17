@@ -27,7 +27,6 @@
 #include "dialog/spritedata.h"
 #include "dialog/info_lister.h"
 #include "zinfo.h"
-extern FFScript FFCore;
 
 extern int32_t ex;
 extern void reset_itembuf(itemdata *item, int32_t id);

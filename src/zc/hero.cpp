@@ -23,7 +23,7 @@
 #include "zinfo.h"
 #include "base/misctypes.h"
 #include "music_playback.h"
-extern FFScript FFCore;
+
 extern HeroClass Hero;
 extern ZModule zcm;
 extern zcmodule moduledata;
