@@ -3799,24 +3799,14 @@ int32_t enemy::takehit(weapon *w, weapon* realweap)
 		//preventing stunlock might be best, here. -Z
 		if(def >= 0) return def;
 		
-		// Not hurt by 0-damage weapons
-		if(!(flags & guy_bhit))
+		if(power)
+			hp-=power;
+		else if(!(flags & guy_bhit)) // Not hurt by 0-damage weapons
 		{
 			stunclk=160;
-			
-			if(enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].power : current_item_power(itype_brang))
-			{
-				hp -= (enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].power : current_item_power(itype_brang))*game->get_hero_dmgmult();
-				goto hitclock;
-			}
-			
 			break;
 		}
-		
-		if(!power)
-			hp-=(enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].fam_type : current_item(itype_brang))*game->get_hero_dmgmult();
-		else
-			hp-=power;
+		else hp-=w->type*game->get_hero_dmgmult(); // 'type' is the weapon's level, including script modifications
 			
 		goto hitclock;
 	}
@@ -3828,25 +3818,17 @@ int32_t enemy::takehit(weapon *w, weapon* realweap)
 		
 		if(def >= 0) return def;
 		
-		bool swgrab = switch_hooked || w->family_class == itype_switchhook;
-		if(swgrab || !(flags & guy_bhit))
+		if(power)
+			hp-=power;
+		else if(!(flags & guy_bhit)) // Not hurt by 0-damage weapons
 		{
+			bool swgrab = switch_hooked || w->family_class == itype_switchhook; //Switchhook doesn't stun
 			if(!swgrab)
 				stunclk=160;
-			
-			if(enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].power : current_item_power(itype_hookshot))
-			{
-				hp -= (enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].power : current_item_power(itype_hookshot))*game->get_hero_dmgmult();
-				goto hitclock;
-			}
-			
 			break;
 		}
+		else hp-=w->type*game->get_hero_dmgmult(); // 'type' is the weapon's level, including script modifications
 		
-		if(!power) hp-=(enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].fam_type : current_item(itype_hookshot))*game->get_hero_dmgmult();
-		else
-			hp-=power;
-			
 		goto hitclock;
 	}
 	break;
