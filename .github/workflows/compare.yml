@@ -57,20 +57,17 @@ jobs:
               fs.writeFileSync(`${process.env.GITHUB_WORKSPACE}/test-results/${artifact.name}.zip`, Buffer.from(download.data));
             }
       - run: |
-          if [ -f *.zip ] ; then
+          if `python -c 'from pathlib import Path; exit(0 if list(Path().glob("*.zip")) else 1)'` ; then
             for f in *.zip; do unzip $f -d ${f%.*}; done
-            if [[ $(find . -name test_results.json) ]] ; then
-              echo "Found test_results.json file(s)"
-            else
-              echo "Found no test_results.json file"
-              gh run cancel ${{ github.run_id }}
-              gh run watch ${{ github.run_id }}
-            fi
+          fi
+
+          if [[ $(find . -name test_results.json) ]] ; then
+            echo "Found test_results.json file(s)"
           else
-            echo "Found no zip files"
+            echo "Found no test_results.json file"
             gh run cancel ${{ github.run_id }}
             gh run watch ${{ github.run_id }}
-          fi 
+          fi
         working-directory: test-results
         env:
           GH_TOKEN: ${{ github.token }}
