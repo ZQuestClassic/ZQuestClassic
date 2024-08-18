@@ -60,8 +60,6 @@ bool do_itemsprite_delete()
 	return false;
 }
 
-sprite* s; // TODO: make this item*, remove all the casts in this file.
-
 } // end namespace
 
 int32_t ItemH::loadItem(const int32_t iid, const char * const funcvar)
@@ -113,21 +111,21 @@ std::optional<int32_t> item_get_register(int32_t reg)
 					"item->Scale");
 				ret = -1; break;
 			}
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				ret=((int32_t)((item*)(s))->scale)*100.0;
+				ret=((int32_t)s->scale)*100.0;
 			}
 			break;
 		
 		case ITEMX:
 		{
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
 				zfix x;
 				bool is_fairy = itemsbuf[s->id].family==itype_fairy && itemsbuf[s->id].misc3;
 				if (is_fairy)
 				{
-					enemy* fairy = (enemy*) guys.getByUID(((item*)(s))->fairyUID);
+					enemy* fairy = (enemy*) guys.getByUID(s->fairyUID);
 					x = fairy ? fairy->x : s->x;
 				}
 				else
@@ -146,13 +144,13 @@ std::optional<int32_t> item_get_register(int32_t reg)
 
 		case ITEMY:
 		{
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
 				zfix y;
 				bool is_fairy = itemsbuf[s->id].family==itype_fairy && itemsbuf[s->id].misc3;
 				if (is_fairy)
 				{
-					enemy* fairy = (enemy*) guys.getByUID(((item*)(s))->fairyUID);
+					enemy* fairy = (enemy*) guys.getByUID(s->fairyUID);
 					y = fairy ? fairy->y : s->y;
 				}
 				else
@@ -170,31 +168,31 @@ std::optional<int32_t> item_get_register(int32_t reg)
 		break;
 
 		case ITEMSPRITESCRIPT:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				ret=((int32_t)((item*)(s))->script)*10000;
+				ret=((int32_t)s->script)*10000;
 			}
 			break;
 		
 		case ITEMSPRITEINITD:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
 				int32_t a = vbound(ri->d[rINDEX]/10000,0,7);
-				ret=((int32_t)((item*)(s))->initD[a]);
+				ret=((int32_t)s->initD[a]);
 			}
 			break;
 		
 		case ITEMFAMILY:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				ret=((int32_t)((item*)(s))->family)*10000;
+				ret=((int32_t)s->family)*10000;
 			}
 			break;
 		
 		case ITEMLEVEL:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				ret=((int32_t)((item*)(s))->lvl)*10000;
+				ret=((int32_t)s->lvl)*10000;
 			}
 			break;
 			
@@ -206,93 +204,93 @@ std::optional<int32_t> item_get_register(int32_t reg)
 		}
 		
 		case ITEMSCRIPTUID:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				ret=((int32_t)((item*)(s))->script_UID); //Literal, not *10000
+				ret=((int32_t)s->script_UID); //Literal, not *10000
 			}
 			break;
 		
 			
 		case ITEMZ:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
 				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 				{
-					ret=(((item*)(s))->z).getZLong();    
+					ret=(s->z).getZLong();    
 				}
 				else 
-					ret=((int32_t)((item*)(s))->z)*10000;
+					ret=((int32_t)s->z)*10000;
 			}
 			break;
 			
 		case ITEMJUMP:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				ret = ((item*)(s))->fall.getZLong() / -100;
+				ret = s->fall.getZLong() / -100;
 				if (get_qr(qr_SPRITE_JUMP_IS_TRUNCATED)) ret = trunc(ret / 10000) * 10000;
 			}
 			break;
 		
 		case ITEMFAKEJUMP:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				ret = ((item*)(s))->fakefall.getZLong() / -100;
+				ret = s->fakefall.getZLong() / -100;
 				if (get_qr(qr_SPRITE_JUMP_IS_TRUNCATED)) ret = trunc(ret / 10000) * 10000;
 			}
 			break;
 			
 		case ITEMDRAWTYPE:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				ret=((item*)(s))->drawstyle*10000;
+				ret=s->drawstyle*10000;
 			}
 			break;
 		  
 		case ITEMGRAVITY:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				ret=((((item*)(s))->moveflags & move_obeys_grav) ? 10000 : 0);
+				ret=((s->moveflags & move_obeys_grav) ? 10000 : 0);
 			}
 			break;
 			
 		case ITEMID:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				ret=((item*)(s))->id*10000;
+				ret=s->id*10000;
 			}
 			break;
 			
 		case ITEMTILE:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				ret=((item*)(s))->tile*10000;
+				ret=s->tile*10000;
 			}
 			break;
 			
 		case ITEMSCRIPTTILE:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				ret=((item*)(s))->scripttile*10000;
+				ret=s->scripttile*10000;
 			}
 			break;
 			
 		case ITEMSCRIPTFLIP:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				ret=((item*)(s))->scriptflip*10000;
+				ret=s->scriptflip*10000;
 			}
 			break;
 		
 		case ITEMPSTRING:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				ret=((item*)(s))->pstring*10000;
+				ret=s->pstring*10000;
 			}
 			break;
 		case ITEMPSTRINGFLAGS:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				ret=((item*)(s))->pickup_string_flags*10000;
+				ret=s->pickup_string_flags*10000;
 			}
 			break;
 		case ITEMOVERRIDEFLAGS:
@@ -300,79 +298,79 @@ std::optional<int32_t> item_get_register(int32_t reg)
 			break;
 			
 		case ITEMOTILE:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				ret=((item*)(s))->o_tile*10000;
+				ret=s->o_tile*10000;
 			}
 			break;
 			
 		case ITEMCSET:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				ret=(((item*)(s))->o_cset&15)*10000;
+				ret=(s->o_cset&15)*10000;
 			}
 			break;
 			
 		case ITEMFLASHCSET:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				ret=(((item*)(s))->o_cset>>4)*10000;
+				ret=(s->o_cset>>4)*10000;
 			}
 			break;
 			
 		case ITEMFRAMES:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				ret=((item*)(s))->frames*10000;
+				ret=s->frames*10000;
 			}
 			break;
 			
 		case ITEMFRAME:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				ret=((item*)(s))->aframe*10000;
+				ret=s->aframe*10000;
 			}
 			break;
 		
 		case ITEMACLK:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				ret=((item*)(s))->aclk*10000;
+				ret=s->aclk*10000;
 			}
 			break;    
 		
 		case ITEMASPEED:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				ret=((item*)(s))->o_speed*10000;
+				ret=s->o_speed*10000;
 			}
 			break;
 			
 		case ITEMDELAY:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				ret=((item*)(s))->o_delay*10000;
+				ret=s->o_delay*10000;
 			}
 			break;
 			
 		case ITEMFLIP:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				ret=((item*)(s))->flip*10000;
+				ret=s->flip*10000;
 			}
 			break;
 			
 		case ITEMFLASH:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				ret=((item*)(s))->flash*10000;
+				ret=s->flash*10000;
 			}
 			break;
 			
 		case ITEMHXOFS:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				ret=(((item*)(s))->hxofs)*10000;
+				ret=(s->hxofs)*10000;
 			}
 			break;
 
@@ -383,87 +381,87 @@ std::optional<int32_t> item_get_register(int32_t reg)
 					"item->Rotation");
 				ret = -1; break;
 			}
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				ret=(((item*)(s))->rotation)*10000;
+				ret=(s->rotation)*10000;
 			}
 			break;
 
 		case ITEMHYOFS:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				ret=(((item*)(s))->hyofs)*10000;
+				ret=(s->hyofs)*10000;
 			}
 			break;
 			
 		case ITEMXOFS:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				ret=((int32_t)(((item*)(s))->xofs))*10000;
+				ret=((int32_t)(s->xofs))*10000;
 			}
 			break;
 			
 		case ITEMYOFS:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				ret=((int32_t)(((item*)(s))->yofs-(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)))*10000;
+				ret=((int32_t)(s->yofs-(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)))*10000;
 			}
 			break;
 		
 		case ITEMSHADOWXOFS:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				ret=((int32_t)(((item*)(s))->shadowyofs))*10000;
+				ret=((int32_t)(s->shadowyofs))*10000;
 			}
 			break;
 			
 		case ITEMSHADOWYOFS:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				ret=((int32_t)(((item*)(s))->shadowxofs))*10000;
+				ret=((int32_t)(s->shadowxofs))*10000;
 			}
 			break;
 			
 			
 		case ITEMZOFS:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				ret=((int32_t)(((item*)(s))->zofs))*10000;
+				ret=((int32_t)(s->zofs))*10000;
 			}
 			break;
 			
 		case ITEMHXSZ:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				ret=(((item*)(s))->hit_width)*10000;
+				ret=(s->hit_width)*10000;
 			}
 			break;
 			
 		case ITEMHYSZ:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				ret=(((item*)(s))->hit_height)*10000;
+				ret=(s->hit_height)*10000;
 			}
 			break;
 			
 		case ITEMHZSZ:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				ret=(((item*)(s))->hzsz)*10000;
+				ret=(s->hzsz)*10000;
 			}
 			break;
 			
 		case ITEMTXSZ:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				ret=(((item*)(s))->txsz)*10000;
+				ret=(s->txsz)*10000;
 			}
 			break;
 			
 		case ITEMTYSZ:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				ret=(((item*)(s))->tysz)*10000;
+				ret=(s->tysz)*10000;
 			}
 			break;
 			
@@ -476,72 +474,72 @@ std::optional<int32_t> item_get_register(int32_t reg)
 			break;
 			
 		case ITEMEXTEND:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				ret=((item*)(s))->extend*10000;
+				ret=s->extend*10000;
 			}
 			break;
 			
 		case ITEMPICKUP:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				ret=((item*)(s))->pickup*10000;
+				ret=s->pickup*10000;
 			}
 			break;
 			
 			
 		case ITEMMISCD:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
 				int32_t a = vbound(ri->d[rINDEX]/10000,0,31);
-				ret=(((item*)(s))->miscellaneous[a]);
+				ret=(s->miscellaneous[a]);
 			}
 			break;
 		
 		case ITEMFALLCLK:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				ret = ((item*)(s))->fallclk * 10000;
+				ret = s->fallclk * 10000;
 			}
 			break;
 		
 		case ITEMFALLCMB:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				ret = ((item*)(s))->fallCombo * 10000;
+				ret = s->fallCombo * 10000;
 			}
 			break;
 		
 		case ITEMDROWNCLK:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				ret = ((item*)(s))->drownclk * 10000;
+				ret = s->drownclk * 10000;
 			}
 			break;
 		
 		case ITEMDROWNCMB:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				ret = ((item*)(s))->drownCombo * 10000;
+				ret = s->drownCombo * 10000;
 			}
 			break;
 		
 		case ITEMFAKEZ:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
 				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 				{
-					ret=(((item*)(s))->fakez).getZLong();    
+					ret=(s->fakez).getZLong();    
 				}
 				else 
-					ret=((int32_t)((item*)(s))->fakez)*10000;
+					ret=((int32_t)s->fakez)*10000;
 			}
 			break;
 			
 		
 		case ITEMMOVEFLAGS:
 		{
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
 				if(BC::checkBounds(indx, 0, 10, "itemsprite->MoveFlags[]") != SH::_NoError)
@@ -549,76 +547,76 @@ std::optional<int32_t> item_get_register(int32_t reg)
 				else
 				{
 					//All bits, in order, of a single byte; just use bitwise
-					ret = (((item*)(s))->moveflags & (1<<indx)) ? 10000 : 0;
+					ret = (s->moveflags & (1<<indx)) ? 10000 : 0;
 				}
 			}
 			break;
 		}
 		
 		case ITEMGLOWRAD:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				ret = ((item*)(s))->glowRad * 10000;
+				ret = s->glowRad * 10000;
 			}
 			break;
 			
 		case ITEMGLOWSHP:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				ret = ((item*)(s))->glowShape * 10000;
+				ret = s->glowShape * 10000;
 			}
 			break;
 			
 		case ITEMDIR:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				ret = ((item*)(s))->dir * 10000;
+				ret = s->dir * 10000;
 			}
 			break;
 			
 		case ITEMENGINEANIMATE:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				ret = int32_t(((item*)(s))->do_animation) * 10000;
+				ret = int32_t(s->do_animation) * 10000;
 			}
 			break;
 			
 		case ITEMSHADOWSPR:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				ret = int32_t(((item*)(s))->spr_shadow) * 10000;
+				ret = int32_t(s->spr_shadow) * 10000;
 			}
 			break;
 		case ITEMDROPPEDBY:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				ret = int32_t(((item*)(s))->from_dropset) * 10000;
+				ret = int32_t(s->from_dropset) * 10000;
 			}
 			break;
 		case ITMSWHOOKED:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
 				ret = s->switch_hooked ? 10000 : 0;
 			}
 			break;
 		case ITEMFORCEGRAB:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				ret = ((item*)s)->get_forcegrab() ? 10000 : 0;
+				ret = s->get_forcegrab() ? 10000 : 0;
 			}
 			break;
 			
 		case ITEMNOSOUND:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				ret=((item*)(s))->noSound ? 10000 : 0;
+				ret=s->noSound ? 10000 : 0;
 			}
 			break;
 			
 		case ITEMNOHOLDSOUND:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				ret=((item*)(s))->noHoldSound ? 10000 : 0;
+				ret=s->noHoldSound ? 10000 : 0;
 			}
 			break;
 
@@ -633,7 +631,7 @@ bool item_set_register(int32_t reg, int32_t value)
 	switch (reg)
 	{
 		case ITEMFAMILY:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
 				(((item *)s)->family)=value/10000;
 			}
@@ -641,7 +639,7 @@ bool item_set_register(int32_t reg, int32_t value)
 			break;
 		
 		case ITEMLEVEL:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
 				(((item *)s)->lvl)=value/10000;
 			}
@@ -656,14 +654,14 @@ bool item_set_register(int32_t reg, int32_t value)
 		}
 		
 		case ITEMX:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
 				s->x = get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
 				
 				// Move the Fairy enemy as well.
 				if(itemsbuf[s->id].family==itype_fairy && itemsbuf[s->id].misc3)
 				{
-					enemy* fairy = (enemy*) guys.getByUID(((item*)(s))->fairyUID);
+					enemy* fairy = (enemy*) guys.getByUID(s->fairyUID);
 					if (fairy)
 						fairy->x = s->x;
 				}
@@ -671,14 +669,14 @@ bool item_set_register(int32_t reg, int32_t value)
 			break;
 
 		case ITEMY:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
 				s->y = get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
 				
 				// Move the Fairy enemy as well.
 				if(itemsbuf[s->id].family==itype_fairy && itemsbuf[s->id].misc3)
 				{
-					enemy* fairy = (enemy*) guys.getByUID(((item*)(s))->fairyUID);
+					enemy* fairy = (enemy*) guys.getByUID(s->fairyUID);
 					if (fairy)
 						fairy->y = s->y;
 				}
@@ -687,7 +685,7 @@ bool item_set_register(int32_t reg, int32_t value)
 		
 		case ITEMSPRITESCRIPT:
 			FFScript::deallocateAllScriptOwned(ScriptType::ItemSprite, ri->itemref);
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
 				(s->script)=(value/10000);
 			}
@@ -700,7 +698,7 @@ bool item_set_register(int32_t reg, int32_t value)
 					"item->Scale");
 				break;
 			}
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
 				(s->scale)=(zfix)(value/100.0);
 			}
@@ -708,7 +706,7 @@ bool item_set_register(int32_t reg, int32_t value)
 			break;
 			
 		case ITEMZ:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
 				(s->z)=(zfix)(value/10000);
 				
@@ -719,7 +717,7 @@ bool item_set_register(int32_t reg, int32_t value)
 			break;
 			
 		case ITEMJUMP:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
 				(((item *)s)->fall)=zslongToFix(value)*-100;
 			}
@@ -727,7 +725,7 @@ bool item_set_register(int32_t reg, int32_t value)
 			break;
 		
 		case ITEMFAKEJUMP:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
 				(((item *)s)->fakefall)=zslongToFix(value)*-100;
 			}
@@ -735,7 +733,7 @@ bool item_set_register(int32_t reg, int32_t value)
 			break;
 			
 		case ITEMDRAWTYPE:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
 				(((item *)s)->drawstyle)=value/10000;
 			}
@@ -743,7 +741,7 @@ bool item_set_register(int32_t reg, int32_t value)
 			break;
 			
 		 case ITEMSPRITEINITD:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
 				int32_t a = vbound(ri->d[rINDEX]/10000,0,7);
 				(((item *)s)->initD[a])=value;
@@ -752,7 +750,7 @@ bool item_set_register(int32_t reg, int32_t value)
 			break;
 			
 		case ITEMGRAVITY:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
 				if(value)
 					((item *)s)->moveflags |= move_obeys_grav;
@@ -763,7 +761,7 @@ bool item_set_register(int32_t reg, int32_t value)
 			break;
 			
 		case ITEMID:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
 				(((item *)s)->id)=value/10000;
 				flushItemCache();
@@ -772,7 +770,7 @@ bool item_set_register(int32_t reg, int32_t value)
 			break;
 			
 		case ITEMTILE:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
 				(((item *)s)->tile)=vbound(value/10000,0,NEWMAXTILES-1);
 			}
@@ -780,21 +778,21 @@ bool item_set_register(int32_t reg, int32_t value)
 			break;
 			
 		case ITEMSCRIPTTILE:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
 				(((item *)s)->scripttile)=vbound(value/10000,-1,NEWMAXTILES-1);
 			}
 			break;
 			
 		case ITEMSCRIPTFLIP:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
 				(((item *)s)->scriptflip)=vbound((value/10000),-1,127);
 			}
 			break;
 		
 		case ITEMPSTRING:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
 				(((item *)s)->pstring)=vbound(value/10000,0,(msg_count-1));
 			}
@@ -802,7 +800,7 @@ bool item_set_register(int32_t reg, int32_t value)
 			break;
 		
 		case ITEMPSTRINGFLAGS:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
 				(((item *)s)->pickup_string_flags)=vbound(value/10000, 0, 214748);
 			}
@@ -813,7 +811,7 @@ bool item_set_register(int32_t reg, int32_t value)
 			break;
 			
 		case ITEMOTILE:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
 				(((item *)s)->o_tile)=vbound(value/10000,0,NEWMAXTILES-1);
 			}
@@ -821,7 +819,7 @@ bool item_set_register(int32_t reg, int32_t value)
 			break;
 			
 		case ITEMCSET:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
 				(((item *)s)->o_cset) = (((item *)s)->o_cset & ~15) | ((value/10000)&15);
 				(((item *)s)->cs) = (((item *)s)->o_cset & 15);
@@ -830,7 +828,7 @@ bool item_set_register(int32_t reg, int32_t value)
 			break;
 			
 		case ITEMFLASHCSET:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
 				(((item *)s)->o_cset) = ((value/10000)<<4) | (((item *)s)->o_cset & 15);
 			}
@@ -838,7 +836,7 @@ bool item_set_register(int32_t reg, int32_t value)
 			break;
 			
 		case ITEMFRAMES:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
 				(((item *)s)->frames)=value/10000;
 			}
@@ -846,7 +844,7 @@ bool item_set_register(int32_t reg, int32_t value)
 			break;
 			
 		case ITEMFRAME:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
 				(((item *)s)->aframe)=value/10000;
 			}
@@ -854,7 +852,7 @@ bool item_set_register(int32_t reg, int32_t value)
 			break;
 			
 		case ITEMASPEED:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
 				(((item *)s)->o_speed)=value/10000;
 			}
@@ -862,7 +860,7 @@ bool item_set_register(int32_t reg, int32_t value)
 			break;
 		
 		 case ITEMACLK:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
 				(((item *)s)->aclk)=value/10000;
 			}
@@ -870,7 +868,7 @@ bool item_set_register(int32_t reg, int32_t value)
 			break;
 		
 		case ITEMDELAY:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
 				(((item *)s)->o_delay)=value/10000;
 			}
@@ -878,7 +876,7 @@ bool item_set_register(int32_t reg, int32_t value)
 			break;
 			
 		case ITEMFLIP:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
 				(((item *)s)->flip)=value/10000;
 			}
@@ -886,7 +884,7 @@ bool item_set_register(int32_t reg, int32_t value)
 			break;
 			
 		case ITEMFLASH:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
 				(((item *)s)->flash)= (value/10000)?1:0;
 			}
@@ -894,7 +892,7 @@ bool item_set_register(int32_t reg, int32_t value)
 			break;
 			
 		case ITEMEXTEND:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
 				(((item *)s)->extend)=value/10000;
 			}
@@ -902,9 +900,9 @@ bool item_set_register(int32_t reg, int32_t value)
 			break;
 			
 		case ITEMHXOFS:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				((item*)(s))->hxofs=value/10000;
+				s->hxofs=value/10000;
 			}
 			
 			break;
@@ -916,103 +914,103 @@ bool item_set_register(int32_t reg, int32_t value)
 					"item->Rotation");
 				break;
 			}
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				((item*)(s))->rotation=value/10000;
+				s->rotation=value/10000;
 			}
 			
 			break;
 			
 		case ITEMHYOFS:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				((item*)(s))->hyofs=value/10000;
+				s->hyofs=value/10000;
 			}
 			
 			break;
 			
 		case ITEMXOFS:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				((item*)(s))->xofs=(zfix)(value/10000);
+				s->xofs=(zfix)(value/10000);
 			}
 			
 			break;
 			
 		case ITEMYOFS:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				((item*)(s))->yofs=(zfix)(value/10000)+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
+				s->yofs=(zfix)(value/10000)+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
 			}
 			
 			break;
 			
 		case ITEMSHADOWXOFS:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				((item*)(s))->shadowxofs=(zfix)(value/10000);
+				s->shadowxofs=(zfix)(value/10000);
 			}
 			
 			break;
 		
 		case ITEMSHADOWYOFS:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				((item*)(s))->shadowyofs=(zfix)(value/10000);
+				s->shadowyofs=(zfix)(value/10000);
 			}
 			
 			break;
 		
 		case ITEMZOFS:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				((item*)(s))->zofs=(zfix)(value/10000);
+				s->zofs=(zfix)(value/10000);
 			}
 			
 			break;
 			
 		case ITEMHXSZ:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				((item*)(s))->hit_width=value/10000;
+				s->hit_width=value/10000;
 			}
 			
 			break;
 			
 		case ITEMHYSZ:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				((item*)(s))->hit_height=value/10000;
+				s->hit_height=value/10000;
 			}
 			
 			break;
 			
 		case ITEMHZSZ:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				((item*)(s))->hzsz=value/10000;
+				s->hzsz=value/10000;
 			}
 			
 			break;
 			
 		case ITEMTXSZ:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				((item*)(s))->txsz=vbound((value/10000),1,20);
+				s->txsz=vbound((value/10000),1,20);
 			}
 			
 			break;
 			
 		case ITEMTYSZ:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				((item*)(s))->tysz=vbound((value/10000),1,20);
+				s->tysz=vbound((value/10000),1,20);
 			}
 			
 			break;
 			
 		case ITEMPICKUP:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
 				int32_t newpickup = value/10000;
 				// Values that the questmaker should not use, ever
@@ -1028,16 +1026,16 @@ bool item_set_register(int32_t reg, int32_t value)
 				// If making an item timeout, set its timer
 				if(newpickup & ipFADE)
 				{
-					(((item*)(s))->clk2) = 512;
+					(s->clk2) = 512;
 				}
 				//else if(newpickup & ~ipFADE)
 				//{
-				//    (((item*)(s))->clk2) = 0;
+				//    (s->clk2) = 0;
 				//}
 				
 				// If making it a carried item,
 				// alter hasitem and set an itemguy.
-				if((((item*)(s))->pickup & ipENEMY) < (newpickup & ipENEMY))
+				if((s->pickup & ipENEMY) < (newpickup & ipENEMY))
 				{
 					hasitem |= 2;
 					bool hasitemguy = false;
@@ -1057,7 +1055,7 @@ bool item_set_register(int32_t reg, int32_t value)
 				}
 				// If unmaking it a carried item,
 				// alter hasitem if there are no more carried items.
-				else if((((item*)(s))->pickup & ipENEMY) > (newpickup & ipENEMY))
+				else if((s->pickup & ipENEMY) > (newpickup & ipENEMY))
 				{
 					// Move it back onscreen!
 					if(get_qr(qr_HIDECARRIEDITEMS))
@@ -1070,31 +1068,31 @@ bool item_set_register(int32_t reg, int32_t value)
 								{
 									if (get_qr(qr_ENEMY_DROPS_USE_HITOFFSETS))
 									{
-										((item*)(s))->x = ((enemy*)guys.spr(i))->x+((enemy*)guys.spr(i))->hxofs+(((enemy*)guys.spr(i))->hit_width/2)-8;
-										((item*)(s))->y = ((enemy*)guys.spr(i))->y+((enemy*)guys.spr(i))->hyofs+(((enemy*)guys.spr(i))->hit_height/2)-10;
-										((item*)(s))->z = ((enemy*)guys.spr(i))->z;
+										s->x = ((enemy*)guys.spr(i))->x+((enemy*)guys.spr(i))->hxofs+(((enemy*)guys.spr(i))->hit_width/2)-8;
+										s->y = ((enemy*)guys.spr(i))->y+((enemy*)guys.spr(i))->hyofs+(((enemy*)guys.spr(i))->hit_height/2)-10;
+										s->z = ((enemy*)guys.spr(i))->z;
 									}
 									else
 									{
 										if(((enemy*)guys.spr(i))->extend >= 3) 
 										{
-											((item*)(s))->x = ((enemy*)guys.spr(i))->x+(((enemy*)guys.spr(i))->txsz-1)*8;
-											((item*)(s))->y = ((enemy*)guys.spr(i))->y-2+(((enemy*)guys.spr(i))->tysz-1)*8;
-											((item*)(s))->z = ((enemy*)guys.spr(i))->z;
+											s->x = ((enemy*)guys.spr(i))->x+(((enemy*)guys.spr(i))->txsz-1)*8;
+											s->y = ((enemy*)guys.spr(i))->y-2+(((enemy*)guys.spr(i))->tysz-1)*8;
+											s->z = ((enemy*)guys.spr(i))->z;
 										}
 										else 
 										{
-											((item*)(s))->x = ((enemy*)guys.spr(i))->x;
-											((item*)(s))->y = ((enemy*)guys.spr(i))->y - 2;
-											((item*)(s))->z = ((enemy*)guys.spr(i))->z;
+											s->x = ((enemy*)guys.spr(i))->x;
+											s->y = ((enemy*)guys.spr(i))->y - 2;
+											s->z = ((enemy*)guys.spr(i))->z;
 										}
 									}
 								}
 								else
 								{
-									((item*)(s))->x = ((enemy*)guys.spr(i))->x;
-									((item*)(s))->y = ((enemy*)guys.spr(i))->y - 2;
-									((item*)(s))->z = ((enemy*)guys.spr(i))->z;
+									s->x = ((enemy*)guys.spr(i))->x;
+									s->y = ((enemy*)guys.spr(i))->y - 2;
+									s->z = ((enemy*)guys.spr(i))->z;
 								}
 								break;
 							}
@@ -1107,57 +1105,57 @@ bool item_set_register(int32_t reg, int32_t value)
 					}
 				}
 				
-				((item*)(s))->pickup=value/10000;
+				s->pickup=value/10000;
 			}
 			
 			break;
 			
 		case ITEMMISCD:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
 				int32_t a = vbound(ri->d[rINDEX]/10000,0,31);
-				(((item*)(s))->miscellaneous[a])=value;
+				(s->miscellaneous[a])=value;
 			}
 			
 			break;
 		case ITEMFALLCLK:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				if(((item*)(s))->fallclk != 0 && value == 0)
+				if(s->fallclk != 0 && value == 0)
 				{
-					((item*)(s))->cs = ((item*)(s))->old_cset;
-					((item*)(s))->tile = ((item*)(s))->o_tile;
+					s->cs = s->old_cset;
+					s->tile = s->o_tile;
 				}
-				else if(((item*)(s))->fallclk == 0 && value != 0) ((item*)(s))->old_cset = ((item*)(s))->cs;
-				((item*)(s))->fallclk = vbound(value/10000,0,70);
+				else if(s->fallclk == 0 && value != 0) s->old_cset = s->cs;
+				s->fallclk = vbound(value/10000,0,70);
 			}
 			break;
 		case ITEMFALLCMB:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				((item*)(s))->fallCombo = vbound(value/10000,0,MAXCOMBOS-1);
+				s->fallCombo = vbound(value/10000,0,MAXCOMBOS-1);
 			}
 			break;
 		case ITEMDROWNCLK:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				if(((item*)(s))->drownclk != 0 && value == 0)
+				if(s->drownclk != 0 && value == 0)
 				{
-					((item*)(s))->cs = ((item*)(s))->old_cset;
-					((item*)(s))->tile = ((item*)(s))->o_tile;
+					s->cs = s->old_cset;
+					s->tile = s->o_tile;
 				}
-				else if(((item*)(s))->drownclk == 0 && value != 0) ((item*)(s))->old_cset = ((item*)(s))->cs;
-				((item*)(s))->drownclk = vbound(value/10000,0,70);
+				else if(s->drownclk == 0 && value != 0) s->old_cset = s->cs;
+				s->drownclk = vbound(value/10000,0,70);
 			}
 			break;
 		case ITEMDROWNCMB:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				((item*)(s))->drownCombo = vbound(value/10000,0,MAXCOMBOS-1);
+				s->drownCombo = vbound(value/10000,0,MAXCOMBOS-1);
 			}
 			break;
 		case ITEMFAKEZ:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
 				(s->fakez)=(zfix)(value/10000);
 				
@@ -1169,7 +1167,7 @@ bool item_set_register(int32_t reg, int32_t value)
 		
 		case ITEMMOVEFLAGS:
 		{
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
 				if(BC::checkBounds(indx, 0, 10, "itemsprite->MoveFlags[]") == SH::_NoError)
@@ -1177,72 +1175,72 @@ bool item_set_register(int32_t reg, int32_t value)
 					//All bits, in order, of a single byte; just use bitwise
 					move_flags bit = (move_flags)(1<<indx);
 					if(value)
-						((item*)(s))->moveflags |= bit;
+						s->moveflags |= bit;
 					else
-						((item*)(s))->moveflags &= ~bit;
+						s->moveflags &= ~bit;
 				}
 			}
 			break;
 		}
 		
 		case ITEMGLOWRAD:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				((item*)(s))->glowRad = vbound(value/10000,0,255);
+				s->glowRad = vbound(value/10000,0,255);
 			}
 			break;
 			
 		case ITEMGLOWSHP:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				((item*)(s))->glowShape = vbound(value/10000,0,255);
+				s->glowShape = vbound(value/10000,0,255);
 			}
 			break;
 			
 		case ITEMDIR:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				((item*)(s))->dir=(value/10000);
+				s->dir=(value/10000);
 			}
 			break;
 			
 		case ITEMENGINEANIMATE:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				((item*)(s))->do_animation=value;
+				s->do_animation=value;
 			}
 			break;
 			
 		case ITEMSHADOWSPR:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				((item*)(s))->spr_shadow=vbound(value/10000,0,255);
+				s->spr_shadow=vbound(value/10000,0,255);
 			}
 			break;
 		case ITEMDROPPEDBY:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				((item*)(s))->from_dropset=vbound(value/10000,-1,255);
+				s->from_dropset=vbound(value/10000,-1,255);
 			}
 			break;
 		case ITMSWHOOKED:
 			break; //read-only
 		case ITEMFORCEGRAB:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				((item*)(s))->set_forcegrab(value!=0);
+				s->set_forcegrab(value!=0);
 			}
 			break;
 		case ITEMNOSOUND:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				((item*)(s))->noSound = (value!=0);
+				s->noSound = (value!=0);
 			}
 			break;
 		case ITEMNOHOLDSOUND:
-			if(0!=(s=checkItem(ri->itemref)))
+			if (auto s = checkItem(ri->itemref))
 			{
-				((item*)(s))->noHoldSound = (value!=0);
+				s->noHoldSound = (value!=0);
 			}
 			break;
 
