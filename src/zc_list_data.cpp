@@ -3,6 +3,7 @@
 #include "subscr.h"
 #include "zc/zelda.h"
 #include "zq/zquest.h"
+#include "zq/zq_misc.h"
 #include "qst.h"
 #include "zinfo.h"
 #include "base/misctypes.h"
@@ -13,8 +14,10 @@ extern zcmodule moduledata;
 extern char *weapon_string[];
 extern char *sfx_string[];
 extern char *item_string[];
+extern const char* old_guy_string[OLDMAXGUYS];
 extern char *guy_string[eMAXGUYS];
-extern const char *old_guy_string[OLDMAXGUYS];
+extern const char *enetype_string[eeMAX];
+extern const char *eneanim_string[aMAX];
 extern item_drop_object item_drop_sets[MAXITEMDROPSETS];
 
 #ifdef IS_PARSER
@@ -221,6 +224,52 @@ GUI::ListData GUI::ZCListData::enemies(bool numbered, bool defaultFilter)
 	return ls;
 }
 
+GUI::ListData GUI::ZCListData::efamilies()
+{
+	std::map<std::string, int32_t> vals;
+
+	std::string none(moduledata.enem_type_names[0]);
+	if (skipchar(moduledata.enem_type_names[0][0]))
+		none = "(None)";
+
+	GUI::ListData ls;
+	ls.add(none, eeNONE);
+	for (int32_t q = 1; q < eeMAX; ++q)
+	{
+		if (skipchar(moduledata.enem_type_names[q][0]))
+			continue;
+		if (q==eeNONE)
+			continue;
+
+		std::string sname(moduledata.enem_type_names[q]);
+		ls.add(sname, q);
+	}
+
+	return ls;
+}
+
+GUI::ListData GUI::ZCListData::eanimations()
+{
+	std::map<std::string, int32_t> vals;
+
+	std::string none(moduledata.enem_anim_type_names[0]);
+	if (skipchar(moduledata.enem_anim_type_names[0][0]))
+		none = "(None)";
+
+	GUI::ListData ls;
+	ls.add(none, 0);
+	for (int32_t q = 1; q < aMAX; ++q)
+	{
+		if (skipchar(moduledata.enem_anim_type_names[q][0]))
+			continue;
+
+		std::string sname(moduledata.enem_anim_type_names[q]);
+		ls.add(sname, q);
+	}
+	ls.alphabetize();
+	return ls;
+}
+
 GUI::ListData GUI::ZCListData::items(bool numbered, bool none)
 {
 	map<std::string, int32_t> ids;
@@ -255,9 +304,14 @@ GUI::ListData GUI::ZCListData::dropsets(bool numbered, bool none)
 	
 	for(int32_t q=0; q < MAXITEMDROPSETS; ++q)
 	{
-		char const* dropname = item_drop_sets[q].name;
+		char* dropname = item_drop_sets[q].name;
 		std::string name;
-		if(numbered)
+		if (dropname[0] == 0)
+		{
+			sprintf(dropname, "zz%03d", q);
+			name = dropname;
+		}
+		else if(numbered)
 			name = fmt::format("{} ({:03})", dropname, q);
 		else name = dropname;
 		
@@ -515,6 +569,33 @@ GUI::ListData GUI::ZCListData::lweaptypes()
 		ls.add(sname, i);
 	}
 	
+	return ls;
+}
+
+GUI::ListData GUI::ZCListData::eweaptypes()
+{
+	std::map<std::string, int32_t> vals;
+
+	std::string none(moduledata.enemy_weapon_names[0]);
+	if (skipchar(moduledata.enemy_weapon_names[0][0]))
+		none = "(None)";
+
+	GUI::ListData ls;
+	ls.add(none, 0);
+	for (int32_t i = 1; i < wMax-wEnemyWeapons; ++i)
+	{
+		if (skipchar(moduledata.enemy_weapon_names[i][0]))
+			continue;
+
+		std::string sname(moduledata.enemy_weapon_names[i]);
+		ls.add(sname, wEnemyWeapons+i);
+	}
+	for (int32_t i = 0; i < 10; ++i)
+	{
+		std::string sname(moduledata.enemy_scriptweaponweapon_names[i]);
+		ls.add(sname, 30+i);
+	}
+
 	return ls;
 }
 
