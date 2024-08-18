@@ -1062,7 +1062,6 @@ int32_t getEWeaponByScriptUID(int32_t sUID);
 //Deletion functions
 void do_lweapon_delete();
 void do_eweapon_delete();
-bool do_itemsprite_delete();
 
 
 	static INLINE int32_t ZSbound_byte(int32_t val)
