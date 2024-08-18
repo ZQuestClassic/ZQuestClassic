@@ -1090,7 +1090,6 @@ void do_eweapon_delete();
 	}
 	
 static void set_screenwarpReturnY(mapscr *m, int32_t d, int32_t value);
-static void set_screendoor(mapscr *m, int32_t d, int32_t value);
 static void set_screenenemy(mapscr *m, int32_t index, int32_t value);
 static void set_screenlayeropacity(mapscr *m, int32_t d, int32_t value);
 static void set_screensecretcombo(mapscr *m, int32_t d, int32_t value);
@@ -1112,7 +1111,6 @@ static void set_screenatchall(mapscr *m, int32_t value);
 static void deallocateArray(const int32_t ptrval);
 static int32_t get_screen_d(int32_t index1, int32_t index2);
 static void set_screen_d(int32_t index1, int32_t index2, int32_t val);
-static int32_t whichlayer(int32_t scr);
 
 static void do_zapout();
 static void do_zapin();
@@ -1514,52 +1512,8 @@ int32_t get_own_i(ScriptType type);
 void deallocateArray(const int32_t ptrval);
 void clearScriptHelperData();
 
-void do_getscreenflags();
-void do_getscreeneflags();
-int32_t get_screendoor(mapscr *m, int32_t d);
-int32_t get_screenlayeropacity(mapscr *m, int32_t d);
-int32_t get_screensecretcombo(mapscr *m, int32_t d);
-int32_t get_screensecretcset(mapscr *m, int32_t d);
-int32_t get_screensecretflag(mapscr *m, int32_t d);
-int32_t get_screenlayermap(mapscr *m, int32_t d);
-int32_t get_screenlayerscreen(mapscr *m, int32_t d);
-int32_t get_screenpath(mapscr *m, int32_t d);
-int32_t get_screenwarpReturnX(mapscr *m, int32_t d);
-int32_t get_screenwarpReturnY(mapscr *m, int32_t d);
-
-int32_t get_screenGuy(mapscr *m);
-int32_t get_screenString(mapscr *m);
-int32_t get_screenRoomtype(mapscr *m);
-int32_t get_screenViewY(mapscr *m);
-int32_t get_screenEntryX(mapscr *m);
-int32_t get_screenEntryY(mapscr *m);
-int32_t get_screenitem(mapscr *m);
-int32_t get_screenundercombo(mapscr *m);
-int32_t get_screenundercset(mapscr *m);
-int32_t get_screenatchall(mapscr *m);
-void do_getscreenLayerOpacity();
-void do_getscreenSecretCombo();
-void do_getscreenSecretCSet();
-void do_getscreenSecretFlag();
-void do_getscreenLayerMap();
-void do_getscreenLayerscreen();
-void do_getscreenPath();
-void do_getscreenWarpReturnX();
-void do_getscreenWarpReturnY();
-void do_getscreenatchall();
-void do_getscreenUndercombo();
-void do_getscreenUnderCSet();
-void do_getscreenWidth();
-void do_getscreenHeight();
-void do_getscreenGuy();
-void do_getscreenString();
-void do_getscreenRoomType();
-void do_getscreenEntryX();
-void do_getscreenEntryY();
-void do_getscreenItem();
-void do_getscreendoor();
-int32_t get_screennpc(mapscr *m, int32_t index);
-void do_getscreennpc();
+int32_t get_screenflags(mapscr *m, int32_t flagset);
+int32_t get_screeneflags(mapscr *m, int32_t flagset);
 
 // Defines for script flags
 #define TRUEFLAG          0x0001
@@ -1935,5 +1889,8 @@ extern byte flagpos;
 extern int32_t flagval;
 void clear_ornextflag();
 void ornextflag(bool flag);
+
+int32_t get_mi(int32_t ref = MAPSCR_TEMP0);
+int32_t get_total_mi(int32_t ref = MAPSCR_TEMP0);
 
 #endif
