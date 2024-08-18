@@ -304,12 +304,11 @@ GUI::ListData GUI::ZCListData::dropsets(bool numbered, bool none)
 	
 	for(int32_t q=0; q < MAXITEMDROPSETS; ++q)
 	{
-		char* dropname = item_drop_sets[q].name;
+		std::string dropname = item_drop_sets[q].name;
 		std::string name;
 		if (dropname[0] == 0)
 		{
-			sprintf(dropname, "zz%03d", q);
-			name = dropname;
+			name = fmt::format("zz{:03}", q);
 		}
 		else if(numbered)
 			name = fmt::format("{} ({:03})", dropname, q);
