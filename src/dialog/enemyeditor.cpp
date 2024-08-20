@@ -666,7 +666,7 @@ void EnemyEditorDialog::updateWarnings()
 #define ACTION_FIELD_WID 6_em
 #define FLAGS_WID 24_em
 
-std::shared_ptr<GUI::Widget> EnemyEditorDialog::NumberField(auto* data, auto _min, auto _max, int _length)
+std::shared_ptr<GUI::Widget> EnemyEditorDialog::NumberField(auto* data, auto _min, auto _max, int _length, bool _disabled)
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
@@ -674,6 +674,7 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::NumberField(auto* data, auto _mi
 	return TextField(
 		type = GUI::TextField::type::INT_DECIMAL,
 		maxLength = _length,
+		disabled = _disabled,
 		hAlign = 1.0, fitParent = true,
 		val = *data,
 		low = _min,
@@ -705,13 +706,14 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::NameField(string const& str)
 	);
 }
 
-std::shared_ptr<GUI::Widget> EnemyEditorDialog::DropDownField(auto* field, GUI::ListData const& ls)
+std::shared_ptr<GUI::Widget> EnemyEditorDialog::DropDownField(auto* field, GUI::ListData const& ls, bool _disabled)
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
 
 	return DropDownList(
 		data = ls,
+		disabled = _disabled,
 		hAlign = 0.0,
 		selectedValue = *field,
 		fitParent = true,
@@ -869,6 +871,10 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 #define HAS_SHIELD (local_guyref.family==eeWALK||local_guyref.family==eeFIRE||local_guyref.family==eeOTHER)
 #define	TURNFREQHALTRATE local_guyref.family == eeKEESE || local_guyref.family == eeGHINI || local_guyref.family == eePEAHAT || local_guyref.family == eeMANHAN \
 	|| local_guyref.family == eeGLEEOK || local_guyref.family == eePATRA || local_guyref.family == eeDIG ? "Turn Freq:" : "Halt Rate:"
+#define	TURNFREQHALTRATEHINT local_guyref.family == eeKEESE || local_guyref.family == eeGHINI || local_guyref.family == eePEAHAT || local_guyref.family == eeMANHAN \
+	|| local_guyref.family == eeGLEEOK || local_guyref.family == eePATRA || local_guyref.family == eeDIG ? \
+	"Turn Freq: How often this enemy considers turning after moving to a new combo\nranging from 0 (never)to 16 (always)." : \
+	"Halt Rate: How often this enemy considers stopping after moving to a new combo\nranging from 0 (never)to 16 (always)."
 
 	char titlebuf[256];
 	sprintf(titlebuf, "Enemy %d: %s", index, guy_string[index]);
@@ -1148,34 +1154,47 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 							)
 						),
 						Frame(title = "Stats",
-							Rows_Columns<2, 5>(hAlign = 1.0,
-								Label(text = "HP:", hAlign = 1.0),
+							Rows_Columns<3, 5>(hAlign = 1.0,
+								Label(text = "HP:", hAlign = 1.0, rightPadding = 0_px),
+								INFOBTN("How many hit points this enemy has."),
 								NumberField(&local_guyref.hp, 0, 32767, 5),
-								Label(text = "Damage:", hAlign = 1.0),
+								Label(text = "Damage:", hAlign = 1.0, rightPadding = 0_px),
+								INFOBTN("How much HP the player loses if this enemy touches him."),
 								NumberField(&local_guyref.dp, 0, 32767, 5),
-								Label(text = "W. Damage:", hAlign = 1.0),
+								Label(text = "W. Damage:", hAlign = 1.0, rightPadding = 0_px),
+								INFOBTN("How much HP the player loses if this enemy's weapon hits him"),
 								NumberField(&local_guyref.wdp, 0, 32767, 5),
-								Label(text = "Hunger:", hAlign = 1.0),
+								Label(text = "Hunger:", hAlign = 1.0, rightPadding = 0_px),
+								INFOBTN("Determines how attracted this enemy is to the Bait weapon. \n"
+									"The range of values is 0 (no response) to 4 (extremely attracted)."),
 								NumberField(&local_guyref.grumble, 0, 4, 1),
 								Checkbox(
 									text = "Use Boss CSet",
 									boxPlacement = GUI::Checkbox::boxPlacement::RIGHT,
 									checked = local_guyref.cset == 14,
-									colSpan = 2,
+									colSpan = 3,
 									onToggleFunc = [&](bool state)
 									{
 										local_guyref.cset = state ? 14 : 8;
 									}
 								),
 								Label(text = TURNFREQHALTRATE, hAlign = 1.0, rightPadding = 0_px),
+								INFOBTN(TURNFREQHALTRATEHINT),
 								NumberField(&local_guyref.hrate, 0, MAXHALT, 4),
 								Label(text = "Random Rate:", hAlign = 1.0, rightPadding = 0_px),
+								INFOBTN("How often this enemy considers changing direction after stepping upon a new combo.\n"
+										"ranging from 0 (never)to 16 (always)."),
 								NumberField(&local_guyref.rate, 0, MAXRATE, 4),
 								Label(text = "Homing Factor:", hAlign = 1.0, rightPadding = 0_px),
+								INFOBTN("How often this enemy changes to a direction that points toward the player.\n"
+										"ranging from 0 (never)to 255 (always)."),
 								NumberField(&local_guyref.homing, 0, MAXHOMING, 4),
 								Label(text = "Step Speed:", hAlign = 1.0, rightPadding = 0_px),
+								INFOBTN("Movement speed. 100 step speed is 1 pixel per frame. \n"
+										"Note that only certain enemy types use this."),
 								NumberField(&local_guyref.step, 0, MAXSTEP, 4),
 								Label(text = "Boss CSet:", hAlign = 1.0, rightPadding = 0_px),
+								INFOBTN("If enabled the enemy will use CSet 14, and load the specified ESP to CSet 14"),
 								NumberField(&local_guyref.bosspal, -1, 29, 2)
 							)
 						)
@@ -1195,22 +1214,22 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 									Label(text = "Item Set:", hAlign = 1.0, rightPadding = 0_px),
 									DropDownField(&local_guyref.item_set, list_dropsets),
 									//
-									Label(text = "Old Anim:", hAlign = 1.0, rightPadding = 0_px),
-									DropDownField(&local_guyref.anim, list_animations),
-									Label(text = "ASpeed:", hAlign = 1.0, rightPadding = 0_px),
-									NumberField(&local_guyref.frate, 0, 256, 3),
+									Label(text = "Old Anim:", hAlign = 1.0, rightPadding = 0_px, disabled=get_qr(qr_NEWENEMYTILES)),
+									DropDownField(&local_guyref.anim, list_animations, get_qr(qr_NEWENEMYTILES)),
+									Label(text = "ASpeed:", hAlign = 1.0, rightPadding = 0_px, disabled=get_qr(qr_NEWENEMYTILES)),
+									NumberField(&local_guyref.frate, 0, 256, 3, get_qr(qr_NEWENEMYTILES)),
 									//
-									Label(text = "New Anim:", hAlign = 1.0, rightPadding = 0_px),
-									DropDownField(&local_guyref.e_anim, list_animations),
-									Label(text = "ASpeed:", hAlign = 1.0, rightPadding = 0_px),
-									NumberField(&local_guyref.e_frate, 0, 256, 3)
+									Label(text = "New Anim:", hAlign = 1.0, rightPadding = 0_px, disabled = !get_qr(qr_NEWENEMYTILES)),
+									DropDownField(&local_guyref.e_anim, list_animations, !get_qr(qr_NEWENEMYTILES)),
+									Label(text = "ASpeed:", hAlign = 1.0, rightPadding = 0_px, disabled = !get_qr(qr_NEWENEMYTILES)),
+									NumberField(&local_guyref.e_frate, 0, 256, 3, !get_qr(qr_NEWENEMYTILES))
 									//
 								)
 							)
 						)
 					)
 				)
-			))	
+			))
 		))
 	);
 	auto attributes_tab = TabPanel(
@@ -1234,7 +1253,7 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 			ptr = &guy_tabs[6],
 			TabRef(name = "Defenses 1", Row(
 				Columns<10>(hAlign = 1.0, vAlign = 1.0, rowSpacing = 0.5_em,
-					Label(text = "Brang Defense", hAlign = 1.0, rightPadding=0_px, disabled = NoDefenses()),
+					Label(text = "Brang Defense", hAlign = 1.0, rightPadding = 0_px, disabled = NoDefenses()),
 					Label(text = "Bomb Defense", hAlign = 1.0, rightPadding = 0_px, disabled = NoDefenses()),
 					Label(text = "Super Bomb Defense", hAlign = 1.0, rightPadding = 0_px, disabled = NoDefenses()),
 					Label(text = "Arrow Defense", hAlign = 1.0, rightPadding = 0_px, disabled = NoDefenses()),
@@ -1253,7 +1272,14 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 					DefenseField(&local_guyref.defense[edefMAGIC], list_deftypes),
 					DefenseField(&local_guyref.defense[edefHOOKSHOT], list_deftypes),
 					DefenseField(&local_guyref.defense[edefHAMMER], list_deftypes),
-					DefenseField(&local_guyref.defense[edefSWORD], list_deftypes)
+					DefenseField(&local_guyref.defense[edefSWORD], list_deftypes),
+					Button(
+						text = "Set All",
+						minwidth = 40_px,
+						forceFitH = true,
+						vPadding = 0_px,
+						onClick = message::SETALLDEFENSE
+					)
 				)
 			)),
 			TabRef(name = "Defenses 2", Row(
@@ -1634,6 +1660,14 @@ bool EnemyEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		rerun_dlg = true;
 		return true;
 	}
+	case message::SETALLDEFENSE:
+	{
+		for (int q = 0; q < edefLAST255; ++q)
+			local_guyref.defense[q] = local_guyref.defense[edefBRANG];
+		loadEnemyType();
+		rerun_dlg = true;
+		return true;
+	}
 	case message::CLEAR:
 	{
 		bool doclear = false;
@@ -1645,8 +1679,8 @@ bool EnemyEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			}).show();
 		if (doclear)
 		{
-			local_guyref = guysbuf[eNONE];
-			sprintf(guy_string[index], "e%03d", index);
+			local_guyref = guysbuf[0];
+			enemy_name = fmt::format("e{:03}", index);
 			rerun_dlg = true;
 			return true;
 		}
@@ -1663,15 +1697,31 @@ bool EnemyEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			}).show();
 		if (doclear)
 		{
+			local_guyref = default_guys[0];
 			if (index < 177)
 			{
 				local_guyref = default_guys[index];
-				strncpy(guy_string[index], old_guy_string[index], strlen(old_guy_string[index]));
+				string name = old_guy_string[index];
+				enemy_name = name;
+				// sprites
+				local_guyref.spr_shadow = (local_guyref.family == eeROCK && local_guyref.attributes[9] == 1) ? iwLargeShadow : iwShadow;
+				local_guyref.spr_death = iwDeath;
+				local_guyref.spr_spawn = iwSpawn;
+				// darknuts
+				if (index == eDKNUT1 || index == eDKNUT2 || index == eDKNUT3 || index == eDKNUT4 || index == eDKNUT5)
+				{
+					if (get_qr(qr_NEWENEMYTILES))
+					{
+						local_guyref.s_tile = local_guyref.e_tile + 120;
+						local_guyref.s_width = local_guyref.e_width;
+						local_guyref.s_height = local_guyref.e_height;
+					}
+					else local_guyref.s_tile = 860;
+				}
 			}
 			else
 			{
-				local_guyref = default_guys[eNONE]; //enemies above 176 dont have defaults!
-				sprintf(guy_string[index], "e%03d", index);
+				enemy_name = fmt::format("e{:03}", index);
 			}
 			rerun_dlg = true;
 			return true;

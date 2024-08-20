@@ -21,7 +21,7 @@ class EnemyEditorDialog : public GUI::Dialog<EnemyEditorDialog>
 {
 public:
 	enum class message {
-		REFR_INFO, ENEMYTYPE, OK, CANCEL, CLEAR, DEFAULT, WARNINGS
+		REFR_INFO, ENEMYTYPE, SETALLDEFENSE, OK, CANCEL, CLEAR, DEFAULT, WARNINGS
 	};
 
 
@@ -67,11 +67,11 @@ private:
 	GUI::ListData list_enemies, list_families, list_animations, list_guyscripts, list_ewpnscripts,
 		list_sfx, list_counters_nn, list_dropsets, list_sprites, list_eweaptype, list_deftypes;
 
-	std::shared_ptr<GUI::Widget> NumberField(auto* data, auto _min, auto _max, int _length = 5);
+	std::shared_ptr<GUI::Widget> NumberField(auto* data, auto _min, auto _max, int _length = 5, bool _disabled = false);
 
 	std::shared_ptr<GUI::Widget> NameField(string const& str);
 
-	std::shared_ptr<GUI::Widget> DropDownField(auto* field, GUI::ListData const& ls);
+	std::shared_ptr<GUI::Widget> DropDownField(auto* field, GUI::ListData const& ls, bool _disabled = false);
 
 	bool NoDefenses();
 
