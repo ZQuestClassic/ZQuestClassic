@@ -1210,7 +1210,13 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 						)
 					)
 				)
-			)),
+			))	
+		))
+	);
+	auto attributes_tab = TabPanel(
+		ptr = &guy_tabs[3],
+		TabRef(name = "Attributes", TabPanel(
+			ptr = &guy_tabs[4],
 			TabRef(name = "Attributes 1", Row(
 				attributes1_tab
 			)),
@@ -1219,47 +1225,13 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 			)),
 			TabRef(name = "Attributes 3", Row(
 				attributes3_tab
-			)),
-			TabRef(name = "Size Flags", Row(
-				Columns_Rows<10,3>(hAlign = 1.0, vAlign = 1.0,
-					Label(text = "TileWidth:", hAlign = 1.0, rightPadding = 0_px),
-					Label(text = "TileHeight:", hAlign = 1.0, rightPadding = 0_px),
-					Label(text = "HitWidth:", hAlign = 1.0, rightPadding = 0_px),
-					Label(text = "HitHeight:", hAlign = 1.0, rightPadding = 0_px),
-					Label(text = "HitZHeight:", hAlign = 1.0, rightPadding = 0_px),
-					Label(text = "HitXOffset:", hAlign = 1.0, rightPadding = 0_px),
-					Label(text = "HitYOffset:", hAlign = 1.0, rightPadding = 0_px),
-					Label(text = "DrawZOffset:", hAlign = 1.0, rightPadding = 0_px),
-					Label(text = "DrawXOffset:", hAlign = 1.0, rightPadding = 0_px),
-					Label(text = "DrawYOffset:", hAlign = 1.0, rightPadding = 0_px),
-					NumberField(&local_guyref.txsz, 0, 4, 1),
-					NumberField(&local_guyref.tysz, 0, 4, 1),
-					NumberField(&local_guyref.hxsz, 0, 64, 3),
-					NumberField(&local_guyref.hysz, 0, 64, 3),
-					NumberField(&local_guyref.hzsz, 0, 64, 3),
-					NumberField(&local_guyref.hxofs, -64, 64, 3),
-					NumberField(&local_guyref.hyofs, -64, 64, 3),
-					NumberField(&local_guyref.zofs, -1000, 1000, 5),
-					NumberField(&local_guyref.xofs, -1000, 1000, 5),
-					NumberField(&local_guyref.yofs, -1000, 1000, 5),
-					SizeFlag(guyflagOVERRIDE_TILE_WIDTH),
-					SizeFlag(guyflagOVERRIDE_TILE_HEIGHT),
-					SizeFlag(guyflagOVERRIDE_HIT_WIDTH),
-					SizeFlag(guyflagOVERRIDE_HIT_HEIGHT),
-					SizeFlag(guyflagOVERRIDE_HIT_Z_HEIGHT),
-					SizeFlag(guyflagOVERRIDE_HIT_X_OFFSET),
-					SizeFlag(guyflagOVERRIDE_HIT_Y_OFFSET),
-					SizeFlag(guyflagOVERRIDE_DRAW_Z_OFFSET),
-					SizeFlag(guyflagOVERRIDE_DRAW_X_OFFSET),
-					SizeFlag(guyflagOVERRIDE_DRAW_Y_OFFSET)
-				)
 			))
 		))
 	);
 	auto defenses_tab = TabPanel(
-		ptr = &guy_tabs[3],
+		ptr = &guy_tabs[5],
 		TabRef(name = "Defenses", TabPanel(
-			ptr = &guy_tabs[4],
+			ptr = &guy_tabs[6],
 			TabRef(name = "Defenses 1", Row(
 				Columns<10>(hAlign = 1.0, vAlign = 1.0, rowSpacing = 0.5_em,
 					Label(text = "Brang Defense", hAlign = 1.0, rightPadding=0_px, disabled = NoDefenses()),
@@ -1335,10 +1307,10 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 		))
 	);
 	auto flags_tab = TabPanel(
-		ptr = &guy_tabs[5],
+		ptr = &guy_tabs[7],
 		TabRef(name = "Flags", TabPanel(
-			ptr = &guy_tabs[6],
-			TabRef(name = "Basic Flags", Row(
+			ptr = &guy_tabs[8],
+			TabRef(name = "Basic", Row(
 				Column(hAlign = 1.0, fitParent = true,
 					GuyFlag(guy_bhit, "Damaged By Power 0 weapons"),
 					GuyFlag(guy_invisible, "Does not draw"),
@@ -1356,7 +1328,7 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 					GuyFlag(guy_bkshield, "Hammer Can Break Shield", !HAS_SHIELD)
 				)
 			)),
-			TabRef(name = "Behavior Flags", Row(
+			TabRef(name = "Behavior", Row(
 				Column(
 					EditorFlag(0),
 					EditorFlag(1),
@@ -1376,7 +1348,7 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 					EditorFlag(15)
 				)
 			)),
-			TabRef(name = "Spawn Flags", Row(
+			TabRef(name = "Spawning", Row(
 				Column(hAlign = 1.0, fitParent = true,
 					GuyFlag(guy_zora, "Spawned By 'Fish' Screen Flag"),
 					GuyFlag(guy_rock, "Spawned By 'Falling Rocks' Screen Flag"),
@@ -1393,15 +1365,9 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 					GuyFlag(guy_ganon, "Spawned By 'Ganon' Room Type"),
 					GuyFlag(guy_ignoretmpnr, "Ignores 'Temp No Return'")
 				)
-			))
-		))
-	);
-	auto movement_tab = TabPanel(
-		ptr = &guy_tabs[7],
-		TabRef(name = "Movement", TabPanel(
-			ptr = &guy_tabs[8],
-			TabRef(name = "Move Flags", Column(
-				Frame(title = "Basic Move Flags", hAlign = 1.0, fitParent = true,
+			)),
+			TabRef(name = "Movement", Column(
+				Frame(title = "Basic Movement", hAlign = 1.0, fitParent = true,
 					Column(hAlign = 1.0, fitParent = true,
 						MoveFlag(move_obeys_grav, "Obeys Gravity"),
 						MoveFlag(move_can_pitfall, "Can Fall Into Pitfalls"),
@@ -1421,6 +1387,40 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 						MoveFlag(move_ignore_blockflags, "Can walk through No Enemies Flags"),
 						MoveFlag(move_ignore_screenedge, "Can walk through Screen Edge")
 					)
+				)
+			)),
+			TabRef(name = "Size", Row(
+				Columns_Rows<10, 3>(hAlign = 1.0, vAlign = 1.0,
+					Label(text = "TileWidth:", hAlign = 1.0, rightPadding = 0_px),
+					Label(text = "TileHeight:", hAlign = 1.0, rightPadding = 0_px),
+					Label(text = "HitWidth:", hAlign = 1.0, rightPadding = 0_px),
+					Label(text = "HitHeight:", hAlign = 1.0, rightPadding = 0_px),
+					Label(text = "HitZHeight:", hAlign = 1.0, rightPadding = 0_px),
+					Label(text = "HitXOffset:", hAlign = 1.0, rightPadding = 0_px),
+					Label(text = "HitYOffset:", hAlign = 1.0, rightPadding = 0_px),
+					Label(text = "DrawZOffset:", hAlign = 1.0, rightPadding = 0_px),
+					Label(text = "DrawXOffset:", hAlign = 1.0, rightPadding = 0_px),
+					Label(text = "DrawYOffset:", hAlign = 1.0, rightPadding = 0_px),
+					NumberField(&local_guyref.txsz, 0, 4, 1),
+					NumberField(&local_guyref.tysz, 0, 4, 1),
+					NumberField(&local_guyref.hxsz, 0, 64, 3),
+					NumberField(&local_guyref.hysz, 0, 64, 3),
+					NumberField(&local_guyref.hzsz, 0, 64, 3),
+					NumberField(&local_guyref.hxofs, -64, 64, 3),
+					NumberField(&local_guyref.hyofs, -64, 64, 3),
+					NumberField(&local_guyref.zofs, -1000, 1000, 5),
+					NumberField(&local_guyref.xofs, -1000, 1000, 5),
+					NumberField(&local_guyref.yofs, -1000, 1000, 5),
+					SizeFlag(guyflagOVERRIDE_TILE_WIDTH),
+					SizeFlag(guyflagOVERRIDE_TILE_HEIGHT),
+					SizeFlag(guyflagOVERRIDE_HIT_WIDTH),
+					SizeFlag(guyflagOVERRIDE_HIT_HEIGHT),
+					SizeFlag(guyflagOVERRIDE_HIT_Z_HEIGHT),
+					SizeFlag(guyflagOVERRIDE_HIT_X_OFFSET),
+					SizeFlag(guyflagOVERRIDE_HIT_Y_OFFSET),
+					SizeFlag(guyflagOVERRIDE_DRAW_Z_OFFSET),
+					SizeFlag(guyflagOVERRIDE_DRAW_X_OFFSET),
+					SizeFlag(guyflagOVERRIDE_DRAW_Y_OFFSET)
 				)
 			))
 		))
@@ -1456,41 +1456,33 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 			ptr = &guy_tabs[12],
 			TabRef(name = "Basic", Column(
 				Frame(title = "Sprites", hAlign = 1.0, fitParent = true,
-					Rows<3>(hAlign = 1.0, rowSpacing=0.5_em,
+					Rows<2>(hAlign = 1.0, rowSpacing=0.5_em,
 						Label(text = "Shadow Sprite:", hAlign = 1.0, rightPadding = 0_px),
 						DropDownField(&local_guyref.spr_shadow, list_sprites),
-						INFOBTN("Sprite drawn underneath the enemy while it's jumping/flying etc./n"
-							"This will do absolutely nothing unless shadows are enabled."),
 						//
 						Label(text = "Spawn Sprite:", hAlign = 1.0, rightPadding = 0_px),
 						DropDownField(&local_guyref.spr_death, list_sprites),
-						INFOBTN("Appears when the enemy first spawns"),
 						//
 						Label(text = "Death Sprite:", hAlign = 1.0, rightPadding = 0_px),
-						DropDownField(&local_guyref.spr_spawn, list_sprites),
-						INFOBTN("Appears when the enemy dies.")
+						DropDownField(&local_guyref.spr_spawn, list_sprites)
 					)
 				),
 				Frame(title = "SFX", hAlign = 1.0, fitParent = true,
-					Rows<3>(hAlign = 1.0, rowSpacing = 0.5_em,
+					Rows<2>(hAlign = 1.0, rowSpacing = 0.5_em,
 						Label(text = "BG Sound:", hAlign = 1.0, rightPadding = 0_px),
 						DropDownField(&local_guyref.bgsfx, list_sfx),
-						INFOBTN("Plays repeatedly as long as the enemy is alive"),
 						//
 						Label(text = "Hit Sound:", hAlign = 1.0, rightPadding = 0_px),
 						DropDownField(&local_guyref.hitsfx, list_sfx),
-						INFOBTN("Plays when the enemy is hit."),
 						//
 						Label(text = "Death Sound:", hAlign = 1.0, rightPadding = 0_px),
-						DropDownField(&local_guyref.deadsfx, list_sfx),
-						INFOBTN("Plays when the enemy dies.")
+						DropDownField(&local_guyref.deadsfx, list_sfx)
 					)
 				),
 				Frame(title = "Animation", hAlign = 1.0, fitParent = true,
-					Row(
+					Rows<2>(
 						Label(text = "Spawn Animation:", hAlign = 1.0, rightPadding = 0_px),
-						DropDownField(&spawn_type, list_spawntype),
-						INFOBTN("Animation used while spawning.")
+						DropDownField(&spawn_type, list_spawntype)
 					)
 				)
 			))
@@ -1575,9 +1567,9 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 			TabPanel(
 				ptr = &guy_tabs[0],
 				TabRef(name = "Basics", basics_tab),
+				TabRef(name = "Attributes", attributes_tab),
 				TabRef(name = "Defenses",defenses_tab),
 				TabRef(name = "Flags",flags_tab),
-				TabRef(name = "Movement",movement_tab),
 				TabRef(name = "Attack",attack_tab),
 				TabRef(name = "Effects",effects_tab),
 				TabRef(name = "Scripts",scripts_tab)
