@@ -301,7 +301,7 @@ static const GUI::ListData list_deathtype
 	{"Explode",1},
 	{"Eight Shards",1}, //Ganon
 	{"Robot Master",2}, //Megaman
-	{"Disinigrate",3}, //BS GANON
+	{"Disintegrate",3}, //BS GANON
 };
 
 void EnemyEditorDialog::refreshScript()
