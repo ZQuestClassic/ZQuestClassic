@@ -1534,15 +1534,7 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 					Row(
 						padding = 0_px,
 						SCRIPT_LIST_PROC("NPC Action Script:", list_guyscripts, local_guyref.script, refreshScript)
-					),
-					Checkbox(text = "Show Script Attrib Metadata",
-						checked = guy_use_script_data,
-						onToggleFunc = [&](bool state)
-						{
-							guy_use_script_data = state;
-							zc_set_config("zquest", "show_enemyscript_meta_attribs", state ? 1 : 0);
-							message::ENEMYTYPE;
-						})
+					)
 				)
 			)),
 			TabRef(name = "Weapon Script", Row(
@@ -1560,15 +1552,7 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 					Row(
 						padding = 0_px,
 						SCRIPT_LIST_PROC("Weapon Script:", list_ewpnscripts, local_guyref.weaponscript, refreshScript)
-					),
-					Checkbox(text = "Show Script Attrib Metadata",
-						checked = guy_use_script_data,
-						onToggleFunc = [&](bool state)
-						{
-							guy_use_script_data = state;
-							zc_set_config("zquest", "show_enemyscript_meta_attribs", state ? 1 : 0);
-							message::ENEMYTYPE;
-						})
+					)
 				)
 			))
 		))
