@@ -1698,7 +1698,7 @@ bool EnemyEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		if (doclear)
 		{
 			local_guyref = default_guys[0];
-			if (index < 177)
+			if (index < OLDMAXGUYS)
 			{
 				local_guyref = default_guys[index];
 				string name = old_guy_string[index];
