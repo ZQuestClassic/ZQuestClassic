@@ -31195,48 +31195,48 @@ void HeroClass::checkitems(int32_t index)
 
 void HeroClass::StartRefill(int32_t refillWhat)
 {
+	if(FFCore.quest_format[vZelda] < 0x255) 
+	{
+		//Yes, this isn't a QR check. This was implemented before the QRs got bumped up.
+		//I attempted to change this check to a quest rule, but here's the issue: this affects
+		//triforces and potions as well, not just fairy flags. This means that having a compat rule
+		//would result in a rule that is checked by default for every tileset or quest made before
+		//2.55, one in a place most people won't check. That means that if they were to go to use
+		//the new potion or triforce flags for jinx curing behavior, they'd find that it doesn't work,
+		//all because of an obscure compat rule being checked. Most peoples instincts are sadly not
+		//"go through the compat rules and turn them all off", so this remains a version check instead
+		//of a qr check. Don't make my mistake and waste time trying to change this in vain. -Deedee
+		Start250Refill(refillWhat);
+		return;
+	}
+
 	if(!refilling)
 	{
 		refillclk=21;
 		stop_sfx(QMisc.miscsfx[sfxLOWHEART]);
 		sfx(WAV_REFILL,128,true);
 		refilling=refillWhat;
-		if(FFCore.quest_format[vZelda] < 0x255) 
+
+		if(refill_why>=0) // Item index
 		{
-			//Yes, this isn't a QR check. This was implemented before the QRs got bumped up.
-			//I attempted to change this check to a quest rule, but here's the issue: this affects
-			//triforces and potions as well, not just fairy flags. This means that having a compat rule
-			//would result in a rule that is checked by default for every tileset or quest made before
-			//2.55, one in a place most people won't check. That means that if they were to go to use
-			//the new potion or triforce flags for jinx curing behavior, they'd find that it doesn't work,
-			//all because of an obscure compat rule being checked. Most peoples instincts are sadly not
-			//"go through the compat rules and turn them all off", so this remains a version check instead
-			//of a qr check. Don't make my mistake and waste time trying to change this in vain. -Deedee
-			Start250Refill(refillWhat);
+			if(itemsbuf[refill_why].family==itype_potion)
+			{
+				if(itemsbuf[refill_why].flags & item_flag3){swordclk=0;verifyAWpn();}
+				if(itemsbuf[refill_why].flags & item_flag4)itemclk=0;
+				if(itemsbuf[refill_why].flags & item_flag5)shieldjinxclk=0;
+			}
+			else if(itemsbuf[refill_why].family==itype_triforcepiece)
+			{
+				if(itemsbuf[refill_why].flags & item_flag3){swordclk=0;verifyAWpn();}
+				if(itemsbuf[refill_why].flags & item_flag4)itemclk=0;
+				if(itemsbuf[refill_why].flags & item_flag5)shieldjinxclk=0;
+			}
 		}
-		else //use 2.55+ behavior
+		else if(refill_why==REFILL_FAIRY)
 		{
-			if(refill_why>=0) // Item index
-			{
-				if(itemsbuf[refill_why].family==itype_potion)
-				{
-					if(itemsbuf[refill_why].flags & item_flag3){swordclk=0;verifyAWpn();}
-					if(itemsbuf[refill_why].flags & item_flag4)itemclk=0;
-					if(itemsbuf[refill_why].flags & item_flag5)shieldjinxclk=0;
-				}
-				else if(itemsbuf[refill_why].family==itype_triforcepiece)
-				{
-					if(itemsbuf[refill_why].flags & item_flag3){swordclk=0;verifyAWpn();}
-					if(itemsbuf[refill_why].flags & item_flag4)itemclk=0;
-					if(itemsbuf[refill_why].flags & item_flag5)shieldjinxclk=0;
-				}
-			}
-			else if(refill_why==REFILL_FAIRY)
-			{
-				if(!get_qr(qr_NONBUBBLEFAIRIES)){swordclk=0;verifyAWpn();}
-				if(get_qr(qr_ITEMBUBBLE))itemclk=0;
-				if(get_qr(qr_SHIELDBUBBLE))shieldjinxclk=0;
-			}
+			if(!get_qr(qr_NONBUBBLEFAIRIES)){swordclk=0;verifyAWpn();}
+			if(get_qr(qr_ITEMBUBBLE))itemclk=0;
+			if(get_qr(qr_SHIELDBUBBLE))shieldjinxclk=0;
 		}
 	}
 }
@@ -31249,7 +31249,16 @@ void HeroClass::Start250Refill(int32_t refillWhat)
 		stop_sfx(QMisc.miscsfx[sfxLOWHEART]);
 		sfx(WAV_REFILL,128,true);
 		refilling=refillWhat;
-		
+
+		// For ~2 years <2.55 quests were broken, never restoring anything on fairies.
+		// https://discord.com/channels/876899628556091432/1275805052006563861
+		if (replay_is_active() && replay_version_check(0, 35))
+		{
+			std::string qst = replay_get_meta_str("qst");
+			if (qst == "first_quest_layered.qst" || qst == "nes_remastered.qst" || qst == "demosp253.qst")
+				return;
+		}
+
 		if(refill_why>=0) // Item index
 		{
 			if((itemsbuf[refill_why].family==itype_potion)&&(!get_qr(qr_NONBUBBLEMEDICINE)))

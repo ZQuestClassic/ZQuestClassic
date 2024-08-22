@@ -61,10 +61,10 @@ jobs:
             for f in *.zip; do unzip $f -d ${f%.*}; done
           fi
 
-          if [[ $(find . -name test_results.json) ]] ; then
-            echo "Found test_results.json file(s)"
+          if [[ $(find . -name test_results.tar) ]] ; then
+            echo "Found test_results file(s)"
           else
-            echo "Found no test_results.json file"
+            echo "Found no test_results file"
             gh run cancel ${{ github.run_id }}
             gh run watch ${{ github.run_id }}
           fi
