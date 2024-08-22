@@ -46,19 +46,13 @@
 #include "fontsdat.h"
 #include "zconfig.h"
 #include "base/handles.h"
-#include "dcheck.h"
+#include "base/check.h"
 #include "flags.h"
 
 struct mapscr;
 class solid_object;
 class ffcdata;
 struct cpos_info;
-
-#define DCHECK_RANGE_INCLUSIVE(x, low, high) DCHECK(x >= low && x <= high)
-#define DCHECK_RANGE_EXCLUSIVE(x, low, high) DCHECK(x >= low && x < high)
-#define DCHECK_LAYER_ZERO_INDEX(l) DCHECK(l >= 0 && l < 7)
-#define DCHECK_LAYER_NEG1_INDEX(l) DCHECK(l >= -1 && l < 6)
-
 
 // These version fields are deprecated, and no longer update. Replaced by base/version.h
 #define ZELDA_VERSION       0x0255                         //version of the program
