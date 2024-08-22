@@ -135,7 +135,12 @@ FFCDialog::FFCDialog(mapscr* scr, int32_t ffind, ffdata const& init) :
 }
 
 //{ Macros
-#define SWAPFIELD(str, mem, lb, hb) \
+#define SWAPFIELD(str, mem, lb, hb, info) \
+Button(width = 2_em, leftPadding = 0_px, forceFitH = true, text = "?", \
+		onPressFunc = []() \
+		{ \
+			InfoDialog(str,info).show(); \
+		}),\
 Label(text = str, hAlign = 1.0), \
 TextField( \
 	type = GUI::TextField::type::SWAP_ZSINT, \
@@ -146,7 +151,12 @@ TextField( \
 		mem = val; \
 	})
 	
-#define SWAPFIELDS(str, mem, lb, hb) \
+#define SWAPFIELDS(str, mem, lb, hb, info) \
+Button(width = 2_em, leftPadding = 0_px, forceFitH = true, text = "?", \
+		onPressFunc = []() \
+		{ \
+			InfoDialog(str,info).show(); \
+		}),\
 Label(text = str, hAlign = 1.0), \
 TextField( \
 	type = GUI::TextField::type::SWAP_SSHORT, \
@@ -157,7 +167,12 @@ TextField( \
 		mem = (int16_t)val; \
 	})
 	
-#define SWAPFIELDB(str, mem, lb, hb, offs) \
+#define SWAPFIELDB(str, mem, lb, hb, offs, info) \
+Button(width = 2_em, leftPadding = 0_px, forceFitH = true, text = "?", \
+		onPressFunc = []() \
+		{ \
+			InfoDialog(str,info).show(); \
+		}),\
 Label(text = str, hAlign = 1.0), \
 TextField( \
 	type = GUI::TextField::type::SWAP_BYTE, \
@@ -167,7 +182,12 @@ TextField( \
 	{ \
 		mem = byte(val)-offs; \
 	})
-#define SWAPFIELDB_PROC(str, mem, lb, hb, offs, proc) \
+#define SWAPFIELDB_PROC(str, mem, lb, hb, offs, proc, info) \
+Button(width = 2_em, leftPadding = 0_px, forceFitH = true, text = "?", \
+		onPressFunc = []() \
+		{ \
+			InfoDialog(str,info).show(); \
+		}),\
 Label(text = str, hAlign = 1.0), \
 TextField( \
 	type = GUI::TextField::type::SWAP_BYTE, \
@@ -292,23 +312,60 @@ std::shared_ptr<GUI::Widget> FFCDialog::view()
 			TabPanel(
 				ptr = &ffctab,
 				TabRef(name = "Data", Row(
-					Rows<4>(
-						SWAPFIELD("X Pos:", ffc.x, SWAP_MIN, SWAP_MAX),
-						SWAPFIELD("X Speed:", ffc.dx, SWAP_MIN, SWAP_MAX),
+					Rows<6>(
+						SWAPFIELD("X Pos:", ffc.x, SWAP_MIN, SWAP_MAX, 
+							"This is the number of pixels from the left of the screen the FFC begins at.\n"
+							"Also note that if this value becomes smaller than - 32 or larger than 288,\n"
+							"it will either wrap around or be deactivated."),
+						SWAPFIELD("X Speed:", ffc.dx, SWAP_MIN, SWAP_MAX, 
+							"This is the initial velocity this FFC has parallel to the X-axis, in pixels per frame.\n"
+							"Positive numbers will move the FFC right, while a negative number can be entered to make\n"
+							"the FFC move left. Fractions may also be used.For example, entering a X Speed of 1 will make\n"
+							"the FFC move right 1 pixel every frame. Entering a X Speed of 0.5 will make the FFC move right\n"
+							"at 1 pixel per 2 frames"),
 						//
-						SWAPFIELD("Y Pos:", ffc.y, SWAP_MIN, SWAP_MAX),
-						SWAPFIELD("Y Speed:", ffc.dy, SWAP_MIN, SWAP_MAX),
+						SWAPFIELD("Y Pos:", ffc.y, SWAP_MIN, SWAP_MAX, 
+							"This is the number of pixels from the top of the screen the FFC begins at.\n"
+							"Note that if this value becomes smaller than -32 or larger than 208,\n"
+							"it will either wrap around or be deactivated."),
+						SWAPFIELD("Y Speed:", ffc.dy, SWAP_MIN, SWAP_MAX, 
+							"This is the initial velocity this FFC has parallel to the Y-axis, in pixels per frame.\n"
+							"Positive numbers will move the FFC down, while a negative number can be entered to make\n"
+							"the FFC move up. Fractions may also be used.For example, entering a Y Speed of 1 will make\n"
+							"the FFC move right 1 pixel every frame. Entering a Y Speed of 0.5 will make the FFC move down\n"
+							"at 1 pixel per 2 frames"),
 						//
-						SWAPFIELDB("Combo W:", ffc.fwid, 1, 64, 1),
-						SWAPFIELD("X Accel:", ffc.ax, SWAP_MIN, SWAP_MAX),
+						SWAPFIELDB("Combo W:", ffc.fwid, 1, 64, 1, 
+							"The Combo W. of a FFC denotes the width of the field of effect\n"
+							"that the FFC's Combo Type has in pixels. This also effects solidity and platforms!"),
+						SWAPFIELD("X Accel:", ffc.ax, SWAP_MIN, SWAP_MAX,
+							"This is the FFC's rightward acceleration.\n"
+							"A zero can be entered so that the FFC moves at a constant velocity,\n"
+							"or a negative number can be entered so the FFC accelerates leftward."),
 						//
-						SWAPFIELDB("Combo H:", ffc.fhei, 1, 64, 1),
-						SWAPFIELD("Y Accel:", ffc.ay, SWAP_MIN, SWAP_MAX),
+						SWAPFIELDB("Combo H:", ffc.fhei, 1, 64, 1, 
+							"The Combo H. of a FFC denotes the width of the field of effect\n"
+							"that the FFC's Combo Type has in pixels. This also effects solidity and platforms!"),
+						SWAPFIELD("Y Accel:", ffc.ay, SWAP_MIN, SWAP_MAX, 
+							"This is the FFC's downward acceleration.\n"
+							"A zero can be entered so that the FFC moves at a constant velocity,\n"
+							"or a negative number can be entered so the FFC accelerates upward."),
 						//
-						SWAPFIELDB_PROC("Tile W:", ffc.twid, 1, 4, 1, refreshSize),
-						SWAPFIELDS("A. Delay:", ffc.delay, 0, 9999),
+						SWAPFIELDB_PROC("Tile W:", ffc.twid, 1, 4, 1, refreshSize, 
+							"The Tile H. of a FFC denotes how large the height of the FFC will be drawn.\n"
+							"It will be drawn with tiles from the tile page, rather than the combo page.\n"
+							"If the FFC is larger than 1x1 tiles and the combo is animated,\n"
+							"the combo needs to use 'A.SkipX' and 'A.SkipY' values to animate as desired."),
+						SWAPFIELDS("A. Delay:", ffc.delay, 0, 9999,
+							"This is the delay, in frames, before the combo begins moving."),
 						//
-						SWAPFIELDB_PROC("Tile H:", ffc.thei, 1, 4, 1, refreshSize),
+						SWAPFIELDB_PROC("Tile H:", ffc.thei, 1, 4, 1, refreshSize,
+							"The Tile W. of a FFC denotes how large the width of the FFC will be drawn.\n"
+							"It will be drawn with tiles from the tile page, rather than the combo page.\n"
+							"If the FFC is larger than 1x1 tiles and the combo is animated,\n"
+							"the combo needs to use 'A.SkipX' and 'A.SkipY' values to animate as desired."),
+						INFO_BUTTON("FFC Link",
+							"FFCs can be linked to any movement of the former FFC is reflected in this 'linked' Combo.")
 						Label(text = "Link to:", hAlign = 1.0),
 						DropDownList(data = list_link,
 							fitParent = true,
