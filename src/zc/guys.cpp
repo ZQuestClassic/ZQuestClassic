@@ -30,7 +30,6 @@
 
 extern particle_list particles;
 
-extern FFScript FFCore;
 extern ZModule zcm;
 extern HeroClass   Hero;
 extern sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations;
@@ -121,28 +120,28 @@ void identifyCFEnemies()
 	
 	for(int32_t i=0; i<eMAXGUYS; i++)
 	{
-		if((guysbuf[i].flags2&guy_trph) && trapLOSHorizontalID==-1)
+		if((guysbuf[i].flags&guy_trph) && trapLOSHorizontalID==-1)
 			trapLOSHorizontalID=i;
-		if((guysbuf[i].flags2&guy_trpv) && trapLOSVerticalID==-1)
+		if((guysbuf[i].flags&guy_trpv) && trapLOSVerticalID==-1)
 			trapLOSVerticalID=i;
-		if((guysbuf[i].flags2&guy_trp4) && trapLOS4WayID==-1)
+		if((guysbuf[i].flags&guy_trp4) && trapLOS4WayID==-1)
 			trapLOS4WayID=i;
-		if((guysbuf[i].flags2&guy_trplr) && trapConstantHorizontalID==-1)
+		if((guysbuf[i].flags&guy_trplr) && trapConstantHorizontalID==-1)
 			trapConstantHorizontalID=i;
-		if((guysbuf[i].flags2&guy_trpud) && trapConstantVerticalID==-1)
+		if((guysbuf[i].flags&guy_trpud) && trapConstantVerticalID==-1)
 			trapConstantVerticalID=i;
 		
-		if((guysbuf[i].flags2&guy_trap) && cornerTrapID==-1)
+		if((guysbuf[i].flags&guy_trap) && cornerTrapID==-1)
 			cornerTrapID=i;
-		if((guysbuf[i].flags2&guy_trp2) && centerTrapID==-1)
+		if((guysbuf[i].flags&guy_trp2) && centerTrapID==-1)
 			centerTrapID=i;
 		
-		if((guysbuf[i].flags2&guy_rock) && rockID==-1)
+		if((guysbuf[i].flags&guy_rock) && rockID==-1)
 			rockID=i;
-		if((guysbuf[i].flags2&guy_zora) && zoraID==-1)
+		if((guysbuf[i].flags&guy_zora) && zoraID==-1)
 			zoraID=i;
 		
-		if((guysbuf[i].flags2 & guy_fire) && statueID==-1)
+		if((guysbuf[i].flags & guy_fire) && statueID==-1)
 			statueID=i;
 	}
 }
@@ -365,7 +364,7 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 //d variables
 
 	flags=d->flags;
-	flags2=d->flags2;
+	flags=d->flags;
 	s_tile=d->s_tile; //secondary (additional) tile(s)
 	family=d->family;
 	dcset=d->cset;
@@ -1734,7 +1733,7 @@ void enemy::leave_item()
 // auomatically kill off enemy (for rooms with ringleaders)
 void enemy::kickbucket()
 {
-	if(!superman && !(flags2&guy_ignore_kill_all))
+	if(!superman && !(flags&guy_ignore_kill_all))
 		hp=-1000;                                               // don't call death_sfx()
 }
 
@@ -3654,7 +3653,7 @@ int32_t enemy::takehit(weapon *w, weapon* realweap)
 		case wRefBeam:
 			// Mirror shielded enemies!
 #if 0
-			if(false /*flags2&guy_mirror*/ && !get_qr(qr_SWORDMIRROR))
+			if(false /*flags&guy_mirror*/ && !get_qr(qr_SWORDMIRROR))
 			{
 				if(wpnId>wEnemyWeapons)
 					return 0;
@@ -3670,7 +3669,7 @@ int32_t enemy::takehit(weapon *w, weapon* realweap)
 		case wRefFireball:
 		case wMagic:
 #if 0
-			if(false /*flags2&guy_mirror*/ && (wpnId!=wRefRock || get_qr(qr_REFLECTROCKS)))
+			if(false /*flags&guy_mirror*/ && (wpnId!=wRefRock || get_qr(qr_REFLECTROCKS)))
 			{
 				sfx(WAV_CHINK,pan(int32_t(x)));
 				return 3;
@@ -3968,7 +3967,7 @@ hitclock:
 
 bool enemy::dont_draw()
 {
-	if(fading==fade_invisible || (((flags2&guy_blinking)||(fading==fade_flicker)) && (clk&1)))
+	if(fading==fade_invisible || (((flags&guy_blinking)||(fading==fade_flicker)) && (clk&1)))
 		return true;
 		
 	if(flags&guy_invisible)
@@ -3988,7 +3987,7 @@ bool enemy::dont_draw()
 void enemy::draw(BITMAP *dest)
 {
 	didScriptThisFrame = false; //Since there's no better place to put it
-	if(fading==fade_invisible || (((flags2&guy_blinking)||(fading==fade_flicker)) && (clk&1))) 
+	if(fading==fade_invisible || (((flags&guy_blinking)||(fading==fade_flicker)) && (clk&1))) 
 		return;
 	if(flags&guy_invisible)
 		return;
@@ -6377,7 +6376,7 @@ int32_t enemy::n_frame_n_dir(int32_t frames, int32_t ndir, int32_t f4)
 		break;
 		
 	case eeTRAP:
-		if(dummy_int[1] && guysbuf[id].flags2 & guy_trp2 && do_animation)  // Just to make sure
+		if(dummy_int[1] && guysbuf[id].flags & guy_trp2 && do_animation)  // Just to make sure
 		{
 			tile=s_tile;
 			t=s_tile;
@@ -7677,13 +7676,13 @@ waves2:
 	}                                                         // switch(d->anim)
 	
 	// flashing
-//  if(d->flags2 & guy_flashing)
-	if(flags2 & guy_flashing)
+//  if(d->flags & guy_flashing)
+	if(flags & guy_flashing)
 	{
 		cs = (frame&3) + 6;
 	}
 	
-	if(flags2&guy_transparent)
+	if(flags&guy_transparent)
 	{
 		drawstyle=1;
 	}
@@ -7859,7 +7858,7 @@ bool eFire::animate(int32_t index)
 			superman=0;
 			fading=0;
 			
-			if(flags2&guy_armos && z==0 && fakez==0)
+			if(flags&guy_armos && z==0 && fakez==0)
 				removearmos(x,y,ffcactivated);
 				
 			clk2=0;
@@ -7872,7 +7871,7 @@ bool eFire::animate(int32_t index)
 			
 			return Dead(index);
 		}
-		else if(flags2&guy_armos && z==0 && fakez==0 && clk==0)
+		else if(flags&guy_armos && z==0 && fakez==0 && clk==0)
 			removearmos(x,y,ffcactivated);
 	}
 	
@@ -7953,7 +7952,7 @@ bool eOther::animate(int32_t index)
 			superman=0;
 			fading=0;
 			
-			if(flags2&guy_armos && z==0 && fakez==0)
+			if(flags&guy_armos && z==0 && fakez==0)
 				removearmos(x,y,ffcactivated);
 				
 			clk2=0;
@@ -7966,7 +7965,7 @@ bool eOther::animate(int32_t index)
 			
 			return Dead(index);
 		}
-		else if(flags2&guy_armos && z==0 && fakez==0 && clk==0)
+		else if(flags&guy_armos && z==0 && fakez==0 && clk==0)
 			removearmos(x,y,ffcactivated);
 	}
 	
@@ -8048,7 +8047,7 @@ bool eScript::animate(int32_t index)
 			superman=0;
 			fading=0;
 			
-			if(flags2&guy_armos && z==0 && fakez==0)
+			if(flags&guy_armos && z==0 && fakez==0)
 				removearmos(x,y,ffcactivated);
 				
 			clk2=0;
@@ -8061,7 +8060,7 @@ bool eScript::animate(int32_t index)
 			
 			return Dead(index);
 		}
-		else if(flags2&guy_armos && z==0 && fakez==0 && clk==0)
+		else if(flags&guy_armos && z==0 && fakez==0 && clk==0)
 			removearmos(x,y,ffcactivated);
 	}
 	
@@ -8144,7 +8143,7 @@ bool eFriendly::animate(int32_t index)
 			superman=0;
 			fading=0;
 			
-			if(flags2&guy_armos && z==0 && fakez==0)
+			if(flags&guy_armos && z==0 && fakez==0)
 				removearmos(x,y,ffcactivated);
 				
 			clk2=0;
@@ -8157,7 +8156,7 @@ bool eFriendly::animate(int32_t index)
 			
 			return Dead(index);
 		}
-		else if(flags2&guy_armos && z==0 && fakez==0 && clk==0)
+		else if(flags&guy_armos && z==0 && fakez==0 && clk==0)
 			removearmos(x,y,ffcactivated);
 	}
 	
@@ -10654,7 +10653,7 @@ bool eStalfos::animate(int32_t index)
 			superman=0;
 			fading=0;
 			
-			if(flags2&guy_armos && z==0 && fakez == 0)
+			if(flags&guy_armos && z==0 && fakez == 0)
 		{
 		//if a custom size (not 16px by 16px)
 			
@@ -10695,7 +10694,7 @@ bool eStalfos::animate(int32_t index)
 		}
 		else return enemy::animate(index);
 	}
-	else if(flags2&guy_armos && z==0 && fakez == 0 && clk==0)
+	else if(flags&guy_armos && z==0 && fakez == 0 && clk==0)
 		removearmos(x,y,ffcactivated);
 		
 	
@@ -18236,7 +18235,7 @@ bool ok2add(int32_t id)
 		|| (guysbuf[id].family == eeTRAP && !get_qr(qr_CAN_PLACE_TRAPS))) return false;
 		[[fallthrough]];
 	default:
-		if (guysbuf[id].flags2&guy_ignoretmpnr) return true;
+		if (guysbuf[id].flags&guy_ignoretmpnr) return true;
 		break;
 	}
 	
@@ -21211,7 +21210,7 @@ int32_t enemy::getFlashingCSet()
 	if (hclk <= 0)
 	{
 		//Special cset for the flashing animation
-		if (flags2 & guy_flashing)
+		if (flags & guy_flashing)
 			return (frame & 3) + 6;
 		return cs;
 	}

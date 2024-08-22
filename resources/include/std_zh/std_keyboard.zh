@@ -1,3 +1,6 @@
+#include "std_zh/std_constants.zh"
+#include "std_zh/string/string_constants.zh"
+
 /* 
 Constants that define the keyboard layout. I need to check an EU and a US keyboard 
 visually to verify if I set the proper symbols;  and I do not think that ZScript

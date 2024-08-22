@@ -1,0 +1,387 @@
+enum Direction
+{
+	DIR_UP                = 0,
+	DIR_DOWN              = 1,
+	DIR_LEFT              = 2,
+	DIR_RIGHT             = 3,
+	DIR_LEFTUP            = 4,
+	DIR_RIGHTUP           = 5,
+	DIR_LEFTDOWN          = 6,
+	DIR_RIGHTDOWN         = 7,
+
+	DIR_UPLEFT            = 4,
+	DIR_UPRIGHT           = 5,
+	DIR_DOWNLEFT          = 6,
+	DIR_DOWNRIGHT         = 7
+};
+
+enum EnemyPattern
+{
+	PATTERN_STANDARD,
+	PATTERN_SIDES,
+	PATTERN_SIDES_RANDOM,
+	PATTERN_CEILING,
+	PATTERN_CEILING_RANDOM,
+	PATTERN_STANDARD_RANDOM,
+	PATTERN_NO_SPAWNING
+};
+
+// Indices for generic counters.
+// Use with [itemdata->Counter], [Game->Counter[]], [Game->MCounter[]] and [Game->DCounter[]]
+enum CounterIndex
+{
+	CR_NONE = -1,
+	CR_LIFE,
+	CR_MONEY,
+	CR_RUPEES = CR_MONEY,
+	CR_BOMBS,
+	CR_ARROWS,
+	CR_MAGIC,
+	CR_KEYS,
+	CR_SBOMBS,
+	CR_CUSTOM1,
+	CR_CUSTOM2,
+	CR_CUSTOM3,
+	CR_CUSTOM4,  CR_CUSTOM5,  CR_CUSTOM6,  CR_CUSTOM7,  CR_CUSTOM8,
+	CR_CUSTOM9,  CR_CUSTOM10, CR_CUSTOM11, CR_CUSTOM12, CR_CUSTOM13,
+	CR_CUSTOM14, CR_CUSTOM15, CR_CUSTOM16, CR_CUSTOM17, CR_CUSTOM18,
+	CR_CUSTOM19, CR_CUSTOM20, CR_CUSTOM21, CR_CUSTOM22, CR_CUSTOM23,
+	CR_CUSTOM24, CR_CUSTOM25, CR_CUSTOM26, CR_CUSTOM27, CR_CUSTOM28,
+	CR_CUSTOM29, CR_CUSTOM30, CR_CUSTOM31, CR_CUSTOM32, CR_CUSTOM33,
+	CR_CUSTOM34, CR_CUSTOM35, CR_CUSTOM36, CR_CUSTOM37, CR_CUSTOM38,
+	CR_CUSTOM39, CR_CUSTOM40, CR_CUSTOM41, CR_CUSTOM42, CR_CUSTOM43,
+	CR_CUSTOM44, CR_CUSTOM45, CR_CUSTOM46, CR_CUSTOM47, CR_CUSTOM48,
+	CR_CUSTOM49, CR_CUSTOM50, CR_CUSTOM51, CR_CUSTOM52, CR_CUSTOM53,
+	CR_CUSTOM54, CR_CUSTOM55, CR_CUSTOM56, CR_CUSTOM57, CR_CUSTOM58,
+	CR_CUSTOM59, CR_CUSTOM60, CR_CUSTOM61, CR_CUSTOM62, CR_CUSTOM63,
+	CR_CUSTOM64, CR_CUSTOM65, CR_CUSTOM66, CR_CUSTOM67, CR_CUSTOM68,
+	CR_CUSTOM69, CR_CUSTOM70, CR_CUSTOM71, CR_CUSTOM72, CR_CUSTOM73,
+	CR_CUSTOM74, CR_CUSTOM75, CR_CUSTOM76, CR_CUSTOM77, CR_CUSTOM78,
+	CR_CUSTOM79, CR_CUSTOM80, CR_CUSTOM81, CR_CUSTOM82, CR_CUSTOM83,
+	CR_CUSTOM84, CR_CUSTOM85, CR_CUSTOM86, CR_CUSTOM87, CR_CUSTOM88,
+	CR_CUSTOM89, CR_CUSTOM90, CR_CUSTOM91, CR_CUSTOM92, CR_CUSTOM93,
+	CR_CUSTOM94, CR_CUSTOM95, CR_CUSTOM96, CR_CUSTOM97, CR_CUSTOM98,
+	CR_CUSTOM99, CR_CUSTOM100,
+
+	CR_SCRIPT1 = CR_CUSTOM1, CR_SCRIPT2, CR_SCRIPT3,
+	CR_SCRIPT4,  CR_SCRIPT5,  CR_SCRIPT6,  CR_SCRIPT7,  CR_SCRIPT8,
+	CR_SCRIPT9,  CR_SCRIPT10, CR_SCRIPT11, CR_SCRIPT12, CR_SCRIPT13,
+	CR_SCRIPT14, CR_SCRIPT15, CR_SCRIPT16, CR_SCRIPT17, CR_SCRIPT18,
+	CR_SCRIPT19, CR_SCRIPT20, CR_SCRIPT21, CR_SCRIPT22, CR_SCRIPT23,
+	CR_SCRIPT24, CR_SCRIPT25, CR_SCRIPT26, CR_SCRIPT27, CR_SCRIPT28,
+	CR_SCRIPT29, CR_SCRIPT30, CR_SCRIPT31, CR_SCRIPT32, CR_SCRIPT33,
+	CR_SCRIPT34, CR_SCRIPT35, CR_SCRIPT36, CR_SCRIPT37, CR_SCRIPT38,
+	CR_SCRIPT39, CR_SCRIPT40, CR_SCRIPT41, CR_SCRIPT42, CR_SCRIPT43,
+	CR_SCRIPT44, CR_SCRIPT45, CR_SCRIPT46, CR_SCRIPT47, CR_SCRIPT48,
+	CR_SCRIPT49, CR_SCRIPT50, CR_SCRIPT51, CR_SCRIPT52, CR_SCRIPT53,
+	CR_SCRIPT54, CR_SCRIPT55, CR_SCRIPT56, CR_SCRIPT57, CR_SCRIPT58,
+	CR_SCRIPT59, CR_SCRIPT60, CR_SCRIPT61, CR_SCRIPT62, CR_SCRIPT63,
+	CR_SCRIPT64, CR_SCRIPT65, CR_SCRIPT66, CR_SCRIPT67, CR_SCRIPT68,
+	CR_SCRIPT69, CR_SCRIPT70, CR_SCRIPT71, CR_SCRIPT72, CR_SCRIPT73,
+	CR_SCRIPT74, CR_SCRIPT75, CR_SCRIPT76, CR_SCRIPT77, CR_SCRIPT78,
+	CR_SCRIPT79, CR_SCRIPT80, CR_SCRIPT81, CR_SCRIPT82, CR_SCRIPT83,
+	CR_SCRIPT84, CR_SCRIPT85, CR_SCRIPT86, CR_SCRIPT87, CR_SCRIPT88,
+	CR_SCRIPT89, CR_SCRIPT90, CR_SCRIPT91, CR_SCRIPT92, CR_SCRIPT93,
+	CR_SCRIPT94, CR_SCRIPT95, CR_SCRIPT96, CR_SCRIPT97, CR_SCRIPT98,
+	CR_SCRIPT99, CR_SCRIPT100,
+
+	CR_MAX
+};
+
+enum SwitchEffect
+{
+	SW_EFF_POOF,
+	SW_EFF_FLICKER,
+	SW_EFF_RISE
+};
+
+// Use with [Screen->SetSideWarp()] and [Link->WarpEx()]
+enum WarpType
+{
+	WT_CAVE,
+	WT_PASSAGE,
+	WT_ENTRANCEEXIT,
+	WT_SCROLLING,
+	WT_IWARP,
+	WT_IWARPBLACKOUT,
+	WT_IWARPOPENWIPE,
+	WT_IWARPZAP,
+	WT_IWARPWAVE,
+	WT_NOWARP
+};
+
+enum WeaponFlagIndex
+{
+	WFLAG_PICKUP_ITEMS,
+	WFLAG_BREAKS_ON_LANDING,
+	WFLAG_BREAKS_ON_SOLID,
+	WFLAG_BURN_ANYFIRE,
+	WFLAG_BURN_STRONGFIRE,
+	WFLAG_BURN_MAGICFIRE,
+	WFLAG_BURN_DIVINEFIRE,
+	WFLAG_STOP_ON_LANDING,
+	WFLAG_STOP_ON_SOLID,
+	WFLAG_UPDATE_BURNSPR,
+	WFLAG_MAX
+};
+
+enum WeaponSpriteIndex
+{
+	WPN_SPRITE_BASE,
+	WPN_SPRITE_BURN_ANY,
+	WPN_SPRITE_BURN_STRONG,
+	WPN_SPRITE_BURN_MAGIC,
+	WPN_SPRITE_BURN_DIVINE,
+	WPN_SPRITE_MAX
+};
+
+enum ShadowType
+{
+	SHD_NORMAL, //No Shadow
+	//These draw ONLY a shadow, no actual text
+	SHD_SHADOW,
+	SHD_SHADOWU,
+	SHD_OUTLINE8,
+	SHD_OUTLINEPLUS,
+	SHD_OUTLINEX,
+	//These draw a shadow behind the actual text
+	SHD_SHADOWED,
+	SHD_SHADOWEDU,
+	SHD_OUTLINED8,
+	SHD_OUTLINEDPLUS,
+	SHD_OUTLINEDX,
+	//Max number; not an actual value to use
+	SHD_MAX
+};
+
+enum DrawStyle
+{
+	DS_NORMAL,
+	DS_PHANTOM,
+	DS_CLOAKED,
+	DS_LINK
+};
+
+enum TransformationType
+{
+	FLIP_NONE,
+	FLIP_HORIZONTAL,
+	FLIP_VERTICAL,
+	FLIP_HV 		= 3, // Horizontal and vertical
+	FLIP_VH 		= 3, // Horizontal and vertical
+	FLIP_BOTH 		= 3, // Horizontal and vertical
+
+	// Rotations + Flip
+
+	ROT_CW          = 4,
+	ROT_CW_FLIP     = 5,
+	ROT_CCW_FLIP    = 6,
+	ROT_CCW         = 7,
+	ROT_ACW_FLIP    = 6, // Anticlockwise
+	ROT_ACW         = 7 
+};
+
+enum ComboType
+{
+	CT_NONE               = 0,
+	CT_STAIR              = 1,
+	CT_CAVE               = 2,
+	CT_WATER              = 3,
+	CT_ARMOS              = 4,
+	CT_GRAVE              = 5,
+	CT_DOCK               = 6,
+	CT_PUSHWAIT           = 8,
+	CT_PUSHHEAVY          = 9,
+	CT_PUSHHEAVYWAIT      = 10,
+	CT_LEFTSTATUE         = 11,
+	CT_RIGHTSTATUE        = 12,
+	CT_WALKSLOW           = 13,
+	CT_CVUP               = 14,
+	CT_CVDOWN             = 15,
+	CT_CVLEFT             = 16,
+	CT_CVRIGHT            = 17,
+	CT_SWIMWARP           = 18,
+	CT_DIVEWARP           = 19,
+	CT_LADDERHOOKSHOT     = 20,
+	CT_TRIGNOFLAG         = 21,
+	CT_TRIGFLAG           = 22,
+	CT_ZELDA              = 23,
+	CT_SLASH              = 24,
+	CT_SLASHITEM          = 25,
+	CT_PUSHHEAVY2         = 26,
+	CT_PUSHHEAVY2WAIT     = 27,
+	CT_POUND              = 28,
+	CT_HSGRAB             = 29,
+	CT_HSBRIDGE           = 30,
+	CT_DAMAGE1            = 31,
+	CT_DAMAGE2            = 32,
+	CT_DAMAGE3            = 33,
+	CT_DAMAGE4            = 34,
+	CT_CENTRESTATUE       = 35,
+	CT_TRAPH              = 36,
+	CT_TRAPV              = 37,
+	CT_TRAP4WAY           = 38,
+	CT_TRAPLEFTRIGHT      = 39,
+	CT_TRAPUPDOWN         = 40,
+	CT_PIT                = 41,
+	CT_HOOKSHOTONLY       = 42,
+	CT_OVERHEAD           = 43,
+	CT_NOFLYZONE          = 44,
+	CT_MIRROR             = 45,
+	CT_MIRRORSLASH        = 46,
+	CT_MIRRORBACKSLASH    = 47,
+	CT_MAGICPRISM         = 48,
+	CT_MAGICPRISM4WAY     = 49,
+	CT_BLOCKMAGIC         = 50,
+	CT_CAVE2              = 51,
+	CT_EYEBALLA           = 52,
+	CT_EYEBALLB           = 53,
+	CT_NOJUMPZONE         = 54,
+	CT_BUSH               = 55,
+	CT_FLOWERS            = 56,
+	CT_TALLGRASS          = 57,
+	CT_SHALLOWWATER       = 58,
+	CT_LOCKBLOCK          = 59,
+	CT_LOCKBLOCK2         = 60,
+	CT_BOSSLOCKBLOCK      = 61,
+	CT_BOSSLOCKBLOCK2     = 62,
+	CT_LADDERONLY         = 63,
+	CT_BSGRAVE            = 64,
+	CT_CHEST              = 65,
+	CT_CHEST2             = 66,
+	CT_LOCKEDCHEST        = 67,
+	CT_LOCKEDCHEST2       = 68,
+	CT_BOSSCHEST          = 69,
+	CT_BOSSCHEST2         = 70,
+	CT_RESET              = 71,
+	CT_SAVE               = 72,
+	CT_SAVE2              = 73,
+	CT_CAVEB              = 74,
+	CT_CAVEC              = 75,
+	CT_CAVED              = 76,
+	CT_STAIRB             = 77,
+	CT_STAIRC             = 78,
+	CT_STAIRD             = 79,
+	CT_PITB               = 80,
+	CT_PITC               = 81,
+	CT_PITD               = 82,
+	CT_CAVE2B             = 83,
+	CT_CAVE2C             = 84,
+	CT_CAVE2D             = 85,
+	CT_SWIMWARPB          = 86,
+	CT_SWIMWARPC          = 87,
+	CT_SWIMWARPD          = 88,
+	CT_DIVEWARPB          = 89,
+	CT_DIVEWARPC          = 90,
+	CT_DIVEWARPD          = 91,
+	CT_STAIRR             = 92,
+	CT_PITR               = 93,
+	CT_AWARPA             = 94,
+	CT_AWARPB             = 95,
+	CT_AWARPC             = 96,
+	CT_AWARPD             = 97,
+	CT_AWARPR             = 98,
+	CT_SWARPA             = 99,
+	CT_SWARPB             = 100,
+	CT_SWARPC             = 101,
+	CT_SWARPD             = 102,
+	CT_SWARPR             = 103,
+	CT_STRIGNOFLAG        = 104,
+	CT_STRIGFLAG          = 105,
+	CT_STEP               = 106,
+	CT_STEPSAME           = 107,
+	CT_STEPALL            = 108,
+	CT_STEPCOPY           = 109,
+	CT_NOENEMY            = 110,
+	CT_BLOCKARROW1        = 111,
+	CT_BLOCKARROW2        = 112,
+	CT_BLOCKARROW3        = 113,
+	CT_BLOCKBRANG1        = 114,
+	CT_BLOCKBRANG2        = 115,
+	CT_BLOCKBRANG3        = 116,
+	CT_BLOCKSWORDBEAM     = 117,
+	CT_BLOCKALL           = 118,
+	CT_BLOCKFIREBALL      = 119,
+	CT_DAMAGE5            = 120,
+	CT_DAMAGE6            = 121,
+	CT_DAMAGE7            = 122,
+	CT_SPINTILE1          = 124,
+	CT_SPINTILE2          = 125,
+	CT_SCREENFREEZE       = 126,
+	CT_SCREENFREEZEFF     = 127,
+	CT_NOGROUNDENEMY      = 128,
+	CT_SLASHNEXT          = 129,
+	CT_SLASHNEXTITEM      = 130,
+	CT_BUSHNEXT           = 131,
+	CT_SLASHC             = 132,
+	CT_SLASHITEMC         = 133,
+	CT_BUSHC              = 134,
+	CT_FLOWERSC           = 135,
+	CT_TALLGRASSC         = 136,
+	CT_SLASHNEXTC         = 137,
+	CT_SLASHNEXTITEMC     = 138,
+	CT_BUSHNEXTC          = 139,
+	CT_EYEBALL4WAY        = 140,
+	CT_TALLGRASSNEXT      = 141,
+	CT_SCRIPT1            = 142,
+	CT_SCRIPT2            = 143,
+	CT_SCRIPT3            = 144,
+	CT_SCRIPT4            = 145,
+	CT_SCRIPT5            = 146,
+	CT_SCRIPT6            = 147,
+	CT_SCRIPT7            = 148,
+	CT_SCRIPT8            = 149,
+	CT_SCRIPT9            = 150,
+	CT_SCRIPT10           = 151,
+	CT_SCRIPT11           = 152,
+	CT_SCRIPT12           = 153,
+	CT_SCRIPT13           = 154,
+	CT_SCRIPT14           = 155,
+	CT_SCRIPT15           = 156,
+	CT_SCRIPT16           = 157,
+	CT_SCRIPT17           = 158,
+	CT_SCRIPT18           = 159,
+	CT_SCRIPT19           = 160,
+	CT_SCRIPT20           = 161,
+	CT_GENERIC            = 162,
+	CT_PITFALL            = 163,
+	CT_STEPFX             = 164,
+	CT_BRIDGE             = 165,
+	CT_SIGNPOST           = 166,
+	CT_SWITCH             = 167,
+	CT_SWITCHBLOCK        = 168,
+	CT_LANTERN            = 169,
+	CT_SPOTLIGHT          = 170,
+	CT_GLASS              = 171,
+	CT_LIGHT_TARGET       = 172,
+	CT_SWITCHHOOK_BLOCK   = 173,
+	CT_CUSTOM_BLOCKER     = 174,
+	CT_SHOOTER            = 175,
+	CT_MAX                = 176
+};
+
+enum TileWarpIndex
+{
+	TILEWARP_A,
+	TILEWARP_B,
+	TILEWARP_C,
+	TILEWARP_D
+};
+
+enum SideWarpIndex
+{
+	SIDEWARP_NONE  = -1,
+	SIDEWARP_A     = 0,
+	SIDEWARP_B     = 1,
+	SIDEWARP_C     = 2,
+	SIDEWARP_D     = 3
+};
+
+enum WarpIndex
+{
+	WARP_NONE      = -1,
+	WARP_A         = 0,
+	WARP_B         = 1,
+	WARP_C         = 2,
+	WARP_D         = 3
+};

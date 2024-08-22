@@ -77,8 +77,9 @@ class combodata {
 	// @zasm_var COMBODASPEED
 	internal int ASpeed;
 
-	// The combo's flip value. Use the `FLIP_` or `ROT_` constants from
-	// `std_constants.zh` for this value.
+	// How to flip (or rotate) the combo.
+	//
+	// Valid values: [TransformationType] (`FLIP_` or `ROT_`).
 	//
 	// @zasm_var COMBODFLIP
 	internal int Flip;
@@ -93,8 +94,7 @@ class combodata {
 	// @zasm_var COMBODEFFECT
 	internal int Effect;
 
-	// The combo type of the combo. Use the `CT_` constants from
-	// `std_constants.zh`.
+	// Valid values: [ComboType] (`CT_`).
 	//
 	// @zasm_var COMBODTYPE
 	internal int Type;

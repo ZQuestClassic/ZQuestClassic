@@ -55,7 +55,6 @@
 namespace fs = std::filesystem;
 
 using namespace util;
-extern FFScript FFCore;
 
 extern ZModule zcm;
 extern zcmodule moduledata;
@@ -11147,12 +11146,13 @@ int32_t writeguys(PACKFILE *f, zquestheader *Header)
 		
 		for(int32_t i=0; i<MAXGUYS; i++)
 		{
-			if(!p_iputl(guysbuf[i].flags,f))
+			uint32_t flags1 = uint32_t(guysbuf[i].flags);
+			uint32_t flags2 = uint32_t(guysbuf[i].flags >> 32ULL);
+			if (!p_iputl(flags1, f))
 			{
 				new_return(6);
 			}
-			
-			if(!p_iputl(guysbuf[i].flags2,f))
+			if (!p_iputl(flags2, f))
 			{
 				new_return(7);
 			}

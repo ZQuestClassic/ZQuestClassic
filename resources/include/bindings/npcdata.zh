@@ -127,7 +127,7 @@ class npcdata {
 	//
 	// Higher values make it more likely that the enemy is attracted to Bait.
 	//
-	// Valid only for NPCT_WALKING enemies.
+	// Valid only for [NPCT_WALKING] enemies.
 	//
 	// @zasm_var NPCDATAHUNGER
 	internal int Hunger;
@@ -248,10 +248,8 @@ class npcdata {
 
 	// The shield status of the enemy.
 	//
-	// [0] through [3] correspond to DIR* constants (wherein DIR_UP represents
-	// FRONT, and DIR_DOWN represents BACK)
-	//
-	// [4] corresponds to 'Shield can be broken'.
+	// Valid indices: [DIR_UP] (front), [DIR_DOWN] (back), [DIR_LEFT], [DIR_RIGHT],
+	//                `4` (Shield can be broken).
 	//
 	// @zasm_var NPCDATASHIELD
 	internal bool Shield[];

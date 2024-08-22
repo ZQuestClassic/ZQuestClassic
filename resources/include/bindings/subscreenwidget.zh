@@ -369,7 +369,9 @@ class subscreenwidget {
 	// @zasm_var SUBWIDGTY_ALIGN
 	internal int Align;
 
-	// The widget's Shadow Type, use the 'SHD_' constants.
+	// The widget's Shadow Type.
+	//
+	// Valid values: [ShadowType] (`SHD_`).
 	//
 	// - SUBWIDG_TEXT
 	// - SUBWIDG_TEXTBOX

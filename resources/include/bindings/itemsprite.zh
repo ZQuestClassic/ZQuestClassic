@@ -25,7 +25,9 @@ class itemsprite {
 	// @zasm_var ITEMJUMP
 	internal int Jump;
 
-	// The drawing mode used, defined by the `DS_` constants.
+	// The drawing mode used.
+	//
+	// Valid values: [DrawStyle] (`DS_`).
 	//
 	// @zasm_var ITEMDRAWTYPE
 	internal int DrawStyle;
@@ -110,7 +112,9 @@ class itemsprite {
 	// @zasm_var ITEMFLASH
 	internal bool Flash;
 
-	// The flip status of the itemsprite's tile. Uses the `FLIP_` constants.
+	// How to flip (or rotate) the item.
+	//
+	// Valid values: [TransformationType] (`FLIP_` or `ROT_`).
 	//
 	// @zasm_var ITEMFLIP
 	internal int Flip;
@@ -379,8 +383,9 @@ class itemsprite {
 	//   ITEMDEL
 	internal void Remove();
 
-	// Switch the player with this sprite. Use the `SW_EFF_` constants for
-	// 'effect' to select a visual style for the switch.
+	// Switch the player with this sprite.
+	//
+	// Valid values for [effect]: [SwitchEffect] (`SW_EFF_`).
 	//
 	// @zasm
 	//   POP D2

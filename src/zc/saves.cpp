@@ -35,8 +35,6 @@ namespace fs = std::filesystem;
 #include "base/emscripten_utils.h"
 #endif
 
-extern FFScript FFCore;
-
 static const char *SAVE_HEADER = "ZQuest Classic Save File";
 static const char *OLD_SAVE_HEADER = "Zelda Classic Save File";
 static int currgame = -1;

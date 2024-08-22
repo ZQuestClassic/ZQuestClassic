@@ -1,3 +1,5 @@
+#include "std_zh/std_functions.zh"
+
 //A
 
 //Returns the Nth combo index of a combo based on a central point, and a direction.

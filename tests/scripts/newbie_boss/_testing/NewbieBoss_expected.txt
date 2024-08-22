@@ -3395,8 +3395,8 @@ stdout:
   ],
   "metadata": {
     "currentFileSymbols": 392,
-    "symbols": 904,
-    "identifiers": 9345,
+    "symbols": 946,
+    "identifiers": 9969,
     "elided": true
   }
 }
@@ -5733,9 +5733,9 @@ COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 2340 ==; Test 'if'
-PUSHVARGV 2; InlineFunc[int Choose(int)] Params Start AND if() #628 Body Start
-PUSHVARGV 3; InlineFunc[int Choose(int)] Params End
-CHOOSEVARG; InlineFunc[int Choose(int)] Body
+PUSHVARGV 2; InlineFunc[Direction Choose(Direction)] Params Start AND if() #628 Body Start
+PUSHVARGV 3; InlineFunc[Direction Choose(Direction)] Params End
+CHOOSEVARG; InlineFunc[Direction Choose(Direction)] Body
 PUSHR D2
 LOAD D2 0.0005
 SETR D0 D2
@@ -5750,9 +5750,9 @@ COMPAREV D2 1
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 2357 ==; Test 'if'
-PUSHVARGV 2; InlineFunc[int Choose(int)] Params Start AND if() #629 Body Start
-PUSHVARGV 3; InlineFunc[int Choose(int)] Params End
-CHOOSEVARG; InlineFunc[int Choose(int)] Body
+PUSHVARGV 2; InlineFunc[Direction Choose(Direction)] Params Start AND if() #629 Body Start
+PUSHVARGV 3; InlineFunc[Direction Choose(Direction)] Params End
+CHOOSEVARG; InlineFunc[Direction Choose(Direction)] Body
 PUSHR D2
 LOAD D2 0.0005
 SETR D0 D2
@@ -5767,9 +5767,9 @@ COMPAREV D2 2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 2374 ==; Test 'if'
-PUSHVARGV 0; InlineFunc[int Choose(int)] Params Start AND if() #630 Body Start
-PUSHVARGV 1; InlineFunc[int Choose(int)] Params End
-CHOOSEVARG; InlineFunc[int Choose(int)] Body
+PUSHVARGV 0; InlineFunc[Direction Choose(Direction)] Params Start AND if() #630 Body Start
+PUSHVARGV 1; InlineFunc[Direction Choose(Direction)] Params End
+CHOOSEVARG; InlineFunc[Direction Choose(Direction)] Body
 PUSHR D2
 LOAD D2 0.0005
 SETR D0 D2
@@ -5784,9 +5784,9 @@ COMPAREV D2 3
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 2390 ==; Test 'if'
-PUSHVARGV 0; InlineFunc[int Choose(int)] Params Start AND if() #1017 Body Start
-PUSHVARGV 1; InlineFunc[int Choose(int)] Params End
-CHOOSEVARG; InlineFunc[int Choose(int)] Body
+PUSHVARGV 0; InlineFunc[Direction Choose(Direction)] Params Start AND if() #1017 Body Start
+PUSHVARGV 1; InlineFunc[Direction Choose(Direction)] Params End
+CHOOSEVARG; InlineFunc[Direction Choose(Direction)] Body
 PUSHR D2
 LOAD D2 0.0005
 SETR D0 D2
@@ -27844,9 +27844,9 @@ GOTO 24440
 SETV D2 1
 COMPAREV D2 0
 GOTOCMP 24455 !=; Test 'unless'
-PUSHVARGV 2; InlineFunc[int Choose(int)] Params Start AND unless() #273 Body Start
-PUSHVARGV 3; InlineFunc[int Choose(int)] Params End
-CHOOSEVARG; InlineFunc[int Choose(int)] Body
+PUSHVARGV 2; InlineFunc[Direction Choose(Direction)] Params Start AND unless() #273 Body Start
+PUSHVARGV 3; InlineFunc[Direction Choose(Direction)] Params End
+CHOOSEVARG; InlineFunc[Direction Choose(Direction)] Body
 SETR GD4 D2; unless() #273 Body End
 GOTO 24455; if() #105 Body End
 LOAD D2 0.0001; if() #106 Test AND if() #105 Else Start
@@ -27906,9 +27906,9 @@ GOTO 24502
 SETV D2 1
 COMPAREV D2 0
 GOTOCMP 24517 !=; Test 'unless'
-PUSHVARGV 0; InlineFunc[int Choose(int)] Params Start AND unless() #274 Body Start
-PUSHVARGV 1; InlineFunc[int Choose(int)] Params End
-CHOOSEVARG; InlineFunc[int Choose(int)] Body
+PUSHVARGV 0; InlineFunc[Direction Choose(Direction)] Params Start AND unless() #274 Body Start
+PUSHVARGV 1; InlineFunc[Direction Choose(Direction)] Params End
+CHOOSEVARG; InlineFunc[Direction Choose(Direction)] Body
 SETR GD4 D2; unless() #274 Body End
 GOTO 24517; if() #108 Body End
 LOAD D2 0.0001; if() #109 Test AND if() #108 Else Start
@@ -30176,9 +30176,9 @@ GOTO 26772
 SETV D2 1
 COMPAREV D2 0
 GOTOCMP 26787 !=; Test 'unless'
-PUSHVARGV 2; InlineFunc[int Choose(int)] Params Start AND unless() #300 Body Start
-PUSHVARGV 3; InlineFunc[int Choose(int)] Params End
-CHOOSEVARG; InlineFunc[int Choose(int)] Body
+PUSHVARGV 2; InlineFunc[Direction Choose(Direction)] Params Start AND unless() #300 Body Start
+PUSHVARGV 3; InlineFunc[Direction Choose(Direction)] Params End
+CHOOSEVARG; InlineFunc[Direction Choose(Direction)] Body
 SETR GD4 D2; unless() #300 Body End
 GOTO 26787; if() #127 Body End
 LOAD D2 0.0001; if() #128 Test AND if() #127 Else Start
@@ -30238,9 +30238,9 @@ GOTO 26834
 SETV D2 1
 COMPAREV D2 0
 GOTOCMP 26849 !=; Test 'unless'
-PUSHVARGV 0; InlineFunc[int Choose(int)] Params Start AND unless() #301 Body Start
-PUSHVARGV 1; InlineFunc[int Choose(int)] Params End
-CHOOSEVARG; InlineFunc[int Choose(int)] Body
+PUSHVARGV 0; InlineFunc[Direction Choose(Direction)] Params Start AND unless() #301 Body Start
+PUSHVARGV 1; InlineFunc[Direction Choose(Direction)] Params End
+CHOOSEVARG; InlineFunc[Direction Choose(Direction)] Body
 SETR GD4 D2; unless() #301 Body End
 GOTO 26849; if() #130 Body End
 LOAD D2 0.0001; if() #131 Test AND if() #130 Else Start

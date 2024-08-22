@@ -1,3 +1,13 @@
+enum PlayerSliding
+{
+	SLD_NONE,
+	// sliding on the ground, on ice
+	SLD_ICE,
+	// sliding in the air (momentum from ice)
+	SLD_AIR,
+	SLD_MAX
+};
+
 class player {
 	// @delete
 	internal player();
@@ -572,11 +582,7 @@ class player {
 	// @zasm_var HEROFLASHINGCSET
 	internal const int FlashingCSet;
 
-	// One of the 'SLD_' constants:
-	//
-	// - SLD_NONE (0) - not sliding
-	// - SLD_ICE (1) - sliding on the ground, on ice
-	// - SLD_AIR (2) - sliding in the air (momentum from ice)
+	// Valid values: [PlayerSliding] (`SLD_`).
 	//
 	// @zasm_var HEROSLIDING
 	internal const int Sliding;
@@ -884,8 +890,9 @@ class player {
 	internal void SelectYWeapon(int dir);
 
 	// Switch the player with the given combo position.
-	// Use the `SW_EFF_` constants from std_constants.zh for 'effect'.
 	// Returns true if successful.
+	//
+	// Valid values for [effect]: [SwitchEffect] (`SW_EFF_`).
 	//
 	// @zasm
 	//   POP D3

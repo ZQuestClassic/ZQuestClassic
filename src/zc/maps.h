@@ -298,7 +298,7 @@ bool remove_bosschests(mapscr* s);
 bool overheadcombos(mapscr *s);
 void delete_fireball_shooter(const rpos_handle_t& rpos_handle);
 
-enum TriggerSource {
+enum class TriggerSource {
 	Unspecified,
 	Singular,
 	EnemiesScreenFlag,

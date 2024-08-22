@@ -70,8 +70,9 @@ class messagedata {
 	// @zasm_var MESSAGEDATAFLAGSARR
 	internal bool Flags[];
 
-	// The margins, in pixels, from each edge of the text box. Use the `DIR_`
-	// constants to access this.
+	// The margins, in pixels, from each edge of the text box.
+	//
+	// Valid indices: [DIR_UP], [DIR_DOWN], [DIR_LEFT], [DIR_RIGHT]
 	//
 	// @zasm_var MESSAGEDATAMARGINS
 	internal int Margins[];

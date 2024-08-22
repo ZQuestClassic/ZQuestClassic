@@ -432,7 +432,7 @@ async function processScript(textDocument: TextDocument): Promise<void> {
 			args.push('-ignore_cassert');
 		const cp = await execFile(exe, args, {
 			cwd: settings.installationFolder,
-			maxBuffer: 2_000_000,
+			maxBuffer: 20_000_000,
 		});
 		success = true;
 		stdout = cp.stdout;
@@ -463,8 +463,7 @@ async function processScript(textDocument: TextDocument): Promise<void> {
 
 	if (!metadata) return;
 
-	if (metadata.currentFileSymbols.length)
-		docMetadataMap.set(textDocument.uri, metadata);
+	docMetadataMap.set(textDocument.uri, metadata);
 }
 
 connection.onDidChangeWatchedFiles(_change => {

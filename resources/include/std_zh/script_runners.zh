@@ -1,4 +1,5 @@
 #include "ffcscript.zh"
+#include "std_zh/std_constants.zh"
 
 //start NPC
 DEFINE MIN_NPCSCRIPT = 1;

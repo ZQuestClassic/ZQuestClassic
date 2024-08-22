@@ -1,9 +1,16 @@
+enum ViewportMode
+{
+	VIEW_MODE_CENTER_AND_BOUND = 0L,
+	VIEW_MODE_CENTER = 1L,
+	VIEW_MODE_SCRIPT = 2L
+};
+
 class Viewport {
 	// @delete
 	internal Viewport();
 
 	// @zasm_var VIEWPORT_MODE
-	internal long Mode;
+	internal ViewportMode Mode;
 
 	// @zasm_var VIEWPORT_X
 	internal int X;

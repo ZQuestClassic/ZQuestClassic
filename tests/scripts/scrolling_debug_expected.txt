@@ -18,8 +18,8 @@ stdout:
   "diagnostics": [],
   "metadata": {
     "currentFileSymbols": 6,
-    "symbols": 35,
-    "identifiers": 149,
+    "symbols": 36,
+    "identifiers": 162,
     "elided": true
   }
 }
@@ -199,11 +199,11 @@ STORE D2 0.0001
 WRITEPODSTRING D2 "ORX/ORY %d %d\n"
 LOAD D2 0.0001; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
-SETV D2 23
+SETV D2 19
 PUSHR D2
 POP D0
 PUSHVARGR GAMESCROLLING
-SETV D2 24
+SETV D2 20
 PUSHR D2
 POP D0
 PUSHVARGR GAMESCROLLING; InlineFunc[void printf(char32[])] Params End
@@ -216,11 +216,11 @@ STORE D2 0
 WRITEPODSTRING D2 "NRX/NRY %d %d\n"
 LOAD D2 0; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
-SETV D2 21
+SETV D2 17
 PUSHR D2
 POP D0
 PUSHVARGR GAMESCROLLING
-SETV D2 22
+SETV D2 18
 PUSHR D2
 POP D0
 PUSHVARGR GAMESCROLLING; InlineFunc[void printf(char32[])] Params End
@@ -266,7 +266,7 @@ DRAWCOMBOR; InlineFunc[void screendata::DrawCombo(int, int, int, int, int, int, 
 POPARGS D5 0.0016; InlineFunc[void screendata::DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
 SETR D2 VIEWPORT_X; if() #449 Test
 PUSHR D2
-SETV D2 21
+SETV D2 17
 PUSHR D2
 POP D0
 SETR D2 GAMESCROLLING
@@ -276,7 +276,7 @@ COMPARER D3 D2
 GOTOCMP 261 !=
 SETR D2 VIEWPORT_Y
 PUSHR D2
-SETV D2 22
+SETV D2 18
 PUSHR D2
 POP D0
 SETR D2 GAMESCROLLING
@@ -295,12 +295,12 @@ WRITEPODSTRING D2 "failed expectation! %d %d %d %d\n"
 LOAD D2 0.0001; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
 PUSHVARGR VIEWPORT_X
-SETV D2 21
+SETV D2 17
 PUSHR D2
 POP D0
 PUSHVARGR GAMESCROLLING
 PUSHVARGR VIEWPORT_Y
-SETV D2 22
+SETV D2 18
 PUSHR D2
 POP D0
 PUSHVARGR GAMESCROLLING; InlineFunc[void printf(char32[])] Params End

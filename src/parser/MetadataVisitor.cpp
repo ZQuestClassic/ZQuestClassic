@@ -1,11 +1,13 @@
 #include "base/util.h"
 #include "parser/AST.h"
 #include "parser/ASTVisitors.h"
+#include "parser/Types.h"
 #include "parserDefs.h"
 #include "MetadataVisitor.h"
 #include <cassert>
 #include "Scope.h"
 #include "CompileError.h"
+#include <filesystem>
 #include <nlohmann/json.hpp>
 #include <fmt/format.h>
 #include <regex>
@@ -59,6 +61,8 @@ static std::string make_uri(std::string path)
 	// For consistent test results no matter the machine.
 	if (std::getenv("TEST_ZSCRIPT") != nullptr)
 		return !path.empty() ? fs::path(path).filename().string() : "";
+
+	path = (fs::current_path() / path).string();
 
 #ifdef _WIN32
 		std::string uri = "file:///" + path;
@@ -246,8 +250,8 @@ static void parseCommentForLinks(std::string& comment, const AST* node)
 			auto ident = parseExprIdentifier(symbol_name);
 			if (auto type = lookupDataType(*scope, ident, nullptr))
 			{
-				if (type->isUsrClass())
-					symbol_node = type->getUsrClass()->getNode();
+				if (auto custom_type = dynamic_cast<const DataTypeCustom*>(type); custom_type)
+					symbol_node = custom_type->getSource();
 			}
 		}
 
@@ -263,11 +267,10 @@ static void parseCommentForLinks(std::string& comment, const AST* node)
 		else if (is_fn)
 			link_text += "()";
 
-		auto location = symbol_node->getIdentifierLocation();
-		std::string path = location ? location->fname : symbol_node->location.fname;
+		auto location = symbol_node->getIdentifierLocation().value_or(symbol_node->location);
 		auto args = json{
-			{"file", make_uri(path)},
-			{"position", LocationData_json(*location)},
+			{"file", make_uri(location.fname)},
+			{"position", LocationData_json(location)},
 		};
 		std::string command = fmt::format("zscript.openLink?{}", url_encode(args.dump()));
 		comment.replace(pos, len, fmt::format("[`{}`](command:{})", link_text, command));
@@ -281,6 +284,7 @@ static std::string getName(const T& node)
 }
 static std::string getName(const ASTFile& node)
 {
+	if (!node.scope) return node.location.fname;
 	return node.scope->getName().value_or("<file>");
 }
 
@@ -347,15 +351,12 @@ static void appendIdentifier(std::string symbol_id, const AST* symbol_node, cons
 
 	if (!root["symbols"].contains(symbol_id))
 	{
-		if (symbol_id.starts_with("custom."))
-		{
-			printf("");
-		}
+		auto loc = symbol_node->getIdentifierLocation().value_or(symbol_node->location);
 		root["symbols"][symbol_id] = {
 			// TODO LocationData_location_json
 			{"loc", {
-				{"range", LocationData_json(symbol_node->location)},
-				{"uri", make_uri(symbol_node->location.fname)},
+				{"range", LocationData_json(loc)},
+				{"uri", make_uri(loc.fname)},
 			}},
 		};
 
@@ -374,7 +375,7 @@ static void appendIdentifier(std::string symbol_id, const AST* symbol_node, cons
 }
 
 MetadataVisitor::MetadataVisitor(Program& program, std::string root_file_name)
-	: RecursiveVisitor(program), root_file_name(root_file_name)
+	: RecursiveVisitor(program), root_file_name(root_file_name), is_enabled(false)
 {
 	root = {
 		{"currentFileSymbols", json::array()},
@@ -387,6 +388,7 @@ MetadataVisitor::MetadataVisitor(Program& program, std::string root_file_name)
 
 void MetadataVisitor::visit(AST& node, void* param)
 {
+	node.undisable();
 	RecursiveVisitor::visit(node, param);
 }
 
@@ -396,7 +398,31 @@ void MetadataVisitor::caseFile(ASTFile& host, void* param)
 	if (name != root_file_name && name != metadata_tmp_path)
 		return;
 
+	is_enabled = name == metadata_tmp_path || metadata_tmp_path.empty();
 	RecursiveVisitor::caseFile(host, param);
+}
+
+void MetadataVisitor::caseImportDecl(ASTImportDecl& host, void* param)
+{
+	if (!is_enabled)
+	{
+		RecursiveVisitor::caseImportDecl(host, param);
+		return;
+	}
+
+	if (host.location.fname.empty())
+	{
+		RecursiveVisitor::caseImportDecl(host, param);
+		return;
+	}
+
+	auto prev = host.location;
+	host.location = {};
+	host.location.fname = (fs::current_path() / host.getFilename()).string();
+	appendIdentifier(fmt::format("import-{}", host.location.fname), &host, getSelectionRange(*host.getImportString()));
+	host.location = prev;
+
+	RecursiveVisitor::caseImportDecl(host, param);
 }
 
 void MetadataVisitor::caseNamespace(ASTNamespace& host, void* param)
@@ -428,13 +454,50 @@ void MetadataVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 	auto user_class = host.resolvedType ? host.resolvedType->getUsrClass() : nullptr;
 	if (user_class && host.list && host.list->baseType)
 	{
+		// TODO: this user_class branch could be removed, but it catches things like `const npc[]`
+		// (ex: auto npcs = Screen->NPCs), since in that case `custom_type->getSource()` is currently null
+		// for some reason.
 		std::string symbol_id = fmt::format("custom.{}", user_class->getType()->getUniqueCustomId());
 		appendIdentifier(symbol_id, user_class->getNode(), getSelectionRange(*host.list->baseType));
+	}
+	else if (host.resolvedType)
+	{
+		auto resolvedType = host.resolvedType;
+		if (host.resolvedType->isArray())
+			resolvedType = &host.resolvedType->getBaseType();
+		if (auto custom_type = dynamic_cast<const DataTypeCustom*>(resolvedType); custom_type)
+		{
+			std::string symbol_id = fmt::format("custom.{}", custom_type->getUniqueCustomId());
+			appendIdentifier(symbol_id, custom_type->getSource(), getSelectionRange(*host.list->baseType));
+		}
 	}
 
 	auto prev_active = active;
 	appendDocSymbol(SymbolKind::Variable, host);
 	RecursiveVisitor::caseDataDecl(host, param);
+	active = prev_active;
+}
+
+void MetadataVisitor::caseDataEnum(ASTDataEnum& host, void* param)
+{
+	auto* base_type = host.baseType.get();
+	if (base_type)
+	{
+		if (auto custom_type = dynamic_cast<const DataTypeCustom*>(base_type->type.get()); custom_type)
+		{
+			std::string symbol_id = fmt::format("custom.{}", custom_type->getUniqueCustomId());
+			appendIdentifier(symbol_id, custom_type->getSource(), getSelectionRange(*custom_type->getSource()));
+		}
+	}
+
+	auto prev_active = active;
+	appendDocSymbol(SymbolKind::Enum, host);
+	for (auto* decl : host.getDeclarations())
+	{
+		auto prev_active = active;
+		appendDocSymbol(SymbolKind::EnumMember, *decl);
+		active = prev_active;
+	}
 	active = prev_active;
 }
 

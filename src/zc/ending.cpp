@@ -23,7 +23,6 @@
 #include "music_playback.h"
 #include "zscriptversion.h"
 
-extern FFScript FFCore;
 extern ZModule zcm; //modules
 extern zcmodule moduledata;
 

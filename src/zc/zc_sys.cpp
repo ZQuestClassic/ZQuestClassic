@@ -70,7 +70,6 @@
 
 using namespace std::chrono_literals;
 
-extern FFScript FFCore;
 extern bool Playing;
 int32_t sfx_voice[WAV_COUNT];
 int32_t d_stringloader(int32_t msg,DIALOG *d,int32_t c);

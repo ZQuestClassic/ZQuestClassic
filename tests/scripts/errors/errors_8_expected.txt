@@ -1,0 +1,29 @@
+stderr:
+
+Compiling 'errors_8.zs'
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+Pass 5: Checking code paths
+Pass 6: Generating object code
+Pass 7: Assembling
+Success!
+Compile finished with exit code '0' (success)
+
+stdout:
+
+{
+  "success": true,
+  "diagnostics": [],
+  "metadata": {
+    "currentFileSymbols": 2,
+    "symbols": 2,
+    "identifiers": 3,
+    "elided": true
+  }
+}
+
+zasm:
+
+QUIT; void run() Body

@@ -8,15 +8,12 @@
 
 #includepath "include"
 
-typedef const int define;
-
 #include "std_zh/std.cfg"
 #include "std_zh/std_extension.zh"
 #include "std_zh/script_runners.zh"
 #include "std_zh/ghostBasedMovement.zh"
 #include "std_zh/limits.zh"
 #include "std_zh/std_constants.zh"
-#include "std_zh/ffrules.zh"
 #include "std_zh/std_functions.zh"
 #include "std_zh/std_sideview.zh"
 #include "std_zh/string/string_constants.zh"

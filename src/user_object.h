@@ -1,9 +1,11 @@
 #ifndef ZC_USER_OBJECT
 #define ZC_USER_OBJECT
 
-#include <map>
 #include "base/zc_array.h"
 #include "base/general.h"
+
+#include <map>
+#include <vector>
 
 enum class ScriptType;
 struct zasm_script;
@@ -104,5 +106,4 @@ struct saved_user_object
 	std::map<int32_t,ZScriptArray> held_arrays;
 };
 
-#endif //ZC_USER_OBJECT
-
+#endif

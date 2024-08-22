@@ -89,3 +89,13 @@ namespace utils {
 
     int hmm; // hmmmmmm See {@link utils::fn} or {@link x} or {@link fn}
 }
+
+bool T() {
+	return true;
+}
+
+bool T2()
+{
+	bool b = true && T();
+	return b;
+}

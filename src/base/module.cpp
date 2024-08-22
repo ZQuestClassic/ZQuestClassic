@@ -223,7 +223,7 @@ bool ZModule::init(bool d) //bool default
 			"ea_wm4","ea_dkn","ea_vir", "ea_3f","ea_wiz",
 			"ea_aqu","ea_dod","ea_mhn","ea_gkl","ea_dig",
 			"ea_goh","ea_lan","ea_fly2","ea_4f4dT","ea_4f8dT",
-			"ea_4f4dF","ea_4f4d","ea_4f8dF","ea_arm","ea_fly_4f4d",
+			"ea_4f4dF","ea_4f4d","ea_4f8dF","ea_arm4","ea_fly_4f4d",
 			"ea_fly4f8d","ea_unused3","ea_4f8dLG","ea_tek4","ea_3f4d",
 			"ea_2f4d","ea_lev4","ea_2f4dT","ea_wiz4","ea_dod4",
 			"ea_bsdod","ea_fly4f4dT","ea_fly_4f4dF","ea_4f","ea_gan",

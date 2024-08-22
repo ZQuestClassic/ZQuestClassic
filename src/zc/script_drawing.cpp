@@ -20,7 +20,6 @@
 #include "base/mapscr.h"
 #include "base/misctypes.h"
 using namespace util;
-extern FFScript FFCore;
 extern ZModule zcm;
 extern refInfo *ri;
 extern script_bitmaps scb;

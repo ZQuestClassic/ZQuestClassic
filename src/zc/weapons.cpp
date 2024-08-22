@@ -29,7 +29,6 @@
 
 extern HeroClass Hero;
 extern int32_t directWpn;
-extern FFScript FFCore;
 extern ZModule zcm;
 extern enemy Enemy;
 extern bool show_hitboxes;

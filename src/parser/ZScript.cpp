@@ -6,8 +6,6 @@
 #include "DataStructs.h"
 #include "Types.h"
 #include "Scope.h"
-#include "zc/ffscript.h"
-extern FFScript FFCore;
 
 
 using namespace ZScript;

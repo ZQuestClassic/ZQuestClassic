@@ -1,3 +1,15 @@
+enum WebsocketState {
+    WEBSOCKET_STATE_CONNECTING = 0L,
+    WEBSOCKET_STATE_OPEN = 1L,
+    WEBSOCKET_STATE_CLOSING = 2L,
+    WEBSOCKET_STATE_CLOSED = 3L
+};
+
+enum WebsocketType {
+    WEBSOCKET_MESSAGE_TYPE_TEXT = 1L,
+    WEBSOCKET_MESSAGE_TYPE_BINARY = 2L
+};
+
 // @zasm_ref REFWEBSOCKET
 class websocket {
 	// @zasm
@@ -7,10 +19,8 @@ class websocket {
 
 	// Returns the current state of the socket.
 	//
-	// Compare with the `WEBSOCKET_STATE_` constants.
-	//
 	// @zasm_var WEBSOCKET_STATE
-	internal const int State;
+	internal const WebsocketState State;
 
 	// True if the socket has a message waiting to be received.
 	//
@@ -18,7 +28,7 @@ class websocket {
 	internal const bool HasMessage;
 
 	// @zasm_var WEBSOCKET_MESSAGE_TYPE
-	internal const long MessageType;
+	internal const WebsocketType MessageType;
 
 	// @zasm_var WEBSOCKET_URL
 	internal char32 URL;

@@ -29,7 +29,6 @@ bool do_slots(map<string, disassembled_script_data> &scripts, int assign_mode);
 int32_t onZScriptCompilerSettings();
 
 extern string zScript;
-extern FFScript FFCore;
 extern std::vector<string> asffcscripts, asglobalscripts, asitemscripts,
 	asnpcscripts, aseweaponscripts, aslweaponscripts,
 	asplayerscripts, asdmapscripts, asscreenscripts,

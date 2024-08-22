@@ -32,7 +32,6 @@ using std::set;
 #include "zc/combos.h"
 #include "zc/replay.h"
 #include "slopes.h"
-extern FFScript FFCore;
 #include "particles.h"
 #include <fmt/format.h>
 #include "zc/render.h"
@@ -2644,7 +2643,7 @@ void delete_fireball_shooter(const rpos_handle_t& rpos_handle)
     for(int32_t j=0; j<guys.Count(); j++)
     {
         // Finds the smallest enemy ID
-        if((int32_t(guys.spr(j)->x)==cx)&&(int32_t(guys.spr(j)->y)==cy)&&(guysbuf[(guys.spr(j)->id)&0xFFF].flags2 & guy_fire))
+        if((int32_t(guys.spr(j)->x)==cx)&&(int32_t(guys.spr(j)->y)==cy)&&(guysbuf[(guys.spr(j)->id)&0xFFF].flags & guy_fire))
         {
             guys.del(j);
         }
@@ -2717,7 +2716,7 @@ static int32_t findtrigger(int32_t screen)
 
 static void log_trigger_secret_reason(TriggerSource source)
 {
-	if (source == Singular)
+	if (source == TriggerSource::Singular)
 	{
 		Z_eventlog("Restricted Screen Secrets triggered\n");
 	}
@@ -2726,17 +2725,17 @@ static void log_trigger_secret_reason(TriggerSource source)
 		const char* source_str = "";
 		switch (source)
 		{
-			case Singular: break;
-			case Unspecified: source_str = "by unspecified means"; break;
-			case EnemiesScreenFlag: source_str = "the 'Enemies->Secret' screen flag"; break;
-			case SecretsScreenState: source_str = "the 'Secrets' screen state"; break;
-			case Script: source_str = "a script"; break;
-			case ItemsSecret: source_str = "Items->Secret"; break;
-			case GenericCombo: source_str = "Generic Combo"; break;
-			case LightTrigger: source_str = "Light Triggers"; break;
-			case SCC: source_str = "by SCC"; break;
-			case CheatTemp: source_str = "by Cheat (Temp)"; break;
-			case CheatPerm: source_str = "by Cheat (Perm)"; break;
+			case TriggerSource::Singular: break;
+			case TriggerSource::Unspecified: source_str = "by unspecified means"; break;
+			case TriggerSource::EnemiesScreenFlag: source_str = "the 'Enemies->Secret' screen flag"; break;
+			case TriggerSource::SecretsScreenState: source_str = "the 'Secrets' screen state"; break;
+			case TriggerSource::Script: source_str = "a script"; break;
+			case TriggerSource::ItemsSecret: source_str = "Items->Secret"; break;
+			case TriggerSource::GenericCombo: source_str = "Generic Combo"; break;
+			case TriggerSource::LightTrigger: source_str = "Light Triggers"; break;
+			case TriggerSource::SCC: source_str = "by SCC"; break;
+			case TriggerSource::CheatTemp: source_str = "by Cheat (Temp)"; break;
+			case TriggerSource::CheatPerm: source_str = "by Cheat (Perm)"; break;
 		}
 		Z_eventlog("Screen Secrets triggered by %s\n", source_str);
 	}
@@ -6170,7 +6169,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 		if(game->maps[(currmap*MAPSCRSNORMAL)+screen]&mSECRET)			   // if special stuff done before
 		{
 			reveal_hidden_stairs(scr, screen, false);
-			trigger_secrets_for_screen(SecretsScreenState, currscr, tmp == 0 ? tmpscr : &special_warp_return_screen, false, -1);
+			trigger_secrets_for_screen(TriggerSource::SecretsScreenState, currscr, tmp == 0 ? tmpscr : &special_warp_return_screen, false, -1);
 		}
 		if(game->maps[(currmap*MAPSCRSNORMAL)+screen]&mLIGHTBEAM) // if special stuff done before
 		{

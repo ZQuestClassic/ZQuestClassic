@@ -9,7 +9,6 @@
 #include "base/mapscr.h"
 #include "iter.h"
 
-extern FFScript FFCore;
 /*
 void sprite::check_conveyor()
 {

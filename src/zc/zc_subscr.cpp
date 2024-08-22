@@ -17,7 +17,6 @@
 #include "zscriptversion.h"
 
 extern HeroClass Hero;
-extern FFScript FFCore;
 extern int32_t directItemA;
 extern int32_t directItemB;
 extern int32_t directItemY;

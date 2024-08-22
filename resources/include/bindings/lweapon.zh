@@ -58,7 +58,9 @@ class lweapon {
 	// @zasm_var LWPNFRAME
 	internal int Frame;
 
-	// The mode for the sprite's draws, using the `DS_` constants.
+	// The mode for the sprite's draws.
+	//
+	// Valid values: [DrawStyle] (`DS_`).
 	//
 	// @zasm_var LWPNDRAWTYPE
 	internal int DrawStyle;
@@ -143,7 +145,9 @@ class lweapon {
 	// @zasm_var LWPNFLASH
 	internal bool Flash;
 
-	// The flip status of the weapon's tile. Uses the `FLIP_` constants.
+	// How to flip (or rotate) the weapon.
+	//
+	// Valid values: [TransformationType] (`FLIP_` or `ROT_`).
 	//
 	// @zasm_var LWPNFLIP
 	internal int Flip;
@@ -412,7 +416,9 @@ class lweapon {
 	// @zasm_var LWPNAUTOROTATE
 	internal bool AutoRotate;
 
-	// A set of weapon flags. Use the `WFLAG_` constants as indexes.
+	// A set of weapon flags.
+	//
+	// Valid indices: [WeaponFlagIndex] (`WFLAG_`).
 	//
 	// @zasm_var LWPNFLAGS
 	internal bool Flags[];
@@ -464,8 +470,9 @@ class lweapon {
 	// @zasm_var LWPNSPRITES
 	internal int Sprites[];
 
-	// The burning light radii associated with sprites of the weapon. See
-	// 'WPN_SPRITE_' constants in 'std_constants.zh'
+	// The burning light radii associated with sprites of the weapon.
+	//
+	// Valid indices: [WeaponSpriteIndex] (`WPN_SPRITE_`).
 	//
 	// @zasm_var LWPNBURNLIGHTRADIUS
 	internal int BurnLightRadius[];
@@ -524,8 +531,9 @@ class lweapon {
 	//   LWPNDEL
 	internal void Remove();
 
-	// Switch the player with this sprite. Use the `SW_EFF_` constants for
-	// 'effect' to select a visual style for the switch.
+	// Switch the player with this sprite.
+	//
+	// Valid values for [effect]: [SwitchEffect] (`SW_EFF_`).
 	//
 	// @zasm
 	//   POP D2

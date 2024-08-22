@@ -1,6 +1,7 @@
 #ifndef FFSCRIPT_H_
 #define FFSCRIPT_H_
 
+#include "base/mapscr.h"
 #include "base/zdefs.h"
 #include "base/initdata.h"
 #include "parser/parserDefs.h"
@@ -12,6 +13,7 @@
 #include "zasm/defines.h"
 #include "zc/zelda.h"
 #include "zc/replay.h"
+#include "zc/hero.h"
 
 #define ZS_BYTE 255
 #define ZS_CHAR 255
@@ -550,88 +552,7 @@ struct user_paldata : public user_abstract_obj
 //Putting this here for now.
 #include "base/module.h"
 
-typedef struct ZSCRIPT_CONFIG_ENTRY
-{
-   char *name;                      /* variable name (NULL if comment) */
-   char *data;                      /* variable value */
-   struct ZSCRIPT_CONFIG_ENTRY *next;       /* linked list */
-} ZSCRIPT_CONFIG_ENTRY;
-
-
-typedef struct ZSCRIPT_CONFIG
-{
-   ZSCRIPT_CONFIG_ENTRY *head;              /* linked list of config entries */
-   char *filename;                  /* where were we loaded from? */
-   int32_t dirty;                       /* has our data changed? */
-} ZSCRIPT_CONFIG;
-
-
-typedef struct ZSCRIPT_CONFIG_HOOK
-{
-   char *section;                   /* hooked config section info */
-   int32_t (*intgetter)(AL_CONST char *name, int32_t def);
-   AL_CONST char *(*stringgetter)(AL_CONST char *name, AL_CONST char *def);
-   void (*stringsetter)(AL_CONST char *name, AL_CONST char *value);
-   struct ZSCRIPT_CONFIG_HOOK *next; 
-} ZSCRIPT_CONFIG_HOOK;
-
-
-#define MAX_CONFIGS     4
-
-static ZSCRIPT_CONFIG *config[MAX_CONFIGS] = { NULL, NULL, NULL, NULL };
-static ZSCRIPT_CONFIG *config_override = NULL;
-static ZSCRIPT_CONFIG *config_language = NULL;
-static ZSCRIPT_CONFIG *system_config = NULL;
-
-static ZSCRIPT_CONFIG_HOOK *config_hook = NULL;
-
-static int32_t config_installed = FALSE;
-
-static char **config_argv = NULL;
-static char *argv_buf = NULL;
-static int32_t argv_buf_size = 0;
-
 int32_t run_script_int(bool is_jitted);
-
-//Config files
-void zscript_flush_config(ZSCRIPT_CONFIG *cfg);
-void zscript_flush_config_file(void);
-void zscript_destroy_config(ZSCRIPT_CONFIG *cfg);
-void zscript_config_cleanup(void);
-void zscript_init_config(int32_t loaddata);
-int32_t zscript_get_config_line(const char *data, int32_t length, char **name, char **val);
-void zscript_set_config(ZSCRIPT_CONFIG **config, const char *data, int32_t length, const char *filename);
-void zscript_load_config_file(ZSCRIPT_CONFIG **config, const char *filename, const char *savefile);
-void zscript_set_config_file(const char *filename);
-void zscript_set_config_data(const char *data, int32_t length);
-void zscript_override_config_file(const char *filename);
-void zscript_override_config_data(const char *data, int32_t length);
-void zscript_push_config_state(void);
-void zscript_pop_config_state(void);
-void zscript_prettify_config_section_name(const char *in, char *out, int32_t out_size);
-void zscript_hook_config_section(const char *section, int32_t (*intgetter)(const char *, int32_t), const char *(*stringgetter)(const char *, const char *), void (*stringsetter)(const char *, const char *));
-int32_t zscript_config_is_hooked(const char *section);
-ZSCRIPT_CONFIG_ENTRY *zscript_find_config_string(ZSCRIPT_CONFIG *config, const char *section, const char *name, ZSCRIPT_CONFIG_ENTRY **prev);
-const char *zscript_get_config_string(const char *section, const char *name, const char *def);
-int32_t zscript_get_config_int(const char *section, const char *name, int32_t def);
-int32_t zscript_get_config_hex(const char *section, const char *name, int32_t def);
-float zscript_get_config_float(const char *section, const char *name, float def);
-int32_t zscript_get_config_id(const char *section, const char *name, int32_t def);
-char **zscript_get_config_argv(const char *section, const char *name, int32_t *argc);
-ZSCRIPT_CONFIG_ENTRY *zscript_insert_config_variable(ZSCRIPT_CONFIG *the_config, ZSCRIPT_CONFIG_ENTRY *p, const char *name, const char *data);
-void zscript_set_config_string(const char *section, const char *name, const char *val);
-void zscript_set_config_int(const char *section, const char *name, int32_t val);
-void zscript_set_config_hex(const char *section, const char *name, int32_t val);
-void zscript_set_config_float(const char *section, const char *name, float val);
-void zscript_set_config_id(const char *section, const char *name, int32_t val);
-void _zscript_reload_config(void);
-void zscript_reload_config_texts(const char *new_language);
-const char *zscript_get_config_text(const char *msg);
-int32_t zscript_add_unique_config_name(const char ***names, int32_t n, char const *name);
-int32_t zscript_attach_config_entries(ZSCRIPT_CONFIG *conf, const char *section,int32_t n, const char ***names, int32_t list_sections);
-int32_t zscript_list_config_entries(const char *section, const char ***names);
-int32_t zscript_list_config_sections(const char ***names);
-void zscript_free_config_entries(const char ***names);
 
 void clearConsole();
 
@@ -1150,37 +1071,9 @@ int32_t getEnemyByScriptUID(int32_t sUID);
 int32_t getLWeaponByScriptUID(int32_t sUID);
 int32_t getEWeaponByScriptUID(int32_t sUID);
 
-//new npc functions for npc scripts
-void do_isdeadnpc();
-void do_canslidenpc();
-void do_slidenpc();
-void do_npc_stopbgsfx();
-void do_npcattack();
-void do_npc_newdir();
-void do_npc_constwalk();
-void do_npc_varwalk();
-void do_npc_varwalk8();
-void do_npc_constwalk8();
-void do_npc_haltwalk();
-void do_npc_haltwalk8();
-void do_npc_floatwalk();
-void do_npc_breathefire();
-void do_npc_newdir8();
-int32_t npc_collision();
-int32_t npc_linedup();
-void do_npc_hero_in_range(const bool v);
-void do_npc_simulate_hit(const bool v);
-void do_npc_knockback(const bool v);
-void do_npc_add(const bool v);
-void do_npc_canmove(const bool v);
-void get_npcdata_initd_label(const bool v);
-void do_getnpcdata_getname();
-
 //Deletion functions
-void do_npc_delete();
 void do_lweapon_delete();
 void do_eweapon_delete();
-bool do_itemsprite_delete();
 
 
 	static INLINE int32_t ZSbound_byte(int32_t val)
@@ -1209,7 +1102,6 @@ bool do_itemsprite_delete();
 	}
 	
 static void set_screenwarpReturnY(mapscr *m, int32_t d, int32_t value);
-static void set_screendoor(mapscr *m, int32_t d, int32_t value);
 static void set_screenenemy(mapscr *m, int32_t index, int32_t value);
 static void set_screenlayeropacity(mapscr *m, int32_t d, int32_t value);
 static void set_screensecretcombo(mapscr *m, int32_t d, int32_t value);
@@ -1231,7 +1123,6 @@ static void set_screenatchall(mapscr *m, int32_t value);
 static void deallocateArray(const int32_t ptrval);
 static int32_t get_screen_d(int32_t index1, int32_t index2);
 static void set_screen_d(int32_t index1, int32_t index2, int32_t val);
-static int32_t whichlayer(int32_t scr);
 
 static void do_zapout();
 static void do_zapin();
@@ -1611,10 +1502,6 @@ enum __Error
 	static void deallocateAllScriptOwnedOfType(ScriptType scriptType);
 	static void deallocateAllScriptOwned();
 	static void deallocateAllScriptOwnedCont();
-
-	user_object& create_user_object(uint32_t id);
-	std::vector<user_object*> get_user_objects();
-	user_object* get_user_object(uint32_t id);
 	
     private:
     int32_t sid;
@@ -1631,55 +1518,13 @@ void set_register(int32_t arg, int32_t value);
 int32_t run_script(ScriptType type, const word script, const int32_t i = -1); //Global scripts don't need 'i'
 int32_t ffscript_engine(const bool preload);
 
+int32_t get_own_i(ScriptType type);
+
 void deallocateArray(const int32_t ptrval);
 void clearScriptHelperData();
 
-void do_getscreenflags();
-void do_getscreeneflags();
-int32_t get_screendoor(mapscr *m, int32_t d);
-int32_t get_screenlayeropacity(mapscr *m, int32_t d);
-int32_t get_screensecretcombo(mapscr *m, int32_t d);
-int32_t get_screensecretcset(mapscr *m, int32_t d);
-int32_t get_screensecretflag(mapscr *m, int32_t d);
-int32_t get_screenlayermap(mapscr *m, int32_t d);
-int32_t get_screenlayerscreen(mapscr *m, int32_t d);
-int32_t get_screenpath(mapscr *m, int32_t d);
-int32_t get_screenwarpReturnX(mapscr *m, int32_t d);
-int32_t get_screenwarpReturnY(mapscr *m, int32_t d);
-
-int32_t get_screenGuy(mapscr *m);
-int32_t get_screenString(mapscr *m);
-int32_t get_screenRoomtype(mapscr *m);
-int32_t get_screenViewY(mapscr *m);
-int32_t get_screenEntryX(mapscr *m);
-int32_t get_screenEntryY(mapscr *m);
-int32_t get_screenitem(mapscr *m);
-int32_t get_screenundercombo(mapscr *m);
-int32_t get_screenundercset(mapscr *m);
-int32_t get_screenatchall(mapscr *m);
-void do_getscreenLayerOpacity();
-void do_getscreenSecretCombo();
-void do_getscreenSecretCSet();
-void do_getscreenSecretFlag();
-void do_getscreenLayerMap();
-void do_getscreenLayerscreen();
-void do_getscreenPath();
-void do_getscreenWarpReturnX();
-void do_getscreenWarpReturnY();
-void do_getscreenatchall();
-void do_getscreenUndercombo();
-void do_getscreenUnderCSet();
-void do_getscreenWidth();
-void do_getscreenHeight();
-void do_getscreenGuy();
-void do_getscreenString();
-void do_getscreenRoomType();
-void do_getscreenEntryX();
-void do_getscreenEntryY();
-void do_getscreenItem();
-void do_getscreendoor();
-int32_t get_screennpc(mapscr *m, int32_t index);
-void do_getscreennpc();
+int32_t get_screenflags(mapscr *m, int32_t flagset);
+int32_t get_screeneflags(mapscr *m, int32_t flagset);
 
 // Defines for script flags
 #define TRUEFLAG          0x0001
@@ -1717,7 +1562,362 @@ int32_t get_combopos_ref(rpos_t rpos, int32_t layer);
 rpos_t combopos_ref_to_rpos(int32_t combopos_ref);
 int32_t combopos_ref_to_layer(int32_t combopos_ref);
 
-void init_script_objects();
+bool is_valid_array(int32_t ptr);
+dword allocatemem(int32_t size, bool local, ScriptType type, const uint32_t UID, script_object_type object_type = script_object_type::none);
+
+class SH
+{
+
+public:
+
+	enum __Error
+	{
+		_NoError, //OK!
+		_Overflow, //script array too small
+		_InvalidPointer, //passed NULL pointer or similar
+		_OutOfBounds, //library array out of bounds
+		_InvalidSpriteUID //bad npc, ffc, etc.
+	};
+
+#define INVALIDARRAY localRAM[0]  //localRAM[0] is never used
+
+	static ZScriptArray& InvalidError(const int32_t ptr);
+	static void write_stack(const uint32_t stackoffset, const int32_t value);
+	static int32_t read_stack(const uint32_t stackoffset);
+	static INLINE int32_t get_arg(int32_t arg, bool v)
+	{
+		return v ? arg : get_register(arg);
+	}
+};
+
+class ArrayManager
+{
+public:
+	ArrayManager(int32_t ptr, bool neg);
+	ArrayManager(int32_t ptr);
+	
+	int32_t get(int32_t indx) const;
+	void set(int32_t indx, int32_t val);
+	int32_t size() const;
+	
+	bool resize(size_t newsize);
+	bool resize_min(size_t minsz);
+	bool can_resize();
+	bool push(int32_t val, int indx = -1);
+	int32_t pop(int indx = -1);
+	
+	bool invalid() const {return _invalid;}
+	bool internal() const {return !_invalid && !aptr;}
+	
+	std::string asString(std::function<char const*(int32_t)> formatter, const size_t& limit) const;
+	
+	bool negAccess;
+private:
+	int32_t ptr;
+	ZScriptArray* aptr;
+	bool _invalid;
+};
+
+class ArrayH : public SH
+{
+public:
+	static size_t getSize(const int32_t ptr);
+	
+	//Can't you get the std::string and then check its length?
+	static int32_t strlen(const int32_t ptr);
+	
+	//Returns values of a zscript array as an std::string.
+	static void getString(const int32_t ptr, string &str, dword num_chars = ZSCRIPT_MAX_STRING_CHARS, dword offset = 0);
+	
+	//Used for issues where reading the ZScript array floods the console with errors 'Accessing array index [12] size of 12.
+	//Happens with Quad3D and some other functions, and I have no clue why. -Z ( 28th April, 2019 )
+	//Like getString but for an array of longs instead of chars. *(arrayPtr is not checked for validity)
+	static void getValues2(const int32_t ptr, int32_t* arrayPtr, dword num_values, dword offset = 0);
+	
+	//Like getString but for an array of longs instead of chars. *(arrayPtr is not checked for validity)
+	static void getValues(const int32_t ptr, int32_t* arrayPtr, dword num_values, dword offset = 0);
+	
+	static void copyValues(const int32_t ptr, const int32_t ptr2, size_t num_values);
+
+	//Get element from array
+	static INLINE int32_t getElement(const int32_t ptr, int32_t offset, const bool neg = false);
+	
+	//Set element in array
+	static INLINE void setElement(const int32_t ptr, int32_t offset, const int32_t value, const bool neg = false);
+	
+	//Puts values of a zscript array into a client <type> array. returns 0 on success. Overloaded
+	template <typename T>
+	static int32_t getArray(const int32_t ptr, T *refArray)
+	{
+		return getArray(ptr, getSize(ptr), 0, 0, 0, refArray);
+	}
+	
+	template <typename T>
+	static int32_t getArray(const int32_t ptr, const size_t size, T *refArray)
+	{
+		return getArray(ptr, size, 0, 0, 0, refArray);
+	}
+	
+	template <typename T>
+	static int32_t getArray(const int32_t ptr, const size_t size, size_t userOffset, const size_t userStride, const size_t refArrayOffset, T *refArray);
+	
+	static int32_t setArray(const int32_t ptr, string const& s2, bool resize = false);
+
+	//Puts values of a client <type> array into a zscript array. returns 0 on success. Overloaded
+	template <typename T>
+	static int32_t setArray(const int32_t ptr, const size_t size, T *refArray, bool x10k = true, bool resize = false)
+	{
+		return setArray(ptr, size, 0, 0, 0, refArray, x10k, resize);
+	}
+
+	static INLINE int32_t checkUserArrayIndex(const int32_t index, const dword size, const bool neg = false)
+	{
+		if(index < (neg ? -int32_t(size) : 0) || index >= int32_t(size))
+		{
+			Z_scripterrlog("Invalid index (%ld) to local array of size %ld\n", index, size);
+			return _OutOfBounds;
+		}
+		
+		return _NoError;
+	}
+
+	template <typename T>
+	static int32_t setArray(const int32_t ptr, const size_t size, word userOffset, const word userStride, const word refArrayOffset, T *refArray, bool x10k = true, bool resize = false)
+	{
+		ArrayManager am(ptr);
+		
+		if (am.invalid())
+			return _InvalidPointer;
+		
+		if(am.can_resize() && resize)
+			am.resize_min((userStride+1)*size);
+			
+		word j = 0, k = userStride;
+		size_t sz = am.size();
+		for(word i = 0; j < size; i++)
+		{
+			if(i >= sz)
+				return _Overflow; //Resize?
+				
+			if (userOffset > 0)
+			{
+				--userOffset;
+				continue;
+			}
+				
+			if(k > 0)
+				k--;
+			else if(checkUserArrayIndex(i, sz) == _NoError)
+			{
+				am.set(i,int32_t(refArray[j + refArrayOffset]) * (x10k ? 10000 : 1));
+				k = userStride;
+				j++;
+			}
+		}
+		
+		return _NoError;
+	}
+};
+
+class BC : public SH
+{
+public:
+
+	static INLINE int32_t checkMapID(const int32_t ID, const char * const str)
+	{
+		//return checkBounds(ID, 0, map_count-1, str);
+		if(ID < 0 || ID > map_count-1)
+		{
+			Z_scripterrlog("Invalid value (%i) passed to '%s'\n", ID+1, str);
+			return _OutOfBounds;
+		}
+		
+		return _NoError;
+	}
+	
+	static INLINE int32_t checkDMapID(const int32_t ID, const char * const str)
+	{
+		return checkBounds(ID, 0, MAXDMAPS-1, str);
+	}
+	
+	static INLINE int32_t checkComboPos(const int32_t pos, const char * const str)
+	{
+		return checkBoundsPos(pos, 0, 175, str);
+	}
+
+	static INLINE int32_t checkComboRpos(const rpos_t rpos, const char * const str)
+	{
+		return checkBoundsRpos(rpos, (rpos_t)0, region_max_rpos, str);
+	}
+
+	static INLINE int32_t checkTile(const int32_t pos, const char * const str)
+	{
+		return checkBounds(pos, 0, NEWMAXTILES-1, str);
+	}
+	
+	static INLINE int32_t checkCombo(const int32_t pos, const char * const str)
+	{
+		return checkBounds(pos, 0, MAXCOMBOS-1, str);
+	}
+	
+	static INLINE int32_t checkMisc(const int32_t a, const char * const str)
+	{
+		return checkBounds(a, 0, 15, str);
+	}
+	
+	 static INLINE int32_t checkMisc32(const int32_t a, const char * const str)
+	{
+		return checkBounds(a, 0, 31, str);
+	}
+	
+	static INLINE int32_t checkMessage(const int32_t ID, const char * const str)
+	{
+		return checkBounds(ID, 0, msg_strings_size-1, str);
+	}
+	
+	static INLINE int32_t checkLayer(const int32_t layer, const char * const str)
+	{
+		return checkBounds(layer, 0, 6, str);
+	}
+	
+	static INLINE int32_t checkFFC(const int32_t ffc, const char * const str)
+	{
+		return checkBounds(ffc, 0, MAX_FFCID, str);
+	}
+	
+	static INLINE int32_t checkGuyIndex(const int32_t index, const char * const str)
+	{
+		return checkBoundsOneIndexed(index, 0, guys.Count()-1, str);
+	}
+	
+	static INLINE int32_t checkItemIndex(const int32_t index, const char * const str)
+	{
+		return checkBoundsOneIndexed(index, 0, items.Count()-1, str);
+	}
+	
+	static INLINE int32_t checkEWeaponIndex(const int32_t index, const char * const str)
+	{
+		return checkBoundsOneIndexed(index, 0, Ewpns.Count()-1, str);
+	}
+	
+	static INLINE int32_t checkLWeaponIndex(const int32_t index, const char * const str)
+	{
+		return checkBoundsOneIndexed(index, 0, Lwpns.Count()-1, str);
+	}
+	
+	static INLINE int32_t checkGuyID(const int32_t ID, const char * const str)
+	{
+		//return checkBounds(ID, 0, MAXGUYS-1, str); //Can't create NPC ID 0
+		return checkBounds(ID, 1, MAXGUYS-1, str);
+	}
+	
+	static INLINE int32_t checkItemID(const int32_t ID, const char * const str)
+	{
+		return checkBounds(ID, 0, MAXITEMS-1, str);
+	}
+	
+	static INLINE int32_t checkWeaponID(const int32_t ID, const char * const str)
+	{
+		return checkBounds(ID, 0, MAXWPNS-1, str);
+	}
+	
+	static INLINE int32_t checkWeaponMiscSprite(const int32_t ID, const char * const str)
+	{
+		return checkBounds(ID, 0, MAXWPNS-1, str);
+	}
+	
+	static INLINE int32_t checkSFXID(const int32_t ID, const char * const str)
+	{
+		return checkBounds(ID, 0, WAV_COUNT-1, str);
+	}
+	
+	static INLINE int32_t checkBounds(const int32_t n, const int32_t boundlow, const int32_t boundup, const char * const funcvar)
+	{
+		if(n < boundlow || n > boundup)
+		{
+			Z_scripterrlog("Invalid value (%i) passed to '%s'\n", n, funcvar);
+			return _OutOfBounds;
+		}
+		
+		return _NoError;
+	}
+	
+	static INLINE int32_t checkBoundsPos(const int32_t n, const int32_t boundlow, const int32_t boundup, const char * const funcvar)
+	{
+		if(n < boundlow || n > boundup)
+		{
+			Z_scripterrlog("Invalid position [%i] used to read to '%s'\n", n, funcvar);
+			return _OutOfBounds;
+		}
+        
+		return _NoError;
+	}
+
+	static INLINE int32_t checkBoundsRpos(const rpos_t n, const rpos_t boundlow, const rpos_t boundup, const char * const funcvar)
+	{
+		if(n < boundlow || n > boundup)
+		{
+			Z_scripterrlog("Invalid position [%i] used to read to '%s'\n", n, funcvar);
+			return _OutOfBounds;
+		}
+        
+		return _NoError;
+	}
+	
+	static INLINE int32_t checkBoundsOneIndexed(const int32_t n, const int32_t boundlow, const int32_t boundup, const char * const funcvar)
+	{
+		if(n < boundlow || n > boundup)
+		{
+			Z_scripterrlog("Invalid value (%i) passed to '%s'\n", n+1, funcvar);
+			return _OutOfBounds;
+		}
+		
+		return _NoError;
+	}
+	
+	static INLINE int32_t checkUserArrayIndex(const int32_t index, const dword size, const bool neg = false)
+	{
+		if(index < (neg ? -int32_t(size) : 0) || index >= int32_t(size))
+		{
+			Z_scripterrlog("Invalid index (%ld) to local array of size %ld\n", index, size);
+			return _OutOfBounds;
+		}
+		
+		return _NoError;
+	}
+};
+
+struct ScriptEngineData {
+	refInfo ref;
+	int32_t stack[MAX_SCRIPT_REGISTERS];
+	bounded_vec<word, int32_t> ret_stack {65535};
+	// This is used as a boolean for all but ScriptType::Item.
+	byte doscript = true;
+	bool waitdraw;
+	bool initialized;
+
+	void reset()
+	{
+		// No need to zero the stack.
+		ref = refInfo();
+		doscript = true;
+		waitdraw = false;
+		initialized = false;
+	}
+};
+
+// (type, index) => ScriptEngineData
+extern std::map<std::pair<ScriptType, word>, ScriptEngineData> scriptEngineDatas;
+
+void on_reassign_script_engine_data(ScriptType type, int index);
+
+extern FFScript FFCore;
+extern byte flagpos;
+extern int32_t flagval;
+void clear_ornextflag();
+void ornextflag(bool flag);
+
+int32_t get_mi(int32_t ref = MAPSCR_TEMP0);
+int32_t get_total_mi(int32_t ref = MAPSCR_TEMP0);
 
 #endif
-

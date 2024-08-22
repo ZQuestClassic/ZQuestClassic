@@ -1,20 +1,9 @@
 #ifndef ZSCRIPT_RENDERTARGET_H_
 #define ZSCRIPT_RENDERTARGET_H_
 
+#include "base/compiler.h"
+
 #include <allegro.h>
-
-
-#ifdef _MSC_VER
-#ifndef _FORCE_INLINE
-#define _FORCE_INLINE __forceinline
-#endif
-#else
-#ifndef _FORCE_INLINE
-#define _FORCE_INLINE inline
-#endif
-#endif
-
-
 
 class ZScriptDrawingRenderTarget
 {
@@ -48,17 +37,17 @@ public:
         }
     }
     
-    _FORCE_INLINE void SetCurrentRenderTarget(int32_t target)
+    ZC_FORCE_INLINE void SetCurrentRenderTarget(int32_t target)
     {
         _current_target = target;
     }
     
-    _FORCE_INLINE int32_t GetCurrentRenderTarget()
+    ZC_FORCE_INLINE int32_t GetCurrentRenderTarget()
     {
         return _current_target;
     }
     
-    _FORCE_INLINE BITMAP* GetTargetBitmap(int32_t target)
+    ZC_FORCE_INLINE BITMAP* GetTargetBitmap(int32_t target)
     {
         if(target < 0 || target >= MaxBuffers)
             return 0;
