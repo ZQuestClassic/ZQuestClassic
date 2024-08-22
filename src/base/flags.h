@@ -105,16 +105,6 @@ enum wpn_flags : uint32_t
 	wflag_update_ignite_sprite = F(9),
 };
 
-enum
-{
-	WPNSPR_BASE,
-	WPNSPR_IGNITE_ANY,
-	WPNSPR_IGNITE_STRONG,
-	WPNSPR_IGNITE_MAGIC,
-	WPNSPR_IGNITE_DIVINE,
-	WPNSPR_MAX
-};
-
 // Shield projectile blocking.
 // TODO: use this type in itemdata and guydata (right now they are using an `int misc` field)
 enum shield_flags : uint32_t

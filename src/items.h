@@ -155,15 +155,6 @@ enum
 
 //Now itemdata lives here too!
 
-enum
-{
-	BURNSPR_NONE,
-	BURNSPR_ANY,
-	BURNSPR_STRONG,
-	BURNSPR_MAGIC,
-	BURNSPR_DIVINE,
-	BURNSPR_MAX
-};
 struct itemdata
 {
     int32_t tile;

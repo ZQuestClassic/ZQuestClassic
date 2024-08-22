@@ -57,8 +57,8 @@ public:
 	byte unblockable;
 	
 	wpn_flags misc_wflags;
-	byte misc_wsprites[WPNSPR_MAX];
-	byte light_rads[WPNSPR_MAX];
+	byte misc_wsprites[BURNSPR_MAX];
+	byte light_rads[BURNSPR_MAX];
 	byte last_burnstate;
 	byte get_burnstate() const;
 	

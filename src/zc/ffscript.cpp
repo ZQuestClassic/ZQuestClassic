@@ -5091,7 +5091,7 @@ int32_t get_register(int32_t arg)
 			if(0!=(s=checkLWpn(ri->lwpn,"Sprites[]")))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, WPNSPR_MAX-1, "lweapon->Sprites[]") != SH::_NoError)
+				if(BC::checkBounds(indx, 0, BURNSPR_MAX-1, "lweapon->Sprites[]") != SH::_NoError)
 					ret = -10000;
 				else
 					ret = ((weapon*)(s))->misc_wsprites[indx]*10000;
@@ -5103,7 +5103,7 @@ int32_t get_register(int32_t arg)
 			if(0!=(s=checkLWpn(ri->lwpn,"BurnLightRadius[]")))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, WPNSPR_MAX-1, "lweapon->BurnLightRadius[]") != SH::_NoError)
+				if(BC::checkBounds(indx, 0, BURNSPR_MAX-1, "lweapon->BurnLightRadius[]") != SH::_NoError)
 					ret = -10000;
 				else
 					ret = ((weapon*)(s))->light_rads[indx]*10000;
@@ -5728,7 +5728,7 @@ int32_t get_register(int32_t arg)
 			if(0!=(s=checkEWpn(ri->ewpn,"Sprites[]")))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, WPNSPR_MAX-1, "eweapon->Sprites[]") != SH::_NoError)
+				if(BC::checkBounds(indx, 0, BURNSPR_MAX-1, "eweapon->Sprites[]") != SH::_NoError)
 					ret = -10000;
 				else
 					ret = ((weapon*)(s))->misc_wsprites[indx]*10000;
@@ -5740,7 +5740,7 @@ int32_t get_register(int32_t arg)
 			if(0!=(s=checkEWpn(ri->ewpn,"BurnLightRadius[]")))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, WPNSPR_MAX-1, "eweapon->BurnLightRadius[]") != SH::_NoError)
+				if(BC::checkBounds(indx, 0, BURNSPR_MAX-1, "eweapon->BurnLightRadius[]") != SH::_NoError)
 					ret = -10000;
 				else
 					ret = ((weapon*)(s))->light_rads[indx]*10000;
@@ -15964,7 +15964,7 @@ void set_register(int32_t arg, int32_t value)
 			if(0!=(s=checkLWpn(ri->lwpn,"Sprites[]")))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, WPNSPR_MAX-1, "lweapon->Sprites[]") == SH::_NoError)
+				if(BC::checkBounds(indx, 0, BURNSPR_MAX-1, "lweapon->Sprites[]") == SH::_NoError)
 					((weapon*)(s))->misc_wsprites[indx] = vbound(value/10000,0,255);
 			}
 			break;
@@ -15974,7 +15974,7 @@ void set_register(int32_t arg, int32_t value)
 			if(0!=(s=checkLWpn(ri->lwpn,"BurnLightRadius[]")))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, WPNSPR_MAX-1, "lweapon->BurnLightRadius[]") == SH::_NoError)
+				if(BC::checkBounds(indx, 0, BURNSPR_MAX-1, "lweapon->BurnLightRadius[]") == SH::_NoError)
 					((weapon*)(s))->light_rads[indx] = vbound(value/10000,0,255);
 			}
 			break;
@@ -16611,7 +16611,7 @@ void set_register(int32_t arg, int32_t value)
 			if(0!=(s=checkEWpn(ri->ewpn,"Sprites[]")))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, WPNSPR_MAX-1, "eweapon->Sprites[]") == SH::_NoError)
+				if(BC::checkBounds(indx, 0, BURNSPR_MAX-1, "eweapon->Sprites[]") == SH::_NoError)
 					((weapon*)(s))->misc_wsprites[indx] = vbound(value/10000,0,255);
 			}
 			break;
@@ -16621,7 +16621,7 @@ void set_register(int32_t arg, int32_t value)
 			if(0!=(s=checkEWpn(ri->ewpn,"BurnLightRadius[]")))
 			{
 				int32_t indx = ri->d[rINDEX]/10000;
-				if(BC::checkBounds(indx, 0, WPNSPR_MAX-1, "eweapon->BurnLightRadius[]") == SH::_NoError)
+				if(BC::checkBounds(indx, 0, BURNSPR_MAX-1, "eweapon->BurnLightRadius[]") == SH::_NoError)
 					((weapon*)(s))->light_rads[indx] = vbound(value/10000,0,255);
 			}
 			break;

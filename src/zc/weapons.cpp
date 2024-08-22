@@ -949,7 +949,7 @@ weapon::weapon(weapon const & other):
 	for ( int32_t q = 0; q < 22; q++ ) wscreengrid[q] = 0;
 	memset(wscreengrid_layer, 0, sizeof(wscreengrid_layer));
 	memset(wscreengrid_ffc, 0, sizeof(wscreengrid_ffc));
-	for( int32_t q = 0; q < WPNSPR_MAX; q++ )
+	for( int32_t q = 0; q < BURNSPR_MAX; q++ )
 	{
 		misc_wsprites[q] = other.misc_wsprites[q];
 		light_rads[q] = other.light_rads[q];
@@ -1026,14 +1026,14 @@ weapon::weapon(weapon const & other):
 byte weapon::get_burnstate() const
 {
 	if(misc_wflags & wflag_burn_divinefire)
-		return WPNSPR_IGNITE_DIVINE;
+		return BURNSPR_DIVINE;
 	if(misc_wflags & wflag_burn_magicfire)
-		return WPNSPR_IGNITE_MAGIC;
+		return BURNSPR_MAGIC;
 	if(misc_wflags & wflag_burn_strongfire)
-		return WPNSPR_IGNITE_STRONG;
+		return BURNSPR_STRONG;
 	if(misc_wflags & wflag_burn_anyfire)
-		return WPNSPR_IGNITE_ANY;
-	return WPNSPR_BASE;
+		return BURNSPR_ANY;
+	return BURNSPR_NONE;
 }
 
 // Let's dispose of some sound effects!
@@ -2385,7 +2385,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 		step *=2;
 	}
 
-	for(int q = 0; q < WPNSPR_MAX; ++q)
+	for(int q = 0; q < BURNSPR_MAX; ++q)
 	{
 		misc_wsprites[q] = 0;
 		light_rads[q] = 0;

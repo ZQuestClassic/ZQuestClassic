@@ -894,6 +894,17 @@ enum defWpnSprite
 	wsLast
 };
 
+//Burning Sprites
+enum
+{
+	BURNSPR_NONE = 0,
+	BURNSPR_ANY = 1,
+	BURNSPR_STRONG = 2,
+	BURNSPR_MAGIC = 3,
+	BURNSPR_DIVINE = 4,
+	BURNSPR_MAX = 5,
+};
+
 // phantom weapon types
 enum
 {
