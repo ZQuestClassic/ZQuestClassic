@@ -2566,13 +2566,13 @@ void do_weapon_fx(weapon* w, newcombo const& cmb)
 	if(cmb.triggerflags[0] & combotriggerKILLWPN)
 		killgenwpn(w);
 	if(cmb.triggerflags[3] & combotriggerIGNITE_ANYFIRE)
-		w->misc_wflags |= WFLAG_BURN_ANYFIRE;
+		w->misc_wflags |= wflag_burn_anyfire;
 	if(cmb.triggerflags[3] & combotriggerIGNITE_STRONGFIRE)
-		w->misc_wflags |= WFLAG_BURN_STRONGFIRE;
+		w->misc_wflags |= wflag_burn_strongfire;
 	if(cmb.triggerflags[3] & combotriggerIGNITE_MAGICFIRE)
-		w->misc_wflags |= WFLAG_BURN_MAGICFIRE;
+		w->misc_wflags |= wflag_burn_magicfire;
 	if(cmb.triggerflags[3] & combotriggerIGNITE_DIVINEFIRE)
-		w->misc_wflags |= WFLAG_BURN_DIVINEFIRE;
+		w->misc_wflags |= wflag_burn_divinefire;
 }
 
 bool handle_trigger_conditionals(newcombo const& cmb, int32_t cx, int32_t cy, bool& hasitem)
@@ -3321,7 +3321,7 @@ bool do_lift_combo(int32_t lyr, int32_t pos, int32_t gloveid)
 	
 	w->moveflags |= move_obeys_grav;
 	if(cmb.liftflags & LF_BREAKONSOLID)
-		w->misc_wflags |= WFLAG_BREAK_ON_SOLID;
+		w->misc_wflags |= wflag_break_when_hitsolid;
 	
 	w->death_sprite = cmb.liftbreaksprite;
 	w->death_sfx = cmb.liftbreaksfx;

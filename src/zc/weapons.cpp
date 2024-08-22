@@ -1025,13 +1025,13 @@ weapon::weapon(weapon const & other):
 
 byte weapon::get_burnstate() const
 {
-	if(misc_wflags & WFLAG_BURN_DIVINEFIRE)
+	if(misc_wflags & wflag_burn_divinefire)
 		return WPNSPR_IGNITE_DIVINE;
-	if(misc_wflags & WFLAG_BURN_MAGICFIRE)
+	if(misc_wflags & wflag_burn_magicfire)
 		return WPNSPR_IGNITE_MAGIC;
-	if(misc_wflags & WFLAG_BURN_STRONGFIRE)
+	if(misc_wflags & wflag_burn_strongfire)
 		return WPNSPR_IGNITE_STRONG;
-	if(misc_wflags & WFLAG_BURN_ANYFIRE)
+	if(misc_wflags & wflag_burn_anyfire)
 		return WPNSPR_IGNITE_ANY;
 	return WPNSPR_BASE;
 }
@@ -1191,7 +1191,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	weap_timeout = 0;
 	parent_script_UID = 0;
 	unblockable = 0;
-	misc_wflags = 0;
+	misc_wflags = wpn_flags(0);
 	last_burnstate = 0;
 	death_spawnitem = -1;
 	death_spawndropset = -1;
@@ -1326,7 +1326,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	switch(id) //flags
 	{
 		case wThrown:
-			misc_wflags = WFLAG_BREAK_WHEN_LANDING;
+			misc_wflags = wflag_break_when_landing;
 			break;
 		case wLitBomb:
 		case wLitSBomb:
@@ -1335,9 +1335,9 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				if(parent.family==itype_bomb || parent.family==itype_sbomb)
 				{
 					if(parent.flags&item_flag3)
-						misc_wflags |= WFLAG_STOP_WHEN_LANDING;
+						misc_wflags |= wflag_stop_when_landing;
 					if(parent.flags&item_flag5)
-						misc_wflags |= WFLAG_STOP_WHEN_HIT_SOLID;
+						misc_wflags |= wflag_stop_when_hitsolid;
 				}
 			}
 			break;
@@ -2405,7 +2405,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 		default:
 			if(parentitem > -1 && (parent.flags & item_burning_sprites))
 			{
-				misc_wflags |= WFLAG_UPDATE_IGNITE_SPRITE;
+				misc_wflags |= wflag_update_ignite_sprite;
 				for(int q = 0; q < BURNSPR_MAX; ++q)
 				{
 					misc_wsprites[q] = parent.burnsprs[q];
@@ -3850,7 +3850,7 @@ bool weapon::animate(int32_t index)
 	}
 	// do special timing stuff
 	bool hooked=false;
-	if(misc_wflags & WFLAG_UPDATE_IGNITE_SPRITE)
+	if(misc_wflags & wflag_update_ignite_sprite)
 	{
 		auto burnstate = get_burnstate();
 		if(last_burnstate != burnstate)
@@ -3860,7 +3860,7 @@ bool weapon::animate(int32_t index)
 			glowRad = light_rads[burnstate];
 		}
 	}
-	if(misc_wflags & WFLAG_PICKUP_ITEMS) //Weapon grabs touched items, giving them to the player, similar to engine melee weapons.
+	if(misc_wflags & wflag_pickup_items) //Weapon grabs touched items, giving them to the player, similar to engine melee weapons.
 	{
 		zfix wx = x+hxofs;
 		zfix wy = y+hyofs-fakez;
@@ -3954,10 +3954,10 @@ bool weapon::animate(int32_t index)
 	}
 	if(misc_wflags & WFLAG_BURNFLAGS)
 		triggerfire(x,y,true,
-			misc_wflags&WFLAG_BURN_ANYFIRE,
-			misc_wflags&WFLAG_BURN_STRONGFIRE,
-			misc_wflags&WFLAG_BURN_MAGICFIRE,
-			misc_wflags&WFLAG_BURN_DIVINEFIRE);
+			misc_wflags&wflag_burn_anyfire,
+			misc_wflags&wflag_burn_strongfire,
+			misc_wflags&wflag_burn_magicfire,
+			misc_wflags&wflag_burn_divinefire);
 	//Only lweapons
 	if ( id < wEnemyWeapons || ( id >= wScript1 && id <= wScript10 && isLWeapon ) ) 
 	{
@@ -4095,12 +4095,12 @@ bool weapon::animate(int32_t index)
 					
 				fall = 0;
 				
-				if(misc_wflags & WFLAG_BREAK_WHEN_LANDING) //Die
+				if(misc_wflags & wflag_break_when_landing) //Die
 				{
 					collision_check();
 					dead = 0;
 				}
-				if(misc_wflags & WFLAG_STOP_WHEN_LANDING) //Stop movement
+				if(misc_wflags & wflag_stop_when_landing) //Stop movement
 					step = 0;
 			}
 			
@@ -4118,12 +4118,12 @@ bool weapon::animate(int32_t index)
 					fakez = fakefall = 0;
 					if(didfall)
 					{
-						if(misc_wflags & WFLAG_BREAK_WHEN_LANDING) //Die
+						if(misc_wflags & wflag_break_when_landing) //Die
 						{
 							collision_check();
 							dead = 0;
 						}
-						if(misc_wflags & WFLAG_STOP_WHEN_LANDING) //Stop movement
+						if(misc_wflags & wflag_stop_when_landing) //Stop movement
 							step = 0;
 					}
 				}
@@ -4142,12 +4142,12 @@ bool weapon::animate(int32_t index)
 					z = fall = 0;
 					if(didfall)
 					{
-						if(misc_wflags & WFLAG_BREAK_WHEN_LANDING) //Die
+						if(misc_wflags & wflag_break_when_landing) //Die
 						{
 							collision_check();
 							dead = 0;
 						}
-						if(misc_wflags & WFLAG_STOP_WHEN_LANDING) //Stop movement
+						if(misc_wflags & wflag_stop_when_landing) //Stop movement
 							step = 0;
 					}
 				}
@@ -6958,13 +6958,13 @@ bool weapon::animate(int32_t index)
 		}
 	}
 	
-	if(misc_wflags & (WFLAG_BREAK_ON_SOLID|WFLAG_STOP_WHEN_HIT_SOLID))
+	if(misc_wflags & (wflag_break_when_hitsolid|wflag_stop_when_hitsolid))
 	{
 		if(_walkflag(x,y,2) || _walkflag(x,y+8,2))
 		{
-			if(misc_wflags & WFLAG_BREAK_ON_SOLID)
+			if(misc_wflags & wflag_break_when_hitsolid)
 				dead = 0;
-			if(misc_wflags & WFLAG_STOP_WHEN_HIT_SOLID)
+			if(misc_wflags & wflag_stop_when_hitsolid)
 				step = 0;
 			findcombotriggers(); //Hit solid triggers
 		}
@@ -8074,10 +8074,10 @@ void weapon::findcombotriggers()
 				MatchComboTrigger2(this, COMBOX(pos), COMBOY(pos), combobuf.data(), ly);
 			if(misc_wflags & WFLAG_BURNFLAGS)
 				triggerfire(COMBOX(pos), COMBOY(pos), true,
-					misc_wflags&WFLAG_BURN_ANYFIRE,
-					misc_wflags&WFLAG_BURN_STRONGFIRE,
-					misc_wflags&WFLAG_BURN_MAGICFIRE,
-					misc_wflags&WFLAG_BURN_DIVINEFIRE);
+					misc_wflags&wflag_burn_anyfire,
+					misc_wflags&wflag_burn_strongfire,
+					misc_wflags&wflag_burn_magicfire,
+					misc_wflags&wflag_burn_divinefire);
 		}
 		return;
 	}
@@ -8168,7 +8168,7 @@ void weapon::draw_hitbox()
 weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t usesprite, int32_t Dir, int32_t step, int32_t prntid, int32_t height, int32_t width, int32_t a, int32_t b, int32_t c, int32_t d, int32_t e, int32_t f, int32_t g) : sprite(), parentid(prntid)
 {
 	unblockable = 0;
-	misc_wflags = 0;
+	misc_wflags = wpn_flags(0);
 	death_spawnitem = -1;
 	death_spawndropset = -1;
 	death_sprite = -1;

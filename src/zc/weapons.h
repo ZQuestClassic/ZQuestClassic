@@ -4,6 +4,7 @@
 #include "base/zdefs.h"
 #include "sprite.h"
 #include "base/zfix.h"
+#include "base/flags.h"
 #include <set>
 
 class enemy;
@@ -19,30 +20,8 @@ extern byte bszboomflip[4];
 #define WPNUNB_REFL      0x08
 #define WPNUNB_ALL       0x0F
 
-#define WFLAG_PICKUP_ITEMS         0x0001
-#define WFLAG_BREAK_WHEN_LANDING   0x0002
-#define WFLAG_BREAK_ON_SOLID       0x0004
-#define WFLAG_BURN_ANYFIRE         0x0008
-#define WFLAG_BURN_STRONGFIRE      0x0010
-#define WFLAG_BURN_MAGICFIRE       0x0020
-#define WFLAG_BURN_DIVINEFIRE      0x0040
-#define WFLAG_STOP_WHEN_LANDING    0x0080
-#define WFLAG_STOP_WHEN_HIT_SOLID  0x0100
-#define WFLAG_UPDATE_IGNITE_SPRITE 0x0200
-
 #define WFLAG_MAX 10
-
 #define WFLAG_BURNFLAGS            0x0078
-
-enum
-{
-	WPNSPR_BASE,
-	WPNSPR_IGNITE_ANY,
-	WPNSPR_IGNITE_STRONG,
-	WPNSPR_IGNITE_MAGIC,
-	WPNSPR_IGNITE_DIVINE,
-	WPNSPR_MAX
-};
 
 class weapon : public sprite
 {
@@ -77,7 +56,7 @@ public:
 	byte linkedItem;
 	byte unblockable;
 	
-	word misc_wflags;
+	wpn_flags misc_wflags;
 	byte misc_wsprites[WPNSPR_MAX];
 	byte light_rads[WPNSPR_MAX];
 	byte last_burnstate;

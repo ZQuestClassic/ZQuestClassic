@@ -91,6 +91,30 @@ enum move_flags : uint32_t
 	move_not_pushable       = F(15),
 };
 
+enum wpn_flags : uint32_t
+{
+	wflag_pickup_items         = F(0),
+	wflag_break_when_landing   = F(1),
+	wflag_break_when_hitsolid  = F(2),
+	wflag_burn_anyfire         = F(3),
+	wflag_burn_strongfire      = F(4),
+	wflag_burn_magicfire       = F(5),
+	wflag_burn_divinefire      = F(6),
+	wflag_stop_when_landing    = F(7),
+	wflag_stop_when_hitsolid   = F(8),
+	wflag_update_ignite_sprite = F(9),
+};
+
+enum
+{
+	WPNSPR_BASE,
+	WPNSPR_IGNITE_ANY,
+	WPNSPR_IGNITE_STRONG,
+	WPNSPR_IGNITE_MAGIC,
+	WPNSPR_IGNITE_DIVINE,
+	WPNSPR_MAX
+};
+
 // Shield projectile blocking.
 // TODO: use this type in itemdata and guydata (right now they are using an `int misc` field)
 enum shield_flags : uint32_t
