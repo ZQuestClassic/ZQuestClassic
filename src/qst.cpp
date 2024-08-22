@@ -14855,23 +14855,220 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 
 			if (guyversion < 48)
 			{
-				if (tempguy.family == eeWALK && (tempguy.attributes[6]==e7tPERMJINX || tempguy.attributes[6]==e7tTEMPJINX || tempguy.attributes[6]==e7tUNJINX)) //BUBBLE CHECK
+				if (tempguy.family == eeWALK && (tempguy.attributes[6] == e7tPERMJINX || tempguy.attributes[6] == e7tTEMPJINX || tempguy.attributes[6] == e7tUNJINX)) //BUBBLE CHECK
 				{
 					switch (tempguy.attributes[7]) {
-						case 0: //Sword
-							tempguy.attributes[7] = e8tSWORD;
-							break;
-						case 1:	//Item
-							tempguy.attributes[7] = e8tITEM;
-							break;
-						case 2: //Both
-							tempguy.attributes[7] = e8tSWORD|e8tITEM;
-							break;
-						default: //this can actually happen since Misc8 can be set to any number.
-							tempguy.attributes[7] = 0;
-							break;
+					case 0: //Sword
+						tempguy.attributes[7] = e8tSWORD;
+						break;
+					case 1:	//Item
+						tempguy.attributes[7] = e8tITEM;
+						break;
+					case 2: //Both
+						tempguy.attributes[7] = e8tSWORD | e8tITEM;
+						break;
+					default: //this can actually happen since Misc8 can be set to any number.
+						tempguy.attributes[7] = 0;
+						break;
 					}
 				}
+			}
+			if (guyversion <= 50) //port over attack tab defaults and zero out new data.
+			{
+				tempguy.attack_pattern = 0;
+				for (int q = 0; q < MAX_NPC_ATTACKATTRIBUTES; ++q)
+				{
+					tempguy.attack_attributes[q] = 0;
+				}
+				int stepmultiplier = 1;
+				//firesfx was originally set up wrong... blame zoria i guess.
+				switch (tempguy.weapon)
+				{
+				case ewFireball2: case ewFireball: tempguy.firesfx = get_qr(qr_MORESOUNDS) ? WAV_ZN1FIREBALL : 0; break;
+				case ewBrang: tempguy.firesfx = get_qr(qr_MORESOUNDS) ? WAV_BRANG : 0; break;
+				case ewRock: tempguy.firesfx = get_qr(qr_MORESOUNDS) ? WAV_ZN1ROCK : 0; break;
+				case ewMagic: case ewWind: tempguy.firesfx = WAV_WAND; break;
+				case ewBomb: case ewSBomb: tempguy.firesfx = WAV_BOMB; break;
+				case ewIce: tempguy.firesfx = WAV_ZN1ICE; break;
+				case ewFireTrail: case ewFlame: case ewFlame2: case ewFlame2Trail: tempguy.firesfx = WAV_FIRE; break;
+				default: tempguy.firesfx = 0;
+				}
+				switch (tempguy.family)
+				{
+				case eeWALK: case eePROJECTILE:
+				{
+					tempguy.attack_attributes[3] = tempguy.attributes[5];
+					switch (tempguy.attributes[0])
+					{
+					case e1tFAST: stepmultiplier = 2;
+					case e1tNORMAL: tempguy.attack_pattern = apNORMAL; break;
+					case e1tEACHTILE: tempguy.attack_pattern = apEACHTILE; break;
+					case e1tCONSTANT: tempguy.attack_pattern = apCONSTANT; break;
+					case e1tSLANT: tempguy.attack_pattern = apSLANT; break;
+					case e1t3SHOTSFAST: stepmultiplier = 2;
+					case e1t3SHOTS: tempguy.attack_pattern = ap3SHOTS; break;
+					case e1t4SHOTS: tempguy.attack_pattern = ap4SHOTS_CARD; break;
+					case e1t5SHOTS: tempguy.attack_pattern = ap5SHOTS; break;
+					case e1tFIREOCTO: tempguy.attack_pattern = apBREATH; break;
+					case e1t8SHOTS: tempguy.attack_pattern = ap8SHOTS; break;
+					case e1tSUMMON: 
+						tempguy.attack_pattern = apSUMMON; 
+						tempguy.firesfx = get_qr(qr_MORESOUNDS) ? WAV_ZN1SUMMON : WAV_FIRE;
+						break;
+					case e1tSUMMONLAYER:
+						tempguy.attack_pattern = apSUMMONLAYER; break;
+						tempguy.firesfx = get_qr(qr_MORESOUNDS) ? WAV_ZN1SUMMON : WAV_FIRE;
+						break;
+					}
+					break;
+				}
+				case eeWIZZ:
+				{
+					switch (tempguy.attributes[1])
+					{
+					case 0: //normal
+						tempguy.attack_pattern = apNORMAL;
+						tempguy.firesfx = WAV_WAND;
+						break;
+					case 1: //8 shots
+						tempguy.attack_pattern = ap8SHOTS;
+						tempguy.firesfx = WAV_FIRE;
+						if (get_qr(qr_8WAY_SHOT_SFX)) tempguy.firesfx = WAV_FIRE;  //this obscure quest rule
+						else
+						{
+							switch (tempguy.weapon)
+							{
+							case ewFireball2: case ewFireball: tempguy.firesfx = WAV_ZN1FIREBALL; break;
+							case ewArrow: tempguy.firesfx = WAV_ARROW; break;
+							case ewBrang: tempguy.firesfx = WAV_BRANG; break;
+							case ewSword: tempguy.firesfx = WAV_SWORD; break;
+							case ewRock: tempguy.firesfx = WAV_ZN1ROCK; break;
+							case ewMagic: case ewWind: tempguy.firesfx = WAV_WAND; break;
+							case ewBomb: case ewSBomb: tempguy.firesfx = WAV_BOMB; break;
+							case ewLitBomb: case ewLitSBomb: tempguy.firesfx = WAV_PLACE; break;
+							case ewIce: tempguy.firesfx = WAV_ZN1ICE; break;
+							case ewFireTrail: case ewFlame: case ewFlame2: case ewFlame2Trail:
+							default: tempguy.firesfx = WAV_FIRE; break;
+							}
+						}
+						break;
+					case 2: //summon
+						tempguy.attack_pattern = apSUMMON;
+						tempguy.attack_attributes[0] = tempguy.attributes[2];
+						tempguy.attack_attributes[1] = 2;
+						tempguy.attack_attributes[2] = 3;
+						tempguy.firesfx = WAV_FIRE;
+					case 3: //summon layer
+						tempguy.attack_pattern = apSUMMONLAYER;
+						tempguy.firesfx = get_qr(qr_MORESOUNDS) ? WAV_ZN1SUMMON : WAV_FIRE;
+						break;
+					}
+					break;
+				}
+				case eeAQUA:
+					tempguy.attack_pattern = ap3SHOTS;
+					break;
+				case eeGLEEOK:
+					if (tempguy.attributes[3] == 1)
+					{
+						tempguy.attack_pattern = apBREATH;
+						if (tempguy.weapon == ewFlame || tempguy.weapon == ewFlame2)
+							stepmultiplier = 2;
+					}
+					else tempguy.attack_pattern = apNORMAL;
+				case eeGHOMA:
+					if (tempguy.attributes[0] == 2)
+					{
+						tempguy.attack_pattern = apBREATH;
+						if (tempguy.weapon == ewFlame || tempguy.weapon == ewFlame2)
+							stepmultiplier = 2;
+					}
+					if (tempguy.attributes[0] == 1) tempguy.attack_pattern = ap3SHOTS;
+					else tempguy.attack_pattern = apNORMAL;
+					break;
+				}
+				tempguy.unblockable = byte(0);
+				tempguy.weap_flags = wpn_flags(0);
+				if (tempguy.weapon == ewFlame || tempguy.weapon == ewFireTrail)
+					tempguy.weap_moveflags = move_can_pitfall | move_obeys_grav;
+				else tempguy.weap_moveflags = move_flags(0);
+				tempguy.weapoverrideFLAGS = 0;
+				tempguy.weap_xofs = 0;
+				tempguy.weap_yofs = 0;
+				tempguy.weap_hxofs = 0;
+				tempguy.weap_hyofs = 0;
+				tempguy.weap_hxsz = 0;
+				tempguy.weap_hysz = 0;
+				tempguy.weap_hzsz = 0;
+				tempguy.weap_tilew = 0;
+				tempguy.weap_tileh = 0;
+				for (int q = 0; q < BURNSPR_MAX; ++q)
+				{
+					tempguy.brnsprites[q] = tempguy.wpnsprite;
+					if (tempguy.weapon == ewFLAME || tempguy.weapon == ewFLAME2 || tempguy.weapon == ewFIRETRAIL)
+						tempguy.light_rads[q] = get_qr(qr_EW_FIRE_EMITS_LIGHT) ? game->get_light_rad() : 0;
+					else tempguy.light_rads[q] = 0;
+				}
+				if (tempguy.weapon == ewFireball || tempguy.weapon == ewFireball2)
+					tempguy.wstep = 175 * stepmultiplier;
+				else if(tempguy.weapon == ewArrow)
+					tempguy.wstep = 200 * stepmultiplier;
+				else if(tempguy.weapon == ewSword || tempguy.weapon == ewRock || tempguy.weapon == ewMagic ||
+						tempguy.weapon == ewLitBomb || tempguy.weapon == ewLitSBomb || tempguy.weapon == ewWind)
+					tempguy.wstep = 300 * stepmultiplier;
+				else if (tempguy.weapon == ewFlame || tempguy.weapon == ewFlame2)
+				{
+					tempguy.wstep = 100 * stepmultiplier;
+				}
+				else
+					tempguy.wstep = 0;
+				tempguy.wtimeout = 0;
+				
+				//lastly set sfx for summon attacks
+			}
+			if (guyversion > 50) //attack tab
+			{
+				if (!p_igetl(&(tempguy.attack_pattern), f))
+					return qe_invalid;
+				for (int q = 0; q < MAX_NPC_ATTACKATTRIBUTES; ++q)
+					if (!p_igetl(&(tempguy.attack_attributes[q]), f))
+						return qe_invalid;
+				if (!p_getc(&(tempguy.unblockable), f))
+					return qe_invalid;
+				if (!p_igetl(&(tempguy.weap_flags), f))
+					return qe_invalid;
+				if (!p_igetl(&(tempguy.weap_moveflags), f))
+					return qe_invalid;
+				if (!p_igetl(&(tempguy.weapoverrideFLAGS), f))
+					return qe_invalid;
+				if (!p_igetl(&(tempguy.weap_xofs), f))
+					return qe_invalid;
+				if (!p_igetl(&(tempguy.weap_yofs), f))
+					return qe_invalid;
+				if (!p_igetl(&(tempguy.weap_hxofs), f))
+					return qe_invalid;
+				if (!p_igetl(&(tempguy.weap_hyofs), f))
+					return qe_invalid;
+				if (!p_igetl(&(tempguy.weap_hxsz), f))
+					return qe_invalid;
+				if (!p_igetl(&(tempguy.weap_hysz), f))
+					return qe_invalid;
+				if (!p_igetl(&(tempguy.weap_hzsz), f))
+					return qe_invalid;
+				if (!p_igetl(&(tempguy.weap_tilew), f))
+					return qe_invalid;
+				if (!p_igetl(&(tempguy.weap_tileh), f))
+					return qe_invalid;
+				for (int q = 0; q < BURNSPR_MAX; ++q)
+					if (!p_getc(&(tempguy.brnsprites[q]), f))
+						return qe_invalid;
+				for (int q = 0; q < BURNSPR_MAX; ++q)
+					if (!p_getc(&(tempguy.light_rads[q]), f))
+						return qe_invalid;
+				if (!p_igetw(&(tempguy.wstep), f))
+					return qe_invalid;
+				if (!p_igetw(&(tempguy.wtimeout), f))
+					return qe_invalid;
 			}
 			
 			if(loading_tileset_flags & TILESET_CLEARSCRIPTS)

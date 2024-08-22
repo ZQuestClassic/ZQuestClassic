@@ -152,7 +152,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
 #define V_INITDATA        39
-#define V_GUYS            50
+#define V_GUYS            51
 #define V_MIDIS            4
 #define V_CHEATS           1
 #define V_SAVEGAME        42
@@ -1164,8 +1164,11 @@ enum
 // Remaining 16 reserved for future use.
 
 
-// enemy patters
+// enemy spawn patterns
 enum { pRANDOM, pSIDES, pSIDESR, pCEILING, pCEILINGR, pRANDOMR, pNOSPAWN };
+
+// enemy attack patterns
+enum { apNORMAL, apEACHTILE, apCONSTANT, apSLANT, ap3SHOTS, ap5SHOTS, ap4SHOTS_CARD, ap4SHOTS_DIAG, ap4SHOTS_RANDOM, apBREATH, ap8SHOTS, apSUMMON, apSUMMONLAYER};
 
 // We only use t4Bit and tf8Bit.
 // t4Bit takes up 128 bytes in the file format, tf8bit takes up 256 bit.
@@ -1296,6 +1299,7 @@ struct item_drop_object
 #define guyflagOVERRIDE_DRAW_Z_OFFSET	0x00000200
 
 #define MAX_NPC_ATTRIBUTES 31
+#define MAX_NPC_ATTACKATTRIBUTES 8
 
 struct guydata
 {
@@ -1353,6 +1357,26 @@ struct guydata
     byte weap_initiala[INITIAL_A];
     
 	byte spr_shadow, spr_death, spr_spawn;
+
+	//v 51 Attack Tab
+	int32_t attack_pattern; //move fireweapon and firebreath into enemy::
+	int32_t attack_attributes[8]; //should be plenty
+	//weapon flags
+	byte unblockable;
+	wpn_flags weap_flags;
+	move_flags weap_moveflags;
+	int32_t weapoverrideFLAGS;
+	//weapon size
+	int32_t weap_xofs, weap_yofs;
+	int32_t weap_hxofs, weap_hyofs, weap_hxsz, weap_hysz, weap_hzsz;
+	int32_t weap_tilew, weap_tileh;
+	//burn sprites
+	byte brnsprites[BURNSPR_MAX];
+	byte light_rads[BURNSPR_MAX];
+	//weapon step and weapon timeout
+	int16_t wstep;
+	int16_t wtimeout;
+	bool aim_hero; //should the weapon be fired at link?
 	
 #define ENEMY_FLAG1   0x01
 #define ENEMY_FLAG2   0x02

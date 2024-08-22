@@ -11653,6 +11653,49 @@ int32_t writeguys(PACKFILE *f, zquestheader *Header)
 				new_return(101);
 			if(!p_putc(guysbuf[i].spr_spawn,f))
 				new_return(102);
+			//attack tab
+			if (!p_iputl(guysbuf[i].attack_pattern, f))
+				new_return(103);
+			for(int q=0;q< MAX_NPC_ATTACKATTRIBUTES;++q)
+				if (!p_iputl(guysbuf[i].attack_attributes[q], f))
+					new_return(104+q);
+			if (!p_putc(guysbuf[i].unblockable, f))
+				new_return(112);
+			if (!p_iputl(guysbuf[i].weap_flags, f))
+				new_return(113);
+			if (!p_iputl(guysbuf[i].weap_moveflags, f))
+				new_return(114);
+			if (!p_iputl(guysbuf[i].weapoverrideFLAGS, f))
+				new_return(115);
+			if (!p_iputl(guysbuf[i].weap_xofs, f))
+				new_return(116);
+			if (!p_iputl(guysbuf[i].weap_yofs, f))
+				new_return(117);
+			if (!p_iputl(guysbuf[i].weap_hxofs, f))
+				new_return(118);
+			if (!p_iputl(guysbuf[i].weap_hyofs, f))
+				new_return(119);
+			if (!p_iputl(guysbuf[i].weap_hxsz, f))
+				new_return(120);
+			if (!p_iputl(guysbuf[i].weap_hysz, f))
+				new_return(121);
+			if (!p_iputl(guysbuf[i].weap_hzsz, f))
+				new_return(122);
+			if (!p_iputl(guysbuf[i].weap_tilew, f))
+				new_return(123);
+			if (!p_iputl(guysbuf[i].weap_tileh, f))
+				new_return(124);
+			for (int q = 0; q < BURNSPR_MAX; ++q)
+			{
+				if (!p_putc(guysbuf[i].brnsprites[q], f))
+					new_return(125);
+				if (!p_putc(guysbuf[i].light_rads[q], f))
+					new_return(125 + BURNSPR_MAX);
+			}
+			if (!p_iputw(guysbuf[i].wstep, f))
+					new_return(135);
+			if (!p_iputw(guysbuf[i].wtimeout, f))
+					new_return(136);
 		}
 		
 		if(writecycle==0)
