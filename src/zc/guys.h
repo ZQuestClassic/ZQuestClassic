@@ -115,6 +115,21 @@ public:
 	
 	bool didScriptThisFrame; //Hack for enemies which are spawned by shit like scripted load enemies so they don't run their script a second time in a frame.
 	
+	int32_t attack_pattern; //move fireweapon and firebreath into enemy::
+	int32_t attack_attributes[8]; //should be plenty
+	byte unblockable;
+	wpn_flags weap_flags;
+	move_flags weap_moveflags;
+	int32_t weapoverrideFLAGS;
+	int32_t weap_xofs, weap_yofs;
+	int32_t weap_hxofs, weap_hyofs, weap_hxsz, weap_hysz, weap_hzsz;
+	int32_t weap_tilew, weap_tileh;
+	byte brnsprites[BURNSPR_MAX];
+	byte light_rads[BURNSPR_MAX];
+	int16_t wstep;
+	int16_t wtimeout;
+	bool aim_hero; //should the weapon be fired at link?
+
 	int32_t getScriptUID();
 	void setScriptUID(int32_t new_id);
 	

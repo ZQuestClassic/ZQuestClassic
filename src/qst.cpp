@@ -14885,10 +14885,8 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 				switch (tempguy.weapon)
 				{
 				case ewFireball2: case ewFireball: tempguy.firesfx = get_qr(qr_MORESOUNDS) ? WAV_ZN1FIREBALL : 0; break;
-				case ewBrang: tempguy.firesfx = get_qr(qr_MORESOUNDS) ? WAV_BRANG : 0; break;
 				case ewRock: tempguy.firesfx = get_qr(qr_MORESOUNDS) ? WAV_ZN1ROCK : 0; break;
 				case ewMagic: case ewWind: tempguy.firesfx = WAV_WAND; break;
-				case ewBomb: case ewSBomb: tempguy.firesfx = WAV_BOMB; break;
 				case ewIce: tempguy.firesfx = WAV_ZN1ICE; break;
 				case ewFireTrail: case ewFlame: case ewFlame2: case ewFlame2Trail: tempguy.firesfx = WAV_FIRE; break;
 				default: tempguy.firesfx = 0;

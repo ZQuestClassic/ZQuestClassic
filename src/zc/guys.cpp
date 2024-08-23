@@ -543,6 +543,31 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 	}
 
 	shieldCanBlock = get_qr(qr_GOHMA_UNDAMAGED_BUG)?true:false;
+
+	attack_pattern = d->attack_pattern;
+	for(int q=0;q<8;++q)
+		attack_attributes[q] = d->attack_attributes[q];
+	unblockable = d->unblockable;
+	weap_flags = d->weap_flags;
+	weap_moveflags = d->weap_moveflags;
+	weapoverrideFLAGS = d->weapoverrideFLAGS;
+	weap_xofs = d->weap_xofs;
+	weap_yofs = d->weap_xofs;
+	weap_hxofs = d->weap_xofs;
+	weap_hyofs = d->weap_hyofs;
+	weap_hxsz = d->weap_hxsz;
+	weap_hysz = d->weap_hysz;
+	weap_hzsz = d->weap_hzsz;
+	weap_tilew = d->weap_tilew;
+	weap_tileh = d->weap_tileh;
+	for(int q=0; q < BURNSPR_MAX; ++q)
+	{
+		brnsprites[q] = d->brnsprites[q];
+		light_rads[q] = d->light_rads[q];
+	}
+	wstep = d->wstep; //speed of the projectile
+	wtimeout = d->wtimeout; //should the weapon timeout?
+	//aim_hero = d->aim_hero; //should the weapon be fired at link?
 }
 
 int32_t enemy::getScriptUID() { return script_UID; }
