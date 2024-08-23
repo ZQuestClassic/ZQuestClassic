@@ -156,7 +156,7 @@ jobs:
       # restored caches from actions/setup-node will never install Chrome.
       - run: npm rm puppeteer && npm add puppeteer@21.1.1
 
-      - run: sudo apt-get update && sudo apt-get install ccache ninja-build flex bison
+      - run: sudo apt-get update && sudo apt-get install ccache ninja-build libdumb1-dev flex bison
 
       # Setup build cache via ccache.
       - name: ccache cache files

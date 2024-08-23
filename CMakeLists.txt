@@ -262,9 +262,7 @@ if(NOT allegro5_POPULATED)
 	option(WANT_DOCS "" OFF)
 	option(WANT_IMAGE_WEBP "" OFF)
 	option(WANT_OPUS "" OFF)
-	# We build libdumb ourselves and use in zcmusic directly.
-	# TODO: If we want to use allegro streams, we should instead defer to allegro audio.
-	option(WANT_MODAUDIO "" OFF)
+	option(WANT_DUMB "" ON)
 	# We don't support FLAC.
 	option(WANT_FLAC "" OFF)
 	option(WANT_VIDEO "" OFF)
@@ -643,21 +641,12 @@ if(BUILD_SOUND_LIBS_FROM_SOURCE)
 	target_link_libraries(gme_headers INTERFACE ${ZLIB_LIBRARIES})
 	target_compile_definitions(gme_headers INTERFACE -DVGM_YM2612_NUKED)
 
-	option(BUILD_EXAMPLES "" OFF)
-	set(ALLEGRO_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/third_party/allegro_legacy/include)
-	set(ALLEGRO_LIBRARY allegro_with_legacy)
-	FetchContent_Declare(
-		dumb_external
-		GIT_REPOSITORY https://github.com/kode54/dumb.git
-		GIT_TAG        396caa4d31859045ccb5ef943fd430ca4026cce8
-		PATCH_COMMAND  git restore . && git apply ${CMAKE_SOURCE_DIR}/third_party/aldumb.patch
-		EXCLUDE_FROM_ALL
-	)
-	FetchContent_MakeAvailable(dumb_external)
-	add_library(dumb_headers INTERFACE)
-	target_include_directories(dumb_headers INTERFACE ${dumb_external_SOURCE_DIR}/include)
+	set(SOUNDLIBS gme gme_headers)
+endif()
 
-	set(SOUNDLIBS gme gme_headers aldmb dumb dumb_headers)
+find_package(dumb QUIET)
+if(${DUMB_FOUND})
+	set_target_properties(dumb PROPERTIES FOLDER Sound)
 endif()
 
 if(MSVC AND (MSVC_VERSION GREATER 1600))
@@ -1111,7 +1100,7 @@ if(CMAKE_GENERATOR MATCHES "Visual Studio")
 	set_target_properties(zplayer zeditor zscript zlauncher zupdater package package_no_archive PROPERTIES FOLDER "")
 	set_target_properties(run_replay_tests_all run_replay_tests_basic run_replay_tests_all_1s run_replay_tests_all_10s run_replay_tests_all_100s PROPERTIES FOLDER "Replay Tests")
 	set_target_properties(zcbase zcgui zcsound PROPERTIES FOLDER "Our Libraries")
-	set_target_properties(gme dumb aldmb PROPERTIES FOLDER Sound)
+	set_target_properties(gme PROPERTIES FOLDER Sound)
 	set_target_properties(allegro allegro_audio allegro_acodec allegro_image allegro_font allegro_main allegro_primitives allegro_dialog allegro-legacy al5img algif alpng PROPERTIES FOLDER Allegro)
 	set_target_properties(zconsole zconsolelogger PROPERTIES FOLDER ZConsole)
 	if(WANT_SENTRY)

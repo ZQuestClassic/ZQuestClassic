@@ -107,7 +107,7 @@ jobs:
             echo "BUILD_FOLDER=build/Coverage" >> "$GITHUB_ENV"
             tar -xvzf ${{ needs.build.outputs.artifact-name }}/${{ needs.build.outputs.package-name }} -C build
 
-      - run: sudo apt-get update && sudo apt-get install libopengl0 libglu1 lldb
+      - run: sudo apt-get update && sudo apt-get install libopengl0 libglu1 lldb libdumb1
         if: ${{ contains(inputs.runs-on, 'ubuntu') }}
 
       # Note: Uses JIT by default, except for win32.
