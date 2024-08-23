@@ -2,7 +2,6 @@
 #define ZC_GUI_BUILDER_HPP
 
 #include "gui/use_size.h"
-extern int32_t zq_screen_w, zq_screen_h;
 #include "gui/button.h"
 #include "gui/checkbox.h"
 #include "gui/checkbox_qr.h"
@@ -53,6 +52,8 @@ extern int32_t zq_screen_w, zq_screen_h;
 // These have to be included in order after the ones above.
 #include "gui/macros.h"
 #include "gui/props.h"
+
+extern int32_t zq_screen_w, zq_screen_h;
 
 /*
  * A brief explanation of how this works:
@@ -638,7 +639,7 @@ ZCGUI_BUILDER_FUNCTION(DMapMapGrid, DMapMapGrid, makeDMapMapGrid)
 
 ZCGUI_BUILDER_START(DMapRegionGrid)
 	ZCGUI_ACCEPT_PROP(regionMapPtr, setRegionMapPtr, zmap*)
-	ZCGUI_ACCEPT_PROP(regionDataPtr, setRegionDataPtr, byte*)
+	ZCGUI_ACCEPT_PROP(localDmap, setLocalDmap, dmap*)
 	ZCGUI_ACCEPT_PROP(onUpdate, setOnUpdate, std::function<void()>)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(DMapRegionGrid, DMapRegionGrid, makeDMapRegionGrid)

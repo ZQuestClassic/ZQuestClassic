@@ -218,15 +218,16 @@ int32_t d_region_grid_proc(int32_t msg, DIALOG* d, int32_t c)
 {
 	if (msg == MSG_DRAW && !should_allow_regions())
 	{
-		InfoDialog("Regions are disabled because of QRs", "You must disable all of the following compat QRs to use regions." + QRHINT(qrs_that_prevent_regions)).show();
-		return D_O_K;
+		// InfoDialog("Regions are disabled because of QRs", "You must disable all of the following compat QRs to use regions." + QRHINT(qrs_that_prevent_regions)).show();
+		// return D_O_K;
 	}
 
 	DMapRegionGrid* widg = (DMapRegionGrid*)d->dp2;
 
 	FONT* nf = get_zc_font(font_nfont);
 
-	byte* region_index_data = (byte*)widg->getRegionDataPtr();
+	dmap* local_dmap = widg->getLocalDmap();
+	byte* region_index_data = (byte*)&local_dmap->region_indices;
 
 	switch (msg)
 	{
@@ -261,7 +262,7 @@ int32_t d_region_grid_proc(int32_t msg, DIALOG* d, int32_t c)
 		{
 			for (k = 0; k < rg_cols; ++k)
 			{
-				if (!widg->getRegionMapPtr()->isValid(j * 16 + k))
+				if (!widg->getRegionMapPtr()->isValid(local_dmap->map, j * 16 + k))
 					continue;
 
 				byte region_index = getNibble(region_index_data[j * 8 + k / 2], k % 2 == 0);
@@ -316,7 +317,7 @@ int32_t d_region_grid_proc(int32_t msg, DIALOG* d, int32_t c)
 				xx = x;
 				yy = y;
 
-				if (y >= 0 && y < 8 && x >= 0 && x < rg_cols && widg->getRegionMapPtr()->isValid(y * 16 + x))
+				if (y >= 0 && y < 8 && x >= 0 && x < rg_cols && widg->getRegionMapPtr()->isValid(local_dmap->map, y * 16 + x))
 				{
 					byte old_region_datum = region_index_data[y * 8 + x / 2];
 					region_index_data[y * 8 + x / 2] = x % 2 == 0 ?
@@ -341,7 +342,7 @@ int32_t d_region_grid_proc(int32_t msg, DIALOG* d, int32_t c)
 namespace GUI
 {
 	DMapRegionGrid::DMapRegionGrid() : 
-		message(-1), regionmap(nullptr), regiondata(nullptr)
+		message(-1), regionmap(nullptr), localDmap(nullptr)
 		
 	{
 		setPreferredWidth(465_px);

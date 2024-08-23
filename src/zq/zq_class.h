@@ -284,6 +284,7 @@ public:
     int32_t  getCurrMap();
     bool isDark();
     bool isValid(int32_t scr);
+	bool isValid(int32_t map, int32_t scr);
     void setCurrentView(int32_t map, int32_t scr);
     void setCurrMap(int32_t index);
     int32_t  getCurrScr();

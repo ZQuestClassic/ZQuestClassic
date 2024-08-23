@@ -1,6 +1,7 @@
-#ifndef ZC_GUI_DMAPREGIONGRID_H
-#define ZC_GUI_DMAPREGIONGRID_H
+#ifndef ZC_GUI_DMAPREGIONGRID_H_
+#define ZC_GUI_DMAPREGIONGRID_H_
 
+#include "base/dmap.h"
 #include "gui/widget.h"
 #include "gui/dialog_ref.h"
 #include <zq/zq_class.h>
@@ -24,13 +25,13 @@ namespace GUI
 			return regionmap;
 		}
 
-		void setRegionDataPtr(byte* ptr)
+		void setLocalDmap(dmap* localDmap_)
 		{
-			regiondata = ptr;
+			localDmap = localDmap_;
 		}
-		byte* getRegionDataPtr()
+		dmap* getLocalDmap()
 		{
-			return regiondata;
+			return localDmap;
 		}
 
 		void setCurrentRegionIndex(int newindex);
@@ -52,7 +53,7 @@ namespace GUI
 		std::function<void()> onUpdateFunc;
 
 		zmap* regionmap;
-		byte* regiondata;
+		dmap* localDmap;
 
 		DialogRef alDialog;
 
@@ -61,10 +62,7 @@ namespace GUI
 		void realize(DialogRunner& runner) override;
 
 		int32_t onEvent(int32_t event, MessageDispatcher& sendMessage) override;
-
-		//friend int32_t d_region_grid_proc(int32_t msg, DIALOG* d, int32_t c);
 	};
-
 }
 
 #endif

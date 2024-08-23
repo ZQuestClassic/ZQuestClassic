@@ -983,7 +983,7 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 						DMapRegionGrid(
 							focused = true,
 							regionMapPtr = &Map,
-							regionDataPtr = (byte*)&local_dmap.region_indices,
+							localDmap = &local_dmap,
 							onUpdate = [&]()
 							{
 								refreshRegionGrid();
