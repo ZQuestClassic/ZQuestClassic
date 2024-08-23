@@ -6972,11 +6972,11 @@ int MusicTrack;
 
 float MusicLoopStart;
  * The starting loop point for enhanced music in seconds.
- * CURRENTLY ONLY SUPPORTS MP3 / OGG
+ * CURRENTLY ONLY SUPPORTS MP3 / OGG / IT / XM / S3M / MOD
 
 float MusicLoopEnd;
  * The ending loop point for enhanced music in seconds.
- * CURRENTLY ONLY SUPPORTS MP3 / OGG
+ * CURRENTLY ONLY SUPPORTS MP3 / OGG / IT / XM / S3M / MOD
 
 int MusicCrossfadeIn;
  * The number of frames enhanced music fades in for
@@ -8293,23 +8293,23 @@ rgb ConvertRGBFrom(float[] buf, int color_space)
 
 int GetMusicPos();
  * Returns the current seek position of the currently playing enhanced music in seconds.
- * CURRENTLY ONLY SUPPORTS MP3 / OGG
+ * CURRENTLY ONLY SUPPORTS MP3 / OGG / IT / XM / S3M / MOD
 
 void SetMusicPos(int new_pos);
  * Sets the play position for the currently playing enhanced music in seconds.
- * CURRENTLY ONLY SUPPORTS MP3 / OGG
+ * CURRENTLY ONLY SUPPORTS MP3 / OGG / IT / XM / S3M / MOD
  
 void SetMusicSpeed(int newspeed);
  * Sets the playback speed of the currently playing enhanced music.
- * CURRENTLY ONLY SUPPORTS MP3 / OGG
+ * CURRENTLY ONLY SUPPORTS MP3 / OGG / IT / XM / S3M / MOD
 
 void GetMusicLength();
  * Returns the length of the current playing enhanced music in seconds.
- * CURRENTLY ONLY SUPPORTS MP3 / OGG
+ * CURRENTLY ONLY SUPPORTS MP3 / OGG / IT / XM / S3M / MOD
  
 void SetMusicLoop(float start, float end);
  * Loops the currently playing enhanced music between two timestamps in seconds.
- * CURRENTLY ONLY SUPPORTS MP3 / OGG
+ * CURRENTLY ONLY SUPPORTS MP3 / OGG / IT / XM / S3M / MOD
 
 void PlaySound(int soundid);
 

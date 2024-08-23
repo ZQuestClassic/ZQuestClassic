@@ -128,7 +128,7 @@ class Audio {
 	// Returns the current seek position of the currently playing enhanced music
 	// in seconds.
 	//
-	// CURRENTLY ONLY SUPPORTS MP3 / OGG
+	// CURRENTLY ONLY SUPPORTS MP3 / OGG / IT / XM / S3M / MOD
 	//
 	// @zasm
 	//   GETENHMUSICPOS D2
@@ -136,7 +136,7 @@ class Audio {
 
 	// Sets the position for the currently playing enhanced music, in seconds.
 	//
-	// CURRENTLY ONLY SUPPORTS MP3 / OGG
+	// CURRENTLY ONLY SUPPORTS MP3 / OGG / IT / XM / S3M / MOD
 	//
 	// @zasm
 	//   POP D2
@@ -145,7 +145,7 @@ class Audio {
 
 	// Sets the playback speed of the currently playing enhanced music.
 	//
-	// CURRENTLY ONLY SUPPORTS MP3 / OGG
+	// CURRENTLY ONLY SUPPORTS MP3 / OGG / IT / XM / S3M / MOD
 	//
 	// @zasm
 	//   POP D2
@@ -154,7 +154,7 @@ class Audio {
 
 	// Returns the length of the current playing enhanced music in seconds.
 	//
-	// CURRENTLY ONLY SUPPORTS MP3 / OGG
+	// CURRENTLY ONLY SUPPORTS MP3 / OGG / IT / XM / S3M / MOD
 	//
 	// @zasm
 	//   GETENHMUSICLEN D2
@@ -163,7 +163,7 @@ class Audio {
 	// Loops the currently playing enhanced music between two timestamps in
 	// seconds.
 	//
-	// CURRENTLY ONLY SUPPORTS MP3 / OGG
+	// CURRENTLY ONLY SUPPORTS MP3 / OGG / IT / XM / S3M / MOD
 	//
 	// @zasm
 	//   POP D3
@@ -196,7 +196,7 @@ class Audio {
 	//
 	// [filename] cannot be more than 255 characters.
 	//
-	// Currently only supports OGG, MP3, and some types of trackers.
+	// Currently only supports MP3 / OGG / IT / XM / S3M / MOD.
 	//
 	// @zasm
 	//   ENHCROSSFADE
