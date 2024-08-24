@@ -1217,9 +1217,6 @@ int32_t get_qst_buffers()
 {
     TheMaps.resize(MAPSCRS);
 	map_autolayers.resize(6);
-    
-    for(int32_t i(0); i<MAPSCRS; i++)
-        TheMaps[i].zero_memory();
         
     //memset(TheMaps, 0, sizeof(mapscr)*MAPSCRS); //shouldn't need this anymore
     Z_message("OK\n");
@@ -17013,7 +17010,7 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header)
 	dword dummy;
 	int32_t screens_to_read;
 	
-	mapscr temp_mapscr;
+	mapscr temp_mapscr{};
 	word temp_map_count;
 	dword section_size;
 	
@@ -17066,14 +17063,11 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header)
 	if (!should_skip)
 	{
 		const int32_t _mapsSize = MAPSCRS*temp_map_count;
+		TheMaps.clear();
 		TheMaps.resize(_mapsSize);
 		map_autolayers.clear();
 		map_autolayers.resize(temp_map_count*6);
-		for(int32_t i(0); i<_mapsSize; i++)
-			TheMaps[i].zero_memory();
 	}
-	
-	temp_mapscr.zero_memory();
 	
 	for(int32_t i=0; i<temp_map_count && i<MAXMAPS; i++)
 	{
@@ -17094,12 +17088,11 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header)
 		for(int32_t j=0; j<screens_to_read; j++)
 		{
 			scr=i*MAPSCRS+j;
-			clear_screen(&temp_mapscr);
+			mapscr* screen = should_skip ? &temp_mapscr : &TheMaps[scr];
 			if(valid)
-				readmapscreen(f, Header, &temp_mapscr, version, scr);
-			
-			if (!should_skip)
-				TheMaps[scr] = temp_mapscr;
+				readmapscreen(f, Header, screen, version, scr);
+			else if (!should_skip)
+				clear_screen(screen);
 		}
 
 		if (should_skip)
@@ -22148,10 +22141,6 @@ static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Mi
 		map_count = 1;
 		map_autolayers.clear();
 		map_autolayers.resize(6*1);
-		for(size_t i = 0; i < MAPSCRS; ++i)
-		{
-			TheMaps[i].zero_memory();
-		}
 	}
 	if(loading_tileset_flags & TILESET_CLEARHEADER)
 	{
