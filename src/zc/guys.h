@@ -127,8 +127,6 @@ public:
 	byte brnsprites[BURNSPR_MAX];
 	byte light_rads[BURNSPR_MAX];
 	int16_t wstep;
-	int16_t wtimeout;
-	bool aim_hero; //should the weapon be fired at link?
 
 	int32_t getScriptUID();
 	void setScriptUID(int32_t new_id);

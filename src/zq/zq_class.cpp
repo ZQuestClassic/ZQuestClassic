@@ -11693,9 +11693,7 @@ int32_t writeguys(PACKFILE *f, zquestheader *Header)
 					new_return(125 + BURNSPR_MAX);
 			}
 			if (!p_iputw(guysbuf[i].wstep, f))
-					new_return(135);
-			if (!p_iputw(guysbuf[i].wtimeout, f))
-					new_return(136);
+				new_return(135);
 		}
 		
 		if(writecycle==0)

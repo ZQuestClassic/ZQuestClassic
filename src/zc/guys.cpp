@@ -566,8 +566,6 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 		light_rads[q] = d->light_rads[q];
 	}
 	wstep = d->wstep; //speed of the projectile
-	wtimeout = d->wtimeout; //should the weapon timeout?
-	//aim_hero = d->aim_hero; //should the weapon be fired at link?
 }
 
 int32_t enemy::getScriptUID() { return script_UID; }

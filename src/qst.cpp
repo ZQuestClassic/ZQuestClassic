@@ -14884,26 +14884,29 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 				//firesfx was originally set up wrong... blame zoria i guess.
 				switch (tempguy.weapon)
 				{
-				case ewFireball2: case ewFireball: tempguy.firesfx = get_qr(qr_MORESOUNDS) ? WAV_ZN1FIREBALL : 0; break;
-				case ewRock: tempguy.firesfx = get_qr(qr_MORESOUNDS) ? WAV_ZN1ROCK : 0; break;
-				case ewMagic: case ewWind: tempguy.firesfx = WAV_WAND; break;
-				case ewIce: tempguy.firesfx = WAV_ZN1ICE; break;
-				case ewFireTrail: case ewFlame: case ewFlame2: case ewFlame2Trail: tempguy.firesfx = WAV_FIRE; break;
-				default: tempguy.firesfx = 0;
+					case ewFireball2: case ewFireball: tempguy.firesfx = get_qr(qr_MORESOUNDS) ? WAV_ZN1FIREBALL : 0; break;
+					case ewRock: tempguy.firesfx = get_qr(qr_MORESOUNDS) ? WAV_ZN1ROCK : 0; break;
+					case ewMagic: case ewWind: tempguy.firesfx = WAV_WAND; break;
+					case ewIce: tempguy.firesfx = WAV_ZN1ICE; break;
+					case ewFireTrail: case ewFlame: case ewFlame2: case ewFlame2Trail: tempguy.firesfx = WAV_FIRE; break;
+					default: tempguy.firesfx = 0;
 				}
 				switch (tempguy.family)
 				{
-				case eeWALK: case eePROJECTILE:
+				case eeWALK: 
+				case eePROJECTILE:
 				{
 					tempguy.attack_attributes[3] = tempguy.attributes[5];
 					switch (tempguy.attributes[0])
 					{
 					case e1tFAST: stepmultiplier = 2;
+					[[fallthrough]];
 					case e1tNORMAL: tempguy.attack_pattern = apNORMAL; break;
 					case e1tEACHTILE: tempguy.attack_pattern = apEACHTILE; break;
 					case e1tCONSTANT: tempguy.attack_pattern = apCONSTANT; break;
 					case e1tSLANT: tempguy.attack_pattern = apSLANT; break;
 					case e1t3SHOTSFAST: stepmultiplier = 2;
+					[[fallthrough]];
 					case e1t3SHOTS: tempguy.attack_pattern = ap3SHOTS; break;
 					case e1t4SHOTS: tempguy.attack_pattern = ap4SHOTS_CARD; break;
 					case e1t5SHOTS: tempguy.attack_pattern = ap5SHOTS; break;
@@ -14956,6 +14959,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 						tempguy.attack_attributes[1] = 2;
 						tempguy.attack_attributes[2] = 3;
 						tempguy.firesfx = WAV_FIRE;
+						break;
 					case 3: //summon layer
 						tempguy.attack_pattern = apSUMMONLAYER;
 						tempguy.firesfx = get_qr(qr_MORESOUNDS) ? WAV_ZN1SUMMON : WAV_FIRE;
@@ -14974,6 +14978,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 							stepmultiplier = 2;
 					}
 					else tempguy.attack_pattern = apNORMAL;
+					break;
 				case eeGHOMA:
 					if (tempguy.attributes[0] == 2)
 					{
@@ -15015,14 +15020,9 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 						tempguy.weapon == ewLitBomb || tempguy.weapon == ewLitSBomb || tempguy.weapon == ewWind)
 					tempguy.wstep = 300 * stepmultiplier;
 				else if (tempguy.weapon == ewFlame || tempguy.weapon == ewFlame2)
-				{
 					tempguy.wstep = 100 * stepmultiplier;
-				}
 				else
 					tempguy.wstep = 0;
-				tempguy.wtimeout = 0;
-				
-				//lastly set sfx for summon attacks
 			}
 			if (guyversion > 50) //attack tab
 			{
@@ -15064,8 +15064,6 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 					if (!p_getc(&(tempguy.light_rads[q]), f))
 						return qe_invalid;
 				if (!p_igetw(&(tempguy.wstep), f))
-					return qe_invalid;
-				if (!p_igetw(&(tempguy.wtimeout), f))
 					return qe_invalid;
 			}
 			

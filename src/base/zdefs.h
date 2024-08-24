@@ -1286,6 +1286,7 @@ struct item_drop_object
     word chance[11]; //0=none
 };
 
+//TODO Use these for everything with size flags.
 //Guydata Enemy Editor Size Panel FLags
 #define guyflagOVERRIDE_TILE_WIDTH	0x00000001
 #define guyflagOVERRIDE_TILE_HEIGHT	0x00000002
@@ -1375,8 +1376,6 @@ struct guydata
 	byte light_rads[BURNSPR_MAX];
 	//weapon step and weapon timeout
 	int16_t wstep;
-	int16_t wtimeout;
-	bool aim_hero; //should the weapon be fired at link?
 	
 #define ENEMY_FLAG1   0x01
 #define ENEMY_FLAG2   0x02
