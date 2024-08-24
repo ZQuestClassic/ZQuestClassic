@@ -4890,6 +4890,9 @@ void wavyout(bool showhero)
 	}
 	
 	destroy_bitmap(wavebuf);
+
+	hw_palette = &RAMpal;
+	update_hw_pal = true;
 }
 
 void wavyin()
@@ -4962,6 +4965,9 @@ void wavyin()
 	}
 	
 	destroy_bitmap(wavebuf);
+
+	hw_palette = &RAMpal;
+	update_hw_pal = true;
 }
 
 void blackscr(int32_t fcnt,bool showsubscr)
