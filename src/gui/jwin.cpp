@@ -9109,49 +9109,12 @@ void draw_checkerboard(BITMAP* dest, int x, int y, int sz, optional<int> cb_sz, 
 
 int32_t d_vsync_proc(int32_t msg,DIALOG *d,int32_t c)
 {
-	static std::chrono::steady_clock::time_point tics;
-	auto now = std::chrono::steady_clock::now();
-
+	// This use to be what kept 60fps, but now render_timer_wait handles that.
     switch(msg)
     {
-		case MSG_START:
-			tics = std::chrono::steady_clock::now();
-			break;
-			
 		case MSG_IDLE:
 		{
-			int num_vsyncs = 0;
-			while (now - tics >= std::chrono::milliseconds(1000/60))
-			{
-				tics += std::chrono::milliseconds(1000/60);
-				broadcast_dialog_message(MSG_VSYNC, c);
-				if(d->dp)
-				{
-					int32_t ret = (*(std::function<int32_t()>*)d->dp)();
-					switch(ret)
-					{
-						case ONTICK_EXIT:
-							if(d->flags&D_NEW_GUI)
-								close_new_gui_dlg(d);
-							return D_EXIT;
-						case ONTICK_CLOSE:
-							if(d->flags&D_NEW_GUI)
-							{
-								//Simulate a GUI_EVENT for the window proc
-								DIALOG* window = d-1;
-								while(window->proc != jwin_win_proc) --window;
-								int32_t ret = new_gui_event(window-1, geCLOSE);
-								if(ret >= 0)
-									return ret;
-							}
-							return D_EXIT;
-						case ONTICK_REDRAW:
-							return D_REDRAW;
-					}
-				}
-
-				if (++num_vsyncs == 3) break;
-			}
+			broadcast_dialog_message(MSG_VSYNC, c);
 			break;
 		}
     }
