@@ -67,7 +67,7 @@ private:
 	GUI::ListData list_enemies, list_families, list_animations, list_guyscripts, list_ewpnscripts,
 		list_sfx, list_counters_nn, list_dropsets, list_sprites, list_eweaptype, list_deftypes;
 
-	std::shared_ptr<GUI::Widget> NumberField(auto* data, auto _min, auto _max, int _length = 5, bool _disabled = false);
+	std::shared_ptr<GUI::Widget> NumberField(auto* data, int32_t _min, int32_t _max, int _length = 5, bool _disabled = false);
 
 	std::shared_ptr<GUI::Widget> NameField(string const& str);
 
