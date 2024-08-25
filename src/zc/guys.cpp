@@ -11977,7 +11977,7 @@ void eWizzrobe::wizzrobe_attack_for_real()
 	if(dmisc2 == 0)  //normal weapon
 	{
 		addEwpn(x,y,z,wpn,0,wdp,dir,getUID(), 0, fakez);
-		if(replay_version_check,0,35) sfx(WAV_WAND, pan(int32_t(x)));
+		if(replay_version_check(0,35))sfx(WAV_WAND, pan(int32_t(x)));
 		else sfx(firesfx, pan(int32_t(x)));
 	}
 	else if(dmisc2 == 1) // ring of fire
