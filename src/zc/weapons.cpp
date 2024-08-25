@@ -1157,6 +1157,32 @@ weapon::~weapon()
 	cleanup_sfx();
 }
 
+void weapon::eweapon_overrides()
+{
+	if(parentid > -1 && parentid != Hero.getUID())
+	{
+		enemy *e = (enemy*)guys.getByUID(parentid);
+		unblockable = e->unblockable;
+		misc_wflags = e->weap_flags;
+		moveflags = e->weap_moveflags;
+		if (e->weapoverrideFLAGS & itemdataOVERRIDE_TILEWIDTH) txsz = e->weap_tilew;
+		if (e->weapoverrideFLAGS & itemdataOVERRIDE_TILEHEIGHT) tysz = e->weap_tileh;
+		if (e->weapoverrideFLAGS & itemdataOVERRIDE_HIT_WIDTH) hit_width = e->weap_hxsz;
+		if (e->weapoverrideFLAGS & itemdataOVERRIDE_HIT_HEIGHT) hit_height = e->weap_hysz;
+		if (e->weapoverrideFLAGS & itemdataOVERRIDE_HIT_Z_HEIGHT) hzsz = e->weap_hzsz;
+		if (e->weapoverrideFLAGS & itemdataOVERRIDE_HIT_X_OFFSET) hxofs = e->weap_hxofs;
+		if (e->weapoverrideFLAGS & itemdataOVERRIDE_HIT_Y_OFFSET) hyofs = e->weap_hyofs;
+		if (e->weapoverrideFLAGS & itemdataOVERRIDE_DRAW_X_OFFSET) xofs = e->weap_xofs;
+		if (e->weapoverrideFLAGS & itemdataOVERRIDE_DRAW_Y_OFFSET) yofs = e->weap_yofs;
+		for (int q = 0; q < BURNSPR_MAX; ++q)
+		{
+			misc_wsprites[q] = e->brnsprites[q];
+			light_rads[q] = e->light_rads[q];
+		}
+		if (e->wstep > 0 && !(id == ewBrang || id == ewBomb || id == ewSBomb || id == ewFireTrail)) step = zslongToFix(e->wstep);
+	}
+}
+
 weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t Dir, int32_t Parentitem, int32_t prntid, bool isDummy, byte script_gen, byte isLW, byte special, int32_t Linked_Parent, int32_t use_sprite) : sprite(), parentid(prntid)
 {
 	x=X;
@@ -1317,8 +1343,6 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 		case wLitBomb:
 		case wLitSBomb:
 		case wBait:
-		case ewFlame:
-		case ewFireTrail:
 		case wThrown:
 			moveflags |= move_obeys_grav | move_can_pitfall;
 	}
@@ -1364,6 +1388,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = parent.weap_yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
 				}
 			}
+			else eweapon_overrides();
 			break;
 		}
 		case wSword:
@@ -2104,6 +2129,8 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				misc=2;
 			else
 				step=3;
+
+			eweapon_overrides();
 			break;
 		}
 		case ewLitSBomb: case ewSBomb:
@@ -2120,6 +2147,8 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				misc=2;
 			else
 				step=3;
+
+			eweapon_overrides();
 			break;
 		}
 		case ewBrang:
@@ -2136,6 +2165,8 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				hxofs=4;
 				hit_width=8;
 			}
+
+			eweapon_overrides();
 			break;
 		}
 		case ewFireball2:
@@ -2155,6 +2186,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				seekHero();
 			}
 			else misc=-1;
+			eweapon_overrides();
 			break;
 		}
 		case ewRock:
@@ -2173,6 +2205,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			}
 			
 			step=3;
+			eweapon_overrides();
 			break;
 		}
 		case ewArrow:
@@ -2195,6 +2228,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					yofs=(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)+1;
 					break;
 			}
+			eweapon_overrides();
 			break;
 		}
 		case ewSword:
@@ -2220,6 +2254,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					yofs=(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)+1;
 					break;
 			}
+			eweapon_overrides();
 			break;
 		}
 		case wRefMagic: case ewMagic:
@@ -2247,6 +2282,8 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			}
 			if(id==wRefMagic)
 				ignorecombo=(((int32_t)y&0xF0)+((int32_t)x>>4));
+			else
+				eweapon_overrides();
 			break;
 		}
 		case ewFlame: case ewFlame2:
@@ -2279,6 +2316,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			
 			if(BSZ)
 				yofs+=2;
+			eweapon_overrides();
 			break;
 		}
 		case ewFireTrail:
@@ -2299,6 +2337,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			
 			if(BSZ)
 				yofs+=2;
+			eweapon_overrides();
 			break;
 		}
 		case ewWind:
@@ -2310,6 +2349,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			}
 			clk=0;
 			step=3;
+			eweapon_overrides();
 			break;
 		}
 		case wPhantom:
