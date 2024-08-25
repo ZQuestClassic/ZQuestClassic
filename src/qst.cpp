@@ -14893,7 +14893,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 				}
 				else
 				{
-					if (tempguy.family == eeWALK && (tempguy.attributes[0] == e1tSUMMON || tempguy.attributes[0] == e1tSUMMONLAYER))
+					if ((tempguy.family == eeWALK || tempguy.family == eePROJECTILE) && (tempguy.attributes[0] == e1tSUMMON || tempguy.attributes[0] == e1tSUMMONLAYER))
 					{
 						tempguy.firesfx = get_qr(qr_MORESOUNDS) ? WAV_ZN1SUMMON : WAV_FIRE;
 					}
