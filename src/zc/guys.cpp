@@ -1956,7 +1956,7 @@ void enemy::FireWeapon()
 		}
 			}
 			
-			if (replay_version_check, 0, 35)
+			if (replay_version_check(0, 35))
 				sfx(get_qr(qr_MORESOUNDS) ? WAV_ZN1SUMMON : WAV_FIRE, pan(int32_t(x)));
 			else
 				sfx(firesfx, pan(int32_t(x)));
@@ -2010,7 +2010,7 @@ void enemy::FireWeapon()
 			
 			if(summoned)
 			{
-				if (replay_version_check, 0, 35)
+				if (replay_version_check(0, 35))
 					sfx(get_qr(qr_MORESOUNDS) ? WAV_ZN1SUMMON : WAV_FIRE, pan(int32_t(x)));
 				else
 					sfx(firesfx, pan(int32_t(x)));
@@ -11998,7 +11998,7 @@ void eWizzrobe::wizzrobe_attack_for_real()
 		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
 		addEwpn(x,y,z,wpn,0,wdp,r_down,getUID(), 0, fakez);
 		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
-		if (replay_version_check, 0, 35)
+		if (replay_version_check(0, 35))
 		{
 			sfx(WAV_FIRE, pan(int32_t(x)));
 			if (get_qr(qr_8WAY_SHOT_SFX)) sfx(WAV_FIRE,pan(int32_t(x)));
@@ -12055,7 +12055,7 @@ void eWizzrobe::wizzrobe_attack_for_real()
 					((enemy*)guys.spr(kids+i))->count_enemy = false;
 			}
 
-			if (replay_version_check, 0, 35)
+			if (replay_version_check(0, 35))
 				sfx(WAV_FIRE, pan(int32_t(x)));
 			else
 				sfx(firesfx, pan(int32_t(x)));
@@ -12106,7 +12106,7 @@ void eWizzrobe::wizzrobe_attack_for_real()
 			
 			if(summoned)
 			{
-				if (replay_version_check, 0, 35)
+				if (replay_version_check(0, 35))
 					sfx(get_qr(qr_MORESOUNDS)?WAV_ZN1SUMMON:WAV_FIRE, pan(int32_t(x)));
 				else
 					sfx(firesfx, pan(int32_t(x)));
