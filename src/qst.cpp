@@ -3618,6 +3618,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_OLD_HERO_WARP_RETSQUARE,1);
 	if(compatrule_version < 68)
 		set_qr(qr_SCRIPTS_6_BIT_COLOR,1);
+	if(compatrule_version < 69)
+		set_qr(qr_SETENEMYFIRESFXONWPNCHANGE, 1);
 	
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
@@ -14870,7 +14872,63 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 					}
 				}
 			}
-			
+
+			if (guyversion <= 50) //reimport the firesfx, zoria ducked up.
+			{
+				if (tempguy.family == eeWIZZ)
+				{
+					switch (tempguy.attributes[1])
+					{
+					case 0: // normal weapon
+						tempguy.firesfx = WAV_WAND;
+						break;
+					case 1: // 8 shots
+					case 2: // Summon
+						tempguy.firesfx = WAV_FIRE;
+						break;
+					case 3: // Summon Layer
+						tempguy.firesfx = get_qr(qr_MORESOUNDS) ? WAV_ZN1SUMMON : WAV_FIRE;
+						break;
+					}
+				}
+				else
+				{
+					if (tempguy.family == eeWALK && (tempguy.attributes[0] == e1tSUMMON || tempguy.attributes[0] == e1tSUMMONLAYER))
+					{
+						tempguy.firesfx = get_qr(qr_MORESOUNDS) ? WAV_ZN1SUMMON : WAV_FIRE;
+					}
+					else
+					{
+						switch (tempguy.weapon)
+						{
+						case ewFireTrail:
+						case ewFlame:
+						case ewFlame2Trail:
+						case ewFlame2:
+							tempguy.firesfx = WAV_FIRE;
+							break;
+						case ewWind:
+						case ewMagic:
+							tempguy.firesfx = WAV_WAND;
+							break;
+						case ewIce:
+							tempguy.firesfx = WAV_ZN1ICE;
+							break;
+						case ewRock:
+							if (get_qr(qr_MORESOUNDS)) tempguy.firesfx = WAV_ZN1ROCK;
+							break;
+						case ewFireball2:
+						case ewFireball:
+							if (get_qr(qr_MORESOUNDS)) tempguy.firesfx = WAV_ZN1FIREBALL;
+							break;
+						default:
+							tempguy.firesfx = -1; //no sounds
+							break;
+						}
+					}
+				}
+			}
+
 			if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
 			{
 				tempguy.script = 0;
