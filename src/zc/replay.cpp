@@ -1635,9 +1635,8 @@ void replay_stop()
         save_result(true);
         if (exit_when_done)
         {
-            // TODO: clean this up. Must shutdown script engine so that user_bitmap BITMAP will dealloc before allegro teardown.
-            FFCore.shutdown();
-            exit(has_assert_failed ? ASSERT_FAILED_EXIT_CODE : 0);
+			replay_quit();
+			zc_exit(has_assert_failed ? ASSERT_FAILED_EXIT_CODE : 0);
         }
         else if (has_assert_failed)
         {
@@ -1700,9 +1699,7 @@ void replay_stop()
 
 	if (exit_when_done)
 	{
-		// TODO: clean this up. Must shutdown script engine so that user_bitmap BITMAP will dealloc before allegro teardown.
-		FFCore.shutdown();
-		exit(has_rng_desynced ? 1 : 0);
+		zc_exit(has_rng_desynced ? 1 : 0);
 	}
 }
 
