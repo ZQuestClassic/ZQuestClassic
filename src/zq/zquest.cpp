@@ -26199,7 +26199,7 @@ int32_t main(int32_t argc,char **argv)
 	killConsole();
 	
 	quit_game();
-	
+	allegro_exit();
 	if(ForceExit) //last resort fix to the allegro process hanging bug.
 		exit(0);
 	
