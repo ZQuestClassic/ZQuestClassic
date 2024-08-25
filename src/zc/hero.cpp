@@ -28985,6 +28985,18 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		
 		if(!isdungeon() || get_qr(qr_FREEFORM))
 		{
+			for (int i = 0; i < decorations.Count(); i++)
+			{
+				auto sprite = (decoration*)decorations.spr(i);
+				if (!sprite->is_drawn_with_offset())
+				{
+					// NOTE: if decoration sprites are ever exposed to zscript, this modification
+					// needs to tack on to existing values for x/yofs.
+					sprite->xofs = -tx2;
+					sprite->yofs = -ty2+playing_field_offset;
+				}
+			}
+
 			draw_under(framebuf); //draw the ladder or raft
 			decorations.draw2(framebuf, true);
 			draw(framebuf); //Hero
@@ -29320,7 +29332,16 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		if (musicrevert)
 			FFCore.music_update_cond = MUSIC_UPDATE_SCREEN;
 	}
-	
+
+	// It happens that all decorations that are not drawn with an offset
+	// are temporary sprites (like combo sprites) that should never carry over.
+	for (int i = decorations.Count()-1; i >=0; i--)
+	{
+		auto sprite = (decoration*)decorations.spr(i);
+		if (!sprite->is_drawn_with_offset())
+			decorations.remove(sprite); // TODO: improve deletions by adding remove_by_index
+	}
+
 	newscr_clk = frame;
 	activated_timed_warp=false;
 	loadside = scrolldir^1;
