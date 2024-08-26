@@ -24,16 +24,12 @@ extern int32_t bie_cnt;
 
 std::string quest_report_str;
 
+// TODO: the purpose of this is to align every row of text...but we
+// aren't using a monospaced font.
 char *palname_spaced(int32_t pal)
 {
-    static char buf[17];
-    sprintf(buf,"%s",palnames[pal]);
-    
-    for(int32_t i=strlen(buf); i<17; i+=1)
-    {
-        strcat(buf," ");
-    }
-    
+    static char buf[18];
+    snprintf(buf,18,"%-18s",palnames[pal]);
     return buf;
 }
 
@@ -583,6 +579,9 @@ void integrityCheckTileWarpDestSquare()
             for(int32_t w=0; w<4; ++w)
             {
                 int32_t wdm=ts->tilewarpdmap[w];
+                if (DMaps[wdm].map >= Map.getMapCount())
+                    continue;
+
                 int32_t ws=(DMaps[wdm].map*MAPSCRS+ts->tilewarpscr[w]+DMaps[wdm].xoff);
                 wscr=&TheMaps[ws];
                 
@@ -1384,6 +1383,9 @@ void integrityCheckTileWarpDestSquareWalkability()
                 int32_t i=(m*MAPSCRS+s);
                 ts=&TheMaps[i];
                 int32_t wdm=ts->tilewarpdmap[w];
+                if (DMaps[wdm].map >= Map.getMapCount())
+                    continue;
+
                 int32_t ws=(DMaps[wdm].map*MAPSCRS+ts->tilewarpscr[w]+DMaps[wdm].xoff);
                 wscr=&TheMaps[ws];
                 
@@ -1455,6 +1457,9 @@ void integrityCheckTileWarpDestScreenInvalid()
                 int32_t i=(m*MAPSCRS+s);
                 ts=&TheMaps[i];
                 int32_t wdm=ts->tilewarpdmap[w];
+                if (DMaps[wdm].map >= Map.getMapCount())
+                    continue;
+
                 int32_t ws=(DMaps[wdm].map*MAPSCRS+ts->tilewarpscr[w]+DMaps[wdm].xoff);
                 wscr=&TheMaps[ws];
                 
