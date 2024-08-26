@@ -29008,11 +29008,22 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	auto script_hero_x = x;
 	auto script_hero_y = y;
 
-	// FFCs coordinates are world positions, and so don't need an offset like when drawing a specific screen's combos in do_scrolling_layer.
-	// But since their coordinates are in the new coordinate system, we must apply an offset based on the difference between the two coordinate systems.
-	// Only used when drawing the new screens.
-	int ffc_offset_x = (dx - z3_get_region_relative_dx(destscr)) * 256;
-	int ffc_offset_y = (dy - z3_get_region_relative_dy(destscr)) * 176;
+	// FFCs coordinates are world positions, and so don't need an offset
+	// like when drawing a specific screen's combos in do_scrolling_layer.
+	// But since their coordinates are in the new coordinate system, we must
+	// apply an offset based on the difference between the two coordinate
+	// systems.
+	int new_ffc_offset_x = new_region_offset_x;
+	int new_ffc_offset_y = new_region_offset_y;
+	if (is_warping)
+	{
+		new_ffc_offset_x = 0;
+		new_ffc_offset_y = 0;
+		if (scrolling_dir == left) new_ffc_offset_x = -256;
+		if (scrolling_dir == right) new_ffc_offset_x = 256;
+		if (scrolling_dir == up) new_ffc_offset_y = -176;
+		if (scrolling_dir == down) new_ffc_offset_y = 176;
+	}
 
 	// These mark the top-left coordinate of the new screen and the old screen, relative to the old region world coordinates.
 	int nx = 0;
@@ -29268,8 +29279,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		if (get_qr(qr_FFCSCROLL))
 		{
 			for_every_nearby_screen_during_scroll(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int draw_dx, int draw_dy, bool is_new_screen) {
-				int draw_ffc_x = is_new_screen ? ffc_offset_x : 0;
-				int draw_ffc_y = is_new_screen ? ffc_offset_y : 0;
+				int draw_ffc_x = is_new_screen ? new_ffc_offset_x : 0;
+				int draw_ffc_y = is_new_screen ? new_ffc_offset_y : 0;
 				do_layer(framebuf, -3, screen_handles[0], draw_ffc_x, draw_ffc_y);
 			});
 		}
@@ -29366,8 +29377,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 
 			do_layer(framebuf, 0, screen_handles[5], offx, offy, is_dest_scr); //layer 5
 			{
-				int draw_ffc_x = is_new_screen ? ffc_offset_x : 0;
-				int draw_ffc_y = is_new_screen ? ffc_offset_y : 0;
+				int draw_ffc_x = is_new_screen ? new_ffc_offset_x : 0;
+				int draw_ffc_y = is_new_screen ? new_ffc_offset_y : 0;
 				do_layer(framebuf, -4, screen_handles[0], draw_ffc_x, draw_ffc_y); //overhead FFCs
 			}
 			do_layer(framebuf, 0, screen_handles[6], offx, offy, is_dest_scr); //layer 6
