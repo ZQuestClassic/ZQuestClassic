@@ -1543,6 +1543,9 @@ std::optional<int32_t> npc_get_register(int32_t reg)
 			ret = npc_linedup();
 			break;
 
+		case NPCFIRESFX:
+			GET_NPC_VAR_INT(bgsfx, "npc->FireSFX") break;
+
 		default: return std::nullopt;
 	}
 
@@ -2430,6 +2433,13 @@ bool npc_set_register(int32_t reg, int32_t value)
 			if (GuyH::loadNPC(ri->guyref, "npc->FlickerTransparencyPasses") == SH::_NoError)
 			{
 				GuyH::getNPC()->flickertransp = vbound(value / 10000, -1, 255);
+			}
+			break;
+
+		case NPCFIRESFX:
+			if (GuyH::loadNPC(ri->guyref, "npc->FireSFX") == SH::_NoError)
+			{
+				GuyH::getNPC()->firesfx = vbound(value / 10000, -1, 255);
 			}
 			break;
 
