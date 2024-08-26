@@ -14343,6 +14343,10 @@ void drawxmap(ALLEGRO_BITMAP* dest, int32_t themap, int32_t xoff, bool large, in
 
 	for (int32_t y = 0; y < 8; y++)
 	{
+		// Users might have set the dmap to a map that has since been deleted.
+		if (themap >= Map.getMapCount())
+			break;
+
 		for (int32_t x = 0; x < cols; x++)
 		{
 			if (x + xoff < 0 || x + xoff > 15)
