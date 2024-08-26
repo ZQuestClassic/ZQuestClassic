@@ -507,23 +507,23 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 	dir = zc_oldrand()&3;
 	
 	//2.6 Enemy Editor Hit and TIle Sizes
-	if ( ((d->SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && d->txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
+	if ( ((d->SIZEflags&OVERRIDE_TILE_WIDTH) != 0) && d->txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
    // al_trace("Enemy txsz:%i\n", txsz);
-	if ( ((d->SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && d->tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
-	if ( ((d->SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && d->hxsz >= 0 ) hit_width = d->hxsz;
-	if ( ((d->SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && d->hysz >= 0 ) hit_height = d->hysz;
-	if ( ((d->SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && d->hzsz >= 0  ) hzsz = d->hzsz;
-	if ( (d->SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = d->hxofs;
-	if (  (d->SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = d->hyofs;
+	if ( ((d->SIZEflags&OVERRIDE_TILE_HEIGHT) != 0) && d->tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
+	if ( ((d->SIZEflags&OVERRIDE_HIT_WIDTH) != 0) && d->hxsz >= 0 ) hit_width = d->hxsz;
+	if ( ((d->SIZEflags&OVERRIDE_HIT_HEIGHT) != 0) && d->hysz >= 0 ) hit_height = d->hysz;
+	if ( ((d->SIZEflags&OVERRIDE_HIT_Z_HEIGHT) != 0) && d->hzsz >= 0  ) hzsz = d->hzsz;
+	if ( (d->SIZEflags&OVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = d->hxofs;
+	if (  (d->SIZEflags&OVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = d->hyofs;
 //    if ( (d->SIZEflags&guyflagOVERRIDEHITZOFFSET) != 0 ) hzofs = d->hzofs;
-	if (  (d->SIZEflags&guyflagOVERRIDE_DRAW_X_OFFSET) != 0 ) xofs = (int32_t)d->xofs;
-	if ( (d->SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 ) 
+	if (  (d->SIZEflags&OVERRIDE_DRAW_X_OFFSET) != 0 ) xofs = (int32_t)d->xofs;
+	if ( (d->SIZEflags&OVERRIDE_DRAW_Y_OFFSET) != 0 ) 
 	{
 		yofs = (int32_t)d->yofs; //This seems to be setting to +48 or something with any value set?! -Z
 		yofs += (get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset) ; //this offset fixes yofs not plaing properly. -Z
 	}
   
-	if (  (d->SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = (int32_t)d->zofs;
+	if (  (d->SIZEflags&OVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = (int32_t)d->zofs;
 	
 	SIZEflags = d->SIZEflags;
 	
@@ -1207,8 +1207,8 @@ bool enemy::animate(int32_t index)
 				if(!isOnSideviewPlatform())
 				{
 					bool willHitSVPlatform = false;
-					int32_t usewid = (SIZEflags&guyflagOVERRIDE_HIT_WIDTH)?hit_width:16;
-					int32_t usehei = (SIZEflags&guyflagOVERRIDE_HIT_HEIGHT)?hit_height:16;
+					int32_t usewid = (SIZEflags&OVERRIDE_HIT_WIDTH)?hit_width:16;
+					int32_t usehei = (SIZEflags&OVERRIDE_HIT_HEIGHT)?hit_height:16;
 					for(int32_t nx = x+4; nx < x+usewid; nx+=16)
 					{
 						if(fall > 0 && !IGNORE_SIDEVIEW_PLATFORMS && checkSVLadderPlatform(x+4,y+(fall/100)+usehei-1) && (((int32_t(y)+(int32_t(fall)/100)+usehei-1)&0xF0)!=((int32_t(y)+usehei-1)&0xF0)))
@@ -1513,7 +1513,7 @@ bool enemy::m_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int32
 		{
 			if ( ((unsigned)(id&0xFFF)) < MAXGUYS )
 			{
-				if ( SIZEflags&guyflagOVERRIDE_HIT_HEIGHT && !isflier(id) )
+				if ( SIZEflags&OVERRIDE_HIT_HEIGHT && !isflier(id) )
 				{
 					//Small enemies are treated as 16x16, for the purposes of m_walkflag!
 					dy += zc_max(hit_height-16,0);
@@ -1533,7 +1533,7 @@ bool enemy::m_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int32
 		{
 			if ( ((unsigned)(id&0xFFF)) < MAXGUYS )
 			{
-				if ( SIZEflags&guyflagOVERRIDE_HIT_WIDTH && !isflier(id) )
+				if ( SIZEflags&OVERRIDE_HIT_WIDTH && !isflier(id) )
 				{
 					//Small enemies are treated as 16x16, for the purposes of m_walkflag!
 					dx += zc_max(hit_width-16,0);
@@ -1607,8 +1607,8 @@ bool enemy::m_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int32
 
 bool enemy::isOnSideviewPlatform()
 {
-	int32_t usewid = (SIZEflags&guyflagOVERRIDE_HIT_WIDTH) ? hit_width : 16;
-	int32_t usehei = (SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) ? hit_height : 16;
+	int32_t usewid = (SIZEflags&OVERRIDE_HIT_WIDTH) ? hit_width : 16;
+	int32_t usehei = (SIZEflags&OVERRIDE_HIT_HEIGHT) ? hit_height : 16;
 	if(!get_qr(qr_BROKEN_SIDEVIEW_SPRITE_JUMP)&&fall<0)
 		return false;
 	if(y + usehei >= 176 && currscr>=0x70 && !(tmpscr->flags2&wfDOWN)) return true; //Bottom of the map
@@ -1848,12 +1848,12 @@ void enemy::FireWeapon()
 	
 	int32_t xoff = 0;
 	int32_t yoff = 0;
-	if ( SIZEflags&guyflagOVERRIDE_HIT_WIDTH )
+	if ( SIZEflags&OVERRIDE_HIT_WIDTH )
 	{
 		xoff += (hit_width/2)-8;   
 		//Z_scripterrlog("width flag enabled. xoff = %d\n", xoff);
 	}
-	if ( SIZEflags&guyflagOVERRIDE_HIT_HEIGHT )
+	if ( SIZEflags&OVERRIDE_HIT_HEIGHT )
 	{
 		yoff += (hit_height/2)-8;   
 		//Z_scripterrlog("width flag enabled. yoff = %d\n", yoff);
@@ -4377,20 +4377,20 @@ void enemy::masked_draw(BITMAP *dest,int32_t mx,int32_t my,int32_t mw,int32_t mh
 
 void enemy::init_size_flags()
 {
-	if (((SIZEflags & guyflagOVERRIDE_TILE_WIDTH) != 0) && d->txsz > 0) { txsz = d->txsz; if (txsz > 1) extend = 3; }
-	if (((SIZEflags & guyflagOVERRIDE_TILE_HEIGHT) != 0) && d->tysz > 0) { tysz = d->tysz; if (tysz > 1) extend = 3; }
-	if (((SIZEflags & guyflagOVERRIDE_HIT_WIDTH) != 0) && d->hxsz >= 0) hit_width = d->hxsz;
-	if (((SIZEflags & guyflagOVERRIDE_HIT_HEIGHT) != 0) && d->hysz >= 0) hit_height = d->hysz;
-	if (((SIZEflags & guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && d->hzsz >= 0) hzsz = d->hzsz;
-	if ((SIZEflags & guyflagOVERRIDE_HIT_X_OFFSET) != 0) hxofs = d->hxofs;
-	if ((SIZEflags & guyflagOVERRIDE_HIT_Y_OFFSET) != 0) hyofs = d->hyofs;
-	if ((SIZEflags & guyflagOVERRIDE_DRAW_X_OFFSET) != 0) xofs = (int32_t)d->xofs;
-	if ((SIZEflags & guyflagOVERRIDE_DRAW_Y_OFFSET) != 0)
+	if (((SIZEflags & OVERRIDE_TILE_WIDTH) != 0) && d->txsz > 0) { txsz = d->txsz; if (txsz > 1) extend = 3; }
+	if (((SIZEflags & OVERRIDE_TILE_HEIGHT) != 0) && d->tysz > 0) { tysz = d->tysz; if (tysz > 1) extend = 3; }
+	if (((SIZEflags & OVERRIDE_HIT_WIDTH) != 0) && d->hxsz >= 0) hit_width = d->hxsz;
+	if (((SIZEflags & OVERRIDE_HIT_HEIGHT) != 0) && d->hysz >= 0) hit_height = d->hysz;
+	if (((SIZEflags & OVERRIDE_HIT_Z_HEIGHT) != 0) && d->hzsz >= 0) hzsz = d->hzsz;
+	if ((SIZEflags & OVERRIDE_HIT_X_OFFSET) != 0) hxofs = d->hxofs;
+	if ((SIZEflags & OVERRIDE_HIT_Y_OFFSET) != 0) hyofs = d->hyofs;
+	if ((SIZEflags & OVERRIDE_DRAW_X_OFFSET) != 0) xofs = (int32_t)d->xofs;
+	if ((SIZEflags & OVERRIDE_DRAW_Y_OFFSET) != 0)
 	{
 		yofs = (int32_t)d->yofs;
 		yofs += (get_qr(qr_OLD_DRAWOFFSET) ? playing_field_offset : original_playing_field_offset);
 	}
-	if ((SIZEflags & guyflagOVERRIDE_DRAW_Z_OFFSET) != 0) zofs = (int32_t)d->zofs;
+	if ((SIZEflags & OVERRIDE_DRAW_Z_OFFSET) != 0) zofs = (int32_t)d->zofs;
 }
 
 // override hit detection to check for invicibility, stunned, etc
@@ -4545,8 +4545,8 @@ void enemy::fix_coords(bool bound)
 	{
 		if ( ((unsigned)(id&0xFFF)) < MAXGUYS )
 		{
-		x=vbound(x, 0_zf, (( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_WIDTH && !isflier(id) ) ? (256_zf -((txsz-1)*16)) : 240_zf));
-		y=vbound(y, 0_zf,(( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT && !isflier(id) ) ? (176_zf -((txsz-1)*16)) : 160_zf));
+		x=vbound(x, 0_zf, (( guysbuf[id].SIZEflags&OVERRIDE_TILE_WIDTH && !isflier(id) ) ? (256_zf -((txsz-1)*16)) : 240_zf));
+		y=vbound(y, 0_zf,(( guysbuf[id].SIZEflags&OVERRIDE_TILE_HEIGHT && !isflier(id) ) ? (176_zf -((txsz-1)*16)) : 160_zf));
 		}
 		else
 		{
@@ -4672,10 +4672,10 @@ bool enemy::canmove(int32_t ndir,zfix s,int32_t special,int32_t dx1,int32_t dy1,
 	int32_t tries = 2; int32_t try_x = 0; int32_t try_y = 0;
 	//Why is this here??? Why is it needed???
 	s += 0.5; // Make the ints round; doesn't seem to cause any problems.
-	int32_t usexoffs = (SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) ? hxofs : 0;
-	int32_t useyoffs = (SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) ? hyofs : 0;
-	int32_t usewid = (SIZEflags&guyflagOVERRIDE_HIT_WIDTH) ? hit_width : 16;
-	int32_t usehei = (SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) ? hit_height : 16;
+	int32_t usexoffs = (SIZEflags&OVERRIDE_HIT_X_OFFSET) ? hxofs : 0;
+	int32_t useyoffs = (SIZEflags&OVERRIDE_HIT_Y_OFFSET) ? hyofs : 0;
+	int32_t usewid = (SIZEflags&OVERRIDE_HIT_WIDTH) ? hit_width : 16;
+	int32_t usehei = (SIZEflags&OVERRIDE_HIT_HEIGHT) ? hit_height : 16;
 	bool offgrid = OFFGRID_ENEMY;
 	if(!offgrid)
 	{
@@ -4970,8 +4970,8 @@ bool enemy::canmove(int32_t ndir,zfix s,int32_t special,int32_t dx1,int32_t dy1,
 
 bool enemy::canmove(int32_t ndir,zfix s,int32_t special, bool kb)
 {
-	int32_t usewid = (SIZEflags&guyflagOVERRIDE_HIT_WIDTH) ? hit_width : 16;
-	int32_t usehei = (SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) ? hit_height : 16;
+	int32_t usewid = (SIZEflags&OVERRIDE_HIT_WIDTH) ? hit_width : 16;
+	int32_t usehei = (SIZEflags&OVERRIDE_HIT_HEIGHT) ? hit_height : 16;
 	if (usewid % 16 != 0) usewid += (16 - (usewid%16));
 	if (usehei % 16 != 0) usehei += (16 - (usehei%16));
 	--usewid;
@@ -4987,8 +4987,8 @@ bool enemy::canmove(int32_t ndir,int32_t special, bool kb)
 	{
 		dodongo_move=canmove(ndir,(zfix)1,special,0,-8,31,15,kb);
 	}
-	int32_t usewid = (SIZEflags&guyflagOVERRIDE_HIT_WIDTH) ? hit_width : 16;
-	int32_t usehei = (SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) ? hit_height : 16;
+	int32_t usewid = (SIZEflags&OVERRIDE_HIT_WIDTH) ? hit_width : 16;
+	int32_t usehei = (SIZEflags&OVERRIDE_HIT_HEIGHT) ? hit_height : 16;
 	if (usewid % 16 != 0) usewid += (16 - (usewid%16));
 	if (usehei % 16 != 0) usehei += (16 - (usehei%16));
 	--usewid;
@@ -9743,26 +9743,26 @@ eRock::eRock(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 
 void eRock::init_size_flags()
 {
-	if ((d->SIZEflags & guyflagOVERRIDE_HIT_X_OFFSET) != 0) hxofs = d->hxofs;
+	if ((d->SIZEflags & OVERRIDE_HIT_X_OFFSET) != 0) hxofs = d->hxofs;
 	else hxofs = -2;
-	if ((d->SIZEflags & guyflagOVERRIDE_HIT_Y_OFFSET) != 0) hyofs = d->hyofs;
+	if ((d->SIZEflags & OVERRIDE_HIT_Y_OFFSET) != 0) hyofs = d->hyofs;
 	else hyofs = -2;
-	if (((d->SIZEflags & guyflagOVERRIDE_HIT_WIDTH) != 0) && d->hxsz >= 0) hit_width = d->hxsz;
+	if (((d->SIZEflags & OVERRIDE_HIT_WIDTH) != 0) && d->hxsz >= 0) hit_width = d->hxsz;
 	else hit_width = 20;
-	if (((d->SIZEflags & guyflagOVERRIDE_HIT_HEIGHT) != 0) && d->hysz >= 0) hit_height = d->hysz;
+	if (((d->SIZEflags & OVERRIDE_HIT_HEIGHT) != 0) && d->hysz >= 0) hit_height = d->hysz;
 	else hit_height = 20;
 
-	if (((d->SIZEflags & guyflagOVERRIDE_TILE_WIDTH) != 0) && d->txsz > 0) { txsz = d->txsz; if (txsz > 1) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
-	if (((d->SIZEflags & guyflagOVERRIDE_TILE_HEIGHT) != 0) && d->tysz > 0) { tysz = d->tysz; if (tysz > 1) extend = 3; }
-	if (((d->SIZEflags & guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && d->hzsz >= 0) hzsz = d->hzsz;
-	if ((d->SIZEflags & guyflagOVERRIDE_DRAW_X_OFFSET) != 0) xofs = (int32_t)d->xofs;
-	if ((d->SIZEflags & guyflagOVERRIDE_DRAW_Y_OFFSET) != 0)
+	if (((d->SIZEflags & OVERRIDE_TILE_WIDTH) != 0) && d->txsz > 0) { txsz = d->txsz; if (txsz > 1) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
+	if (((d->SIZEflags & OVERRIDE_TILE_HEIGHT) != 0) && d->tysz > 0) { tysz = d->tysz; if (tysz > 1) extend = 3; }
+	if (((d->SIZEflags & OVERRIDE_HIT_Z_HEIGHT) != 0) && d->hzsz >= 0) hzsz = d->hzsz;
+	if ((d->SIZEflags & OVERRIDE_DRAW_X_OFFSET) != 0) xofs = (int32_t)d->xofs;
+	if ((d->SIZEflags & OVERRIDE_DRAW_Y_OFFSET) != 0)
 	{
 		yofs = (int32_t)d->yofs; //This seems to be setting to +48 or something with any value set?! -Z
 		yofs += (get_qr(qr_OLD_DRAWOFFSET) ? playing_field_offset : original_playing_field_offset); //this offset fixes yofs not plaing properly. -Z
 	}
 
-	if ((d->SIZEflags & guyflagOVERRIDE_DRAW_Z_OFFSET) != 0) zofs = (int32_t)d->zofs;
+	if ((d->SIZEflags & OVERRIDE_DRAW_Z_OFFSET) != 0) zofs = (int32_t)d->zofs;
 }
 
 bool eRock::animate(int32_t index)
@@ -10008,28 +10008,28 @@ void eBoulder::draw(BITMAP *dest)
 
 void eBoulder::init_size_flags()
 {
-	if ((d->SIZEflags & guyflagOVERRIDE_HIT_X_OFFSET) != 0) hxofs = d->hxofs;
+	if ((d->SIZEflags & OVERRIDE_HIT_X_OFFSET) != 0) hxofs = d->hxofs;
 	else hxofs = -10;
-	if ((d->SIZEflags & guyflagOVERRIDE_HIT_Y_OFFSET) != 0) hyofs = d->hyofs;
+	if ((d->SIZEflags & OVERRIDE_HIT_Y_OFFSET) != 0) hyofs = d->hyofs;
 	else hyofs = -10;
-	if (((d->SIZEflags & guyflagOVERRIDE_HIT_WIDTH) != 0) && d->hxsz >= 0) hit_width = d->hxsz;
+	if (((d->SIZEflags & OVERRIDE_HIT_WIDTH) != 0) && d->hxsz >= 0) hit_width = d->hxsz;
 	else hit_width = 36;
-	if (((d->SIZEflags & guyflagOVERRIDE_HIT_HEIGHT) != 0) && d->hysz >= 0) hit_height = d->hysz;
+	if (((d->SIZEflags & OVERRIDE_HIT_HEIGHT) != 0) && d->hysz >= 0) hit_height = d->hysz;
 	else hit_height = 36;
-	if (((d->SIZEflags & guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && d->hzsz >= 0) hzsz = d->hzsz;
+	if (((d->SIZEflags & OVERRIDE_HIT_Z_HEIGHT) != 0) && d->hzsz >= 0) hzsz = d->hzsz;
 	else hzsz = 16; //can't be jumped
 
-	if (((d->SIZEflags & guyflagOVERRIDE_TILE_WIDTH) != 0) && d->txsz > 0) { txsz = d->txsz; if (txsz > 1) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
-	if (((d->SIZEflags & guyflagOVERRIDE_TILE_HEIGHT) != 0) && d->tysz > 0) { tysz = d->tysz; if (tysz > 1) extend = 3; }
-	if (((d->SIZEflags & guyflagOVERRIDE_HIT_WIDTH) != 0) && d->hxsz >= 0) hit_width = d->hxsz;
-	if ((d->SIZEflags & guyflagOVERRIDE_DRAW_X_OFFSET) != 0) xofs = (int32_t)d->xofs;
-	if ((d->SIZEflags & guyflagOVERRIDE_DRAW_Y_OFFSET) != 0)
+	if (((d->SIZEflags & OVERRIDE_TILE_WIDTH) != 0) && d->txsz > 0) { txsz = d->txsz; if (txsz > 1) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
+	if (((d->SIZEflags & OVERRIDE_TILE_HEIGHT) != 0) && d->tysz > 0) { tysz = d->tysz; if (tysz > 1) extend = 3; }
+	if (((d->SIZEflags & OVERRIDE_HIT_WIDTH) != 0) && d->hxsz >= 0) hit_width = d->hxsz;
+	if ((d->SIZEflags & OVERRIDE_DRAW_X_OFFSET) != 0) xofs = (int32_t)d->xofs;
+	if ((d->SIZEflags & OVERRIDE_DRAW_Y_OFFSET) != 0)
 	{
 		yofs = (int32_t)d->yofs; //This seems to be setting to +48 or something with any value set?! -Z
 		yofs += (get_qr(qr_OLD_DRAWOFFSET) ? playing_field_offset : original_playing_field_offset); //this offset fixes yofs not plaing properly. -Z
 	}
 
-	if ((d->SIZEflags & guyflagOVERRIDE_DRAW_Z_OFFSET) != 0) zofs = (int32_t)d->zofs;
+	if ((d->SIZEflags & OVERRIDE_DRAW_Z_OFFSET) != 0) zofs = (int32_t)d->zofs;
 }
 
 int32_t eBoulder::takehit(weapon*,weapon*)
@@ -10699,7 +10699,7 @@ bool eStalfos::animate(int32_t index)
 			removearmosffc(ffcactivated-1); 
 		else
 		{
-			if (txsz > 1 || tysz > 1 || (SIZEflags&guyflagOVERRIDE_HIT_WIDTH) || (SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) )//remove more than one combo based on enemy size
+			if (txsz > 1 || tysz > 1 || (SIZEflags&OVERRIDE_HIT_WIDTH) || (SIZEflags&OVERRIDE_HIT_HEIGHT) )//remove more than one combo based on enemy size
 			{
 				//zprint("spawn big enemy from armos\n");
 				 //if removing a block, then adjust y by -1 as the enemy spawns at y+1
@@ -11679,33 +11679,33 @@ void eKeese::draw(BITMAP *dest)
 void eKeese::init_size_flags()
 {
 	SIZEflags = d->SIZEflags;
-	if (!(SIZEflags & guyflagOVERRIDE_HIT_X_OFFSET)) hxofs = 2;
-	if ((SIZEflags & guyflagOVERRIDE_HIT_X_OFFSET) != 0) hxofs = d->hxofs;
+	if (!(SIZEflags & OVERRIDE_HIT_X_OFFSET)) hxofs = 2;
+	if ((SIZEflags & OVERRIDE_HIT_X_OFFSET) != 0) hxofs = d->hxofs;
 
-	if (!(SIZEflags & guyflagOVERRIDE_HIT_WIDTH)) hit_width = 12;
-	if (((SIZEflags & guyflagOVERRIDE_HIT_WIDTH) != 0) && d->hxsz >= 0) hit_width = d->hxsz;
+	if (!(SIZEflags & OVERRIDE_HIT_WIDTH)) hit_width = 12;
+	if (((SIZEflags & OVERRIDE_HIT_WIDTH) != 0) && d->hxsz >= 0) hit_width = d->hxsz;
 
-	if (!(SIZEflags & guyflagOVERRIDE_HIT_Y_OFFSET)) hyofs = 4;
-	if ((SIZEflags & guyflagOVERRIDE_HIT_Y_OFFSET) != 0) hyofs = d->hyofs;
+	if (!(SIZEflags & OVERRIDE_HIT_Y_OFFSET)) hyofs = 4;
+	if ((SIZEflags & OVERRIDE_HIT_Y_OFFSET) != 0) hyofs = d->hyofs;
 
-	if (!(SIZEflags & guyflagOVERRIDE_HIT_HEIGHT)) hit_height = 8;
-	if (((SIZEflags & guyflagOVERRIDE_HIT_HEIGHT) != 0) && d->hysz >= 0) hit_height = d->hysz;
+	if (!(SIZEflags & OVERRIDE_HIT_HEIGHT)) hit_height = 8;
+	if (((SIZEflags & OVERRIDE_HIT_HEIGHT) != 0) && d->hysz >= 0) hit_height = d->hysz;
 
-	if (((SIZEflags & guyflagOVERRIDE_TILE_WIDTH) != 0) && d->txsz > 0) { txsz = d->txsz; if (txsz > 1) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
+	if (((SIZEflags & OVERRIDE_TILE_WIDTH) != 0) && d->txsz > 0) { txsz = d->txsz; if (txsz > 1) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
 	// al_trace("Enemy txsz:%i\n", txsz);
-	if (((SIZEflags & guyflagOVERRIDE_TILE_HEIGHT) != 0) && d->tysz > 0) { tysz = d->tysz; if (tysz > 1) extend = 3; }
+	if (((SIZEflags & OVERRIDE_TILE_HEIGHT) != 0) && d->tysz > 0) { tysz = d->tysz; if (tysz > 1) extend = 3; }
 
 
-	if (((SIZEflags & guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && d->hzsz >= 0) hzsz = d->hzsz;
+	if (((SIZEflags & OVERRIDE_HIT_Z_HEIGHT) != 0) && d->hzsz >= 0) hzsz = d->hzsz;
 
-	if ((SIZEflags & guyflagOVERRIDE_DRAW_X_OFFSET) != 0) xofs = (int32_t)d->xofs;
-	if ((SIZEflags & guyflagOVERRIDE_DRAW_Y_OFFSET) != 0)
+	if ((SIZEflags & OVERRIDE_DRAW_X_OFFSET) != 0) xofs = (int32_t)d->xofs;
+	if ((SIZEflags & OVERRIDE_DRAW_Y_OFFSET) != 0)
 	{
 		yofs = (int32_t)d->yofs; //This seems to be setting to +48 or something with any value set?! -Z
 		yofs += (get_qr(qr_OLD_DRAWOFFSET) ? playing_field_offset : original_playing_field_offset); //this offset fixes yofs not plaing properly. -Z
 	}
 
-	if ((SIZEflags & guyflagOVERRIDE_DRAW_Z_OFFSET) != 0) zofs = (int32_t)d->zofs;
+	if ((SIZEflags & OVERRIDE_DRAW_Z_OFFSET) != 0) zofs = (int32_t)d->zofs;
 }
 
 void eWizzrobe::submerge(bool set)
@@ -13245,28 +13245,28 @@ int32_t eBigDig::takehit(weapon *w, weapon* realweap)
 void eBigDig::init_size_flags()
 {
 	SIZEflags = d->SIZEflags;
-	if (((SIZEflags & guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0) { txsz = d->txsz; if (txsz > 1) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
+	if (((SIZEflags & OVERRIDE_TILE_WIDTH) != 0) && txsz > 0) { txsz = d->txsz; if (txsz > 1) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
 	// al_trace("Enemy txsz:%i\n", txsz);
-	if (((SIZEflags & guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0) { tysz = d->tysz; if (tysz > 1) extend = 3; }
-	if (((SIZEflags & guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0) hit_width = d->hxsz;
+	if (((SIZEflags & OVERRIDE_TILE_HEIGHT) != 0) && tysz > 0) { tysz = d->tysz; if (tysz > 1) extend = 3; }
+	if (((SIZEflags & OVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0) hit_width = d->hxsz;
 	else hit_width = 32;
-	if (((SIZEflags & guyflagOVERRIDE_HIT_HEIGHT) != 0) && hit_height >= 0) hit_height = d->hysz;
+	if (((SIZEflags & OVERRIDE_HIT_HEIGHT) != 0) && hit_height >= 0) hit_height = d->hysz;
 	else hit_height = 32;
-	if (((SIZEflags & guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && hzsz >= 0) hzsz = d->hzsz;
+	if (((SIZEflags & OVERRIDE_HIT_Z_HEIGHT) != 0) && hzsz >= 0) hzsz = d->hzsz;
 	else hzsz = 16; // hard to jump.
-	if ((SIZEflags & guyflagOVERRIDE_HIT_X_OFFSET) != 0) hxofs = d->hxofs;
+	if ((SIZEflags & OVERRIDE_HIT_X_OFFSET) != 0) hxofs = d->hxofs;
 	else hxofs = -8;
-	if ((SIZEflags & guyflagOVERRIDE_HIT_Y_OFFSET) != 0) hyofs = d->hyofs;
+	if ((SIZEflags & OVERRIDE_HIT_Y_OFFSET) != 0) hyofs = d->hyofs;
 	else hyofs = -8;
 	//    if ( (SIZEflags&guyflagOVERRIDEHITZOFFSET) != 0 ) hzofs = hzofs;
-	if ((SIZEflags & guyflagOVERRIDE_DRAW_X_OFFSET) != 0) xofs = d->xofs;
-	if ((SIZEflags & guyflagOVERRIDE_DRAW_Y_OFFSET) != 0)
+	if ((SIZEflags & OVERRIDE_DRAW_X_OFFSET) != 0) xofs = d->xofs;
+	if ((SIZEflags & OVERRIDE_DRAW_Y_OFFSET) != 0)
 	{
 		yofs = d->yofs; //This seems to be setting to +48 or something with any value set?! -Z
 		yofs += (get_qr(qr_OLD_DRAWOFFSET) ? playing_field_offset : original_playing_field_offset); //this offset fixes yofs not plaing properly. -Z
 	}
 
-	if ((SIZEflags & guyflagOVERRIDE_DRAW_Z_OFFSET) != 0) zofs = d->zofs;
+	if ((SIZEflags & OVERRIDE_DRAW_Z_OFFSET) != 0) zofs = d->zofs;
 }
 
 /*
@@ -13578,8 +13578,8 @@ eGanon::eGanon(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 		hyofs = 4;
 		hit_width = 24;
 		hit_height = 24;
-		SIZEflags|=guyflagOVERRIDE_HIT_WIDTH;
-		SIZEflags|=guyflagOVERRIDE_HIT_HEIGHT;
+		SIZEflags|=OVERRIDE_HIT_WIDTH;
+		SIZEflags|=OVERRIDE_HIT_HEIGHT;
 	}
 	hzsz=16; //can't be jumped.
 	clk2=70;
@@ -16301,12 +16301,12 @@ void ePatra::FirePatraWeapon()
 { //.707
 	int32_t xoff = 0;
 	int32_t yoff = 0;
-	if ( SIZEflags&guyflagOVERRIDE_HIT_WIDTH )
+	if ( SIZEflags&OVERRIDE_HIT_WIDTH )
 	{
 		xoff += (hit_width/2)-8;   
 		//Z_scripterrlog("width flag enabled. xoff = %d\n", xoff);
 	}
-	if ( SIZEflags&guyflagOVERRIDE_HIT_HEIGHT )
+	if ( SIZEflags&OVERRIDE_HIT_HEIGHT )
 	{
 		yoff += (hit_height/2)-8;   
 		//Z_scripterrlog("width flag enabled. yoff = %d\n", yoff);
@@ -16422,22 +16422,22 @@ int32_t ePatra::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unbl
 
 void ePatra::init_size_flags() {
 	SIZEflags = d->SIZEflags;
-	if (((SIZEflags & guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0) { txsz = txsz; if (txsz > 1) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
+	if (((SIZEflags & OVERRIDE_TILE_WIDTH) != 0) && txsz > 0) { txsz = txsz; if (txsz > 1) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
 	else if (dmisc10 == 1) { txsz = 2; extend = 3; }
 	// al_trace("Enemy txsz:%i\n", txsz);
-	if (((SIZEflags & guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0) { tysz = tysz; if (tysz > 1) extend = 3; }
+	if (((SIZEflags & OVERRIDE_TILE_HEIGHT) != 0) && tysz > 0) { tysz = tysz; if (tysz > 1) extend = 3; }
 	else if (dmisc10 == 1) { tysz = 2; extend = 3; }
-	if (((SIZEflags & guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0) hit_width = hit_width;
+	if (((SIZEflags & OVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0) hit_width = hit_width;
 	else if (dmisc10 == 1) hit_width = 32;
-	if (((SIZEflags & guyflagOVERRIDE_HIT_HEIGHT) != 0) && hit_height >= 0) hit_height = hit_height;
-	if (((SIZEflags & guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && hzsz >= 0) hzsz = hzsz;
-	if ((SIZEflags & guyflagOVERRIDE_HIT_X_OFFSET) != 0) hxofs = hxofs;
+	if (((SIZEflags & OVERRIDE_HIT_HEIGHT) != 0) && hit_height >= 0) hit_height = hit_height;
+	if (((SIZEflags & OVERRIDE_HIT_Z_HEIGHT) != 0) && hzsz >= 0) hzsz = hzsz;
+	if ((SIZEflags & OVERRIDE_HIT_X_OFFSET) != 0) hxofs = hxofs;
 	else if (dmisc10 == 1) hxofs = -8;
-	if ((SIZEflags & guyflagOVERRIDE_HIT_Y_OFFSET) != 0) hyofs = hyofs;
+	if ((SIZEflags & OVERRIDE_HIT_Y_OFFSET) != 0) hyofs = hyofs;
 	//    if ( (SIZEflags&guyflagOVERRIDEHITZOFFSET) != 0 ) hzofs = hzofs;
-	if ((SIZEflags & guyflagOVERRIDE_DRAW_X_OFFSET) != 0) xofs = (int32_t)xofs;
+	if ((SIZEflags & OVERRIDE_DRAW_X_OFFSET) != 0) xofs = (int32_t)xofs;
 	else if (dmisc10 == 1) xofs = -8;
-	if ((SIZEflags & guyflagOVERRIDE_DRAW_Y_OFFSET) != 0)
+	if ((SIZEflags & OVERRIDE_DRAW_Y_OFFSET) != 0)
 	{
 		yofs = (int32_t)yofs; //This seems to be setting to +48 or something with any value set?! -Z
 		yofs += (get_qr(qr_OLD_DRAWOFFSET) ? playing_field_offset : original_playing_field_offset); //this offset fixes yofs not plaing properly. -Z
@@ -16445,7 +16445,7 @@ void ePatra::init_size_flags() {
 	else if (dmisc10 == 1) yofs = (get_qr(qr_OLD_DRAWOFFSET) ? playing_field_offset : original_playing_field_offset) - 8;
 	if (editorflags & ENEMY_FLAG8) misc = 1;
 
-	if ((SIZEflags & guyflagOVERRIDE_DRAW_Z_OFFSET) != 0) zofs = (int32_t)zofs;
+	if ((SIZEflags & OVERRIDE_DRAW_Z_OFFSET) != 0) zofs = (int32_t)zofs;
 
 }
 
@@ -16835,25 +16835,25 @@ int32_t ePatraBS::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte un
 void ePatraBS::init_size_flags()
 {
 	SIZEflags = d->SIZEflags;
-	if (((SIZEflags & guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0) { txsz = d->txsz; if (txsz > 1) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
+	if (((SIZEflags & OVERRIDE_TILE_WIDTH) != 0) && txsz > 0) { txsz = d->txsz; if (txsz > 1) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
 	// al_trace("Enemy txsz:%i\n", txsz);
-	if (((SIZEflags & guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0) { tysz = d->tysz; if (tysz > 1) extend = 3; }
-	if (((SIZEflags & guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0) hit_width = d->hxsz;
+	if (((SIZEflags & OVERRIDE_TILE_HEIGHT) != 0) && tysz > 0) { tysz = d->tysz; if (tysz > 1) extend = 3; }
+	if (((SIZEflags & OVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0) hit_width = d->hxsz;
 	else hit_width = 32;
-	if (((SIZEflags & guyflagOVERRIDE_HIT_HEIGHT) != 0) && hit_height >= 0) hit_height = d->hysz;
-	if (((SIZEflags & guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && hzsz >= 0) hzsz = d->hzsz;
-	if ((SIZEflags & guyflagOVERRIDE_HIT_X_OFFSET) != 0) hxofs = d->hxofs;
+	if (((SIZEflags & OVERRIDE_HIT_HEIGHT) != 0) && hit_height >= 0) hit_height = d->hysz;
+	if (((SIZEflags & OVERRIDE_HIT_Z_HEIGHT) != 0) && hzsz >= 0) hzsz = d->hzsz;
+	if ((SIZEflags & OVERRIDE_HIT_X_OFFSET) != 0) hxofs = d->hxofs;
 	else hxofs = -8;
-	if ((SIZEflags & guyflagOVERRIDE_HIT_Y_OFFSET) != 0) hyofs = d->hyofs;
+	if ((SIZEflags & OVERRIDE_HIT_Y_OFFSET) != 0) hyofs = d->hyofs;
 	//    if ( (SIZEflags&guyflagOVERRIDEHITZOFFSET) != 0 ) hzofs = hzofs;
-	if ((SIZEflags & guyflagOVERRIDE_DRAW_X_OFFSET) != 0) xofs = (int32_t)d->xofs;
-	if ((SIZEflags & guyflagOVERRIDE_DRAW_Y_OFFSET) != 0)
+	if ((SIZEflags & OVERRIDE_DRAW_X_OFFSET) != 0) xofs = (int32_t)d->xofs;
+	if ((SIZEflags & OVERRIDE_DRAW_Y_OFFSET) != 0)
 	{
 		yofs = (int32_t)d->yofs; //This seems to be setting to +48 or something with any value set?! -Z
 		yofs += (get_qr(qr_OLD_DRAWOFFSET) ? playing_field_offset : original_playing_field_offset); //this offset fixes yofs not plaing properly. -Z
 	}
 
-	if ((SIZEflags & guyflagOVERRIDE_DRAW_Z_OFFSET) != 0) zofs = (int32_t)d->zofs;
+	if ((SIZEflags & OVERRIDE_DRAW_Z_OFFSET) != 0) zofs = (int32_t)d->zofs;
 }
 
 esPatraBS::esPatraBS(zfix X,zfix Y,int32_t Id,int32_t Clk, sprite * prnt) : enemy(X,Y,Id,Clk), parent(prnt)
@@ -16866,25 +16866,25 @@ esPatraBS::esPatraBS(zfix X,zfix Y,int32_t Id,int32_t Clk, sprite * prnt) : enem
 	clk5 = 0;
 	enemy *prntenemy = (enemy *) guys.getByUID(parent->getUID());
 	int32_t prntSIZEflags = prntenemy->SIZEflags;
-	if ( ((prntSIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0 ) { txsz = prntenemy->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
+	if ( ((prntSIZEflags&OVERRIDE_TILE_WIDTH) != 0) && txsz > 0 ) { txsz = prntenemy->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
    // al_trace("Enemy txsz:%i\n", txsz);
-	if ( ((prntSIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = prntenemy->tysz; if ( tysz > 1 ) extend = 3; }
-	if ( ((prntSIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = prntenemy->hit_width;
+	if ( ((prntSIZEflags&OVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = prntenemy->tysz; if ( tysz > 1 ) extend = 3; }
+	if ( ((prntSIZEflags&OVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = prntenemy->hit_width;
 	else hit_width=16;
-	if ( ((prntSIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hit_height >= 0 ) hit_height = prntenemy->hit_height;
+	if ( ((prntSIZEflags&OVERRIDE_HIT_HEIGHT) != 0) && hit_height >= 0 ) hit_height = prntenemy->hit_height;
 	else hit_height=16;
-	if ( ((prntSIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && hzsz >= 0  ) hzsz = prntenemy->hzsz;
-	if ( (prntSIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = prntenemy->hxofs;
-	if (  (prntSIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = prntenemy->hyofs;
+	if ( ((prntSIZEflags&OVERRIDE_HIT_Z_HEIGHT) != 0) && hzsz >= 0  ) hzsz = prntenemy->hzsz;
+	if ( (prntSIZEflags&OVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = prntenemy->hxofs;
+	if (  (prntSIZEflags&OVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = prntenemy->hyofs;
 	else hyofs=2;
 //    if ( (SIZEflags&guyflagOVERRIDEHITZOFFSET) != 0 ) hzofs = hzofs;
-	if (  (prntSIZEflags&guyflagOVERRIDE_DRAW_X_OFFSET) != 0 ) xofs = (int32_t)prntenemy->xofs;
-	if ( (prntSIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 ) 
+	if (  (prntSIZEflags&OVERRIDE_DRAW_X_OFFSET) != 0 ) xofs = (int32_t)prntenemy->xofs;
+	if ( (prntSIZEflags&OVERRIDE_DRAW_Y_OFFSET) != 0 ) 
 	{
 		yofs = (int32_t)prntenemy->yofs; 
 	}
 	else yofs=(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
-	if (  (prntSIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) prntenemy->zofs = (int32_t)zofs;
+	if (  (prntSIZEflags&OVERRIDE_DRAW_Z_OFFSET) != 0 ) prntenemy->zofs = (int32_t)zofs;
 	
 	bgsfx=-1;
 	mainguy=count_enemy=false;
