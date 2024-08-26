@@ -776,6 +776,12 @@ class npc {
 	// @zasm_var NPCFROZENCSET
 	internal int FrozenCSet;
 
+	// The firesfx which is played whenever this enemy fires a projectile.
+	// If firesfx <= 0 no sound will be played.
+	//
+	// @zasm_var NPCFIRESFX
+	internal int FireSFX;
+
 	// @deprecated
 	// @zasm_var NPCSCRIPTUID
 	internal const int UID;
