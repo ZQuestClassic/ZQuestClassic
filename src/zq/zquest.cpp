@@ -26718,6 +26718,7 @@ int32_t main(int32_t argc,char **argv)
 	if(used_switch(argc,argv,"-q"))
 	{
 		Z_message("-q switch used, quitting program.\n");
+		allegro_exit();
 		exit(0);
 	}
 	
@@ -26885,6 +26886,7 @@ int32_t main(int32_t argc,char **argv)
 	
 	quit_game();
 	
+	allegro_exit();
 	if(ForceExit) //last resort fix to the allegro process hanging bug.
 		exit(0);
 	

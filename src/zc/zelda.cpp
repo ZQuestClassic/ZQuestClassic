@@ -4629,11 +4629,11 @@ int main(int argc, char **argv)
 		Z_message("ZQuest Classic new wiki: https://github.com/ZQuestClassic/ZQuestClassic/wiki\n");
 		
 		skipcont = 0;
+		allegro_exit();
 		if(forceExit) //fix for the allegro at_exit() hang.
 			exit(0);
 		
 		jit_shutdown();
-		allegro_exit();
 		return 0;
 	}
 	
@@ -4767,10 +4767,10 @@ int main(int argc, char **argv)
 		exit_sys_pal();
 		if(ret!=2)
 		{
+			allegro_exit();
 			if(forceExit)
 				exit(0);
 				
-			allegro_exit();
 			return 0;
 		}
 	}
@@ -5343,6 +5343,7 @@ reload_for_replay_file:
 	skipcont = 0;
 	
 	zscript_coloured_console.kill();
+	allegro_exit();
 	if(forceExit) //fix for the allegro at_exit() hang.
 		exit(0);
 		
