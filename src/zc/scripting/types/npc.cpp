@@ -1544,7 +1544,7 @@ std::optional<int32_t> npc_get_register(int32_t reg)
 			break;
 
 		case NPCFIRESFX:
-			GET_NPC_VAR_INT(bgsfx, "npc->FireSFX") break;
+			GET_NPC_VAR_INT(firesfx, "npc->WeaponSFX") break;
 
 		default: return std::nullopt;
 	}
@@ -1993,7 +1993,11 @@ bool npc_set_register(int32_t reg, int32_t value)
 			{
 				GuyH::getNPC()->wpn = weapon;
 			
-				if ( get_qr(qr_SETENEMYWEAPONSPRITESONWPNCHANGE) ) //this should probably just be an extra_rule
+				if ( get_qr(qr_SETENEMYWEAPONSPRITESONWPNCHANGE) )
+				{
+					GuyH::getNPC()->wpnsprite = FFCore.GetDefaultWeaponSprite(weapon);
+				}
+				if (get_qr(qr_SETENEMYWEAPONSOUNDSONWPNCHANGE))
 				{
 					GuyH::getNPC()->wpnsprite = FFCore.GetDefaultWeaponSprite(weapon);
 				}
@@ -2437,7 +2441,7 @@ bool npc_set_register(int32_t reg, int32_t value)
 			break;
 
 		case NPCFIRESFX:
-			if (GuyH::loadNPC(ri->guyref, "npc->FireSFX") == SH::_NoError)
+			if (GuyH::loadNPC(ri->guyref, "npc->WeaponSFX") == SH::_NoError)
 			{
 				GuyH::getNPC()->firesfx = vbound(value / 10000, -1, 255);
 			}

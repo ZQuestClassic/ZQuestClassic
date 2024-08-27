@@ -227,6 +227,12 @@ class npcdata {
 	// @zasm_var NPCDATAWPNSPRITE
 	internal int WeaponSprite;
 
+	// The sfx used when the enemy fires it's weapon.
+	// If WeaponSFX <= 0 no sound will be played.
+	//
+	// @zasm_var NPCDATAFIRESFX
+	internal int WeaponSFX;
+
 	// The defense categories for the enemy.
 	//
 	// @zasm_var NPCDATADEFENSE
@@ -268,12 +274,6 @@ class npcdata {
 	//
 	// @zasm_var NPCDATAFROZENCSET
 	internal int FrozenCSet;
-
-	// The firesfx which is played whenever this enemy fires a projectile.
-	// If firesfx <= 0 no sound will be played.
-	//
-	// @zasm_var NPCDATAFIRESFX
-	internal int FireSFX;
 
 	// The npc action script used by this enemy.
 	//

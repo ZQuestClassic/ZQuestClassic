@@ -3619,7 +3619,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 	if(compatrule_version < 68)
 		set_qr(qr_SCRIPTS_6_BIT_COLOR,1);
 	if(compatrule_version < 69)
-		set_qr(qr_SETENEMYFIRESFXONWPNCHANGE, 1);
+		set_qr(qr_SETENEMYWEAPONSOUNDSONWPNCHANGE, 1);
 	
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)

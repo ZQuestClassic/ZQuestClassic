@@ -10111,7 +10111,7 @@ int32_t get_register(int32_t arg)
 
 		case NPCDATAFROZENTILE: GET_NPCDATA_VAR_INT32(frozentile, "FrozenTile"); break;
 		case NPCDATAFROZENCSET: GET_NPCDATA_VAR_INT32(frozencset, "FrozenCSet"); break;
-		case NPCDATAFIRESFX: GET_NPCDATA_VAR_BYTE(firesfx, "FireSFX"); break;
+		case NPCDATAFIRESFX: GET_NPCDATA_VAR_BYTE(firesfx, "WeaponSFX"); break;
 
 		case NPCDATAATTRIBUTE: 
 		{
@@ -20717,7 +20717,7 @@ void set_register(int32_t arg, int32_t value)
 
 		case NPCDATAFROZENTILE: SET_NPCDATA_VAR_INT(frozentile, "FrozenTile"); break;
 		case NPCDATAFROZENCSET: SET_NPCDATA_VAR_INT(frozencset, "FrozenCSet"); break;
-		case NPCDATAFIRESFX: SET_NPCDATA_VAR_BYTE(firesfx, "FireSFX"); break;
+		case NPCDATAFIRESFX: SET_NPCDATA_VAR_BYTE(firesfx, "WeaponSFX"); break;
 		case NPCDATAATTRIBUTE: 
 		{
 			int32_t indx = ri->d[rINDEX] / 10000; 
