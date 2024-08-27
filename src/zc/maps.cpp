@@ -60,7 +60,7 @@ static std::pair<const rpos_handle_t*, int> current_region_rpos_handles_scr[136]
 viewport_t viewport;
 ViewportMode viewport_mode;
 int world_w, world_h;
-int region_scr_dx, region_scr_dy;
+int region_scr_dx, region_scr_dy; // TODO z3 ! move to region, rename.
 int region_scr_count;
 rpos_t region_max_rpos;
 int region_num_rpos;
@@ -148,6 +148,8 @@ void z3_calculate_region(int dmap, int screen, region& region, int& region_scr_d
 	{
 		region.region_id = 0;
 		region.origin_screen_index = screen;
+		region.origin_screen_x = screen % 16;
+		region.origin_screen_y = screen / 16;
 		region.screen_width = 1;
 		region.screen_height = 1;
 		region.screen_count = 1;
@@ -193,6 +195,8 @@ void z3_calculate_region(int dmap, int screen, region& region, int& region_scr_d
 
 	region.region_id = get_region_id(dmap, origin_scr);
 	region.origin_screen_index = origin_scr;
+	region.origin_screen_x = origin_scr_x;
+	region.origin_screen_y = origin_scr_y;
 	region.screen_width = region_scr_right - origin_scr_x + 1;
 	region.screen_height = region_scr_bottom - origin_scr_y + 1;
 	region.screen_count = region.screen_width * region.screen_height;

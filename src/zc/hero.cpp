@@ -28459,12 +28459,15 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		}
 	}
 
+	int old_region_scr_dx = region_scr_dx;
 	int old_region_scr_dy = region_scr_dy;
 	int old_world_w = world_w;
 	int old_world_h = world_h;
 	int old_original_playing_field_offset = original_playing_field_offset;
+	int old_cur_origin_screen_index = cur_origin_screen_index;
 	bool old_extended_height_mode = is_extended_height_mode();
 	viewport_t old_viewport = viewport;
+	region old_region = current_region;
 
 	// Determine what the player position will be after scrolling (within the new screen's coordinate system),
 	// and what the new viewport will be.
@@ -28474,35 +28477,42 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		int scr_dx, scr_dy;
 		z3_calculate_region(new_dmap, destscr, new_region, scr_dx, scr_dy);
 
+		// These mark the top-left coordinate of the new region and the old region, relative to the old region world coordinates.
+		new_region_offset_x = (z3_get_region_relative_dx(new_region.origin_screen_index, old_cur_origin_screen_index)) * 256;
+		new_region_offset_y = (z3_get_region_relative_dy(new_region.origin_screen_index, old_cur_origin_screen_index)) * 176;
+		// TODO z3 ! do this instead.
+		// new_region_offset_x = (current_region.origin_screen_x - old_region.origin_screen_x)*256;
+		// new_region_offset_y = (current_region.origin_screen_y - old_region.origin_screen_y)*176;
+
 		new_hero_x = 0;
 		new_hero_y = 0;
-		switch(scrolldir)
+		switch (scrolldir)
 		{
 			case up:
 			{
-				new_hero_x.val = (scr_dx*256) * 10000L + x.val%(256*10000L);
+				new_hero_x.val = (scr_dx - old_region_scr_dx) * 256 * 10000L + x.val;
 				new_hero_y = new_region.height - 16;
 			}
 			break;
-			
+
 			case down:
 			{
-				new_hero_x.val = (scr_dx*256) * 10000L + x.val%(256*10000L);
+				new_hero_x.val = (scr_dx - old_region_scr_dx) * 256 * 10000L + x.val;
 				new_hero_y = 0;
 			}
 			break;
-			
+
 			case left:
 			{
 				new_hero_x = new_region.width - 16;
-				new_hero_y.val = (scr_dy*176) * 10000L + y.val%(176*10000L);
+				new_hero_y.val = (scr_dy - old_region_scr_dy) * 176 * 10000L + y.val;
 			}
 			break;
-			
+
 			case right:
 			{
 				new_hero_x = 0;
-				new_hero_y.val = (scr_dy*176) * 10000L + y.val%(176*10000L);
+				new_hero_y.val = (scr_dy - old_region_scr_dy) * 176 * 10000L + y.val;
 			}
 			break;
 
@@ -28555,10 +28565,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 
 	bool is_unsmooth_vertical_scrolling =
 		(scrolldir == up || scrolldir == down) && get_qr(qr_SMOOTHVERTICALSCROLLING) == 0;
-
-	// These mark the top-left coordinate of the new region and the old region, relative to the old region world coordinates.
-	new_region_offset_x = (z3_get_region_relative_dx(new_region.origin_screen_index, cur_origin_screen_index)) * 256;
-	new_region_offset_y = (z3_get_region_relative_dy(new_region.origin_screen_index, cur_origin_screen_index)) * 176;
 
 	kill_enemy_sfx();
 	stop_sfx(QMisc.miscsfx[sfxLOWHEART]);

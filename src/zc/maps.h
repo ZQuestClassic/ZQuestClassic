@@ -102,6 +102,8 @@ struct region
 	int region_id;
 	int dmap;
 	int origin_screen_index;
+	int origin_screen_x;
+	int origin_screen_y;
 	// The screens size of the region that the hero is currently standing in. If not currently
 	// in z3 scrolling mode, this is just 1.
 	int screen_width, screen_height;
