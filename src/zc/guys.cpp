@@ -11998,7 +11998,9 @@ void eWizzrobe::wizzrobe_attack_for_real()
 		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
 		addEwpn(x,y,z,wpn,0,wdp,r_down,getUID(), 0, fakez);
 		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
-		if (replay_version_check(0, 35))
+		//this block of code was buggy and flat out doesn't match the default wpnsfx for these weapons.
+		//i've compromised by making all old quest use this code chunk by default.
+		if (FFCore.quest_format[vGuys] < 51)
 		{
 			sfx(WAV_FIRE, pan(int32_t(x)));
 			if (get_qr(qr_8WAY_SHOT_SFX_DEP)) sfx(WAV_FIRE,pan(int32_t(x)));

@@ -14604,6 +14604,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
                     tempguy.hrate = 0;
                     tempguy.attributes[9] = tempguy.attributes[0];
                     tempguy.attributes[0] = tempguy.attributes[1] = tempguy.attributes[2] = tempguy.attributes[3] = tempguy.attributes[4] = tempguy.attributes[5] = tempguy.attributes[6] = tempguy.attributes[7] = 0;
+                    tempguy.attributes[0] = tempguy.attributes[1] = tempguy.attributes[2] = tempguy.attributes[3] = tempguy.attributes[4] = tempguy.attributes[5] = tempguy.attributes[6] = tempguy.attributes[7] = 0;
                     tempguy.attributes[8] = e9tARMOS;
                 }
                 else if(tempguy.family == eeGHINI && !tempguy.attributes[0])
@@ -14873,7 +14874,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 				}
 			}
 
-			if (guyversion <= 50) //reimport the firesfx, zoria ducked up.
+			if (guyversion < 51) //reimport the firesfx, zoria ducked up.
 			{
 				if (tempguy.family == eeWIZZ)
 				{
@@ -14883,6 +14884,37 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 						tempguy.firesfx = WAV_WAND;
 						break;
 					case 1: // 8 shots
+						if (get_qr(qr_8WAY_SHOT_SFX_DEP)) tempguy.firesfx = WAV_FIRE;
+						else
+						{
+							switch (tempguy.weapon)
+							{
+							case ewFireTrail:
+							case ewFlame:
+							case ewFlame2Trail:
+							case ewFlame2:
+								tempguy.firesfx = WAV_FIRE;
+								break;
+							case ewWind:
+							case ewMagic:
+								tempguy.firesfx = WAV_WAND;
+								break;
+							case ewIce:
+								tempguy.firesfx = WAV_ZN1ICE;
+								break;
+							case ewRock:
+								if (get_qr(qr_MORESOUNDS)) tempguy.firesfx = WAV_ZN1ROCK;
+								break;
+							case ewFireball2:
+							case ewFireball:
+								if (get_qr(qr_MORESOUNDS)) tempguy.firesfx = WAV_ZN1FIREBALL;
+								break;
+							default:
+								tempguy.firesfx = -1; //no sounds
+								break;
+							}
+							break;
+						}
 					case 2: // Summon
 						tempguy.firesfx = WAV_FIRE;
 						break;
