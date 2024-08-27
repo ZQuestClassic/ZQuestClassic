@@ -299,9 +299,9 @@ static const GUI::ListData list_deathtype
 {
 	{"Normal",0},
 	{"Explode",1},
-	{"Eight Shards",1}, //Ganon
-	{"Robot Master",2}, //Megaman
-	{"Disintegrate",3}, //BS GANON
+	{"Eight Shards",2}, //Ganon
+	{"Robot Master",3}, //Megaman
+	{"Disintegrate",4}, //BS GANON
 };
 
 void EnemyEditorDialog::refreshScript()
@@ -395,6 +395,11 @@ void EnemyEditorDialog::loadEnemyType()
 	l_bflag[13] = "Ignore Sideview Ladders/Platforms";
 	l_bflag[14] = "Move Off-Grid (WIP)";
 	l_bflag[15] = "Render Cloaked Instead of VISIBLE";
+
+	l_attribute[12] = "This Item Dispels Invisibility:";
+	l_attribute[14] = "Transform Effect:";
+	l_attribute[15] = "Transform Into Enemy:";
+	l_attribute[16] = "Transform Inv Time:";
 	
 	switch(local_guyref.family)
 	{
@@ -666,7 +671,7 @@ void EnemyEditorDialog::updateWarnings()
 #define ACTION_FIELD_WID 6_em
 #define FLAGS_WID 24_em
 
-std::shared_ptr<GUI::Widget> EnemyEditorDialog::NumberField(auto* data, auto _min, auto _max, int _length, bool _disabled)
+std::shared_ptr<GUI::Widget> EnemyEditorDialog::NumberField(auto* data, int32_t _min, int32_t _max, int _length, bool _disabled)
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
@@ -873,8 +878,8 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 	|| local_guyref.family == eeGLEEOK || local_guyref.family == eePATRA || local_guyref.family == eeDIG ? "Turn Freq:" : "Halt Rate:"
 #define	TURNFREQHALTRATEHINT local_guyref.family == eeKEESE || local_guyref.family == eeGHINI || local_guyref.family == eePEAHAT || local_guyref.family == eeMANHAN \
 	|| local_guyref.family == eeGLEEOK || local_guyref.family == eePATRA || local_guyref.family == eeDIG ? \
-	"Turn Freq: How often this enemy considers turning after moving to a new combo\nranging from 0 (never)to 16 (always)." : \
-	"Halt Rate: How often this enemy considers stopping after moving to a new combo\nranging from 0 (never)to 16 (always)."
+	"Turn Freq: How often this enemy considers turning after moving to a new combo\nRanges from 0 (never)to 16 (always)." : \
+	"Halt Rate: How often this enemy considers stopping after moving to a new combo\nRanges from 0 (never)to 16 (always)."
 
 	char titlebuf[256];
 	sprintf(titlebuf, "Enemy %d: %s", index, guy_string[index]);
@@ -1165,8 +1170,8 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 								INFOBTN("How much HP the player loses if this enemy's weapon hits him"),
 								NumberField(&local_guyref.wdp, 0, 32767, 5),
 								Label(text = "Hunger:", hAlign = 1.0, rightPadding = 0_px),
-								INFOBTN("Determines how attracted this enemy is to the Bait weapon. \n"
-									"The range of values is 0 (no response) to 4 (extremely attracted)."),
+								INFOBTN("Determines how attracted this enemy is to the Bait weapon."
+									"\nThe range of values is 0 (no response) to 4 (extremely attracted)."),
 								NumberField(&local_guyref.grumble, 0, 4, 1),
 								Checkbox(
 									text = "Use Boss CSet",
@@ -1182,19 +1187,20 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 								INFOBTN(TURNFREQHALTRATEHINT),
 								NumberField(&local_guyref.hrate, 0, MAXHALT, 4),
 								Label(text = "Random Rate:", hAlign = 1.0, rightPadding = 0_px),
-								INFOBTN("How often this enemy considers changing direction after stepping upon a new combo.\n"
-										"ranging from 0 (never)to 16 (always)."),
+								INFOBTN("How often this enemy considers changing direction after stepping upon a new combo."
+										"\nRanges from 0 (never)to 16 (always)."),
 								NumberField(&local_guyref.rate, 0, MAXRATE, 4),
 								Label(text = "Homing Factor:", hAlign = 1.0, rightPadding = 0_px),
-								INFOBTN("How often this enemy changes to a direction that points toward the player.\n"
-										"ranging from 0 (never)to 255 (always)."),
+								INFOBTN("How often this enemy changes to a direction that points toward the player."
+										"\nRanges from 0 (never)to 255 (always)."),
 								NumberField(&local_guyref.homing, 0, MAXHOMING, 4),
 								Label(text = "Step Speed:", hAlign = 1.0, rightPadding = 0_px),
-								INFOBTN("Movement speed. 100 step speed is 1 pixel per frame. \n"
-										"Note that only certain enemy types use this."),
+								INFOBTN("Movement speed. 100 step speed is 1 pixel per frame."
+										"\nNote that only certain enemy types use this."),
 								NumberField(&local_guyref.step, 0, MAXSTEP, 4),
 								Label(text = "Boss CSet:", hAlign = 1.0, rightPadding = 0_px),
-								INFOBTN("If enabled the enemy will use CSet 14, and load the specified ESP to CSet 14"),
+								INFOBTN("If enabled the enemy will use CSet 14, and load the specified ESP to CSet 14"
+										"\nNote that this has no effect if Use Boss CSet to the left is unchecked."),
 								NumberField(&local_guyref.bosspal, -1, 29, 2)
 							)
 						)

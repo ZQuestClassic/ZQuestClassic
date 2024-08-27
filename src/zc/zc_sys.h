@@ -8,6 +8,7 @@
 
 extern bool is_sys_pal;
 
+void zc_exit(int code);
 void render_zc();
 
 bool flash_reduction_enabled(bool check_qr = true);

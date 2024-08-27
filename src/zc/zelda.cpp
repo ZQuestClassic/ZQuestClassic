@@ -308,7 +308,7 @@ int32_t sfxdat=1;
 extern int32_t jwin_pal[jcMAX];
 int32_t gui_colorset=99;
 int32_t fullscreen = 0;
-byte forceExit=0,zc_vsync=0;
+byte zc_vsync=0;
 byte use_win32_proc=1, console_enabled = 0;
 int32_t homescr,currscr,frame=0,currmap=0,dlevel,warpscr,worldscr,scrolling_scr=0,scrolling_map=0,scrolling_dmap=0,scrolling_destdmap=-1;
 int32_t hero_screen=0;
@@ -4556,46 +4556,7 @@ int main(int argc, char **argv)
 	if(used_switch(argc,argv,"-q"))
 	{
 		printf("-q switch used, quitting program.\n");
-		if (get_qr(qr_OLD_SCRIPT_VOLUME))
-		{
-			//restore user volume settings
-			if (FFCore.coreflags & FFCORE_SCRIPTED_MIDI_VOLUME)
-			{
-				master_volume(-1, ((int32_t)FFCore.usr_midi_volume));
-			}
-			if (FFCore.coreflags & FFCORE_SCRIPTED_DIGI_VOLUME)
-			{
-				master_volume((int32_t)(FFCore.usr_digi_volume), 1);
-			}
-			if (FFCore.coreflags & FFCORE_SCRIPTED_MUSIC_VOLUME)
-			{
-				emusic_volume = (int32_t)FFCore.usr_music_volume;
-			}
-			if (FFCore.coreflags & FFCORE_SCRIPTED_SFX_VOLUME)
-			{
-				sfx_volume = (int32_t)FFCore.usr_sfx_volume;
-			}
-		}
-		if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
-		{
-			pan_style = (int32_t)FFCore.usr_panstyle;
-		}
-		save_game_configs();
-		set_gfx_mode(GFX_TEXT,80,25,0,0);
-		//rest(250); // ???
-		//  if(useCD)
-		//    cd_exit();
-		quit_game();
-		Z_message("ZQuest Classic web site: https://zquestclassic.com.com\n");
-		Z_message("ZQuest Classic old wiki: https://web.archive.org/web/20210910193102/https://zeldaclassic.com/wiki\n");
-		Z_message("ZQuest Classic new wiki: https://github.com/ZQuestClassic/ZQuestClassic/wiki\n");
-		
-		skipcont = 0;
-		if(forceExit) //fix for the allegro at_exit() hang.
-			exit(0);
-		
-		jit_shutdown();
-		allegro_exit();
+		zc_exit(0);
 		return 0;
 	}
 	
@@ -4729,10 +4690,7 @@ int main(int argc, char **argv)
 		exit_sys_pal();
 		if(ret!=2)
 		{
-			if(forceExit)
-				exit(0);
-				
-			allegro_exit();
+			zc_exit(0);
 			return 0;
 		}
 	}
@@ -5259,65 +5217,16 @@ reload_for_replay_file:
 		}
 	}
 	
-	// clean up
-	
-	if (replay_get_mode() == ReplayMode::Record) replay_save();
-	replay_stop();
-	music_stop();
-	kill_sfx();
-	
-	if (get_qr(qr_OLD_SCRIPT_VOLUME))
-	{
-		//restore user volume settings
-		if (FFCore.coreflags & FFCORE_SCRIPTED_MIDI_VOLUME)
-		{
-			master_volume(-1, ((int32_t)FFCore.usr_midi_volume));
-		}
-		if (FFCore.coreflags & FFCORE_SCRIPTED_DIGI_VOLUME)
-		{
-			master_volume((int32_t)(FFCore.usr_digi_volume), 1);
-		}
-		if (FFCore.coreflags & FFCORE_SCRIPTED_MUSIC_VOLUME)
-		{
-			emusic_volume = (int32_t)FFCore.usr_music_volume;
-		}
-		if (FFCore.coreflags & FFCORE_SCRIPTED_SFX_VOLUME)
-		{
-			sfx_volume = (int32_t)FFCore.usr_sfx_volume;
-		}
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
-	{
-		pan_style = (int32_t)FFCore.usr_panstyle;
-	}
-	if (replay_get_mode() == ReplayMode::Record) replay_save();
-	save_game_configs();
-	set_gfx_mode(GFX_TEXT,80,25,0,0);
-	//rest(250); // ???
-	//  if(useCD)
-	//    cd_exit();
-	quit_game();
-	Z_message("ZQuest Classic web site: https://zquestclassic.com\n");
-	Z_message("ZQuest Classic old wiki: https://web.archive.org/web/20210910193102/https://zeldaclassic.com/wiki\n");
-	Z_message("ZQuest Classic new wiki: https://github.com/ZQuestClassic/ZQuestClassic/wiki\n");
-	
-	skipcont = 0;
-	
-	zscript_coloured_console.kill();
-	if(forceExit) //fix for the allegro at_exit() hang.
-		exit(0);
-		
+	zc_exit(0);
 	return 0;
 }
 END_OF_MAIN()
-
 
 void remove_installed_timers()
 {
     al_trace("Removing timers. \n");
     Z_remove_timers();
 }
-
 
 void delete_everything_else() //blarg.
 {

@@ -120,7 +120,7 @@ jobs:
         with:
           node-version: 18.x
 
-      - run: sudo apt-get update && sudo apt-get install ccache ninja-build flex bison
+      - run: sudo apt-get update && sudo apt-get install ccache ninja-build libdumb1-dev flex bison
 
       # Setup build cache via ccache.
       - name: ccache cache files

@@ -658,7 +658,7 @@ int32_t prv_warp = 0;
 int32_t prv_twon = 0;
 int32_t ff_combo = 0;
 
-int32_t Frameskip = 0, RequestedFPS = 60, zqUseWin32Proc = 1, ForceExit = 0;
+int32_t Frameskip = 0, RequestedFPS = 60, zqUseWin32Proc = 1;
 int32_t zqColorDepth = 8;
 int32_t joystick_index=0;
 
@@ -14340,6 +14340,10 @@ void drawxmap(ALLEGRO_BITMAP* dest, int32_t themap, int32_t xoff, bool large, in
 
 	for (int32_t y = 0; y < 8; y++)
 	{
+		// Users might have set the dmap to a map that has since been deleted.
+		if (themap >= Map.getMapCount())
+			break;
+
 		for (int32_t x = 0; x < cols; x++)
 		{
 			if (x + xoff < 0 || x + xoff > 15)
@@ -25328,7 +25332,7 @@ static void do_uncompress_qst_command(const char* input_filename, const char* ou
 	if (unencrypted_result.not_found)
 	{
 		printf("qst not found\n");
-		exit(1);
+		zq_exit(1);
 	}
 	if (!unencrypted_result.compressed && !unencrypted_result.encrypted)
 	{
@@ -25367,11 +25371,11 @@ static void do_copy_qst_command(const char* input_filename, const char* output_f
 	int ret = load_quest(input_filename, false);
 	if (ret)
 	{
-		exit(ret);
+		zq_exit(ret);
 	}
 
 	ret = save_quest(output_filename, false);
-	exit(ret);
+	zq_exit(ret);
 }
 
 int32_t Awpn=-1, Bwpn=-1, Xwpn = -1, Ywpn = -1;
@@ -25424,6 +25428,8 @@ template <typename ...Params>
 	Z_error_fatal(format, std::forward<Params>(params)...);
 }
 
+static bool application_has_loaded;
+
 int32_t main(int32_t argc,char **argv)
 {
 	int hacky_arg = used_switch(argc, argv, "-z3");
@@ -25447,14 +25453,14 @@ int32_t main(int32_t argc,char **argv)
 		{
 			printf("%d\n", argc);
 			printf("expected -package <game.qst> <package name>\n");
-			exit(1);
+			zq_exit(1);
 		}
 
 		const char* input_filename = argv[package_arg + 1];
 		const char* package_name = argv[package_arg + 2];
 		if (auto error = package_create(input_filename, package_name))
 			Z_error_fatal("%s\n", error->c_str());
-		exit(0);
+		zq_exit(0);
 	}
 
 	int copy_qst_arg = used_switch(argc, argv, "-copy-qst");
@@ -25464,7 +25470,7 @@ int32_t main(int32_t argc,char **argv)
 		{
 			printf("%d\n", argc);
 			printf("expected -copy-qst <input> <output>\n");
-			exit(1);
+			zq_exit(1);
 		}
 
 		const char* input_filename = argv[copy_qst_arg + 1];
@@ -25507,7 +25513,7 @@ int32_t main(int32_t argc,char **argv)
 		{
 			printf("%d\n", argc);
 			printf("expected -test-zc <path to test dir>\n");
-			exit(1);
+			zq_exit(1);
 		}
 
 		const char* test_dir = argv[test_zc_arg + 1];
@@ -25525,7 +25531,7 @@ int32_t main(int32_t argc,char **argv)
 		}
 		if (success)
 			printf("all tests passed\n");
-		exit(success ? 0 : 1);
+		zq_exit(success ? 0 : 1);
 	}
 
 	int unencrypt_qst_arg = used_switch(argc, argv, "-unencrypt-qst");
@@ -25535,13 +25541,13 @@ int32_t main(int32_t argc,char **argv)
 		{
 			printf("%d\n", argc);
 			printf("expected -unencrypt-qst <input> <output>\n");
-			exit(1);
+			zq_exit(1);
 		}
 
 		const char* input_filename = argv[unencrypt_qst_arg + 1];
 		const char* output_filename = argv[unencrypt_qst_arg + 2];
 		do_unencrypt_qst_command(input_filename, output_filename);
-		exit(0);
+		zq_exit(0);
 	}
 
 	int uncompress_qst_arg = used_switch(argc, argv, "-uncompress-qst");
@@ -25551,13 +25557,13 @@ int32_t main(int32_t argc,char **argv)
 		{
 			printf("%d\n", argc);
 			printf("expected -uncompress-qst <input> <output>\n");
-			exit(1);
+			zq_exit(1);
 		}
 
 		const char* input_filename = argv[uncompress_qst_arg + 1];
 		const char* output_filename = argv[uncompress_qst_arg + 2];
 		do_uncompress_qst_command(input_filename, output_filename);
-		exit(0);
+		zq_exit(0);
 	}
 
 	three_finger_flag=false;
@@ -25678,7 +25684,6 @@ int32_t main(int32_t argc,char **argv)
 	
 //  Frameskip					 = zc_get_config("zquest","frameskip",0); //todo: this is not actually supported yet.
 	RequestedFPS				  = zc_get_config("zquest","fps",60);
-	ForceExit					 = zc_get_config("zquest","force_exit",0);
 	
 	// Autofill for Combo Page, Tile Page
 	PreFillTileEditorPage	  = zc_get_config("zquest","PreFillTileEditorPage",0);
@@ -25875,24 +25880,24 @@ int32_t main(int32_t argc,char **argv)
 		if (!success)
 		{
 			printf("Failed to load quest: %d\n", load_ret);
-			exit(1);
+			zq_exit(1);
 		}
 
 		success = do_compile_and_slots(1, false);
 		if (!success)
 		{
 			printf("Failed to compile\n");
-			exit(1);
+			zq_exit(1);
 		}
 
 		success = save_quest(argv[quick_assign_arg + 1], false) == 0;
 		if (!success)
 		{
 			printf("Failed to save quest\n");
-			exit(1);
+			zq_exit(1);
 		}
 
-		exit(0);
+		zq_exit(0);
 	}
 
 	int export_strings_arg = used_switch(argc, argv, "-export-strings");
@@ -25902,7 +25907,7 @@ int32_t main(int32_t argc,char **argv)
 		{
 			printf("%d\n", argc);
 			printf("expected -export-strings input.qst output.tsv\n");
-			exit(1);
+			zq_exit(1);
 		}
 
 		is_zq_replay_test = true;
@@ -25913,17 +25918,17 @@ int32_t main(int32_t argc,char **argv)
 		if (!success)
 		{
 			printf("Failed to load quest: %d\n", load_ret);
-			exit(1);
+			zq_exit(1);
 		}
 
 		success = save_strings_tsv(argv[export_strings_arg + 2]);
 		if (!success)
 		{
 			printf("Failed to export strings\n");
-			exit(1);
+			zq_exit(1);
 		}
 
-		exit(0);
+		zq_exit(0);
 	}
 
 	if (!is_headless())
@@ -26037,7 +26042,7 @@ int32_t main(int32_t argc,char **argv)
 	if(used_switch(argc,argv,"-q"))
 	{
 		Z_message("-q switch used, quitting program.\n");
-		exit(0);
+		zq_exit(0);
 	}
 	
 	for(int32_t x=0; x<MAXITEMS; x++)
@@ -26129,6 +26134,8 @@ int32_t main(int32_t argc,char **argv)
 	
 	call_foo_dlg();
 
+	application_has_loaded = true;
+
 	while(!exiting_program)
 	{
 #ifdef _WIN32
@@ -26197,18 +26204,21 @@ int32_t main(int32_t argc,char **argv)
 		//clear_keybuf();
 		handle_close_btn_quit();
 	}
+
+	zq_exit(0);
+	return 0;
+}
+END_OF_MAIN()
+
+void zq_exit(int code)
+{
 	parser_console.kill();
 	killConsole();
 	
 	quit_game();
-	
-	if(ForceExit) //last resort fix to the allegro process hanging bug.
-		exit(0);
-	
-	return 0;
-// memset(qtpathtitle,0,10);//UNREACHABLE
+	allegro_exit();
+	exit(code);
 }
-END_OF_MAIN()
 
 void init_bitmap(BITMAP** bmp, int32_t w, int32_t h)
 {
@@ -27519,6 +27529,8 @@ void write_includepaths()
 
 int32_t save_config_file()
 {
+	if (!application_has_loaded) return 0;
+
     char qtnametitle[20];
     char qtpathtitle[20];
     char *datapath2=(char *)malloc(2048);

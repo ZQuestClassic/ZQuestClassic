@@ -58,6 +58,7 @@
 #include "zc/jit.h"
 #include "zc/zc_subscr.h"
 #include <fmt/format.h>
+#include "zconsole/ConsoleLogger.h"
 #include "zinfo.h"
 #include "base/misctypes.h"
 #include "music_playback.h"
@@ -148,6 +149,53 @@ void do_DwmFlush()
 }
 
 #endif // _WIN32
+
+void zc_exit(int code)
+{
+	extern CConsoleLoggerEx zscript_coloured_console;
+
+	if (replay_get_mode() == ReplayMode::Record) replay_save();
+	replay_stop();
+	music_stop();
+	kill_sfx();
+
+	if (get_qr(qr_OLD_SCRIPT_VOLUME))
+	{
+		//restore user volume settings
+		if (FFCore.coreflags & FFCORE_SCRIPTED_MIDI_VOLUME)
+		{
+			master_volume(-1, ((int32_t)FFCore.usr_midi_volume));
+		}
+		if (FFCore.coreflags & FFCORE_SCRIPTED_DIGI_VOLUME)
+		{
+			master_volume((int32_t)(FFCore.usr_digi_volume), 1);
+		}
+		if (FFCore.coreflags & FFCORE_SCRIPTED_MUSIC_VOLUME)
+		{
+			emusic_volume = (int32_t)FFCore.usr_music_volume;
+		}
+		if (FFCore.coreflags & FFCORE_SCRIPTED_SFX_VOLUME)
+		{
+			sfx_volume = (int32_t)FFCore.usr_sfx_volume;
+		}
+	}
+	if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
+	{
+		pan_style = (int32_t)FFCore.usr_panstyle;
+	}
+	save_game_configs();
+
+	zscript_coloured_console.kill();
+	jit_shutdown();
+	quit_game();
+
+	Z_message("ZQuest Classic web site: https://zquestclassic.com\n");
+	Z_message("ZQuest Classic old wiki: https://web.archive.org/web/20210910193102/https://zeldaclassic.com/wiki\n");
+	Z_message("ZQuest Classic new wiki: https://github.com/ZQuestClassic/ZQuestClassic/wiki\n");
+
+	allegro_exit();
+	exit(code);
+}
 
 bool flash_reduction_enabled(bool check_qr)
 {
@@ -313,8 +361,12 @@ void load_default_cheatkeys()
 	cheatkeys[Cheat::ShowHitbox][0] = KEY_C;
 	cheatkeys[Cheat::ShowFFCScripts][0] = KEY_F;
 }
+
+static bool loaded_game_configs;
+
 void load_game_configs()
 {
+	loaded_game_configs = true;
 	strcpy(moduledata.module_name,zc_get_config("ZCMODULE",qst_module_name,"modules/classic.zmod"));
 	joystick_index = zc_get_config(ctrl_sect,"joystick_index",0);
 	js_stick_1_x_stick = zc_get_config(ctrl_sect,"js_stick_1_x_stick",0);
@@ -423,7 +475,6 @@ void load_game_configs()
 	
 	fullscreen = zc_get_config(cfg_sect,"fullscreen",0);
 	
-	forceExit = (byte) zc_get_config(cfg_sect,"force_exit",0);
 	info_opacity = zc_get_config("zc","debug_info_opacity",255);
 #ifdef _WIN32
 	console_enabled = (byte) zc_get_config("CONSOLE", "enabled", 0);
@@ -538,6 +589,8 @@ void save_cheatkeys()
 
 void save_game_configs()
 {
+	if (!loaded_game_configs) return;
+
 	packfile_password("");
 	
 	zc_set_config("ZCMODULE",qst_module_name,moduledata.module_name);
@@ -4617,6 +4670,9 @@ void wavyout(bool showhero)
 	}
 	
 	destroy_bitmap(wavebuf);
+
+	hw_palette = &RAMpal;
+	update_hw_pal = true;
 }
 
 void wavyin()
@@ -4680,6 +4736,9 @@ void wavyin()
 	}
 	
 	destroy_bitmap(wavebuf);
+
+	hw_palette = &RAMpal;
+	update_hw_pal = true;
 }
 
 void blackscr(int32_t fcnt,bool showsubscr)

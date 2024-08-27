@@ -80,7 +80,7 @@ bool EditDMapDialog::disableEnhancedMusic(bool disableontracker)
 
 	if (tempdmapzcmusic != NULL)
 	{
-		if (disableontracker && !(tempdmapzcmusic->type == ZCMF_MP3 || tempdmapzcmusic->type == ZCMF_OGG))
+		if (disableontracker && !(tempdmapzcmusic->type == ZCMF_MP3 || tempdmapzcmusic->type == ZCMF_OGG || tempdmapzcmusic->type == ZCMF_DUH))
 			return true;
 	}
 	else

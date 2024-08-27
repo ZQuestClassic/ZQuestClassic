@@ -51,7 +51,7 @@ pip install cmake --upgrade
 
 ```sh
 sudo apt update
-sudo apt install build-essential gcc-multilib g++-multilib libx11-dev libglu1-mesa-dev freeglut3-dev mesa-common-dev libxcursor1 libasound2-dev libgtk-3-dev flex bison
+sudo apt install build-essential gcc-multilib g++-multilib libx11-dev libglu1-mesa-dev freeglut3-dev mesa-common-dev libxcursor1 libasound2-dev libgtk-3-dev libdumb1-dev flex bison
 ```
 
 Then before running, you need some additional packages installed:
@@ -128,6 +128,12 @@ cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE=/c/Users/cjamc/tools/vcpkg/scripts/bu
 Note: this needs to be a fresh build folder, otherwise the toolchain won't be updated.
 
 If these libraries are not present, you can still build but won't be able to play OGG music.
+
+# Building w/ tracker (DUMB - IT, XM, S3M, MOD) for updater on Windows
+
+```sh
+./vcpkg.exe install --triplet x64-windows dumb
+```
 
 # Building w/ CURL for updater on Windows
 
