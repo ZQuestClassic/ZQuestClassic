@@ -12001,7 +12001,7 @@ void eWizzrobe::wizzrobe_attack_for_real()
 		if (replay_version_check(0, 35))
 		{
 			sfx(WAV_FIRE, pan(int32_t(x)));
-			if (get_qr(qr_8WAY_SHOT_SFX)) sfx(WAV_FIRE,pan(int32_t(x)));
+			if (get_qr(qr_8WAY_SHOT_SFX_DEP)) sfx(WAV_FIRE,pan(int32_t(x)));
 			else
 			{
 				switch (wpn)

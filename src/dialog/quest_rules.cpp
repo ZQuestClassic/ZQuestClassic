@@ -700,10 +700,6 @@ static GUI::ListData compatRulesList
 		" takes priority. If this rule is disabled, the flippers take priority."
 		" Note that flippers always take priority when entering into water from"
 		" the left or right, regardless of this rule."},
-	{ "All 8 way-shot enemies use SFX_FIRE for firing SFX", qr_8WAY_SHOT_SFX,
-		"In older versions of ZC, all 8 way shots defaulted to the Flame sound used"
-		" by the Candle. Newer versions of ZC instead use the sound associated with"
-		" the weapon. This QR reverts this back to the old behavior."},
 	{ "BS Zelda uses walking sprites for swimming", qr_COPIED_SWIM_SPRITES,
 		"In older versions of ZC, BS Zelda animation didn't use swimming sprites,"
 		" and thus defaulted to walking sprites. This QR simulates this behavior"},

@@ -3105,7 +3105,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 	
 	if ( tempheader.zelda_version < 0x250 ) 
 	{
-		set_qr(qr_8WAY_SHOT_SFX, 1);		
+		set_qr(qr_8WAY_SHOT_SFX_DEP, 1);		
 	}
 	
 	if(s_version < 3)
