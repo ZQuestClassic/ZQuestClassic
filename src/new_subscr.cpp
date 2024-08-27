@@ -3921,10 +3921,10 @@ void SW_Selector::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& pag
 		sxofs = syofs = 0;
 		if(widg->getType() == widgITEMSLOT && id > -1)
 		{
-			dw = ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_WIDTH) ? tmpitm.hxsz : 16);
-			dh = ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_HEIGHT) ? tmpitm.hysz : 16);
-			dxofs = widg->x+((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_X_OFFSET) ? tmpitm.hxofs : 0) + (tempsel.extend > 2 ? (int)tempsel.xofs : 0);
-			dyofs = widg->y+((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_Y_OFFSET) ? tmpitm.hyofs : 0) + (tempsel.extend > 2 ? (int)tempsel.yofs : 0);
+			dw = ((tmpitm.overrideFLAGS & OVERRIDE_HIT_WIDTH) ? tmpitm.hxsz : 16);
+			dh = ((tmpitm.overrideFLAGS & OVERRIDE_HIT_HEIGHT) ? tmpitm.hysz : 16);
+			dxofs = widg->x+((tmpitm.overrideFLAGS & OVERRIDE_HIT_X_OFFSET) ? tmpitm.hxofs : 0) + (tempsel.extend > 2 ? (int)tempsel.xofs : 0);
+			dyofs = widg->y+((tmpitm.overrideFLAGS & OVERRIDE_HIT_Y_OFFSET) ? tmpitm.hyofs : 0) + (tempsel.extend > 2 ? (int)tempsel.yofs : 0);
 		}
 		else
 		{
@@ -3977,10 +3977,10 @@ void SW_Selector::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& pag
 			syofs = (tempsel.extend > 2 ? tempsel.hyofs : 0);
 			if(widg->getType() == widgITEMSLOT && id > -1)
 			{
-				dw = ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_WIDTH) ? tmpitm.hxsz : 16);
-				dh = ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_HEIGHT) ? tmpitm.hysz : 16);
-				dxofs = widg->x+((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_X_OFFSET) ? tmpitm.hxofs : 0) + (tempsel.extend > 2 ? (int)tempsel.xofs : 0);
-				dyofs = widg->y+((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_Y_OFFSET) ? tmpitm.hyofs : 0) + (tempsel.extend > 2 ? (int)tempsel.yofs : 0);
+				dw = ((tmpitm.overrideFLAGS & OVERRIDE_HIT_WIDTH) ? tmpitm.hxsz : 16);
+				dh = ((tmpitm.overrideFLAGS & OVERRIDE_HIT_HEIGHT) ? tmpitm.hysz : 16);
+				dxofs = widg->x+((tmpitm.overrideFLAGS & OVERRIDE_HIT_X_OFFSET) ? tmpitm.hxofs : 0) + (tempsel.extend > 2 ? (int)tempsel.xofs : 0);
+				dyofs = widg->y+((tmpitm.overrideFLAGS & OVERRIDE_HIT_Y_OFFSET) ? tmpitm.hyofs : 0) + (tempsel.extend > 2 ? (int)tempsel.yofs : 0);
 			}
 			else
 			{

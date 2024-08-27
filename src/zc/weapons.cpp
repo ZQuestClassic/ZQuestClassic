@@ -1353,15 +1353,15 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			{
 				if(parentitem >-1)
 				{
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = parent.weap_tilew;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = parent.weap_tileh;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hit_width = parent.weap_hxsz;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hit_height = parent.weap_hysz;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = parent.weap_hzsz;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = parent.weap_hxofs;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = parent.weap_hyofs;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = parent.weap_xofs;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = parent.weap_yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_TILE_WIDTH ) { txsz = parent.weap_tilew;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_TILE_HEIGHT ){  tysz = parent.weap_tileh;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_WIDTH ){  hit_width = parent.weap_hxsz;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_HEIGHT ) {  hit_height = parent.weap_hysz;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_Z_HEIGHT ) {  hzsz = parent.weap_hzsz;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_X_OFFSET ) {  hxofs = parent.weap_hxofs;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_Y_OFFSET ) { hyofs = parent.weap_hyofs;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_DRAW_X_OFFSET ) { xofs = parent.weap_xofs;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_DRAW_Y_OFFSET ) {  yofs = parent.weap_yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
 				}
 			}
 			break;
@@ -1382,15 +1382,15 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					{
 						case up:
 						{
-							if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = parent.weap_tilew;}
-							if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = parent.weap_tileh;}
-							if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hit_width = parent.weap_hxsz;}
-							if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hit_height = parent.weap_hysz;}
-							if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = parent.weap_hzsz;}
-							if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = parent.weap_hxofs;}
-							if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = parent.weap_hyofs;}
-							if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = parent.weap_xofs;}
-							if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = parent.weap_yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
+							if ( parent.weapoverrideFLAGS&OVERRIDE_TILE_WIDTH ) { txsz = parent.weap_tilew;}
+							if ( parent.weapoverrideFLAGS&OVERRIDE_TILE_HEIGHT ){  tysz = parent.weap_tileh;}
+							if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_WIDTH ){  hit_width = parent.weap_hxsz;}
+							if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_HEIGHT ) {  hit_height = parent.weap_hysz;}
+							if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_Z_HEIGHT ) {  hzsz = parent.weap_hzsz;}
+							if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_X_OFFSET ) {  hxofs = parent.weap_hxofs;}
+							if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_Y_OFFSET ) { hyofs = parent.weap_hyofs;}
+							if ( parent.weapoverrideFLAGS&OVERRIDE_DRAW_X_OFFSET ) { xofs = parent.weap_xofs;}
+							if ( parent.weapoverrideFLAGS&OVERRIDE_DRAW_Y_OFFSET ) {  yofs = parent.weap_yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
 							/* yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset) == yofs+56.
 							It is needed for the passive subscreen offset.
 							*/
@@ -1399,15 +1399,15 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						}
 						case down:
 						{
-							if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = parent.weap_tilew;}
-							if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = parent.weap_tileh;}
-							if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hit_width = parent.weap_hxsz;}
-							if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hit_height = parent.weap_hysz;}
-							if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = parent.weap_hzsz;}
-							if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = parent.weap_hxofs;}
-							if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = parent.weap_hyofs;}
-							if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = parent.weap_xofs;}
-							if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = parent.weap_yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
+							if ( parent.weapoverrideFLAGS&OVERRIDE_TILE_WIDTH ) { txsz = parent.weap_tilew;}
+							if ( parent.weapoverrideFLAGS&OVERRIDE_TILE_HEIGHT ){  tysz = parent.weap_tileh;}
+							if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_WIDTH ){  hit_width = parent.weap_hxsz;}
+							if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_HEIGHT ) {  hit_height = parent.weap_hysz;}
+							if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_Z_HEIGHT ) {  hzsz = parent.weap_hzsz;}
+							if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_X_OFFSET ) {  hxofs = parent.weap_hxofs;}
+							if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_Y_OFFSET ) { hyofs = parent.weap_hyofs;}
+							if ( parent.weapoverrideFLAGS&OVERRIDE_DRAW_X_OFFSET ) { xofs = parent.weap_xofs;}
+							if ( parent.weapoverrideFLAGS&OVERRIDE_DRAW_Y_OFFSET ) {  yofs = parent.weap_yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
 							/* yofs+playing_field_offset == yofs+56.
 							It is needed for the passive subscreen offset.
 							*/
@@ -1415,15 +1415,15 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						}
 						case left:
 						{
-							if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = parent.weap_tileh;}
-							if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = parent.weap_tilew;}
-							if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hit_width = parent.weap_hysz;}
-							if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hit_height = parent.weap_hxsz;}
-							if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = parent.weap_hzsz;}
-							if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = parent.weap_hyofs;}
-							if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = parent.weap_hxofs;}
-							if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = parent.weap_yofs;}
-							if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = parent.weap_xofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
+							if ( parent.weapoverrideFLAGS&OVERRIDE_TILE_WIDTH ) { txsz = parent.weap_tileh;}
+							if ( parent.weapoverrideFLAGS&OVERRIDE_TILE_HEIGHT ){  tysz = parent.weap_tilew;}
+							if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_WIDTH ){  hit_width = parent.weap_hysz;}
+							if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_HEIGHT ) {  hit_height = parent.weap_hxsz;}
+							if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_Z_HEIGHT ) {  hzsz = parent.weap_hzsz;}
+							if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_X_OFFSET ) {  hxofs = parent.weap_hyofs;}
+							if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_Y_OFFSET ) { hyofs = parent.weap_hxofs;}
+							if ( parent.weapoverrideFLAGS&OVERRIDE_DRAW_X_OFFSET ) { xofs = parent.weap_yofs;}
+							if ( parent.weapoverrideFLAGS&OVERRIDE_DRAW_Y_OFFSET ) {  yofs = parent.weap_xofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
 							/* yofs+playing_field_offset == yofs+56.
 							It is needed for the passive subscreen offset.
 							*/
@@ -1432,15 +1432,15 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						}
 						case right:
 						{
-							if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = parent.weap_tileh;}
-							if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = parent.weap_tilew;}
-							if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hit_width = parent.weap_hysz;}
-							if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hit_height = parent.weap_hxsz;}
-							if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = parent.weap_hzsz;}
-							if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = parent.weap_hyofs;}
-							if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = parent.weap_hxofs;}
-							if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = parent.weap_yofs;}
-							if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = parent.weap_xofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
+							if ( parent.weapoverrideFLAGS&OVERRIDE_TILE_WIDTH ) { txsz = parent.weap_tileh;}
+							if ( parent.weapoverrideFLAGS&OVERRIDE_TILE_HEIGHT ){  tysz = parent.weap_tilew;}
+							if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_WIDTH ){  hit_width = parent.weap_hysz;}
+							if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_HEIGHT ) {  hit_height = parent.weap_hxsz;}
+							if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_Z_HEIGHT ) {  hzsz = parent.weap_hzsz;}
+							if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_X_OFFSET ) {  hxofs = parent.weap_hyofs;}
+							if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_Y_OFFSET ) { hyofs = parent.weap_hxofs;}
+							if ( parent.weapoverrideFLAGS&OVERRIDE_DRAW_X_OFFSET ) { xofs = parent.weap_yofs;}
+							if ( parent.weapoverrideFLAGS&OVERRIDE_DRAW_Y_OFFSET ) {  yofs = parent.weap_xofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
 							/* yofs+playing_field_offset == yofs+56.
 							It is needed for the passive subscreen offset.
 							*/
@@ -1468,15 +1468,15 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				if ( itemsbuf[itemid].weapoverrideFLAGS > 0 )
 				{
 					extend = 3; 
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = parent.weap_tilew;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = parent.weap_tileh;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hit_width = parent.weap_hxsz;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hit_height = parent.weap_hysz;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = parent.weap_hzsz;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = parent.weap_hxofs;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = parent.weap_hyofs;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = parent.weap_xofs;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = parent.weap_yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_TILE_WIDTH ) { txsz = parent.weap_tilew;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_TILE_HEIGHT ){  tysz = parent.weap_tileh;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_WIDTH ){  hit_width = parent.weap_hxsz;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_HEIGHT ) {  hit_height = parent.weap_hysz;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_Z_HEIGHT ) {  hzsz = parent.weap_hzsz;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_X_OFFSET ) {  hxofs = parent.weap_hxofs;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_Y_OFFSET ) { hyofs = parent.weap_hyofs;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_DRAW_X_OFFSET ) { xofs = parent.weap_xofs;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_DRAW_Y_OFFSET ) {  yofs = parent.weap_yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
 					/* yofs+playing_field_offset == yofs+56.
 					It is needed for the passive subscreen offset.
 					*/
@@ -1493,15 +1493,15 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				//Port Item Editor Weapon Size Values
 				if ( itemsbuf[itemid].weapoverrideFLAGS > 0 ) {
 					extend = 3; 
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = parent.weap_tilew;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = parent.weap_tileh;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hit_width = parent.weap_hxsz;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hit_height = parent.weap_hysz;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = parent.weap_hzsz;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = parent.weap_hxofs;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = parent.weap_hyofs;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = parent.weap_xofs;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = parent.weap_yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_TILE_WIDTH ) { txsz = parent.weap_tilew;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_TILE_HEIGHT ){  tysz = parent.weap_tileh;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_WIDTH ){  hit_width = parent.weap_hxsz;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_HEIGHT ) {  hit_height = parent.weap_hysz;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_Z_HEIGHT ) {  hzsz = parent.weap_hzsz;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_X_OFFSET ) {  hxofs = parent.weap_hxofs;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_Y_OFFSET ) { hyofs = parent.weap_hyofs;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_DRAW_X_OFFSET ) { xofs = parent.weap_xofs;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_DRAW_Y_OFFSET ) {  yofs = parent.weap_yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
 					/* yofs+playing_field_offset == yofs+56.
 					It is needed for the passive subscreen offset.
 					*/
@@ -1541,15 +1541,15 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				//Port Item Editor Weapon Size Values
 				if ( itemsbuf[itemid].weapoverrideFLAGS > 0 ) {
 					extend = 3; 
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = parent.weap_tilew;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = parent.weap_tileh;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hit_width = parent.weap_hxsz;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hit_height = parent.weap_hysz;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = parent.weap_hzsz;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = parent.weap_hxofs;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = parent.weap_hyofs;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = parent.weap_xofs;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = parent.weap_yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_TILE_WIDTH ) { txsz = parent.weap_tilew;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_TILE_HEIGHT ){  tysz = parent.weap_tileh;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_WIDTH ){  hit_width = parent.weap_hxsz;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_HEIGHT ) {  hit_height = parent.weap_hysz;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_Z_HEIGHT ) {  hzsz = parent.weap_hzsz;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_X_OFFSET ) {  hxofs = parent.weap_hxofs;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_Y_OFFSET ) { hyofs = parent.weap_hyofs;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_DRAW_X_OFFSET ) { xofs = parent.weap_xofs;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_DRAW_Y_OFFSET ) {  yofs = parent.weap_yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
 					/* yofs+playing_field_offset == yofs+56.
 					It is needed for the passive subscreen offset.
 					*/
@@ -1568,15 +1568,15 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				//Port Item Editor Weapon Size Values
 				if ( itemsbuf[itemid].weapoverrideFLAGS > 0 ) {
 					extend = 3; 
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = parent.weap_tilew;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = parent.weap_tileh;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hit_width = parent.weap_hxsz;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hit_height = parent.weap_hysz;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = parent.weap_hzsz;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = parent.weap_hxofs;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = parent.weap_hyofs;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = parent.weap_xofs;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = parent.weap_yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_TILE_WIDTH ) { txsz = parent.weap_tilew;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_TILE_HEIGHT ){  tysz = parent.weap_tileh;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_WIDTH ){  hit_width = parent.weap_hxsz;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_HEIGHT ) {  hit_height = parent.weap_hysz;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_Z_HEIGHT ) {  hzsz = parent.weap_hzsz;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_X_OFFSET ) {  hxofs = parent.weap_hxofs;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_Y_OFFSET ) { hyofs = parent.weap_hyofs;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_DRAW_X_OFFSET ) { xofs = parent.weap_xofs;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_DRAW_Y_OFFSET ) {  yofs = parent.weap_yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
 					/* yofs+playing_field_offset == yofs+56.
 					It is needed for the passive subscreen offset.
 					*/
@@ -1626,15 +1626,15 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				//Port Item Editor Weapon Size Values
 				if ( itemsbuf[itemid].weapoverrideFLAGS > 0 ) {
 					extend = 3; 
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = parent.weap_tilew;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = parent.weap_tileh;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hit_width = parent.weap_hxsz;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hit_height = parent.weap_hysz;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = parent.weap_hzsz;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = parent.weap_hxofs;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = parent.weap_hyofs;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = parent.weap_xofs;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = parent.weap_yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_TILE_WIDTH ) { txsz = parent.weap_tilew;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_TILE_HEIGHT ){  tysz = parent.weap_tileh;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_WIDTH ){  hit_width = parent.weap_hxsz;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_HEIGHT ) {  hit_height = parent.weap_hysz;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_Z_HEIGHT ) {  hzsz = parent.weap_hzsz;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_X_OFFSET ) {  hxofs = parent.weap_hxofs;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_Y_OFFSET ) { hyofs = parent.weap_hyofs;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_DRAW_X_OFFSET ) { xofs = parent.weap_xofs;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_DRAW_Y_OFFSET ) {  yofs = parent.weap_yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
 					/* yofs+playing_field_offset == yofs+56.
 					It is needed for the passive subscreen offset.
 					*/
@@ -1648,18 +1648,18 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				{
 					case down:
 					case up:
-						hyofs= ( (parentitem > -1) && parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) ? parent.weap_hyofs : 2;
-						hit_height= ( (parentitem > -1) && parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) ? parent.weap_hysz : 12;
+						hyofs= ( (parentitem > -1) && parent.weapoverrideFLAGS&OVERRIDE_HIT_Y_OFFSET ) ? parent.weap_hyofs : 2;
+						hit_height= ( (parentitem > -1) && parent.weapoverrideFLAGS&OVERRIDE_HIT_HEIGHT ) ? parent.weap_hysz : 12;
 						break;
 						
 					case left:
 					case l_down:
 					case right:
 						yofs=(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset) + 1;
-						hyofs= ( (parentitem > -1) && parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) ? parent.weap_hyofs : 2;
-						hit_height= ( (parentitem > -1) && parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) ? parent.weap_hysz : 14;
-						hxofs=( (parentitem > -1) && parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) ? parent.weap_hxofs : 2;
-						hit_width=( (parentitem > -1) && parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ) ? parent.weap_hxsz : 12;
+						hyofs= ( (parentitem > -1) && parent.weapoverrideFLAGS&OVERRIDE_HIT_Y_OFFSET ) ? parent.weap_hyofs : 2;
+						hit_height= ( (parentitem > -1) && parent.weapoverrideFLAGS&OVERRIDE_HIT_HEIGHT ) ? parent.weap_hysz : 14;
+						hxofs=( (parentitem > -1) && parent.weapoverrideFLAGS&OVERRIDE_HIT_X_OFFSET ) ? parent.weap_hxofs : 2;
+						hit_width=( (parentitem > -1) && parent.weapoverrideFLAGS&OVERRIDE_HIT_WIDTH ) ? parent.weap_hxsz : 12;
 						break;
 				}
 			}
@@ -1681,15 +1681,15 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				if ( parent.weapoverrideFLAGS > 0 )
 				{
 					extend = 3; 
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = parent.weap_tilew;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = parent.weap_tileh;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hit_width = parent.weap_hxsz;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hit_height = parent.weap_hysz;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = parent.weap_hzsz;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = parent.weap_hxofs;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = parent.weap_hyofs;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = parent.weap_xofs;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = parent.weap_yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_TILE_WIDTH ) { txsz = parent.weap_tilew;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_TILE_HEIGHT ){  tysz = parent.weap_tileh;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_WIDTH ){  hit_width = parent.weap_hxsz;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_HEIGHT ) {  hit_height = parent.weap_hysz;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_Z_HEIGHT ) {  hzsz = parent.weap_hzsz;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_X_OFFSET ) {  hxofs = parent.weap_hxofs;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_Y_OFFSET ) { hyofs = parent.weap_hyofs;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_DRAW_X_OFFSET ) { xofs = parent.weap_xofs;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_DRAW_Y_OFFSET ) {  yofs = parent.weap_yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
 				}
 				
 				switch(parent.family)
@@ -1748,15 +1748,15 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				if ( itemsbuf[itemid].weapoverrideFLAGS > 0 )
 				{
 					extend = 3; 
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = parent.weap_tilew;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = parent.weap_tileh;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hit_width = parent.weap_hxsz;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hit_height = parent.weap_hysz;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = parent.weap_hzsz;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = parent.weap_hxofs;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = parent.weap_hyofs;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = parent.weap_xofs;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = parent.weap_yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_TILE_WIDTH ) { txsz = parent.weap_tilew;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_TILE_HEIGHT ){  tysz = parent.weap_tileh;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_WIDTH ){  hit_width = parent.weap_hxsz;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_HEIGHT ) {  hit_height = parent.weap_hysz;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_Z_HEIGHT ) {  hzsz = parent.weap_hzsz;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_X_OFFSET ) {  hxofs = parent.weap_hxofs;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_Y_OFFSET ) { hyofs = parent.weap_hyofs;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_DRAW_X_OFFSET ) { xofs = parent.weap_xofs;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_DRAW_Y_OFFSET ) {  yofs = parent.weap_yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
 					/* yofs+playing_field_offset == yofs+56.
 					It is needed for the passive subscreen offset.
 					*/
@@ -1783,15 +1783,15 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				//Port Item Editor Weapon Size Values
 				if ( itemsbuf[itemid].weapoverrideFLAGS > 0 ) {
 					extend = 3; 
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = parent.weap_tilew;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = parent.weap_tileh;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hit_width = parent.weap_hxsz;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hit_height = parent.weap_hysz;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = parent.weap_hzsz;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = parent.weap_hxofs;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = parent.weap_hyofs;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = parent.weap_xofs;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = parent.weap_yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_TILE_WIDTH ) { txsz = parent.weap_tilew;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_TILE_HEIGHT ){  tysz = parent.weap_tileh;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_WIDTH ){  hit_width = parent.weap_hxsz;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_HEIGHT ) {  hit_height = parent.weap_hysz;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_Z_HEIGHT ) {  hzsz = parent.weap_hzsz;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_X_OFFSET ) {  hxofs = parent.weap_hxofs;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_Y_OFFSET ) { hyofs = parent.weap_hyofs;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_DRAW_X_OFFSET ) { xofs = parent.weap_xofs;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_DRAW_Y_OFFSET ) {  yofs = parent.weap_yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
 					/* yofs+playing_field_offset == yofs+56.
 					It is needed for the passive subscreen offset.
 					*/
@@ -1815,15 +1815,15 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				//Port Item Editor Weapon Size Values
 				if ( itemsbuf[itemid].weapoverrideFLAGS > 0 ) {
 					extend = 3; 
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = parent.weap_tilew;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = parent.weap_tileh;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hit_width = parent.weap_hxsz;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hit_height = parent.weap_hysz;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = parent.weap_hzsz;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = parent.weap_hxofs;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = parent.weap_hyofs;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = parent.weap_xofs;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = parent.weap_yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_TILE_WIDTH ) { txsz = parent.weap_tilew;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_TILE_HEIGHT ){  tysz = parent.weap_tileh;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_WIDTH ){  hit_width = parent.weap_hxsz;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_HEIGHT ) {  hit_height = parent.weap_hysz;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_Z_HEIGHT ) {  hzsz = parent.weap_hzsz;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_X_OFFSET ) {  hxofs = parent.weap_hxofs;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_Y_OFFSET ) { hyofs = parent.weap_hyofs;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_DRAW_X_OFFSET ) { xofs = parent.weap_xofs;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_DRAW_Y_OFFSET ) {  yofs = parent.weap_yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
 					/* yofs+playing_field_offset == yofs+56.
 					It is needed for the passive subscreen offset.
 					*/
@@ -1846,15 +1846,15 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				//Port Item Editor Weapon Size Values
 				if ( itemsbuf[itemid].weapoverrideFLAGS > 0 ) {
 					extend = 3; 
-					if ( itemsbuf[itemid].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[itemid].weap_tilew;}
-					if ( itemsbuf[itemid].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[itemid].weap_tileh;}
-					if ( itemsbuf[itemid].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hit_width = itemsbuf[itemid].weap_hxsz;}
-					if ( itemsbuf[itemid].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hit_height = itemsbuf[itemid].weap_hysz;}
-					if ( itemsbuf[itemid].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[itemid].weap_hzsz;}
-					if ( itemsbuf[itemid].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[itemid].weap_hxofs;}
-					if ( itemsbuf[itemid].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[itemid].weap_hyofs;}
-					if ( itemsbuf[itemid].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[itemid].weap_xofs;}
-					if ( itemsbuf[itemid].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[itemid].weap_yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
+					if ( itemsbuf[itemid].weapoverrideFLAGS&OVERRIDE_TILE_WIDTH ) { txsz = itemsbuf[itemid].weap_tilew;}
+					if ( itemsbuf[itemid].weapoverrideFLAGS&OVERRIDE_TILE_HEIGHT ){  tysz = itemsbuf[itemid].weap_tileh;}
+					if ( itemsbuf[itemid].weapoverrideFLAGS&OVERRIDE_HIT_WIDTH ){  hit_width = itemsbuf[itemid].weap_hxsz;}
+					if ( itemsbuf[itemid].weapoverrideFLAGS&OVERRIDE_HIT_HEIGHT ) {  hit_height = itemsbuf[itemid].weap_hysz;}
+					if ( itemsbuf[itemid].weapoverrideFLAGS&OVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[itemid].weap_hzsz;}
+					if ( itemsbuf[itemid].weapoverrideFLAGS&OVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[itemid].weap_hxofs;}
+					if ( itemsbuf[itemid].weapoverrideFLAGS&OVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[itemid].weap_hyofs;}
+					if ( itemsbuf[itemid].weapoverrideFLAGS&OVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[itemid].weap_xofs;}
+					if ( itemsbuf[itemid].weapoverrideFLAGS&OVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[itemid].weap_yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
 					/* yofs+playing_field_offset == yofs+56.
 					It is needed for the passive subscreen offset.
 					*/
@@ -1865,14 +1865,14 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			{
 				case down:
 				case up:
-					hyofs = ( (parentitem > -1) && parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) ? parent.weap_hyofs : 2;
-					hit_height=( (parentitem > -1) && parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) ? parent.weap_hysz : 12;
+					hyofs = ( (parentitem > -1) && parent.weapoverrideFLAGS&OVERRIDE_HIT_Y_OFFSET ) ? parent.weap_hyofs : 2;
+					hit_height=( (parentitem > -1) && parent.weapoverrideFLAGS&OVERRIDE_HIT_HEIGHT ) ? parent.weap_hysz : 12;
 					break;
 					
 				case left:
 				case right:
-					hxofs=( (parentitem > -1) && parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) ? parent.weap_hxofs : 2;
-					hit_width=( (parentitem > -1) && parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ) ? parent.weap_hxsz : 12;
+					hxofs=( (parentitem > -1) && parent.weapoverrideFLAGS&OVERRIDE_HIT_X_OFFSET ) ? parent.weap_hxofs : 2;
+					hit_width=( (parentitem > -1) && parent.weapoverrideFLAGS&OVERRIDE_HIT_WIDTH ) ? parent.weap_hxsz : 12;
 					break;
 			}
 			break;
@@ -1890,15 +1890,15 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				//Port Item Editor Weapon Size Values
 				if ( itemsbuf[itemid].weapoverrideFLAGS > 0 ) {
 					extend = 3; 
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = parent.weap_tilew;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = parent.weap_tileh;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hit_width = parent.weap_hxsz;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hit_height = parent.weap_hysz;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = parent.weap_hzsz;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = parent.weap_hxofs;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = parent.weap_hyofs;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = parent.weap_xofs;}
-					if ( parent.weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = parent.weap_yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_TILE_WIDTH ) { txsz = parent.weap_tilew;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_TILE_HEIGHT ){  tysz = parent.weap_tileh;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_WIDTH ){  hit_width = parent.weap_hxsz;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_HEIGHT ) {  hit_height = parent.weap_hysz;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_Z_HEIGHT ) {  hzsz = parent.weap_hzsz;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_X_OFFSET ) {  hxofs = parent.weap_hxofs;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_Y_OFFSET ) { hyofs = parent.weap_hyofs;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_DRAW_X_OFFSET ) { xofs = parent.weap_xofs;}
+					if ( parent.weapoverrideFLAGS&OVERRIDE_DRAW_Y_OFFSET ) {  yofs = parent.weap_yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
 					/* yofs+playing_field_offset == yofs+56.
 					It is needed for the passive subscreen offset.
 					*/

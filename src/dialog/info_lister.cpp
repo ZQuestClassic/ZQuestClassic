@@ -228,9 +228,9 @@ void ItemListerDialog::update()
 		widgPrev->setFrames(itm.frames);
 		widgPrev->setSpeed(itm.speed);
 		widgPrev->setDelay(itm.delay);
-		widgPrev->setSkipX((itm.overrideFLAGS & itemdataOVERRIDE_TILEWIDTH)
+		widgPrev->setSkipX((itm.overrideFLAGS & OVERRIDE_TILE_WIDTH)
 			? itm.tilew-1 : 0);
-		widgPrev->setSkipY((itm.overrideFLAGS & itemdataOVERRIDE_TILEHEIGHT)
+		widgPrev->setSkipY((itm.overrideFLAGS & OVERRIDE_TILE_HEIGHT)
 			? itm.tileh-1 : 0);
 	}
 	else

@@ -1443,16 +1443,16 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 					NumberField(&local_guyref.zofs, -1000, 1000, 5),
 					NumberField(&local_guyref.xofs, -1000, 1000, 5),
 					NumberField(&local_guyref.yofs, -1000, 1000, 5),
-					SizeFlag(guyflagOVERRIDE_TILE_WIDTH),
-					SizeFlag(guyflagOVERRIDE_TILE_HEIGHT),
-					SizeFlag(guyflagOVERRIDE_HIT_WIDTH),
-					SizeFlag(guyflagOVERRIDE_HIT_HEIGHT),
-					SizeFlag(guyflagOVERRIDE_HIT_Z_HEIGHT),
-					SizeFlag(guyflagOVERRIDE_HIT_X_OFFSET),
-					SizeFlag(guyflagOVERRIDE_HIT_Y_OFFSET),
-					SizeFlag(guyflagOVERRIDE_DRAW_Z_OFFSET),
-					SizeFlag(guyflagOVERRIDE_DRAW_X_OFFSET),
-					SizeFlag(guyflagOVERRIDE_DRAW_Y_OFFSET)
+					SizeFlag(OVERRIDE_TILE_WIDTH),
+					SizeFlag(OVERRIDE_TILE_HEIGHT),
+					SizeFlag(OVERRIDE_HIT_WIDTH),
+					SizeFlag(OVERRIDE_HIT_HEIGHT),
+					SizeFlag(OVERRIDE_HIT_Z_HEIGHT),
+					SizeFlag(OVERRIDE_HIT_X_OFFSET),
+					SizeFlag(OVERRIDE_HIT_Y_OFFSET),
+					SizeFlag(OVERRIDE_DRAW_Z_OFFSET),
+					SizeFlag(OVERRIDE_DRAW_X_OFFSET),
+					SizeFlag(OVERRIDE_DRAW_Y_OFFSET)
 				)
 			))
 		))
