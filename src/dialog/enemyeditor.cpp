@@ -1259,7 +1259,7 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 			ptr = &guy_tabs[6],
 			TabRef(name = "Defenses 1", Row(
 				Columns<10>(hAlign = 1.0, vAlign = 1.0, rowSpacing = 0.5_em,
-					Label(text = "Brang Defense", hAlign = 1.0, rightPadding = 0_px, disabled = NoDefenses()),
+					Label(text = "Boomerang Defense", hAlign = 1.0, rightPadding = 0_px, disabled = NoDefenses()),
 					Label(text = "Bomb Defense", hAlign = 1.0, rightPadding = 0_px, disabled = NoDefenses()),
 					Label(text = "Super Bomb Defense", hAlign = 1.0, rightPadding = 0_px, disabled = NoDefenses()),
 					Label(text = "Arrow Defense", hAlign = 1.0, rightPadding = 0_px, disabled = NoDefenses()),
