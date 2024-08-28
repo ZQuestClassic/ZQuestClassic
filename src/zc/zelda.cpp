@@ -4128,6 +4128,7 @@ int main(int argc, char **argv)
 	qstpath = (char*)malloc(2048);
 	qstdir[0] = 0;
 	qstpath[0] = 0;
+	reset_scripts_hook = jit_shutdown;
 
 #ifdef _WIN32
 	// For purposes of packaging a standalone app.

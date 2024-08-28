@@ -12722,13 +12722,13 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 	return 0;
 }
 
+void(*reset_scripts_hook)();
+
 void reset_scripts()
 {
-#ifdef IS_PLAYER
 	// We can't modify the script data while jit threads are possibly compiling them.
-	void jit_shutdown();
-	jit_shutdown();
-#endif
+	if (reset_scripts_hook)
+		reset_scripts_hook();
 
 	for(int32_t i=0; i<NUMSCRIPTSGENERIC; i++)
 	{
