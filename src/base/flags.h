@@ -93,6 +93,7 @@ enum move_flags : uint32_t
 
 // Shield projectile blocking.
 // TODO: use this type in itemdata and guydata (right now they are using an `int misc` field)
+// TODO: create a separate enum for lweapons
 enum shield_flags : uint32_t
 {
 	sh_rock                 = F(0),
@@ -118,6 +119,39 @@ enum shield_flags : uint32_t
 	sh_flame2               = F(20),
 
 	sh_ALL_SCR              = 0x000FFC00,
+};
+
+//this is a byte
+#define WPNUNB_NONE      0x00
+#define WPNUNB_BLOCK     0x01
+#define WPNUNB_IGNR      0x02
+#define WPNUNB_SHLD      0x04
+#define WPNUNB_REFL      0x08
+#define WPNUNB_ALL       0x0F
+
+enum weapon_flags : uint16_t
+{
+	WFLAG_NONE                 = 0,
+	WFLAG_PICKUP_ITEMS         = F(0),
+	WFLAG_BREAK_WHEN_LANDING   = F(1),
+	WFLAG_BREAK_ON_SOLID       = F(2),
+	WFLAG_BURN_ANYFIRE         = F(3),
+	WFLAG_BURN_STRONGFIRE      = F(4),
+	WFLAG_BURN_MAGICFIRE       = F(5),
+	WFLAG_BURN_DIVINEFIRE      = F(6),
+	WFLAG_STOP_WHEN_LANDING    = F(7),
+	WFLAG_STOP_WHEN_HIT_SOLID  = F(8),
+	WFLAG_UPDATE_IGNITE_SPRITE = F(9),
+};
+
+enum
+{
+	WPNSPR_BASE,
+	WPNSPR_IGNITE_ANY,
+	WPNSPR_IGNITE_STRONG,
+	WPNSPR_IGNITE_MAGIC,
+	WPNSPR_IGNITE_DIVINE,
+	WPNSPR_MAX
 };
 
 // The rest is template soup, starting point is courtesy of https://stackoverflow.com/a/35672584/2788187
