@@ -88,20 +88,26 @@ static void framerect(BITMAP* dest, int32_t x, int32_t y, int32_t w, int32_t h, 
 
 static RenderTreeItem* get_logo()
 {
-	static std::string logo_path;
-	if (logo_path.empty())
+	static std::string logo_path = []
 	{
 		if (exists("assets/logo.png"))
-			logo_path = "assets/logo.png";
-		else
-			logo_path = "assets/zc/ZC_Logo.png";
+			return "assets/logo.png";
+		return "assets/zc/ZC_Logo.png";
+	}();
+
+	// trying pngs first
+	static ALLEGRO_BITMAP* logo_bitmap = al_load_bitmap(logo_path.c_str());
+	if (!logo_bitmap)
+	{
+		// In the event that pngs fail to load this block will run and try jpegs instead.
+		logo_path = "assets/zc/ZC_Logo.jpg";
+		logo_bitmap = al_load_bitmap(logo_path.c_str());
 	}
 
 	static RenderTreeItem rti_logo("logo");
-	static ALLEGRO_BITMAP* logo_bitmap = al_load_bitmap(logo_path.c_str());
-
 	if (logo_bitmap)
 	{
+		// If the logo_bitmap is set, then use it.
 		rti_logo.bitmap = logo_bitmap;
 		rti_logo.freeze = true;
 		rti_game.add_child(&rti_logo);
