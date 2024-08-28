@@ -1955,11 +1955,8 @@ void enemy::FireWeapon()
 			
 		}
 			}
-			
-			if (replay_version_check(0, 35))
-				sfx(get_qr(qr_MORESOUNDS) ? WAV_ZN1SUMMON : WAV_FIRE, pan(int32_t(x)));
-			else
-				sfx(firesfx, pan(int32_t(x)));
+
+			sfx(firesfx, pan(int32_t(x)));
 		}
 		
 		break;
@@ -2010,10 +2007,7 @@ void enemy::FireWeapon()
 			
 			if(summoned)
 			{
-				if (replay_version_check(0, 35))
-					sfx(get_qr(qr_MORESOUNDS) ? WAV_ZN1SUMMON : WAV_FIRE, pan(int32_t(x)));
-				else
-					sfx(firesfx, pan(int32_t(x)));
+				sfx(firesfx, pan(int32_t(x)));
 			}
 		}
 		
@@ -7719,37 +7713,8 @@ waves2:
 
 int32_t enemy::wpnsfx(int32_t wpn)
 {
-	if(replay_version_check(0,35))
+	switch (wpn)
 	{
-		switch (wpn)
-		{
-		case ewFireTrail:
-		case ewFlame:
-		case ewFlame2Trail:
-		case ewFlame2:
-			return WAV_FIRE;
-
-		case ewWind:
-		case ewMagic:
-			return WAV_WAND;
-
-		case ewIce:
-			return WAV_ZN1ICE;
-
-		case ewRock:
-			if (get_qr(qr_MORESOUNDS)) return WAV_ZN1ROCK;
-			break;
-
-		case ewFireball2:
-		case ewFireball:
-			if (get_qr(qr_MORESOUNDS)) return WAV_ZN1FIREBALL;
-		}
-		return -1;
-	}
-	else
-	{
-		switch (wpn)
-		{
 		case ewFireTrail:
 		case ewFlame:
 		case ewFlame2Trail:
@@ -7758,14 +7723,15 @@ int32_t enemy::wpnsfx(int32_t wpn)
 		case ewMagic:
 		case ewIce:
 			return firesfx;
+
 		case ewRock:
 		case ewFireball2:
 		case ewFireball:
 			if (get_qr(qr_MORESOUNDS)) return firesfx;
 			break;
-		}
-		return -1;
 	}
+
+	return 0;
 }
 
 int32_t enemy::run_script(int32_t mode)
@@ -11977,8 +11943,7 @@ void eWizzrobe::wizzrobe_attack_for_real()
 	if(dmisc2 == 0)  //normal weapon
 	{
 		addEwpn(x,y,z,wpn,0,wdp,dir,getUID(), 0, fakez);
-		if(replay_version_check(0,35))sfx(WAV_WAND, pan(int32_t(x)));
-		else sfx(firesfx, pan(int32_t(x)));
+		sfx(firesfx, pan(int32_t(x)));
 	}
 	else if(dmisc2 == 1) // ring of fire
 	{
@@ -12056,11 +12021,7 @@ void eWizzrobe::wizzrobe_attack_for_real()
 				if(addchild(x,y,dmisc3,-10, this->script_UID))
 					((enemy*)guys.spr(kids+i))->count_enemy = false;
 			}
-
-			if (replay_version_check(0, 35))
-				sfx(WAV_FIRE, pan(int32_t(x)));
-			else
-				sfx(firesfx, pan(int32_t(x)));
+			sfx(firesfx, pan(int32_t(x)));
 		}
 	}
 	else if(dmisc2==3)  //summon from layer
@@ -12108,10 +12069,7 @@ void eWizzrobe::wizzrobe_attack_for_real()
 			
 			if(summoned)
 			{
-				if (replay_version_check(0, 35))
-					sfx(get_qr(qr_MORESOUNDS)?WAV_ZN1SUMMON:WAV_FIRE, pan(int32_t(x)));
-				else
-					sfx(firesfx, pan(int32_t(x)));
+				sfx(firesfx, pan(int32_t(x)));
 			}
 		}
 	}

@@ -9749,6 +9749,95 @@ int32_t readweapons(PACKFILE *f, zquestheader *Header)
     return 0;
 }
 
+static void guys_update_firesfx(guydata& tempguy)
+{
+	tempguy.firesfx = 0;
+
+	if (tempguy.family == eeWIZZ)
+	{
+		switch (tempguy.attributes[1])
+		{
+		case 0: // normal weapon
+			tempguy.firesfx = WAV_WAND;
+			break;
+		case 1: // 8 shots
+			if (get_qr(qr_8WAY_SHOT_SFX_DEP)) tempguy.firesfx = WAV_FIRE;
+			else
+			{
+				switch (tempguy.weapon)
+				{
+				case ewFireTrail:
+				case ewFlame:
+				case ewFlame2Trail:
+				case ewFlame2:
+					tempguy.firesfx = WAV_FIRE;
+					break;
+				case ewWind:
+				case ewMagic:
+					tempguy.firesfx = WAV_WAND;
+					break;
+				case ewIce:
+					tempguy.firesfx = WAV_ZN1ICE;
+					break;
+				case ewRock:
+					if (get_qr(qr_MORESOUNDS)) tempguy.firesfx = WAV_ZN1ROCK;
+					break;
+				case ewFireball2:
+				case ewFireball:
+					if (get_qr(qr_MORESOUNDS)) tempguy.firesfx = WAV_ZN1FIREBALL;
+					break;
+				default:
+					//no sounds
+					break;
+				}
+				break;
+			}
+		case 2: // Summon
+			tempguy.firesfx = WAV_FIRE;
+			break;
+		case 3: // Summon Layer
+			tempguy.firesfx = get_qr(qr_MORESOUNDS) ? WAV_ZN1SUMMON : WAV_FIRE;
+			break;
+		}
+	}
+	else
+	{
+		if ((tempguy.family == eeWALK || tempguy.family == eePROJECTILE) && (tempguy.attributes[0] == e1tSUMMON || tempguy.attributes[0] == e1tSUMMONLAYER))
+		{
+			tempguy.firesfx = get_qr(qr_MORESOUNDS) ? WAV_ZN1SUMMON : WAV_FIRE;
+		}
+		else
+		{
+			switch (tempguy.weapon)
+			{
+			case ewFireTrail:
+			case ewFlame:
+			case ewFlame2Trail:
+			case ewFlame2:
+				tempguy.firesfx = WAV_FIRE;
+				break;
+			case ewWind:
+			case ewMagic:
+				tempguy.firesfx = WAV_WAND;
+				break;
+			case ewIce:
+				tempguy.firesfx = WAV_ZN1ICE;
+				break;
+			case ewRock:
+				if (get_qr(qr_MORESOUNDS)) tempguy.firesfx = WAV_ZN1ROCK;
+				break;
+			case ewFireball2:
+			case ewFireball:
+				if (get_qr(qr_MORESOUNDS)) tempguy.firesfx = WAV_ZN1FIREBALL;
+				break;
+			default:
+				//no sounds
+				break;
+			}
+		}
+	}
+}
+
 void init_guys(int32_t guyversion)
 {
     for(int32_t i=0; i<MAXGUYS; i++)
@@ -9829,6 +9918,8 @@ void init_guys(int32_t guyversion)
         {
             guysbuf[i].attributes[2] = (i == eFGELTRIB ? eFZOL : eZOL);
         }
+
+        guys_update_firesfx(guysbuf[i]);
     }
 }
 
@@ -14876,89 +14967,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 
 			if (guyversion < 51) //reimport the firesfx, zoria ducked up.
 			{
-				if (tempguy.family == eeWIZZ)
-				{
-					switch (tempguy.attributes[1])
-					{
-					case 0: // normal weapon
-						tempguy.firesfx = WAV_WAND;
-						break;
-					case 1: // 8 shots
-						if (get_qr(qr_8WAY_SHOT_SFX_DEP)) tempguy.firesfx = WAV_FIRE;
-						else
-						{
-							switch (tempguy.weapon)
-							{
-							case ewFireTrail:
-							case ewFlame:
-							case ewFlame2Trail:
-							case ewFlame2:
-								tempguy.firesfx = WAV_FIRE;
-								break;
-							case ewWind:
-							case ewMagic:
-								tempguy.firesfx = WAV_WAND;
-								break;
-							case ewIce:
-								tempguy.firesfx = WAV_ZN1ICE;
-								break;
-							case ewRock:
-								if (get_qr(qr_MORESOUNDS)) tempguy.firesfx = WAV_ZN1ROCK;
-								break;
-							case ewFireball2:
-							case ewFireball:
-								if (get_qr(qr_MORESOUNDS)) tempguy.firesfx = WAV_ZN1FIREBALL;
-								break;
-							default:
-								tempguy.firesfx = -1; //no sounds
-								break;
-							}
-							break;
-						}
-					case 2: // Summon
-						tempguy.firesfx = WAV_FIRE;
-						break;
-					case 3: // Summon Layer
-						tempguy.firesfx = get_qr(qr_MORESOUNDS) ? WAV_ZN1SUMMON : WAV_FIRE;
-						break;
-					}
-				}
-				else
-				{
-					if ((tempguy.family == eeWALK || tempguy.family == eePROJECTILE) && (tempguy.attributes[0] == e1tSUMMON || tempguy.attributes[0] == e1tSUMMONLAYER))
-					{
-						tempguy.firesfx = get_qr(qr_MORESOUNDS) ? WAV_ZN1SUMMON : WAV_FIRE;
-					}
-					else
-					{
-						switch (tempguy.weapon)
-						{
-						case ewFireTrail:
-						case ewFlame:
-						case ewFlame2Trail:
-						case ewFlame2:
-							tempguy.firesfx = WAV_FIRE;
-							break;
-						case ewWind:
-						case ewMagic:
-							tempguy.firesfx = WAV_WAND;
-							break;
-						case ewIce:
-							tempguy.firesfx = WAV_ZN1ICE;
-							break;
-						case ewRock:
-							if (get_qr(qr_MORESOUNDS)) tempguy.firesfx = WAV_ZN1ROCK;
-							break;
-						case ewFireball2:
-						case ewFireball:
-							if (get_qr(qr_MORESOUNDS)) tempguy.firesfx = WAV_ZN1FIREBALL;
-							break;
-						default:
-							tempguy.firesfx = -1; //no sounds
-							break;
-						}
-					}
-				}
+				guys_update_firesfx(tempguy);
 			}
 
 			if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
