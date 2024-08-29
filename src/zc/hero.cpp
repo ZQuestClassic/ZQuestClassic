@@ -21359,16 +21359,25 @@ void HeroClass::oldchecklockblock()
 	int32_t cid1 = MAPCOMBO(bx, by), cid2 = MAPCOMBO(bx2, by);
 	newcombo const& cmb = combobuf[cid1];
 	newcombo const& cmb2 = combobuf[cid2];
-	// Layer 0 is overridden by Locked Doors
-	if((cmb.type==cLOCKBLOCK && !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx,by,1, -1) && !islockeddoor(bx,by,dLOCKED)))
+	if((cmb.type==cLOCKBLOCK && !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx,by,1, -1)))
 	{
-		found1=true;
-		foundlayer = 0;
+		// Context: https://discord.com/channels/876899628556091432/1278165595321405554
+		// Layer 0 is overridden by Locked Doors (but only for dungeons) - in that case, checklocked will clear these combos
+		bool ignore_layer_0 = isdungeon() && islockeddoor(bx,by,dLOCKED);
+		if (!ignore_layer_0)
+		{
+			found1=true;
+			foundlayer = 0;
+		}
 	}
-	else if (cmb2.type==cLOCKBLOCK && !(cmb2.triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx2,by,1, -1) && !islockeddoor(bx2,by,dLOCKED))
+	else if (cmb2.type==cLOCKBLOCK && !(cmb2.triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx2,by,1, -1))
 	{
-		found2=true;
-		foundlayer = 0;
+		bool ignore_layer_0 = isdungeon() && islockeddoor(bx2,by,dLOCKED);
+		if (!ignore_layer_0)
+		{
+			found2=true;
+			foundlayer = 0;
+		}
 	}
 	
 	for (int32_t i = 0; i <= 1; ++i)
@@ -21508,16 +21517,26 @@ void HeroClass::oldcheckbosslockblock()
 	int32_t cid1 = MAPCOMBO(bx, by), cid2 = MAPCOMBO(bx2, by);
 	newcombo const& cmb = combobuf[cid1];
 	newcombo const& cmb2 = combobuf[cid2];
-	// Layer 0 is overridden by Locked Doors
-	if ((cmb.type == cBOSSLOCKBLOCK && !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx, by, 1, -1) && !islockeddoor(bx, by, dLOCKED)))
+
+	if((cmb.type==cBOSSLOCKBLOCK && !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx,by,1, -1)))
 	{
-		found1 = true;
-		foundlayer = 0;
+		// Context: https://discord.com/channels/876899628556091432/1278165595321405554
+		// Layer 0 is overridden by Locked Doors (but only for dungeons) - in that case, checklocked will clear these combos
+		bool ignore_layer_0 = isdungeon() && islockeddoor(bx,by,dBOSS);
+		if (!ignore_layer_0)
+		{
+			found1=true;
+			foundlayer = 0;
+		}
 	}
-	else if (cmb2.type == cBOSSLOCKBLOCK && !(cmb2.triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx2, by, 1, -1) && !islockeddoor(bx2, by, dLOCKED))
+	else if (cmb2.type==cBOSSLOCKBLOCK && !(cmb2.triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx2,by,1, -1))
 	{
-		found2 = true;
-		foundlayer = 0;
+		bool ignore_layer_0 = isdungeon() && islockeddoor(bx2,by,dBOSS);
+		if (!ignore_layer_0)
+		{
+			found2=true;
+			foundlayer = 0;
+		}
 	}
 
 	for (int32_t i = 0; i <= 1; ++i)
