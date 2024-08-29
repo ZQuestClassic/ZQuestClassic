@@ -31,12 +31,9 @@
 #include "base/colors.h"
 #include "tiles.h"
 #include "base/zsys.h"
-#include "qst.h"
+#include "base/qst.h"
 #include "defdata.h"
 #include "subscr.h"
-#include "zc/replay.h"
-#include "zc/zasm_utils.h"
-#include "zc/zc_custom.h"
 #include "sfx.h"
 #include "md5.h"
 #include "zinfo.h"
@@ -1266,7 +1263,7 @@ int32_t get_qst_buffers()
     clear_tiles(newtilebuf);
     //Z_message("Performed clear_tiles()\n"); 
     
-    if(is_editor())
+    if (get_app_id() == App::zquest)
     {
         if((grabtilebuf=(tiledata*)malloc(NEWMAXTILES*sizeof(tiledata)))==NULL)
             return 0;
@@ -1321,7 +1318,7 @@ void free_newtilebuf()
 
 void free_grabtilebuf()
 {
-    if(is_editor())
+    if (get_app_id() == App::zquest)
     {
         if(grabtilebuf)
         {
@@ -17697,7 +17694,7 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 	}
 	
 	//June 3 2012; ladder only is broken in 2.10 and allows the hookshot also. -Gleeok
-	if(version == 0x210 && !is_editor())
+	if(version == 0x210 && get_app_id() != App::zquest)
 	{
 		for(int32_t tmpcounter=0; tmpcounter<MAXCOMBOS; tmpcounter++)
 			if(combobuf[tmpcounter].type == cLADDERONLY)

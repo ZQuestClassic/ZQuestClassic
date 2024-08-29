@@ -85,7 +85,7 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "base/qrs.h"
 #include "tiles.h"
 #include "base/colors.h"
-#include "qst.h"
+#include "base/qst.h"
 #include "base/zsys.h"
 #include "base/zapp.h"
 #include "play_midi.h"
@@ -27505,11 +27505,6 @@ int32_t onZQVidMode()
     return D_O_K;
 }
 
-bool is_editor()
-{
-    return true;
-}
-
 bool screenIsScrolling()
 {
     return false;
@@ -28377,6 +28372,7 @@ bool replay_is_active() {return false;}
 bool replay_is_replaying() {return false;}
 bool replay_version_check(int min, int max) {return false;}
 bool replay_is_debug() {return false;}
+int32_t item::run_script(int32_t mode){return 0;};
 
 #ifdef __EMSCRIPTEN__
 extern "C" void open_test_mode()

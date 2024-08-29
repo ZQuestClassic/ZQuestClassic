@@ -18,7 +18,7 @@
 #include "zq/zq_class.h"
 #include "zq/zq_misc.h"
 #include "zq/zquest.h"
-#include "qst.h"
+#include "base/qst.h"
 
 extern int32_t bie_cnt;
 

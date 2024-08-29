@@ -38,7 +38,7 @@
 #include "base/zsys.h"
 #include "base/zapp.h"
 #include "play_midi.h"
-#include "qst.h"
+#include "base/qst.h"
 #include "zc/matrix.h"
 #include "gui/jwin.h"
 #include "base/jwinfsel.h"
@@ -50,7 +50,7 @@
 #include "zc/jit.h"
 #include "zc/script_debug.h"
 #include "zc/combos.h"
-#include "qst.h"
+#include "base/qst.h"
 #include "base/util.h"
 #include "drawing.h"
 #include "dialog/alert.h"
@@ -3860,11 +3860,6 @@ void refreshTints()
 int32_t getTint(int32_t color)
 {
 	return lastCustomTint[color];
-}
-
-bool is_editor()
-{
-    return false;
 }
 
 bool screenIsScrolling()

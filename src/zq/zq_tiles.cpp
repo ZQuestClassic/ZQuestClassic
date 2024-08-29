@@ -21,7 +21,7 @@
 #include "zq/zq_class.h"
 #include "base/zsys.h"
 #include "base/colors.h"
-#include "qst.h"
+#include "base/qst.h"
 #include "gui/jwin.h"
 #include <base/new_menu.h>
 #include "base/jwinfsel.h"

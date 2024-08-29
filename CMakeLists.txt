@@ -536,6 +536,7 @@ set(zcbase_sources
 	src/base/packfile.cpp
 	src/base/process_management.cpp
 	src/base/qrs.cpp
+	src/base/qst.cpp
 	src/base/random.cpp
 	src/base/render.cpp
 	src/base/sin1.cpp

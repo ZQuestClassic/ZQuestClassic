@@ -11,7 +11,6 @@ src/zc/jit.cpp
 src/gamedata.cpp
 src/zc/zelda.cpp
 src/defdata.cpp
-src/qst.cpp
 src/zc/zc_init.cpp
 src/zc/zc_module.cpp
 src/zc/zc_items.cpp

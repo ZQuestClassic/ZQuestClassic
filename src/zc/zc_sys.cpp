@@ -35,7 +35,7 @@
 #include "base/colors.h"
 #include "pal.h"
 #include "base/zsys.h"
-#include "qst.h"
+#include "base/qst.h"
 #include "zc/zc_sys.h"
 #include "play_midi.h"
 #include "gui/jwin_a5.h"

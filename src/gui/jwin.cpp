@@ -24,8 +24,6 @@ extern int32_t zq_screen_w, zq_screen_h;
 extern int32_t joystick_index;
 int CheckerCol1 = 7, CheckerCol2 = 8;
 
-extern bool is_editor();
-
 int32_t abc_patternmatch = 1;
 
 char abc_keypresses[1024] = {0};

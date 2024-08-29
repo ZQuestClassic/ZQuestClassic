@@ -26,7 +26,6 @@ extern bool get_debug();
 extern bool halt;
 extern bool show_sprites;
 extern bool show_hitboxes;
-extern bool is_editor();
 extern void debugging_box(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
 #include "zc/ffscript.h"
 

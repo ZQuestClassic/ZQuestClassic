@@ -84,22 +84,17 @@ public:
 	bool noSound;
 	bool noHoldSound;
 
-//Linker errors because this is shared with zquest. :( -Z
-    #ifndef IS_EDITOR
     int32_t script_UID;
     int32_t getScriptUID();
     void setScriptUID(int32_t new_id);
-    #endif
-//
+
 	void load_gfx(itemdata const& itm);
 
     item(zfix X,zfix Y,zfix Z,int32_t i,int32_t p,int32_t c, bool isDummy = false);
     virtual ~item();
     virtual bool animate(int32_t index);
     virtual void draw(BITMAP *dest);
-#ifndef IS_EDITOR
 	virtual int32_t run_script(int32_t mode);
-#endif
 	virtual optional<ScriptType> get_scrtype() const {return ScriptType::ItemSprite;}
 	virtual ALLEGRO_COLOR hitboxColor(byte opacity = 255) const;
 	virtual void draw_hitbox();

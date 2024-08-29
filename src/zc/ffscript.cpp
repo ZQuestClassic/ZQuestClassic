@@ -73,7 +73,7 @@
 #include "zc/rendertarget.h"
 
 #include "zc/zc_custom.h"
-#include "qst.h"
+#include "base/qst.h"
 
 using namespace util;
 

@@ -8,7 +8,7 @@
 #include "zq/zquestdat.h"
 #include "zq/zquest.h"
 #include "base/colors.h"
-#include "qst.h"
+#include "base/qst.h"
 #include "base/zsys.h"
 #include "zq/zq_class.h"
 #include "zq/package.h"

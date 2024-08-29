@@ -9,9 +9,9 @@
 #include "base/qrs.h"
 #include "base/mapscr.h"
 #include "base/packfile.h"
+#include "base/qst.h"
 #include "drawing.h"
 #include "tiles.h"
-#include "qst.h"
 #include "items.h"
 #include "sprite.h"
 #include <set>
