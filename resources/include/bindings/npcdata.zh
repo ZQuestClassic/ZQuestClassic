@@ -227,7 +227,7 @@ class npcdata {
 	// @zasm_var NPCDATAWPNSPRITE
 	internal int WeaponSprite;
 
-	// The sfx used when the enemy fires it's weapon.
+	// The sfx used when the enemy fires its weapon.
 	// If WeaponSFX <= 0 no sound will be played.
 	//
 	// @zasm_var NPCDATAFIRESFX

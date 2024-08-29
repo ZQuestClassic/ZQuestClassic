@@ -2443,7 +2443,7 @@ bool npc_set_register(int32_t reg, int32_t value)
 		case NPCFIRESFX:
 			if (GuyH::loadNPC(ri->guyref, "npc->WeaponSFX") == SH::_NoError)
 			{
-				GuyH::getNPC()->firesfx = vbound(value / 10000, -1, 255);
+				GuyH::getNPC()->firesfx = vbound(value / 10000, 0, 255);
 			}
 			break;
 

@@ -573,7 +573,7 @@ class npc {
 	// @zasm_var NPCWEAPSPRITE
 	internal int WeaponSprite;
 
-	// The sfx (Quest->Audio->SFXData) used whenever the npc fires it's weapon.
+	// The sfx (Quest->Audio->SFXData) used whenever the npc fires its weapon.
 	// If WeaponSFX <= 0 no sound will be played.
 	//
 	// @zasm_var NPCFIRESFX

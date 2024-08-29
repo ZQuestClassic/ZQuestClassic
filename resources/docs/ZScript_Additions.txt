@@ -5800,7 +5800,7 @@ int WeaponSprite;
  * The sprite (Quest->Graphics->Sprites->Weapons) used to draw the weapon fired by the npc.
 
 int WeaponSFX;
- * The sfx (Quest->Audio->SFXData) used whenever the npc fires it's weapon.
+ * The sfx (Quest->Audio->SFXData) used whenever the npc fires its weapon.
 
 bool Shield[5];
  * The shield status of the enemy.
@@ -8081,7 +8081,7 @@ int WeaponSprite;
  * The sprite used to draw the enemy weapon.
 
  int WeaponSFX;
- * The sfx used when the enemy fires it's weapon.
+ * The sfx used when the enemy fires its weapon.
 
 int Defense[42];
  * The defense categories for the enemy.
