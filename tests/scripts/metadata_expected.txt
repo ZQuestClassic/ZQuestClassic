@@ -845,7 +845,7 @@ stdout:
           "uri": "URI"
         }
       },
-      "2670": {
+      "2672": {
         "loc": {
           "range": {
             "start": {
@@ -861,7 +861,7 @@ stdout:
         },
         "doc": "THIS COMMENT USED #1"
       },
-      "2465": {
+      "2467": {
         "loc": {
           "range": {
             "start": {
@@ -876,7 +876,7 @@ stdout:
           "uri": "URI"
         }
       },
-      "2811": {
+      "2813": {
         "loc": {
           "range": {
             "start": {
@@ -907,7 +907,7 @@ stdout:
         },
         "doc": "Prints the specified format_string to the output console, using the given\nargs to fill in parts of the string that are specially marked. Does not\ninclude a newline character after the string."
       },
-      "2671": {
+      "2673": {
         "loc": {
           "range": {
             "start": {
@@ -923,7 +923,7 @@ stdout:
         },
         "doc": "THIS COMMENT USED #2"
       },
-      "2672": {
+      "2674": {
         "loc": {
           "range": {
             "start": {
@@ -939,7 +939,7 @@ stdout:
         },
         "doc": "x marks the spot\nstill line one still line one still line one still line one still line one\nline two\nline two still\nline three\n- list item 1\n- list item 2\n- list item 3"
       },
-      "2467": {
+      "2469": {
         "loc": {
           "range": {
             "start": {
@@ -971,7 +971,7 @@ stdout:
         },
         "doc": "A car, duh"
       },
-      "2471": {
+      "2473": {
         "loc": {
           "range": {
             "start": {
@@ -1003,7 +1003,7 @@ stdout:
         },
         "doc": "How fast it goes. See [`the vroom method()`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A32%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A32%2C%22character%22%3A14%7D%7D%7D) or [`speed`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A23%2C%22character%22%3A8%7D%2C%22end%22%3A%7B%22line%22%3A23%2C%22character%22%3A13%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A16%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A16%2C%22character%22%3A5%7D%7D%7D) or [`Waitframe()`](command:zscript.openLink?%7B%22file%22%3A%22global.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A27%2C%22character%22%3A14%7D%2C%22end%22%3A%7B%22line%22%3A27%2C%22character%22%3A23%7D%7D%7D) or [`bitmap`](command:zscript.openLink?%7B%22file%22%3A%22bitmap.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A1%2C%22character%22%3A6%7D%2C%22end%22%3A%7B%22line%22%3A1%2C%22character%22%3A12%7D%7D%7D) or `bitmap::Width`"
       },
-      "2881": {
+      "2883": {
         "loc": {
           "range": {
             "start": {
@@ -1019,7 +1019,7 @@ stdout:
         },
         "doc": "i am a car\n`i dont exist`"
       },
-      "2874": {
+      "2876": {
         "loc": {
           "range": {
             "start": {
@@ -1034,7 +1034,7 @@ stdout:
           "uri": "URI"
         }
       },
-      "2675": {
+      "2677": {
         "loc": {
           "range": {
             "start": {
@@ -1050,7 +1050,7 @@ stdout:
         },
         "doc": "hmmmmmm See [`utils::fn()`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A85%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A85%2C%22character%22%3A11%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A16%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A16%2C%22character%22%3A5%7D%7D%7D) or [`fn()`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A85%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A85%2C%22character%22%3A11%7D%7D%7D)"
       },
-      "2673": {
+      "2675": {
         "loc": {
           "range": {
             "start": {
@@ -1066,7 +1066,7 @@ stdout:
         },
         "doc": "hello world"
       },
-      "2674": {
+      "2676": {
         "loc": {
           "range": {
             "start": {
@@ -1145,7 +1145,7 @@ stdout:
           "uri": "URI"
         }
       },
-      "3541": {
+      "3545": {
         "loc": {
           "range": {
             "start": {
@@ -1176,7 +1176,7 @@ stdout:
         },
         "doc": "A car, duh"
       },
-      "2885": {
+      "2887": {
         "loc": {
           "range": {
             "start": {
@@ -1192,7 +1192,7 @@ stdout:
         },
         "doc": "TODO: support this in the scope lookup (see lookupDatum)\nequal to `c->speed`"
       },
-      "2887": {
+      "2889": {
         "loc": {
           "range": {
             "start": {
@@ -1224,7 +1224,7 @@ stdout:
         },
         "doc": "Prints the passed value to the output console. Includes a newline character\nafter the value.\n\n**@deprecated_alias** TraceLWeapon\nTraceEWeapon\nTraceNPC\nTraceFFC\nTraceItem\nTraceItemData"
       },
-      "2890": {
+      "2892": {
         "loc": {
           "range": {
             "start": {
@@ -1239,7 +1239,7 @@ stdout:
           "uri": "URI"
         }
       },
-      "2891": {
+      "2893": {
         "loc": {
           "range": {
             "start": {
@@ -1254,7 +1254,7 @@ stdout:
           "uri": "URI"
         }
       },
-      "2676": {
+      "2678": {
         "loc": {
           "range": {
             "start": {
@@ -1270,7 +1270,7 @@ stdout:
         },
         "doc": "How fast it goes. See [`the vroom method()`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A32%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A32%2C%22character%22%3A14%7D%7D%7D) or [`speed`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A23%2C%22character%22%3A8%7D%2C%22end%22%3A%7B%22line%22%3A23%2C%22character%22%3A13%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A16%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A16%2C%22character%22%3A5%7D%7D%7D) or [`Waitframe()`](command:zscript.openLink?%7B%22file%22%3A%22global.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A27%2C%22character%22%3A14%7D%2C%22end%22%3A%7B%22line%22%3A27%2C%22character%22%3A23%7D%7D%7D) or [`bitmap`](command:zscript.openLink?%7B%22file%22%3A%22bitmap.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A1%2C%22character%22%3A6%7D%2C%22end%22%3A%7B%22line%22%3A1%2C%22character%22%3A12%7D%7D%7D) or `bitmap::Width`"
       },
-      "2469": {
+      "2471": {
         "loc": {
           "range": {
             "start": {
@@ -1286,7 +1286,7 @@ stdout:
         },
         "doc": "Go fast"
       },
-      "5239": {
+      "5241": {
         "loc": {
           "range": {
             "start": {
@@ -1317,7 +1317,7 @@ stdout:
           "character": 15,
           "length": 7
         },
-        "symbol": "2670"
+        "symbol": "2672"
       },
       {
         "loc": {
@@ -1325,7 +1325,7 @@ stdout:
           "character": 18,
           "length": 1
         },
-        "symbol": "2465"
+        "symbol": "2467"
       },
       {
         "loc": {
@@ -1333,7 +1333,7 @@ stdout:
           "character": 8,
           "length": 1
         },
-        "symbol": "2811"
+        "symbol": "2813"
       },
       {
         "loc": {
@@ -1349,7 +1349,7 @@ stdout:
           "character": 26,
           "length": 7
         },
-        "symbol": "2670"
+        "symbol": "2672"
       },
       {
         "loc": {
@@ -1357,7 +1357,7 @@ stdout:
           "character": 36,
           "length": 8
         },
-        "symbol": "2671"
+        "symbol": "2673"
       },
       {
         "loc": {
@@ -1365,7 +1365,7 @@ stdout:
           "character": 50,
           "length": 1
         },
-        "symbol": "2672"
+        "symbol": "2674"
       },
       {
         "loc": {
@@ -1373,7 +1373,7 @@ stdout:
           "character": 15,
           "length": 2
         },
-        "symbol": "2467"
+        "symbol": "2469"
       },
       {
         "loc": {
@@ -1381,7 +1381,7 @@ stdout:
           "character": 18,
           "length": 7
         },
-        "symbol": "2670"
+        "symbol": "2672"
       },
       {
         "loc": {
@@ -1397,7 +1397,7 @@ stdout:
           "character": 21,
           "length": 3
         },
-        "symbol": "2471"
+        "symbol": "2473"
       },
       {
         "loc": {
@@ -1421,7 +1421,7 @@ stdout:
           "character": 29,
           "length": 1
         },
-        "symbol": "2881"
+        "symbol": "2883"
       },
       {
         "loc": {
@@ -1429,7 +1429,7 @@ stdout:
           "character": 39,
           "length": 6
         },
-        "symbol": "2874"
+        "symbol": "2876"
       },
       {
         "loc": {
@@ -1437,7 +1437,7 @@ stdout:
           "character": 54,
           "length": 3
         },
-        "symbol": "2675"
+        "symbol": "2677"
       },
       {
         "loc": {
@@ -1445,7 +1445,7 @@ stdout:
           "character": 60,
           "length": 1
         },
-        "symbol": "2673"
+        "symbol": "2675"
       },
       {
         "loc": {
@@ -1453,7 +1453,7 @@ stdout:
           "character": 64,
           "length": 1
         },
-        "symbol": "2674"
+        "symbol": "2676"
       },
       {
         "loc": {
@@ -1493,7 +1493,7 @@ stdout:
           "character": 21,
           "length": 13
         },
-        "symbol": "3541"
+        "symbol": "3545"
       },
       {
         "loc": {
@@ -1509,7 +1509,7 @@ stdout:
           "character": 21,
           "length": 3
         },
-        "symbol": "2471"
+        "symbol": "2473"
       },
       {
         "loc": {
@@ -1525,7 +1525,7 @@ stdout:
           "character": 16,
           "length": 1
         },
-        "symbol": "2881"
+        "symbol": "2883"
       },
       {
         "loc": {
@@ -1541,7 +1541,7 @@ stdout:
           "character": 16,
           "length": 1
         },
-        "symbol": "2885"
+        "symbol": "2887"
       },
       {
         "loc": {
@@ -1549,7 +1549,7 @@ stdout:
           "character": 17,
           "length": 3
         },
-        "symbol": "2887"
+        "symbol": "2889"
       },
       {
         "loc": {
@@ -1565,7 +1565,7 @@ stdout:
           "character": 18,
           "length": 1
         },
-        "symbol": "2890"
+        "symbol": "2892"
       },
       {
         "loc": {
@@ -1573,7 +1573,7 @@ stdout:
           "character": 17,
           "length": 3
         },
-        "symbol": "2887"
+        "symbol": "2889"
       },
       {
         "loc": {
@@ -1581,7 +1581,7 @@ stdout:
           "character": 16,
           "length": 4
         },
-        "symbol": "2891"
+        "symbol": "2893"
       },
       {
         "loc": {
@@ -1597,7 +1597,7 @@ stdout:
           "character": 18,
           "length": 4
         },
-        "symbol": "2891"
+        "symbol": "2893"
       },
       {
         "loc": {
@@ -1605,7 +1605,7 @@ stdout:
           "character": 8,
           "length": 5
         },
-        "symbol": "2676"
+        "symbol": "2678"
       },
       {
         "loc": {
@@ -1613,7 +1613,7 @@ stdout:
           "character": 8,
           "length": 5
         },
-        "symbol": "2469"
+        "symbol": "2471"
       },
       {
         "loc": {
@@ -1629,7 +1629,7 @@ stdout:
           "character": 22,
           "length": 5
         },
-        "symbol": "5239"
+        "symbol": "5241"
       }
     ]
   }

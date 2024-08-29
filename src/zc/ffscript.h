@@ -1040,6 +1040,7 @@ bool GetItemMessagePlayed(int32_t itm);
 int32_t do_getpixel();
 void do_bmpcollision();
 int32_t GetDefaultWeaponSprite(int32_t w);
+int32_t GetDefaultWeaponSFX(int32_t wpn_id);
 
 int32_t GetQuestVersion();
 int32_t GetQuestBuild();
@@ -1171,6 +1172,7 @@ static void setHeroBigHitbox(bool v);
 	static void getNPCData_txsz();
 	static void getNPCData_tysz();
 	static void getNPCData_wpnsprite();
+	static void getNPCData_firesfx();
 
 	//NPCData Getters, two inouts, one return
 
@@ -1223,7 +1225,7 @@ static void setHeroBigHitbox(bool v);
 	static void setNPCData_txsz();
 	static void setNPCData_tysz();
 	static void setNPCData_wpnsprite();
-
+	static void setNPCData_firesfx();
 	//NPCData Setters, three inputs, no return.
 	//static void setNPCData_scriptdefence();
 	static void setNPCData_defense(int32_t v); //extra arg
