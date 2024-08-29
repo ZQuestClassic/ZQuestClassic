@@ -1,18 +1,18 @@
-#ifndef ZC_DIALOG_AUTOCOMBO_H_
-#define ZC_DIALOG_AUTOCOMBO_H_
+#ifndef ZQ_DIALOG_AUTOCOMBO_H_
+#define ZQ_DIALOG_AUTOCOMBO_H_
 
 #include "base/autocombo.h"
-#include <gui/dialog.h>
-#include <gui/drop_down_list.h>
-#include <gui/checkbox.h>
-#include <gui/grid.h>
-#include <zq/gui/selcombo_swatch.h>
-#include <zq/gui/engraving.h>
-#include <gui/label.h>
-#include <gui/button.h>
-#include <gui/text_field.h>
-#include <gui/switcher.h>
-#include <gui/window.h>
+#include "gui/dialog.h"
+#include "gui/drop_down_list.h"
+#include "gui/checkbox.h"
+#include "gui/grid.h"
+#include "zq/gui/selcombo_swatch.h"
+#include "zq/gui/engraving.h"
+#include "gui/label.h"
+#include "gui/button.h"
+#include "gui/text_field.h"
+#include "gui/switcher.h"
+#include "gui/window.h"
 #include <functional>
 
 void call_autocombo_dlg(int32_t index);

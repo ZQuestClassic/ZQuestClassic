@@ -47,8 +47,11 @@
 #include "parser/Compiler.h"
 #include "base/zc_alleg.h"
 #include "particles.h"
+#include "dialog/combopool.h"
 #include "dialog/alert.h"
 #include "dialog/alertfunc.h"
+#include "zq/gui/edit_autocombo.h"
+
 particle_list particles;
 void setZScriptVersion(int32_t) { } //bleh...
 
@@ -19652,8 +19655,6 @@ int32_t set_comboaradio(byte layermask)
     return 1;
 }
 
-void call_cpool_dlg(int32_t index);
-void call_autocombo_dlg(int32_t index);
 int32_t onEditComboPool()
 {
 	call_cpool_dlg(combo_pool_pos);
