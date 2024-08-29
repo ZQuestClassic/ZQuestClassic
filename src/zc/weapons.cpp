@@ -1191,7 +1191,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	weap_timeout = 0;
 	parent_script_UID = 0;
 	unblockable = 0;
-	misc_wflags = 0;
+	misc_wflags = WFLAG_NONE;
 	last_burnstate = 0;
 	death_spawnitem = -1;
 	death_spawndropset = -1;
@@ -2406,7 +2406,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			if(parentitem > -1 && (parent.flags & item_burning_sprites))
 			{
 				misc_wflags |= WFLAG_UPDATE_IGNITE_SPRITE;
-				for(int q = 0; q < BURNSPR_MAX; ++q)
+				for(int q = 0; q < WPNSPR_MAX; ++q)
 				{
 					misc_wsprites[q] = parent.burnsprs[q];
 					light_rads[q] = parent.light_rads[q];
@@ -2415,7 +2415,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				wpnspr = _handle_loadsprite(misc_wsprites[last_burnstate]);
 				glowRad = light_rads[last_burnstate];
 			}
-			else light_rads[BURNSPR_NONE] = glowRad;
+			else light_rads[WPNSPR_BASE] = glowRad;
 			break;
 	}
 	if(!wpnspr)
@@ -8168,7 +8168,7 @@ void weapon::draw_hitbox()
 weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t usesprite, int32_t Dir, int32_t step, int32_t prntid, int32_t height, int32_t width, int32_t a, int32_t b, int32_t c, int32_t d, int32_t e, int32_t f, int32_t g) : sprite(), parentid(prntid)
 {
 	unblockable = 0;
-	misc_wflags = 0;
+	misc_wflags = WFLAG_NONE;
 	death_spawnitem = -1;
 	death_spawndropset = -1;
 	death_sprite = -1;

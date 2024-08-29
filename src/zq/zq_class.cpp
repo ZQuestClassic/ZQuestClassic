@@ -8917,7 +8917,7 @@ int32_t writeitems(PACKFILE *f, zquestheader *Header)
 			std::string dispname(itemsbuf[i].display_name);
 			if(!p_putcstr(dispname,f))
 				new_return(92);
-			for(int q = 0; q < BURNSPR_MAX; ++q)
+			for(int q = 0; q < WPNSPR_MAX; ++q)
 			{
 				if(!p_putc(itemsbuf[i].burnsprs[q], f))
 					new_return(93);

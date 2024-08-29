@@ -1077,7 +1077,7 @@ void itemdata::advpaste(itemdata const& other, bitstring const& pasteflags)
 		wpn9 = other.wpn9;
 		wpn10 = other.wpn10;
 		CPYFLAG(flags, item_burning_sprites, other.flags);
-		for(int q = 0; q < BURNSPR_MAX; ++q)
+		for(int q = 0; q < WPNSPR_MAX; ++q)
 		{
 			burnsprs[q] = other.burnsprs[q];
 			light_rads[q] = other.light_rads[q];
