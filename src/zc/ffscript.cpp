@@ -35294,6 +35294,29 @@ int32_t FFScript::GetDefaultWeaponSprite(int32_t wpn_id)
 	}
 }
 
+int32_t FFScript::GetDefaultWeaponSFX(int32_t wpn_id)
+{
+	switch (wpn_id)
+	{
+		case ewFireTrail:
+		case ewFlame:
+		case ewFlame2Trail:
+		case ewFlame2:
+			return WAV_FIRE; break;
+		case ewWind:
+		case ewMagic:
+			return WAV_WAND; break;
+		case ewIce:
+			return WAV_ZN1ICE; break;
+		case ewRock:
+			return WAV_ZN1ROCK; break;
+		case ewFireball2:
+		case ewFireball:
+			return WAV_ZN1FIREBALL; break;
+	}
+	return -1; //no assign
+}
+
 //bitmap->GetPixel()
 
 

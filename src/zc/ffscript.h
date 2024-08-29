@@ -1040,6 +1040,7 @@ bool GetItemMessagePlayed(int32_t itm);
 int32_t do_getpixel();
 void do_bmpcollision();
 int32_t GetDefaultWeaponSprite(int32_t w);
+int32_t GetDefaultWeaponSFX(int32_t wpn_id);
 
 int32_t GetQuestVersion();
 int32_t GetQuestBuild();

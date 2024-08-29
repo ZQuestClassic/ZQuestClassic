@@ -1999,7 +1999,7 @@ bool npc_set_register(int32_t reg, int32_t value)
 				}
 				if (get_qr(qr_SETENEMYWEAPONSOUNDSONWPNCHANGE))
 				{
-					GuyH::getNPC()->wpnsprite = FFCore.GetDefaultWeaponSprite(weapon);
+					GuyH::getNPC()->firesfx = FFCore.GetDefaultWeaponSFX(weapon);
 				}
 				//else GuyH::getNPC()->wpnsprite = FFCore.GetDefaultWeaponSprite(weapon); //just to test that this works. 
 			}
