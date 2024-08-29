@@ -95,7 +95,7 @@ static RenderTreeItem* get_logo()
 		return "assets/zc/ZC_Logo.png";
 	}();
 
-	// trying pngs first
+	// trying to load pngs first
 	static ALLEGRO_BITMAP* logo_bitmap = al_load_bitmap(logo_path.c_str());
 	if (!logo_bitmap)
 	{
