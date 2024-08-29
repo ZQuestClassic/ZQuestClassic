@@ -1955,8 +1955,8 @@ void enemy::FireWeapon()
 			
 		}
 			}
-			
-			sfx(get_qr(qr_MORESOUNDS) ? WAV_ZN1SUMMON : WAV_FIRE,pan(int32_t(x)));
+
+			sfx(firesfx, pan(int32_t(x)));
 		}
 		
 		break;
@@ -2007,7 +2007,7 @@ void enemy::FireWeapon()
 			
 			if(summoned)
 			{
-				sfx(get_qr(qr_MORESOUNDS) ? WAV_ZN1SUMMON : WAV_FIRE,pan(int32_t(x)));
+				sfx(firesfx, pan(int32_t(x)));
 			}
 		}
 		
@@ -7711,33 +7711,27 @@ waves2:
 	}
 }
 
-int32_t wpnsfx(int32_t wpn)
+int32_t enemy::wpnsfx(int32_t wpn)
 {
-	switch(wpn)
+	switch (wpn)
 	{
-	case ewFireTrail:
-	case ewFlame:
-	case ewFlame2Trail:
-	case ewFlame2:
-		return WAV_FIRE;
-		
-	case ewWind:
-	case ewMagic:
-		return WAV_WAND;
-		
-	case ewIce:
-		return WAV_ZN1ICE;
-		
-	case ewRock:
-		if(get_qr(qr_MORESOUNDS)) return WAV_ZN1ROCK;
-		break;
-		
-	case ewFireball2:
-	case ewFireball:
-		if(get_qr(qr_MORESOUNDS)) return WAV_ZN1FIREBALL;
+		case ewFireTrail:
+		case ewFlame:
+		case ewFlame2Trail:
+		case ewFlame2:
+		case ewWind:
+		case ewMagic:
+		case ewIce:
+			return firesfx;
+
+		case ewRock:
+		case ewFireball2:
+		case ewFireball:
+			if (get_qr(qr_MORESOUNDS)) return firesfx;
+			break;
 	}
-	
-	return -1;
+
+	return 0;
 }
 
 int32_t enemy::run_script(int32_t mode)
@@ -11949,7 +11943,7 @@ void eWizzrobe::wizzrobe_attack_for_real()
 	if(dmisc2 == 0)  //normal weapon
 	{
 		addEwpn(x,y,z,wpn,0,wdp,dir,getUID(), 0, fakez);
-		sfx(WAV_WAND,pan(int32_t(x)));
+		sfx(firesfx, pan(int32_t(x)));
 	}
 	else if(dmisc2 == 1) // ring of fire
 	{
@@ -11969,34 +11963,40 @@ void eWizzrobe::wizzrobe_attack_for_real()
 		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
 		addEwpn(x,y,z,wpn,0,wdp,r_down,getUID(), 0, fakez);
 		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
-		sfx(WAV_FIRE,pan(int32_t(x)));
-	if (get_qr(qr_8WAY_SHOT_SFX)) sfx(WAV_FIRE,pan(int32_t(x))); 
-	else
-	{
-		switch(wpn)
+		//this block of code was buggy and flat out doesn't match the default wpnsfx for these weapons.
+		//i've compromised by making all old quest use this code chunk by default.
+		if (FFCore.quest_format[vGuys] < 51)
 		{
-			case ewFireball: sfx(40,pan(int32_t(x))); break;
-				
-			case ewArrow: sfx(1,pan(int32_t(x))); break; //Ghost.zh has 0?
-			case ewBrang: sfx(4,pan(int32_t(x))); break; //Ghost.zh has 0?
-			case ewSword: sfx(20,pan(int32_t(x))); break; //Ghost.zh has 0?
-			case ewRock: sfx(51,pan(int32_t(x))); break;
-			case ewMagic: sfx(32,pan(int32_t(x))); break;
-			case ewBomb: sfx(3,pan(int32_t(x))); break; //Ghost.zh has 0?
-			case ewSBomb: sfx(3,pan(int32_t(x))); break; //Ghost.zh has 0?
-			case ewLitBomb: sfx(21,pan(int32_t(x))); break; //Ghost.zh has 0?
-			case ewLitSBomb:  sfx(21,pan(int32_t(x))); break; //Ghost.zh has 0?
-			case ewFireTrail:  sfx(13,pan(int32_t(x))); break;
-			case ewFlame: sfx(13,pan(int32_t(x))); break;
-			case ewWind: sfx(32,pan(int32_t(x))); break;
-			case ewFlame2: sfx(13,pan(int32_t(x))); break;
-			case ewFlame2Trail: sfx(13,pan(int32_t(x))); break;
-			case ewIce: sfx(44,pan(int32_t(x))); break;
-			case ewFireball2: sfx(40,pan(int32_t(x))); break; //fireball (rising)
-			default: sfx(WAV_FIRE,pan(int32_t(x)));  break;
-			
+			sfx(WAV_FIRE, pan(int32_t(x)));
+			if (get_qr(qr_8WAY_SHOT_SFX_DEP)) sfx(WAV_FIRE,pan(int32_t(x)));
+			else
+			{
+				switch (wpn)
+				{
+				case ewFireball: sfx(40, pan(int32_t(x))); break;
+				case ewBrang: sfx(4, pan(int32_t(x))); break; //Ghost.zh has 0?
+				case ewSword: sfx(20, pan(int32_t(x))); break; //Ghost.zh has 0?
+				case ewRock: sfx(51, pan(int32_t(x))); break;
+				case ewMagic: sfx(32, pan(int32_t(x))); break;
+				case ewBomb: sfx(3, pan(int32_t(x))); break; //Ghost.zh has 0?
+				case ewSBomb: sfx(3, pan(int32_t(x))); break; //Ghost.zh has 0?
+				case ewLitBomb: sfx(21, pan(int32_t(x))); break; //Ghost.zh has 0?
+				case ewLitSBomb:  sfx(21, pan(int32_t(x))); break; //Ghost.zh has 0?
+				case ewFireTrail:  sfx(13, pan(int32_t(x))); break;
+				case ewFlame: sfx(13, pan(int32_t(x))); break;
+				case ewWind: sfx(32, pan(int32_t(x))); break;
+				case ewFlame2: sfx(13, pan(int32_t(x))); break;
+				case ewFlame2Trail: sfx(13, pan(int32_t(x))); break;
+				case ewIce: sfx(44, pan(int32_t(x))); break;
+				case ewFireball2: sfx(40, pan(int32_t(x))); break; //fireball (rising)
+				default: sfx(WAV_FIRE, pan(int32_t(x)));  break;
+				}
+			}
 		}
-	}
+		else
+		{
+			sfx(firesfx, pan(int32_t(x)));
+		}
 	}
 	else if(dmisc2==2)  // summons specific enemy
 	{
@@ -12021,8 +12021,7 @@ void eWizzrobe::wizzrobe_attack_for_real()
 				if(addchild(x,y,dmisc3,-10, this->script_UID))
 					((enemy*)guys.spr(kids+i))->count_enemy = false;
 			}
-			
-			sfx(WAV_FIRE,pan(int32_t(x)));
+			sfx(firesfx, pan(int32_t(x)));
 		}
 	}
 	else if(dmisc2==3)  //summon from layer
@@ -12070,7 +12069,7 @@ void eWizzrobe::wizzrobe_attack_for_real()
 			
 			if(summoned)
 			{
-				sfx(get_qr(qr_MORESOUNDS) ? WAV_ZN1SUMMON : WAV_FIRE,pan(int32_t(x)));
+				sfx(firesfx, pan(int32_t(x)));
 			}
 		}
 	}

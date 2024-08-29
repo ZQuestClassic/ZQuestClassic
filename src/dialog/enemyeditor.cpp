@@ -1470,13 +1470,11 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 						//
 						Label(text = "Weapon Sprite:", hAlign = 1.0, rightPadding = 0_px),
 						DropDownField(&local_guyref.wpnsprite, list_sprites),
-						INFOBTN("Sprite used for the projectile.")
+						INFOBTN("Sprite used for the projectile."),
 						//
-						/*
 						Label(text = "Weapon Sound:", hAlign = 1.0, rightPadding = 0_px),
 						DropDownField(&local_guyref.firesfx, list_sfx),
 						INFOBTN("Plays when the projectile is fired.")
-						*/
 					)
 				)
 			))
