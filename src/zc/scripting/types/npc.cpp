@@ -1543,6 +1543,9 @@ std::optional<int32_t> npc_get_register(int32_t reg)
 			ret = npc_linedup();
 			break;
 
+		case NPCFIRESFX:
+			GET_NPC_VAR_INT(firesfx, "npc->WeaponSFX") break;
+
 		default: return std::nullopt;
 	}
 
@@ -1990,9 +1993,13 @@ bool npc_set_register(int32_t reg, int32_t value)
 			{
 				GuyH::getNPC()->wpn = weapon;
 			
-				if ( get_qr(qr_SETENEMYWEAPONSPRITESONWPNCHANGE) ) //this should probably just be an extra_rule
+				if ( get_qr(qr_SETENEMYWEAPONSPRITESONWPNCHANGE) )
 				{
 					GuyH::getNPC()->wpnsprite = FFCore.GetDefaultWeaponSprite(weapon);
+				}
+				if (get_qr(qr_SETENEMYWEAPONSOUNDSONWPNCHANGE))
+				{
+					GuyH::getNPC()->firesfx = FFCore.GetDefaultWeaponSFX(weapon);
 				}
 				//else GuyH::getNPC()->wpnsprite = FFCore.GetDefaultWeaponSprite(weapon); //just to test that this works. 
 			}
@@ -2430,6 +2437,13 @@ bool npc_set_register(int32_t reg, int32_t value)
 			if (GuyH::loadNPC(ri->guyref, "npc->FlickerTransparencyPasses") == SH::_NoError)
 			{
 				GuyH::getNPC()->flickertransp = vbound(value / 10000, -1, 255);
+			}
+			break;
+
+		case NPCFIRESFX:
+			if (GuyH::loadNPC(ri->guyref, "npc->WeaponSFX") == SH::_NoError)
+			{
+				GuyH::getNPC()->firesfx = vbound(value / 10000, 0, 255);
 			}
 			break;
 

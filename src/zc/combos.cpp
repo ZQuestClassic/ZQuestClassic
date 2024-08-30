@@ -1399,8 +1399,8 @@ bool trigger_armos_grave(const rpos_handle_t& rpos_handle, int32_t trigdir)
 					default:
 						break;
 				}
-				if ((guysbuf[id2].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) armosxsz = guysbuf[id2].txsz;
-				if ((guysbuf[id2].SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) armosysz = guysbuf[id2].tysz;
+				if ((guysbuf[id2].SIZEflags&OVERRIDE_TILE_HEIGHT) != 0) armosxsz = guysbuf[id2].txsz;
+				if ((guysbuf[id2].SIZEflags&OVERRIDE_TILE_WIDTH) != 0) armosysz = guysbuf[id2].tysz;
 				
 				if ( armosxsz > 1 || armosysz > 1 )
 				{

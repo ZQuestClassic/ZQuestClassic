@@ -8,7 +8,7 @@
 #include "base/zsys.h"
 #include "zq/zq_misc.h"
 #include "tiles.h"
-#include "qst.h"
+#include "base/qst.h"
 #include "init.h"
 #include <assert.h>
 #include <fmt/format.h>

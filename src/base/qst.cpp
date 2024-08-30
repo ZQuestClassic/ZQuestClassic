@@ -31,12 +31,9 @@
 #include "base/colors.h"
 #include "tiles.h"
 #include "base/zsys.h"
-#include "qst.h"
+#include "base/qst.h"
 #include "defdata.h"
 #include "subscr.h"
-#include "zc/replay.h"
-#include "zc/zasm_utils.h"
-#include "zc/zc_custom.h"
 #include "sfx.h"
 #include "md5.h"
 #include "zinfo.h"
@@ -1268,7 +1265,7 @@ int32_t get_qst_buffers()
     clear_tiles(newtilebuf);
     //Z_message("Performed clear_tiles()\n"); 
     
-    if(is_editor())
+    if (get_app_id() == App::zquest)
     {
         if((grabtilebuf=(tiledata*)malloc(NEWMAXTILES*sizeof(tiledata)))==NULL)
             return 0;
@@ -1323,7 +1320,7 @@ void free_newtilebuf()
 
 void free_grabtilebuf()
 {
-    if(is_editor())
+    if (get_app_id() == App::zquest)
     {
         if(grabtilebuf)
         {
@@ -3107,7 +3104,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 	
 	if ( tempheader.zelda_version < 0x250 ) 
 	{
-		set_qr(qr_8WAY_SHOT_SFX, 1);		
+		set_qr(qr_8WAY_SHOT_SFX_DEP, 1);		
 	}
 	
 	if(s_version < 3)
@@ -3620,6 +3617,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_OLD_HERO_WARP_RETSQUARE,1);
 	if(compatrule_version < 68)
 		set_qr(qr_SCRIPTS_6_BIT_COLOR,1);
+	if(compatrule_version < 69)
+		set_qr(qr_SETENEMYWEAPONSOUNDSONWPNCHANGE, 1);
 	
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
@@ -7099,7 +7098,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		
 		if(s_version >= 58)
 		{
-			for(int q = 0; q < BURNSPR_MAX; ++q)
+			for(int q = 0; q < WPNSPR_MAX; ++q)
 			{
 				if(!p_getc(&tempitem.burnsprs[q],f))
 					return qe_invalid;
@@ -9748,6 +9747,95 @@ int32_t readweapons(PACKFILE *f, zquestheader *Header)
     return 0;
 }
 
+static void guys_update_firesfx(guydata& tempguy)
+{
+	tempguy.firesfx = 0;
+
+	if (tempguy.family == eeWIZZ)
+	{
+		switch (tempguy.attributes[1])
+		{
+		case 0: // normal weapon
+			tempguy.firesfx = WAV_WAND;
+			break;
+		case 1: // 8 shots
+			if (get_qr(qr_8WAY_SHOT_SFX_DEP)) tempguy.firesfx = WAV_FIRE;
+			else
+			{
+				switch (tempguy.weapon)
+				{
+				case ewFireTrail:
+				case ewFlame:
+				case ewFlame2Trail:
+				case ewFlame2:
+					tempguy.firesfx = WAV_FIRE;
+					break;
+				case ewWind:
+				case ewMagic:
+					tempguy.firesfx = WAV_WAND;
+					break;
+				case ewIce:
+					tempguy.firesfx = WAV_ZN1ICE;
+					break;
+				case ewRock:
+					if (get_qr(qr_MORESOUNDS)) tempguy.firesfx = WAV_ZN1ROCK;
+					break;
+				case ewFireball2:
+				case ewFireball:
+					if (get_qr(qr_MORESOUNDS)) tempguy.firesfx = WAV_ZN1FIREBALL;
+					break;
+				default:
+					//no sounds
+					break;
+				}
+				break;
+			}
+		case 2: // Summon
+			tempguy.firesfx = WAV_FIRE;
+			break;
+		case 3: // Summon Layer
+			tempguy.firesfx = get_qr(qr_MORESOUNDS) ? WAV_ZN1SUMMON : WAV_FIRE;
+			break;
+		}
+	}
+	else
+	{
+		if ((tempguy.family == eeWALK || tempguy.family == eePROJECTILE) && (tempguy.attributes[0] == e1tSUMMON || tempguy.attributes[0] == e1tSUMMONLAYER))
+		{
+			tempguy.firesfx = get_qr(qr_MORESOUNDS) ? WAV_ZN1SUMMON : WAV_FIRE;
+		}
+		else
+		{
+			switch (tempguy.weapon)
+			{
+			case ewFireTrail:
+			case ewFlame:
+			case ewFlame2Trail:
+			case ewFlame2:
+				tempguy.firesfx = WAV_FIRE;
+				break;
+			case ewWind:
+			case ewMagic:
+				tempguy.firesfx = WAV_WAND;
+				break;
+			case ewIce:
+				tempguy.firesfx = WAV_ZN1ICE;
+				break;
+			case ewRock:
+				if (get_qr(qr_MORESOUNDS)) tempguy.firesfx = WAV_ZN1ROCK;
+				break;
+			case ewFireball2:
+			case ewFireball:
+				if (get_qr(qr_MORESOUNDS)) tempguy.firesfx = WAV_ZN1FIREBALL;
+				break;
+			default:
+				//no sounds
+				break;
+			}
+		}
+	}
+}
+
 void init_guys(int32_t guyversion)
 {
     for(int32_t i=0; i<MAXGUYS; i++)
@@ -9828,6 +9916,8 @@ void init_guys(int32_t guyversion)
         {
             guysbuf[i].attributes[2] = (i == eFGELTRIB ? eFZOL : eZOL);
         }
+
+        guys_update_firesfx(guysbuf[i]);
     }
 }
 
@@ -12630,13 +12720,13 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 	return 0;
 }
 
+void(*reset_scripts_hook)();
+
 void reset_scripts()
 {
-#ifdef IS_PLAYER
 	// We can't modify the script data while jit threads are possibly compiling them.
-	void jit_shutdown();
-	jit_shutdown();
-#endif
+	if (reset_scripts_hook)
+		reset_scripts_hook();
 
 	for(int32_t i=0; i<NUMSCRIPTSGENERIC; i++)
 	{
@@ -14603,6 +14693,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
                     tempguy.hrate = 0;
                     tempguy.attributes[9] = tempguy.attributes[0];
                     tempguy.attributes[0] = tempguy.attributes[1] = tempguy.attributes[2] = tempguy.attributes[3] = tempguy.attributes[4] = tempguy.attributes[5] = tempguy.attributes[6] = tempguy.attributes[7] = 0;
+                    tempguy.attributes[0] = tempguy.attributes[1] = tempguy.attributes[2] = tempguy.attributes[3] = tempguy.attributes[4] = tempguy.attributes[5] = tempguy.attributes[6] = tempguy.attributes[7] = 0;
                     tempguy.attributes[8] = e9tARMOS;
                 }
                 else if(tempguy.family == eeGHINI && !tempguy.attributes[0])
@@ -14871,7 +14962,12 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 					}
 				}
 			}
-			
+
+			if (guyversion < 51) //reimport the firesfx, zoria ducked up.
+			{
+				guys_update_firesfx(tempguy);
+			}
+
 			if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
 			{
 				tempguy.script = 0;
@@ -17599,7 +17695,7 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 	}
 	
 	//June 3 2012; ladder only is broken in 2.10 and allows the hookshot also. -Gleeok
-	if(version == 0x210 && !is_editor())
+	if(version == 0x210 && get_app_id() != App::zquest)
 	{
 		for(int32_t tmpcounter=0; tmpcounter<MAXCOMBOS; tmpcounter++)
 			if(combobuf[tmpcounter].type == cLADDERONLY)

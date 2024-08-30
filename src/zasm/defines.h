@@ -1218,6 +1218,9 @@ enum ASM_DEFINE
 	COMBOBLIT,
 	BMPTILEBLIT,
 	BMPCOMBOBLIT,
+
+	GETNPCDATAFIRESFX,
+	SETNPCDATAFIRESFX,
 	
 	NUMCOMMANDS
 };
@@ -1444,7 +1447,7 @@ enum ASM_DEFINE
 #define NPCFROZEN            0x02E8
 #define NPCFROZENTILE            0x02E9
 #define NPCFROZENCSET            0x02EA
-#define UNUSED135            0x02EB
+#define NPCFIRESFX            0x02EB
 //I'm stealing this one for the stack pointer -DD
 #define SP                   0x02EC
 #define SP2                   0x02ED
@@ -1987,7 +1990,7 @@ enum ASM_DEFINE
 #define NPCDATASHIELD 0x11C2
 #define NPCDATAFROZENTILE 0x11C3
 #define NPCDATAFROZENCSET 0x11C4
-#define NPCDATARESERVED005 0x11C5
+#define NPCDATAFIRESFX     0x11C5
 #define NPCDATARESERVED006 0x11C6
 #define NPCDATARESERVED007 0x11C7
 #define NPCDATARESERVED008 0x11C8

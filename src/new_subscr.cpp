@@ -9,9 +9,9 @@
 #include "base/qrs.h"
 #include "base/mapscr.h"
 #include "base/packfile.h"
+#include "base/qst.h"
 #include "drawing.h"
 #include "tiles.h"
-#include "qst.h"
 #include "items.h"
 #include "sprite.h"
 #include <set>
@@ -3922,10 +3922,10 @@ void SW_Selector::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& pag
 		sxofs = syofs = 0;
 		if(widg->getType() == widgITEMSLOT && id > -1)
 		{
-			dw = ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_WIDTH) ? tmpitm.hxsz : 16);
-			dh = ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_HEIGHT) ? tmpitm.hysz : 16);
-			dxofs = widg->x+((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_X_OFFSET) ? tmpitm.hxofs : 0) + (tempsel.extend > 2 ? (int)tempsel.xofs : 0);
-			dyofs = widg->y+((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_Y_OFFSET) ? tmpitm.hyofs : 0) + (tempsel.extend > 2 ? (int)tempsel.yofs : 0);
+			dw = ((tmpitm.overrideFLAGS & OVERRIDE_HIT_WIDTH) ? tmpitm.hxsz : 16);
+			dh = ((tmpitm.overrideFLAGS & OVERRIDE_HIT_HEIGHT) ? tmpitm.hysz : 16);
+			dxofs = widg->x+((tmpitm.overrideFLAGS & OVERRIDE_HIT_X_OFFSET) ? tmpitm.hxofs : 0) + (tempsel.extend > 2 ? (int)tempsel.xofs : 0);
+			dyofs = widg->y+((tmpitm.overrideFLAGS & OVERRIDE_HIT_Y_OFFSET) ? tmpitm.hyofs : 0) + (tempsel.extend > 2 ? (int)tempsel.yofs : 0);
 		}
 		else
 		{
@@ -3978,10 +3978,10 @@ void SW_Selector::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& pag
 			syofs = (tempsel.extend > 2 ? tempsel.hyofs : 0);
 			if(widg->getType() == widgITEMSLOT && id > -1)
 			{
-				dw = ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_WIDTH) ? tmpitm.hxsz : 16);
-				dh = ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_HEIGHT) ? tmpitm.hysz : 16);
-				dxofs = widg->x+((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_X_OFFSET) ? tmpitm.hxofs : 0) + (tempsel.extend > 2 ? (int)tempsel.xofs : 0);
-				dyofs = widg->y+((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_Y_OFFSET) ? tmpitm.hyofs : 0) + (tempsel.extend > 2 ? (int)tempsel.yofs : 0);
+				dw = ((tmpitm.overrideFLAGS & OVERRIDE_HIT_WIDTH) ? tmpitm.hxsz : 16);
+				dh = ((tmpitm.overrideFLAGS & OVERRIDE_HIT_HEIGHT) ? tmpitm.hysz : 16);
+				dxofs = widg->x+((tmpitm.overrideFLAGS & OVERRIDE_HIT_X_OFFSET) ? tmpitm.hxofs : 0) + (tempsel.extend > 2 ? (int)tempsel.xofs : 0);
+				dyofs = widg->y+((tmpitm.overrideFLAGS & OVERRIDE_HIT_Y_OFFSET) ? tmpitm.hyofs : 0) + (tempsel.extend > 2 ? (int)tempsel.yofs : 0);
 			}
 			else
 			{
@@ -5915,74 +5915,3 @@ ZCSubscreen& ZCSubscreen::operator=(ZCSubscreen const& other)
 	copy_settings(other,true);
 	return *this;
 }
-
-
-#ifdef IS_EDITOR
-
-void SubscrWidget::collect_tiles(TileMoveList& list)
-{
-	
-}
-void SW_2x2Frame::collect_tiles(TileMoveList& list)
-{
-	list.add_tile(&tile, 2, 2, "2x2 Frame");
-}
-void SW_TriFrame::collect_tiles(TileMoveList& list)
-{
-	list.add_tile(&frame_tile, 6, 3, "McGuffin Frame - Frame");
-	list.add_tile(&piece_tile, "McGuffin Frame - Piece");
-}
-void SW_McGuffin::collect_tiles(TileMoveList& list)
-{
-	list.add_tile(&tile, "McGuffin Piece");
-}
-void SW_TileBlock::collect_tiles(TileMoveList& list)
-{
-	list.add_tile(&tile, w, h, "TileBlock");
-}
-void SW_MiniTile::collect_tiles(TileMoveList& list)
-{
-	if(tile == -1)
-		return;
-	list.add_tile(&tile, "MiniTile");
-}
-void SW_GaugePiece::collect_tiles(TileMoveList& list)
-{
-	int fr = frames ? frames : 1;
-	fr = fr * (1+(get_per_container()/(unit_per_frame+1)));
-	if(!(flags&SUBSCR_GAUGE_FULLTILE))
-		fr = (fr/4_zf).getCeil();
-	
-	for(auto q = 0; q < 4; ++q)
-	{
-		list.add_tile(&mts[q].mt_tile, fr, 1, fmt::format("Gauge Tile {}", q));
-	}
-}
-void SubscrPage::collect_tiles(TileMoveList& list)
-{
-	for(auto q = 0; q < contents.size(); ++q)
-	{
-		size_t indx = list.move_refs.size();
-		contents[q]->collect_tiles(list);
-		for(; indx < list.move_refs.size(); ++indx)
-		{
-			auto& ref = list.move_refs[indx];
-			ref->name = fmt::format("Widget {} - {}", q, ref->name);
-		}
-	}
-}
-void ZCSubscreen::collect_tiles(TileMoveList& list)
-{
-	for(auto q = 0; q < pages.size(); ++q)
-	{
-		size_t indx = list.move_refs.size();
-		pages[q].collect_tiles(list);
-		for(; indx < list.move_refs.size(); ++indx)
-		{
-			auto& ref = list.move_refs[indx];
-			ref->name = fmt::format("Page {} - {}", q, ref->name);
-		}
-	}
-}
-#endif
-

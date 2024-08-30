@@ -4,7 +4,7 @@
 #include "base/gui.h"
 #include "gui/jwin.h"
 #include "dialog/alert.h"
-#include "qst.h"
+#include "base/qst.h"
 #include "tiles.h"
 #include "base/zc_alleg.h"
 #include "base/zdefs.h"

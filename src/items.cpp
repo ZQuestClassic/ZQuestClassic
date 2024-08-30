@@ -419,15 +419,15 @@ item::item(zfix X,zfix Y,zfix Z,int32_t i,int32_t p,int32_t c, bool isDummy) : s
 	}*/
 	if ( itm.overrideFLAGS > 0 ) {
 		extend = 3; 
-		if ( itm.overrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itm.tilew;}
-		if ( itm.overrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itm.tileh;}
-		if ( itm.overrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hit_width = itm.hxsz;}
-		if ( itm.overrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hit_height = itm.hysz;}
-		if ( itm.overrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itm.hzsz;}
-		if ( itm.overrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itm.hxofs;}
-		if ( itm.overrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itm.hyofs;}
-		if ( itm.overrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itm.xofs;}
-		if ( itm.overrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itm.yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);} 
+		if ( itm.overrideFLAGS&OVERRIDE_TILE_WIDTH ) { txsz = itm.tilew;}
+		if ( itm.overrideFLAGS&OVERRIDE_TILE_HEIGHT ){  tysz = itm.tileh;}
+		if ( itm.overrideFLAGS&OVERRIDE_HIT_WIDTH ){  hit_width = itm.hxsz;}
+		if ( itm.overrideFLAGS&OVERRIDE_HIT_HEIGHT ) {  hit_height = itm.hysz;}
+		if ( itm.overrideFLAGS&OVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itm.hzsz;}
+		if ( itm.overrideFLAGS&OVERRIDE_HIT_X_OFFSET ) {  hxofs = itm.hxofs;}
+		if ( itm.overrideFLAGS&OVERRIDE_HIT_Y_OFFSET ) { hyofs = itm.hyofs;}
+		if ( itm.overrideFLAGS&OVERRIDE_DRAW_X_OFFSET ) { xofs = itm.xofs;}
+		if ( itm.overrideFLAGS&OVERRIDE_DRAW_Y_OFFSET ) {  yofs = itm.yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);} 
 		/* yofs+playing_field_offset == yofs+56.
 		It is needed for the passive subscreen offset.
 		*/
@@ -446,15 +446,15 @@ void putitem(BITMAP *dest,int32_t x,int32_t y,int32_t item_id)
 	
 	if ( itemsbuf[item_id].overrideFLAGS > 0 ) {
 		temp.extend = 3; 
-		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { temp.txsz = itemsbuf[item_id].tilew;}
-		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){temp.tysz = itemsbuf[item_id].tileh;}
-		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ) { temp.hit_width = itemsbuf[item_id].hxsz;}
-		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {temp.hit_height = itemsbuf[item_id].hysz;}
-		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) { temp.hzsz = itemsbuf[item_id].hzsz;}
-		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) { temp.hxofs = itemsbuf[item_id].hxofs;}
-		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) {temp.hyofs = itemsbuf[item_id].hyofs;}
-		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) {temp.xofs = itemsbuf[item_id].xofs;}
-		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) { temp.yofs = itemsbuf[item_id].yofs; }
+		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_TILE_WIDTH ) { temp.txsz = itemsbuf[item_id].tilew;}
+		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_TILE_HEIGHT ){temp.tysz = itemsbuf[item_id].tileh;}
+		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_HIT_WIDTH ) { temp.hit_width = itemsbuf[item_id].hxsz;}
+		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_HIT_HEIGHT ) {temp.hit_height = itemsbuf[item_id].hysz;}
+		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_HIT_Z_HEIGHT ) { temp.hzsz = itemsbuf[item_id].hzsz;}
+		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_HIT_X_OFFSET ) { temp.hxofs = itemsbuf[item_id].hxofs;}
+		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_HIT_Y_OFFSET ) {temp.hyofs = itemsbuf[item_id].hyofs;}
+		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_DRAW_X_OFFSET ) {temp.xofs = itemsbuf[item_id].xofs;}
+		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_DRAW_Y_OFFSET ) { temp.yofs = itemsbuf[item_id].yofs; }
 	}
 
 	temp.animate(0);
@@ -557,11 +557,16 @@ int32_t get_progressive_item(itemdata const& itm, bool lastOwned)
 	return lastid;
 #endif
 }
-// Linker issues because this is shared with ZQu4est. :( -Z
-#ifndef IS_EDITOR
-int32_t item::getScriptUID() { return script_UID; }
-void item::setScriptUID(int32_t new_id) { script_UID = new_id; }
-#endif
+
+int32_t item::getScriptUID()
+{
+	return script_UID;
+}
+
+void item::setScriptUID(int32_t new_id)
+{
+	script_UID = new_id;
+}
 
 void putitem2(BITMAP *dest,int32_t x,int32_t y,int32_t item_id, int32_t &aclk, int32_t &aframe, int32_t flash)
 {
@@ -577,15 +582,15 @@ void putitem2(BITMAP *dest,int32_t x,int32_t y,int32_t item_id, int32_t &aclk, i
 	}
 	if ( itemsbuf[item_id].overrideFLAGS > 0 ) {
 		temp.extend = 3;
-		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { temp.txsz = itemsbuf[item_id].tilew;}
-		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){temp.tysz = itemsbuf[item_id].tileh;}
-		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ) { temp.hit_width = itemsbuf[item_id].hxsz;}
-		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {temp.hit_height = itemsbuf[item_id].hysz;}
-		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) { temp.hzsz = itemsbuf[item_id].hzsz;}
-		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) { temp.hxofs = itemsbuf[item_id].hxofs;}
-		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) {temp.hyofs = itemsbuf[item_id].hyofs;}
-		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) {temp.xofs = itemsbuf[item_id].xofs;}
-		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) { temp.yofs = itemsbuf[item_id].yofs; }
+		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_TILE_WIDTH ) { temp.txsz = itemsbuf[item_id].tilew;}
+		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_TILE_HEIGHT ){temp.tysz = itemsbuf[item_id].tileh;}
+		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_HIT_WIDTH ) { temp.hit_width = itemsbuf[item_id].hxsz;}
+		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_HIT_HEIGHT ) {temp.hit_height = itemsbuf[item_id].hysz;}
+		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_HIT_Z_HEIGHT ) { temp.hzsz = itemsbuf[item_id].hzsz;}
+		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_HIT_X_OFFSET ) { temp.hxofs = itemsbuf[item_id].hxofs;}
+		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_HIT_Y_OFFSET ) {temp.hyofs = itemsbuf[item_id].hyofs;}
+		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_DRAW_X_OFFSET ) {temp.xofs = itemsbuf[item_id].xofs;}
+		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_DRAW_Y_OFFSET ) { temp.yofs = itemsbuf[item_id].yofs; }
 	}	    
 	
 	temp.animate(0);
@@ -613,15 +618,15 @@ void dummyitem_animate(item* dummy, int32_t clk)
 	if ( itemsbuf[item_id].overrideFLAGS > 0 )
 	{
 		dummy->extend = 3;
-		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) {dummy->txsz = itemsbuf[item_id].tilew;}
-		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ) {dummy->tysz = itemsbuf[item_id].tileh;}
-		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ) {dummy->hit_width = itemsbuf[item_id].hxsz;}
-		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {dummy->hit_height = itemsbuf[item_id].hysz;}
-		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {dummy->hzsz = itemsbuf[item_id].hzsz;}
-		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {dummy->hxofs = itemsbuf[item_id].hxofs;}
-		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) {dummy->hyofs = itemsbuf[item_id].hyofs;}
-		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) {dummy->xofs = itemsbuf[item_id].xofs;}
-		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {dummy->yofs = itemsbuf[item_id].yofs;}
+		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_TILE_WIDTH ) {dummy->txsz = itemsbuf[item_id].tilew;}
+		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_TILE_HEIGHT ) {dummy->tysz = itemsbuf[item_id].tileh;}
+		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_HIT_WIDTH ) {dummy->hit_width = itemsbuf[item_id].hxsz;}
+		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_HIT_HEIGHT ) {dummy->hit_height = itemsbuf[item_id].hysz;}
+		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_HIT_Z_HEIGHT ) {dummy->hzsz = itemsbuf[item_id].hzsz;}
+		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_HIT_X_OFFSET ) {dummy->hxofs = itemsbuf[item_id].hxofs;}
+		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_HIT_Y_OFFSET ) {dummy->hyofs = itemsbuf[item_id].hyofs;}
+		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_DRAW_X_OFFSET ) {dummy->xofs = itemsbuf[item_id].xofs;}
+		if ( itemsbuf[item_id].overrideFLAGS&OVERRIDE_DRAW_Y_OFFSET ) {dummy->yofs = itemsbuf[item_id].yofs;}
 	}	    
 	
 	dummy->animate(0);
@@ -1083,7 +1088,7 @@ void itemdata::advpaste(itemdata const& other, bitstring const& pasteflags)
 		wpn9 = other.wpn9;
 		wpn10 = other.wpn10;
 		CPYFLAG(flags, item_burning_sprites, other.flags);
-		for(int q = 0; q < BURNSPR_MAX; ++q)
+		for(int q = 0; q < WPNSPR_MAX; ++q)
 		{
 			burnsprs[q] = other.burnsprs[q];
 			light_rads[q] = other.light_rads[q];

@@ -1181,14 +1181,14 @@ int32_t calcBottleTile(itemdata const& local_itemref, byte bottleVal)
 		return local_itemref.tile;
 	int32_t o_tile = local_itemref.tile;
 	int32_t tile = o_tile + bottleVal * (zc_max(local_itemref.frames,1)
-		* ((local_itemref.overrideFLAGS & itemdataOVERRIDE_TILEWIDTH)
+		* ((local_itemref.overrideFLAGS & OVERRIDE_TILE_WIDTH)
 			? zc_max(local_itemref.tilew,1) : 1));
 	auto oldRow = o_tile/TILES_PER_ROW;
 	auto newRow = tile/TILES_PER_ROW;
 	if(oldRow != newRow)
 	{
 		tile += (newRow-oldRow) * TILES_PER_ROW
-			* ((local_itemref.overrideFLAGS & itemdataOVERRIDE_TILEHEIGHT)
+			* ((local_itemref.overrideFLAGS & OVERRIDE_TILE_HEIGHT)
 				? zc_max(local_itemref.tileh,1)-1 : 0);
 	}
 	return tile;
@@ -2082,9 +2082,9 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								frames = local_itemref.frames,
 								speed = local_itemref.speed,
 								delay = local_itemref.delay,
-								skipx = (local_itemref.overrideFLAGS & itemdataOVERRIDE_TILEWIDTH)
+								skipx = (local_itemref.overrideFLAGS & OVERRIDE_TILE_WIDTH)
 									? local_itemref.tilew-1 : 0,
-								skipy = (local_itemref.overrideFLAGS & itemdataOVERRIDE_TILEHEIGHT)
+								skipy = (local_itemref.overrideFLAGS & OVERRIDE_TILE_HEIGHT)
 									? local_itemref.tileh-1 : 0,
 								do_sized = true
 							),
@@ -2126,56 +2126,56 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								Label(text = "No Fire:", hAlign = 1.0),
 								DropDownList(
 									data = list_sprites,
-									selectedValue = local_itemref.burnsprs[BURNSPR_NONE],
+									selectedValue = local_itemref.burnsprs[WPNSPR_BASE],
 									onSelectFunc = [&](int32_t val)
 									{
-										local_itemref.burnsprs[BURNSPR_NONE] = val;
+										local_itemref.burnsprs[WPNSPR_BASE] = val;
 									}),
-								NUM_FIELD(light_rads[BURNSPR_NONE], 0, 255),
+								NUM_FIELD(light_rads[WPNSPR_BASE], 0, 255),
 								INFOBTN("Settings used for the weapon when not on fire"),
 								//
 								Label(text = "Any Fire:", hAlign = 1.0),
 								DropDownList(
 									data = list_sprites,
-									selectedValue = local_itemref.burnsprs[BURNSPR_ANY],
+									selectedValue = local_itemref.burnsprs[WPNSPR_IGNITE_ANY],
 									onSelectFunc = [&](int32_t val)
 									{
-										local_itemref.burnsprs[BURNSPR_ANY] = val;
+										local_itemref.burnsprs[WPNSPR_IGNITE_ANY] = val;
 									}),
-								NUM_FIELD(light_rads[BURNSPR_ANY], 0, 255),
+								NUM_FIELD(light_rads[WPNSPR_IGNITE_ANY], 0, 255),
 								INFOBTN("Settings used for the weapon when on 'Any' fire"),
 								//
 								Label(text = "Strong Fire:", hAlign = 1.0),
 								DropDownList(
 									data = list_sprites,
-									selectedValue = local_itemref.burnsprs[BURNSPR_STRONG],
+									selectedValue = local_itemref.burnsprs[WPNSPR_IGNITE_STRONG],
 									onSelectFunc = [&](int32_t val)
 									{
-										local_itemref.burnsprs[BURNSPR_STRONG] = val;
+										local_itemref.burnsprs[WPNSPR_IGNITE_STRONG] = val;
 									}),
-								NUM_FIELD(light_rads[BURNSPR_STRONG], 0, 255),
+								NUM_FIELD(light_rads[WPNSPR_IGNITE_STRONG], 0, 255),
 								INFOBTN("Settings used for the weapon when on 'Strong' fire"),
 								//
 								Label(text = "Magic Fire:", hAlign = 1.0),
 								DropDownList(
 									data = list_sprites,
-									selectedValue = local_itemref.burnsprs[BURNSPR_MAGIC],
+									selectedValue = local_itemref.burnsprs[WPNSPR_IGNITE_MAGIC],
 									onSelectFunc = [&](int32_t val)
 									{
-										local_itemref.burnsprs[BURNSPR_MAGIC] = val;
+										local_itemref.burnsprs[WPNSPR_IGNITE_MAGIC] = val;
 									}),
-								NUM_FIELD(light_rads[BURNSPR_MAGIC], 0, 255),
+								NUM_FIELD(light_rads[WPNSPR_IGNITE_MAGIC], 0, 255),
 								INFOBTN("Settings used for the weapon when on 'Magic' fire"),
 								//
 								Label(text = "Divine Fire:", hAlign = 1.0),
 								DropDownList(
 									data = list_sprites,
-									selectedValue = local_itemref.burnsprs[BURNSPR_DIVINE],
+									selectedValue = local_itemref.burnsprs[WPNSPR_IGNITE_DIVINE],
 									onSelectFunc = [&](int32_t val)
 									{
-										local_itemref.burnsprs[BURNSPR_DIVINE] = val;
+										local_itemref.burnsprs[WPNSPR_IGNITE_DIVINE] = val;
 									}),
-								NUM_FIELD(light_rads[BURNSPR_DIVINE], 0, 255),
+								NUM_FIELD(light_rads[WPNSPR_IGNITE_DIVINE], 0, 255),
 								INFOBTN("Settings used for the weapon when on 'Divine' fire")
 							)
 						))
@@ -2197,12 +2197,12 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								),
 								Checkbox(
 									hAlign = 0.0,
-									checked = (local_itemref.overrideFLAGS & itemdataOVERRIDE_TILEWIDTH),
+									checked = (local_itemref.overrideFLAGS & OVERRIDE_TILE_WIDTH),
 									text = "Enabled",
 									onToggle = message::GFXSIZE,
 									onToggleFunc = [&](bool state)
 									{
-										SETFLAG(local_itemref.overrideFLAGS,itemdataOVERRIDE_TILEWIDTH,state);
+										SETFLAG(local_itemref.overrideFLAGS,OVERRIDE_TILE_WIDTH,state);
 									}
 								)
 							),
@@ -2220,12 +2220,12 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								),
 								Checkbox(
 									hAlign = 0.0,
-									checked = (local_itemref.overrideFLAGS & itemdataOVERRIDE_TILEHEIGHT),
+									checked = (local_itemref.overrideFLAGS & OVERRIDE_TILE_HEIGHT),
 									text = "Enabled",
 									onToggle = message::GFXSIZE,
 									onToggleFunc = [&](bool state)
 									{
-										SETFLAG(local_itemref.overrideFLAGS,itemdataOVERRIDE_TILEHEIGHT,state);
+										SETFLAG(local_itemref.overrideFLAGS,OVERRIDE_TILE_HEIGHT,state);
 									}
 								)
 							),
@@ -2242,11 +2242,11 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								),
 								Checkbox(
 									hAlign = 0.0,
-									checked = (local_itemref.overrideFLAGS & itemdataOVERRIDE_HIT_X_OFFSET),
+									checked = (local_itemref.overrideFLAGS & OVERRIDE_HIT_X_OFFSET),
 									text = "Enabled",
 									onToggleFunc = [&](bool state)
 									{
-										SETFLAG(local_itemref.overrideFLAGS,itemdataOVERRIDE_HIT_X_OFFSET,state);
+										SETFLAG(local_itemref.overrideFLAGS,OVERRIDE_HIT_X_OFFSET,state);
 									}
 								)
 							),
@@ -2263,11 +2263,11 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								),
 								Checkbox(
 									hAlign = 0.0,
-									checked = (local_itemref.overrideFLAGS & itemdataOVERRIDE_HIT_Y_OFFSET),
+									checked = (local_itemref.overrideFLAGS & OVERRIDE_HIT_Y_OFFSET),
 									text = "Enabled",
 									onToggleFunc = [&](bool state)
 									{
-										SETFLAG(local_itemref.overrideFLAGS,itemdataOVERRIDE_HIT_Y_OFFSET,state);
+										SETFLAG(local_itemref.overrideFLAGS,OVERRIDE_HIT_Y_OFFSET,state);
 									}
 								)
 							),
@@ -2285,11 +2285,11 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								),
 								Checkbox(
 									hAlign = 0.0,
-									checked = (local_itemref.overrideFLAGS & itemdataOVERRIDE_HIT_WIDTH),
+									checked = (local_itemref.overrideFLAGS & OVERRIDE_HIT_WIDTH),
 									text = "Enabled",
 									onToggleFunc = [&](bool state)
 									{
-										SETFLAG(local_itemref.overrideFLAGS,itemdataOVERRIDE_HIT_WIDTH,state);
+										SETFLAG(local_itemref.overrideFLAGS,OVERRIDE_HIT_WIDTH,state);
 									}
 								)
 							),
@@ -2306,11 +2306,11 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								),
 								Checkbox(
 									hAlign = 0.0,
-									checked = (local_itemref.overrideFLAGS & itemdataOVERRIDE_HIT_HEIGHT),
+									checked = (local_itemref.overrideFLAGS & OVERRIDE_HIT_HEIGHT),
 									text = "Enabled",
 									onToggleFunc = [&](bool state)
 									{
-										SETFLAG(local_itemref.overrideFLAGS,itemdataOVERRIDE_HIT_HEIGHT,state);
+										SETFLAG(local_itemref.overrideFLAGS,OVERRIDE_HIT_HEIGHT,state);
 									}
 								)
 							),
@@ -2327,11 +2327,11 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								),
 								Checkbox(
 									hAlign = 0.0,
-									checked = (local_itemref.overrideFLAGS & itemdataOVERRIDE_HIT_Z_HEIGHT),
+									checked = (local_itemref.overrideFLAGS & OVERRIDE_HIT_Z_HEIGHT),
 									text = "Enabled",
 									onToggleFunc = [&](bool state)
 									{
-										SETFLAG(local_itemref.overrideFLAGS,itemdataOVERRIDE_HIT_Z_HEIGHT,state);
+										SETFLAG(local_itemref.overrideFLAGS,OVERRIDE_HIT_Z_HEIGHT,state);
 									}
 								)
 							),
@@ -2348,11 +2348,11 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								),
 								Checkbox(
 									hAlign = 0.0,
-									checked = (local_itemref.overrideFLAGS & itemdataOVERRIDE_DRAW_X_OFFSET),
+									checked = (local_itemref.overrideFLAGS & OVERRIDE_DRAW_X_OFFSET),
 									text = "Enabled",
 									onToggleFunc = [&](bool state)
 									{
-										SETFLAG(local_itemref.overrideFLAGS,itemdataOVERRIDE_DRAW_X_OFFSET,state);
+										SETFLAG(local_itemref.overrideFLAGS,OVERRIDE_DRAW_X_OFFSET,state);
 									}
 								)
 							),
@@ -2369,11 +2369,11 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								),
 								Checkbox(
 									hAlign = 0.0,
-									checked = (local_itemref.overrideFLAGS & itemdataOVERRIDE_DRAW_Y_OFFSET),
+									checked = (local_itemref.overrideFLAGS & OVERRIDE_DRAW_Y_OFFSET),
 									text = "Enabled",
 									onToggleFunc = [&](bool state)
 									{
-										SETFLAG(local_itemref.overrideFLAGS,itemdataOVERRIDE_DRAW_Y_OFFSET,state);
+										SETFLAG(local_itemref.overrideFLAGS,OVERRIDE_DRAW_Y_OFFSET,state);
 									}
 								)
 							)
@@ -2396,12 +2396,12 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								),
 								Checkbox(
 									hAlign = 0.0,
-									checked = (local_itemref.weapoverrideFLAGS & itemdataOVERRIDE_TILEWIDTH),
+									checked = (local_itemref.weapoverrideFLAGS & OVERRIDE_TILE_WIDTH),
 									text = "Enabled",
 									onToggle = message::GFXSIZE,
 									onToggleFunc = [&](bool state)
 									{
-										SETFLAG(local_itemref.weapoverrideFLAGS,itemdataOVERRIDE_TILEWIDTH,state);
+										SETFLAG(local_itemref.weapoverrideFLAGS,OVERRIDE_TILE_WIDTH,state);
 									}
 								)
 							),
@@ -2419,12 +2419,12 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								),
 								Checkbox(
 									hAlign = 0.0,
-									checked = (local_itemref.weapoverrideFLAGS & itemdataOVERRIDE_TILEHEIGHT),
+									checked = (local_itemref.weapoverrideFLAGS & OVERRIDE_TILE_HEIGHT),
 									text = "Enabled",
 									onToggle = message::GFXSIZE,
 									onToggleFunc = [&](bool state)
 									{
-										SETFLAG(local_itemref.weapoverrideFLAGS,itemdataOVERRIDE_TILEHEIGHT,state);
+										SETFLAG(local_itemref.weapoverrideFLAGS,OVERRIDE_TILE_HEIGHT,state);
 									}
 								)
 							),
@@ -2441,11 +2441,11 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								),
 								Checkbox(
 									hAlign = 0.0,
-									checked = (local_itemref.weapoverrideFLAGS & itemdataOVERRIDE_HIT_X_OFFSET),
+									checked = (local_itemref.weapoverrideFLAGS & OVERRIDE_HIT_X_OFFSET),
 									text = "Enabled",
 									onToggleFunc = [&](bool state)
 									{
-										SETFLAG(local_itemref.weapoverrideFLAGS,itemdataOVERRIDE_HIT_X_OFFSET,state);
+										SETFLAG(local_itemref.weapoverrideFLAGS,OVERRIDE_HIT_X_OFFSET,state);
 									}
 								)
 							),
@@ -2462,11 +2462,11 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								),
 								Checkbox(
 									hAlign = 0.0,
-									checked = (local_itemref.weapoverrideFLAGS & itemdataOVERRIDE_HIT_Y_OFFSET),
+									checked = (local_itemref.weapoverrideFLAGS & OVERRIDE_HIT_Y_OFFSET),
 									text = "Enabled",
 									onToggleFunc = [&](bool state)
 									{
-										SETFLAG(local_itemref.weapoverrideFLAGS,itemdataOVERRIDE_HIT_Y_OFFSET,state);
+										SETFLAG(local_itemref.weapoverrideFLAGS,OVERRIDE_HIT_Y_OFFSET,state);
 									}
 								)
 							),
@@ -2484,11 +2484,11 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								),
 								Checkbox(
 									hAlign = 0.0,
-									checked = (local_itemref.weapoverrideFLAGS & itemdataOVERRIDE_HIT_WIDTH),
+									checked = (local_itemref.weapoverrideFLAGS & OVERRIDE_HIT_WIDTH),
 									text = "Enabled",
 									onToggleFunc = [&](bool state)
 									{
-										SETFLAG(local_itemref.weapoverrideFLAGS,itemdataOVERRIDE_HIT_WIDTH,state);
+										SETFLAG(local_itemref.weapoverrideFLAGS,OVERRIDE_HIT_WIDTH,state);
 									}
 								)
 							),
@@ -2505,11 +2505,11 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								),
 								Checkbox(
 									hAlign = 0.0,
-									checked = (local_itemref.weapoverrideFLAGS & itemdataOVERRIDE_HIT_HEIGHT),
+									checked = (local_itemref.weapoverrideFLAGS & OVERRIDE_HIT_HEIGHT),
 									text = "Enabled",
 									onToggleFunc = [&](bool state)
 									{
-										SETFLAG(local_itemref.weapoverrideFLAGS,itemdataOVERRIDE_HIT_HEIGHT,state);
+										SETFLAG(local_itemref.weapoverrideFLAGS,OVERRIDE_HIT_HEIGHT,state);
 									}
 								)
 							),
@@ -2526,11 +2526,11 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								),
 								Checkbox(
 									hAlign = 0.0,
-									checked = (local_itemref.weapoverrideFLAGS & itemdataOVERRIDE_HIT_Z_HEIGHT),
+									checked = (local_itemref.weapoverrideFLAGS & OVERRIDE_HIT_Z_HEIGHT),
 									text = "Enabled",
 									onToggleFunc = [&](bool state)
 									{
-										SETFLAG(local_itemref.weapoverrideFLAGS,itemdataOVERRIDE_HIT_Z_HEIGHT,state);
+										SETFLAG(local_itemref.weapoverrideFLAGS,OVERRIDE_HIT_Z_HEIGHT,state);
 									}
 								)
 							),
@@ -2547,11 +2547,11 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								),
 								Checkbox(
 									hAlign = 0.0,
-									checked = (local_itemref.weapoverrideFLAGS & itemdataOVERRIDE_DRAW_X_OFFSET),
+									checked = (local_itemref.weapoverrideFLAGS & OVERRIDE_DRAW_X_OFFSET),
 									text = "Enabled",
 									onToggleFunc = [&](bool state)
 									{
-										SETFLAG(local_itemref.weapoverrideFLAGS,itemdataOVERRIDE_DRAW_X_OFFSET,state);
+										SETFLAG(local_itemref.weapoverrideFLAGS,OVERRIDE_DRAW_X_OFFSET,state);
 									}
 								)
 							),
@@ -2568,11 +2568,11 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								),
 								Checkbox(
 									hAlign = 0.0,
-									checked = (local_itemref.weapoverrideFLAGS & itemdataOVERRIDE_DRAW_Y_OFFSET),
+									checked = (local_itemref.weapoverrideFLAGS & OVERRIDE_DRAW_Y_OFFSET),
 									text = "Enabled",
 									onToggleFunc = [&](bool state)
 									{
-										SETFLAG(local_itemref.weapoverrideFLAGS,itemdataOVERRIDE_DRAW_Y_OFFSET,state);
+										SETFLAG(local_itemref.weapoverrideFLAGS,OVERRIDE_DRAW_Y_OFFSET,state);
 									}
 								)
 							)
@@ -2884,9 +2884,9 @@ bool ItemEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		
 		case message::GFXSIZE:
 		{
-			animFrame->setSkipX((local_itemref.overrideFLAGS & itemdataOVERRIDE_TILEWIDTH)
+			animFrame->setSkipX((local_itemref.overrideFLAGS & OVERRIDE_TILE_WIDTH)
 				? local_itemref.tilew-1 : 0);
-			animFrame->setSkipY((local_itemref.overrideFLAGS & itemdataOVERRIDE_TILEHEIGHT)
+			animFrame->setSkipY((local_itemref.overrideFLAGS & OVERRIDE_TILE_HEIGHT)
 				? local_itemref.tileh-1 : 0);
 			return false;
 		}

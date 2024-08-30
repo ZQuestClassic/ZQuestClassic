@@ -1259,7 +1259,7 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 			ptr = &guy_tabs[6],
 			TabRef(name = "Defenses 1", Row(
 				Columns<10>(hAlign = 1.0, vAlign = 1.0, rowSpacing = 0.5_em,
-					Label(text = "Brang Defense", hAlign = 1.0, rightPadding = 0_px, disabled = NoDefenses()),
+					Label(text = "Boomerang Defense", hAlign = 1.0, rightPadding = 0_px, disabled = NoDefenses()),
 					Label(text = "Bomb Defense", hAlign = 1.0, rightPadding = 0_px, disabled = NoDefenses()),
 					Label(text = "Super Bomb Defense", hAlign = 1.0, rightPadding = 0_px, disabled = NoDefenses()),
 					Label(text = "Arrow Defense", hAlign = 1.0, rightPadding = 0_px, disabled = NoDefenses()),
@@ -1443,16 +1443,16 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 					NumberField(&local_guyref.zofs, -1000, 1000, 5),
 					NumberField(&local_guyref.xofs, -1000, 1000, 5),
 					NumberField(&local_guyref.yofs, -1000, 1000, 5),
-					SizeFlag(guyflagOVERRIDE_TILE_WIDTH),
-					SizeFlag(guyflagOVERRIDE_TILE_HEIGHT),
-					SizeFlag(guyflagOVERRIDE_HIT_WIDTH),
-					SizeFlag(guyflagOVERRIDE_HIT_HEIGHT),
-					SizeFlag(guyflagOVERRIDE_HIT_Z_HEIGHT),
-					SizeFlag(guyflagOVERRIDE_HIT_X_OFFSET),
-					SizeFlag(guyflagOVERRIDE_HIT_Y_OFFSET),
-					SizeFlag(guyflagOVERRIDE_DRAW_Z_OFFSET),
-					SizeFlag(guyflagOVERRIDE_DRAW_X_OFFSET),
-					SizeFlag(guyflagOVERRIDE_DRAW_Y_OFFSET)
+					SizeFlag(OVERRIDE_TILE_WIDTH),
+					SizeFlag(OVERRIDE_TILE_HEIGHT),
+					SizeFlag(OVERRIDE_HIT_WIDTH),
+					SizeFlag(OVERRIDE_HIT_HEIGHT),
+					SizeFlag(OVERRIDE_HIT_Z_HEIGHT),
+					SizeFlag(OVERRIDE_HIT_X_OFFSET),
+					SizeFlag(OVERRIDE_HIT_Y_OFFSET),
+					SizeFlag(OVERRIDE_DRAW_Z_OFFSET),
+					SizeFlag(OVERRIDE_DRAW_X_OFFSET),
+					SizeFlag(OVERRIDE_DRAW_Y_OFFSET)
 				)
 			))
 		))
@@ -1470,13 +1470,11 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 						//
 						Label(text = "Weapon Sprite:", hAlign = 1.0, rightPadding = 0_px),
 						DropDownField(&local_guyref.wpnsprite, list_sprites),
-						INFOBTN("Sprite used for the projectile.")
+						INFOBTN("Sprite used for the projectile."),
 						//
-						/*
 						Label(text = "Weapon Sound:", hAlign = 1.0, rightPadding = 0_px),
 						DropDownField(&local_guyref.firesfx, list_sfx),
 						INFOBTN("Plays when the projectile is fired.")
-						*/
 					)
 				)
 			))

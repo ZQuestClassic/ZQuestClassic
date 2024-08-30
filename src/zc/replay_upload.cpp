@@ -226,6 +226,15 @@ static bool process_replay(status_entry_t& status_entry, fs::path path, std::str
 	status_entry.time = now_time;
 
 	auto meta_map = replay_load_meta(path);
+
+	std::string frames = meta_map["frames"];
+	if (frames == "0")
+	{
+		status_entry.state = state::tracked;
+		status_entry.error = "save file has not been played yet";
+		return false;
+	}
+
 	std::string uuid = meta_map["uuid"];
 	std::string qst_hash = meta_map["qst_hash"];
 	if (uuid.empty() || qst_hash.empty() || !meta_map.contains("length"))

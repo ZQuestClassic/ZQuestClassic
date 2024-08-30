@@ -700,10 +700,6 @@ static GUI::ListData compatRulesList
 		" takes priority. If this rule is disabled, the flippers take priority."
 		" Note that flippers always take priority when entering into water from"
 		" the left or right, regardless of this rule."},
-	{ "All 8 way-shot enemies use SFX_FIRE for firing SFX", qr_8WAY_SHOT_SFX,
-		"In older versions of ZC, all 8 way shots defaulted to the Flame sound used"
-		" by the Candle. Newer versions of ZC instead use the sound associated with"
-		" the weapon. This QR reverts this back to the old behavior."},
 	{ "BS Zelda uses walking sprites for swimming", qr_COPIED_SWIM_SPRITES,
 		"In older versions of ZC, BS Zelda animation didn't use swimming sprites,"
 		" and thus defaulted to walking sprites. This QR simulates this behavior"},
@@ -1630,6 +1626,7 @@ GUI::ListData instructionRulesList
 	{ "Don't Allow Setting Action to Rafting", qr_DISALLOW_SETTING_RAFTING },
 	{ "Writing npc->Defense[NPCD_SCRIPT] Sets All Script Defences", qr_250WRITEEDEFSCRIPT },
 	{ "Writing npc->Weapon Sets its Weapon Sprite", qr_SETENEMYWEAPONSPRITESONWPNCHANGE },
+	{ "Writing npc->Weapon Sets its Weapon Sound", 	qr_SETENEMYWEAPONSOUNDSONWPNCHANGE },
 	{ "Broken DrawInteger and DrawCharacter Scaling", qr_BROKENCHARINTDRAWING },
 	{ "npc->Weapon Uses Sprite 246-255 for EW_CUSTOM*", qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES },
 	{ "All bitmap-> and FileSystem-> paths relative to quest 'Files' folder", qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE },
@@ -1764,7 +1761,7 @@ void applyRuleTemplate(int32_t ruleTemplate, byte* qrptr)
 				qr_PARSER_BINARY_32BIT,
 				qr_OLD_INIT_SCRIPT_TIMING, qr_NOITEMWAITDRAW, qr_NOFFCWAITDRAW,
 				qr_OLDEWPNPARENT, qr_OLDCREATEBITMAP_ARGS, qr_DISALLOW_SETTING_RAFTING,
-				qr_250WRITEEDEFSCRIPT, qr_SETENEMYWEAPONSPRITESONWPNCHANGE,
+				qr_250WRITEEDEFSCRIPT, qr_SETENEMYWEAPONSPRITESONWPNCHANGE, qr_SETENEMYWEAPONSOUNDSONWPNCHANGE,
 				qr_BROKENCHARINTDRAWING, qr_NO_OVERWRITING_HOPPING,
 				qr_OLD_PRINTF_ARGS, qr_COMBODATA_INITD_MULT_TENK,
 				qr_OLDQUESTMISC, qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS,

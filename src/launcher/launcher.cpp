@@ -186,10 +186,6 @@ bool is_compact = false;
 bool DragAspect = true;
 double aspect_ratio = LARGE_H / double(LARGE_W);
 int window_min_width = 0, window_min_height = 0;
-bool is_editor() //Used for sizing purposes
-{
-	return true;
-}
 
 bool is_reserved_key(int c)
 {

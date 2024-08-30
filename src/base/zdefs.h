@@ -155,7 +155,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
 #define V_INITDATA        39
-#define V_GUYS            50
+#define V_GUYS            51
 #define V_MIDIS            4
 #define V_CHEATS           1
 #define V_SAVEGAME        42
@@ -167,7 +167,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_SFX              8
 #define V_FAVORITES        4
 
-#define V_COMPATRULE       68
+#define V_COMPATRULE       69
 #define V_ZINFO            3
 
 //= V_SHOPS is under V_MISC
@@ -1271,17 +1271,17 @@ struct item_drop_object
     word chance[11]; //0=none
 };
 
-//Guydata Enemy Editor Size Panel FLags
-#define guyflagOVERRIDE_TILE_WIDTH	0x00000001
-#define guyflagOVERRIDE_TILE_HEIGHT	0x00000002
-#define guyflagOVERRIDE_HIT_WIDTH	0x00000004
-#define guyflagOVERRIDE_HIT_HEIGHT	0x00000008
-#define guyflagOVERRIDE_HIT_Z_HEIGHT	0x00000010
-#define guyflagOVERRIDE_HIT_X_OFFSET	0x00000020
-#define guyflagOVERRIDE_HIT_Y_OFFSET	0x00000040
-#define guyflagOVERRIDE_DRAW_X_OFFSET	0x00000080
-#define guyflagOVERRIDE_DRAW_Y_OFFSET	0x00000100
-#define guyflagOVERRIDE_DRAW_Z_OFFSET	0x00000200
+//Size Flags
+#define OVERRIDE_TILE_WIDTH	0x00000001
+#define OVERRIDE_TILE_HEIGHT	0x00000002
+#define OVERRIDE_HIT_WIDTH	0x00000004
+#define OVERRIDE_HIT_HEIGHT	0x00000008
+#define OVERRIDE_HIT_Z_HEIGHT	0x00000010
+#define OVERRIDE_HIT_X_OFFSET	0x00000020
+#define OVERRIDE_HIT_Y_OFFSET	0x00000040
+#define OVERRIDE_DRAW_X_OFFSET	0x00000080
+#define OVERRIDE_DRAW_Y_OFFSET	0x00000100
+#define OVERRIDE_DRAW_Z_OFFSET	0x00000200
 
 #define MAX_NPC_ATTRIBUTES 31
 

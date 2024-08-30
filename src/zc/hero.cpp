@@ -21550,16 +21550,25 @@ void HeroClass::oldchecklockblock()
 	int32_t cid1 = MAPCOMBO(bx, by), cid2 = MAPCOMBO(bx2, by);
 	newcombo const& cmb = combobuf[cid1];
 	newcombo const& cmb2 = combobuf[cid2];
-	// Layer 0 is overridden by Locked Doors
-	if((cmb.type==cLOCKBLOCK && !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx,by,1, -1) && !islockeddoor(bx,by,dLOCKED)))
+	if((cmb.type==cLOCKBLOCK && !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx,by,1, -1)))
 	{
-		found1=true;
-		foundlayer = 0;
+		// Context: https://discord.com/channels/876899628556091432/1278165595321405554
+		// Layer 0 is overridden by Locked Doors (but only for dungeons) - in that case, checklocked will clear these combos
+		bool ignore_layer_0 = isdungeon() && islockeddoor(bx,by,dLOCKED);
+		if (!ignore_layer_0)
+		{
+			found1=true;
+			foundlayer = 0;
+		}
 	}
-	else if (cmb2.type==cLOCKBLOCK && !(cmb2.triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx2,by,1, -1) && !islockeddoor(bx2,by,dLOCKED))
+	else if (cmb2.type==cLOCKBLOCK && !(cmb2.triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx2,by,1, -1))
 	{
-		found2=true;
-		foundlayer = 0;
+		bool ignore_layer_0 = isdungeon() && islockeddoor(bx2,by,dLOCKED);
+		if (!ignore_layer_0)
+		{
+			found2=true;
+			foundlayer = 0;
+		}
 	}
 	
 	for (int32_t i = 0; i <= 1; ++i)
@@ -21695,18 +21704,28 @@ void HeroClass::oldcheckbosslockblock()
 	newcombo const& cmb = combobuf[cid1];
 	newcombo const& cmb2 = combobuf[cid2];
 	int cmb_screen_index = 0;
-	// Layer 0 is overridden by Locked Doors
-	if ((cmb.type == cBOSSLOCKBLOCK && !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx, by, 1, -1) && !islockeddoor(bx, by, dLOCKED)))
+
+	if((cmb.type==cBOSSLOCKBLOCK && !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx,by,1, -1)))
 	{
-		found1 = true;
-		foundlayer = 0;
-		cmb_screen_index = get_screen_index_for_world_xy(bx, by);
+		// Context: https://discord.com/channels/876899628556091432/1278165595321405554
+		// Layer 0 is overridden by Locked Doors (but only for dungeons) - in that case, checklocked will clear these combos
+		bool ignore_layer_0 = isdungeon() && islockeddoor(bx,by,dBOSS);
+		if (!ignore_layer_0)
+		{
+			found1=true;
+			foundlayer = 0;
+			cmb_screen_index = get_screen_index_for_world_xy(bx, by);
+		}
 	}
-	else if (cmb2.type == cBOSSLOCKBLOCK && !(cmb2.triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx2, by, 1, -1) && !islockeddoor(bx2, by, dLOCKED))
+	else if (cmb2.type==cBOSSLOCKBLOCK && !(cmb2.triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx2,by,1, -1))
 	{
-		found2 = true;
-		foundlayer = 0;
-		cmb_screen_index = get_screen_index_for_world_xy(bx2, by);
+		bool ignore_layer_0 = isdungeon() && islockeddoor(bx2,by,dBOSS);
+		if (!ignore_layer_0)
+		{
+			found2=true;
+			foundlayer = 0;
+			cmb_screen_index = get_screen_index_for_world_xy(bx2, by);
+		}
 	}
 
 	for (int32_t i = 0; i <= 1; ++i)
@@ -21968,12 +21987,14 @@ void HeroClass::checkchest(int32_t type)
 	{
 		if(get_qr(qr_OLD_CHEST_COLLISION))
 		{
+			// TODO z3 ! revert changes within, gate z3 o nthis QR off
 			oldcheckchest(type);
 			return;
 		}
 	}
 	if(islockblock && get_qr(qr_OLD_LOCKBLOCK_COLLISION))
 	{
+		// TODO z3 ! revert changes within, gate z3 on this QR off
 		if(type == cLOCKBLOCK)
 			oldchecklockblock();
 		else if(type == cBOSSLOCKBLOCK)

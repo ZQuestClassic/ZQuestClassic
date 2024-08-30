@@ -76,7 +76,7 @@
 #include "zc/rendertarget.h"
 
 #include "zc/zc_custom.h"
-#include "qst.h"
+#include "base/qst.h"
 
 using namespace util;
 
@@ -4427,7 +4427,7 @@ int32_t get_register(int32_t arg)
 				break;
 			}
 			int32_t index = ri->d[rINDEX]/10000;
-			if(index < 0 || index >= BURNSPR_MAX)
+			if(index < 0 || index >= WPNSPR_MAX)
 			{
 				Z_scripterrlog("Invalid index to itemdata->BurnSprites[]: %d\n", index);
 				ret = -10000;
@@ -4445,7 +4445,7 @@ int32_t get_register(int32_t arg)
 				break;
 			}
 			int32_t index = ri->d[rINDEX]/10000;
-			if(index < 0 || index >= BURNSPR_MAX)
+			if(index < 0 || index >= WPNSPR_MAX)
 			{
 				Z_scripterrlog("Invalid index to itemdata->BurnLightRadius[]: %d\n", index);
 				ret = -10000;
@@ -10174,7 +10174,7 @@ int32_t get_register(int32_t arg)
 
 		case NPCDATAFROZENTILE: GET_NPCDATA_VAR_INT32(frozentile, "FrozenTile"); break;
 		case NPCDATAFROZENCSET: GET_NPCDATA_VAR_INT32(frozencset, "FrozenCSet"); break;
-
+		case NPCDATAFIRESFX: GET_NPCDATA_VAR_BYTE(firesfx, "WeaponSFX"); break;
 
 		case NPCDATAATTRIBUTE: 
 		{
@@ -15265,7 +15265,7 @@ void set_register(int32_t arg, int32_t value)
 				break;
 			}
 			int32_t index = ri->d[rINDEX]/10000;
-			if(index < 0 || index >= BURNSPR_MAX)
+			if(index < 0 || index >= WPNSPR_MAX)
 			{
 				Z_scripterrlog("Invalid index to itemdata->BurnSprites[]: %d\n", index);
 				break;
@@ -15281,7 +15281,7 @@ void set_register(int32_t arg, int32_t value)
 				break;
 			}
 			int32_t index = ri->d[rINDEX]/10000;
-			if(index < 0 || index >= BURNSPR_MAX)
+			if(index < 0 || index >= WPNSPR_MAX)
 			{
 				Z_scripterrlog("Invalid index to itemdata->BurnLightRadius[]: %d\n", index);
 				break;
@@ -16013,7 +16013,7 @@ void set_register(int32_t arg, int32_t value)
 				if(BC::checkBounds(indx, 0, WFLAG_MAX-1, "lweapon->Flags[]") == SH::_NoError)
 				{
 					//All bits, in order, of a single byte; just use bitwise
-					int32_t bit = 1<<indx;
+					weapon_flags bit = weapon_flags(1<<indx);
 					if(value)
 						((weapon*)(s))->misc_wflags |= bit;
 					else
@@ -16660,7 +16660,7 @@ void set_register(int32_t arg, int32_t value)
 				if(BC::checkBounds(indx, 0, WFLAG_MAX-1, "eweapon->Flags[]") == SH::_NoError)
 				{
 					//All bits, in order, of a single byte; just use bitwise
-					int32_t bit = 1<<indx;
+					weapon_flags bit = weapon_flags(1<<indx);
 					if(value)
 						((weapon*)(s))->misc_wflags |= bit;
 					else
@@ -20724,7 +20724,7 @@ void set_register(int32_t arg, int32_t value)
 
 		case NPCDATAFROZENTILE: SET_NPCDATA_VAR_INT(frozentile, "FrozenTile"); break;
 		case NPCDATAFROZENCSET: SET_NPCDATA_VAR_INT(frozencset, "FrozenCSet"); break;
-
+		case NPCDATAFIRESFX: SET_NPCDATA_VAR_BYTE(firesfx, "WeaponSFX"); break;
 		case NPCDATAATTRIBUTE: 
 		{
 			int32_t indx = ri->d[rINDEX] / 10000; 
@@ -35272,6 +35272,29 @@ int32_t FFScript::GetDefaultWeaponSprite(int32_t wpn_id)
 	}
 }
 
+int32_t FFScript::GetDefaultWeaponSFX(int32_t wpn_id)
+{
+	switch (wpn_id)
+	{
+		case ewFireTrail:
+		case ewFlame:
+		case ewFlame2Trail:
+		case ewFlame2:
+			return WAV_FIRE; break;
+		case ewWind:
+		case ewMagic:
+			return WAV_WAND; break;
+		case ewIce:
+			return WAV_ZN1ICE; break;
+		case ewRock:
+			return WAV_ZN1ROCK; break;
+		case ewFireball2:
+		case ewFireball:
+			return WAV_ZN1FIREBALL; break;
+	}
+	return -1; //no assign
+}
+
 //bitmap->GetPixel()
 
 
@@ -35569,6 +35592,7 @@ void FFScript::getNPCData_hzsz(){ GET_NPCDATA_FUNCTION_VAR_INT(hzsz); }
 void FFScript::getNPCData_txsz(){ GET_NPCDATA_FUNCTION_VAR_INT(txsz); } 
 void FFScript::getNPCData_tysz(){ GET_NPCDATA_FUNCTION_VAR_INT(tysz); } 
 void FFScript::getNPCData_wpnsprite(){ GET_NPCDATA_FUNCTION_VAR_INT(wpnsprite); } 
+void FFScript::getNPCData_firesfx() { GET_NPCDATA_FUNCTION_VAR_INT(firesfx); }
 
 
 void FFScript::getNPCData_defense(){GET_NPCDATA_FUNCTION_VAR_INDEX(defense,int32_t(edefLAST255))};
@@ -35710,6 +35734,7 @@ void FFScript::setNPCData_hzsz(){SET_NPCDATA_FUNCTION_VAR_INT_NOBOUND(hzsz);}
 void FFScript::setNPCData_txsz(){SET_NPCDATA_FUNCTION_VAR_INT_NOBOUND(txsz);}
 void FFScript::setNPCData_tysz(){SET_NPCDATA_FUNCTION_VAR_INT_NOBOUND(tysz);}
 void FFScript::setNPCData_wpnsprite(){SET_NPCDATA_FUNCTION_VAR_INT(wpnsprite,511);}
+void FFScript::setNPCData_firesfx() { SET_NPCDATA_FUNCTION_VAR_INT(firesfx, 255); }
 
 //NPCData Setters, three inputs, no return. works as SetDMapScreenD function
 

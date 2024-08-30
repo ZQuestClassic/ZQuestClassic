@@ -148,6 +148,8 @@ void clear_combo(int32_t i);
 void clear_combos();
 void pack_combos();
 void fix_maps(mapscr *buf,int32_t cnt);
+
+extern void(*reset_scripts_hook)();
 void reset_scr(int32_t scr);
 
 int32_t get_qst_buffers();

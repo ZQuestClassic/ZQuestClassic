@@ -38,9 +38,6 @@ bool is_in_osx_application_bundle()
 #endif
 }
 
-// TODO: move qst.cpp to base/
-int32_t get_qst_buffers();
-
 void common_main_setup(App id, int argc_, char **argv_)
 {
 	argc = argc_;

@@ -243,6 +243,7 @@ public:
 	// place the enemy in line with Hero (red wizzrobes)
 	void place_on_axis(bool floater, bool solid_ok);
 	void update_enemy_frame();
+	int32_t wpnsfx(int32_t wpn);
 	int32_t n_frame_n_dir(int32_t frames, int32_t dir, int32_t f4);
 	void tiledir_small(int32_t ndir, bool fourdir);
 	void tiledir_three(int32_t ndir);
@@ -882,7 +883,6 @@ FONT *setmsgfont();
 bool parsemsgcode();
 void putmsg();
 int32_t message_more_y();
-int32_t wpnsfx(int32_t wpn); 
 
 /***  Collision detection & handling  ***/
 

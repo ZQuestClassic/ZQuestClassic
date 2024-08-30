@@ -4,9 +4,9 @@
 #include "base/zdefs.h"
 #include "zinfo.h"
 #include "gui/jwin.h"
-#include "qst.h"
 #include "base/fonts.h"
 #include "base/packfile.h"
+#include "base/qst.h"
 
 
 std::string getComboTypeHelpText(int32_t id);

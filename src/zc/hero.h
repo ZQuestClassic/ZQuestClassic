@@ -10,7 +10,7 @@
 #include "base/colors.h"
 #include "pal.h"
 #include "base/zsys.h"
-#include "qst.h"
+#include "base/qst.h"
 #include "zc/matrix.h"
 #include "gui/jwin.h"
 #include "base/jwinfsel.h"

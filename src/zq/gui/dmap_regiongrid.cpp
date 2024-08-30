@@ -1,4 +1,5 @@
 #include "zq/gui/dmap_regiongrid.h"
+#include "base/qrs.h"
 #include "gui/common.h"
 #include "gui/dialog.h"
 #include "gui/dialog_runner.h"
@@ -36,7 +37,7 @@ static std::vector<int> qrs_that_prevent_regions = {
 	qr_0AFRAME_ITEMS_IGNORE_AFRAME_CHANGES,
 	qr_192b163_WARP,
 	qr_210_WARPRETURN,
-	qr_8WAY_SHOT_SFX,
+	qr_8WAY_SHOT_SFX_DEP,
 	qr_ALLOW_EDITING_COMBO_0,
 	qr_ALLTRIG_PERMSEC_NO_TEMP,
 	qr_ANGULAR_REFLECT_BROKEN,
@@ -220,6 +221,7 @@ int32_t d_region_grid_proc(int32_t msg, DIALOG* d, int32_t c)
 	{
 		// InfoDialog("Regions are disabled because of QRs", "You must disable all of the following compat QRs to use regions." + QRHINT(qrs_that_prevent_regions)).show();
 		// return D_O_K;
+		// TODO z3 !
 	}
 
 	DMapRegionGrid* widg = (DMapRegionGrid*)d->dp2;
