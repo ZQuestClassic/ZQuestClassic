@@ -60,7 +60,7 @@ static std::pair<const rpos_handle_t*, int> current_region_rpos_handles_scr[136]
 viewport_t viewport;
 ViewportMode viewport_mode;
 int world_w, world_h;
-int region_scr_dx, region_scr_dy; // TODO z3 ! move to region, rename.
+int region_scr_dx, region_scr_dy;
 int region_scr_count;
 rpos_t region_max_rpos;
 int region_num_rpos;

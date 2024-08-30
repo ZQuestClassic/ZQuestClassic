@@ -798,6 +798,7 @@ bool movingblock::animate(int32_t)
 			trigger = false; bhole = false;
 			
 			auto rpos_handle = get_rpos_handle_for_world_xy(x, y, blockLayer);
+			m = rpos_handle.scr;
 			int combopos = rpos_handle.pos;
 			int32_t f1 = rpos_handle.sflag();
 			int32_t f2 = MAPCOMBOFLAG2(blockLayer-1,x,y);
@@ -842,13 +843,13 @@ bool movingblock::animate(int32_t)
 				if(trigger)
 				{
 					if(!(no_trig_replace && trig_is_layer))
-						m->sflag[combopos]=mfPUSHED;
+						rpos_handle.set_sflag(mfPUSHED);
 				}
 			}
 			
 			if((f1==mfBLOCKHOLE)||f2==mfBLOCKHOLE)
 			{
-				m->data[combopos]+=1;
+				rpos_handle.increment_data();
 				bhole=true;
 			}
 			else if(!trig_hole_same_only)
@@ -856,10 +857,12 @@ bool movingblock::animate(int32_t)
 				for(auto lyr = 0; lyr <= maxLayer; ++lyr)
 				{
 					if(lyr==blockLayer) continue;
-					if((FFCore.tempScreens[lyr]->sflag[combopos]==mfBLOCKHOLE)
+
+					mapscr* scr = get_screen_layer_for_world_xy(x, y, lyr);
+					if ((scr->sflag[combopos]==mfBLOCKHOLE)
 						|| MAPCOMBOFLAG2(lyr-1,x,y)==mfBLOCKHOLE)
 					{
-						mapscr* m2 = FFCore.tempScreens[lyr];
+						mapscr* m2 = scr;
 						m->data[combopos] = m->undercombo;
 						m->cset[combopos] = m->undercset;
 						m2->data[combopos] = bcombo+1;
@@ -902,7 +905,7 @@ bool movingblock::animate(int32_t)
 			{
 				for(auto lyr = 0; lyr <= maxLayer; ++lyr)
 				{
-					mapscr* tmp = FFCore.tempScreens[lyr];
+					mapscr* tmp = get_screen_layer_for_world_xy(x, y, lyr);
 					for(int32_t pos=0; pos<176; pos++)
 					{
 						if((!trig_hole_same_only || lyr == blockLayer) && pos == combopos)
@@ -964,7 +967,7 @@ bool movingblock::animate(int32_t)
 					// happening as each combo is placed.
 					for(auto lyr = 0; lyr <= maxLayer; ++lyr)
 					{
-						mapscr* tmp = FFCore.tempScreens[lyr];
+						mapscr* tmp = get_screen_layer_for_world_xy(x, y, lyr);
 						for(int32_t pos=0; pos<176; pos++)
 						{
 							if(tmp->sflag[pos]==mfBLOCKTRIGGER
