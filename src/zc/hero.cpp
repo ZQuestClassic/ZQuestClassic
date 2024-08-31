@@ -10439,7 +10439,6 @@ heroanimate_skip_liftwpn:;
 		}
 		
 		ffwarp=false;
-		// TODO z3 !
 		dowarp(nullptr,1,0);
 	}
 	

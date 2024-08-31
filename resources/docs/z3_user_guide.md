@@ -34,7 +34,7 @@ TODO
 
 ### MapData and ScreenData
 
-First of all, the `Screen->` methods all operate on the origin screen, and cannot be changed. Before regions that would just be the only screen that is loaded. With regions, it is the top-left screen of the region. In general these methods have been surpassed by `mapdata`, so if you are scripting with Regions you should entirely avoid `Screen->` for reading/writing to map screens. The only exceptions to this are methods that takes as input a `pos`, such as `Screen->ComboD[pos]` - these can still be used to access any position in the base screen, but `pos` can be greater than 175. Read on for more details.
+First of all, the `Screen->` methods all operate on the origin screen, and cannot be changed. Before regions that would just be the only screen that is loaded. With regions, it is the top-left screen of the region. In general these methods have been surpassed by `mapdata`, so if you are scripting with Regions you should entirely avoid `Screen->` for reading/writing to the active map screens. The only exceptions to this are methods that takes as input a `pos`, such as `Screen->ComboD[pos]` - these can still be used to access any position in the base screen, since `pos` can now be greater than 175. Read on for more details.
 
 There is `Game->LoadMapData(map, screen)`, `Game->LoadTempScreen(layer)`, and `Game->LoadScrollingScreen(layer)`. These all return a `mapdata`.
 
@@ -42,9 +42,7 @@ There is `Game->LoadMapData(map, screen)`, `Game->LoadTempScreen(layer)`, and `G
 * `Game->LoadTempScreen(layer)`: Returns a handle that accesses the currently loaded screen at the given layer. When the player enters a screen, the canonical screen is copied to a temporary screen, such that any modifications to the temporary screen will not persist when the player leaves the screen.
 * `Game->LoadScrollingScreen(layer)`: Returns a handle that accesses the temporary screens that the player is scrolling away from, at the given layer. This is only valid during screen scrolling.
 
-With a `mapdata` from a temporary or scrolling screen, methods such as `mapdata->ComboD[pos]` behave slightly differently than before regions. Before, `pos` (which stands for combo position) is a `0-175` value indexes into the individual combos of a screen. The same is true with regions,  but:
-
-* the range is `0-(the number of screen in a region)*176 - 1`
+With a `mapdata` from a temporary or scrolling screen, methods such as `mapdata->ComboD[pos]` behave slightly differently than before regions. Before, `pos` (which stands for combo position) is a `0-175` value indexes into the individual combos of a screen. The same is true with regions, but the range is `0` to `Region->NumCombos` (exclusive), where `Region->NumCombos` is 176 multiplied by the number of screens in a region.
 
 To get the correct value of `pos` for a given `x` and `y` coordinate, you can still use `ComboAt(x, y)`. This will use the current region to determine the combo position.
 
