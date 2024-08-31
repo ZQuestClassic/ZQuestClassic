@@ -27206,8 +27206,8 @@ void HeroClass::stepforward(int32_t steps, bool adjust)
 void HeroClass::setpit()
 {
 	didpit = true;
-	pitx = x.getInt() % 256;
-	pity = y.getInt() % 176;
+	pitx = x.getInt() % world_w;
+	pity = y.getInt() % world_h;
 }
 
 void HeroClass::walkdown(bool opening) //entering cave

@@ -5105,7 +5105,6 @@ void enemy::newdir_8(int32_t newrate,int32_t newhoming,int32_t special,int32_t d
 	int32_t ndir=0;
 	
 	// can move straight, check if it wants to turn
-	// TODO z3 somthing wrong here for keese
 	if(canmove(dir,step,special,dx1,dy1,dx2,dy2,false))
 	{
 		if(grumble && (zc_oldrand()&4)<abs(grumble)) //Homing
