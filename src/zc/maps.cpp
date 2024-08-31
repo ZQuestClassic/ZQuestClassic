@@ -282,8 +282,7 @@ void z3_prepare_current_region_handles()
 
 std::tuple<const rpos_handle_t*, int> z3_get_current_region_handles()
 {
-	// TODO z3 !!! -replay ../../tests/replays/z3_ffc.zplay
-	// DCHECK(!current_region_rpos_handles_dirty);
+	DCHECK(!current_region_rpos_handles_dirty);
 	return {current_region_rpos_handles, current_region_screen_count};
 }
 
@@ -5917,6 +5916,7 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 
 	currscr_for_passive_subscr = -1;
 	z3_load_region(scr, destdmap);
+	z3_mark_current_region_handles_dirty();
 	homescr = scr >= 0x80 ? hero_screen : cur_origin_screen_index;
 
 	cpos_clear_all();
@@ -5947,8 +5947,6 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	// Temp set currdmap so that get_layer_scr -> load_a_screen_and_layers will know if this is a region.
 	int o_currdmap = currdmap;
 	currdmap = destdmap;
-
-	z3_mark_current_region_handles_dirty();
 
 	update_slope_comboposes();
 	currdmap = o_currdmap;
