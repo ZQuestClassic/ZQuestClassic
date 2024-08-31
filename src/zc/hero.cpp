@@ -29584,13 +29584,12 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		SetSwim();
 		hopclk = 0xFF;
 	}
-	
+
 	// NES behaviour: Fade to light after scrolling
 	lighting(false, false); // No, we don't need to set naturaldark...
-	
-	// homescr=currscr;
+
 	init_dmap();
-	
+
 	// Check for raft flags
 	if((get_qr(qr_BROKEN_RAFT_SCROLL) || lastaction == rafting)
 		&& action!=rafting && hopclk==0 && !toogam)

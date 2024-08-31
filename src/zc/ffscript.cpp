@@ -28979,14 +28979,6 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 			
 			if(!intradmap)
 			{
-				currdmap = dmapID;
-				dlevel = DMaps[currdmap].level;
-				homescr = currscr = scrID + DMaps[dmapID].xoff;
-				hero_screen = currscr;
-				z3_load_region(currscr); // TODO z3 ! rm?
-				init_dmap();
-				
-				
 				if(((wx>0||wy>0)||(get_qr(qr_WARPSIGNOREARRIVALPOINT)))&&(!get_qr(qr_NOSCROLLCONTINUE))&&(!(tmpscr->flags6&fNOCONTINUEHERE)))
 				{
 					if(dlevel)
