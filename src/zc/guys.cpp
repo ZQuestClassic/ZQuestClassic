@@ -13517,7 +13517,7 @@ void getBigTri(int32_t id2)
 	
 	if(itemsbuf[id2].flags & item_flag1 && currscr < 128)
 	{
-		Hero.dowarp(1,0); //side warp
+		Hero.dowarp(hero_scr, 1, 0); //side warp
 	}
 }
 

@@ -8140,7 +8140,7 @@ heroanimate_skip_liftwpn:;
 	if(cheats_execute_goto)
 	{
 		setpit();
-		dowarp(3,0);
+		dowarp(nullptr, 3, 0);
 		cheats_execute_goto=false;
 		solid_update(false);
 		return false;
@@ -10238,6 +10238,7 @@ heroanimate_skip_liftwpn:;
 		fairyclk = holdclk = refill_why = 0;
 	}
 	
+	// TODO z3 ! hero_scr ?
 	if((!activated_timed_warp) && (tmpscr->timedwarptics>0))
 	{
 		tmpscr->timedwarptics--;
@@ -10256,7 +10257,7 @@ heroanimate_skip_liftwpn:;
 			if(tmpscr->flags5 & fRANDOMTIMEDWARP) index2=zc_oldrand()%4;
 			
 			sdir = dir;
-			dowarp(1,index2);
+			dowarp(tmpscr, 1, index2);
 		}
 	}
 	
@@ -10316,7 +10317,7 @@ heroanimate_skip_liftwpn:;
 			}
 			
 			sdir = dir;
-			dowarp(1,ind);
+			dowarp(rpos_handle.scr, 1, ind);
 			return false;
 		}
 
@@ -10372,7 +10373,7 @@ heroanimate_skip_liftwpn:;
 			}
 			
 			sdir = dir;
-			dowarp(1, ind, 0, ffc_handle.scr);
+			dowarp(ffc_handle.scr, 1, ind, 0);
 			return false;
 		}
 
@@ -10438,7 +10439,8 @@ heroanimate_skip_liftwpn:;
 		}
 		
 		ffwarp=false;
-		dowarp(1,0);
+		// TODO z3 !
+		dowarp(nullptr,1,0);
 	}
 	
 	//Hero->WarpEx
@@ -14272,7 +14274,7 @@ void HeroClass::pitfall()
 				{
 					setpit();
 				}
-				dowarp(0,vbound(cmb->attribytes[1],0,3),0);
+				dowarp(hero_scr, 0, vbound(cmb->attribytes[1],0,3), 0);
 			}
 			else //Reset to screen entry
 			{
@@ -24216,7 +24218,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 				}
 				
 				sdir=dir;
-				dowarp(0,0,warpsound,scr);
+				dowarp(scr,0,0,warpsound);
 				return;
 			}
 			
@@ -24228,7 +24230,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 				}
 				
 				sdir=dir;
-				dowarp(0,1,warpsound,scr);
+				dowarp(scr,0,1,warpsound);
 				return;
 			}
 			
@@ -24240,7 +24242,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 				}
 				
 				sdir=dir;
-				dowarp(0,2,warpsound,scr);
+				dowarp(scr,0,2,warpsound);
 				return;
 			}
 			
@@ -24252,7 +24254,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 				}
 				
 				sdir=dir;
-				dowarp(0,3,warpsound,scr);
+				dowarp(scr,0,3,warpsound);
 				return;
 			}
 			
@@ -24264,7 +24266,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 				}
 				
 				sdir=dir;
-				dowarp(0,(zc_oldrand()%4),warpsound,scr);
+				dowarp(scr,0,(zc_oldrand()%4),warpsound);
 				return;
 			}
 			
@@ -25546,7 +25548,7 @@ RaftingStuff:
 		
 		setpit();
 		sdir=dir;
-		dowarp(4,0, warpsfx2, cur_scr);
+		dowarp(cur_scr, 4, 0, warpsfx2);
 	}
 	else
 	{
@@ -25558,7 +25560,7 @@ RaftingStuff:
 		}
 		
 		sdir = dir;
-		dowarp(0,index, warpsfx2); // TODO z3 !! ?
+		dowarp(nullptr, 0, index, warpsfx2); // TODO z3 !! ?
 	}
 }
 
@@ -25606,7 +25608,7 @@ bool HeroClass::HasHeavyBoots()
 	return false;
 }
 
-bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx, mapscr* scr)
+bool HeroClass::dowarp(mapscr* scr, int32_t type, int32_t index, int32_t warpsfx)
 {
 	byte reposition_sword_postwarp = 0;
 	if(index<0)
@@ -27728,7 +27730,7 @@ void HeroClass::do_scroll_direction(direction dir)
 	else if (dir == right) dir_flag = wfRIGHT;
 	else                   assert(false);
 
-	mapscr* scr = get_scr(hero_screen);
+	mapscr* scr = hero_scr;
 
 	if(get_qr(qr_SMARTSCREENSCROLL)&&(!(scr->flags&fMAZE))&&action!=inwind &&action!=scrolling && !(scr->flags2&dir_flag))
 	{
@@ -27753,13 +27755,13 @@ void HeroClass::do_scroll_direction(direction dir)
 			}
 			else
 			{
-				dowarp(2,dir);
+				dowarp(scr, 2, dir);
 			}
 		}
 		else if(scr->flags2&dir_flag && (!(scr->flags8&fMAZEvSIDEWARP) || checkmaze(scr,false)))
 		{
 			sdir=dir;
-			dowarp(1, (scr->sidewarpindex >> (sdir*2))&3);
+			dowarp(scr, 1, (scr->sidewarpindex >> (sdir*2))&3);
 		}
 		else if(!edge_of_dmap(dir) && edge_of_region(dir))
 		{
@@ -28139,7 +28141,7 @@ bool HeroClass::maze_enabled_sizewarp(int32_t scrolldir)
             {
                 lastdir[3] = 0xFF;
                 sdir=up;
-                dowarp(1,(tmpscr->sidewarpindex)&3);
+                dowarp(tmpscr,1,(tmpscr->sidewarpindex)&3);
                 return true;
             }
             
@@ -28150,7 +28152,7 @@ bool HeroClass::maze_enabled_sizewarp(int32_t scrolldir)
             {
                 lastdir[3] = 0xFF;
                 sdir=down;
-                dowarp(1,(tmpscr->sidewarpindex>>2)&3);
+                dowarp(tmpscr,1,(tmpscr->sidewarpindex>>2)&3);
                 return true;
             }
             
@@ -28161,7 +28163,7 @@ bool HeroClass::maze_enabled_sizewarp(int32_t scrolldir)
             {
                 lastdir[3] = 0xFF;
                 sdir=left;
-                dowarp(1,(tmpscr->sidewarpindex>>4)&3);
+                dowarp(tmpscr,1,(tmpscr->sidewarpindex>>4)&3);
                 return true;
             }
             
@@ -28172,7 +28174,7 @@ bool HeroClass::maze_enabled_sizewarp(int32_t scrolldir)
             {
                 lastdir[3] = 0xFF;
                 sdir=right;
-                dowarp(1,(tmpscr->sidewarpindex)&3);
+                dowarp(tmpscr,1,(tmpscr->sidewarpindex)&3);
                 return true;
             }
             
@@ -31657,7 +31659,7 @@ void HeroClass::getTriforce(int32_t id2)
 	if((itemsbuf[id2].flags & item_flag1) && ( get_qr(qr_SIDEVIEWTRIFORCECELLAR) ? ( currscr < MAPSCRS192b136 ) : (currscr < MAPSCRSNORMAL) ) )
 	{
 		sdir=dir;
-		dowarp(1,0); //side warp
+		dowarp(hero_scr, 1, 0); //side warp
 	}
 	else
 	{
