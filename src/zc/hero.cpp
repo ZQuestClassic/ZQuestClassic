@@ -10372,8 +10372,7 @@ heroanimate_skip_liftwpn:;
 			}
 			
 			sdir = dir;
-			// TODO z3 warp
-			dowarp(1,ind);
+			dowarp(1, ind, 0, ffc_handle.scr);
 			return false;
 		}
 
@@ -24217,7 +24216,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 				}
 				
 				sdir=dir;
-				dowarp(0,0,warpsound);
+				dowarp(0,0,warpsound,scr);
 				return;
 			}
 			
@@ -24229,7 +24228,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 				}
 				
 				sdir=dir;
-				dowarp(0,1,warpsound);
+				dowarp(0,1,warpsound,scr);
 				return;
 			}
 			
@@ -24241,7 +24240,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 				}
 				
 				sdir=dir;
-				dowarp(0,2,warpsound);
+				dowarp(0,2,warpsound,scr);
 				return;
 			}
 			
@@ -24253,7 +24252,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 				}
 				
 				sdir=dir;
-				dowarp(0,3,warpsound);
+				dowarp(0,3,warpsound,scr);
 				return;
 			}
 			
@@ -24265,7 +24264,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 				}
 				
 				sdir=dir;
-				dowarp(0,(zc_oldrand()%4),warpsound);
+				dowarp(0,(zc_oldrand()%4),warpsound,scr);
 				return;
 			}
 			
@@ -25547,7 +25546,7 @@ RaftingStuff:
 		
 		setpit();
 		sdir=dir;
-		dowarp(4,0, warpsfx2);
+		dowarp(4,0, warpsfx2, cur_scr);
 	}
 	else
 	{
@@ -25559,7 +25558,7 @@ RaftingStuff:
 		}
 		
 		sdir = dir;
-		dowarp(0,index, warpsfx2);
+		dowarp(0,index, warpsfx2); // TODO z3 !! ?
 	}
 }
 
@@ -25607,7 +25606,7 @@ bool HeroClass::HasHeavyBoots()
 	return false;
 }
 
-bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
+bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx, mapscr* scr)
 {
 	byte reposition_sword_postwarp = 0;
 	if(index<0)
@@ -25636,7 +25635,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 	int32_t wrindex = 0;
 	bool wasSideview = isSideViewGravity(t); // (tmpscr[t].flags7 & fSIDEVIEW)!=0 && !ignoreSideview;
 
-	mapscr* cur_scr = get_screen_for_world_xy(x.getInt(), y.getInt());
+	mapscr* cur_scr = scr ? scr : hero_scr;
 	// Either the current screen, or if in a 0x80 room the screen player came from.
 	mapscr* base_scr = currscr >= 128 ? &special_warp_return_screen : cur_scr;
 	

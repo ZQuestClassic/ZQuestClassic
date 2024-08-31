@@ -493,7 +493,7 @@ public:
 	int32_t push_move(zfix dx, zfix dy);
 	virtual bool setSolid(bool set);
 	virtual void solid_push(solid_object* pusher);
-	bool dowarp(int32_t type, int32_t index, int32_t warpsfx=0);
+	bool dowarp(int32_t type, int32_t index, int32_t warpsfx=0, mapscr* scr=nullptr);
 	
 	void herostep();
 	void stepforward(int32_t steps, bool adjust);
