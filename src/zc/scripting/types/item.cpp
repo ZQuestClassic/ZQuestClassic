@@ -1037,8 +1037,7 @@ bool item_set_register(int32_t reg, int32_t value)
 				// alter item state and set an itemguy.
 				if((s->pickup & ipENEMY) < (newpickup & ipENEMY))
 				{
-					// TODO z3 ! use item screen?
-					screen_item_set_state(currscr, ScreenItemState::CarriedByEnemy);
+					screen_item_set_state(s->screen_spawned, ScreenItemState::CarriedByEnemy);
 					bool hasitemguy = false;
 					
 					for(int32_t i=0; i<guys.Count(); i++)
@@ -1100,10 +1099,9 @@ bool item_set_register(int32_t reg, int32_t value)
 						}
 					}
 					
-					if(more_carried_items()<=1)  // 1 includes this own item.
+					if(more_carried_items(s->screen_spawned)<=1)  // 1 includes this own item.
 					{
-						// TODO z3 ! use item screen?
-						screen_item_clear_state(currscr);
+						screen_item_clear_state(s->screen_spawned);
 					}
 				}
 				

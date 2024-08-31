@@ -30862,7 +30862,7 @@ void HeroClass::checkitems(int32_t index)
 				return;
 				
 		if(pickup&ipENEMY)                                        // item was being carried by enemy
-			if(more_carried_items()<=1)  // 1 includes this own item.
+			if(more_carried_items(item_screen)<=1)  // 1 includes this own item.
 				screen_item_clear_state(item_screen);
 				
 		if(pickup&ipDUMMY)                                        // dummy item (usually a rupee)

@@ -21058,13 +21058,14 @@ void dragging_item()
 	}
 }
 
-int32_t more_carried_items()
+int32_t more_carried_items(int screen)
 {
 	int32_t hasmorecarries = 0;
 	
 	for(int32_t i=0; i<items.Count(); i++)
 	{
-		if(((item*)items.spr(i))->pickup & ipENEMY)
+		auto spr = (item*)items.spr(i);
+		if (spr->screen_spawned == screen && (spr->pickup & ipENEMY))
 		{
 			hasmorecarries++;
 		}

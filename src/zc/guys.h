@@ -891,5 +891,5 @@ void check_collisions();
 void clear_script_one_frame_conditions();
 void dragging_item();
 void roaming_item();
-int32_t more_carried_items();
+int32_t more_carried_items(int screen);
 #endif
