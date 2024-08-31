@@ -1157,6 +1157,42 @@ weapon::~weapon()
 	cleanup_sfx();
 }
 
+void weapon::eweapon_overrides()
+{
+	enemy* e = (enemy*)guys.getByUID(parentid);
+	if (e == NULL) return;
+	if (e->weapoverrideFLAGS & OVERRIDE_TILE_WIDTH) { txsz = e->weap_tilew; }
+	if (e->weapoverrideFLAGS & OVERRIDE_TILE_HEIGHT) { tysz = e->weap_tileh; }
+	if (e->weapoverrideFLAGS & OVERRIDE_HIT_WIDTH) { hit_width = e->weap_hxsz; }
+	if (e->weapoverrideFLAGS & OVERRIDE_HIT_HEIGHT) { hit_height = e->weap_hysz; }
+	if (e->weapoverrideFLAGS & OVERRIDE_HIT_Z_HEIGHT) { hzsz = e->weap_hzsz; }
+	if (e->weapoverrideFLAGS & OVERRIDE_HIT_X_OFFSET) { hxofs = e->weap_hxofs; }
+	if (e->weapoverrideFLAGS & OVERRIDE_HIT_Y_OFFSET) { hyofs = e->weap_hyofs; }
+	if (e->weapoverrideFLAGS & OVERRIDE_DRAW_X_OFFSET) { xofs = e->weap_xofs; }
+	if (e->weapoverrideFLAGS & OVERRIDE_DRAW_Y_OFFSET) { yofs = e->weap_yofs + (get_qr(qr_OLD_DRAWOFFSET) ? playing_field_offset : original_playing_field_offset); }
+
+	unblockable = e->wunblockable;
+	moveflags = e->wmoveflags;
+	//flames are complicated
+	if (id == ewFlame || id == ewFlame2)
+	{
+		switch (e->family)
+		{
+		case eeGLEEOK:
+			if (e->dmisc3 == 1) step = e->wstep * 2;
+			break;
+		case eeGHOMA:
+			if (e->dmisc1 == 2) step = e->wstep * 2;
+			break;
+		case eePATRA: //absolutely not
+			break;
+		default:
+			if (dir > right) step = e->wstep * .707;
+		}
+	}
+	else step = e->wstep;
+}
+
 weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t Dir, int32_t Parentitem, int32_t prntid, bool isDummy, byte script_gen, byte isLW, byte special, int32_t Linked_Parent, int32_t use_sprite) : sprite(), parentid(prntid)
 {
 	x=X;
@@ -1166,6 +1202,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	type=Type;
 	power=pow;
 	parentitem=Parentitem;
+	parentid=prntid;
 	dir=zc_max(Dir,0);
 	clk=clk2=flip=misc=misc2=0;
 	frames=flash=wid=aframe=csclk=0;
@@ -1291,6 +1328,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	
 	int32_t itemid = parentitem;
 	itemdata const& parent = itemsbuf[unsigned(parentitem) < MAXITEMS ? parentitem : -1];
+	
 	if(id>wEnemyWeapons)
 	{
 		canfreeze=true;
@@ -1317,8 +1355,6 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 		case wLitBomb:
 		case wLitSBomb:
 		case wBait:
-		case ewFlame:
-		case ewFireTrail:
 		case wThrown:
 			moveflags |= move_obeys_grav | move_can_pitfall;
 	}
@@ -2379,6 +2415,15 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			break;
 		}
 	}
+
+	if (parentitem > -1)
+	{
+		//lweapon_overrides(); SOON
+	}
+	else if (parentid > -1 && !isLWeapon)
+	{
+		eweapon_overrides();
+	}
 	
 	if(id>wEnemyWeapons && id!=ewBrang && (Type&4)!=0)  // Increase speed of Aquamentus 2 fireballs
 	{
@@ -2403,17 +2448,39 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 		case wFSparkle:
 			break; //These weapon types don't support burn sprites
 		default:
-			if(parentitem > -1 && (parent.flags & item_burning_sprites))
+			if(parentitem > -1) //weapons created by items
 			{
-				misc_wflags |= WFLAG_UPDATE_IGNITE_SPRITE;
-				for(int q = 0; q < WPNSPR_MAX; ++q)
+				if(parent.flags & item_burning_sprites)
 				{
-					misc_wsprites[q] = parent.burnsprs[q];
-					light_rads[q] = parent.light_rads[q];
+					misc_wflags |= WFLAG_UPDATE_IGNITE_SPRITE;
+					for (int q = 0; q < WPNSPR_MAX; ++q)
+					{
+						misc_wsprites[q] = parent.burnsprs[q];
+						light_rads[q] = parent.light_rads[q];
+					}
+					last_burnstate = get_burnstate();
+					wpnspr = _handle_loadsprite(misc_wsprites[last_burnstate]);
+					glowRad = light_rads[last_burnstate];
 				}
-				last_burnstate = get_burnstate();
-				wpnspr = _handle_loadsprite(misc_wsprites[last_burnstate]);
-				glowRad = light_rads[last_burnstate];
+				else light_rads[WPNSPR_BASE] = glowRad;
+
+			}
+			else if (parentid > -1 && !isLWeapon) //weapons created by enemies
+			{
+				enemy* e = (enemy*)guys.getByUID(parentid);
+				if (e->flags & guy_burning_sprites)
+				{
+					misc_wflags |= WFLAG_UPDATE_IGNITE_SPRITE;
+					for (int q = 0; q < WPNSPR_MAX; ++q)
+					{
+						misc_wsprites[q] = e->burnsprs[q];
+						light_rads[q] = e->light_rads[q];
+					}
+					last_burnstate = get_burnstate();
+					wpnspr = _handle_loadsprite(misc_wsprites[last_burnstate]);
+					glowRad = light_rads[last_burnstate];
+				}
+				else light_rads[WPNSPR_BASE] = glowRad;
 			}
 			else light_rads[WPNSPR_BASE] = glowRad;
 			break;
@@ -4282,16 +4349,19 @@ bool weapon::animate(int32_t index)
 			{
 				if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 			}
+		[[fallthrough]];
 		case wWand:
 		case wHammer:
 		case wBugNet:
-			if(HeroAction()!=attacking && HeroAction()!=sideswimattacking && HeroAction()!=ischarging && !HeroCharged())
+		{
+			if (HeroAction() != attacking && HeroAction() != sideswimattacking && HeroAction() != ischarging && !HeroCharged())
 			{
-				dead=0;
+				dead = 0;
 			}
-			
+
 			break;
-			
+		}
+		
 		case wCByrna:
 		{
 			if(blocked())
@@ -4335,9 +4405,8 @@ bool weapon::animate(int32_t index)
 				sfx(itemsbuf[parentitem].usesound,pan(int32_t(x)),true,false);
 			}
 			if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
+
 		}
-		
-		break;
 		
 		case wBeam:
 		case wRefBeam:
@@ -4353,125 +4422,127 @@ bool weapon::animate(int32_t index)
 			}		 
 			
 		}
+		[[fallthrough]];
 		case ewSword:
-			if(blocked())
+		{
+			if (blocked())
 			{
-				dead=0;
+				dead = 0;
 			}
-			
-			if(id==ewSword && get_qr(qr_SWORDMIRROR) || id!=ewSword && (parentitem > -1 ? itemsbuf[parentitem].flags & item_flag9 : get_qr(qr_SWORDMIRROR))) //TODO: First qr_SWORDMIRROR port to enemy weapon flag, second qr_SWORDMIRROR port to script default flag -V
+
+			if (id == ewSword && get_qr(qr_SWORDMIRROR) || id != ewSword && (parentitem > -1 ? itemsbuf[parentitem].flags & item_flag9 : get_qr(qr_SWORDMIRROR))) //TODO: First qr_SWORDMIRROR port to enemy weapon flag, second qr_SWORDMIRROR port to script default flag -V
 			{
-				zfix checkx=0, checky=0;
-				int32_t check_x_ofs=0, check_y_ofs=0;
-				
+				zfix checkx = 0, checky = 0;
+				int32_t check_x_ofs = 0, check_y_ofs = 0;
+
 				if (get_qr(qr_MIRRORS_USE_WEAPON_CENTER))
 				{
-					checkx = (x+hxofs+(hit_width*0.5));
-					checky = (y+hyofs+(hit_height*0.5)-fakez);
-					check_x_ofs = x - (checkx-8);
-					check_y_ofs = y - (checky-8);
+					checkx = (x + hxofs + (hit_width * 0.5));
+					checky = (y + hyofs + (hit_height * 0.5) - fakez);
+					check_x_ofs = x - (checkx - 8);
+					check_y_ofs = y - (checky - 8);
 				}
 				else
 				{
-					switch(dir)
+					switch (dir)
 					{
-						case up:
-							checkx=x+7;
-							checky=y+8;
-							break;
-							
-						case down:
-							checkx=x+7;
-							checky=y;
-							break;
-							
-						case left:
-							checkx=x+8;
-							checky=y+7;
-							break;
-							
-						case right:
-							checkx=x;
-							checky=y+7;
-							break;
+					case up:
+						checkx = x + 7;
+						checky = y + 8;
+						break;
+
+					case down:
+						checkx = x + 7;
+						checky = y;
+						break;
+
+					case left:
+						checkx = x + 8;
+						checky = y + 7;
+						break;
+
+					case right:
+						checkx = x;
+						checky = y + 7;
+						break;
 					}
 					checky -= fakez;
 				}
-				
-				if(ignorecombo==((int32_t(checky)&0xF0)+(int32_t(checkx)>>4)))
+
+				if (ignorecombo == ((int32_t(checky) & 0xF0) + (int32_t(checkx) >> 4)))
 					break;
-					
+
 				int32_t posx, posy;
-				if(get_qr(qr_OLDMIRRORCOMBOS))//Replace this conditional with an ER; true if the ER is checked. This will use the old (glitchy) behavior for sword beams.
+				if (get_qr(qr_OLDMIRRORCOMBOS))//Replace this conditional with an ER; true if the ER is checked. This will use the old (glitchy) behavior for sword beams.
 				{
-					posx=x;
-					posy=y;
+					posx = x;
+					posy = y;
 				}
 				else
 				{
-					posx=checkx;
-					posy=checky;
+					posx = checkx;
+					posy = checky;
 				}
 				byte layers = get_qr(qr_MIRROR_PRISM_LAYERS) ? 0b1111111 : 0b0000001;
 				bool fix_mirror_anim = false;
-				if(hitcombo(checkx, checky, cMIRROR, layers))
+				if (hitcombo(checkx, checky, cMIRROR, layers))
 				{
 					id = wRefBeam;
 					dir ^= 1;
-					if(dir&2)
+					if (dir & 2)
 						flip ^= 1;
 					else
 						flip ^= 2;
-						
-					ignoreHero=false;
-					ignorecombo=((int32_t(checky)&0xF0)+(int32_t(checkx)>>4));
-					y=(int32_t)(posy&0xF0)+check_y_ofs;
-					x=(int32_t)(posx&0xF0)+check_x_ofs;
+
+					ignoreHero = false;
+					ignorecombo = ((int32_t(checky) & 0xF0) + (int32_t(checkx) >> 4));
+					y = (int32_t)(posy & 0xF0) + check_y_ofs;
+					x = (int32_t)(posx & 0xF0) + check_x_ofs;
 				}
-				
-				if(hitcombo(checkx, checky, cMIRRORSLASH, layers))
+
+				if (hitcombo(checkx, checky, cMIRRORSLASH, layers))
 				{
 					id = wRefBeam;
 					doAutoRotate(true);
-					dir = 3-dir;
+					dir = 3 - dir;
 					fix_mirror_anim = true;
-					ignoreHero=false;
-					ignorecombo=((int32_t(checky)&0xF0)+(int32_t(checkx)>>4));
-					y=(int32_t)(posy&0xF0)+check_y_ofs;
-					x=(int32_t)(posx&0xF0)+check_x_ofs;
+					ignoreHero = false;
+					ignorecombo = ((int32_t(checky) & 0xF0) + (int32_t(checkx) >> 4));
+					y = (int32_t)(posy & 0xF0) + check_y_ofs;
+					x = (int32_t)(posx & 0xF0) + check_x_ofs;
 				}
-				
-				if(hitcombo(checkx, checky, cMIRRORBACKSLASH, layers))
+
+				if (hitcombo(checkx, checky, cMIRRORBACKSLASH, layers))
 				{
 					id = wRefBeam;
 					dir ^= 2;
 					fix_mirror_anim = true;
-					ignoreHero=false;
-					ignorecombo=((int32_t(checky)&0xF0)+(int32_t(checkx)>>4));
-					y=(int32_t)(posy&0xF0)+check_y_ofs;
-					x=(int32_t)(posx&0xF0)+check_x_ofs;
+					ignoreHero = false;
+					ignorecombo = ((int32_t(checky) & 0xF0) + (int32_t(checkx) >> 4));
+					y = (int32_t)(posy & 0xF0) + check_y_ofs;
+					x = (int32_t)(posx & 0xF0) + check_x_ofs;
 				}
-				
-				if(hitcombo(checkx, checky, cMAGICPRISM, layers))
+
+				if (hitcombo(checkx, checky, cMAGICPRISM, layers))
 				{
 					int32_t newx, newy;
-					newy=(int32_t)(posy&0xF0)+check_y_ofs;
-					newx=(int32_t)(posx&0xF0)+check_x_ofs;
-					
-					for(int32_t tdir=0; tdir<4; tdir++)
+					newy = (int32_t)(posy & 0xF0) + check_y_ofs;
+					newx = (int32_t)(posx & 0xF0) + check_x_ofs;
+
+					for (int32_t tdir = 0; tdir < 4; tdir++)
 					{
 						//AngleToDir(double ddir)
 						//This didn't check for these before with the angle reflect rule... -Deedee
-						if((dir!=(tdir^1) && !AngleReflect) || (tdir != 2 && AngleReflect))
+						if ((dir != (tdir ^ 1) && !AngleReflect) || (tdir != 2 && AngleReflect))
 						{
-							weapon *w=new weapon(*this);
-							w->dir=tdir;
+							weapon* w = new weapon(*this);
+							w->dir = tdir;
 							w->doAutoRotate(true);
 							//jesus fuck Zoria, this is blatantly wrong...
 							//In your next job, don't code while drunk you dumbass. -Deedee
-							if ( this->angular && get_qr(qr_ANGULAR_REFLECTED_WEAPONS) )
+							if (this->angular && get_qr(qr_ANGULAR_REFLECTED_WEAPONS))
 							{
-								double newangle = this->angle + DegreesToRadians(90*tdir);
+								double newangle = this->angle + DegreesToRadians(90 * tdir);
 								w->angle = WrapAngle(newangle);
 								if (AngleReflect)
 								{
@@ -4487,63 +4558,63 @@ bool weapon::animate(int32_t index)
 							}
 							w->o_tile = ref_o_tile;
 							w->tile = ref_o_tile;
-							w->x=newx;
-							w->y=newy;
-							w->fakez=fakez;
-							w->z=z;
-							w->id=wRefBeam;
-							w->parentid=parentid;
-							w->parentitem=parentitem;
-							w->ignorecombo=((int32_t(checky)&0xF0)+(int32_t(checkx)>>4));
+							w->x = newx;
+							w->y = newy;
+							w->fakez = fakez;
+							w->z = z;
+							w->id = wRefBeam;
+							w->parentid = parentid;
+							w->parentitem = parentitem;
+							w->ignorecombo = ((int32_t(checky) & 0xF0) + (int32_t(checkx) >> 4));
 							w->hyofs = w->hxofs = 0;
 							//also set up the magic's correct animation -DD
-							w->flip=0;
-							if ( do_animation ) 
+							w->flip = 0;
+							if (do_animation)
 							{
-								switch(w->dir)
+								switch (w->dir)
 								{
-									case down:
-										w->flip=2;
-										
-									case up:
-										w->tile = w->o_tile;
-										w->hyofs=2;
-										w->hit_height=12;
-										break;
-										
-									case left:
-										w->flip=1;
-										
-									case right:
-										w->tile=w->o_tile+((w->frames>1)?w->frames:1);
-										w->hxofs=2;
-										w->hit_width=12;
-										break;
-									
-									default: break;
+								case down:
+									w->flip = 2;
+
+								case up:
+									w->tile = w->o_tile;
+									w->hyofs = 2;
+									w->hit_height = 12;
+									break;
+
+								case left:
+									w->flip = 1;
+
+								case right:
+									w->tile = w->o_tile + ((w->frames > 1) ? w->frames : 1);
+									w->hxofs = 2;
+									w->hit_width = 12;
+									break;
+
+								default: break;
 								}
 							}
 							Lwpns.add(w);
 						}
 					}
-					
-					dead=0;
+
+					dead = 0;
 				}
-				
-				if(hitcombo(checkx, checky, cMAGICPRISM4, layers))
+
+				if (hitcombo(checkx, checky, cMAGICPRISM4, layers))
 				{
 					int32_t newx, newy;
-					newy=(int32_t)(posy&0xF0)+check_y_ofs;
-					newx=(int32_t)(posx&0xF0)+check_x_ofs;
-					
-					for(int32_t tdir=0; tdir<4; tdir++)
+					newy = (int32_t)(posy & 0xF0) + check_y_ofs;
+					newx = (int32_t)(posx & 0xF0) + check_x_ofs;
+
+					for (int32_t tdir = 0; tdir < 4; tdir++)
 					{
-						weapon *w=new weapon(*this);
-						w->dir=tdir;
+						weapon* w = new weapon(*this);
+						w->dir = tdir;
 						w->doAutoRotate(true);
-						if ( this->angular && get_qr(qr_ANGULAR_REFLECTED_WEAPONS) )
+						if (this->angular && get_qr(qr_ANGULAR_REFLECTED_WEAPONS))
 						{
-							double newangle = this->angle + DegreesToRadians(90*tdir);
+							double newangle = this->angle + DegreesToRadians(90 * tdir);
 							w->angle = WrapAngle(newangle);
 							if (AngleReflect)
 							{
@@ -4554,101 +4625,102 @@ bool weapon::animate(int32_t index)
 						}
 						w->o_tile = ref_o_tile;
 						w->tile = ref_o_tile;
-						w->x=newx;
-						w->y=newy;
-						w->z=z;
-						w->fakez=fakez;
-						w->id=wRefBeam;
-						w->parentid=parentid;
-						w->parentitem=parentitem;
+						w->x = newx;
+						w->y = newy;
+						w->z = z;
+						w->fakez = fakez;
+						w->id = wRefBeam;
+						w->parentid = parentid;
+						w->parentitem = parentitem;
 						w->hyofs = w->hxofs = 0;
-						w->ignorecombo=((int32_t(checky)&0xF0)+(int32_t(checkx)>>4));
+						w->ignorecombo = ((int32_t(checky) & 0xF0) + (int32_t(checkx) >> 4));
 						//also set up the magic's correct animation -DD
-						w->flip=0;
-						if ( do_animation ) 
+						w->flip = 0;
+						if (do_animation)
 						{
-							switch(w->dir)
+							switch (w->dir)
 							{
-								case down:
-									w->flip=2;
-								
-								case up:
-									w->tile = w->o_tile;
-									w->hyofs=2;
-									w->hit_height=12;
-									break;
-								
-								case left:
-									w->flip=1;
-								
-								case right:
-									w->tile=w->o_tile+((w->frames>1)?w->frames:1);
-									w->hxofs=2;
-									w->hit_width=12;
-									break;
-								
-								default: break;
+							case down:
+								w->flip = 2;
+
+							case up:
+								w->tile = w->o_tile;
+								w->hyofs = 2;
+								w->hit_height = 12;
+								break;
+
+							case left:
+								w->flip = 1;
+
+							case right:
+								w->tile = w->o_tile + ((w->frames > 1) ? w->frames : 1);
+								w->hxofs = 2;
+								w->hit_width = 12;
+								break;
+
+							default: break;
 							}
 						}
 						Lwpns.add(w);
 					}
-					
-					dead=0;
+
+					dead = 0;
 				}
-				
+
 				auto newmirror = gethitcombo(checkx, checky, cMIRRORNEW, layers);
-				if(newmirror > -1)
+				if (newmirror > -1)
 				{
 					newcombo const& cmb = combobuf[newmirror];
 					id = wRefBeam;
 					byte newdir = cmb.attribytes[NORMAL_DIR(dir)];
-					if(newdir > 7)
+					if (newdir > 7)
 					{
 						dead = 0;
 						break;
 					}
 					dir = newdir;
 					fix_mirror_anim = true;
-					ignoreHero=false;
-					ignorecombo=((int32_t(checky)&0xF0)+(int32_t(checkx)>>4));
-					y=(int32_t)(posy&0xF0)+check_y_ofs;
-					x=(int32_t)(posx&0xF0)+check_x_ofs;
+					ignoreHero = false;
+					ignorecombo = ((int32_t(checky) & 0xF0) + (int32_t(checkx) >> 4));
+					y = (int32_t)(posy & 0xF0) + check_y_ofs;
+					x = (int32_t)(posx & 0xF0) + check_x_ofs;
 				}
-				
-				if ( fix_mirror_anim ) 
+
+				if (fix_mirror_anim)
 				{
-					if(dir==right)
+					if (dir == right)
 						flip &= ~1; // not horiz
-					else if(dir==left)
+					else if (dir == left)
 						flip |= 1;  // horiz
-					else if(dir==up)
+					else if (dir == up)
 						flip &= ~2; // not vert
-					else if(dir==down)
+					else if (dir == down)
 						flip |= 2;  // vert
-					tile=ref_o_tile;
-					
-					if(dir&2)
+					tile = ref_o_tile;
+
+					if (dir & 2)
 					{
-						if(frames>1)
-							tile+=frames;
+						if (frames > 1)
+							tile += frames;
 						else ++tile;
 					}
 				}
 			}
-			
-			
-			if ( ( id == wRefBeam && ScriptGenerated )  || id == wBeam )
+
+
+			if ((id == wRefBeam && ScriptGenerated) || id == wBeam)
 			{
-				if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
+				if (runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 			}
-			if ( id == ewSword )
+			if (id == ewSword)
 			{
 				//eweqapon script here, later
-				
+
 			}
-			
+
 			break;
-			
+		}
+		
 		case wWhistle:
 		{
 			if(clk)
@@ -4659,7 +4731,6 @@ bool weapon::animate(int32_t index)
 			if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 			break;
 		}
-			
 		case wWind:
 		{
 			if(blocked())
@@ -4830,6 +4901,7 @@ bool weapon::animate(int32_t index)
 			limited_animate();
 			break;
 		}
+		
 		case ewLitBomb:
 		case ewBomb:
 		case ewLitSBomb:
@@ -5000,6 +5072,7 @@ bool weapon::animate(int32_t index)
 			skip_second_bait_script:
 			break;
 		}
+		
 		case wBrang:
 		{
 			//run first? brang scripts were being killed on WDS_BOUNCE, so this may fix that.
@@ -5479,7 +5552,6 @@ bool weapon::animate(int32_t index)
 			if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 		}
 		break;
-		
 		case wHSHandle:
 		{
 			if(hookshot_used==false)
@@ -5604,8 +5676,6 @@ bool weapon::animate(int32_t index)
 			}
 			break;
 		}
-		
-		
 		case wHSChain:
 		{
 			
@@ -5815,6 +5885,7 @@ bool weapon::animate(int32_t index)
 			
 			break;
 		}
+		
 		case wRefMagic:
 		case wMagic:
 		{
@@ -6239,6 +6310,7 @@ bool weapon::animate(int32_t index)
 			if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 		}
 		break;
+		
 		case ewMagic:
 		{
 		mirrors: //jumped to by wWind
@@ -6640,7 +6712,7 @@ bool weapon::animate(int32_t index)
 		}
 		break;
 		
-		// enemy weapons
+		//  enemy weapons
 		case ewFireball2:
 			switch(misc)
 			{
@@ -6681,7 +6753,7 @@ bool weapon::animate(int32_t index)
 					break;
 			}
 			
-			//fallthrough
+			[[fallthrough]];
 		case wRefFireball:
 		case ewFireball:
 		{

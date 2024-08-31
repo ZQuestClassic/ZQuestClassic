@@ -1153,8 +1153,11 @@ enum
 // Remaining 16 reserved for future use.
 
 
-// enemy patters
+// enemy spawn patterns
 enum { pRANDOM, pSIDES, pSIDESR, pCEILING, pCEILINGR, pRANDOMR, pNOSPAWN };
+
+// enemy attack patterns
+enum { apNORMAL, apEACHTILE, apCONSTANT, apSLANT, ap3SHOTS, ap4SHOTS_CARD, ap4SHOTS_DIAG, ap4SHOTS_RAND, ap5SHOTS, apBREATH, ap8SHOTS, apSUMMON, apSUMMONLAYER, apLAST };
 
 // We only use t4Bit and tf8Bit.
 // t4Bit takes up 128 bytes in the file format, tf8bit takes up 256 bit.
@@ -1284,7 +1287,8 @@ struct item_drop_object
 #define OVERRIDE_DRAW_Y_OFFSET	0x00000100
 #define OVERRIDE_DRAW_Z_OFFSET	0x00000200
 
-#define MAX_NPC_ATTRIBUTES 31
+#define MAX_NPC_ATTRIBUTES 32
+#define MAX_NPC_ATTACK_ATTRIBUTES 8
 
 struct guydata
 {
@@ -1342,7 +1346,18 @@ struct guydata
     byte weap_initiala[INITIAL_A];
     
 	byte spr_shadow, spr_death, spr_spawn;
-	
+
+	// attack tab
+	int32_t attack_pattern;
+	int32_t attack_attributes[8];
+	byte wunblockable;
+	move_flags wmoveflags;
+	int32_t weapoverrideFLAGS;
+	int32_t weap_hxofs, weap_hyofs, weap_hxsz, weap_hysz, weap_hzsz, weap_xofs, weap_yofs, weap_tilew, weap_tileh;
+	int32_t wstep;
+	byte burnsprs[WPNSPR_MAX];
+	byte light_rads[WPNSPR_MAX];
+
 #define ENEMY_FLAG1   0x01
 #define ENEMY_FLAG2   0x02
 #define ENEMY_FLAG3     0x04
