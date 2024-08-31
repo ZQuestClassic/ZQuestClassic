@@ -752,6 +752,8 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::DefenseField(auto* field, GUI::L
 	);
 }
 
+//Flags Tab
+
 std::shared_ptr<GUI::Widget> EnemyEditorDialog::SizeFlag(int32_t index)
 {
 	using namespace GUI::Builder;
@@ -813,6 +815,59 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::MoveFlag(move_flags index, strin
 		}
 	);
 }
+
+//Attack Tab
+
+std::shared_ptr<GUI::Widget> EnemyEditorDialog::WeaponSizeFlag(int32_t index)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+
+	return Checkbox(
+		text = "Enabled",
+		checked = local_guyref.weapoverrideFLAGS & index,
+		onToggleFunc = [&, index](bool state)
+		{
+			SETFLAG(local_guyref.weapoverrideFLAGS, index, state);
+		}
+	);
+}
+
+std::shared_ptr<GUI::Widget> EnemyEditorDialog::WeaponBlockFlag(byte index, string const& str)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+
+	return Checkbox(
+		text = str,
+		checked = local_guyref.wunblockable & index,
+		fitParent = true,
+		onToggleFunc = [&, index](bool state)
+		{
+			SETFLAG(local_guyref.wunblockable, index, state);
+		}
+	);
+}
+
+std::shared_ptr<GUI::Widget> EnemyEditorDialog::WeaponMoveFlag(move_flags index, string const& str)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+
+	return Checkbox(
+		text = str,
+		checked = local_guyref.wmoveflags & index,
+		fitParent = true,
+		onToggleFunc = [&, index](bool state)
+		{
+			SETFLAG(local_guyref.wmoveflags, index, state);
+		}
+	);
+}
+
+//Effects Tab
+
+//Script Tab
 
 std::shared_ptr<GUI::Widget> EnemyEditorDialog::ScriptField(int index)
 {
@@ -1476,6 +1531,54 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 						DropDownField(&local_guyref.firesfx, list_sfx),
 						INFOBTN("Plays when the projectile is fired.")
 					)
+				),
+				Row(
+				Frame(title = "Block Flags", hAlign = 1.0, fitParent = true,
+					Column(hAlign = 1.0, fitParent = true,
+						WeaponBlockFlag(WPNUNB_BLOCK, "Weapon ignores 'Player Block' Defense"),
+						WeaponBlockFlag(WPNUNB_IGNR, "Weapon ignores 'Player Ignore' Defense"),
+						WeaponBlockFlag(WPNUNB_SHLD, "Weapon ignores shields."),
+						WeaponBlockFlag(WPNUNB_REFL, "Weapon cannot be reflected.")
+					)
+				),
+				Frame(title = "Movement Flags", hAlign = 1.0, fitParent = true,
+					Column(hAlign = 1.0, fitParent = true,
+						WeaponMoveFlag(move_obeys_grav, "Obeys Gravity"),
+						WeaponMoveFlag(move_can_pitfall, "Can Fall Into Pitfalls"),
+						WeaponMoveFlag(move_can_waterdrown, "Can Drown In Liquid")
+					)
+				)
+				)
+			)),
+			TabRef(name = "Weapon Size", Row(
+				Columns_Rows<9, 3>(hAlign = 1.0, vAlign = 1.0,
+					Label(text = "TileWidth:", hAlign = 1.0, rightPadding = 0_px),
+					Label(text = "TileHeight:", hAlign = 1.0, rightPadding = 0_px),
+					Label(text = "HitWidth:", hAlign = 1.0, rightPadding = 0_px),
+					Label(text = "HitHeight:", hAlign = 1.0, rightPadding = 0_px),
+					Label(text = "HitZHeight:", hAlign = 1.0, rightPadding = 0_px),
+					Label(text = "HitXOffset:", hAlign = 1.0, rightPadding = 0_px),
+					Label(text = "HitYOffset:", hAlign = 1.0, rightPadding = 0_px),
+					Label(text = "DrawXOffset:", hAlign = 1.0, rightPadding = 0_px),
+					Label(text = "DrawYOffset:", hAlign = 1.0, rightPadding = 0_px),
+					NumberField(&local_guyref.weap_tilew, 0, 4, 1),
+					NumberField(&local_guyref.weap_tileh, 0, 4, 1),
+					NumberField(&local_guyref.weap_hxsz, 0, 64, 3),
+					NumberField(&local_guyref.weap_hysz, 0, 64, 3),
+					NumberField(&local_guyref.weap_hzsz, 0, 64, 3),
+					NumberField(&local_guyref.weap_hxofs, -64, 64, 3),
+					NumberField(&local_guyref.weap_hyofs, -64, 64, 3),
+					NumberField(&local_guyref.weap_xofs, -1000, 1000, 5),
+					NumberField(&local_guyref.weap_yofs, -1000, 1000, 5),
+					WeaponSizeFlag(OVERRIDE_TILE_WIDTH),
+					WeaponSizeFlag(OVERRIDE_TILE_HEIGHT),
+					WeaponSizeFlag(OVERRIDE_HIT_WIDTH),
+					WeaponSizeFlag(OVERRIDE_HIT_HEIGHT),
+					WeaponSizeFlag(OVERRIDE_HIT_Z_HEIGHT),
+					WeaponSizeFlag(OVERRIDE_HIT_X_OFFSET),
+					WeaponSizeFlag(OVERRIDE_HIT_Y_OFFSET),
+					WeaponSizeFlag(OVERRIDE_DRAW_X_OFFSET),
+					WeaponSizeFlag(OVERRIDE_DRAW_Y_OFFSET)
 				)
 			))
 		))
