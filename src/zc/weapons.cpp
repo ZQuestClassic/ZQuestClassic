@@ -2420,7 +2420,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	{
 		//lweapon_overrides(); SOON
 	}
-	else if (parentid > -1 && !isLWeapon)
+	else if (FFCore.quest_format[vGuys] >= 51 && parentid > -1 && !isLWeapon) //This is based off guyversion.
 	{
 		eweapon_overrides();
 	}
