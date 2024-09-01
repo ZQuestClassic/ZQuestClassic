@@ -215,19 +215,22 @@ int32_t d_dropdmaplist_proc(int32_t ,DIALOG *,int32_t)
     return D_O_K;
 }
 
-static char dmap_str_buf[37];
 int32_t dmap_list_size=MAXDMAPS;
 bool dmap_list_zero=true;
 
 const char *dmaplist(int32_t index, int32_t *list_size)
 {
+    static std::string str;
+
     if(index>=0)
     {
         bound(index,0,dmap_list_size-1);
-        sprintf(dmap_str_buf,"%3d-%s",index+(dmap_list_zero?0:1), DMaps[index].name);
-        return dmap_str_buf;
+        str = fmt::format("{:03}-{}", index+(dmap_list_zero?0:1), DMaps[index].name);
+        if (DMaps[index].xoff)
+            str += fmt::format(" xoff: {}", (int)DMaps[index].xoff);
+        return str.c_str();
     }
-    
+
     *list_size=dmap_list_size;
     return NULL;
 }

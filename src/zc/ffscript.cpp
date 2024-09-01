@@ -97,7 +97,7 @@ using namespace util;
 using std::ostringstream;
 
 // (type, index) => ScriptEngineData
-std::map<std::pair<ScriptType, word>, ScriptEngineData> scriptEngineDatas;
+std::map<std::pair<ScriptType, int>, ScriptEngineData> scriptEngineDatas;
 
 extern byte use_dwm_flush;
 uint8_t using_SRAM = 0;

@@ -741,10 +741,10 @@ endif()
 #############################################################
 
 if(MSVC)
-	list(APPEND ZELDAEXTRASOURCES zc_icon.rc)
+	list(APPEND ZELDAEXTRASOURCES icons/zc_icon.rc)
 
 elseif(LINUX)
-	list(APPEND ZELDAEXTRASOURCES zc_icon.c)
+	list(APPEND ZELDAEXTRASOURCES icons/zc_icon.c)
 endif()
 
 if(UNITY_BUILD)
@@ -822,9 +822,9 @@ endif()
 #############################################################
 
 if(MSVC)
-	list(APPEND ZQUESTEXTRASOURCES zq_icon.rc)
+	list(APPEND ZQUESTEXTRASOURCES icons/zq_icon.rc)
 elseif(LINUX)
-	list(APPEND ZQUESTEXTRASOURCES zq_icon.c)
+	list(APPEND ZQUESTEXTRASOURCES icons/zq_icon.c)
 endif()
 
 if(UNITY_BUILD)
@@ -874,9 +874,9 @@ endif()
 #############################################################
 
 if(MSVC)
-	list(APPEND LAUNCHEREXTRASOURCES zl_icon.rc)
+	list(APPEND LAUNCHEREXTRASOURCES icons/zl_icon.rc)
 elseif(LINUX)
-	list(APPEND LAUNCHEREXTRASOURCES zl_icon.c)
+	list(APPEND LAUNCHEREXTRASOURCES icons/zl_icon.c)
 endif()
 
 add_executable(zlauncher ${LAUNCHER_SOURCES} ${LAUNCHER_GUI_SOURCES} ${LAUNCHEREXTRASOURCES})
@@ -900,9 +900,9 @@ endif()
 
 # TODO give zupdater its own icon.
 if(MSVC)
-	list(APPEND UPDATEREXTRASOURCES zl_icon.rc)
+	list(APPEND UPDATEREXTRASOURCES icons/zl_icon.rc)
 elseif(LINUX)
-	list(APPEND UPDATEREXTRASOURCES zl_icon.c)
+	list(APPEND UPDATEREXTRASOURCES icons/zl_icon.c)
 endif()
 
 add_executable(zupdater src/zupdater/zupdater.cpp src/zconfig.cpp ${UPDATEREXTRASOURCES})
