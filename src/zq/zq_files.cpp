@@ -11,7 +11,7 @@
 #include "base/zdefs.h"
 #include "zq/zq_misc.h"
 #include "zq/zquest.h"
-#include "qst.h"
+#include "base/qst.h"
 #include "base/zsys.h"
 #include "zq/zq_class.h"
 #include "tiles.h"

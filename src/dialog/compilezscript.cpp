@@ -7,7 +7,7 @@
 #include "alertfunc.h"
 #include "headerdlg.h"
 #include "zc/ffscript.h"
-#include "qst.h"
+#include "base/qst.h"
 #include "zq/ffasmexport.h"
 #include "zscrdata.h"
 #include "info.h"

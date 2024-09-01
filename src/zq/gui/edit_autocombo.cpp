@@ -1,8 +1,9 @@
-#include "edit_autocombo.h"
+#include "zq/gui/edit_autocombo.h"
+
 #include "base/autocombo.h"
-#include "common.h"
-#include "info.h"
-#include <gui/builder.h>
+#include "dialog/common.h"
+#include "dialog/info.h"
+#include "gui/builder.h"
 #include "zc_list_data.h"
 #include "gui/use_size.h"
 #include "zq/zq_tiles.h"

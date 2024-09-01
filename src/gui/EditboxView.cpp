@@ -12,8 +12,6 @@ extern int32_t scheme[];
 
 void update_hw_screen();
 
-extern bool is_editor();
-
 void EditboxView::update()
 {
 	assert(model);

@@ -7,7 +7,7 @@
 #include "zq/zquest.h"
 #include "zq/zq_class.h"
 #include "gui/editbox.h"
-#include "qst.h"
+#include "base/qst.h"
 #include <fmt/format.h>
 #include <utility>
 #include <sstream>

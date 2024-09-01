@@ -554,11 +554,16 @@ int32_t get_progressive_item(itemdata const& itm, bool lastOwned)
 	return lastid;
 #endif
 }
-// Linker issues because this is shared with ZQu4est. :( -Z
-#ifndef IS_EDITOR
-int32_t item::getScriptUID() { return script_UID; }
-void item::setScriptUID(int32_t new_id) { script_UID = new_id; }
-#endif
+
+int32_t item::getScriptUID()
+{
+	return script_UID;
+}
+
+void item::setScriptUID(int32_t new_id)
+{
+	script_UID = new_id;
+}
 
 void putitem2(BITMAP *dest,int32_t x,int32_t y,int32_t item_id, int32_t &aclk, int32_t &aframe, int32_t flash)
 {
@@ -1077,7 +1082,7 @@ void itemdata::advpaste(itemdata const& other, bitstring const& pasteflags)
 		wpn9 = other.wpn9;
 		wpn10 = other.wpn10;
 		CPYFLAG(flags, item_burning_sprites, other.flags);
-		for(int q = 0; q < BURNSPR_MAX; ++q)
+		for(int q = 0; q < WPNSPR_MAX; ++q)
 		{
 			burnsprs[q] = other.burnsprs[q];
 			light_rads[q] = other.light_rads[q];

@@ -84,22 +84,17 @@ public:
 	bool noSound;
 	bool noHoldSound;
 
-//Linker errors because this is shared with zquest. :( -Z
-    #ifndef IS_EDITOR
     int32_t script_UID;
     int32_t getScriptUID();
     void setScriptUID(int32_t new_id);
-    #endif
-//
+
 	void load_gfx(itemdata const& itm);
 
     item(zfix X,zfix Y,zfix Z,int32_t i,int32_t p,int32_t c, bool isDummy = false);
     virtual ~item();
     virtual bool animate(int32_t index);
     virtual void draw(BITMAP *dest);
-#ifndef IS_EDITOR
 	virtual int32_t run_script(int32_t mode);
-#endif
 	virtual optional<ScriptType> get_scrtype() const {return ScriptType::ItemSprite;}
 	virtual ALLEGRO_COLOR hitboxColor(byte opacity = 255) const;
 	virtual void draw_hitbox();
@@ -155,15 +150,7 @@ enum
 
 //Now itemdata lives here too!
 
-enum
-{
-	BURNSPR_NONE,
-	BURNSPR_ANY,
-	BURNSPR_STRONG,
-	BURNSPR_MAGIC,
-	BURNSPR_DIVINE,
-	BURNSPR_MAX
-};
+
 struct itemdata
 {
     int32_t tile;
@@ -210,8 +197,8 @@ struct itemdata
     int32_t misc10;
 	int16_t cost_amount[2]; // Magic usage!
     byte usesound, usesound2;
-	byte burnsprs[BURNSPR_MAX];
-	byte light_rads[BURNSPR_MAX];
+	byte burnsprs[WPNSPR_MAX];
+	byte light_rads[WPNSPR_MAX];
     byte useweapon; //lweapon id type -Z
     byte usedefence; //default defence type -Z
     int32_t weap_pattern[ITEM_MOVEMENT_PATTERNS]; //formation, arg1, arg2 -Z

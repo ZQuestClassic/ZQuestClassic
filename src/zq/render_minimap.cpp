@@ -4,7 +4,7 @@
 #include "base/zc_alleg.h"
 #include "base/zdefs.h"
 #include "gui/jwin_a5.h"
-#include "qst.h"
+#include "base/qst.h"
 #include "zq/render.h"
 #include "zq/zq_class.h"
 #include "zq/zq_misc.h"

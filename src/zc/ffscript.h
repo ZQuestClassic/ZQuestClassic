@@ -1882,7 +1882,7 @@ struct ScriptEngineData {
 };
 
 // (type, index) => ScriptEngineData
-extern std::map<std::pair<ScriptType, word>, ScriptEngineData> scriptEngineDatas;
+extern std::map<std::pair<ScriptType, int>, ScriptEngineData> scriptEngineDatas;
 
 void on_reassign_script_engine_data(ScriptType type, int index);
 

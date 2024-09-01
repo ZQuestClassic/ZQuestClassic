@@ -2126,56 +2126,56 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								Label(text = "No Fire:", hAlign = 1.0),
 								DropDownList(
 									data = list_sprites,
-									selectedValue = local_itemref.burnsprs[BURNSPR_NONE],
+									selectedValue = local_itemref.burnsprs[WPNSPR_BASE],
 									onSelectFunc = [&](int32_t val)
 									{
-										local_itemref.burnsprs[BURNSPR_NONE] = val;
+										local_itemref.burnsprs[WPNSPR_BASE] = val;
 									}),
-								NUM_FIELD(light_rads[BURNSPR_NONE], 0, 255),
+								NUM_FIELD(light_rads[WPNSPR_BASE], 0, 255),
 								INFOBTN("Settings used for the weapon when not on fire"),
 								//
 								Label(text = "Any Fire:", hAlign = 1.0),
 								DropDownList(
 									data = list_sprites,
-									selectedValue = local_itemref.burnsprs[BURNSPR_ANY],
+									selectedValue = local_itemref.burnsprs[WPNSPR_IGNITE_ANY],
 									onSelectFunc = [&](int32_t val)
 									{
-										local_itemref.burnsprs[BURNSPR_ANY] = val;
+										local_itemref.burnsprs[WPNSPR_IGNITE_ANY] = val;
 									}),
-								NUM_FIELD(light_rads[BURNSPR_ANY], 0, 255),
+								NUM_FIELD(light_rads[WPNSPR_IGNITE_ANY], 0, 255),
 								INFOBTN("Settings used for the weapon when on 'Any' fire"),
 								//
 								Label(text = "Strong Fire:", hAlign = 1.0),
 								DropDownList(
 									data = list_sprites,
-									selectedValue = local_itemref.burnsprs[BURNSPR_STRONG],
+									selectedValue = local_itemref.burnsprs[WPNSPR_IGNITE_STRONG],
 									onSelectFunc = [&](int32_t val)
 									{
-										local_itemref.burnsprs[BURNSPR_STRONG] = val;
+										local_itemref.burnsprs[WPNSPR_IGNITE_STRONG] = val;
 									}),
-								NUM_FIELD(light_rads[BURNSPR_STRONG], 0, 255),
+								NUM_FIELD(light_rads[WPNSPR_IGNITE_STRONG], 0, 255),
 								INFOBTN("Settings used for the weapon when on 'Strong' fire"),
 								//
 								Label(text = "Magic Fire:", hAlign = 1.0),
 								DropDownList(
 									data = list_sprites,
-									selectedValue = local_itemref.burnsprs[BURNSPR_MAGIC],
+									selectedValue = local_itemref.burnsprs[WPNSPR_IGNITE_MAGIC],
 									onSelectFunc = [&](int32_t val)
 									{
-										local_itemref.burnsprs[BURNSPR_MAGIC] = val;
+										local_itemref.burnsprs[WPNSPR_IGNITE_MAGIC] = val;
 									}),
-								NUM_FIELD(light_rads[BURNSPR_MAGIC], 0, 255),
+								NUM_FIELD(light_rads[WPNSPR_IGNITE_MAGIC], 0, 255),
 								INFOBTN("Settings used for the weapon when on 'Magic' fire"),
 								//
 								Label(text = "Divine Fire:", hAlign = 1.0),
 								DropDownList(
 									data = list_sprites,
-									selectedValue = local_itemref.burnsprs[BURNSPR_DIVINE],
+									selectedValue = local_itemref.burnsprs[WPNSPR_IGNITE_DIVINE],
 									onSelectFunc = [&](int32_t val)
 									{
-										local_itemref.burnsprs[BURNSPR_DIVINE] = val;
+										local_itemref.burnsprs[WPNSPR_IGNITE_DIVINE] = val;
 									}),
-								NUM_FIELD(light_rads[BURNSPR_DIVINE], 0, 255),
+								NUM_FIELD(light_rads[WPNSPR_IGNITE_DIVINE], 0, 255),
 								INFOBTN("Settings used for the weapon when on 'Divine' fire")
 							)
 						))

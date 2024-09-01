@@ -4,7 +4,7 @@
 #include "pickruleset.h"
 #include "pickruletemplate.h"
 #include "info.h"
-#include "qst.h"
+#include "base/qst.h"
 #include "zq/zq_class.h"
 #include "zq/zq_files.h"
 #include "zq/zquest.h"

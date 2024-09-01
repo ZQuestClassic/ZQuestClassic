@@ -35,7 +35,7 @@
 #include "base/colors.h"
 #include "pal.h"
 #include "base/zsys.h"
-#include "qst.h"
+#include "base/qst.h"
 #include "zc/zc_sys.h"
 #include "play_midi.h"
 #include "gui/jwin_a5.h"
@@ -6032,8 +6032,17 @@ int32_t onGoTo()
 		
 	if(do_zqdialog(goto_dlg,4)==1)
 	{
-		// dmap, screen
-		cheats_enqueue(Cheat::GoTo, goto_dlg[4].d2, zc_min(zc_xtoi(cheat_goto_screen_str),0x7F));
+		int dmap = goto_dlg[4].d2;
+		int screen = zc_xtoi(cheat_goto_screen_str);
+		int adjusted_screen = screen + DMaps[dmap].xoff;
+		if (adjusted_screen < 0 || adjusted_screen >= 128)
+		{
+			InfoDialog("Invalid screen", fmt::format("The screen {:02X} is out of bounds.", adjusted_screen)).show();
+		}
+		else
+		{
+			cheats_enqueue(Cheat::GoTo, dmap, screen);
+		}
 	};
 	
 	return D_O_K;

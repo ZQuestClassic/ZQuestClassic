@@ -22,7 +22,7 @@
 #include "zc/zc_sys.h"
 #include "zc/zelda.h"
 #include "base/zsys.h"
-#include "qst.h"
+#include "base/qst.h"
 #include "tiles.h"
 #include "pal.h"
 #include "base/gui.h"

@@ -522,7 +522,9 @@ void cheats_hit_bind(Cheat cheat)
 			break;
 		case PlayerData:
 			enter_sys_pal();
+			music_pause();
 			onCheatConsole();
+			music_resume();
 			exit_sys_pal();
 			zc_init_apply_cheat_delta();
 			break;

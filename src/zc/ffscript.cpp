@@ -73,7 +73,7 @@
 #include "zc/rendertarget.h"
 
 #include "zc/zc_custom.h"
-#include "qst.h"
+#include "base/qst.h"
 
 using namespace util;
 
@@ -94,7 +94,7 @@ using namespace util;
 using std::ostringstream;
 
 // (type, index) => ScriptEngineData
-std::map<std::pair<ScriptType, word>, ScriptEngineData> scriptEngineDatas;
+std::map<std::pair<ScriptType, int>, ScriptEngineData> scriptEngineDatas;
 
 extern byte use_dwm_flush;
 uint8_t using_SRAM = 0;
@@ -4251,7 +4251,7 @@ int32_t get_register(int32_t arg)
 				break;
 			}
 			int32_t index = ri->d[rINDEX]/10000;
-			if(index < 0 || index >= BURNSPR_MAX)
+			if(index < 0 || index >= WPNSPR_MAX)
 			{
 				Z_scripterrlog("Invalid index to itemdata->BurnSprites[]: %d\n", index);
 				ret = -10000;
@@ -4269,7 +4269,7 @@ int32_t get_register(int32_t arg)
 				break;
 			}
 			int32_t index = ri->d[rINDEX]/10000;
-			if(index < 0 || index >= BURNSPR_MAX)
+			if(index < 0 || index >= WPNSPR_MAX)
 			{
 				Z_scripterrlog("Invalid index to itemdata->BurnLightRadius[]: %d\n", index);
 				ret = -10000;
@@ -15202,7 +15202,7 @@ void set_register(int32_t arg, int32_t value)
 				break;
 			}
 			int32_t index = ri->d[rINDEX]/10000;
-			if(index < 0 || index >= BURNSPR_MAX)
+			if(index < 0 || index >= WPNSPR_MAX)
 			{
 				Z_scripterrlog("Invalid index to itemdata->BurnSprites[]: %d\n", index);
 				break;
@@ -15218,7 +15218,7 @@ void set_register(int32_t arg, int32_t value)
 				break;
 			}
 			int32_t index = ri->d[rINDEX]/10000;
-			if(index < 0 || index >= BURNSPR_MAX)
+			if(index < 0 || index >= WPNSPR_MAX)
 			{
 				Z_scripterrlog("Invalid index to itemdata->BurnLightRadius[]: %d\n", index);
 				break;
@@ -15950,7 +15950,7 @@ void set_register(int32_t arg, int32_t value)
 				if(BC::checkBounds(indx, 0, WFLAG_MAX-1, "lweapon->Flags[]") == SH::_NoError)
 				{
 					//All bits, in order, of a single byte; just use bitwise
-					int32_t bit = 1<<indx;
+					weapon_flags bit = weapon_flags(1<<indx);
 					if(value)
 						((weapon*)(s))->misc_wflags |= bit;
 					else
@@ -16597,7 +16597,7 @@ void set_register(int32_t arg, int32_t value)
 				if(BC::checkBounds(indx, 0, WFLAG_MAX-1, "eweapon->Flags[]") == SH::_NoError)
 				{
 					//All bits, in order, of a single byte; just use bitwise
-					int32_t bit = 1<<indx;
+					weapon_flags bit = weapon_flags(1<<indx);
 					if(value)
 						((weapon*)(s))->misc_wflags |= bit;
 					else

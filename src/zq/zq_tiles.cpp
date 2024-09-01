@@ -11,6 +11,7 @@
 #include "base/combo.h"
 #include "base/msgstr.h"
 #include "base/zdefs.h"
+#include "new_subscr.h"
 #include "subscr.h"
 #include "zq/zquestdat.h"
 #include "zq/zq_tiles.h"
@@ -20,7 +21,7 @@
 #include "zq/zq_class.h"
 #include "base/zsys.h"
 #include "base/colors.h"
-#include "qst.h"
+#include "base/qst.h"
 #include "gui/jwin.h"
 #include <base/new_menu.h>
 #include "base/jwinfsel.h"
@@ -6358,6 +6359,74 @@ void ComboMoveList::add_diff(int diff)
 		ref->addCombo(diff);
 }
 
+static void collect_subscreen_tiles(SubscrWidget& widget, TileMoveList& list)
+{
+	if (auto w = dynamic_cast<SW_2x2Frame*>(&widget))
+	{
+		list.add_tile(&w->tile, 2, 2, "2x2 Frame");
+	}
+	else if (auto w = dynamic_cast<SW_TriFrame*>(&widget))
+	{
+		list.add_tile(&w->frame_tile, 6, 3, "McGuffin Frame - Frame");
+		list.add_tile(&w->piece_tile, "McGuffin Frame - Piece");
+	}
+	else if (auto w = dynamic_cast<SW_McGuffin*>(&widget))
+	{
+		list.add_tile(&w->tile, "McGuffin Piece");
+	}
+	else if (auto w = dynamic_cast<SW_TileBlock*>(&widget))
+	{
+		list.add_tile(&w->tile, w->w, w->h, "TileBlock");
+	}
+	else if (auto w = dynamic_cast<SW_MiniTile*>(&widget))
+	{
+		if (w->tile == -1)
+			return;
+
+		list.add_tile(&w->tile, "MiniTile");
+	}
+	else if (auto w = dynamic_cast<SW_GaugePiece*>(&widget))
+	{
+		int fr = w->frames ? w->frames : 1;
+		fr = fr * (1+(w->get_per_container()/(w->unit_per_frame+1)));
+		if(!(w->flags&SUBSCR_GAUGE_FULLTILE))
+			fr = (fr/4_zf).getCeil();
+
+		for(auto q = 0; q < 4; ++q)
+		{
+			list.add_tile(&w->mts[q].mt_tile, fr, 1, fmt::format("Gauge Tile {}", q));
+		}
+	}
+}
+
+static void collect_subscreen_tiles(SubscrPage& page, TileMoveList& list)
+{
+	for(auto q = 0; q < page.contents.size(); ++q)
+	{
+		size_t indx = list.move_refs.size();
+		collect_subscreen_tiles(*page.contents[q], list);
+		for(; indx < list.move_refs.size(); ++indx)
+		{
+			auto& ref = list.move_refs[indx];
+			ref->name = fmt::format("Widget {} - {}", q, ref->name);
+		}
+	}
+}
+
+static void collect_subscreen_tiles(ZCSubscreen& subscreen, TileMoveList& list)
+{
+	for (auto q = 0; q < subscreen.pages.size(); ++q)
+	{
+		size_t indx = list.move_refs.size();
+		collect_subscreen_tiles(subscreen.pages[q], list);
+		for(; indx < list.move_refs.size(); ++indx)
+		{
+			auto& ref = list.move_refs[indx];
+			ref->name = fmt::format("Page {} - {}", q, ref->name);
+		}
+	}
+}
+
 bool _handle_tile_move(TileMoveProcess dest_process, optional<TileMoveProcess> source_process, int diff, TileMoveUndo* on_undo = nullptr, std::function<void(int32_t)> every_proc = nullptr, TileMoveList::Mode mode = TileMoveList::Mode::MOVE)
 {
 	bool BSZ2 = get_qr(qr_BSZELDA);
@@ -6839,7 +6908,7 @@ bool _handle_tile_move(TileMoveProcess dest_process, optional<TileMoveProcess> s
 		for(auto q = 0; q < subscreens_active.size(); ++q)
 		{
 			size_t indx = movelist->move_refs.size();
-			subscreens_active[q].collect_tiles(*movelist.get());
+			collect_subscreen_tiles(subscreens_active[q], *movelist.get());
 			for(; indx < movelist->move_refs.size(); ++indx)
 			{
 				auto& ref = movelist->move_refs[indx];
@@ -6849,7 +6918,7 @@ bool _handle_tile_move(TileMoveProcess dest_process, optional<TileMoveProcess> s
 		for(auto q = 0; q < subscreens_passive.size(); ++q)
 		{
 			size_t indx = movelist->move_refs.size();
-			subscreens_passive[q].collect_tiles(*movelist.get());
+			collect_subscreen_tiles(subscreens_passive[q], *movelist.get());
 			for(; indx < movelist->move_refs.size(); ++indx)
 			{
 				auto& ref = movelist->move_refs[indx];
@@ -6859,7 +6928,7 @@ bool _handle_tile_move(TileMoveProcess dest_process, optional<TileMoveProcess> s
 		for(auto q = 0; q < subscreens_overlay.size(); ++q)
 		{
 			size_t indx = movelist->move_refs.size();
-			subscreens_overlay[q].collect_tiles(*movelist.get());
+			collect_subscreen_tiles(subscreens_overlay[q], *movelist.get());
 			for(; indx < movelist->move_refs.size(); ++indx)
 			{
 				auto& ref = movelist->move_refs[indx];

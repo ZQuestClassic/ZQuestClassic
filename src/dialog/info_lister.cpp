@@ -9,7 +9,7 @@
 #include "zq/zq_misc.h"
 #include "zq/zq_class.h"
 #include "zq/zq_custom.h"
-#include "qst.h"
+#include "base/qst.h"
 #include <fmt/format.h>
 #include <utility>
 #include <sstream>
