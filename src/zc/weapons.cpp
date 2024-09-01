@@ -2322,6 +2322,8 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 		}
 		case ewFireTrail:
 		{
+			if (get_qr(qr_EW_FIRE_EMITS_LIGHT))
+				glowRad = game->get_light_rad();
 			step=0;
 			dir=-1;
 			
