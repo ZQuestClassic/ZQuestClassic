@@ -28,7 +28,7 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_UK
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-ALLEGRO_ICON            ICON                    "./zc_editor_icon.ico"
+ALLEGRO_ICON            ICON                    "./zc_launcher_icon.ico"
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -59,8 +59,8 @@ END
 // Version
 //
 
-#include "src/metadata/metadata.h"
-#include "src/base/version_header.h"
+#include "../src/metadata/metadata.h"
+#include "../src/base/version_header.h"
 
 VS_VERSION_INFO VERSIONINFO
  FILEVERSION V_ZC_FIRST,V_ZC_SECOND,V_ZC_THIRD,V_ZC_FOURTH
