@@ -1516,38 +1516,57 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 		ptr = &guy_tabs[9],
 		TabRef(name = "Attack", TabPanel(
 			ptr = &guy_tabs[10],
-			TabRef(name = "Basic", Column(
-				Frame(title = "Projectile", hAlign = 1.0, fitParent = true,
-					Rows<3>(hAlign = 1.0, rowSpacing = 0.5_em,
-						Label(text = "Weapon Type:", hAlign = 1.0, rightPadding = 0_px),
-						DropDownField(&local_guyref.weapon, list_eweaptype),
-						INFOBTN("The projectile that is fired."),
-						//
-						Label(text = "Weapon Sprite:", hAlign = 1.0, rightPadding = 0_px),
-						DropDownField(&local_guyref.wpnsprite, list_sprites),
-						INFOBTN("Sprite used for the projectile."),
-						//
-						Label(text = "Weapon Sound:", hAlign = 1.0, rightPadding = 0_px),
-						DropDownField(&local_guyref.firesfx, list_sfx),
-						INFOBTN("Plays when the projectile is fired.")
+			TabRef(name = "Weapon", Column(
+				Row(
+					Frame(title = "Projectile", hAlign = 1.0, fitParent = true,
+						Rows<3>(hAlign = 1.0, rowSpacing = 0.5_em,
+							//
+							Label(text = "Type:", hAlign = 1.0, rightPadding = 0_px),
+							DropDownField(&local_guyref.weapon, list_eweaptype),
+							INFOBTN("The weapon that is fired."),
+							//
+							Label(text = "Sprite:", hAlign = 1.0, rightPadding = 0_px),
+							DropDownField(&local_guyref.wpnsprite, list_sprites),
+							INFOBTN("Sprite used for this weapon."),
+							//
+							Label(text = "Fire Sound:", hAlign = 1.0, rightPadding = 0_px),
+							DropDownField(&local_guyref.firesfx, list_sfx),
+							INFOBTN("Plays when this weapon is fired."
+							"\nNote: that explosions and boomerangs have hardcoded sfx")
+							//
+						)
+					),
+					Frame(title = "Stats", hAlign = 1.0, fitParent = true,
+						Rows<3>(hAlign = 1.0, fitParent = true,
+							//
+							Label(text = "W. Damage:", hAlign = 1.0, rightPadding = 0_px),
+							INFOBTN("How much HP the player loses if this enemy's weapon hits him"),
+							NumberField(&local_guyref.wdp, 0, 32767, 5),
+							//
+							Label(text = "W. Step Speed:", hAlign = 1.0, rightPadding = 0_px),
+							INFOBTN("Movement speed. 100 step speed is 1 pixel per frame."
+								"\nNote that bomb blast and firetrails don't use this."),
+							NumberField(&local_guyref.wstep, 0, 1000, 5)
+							//
+						)
 					)
 				),
 				Row(
-				Frame(title = "Block Flags", hAlign = 1.0, fitParent = true,
-					Column(hAlign = 1.0, fitParent = true,
-						WeaponBlockFlag(WPNUNB_BLOCK, "Weapon ignores 'Player Block' Defense"),
-						WeaponBlockFlag(WPNUNB_IGNR, "Weapon ignores 'Player Ignore' Defense"),
-						WeaponBlockFlag(WPNUNB_SHLD, "Weapon ignores shields."),
-						WeaponBlockFlag(WPNUNB_REFL, "Weapon cannot be reflected.")
+					Frame(title = "Block Flags", hAlign = 1.0, fitParent = true,
+						Column(hAlign = 1.0, fitParent = true,
+							WeaponBlockFlag(WPNUNB_BLOCK, "Ignores 'Player Block' Defense"),
+							WeaponBlockFlag(WPNUNB_IGNR, "Ignores 'Player Ignore' Defense"),
+							WeaponBlockFlag(WPNUNB_SHLD, "Ignores shields."),
+							WeaponBlockFlag(WPNUNB_REFL, "Cannot be reflected.")
+						)
+					),
+					Frame(title = "Movement Flags", hAlign = 1.0, fitParent = true,
+						Column(hAlign = 1.0, fitParent = true,
+							WeaponMoveFlag(move_obeys_grav, "Obeys Gravity"),
+							WeaponMoveFlag(move_can_pitfall, "Can Fall Into Pitfalls"),
+							WeaponMoveFlag(move_can_waterdrown, "Can Drown In Liquid")
+						)
 					)
-				),
-				Frame(title = "Movement Flags", hAlign = 1.0, fitParent = true,
-					Column(hAlign = 1.0, fitParent = true,
-						WeaponMoveFlag(move_obeys_grav, "Obeys Gravity"),
-						WeaponMoveFlag(move_can_pitfall, "Can Fall Into Pitfalls"),
-						WeaponMoveFlag(move_can_waterdrown, "Can Drown In Liquid")
-					)
-				)
 				)
 			)),
 			TabRef(name = "Weapon Size", Row(
@@ -1579,6 +1598,80 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 					WeaponSizeFlag(OVERRIDE_HIT_Y_OFFSET),
 					WeaponSizeFlag(OVERRIDE_DRAW_X_OFFSET),
 					WeaponSizeFlag(OVERRIDE_DRAW_Y_OFFSET)
+				)
+			)),
+			TabRef(name = "Burning", Column(
+				Row(
+					INFOBTN("With this checked, the created weapon will use the appropriate"
+						" burning sprite INSTEAD of its' normal sprite."
+						"\nAdditionally, the weapon will use the specified light radius."),
+					Checkbox(
+						width = FLAGS_WID,
+						checked = (local_guyref.flags & guy_burning_sprites),
+						text = "Use Burning Sprites",
+						onToggleFunc = [&](bool state)
+						{
+							SETFLAG(local_guyref.flags, guy_burning_sprites, state);
+						}
+					)
+				),
+				Rows<4>(
+					_d, Label(text = "Sprite"), Label(text = "Light Radius"), _d,
+					//
+					Label(text = "No Fire:", hAlign = 1.0),
+					DropDownList(
+						data = list_sprites,
+						selectedValue = local_guyref.burnsprs[WPNSPR_BASE],
+						onSelectFunc = [&](int32_t val)
+						{
+							local_guyref.burnsprs[WPNSPR_BASE] = val;
+						}),
+					NumberField(&local_guyref.light_rads[WPNSPR_BASE], 0, 255, 3),
+					INFOBTN("Settings used for the weapon when not on fire"),
+					//
+					Label(text = "Any Fire:", hAlign = 1.0),
+					DropDownList(
+						data = list_sprites,
+						selectedValue = local_guyref.burnsprs[WPNSPR_IGNITE_ANY],
+						onSelectFunc = [&](int32_t val)
+						{
+							local_guyref.burnsprs[WPNSPR_IGNITE_ANY] = val;
+						}),
+					NumberField(&local_guyref.light_rads[WPNSPR_IGNITE_ANY], 0, 255, 3),
+					INFOBTN("Settings used for the weapon when on 'Any' fire"),
+					//
+					Label(text = "Strong Fire:", hAlign = 1.0),
+					DropDownList(
+						data = list_sprites,
+						selectedValue = local_guyref.burnsprs[WPNSPR_IGNITE_STRONG],
+						onSelectFunc = [&](int32_t val)
+						{
+							local_guyref.burnsprs[WPNSPR_IGNITE_STRONG] = val;
+						}),
+					NumberField(&local_guyref.light_rads[WPNSPR_IGNITE_STRONG], 0, 255, 3),
+					INFOBTN("Settings used for the weapon when on 'Strong' fire"),
+					//
+					Label(text = "Magic Fire:", hAlign = 1.0),
+					DropDownList(
+						data = list_sprites,
+						selectedValue = local_guyref.burnsprs[WPNSPR_IGNITE_MAGIC],
+						onSelectFunc = [&](int32_t val)
+						{
+							local_guyref.burnsprs[WPNSPR_IGNITE_MAGIC] = val;
+						}),
+					NumberField(&local_guyref.light_rads[WPNSPR_IGNITE_MAGIC], 0, 255, 3),
+					INFOBTN("Settings used for the weapon when on 'Magic' fire"),
+					//
+					Label(text = "Divine Fire:", hAlign = 1.0),
+					DropDownList(
+						data = list_sprites,
+						selectedValue = local_guyref.burnsprs[WPNSPR_IGNITE_DIVINE],
+						onSelectFunc = [&](int32_t val)
+						{
+							local_guyref.burnsprs[WPNSPR_IGNITE_DIVINE] = val;
+						}),
+					NumberField(&local_guyref.light_rads[WPNSPR_IGNITE_DIVINE], 0, 255, 3),
+					INFOBTN("Settings used for the weapon when on 'Divine' fire")
 				)
 			))
 		))
