@@ -1031,7 +1031,6 @@ static void check_for_redraw(DIALOG_PLAYER *player)
    /* need to draw it? */
    if (player->res & D_REDRAW) {
       player->res ^= D_REDRAW;
-      player->res |= D_REDRAWME;
       player->res |= dialog_message(player->dialog, MSG_DRAW, 0, &player->obj);
    }
 
@@ -1040,7 +1039,6 @@ static void check_for_redraw(DIALOG_PLAYER *player)
       if ((player->dialog[c].flags & (D_DIRTY | D_HIDDEN)) == D_DIRTY) {
 	 player->dialog[c].flags &= ~D_DIRTY;
 	 MESSAGE(c, MSG_DRAW, 0);
-     player->res |= D_REDRAWME;
       }
    }
 
