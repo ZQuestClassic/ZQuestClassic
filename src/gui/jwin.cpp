@@ -1685,6 +1685,68 @@ d->dp = (char*)"255";
 elseif (x < 0 ) d->dp = (char*)"0";
 */
 
+#ifdef ALLEGRO_MACOSX
+static int WORD_FLAG = KB_ALT_FLAG;
+static int LINE_FLAG = KB_COMMAND_FLAG;
+#else
+static int WORD_FLAG = KB_CTRL_FLAG;
+static int LINE_FLAG = KB_ALT_FLAG;
+#endif
+
+static int classify_char(char c)
+{
+	if (c == ' ' || c == '\t' || c == '\r')
+		return 0;
+	if (c == '/')
+		return 1;
+	return 2;
+}
+
+static void delete_word(char* s, int* cursor)
+{
+	int start = *cursor;
+	if (start == 0) return;
+
+	int i = start - 1;
+	int first_ch_class = classify_char(s[i]);
+	while (i >= 0 && s[i])
+	{
+		if (classify_char(s[i]) != first_ch_class)
+			break;
+		i--;
+	}
+
+	i++;
+	*cursor = i;
+
+	int j = start;
+	while (s[j])
+		s[i++] = s[j++];
+	s[i] = 0;
+}
+
+static void delete_line(char* s, int* cursor)
+{
+	int start = *cursor;
+	if (start == 0) return;
+
+	int i = start - 1;
+	while (i >= 0 && s[i])
+	{
+		bool is_newline = s[i] == '\n';
+		if (is_newline) break;
+		i--;
+	}
+
+	i++;
+	*cursor = i;
+
+	int j = start;
+	while (s[j])
+		s[i++] = s[j++];
+	s[i] = 0;
+}
+
 int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 {
 	if(d->flags & D_HIDDEN)
@@ -1986,6 +2048,8 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 				break;
 			bool shifted = key_shifts & KB_SHIFT_FLAG;
 			bool ctrl = key_shifts & KB_CTRL_FLAG;
+			bool word_modifier = key_shifts & WORD_FLAG;
+			bool line_modifier = key_shifts & LINE_FLAG;
 			bool change_cursor = true;
 			int32_t scursor = cursor_start, ecursor = cursor_end;
 			char upper_c = c>>8;
@@ -2168,10 +2232,15 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 			}
 			else if(upper_c == KEY_BACKSPACE)
 			{
-				if(ctrl)
+				if(line_modifier)
 				{
-					s[0] = 0;
-					scursor = 0;
+					delete_line(s, &scursor);
+					ecursor = -1;
+					GUI_EVENT(d, geCHANGE_VALUE);
+				}
+				else if(word_modifier)
+				{
+					delete_word(s, &scursor);
 					ecursor = -1;
 					GUI_EVENT(d, geCHANGE_VALUE);
 				}
@@ -2615,9 +2684,11 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 				break;
 			bool shifted = key_shifts & KB_SHIFT_FLAG;
 			bool ctrl = key_shifts & KB_CTRL_FLAG;
+			bool word_modifier = key_shifts & WORD_FLAG;
+			bool line_modifier = key_shifts & LINE_FLAG;
 			bool change_cursor = true;
 			bool change_value = false;
-			int16_t scursor = cursor_start, ecursor = cursor_end;
+			int scursor = cursor_start, ecursor = cursor_end;
 			bool multiselect = cursor_end > -1;
 			auto upper_c = c>>8;
 			auto lower_c = c&0xFF;
@@ -2706,10 +2777,16 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 			}
 			else if(upper_c == KEY_BACKSPACE)
 			{
-				if(ctrl)
+				if(line_modifier)
 				{
-					s[0] = 0;
-					scursor = 0;
+					delete_line(s, &scursor);
+					ecursor = -1;
+					GUI_EVENT(d, geCHANGE_VALUE);
+					change_value = true;
+				}
+				else if(word_modifier)
+				{
+					delete_word(s, &scursor);
 					ecursor = -1;
 					GUI_EVENT(d, geCHANGE_VALUE);
 					change_value = true;
