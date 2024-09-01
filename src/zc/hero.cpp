@@ -23552,7 +23552,10 @@ void HeroClass::handleSpotlights()
 	// Previous working z3 impl:
 	// https://github.com/connorjclark/ZeldaClassic/blob/f627ea96a1bd87066ac282110e09c2ddf338b8c8/src/zc/hero.cpp#L22769
 	if (is_z3_scrolling_mode())
+	{
+		lightbeam_present = false;
 		return;
+	}
 
 	static bool had_spotlight = true;
 	word c = tmpscr->numFFC();
