@@ -10238,7 +10238,6 @@ heroanimate_skip_liftwpn:;
 		fairyclk = holdclk = refill_why = 0;
 	}
 	
-	// TODO z3 ! hero_scr ?
 	if((!activated_timed_warp) && (tmpscr->timedwarptics>0))
 	{
 		tmpscr->timedwarptics--;
