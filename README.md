@@ -1,10 +1,12 @@
 # ZQuest Classic
 
-ZQuest Classic is an engine for making games similar to the original NES Zelda.
+ZQuest Classic is a free, open source engine for making games similar to the original NES Zelda. Choose from hundreds of quests, or create your own.
 
 Website: [zquestclassic.com](https://zquestclassic.com)
 
-[Latest Downloads](https://zquestclassic.com/releases/)
+[Latest Releases](https://zquestclassic.com/releases/)
+
+[How to Play](https://zquestclassic.com/docs/how-to-play/)
 
 [Our Discord](https://discord.gg/uStAnHJhPM)
 
@@ -12,7 +14,16 @@ We support Windows (Win7+), OSX (12+), and Linux. There is also an experimental 
 
 ## Development
 
-See [`docs/building.md`](./docs/building.md) and learn [how to contribute](./CONTRIBUTING).
+See [`docs/building.md`](./docs/building.md) and learn [how to contribute](./CONTRIBUTING.md).
+
+## Images
+
+![Editor](https://github.com/user-attachments/assets/84d5f7e0-d948-4e01-b62b-552d1f961f91)
+![Joel's SOTW 785](https://zquestclassic.com/img/sotw-785-joel.png)
+![Twilight Knight's SOTW 778](https://zquestclassic.com/img/sotw-778-twilight-knight.png)
+![Architect Abdiel's SOTW 793](https://zquestclassic.com/img/sotw-793-architect-abdiel.png)
+
+[See more on our website](https://zquestclassic.com/)
 
 ## License
 
