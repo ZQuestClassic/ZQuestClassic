@@ -164,7 +164,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_SFX              8
 #define V_FAVORITES        4
 
-#define V_COMPATRULE       69
+#define V_COMPATRULE       70
 #define V_ZINFO            3
 
 //= V_SHOPS is under V_MISC
@@ -1010,7 +1010,7 @@ enum
 #define aNEWPOLV 39
 #define a4FRM3TRAP 36
 
-// Enemy misc1 types
+// Enemy misc1 types /*Depreciated*/
 enum { e1tNORMAL, e1tEACHTILE, e1tCONSTANT, e1tHOMINGBRANG=2, e1tFAST, e1tSLANT, e1t3SHOTS, e1t4SHOTS, e1t5SHOTS, e1t3SHOTSFAST, e1tFIREOCTO, e1t8SHOTS, e1tSUMMON, e1tSUMMONLAYER, e1tLAST };
 // Enemy misc2 types
 enum { e2tNORMAL, e2tSPLITHIT, e2tSPLIT, e2tFIREOCTO, e2tBOMBCHU, e2tTRIBBLE, e2tLAST };
@@ -1156,8 +1156,8 @@ enum
 // enemy spawn patterns
 enum { pRANDOM, pSIDES, pSIDESR, pCEILING, pCEILINGR, pRANDOMR, pNOSPAWN };
 
-// enemy attack patterns
-enum { apNORMAL, apEACHTILE, apCONSTANT, apSLANT, ap3SHOTS, ap4SHOTS_CARD, ap4SHOTS_DIAG, ap4SHOTS_RAND, ap5SHOTS, apBREATH, ap8SHOTS, apSUMMON, apSUMMONLAYER, apLAST };
+//enemy shottype patterns
+enum { stNORMAL, stEACHTILE, stCONSTANT, stFAST, stSLANT, st3SHOTS, st3SHOTSFAST, st5SHOTS, st5SHOTSFAST, st4SHOTSCARD, st4SHOTSDIAG, st4SHOTSRAND, st8SHOT, stBREATH, st8SHOTS, stSUMMON, stSUMMONLAYER, stLAST};
 
 // We only use t4Bit and tf8Bit.
 // t4Bit takes up 128 bytes in the file format, tf8bit takes up 256 bit.
@@ -1348,8 +1348,8 @@ struct guydata
 	byte spr_shadow, spr_death, spr_spawn;
 
 	// attack tab
-	int32_t attack_pattern;
-	int32_t attack_attributes[8];
+	int32_t shot_type;
+	int32_t shot_attributes[8];
 	byte wunblockable;
 	move_flags wmoveflags;
 	int32_t weapoverrideFLAGS;

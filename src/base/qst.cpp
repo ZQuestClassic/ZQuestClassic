@@ -3617,6 +3617,12 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_SCRIPTS_6_BIT_COLOR,1);
 	if(compatrule_version < 69)
 		set_qr(qr_SETENEMYWEAPONSOUNDSONWPNCHANGE, 1);
+	if(compatrule_version < 70)
+	{
+		set_qr(qr_BROKEN_WALKER_BREATH, 1);
+		set_qr(qr_BROKEN_8WAY_SHOT_STEP, 1);
+	}
+
 	
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
@@ -9832,7 +9838,64 @@ static void guys_update_weapons(guydata& tempguy)
 			}
 		}
 	}
-	
+	switch (tempguy.family)
+	{
+	case eeWALK:
+	{
+		switch (tempguy.attributes[0])
+		{
+		case e1tNORMAL: tempguy.shot_type = stNORMAL; break;
+		case e1tEACHTILE: tempguy.shot_type = stEACHTILE; break;
+		case e1tCONSTANT: tempguy.shot_type = stCONSTANT; break;
+		case e1tFAST: tempguy.shot_type = stFAST; break;
+		case e1t3SHOTS: tempguy.shot_type = st3SHOTS; break;
+		case e1t4SHOTS: tempguy.shot_type = st4SHOTSCARD; break;
+		case e1t5SHOTS: tempguy.shot_type = st5SHOTS; break;
+		case e1t3SHOTSFAST: tempguy.shot_type = st3SHOTSFAST; break;
+		case e1tFIREOCTO: tempguy.shot_type = stCONSTANT; break;
+		case e1t8SHOTS: tempguy.shot_type = st8SHOTS; break;
+		case e1tSUMMON: tempguy.shot_type = stSUMMON; break;
+		case e1tSUMMONLAYER: tempguy.shot_type = stSUMMONLAYER; break;
+		default: tempguy.shot_type = stNORMAL; break;
+		}
+		break;
+	}
+	case eeWIZZ: //grumble
+	{
+		switch (tempguy.attributes[1])
+		{
+		case 0: tempguy.shot_type = stNORMAL; break;
+		case 1: tempguy.shot_type = st8SHOTS; break;
+		case 2: tempguy.shot_type = stSUMMON; break;
+		case 3: tempguy.shot_type = stSUMMONLAYER; break;
+		}
+		break;
+	}
+	case eeGHOMA:
+	{
+		switch (tempguy.attributes[0])
+		{
+		case 0: tempguy.shot_type = stNORMAL; break;
+		case 1: tempguy.shot_type = st3SHOTS; break;
+		case 2: tempguy.shot_type = stBREATH; break;
+		}
+		break;
+	}
+	case eeAQUA:
+	{
+		tempguy.shot_type = st3SHOTS; break;
+	}
+	case eeGLEEOK:
+	{
+		switch (tempguy.attributes[2])
+		{
+		case 0: tempguy.shot_type = stNORMAL; break;
+		case 1: tempguy.shot_type = stBREATH; break;
+		}
+		break;
+	}
+	default: tempguy.shot_type = stNORMAL; break;
+	}
 	tempguy.wunblockable = 0;
 	tempguy.wmoveflags = move_none;
 	if (tempguy.weapon == ewFlame || tempguy.weapon == ewFireTrail)
@@ -15006,10 +15069,10 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 			}
 			else
 			{
-				if (!p_igetl(&(tempguy.attack_pattern), f))
+				if (!p_igetl(&(tempguy.shot_type), f))
 					return qe_invalid;
 				for (int32_t q = 0; q < MAX_NPC_ATTACK_ATTRIBUTES; ++q)
-					if (!p_igetl(&(tempguy.attack_attributes[q]), f))
+					if (!p_igetl(&(tempguy.shot_attributes[q]), f))
 						return qe_invalid;
 				if (!p_getc(&(tempguy.wunblockable), f))
 					return qe_invalid;

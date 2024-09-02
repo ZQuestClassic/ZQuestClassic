@@ -959,6 +959,12 @@ static GUI::ListData compatRulesList
 	{ "Broken Sideview Sprite Jump", qr_BROKEN_SIDEVIEW_SPRITE_JUMP,
 		"If enabled, certain sprites (enemy, weapon, and item) will stick to the ground in sideview"
 		" and cannot be made to jump off via script. " },
+	{ "Broken Walker Breath Attack", qr_BROKEN_WALKER_BREATH,
+		"If enabled, all weapons except Flame and Flame2 will be fired forward and to the side of the enemy"
+		" when it uses its' Breath Attack." },
+	{ "Broken 8 Shots Step", qr_BROKEN_8WAY_SHOT_STEP,
+		"If enabled, all weapons except Flame and Flame2 will use the same step speed in all 8 directions"
+		" when it uses its' 8 Shot Attack."},
 };
 
 static GUI::ListData enemiesRulesList

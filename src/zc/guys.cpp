@@ -1771,7 +1771,7 @@ void enemy::FireBreath(bool seekhero)
 	
 	if(wpn==ewFireTrail)
 	{
-		dmisc1 = e1tEACHTILE;
+		dmisc1 = stEACHTILE;
 		FireWeapon();
 		return;
 	}
@@ -1809,7 +1809,7 @@ void enemy::FireBreath(bool seekhero)
 			break;
 		}
 		
-		if(wpn==ewFlame || wpn==ewFlame2)
+		if(wpn==ewFlame || wpn==ewFlame2 || !get_qr(qr_BROKEN_WALKER_BREATH))
 		{
 			if(fire_angle==-PI || fire_angle==PI) wdir=left;
 			else if(fire_angle==-PI/2) wdir=up;
@@ -1863,11 +1863,11 @@ void enemy::FireWeapon()
 	 */
 	
 	if (wpn < 1) return;
-	if(wpn<wEnemyWeapons && dmisc1!=9 && dmisc1!=10 && (wpn < wScript1 && wpn > wScript10) )  // Summoning doesn't require weapons
+	if(wpn<wEnemyWeapons && shot_type!=stSUMMON && shot_type!= stSUMMONLAYER && (wpn < wScript1 && wpn > wScript10) )  // Summoning doesn't require weapons
 		return;
 		
-	if(wpn==ewFireTrail && dmisc1>=e1t3SHOTS && dmisc1<=e1t8SHOTS)
-		dmisc1 = e1tEACHTILE;
+	if(wpn==ewFireTrail && shot_type>=st3SHOTS && shot_type<=st8SHOTS)
+		shot_type = stEACHTILE;
 	
 	int32_t xoff = 0;
 	int32_t yoff = 0;
@@ -1882,30 +1882,31 @@ void enemy::FireWeapon()
 		//Z_scripterrlog("width flag enabled. yoff = %d\n", yoff);
 	}
 		
-	switch(dmisc1)
+	switch(shot_type)
 	{
-	case e1t5SHOTS: //BS-Aquamentus
-		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,2+(((dir^left)+5)<<3),wdp,dir,-1, getUID(),false));
+	case st5SHOTSFAST:
+	case st5SHOTS: //BS-Aquamentus
+		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,2+(((dir^left)+5)<<3)+(shot_type==st5SHOTSFAST ? 4:0),wdp,dir,-1, getUID(),false));
 		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
-		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,2+(((dir^right)+5)<<3),wdp,dir,-1, getUID(),false));
+		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,2+(((dir^right)+5)<<3)+ (shot_type == st5SHOTSFAST ? 4 : 0),wdp,dir,-1, getUID(),false));
 		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
-		
+
 		[[fallthrough]];
-	case e1t3SHOTSFAST:
-	case e1t3SHOTS: //Aquamentus
-		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,2+(((dir^left)+1)<<3)+(dmisc1==e1t3SHOTSFAST ? 4:0),wdp,dir,-1, getUID(),false));
+	case st3SHOTSFAST:
+	case st3SHOTS: //Aquamentus
+		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,2+(((dir^left)+1)<<3)+(shot_type==st3SHOTSFAST ? 4:0),wdp,dir,-1, getUID(),false));
 		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
-		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,2+(((dir^right)+1)<<3)+(dmisc1==e1t3SHOTSFAST ? 4:0),wdp,dir,-1, getUID(),false));
+		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,2+(((dir^right)+1)<<3)+(shot_type==st3SHOTSFAST ? 4:0),wdp,dir,-1, getUID(),false));
 		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
 
 		[[fallthrough]];
 	default:
-		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,2+(dmisc1==e1t3SHOTSFAST || dmisc1==e1tFAST ? 4:0),wdp,wpn==ewFireball2 || wpn==ewFireball ? 0:dir,-1, getUID(),false));
+		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,2+(shot_type==st3SHOTSFAST || shot_type==stFAST ? 4:0),wdp,wpn==ewFireball2 || wpn==ewFireball ? 0:dir,-1, getUID(),false));
 		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
 		sfx(wpnsfx(wpn),pan(int32_t(x)));
 		break;
 		
-	case e1tSLANT:
+	case stSLANT:
 	{
 		int32_t slant = 0;
 		
@@ -1920,22 +1921,33 @@ void enemy::FireWeapon()
 		break;
 	}
 	
-	case e1t8SHOTS: //Fire Wizzrobe
+	case st8SHOTS: //Fire Wizzrobe
+	case st4SHOTSRAND:
+	case st4SHOTSDIAG:
+		if(shot_type == st8SHOTS || (zc_oldrand() % 2))
 		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,0,wdp,l_up,-1, getUID(),false));
 		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
 		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
+		if (!get_qr(qr_BROKEN_8WAY_SHOT_STEP) && wpn != ewFlame && wpn != ewFlame2)
+			((weapon*)(Ewpns.spr(Ewpns.Count() - 1)))->step *= .707; //Fire already does this internall for asome bizarre reason.
 		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,0,wdp,l_down,-1, getUID(),false));
 		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
 		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
+		if (!get_qr(qr_BROKEN_8WAY_SHOT_STEP) && wpn != ewFlame && wpn != ewFlame2)
+			((weapon*)(Ewpns.spr(Ewpns.Count() - 1)))->step *= .707; //Fire already does this internall for asome bizarre reason..
 		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,0,wdp,r_up,-1, getUID(),false));
 		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
 		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
+		if (!get_qr(qr_BROKEN_8WAY_SHOT_STEP) && wpn != ewFlame && wpn != ewFlame2)
+			((weapon*)(Ewpns.spr(Ewpns.Count() - 1)))->step *= .707; //Fire already does this internall for asome bizarre reason.
 		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,0,wdp,r_down,-1, getUID(),false));
 		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
 		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
-
+		if (!get_qr(qr_BROKEN_8WAY_SHOT_STEP) && wpn != ewFlame && wpn != ewFlame2)
+			((weapon*)(Ewpns.spr(Ewpns.Count() - 1)))->step *= .707; //Fire already does this internall for asome bizarre reason.
+		if (shot_type != st8SHOTS) break; //break if this is diagonal only
 		[[fallthrough]];
-	case e1t4SHOTS: //Stalfos 3
+	case st4SHOTSCARD: //Stalfos 3
 		Ewpns.add(new weapon(x+xoff,y+yoff,z,wpn,0,wdp,up,-1, getUID(),false));
 		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
 		((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
@@ -1951,15 +1963,15 @@ void enemy::FireWeapon()
 		sfx(wpnsfx(wpn),pan(int32_t(x)));
 		break;
 		
-	case e1tSUMMON: // Bat Wizzrobe
+	case stSUMMON: // Bat Wizzrobe
 	{
-		if(dmisc4==0) break;  // Summon 0
+		if(shot_attributes[1] == 0) break;  // Summon 0
 		
 		int32_t bc=0;
 		
 		for(int32_t gc=0; gc<guys.Count(); gc++)
 		{
-			if((((enemy*)guys.spr(gc))->id) == dmisc3)
+			if((((enemy*)guys.spr(gc))->id) == shot_attributes[0])
 			{
 				++bc;
 			}
@@ -1968,11 +1980,11 @@ void enemy::FireWeapon()
 		if(bc<=40)  // Not too many enemies
 		{
 			int32_t kids = guys.Count();
-			int32_t bats=(zc_oldrand()%zc_max(1,dmisc4))+1;
+			int32_t bats=(zc_oldrand()%zc_max(1, shot_attributes[1]))+1;
 			
 			for(int32_t i=0; i<bats; i++)
 			{
-				if(addchild(x,y,dmisc3,-10, this->script_UID))
+				if(addchild(x,y, shot_attributes[0],-10, this->script_UID))
 		{
 					((enemy*)guys.spr(kids+i))->count_enemy = false;
 			
@@ -1985,7 +1997,7 @@ void enemy::FireWeapon()
 		break;
 	}
 	
-	case e1tSUMMONLAYER: // Summoner
+	case stSUMMONLAYER: // Summoner
 	{
 		if(count_layer_enemies()==0)
 		{
@@ -1996,7 +2008,7 @@ void enemy::FireWeapon()
 		
 		if(kids<40)
 		{
-			int32_t newguys=(zc_oldrand()%3)+1;
+			int32_t newguys=(zc_oldrand()%shot_attributes[2])+1;
 			bool summoned=false;
 			
 			for(int32_t i=0; i<newguys; i++)
@@ -10140,7 +10152,7 @@ bool eProjectile::animate(int32_t index)
 				FireWeapon();
 				
 				if(get_qr(qr_BROKENSTATUES)==0 &&
-				  ((wpn==ewFireball || wpn==ewFireball2) || dmisc1==e1tNORMAL))
+				  ((wpn==ewFireball || wpn==ewFireball2) || dmisc1==stNORMAL))
 				{
 					if(!((r>>7)&15))
 					{
@@ -11061,7 +11073,7 @@ bool eStalfos::animate(int32_t index)
 	}
 	
 	// Fire Zol
-	if(wpn && dmisc1==e1tEACHTILE && clk2==1 && !hclk)
+	if(wpn && shot_type==stEACHTILE && clk2==1 && !hclk)
 	{
 		addEwpn(x,y,z,wpn,0,wdp,dir, getUID(), 0, fakez);
 		sfx(wpnsfx(wpn),pan(int32_t(x)));
@@ -11082,7 +11094,7 @@ bool eStalfos::animate(int32_t index)
 		Ewpns.add(new weapon(x,y-fakez,z,wpn,misc,wdp,dir, -1,getUID(),false));
 		((weapon*)Ewpns.spr(Ewpns.Count()-1))->dummy_bool[0]=false;
 		
-		if(dmisc1==2)
+		if(shot_type==stCONSTANT) //Homing Brangs
 		{
 			int32_t ndir=dir;
 			
@@ -11121,10 +11133,10 @@ bool eStalfos::animate(int32_t index)
 			}
 		}
 	}
-	else if((clk2==16 || dmisc1==e1tCONSTANT) &&  dmisc1!=e1tEACHTILE && wpn && wpn!=ewBrang && sclk==0 && !stunclk && !frozenclock && !watch)
-		switch(dmisc1)
+	else if((clk2==16 || shot_type==stCONSTANT) && shot_type!=stEACHTILE && wpn && wpn!=ewBrang && sclk==0 && !stunclk && !frozenclock && !watch)
+		switch(shot_type)
 		{
-		case e1tCONSTANT: //Deathnut
+		case stCONSTANT: //Deathnut
 		{
 			// Overloading clk5 (Like Like clock) to avoid making another clock just for this attack...
 			if(clk5>64)
@@ -11151,7 +11163,7 @@ bool eStalfos::animate(int32_t index)
 			break;
 		}
 		
-		case e1tFIREOCTO: //Fire Octo
+		case stBREATH: //Fire Octo
 			timer=zc_oldrand()%50+50;
 			break;
 			
@@ -11162,11 +11174,11 @@ bool eStalfos::animate(int32_t index)
 		
 	/* Fire again if:
 	 * - clk2 about to run out
-	 * - not already double-firing (dmisc1 is 1)
+	 * - not already double-firing (shot type is stEACHTILE)
 	 * - not carrying Hero
 	 * - one in 0xF chance
 	 */
-	if(clk2==1 && (multishot < dmisc6) && dmisc1 != e1tEACHTILE && !hashero && !(zc_oldrand()&15))
+	if(clk2==1 && (multishot < dmisc6) && shot_type != stEACHTILE && !hashero && !(zc_oldrand()&15))
 	{
 #if 1
 		newdir(rate, homing, grumble);

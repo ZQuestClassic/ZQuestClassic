@@ -11654,10 +11654,10 @@ int32_t writeguys(PACKFILE *f, zquestheader *Header)
 			if(!p_putc(guysbuf[i].spr_spawn,f))
 				new_return(102);
 
-			if (!p_iputl(guysbuf[i].attack_pattern, f))
+			if (!p_iputl(guysbuf[i].shot_type, f))
 				new_return(103);
 			for(int32_t q=0;q < MAX_NPC_ATTACK_ATTRIBUTES; ++q)
-				if (!p_iputl(guysbuf[i].attack_attributes[q], f))
+				if (!p_iputl(guysbuf[i].shot_attributes[q], f))
 					new_return(104+q);
 			if (!p_putc(guysbuf[i].wunblockable, f))
 				new_return(110);
