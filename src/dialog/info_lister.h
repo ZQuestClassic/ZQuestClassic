@@ -79,4 +79,21 @@ protected:
 	void update() override;
 };
 
+class EnemyListerDialog : public BasicListerDialog
+{
+public:
+	EnemyListerDialog(int enemyid = -1, bool selecting = false);
+
+protected:
+	void preinit() override;
+	void postinit() override;
+	void update() override;
+	void edit() override;
+	void rclick(int x, int y) override;
+	void copy() override;
+	bool paste() override;
+	void save() override;
+	bool load() override;
+};
+
 #endif

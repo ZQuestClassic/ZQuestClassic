@@ -3,6 +3,7 @@
 #include <base/new_menu.h>
 #include "base/files.h"
 #include "itemeditor.h"
+#include "enemyeditor.h"
 #include "info.h"
 #include "zc_list_data.h"
 #include "zq/zquest.h"
@@ -383,3 +384,149 @@ void SubscrWidgListerDialog::update()
 		widgInfo->setText(lister.findInfo(selected_val));
 }
 
+EnemyListerDialog::EnemyListerDialog(int enemyid, bool selecting):
+	BasicListerDialog("Select Enemy", enemyid, selecting)
+	{
+		use_preview = true;
+	}
+void EnemyListerDialog::preinit()
+{
+	lister = GUI::ZCListData::enemies();
+	if (!selecting)
+	{
+		lister.removeInd(0); //remove '(None)'
+		if (selected_val < 0)
+			selected_val = lister.getValue(0);
+	}
+	selected_val = vbound(selected_val, (selecting ? -1 : 0), MAXGUYS - 1);
+}
+void EnemyListerDialog::postinit()
+{
+	size_t len = 16;
+	for (int q = 0; q < MAXGUYS; ++q)
+	{
+		size_t tlen = text_length(GUI_DEF_FONT, guy_string[q]);
+		if (tlen > len)
+			len = tlen;
+	}
+	widgInfo->minWidth(Size::pixels(len + 8));
+	window->setHelp(get_info(selecting, true));
+}
+static int copied_enemy_id = -1;
+void EnemyListerDialog::update()
+{
+	std::string copied_name = "(None)\n";
+	if (unsigned(copied_enemy_id) < MAXGUYS)
+	{
+		guydata const& copied_enemy = guysbuf[copied_enemy_id];
+		copied_name = fmt::format("{}", guy_string[copied_enemy_id]);
+	}
+	if (unsigned(selected_val) < MAXGUYS)
+	{
+		guydata const& enemy = guysbuf[selected_val];
+		widgInfo->setText(fmt::format(
+			"#{}\nTile: {}\nsTile: {}"
+			"\neTile: {}\nHP: {}\nDamage:\nFamily: {}\nDrop: {}\nScript: {}\nW Script: {}"
+			"\n\nCopied:\n{}",
+			selected_val, enemy.tile, enemy.s_tile,
+			enemy.e_tile, enemy.hp, enemy.dp, enemy.family, enemy.item_set, enemy.script, enemy.weaponscript,
+			copied_name));
+		widgPrev->setDisabled(false);
+		if (get_qr(qr_NEWENEMYTILES))
+			widgPrev->setTile(enemy.e_tile + efrontfacingtile(selected_val));
+		else
+			widgPrev->setTile(enemy.tile + efrontfacingtile(selected_val));
+		widgPrev->setCSet(enemy.cset & 0xF);
+		widgPrev->setFrames(0);
+		widgPrev->setSpeed(0);
+		widgPrev->setDelay(0);
+		widgPrev->setSkipX(0);
+		widgPrev->setSkipY(0);
+	}
+	else
+	{
+		widgInfo->setText(fmt::format(
+			"\n\n\n\n"
+			"\n\n\n\n\n\n\n"
+			"\n\nCopied:\n{}",
+			copied_name));
+		widgPrev->setDisabled(true);
+		widgPrev->setTile(0);
+		widgPrev->setCSet(0);
+		widgPrev->setFrames(0);
+		widgPrev->setSpeed(0);
+		widgPrev->setDelay(0);
+		widgPrev->setSkipX(0);
+		widgPrev->setSkipY(0);
+	}
+	widgPrev->setVisible(true);
+	widgPrev->setDoSized(true);
+	widgPrev->overrideWidth(Size::pixels(48 + 4));
+	widgPrev->overrideHeight(Size::pixels(48 + 4));
+}
+void EnemyListerDialog::edit()
+{
+	call_enemy_editor(selected_val);
+}
+void EnemyListerDialog::rclick(int x, int y)
+{
+	NewMenu rcmenu{
+		{ "&Copy", [&]() {copy(); update(); } },
+		//{ "&Adv. Paste", [&]() {adv_paste(); update(); }, 0, copied_enemy_id < 0 },
+		{ "Paste", "&v", [&]() {paste(); update(); }, 0, copied_enemy_id < 0 },
+		{ "&Save", [&]() {save(); update(); } },
+		{ "&Load", [&]() {load(); update(); } },
+	};
+	rcmenu.pop(x, y);
+}
+void EnemyListerDialog::copy()
+{
+	copied_enemy_id = selected_val;
+	update();
+}
+bool EnemyListerDialog::paste()
+{
+	if (copied_enemy_id < 0 || selected_val < 0)
+		return false;
+	if (copied_enemy_id == selected_val)
+		return false;
+	guysbuf[selected_val] = guysbuf[copied_enemy_id];
+	saved = false;
+	return true;
+}
+int32_t readonenpc(PACKFILE* f, int32_t id);
+int32_t writeonenpc(PACKFILE* f, int32_t id);
+void EnemyListerDialog::save()
+{
+	if (selected_val < 0)
+		return;
+	if (!prompt_for_new_file_compat(fmt::format("Save NPC '{}' #{} (.znpc)", guy_string[selected_val], selected_val).c_str(), "znpc", NULL, datapath, false))
+		return;
+
+	PACKFILE* f = pack_fopen_password(temppath, F_WRITE, "");
+	if (!f) return;
+	if (!writeonenpc(f, selected_val))
+	{
+		Z_error("Could not write to .znpc packfile %s\n", temppath);
+		InfoDialog("ZNPC Error", "Could not save the specified NPC.").show();
+	}
+	pack_fclose(f);
+}
+bool EnemyListerDialog::load()
+{
+	if (selected_val < 0)
+		return false;
+	if (!prompt_for_existing_file_compat(fmt::format("Load NPC (replacing '{}' #{}) (.z)", guy_string[selected_val], selected_val).c_str(), "znpc", NULL, datapath, false))
+		return false;
+
+	PACKFILE* f = pack_fopen_password(temppath, F_READ, "");
+	if (!f) return false;
+	if (!readonenpc(f, selected_val))
+	{
+		Z_error("Could not read from .znpc packfile %s\n", temppath);
+		InfoDialog("ZNPC Error", "Could not load the specified npc.").show();
+	}
+	pack_fclose(f);
+	saved = false;
+	return true;
+}
