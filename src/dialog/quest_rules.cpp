@@ -959,6 +959,8 @@ static GUI::ListData compatRulesList
 	{ "Broken Sideview Sprite Jump", qr_BROKEN_SIDEVIEW_SPRITE_JUMP,
 		"If enabled, certain sprites (enemy, weapon, and item) will stick to the ground in sideview"
 		" and cannot be made to jump off via script. " },
+	{ "No Weapon Overrides", qr_NO_EWEAPON_OVERRIDES,
+		"If enabled eweapons will ignore their settings and behave as they did in 2.55"},
 };
 
 static GUI::ListData enemiesRulesList
