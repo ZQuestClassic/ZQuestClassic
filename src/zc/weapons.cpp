@@ -1348,7 +1348,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	switch(id) //Default Gravity
 	{
 		case ewFireTrail: case ewFlame:
-			if(get_qr(qr_NO_EWEAPON_OVERRIDES))
+			if(!get_qr(qr_NO_EWEAPON_OVERRIDES))
 			break;
 		[[fallthrough]];
 		case wFire:
