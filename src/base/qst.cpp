@@ -15008,11 +15008,6 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 			}
 			else
 			{
-				if (!p_igetl(&(tempguy.attack_pattern), f))
-					return qe_invalid;
-				for (int32_t q = 0; q < MAX_NPC_ATTACK_ATTRIBUTES; ++q)
-					if (!p_igetl(&(tempguy.attack_attributes[q]), f))
-						return qe_invalid;
 				if (!p_getc(&(tempguy.wunblockable), f))
 					return qe_invalid;
 				if (!p_igetl(&(tempguy.wmoveflags), f))
