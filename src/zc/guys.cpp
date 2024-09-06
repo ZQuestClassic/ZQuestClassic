@@ -2940,7 +2940,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 		}
 		case edSUMMON: 
 		{
-			int32_t summon_count = (zc_oldrand()%dmisc4)+1;
+			int32_t summon_count = (zc_oldrand()%shotattributes[1])+1;
 			for ( int32_t q = 0; q < summon_count; q++ )
 			{
 				int32_t x2=16*((zc_oldrand()%12)+2);
