@@ -1552,12 +1552,12 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 					)
 				),
 				Row(
-					Frame(title = "Block Flags", hAlign = 1.0, fitParent = true,
+					Frame(title = "Block Flags", hAlign = 1.0, fitParent = true, 
 						Column(hAlign = 1.0, fitParent = true,
-							WeaponBlockFlag(WPNUNB_BLOCK, "Ignores 'Player Block' Defense"),
-							WeaponBlockFlag(WPNUNB_IGNR, "Ignores 'Player Ignore' Defense"),
-							WeaponBlockFlag(WPNUNB_SHLD, "Ignores shields."),
-							WeaponBlockFlag(WPNUNB_REFL, "Cannot be reflected.")
+							WeaponBlockFlag(WPNUNB_BLOCK,"Ignore 'Player Block' Def. Types"),
+							WeaponBlockFlag(WPNUNB_IGNR, "Ignore 'Player Ignore' Def. Types"),
+							WeaponBlockFlag(WPNUNB_SHLD, "Ignore shield block flags"),
+							WeaponBlockFlag(WPNUNB_REFL, "Ignore shield reflect flags")
 						)
 					),
 					Frame(title = "Movement Flags", hAlign = 1.0, fitParent = true,

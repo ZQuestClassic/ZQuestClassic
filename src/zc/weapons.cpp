@@ -4412,6 +4412,7 @@ bool weapon::animate(int32_t index)
 			}
 			if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 
+			break;
 		}
 		
 		case wBeam:
