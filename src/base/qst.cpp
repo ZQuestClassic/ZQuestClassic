@@ -9839,7 +9839,7 @@ static void guy_update_weaponflags(guydata& tempguy)
 	tempguy.wunblockable = 0;
 	tempguy.wmoveflags = move_none;
 	if (tempguy.weapon == ewFlame || tempguy.weapon == ewFireTrail)
-		tempguy.wmoveflags |= move_obeys_grav | move_can_pitfall;
+		tempguy.wmoveflags |= (move_obeys_grav | move_can_pitfall);
 	tempguy.weapoverrideFLAGS = 0;
 	tempguy.weap_hxofs = 0;
 	tempguy.weap_hyofs = 0;
