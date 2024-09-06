@@ -61,23 +61,6 @@ EnemyEditorDialog::EnemyEditorDialog(int32_t index) :
 	EnemyEditorDialog(guysbuf[index], index) 
 {}
 
-static const GUI::ListData list_walkmisc1
-{
-	{"1 Shot",0},
-	{"1 (End-Halt)",1},
-	{"Rapid-Fire",2},
-	{"1 (Fast)",3},
-	{"1 (Slanted)",4},
-	{"3 Shots",5},
-	{"4 Shots",6},
-	{"5 Shots",7},
-	{"3 (Fast)",8},
-	{"Breath",9},
-	{"8 Shots",10},
-	{"Summon",11},
-	{"Summon (Layer)",12},
-};
-
 static const GUI::ListData list_walkmisc2
 {
 	{"Normal",0},
@@ -110,19 +93,6 @@ static const GUI::ListData list_walkmisc9
 	{"Vire",2},
 	{"Pols Voice",3},
 	{"Armos",4},
-};
-
-static const GUI::ListData list_gleeokmisc3
-{
-	{"1 Shot",0},
-	{ "Breath",1}
-};
-
-static const GUI::ListData list_gohmamisc1
-{
-	{"1 Shot",0},
-	{"3 Shots",0},
-	{"Breath",2}
 };
 
 static const GUI::ListData list_manhandlamisc2
@@ -304,6 +274,26 @@ static const GUI::ListData list_deathtype
 	{"Disintegrate",4}, //BS GANON
 };
 
+static const GUI::ListData list_shottype
+{
+	{"1 Shot",stNORMAL},
+	{"1 Shot(End-Halt)",stEACHTILE},
+	{"Rapid Fire",stCONSTANT},
+	{"1 Shot (Fast)",stFAST},
+	{"1 Shot (Slanted)",stSLANT},
+	{"3 Shots",st3SHOTS},
+	{"3 Shots (Fast)",st3SHOTSFAST},
+	{"5 Shots",st5SHOTS},
+	{"5 Shots (Fast)",st5SHOTSFAST},
+	{"4 Shots (Cardinal)",st4SHOTSCARD},
+	{"4 Shots (Diagonal)",st4SHOTSDIAG},
+	{"4 Shots (Random)",st4SHOTSRAND},
+	{"Breath",stFIREOCTO},
+	{"8 Shots",st8SHOTS},
+	{"Summon",stSUMMON},
+	{"Summon (Layers)",stSUMMONLAYER},
+};
+
 void EnemyEditorDialog::refreshScript()
 {
 	loadEnemyType();
@@ -405,7 +395,7 @@ void EnemyEditorDialog::loadEnemyType()
 	{
 		case eeWALK:
 		{
-			l_attribute[0] = "Shot Type:";
+			//l_attribute[0] = "Shot Type:";
 			l_attribute[1] = "Death Type:";
 			l_attribute[2] = "Death Attr. 1:";
 			l_attribute[3] = "Death Attr. 2:";
@@ -422,7 +412,7 @@ void EnemyEditorDialog::loadEnemyType()
 		{
 			l_attribute[0] = "Heads:";
 			l_attribute[1] = "Head HP:";
-			l_attribute[2] = "Shot Type:";
+			//l_attribute[2] = "Shot Type:";
 			l_attribute[3] = "Unused";
 			l_attribute[4] = "Neck Segments:";
 			l_attribute[5] = "Neck Offset 1:";
@@ -489,14 +479,14 @@ void EnemyEditorDialog::loadEnemyType()
 		}
 		case eePROJECTILE:
 		{
-			l_attribute[0] = "Shot Type:";
-			l_attribute[2] = "Shot Attribute 1:";
-			l_attribute[3] = "Shot Attribute 2:";
+			//l_attribute[0] = "Shot Type:";
+			//l_attribute[2] = "Shot Attribute 1:";
+			//l_attribute[3] = "Shot Attribute 2:";
 			break;
 		}
 		case eeGHOMA:
 		{
-			l_attribute[0] = "Shot Type:";
+			//l_attribute[0] = "Shot Type:";
 			l_bflag[2] = "BFlags[2]";
 			l_bflag[4] = "Obeys Spawn Points";
 			break;
@@ -535,8 +525,8 @@ void EnemyEditorDialog::loadEnemyType()
 		case eeWIZZ:
 		{
 			l_attribute[0] = "Walk Style:";
-			l_attribute[1] = "Shot Type:";
-			l_attribute[2] = "Shot Attr. 1:";
+			//l_attribute[1] = "Shot Type:";
+			//l_attribute[2] = "Shot Attr. 1:";
 			l_attribute[3] = "Solid Combos OK:";
 			l_attribute[4] = "Teleport Delay:";
 			l_bflag[4] = "Old Windrobe Teleport";
@@ -599,9 +589,8 @@ void EnemyEditorDialog::loadEnemyType()
 
 			break;
 		}
-		case eeGHINI: case eePEAHAT: //TODO DEPRECIATE ME
+		case eeGHINI: case eePEAHAT:
 		{
-			l_attribute[0] = "Stop On Pits";
 			l_attribute[13] = "Landing Chance (1/N):",
 			l_attribute[14] = "Landing Cooldown:",
 			l_attribute[15] = "Halt Duration:";
@@ -618,7 +607,7 @@ void EnemyEditorDialog::loadEnemyType()
 		}
 		case eeSPINTILE:
 		{
-			//no attributes or flags either (yet)
+			//no attributes or flags
 			break;
 		}
 		case eeGANON:
@@ -930,9 +919,6 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 	switch (local_guyref.family)
 	{
 	case eeWALK:
-		ddl_attributes[0]->setSelectedValue(local_guyref.attributes[0]);
-		ddl_attributes[0]->setListData(list_walkmisc1);
-		sw_attributes[0]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
 		ddl_attributes[1]->setSelectedValue(local_guyref.attributes[1]);
 		ddl_attributes[1]->setListData(list_walkmisc2);
 		sw_attributes[1]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
@@ -942,11 +928,6 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 		ddl_attributes[8]->setSelectedValue(local_guyref.attributes[8]);
 		ddl_attributes[8]->setListData(list_walkmisc9);
 		sw_attributes[8]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
-		break;
-	case eeGLEEOK:
-		ddl_attributes[2]->setSelectedValue(local_guyref.attributes[3]);
-		ddl_attributes[2]->setListData(list_gleeokmisc3);
-		sw_attributes[2]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
 		break;
 	case eeDIG:
 		ddl_attributes[0]->setSelectedValue(local_guyref.attributes[0]);
@@ -991,16 +972,6 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 		ddl_attributes[27]->setListData(list_patramisc28);
 		sw_attributes[27]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
 		break;
-	case eePROJECTILE:
-		ddl_attributes[0]->setSelectedValue(local_guyref.attributes[0]);
-		ddl_attributes[0]->setListData(list_walkmisc1);
-		sw_attributes[0]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
-		break;
-	case eeGHOMA:
-		ddl_attributes[0]->setSelectedValue(local_guyref.attributes[0]);
-		ddl_attributes[0]->setListData(list_gohmamisc1);
-		sw_attributes[0]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
-		break;
 	case eeAQUA:
 		ddl_attributes[0]->setSelectedValue(local_guyref.attributes[0]);
 		ddl_attributes[0]->setListData(list_aquamisc1);
@@ -1024,10 +995,7 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 	case eeWIZZ:
 		ddl_attributes[0]->setSelectedValue(local_guyref.attributes[0]);
 		ddl_attributes[0]->setListData(list_wizzrobemisc1);
-		sw_attributes[0]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
-		ddl_attributes[1]->setSelectedValue(local_guyref.attributes[1]);
-		ddl_attributes[1]->setListData(list_wizzrobemisc2);
-		sw_attributes[1]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
+		sw_attributes[0]->switchTo(0);  // change this 1 to a constant representing the dropdown spot in the switcher
 		ddl_attributes[3]->setSelectedValue(local_guyref.attributes[3]);
 		ddl_attributes[3]->setListData(list_yesnomisc);
 		sw_attributes[3]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
@@ -1476,6 +1444,21 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 						DropDownField(&local_guyref.firesfx, list_sfx),
 						INFOBTN("Plays when the projectile is fired.")
 					)
+				)
+			)),
+			TabRef(name = "W. Attributes", Column(
+				Rows<3>(hAlign = 1.0,
+					Label(text = "Weapon Pattern:", hAlign = 1.0, rightPadding = 0_px),
+					DropDownField(&local_guyref.shottype, list_shottype),
+					INFOBTN("Pattern used when firing its' projectile."),
+					//
+					Label(text = "Summoned Enemy ID:", hAlign = 1.0, rightPadding = 0_px),
+					DropDownField(&local_guyref.shotattributes[0], list_enemies),
+					INFOBTN("The regular summon attack will summon this specific ID."),
+					//
+					Label(text = "Summoned Enemy Max:", hAlign = 1.0, rightPadding = 0_px),
+					NumberField(&local_guyref.shotattributes[1], 0, 40),
+					INFOBTN("The regular summon attack will summon up to this many enemies max")
 				)
 			))
 		))
