@@ -114,6 +114,9 @@ public:
 	int8_t deathexstate;
 	
 	bool didScriptThisFrame; //Hack for enemies which are spawned by shit like scripted load enemies so they don't run their script a second time in a frame.
+
+	int32_t shottype;
+	int32_t shotattributes[8];
 	
 	int32_t getScriptUID();
 	void setScriptUID(int32_t new_id);
@@ -238,9 +241,9 @@ public:
 	// returns true if Hero is within 'range' pixels of the enemy
 	bool HeroInRange(int32_t range);
 	// Breathe fire
-	void FireBreath(bool seekhero);
+	virtual void FireBreath(bool seekhero);
 	// Shoot weapons
-	void FireWeapon();
+	virtual void FireWeapon();
 	// place the enemy in line with Hero (red wizzrobes)
 	void place_on_axis(bool floater, bool solid_ok);
 	void update_enemy_frame();

@@ -1051,9 +1051,8 @@ enum {  e9tMOLDORM=1, e9tVLANMOLA, e9tVMOLDORM, e9tZ3MOLDORM, //restricted to wa
      };
 */
 
-          //Preparation for new defences. -Z
-     
-     
+//Preparation for new defences. -Z
+
 enum
 {
 	edefBRANG, edefBOMB, edefSBOMB, edefARROW, edefFIRE, //04
@@ -1153,8 +1152,16 @@ enum
 // Remaining 16 reserved for future use.
 
 
-// enemy patters
+// enemy patterns
 enum { pRANDOM, pSIDES, pSIDESR, pCEILING, pCEILINGR, pRANDOMR, pNOSPAWN };
+
+// enemy shot types
+enum { 
+	stNORMAL, stEACHTILE, stCONSTANT, stFAST, stSLANT, //ONESHOT
+	st3SHOTS, st3SHOTSFAST, st5SHOTS, st5SHOTSFAST,  //MULTISHOT
+	st4SHOTSCARD, st4SHOTSDIAG, st4SHOTSRAND, //4SHOT
+	stFIREOCTO, st8SHOTS, //SPECIAL
+	stSUMMON, stSUMMONLAYER, stLAST }; //SUMMONING
 
 // We only use t4Bit and tf8Bit.
 // t4Bit takes up 128 bytes in the file format, tf8bit takes up 256 bit.
@@ -1342,6 +1349,9 @@ struct guydata
     byte weap_initiala[INITIAL_A];
     
 	byte spr_shadow, spr_death, spr_spawn;
+
+	int32_t shottype;
+	int32_t shotattributes[8]; //this can be used for customizing said shot types XD
 	
 #define ENEMY_FLAG1   0x01
 #define ENEMY_FLAG2   0x02

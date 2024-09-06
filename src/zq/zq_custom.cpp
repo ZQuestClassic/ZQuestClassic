@@ -2429,6 +2429,12 @@ int32_t readonenpc(PACKFILE *f, int32_t index)
 			{
 				if (!p_igetl(&tempguy.attributes[q], f)) return 0;
 			}
+			//shot type
+			if (!p_igetl(&tempguy.shottype, f)) return 0;
+			for (int32_t q = 0; q < 8; q++)
+			{
+				if (!p_igetl(&tempguy.shotattributes[q], f)) return 0;
+			}
 		}
 	}
 	memcpy(&guysbuf[index], &tempguy, sizeof(guydata));

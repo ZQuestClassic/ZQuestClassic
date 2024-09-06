@@ -11653,6 +11653,13 @@ int32_t writeguys(PACKFILE *f, zquestheader *Header)
 				new_return(101);
 			if(!p_putc(guysbuf[i].spr_spawn,f))
 				new_return(102);
+			if (!p_iputl(guysbuf[i].shottype, f))
+				new_return(103);
+			for (int q = 0; q < 8; ++q)
+			{
+				if (!p_iputl(guysbuf[i].shotattributes[q], f))
+					new_return(104 + q);
+			}
 		}
 		
 		if(writecycle==0)

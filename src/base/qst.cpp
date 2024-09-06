@@ -9835,6 +9835,74 @@ static void guys_update_firesfx(guydata& tempguy)
 	}
 }
 
+static void guys_update_shottype(guydata& tempguy)
+{
+	for (int q = 0; q < 8; ++q)
+	{
+		tempguy.shotattributes[q] = 0;
+	}
+	switch (tempguy.family)
+	{
+	case eeWALK:
+	case eePROJECTILE:
+	{
+		switch (tempguy.attributes[0])
+		{
+		case e1tNORMAL: tempguy.shottype = stNORMAL; break;
+		case e1tEACHTILE: tempguy.shottype = stEACHTILE; break;
+		case e1tCONSTANT: tempguy.shottype = stCONSTANT; break;
+		case e1tFAST: tempguy.shottype = stFAST; break;
+		case e1tSLANT: tempguy.shottype = stSLANT; break;
+		case e1t3SHOTS: tempguy.shottype = st3SHOTS; break;
+		case e1t4SHOTS: tempguy.shottype = st4SHOTSCARD; break;
+		case e1t5SHOTS: tempguy.shottype = st5SHOTS; break;
+		case e1t3SHOTSFAST: tempguy.shottype = st3SHOTSFAST; break;
+		case e1tFIREOCTO: tempguy.shottype = stFIREOCTO; break;
+		case e1t8SHOTS:tempguy.shottype = st8SHOTS; break;
+		case e1tSUMMON:
+			tempguy.shottype = stSUMMON;
+			tempguy.shotattributes[0] = tempguy.attributes[2];
+			tempguy.shotattributes[1] = tempguy.attributes[3];
+			break;
+		case e1tSUMMONLAYER: tempguy.shottype = stSUMMONLAYER; break;
+		}
+	}
+	case eeWIZZ:
+	{
+		switch (tempguy.attributes[1])
+		{
+		case 0: tempguy.shottype = stNORMAL; break;
+		case 1:tempguy.shottype = st8SHOTS; break;
+		case 2:
+			tempguy.shottype = stSUMMON;
+			tempguy.shotattributes[0] = tempguy.attributes[2];
+			tempguy.shotattributes[1] = tempguy.attributes[3];
+			break;
+		case 3: tempguy.shottype = stSUMMONLAYER; break;
+		}
+	}
+	case eeAQUA:
+	{
+		tempguy.shottype = st3SHOTS;
+	}
+	case eeGHOMA:
+	{
+		switch (tempguy.attributes[0])
+		{
+		case 0: tempguy.shottype = stNORMAL;
+		case 1: tempguy.shottype = st3SHOTS;
+		case 2: tempguy.shottype = stFIREOCTO;
+		}
+	}
+	case eeGLEEOK:
+	{
+		tempguy.shottype = (tempguy.attributes[2]==0) ? stNORMAL:stFIREOCTO;
+	}
+	default:
+		tempguy.shottype = stNORMAL;
+	}
+}
+
 void init_guys(int32_t guyversion)
 {
     for(int32_t i=0; i<MAXGUYS; i++)
@@ -9917,6 +9985,7 @@ void init_guys(int32_t guyversion)
         }
 
         guys_update_firesfx(guysbuf[i]);
+		guys_update_shottype(guysbuf[i]);
     }
 }
 
@@ -14961,10 +15030,19 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 					}
 				}
 			}
-
 			if (guyversion < 51) //reimport the firesfx, zoria ducked up.
-			{
 				guys_update_firesfx(tempguy);
+			if (guyversion < 52) //import shottype and shotattributes
+				guys_update_shottype(tempguy);
+			else
+			{
+				if (!p_igetl(&(tempguy.shottype), f))
+					return qe_invalid;
+				for (int q = 0; q < 8; ++q)
+				{
+					if (!p_igetl(&(tempguy.shotattributes[q]), f))
+						return qe_invalid;
+				}
 			}
 
 			if(loading_tileset_flags & TILESET_CLEARSCRIPTS)

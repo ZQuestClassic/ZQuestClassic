@@ -959,6 +959,11 @@ static GUI::ListData compatRulesList
 	{ "Broken Sideview Sprite Jump", qr_BROKEN_SIDEVIEW_SPRITE_JUMP,
 		"If enabled, certain sprites (enemy, weapon, and item) will stick to the ground in sideview"
 		" and cannot be made to jump off via script. " },
+	{ "Broken EWeapon Patterns", qr_BROKEN_EWEAPON_PATTERNS,
+		"If enabled the following changes to weapons will be reverted."
+		"All weapons shot diagonally have their weapon step reduced by ~30%."
+		" Rising Fireball and FireBall2 will move correctly with multishot shot types."
+		" Breath Attacks will also work the same correctly regardless of which weapon is used."}
 };
 
 static GUI::ListData enemiesRulesList
