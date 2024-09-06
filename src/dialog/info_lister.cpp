@@ -426,10 +426,10 @@ void EnemyListerDialog::update()
 		guydata const& enemy = guysbuf[selected_val];
 		widgInfo->setText(fmt::format(
 			"#{}\nTile: {}\nsTile: {}"
-			"\neTile: {}\nHP: {}\nDamage:\nFamily: {}\nDrop: {}\nScript: {}\nW Script: {}"
+			"\neTile: {}\nHP: {}\nDamage: {}\nW. Damage: {}\nFamily: {}\nDrop: {}\nScript: {}\nW Script: {}"
 			"\n\nCopied:\n{}",
 			selected_val, enemy.tile, enemy.s_tile,
-			enemy.e_tile, enemy.hp, enemy.dp, enemy.family, enemy.item_set, enemy.script, enemy.weaponscript,
+			enemy.e_tile, enemy.hp, enemy.dp, enemy.wdp, enemy.family, enemy.item_set, enemy.script, enemy.weaponscript,
 			copied_name));
 		widgPrev->setDisabled(false);
 		if (get_qr(qr_NEWENEMYTILES))
@@ -440,8 +440,10 @@ void EnemyListerDialog::update()
 		widgPrev->setFrames(0);
 		widgPrev->setSpeed(0);
 		widgPrev->setDelay(0);
-		widgPrev->setSkipX(0);
-		widgPrev->setSkipY(0);
+		widgPrev->setSkipX((enemy.SIZEflags & OVERRIDE_TILE_WIDTH)
+			? enemy.txsz - 1 : 0);
+		widgPrev->setSkipY((enemy.SIZEflags & OVERRIDE_TILE_HEIGHT)
+			? enemy.tysz - 1 : 0);
 	}
 	else
 	{

@@ -95,5 +95,4 @@ protected:
 	void save() override;
 	bool load() override;
 };
-
 #endif
