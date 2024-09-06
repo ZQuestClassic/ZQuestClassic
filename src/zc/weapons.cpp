@@ -1347,10 +1347,6 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	
 	switch(id) //Default Gravity
 	{
-		case ewFireTrail: case ewFlame:
-			if(!get_qr(qr_NO_EWEAPON_OVERRIDES))
-			break;
-		[[fallthrough]];
 		case wFire:
 			// Divine Fire shouldn't fall
 			if(parentitem >= 0 && parent.family==itype_divinefire && !(parent.flags & item_flag3))
@@ -2426,7 +2422,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	{
 		//lweapon_overrides(); SOON
 	}
-	else if (!get_qr(qr_NO_EWEAPON_OVERRIDES) && parentid > -1 && !isLWeapon)
+	else if (parentid > -1 && !isLWeapon)
 	{
 		eweapon_overrides();
 	}
