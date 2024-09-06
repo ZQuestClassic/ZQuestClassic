@@ -658,11 +658,10 @@ if(BUILD_SOUND_LIBS_FROM_SOURCE)
 	FetchContent_Declare(
 		gme_external
 		GIT_REPOSITORY https://github.com/libgme/game-music-emu
-		GIT_TAG        6b676192d98302e698ac78fe3c00833eae6a74e5
+		GIT_TAG        05a2aa29e8eae29316804fdd28ceaa96c74a1531
 		EXCLUDE_FROM_ALL
 	)
 	set(GME_YM2612_EMU "Nuked" CACHE STRING "Which YM2612 emulator to use: \"Nuked\" (LGPLv2.1+), \"MAME\" (GPLv2+), or \"GENS\" (LGPLv2.1+)")
-	option(ENABLE_UBSAN "" OFF)
 	FetchContent_MakeAvailable(gme_external)
 	add_library(gme_headers INTERFACE)
 	target_include_directories(gme_headers INTERFACE ${gme_external_SOURCE_DIR}/gme)
