@@ -2947,7 +2947,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 				int32_t y2=16*((zc_oldrand()%7)+2);
 				addenemy(
 					x2,y2,
-						dmisc3+0x1000,-15);
+						shotattributes[0]+0x1000,-15);
 				
 			}
 			sfx(get_qr(qr_MORESOUNDS) ? WAV_ZN1SUMMON : WAV_FIRE,pan(int32_t(x)));
