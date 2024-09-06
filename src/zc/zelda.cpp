@@ -716,14 +716,14 @@ const byte ten_rupies_y[10] = {49,65,65,81,81,81,81,97,97,113};
 
 zctune tunes[MAXMIDIS] =
 {
-    // (title)                              (s) (ls) (le) (l) (vol) (midi)(fmt)
-    zctune((char *)"Zelda - Dungeon",     0,  -1,  -1,  1,  176,  NULL, 0),
-    zctune((char *)"Zelda - Ending",      0, 129, 225,  1,  160,  NULL, 0),
-    zctune((char *)"Zelda - Game Over",   0,  -1,  -1,  1,  224,  NULL, 0),
-    zctune((char *)"Zelda - Level 9",     0,  -1,  -1,  1,  255,  NULL, 0),
-    zctune((char *)"Zelda - Overworld",   0,  17,  -1,  1,  208,  NULL, 0),
-    zctune((char *)"Zelda - Title",       0,  -1,  -1,  0,  168,  NULL, 0),
-    zctune((char *)"Zelda - Triforce",    0,  -1,  -1,  0,  168,  NULL, 0)
+    // (title)                              (s) (ls) (le) (l) (vol)
+    zctune((char *)"Zelda - Dungeon",     0,  -1,  -1,  1,  176),
+    zctune((char *)"Zelda - Ending",      0, 129, 225,  1,  160),
+    zctune((char *)"Zelda - Game Over",   0,  -1,  -1,  1,  224),
+    zctune((char *)"Zelda - Level 9",     0,  -1,  -1,  1,  255),
+    zctune((char *)"Zelda - Overworld",   0,  17,  -1,  1,  208),
+    zctune((char *)"Zelda - Title",       0,  -1,  -1,  0,  168),
+    zctune((char *)"Zelda - Triforce",    0,  -1,  -1,  0,  168)
 };
 
 // emusic enhancedMusic[MAXMUSIC];

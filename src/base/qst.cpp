@@ -19201,34 +19201,27 @@ int32_t readtunes(PACKFILE *f, zquestheader *Header, zctune *tunes /*zcmidi_ *mi
                 {
                     return qe_invalid;
                 }
-                
-                //yes you can do this. Isn't the ? operator awesome? :)
-                tunes[i].format = MFORMAT_MIDI;
             }
             else
             {
-                // 'midi' could be midi or nes, gb, ... music
-                if(!pfread(&tunes[i].format,sizeof(tunes[i].format),f))
+				byte format;
+                if(!pfread(&format,sizeof(format),f))
                 {
                     return qe_invalid;
                 }
-                
-                zctune *ptr = &tunes[i];
-                
-                switch(temp.format)
-                {
-                case MFORMAT_MIDI:
-                    if((ptr->data=read_midi(f))==NULL)
-                    {
-                        return qe_invalid;
-                    }
-                    
-                    break;
-                    
-                default:
-                    return qe_invalid;
-                    break;
-                }
+
+				// MIDI is the only format saved here.
+				// Never did more than MIDI for a zctune, and no plans to now.
+				if (format != MFORMAT_MIDI)
+				{
+					return qe_invalid;
+				}
+
+				tunes[i].data = read_midi(f);
+                if (!tunes[i].data)
+				{
+					return qe_invalid;
+				}
             }
         }
     }

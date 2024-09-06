@@ -6202,7 +6202,7 @@ int32_t d_savemidi_proc(int32_t msg,DIALOG *d,int32_t c)
 		
 		// save midi i
 		
-		if (save_midi(fname.c_str(), (MIDI*)tunes[i].data) != 0)
+		if (save_midi(fname.c_str(), tunes[i].data) != 0)
 			jwin_alert(title, "Error saving MIDI to", fname.c_str(), NULL, "Darn", NULL,13,27,get_zc_font(font_lfont));
 			
 done:
@@ -6247,8 +6247,8 @@ void get_info(int32_t index)
 		strcpy(text,"(null)");
 	else
 	{
-		get_midi_info((MIDI*)tunes[i].data,zmi);
-		get_midi_text((MIDI*)tunes[i].data,zmi,text);
+		get_midi_info(tunes[i].data,zmi);
+		get_midi_text(tunes[i].data,zmi,text);
 	}
 	
 	midi_dlg[0].dp2=get_zc_font(font_lfont);
@@ -7925,7 +7925,7 @@ void jukebox(int32_t index,int32_t loop)
 		zc_set_volume(0, 0);
 	
 	zc_set_volume(-1, mixvol(tunes[index].volume, midi_volume >>1));
-	zc_play_midi((MIDI*)tunes[index].data,loop);
+	zc_play_midi(tunes[index].data,loop);
 	
 	if(tunes[index].start>0)
 		zc_midi_seek(tunes[index].start);

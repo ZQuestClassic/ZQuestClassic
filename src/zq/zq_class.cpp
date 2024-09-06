@@ -6874,44 +6874,6 @@ bool write_midi(MIDI *m,PACKFILE *f)
     return true;
 }
 
-bool write_music(int32_t format, MIDI* m, PACKFILE *f)
-{
-    // format - data format (midi, nsf, ...)
-    // m - pointer to data.
-    
-    int32_t c;
-    
-    switch(format)
-    {
-    case MFORMAT_MIDI:
-    
-        if(!p_mputw(m->divisions,f)) return false;
-        
-        for(c=0; c<MIDI_TRACKS; c++)
-        {
-            if(!p_mputl(m->track[c].len,f)) return false;
-            
-            if(m->track[c].len > 0)
-            {
-                if(!pfwrite(m->track[c].data,m->track[c].len,f))
-                    return false;
-            }
-        }
-        
-        break;
-        
-    case MFORMAT_NSF:
-    
-        break;
-        
-    default:
-        return false;
-        break;
-    }
-    
-    return true;
-}
-
 int32_t writeheader(PACKFILE *f, zquestheader *Header)
 {
     dword section_id=ID_HEADER;
@@ -11019,23 +10981,14 @@ int32_t writemidis(PACKFILE *f)
                 {
                     new_return(12);
                 }
-                
-                if(!pfwrite(&customtunes[i].format, sizeof(customtunes[i].format),f))
+
+				byte format = MFORMAT_MIDI;
+                if(!pfwrite(&format, sizeof(format),f))
                 {
                     new_return(13);
                 }
-                
-                switch(customtunes[i].format)
-                {
-                case MFORMAT_MIDI:
-                    if(!write_midi((MIDI*) customtunes[i].data,f)) new_return(14);
-                    
-                    break;
-                    
-                default:
-                    new_return(15);
-                    break;
-                }
+
+				if (!write_midi(customtunes[i].data, f)) new_return(14);
             }
         }
         
