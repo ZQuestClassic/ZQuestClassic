@@ -5,6 +5,7 @@
 #include <thread>
 #include <chrono>
 #include <fstream>
+#include "fmt/core.h"
 #include "parser/AST.h"
 #include "parser/CompileError.h"
 #include "parser/CompileOption.h"
@@ -415,6 +416,18 @@ int32_t main(int32_t argc, char **argv)
 			zconsole_idle();
 			std::this_thread::sleep_for(1s);
 		}
+	}
+
+	bool parse_only = used_switch(argc, argv, "-parse-only") > 0;
+	if (parse_only)
+	{
+		unique_ptr<ZScript::ASTFile> root(ZScript::parseFile(script_path));
+		if (zscript_error_out)
+			exit(1);
+		if (!root.get())
+			log_error(ZScript::CompileError::CantOpenSource(NULL));
+		fmt::println("ok");
+		exit(0);
 	}
 
 	bool do_json_output = used_switch(argc, argv, "-json") > 0;

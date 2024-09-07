@@ -6874,44 +6874,6 @@ bool write_midi(MIDI *m,PACKFILE *f)
     return true;
 }
 
-bool write_music(int32_t format, MIDI* m, PACKFILE *f)
-{
-    // format - data format (midi, nsf, ...)
-    // m - pointer to data.
-    
-    int32_t c;
-    
-    switch(format)
-    {
-    case MFORMAT_MIDI:
-    
-        if(!p_mputw(m->divisions,f)) return false;
-        
-        for(c=0; c<MIDI_TRACKS; c++)
-        {
-            if(!p_mputl(m->track[c].len,f)) return false;
-            
-            if(m->track[c].len > 0)
-            {
-                if(!pfwrite(m->track[c].data,m->track[c].len,f))
-                    return false;
-            }
-        }
-        
-        break;
-        
-    case MFORMAT_NSF:
-    
-        break;
-        
-    default:
-        return false;
-        break;
-    }
-    
-    return true;
-}
-
 int32_t writeheader(PACKFILE *f, zquestheader *Header)
 {
     dword section_id=ID_HEADER;
@@ -11019,23 +10981,14 @@ int32_t writemidis(PACKFILE *f)
                 {
                     new_return(12);
                 }
-                
-                if(!pfwrite(&customtunes[i].format, sizeof(customtunes[i].format),f))
+
+				byte format = MFORMAT_MIDI;
+                if(!pfwrite(&format, sizeof(format),f))
                 {
                     new_return(13);
                 }
-                
-                switch(customtunes[i].format)
-                {
-                case MFORMAT_MIDI:
-                    if(!write_midi((MIDI*) customtunes[i].data,f)) new_return(14);
-                    
-                    break;
-                    
-                default:
-                    new_return(15);
-                    break;
-                }
+
+				if (!write_midi(customtunes[i].data, f)) new_return(14);
             }
         }
         
@@ -11653,6 +11606,39 @@ int32_t writeguys(PACKFILE *f, zquestheader *Header)
 				new_return(101);
 			if(!p_putc(guysbuf[i].spr_spawn,f))
 				new_return(102);
+			if (!p_putc(guysbuf[i].wunblockable, f))
+				new_return(103);
+			if (!p_iputl(guysbuf[i].wmoveflags, f))
+				new_return(104);
+			if (!p_iputl(guysbuf[i].weapoverrideFLAGS, f))
+				new_return(105);
+			if (!p_iputl(guysbuf[i].weap_tilew, f))
+				new_return(106);
+			if (!p_iputl(guysbuf[i].weap_tileh, f))
+				new_return(107);
+			if (!p_iputl(guysbuf[i].weap_hxsz, f))
+				new_return(108);
+			if (!p_iputl(guysbuf[i].weap_hysz, f))
+				new_return(109);
+			if (!p_iputl(guysbuf[i].weap_hzsz, f))
+				new_return(110);
+			if (!p_iputl(guysbuf[i].weap_hxofs, f))
+				new_return(111);
+			if (!p_iputl(guysbuf[i].weap_hyofs, f))
+				new_return(112);
+			if (!p_iputl(guysbuf[i].weap_xofs, f))
+				new_return(113);
+			if (!p_iputl(guysbuf[i].weap_yofs, f))
+				new_return(114);
+			if (!p_iputl(guysbuf[i].wstep, f))
+				new_return(115);
+			for(int32_t q = 0; q < WPNSPR_MAX; ++q)
+			{
+				if (!p_iputw(guysbuf[i].burnsprs[q], f))
+					new_return(116 + q);
+				if (!p_iputw(guysbuf[i].light_rads[q], f))
+					new_return(116 + WPNSPR_MAX + q);
+			}
 		}
 		
 		if(writecycle==0)

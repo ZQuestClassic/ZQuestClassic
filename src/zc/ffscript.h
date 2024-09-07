@@ -362,7 +362,7 @@ struct user_file : public user_abstract_obj
 		return r;
 	}
 	
-	void setPath(char* buf)
+	void setPath(const char* buf)
 	{
 		if(buf)
 			filepath = buf;

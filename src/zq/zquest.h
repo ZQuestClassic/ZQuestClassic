@@ -226,7 +226,7 @@ extern zquestheader        header;
 extern byte                midi_flags[MIDIFLAGS_SIZE];
 extern byte                music_flags[MUSICFLAGS_SIZE];
 extern int32_t				   msg_strings_size;
-extern class zctune        *customtunes;
+extern zctune              *customtunes;
 extern ZCHEATS             zcheats;
 extern byte                use_cheats;
 extern byte                use_tiles;

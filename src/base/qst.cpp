@@ -9746,10 +9746,9 @@ int32_t readweapons(PACKFILE *f, zquestheader *Header)
     return 0;
 }
 
-static void guys_update_firesfx(guydata& tempguy)
+static void guy_update_firesfx(guydata& tempguy)
 {
 	tempguy.firesfx = 0;
-
 	if (tempguy.family == eeWIZZ)
 	{
 		switch (tempguy.attributes[1])
@@ -9835,6 +9834,48 @@ static void guys_update_firesfx(guydata& tempguy)
 	}
 }
 
+static void guy_update_weaponflags(guydata& tempguy)
+{
+	tempguy.wunblockable = 0;
+	tempguy.wmoveflags = move_none;
+	if (tempguy.weapon == ewFlame || tempguy.weapon == ewFireTrail)
+		tempguy.wmoveflags |= (move_obeys_grav | move_can_pitfall);
+	tempguy.weapoverrideFLAGS = 0;
+	tempguy.weap_hxofs = 0;
+	tempguy.weap_hyofs = 0;
+	tempguy.weap_hxsz = 0;
+	tempguy.weap_hysz = 0;
+	tempguy.weap_hzsz = 0;
+	tempguy.weap_xofs = 0;
+	tempguy.weap_yofs = 0;
+	tempguy.weap_tilew = 0;
+	tempguy.weap_tileh = 0;
+	switch (tempguy.weapon)
+	{
+	case ewFireball: case ewFireball2:
+		tempguy.wstep = 175;
+		break;
+	case ewSword: case ewLitBomb: case ewLitSBomb:
+	case ewRock:  case ewMagic: case ewWind:
+		tempguy.wstep = 300;
+		break;
+	case ewArrow:
+		tempguy.wstep = 200;
+		break;
+	case ewFlame: case ewFlame2:
+		tempguy.wstep = 100;
+		break;
+	default:
+		tempguy.wstep = 0;
+		break;
+	}
+	for (int q = 0; q < WPNSPR_MAX; ++q)
+	{
+		tempguy.burnsprs[q] = 0;
+		tempguy.light_rads[q] = 0;
+	}
+}
+
 void init_guys(int32_t guyversion)
 {
     for(int32_t i=0; i<MAXGUYS; i++)
@@ -9846,8 +9887,8 @@ void init_guys(int32_t guyversion)
     {
         guysbuf[i] = default_guys[i];
         guysbuf[i].spr_shadow = (guysbuf[i].family==eeROCK && guysbuf[i].attributes[9] == 1) ? iwLargeShadow : iwShadow;
-	guysbuf[i].spr_death = iwDeath;
-	guysbuf[i].spr_spawn = iwSpawn;
+		guysbuf[i].spr_death = iwDeath;
+		guysbuf[i].spr_spawn = iwSpawn;
         // Patra fix: 2.10 BSPatras used spDIG. 2.50 Patras use CSet 7.
         if(guyversion<=3 && i==ePATRABS)
         {
@@ -9916,7 +9957,8 @@ void init_guys(int32_t guyversion)
             guysbuf[i].attributes[2] = (i == eFGELTRIB ? eFZOL : eZOL);
         }
 
-        guys_update_firesfx(guysbuf[i]);
+        guy_update_firesfx(guysbuf[i]);
+		guy_update_weaponflags(guysbuf[i]);
     }
 }
 
@@ -14962,9 +15004,50 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 				}
 			}
 
+			//these could possible be combined but rather be safe...
 			if (guyversion < 51) //reimport the firesfx, zoria ducked up.
 			{
-				guys_update_firesfx(tempguy);
+				guy_update_firesfx(tempguy);
+			}
+			if (guyversion < 52)
+			{
+				guy_update_weaponflags(tempguy);
+			}
+			else
+			{
+				if (!p_getc(&(tempguy.wunblockable), f))
+					return qe_invalid;
+				if (!p_igetl(&(tempguy.wmoveflags), f))
+					return qe_invalid;
+				if (!p_igetl(&(tempguy.weapoverrideFLAGS), f))
+					return qe_invalid;
+				if (!p_igetl(&(tempguy.weap_tilew), f))
+					return qe_invalid;
+				if (!p_igetl(&(tempguy.weap_tileh), f))
+					return qe_invalid;
+				if (!p_igetl(&(tempguy.weap_hxsz), f))
+					return qe_invalid;
+				if (!p_igetl(&(tempguy.weap_hysz), f))
+					return qe_invalid;
+				if (!p_igetl(&(tempguy.weap_hzsz), f))
+					return qe_invalid;
+				if (!p_igetl(&(tempguy.weap_hxofs), f))
+					return qe_invalid;
+				if (!p_igetl(&(tempguy.weap_hyofs), f))
+					return qe_invalid;
+				if (!p_igetl(&(tempguy.weap_xofs), f))
+					return qe_invalid;
+				if (!p_igetl(&(tempguy.weap_yofs), f))
+					return qe_invalid;
+				if (!p_igetl(&(tempguy.wstep), f))
+					return qe_invalid;
+				for (int32_t q = 0; q < WPNSPR_MAX; ++q)
+				{
+					if (!p_igetw(&(tempguy.burnsprs[q]), f))
+						return qe_invalid;
+					if (!p_igetw(&(tempguy.light_rads[q]), f))
+						return qe_invalid;
+				}
 			}
 
 			if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
@@ -19118,34 +19201,27 @@ int32_t readtunes(PACKFILE *f, zquestheader *Header, zctune *tunes /*zcmidi_ *mi
                 {
                     return qe_invalid;
                 }
-                
-                //yes you can do this. Isn't the ? operator awesome? :)
-                tunes[i].format = MFORMAT_MIDI;
             }
             else
             {
-                // 'midi' could be midi or nes, gb, ... music
-                if(!pfread(&tunes[i].format,sizeof(tunes[i].format),f))
+				byte format;
+                if(!pfread(&format,sizeof(format),f))
                 {
                     return qe_invalid;
                 }
-                
-                zctune *ptr = &tunes[i];
-                
-                switch(temp.format)
-                {
-                case MFORMAT_MIDI:
-                    if((ptr->data=read_midi(f))==NULL)
-                    {
-                        return qe_invalid;
-                    }
-                    
-                    break;
-                    
-                default:
-                    return qe_invalid;
-                    break;
-                }
+
+				// MIDI is the only format saved here.
+				// Never did more than MIDI for a zctune, and no plans to now.
+				if (format != MFORMAT_MIDI)
+				{
+					return qe_invalid;
+				}
+
+				tunes[i].data = read_midi(f);
+                if (!tunes[i].data)
+				{
+					return qe_invalid;
+				}
             }
         }
     }
