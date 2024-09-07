@@ -6979,10 +6979,10 @@ bool _handle_combo_move(ComboMoveProcess dest_process, optional<ComboMoveProcess
 	//This function is expensive! Any optimizations possible should be made. -Em
 	
 	//OPT: Check for a 0-val preemptively, to avoid processing the fmt::format strings
-	#define ADDC(ptr, ...) \
-	if(*ptr) movelist->add_combo(ptr, __VA_ARGS__);
-	#define ADDC_10k(ptr, ...) \
-	if(*ptr) movelist->add_combo_10k(ptr, __VA_ARGS__);
+	#define ADDC(ptr, str) \
+	if(*ptr) movelist->add_combo(ptr, ComboProtection ? str : "");
+	#define ADDC_10k(ptr, str) \
+	if(*ptr) movelist->add_combo_10k(ptr, ComboProtection ? str : "");
 	//Combos
 	{
 		auto& movelist = vec.emplace_back(std::make_unique<ComboMoveList>(
@@ -7197,8 +7197,11 @@ bool _handle_combo_move(ComboMoveProcess dest_process, optional<ComboMoveProcess
 					continue;
 				
 				ADDC(&scr.undercombo, fmt::format("{}x{:02X} - UnderCombo", i, j));
+
+				// Specifying the exact position is too expensive - too much string creation.
+				std::string data_str = ComboProtection ? fmt::format("{}x{:02X} - Combo", i, j) : "";
 				for(int32_t k=0; k<176; k++)
-					ADDC(&scr.data[k], fmt::format("{}x{:02X} - Pos {}", i, j, k));
+					ADDC(&scr.data[k], data_str);
 				
 				for(int32_t k=0; k<128; k++)
 					ADDC(&scr.secretcombo[k], fmt::format("{}x{:02X} - SecretCombo {}", i, j, k));

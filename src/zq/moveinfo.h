@@ -1,8 +1,6 @@
 #ifndef _MOVEINFO_H_
 #define _MOVEINFO_H_
 
-#ifdef IS_EDITOR
-
 #include "base/ints.h"
 #include "base/headers.h"
 #include "base/containers.h"
@@ -343,7 +341,5 @@ struct TileMoveUndo
 			list->add_diff(diff);
 	}
 };
-
-#endif
 
 #endif
