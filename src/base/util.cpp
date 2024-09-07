@@ -261,7 +261,6 @@ namespace util
 		size_t nonslash_pos = path.find_last_not_of("/\\");
 		if(nonslash_pos == string::npos) return false; //blank or all slashes
 		if(path[0] == '/' || path[0] == '\\') return false; //multiple consecutive slashes
-		if(path.find_first_not_of("./\\") == string::npos) return false; //empty dirname
 		if(path.find("..") == 0) return false; //cannot begin with >1 dot
 		if(path.find("...") != string::npos) return false; //cannot contain >2 consecutive dots
 		return true;
