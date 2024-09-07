@@ -7,6 +7,7 @@
 #include <fmt/format.h>
 #include <sys/stat.h>
 #include <regex>
+#include <system_error>
 
 using namespace std;
 namespace fs = std::filesystem;
@@ -328,43 +329,15 @@ namespace util
 #endif
 	}
 
-	bool create_path(const char* path)
+	bool make_dirs_for_file(std::string& path)
 	{
-		while((path[0] == '/' || path[0] == '\\') && path[0]) ++path; //trim leading slashes
-		char buf[2048] = {0};
-		int32_t q = 0;
-		int32_t last_slash = -1;
-		for(; path[q] && q < 2048; ++q)
-		{
-			buf[q] = path[q];
-			if(path[q] == '/' || path[q] == '\\')
-			{
-				string strpath(buf+last_slash+1);
-				last_slash = q;
-				if(strpath == ". /" || strpath == ".\\")
-					continue;
-				if(strpath.find_first_of(":") != string::npos)
-					continue; //Non-creatable; ex "C:\"
-				if(!valid_single_dir(strpath))
-				{
-					return false; //Failure; invalid path
-				}
-				
-				struct stat info;
-				if(stat( buf, &info ) != 0)
-				{
-					if (do_mkdir(buf, PATH_MODE) != 0 && errno != EEXIST)
-					{
-						return false; //Failure; could not create
-					}
-				}
-				else if((info.st_mode & S_IFDIR)==0)
-				{
-					return false; //Hit failure; exists, but is not dir.
-				}
-			}
-		}
-		return q < 2048;
+		// TODO: give caller the error.
+		std::error_code ec;
+		fs::create_directories(fs::path(path).parent_path(), ec);
+		if (ec)
+			return false;
+
+		return true;
 	}
 
 	static void reverse( char *s )

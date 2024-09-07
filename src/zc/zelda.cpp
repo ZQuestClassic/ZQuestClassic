@@ -1848,7 +1848,7 @@ int32_t init_game()
 		if(pos==string::npos) pos=0;
 		else ++pos;
 		size_t dotpos = str.find_last_of(".");
-		sprintf(qst_files_path,"./Files/%s",str.substr(pos, dotpos-pos).c_str());
+		sprintf(qst_files_path,"Files/%s",str.substr(pos, dotpos-pos).c_str());
 		regulate_path(qst_files_path);
 	}
 	

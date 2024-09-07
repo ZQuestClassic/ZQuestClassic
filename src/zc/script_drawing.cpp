@@ -5872,7 +5872,7 @@ void bmp_do_writer(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32
 	}
 	else if ( overwrite || (!checkPath(str->c_str(), false)) )
 	{
-		if(create_path(str->c_str()))
+		if(make_dirs_for_file(*str))
 		{
 			save_bitmap(str->c_str(), usr_bitmap.u_bmp, RAMpal);
 			if(checkPath(str->c_str(), false))
