@@ -22394,7 +22394,7 @@ bool handle_slot(script_slot_data& slotdata, int indx, script_data** scriptdata)
 	{
 		string scriptstr;
 		(*doslot_scripts)[slotdata.scriptname].write(scriptstr, doslots_log_output, false, doslots_comment_output);
-		parse_script_string(&scriptdata[indx],scriptstr,false);
+		parse_script_string(scriptdata[indx],scriptstr,false);
 		
 		if(slotdata.isDisassembled()) scriptdata[indx]->meta.setFlag(ZMETA_DISASSEMBLED);
 		else if(slotdata.isImportedZASM()) scriptdata[indx]->meta.setFlag(ZMETA_IMPORTED);
@@ -23342,7 +23342,7 @@ int32_t onImportZASM()
 		return D_O_K;
 	}
 	script_data *temp_slot = new script_data(ScriptType::None, 0);
-	if(parse_script_file(&temp_slot, temppath, false) == D_CLOSE)
+	if(parse_script_file(temp_slot, temppath, false) == D_CLOSE)
 	{
 		jwin_alert("Error","Failed to parse specified file!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 		delete temp_slot;

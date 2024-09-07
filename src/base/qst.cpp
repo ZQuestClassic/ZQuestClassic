@@ -12096,7 +12096,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 	//finally...  section data
 	for(int32_t i = 0; i < ((s_version < 2) ? NUMSCRIPTFFCOLD : NUMSCRIPTFFC); i++)
 	{
-		ret = read_one_ffscript(f, Header, i, s_version, s_cversion, &ffscripts[i], zmeta_version);
+		ret = read_one_ffscript(f, Header, i, s_version, s_cversion, ffscripts[i], zmeta_version);
 		
 		if (ret)
 		{
@@ -12122,7 +12122,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 	{
 		for(int32_t i = 0; i < NUMSCRIPTITEM; i++)
 		{
-			ret = read_one_ffscript(f, Header, i, s_version, s_cversion, &itemscripts[i], zmeta_version);
+			ret = read_one_ffscript(f, Header, i, s_version, s_cversion, itemscripts[i], zmeta_version);
 			
 			if (ret)
 			{
@@ -12132,7 +12132,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 		
 		for(int32_t i = 0; i < NUMSCRIPTGUYS; i++)
 		{
-			ret = read_one_ffscript(f, Header, i, s_version, s_cversion, &guyscripts[i], zmeta_version);
+			ret = read_one_ffscript(f, Header, i, s_version, s_cversion, guyscripts[i], zmeta_version);
 			
 			if (ret)
 			{
@@ -12143,7 +12143,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 		script_data *fake = new script_data(ScriptType::None, 0);
 		for(int32_t i = 0; i < NUMSCRIPTWEAPONS; i++)
 		{
-			ret = read_one_ffscript(f, Header, i, s_version, s_cversion, &fake, zmeta_version);
+			ret = read_one_ffscript(f, Header, i, s_version, s_cversion, fake, zmeta_version);
 			
 			if (ret)
 			{
@@ -12154,7 +12154,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 	
 		for(int32_t i = 0; i < NUMSCRIPTSCREEN; i++)
 		{
-			ret = read_one_ffscript(f, Header, i, s_version, s_cversion, &screenscripts[i], zmeta_version);
+			ret = read_one_ffscript(f, Header, i, s_version, s_cversion, screenscripts[i], zmeta_version);
 			
 			if (ret)
 			{
@@ -12166,7 +12166,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 		{
 			for(int32_t i = 0; i < NUMSCRIPTGLOBAL; ++i)
 			{
-				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, &globalscripts[i], zmeta_version);
+				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, globalscripts[i], zmeta_version);
 				
 				if (ret)
 				{
@@ -12178,7 +12178,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 		{
 			for(int32_t i = 0; i < NUMSCRIPTGLOBAL255OLD; ++i)
 			{
-				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, &globalscripts[i], zmeta_version);
+				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, globalscripts[i], zmeta_version);
 				
 				if (ret)
 				{
@@ -12195,7 +12195,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 		{
 			for(int32_t i = 0; i < NUMSCRIPTGLOBAL253; ++i)
 			{
-				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, &globalscripts[i], zmeta_version);
+				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, globalscripts[i], zmeta_version);
 				
 				if (ret)
 				{
@@ -12227,7 +12227,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 		{
 			for(int32_t i = 0; i < NUMSCRIPTGLOBALOLD; i++)
 			{
-				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, &globalscripts[i], zmeta_version);
+				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, globalscripts[i], zmeta_version);
 				
 				if (ret)
 				{
@@ -12265,7 +12265,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 		{
 			for(int32_t i = 0; i < NUMSCRIPTPLAYER; i++)
 			{
-				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, &playerscripts[i], zmeta_version);
+				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, playerscripts[i], zmeta_version);
 				
 				if (ret)
 				{
@@ -12277,7 +12277,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 		{
 			for(int32_t i = 0; i < NUMSCRIPTHEROOLD; i++)
 			{
-				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, &playerscripts[i], zmeta_version);
+				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, playerscripts[i], zmeta_version);
 				
 				if (ret)
 				{
@@ -12299,7 +12299,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 			
 			for(int32_t i = 0; i < NUMSCRIPTWEAPONS; i++)
 			{
-				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, &ewpnscripts[i], zmeta_version);
+				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, ewpnscripts[i], zmeta_version);
 				
 				if (ret)
 				{
@@ -12308,7 +12308,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 			}
 			for(int32_t i = 0; i < NUMSCRIPTSDMAP; i++)
 			{
-				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, &dmapscripts[i], zmeta_version);
+				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, dmapscripts[i], zmeta_version);
 			
 				if (ret)
 				{
@@ -12321,7 +12321,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 		{
 			for(int32_t i = 0; i < NUMSCRIPTWEAPONS; i++)
 			{
-				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, &lwpnscripts[i], zmeta_version);
+				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, lwpnscripts[i], zmeta_version);
 				
 				if (ret)
 				{
@@ -12330,7 +12330,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 			}
 			for(int32_t i = 0; i < NUMSCRIPTWEAPONS; i++)
 			{
-				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, &ewpnscripts[i], zmeta_version);
+				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, ewpnscripts[i], zmeta_version);
 				
 				if (ret)
 				{
@@ -12339,7 +12339,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 			}
 			for(int32_t i = 0; i < NUMSCRIPTSDMAP; i++)
 			{
-				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, &dmapscripts[i], zmeta_version);
+				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, dmapscripts[i], zmeta_version);
 			
 				if (ret)
 				{
@@ -12352,7 +12352,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 		{
 			for(int32_t i = 0; i < NUMSCRIPTSITEMSPRITE; i++)
 			{
-				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, &itemspritescripts[i], zmeta_version);
+				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, itemspritescripts[i], zmeta_version);
 					
 				if (ret)
 				{
@@ -12364,7 +12364,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 		{
 			for(int32_t i = 0; i < NUMSCRIPTSCOMBODATA; i++)
 			{
-				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, &comboscripts[i], zmeta_version);
+				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, comboscripts[i], zmeta_version);
 					
 				if (ret)
 				{
@@ -12381,7 +12381,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 			}
 			for(int32_t i = 0; i < numgenscripts; i++)
 			{
-				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, &genericscripts[i], zmeta_version);
+				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, genericscripts[i], zmeta_version);
 					
 				if (ret)
 				{
@@ -12398,7 +12398,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 			}
 			for(int32_t i = 0; i < numsubscripts; i++)
 			{
-				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, &subscreenscripts[i], zmeta_version);
+				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, subscreenscripts[i], zmeta_version);
 					
 				if (ret)
 				{
@@ -12868,10 +12868,9 @@ void reset_scripts()
 	}
 }
 
-int32_t read_one_ffscript(PACKFILE *f, zquestheader *, int32_t script_index, word s_version, word , script_data **script, word zmeta_version)
+int32_t read_one_ffscript(PACKFILE *f, zquestheader *, int32_t script_index, word s_version, word , script_data *script, word zmeta_version)
 {
-	// TODO: refactor to just take a script_data*
-	ASSERT(*script);
+	ASSERT(script);
 
 	//Please also update loadquest() when modifying this method -DD
 	char b33[34] = {0};
@@ -13057,7 +13056,7 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, int32_t script_index, wor
 			}
 		}
 		
-		(*script)->meta = temp_meta;
+		script->meta = temp_meta;
 	}
 	
 	for(int32_t j=0; j<num_commands; j++)
@@ -13131,13 +13130,13 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, int32_t script_index, wor
 	// Saw this for https://www.purezc.net/index.php?page=quests&id=411 hero script 0
 	if (!zasm.empty() && zasm[0].command >= NUMCOMMANDS && zasm[0].command != 0xFFFF)
 	{
-		al_trace("Warning: found script with bad instruction, disabling script: %s %d\n", ScriptTypeToString((*script)->id.type), (*script)->id.index);
+		al_trace("Warning: found script with bad instruction, disabling script: %s %d\n", ScriptTypeToString(script->id.type), script->id.index);
 		zasm.clear();
 	}
 
 	zasm_script_id id = zasm_scripts.size();
-	auto& zs = zasm_scripts.emplace_back(std::make_shared<zasm_script>(id, (*script)->name(), std::move(zasm)));
-	(*script)->zasm_script = zs;
+	auto& zs = zasm_scripts.emplace_back(std::make_shared<zasm_script>(id, script->name(), std::move(zasm)));
+	script->zasm_script = zs;
 
 	return 0;
 }
