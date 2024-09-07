@@ -11653,6 +11653,39 @@ int32_t writeguys(PACKFILE *f, zquestheader *Header)
 				new_return(101);
 			if(!p_putc(guysbuf[i].spr_spawn,f))
 				new_return(102);
+			if (!p_putc(guysbuf[i].wunblockable, f))
+				new_return(103);
+			if (!p_iputl(guysbuf[i].wmoveflags, f))
+				new_return(104);
+			if (!p_iputl(guysbuf[i].weapoverrideFLAGS, f))
+				new_return(105);
+			if (!p_iputl(guysbuf[i].weap_tilew, f))
+				new_return(106);
+			if (!p_iputl(guysbuf[i].weap_tileh, f))
+				new_return(107);
+			if (!p_iputl(guysbuf[i].weap_hxsz, f))
+				new_return(108);
+			if (!p_iputl(guysbuf[i].weap_hysz, f))
+				new_return(109);
+			if (!p_iputl(guysbuf[i].weap_hzsz, f))
+				new_return(110);
+			if (!p_iputl(guysbuf[i].weap_hxofs, f))
+				new_return(111);
+			if (!p_iputl(guysbuf[i].weap_hyofs, f))
+				new_return(112);
+			if (!p_iputl(guysbuf[i].weap_xofs, f))
+				new_return(113);
+			if (!p_iputl(guysbuf[i].weap_yofs, f))
+				new_return(114);
+			if (!p_iputl(guysbuf[i].wstep, f))
+				new_return(115);
+			for(int32_t q = 0; q < WPNSPR_MAX; ++q)
+			{
+				if (!p_iputw(guysbuf[i].burnsprs[q], f))
+					new_return(116 + q);
+				if (!p_iputw(guysbuf[i].light_rads[q], f))
+					new_return(116 + WPNSPR_MAX + q);
+			}
 		}
 		
 		if(writecycle==0)
