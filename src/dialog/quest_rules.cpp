@@ -1059,7 +1059,11 @@ static GUI::ListData enemiesRulesList
 	{ "Quake Hammer Stuns Leevers", qr_QUAKE_STUNS_LEEVERS,
 		"If enabled, Quake Hammer can stun Leevers. This barely does anything if 'Leever's Still"
 		" Submerge If Stunned' is enabled."},
-		
+	{ "Better Keese Z Movement", qr_BETTER_KEESE_ZMOVEMENT,
+		" All Keese have a Z variance based off the distance between the entity and the player."
+		"\nIf enabled the variance will be multipled by its' current step AND default step"
+		"\nIf disabled the variance will be based off its' current step only"
+		"\nThis does nothing if  'Enemies Jump/Fly Through Z-Axis' is disabled"},
 	//Maybe we should keep this one last always? -Deedee 
 	{ "Enemies Can Go Out of Bounds (Offscreen)", qr_OUTOFBOUNDSENEMIES,
 		"If enabled, enemies can go out of bounds without getting removed. This is"

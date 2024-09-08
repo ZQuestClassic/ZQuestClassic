@@ -188,6 +188,7 @@ void alwaysOnRules()
 	set_qr(qr_SMARTER_WATER, 1);
 	set_qr(qr_LESS_AWFUL_SIDESPIKES, 1);
 	set_qr(qr_SWITCHES_AFFECT_MOVINGBLOCKS, 1);
+	set_qr(qr_BETTER_KEESE_ZMOVEMENT, 1);
 	// Script Logging
 	set_qr(qr_SCRIPTERRLOG, 1);
 	set_qr(qr_LOG, 1);
