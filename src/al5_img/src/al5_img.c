@@ -117,7 +117,7 @@ int save_al4_bitmap_through_al5(AL_CONST char *filename, BITMAP *bmp, AL_CONST P
         for (j = 0; j < bmp->w; j++)
         {
             c = getpixel(bmp, j, i);
-            al_put_pixel(j, i, al_map_rgb(pal[c].r * 4, pal[c].g * 4, pal[c].b * 4));
+            al_put_pixel(j, i, al_map_rgb(_rgb_scale_6[pal[c].r], _rgb_scale_6[pal[c].g], _rgb_scale_6[pal[c].b]));
         }
     }
     al_unlock_bitmap(a5bmp);

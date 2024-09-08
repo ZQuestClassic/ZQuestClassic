@@ -109,7 +109,7 @@ static void update_theme(int fromver)
 			zc_set_config_basic("Theme",fmt::format("dvc{}_g",q).c_str(),(char*)nullptr);
 			zc_set_config_basic("Theme",fmt::format("dvc{}_b",q).c_str(),(char*)nullptr);
 			//Add the new hex var
-			int hexval = ((cols[q].r * 4) << 16) | ((cols[q].g * 4) << 8) | (cols[q].b * 4);
+			int hexval = ((_rgb_scale_6[cols[q].r]) << 16) | ((_rgb_scale_6[cols[q].g]) << 8) | (_rgb_scale_6[cols[q].b]);
 			zc_set_config_basic_hex("Theme",fmt::format("color_{}",q).c_str(),hexval);
 		}
 	}
