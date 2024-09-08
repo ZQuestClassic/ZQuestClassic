@@ -2059,6 +2059,7 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 			int32_t scursor = cursor_start, ecursor = cursor_end;
 			char upper_c = c>>8;
 			char lower_c = c&255;
+
 			if(shifted)
 			{
 				if(ecursor < 0)
@@ -2285,7 +2286,7 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 				change_cursor = false;
 				return D_O_K;
 			}
-			else if(ctrl && (lower_c=='c' || lower_c=='C'))
+			else if(ctrl && lower_c == KEY_C)
 			{
 				change_cursor = false;
 				std::ostringstream oss;
@@ -2304,7 +2305,7 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 				}
 				set_al_clipboard(oss.str());
 			}
-			else if(clipboard_has_text() && ctrl && (lower_c=='v' || lower_c=='V'))
+			else if(clipboard_has_text() && ctrl && lower_c == KEY_V)
 			{
 				std::string cb;
 				if(get_al_clipboard(cb))
@@ -2351,7 +2352,7 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 					GUI_EVENT(d, geCHANGE_VALUE);
 				}
 			}
-			else if(ctrl && (lower_c=='a' || lower_c=='A'))
+			else if(ctrl && lower_c == KEY_A)
 			{
 				cursor_start = 0;
 				cursor_end = (int16_t)strlen((char*)d->dp) - 1;
@@ -2834,7 +2835,7 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 				change_cursor = false;
 				return D_O_K;
 			}
-			else if(ctrl && (lower_c=='c' || lower_c=='C'))
+			else if(ctrl && lower_c == KEY_C)
 			{
 				change_cursor = false;
 				std::ostringstream oss;
@@ -2853,7 +2854,7 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 				}
 				set_al_clipboard(oss.str());
 			}
-			else if(clipboard_has_text() && ctrl && (lower_c=='v' || lower_c=='V'))
+			else if(clipboard_has_text() && ctrl && lower_c == KEY_V)
 			{
 				std::string cb;
 				if(get_al_clipboard(cb))
@@ -2901,7 +2902,7 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 					change_value = true;
 				}
 			}
-			else if(ctrl && (lower_c=='a' || lower_c=='A'))
+			else if(ctrl && lower_c == KEY_A)
 			{
 				cursor_start = 0;
 				cursor_end = (int16_t)strlen((char*)d->dp) - 1;
