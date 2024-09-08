@@ -518,7 +518,7 @@ bool EnemyListerDialog::load()
 {
 	if (selected_val < 0)
 		return false;
-	if (!prompt_for_existing_file_compat(fmt::format("Load NPC (replacing '{}' #{}) (.z)", guy_string[selected_val], selected_val).c_str(), "znpc", NULL, datapath, false))
+	if (!prompt_for_existing_file_compat(fmt::format("Load NPC (replacing '{}' #{}) (.znpc)", guy_string[selected_val], selected_val).c_str(), "znpc", NULL, datapath, false))
 		return false;
 
 	PACKFILE* f = pack_fopen_password(temppath, F_READ, "");
