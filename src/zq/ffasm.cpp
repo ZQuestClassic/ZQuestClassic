@@ -1,5 +1,6 @@
 #include "base/files.h"
 #include "parser/Types.h"
+#include <memory>
 #include <stdio.h>
 #include <stdlib.h>
 #include <cstring>
@@ -124,6 +125,17 @@ int32_t parse_script_file(script_data *script, const char *path, bool report_suc
 int32_t parse_script_string(script_data *script, string const& scriptstr, bool report_success)
 {
 	ASSERT(script);
+
+	if (!script->zasm_script)
+	{
+		extern std::vector<std::shared_ptr<zasm_script>> zasm_scripts;
+		zasm_script_id id = zasm_scripts.size();
+		auto& zs = zasm_scripts.emplace_back(std::make_shared<zasm_script>());
+		zs->id = id;
+		zs->name = script->name();
+		script->zasm_script = zs;
+	}
+
 	auto& zasm = script->zasm_script->zasm;
 	saved=false;
 	string buffer;
