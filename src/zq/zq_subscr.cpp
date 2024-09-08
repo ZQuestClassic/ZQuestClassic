@@ -665,7 +665,7 @@ int32_t d_subscreen_proc(int32_t msg,DIALOG *d,int32_t)
 					{
 						if(clicked_obj > -1)
 						{
-							if(shift) //multiselect
+							if(shift) //range_selected
 							{
 								if(sso_selection[clicked_obj]==true)
 								{
