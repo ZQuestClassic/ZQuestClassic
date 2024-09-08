@@ -1793,7 +1793,7 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 		cursor_end = l;
 	auto low_cursor = cursor_start<0 ? cursor_end : (cursor_end<0 ? cursor_start : (zc_min(cursor_start, cursor_end)));
 	auto high_cursor = zc_max(cursor_start,cursor_end);
-	bool multiselect = cursor_end > -1;
+	bool range_selected = cursor_end > -1;
 	
 	FONT *oldfont = font;
 	if(d->dp2)
@@ -1851,13 +1851,13 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 				lines.push_back(l+1);
 			for(size_t line = 0; line < lines.size(); ++line)
 			{
-				if(size_t(multiselect ? cursor_end : cursor_start) < lines[line]) //should ALWAYS execute once
+				if(size_t(range_selected ? cursor_end : cursor_start) < lines[line]) //should ALWAYS execute once
 				{
 					focused_line = line;
 					break;
 				}
 			}
-			if(!multiselect)
+			if(!range_selected)
 			{
 				focused_line2 = -1;
 			}
@@ -1925,7 +1925,7 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 				{
 					char c = s[ind] ? s[ind] : ' ';
 					w = char_length(font, c);
-					bool focused = multiselect
+					bool focused = range_selected
 						? (ind >= low_cursor && ind <= high_cursor)
 						: (ind == cursor_start);
 					f = (focused && (d->flags & D_GOTFOCUS));
@@ -2143,7 +2143,7 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 				else
 				{
 					ecursor = -1;
-					if(multiselect)
+					if(range_selected)
 					{
 						focused_line = focused_line2;
 						scursor = ecursor;
@@ -2218,12 +2218,12 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 					ecursor = -1;
 					GUI_EVENT(d, geCHANGE_VALUE);
 				}
-				else if(multiselect)
+				else if(range_selected)
 				{
 					ecursor = -1;
 					scursor = low_cursor;
 					size_t ind = low_cursor, ind2 = high_cursor+1;
-					while(s[ind2])
+					while(ind2 < l && s[ind2])
 						s[ind++] = s[ind2++];
 					while(s[ind])
 						s[ind++] = 0;
@@ -2250,12 +2250,12 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 					ecursor = -1;
 					GUI_EVENT(d, geCHANGE_VALUE);
 				}
-				else if(multiselect)
+				else if(range_selected)
 				{
 					ecursor = -1;
 					scursor = low_cursor;
 					size_t ind = low_cursor, ind2 = high_cursor+1;
-					while(s[ind2])
+					while(ind2 < l && s[ind2])
 						s[ind++] = s[ind2++];
 					while(s[ind])
 						s[ind++] = 0;
@@ -2290,7 +2290,7 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 			{
 				change_cursor = false;
 				std::ostringstream oss;
-				if(multiselect)
+				if(range_selected)
 				{
 					for(size_t ind = low_cursor; ind <= high_cursor; ++ind)
 					{
@@ -2311,7 +2311,7 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 				if(get_al_clipboard(cb))
 				{
 					int ind = low_cursor, ind2 = high_cursor + 1;
-					if (multiselect)
+					if (range_selected)
 					{
 						//Delete selected text
 						ecursor = -1;
@@ -2362,13 +2362,13 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 			}
 			else if(lower_c >= 32)
 			{
-				if(multiselect)
+				if(range_selected)
 				{
 					//Delete selected text
 					ecursor = -1;
 					scursor = low_cursor;
 					size_t ind = low_cursor, ind2 = high_cursor+1;
-					while(s[ind2] && ind2 < l)
+					while(ind2 < l && s[ind2])
 						s[ind++] = s[ind2++];
 					while(s[ind])
 						s[ind++] = 0;
@@ -2695,7 +2695,7 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 			bool change_cursor = true;
 			bool change_value = false;
 			int scursor = cursor_start, ecursor = cursor_end;
-			bool multiselect = cursor_end > -1;
+			bool range_selected = cursor_end > -1;
 			auto upper_c = c>>8;
 			auto lower_c = c&0xFF;
 			if(shifted)
@@ -2761,11 +2761,12 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 					GUI_EVENT(d, geCHANGE_VALUE);
 					change_value = true;
 				}
-				else if(multiselect)
+				else if(range_selected)
 				{
 					ecursor = -1;
 					scursor = low_cursor;
-					size_t ind = low_cursor, ind2 = high_cursor+1;
+					int ind = low_cursor, ind2 = high_cursor+1;
+					ind2 = std::min(ind2, d->d1 - 1);
 					while(s[ind2])
 						s[ind++] = s[ind2++];
 					while(s[ind])
@@ -2797,12 +2798,12 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 					GUI_EVENT(d, geCHANGE_VALUE);
 					change_value = true;
 				}
-				else if(multiselect)
+				else if(range_selected)
 				{
 					ecursor = -1;
 					scursor = low_cursor;
 					size_t ind = low_cursor, ind2 = high_cursor+1;
-					while(s[ind2])
+					while(ind2 < l && s[ind2])
 						s[ind++] = s[ind2++];
 					while(s[ind])
 						s[ind++] = 0;
@@ -2839,7 +2840,7 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 			{
 				change_cursor = false;
 				std::ostringstream oss;
-				if(multiselect)
+				if(range_selected)
 				{
 					for(size_t ind = low_cursor; ind <= high_cursor; ++ind)
 					{
@@ -2860,7 +2861,7 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 				if(get_al_clipboard(cb))
 				{
 					int ind = low_cursor, ind2 = high_cursor + 1;
-					if (multiselect)
+					if (range_selected)
 					{
 						//Delete selected text
 						ecursor = -1;
@@ -2912,12 +2913,13 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 			}
 			else if(lower_c >= 32)
 			{
-				if(multiselect)
+				if(range_selected)
 				{
 					//Delete selected text
 					ecursor = -1;
 					scursor = low_cursor;
-					size_t ind = low_cursor, ind2 = high_cursor+1;
+					int ind = low_cursor, ind2 = high_cursor+1;
+					// ind2 = std::min(ind2, d->d1);
 					while(s[ind2] && ind2 < l)
 						s[ind++] = s[ind2++];
 					while(s[ind])
