@@ -198,12 +198,10 @@ GUI::ListData GUI::ZCListData::enemies(bool numbered, bool defaultFilter)
 	{
 		if(defaultFilter)
 		{
-			if(q >= 11 && q <= 19) //Segment components
+			if(q >= 0 && q <= 19) //Room Guys
 				continue;
 			if(q < OLDMAXGUYS && old_guy_string[q][strlen(old_guy_string[q])-1]==' ')
 				continue; //'Hidden' enemies
-			if(guysbuf[q].family == eeGUY)
-				continue; //Guys
 		}
 		char const* npcname = guy_string[q];
 		std::string name;

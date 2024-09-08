@@ -2881,44 +2881,7 @@ void elist_rclick_func(int32_t index, int32_t x, int32_t y)
 
 int32_t onCustomEnemies()
 {
-	/*
-	  char *hold = item_string[0];
-	  item_string[0] = "rupee (1)";
-	  */
-	
-	int32_t foo;
-	int32_t index = select_enemy("Select Enemy",bie[0].i,true,true,foo);
-	
-	while(index >= 0)
-	{
-		//I can't get the fucking dialog to handle a simple copy paste so I stuck it here else I'm going to rage kill something.
-		//,,.Someone feel free to fix the thing properly later on.
-		//Right now creating custom enemies remains a int32_t painful process, but it shouldn't be this hard for users to use.
-		//-Two cents worth. -Gleeok
-		if(key[KEY_OPENBRACE])   //copy
-		{
-			if(index != 0)
-				copiedGuy=index;
-		}
-		else if(key[KEY_CLOSEBRACE])   //paste
-		{
-			if(copiedGuy>0 && index!=0)
-			{
-				guysbuf[index]=guysbuf[copiedGuy];
-				saved=false;
-			}
-		}
-		else
-		{
-			if(index != 0)
-			{
-				edit_enemydata(index);
-			}
-		}
-		
-		index = select_enemy("Select Enemy",index,true,true,foo);
-	}
-	
+	EnemyListerDialog().show();
 	refresh(rMAP+rCOMBOS);
 	return D_O_K;
 }
