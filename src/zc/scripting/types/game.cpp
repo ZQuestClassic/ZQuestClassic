@@ -690,52 +690,6 @@ std::optional<int32_t> game_get_register(int32_t reg)
 		case GAMELKEYSD:
 			ret=game->lvlkeys[(ri->d[rINDEX])/10000]*10000;
 			break;
-
-		case TANGOARR:
-		{
-			int32_t inx = (ri->d[rINDEX])/10000;
-			if ( ((unsigned)inx) > 255 )
-			{
-				Z_scripterrlog("Invalid index %d supplied to Game->Tango[].\n", inx);
-				ret = -10000;
-				break;
-			}
-			else
-			{
-				ret=FFCore.TangoArray[inx]*10000;
-				break;
-			}
-		}
-		case GHOSTARR:
-		{
-			int32_t inx = (ri->d[rINDEX])/10000;
-			if ( ((unsigned)inx) > 255 )
-			{
-				Z_scripterrlog("Invalid index %d supplied to Game->Ghost[].\n", inx);
-				ret = -10000;
-				break;
-			}
-			else
-			{
-				ret=FFCore.GhostArray[inx]*10000;
-				break;
-			}
-		}
-		case STDARR:
-		{
-			int32_t inx = (ri->d[rINDEX])/10000;
-			if ( ((unsigned)inx) > 255 )
-			{
-				Z_scripterrlog("Invalid index %d supplied to Game->STD[].\n", inx);
-				ret = -10000;
-				break;
-			}
-			else
-			{
-				ret=FFCore.StdArray[inx]*10000;
-				break;
-			}
-		}
 		
 		case GAMEMISCSPR:
 		{
@@ -1430,51 +1384,6 @@ bool game_set_register(int32_t reg, int32_t value)
 		case GAMEBOTTLEST:
 			game->set_bottle_slot((ri->d[rINDEX])/10000,value/10000);
 			break;
-		
-		case TANGOARR:
-		{
-			int32_t inx = (ri->d[rINDEX])/10000;
-			if ( ((unsigned)inx) > 255 )
-			{
-				Z_scripterrlog("Invalid index %d supplied to Game->Tango[].\n", inx);
-				break;
-			}
-			else
-			{
-				FFCore.TangoArray[inx]=value/10000;
-				break;
-			}
-		}
-		
-		case GHOSTARR:
-		{
-			int32_t inx = (ri->d[rINDEX])/10000;
-			if ( ((unsigned)inx) > 255 )
-			{
-				Z_scripterrlog("Invalid index %d supplied to Game->Ghost[].\n", inx);
-				break;
-			}
-			else
-			{
-			
-				FFCore.GhostArray[inx]=value/10000;;
-				break;
-			}
-		}
-		case STDARR:
-		{
-			int32_t inx = (ri->d[rINDEX])/10000;
-			if ( ((unsigned)inx) > 255 )
-			{
-				Z_scripterrlog("Invalid index %d supplied to Game->STD[].\n", inx);
-				break;
-			}
-			else
-			{
-				FFCore.StdArray[inx]=value/10000;
-				break;
-			}
-		}
 		
 		case GAMEMISCSPR:
 		{

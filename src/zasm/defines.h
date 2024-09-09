@@ -2246,7 +2246,7 @@ enum ASM_DEFINE
 #define ITEMPSTRINGFLAGS		0x12B1
 #define ITEMOVERRIDEFLAGS		0x12B2
 #define LINKPUSH		0x12B3
-#define GAMEMISC		0x12B4 //int32_t
+#define GAMEMISC		0x12B4 //int32_t            // Deprecated. Still implemented just to keep the alarm clock quest working.
 #define LINKSTUN		0x12B5 //int32_t (32b)
 #define TYPINGMODE		0x12B6 //int32_t (32b)
 
@@ -2555,9 +2555,9 @@ enum ASM_DEFINE
 #define NPCSLIDECLK			0x13CB
 #define NPCFADING			0x13CC
 #define DISTANCE			0x13CD
-#define STDARR				0x13CE
-#define GHOSTARR			0x13CF
-#define TANGOARR			0x13D0
+#define STDARR				0x13CE       // Removed. Never used.
+#define GHOSTARR			0x13CF       // Removed. Never used.
+#define TANGOARR			0x13D0       // Removed. Never used.
 #define NPCHALTCLK			0x13D1
 #define NPCMOVESTATUS			0x13D2
 #define DISTANCESCALE			0x13D3

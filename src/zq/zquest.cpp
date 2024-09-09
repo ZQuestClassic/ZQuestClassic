@@ -28061,14 +28061,6 @@ void FFScript::init()
 	enemy_removal_point[spriteremovalZ1] = -32767;
 	enemy_removal_point[spriteremovalZ2] = 32767;
 	
-	//Clear internal arrays for use by <std>, <ghost>, <tango>
-	for ( int32_t q = 0; q < 256; ++q )
-	{
-		StdArray[q] = 0;
-		GhostArray[q] = 0;
-		TangoArray[q] = 0;
-	}
-	
 	for ( int32_t q = 0; q < 4; q++ ) 
 	{
 		FF_screenbounds[q] = 0;
