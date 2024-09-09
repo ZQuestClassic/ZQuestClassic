@@ -1225,8 +1225,6 @@ static NewMenu quest_menu
 	{ "A&udio ", &audio_menu },
 	{},
 	{ "De&faults ", &defs_menu },
-	{},
-	{ "Misc[]", onQMiscValues },
 };
 
 static NewMenu paste_menu
@@ -4217,49 +4215,6 @@ static DIALOG gamemiscarray_dlg[] =
 	
 	{ NULL,                0,    0,    0,    0,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL }
 };
-
-void EditGameMiscArray()
-{
-	gamemiscarray_dlg[0].dp2=get_zc_font(font_lfont);
-	char miscvalue[32][14];
-	char miscvalue_labels[32][65];
-	memset(miscvalue, 0, sizeof(miscvalue));
-	memset(miscvalue_labels, 0, sizeof(miscvalue_labels));
-	for ( int32_t q = 0; q < 32; q++ )
-	{
-		gamemiscarray_dlg[37+q].dp = miscvalue[q];
-		gamemiscarray_dlg[37+q].fg = QMisc.questmisc[q];
-		gamemiscarray_dlg[37+q].dp3 = &(gamemiscarray_dlg[71+q]);
-		
-		strcpy(miscvalue_labels[q], QMisc.questmisc_strings[q]);
-		if ( miscvalue_labels[q][0] == 0 ) sprintf(miscvalue_labels[q],"Misc[%d]",q);
-		gamemiscarray_dlg[5+q].dp = miscvalue_labels[q];
-		
-	}
-	//also questmisc_strings
-	int32_t ret;
-	large_dialog(gamemiscarray_dlg);
-        
-	do
-	{
-		ret = do_zqdialog(gamemiscarray_dlg,65);
-		for ( int32_t q = 0; q < 32; q++ )
-		{
-			
-			QMisc.questmisc[q] = gamemiscarray_dlg[37+q].fg;
-			strcpy(QMisc.questmisc_strings[q], miscvalue_labels[q]);
-		}
-		
-	}
-	while(ret==68);
-}
-
-int32_t onQMiscValues()
-{
-    EditGameMiscArray();
-    saved=false;
-    return D_O_K;
-}
 
 //  +----------+
 //  |          |

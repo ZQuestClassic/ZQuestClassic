@@ -8304,8 +8304,8 @@ int32_t writemisc(PACKFILE *f, zquestheader *Header)
 		for ( int32_t q = 0; q < 32; q++ ) 
 		{
 			for ( int32_t j = 0; j < 128; j++ )
-			if(!p_putc(QMisc.questmisc_strings[q][j],f))
-						 new_return(22);
+				if(!p_putc(0,f))
+					new_return(22);
 		}
 		//V_MISC >= 11
 		if(!p_iputl(QMisc.zscript_last_compiled_version,f))

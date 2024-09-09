@@ -6143,10 +6143,10 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 	}
 	
 	memset(&temp_misc.questmisc, 0, sizeof(int32_t)*32);
-	memset(&temp_misc.questmisc_strings, 0, sizeof(char)*4096);
 	memset(&temp_misc.zscript_last_compiled_version, 0, sizeof(int32_t));
 	
 	//v9 includes quest misc[32]
+	// ... this has been deprecated (2024)
 	if(s_version >= 9)
 	{
 		for ( int32_t q = 0; q < 32; q++ ) 
@@ -6154,12 +6154,9 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 			if(!p_igetl(&temp_misc.questmisc[q],f))
 						return qe_invalid;
 		}
-		for ( int32_t q = 0; q < 32; q++ ) 
-		{
-			for ( int32_t j = 0; j < 128; j++ )
-			if(!p_getc(&temp_misc.questmisc_strings[q][j],f))
-						return qe_invalid;
-		}
+		// this was string labels
+		if (pack_fseek(f, 32 * 128))
+			return qe_invalid;
 	}
 	
 	if(s_version >= 11 )
