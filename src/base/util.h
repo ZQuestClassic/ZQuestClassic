@@ -74,7 +74,7 @@ namespace util
 	bool valid_file(std::string const& path);
 	void regulate_path(char* buf);
 	void regulate_path(std::string& buf);
-	bool create_path(const char* path);
+	bool make_dirs_for_file(std::string& path);
 	char* zc_itoa(int32_t value, char* str, int32_t base = 10);
 	int64_t zc_atoi64(const char *str);
 	int64_t zc_xtoi64(const char *hexstr);

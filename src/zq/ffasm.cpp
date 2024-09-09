@@ -1,5 +1,6 @@
 #include "base/files.h"
 #include "parser/Types.h"
+#include <memory>
 #include <stdio.h>
 #include <stdlib.h>
 #include <cstring>
@@ -92,7 +93,7 @@ bool ffcheck(char const* arg)
 std::map<std::string, int32_t> labels;
 
 //The Dialogue that loads an ASM Script filename.
-int32_t parse_script(script_data **script)
+int32_t parse_script(script_data *script)
 {
 	if(!prompt_for_existing_file_compat("Import Script (.txt, .asm, .zasm)","txt,asm,zasm",NULL,datapath,false))
 		return D_CLOSE;
@@ -107,7 +108,7 @@ int32_t parse_script(script_data **script)
 	else return parse_script_file(script,temppath, true);
 }
 
-int32_t parse_script_file(script_data **script, const char *path, bool report_success)
+int32_t parse_script_file(script_data *script, const char *path, bool report_success)
 {
 	std::ifstream file(path);
 	std::stringstream buffer;
@@ -121,11 +122,21 @@ int32_t parse_script_file(script_data **script, const char *path, bool report_su
 #define ERR_PARAM3      3
 #define ERR_STR         4
 #define ERR_VEC         5
-int32_t parse_script_string(script_data **script, string const& scriptstr, bool report_success)
+int32_t parse_script_string(script_data *script, string const& scriptstr, bool report_success)
 {
-	// TODO: refactor to just take a script_data*
-	ASSERT(*script);
-	auto& zasm = (*script)->zasm_script->zasm;
+	ASSERT(script);
+
+	if (!script->zasm_script)
+	{
+		extern std::vector<std::shared_ptr<zasm_script>> zasm_scripts;
+		zasm_script_id id = zasm_scripts.size();
+		auto& zs = zasm_scripts.emplace_back(std::make_shared<zasm_script>());
+		zs->id = id;
+		zs->name = script->name();
+		script->zasm_script = zs;
+	}
+
+	auto& zasm = script->zasm_script->zasm;
 	saved=false;
 	string buffer;
 	char combuf[SUBBUFSZ] = {0};
@@ -281,7 +292,7 @@ int32_t parse_script_string(script_data **script, string const& scriptstr, bool 
 				jwin_alert("Error",buf,buf2,buf3,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 				stop=true;
 				success=false;
-				(*script)->disable();
+				script->disable();
 				goto zasmfile_fail_str;
 			}
 			labels[lbl] = i;
@@ -422,7 +433,7 @@ int32_t parse_script_string(script_data **script, string const& scriptstr, bool 
 			
 			if(meta_mode)
 			{
-				(*script)->meta.parse_meta(buffer.c_str());
+				script->meta.parse_meta(buffer.c_str());
 				--i; continue;
 			}
 			meta_done = true;
@@ -533,13 +544,13 @@ int32_t parse_script_string(script_data **script, string const& scriptstr, bool 
 				InfoDialog("Error",buf).show();
 				stop=true;
 				success=false;
-				(*script)->disable();
+				script->disable();
 			}
 		}
 	}
 
 	if (success)
-		(*script)->zasm_script->size = zasm.size();
+		script->zasm_script->size = zasm.size();
 
 	if(report_success && success) //(!stop) // stop is never true here
 	{

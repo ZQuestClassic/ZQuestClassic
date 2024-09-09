@@ -155,7 +155,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
 #define V_INITDATA        39
-#define V_GUYS            51
+#define V_GUYS            52
 #define V_MIDIS            4
 #define V_CHEATS           1
 #define V_SAVEGAME        42
@@ -1152,7 +1152,7 @@ enum
 // Remaining 16 reserved for future use.
 
 
-// enemy patters
+// enemy spawn patterns
 enum { pRANDOM, pSIDES, pSIDESR, pCEILING, pCEILINGR, pRANDOMR, pNOSPAWN };
 
 // We only use t4Bit and tf8Bit.
@@ -1283,7 +1283,7 @@ struct item_drop_object
 #define OVERRIDE_DRAW_Y_OFFSET	0x00000100
 #define OVERRIDE_DRAW_Z_OFFSET	0x00000200
 
-#define MAX_NPC_ATTRIBUTES 31
+#define MAX_NPC_ATTRIBUTES 32
 
 struct guydata
 {
@@ -1341,7 +1341,16 @@ struct guydata
     byte weap_initiala[INITIAL_A];
     
 	byte spr_shadow, spr_death, spr_spawn;
-	
+
+	// attack tab
+	byte wunblockable;
+	move_flags wmoveflags;
+	int32_t weapoverrideFLAGS;
+	int32_t weap_hxofs, weap_hyofs, weap_hxsz, weap_hysz, weap_hzsz, weap_xofs, weap_yofs, weap_tilew, weap_tileh;
+	int32_t wstep;
+	byte burnsprs[WPNSPR_MAX];
+	byte light_rads[WPNSPR_MAX];
+
 #define ENEMY_FLAG1   0x01
 #define ENEMY_FLAG2   0x02
 #define ENEMY_FLAG3     0x04
@@ -1988,42 +1997,30 @@ struct zquestheader
 };
 
 #define MFORMAT_MIDI 0
-#define MFORMAT_NSF  1
 
 //tune flags
 #define tfDISABLESAVE    1
 
-class zctune
+struct zctune
 {
-
-public:
-
-    char title[37];
-    //20
+    MIDI *data;
     int32_t start;
-    int32_t loop_start;
-    int32_t loop_end;
-    //32
-    int16_t loop;
-    int16_t volume;
+    int32_t loop_start = -1;
+    int32_t loop_end = -1;
+    int16_t loop = 1;
+    int16_t volume = 144;
     byte flags;
-    // 37
-    void *data;
-    // 41
-    
-    byte format;
-    
+    char title[37];
+
     zctune()
     {
         data = NULL;
-        format = MFORMAT_MIDI;
         reset();
     }
     
-    zctune(char _title[36], int32_t _start, int32_t _loop_start, int32_t _loop_end, int16_t _loop,int16_t _volume, void *_data, byte _format)
-        : start(_start), loop_start(_loop_start), loop_end(_loop_end), loop(_loop), volume(_volume), flags(0), data(_data), format(_format)
+    zctune(char _title[36], int32_t _start, int32_t _loop_start, int32_t _loop_end, int16_t _loop,int16_t _volume)
+        : data(nullptr), start(_start), loop_start(_loop_start), loop_end(_loop_end), loop(_loop), volume(_volume), flags(0)
     {
-        //memcpy(title, _title, 20); //NOT SAFE for int16_t strings
         strncpy(title, _title, 36);
     }
     
@@ -2043,9 +2040,9 @@ public:
         loop = z.loop;
         flags = z.flags;
         volume = z.volume;
-        //memcpy(title, z.title,20); //NOT SAFE for int16_t title strings
         strncpy(title, z.title, 36);
         data = z.data;
+		z.data = nullptr;
     }
     
     void reset()
@@ -2057,45 +2054,10 @@ public:
         loop_start=-1;
         loop_end=-1;
         flags=0;
-        
-        if(data) switch(format)
-            {
-            case MFORMAT_MIDI:
-                destroy_midi((MIDI*) data);
-                break;
-                
-            default:
-                break;
-            }
-            
+        destroy_midi(data);
         data = NULL;
     }
-    
 };
-
-/*typedef struct zcmidi_ // midi or other sound format (nsf ...)
-{
-  char title[20];
-  //20
-  int32_t start;
-  int32_t loop_start;
-  int32_t loop_end;
-  //32
-  int16_t loop;
-  int16_t volume;
-  //36
-  byte format;
-  MIDI *midi;
-  //41
-} zcmidi_;
-*/
-
-/*typedef struct emusic
-{
-  char title[20];
-  char filename[256];
-} emusic;
-*/
 
 #define itype_max_zc250 255 //Last in the 2.50.x lists. 
 

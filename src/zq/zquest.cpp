@@ -15844,10 +15844,8 @@ void edit_tune(int32_t i)
     char len_str[16];
     char pos_str[16];
 
-    void *data = customtunes[i].data;
-    
-    if(customtunes[i].format == MFORMAT_MIDI) get_midi_info((MIDI*) data,&Midi_Info);
-    
+    MIDI *data = customtunes[i].data;
+    get_midi_info(data, &Midi_Info);
     volume = customtunes[i].volume;
     loop = customtunes[i].loop;
     flags = customtunes[i].flags;
@@ -16048,14 +16046,12 @@ void edit_tune(int32_t i)
         customtunes[i].start = start;
         customtunes[i].loop_start = loop_start;
         customtunes[i].loop_end = loop_end;
-        customtunes[i].format = MFORMAT_MIDI;
         customtunes[i].flags = flags;
         
         if(data!=customtunes[i].data)
         {
             if(customtunes[i].data)
-                destroy_midi((MIDI*)customtunes[i].data);
-                
+                destroy_midi(customtunes[i].data);
             customtunes[i].data = data;
         }
         
@@ -22393,7 +22389,7 @@ bool handle_slot(script_slot_data& slotdata, int indx, script_data** scriptdata)
 	{
 		string scriptstr;
 		(*doslot_scripts)[slotdata.scriptname].write(scriptstr, doslots_log_output, false, doslots_comment_output);
-		parse_script_string(&scriptdata[indx],scriptstr,false);
+		parse_script_string(scriptdata[indx],scriptstr,false);
 		
 		if(slotdata.isDisassembled()) scriptdata[indx]->meta.setFlag(ZMETA_DISASSEMBLED);
 		else if(slotdata.isImportedZASM()) scriptdata[indx]->meta.setFlag(ZMETA_IMPORTED);
@@ -23341,7 +23337,7 @@ int32_t onImportZASM()
 		return D_O_K;
 	}
 	script_data *temp_slot = new script_data(ScriptType::None, 0);
-	if(parse_script_file(&temp_slot, temppath, false) == D_CLOSE)
+	if(parse_script_file(temp_slot, temppath, false) == D_CLOSE)
 	{
 		jwin_alert("Error","Failed to parse specified file!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 		delete temp_slot;
@@ -25186,8 +25182,8 @@ static void allocate_crap()
 	}
 	
 
-	customtunes = (zctune*)malloc(sizeof(class zctune)*MAXCUSTOMMIDIS_ZQ);
-	memset(customtunes, 0, sizeof(class zctune)*MAXCUSTOMMIDIS_ZQ);
+	customtunes = (zctune*)malloc(sizeof(zctune)*MAXCUSTOMMIDIS_ZQ);
+	memset(customtunes, 0, sizeof(zctune)*MAXCUSTOMMIDIS_ZQ);
 
 	for(int32_t i=0; i<MAXCUSTOMMIDIS_ZQ; ++i)
 	{

@@ -85,6 +85,14 @@ private:
 
 	std::shared_ptr<GUI::Widget> MoveFlag(move_flags index, string const& str);
 
+	std::shared_ptr<GUI::Widget> WeaponSizeFlag(int32_t index);
+
+	std::shared_ptr<GUI::Widget> WeaponBlockFlag(byte index, string const& str);
+	
+	std::shared_ptr<GUI::Widget> WeaponFlag(weapon_flags index, string const& str);
+	
+	std::shared_ptr<GUI::Widget> WeaponMoveFlag(move_flags index, string const& str);
+
 	std::shared_ptr<GUI::Widget> ScriptField(int index);
 
 	std::shared_ptr<GUI::Widget> WeaponScriptField(int index);
