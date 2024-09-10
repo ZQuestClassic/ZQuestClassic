@@ -11624,116 +11624,6 @@ int32_t onTemplate()
     return D_O_K;
 }
 
-static DIALOG cpage_dlg[] =
-{
-    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
-    { jwin_win_proc, 72,   20,   176+1,  212+1,  vc(14),  vc(1),  0,       0,          0,             0,       NULL, NULL, NULL },
-    { d_ctext2_proc,      160,  28,     0,  8,    vc(15),  vc(1),  0,       0,          0,             0, (void *) "Combo Page", NULL, NULL },
-    { jwin_button_proc,     90,   182,  61,   21,   vc(14),  vc(1),  's',     D_EXIT,     0,             0, (void *) "&Set", NULL, NULL },
-    { jwin_button_proc,     170,  182,  61,   21,   vc(14),  vc(1),  'c',     D_EXIT,     0,             0, (void *) "&Cancel", NULL, NULL },
-    { jwin_button_proc,     90,   210,  61,   21,   vc(14),  vc(1),  'a',     D_EXIT,     0,             0, (void *) "Set &All", NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
-    // 6
-    { jwin_radio_proc,       76,  44,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "0"  , NULL, NULL },
-    { jwin_radio_proc,       76,  52,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "1"  , NULL, NULL },
-    { jwin_radio_proc,       76,  60,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "2"  , NULL, NULL },
-    { jwin_radio_proc,       76,  68,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "3"  , NULL, NULL },
-    { jwin_radio_proc,       76,  76,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "4"  , NULL, NULL },
-    { jwin_radio_proc,       76,  84,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "5"  , NULL, NULL },
-    { jwin_radio_proc,       76,  92,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "6"  , NULL, NULL },
-    { jwin_radio_proc,       76, 100,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "7"  , NULL, NULL },
-    { jwin_radio_proc,       76, 108,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "8"  , NULL, NULL },
-    { jwin_radio_proc,       76, 116,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "9"  , NULL, NULL },
-    { jwin_radio_proc,       76, 124,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "10" , NULL, NULL },
-    { jwin_radio_proc,       76, 132,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "11" , NULL, NULL },
-    { jwin_radio_proc,       76, 140,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "12" , NULL, NULL },
-    { jwin_radio_proc,       76, 148,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "13" , NULL, NULL },
-    { jwin_radio_proc,       76, 156,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "14" , NULL, NULL },
-    { jwin_radio_proc,       76, 164,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "15" , NULL, NULL },
-    { jwin_radio_proc,      120,  44,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "16" , NULL, NULL },
-    { jwin_radio_proc,      120,  52,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "17" , NULL, NULL },
-    { jwin_radio_proc,      120,  60,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "18" , NULL, NULL },
-    { jwin_radio_proc,      120,  68,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "19" , NULL, NULL },
-    { jwin_radio_proc,      120,  76,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "20" , NULL, NULL },
-    { jwin_radio_proc,      120,  84,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "21" , NULL, NULL },
-    { jwin_radio_proc,      120,  92,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "22" , NULL, NULL },
-    { jwin_radio_proc,      120, 100,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "23" , NULL, NULL },
-    { jwin_radio_proc,      120, 108,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "24" , NULL, NULL },
-    { jwin_radio_proc,      120, 116,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "25" , NULL, NULL },
-    { jwin_radio_proc,      120, 124,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "26" , NULL, NULL },
-    { jwin_radio_proc,      120, 132,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "27" , NULL, NULL },
-    { jwin_radio_proc,      120, 140,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "28" , NULL, NULL },
-    { jwin_radio_proc,      120, 148,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "29" , NULL, NULL },
-    { jwin_radio_proc,      120, 156,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "30" , NULL, NULL },
-    { jwin_radio_proc,      120, 164,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "31" , NULL, NULL },
-    { jwin_radio_proc,      164,  44,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "32" , NULL, NULL },
-    { jwin_radio_proc,      164,  52,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "33" , NULL, NULL },
-    { jwin_radio_proc,      164,  60,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "34" , NULL, NULL },
-    { jwin_radio_proc,      164,  68,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "35" , NULL, NULL },
-    { jwin_radio_proc,      164,  76,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "36" , NULL, NULL },
-    { jwin_radio_proc,      164,  84,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "37" , NULL, NULL },
-    { jwin_radio_proc,      164,  92,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "38" , NULL, NULL },
-    { jwin_radio_proc,      164, 100,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "39" , NULL, NULL },
-    { jwin_radio_proc,      164, 108,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "40" , NULL, NULL },
-    { jwin_radio_proc,      164, 116,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "41" , NULL, NULL },
-    { jwin_radio_proc,      164, 124,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "42" , NULL, NULL },
-    { jwin_radio_proc,      164, 132,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "43" , NULL, NULL },
-    { jwin_radio_proc,      164, 140,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "44" , NULL, NULL },
-    { jwin_radio_proc,      164, 148,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "45" , NULL, NULL },
-    { jwin_radio_proc,      164, 156,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "46" , NULL, NULL },
-    { jwin_radio_proc,      164, 164,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "47" , NULL, NULL },
-    { jwin_radio_proc,      208,  44,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "48" , NULL, NULL },
-    { jwin_radio_proc,      208,  52,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "49" , NULL, NULL },
-    { jwin_radio_proc,      208,  60,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "50" , NULL, NULL },
-    { jwin_radio_proc,      208,  68,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "51" , NULL, NULL },
-    { jwin_radio_proc,      208,  76,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "52" , NULL, NULL },
-    { jwin_radio_proc,      208,  84,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "53" , NULL, NULL },
-    { jwin_radio_proc,      208,  92,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "54" , NULL, NULL },
-    { jwin_radio_proc,      208, 100,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "55" , NULL, NULL },
-    { jwin_radio_proc,      208, 108,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "56" , NULL, NULL },
-    { jwin_radio_proc,      208, 116,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "57" , NULL, NULL },
-    { jwin_radio_proc,      208, 124,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "58" , NULL, NULL },
-    { jwin_radio_proc,      208, 132,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "59" , NULL, NULL },
-    { jwin_radio_proc,      208, 140,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "60" , NULL, NULL },
-    { jwin_radio_proc,      208, 148,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "61" , NULL, NULL },
-    { jwin_radio_proc,      208, 156,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "62" , NULL, NULL },
-    { jwin_radio_proc,      208, 164,   33,   9,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "63" , NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
-int32_t onComboPage()
-{
-    for(int32_t i=0; i<64; i++)
-        cpage_dlg[i+6].flags = Map.CurrScr()->old_cpage==i?D_SELECTED:0;
-        
-    int32_t ret = do_zqdialog(cpage_dlg,3);
-    
-    int32_t p = 0;
-    
-    for(int32_t i=0; i<64; i++)
-    
-        if(cpage_dlg[i+6].flags==D_SELECTED)
-            p=i;
-            
-    if(ret==2)
-    {
-        saved=false;
-        Map.CurrScr()->old_cpage = p;
-    }
-    
-    if(ret==4 && jwin_alert("Confirm Overwrite","Set all combo pages","on this map?",NULL,"&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
-    {
-        saved=false;
-        
-        for(int32_t i=0; i<=TEMPLATE; i++)
-            Map.Scr(i)->old_cpage = p;
-    }
-    
-    refresh(rALL);
-    return D_O_K;
-}
-
 int32_t d_sel_scombo_proc(int32_t msg, DIALOG *d, int32_t c)
 {
     //these are here to bypass compiler warnings about unused arguments
@@ -11769,36 +11659,6 @@ int32_t d_sel_scombo_proc(int32_t msg, DIALOG *d, int32_t c)
     
     return D_O_K;
 }
-
-/*
-static DIALOG sel_scombo_dlg[] =
-{
-  // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
-  { jwin_win_proc, 24,   16,   272+1,  216+1,  vc(14),  vc(1),  0,       0,          0,             0,       NULL, NULL, NULL },
-  { d_sel_scombo_proc, 32,   24,   256,  176,  0,       0,      0,       0,          0,             0,       NULL, NULL, NULL },
-  { jwin_button_proc,     90,   208,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0,       (void *) "OK", NULL, NULL },
-  { jwin_button_proc,     170,  208,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0,       (void *) "Cancel", NULL, NULL },
-  { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-  { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
-void select_scombo(int32_t &pos)
-{
-  go();
-  Map.draw_template2(screen2,0,0);
-  sel_scombo_dlg[1].dp = screen2;
-  sel_scombo_dlg[1].d1 = pos;
-
-  while (gui_mouse_b()) {
-    //nothing
-  }
-
-  if(do_zqdialog(sel_scombo_dlg,3)==2)
-    pos = sel_scombo_dlg[1].d1;
-
-  comeback();
-}
-*/
 
 static DIALOG cflag_dlg[] =
 {
@@ -27146,7 +27006,6 @@ void center_zquest_dialogs()
 {
     jwin_center_dialog(assignscript_dlg);
     jwin_center_dialog(autolayer_dlg);
-    jwin_center_dialog(cpage_dlg);
     center_zq_cset_dialogs();
     jwin_center_dialog(change_track_dlg);
     jwin_center_dialog(csetfix_dlg);
