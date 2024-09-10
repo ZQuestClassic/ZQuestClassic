@@ -7738,6 +7738,16 @@ int32_t enemy::wpnsfx(int32_t wpn)
 {
 	switch (wpn)
 	{
+		case wScript1:
+		case wScript2:
+		case wScript3:
+		case wScript4:
+		case wScript5:
+		case wScript6:
+		case wScript7:
+		case wScript8:
+		case wScript9:
+		case wScript10: //sure why not
 		case ewFireTrail:
 		case ewFlame:
 		case ewFlame2Trail:
@@ -11538,11 +11548,6 @@ void eStalfos::KillWeapon()
 				Ewpns.del(i);
 			}
 		}
-	}
-	
-	if(wpn==ewBrang && !Ewpns.idCount(ewBrang))
-	{
-		stop_sfx(WAV_BRANG);
 	}
 }
 
