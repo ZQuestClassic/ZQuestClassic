@@ -10,6 +10,6 @@ ZQ_BUFFER Line 13 @ Columns 3-12 - Error S095: Function 'Untype(untyped)' is dep
 INFO: Use casting '<untyped>(var)' instead!
 ZQ_BUFFER Line 14 @ Columns 3-31 - Error S095: Function 'TraceNPC(NPC)' is deprecated, and cannot be used due to current compiler settings.
 INFO: Use 'Trace()' instead!
-ZQ_BUFFER Line 15 @ Columns 9-28 - Error S095: Variable 'Screen->ScriptEntry' is deprecated, and cannot be used due to current compiler settings.
+ZQ_BUFFER Line 15 @ Columns 9-28 - Error T029: There is no variable ScriptEntry for the pointer (Screen) on the left side of ->.
 Failure!
 Compile finished with exit code '95' (compiled with errors)

@@ -310,12 +310,6 @@ static AccessorTable MapDataTable[] =
 	{ "getNumFFCs[]",               0,          ZTID_BOOL,   MAPDATANUMFF,               FL_DEPR,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	//read-only, for now?
 	{ "setNumFFCs[]",               0,          ZTID_VOID,   MAPDATANUMFF,     FL_DEPR|FL_RDONLY,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_BOOL },{} },
-	{ "getScriptEntry",             0,         ZTID_FLOAT,   MAPDATASCRIPTENTRY,         FL_DEPR,  { ZTID_MAPDATA },{} },
-	{ "setScriptEntry",             0,          ZTID_VOID,   MAPDATASCRIPTENTRY,         FL_DEPR,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
-	{ "getScriptOccupancy",         0,         ZTID_FLOAT,   MAPDATASCRIPTOCCUPANCY,     FL_DEPR,  { ZTID_MAPDATA },{} },
-	{ "setScriptOccupancy",         0,          ZTID_VOID,   MAPDATASCRIPTOCCUPANCY,     FL_DEPR,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
-	{ "getExitScript",              0,         ZTID_FLOAT,   MAPDATASCRIPTEXIT,          FL_DEPR,  { ZTID_MAPDATA },{} },
-	{ "setExitScript",              0,          ZTID_VOID,   MAPDATASCRIPTEXIT,          FL_DEPR,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	{ "getLensLayer",               0,         ZTID_FLOAT,   MAPDATALENSLAYER,           FL_DEPR,  { ZTID_MAPDATA },{} },
 	{ "setLensLayer",               0,          ZTID_VOID,   MAPDATALENSLAYER,           FL_DEPR,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	
