@@ -36,9 +36,9 @@ struct ffdata
 	std::array<int, 2> inita;
 	
 	ffdata();
-	ffdata(mapscr const* scr, int32_t ind);
+	ffdata(mapscr* scr, int32_t ind);
 	void clear();
-	void load(mapscr const* scr, int32_t ind);
+	void load(mapscr* scr, int32_t ind);
 	void save(mapscr* scr, int32_t ind);
 	ffdata& operator=(ffdata const& other);
 };

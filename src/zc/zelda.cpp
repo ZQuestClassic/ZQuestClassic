@@ -5414,3 +5414,7 @@ string get_box_cfg_hdr(int num)
 	return "misc";
 }
 
+ffcdata* slopes_getFFC(int index)
+{
+	return &tmpscr->ffcs[index];
+}

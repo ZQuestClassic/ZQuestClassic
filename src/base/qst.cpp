@@ -16411,11 +16411,11 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 		float tempfloat;
 		word tempw;
 		temp_mapscr->ffcCountMarkDirty();
-		
+		temp_mapscr->ffcs.clear();
+		temp_mapscr->ffcs.resize(32);
 		for(m=0; m<32; m++)
 		{
 			ffcdata& tempffc = temp_mapscr->ffcs[m];
-			tempffc.clear();
 			if((bits>>m)&1)
 			{
 				if(!p_igetw(&tempw,f))
@@ -16642,11 +16642,11 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 				}
 			}
 		}
-		for(m = 32; m < MAXFFCS; ++m)
-		{
-			temp_mapscr->ffcs[m].clear();
-		}
 	}
+
+	temp_mapscr->ffcCountMarkDirty();
+	temp_mapscr->ffcs.resize(temp_mapscr->numFFC());
+	temp_mapscr->ffcs.shrink_to_fit();
 	
 	//add in the new whistle flags
 	if(version<13)
@@ -17078,12 +17078,13 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 		word tempw;
 		static ffcdata nil_ffc;
 		temp_mapscr->ffcCountMarkDirty();
+		temp_mapscr->ffcs.clear();
+		temp_mapscr->ffcs.resize(std::min(MAXFFCS, (int)numffc));
 		for(word m = 0; m < numffc; ++m)
 		{
 			ffcdata& tempffc = (m < MAXFFCS)
 				? temp_mapscr->ffcs[m]
 				: nil_ffc; //sanity
-			tempffc.clear();
 			if(old_ff && !(bits & (1<<m))) continue;
 			
 			if(!p_igetw(&tempw,f))
@@ -17157,15 +17158,16 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 					tempffc.initd[q] = 0;
 			}
 		}
-		for(word m = numffc; m < MAXFFCS; ++m)
-		{
-			temp_mapscr->ffcs[m].clear();
-		}
 		//END FFC
 		if(version > 29)
 			if(!p_getlstr(&temp_mapscr->usr_notes, f))
 				return qe_invalid;
 	}
+
+	temp_mapscr->ffcCountMarkDirty();
+	temp_mapscr->ffcs.resize(temp_mapscr->numFFC());
+	temp_mapscr->ffcs.shrink_to_fit();
+
 	return 0;
 }
 
@@ -22159,6 +22161,7 @@ static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Mi
         {
             for(int32_t j=0; j<MAPSCRS; j++)
             {
+                TheMaps[(i*MAPSCRS)+j].ensureFFC(32);
                 for(int32_t m=0; m<32; m++)
                 {
                     if(combobuf[TheMaps[(i*MAPSCRS)+j].ffcs[m].data].type == cCHANGE)

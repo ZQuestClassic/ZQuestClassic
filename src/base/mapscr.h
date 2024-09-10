@@ -97,8 +97,16 @@ struct mapscr
 	byte cset[176];
 	
 	byte entry_x, entry_y; //Where Hero entered the screen. Used for pits, and to prevent water walking. -Z
-	
-	ffcdata ffcs[MAXFFCS];
+
+	// This vector never shrinks during gameplay.
+	// Starts empty, and is only filled up to fit `ind` as `getFFC(ind)` is called.
+	// Max size is MAXFFCS.
+	// NOTE: Direct access at index `ind` is only safe to do if:
+	// 1) it has just been checked to be less than `numFFC()` or
+	// 2) `getFFC(ind)` or `ensureFFC(ind)` was just called
+	std::vector<ffcdata> ffcs;
+	void ensureFFC(size_t ind);
+	ffcdata& getFFC(size_t ind);
 	word numFFC();
 	void ffcCountMarkDirty();
 	

@@ -1,6 +1,7 @@
 #include "slopes.h"
 #include "base/combo.h"
 #include "base/zc_math.h"
+#include "base/mapscr.h"
 #include "ffc.h"
 #include "sprite.h"
 #include "zc/maps.h"
@@ -84,16 +85,37 @@ void draw_slopes_a5(int32_t x, int32_t y, ALLEGRO_COLOR col)
 		p.second.get_info().draw_a5(x,y,col);
 }
 
+ffcdata* slopes_getFFC(int index);
+
 slope_info slope_object::get_info() const
 {
-	bool ff = ffc && ffc->getLoaded();
-	word const* id = ff ? &ffc->data : cmbid;
-	if(!id) return slope_info();
+	extern mapscr tmpscr[2];
+
+	word const* id;
+	zfix x, y;
+
+	if (ffc_id != -1 && slopes_getFFC(ffc_id)->getLoaded())
+	{
+		ffcdata* ffc = slopes_getFFC(ffc_id);
+		id = &ffc->data; // TODO: is this an issue? what if ffcs resizes.
+		x = ffc->x;
+		y = ffc->y;
+	}
+	else
+	{
+		id = cmbid;
+		x = xoffs;
+		y = yoffs;
+	}
+
+	if (!id)
+		return slope_info();
+
 	newcombo const& cmb = combobuf[*id];
 	if(cmb.type != cSLOPE)
 		return slope_info();
-	
-	return slope_info(cmb, ff ? ffc->x : xoffs, ff ? ffc->y : yoffs);
+
+	return slope_info(cmb, x, y);
 }
 
 void slope_object::updateslope()
@@ -105,8 +127,8 @@ void slope_object::updateslope()
 	oy2 = inf.y2;
 }
 
-slope_object::slope_object(word* cid, ffcdata* ff, int32_t id, word cpos)
-	: ffc(ff), cmbid(cid), id(id)
+slope_object::slope_object(word* cid, ffcdata* ffc, int32_t ffc_id, int32_t id, word cpos)
+	: cmbid(cid), id(id), ffc_id(ffc_id)
 {
 	if(ffc)
 	{

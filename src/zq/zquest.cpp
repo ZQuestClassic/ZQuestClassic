@@ -5460,7 +5460,8 @@ void draw_screenunit(int32_t unit, int32_t flags)
 			if(ShowFFCs)
 			{
 				mapscr* ffscr = prv_mode?Map.get_prvscr():Map.CurrScr();
-				for(int32_t i=MAXFFCS-1; i>=0; i--)
+				int c = ffscr->numFFC();
+				for(int32_t i=c-1; i>=0; i--)
 				{
 					ffcdata& ff = ffscr->ffcs[i];
 					if(ff.data !=0 && (CurrentLayer<2 || (ff.flags&ffc_overlay)))
@@ -9924,7 +9925,8 @@ void domouse()
 	{
 		static int mapscr_tooltip_id = ttip_register_id();
 		bool did_ffttip = false;
-		for(int32_t i=MAXFFCS-1; i>=0; i--)
+		int c = Map.CurrScr()->numFFC();
+		for(int32_t i=c-1; i>=0; i--)
 			if(Map.CurrScr()->ffcs[i].data !=0 && (CurrentLayer<2 || (Map.CurrScr()->ffcs[i].flags&ffc_overlay)))
 			{
 				int32_t ffx = Map.CurrScr()->ffcs[i].x.getFloor();
@@ -10499,7 +10501,8 @@ void domouse()
 				}
 				
 				// Move FFCs
-				for(int32_t i=MAXFFCS-1; i>=0; i--)
+				int c = Map.CurrScr()->numFFC();
+				for(int32_t i=c-1; i>=0; i--)
 					if(Map.CurrScr()->ffcs[i].data !=0 && (CurrentLayer<2 || (Map.CurrScr()->ffcs[i].flags&ffc_overlay)))
 					{
 						int32_t ffx = Map.CurrScr()->ffcs[i].x.getFloor();
@@ -10575,11 +10578,12 @@ void domouse()
 				ComboBrushPause=0;
 				
 				bool clickedffc = false;
-				uint32_t earliestfreeffc = MAXFFCS;
 				
 				// FFC right-click menu
 				// This loop also serves to find the free ffc with the smallest slot number.
-				for(int32_t i=MAXFFCS-1; i>=0; i--)
+				int c = Map.CurrScr()->numFFC();
+				uint32_t earliestfreeffc = c;
+				for(int32_t i=c-1; i>=0; i--)
 				{
 					auto data = Map.CurrScr()->ffcs[i].data;
 					if(data==0)
@@ -27781,6 +27785,10 @@ bool replay_is_replaying() {return false;}
 bool replay_version_check(int min, int max) {return false;}
 bool replay_is_debug() {return false;}
 int32_t item::run_script(int32_t mode){return 0;};
+ffcdata* slopes_getFFC(int index)
+{
+	return nullptr;
+}
 
 #ifdef __EMSCRIPTEN__
 extern "C" void open_test_mode()

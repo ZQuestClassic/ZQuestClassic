@@ -8291,7 +8291,7 @@ void enemy::removearmosffc(int32_t pos)
 	}
 	
 	did_armos=true;
-	ffcdata& ffc = tmpscr->ffcs[pos];
+	ffcdata& ffc = tmpscr->getFFC(pos);
 	newcombo const& cmb = combobuf[ffc.data];
 	int32_t f2 = cmb.flag;
 	
@@ -18791,7 +18791,7 @@ void update_slope_combopos(int32_t lyr, int32_t pos)
 	
 	if(isSlope && !wasSlope)
 	{
-		slopes.try_emplace(id, &(s->data[pos]), nullptr, id, pos);
+		slopes.try_emplace(id, &(s->data[pos]), nullptr, -1, id, pos);
 	}
 	else if(wasSlope && !isSlope)
 	{
@@ -18857,7 +18857,7 @@ void screen_ffc_modify_postroutine(word index)
 	bool isSlope = cmb.type == cSLOPE && !(ff.flags&ffc_changer);
 	if(isSlope && !wasSlope)
 	{
-		slopes.try_emplace(id, nullptr, &ff, id);
+		slopes.try_emplace(id, nullptr, &ff, index, id);
 	}
 	else if(wasSlope && !isSlope)
 	{
@@ -18894,7 +18894,8 @@ void screen_combo_modify_post(int32_t cid)
 			}
 		}
 	}
-	for(word ind = 0; ind < MAXFFCS; ++ind)
+	int c = tmpscr->numFFC();
+	for(word ind = 0; ind < c; ++ind)
 	{
 		if(tmpscr->ffcs[ind].data == cid)
 			screen_ffc_modify_postroutine(ind);

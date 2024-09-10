@@ -207,7 +207,7 @@ void do_generic_combo_ffc2(int32_t pos, int32_t cid, int32_t ft)
 		return;
 	} 
 	ft = vbound(ft, minSECRET_TYPE, maxSECRET_TYPE); //sanity guard to legal secret types. 44 to 127 are unused
-	ffcdata& ffc = tmpscr->ffcs[pos];
+	ffcdata& ffc = tmpscr->getFFC(pos);
 	if (true) // Probably needs a way to only be triggered once...
 	{
 		if (combobuf[cid].usrflags&cflag1) 
@@ -418,7 +418,7 @@ void trigger_cswitch_block(int32_t layer, int32_t pos)
 void trigger_cswitch_block_ffc(int32_t pos)
 {
 	if(unsigned(pos) >= MAXFFCS) return;
-	ffcdata& ffc = tmpscr->ffcs[pos];
+	ffcdata& ffc = tmpscr->getFFC(pos);
 	auto cid = ffc.data;
 	newcombo const& cmb = combobuf[cid];
 	if(cmb.type != cCSWITCHBLOCK) return;
@@ -631,7 +631,7 @@ void trigger_cuttable(int32_t lyr, int32_t pos)
 void trigger_cuttable_ffc(int32_t pos)
 {
 	if(unsigned(pos) > MAXFFCS) return;
-	ffcdata& ffc = tmpscr->ffcs[pos];
+	ffcdata& ffc = tmpscr->getFFC(pos);
 	newcombo const& cmb = combobuf[ffc.data];
 	auto type = cmb.type;
 	if (!isCuttableType(type)) return;
@@ -799,7 +799,7 @@ bool trigger_step(int32_t lyr, int32_t pos)
 bool trigger_step_ffc(int32_t pos)
 {
 	if(unsigned(pos) >= MAXFFCS) return false;
-	ffcdata& ffc = tmpscr->ffcs[pos];
+	ffcdata& ffc = tmpscr->getFFC(pos);
 	newcombo const& cmb = combobuf[ffc.data];
 	if(!isStepType(cmb.type) || cmb.type == cSTEPCOPY) return false;
 	if(cmb.attribytes[1] && !game->item[cmb.attribytes[1]])
@@ -1135,7 +1135,7 @@ bool trigger_chest(int32_t lyr, int32_t pos)
 bool trigger_chest_ffc(int32_t pos)
 {
 	if(unsigned(pos) >= MAXFFCS) return false;
-	ffcdata& ffc = tmpscr->ffcs[pos];
+	ffcdata& ffc = tmpscr->getFFC(pos);
 	newcombo const& cmb = combobuf[ffc.data];
 	int32_t cid = ffc.data;
 	switch(cmb.type)
@@ -1305,7 +1305,7 @@ bool trigger_lockblock(int32_t lyr, int32_t pos)
 bool trigger_lockblock_ffc(int32_t pos)
 {
 	if(unsigned(pos) >= MAXFFCS) return false;
-	ffcdata& ffc = tmpscr->ffcs[pos];
+	ffcdata& ffc = tmpscr->getFFC(pos);
 	newcombo const& cmb = combobuf[ffc.data];
 	switch(cmb.type)
 	{
@@ -1630,7 +1630,7 @@ bool trigger_armos_grave_ffc(int32_t pos, int32_t trigdir)
 	}
 	if(gc > 10) return false; //Don't do it if there's already 10 enemies onscreen
 	//!TODO: Maybe allow a custom limit?
-	ffcdata& ffc = tmpscr->ffcs[pos];
+	ffcdata& ffc = tmpscr->getFFC(pos);
 	newcombo const& cmb = combobuf[ffc.data];
 	int32_t eclk = -14;
 	int32_t id2 = 0;
@@ -1964,7 +1964,7 @@ bool trigger_stepfx(int32_t lyr, int32_t pos, bool stepped)
 bool trigger_stepfx_ffc(int32_t pos, bool stepped)
 {
 	if(unsigned(pos) >= MAXFFCS) return false;
-	ffcdata& ffc = tmpscr->ffcs[pos];
+	ffcdata& ffc = tmpscr->getFFC(pos);
 	newcombo const& cmb = combobuf[ffc.data];
 	int32_t tx = ffc.x, ty = ffc.y;
 	int32_t thesfx = cmb.attribytes[0];
@@ -2165,7 +2165,7 @@ bool trigger_switchhookblock_ffc(int32_t pos)
 {
 	if(unsigned(pos) >= MAXFFCS) return false;
 	if(Hero.switchhookclk) return false;
-	ffcdata& ffc = tmpscr->ffcs[pos];
+	ffcdata& ffc = tmpscr->getFFC(pos);
 	switching_object = &ffc;
 	switching_object->switch_hooked = true;
 	hooked_combopos = -1;
@@ -2376,7 +2376,7 @@ bool do_copycat_trigger_ffc(int32_t pos)
 {
 	if(!copycat_id) return false;
 	if(unsigned(pos) >= MAXFFCS) return false;
-	ffcdata& ffc = tmpscr->ffcs[pos];
+	ffcdata& ffc = tmpscr->getFFC(pos);
 	int32_t cid = ffc.data;
 	newcombo const& cmb = combobuf[cid];
 	if(cmb.trigcopycat == copycat_id)
@@ -2433,7 +2433,7 @@ void trig_copycat(int cid, int ffpos)
 {
 	if(copycat_id)
 		return;
-	if(FFCore.tempScreens[0]->ffcs[ffpos].data == cid) //skip self
+	if(FFCore.tempScreens[0]->getFFC(ffpos).data == cid) //skip self
 	{
 		copycat_skip_ffc = ffpos;
 	}
@@ -2471,7 +2471,7 @@ void do_ex_trigger(int32_t lyr, int32_t pos)
 void do_ex_trigger_ffc(int32_t pos)
 {
 	if(unsigned(pos) >= MAXFFCS) return;
-	ffcdata& ffc = tmpscr->ffcs[pos];
+	ffcdata& ffc = tmpscr->getFFC(pos);
 	int32_t cid = ffc.data;
 	int32_t ocs = ffc.cset;
 	newcombo const& cmb = combobuf[cid];	
@@ -2513,7 +2513,7 @@ bool force_ex_trigger(int32_t lyr, int32_t pos, char xstate)
 bool force_ex_trigger_ffc(int32_t pos, char xstate)
 {
 	if(unsigned(pos) >= MAXFFCS) return false;
-	ffcdata& ffc = tmpscr->ffcs[pos];
+	ffcdata& ffc = tmpscr->getFFC(pos);
 	newcombo const& cmb = combobuf[ffc.data];	
 	if(cmb.exstate > -1 && (xstate < 0 || xstate == cmb.exstate))
 	{
@@ -2544,7 +2544,7 @@ bool force_ex_door_trigger(uint lyr, uint pos, int dir, uint ind)
 bool force_ex_door_trigger_ffc(uint pos, int dir, uint ind)
 {
 	if(pos >= MAXFFCS || dir > 3 || ind > 7) return false;
-	ffcdata& ffc = tmpscr->ffcs[pos];
+	ffcdata& ffc = tmpscr->getFFC(pos);
 	newcombo const& cmb = combobuf[ffc.data];
 	if(cmb.exdoor_dir > -1 && (dir < 0 || (dir == cmb.exdoor_dir && ind == cmb.exdoor_ind)))
 	{
@@ -3028,10 +3028,10 @@ bool do_trigger_combo_ffc(int32_t pos, int32_t special, weapon* w)
 {
 	if (get_qr(qr_OLD_FFC_FUNCTIONALITY)) return false;
 	if(unsigned(pos) >= MAXFFCS) return false;
-	ffcdata& ffc = tmpscr->ffcs[pos];
+	ffcdata& ffc = tmpscr->getFFC(pos);
 	if (ffc.flags & ffc_changer)
 		return false; //Changers can't trigger!
-	cpos_info& timer = tmpscr->ffcs[pos].info;
+	cpos_info& timer = tmpscr->getFFC(pos).info;
 	int32_t cid = ffc.data;
 	int32_t ocs = ffc.cset;
 	int32_t cx = ffc.x;
@@ -3203,9 +3203,9 @@ bool do_trigger_combo_ffc(int32_t pos, int32_t special, weapon* w)
 			if(cmb.trigcopycat) //has a copycat set
 				trig_copycat(cid, pos);
 			
-			if(tmpscr->ffcs[pos].flags & ffc_changer)
+			if(tmpscr->getFFC(pos).flags & ffc_changer)
 				timer.updateData(-1);
-			else timer.updateData(tmpscr->ffcs[pos].data);
+			else timer.updateData(tmpscr->getFFC(pos).data);
 			
 			if(cmb.trigcooldown)
 				timer.trig_cd = cmb.trigcooldown;

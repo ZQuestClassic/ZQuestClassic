@@ -1,3 +1,4 @@
+#include "base/general.h"
 #include <cstring>
 #include <assert.h>
 #include <math.h>
@@ -2968,23 +2969,24 @@ void update_freeform_combos()
 				}
 			}
 			
-			if(thisffc.link ? !tmpscr->ffcs[thisffc.link - 1].delay : !thisffc.delay)
+			ffcdata* linked_ffc = thisffc.link ? &tmpscr->getFFC(thisffc.link - 1) : nullptr;
+			if(linked_ffc ? !linked_ffc->delay : !thisffc.delay)
 			{
 				if(thisffc.link&&(thisffc.link-1)!=i)
 				{
 					ffprvx[i] = thisffc.x.getZLong();
 					ffprvy[i] = thisffc.y.getZLong();
-					thisffc.x+=tmpscr->ffcs[thisffc.link-1].vx;
-					thisffc.y+=tmpscr->ffcs[thisffc.link-1].vy;
+					thisffc.x += linked_ffc->vx;
+					thisffc.y += linked_ffc->vy;
 				}
 				else
 				{
 					ffprvx[i] = thisffc.x.getZLong();
 					ffprvy[i] = thisffc.y.getZLong();
-					thisffc.x+=thisffc.vx;
-					thisffc.y+=thisffc.vy;
-					thisffc.vx+=thisffc.ax;
-					thisffc.vy+=thisffc.ay;
+					thisffc.x += thisffc.vx;
+					thisffc.y += thisffc.vy;
+					thisffc.vx += thisffc.ax;
+					thisffc.vy += thisffc.ay;
 					
 					
 					if(get_qr(qr_OLD_FFC_SPEED_CAP))
@@ -5124,7 +5126,8 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 	if (!tmp)
 	{
 		room_is_dark = (tmpscr[tmp].flags & fDARK);
-		for(int i = 0; i < MAXFFCS; ++i)
+		int c = tmpscr[tmp].numFFC();
+		for(int i = 0; i < c; ++i)
 		{
 			tmpscr[tmp].ffcs[i].setLoaded(true);
 			tmpscr[tmp].ffcs[i].solid_update(false);
@@ -5193,7 +5196,8 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 		FFCore.deallocateAllScriptOwned(ScriptType::Screen, currscr);
 		
 		init_ffpos();
-		for(word i = 0; i < MAXFFCS; i++)
+		int c = ffscr.numFFC();
+		for(word i = 0; i < c; i++)
 		{
 			if((ffscr.ffcs[i].flags&ffc_carryover) && !(ffscr.flags5&fNOFFCARRYOVER))
 			{
@@ -5210,6 +5214,12 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 				memset(ffmisc[i], 0, 16 * sizeof(int32_t));
 				FFCore.reset_script_engine_data(ScriptType::FFC, i);
 			}
+		}
+		for(word i = c; i < MAXFFCS; i++)
+		{
+			FFCore.deallocateAllScriptOwned(ScriptType::FFC, i, false);
+			memset(ffmisc[i], 0, 16 * sizeof(int32_t));
+			FFCore.reset_script_engine_data(ScriptType::FFC, i);
 		}
 	}
 	

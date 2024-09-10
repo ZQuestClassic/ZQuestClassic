@@ -133,7 +133,8 @@ void ffcdata::doContactDamage(int32_t hdir)
 		int ffnum = -1;
 		if(loaded)
 		{
-			for (word i = 0; i < MAXFFCS; i++)
+			int c = tmpscr->numFFC();
+			for (word i = 0; i < c; i++)
 			{
 				if (this == &tmpscr->ffcs[i])
 				{

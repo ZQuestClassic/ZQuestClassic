@@ -4156,14 +4156,15 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 	}
 	else if(!ignoreffc)
 	{
+		ffcdata& ffc = s->getFFC(current_ffcombo);
 		if(isCuttableNextType(type2))
 		{
-			zc_ffc_modify(s->ffcs[current_ffcombo], 1);
+			zc_ffc_modify(ffc, 1);
 		}
 		else
 		{
-			zc_ffc_set(s->ffcs[current_ffcombo], s->undercombo);
-			s->ffcs[current_ffcombo].cset = s->undercset;
+			zc_ffc_set(ffc, s->undercombo);
+			ffc.cset = s->undercset;
 		}
 	}
 	
@@ -4737,14 +4738,15 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
     }
     else if(!ignoreffc)
     {
+        ffcdata& ffc = s->getFFC(current_ffcombo);
         if(isCuttableNextType(type2))
         {
-            zc_ffc_modify(s->ffcs[current_ffcombo], 1);
+            zc_ffc_modify(ffc, 1);
         }
         else
         {
-            zc_ffc_set(s->ffcs[current_ffcombo], s->undercombo);
-            s->ffcs[current_ffcombo].cset = s->undercset;
+            zc_ffc_set(ffc, s->undercombo);
+            ffc.cset = s->undercset;
         }
     }
     
@@ -5138,14 +5140,15 @@ void HeroClass::check_slash_block(weapon *w)
     }
     else if(!ignoreffc)
     {
+		ffcdata& ffc = s->getFFC(current_ffcombo);
         if(isCuttableNextType(type2))
         {
-            zc_ffc_modify(s->ffcs[current_ffcombo], 1);
+            zc_ffc_modify(ffc, 1);
         }
         else
         {
-            zc_ffc_set(s->ffcs[current_ffcombo], s->undercombo);
-            s->ffcs[current_ffcombo].cset = s->undercset;
+            zc_ffc_set(ffc, s->undercombo);
+            ffc.cset = s->undercset;
         }
     }
     
