@@ -11,7 +11,7 @@ errors_5.zs Line 11 @ Columns 3-21 - Error C036: Variable Hero->IceCombo is cons
 errors_5.zs Line 13 @ Columns 3-12 - Error S095: Function 'Untype(untyped)' is deprecated, and cannot be used due to current compiler settings.
 errors_5.zs Line 14 @ Columns 3-31 - Error S095: Function 'TraceNPC(untyped)' is deprecated, and cannot be used due to current compiler settings.
 INFO: Use Trace instead
-errors_5.zs Line 15 @ Columns 9-28 - Error S095: Variable 'screendata->ScriptEntry' is deprecated, and cannot be used due to current compiler settings.
+errors_5.zs Line 15 @ Columns 9-28 - Error T029: There is no variable ScriptEntry for the pointer (screendata) on the left side of ->.
 Failure!
 Compile finished with exit code '36' (compiled with errors)
 
@@ -103,13 +103,13 @@ stdout:
         }
       },
       "severity": 1,
-      "message": "S095: Variable 'screendata->ScriptEntry' is deprecated, and cannot be used due to current compiler settings."
+      "message": "T029: There is no variable ScriptEntry for the pointer (screendata) on the left side of ->."
     }
   ],
   "metadata": {
     "currentFileSymbols": 2,
-    "symbols": 10,
-    "identifiers": 12,
+    "symbols": 9,
+    "identifiers": 11,
     "elided": true
   }
 }

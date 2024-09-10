@@ -111,10 +111,6 @@ struct mapscr
 	byte ffTileHeight(size_t ind) const;
 	void ffTileHeight(size_t ind, byte val);
 	
-	word script_entry;
-	word script_occupancy;
-	word script_exit;
-	
 	byte oceansfx;
 	byte bosssfx;
 	byte secretsfx = 27;

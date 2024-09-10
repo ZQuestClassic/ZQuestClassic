@@ -596,18 +596,6 @@ class mapdata {
 	internal const bool NumFFCs[];
 
 	// @deprecated
-	// @zasm_var MAPDATASCRIPTENTRY
-	internal int ScriptEntry;
-
-	// @deprecated
-	// @zasm_var MAPDATASCRIPTOCCUPANCY
-	internal int ScriptOccupancy;
-
-	// @deprecated
-	// @zasm_var MAPDATASCRIPTEXIT
-	internal int ExitScript;
-
-	// @deprecated
 	// @zasm_var MAPDATALENSLAYER
 	internal int LensLayer;
 

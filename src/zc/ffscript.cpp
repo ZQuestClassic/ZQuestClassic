@@ -6522,9 +6522,25 @@ int32_t get_register(int32_t arg)
 		}
 		break;
 
-		case SCREENDATASCRIPTENTRY: 	GET_SCREENDATA_VAR_INT32(script_entry, "ScriptEntry"); break;	//W
-		case SCREENDATASCRIPTOCCUPANCY: 	GET_SCREENDATA_VAR_INT32(script_occupancy,	"ScriptOccupancy");  break;//W
-		case SCREENDATASCRIPTEXIT: 	GET_SCREENDATA_VAR_INT32(script_exit, "ExitScript"); break;	//W
+		case SCREENDATASCRIPTENTRY:
+		{
+			Z_scripterrlog("Unimplemented: %s\n", "ScriptEntry");
+			ret = -10000;
+		}
+		break;
+		case SCREENDATASCRIPTOCCUPANCY:
+		{
+			Z_scripterrlog("Unimplemented: %s\n", "ScriptOccupancy");
+			ret = -10000;
+		}
+		break;
+		case SCREENDATASCRIPTEXIT:
+		{
+			Z_scripterrlog("Unimplemented: %s\n", "ExitScript");
+			ret = -10000;
+		}
+		break;
+
 		case SCREENDATAOCEANSFX:	 	GET_SCREENDATA_VAR_BYTE(oceansfx, "OceanSFX"); break;	//B
 		case SCREENDATABOSSSFX: 		GET_SCREENDATA_VAR_BYTE(bosssfx, "BossSFX"); break;	//B
 		case SCREENDATASECRETSFX:	 	GET_SCREENDATA_VAR_BYTE(secretsfx, "SecretSFX"); break;	//B
@@ -7771,9 +7787,25 @@ int32_t get_register(int32_t arg)
 		}
 		break;
 
-		case MAPDATASCRIPTENTRY: 	GET_MAPDATA_VAR_INT32(script_entry, "ScriptEntry"); break;	//W
-		case MAPDATASCRIPTOCCUPANCY: 	GET_MAPDATA_VAR_INT32(script_occupancy,	"ScriptOccupancy");  break;//W
-		case MAPDATASCRIPTEXIT: 	GET_MAPDATA_VAR_INT32(script_exit, "ExitScript"); break;	//W
+		case MAPDATASCRIPTENTRY:
+		{
+			Z_scripterrlog("Unimplemented: %s\n", "ScriptEntry");
+			ret = -10000;
+		}
+		break;
+		case MAPDATASCRIPTOCCUPANCY:
+		{
+			Z_scripterrlog("Unimplemented: %s\n", "ScriptOccupancy");
+			ret = -10000;
+		}
+		break;
+		case MAPDATASCRIPTEXIT:
+		{
+			Z_scripterrlog("Unimplemented: %s\n", "ExitScript");
+			ret = -10000;
+		}
+		break;
+
 		case MAPDATAOCEANSFX:	 	GET_MAPDATA_VAR_BYTE(oceansfx, "OceanSFX"); break;	//B
 		case MAPDATABOSSSFX: 		GET_MAPDATA_VAR_BYTE(bosssfx, "BossSFX"); break;	//B
 		case MAPDATASECRETSFX:	 	GET_MAPDATA_VAR_BYTE(secretsfx, "SecretSFX"); break;	//B
@@ -17348,9 +17380,22 @@ void set_register(int32_t arg, int32_t value)
 		}
 		break;
 
-		case SCREENDATASCRIPTENTRY: 	SET_SCREENDATA_VAR_INT32(script_entry, "ScriptEntry"); break;	//W
-		case SCREENDATASCRIPTOCCUPANCY: 	SET_SCREENDATA_VAR_INT32(script_occupancy,	"ScriptOccupancy");  break;//W
-		case SCREENDATASCRIPTEXIT: 	SET_SCREENDATA_VAR_INT32(script_exit, "ExitScript"); break;	//W
+		case SCREENDATASCRIPTENTRY:
+		{
+			Z_scripterrlog("Unimplemented: %s\n", "ScriptEntry");
+		}
+		break;
+		case SCREENDATASCRIPTOCCUPANCY:
+		{
+			Z_scripterrlog("Unimplemented: %s\n", "ScriptOccupancy");
+		}
+		break;
+		case SCREENDATASCRIPTEXIT:
+		{
+			Z_scripterrlog("Unimplemented: %s\n", "ExitScript");
+		}
+		break;
+
 		case SCREENDATAOCEANSFX:
 		{
 			int32_t v = vbound(value/10000, 0, 255);
@@ -18464,9 +18509,22 @@ void set_register(int32_t arg, int32_t value)
 		}
 		break;
 
-		case MAPDATASCRIPTENTRY: 	SET_MAPDATA_VAR_INT32(script_entry, "ScriptEntry"); break;	//W
-		case MAPDATASCRIPTOCCUPANCY: 	SET_MAPDATA_VAR_INT32(script_occupancy,	"ScriptOccupancy");  break;//W
-		case MAPDATASCRIPTEXIT: 	SET_MAPDATA_VAR_INT32(script_exit, "ExitScript"); break;	//W
+		case MAPDATASCRIPTENTRY:
+		{
+			Z_scripterrlog("Unimplemented: %s\n", "ScriptEntry");
+		}
+		break;
+		case MAPDATASCRIPTOCCUPANCY:
+		{
+			Z_scripterrlog("Unimplemented: %s\n", "ScriptOccupancy");
+		}
+		break;
+		case MAPDATASCRIPTEXIT:
+		{
+			Z_scripterrlog("Unimplemented: %s\n", "ExitScript");
+		}
+		break;
+
 		case MAPDATAOCEANSFX:
 		{
 			if (mapscr *m = GetMapscr(ri->mapsref))
