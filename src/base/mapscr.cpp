@@ -56,7 +56,7 @@ word mapscr::numFFC()
 	if (!ffc_count_dirty)
 		return num_ffcs;
 
-	int lastffc = 0;
+	int lastffc = -1;
 	for (int w = MAXFFCS - 1; w >= 0; --w)
 	{
 		if (ffcs[w].data)
