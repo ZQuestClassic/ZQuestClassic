@@ -583,11 +583,11 @@ class mapdata {
 	// @zasm_var MAPDATASIDEWARPINDEX
 	internal int SideWarpIndex;
 
-	// @deprecated
+	// @deprecated Use [Hero->RespawnX] instead!
 	// @zasm_var MAPDATAENTRYX
 	internal int EntryX;
 
-	// @deprecated
+	// @deprecated Use [Hero->RespawnY] instead!
 	// @zasm_var MAPDATAENTRYY
 	internal int EntryY;
 
