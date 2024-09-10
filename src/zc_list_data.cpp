@@ -1224,3 +1224,19 @@ GUI::ListData const& GUI::ZCListData::scripttypes()
 {
 	return script_types;
 };
+
+static const GUI::ListData pattern_types
+{
+	{ "Spawn (Classic)", 0},
+	{ "Enter from Sides (Consecutive)", 1},
+	{ "Enter from Sides (Random)", 2},
+	{ "Fall From Ceiling (Classic)", 3},
+	{ "Fall From Ceiling (Random)", 4},
+	{ "Spawn (Random)", 5},
+	{ "Spawn No Enemies", 6}
+};
+
+GUI::ListData const& GUI::ZCListData::patternntypes()
+{
+	return pattern_types;
+};

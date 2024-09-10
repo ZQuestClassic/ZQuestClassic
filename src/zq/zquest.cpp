@@ -69,6 +69,8 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "dialog/screen_data.h"
 #include "dialog/edit_dmap.h"
 #include "dialog/compilezscript.h"
+#include "dialog/screen_enemies.h"
+#include "dialog/enemypattern.h"
 #include "dialog/externs.h"
 
 #include "base/gui.h"
@@ -17923,52 +17925,9 @@ int32_t onWarpRings()
     return D_O_K;
 }
 
-
-const char *pattern_list(int32_t index, int32_t *list_size)
-{
-
-    if(index<0)
-    {
-        *list_size = MAXPATTERNS;
-        return NULL;
-    }
-    
-    return pattern_string[index];
-}
-
-static ListData pattern_dlg_list(pattern_list, &font);
-
-static DIALOG pattern_dlg[] =
-{
-    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
-    { jwin_win_proc, 72,   56,   176+1,  164+1,   vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Enemy Pattern", NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { jwin_list_proc,       80,   124,   160+1,  58,   jwin_pal[jcTEXTFG],jwin_pal[jcTEXTBG],  0,       D_EXIT,     0,             0, (void *) &pattern_dlg_list, NULL, NULL },
-    // 3
-    { jwin_button_proc,     90,   190,  61,   21,   vc(14),  vc(1),  'k',     D_EXIT,     0,             0, (void *) "O&K", NULL, NULL },
-    { jwin_button_proc,     170,  190,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { jwin_text_proc,     90,  78,  61,   10,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Classic: pseudorandom locations near", NULL, NULL },
-    { jwin_text_proc,     90,  88,  61,   10,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "the middle of the screen.", NULL, NULL },
-    { jwin_text_proc,     90,  102,  61,   10,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Random: any available location", NULL, NULL },
-    { jwin_text_proc,     90,  112,  61,   10,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "at a sufficient distance from the Player.", NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
 int32_t onPattern()
 {
-    byte p=Map.CurrScr()->pattern;
-    pattern_dlg[0].dp2 = get_zc_font(font_lfont);
-    pattern_dlg[2].d1  = p;
-    
-    large_dialog(pattern_dlg);
-        
-    if(do_zqdialog(pattern_dlg,2) < 4)
-    {
-        saved=false;
-        Map.CurrScr()->pattern = pattern_dlg[2].d1;
-    }
-    
-    refresh(rMENU);
+	call_enemypattern_dialog();
     return D_O_K;
 }
 
@@ -18372,6 +18331,7 @@ static DIALOG enemy_dlg[] =
 
 int32_t onEnemies()
 {
+	/*
 	word oldenemy[10];
 	memcpy(oldenemy,Map.CurrScr()->enemy,10*sizeof(word));
 	restore_mouse();
@@ -18504,7 +18464,8 @@ int32_t onEnemies()
 		}
 	}
 	while(ret<10&&ret!=0);
-	
+	*/
+	call_screenenemies_dialog();
 	refresh(rALL);
 	return D_O_K;
 }
@@ -27170,7 +27131,6 @@ void center_zquest_dialogs()
     jwin_center_dialog(newcomboa_dlg);
     jwin_center_dialog(orgcomboa_dlg);
     jwin_center_dialog(path_dlg);
-    jwin_center_dialog(pattern_dlg);
     jwin_center_dialog(screen_pal_dlg);
     jwin_center_dialog(secret_dlg);
     jwin_center_dialog(selectdmap_dlg);
