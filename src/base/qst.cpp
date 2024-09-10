@@ -16622,45 +16622,17 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	//2.55 starts here
 	if ( version >= 19 && Header->zelda_version > 0x253 )
 	{
-		for ( int32_t q = 0; q < 10; q++ ) 
+		// mapscr fields that were never used, so are now removed:
+		// int32_t npcstrings[10];
+		// int16_t new_items[10];
+		// int16_t new_item_x[10];
+		// int16_t new_item_y[10];
+		if (pack_fseek(f, 100))
 		{
-			if(!p_igetl(&(temp_mapscr->npcstrings[q]),f))
-			{
-				return qe_invalid;
-			} 
-		}
-		for ( int32_t q = 0; q < 10; q++ ) 
-		{
-			if(!p_igetw(&(temp_mapscr->new_items[q]),f))
-			{
-				return qe_invalid;
-			} 
-		}
-		for ( int32_t q = 0; q < 10; q++ ) 
-		{
-			if(!p_igetw(&(temp_mapscr->new_item_x[q]),f))
-			{
-				return qe_invalid;
-			} 
-		}
-		for ( int32_t q = 0; q < 10; q++ ) 
-		{
-			if(!p_igetw(&(temp_mapscr->new_item_y[q]),f))
-			{
-				return qe_invalid;
-			} 
+			return qe_invalid;
 		}
 	}
-	if ( version < 19 && Header->zelda_version > 0x253 )
-	{
-	for ( int32_t q = 0; q < 10; q++ ) 
-	{
-		temp_mapscr->npcstrings[q] = 0;
-		temp_mapscr->new_items[q] = 0;
-		temp_mapscr->new_item_x[q] = 0;
-		temp_mapscr->new_item_y[q] = 0;
-	}
-	}
+
 	if ( version >= 20 && Header->zelda_version > 0x253 )
 	{
 	if(!p_igetw(&(temp_mapscr->script),f))
@@ -16978,29 +16950,6 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 			for ( int32_t q = 0; q < 8; q++ )
 			{
 				if(!p_igetl(&(temp_mapscr->screeninitd[q]),f))
-					return qe_invalid;
-			}
-		}
-		if(scr_has_flags & SCRHAS_UNUSED)
-		{
-			for ( int32_t q = 0; q < 10; q++ ) 
-			{
-				if(!p_igetl(&(temp_mapscr->npcstrings[q]),f))
-					return qe_invalid;
-			}
-			for ( int32_t q = 0; q < 10; q++ ) 
-			{
-				if(!p_igetw(&(temp_mapscr->new_items[q]),f))
-					return qe_invalid;
-			}
-			for ( int32_t q = 0; q < 10; q++ ) 
-			{
-				if(!p_igetw(&(temp_mapscr->new_item_x[q]),f))
-					return qe_invalid;
-			}
-			for ( int32_t q = 0; q < 10; q++ ) 
-			{
-				if(!p_igetw(&(temp_mapscr->new_item_y[q]),f))
 					return qe_invalid;
 			}
 		}

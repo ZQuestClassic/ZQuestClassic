@@ -42178,34 +42178,6 @@ void FFScript::write_mapscreens(PACKFILE *f,int32_t vers_id)
 			
 			}
 			
-			for ( int32_t q = 0; q < 10; q++ ) 
-			{
-			if(!p_iputl(m->npcstrings[q],f))
-			{
-				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
-			} 
-			}
-			for ( int32_t q = 0; q < 10; q++ ) 
-			{
-			if(!p_iputw(m->new_items[q],f))
-			{
-				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
-			} 
-			}
-			for ( int32_t q = 0; q < 10; q++ ) 
-			{
-			if(!p_iputw(m->new_item_x[q],f))
-			{
-				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
-			} 
-			}
-			for ( int32_t q = 0; q < 10; q++ ) 
-			{
-			if(!p_iputw(m->new_item_y[q],f))
-			{
-				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
-			} 
-			}
 			if(!p_iputw(m->script,f))
 			{
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
@@ -42785,34 +42757,6 @@ void FFScript::read_mapscreens(PACKFILE *f,int32_t vers_id)
 			
 			}
 			
-			for ( int32_t q = 0; q < 10; q++ ) 
-			{
-			if(!p_igetl(&(m->npcstrings[q]),f))
-			{
-				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
-			} 
-			}
-			for ( int32_t q = 0; q < 10; q++ ) 
-			{
-			if(!p_igetw(&(m->new_items[q]),f))
-			{
-				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
-			} 
-			}
-			for ( int32_t q = 0; q < 10; q++ ) 
-			{
-			if(!p_igetw(&(m->new_item_x[q]),f))
-			{
-				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
-			} 
-			}
-			for ( int32_t q = 0; q < 10; q++ ) 
-			{
-			if(!p_igetw(&(m->new_item_y[q]),f))
-			{
-				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
-			} 
-			}
 			if(!p_igetw(&(m->script),f))
 			{
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
