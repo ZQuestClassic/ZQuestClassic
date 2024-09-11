@@ -1193,18 +1193,16 @@ void weapon::eweapon_overrides()
 		}
 	}
 	else step = e->wstep;
-	if (e->firesfx < 0)
+	if (e->firesfx > 0)
 	{
 		switch (id)
 		{
 		case ewBrang:
-			specialsfx = WAV_BRANG;
-			break;
 		case ewLitBomb:
 		case ewLitSBomb:
 		case ewBomb:
 		case ewSBomb:
-			specialsfx = WAV_BOMB;
+			specialsfx = e->firesfx;
 			break;
 		}
 	}
