@@ -65,7 +65,7 @@ NLOHMANN_JSON_SERIALIZE_ENUM(state, {
 struct status_entry_t
 {
 	std::string key;
-	state state;
+	::state state;
 	int64_t time;
 	std::string error;
 

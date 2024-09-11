@@ -5,6 +5,7 @@
 #include <string>
 
 #include "base/files.h"
+#include "base/general.h"
 #include "base/qrs.h"
 #include "base/dmap.h"
 #include "gui/editbox.h"
@@ -28,8 +29,8 @@ std::string quest_report_str;
 // aren't using a monospaced font.
 char *palname_spaced(int32_t pal)
 {
-    static char buf[18];
-    snprintf(buf,18,"%-18s",palnames[pal]);
+    static char buf[PALNAMESIZE+1];
+    snprintf(buf, PALNAMESIZE+1, "%-*s", PALNAMESIZE, palnames[pal]);
     return buf;
 }
 
