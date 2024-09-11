@@ -107,6 +107,9 @@ class TestZEditor(unittest.TestCase):
 
     # Resave some quests and assert their replays still pass, to make sure the loading/saving code is not introducing bugs.
     def test_save(self):
+        if 'CI' in os.environ and os.environ.get('CXX') == 'gcc':
+            raise unittest.SkipTest('skipping tests because gcc')
+
         if 'emscripten' in str(run_target.get_build_folder()):
             return
 
@@ -154,6 +157,9 @@ class TestZEditor(unittest.TestCase):
                 self.run_replay(output_dir, [replay_path])
 
     def test_compile_and_quick_assign(self):
+        if 'CI' in os.environ and os.environ.get('CXX') == 'gcc':
+            raise unittest.SkipTest('skipping tests because gcc')
+
         if 'emscripten' in str(run_target.get_build_folder()):
             return
 

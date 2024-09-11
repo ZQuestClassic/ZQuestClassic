@@ -46,6 +46,13 @@ jobs:
             arch: x64
             compiler: clang
             config: RelWithDebInfo
+          - runs-on: ubuntu-22.04
+            arch: x64
+            compiler: gcc
+            config: RelWithDebInfo
+            # Can't run all the replays, because under gcc replays don't produce exactly the same pixel output yet.
+            # See "TODO: GCC w/ these flags" in CMakeLists.txt
+            extra-args: --filter playground --frame=keys.zplay=20
       fail-fast: false
     # See https://github.com/community/community/discussions/40777
     # uses: ./.github/workflows/test.yml
