@@ -38,7 +38,7 @@ std::shared_ptr<GUI::Widget> EnemyPatternDialog::view()
 			Label(text="Random: Any available location"
 				"\nat a sufficient distance from the player."),
 			scr_pattern = List(fitParent = true,
-				selectedValue = last_pattern,
+				selectedIndex = last_pattern,
 				data = list_patterns,
 				onSelectFunc = [&](int32_t val)
 				{

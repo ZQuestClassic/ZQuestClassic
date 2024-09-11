@@ -37,9 +37,11 @@ private:
     std::shared_ptr<GUI::TileFrame> widgPrev;
 
     int32_t copied_enemy_id=0;
+    int32_t last_enemy;
     mapscr* thescr;
     word oldenemy[10];
     GUI::ListData list_scr_enemies;
+    
 
     friend void call_screenenemies_dialog();
 };

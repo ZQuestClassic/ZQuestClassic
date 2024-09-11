@@ -23,7 +23,8 @@ void call_screenenemies_dialog()
 }
 
 ScreenEnemiesDialog::ScreenEnemiesDialog() :
-	thescr(Map.CurrScr())
+	thescr(Map.CurrScr()),
+	last_enemy(0)
 {
 	memcpy(oldenemy, Map.CurrScr()->enemy, sizeof(oldenemy));
 }
@@ -121,6 +122,7 @@ std::shared_ptr<GUI::Widget> ScreenEnemiesDialog::view()
 		Row(
 			Column(
 				scr_enemies = List(fitParent = true, maxwidth = 400_px, vAlign = 0.0,
+					selectedIndex = last_enemy,
 					data = list_scr_enemies,
 					fitParent = true,
 					onSelectFunc = [&](int32_t val)
@@ -172,7 +174,7 @@ std::shared_ptr<GUI::Widget> ScreenEnemiesDialog::view()
 			),
 			Column(
 				widgPrev = TileFrame(visible = false),
-				widgInfo = Label(text = "")
+				widgInfo = Label(text = "", minwidth=250_px, maxwidth = 250_px, fitParent=true)
 			)
 		)
 	);	
@@ -189,6 +191,7 @@ bool ScreenEnemiesDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 	case message::COPY:
 		copied_enemy_id = thescr->enemy[scr_enemies->getSelectedIndex()];
 		UpdatePreview();
+		refresh = true;
 		break;
 	case message::PASTE:
 		if (copied_enemy_id > 0 && copied_enemy_id < eMAXGUYS)
@@ -246,9 +249,14 @@ bool ScreenEnemiesDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 					{
 						confirm = ret;
 					}).show();
+				break;
 			}
 		}
-		if (!confirm) rerun_dlg = true;
+		if (!confirm)
+		{
+			rerun_dlg = true;
+			last_enemy = scr_enemies->getSelectedIndex();
+		}
 		return true;
 	}
 	case message::CANCEL:
@@ -256,5 +264,6 @@ bool ScreenEnemiesDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		return true;
 	}
 	if(refresh) rerun_dlg = true;
+	last_enemy = scr_enemies->getSelectedIndex();
 	return refresh;
 }
