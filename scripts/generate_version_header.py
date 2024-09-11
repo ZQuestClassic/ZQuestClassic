@@ -15,7 +15,7 @@ args = parser.parse_args()
 if args.version:
     version = args.version
 else:
-    command = 'git describe --tags --abbrev=0 --match "*\.*\.*"'
+    command = 'git describe --tags --abbrev=0 --match "*.*.*"'
     try:
         version = subprocess.check_output(command, shell=True, encoding='utf-8').strip()
     except:
