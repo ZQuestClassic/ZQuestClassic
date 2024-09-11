@@ -33,10 +33,10 @@ std::shared_ptr<GUI::Widget> EnemyPatternDialog::view()
 		},
 		onClose = message::CANCEL,
 		Column(hAlign=1.0,
-			Label(text="Classic: Psuedorandom locations near"
+			Label(text="Classic: Pseudorandom locations near"
 				"\nthe middle of the screen."),
 			Label(text="Random: Any available location"
-				"\nat a sufficent distance from the player."),
+				"\nat a sufficient distance from the player."),
 			scr_pattern = List(fitParent = true,
 				selectedValue = last_pattern,
 				data = list_patterns,

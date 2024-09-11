@@ -25,7 +25,7 @@ void call_screenenemies_dialog()
 ScreenEnemiesDialog::ScreenEnemiesDialog() :
 	thescr(Map.CurrScr())
 {
-	memcpy(oldenemy, Map.CurrScr()->enemy, 10 * sizeof(word));
+	memcpy(oldenemy, Map.CurrScr()->enemy, sizeof(oldenemy));
 }
 
 void ScreenEnemiesDialog::RebuildList()
@@ -106,7 +106,7 @@ std::shared_ptr<GUI::Widget> ScreenEnemiesDialog::view()
 		use_vsync = true,
 		title = "Select Enemies",
 		info = "Click the ten spaces to the left to select different enemies to spawn on this screen."
-		" You can also access Enemy Flags and set the Spawning Pattern.",
+		"\nYou can also access Enemy Flags and set the Spawning Pattern.",
 		shortcuts = {
 			E = message::PASTEFROMSCREEN,
 			GUI::Key::F = message::FLAGS,
@@ -241,7 +241,7 @@ bool ScreenEnemiesDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			else if (end)
 			{
 				AlertDialog("Inactive Enemies!",
-					"Enemies won't appear if they're preceded by '(None)' in the list! Continue?",
+					"Enemies won't appear if preceded by '(None)' in the list! Continue?",
 					[&](bool ret, bool)
 					{
 						confirm = ret;
@@ -252,7 +252,7 @@ bool ScreenEnemiesDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		return true;
 	}
 	case message::CANCEL:
-		memcpy(thescr->enemy, oldenemy, 10 * sizeof(word));
+		memcpy(thescr->enemy, oldenemy, sizeof(thescr->enemy));
 		return true;
 	}
 	if(refresh) rerun_dlg = true;
