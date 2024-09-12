@@ -9895,6 +9895,9 @@ static void guy_update_weaponspecialsfx(guydata& tempguy)
 	case ewBomb: case ewSBomb: case ewLitBomb:case ewLitSBomb:
 		tempguy.specialsfx = WAV_BOMB;
 		break;
+	default:
+		tempguy.specialsfx = 0;
+		break;
 	}
 }
 
