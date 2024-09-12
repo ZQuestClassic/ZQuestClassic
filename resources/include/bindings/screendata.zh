@@ -600,18 +600,6 @@ class screendata {
 	// @zasm_var SCREENDATANUMFF
 	internal bool NumFFCs[];
 
-	// @deprecated
-	// @zasm_var SCREENDATASCRIPTENTRY
-	internal int ScriptEntry;
-
-	// @deprecated
-	// @zasm_var SCREENDATASCRIPTOCCUPANCY
-	internal int ScriptOccupancy;
-
-	// @deprecated
-	// @zasm_var SCREENDATASCRIPTEXIT
-	internal int ExitScript;
-
 	// @deprecated Use [Hero->RespawnX] instead!
 	// @zasm_var SCREENDATAENTRYX
 	internal int EntryX;

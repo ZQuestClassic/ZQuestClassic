@@ -111,28 +111,15 @@ struct mapscr
 	byte ffTileHeight(size_t ind) const;
 	void ffTileHeight(size_t ind, byte val);
 	
-	word script_entry;
-	word script_occupancy;
-	word script_exit;
-	
 	byte oceansfx;
 	byte bosssfx;
 	byte secretsfx = 27;
 	byte holdupsfx = 20;
-	
-	// for importing older quests...
-	byte old_cpage;
+
 	int16_t screen_midi = -1;
 	byte lens_layer;
 	byte lens_show, lens_hide;
-	
-	//Currently unused
-	int32_t npcstrings[10];
-	int16_t new_items[10];
-	int16_t new_item_x[10];
-	int16_t new_item_y[10];
-	
-	
+
 	word script;
 	int32_t screeninitd[8];
 	byte preloadscript;
