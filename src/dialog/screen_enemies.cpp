@@ -24,7 +24,8 @@ void call_screenenemies_dialog()
 
 ScreenEnemiesDialog::ScreenEnemiesDialog() :
 	thescr(Map.CurrScr()),
-	last_enemy(0)
+	last_enemy(0),
+	copied_enemy_id(-1)
 {
 	memcpy(oldenemy, Map.CurrScr()->enemy, sizeof(oldenemy));
 }
@@ -47,14 +48,14 @@ void ScreenEnemiesDialog::RebuildList()
 
 void ScreenEnemiesDialog::UpdatePreview()
 {
-	std::string copied_name = "(None)\n";
+	std::string copied_name = "";
 	int32_t enemyID = thescr->enemy[scr_enemies->getSelectedIndex()];
-	if (unsigned(copied_enemy_id) < MAXGUYS)
+	if (copied_enemy_id >= 0)
 	{
 		guydata const& copied_enemy = guysbuf[copied_enemy_id];
 		copied_name = fmt::format("{}", guy_string[copied_enemy_id]);
 	}
-	if (unsigned(enemyID) < MAXGUYS)
+	if (enemyID >= 0)
 	{
 		guydata const& enemy = guysbuf[enemyID];
 		widgInfo->setText(fmt::format(
@@ -117,6 +118,7 @@ std::shared_ptr<GUI::Widget> ScreenEnemiesDialog::view()
 			V = message::PASTE,
 			Enter = message::EDIT,
 			Del = message::CLEAR,
+			Backspace = message::CLEAR,
 		},
 		onClose = message::CANCEL,
 		Row(
@@ -194,7 +196,7 @@ bool ScreenEnemiesDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		refresh = true;
 		break;
 	case message::PASTE:
-		if (copied_enemy_id > 0 && copied_enemy_id < eMAXGUYS)
+		if (copied_enemy_id > -1 && copied_enemy_id < eMAXGUYS)
 			thescr->enemy[scr_enemies->getSelectedIndex()] = copied_enemy_id;
 		RebuildList();
 		UpdatePreview();
