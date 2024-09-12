@@ -566,6 +566,7 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 		burnsprs[q] = d->burnsprs[q];
 		light_rads[q] = d->light_rads[q];
 	}
+	specialsfx = d->specialsfx;
 }
 
 int32_t enemy::getScriptUID() { return script_UID; }

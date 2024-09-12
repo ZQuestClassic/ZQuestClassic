@@ -1523,7 +1523,7 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 							//
 							Label(text = "Type:", hAlign = 1.0, rightPadding = 0_px),
 							DropDownField(&local_guyref.weapon, list_eweaptype),
-							INFOBTN("The weapon that is fired."),
+							INFOBTN("The weapon type that is fired."),
 							//
 							Label(text = "Sprite:", hAlign = 1.0, rightPadding = 0_px),
 							DropDownField(&local_guyref.wpnsprite, list_sprites),
@@ -1532,8 +1532,11 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 							Label(text = "Fire Sound:", hAlign = 1.0, rightPadding = 0_px),
 							DropDownField(&local_guyref.firesfx, list_sfx),
 							INFOBTN("Plays when this weapon is fired."
-							"\nNote: that explosions and boomerangs have hardcoded sfx")
+							"\nNote: that explosions and boomerangs use the SpecialSFX"),
 							//
+							Label(text = "Special Sound:", hAlign = 1.0, rightPadding = 0_px),
+							DropDownField(&local_guyref.specialsfx, list_sfx),
+							INFOBTN("Special Sound used for only specific weapons.")
 						)
 					),
 					Frame(title = "Stats", hAlign = 1.0, fitParent = true,

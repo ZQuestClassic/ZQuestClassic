@@ -9885,6 +9885,19 @@ static void guy_update_weaponflags(guydata& tempguy)
 	}
 }
 
+static void guy_update_weaponspecialsfx(guydata& tempguy)
+{
+	switch (tempguy.weapon)
+	{
+	case ewBrang:
+		tempguy.specialsfx = WAV_BRANG;
+		break;
+	case ewBomb: case ewSBomb: case ewLitBomb:case ewLitSBomb:
+		tempguy.specialsfx = WAV_BOMB;
+		break;
+	}
+}
+
 void init_guys(int32_t guyversion)
 {
     for(int32_t i=0; i<MAXGUYS; i++)
@@ -9968,6 +9981,7 @@ void init_guys(int32_t guyversion)
 
         guy_update_firesfx(guysbuf[i]);
 		guy_update_weaponflags(guysbuf[i]);
+		guy_update_weaponspecialsfx(guysbuf[i]);
     }
 }
 
@@ -15056,6 +15070,15 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 					if (!p_igetw(&(tempguy.light_rads[q]), f))
 						return qe_invalid;
 				}
+			}
+			if (guyversion < 53)
+			{
+				guy_update_weaponspecialsfx(tempguy);
+			}
+			else
+			{
+				if (!p_getc(&(tempguy.specialsfx), f))
+					return qe_invalid;
 			}
 
 			if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
