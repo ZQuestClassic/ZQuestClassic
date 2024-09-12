@@ -65,7 +65,7 @@ namespace GUI::ZCListData
 	GUI::ListData const& buttons();
 	GUI::ListData const& autocombotypes();
 	GUI::ListData const& scripttypes();
-	GUI::ListData const& patternntypes();
+	GUI::ListData const& patterntypes();
 }
 
 #endif

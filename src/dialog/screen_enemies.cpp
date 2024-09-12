@@ -25,7 +25,8 @@ void call_screenenemies_dialog()
 ScreenEnemiesDialog::ScreenEnemiesDialog() :
 	thescr(Map.CurrScr()),
 	last_enemy(0),
-	copied_enemy_id(-1)
+	copied_enemy_id(-1),
+	list_patterns(GUI::ZCListData::patterntypes())
 {
 	memcpy(oldenemy, Map.CurrScr()->enemy, sizeof(oldenemy));
 }
@@ -129,12 +130,13 @@ std::shared_ptr<GUI::Widget> ScreenEnemiesDialog::view()
 					fitParent = true,
 					onSelectFunc = [&](int32_t val)
 					{
-						selectedValue = scr_enemies->getSelectedValue();
-						selectedIndex = scr_enemies->getSelectedIndex();
-						UpdatePreview();
+						//selectedValue = scr_enemies->getSelectedValue();
+						//selectedIndex = scr_enemies->getSelectedIndex();
+						message::SELECT;
 					},
 					onDClick = message::EDIT
 				),
+				Label(text = fmt::format("Pattern: {}", list_patterns.getText(thescr->pattern)), minwidth = 400_px),
 				Row(hAlign = 1.0,vAlign = 1.0,topPadding = 0.5_em,spacing = 1_em,
 					Button(
 						text = Map.CanPaste() ? fmt::format("Past&e (from {}x{:02x})", (Map.CopyScr() >> 8) + 1, Map.CopyScr() & 255) : "Past&e from screen",
@@ -192,6 +194,8 @@ bool ScreenEnemiesDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 	{
 	case message::COPY:
 		copied_enemy_id = thescr->enemy[scr_enemies->getSelectedIndex()];
+		[[fallthrough]];
+	case message::SELECT:
 		UpdatePreview();
 		refresh = true;
 		break;

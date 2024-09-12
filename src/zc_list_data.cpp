@@ -1236,7 +1236,7 @@ static const GUI::ListData pattern_types
 	{ "Spawn No Enemies", 6}
 };
 
-GUI::ListData const& GUI::ZCListData::patternntypes()
+GUI::ListData const& GUI::ZCListData::patterntypes()
 {
 	return pattern_types;
 };

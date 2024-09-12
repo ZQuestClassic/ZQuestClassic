@@ -15,8 +15,7 @@ void call_enemypattern_dialog()
 
 EnemyPatternDialog::EnemyPatternDialog(mapscr* scr) :
 	thescr(scr),
-	last_pattern(int32_t(scr->pattern)),
-	list_patterns(GUI::ZCListData::patternntypes())
+	last_pattern(int32_t(scr->pattern))
 {}
 
 std::shared_ptr<GUI::Widget> EnemyPatternDialog::view()
@@ -39,7 +38,7 @@ std::shared_ptr<GUI::Widget> EnemyPatternDialog::view()
 				"\nat a sufficient distance from the player."),
 			scr_pattern = List(fitParent = true,
 				selectedIndex = last_pattern,
-				data = list_patterns,
+				data = GUI::ZCListData::patterntypes(),
 				onSelectFunc = [&](int32_t val)
 				{
 					last_pattern = val;

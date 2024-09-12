@@ -19,11 +19,10 @@ class ScreenEnemiesDialog : public GUI::Dialog<ScreenEnemiesDialog>
 public:
     enum class message
     {
-        REFR_INFO, COPY, PASTE, EDIT, CLEAR, PASTEFROMSCREEN, FLAGS, PATTERN, OK, CANCEL
+        REFR_INFO, COPY, PASTE, SELECT, EDIT, CLEAR, PASTEFROMSCREEN, FLAGS, PATTERN, OK, CANCEL
     };
 
     void RebuildList();
-
     void UpdatePreview();
 
     std::shared_ptr<GUI::Widget> view() override;
@@ -40,7 +39,7 @@ private:
     int32_t last_enemy;
     mapscr* thescr;
     word oldenemy[10];
-    GUI::ListData list_scr_enemies;
+    GUI::ListData list_scr_enemies, list_patterns;
     
 
     friend void call_screenenemies_dialog();
