@@ -9136,18 +9136,6 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 		}
 	}
 	
-	for(auto q = 0; q < 10; ++q)
-	{
-		if(screen.npcstrings[q]
-			|| screen.new_items[q]
-			|| screen.new_item_x[q]
-			|| screen.new_item_y[q])
-		{
-			scr_has_flags |= SCRHAS_UNUSED;
-			break;
-		}
-	}
-	
 	for(auto q = 0; q < 128; ++q)
 	{
 		if(screen.secretcombo[q]
@@ -9381,29 +9369,6 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 		for ( int32_t q = 0; q < 8; q++ )
 		{
 			if(!p_iputl(screen.screeninitd[q],f))
-				return qe_invalid;
-		}
-	}
-	if(scr_has_flags & SCRHAS_UNUSED)
-	{
-		for ( int32_t q = 0; q < 10; q++ ) 
-		{
-			if(!p_iputl(screen.npcstrings[q],f))
-				return qe_invalid;
-		}
-		for ( int32_t q = 0; q < 10; q++ ) 
-		{
-			if(!p_iputw(screen.new_items[q],f))
-				return qe_invalid;
-		}
-		for ( int32_t q = 0; q < 10; q++ ) 
-		{
-			if(!p_iputw(screen.new_item_x[q],f))
-				return qe_invalid;
-		}
-		for ( int32_t q = 0; q < 10; q++ ) 
-		{
-			if(!p_iputw(screen.new_item_y[q],f))
 				return qe_invalid;
 		}
 	}

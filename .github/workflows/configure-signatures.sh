@@ -24,8 +24,13 @@ elif [ "$1" == 'clang' ]; then
   echo '#define COMPILER_NAME "clang"' >> src/metadata/sigs/compilersig.h.sig
   echo '#define COMPILER_VERSION __clang_version__' >> src/metadata/sigs/compilersig.h.sig
 elif [ "$1" == 'gcc' ]; then
-  # TODO: we don't use gcc in CI at the moment.
-  exit 1
+  echo '#define V_ZC_COMPILERSIG 1' >> src/metadata/sigs/compilersig.h.sig
+  echo '#define COMPILER_V_FIRST __GNUC__' >> src/metadata/sigs/compilersig.h.sig
+  echo '#define COMPILER_V_SECOND __GNUC_MINOR__' >> src/metadata/sigs/compilersig.h.sig
+  echo '#define COMPILER_V_THIRD __GNUC_PATCHLEVEL__' >> src/metadata/sigs/compilersig.h.sig
+  echo '#define COMPILER_V_FOURTH 0' >> src/metadata/sigs/compilersig.h.sig
+  echo '#define COMPILER_NAME "gcc"' >> src/metadata/sigs/compilersig.h.sig
+  echo '#define COMPILER_VERSION __VERSION__' >> src/metadata/sigs/compilersig.h.sig
 else
   echo "unknown compiler $1"
   exit 1

@@ -55,6 +55,10 @@ static bool loadquest_report = false;
 static char const* loading_qst_name = NULL;
 static byte loading_qst_num = 0;
 static byte subscr_mode = ssdtMAX;
+// Very old quests only used a byte for combos, and each screen had a "combo page" to vary
+// what combos were used. This vector just lets us convert those old quests on load.
+static std::vector<byte> old_combo_pages;
+
 dword loading_tileset_flags = 0;
 
 int32_t First[MAX_COMBO_COLS]={0},combo_alistpos[MAX_COMBO_COLS]={0},combo_pool_listpos[MAX_COMBO_COLS]={0},combo_auto_listpos[MAX_COMBO_COLS]={0};
@@ -1213,9 +1217,9 @@ bool reset_mapstyles(bool validate, miscQdata *Misc)
 int32_t get_qst_buffers()
 {
     TheMaps.resize(MAPSCRS);
+	old_combo_pages.resize(MAPSCRS);
 	map_autolayers.resize(6);
-        
-    //memset(TheMaps, 0, sizeof(mapscr)*MAPSCRS); //shouldn't need this anymore
+
     Z_message("OK\n");
     
     // The vast majority of finished quests (and I presume this will be consistent for all time) use < 1000 strings in total.
@@ -1736,7 +1740,8 @@ int32_t doortranslations_r[9][6]=
 
 int32_t tdcmbdat(int32_t map, int32_t scr, int32_t pos)
 {
-    return (TheMaps[map*MAPSCRS+TEMPLATE].data[pos]&0xFF)+((TheMaps[map*MAPSCRS+scr].old_cpage)<<8);
+	byte old_cpage = old_combo_pages[map*MAPSCRS+scr];
+    return (TheMaps[map*MAPSCRS+TEMPLATE].data[pos]&0xFF) + (old_cpage<<8);
 }
 
 int32_t tdcmbcset(int32_t map, int32_t scr, int32_t pos)
@@ -1895,7 +1900,8 @@ int32_t MakeDoors(int32_t map, int32_t scr)
 
 INLINE int32_t tcmbdat2(int32_t map, int32_t scr, int32_t pos)
 {
-    return (TheMaps[map*MAPSCRS+TEMPLATE2].data[pos]&0xFF)+((TheMaps[map*MAPSCRS+scr].old_cpage)<<8);
+	byte old_cpage = old_combo_pages[map*MAPSCRS+scr];
+    return (TheMaps[map*MAPSCRS+TEMPLATE2].data[pos]&0xFF) + (old_cpage<<8);
 }
 
 INLINE int32_t tcmbcset2(int32_t map, int32_t pos)
@@ -15305,8 +15311,7 @@ darknuts:
         tempguy->flags |= (guy_doesnt_count);
 }
 
-
-int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, word version)
+int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, word version, int scrind)
 {
 	byte tempbyte, padding;
 	int32_t extras, secretcombos;
@@ -15799,7 +15804,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	
 	if(Header->zelda_version < 0x193)
 	{
-		if(!p_getc(&(temp_mapscr->old_cpage),f))
+		if (!p_getc(&old_combo_pages[scrind], f))
 		{
 			return qe_invalid;
 		}
@@ -16281,7 +16286,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<154)))
 	{
 		temp_mapscr->undercset=(temp_mapscr->undercombo>>8)&7;
-		temp_mapscr->undercombo=(temp_mapscr->undercombo&0xFF)+(temp_mapscr->old_cpage<<8);
+		temp_mapscr->undercombo=(temp_mapscr->undercombo&0xFF)+(old_combo_pages[scrind]<<8);
 	}
 	
 	if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<137)))
@@ -16316,7 +16321,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 				temp_mapscr->cset[k]=((temp_mapscr->data[k]>>8)&7);
 			}
 			
-			temp_mapscr->data[k]=(temp_mapscr->data[k]&0xFF)+(temp_mapscr->old_cpage<<8);
+			temp_mapscr->data[k]=(temp_mapscr->data[k]&0xFF)+(old_combo_pages[scrind]<<8);
 		}
 	}
 	
@@ -16617,45 +16622,17 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	//2.55 starts here
 	if ( version >= 19 && Header->zelda_version > 0x253 )
 	{
-		for ( int32_t q = 0; q < 10; q++ ) 
+		// mapscr fields that were never used, so are now removed:
+		// int32_t npcstrings[10];
+		// int16_t new_items[10];
+		// int16_t new_item_x[10];
+		// int16_t new_item_y[10];
+		if (pack_fseek(f, 100))
 		{
-			if(!p_igetl(&(temp_mapscr->npcstrings[q]),f))
-			{
-				return qe_invalid;
-			} 
-		}
-		for ( int32_t q = 0; q < 10; q++ ) 
-		{
-			if(!p_igetw(&(temp_mapscr->new_items[q]),f))
-			{
-				return qe_invalid;
-			} 
-		}
-		for ( int32_t q = 0; q < 10; q++ ) 
-		{
-			if(!p_igetw(&(temp_mapscr->new_item_x[q]),f))
-			{
-				return qe_invalid;
-			} 
-		}
-		for ( int32_t q = 0; q < 10; q++ ) 
-		{
-			if(!p_igetw(&(temp_mapscr->new_item_y[q]),f))
-			{
-				return qe_invalid;
-			} 
+			return qe_invalid;
 		}
 	}
-	if ( version < 19 && Header->zelda_version > 0x253 )
-	{
-	for ( int32_t q = 0; q < 10; q++ ) 
-	{
-		temp_mapscr->npcstrings[q] = 0;
-		temp_mapscr->new_items[q] = 0;
-		temp_mapscr->new_item_x[q] = 0;
-		temp_mapscr->new_item_y[q] = 0;
-	}
-	}
+
 	if ( version >= 20 && Header->zelda_version > 0x253 )
 	{
 	if(!p_igetw(&(temp_mapscr->script),f))
@@ -16728,7 +16705,7 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 {
 	if(version < 23)
 	{
-		auto ret = readmapscreen_old(f,Header,temp_mapscr,version);
+		auto ret = readmapscreen_old(f,Header,temp_mapscr,version,scrind);
 		if(ret) return ret;
 	}
 	else
@@ -16976,29 +16953,6 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 					return qe_invalid;
 			}
 		}
-		if(scr_has_flags & SCRHAS_UNUSED)
-		{
-			for ( int32_t q = 0; q < 10; q++ ) 
-			{
-				if(!p_igetl(&(temp_mapscr->npcstrings[q]),f))
-					return qe_invalid;
-			}
-			for ( int32_t q = 0; q < 10; q++ ) 
-			{
-				if(!p_igetw(&(temp_mapscr->new_items[q]),f))
-					return qe_invalid;
-			}
-			for ( int32_t q = 0; q < 10; q++ ) 
-			{
-				if(!p_igetw(&(temp_mapscr->new_item_x[q]),f))
-					return qe_invalid;
-			}
-			for ( int32_t q = 0; q < 10; q++ ) 
-			{
-				if(!p_igetw(&(temp_mapscr->new_item_y[q]),f))
-					return qe_invalid;
-			}
-		}
 		if(scr_has_flags & SCRHAS_SECRETS)
 		{
 			for(int32_t k=0; k<128; k++)
@@ -17177,7 +17131,6 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 	return 0;
 }
 
-
 int32_t readmaps(PACKFILE *f, zquestheader *Header)
 {
 	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_maps);
@@ -17242,6 +17195,8 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header)
 		const int32_t _mapsSize = MAPSCRS*temp_map_count;
 		TheMaps.clear();
 		TheMaps.resize(_mapsSize);
+		old_combo_pages.clear();
+		old_combo_pages.resize(_mapsSize);
 		map_autolayers.clear();
 		map_autolayers.resize(temp_map_count*6);
 	}
@@ -22326,7 +22281,13 @@ static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Mi
 		cvs_MD5Update(&ctx, (const uint8_t*)"", 0);
 		cvs_MD5Final(Header->pwd_hash, &ctx);
 	}
-	
+
+	if (!get_bit(skip_flags, skip_maps))
+	{
+		// Not needed, so release its memory.
+		old_combo_pages = {};
+	}
+
     return qe_OK;
     
 invalid:

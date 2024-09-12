@@ -583,29 +583,17 @@ class mapdata {
 	// @zasm_var MAPDATASIDEWARPINDEX
 	internal int SideWarpIndex;
 
-	// @deprecated
+	// @deprecated Use [Hero->RespawnX] instead!
 	// @zasm_var MAPDATAENTRYX
 	internal int EntryX;
 
-	// @deprecated
+	// @deprecated Use [Hero->RespawnY] instead!
 	// @zasm_var MAPDATAENTRYY
 	internal int EntryY;
 
 	// @deprecated
 	// @zasm_var MAPDATANUMFF
 	internal const bool NumFFCs[];
-
-	// @deprecated
-	// @zasm_var MAPDATASCRIPTENTRY
-	internal int ScriptEntry;
-
-	// @deprecated
-	// @zasm_var MAPDATASCRIPTOCCUPANCY
-	internal int ScriptOccupancy;
-
-	// @deprecated
-	// @zasm_var MAPDATASCRIPTEXIT
-	internal int ExitScript;
 
 	// @deprecated
 	// @zasm_var MAPDATALENSLAYER
