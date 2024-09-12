@@ -9773,14 +9773,20 @@ static void guy_update_firesfx(guydata& tempguy)
 					tempguy.firesfx = WAV_ZN1ICE;
 					break;
 				case ewRock:
-					if (get_qr(qr_MORESOUNDS)) tempguy.firesfx = WAV_ZN1ROCK;
+					tempguy.firesfx = WAV_ZN1ROCK;
 					break;
 				case ewFireball2:
 				case ewFireball:
-					if (get_qr(qr_MORESOUNDS)) tempguy.firesfx = WAV_ZN1FIREBALL;
+					tempguy.firesfx = WAV_ZN1FIREBALL;
+					break;
+				case ewBrang:
+					tempguy.firesfx = WAV_BRANG;
+					break;
+				case ewBomb:case ewSBomb: case ewLitBomb:case ewLitSBomb:
+					tempguy.firesfx = WAV_BOMB;
 					break;
 				default:
-					//no sounds
+					tempguy.firesfx = 0;
 					break;
 				}
 				break;
@@ -9817,14 +9823,20 @@ static void guy_update_firesfx(guydata& tempguy)
 				tempguy.firesfx = WAV_ZN1ICE;
 				break;
 			case ewRock:
-				if (get_qr(qr_MORESOUNDS)) tempguy.firesfx = WAV_ZN1ROCK;
+				tempguy.firesfx = WAV_ZN1ROCK;
 				break;
 			case ewFireball2:
 			case ewFireball:
-				if (get_qr(qr_MORESOUNDS)) tempguy.firesfx = WAV_ZN1FIREBALL;
+				tempguy.firesfx = WAV_ZN1FIREBALL;
+				break;
+			case ewBrang:
+				tempguy.firesfx = WAV_BRANG;
+				break;
+			case ewBomb:case ewSBomb: case ewLitBomb:case ewLitSBomb:
+				tempguy.firesfx = WAV_BOMB;
 				break;
 			default:
-				//no sounds
+				tempguy.firesfx = 0;
 				break;
 			}
 		}
