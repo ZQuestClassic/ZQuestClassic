@@ -2255,8 +2255,8 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, byte printmetadata)
 				((tempheader.zelda_version == 0x192)&&(tempheader.build<149)))
 		{
 			set_qr(qr_BRKNSHLDTILES,(get_qr(qr_BRKBLSHLDS_DEP)));
-			set_bit(deprecated_rules,qr_BRKBLSHLDS_DEP,1);
-			set_qr(qr_BRKBLSHLDS_DEP,1);
+			set_bit(deprecated_rules,qr_BRKBLSHLDS_DEP,(get_qr(qr_BRKBLSHLDS_DEP)));
+			set_qr(qr_BRKBLSHLDS_DEP,0);
 		}
 		
 		if(tempheader.zelda_version >= 0x192)                       //  lacks newer header stuff...
@@ -9786,10 +9786,10 @@ void init_guys(int32_t guyversion)
             }
             else guysbuf[i].s_tile=860;
             
-            if(get_bit(deprecated_rules,qr_BRKBLSHLDS_DEP))
-            {
-                guysbuf[i].flags |= guy_bkshield;
-            }
+            if(!get_bit(deprecated_rules,qr_BRKBLSHLDS_DEP))
+				guysbuf[i].flags &= ~guy_bkshield;
+			else
+				guysbuf[i].flags |= guy_bkshield;
         }
         
         if((i==eGELTRIB || i==eFGELTRIB) && get_bit(deprecated_rules,qr_OLDTRIBBLES_DEP))
@@ -15055,8 +15055,10 @@ darknuts:
             
             tempguy->flags |= inv_front;
             
-            if(get_bit(deprecated_rules,qr_BRKBLSHLDS_DEP))
-                tempguy->flags |= guy_bkshield;
+            if(!get_bit(deprecated_rules,qr_BRKBLSHLDS_DEP))
+                tempguy->flags &= ~guy_bkshield;
+			else
+				tempguy->flags |= guy_bkshield;
                 
             break;
         }
