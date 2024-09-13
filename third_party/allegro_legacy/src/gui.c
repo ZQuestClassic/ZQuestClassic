@@ -423,7 +423,6 @@ int dialog_message(DIALOG *dialog, int msg, int c, int *obj)
 	    if ((msg == MSG_IDLE) && (dialog[count].flags & (D_DIRTY | D_HIDDEN)) == D_DIRTY) {
 	       dialog[count].flags &= ~D_DIRTY;
 	       object_message(dialog+count, MSG_DRAW, 0);
-           res |= D_REDRAWME;
 	    }
 	 }
       }
