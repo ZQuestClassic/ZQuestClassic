@@ -10,8 +10,11 @@
 #include <vector>
 #include <sstream>
 
-#define POOLSTL_STD_SUPPLEMENT
+#ifdef POOLSTL_STD_SUPPLEMENT
 #include <poolstl/poolstl.hpp>
+#else
+#include <execution>
+#endif
 
 StructuredZasm zasm_construct_structured(const zasm_script* script)
 {

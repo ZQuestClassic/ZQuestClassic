@@ -569,15 +569,17 @@ if (NOT EMSCRIPTEN)
 	target_link_libraries(zcbase PUBLIC nfd)
 endif()
 
-# Only included because AppleClang does not support std::execution::par yet.
-FetchContent_Declare(
-	poolSTL
-	GIT_REPOSITORY https://github.com/alugowski/poolSTL
-	GIT_TAG 26d95b90aea7c36732a2df50df1c6fa26c96f93e
-	GIT_SHALLOW TRUE
-	EXCLUDE_FROM_ALL
-)
-FetchContent_MakeAvailable(poolSTL)
+# Only included because AppleClang/Emscripten does not support std::execution::par yet.
+if(EMSCRIPTEN OR (APPLE AND CMAKE_C_COMPILER_ID MATCHES "Clang"))
+	FetchContent_Declare(
+		poolSTL
+		GIT_REPOSITORY https://github.com/alugowski/poolSTL
+		GIT_TAG 26d95b90aea7c36732a2df50df1c6fa26c96f93e
+		GIT_SHALLOW TRUE
+		EXCLUDE_FROM_ALL
+	)
+	FetchContent_MakeAvailable(poolSTL)
+endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 	target_link_options(zcbase PRIVATE "/WHOLEARCHIVE")
@@ -755,10 +757,14 @@ add_executable(zplayer ${ZELDA_CORE_SOURCES} ${ZELDA_GUI_SOURCES} ${ZELDA_SPRITE
 target_compile_definitions(zplayer PRIVATE IS_PLAYER)
 set_property(TARGET zplayer PROPERTY VS_DPI_AWARE "PerMonitor")
 target_include_directories(zplayer PRIVATE include/xxhash)
-target_link_libraries(zplayer PRIVATE allegro_with_legacy zasm nlohmann_json::nlohmann_json poolSTL)
+target_link_libraries(zplayer PRIVATE allegro_with_legacy zasm nlohmann_json::nlohmann_json)
 if (NOT EMSCRIPTEN)
 	target_link_libraries(zplayer PRIVATE stduuid)
 	target_compile_definitions(zplayer PRIVATE HAS_UUID)
+endif()
+if (EMSCRIPTEN OR (APPLE AND CMAKE_C_COMPILER_ID MATCHES "Clang"))
+	target_link_libraries(zplayer PRIVATE poolSTL)
+	target_compile_definitions(zplayer PRIVATE POOLSTL_STD_SUPPLEMENT)
 endif()
 if(CURL_FOUND)
 	target_sources(zplayer PRIVATE src/zc/replay_upload.cpp)
