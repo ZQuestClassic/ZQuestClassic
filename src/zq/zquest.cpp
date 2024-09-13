@@ -69,6 +69,8 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "dialog/screen_data.h"
 #include "dialog/edit_dmap.h"
 #include "dialog/compilezscript.h"
+#include "dialog/screen_enemies.h"
+#include "dialog/enemypattern.h"
 #include "dialog/externs.h"
 
 #include "base/gui.h"
@@ -17783,61 +17785,6 @@ int32_t onWarpRings()
     return D_O_K;
 }
 
-
-const char *pattern_list(int32_t index, int32_t *list_size)
-{
-
-    if(index<0)
-    {
-        *list_size = MAXPATTERNS;
-        return NULL;
-    }
-    
-    return pattern_string[index];
-}
-
-static ListData pattern_dlg_list(pattern_list, &font);
-
-static DIALOG pattern_dlg[] =
-{
-    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
-    { jwin_win_proc, 72,   56,   176+1,  164+1,   vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Enemy Pattern", NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { jwin_list_proc,       80,   124,   160+1,  58,   jwin_pal[jcTEXTFG],jwin_pal[jcTEXTBG],  0,       D_EXIT,     0,             0, (void *) &pattern_dlg_list, NULL, NULL },
-    // 3
-    { jwin_button_proc,     90,   190,  61,   21,   vc(14),  vc(1),  'k',     D_EXIT,     0,             0, (void *) "O&K", NULL, NULL },
-    { jwin_button_proc,     170,  190,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { jwin_text_proc,     90,  78,  61,   10,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Classic: pseudorandom locations near", NULL, NULL },
-    { jwin_text_proc,     90,  88,  61,   10,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "the middle of the screen.", NULL, NULL },
-    { jwin_text_proc,     90,  102,  61,   10,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Random: any available location", NULL, NULL },
-    { jwin_text_proc,     90,  112,  61,   10,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "at a sufficient distance from the Player.", NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
-int32_t onPattern()
-{
-    byte p=Map.CurrScr()->pattern;
-    pattern_dlg[0].dp2 = get_zc_font(font_lfont);
-    pattern_dlg[2].d1  = p;
-    
-    large_dialog(pattern_dlg);
-        
-    if(do_zqdialog(pattern_dlg,2) < 4)
-    {
-        saved=false;
-        Map.CurrScr()->pattern = pattern_dlg[2].d1;
-    }
-    
-    refresh(rMENU);
-    return D_O_K;
-}
-
-int32_t onEnemyFlags()
-{
-	call_screendata_dialog(3);
-	return D_O_K;
-}
-
 const char *enemy_viewer(int32_t index, int32_t *list_size)
 {
     if(index<0)
@@ -17920,17 +17867,6 @@ void build_big_list(bool hide)
     }
 }
 
-const char *enemylist(int32_t index, int32_t *list_size)
-{
-    if(index<0)
-    {
-        *list_size = enemy_type ? ce_cnt : bie_cnt;
-        return NULL;
-    }
-    
-    return enemy_type ? ce[index].s : bie[index].s;
-}
-
 const char *guylist(int32_t index, int32_t *list_size)
 {
     if(index<0)
@@ -17941,23 +17877,6 @@ const char *guylist(int32_t index, int32_t *list_size)
     
     return guy_type ? cg[index].s : big[index].s;
 }
-
-void elist_rclick_func(int32_t index, int32_t x, int32_t y);
-void paste_enemy(int32_t index = -1);
-void copy_enemy(int32_t index = -1);
-void save_enemy(int32_t index = -1);
-void load_enemy(int32_t index = -1);
-DIALOG elist_dlg[] =
-{
-    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
-    { jwin_win_proc,     50,   40,   288,  175,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,       NULL, NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { d_enelist_proc,    62,   68,   188,  98,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       D_EXIT,     0,             0,       NULL, NULL, NULL },
-    { jwin_button_proc,     90,   160+20,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Edit", NULL, NULL },
-    { jwin_button_proc,     170,  160+20,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Done", NULL, NULL },
-    { jwin_button_proc,     220,   160+20,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Edit", NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
 
 static DIALOG glist_dlg[] =
 {
@@ -18051,320 +17970,9 @@ int32_t efrontfacingtile(int32_t id)
                   : -guysbuf[id].tile, usetile);
 }
 
-static ListData enemy_dlg_list(enemy_viewer, &font);
-
-int32_t enelist_proc(int32_t msg,DIALOG *d,int32_t c,bool use_abc_list)
-{
-	FONT* oldfont = font;
-	bool is_screen_select = d->dp == &enemy_dlg_list;
-    int32_t ret;
-	
-	if(!is_screen_select && msg == MSG_XCHAR)
-	{
-		if(key_shifts & KB_CTRL_FLAG) //CTRL overrides the lister search function
-		{
-			int32_t ret = D_USED_CHAR;
-			switch(c>>8)
-			{
-				case KEY_V:
-					paste_enemy();
-					break;
-				case KEY_C:
-					copy_enemy();
-					break;
-				case KEY_S:
-					save_enemy();
-					break;
-				case KEY_L:
-					load_enemy();
-					break;
-				default: ret = 0;
-			}
-			if(ret) return ret;
-		}
-	}
-    
-    if(use_abc_list)
-        ret= jwin_abclist_proc(msg,d,c);
-    else
-        ret= jwin_list_proc(msg,d,c);
-        
-    if(msg==MSG_DRAW||msg==MSG_CHAR)
-    {
-        int32_t id;
-        
-        // Conveniently hacking the Select Enemy and Screen Enemy dialogs together -L
-        if(d->dp == &enemy_dlg_list)
-        {
-            id = Map.CurrScr()->enemy[d->d1];
-        }
-        else
-        {
-            id = bie[d->d1].i;
-        }
-        
-        int32_t tile = get_qr(qr_NEWENEMYTILES) ? guysbuf[id].e_tile
-                   : guysbuf[id].tile;
-        int32_t cset = guysbuf[id].cset;
-        int32_t x = d->x + int32_t(195 * 1.5);
-        int32_t y = d->y + 3;
-        int32_t w = 36;
-        int32_t h = 36;
-        
-        BITMAP *buf = create_bitmap_ex(8,20,20);
-        BITMAP *bigbmp = create_bitmap_ex(8,w,h);
-        
-        if(buf && bigbmp)
-        {
-            clear_bitmap(buf);
-            
-            if(tile)
-                overtile16(buf, tile+efrontfacingtile(id),2,2,cset,0);
-                
-            stretch_blit(buf, bigbmp, 2,2, 17, 17, 2, 2,w-2, h-2);
-            destroy_bitmap(buf);
-            jwin_draw_frame(bigbmp,0,0,w,h,FR_DEEP);
-            blit(bigbmp,screen,0,0,x,y,w,h);
-            destroy_bitmap(bigbmp);
-        }
-        
-		font = get_zc_font(font_lfont_l);
-		int fh = text_height(font);
-		rectfill(screen,x,y+40,x+64,y+40+(10*fh),jwin_pal[jcBOX]);
-        textprintf_ex(screen,font,x,y+40+(0*fh),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"#%d",id);
-		
-		textprintf_ex(screen,font,x,y+40+(1*fh),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Tile: %d",guysbuf[id].tile);
-		
-		textprintf_ex(screen,font,x,y+40+(2*fh),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"sTil: %d",guysbuf[id].s_tile);
-		textprintf_ex(screen,font,x,y+40+(3*fh),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"eTil: %d",guysbuf[id].e_tile);
-        
-        textprintf_ex(screen,font,x,y+40+(4*fh),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"HP: %d",guysbuf[id].hp);
-        textprintf_ex(screen,font,x,y+40+(5*fh),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Dmg: %d",guysbuf[id].dp);
-		
-		textprintf_ex(screen,font,x,y+40+(6*fh),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Fam: %d",guysbuf[id].family);
-		textprintf_ex(screen,font,x,y+40+(7*fh),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Drop: %d",guysbuf[id].item_set);
-		textprintf_ex(screen,font,x,y+40+(8*fh),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Script: %d",guysbuf[id].script);
-		textprintf_ex(screen,font,x,y+40+(9*fh),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"WScript: %d",guysbuf[id].weaponscript);
-    }
-    font = oldfont;
-    return ret;
-}
-
-int32_t select_enemy(const char *prompt,int32_t enemy,bool hide,bool is_editor,int32_t &exit_status)
-{
-    //if(bie_cnt==-1)
-    {
-        build_bie_list(hide);
-    }
-    int32_t index=0;
-    
-    for(int32_t j=0; j<bie_cnt; j++)
-    {
-        if(bie[j].i == enemy)
-        {
-            index=j;
-        }
-    }
-    
-    elist_dlg[0].dp=(void *)prompt;
-    elist_dlg[0].dp2=get_zc_font(font_lfont);
-    elist_dlg[2].d1=index;
-    ListData enemy_list(enemylist, &font);
-    elist_dlg[2].dp=(void *) &enemy_list;
-    
-    large_dialog(elist_dlg);
-    
-    if(is_editor)
-    {
-        elist_dlg[2].dp3 = (void *)&elist_rclick_func;
-        elist_dlg[2].flags|=(D_USER<<1);
-        elist_dlg[3].dp = (void *)"Edit";
-        elist_dlg[4].dp = (void *)"Done";
-        elist_dlg[3].x = 285;
-        elist_dlg[4].x = 405;
-        elist_dlg[5].flags |= D_HIDDEN;
-    }
-    else
-    {
-        elist_dlg[2].dp3 = NULL;
-        elist_dlg[2].flags&=~(D_USER<<1);
-        elist_dlg[3].dp = (void *)"OK";
-        elist_dlg[4].dp = (void *)"Cancel";
-        elist_dlg[3].x = 240;
-        elist_dlg[4].x = 350;
-        elist_dlg[5].flags &= ~D_HIDDEN;
-    }
-    
-    exit_status=do_zqdialog(elist_dlg,2);
-    
-    if(exit_status==0||exit_status==4)
-    {
-        return -1;
-    }
-    
-    index = elist_dlg[2].d1;
-    return bie[index].i;
-}
-
-uint8_t check[2] = { (uint8_t)'\x81',0 };
-
-static DIALOG enemy_dlg[] =
-{
-    /* (dialog proc)         (x)     (y)    (w)     (h)     (fg)                    (bg)                   (key)    (flags)      (d1)        (d2)  (dp) */
-    { jwin_win_proc,          0,      0,    256,    190+10,    vc(14),                 vc(1),                   0,       D_EXIT,     0,           0, (void *) "Enemies",          NULL,   NULL  },
-    { d_timer_proc,           0,      0,      0,      0,    0,                      0,                       0,       0,          0,           0,  NULL,                        NULL,   NULL  },
-    { d_enelistnoabc_proc,        14,     24,    188,     97,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       D_EXIT,     0,           0, (void *) &enemy_dlg_list,    NULL,   NULL  },
-    { jwin_button_proc,      12,    130+10,    109,     21,    vc(14),                 vc(1),                   'e',     D_EXIT,     0,           0, (void *) "Paste &Enemies",   NULL,   NULL  },
-    { d_dummy_proc,          210,    24,     20,     20,    vc(11),                 vc(1),                   0,       0,          0,           0,  NULL,                        NULL,   NULL  },
-    { jwin_button_proc,     127,    130+10,     42,     21,    vc(14),                 vc(1),                   'f',     D_EXIT,     0,           0, (void *) "&Flags",           NULL,   NULL  },
-    { jwin_button_proc,     175,    130+10,     53,     21,    vc(14),                 vc(1),                   'p',     D_EXIT,     0,           0, (void *) "&Pattern",         NULL,   NULL  },
-    { d_keyboard_proc,        0,      0,      0,      0,    0,                      0,                       'c',     0,          0,           0, (void *) close_dlg,          NULL,   NULL  },
-    { d_keyboard_proc,        0,      0,      0,      0,    0,                      0,                       'v',     0,          0,           0, (void *) close_dlg,          NULL,   NULL  },
-    { d_keyboard_proc,        0,      0,      0,      0,    0,                      0,                       0,       0,          KEY_DEL,     0, (void *) close_dlg,          NULL,   NULL  },
-    // 10
-    { jwin_button_proc,      50,    156+10,     61,     21,    vc(14),                 vc(1),                  'k',       D_EXIT,     0,           0, (void *) "O&K",               NULL,   NULL  },
-    { jwin_button_proc,     130,    156+10,     61,     21,    vc(14),                 vc(1),                  27,       D_EXIT,     0,           0, (void *) "Cancel",           NULL,   NULL  },
-    { d_keyboard_proc,        0,      0,      0,      0,    0,                      0,                      27,       0,          0,           0, (void *) close_dlg,          NULL,   NULL  },
-    { jwin_text_proc,         4,    208,      8,      8,    vc(14),                 vc(1),                   0,       0,          0,           0, (void *) check,              NULL,   NULL  },
-    { d_keyboard_proc,        0,      0,      0,      0,    0,                      0,                       0,       0,          KEY_F1,      0, (void *) onHelp,             NULL,   NULL  },
-    { NULL,                   0,      0,      0,      0,    0,                      0,                       0,       0,          0,           0,  NULL,                        NULL,   NULL  }
-};
-
 int32_t onEnemies()
 {
-	word oldenemy[10];
-	memcpy(oldenemy,Map.CurrScr()->enemy,10*sizeof(word));
-	restore_mouse();
-	char buf[26] = " ";
-	int32_t ret;
-	int32_t copy=-1;
-	
-	build_bie_list(true);
-	
-	enemy_dlg[0].dp2=get_zc_font(font_lfont);
-	
-	if(Map.CanPaste())
-	{
-		enemy_dlg[3].flags=D_EXIT;
-		sprintf(buf,"Past&e (from %d:%02X)",(Map.CopyScr()>>8)+1,Map.CopyScr()&255);
-	}
-	else
-	{
-		enemy_dlg[3].flags=D_DISABLED;
-		sprintf(buf,"Past&e from screen");
-	}
-	
-	enemy_dlg[3].dp=buf;
-	enemy_dlg[2].d1=0;
-	
-	do
-	{
-		if(copy==-1)
-		{
-			enemy_dlg[13].y=zq_screen_h;
-		}
-		else
-		{
-			enemy_dlg[13].y=(int32_t)((copy<<3)*1.6)+enemy_dlg[2].y+4;
-		}
-		
-		large_dialog(enemy_dlg);
-		// Fix d_enelist_proc
-		enemy_dlg[2].dp2 = 0;
-		((ListData *)enemy_dlg[2].dp)->font = &a4fonts[font_lfont_l];
-		
-		ret = do_zqdialog(enemy_dlg,2);
-		
-		switch(ret)
-		{
-		case 2:
-		{
-			int32_t exit_status;
-			int32_t i = enemy_dlg[2].d1;
-			popup_zqdialog_start();
-			do
-			{
-				int32_t enemy = Map.CurrScr()->enemy[i];
-				enemy = select_enemy("Select Enemy",enemy,true,false,exit_status);
-				
-				if(enemy>=0)
-				{
-					if(exit_status==5 && enemy > 0)
-					{
-						edit_enemydata(enemy);
-					}
-					else
-					{
-						saved=false;
-						Map.CurrScr()->enemy[i] = enemy;
-					}
-				}
-			}
-			while(exit_status==5);
-			popup_zqdialog_end();
-		}
-		break;
-		
-		case 3:
-			saved=false;
-            Map.DoPasteScreenCommand(PasteCommandType::ScreenEnemies);
-			break;
-			
-		case 5:
-			onEnemyFlags();
-			break;
-			
-		case 6:
-			onPattern();
-			break;
-			
-		case 7:
-			copy = enemy_dlg[2].d1;
-			break;
-			
-		case 8:
-			saved=false;
-			
-			if(copy>=0)
-			{
-				Map.CurrScr()->enemy[enemy_dlg[2].d1] = Map.CurrScr()->enemy[copy];
-			}
-			
-			break;
-			
-		case 9:
-			saved=false;
-			Map.CurrScr()->enemy[enemy_dlg[2].d1] = 0;
-			break;
-			
-		case 0:
-		case 11: //cancel
-			memcpy(Map.CurrScr()->enemy,oldenemy,10*sizeof(word));
-			break;
-			
-		case 10: //ok
-		{
-			bool end = false;
-			
-			for(int32_t i=0; i<10; i++)
-			{
-				if(Map.CurrScr()->enemy[i]==0)
-					end = true;
-				else if(end)
-				{
-					if(jwin_alert("Inactive Enemies","Enemies won't appear if they're preceded"," by '(None)' in the list! Continue?",NULL,"Yes","No",'y','n',get_zc_font(font_lfont))==2)
-						ret=-1;
-						
-					break;
-				}
-			}
-			
-			break;
-		}
-		}
-	}
-	while(ret<10&&ret!=0);
-	
+	call_screenenemies_dialog();
 	refresh(rALL);
 	return D_O_K;
 }
@@ -27016,8 +26624,6 @@ void center_zquest_dialogs()
     jwin_center_dialog(editmidi_dlg);
     jwin_center_dialog(editmusic_dlg);
     jwin_center_dialog(editshop_dlg);
-    jwin_center_dialog(elist_dlg);
-    jwin_center_dialog(enemy_dlg);
     jwin_center_dialog(ffcombo_sel_dlg);
     jwin_center_dialog(getnum_dlg);
     jwin_center_dialog(glist_dlg);
@@ -27029,7 +26635,6 @@ void center_zquest_dialogs()
     jwin_center_dialog(newcomboa_dlg);
     jwin_center_dialog(orgcomboa_dlg);
     jwin_center_dialog(path_dlg);
-    jwin_center_dialog(pattern_dlg);
     jwin_center_dialog(screen_pal_dlg);
     jwin_center_dialog(secret_dlg);
     jwin_center_dialog(selectdmap_dlg);
