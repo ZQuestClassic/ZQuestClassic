@@ -199,7 +199,7 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 		// Bigger font
 		bool bigfontproc = (d[i].proc != jwin_droplist_proc && d[i].proc != jwin_abclist_proc && d[i].proc != d_wlist_proc && d[i].proc != jwin_list_proc && d[i].proc != d_dmaplist_proc
 							&& d[i].proc != d_dropdmaplist_proc && d[i].proc != d_warplist_proc && d[i].proc != d_warplist_proc && d[i].proc != d_wclist_proc && d[i].proc != d_ndroplist_proc
-							&& d[i].proc != d_idroplist_proc && d[i].proc != d_nidroplist_proc && d[i].proc != jwin_as_droplist_proc && d[i].proc != d_ffcombolist_proc && d[i].proc != d_enelist_proc && d[i].proc != sstype_drop_proc
+							&& d[i].proc != d_idroplist_proc && d[i].proc != d_nidroplist_proc && d[i].proc != jwin_as_droplist_proc && d[i].proc != d_ffcombolist_proc && d[i].proc != sstype_drop_proc
 							&& d[i].proc != d_comboalist_proc);
 							
 		if(bigfontproc && !d[i].dp2)
@@ -2028,7 +2028,6 @@ void showEnemyScriptMetaHelp(const guydata& test, int32_t i)
 	}
 }
 
-extern DIALOG elist_dlg[];
 static int32_t copiedGuy;
 
 int32_t readonenpc(PACKFILE *f, int32_t index)
@@ -2802,83 +2801,6 @@ int32_t writeonenpc(PACKFILE *f, int32_t i)
 	return 1;
 }
 
-
-
-
-
-
-void paste_enemy(int32_t index)
-{
-	if(index < 0) index = elist_dlg[2].d1;
-	if(index==0)
-		return;
-	if(copiedGuy<0) //Nothing copied
-		return;
-	guysbuf[bie[index].i]=guysbuf[copiedGuy];
-	elist_dlg[2].flags|=D_DIRTY;
-	saved=false;
-}
-void copy_enemy(int32_t index)
-{
-	if(index < 0) index = elist_dlg[2].d1;
-	if(index==0)
-		return;
-	copiedGuy=bie[index].i;
-}
-void save_enemy(int32_t index)
-{
-	if(index < 0) index = elist_dlg[2].d1;
-	if(index==0)
-		return;
-	if(!prompt_for_new_file_compat("Save NPC(.znpc)", "znpc", NULL,datapath,false))
-		return;
-	int32_t iid = bie[index].i;
-	
-	PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
-	if(!f) return;
-	if (!writeonenpc(f,iid))
-	{
-		Z_error("Could not write to .znpc packfile %s\n", temppath);
-		InfoDialog("ZNPC Error", "Could not save the specified enemy.").show();
-	}
-	pack_fclose(f);
-}
-void load_enemy(int32_t index)
-{
-	if(index < 0) index = elist_dlg[2].d1;
-	if(index==0)
-		return;
-	if(!prompt_for_existing_file_compat("Load NPC(.znpc)", "znpc", NULL,datapath,false))
-		return;
-	PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
-	if(!f) return;
-	
-	if (!readonenpc(f,index))
-	{
-		al_trace("Could not read from .znpc packfile %s\n", temppath);
-		InfoDialog("ZNPC Error", "Could not load the specified enemy.").show();
-	}
-	
-	pack_fclose(f);
-	elist_dlg[2].flags|=D_DIRTY;
-	saved=false;
-}
-
-
-void elist_rclick_func(int32_t index, int32_t x, int32_t y)
-{
-	if(index == 0)
-		return;
-	
-	NewMenu rcmenu {
-		{ "&Copy", [&](){copy_enemy(index);} },
-		{ "Paste", "&v", [&](){paste_enemy(index);}, 0, copiedGuy <= 0 },
-		{ "&Save", [&](){save_enemy(index);} },
-		{ "&Load", [&](){load_enemy(index);} },
-	};
-	rcmenu.pop(x, y);
-}
-
 int32_t onCustomEnemies()
 {
 	EnemyListerDialog().show();
@@ -2890,7 +2812,6 @@ void edit_enemydata(int32_t index)
 {
 	call_enemy_editor(index);
 }
-
 
 int32_t onCustomGuys()
 {
