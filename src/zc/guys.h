@@ -125,6 +125,10 @@ public:
 	byte light_rads[WPNSPR_MAX];
 	byte specialsfx; //weapon specialsfx.
 
+	int32_t touch_effect;
+	int32_t touch_strength;
+	byte touch_counter;
+
 	int32_t getScriptUID();
 	void setScriptUID(int32_t new_id);
 	
@@ -272,6 +276,7 @@ public:
 	{
 		return false;
 	}
+	virtual void eathero();
 	bool IsBigAnim();
 	int32_t getFlashingCSet();
 	bool is_hitflickerframe(bool olddrawing);
@@ -316,7 +321,6 @@ protected:
 	//   Movement routines that can be used by derived classes as needed
 	//                         --==**==--
 	void fix_coords(bool bound=false);
-   
 	
 	
 private:
@@ -564,7 +568,6 @@ public:
 	bool WeaponOut();
 	void KillWeapon();
 	void charge_attack();
-	void eathero();
 	virtual bool animate(int32_t index);
 	virtual void draw(BITMAP *dest);
 	virtual int32_t takehit(weapon *w, weapon* realweap = nullptr);

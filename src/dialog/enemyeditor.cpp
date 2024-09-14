@@ -88,21 +88,6 @@ static const GUI::ListData list_walkmisc2
 	{"Tribble",5},
 };
 
-static const GUI::ListData list_walkmisc7
-{
-	{"None",0},
-	{"Temp. Jinx",1},
-	{"Perm. Jinx",2},
-	{"Cure Jinx",3},
-	{"Lose Magic",4},
-	{"Lose Rupees",5},
-	{"Drunk",6},
-	{"Eat (Items)",7},
-	{"Eat (Magic)",8},
-	{"Eat (Rupees)",9},
-	{"Eat (Damage)",10},
-};
-
 static const GUI::ListData list_walkmisc9
 {
 	{"Normal",0},
@@ -304,6 +289,21 @@ static const GUI::ListData list_deathtype
 	{"Disintegrate",4}, //BS GANON
 };
 
+static const GUI::ListData list_touchtype
+{
+	{"None",0},
+	{"Temp. Jinx",1},
+	{"Perm. Jinx",2},
+	{"Cure Jinx",3},
+	{"Lose Magic",4},
+	{"Lose Counter",5},
+	{"Drunk",6},
+	{"Eat (Items)",7},
+	{"Eat (Magic)",8},
+	{"Eat (Counter)",9},
+	{"Eat (Damage)",10},
+};
+
 void EnemyEditorDialog::refreshScript()
 {
 	loadEnemyType();
@@ -411,9 +411,9 @@ void EnemyEditorDialog::loadEnemyType()
 			l_attribute[3] = "Death Attr. 2:";
 			l_attribute[4] = "Death Attr. 3:";
 			l_attribute[5] = "Extra Shots:";
-			l_attribute[6] = "Touch Effects:";
-			l_attribute[7] = "Effect Strength:";
-			l_attribute[8] = "Walk Style:";			
+			l_attribute[6] = "Unused";
+			l_attribute[7] = "Unused";
+			l_attribute[8] = "Walk Style:";
 			l_attribute[9] = "Walk Attribute:";
 			l_bflag[4] = "Split in Place";
 			break;
@@ -991,9 +991,6 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 		ddl_attributes[1]->setSelectedValue(local_guyref.attributes[1]);
 		ddl_attributes[1]->setListData(list_walkmisc2);
 		sw_attributes[1]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
-		ddl_attributes[6]->setSelectedValue(local_guyref.attributes[6]);
-		ddl_attributes[6]->setListData(list_walkmisc7);
-		sw_attributes[6]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
 		ddl_attributes[8]->setSelectedValue(local_guyref.attributes[8]);
 		ddl_attributes[8]->setListData(list_walkmisc9);
 		sw_attributes[8]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
@@ -1712,6 +1709,27 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 					Rows<2>(
 						Label(text = "Spawn Animation:", hAlign = 1.0, rightPadding = 0_px),
 						DropDownField(&spawn_type, list_spawntype)
+					)
+				)
+			)),
+			TabRef(name = "Special", Column(
+
+				Frame(title = "Touch Effects", hAlign = 1.0, fitParent = true,
+					Rows<3>(hAlign = 1.0, rowSpacing = 0.5_em,
+						Label(text = "Touch Effect", hAlign = 1.0, rightPadding = 0_px),
+						DropDownField(&local_guyref.touch_effect, list_touchtype),
+						INFOBTN("The effect that happens when the player touches the enemy."),
+						//
+						Label(text = "Touch Strength", hAlign = 1.0, rightPadding = 0_px),
+						NumberField(&local_guyref.touch_strength,-999999,999999,7,false),
+						INFOBTN("Jinx: 1=sword, 2=item, 4=shield."
+							"\nTake: How much of the touch counter to take."
+							"\nEat: How long until the effect happens."
+							"\nDrunk: How much to increment the drunk clk."),
+						//
+						Label(text = "Touch Counter", hAlign = 1.0, rightPadding = 0_px),
+						DropDownField(&local_guyref.touch_counter, list_counters_nn),
+						INFOBTN("This counter will be used for the TakeCounter and EatCounter touch effects.")
 					)
 				)
 			))

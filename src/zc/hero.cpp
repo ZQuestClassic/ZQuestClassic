@@ -7764,8 +7764,9 @@ int32_t HeroClass::hithero(int32_t hit2, int32_t force_hdir)
 	}
 	
 	enemy_scored(hit2);
-	int32_t dm7 = enemyptr->dmisc7;
-	int32_t dm8 = enemyptr->dmisc8;
+	int32_t toucheffect = enemyptr->touch_effect;
+	int32_t touchstrength = enemyptr->touch_strength;
+	int32_t touchcounter = enemyptr->touch_counter;
 	
 	switch(enemyptr->family)
 	{
@@ -7787,64 +7788,64 @@ int32_t HeroClass::hithero(int32_t hit2, int32_t force_hdir)
 			int32_t sworddivisor = ((itemid>-1 && itemsbuf[itemid].misc1 & 1) ? itemsbuf[itemid].power : 1);
 			int32_t itemdivisor = ((itemid>-1 && itemsbuf[itemid].misc1 & 2) ? itemsbuf[itemid].power : 1);
 			int32_t shielddivisor = ((itemid > -1 && itemsbuf[itemid].misc1 & 4) ? itemsbuf[itemid].power : 1);
-			switch(dm7)
+			switch(toucheffect)
 			{
 				case e7tTEMPJINX:
-					if(dm8&e8tSWORD)
+					if(touchstrength&e8tSWORD)
 						if(swordclk>=0 && !(sworddivisor==0))
 							swordclk=int32_t(150/sworddivisor);
 
-					if(dm8&e8tITEM)
+					if(touchstrength&e8tITEM)
 						if(itemclk>=0 && !(itemdivisor==0))
 							itemclk=int32_t(150/itemdivisor);
 
-					if(dm8&e8tSHIELD)
+					if(touchstrength&e8tSHIELD)
 						if (shieldjinxclk >= 0 && !(shielddivisor==0))
 							shieldjinxclk=int32_t(150/shielddivisor);
 							
 					break;
 				
 				case e7tPERMJINX:
-					if (dm8&e8tSWORD)
+					if (touchstrength&e8tSWORD)
 						if(sworddivisor) swordclk=(itemid >-1 && itemsbuf[itemid].flags & item_flag1)? int32_t(150/sworddivisor) : -1;
 						
-					if (dm8&e8tITEM)
+					if (touchstrength&e8tITEM)
 						if(itemdivisor) itemclk=(itemid >-1 && itemsbuf[itemid].flags & item_flag1)? int32_t(150/itemdivisor) : -1;
 					
-					if (dm8&e8tSHIELD)
+					if (touchstrength&e8tSHIELD)
 						if(shielddivisor) shieldjinxclk=(itemid >-1 && itemsbuf[itemid].flags & item_flag1)? int32_t(150/shielddivisor) : -1;
 
 					break;
 				
 				case e7tUNJINX:
-					if (dm8&e8tSWORD)
+					if (touchstrength&e8tSWORD)
 						swordclk=0;
 						
-					if (dm8&e8tITEM)
+					if (touchstrength&e8tITEM)
 						itemclk=0;
 
-					if (dm8&e8tSHIELD)
+					if (touchstrength&e8tSHIELD)
 						shieldjinxclk=0;
 
 					break;
 				
 				case e7tTAKEMAGIC:
-					game->change_dmagic(-dm8*game->get_magicdrainrate());
+					game->change_dmagic(-touchstrength*game->get_magicdrainrate());
 					break;
 				
-				case e7tTAKERUPEES:
-					game->change_drupy(-dm8);
+				case e7tTAKECOUNTER:
+					game->change_dcounter(-touchstrength,touchcounter);
 					break;
 				
 				case e7tDRUNK:
-					drunkclk += dm8;
+					drunkclk += touchstrength;
 					break;
 			}
 			verifyAWpn();
-			if(dm7 >= e7tEATITEMS)
+			if(toucheffect >= e7tEATITEMS)
 			{
 				EatHero(hit2);
-				inlikelike=(dm7 == e7tEATHURT ? 2:1);
+				inlikelike=(toucheffect == e7tEATHURT ? 2:1);
 				action=none; FFCore.setHeroAction(none);
 			}
 		}

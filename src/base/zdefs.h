@@ -152,7 +152,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
 #define V_INITDATA        39
-#define V_GUYS            53
+#define V_GUYS            54
 #define V_MIDIS            4
 #define V_CHEATS           1
 #define V_SAVEGAME        42
@@ -1017,9 +1017,9 @@ enum { e2tNORMAL, e2tSPLITHIT, e2tSPLIT, e2tFIREOCTO, e2tBOMBCHU, e2tTRIBBLE, e2
 #define e2tKEESETRIB 1
 
 // Enemy misc7 types
-enum { e7tNORMAL, e7tTEMPJINX, e7tPERMJINX, e7tUNJINX, e7tTAKEMAGIC, e7tTAKERUPEES, e7tDRUNK,
+enum { e7tNORMAL, e7tTEMPJINX, e7tPERMJINX, e7tUNJINX, e7tTAKEMAGIC, e7tTAKECOUNTER, e7tDRUNK,
 // all from this point involve engulfing
-       e7tEATITEMS, e7tEATMAGIC, e7tEATRUPEES, e7tEATHURT,
+       e7tEATITEMS, e7tEATMAGIC, e7tEATCOUNTER, e7tEATHURT,
 // all from this point involve dragging
        e7tWALLMASTER, e7tLAST
      };
@@ -1353,6 +1353,10 @@ struct guydata
 	byte light_rads[WPNSPR_MAX];
 	byte specialsfx;
 
+	// effects tab
+	int32_t touch_effect;
+	int32_t touch_strength;
+	byte touch_counter; //needed for TakeCounter and EatCounter
 #define ENEMY_FLAG1   0x01
 #define ENEMY_FLAG2   0x02
 #define ENEMY_FLAG3     0x04

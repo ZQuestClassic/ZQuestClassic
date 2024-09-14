@@ -9907,6 +9907,13 @@ static void guy_update_weaponspecialsfx(guydata& tempguy)
 	}
 }
 
+static void guy_update_toucheffects(guydata& tempguy)
+{
+	tempguy.touch_effect = tempguy.family == eeWALK ? tempguy.attributes[6] : 0;
+	tempguy.touch_strength = tempguy.family == eeWALK ? tempguy.attributes[7] : 0;
+	tempguy.touch_counter=crMONEY;
+}
+
 void init_guys(int32_t guyversion)
 {
     for(int32_t i=0; i<MAXGUYS; i++)
@@ -9988,9 +9995,10 @@ void init_guys(int32_t guyversion)
             guysbuf[i].attributes[2] = (i == eFGELTRIB ? eFZOL : eZOL);
         }
 
-        guy_update_firesfx(guysbuf[i]);
+		guy_update_firesfx(guysbuf[i]);
 		guy_update_weaponflags(guysbuf[i]);
 		guy_update_weaponspecialsfx(guysbuf[i]);
+		guy_update_toucheffects(guysbuf[i]);
     }
 }
 
@@ -15087,6 +15095,17 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 			else
 			{
 				if (!p_getc(&(tempguy.specialsfx), f))
+					return qe_invalid;
+			}
+			if (guyversion < 54)
+				guy_update_toucheffects(tempguy);
+			else
+			{
+				if (!p_igetl(&(tempguy.touch_effect), f))
+					return qe_invalid;
+				if (!p_igetl(&(tempguy.touch_strength), f))
+					return qe_invalid;
+				if (!p_getc(&(tempguy.touch_counter), f))
 					return qe_invalid;
 			}
 

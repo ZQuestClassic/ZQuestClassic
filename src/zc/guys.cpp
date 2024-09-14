@@ -1098,6 +1098,11 @@ bool enemy::Dead(int32_t index)
 	}
 	if(dying)
 	{
+		if (hashero)
+		{
+			Hero.setEaten(0);
+			hashero = false;
+		}
 		if(deathexstate > -1 && deathexstate < 32)
 		{
 			setxmapflag(1<<deathexstate);
@@ -10589,12 +10594,6 @@ bool eStalfos::animate(int32_t index)
 	}
 	if(dying)
 	{
-		if(hashero)
-		{
-			Hero.setEaten(0);
-			hashero=false;
-		}
-		
 		if(dmisc9==e9tROPE && dmisc2==e2tBOMBCHU && !fired && (hp<=0 && !immortal) && hp>-1000 && wpn>wEnemyWeapons)
 		{
 			hp=-1000;
@@ -10792,9 +10791,9 @@ bool eStalfos::animate(int32_t index)
 		Hero.setY(y);
 		++clk2;
 		
-		if(clk2==(dmisc8==0 ? 95 : dmisc8))
+		if(clk2==(touch_strength==0 ? touch_strength : 95))
 		{
-			switch(dmisc7)
+			switch(touch_effect)
 			{
 			case e7tEATITEMS:
 			{
@@ -10811,8 +10810,8 @@ bool eStalfos::animate(int32_t index)
 				game->change_dmagic(-1*game->get_magicdrainrate());
 				break;
 				
-			case e7tEATRUPEES:
-				game->change_drupy(-1);
+			case e7tEATCOUNTER:
+				game->change_dcounter(-1,touch_counter);
 				break;
 			}
 			
@@ -11497,7 +11496,7 @@ void eStalfos::vire_hop()
 		shadowdistance = 0;
 }
 
-void eStalfos::eathero()
+void enemy::eathero()
 {
 	if(!hashero && Hero.getEaten()==0 && Hero.getAction() != hopping && Hero.getAction() != swimming)
 	{
@@ -11509,11 +11508,13 @@ void eStalfos::eathero()
 		{
 			Hero.setX(x);
 			Hero.setY(y);
+			//Hero.setZ(z);
 		}
 		else
 		{
 			x=Hero.getX();
 			y=Hero.getY();
+			//z=Hero.getZ();
 		}
 		
 		clk2=0;
