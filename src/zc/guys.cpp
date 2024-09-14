@@ -1102,11 +1102,6 @@ bool enemy::Dead(int32_t index)
 	}
 	if(dying)
 	{
-		if (hashero)
-		{
-			Hero.setEaten(0);
-			hashero = false;
-		}
 		if(deathexstate > -1 && deathexstate < 32)
 		{
 			setxmapflag(1<<deathexstate);
@@ -1388,6 +1383,71 @@ bool enemy::animate(int32_t index)
 	
 	// returns true when enemy is defeated
 	return Dead(index);
+}
+
+void enemy::eathero()
+{
+	if (!hashero && Hero.getEaten() == 0 && Hero.getAction() != hopping && Hero.getAction() != swimming)
+	{
+		hashero = true;
+		y = floor_y;
+		z = 0;
+
+		if (Hero.isSwimming())
+		{
+			Hero.setX(x);
+			Hero.setY(y);
+			//Hero.setZ(z);
+		}
+		else
+		{
+			x = Hero.getX();
+			y = Hero.getY();
+			//z=Hero.getZ();
+		}
+
+		clk2 = 0;
+	}
+}
+
+void enemy::update_eathero()
+{
+	if (hashero)
+	{
+		Hero.setX(x);
+		Hero.setY(y);
+		++clk2;
+
+		if (clk2 == (touch_strength == 0 ? touch_strength : 95))
+		{
+			switch (touch_effect)
+			{
+			case e7tEATITEMS:
+			{
+				for (int32_t i = 0; i < MAXITEMS; i++)
+				{
+					if (itemsbuf[i].flags & item_edible)
+						game->set_item(i, false);
+				}
+
+				break;
+			}
+
+			case e7tEATMAGIC:
+				game->change_dmagic(-1 * game->get_magicdrainrate());
+				break;
+
+			case e7tEATCOUNTER:
+				game->change_dcounter(-1, touch_counter);
+				break;
+			}
+
+			clk2 = 0;
+		}
+
+		if ((clk & 0x18) == 8)                                       // stop its animation on the middle frame
+			--clk;
+	}
 }
 
 bool enemy::setSolid(bool set)
@@ -10598,6 +10658,11 @@ bool eStalfos::animate(int32_t index)
 	}
 	if(dying)
 	{
+		if (hashero)
+		{
+			Hero.setEaten(0);
+			hashero = false;
+		}
 		if(dmisc9==e9tROPE && dmisc2==e2tBOMBCHU && !fired && (hp<=0 && !immortal) && hp>-1000 && wpn>wEnemyWeapons)
 		{
 			hp=-1000;
@@ -10789,41 +10854,9 @@ bool eStalfos::animate(int32_t index)
 		removearmos(x,y,ffcactivated);
 		
 	
-	if(hashero)
+	if (hashero)
 	{
-		Hero.setX(x);
-		Hero.setY(y);
-		++clk2;
-		
-		if(clk2==(touch_strength==0 ? touch_strength : 95))
-		{
-			switch(touch_effect)
-			{
-			case e7tEATITEMS:
-			{
-				for(int32_t i=0; i<MAXITEMS; i++)
-				{
-					if(itemsbuf[i].flags&item_edible)
-						game->set_item(i, false);
-				}
-				
-				break;
-			}
-			
-			case e7tEATMAGIC:
-				game->change_dmagic(-1*game->get_magicdrainrate());
-				break;
-				
-			case e7tEATCOUNTER:
-				game->change_dcounter(-1,touch_counter);
-				break;
-			}
-			
-			clk2=0;
-		}
-		
-		if((clk&0x18)==8)                                       // stop its animation on the middle frame
-			--clk;
+		update_eathero();
 	}
 	else if(!(wpn==ewBrang && WeaponOut()))  //WeaponOut uses misc
 	{
@@ -11498,31 +11531,6 @@ void eStalfos::vire_hop()
 	}
 	else
 		shadowdistance = 0;
-}
-
-void enemy::eathero()
-{
-	if(!hashero && Hero.getEaten()==0 && Hero.getAction() != hopping && Hero.getAction() != swimming)
-	{
-		hashero=true;
-		y=floor_y;
-		z=0;
-		
-		if(Hero.isSwimming())
-		{
-			Hero.setX(x);
-			Hero.setY(y);
-			//Hero.setZ(z);
-		}
-		else
-		{
-			x=Hero.getX();
-			y=Hero.getY();
-			//z=Hero.getZ();
-		}
-		
-		clk2=0;
-	}
 }
 
 bool eStalfos::WeaponOut()
@@ -17137,7 +17145,7 @@ bool hasMainGuy()
 
 void EatHero(int32_t index)
 {
-	((eStalfos*)guys.spr(index))->eathero();
+	((enemy*)guys.spr(index))->eathero();
 }
 
 void GrabHero(int32_t index)

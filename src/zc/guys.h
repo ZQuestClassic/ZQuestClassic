@@ -264,6 +264,9 @@ public:
 	void tiledir_three(int32_t ndir);
 	void tiledir(int32_t ndir, bool fourdir);
 	void tiledir_big(int32_t ndir, bool fourdir);
+	// EatHero
+	virtual void eathero();
+	void update_eathero();
 	// Enemies that cannot ever be penetrated by weapons
 	bool cannotpenetrate();
 	bool isOnSideviewPlatform(); //This handles large enemies, too!
@@ -276,7 +279,6 @@ public:
 	{
 		return false;
 	}
-	virtual void eathero();
 	bool IsBigAnim();
 	int32_t getFlashingCSet();
 	bool is_hitflickerframe(bool olddrawing);

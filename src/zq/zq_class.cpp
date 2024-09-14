@@ -11613,7 +11613,7 @@ int32_t writeguys(PACKFILE *f, zquestheader *Header)
 				new_return(119);
 			if (!p_iputl(guysbuf[i].touch_strength, f))
 				new_return(120);
-			if (!p_iputl(guysbuf[i].touch_counter, f))
+			if (!p_putc(guysbuf[i].touch_counter, f))
 				new_return(121);
 		}
 		
