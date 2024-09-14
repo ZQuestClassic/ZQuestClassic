@@ -1,3 +1,4 @@
+#include "base/compiler.h"
 #include "base/handles.h"
 #include "base/mapscr.h"
 #include "base/qrs.h"
@@ -8,14 +9,6 @@
 #include <optional>
 #include <type_traits>
 #include <stdint.h>
-
-#if !defined(_DEBUG) && defined(__GNUC__)
-  #define ZC_FORCE_INLINE inline __attribute__((__always_inline__))
-#elif !defined(_DEBUG) && defined(_MSC_VER)
-  #define ZC_FORCE_INLINE __forceinline
-#else
-  #define ZC_FORCE_INLINE inline
-#endif
 
 // Iterates over every base screen (layer 0) in the current region.
 // Callback function: void fn(mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_x)
