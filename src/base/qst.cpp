@@ -9779,14 +9779,20 @@ static void guy_update_firesfx(guydata& tempguy)
 					tempguy.firesfx = WAV_ZN1ICE;
 					break;
 				case ewRock:
-					if (get_qr(qr_MORESOUNDS)) tempguy.firesfx = WAV_ZN1ROCK;
+					tempguy.firesfx = WAV_ZN1ROCK;
 					break;
 				case ewFireball2:
 				case ewFireball:
-					if (get_qr(qr_MORESOUNDS)) tempguy.firesfx = WAV_ZN1FIREBALL;
+					tempguy.firesfx = WAV_ZN1FIREBALL;
+					break;
+				case ewBrang:
+					tempguy.firesfx = WAV_BRANG;
+					break;
+				case ewBomb:case ewSBomb: case ewLitBomb:case ewLitSBomb:
+					tempguy.firesfx = WAV_BOMB;
 					break;
 				default:
-					//no sounds
+					tempguy.firesfx = 0;
 					break;
 				}
 				break;
@@ -9823,14 +9829,20 @@ static void guy_update_firesfx(guydata& tempguy)
 				tempguy.firesfx = WAV_ZN1ICE;
 				break;
 			case ewRock:
-				if (get_qr(qr_MORESOUNDS)) tempguy.firesfx = WAV_ZN1ROCK;
+				tempguy.firesfx = WAV_ZN1ROCK;
 				break;
 			case ewFireball2:
 			case ewFireball:
-				if (get_qr(qr_MORESOUNDS)) tempguy.firesfx = WAV_ZN1FIREBALL;
+				tempguy.firesfx = WAV_ZN1FIREBALL;
+				break;
+			case ewBrang:
+				tempguy.firesfx = WAV_BRANG;
+				break;
+			case ewBomb:case ewSBomb: case ewLitBomb:case ewLitSBomb:
+				tempguy.firesfx = WAV_BOMB;
 				break;
 			default:
-				//no sounds
+				tempguy.firesfx = 0;
 				break;
 			}
 		}
@@ -9876,6 +9888,22 @@ static void guy_update_weaponflags(guydata& tempguy)
 	{
 		tempguy.burnsprs[q] = 0;
 		tempguy.light_rads[q] = 0;
+	}
+}
+
+static void guy_update_weaponspecialsfx(guydata& tempguy)
+{
+	switch (tempguy.weapon)
+	{
+	case ewBrang:
+		tempguy.specialsfx = WAV_BRANG;
+		break;
+	case ewBomb: case ewSBomb: case ewLitBomb:case ewLitSBomb:
+		tempguy.specialsfx = WAV_BOMB;
+		break;
+	default:
+		tempguy.specialsfx = 0;
+		break;
 	}
 }
 
@@ -9962,6 +9990,7 @@ void init_guys(int32_t guyversion)
 
         guy_update_firesfx(guysbuf[i]);
 		guy_update_weaponflags(guysbuf[i]);
+		guy_update_weaponspecialsfx(guysbuf[i]);
     }
 }
 
@@ -15050,6 +15079,15 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 					if (!p_igetw(&(tempguy.light_rads[q]), f))
 						return qe_invalid;
 				}
+			}
+			if (guyversion < 53)
+			{
+				guy_update_weaponspecialsfx(tempguy);
+			}
+			else
+			{
+				if (!p_getc(&(tempguy.specialsfx), f))
+					return qe_invalid;
 			}
 
 			if(loading_tileset_flags & TILESET_CLEARSCRIPTS)

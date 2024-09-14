@@ -11604,6 +11604,8 @@ int32_t writeguys(PACKFILE *f, zquestheader *Header)
 				if (!p_iputw(guysbuf[i].light_rads[q], f))
 					new_return(116 + WPNSPR_MAX + q);
 			}
+			if (!p_putc(guysbuf[i].specialsfx, f))
+				new_return(126)
 		}
 		
 		if(writecycle==0)
