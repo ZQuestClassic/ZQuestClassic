@@ -569,16 +569,35 @@ if (NOT EMSCRIPTEN)
 	target_link_libraries(zcbase PUBLIC nfd)
 endif()
 
-# Only included because AppleClang/Emscripten does not support std::execution::par yet.
-if(EMSCRIPTEN OR (APPLE AND CMAKE_C_COMPILER_ID MATCHES "Clang"))
-	FetchContent_Declare(
-		poolSTL
-		GIT_REPOSITORY https://github.com/alugowski/poolSTL
-		GIT_TAG 26d95b90aea7c36732a2df50df1c6fa26c96f93e
-		GIT_SHALLOW TRUE
-		EXCLUDE_FROM_ALL
-	)
-	FetchContent_MakeAvailable(poolSTL)
+# std::execution supplementation.
+# For std::execution::par, seq, and par_unseq.
+# On compilers with support poolSTL does nothing, else poolSTL aliases poolstl::par to the std::execution policies.
+# This way users may write code using standard std::execution and still support platforms lacking support.
+# Source: https://github.com/alugowski/poolSTL/blob/main/tests/CMakeLists.txt
+FetchContent_Declare(
+	poolSTL
+	GIT_REPOSITORY https://github.com/alugowski/poolSTL
+	GIT_TAG 26d95b90aea7c36732a2df50df1c6fa26c96f93e
+	GIT_SHALLOW TRUE
+	EXCLUDE_FROM_ALL
+)
+FetchContent_MakeAvailable(poolSTL)
+add_library(poolSTL_tbb INTERFACE)
+target_link_libraries(poolSTL_tbb INTERFACE poolSTL)
+if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    # GCC and Clang require TBB for std::execution::par.
+    # MinGW will compile std::execution::par without TBB, but performance is sequential. (Verified as of MinGW 13).
+    find_package(TBB)
+    if (TBB_FOUND)
+		message("Linking TBB")
+        target_link_libraries(poolSTL_tbb INTERFACE TBB::tbb)
+    else()
+        message("No TBB - using poolSTL fallback")
+        # Prevent including <execution>, as doing that requires linking against TBB on newer GCC/Clang.
+        # User code must not #include <execution> either.
+        target_compile_definitions(poolSTL_tbb INTERFACE POOLSTL_STD_SUPPLEMENT_NO_INCLUDE)
+		target_compile_definitions(poolSTL_tbb INTERFACE POOLSTL_STD_SUPPLEMENT_FORCE)
+    endif()
 endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
@@ -757,14 +776,10 @@ add_executable(zplayer ${ZELDA_CORE_SOURCES} ${ZELDA_GUI_SOURCES} ${ZELDA_SPRITE
 target_compile_definitions(zplayer PRIVATE IS_PLAYER)
 set_property(TARGET zplayer PROPERTY VS_DPI_AWARE "PerMonitor")
 target_include_directories(zplayer PRIVATE include/xxhash)
-target_link_libraries(zplayer PRIVATE allegro_with_legacy zasm nlohmann_json::nlohmann_json)
+target_link_libraries(zplayer PRIVATE allegro_with_legacy zasm nlohmann_json::nlohmann_json poolSTL_tbb)
 if (NOT EMSCRIPTEN)
 	target_link_libraries(zplayer PRIVATE stduuid)
 	target_compile_definitions(zplayer PRIVATE HAS_UUID)
-endif()
-if (EMSCRIPTEN OR (APPLE AND CMAKE_C_COMPILER_ID MATCHES "Clang"))
-	target_link_libraries(zplayer PRIVATE poolSTL)
-	target_compile_definitions(zplayer PRIVATE POOLSTL_STD_SUPPLEMENT)
 endif()
 if(CURL_FOUND)
 	target_sources(zplayer PRIVATE src/zc/replay_upload.cpp)
