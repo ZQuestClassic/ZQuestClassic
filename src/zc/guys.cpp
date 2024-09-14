@@ -1418,7 +1418,7 @@ void enemy::update_eathero()
 		Hero.setY(y);
 		++clk2;
 
-		if (clk2 == (touch_strength == 0 ? touch_strength : 95))
+		if (clk2 == (touch_strength == 0 ? 95 : touch_strength))
 		{
 			switch (touch_effect)
 			{
