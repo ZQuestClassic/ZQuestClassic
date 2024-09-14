@@ -567,6 +567,10 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 		light_rads[q] = d->light_rads[q];
 	}
 	specialsfx = d->specialsfx;
+
+	touch_effect = d->touch_effect;
+	touch_strength = d->touch_strength;
+	touch_counter = d->touch_counter;
 }
 
 int32_t enemy::getScriptUID() { return script_UID; }
