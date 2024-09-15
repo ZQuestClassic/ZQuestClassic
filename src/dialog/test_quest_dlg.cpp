@@ -37,43 +37,12 @@ static const GUI::ListData retsqrlist
 
 static GUI::ListData init_data_list;
 
-static bool do_save()
-{
-	onSave();
-	return true;
-}
-static bool do_save_as()
-{
-	onSaveAs();
-	return true;
-}
-static bool skip = false;
-static bool do_skip()
-{
-	skip = true;
-	return true;
-}
-
 void call_testqst_dialog()
 {
 	if(!first_save) //Require quest file is saved (i.e. not 'Untitled' fresh from File->New)
 	{
 		onSaveAs();
 		if(!first_save)
-			return;
-	}
-	if(!saved) //Warn on unsaved changes
-	{
-		skip = false;
-		AlertFuncDialog("Save",
-			"Unsaved changes will not be tested!",
-			"",
-			3, 0, //3 buttons, where buttons[0] is focused
-			{ "Save", "Save As", "Test" },
-			{ do_save, do_save_as, do_skip }
-		).show();
-		
-		if(!(skip || saved))
 			return;
 	}
 	test_start_dmap = -1;
@@ -203,10 +172,27 @@ std::shared_ptr<GUI::Widget> TestQstDialog::view()
 					minwidth = 90_px,
 					onClick = message::CREATE_INIT_DATA)
 			),
-			Row(
-				vAlign = 1.0,
+			Rows<2>(
+				INFOBTN("Save before opening test mode."),
+				Checkbox(text = "Auto-Save", fitParent = true,
+					checked = zc_get_config("zquest", "test_mode_auto_save", true),
+					onToggleFunc = [&](bool state)
+					{
+						zc_set_config("zquest", "test_mode_auto_save", state);
+					}
+				),
+
+				INFOBTN("Restart player when qst is saved."),
+				Checkbox(text = "Auto-Restart", fitParent = true,
+					checked = zc_get_config("zquest", "test_mode_auto_restart", false),
+					onToggleFunc = [&](bool state)
+					{
+						zc_set_config("zquest", "test_mode_auto_restart", state);
+					}
+				),
+
 				INFOBTN("Save a recording to replays/test_XXXXXXXX.zplay."),
-				Checkbox(text = "Record",
+				Checkbox(text = "Record", fitParent = true,
 					checked = zc_get_config("zquest", "test_mode_record", false),
 					onToggleFunc = [&](bool state)
 					{
@@ -278,6 +264,9 @@ bool TestQstDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 
 		case message::OK:
 		{
+			if (!saved && zc_get_config("zquest", "test_mode_auto_save", true))
+				onSave();
+
 #ifdef __EMSCRIPTEN__
 			em_open_test_mode(filepath, test_start_dmap, test_start_screen, test_ret_sqr);
 #else
@@ -299,6 +288,10 @@ bool TestQstDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			{
 				args.push_back("-test-init-data");
 				args.push_back(test_init_data[test_init_data_val - 1]);
+			}
+			if (zc_get_config("zquest", "test_mode_auto_restart", false))
+			{
+				args.push_back("-test-auto-restart");
 			}
 			if (should_record)
 			{

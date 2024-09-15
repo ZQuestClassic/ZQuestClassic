@@ -4548,7 +4548,6 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 	}
 #endif
 
-	static bool test_mode_auto_restart = zc_get_config("zeldadx", "test_mode_auto_restart", false);
 	if (zqtesting_mode && test_mode_auto_restart)
 	{
 		static auto last_write_time = fs::last_write_time(qstpath);
