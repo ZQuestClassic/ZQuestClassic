@@ -30,6 +30,7 @@ struct MsgStr;
 int32_t isFullScreen();
 extern bool zqtesting_mode;
 extern bool use_testingst_start;
+extern bool test_mode_auto_restart;
 
 #if DEVLEVEL > 0
 extern bool dev_logging;
