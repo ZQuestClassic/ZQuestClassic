@@ -7823,31 +7823,19 @@ int32_t get_register(int32_t arg)
 		case MAPDATAINTID: 	 //Same form as SetScreenD()
 			//SetFFCInitD(ffindex, d, value)
 		{
-			if (mapscr *m = GetMapscr(ri->mapsref))
-			{
-				int32_t ffc_index = (ri->d[rINDEX]/10000) -1;
-				int32_t d_index = ri->d[rINDEX2]/10000;
-					
-				if ( (unsigned)ffc_index > MAXFFCS-1 ) 
-				{
-					Z_scripterrlog("Invalid FFC id passed to mapdata->FFCInitD[]: %d",ffc_index); 
-					ret = -10000;
-				}
-				else if ( (unsigned)d_index > 7 )
-				{
-					Z_scripterrlog("Invalid InitD[] index passed to mapdata->FFCInitD[]: %d",d_index);
-					ret = -10000;
-				}
-				else
-				{ 
-					ret = m->ffcs[ffc_index].initd[d_index];
-				}
-			}
+			int32_t ffc_index = (ri->d[rINDEX]/10000) -1;
+			int32_t d_index = ri->d[rINDEX2]/10000;
+
+			if (BC::checkBounds(d_index, 0, 7, "mapdata->FFCInitD[]") != SH::_NoError)
+				break;
+
+			if (auto handle = ResolveMapRefFFC(ri->mapsref, ffc_index, "mapdata->FFCInitD[]"); handle.scr != nullptr)
+				ret = handle.ffc->initd[d_index];
 			else
 			{
-				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","GetFFCInitD()");
-				ret = -10000; 
-			}	
+				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCInitD[]");
+				ret = -10000;
+			}
 			break;
 		}	
 
