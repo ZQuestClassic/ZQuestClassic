@@ -1,4 +1,5 @@
 #include "base/mapscr.h"
+#include "base/general.h"
 #include "base/zsys.h"
 #include "base/qrs.h"
 
@@ -51,13 +52,35 @@ void mapscr::zero_memory()
 	*this = mapscr();
 }
 
+void mapscr::ensureFFC(size_t ind)
+{
+	getFFC(ind);
+}
+
+ffcdata& mapscr::getFFC(size_t ind)
+{
+	assert(ind < MAXFFCS);
+
+	if (ind < ffcs.size())
+		return ffcs[ind];
+
+	// ffc_count_dirty does not need to be set because `data` is still zero, so the count
+	// won't have changed. Only need to mark it dirty when `data`
+	// changes (handled in `screen_ffc_modify_postroutine`).
+	int prev = ffcs.size();
+	ffcs.resize(ind + 1);
+	for (int i = prev; i <= ind; i++)
+		ffcs[i].screen = screen;
+	return ffcs[ind];
+}
+
 word mapscr::numFFC()
 {
 	if (!ffc_count_dirty)
 		return num_ffcs;
 
-	int lastffc = 0;
-	for (int w = MAXFFCS - 1; w >= 0; --w)
+	int lastffc = -1;
+	for (int w = ffcs.size() - 1; w >= 0; --w)
 	{
 		if (ffcs[w].data)
 		{
@@ -66,7 +89,10 @@ word mapscr::numFFC()
 		}
 	}
 	if (lastffc < 31 && get_qr(qr_OLD_FFC_FUNCTIONALITY))
+	{
 		lastffc = 31;
+		ensureFFC(31);
+	}
 	num_ffcs = lastffc + 1;
 	ffc_count_dirty = false;
 	return num_ffcs;

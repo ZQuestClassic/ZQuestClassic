@@ -877,6 +877,8 @@ void weapon::cleanup_sfx()
 	else switch(id)
 	{
 		case ewBrang:
+			use_sfx = specialsfx;
+			break;
 		case wBrang:
 			use_sfx = WAV_BRANG;
 			break;
@@ -994,6 +996,7 @@ void weapon::eweapon_overrides()
 		}
 	}
 	else step = e->wstep;
+	specialsfx = e->specialsfx;
 }
 
 weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t Dir, int32_t Parentitem, int32_t prntid, bool isDummy, byte script_gen, byte isLW, byte special, int32_t Linked_Parent, int32_t use_sprite) : sprite(), parentid(prntid)
@@ -1949,6 +1952,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				misc=2;
 			else
 				step=3;
+			specialsfx = WAV_BOMB;
 			break;
 		}
 		case ewLitSBomb: case ewSBomb:
@@ -1965,6 +1969,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				misc=2;
 			else
 				step=3;
+			specialsfx = WAV_BOMB;
 			break;
 		}
 		case ewBrang:
@@ -1981,6 +1986,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				hxofs=4;
 				hit_width=8;
 			}
+			specialsfx = WAV_BRANG;
 			break;
 		}
 		case ewFireball2:
@@ -4765,7 +4771,7 @@ bool weapon::animate(int32_t index)
 			
 			if(clk==(misc-1) && step==0)
 			{
-				sfx(WAV_BOMB,pan(int32_t(x)));
+				sfx(specialsfx,pan(int32_t(x)));
 					
 				if(id==wSBomb || id==wLitSBomb || id==ewSBomb || id==ewLitSBomb)
 				{
@@ -6720,7 +6726,7 @@ bool weapon::animate(int32_t index)
 				if(get_qr(qr_MORESOUNDS))
 				{
 					//if (step!=0)
-					sfx(WAV_BRANG, pan(int32_t(x)), true);
+					sfx(specialsfx, pan(int32_t(x)), true);
 					//else
 					;//stop_sfx(WAV_BRANG);
 				}

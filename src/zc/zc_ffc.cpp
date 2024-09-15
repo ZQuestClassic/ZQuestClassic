@@ -14,7 +14,8 @@ void zc_ffc_set(ffcdata& ffc, word data)
 	if (!scr) return;
 
 	uint8_t screen_index_offset = get_region_screen_index_offset(ffc.screen);
-	for (uint8_t i = 0; i < MAXFFCS; i++)
+	int c = scr->ffcs.size();
+	for (uint8_t i = 0; i < c; i++)
 	{
 		if (&ffc == &scr->ffcs[i])
 		{

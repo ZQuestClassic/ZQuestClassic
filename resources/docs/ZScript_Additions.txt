@@ -3621,16 +3621,6 @@ int SubscreenSpeed;
  * The speed multiplier for the active subscreen falling or raising.
  * The base speed (1) is 3 pixels per frame. The maximum value is 85.
 
-untyped STD[256];
- * An array used internally by the <std> header.
- * Safe to read values; you should avoid writing to this array or using it
- * for any purpose, as it is reserved exclusively for a system header.
- 
-untyped Misc2[256];
-untyped Misc3[256];
- * Formerly 'Ghost[]' and 'Tango[]'
- * Internal arrays for global data
-
 bool Suspend[susptLAST];
  * Each index represents an aspect of the game engine that you 
  * can suspend or resume by writing to this array.
@@ -3907,12 +3897,7 @@ bool TypingMode;
  *	if TypingMode == true, then that keystroke will not cause the engine to register a Button A Press.
  *
  *	Enable this if you wish to create a text prompt using Input->Key[] or Input->ReadKey[].
-	
-untyped Misc[32];
- * An array of 32 misc values that is always available.
- * Data does not persist between sessions.
- * The Misc[] array now supports all datatypes, and has been expanded to a size of [32].
-	
+
 int HighestStringID;
  * Returns the highest valid ID of the strings in the ZQuest String Editor.
 

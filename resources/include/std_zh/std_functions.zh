@@ -1184,6 +1184,7 @@ bool Facing(ffc f)
 	return false;
 }
 
+// TODO z3 !
 //Returns the number of an FFC, and -1 for a non-valid FFC (which should never happen)
 int FFCNum(ffc f)
 {

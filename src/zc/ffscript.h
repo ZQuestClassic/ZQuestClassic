@@ -983,9 +983,6 @@ int32_t FF_lweapon_removal_bounds[4]; //left, right, top, bottom coordinates for
 std::vector<std::string> includePaths;
 char includePathString[MAX_INCLUDE_PATH_CHARS];
 int32_t warpex[wexLast];
-int32_t StdArray[256];
-int32_t GhostArray[256];
-int32_t TangoArray[256];
 
 #define FFSCRIPTCLASS_CLOCKS 10
 int32_t FF_clocks[FFSCRIPTCLASS_CLOCKS]; //Will be used for Heroaction, anims, and so forth 

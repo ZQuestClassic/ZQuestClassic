@@ -91,7 +91,8 @@ src/dialog/view_script_slots.cpp
 src/dialog/object_pages.cpp
 src/dialog/screen_notes.cpp
 src/dialog/enemyeditor.cpp
-
+src/dialog/enemypattern.cpp
+src/dialog/screen_enemies.cpp
 
 ## End of ZQuest GUI module
 )

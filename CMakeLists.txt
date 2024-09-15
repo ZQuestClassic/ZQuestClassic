@@ -570,7 +570,11 @@ if (NOT EMSCRIPTEN)
 	target_link_libraries(zcbase PUBLIC nfd)
 endif()
 
-# Only included because AppleClang does not support std::execution::par yet.
+# std::execution supplementation.
+# For std::execution::par, seq, and par_unseq.
+# On compilers with support poolSTL does nothing, else poolSTL aliases poolstl::par to the std::execution policies.
+# This way users may write code using standard std::execution and still support platforms lacking support.
+# Source: https://github.com/alugowski/poolSTL/blob/main/tests/CMakeLists.txt
 FetchContent_Declare(
 	poolSTL
 	GIT_REPOSITORY https://github.com/alugowski/poolSTL
@@ -579,6 +583,23 @@ FetchContent_Declare(
 	EXCLUDE_FROM_ALL
 )
 FetchContent_MakeAvailable(poolSTL)
+add_library(poolSTL_tbb INTERFACE)
+target_link_libraries(poolSTL_tbb INTERFACE poolSTL)
+if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    # GCC and Clang require TBB for std::execution::par.
+    # MinGW will compile std::execution::par without TBB, but performance is sequential. (Verified as of MinGW 13).
+    find_package(TBB)
+    if (TBB_FOUND)
+		message("Linking TBB")
+        target_link_libraries(poolSTL_tbb INTERFACE TBB::tbb)
+    else()
+        message("No TBB - using poolSTL fallback")
+        # Prevent including <execution>, as doing that requires linking against TBB on newer GCC/Clang.
+        # User code must not #include <execution> either.
+        target_compile_definitions(poolSTL_tbb INTERFACE POOLSTL_STD_SUPPLEMENT_NO_INCLUDE)
+		target_compile_definitions(poolSTL_tbb INTERFACE POOLSTL_STD_SUPPLEMENT_FORCE)
+    endif()
+endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 	target_link_options(zcbase PRIVATE "/WHOLEARCHIVE")
@@ -756,7 +777,7 @@ add_executable(zplayer ${ZELDA_CORE_SOURCES} ${ZELDA_GUI_SOURCES} ${ZELDA_SPRITE
 target_compile_definitions(zplayer PRIVATE IS_PLAYER)
 set_property(TARGET zplayer PROPERTY VS_DPI_AWARE "PerMonitor")
 target_include_directories(zplayer PRIVATE include/xxhash)
-target_link_libraries(zplayer PRIVATE allegro_with_legacy zasm nlohmann_json::nlohmann_json poolSTL)
+target_link_libraries(zplayer PRIVATE allegro_with_legacy zasm nlohmann_json::nlohmann_json poolSTL_tbb)
 if (NOT EMSCRIPTEN)
 	target_link_libraries(zplayer PRIVATE stduuid)
 	target_compile_definitions(zplayer PRIVATE HAS_UUID)

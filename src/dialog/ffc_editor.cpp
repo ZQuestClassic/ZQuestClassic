@@ -31,7 +31,7 @@ bool call_ffc_dialog(int32_t ffcombo, ffdata const& init, mapscr* scr)
 	return edited;
 }
 
-ffdata::ffdata(mapscr const* scr, int32_t ind)
+ffdata::ffdata(mapscr* scr, int32_t ind)
 {
 	clear();
 	load(scr, ind);
@@ -47,29 +47,31 @@ void ffdata::clear()
 	memset(this, 0, sizeof(ffdata));
 	fwid = fhei = 15;
 }
-void ffdata::load(mapscr const* scr, int32_t ind)
+void ffdata::load(mapscr* scr, int32_t ind)
 {
 	if(unsigned(ind)>MAXFFCS-1) return;
-	x = scr->ffcs[ind].x.getZLong();
-	y = scr->ffcs[ind].y.getZLong();
-	dx = scr->ffcs[ind].vx.getZLong();
-	dy = scr->ffcs[ind].vy.getZLong();
-	ax = scr->ffcs[ind].ax.getZLong();
-	ay = scr->ffcs[ind].ay.getZLong();
-	data = scr->ffcs[ind].data;
-	cset = scr->ffcs[ind].cset;
-	delay = scr->ffcs[ind].delay;
-	flags = scr->ffcs[ind].flags;
-	link = scr->ffcs[ind].link;
+
+	ffcdata& ffc = scr->getFFC(ind);
+	x = ffc.x.getZLong();
+	y = ffc.y.getZLong();
+	dx = ffc.vx.getZLong();
+	dy = ffc.vy.getZLong();
+	ax = ffc.ax.getZLong();
+	ay = ffc.ay.getZLong();
+	data = ffc.data;
+	cset = ffc.cset;
+	delay = ffc.delay;
+	flags = ffc.flags;
+	link = ffc.link;
 	twid = scr->ffTileWidth(ind)-1;
 	thei = scr->ffTileHeight(ind)-1;
 	fwid = scr->ffEffectWidth(ind)-1;
 	fhei = scr->ffEffectHeight(ind)-1;
-	script = scr->ffcs[ind].script;
+	script = ffc.script;
 	for(auto q = 0; q < 2; ++q)
-		inita[q] = scr->ffcs[ind].inita[q];
+		inita[q] = ffc.inita[q];
 	for(auto q = 0; q < 8; ++q)
-		initd[q] = scr->ffcs[ind].initd[q];
+		initd[q] = ffc.initd[q];
 }
 void ffdata::save(mapscr* scr, int32_t ind)
 {

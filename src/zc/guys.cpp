@@ -585,6 +585,7 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 		burnsprs[q] = d->burnsprs[q];
 		light_rads[q] = d->light_rads[q];
 	}
+	specialsfx = d->specialsfx;
 }
 
 int32_t enemy::getScriptUID() { return script_UID; }
@@ -7732,6 +7733,16 @@ int32_t enemy::wpnsfx(int32_t wpn)
 {
 	switch (wpn)
 	{
+		case wScript1:
+		case wScript2:
+		case wScript3:
+		case wScript4:
+		case wScript5:
+		case wScript6:
+		case wScript7:
+		case wScript8:
+		case wScript9:
+		case wScript10: //sure why not
 		case ewFireTrail:
 		case ewFlame:
 		case ewFlame2Trail:
@@ -11453,11 +11464,6 @@ void eStalfos::KillWeapon()
 				Ewpns.del(i);
 			}
 		}
-	}
-	
-	if(wpn==ewBrang && !Ewpns.idCount(ewBrang))
-	{
-		stop_sfx(WAV_BRANG);
 	}
 }
 
@@ -18447,7 +18453,7 @@ void update_slope_combopos(const rpos_handle_t& rpos_handle)
 	if(isSlope && !wasSlope)
 	{
 		auto [x, y] = COMBOXY_REGION(rpos_handle.rpos);
-		slopes.try_emplace(id, &(s->data[pos]), nullptr, id, x, y);
+		slopes.try_emplace(id, &(s->data[pos]), nullptr, -1, id, x, y);
 	}
 	else if(wasSlope && !isSlope)
 	{
@@ -18500,7 +18506,7 @@ void screen_ffc_modify_postroutine(const ffc_handle_t& ffc_handle)
 	bool isSlope = cmb.type == cSLOPE && !(ff->flags&ffc_changer);
 	if(isSlope && !wasSlope)
 	{
-		slopes.try_emplace(id, nullptr, ff, id);
+		slopes.try_emplace(id, nullptr, ff, ffc_handle.id, id);
 	}
 	else if(wasSlope && !isSlope)
 	{

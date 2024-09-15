@@ -1,5 +1,6 @@
 #include "base/handles.h"
 #include "base/zdefs.h"
+#include "base/general.h"
 #include <cstring>
 #include <assert.h>
 #include <math.h>
@@ -672,7 +673,7 @@ ffc_handle_t get_ffc(int id)
 	uint8_t screen = get_screen_index_for_region_index_offset(id / MAXFFCS);
 	uint8_t i = id % MAXFFCS;
 	mapscr* scr = get_scr(screen);
-	ffcdata* ffc = &scr->ffcs[id % MAXFFCS];
+	ffcdata* ffc = &scr->getFFC(id % MAXFFCS);
 	return {scr, screen, (uint16_t)id, i, ffc};
 }
 
@@ -3310,10 +3311,10 @@ void update_freeform_combos()
 				{
 					thisffc.prev_changer_x = thisffc.x.getZLong();
 					thisffc.prev_changer_y = thisffc.y.getZLong();
-					thisffc.x+=thisffc.vx;
-					thisffc.y+=thisffc.vy;
-					thisffc.vx+=thisffc.ax;
-					thisffc.vy+=thisffc.ay;
+					thisffc.x += thisffc.vx;
+					thisffc.y += thisffc.vy;
+					thisffc.vx += thisffc.ax;
+					thisffc.vy += thisffc.ay;
 					
 					
 					if(get_qr(qr_OLD_FFC_SPEED_CAP))
@@ -5842,7 +5843,8 @@ void load_a_screen_and_layers(int dmap, int map, int screen, int ldir)
 	auto [offx, offy] = is_a_region(dmap, screen) ?
 		translate_screen_coordinates_to_world(screen) :
 		std::make_pair(0, 0);
-	for (word i = 0; i < MAXFFCS; i++)
+	int c = base_scr->numFFC();
+	for (word i = 0; i < c; i++)
 	{
 		base_scr->ffcs[i].screen = screen;
 		base_scr->ffcs[i].x += offx;
@@ -5965,6 +5967,21 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 		FFCore.reset_script_engine_data(ScriptType::FFC, ffc_handle.id);
 		memset(ffc_handle.ffc->script_misc, 0, 16 * sizeof(int32_t));
 	});
+	// TODO z3 !!!
+	// TODO: this could be improved.
+	for_every_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
+		// Handled in loadscr_old.
+		if (scr->screen == cur_origin_screen_index)
+			return;
+
+		int c = scr->numFFC();
+		for (int i = c; i < MAXFFCS; i++)
+		{
+			int ffc_id = get_region_screen_index_offset(scr->screen)*MAXFFCS + i;
+			FFCore.deallocateAllScriptOwned(ScriptType::FFC, ffc_id, false);
+			FFCore.reset_script_engine_data(ScriptType::FFC, ffc_id);
+		}
+	});
 
 	// "extended height mode" includes the top 56 pixels as part of the visible mapscr viewport,
 	// allowing for regions to display 4 more rows of combos (as many as ALTTP does). This part of
@@ -6027,12 +6044,15 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 	if (tmp == 0)
 		hero_scr = scr;
 	if (!tmp)
-		for (uint8_t i = 0; i < MAXFFCS; ++i)
+	{
+		int c = scr->numFFC();
+		for (uint8_t i = 0; i < c; ++i)
 		{
 			scr->ffcs[i].setLoaded(true);
 			scr->ffcs[i].solid_update(false);
 			screen_ffc_modify_postroutine({scr, (uint8_t)screen, i, i, &scr->ffcs[i]});
 		}
+	}
 	
 	scr->valid |= mVALID; //layer 0 is always valid
 	memcpy(scr->data, source->data, sizeof(scr->data));
@@ -6090,11 +6110,12 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 	// screen has FF carryover enabled.
 	if (!is_setting_special_warp_return_screen)
 	{
-		for(word i = 0; i < MAXFFCS; i++)
+		int c = previous_scr.numFFC();
+		for (int i = 0; i < c; i++)
 		{
 			if((previous_scr.ffcs[i].flags&ffc_carryover) && !(previous_scr.flags5&fNOFFCARRYOVER))
 			{
-				scr->ffcs[i] = previous_scr.ffcs[i];
+				scr->getFFC(i) = previous_scr.ffcs[i];
 				
 				if (previous_scr.ffcs[i].flags&ffc_scriptreset)
 				{
@@ -6106,11 +6127,18 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 			{
 				int ffc_id = get_region_screen_index_offset(screen)*MAXFFCS + i;
 				FFCore.deallocateAllScriptOwned(ScriptType::FFC, ffc_id, false);
-				memset(scr->ffcs[i].script_misc, 0, 16 * sizeof(int32_t));
+				if (scr->ffcs.size() > i)
+					memset(scr->ffcs[i].script_misc, 0, 16 * sizeof(int32_t));
 				FFCore.reset_script_engine_data(ScriptType::FFC, ffc_id);
 			}
 		}
-
+		// TODO: this could be improved.
+		for (int i = c; i < MAXFFCS; i++)
+		{
+			int ffc_id = get_region_screen_index_offset(screen)*MAXFFCS + i;
+			FFCore.deallocateAllScriptOwned(ScriptType::FFC, ffc_id, false);
+			FFCore.reset_script_engine_data(ScriptType::FFC, ffc_id);
+		}
 		for(int32_t i=0; i<6; i++)
 		{
 			mapscr layerscr = tmpscr2[i];
@@ -6152,7 +6180,8 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 	auto [offx, offy] = is_a_region(destdmap < 0 ? currdmap : destdmap, screen) ?
 		translate_screen_coordinates_to_world(screen) :
 		std::make_pair(0, 0);
-	for (word i = 0; i < MAXFFCS; i++)
+	int c = scr->numFFC();
+	for (word i = 0; i < c; i++)
 	{
 		scr->ffcs[i].screen = screen;
 		scr->ffcs[i].x += offx;
@@ -6161,6 +6190,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 
 	if (!tmp)
 	{
+		// TODO z3 ! rm?
 		// cpos_force_update();
 		// trig_trigger_groups();
 	}
@@ -6283,6 +6313,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 		}
 	}
 
+	// TODO z3 ! rm?
 	// if (tmp == 0)
 	// 	update_slope_comboposes();
 	

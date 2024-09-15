@@ -48,16 +48,16 @@ private:
 
 struct slope_object
 {
-	ffcdata const* ffc;
 	word const* cmbid;
 	zfix ox1,oy1,ox2,oy2;
 	rpos_t id;
+	int32_t ffc_id;
 	zfix xoffs,yoffs;
 	
 	slope_info get_info() const;
 	
 	void updateslope();
-	slope_object(word* cid = nullptr, ffcdata* ff = nullptr, rpos_t id = rpos_t::None, int32_t x = 0, int32_t y = 0);
+	slope_object(word* cid = nullptr, ffcdata* ffc = nullptr, int32_t ffc_id = -1, rpos_t id = rpos_t::None, int32_t x = 0, int32_t y = 0);
 	slope_object(slope_object const& other) = delete;
 	slope_object& operator=(slope_object const& other) = delete;
 };

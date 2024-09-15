@@ -126,7 +126,7 @@ public:
     byte specialinfo;
 	
 	int shd_aclk, shd_aframe;
-	
+    byte specialsfx;
 	
 	
 	void do_death_fx();

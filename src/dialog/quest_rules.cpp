@@ -1671,7 +1671,6 @@ GUI::ListData drawingRulesList
 GUI::ListData bugfixRulesList
 {
 	{ "Fix Scripts Running During Scrolling", qr_FIXSCRIPTSDURINGSCROLLING },
-	{ "Game->Misc[] is / 10000", qr_OLDQUESTMISC },
 	{ "GetPixel returns color / 10000", qr_BROKEN_GETPIXEL_VALUE },
 	{ "Always Deallocate Arrays", qr_ALWAYS_DEALLOCATE_ARRAYS },
 	{ "Don't Deallocate Init/SaveLoad Local Arrays", qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS },

@@ -122,6 +122,7 @@ public:
 	bool aim_hero;
 	byte burnsprs[WPNSPR_MAX];
 	byte light_rads[WPNSPR_MAX];
+	byte specialsfx; //weapon specialsfx.
 
 	int32_t getScriptUID();
 	void setScriptUID(int32_t new_id);

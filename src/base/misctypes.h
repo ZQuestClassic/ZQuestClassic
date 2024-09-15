@@ -192,8 +192,8 @@ struct miscQdata
 	zcolors  colors;
 	int32_t     icons[4];
 	word endstring;
+	// This has been deprecated, but kept around to keep a funny quest working (alarm clocks).
 	int32_t questmisc[32]; //Misc init values for the user. Used by scripts.
-	char questmisc_strings[32][128]; //needs to be memset then data allocated from IntiData
 	int32_t zscript_last_compiled_version;
 	byte sprites[sprMAX];
 	

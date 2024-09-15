@@ -221,11 +221,6 @@ class Game {
 	// @zasm_var GAMEGENERICD
 	internal untyped Generic[];
 
-	// 3 misc data arrays.
-	//
-	// @zasm_var GAMEMISC
-	internal untyped Misc[];
-
 	// Contains a bitwise flagset of the "Level Items".
 	//
 	// @zasm_var GAMELITEMSD
@@ -391,16 +386,6 @@ class Game {
 	// @zasm_var GAMEEVENTDATA
 	internal untyped EventData[];
 
-	// 3 misc data arrays.
-	//
-	// @zasm_var GHOSTARR
-	internal untyped Misc2[];
-
-	// 3 misc data arrays.
-	//
-	// @zasm_var TANGOARR
-	internal untyped Misc3[];
-
 	// Which mouse cursor should be displayed during gameplay.
 	// [ZCM_BLANK] is the default, and it resets on visiting the title screen.
 	//
@@ -465,20 +450,6 @@ class Game {
 	//
 	// @zasm_var GAMENUMOSUB
 	internal int NumOverlaySubscreens;
-
-	// An array used internally by the <std> header.
-	//
-	// Safe to read values; you should avoid writing to this array or using it
-	// for any purpose, as it is reserved exclusively for a system header.
-	//
-	// @zasm_var STDARR
-	internal untyped STD[];
-
-	// @zasm_var GHOSTARR
-	internal untyped Ghost[];
-
-	// @zasm_var TANGOARR
-	internal untyped Tango[];
 
 	// Returns the highest valid ID of the strings in the ZQuest String Editor.
 	//

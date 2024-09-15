@@ -2076,9 +2076,9 @@ enum ASM_DEFINE
 #define MAPDATAINTID 		0x1217	//INT32 , 32 OF THESE, EACH WITH 10 INDICES. 
 #define MAPDATAINITA 		0x1218	//INT32, 32 OF THESE, EACH WITH 2
 #define MAPDATAFFINITIALISED 	0x1219	//BOOL, 32 OF THESE
-#define MAPDATASCRIPTENTRY 	0x121A	//W
-#define MAPDATASCRIPTOCCUPANCY 	0x121B	//W
-#define MAPDATASCRIPTEXIT 	0x121C	//W
+#define MAPDATASCRIPTENTRY 	0x121A	// Never implemented.
+#define MAPDATASCRIPTOCCUPANCY 	0x121B	// Never implemented.
+#define MAPDATASCRIPTEXIT 	0x121C	// Never implemented.
 #define MAPDATAOCEANSFX 	0x121D	//B
 #define MAPDATABOSSSFX 		0x121E	//B
 #define MAPDATASECRETSFX 	0x121F	//B
@@ -2156,9 +2156,9 @@ enum ASM_DEFINE
 #define SCREENDATAINTID 		0x1266	//INT32 , 32 OF THESE, EACH WITH 10 INDICES. 
 #define SCREENDATAINITA 		0x1267	//INT32, 32 OF THESE, EACH WITH 2
 #define SCREENDATAFFINITIALISED 	0x1268	//BOOL, 32 OF THESE
-#define SCREENDATASCRIPTENTRY 		0x1269	//W
-#define SCREENDATASCRIPTOCCUPANCY 	0x126A	//W
-#define SCREENDATASCRIPTEXIT 		0x126B	//W
+#define SCREENDATASCRIPTENTRY 		0x1269	//W Never implemented.
+#define SCREENDATASCRIPTOCCUPANCY 	0x126A	//W Never implemented.
+#define SCREENDATASCRIPTEXIT 		0x126B	//W Never implemented.
 #define SCREENDATAOCEANSFX 		0x126C	//B
 #define SCREENDATABOSSSFX 		0x126D	//B
 #define SCREENDATASECRETSFX 		0x126E	//B
@@ -2246,7 +2246,7 @@ enum ASM_DEFINE
 #define ITEMPSTRINGFLAGS		0x12B1
 #define ITEMOVERRIDEFLAGS		0x12B2
 #define LINKPUSH		0x12B3
-#define GAMEMISC		0x12B4 //int32_t
+#define GAMEMISC		0x12B4 //int32_t            // Deprecated. Still implemented just to keep the alarm clock quest working.
 #define LINKSTUN		0x12B5 //int32_t (32b)
 #define TYPINGMODE		0x12B6 //int32_t (32b)
 
@@ -2555,9 +2555,9 @@ enum ASM_DEFINE
 #define NPCSLIDECLK			0x13CB
 #define NPCFADING			0x13CC
 #define DISTANCE			0x13CD
-#define STDARR				0x13CE
-#define GHOSTARR			0x13CF
-#define TANGOARR			0x13D0
+#define STDARR				0x13CE       // Removed. Never used.
+#define GHOSTARR			0x13CF       // Removed. Never used.
+#define TANGOARR			0x13D0       // Removed. Never used.
 #define NPCHALTCLK			0x13D1
 #define NPCMOVESTATUS			0x13D2
 #define DISTANCESCALE			0x13D3

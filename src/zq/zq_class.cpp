@@ -2663,7 +2663,8 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 	
 	_zmap_drawlayer(dest, x, y, layers[1], antiflags, basescr->layeropacity[1-1]!=255, true, HL_LAYER(1));
 	
-	for(int32_t i=MAXFFCS-1; i>=0; i--)
+	int c = basescr->numFFC();
+	for(int32_t i=c-1; i>=0; i--)
 	{
 		if(basescr->ffcs[i].data)
 		{
@@ -2862,7 +2863,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 	}
 	_zmap_drawlayer(dest, x, y, layers[5], antiflags, basescr->layeropacity[5-1]!=255, true, HL_LAYER(5));
 	
-	for(int32_t i=MAXFFCS-1; i>=0; i--)
+	for(int32_t i=c-1; i>=0; i--)
 	{
 		if(basescr->ffcs[i].data)
 		{
@@ -2890,7 +2891,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 	
 	_zmap_drawlayer(dest, x, y, layers[6], antiflags, basescr->layeropacity[6-1]!=255, true, HL_LAYER(6));
 	
-	for(int32_t i=MAXFFCS-1; i>=0; i--)
+	for(int32_t i=c-1; i>=0; i--)
 		if(basescr->ffcs[i].data)
 			if(basescr->ffcs[i].flags&ffc_changer)
 				putpixel(dest,(basescr->ffcs[i].x.getInt())+x,(basescr->ffcs[i].y.getInt())+y,vc(zc_oldrand()%16));
@@ -2907,7 +2908,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 				for(int32_t i=0; i<176; i++)
 					put_walkflags(dest,((i&15)<<4)+x,(i&0xF0)+y,layers[k+1]->data[i], 0);
 		}
-		for(int32_t i=MAXFFCS-1; i>=0; i--)
+		for(int32_t i=c-1; i>=0; i--)
 		{
 			if(auto data = basescr->ffcs[i].data)
 			{
@@ -4546,6 +4547,8 @@ void zmap::DoSetFFCCommand(int map, int scr, int i, set_ffc_command::data_t data
 {
 	mapscr* mapscr_ptr = Map.AbsoluteScr(map, scr);
 	if(!mapscr_ptr) return;
+
+	mapscr_ptr->ensureFFC(i);
 
 	std::shared_ptr<set_ffc_command> command(new set_ffc_command);
 
@@ -8279,8 +8282,8 @@ int32_t writemisc(PACKFILE *f, zquestheader *Header)
 		for ( int32_t q = 0; q < 32; q++ ) 
 		{
 			for ( int32_t j = 0; j < 128; j++ )
-			if(!p_putc(QMisc.questmisc_strings[q][j],f))
-						 new_return(22);
+				if(!p_putc(0,f))
+					new_return(22);
 		}
 		//V_MISC >= 11
 		if(!p_iputl(QMisc.zscript_last_compiled_version,f))
@@ -9111,18 +9114,6 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 		}
 	}
 	
-	for(auto q = 0; q < 10; ++q)
-	{
-		if(screen.npcstrings[q]
-			|| screen.new_items[q]
-			|| screen.new_item_x[q]
-			|| screen.new_item_y[q])
-		{
-			scr_has_flags |= SCRHAS_UNUSED;
-			break;
-		}
-	}
-	
 	for(auto q = 0; q < 128; ++q)
 	{
 		if(screen.secretcombo[q]
@@ -9356,29 +9347,6 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 		for ( int32_t q = 0; q < 8; q++ )
 		{
 			if(!p_iputl(screen.screeninitd[q],f))
-				return qe_invalid;
-		}
-	}
-	if(scr_has_flags & SCRHAS_UNUSED)
-	{
-		for ( int32_t q = 0; q < 10; q++ ) 
-		{
-			if(!p_iputl(screen.npcstrings[q],f))
-				return qe_invalid;
-		}
-		for ( int32_t q = 0; q < 10; q++ ) 
-		{
-			if(!p_iputw(screen.new_items[q],f))
-				return qe_invalid;
-		}
-		for ( int32_t q = 0; q < 10; q++ ) 
-		{
-			if(!p_iputw(screen.new_item_x[q],f))
-				return qe_invalid;
-		}
-		for ( int32_t q = 0; q < 10; q++ ) 
-		{
-			if(!p_iputw(screen.new_item_y[q],f))
 				return qe_invalid;
 		}
 	}
@@ -11614,6 +11582,8 @@ int32_t writeguys(PACKFILE *f, zquestheader *Header)
 				if (!p_iputw(guysbuf[i].light_rads[q], f))
 					new_return(116 + WPNSPR_MAX + q);
 			}
+			if (!p_putc(guysbuf[i].specialsfx, f))
+				new_return(126)
 		}
 		
 		if(writecycle==0)

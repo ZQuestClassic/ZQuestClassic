@@ -95,6 +95,7 @@ int32_t DMapEditorLastMaptileUsed = 0;
 int32_t switch_type = 0;
 bool saved = true;
 bool zqtesting_mode = false;
+bool test_mode_auto_restart = false;
 static std::string testingqst_name;
 bool use_testingst_start = false;
 static uint16_t testingqst_dmap = 0;
@@ -4720,6 +4721,8 @@ int main(int argc, char **argv)
 	zqtesting_mode = test_arg > 0;
 	if(zqtesting_mode)
 	{
+		test_mode_auto_restart = used_switch(argc, argv, "-test-auto-restart") > 0;
+
 		clearConsole();
 		Z_message("Initializing test mode...\n");
 		if(test_arg+3 >= argc)
@@ -5545,3 +5548,7 @@ string get_box_cfg_hdr(int num)
 	return "misc";
 }
 
+ffcdata* slopes_getFFC(int id)
+{
+	return &get_screen_for_region_index_offset(id / MAXFFCS)->getFFC(id % MAXFFCS);
+}

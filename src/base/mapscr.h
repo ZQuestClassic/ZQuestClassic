@@ -105,8 +105,16 @@ struct mapscr
 	byte cset[176];
 	
 	byte entry_x, entry_y; //Where Hero entered the screen. Used for pits, and to prevent water walking. -Z
-	
-	ffcdata ffcs[MAXFFCS];
+
+	// This vector never shrinks during gameplay.
+	// Starts empty, and is only filled up to fit `ind` as `getFFC(ind)` is called.
+	// Max size is MAXFFCS.
+	// NOTE: Direct access at index `ind` is only safe to do if:
+	// 1) it has just been checked to be less than `numFFC()` or
+	// 2) `getFFC(ind)` or `ensureFFC(ind)` was just called
+	std::vector<ffcdata> ffcs;
+	void ensureFFC(size_t ind);
+	ffcdata& getFFC(size_t ind);
 	word numFFC();
 	void ffcCountMarkDirty();
 	
@@ -119,28 +127,15 @@ struct mapscr
 	byte ffTileHeight(size_t ind) const;
 	void ffTileHeight(size_t ind, byte val);
 	
-	word script_entry;
-	word script_occupancy;
-	word script_exit;
-	
 	byte oceansfx;
 	byte bosssfx;
 	byte secretsfx = 27;
 	byte holdupsfx = 20;
-	
-	// for importing older quests...
-	byte old_cpage;
+
 	int16_t screen_midi = -1;
 	byte lens_layer;
 	byte lens_show, lens_hide;
-	
-	//Currently unused
-	int32_t npcstrings[10];
-	int16_t new_items[10];
-	int16_t new_item_x[10];
-	int16_t new_item_y[10];
-	
-	
+
 	word script;
 	int32_t screeninitd[8];
 	byte preloadscript;
