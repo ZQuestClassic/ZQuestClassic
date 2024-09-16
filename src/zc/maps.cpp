@@ -37,6 +37,7 @@ using std::set;
 #include <fmt/format.h>
 #include "zc/render.h"
 #include "iter.h"
+#include <ranges>
 
 extern HeroClass Hero;
 
@@ -5927,11 +5928,20 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	FFCore.deallocateAllScriptOwnedOfType(ScriptType::Screen);
 	FFCore.deallocateAllScriptOwnedOfType(ScriptType::Combo);
 
+	// Some ffc scripts don't get reset. This set starts with all of them, but
+	// scripts that need their data to persist will be removed from this set.
+	std::set<int> ffc_script_indices_to_remove;
+	for (auto& key : scriptEngineDatas | std::views::keys)
+	{
+		if (key.first == ScriptType::FFC)
+			ffc_script_indices_to_remove.insert(key.second);
+	}
+
 	// Load the origin screen (top-left in region) into tmpscr
-	loadscr_old(0, orig_destdmap, cur_origin_screen_index, ldir, overlay);
+	loadscr_old(0, orig_destdmap, cur_origin_screen_index, ldir, overlay, ffc_script_indices_to_remove);
 	// Store the current tmpscr into special_warp_return_screen, if on a special screen.
 	if (scr >= 0x80)
-		loadscr_old(1, orig_destdmap, homescr, no_x80_dir ? -1 : ldir, overlay);
+		loadscr_old(1, orig_destdmap, homescr, no_x80_dir ? -1 : ldir, overlay, ffc_script_indices_to_remove);
 
 	if (is_z3_scrolling_mode())
 	{
@@ -5959,29 +5969,22 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	cpos_force_update();
 	trig_trigger_groups();
 
+	// TODO z3 ! ffc carryovers?
 	for_every_ffc([&](const ffc_handle_t& ffc_handle) {
 		// Handled in loadscr_old.
 		if (ffc_handle.screen == cur_origin_screen_index)
 			return;
 
+		ffc_script_indices_to_remove.erase(ffc_handle.id);
 		FFCore.reset_script_engine_data(ScriptType::FFC, ffc_handle.id);
 		memset(ffc_handle.ffc->script_misc, 0, 16 * sizeof(int32_t));
 	});
-	// TODO z3 !!!
-	// TODO: this could be improved.
-	for_every_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
-		// Handled in loadscr_old.
-		if (scr->screen == cur_origin_screen_index)
-			return;
 
-		int c = scr->numFFC();
-		for (int i = c; i < MAXFFCS; i++)
-		{
-			int ffc_id = get_region_screen_index_offset(scr->screen)*MAXFFCS + i;
-			FFCore.deallocateAllScriptOwned(ScriptType::FFC, ffc_id, false);
-			FFCore.reset_script_engine_data(ScriptType::FFC, ffc_id);
-		}
-	});
+	for (int index : ffc_script_indices_to_remove)
+	{
+		FFCore.deallocateAllScriptOwned(ScriptType::FFC, index, false);
+		FFCore.reset_script_engine_data(ScriptType::FFC, index);
+	}
 
 	// "extended height mode" includes the top 56 pixels as part of the visible mapscr viewport,
 	// allowing for regions to display 4 more rows of combos (as many as ALTTP does). This part of
@@ -6032,7 +6035,7 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 //      (this is hard)
 //    - do the "overlay" logic (but just for tmpscr, not every single screen in a region) in
 //      load_a_screen_and_layers
-void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool overlay)
+void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool overlay, std::set<int>& ffc_script_indices_to_remove)
 {
 	bool is_setting_special_warp_return_screen = tmp == 1;
 	int32_t destlvl = DMaps[destdmap < 0 ? currdmap : destdmap].level;
@@ -6116,29 +6119,16 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 			if((previous_scr.ffcs[i].flags&ffc_carryover) && !(previous_scr.flags5&fNOFFCARRYOVER))
 			{
 				scr->getFFC(i) = previous_scr.ffcs[i];
-				
+
+				int ffc_id = get_region_screen_index_offset(screen)*MAXFFCS + i;
+				ffc_script_indices_to_remove.erase(ffc_id);
 				if (previous_scr.ffcs[i].flags&ffc_scriptreset)
 				{
-					int ffc_id = get_region_screen_index_offset(screen)*MAXFFCS + i;
 					FFCore.reset_script_engine_data(ScriptType::FFC, ffc_id);
 				}
 			}
-			else
-			{
-				int ffc_id = get_region_screen_index_offset(screen)*MAXFFCS + i;
-				FFCore.deallocateAllScriptOwned(ScriptType::FFC, ffc_id, false);
-				if (scr->ffcs.size() > i)
-					memset(scr->ffcs[i].script_misc, 0, 16 * sizeof(int32_t));
-				FFCore.reset_script_engine_data(ScriptType::FFC, ffc_id);
-			}
 		}
-		// TODO: this could be improved.
-		for (int i = c; i < MAXFFCS; i++)
-		{
-			int ffc_id = get_region_screen_index_offset(screen)*MAXFFCS + i;
-			FFCore.deallocateAllScriptOwned(ScriptType::FFC, ffc_id, false);
-			FFCore.reset_script_engine_data(ScriptType::FFC, ffc_id);
-		}
+
 		for(int32_t i=0; i<6; i++)
 		{
 			mapscr layerscr = tmpscr2[i];

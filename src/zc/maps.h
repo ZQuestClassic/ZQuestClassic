@@ -351,7 +351,7 @@ void load_a_screen_and_layers(int dmap, int map, int screen, int ldir);
 void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay=false, bool no_x80_dir=false);
 void clear_darkroom_bitmaps();
 void loadscr2(int32_t tmp,int32_t scr,int32_t);
-void loadscr_old(int32_t tmp,int32_t destdmap,int32_t scr,int32_t ldir,bool overlay=false);
+void loadscr_old(int32_t tmp,int32_t destdmap,int32_t scr,int32_t ldir,bool overlay, std::set<int>& ffc_script_indices_to_remove);
 void putscr(BITMAP* dest,int32_t x,int32_t y,mapscr* scr);
 void putscrdoors(BITMAP *dest,int32_t x,int32_t y,mapscr* scr);
 bool _walkflag_new(const mapscr* s0, const mapscr* s1, const mapscr* s2, zfix_round zx, zfix_round zy, zfix const& switchblockstate, bool is_temp_screens);
