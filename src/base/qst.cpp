@@ -9785,12 +9785,6 @@ static void guy_update_firesfx(guydata& tempguy)
 				case ewFireball:
 					tempguy.firesfx = WAV_ZN1FIREBALL;
 					break;
-				case ewBrang:
-					tempguy.firesfx = WAV_BRANG;
-					break;
-				case ewBomb:case ewSBomb: case ewLitBomb:case ewLitSBomb:
-					tempguy.firesfx = WAV_BOMB;
-					break;
 				default:
 					tempguy.firesfx = 0;
 					break;
@@ -9834,12 +9828,6 @@ static void guy_update_firesfx(guydata& tempguy)
 			case ewFireball2:
 			case ewFireball:
 				tempguy.firesfx = WAV_ZN1FIREBALL;
-				break;
-			case ewBrang:
-				tempguy.firesfx = WAV_BRANG;
-				break;
-			case ewBomb:case ewSBomb: case ewLitBomb:case ewLitSBomb:
-				tempguy.firesfx = WAV_BOMB;
 				break;
 			default:
 				tempguy.firesfx = 0;
@@ -9907,11 +9895,77 @@ static void guy_update_weaponspecialsfx(guydata& tempguy)
 	}
 }
 
-static void guy_update_toucheffects(guydata& tempguy)
+static void guy_update_effects(guydata& tempguy)
 {
-	tempguy.touch_effect = tempguy.family == eeWALK ? tempguy.attributes[6] : 0;
-	tempguy.touch_strength = tempguy.family == eeWALK ? tempguy.attributes[7] : 0;
+	tempguy.touch_effect = (tempguy.family == eeWALK) ? tempguy.attributes[6] : 0;
+	tempguy.touch_strength = (tempguy.family == eeWALK) ? tempguy.attributes[7] : 0;
 	tempguy.touch_counter=crMONEY;
+
+	if (tempguy.family == eeWALK || tempguy.family == eeKEESE)
+	{
+		tempguy.death_effect = tempguy.attributes[1];
+		tempguy.death_attribute[0] = tempguy.attributes[2];
+		tempguy.death_attribute[1] = (tempguy.family == eeWALK) ? tempguy.attributes[3] : 1;
+		tempguy.death_attribute[2] = (tempguy.family == eeWALK) ? tempguy.attributes[4] : tempguy.attributes[19];
+
+		//Bombchu weapon fix
+		if (tempguy.death_effect == e2tBOMBCHU)
+		{
+			switch (tempguy.weapon)
+			{
+			case ewBomb:
+			case ewSBomb:
+				tempguy.death_attribute[2] = WAV_BOMB;
+				break;
+			default:
+				tempguy.death_attribute[2] = 0;
+				break;
+			}
+		}
+
+		//Fire Octo weapon fix.
+		if (tempguy.death_effect == e2tFIREOCTO)
+		{
+			int16_t wpn2 = tempguy.weapon + tempguy.death_attribute[0];
+			switch (wpn2)
+			{
+			case ewFireTrail:
+			case ewFlame:
+			case ewFlame2Trail:
+			case ewFlame2:
+				tempguy.death_attribute[2] = WAV_FIRE;
+				break;
+			case ewWind:
+			case ewMagic:
+				tempguy.death_attribute[2] = WAV_WAND;
+				break;
+			case ewIce:
+				tempguy.death_attribute[2] = WAV_ZN1ICE;
+				break;
+			case ewRock:
+				tempguy.death_attribute[2] = WAV_ZN1ROCK;
+				break;
+			case ewFireball2:
+			case ewFireball:
+				tempguy.death_attribute[2] = WAV_ZN1FIREBALL;
+				break;
+			default:
+				tempguy.death_attribute[2] = 0; //no need for brangs they cannot be fired this way.
+				break;
+			}
+		}
+
+		//keese tribble fix
+		if (tempguy.family==eeKEESE && tempguy.attributes[1] == e2tKEESETRIB)
+		{
+			tempguy.death_effect = e2tTRIBBLE;
+		}
+	}
+	if (tempguy.family == eeWALK && tempguy.editorflags & ENEMY_FLAG5)
+	{
+		tempguy.flags |= guy_split_in_place;
+		tempguy.editorflags &= ~ENEMY_FLAG5;
+	}
 }
 
 void init_guys(int32_t guyversion)
@@ -9998,7 +10052,7 @@ void init_guys(int32_t guyversion)
 		guy_update_firesfx(guysbuf[i]);
 		guy_update_weaponflags(guysbuf[i]);
 		guy_update_weaponspecialsfx(guysbuf[i]);
-		guy_update_toucheffects(guysbuf[i]);
+		guy_update_effects(guysbuf[i]);
     }
 }
 
@@ -15098,7 +15152,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 					return qe_invalid;
 			}
 			if (guyversion < 54)
-				guy_update_toucheffects(tempguy);
+				guy_update_effects(tempguy);
 			else
 			{
 				if (!p_igetl(&(tempguy.touch_effect), f))
@@ -15107,6 +15161,11 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 					return qe_invalid;
 				if (!p_getc(&(tempguy.touch_counter), f))
 					return qe_invalid;
+				if (!p_igetl(&(tempguy.death_effect), f))
+					return qe_invalid;
+				for(int q=0; q<3;++q)
+					if (!p_igetl(&(tempguy.death_attribute[q]), f))
+						return qe_invalid;
 			}
 
 			if(loading_tileset_flags & TILESET_CLEARSCRIPTS)

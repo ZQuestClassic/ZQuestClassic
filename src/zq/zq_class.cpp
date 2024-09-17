@@ -11615,6 +11615,11 @@ int32_t writeguys(PACKFILE *f, zquestheader *Header)
 				new_return(120);
 			if (!p_putc(guysbuf[i].touch_counter, f))
 				new_return(121);
+			if (!p_iputl(guysbuf[i].death_effect, f))
+				new_return(122);
+			for(int q=0; q<3;++q)
+				if (!p_iputl(guysbuf[i].death_attribute[q], f))
+					new_return(123);
 		}
 		
 		if(writecycle==0)

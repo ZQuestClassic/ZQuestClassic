@@ -38,6 +38,7 @@ enum guy_flags : uint64_t
 	guy_fade_flicker        = LLF(4),
 	guy_fade_instant        = LLF(5),
 	guy_burning_sprites     = LLF(6), // Weapons use burning sprites.
+	guy_split_in_place      = LLF(7), // Enemies split in place.
 	guy_shield_front        = LLF(24), // Invulnerable in the front (relative to direction of movement).
 	guy_shield_left         = LLF(25), // Invulnerable on the left (relative to direction of movement).
 	guy_shield_right        = LLF(26), // Invulnerable on the right (relative to direction of movement).

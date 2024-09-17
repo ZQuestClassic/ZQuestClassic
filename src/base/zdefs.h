@@ -1357,6 +1357,9 @@ struct guydata
 	int32_t touch_effect;
 	int32_t touch_strength;
 	byte touch_counter; //needed for TakeCounter and EatCounter
+	//bitstring eat_items;
+	int32_t death_effect;
+	int32_t death_attribute[3];
 #define ENEMY_FLAG1   0x01
 #define ENEMY_FLAG2   0x02
 #define ENEMY_FLAG3     0x04
