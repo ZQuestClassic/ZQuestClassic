@@ -128,6 +128,9 @@ public:
 	int32_t touch_effect;
 	int32_t touch_strength;
 	byte touch_counter;
+	int32_t death_effect;
+	int32_t death_attribute[3];
+	int32_t tclk; //Tribble Clk
 
 	int32_t getScriptUID();
 	void setScriptUID(int32_t new_id);
@@ -163,6 +166,11 @@ public:
 	// The one with an index is the one that is called by
 	// the guys sprite list; index is the enemy's index in the list.
 	virtual bool animate(int32_t index);
+	virtual void DeathFX();
+	virtual bool TrySplitting(int32_t index);
+	virtual bool TryTribble(int32_t index);
+	virtual void eathero();
+	void update_eathero();
 	virtual bool setSolid(bool set);
 	virtual void solid_push(solid_object* pusher);
 	//Overload to do damage to Hero on pushing them
@@ -264,9 +272,6 @@ public:
 	void tiledir_three(int32_t ndir);
 	void tiledir(int32_t ndir, bool fourdir);
 	void tiledir_big(int32_t ndir, bool fourdir);
-	// EatHero
-	virtual void eathero();
-	void update_eathero();
 	// Enemies that cannot ever be penetrated by weapons
 	bool cannotpenetrate();
 	bool isOnSideviewPlatform(); //This handles large enemies, too!
@@ -585,6 +590,7 @@ public:
 	int32_t clk4, clk5;
 	eKeese(zfix X,zfix Y,int32_t Id,int32_t Clk);                     // : enemy(X,Y,Id,Clk)
 	virtual bool animate(int32_t index);
+	virtual bool TryTribble(int32_t index);
 	virtual void drawshadow(BITMAP *dest, bool translucent);
 	virtual void draw(BITMAP *dest);
 	virtual void init_size_flags();

@@ -571,6 +571,10 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 	touch_effect = d->touch_effect;
 	touch_strength = d->touch_strength;
 	touch_counter = d->touch_counter;
+	death_effect = d->touch_effect;
+	memcpy(death_attribute, d->death_attribute, sizeof(death_attribute));
+	tclk=0;
+	dummy_bool[3] = false; //death effect fired
 }
 
 int32_t enemy::getScriptUID() { return script_UID; }
@@ -1385,6 +1389,145 @@ bool enemy::animate(int32_t index)
 	return Dead(index);
 }
 
+//abstracted from estalfos, overload as necessary.
+void enemy::DeathFX()
+{
+	if (hashero)
+	{
+		Hero.setEaten(0);
+		hashero = false;
+	}
+	if (death_effect == e2tBOMBCHU && (hp <= 0 && !immortal) && hp > -1000)
+	{
+		if (!dummy_bool[3])
+		{
+			hp = -1000; //bombchus die silently
+			int32_t wpn2 = wpn + death_attribute[0];
+
+			if (wpn2 <= wEnemyWeapons || wpn2 >= wMax)
+			{
+				wpn2 = wpn;
+			}
+
+			dummy_bool[3] = true;
+
+			weapon* ew = new weapon(x, y, z, wpn2, 0, death_attribute[1], dir, -1, getUID(), false);
+			Ewpns.add(ew);
+			ew->fakez = fakez;
+
+			if (wpn2 == ewSBomb || wpn2 == ewBomb)
+			{
+				ew->step = 0;
+				ew->id = wpn2;
+				ew->misc = 50;
+				ew->clk = 48;
+				ew->specialsfx = death_attribute[2];
+			}
+		}
+	}
+	else if (wpn && wpn != ewBrang && death_effect == e2tFIREOCTO)  // Fire Octo
+	{
+		if (!dummy_bool[3])
+		{
+			int32_t wpn2 = wpn + death_attribute[0];
+
+			if (wpn2 <= wEnemyWeapons || wpn2 >= wMax)
+			{
+				wpn2 = wpn;
+			}
+
+			dummy_bool[3] = true;
+			addEwpn(x, y, z, wpn2, 0, death_attribute[1], up, getUID(), 0, fakez);
+			((weapon*)(Ewpns.spr(Ewpns.Count() - 1)))->moveflags &= ~move_can_pitfall; //No falling in pits
+			addEwpn(x, y, z, wpn2, 0, death_attribute[1], down, getUID(), 0, fakez);
+			((weapon*)(Ewpns.spr(Ewpns.Count() - 1)))->moveflags &= ~move_can_pitfall; //No falling in pits
+			addEwpn(x, y, z, wpn2, 0, death_attribute[1], left, getUID(), 0, fakez);
+			((weapon*)(Ewpns.spr(Ewpns.Count() - 1)))->moveflags &= ~move_can_pitfall; //No falling in pits
+			addEwpn(x, y, z, wpn2, 0, death_attribute[1], right, getUID(), 0, fakez);
+			((weapon*)(Ewpns.spr(Ewpns.Count() - 1)))->moveflags &= ~move_can_pitfall; //No falling in pits
+			addEwpn(x, y, z, wpn2, 0, death_attribute[1], l_up, getUID(), 0, fakez);
+			((weapon*)(Ewpns.spr(Ewpns.Count() - 1)))->moveflags &= ~move_can_pitfall; //No falling in pits
+			addEwpn(x, y, z, wpn2, 0, death_attribute[1], r_up, getUID(), 0, fakez);
+			((weapon*)(Ewpns.spr(Ewpns.Count() - 1)))->moveflags &= ~move_can_pitfall; //No falling in pits
+			addEwpn(x, y, z, wpn2, 0, death_attribute[1], l_down, getUID(), 0, fakez);
+			((weapon*)(Ewpns.spr(Ewpns.Count() - 1)))->moveflags &= ~move_can_pitfall; //No falling in pits
+			addEwpn(x, y, z, wpn2, 0, death_attribute[1], r_down, getUID(), 0, fakez);
+			((weapon*)(Ewpns.spr(Ewpns.Count() - 1)))->moveflags &= ~move_can_pitfall; //No falling in pits
+			sfx(wpnsfx(death_attribute[2]), pan(int32_t(x)));
+		}
+	}
+}
+bool enemy::TrySplitting(int32_t index)
+{
+	if (((hp <= 0 && !immortal) && death_effect == e2tSPLIT) || (death_effect == e2tSPLITHIT && hp > 0 && hp < guysbuf[id & 0xFFF].hp && !slide() && (sclk & 255) <= 1))  //Split into enemies
+	{
+		stop_bgsfx(index);
+		int32_t kids = guys.Count();
+		int32_t id2 = death_attribute[0];
+		for (int32_t i = 0; i < death_attribute[1]; i++)
+		{
+			if (addenemy(x, y, id2 + (guysbuf[id2].family == eeKEESE ? 0 : ((flags & guy_split_in_place) ? 0 : (i << 12))), -21 - (i % 4)))
+				((enemy*)guys.spr(kids + i))->count_enemy = false;
+		}
+
+		if (itemguy) // Hand down the carried item
+		{
+			guycarryingitem = guys.Count() - 1;
+			((enemy*)guys.spr(guycarryingitem))->itemguy = true;
+			itemguy = false;
+		}
+
+		if (hashero)
+		{
+			Hero.setEaten(0);
+			hashero = false;
+		}
+
+		if (deadsfx > 0 && death_effect == e2tSPLIT)
+			sfx(deadsfx, pan(int32_t(x)));
+
+		return true;
+	}
+	return false;
+}
+bool enemy::TryTribble(int32_t index)
+{
+	if (death_effect != e2tTRIBBLE)
+		return false;
+	++tclk;
+	if (tclk == (death_attribute[2] ? death_attribute[2] : 256) && (death_effect == e2tTRIBBLE) && death_attribute[0] && death_attribute[1])
+	{
+		int32_t kids = guys.Count();
+		int32_t id2 = death_attribute[0];
+
+		for (int32_t i = 0; i < death_attribute[1]; i++)
+		{
+			if (addenemy(x, y, id2, -24))
+			{
+				if (itemguy) // Hand down the carried item
+				{
+					guycarryingitem = guys.Count() - 1;
+					((enemy*)guys.spr(guycarryingitem))->itemguy = true;
+					itemguy = false;
+				}
+
+				((enemy*)guys.spr(kids + i))->count_enemy = false;
+			}
+		}
+
+		if (hashero)
+		{
+			Hero.setEaten(0);
+			hashero = false;
+		}
+
+		stop_bgsfx(index);
+		return true;
+	}
+	return false;
+}
+
+//abstracted from estalfos, 
 void enemy::eathero()
 {
 	if (!hashero && Hero.getEaten() == 0 && Hero.getAction() != hopping && Hero.getAction() != swimming)
@@ -1409,7 +1552,6 @@ void enemy::eathero()
 		clk2 = 0;
 	}
 }
-
 void enemy::update_eathero()
 {
 	if (hashero)
@@ -5364,7 +5506,7 @@ int32_t enemy::slide()
 		}
 		return 0;
 	}
-	if((sclk&255)==16 && (get_qr(qr_OLD_ENEMY_KNOCKBACK_COLLISION) || knockbackSpeed!=4 ? !canmove(sclk>>8,(zfix) (dmisc2==e2tSPLITHIT ? 1 : 12),0,true) : !canmove(sclk>>8,(zfix) (dmisc2==e2tSPLITHIT ? 1 : knockbackSpeed),0,0,0,15,15,true)))
+	if((sclk&255)==16 && (get_qr(qr_OLD_ENEMY_KNOCKBACK_COLLISION) || knockbackSpeed!=4 ? !canmove(sclk>>8,(zfix) (death_effect==e2tSPLITHIT ? 1 : 12),0,true) : !canmove(sclk>>8,(zfix) (death_effect==e2tSPLITHIT ? 1 : knockbackSpeed),0,0,0,15,15,true)))
 	{
 		sclk=0;
 		return 0;
@@ -5376,45 +5518,45 @@ int32_t enemy::slide()
 	{
 		case up:
 		{
-		if(y<=(dmisc2==e2tSPLITHIT ? 0 : (get_qr(qr_OLD_ENEMY_KNOCKBACK_COLLISION)?16:0))) //vires
+		if(y<=(death_effect==e2tSPLITHIT ? 0 : (get_qr(qr_OLD_ENEMY_KNOCKBACK_COLLISION)?16:0))) //vires
 		{
 			sclk=0;
 			return 0;
 		}
-		if ( dmisc2==e2tSPLITHIT && !canmove(sclk>>8,(zfix)(4),0,true) ) { sclk=0; return 0; } //vires
+		if (death_effect==e2tSPLITHIT && !canmove(sclk>>8,(zfix)(4),0,true) ) { sclk=0; return 0; } //vires
 		
 		break;
 		}
 		case down:
 		{
-		if(y>=(dmisc2==e2tSPLITHIT ? 150 : 160)) //was 160 --changed for vires bug. 
+		if(y>=(death_effect==e2tSPLITHIT ? 150 : 160)) //was 160 --changed for vires bug. 
 		{
 			sclk=0;
 			return 0;
 		}
-		if ( dmisc2==e2tSPLITHIT && !canmove(sclk>>8,(zfix)(4),0,true) ) { sclk=0; return 0; } //vires
+		if (death_effect==e2tSPLITHIT && !canmove(sclk>>8,(zfix)(4),0,true) ) { sclk=0; return 0; } //vires
 		
 		break;
 		}
 		case left:
 		{
-		if(x<=(dmisc2==e2tSPLITHIT ? 0 : (get_qr(qr_OLD_ENEMY_KNOCKBACK_COLLISION)?16:0)))
+		if(x<=(death_effect==e2tSPLITHIT ? 0 : (get_qr(qr_OLD_ENEMY_KNOCKBACK_COLLISION)?16:0)))
 		{
 			sclk=0;
 			return 0;
 		}
-		if ( dmisc2==e2tSPLITHIT && !canmove(sclk>>8,(zfix)(4),0,true) ) { sclk=0; return 0; }
+		if (death_effect==e2tSPLITHIT && !canmove(sclk>>8,(zfix)(4),0,true) ) { sclk=0; return 0; }
 		
 		break;
 		}
 		case right:
 		{
-		if(x>=(dmisc2==e2tSPLITHIT ? 255 : 240)) //vires
+		if(x>=(death_effect==e2tSPLITHIT ? 255 : 240)) //vires
 		{
 			sclk=0;
 			return 0;
 		}
-		if ( dmisc2==e2tSPLITHIT && !canmove(sclk>>8,(zfix)(4),0,true) ) { sclk=0; return 0; } //vires
+		if (death_effect==e2tSPLITHIT && !canmove(sclk>>8,(zfix)(4),0,true) ) { sclk=0; return 0; } //vires
 		break;
 		}
 	}
@@ -5489,7 +5631,7 @@ bool enemy::can_slide()
 	if(sclk==0 || (hp<=0 && !immortal))
 		return false;
 		
-	if((sclk&255)==16 && (get_qr(qr_OLD_ENEMY_KNOCKBACK_COLLISION) || knockbackSpeed!=4 ? !canmove(sclk>>8,(zfix) (dmisc2==e2tSPLITHIT ? 1 : 12),0,true) : !canmove(sclk>>8,(zfix) (dmisc2==e2tSPLITHIT ? 1 : knockbackSpeed),0,true)))
+	if((sclk&255)==16 && (get_qr(qr_OLD_ENEMY_KNOCKBACK_COLLISION) || knockbackSpeed!=4 ? !canmove(sclk>>8,(zfix) (death_effect==e2tSPLITHIT ? 1 : 12),0,true) : !canmove(sclk>>8,(zfix) (death_effect==e2tSPLITHIT ? 1 : knockbackSpeed),0,true)))
 	{
 		return false;
 	}
@@ -10656,98 +10798,17 @@ bool eStalfos::animate(int32_t index)
 	{
 		return enemy::animate(index);
 	}
-	if(dying)
+	if (dying)
 	{
-		if (hashero)
-		{
-			Hero.setEaten(0);
-			hashero = false;
-		}
-		if(dmisc9==e9tROPE && dmisc2==e2tBOMBCHU && !fired && (hp<=0 && !immortal) && hp>-1000 && wpn>wEnemyWeapons)
-		{
-			hp=-1000;
-			weapon *ew=new weapon(x,y,z, wpn, 0, dmisc4, dir,-1,getUID(),false);
-			Ewpns.add(ew);
-			ew->fakez = fakez;
-			
-			if(wpn==ewSBomb || wpn==ewBomb)
-			{
-				ew->step=0;
-				ew->id=wpn;
-				ew->misc=50;
-				ew->clk=48;
-			}
-			
-			fired=true;
-		}
-		else if(wpn && wpn!=ewBrang && dmisc2==e2tFIREOCTO)  // Fire Octo
-		{
-			if(!dummy_bool[0])
-			{
-				int32_t wpn2 = wpn+dmisc3;
-				
-				if(wpn2 <= wEnemyWeapons || wpn2 >= wMax)
-				{
-					wpn2=wpn;
-				}
-				
-				dummy_bool[0]=true;
-				addEwpn(x,y,z,wpn2,0,dmisc4,up, getUID(), 0, fakez);
-				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
-				addEwpn(x,y,z,wpn2,0,dmisc4,down, getUID(), 0, fakez);
-				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
-				addEwpn(x,y,z,wpn2,0,dmisc4,left, getUID(), 0, fakez);
-				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
-				addEwpn(x,y,z,wpn2,0,dmisc4,right, getUID(), 0, fakez);
-				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
-				addEwpn(x,y,z,wpn2,0,dmisc4,l_up, getUID(), 0, fakez);
-				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
-				addEwpn(x,y,z,wpn2,0,dmisc4,r_up, getUID(), 0, fakez);
-				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
-				addEwpn(x,y,z,wpn2,0,dmisc4,l_down, getUID(), 0, fakez);
-				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
-				addEwpn(x,y,z,wpn2,0,dmisc4,r_down, getUID(), 0, fakez);
-				((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->moveflags &= ~move_can_pitfall; //No falling in pits
-				sfx(wpnsfx(wpn2),pan(int32_t(x)));
-			}
-		}
-		
+		DeathFX();
 		KillWeapon();
 		return Dead(index);
 	}
 	//vire split
 	//2.10 checked !fslide(), but nothing uses that now anyway. -Z
 	//Perhaps the problem occurs when vires die because they have < 0 HP, in this check?
-	else if(((hp<=0 && !immortal) && dmisc2==e2tSPLIT) || (dmisc2==e2tSPLITHIT && hp>0 && hp<guysbuf[id&0xFFF].hp && !slide() && (sclk&255)<=1))  //Split into enemies
-	{
-		stop_bgsfx(index);
-		int32_t kids = guys.Count();
-		int32_t id2=dmisc3;
-		for(int32_t i=0; i < dmisc4; i++)
-		{
-//	    if (addenemy(x,y,id2+(guysbuf[id2].family==eeKEESE ? 0 : ((i+1)<<12)),-21-(i%4)))
-			if(addenemy(x,y,id2+(guysbuf[id2].family==eeKEESE ? 0 : ((editorflags & ENEMY_FLAG5) ? 0 : (i<<12))),-21-(i%4)))
-				((enemy*)guys.spr(kids+i))->count_enemy = false;
-		}
-		
-		if(itemguy) // Hand down the carried item
-		{
-			guycarryingitem = guys.Count()-1;
-			((enemy*)guys.spr(guycarryingitem))->itemguy = true;
-			itemguy = false;
-		}
-		
-		if(hashero)
-		{
-			Hero.setEaten(0);
-			hashero=false;
-		}
-		
-		if(deadsfx > 0 && dmisc2==e2tSPLIT)
-			sfx(deadsfx,pan(int32_t(x)));
-			
+	else if (TrySplitting(index))  //Split into enemies
 		return true;
-	}
 	/*
 	else if((dmisc2==e2tSPLITHIT && (hp<=0 && !immortal) &&!slide()))  //Possible vires fix; or could cause goodness knows what. -Z
 	{
@@ -10893,18 +10954,18 @@ bool eStalfos::animate(int32_t index)
 				}
 				else if(dmisc9==e9tROPE) //Rope charge
 				{
-					if(!fired && dashing && !stunclk && !watch && !frozenclock)
+					if(!dummy_bool[3] && dashing && !stunclk && !watch && !frozenclock)
 					{
-						if(dmisc2==e2tBOMBCHU && HeroInRange(16) && wpn+dmisc3 > wEnemyWeapons) //Bombchu
+						if(death_effect==e2tBOMBCHU && HeroInRange(16) && wpn+death_attribute[0] > wEnemyWeapons) //Bombchu
 						{
 				
-							if (  get_qr(qr_BOMBCHUSUPERBOMB) ) 
+							if (get_qr(qr_BOMBCHUSUPERBOMB) ) 
 							{
 								hp=-1000;
 										
-								if(wpn+dmisc3 > wEnemyWeapons && wpn+dmisc3 < wMax)
+								if(wpn+death_attribute[2] > wEnemyWeapons && wpn+death_attribute[2] < wMax)
 								{
-								weapon *ew=new weapon(x,y,z, wpn+dmisc3, 0, dmisc4, dir,-1,getUID());
+								weapon *ew=new weapon(x,y,z, wpn + death_attribute[2], 0, death_attribute[1], dir,-1,getUID());
 								Ewpns.add(ew);
 								ew->fakez = fakez;
 								
@@ -10914,13 +10975,14 @@ bool eStalfos::animate(int32_t index)
 									ew->id=wpn+dmisc3;
 									ew->misc=50;
 									ew->clk=48;
+									ew->specialsfx = death_attribute[2];
 								}
 								
-								fired=true;
+								dummy_bool[3]=true;
 								}
 								else
 								{
-								weapon *ew=new weapon(x,y,z, wpn, 0, dmisc4, dir,-1,getUID());
+								weapon *ew=new weapon(x,y,z, wpn, 0, death_attribute[1], dir,-1,getUID());
 								Ewpns.add(ew);
 								ew->fakez = fakez;
 								
@@ -10930,36 +10992,15 @@ bool eStalfos::animate(int32_t index)
 									ew->id=wpn;
 									ew->misc=50;
 									ew->clk=48;
+									ew->specialsfx = death_attribute[2];
 								}
 								
 								fired=true;
 								}
 							}
 							
-							else
-							{
-								hp=-1000;
-								
-								int32_t wpn2;
-								if(wpn+dmisc3 > wEnemyWeapons && wpn+dmisc3 < wMax)
-								wpn2=wpn;
-								else
-								wpn2=wpn;
-								
-								weapon *ew=new weapon(x,y,z, wpn2, 0, dmisc4, dir,-1,getUID());
-								Ewpns.add(ew);
-								ew->fakez = fakez;
-								
-								if(wpn2==ewSBomb || wpn2==ewBomb)
-								{
-								ew->step=0;
-								ew->id=wpn2;
-								ew->misc=50;
-								ew->clk=48;
-								}
-								
-								fired=true;
-							}
+							else //just run deathFX
+								DeathFX();
 						}
 					}
 					
@@ -10980,7 +11021,7 @@ bool eStalfos::animate(int32_t index)
 					}
 					else if(dmisc9==e9tNORMAL && wpn==0)
 					{
-						if(dmisc2==e2tSPLITHIT) // Zol
+						if(death_effect==e2tSPLITHIT) // Zol
 						{
 							halting_walk(rate,homing,0,hrate,(zc_oldrand()&7)<<4);
 						}
@@ -11241,39 +11282,8 @@ bool eStalfos::animate(int32_t index)
 		--timer;
 	}
 	
-	if(dmisc2==e2tTRIBBLE)
-		++clk4;
-		
-	if(clk4==(dmisc5 ? dmisc5 : 256) && (dmisc2==e2tTRIBBLE) && dmisc3 && dmisc4)
-	{
-		int32_t kids = guys.Count();
-		int32_t id2=dmisc3;
-		
-		for(int32_t i=0; i<dmisc4; i++)
-		{
-			if(addenemy(x,y,id2,-24))
-			{
-				if(itemguy) // Hand down the carried item
-				{
-					guycarryingitem = guys.Count()-1;
-					((enemy*)guys.spr(guycarryingitem))->itemguy = true;
-					itemguy = false;
-				}
-				
-				((enemy*)guys.spr(kids+i))->count_enemy = false;
-			}
-		}
-		
-		if(hashero)
-		{
-			Hero.setEaten(0);
-			hashero=false;
-		}
-		
-		stop_bgsfx(index);
+	if (death_effect == e2tTRIBBLE && TryTribble(index))
 		return true;
-	}
-	
 	return enemy::animate(index);
 }
 
@@ -11377,7 +11387,7 @@ int32_t eStalfos::takehit(weapon *w, weapon* realweap)
 	
 	int32_t ret = enemy::takehit(w,realweap);
 	
-	if(sclk && dmisc2==e2tSPLITHIT)
+	if(sclk && death_effect==e2tSPLITHIT)
 		sclk+=128; //Fuck these arbitrary values with no explanation. Fuck vires, too. -Z
 		
 	return ret;
@@ -11446,7 +11456,7 @@ void eStalfos::vire_hop()
 	{
 		if(sclk!=0)
 		{
-			if (dmisc2==e2tSPLITHIT) return;
+			if (death_effect==e2tSPLITHIT) return;
 			//return;
 		}
 	}
@@ -11617,38 +11627,8 @@ bool eKeese::animate(int32_t index)
 		else floater_walk(rate,hrate,dstep/100,dstep/1000,10,dmisc16,dmisc17);
 	}
 	
-	if(dmisc2 == e2tKEESETRIB)
-	{
-		if(++clk4==(dmisc20>0?dmisc20:256))
-		{
-			if(!m_walkflag(x,y,0, dir))
-			{
-				int32_t kids = guys.Count();
-				bool success = false;
-				int32_t id2=dmisc3;
-				success = 0 != addenemy((zfix)x,(zfix)y,id2,-24);
-				
-				if(success)
-				{
-					if(itemguy) // Hand down the carried item
-					{
-						guycarryingitem = guys.Count()-1;
-						((enemy*)guys.spr(guycarryingitem))->itemguy = true;
-						itemguy = false;
-					}
-					
-					((enemy*)guys.spr(kids))->count_enemy = count_enemy;
-				}
-				
-				stop_bgsfx(index);
-				return true;
-			}
-			else
-			{
-				clk4=0;
-			}
-		}
-	}
+	if (death_effect == e2tTRIBBLE)
+		TryTribble(index);
 	// Keese Tribbles stay on the ground, so there's no problem when they transform.
 	else if(get_qr(qr_ENEMIESZAXIS) && !(isSideViewGravity()))
 	{
@@ -11687,6 +11667,49 @@ bool eKeese::animate(int32_t index)
 	}
 	
 	return enemy::animate(index);
+}
+
+bool eKeese::TryTribble(int32_t index) //override default routine
+{
+	if (++tclk == (death_attribute[2] > 0 ? death_attribute[2] : 256))
+	{
+		if (!m_walkflag(x, y, 0, dir))
+		{
+			int32_t kids = guys.Count();
+			bool success = false;
+			int32_t id2 = death_attribute[0];
+			success = 0 != addenemy((zfix)x, (zfix)y, id2, -24);
+
+			for (int32_t i = 0; i < death_attribute[1]; i++)
+			{
+				if (success)
+				{
+					if (itemguy) // Hand down the carried item
+					{
+						guycarryingitem = guys.Count() - 1;
+						((enemy*)guys.spr(guycarryingitem))->itemguy = true;
+						itemguy = false;
+					}
+
+					((enemy*)guys.spr(kids + i))->count_enemy = false;
+				}
+			}
+
+			if (hashero)
+			{
+				Hero.setEaten(0);
+				hashero = false;
+			}
+
+			stop_bgsfx(index);
+			return true;
+		}
+		else
+		{
+			tclk = 0;
+		}
+	}
+	return false;
 }
 
 void eKeese::drawshadow(BITMAP *dest, bool translucent)
