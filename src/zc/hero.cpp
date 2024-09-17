@@ -21986,14 +21986,12 @@ void HeroClass::checkchest(int32_t type)
 	{
 		if(get_qr(qr_OLD_CHEST_COLLISION))
 		{
-			// TODO z3 ! revert changes within, gate z3 o nthis QR off
 			oldcheckchest(type);
 			return;
 		}
 	}
 	if(islockblock && get_qr(qr_OLD_LOCKBLOCK_COLLISION))
 	{
-		// TODO z3 ! revert changes within, gate z3 on this QR off
 		if(type == cLOCKBLOCK)
 			oldchecklockblock();
 		else if(type == cBOSSLOCKBLOCK)
