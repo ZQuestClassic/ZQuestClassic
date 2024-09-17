@@ -21,7 +21,7 @@ class EnemyEditorDialog : public GUI::Dialog<EnemyEditorDialog>
 {
 public:
 	enum class message {
-		REFR_INFO, ENEMYTYPE, SETALLDEFENSE, OK, CANCEL, CLEAR, DEFAULT, WARNINGS
+		REFR_INFO, ENEMYTYPE, SETALLDEFENSE, SETDEATHFX, SETTOUCHFX, OK, CANCEL, CLEAR, DEFAULT, WARNINGS
 	};
 
 

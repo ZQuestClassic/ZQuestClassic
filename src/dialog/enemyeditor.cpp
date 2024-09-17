@@ -273,20 +273,30 @@ static const GUI::ListData list_null
 	{"NOPE",0},
 };
 
-static const GUI::ListData list_spawntype
+static const GUI::ListData list_spawnanimation
 {
 	{"Puff",0},
 	{"Flicker",1},
 	{"Instant",2},
 };
 
-static const GUI::ListData list_deathtype
+static const GUI::ListData list_deathanimation
 {
 	{"Normal",0},
 	{"Explode",1},
 	{"Eight Shards",2}, //Ganon
 	{"Robot Master",3}, //Megaman
 	{"Disintegrate",4}, //BS GANON
+};
+
+static const GUI::ListData list_deathtype
+{
+	{"None",0},
+	{"Split on Hit",1},
+	{"Split on Death",2},
+	{"8 Shots",3},
+	{"Bomchu",4},
+	{"Tribble",5},
 };
 
 static const GUI::ListData list_touchtype
@@ -406,16 +416,16 @@ void EnemyEditorDialog::loadEnemyType()
 		case eeWALK:
 		{
 			l_attribute[0] = "Shot Type:";
-			l_attribute[1] = "Death Type:";
-			l_attribute[2] = "Death Attr. 1:";
-			l_attribute[3] = "Death Attr. 2:";
-			l_attribute[4] = "Death Attr. 3:";
+			l_attribute[1] = "Unused";
+			l_attribute[2] = "Summoned Enemy ID";
+			l_attribute[3] = "Summoned Enemy Count";
+			l_attribute[4] = "Unused";
 			l_attribute[5] = "Extra Shots:";
 			l_attribute[6] = "Unused";
 			l_attribute[7] = "Unused";
 			l_attribute[8] = "Walk Style:";
 			l_attribute[9] = "Walk Attribute:";
-			l_bflag[4] = "Split in Place";
+			l_bflag[4] = "Ropes trigger death effect when charging near player.";
 			break;
 		}
 		case eeGLEEOK:
@@ -490,8 +500,8 @@ void EnemyEditorDialog::loadEnemyType()
 		case eePROJECTILE:
 		{
 			l_attribute[0] = "Shot Type:";
-			l_attribute[2] = "Shot Attribute 1:";
-			l_attribute[3] = "Shot Attribute 2:";
+			l_attribute[2] = "Summoned Enemy ID";
+			l_attribute[3] = "Summoned Enemy Count";
 			break;
 		}
 		case eeGHOMA:
@@ -551,15 +561,15 @@ void EnemyEditorDialog::loadEnemyType()
 		case eeKEESE:
 		{
 			l_attribute[0] = "Walk Style:";
-			l_attribute[1] = "Death Type:";
-			l_attribute[2] = "Enemy Id:";
+			l_attribute[1] = "Unused:";
+			l_attribute[2] = "Unused:";
 			l_attribute[13] = "Landing Chance (1/N):",
 			l_attribute[14] = "Landing Cooldown:",
 			l_attribute[15] = "Halt Duration:";
 			l_attribute[16] = "Acceleration Frame Interval";
 			l_attribute[17] = "Acceleration Step Modifier:";
 			l_attribute[18] = "Spawn Step:";
-			l_attribute[19] = "Tribble Timer";
+			l_attribute[19] = "Unused";
 			break;
 		}
 		case eeTEK:
@@ -590,13 +600,11 @@ void EnemyEditorDialog::loadEnemyType()
 		case eeROCK:
 		{
 			l_attribute[9] = "Size:";
-			
 			break;
 		}
 		case eeNONE:
 		{
 			l_attribute[9] = "Boss Death Trigger:";
-
 			break;
 		}
 		case eeGHINI: case eePEAHAT: //TODO DEPRECIATE ME
@@ -865,7 +873,77 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::WeaponMoveFlag(move_flags index,
 	);
 }
 
-//Effects Tab
+//Effects Tab yeah its just string definitions
+
+static std::string deathtypeinfo[e2tLAST] =
+{
+	{"DISABLED"},
+	{"The enemy will split on hit if it takes damage less then it's max health."},
+	{"The enemy will split on death."},
+	{"The enemy will fire a projectile in 8 directions on death."},
+	{"The enemy will explode on death."},
+	{"After a certain number of frames the enemy will transform into another enemy."}
+};
+
+static std::string deathattrinfo1[e2tLAST] =
+{
+	{"DISABLED"},
+	{"Enemy ID"},
+	{"Enemy ID"},
+	{"WeaponID Offset: This is added to the enemies weapon"},
+	{"WeaponID Offset: This is added to the enemies weapon"},
+	{"Enemy ID"}
+};
+
+static std::string deathattrinfo2[e2tLAST] =
+{
+	{"DISABLED"},
+	{"Number of Enemies to spawn"},
+	{"Number of Enemies to spawn"},
+	{"Weapon Power"},
+	{"Weapon Power"},
+	{"Number of Enemies to spawn"},
+};
+
+static std::string deathattrinfo3[e2tLAST] =
+{
+	{"DISABLED"},
+	{"DISABLED"},
+	{"DISABLED"},
+	{"Weapon SFX"},
+	{"Weapon SFX"},
+	{"Time before tribbling into the other enemy."},
+};
+
+static std::string touchtypeinfo[e7tLAST] =
+{
+	{"The touch effect used by the enemy"},
+	{"The player will be jinxed for 150 frames."},
+	{"The player will be permantly jixed."},
+	{"The player will be unjinxed"},
+	{"The player's magic meter will be decreased."},
+	{"The specified counter will be be decreased."},
+	{"The player's input will be interfered with for the specified duration."},
+	{"The player is engulfed and edible items can be destroyed."},
+	{"The player is engulfed and magic meter is drained."},
+	{"The player is engulfed and the specified counter is drained."},
+	{"The player is engulfed and player is continuously hurt. \nWeapon Damage determines the damage value."},
+};
+
+static std::string touchstrengthinfo[e7tLAST] =
+{
+	{"DISABLED"},
+	{"Jinx Type: Sword = 1, Item = 2, Shield = 4.\nYou can combine these with addition. Other values are undefined." },
+	{"Jinx Type: Sword = 1, Item = 2, Shield = 4.\nYou can combine these with addition. Other values are undefined." },
+	{"Jinx Type: Sword = 1, Item = 2, Shield = 4.\nYou can combine these with addition. Other values are undefined." },
+	{"DISABLED"},
+	{"The specified counter will be be decreased."},
+	{"The player's input will be interfered with for the specified duration."},
+	{"Time in frames before edible items are destroyed. 95 if 0"},
+	{"Frequency of the magic meter being drained. 95 if 0"},
+	{"Frequency of the specified counter being drained, 95 if 0"},
+	{"DISABLED"},
+};
 
 //Script Tab
 
@@ -988,9 +1066,6 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 		ddl_attributes[0]->setSelectedValue(local_guyref.attributes[0]);
 		ddl_attributes[0]->setListData(list_walkmisc1);
 		sw_attributes[0]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
-		ddl_attributes[1]->setSelectedValue(local_guyref.attributes[1]);
-		ddl_attributes[1]->setListData(list_walkmisc2);
-		sw_attributes[1]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
 		ddl_attributes[8]->setSelectedValue(local_guyref.attributes[8]);
 		ddl_attributes[8]->setListData(list_walkmisc9);
 		sw_attributes[8]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
@@ -1093,12 +1168,6 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 		ddl_attributes[0]->setSelectedValue(local_guyref.attributes[0]);
 		ddl_attributes[0]->setListData(list_keesemisc1);
 		sw_attributes[0]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
-		ddl_attributes[1]->setSelectedValue(local_guyref.attributes[1]);
-		ddl_attributes[1]->setListData(list_keesemisc2);
-		sw_attributes[1]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
-		ddl_attributes[2]->setSelectedValue(local_guyref.attributes[2]);
-		ddl_attributes[2]->setListData(list_enemies);
-		sw_attributes[2]->switchTo(1);  // change this 1 to a constant representing the dropdown spot in the switcher
 		break;
 	case eeLEV:
 		ddl_attributes[0]->setSelectedValue(local_guyref.attributes[0]);
@@ -1401,6 +1470,7 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 					GuyFlag(guy_never_return, "Never Returns After Death"),
 					GuyFlag(guy_doesnt_count, "Doesn't Count as Beatable Enemy"),
 					GuyFlag(guy_ignore_kill_all, "Ignores 'Kill All Enemies' effects"),
+					GuyFlag(guy_split_in_place, "The enemy"),
 					GuyFlag(guy_lens_only, "Can Only Be Seen By Lens of Truth"),
 					GuyFlag(guy_flashing, "Is Flashing"),
 					GuyFlag(guy_blinking, "Is Flickering"),
@@ -1682,7 +1752,7 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 			ptr = &guy_tabs[12],
 			TabRef(name = "Basic", Column(
 				Frame(title = "Sprites", hAlign = 1.0, fitParent = true,
-					Rows<2>(hAlign = 1.0, rowSpacing=0.5_em,
+					Rows<2>(hAlign = 1.0, rowSpacing = 0.5_em,
 						Label(text = "Shadow Sprite:", hAlign = 1.0, rightPadding = 0_px),
 						DropDownField(&local_guyref.spr_shadow, list_sprites),
 						//
@@ -1708,29 +1778,82 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 				Frame(title = "Animation", hAlign = 1.0, fitParent = true,
 					Rows<2>(
 						Label(text = "Spawn Animation:", hAlign = 1.0, rightPadding = 0_px),
-						DropDownField(&spawn_type, list_spawntype)
+						DropDownField(&spawn_type, list_spawnanimation)
 					)
 				)
 			)),
 			TabRef(name = "Special", Column(
-
-				Frame(title = "Touch Effects", hAlign = 1.0, fitParent = true,
-					Rows<3>(hAlign = 1.0, rowSpacing = 0.5_em,
-						Label(text = "Touch Effect", hAlign = 1.0, rightPadding = 0_px),
-						DropDownField(&local_guyref.touch_effect, list_touchtype),
-						INFOBTN("The effect that happens when the player touches the enemy."),
-						//
-						Label(text = "Touch Strength", hAlign = 1.0, rightPadding = 0_px),
-						NumberField(&local_guyref.touch_strength,-999999,999999,7,false),
-						INFOBTN("Jinx: 1=sword, 2=item, 4=shield."
-							"\nTake: How much of the touch counter to take."
-							"\nEat: How long until the effect happens."
-							"\nDrunk: How much to increment the drunk clk."),
-						//
-						Label(text = "Touch Counter", hAlign = 1.0, rightPadding = 0_px),
-						DropDownField(&local_guyref.touch_counter, list_counters_nn),
-						INFOBTN("This counter will be used for the TakeCounter and EatCounter touch effects.")
-					)
+				Rows<3>(hAlign = 1.0, rowSpacing = 0.5_em,
+					Label(text = "Death Effect:", hAlign = 1.0, rightPadding = 0_px),
+					Button(forceFitH = true, text = "?",
+						onClick = message::REFR_INFO,
+						disabled = false,
+						onPressFunc = [=]()
+						{
+							displayinfo("Death Effect", touchtypeinfo[local_guyref.death_effect]);
+						}),
+					DropDownList(
+						data = list_deathtype,
+						hAlign = 0.0,
+						selectedValue = local_guyref.death_effect,
+						fitParent = true,
+						onSelectionChanged = message::SETDEATHFX
+					),
+					//
+					Label(text = "Death Attr 1:", hAlign = 1.0, rightPadding = 0_px),
+					Button(forceFitH = true, text = "?",
+						onClick = message::REFR_INFO,
+						onPressFunc = [=]()
+						{
+							displayinfo("Death Attribute 1:", deathattrinfo1[local_guyref.death_effect]);
+						}),
+					NumberField(&local_guyref.death_attribute[0], -999999, 999999, 7, false),
+					Label(text = "Death Attr. 1", hAlign = 1.0, rightPadding = 0_px),
+					Button(forceFitH = true, text = "?",
+						onClick = message::REFR_INFO,
+						onPressFunc = [=]()
+						{
+							displayinfo("Death Attribute 2:", deathattrinfo2[local_guyref.death_effect]);
+						}),
+					NumberField(&local_guyref.death_attribute[1], -999999, 999999, 7, false),
+					Label(text = "Death Attribute 2", hAlign = 1.0, rightPadding = 0_px),
+					Button(forceFitH = true, text = "?",
+						onClick = message::REFR_INFO,
+						disabled = true,
+						onPressFunc = [=]()
+						{
+							displayinfo("Death Attribute 3:", deathattrinfo3[local_guyref.death_effect]);
+						}),
+					NumberField(&local_guyref.death_attribute[2], -999999, 999999, 7, false),
+					//
+					Label(text = "Touch Effect:", hAlign = 1.0, rightPadding = 0_px),
+					Button(forceFitH = true, text = "?",
+						onClick = message::REFR_INFO,
+						disabled = true,
+						onPressFunc = [=]()
+						{
+							displayinfo("Touch Effect", touchtypeinfo[local_guyref.touch_effect]);
+						}),
+					DropDownList(
+						data = list_touchtype,
+						hAlign = 0.0,
+						selectedValue = local_guyref.touch_effect,
+						fitParent = true,
+						onSelectionChanged = message::SETTOUCHFX
+					),//
+					Label(text = "Touch Strength:", hAlign = 1.0, rightPadding = 0_px),
+					Button(forceFitH = true, text = "?",
+						onClick = message::REFR_INFO,
+						disabled = true,
+						onPressFunc = [=]()
+						{
+							displayinfo("Touch Strength", touchstrengthinfo[local_guyref.touch_strength]);
+						}),
+					NumberField(&local_guyref.touch_strength,-999999,999999,7,false),
+					//
+					Label(text = "Touch Counter", hAlign = 1.0, rightPadding = 0_px),
+					INFOBTN("This counter will be used for the TakeCounter and EatCounter touch effects."),
+					DropDownField(&local_guyref.touch_counter, list_counters_nn)
 				)
 			))
 		))
@@ -1869,6 +1992,20 @@ bool EnemyEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 	{
 		for (int q = 0; q < edefLAST255; ++q)
 			local_guyref.defense[q] = local_guyref.defense[edefBRANG];
+		loadEnemyType();
+		rerun_dlg = true;
+		return true;
+	}
+	case message::SETDEATHFX:
+	{
+		local_guyref.death_effect = int32_t(msg.argument);
+		loadEnemyType();
+		rerun_dlg = true;
+		return true;
+	}
+	case message::SETTOUCHFX:
+	{
+		local_guyref.touch_effect = int32_t(msg.argument);
 		loadEnemyType();
 		rerun_dlg = true;
 		return true;
