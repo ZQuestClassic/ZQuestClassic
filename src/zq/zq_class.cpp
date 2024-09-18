@@ -4783,13 +4783,8 @@ void zmap::PasteFFCombos(mapscr& copymapscr)
 {
     if(can_paste)
     {
-		word c = copymapscr.numFFC();
-        for(word i=0; i<c; i++)
-            screens[currscr].ffcs[i] = copymapscr.ffcs[i];
-		for(word i = c; i < MAXFFCS; ++i)
-			screens[currscr].ffcs[i].clear();
+		screens[currscr].ffcs = copymapscr.ffcs;
 		screens[currscr].ffcCountMarkDirty();
-        
         saved=false;
     }
 }
