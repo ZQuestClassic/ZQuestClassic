@@ -2176,8 +2176,8 @@ void scriptLocationReport()
             sc=m*MAPSCRS+s;
             ts=&TheMaps[sc];
             
-			word c = ts->numFFC();
-            for(word i=0; i<c; i++)
+			word num_ffcs = ts->numFFC();
+            for(word i=0; i<num_ffcs; i++)
             {
                 int32_t script = ts->ffcs[i].script;
                 

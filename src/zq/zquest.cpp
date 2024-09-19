@@ -9973,14 +9973,14 @@ void domouse()
 			}
 			
 			mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
-			if(unsigned(num_ffcs) < 176 && draw_mapscr && !gui_mouse_b())
+			if(unsigned(c) < 176 && draw_mapscr && !gui_mouse_b())
 			{
-				int cid = draw_mapscr->data[num_ffcs];
+				int cid = draw_mapscr->data[c];
 				newcombo const& cmb = combobuf[cid];
 				std::ostringstream oss;
-				int cs = draw_mapscr->cset[num_ffcs];
-				int sflag = draw_mapscr->sflag[num_ffcs];
-				oss << "Pos: " << num_ffcs
+				int cs = draw_mapscr->cset[c];
+				int sflag = draw_mapscr->sflag[c];
+				oss << "Pos: " << c
 					<< "\nCombo: " << cid
 					<< "\nCSet: " << cs;
 				if(sflag || cmb.flag)
