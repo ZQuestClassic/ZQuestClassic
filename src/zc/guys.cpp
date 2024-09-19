@@ -1780,7 +1780,24 @@ void enemy::FireBreath(bool seekhero)
 	}
 	
 	float fire_angle=0.0;
-	int32_t wx=0, wy=0, wdir=dir;
+	int32_t wx=0, wy=0, wdir=dir, xoff=0, yoff=0;
+
+	if (SIZEflags & OVERRIDE_HIT_WIDTH)
+	{
+		xoff += hxofs;
+		if (weapoverrideFLAGS & OVERRIDE_HIT_WIDTH)
+			xoff += (hit_width / 2) - (weap_tilew * 8);
+		else
+			xoff += (hit_width / 2) - 8;
+	}
+	if (SIZEflags & OVERRIDE_HIT_HEIGHT)
+	{
+		yoff += hyofs;
+		if (weapoverrideFLAGS & OVERRIDE_HIT_HEIGHT)
+			yoff += (hit_height / 2) - (weap_tileh * 8);
+		else
+			yoff += (hit_height / 2) - 8;
+	}
 	
 	if(!seekhero)
 	{
@@ -1830,7 +1847,7 @@ void enemy::FireBreath(bool seekhero)
 		wy = y;
 	}
 	
-	addEwpn(wx,wy,z,wpn,2,wdp,seekhero ? 0xFF : wdir, getUID(), 0, fakez);
+	addEwpn(wx+xoff,wy+yoff,z,wpn,2,wdp,seekhero ? 0xFF : wdir, getUID(), 0, fakez);
 	sfx(wpnsfx(wpn),pan(int32_t(x)));
 	
 	int32_t i=Ewpns.Count()-1;
@@ -1874,15 +1891,21 @@ void enemy::FireWeapon()
 	
 	int32_t xoff = 0;
 	int32_t yoff = 0;
-	if ( SIZEflags&OVERRIDE_HIT_WIDTH )
+	if (SIZEflags & OVERRIDE_HIT_WIDTH)
 	{
-		xoff += (hit_width/2)-8;   
-		//Z_scripterrlog("width flag enabled. xoff = %d\n", xoff);
+		xoff += hxofs;
+		if (weapoverrideFLAGS & OVERRIDE_HIT_WIDTH)
+			xoff += (hit_width / 2) - (weap_tilew * 8);
+		else
+			xoff += (hit_width / 2) - 8;
 	}
-	if ( SIZEflags&OVERRIDE_HIT_HEIGHT )
+	if (SIZEflags & OVERRIDE_HIT_HEIGHT)
 	{
-		yoff += (hit_height/2)-8;   
-		//Z_scripterrlog("width flag enabled. yoff = %d\n", yoff);
+		yoff += hyofs;
+		if (weapoverrideFLAGS & OVERRIDE_HIT_HEIGHT)
+			yoff += (hit_height / 2) - (weap_tileh * 8);
+		else
+			yoff += (hit_height / 2) - 8;
 	}
 		
 	switch(dmisc1)
@@ -15934,15 +15957,21 @@ void ePatra::FirePatraWeapon()
 { //.707
 	int32_t xoff = 0;
 	int32_t yoff = 0;
-	if ( SIZEflags&OVERRIDE_HIT_WIDTH )
+	if (SIZEflags & OVERRIDE_HIT_WIDTH)
 	{
-		xoff += (hit_width/2)-8;   
-		//Z_scripterrlog("width flag enabled. xoff = %d\n", xoff);
+		xoff += hxofs;
+		if (weapoverrideFLAGS & OVERRIDE_HIT_WIDTH)
+			xoff += (hit_width / 2) - (weap_tilew * 8);
+		else
+			xoff += (hit_width / 2) - 8;
 	}
-	if ( SIZEflags&OVERRIDE_HIT_HEIGHT )
+	if (SIZEflags & OVERRIDE_HIT_HEIGHT)
 	{
-		yoff += (hit_height/2)-8;   
-		//Z_scripterrlog("width flag enabled. yoff = %d\n", yoff);
+		yoff += hyofs;
+		if (weapoverrideFLAGS & OVERRIDE_HIT_HEIGHT)
+			yoff += (hit_height / 2) - (weap_tileh * 8);
+		else
+			yoff += (hit_height / 2) - 8;
 	}
 	sfx(wpnsfx(wpn),pan(int32_t(x)));
 	switch (dmisc28)

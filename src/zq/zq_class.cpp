@@ -2663,8 +2663,8 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 	
 	_zmap_drawlayer(dest, x, y, layers[1], antiflags, basescr->layeropacity[1-1]!=255, true, HL_LAYER(1));
 	
-	int c = basescr->numFFC();
-	for(int32_t i=c-1; i>=0; i--)
+	int num_ffcs = basescr->numFFC();
+	for(int32_t i=num_ffcs-1; i>=0; i--)
 	{
 		if(basescr->ffcs[i].data)
 		{
@@ -2863,7 +2863,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 	}
 	_zmap_drawlayer(dest, x, y, layers[5], antiflags, basescr->layeropacity[5-1]!=255, true, HL_LAYER(5));
 	
-	for(int32_t i=c-1; i>=0; i--)
+	for(int32_t i=num_ffcs-1; i>=0; i--)
 	{
 		if(basescr->ffcs[i].data)
 		{
@@ -2891,7 +2891,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 	
 	_zmap_drawlayer(dest, x, y, layers[6], antiflags, basescr->layeropacity[6-1]!=255, true, HL_LAYER(6));
 	
-	for(int32_t i=c-1; i>=0; i--)
+	for(int32_t i=num_ffcs-1; i>=0; i--)
 		if(basescr->ffcs[i].data)
 			if(basescr->ffcs[i].flags&ffc_changer)
 				putpixel(dest,(basescr->ffcs[i].x.getInt())+x,(basescr->ffcs[i].y.getInt())+y,vc(zc_oldrand()%16));
@@ -2908,7 +2908,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 				for(int32_t i=0; i<176; i++)
 					put_walkflags(dest,((i&15)<<4)+x,(i&0xF0)+y,layers[k+1]->data[i], 0);
 		}
-		for(int32_t i=c-1; i>=0; i--)
+		for(int32_t i=num_ffcs-1; i>=0; i--)
 		{
 			if(auto data = basescr->ffcs[i].data)
 			{
@@ -4764,13 +4764,8 @@ void zmap::PasteFFCombos(mapscr& copymapscr)
 {
     if(can_paste)
     {
-		word c = copymapscr.numFFC();
-        for(word i=0; i<c; i++)
-            screens[currscr].ffcs[i] = copymapscr.ffcs[i];
-		for(word i = c; i < MAXFFCS; ++i)
-			screens[currscr].ffcs[i].clear();
+		screens[currscr].ffcs = copymapscr.ffcs;
 		screens[currscr].ffcCountMarkDirty();
-        
         saved=false;
     }
 }
@@ -14278,8 +14273,8 @@ void zmap::prv_secrets(bool high16only)
     }
     
     //FFCs
-	word c = s->numFFC();
-    for(word i=0; i<c; ++i)
+	word num_ffcs = s->numFFC();
+    for(word i=0; i<num_ffcs; ++i)
     {
         if(!high16only)
         {

@@ -5457,8 +5457,8 @@ void draw_screenunit(int32_t unit, int32_t flags)
 			if(ShowFFCs)
 			{
 				mapscr* ffscr = prv_mode?Map.get_prvscr():Map.CurrScr();
-				int c = ffscr->numFFC();
-				for(int32_t i=c-1; i>=0; i--)
+				int num_ffcs = ffscr->numFFC();
+				for(int32_t i=num_ffcs-1; i>=0; i--)
 				{
 					ffcdata& ff = ffscr->ffcs[i];
 					if(ff.data !=0 && (CurrentLayer<2 || (ff.flags&ffc_overlay)))
@@ -6571,8 +6571,8 @@ void refresh(int32_t flags, bool update)
 		
 		if(ShowFFScripts && !prv_mode)
 		{
-			word c = Map.CurrScr()->numFFC();
-			for(word i=0; i< c; i++)
+			word num_ffcs = Map.CurrScr()->numFFC();
+			for(word i=0; i< num_ffcs; i++)
 			{
 				if(ypos+showfont_h-1 > map_page_bar[0].y)
 					break;
@@ -6839,8 +6839,8 @@ void refresh(int32_t flags, bool update)
 		
 		bool undercombo = false, warpa = false, warpb = false, warpc = false, warpd = false, warpr = false;
 		
-		word maxffc = Map.CurrScr()->numFFC();
-		for(int32_t c=0; c<176+128+1+maxffc; ++c)
+		word num_ffcs = Map.CurrScr()->numFFC();
+		for(int32_t c=0; c<176+128+1+num_ffcs; ++c)
 		{
 			// Checks both combos, secret combos, undercombos and FFCs
 			//Fixme:
@@ -9922,8 +9922,8 @@ void domouse()
 	{
 		static int mapscr_tooltip_id = ttip_register_id();
 		bool did_ffttip = false;
-		int c = Map.CurrScr()->numFFC();
-		for(int32_t i=c-1; i>=0; i--)
+		int num_ffcs = Map.CurrScr()->numFFC();
+		for(int32_t i=num_ffcs-1; i>=0; i--)
 			if(Map.CurrScr()->ffcs[i].data !=0 && (CurrentLayer<2 || (Map.CurrScr()->ffcs[i].flags&ffc_overlay)))
 			{
 				int32_t ffx = Map.CurrScr()->ffcs[i].x.getFloor();
@@ -10498,8 +10498,8 @@ void domouse()
 				}
 				
 				// Move FFCs
-				int c = Map.CurrScr()->numFFC();
-				for(int32_t i=c-1; i>=0; i--)
+				int num_ffcs = Map.CurrScr()->numFFC();
+				for(int32_t i=num_ffcs-1; i>=0; i--)
 					if(Map.CurrScr()->ffcs[i].data !=0 && (CurrentLayer<2 || (Map.CurrScr()->ffcs[i].flags&ffc_overlay)))
 					{
 						int32_t ffx = Map.CurrScr()->ffcs[i].x.getFloor();
@@ -10527,13 +10527,13 @@ void domouse()
 					}
 					mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
 					if(!draw_mapscr) return;
-					Combo=draw_mapscr->data[c];
+					Combo=draw_mapscr->data[num_ffcs];
 					if(AutoBrush)
 						BrushWidth = BrushHeight = 1;
 					if(key[KEY_LSHIFT]||key[KEY_RSHIFT])
-						CSet=draw_mapscr->cset[c];
+						CSet=draw_mapscr->cset[num_ffcs];
 					if(CHECK_CTRL_CMD)
-						First[current_combolist]=scrollto_cmb(draw_mapscr->data[c]);
+						First[current_combolist]=scrollto_cmb(draw_mapscr->data[num_ffcs]);
 				}
 				else if(CHECK_CTRL_CMD)
 				{
@@ -10578,9 +10578,9 @@ void domouse()
 				
 				// FFC right-click menu
 				// This loop also serves to find the free ffc with the smallest slot number.
-				int c = Map.CurrScr()->numFFC();
+				int num_ffcs = Map.CurrScr()->numFFC();
 				uint32_t earliestfreeffc = c;
-				for(int32_t i=c-1; i>=0; i--)
+				for(int32_t i=num_ffcs-1; i>=0; i--)
 				{
 					auto data = Map.CurrScr()->ffcs[i].data;
 					if(data==0)
