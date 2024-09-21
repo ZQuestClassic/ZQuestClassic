@@ -10,23 +10,19 @@ extern script_data *ffscripts[NUMSCRIPTFFC];
 extern int32_t Combo, CSet;
 static int32_t tCSet;
 static bool edited = false;
-bool call_ffc_dialog(int32_t ffcombo, mapscr* scr)
+bool call_ffc_dialog(int32_t ffcombo, mapscr* scr, int screen)
 {
-	if(!scr)
-		scr = Map.CurrScr();
 	tCSet = CSet;
 	edited = false;
-	FFCDialog(scr,ffcombo).show();
+	FFCDialog(scr,screen,ffcombo).show();
 	//if(edited) CSet = tCSet;
 	return edited;
 }
-bool call_ffc_dialog(int32_t ffcombo, ffdata const& init, mapscr* scr)
+bool call_ffc_dialog(int32_t ffcombo, ffdata const& init, mapscr* scr, int screen)
 {
-	if(!scr)
-		scr = Map.CurrScr();
 	tCSet = CSet;
 	edited = false;
-	FFCDialog(scr,ffcombo,init).show();
+	FFCDialog(scr,screen,ffcombo,init).show();
 	if(edited) CSet = tCSet;
 	return edited;
 }
@@ -73,11 +69,11 @@ void ffdata::load(mapscr* scr, int32_t ind)
 	for(auto q = 0; q < 8; ++q)
 		initd[q] = ffc.initd[q];
 }
-void ffdata::save(mapscr* scr, int32_t ind)
+void ffdata::save(mapscr* scr, int32_t screen, int32_t ind)
 {
 	if(unsigned(ind)>MAXFFCS-1) return;
 
-	Map.DoSetFFCCommand(Map.getCurrMap(), Map.getCurrScr(), ind, {
+	Map.DoSetFFCCommand(Map.getCurrMap(), screen, ind, {
 		.x = zslongToFix(x),
 		.y = zslongToFix(y),
 		.vx = zslongToFix(dx),
@@ -122,16 +118,16 @@ ffdata& ffdata::operator=(ffdata const& other)
 	return *this;
 }
 
-FFCDialog::FFCDialog(mapscr* scr, int32_t ffind) :
-	thescr(scr), ffind(ffind),
+FFCDialog::FFCDialog(mapscr* scr, int32_t screen, int32_t ffind) :
+	thescr(scr), screen(screen), ffind(ffind),
 	list_link(GUI::ListData::numbers(true, 1, MAXFFCS)),
 	list_ffcscript(GUI::ZCListData::ffc_script())
 {
 	ffc.load(scr, ffind);
 }
 
-FFCDialog::FFCDialog(mapscr* scr, int32_t ffind, ffdata const& init) :
-	FFCDialog(scr, ffind)
+FFCDialog::FFCDialog(mapscr* scr, int32_t screen, int32_t ffind, ffdata const& init) :
+	FFCDialog(scr, screen, ffind)
 {
 	ffc = init;
 }
@@ -533,7 +529,7 @@ bool FFCDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 					}).show();
 				if(!m) return false; //cancelled
 			}
-			ffc.save(thescr, ffind);
+			ffc.save(thescr, screen, ffind);
 			saved = false;
 			edited = true;
 			[[fallthrough]];

@@ -867,6 +867,8 @@ int32_t onSnapshot()
 	return D_O_K;
 }
 
+// TODO: take snapshot of current zoom level, not just the current screen.
+// Will want to use the same code as "View Map" so multiple palettes could be used.
 int32_t onMapscrSnapshot()
 {
 	bool useflags = (CHECK_CTRL_CMD); //Only use visibility flags (flags, walkability, etc) if CTRL is held
@@ -1031,8 +1033,13 @@ int32_t onPreviewMode()
 
 	if(prv_mode)
 	{
-		Map.set_prvscr(Map.getCurrMap(),Map.getCurrScr());
-		
+		int prev_view_size = Map.getViewSize();
+		Map.setViewSize(1);
+		void reload_zq_gui();
+		reload_zq_gui();
+
+		Map.set_prvscr(Map.getCurrMap(),Map.getCurrScr());		
+
 		mmap_set_zoom(false);
 		
 		bool tempcb=ComboBrush!=0;
@@ -1041,6 +1048,8 @@ int32_t onPreviewMode()
 		clear_tooltip();
 		dopreview();
 		ComboBrush=tempcb;
+		Map.setViewSize(prev_view_size);
+		reload_zq_gui();
 	}
 	return D_O_K;
 }

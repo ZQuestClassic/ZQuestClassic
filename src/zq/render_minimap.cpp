@@ -66,14 +66,24 @@ static void mmap_draw(int offx, int offy)
 			}
 		}
 		
-		int32_t s=Map.getCurrScr();
+		int32_t s = Map.getViewScr();
+		int32_t cursor_size = Map.getViewSize();
 		// The white marker rect
 		int32_t cursor_color = get_cursor_color();
 		if(cursor_color)
 		{
 			auto& sqr = real_mini_sqr->subsquare(s);
-			al_draw_rectangle(sqr.x-offx, sqr.y-offy, sqr.x+sqr.w-offx, sqr.y+sqr.h-offy,
+			int w = sqr.w * cursor_size;
+			int h = sqr.h * cursor_size;
+			al_draw_rectangle(sqr.x-offx, sqr.y-offy, sqr.x+w-offx, sqr.y+h-offy,
 				a5color(cursor_color), 2);
+
+			if (cursor_size > 1)
+			{
+				auto& sqr = real_mini_sqr->subsquare(Map.getCurrScr());
+				al_draw_rectangle(sqr.x-offx, sqr.y-offy, sqr.x+sqr.w-offx, sqr.y+sqr.h-offy,
+					a5color(cursor_color), 2);
+			}
 		}
 	}
 }

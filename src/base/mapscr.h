@@ -23,9 +23,15 @@
 #define d1WAYSHUTTER    14    // 0111    0    // never opens
 #define dNONE           16    // 1000    0    // No 'dungeon door' at all
 
+// mapscr "valid" byte
+#define mVALID          0x01
+#define mVERSION        0x80
+
 struct mapscr
 {
 	byte valid;
+	bool is_valid() const { return valid&mVALID; }
+
 	byte guy;
 	int32_t guytile = -1;
 	byte guycs;
@@ -146,10 +152,6 @@ private:
 
 #define RFL_ALWAYS_GUY 0x0001
 #define RFL_GUYFIRES   0x0002
-
-// mapscr "valid" byte
-#define mVALID          0x01
-#define mVERSION        0x80
 
 // screen flags
 #define fSHUTTERS           0x01

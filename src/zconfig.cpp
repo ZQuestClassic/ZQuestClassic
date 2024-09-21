@@ -2,6 +2,10 @@
 #include "zconfig.h"
 #include <string>
 
+#if defined(IS_PLAYER) or defined(IS_EDITOR)
+#include "base/jwinfsel.h"
+#endif
+
 char const* get_config_file_name(App a)
 {
 	if(a == App::undefined)
@@ -50,6 +54,20 @@ void zc_pop_config()
 {
 	flush_config_file();
 	pop_config_state();
+}
+
+std::string qst_cfg_header_from_path(std::string path)
+{
+#if defined(IS_PLAYER) or defined(IS_EDITOR)
+	path = relativize_path(path);
+	util::replchar(path, '[', '_');
+	util::replchar(path, ']', '_');
+	util::replchar(path, ' ', '_');
+	util::replchar(path, '\\', '/');
+	return path;
+#else
+	return "";
+#endif
 }
 
 static char cfg_str[2048];

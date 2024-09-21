@@ -19,14 +19,14 @@ namespace AutoPattern
 	}
 	autopattern_container::~autopattern_container()
 	{
-		for (auto c : combos)
+		for (auto& c : combos)
 		{
 			delete c.second;
 		}
 	}
 	void autopattern_container::init_pattern()
 	{
-		for (auto ca : source->combos)
+		for (auto& ca : source->combos)
 		{
 			pattern_cids[ca.offset] = ca.cid;
 			pattern_slots[ca.cid] = ca.offset + 1;
@@ -34,7 +34,7 @@ namespace AutoPattern
 	}
 	void autopattern_container::apply_changes()
 	{
-		for (auto c : combos)
+		for (auto& c : combos)
 		{
 			if (c.second->changed)
 			{

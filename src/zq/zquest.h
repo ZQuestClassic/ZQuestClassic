@@ -17,6 +17,7 @@
 #include "base/fonts.h"
 #include "base/cpool.h"
 #include "base/misctypes.h"
+#include "zq/zq_class.h"
 
 #define  INTERNAL_VERSION  0xA721
 
@@ -27,9 +28,6 @@
 
 #define MAXARROWS 8
 #define SHADOW_DEPTH 2
-
-#define rtgxo 2
-#define rtgyo 2
 
 #define edc  208 //246
 #define edi  209 //247
@@ -120,7 +118,7 @@ extern size_and_pos commands_window;
 extern size_and_pos commands_list;
 extern size_and_pos dummy_panel;
 
-extern int32_t mapscreen_x, mapscreen_y, mapscreensize, showedges, showallpanels;
+extern int32_t mapscreen_x, mapscreen_y, showedges, showallpanels;
 extern int32_t mouse_scroll_h;
 extern int32_t tooltip_timer, tooltip_maxtimer;
 
@@ -278,17 +276,14 @@ int32_t gethexnumber(const char *prompt,int32_t initialval);
 
 void update_combo_cycling();
 
-enum {dm_normal, dm_relational, dm_dungeon, dm_alias, dm_cpool, dm_auto, dm_max, dm_menumax = 4};
+enum {dm_normal, dm_alias = 3, dm_cpool, dm_auto, dm_max};
 
 bool confirmBox(const char *m1, const char *m2 = NULL, const char *m3 = NULL);
 int32_t onSelectSFX();
 int32_t onOptions();
 void fix_drawing_mode_menu();
-void reset_relational_tile_grid();
 int32_t onDrawingMode();
 int32_t onDrawingModeNormal();
-int32_t onDrawingModeRelational();
-int32_t onDrawingModeDungeon();
 int32_t onDrawingModeAlias();
 int32_t onDrawingModePool();
 int32_t onDrawingModeAuto();
@@ -398,13 +393,8 @@ void refresh(int32_t flags, bool update = false);
 void select_scr();
 void select_combo(int32_t list);
 void update_combobrush();
-void draw_autocombo(int32_t pos, bool rclick, bool pressframe = false);
-void draw_autocombo_command(int32_t pos, int32_t cmd=0, int32_t arg=0);
-int32_t get_autocombo_floating_cid(int32_t pos, bool clicked);
 void change_autocombo_height(int32_t change);
 void draw(bool);
-void replace(int32_t c);
-void draw_block(int32_t start,int32_t w,int32_t h);
 int32_t d_wflag_proc(int32_t msg,DIALOG *d,int32_t c);
 
 void doflags();
@@ -607,11 +597,15 @@ int32_t onDecScrPal();
 int32_t onIncScrPal();
 int32_t onDecScrPal16();
 int32_t onIncScrPal16();
+int32_t onZoomIn();
+int32_t onZoomOut();
 int32_t onFullScreen();
 int32_t isFullScreen();
 int32_t onToggleGrid(bool color);
 int32_t onToggleGrid();
 int32_t onToggleShowScripts();
+int32_t onToggleScreenGrid();
+int32_t onToggleCurrentScreenOutline();
 int32_t onToggleShowSquares();
 int32_t onToggleShowFFCs();
 int32_t onToggleShowInfo();

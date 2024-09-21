@@ -16,8 +16,8 @@
 #include <array>
 
 struct ffdata;
-bool call_ffc_dialog(int32_t ffcombo, mapscr* scr = nullptr);
-bool call_ffc_dialog(int32_t ffcombo, ffdata const& init, mapscr* scr = nullptr);
+bool call_ffc_dialog(int32_t ffcombo, mapscr* scr, int screen);
+bool call_ffc_dialog(int32_t ffcombo, ffdata const& init, mapscr* scr, int screen);
 
 struct ffdata
 {
@@ -39,7 +39,7 @@ struct ffdata
 	ffdata(mapscr* scr, int32_t ind);
 	void clear();
 	void load(mapscr* scr, int32_t ind);
-	void save(mapscr* scr, int32_t ind);
+	void save(mapscr* scr, int screen, int32_t ind);
 	ffdata& operator=(ffdata const& other);
 };
 
@@ -48,8 +48,8 @@ class FFCDialog: public GUI::Dialog<FFCDialog>
 public:
 	enum class message { REFR_INFO, OK, CANCEL, PLUSCS, MINUSCS };
 
-	FFCDialog(mapscr* scr, int32_t ffind);
-	FFCDialog(mapscr* scr, int32_t ffind, ffdata const& init);
+	FFCDialog(mapscr* scr, int32_t screen, int32_t ffind);
+	FFCDialog(mapscr* scr, int32_t screen, int32_t ffind, ffdata const& init);
 
 	std::shared_ptr<GUI::Widget> view() override;
 	bool handleMessage(const GUI::DialogMessage<message>& msg);
@@ -71,6 +71,7 @@ private:
 	
 	ffdata ffc;
 	mapscr* thescr;
+	int32_t screen;
 	int32_t ffind;
 	GUI::ListData list_link, list_ffcscript;
 };
