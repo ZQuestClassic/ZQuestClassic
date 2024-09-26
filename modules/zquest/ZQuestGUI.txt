@@ -92,6 +92,7 @@ src/dialog/screen_notes.cpp
 src/dialog/enemyeditor.cpp
 src/dialog/enemypattern.cpp
 src/dialog/screen_enemies.cpp
+src/dialog/sfxdata.cpp
 src/dialog/midieditor.cpp
 
 ## End of ZQuest GUI module
