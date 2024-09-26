@@ -1493,6 +1493,7 @@ END_OF_FUNCTION(midi_seek);
  */
 int get_midi_length(MIDI *midi)
 {
+	if (!midi) return 0;
     play_midi(midi, 0);
     while (midi_pos < 0); /* Without this, midi_seek won't work. */
     midi_seek(INT_MAX);
