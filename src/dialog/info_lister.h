@@ -96,6 +96,15 @@ protected:
 	bool load() override;
 };
 
+class SFXListerDialog : public BasicListerDialog
+{
+public:
+	SFXListerDialog(int sfxid = -1, bool selecting = false);
+
+protected:
+	void edit() override;
+};
+
 class MidiListerDialog : public BasicListerDialog
 {
 public:
