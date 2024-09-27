@@ -1033,8 +1033,9 @@ int32_t onPreviewMode()
 
 	if(prv_mode)
 	{
-		int prev_view_size = Map.getViewSize();
+		MapCursor previous_cursor = Map.getCursor();
 		Map.setViewSize(1);
+
 		void reload_zq_gui();
 		reload_zq_gui();
 
@@ -1048,7 +1049,7 @@ int32_t onPreviewMode()
 		clear_tooltip();
 		dopreview();
 		ComboBrush=tempcb;
-		Map.setViewSize(prev_view_size);
+		Map.setCursor(previous_cursor);
 		reload_zq_gui();
 	}
 	return D_O_K;
