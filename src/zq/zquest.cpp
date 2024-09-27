@@ -72,6 +72,7 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "dialog/compilezscript.h"
 #include "dialog/screen_enemies.h"
 #include "dialog/enemypattern.h"
+#include "dialog/sfxdata.h"
 #include "dialog/externs.h"
 
 #include "base/gui.h"
@@ -22468,56 +22469,6 @@ void center_zscript_dialogs()
     jwin_center_dialog(clearslots_dlg);
 }
 
-static DIALOG sfxlist_dlg[] =
-{
-    // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
-    { jwin_win_proc,     60-12,   40,   200+24,  148,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,       NULL, NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { jwin_abclist_proc,       72-12-4,   60+4,   176+24+8,  92+3,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       D_EXIT,     0,             0,       NULL, NULL, NULL },
-    { jwin_button_proc,     90,   163,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Edit", NULL, NULL },
-    { jwin_button_proc,     170,  163,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Done", NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
-int32_t select_sfx(const char *prompt,int32_t index)
-{
-    sfxlist_dlg[0].dp=(void *)prompt;
-    sfxlist_dlg[0].dp2=get_zc_font(font_lfont);
-    sfxlist_dlg[2].d1=index;
-    sfxlist_dlg[2].dp=(void *) & sfx_list;
-    
-    large_dialog(sfxlist_dlg);
-        
-    int32_t ret=do_zqdialog(sfxlist_dlg,2);
-    
-    if(ret==0||ret==4)
-    {
-        position_mouse_z(0);
-        return -1;
-    }
-    
-    index = sfxlist_dlg[2].d1;
-    position_mouse_z(0);
-    return index;
-}
-
-static DIALOG sfx_edit_dlg[] =
-{
-    { jwin_win_proc,           0,     0,  200,   159,  vc(14),              vc(1),                 0,       D_EXIT,     0,             0, (void *) "SFX", NULL, NULL },
-    { jwin_button_proc,       35,   132,   61,    21,  vc(14),              vc(1),                13,       D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-    { jwin_button_proc,      104,   132,   61,    21,  vc(14),              vc(1),                27,       D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { jwin_button_proc,       35,    78,   61,    21,  vc(14),              vc(1),                 0,       D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
-    { jwin_button_proc,       35,   105,   61,    21,  vc(14),              vc(1),                 0,       D_EXIT,     0,             0, (void *) "Play", NULL, NULL },
-    { jwin_button_proc,      104,   105,   61,    21,  vc(14),              vc(1),                 0,       D_EXIT,     0,             0, (void *) "Stop", NULL, NULL },
-    { jwin_button_proc,      104,    78,   61,    21,  vc(14),              vc(1),                 0,       D_EXIT,     0,             0, (void *) "Default", NULL, NULL },
-    { jwin_edit_proc,     36,    25,   154,    16,  vc(12),  vc(1),    0,       0,         36,             0,       NULL, NULL, NULL },
-    { jwin_text_proc,     8,    30,     16,  8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "Name:", NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { jwin_button_proc,      70,    51,   61,    21,  vc(14),              vc(1),                 0,       D_EXIT,     0,             0, (void *) "Save", NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
-
 // array of voices, one for each sfx sample in the data file
 // 0+ = voice #
 // -1 = voice not allocated
@@ -22735,16 +22686,7 @@ bool confirmBox(const char *m1, const char *m2, const char *m3)
 
 int32_t onSelectSFX()
 {
-    int32_t index = select_sfx("Select SFX",0);
-    
-    while(index >= 0)
-    {
-        if(index)
-            onEditSFX(index);
-            
-        index = select_sfx("Select SFX",index);
-    }
-    
+    SFXListerDialog(0).show();
     refresh(rMAP+rCOMBOS);
     return D_O_K;
 }
@@ -22807,160 +22749,7 @@ bool saveWAV(int32_t slot, const char *filename)
 
 int32_t onEditSFX(int32_t index)
 {
-	kill_sfx();
-	zc_stop_midi();
-	zc_set_volume(255,-1);
-	int32_t ret;
-	sfx_edit_dlg[0].dp2=get_zc_font(font_lfont);
-	uint8_t tempflag;
-	tempflag = get_bit(customsfxflag,index-1);
-	change_sfx(&templist[index], &customsfxdata[index]);
-	
-	char sfxnumstr[50];
-	sprintf(sfxnumstr,"SFX %d: %s", index, sfx_string[index]);
-	sfx_edit_dlg[0].dp = sfxnumstr;
-	
-	char name[36];
-	strcpy(name,sfx_string[index]);
-	sfx_edit_dlg[7].dp = name;
-	
-	large_dialog(sfx_edit_dlg);
-		
-	do
-	{
-		ret=do_zqdialog(sfx_edit_dlg,1);
-		
-		switch(ret)
-		{
-			case 1:
-				saved= false;
-				kill_sfx();
-				change_sfx(&customsfxdata[index],&templist[index]);
-				set_bit(customsfxflag,index-1,tempflag);
-				strcpy(sfx_string[index], name);
-				
-			case 2:
-			case 0:
-				// Fall Through
-				kill_sfx();
-				
-				for(int32_t i=1; i<WAV_COUNT; i++)
-				{
-					if(templist[i].data != NULL)
-					{
-						free(templist[i].data);
-						templist[i].data = NULL;
-					}
-				}
-				
-				break;
-				
-			case 3:
-				if(prompt_for_existing_file_compat("Open .WAV file", "wav", NULL,temppath, true))
-				{
-					SAMPLE * temp_sample;
-					
-					if((temp_sample = load_wav(temppath))==NULL)
-					{
-						jwin_alert("Error","Could not open file",temppath,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
-					}
-					else
-					{
-						char sfxtitle[36];
-						char *t = get_filename(temppath);
-						int32_t j;
-						
-						for(j=0; j<35 && t[j]!=0 && t[j]!='.'; j++)
-						{
-							sfxtitle[j]=t[j];
-						}
-						
-						sfxtitle[j]=0;
-						strcpy(name,sfxtitle);
-						kill_sfx();
-						change_sfx(&templist[index], temp_sample);
-						destroy_sample(temp_sample);
-						tempflag = 1;
-					}
-				}
-				
-				break;
-				
-			case 4:
-			{
-				kill_sfx();
-				
-				if(templist[index].data != NULL)
-				{
-					sfx(index, 128, false,true);
-				}
-			}
-			break;
-			
-			case 5:
-				kill_sfx();
-				break;
-				
-			case 6:
-				kill_sfx();
-				
-				if(index < WAV_COUNT)
-				{
-					SAMPLE *temp_sample = (SAMPLE *)sfxdata[zc_min(index,Z35)].dat;
-					change_sfx(&templist[index], temp_sample);
-					tempflag = 1; //now count as custom sfx
-					sprintf(name,"s%03d", index);
-					
-					if(index <Z35)
-					{
-						strcpy(name, old_sfx_string[index-1]);
-					}
-				}
-				
-				break;
-				
-			
-			case 10:
-			{
-				temppath[0]=0;//memset(temppath, 0, sizeof(temppath));
-				char tempname[36];
-				strcpy(tempname,sfx_string[index]);
-				//change spaces to dashes for f/s safety
-				for ( int32_t q = 0; q < 36; ++q )
-				{
-					if(tempname[q] == 32 || tempname[q] == 47 || tempname[q] == 92 ) //SPACE, Bslash, Fslash
-						tempname[q] = 45; //becomes hyphen
-				}
-				
-				tempname[35] = 0;
-				
-				strcpy(temppath,tempname);
-				
-				//save
-				if(templist[index].data != NULL)
-				{
-					if (prompt_for_new_file_compat("Save .WAV file", "wav", NULL, temppath, true))
-					{
-						if(!saveWAV(index, temppath))
-						{
-							jwin_alert("Error!", "Could not write file", temppath, NULL, "OK", NULL, 13, 27, get_zc_font(font_lfont));
-						}
-						else 
-						{
-							jwin_alert("Success!", "Saved WAV file", temppath, NULL, "OK", NULL, 13, 27, get_zc_font(font_lfont));
-						}
-					}
-				}
-				else 
-				{
-					jwin_alert("Error!", "Cannot save an enpty slot!", NULL, NULL, "OK", NULL, 13, 27, get_zc_font(font_lfont));
-				}		
-				break;
-			}
-		}
-	}
-	while(ret>2);
-	
+	call_sfxdata_dialog(index);
 	return D_O_K;
 }
 
@@ -26175,8 +25964,6 @@ void center_zquest_dialogs()
     jwin_center_dialog(secret_dlg);
     jwin_center_dialog(selectdmap_dlg);
     jwin_center_dialog(selectmusic_dlg);
-    jwin_center_dialog(sfxlist_dlg);
-    jwin_center_dialog(sfx_edit_dlg);
     jwin_center_dialog(showpal_dlg);
     jwin_center_dialog(strlist_dlg);
     jwin_center_dialog(template_dlg);

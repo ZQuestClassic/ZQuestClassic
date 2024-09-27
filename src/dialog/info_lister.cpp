@@ -5,6 +5,7 @@
 #include "itemeditor.h"
 #include "enemyeditor.h"
 #include "midieditor.h"
+#include "sfxdata.h"
 #include "info.h"
 #include "zc_list_data.h"
 #include "zq/zquest.h"
@@ -577,4 +578,17 @@ void MidiListerDialog::update()
 void MidiListerDialog::edit()
 {
 	call_midi_editor(selected_val-1);
+}
+
+SFXListerDialog::SFXListerDialog(int index, bool selecting) :
+	BasicListerDialog("Select SFX", index, selecting)
+{
+	lister = GUI::ZCListData::sfxnames(true);
+	lister.removeInd(0);	
+	selected_val = lister.getValue(0);
+	selected_val = vbound(selected_val, 1, sfxMAX-1);
+}
+void SFXListerDialog::edit()
+{
+	call_sfxdata_dialog(selected_val);
 }
