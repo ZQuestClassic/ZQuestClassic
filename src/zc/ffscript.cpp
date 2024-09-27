@@ -441,7 +441,6 @@ int32_t FFScript::ConvertCase(std::string *s)
 			s->at(q) += 32;
 		}
 	}
-	zprint("FFScript::ConvertCase(std::string s), post-conversion, string is: %s\n", s->c_str());
 	return 1;
 }
 
@@ -8230,8 +8229,6 @@ int32_t get_register(const int32_t arg)
 			double x2 = double(ri->d[rINDEX2]);
 			double y2 = double(ri->d[rEXP1]);
 			
-			
-			
 			int32_t result = FFCore.LongDistance(x1, y1, x2, y2);
 			ret = (result);
 		
@@ -8241,16 +8238,11 @@ int32_t get_register(const int32_t arg)
 		case DISTANCESCALE: 
 		{
 			double x1 = (double)(ri->d[rSFTEMP] / 10000.0);
-			zprint2("x1 is: %f\n", x1);
 			double y1 = (double)(ri->d[rINDEX] / 10000.0);
-			zprint2("y1 is: %f\n", y1);
 			double x2 = (double)(ri->d[rINDEX2] / 10000.0);
-			zprint2("x2 is: %f\n", x2);
 			double y2 = (double)(ri->d[rEXP1] / 10000.0);
-			zprint2("y2 is: %f\n", y2);
 			
 			int32_t scale = (ri->d[rWHAT_NO_7]/10000);
-			zprint2("Scale is: %d\n", scale);
 			
 			if ( !scale ) scale = 10000;
 			int32_t result = FFCore.Distance(x1, y1, x2, y2, scale);
@@ -8261,16 +8253,11 @@ int32_t get_register(const int32_t arg)
 		case LONGDISTANCESCALE: 
 		{
 			double x1 = (double)(ri->d[rSFTEMP]);
-			zprint2("x1 is: %f\n", x1);
 			double y1 = (double)(ri->d[rINDEX]);
-			zprint2("y1 is: %f\n", y1);
 			double x2 = (double)(ri->d[rINDEX2]);
-			zprint2("x2 is: %f\n", x2);
 			double y2 = (double)(ri->d[rEXP1]);
-			zprint2("y2 is: %f\n", y2);
 			
 			int32_t scale = (ri->d[rWHAT_NO_7]);
-			zprint2("Scale is: %d\n", scale);
 			
 			if ( !scale ) scale = 1;
 			int32_t result = FFCore.LongDistance(x1, y1, x2, y2, scale);
@@ -16070,10 +16057,6 @@ void set_register(int32_t arg, int32_t value)
 			
 			int32_t slot = ri->d[rINDEX2]/10000;
 			int32_t force = ri->d[rEXP1]/10000;
-			
-			zprint("SetItemSlot rid->[0] is (%i), trying to use for '%s'\n", itm, "itm");
-			zprint("SetItemSlot rid->[1] is (%i), trying to use for '%s'\n", slot, "slot");
-			zprint("SetItemSlot rid->[2] is (%i), trying to use for '%s'\n", force, "force");
 			
 			//If we add more item buttons, slot should be an int32_t
 			//and force shuld be an int32_t
@@ -35860,7 +35843,6 @@ j_command:
 			}
 			case STARTDESTRUCTOR:
 			{
-				zprint2("STARTDESTRUCTOR: %s\n", sargstr->c_str());
 				//This opcode's EXISTENCE indicates the first opcode
 				//of a user_object destructor function.
 				break;
@@ -40280,7 +40262,6 @@ void FFScript::do_fremove()
 {
 	if(user_file* f = checkFile(ri->fileref, "Remove()", true))
 	{
-		zprint2("Removing file %d\n", ri->fileref);
 		ri->d[rEXP1] = f->do_remove() ? 0L : 10000L;
 	}
 	else ri->d[rEXP1] = 0L;
@@ -43822,7 +43803,6 @@ void FFScript::do_loadgamestructs(const bool v, const bool v2)
 {
 	int32_t arrayptr = SH::get_arg(sarg1, v) / 10000;
 	int32_t section_id = SH::get_arg(sarg2, v2) / 10000;
-	zprint("do_loadgamestructs selected section is: %d\n", section_id);
 	//Bitwise OR sections together
 	string strA;
 	ArrayH::getString(arrayptr, strA, 256);
@@ -43835,7 +43815,6 @@ void FFScript::do_loadgamestructs(const bool v, const bool v2)
 		{
 			p_igetl(&sram_version,f);
 			p_igetl(&section_id,f);
-			zprint("Reading ZCSRAM, Version: %d\n", sram_version);
 			if ( sram_version > SRAM_VERSION ) //file version is greater than programme current version.
 			{
 				Z_scripterrlog("SRAM Version is from a version of ZC newer than the running version and cannot be loaded.\n");
@@ -43858,7 +43837,6 @@ void FFScript::do_loadgamestructs(const bool v, const bool v2)
 			if ( !section_id || section_id&svDMAPS ) FFCore.read_dmaps(f,sram_version);
 			if ( !section_id || section_id&svMAPSCR ) FFCore.read_mapscreens(f,sram_version);
 			pack_fclose(f);
-			zprint("do_savegamestructs COMPLETED READINV %s, with section ID flags %d\n", "ALL", section_id);
 			
 			set_register(sarg1, 10000);
 		}
@@ -43880,7 +43858,6 @@ void FFScript::do_savegamestructs(const bool v, const bool v2)
 {
 	int32_t arrayptr = SH::get_arg(sarg1, v) / 10000;
 	int32_t section_id = SH::get_arg(sarg2, v2) / 10000;
-	zprint("do_loadgamestructs selected section is: %d\n", section_id);
 	//Bitwise OR sections together
 	string strA;
 	ArrayH::getString(arrayptr, strA, 256);
@@ -43906,7 +43883,6 @@ void FFScript::do_savegamestructs(const bool v, const bool v2)
 			if ( !section_id || section_id&svDMAPS ) FFCore.write_dmaps(f,SRAM_VERSION);
 			if ( !section_id || section_id&svMAPSCR ) FFCore.write_mapscreens(f,SRAM_VERSION);
 			pack_fclose(f);
-			zprint("do_savegamestructs COMPLETED WRITING %s, with section ID flags %d\n", "ALL", section_id);
 			set_register(sarg1, 10000);
 		}
 		else 
