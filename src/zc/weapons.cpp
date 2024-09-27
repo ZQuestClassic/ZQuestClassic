@@ -334,35 +334,17 @@ void killgenwpn(weapon* w)
 void do_generic_combo(weapon *w, int32_t bx, int32_t by, int32_t wid, 
 	int32_t cid, int32_t flag, int32_t flag2, int32_t ft, int32_t scombo, bool single16, int32_t layer) //WID currently is unused; if you add code relating to it, make sure to check if it's greater than 0
 
-/*
-int32_t wid = (w->useweapon > 0) ? w->useweapon : w->id;
-	int32_t cid = MAPCOMBO(bx,by);
-	int32_t flag = MAPFLAG(bx,by);
-	int32_t flag2 = MAPCOMBOFLAG(bx,by);
-	int32_t ft = c[cid].attributes[3] / 10000L;
-	//if (!ft) return;
-	//zprint("ft: %d\n", ft);
-	int32_t scombo=COMBOPOS(bx,by);
-	bool single16 = false;
-
-*/
 {
 	if ( combobuf[cid].type < cTRIGGERGENERIC && !(combobuf[cid].usrflags&cflag9 )  )  //Script combos need an 'Engine' flag
 	{ 
-		//zprint("cGeneric abort on combobuf[cid].type %d\n", combobuf[cid].type); 
 		return;
 	} 
-	//zprint("Generic combo\n ");
 	ft = vbound(ft, minSECRET_TYPE, maxSECRET_TYPE); //sanity guard to legal secret types. 44 to 127 are unused
-	//zprint("swordbeam\n");
-	//zprint("sfx is: %d\n", combobuf[cid].attributes[2] / 10000L);
-	//zprint("scombo is: %d\n", scombo);
 	byte* grid = (layer ? w->wscreengrid_layer[layer-1] : w->wscreengrid);
 	if ( !(get_bit(grid,(((bx>>4) + by)))) || (combobuf[cid].usrflags&cflag5) ) 
 	{
 		if ((combobuf[cid].usrflags&cflag1)) 
 		{
-			//zprint("Adding decoration, sprite: %d\n", combobuf[cid].attributes[0] / 10000L);
 			if (combobuf[cid].usrflags & cflag10)
 			{
 				switch (combobuf[cid].attribytes[0])
@@ -473,13 +455,6 @@ int32_t wid = (w->useweapon > 0) ? w->useweapon : w->id;
 				if ( combobuf[cid].usrflags&cflag8 ) w->dead = 1;
 				if((combobuf[cid].usrflags&cflag12)) break; //No continuous for undercombo
 				if ( (combobuf[cid].usrflags&cflag5) ) cid = ( layer ) ? MAPCOMBO2(layer,bx,by) : MAPCOMBO(bx,by);
-				//tmpscr->sflag[scombo] = combobuf[cid].sflag;
-				//combobuf[tmpscr->data[cid]].cset;
-				//combobuf[tmpscr->data[cid]].cset;
-				
-				//tmpscr->cset[scombo] = combobuf[cid].cset;
-				//tmpscr->sflag[scombo] = combobuf[cid].sflag;
-				//zprint("++comboD\n");
 			} while((combobuf[cid].usrflags&cflag5) && (combobuf[cid].type == cTRIGGERGENERIC) && (cid < (MAXCOMBOS-1)));
 			if ( (combobuf[cid].attribytes[2]) > 0 )
 				sfx(combobuf[cid].attribytes[2],int32_t(bx));
@@ -490,7 +465,6 @@ int32_t wid = (w->useweapon > 0) ? w->useweapon : w->id;
 		{
 			addenemy(COMBOX(scombo),COMBOY(scombo),(combobuf[cid].attribytes[4]),((combobuf[cid].usrflags&cflag13) ? 0 : -15));
 		}
-		//zprint("continuous\n");
 		
 	}
 	set_bit(grid,(((bx>>4) + by)),1);
@@ -603,8 +577,6 @@ void do_generic_combo_ffc(weapon *w, int32_t pos, int32_t cid, int32_t ft)
 		{
 			addenemy(ffc.x,ffc.y,(combobuf[cid].attribytes[4]),((combobuf[cid].usrflags&cflag13) ? 0 : -15));
 		}
-		//zprint("continuous\n");
-		
 	}
 	set_bit(grid,pos,1);
 	
@@ -1554,7 +1526,6 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			}
 			int32_t speed = parentitem>-1 ? zc_max(parent.misc1,1) : 1;
 			int32_t qty = parentitem>-1 ? zc_max(parent.misc3,1) : 1;
-			//zprint("byrna quantity_iterator: %d\n", quantity_iterator);
 			clk = (int32_t)((((2*quantity_iterator*PI)/qty)
 						 // Appear on top of the cane's hook
 						 + (dir==right? 3*PI/2 : dir==left? PI/2 : dir==down ? 0 : PI))*speed);

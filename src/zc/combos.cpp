@@ -63,7 +63,6 @@ void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag, int32_
 	{
 		if ((combobuf[cid].usrflags&cflag1)) 
 		{
-			//zprint("Adding decoration, sprite: %d\n", combobuf[cid].attributes[0] / 10000L);
 			if (combobuf[cid].usrflags & cflag10)
 			{
 				switch (combobuf[cid].attribytes[0])
@@ -132,12 +131,8 @@ void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag, int32_
 		{
 			do
 			{
-				
-				
 				if (layer) 
 				{
-					
-					//screen_combo_modify_preroutine(tmpscr,scombo);
 					screen_combo_modify_preroutine(FFCore.tempScreens[layer],scombo);
 					
 					//undercombo or next?
@@ -151,8 +146,6 @@ void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag, int32_
 						++FFCore.tempScreens[layer]->data[scombo];
 					
 					screen_combo_modify_postroutine(FFCore.tempScreens[layer],scombo);
-					//screen_combo_modify_postroutine(FFCore.tempScreens[layer],cid);
-					//screen_combo_modify_postroutine(tmpscr,scombo);
 				}
 				else
 				{
@@ -167,21 +160,12 @@ void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag, int32_
 					else
 					{
 						tmpscr->data[scombo]=vbound(tmpscr->data[scombo]+1,0,MAXCOMBOS);
-						//++tmpscr->data[scombo];
 					}
 					screen_combo_modify_postroutine(tmpscr,scombo);
 				}
 				
 				if((combobuf[cid].usrflags&cflag12)) break; //No continuous for undercombo
 				if ( (combobuf[cid].usrflags&cflag5) ) cid = ( layer ) ? MAPCOMBO2(layer,bx,by) : MAPCOMBO(bx,by);
-				//if ( combobuf[cid].usrflags&cflag8 ) w->dead = 1;
-				//tmpscr->sflag[scombo] = combobuf[cid].sflag;
-				//combobuf[tmpscr->data[cid]].cset;
-				//combobuf[tmpscr->data[cid]].cset;
-				
-				//tmpscr->cset[scombo] = combobuf[cid].cset;
-				//tmpscr->sflag[scombo] = combobuf[cid].sflag;
-				//zprint("++comboD\n");
 			} while((combobuf[cid].usrflags&cflag5) && (combobuf[cid].type == cTRIGGERGENERIC) && (cid < (MAXCOMBOS-1)));
 			if ( (combobuf[cid].attribytes[2]) > 0 )
 				sfx(combobuf[cid].attribytes[2],int32_t(bx));
@@ -192,12 +176,7 @@ void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag, int32_
 		{
 			addenemy(COMBOX(scombo),COMBOY(scombo),(combobuf[cid].attribytes[4]),((combobuf[cid].usrflags&cflag13) ? 0 : -15));
 		}
-		//zprint("continuous\n");
-		
 	}
-	//set_bit(grid,(((bx>>4) + by)),1);
-	
-	//if ( c[cid].usrflags&cflag8 ) killgenwpn(w);
 }
 
 void do_generic_combo_ffc2(int32_t pos, int32_t cid, int32_t ft)
@@ -1479,32 +1458,17 @@ bool trigger_armos_grave(int32_t lyr, int32_t pos, int32_t trigdir)
 						}
 						case down: //touched armos from above
 						{
-							//zprint("touched armos from above\n");
-							//zprint("cpos: %d\n", cpos);
-							//int32_t tx2 = (int32_t)x; //COMBOX(COMBOPOS(tx,ty));
-							//int32_t ty2 = (int32_t)y+16; //COMBOY(COMBOPOS(tx,ty));
-							//tx2 = GridX(tx2);
-							//ty2 = GridY(ty2);
 							while(searching == 1) //find the left edge of an armos block
 							{
-								//zprint("searching\n");
 								if ( (pos % 16) == 0 ) break; //don't wrap rows
 								++chx;
 								
-								
-								//zprint("chx: %d\n", chx);
-								//zprint("tx2: %d\n", tx2);
-								//zprint("ty2: %d\n", ty2);
-								//zprint("MAPCOMBO(tx2,ty2): %d\n",MAPCOMBO(tx2,ty2));
-								//zprint("MAPCOMBO(tx2-chx,ty2): %d\n",MAPCOMBO(GridX(tx2-chx),ty2));
 								if ( combobuf[(tmpscr->data[pos-chx])].type == cARMOS )
 								{
-									//zprint("found match\n");
 									xpos -=16;
 								}
 								else searching = 3;
 							}
-							//zprint("xpos is: %d\n", xpos);
 						}
 						[[fallthrough]];
 						case left: //touched right edge of armos
@@ -1535,14 +1499,12 @@ bool trigger_armos_grave(int32_t lyr, int32_t pos, int32_t trigdir)
 							
 						case right: //touched left edge of armos
 						{
-							//zprint("touched armos on left\n");
 							while(searching == 1) //find the top edge of an armos block
 							{
 								chy += 16;
 								if ( pos - chy < 0 ) break; //don't go out of bounds
 								if ( combobuf[(tmpscr->data[pos-chy])].type == cARMOS ) 
 								{
-									//zprint("found match\n");
 									ypos -=16;
 								}
 								else searching = 2;
