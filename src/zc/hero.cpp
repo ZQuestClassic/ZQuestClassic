@@ -3880,7 +3880,6 @@ void HeroClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
 {
     if(!(get_qr(qr_BUSHESONLAYERS1AND2))) 
     {
-	    //zprint("bit off\n");
 	    return;
     }
     //keep things inside the screen boundaries
@@ -3907,8 +3906,6 @@ void HeroClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
     int32_t type = combobuf[cid].type;
 	if(combobuf[cid].triggerflags[0] & combotriggerONLYGENTRIG)
 		type = cNONE;
-    //zprint("cid is: %d\n", cid);
-     //zprint("type is: %d\n", type);
     int32_t i = (bx>>4) + by;
     
     if(i > 175)
@@ -4424,10 +4421,8 @@ void HeroClass::check_wpn_triggers(int32_t bx, int32_t by, weapon *w)
 
 void HeroClass::check_slash_block_layer2(int32_t bx, int32_t by, weapon *w, int32_t layer)
 {
-	
     if(!(get_qr(qr_BUSHESONLAYERS1AND2))) 
     {
-	    //zprint("bit off\n");
 	    return;
     }
     //keep things inside the screen boundaries
@@ -4450,8 +4445,6 @@ void HeroClass::check_slash_block_layer2(int32_t bx, int32_t by, weapon *w, int3
     int32_t type = combobuf[cid].type;
 	if(combobuf[cid].triggerflags[0] & combotriggerONLYGENTRIG)
 		type = cNONE;
-    //zprint("cid is: %d\n", cid);
-     //zprint("type is: %d\n", type);
     int32_t i = (bx>>4) + by;
     
     if(i > 175)
@@ -4460,8 +4453,6 @@ void HeroClass::check_slash_block_layer2(int32_t bx, int32_t by, weapon *w, int3
     if((get_bit(w->wscreengrid_layer[layer-1], i) != 0) || (!isCuttableType(type)))
     {
 	return; 
-        //ignorescreen = true;
-	//zprint("ignoring\n");
     }
     
     int32_t sworditem = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? itemsbuf[directWpn].fam_type : current_item(itype_sword);
@@ -8951,8 +8942,6 @@ heroanimate_skip_liftwpn:;
 	if ( FFCore.getHeroAction() == stunned && !lstunclock )
 	{
 		action=tempaction; FFCore.setHeroAction(tempaction);
-		//zprint("Unfreezing hero to action: %d\n", (int32_t)tempaction);
-		//action=none; FFCore.setHeroAction(none);
 	}
 	
 	if( lbunnyclock > 0 )
@@ -12741,18 +12730,13 @@ bool HeroClass::startwpn(int32_t itemid)
 				
 			paymagiccost(itemid);
 			last_cane_of_byrna_item_id = itemid; 
-			//zprint("itm.misc3: %d\n", itm.misc3);
 			for(int32_t i=0; i<itm.misc3; i++)
 			{
 				//byrna weapons are added here
 				//space them apart
-				//zprint("Added byrna weapon %d.\n", i);
 				//the iterator isn passed to 'type'. weapons.cpp converts thisd to
 				//'quantity_iterator' pn construction; and this is used for orbit initial spacing.
 				Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wCByrna,i,itm.power*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
-					//Lwpns.add(new weapon((zfix)wx+cos(2 * PI / (i+1)),(zfix)wy+sin(2 * PI / (i+1)),(zfix)wz,wCByrna,i,itm.power*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
-				//wx += cos(2 * PI / (itm.misc3-i));
-				//wy += sin(2 * PI / (itm.misc3-i));
 			}
 			if(!(Lwpns.idCount(wCByrna)))
 				stop_sfx(itm.usesound); //If we can't create the beams, kill the sound. 
@@ -21639,14 +21623,12 @@ void HeroClass::oldchecklockblock()
 			{
 				found1=true;
 				foundlayer = i+1;
-				//zprint("Found layer: %d \n", i);
 				break;
 			}
 			else if(cmb2.type==cLOCKBLOCK && !(cmb2.triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx2,by,1, i))
 			{
 				found2=true;
 				foundlayer = i+1;
-				//zprint("Found layer: %d \n", i);
 				break;
 			}
 		}
@@ -24155,10 +24137,6 @@ void HeroClass::checkspecial2(int32_t *ls)
 						bool only16_31 = get_qr(qr_STEPTEMP_SECRET_ONLY_16_31)?true:false;
 						hidden_entrance(0,true,only16_31); 
 						didstrig = true;
-						//play trigger sound
-						//int32_t thesfx = combobuf[MAPCOMBO(x+j,y+i)].attribytes[0];
-						//zprint("Step Secrets SFX: %d\n", thesfx);
-						//sfx(thesfx,pan((int32_t)x));
 						sfx(warpsound,pan((int32_t)x));
 					}
 				}
@@ -24869,7 +24847,6 @@ void HeroClass::checkspecial2(int32_t *ls)
 		{
 			stepsecret = (((ty+8)&0xF0)+((tx+8)>>4)); 
 			sfx(combobuf[tmpscr->data[stepsecret]].attribytes[0],pan((int32_t)x));
-			//zprint("Step Secrets Sound: %d\n", combobuf[tmpscr->data[stepsecret]].attribytes[0]);
 			
 			if(type==cTRIGFLAG && canPermSecret())
 			{ 
