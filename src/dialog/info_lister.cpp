@@ -4,6 +4,7 @@
 #include "base/files.h"
 #include "itemeditor.h"
 #include "enemyeditor.h"
+#include "midieditor.h"
 #include "info.h"
 #include "zc_list_data.h"
 #include "zq/zquest.h"
@@ -531,4 +532,49 @@ bool EnemyListerDialog::load()
 	pack_fclose(f);
 	saved = false;
 	return true;
+}
+
+MidiListerDialog::MidiListerDialog(int index, bool selecting) :
+	BasicListerDialog("Select MIDI", index, selecting)
+{
+	lister = GUI::ZCListData::midinames(true, false);
+	lister.removeInd(0);
+	selected_val = lister.getValue(0);
+	selected_val = vbound(selected_val, (selecting ? -1 : 0), MAXCUSTOMMIDIS - 1);
+}
+void MidiListerDialog::preinit()
+{
+	
+}
+void MidiListerDialog::postinit()
+{
+	size_t len = 36;
+	for (int q = 0; q < MAXCUSTOMMIDIS; ++q)
+	{
+		size_t tlen = text_length(GUI_DEF_FONT, customtunes[q].title);
+		if (tlen > len)
+			len = tlen;
+	}
+	widgInfo->minWidth(Size::pixels(len + 8));
+	window->setHelp(get_info(selecting, true));
+}
+void MidiListerDialog::update()
+{
+	if (unsigned(selected_val) < MAXCUSTOMMIDIS)
+	{
+		zctune const& midi = customtunes[selected_val];
+		widgInfo->setText(fmt::format(
+			"Volume: {}\nLoop: {}\nStart: {}\nLoop Start: {}\nLoop End: {}",
+			midi.volume,midi.loop?"On":"Off", midi.start, midi.loop_start, midi.loop_end));
+	}
+	else
+	{
+		widgInfo->setText(fmt::format(
+			"\n\n\n\n\n"));
+		
+	}
+}
+void MidiListerDialog::edit()
+{
+	call_midi_editor(selected_val-1);
 }
