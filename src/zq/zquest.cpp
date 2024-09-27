@@ -22469,56 +22469,6 @@ void center_zscript_dialogs()
     jwin_center_dialog(clearslots_dlg);
 }
 
-static DIALOG sfxlist_dlg[] =
-{
-    // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
-    { jwin_win_proc,     60-12,   40,   200+24,  148,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,       NULL, NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { jwin_abclist_proc,       72-12-4,   60+4,   176+24+8,  92+3,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       D_EXIT,     0,             0,       NULL, NULL, NULL },
-    { jwin_button_proc,     90,   163,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Edit", NULL, NULL },
-    { jwin_button_proc,     170,  163,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Done", NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
-int32_t select_sfx(const char *prompt,int32_t index)
-{
-    sfxlist_dlg[0].dp=(void *)prompt;
-    sfxlist_dlg[0].dp2=get_zc_font(font_lfont);
-    sfxlist_dlg[2].d1=index;
-    sfxlist_dlg[2].dp=(void *) & sfx_list;
-    
-    large_dialog(sfxlist_dlg);
-        
-    int32_t ret=do_zqdialog(sfxlist_dlg,2);
-    
-    if(ret==0||ret==4)
-    {
-        position_mouse_z(0);
-        return -1;
-    }
-    
-    index = sfxlist_dlg[2].d1;
-    position_mouse_z(0);
-    return index;
-}
-
-static DIALOG sfx_edit_dlg[] =
-{
-    { jwin_win_proc,           0,     0,  200,   159,  vc(14),              vc(1),                 0,       D_EXIT,     0,             0, (void *) "SFX", NULL, NULL },
-    { jwin_button_proc,       35,   132,   61,    21,  vc(14),              vc(1),                13,       D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-    { jwin_button_proc,      104,   132,   61,    21,  vc(14),              vc(1),                27,       D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { jwin_button_proc,       35,    78,   61,    21,  vc(14),              vc(1),                 0,       D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
-    { jwin_button_proc,       35,   105,   61,    21,  vc(14),              vc(1),                 0,       D_EXIT,     0,             0, (void *) "Play", NULL, NULL },
-    { jwin_button_proc,      104,   105,   61,    21,  vc(14),              vc(1),                 0,       D_EXIT,     0,             0, (void *) "Stop", NULL, NULL },
-    { jwin_button_proc,      104,    78,   61,    21,  vc(14),              vc(1),                 0,       D_EXIT,     0,             0, (void *) "Default", NULL, NULL },
-    { jwin_edit_proc,     36,    25,   154,    16,  vc(12),  vc(1),    0,       0,         36,             0,       NULL, NULL, NULL },
-    { jwin_text_proc,     8,    30,     16,  8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "Name:", NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { jwin_button_proc,      70,    51,   61,    21,  vc(14),              vc(1),                 0,       D_EXIT,     0,             0, (void *) "Save", NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
-
 // array of voices, one for each sfx sample in the data file
 // 0+ = voice #
 // -1 = voice not allocated
@@ -26014,8 +25964,6 @@ void center_zquest_dialogs()
     jwin_center_dialog(secret_dlg);
     jwin_center_dialog(selectdmap_dlg);
     jwin_center_dialog(selectmusic_dlg);
-    jwin_center_dialog(sfxlist_dlg);
-    jwin_center_dialog(sfx_edit_dlg);
     jwin_center_dialog(showpal_dlg);
     jwin_center_dialog(strlist_dlg);
     jwin_center_dialog(template_dlg);
