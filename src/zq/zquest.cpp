@@ -1095,7 +1095,7 @@ void change_mapscr_zoom(int delta)
 {
 	int num_screens = Map.getViewSize();
 	num_screens = std::clamp(num_screens + delta, 1, mapscreen_num_screens_to_draw_max);
-	Map.changeViewSize(num_screens);
+	Map.setViewSize(num_screens);
 	std::string qst_cfg_header = qst_cfg_header_from_path(filepath);
 	zc_set_config(qst_cfg_header.c_str(), "zoom_num_screens", Map.getViewSize());
 	reload_zq_gui();
@@ -4552,11 +4552,12 @@ public:
 private:
 	void render(bool bitmap_resized)
 	{
+		MapCursor previous_cursor = Map.getCursor();
+		Map.setViewSize(1);
+
 		BITMAP* bmap4_single = create_bitmap_ex(8,256,176);
 		set_bitmap_create_flags(true);
 		ALLEGRO_BITMAP* bmap5_single = al_create_bitmap(256,176);
-		int curscr = Map.getCurrScr();
-		int viewscr = Map.getViewScr();
 		for(int32_t y=0; y<8; y++)
 		{
 			for(int32_t x=0; x<16; x++)
@@ -4570,8 +4571,7 @@ private:
 			}
 		}
 
-		Map.setCurrScr(curscr);
-		Map.setViewScr(viewscr);
+		Map.setCursor(previous_cursor);
 		destroy_bitmap(bmap4_single);
 		al_destroy_bitmap(bmap5_single);
 	}
@@ -7650,7 +7650,7 @@ byte relational_source_grid[256]=
 static void draw_autocombo(ComboPosition combo_pos, bool rclick, bool pressframe = false)
 {
 	combo_auto &ca = combo_autos[combo_auto_pos];
-	int scr = Map.getViewScr() + combo_pos.screen_offset();
+	int scr = Map.getScreenForPosition(combo_pos);
 	int pos = combo_pos.truncate();
 
 	if (ca.valid())
@@ -7760,7 +7760,7 @@ static void draw_autocombo(ComboPosition combo_pos, bool rclick, bool pressframe
 static void draw_autocombo_command(ComboPosition combo_pos, int32_t cmd = 0, int32_t arg = 0)
 {
 	combo_auto ca = combo_autos[combo_auto_pos];
-	int scr = Map.getViewScr() + combo_pos.screen_offset();
+	int scr = Map.getScreenForPosition(combo_pos);
 	int pos = combo_pos.truncate();
 
 	if (ca.valid())
@@ -7793,11 +7793,11 @@ static void draw_autocombo_command(ComboPosition combo_pos, int32_t cmd = 0, int
 static int32_t get_autocombo_floating_cid(ComboPosition combo_pos, bool clicked)
 {
 	combo_auto& ca = combo_autos[combo_auto_pos];
-	int scr = Map.getViewScr() + combo_pos.screen_offset();
+	int scr = Map.getScreenForPosition(combo_pos);
 	int pos = combo_pos.truncate();
 	int cid = 0;
 
-	if (ca.valid() && mouse_combo_pos.is_valid(Map.getViewScr(), Map.getViewSize()))
+	if (ca.valid() && Map.isValidPosition(mouse_combo_pos))
 	{
 		switch (ca.getType())
 		{
@@ -8648,7 +8648,6 @@ void doflags()
 	bool canedit=false;
 	bool didShift = false;
 	int tFlag = Flag;
-	bool started = false;
 	while(!(gui_mouse_b()&2) && !handle_close_btn_quit())
 	{
 		int x=gui_mouse_x();
@@ -8665,20 +8664,13 @@ void doflags()
 		if(!gui_mouse_b())
 			canedit=true;
         bool shift = key[KEY_LSHIFT] || key[KEY_RSHIFT];
+
 		if(canedit && gui_mouse_b()==1 && isinRect(x,y,startxint,startyint,int(startx+(256*mapscreen_screenunit_scale)-1),int(starty+(176*mapscreen_screenunit_scale)-1)))
 		{
 			mapscr* cur_scr = Map.Scr(combo_pos, CurrentLayer);
 			if (!cur_scr) continue;
 
-			if (!started)
-			{
-				started = true;
-
-				// Update the current selection, without changing viewscr.
-				int prev_viewscr = Map.getViewScr();
-				Map.setCurrScr(prev_viewscr + combo_pos.screen_offset());
-				Map.setViewScr(prev_viewscr);
-			}
+			Map.setCurrScr(Map.getScreenForPosition(combo_pos));
 
 			if(key[KEY_ALT]||key[KEY_ALTGR])
 				Flag = cur_scr->sflag[c];
@@ -10333,10 +10325,7 @@ void domouse()
 		{
 			if (lclick)
 			{
-				// Update the current selection, without changing viewscr.
-				int prev_viewscr = Map.getViewScr();
-				Map.setCurrScr(prev_viewscr + mouse_combo_pos.screen_offset());
-				Map.setViewScr(prev_viewscr);
+				Map.setCurrScr(Map.getScreenForPosition(combo_pos));
 			}
 
 			if (draw_mode == dm_auto)
@@ -24964,10 +24953,6 @@ void load_size_poses()
 		if(wid > drawmode_wid)
 			drawmode_wid = wid;
 	}
-
-	int num_screens = Map.getViewSize();
-	num_screens = std::clamp(num_screens, 1, mapscreen_num_screens_to_draw_max);
-	Map.changeViewSize(num_screens);
 
 	//Main GUI objects
 	if(is_compact)

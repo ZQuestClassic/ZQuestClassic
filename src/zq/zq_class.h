@@ -18,6 +18,59 @@ int32_t COMBOPOS_B(int32_t x, int32_t y);
 int32_t COMBOX(int32_t pos);
 int32_t COMBOY(int32_t pos);
 
+struct MapCursor
+{
+	int map;
+	// The selected screen.
+	// Always in bounds of the square starting at `viewscr` of size `size`.
+	int screen;
+	// The top-left screen of the currently visible screens.
+	int viewscr;
+	// The number of screens across currently visible. 1x1, 2x2, etc.
+	int size = 1;
+
+	bool operator==(const MapCursor&) const = default;
+
+	void setScreen(int new_screen)
+	{
+		if (new_screen >= MAPSCRS)
+			return;
+
+		screen = new_screen;
+		adjustViewScr();
+	}
+
+	void setSize(int new_size)
+	{
+		if (size == new_size)
+			return;
+
+		size = new_size;
+		adjustViewScr();
+	}
+
+private:
+	// Modify `viewscr` just enough to keep `screen` in bounds.
+	void adjustViewScr()
+	{
+		int cx = screen % 16;
+		int cy = screen / 16;
+		int vx = viewscr % 16;
+		int vy = viewscr / 16;
+
+		if (cx < vx)
+			vx = cx;
+		else if (cx >= vx + size)
+			vx = cx - size + 1;
+		if (cy < vy)
+			vy = cy;
+		else if (cy >= vy + size)
+			vy = cy - size + 1;
+
+		viewscr = vx + vy * 16;
+	}
+};
+
 struct ComboPosition
 {
 	int x, y;
@@ -30,13 +83,13 @@ struct ComboPosition
 	{
 		return {x + (pos%16), y + (pos/16)};
 	}
-	bool is_valid(int viewscr, int viewsize)
+	bool is_valid(const MapCursor& cursor)
 	{
-		int vx = viewscr % 16;
-		int vy = viewscr / 16;
-		int num_screens_width = std::min(viewsize, 16 - vx);
+		int vx = cursor.viewscr % 16;
+		int vy = cursor.viewscr / 16;
+		int num_screens_width = std::min(cursor.size, 16 - vx);
 		int max_height = vx <= 7 ? 9 : 8;
-		int num_screens_height = std::min(viewsize, max_height - vy);
+		int num_screens_height = std::min(cursor.size, max_height - vy);
 		return x >= 0 && y >= 0 && x < num_screens_width * 16 && y < num_screens_height * 11;
 	}
 	int truncate() const
@@ -55,10 +108,7 @@ class user_input_command
 {
 public:
     // The map, screen, and zoom settings that the user was on when command was created.
-    int view_currmap;
-    int view_currscr;
-	int view_viewscr;
-	int view_viewsize;
+	MapCursor cursor;
 
     virtual void execute() = 0;
     virtual void undo() = 0;
@@ -191,16 +241,13 @@ bool setMapCount2(int32_t c);
 class zmap
 {
     mapscr *screens;
-    int32_t currmap,copymap;
-    int32_t currscr,copyscr;
-	// The top-left screen of the currently visible screens.
-	int32_t viewscr;
-	// The number of screens across currently visible. 1x1, 2x2, etc.
-	int32_t viewsize;
+	MapCursor cursor;
+    int32_t copymap;
+    int32_t copyscr;
 	optional<int32_t> warpbackmap, warpbackscreen;
     int32_t copyffc;
-    int32_t scrpos[MAXMAPS+1];
-	int32_t scrview[MAXMAPS+1];
+    uint8_t scrpos[MAXMAPS+1];
+	uint8_t scrview[MAXMAPS+1];
 	
 	bounded_map<dword,int32_t> copyscrdata;
 	
@@ -218,7 +265,7 @@ class zmap
 public:
 
     zmap();
-    ~zmap();
+
 	void clear();
 	void force_refr_pointer();
     bool CanUndo();
@@ -308,6 +355,10 @@ public:
     void draw_secret(BITMAP *dest, int32_t pos);
     void draw_secret2(BITMAP *dest, int32_t pos);
     void scroll(int32_t dir, bool warp);
+    MapCursor getCursor() const;
+    void setCursor(MapCursor new_cursor);
+    bool isValidPosition(ComboPosition pos) const;
+    int getScreenForPosition(ComboPosition pos) const;
     mapscr *CurrScr();
     mapscr *Scr(int32_t scr);
 	mapscr *Scr(ComboPosition pos);
@@ -318,16 +369,11 @@ public:
 	mapscr *AbsoluteScrMakeValid(int32_t map, int32_t scr);
     int32_t  getCurrMap();
     bool isDark(int scr);
-    void restoreView(const user_input_command& command);
     void setCurrMap(int32_t index);
     int32_t  getCurrScr();
     void setCurrScr(int32_t scr);
-	// Changes the currscr by (dx, dy), and adjusts viewscr accordingly if needed.
-	void adjustCurrScr(int dx, int dy);
 	int32_t getViewScr();
-	void setViewScr(int scr);
 	void setViewSize(int32_t size);
-	void changeViewSize(int32_t size);
 	int32_t getViewSize();
     void setlayertarget();
     void setcolor(int color, mapscr* scr = nullptr);
