@@ -42,6 +42,7 @@ extern int32_t zq_screen_w, zq_screen_h;
 #include "zq/gui/dmap_minimap.h"
 #include "zq/gui/dmap_mapgrid.h"
 #include "zq/gui/engraving.h"
+#include "zq/gui/misc_color_swatch.h"
 #endif
 
 #include <initializer_list>
@@ -280,6 +281,11 @@ inline std::shared_ptr<DMapMapGrid> makeDMapMapGrid()
 inline std::shared_ptr<Engraving> makeEngraving()
 {
 	return std::make_shared<Engraving>();
+}
+
+inline std::shared_ptr<MiscColorSwatch> makeMiscColorSwatch()
+{
+	return std::make_shared<MiscColorSwatch>();
 }
 #endif
 
@@ -634,6 +640,11 @@ ZCGUI_BUILDER_START(Engraving)
 	ZCGUI_ACCEPT_PROP(data, setSlot, int32_t)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(Engraving, Engraving, makeEngraving)
+
+ZCGUI_BUILDER_START(MiscColorSwatch)
+	ZCGUI_ACCEPT_PROP(hexclicked, setHexClicked, int32_t)
+ZCGUI_BUILDER_END()
+ZCGUI_BUILDER_FUNCTION(MiscColorSwatch, MiscColorSwatch, makeMiscColorSwatch)
 
 #endif
 
