@@ -522,7 +522,6 @@ int32_t showxypos_cursor_color;
 bool showxypos_dummy = false;
 
 bool canfill=true;                                          //to prevent double-filling (which stops undos)
-bool resize_mouse_pos=false;                                //for eyeball combos
 int32_t lens_hint_item[MAXITEMS][2];                            //aclk, aframe
 int32_t lens_hint_weapon[MAXWPNS][5];                           //aclk, aframe, dir, x, y
 //int32_t mode, switch_mode, orig_mode;
@@ -832,28 +831,14 @@ bool bad_version(int32_t ver)
     return false;
 }
 
+// These are for drawing eyeballs correctly in combo_tile.
 zfix HeroModifiedX()
 {
-    if(resize_mouse_pos)
-    {
-        return (zfix)((gui_mouse_x()/mapscreen_single_scale)-((8*mapscreen_single_scale)-1)+(showedges?8:0));
-    }
-    else
-    {
-        return (zfix)(gui_mouse_x()-7);
-    }
+	return gui_mouse_x() - 7;
 }
-
 zfix HeroModifiedY()
 {
-    if(resize_mouse_pos)
-    {
-        return (zfix)((gui_mouse_y()/mapscreen_single_scale)-((8*mapscreen_single_scale)-1)-16+(showedges?16:0));
-    }
-    else
-    {
-        return (zfix)(gui_mouse_y()-7);
-    }
+	return gui_mouse_y() - 7;
 }
 
 static NewMenu import_250_menu
@@ -5344,7 +5329,15 @@ void draw_screenunit_map_screen(VisibleScreen visible_screen)
 	if (scr_y != view_scr_y && showedges)
 		yoff -= 16;
 
+	combotile_add_x = mapscreen_x + xoff;
+	combotile_add_y = mapscreen_y + yoff;
+	combotile_mul_x = mapscreen_single_scale;
+	combotile_mul_y = mapscreen_single_scale;
 	Map.draw(mapscreenbmp, scr_x == view_scr_x && showedges ? 16 : 0, scr_y == view_scr_y && showedges ? 16 : 0, Flags, Map.getCurrMap(), screen, ActiveLayerHighlight ? CurrentLayer : -1);
+	combotile_add_x = 0;
+	combotile_add_y = 0;
+	combotile_mul_x = 1;
+	combotile_mul_y = 1;
 
 	// TODO: should be better to move this out of draw_screenunit_map_screen.
 	if (showedges && screen < 128)
