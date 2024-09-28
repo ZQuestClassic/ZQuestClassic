@@ -8186,7 +8186,7 @@ void draw(bool justcset)
 static void replace(ComboPosition start)
 {
 	int32_t cid = Combo;
-    int8_t cs = CSet;
+	int8_t cs = CSet;
 	combo_pool const& pool = combo_pools[combo_pool_pos];
 	if(draw_mode == dm_cpool && !pool.valid())
 		return;
@@ -8195,43 +8195,59 @@ static void replace(ComboPosition start)
 	mapscr* scr = Map.Scr(start, CurrentLayer);
 	if (!scr) return;
 
-    int32_t targetcombo = scr->data[c];
-    int32_t targetcset  = scr->cset[c];
+	int num_combos_width = 16 * Map.getViewSize();
+	int num_combos_height = 11 * Map.getViewSize();
+	int targetcombo = scr->data[c];
+	int targetcset  = scr->cset[c];
 
 	saved = false;
-    Map.StartListCommand();
-    if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
-    {
-        for(int32_t i=0; i<176*Map.getViewSize(); i++)
-        {
-			auto pos = start + i;
-			mapscr* scr = Map.Scr(pos, CurrentLayer);
-            if ((scr->cset[i]) == targetcset)
-            {
-				if(draw_mode == dm_cpool)
-					pool.pick(cid,cs);
-                Map.DoSetComboCommand(pos, -1, cs);
-            }
-        }
-    }
-    else
-    {
-        for(int32_t i=0; i<176*Map.getViewSize(); i++)
-        {
-			auto pos = start + i;
-			mapscr* scr = Map.Scr(pos, CurrentLayer);
-            if(((scr->data[i])==targetcombo) &&
-                    ((scr->cset[i])==targetcset))
-            {
-				if(draw_mode == dm_cpool)
-					pool.pick(cid,cs);
-                Map.DoSetComboCommand(pos, cid, cs);
-            }
-        }
-    }
-    Map.FinishListCommand();
-    
-    refresh(rMAP);
+	Map.StartListCommand();
+	if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
+	{
+		for (int x = 0; x < num_combos_width; x++)
+		{
+			for (int y = 0; y < num_combos_height; y++)
+			{
+				ComboPosition pos = {x, y};
+				int c = pos.truncate();
+				mapscr* scr = Map.Scr(pos, CurrentLayer);
+				if (!scr)
+					continue;
+
+				if ((scr->cset[c]) == targetcset)
+				{
+					if(draw_mode == dm_cpool)
+						pool.pick(cid,cs);
+					Map.DoSetComboCommand(pos, -1, cs);
+				}
+			}
+		}
+	}
+	else
+	{
+		for (int x = 0; x < num_combos_width; x++)
+		{
+			for (int y = 0; y < num_combos_height; y++)
+			{
+				ComboPosition pos = {x, y};
+				int c = pos.truncate();
+				mapscr* scr = Map.Scr(pos, CurrentLayer);
+				if (!scr)
+					continue;
+
+				if(((scr->data[c])==targetcombo) &&
+					((scr->cset[c])==targetcset))
+				{
+					if(draw_mode == dm_cpool)
+						pool.pick(cid,cs);
+					Map.DoSetComboCommand(pos, cid, cs);
+				}
+			}
+		}
+	}
+	Map.FinishListCommand();
+
+	refresh(rMAP);
 }
 
 static void draw_block(ComboPosition start, int32_t w, int32_t h)
