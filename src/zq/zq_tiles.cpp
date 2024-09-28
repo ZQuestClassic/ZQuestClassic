@@ -31,6 +31,7 @@
 #include "dialog/scaletile.h"
 #include "dialog/rotatetile.h"
 #include "dialog/alert.h"
+#include "dialog/gameicons.h"
 #include "drawing.h"
 #include "colorname.h"
 #include "zq/render.h"
@@ -12175,57 +12176,15 @@ int32_t d_itile_proc(int32_t msg,DIALOG *d,int32_t)
 	return D_O_K;
 }
 
-static DIALOG icon_dlg[] =
-{
-	/* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
-	{ jwin_win_proc,       70,   70,   170,  104,   vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Game Icons", NULL, NULL },
-	{ d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-	{ d_itile_proc,      108+3,  112,  20,   20,   0,       0,      0,       0,          0,             6,       NULL, NULL, NULL },
-	{ d_itile_proc,      138+3,  112,  20,   20,   0,       0,      0,       0,          0,             7,       NULL, NULL, NULL },
-	{ d_itile_proc,      168+3,  112,  20,   20,   0,       0,      0,       0,          0,             8,       NULL, NULL, NULL },
-	{ d_itile_proc,      198+3,  112,  20,   20,   0,       0,      0,       0,          0,             9,       NULL, NULL, NULL },
-	{ jwin_button_proc,     90,   145,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-	{ jwin_button_proc,     170,  145,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-	{ jwin_text_proc,     108+11,    98,    8,      9,    0,          0,           0,    0,          0,    0, (void *) "0",        NULL,   NULL                },
-	{ jwin_text_proc,     138+11,    98,    8,      9,    0,          0,           0,    0,          0,    0, (void *) "1",        NULL,   NULL                },
-	{ jwin_text_proc,     168+11,    98,    8,      9,    0,          0,           0,    0,          0,    0, (void *) "2",        NULL,   NULL                },
-	{ jwin_text_proc,     198+11,    98,    8,      9,    0,          0,           0,    0,          0,    0, (void *) "3+",        NULL,   NULL                },
-	{ jwin_text_proc,     88,      98,    12,      9,    0,          0,           0,    0,          0,    0, (void *) "Ring:",        NULL,   NULL                },
-	{ NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
 int32_t onIcons()
 {
 	PALETTE pal;
 	//  pal = RAMpal;
 	memcpy(pal,RAMpal,sizeof(RAMpal));
-	icon_dlg[0].dp2=get_zc_font(font_lfont);
-	
-	for(int32_t i=0; i<4; i++)
-	{
-		icon_dlg[i+2].d1 = QMisc.icons[i];
-		icon_dlg[i+2].fg = i+6;
-		load_cset(pal, i+6, pSprite(i+spICON1));
-	}
-	
+	for(int32_t i=0;i<4;++i)
+		load_cset(pal, i + 6, pSprite(i + spICON1));
 	zc_set_palette(pal);
-	
-	large_dialog(icon_dlg);
-		
-	int32_t ret = do_zqdialog(icon_dlg,7);
-	
-	if(ret==6)
-	{
-		for(int32_t i=0; i<4; i++)
-		{
-			if(QMisc.icons[i] != icon_dlg[i+2].d1)
-			{
-				QMisc.icons[i] = icon_dlg[i+2].d1;
-				saved=false;
-			}
-		}
-	}
-	
+	call_gameicons_dialog();
 	zc_set_palette(RAMpal);
 	return D_O_K;
 }
@@ -12715,7 +12674,6 @@ static void massRecolorReset8Bit()
 void center_zq_tiles_dialogs()
 {
 	jwin_center_dialog(create_relational_tiles_dlg);
-	jwin_center_dialog(icon_dlg);
 	jwin_center_dialog(leech_dlg);
 	jwin_center_dialog(move_textbox_list_dlg);
 	jwin_center_dialog(recolor_4bit_dlg);
