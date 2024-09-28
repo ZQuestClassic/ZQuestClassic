@@ -4,7 +4,6 @@
 #include <gui/dialog.h>
 #include <gui/label.h>
 #include <gui/text_field.h>
-#include <zq/gui/misc_color_swatch.h>
 #include <gui/window.h>
 #include <functional>
 #include <string_view>
@@ -48,9 +47,6 @@ private:
 	};
 
 	std::shared_ptr<GUI::Window> window;
-	std::shared_ptr<GUI::MiscColorSwatch> swatch;
 	friend bool call_misccolor_dialog();
 };
-
-
 #endif

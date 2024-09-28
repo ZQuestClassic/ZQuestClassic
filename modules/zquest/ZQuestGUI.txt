@@ -30,7 +30,6 @@ src/zq/gui/dmap_minimap.cpp
 src/zq/gui/dmap_mapgrid.cpp
 src/zq/gui/edit_autocombo.cpp
 src/zq/gui/engraving.cpp
-src/zq/gui/misc_color_swatch.cpp
 src/gui/qrpanel.cpp
 
 src/zc_list_data.cpp
