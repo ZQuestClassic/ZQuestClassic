@@ -73,6 +73,7 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "dialog/screen_enemies.h"
 #include "dialog/enemypattern.h"
 #include "dialog/sfxdata.h"
+#include "dialog/mapstyles.h"
 #include "dialog/externs.h"
 
 #include "base/gui.h"
@@ -8183,7 +8184,7 @@ void draw(bool justcset)
 static void replace(ComboPosition start)
 {
 	int32_t cid = Combo;
-    int8_t cs = CSet;
+	int8_t cs = CSet;
 	combo_pool const& pool = combo_pools[combo_pool_pos];
 	if(draw_mode == dm_cpool && !pool.valid())
 		return;
@@ -8192,43 +8193,59 @@ static void replace(ComboPosition start)
 	mapscr* scr = Map.Scr(start, CurrentLayer);
 	if (!scr) return;
 
-    int32_t targetcombo = scr->data[c];
-    int32_t targetcset  = scr->cset[c];
+	int num_combos_width = 16 * Map.getViewSize();
+	int num_combos_height = 11 * Map.getViewSize();
+	int targetcombo = scr->data[c];
+	int targetcset  = scr->cset[c];
 
 	saved = false;
-    Map.StartListCommand();
-    if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
-    {
-        for(int32_t i=0; i<176*Map.getViewSize(); i++)
-        {
-			auto pos = start + i;
-			mapscr* scr = Map.Scr(pos, CurrentLayer);
-            if ((scr->cset[i]) == targetcset)
-            {
-				if(draw_mode == dm_cpool)
-					pool.pick(cid,cs);
-                Map.DoSetComboCommand(pos, -1, cs);
-            }
-        }
-    }
-    else
-    {
-        for(int32_t i=0; i<176*Map.getViewSize(); i++)
-        {
-			auto pos = start + i;
-			mapscr* scr = Map.Scr(pos, CurrentLayer);
-            if(((scr->data[i])==targetcombo) &&
-                    ((scr->cset[i])==targetcset))
-            {
-				if(draw_mode == dm_cpool)
-					pool.pick(cid,cs);
-                Map.DoSetComboCommand(pos, cid, cs);
-            }
-        }
-    }
-    Map.FinishListCommand();
-    
-    refresh(rMAP);
+	Map.StartListCommand();
+	if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
+	{
+		for (int x = 0; x < num_combos_width; x++)
+		{
+			for (int y = 0; y < num_combos_height; y++)
+			{
+				ComboPosition pos = {x, y};
+				int c = pos.truncate();
+				mapscr* scr = Map.Scr(pos, CurrentLayer);
+				if (!scr)
+					continue;
+
+				if ((scr->cset[c]) == targetcset)
+				{
+					if(draw_mode == dm_cpool)
+						pool.pick(cid,cs);
+					Map.DoSetComboCommand(pos, -1, cs);
+				}
+			}
+		}
+	}
+	else
+	{
+		for (int x = 0; x < num_combos_width; x++)
+		{
+			for (int y = 0; y < num_combos_height; y++)
+			{
+				ComboPosition pos = {x, y};
+				int c = pos.truncate();
+				mapscr* scr = Map.Scr(pos, CurrentLayer);
+				if (!scr)
+					continue;
+
+				if(((scr->data[c])==targetcombo) &&
+					((scr->cset[c])==targetcset))
+				{
+					if(draw_mode == dm_cpool)
+						pool.pick(cid,cs);
+					Map.DoSetComboCommand(pos, cid, cs);
+				}
+			}
+		}
+	}
+	Map.FinishListCommand();
+
+	refresh(rMAP);
 }
 
 static void draw_block(ComboPosition start, int32_t w, int32_t h)
@@ -22737,102 +22754,10 @@ int32_t onEditSFX(int32_t index)
 	return D_O_K;
 }
 
-
-static DIALOG mapstyles_dlg[] =
-{
-    /* (dialog proc)     (x)   (y)    (w)   (h)   (fg)      (bg)     (key)    (flags)       (d1)           (d2)      (dp) */
-    { jwin_win_proc,        0,    0,  307,  186,  vc(14),   vc(1),      0,       D_EXIT,     0,             0, (void *) "Map Styles", NULL, NULL },
-    { jwin_ctext_proc,     24,   34,   36,   36,       0,       0,      0,       0,          0,             0, (void *) "Frame", NULL, NULL },       //frame
-    { jwin_ctext_proc,     68,   26,   20,   20,       0,       0,      0,       0,          0,             0, (void *) "Triforce", NULL, NULL },       //triforce fragment
-    { jwin_ctext_proc,     68,   34,   20,   20,       0,       0,      0,       0,          0,             0, (void *) "Fragment", NULL, NULL },       //triforce fragment
-    { jwin_ctext_proc,    152,   26,  100,   52,       0,       0,      0,       0,          0,             0, (void *) "Triforce Frame", NULL, NULL },       //triforce frame
-    { jwin_ctext_proc,    152,   34,  100,   52,       0,       0,      0,       0,          0,             0, (void *) "(Normal or Double Sized)", NULL, NULL },       //triforce frame
-    { jwin_ctext_proc,    260,   34,   84,   52,       0,       0,      0,       0,          0,             0, (void *) "Overworld Map", NULL, NULL },       //overworld map
-    { jwin_ctext_proc,     24,   82,   20,   20,       0,       0,      0,       0,          0,             0, (void *) "Heart", NULL, NULL },       //heart container piece
-    { jwin_ctext_proc,     24,   90,   20,   20,       0,       0,      0,       0,          0,             0, (void *) "Container", NULL, NULL },       //heart container piece
-    { jwin_ctext_proc,     24,   98,   20,   20,       0,       0,      0,       0,          0,             0, (void *) "Piece", NULL, NULL },       //heart container piece
-    { jwin_ctext_proc,    260,   98,   84,   52,       0,       0,      0,       0,          0,             0, (void *) "Dungeon Map", NULL, NULL },       //dungeon map
-    // 11
-    { jwin_frame_proc,      6,   42,   36,   36,       0,       0,      0,       0,          FR_DEEP,       0,       NULL, NULL, NULL },             //frame
-    //  { jwin_frame_proc,     50,   42,   36,   52,       0,       0,      0,       0,          FR_DEEP,       0,       NULL, NULL, NULL }, //bs triforce fragment
-    { jwin_frame_proc,     58,   42,   20,   20,       0,       0,      0,       0,          FR_DEEP,       0,       NULL, NULL, NULL },             //normal triforce fragment
-    //  { jwin_frame_proc,     94,   42,  116,  116,       0,       0,      0,       0,          FR_DEEP,       0,       NULL, NULL, NULL }, //bs triforce frame
-    { jwin_frame_proc,    102,   42,  100,   52,       0,       0,      0,       0,          FR_DEEP,       0,       NULL, NULL, NULL },             //normaltriforce frame
-    { jwin_frame_proc,    218,   42,   84,   52,       0,       0,      0,       0,          FR_DEEP,       0,       NULL, NULL, NULL },             //overworld map
-    { jwin_frame_proc,     14,  106,   20,   20,       0,       0,      0,       0,          FR_DEEP,       0,       NULL, NULL, NULL },             //heart container piece
-    { jwin_frame_proc,    218,  106,   84,   52,       0,       0,      0,       0,          FR_DEEP,       0,       NULL, NULL, NULL },             //dungeon map
-    // 17
-    { d_maptile_proc,       8,   44,   32,   32,       0,       0,      0,       0,          0,             0,       NULL, (void*)1, NULL },             //frame
-    //  { d_maptile_proc,      52,   44,   32,   48,       0,       0,      0,       0,          0,             0,       NULL, NULL, NULL }, //bs triforce fragment
-    { d_maptile_proc,      60,   44,   16,   16,       0,       0,      0,       0,          0,             0,       NULL, (void*)1, NULL },             //normal triforce fragment
-    //  { d_maptile_proc,      96,   44,  112,  112,       0,       0,      0,       0,          0,             0,       NULL, NULL, NULL }, //bs triforce frame
-    { d_maptile_proc,     104,   44,   96,   48,       0,       0,      0,       0,          0,             0,       NULL, (void*)1, NULL },             //normal triforce frame
-    { d_maptile_proc,     220,   44,   80,   48,       0,       0,      0,       0,          0,             0,       NULL, (void*)1, NULL },             //overworld map
-    { d_maptile_proc,      16,  108,   16,   16,       0,       0,      0,       0,          0,             0,       NULL, (void*)1, NULL },             //heart container piece
-    { d_maptile_proc,     220,  108,   80,   48,       0,       0,      0,       0,          0,             0,       NULL, (void*)1, NULL },             //dungeon map
-    // 23
-    { jwin_button_proc,    83,  162,   61,   21,  vc(14),   vc(1),     13,       D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-    { jwin_button_proc,   163,  162,   61,   21,  vc(14),   vc(1),     27,       D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
 int32_t onMapStyles()
 {
-    if(mapstyles_dlg[0].d1<1)
-    {
-        mapstyles_dlg[12].x=mapstyles_dlg[0].x+50;
-        mapstyles_dlg[12].w=36;
-        mapstyles_dlg[12].h=52;
-        mapstyles_dlg[13].x=mapstyles_dlg[0].x+94;
-        mapstyles_dlg[13].w=116;
-        mapstyles_dlg[13].h=116;
-        mapstyles_dlg[18].x=mapstyles_dlg[12].x+2;
-        mapstyles_dlg[18].w=mapstyles_dlg[12].w-4;
-        mapstyles_dlg[18].h=mapstyles_dlg[12].h-4;
-        mapstyles_dlg[19].x=mapstyles_dlg[13].x+2;
-        mapstyles_dlg[19].w=mapstyles_dlg[13].w-4;
-        mapstyles_dlg[19].h=mapstyles_dlg[13].h-4;
-    }
-    
-    mapstyles_dlg[0].dp2 = get_zc_font(font_lfont);
-    mapstyles_dlg[17].d1  = QMisc.colors.blueframe_tile;
-    mapstyles_dlg[17].fg  = QMisc.colors.blueframe_cset;
-    mapstyles_dlg[18].d1  = QMisc.colors.triforce_tile;
-    mapstyles_dlg[18].fg  = QMisc.colors.triforce_cset;
-    mapstyles_dlg[19].d1  = QMisc.colors.triframe_tile;
-    mapstyles_dlg[19].fg  = QMisc.colors.triframe_cset;
-    mapstyles_dlg[20].d1  = QMisc.colors.overworld_map_tile;
-    mapstyles_dlg[20].fg  = QMisc.colors.overworld_map_cset;
-    mapstyles_dlg[21].d1 = QMisc.colors.HCpieces_tile;
-    mapstyles_dlg[21].fg = QMisc.colors.HCpieces_cset;
-    mapstyles_dlg[22].d1  = QMisc.colors.dungeon_map_tile;
-    mapstyles_dlg[22].fg  = QMisc.colors.dungeon_map_cset;
-    
-    large_dialog(mapstyles_dlg,2);
-        
-    go();
-    int32_t ret = do_zqdialog(mapstyles_dlg,-1);
-    comeback();
-    
-    if(ret==23)
-    {
-        QMisc.colors.blueframe_tile     = mapstyles_dlg[17].d1;
-        QMisc.colors.blueframe_cset     = mapstyles_dlg[17].fg;
-        QMisc.colors.triforce_tile      = mapstyles_dlg[18].d1;
-        QMisc.colors.triforce_cset      = mapstyles_dlg[18].fg;
-        QMisc.colors.triframe_tile      = mapstyles_dlg[19].d1;
-        QMisc.colors.triframe_cset      = mapstyles_dlg[19].fg;
-        QMisc.colors.overworld_map_tile = mapstyles_dlg[20].d1;
-        QMisc.colors.overworld_map_cset = mapstyles_dlg[20].fg;
-        QMisc.colors.HCpieces_tile      = mapstyles_dlg[21].d1;
-        QMisc.colors.HCpieces_cset      = mapstyles_dlg[21].fg;
-        QMisc.colors.dungeon_map_tile   = mapstyles_dlg[22].d1;
-        QMisc.colors.dungeon_map_cset   = mapstyles_dlg[22].fg;
-        saved=false;
-    }
-    
-    return D_O_K;
+	call_mapstyles_dialog();
+	return D_O_K;
 }
 
 int32_t d_misccolors_old_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -25942,7 +25867,6 @@ void center_zquest_dialogs()
     jwin_center_dialog(layerdata_dlg);
     jwin_center_dialog(list_dlg);
     jwin_center_dialog(loadmap_dlg);
-    jwin_center_dialog(mapstyles_dlg);
     jwin_center_dialog(misccolors_dlg);
     jwin_center_dialog(newcomboa_dlg);
     jwin_center_dialog(orgcomboa_dlg);
