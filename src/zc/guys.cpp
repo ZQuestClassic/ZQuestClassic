@@ -10714,7 +10714,6 @@ bool eStalfos::animate(int32_t index)
 		{
 			if (txsz > 1 || tysz > 1 || (SIZEflags&OVERRIDE_HIT_WIDTH) || (SIZEflags&OVERRIDE_HIT_HEIGHT) )//remove more than one combo based on enemy size
 			{
-				//zprint("spawn big enemy from armos\n");
 				 //if removing a block, then adjust y by -1 as the enemy spawns at y+1
 				for(int32_t dx = 0; dx < tysz; dx ++)
 				{

@@ -1,3 +1,4 @@
+#include "allegro/gui.h"
 #include "base/files.h"
 #define MIDI_TRACK_BUFFER_SIZE 50
 
@@ -71,10 +72,12 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "dialog/compilezscript.h"
 #include "dialog/screen_enemies.h"
 #include "dialog/enemypattern.h"
+#include "dialog/sfxdata.h"
 #include "dialog/externs.h"
 
 #include "base/gui.h"
 #include "gui/jwin_a5.h"
+#include "gui/jwin.h"
 #include "zc_list_data.h"
 #include "gui/editbox.h"
 #include "zq/zq_misc.h"
@@ -216,7 +219,8 @@ int32_t startdmapxy[6] = {-1000, -1000, -1000, -1000, -1000, -1000};
 bool cancelgetnum=false;
 
 int32_t tooltip_timer=0, tooltip_maxtimer=30, tooltip_current_ffc=0;
-int32_t mousecomboposition, combobrushoverride=-1;
+int32_t combobrushoverride=-1;
+ComboPosition mouse_combo_pos;
 
 int32_t original_playing_field_offset=0;
 int32_t playing_field_offset=original_playing_field_offset;
@@ -283,6 +287,10 @@ size_and_pos combolist[MAX_COMBO_COLS];
 size_and_pos combolistscrollers[MAX_COMBO_COLS];
 int32_t num_combo_cols = MAX_COMBO_COLS;
 
+static bool zoom_in_btn_disabled;
+static bool zoom_out_btn_disabled;
+size_and_pos zoominbtn;
+size_and_pos zoomoutbtn;
 size_and_pos compactbtn;
 size_and_pos mainbar;
 
@@ -412,9 +420,89 @@ cmbdat_pair const& get_pool_combo()
 	return pool_combos[pool.at(ind)];
 }
 
-int32_t mapscreen_x, mapscreen_y, mapscreensize, showedges, showallpanels;
 int32_t mouse_scroll_h;
 
+// 'mapscreen' refers to the area of the editor where the screen is drawn.
+int32_t mapscreen_x, mapscreen_y, showedges, showallpanels;
+// The scale of the entire mapscreen area. This varies based on compact/extended mode.
+static int mapscreen_screenunit_scale;
+// Would love to have no limit, but our screen bitmap has too low a resolution at the moment.
+// The scale of an individual screen being drawn. This is `mapscreen_screenunit_scale / Map.getViewSize()`.
+static double mapscreen_single_scale;
+// 4 is roughly the largest value where things render okay. Beyond that, our low bitmap resolution results in tons
+// of downsampling. Let users go to 16 anyway.
+static int mapscreen_num_screens_to_draw_max = 16;
+// The valid layers for the current screen(s).
+static bool mapscreen_valid_layers[6];
+
+struct VisibleScreen
+{
+	int dx, dy;
+	int xoff, yoff;
+	mapscr* scr;
+	int screen;
+};
+static std::vector<VisibleScreen> visible_screens;
+static VisibleScreen* active_visible_screen = nullptr;
+
+static void set_active_visible_screen(mapscr* scr)
+{
+	active_visible_screen = nullptr;
+	for (auto& visible_screen : visible_screens)
+	{
+		if (visible_screen.scr == scr)
+		{
+			active_visible_screen = &visible_screen;
+			break;
+		}
+	}
+}
+
+static ComboPosition get_mapscreen_mouse_combo_pos()
+{
+	int startxint = mapscreen_x+(showedges?int(16*mapscreen_single_scale):0);
+	int startyint = mapscreen_y+(showedges?int(16*mapscreen_single_scale):0);
+	int cx = (gui_mouse_x()-startxint)/(16*mapscreen_single_scale);
+	int cy = (gui_mouse_y()-startyint)/(16*mapscreen_single_scale);
+	return ComboPosition{cx, cy};
+}
+
+static void refresh_visible_screens()
+{
+	int num_screens = Map.getViewSize();
+	int screen_width = mapscreenbmp->w * mapscreen_single_scale;
+	int screen_height = mapscreenbmp->h * mapscreen_single_scale;
+
+	visible_screens.clear();
+	for (int dx = 0; dx < num_screens; dx++)
+	{
+		for (int dy = 0; dy < num_screens; dy++)
+		{
+			int mx = Map.getViewScr()%16 + dx;
+			int my = Map.getViewScr()/16 + dy;
+			if (mx < 0 || mx >= 16 || my < 0 || my >= 9)
+				continue;
+
+			int screen = Map.getViewScr() + dx + dy * 16;
+			if (screen >= MAPSCRS)
+				continue;
+
+			mapscr* scr = Map.Scr(screen);
+			int offx = dx * screen_width;
+			int offy = dy * screen_height;
+			visible_screens.emplace_back(VisibleScreen{dx, dy, offx, offy, scr, screen});
+		}
+	}
+
+	for (int i = 0; i < 6; i++)
+	{
+		mapscreen_valid_layers[i] = false;
+		for (auto& vis_screen : visible_screens)
+		{
+			mapscreen_valid_layers[i] |= vis_screen.scr->layermap[i] > 0;
+		}
+	}
+}
 
 int32_t readsize, writesize;
 bool fake_pack_writing=false;
@@ -570,7 +658,7 @@ extern int CheckerCol1, CheckerCol2;
 int32_t alignment_arrow_timer=0;
 int32_t  Flip=0,Combo=0,CSet=2,current_combolist=0,current_comboalist=0,current_cpoollist=0,current_cautolist=0,current_mappage=0;
 int32_t  Flags=0,Flag=0,menutype=(m_block);
-int MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, GridColor = 15,
+int MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, ShowScreenGrid = 0, GridColor = 15, ShowCurScreenOutline = 1,
 	CmbCursorCol = 15, TilePgCursorCol = 15, CmbPgCursorCol = 15, TTipHLCol = 13,
 	TileProtection = 0, ComboProtection = 0, NoScreenPreview = 0, MMapCursorStyle = 0,
 	LayerDitherBG = -1, LayerDitherSz = 2, RulesetDialog = 0,
@@ -748,7 +836,7 @@ zfix HeroModifiedX()
 {
     if(resize_mouse_pos)
     {
-        return (zfix)((gui_mouse_x()/mapscreensize)-((8*mapscreensize)-1)+(showedges?8:0));
+        return (zfix)((gui_mouse_x()/mapscreen_single_scale)-((8*mapscreen_single_scale)-1)+(showedges?8:0));
     }
     else
     {
@@ -760,7 +848,7 @@ zfix HeroModifiedY()
 {
     if(resize_mouse_pos)
     {
-        return (zfix)((gui_mouse_y()/mapscreensize)-((8*mapscreensize)-1)-16+(showedges?16:0));
+        return (zfix)((gui_mouse_y()/mapscreen_single_scale)-((8*mapscreen_single_scale)-1)-16+(showedges?16:0));
     }
     else
     {
@@ -1000,8 +1088,18 @@ void reload_zq_gui()
 {
 	init_custom_fonts();
 	load_size_poses();
+	refresh_visible_screens();
 	update_combobrush();
 	refresh(rCLEAR|rALL);
+}
+void change_mapscr_zoom(int delta)
+{
+	int num_screens = Map.getViewSize();
+	num_screens = std::clamp(num_screens + delta, 1, mapscreen_num_screens_to_draw_max);
+	Map.setViewSize(num_screens);
+	std::string qst_cfg_header = qst_cfg_header_from_path(filepath);
+	zc_set_config(qst_cfg_header.c_str(), "zoom_num_screens", Map.getViewSize());
+	reload_zq_gui();
 }
 void toggle_is_compact()
 {
@@ -1396,6 +1494,8 @@ enum
 	MENUID_VIEW_FFCS,
 	MENUID_VIEW_SCRIPTNAMES,
 	MENUID_VIEW_GRID,
+	MENUID_VIEW_SCREENGRID,
+	MENUID_VIEW_CURSCROUTLINE,
 	MENUID_VIEW_DARKNESS,
 	MENUID_VIEW_L2BG,
 	MENUID_VIEW_L3BG,
@@ -1416,6 +1516,8 @@ NewMenu view_menu
 	{ "Show FFCs", onToggleShowFFCs, MENUID_VIEW_FFCS },
 	{ "Show Script &Names", onToggleShowScripts, MENUID_VIEW_SCRIPTNAMES },
 	{ "Show &Grid", onGridToggle, MENUID_VIEW_GRID },
+	{ "Show Screen G&rid", onToggleScreenGrid, MENUID_VIEW_SCREENGRID },
+	{ "Show Current Screen Outline", onToggleCurrentScreenOutline, MENUID_VIEW_CURSCROUTLINE },
 	{ "Show &Darkness", onShowDarkness, MENUID_VIEW_DARKNESS },
 	{ "Layer 2 is Background", onLayer2BG, MENUID_VIEW_L2BG },
 	{ "Layer 3 is Background", onLayer3BG, MENUID_VIEW_L3BG },
@@ -1630,9 +1732,24 @@ int32_t onToggleGrid(bool color)
     
     return D_O_K;
 }
+
 int onGridToggle()
 {
 	return onToggleGrid(CHECK_CTRL_CMD);
+}
+
+int32_t onToggleScreenGrid()
+{
+	ShowScreenGrid=!ShowScreenGrid;
+	zc_set_config("zquest","show_screen_grid",ShowScreenGrid);
+	return D_O_K;
+}
+
+int32_t onToggleCurrentScreenOutline()
+{
+	ShowCurScreenOutline=!ShowCurScreenOutline;
+	zc_set_config("zquest","show_current_screen_outline",ShowCurScreenOutline);
+	return D_O_K;
 }
 
 int32_t onToggleShowScripts()
@@ -2905,31 +3022,24 @@ int32_t onOptions()
 const char *dm_names[dm_max]=
 {
     "Normal",
-    "Relational",
-    "Dungeon",
+    "Relational", // Removed.
+    "Dungeon",    // Removed.
     "Alias",
 	"Pool",
 	"Auto"
 };
-
-byte relational_tile_grid[11+(rtgyo*2)][16+(rtgxo*2)];
 
 void fix_drawing_mode_menu()
 {
 	drawing_mode_menu.select_only_uid(draw_mode);
 }
 
-void reset_relational_tile_grid()
-{
-	memset(relational_tile_grid,(draw_mode==dm_relational?1:0),(11+(rtgyo*2))*(16+(rtgxo*2)));
-}
-
 int32_t onDrawingMode()
 {
     draw_mode=(draw_mode+1)%dm_max;
-	if (draw_mode == dm_relational)
+	int dm_relational = 1;
+	if ((int)draw_mode == dm_relational)
 		draw_mode += 2;
-    reset_relational_tile_grid();
     fix_drawing_mode_menu();
     restore_mouse();
     return D_O_K;
@@ -2938,35 +3048,6 @@ int32_t onDrawingMode()
 int32_t onDrawingModeNormal()
 {
     draw_mode=dm_normal;
-    reset_relational_tile_grid();
-    fix_drawing_mode_menu();
-    restore_mouse();
-    return D_O_K;
-}
-
-int32_t onDrawingModeRelational()
-{
-    if(draw_mode==dm_relational)
-    {
-        return onDrawingModeNormal();
-    }
-    
-    draw_mode=dm_relational;
-    reset_relational_tile_grid();
-    fix_drawing_mode_menu();
-    restore_mouse();
-    return D_O_K;
-}
-
-int32_t onDrawingModeDungeon()
-{
-    if(draw_mode==dm_dungeon)
-    {
-        return onDrawingModeNormal();
-    }
-    
-    draw_mode=dm_dungeon;
-    reset_relational_tile_grid();
     fix_drawing_mode_menu();
     restore_mouse();
     return D_O_K;
@@ -2981,7 +3062,6 @@ int32_t onDrawingModeAlias()
     
     draw_mode=dm_alias;
     alias_cset_mod=0;
-    reset_relational_tile_grid();
     fix_drawing_mode_menu();
     restore_mouse();
     return D_O_K;
@@ -2995,7 +3075,6 @@ int32_t onDrawingModePool()
     }
     
     draw_mode=dm_cpool;
-    reset_relational_tile_grid();
     fix_drawing_mode_menu();
     restore_mouse();
     return D_O_K;
@@ -3009,7 +3088,6 @@ int32_t onDrawingModeAuto()
 	}
 
 	draw_mode = dm_auto;
-	reset_relational_tile_grid();
 	fix_drawing_mode_menu();
 	restore_mouse();
 	return D_O_K;
@@ -3048,7 +3126,8 @@ int32_t onCopy()
         return D_O_K;
     }
     
-    Map.Copy();
+	int screen = active_visible_screen ? active_visible_screen->screen : Map.getCurrScr();
+    Map.Copy(screen);
     return D_O_K;
 }
 
@@ -3064,14 +3143,16 @@ int32_t onPaste()
 		return onPasteToAll();
 	else
 	{
-		Map.DoPasteScreenCommand(PasteCommandType::ScreenPartial);
+		int screen = active_visible_screen ? active_visible_screen->screen : Map.getCurrScr();
+		Map.DoPasteScreenCommand(PasteCommandType::ScreenPartial, screen);
 	}
 	return D_O_K;
 }
 
 int32_t onPasteAll()
 {
-	Map.DoPasteScreenCommand(PasteCommandType::ScreenAll);
+	int screen = active_visible_screen ? active_visible_screen->screen : Map.getCurrScr();
+	Map.DoPasteScreenCommand(PasteCommandType::ScreenAll, screen);
 	return D_O_K;
 }
 
@@ -3095,7 +3176,8 @@ int32_t onPasteAllToAll()
 
 int32_t onPasteUnderCombo()
 {
-    Map.DoPasteScreenCommand(PasteCommandType::ScreenUnderCombo);
+	int screen = active_visible_screen ? active_visible_screen->screen : Map.getCurrScr();
+    Map.DoPasteScreenCommand(PasteCommandType::ScreenUnderCombo, screen);
     return D_O_K;
 }
 
@@ -3107,74 +3189,85 @@ int32_t onPasteSecretCombos()
 
 int32_t onPasteFFCombos()
 {
-    Map.DoPasteScreenCommand(PasteCommandType::ScreenFFCombos);
+	int screen = active_visible_screen ? active_visible_screen->screen : Map.getCurrScr();
+    Map.DoPasteScreenCommand(PasteCommandType::ScreenFFCombos, screen);
     return D_O_K;
 }
 
 int32_t onPasteWarps()
 {
-    Map.DoPasteScreenCommand(PasteCommandType::ScreenWarps);
+	int screen = active_visible_screen ? active_visible_screen->screen : Map.getCurrScr();
+    Map.DoPasteScreenCommand(PasteCommandType::ScreenWarps, screen);
     return D_O_K;
 }
 
 int32_t onPasteScreenData()
 {
-    Map.DoPasteScreenCommand(PasteCommandType::ScreenData);
+	int screen = active_visible_screen ? active_visible_screen->screen : Map.getCurrScr();
+    Map.DoPasteScreenCommand(PasteCommandType::ScreenData, screen);
     return D_O_K;
 }
 
 int32_t onPasteWarpLocations()
 {
-    Map.DoPasteScreenCommand(PasteCommandType::ScreenWarpLocations);
+	int screen = active_visible_screen ? active_visible_screen->screen : Map.getCurrScr();
+    Map.DoPasteScreenCommand(PasteCommandType::ScreenWarpLocations, screen);
     return D_O_K;
 }
 
 int32_t onPasteDoors()
 {
-    Map.DoPasteScreenCommand(PasteCommandType::ScreenDoors);
+	int screen = active_visible_screen ? active_visible_screen->screen : Map.getCurrScr();
+    Map.DoPasteScreenCommand(PasteCommandType::ScreenDoors, screen);
     return D_O_K;
 }
 
 int32_t onPasteLayers()
 {
-    Map.DoPasteScreenCommand(PasteCommandType::ScreenLayers);
+	int screen = active_visible_screen ? active_visible_screen->screen : Map.getCurrScr();
+    Map.DoPasteScreenCommand(PasteCommandType::ScreenLayers, screen);
     return D_O_K;
 }
 
 int32_t onPastePalette()
 {
-    Map.DoPasteScreenCommand(PasteCommandType::ScreenPalette);
+	int screen = active_visible_screen ? active_visible_screen->screen : Map.getCurrScr();
+    Map.DoPasteScreenCommand(PasteCommandType::ScreenPalette, screen);
     return D_O_K;
 }
 
 int32_t onPasteRoom()
 {
-    Map.DoPasteScreenCommand(PasteCommandType::ScreenRoom);
+	int screen = active_visible_screen ? active_visible_screen->screen : Map.getCurrScr();
+    Map.DoPasteScreenCommand(PasteCommandType::ScreenRoom, screen);
     return D_O_K;
 }
 
 int32_t onPasteGuy()
 {
-    Map.DoPasteScreenCommand(PasteCommandType::ScreenGuy);
+	int screen = active_visible_screen ? active_visible_screen->screen : Map.getCurrScr();
+    Map.DoPasteScreenCommand(PasteCommandType::ScreenGuy, screen);
     return D_O_K;
 }
 
 int32_t onPasteEnemies()
 {
-    Map.DoPasteScreenCommand(PasteCommandType::ScreenEnemies);
+	int screen = active_visible_screen ? active_visible_screen->screen : Map.getCurrScr();
+    Map.DoPasteScreenCommand(PasteCommandType::ScreenEnemies, screen);
     return D_O_K;
 }
 
 int32_t onDelete()
 {
     restore_mouse();
-    
-	if(!(Map.CurrScr()->valid&mVALID) || jwin_alert("Confirm Delete","Delete this screen?", NULL, NULL, "Yes", "Cancel", 'y', 27,get_zc_font(font_lfont)) == 1)
+
+	int screen = active_visible_screen ? active_visible_screen->screen : Map.getCurrScr();
+	mapscr* scr = active_visible_screen ? active_visible_screen->scr : Map.CurrScr();
+	if(!(scr->valid&mVALID) || jwin_alert("Confirm Delete","Delete this screen?", NULL, NULL, "Yes", "Cancel", 'y', 27,get_zc_font(font_lfont)) == 1)
 	{
-		Map.DoClearScreenCommand();
+		Map.DoClearScreenCommand(screen);
 	}
     
-    reset_relational_tile_grid();
     saved=false;
     return D_O_K;
 }
@@ -3204,12 +3297,8 @@ int32_t onIncMap()
     int32_t m=Map.getCurrMap();
     int32_t oldcolor=Map.getcolor();
     Map.setCurrMap(m+1>=map_count?0:m+1);
-    Map.setCurrScr(Map.getCurrScr()); //Needed to refresh the screen info. -Z ( 26th March, 2019 )
+    // Map.setCurrScr(Map.getCurrScr()); //Needed to refresh the screen info. -Z ( 26th March, 2019 )
     Map.setlayertarget(); //Needed to refresh the screen info. -Z ( 26th March, 2019 )
-    if(m!=Map.getCurrMap())
-    {
-        reset_relational_tile_grid();
-    }
     
     int32_t newcolor=Map.getcolor();
     
@@ -3227,13 +3316,8 @@ int32_t onDecMap()
     int32_t m=Map.getCurrMap();
     int32_t oldcolor=Map.getcolor();
     Map.setCurrMap((m-1<0)?map_count-1:zc_min(m-1,map_count-1));
-    Map.setCurrScr(Map.getCurrScr()); //Needed to refresh the screen info. -Z ( 26th March, 2019 )
+    // Map.setCurrScr(Map.getCurrScr()); //Needed to refresh the screen info. -Z ( 26th March, 2019 )
     Map.setlayertarget(); //Needed to refresh the screen info. -Z ( 26th March, 2019 )
-    
-    if(m!=Map.getCurrMap())
-    {
-        reset_relational_tile_grid();
-    }
     
     int32_t newcolor=Map.getcolor();
     
@@ -4465,10 +4549,12 @@ public:
 private:
 	void render(bool bitmap_resized)
 	{
+		MapCursor previous_cursor = Map.getCursor();
+		Map.setViewSize(1);
+
 		BITMAP* bmap4_single = create_bitmap_ex(8,256,176);
 		set_bitmap_create_flags(true);
 		ALLEGRO_BITMAP* bmap5_single = al_create_bitmap(256,176);
-		int curscr = Map.getCurrScr();
 		for(int32_t y=0; y<8; y++)
 		{
 			for(int32_t x=0; x<16; x++)
@@ -4482,7 +4568,7 @@ private:
 			}
 		}
 
-		Map.setCurrScr(curscr);
+		Map.setCursor(previous_cursor);
 		destroy_bitmap(bmap4_single);
 		al_destroy_bitmap(bmap5_single);
 	}
@@ -5225,6 +5311,223 @@ void put_autocombo_engravings(BITMAP* dest, combo_auto const& ca, bool selected,
 	}
 }
 
+void draw_screenunit_map_screen(VisibleScreen visible_screen)
+{
+	int num_screens_to_draw = Map.getViewSize();
+	int screen = visible_screen.screen;
+	int xoff = visible_screen.xoff;
+	int yoff = visible_screen.yoff;
+
+	mapscr* scr = visible_screen.scr;
+	if (!layers_valid(scr))
+		fix_layers(scr, true);
+
+	clear_to_color(mapscreenbmp, jwin_pal[jcBOX]);
+	if (LayerDitherBG > -1)
+	{
+		if (LayerDitherSz > 0)
+			ditherblit(mapscreenbmp, nullptr, vc(LayerDitherBG), dithChecker, LayerDitherSz);
+		else
+			clear_to_color(mapscreenbmp, vc(LayerDitherBG));
+	}
+
+	int view_scr_x = Map.getViewScr() % 16;
+	int view_scr_y = Map.getViewScr() / 16;
+	int scr_x = screen % 16;
+	int scr_y = screen / 16;
+	if (scr_x != view_scr_x && showedges)
+		xoff -= 16;
+	if (scr_y != view_scr_y && showedges)
+		yoff -= 16;
+
+	Map.draw(mapscreenbmp, scr_x == view_scr_x && showedges ? 16 : 0, scr_y == view_scr_y && showedges ? 16 : 0, Flags, Map.getCurrMap(), screen, ActiveLayerHighlight ? CurrentLayer : -1);
+
+	// TODO: should be better to move this out of draw_screenunit_map_screen.
+	if (showedges && screen < 128)
+	{
+		bool peek_above = scr_y == view_scr_y;
+		bool peek_below = scr_y == view_scr_y + num_screens_to_draw - 1;
+		bool peek_left = scr_x == view_scr_x;
+		bool peek_right = scr_x == view_scr_x + num_screens_to_draw - 1;
+
+		int right_col = 272 - (num_screens_to_draw > 1 ? 16 : 0);
+		int bottom_row = 192 - (num_screens_to_draw > 1 ? 16 : 0);
+
+		//not the first row of screens
+		if (peek_above)
+		{
+			if(screen>15 && !NoScreenPreview)
+			{
+				Map.drawrow(mapscreenbmp, 16, 0, Flags, 160, -1, screen-16);
+			}
+			else
+			{
+				Map.drawstaticrow(mapscreenbmp, 16, 0);
+			}
+		}
+		
+		//not the last row of screens
+		if (peek_below)
+		{
+			if(screen + 16*num_screens_to_draw < 128 && !NoScreenPreview)
+			{
+				Map.drawrow(mapscreenbmp, 16, bottom_row, Flags, 0, -1, screen+16);
+			}
+			else
+			{
+				Map.drawstaticrow(mapscreenbmp, 16, bottom_row);
+			}
+		}
+		
+		//not the first column of screens
+		if (peek_left)
+		{
+			if(screen&0x0F && !NoScreenPreview)
+			{
+				Map.drawcolumn(mapscreenbmp, 0, 16, Flags, 15, -1, screen-1);
+			}
+			else
+			{
+				Map.drawstaticcolumn(mapscreenbmp, 0, 16);
+			}
+		}
+		
+		//not the last column of screens
+		if (peek_right)
+		{
+			if((screen&0x0F)<15 && !NoScreenPreview)
+			{
+				Map.drawcolumn(mapscreenbmp, right_col, 16, Flags, 0, -1, screen+1);
+			}
+			else
+			{
+				Map.drawstaticcolumn(mapscreenbmp, right_col, 16);
+			}
+		}
+		
+		//not the first row or first column of screens
+		if (peek_above || peek_left)
+		{
+			if((screen>15)&&(screen&0x0F) && !NoScreenPreview)
+			{
+				Map.drawblock(mapscreenbmp, 0, 0, Flags, 175, -1, screen-17);
+			}
+			else
+			{
+				Map.drawstaticblock(mapscreenbmp, 0, 0);
+			}
+		}
+		
+		//not the first row or last column of screens
+		if (peek_above || peek_right)
+		{
+			if((screen>15)&&((screen&0x0F)<15) && !NoScreenPreview)
+			{
+				Map.drawblock(mapscreenbmp, right_col, 0, Flags, 160, -1, screen-15);
+			}
+			else
+			{
+				Map.drawstaticblock(mapscreenbmp, right_col, 0);
+			}
+		}
+		
+		//not the last row or first column of screens
+		if (peek_below || peek_left)
+		{
+			if((screen<112)&&(screen&0x0F) && !NoScreenPreview)
+			{
+				Map.drawblock(mapscreenbmp, 0, bottom_row, Flags, 15, -1, screen+15);
+			}
+			else
+			{
+				Map.drawstaticblock(mapscreenbmp, 0, bottom_row);
+			}
+		}
+		
+		//not the last row or last column of screens
+		if (peek_below || peek_right)
+		{
+			if((screen<112)&&((screen&0x0F)<15) && !NoScreenPreview)
+			{
+				Map.drawblock(mapscreenbmp, right_col, bottom_row, Flags, 0, -1, screen+17);
+			}
+			else
+			{
+				Map.drawstaticblock(mapscreenbmp, right_col, bottom_row);
+			}
+		}
+	}
+	
+	if (ShowSquares && Map.getViewSize() < 4)
+	{
+		if(scr->stairx || scr->stairy)
+		{
+			int32_t x1 = scr->stairx+(showedges?16:0);
+			int32_t y1 = scr->stairy+(showedges?16:0);
+			safe_rect(mapscreenbmp,x1,y1,x1+15,y1+15,vc(14));
+		}
+		
+		if(scr->warparrivalx || scr->warparrivaly)
+		{
+			int32_t x1 = scr->warparrivalx +(showedges?16:0);
+			int32_t y1 = scr->warparrivaly +(showedges?16:0);
+			safe_rect(mapscreenbmp,x1,y1,x1+15,y1+15,vc(10));
+		}
+		
+		for(int32_t i=0; i<4; i++) if(scr->warpreturnx[i] || scr->warpreturny[i])
+			{
+				int32_t x1 = scr->warpreturnx[i]+(showedges?16:0);
+				int32_t y1 = scr->warpreturny[i]+(showedges?16:0);
+				int32_t clr = vc(9);
+				
+				if(FlashWarpSquare==i)
+				{
+					if(!FlashWarpClk)
+						FlashWarpSquare=-1;
+					else if(!(--FlashWarpClk%3))
+						clr = vc(15);
+				}
+				
+				safe_rect(mapscreenbmp,x1,y1,x1+15,y1+15,clr);
+			}
+	}
+	
+	if(ShowFFCs)
+	{
+		mapscr* ffscr = prv_mode ? Map.get_prvscr() : scr;
+		int num_ffcs = ffscr->numFFC();
+		for(int32_t i=num_ffcs-1; i>=0; i--)
+		{
+			ffcdata& ff = ffscr->ffcs[i];
+			if(ff.data !=0 && (CurrentLayer<2 || (ff.flags&ffc_overlay)))
+			{
+				auto x = ff.x+(showedges?16:0);
+				auto y = ff.y+(showedges?16:0);
+				safe_rect(mapscreenbmp, x+0, y+0, x+ff.txsz*16-1, y+ff.tysz*16-1, vc(12));
+			}
+		}
+	}
+	
+	if(!(Flags&cDEBUG) && pixeldb==1)
+	{
+		for(int32_t j=168; j<176; j++)
+		{
+			for(int32_t i=0; i<256; i++)
+			{
+				if(((i^j)&1)==0)
+				{
+					putpixel(mapscreenbmp,(showedges?16:0)+i,
+						(showedges?16:0)+j,vc(blackout_color));
+				}
+			}
+		}
+	}
+
+	int w = mapscreenbmp->w * mapscreen_single_scale;
+	int h = mapscreenbmp->h * mapscreen_single_scale;
+	stretch_blit(mapscreenbmp, menu1, 0, 0, mapscreenbmp->w, mapscreenbmp->h, mapscreen_x + xoff, mapscreen_y + yoff, w, h);
+}
+
 void draw_screenunit(int32_t unit, int32_t flags)
 {
 	FONT* tfont = font;
@@ -5306,200 +5609,67 @@ void draw_screenunit(int32_t unit, int32_t flags)
 		break;
 		case rMAP:
 		{
-			if(!layers_valid(Map.CurrScr()))
-				fix_layers(Map.CurrScr(), true);
-				
-			byte bgcol = vc(0);
-			if (LayerDitherBG > -1)
-				bgcol = vc(LayerDitherBG);
-			clear_to_color(mapscreenbmp,0);
-			if (LayerDitherBG > -1)
+			refresh_visible_screens();
+			mapscreen_single_scale = (double)mapscreen_screenunit_scale / Map.getViewSize();
+
+			int num_combos_width = 16 * Map.getViewSize();
+			int num_combos_height = 11 * Map.getViewSize();
+
+			for (auto& vis_screen : visible_screens)
 			{
-				if (LayerDitherSz > 0)
-					ditherblit(mapscreenbmp, nullptr, vc(LayerDitherBG), dithChecker, LayerDitherSz);
-				else
-					clear_to_color(mapscreenbmp, vc(LayerDitherBG));
+				draw_screenunit_map_screen(vis_screen);
 			}
-			Map.draw(mapscreenbmp, showedges?16:0, showedges?16:0, Flags, -1, -1, ActiveLayerHighlight ? CurrentLayer : -1);
-			if(showedges)
+
+			if (showxypos_icon)
 			{
-				if(Map.getCurrScr()<128)
-				{
-					//not the first row of screens
-					if(Map.getCurrScr()>15 && !NoScreenPreview)
-					{
-						Map.drawrow(mapscreenbmp, 16, 0, Flags, 160, -1, Map.getCurrScr()-16);
-					}
-					else
-					{
-						Map.drawstaticrow(mapscreenbmp, 16, 0);
-					}
-					
-					//not the last row of screens
-					if(Map.getCurrScr()<112 && !NoScreenPreview)
-					{
-						Map.drawrow(mapscreenbmp, 16, 192, Flags, 0, -1, Map.getCurrScr()+16);
-					}
-					else
-					{
-						Map.drawstaticrow(mapscreenbmp, 16, 192);
-					}
-					
-					//not the first column of screens
-					if(Map.getCurrScr()&0x0F && !NoScreenPreview)
-					{
-						Map.drawcolumn(mapscreenbmp, 0, 16, Flags, 15, -1, Map.getCurrScr()-1);
-					}
-					else
-					{
-						Map.drawstaticcolumn(mapscreenbmp, 0, 16);
-					}
-					
-					//not the last column of screens
-					if((Map.getCurrScr()&0x0F)<15 && !NoScreenPreview)
-					{
-						Map.drawcolumn(mapscreenbmp, 272, 16, Flags, 0, -1, Map.getCurrScr()+1);
-					}
-					else
-					{
-						Map.drawstaticcolumn(mapscreenbmp, 272, 16);
-					}
-					
-					//not the first row or first column of screens
-					if((Map.getCurrScr()>15)&&(Map.getCurrScr()&0x0F) && !NoScreenPreview)
-					{
-						Map.drawblock(mapscreenbmp, 0, 0, Flags, 175, -1, Map.getCurrScr()-17);
-					}
-					else
-					{
-						Map.drawstaticblock(mapscreenbmp, 0, 0);
-					}
-					
-					//not the first row or last column of screens
-					if((Map.getCurrScr()>15)&&((Map.getCurrScr()&0x0F)<15) && !NoScreenPreview)
-					{
-						Map.drawblock(mapscreenbmp, 272, 0, Flags, 160, -1, Map.getCurrScr()-15);
-					}
-					else
-					{
-						Map.drawstaticblock(mapscreenbmp, 272, 0);
-					}
-					
-					//not the last row or first column of screens
-					if((Map.getCurrScr()<112)&&(Map.getCurrScr()&0x0F) && !NoScreenPreview)
-					{
-						Map.drawblock(mapscreenbmp, 0, 192, Flags, 15, -1, Map.getCurrScr()+15);
-					}
-					else
-					{
-						Map.drawstaticblock(mapscreenbmp, 0, 192);
-					}
-					
-					//not the last row or last column of screens
-					if((Map.getCurrScr()<112)&&((Map.getCurrScr()&0x0F)<15) && !NoScreenPreview)
-					{
-						Map.drawblock(mapscreenbmp, 272, 192, Flags, 0, -1, Map.getCurrScr()+17);
-					}
-					else
-					{
-						Map.drawstaticblock(mapscreenbmp, 272, 192);
-					}
-				}
-			}
-			
-			if(showxypos_icon)
-			{
-				if(showxypos_color==vc(15))
-					safe_rect(mapscreenbmp,showxypos_x+(showedges?16:0),showxypos_y+(showedges?16:0),showxypos_x+(showedges?16:0)+showxypos_w-1,showxypos_y+(showedges?16:0)+showxypos_h-1,showxypos_color);
+				int x0 = showxypos_x + (showedges?16:0);
+				int y0 = showxypos_y + (showedges?16:0);
+				int x1 = x0 + showxypos_w - 1;
+				int y1 = y0 + showxypos_h - 1;
+				x0 *= mapscreen_single_scale;
+				y0 *= mapscreen_single_scale;
+				x1 *= mapscreen_single_scale;
+				y1 *= mapscreen_single_scale;
+				x0 += mapscreen_x;
+				y0 += mapscreen_y;
+				x1 += mapscreen_x;
+				y1 += mapscreen_y;
+
+				if (showxypos_color == vc(15))
+					safe_rect(menu1, x0, y0, x1, y1, showxypos_color);
 				else
-					rectfill(mapscreenbmp,showxypos_x+(showedges?16:0),showxypos_y+(showedges?16:0),showxypos_x+(showedges?16:0)+showxypos_w-1,showxypos_y+(showedges?16:0)+showxypos_h-1,showxypos_color);
+					rectfill(menu1, x0, y0, x1, y1, showxypos_color);
 			}
 			
 			if(showxypos_cursor_icon)
 			{
-				safe_rect(mapscreenbmp,showxypos_cursor_x+(showedges?16:0),showxypos_cursor_y+(showedges?16:0),showxypos_cursor_x+(showedges?16:0)+showxypos_w-1,showxypos_cursor_y+(showedges?16:0)+showxypos_h-1,showxypos_cursor_color);
+				int x0 = showxypos_cursor_x + (showedges?16:0);
+				int y0 = showxypos_cursor_y + (showedges?16:0);
+				int x1 = x0 + showxypos_w - 1;
+				int y1 = y0 + showxypos_h - 1;
+				x0 *= mapscreen_single_scale;
+				y0 *= mapscreen_single_scale;
+				x1 *= mapscreen_single_scale;
+				y1 *= mapscreen_single_scale;
+				x0 += mapscreen_x;
+				y0 += mapscreen_y;
+				x1 += mapscreen_x;
+				y1 += mapscreen_y;
+				safe_rect(menu1, x0, y0, x1, y1, showxypos_cursor_color);
 			}
-			
-			if(ShowSquares)
-			{
-				if(Map.CurrScr()->stairx || Map.CurrScr()->stairy)
-				{
-					int32_t x1 = Map.CurrScr()->stairx+(showedges?16:0);
-					int32_t y1 = Map.CurrScr()->stairy+(showedges?16:0);
-					safe_rect(mapscreenbmp,x1,y1,x1+15,y1+15,vc(14));
-				}
-				
-				if(Map.CurrScr()->warparrivalx || Map.CurrScr()->warparrivaly)
-				{
-					int32_t x1 = Map.CurrScr()->warparrivalx +(showedges?16:0);
-					int32_t y1 = Map.CurrScr()->warparrivaly +(showedges?16:0);
-					safe_rect(mapscreenbmp,x1,y1,x1+15,y1+15,vc(10));
-				}
-				
-				for(int32_t i=0; i<4; i++) if(Map.CurrScr()->warpreturnx[i] || Map.CurrScr()->warpreturny[i])
-					{
-						int32_t x1 = Map.CurrScr()->warpreturnx[i]+(showedges?16:0);
-						int32_t y1 = Map.CurrScr()->warpreturny[i]+(showedges?16:0);
-						int32_t clr = vc(9);
-						
-						if(FlashWarpSquare==i)
-						{
-							if(!FlashWarpClk)
-								FlashWarpSquare=-1;
-							else if(!(--FlashWarpClk%3))
-								clr = vc(15);
-						}
-						
-						safe_rect(mapscreenbmp,x1,y1,x1+15,y1+15,clr);
-					}
-			}
-			
-			if(ShowFFCs)
-			{
-				mapscr* ffscr = prv_mode?Map.get_prvscr():Map.CurrScr();
-				int num_ffcs = ffscr->numFFC();
-				for(int32_t i=num_ffcs-1; i>=0; i--)
-				{
-					ffcdata& ff = ffscr->ffcs[i];
-					if(ff.data !=0 && (CurrentLayer<2 || (ff.flags&ffc_overlay)))
-					{
-						auto x = ff.x+(showedges?16:0);
-						auto y = ff.y+(showedges?16:0);
-						safe_rect(mapscreenbmp, x+0, y+0, x+ff.txsz*16-1, y+ff.tysz*16-1, vc(12));
-					}
-				}
-			}
-			
-			if(!(Flags&cDEBUG) && pixeldb==1)
-			{
-				for(int32_t j=168; j<176; j++)
-				{
-					for(int32_t i=0; i<256; i++)
-					{
-						if(((i^j)&1)==0)
-						{
-							putpixel(mapscreenbmp,(showedges?16:0)+i,
-								(showedges?16:0)+j,vc(blackout_color));
-						}
-					}
-				}
-			}
-			
-			if(mapscreensize==1)
-			{
-				blit(mapscreenbmp,menu1,0,0,mapscreen_x,mapscreen_y,mapscreenbmp->w,mapscreenbmp->h);
-			}
-			else
-			{
-				stretch_blit(mapscreenbmp,menu1,0,0,mapscreenbmp->w,mapscreenbmp->h,mapscreen_x,mapscreen_y,int32_t(mapscreensize*mapscreenbmp->w),int32_t(mapscreensize*mapscreenbmp->h));
-			}
-			
+
+			// Draw dithering over the edge/preview combos.
 			if(showedges)
 			{
+				int tile_size = 16 * mapscreen_single_scale;
+				int tiles_across = (16 * Map.getViewSize()) + 2;
+				int bottom_row_y = (Map.getViewSize()*11 + 1) * tile_size;
+				int right_col_x = (Map.getViewSize()*16 + 1) * tile_size;
+
 				//top preview
-				for(int32_t j=0; j<int32_t(16*mapscreensize); j++)
+				for(int32_t j=0; j<tile_size; j++)
 				{
-					for(int32_t i=0; i<288*mapscreensize; i++)
+					for(int32_t i=0; i<tiles_across * tile_size; i++)
 					{
 						if(((i^j)&1)==0)
 						{
@@ -5509,9 +5679,9 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				}
 				
 				//bottom preview
-				for(int32_t j=int32_t(192*mapscreensize); j<int32_t(208*mapscreensize); j++)
+				for(int32_t j = bottom_row_y; j < bottom_row_y + tile_size; j++)
 				{
-					for(int32_t i=0; i<288*mapscreensize; i++)
+					for(int32_t i=0; i<tiles_across * tile_size; i++)
 					{
 						if(((i^j)&1)==0)
 						{
@@ -5521,22 +5691,21 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				}
 				
 				//left preview
-				for(int32_t j=int32_t(16*mapscreensize); j<int32_t(192*mapscreensize); j++)
+				for(int32_t j=tile_size; j<int32_t(192*mapscreen_screenunit_scale); j++)
 				{
-					for(int32_t i=0; i<16*mapscreensize; i++)
+					for(int32_t i=0; i<16*mapscreen_single_scale; i++)
 					{
 						if(((i^j)&1)==0)
 						{
 							putpixel(menu1,mapscreen_x+i,mapscreen_y+j,vc(0));
 						}
 					}
-					
 				}
 				
 				//right preview
-				for(int32_t j=int32_t(16*mapscreensize); j<int32_t(192*mapscreensize); j++)
+				for(int32_t j=tile_size; j<int32_t(192*mapscreen_screenunit_scale); j++)
 				{
-					for(int32_t i=int32_t(272*mapscreensize); i<int32_t(288*mapscreensize); i++)
+					for(int32_t i = right_col_x; i < right_col_x + tile_size; i++)
 					{
 						if(((i^j)&1)==0)
 						{
@@ -5545,35 +5714,36 @@ void draw_screenunit(int32_t unit, int32_t flags)
 					}
 				}
 			}
-			
+
 			if(!(Flags&cDEBUG) && pixeldb==2)
 			{
-				for(int32_t j=int32_t(168*mapscreensize); j<int32_t(176*mapscreensize); j++)
+				for(int32_t j=int32_t(168*mapscreen_single_scale); j<int32_t(176*mapscreen_single_scale); j++)
 				{
-					for(int32_t i=0; i<int32_t(256*mapscreensize); i++)
+					for(int32_t i=0; i<int32_t(256*mapscreen_single_scale); i++)
 					{
 					
 						if(((i^j)&1)==0)
 						{
-							putpixel(menu1,int32_t(mapscreen_x+(showedges?(16*mapscreensize):0)+i),
-									 int32_t(mapscreen_y+(showedges?(16*mapscreensize):0)+j),vc(blackout_color));
+							putpixel(menu1,int32_t(mapscreen_x+(showedges?(16*mapscreen_single_scale):0)+i),
+									 int32_t(mapscreen_y+(showedges?(16*mapscreen_single_scale):0)+j),vc(blackout_color));
 						}
 					}
 				}
 			}
-			
-			if(Map.isDark())
+
+			// TODO: This should move to `zmap::draw` (and delete the current code there doing a similar thing).
+			if (Map.isDark(Map.getCurrScr()) && Map.getViewSize() == 1)
 			{
 				if((Flags&cNEWDARK) && get_qr(qr_NEW_DARKROOM))
 				{
 					BITMAP* tmpDark = create_bitmap_ex(8,16*16,16*11);
 					BITMAP* tmpDarkTrans = create_bitmap_ex(8,16*16,16*11);
 					BITMAP* tmpbuf = create_bitmap_ex(8,
-						mapscreensize*(256+(showedges?32:0)),
-						mapscreensize*(176+(showedges?32:0)));
+						mapscreen_single_scale*(256+(showedges?32:0)),
+						mapscreen_single_scale*(176+(showedges?32:0)));
 					BITMAP* tmpbuf2 = create_bitmap_ex(8,
-						mapscreensize*(256+(showedges?32:0)),
-						mapscreensize*(176+(showedges?32:0)));
+						mapscreen_single_scale*(256+(showedges?32:0)),
+						mapscreen_single_scale*(176+(showedges?32:0)));
 					int32_t darkCol = zinit.darkcol;
 					switch(darkCol) //special cases
 					{
@@ -5599,7 +5769,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 						ditherblit(tmpDarkTrans, tmpDarkTrans, 0, zinit.dither_type, zinit.dither_arg);
 					}
 					
-					if(mapscreensize == 1)
+					if(mapscreen_single_scale == 1)
 					{
 						blit(tmpDark, tmpbuf, 0, 0, (showedges?16:0), (showedges?16:0), 16*16, 16*11);
 						blit(tmpDarkTrans, tmpbuf2, 0, 0, (showedges?16:0), (showedges?16:0), 16*16, 16*11);
@@ -5607,11 +5777,11 @@ void draw_screenunit(int32_t unit, int32_t flags)
 					else
 					{
 						stretch_blit(tmpDark, tmpbuf, 0, 0, 16*16, 16*11,
-							(showedges?16:0)*mapscreensize, (showedges?16:0)*mapscreensize,
-							(16*16)*mapscreensize, (16*11)*mapscreensize);
+							(showedges?16:0)*mapscreen_single_scale, (showedges?16:0)*mapscreen_single_scale,
+							(16*16)*mapscreen_single_scale, (16*11)*mapscreen_single_scale);
 						stretch_blit(tmpDarkTrans, tmpbuf2, 0, 0, 16*16, 16*11,
-							(showedges?16:0)*mapscreensize, (showedges?16:0)*mapscreensize,
-							(16*16)*mapscreensize, (16*11)*mapscreensize);
+							(showedges?16:0)*mapscreen_single_scale, (showedges?16:0)*mapscreen_single_scale,
+							(16*16)*mapscreen_single_scale, (16*11)*mapscreen_single_scale);
 					}
 					
 					if(tmp->flags9 & fDARK_TRANS)
@@ -5632,27 +5802,27 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				}
 				else if(!(Flags&cNODARK))
 				{
-					for(int32_t j=0; j<80*mapscreensize; j++)
+					for(int32_t j=0; j<80*mapscreen_single_scale; j++)
 					{
-						for(int32_t i=0; i<(80*mapscreensize)-j; i++)
+						for(int32_t i=0; i<(80*mapscreen_single_scale)-j; i++)
 						{
 							if(((i^j)&1)==0)
 							{
-								putpixel(menu1,int32_t(mapscreen_x+(showedges?(16*mapscreensize):0))+i,
-										 int32_t(mapscreen_y+(showedges?(16*mapscreensize):0)+j),vc(blackout_color));
+								putpixel(menu1,int32_t(mapscreen_x+(showedges?(16*mapscreen_single_scale):0))+i,
+										 int32_t(mapscreen_y+(showedges?(16*mapscreen_single_scale):0)+j),vc(blackout_color));
 							}
 						}
 					}
 				}
 			}
 			
-			int32_t startxint=mapscreen_x+(showedges?int32_t(16*mapscreensize):0);
-			int32_t startyint=mapscreen_y+(showedges?int32_t(16*mapscreensize):0);
-			bool inrect = isinRect(gui_mouse_x(),gui_mouse_y(),startxint,startyint,(startxint+(256*mapscreensize)-1),(startyint+(176*mapscreensize)-1));
+			double startx=mapscreen_x+(showedges?(16*mapscreen_single_scale):0);
+			double starty=mapscreen_y+(showedges?(16*mapscreen_single_scale):0);
+			bool inrect = isinRect(gui_mouse_x(),gui_mouse_y(),startx,starty,(startx+(256*mapscreen_screenunit_scale)-1),(starty+(176*mapscreen_screenunit_scale)-1));
 			
 			if(!(flags&rNOCURSOR) && ((ComboBrush && !ComboBrushPause)||draw_mode==dm_alias) && inrect)
 			{
-				int32_t mgridscale=16*mapscreensize;
+				int mgridscale=16*mapscreen_single_scale;
 				if(allowHideMouse)
 				{
 					if(arrowcursor)
@@ -5666,8 +5836,10 @@ void draw_screenunit(int32_t unit, int32_t flags)
 					arrowcursor = true;
 					MouseSprite::set(ZQM_NORMAL);
 				}
-				int32_t mx=(gui_mouse_x()-mapscreen_x)/mgridscale*mgridscale;
-				int32_t my=(gui_mouse_y()-mapscreen_y)/mgridscale*mgridscale;
+				ComboPosition pos = get_mapscreen_mouse_combo_pos();
+				int32_t mx = pos.x * 16 * mapscreen_single_scale;
+				int32_t my = pos.y * 16 * mapscreen_single_scale;
+
 				clear_bitmap(brushscreen);
 				int32_t tempbw=BrushWidth;
 				int32_t tempbh=BrushHeight;
@@ -5693,40 +5865,35 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				else if (draw_mode == dm_auto)
 				{
 					BrushWidth = BrushHeight = 1;
-					/*combo_auto const& pool = combo_autos[combo_auto_pos];
-					if (pool.valid())
-					{
-						int32_t cid = Combo;
-						int8_t cset = CSet;
-						pool.get_w_wrap(cid, cset, cpoolbrush_index / 16); //divide to reduce speed
-						put_combo(brushbmp, 0, 0, cid, cset, Flags & (cFLAGS | cWALK), 0);
-					}
-					else clear_bitmap(brushbmp);*/
 				}
 
+				int float_offx = 0;
+				int float_offy = 0;
 				if((FloatBrush)&&(draw_mode!=dm_alias))
 				{
-					stretch_blit(brushbmp, brushscreen, 0, 0, BrushWidth*16, BrushHeight*16, mx-(SHADOW_DEPTH*mapscreensize), my-(SHADOW_DEPTH*mapscreensize), BrushWidth*mgridscale, BrushHeight*mgridscale);
+					float_offx = -SHADOW_DEPTH*mapscreen_single_scale;
+					float_offy = -SHADOW_DEPTH*mapscreen_single_scale;
+					stretch_blit(brushbmp, brushscreen, 0, 0, BrushWidth*16, BrushHeight*16, 0, 0, BrushWidth*mgridscale, BrushHeight*mgridscale);
 					
 					//shadow
-					for(int32_t i=0; i<SHADOW_DEPTH*mapscreensize; i++)
+					for(int32_t i=0; i<SHADOW_DEPTH*mapscreen_single_scale; i++)
 					{
 						for(int32_t j=0; j<BrushHeight*mgridscale; j++)
 						{
-							if((((i^j)&1)==1) && (my+j)<12*mgridscale)
+							if((((i^j)&1)==1) && (0+j)<12*mgridscale)
 							{
-								putpixel(brushscreen,mx+i+(BrushWidth*mgridscale)-(SHADOW_DEPTH*mapscreensize),my+j,vc(0));
+								putpixel(brushscreen,0+i+(BrushWidth*mgridscale),0+j,vc(0));
 							}
 						}
 					}
 					
 					for(int32_t i=0; i<BrushWidth*mgridscale; i++)
 					{
-						for(int32_t j=0; j<SHADOW_DEPTH*mapscreensize; j++)
+						for(int32_t j=0; j<SHADOW_DEPTH*mapscreen_single_scale; j++)
 						{
-							if((((i^j)&1)==1) && (mx+i)<16*mgridscale)
+							if((((i^j)&1)==1) && (0+i)<16*mgridscale)
 							{
-								putpixel(brushscreen,mx+i,my+j+(BrushHeight*mgridscale)-(SHADOW_DEPTH*mapscreensize),vc(0));
+								putpixel(brushscreen,0+i,0+j+(BrushHeight*mgridscale),vc(0));
 							}
 						}
 					}
@@ -5735,7 +5902,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				{
 					if(draw_mode!=dm_alias)
 					{
-						stretch_blit(brushbmp, brushscreen, 0, 0, BrushWidth*16, BrushHeight*16, mx, my, BrushWidth*mgridscale, BrushHeight*mgridscale);
+						stretch_blit(brushbmp, brushscreen, 0, 0, BrushWidth*16, BrushHeight*16, 0, 0, BrushWidth*mgridscale, BrushHeight*mgridscale);
 					}
 					else
 					{
@@ -5744,25 +5911,27 @@ void draw_screenunit(int32_t unit, int32_t flags)
 						switch(alias_origin)
 						{
 							case 0:
-								stretch_blit(brushbmp, brushscreen, 0, 0, BrushWidth*16, BrushHeight*16, mx, my, BrushWidth*mgridscale, BrushHeight*mgridscale);
+								stretch_blit(brushbmp, brushscreen, 0, 0, BrushWidth*16, BrushHeight*16, 0, 0, BrushWidth*mgridscale, BrushHeight*mgridscale);
 								break;
 								
 							case 1:
-								stretch_blit(brushbmp, brushscreen, (mx<combo->width*mgridscale)?((combo->width)*16)-mx/mapscreensize:0, 0, BrushWidth*16, BrushHeight*16, zc_max((mx-(combo->width)*mgridscale),0), my, BrushWidth*mgridscale, BrushHeight*mgridscale);
+								stretch_blit(brushbmp, brushscreen, (0<combo->width*mgridscale)?((combo->width)*16)-0/mapscreen_single_scale:0, 0, BrushWidth*16, BrushHeight*16, zc_max((0-(combo->width)*mgridscale),0), 0, BrushWidth*mgridscale, BrushHeight*mgridscale);
 								break;
 								
 							case 2:
-								stretch_blit(brushbmp, brushscreen, 0, (my<combo->height*mgridscale)?((combo->height)*16)-my/mapscreensize:0, BrushWidth*16, BrushHeight*16, mx, zc_max((my-(combo->height)*mgridscale),0), BrushWidth*mgridscale, BrushHeight*mgridscale);
+								stretch_blit(brushbmp, brushscreen, 0, (0<combo->height*mgridscale)?((combo->height)*16)-0/mapscreen_single_scale:0, BrushWidth*16, BrushHeight*16, 0, zc_max((0-(combo->height)*mgridscale),0), BrushWidth*mgridscale, BrushHeight*mgridscale);
 								break;
 								
 							case 3:
-								stretch_blit(brushbmp, brushscreen, (mx<combo->width*mgridscale)?((combo->width)*16)-mx/mapscreensize:0, (my<combo->height*mgridscale)?((combo->height)*16)-my/mapscreensize:0, BrushWidth*16, BrushHeight*16, zc_max((mx-(combo->width)*mgridscale),0), zc_max((my-(combo->height)*mgridscale),0), BrushWidth*mgridscale, BrushHeight*mgridscale);
+								stretch_blit(brushbmp, brushscreen, (0<combo->width*mgridscale)?((combo->width)*16)-0/mapscreen_single_scale:0, (0<combo->height*mgridscale)?((combo->height)*16)-0/mapscreen_single_scale:0, BrushWidth*16, BrushHeight*16, zc_max((0-(combo->width)*mgridscale),0), zc_max((my-(combo->height)*mgridscale),0), BrushWidth*mgridscale, BrushHeight*mgridscale);
 								break;
 						}
 					}
 				}
-				
-				masked_blit(brushscreen, menu1, 0, 0, mapscreen_x, mapscreen_y, (16+(showedges?2:0))*mgridscale, (11+(showedges?2:0))*mgridscale);
+
+				int bx = mapscreen_x + mx + float_offx + (showedges?(16*mapscreen_single_scale):0);
+				int by = mapscreen_y + my + float_offy + (showedges?(16*mapscreen_single_scale):0);
+				masked_blit(brushscreen, menu1, 0, 0, bx, by, 16*mgridscale, 11*mgridscale);
 				BrushWidth=tempbw;
 				BrushHeight=tempbh;
 			}
@@ -5774,27 +5943,69 @@ void draw_screenunit(int32_t unit, int32_t flags)
 					arrowcursor = true;
 				}
 			}
-			
+
 			if(ShowGrid)
 			{
-				int32_t w=16;
-				int32_t h=11;
+				int w = num_combos_width;
+				int h = num_combos_height;
+				double tile_size = 16.0 / Map.getViewSize() * mapscreen_screenunit_scale;
 				
 				if(showedges)
 				{
-					w=18;
-					h=13;
+					w += 2;
+					h += 2;
 				}
-				
-				for(int32_t x=16; x<w*16; x+=16)
+
+				for (int x = 1; x < w; x++)
 				{
-					vline(menu1, (x*mapscreensize)+mapscreen_x, mapscreen_y, mapscreen_y+(h*16*mapscreensize)-1, vc(GridColor));
+					vline(menu1, mapscreen_x + x*tile_size, mapscreen_y, mapscreen_y + (h*tile_size)-1, vc(GridColor));
 				}
-				
-				for(int32_t y=16; y<h*16; y+=16)
+
+				for (int y = 1; y < h; y++)
 				{
-					hline(menu1, mapscreen_x, (y*mapscreensize)+mapscreen_y, mapscreen_x+(w*16*mapscreensize)-1, vc(GridColor));
+					hline(menu1, mapscreen_x, mapscreen_y + y*tile_size, mapscreen_x + (w*tile_size)-1, vc(GridColor));
 				}
+			}
+
+			if(ShowScreenGrid)
+			{
+				int w = num_combos_width;
+				int h = num_combos_height;
+				double tile_size = 16.0 / Map.getViewSize() * mapscreen_screenunit_scale;
+				int startx = mapscreen_x + (showedges ? (16 * mapscreen_single_scale) : 0);
+				int starty = mapscreen_y + (showedges ? (16 * mapscreen_single_scale) : 0);
+				
+				if(showedges)
+				{
+					w += 1;
+					h += 1;
+				}
+
+				int color = (GridColor+8)%16;
+
+				for (int x = 16; x < w; x+=16)
+				{
+					vline(menu1, startx + x*tile_size, mapscreen_y, starty + (h*tile_size)-1, vc(color));
+				}
+
+				for (int y = 11; y < h; y+=11)
+				{
+					hline(menu1, startx, starty + y*tile_size, startx + (w*tile_size)-1, vc(color));
+				}
+			}
+
+			// Draw a black-yellow-black rect around the currently selected screen.
+			if (ShowCurScreenOutline && Map.getViewSize() > 1)
+			{
+				int mw = 256 * mapscreen_single_scale;
+				int mh = 176 * mapscreen_single_scale;
+				int mx = (Map.getCurrScr() % 16) - (Map.getViewScr() % 16);
+				int my = (Map.getCurrScr() / 16) - (Map.getViewScr() / 16);
+				int x0 = mapscreen_x + (showedges ? (16 * mapscreen_single_scale) : 0) + mx * mw;
+				int y0 = mapscreen_y + (showedges ? (16 * mapscreen_single_scale) : 0) + my * mh;
+				dotted_rect(menu1, x0+1, y0+1, x0 + mw - 1, y0 + mh - 1, vc(1), vc(0));
+				rect(menu1, x0, y0, x0 + mw, y0 + mh, vc(14));
+				dotted_rect(menu1, x0-1, y0-1, x0 + mw + 1, y0 + mh + 1, vc(1), vc(0));
 			}
 			
 			// Map tabs
@@ -6467,7 +6678,9 @@ void refresh(int32_t flags, bool update)
 {
 	if(pause_refresh) return;
 	static bool refreshing = false;
-	
+
+	int num_screens_to_draw = Map.getViewSize();
+
 	bool earlyret = refreshing;
 	is_refreshing = refreshing = true;
 	//^ These prevent recursive calls from updating the screen early
@@ -6516,8 +6729,8 @@ void refresh(int32_t flags, bool update)
 	for(int32_t i=0; i<=6; ++i)
 	{
 		char tbuf[15];
-		
-		if(i>0 && Map.CurrScr()->layermap[i-1])
+
+		if (i>0 && mapscreen_valid_layers[i - 1] && num_screens_to_draw == 1)
 		{
 			if(is_compact)
 				sprintf(tbuf, "%s%d %d:%02X", (i==2 && Map.CurrScr()->flags7&fLAYER2BG) || (i==3 && Map.CurrScr()->flags7&fLAYER3BG) ? "-":"", i, Map.CurrScr()->layermap[i-1], Map.CurrScr()->layerscreen[i-1]);
@@ -6532,7 +6745,7 @@ void refresh(int32_t flags, bool update)
 		int32_t rx = (i * (layerpanel_buttonwidth+spacing_offs+layerpanel_checkbox_wid)) + layer_panel.x+(is_compact?2:6);
 		int32_t ry = layer_panel.y;
 		auto cbyofs = (layerpanel_buttonheight-layerpanel_checkbox_hei)/2;
-		draw_layer_button(menu1, rx, ry, layerpanel_buttonwidth, layerpanel_buttonheight, tbuf, CurrentLayer==i? D_SELECTED : (!Map.CurrScr()->layermap[i-1] && i>0) ? D_DISABLED : 0);
+		draw_layer_button(menu1, rx, ry, layerpanel_buttonwidth, layerpanel_buttonheight, tbuf, CurrentLayer==i? D_SELECTED : ( i > 0 && !mapscreen_valid_layers[i-1]) ? D_DISABLED : 0);
 		draw_checkbox(menu1,rx+layerpanel_buttonwidth+1,ry+cbyofs,layerpanel_checkbox_wid,layerpanel_checkbox_hei,LayerMaskInt[i]!=0);
 	}
 	
@@ -6547,8 +6760,8 @@ void refresh(int32_t flags, bool update)
 		}
 	}
 	{ //Show top-left info
-		size_t maxwid = (mapscreensize*mapscreenbmp->w)-1;
-		size_t maxhei = (mapscreensize*mapscreenbmp->w);
+		size_t maxwid = (mapscreen_screenunit_scale*mapscreenbmp->w)-1;
+		size_t maxhei = (mapscreen_screenunit_scale*mapscreenbmp->w);
 		set_clip_rect(menu1,mapscreen_x,mapscreen_y,mapscreen_x+maxwid-1,mapscreen_y+maxhei-1);
 		FONT* showfont = get_custom_font(CFONT_INFO);
 		int showfont_h = text_height(showfont);
@@ -7040,7 +7253,12 @@ void refresh(int32_t flags, bool update)
 	draw_text_button(screen,drawmode_btn.x,drawmode_btn.y,drawmode_btn.w,drawmode_btn.h,dm_names[draw_mode],vc(1),vc(14),0,true);
 	//Compact button
 	draw_text_button(screen,compactbtn.x, compactbtn.y, compactbtn.w, compactbtn.h, is_compact ? "< Expand" : "> Compact", vc(1),vc(14),0,true);
-	
+	//Zoom buttons
+	zoom_in_btn_disabled = num_screens_to_draw == 1;
+	zoom_out_btn_disabled = num_screens_to_draw == mapscreen_num_screens_to_draw_max;
+	draw_text_button(screen,zoominbtn.x, zoominbtn.y, zoominbtn.w, zoominbtn.h, "+", vc(1),vc(14),zoom_in_btn_disabled ? D_DISABLED : 0,true);
+	draw_text_button(screen,zoomoutbtn.x, zoomoutbtn.y, zoomoutbtn.w, zoomoutbtn.h, "-", vc(1),vc(14),zoom_out_btn_disabled ? D_DISABLED : 0,true);
+
 	font = oldfont;
 	
 	d_nbmenu_proc(MSG_DRAW, &dialogs[0], 0);
@@ -7426,13 +7644,12 @@ byte relational_source_grid[256]=
     46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46
 };
 
-void draw_autocombo(int32_t pos, bool rclick, bool pressframe)
+static void draw_autocombo(ComboPosition combo_pos, bool rclick, bool pressframe = false)
 {
-	int32_t cid = Combo;
-	int8_t cs = CSet;
 	combo_auto &ca = combo_autos[combo_auto_pos];
+	int scr = Map.getScreenForPosition(combo_pos);
+	int pos = combo_pos.truncate();
 
-	int32_t scr = Map.getCurrScr();
 	if (ca.valid())
 	{
 		switch (ca.getType())
@@ -7537,13 +7754,12 @@ void draw_autocombo(int32_t pos, bool rclick, bool pressframe)
 	}
 }
 
-void draw_autocombo_command(int32_t pos, int32_t cmd, int32_t arg)
+static void draw_autocombo_command(ComboPosition combo_pos, int32_t cmd = 0, int32_t arg = 0)
 {
-	int32_t cid = Combo;
-	int8_t cs = CSet;
 	combo_auto ca = combo_autos[combo_auto_pos];
+	int scr = Map.getScreenForPosition(combo_pos);
+	int pos = combo_pos.truncate();
 
-	int32_t scr = Map.getCurrScr();
 	if (ca.valid())
 	{
 		switch (ca.getType())
@@ -7571,13 +7787,14 @@ void draw_autocombo_command(int32_t pos, int32_t cmd, int32_t arg)
 	}
 }
 
-int32_t get_autocombo_floating_cid(int32_t pos, bool clicked)
+static int32_t get_autocombo_floating_cid(ComboPosition combo_pos, bool clicked)
 {
 	combo_auto& ca = combo_autos[combo_auto_pos];
+	int scr = Map.getScreenForPosition(combo_pos);
+	int pos = combo_pos.truncate();
+	int cid = 0;
 
-	int32_t scr = Map.getCurrScr();
-	int32_t cid = 0;
-	if (ca.valid() && mousecomboposition > -1)
+	if (ca.valid() && Map.isValidPosition(mouse_combo_pos))
 	{
 		switch (ca.getType())
 		{
@@ -7670,20 +7887,19 @@ void change_autocombo_height(int32_t change)
 	}
 	else
 		return;
+
 	int32_t x = gui_mouse_x();
 	int32_t y = gui_mouse_y();
-	double startx = mapscreen_x + (showedges ? (16 * mapscreensize) : 0);
-	double starty = mapscreen_y + (showedges ? (16 * mapscreensize) : 0);
-	int32_t startxint = mapscreen_x + (showedges ? int32_t(16 * mapscreensize) : 0);
-	int32_t startyint = mapscreen_y + (showedges ? int32_t(16 * mapscreensize) : 0);
+	double startx = mapscreen_x + (showedges ? (16 * mapscreen_single_scale) : 0);
+	double starty = mapscreen_y + (showedges ? (16 * mapscreen_single_scale) : 0);
+	int32_t startxint = mapscreen_x + (showedges ? int32_t(16 * mapscreen_single_scale) : 0);
+	int32_t startyint = mapscreen_y + (showedges ? int32_t(16 * mapscreen_single_scale) : 0);
+	ComboPosition pos = get_mapscreen_mouse_combo_pos();
 
-	if (can_change && isinRect(x, y, startxint, startyint, int32_t(startx + (256 * mapscreensize) - 1), int32_t(starty + (176 * mapscreensize) - 1)))
+	if (can_change && isinRect(x, y, startxint, startyint, int32_t(startx + (256 * mapscreen_single_scale) - 1), int32_t(starty + (176 * mapscreen_single_scale) - 1)))
 	{
 		Map.StartListCommand();
-		int32_t cxstart = (x - startxint) / int32_t(16 * mapscreensize);
-		int32_t cystart = (y - startyint) / int32_t(16 * mapscreensize);
-		int32_t cstart = (cystart * 16) + cxstart;
-		draw_autocombo_command(cstart, 1, cauto_height + change);
+		draw_autocombo_command(pos, 1, cauto_height + change);
 		Map.FinishListCommand();
 	}
 	cauto_height = vbound(cauto_height + change, 1, 9);
@@ -7695,37 +7911,9 @@ void draw(bool justcset)
 	if(draw_mode == dm_cpool && !pool.valid())
 		return;
     saved=false;
-    int32_t drawmap, drawscr;
-    
-    if(CurrentLayer==0)
-    {
-        drawmap=Map.getCurrMap();
-        drawscr=Map.getCurrScr();
-    }
-    else
-    {
-        drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
-        drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-    }
-    
-	mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
-	if(!draw_mapscr) return;
-    if(!(draw_mapscr->valid&mVALID))
-    {
-        Map.CurrScr()->valid|=mVALID;
-        draw_mapscr->valid|=mVALID;
-        Map.setcolor(Color);
-    }
     
     refresh(rMAP+rSCRMAP);
-	int32_t lastpos = -1;
-
-    std::shared_ptr<tile_grid_draw_command> dungeon_draw_cmd;
-    if (draw_mode == dm_relational || draw_mode == dm_dungeon)
-    {
-        dungeon_draw_cmd = std::make_shared<tile_grid_draw_command>();
-        util::copy_2d_array<byte, 15, 20>(relational_tile_grid, dungeon_draw_cmd->prev_tile_grid);
-    }
+	ComboPosition last_pos = {-1, -1};
 	
     Map.StartListCommand();
 	bool pressframe = true;
@@ -7733,21 +7921,23 @@ void draw(bool justcset)
     {
         int32_t x=gui_mouse_x();
         int32_t y=gui_mouse_y();
-        double startx=mapscreen_x+(showedges?(16*mapscreensize):0);
-        double starty=mapscreen_y+(showedges?(16*mapscreensize):0);
-        int32_t startxint=mapscreen_x+(showedges?int32_t(16*mapscreensize):0);
-        int32_t startyint=mapscreen_y+(showedges?int32_t(16*mapscreensize):0);
-        
-        if(isinRect(x,y,startxint,startyint,int32_t(startx+(256*mapscreensize)-1),int32_t(starty+(176*mapscreensize)-1)))
+        double startx=mapscreen_x+(showedges?(16*mapscreen_single_scale):0);
+        double starty=mapscreen_y+(showedges?(16*mapscreen_single_scale):0);
+        int32_t startxint=mapscreen_x+(showedges?int32_t(16*mapscreen_single_scale):0);
+        int32_t startyint=mapscreen_y+(showedges?int32_t(16*mapscreen_single_scale):0);
+		int num_combos_width = 16 * Map.getViewSize();
+		int num_combos_height = 11 * Map.getViewSize();
+
+        if(isinRect(x,y,startxint,startyint,int32_t(startx+(256*mapscreen_screenunit_scale)-1),int32_t(starty+(176*mapscreen_screenunit_scale)-1)))
         {
-            int32_t cxstart=(x-startxint)/int32_t(16*mapscreensize);
-            int32_t cystart=(y-startyint)/int32_t(16*mapscreensize);
-            int32_t cstart=(cystart*16)+cxstart;
+            int32_t cxstart=(x-startx)/(16*mapscreen_single_scale);
+            int32_t cystart=(y-starty)/(16*mapscreen_single_scale);
+			ComboPosition combo_start = {cxstart, cystart};
 			if (pressframe)
 			{
-				lastpos = cstart;
+				last_pos = combo_start;
 			}
-			else if(cstart == lastpos)
+			else if (combo_start == last_pos)
 			{
 				custom_vsync();
 				refresh(rALL);
@@ -7755,26 +7945,18 @@ void draw(bool justcset)
 			}
 			else if(draw_mode == dm_auto)
 			{
+				// TODO: support when zoomed out.
 				if (combo_autos[combo_auto_pos].getType() == AUTOCOMBO_FENCE || combo_autos[combo_auto_pos].getType() == AUTOCOMBO_Z4)
 				{
-					bool did_diag = false;
 					// Don't allow moving the brush at anything but cardinal directions while in these modes
-					switch (cstart - lastpos)
-					{
-						case -1:
-						case 1:
-						case -16:
-						case 16:
-							break;
-						default:
-							did_diag = true;
-					}
+					bool did_diag = std::abs(combo_start.x - last_pos.x) == 1 && std::abs(combo_start.y - last_pos.y) == 1;
+
 					if (did_diag)
 					{
-						int32_t oldx = lastpos % 16;
-						int32_t oldy = lastpos / 16;
-						int32_t cx = (oldx * 16 * mapscreensize) + 8;
-						int32_t cy = (oldy * 16 * mapscreensize) + 8;
+						int32_t oldx = last_pos.x;
+						int32_t oldy = last_pos.y;
+						int32_t cx = (oldx * 16 * mapscreen_single_scale) + 8;
+						int32_t cy = (oldy * 16 * mapscreen_single_scale) + 8;
 						int32_t nx = x - startxint;
 						int32_t ny = y - startyint;
 						if (std::abs(nx - cx) < std::abs(ny - cy))
@@ -7785,11 +7967,11 @@ void draw(bool justcset)
 						{
 							oldx = vbound(oldx + ((nx - cx) < 0 ? -1 : 1), 0, 15);
 						}
-						cstart = (oldy * 16) + oldx;
+						combo_start = {oldx, oldy};
 					}
 				}
 			}
-			lastpos = cstart;
+			last_pos = combo_start;
             
             switch(draw_mode)
             {
@@ -7799,12 +7981,12 @@ void draw(bool justcset)
 					
 					if(!combo_cols)
 					{
-						for(int32_t cy=0; cy+cystart<11&&cy<BrushHeight; cy++)
+						for(int32_t cy=0; cy+cystart<num_combos_height&&cy<BrushHeight; cy++)
 						{
-							for(int32_t cx=0; cx+cxstart<16&&cx<BrushWidth; cx++)
+							for(int32_t cx=0; cx+cxstart<num_combos_width&&cx<BrushWidth; cx++)
 							{
-								int32_t c=cstart+(cy*16)+cx;
-								Map.DoSetComboCommand(drawmap, drawscr, c, justcset ? -1 : (cc + cx), CSet);
+								auto pos = combo_start + ComboPosition{cx, cy};
+								Map.DoSetComboCommand(pos, justcset ? -1 : (cc + cx), CSet);
 							}
 							
 							cc+=20;
@@ -7812,13 +7994,13 @@ void draw(bool justcset)
 					}
 					else
 					{
-						for(int32_t cy=0; cy+cystart<11&&cy<BrushHeight; cy++)
+						for(int32_t cy=0; cy+cystart<num_combos_height&&cy<BrushHeight; cy++)
 						{
-							for(int32_t cx=0; cx+cxstart<16&&cx<BrushWidth; cx++)
+							for(int32_t cx=0; cx+cxstart<num_combos_width&&cx<BrushWidth; cx++)
 							{
-								int32_t c=cstart+(cy*16)+cx;
+								auto pos = combo_start + ComboPosition{cx, cy};
 								cc=Combo + cx + cy*4;
-								Map.DoSetComboCommand(drawmap, drawscr, c, justcset ? -1 : cc, CSet);
+								Map.DoSetComboCommand(pos, justcset ? -1 : cc, CSet);
 							}
 						}
 					}
@@ -7835,12 +8017,12 @@ void draw(bool justcset)
 					if(!combo_cols)
 					{
 						auto cid2 = cid;
-						for(int32_t cy=0; cy+cystart<11&&cy<BrushHeight; cy++)
+						for(int32_t cy=0; cy+cystart<num_combos_height&&cy<BrushHeight; cy++)
 						{
-							for(int32_t cx=0; cx+cxstart<16&&cx<BrushWidth; cx++)
+							for(int32_t cx=0; cx+cxstart<num_combos_width&&cx<BrushWidth; cx++)
 							{
-								int32_t c=cstart+(cy*16)+cx;
-								Map.DoSetComboCommand(drawmap, drawscr, c, justcset ? -1 : (cid2 + cx), cs);
+								auto pos = combo_start + ComboPosition{cx, cy};
+								Map.DoSetComboCommand(pos, justcset ? -1 : (cid2 + cx), cs);
 							}
 							
 							cid2+=20;
@@ -7848,166 +8030,18 @@ void draw(bool justcset)
 					}
 					else
 					{
-						for(int32_t cy=0; cy+cystart<11&&cy<BrushHeight; cy++)
+						for(int32_t cy=0; cy+cystart<num_combos_height&&cy<BrushHeight; cy++)
 						{
-							for(int32_t cx=0; cx+cxstart<16&&cx<BrushWidth; cx++)
+							for(int32_t cx=0; cx+cxstart<num_combos_width&&cx<BrushWidth; cx++)
 							{
-								int32_t c=cstart+(cy*16)+cx;
+								auto pos = combo_start + ComboPosition{cx, cy};
 								auto cid2=cid + cx + cy*4;
-								Map.DoSetComboCommand(drawmap, drawscr, c, justcset ? -1 : cid2, cs);
+								Map.DoSetComboCommand(pos, justcset ? -1 : cid2, cs);
 							}
 						}
 					}
 					
 					update_combobrush();
-				}
-				break;
-				
-				case dm_relational:
-				{
-					int32_t c2,c3;
-					int32_t cx, cy, cx2, cy2;
-					cy=cstart>>4;
-					cx=cstart&15;
-					
-					if(key[KEY_LSHIFT]||key[KEY_RSHIFT])
-					{
-						relational_tile_grid[(cy+rtgyo)][cx+rtgxo]=1;
-						Map.DoSetComboCommand(drawmap, drawscr, cstart, Combo+47, CSet);
-					}
-					else
-					{
-						relational_tile_grid[(cy+rtgyo)][cx+rtgxo]=0;
-					}
-					
-					for(int32_t y2=-1; y2<2; ++y2)
-					{
-						cy2=cy+y2;
-						
-						if((cy2>11)||(cy2<0))
-						{
-							continue;
-						}
-						
-						for(int32_t x2=-1; x2<2; ++x2)
-						{
-							cx2=cx+x2;
-							
-							if((cx2>15)||(cx2<0))
-							{
-								continue;
-							}
-							
-							c2=cstart+(y2*16)+x2;
-							c3=((relational_tile_grid[((cy2-1)+rtgyo)][(cx2+1)+rtgxo]?1:0)<<0)+
-							   ((relational_tile_grid[((cy2-1)+rtgyo)][(cx2-1)+rtgxo]?1:0)<<1)+
-							   ((relational_tile_grid[((cy2+1)+rtgyo)][(cx2-1)+rtgxo]?1:0)<<2)+
-							   ((relational_tile_grid[((cy2+1)+rtgyo)][(cx2+1)+rtgxo]?1:0)<<3)+
-							   ((relational_tile_grid[((cy2)+rtgyo)][(cx2+1)+rtgxo]?1:0)<<4)+
-							   ((relational_tile_grid[((cy2-1)+rtgyo)][(cx2)+rtgxo]?1:0)<<5)+
-							   ((relational_tile_grid[((cy2)+rtgyo)][(cx2-1)+rtgxo]?1:0)<<6)+
-							   ((relational_tile_grid[((cy2+1)+rtgyo)][(cx2)+rtgxo]?1:0)<<7);
-							   
-							if(relational_tile_grid[((c2>>4)+rtgyo)][(c2&15)+rtgxo]==0)
-							{
-								Map.DoSetComboCommand(drawmap, drawscr, c2, Combo+relational_source_grid[c3], CSet);
-							}
-						}
-					}
-				}
-				break;
-				
-				case dm_dungeon:
-				{
-					int32_t c2,c3,c4;
-					int32_t cx, cy, cx2, cy2;
-					cy=cstart>>4;
-					cx=cstart&15;
-					
-					if(key[KEY_LSHIFT]||key[KEY_RSHIFT])
-					{
-						relational_tile_grid[(cy+rtgyo)][cx+rtgxo]=0;
-						
-						for(int32_t y2=-1; y2<2; ++y2)
-						{
-							cy2=cy+y2;
-							
-							if((cy2>11)||(cy2<0))
-							{
-								continue;
-							}
-							
-							for(int32_t x2=-1; x2<2; ++x2)
-							{
-								cx2=cx+x2;
-								
-								if((cx2>15)||(cx2<0))
-								{
-									continue;
-								}
-								
-								if(relational_tile_grid[(cy2+rtgyo)][cx2+rtgxo]!=0)
-								{
-									relational_tile_grid[(cy2+rtgyo)][cx2+rtgxo]=1;
-								};
-							}
-						}
-						
-						Map.DoSetComboCommand(drawmap, drawscr, cstart, Combo, CSet);
-					}
-					else
-					{
-						relational_tile_grid[(cy+rtgyo)][cx+rtgxo]=2;
-						
-						for(int32_t y2=-1; y2<2; ++y2)
-						{
-							cy2=cy+y2;
-							
-							if((cy2>11)||(cy2<0))
-							{
-								continue;
-							}
-							
-							for(int32_t x2=-1; x2<2; ++x2)
-							{
-								cx2=cx+x2;
-								
-								if((cx2>15)||(cx2<0))
-								{
-									continue;
-								}
-								
-								if(relational_tile_grid[(cy2+rtgyo)][cx2+rtgxo]==0)
-								{
-									relational_tile_grid[(cy2+rtgyo)][cx2+rtgxo]=1;
-								};
-							}
-						}
-						
-						Map.DoSetComboCommand(drawmap, drawscr, cstart, Combo+48+47, CSet);
-					}
-					
-					for(int32_t y2=0; y2<11; ++y2)
-					{
-						for(int32_t x2=0; x2<16; ++x2)
-						{
-							c2=(y2*16)+x2;
-							c4=relational_tile_grid[((y2)+rtgyo)][(x2)+rtgxo];
-							c3=(((relational_tile_grid[((y2-1)+rtgyo)][(x2+1)+rtgxo]>c4)?1:0)<<0)+
-							   (((relational_tile_grid[((y2-1)+rtgyo)][(x2-1)+rtgxo]>c4)?1:0)<<1)+
-							   (((relational_tile_grid[((y2+1)+rtgyo)][(x2-1)+rtgxo]>c4)?1:0)<<2)+
-							   (((relational_tile_grid[((y2+1)+rtgyo)][(x2+1)+rtgxo]>c4)?1:0)<<3)+
-							   (((relational_tile_grid[((y2)+rtgyo)][(x2+1)+rtgxo]>c4)?1:0)<<4)+
-							   (((relational_tile_grid[((y2-1)+rtgyo)][(x2)+rtgxo]>c4)?1:0)<<5)+
-							   (((relational_tile_grid[((y2)+rtgyo)][(x2-1)+rtgxo]>c4)?1:0)<<6)+
-							   (((relational_tile_grid[((y2+1)+rtgyo)][(x2)+rtgxo]>c4)?1:0)<<7);
-							   
-							if(relational_tile_grid[(y2+rtgyo)][x2+rtgxo]<2)
-							{
-								Map.DoSetComboCommand(drawmap, drawscr, c2, Combo+relational_source_grid[c3]+(48*c4), CSet);
-							}
-						}
-					}
 				}
 				break;
 				
@@ -8041,18 +8075,18 @@ void draw(bool justcset)
 							break;
 						}
 						
-						for(int32_t cy=0; cy-oy+cystart<11&&cy<=combo->height; cy++)
+						for(int32_t cy=0; cy-oy+cystart<num_combos_height-1&&cy<=combo->height; cy++)
 						{
-							for(int32_t cx=0; cx-ox+cxstart<16&&cx<=combo->width; cx++)
+							for(int32_t cx=0; cx-ox+cxstart<num_combos_width-1&&cx<=combo->width; cx++)
 							{
 								if((cx+cxstart-ox>=0)&&(cy+cystart-oy>=0))
 								{
-									int32_t c=cstart+((cy-oy)*16)+cx-ox;
 									int32_t p=(cy*(combo->width+1))+cx;
 									
 									if(combo->combos[p])
 									{
-										Map.DoSetComboCommand(drawmap, drawscr, c, combo->combos[p], wrap(combo->csets[p]+alias_cset_mod, 0, 13));
+										auto pos = combo_start + ComboPosition{cx - ox, cy - oy};
+										Map.DoSetComboCommand(pos, combo->combos[p], wrap(combo->csets[p]+alias_cset_mod, 0, 13));
 									}
 								}
 							}
@@ -8060,8 +8094,6 @@ void draw(bool justcset)
 					}
 					else
 					{
-						int32_t amap=0, ascr=0;
-						int32_t lcheck = 1;
 						int32_t laypos = 0;
 						int32_t ox=0, oy=0;
 						
@@ -8088,46 +8120,32 @@ void draw(bool justcset)
 							break;
 						}
 						
-						for(int32_t cz=0; cz<7; cz++, lcheck<<=1)
+						for(int32_t cz=0; cz<7; cz++)
 						{
-							if(!cz)
-							{
-								amap = Map.getCurrMap();
-								ascr = Map.getCurrScr();
-							}
-							else
-							{
-								if(cz==1) lcheck>>=1;
-								
-								if(combo->layermask&lcheck)
-								{
-									amap = Map.CurrScr()->layermap[cz-1]-1;
-									ascr = Map.CurrScr()->layerscreen[cz-1];
-									mapscr* mapscr_ptr = Map.AbsoluteScr(amap, ascr);
-									if(mapscr_ptr)
-										mapscr_ptr->valid |= mVALID;
-									laypos++;
-								}
-							}
-							
+							if (cz > 0 && !(combo->layermask & (1<<(cz-1))))
+								continue;
+
+							if (cz > 0)
+								laypos++;
+
+							if (cz > 0 && Map.Scr(combo_start)->layermap[cz - 1] == 0)
+								continue;
+
 							for(int32_t cy=0; cy-oy+cystart<11&&cy<=combo->height; cy++)
 							{
 								for(int32_t cx=0; cx-ox+cxstart<16&&cx<=combo->width; cx++)
 								{
-									if((!cz)||/*(Map.CurrScr()->layermap[cz>0?cz-1:0])*/amap>=0)
+									if((cx+cxstart-ox>=0)&&(cy+cystart-oy>=0))
 									{
-										if((cz==0)||(combo->layermask&lcheck))
+										int32_t p=((cy*(combo->width+1))+cx)+((combo->width+1)*(combo->height+1)*laypos);
+										
+										if (combo->combos[p])
 										{
-											if((cx+cxstart-ox>=0)&&(cy+cystart-oy>=0))
-											{
-												int32_t c=cstart+((cy-oy)*16)+cx-ox;
-												int32_t p=((cy*(combo->width+1))+cx)+((combo->width+1)*(combo->height+1)*laypos);
-												
-												if((combo->combos[p])&&(amap>=0))
-												{
-													Map.DoSetComboCommand(amap, ascr, c, combo->combos[p], wrap(combo->csets[p]+alias_cset_mod, 0, 13));
-												}
-											}
+											auto pos = combo_start + ComboPosition{cx - ox, cy - oy};
+											int prev = CurrentLayer;
+											CurrentLayer = cz;
+											Map.DoSetComboCommand(pos, combo->combos[p], wrap(combo->csets[p]+alias_cset_mod, 0, 13));
+											CurrentLayer = prev;
 										}
 									}
 								}
@@ -8140,9 +8158,9 @@ void draw(bool justcset)
             
 				case dm_auto:
 				{
-					draw_autocombo(cstart, gui_mouse_b() & 2, pressframe);
+					draw_autocombo(combo_start, gui_mouse_b() & 2, pressframe);
 
-					combobrushoverride = get_autocombo_floating_cid(cstart, true);
+					combobrushoverride = get_autocombo_floating_cid(combo_start, true);
 					update_combobrush();
 				}
 			}
@@ -8153,11 +8171,6 @@ void draw(bool justcset)
 		refresh(rALL);
     }
 
-    if (dungeon_draw_cmd)
-    {
-        util::copy_2d_array<byte, 15, 20>(relational_tile_grid, dungeon_draw_cmd->tile_grid);
-        Map.ExecuteCommand(dungeon_draw_cmd, true);
-    }
     Map.FinishListCommand();
 	if(AutoBrushRevert)
 	{
@@ -8167,56 +8180,49 @@ void draw(bool justcset)
 	}
 }
 
-void replace(int32_t c)
+static void replace(ComboPosition start)
 {
 	int32_t cid = Combo;
     int8_t cs = CSet;
 	combo_pool const& pool = combo_pools[combo_pool_pos];
 	if(draw_mode == dm_cpool && !pool.valid())
 		return;
-	
-    saved=false;
-    int32_t drawmap, drawscr;
-    
-    if(CurrentLayer==0)
-    {
-        drawmap=Map.getCurrMap();
-        drawscr=Map.getCurrScr();
-    }
-    else
-    {
-        drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
-        drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-    }
-	mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
-	if(!draw_mapscr) return;
-    
-    int32_t targetcombo = draw_mapscr->data[c];
-    int32_t targetcset  = draw_mapscr->cset[c];
-    
+
+	int c = start.truncate();
+	mapscr* scr = Map.Scr(start, CurrentLayer);
+	if (!scr) return;
+
+    int32_t targetcombo = scr->data[c];
+    int32_t targetcset  = scr->cset[c];
+
+	saved = false;
     Map.StartListCommand();
     if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
     {
-        for(int32_t i=0; i<176; i++)
+        for(int32_t i=0; i<176*Map.getViewSize(); i++)
         {
-            if((draw_mapscr->cset[i])==targetcset)
+			auto pos = start + i;
+			mapscr* scr = Map.Scr(pos, CurrentLayer);
+            if ((scr->cset[i]) == targetcset)
             {
 				if(draw_mode == dm_cpool)
 					pool.pick(cid,cs);
-                Map.DoSetComboCommand(drawmap, drawscr, i, -1, cs);
+                Map.DoSetComboCommand(pos, -1, cs);
             }
         }
     }
     else
     {
-        for(int32_t i=0; i<176; i++)
+        for(int32_t i=0; i<176*Map.getViewSize(); i++)
         {
-            if(((draw_mapscr->data[i])==targetcombo) &&
-                    ((draw_mapscr->cset[i])==targetcset))
+			auto pos = start + i;
+			mapscr* scr = Map.Scr(pos, CurrentLayer);
+            if(((scr->data[i])==targetcombo) &&
+                    ((scr->cset[i])==targetcset))
             {
 				if(draw_mode == dm_cpool)
 					pool.pick(cid,cs);
-                Map.DoSetComboCommand(drawmap, drawscr, i, cid, cs);
+                Map.DoSetComboCommand(pos, cid, cs);
             }
         }
     }
@@ -8225,7 +8231,7 @@ void replace(int32_t c)
     refresh(rMAP);
 }
 
-void draw_block(int32_t start,int32_t w,int32_t h)
+static void draw_block(ComboPosition start, int32_t w, int32_t h)
 {
 	int32_t cid = Combo;
     int8_t cs = CSet;
@@ -8234,190 +8240,198 @@ void draw_block(int32_t start,int32_t w,int32_t h)
 		combo_pool const& pool = combo_pools[combo_pool_pos];
 		if(!pool.pick(cid,cs)) return;
 	}
-    saved=false;
-    int32_t drawmap, drawscr;
-    
-    if(CurrentLayer==0)
-    {
-        drawmap=Map.getCurrMap();
-        drawscr=Map.getCurrScr();
-    }
-    else
-    {
-        drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
-        drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-    }
-	mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
-	if(!draw_mapscr) return;
-    
-    if(!(draw_mapscr->valid&mVALID))
-    {
-        Map.CurrScr()->valid|=mVALID;
-        draw_mapscr->valid|=mVALID;
-        Map.setcolor(Color);
-    }
-    
+
+	mapscr* scr = Map.Scr(start, CurrentLayer);
+	if (!scr) return;
+
+    saved = false;
     Map.StartListCommand();
-    for(int32_t y=0; y<h && (y<<4)+start < 176; y++)
-        for(int32_t x=0; x<w && (start&15)+x < 16; x++)
+    for (int32_t y=0; y < h && y < 11*Map.getViewSize(); y++)
+        for (int32_t x=0; x < w && x < 16*Map.getViewSize(); x++)
         {
-            Map.DoSetComboCommand(drawmap, drawscr, start+(y<<4)+x, cid+(y*4)+x, cs);
+            Map.DoSetComboCommand(start + ComboPosition{x, y}, cid+(y*4)+x, cs);
         }
     
     Map.FinishListCommand();
     refresh(rMAP+rSCRMAP);
 }
 
-static void fill(int32_t map, int32_t screen, mapscr* fillscr, int32_t targetcombo, int32_t targetcset, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal, bool only_cset, bool* filled_combos)
+static std::vector<ComboPosition> flood_filler(ComboPosition start_pos, bool allow_diagonal, std::function<bool(ComboPosition)> check)
+{
+	std::vector<ComboPosition> seen, queue;
+
+	queue.push_back(start_pos);
+	while (!queue.empty())
+	{
+		ComboPosition pos = queue.back();
+		queue.pop_back();
+		seen.push_back(pos);
+
+		ComboPosition pos2;
+		#define FLOOD_FILLER_CHECK(dx, dy)\
+			pos2 = pos + ComboPosition{dx, dy};\
+			if (std::find(seen.begin(), seen.end(), pos2) == seen.end() && check(pos2))\
+				queue.push_back(pos2);
+
+		FLOOD_FILLER_CHECK(0, 1);
+		FLOOD_FILLER_CHECK(0, -1);
+		FLOOD_FILLER_CHECK(1, 0);
+		FLOOD_FILLER_CHECK(-1, 0);
+
+		if (allow_diagonal)
+		{
+			FLOOD_FILLER_CHECK(1, 1);
+			FLOOD_FILLER_CHECK(1, -1);
+			FLOOD_FILLER_CHECK(-1, 1);
+			FLOOD_FILLER_CHECK(-1, -1);
+		}
+
+		#undef FLOOD_FILLER_CHECK
+	}
+
+	return seen;
+}
+
+static void fill(int32_t targetcombo, int32_t targetcset, ComboPosition start_pos, bool allow_diagonal, bool only_cset)
 {
 	bool rclick = gui_mouse_b() & 2;
 	bool ignored_combo = false;
 
-	if (filled_combos[(sy << 4) + sx])
+	mapscr* scr = Map.ScrMakeValid(start_pos, CurrentLayer);
+	if (!scr)
 		return;
 
-	if (draw_mode == dm_auto)
-	{
-		combo_auto const& cauto = combo_autos[combo_auto_pos];
-		ignored_combo = cauto.isIgnoredCombo((fillscr->data[((sy << 4) + sx)]));
-		if (rclick)
+	int num_combos_width = 16 * Map.getViewSize();
+	int num_combos_height = 11 * Map.getViewSize();
+
+	auto combo_positions = flood_filler(start_pos, allow_diagonal, [&](ComboPosition pos){
+		if (pos.x < 0 || pos.y < 0 || pos.x >= num_combos_width || pos.y >= num_combos_height)
+			return false;
+
+		mapscr* scr = Map.Scr(pos, CurrentLayer);
+		if (!scr || !scr->is_valid())
+			return false;
+
+		int cid = scr->data[pos.truncate()];
+		int cset = scr->cset[pos.truncate()];
+
+		if (draw_mode == dm_auto)
 		{
-			if (cauto.containsCombo(targetcombo))
+			combo_auto const& cauto = combo_autos[combo_auto_pos];
+			
+			ignored_combo = cauto.isIgnoredCombo(cid);
+			if (rclick)
 			{
-				if (!cauto.containsCombo(fillscr->data[((sy << 4) + sx)]))
-					return;
-				if (cauto.getType() == AUTOCOMBO_REPLACE && ignored_combo)
-					return;
+				if (cauto.containsCombo(targetcombo))
+				{
+					if (!cauto.containsCombo(cid))
+						return false;
+					if (cauto.getType() == AUTOCOMBO_REPLACE && ignored_combo)
+						return false;
+				}
+				else
+					return false;
 			}
 			else
-				return;
+			{
+				if (cid != targetcombo && !ignored_combo)
+					return false;
+				if (cauto.getType() == AUTOCOMBO_REPLACE && !ignored_combo)
+					return false;
+			}
+
+			if (cset != targetcset && !ignored_combo)
+				return false;
 		}
 		else
 		{
-			if ((fillscr->data[((sy<<4)+sx)])!=targetcombo && !ignored_combo)
-				return;
-			if (cauto.getType() == AUTOCOMBO_REPLACE && !ignored_combo)
-				return;
+			if(!only_cset)
+			{
+				if (cid != targetcombo)
+					return false;
+			}
+
+			if (cset != targetcset)
+				return false;
 		}
-    
-		if((fillscr->cset[((sy<<4)+sx)])!=targetcset && !ignored_combo)
-			return;
-	}
-	else
+
+		return true;
+	});
+
+	for (auto& pos : combo_positions)
 	{
-		if(!only_cset)
+		int32_t cid = Combo;
+		int8_t cs = CSet;
+
+		if (draw_mode == dm_cpool)
 		{
-			if((fillscr->data[((sy<<4)+sx)])!=targetcombo)
-				return;
+			combo_pool const& pool = combo_pools[combo_pool_pos];
+			if (!pool.pick(cid, cs)) continue;
+		}
+		else if (draw_mode == dm_auto)
+		{
+			combo_auto const& cauto = combo_autos[combo_auto_pos];
+			if (!cauto.valid())
+				continue;
+			if (!rclick && (cauto.containsCombo(targetcombo) && !ignored_combo))
+				continue;
+			if (rclick && cauto.getEraseCombo() == targetcombo)
+				continue;
 		}
 
-		if((fillscr->cset[((sy<<4)+sx)])!=targetcset)
-			return;
+		if (draw_mode == dm_auto)
+			draw_autocombo(pos, rclick);
+		else
+			Map.DoSetComboCommand(pos, only_cset ? -1 : cid, cs);
 	}
-
-	int32_t cid = Combo;
-    int8_t cs = CSet;
-	if(draw_mode == dm_cpool)
-	{
-		combo_pool const& pool = combo_pools[combo_pool_pos];
-		if(!pool.pick(cid,cs)) return;
-	}
-	else if (draw_mode == dm_auto)
-	{
-		combo_auto const& cauto = combo_autos[combo_auto_pos];
-		if (!cauto.valid())
-			return;
-		if (!rclick && (cauto.containsCombo(targetcombo) && !ignored_combo))
-			return;
-		if (rclick && cauto.getEraseCombo() == targetcombo)
-			return;
-	}
-    
-	filled_combos[(sy << 4) + sx] = true;
-
-	if (draw_mode == dm_auto)
-	{
-		draw_autocombo((sy << 4) + sx, rclick);
-	}
-	else
-		Map.DoSetComboCommand(map, screen, (sy<<4)+sx, only_cset ? -1 : cid, cs);
-    
-    if((sy>0) && (dir!=down))                                 // && ((Map.CurrScr()->data[(((sy-1)<<4)+sx)]&0x7FF)==target))
-        fill(map, screen, fillscr, targetcombo, targetcset, sx, sy-1, up, diagonal, only_cset, filled_combos);
-        
-    if((sy<10) && (dir!=up))                                  // && ((Map.CurrScr()->data[(((sy+1)<<4)+sx)]&0x7FF)==target))
-        fill(map, screen, fillscr, targetcombo, targetcset, sx, sy+1, down, diagonal, only_cset, filled_combos);
-        
-    if((sx>0) && (dir!=right))                                // && ((Map.CurrScr()->data[((sy<<4)+sx-1)]&0x7FF)==target))
-        fill(map, screen, fillscr, targetcombo, targetcset, sx-1, sy, left, diagonal, only_cset, filled_combos);
-        
-    if((sx<15) && (dir!=left))                                // && ((Map.CurrScr()->data[((sy<<4)+sx+1)]&0x7FF)==target))
-        fill(map, screen, fillscr, targetcombo, targetcset, sx+1, sy, right, diagonal, only_cset, filled_combos);
-        
-    if(diagonal==1)
-    {
-        if((sy>0) && (sx>0) && (dir!=r_down))                   // && ((Map.CurrScr()->data[(((sy-1)<<4)+sx-1)]&0x7FF)==target))
-            fill(map, screen, fillscr, targetcombo, targetcset, sx-1, sy-1, l_up, diagonal, only_cset, filled_combos);
-            
-        if((sy<10) && (sx<15) && (dir!=l_up))                   // && ((Map.CurrScr()->data[(((sy+1)<<4)+sx+1)]&0x7FF)==target))
-            fill(map, screen, fillscr, targetcombo, targetcset, sx+1, sy+1, r_down, diagonal, only_cset, filled_combos);
-            
-        if((sx>0) && (sy<10) && (dir!=r_up))                    // && ((Map.CurrScr()->data[(((sy+1)<<4)+sx-1)]&0x7FF)==target))
-            fill(map, screen, fillscr, targetcombo, targetcset, sx-1, sy+1, l_down, diagonal, only_cset, filled_combos);
-            
-        if((sx<15) && (sy>0) && (dir!=l_down))                  // && ((Map.CurrScr()->data[(((sy-1)<<4)+sx+1)]&0x7FF)==target))
-            fill(map, screen, fillscr, targetcombo, targetcset, sx+1, sy-1, r_up, diagonal, only_cset, filled_combos);
-    }
 }
 
-static void fill_flag(int32_t map, int32_t screen, mapscr* fillscr, int32_t targetflag, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal)
+static void fill_flag(int32_t targetflag, ComboPosition start_pos, bool allow_diagonal)
 {
-	if((fillscr->sflag[((sy<<4)+sx)])!=targetflag)
+	mapscr* scr = Map.ScrMakeValid(start_pos, CurrentLayer);
+	if (!scr)
 		return;
-	
-    Map.DoSetFlagCommand(map, screen, (sy<<4)+sx, Flag);
-	
-	if((sy>0) && (dir!=down))
-		fill_flag(map, screen, fillscr, targetflag, sx, sy-1, up, diagonal);
-		
-	if((sy<10) && (dir!=up))
-		fill_flag(map, screen, fillscr, targetflag, sx, sy+1, down, diagonal);
-		
-	if((sx>0) && (dir!=right))
-		fill_flag(map, screen, fillscr, targetflag, sx-1, sy, left, diagonal);
-		
-	if((sx<15) && (dir!=left))
-		fill_flag(map, screen, fillscr, targetflag, sx+1, sy, right, diagonal);
-		
-	if(diagonal==1)
-	{
-		if((sy>0) && (sx>0) && (dir!=r_down))
-			fill_flag(map, screen, fillscr, targetflag, sx-1, sy-1, l_up, diagonal);
-			
-		if((sy<10) && (sx<15) && (dir!=l_up))
-			fill_flag(map, screen, fillscr, targetflag, sx+1, sy+1, r_down, diagonal);
-			
-		if((sx>0) && (sy<10) && (dir!=r_up))
-			fill_flag(map, screen, fillscr, targetflag, sx-1, sy+1, l_down, diagonal);
-			
-		if((sx<15) && (sy>0) && (dir!=l_down))
-			fill_flag(map, screen, fillscr, targetflag, sx+1, sy-1, r_up, diagonal);
-	}
-	
+
+	int num_combos_width = 16 * Map.getViewSize();
+	int num_combos_height = 11 * Map.getViewSize();
+
+	auto combo_positions = flood_filler(start_pos, allow_diagonal, [&](ComboPosition pos){
+		if (pos.x < 0 || pos.y < 0 || pos.x >= num_combos_width || pos.y >= num_combos_height)
+			return false;
+
+		mapscr* scr = Map.Scr(pos, CurrentLayer);
+		if (!scr || !scr->is_valid())
+			return false;
+
+		if (scr->sflag[pos.truncate()] != targetflag)
+			return false;
+
+		return true;
+	});
+
+	for (auto& pos : combo_positions)
+    	Map.DoSetFlagCommand(pos, Flag);
 }
 
-static void fill2(mapscr* fillscr, int32_t targetcombo, int32_t targetcset, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal, bool only_cset)
+static void fill2(int32_t targetcombo, int32_t targetcset, ComboPosition pos, int32_t dir, int32_t diagonal, bool only_cset)
 {
-    if(!only_cset)
+	mapscr* scr = Map.Scr(pos, CurrentLayer);
+	if (!scr || !scr->is_valid())
+		return;
+
+	int cid = scr->data[pos.truncate()];
+	int cset = scr->cset[pos.truncate()];
+
+    if (!only_cset)
     {
-        if((fillscr->data[((sy<<4)+sx)])==targetcombo)
+        if (cid == targetcombo)
             return;
     }
     
-    if((fillscr->cset[((sy<<4)+sx)])==targetcset)
+    if (cset == targetcset)
         return;
-    
-	int32_t cid = Combo;
+
+	cid = Combo;
     int8_t cs = CSet;
 	if(draw_mode == dm_cpool)
 	{
@@ -8425,33 +8439,30 @@ static void fill2(mapscr* fillscr, int32_t targetcombo, int32_t targetcset, int3
 		if(!pool.pick(cid,cs)) return;
 	}
 	
-    Map.DoSetComboCommand(Map.getCurrMap(), Map.getCurrScr(), (sy<<4)+sx, only_cset ? -1 : cid, cs);
-    
-    if((sy>0) && (dir!=down))                                 // && ((Map.CurrScr()->data[(((sy-1)<<4)+sx)]&0x7FF)!=target))
-        fill2(fillscr, targetcombo, targetcset, sx, sy-1, up, diagonal, only_cset);
-        
-    if((sy<10) && (dir!=up))                                  // && ((Map.CurrScr()->data[(((sy+1)<<4)+sx)]&0x7FF)!=target))
-        fill2(fillscr, targetcombo, targetcset, sx, sy+1, down, diagonal, only_cset);
-        
-    if((sx>0) && (dir!=right))                                // && ((Map.CurrScr()->data[((sy<<4)+sx-1)]&0x7FF)!=target))
-        fill2(fillscr, targetcombo, targetcset, sx-1, sy, left, diagonal, only_cset);
-        
-    if((sx<15) && (dir!=left))                                // && ((Map.CurrScr()->data[((sy<<4)+sx+1)]&0x7FF)!=target))
-        fill2(fillscr, targetcombo, targetcset, sx+1, sy, right, diagonal, only_cset);
-        
-    if(diagonal==1)
+    Map.DoSetComboCommand(pos, only_cset ? -1 : cid, cs);
+
+	int num_combos_width = 16 * Map.getViewSize();
+	int num_combos_height = 11 * Map.getViewSize();
+
+	if (pos.y > 0 && dir != down)
+        fill2(targetcombo, targetcset, pos + ComboPosition{0, -1}, up, diagonal, only_cset);
+    if (pos.y < num_combos_height-1 && dir != up)
+        fill2(targetcombo, targetcset, pos + ComboPosition{0, 1}, down, diagonal, only_cset);
+    if (pos.x > 0 && dir != right)
+        fill2(targetcombo, targetcset, pos + ComboPosition{-1, 0}, left, diagonal, only_cset);
+    if (pos.x < num_combos_width-1 && dir != left)
+        fill2(targetcombo, targetcset, pos + ComboPosition{1, 0}, right, diagonal, only_cset);
+
+    if (diagonal == 1)
     {
-        if((sy>0) && (sx>0) && (dir!=r_down))                   // && ((Map.CurrScr()->data[(((sy-1)<<4)+sx-1)]&0x7FF)!=target))
-            fill2(fillscr, targetcombo, targetcset, sx-1, sy-1, l_up, diagonal, only_cset);
-            
-        if((sy<10) && (sx<15) && (dir!=l_up))                   // && ((Map.CurrScr()->data[(((sy+1)<<4)+sx+1)]&0x7FF)!=target))
-            fill2(fillscr, targetcombo, targetcset, sx+1, sy+1, r_down, diagonal, only_cset);
-            
-        if((sx>0) && (sy<10) && (dir!=r_up))                    // && ((Map.CurrScr()->data[(((sy+1)<<4)+sx-1)]&0x7FF)!=target))
-            fill2(fillscr, targetcombo, targetcset, sx-1, sy+1, l_down, diagonal, only_cset);
-            
-        if((sx<15) && (sy>0) && (dir!=l_down))                  // && ((Map.CurrScr()->data[(((sy-1)<<4)+sx+1)]&0x7FF)!=target))
-            fill2(fillscr, targetcombo, targetcset, sx+1, sy-1, r_up, diagonal, only_cset);
+        if (pos.y > 0 && pos.x > 0 && dir != r_down)
+            fill2(targetcombo, targetcset, pos + ComboPosition{-1, -1}, l_up, diagonal, only_cset);
+        if (pos.y < num_combos_height-1 && pos.x < num_combos_width-1 && dir != l_up)
+            fill2(targetcombo, targetcset, pos + ComboPosition{1, 1}, r_down, diagonal, only_cset);
+        if (pos.x > 0 && pos.y < num_combos_height-1 && dir != r_up)
+            fill2(targetcombo, targetcset, pos + ComboPosition{-1, 1}, l_down, diagonal, only_cset);
+        if (pos.x < num_combos_width-1 && pos.y > 0 && dir != l_down)
+            fill2(targetcombo, targetcset, pos + ComboPosition{1, -1}, r_up, diagonal, only_cset);
     }
 }
 
@@ -8468,11 +8479,14 @@ static void doxypos(byte &px2, byte &py2, int32_t color, int32_t mask,
     ComboBrush=0;
     MouseSprite::set(ZQM_POINT_BOX);
     
+	int viz_off_x = (active_visible_screen ? active_visible_screen->dx * 256 : 0);
+	int viz_off_y = (active_visible_screen ? active_visible_screen->dy * 176 : 0);
+
     int32_t oldpx=px2, oldpy=py2;
-    int32_t startxint=mapscreen_x+(showedges?int32_t(16*mapscreensize):0);
-    int32_t startyint=mapscreen_y+(showedges?int32_t(16*mapscreensize):0);
-    showxypos_x=px2;
-    showxypos_y=py2;
+    int32_t startxint=mapscreen_x+(showedges?int32_t(16*mapscreen_single_scale):0);
+    int32_t startyint=mapscreen_y+(showedges?int32_t(16*mapscreen_single_scale):0);
+    showxypos_x=px2 + viz_off_x;
+    showxypos_y=py2 + viz_off_y;
     showxypos_w=iconw;
     showxypos_h=iconh;
     showxypos_color=vc(color);
@@ -8492,19 +8506,20 @@ static void doxypos(byte &px2, byte &py2, int32_t color, int32_t mask,
             canedit=true;
         }
         
-        if(canedit && gui_mouse_b()==1 && isinRect(x,y,startxint,startyint,(startxint+(256*mapscreensize)-1),(startyint+(176*mapscreensize)-1)))
+		// TODO: would be nice if these bounds were based on the individual screen.
+        if(canedit && gui_mouse_b()==1 && isinRect(x,y,startxint,startyint,(startxint+(256*mapscreen_screenunit_scale)-1),(startyint+(176*mapscreen_screenunit_scale)-1)))
         {
-            set_mouse_range(startxint,startyint,int32_t(startxint+(256*mapscreensize)-1),int32_t(startyint+(176*mapscreensize)-1));
+            set_mouse_range(startxint,startyint,int32_t(startxint+(256*mapscreen_screenunit_scale)-1),int32_t(startyint+(176*mapscreen_screenunit_scale)-1));
             
             while(gui_mouse_b()==1)
             {
-                x=int32_t((gui_mouse_x()-startxint)/mapscreensize)-cursoroffx;
-                y=int32_t((gui_mouse_y()-startyint)/mapscreensize)-cursoroffy;
+                x=int32_t((gui_mouse_x()-startxint)/mapscreen_single_scale)-cursoroffx;
+                y=int32_t((gui_mouse_y()-startyint)/mapscreen_single_scale)-cursoroffy;
                 showxypos_cursor_icon=true;
 				showxypos_cursor_color = showxypos_color;
 				auto _mask = (key[KEY_LSHIFT] || key[KEY_RSHIFT]) ? shiftmask : mask;
-                showxypos_cursor_x=x&_mask;
-                showxypos_cursor_y=y&_mask;
+                showxypos_cursor_x = (x & ~0xFF) + (x&0xFF&_mask);
+                showxypos_cursor_y = (y & ~0xFF) + (y&0xFF&_mask);
                 custom_vsync();
                 refresh(rALL | rNOCURSOR);
                 int32_t xpos[2], ypos[2];
@@ -8515,7 +8530,7 @@ static void doxypos(byte &px2, byte &py2, int32_t color, int32_t mask,
 				if(showxypos_dummy)
 					strcpy(b1, "DUMMY MEASURING");
 				else sprintf(b1, "%d %d",oldpx,oldpy);
-				sprintf(b2, "%d %d (%d %d)",x,y,showxypos_cursor_x,showxypos_cursor_y);
+				sprintf(b2, "%d %d (%d %d)",x-viz_off_x,y-viz_off_y,showxypos_cursor_x-viz_off_x,showxypos_cursor_y-viz_off_y);
 				
 				int len[2] = {text_length(font,b1),text_length(font,b2)};
 				
@@ -8564,8 +8579,8 @@ static void doxypos(byte &px2, byte &py2, int32_t color, int32_t mask,
             if(gui_mouse_b()==0)
             {
 				auto _mask = (key[KEY_LSHIFT] || key[KEY_RSHIFT]) ? shiftmask : mask;
-                px2=byte(vbound(x,0,255)&_mask);
-                py2=byte(vbound(y,0,255)&_mask);
+                px2=byte(vbound(x-viz_off_x,0,255)&_mask);
+                py2=byte(vbound(y-viz_off_y,0,175)&_mask);
             }
             
             set_mouse_range(0,0,zq_screen_w-1,zq_screen_h-1);
@@ -8634,23 +8649,26 @@ void doflags()
 	{
 		int x=gui_mouse_x();
 		int y=gui_mouse_y();
-		double startx=mapscreen_x+(showedges?(16*mapscreensize):0);
-		double starty=mapscreen_y+(showedges?(16*mapscreensize):0);
-		int startxint=mapscreen_x+(showedges?int(16*mapscreensize):0);
-		int startyint=mapscreen_y+(showedges?int(16*mapscreensize):0);
-		int cx=(x-startxint)/int(16*mapscreensize);
-		int cy=(y-startyint)/int(16*mapscreensize);
-		int c=(cy*16)+cx;
-		
+		double startx=mapscreen_x+(showedges?(16*mapscreen_single_scale):0);
+		double starty=mapscreen_y+(showedges?(16*mapscreen_single_scale):0);
+		int startxint=mapscreen_x+(showedges?int(16*mapscreen_single_scale):0);
+		int startyint=mapscreen_y+(showedges?int(16*mapscreen_single_scale):0);
+		int cx=(x-startxint)/int(16*mapscreen_single_scale);
+		int cy=(y-startyint)/int(16*mapscreen_single_scale);
+		ComboPosition combo_pos = {cx, cy};
+		int c = combo_pos.truncate();
+
 		if(!gui_mouse_b())
 			canedit=true;
         bool shift = key[KEY_LSHIFT] || key[KEY_RSHIFT];
-		if(canedit && gui_mouse_b()==1 && isinRect(x,y,startxint,startyint,int(startx+(256*mapscreensize)-1),int(starty+(176*mapscreensize)-1)))
+
+		if(canedit && gui_mouse_b()==1 && isinRect(x,y,startxint,startyint,int(startx+(256*mapscreen_screenunit_scale)-1),int(starty+(176*mapscreen_screenunit_scale)-1)))
 		{
-			mapscr* cur_scr = (CurrentLayer
-				? &(TheMaps[(Map.CurrScr()->layermap[CurrentLayer-1]-1)*MAPSCRS
-					+(Map.CurrScr()->layerscreen[CurrentLayer-1])])
-				: Map.CurrScr());
+			mapscr* cur_scr = Map.Scr(combo_pos, CurrentLayer);
+			if (!cur_scr) continue;
+
+			Map.setCurrScr(Map.getScreenForPosition(combo_pos));
+
 			if(key[KEY_ALT]||key[KEY_ALTGR])
 				Flag = cur_scr->sflag[c];
 			else
@@ -8701,15 +8719,7 @@ void doflags()
 				}
 				else
 				{
-					int map = CurrentLayer ? Map.CurrScr()->layermap[CurrentLayer-1]-1 : Map.getCurrMap();
-					int scr = CurrentLayer ? Map.CurrScr()->layerscreen[CurrentLayer-1] : Map.getCurrScr();
-					Map.DoSetFlagCommand(map, scr, c, Flag);
-				}
-				if(!(cur_scr->valid&mVALID))
-				{
-					Map.CurrScr()->valid|=mVALID;
-					cur_scr->valid|=mVALID;
-					Map.setcolor(Color);
+					Map.DoSetFlagCommand(combo_pos, Flag);
 				}
 				Flag = tflag;
 			}
@@ -8761,21 +8771,24 @@ finished:
 }
 
 // Drag FFCs around
-void moveffc(int32_t i, int32_t cx, int32_t cy)
+static void moveffc(int i, int cx, int cy)
 {
-    int32_t ffx = vbound(Map.CurrScr()->ffcs[i].x.getFloor(),0,240);
-    int32_t ffy = vbound(Map.CurrScr()->ffcs[i].y.getFloor(),0,160);
+	mapscr* scr = active_visible_screen->scr;
+	int screen = active_visible_screen->screen;
+
+    int32_t ffx = vbound(scr->ffcs[i].x.getFloor(),0,240);
+    int32_t ffy = vbound(scr->ffcs[i].y.getFloor(),0,160);
 	int32_t offx = ffx, offy = ffy;
     showxypos_ffc = i;
-    doxypos((byte&)ffx,(byte&)ffy,15,SNAP_HALF,SNAP_NONE,true,cx-ffx,cy-ffy,(Map.CurrScr()->ffTileWidth(i)*16),(Map.CurrScr()->ffTileHeight(i)*16));
+    doxypos((byte&)ffx,(byte&)ffy,15,SNAP_HALF,SNAP_NONE,true,0,0,(scr->ffTileWidth(i)*16),(scr->ffTileHeight(i)*16));
     if(ffx > 240) ffx = 240;
     if(ffy > 160) ffy = 160;
     if((ffx != offx) || (ffy != offy))
     {
-        auto set_ffc_data = set_ffc_command::create_data(Map.CurrScr()->ffcs[i]);
+        auto set_ffc_data = set_ffc_command::create_data(scr->ffcs[i]);
         set_ffc_data.x = ffx;
         set_ffc_data.y = ffy;
-        Map.DoSetFFCCommand(Map.getCurrMap(), Map.getCurrScr(), i, set_ffc_data);
+        Map.DoSetFFCCommand(Map.getCurrMap(), screen, i, set_ffc_data);
         saved = false;
     }
 }
@@ -9004,258 +9017,156 @@ int32_t set_fill_8();
 int32_t set_fill2_4();
 int32_t set_fill2_8();
 
+// Sets every combo.
 void flood()
 {
-    int32_t drawmap, drawscr;
-    
-    if(CurrentLayer==0)
-    {
-        drawmap=Map.getCurrMap();
-        drawscr=Map.getCurrScr();
-    }
-    else
-    {
-        drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
-        drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-    }
-	mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
-	if(!draw_mapscr) return;
-    
-    saved=false;
-    
-    if(!(draw_mapscr->valid&mVALID))
-    {
-        Map.CurrScr()->valid|=mVALID;
-        draw_mapscr->valid|=mVALID;
-        Map.setcolor(Color);
-    }
-    
-    bool include_combos = !(key[KEY_LSHIFT]||key[KEY_RSHIFT]);
-    Map.StartListCommand();
+	ComboPosition pos = get_mapscreen_mouse_combo_pos();
+	mapscr* scr = Map.ScrMakeValid(pos, CurrentLayer);
+	if (!scr || !scr->is_valid())
+		return;
 
-    for(int32_t i=0; i<176; i++)
-    {
-		if (draw_mode == dm_auto)
-			draw_autocombo(i, gui_mouse_b() & 2);
-		else
-			Map.DoSetComboCommand(drawmap, drawscr, i, include_combos ? Combo : -1, CSet);
-    }
-    
-    Map.FinishListCommand();
-    refresh(rMAP+rSCRMAP);
+	saved=false;
+
+	bool include_combos = !(key[KEY_LSHIFT]||key[KEY_RSHIFT]);
+
+	int num_combos_width = 16 * Map.getViewSize();
+	int num_combos_height = 11 * Map.getViewSize();
+
+	Map.StartListCommand();
+	for (int x = 0; x < num_combos_width; x++)
+	{
+		for (int y = 0; y < num_combos_height; y++)
+		{
+			ComboPosition pos = {x, y};
+			mapscr* scr = Map.Scr(pos, CurrentLayer);
+			if (!scr || !scr->is_valid())
+				continue;
+
+			if (draw_mode == dm_auto)
+				draw_autocombo(pos, gui_mouse_b() & 2);
+			else
+				Map.DoSetComboCommand(pos, include_combos ? Combo : -1, CSet);
+		}
+	}
+	Map.FinishListCommand();
+
+	refresh(rMAP+rSCRMAP);
 }
 void flood_flag()
 {
-    int32_t drawmap, drawscr;
-    
-    if(CurrentLayer==0)
-    {
-        drawmap=Map.getCurrMap();
-        drawscr=Map.getCurrScr();
-    }
-    else
-    {
-        drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
-        drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-    }
-	mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
-	if(!draw_mapscr) return;
-    
-    saved=false;
-    
-    if(!(draw_mapscr->valid&mVALID))
-    {
-        Map.CurrScr()->valid|=mVALID;
-        draw_mapscr->valid|=mVALID;
-        Map.setcolor(Color);
-    }
-    
-    Map.StartListCommand();
-    for(int32_t i=0; i<176; i++)
-    {
-        Map.DoSetFlagCommand(drawmap, drawscr, i, Flag);
-    }
-    Map.FinishListCommand();
-    
-    refresh(rMAP+rSCRMAP);
+	ComboPosition pos = get_mapscreen_mouse_combo_pos();
+	mapscr* scr = Map.ScrMakeValid(pos, CurrentLayer);
+	if (!scr || !scr->is_valid())
+		return;
+
+	saved=false;
+
+	int num_combos_width = 16 * Map.getViewSize();
+	int num_combos_height = 11 * Map.getViewSize();
+
+	Map.StartListCommand();
+	for (int x = 0; x < num_combos_width; x++)
+	{
+		for (int y = 0; y < num_combos_height; y++)
+		{
+			ComboPosition pos = {x, y};
+			mapscr* scr = Map.Scr(pos, CurrentLayer);
+			if (!scr || !scr->is_valid())
+				continue;
+
+			Map.DoSetFlagCommand(pos, Flag);
+		}
+	}
+	Map.FinishListCommand();
+
+	refresh(rMAP+rSCRMAP);
 }
 
 void fill_4()
 {
-    int32_t drawmap, drawscr;
-    
-    if(CurrentLayer==0)
-    {
-        drawmap=Map.getCurrMap();
-        drawscr=Map.getCurrScr();
-    }
-    else
-    {
-        drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
-        drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-    }
-	mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
-	if(!draw_mapscr) return;
-    
-    int32_t x=gui_mouse_x()-mapscreen_x-(showedges?(16*mapscreensize):0);
-    int32_t y=gui_mouse_y()-mapscreen_y-(showedges?(16*mapscreensize):0);
-    int32_t by= (y>>4)/(mapscreensize);
-    int32_t bx= (x>>4)/(mapscreensize);
-    
-    if(draw_mode == dm_cpool || draw_mode == dm_auto
-		|| (draw_mapscr->cset[(by<<4)+bx]!=CSet ||
-            (draw_mapscr->data[(by<<4)+bx]!=Combo &&
-             !(key[KEY_LSHIFT]||key[KEY_RSHIFT]))))
-    {
-        saved=false;
-        
-        if(!(draw_mapscr->valid&mVALID))
-        {
-            Map.CurrScr()->valid|=mVALID;
-            draw_mapscr->valid|=mVALID;
-            Map.setcolor(Color);
-        }
-        
-        Map.StartListCommand();
+	ComboPosition pos = get_mapscreen_mouse_combo_pos();
+	mapscr* scr = Map.ScrMakeValid(pos, CurrentLayer);
+	if (!scr)
+		return;
+
+	int c = pos.truncate();
+	if (draw_mode == dm_cpool || draw_mode == dm_auto
+		|| (scr->cset[c]!=CSet || (scr->data[c]!=Combo && !(key[KEY_LSHIFT]||key[KEY_RSHIFT]))))
+	{
+		saved=false;
+
+		Map.StartListCommand();
 		if (draw_mode == dm_auto && (combo_autos[combo_auto_pos].getType() == AUTOCOMBO_FENCE ||
 			combo_autos[combo_auto_pos].getType() == AUTOCOMBO_Z4))
 		{
-			draw_autocombo_command((by << 4) + bx);
+			draw_autocombo_command(pos);
 		}
 		else
 		{
-			bool filled_combos[176] = { false };
-			fill(drawmap, drawscr, draw_mapscr,
-				(draw_mapscr->data[(by << 4) + bx]),
-				(draw_mapscr->cset[(by << 4) + bx]), bx, by, 255, 0, (key[KEY_LSHIFT] || key[KEY_RSHIFT]), filled_combos);
+			bool allow_diagonal = false;
+			fill(scr->data[c], scr->cset[c], pos, allow_diagonal, (key[KEY_LSHIFT] || key[KEY_RSHIFT]));
 		}
-        Map.FinishListCommand();
-        refresh(rMAP+rSCRMAP);
-    }
+		Map.FinishListCommand();
+		refresh(rMAP+rSCRMAP);
+	}
 }
 void fill_4_flag()
 {
-    int32_t drawmap, drawscr;
-    
-    if(CurrentLayer==0)
-    {
-        drawmap=Map.getCurrMap();
-        drawscr=Map.getCurrScr();
-    }
-    else
-    {
-        drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
-        drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-    }
-	mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
-	if(!draw_mapscr) return;
-    
-    int32_t x=gui_mouse_x()-mapscreen_x-(showedges?(16*mapscreensize):0);
-    int32_t y=gui_mouse_y()-mapscreen_y-(showedges?(16*mapscreensize):0);
-    int32_t by= (y>>4)/(mapscreensize);
-    int32_t bx= (x>>4)/(mapscreensize);
-    
-    if(draw_mapscr->sflag[(by<<4)+bx] != Flag)
+	ComboPosition pos = get_mapscreen_mouse_combo_pos();
+	mapscr* scr = Map.ScrMakeValid(pos, CurrentLayer);
+	if (!scr)
+		return;
+
+	int flag = scr->sflag[pos.truncate()];
+    if (flag != Flag)
     {
         saved=false;
-        
-        if(!(draw_mapscr->valid&mVALID))
-        {
-            Map.CurrScr()->valid|=mVALID;
-            draw_mapscr->valid|=mVALID;
-            Map.setcolor(Color);
-        }
-        
+
         Map.StartListCommand();
-		fill_flag(drawmap, drawscr, draw_mapscr,
-             (draw_mapscr->sflag[(by<<4)+bx]),
-             bx, by, 255, 0);
+		bool allow_diagonal = false;
+		fill_flag(flag, pos, allow_diagonal);
         Map.FinishListCommand();
         refresh(rMAP+rSCRMAP);
     }
 }
 void fill_8()
 {
-    int32_t drawmap, drawscr;
-    
-    if(CurrentLayer==0)
-    {
-        drawmap=Map.getCurrMap();
-        drawscr=Map.getCurrScr();
-    }
-    else
-    {
-        drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
-        drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-    }
-	mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
-	if(!draw_mapscr) return;
-    
-    int32_t x=gui_mouse_x()-mapscreen_x-(showedges?(16*mapscreensize):0);
-    int32_t y=gui_mouse_y()-mapscreen_y-(showedges?(16*mapscreensize):0);
-    int32_t by= (y>>4)/(mapscreensize);
-    int32_t bx= (x>>4)/(mapscreensize);
-    
-    if(draw_mode == dm_cpool || draw_mode == dm_auto
-		|| (draw_mapscr->cset[(by<<4)+bx]!=CSet ||
-            (draw_mapscr->data[(by<<4)+bx]!=Combo &&
+    ComboPosition pos = get_mapscreen_mouse_combo_pos();
+	mapscr* scr = Map.ScrMakeValid(pos, CurrentLayer);
+	if (!scr)
+		return;
+
+	int c = pos.truncate();
+    if (draw_mode == dm_cpool || draw_mode == dm_auto
+		|| (scr->cset[c] != CSet ||
+            (scr->data[c] != Combo &&
              !(key[KEY_LSHIFT]||key[KEY_RSHIFT]))))
     {
         saved=false;
-        
-        if(!(draw_mapscr->valid&mVALID))
-        {
-            Map.CurrScr()->valid|=mVALID;
-            draw_mapscr->valid|=mVALID;
-            Map.setcolor(Color);
-        }
-        
+
         Map.StartListCommand();
-		bool filled_combos[176] = { false };
-        fill(drawmap, drawscr, draw_mapscr,
-             (draw_mapscr->data[(by<<4)+bx]),
-             (draw_mapscr->cset[(by<<4)+bx]), bx, by, 255, 1, (key[KEY_LSHIFT]||key[KEY_RSHIFT]), filled_combos);
+		bool allow_diagonal = true;
+        fill(scr->data[c], scr->cset[c], pos, allow_diagonal, (key[KEY_LSHIFT]||key[KEY_RSHIFT]));
         Map.FinishListCommand();
+
         refresh(rMAP+rSCRMAP);
     }
 }
 void fill_8_flag()
 {
-    int32_t drawmap, drawscr;
+    ComboPosition pos = get_mapscreen_mouse_combo_pos();
+	mapscr* scr = Map.ScrMakeValid(pos, CurrentLayer);
+	if (!scr)
+		return;
     
-    if(CurrentLayer==0)
-    {
-        drawmap=Map.getCurrMap();
-        drawscr=Map.getCurrScr();
-    }
-    else
-    {
-        drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
-        drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-    }
-	mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
-	if(!draw_mapscr) return;
-    
-    int32_t x=gui_mouse_x()-mapscreen_x-(showedges?(16*mapscreensize):0);
-    int32_t y=gui_mouse_y()-mapscreen_y-(showedges?(16*mapscreensize):0);
-    int32_t by= (y>>4)/(mapscreensize);
-    int32_t bx= (x>>4)/(mapscreensize);
-    
-    if(draw_mapscr->sflag[(by<<4)+bx]!=Flag)
+	int flag = scr->sflag[pos.truncate()];
+    if (flag != Flag)
     {
         saved=false;
-        
-        if(!(draw_mapscr->valid&mVALID))
-        {
-            Map.CurrScr()->valid|=mVALID;
-            draw_mapscr->valid|=mVALID;
-            Map.setcolor(Color);
-        }
-        
+
         Map.StartListCommand();
-        fill_flag(drawmap, drawscr, draw_mapscr,
-             (draw_mapscr->sflag[(by<<4)+bx]),
-             bx, by, 255, 1);
+		bool allow_diagonal = true;
+        fill_flag(flag, pos, allow_diagonal);
         Map.FinishListCommand();
         refresh(rMAP+rSCRMAP);
     }
@@ -9263,82 +9174,35 @@ void fill_8_flag()
 
 void fill2_4()
 {
-    int32_t drawmap, drawscr;
-    
-    if(CurrentLayer==0)
-    {
-        drawmap=Map.getCurrMap();
-        drawscr=Map.getCurrScr();
-    }
-    else
-    {
-        drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
-        drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-    }
-	mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
-	if(!draw_mapscr) return;
-    
-    int32_t x=gui_mouse_x()-mapscreen_x-(showedges?(16*mapscreensize):0);
-    int32_t y=gui_mouse_y()-mapscreen_y-(showedges?(16*mapscreensize):0);;
-    int32_t by= (((y&0xF0))>>4)/(mapscreensize);
-    int32_t bx= (x>>4)/(mapscreensize);
+    ComboPosition pos = get_mapscreen_mouse_combo_pos();
+	mapscr* scr = Map.ScrMakeValid(pos, CurrentLayer);
+	if (!scr)
+		return;
     
     saved=false;
-    
-    if(!(draw_mapscr->valid&mVALID))
-    {
-        Map.CurrScr()->valid|=mVALID;
-        draw_mapscr->valid|=mVALID;
-        Map.setcolor(Color);
-    }
-    
+
     Map.StartListCommand();
-    fill2(draw_mapscr, Combo, CSet, bx, by, 255, 0, (key[KEY_LSHIFT]||key[KEY_RSHIFT]));
+    fill2(Combo, CSet, pos, 255, 0, (key[KEY_LSHIFT]||key[KEY_RSHIFT]));
     Map.FinishListCommand();
     refresh(rMAP+rSCRMAP);
 }
 
 void fill2_8()
 {
-    int32_t drawmap, drawscr;
-    
-    if(CurrentLayer==0)
-    {
-        drawmap=Map.getCurrMap();
-        drawscr=Map.getCurrScr();
-    }
-    else
-    {
-        drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
-        drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-    }
-	mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
-	if(!draw_mapscr) return;
-    
-    int32_t x=gui_mouse_x()-mapscreen_x-(showedges?(16*mapscreensize):0);
-    int32_t y=gui_mouse_y()-mapscreen_y-(showedges?(16*mapscreensize):0);;
-    int32_t by= (((y&0xF0))>>4)/(mapscreensize);
-    int32_t bx= (x>>4)/(mapscreensize);
+    ComboPosition pos = get_mapscreen_mouse_combo_pos();
+	mapscr* scr = Map.ScrMakeValid(pos, CurrentLayer);
+	if (!scr)
+		return;
     
     saved=false;
-    
-    if(!(draw_mapscr->valid&mVALID))
-    {
-        Map.CurrScr()->valid|=mVALID;
-        draw_mapscr->valid|=mVALID;
-        Map.setcolor(Color);
-    }
-    
+
     Map.StartListCommand();
-    fill2(draw_mapscr, Combo, CSet, bx, by, 255, 1, (key[KEY_LSHIFT]||key[KEY_RSHIFT]));
+    fill2(Combo, CSet, pos, 255, 1, (key[KEY_LSHIFT]||key[KEY_RSHIFT]));
     Map.FinishListCommand();
+
     refresh(rMAP+rSCRMAP);
 }
 
-enum
-{
-	
-};
 static NewMenu fill_menu
 {
 	{ "Flood", set_flood, 0 },
@@ -9385,49 +9249,49 @@ int32_t set_fill2_8()
 
 int32_t draw_block_1_2()
 {
-    draw_block(mousecomboposition,1,2);
+    draw_block(mouse_combo_pos,1,2);
     return D_O_K;
 }
 
 int32_t draw_block_2_1()
 {
-    draw_block(mousecomboposition,2,1);
+    draw_block(mouse_combo_pos,2,1);
     return D_O_K;
 }
 
 int32_t draw_block_2_2()
 {
-    draw_block(mousecomboposition,2,2);
+    draw_block(mouse_combo_pos,2,2);
     return D_O_K;
 }
 
 int32_t draw_block_2_3()
 {
-    draw_block(mousecomboposition,2,3);
+    draw_block(mouse_combo_pos,2,3);
     return D_O_K;
 }
 
 int32_t draw_block_3_2()
 {
-    draw_block(mousecomboposition,3,2);
+    draw_block(mouse_combo_pos,3,2);
     return D_O_K;
 }
 
 int32_t draw_block_3_3()
 {
-    draw_block(mousecomboposition,3,3);
+    draw_block(mouse_combo_pos,3,3);
     return D_O_K;
 }
 
 int32_t draw_block_4_2()
 {
-    draw_block(mousecomboposition,4,2);
+    draw_block(mouse_combo_pos,4,2);
     return D_O_K;
 }
 
 int32_t draw_block_4_4()
 {
-    draw_block(mousecomboposition,4,4);
+    draw_block(mouse_combo_pos,4,4);
     return D_O_K;
 }
 
@@ -9826,25 +9690,24 @@ void domouse()
 	auto mousexy = zc_get_mouse();
 	auto x = mousexy.first;
 	auto y = mousexy.second;
-	double startx=mapscreen_x+(showedges?(16*mapscreensize):0);
-	double starty=mapscreen_y+(showedges?(16*mapscreensize):0);
-	int32_t startxint=mapscreen_x+(showedges?int32_t(16*mapscreensize):0);
-	int32_t startyint=mapscreen_y+(showedges?int32_t(16*mapscreensize):0);
-	int32_t cx=(x-startxint)/int32_t(16*mapscreensize);
-	int32_t cy=(y-startyint)/int32_t(16*mapscreensize);
-	int32_t c=(cy*16)+cx;
-	
+	double startx=mapscreen_x+(showedges?(16*mapscreen_single_scale):0);
+    double starty=mapscreen_y+(showedges?(16*mapscreen_single_scale):0);
+	int32_t startxint=mapscreen_x+(showedges?int32_t(16*mapscreen_single_scale):0);
+	int32_t startyint=mapscreen_y+(showedges?int32_t(16*mapscreen_single_scale):0);
+	int32_t cx=(x-startx)/(16*mapscreen_single_scale);
+	int32_t cy=(y-starty)/(16*mapscreen_single_scale);
+	ComboPosition combo_pos = {cx, cy};
+
 	if (draw_mode == dm_auto)
 	{
-		if (c != mousecomboposition)
-			combobrushoverride = get_autocombo_floating_cid(c, false);
+		if (combo_pos != mouse_combo_pos)
+			combobrushoverride = get_autocombo_floating_cid(combo_pos, false);
 	}
 	else
 		combobrushoverride = -1;
 
-	mousecomboposition=c;
+	mouse_combo_pos = combo_pos;
 	update_combobrush();
-	//  put_combo(brushbmp,0,0,Combo,CSet,0,0);
 	
 	++scrolldelay;
 	
@@ -9914,24 +9777,31 @@ void domouse()
 			}
 		}
 	}
-	
+
+	// The screen for this combo_pos, layer 0. Used to access ffcs.
+	mapscr* scr = Map.Scr(combo_pos);
+	// The screen for this combo_pos at the CurrentLayer. Could be same as scr.
+	mapscr* draw_mapscr = scr && CurrentLayer ? Map.Scr(combo_pos, CurrentLayer) : scr;
+	int c = combo_pos.truncate();
+	set_active_visible_screen(scr);
+
 //-------------
 //tooltip stuff
 //-------------
-	if(isinRect(x,y,startxint,startyint,startxint+(256*mapscreensize)-1,startyint+(176*mapscreensize)-1))
+	if (active_visible_screen && isinRect(x,y,startxint,startyint,startxint+(256*mapscreen_screenunit_scale)-1,startyint+(176*mapscreen_screenunit_scale)-1))
 	{
 		static int mapscr_tooltip_id = ttip_register_id();
 		bool did_ffttip = false;
-		int num_ffcs = Map.CurrScr()->numFFC();
+		int num_ffcs = scr->numFFC();
 		for(int32_t i=num_ffcs-1; i>=0; i--)
-			if(Map.CurrScr()->ffcs[i].data !=0 && (CurrentLayer<2 || (Map.CurrScr()->ffcs[i].flags&ffc_overlay)))
+			if(scr->ffcs[i].data !=0 && (CurrentLayer<2 || (scr->ffcs[i].flags&ffc_overlay)))
 			{
-				int32_t ffx = Map.CurrScr()->ffcs[i].x.getFloor();
-				int32_t ffy = Map.CurrScr()->ffcs[i].y.getFloor();
-				int32_t ffw = Map.CurrScr()->ffTileWidth(i)*16;
-				int32_t ffh = Map.CurrScr()->ffTileHeight(i)*16;
-				int32_t cx2 = (x-startxint)/mapscreensize;
-				int32_t cy2 = (y-startyint)/mapscreensize;
+				int32_t ffx = scr->ffcs[i].x.getFloor() + active_visible_screen->dx * 256;
+				int32_t ffy = scr->ffcs[i].y.getFloor() + active_visible_screen->dy * 176;
+				int32_t ffw = scr->ffTileWidth(i)*16;
+				int32_t ffh = scr->ffTileHeight(i)*16;
+				int32_t cx2 = (x-startxint)/mapscreen_single_scale;
+				int32_t cy2 = (y-startyint)/mapscreen_single_scale;
 				
 				if(cx2 >= ffx && cx2 < ffx+ffw && cy2 >= ffy && cy2 < ffy+ffh)
 				{
@@ -9943,33 +9813,18 @@ void domouse()
 					
 					tooltip_current_ffc = i;
 					char msg[1024] = {0};
-					auto& ff = Map.CurrScr()->ffcs[i];
+					auto& ff = scr->ffcs[i];
 					sprintf(msg,"FFC: %d Combo: %d\nCSet: %d Type: %s\nScript: %s",
 							i+1, ff.data,ff.data,
 							combo_class_buf[combobuf[ff.data].type].name,
 							(ff.script<=0 ? "(None)" : ffcmap[ff.script-1].scriptname.substr(0,400).c_str()));
-					ttip_install(mapscr_tooltip_id, msg, startxint+(ffx*mapscreensize), startyint+(ffy*mapscreensize), ffw*mapscreensize, ffh*mapscreensize, x, y);
+					ttip_install(mapscr_tooltip_id, msg, startxint+(ffx*mapscreen_single_scale), startyint+(ffy*mapscreen_single_scale), ffw*mapscreen_single_scale, ffh*mapscreen_single_scale, x, y);
 					did_ffttip = true;
 					break;
 				}
 			}
 		if(!did_ffttip)
 		{
-			int32_t drawmap;
-			int32_t drawscr;
-			
-			if(CurrentLayer==0)
-			{
-				drawmap=Map.getCurrMap();
-				drawscr=Map.getCurrScr();
-			}
-			else
-			{
-				drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
-				drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-			}
-			
-			mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
 			if(unsigned(c) < 176 && draw_mapscr && !gui_mouse_b())
 			{
 				int cid = draw_mapscr->data[c];
@@ -9986,7 +9841,7 @@ void domouse()
 					oss << "\nCombo type: " << combo_class_buf[cmb.type].name;
 				if(cmb.label[0])
 					oss << "\nLabel: " << cmb.label;
-				ttip_install(mapscr_tooltip_id, oss.str().c_str(), startxint+(cx*16*mapscreensize), startyint+(cy*16*mapscreensize), 16*mapscreensize, 16*mapscreensize, x, y);
+				ttip_install(mapscr_tooltip_id, oss.str().c_str(), startxint+(cx*16*mapscreen_single_scale), startyint+(cy*16*mapscreen_single_scale), 16*mapscreen_single_scale, 16*mapscreen_single_scale, x, y);
 			}
 		}
 	}
@@ -10255,6 +10110,20 @@ void domouse()
 				toggle_is_compact();
 			goto domouse_doneclick;
 		}
+
+		if(!zoom_in_btn_disabled && zoominbtn.rect(x,y))
+		{
+			if(do_text_button(zoominbtn.x, zoominbtn.y, zoominbtn.w, zoominbtn.h, "+"))
+				change_mapscr_zoom(-1);
+			goto domouse_doneclick;
+		}
+
+		if(!zoom_out_btn_disabled && zoomoutbtn.rect(x,y))
+		{
+			if(do_text_button(zoomoutbtn.x, zoomoutbtn.y, zoomoutbtn.w, zoomoutbtn.h, "-"))
+				change_mapscr_zoom(1);
+			goto domouse_doneclick;
+		}
 		
 		font = get_zc_font(font_lfont_l);
 		if(combo_merge_btn.rect(x,y))
@@ -10402,13 +10271,17 @@ void domouse()
 			int32_t rx = (i * (layerpanel_buttonwidth+spacing_offs+layerpanel_checkbox_wid)) + layer_panel.x+(is_compact?2:6);
 			int32_t ry = layer_panel.y;
 			
-			if((i==0 || Map.CurrScr()->layermap[i-1]) && isinRect(x,y,rx,ry,rx+layerpanel_buttonwidth-1,ry+layerpanel_buttonheight-1))
+			if ((i == 0 || mapscreen_valid_layers[i - 1]) && isinRect(x,y,rx,ry,rx+layerpanel_buttonwidth-1,ry+layerpanel_buttonheight-1))
 			{
 				char tbuf[15];
-				
-				if(i!=0 && Map.CurrScr()->layermap[i-1])
+
+				if (Map.getViewSize() > 1)
 				{
-					if(is_compact)
+					sprintf(tbuf, "%d", i);
+				}
+				else if (i != 0 && mapscreen_valid_layers[i - 1])
+				{
+					if (is_compact)
 					{
 						sprintf(tbuf, "%s%d %d:%02X",
 							(i==2 && Map.CurrScr()->flags7&fLAYER2BG) || (i==3 && Map.CurrScr()->flags7&fLAYER3BG) ? "-":"",
@@ -10445,8 +10318,13 @@ void domouse()
 		//Uses lclick/rclick separately
 		
 		//on the map screen
-		if(isinRect(x,y,startxint,startyint,startxint+(256*mapscreensize)-1,startyint+(176*mapscreensize)-1))
+		if(isinRect(x,y,startxint,startyint,startxint+(256*mapscreen_screenunit_scale)-1,startyint+(176*mapscreen_screenunit_scale)-1))
 		{
+			if (lclick)
+			{
+				Map.setCurrScr(Map.getScreenForPosition(combo_pos));
+			}
+
 			if (draw_mode == dm_auto)
 			{
 				if (CHECK_CTRL_CMD)
@@ -10482,58 +10360,47 @@ void domouse()
 				else
 					draw(key[KEY_LSHIFT] || key[KEY_RSHIFT]);
 			}
-			else if(lclick)
+			else if (scr && lclick)
 			{
-				int32_t cx2 = (x-startxint)/mapscreensize;
-				int32_t cy2 = (y-startyint)/mapscreensize;
+				int32_t cx2 = (x-startxint)/mapscreen_single_scale;
+				int32_t cy2 = (y-startyint)/mapscreen_single_scale;
 				
 				// Move items
-				if(Map.CurrScr()->hasitem)
+				if (scr->hasitem && active_visible_screen)
 				{
-					int32_t ix = Map.CurrScr()->itemx;
-					int32_t iy = Map.CurrScr()->itemy;
+					int32_t ix = scr->itemx + active_visible_screen->dx * 256;
+					int32_t iy = scr->itemy + active_visible_screen->dy * 176;
 					
 					if(cx2 >= ix && cx2 < ix+16 && cy2 >= iy && cy2 < iy+16)
-						doxypos(Map.CurrScr()->itemx,Map.CurrScr()->itemy,11,SNAP_HALF,SNAP_NONE,true,0,0,16,16);
+						doxypos(scr->itemx, scr->itemy, 11, SNAP_HALF, SNAP_NONE, true, 0, 0, 16, 16);
 				}
 				
 				// Move FFCs
-				int num_ffcs = Map.CurrScr()->numFFC();
+				int num_ffcs = scr->numFFC();
 				for(int32_t i=num_ffcs-1; i>=0; i--)
-					if(Map.CurrScr()->ffcs[i].data !=0 && (CurrentLayer<2 || (Map.CurrScr()->ffcs[i].flags&ffc_overlay)))
+					if(scr->ffcs[i].data !=0 && (CurrentLayer<2 || (scr->ffcs[i].flags&ffc_overlay)))
 					{
-						int32_t ffx = Map.CurrScr()->ffcs[i].x.getFloor();
-						int32_t ffy = Map.CurrScr()->ffcs[i].y.getFloor();
+						int32_t ffx = scr->ffcs[i].x.getFloor() + active_visible_screen->dx * 256;
+						int32_t ffy = scr->ffcs[i].y.getFloor() + active_visible_screen->dy * 176;
 						
-						if(cx2 >= ffx && cx2 < ffx+(Map.CurrScr()->ffTileWidth(i)*16) && cy2 >= ffy && cy2 < ffy+(Map.CurrScr()->ffTileHeight(i)*16))
+						if(cx2 >= ffx && cx2 < ffx+(scr->ffTileWidth(i)*16) && cy2 >= ffy && cy2 < ffy+(scr->ffTileHeight(i)*16))
 						{
-							moveffc(i,cx2,cy2);
+							moveffc(i, cx2, cy2);
 							break;
 						}
 					}
 				
 				if(key[KEY_ALT]||key[KEY_ALTGR])
 				{
-					int32_t drawmap, drawscr;
-					if(CurrentLayer==0)
-					{
-						drawmap=Map.getCurrMap();
-						drawscr=Map.getCurrScr();
-					}
-					else
-					{
-						drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
-						drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-					}
-					mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
-					if(!draw_mapscr) return;
-					Combo=draw_mapscr->data[num_ffcs];
+					if (!draw_mapscr) return;
+
+					Combo=draw_mapscr->data[c];
 					if(AutoBrush)
 						BrushWidth = BrushHeight = 1;
 					if(key[KEY_LSHIFT]||key[KEY_RSHIFT])
-						CSet=draw_mapscr->cset[num_ffcs];
+						CSet=draw_mapscr->cset[c];
 					if(CHECK_CTRL_CMD)
-						First[current_combolist]=scrollto_cmb(draw_mapscr->data[num_ffcs]);
+						First[current_combolist]=scrollto_cmb(draw_mapscr->data[c]);
 				}
 				else if(CHECK_CTRL_CMD)
 				{
@@ -10567,7 +10434,7 @@ void domouse()
 				}
 				else draw(key[KEY_LSHIFT] || key[KEY_RSHIFT]);
 			}
-			else if(rclick)
+			else if (scr && rclick)
 			{
 				ComboBrushPause=1;
 				refresh(rMAP);
@@ -10578,11 +10445,11 @@ void domouse()
 				
 				// FFC right-click menu
 				// This loop also serves to find the free ffc with the smallest slot number.
-				int num_ffcs = Map.CurrScr()->numFFC();
-				uint32_t earliestfreeffc = c;
+				int num_ffcs = scr->numFFC();
+				uint32_t earliestfreeffc = num_ffcs;
 				for(int32_t i=num_ffcs-1; i>=0; i--)
 				{
-					auto data = Map.CurrScr()->ffcs[i].data;
+					auto data = scr->ffcs[i].data;
 					if(data==0)
 					{
 						if(i < earliestfreeffc)
@@ -10590,21 +10457,21 @@ void domouse()
 						continue;
 					}
 					
-					if(clickedffc || !(Map.CurrScr()->valid&mVALID))
+					if(clickedffc || !(scr->valid&mVALID))
 						continue;
 						
-					if(data!=0 && (CurrentLayer<2 || (Map.CurrScr()->ffcs[i].flags&ffc_overlay)))
+					if(data!=0 && (CurrentLayer<2 || (scr->ffcs[i].flags&ffc_overlay)))
 					{
-						int32_t ffx = Map.CurrScr()->ffcs[i].x.getFloor();
-						int32_t ffy = Map.CurrScr()->ffcs[i].y.getFloor();
-						int32_t cx2 = (x-startxint)/mapscreensize;
-						int32_t cy2 = (y-startyint)/mapscreensize;
+						int32_t ffx = scr->ffcs[i].x.getFloor() + active_visible_screen->dx * 256;
+						int32_t ffy = scr->ffcs[i].y.getFloor() + active_visible_screen->dy * 176;
+						int32_t cx2 = (x-startxint)/mapscreen_single_scale;
+						int32_t cy2 = (y-startyint)/mapscreen_single_scale;
 						
-						if(cx2 >= ffx && cx2 < ffx+(Map.CurrScr()->ffTileWidth(i)*16) && cy2 >= ffy && cy2 < ffy+(Map.CurrScr()->ffTileHeight(i)*16))
+						if(cx2 >= ffx && cx2 < ffx+(scr->ffTileWidth(i)*16) && cy2 >= ffy && cy2 < ffy+(scr->ffTileHeight(i)*16))
 						{
 							NewMenu rcmenu
 							{
-								{ "Copy FFC", [&](){Map.CopyFFC(i);} },
+								{ "Copy FFC", [&](){Map.CopyFFC(active_visible_screen->screen, i);} },
 								{ "Paste FFC data", [&]()
 									{
 										bool didconfirm = false;
@@ -10618,12 +10485,12 @@ void domouse()
 										if(didconfirm)
 										{
 											auto set_ffc_data = Map.getCopyFFCData();
-											set_ffc_data.x = Map.CurrScr()->ffcs[i].x;
-											set_ffc_data.y = Map.CurrScr()->ffcs[i].y;
-											Map.DoSetFFCCommand(Map.getCurrMap(), Map.getCurrScr(), i, set_ffc_data);
+											set_ffc_data.x = scr->ffcs[i].x;
+											set_ffc_data.y = scr->ffcs[i].y;
+											Map.DoSetFFCCommand(Map.getCurrMap(), active_visible_screen->screen, i, set_ffc_data);
 										}
 									}, nullopt, Map.getCopyFFC() < 0 },
-								{ "Edit FFC", [&](){call_ffc_dialog(i);} },
+								{ "Edit FFC", [&](){call_ffc_dialog(i, active_visible_screen->scr, active_visible_screen->screen);} },
 								{ "Clear FFC", [&]()
 									{
 										bool didconfirm = false;
@@ -10636,7 +10503,7 @@ void domouse()
 											}).show();
 										if(didconfirm)
 										{
-											Map.DoSetFFCCommand(Map.getCurrMap(), Map.getCurrScr(), i, {
+											Map.DoSetFFCCommand(Map.getCurrMap(), active_visible_screen->screen, i, {
 												.x = 0,
 												.y = 0,
 												.vx = 0,
@@ -10661,16 +10528,16 @@ void domouse()
 									} },
 								{ "Snap to Grid", [&]()
 									{
-										int oldffx = Map.CurrScr()->ffcs[i].x.getInt();
-										int oldffy = Map.CurrScr()->ffcs[i].y.getInt();
+										int oldffx = scr->ffcs[i].x.getInt();
+										int oldffy = scr->ffcs[i].y.getInt();
 										int pos = COMBOPOS(oldffx,oldffy);
 										int newffy = COMBOY(pos);
 										int newffx = COMBOX(pos);
 
-										auto set_ffc_data = set_ffc_command::create_data(Map.CurrScr()->ffcs[i]);
+										auto set_ffc_data = set_ffc_command::create_data(scr->ffcs[i]);
 										set_ffc_data.x = newffx;
 										set_ffc_data.y = newffy;
-										Map.DoSetFFCCommand(Map.getCurrMap(), Map.getCurrScr(), i, set_ffc_data);
+										Map.DoSetFFCCommand(Map.getCurrMap(), active_visible_screen->screen, i, set_ffc_data);
 
 										saved = false;
 									} },
@@ -10680,13 +10547,12 @@ void domouse()
 							break;
 						}
 					}
-					
 				}
 				
 				// Combo right-click menu
 				if(!clickedffc)
 				{
-					int warpindex = Map.warpindex(Map.CurrScr()->data[c]);
+					int warpindex = Map.warpindex(scr->data[c]);
 					string txt_twarp_follow, txt_twarp_edit, txt_ffc_edit, txt_ffc_paste;
 					bool show_ffcs = earliestfreeffc < MAXFFCS;
 					bool dis_paste_ffc = Map.getCopyFFC() < 0;
@@ -10708,19 +10574,7 @@ void domouse()
 						txt_twarp_follow = fmt::format("Follow Tile Warp {}",letter);
 						txt_twarp_edit = fmt::format("Edit Tile Warp {}",letter);
 					}
-					
-					int32_t drawmap, drawscr;
-					if(CurrentLayer==0)
-					{
-						drawmap=Map.getCurrMap();
-						drawscr=Map.getCurrScr();
-					}
-					else
-					{
-						drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
-						drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-					}
-					mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
+
 					NewMenu draw_rc_menu
 					{
 						{ "Select Combo", [&]()
@@ -10738,7 +10592,7 @@ void domouse()
 								edit_combo(draw_mapscr->data[c],true,draw_mapscr->cset[c]);
 							}, nullopt, !draw_mapscr },
 						{},
-						{ "Replace All", [&](){replace(c);} },
+						{ "Replace All", [&](){replace(combo_pos);} },
 						{ "Draw Block", &draw_block_menu },
 						{ "Brush Settings ", &brush_menu },
 						{ "Set Fill Type ", &fill_menu },
@@ -10760,18 +10614,19 @@ void domouse()
 						draw_rc_menu.add({ txt_ffc_edit, [&]()
 							{
 								ffdata tempdat;
-								tempdat.x = (((x-startxint)/mapscreensize)&(~0x0007))*10000;
-								tempdat.y = (((y-startyint)/mapscreensize)&(~0x0007))*10000;
+								// x, y are ints on ffdata (but ffc x, y are zfix), so *10000
+								tempdat.x = ((int((x-startxint)/mapscreen_single_scale)&(~0x0007)) % 256) * 10000;
+								tempdat.y = ((int((y-startyint)/mapscreen_single_scale)&(~0x0007)) % 176) * 10000;
 								tempdat.data = Combo;
 								tempdat.cset = CSet;
-								call_ffc_dialog(earliestfreeffc, tempdat);
+								call_ffc_dialog(earliestfreeffc, tempdat, active_visible_screen->scr, active_visible_screen->screen);
 							} });
 						draw_rc_menu.add({ txt_ffc_paste, [&]()
 							{
 								auto set_ffc_data = Map.getCopyFFCData();
-								set_ffc_data.x = (((x-startxint)/mapscreensize)&(~0x0007));
-								set_ffc_data.y = (((y-startyint)/mapscreensize)&(~0x0007));
-								Map.DoSetFFCCommand(Map.getCurrMap(), Map.getCurrScr(), earliestfreeffc, set_ffc_data);
+								set_ffc_data.x = ((int((x-startxint)/mapscreen_single_scale)&(~0x0007)) % 256);
+								set_ffc_data.y = ((int((y-startyint)/mapscreen_single_scale)&(~0x0007)) % 176);
+								Map.DoSetFFCCommand(Map.getCurrMap(), active_visible_screen->screen, earliestfreeffc, set_ffc_data);
 							}, nullopt, dis_paste_ffc });
 					}
 					draw_rc_menu.add_sep();
@@ -10798,6 +10653,8 @@ void domouse()
 		font=tfont;
 		
 		//Squares
+		//
+		set_active_visible_screen(Map.CurrScr());
 		{
 			if(squarepanel_swap_btn.rect(x,y))
 			{
@@ -11293,6 +11150,7 @@ domouse_donez:
 		position_mouse_z(0);
 	}
 	font = tfont;
+	active_visible_screen = nullptr;
 }
 
 int32_t d_viewpal_proc(int32_t msg, DIALOG *d, int32_t c)
@@ -11619,7 +11477,8 @@ int32_t onTemplate()
     if(do_zqdialog(template_dlg,-1)==5)
     {
         saved=false;
-        Map.DoTemplateCommand((template_dlg[3].flags==D_SELECTED) ? template_dlg[2].d1 : -1, template_dlg[2].fg, Map.getCurrScr());
+		int screen = active_visible_screen ? active_visible_screen->screen : Map.getCurrScr();
+        Map.DoTemplateCommand((template_dlg[3].flags==D_SELECTED) ? template_dlg[2].d1 : -1, template_dlg[2].fg, screen);
         refresh(rMAP+rSCRMAP);
     }
     
@@ -13285,11 +13144,6 @@ int32_t onGotoMap()
     {
         int32_t m=Map.getCurrMap();
         Map.setCurrMap(ret);
-        
-        if(m!=Map.getCurrMap())
-        {
-            reset_relational_tile_grid();
-        }
     }
     
     refresh(rALL);
@@ -13627,6 +13481,18 @@ int32_t onIncScrPal16()
     Map.setcolor(c);
     refresh(rALL);
 	saved = false;
+    return D_O_K;
+}
+
+int32_t onZoomIn()
+{
+	change_mapscr_zoom(-1);
+    return D_O_K;
+}
+
+int32_t onZoomOut()
+{
+	change_mapscr_zoom(1);
     return D_O_K;
 }
 
@@ -15607,384 +15473,10 @@ int32_t onDmaps()
     return D_O_K;
 }
 
-static DIALOG editmidi_dlg[] =
-{
-    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
-    { jwin_win_proc,     24,   20,   273,  189,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "MIDI Specs", NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    // 2
-    { jwin_text_proc,       56,   94-16,   48,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "MIDI:", NULL, NULL },
-    { jwin_text_proc,       104,  94-16,   48,   8,    vc(11),  vc(1),  0,       0,          0,             0,       NULL, NULL, NULL },
-    { jwin_text_proc,       56,   114,  48,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Name:", NULL, NULL },
-    { jwin_edit_proc,       104,  114-4,  160,  16,   vc(12),  vc(1),  0,       0,          35,            0,       NULL, NULL, NULL },
-    { jwin_text_proc,       56,   124-4+12,  56,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Volume:", NULL, NULL },
-    { jwin_edit_proc,       120,  124-4+12-4,  32,   16,   vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
-    // 8
-    { jwin_check_proc,      176,  124+12-4,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Loop", NULL, NULL },
-    // 9
-    { jwin_button_proc,     50,   72-24,   57,   21,   vc(14),  vc(1),  'l',     D_EXIT,     0,                     0, (void *) "&Load", NULL, NULL },
-    { jwin_iconbutton_proc, 116,  72-24,   33,   21,   vc(14),  vc(1),  0,       D_EXIT,     BTNICON_STOPSQUARE,    0, NULL, NULL, NULL },
-    { jwin_iconbutton_proc, 156,  72-24,   33,   21,   vc(14),  vc(1),  0,       D_EXIT,     BTNICON_ARROW_RIGHT,   0, NULL, NULL, NULL },
-    { jwin_iconbutton_proc, 196,  72-24,   33,   21,   vc(14),  vc(1),  0,       D_EXIT,     BTNICON_ARROW_RIGHT2,  0, NULL, NULL, NULL },
-    { jwin_iconbutton_proc, 236,  72-24,   33,   21,   vc(14),  vc(1),  0,       D_EXIT,     BTNICON_ARROW_RIGHT3,  0, NULL, NULL, NULL },
-    // 14
-    { jwin_text_proc,       56,   134+4+12,  48,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Start:", NULL, NULL },
-    { jwin_edit_proc,       112,  134+12,  32,   16,   vc(12),  vc(1),  0,       0,          5,             0,       NULL, NULL, NULL },
-    { jwin_text_proc,       176,  134+12+4,  56,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Loop Start:", NULL, NULL },
-    { jwin_edit_proc,       240,  134+12,  40,   16,   vc(12),  vc(1),  0,       0,          5,             0,       NULL, NULL, NULL },
-    { jwin_text_proc,       176,  144+12+12,  48,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Loop End:", NULL, NULL },
-    { jwin_edit_proc,       240,  144+12+12-4,  40,   16,   vc(12),  vc(1),  0,       0,          5,             0,       NULL, NULL, NULL },
-    // 20
-    { jwin_text_proc,       176,  94-16,   48,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Position:", NULL, NULL },
-    { jwin_text_proc,       217,  94-16,   32,   8,    vc(11),  vc(1),  0,       0,          0,             0,       NULL, NULL, NULL },
-    { jwin_text_proc,       176,  104-8,  48,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Length:", NULL, NULL },
-    { jwin_text_proc,       216,  104-8,  32,   8,    vc(11),  vc(1),  0,       0,          0,             0,       NULL, NULL, NULL },
-    { jwin_text_proc,       56,   104-8,  48,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Time:", NULL, NULL },
-    { jwin_text_proc,       104,  104-8,  32,   8,    vc(11),  vc(1),  0,       0,          0,             0,       NULL, NULL, NULL },
-    // 26
-    { jwin_check_proc,      56,   144+12+12,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Disable Saving", NULL, NULL },
-    { jwin_button_proc,     90,   160+12+12,  61,   21,   vc(14),  vc(1),  'k',     D_EXIT,     0,             0, (void *) "O&K", NULL, NULL },
-    { jwin_button_proc,     170,  160+12+12,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F1,   0, (void *) onHelp, NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
-
-void edit_tune(int32_t i)
-{
-    // TODO : adapt for non-midi formats
-    int32_t ret,loop,volume;
-    byte flags;
-    int32_t start,loop_start,loop_end;
-    
-    char title[36];
-    char volume_str[8];
-    char start_str[16];
-    char loop_start_str[16];
-    char loop_end_str[16];
-    char len_str[16];
-    char pos_str[16];
-
-    MIDI *data = customtunes[i].data;
-    get_midi_info(data, &Midi_Info);
-    volume = customtunes[i].volume;
-    loop = customtunes[i].loop;
-    flags = customtunes[i].flags;
-    start = customtunes[i].start;
-    loop_start = customtunes[i].loop_start;
-    loop_end = customtunes[i].loop_end;
-    
-    strcpy(title,customtunes[i].title);
-    
-    editmidi_dlg[0].dp2=get_zc_font(font_lfont);
-    
-	large_dialog(editmidi_dlg);
-	editmidi_dlg[13].dp2 = font;
-	editmidi_dlg[12].dp2 = font;
-	editmidi_dlg[11].dp2 = font;
-	editmidi_dlg[10].dp2 = font;
-    
-    do
-    {
-        sprintf(volume_str,"%d",volume);
-        sprintf(start_str,"%d",start);
-        sprintf(loop_start_str,"%d",loop_start);
-        sprintf(loop_end_str,"%d",loop_end);
-        sprintf(len_str,"%d",Midi_Info.len_beats);
-        sprintf(pos_str,"%ld",midi_pos);
-        
-        editmidi_dlg[3].dp = data?(void *) "Loaded":(void *) "Empty";
-        editmidi_dlg[5].dp = title;
-        editmidi_dlg[7].dp = volume_str;
-        editmidi_dlg[8].flags = loop?D_SELECTED:0;
-        editmidi_dlg[10].flags =
-            editmidi_dlg[11].flags =
-                editmidi_dlg[12].flags =
-                    editmidi_dlg[13].flags = (data==NULL)?D_DISABLED:D_EXIT;
-        editmidi_dlg[15].dp = start_str;
-        editmidi_dlg[17].dp = loop_start_str;
-        editmidi_dlg[19].dp = loop_end_str;
-        editmidi_dlg[21].dp = pos_str;
-        editmidi_dlg[23].dp = len_str;
-        editmidi_dlg[25].dp = timestr(Midi_Info.len_sec);
-        editmidi_dlg[26].flags = (flags&tfDISABLESAVE)?D_SELECTED:0;
-
-        popup_zqdialog_start();
-        DIALOG_PLAYER *p = init_dialog(editmidi_dlg,-1);
-        
-        while(update_dialog(p))
-        {
-            custom_vsync();
-            //      text_mode(vc(1));
-            textprintf_ex(screen,get_zc_font(font_lfont_l),editmidi_dlg[0].x+int32_t(193*1.5),editmidi_dlg[0].y+int32_t(58*1.5),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-5ld",midi_pos);
-        }
-
-        ret = shutdown_dialog(p);
-        popup_zqdialog_end();
-        
-        loop = editmidi_dlg[8].flags?1:0;
-        volume = vbound(atoi(volume_str),0,255); // Allegro can't play louder than 255.
-        
-        start = vbound(atol(start_str),0,zc_max(Midi_Info.len_beats-4,0));
-        loop_start = vbound(atol(loop_start_str),-1,zc_max(Midi_Info.len_beats-4,-1));
-        loop_end = vbound(atol(loop_end_str),-1,Midi_Info.len_beats);
-        
-        if(loop_end>0)
-        {
-            loop_end = vbound(loop_end,zc_max(loop_start+4,start+4),Midi_Info.len_beats);
-        }
-        
-        flags = 0;
-        flags |= editmidi_dlg[26].flags&D_SELECTED?tfDISABLESAVE:0;
-        
-        switch(ret)
-        {
-        case 9:
-            if(prompt_for_existing_file_compat("Load tune","mid;nsf",NULL,temppath,true))
-            {
-                zc_stop_midi();
-                
-                if(data!=NULL && data!=customtunes[i].data)
-                {
-                    destroy_midi((MIDI*)data);
-                }
-
-                packfile_password("");
-
-                if((data=load_midi(temppath))==NULL)
-                {
-                    jwin_alert("Error","Error loading tune:",temppath,NULL,"Dang",NULL,13,27,get_zc_font(font_lfont));
-                }
-                else
-                {
-                    char *t = get_filename(temppath);
-                    int32_t j;
-                    
-                    for(j=0; j<35 && t[j]!=0 && t[j]!='.'; j++)
-                    {
-                        title[j]=t[j];
-                    }
-                    
-                    title[j]=0;
-                }
-                
-                get_midi_info((MIDI*)data,&Midi_Info);
-            }
-            
-            break;
-            
-        case 10:
-            zc_stop_midi();
-            break;
-            
-        case 12:
-            if(midi_pos>0)
-            {
-                int32_t pos=midi_pos;
-                zc_stop_midi();
-                midi_loop_start = -1;
-                midi_loop_end = -1;
-                zc_play_midi((MIDI*)data,loop);
-                zc_set_volume(-1,volume);
-                midi_loop_start = loop_start;
-                midi_loop_end = loop_end;
-                
-                if(midi_loop_end<=0)
-                {
-                    pos = zc_min(pos+16,Midi_Info.len_beats);
-                }
-                else
-                {
-                    pos = zc_min(pos+16,midi_loop_end);
-                }
-                
-                if(pos>0)
-                {
-                    zc_midi_seek(pos);
-                }
-                
-                break;
-            }
-            
-            // else play it...
-            
-        case 13:
-            if(midi_pos>0)
-            {
-                int32_t pos=midi_pos;
-                zc_stop_midi();
-                midi_loop_end = -1;
-                midi_loop_start = -1;
-                zc_play_midi((MIDI*)data,loop);
-                zc_set_volume(-1,volume);
-                midi_loop_end = loop_end;
-                midi_loop_start = loop_start;
-                
-                if(midi_loop_end<0)
-                {
-                    pos = zc_min(pos+64,Midi_Info.len_beats);
-                }
-                
-                else
-                {
-                    pos = zc_min(pos+64,midi_loop_end);
-                }
-                
-                if(pos>0)
-                {
-                    zc_midi_seek(pos);
-                }
-                
-                break;
-            }
-            
-            // else play it...
-            
-        case 11:
-        {
-            int32_t pos=midi_pos;
-            zc_stop_midi();
-            midi_loop_start = -1;
-            midi_loop_end = -1;
-            zc_play_midi((MIDI*)data,loop);
-            zc_set_volume(-1,volume);
-            zc_midi_seek(pos<0?start:pos);
-            midi_loop_start = loop_start;
-            midi_loop_end = loop_end;
-        }
-        break;
-        }
-    }
-    while(ret<26&&ret!=0);
-    
-    zc_stop_midi();
-    
-    if(ret==27)
-    {
-        strcpy(customtunes[i].title,title);
-        customtunes[i].volume = volume;
-        customtunes[i].loop = loop;
-        customtunes[i].start = start;
-        customtunes[i].loop_start = loop_start;
-        customtunes[i].loop_end = loop_end;
-        customtunes[i].flags = flags;
-        
-        if(data!=customtunes[i].data)
-        {
-            if(customtunes[i].data)
-                destroy_midi(customtunes[i].data);
-            customtunes[i].data = data;
-        }
-        
-        saved=false;
-    }
-    
-    if((ret==28||ret==0) && data!=customtunes[i].data)
-    {
-        if(data)
-        {
-            destroy_midi((MIDI*)data);
-        }
-    }
-}
-
-int32_t d_midilist_proc(int32_t msg,DIALOG *d,int32_t c)
-{
-    if(msg==MSG_DRAW)
-    {
-        int32_t i = d->d1;
-        int32_t x = d->x+d->w+8;
-        int32_t y = d->y+4;
-        int lh = text_height(font);
-		char const* strs[] = {
-			"Volume:",
-			"Loop:",
-			"Start:",
-			"Loop Start:",
-			"Loop End:"
-		};
-		int tw = 0;
-		for(auto str : strs)
-		{
-			int w = text_length(font,str);
-			if(w > tw)
-				tw = w;
-		}
-		int tx = x+tw;
-		for(int q = 0; q < 5; ++q)
-		{
-			textout_right_ex(screen,font,strs[q],tx,y+13+(lh*q),jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-		}
-        
-        textprintf_ex(screen,font,tx+5,y+13+(lh*0),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-3d",customtunes[i].volume);
-        textprintf_ex(screen,font,tx+5,y+13+(lh*1),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%s",customtunes[i].loop?"On ":"Off");
-        textprintf_ex(screen,font,tx+5,y+13+(lh*2),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-5d",customtunes[i].start);
-        textprintf_ex(screen,font,tx+5,y+13+(lh*3),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-5d",customtunes[i].loop_start);
-        textprintf_ex(screen,font,tx+5,y+13+(lh*4),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-5d",customtunes[i].loop_end);
-    }
-    
-    return jwin_list_proc(msg,d,c);
-}
-
-static ListData custommidi_list(custommidilist, &a4fonts[font_lfont_l]);
-
-static DIALOG selectmidi_dlg[] =
-{
-    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
-    { jwin_win_proc,     24,   20,   273,  189,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Select music", NULL, NULL },
-    { d_dummy_proc,      160,  56,     0,  8,    vc(15),  vc(1),  0,       0,          0,             0,       NULL, NULL, NULL },
-    { d_midilist_proc,   31,   44,   164, (1+16)*8,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       D_EXIT,     0,             0, (void *) &custommidi_list, NULL, NULL },
-    // { jwin_droplist_proc, 72-12,   60+4,   161,  16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,     0,             0, (void *) &tracknum_list, NULL, NULL },
-    // { jwin_droplist_proc, 72-12,   60+4,   161,  16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,     0,             0, (void *) &custommidi_list, NULL, NULL },
-    
-    { jwin_button_proc,     90,   160+12+12,  61,   21,   vc(14),  vc(1),  13,     D_EXIT,     0,             0, (void *) "Edit", NULL, NULL },
-    { jwin_button_proc,     170,  160+12+12,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Done", NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,             KEY_DEL, (void *) close_dlg, NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
 int32_t onMidis()
 {
     stopMusic();
-    int32_t ret;
-    char buf[MIDI_TRACK_BUFFER_SIZE];
-    number_list_size=MAXCUSTOMTUNES;
-    number_list_zero=false;
-    strcpy(temppath,midipath);
-    selectmidi_dlg[0].dp2=get_zc_font(font_lfont);
-    
-    
-    large_dialog(selectmidi_dlg);
-        
-    selectmidi_dlg[2].dp2 = 0;
-    
-    go();
-    ret=do_zqdialog(selectmidi_dlg,2);
-    
-    while(ret!=4&&ret!=0)
-    {
-        int32_t d=selectmidi_dlg[2].d1;
-        
-        if(ret==5)
-        {
-            sprintf(buf,"Delete music %d?",d+1);
-            
-            if(jwin_alert("Confirm Delete",buf,NULL,NULL,"&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
-            {
-                customtunes[d].reset(); // reset_midi(customMIDIs+d);
-                saved=false;
-            }
-        }
-        else
-        {
-            edit_tune(d);
-        }
-        
-        ret=do_zqdialog(selectmidi_dlg,2);
-    }
-    
-    comeback();
+	MidiListerDialog().show();
     return D_O_K;
 }
 
@@ -19256,6 +18748,7 @@ int32_t onSelectFFCombo()
     
     if(!ffcur) return D_O_K;
     
+	Map.CurrScr()->ensureFFC(MAXFFCS - 1);
     putcombo(ffcur,0,0,Map.CurrScr()->ffcs[ff_combo].data,Map.CurrScr()->ffcs[ff_combo].cset);
     ffcombo_sel_dlg[5].dp = ffcur;
     
@@ -19273,7 +18766,7 @@ int32_t onSelectFFCombo()
     while(ret==1)
     {
         ff_combo = ffcombo_sel_dlg[3].d1;
-        call_ffc_dialog(ff_combo);
+        call_ffc_dialog(ff_combo, active_visible_screen->scr, active_visible_screen->screen);
         ret=do_zqdialog(ffcombo_sel_dlg,0);
     }
     
@@ -22960,56 +22453,6 @@ void center_zscript_dialogs()
     jwin_center_dialog(clearslots_dlg);
 }
 
-static DIALOG sfxlist_dlg[] =
-{
-    // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
-    { jwin_win_proc,     60-12,   40,   200+24,  148,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,       NULL, NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { jwin_abclist_proc,       72-12-4,   60+4,   176+24+8,  92+3,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       D_EXIT,     0,             0,       NULL, NULL, NULL },
-    { jwin_button_proc,     90,   163,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Edit", NULL, NULL },
-    { jwin_button_proc,     170,  163,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Done", NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
-int32_t select_sfx(const char *prompt,int32_t index)
-{
-    sfxlist_dlg[0].dp=(void *)prompt;
-    sfxlist_dlg[0].dp2=get_zc_font(font_lfont);
-    sfxlist_dlg[2].d1=index;
-    sfxlist_dlg[2].dp=(void *) & sfx_list;
-    
-    large_dialog(sfxlist_dlg);
-        
-    int32_t ret=do_zqdialog(sfxlist_dlg,2);
-    
-    if(ret==0||ret==4)
-    {
-        position_mouse_z(0);
-        return -1;
-    }
-    
-    index = sfxlist_dlg[2].d1;
-    position_mouse_z(0);
-    return index;
-}
-
-static DIALOG sfx_edit_dlg[] =
-{
-    { jwin_win_proc,           0,     0,  200,   159,  vc(14),              vc(1),                 0,       D_EXIT,     0,             0, (void *) "SFX", NULL, NULL },
-    { jwin_button_proc,       35,   132,   61,    21,  vc(14),              vc(1),                13,       D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-    { jwin_button_proc,      104,   132,   61,    21,  vc(14),              vc(1),                27,       D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { jwin_button_proc,       35,    78,   61,    21,  vc(14),              vc(1),                 0,       D_EXIT,     0,             0, (void *) "Load", NULL, NULL },
-    { jwin_button_proc,       35,   105,   61,    21,  vc(14),              vc(1),                 0,       D_EXIT,     0,             0, (void *) "Play", NULL, NULL },
-    { jwin_button_proc,      104,   105,   61,    21,  vc(14),              vc(1),                 0,       D_EXIT,     0,             0, (void *) "Stop", NULL, NULL },
-    { jwin_button_proc,      104,    78,   61,    21,  vc(14),              vc(1),                 0,       D_EXIT,     0,             0, (void *) "Default", NULL, NULL },
-    { jwin_edit_proc,     36,    25,   154,    16,  vc(12),  vc(1),    0,       0,         36,             0,       NULL, NULL, NULL },
-    { jwin_text_proc,     8,    30,     16,  8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "Name:", NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { jwin_button_proc,      70,    51,   61,    21,  vc(14),              vc(1),                 0,       D_EXIT,     0,             0, (void *) "Save", NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
-
 // array of voices, one for each sfx sample in the data file
 // 0+ = voice #
 // -1 = voice not allocated
@@ -23227,16 +22670,7 @@ bool confirmBox(const char *m1, const char *m2, const char *m3)
 
 int32_t onSelectSFX()
 {
-    int32_t index = select_sfx("Select SFX",0);
-    
-    while(index >= 0)
-    {
-        if(index)
-            onEditSFX(index);
-            
-        index = select_sfx("Select SFX",index);
-    }
-    
+    SFXListerDialog(0).show();
     refresh(rMAP+rCOMBOS);
     return D_O_K;
 }
@@ -23299,160 +22733,7 @@ bool saveWAV(int32_t slot, const char *filename)
 
 int32_t onEditSFX(int32_t index)
 {
-	kill_sfx();
-	zc_stop_midi();
-	zc_set_volume(255,-1);
-	int32_t ret;
-	sfx_edit_dlg[0].dp2=get_zc_font(font_lfont);
-	uint8_t tempflag;
-	tempflag = get_bit(customsfxflag,index-1);
-	change_sfx(&templist[index], &customsfxdata[index]);
-	
-	char sfxnumstr[50];
-	sprintf(sfxnumstr,"SFX %d: %s", index, sfx_string[index]);
-	sfx_edit_dlg[0].dp = sfxnumstr;
-	
-	char name[36];
-	strcpy(name,sfx_string[index]);
-	sfx_edit_dlg[7].dp = name;
-	
-	large_dialog(sfx_edit_dlg);
-		
-	do
-	{
-		ret=do_zqdialog(sfx_edit_dlg,1);
-		
-		switch(ret)
-		{
-			case 1:
-				saved= false;
-				kill_sfx();
-				change_sfx(&customsfxdata[index],&templist[index]);
-				set_bit(customsfxflag,index-1,tempflag);
-				strcpy(sfx_string[index], name);
-				
-			case 2:
-			case 0:
-				// Fall Through
-				kill_sfx();
-				
-				for(int32_t i=1; i<WAV_COUNT; i++)
-				{
-					if(templist[i].data != NULL)
-					{
-						free(templist[i].data);
-						templist[i].data = NULL;
-					}
-				}
-				
-				break;
-				
-			case 3:
-				if(prompt_for_existing_file_compat("Open .WAV file", "wav", NULL,temppath, true))
-				{
-					SAMPLE * temp_sample;
-					
-					if((temp_sample = load_wav(temppath))==NULL)
-					{
-						jwin_alert("Error","Could not open file",temppath,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
-					}
-					else
-					{
-						char sfxtitle[36];
-						char *t = get_filename(temppath);
-						int32_t j;
-						
-						for(j=0; j<35 && t[j]!=0 && t[j]!='.'; j++)
-						{
-							sfxtitle[j]=t[j];
-						}
-						
-						sfxtitle[j]=0;
-						strcpy(name,sfxtitle);
-						kill_sfx();
-						change_sfx(&templist[index], temp_sample);
-						destroy_sample(temp_sample);
-						tempflag = 1;
-					}
-				}
-				
-				break;
-				
-			case 4:
-			{
-				kill_sfx();
-				
-				if(templist[index].data != NULL)
-				{
-					sfx(index, 128, false,true);
-				}
-			}
-			break;
-			
-			case 5:
-				kill_sfx();
-				break;
-				
-			case 6:
-				kill_sfx();
-				
-				if(index < WAV_COUNT)
-				{
-					SAMPLE *temp_sample = (SAMPLE *)sfxdata[zc_min(index,Z35)].dat;
-					change_sfx(&templist[index], temp_sample);
-					tempflag = 1; //now count as custom sfx
-					sprintf(name,"s%03d", index);
-					
-					if(index <Z35)
-					{
-						strcpy(name, old_sfx_string[index-1]);
-					}
-				}
-				
-				break;
-				
-			
-			case 10:
-			{
-				temppath[0]=0;//memset(temppath, 0, sizeof(temppath));
-				char tempname[36];
-				strcpy(tempname,sfx_string[index]);
-				//change spaces to dashes for f/s safety
-				for ( int32_t q = 0; q < 36; ++q )
-				{
-					if(tempname[q] == 32 || tempname[q] == 47 || tempname[q] == 92 ) //SPACE, Bslash, Fslash
-						tempname[q] = 45; //becomes hyphen
-				}
-				
-				tempname[35] = 0;
-				
-				strcpy(temppath,tempname);
-				
-				//save
-				if(templist[index].data != NULL)
-				{
-					if (prompt_for_new_file_compat("Save .WAV file", "wav", NULL, temppath, true))
-					{
-						if(!saveWAV(index, temppath))
-						{
-							jwin_alert("Error!", "Could not write file", temppath, NULL, "OK", NULL, 13, 27, get_zc_font(font_lfont));
-						}
-						else 
-						{
-							jwin_alert("Success!", "Saved WAV file", temppath, NULL, "OK", NULL, 13, 27, get_zc_font(font_lfont));
-						}
-					}
-				}
-				else 
-				{
-					jwin_alert("Error!", "Cannot save an enpty slot!", NULL, NULL, "OK", NULL, 13, 27, get_zc_font(font_lfont));
-				}		
-				break;
-			}
-		}
-	}
-	while(ret>2);
-	
+	call_sfxdata_dialog(index);
 	return D_O_K;
 }
 
@@ -25057,6 +24338,8 @@ int32_t main(int32_t argc,char **argv)
 	TileProtection				 = zc_get_config("zquest","tile_protection",1);
 	ComboProtection				 = zc_get_config("zquest","combo_protection",TileProtection);
 	ShowGrid					   = zc_get_config("zquest","show_grid",0);
+	ShowCurScreenOutline			= zc_get_config("zquest","show_current_screen_outline",1);
+	ShowScreenGrid				   = zc_get_config("zquest","show_screen_grid",0);
 	GridColor					  = zc_get_config("zquest","grid_color",15);
 	CmbCursorCol					  = zc_get_config("zquest","combo_cursor_color",15);
 	TilePgCursorCol					  = zc_get_config("zquest","tpage_cursor_color",15);
@@ -25611,6 +24894,8 @@ int32_t main(int32_t argc,char **argv)
 		view_menu.select_uid(MENUID_VIEW_FFCS, ShowFFCs);
 		view_menu.select_uid(MENUID_VIEW_SCRIPTNAMES, ShowFFScripts);
 		view_menu.select_uid(MENUID_VIEW_GRID, ShowGrid);
+		view_menu.select_uid(MENUID_VIEW_SCREENGRID, ShowScreenGrid);
+		view_menu.select_uid(MENUID_VIEW_CURSCROUTLINE, ShowCurScreenOutline);
 		view_menu.select_uid(MENUID_VIEW_DARKNESS, get_qr(qr_NEW_DARKROOM) && (Flags&cNEWDARK));
 		view_menu.select_uid(MENUID_VIEW_L2BG, ViewLayer2BG);
 		view_menu.select_uid(MENUID_VIEW_L3BG, ViewLayer3BG);
@@ -25670,7 +24955,7 @@ void load_size_poses()
 		if(wid > drawmode_wid)
 			drawmode_wid = wid;
 	}
-	
+
 	//Main GUI objects
 	if(is_compact)
 	{
@@ -25684,13 +24969,14 @@ void load_size_poses()
 		
 		mapscreen_x=0;
 		mapscreen_y=dialogs[0].h;
-		mapscreensize=3;
+		mapscreen_screenunit_scale=3;
+		mapscreen_single_scale = (double)mapscreen_screenunit_scale / Map.getViewSize();
 		showedges=0;
 		showallpanels=0;
 		
 		blackout_color=8;
 		
-		auto mapscr_wid = (((showedges?2:0)+16)*16*mapscreensize);
+		auto mapscr_wid = (((showedges?2:0)+16)*16*mapscreen_screenunit_scale);
 		combolist_window.w=zq_screen_w-mapscr_wid;
 		combolist_window.x=zq_screen_w-combolist_window.w;
 		
@@ -25758,12 +25044,22 @@ void load_size_poses()
 		compactbtn.x = drawmode_btn.x-compactbtn.w;
 		compactbtn.y = drawmode_btn.y;
 		compactbtn.h = drawmode_btn.h;
-		
+
+		zoominbtn.w = text_length(guifont,"+")+10;
+		zoominbtn.x = compactbtn.x-zoominbtn.w;
+		zoominbtn.y = compactbtn.y;
+		zoominbtn.h = compactbtn.h;
+
+		zoomoutbtn.w = text_length(guifont,"-")+10;
+		zoomoutbtn.x = zoominbtn.x-zoomoutbtn.w;
+		zoomoutbtn.y = compactbtn.y;
+		zoomoutbtn.h = compactbtn.h;
+
 		for(int32_t i=0; i<=8; i++)
 		{
 			map_page_bar[i].w = 48;
 			map_page_bar[i].x = mapscreen_x+(i*48);
-			map_page_bar[i].y = mapscreen_y+(11*16*mapscreensize);
+			map_page_bar[i].y = mapscreen_y+(11*16*mapscreen_screenunit_scale);
 			map_page_bar[i].h = text_height(guifont)+12;
 		}
 		
@@ -25983,8 +25279,9 @@ void load_size_poses()
 		
 		mapscreen_x=0;
 		mapscreen_y=dialogs[0].h;
-		mapscreensize=2;
-		showedges=1;
+		mapscreen_screenunit_scale=2;
+		mapscreen_single_scale = (double)mapscreen_screenunit_scale / Map.getViewSize();
+		showedges=Map.getViewSize() <= 2 ? 1 : 0;
 		showallpanels=0;
 		
 		blackout_color=8;
@@ -25992,7 +25289,7 @@ void load_size_poses()
 		favorites_window.h=136;
 		favorites_window.y=zq_screen_h-favorites_window.h;
 		
-		auto mapscr_wid = (((showedges?2:0)+16)*16*mapscreensize);
+		auto mapscr_wid = (((2)+16)*16*mapscreen_screenunit_scale);
 		combolist_window.w=zq_screen_w-mapscr_wid;
 		combolist_window.x=zq_screen_w-combolist_window.w;
 		combolist_window.y=0;
@@ -26057,11 +25354,21 @@ void load_size_poses()
 		compactbtn.x = drawmode_btn.x-compactbtn.w;
 		compactbtn.y = drawmode_btn.y;
 		compactbtn.h = drawmode_btn.h;
-		
+
+		zoominbtn.w = text_length(guifont,"+")+10;
+		zoominbtn.x = compactbtn.x-zoominbtn.w;
+		zoominbtn.y = compactbtn.y;
+		zoominbtn.h = compactbtn.h;
+
+		zoomoutbtn.w = text_length(guifont,"-")+10;
+		zoomoutbtn.x = zoominbtn.x-zoomoutbtn.w;
+		zoomoutbtn.y = compactbtn.y;
+		zoomoutbtn.h = compactbtn.h;
+
 		for(int32_t i=0; i<=8; i++)
 		{
-			map_page_bar[i].x = mapscreen_x+(i*16*2*mapscreensize);
-			map_page_bar[i].y = mapscreen_y+((showedges?13:11)*16*mapscreensize);
+			map_page_bar[i].x = mapscreen_x+(i*16*2*mapscreen_screenunit_scale);
+			map_page_bar[i].y = mapscreen_y+((13)*16*mapscreen_screenunit_scale);
 			map_page_bar[i].w = 64;
 			map_page_bar[i].h = text_height(guifont)+12;
 		}
@@ -26270,7 +25577,7 @@ void load_size_poses()
 		
 		mainbar.x = dialogs[0].x+dialogs[0].w;
 		mainbar.y = 0;
-		mainbar.w = compactbtn.x-mainbar.x;
+		mainbar.w = zoomoutbtn.x-mainbar.x;
 		mainbar.h = drawmode_btn.h;
 	}
 	
@@ -26282,8 +25589,8 @@ void load_size_poses()
 	
 	//Generate bitmaps
 	init_bitmap(&mapscreenbmp,16*(showedges?18:16),16*(showedges?13:11));
-	init_bitmap(&brushbmp,256*mapscreensize,176*mapscreensize);
-	init_bitmap(&brushscreen,(256+(showedges?16:0))*mapscreensize,(176+(showedges?16:0))*mapscreensize);
+	init_bitmap(&brushbmp,256*mapscreen_screenunit_scale,176*mapscreen_screenunit_scale);
+	init_bitmap(&brushscreen,(256+(showedges?16:0))*mapscreen_screenunit_scale,(176+(showedges?16:0))*mapscreen_screenunit_scale);
 	
 	init_bitmap(&screen2,zq_screen_w,zq_screen_h);
 	init_bitmap(&tmp_scr,zq_screen_w,zq_screen_h);
@@ -26627,7 +25934,6 @@ void center_zquest_dialogs()
     center_zq_door_dialogs();
     jwin_center_dialog(editcomboa_dlg);
     jwin_center_dialog(editinfo_dlg);
-    jwin_center_dialog(editmidi_dlg);
     jwin_center_dialog(editmusic_dlg);
     jwin_center_dialog(editshop_dlg);
     jwin_center_dialog(ffcombo_sel_dlg);
@@ -26644,10 +25950,7 @@ void center_zquest_dialogs()
     jwin_center_dialog(screen_pal_dlg);
     jwin_center_dialog(secret_dlg);
     jwin_center_dialog(selectdmap_dlg);
-    jwin_center_dialog(selectmidi_dlg);
     jwin_center_dialog(selectmusic_dlg);
-    jwin_center_dialog(sfxlist_dlg);
-    jwin_center_dialog(sfx_edit_dlg);
     jwin_center_dialog(showpal_dlg);
     jwin_center_dialog(strlist_dlg);
     jwin_center_dialog(template_dlg);
@@ -26726,7 +26029,7 @@ void run_zq_frame()
 		load_size_poses();
 		reload_fonts = false;
 	}
-	
+
 	domouse();
 	custom_vsync();
 	refresh(rCLEAR|rALL);

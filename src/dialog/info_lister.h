@@ -95,4 +95,25 @@ protected:
 	void save() override;
 	bool load() override;
 };
+
+class SFXListerDialog : public BasicListerDialog
+{
+public:
+	SFXListerDialog(int sfxid = -1, bool selecting = false);
+
+protected:
+	void edit() override;
+};
+
+class MidiListerDialog : public BasicListerDialog
+{
+public:
+	MidiListerDialog(int index = -1, bool selecting = false);
+
+protected:
+	void preinit() override;
+	void postinit() override;
+	void update() override;
+	void edit() override;
+};
 #endif

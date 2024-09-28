@@ -18,14 +18,97 @@ int32_t COMBOPOS_B(int32_t x, int32_t y);
 int32_t COMBOX(int32_t pos);
 int32_t COMBOY(int32_t pos);
 
+struct MapCursor
+{
+	int map;
+	// The selected screen.
+	// Always in bounds of the square starting at `viewscr` of size `size`.
+	int screen;
+	// The top-left screen of the currently visible screens.
+	int viewscr;
+	// The number of screens across currently visible. 1x1, 2x2, etc.
+	int size = 1;
+
+	bool operator==(const MapCursor&) const = default;
+
+	void setScreen(int new_screen)
+	{
+		if (new_screen >= MAPSCRS)
+			return;
+
+		screen = new_screen;
+		adjustViewScr();
+	}
+
+	void setSize(int new_size)
+	{
+		if (size == new_size)
+			return;
+
+		size = new_size;
+		adjustViewScr();
+	}
+
+private:
+	// Modify `viewscr` just enough to keep `screen` in bounds.
+	void adjustViewScr()
+	{
+		int cx = screen % 16;
+		int cy = screen / 16;
+		int vx = viewscr % 16;
+		int vy = viewscr / 16;
+
+		if (cx < vx)
+			vx = cx;
+		else if (cx >= vx + size)
+			vx = cx - size + 1;
+		if (cy < vy)
+			vy = cy;
+		else if (cy >= vy + size)
+			vy = cy - size + 1;
+
+		viewscr = vx + vy * 16;
+	}
+};
+
+struct ComboPosition
+{
+	int x, y;
+	bool operator==(const ComboPosition&) const = default;
+	ComboPosition operator+ (const ComboPosition & first) const
+	{
+		return {x + first.x, y + first.y};
+	}
+	ComboPosition operator+ (int pos) const
+	{
+		return {x + (pos%16), y + (pos/16)};
+	}
+	bool is_valid(const MapCursor& cursor)
+	{
+		int vx = cursor.viewscr % 16;
+		int vy = cursor.viewscr / 16;
+		int num_screens_width = std::min(cursor.size, 16 - vx);
+		int max_height = vx <= 7 ? 9 : 8;
+		int num_screens_height = std::min(cursor.size, max_height - vy);
+		return x >= 0 && y >= 0 && x < num_screens_width * 16 && y < num_screens_height * 11;
+	}
+	int truncate() const
+	{
+		return x % 16 + (y % 11) * 16;
+	}
+	int screen_offset() const
+	{
+		return x / 16 + (y / 11) * 16;
+	}
+};
+
 void set_preview_mode(int32_t prv);
 
 class user_input_command
 {
 public:
-    // The screen the user was on when command was created.
-    int view_map;
-    int view_scr;
+    // The map, screen, and zoom settings that the user was on when command was created.
+	MapCursor cursor;
 
     virtual void execute() = 0;
     virtual void undo() = 0;
@@ -128,7 +211,7 @@ class paste_screen_command : public user_input_command
 {
 public:
     PasteCommandType type;
-    int data;
+	int screen_index;
     std::shared_ptr<mapscr> screen;
     std::vector<std::shared_ptr<mapscr>> prev_screens;
 
@@ -143,6 +226,7 @@ private:
 class set_screen_command : public user_input_command
 {
 public:
+	int screen_index;
     std::shared_ptr<mapscr> screen;
     std::shared_ptr<mapscr> prev_screen;
 
@@ -151,27 +235,19 @@ public:
     int size();
 };
 
-class tile_grid_draw_command : public user_input_command
-{
-public:
-	byte tile_grid[15][20];
-	byte prev_tile_grid[15][20];
-
-    void execute();
-    void undo();
-};
-
 void reset_dmap(int32_t index);
 void truncate_dmap_title(std::string& title);
 bool setMapCount2(int32_t c);
 class zmap
 {
     mapscr *screens;
-    int32_t currmap,copymap;
-    int32_t currscr,copyscr;
+	MapCursor cursor;
+    int32_t copymap;
+    int32_t copyscr;
 	optional<int32_t> warpbackmap, warpbackscreen;
     int32_t copyffc;
-    int32_t scrpos[MAXMAPS+1];
+    uint8_t scrpos[MAXMAPS+1];
+	uint8_t scrview[MAXMAPS+1];
 	
 	bounded_map<dword,int32_t> copyscrdata;
 	
@@ -189,7 +265,7 @@ class zmap
 public:
 
     zmap();
-    ~zmap();
+
 	void clear();
 	void force_refr_pointer();
     bool CanUndo();
@@ -210,34 +286,36 @@ public:
     void RedoCommand();
     void ClearCommandHistory();
     void CapCommandHistory();
+	void DoSetComboCommand(ComboPosition pos, int combo, int cset);
     void DoSetComboCommand(int map, int scr, int pos, int combo, int cset);
-    void DoSetFFCCommand(int map, int scr, int i, set_ffc_command::data_t data);
+	void DoSetFFCCommand(int map, int scr, int i, set_ffc_command::data_t data);
+	void DoSetFlagCommand(ComboPosition pos, int flag);
     void DoSetFlagCommand(int map, int scr, int pos, int flag);
     void DoPutDoorCommand(int side, int door, bool force = false);
     void DoSetDoorCommand(int scr, int side, int door);
     void DoSetDCSCommand(int dcs);
-    void DoPasteScreenCommand(PasteCommandType type, int data = 0);
-    void DoClearScreenCommand();
+    void DoPasteScreenCommand(PasteCommandType type, int scr = -1);
+    void DoClearScreenCommand(int scr);
     void DoTemplateCommand(int floorcombo, int floorcset, int scr);
 
-    void Copy();
-    void CopyFFC(int32_t n);
-    void Paste(const mapscr& copymapscr);
-    void PasteAll(const mapscr& copymapscr);
+    void Copy(int scr);
+    void CopyFFC(int32_t screen, int32_t n);
+    void Paste(const mapscr& copymapscr, int screen);
+    void PasteAll(const mapscr& copymapscr, int screen);
     void PasteToAll(const mapscr& copymapscr);
     void PasteAllToAll(const mapscr& copymapscr);
-    void PasteUnderCombo(const mapscr& copymapscr);
-    void PasteSecretCombos(const mapscr& copymapscr);
-    void PasteFFCombos(mapscr& copymapscr);
-    void PasteWarps(const mapscr& copymapscr);
-    void PasteScreenData(const mapscr& copymapscr);
-    void PasteWarpLocations(const mapscr& copymapscr);
-    void PasteDoors(const mapscr& copymapscr);
-    void PasteLayers(const mapscr& copymapscr);
-    void PasteRoom(const mapscr& copymapscr);
-    void PasteGuy(const mapscr& copymapscr);
-    void PastePalette(const mapscr& copymapscr);
-    void PasteEnemies(const mapscr& copymapscr);
+    void PasteUnderCombo(const mapscr& copymapscr, int screen);
+    void PasteSecretCombos(const mapscr& copymapscr, int screen);
+    void PasteFFCombos(mapscr& copymapscr, int screen);
+    void PasteWarps(const mapscr& copymapscr, int screen);
+    void PasteScreenData(const mapscr& copymapscr, int screen);
+    void PasteWarpLocations(const mapscr& copymapscr, int screen);
+    void PasteDoors(const mapscr& copymapscr, int screen);
+    void PasteLayers(const mapscr& copymapscr, int screen);
+    void PasteRoom(const mapscr& copymapscr, int screen);
+    void PasteGuy(const mapscr& copymapscr, int screen);
+    void PastePalette(const mapscr& copymapscr, int screen);
+    void PasteEnemies(const mapscr& copymapscr, int screen);
     void update_combo_cycling();
     void update_freeform_combos();
     int32_t getMapCount();
@@ -277,20 +355,30 @@ public:
     void draw_secret(BITMAP *dest, int32_t pos);
     void draw_secret2(BITMAP *dest, int32_t pos);
     void scroll(int32_t dir, bool warp);
+    MapCursor getCursor() const;
+    void setCursor(MapCursor new_cursor);
+    bool isValidPosition(ComboPosition pos) const;
+    int getScreenForPosition(ComboPosition pos) const;
     mapscr *CurrScr();
     mapscr *Scr(int32_t scr);
+	mapscr *Scr(ComboPosition pos);
+	mapscr* Scr(ComboPosition pos, int layer);
+	mapscr* ScrMakeValid(ComboPosition pos, int layer);
     mapscr *AbsoluteScr(int32_t scr);
-    mapscr *AbsoluteScr(int32_t map, int32_t scr);
+    mapscr *AbsoluteScr(int32_t map, int32_t screen);
+	mapscr *AbsoluteScrMakeValid(int32_t map, int32_t scr);
     int32_t  getCurrMap();
-    bool isDark();
-    bool isValid(int32_t scr);
+    bool isDark(int scr);
+	bool isValid(int32_t scr);
 	bool isValid(int32_t map, int32_t scr);
-    void setCurrentView(int32_t map, int32_t scr);
     void setCurrMap(int32_t index);
     int32_t  getCurrScr();
     void setCurrScr(int32_t scr);
+	int32_t getViewScr();
+	void setViewSize(int32_t size);
+	int32_t getViewSize();
     void setlayertarget();
-    void setcolor(int32_t c);
+    void setcolor(int color, mapscr* scr = nullptr);
     int32_t getcolor();
     void resetflags();
     word tcmbdat(int32_t pos);

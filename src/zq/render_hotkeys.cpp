@@ -111,6 +111,8 @@ const std::set<int> group_toggle_ids = {
 const std::set<int> group_map_navigation_ids = {
 	ZQKEY_MINUS_MAP,
 	ZQKEY_PLUS_MAP,
+	ZQKEY_SCREEN_ZOOM_IN,
+	ZQKEY_SCREEN_ZOOM_OUT,
 	ZQKEY_SCROLL_SCREEN_UP,
 	ZQKEY_SCROLL_SCREEN_DOWN,
 	ZQKEY_SCROLL_SCREEN_LEFT,

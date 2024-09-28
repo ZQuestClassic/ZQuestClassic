@@ -1,11 +1,9 @@
 #include "base/dmap.h"
-#include "base/util.h"
 #include "base/initdata.h"
 #include "dialog/info.h"
 #include "test_quest_dlg.h"
 #include "alertfunc.h"
 #include "base/process_management.h"
-#include "zc/zelda.h"
 #include "zq/zq_class.h"
 #include "gui/builder.h"
 #include "zc_list_data.h"
@@ -63,16 +61,6 @@ void call_testqst_dialog()
 	}
 	if(test_start_dmap < 0) test_start_dmap = 0;
 	TestQstDialog().show();
-}
-
-std::string qst_cfg_header_from_path(std::string path)
-{
-	path = relativize_path(path);
-	util::replchar(path, '[', '_');
-	util::replchar(path, ']', '_');
-	util::replchar(path, ' ', '_');
-	util::replchar(path, '\\', '/');
-	return path;
 }
 
 TestQstDialog::TestQstDialog() : dmap_list(GUI::ZCListData::dmaps(true))

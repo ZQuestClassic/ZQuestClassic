@@ -187,7 +187,6 @@ void do_generic_combo(const rpos_handle_t& rpos_handle, weapon *w, int32_t wid,
 	{
 		if ((combobuf[cid].usrflags&cflag1)) 
 		{
-			//zprint("Adding decoration, sprite: %d\n", combobuf[cid].attributes[0] / 10000L);
 			if (combobuf[cid].usrflags & cflag10)
 			{
 				switch (combobuf[cid].attribytes[0])
@@ -1357,7 +1356,6 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			}
 			int32_t speed = parentitem>-1 ? zc_max(parent.misc1,1) : 1;
 			int32_t qty = parentitem>-1 ? zc_max(parent.misc3,1) : 1;
-			//zprint("byrna quantity_iterator: %d\n", quantity_iterator);
 			clk = (int32_t)((((2*quantity_iterator*PI)/qty)
 						 // Appear on top of the cane's hook
 						 + (dir==right? 3*PI/2 : dir==left? PI/2 : dir==down ? 0 : PI))*speed);

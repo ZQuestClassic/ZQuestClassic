@@ -1436,32 +1436,17 @@ bool trigger_armos_grave(const rpos_handle_t& rpos_handle, int32_t trigdir)
 						}
 						case down: //touched armos from above
 						{
-							//zprint("touched armos from above\n");
-							//zprint("cpos: %d\n", cpos);
-							//int32_t tx2 = (int32_t)x; //COMBOX(COMBOPOS(tx,ty));
-							//int32_t ty2 = (int32_t)y+16; //COMBOY(COMBOPOS(tx,ty));
-							//tx2 = GridX(tx2);
-							//ty2 = GridY(ty2);
 							while(searching == 1) //find the left edge of an armos block
 							{
-								//zprint("searching\n");
 								if ( (pos % 16) == 0 ) break; //don't wrap rows
 								++chx;
 								
-								
-								//zprint("chx: %d\n", chx);
-								//zprint("tx2: %d\n", tx2);
-								//zprint("ty2: %d\n", ty2);
-								//zprint("MAPCOMBO(tx2,ty2): %d\n",MAPCOMBO(tx2,ty2));
-								//zprint("MAPCOMBO(tx2-chx,ty2): %d\n",MAPCOMBO(GridX(tx2-chx),ty2));
 								if ( combobuf[(tmpscr->data[pos-chx])].type == cARMOS )
 								{
-									//zprint("found match\n");
 									xpos -=16;
 								}
 								else searching = 3;
 							}
-							//zprint("xpos is: %d\n", xpos);
 						}
 						[[fallthrough]];
 						case left: //touched right edge of armos
@@ -1492,14 +1477,12 @@ bool trigger_armos_grave(const rpos_handle_t& rpos_handle, int32_t trigdir)
 							
 						case right: //touched left edge of armos
 						{
-							//zprint("touched armos on left\n");
 							while(searching == 1) //find the top edge of an armos block
 							{
 								chy += 16;
 								if ( pos - chy < 0 ) break; //don't go out of bounds
 								if ( combobuf[(tmpscr->data[pos-chy])].type == cARMOS ) 
 								{
-									//zprint("found match\n");
 									ypos -=16;
 								}
 								else searching = 2;

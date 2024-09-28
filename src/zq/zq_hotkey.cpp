@@ -104,6 +104,8 @@ char const* get_hotkey_name(uint hkey)
 		case ZQKEY_PLUS_SCR_PAL: return "Screen Palette +1 (Preview)";
 		case ZQKEY_MINUS_16_SCR_PAL: return "Screen Palette -16 (Preview)";
 		case ZQKEY_PLUS_16_SCR_PAL: return "Screen Palette +16 (Preview)";
+		case ZQKEY_SCREEN_ZOOM_IN: return "Zoom In";
+		case ZQKEY_SCREEN_ZOOM_OUT: return "Zoom Out";
 		case ZQKEY_GRID: return "Show Grid";
 		case ZQKEY_GRID_COLOR: return "Cycle Grid Color";
 		case ZQKEY_COMBO_COL_MODE: return "Toggle Combo Column Mode";
@@ -327,6 +329,8 @@ char const* get_hotkey_cfg_name(uint hkey)
 		case ZQKEY_PLUS_SCR_PAL: return "ZQKEY_PLUS_SCR_PAL";
 		case ZQKEY_MINUS_16_SCR_PAL: return "ZQKEY_MINUS_16_SCR_PAL";
 		case ZQKEY_PLUS_16_SCR_PAL: return "ZQKEY_PLUS_16_SCR_PAL";
+		case ZQKEY_SCREEN_ZOOM_IN: return "ZQKEY_SCREEN_ZOOM_IN";
+		case ZQKEY_SCREEN_ZOOM_OUT: return "ZQKEY_SCREEN_ZOOM_OUT";
 		case ZQKEY_GRID: return "ZQKEY_GRID";
 		case ZQKEY_GRID_COLOR: return "ZQKEY_GRID_COLOR";
 		case ZQKEY_COMBO_COL_MODE: return "ZQKEY_COMBO_COL_MODE";
@@ -598,6 +602,10 @@ char const* get_hotkey_helptext(uint hkey)
 		case ZQKEY_MINUS_16_SCR_PAL:
 			break;
 		case ZQKEY_PLUS_16_SCR_PAL:
+			break;
+		case ZQKEY_SCREEN_ZOOM_IN:
+			break;
+		case ZQKEY_SCREEN_ZOOM_OUT:
 			break;
 		case ZQKEY_GRID:
 			return "Toggle the Grid Lines over the screen area";
@@ -998,8 +1006,10 @@ void default_hotkeys()
 	zq_hotkeys[ZQKEY_PLUS_COLOR].setval(KEY_EQUALS,0,KEY_PLUS_PAD,0);
 	zq_hotkeys[ZQKEY_MINUS_SCR_PAL].setval(KEY_MINUS,KB_SHIFT_FLAG,KEY_MINUS_PAD,KB_SHIFT_FLAG);
 	zq_hotkeys[ZQKEY_PLUS_SCR_PAL].setval(KEY_EQUALS,KB_SHIFT_FLAG,KEY_PLUS_PAD,KB_SHIFT_FLAG);
-	zq_hotkeys[ZQKEY_MINUS_16_SCR_PAL].setval(KEY_MINUS,KB_CTRL_FLAG,KEY_MINUS_PAD,KB_CTRL_FLAG);
-	zq_hotkeys[ZQKEY_PLUS_16_SCR_PAL].setval(KEY_EQUALS,KB_CTRL_FLAG,KEY_PLUS_PAD,KB_CTRL_FLAG);
+	zq_hotkeys[ZQKEY_MINUS_16_SCR_PAL].setval(KEY_MINUS,KB_CTRL_FLAG|KB_SHIFT_FLAG,KEY_MINUS_PAD,KB_CTRL_FLAG|KB_SHIFT_FLAG);
+	zq_hotkeys[ZQKEY_PLUS_16_SCR_PAL].setval(KEY_EQUALS,KB_CTRL_FLAG|KB_SHIFT_FLAG,KEY_PLUS_PAD,KB_CTRL_FLAG|KB_SHIFT_FLAG);
+	zq_hotkeys[ZQKEY_SCREEN_ZOOM_IN].setval(KEY_EQUALS,KB_CTRL_FLAG,KEY_PLUS_PAD,KB_CTRL_FLAG);
+	zq_hotkeys[ZQKEY_SCREEN_ZOOM_OUT].setval(KEY_MINUS,KB_CTRL_FLAG,KEY_MINUS_PAD,KB_CTRL_FLAG);
 	zq_hotkeys[ZQKEY_GRID].setval(KEY_TILDE,0,0,0);
 	zq_hotkeys[ZQKEY_GRID_COLOR].setval(KEY_TILDE,KB_CTRL_FLAG,0,0);
 	zq_hotkeys[ZQKEY_COMBO_COL_MODE].setval(KEY_SPACE,0,0,0);
@@ -1365,6 +1375,10 @@ int run_hotkey(uint hkey)
 			return onDecScrPal16();
 		case ZQKEY_PLUS_16_SCR_PAL:
 			return onIncScrPal16();
+		case ZQKEY_SCREEN_ZOOM_IN:
+			return onZoomIn();
+		case ZQKEY_SCREEN_ZOOM_OUT:
+			return onZoomOut();
 		case ZQKEY_GRID:
 			return onToggleGrid(false);
 		case ZQKEY_GRID_COLOR:

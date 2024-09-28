@@ -9178,6 +9178,30 @@ int32_t d_vsync_proc(int32_t msg,DIALOG *d,int32_t c)
 		case MSG_IDLE:
 		{
 			broadcast_dialog_message(MSG_VSYNC, c);
+			if(d->dp)
+			{
+				int32_t ret = (*(std::function<int32_t()>*)d->dp)();
+				switch(ret)
+				{
+					case ONTICK_EXIT:
+						if(d->flags&D_NEW_GUI)
+							close_new_gui_dlg(d);
+						return D_EXIT;
+					case ONTICK_CLOSE:
+						if(d->flags&D_NEW_GUI)
+						{
+							//Simulate a GUI_EVENT for the window proc
+							DIALOG* window = d-1;
+							while(window->proc != jwin_win_proc) --window;
+							int32_t ret = new_gui_event(window-1, geCLOSE);
+							if(ret >= 0)
+								return ret;
+						}
+						return D_EXIT;
+					case ONTICK_REDRAW:
+						return D_REDRAW;
+				}
+			}
 			break;
 		}
     }
