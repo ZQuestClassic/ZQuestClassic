@@ -11661,7 +11661,23 @@ bool eKeese::animate(int32_t index)
 	// Keese Tribbles stay on the ground, so there's no problem when they transform.
 	else if(get_qr(qr_ENEMIESZAXIS) && !(isSideViewGravity()))
 	{
-		if (get_qr(qr_OLD_KEESE_Z_AXIS))
+		if (get_qr(qr_BETTER_KEESE_ZMOVEMENT))
+		{
+			if (moveflags & move_use_fake_z)
+			{
+				fakez = int32_t(step / zslongToFix(dstep * 100));
+				// Some variance in keese flight heights when away from Hero
+				fakez += int32_t((step / zslongToFix(dstep * 100)) * zc_max(0_zf, (distance(x, y, HeroX(), HeroY()) - 40) / 4));
+
+			}
+			else
+			{
+				z = int32_t(step / zslongToFix(dstep * 100));
+				// Some variance in keese flight heights when away from Hero
+				z += int32_t((step / zslongToFix(dstep * 100)) * zc_max(0_zf, (distance(x, y, HeroX(), HeroY()) - 40) / 4));
+			}
+		}
+		else if (get_qr(qr_OLD_KEESE_Z_AXIS))
 		{
 			if (moveflags & move_use_fake_z)
 			{
