@@ -281,6 +281,7 @@ inline std::shared_ptr<Engraving> makeEngraving()
 {
 	return std::make_shared<Engraving>();
 }
+
 #endif
 
 // Top-level widgets
