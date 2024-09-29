@@ -177,7 +177,7 @@ char *ordinal(int32_t num);
 
 void clear_quest_tmpfile();
 PACKFILE *open_quest_file(int32_t *open_error, const char *filename, bool show_progress);
-PACKFILE *open_quest_template(zquestheader *Header, char *deletefilename, bool validate);
+PACKFILE *open_quest_template(zquestheader *Header, const char *filename, bool validate);
 
 void clear_combo(int32_t i);
 void clear_combos();

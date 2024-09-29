@@ -3220,7 +3220,6 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 			newtilebuf[tile].data[i] = buf[i];
 		}
 		
-		//   usetiles=true;
 		saved=false;
 		
 		if(buf!=NULL)
@@ -4388,7 +4387,6 @@ bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 	go_tiles();
 	saved=false;
 	
-	//  usetiles=true;
 	for(int32_t ty=0; ty<height; ty++)                            //for every row
 	{
 		for(int32_t tx=0; tx<width; tx++)                           //for every column (tile)
@@ -5405,7 +5403,6 @@ void grab_tile(int32_t tile,int32_t &cs)
 		go_tiles();
 		saved=false;
 			
-		//   usetiles=true;
 		for(int y=0; y<selheight; y++)
 		{
 			for(int x=0; x<selwidth; x++)
@@ -9566,7 +9563,6 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 					
 					break;
 				
-				//usetiles=true;
 				case KEY_R:
 					if(type==2)
 						break;
@@ -9613,7 +9609,6 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 					redraw=true;
 					break;
 				
-				//     case KEY_N:     go_tiles(); normalize(tile,tile2,flip); flip=0; redraw=true; saved=false; usetiles=true; break;
 				case KEY_H:
 					flip^=1;
 					go_tiles();

@@ -258,10 +258,6 @@ bool zmap::reset_templates(bool validate)
         return false;
     }
     
-    char *deletefilename=(char *)malloc(1);
-    ASSERT(deletefilename);
-    deletefilename[0]=0;
-    
     //int32_t ret;
     word version, build, dummy, sversion=0;
 	byte dummyc;
@@ -272,7 +268,7 @@ bool zmap::reset_templates(bool validate)
     PACKFILE *f=NULL;
     
 //  setPackfilePassword(datapwd);
-    f=open_quest_template(&header, deletefilename, validate);
+    f=open_quest_template(&header, "modules/classic/default.qst", validate);
     get_version_and_build(f, &version, &build);
     
     if(!find_section(f, ID_MAPS))
@@ -418,13 +414,6 @@ bool zmap::reset_templates(bool validate)
     
     pack_fclose(f);
 	clear_quest_tmpfile();
-    
-    if(deletefilename[0]==0)
-    {
-        delete_file(deletefilename);
-    }
-    
-//  setPackfilePassword(NULL);
 
     return true;
 }
@@ -5674,164 +5663,6 @@ bool load_pals(const char *path, int32_t startcset)
         else
         {
             pack_fclose(f);
-            return false;
-        }
-    }
-    
-    return false;
-}
-
-bool save_dmaps(const char *path)
-{
-    PACKFILE *f = pack_fopen_password(path,F_WRITE, "");
-    
-    if(!f)
-    {
-        return false;
-    }
-    
-    if(writedmaps(f, ZELDA_VERSION, VERSION_BUILD, 0, MAXDMAPS)==0)
-    {
-        pack_fclose(f);
-        return true;
-    }
-    
-    pack_fclose(f);
-    return false;
-}
-
-bool load_dmaps(const char *path, int32_t startdmap)
-{
-    dword section_id;
-    PACKFILE *f = pack_fopen_password(path,F_READ, "");
-    
-    if(!f)
-    {
-        return false;
-    }
-    
-    if(!p_mgetl(&section_id,f))
-    {
-        return false;
-    }
-    
-    if(section_id==ID_DMAPS)
-    {
-        if(readdmaps(f, NULL, 0x250, 33, startdmap, MAXDMAPS-startdmap)==0)
-        {
-            pack_fclose(f);
-            return true;
-        }
-        else
-        {
-            pack_fclose(f);
-            return false;
-        }
-    }
-    
-    return false;
-}
-bool save_combos(const char *path)
-{
-    PACKFILE *f = pack_fopen_password(path,F_WRITE, "");
-    
-    if(!f)
-    {
-        return false;
-    }
-    
-    reset_combo_animations();
-    reset_combo_animations2();
-    
-    if(writecombos(f, ZELDA_VERSION, VERSION_BUILD, 0, MAXCOMBOS)==0)
-    {
-        pack_fclose(f);
-        return true;
-    }
-    
-    pack_fclose(f);
-    return false;
-}
-
-bool load_combos(const char *path, int32_t startcombo)
-{
-    dword section_id;
-    PACKFILE *f = pack_fopen_password(path,F_READ, "");
-    
-    if(!f)
-    {
-        return false;
-    }
-    
-    if(!p_mgetl(&section_id,f))
-    {
-        return false;
-    }
-    
-    if(section_id==ID_COMBOS)
-    {
-        if(readcombos(f, NULL, 0x250, 33, startcombo, MAXCOMBOS-startcombo)==0)
-        {
-            pack_fclose(f);
-            return true;
-        }
-        else
-        {
-            pack_fclose(f);
-            //      init_combos(true, &header);
-            return false;
-        }
-    }
-    
-    return false;
-}
-
-bool save_tiles(const char *path)
-{
-    PACKFILE *f = pack_fopen_password(path,F_WRITE, "");
-    
-    if(!f)
-    {
-        return false;
-    }
-    
-    //  reset_combo_animations();
-    if(writetiles(f, ZELDA_VERSION, VERSION_BUILD, 0, NEWMAXTILES)==0)
-    {
-        pack_fclose(f);
-        return true;
-    }
-    
-    pack_fclose(f);
-    return false;
-}
-
-bool load_tiles(const char *path, int32_t starttile)
-{
-    dword section_id;
-    PACKFILE *f = pack_fopen_password(path,F_READ, "");
-    
-    if(!f)
-    {
-        return false;
-    }
-    
-    if(!p_mgetl(&section_id,f))
-    {
-        return false;
-    }
-    
-    if(section_id==ID_TILES)
-    {
-        if(readtiles(f, newtilebuf, NULL, 0x250, 33, starttile, NEWMAXTILES-starttile, false)==0)
-        {
-            pack_fclose(f);
-            return true;
-        }
-        else
-        {
-            pack_fclose(f);
-            init_tiles(true, &header);
             return false;
         }
     }
@@ -13729,8 +13560,6 @@ static int32_t _save_unencoded_quest_int(const char *filename, bool compressed, 
 	strcpy(header.id_str,QH_NEWIDSTR);
 	header.zelda_version = ZELDA_VERSION;
 	header.internal = INTERNAL_VERSION;
-	// header.str_count = msg_count;
-	// header.data_flags[ZQ_TILES] = usetiles;
 	header.data_flags[ZQ_TILES] = true;
 	header.data_flags[ZQ_CHEATS2] = 1;
 	header.build=VERSION_BUILD;
