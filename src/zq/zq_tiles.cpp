@@ -2680,7 +2680,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 				}
 				case KEY_TAB:
 				{
-					if(key_shifts & KB_CTRL_FLAG)
+					if(key_shifts & KB_CTRL_CMD_FLAG)
 					{
 						xmode = (xmode+1)%XMODE_MAX;
 						if(!xmode)

@@ -186,7 +186,7 @@ std::shared_ptr<GUI::Widget> ComboPoolDialog::view()
 					onPressFunc = [&,ind]()
 					{
 						size_t inc = 1;
-						if(key_shifts & KB_CTRL_FLAG) inc = 100;
+						if(key_shifts & KB_CTRL_CMD_FLAG) inc = 100;
 						else if(key_shifts & KB_SHIFT_FLAG) inc = 10;
 						
 						if(entry.quant > inc)
@@ -212,7 +212,7 @@ std::shared_ptr<GUI::Widget> ComboPoolDialog::view()
 					onPressFunc = [&,ind]()
 					{
 						size_t inc = 1;
-						if(key_shifts & KB_CTRL_FLAG) inc = 100;
+						if(key_shifts & KB_CTRL_CMD_FLAG) inc = 100;
 						else if(key_shifts & KB_SHIFT_FLAG) inc = 10;
 						
 						if(entry.quant < 65535-inc)

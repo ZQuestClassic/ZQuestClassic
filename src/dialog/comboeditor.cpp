@@ -67,7 +67,7 @@ bool call_combo_editor(int32_t index)
 	combo_use_script_data = zc_get_config("zquest","show_comboscript_meta_attribs",1)?true:false;
 #if DEVLEVEL > 0
 	force_wizard = 0;
-	if(key_shifts&KB_CTRL_FLAG)
+	if(key_shifts&KB_CTRL_CMD_FLAG)
 		force_wizard = (key_shifts&KB_SHIFT_FLAG)?2:1;
 #endif
 	int32_t cs = CSet;
