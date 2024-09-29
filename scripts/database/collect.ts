@@ -756,6 +756,7 @@ async function forEveryQst(cb: (args: {quest: QuestManifest, release: QuestManif
 async function main() {
   if (OFFICIAL_SYNC) {
     execFileSync('s3cmd', ['sync', 's3://zc-data/', '--no-preserve', `${DB}/`], {stdio: 'inherit'});
+    return;
   } else if (OFFICIAL) {
     // When updating, we only need a few files.
     // We do not sync everything in CI because we don't need a full copy to run this script.
