@@ -2743,7 +2743,6 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 		rectfill(dest,x,y,x+255,y+175,bgfill);
 	}
 	
-	resize_mouse_pos=true;
 	if(XOR(basescr->flags7&fLAYER2BG,ViewLayer2BG))
 		_zmap_drawlayer(dest, x, y, layers[2], antiflags, false, false, HL_LAYER(2));
 	
@@ -3078,8 +3077,6 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 	{
 		check_alignments(dest,x,y,scr);
 	}
-	
-	resize_mouse_pos=false;
 }
 
 void zmap::drawrow(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,int32_t map,int32_t scr)
@@ -3101,8 +3098,6 @@ void zmap::drawrow(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,int3
 	}
 	
 	int32_t dark = layer->flags&4;
-	
-	resize_mouse_pos=true;
 	
 	if(LayerMaskInt[0]==0)
 	{
@@ -3378,9 +3373,6 @@ void zmap::drawrow(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,int3
 			check_alignments(dest,x,y-160,scr);
 		}
 	}
-	
-	resize_mouse_pos=false;
-	
 }
 
 void zmap::drawcolumn(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,int32_t map,int32_t scr)
@@ -3402,9 +3394,6 @@ void zmap::drawcolumn(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,i
 	}
 	
 	int32_t dark = layer->flags&4;
-	
-	resize_mouse_pos=true;
-	
 	
 	if(LayerMaskInt[0]==0)
 	{
@@ -3659,8 +3648,6 @@ void zmap::drawcolumn(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,i
 			check_alignments(dest,x-240,y,scr);
 		}
 	}
-	
-	resize_mouse_pos=false;
 }
 
 void zmap::drawblock(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,int32_t map,int32_t scr)
@@ -3682,8 +3669,6 @@ void zmap::drawblock(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,in
 	}
 	
 	int32_t dark = layer->flags&4;
-	
-	resize_mouse_pos=true;
 	
 	if(LayerMaskInt[0]!=0)
 	{
@@ -3862,9 +3847,6 @@ void zmap::drawblock(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,in
 			break;
 		}
 	}
-	
-	resize_mouse_pos=false;
-	
 }
 
 void zmap::drawstaticblock(BITMAP* dest,int32_t x,int32_t y)
