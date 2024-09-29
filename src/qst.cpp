@@ -22234,12 +22234,15 @@ int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc,
 	int32_t load_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
 	zprint2("Time to load qst: %d ms\n", load_ms);
 	_is_loading_quest = false;
-	
+	if (ret)
+		zprint2("Error: %s\n", qst_error[ret]);
+
 	if(show_progress)
 	{
 		if(ret)
 		{
 			box_out("-- Error loading quest file! --");
+			box_out(fmt::format("Error: {}", qst_error[ret]).c_str());
 			box_end(true);
 		}
 		else box_end(false);
