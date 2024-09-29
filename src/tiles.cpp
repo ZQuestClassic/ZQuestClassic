@@ -1564,17 +1564,27 @@ void overblocktranslucent8(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t
 
 int combotile_override_x = -1, combotile_override_y = -1;
 int combotile_add_x = 0, combotile_add_y = 0;
+double combotile_mul_x = 1, combotile_mul_y = 1;
 int32_t combo_tile(const newcombo &c, int32_t x, int32_t y)
 {
+	int directional_change_type = combo_class_buf[c.type].directional_change_type;
+	int drawtile = c.tile;
+	if (directional_change_type == 0 || directional_change_type > 3)
+		return drawtile;
+
+	int tframes = zc_max(1, c.frames);
+
+	// This allows us to adjust how eyeball tiles should be drawn in edge cases, like:
+	// - the editor
+	// - during screen scrolling
 	if(combotile_override_x > -1)
 		x = combotile_override_x;
 	if(combotile_override_y > -1)
 		y = combotile_override_y;
-    int32_t drawtile=c.tile;
-    int32_t tframes=zc_max(1, c.frames);
-
-    x += combotile_add_x;
-    y += combotile_add_y;
+	x *= combotile_mul_x;
+	y *= combotile_mul_y;
+	x += combotile_add_x;
+	y += combotile_add_y;
 
     switch(combo_class_buf[c.type].directional_change_type)
     {
