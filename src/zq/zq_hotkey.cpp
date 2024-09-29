@@ -952,13 +952,13 @@ bool is_reserved_keycombo(int c, int modflag)
 
 void default_hotkeys()
 {
-	zq_hotkeys[ZQKEY_UNDO].setval(KEY_Z,KB_CTRL_FLAG, KEY_U,0);
-	zq_hotkeys[ZQKEY_REDO].setval(KEY_Z,KB_CTRL_FLAG|KB_SHIFT_FLAG, KEY_Y,KB_CTRL_FLAG);
+	zq_hotkeys[ZQKEY_UNDO].setval(KEY_Z,KB_CTRL_CMD_FLAG, KEY_U,0);
+	zq_hotkeys[ZQKEY_REDO].setval(KEY_Z,KB_CTRL_CMD_FLAG|KB_SHIFT_FLAG, KEY_Y,KB_CTRL_CMD_FLAG);
 	zq_hotkeys[ZQKEY_MINUS_FLAG].setval(KEY_ASTERISK,0,KEY_OPENBRACE,0);
 	zq_hotkeys[ZQKEY_PLUS_FLAG].setval(KEY_SLASH_PAD,0,KEY_CLOSEBRACE,0);
-	zq_hotkeys[ZQKEY_SAVE].setval(KEY_F2,0,KEY_S,KB_CTRL_FLAG);
+	zq_hotkeys[ZQKEY_SAVE].setval(KEY_F2,0,KEY_S,KB_CTRL_CMD_FLAG);
 	zq_hotkeys[ZQKEY_SAVEAS].setval(0,0,0,0);
-	zq_hotkeys[ZQKEY_OPEN].setval(KEY_F3,0,KEY_O,KB_CTRL_FLAG);
+	zq_hotkeys[ZQKEY_OPEN].setval(KEY_F3,0,KEY_O,KB_CTRL_CMD_FLAG);
 	zq_hotkeys[ZQKEY_SCREEN_PAL].setval(KEY_F4,0,0,0);
 	zq_hotkeys[ZQKEY_SECRET_COMBO].setval(KEY_F5,0,0,0);
 	zq_hotkeys[ZQKEY_DOORS].setval(KEY_F6,0,0,0);
@@ -985,8 +985,8 @@ void default_hotkeys()
 	zq_hotkeys[ZQKEY_TILES].setval(KEY_T,0,0,0);
 	zq_hotkeys[ZQKEY_PASTE].setval(KEY_V,0,0,0);
 	zq_hotkeys[ZQKEY_PASTEALL].setval(KEY_V,KB_SHIFT_FLAG,0,0);
-	zq_hotkeys[ZQKEY_PASTETOALL].setval(KEY_V,KB_CTRL_FLAG,0,0);
-	zq_hotkeys[ZQKEY_PASTEALLTOALL].setval(KEY_V,KB_CTRL_FLAG|KB_SHIFT_FLAG,0,0);
+	zq_hotkeys[ZQKEY_PASTETOALL].setval(KEY_V,KB_CTRL_CMD_FLAG,0,0);
+	zq_hotkeys[ZQKEY_PASTEALLTOALL].setval(KEY_V,KB_CTRL_CMD_FLAG|KB_SHIFT_FLAG,0,0);
 	zq_hotkeys[ZQKEY_SHOW_SOLID].setval(KEY_W,0,0,0);
 	zq_hotkeys[ZQKEY_PREV_MODE].setval(KEY_X,0,0,0);
 	zq_hotkeys[ZQKEY_COMPILE_ZSCRIPT].setval(KEY_Y,0,0,0);
@@ -998,10 +998,10 @@ void default_hotkeys()
 	zq_hotkeys[ZQKEY_PLUS_COLOR].setval(KEY_EQUALS,0,KEY_PLUS_PAD,0);
 	zq_hotkeys[ZQKEY_MINUS_SCR_PAL].setval(KEY_MINUS,KB_SHIFT_FLAG,KEY_MINUS_PAD,KB_SHIFT_FLAG);
 	zq_hotkeys[ZQKEY_PLUS_SCR_PAL].setval(KEY_EQUALS,KB_SHIFT_FLAG,KEY_PLUS_PAD,KB_SHIFT_FLAG);
-	zq_hotkeys[ZQKEY_MINUS_16_SCR_PAL].setval(KEY_MINUS,KB_CTRL_FLAG,KEY_MINUS_PAD,KB_CTRL_FLAG);
-	zq_hotkeys[ZQKEY_PLUS_16_SCR_PAL].setval(KEY_EQUALS,KB_CTRL_FLAG,KEY_PLUS_PAD,KB_CTRL_FLAG);
+	zq_hotkeys[ZQKEY_MINUS_16_SCR_PAL].setval(KEY_MINUS,KB_CTRL_CMD_FLAG|KB_SHIFT_FLAG,KEY_MINUS_PAD,KB_CTRL_CMD_FLAG|KB_SHIFT_FLAG);
+	zq_hotkeys[ZQKEY_PLUS_16_SCR_PAL].setval(KEY_EQUALS,KB_CTRL_CMD_FLAG|KB_SHIFT_FLAG,KEY_PLUS_PAD,KB_CTRL_CMD_FLAG|KB_SHIFT_FLAG);
 	zq_hotkeys[ZQKEY_GRID].setval(KEY_TILDE,0,0,0);
-	zq_hotkeys[ZQKEY_GRID_COLOR].setval(KEY_TILDE,KB_CTRL_FLAG,0,0);
+	zq_hotkeys[ZQKEY_GRID_COLOR].setval(KEY_TILDE,KB_CTRL_CMD_FLAG,0,0);
 	zq_hotkeys[ZQKEY_COMBO_COL_MODE].setval(KEY_SPACE,0,0,0);
 	zq_hotkeys[ZQKEY_DELETE].setval(KEY_DEL,0,KEY_DEL_PAD,0);
 	zq_hotkeys[ZQKEY_FULLSCREEN].setval(KEY_ENTER,KB_ALT_FLAG,KEY_ENTER_PAD,KB_ALT_FLAG);
@@ -1010,18 +1010,18 @@ void default_hotkeys()
 	for(int q = 0; q <= 15; ++q)
 	{
 		if(q < 10) //Ctrl+(0-9 + pad), Ctrl+Shift+(0-5 + pad)
-			zq_hotkeys[ZQKEY_SCR_LPAL_0+q].setval(KEY_0+q,KB_CTRL_FLAG,KEY_0_PAD+q,KB_CTRL_FLAG);
-		else zq_hotkeys[ZQKEY_SCR_LPAL_0+q].setval(KEY_0+(q-10),KB_CTRL_FLAG|KB_SHIFT_FLAG,
-			KEY_0_PAD+(q-10),KB_CTRL_FLAG|KB_SHIFT_FLAG);
+			zq_hotkeys[ZQKEY_SCR_LPAL_0+q].setval(KEY_0+q,KB_CTRL_CMD_FLAG,KEY_0_PAD+q,KB_CTRL_CMD_FLAG);
+		else zq_hotkeys[ZQKEY_SCR_LPAL_0+q].setval(KEY_0+(q-10),KB_CTRL_CMD_FLAG|KB_SHIFT_FLAG,
+			KEY_0_PAD+(q-10),KB_CTRL_CMD_FLAG|KB_SHIFT_FLAG);
 	}
 	zq_hotkeys[ZQKEY_SCROLL_SCREEN_UP].setval(KEY_UP,0,0,0);
 	zq_hotkeys[ZQKEY_SCROLL_SCREEN_DOWN].setval(KEY_DOWN,0,0,0);
 	zq_hotkeys[ZQKEY_SCROLL_SCREEN_LEFT].setval(KEY_LEFT,0,0,0);
 	zq_hotkeys[ZQKEY_SCROLL_SCREEN_RIGHT].setval(KEY_RIGHT,0,0,0);
-	zq_hotkeys[ZQKEY_WARP_SCREEN_UP].setval(KEY_UP,KB_CTRL_FLAG,0,0);
-	zq_hotkeys[ZQKEY_WARP_SCREEN_DOWN].setval(KEY_DOWN,KB_CTRL_FLAG,0,0);
-	zq_hotkeys[ZQKEY_WARP_SCREEN_LEFT].setval(KEY_LEFT,KB_CTRL_FLAG,0,0);
-	zq_hotkeys[ZQKEY_WARP_SCREEN_RIGHT].setval(KEY_RIGHT,KB_CTRL_FLAG,0,0);
+	zq_hotkeys[ZQKEY_WARP_SCREEN_UP].setval(KEY_UP,KB_CTRL_CMD_FLAG,0,0);
+	zq_hotkeys[ZQKEY_WARP_SCREEN_DOWN].setval(KEY_DOWN,KB_CTRL_CMD_FLAG,0,0);
+	zq_hotkeys[ZQKEY_WARP_SCREEN_LEFT].setval(KEY_LEFT,KB_CTRL_CMD_FLAG,0,0);
+	zq_hotkeys[ZQKEY_WARP_SCREEN_RIGHT].setval(KEY_RIGHT,KB_CTRL_CMD_FLAG,0,0);
 	zq_hotkeys[ZQKEY_SCROLL_COMBO_UP].setval(KEY_UP,KB_SHIFT_FLAG,0,0);
 	zq_hotkeys[ZQKEY_SCROLL_COMBO_DOWN].setval(KEY_DOWN,KB_SHIFT_FLAG,0,0);
 	zq_hotkeys[ZQKEY_SCROLL_COMBO_LEFT].setval(KEY_LEFT,KB_SHIFT_FLAG,0,0);
@@ -1030,11 +1030,11 @@ void default_hotkeys()
 	zq_hotkeys[ZQKEY_COMBO_PAGEDN].setval(KEY_PGDN,0,0,0);
 	zq_hotkeys[ZQKEY_SQUAREPANEL_UP].setval(KEY_PGUP,KB_SHIFT_FLAG,0,0);
 	zq_hotkeys[ZQKEY_SQUAREPANEL_DOWN].setval(KEY_PGDN,KB_SHIFT_FLAG,0,0);
-	zq_hotkeys[ZQKEY_TESTMODE].setval(KEY_T,KB_CTRL_FLAG,0,0);
+	zq_hotkeys[ZQKEY_TESTMODE].setval(KEY_T,KB_CTRL_CMD_FLAG,0,0);
 	zq_hotkeys[ZQKEY_CAUTO_HEIGHTPLUS].setval(KEY_CLOSEBRACE, KB_SHIFT_FLAG, 0, 0);
 	zq_hotkeys[ZQKEY_CAUTO_HEIGHTMINUS].setval(KEY_OPENBRACE, KB_SHIFT_FLAG, 0, 0);
 	zq_hotkeys[ZQKEY_CURR_LAYER_HL].setval(0, 0, 0, 0);
-	zq_hotkeys[ZQKEY_VIEW_MAP].setval(KEY_M, KB_CTRL_FLAG, 0, 0);
+	zq_hotkeys[ZQKEY_VIEW_MAP].setval(KEY_M, KB_CTRL_CMD_FLAG, 0, 0);
 	
 	zq_hotkeys[ZQKEY_DRAWMODE_NORMAL].setval(0, 0, 0, 0);
 	zq_hotkeys[ZQKEY_DRAWMODE_ALIAS].setval(0, 0, 0, 0);

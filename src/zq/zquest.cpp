@@ -13875,7 +13875,7 @@ int32_t d_wlist_proc(int32_t msg,DIALOG *d,int32_t c)
 {
 	if(msg == MSG_XCHAR)
 	{
-		if(key_shifts & KB_CTRL_FLAG) //CTRL overrides the lister search function
+		if(key_shifts & KB_CTRL_CMD_FLAG) //CTRL overrides the lister search function
 		{
 			int32_t ret = D_USED_CHAR;
 			switch(c>>8)

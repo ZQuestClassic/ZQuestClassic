@@ -16,7 +16,7 @@ int32_t newg_cornersel_proc(int32_t msg,DIALOG *d,int32_t)
 		{
 			int32_t bw = (d->w-4)/2, bh = (d->h-4)/2;
 			bool shift = (key_shifts & KB_SHIFT_FLAG);
-			bool ctrl = (key_shifts & KB_CTRL_FLAG);
+			bool ctrl = (key_shifts & KB_CTRL_CMD_FLAG);
 			while(gui_mouse_b())
 			{
 				/*Do nothing*/

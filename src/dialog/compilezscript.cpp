@@ -512,7 +512,7 @@ std::shared_ptr<GUI::Widget> CompileZScriptDialog::view()
 
 bool CompileZScriptDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 {
-	bool ctrl = key_shifts & KB_CTRL_FLAG;
+	bool ctrl = key_shifts & KB_CTRL_CMD_FLAG;
 	switch(msg.message)
 	{
 		case message::LOAD:
