@@ -699,7 +699,6 @@ int32_t ImportMapBias = 0;                                          //tells what
 int32_t BrushWidth=1, BrushHeight=1;
 bool saved=true;
 bool __debug=false;
-//bool usetiles=true;
 int32_t LayerMaskInt[7]={0};
 int32_t CurrentLayer=0;
 int32_t DuplicateAction[4]={0};

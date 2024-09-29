@@ -786,52 +786,6 @@ int32_t onExport_Map()
     return D_O_K;
 }
 
-int32_t onImport_DMaps_old()
-{
-    if(!prompt_for_existing_file_compat("Import DMaps (.dmp)","dmp",NULL,datapath,false))
-        return D_O_K;
-        
-    saved=false;
-    
-    if(!load_dmaps(temppath,0))
-    {
-        char buf[256+20],name[256];
-        extract_name(temppath,name,FILENAMEALL);
-        sprintf(buf,"Unable to load %s",name);
-        jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-    }
-    else
-    {
-        int32_t maxMap=0;
-        for(int32_t i=0; i<MAXDMAPS; i++)
-        {
-            if(DMaps[i].map>maxMap)
-                maxMap=DMaps[i].map;
-        }
-        
-        if(maxMap>map_count)
-        {
-            int32_t ret=jwin_alert("Not enough maps",
-                               "The imported DMaps use more maps than are",
-                               " currently available. Do you want to add",
-                               "more maps or change the DMaps' settings?",
-                               "&Add maps","&Modify DMaps",'a','m',get_zc_font(font_lfont));
-            if(ret==1)
-                setMapCount2(maxMap+1);
-            else
-            {
-                for(int32_t i=0; i<MAXDMAPS; i++)
-                {
-                    if(DMaps[i].map>=map_count)
-                        DMaps[i].map=0;
-                }
-            }
-        }
-    }
-    
-    return D_O_K;
-}
-
 
 int32_t onExport_Tilepack()
 {
@@ -1003,29 +957,6 @@ int32_t onImport_Comboaliaspack()
 		return D_O_K;
 }
 
-int32_t onExport_DMaps_old()
-{
-    if(!prompt_for_new_file_compat("Export DMaps (.dmp)","dmp",NULL,datapath,false))
-        return D_O_K;
-        
-    char buf[256+20],buf2[256+20],name[256];
-    extract_name(temppath,name,FILENAMEALL);
-    
-    if(save_dmaps(temppath))
-    {
-        sprintf(buf,"ZQuest");
-        sprintf(buf2,"Saved %s",name);
-    }
-    else
-    {
-        sprintf(buf,"Error");
-        sprintf(buf2,"Error saving %s",name);
-    }
-    
-    jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-    return D_O_K;
-}
-
 int32_t onImport_Pals()
 {
     if(!prompt_for_existing_file_compat("Import Palettes (.zpl)","zpl",NULL,datapath,false))
@@ -1180,35 +1111,6 @@ int32_t onImport_Combos()
 	
 }
 
-int32_t onImport_Combos_old()
-{
-    int32_t ret=getnumber("Import Start Page",0);
-    
-    if(cancelgetnum)
-    {
-        return D_O_K;
-    }
-    
-    bound(ret,0,COMBO_PAGES-1);
-    
-    if(!prompt_for_existing_file_compat("Import Combo Table (.cmb)","cmb",NULL,datapath,false))
-        return D_O_K;
-        
-    if(!load_combos(temppath, ret*COMBOS_PER_PAGE))
-    {
-        // if(!load_combos(temppath)) {
-        char buf[256+20],name[256];
-        extract_name(temppath,name,FILENAMEALL);
-        sprintf(buf,"Unable to load %s",name);
-        jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-    }
-    else
-        saved=false;
-        
-    refresh(rALL);
-    return D_O_K;
-}
-
 
 int32_t onExport_Combos()
 {
@@ -1236,29 +1138,6 @@ int32_t onExport_Combos()
 		sprintf(buf2,"Error saving %s",name);
 	}
     
-    return D_O_K;
-}
-
-int32_t onExport_Combos_old()
-{
-    if(!prompt_for_new_file_compat("Export Combo Table (.cmb)","cmb",NULL,datapath,false))
-        return D_O_K;
-        
-    char buf[256+20],buf2[256+20],name[256];
-    extract_name(temppath,name,FILENAMEALL);
-    
-    if(save_combos(temppath))
-    {
-        sprintf(buf,"ZQuest");
-        sprintf(buf2,"Saved %s",name);
-    }
-    else
-    {
-        sprintf(buf,"Error");
-        sprintf(buf2,"Error saving %s",name);
-    }
-    
-    jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
     return D_O_K;
 }
 
@@ -1427,7 +1306,6 @@ int32_t onImport_ZGP()
         
     saved=false;
     
-    // usetiles=true;
     if(!load_zgp(temppath))
     {
         char buf[256+20],name[256];

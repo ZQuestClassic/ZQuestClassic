@@ -552,7 +552,11 @@ static const byte* get_tile_bytes(int32_t tile, int32_t flip)
 #else
     if (flip == 0)
 #endif
+	{
+		assert(newtilebuf[tile].data);
         return newtilebuf[tile].data;
+	}
+
     unpack_tile(newtilebuf, tile, flip, false);
     return unpackbuf;
 }

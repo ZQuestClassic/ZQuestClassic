@@ -865,30 +865,18 @@ PACKFILE *open_quest_file(int32_t *open_error, const char *filename, bool show_p
 	return f;
 }
 
-PACKFILE *open_quest_template(zquestheader *Header, char *deletefilename, bool validate)
+PACKFILE *open_quest_template(zquestheader *Header, const char *filename, bool validate)
 {
-    char *filename;
     PACKFILE *f=NULL;
     int32_t open_error=0;
  
-	strcpy(qstdat_string, "modules/classic/default.qst");
-    if(Header->templatepath[0]==0)
-    {
-        filename=(char *)malloc(2048);
-        strcpy(filename, qstdat_string);
-    }
-    else
+    if (Header->templatepath[0] != 0)
     {
         // TODO: should be safe to remove this, no one seems to use custom quest templates.
         filename=Header->templatepath;
     }
     
     f=open_quest_file(&open_error, filename, false);
-    
-    if(Header->templatepath[0]==0)
-    {
-        free(filename);
-    }
     
     if(!f)
     {
@@ -909,11 +897,11 @@ PACKFILE *open_quest_template(zquestheader *Header, char *deletefilename, bool v
     return f;
 }
 
-bool init_section(zquestheader *Header, int32_t section_id, miscQdata *Misc, zctune *tunes, bool validate)
+static bool init_section(zquestheader *Header, int32_t section_id, miscQdata *Misc, zctune *tunes, bool validate, const char* filename)
 {
-    // We absolutely do not support loading from a template file to initialize data outside the editor.
-	// TODO: move this code into zq/
-    if (get_app_id() != App::zquest) return false;
+	// The only time the player uses this is to init tiles for some quests 1.90 or older. See readtiles.
+	if (get_app_id() == App::zelda)
+		assert(section_id == ID_TILES);
 
     combosread=false;
     mapsread=false;
@@ -951,9 +939,6 @@ bool init_section(zquestheader *Header, int32_t section_id, miscQdata *Misc, zct
     word version, build;
     PACKFILE *f=NULL;
     
-    char deletefilename[1024];
-    deletefilename[0]=0;
-    
     //why is this here?
     /*
       if(colordata==NULL)
@@ -961,7 +946,7 @@ bool init_section(zquestheader *Header, int32_t section_id, miscQdata *Misc, zct
       */
     
     //setPackfilePassword(datapwd);
-    f=open_quest_template(Header, deletefilename, validate);
+    f=open_quest_template(Header, filename, validate);
     
     if(!f)  //no file, nothing to delete
     {
@@ -976,11 +961,6 @@ bool init_section(zquestheader *Header, int32_t section_id, miscQdata *Misc, zct
         pack_fclose(f);
 		clear_quest_tmpfile();
         
-        if(deletefilename[0])
-        {
-            delete_file(deletefilename);
-        }
-        
 //	setPackfilePassword(NULL);
         return false;
     }
@@ -990,11 +970,6 @@ bool init_section(zquestheader *Header, int32_t section_id, miscQdata *Misc, zct
         al_trace("Can't find section!\n");
         pack_fclose(f);
         clear_quest_tmpfile();
-		
-        if(deletefilename[0])
-        {
-            delete_file(deletefilename);
-        }
         
         //setPackfilePassword(NULL);
         return false;
@@ -1113,12 +1088,7 @@ bool init_section(zquestheader *Header, int32_t section_id, miscQdata *Misc, zct
     
     pack_fclose(f);
     clear_quest_tmpfile();
-	
-    if(deletefilename[0])
-    {
-        delete_file(deletefilename);
-    }
-    
+
     //setPackfilePassword(NULL);
     if(!ret)
     {
@@ -1128,19 +1098,24 @@ bool init_section(zquestheader *Header, int32_t section_id, miscQdata *Misc, zct
     return false;
 }
 
+bool init_tiles_for_190(bool validate, zquestheader *Header)
+{
+    return init_section(Header, ID_TILES, NULL, NULL, validate, "modules/classic/classic_1st.qst");
+}
+
 bool init_tiles(bool validate, zquestheader *Header)
 {
-    return init_section(Header, ID_TILES, NULL, NULL, validate);
+    return init_section(Header, ID_TILES, NULL, NULL, validate, "modules/classic/default.qst");
 }
 
 bool init_combos(bool validate, zquestheader *Header)
 {
-    return init_section(Header, ID_COMBOS, NULL, NULL, validate);
+    return init_section(Header, ID_COMBOS, NULL, NULL, validate, "modules/classic/default.qst");
 }
 
 bool init_colordata(bool validate, zquestheader *Header, miscQdata *Misc)
 {
-    return init_section(Header, ID_CSETS, Misc, NULL, validate);
+    return init_section(Header, ID_CSETS, Misc, NULL, validate, "modules/classic/default.qst");
 }
 
 void init_spritelists()
@@ -1171,7 +1146,7 @@ bool reset_items(bool validate, zquestheader *Header)
 {
     bool ret = true;
     if (get_app_id() == App::zquest)
-        ret = init_section(Header, ID_ITEMS, NULL, NULL, validate);
+        ret = init_section(Header, ID_ITEMS, NULL, NULL, validate, "modules/classic/default.qst");
     
     for(int32_t i=0; i<MAXITEMS; i++) reset_itemname(i);
     
@@ -1189,7 +1164,7 @@ bool reset_wpns(bool validate, zquestheader *Header)
 {
 	bool ret = true;
     if (get_app_id() == App::zquest)
-        ret = init_section(Header, ID_WEAPONS, NULL, NULL, validate);
+        ret = init_section(Header, ID_WEAPONS, NULL, NULL, validate, "modules/classic/default.qst");
     
     for(int32_t i=0; i<MAXWPNS; i++)
         reset_weaponname(i);
@@ -18797,7 +18772,7 @@ int32_t readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version
 	
     if(Header!=NULL&&(!Header->data_flags[ZQ_TILES]&&!from_init))         //keep for old quests
     {
-		if(!init_tiles(true, Header))
+		if(!init_tiles_for_190(true, Header))
 		{
 			al_trace("Unable to initialize tiles\n");
 		}
