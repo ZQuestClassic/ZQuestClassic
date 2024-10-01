@@ -2,17 +2,16 @@
 
 #include "allegro/color.h"
 #include "allegro/file.h"
+#include "base/expected.h"
 #include "base/general.h"
 #include "base/packfile.h"
 #include "base/misctypes.h"
-#include "base/fonts.h"
 #include "base/dmap.h"
-#include "base/qrs.h"
+#include "base/qst.h"
 #include "base/util.h"
 #include "base/zapp.h"
 #include "base/zdefs.h"
 #include "base/zsys.h"
-#include "base/mapscr.h"
 #include "dialog/info.h"
 #include "zc/zelda.h"
 #include "zc/ffscript.h"
@@ -20,9 +19,9 @@
 #include "pal.h"
 #include "tiles.h"
 #include "items.h"
-#include "gui/jwin.h"
 #include <cstddef>
 #include <cstdio>
+#include <system_error>
 #include <vector>
 #include <filesystem>
 #include <fstream>
@@ -40,6 +39,8 @@ static const char *OLD_SAVE_HEADER = "Zelda Classic Save File";
 static int currgame = -1;
 static std::vector<save_t> saves;
 static bool save_current_replay_games;
+
+static bool initialize_new_save(save_t* save, std::string& err);
 
 void save_t::unload()
 {
@@ -81,28 +82,49 @@ static fs::path get_deleted_folder_path()
 	return get_save_folder_path() / "deleted";
 }
 
-static int move_to_folder(fs::path path, fs::path dir, std::string stem = "", bool force_suffix = false)
+static bool move_to_folder(fs::path path, fs::path dir, std::string& err, std::string stem = "", bool force_suffix = false)
 {
-	if (!fs::exists(path))
-		return 0;
+	std::error_code ec;
+	if (!fs::exists(path, ec))
+	{
+		if (ec)
+			err = ec.message();
+		else
+			err = "File does not exist";
+		return false;
+	}
 
-	fs::create_directories(dir);
+	fs::create_directories(dir, ec);
+	if (ec)
+	{
+		err = ec.message();
+		return false;
+	}
+
 	auto dest = create_new_file_path(
 		dir,
 		stem.empty() ? path.stem().string() : stem,
 		path.extension().string(),
 		force_suffix);
 
-	std::error_code err;
-	fs::copy(path, dest, err);
-	if (err)
-		return err.value();
+	fs::copy(path, dest, ec);
+	if (ec)
+	{
+		err = ec.message();
+		return false;
+	}
 
-	fs::remove(path);
+	fs::remove(path, ec);
+	if (ec)
+	{
+		err = ec.message();
+		return false;
+	}
+
 #ifdef __EMSCRIPTEN__
 	em_sync_fs();
 #endif
-	return 0;
+	return true;
 }
 
 static fs::path create_path_for_new_save(gamedata_header* header)
@@ -191,6 +213,7 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 	for (int32_t i = 0; i < count; i++)
 	{
 		auto& save = out_saves.emplace_back();
+		save.index = out_saves.size() - 1;
 		save.game = new gamedata();
 		save.header = &save.game->header;
 		gamedata& game = *save.game;
@@ -1473,10 +1496,17 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 	return 0;
 }
 
-static int32_t write_save(save_t* save)
+static bool write_save(save_t* save, std::string& err)
 {
-	if (save->path.empty() || !save->write_to_disk)
-		return 0;
+	if (!save->write_to_disk)
+		return true;
+
+	if (save->path.empty())
+	{
+		err = "Cannot save file without path set";
+		assert(false);
+		return false;
+	}
 
 	std::string tmp_filename = util::create_temp_file_path(save->path.string());
 	PACKFILE *f = pack_fopen(tmp_filename.c_str(), F_WRITE_PACKED);
@@ -1484,29 +1514,30 @@ static int32_t write_save(save_t* save)
 	if (!f)
 	{
 		delete_file(tmp_filename.c_str());
-		return 2;
+		err = "Failed to open file";
+		return false;
 	}
 
-	if (write_save(f, save) != 0)
+	if (int ret = write_save(f, save); ret)
 	{
 		pack_fclose(f);
 		delete_file(tmp_filename.c_str());
-		return 4;
+		err = fmt::format("Failed to save file in write_save, code: {}", ret);
+		return false;
 	}
 
 	pack_fclose(f);
 
 	// Move existing save to backup folder.
 	auto backup_folder_path = get_backup_folder_path() / save->path.stem();
-	move_to_folder(save->path, backup_folder_path, save->path.stem().string() + "-backup", true);
+	move_to_folder(save->path, backup_folder_path, err, save->path.stem().string() + "-backup", true);
 
-	int ret = 0;
 	std::error_code ec;
 	fs::rename(tmp_filename.c_str(), save->path, ec);
 	if (ec)
 	{
-		al_trace("Error saving: %s\n", std::strerror(ec.value()));
-		ret = 5;
+		err = fmt::format("Error saving: %s\n", ec.message());
+		return false;
 	}
 
 #ifdef __EMSCRIPTEN__
@@ -1514,21 +1545,20 @@ static int32_t write_save(save_t* save)
 #endif
 
 	Z_message("write save: %s\n", save->path.string().c_str());
-	return ret;
+	return true;
 }
 
 // call once at startup
-int32_t saves_init()
+void saves_init()
 {
 	saves.clear();
 	currgame = -1;
 	game = new gamedata();
-	return 0;
 }
 
-static int load_from_save_file(ReadMode read_mode, fs::path filename, std::vector<save_t>& out_saves)
+static bool load_from_save_file(ReadMode read_mode, fs::path filename, std::vector<save_t>& out_saves, std::string& err)
 {
-	const char* error;
+	std::string error;
 	int32_t ret;
 	PACKFILE *pf=NULL;
 	char tmpfilename[L_tmpnam];
@@ -1547,7 +1577,7 @@ static int load_from_save_file(ReadMode read_mode, fs::path filename, std::vecto
 
 	if (!exists(filename))
 	{
-		error = "not found";
+		error = "file does not exist";
 		ret = 1;
 		goto cantopen;
 	}
@@ -1602,7 +1632,7 @@ static int load_from_save_file(ReadMode read_mode, fs::path filename, std::vecto
 	if (pf)
 		pack_fclose(pf);
 
-	return 0;
+	return true;
 
 cantopen:
 	{
@@ -1610,35 +1640,32 @@ cantopen:
 			pack_fclose(pf);
 		out_saves.clear();
 
-		enter_sys_pal();
-		char buf[256];
-		snprintf(buf, 256, "Couldn't open %s", filenameCStr);
-		jwin_alert("Can't Open Saved Game File",
-				   buf,
-				   error,
-				   to_string(ret).c_str(),
-				   "OK",NULL,'o',0,get_zc_font(font_lfont));
-		exit_sys_pal();
+		err = fmt::format("Cannot open save file: {}\n{}", filename.string().c_str(), error);
+		return false;
 	}
-
-	return ret;
 }
 
-static int load_from_save_file_expect_one(ReadMode read_mode, fs::path path, save_t& out_save)
+static bool load_from_save_file_expect_one(ReadMode read_mode, fs::path path, save_t& out_save, std::string& err)
 {
 	std::vector<save_t> saves;
-	int ret = load_from_save_file(read_mode, path, saves);
-	if (ret)
-		return ret;
 
-	if (saves.size() != 1)
+	if (!load_from_save_file(read_mode, path, saves, err))
+		return false;
+
+	if (saves.size() > 1)
 	{
-		return 1;
+		err = "Expected one save in this file, but found many";
+		return false;
+	}
+	if (saves.size() == 0)
+	{
+		err = "Expected one save in this file, but found none";
+		return false;
 	}
 
 	out_save = std::move(saves[0]);
 	out_save.path = path;
-	return 0;
+	return true;
 }
 
 bool saves_is_valid_slot(int index)
@@ -1646,22 +1673,32 @@ bool saves_is_valid_slot(int index)
 	return index >= 0 && index < saves.size();
 }
 
-static int get_save(save_t*& out_save, int index, bool full_data)
+template<typename TP>
+static std::time_t to_time_t(TP tp) {
+    using namespace std::chrono;
+    auto sctp = time_point_cast<system_clock::duration>(tp - TP::clock::now() + system_clock::now());
+    return system_clock::to_time_t(sctp);
+}
+
+static bool get_save(save_t*& out_save, int index, bool full_data, std::string& err)
 {
 	if (!saves_is_valid_slot(index))
 	{
-		assert(false);
-		return -1;
+		out_save = nullptr;
+		err = "Invalid save slot index";
+		return false;
 	}
 
 	auto& save = saves[index];
+	save.did_error = false;
+	save.error_time = 0;
 
 	if (full_data)
 	{
 		if (save.game)
 		{
 			out_save = &save;
-			return 0;
+			return true;
 		}
 	}
 	else
@@ -1669,7 +1706,7 @@ static int get_save(save_t*& out_save, int index, bool full_data)
 		if (save.header)
 		{
 			out_save = &save;
-			return 0;
+			return true;
 		}
 	}
 
@@ -1677,39 +1714,47 @@ static int get_save(save_t*& out_save, int index, bool full_data)
 	{
 		if (!save.game)
 		{
-			int ret = load_from_save_file_expect_one(full_data ? ReadMode::All : ReadMode::Header, save.path, save);
-			if (ret)
+			if (!load_from_save_file_expect_one(full_data ? ReadMode::All : ReadMode::Header, save.path, save, err))
 			{
 				out_save = nullptr;
-				return ret;
+				std::error_code ec;
+				auto write_time = fs::last_write_time(save.path, ec);
+				save.error_time = to_time_t(write_time);
+				save.did_error = true;
+				return false;
 			}
 		}
 	}
 
 	out_save = &save;
-	return 0;
+	return true;
 }
 
-static int maybe_split_save_file(fs::path filename)
+static bool ensure_loaded(const save_t* save, std::string& err)
+{
+	save_t* ptr;
+	return get_save(ptr, save->index, true, err);
+}
+
+static bool maybe_split_save_file(fs::path filename, std::string& err)
 {
 	if (!exists(filename))
 	{
-		return 0;
+		err = fmt::format("File does not exist: {}", filename.string());
+		return false;
 	}
 
 	std::vector<save_t> saves;
-	int ret = load_from_save_file(ReadMode::Size, filename, saves);
-	if (ret)
-		return ret;
+	if (!load_from_save_file(ReadMode::Size, filename, saves, err))
+		return false;
 
 	if (saves.size() <= 1)
-		return 0;
+		return true;
 
 	// Load for real.
 	saves.clear();
-	ret = load_from_save_file(ReadMode::All, filename, saves);
-	if (ret)
-		return ret;
+	if (!load_from_save_file(ReadMode::All, filename, saves, err))
+		return false;
 
 	bool errored = false;
 	for (auto& save : saves)
@@ -1718,21 +1763,19 @@ static int maybe_split_save_file(fs::path filename)
 			continue;
 
 		save.path = create_path_for_new_save(save.header);
-		ret = write_save(&save);
-		if (ret) errored = true;
+		if (!write_save(&save, err)) errored = true;
 	}
 
 	if (errored)
-		return ret;
+		return false;
 
-	ret = move_to_folder(filename, get_backup_folder_path());
-	if (ret)
-		return ret;
+	if (!move_to_folder(filename, get_backup_folder_path(), err))
+		return false;
 
-	return 0;
+	return true;
 }
 
-static int split_up_saves()
+static bool split_up_saves(std::string& err)
 {
 	auto dir = get_save_folder_path();
 	std::set<fs::path> paths;
@@ -1748,28 +1791,36 @@ static int split_up_saves()
 
 	for (auto path : paths)
 	{
-		int ret = maybe_split_save_file(path);
-		if (ret)
-			return ret;
+		if (!maybe_split_save_file(path, err))
+			return false;
 	}
 
-	return 0;
+	return true;
 }
 
-static int move_legacy_save_file()
+static bool move_legacy_save_file(std::string& err)
 {
 	auto save_file_path = get_legacy_save_file_path();
 	auto save_folder_path = get_save_folder_path();
 	if (!exists(save_file_path))
-		return 0;
+		return true;
 
-	std::error_code err;
-	fs::copy(save_file_path, save_folder_path, err);
-	if (err)
-		return err.value();
+	std::error_code ec;
+	fs::copy(save_file_path, save_folder_path, ec);
+	if (ec)
+	{
+		err = ec.message();
+		return false;
+	}
 
-	fs::remove(save_file_path);
-	return 0;
+	fs::remove(save_file_path, ec);
+	if (ec)
+	{
+		err = ec.message();
+		return false;
+	}
+
+	return true;
 }
 
 static void do_save_order()
@@ -1791,7 +1842,7 @@ static void do_save_order()
 
 // Creates an empty save_t (no header or gamedata, just path) for every file in the
 // save folder.
-static int init_from_save_folder()
+static bool init_from_save_folder(std::string& err)
 {
 	auto dir = get_save_folder_path();
 	for (const auto & entry : fs::directory_iterator(dir))
@@ -1803,12 +1854,13 @@ static int init_from_save_folder()
 		if (path.extension() == ".sav")
 		{
 			auto& save = saves.emplace_back();
+			save.index = saves.size() - 1;
 			save.path = path;
 		}
 	}
 
 	if (standalone_mode)
-		return 0;
+		return true;
 
 	std::ifstream file(get_save_order_path());
 	std::vector<std::string> lines;
@@ -1840,16 +1892,22 @@ static int init_from_save_folder()
 		do_save_order();
 	}
 
-	return 0;
+	return true;
 }
 
-int32_t saves_load()
+bool saves_load(std::string& err)
 {
 	FFCore.kb_typing_mode = false;
 	FFCore.skip_ending_credits = 0;
-
 	saves.clear();
-	fs::create_directories(get_save_folder_path());
+
+	std::error_code ec;
+	fs::create_directories(get_save_folder_path(), ec);
+	if (ec)
+	{
+		err = ec.message();
+		return false;
+	}
 
 	if (standalone_mode)
 	{
@@ -1857,45 +1915,51 @@ int32_t saves_load()
 		auto path = get_save_folder_path() / standalone_save_path;
 		if (fs::exists(path))
 		{
-			auto& save = saves.emplace_back();
-			save.path = path;
-			return 0;
+			if (auto r = saves_create_slot(path); !r)
+			{
+				err = r.error();
+				return false;
+			}
+			return true;
 		}
 
-		auto& save = saves.emplace_back();
-		save.path = path;
-		save.game = new gamedata();
-		save.header = &save.game->header;
-		save.header->qstpath = standalone_quest.string();
-		save.header->name = get_filename(standalone_quest.string().c_str());
-		saves_do_first_time_stuff(0);
-		return 0;
+		auto standalone_gamedata = new gamedata();
+		standalone_gamedata->header.qstpath = standalone_quest.string();
+		standalone_gamedata->header.name = get_filename(standalone_quest.string().c_str());
+
+		if (auto r = saves_create_slot(standalone_gamedata, path); !r)
+		{
+			err = r.error();
+			return false;
+		}
+
+		return true;
 	}
 
-	int ret = move_legacy_save_file();
-	if (ret)
-		return ret;
+	if (!move_legacy_save_file(err))
+		return false;
 
 	// First check which save files need to be split up into individual files.
-	ret = split_up_saves();
-	if (ret)
-		return ret;
+	if (!split_up_saves(err))
+		return false;
 
 	// Should still be empty.
 	assert(saves.empty());
 
 	// Lastly, just set up the save vector to contain paths.
 	// Each header will get loaded as requested from the title screen. gamedata is read only when needed.
-	return init_from_save_folder();
+	if (!init_from_save_folder(err))
+		return false;
+
+	int index = 0;
+	for (auto& save : saves)
+		save.index = index++;
+
+	return true;
 }
 
-static void update_icon(int index)
+static void update_icon(save_t* save)
 {
-	save_t* save;
-	int ret = get_save(save, index, true);
-	if (ret)
-		return;
-
 	flushItemCache();
 	int32_t maxringid = getHighestLevelOfFamily(save->game, itemsbuf, itype_ring);
 	int32_t ring = 0;
@@ -1977,12 +2041,12 @@ static void update_icon(int index)
 	}
 }
 
-static int32_t do_save_games()
+static bool do_save_games(std::string& err)
 {
 	if (currgame >= 0)
 	{
 		saves[currgame].game->Copy(*game);
-		update_icon(currgame);
+		update_icon(&saves[currgame]);
 	}
 
 	if (currgame >= 0 && save_current_replay_games)
@@ -1991,14 +2055,13 @@ static int32_t do_save_games()
 		fs::create_directories(dir);
 		saves[currgame].path = create_new_file_path(dir, "zc", ".sav", true);
 		saves[currgame].write_to_disk = true;
-		int ret = write_save(&saves[currgame]);
-		if (ret)
-			return ret;
+		if (!write_save(&saves[currgame], err))
+			return false;
 	}
 
 	if (disable_save_to_disk)
 	{
-		return 0;
+		return true;
 	}
 
 	fs::create_directories(get_save_folder_path());
@@ -2008,48 +2071,37 @@ static int32_t do_save_games()
 		if (!save.header || !save.game)
 			continue;
 
-		int ret = write_save(&save);
-		if (ret)
-			return ret;
+		if (!write_save(&save, err))
+			return false;
 	}
 
 	do_save_order();
-	return 0;
+	return true;
 }
 
-int32_t saves_write()
+bool saves_write()
 {
 	Saving = true;
 	if (!is_headless())
 		render_zc();
-	int32_t ret = do_save_games();
+
+	std::string err;
+	bool success = do_save_games(err);
 	Saving = false;
-	// TODO: we should return error messages, not codes.
-	if (ret)
+
+	if (!success)
 	{
 		enter_sys_pal();
-		InfoDialog("Error writing saves", fmt::format("Error code: {}. Check allegro.log for more", ret)).show();
+		InfoDialog("Error writing saves", fmt::format("Error: {}", err)).show();
 		exit_sys_pal();
 	}
-	return ret;
+
+	return success;
 }
 
-bool saves_select(int32_t index)
+static void unload_all_but(int index)
 {
-	currgame = index;
-	if (index >= 0)
-	{
-		save_t* save;
-		int ret = get_save(save, index, true);
-		if (ret)
-			return false;
-
-		game->Copy(*save->game);
-	}
-	else
-		game->Clear();
-
-	// Unload any other games.
+	// Unload any inactive games.
 	for (int i = 0; i < saves.size(); i++)
 	{
 		if (i != index)
@@ -2063,8 +2115,35 @@ bool saves_select(int32_t index)
 			}
 		}
 	}
+}
 
+expected<bool, std::string> saves_select(save_t* save)
+{
+	assert(save);
+
+	std::string err;
+	if (!ensure_loaded(save, err))
+		return make_unexpected(err);
+
+	currgame = save->index;
+	game->Copy(*save->game);
+	unload_all_but(currgame);
 	return true;
+}
+
+expected<save_t*, std::string> saves_select(int32_t index)
+{
+	save_t* save;
+	if (auto r = saves_get_slot(index, true); !r)
+		return make_unexpected(r.error());
+	else
+		save = r.value();
+
+	currgame = save->index;
+	game->Copy(*save->game);
+	unload_all_but(currgame);
+
+	return save;
 }
 
 void saves_unselect()
@@ -2080,6 +2159,8 @@ void saves_unselect()
 		save.game = nullptr;
 	}
 	currgame = -1;
+	game->Clear();
+	unload_all_but(-1);
 }
 
 void saves_unload(int32_t index)
@@ -2113,68 +2194,96 @@ bool saves_is_slot_loaded(int32_t index, bool full_data)
 	return saves[index].header != nullptr;
 }
 
-const save_t* saves_get_slot(int32_t index, bool full_data)
+bool saves_has_error(int32_t index)
+{
+	if (saves.size() <= index)
+		return true;
+
+	auto& save = saves[index];
+	if (save.did_error)
+	{
+		if (save.error_time && fs::exists(save.path))
+		{
+			std::error_code ec;
+			auto write_time = fs::last_write_time(save.path, ec);
+			time_t tt = to_time_t(write_time);
+			return tt == save.error_time;
+		}
+
+		return true;
+	}
+
+	return false;
+}
+
+expected<save_t*, std::string> saves_get_slot(int32_t index, bool full_data)
 {
 	save_t* save;
-	int ret = get_save(save, index, full_data);
-	if (ret)
-		abort();
+
+	std::string err;
+	if (!get_save(save, index, full_data, err))
+		return make_unexpected(err);
 
 	return save;
 }
 
-const save_t* saves_get_current_slot()
-{
-	assert(currgame >= 0);
-	return saves_get_slot(currgame, true);
-}
-
-void saves_delete(int32_t index)
+bool saves_delete(int32_t index, std::string& err)
 {
 	assert(index >= 0 && index < saves.size());
 	auto& save = saves[index];
 
-	int ret = move_to_folder(save.path, get_deleted_folder_path());
-	if (ret)
-		return;
+	if (!move_to_folder(save.path, get_deleted_folder_path(), err))
+		return false;
 
 	saves.erase(saves.begin() + index);
 	do_save_order();
 
+	index = 0;
+	for (auto& save : saves)
+		save.index = index++;
+
 	if(listpos>saves_count()-1)
 		listpos=zc_max(listpos-3,0);
+
+	return true;
 }
 
-void saves_copy(int32_t from_index)
+bool saves_copy(int32_t from_index, std::string& err)
 {
 	auto& new_save = saves.emplace_back();
+	new_save.index = saves.size() - 1;
 
 	save_t* from_save_mut;
-	int ret = get_save(from_save_mut, from_index, true);
-	const save_t* from_save = from_save_mut;
-	if (ret)
+	if (!get_save(from_save_mut, from_index, true, err))
 	{
 		saves.pop_back();
-		return;
+		return false;
 	}
 
+	const save_t* from_save = from_save_mut;
 	new_save.path = create_path_for_new_save(from_save->header);
-	std::error_code err;
-	bool success = fs::copy_file(from_save->path, new_save.path, err);
+	std::error_code ec;
+	bool success = fs::copy_file(from_save->path, new_save.path, ec);
 	if (!success)
 	{
 		saves.pop_back();
-		return;
+		err = ec.message();
+		return false;
 	}
 
 	new_save.header = new gamedata_header(*from_save->header);
 
 	if (!from_save->header->replay_file.empty())
 	{
-		if (std::filesystem::exists(from_save->header->replay_file))
+		if (fs::exists(from_save->header->replay_file))
 		{
 			new_save.header->replay_file = create_replay_path_for_save(*new_save.header);
-			std::filesystem::copy(from_save->header->replay_file, new_save.header->replay_file);
+			fs::copy(from_save->header->replay_file, new_save.header->replay_file, ec);
+			if (ec)
+			{
+				err = ec.message();
+				return false;
+			}
 
 			// Need a new UUID - let's just delete it here and a new one when will be generated when
 			// the copy is played for the first time.
@@ -2195,84 +2304,118 @@ void saves_copy(int32_t from_index)
 	}
 
 	do_save_order();
+	return true;
 }
 
-bool saves_create_slot(gamedata* game, bool write_to_disk)
+expected<save_t*, std::string> saves_create_slot(gamedata* game, fs::path path, bool write_to_disk)
 {
 	auto& save = saves.emplace_back();
+	save.index = saves.size() - 1;
 	save.game = game;
 	save.header = &game->header;
-	save.path = "";
-	save.write_to_disk = write_to_disk;
-	return true;
-}
-
-bool saves_create_slot(fs::path path, bool write_to_disk)
-{
-	if (!fs::exists(path))
-		return false;
-
-	auto& save = saves.emplace_back();
 	save.path = path;
 	save.write_to_disk = write_to_disk;
-	return true;
-}
 
-int saves_do_first_time_stuff(int index)
-{
-	save_t* save;
-	int ret = get_save(save, index, true);
-	if (ret)
-		return ret;
-
-	if (!save->game->get_hasplayed())
+	std::string err;
+	if (!initialize_new_save(&save, err))
 	{
-		if (save->write_to_disk)
-		{
-			// Save file may have already been set but now the player is changing the quest path.
-			// Since this hasn't been played yet, this save file is useless, so just delete it.
-			if (!save->path.empty() && fs::exists(save->path))
-				fs::remove(save->path);
-			save->path = create_path_for_new_save(save->header);
-		}
-
-		save->game->set_quest(save->game->header.qstpath.ends_with("classic_1st.qst") ? 1 : 0xFF);
-
-		// Try to make relative to qstdir.
-		// TODO: this is a weird place to do this.
-		std::string rel_dir = (fs::current_path() / fs::path(qstdir)).string();
-		auto maybe_rel_qstpath = util::is_subpath_of(rel_dir, save->game->header.qstpath) ?
-			fs::relative(save->game->header.qstpath, rel_dir) :
-			fs::path(save->game->header.qstpath);
-		save->game->header.qstpath = maybe_rel_qstpath.string();
-
-		ret = load_quest(save->game);
-		if (ret)
-			return ret;
-		
-		save->game->set_maxlife(zinit.mcounter[crLIFE]);
-		save->game->set_life(zinit.mcounter[crLIFE]);
-		save->game->set_hp_per_heart(zinit.hp_per_heart);
-		save->game->header.life = save->game->get_life();
-		save->game->header.maxlife = save->game->get_maxlife();
-		save->game->header.hp_per_heart_container = save->game->get_hp_per_heart();
-
-		if (standalone_mode)
-		{
-			// Why does the continue screen need set when
-			// everything else gets set automatically?
-			save->game->set_continue_dmap(0);
-			save->game->set_continue_scrn(0xFF);
-			save->game->set_hasplayed(false);
-		}
-
-		update_icon(index);
-		if (save->path.empty())
-			save->path = create_path_for_new_save(save->header);
-		return saves_write();
+		saves.pop_back();
+		return make_unexpected(err);
 	}
 
-	return 0;
+	return &save;
+}
+
+expected<save_t*, std::string> saves_create_slot(fs::path path, bool write_to_disk)
+{
+	if (!fs::exists(path))
+		return make_unexpected(fmt::format("file not found: {}", path.string()));
+
+	auto& save = saves.emplace_back();
+	save.index = saves.size() - 1;
+	save.path = path;
+	save.write_to_disk = write_to_disk;
+
+	return &save;
+}
+
+save_t* saves_create_test_slot(gamedata* game, fs::path path)
+{
+	auto& save = saves.emplace_back();
+	save.index = saves.size() - 1;
+	save.path = path;
+	save.write_to_disk = false;
+	if (game)
+	{
+		save.game = game;
+		save.header = &game->header;
+	}
+
+	return &save;
+}
+
+static bool initialize_new_save(save_t* save, std::string& err)
+{
+	assert(save);
+	assert(!save->header->has_played);
+
+	if (!ensure_loaded(save, err))
+		return false;
+
+	int ret = load_quest(save->game);
+	if (ret)
+	{
+		if (ret != qe_cancel)
+			err = fmt::format("load_quest error code: {} ({})", qst_error[ret], ret);
+		return false;
+	}
+
+	if (save->write_to_disk)
+	{
+		if (!save->path.empty() && fs::exists(save->path))
+		{
+			err = fmt::format("Save file already exists, can't make a new save slot: {}", save->path.string());
+			return false;
+		}
+
+		if (save->path.empty())
+			save->path = create_path_for_new_save(save->header);
+	}
+
+	// Try to make relative to qstdir.
+	// TODO: this is a weird place to do this.
+	std::string rel_dir = (fs::current_path() / fs::path(qstdir)).string();
+	auto maybe_rel_qstpath = util::is_subpath_of(rel_dir, save->game->header.qstpath) ?
+		fs::relative(save->game->header.qstpath, rel_dir) :
+		fs::path(save->game->header.qstpath);
+	save->game->header.qstpath = maybe_rel_qstpath.string();
+
+	save->game->set_maxlife(zinit.mcounter[crLIFE]);
+	save->game->set_life(zinit.mcounter[crLIFE]);
+	save->game->set_hp_per_heart(zinit.hp_per_heart);
+	save->game->header.life = save->game->get_life();
+	save->game->header.maxlife = save->game->get_maxlife();
+	save->game->header.hp_per_heart_container = save->game->get_hp_per_heart();
+
+	if (standalone_mode)
+	{
+		// Why does the continue screen need set when
+		// everything else gets set automatically?
+		save->game->set_continue_dmap(0);
+		save->game->set_continue_scrn(0xFF);
+		save->game->set_hasplayed(false);
+	}
+
+	update_icon(save);
+
+	unload_all_but(save->index);
+	if (save->write_to_disk)
+	{
+		if (!do_save_games(err))
+			return false;
+	}
+
+	return true;
 }
 
 void saves_enable_save_current_replay()
@@ -2338,33 +2481,30 @@ bool saves_test()
 	save.path = "test.sav";
 	save.write_to_disk = true;
 
-	if (write_save(&save))
+	std::string err;
+	if (!write_save(&save, err))
 	{
-		printf("failed: write_save\n");
-		delete game;
+		printf("failed write_save: %s\n", err.c_str());
 		return false;
 	}
 
 	save.game = nullptr;
 	save.header = nullptr;
 
-	if (load_from_save_file_expect_one(ReadMode::All, save.path, save))
+	if (!load_from_save_file_expect_one(ReadMode::All, save.path, save, err))
 	{
-		printf("failed: load_from_save_file_expect_one\n");
-		delete game;
+		printf("failed load_from_save_file_expect_one: %s\n", err.c_str());
 		return false;
 	}
 
 	#define SAVE_TEST_FIELD(field) if (!gd_compare(game->field, save.game->field)) {\
 		printf("game->%s != save.game->%s\n", #field, #field);\
 		printf("%s\n", fmt::format("{} != {}", game->field, save.game->field).c_str());\
-		delete game;\
 		return false;\
 	}
 
 	#define SAVE_TEST_FIELD_NOFMT(field) if (!gd_compare(game->field, save.game->field)) {\
 		printf("game->%s != save.game->%s\n", #field, #field);\
-		delete game;\
 		return false;\
 	}
 
@@ -2372,7 +2512,6 @@ bool saves_test()
 		if (!gd_compare(game->field[i], save.game->field[i])) {\
 			printf("game->%s[%d] != save.game->%s[%d]\n", #field, i, #field, i);\
 			printf("%s\n", fmt::format("{} != {}", game->field[i], save.game->field[i]).c_str());\
-			delete game;\
 			return false;\
 		}\
 	}
@@ -2380,7 +2519,6 @@ bool saves_test()
 	#define SAVE_TEST_VECTOR_NOFMT(field) for (int i = 0; i < game->field.size(); i++) {\
 		if (!gd_compare(game->field[i], save.game->field[i])) {\
 			printf("game->%s[%d] != save.game->%s[%d]\n", #field, i, #field, i);\
-			delete game;\
 			return false;\
 		}\
 	}
@@ -2390,7 +2528,6 @@ bool saves_test()
 			if (!gd_compare(game->field[i][j], save.game->field[i][j])) {\
 				printf("game->%s[%d][%d] != save.game->%s[%d][%d]\n", #field, i, j, #field, i, j);\
 				printf("%s\n", fmt::format("{} != {}", game->field[i][j], save.game->field[i][j]).c_str());\
-				delete game;\
 				return false;\
 			}\
 		}\
@@ -2403,7 +2540,6 @@ bool saves_test()
 		if (!gd_compare(game->field[i], save.game->field[i])) {\
 			printf("game->%s[%d] != save.game->%s[%d]\n", #field, i, #field, i);\
 			printf("%s\n", fmt::format("{} != {}", game->field[i], save.game->field[i]).c_str());\
-			delete game;\
 			return false;\
 		}\
 	}
@@ -2411,7 +2547,6 @@ bool saves_test()
 	#define SAVE_TEST_ARRAY_NOFMT(field) for (int i = 0; i < countof(game->field); i++) {\
 		if (!gd_compare(game->field[i], save.game->field[i])) {\
 			printf("game->%s[%d] != save.game->%s[%d]\n", #field, i, #field, i);\
-			delete game;\
 			return false;\
 		}\
 	}
@@ -2421,7 +2556,6 @@ bool saves_test()
 			if (!gd_compare(game->field[i][j], save.game->field[i][j])) {\
 				printf("game->%s[%d][%d] != save.game->%s[%d][%d]\n", #field, i, j, #field, i, j);\
 				printf("%s\n", fmt::format("{} != {}", game->field[i][j], save.game->field[i][j]).c_str());\
-				delete game;\
 				return false;\
 			}\
 		}\
@@ -2431,7 +2565,6 @@ bool saves_test()
 		for (int j = 0; j < countof(game->field[0]); j++) {\
 			if (!gd_compare(game->field[i][j], save.game->field[i][j])) {\
 				printf("game->%s[%d][%d] != save.game->%s[%d][%d]\n", #field, i, j, #field, i, j);\
-				delete game;\
 				return false;\
 			}\
 		}\
@@ -2478,7 +2611,6 @@ bool saves_test()
 	if (game->saved_mirror_portal != save.game->saved_mirror_portal)
 	{
 		printf("game->saved_mirror_portal != save.game->saved_mirror_portal\n");
-		delete game;
 		return false;
 	}
 
@@ -2500,7 +2632,6 @@ bool saves_test()
 	if (game->header != save.game->header)
 	{
 		printf("game->header != save.game->header\n");
-		delete game;
 		return false;
 	}
 
@@ -2509,12 +2640,9 @@ bool saves_test()
 	if (*game != *save.game)
 	{
 		printf("game != save.game\n");
-		delete game;
 		return false;
 	}
 #endif
 
-	delete game;
 	return true;
 }
-

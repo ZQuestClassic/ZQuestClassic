@@ -2,6 +2,7 @@
 #define ZC_SAVES_H_
 
 #include "gamedata.h"
+#include "base/expected.h"
 #include <filesystem>
 
 namespace fs = std::filesystem;
@@ -9,6 +10,10 @@ namespace fs = std::filesystem;
 // Non-copyable, moveable.
 struct save_t
 {
+	uint16_t index;
+	// If >0, there was an error when reading this save file. This is the mtime of the file at that time.
+	time_t error_time = 0;
+	bool did_error = false;
 	fs::path path;
 	bool write_to_disk = true;
 	// If loaded is false, this is null.
@@ -38,23 +43,24 @@ struct save_t
 	void unload();
 };
 
-int32_t saves_init();
-int32_t saves_load();
-int32_t saves_write();
-bool saves_select(int32_t index);
+void saves_init();
+bool saves_load(std::string& err);
+bool saves_write();
+expected<bool, std::string> saves_select(save_t* save);
+expected<save_t*, std::string> saves_select(int32_t index);
 void saves_unselect();
 void saves_unload(int32_t index);
 int32_t saves_count();
 int32_t saves_current_selection();
-bool saves_create_slot(gamedata* game, bool write_to_disk = true);
-bool saves_create_slot(fs::path path, bool write_to_disk = true);
+expected<save_t*, std::string> saves_create_slot(gamedata* game, fs::path path = "", bool write_to_disk = true);
+expected<save_t*, std::string> saves_create_slot(fs::path path, bool write_to_disk = true);
+save_t* saves_create_test_slot(gamedata* game, fs::path path);
 bool saves_is_slot_loaded(int32_t index, bool full_data = false);
-const save_t* saves_get_slot(int32_t index, bool full_data = false);
+bool saves_has_error(int32_t index);
+expected<save_t*, std::string> saves_get_slot(int32_t index, bool full_data = false);
 bool saves_is_valid_slot(int index);
-const save_t* saves_get_current_slot();
-void saves_delete(int32_t index);
-void saves_copy(int32_t from_index);
-int saves_do_first_time_stuff(int index);
+bool saves_delete(int32_t index, std::string& err);
+bool saves_copy(int32_t from_index, std::string& err);
 void saves_enable_save_current_replay();
 bool saves_test();
 

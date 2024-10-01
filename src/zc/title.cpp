@@ -46,9 +46,6 @@
 extern int32_t loadlast;
 extern int32_t skipcont;
 extern zcmodule moduledata;
-bool load_custom_game(int32_t file);
-
-static bool chosecustomquest = false;
 
 static void select_mode()
 {
@@ -140,7 +137,6 @@ static void selectscreen()
 		pan_style = (int32_t)FFCore.usr_panstyle;
 	}
 	FFCore.skip_ending_credits = 0;
-	//  text_mode(0);
 	init_NES_mode();
 	loadfullpal();
 	loadlvlpal(1);
@@ -346,14 +342,27 @@ static void list_saves()
 	for(int32_t i=0; i<3; i++)
 	{
 		int j = listpos+i;
-		if (j < savecnt)
-			saves_get_slot(j);
+		if (j >= savecnt)
+			continue;
+
+		if (saves_has_error(j))
+			continue;
+
+		if (auto r = saves_get_slot(j); !r)
+		{
+			enter_sys_pal();
+			InfoDialog("Error loading save file", r.error()).show();
+			exit_sys_pal();
+		}
 	}
 
 	// Check if any loaded quests is the 4th quest.
 	for(int32_t i=0; i<savecnt; i++)
 	{
-		if (saves_is_slot_loaded(i) && saves_get_slot(i)->header->quest == 4)
+		if (!saves_is_slot_loaded(i))
+			continue;
+
+		if (auto r = saves_get_slot(i); r && r.value()->header->quest == 4)
 		{
 			red = true;
 			break;
@@ -364,8 +373,16 @@ static void list_saves()
 	
 	for(int32_t i=0; i<3; i++)
 	{
-		if (listpos+i < savecnt)
-			list_save(saves_get_slot(listpos+i)->header, listpos+i, i*24+56);
+		int slot = listpos+i;
+		if (!saves_is_slot_loaded(slot))
+			continue;
+
+		save_t* save;
+		if (auto r = saves_get_slot(slot); !r)
+			continue;
+		else save = r.value();
+
+		list_save(save->header, slot, i*24+56);
 	}
 	
 	// Draw the arrows above the lifemeter!
@@ -811,53 +828,25 @@ static bool register_name()
 				break;
 			}
 		}
-		/*
-		if(!stricmp(buf,moduledata.skipnames[1]))
-			quest=2;
-			
-		if(!stricmp(buf,moduledata.skipnames[2]))
-			quest=3;
-			
-		if(!stricmp(buf,moduledata.skipnames[3]))
-			quest=4;
-		   
-		if(!stricmp(buf,moduledata.skipnames[4])) // This is what BigJoe wanted. I have no problem with it.
-			quest=5;
-		*/
 		new_game->set_quest(quest);
+		new_game->set_timevalid(1);
 		game->header.qstpath.clear();
-		
-		int32_t ret = load_quest(new_game);
-		
-		if(ret==qe_OK)
+
+		if (auto r = saves_create_slot(new_game); !r)
 		{
-			new_game->set_maxlife(zinit.mcounter[crLIFE]);
-			new_game->set_life(zinit.mcounter[crLIFE]);
-			new_game->set_hp_per_heart(zinit.hp_per_heart);
-			selectscreen();                                       // refresh palette
-			if (!saves_create_slot(new_game))
+			cancel = true;
+			ringcolor(false);
+
+			// Could have been canceled in the file dialog, in which case there is no error message.
+			if (!r.error().empty())
 			{
-				cancel = true;
 				enter_sys_pal();
-				InfoDialog("Error creating save", ":(").show();
+				InfoDialog("Error creating save file", r.error()).show();
 				exit_sys_pal();
 			}
-			else
-			{
-				ringcolor(false);
-			}
 		}
-		else
-		{
-			ringcolor(true);
-			cancel = true;
-		}
-		
-		//setPackfilePassword(NULL);
-		new_game->set_timevalid(1);
 	}
-	
-	if (x<0 || cancel)
+	else
 	{
 		delete new_game;
 		new_game = nullptr;
@@ -875,18 +864,22 @@ static bool register_name()
 static bool copy_file(int32_t file)
 {
 	int savecnt = saves_count();
+	if (file >= savecnt)
+		return false;
 
-	if (file < savecnt)
+	std::string err;
+	if (!saves_copy(file, err))
 	{
-		saves_copy(file);
-
-		listpos=((saves_count()-1)/3)*3;
-		sfx(WAV_SCALE);
-		select_mode();
-		return true;
+		enter_sys_pal();
+		InfoDialog("Error copying save", err).show();
+		exit_sys_pal();
+		return false;
 	}
 
-	return false;
+	listpos=((saves_count()-1)/3)*3;
+	sfx(WAV_SCALE);
+	select_mode();
+	return true;
 }
 
 static bool delete_save(int32_t file)
@@ -895,7 +888,15 @@ static bool delete_save(int32_t file)
 
 	if (file < savecnt)
 	{
-		saves_delete(file);
+		std::string err;
+		if (!saves_delete(file, err))
+		{
+			enter_sys_pal();
+			InfoDialog("Error deleting save", err).show();
+			exit_sys_pal();
+			return false;
+		}
+
 		--savecnt;
 		if(listpos>savecnt-1)
 			listpos=zc_max(listpos-3,0);
@@ -977,52 +978,34 @@ static int32_t get_quest_info(zquestheader *header,char *str)
 	return 1;
 }
 
-bool load_custom_game(int32_t file)
-{
-	auto save = saves_get_slot(file);
-
-	if (!save->header->has_played)
-	{
-		if (chosecustomquest || standalone_mode)
-		{
-			chosecustomquest = false;
-			return true;
-		}
-	}
-
-	return false;
-}
-
-int32_t custom_game(int32_t file)
+bool prompt_for_quest_path(std::string current_qstpath)
 {
 	if (!only_qstpath.empty())
 	{
 		strcpy(qstpath, only_qstpath.c_str());
-		chosecustomquest = true;
 		return true;
 	}
 
 	zquestheader h;
 	char infostr[200];
+	infostr[0] = '\0';
 	int32_t ret=0; 
 	int32_t focus_obj = 1; //Fixes the issue where the button tied to the enter key is stuck on 'browse'.
 
-	auto header = saves_get_slot(file)->header;
-
 	bool jump_to_file_select = false;
-	if (header->qstpath.empty())
+	if (current_qstpath.empty())
 	{
 		jump_to_file_select = true;
 	}
-	else if (is_relative_filename(header->qstpath.c_str()))
+	else if (is_relative_filename(current_qstpath.c_str()))
 	{
 		// TODO: make `qstpath` use type fs::path
-		auto qstpath_fs = fs::path(qstdir) / fs::path(header->qstpath);
+		auto qstpath_fs = fs::path(qstdir) / fs::path(current_qstpath);
 		sprintf(qstpath, "%s", qstpath_fs.string().c_str());
 	}
 	else
 	{
-		sprintf(qstpath, "%s", header->qstpath.c_str());
+		sprintf(qstpath, "%s", current_qstpath.c_str());
 	}
 	char relpath[2048];
 	relativize_path(relpath, qstpath);
@@ -1030,7 +1013,7 @@ int32_t custom_game(int32_t file)
 	gamemode_dlg[0].dp2 = get_zc_font(font_lfont);
 	gamemode_dlg[2].dp = relpath;
 	
-	if(get_quest_info(&h,infostr)==0)
+	if (!current_qstpath.empty() && get_quest_info(&h,infostr)==0)
 	{
 		gamemode_dlg[4].dp = infostr;
 		gamemode_dlg[5].flags = D_DISABLED;
@@ -1041,9 +1024,6 @@ int32_t custom_game(int32_t file)
 		gamemode_dlg[5].flags = D_EXIT;
 	}
 	
-	if(byte(header->quest-1) < moduledata.max_quest_files)
-		strcpy(qstpath,qstdir);
-	
 	gamemode_dlg[2].d1 = gamemode_dlg[4].d1 = 0;
 	gamemode_dlg[2].d2 = gamemode_dlg[4].d2 = 0;
 	enter_sys_pal();
@@ -1052,7 +1032,7 @@ int32_t custom_game(int32_t file)
 	
 	large_dialog(gamemode_dlg);
    
-	bool customized = false;
+	bool chose_quest = false;
 	while(jump_to_file_select || (ret=do_zqdialog(gamemode_dlg,focus_obj))==1)
 	{
 		jump_to_file_select = false;
@@ -1068,7 +1048,7 @@ int32_t custom_game(int32_t file)
 		if (auto result = prompt_for_existing_file("Load Quest", "", list, qstpath))
 		{
 			std::string path = *result;
-			customized = true;
+			chose_quest = true;
 			replace_extension(qstpath,path.data(),"qst",2047);
 			gamemode_dlg[2].dp = get_filename(qstpath);
 			
@@ -1088,44 +1068,41 @@ int32_t custom_game(int32_t file)
 			gamemode_dlg[2].d1 = gamemode_dlg[4].d1 = 0;
 			gamemode_dlg[2].d2 = gamemode_dlg[4].d2 = 0;
 		}
+		else if (current_qstpath.empty())
+		{
+			break;
+		}
 		
 		blit(tmp_scr,screen,0,0,scrx,scry,320,240);
 	}
-	if(!customized) strcpy(qstpath, relpath);
-	else
+
+	exit_sys_pal();
+	key[KEY_ESC]=0;
+
+	chose_quest = ret == 5 && chose_quest;
+	if (chose_quest)
 	{
 		// Try to make relative to qstdir.
 		// TODO: this is copied from saves_do_first_time_stuff
 		std::string rel_dir = (fs::current_path() / fs::path(qstdir)).string();
 		auto maybe_rel_qstpath = util::is_subpath_of(rel_dir, qstpath) ? fs::relative(qstpath, rel_dir) : qstpath;
-		saves_get_slot(file, true)->game->set_qstpath(maybe_rel_qstpath.string());
-		if (saves_do_first_time_stuff(file))
-		{
-			enter_sys_pal();
-			InfoDialog("Error creating save", "saves_do_first_time_stuff failed :(").show();
-			exit_sys_pal();
-		}
+		strcpy(qstpath, maybe_rel_qstpath.string().c_str());
 	}
 
-	exit_sys_pal();
-	key[KEY_ESC]=0;
-	chosecustomquest = (ret==5) && customized;
-	return customized;
+	return chose_quest;
 }
 
-static int32_t game_details(int32_t file)
+static int32_t game_details(save_t* save)
 {
-	if (file >= saves_count())
+	if (!save)
 		return 0;
 
-	al_trace("Running game_details(int32_t file)\n");
-	int32_t pos=file%3;
-
-	const auto header = saves_get_slot(file)->header;
+	const auto header = save->header;
 
 	if (header->quest==0)
 		return 0;
 
+	int32_t pos=save->index%3;
 	BITMAP *info = create_bitmap_ex(8,168,32);
 	clear_bitmap(info);
 	blit(framebuf,info,40,pos*24+70,0,0,168,26);
@@ -1165,7 +1142,7 @@ static int32_t game_details(int32_t file)
 	}
 	
 	if(!header->has_played)
-		textout_ex(framebuf,get_zc_font(font_zfont),"Empty Game",120,120,1,0);
+		textout_ex(framebuf,get_zc_font(font_zfont),"Not Started",120,120,1,0);
 	else if(!header->time_valid)
 		textout_ex(framebuf,get_zc_font(font_zfont),"Time Unknown",120,120,1,0);
 	else
@@ -1200,34 +1177,26 @@ static int32_t game_details(int32_t file)
 		// TODO: consider allowing qst file to be reconfigured, in case it is moved.
 		if(rAbtn() && !header->has_played)
 		{
-			(void)custom_game(file);
-		}
-		
-		if(chosecustomquest && load_custom_game(file))
-		{
-			selectscreen();
-			return 0;
+			if (prompt_for_quest_path(save->header->qstpath))
+			{
+				save->header->qstpath = qstpath;
+				break;
+			}
 		}
 	}
 	
 	return 0;
 }
 
+// The save slot that the title screen cursor is currently on.
 static int32_t saveslot = -1;
 
-int32_t getsaveslot()
+save_t* get_unset_save_slot()
 {
-	if (saveslot >= 0 && saveslot < saves_count())
-	{
-		const auto header = saves_get_slot(saveslot)->header;
-		if (!header->quest || header->has_played)
-		{
-			return -1;
-		}
-		return saveslot;
-	}
-	
-	return -1;
+	if (auto r = saves_get_slot(saveslot); r && r.value()->header->quest && r.value()->header->has_played)
+		return r.value();
+
+	return nullptr;
 }
 
 static int last_slot_pos;
@@ -1238,7 +1207,7 @@ static void select_game(bool skip = false)
 
 	int32_t pos = last_slot_pos;
 	int32_t mode = 0;
-	saves_select(-1);
+	saves_unselect();
 	
 	//kill_sfx();
 	
@@ -1247,10 +1216,11 @@ static void select_game(bool skip = false)
 	
 	if (saves_count() == 0)
 		pos=3;
-		
+
+	saveslot = pos + listpos;
+
 	bool done=false;
 	refreshpal=true;
-	bool popup_choose_quest = false;
 	do
 	{
 		if (keypressed())
@@ -1281,24 +1251,25 @@ static void select_game(bool skip = false)
 		draw_cursor(pos,mode);
 		advanceframe(true);
 		load_control_state();
+
 		saveslot = pos + listpos;
 
 		if(!load_qstpath.empty())
 		{
 			if (register_name())
 			{
-				strcpy(qstpath, load_qstpath.c_str());
-				if (saves_do_first_time_stuff(saves_count() - 1))
+				if (auto r = saves_select(saveslot); !r)
 				{
 					enter_sys_pal();
-					InfoDialog("Error creating save", "saves_do_first_time_stuff failed :(").show();
+					InfoDialog("Error loading save", r.error()).show();
 					exit_sys_pal();
+					continue;
 				}
 				else
 				{
-					saves_select(saves_count() - 1);
 					loadlast = saves_current_selection() + 1;
 				}
+
 				break;
 			}
 			else
@@ -1306,38 +1277,20 @@ static void select_game(bool skip = false)
 				load_qstpath = "";
 			}
 		}
-
-		if(popup_choose_quest)
-		{
-			bool is_custom = custom_game(saveslot);
-
-			auto save = saves_get_slot(saveslot);
-			if (!save->header->has_played)
-			{
-				if (saves_do_first_time_stuff(saveslot))
-				{
-					enter_sys_pal();
-					InfoDialog("Error creating save", "saves_do_first_time_stuff failed :(").show();
-					exit_sys_pal();
-				}
-				if (is_custom)
-					init_NES_mode();
-			}
-
-			popup_choose_quest = false;
-		}
 		
 		if(rSbtn())
 			switch(pos)
 			{
 			case 3:
 				if(!register_name())
+				{
+					// canceled.
 					pos = 3;
+				}
 				else
 				{
+					// new save slot was created, and has a qstpath set.
 					pos = (saves_count()-1)%3;
-					
-					popup_choose_quest = true;
 				}
 				refreshpal=true;
 				break;
@@ -1371,16 +1324,20 @@ static void select_game(bool skip = false)
 				if (saveslot < saves_count()) switch(mode)
 				{
 				case 0:
-					// TODO: this is being called too much!
-					if (saves_select(saveslot))
+					if (auto r = saves_select(saveslot); !r)
+					{
+						enter_sys_pal();
+						InfoDialog("Error loading save file", r.error()).show();
+						exit_sys_pal();
+					}
+					else
 					{
 						loadlast = saves_current_selection() + 1;
-						if (saves_get_slot(saveslot)->header->quest)
+						if (r.value()->header->quest)
 							done=true;
 					}
-
 					break;
-					
+
 				case 2:
 					if(copy_file(saveslot))
 					{
@@ -1395,10 +1352,10 @@ static void select_game(bool skip = false)
 					if(delete_save(saveslot))
 					{
 						mode=0;
-						pos=3;
 						refreshpal=true;
 					}
-					
+
+					pos = 5;
 					break;
 				}
 			}
@@ -1449,21 +1406,22 @@ static void select_game(bool skip = false)
 		
 		if(rAbtn() && !mode && pos<3)
 		{
-			if(game_details(saveslot))
+			if (auto r = saves_get_slot(saveslot); !r)
 			{
-				saves_select(saveslot);
-				loadlast = saves_current_selection() + 1;
-				
-				if (saves_get_slot(saveslot)->header->quest)
-					done=true;
+				enter_sys_pal();
+				InfoDialog("Error loading save", r.error()).show();
+				exit_sys_pal();
 			}
-		}
-		
-		if(chosecustomquest)
-		{
-			load_custom_game(saveslot);
-			chosecustomquest = false;
-			selectscreen();
+			else
+			{
+				save_t* save = r.value();
+				if (game_details(save) && saves_select(save))
+				{
+					loadlast = saves_current_selection() + 1;
+					if (save->header->quest)
+						done=true;
+				}
+			}
 		}
 	}
 	while(!Quit && !done);
@@ -1634,14 +1592,9 @@ void titlescreen(int32_t lsave)
 		{
 			if(slot_arg)
 			{
-				saves_select(slot_arg2 - 1);
-				if (saves_current_selection() > saves_count()-1)
-				{
-					slot_arg = 0;
-					saves_select(0);
-					select_game(q==qRELOAD);
-				}
-				
+				int slot = slot_arg2 - 1;
+				if (auto r = saves_select(slot); !r)
+					Z_error_fatal("Cannot load slot %d, error %s:", slot, r.error().c_str());
 				slot_arg = 0;
 			}
 			else
@@ -1652,15 +1605,8 @@ void titlescreen(int32_t lsave)
 		else
 		{
 			int slot = lsave - 1;
-			if (!saves_is_valid_slot(slot))
-			{
-				Z_error_fatal("Cannot load slot %d, does not exist", lsave);
-			}
-
-			if (saves_get_slot(slot)->header->quest)
-			{
-				saves_select(slot);
-			}
+			if (auto r = saves_select(slot); !r)
+				Z_error_fatal("Cannot load slot %d, error %s:", slot, r.error().c_str());
 		}
 	}
 

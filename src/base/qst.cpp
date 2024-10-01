@@ -22359,6 +22359,7 @@ int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc,
 
 	_is_loading_quest = true;
 	auto start = std::chrono::steady_clock::now();
+	zprint2("Loading qst: %s\n", filename);
 	int32_t ret = _lq_int(filename, Header, Misc, tunes, show_progress, skip_flags, printmetadata);
 	int32_t load_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
 	zprint2("Time to load qst: %d ms\n", load_ms);

@@ -1,6 +1,7 @@
 #include "zc/zc_sys.h"
 
 #include "allegro/gfx.h"
+#include "allegro/gui.h"
 #include "allegro5/joystick.h"
 #include "base/files.h"
 #include "base/render.h"
@@ -4881,13 +4882,17 @@ int32_t TriforceCount()
 
 int32_t onCustomGame()
 {
-	int32_t file =  getsaveslot();
-	
-	if(file < 0)
+	auto save = get_unset_save_slot();
+	if (!save)
+		return D_CLOSE;
+
+	if (prompt_for_quest_path(save->header->qstpath))
+	{
+		save->header->qstpath = qstpath;
 		return D_O_K;
-		
-	bool ret = (custom_game(file)!=0);
-	return ret ? D_CLOSE : D_O_K;
+	}
+
+	return D_CLOSE;
 }
 
 int32_t onContinue()
@@ -7626,7 +7631,7 @@ void System()
 	#if DEVLEVEL > 1
 	dev_menu.disable_uid(MENUID_DEV_SETCHEAT, !Playing);
 	#endif
-	game_menu.disable_uid(MENUID_GAME_LOADQUEST, getsaveslot() < 0);
+	game_menu.disable_uid(MENUID_GAME_LOADQUEST, get_unset_save_slot());
 	game_menu.disable_uid(MENUID_GAME_ENDGAME, !Playing);
 	misc_menu.disable_uid(MENUID_MISC_QUEST_INFO, !Playing);
 	misc_menu.disable_uid(MENUID_MISC_QUEST_DIR, Playing);
