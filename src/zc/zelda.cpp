@@ -431,38 +431,12 @@ void initZScriptArrayRAM(bool firstplay)
         arrayOwner[i].clear();
     }
     
-    if(game->globalRAM.size() != 0)
-        game->globalRAM.clear();
-        
-    if(firstplay)
-    {
-        //leave to global script ~Init to allocate global memory first time round
-        game->globalRAM.resize(getNumGlobalArrays());
-    }
-    else
-    {
-        //allocate from save file
-        game->globalRAM.resize(saves_get_current_slot()->game->globalRAM.size());
-        
-        for(dword i = 0; i < game->globalRAM.size(); i++)
-        {
-#ifdef _DEBUGARRAYALLOC
-            al_trace("Global Array: %i\n",i);
-#endif
-            const ZScriptArray &from = saves_get_current_slot()->game->globalRAM[i];
-            ZScriptArray &to = game->globalRAM[i];
-            to.Resize(from.Size());
-			to.setValid(from.Valid());
-            
-            for(dword j = 0; j < from.Size(); j++)
-            {
-#ifdef _DEBUGARRAYALLOC
-                al_trace("Element: %i\nInit: %i, From save file: %i\n", j, to[j], from[j]);
-#endif
-                to[j] = from[j];
-            }
-        }
-    }
+    if (!firstplay)
+		return;
+
+	//leave to global script ~Init to allocate global memory first time round
+	game->globalRAM.clear();
+	game->globalRAM.resize(getNumGlobalArrays());
 }
 
 void initZScriptGlobalRAM()
@@ -1405,8 +1379,17 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 
 	if (g->header.qstpath.empty() && !qst_num)
 	{
-		// We will open the file select dialog to show the quest directory.
-		return 0;
+		bool chose = prompt_for_quest_path("");
+		if (chose)
+			g->header.qstpath = qstpath;
+		else
+			return qe_cancel;
+	}
+
+	if (!qst_num)
+	{
+		qst_num = g->header.qstpath.ends_with("classic_1st.qst") ? 1 : 0xFF;
+		g->set_quest(qst_num);
 	}
 
 	if (g->header.qstpath.empty() && qst_num)
@@ -1695,18 +1678,17 @@ void init_game_vars(bool is_cont_game = false)
 
 int32_t init_game()
 {
+	if (saves_current_selection() == -1)
+		Z_error_fatal("Failed to load save: init_game\n");
+	if (auto r = saves_select(saves_current_selection()); !r)
+		Z_error_fatal("Failed to load save slot: %s\n", r.error().c_str());
+
 	if(clearConsoleOnLoad)
 		clearConsole();
 	GameLoaded = true;
 	init_game_vars();
-
-	//Copy saved data to RAM data (but not global arrays)
-	// TODO: this is called twice (copying lots of data) when selecting a save slot. See title.cpp
-	if (!saves_select(saves_current_selection()))
-	{
-		Z_error_fatal("Failed to load save file\n");
-	}
 	game->load_user_objects();
+
 	bool firstplay = (game->get_hasplayed() == 0);
 
 	// The following code is the setup for recording a save file, enabled via "replay_new_saves" config.
@@ -4239,13 +4221,18 @@ int main(int argc, char **argv)
 		}
 
 		gamedata* new_game = new gamedata();
-		new_game->header.name = "newsave";
+		new_game->header.name = "hiro";
 		new_game->header.qstpath = argv[create_save_arg + 1];
-		saves_create_slot(new_game);
-		int ret = saves_do_first_time_stuff(saves_count() - 1);
-		if (ret)
-			printf("failed to save: %d\n", ret);
-		exit(ret ? 1 : 0);
+		new_game->set_maxlife(3*16);
+		new_game->set_life(3*16);
+		new_game->set_maxbombs(8);
+		new_game->set_continue_dmap(0);
+		new_game->set_continue_scrn(0xFF);
+
+		if (auto r = saves_create_slot(new_game); !r)
+			Z_error_fatal("failed to create save file: %s\n", r.error().c_str());
+
+		exit(0);
 	}
 
 	bool onlyInstance=true;
@@ -4923,20 +4910,15 @@ int main(int argc, char **argv)
 		if (temppath[0] != 0)
 			rel_qstpath = temppath;
 
-		int ret = saves_load();
-		if (ret)
-		{
-			Z_error_fatal("Failed to load saves. error: %d", ret);
-		}
+		std::string err;
+		if (!saves_load(err)) 
+			Z_error_fatal("Failed to load saves: %s\n", err.c_str());
 
 		int save_index = -1;
 		int savecnt = saves_count();
 		for (int i = 0; i < savecnt; i++)
 		{
-			auto save = saves_get_slot(i);
-			if (!save->header->quest) continue;
-
-			if (rel_qstpath == save->header->qstpath)
+			if (auto r = saves_get_slot(i); r && r.value()->header->quest && rel_qstpath == r.value()->header->qstpath)
 			{
 				if (save_index == -1)
 					save_index = i;
@@ -5007,24 +4989,20 @@ reload_for_replay_file:
 
 	if (!disable_save_to_disk)
 	{
-		// load saved games
 		zprint2("Loading Saved Games\n");
-		int ret = saves_load();
-		if (ret)
-		{
-			Z_error_fatal("Failed to load saves. error: %d", ret);
-		}
+		std::string err;
+		if (!saves_load(err)) 
+			Z_error_fatal("Failed to load saves: %s\n", err.c_str());
 		zprint2("Finished Loading Saved Games\n");
 	}
 
 	if (zqtesting_mode || replay_is_active())
 	{
+		save_t* save = nullptr;
 		if (replay_is_active() && replay_get_meta_str("sav").size())
 		{
 			auto save_path = replay_get_replay_path().parent_path() / replay_get_meta_str("sav");
-			bool success = saves_create_slot(save_path, false);
-			if (!success)
-				Z_error_fatal("Failed to load replay's save file");
+			save = saves_create_test_slot(nullptr, save_path);
 		}
 		else
 		{
@@ -5050,9 +5028,13 @@ reload_for_replay_file:
 				new_game->set_name("Hero");
 			}
 			new_game->set_timevalid(1);
-			saves_create_slot(new_game, false);
+
+			save = saves_create_test_slot(new_game, "");
 		}
-		saves_select(0);
+
+		if (auto r = saves_select(save); !r)
+			Z_error_fatal("Failed to load test save slot: %s\n", r.error().c_str());
+
 		if (use_testingst_start)
 			Z_message("Test mode: \"%s\", %d, %d\n", testingqst_name.c_str(), testingqst_dmap, testingqst_screen);
 		if (replay_is_active())
