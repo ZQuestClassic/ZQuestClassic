@@ -949,6 +949,9 @@ extern word curScriptNum;
 
 void Z_eventlog(const char *format,...)
 {
+	if (!Playing)
+		return;
+
     if(get_qr(qr_LOG) || DEVLEVEL > 0)
     {
         char buf[2048];
