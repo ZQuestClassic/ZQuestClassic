@@ -1127,7 +1127,10 @@ static int32_t game_details(save_t* save)
 	textout_ex(framebuf,get_zc_font(font_zfont),"GAME TYPE",40,104,3,0);
 	textout_ex(framebuf,get_zc_font(font_zfont),"QUEST",40,112,3,0);
 	textout_ex(framebuf,get_zc_font(font_zfont),"STATUS",40,120,3,0);
-	
+
+	if (!save->path.empty())
+		textout_centre_ex(framebuf,get_zc_font(font_z3smallfont),save->path.filename().string().c_str(),125,132,1,0);
+
 	if(header->quest<0xFF)
 	{
 		textout_ex(framebuf,get_zc_font(font_zfont),"Normal Game",120,104,1,0);
