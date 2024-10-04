@@ -500,7 +500,7 @@ void load_game_configs()
 	ss_density = vbound(zc_get_config(cfg_sect,"ss_density",3), 0, 6);
 	heart_beep = zc_get_config(cfg_sect,"heart_beep",0)!=0;
 	//gui_colorset = zc_get_config(cfg_sect,"gui_colorset",0);
-	sfxdat = zc_get_config(cfg_sect,"use_sfx_dat",1);
+	sfxdat = zc_get_config(cfg_sect,"use_sfx_dat",1); // TODO: sfxdat is always set to 1 for titlescreen... and 0 in readsfx... so this cfg is pointless, remove?
 	fullscreen = zc_get_config(cfg_sect,"fullscreen",0);
 	use_save_indicator = zc_get_config(cfg_sect,"save_indicator",0);
 	zc_192b163_warp_compatibility = zc_get_config(cfg_sect,"zc_192b163_warp_compatibility",0);
@@ -823,19 +823,22 @@ bool game_vid_mode(int32_t mode,int32_t wait)
 
 void null_quest()
 {
-	char qstdat_string[2048];
-	strcpy(qstdat_string, "modules/classic/default.qst");
+	std::string title_assets_path = "modules/classic/title_gfx.dat";
+	if (get_last_loaded_qstpath() == title_assets_path)
+		return;
 
-#ifdef __EMSCRIPTEN__
-    // The quest template data file is not included because it's really big and isn't really needed
-    // for the player, except to initialize some graphics. Those same graphics exist in this quest file,
-    // which is much smaller.
-    strcpy(qstdat_string, "modules/classic/title_gfx.dat");
-#endif
-	
-	byte skip_flags[4] = { 0 };
-	
-	loadquest(qstdat_string,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,skip_flags,0,false);
+	byte skip_flags[4];
+	for (int i = 0; i < skip_max; i++)
+		set_bit(skip_flags, i, 1);
+	set_bit(skip_flags, skip_tiles, 0);
+	set_bit(skip_flags, skip_csets, 0);
+	set_bit(skip_flags, skip_misc, 0); // needed for miscsfx (skip this and `tests/replays/demons_inferno/demons_inferno_1_of_2.zplay` fails).
+	loadquest(title_assets_path.c_str(), &QHeader, &QMisc, tunes+ZC_MIDI_COUNT, false, skip_flags, 0, false);
+	sfxdat = 1;
+	// TODO: sfx.dat is ~1.2 MB. Could be better to break that up into individual files and load on demand / not at startup.
+	// TODO: can we cache the tiles/colordata so we don't have to read title_gfx.dat more than once?
+	//       colordata is tiny, but tilebuf is huge, so limit that to just what the title screen needs.
+	//       Another option: embed this data into the binary (`xxd -i resources/modules/classic/title_gfx.dat > title_gfx.h`)
 }
 
 void init_NES_mode()

@@ -53,6 +53,7 @@ extern void setZScriptVersion(int32_t s_version);
 static bool read_ext_zinfo = false, read_zinfo = false;
 static bool loadquest_report = false;
 static char const* loading_qst_name = NULL;
+static std::string last_loaded_qstpath;
 static byte loading_qst_num = 0;
 static byte subscr_mode = ssdtMAX;
 // Very old quests only used a byte for combos, and each screen had a "combo page" to vary
@@ -22334,6 +22335,11 @@ bool is_loading_quest()
 	return _is_loading_quest;
 }
 
+std::string get_last_loaded_qstpath()
+{
+	return last_loaded_qstpath;
+}
+
 int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc,
 	zctune *tunes, bool show_progress, byte *skip_flags, byte printmetadata,
 	bool report, byte qst_num, dword tilesetflags)
@@ -22343,6 +22349,7 @@ int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc,
 	zapp_reporting_add_breadcrumb("load_quest", basename);
 	zapp_reporting_set_tag("qst.filename", basename);
 
+	last_loaded_qstpath = filename;
 	loading_qst_name = filename;
 	loading_qst_num = qst_num;
 	// In CI, builds are cached for replay tests, which can result in their build dates being earlier than what it would be locally.
