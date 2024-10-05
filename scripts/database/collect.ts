@@ -286,7 +286,7 @@ async function fetchExternalMusic(page: puppeteer.Page, quest: QuestManifest, re
         // @ts-expect-error
         return document.querySelector('*[aria-label="Download file"]')?.href;
       });
-      if (!url) throw new Error('...');
+      if (!url) throw new Error('could not find download url on mediafire.com');
     } else if (host === 'drive.google.com' && (url.includes('/open') || url.includes('/file'))) {
       handled = true;
       console.log(`[${quest.id}] downloading ${url}`);
@@ -517,7 +517,7 @@ async function processId(page: puppeteer.Page, type: EntryType, index: number) {
 
   let required = {};
   if (type === 'quests') {
-    required = {dateAdded, authors, genre, zcVersion};
+    required = {dateAdded, authors, zcVersion};
   } else if (type === 'tilesets') {
     required = {dateAdded, authors, zcVersion};
   }
@@ -661,7 +661,12 @@ async function processId(page: puppeteer.Page, type: EntryType, index: number) {
   const defaultPath = `${id}/${thisRelease.name}/${qst}`;
 
   thisRelease.resourceHashes = await Promise.all(thisRelease.resources.map(resource => {
-    return getMd5Hash(`${DB}/${id}/${thisRelease.name}/${resource}`);
+    const resourcePath = `${id}/${thisRelease.name}/${resource}`;
+    const fullPath = `${DB}/${resourcePath}`;
+    if (!fs.existsSync(fullPath)) {
+      execFileSync('s3cmd', ['sync', `s3://zc-data/${resourcePath}`, '--no-preserve', fullPath], {stdio: 'inherit'});
+    }
+    return getMd5Hash(fullPath);
   }));
 
   const quest: QuestManifest = {
@@ -1020,6 +1025,7 @@ A: No.
     console.log('\nadding encoding headers');
     await forEveryQst(({path}) => {
       if (cache.encodingHeaders[path]) return;
+
       const diskPath = `${DB}/${path}.gz`;
       if (!fs.existsSync(diskPath)) return;
 
@@ -1033,7 +1039,7 @@ A: No.
 
     console.log('\nadding size headers');
     await forEveryQst(({path}) => {
-    if (cache.sizeHeaders[path]) return;
+      if (cache.sizeHeaders[path]) return;
 
       const diskPath = `${DB}/${path}.gz`;
       if (!fs.existsSync(diskPath)) return;
