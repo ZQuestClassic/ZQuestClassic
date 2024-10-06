@@ -18,6 +18,7 @@ int16_t autocombo_entry::base_engrave_offset(byte type)
 		case AUTOCOMBO_RELATIONAL: return 96;
 		case AUTOCOMBO_DGNCARVE: return 144;
 		case AUTOCOMBO_DOR: return 240;
+		case AUTOCOMBO_DENSEFOREST: return 320;
 	}
 	return 0;
 }
@@ -64,6 +65,7 @@ void combo_auto::updateValid()
 		case AUTOCOMBO_DOR:
 		case AUTOCOMBO_TILING:
 		case AUTOCOMBO_REPLACE:
+		case AUTOCOMBO_DENSEFOREST:
 			break;
 		default:
 			invalid_reasons |= ACIR_ILLEGAL_TYPE;

@@ -115,6 +115,9 @@ void AutoComboDialog::refreshPanels()
 			addCombos(w * h);
 			break;
 		}
+		case AUTOCOMBO_DENSEFOREST:
+			addCombos(7);
+			break;
 	}
 }
 
@@ -673,6 +676,15 @@ void AutoComboDialog::refreshTypes(int32_t type)
 				"Left Click: Replace combo\n"
 				"Right Click: Replace combo (reverse)";
 			switch_settings->switchTo(0);
+			break;
+		case AUTOCOMBO_DENSEFOREST:
+			typeinfostr =
+				"An autocombo for placing 2x2 trees that alternate position every other row.\n\n"
+				"CONTROLS:\n"
+				"Left Click: Place combo\n"
+				"Right Click: Remove combo\n"
+				"Shift + Click: Update the X/Y offset for the top-left corner of the pattern";
+			switch_settings->switchTo(1);
 			break;
 		default:
 			switch_settings->switchTo(0);
