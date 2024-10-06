@@ -6106,6 +6106,7 @@ int32_t get_register(int32_t arg)
 					case 1: flag = BTFLAG_ALLOWIFFULL; break;
 					case 2: flag = BTFLAG_CURESWJINX; break;
 					case 3: flag = BTFLAG_CUREITJINX; break;
+					case 4: flag = BTFLAG_CURESHJINX; break;
 				}
 				ret = (ptr->flags & flag) ? 10000L : 0;
 			}
@@ -16920,6 +16921,7 @@ void set_register(int32_t arg, int32_t value)
 					case 1: flag = BTFLAG_ALLOWIFFULL; break;
 					case 2: flag = BTFLAG_CURESWJINX; break;
 					case 3: flag = BTFLAG_CUREITJINX; break;
+					case 4: flag = BTFLAG_CURESHJINX; break;
 				}
 				SETFLAG(ptr->flags, flag, value);
 			}
