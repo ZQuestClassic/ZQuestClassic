@@ -120,7 +120,6 @@ public:
 	int32_t weapoverrideFLAGS;
 	int32_t weap_hxofs, weap_hyofs, weap_hxsz, weap_hysz, weap_hzsz, weap_xofs, weap_yofs, weap_tilew, weap_tileh;
 	zfix wstep;
-	bool aim_hero;
 	byte burnsprs[WPNSPR_MAX];
 	byte light_rads[WPNSPR_MAX];
 	byte specialsfx; //weapon specialsfx.
