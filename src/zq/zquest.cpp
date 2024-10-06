@@ -41,6 +41,7 @@
 #include "zq/autocombo/pattern_dormtn.h"
 #include "zq/autocombo/pattern_tiling.h"
 #include "zq/autocombo/pattern_replace.h"
+#include "zq/autocombo/pattern_denseforest.h"
 #include "zq/render_hotkeys.h"
 #include "zq/render_minimap.h"
 #include "zq/render_tooltip.h"
@@ -7739,6 +7740,21 @@ static void draw_autocombo(ComboPosition combo_pos, bool rclick, bool pressframe
 					ap.execute(scr, pos);
 				break;
 			}
+			case AUTOCOMBO_DENSEFOREST:
+			{
+				if (pressframe && (key[KEY_LSHIFT] || key[KEY_RSHIFT]))
+				{
+					int32_t x = (scr % 16) * 16 + (pos % 16);
+					int32_t y = (scr / 16) * 11 + (pos / 16);
+					ca.setOffsets(x % 2, y % 2);
+				}
+				AutoPattern::autopattern_denseforest ap(ca.getType(), CurrentLayer, scr, pos, &ca);
+				if (rclick)
+					ap.erase(scr, pos);
+				else
+					ap.execute(scr, pos);
+				break;
+			}
 		}
 	}
 	else
@@ -7856,6 +7872,12 @@ static int32_t get_autocombo_floating_cid(ComboPosition combo_pos, bool clicked)
 			case AUTOCOMBO_REPLACE:
 			{
 				AutoPattern::autopattern_replace ap(ca.getType(), CurrentLayer, scr, pos, &ca);
+				cid = ap.get_floating_cid(scr, pos);
+				break;
+			}
+			case AUTOCOMBO_DENSEFOREST:
+			{
+				AutoPattern::autopattern_denseforest ap(ca.getType(), CurrentLayer, scr, pos, &ca);
 				cid = ap.get_floating_cid(scr, pos);
 				break;
 			}

@@ -8,7 +8,7 @@
 #include "base/general.h"
 
 enum { ACT_NORMAL, ACT_CPOOL };
-enum { AUTOCOMBO_NONE, AUTOCOMBO_Z1, AUTOCOMBO_BASIC, AUTOCOMBO_FENCE, AUTOCOMBO_Z4, AUTOCOMBO_RELATIONAL, AUTOCOMBO_DGNCARVE, AUTOCOMBO_DOR, AUTOCOMBO_TILING, AUTOCOMBO_REPLACE };
+enum { AUTOCOMBO_NONE, AUTOCOMBO_Z1, AUTOCOMBO_BASIC, AUTOCOMBO_FENCE, AUTOCOMBO_Z4, AUTOCOMBO_RELATIONAL, AUTOCOMBO_DGNCARVE, AUTOCOMBO_DOR, AUTOCOMBO_TILING, AUTOCOMBO_REPLACE, AUTOCOMBO_DENSEFOREST };
 
 enum
 {
@@ -16,8 +16,8 @@ enum
 	ACF_CROSSSCREENS = 0x2,
 	ACF_FLIP         = 0x4,
 	ACF_LEGACY       = 0x4, // used by Relational and Dungeon Carving, neither of which use flip
-	ACF_CONNECTEDGE	 = 0x8, // used by Basic, Flat Mountain, Relational, and DoR
-	ACF_CONNECTSOLID = 0x10 // used by Basic and Relational
+	ACF_CONNECTEDGE	 = 0x8, // used by Basic, Flat Mountain, Relational, DoR, and Dense Forest
+	ACF_CONNECTSOLID = 0x10 // used by Basic, Relational, and Dense Forest
 };
 
 enum

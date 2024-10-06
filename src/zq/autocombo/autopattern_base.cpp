@@ -326,7 +326,6 @@ namespace AutoPattern
 	{
 		byte ret = 0;
 		int32_t drawmap = Map.getCurrMap();
-		zprint2("DRAWMAP %d\n", drawmap);
 		mapscr* mapscr_ptr = Map.AbsoluteScr(drawmap, screen);
 		if (mapscr_ptr)
 		{
