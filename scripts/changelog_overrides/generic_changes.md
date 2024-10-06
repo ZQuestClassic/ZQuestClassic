@@ -36,3 +36,5 @@ drop 2769fc99965e764f2b2f809ea935bb15d5db4213 build: fix windows compile
 
 subject 0bb0da1de912c8f3ee4660d21bd87980509711ca fix(zscript): 'delete' within a destructor being buggy
 subject d9d3ac8e44e73d1d73e43a1bc5af5eeb7edc5952 feat: option to disable transparent darkrooms stacking multiple transparent layers
+
+drop 2de329034de6b8ce9b6a17f7fb9d865eb1fd7b9a fix(zq): reenable floating selection for dense forest
