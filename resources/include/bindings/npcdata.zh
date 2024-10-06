@@ -8,11 +8,10 @@ class npcdata {
 	// @zasm_var NPCDATATILE
 	internal int Tile;
 
-	// @zasm_var NPCDATAFLAGS
-	internal int Flags;
-
-	// @zasm_var NPCDATAFLAGS2
-	internal int Flags2;
+	// Undocumented. Refer to https://github.com/ZQuestClassic/ZQuestClassic/blob/main/src/base/flags.h#L31
+	//
+	// @zasm_var NPCDATAFLAG
+	internal bool Flags[];
 
 	// The 'width' (W) of base tile used by the enemy.
 	//
@@ -239,9 +238,7 @@ class npcdata {
 	internal int Defense[];
 
 	// A set of flags that determine if the values for the Enemy Editor 'Size'
-	// tab
-	//
-	// are rendered by the engine.
+	// tab are rendered by the engine.
 	//
 	// @zasm_var NPCDATASIZEFLAG
 	internal bool SizeFlag[];

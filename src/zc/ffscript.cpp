@@ -10094,12 +10094,40 @@ int32_t get_register(int32_t arg)
 				ret = (guysbuf[ID].member&flag) ? 10000 : 0); \
 			} \
 		} \
+
+		// These are for compat only, though seemingly no quests even use these.
+		case NPCDATAFLAGS1:
+		{
+			if( (unsigned) ri->npcdataref > (MAXNPCS-1) )
+			{
+				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", "Flags (deprecated)", (ri->npcdataref*10000));
+				ret = -10000;
+			}
+			else
+			{
+				uint32_t value = guysbuf[ri->npcdataref].flags & 0xFFFFFFFFLL;
+				ret = value * 10000;
+			}
+		}
+		break;
+		case NPCDATAFLAGS2:
+		{
+			if( (unsigned) ri->npcdataref > (MAXNPCS-1) )
+			{
+				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", "Flags2 (deprecated)", (ri->npcdataref*10000));
+				ret = -10000;
+			}
+			else
+			{
+				uint32_t value = (guysbuf[ri->npcdataref].flags >> 32) & 0xFFFFFFFFLL;
+				ret = value * 10000;
+			}
+		}
+		break;
 		
 		case NPCDATATILE: GET_NPCDATA_VAR_BYTE(tile, "Tile"); break;
 		case NPCDATAWIDTH: GET_NPCDATA_VAR_BYTE(width, "Width"); break;
 		case NPCDATAHEIGHT: GET_NPCDATA_VAR_BYTE(height, "Height"); break;
-		case NPCDATAFLAGS: GET_NPCDATA_VAR_INT16(flags, "Flags"); break; //FIX ME
-		case NPCDATAFLAGS2: GET_NPCDATA_VAR_INT16(flags, "Flags2"); break; //FIX ME
 		case NPCDATASTILE: GET_NPCDATA_VAR_BYTE(s_tile, "STile"); break;
 		case NPCDATASWIDTH: GET_NPCDATA_VAR_BYTE(s_width, "SWidth"); break;
 		case NPCDATASHEIGHT: GET_NPCDATA_VAR_BYTE(s_height, "SHeight"); break;
@@ -10164,6 +10192,28 @@ int32_t get_register(int32_t arg)
 			{ 
 				ret = (guysbuf[ri->npcdataref].attributes[indx] * 10000);
 			} 
+
+			break;
+		}
+
+		case NPCDATAFLAG: 
+		{
+			int32_t indx = ri->d[rINDEX] / 10000; 
+			if(ri->npcdataref > (MAXNPCS-1) ) 
+			{
+				Z_scripterrlog("Invalid Sprite ID passed to npcdata->Flags[]: %d\n", (ri->npcdataref*10000)); 
+				ret = -10000;
+			}
+			else if ( indx < 0 || indx >= MAX_NPC_FLAGS )
+			{ 
+				Z_scripterrlog("Invalid Array Index passed to npcdata->Flags[]: %d\n", indx);
+				ret = -10000; 
+			} 
+			else 
+			{
+				guy_flags bit = (guy_flags)(1<<indx);
+				ret = (guysbuf[ri->npcdataref].flags&bit) * 10000;
+			}
 
 			break;
 		}
@@ -20727,8 +20777,8 @@ void set_register(int32_t arg, int32_t value)
 		case NPCDATATILE: SET_NPCDATA_VAR_BYTE(tile, "Tile"); break;
 		case NPCDATAWIDTH: SET_NPCDATA_VAR_BYTE(width, "Width"); break;
 		case NPCDATAHEIGHT: SET_NPCDATA_VAR_BYTE(height, "Height"); break;
-		case NPCDATAFLAGS: SET_NPCDATA_VAR_ENUM(flags, "Flags"); break; //FIX ME
-		case NPCDATAFLAGS2: SET_NPCDATA_VAR_ENUM(flags, "Flags2"); break; //FIX ME
+		case NPCDATAFLAGS1: SET_NPCDATA_VAR_ENUM(flags, "Flags (deprecated)"); break;
+		case NPCDATAFLAGS2: SET_NPCDATA_VAR_ENUM(flags, "Flags2 (deprecated)"); break;
 		case NPCDATASTILE: SET_NPCDATA_VAR_BYTE(s_tile, "STile"); break;
 		case NPCDATASWIDTH: SET_NPCDATA_VAR_BYTE(s_width, "SWidth"); break;
 		case NPCDATASHEIGHT: SET_NPCDATA_VAR_BYTE(s_height, "SHeight"); break;
@@ -20789,6 +20839,28 @@ void set_register(int32_t arg, int32_t value)
 			else 
 			{ 
 				guysbuf[ri->npcdataref].attributes[indx] = (value / 10000);
+			} 
+			break;
+		}
+
+		case NPCDATAFLAG:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000; 
+			if(ri->npcdataref > (MAXNPCS-1) ) 
+			{
+				Z_scripterrlog("Invalid Sprite ID passed to npcdata->Flags[]: %d\n", (ri->npcdataref*10000)); 
+			}
+			else if ( indx < 0 || indx >= MAX_NPC_FLAGS )
+			{ 
+				Z_scripterrlog("Invalid Array Index passed to npcdata->Flags[]: %d\n", indx);
+			} 
+			else 
+			{
+				guy_flags bit = (guy_flags)(1<<indx);
+				if(value)
+					guysbuf[ri->npcdataref].flags |= bit;
+				else
+					guysbuf[ri->npcdataref].flags &= ~bit;
 			} 
 			break;
 		}

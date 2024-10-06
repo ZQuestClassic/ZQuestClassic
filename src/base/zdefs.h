@@ -1285,6 +1285,7 @@ struct item_drop_object
 #define OVERRIDE_DRAW_Z_OFFSET	0x00000200
 
 #define MAX_NPC_ATTRIBUTES 32
+#define MAX_NPC_FLAGS 64
 
 struct guydata
 {
