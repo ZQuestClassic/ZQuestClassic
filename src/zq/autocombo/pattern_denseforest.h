@@ -23,8 +23,8 @@ namespace AutoPattern
 		virtual uint32_t slot_to_flags(int32_t slot) override;
 		virtual int32_t flags_to_slot(uint32_t flags) override;
 	private:
-		bool connectsolid;
 		std::pair<byte, byte> offsets;
+		bool connectsolid;
 	};
 
 }

@@ -68,7 +68,6 @@ namespace AutoPattern
 	int32_t autopattern_denseforest::get_floating_cid(int32_t exscreen, int32_t expos)
 	{
 		apcombo* ap = add(exscreen, expos, true);
-		return ap->cid;
 		if (!ap)
 			return 0;
 		init_connections(ap);
