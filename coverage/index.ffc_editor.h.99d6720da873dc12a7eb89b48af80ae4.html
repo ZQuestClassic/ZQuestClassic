@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2024-09-12 17:48:44</td>
+      <td>2024-10-07 08:26:43</td>
     </tr>
   </table>
 </div>
@@ -219,14 +219,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">call_ffc_dialog</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">ffcombo</span><span class="p">,</span><span class="w"> </span><span class="n">mapscr</span><span class="o">*</span><span class="w"> </span><span class="n">scr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nullptr</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">call_ffc_dialog</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">ffcombo</span><span class="p">,</span><span class="w"> </span><span class="n">mapscr</span><span class="o">*</span><span class="w"> </span><span class="n">scr</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">screen</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l20" href="#l20">20</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">call_ffc_dialog</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">ffcombo</span><span class="p">,</span><span class="w"> </span><span class="n">ffdata</span><span class="w"> </span><span class="k">const</span><span class="o">&amp;</span><span class="w"> </span><span class="n">init</span><span class="p">,</span><span class="w"> </span><span class="n">mapscr</span><span class="o">*</span><span class="w"> </span><span class="n">scr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nullptr</span><span class="p">);</span></td>
+      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">call_ffc_dialog</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">ffcombo</span><span class="p">,</span><span class="w"> </span><span class="n">ffdata</span><span class="w"> </span><span class="k">const</span><span class="o">&amp;</span><span class="w"> </span><span class="n">init</span><span class="p">,</span><span class="w"> </span><span class="n">mapscr</span><span class="o">*</span><span class="w"> </span><span class="n">scr</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">screen</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l21" href="#l21">21</a></td>
@@ -359,7 +359,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">ffdata</span><span class="p">(</span><span class="n">mapscr</span><span class="w"> </span><span class="k">const</span><span class="o">*</span><span class="w"> </span><span class="n">scr</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">ind</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="n">ffdata</span><span class="p">(</span><span class="n">mapscr</span><span class="o">*</span><span class="w"> </span><span class="n">scr</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">ind</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l40" href="#l40">40</a></td>
@@ -373,14 +373,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">load</span><span class="p">(</span><span class="n">mapscr</span><span class="w"> </span><span class="k">const</span><span class="o">*</span><span class="w"> </span><span class="n">scr</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">ind</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">load</span><span class="p">(</span><span class="n">mapscr</span><span class="o">*</span><span class="w"> </span><span class="n">scr</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">ind</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l42" href="#l42">42</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">save</span><span class="p">(</span><span class="n">mapscr</span><span class="o">*</span><span class="w"> </span><span class="n">scr</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">ind</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">save</span><span class="p">(</span><span class="n">mapscr</span><span class="o">*</span><span class="w"> </span><span class="n">scr</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">screen</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">ind</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l43" href="#l43">43</a></td>
@@ -443,14 +443,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">FFCDialog</span><span class="p">(</span><span class="n">mapscr</span><span class="o">*</span><span class="w"> </span><span class="n">scr</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">ffind</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="n">FFCDialog</span><span class="p">(</span><span class="n">mapscr</span><span class="o">*</span><span class="w"> </span><span class="n">scr</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">screen</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">ffind</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l52" href="#l52">52</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">FFCDialog</span><span class="p">(</span><span class="n">mapscr</span><span class="o">*</span><span class="w"> </span><span class="n">scr</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">ffind</span><span class="p">,</span><span class="w"> </span><span class="n">ffdata</span><span class="w"> </span><span class="k">const</span><span class="o">&amp;</span><span class="w"> </span><span class="n">init</span><span class="p">);</span></td>
+      <td class="src "><span class="w">	</span><span class="n">FFCDialog</span><span class="p">(</span><span class="n">mapscr</span><span class="o">*</span><span class="w"> </span><span class="n">scr</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">screen</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">ffind</span><span class="p">,</span><span class="w"> </span><span class="n">ffdata</span><span class="w"> </span><span class="k">const</span><span class="o">&amp;</span><span class="w"> </span><span class="n">init</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l53" href="#l53">53</a></td>
@@ -604,38 +604,45 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">ffind</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">screen</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l75" href="#l75">75</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">GUI</span><span class="o">::</span><span class="n">ListData</span><span class="w"> </span><span class="n">list_link</span><span class="p">,</span><span class="w"> </span><span class="n">list_ffcscript</span><span class="p">;</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">ffind</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l76" href="#l76">76</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">};</span></td>
+      <td class="src "><span class="w">	</span><span class="n">GUI</span><span class="o">::</span><span class="n">ListData</span><span class="w"> </span><span class="n">list_link</span><span class="p">,</span><span class="w"> </span><span class="n">list_ffcscript</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l77" href="#l77">77</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="p">};</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l78" href="#l78">78</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#endif</span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l79" href="#l79">79</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">#endif</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l80" href="#l80">80</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>

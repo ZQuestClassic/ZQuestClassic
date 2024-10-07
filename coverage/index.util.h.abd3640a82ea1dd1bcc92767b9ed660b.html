@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2024-09-12 17:48:44</td>
+      <td>2024-10-07 08:26:43</td>
     </tr>
   </table>
 </div>
@@ -42,14 +42,14 @@
     <tr>
       <th scope="row">Lines:</th>
       <td>13</td>
-      <td>16</td>
-      <td class="coverage-medium">81.2%</td>
+      <td>13</td>
+      <td class="coverage-high">100.0%</td>
     </tr>
     <tr>
       <th scope="row">Functions:</th>
       <td>3</td>
-      <td>4</td>
-      <td class="coverage-medium">75.0%</td>
+      <td>3</td>
+      <td class="coverage-high">100.0%</td>
     </tr>
     <tr>
       <th scope="row">Branches:</th>
@@ -75,7 +75,6 @@
     </tr>
     <tr><td><a href="#l28">bool util::contains&lt;unsigned int&gt;(std::vector&lt;unsigned int, std::allocator&lt;unsigned int&gt; &gt; const&amp;, unsigned int const&amp;) (line 28)</a></td><td>called 54064779 times, returned 54064779 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l41">std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; util::make_hex_string&lt;unsigned char*&gt;(unsigned char*, unsigned char*) (line 41)</a></td><td>called 339 times, returned 339 times</td><td>85.0%</td></tr>
-    <tr><td><a href="#l105">void util::copy_2d_array&lt;unsigned char, 15ul, 20ul&gt;(unsigned char (*) [20ul], unsigned char (*) [20ul]) (line 105)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l35">void util::remove_if_exists&lt;unsigned int&gt;(std::vector&lt;unsigned int, std::allocator&lt;unsigned int&gt; &gt;&amp;, unsigned int const&amp;) (line 35)</a></td><td>called 5251 times, returned 5251 times</td><td>100.0%</td></tr>
   </table>
 </details>
@@ -861,8 +860,8 @@
       <td class="lineno"><a id="l105" href="#l105">105</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="kr">inline</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">copy_2d_array</span><span class="p">(</span><span class="n">T</span><span class="w"> </span><span class="n">source</span><span class="p">[</span><span class="n">R</span><span class="p">][</span><span class="n">C</span><span class="p">]</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="n">T</span><span class="w"> </span><span class="n">dest</span><span class="p">[</span><span class="n">R</span><span class="p">][</span><span class="n">C</span><span class="p">])</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="kr">inline</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">copy_2d_array</span><span class="p">(</span><span class="n">T</span><span class="w"> </span><span class="n">source</span><span class="p">[</span><span class="n">R</span><span class="p">][</span><span class="n">C</span><span class="p">]</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="n">T</span><span class="w"> </span><span class="n">dest</span><span class="p">[</span><span class="n">R</span><span class="p">][</span><span class="n">C</span><span class="p">])</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l106" href="#l106">106</a></td>
@@ -875,15 +874,15 @@
       <td class="lineno"><a id="l107" href="#l107">107</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="n">std</span><span class="o">::</span><span class="n">copy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">source</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="o">&amp;</span><span class="n">source</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">R</span><span class="o">*</span><span class="n">C</span><span class="p">)</span><span class="o">/</span><span class="k">sizeof</span><span class="p">(</span><span class="n">source</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">dest</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]);</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">		</span><span class="n">std</span><span class="o">::</span><span class="n">copy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">source</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="o">&amp;</span><span class="n">source</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">R</span><span class="o">*</span><span class="n">C</span><span class="p">)</span><span class="o">/</span><span class="k">sizeof</span><span class="p">(</span><span class="n">source</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">dest</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l108" href="#l108">108</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="p">}</span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l109" href="#l109">109</a></td>

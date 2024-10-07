@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2024-09-12 17:48:44</td>
+      <td>2024-10-07 08:26:43</td>
     </tr>
   </table>
 </div>
@@ -41,21 +41,21 @@
     </tr>
     <tr>
       <th scope="row">Lines:</th>
-      <td>2</td>
+      <td>13</td>
       <td>598</td>
-      <td class="coverage-low">0.3%</td>
+      <td class="coverage-low">2.2%</td>
     </tr>
     <tr>
       <th scope="row">Functions:</th>
-      <td>0</td>
+      <td>2</td>
       <td>24</td>
-      <td class="coverage-none">0.0%</td>
+      <td class="coverage-low">8.3%</td>
     </tr>
     <tr>
       <th scope="row">Branches:</th>
-      <td>0</td>
+      <td>3</td>
       <td>386</td>
-      <td class="coverage-none">0.0%</td>
+      <td class="coverage-low">0.8%</td>
     </tr>
   </table>
 </div>
@@ -88,13 +88,13 @@
     <tr><td><a href="#l500">fs_flist_getter(int, int*) (line 500)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l532">fs_flist_proc(int, DIALOG*, int) (line 532)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l413">fs_flist_putter(char const*, int, void*) (line 413)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l1229">get_root_path(char*, int) (line 1229)</a></td><td>not called</td><td>0.0%</td></tr>
+    <tr><td><a href="#l1229">get_root_path(char*, int) (line 1229)</a></td><td>called 9 times, returned 9 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l1120">jwin_dfile_select_ex(char const*, char*, char const*, int, int, int, FONT*) (line 1120)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l1290">jwin_file_browse_ex(char const*, char*, EXT_LIST*, int*, int, int, int, FONT*) (line 1290)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l914">jwin_file_select_ex(char const*, char*, char const*, int, int, int, FONT*) (line 914)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l653">parse_extension_string(char const*) (line 653)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l1246">relativize_path(char*, char const*) (line 1246)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l1256">relativize_path(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;) (line 1256)</a></td><td>not called</td><td>0.0%</td></tr>
+    <tr><td><a href="#l1256">relativize_path(std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;) (line 1256)</a></td><td>called 9 times, returned 9 times</td><td>40.0%</td></tr>
     <tr><td><a href="#l748">stretch_dialog(DIALOG*, int, int, int) (line 748)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l367">ustrfilecmp(char const*, char const*) (line 367)</a></td><td>not called</td><td>0.0%</td></tr>
   </table>
@@ -8711,8 +8711,8 @@
       <td class="lineno"><a id="l1229" href="#l1229">1229</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">get_root_path</span><span class="p">(</span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">path</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">size</span><span class="p">)</span></td>
+      <td class="linecount coveredLine">9</td>
+      <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">get_root_path</span><span class="p">(</span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">path</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">size</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1230" href="#l1230">1230</a></td>
@@ -8746,8 +8746,8 @@
       <td class="lineno"><a id="l1234" href="#l1234">1234</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">drive</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span></td>
+      <td class="linecount coveredLine">9</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">drive</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1235" href="#l1235">1235</a></td>
@@ -8767,36 +8767,36 @@
       <td class="lineno"><a id="l1237" href="#l1237">1237</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">    </span><span class="n">_al_getdcwd</span><span class="p">(</span><span class="n">drive</span><span class="p">,</span><span class="w"> </span><span class="n">path</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">ucwidth</span><span class="p">(</span><span class="n">OTHER_PATH_SEPARATOR</span><span class="p">));</span></td>
+      <td class="linecount coveredLine">9</td>
+      <td class="src coveredLine"><span class="w">    </span><span class="n">_al_getdcwd</span><span class="p">(</span><span class="n">drive</span><span class="p">,</span><span class="w"> </span><span class="n">path</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">ucwidth</span><span class="p">(</span><span class="n">OTHER_PATH_SEPARATOR</span><span class="p">));</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1238" href="#l1238">1238</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="n">fix_filename_case</span><span class="p">(</span><span class="n">path</span><span class="p">);</span></td>
+      <td class="linecount coveredLine">9</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">fix_filename_case</span><span class="p">(</span><span class="n">path</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1239" href="#l1239">1239</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="n">fix_filename_slashes</span><span class="p">(</span><span class="n">path</span><span class="p">);</span></td>
+      <td class="linecount coveredLine">9</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">fix_filename_slashes</span><span class="p">(</span><span class="n">path</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1240" href="#l1240">1240</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="n">put_backslash</span><span class="p">(</span><span class="n">path</span><span class="p">);</span></td>
+      <td class="linecount coveredLine">9</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">put_backslash</span><span class="p">(</span><span class="n">path</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1241" href="#l1241">1241</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="p">}</span></td>
+      <td class="linecount coveredLine">9</td>
+      <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1242" href="#l1242">1242</a></td>
@@ -8900,8 +8900,8 @@
       <td class="lineno"><a id="l1256" href="#l1256">1256</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="nf">relativize_path</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">src_path</span><span class="p">)</span></td>
+      <td class="linecount coveredLine">9</td>
+      <td class="src coveredLine"><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="nf">relativize_path</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">src_path</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1257" href="#l1257">1257</a></td>
@@ -8914,22 +8914,33 @@
       <td class="lineno"><a id="l1258" href="#l1258">1258</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="kt">char</span><span class="w"> </span><span class="n">rootpath</span><span class="p">[</span><span class="n">PATH_MAX</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">0</span><span class="p">};</span></td>
+      <td class="linecount coveredLine">9</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="kt">char</span><span class="w"> </span><span class="n">rootpath</span><span class="p">[</span><span class="n">PATH_MAX</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">0</span><span class="p">};</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1259" href="#l1259">1259</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="n">get_root_path</span><span class="p">(</span><span class="n">rootpath</span><span class="p">,</span><span class="w"> </span><span class="n">PATH_MAX</span><span class="p">);</span></td>
+      <td class="linecount coveredLine">9</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">get_root_path</span><span class="p">(</span><span class="n">rootpath</span><span class="p">,</span><span class="w"> </span><span class="n">PATH_MAX</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1260" href="#l1260">1260</a></td>
       <td class="linebranch">
+        <details class="linebranchDetails">
+        <summary class="linebranchSummary">3/6</summary>
+        <div class="linebranchContents">
+          <div class="takenBranch">&check; Branch 0 taken 9 times.</div>
+          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
+          <div class="takenBranch">&check; Branch 2 taken 9 times.</div>
+          <div class="notTakenBranch">&cross; Branch 3 not taken.</div>
+          <div class="notTakenBranch">&cross; Branch 4 not taken.</div>
+          <div class="takenBranch">&check; Branch 5 taken 9 times.</div>
+        </div>
+        </details>
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">filesystem</span><span class="o">::</span><span class="n">relative</span><span class="p">(</span><span class="n">src_path</span><span class="p">,</span><span class="w"> </span><span class="n">rootpath</span><span class="p">).</span><span class="n">string</span><span class="p">();</span></td>
+      <td class="linecount partialCoveredLine">9</td>
+      <td class="src partialCoveredLine"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">filesystem</span><span class="o">::</span><span class="n">relative</span><span class="p">(</span><span class="n">src_path</span><span class="p">,</span><span class="w"> </span><span class="n">rootpath</span><span class="p">).</span><span class="n">string</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1261" href="#l1261">1261</a></td>

@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2024-09-12 17:48:44</td>
+      <td>2024-10-07 08:26:43</td>
     </tr>
   </table>
 </div>
@@ -75,14 +75,14 @@
     </tr>
     <tr><td><a href="#l41">common_main_setup(App, int, char**) (line 41)</a></td><td>called 1164 times, returned 1164 times</td><td>47.0%</td></tr>
     <tr><td><a href="#l250">doAspectResize() (line 250)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l151">get_app_id() (line 151)</a></td><td>called 113806 times, returned 113806 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l130">get_flag_bool(char const*) (line 130)</a></td><td>called 3093 times, returned 3093 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l151">get_app_id() (line 151)</a></td><td>called 113412 times, returned 113412 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l130">get_flag_bool(char const*) (line 130)</a></td><td>called 2909 times, returned 2909 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l137">get_flag_int(char const*) (line 137)</a></td><td>called 951 times, returned 951 times</td><td>60.0%</td></tr>
     <tr><td><a href="#l144">get_flag_string[abi:cxx11](char const*) (line 144)</a></td><td>called 29 times, returned 29 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l165">is_ci() (line 165)</a></td><td>called 1570 times, returned 1570 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l181">is_headless() (line 181)</a></td><td>called 36901953 times, returned 36901953 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l181">is_headless() (line 181)</a></td><td>called 36901962 times, returned 36901962 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l32">is_in_osx_application_bundle() (line 32)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l156">is_web() (line 156)</a></td><td>called 55340 times, returned 55340 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l156">is_web() (line 156)</a></td><td>called 45704 times, returned 45704 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l174">set_headless_mode() (line 174)</a></td><td>called 346 times, returned 346 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l307">zapp_reporting_add_breadcrumb(char const*, char const*) (line 307)</a></td><td>called 858 times, returned 858 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l316">zapp_reporting_set_tag(char const*, char const*) (line 316)</a></td><td>called 2536 times, returned 2536 times</td><td>100.0%</td></tr>
@@ -1058,7 +1058,7 @@
       <td class="lineno"><a id="l130" href="#l130">130</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">3093</td>
+      <td class="linecount coveredLine">2909</td>
       <td class="src coveredLine"><span class="n">std</span><span class="o">::</span><span class="n">optional</span><span class="o">&lt;</span><span class="kt">bool</span><span class="o">&gt;</span><span class="w"> </span><span class="n">get_flag_bool</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">name</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -1072,7 +1072,7 @@
       <td class="lineno"><a id="l132" href="#l132">132</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">3093</td>
+      <td class="linecount coveredLine">2909</td>
       <td class="src coveredLine"><span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">arg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">used_switch</span><span class="p">(</span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="n">argv</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -1081,26 +1081,26 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 2188 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 905 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 2050 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 859 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">3093</td>
+      <td class="linecount coveredLine">2909</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">arg</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">nullopt</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l134" href="#l134">134</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">905</td>
+      <td class="linecount coveredLine">859</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l135" href="#l135">135</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">3093</td>
+      <td class="linecount coveredLine">2909</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
@@ -1235,7 +1235,7 @@
       <td class="lineno"><a id="l151" href="#l151">151</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">113806</td>
+      <td class="linecount coveredLine">113412</td>
       <td class="src coveredLine"><span class="n">App</span><span class="w"> </span><span class="n">get_app_id</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
@@ -1249,7 +1249,7 @@
       <td class="lineno"><a id="l153" href="#l153">153</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">113806</td>
+      <td class="linecount coveredLine">113412</td>
       <td class="src coveredLine"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">app_id</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -1270,7 +1270,7 @@
       <td class="lineno"><a id="l156" href="#l156">156</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">55340</td>
+      <td class="linecount coveredLine">45704</td>
       <td class="src coveredLine"><span class="kt">bool</span><span class="w"> </span><span class="n">is_web</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
@@ -1305,7 +1305,7 @@
       <td class="lineno"><a id="l161" href="#l161">161</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">55340</td>
+      <td class="linecount coveredLine">45704</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -1454,7 +1454,7 @@
       <td class="lineno"><a id="l181" href="#l181">181</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">36901953</td>
+      <td class="linecount coveredLine">36901962</td>
       <td class="src coveredLine"><span class="kt">bool</span><span class="w"> </span><span class="nf">is_headless</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
@@ -1468,7 +1468,7 @@
       <td class="lineno"><a id="l183" href="#l183">183</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">36901953</td>
+      <td class="linecount coveredLine">36901962</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">headless</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
