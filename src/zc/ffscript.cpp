@@ -3785,6 +3785,32 @@ int32_t get_register(int32_t arg)
 			}
 			ret=(itemsbuf[ri->idata].weaponscript)*10000;
 			break;
+
+		case IDATAWEAPSPAWN:
+		{
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
+
+			if (!itemsbuf[ri->idata].weapon_properties.scripting_id)
+			{
+				// TODO: need to register classes that are referenced in zasm, so we know their names,
+				//       properties, etc.
+				uint32_t weapon_props_class_id = 0; // ?? find_class_id("weaponproperties")
+				uint32_t object_id = create_object_of_class(weapon_props_class_id);
+				// TODO: figure out how to intitialize this "custom" class using `itemsbuf[ri->idata].weapon_spawn`.
+				// TODO: set up "proxy" system for custom class such that setting a field will then update
+				//       the underlying `itemsbuf[ri->idata].weapon_properties`.
+				itemsbuf[ri->idata].weapon_properties.scripting_id = object_id;
+			}
+
+			ret = (itemsbuf[ri->idata].weapon_properties.scripting_id);
+		}
+		break;
+
 		case IDATAMISCD:
 		{
 			if(unsigned(ri->idata) >= MAXITEMS)

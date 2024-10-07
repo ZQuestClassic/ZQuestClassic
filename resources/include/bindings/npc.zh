@@ -790,83 +790,83 @@ class npc {
 	// @zasm_var NPCPARENTUID
 	internal int ParentUID;
 
-	// A bitwise flagset of unblockable flags, using the `UNBLOCK_` constants.
-	//
-	// @zasm_var NPCWEAPUNBL
-	internal int WeaponUnblockable;
+	// // A bitwise flagset of unblockable flags, using the `UNBLOCK_` constants.
+	// //
+	// // @zasm_var NPCWEAPUNBL
+	// internal int WeaponUnblockable;
 
-	// The movement speed of the npc's weapon, in 100th's/pixel per frame.
-	//
-	// @zasm_var NPCWEAPSTEP
-	internal int WeaponStep;
+	// // The movement speed of the npc's weapon, in 100th's/pixel per frame.
+	// //
+	// // @zasm_var NPCWEAPSTEP
+	// internal int WeaponStep;
 
-	// The movement flags of the npc's weapon. See `WPNMV_` constants.
-	//
-	// @zasm_var NPCWEAPMOVEFLAGS
-	internal bool WeaponMoveFlags[];
+	// // The movement flags of the npc's weapon. See `WPNMV_` constants.
+	// //
+	// // @zasm_var NPCWEAPMOVEFLAGS
+	// internal bool WeaponMoveFlags[];
 
-	// The sprites used for making the npc's weapon change appearance when lit on
-	// fire.
-	//
-	// @zasm_var NPCWEAPBURNINGSPR
-	internal int WeaponBurnSprites[];
+	// // The sprites used for making the npc's weapon change appearance when lit on
+	// // fire.
+	// //
+	// // @zasm_var NPCWEAPBURNINGSPR
+	// internal int WeaponBurnSprites[];
 
-	// The burning light radii from 'Graphics->Sprites->Burning'. Use the
-	// `ITM_BURNSPR_` constants.
-	//
-	// @zasm_var NPCWEAPBURNINGLIGHTRAD
-	internal int WeaponBurnLightRadius[];
+	// // The burning light radii from 'Graphics->Sprites->Burning'. Use the
+	// // `ITM_BURNSPR_` constants.
+	// //
+	// // @zasm_var NPCWEAPBURNINGLIGHTRAD
+	// internal int WeaponBurnLightRadius[];
 
-	// A bitwise flagset representing all the checkboxes for which sizes to
-	// apply from the npc for the weapon it creates. Use the `SZFLAG_` constants to access.
-	//
-	// @zasm_var NPCWEAPOVERRIDEFLWEAP
-	internal int WeaponSizeFlags;
+	// // A bitwise flagset representing all the checkboxes for which sizes to
+	// // apply from the npc for the weapon it creates. Use the `SZFLAG_` constants to access.
+	// //
+	// // @zasm_var NPCWEAPOVERRIDEFLWEAP
+	// internal int WeaponSizeFlags;
 
-	// The hitbox offset of the npc's weapon, in pixels.
-	//
-	// @zasm_var NPCWEAPHXOFS
-	internal int WeaponHitXOffset;
+	// // The hitbox offset of the npc's weapon, in pixels.
+	// //
+	// // @zasm_var NPCWEAPHXOFS
+	// internal int WeaponHitXOffset;
 
-	// The hitbox offset of the npc's weapon, in pixels.
-	//
-	// @zasm_var NPCWEAPHYOFS
-	internal int WeaponHitYOffset;
+	// // The hitbox offset of the npc's weapon, in pixels.
+	// //
+	// // @zasm_var NPCWEAPHYOFS
+	// internal int WeaponHitYOffset;
 
-	// The visual offset of the npc's weapon, in pixels.
-	//
-	// @zasm_var NPCWEAPDXOFS
-	internal int WeaponDrawXOffset;
+	// // The visual offset of the npc's weapon, in pixels.
+	// //
+	// // @zasm_var NPCWEAPDXOFS
+	// internal int WeaponDrawXOffset;
 
-	// The visual offset of the npc's weapon, in pixels.
-	//
-	// @zasm_var NPCWEAPDYOFS
-	internal int WeaponDrawYOffset;
+	// // The visual offset of the npc's weapon, in pixels.
+	// //
+	// // @zasm_var NPCWEAPDYOFS
+	// internal int WeaponDrawYOffset;
 
-	// The hitbox size of the npc's weapon, in pixels.
-	//
-	// @zasm_var NPCWEAPHXSZ
-	internal int WeaponHitWidth;
+	// // The hitbox size of the npc's weapon, in pixels.
+	// //
+	// // @zasm_var NPCWEAPHXSZ
+	// internal int WeaponHitWidth;
 
-	// The hitbox size of the npc's weapon, in pixels.
-	//
-	// @zasm_var NPCWEAPHYSZ
-	internal int WeaponHitHeight;
+	// // The hitbox size of the npc's weapon, in pixels.
+	// //
+	// // @zasm_var NPCWEAPHYSZ
+	// internal int WeaponHitHeight;
 
-	// The Z-Height of the npc weapon's hitbox, in pixels.
-	//
-	// @zasm_var NPCWEAPHZSZ
-	internal int WeaponHitZHeight;
+	// // The Z-Height of the npc weapon's hitbox, in pixels.
+	// //
+	// // @zasm_var NPCWEAPHZSZ
+	// internal int WeaponHitZHeight;
 
-	// The visual size of the npc's weapon, in tiles.
-	//
-	// @zasm_var NPCWEAPTILEW
-	internal int WeaponTileWidth;
+	// // The visual size of the npc's weapon, in tiles.
+	// //
+	// // @zasm_var NPCWEAPTILEW
+	// internal int WeaponTileWidth;
 
-	// The visual size of the npc's weapon, in tiles.
-	//
-	// @zasm_var NPCWEAPTILEH
-	internal int WeaponTileHeight;
+	// // The visual size of the npc's weapon, in tiles.
+	// //
+	// // @zasm_var NPCWEAPTILEH
+	// internal int WeaponTileHeight;
 
 	// Returns the max number of npcs currently allowed.
 	//

@@ -3091,7 +3091,11 @@ enum ASM_DEFINE
 #define COMBODTRIGPUSHTIME      0x15BE
 #define COMBODTRIGSHIELDJINX    0x15BF
 
-#define NUMVARIABLES            0x15C0
+#define IDATAWEAPSPAWN          0x15C0
+
+
+
+#define NUMVARIABLES            0x15C1
 
 //} End variables
 

@@ -385,3 +385,45 @@ enum WarpIndex
 	WARP_C         = 2,
 	WARP_D         = 3
 };
+
+class weaponproperties {
+	// @delete
+	internal weaponproperties();
+
+	// The sprites used for making the weapon change appearance when lit on
+	// fire.
+	int BurnSprites[5];
+
+	// The burning light radii from 'Graphics->Sprites->Burning'. Use the
+	// `ITM_BURNSPR_` constants.
+	int BurnLightRadius[5];
+
+	// The hitbox offset of the weapon, in pixels.
+	int HitXOffset;
+
+	// The hitbox offset of the weapon, in pixels.
+	int HitYOffset;
+
+	// The visual offset of the weapon, in pixels.
+	int DrawXOffset;
+
+	// The visual offset of the weapon, in pixels.
+	int DrawYOffset;
+
+	int DrawZOffset;
+
+	// The hitbox size of the weapon, in pixels.
+	int HitWidth;
+
+	// The hitbox size of the weapon, in pixels.
+	int HitHeight;
+
+	// The Z-Height of the npc weapon's hitbox, in pixels.
+	int HitZHeight;
+
+	// The visual size of the weapon, in tiles.
+	int TileWidth;
+
+	// The visual size of the weapon, in tiles.
+	int TileHeight;
+}

@@ -1390,6 +1390,8 @@ public:
 	dword wait_index; // nth WaitX instruction (0 being pc 0) last execution stopped at. for jit only
 	uint32_t retsp; //stack pointer for the return stack
 	
+	uint32_t slots[1];
+	uint32_t slot_class_ids[1];
 	byte ffcref;
 	int32_t idata;
 	dword itemref, guyref, lwpn, ewpn;

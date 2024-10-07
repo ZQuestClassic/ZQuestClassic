@@ -1,3 +1,5 @@
+#include "bindings/common.zh"
+
 script typedef itemdata item;
 
 // Item class ids, used by [itemdata::Family].
@@ -392,6 +394,17 @@ class itemdata {
 	//
 	// @zasm_var IDATAWEAPONSCRIPT
 	internal int WeaponScript;
+
+	// @zasm_var IDATAWEAPSPAWN
+	internal weaponproperties WeaponProperties;
+
+	// A bitwise flagset representing all the checkboxes for which sizes to
+	// apply from [WeaponProperties] for the weapon created by this itemdata.
+	//
+	// Use the `SZFLAG_` constants to access.
+	//
+	// @zasm_var IDATAOVERRIDEFL
+	internal int WeaponPropertyFlags;
 
 	// The hitbox offset of the sprite, in pixels.
 	//

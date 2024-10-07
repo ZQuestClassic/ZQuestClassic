@@ -6,6 +6,7 @@
 #include "base/flags.h"
 #include "base/initdata.h"
 #include "base/zfix.h"
+#include <cstdint>
 
 namespace flags {
 // TODO: these generically named flags need to be renamed / documented.
@@ -148,8 +149,12 @@ enum
 	ITM_ADVP_WEAPONSCRIPT,
 };
 
-//Now itemdata lives here too!
-
+struct WeaponProperties
+{
+	uint32_t scripting_id;
+	byte burnsprs[WPNSPR_MAX];
+	byte light_rads[WPNSPR_MAX];
+};
 
 struct itemdata
 {
@@ -218,6 +223,7 @@ struct itemdata
     int32_t hxofs, hyofs, hxsz, hysz, hzsz, xofs, yofs; //item
     int32_t weap_hxofs, weap_hyofs, weap_hxsz, weap_hysz, weap_hzsz, weap_xofs, weap_yofs; //weapon
     int32_t tilew, tileh, weap_tilew, weap_tileh; //New for 2.54
+	WeaponProperties weapon_properties;
     int32_t pickup; byte pickupflag;
     
 #define itemdataPSTRING_ALWAYS		0x00000001
