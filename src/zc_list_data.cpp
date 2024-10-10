@@ -1116,7 +1116,8 @@ static const GUI::ListData autocombo_types
 	{ "Complex Mountain", AUTOCOMBO_DOR },
 	{ "Positional Tiling", AUTOCOMBO_TILING },
 	{ "Replace", AUTOCOMBO_REPLACE},
-	{ "Dense Forest", AUTOCOMBO_DENSEFOREST}
+	{ "Dense Forest", AUTOCOMBO_DENSEFOREST},
+	{ "Extension", AUTOCOMBO_EXTEND}
 };
 
 GUI::ListData const& GUI::ZCListData::autocombotypes()

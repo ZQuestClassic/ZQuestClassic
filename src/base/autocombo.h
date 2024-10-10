@@ -8,7 +8,7 @@
 #include "base/general.h"
 
 enum { ACT_NORMAL, ACT_CPOOL };
-enum { AUTOCOMBO_NONE, AUTOCOMBO_Z1, AUTOCOMBO_BASIC, AUTOCOMBO_FENCE, AUTOCOMBO_Z4, AUTOCOMBO_RELATIONAL, AUTOCOMBO_DGNCARVE, AUTOCOMBO_DOR, AUTOCOMBO_TILING, AUTOCOMBO_REPLACE, AUTOCOMBO_DENSEFOREST };
+enum { AUTOCOMBO_NONE, AUTOCOMBO_Z1, AUTOCOMBO_BASIC, AUTOCOMBO_FENCE, AUTOCOMBO_Z4, AUTOCOMBO_RELATIONAL, AUTOCOMBO_DGNCARVE, AUTOCOMBO_DOR, AUTOCOMBO_TILING, AUTOCOMBO_REPLACE, AUTOCOMBO_DENSEFOREST, AUTOCOMBO_EXTEND };
 
 enum
 {
@@ -16,15 +16,19 @@ enum
 	ACF_CROSSSCREENS = 0x2,
 	ACF_FLIP         = 0x4,
 	ACF_LEGACY       = 0x4, // used by Relational and Dungeon Carving, neither of which use flip
+	ACF_VERTICAL     = 0x4, // used by Extend
 	ACF_CONNECTEDGE	 = 0x8, // used by Basic, Flat Mountain, Relational, DoR, and Dense Forest
-	ACF_CONNECTSOLID = 0x10 // used by Basic, Relational, and Dense Forest
+	ACF_CONNECTSOLID = 0x10, // used by Basic, Relational, and Dense Forest
+	ACF_NOCREATE     = 0x20, // used by Extend
+	ACF_DOGROUP       = 0x40 // used by Extend
 };
 
 enum
 {
 	ACIR_ILLEGAL_TYPE	 = 0x1,
 	ACIR_DUPLICATE_COMBO = 0x2,
-	ACIR_MISSING_COMBO   = 0x4
+	ACIR_MISSING_COMBO   = 0x4,
+	ACIR_ERASE_IN_SET    = 0x8
 };
 
 struct autocombo_entry
