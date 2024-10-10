@@ -653,6 +653,13 @@ class Game {
 	//   GAMEEND
 	internal void End();
 
+	// Closes the program, without saving.
+	//
+	// @exit
+	// @zasm
+	//   GAMEEXIT
+	internal void Exit();
+
 	// Exits the quest without saving, then reloads the previous save.
 	//
 	// @exit

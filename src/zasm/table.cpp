@@ -200,6 +200,7 @@ static constexpr script_command command_list[]=
 	{ "ARCCOSR", ARCCOSR, 2, { REG_W, REG_R }, 0, 0 },
 	{ "ARCCOSV", ARCCOSV, 2, { NUM, REG }, 0, UNIMPL }, //!TODO ERROR Writes to sarg1 as a register, reads from sarg2 as a literal
 	{ "GAMEEND", GAMEEND, 0, {}, 0, 0 },
+	{ "GAMEEXIT", GAMEEXIT, 0, {}, 0, 0 },
 	{ "DRAWINTR", DRAWINTR, 0, {}, 0, 0 },
 	{ "SETTRUE", SETTRUE, 1, { REG_W }, 0, CMPUSED },
 	{ "SETFALSE", SETFALSE, 1, { REG_W }, 0, CMPUSED },

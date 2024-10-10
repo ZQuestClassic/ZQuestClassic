@@ -32398,6 +32398,11 @@ int32_t run_script_int(bool is_jitted)
 				skipcont = 1;
 				scommand = 0xFFFF;
 				break;
+			case GAMEEXIT:
+				Quit = qEXIT;
+				skipcont = 1;
+				scommand = 0xFFFF;
+				break;
 			case GAMERELOAD:
 				if ( using_SRAM )
 				{
