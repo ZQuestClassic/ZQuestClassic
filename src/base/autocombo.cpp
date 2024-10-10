@@ -61,18 +61,19 @@ void combo_auto::updateValid()
 	invalid_reasons = 0;
 	switch(type)
 	{
-		case AUTOCOMBO_EXTEND:
-			canDupe = true;
 		case AUTOCOMBO_Z1:
 		case AUTOCOMBO_BASIC:
 		case AUTOCOMBO_REPLACE:
 		case AUTOCOMBO_RELATIONAL:
+		case AUTOCOMBO_EXTEND:
+			canDupe = true;
 		case AUTOCOMBO_FENCE:
 		case AUTOCOMBO_Z4:
 		case AUTOCOMBO_DGNCARVE:
 		case AUTOCOMBO_DOR:
 		case AUTOCOMBO_TILING:
 		case AUTOCOMBO_DENSEFOREST:
+			canCombo0 = true;
 			break;
 		default:
 			invalid_reasons |= ACIR_ILLEGAL_TYPE;
