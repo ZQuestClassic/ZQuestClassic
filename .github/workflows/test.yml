@@ -121,6 +121,9 @@ jobs:
       - run: sudo apt-get update && sudo apt-get install libopengl0 libglu1 lldb libdumb1
         if: ${{ contains(inputs.runs-on, 'ubuntu') }}
 
+      - name: update_auto_script_tests.py
+        run: bash .github/workflows/run_python.sh tests/update_auto_script_tests.py
+
       # Note: Uses JIT by default, except for win32.
       - name: Run replay tests
         run: >

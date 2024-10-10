@@ -168,6 +168,7 @@ class TestZEditor(unittest.TestCase):
             str(root_dir / 'resources/include'),
             str(root_dir / 'resources/headers'),
             str(root_dir / 'tests/scripts'),
+            str(root_dir / 'tests/scripts/playground'),
             str(root_dir / 'tests/scripts/alucard/100_rooms_of_wisdom'),
             str(root_dir / 'tests/scripts/alucard/combo_rotator'),
             str(root_dir / 'tests/scripts/newbie_boss'),
@@ -179,8 +180,8 @@ class TestZEditor(unittest.TestCase):
 
         test_cases = [
             (
-                root_dir / 'tests/replays/playground.qst',
-                list((root_dir / 'tests/replays').glob('playground_*.zplay')),
+                root_dir / 'tests/replays/playground/playground.qst',
+                list((root_dir / 'tests/replays/playground').glob('*.zplay')),
             ),
         ]
         for replay_path in (root_dir / 'tests/replays/scripting').glob('*.zplay'):

@@ -24543,7 +24543,8 @@ int32_t main(int32_t argc,char **argv)
 			zq_exit(1);
 		}
 
-		success = do_compile_and_slots(1, false);
+		// Note: This is actually "smart assign".
+		success = do_compile_and_slots(2, false);
 		if (!success)
 		{
 			printf("Failed to compile\n");

@@ -14,8 +14,8 @@
 // Useful command for quickly verifying valid WASM is generated:
 /*
 	cmake --build build --config Debug -t  zplayer &&
-	rm -rf build/Debug/wasm/playground.qst &&
-	./build/Debug/zplayer -replay $PWD/tests/replays/playground_maths.zplay -headless -jit -jit-save-wasm -jit-precompile -frame 0 -replay-exit-when-done &&
+	rm -rf build/Debug/wasm/playground/playground.qst &&
+	./build/Debug/zplayer -replay $PWD/tests/replays/playground/maths.zplay -headless -jit -jit-save-wasm -jit-precompile -frame 0 -replay-exit-when-done &&
 	wasm2wat build/Debug/wasm/playground.qst/ffc-5-Maths.wasm --enable-threads --generate-names
 */
 

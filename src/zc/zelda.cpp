@@ -4694,6 +4694,8 @@ int main(int argc, char **argv)
 		replay_set_meta("starting_retsqr", testingqst_retsqr);
 		if (used_switch(argc, argv, "-replay-name") > 0)
 			replay_set_meta("name", argv[replay_name_arg + 1]);
+		if (used_switch(argc, argv, "-replay-script-trace") > 0)
+			replay_set_meta_bool("script_trace", true);
 		use_testingst_start = true;
 	}
 	if (snapshot_arg > 0)

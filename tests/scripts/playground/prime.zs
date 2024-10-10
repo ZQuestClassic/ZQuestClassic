@@ -1,4 +1,4 @@
-// Calculates and prints to the screen the factors of the given number.
+// Calculates and prints the factors of the given number.
 // Calculated every frame, as the point of this is to be a performance test.
 
 ffc script Prime

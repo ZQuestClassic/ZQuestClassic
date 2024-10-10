@@ -1,4 +1,5 @@
 #include "std.zh"
+#include "auto/test_runner.zs"
 
 int count = 0;
 
@@ -37,17 +38,16 @@ class Empty
 {
 }
 
-ffc script GarbageCollection
+generic script garbage_collection
 {
 	Person people[10];
 	Person globalPerson;
 	int tests = 0;
 	int frames = 0;
 
-	void check(char32[] context, int value, int expected)
+	void check(char32[] context, int actual, int expected)
 	{
-		if (value != expected)
-			printf("[%s] ERROR: expected %l but got %l\n", context, expected, value);
+		Test::AssertEqual(actual, expected);
 	}
 
 	// Checks count is expected value, even if GC runs.
@@ -68,6 +68,8 @@ ffc script GarbageCollection
 
 	void run()
 	{
+		Test::Init();
+
 		// * `count` is the number of Person and Hat objects currently alive.
 		// * `RefCount` returns the number of references to an object.
 		//    If this hits zero, the object is immediately deleted.
@@ -580,7 +582,6 @@ ffc script GarbageCollection
 		// modified how many times Waitframe is called.
 		while (frames < 100)
 			yield();
-		printf("Done with tests\n");
 	}
 
 	void usePerson1(Person person)

@@ -115,7 +115,7 @@ class TestJIT(ZCTestCase):
         if 'emscripten' in str(run_target.get_build_folder()):
             raise unittest.SkipTest('unsupported platform')
 
-        self.run_for_qst('playground', test_dir / 'replays/playground_maths.zplay')
+        self.run_for_qst('playground', test_dir / 'replays/playground/maths.zplay')
         # These are quite big, so just hash their outputs.
         self.run_for_qst(
             'hollow_forest', test_dir / 'replays/hollow_forest.zplay', hash=True

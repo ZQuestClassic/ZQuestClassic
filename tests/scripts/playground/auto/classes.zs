@@ -1,3 +1,5 @@
+#include "auto/test_runner.zs"
+
 class Car
 {
 	int speed;
@@ -20,10 +22,12 @@ class Car
 	}
 }
 
-ffc script Classes
+generic script classes
 {
 	void run()
 	{
+		Test::Init();
+
 		Car mycar = new Car();
 		delete mycar;
 		Waitframe();

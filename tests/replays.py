@@ -141,6 +141,26 @@ class ReplayTestResults:
         as_dict = dataclasses.asdict(self)
         return json.dumps(as_dict, indent=indent)
 
+    def print_failures(self, directory: Path):
+        failing_strs = []
+
+        for run in self.runs[-1]:
+            if not run.success:
+                failing_str = f'({run.name}) failure at frame {run.failing_frame}'
+                if run.unexpected_gfx_segments:
+                    segments_str = [
+                        f'{r[0]}-{r[1]}' for r in run.unexpected_gfx_segments
+                    ]
+                    failing_str += ': ' + ', '.join(segments_str)
+                if run.exceptions:
+                    failing_str += '\nExceptions:\n\t' + '\n\t'.join(run.exceptions)
+                roundtrip = (
+                    directory / run.directory / f'{run.name}.roundtrip'
+                ).read_text()
+                failing_strs.append(roundtrip)
+
+            print('\n'.join(failing_strs))
+
 
 class ReplayResultUpdatedHandler(FileSystemEventHandler):
 
@@ -646,7 +666,7 @@ def _run_replay_test(
                 )
             # .zplay files are updated in-place, but lets also copy over to the test output folder.
             # This makes it easy to upload an archive of updated replays in CI.
-            if ctx.mode == 'update' and watcher.result['changed']:
+            if ctx.mode == 'update' and watcher.result.get('changed'):
                 (test_results_dir / 'updated').mkdir(exist_ok=True)
                 shutil.copy2(
                     replay_file, test_results_dir / 'updated' / replay_file.name
