@@ -977,7 +977,13 @@ void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 		checkCast(*getType, *paramTypes[parcnt], &host);
 		if(breakRecursion(host)) return;
 		std::optional<int32_t> optVal = (*it)->getCompileTimeValue(this, scope);
-		assert(optVal);
+		if (!optVal)
+		{
+			handleError(CompileError::Error(*it, fmt::format("Function '{}' has an optional parameter whose default value is not a constant expression", host.getName())));
+			doRegister(host);
+			return;
+		}
+
 		host.optvals.push_back(*optVal);
 	}
 	if(breakRecursion(host)) return;
