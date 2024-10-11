@@ -13065,7 +13065,7 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, int32_t script_index, wor
 		}
 		
 		script->meta = temp_meta;
-	}
+	} else script->meta = {};
 	
 	for(int32_t j=0; j<num_commands; j++)
 	{
