@@ -10940,7 +10940,7 @@ int32_t get_register(const int32_t arg)
 		{ 
 			
 			int32_t ref = ri->shopsref; 
-			bool isInfo = ( ref > NUMSHOPS && ref <= NUMINFOSHOPS ); 
+			bool isInfo = ( ref >= NUMSHOPS && ref <= NUMINFOSHOPS ); 
 			int32_t indx = ri->d[rINDEX] / 10000; 
 			if ( indx < 0 || indx > 2 ) 
 			{ 
@@ -10968,7 +10968,7 @@ int32_t get_register(const int32_t arg)
 		{ 
 			
 			int32_t ref = ri->shopsref; 
-			bool isInfo = ( ref > NUMSHOPS && ref <= NUMINFOSHOPS ); 
+			bool isInfo = ( ref >= NUMSHOPS && ref <= NUMINFOSHOPS ); 
 			int32_t indx = ri->d[rINDEX] / 10000; 
 			if ( indx < 0 || indx > 2 ) 
 			{ 
@@ -10996,7 +10996,7 @@ int32_t get_register(const int32_t arg)
 		{ 
 			
 			int32_t ref = ri->shopsref; 
-			bool isInfo = ( ref > NUMSHOPS && ref <= NUMINFOSHOPS ); 
+			bool isInfo = ( ref >= NUMSHOPS && ref <= NUMINFOSHOPS ); 
 			int32_t indx = ri->d[rINDEX] / 10000; 
 			if ( indx < 0 || indx > 2 ) 
 			{ 
@@ -11030,7 +11030,7 @@ int32_t get_register(const int32_t arg)
 			}
 			else 
 			{
-				bool isInfo = ( ref > NUMSHOPS && ref <= NUMINFOSHOPS ); 
+				bool isInfo = ( ref >= NUMSHOPS && ref <= NUMINFOSHOPS ); 
 				int32_t indx = ri->d[rINDEX] / 10000; 
 				if ( indx < 0 || indx > 2 ) 
 				{ 
@@ -23836,7 +23836,7 @@ void set_register(int32_t arg, int32_t value)
 		{ 
 			
 			int32_t ref = ri->shopsref; 
-			bool isInfo = ( ref > NUMSHOPS && ref <= NUMINFOSHOPS ); 
+			bool isInfo = ( ref >= NUMSHOPS && ref <= NUMINFOSHOPS ); 
 			int32_t indx = ri->d[rINDEX] / 10000; 
 			if ( indx < 0 || indx > 2 ) 
 			{ 
@@ -23863,7 +23863,7 @@ void set_register(int32_t arg, int32_t value)
 		{ 
 			
 			int32_t ref = ri->shopsref; 
-			bool isInfo = ( ref > NUMSHOPS && ref <= NUMINFOSHOPS ); 
+			bool isInfo = ( ref >= NUMSHOPS && ref <= NUMINFOSHOPS ); 
 			int32_t indx = ri->d[rINDEX] / 10000; 
 			if ( indx < 0 || indx > 2 ) 
 			{ 
@@ -23889,7 +23889,7 @@ void set_register(int32_t arg, int32_t value)
 		{ 
 			
 			int32_t ref = ri->shopsref; 
-			bool isInfo = ( ref > NUMSHOPS && ref <= NUMINFOSHOPS ); 
+			bool isInfo = ( ref >= NUMSHOPS && ref <= NUMINFOSHOPS ); 
 			int32_t indx = ri->d[rINDEX] / 10000; 
 			if ( indx < 0 || indx > 2 ) 
 			{ 
@@ -23923,7 +23923,7 @@ void set_register(int32_t arg, int32_t value)
 				}
 				else 
 				{
-					bool isInfo = ( ref > NUMSHOPS && ref <= NUMINFOSHOPS ); 
+					bool isInfo = ( ref >= NUMSHOPS && ref <= NUMINFOSHOPS ); 
 					int32_t indx = ri->d[rINDEX] / 10000; 
 					if ( indx < 0 || indx > 2 ) 
 					{ 
