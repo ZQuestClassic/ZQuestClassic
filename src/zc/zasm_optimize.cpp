@@ -2899,7 +2899,6 @@ bool zasm_optimize_test()
 			/* 10 */ {0xFFFF},
 		};
 		script = zasm_script{0, "", std::move(s)};
-		script.zasm = s;
 
 		StructuredZasm structured_zasm = zasm_construct_structured(&script);
 		OptContext ctx = create_context(structured_zasm, &script, structured_zasm.functions.at(0));
