@@ -1,0 +1,60 @@
+stderr:
+
+Compiling 'errors_strings.zs'
+Pass 1: Parsing
+ERROR: expected a single character value - did you mean to use double quotes for a string? [errors_strings.zs Line 4 Column 46 ''should have been double quotes'']
+ERROR: Unknown escape character. [errors_strings.zs Line 5 Column 18 ''\c'']
+ERROR: expected a single character value - did you mean to use double quotes for a string? [errors_strings.zs Line 6 Column 46 ''should have been double quotes'']
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
+
+stdout:
+
+{
+  "success": false,
+  "code": -1,
+  "diagnostics": [
+    {
+      "range": {
+        "start": {
+          "line": 3,
+          "character": 13
+        },
+        "end": {
+          "line": 3,
+          "character": 45
+        }
+      },
+      "severity": 1,
+      "message": "ERROR: expected a single character value - did you mean to use double quotes for a string?"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 4,
+          "character": 13
+        },
+        "end": {
+          "line": 4,
+          "character": 17
+        }
+      },
+      "severity": 1,
+      "message": "ERROR: Unknown escape character."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 5,
+          "character": 13
+        },
+        "end": {
+          "line": 5,
+          "character": 45
+        }
+      },
+      "severity": 1,
+      "message": "ERROR: expected a single character value - did you mean to use double quotes for a string?"
+    }
+  ]
+}
