@@ -71,7 +71,7 @@ def compile():
         log.unlink()
     args = [
         '-headless',
-        '-quick-assign',
+        '-smart-assign',
         qst_path,
     ]
     try:
