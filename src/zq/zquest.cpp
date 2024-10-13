@@ -8111,9 +8111,9 @@ void draw(bool justcset)
 							break;
 						}
 						
-						for(int32_t cy=0; cy-oy+cystart<num_combos_height-1&&cy<=combo->height; cy++)
+						for(int32_t cy=0; cy-oy+cystart<num_combos_height&&cy<=combo->height; cy++)
 						{
-							for(int32_t cx=0; cx-ox+cxstart<num_combos_width-1&&cx<=combo->width; cx++)
+							for(int32_t cx=0; cx-ox+cxstart<num_combos_width&&cx<=combo->width; cx++)
 							{
 								if((cx+cxstart-ox>=0)&&(cy+cystart-oy>=0))
 								{
