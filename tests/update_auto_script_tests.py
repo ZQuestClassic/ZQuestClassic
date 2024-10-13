@@ -138,6 +138,8 @@ def run_replays(tests: List[Test], update=False):
         run_target.get_build_folder(),
         '--test_results',
         output_dir,
+        '--retries',
+        '2',
     ]
     if update:
         args.append('--update')

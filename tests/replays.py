@@ -154,10 +154,13 @@ class ReplayTestResults:
                     failing_str += ': ' + ', '.join(segments_str)
                 if run.exceptions:
                     failing_str += '\nExceptions:\n\t' + '\n\t'.join(run.exceptions)
-                roundtrip = (
-                    directory / run.directory / f'{run.name}.roundtrip'
-                ).read_text()
-                failing_strs.append(roundtrip)
+                roundtrip_path = directory / run.directory / f'{run.name}.roundtrip'
+                if roundtrip_path.exists():
+                    roundtrip = roundtrip_path.read_text()
+                    failing_str += 'roundtrip file:\n'
+                    failing_str += roundtrip_path.read_text()
+                failing_str += '\n'
+                failing_strs.append(failing_str)
 
             print('\n'.join(failing_strs))
 
