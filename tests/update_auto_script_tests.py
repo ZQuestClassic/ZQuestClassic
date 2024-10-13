@@ -157,6 +157,7 @@ def run_replays(tests: List[Test], update=False):
         test_results_json = json.loads(test_results_path.read_text('utf-8'))
         results = ReplayTestResults(**test_results_json)
         results.print_failures(output_dir)
+        exit(output.returncode)
 
 
 def validate(tests: List[Test]):

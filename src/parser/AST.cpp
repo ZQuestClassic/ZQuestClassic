@@ -1433,13 +1433,13 @@ void ASTDataDecl::execute(ASTVisitor& visitor, void* param)
 
 void ASTDataDecl::setInitializer(ASTExpr* initializer)
 {
-	if(ASTExprVarInitializer* init = dynamic_cast<ASTExprVarInitializer*>(initializer))
+	if (initializer->isConstant())
 	{
-		initializer_ = init;
+		initializer_ = new ASTExprVarInitializer(initializer, initializer->location);
 	}
 	else
 	{
-		initializer_ = new ASTExprVarInitializer(initializer, initializer->location);
+		initializer_ = initializer;
 	}
 
 	// Give a string or array literal a reference back to this object so it

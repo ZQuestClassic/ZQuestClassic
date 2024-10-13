@@ -283,6 +283,13 @@ void BuildOpcodes::addOpcodes(Container const& container)
 		addOpcode(ptr);
 }
 
+// Register local arrays for cleanup (but just array declarations that create literals, not "pointers").
+// This should go away when arrays are managed by GC.
+void BuildOpcodes::registerLocalArrayDealloc(int stackoffset)
+{
+	arrayRefs.push_back(stackoffset);
+}
+
 void BuildOpcodes::deallocateArrayRef(int32_t arrayRef)
 {
 	addOpcode(new OLoad(new VarArgument(EXP2), new LiteralArgument(arrayRef)));
@@ -1612,26 +1619,17 @@ void BuildOpcodes::caseDataDecl(ASTDataDecl& host, void* param)
 {
 	if(parsing_user_class == puc_vars) return;
 	OpcodeContext& context = *(OpcodeContext*)param;
-	ASTExpr* init = host.getInitializer();
 	Datum& manager = *host.manager;
 	if(manager.is_erased()) //var unused, optimized away
 	{
-		sidefx_visit(init, param);
+		sidefx_visit(host.getInitializer(), param);
 		return;
 	}
 
 	// Ignore inlined values.
 	if (manager.getCompileTimeValue()) return;
 
-	// Switch off to the proper helper function.
-	if (!host.extraArrays.empty()
-		|| (init && (init->isArrayLiteral()
-					 || init->isStringLiteral())))
-	{
-		if (init) buildArrayInit(host, context);
-		else buildArrayUninit(host, context);
-	}
-	else buildVariable(host, context);
+	buildVariable(host, context);
 }
 
 void BuildOpcodes::buildVariable(ASTDataDecl& host, OpcodeContext& context)
@@ -1643,25 +1641,36 @@ void BuildOpcodes::buildVariable(ASTDataDecl& host, OpcodeContext& context)
 	
 	// Load initializer, if present.
 	auto init = host.getInitializer();
-	if(!init && host.getFlag(ASTDataDecl::FL_SKIP_EMPTY_INIT))
-		return;
-	auto val = init ? init->getCompileTimeValue(this, scope) : optional<int>(0);
-	if(!val)
-		visit(init, &context);
+
+	std::optional<int> comptime_val;
+	if (init)
+		comptime_val = init->getCompileTimeValue(this, scope);
+	if (!comptime_val)
+	{
+		if (init)
+			visit(init, &context);
+		else if (!host.extraArrays.empty())
+			buildArrayUninit(host, context);
+		else if (host.getFlag(ASTDataDecl::FL_SKIP_EMPTY_INIT))
+			return;
+		else
+			comptime_val = 0;
+	}
 
 	auto writeType = &host.resolveType(scope, this);
 	bool is_object = writeType && writeType->isObject();
+	bool is_array = writeType && writeType->isArray();
 	bool holds_object = writeType && writeType->canHoldObject();
 
-	// Set variable to EXP1 or val, depending on the initializer.
+	// Set variable to EXP1 or comptime_val, depending on the initializer.
 	if (auto globalId = manager.getGlobalId())
 	{
 		if (holds_object)
 			addOpcode(new OMarkTypeRegister(new GlobalArgument(*globalId), new LiteralArgument((int)writeType->getScriptObjectTypeId())));
 
-		if (val)
-			addOpcode(new OSetImmediate(new GlobalArgument(*globalId), new LiteralArgument(*val)));
-		else if (is_object)
+		if (comptime_val)
+			addOpcode(new OSetImmediate(new GlobalArgument(*globalId), new LiteralArgument(*comptime_val)));
+		else if (is_object && !is_array)
 			addOpcode(new OSetObject(new GlobalArgument(*globalId), new VarArgument(EXP1)));
 		else
 			addOpcode(new OSetRegister(new GlobalArgument(*globalId), new VarArgument(EXP1)));
@@ -1669,12 +1678,12 @@ void BuildOpcodes::buildVariable(ASTDataDecl& host, OpcodeContext& context)
 	else
 	{
 		int32_t offset = manager.getStackOffset(false);
-		if (val)
+		if (comptime_val)
 		{
 			// I tried to optimize this away in some circumstances, it lead to only problems -Em
-			addOpcode(new OStoreV(new LiteralArgument(*val), new LiteralArgument(offset)));
+			addOpcode(new OStoreV(new LiteralArgument(*comptime_val), new LiteralArgument(offset)));
 		}
-		else if (is_object)
+		else if (is_object && !is_array)
 		{
 			// This command decrements the reference of the object currently stored at the position before
 			// setting the new object and incrementing its reference. Since we set the initial value for
@@ -1685,20 +1694,9 @@ void BuildOpcodes::buildVariable(ASTDataDecl& host, OpcodeContext& context)
 	}
 }
 
-void BuildOpcodes::buildArrayInit(ASTDataDecl& host, OpcodeContext& context)
+void BuildOpcodes::buildArrayUninit(ASTDataDecl& host, OpcodeContext& context)
 {
 	Datum& manager = *host.manager;
-
-	// Initializer should take care of everything.
-	visit(host.getInitializer(), &context);
-}
-
-void BuildOpcodes::buildArrayUninit(
-		ASTDataDecl& host, OpcodeContext& context)
-{
-	Datum& manager = *host.manager;
-	if(manager.is_erased()) //var unused, optimized away
-		return;
 
 	// Right now, don't support nested arrays.
 	if (host.extraArrays.size() != 1)
@@ -1728,16 +1726,11 @@ void BuildOpcodes::buildArrayUninit(
 						  new VarArgument(EXP1),
 						  new LiteralArgument(totalSize),
 						  new LiteralArgument(script_object_type_id)));
-		addOpcode(new OSetRegister(new GlobalArgument(*globalId),
-								   new VarArgument(EXP1)));
 	}
 	else
 	{
 		addOpcode(new OAllocateMemImmediate(new VarArgument(EXP1), new LiteralArgument(totalSize), new LiteralArgument(script_object_type_id)));
-		int32_t offset = manager.getStackOffset(false);
-		addOpcode(new OStore(new VarArgument(EXP1), new LiteralArgument(offset)));
-		// Register for cleanup.
-		arrayRefs.push_back(offset);
+		registerLocalArrayDealloc(manager.getStackOffset(false));
 	}
 }
 
@@ -3736,18 +3729,13 @@ void BuildOpcodes::stringLiteralDeclaration(
 						  new VarArgument(EXP1),
 						  new LiteralArgument(size * 10000L),
 						  new LiteralArgument(0)));
-		addOpcode(new OSetRegister(new GlobalArgument(*globalId),
-								   new VarArgument(EXP1)));
 	}
 	else
 	{
 		addOpcode(new OAllocateMemImmediate(new VarArgument(EXP1),
 											new LiteralArgument(size * 10000L),
 											new LiteralArgument(0)));
-		int32_t offset = manager.getStackOffset(false);
-		addOpcode(new OStore(new VarArgument(EXP1), new LiteralArgument(offset)));
-		// Register for cleanup.
-		arrayRefs.push_back(offset);
+		registerLocalArrayDealloc(manager.getStackOffset(false));
 	}
 
 	addOpcode(new OWritePODString(new VarArgument(EXP1), new StringArgument(data)));
@@ -3766,6 +3754,7 @@ void BuildOpcodes::stringLiteralDeclaration(
 					  // new LiteralArgument(0)));
 }
 
+// "free" means it is not attached to a variable declaration (so it's either a param value, or used in an assignment)
 void BuildOpcodes::stringLiteralFree(
 		ASTStringLiteral& host, OpcodeContext& context)
 {
@@ -3784,6 +3773,7 @@ void BuildOpcodes::stringLiteralFree(
 						   new VarArgument(EXP1),
 						   new LiteralArgument(size * 10000L),
 						   new LiteralArgument(0)));
+	// Gets deallocated at end of this usage, see bottom of this method.
 	addOpcode2(init, new OStore(new VarArgument(EXP1),
 									  new LiteralArgument(offset)));
 
@@ -3812,8 +3802,8 @@ void BuildOpcodes::stringLiteralFree(
 	////////////////////////////////////////////////////////////////
 	// Register for cleanup.
 	
+	// Store the dealloc code here.
 	deallocateArrayRef(offset, dealloc);
-	//arrayRefs.push_back(offset); //Replaced by deallocCode
 }
 
 void BuildOpcodes::caseArrayLiteral(ASTArrayLiteral& host, void* param)
@@ -3882,19 +3872,16 @@ void BuildOpcodes::arrayLiteralDeclaration(
 						  new VarArgument(EXP1),
 						  new LiteralArgument(size * 10000L),
 						  new LiteralArgument(script_object_type_id)));
-		addOpcode(new OSetRegister(new GlobalArgument(*globalId),
-								   new VarArgument(EXP1)));
 	}
 	else
 	{
 		addOpcode(new OAllocateMemImmediate(new VarArgument(EXP1),
 											new LiteralArgument(size * 10000L),
 											new LiteralArgument(script_object_type_id)));
-		int32_t offset = manager.getStackOffset(false);
-		addOpcode(new OStore(new VarArgument(EXP1), new LiteralArgument(offset)));
-		// Register for cleanup.
-		arrayRefs.push_back(offset);
+		registerLocalArrayDealloc(manager.getStackOffset(false));
 	}
+
+	addOpcode(new OPushRegister(new VarArgument(EXP1)));
 
 	// Initialize array.
 	std::vector<int32_t> constelements;
@@ -3932,6 +3919,8 @@ void BuildOpcodes::arrayLiteralDeclaration(
 			}
 		}
 	}
+
+	addOpcode(new OPopRegister(new VarArgument(EXP1)));
 }
 
 void BuildOpcodes::arrayLiteralFree(
@@ -3974,6 +3963,7 @@ void BuildOpcodes::arrayLiteralFree(
 			new OAllocateMemImmediate(new VarArgument(EXP1),
 									  new LiteralArgument(size * 10000L),
 									  new LiteralArgument(0)));
+	// Gets deallocated at end of this usage, see bottom of this method.
 	addOpcode2(context.initCode,
 			new OStore(new VarArgument(EXP1),
 							   new LiteralArgument(offset)));
@@ -4027,8 +4017,8 @@ void BuildOpcodes::arrayLiteralFree(
 	////////////////////////////////////////////////////////////////
 	// Register for cleanup.
 
+	// Store the dealloc code here.
 	deallocateArrayRef(offset, context.deallocCode);
-	//arrayRefs.push_back(offset); //Replaced by deallocCode
 }
 
 void BuildOpcodes::caseOptionValue(ASTOptionValue& host, void*)

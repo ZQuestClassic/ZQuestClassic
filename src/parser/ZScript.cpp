@@ -377,8 +377,10 @@ std::optional<int32_t> Variable::getCompileTimeValue(bool getinitvalue) const
 {
 	if(getinitvalue)
 	{
-		ASTExprVarInitializer* init = node.getInitializer();
-		return init ? init->value : std::nullopt;
+		ASTExpr* init = node.getInitializer();
+		if (auto expr_const = dynamic_cast<ASTExprVarInitializer*>(init))
+			return expr_const->value;
+		return std::nullopt;
 	}
 	return std::nullopt;
 }

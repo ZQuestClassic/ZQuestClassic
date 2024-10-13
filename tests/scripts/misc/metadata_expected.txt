@@ -1667,7 +1667,7 @@ DEALLOCATEMEMR D3
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 2; ClassFunc[Car Car::Car(int)] Params
-CALLFUNC 0.0105; ClassFunc[Car Car::Car(int)] Constructor Call
+CALLFUNC 0.0107; ClassFunc[Car Car::Car(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE_OBJECT D2 0.0009
@@ -1703,7 +1703,7 @@ STORE_OBJECT D2 0.0007
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 2; ClassFunc[Car Car::Car(int)] Params
-CALLFUNC 0.0105; ClassFunc[Car Car::Car(int)] Constructor Call
+CALLFUNC 0.0107; ClassFunc[Car Car::Car(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE_OBJECT D2 0.0006
@@ -1713,8 +1713,10 @@ STORE D2 0.0005
 LOAD D2 0.0005; InlineFunc[int WrapDeg(int)] Params
 WRAPDEGREES D2; InlineFunc[int WrapDeg(int)] Body
 ALLOCATEMEMV D2 3 0
-STORE D2 0.0003
+PUSHR D2
 WRITEPODARRAY D2 {1,2,3}
+POP D2
+STORE D2 0.0003
 LOAD D2 0.0003; for(each) #1 ArrDecl
 STORE D2 0.0001
 STOREV 0 0.0002; for(each) #1 IndxDecl
@@ -1723,14 +1725,14 @@ LOAD D0 0.0001; for(each) #1 EndArrayCheck
 ARRAYSIZE D0
 LOAD D3 0.0002
 COMPARER D3 D2
-GOTOCMP 95 >=; for(each) #1 to Else
+GOTOCMP 97 >=; for(each) #1 to Else
 READPODARRAYR D2 D3; for(each) #1 Next Index
 STORE D2 0
 ADDV D3 1
 STORE D3 0.0002
 LOAD D2 0; InlineFunc[void Trace(untyped)] Params AND for(each) #1 Body Start
 TRACER D2; InlineFunc[void Trace(untyped)] Body AND for(each) #1 Body End
-GOTO 83; for(each) #1 End
+GOTO 85; for(each) #1 End
 STOREV 1 0.0002; if(ahhh=true) #1 [Opt:AlwaysOn]
 LOAD D2 0.0002; InlineFunc[void Trace(untyped)] Params
 TRACER D2; InlineFunc[void Trace(untyped)] Body

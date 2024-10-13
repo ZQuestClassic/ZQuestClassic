@@ -38,18 +38,18 @@ LOAD D2 0.0003; UsrFunc[npc Ghost_InitAutoGhost(ffc, int)] Params Start
 PUSHR D2
 LOAD D2 0.0004
 PUSHR D2; UsrFunc[npc Ghost_InitAutoGhost(ffc, int)] Params End
-CALLFUNC 0.4117; UsrFunc[npc Ghost_InitAutoGhost(ffc, int)] Call
+CALLFUNC 0.4119; UsrFunc[npc Ghost_InitAutoGhost(ffc, int)] Call
 POP D4
 STORE D2 0.0002
 PUSHR D4
 PUSHV 89; UsrFunc[void Ghost_SetFlag(int)] Params
-CALLFUNC 0.3048; UsrFunc[void Ghost_SetFlag(int)] Call
+CALLFUNC 0.3050; UsrFunc[void Ghost_SetFlag(int)] Call
 PEEK D4
 PUSHV 3; UsrFunc[void Ghost_SetFlag(int)] Params
-CALLFUNC 0.3048; UsrFunc[void Ghost_SetFlag(int)] Call
+CALLFUNC 0.3050; UsrFunc[void Ghost_SetFlag(int)] Call
 PEEK D4
 PUSHV 16384; UsrFunc[void Ghost_SetFlag(int)] Params
-CALLFUNC 0.3048; UsrFunc[void Ghost_SetFlag(int)] Call
+CALLFUNC 0.3050; UsrFunc[void Ghost_SetFlag(int)] Call
 POP D4
 LOAD D2 0.0002; InlineFunc[void Audio::PlaySound(int)] Params Start
 PUSHR D2
@@ -64,7 +64,7 @@ LOAD D2 0.0003; UsrFunc[void SpawnAnimation(ffc, npc)] Params Start
 PUSHR D2
 LOAD D2 0.0002
 PUSHR D2; UsrFunc[void SpawnAnimation(ffc, npc)] Params End
-CALLFUNC 0.5599; UsrFunc[void SpawnAnimation(ffc, npc)] Call
+CALLFUNC 0.5601; UsrFunc[void SpawnAnimation(ffc, npc)] Call
 POP D4
 LOAD D2 0.0002
 PUSHR D2
@@ -99,14 +99,14 @@ PUSHR D4
 LOAD D2 0.0001; UsrFunc[void Ghost_MoveTowardLink(int, int)] Params Start
 PUSHR D2
 PUSHV 3; UsrFunc[void Ghost_MoveTowardLink(int, int)] Params End
-CALLFUNC 0.4285; UsrFunc[void Ghost_MoveTowardLink(int, int)] Call
+CALLFUNC 0.4287; UsrFunc[void Ghost_MoveTowardLink(int, int)] Call
 PEEK D4
 LOAD D2 0.0003; UsrFunc[bool Ghost_Waitframe(ffc, npc, bool, bool)] Params Start
 PUSHR D2
 LOAD D2 0.0002
 PUSHR D2
 PUSHARGSV 1 0.0002; UsrFunc[bool Ghost_Waitframe(ffc, npc, bool, bool)] Params End
-CALLFUNC 0.4350; UsrFunc[bool Ghost_Waitframe(ffc, npc, bool, bool)] Call
+CALLFUNC 0.4352; UsrFunc[bool Ghost_Waitframe(ffc, npc, bool, bool)] Call
 POP D4; while(true) #9 Body [Opt:AlwaysOn] End
 GOTO 55; while() #9 End AND [Opt:NeverRet] AND void run(int) Body End
 SETR D4 SP2; Func[int Angle(int, int, int, int)] Body Start
@@ -355,7 +355,7 @@ SETR D4 SP2; Func[bool __IsPit(int)] Body Start
 PUSHR D4; return Start
 LOAD D2 0; UsrFunc[bool IsPit(int)] Params Start
 PUSHR D2; UsrFunc[bool IsPit(int)] Params End
-CALLFUNC 0.5547; UsrFunc[bool IsPit(int)] Call
+CALLFUNC 0.5549; UsrFunc[bool IsPit(int)] Call
 POP D4
 POP D5; return End
 RETURNFUNC; Func[bool __IsPit(int)] Body End
@@ -776,7 +776,7 @@ SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 885 ==; Test 'if'
 PUSHR D4; if() #616 Test AND if() #365 Body Start
-CALLFUNC 0.4333; UsrFunc[bool IsSideview()] Call
+CALLFUNC 0.4335; UsrFunc[bool IsSideview()] Call
 POP D4
 COMPAREV D2 0
 GOTOCMP 763 ==
@@ -1782,7 +1782,7 @@ LOAD D2 0.0005; UsrFunc[void Ghost_SetPosition(ffc, npc)] Params Start
 PUSHR D2
 LOAD D2 0.0004
 PUSHR D2; UsrFunc[void Ghost_SetPosition(ffc, npc)] Params End
-CALLFUNC 0.2508; UsrFunc[void Ghost_SetPosition(ffc, npc)] Call
+CALLFUNC 0.2510; UsrFunc[void Ghost_SetPosition(ffc, npc)] Call
 PEEK D4
 PUSHV 512; UsrFunc[bool Ghost_FlagIsSet(int)] Params
 CALLFUNC 0.1485; UsrFunc[bool Ghost_FlagIsSet(int)] Call
@@ -1843,7 +1843,7 @@ LOAD D2 0.0005; UsrFunc[void Ghost_CheckHit(ffc, npc)] Params Start
 PUSHR D2
 LOAD D2 0.0004
 PUSHR D2; UsrFunc[void Ghost_CheckHit(ffc, npc)] Params End
-CALLFUNC 0.2642; UsrFunc[void Ghost_CheckHit(ffc, npc)] Call
+CALLFUNC 0.2644; UsrFunc[void Ghost_CheckHit(ffc, npc)] Call
 POP D4; while() #2 Body End
 GOTO 1690; while() #2 End
 LOAD D2 0.0003
@@ -2138,7 +2138,7 @@ RETURNFUNC; Func[void __Ghost_DrawShadow(npc)] Body End
 PUSHARGSV 0 0.0004; Func[void Ghost_WaitframeLight(ffc, npc)] Body Start
 SETR D4 SP2
 ALLOCATEMEMV D2 24 0
-STORE D2 0.0002
+PUSHR D2
 SETR D0 D2
 PUSHR D0
 SETR D2 GD1
@@ -2232,6 +2232,8 @@ PUSHR D0
 SETR D2 GD23
 POP D0
 WRITEPODARRAYVR 22 D2
+POP D2
+STORE D2 0.0002
 ALLOCATEMEMV D2 21 0
 STORE D2 0.0001
 SETR D2 GD25; if() #355 Test
@@ -2241,13 +2243,13 @@ READPODARRAYV D2 0
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
-GOTOCMP 2240 ==; Test 'if'
+GOTOCMP 2242 ==; Test 'if'
 STOREV 0 0; for() #67 setup AND if() #355 Body Start
 LOAD D2 0; for() #67 LoopTest
 COMPAREV D2 21
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 2240 ==; for() #67 TestFail?
+GOTOCMP 2242 ==; for() #67 TestFail?
 SETR D2 GD25; for() #67 Body Start
 PUSHR D2
 LOAD D2 0
@@ -2264,11 +2266,11 @@ WRITEPODARRAYRR D3 D2; for() #67 Body End
 LOAD D2 0; for() #67 LoopIncrement
 ADDV D2 1
 STORE D2 0
-GOTO 2218; for() #67 End
+GOTO 2220; for() #67 End
 LOAD D2 0.0004; if() #355 Body End AND InlineFunc[bool npc::isValid()] Params AND if() #356 Test
 ISVALIDNPC D2; InlineFunc[bool npc::isValid()] Body
 COMPAREV D2 0
-GOTOCMP 2257 ==; Test 'if'
+GOTOCMP 2259 ==; Test 'if'
 LOAD D2 0.0002; if() #356 Body Start
 ORV D2 65536
 PUSHR D2
@@ -2285,7 +2287,7 @@ SETR NPCMISCD D2; if() #356 Body End
 LOAD D2 0.0004; InlineFunc[bool npc::isValid()] Params AND if() #165 Test AND do-while() #2 Body Start
 ISVALIDNPC D2; InlineFunc[bool npc::isValid()] Body
 COMPAREV D2 0
-GOTOCMP 2319 ==; Test 'if'
+GOTOCMP 2321 ==; Test 'if'
 SETR D2 GD25; if() #167 Test AND if(true) #166 [Opt:AlwaysOn] AND if() #165 Body Start
 PUSHR D2
 POP D0
@@ -2293,7 +2295,7 @@ READPODARRAYV D2 0
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
-GOTOCMP 2294 ==; Test 'if'
+GOTOCMP 2296 ==; Test 'if'
 ALLOCATEMEMV D2 34 0; if() #167 Body Start
 STORE D2 0
 PUSHR D4
@@ -2303,7 +2305,7 @@ LOAD D2 0.0004
 PUSHR D2
 LOAD D2 0
 PUSHR D2; UsrFunc[void __SetUpDrawingArray(ffc, npc, int[])] Params End
-CALLFUNC 0.5244; UsrFunc[void __SetUpDrawingArray(ffc, npc, int[])] Call
+CALLFUNC 0.5246; UsrFunc[void __SetUpDrawingArray(ffc, npc, int[])] Call
 POP D4
 LOAD D2 0
 PUSHR D2
@@ -2314,11 +2316,11 @@ WRITEPODARRAYVR 23 D2
 PUSHR D4
 LOAD D2 0.0005; UsrFunc[void __HideFFCAndWait(ffc)] Params Start
 PUSHR D2; UsrFunc[void __HideFFCAndWait(ffc)] Params End
-CALLFUNC 0.5519; UsrFunc[void __HideFFCAndWait(ffc)] Call
+CALLFUNC 0.5521; UsrFunc[void __HideFFCAndWait(ffc)] Call
 POP D4
 LOAD D3 0
 DEALLOCATEMEMR D3
-GOTO 2324; if() #167 Body End
+GOTO 2326; if() #167 Body End
 ALLOCATEMEMV D2 10 0; if() #167 Else Start
 STORE D2 0
 PUSHR D4
@@ -2328,7 +2330,7 @@ LOAD D2 0.0004
 PUSHR D2
 LOAD D2 0
 PUSHR D2; UsrFunc[void __SetUpDrawingArray(ffc, npc, int[])] Params End
-CALLFUNC 0.5244; UsrFunc[void __SetUpDrawingArray(ffc, npc, int[])] Call
+CALLFUNC 0.5246; UsrFunc[void __SetUpDrawingArray(ffc, npc, int[])] Call
 POP D4
 LOAD D2 0
 PUSHR D2
@@ -2339,15 +2341,15 @@ WRITEPODARRAYVR 23 D2
 PUSHR D4
 LOAD D2 0.0005; UsrFunc[void __HideFFCAndWait(ffc)] Params Start
 PUSHR D2; UsrFunc[void __HideFFCAndWait(ffc)] Params End
-CALLFUNC 0.5519; UsrFunc[void __HideFFCAndWait(ffc)] Call
+CALLFUNC 0.5521; UsrFunc[void __HideFFCAndWait(ffc)] Call
 POP D4
 LOAD D3 0
 DEALLOCATEMEMR D3; if() #167 Else End
-GOTO 2324; if() #165 Body End
+GOTO 2326; if() #165 Body End
 PUSHR D4; if() #165 Else Start
 LOAD D2 0.0005; UsrFunc[void __HideFFCAndWait(ffc)] Params Start
 PUSHR D2; UsrFunc[void __HideFFCAndWait(ffc)] Params End
-CALLFUNC 0.5519; UsrFunc[void __HideFFCAndWait(ffc)] Call
+CALLFUNC 0.5521; UsrFunc[void __HideFFCAndWait(ffc)] Call
 POP D4; if() #165 Else End
 LOAD D2 0.0002
 PUSHR D2
@@ -2471,13 +2473,13 @@ READPODARRAYV D2 0
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
-GOTOCMP 2471 ==; Test 'if'
+GOTOCMP 2473 ==; Test 'if'
 STOREV 0 0; for() #68 setup AND if() #168 Body Start
 LOAD D2 0; for() #68 LoopTest
 COMPAREV D2 21
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 2477 ==; for() #68 TestFail?
+GOTOCMP 2479 ==; for() #68 TestFail?
 LOAD D2 0.0001; for() #68 Body Start
 PUSHR D2
 LOAD D2 0
@@ -2494,8 +2496,8 @@ WRITEPODARRAYRR D3 D2; for() #68 Body End
 LOAD D2 0; for() #68 LoopIncrement
 ADDV D2 1
 STORE D2 0
-GOTO 2448; for() #68 End
-GOTO 2477; if() #168 Body End
+GOTO 2450; for() #68 End
+GOTO 2479; if() #168 Body End
 SETV D2 0; if() #168 Else Start
 PUSHR D2
 SETR D2 GD25
@@ -2510,11 +2512,11 @@ ANDV D2 2
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 2257 !=; Test 'while'
+GOTOCMP 2259 !=; Test 'while'
 LOAD D2 0.0004; InlineFunc[bool npc::isValid()] Params AND if() #357 Test
 ISVALIDNPC D2; InlineFunc[bool npc::isValid()] Body
 COMPAREV D2 0
-GOTOCMP 2502 ==; Test 'if'
+GOTOCMP 2504 ==; Test 'if'
 SETV D2 65536; if() #357 Body Start
 PUSHR D2
 LOAD D2 0.0004
@@ -2537,18 +2539,18 @@ SETR D4 SP2; Func[void Ghost_SetPosition(ffc, npc)] Body Start
 LOAD D2 0; InlineFunc[bool npc::isValid()] Params AND unless() #324 Test
 ISVALIDNPC D2; InlineFunc[bool npc::isValid()] Body
 COMPAREV D2 0
-GOTOCMP 2640 ==; Test 'unless' AND return (Void) AND unless() #324 Body
+GOTOCMP 2642 ==; Test 'unless' AND return (Void) AND unless() #324 Body
 PUSHR D4; if() #159 Test
 PUSHV 16384; UsrFunc[bool Ghost_FlagIsSet(int)] Params
 CALLFUNC 0.1485; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP D4
 COMPAREV D2 0
-GOTOCMP 2521 !=
+GOTOCMP 2523 !=
 SETV D2 1
-GOTO 2522
+GOTO 2524
 SETV D2 0
 COMPAREV D2 0
-GOTOCMP 2552 ==; Test 'if'
+GOTOCMP 2554 ==; Test 'if'
 SETR D2 GD1; if() #159 Body Start
 PUSHR D2
 LOAD D2 0
@@ -2576,7 +2578,7 @@ PUSHR D3
 POP D2
 POP REFNPC
 SETR NPCZ D2
-GOTO 2584; if() #159 Body End
+GOTO 2586; if() #159 Body End
 SETR D2 GD1; if() #159 Else Start
 PUSHR D2
 LOAD D2 0
@@ -2679,7 +2681,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 2811 ==; Test 'if'
+GOTOCMP 2813 ==; Test 'if'
 SETR D2 GD17; if() #260 Body Start
 ORV D2 1
 SETR GD17 D2
@@ -2692,7 +2694,7 @@ SETR D2 GD20; if() #261 Test
 COMPAREV D2 32
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 2670 ==; Test 'if'
+GOTOCMP 2672 ==; Test 'if'
 SETV D2 32; if() #261 Body Start
 SETR GD20 D2; if() #261 Body End
 PUSHR D4; if() #262 Test
@@ -2700,7 +2702,7 @@ PUSHV 1; UsrFunc[bool Ghost_FlagIsSet(int)] Params
 CALLFUNC 0.1485; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP D4
 COMPAREV D2 0
-GOTOCMP 2811 ==; Test 'if'
+GOTOCMP 2813 ==; Test 'if'
 SETR D2 LINKX; if() #262 Body Start
 PUSHR D2
 SETR D2 GD1
@@ -2723,7 +2725,7 @@ ADDV D2 1
 MULTV D2 16
 POP D3
 COMPARER D3 D2
-GOTOCMP 2710 >=
+GOTOCMP 2712 >=
 LOAD D2 0.0003; InlineFunc[int Abs(int)] Params
 ABS D2; InlineFunc[int Abs(int)] Body
 PUSHR D2
@@ -2732,12 +2734,12 @@ ADDV D2 1
 MULTV D2 16
 POP D3
 COMPARER D3 D2
-GOTOCMP 2710 >=
+GOTOCMP 2712 >=
 SETV D2 1
-GOTO 2711
+GOTO 2713
 SETV D2 0
 COMPAREV D2 0
-GOTOCMP 2740 ==; Test 'if'
+GOTOCMP 2742 ==; Test 'if'
 SETR D2 LINKDIR; if() #263 Test AND if() #87 Body Start
 ANDV D2 2
 PUSHR D2
@@ -2745,26 +2747,26 @@ SETR D2 GD4
 ANDV D2 2
 POP D3
 COMPARER D3 D2
-GOTOCMP 2732 ==
+GOTOCMP 2734 ==
 SETR D2 GD4
 COMPAREV D2 3
-GOTOCMP 2732 >
+GOTOCMP 2734 >
 PUSHR D4
 PUSHV 3; UsrFunc[bool Ghost_FlagIsSet(int)] Params
 CALLFUNC 0.1485; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP D4
 COMPAREV D2 0
-GOTOCMP 2732 !=
+GOTOCMP 2734 !=
 SETV D2 0
-GOTO 2733
+GOTO 2735
 SETV D2 1
 COMPAREV D2 0
-GOTOCMP 2811 ==; Test 'if'
+GOTOCMP 2813 ==; Test 'if'
 SETR D2 LINKDIR; if() #263 Body Start
 LSHIFTV D2 12
 ORV D2 16
 SETR GD21 D2; if() #263 Body End
-GOTO 2811; if() #87 Body End
+GOTO 2813; if() #87 Body End
 LOAD D2 0.0004; InlineFunc[int Abs(int)] Params AND if() #88 Test AND if() #87 Else Start
 ABS D2; InlineFunc[int Abs(int)] Body
 PUSHR D2
@@ -2774,73 +2776,73 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 2781 ==; Test 'if'
+GOTOCMP 2783 ==; Test 'if'
 SETR D2 GD4; if() #264 Test AND if() #88 Body Start
 COMPAREV D2 0
-GOTOCMP 2767 ==
+GOTOCMP 2769 ==
 SETR D2 GD4
 COMPAREV D2 1
-GOTOCMP 2767 ==
+GOTOCMP 2769 ==
 SETR D2 GD4
 COMPAREV D2 3
-GOTOCMP 2767 >
+GOTOCMP 2769 >
 PUSHR D4
 PUSHV 3; UsrFunc[bool Ghost_FlagIsSet(int)] Params
 CALLFUNC 0.1485; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP D4
 COMPAREV D2 0
-GOTOCMP 2767 !=
+GOTOCMP 2769 !=
 SETV D2 0
-GOTO 2768
+GOTO 2770
 SETV D2 1
 COMPAREV D2 0
-GOTOCMP 2811 ==; Test 'if'
+GOTOCMP 2813 ==; Test 'if'
 LOAD D2 0.0003; if() #89 Test AND if() #264 Body Start
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
-GOTOCMP 2778 ==; Test 'if'
+GOTOCMP 2780 ==; Test 'if'
 SETV D2 16; if() #89 Body Start
 SETR GD21 D2
-GOTO 2811; if() #89 Body End
+GOTO 2813; if() #89 Body End
 SETV D2 4112; if() #89 Else Start
 SETR GD21 D2; if() #89 Else End
-GOTO 2811; if() #264 Body End AND if() #88 Body End
+GOTO 2813; if() #264 Body End AND if() #88 Body End
 SETR D2 GD4; if() #265 Test AND if() #88 Else Start
 COMPAREV D2 2
-GOTOCMP 2798 ==
+GOTOCMP 2800 ==
 SETR D2 GD4
 COMPAREV D2 3
-GOTOCMP 2798 ==
+GOTOCMP 2800 ==
 SETR D2 GD4
 COMPAREV D2 3
-GOTOCMP 2798 >
+GOTOCMP 2800 >
 PUSHR D4
 PUSHV 3; UsrFunc[bool Ghost_FlagIsSet(int)] Params
 CALLFUNC 0.1485; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP D4
 COMPAREV D2 0
-GOTOCMP 2798 !=
+GOTOCMP 2800 !=
 SETV D2 0
-GOTO 2799
+GOTO 2801
 SETV D2 1
 COMPAREV D2 0
-GOTOCMP 2811 ==; Test 'if'
+GOTOCMP 2813 ==; Test 'if'
 LOAD D2 0.0004; if() #90 Test AND if() #265 Body Start
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
-GOTOCMP 2809 ==; Test 'if'
+GOTOCMP 2811 ==; Test 'if'
 SETV D2 8208; if() #90 Body Start
 SETR GD21 D2
-GOTO 2811; if() #90 Body End
+GOTO 2813; if() #90 Body End
 SETV D2 12304; if() #90 Else Start
 SETR GD21 D2; if() #90 Else End
 SETR D2 GD21; if() #265 Body End AND if() #88 Else End AND if() #87 Else End AND if() #262 Body End AND if() #260 Body End AND if() #266 Test
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 3038 ==; Test 'if'
+GOTOCMP 3040 ==; Test 'if'
 SETR D2 GD21; if() #266 Body Start
 RSHIFTV D2 12
 STORE D2 0.0004
@@ -2853,7 +2855,7 @@ PUSHV 5; UsrFunc[bool Ghost_FlagIsSet(int)] Params
 CALLFUNC 0.1485; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP D4
 COMPAREV D2 0
-GOTOCMP 2832 ==; Test 'if'
+GOTOCMP 2834 ==; Test 'if'
 LOAD D2 0.0002; if() #267 Body Start
 DIVV D2 2
 STORE D2 0.0002; if() #267 Body End
@@ -2866,7 +2868,7 @@ PUSHV 2; UsrFunc[bool Ghost_CanMove(int, int, int)] Params End
 CALLFUNC 0.0334; UsrFunc[bool Ghost_CanMove(int, int, int)] Call
 POP D4
 COMPAREV D2 0
-GOTOCMP 2940 ==; Test 'if'
+GOTOCMP 2942 ==; Test 'if'
 STOREV 0 0.0001; if() #91 Body Start
 STOREV 0 0
 LOAD D2 0.0003
@@ -2876,7 +2878,7 @@ LOAD D2 0.0003; if() #92 Test
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
-GOTOCMP 2860 ==; Test 'if'
+GOTOCMP 2862 ==; Test 'if'
 LOAD D2 0.0004; if() #92 Body Start
 LSHIFTV D2 12
 PUSHR D2
@@ -2884,42 +2886,42 @@ LOAD D2 0.0003
 POP D3
 ORR D2 D3
 SETR GD21 D2
-GOTO 2862; if() #92 Body End
+GOTO 2864; if() #92 Body End
 SETV D2 0; if() #92 Else Start
 SETR GD21 D2; if() #92 Else End
 LOAD D2 0.0004; if() #93 Test
 COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 2871 ==; Test 'if'
+GOTOCMP 2873 ==; Test 'if'
 LOAD D2 0.0002; if() #93 Body Start
 SUBV2 0 D2
 STORE D2 0
-GOTO 2890; if() #93 Body End
+GOTO 2892; if() #93 Body End
 LOAD D2 0.0004; if() #94 Test AND if() #93 Else Start
 COMPAREV D2 1
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 2879 ==; Test 'if'
+GOTOCMP 2881 ==; Test 'if'
 LOAD D2 0.0002; if() #94 Body Start
 STORE D2 0
-GOTO 2890; if() #94 Body End
+GOTO 2892; if() #94 Body End
 LOAD D2 0.0004; if() #95 Test AND if() #94 Else Start
 COMPAREV D2 2
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 2888 ==; Test 'if'
+GOTOCMP 2890 ==; Test 'if'
 LOAD D2 0.0002; if() #95 Body Start
 SUBV2 0 D2
 STORE D2 0.0001
-GOTO 2890; if() #95 Body End
+GOTO 2892; if() #95 Body End
 LOAD D2 0.0002; if() #95 Else Start
 STORE D2 0.0001; if() #95 Else End
 LOAD D2 0.0001; if() #94 Else End AND if() #93 Else End AND if() #96 Test
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 2915 ==; Test 'if'
+GOTOCMP 2917 ==; Test 'if'
 SETR D2 GD1; if() #96 Body Start
 PUSHR D2
 LOAD D2 0.0001
@@ -2937,14 +2939,14 @@ LOAD D2 0.0006; UsrFunc[void Ghost_SetPosition(ffc, npc)] Params Start
 PUSHR D2
 LOAD D2 0.0005
 PUSHR D2; UsrFunc[void Ghost_SetPosition(ffc, npc)] Params End
-CALLFUNC 0.2508; UsrFunc[void Ghost_SetPosition(ffc, npc)] Call
+CALLFUNC 0.2510; UsrFunc[void Ghost_SetPosition(ffc, npc)] Call
 POP D4
-GOTO 3038; if() #96 Body End
+GOTO 3040; if() #96 Body End
 LOAD D2 0; if() #268 Test AND if() #96 Else Start
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 3038 ==; Test 'if'
+GOTOCMP 3040 ==; Test 'if'
 SETR D2 GD2; if() #268 Body Start
 PUSHR D2
 LOAD D2 0
@@ -2962,9 +2964,9 @@ LOAD D2 0.0006; UsrFunc[void Ghost_SetPosition(ffc, npc)] Params Start
 PUSHR D2
 LOAD D2 0.0005
 PUSHR D2; UsrFunc[void Ghost_SetPosition(ffc, npc)] Params End
-CALLFUNC 0.2508; UsrFunc[void Ghost_SetPosition(ffc, npc)] Call
+CALLFUNC 0.2510; UsrFunc[void Ghost_SetPosition(ffc, npc)] Call
 POP D4; if() #268 Body End
-GOTO 3038; if() #96 Else End AND if() #91 Body End
+GOTO 3040; if() #96 Else End AND if() #91 Body End
 STOREV -1 0.0001; if() #91 Else Start
 STOREV -1 0
 SETV D2 0
@@ -2976,36 +2978,36 @@ LOAD D2 0.0004; if() #97 Test
 COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 2958 ==; Test 'if'
+GOTOCMP 2960 ==; Test 'if'
 SETR D2 GD2; InlineFunc[int Floor(int)] Params Start AND if() #97 Body Start
 DIVV D2 8; InlineFunc[int Floor(int)] Params End
 FLOOR D2; InlineFunc[int Floor(int)] Body
 MULTV D2 8
 STORE D2 0
-GOTO 2987; if() #97 Body End
+GOTO 2989; if() #97 Body End
 LOAD D2 0.0004; if() #98 Test AND if() #97 Else Start
 COMPAREV D2 1
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 2970 ==; Test 'if'
+GOTOCMP 2972 ==; Test 'if'
 SETR D2 GD2; InlineFunc[int Ceiling(int)] Params Start AND if() #98 Body Start
 LSHIFTV D2 0
 DIVV D2 8; InlineFunc[int Ceiling(int)] Params End
 CEILING D2; InlineFunc[int Ceiling(int)] Body
 MULTV D2 8
 STORE D2 0
-GOTO 2987; if() #98 Body End
+GOTO 2989; if() #98 Body End
 LOAD D2 0.0004; if() #99 Test AND if() #98 Else Start
 COMPAREV D2 2
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 2981 ==; Test 'if'
+GOTOCMP 2983 ==; Test 'if'
 SETR D2 GD1; InlineFunc[int Floor(int)] Params Start AND if() #99 Body Start
 DIVV D2 8; InlineFunc[int Floor(int)] Params End
 FLOOR D2; InlineFunc[int Floor(int)] Body
 MULTV D2 8
 STORE D2 0.0001
-GOTO 2987; if() #99 Body End
+GOTO 2989; if() #99 Body End
 SETR D2 GD1; InlineFunc[int Ceiling(int)] Params Start AND if() #99 Else Start
 LSHIFTV D2 0
 DIVV D2 8; InlineFunc[int Ceiling(int)] Params End
@@ -3016,7 +3018,7 @@ LOAD D2 0.0001; if() #98 Else End AND if() #97 Else End AND if() #100 Test
 COMPAREV D2 -1
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 3013 ==; Test 'if'
+GOTOCMP 3015 ==; Test 'if'
 SETR D2 GD18; if() #100 Body Start
 PUSHR D2
 LOAD D2 0.0001
@@ -3035,14 +3037,14 @@ LOAD D2 0.0006; UsrFunc[void Ghost_SetPosition(ffc, npc)] Params Start
 PUSHR D2
 LOAD D2 0.0005
 PUSHR D2; UsrFunc[void Ghost_SetPosition(ffc, npc)] Params End
-CALLFUNC 0.2508; UsrFunc[void Ghost_SetPosition(ffc, npc)] Call
+CALLFUNC 0.2510; UsrFunc[void Ghost_SetPosition(ffc, npc)] Call
 POP D4
-GOTO 3038; if() #100 Body End
+GOTO 3040; if() #100 Body End
 LOAD D2 0; if() #269 Test AND if() #100 Else Start
 COMPAREV D2 -1
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 3038 ==; Test 'if'
+GOTOCMP 3040 ==; Test 'if'
 SETR D2 GD19; if() #269 Body Start
 PUSHR D2
 LOAD D2 0
@@ -3061,7 +3063,7 @@ LOAD D2 0.0006; UsrFunc[void Ghost_SetPosition(ffc, npc)] Params Start
 PUSHR D2
 LOAD D2 0.0005
 PUSHR D2; UsrFunc[void Ghost_SetPosition(ffc, npc)] Params End
-CALLFUNC 0.2508; UsrFunc[void Ghost_SetPosition(ffc, npc)] Call
+CALLFUNC 0.2510; UsrFunc[void Ghost_SetPosition(ffc, npc)] Call
 POP D4; if() #269 Body End
 POPARGS D5 0.0007; if() #100 Else End AND if() #91 Else End AND if() #266 Body End
 RETURNFUNC; Func[void Ghost_CheckHit(ffc, npc)] Body End
@@ -3079,7 +3081,7 @@ ANDV D2 65536
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 3066 ==; Test 'if'
+GOTOCMP 3068 ==; Test 'if'
 SETR D2 GD16; if() #158 Body Start
 PUSHR D2
 LOAD D2 0
@@ -3090,7 +3092,7 @@ SETR D2 D3
 POP D3
 ORR D2 D3
 SETR GD16 D2
-GOTO 3072; if() #158 Body End
+GOTO 3074; if() #158 Body End
 SETR D2 GD15; if() #158 Else Start
 PUSHR D2
 LOAD D2 0
@@ -3105,7 +3107,7 @@ ANDV D2 65536
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 3092 ==; Test 'if'
+GOTOCMP 3094 ==; Test 'if'
 SETR D2 GD16; if() #160 Body Start
 PUSHR D2
 LOAD D2 0
@@ -3116,7 +3118,7 @@ SETR D2 D3
 POP D3
 ANDR D2 D3
 SETR GD16 D2
-GOTO 3099; if() #160 Body End
+GOTO 3101; if() #160 Body End
 SETR D2 GD15; if() #160 Else Start
 PUSHR D2
 LOAD D2 0
@@ -3130,38 +3132,38 @@ PUSHARGSV 0 0.0004; Func[void Ghost_MoveXY(int, int, int)] Body Start
 SETR D4 SP2
 LOAD D2 0.0005; if() #316 Test
 COMPAREV D2 0
-GOTOCMP 3119 >=
+GOTOCMP 3121 >=
 PUSHR D4
-CALLFUNC 0.4333; UsrFunc[bool IsSideview()] Call
+CALLFUNC 0.4335; UsrFunc[bool IsSideview()] Call
 POP D4
 COMPAREV D2 0
-GOTOCMP 3119 ==
+GOTOCMP 3121 ==
 PUSHR D4
 PUSHV 32; UsrFunc[bool Ghost_FlagIsSet(int)] Params
 CALLFUNC 0.1485; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP D4
 COMPAREV D2 0
-GOTOCMP 3119 !=
+GOTOCMP 3121 !=
 SETV D2 1
-GOTO 3120
+GOTO 3122
 SETV D2 0
 COMPAREV D2 0
-GOTOCMP 3124 ==; Test 'if'
+GOTOCMP 3126 ==; Test 'if'
 SETV D2 0; if() #316 Body Start
 STORE D2 0.0005; if() #316 Body End
 LOAD D2 0.0006; while() #3 Test AND InlineFunc[int Abs(int)] Params
 ABS D2; InlineFunc[int Abs(int)] Body
 COMPAREV D2 8
-GOTOCMP 3134 >
+GOTOCMP 3136 >
 LOAD D2 0.0005; InlineFunc[int Abs(int)] Params
 ABS D2; InlineFunc[int Abs(int)] Body
 COMPAREV D2 8
-GOTOCMP 3134 >
+GOTOCMP 3136 >
 SETV D2 0
-GOTO 3135
+GOTO 3137
 SETV D2 1
 COMPAREV D2 0
-GOTOCMP 3201 ==; Test 'while'
+GOTOCMP 3203 ==; Test 'while'
 LOAD D2 0.0006; InlineFunc[int Abs(int)] Params AND if() #141 Test AND while() #3 Body Start
 ABS D2; InlineFunc[int Abs(int)] Body
 PUSHR D2
@@ -3171,61 +3173,61 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I>=
 COMPAREV D2 0
-GOTOCMP 3174 ==; Test 'if'
+GOTOCMP 3176 ==; Test 'if'
 LOAD D2 0.0006; if() #142 Test AND if() #141 Body Start
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
-GOTOCMP 3163 ==; Test 'if'
+GOTOCMP 3165 ==; Test 'if'
 PUSHR D4; if() #142 Body Start
 PUSHV 8; UsrFunc[void Ghost_MoveXY(int, int, int)] Params Start
 PUSHV 0
 LOAD D2 0.0004
 PUSHR D2; UsrFunc[void Ghost_MoveXY(int, int, int)] Params End
-CALLFUNC 0.3101; UsrFunc[void Ghost_MoveXY(int, int, int)] Call
+CALLFUNC 0.3103; UsrFunc[void Ghost_MoveXY(int, int, int)] Call
 POP D4
 LOAD D2 0.0006
 SUBV D2 8
 STORE D2 0.0006
-GOTO 3124; if() #142 Body End
+GOTO 3126; if() #142 Body End
 PUSHR D4; if() #142 Else Start
 PUSHV -8; UsrFunc[void Ghost_MoveXY(int, int, int)] Params Start
 PUSHV 0
 LOAD D2 0.0004
 PUSHR D2; UsrFunc[void Ghost_MoveXY(int, int, int)] Params End
-CALLFUNC 0.3101; UsrFunc[void Ghost_MoveXY(int, int, int)] Call
+CALLFUNC 0.3103; UsrFunc[void Ghost_MoveXY(int, int, int)] Call
 POP D4
 LOAD D2 0.0006
 ADDV D2 8
 STORE D2 0.0006; if() #142 Else End
-GOTO 3124; if() #141 Body End
+GOTO 3126; if() #141 Body End
 LOAD D2 0.0005; if() #143 Test AND if() #141 Else Start
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
-GOTOCMP 3190 ==; Test 'if'
+GOTOCMP 3192 ==; Test 'if'
 PUSHR D4; if() #143 Body Start
 PUSHV 0; UsrFunc[void Ghost_MoveXY(int, int, int)] Params Start
 PUSHV 8
 LOAD D2 0.0004
 PUSHR D2; UsrFunc[void Ghost_MoveXY(int, int, int)] Params End
-CALLFUNC 0.3101; UsrFunc[void Ghost_MoveXY(int, int, int)] Call
+CALLFUNC 0.3103; UsrFunc[void Ghost_MoveXY(int, int, int)] Call
 POP D4
 LOAD D2 0.0005
 SUBV D2 8
 STORE D2 0.0005
-GOTO 3124; if() #143 Body End
+GOTO 3126; if() #143 Body End
 PUSHR D4; if() #143 Else Start
 PUSHV 0; UsrFunc[void Ghost_MoveXY(int, int, int)] Params Start
 PUSHV -8
 LOAD D2 0.0004
 PUSHR D2; UsrFunc[void Ghost_MoveXY(int, int, int)] Params End
-CALLFUNC 0.3101; UsrFunc[void Ghost_MoveXY(int, int, int)] Call
+CALLFUNC 0.3103; UsrFunc[void Ghost_MoveXY(int, int, int)] Call
 POP D4
 LOAD D2 0.0005
 ADDV D2 8
 STORE D2 0.0005; if() #143 Else End
-GOTO 3124; if() #141 Else End AND while() #3 Body End AND while() #3 End
+GOTO 3126; if() #141 Else End AND while() #3 Body End AND while() #3 End
 STOREV 0 0.0003
 STOREV 0 0.0002
 STOREV 0 0.0001
@@ -3234,7 +3236,7 @@ LOAD D2 0.0006; if() #144 Test
 COMPAREV D2 0
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 3276 ==; Test 'if'
+GOTOCMP 3278 ==; Test 'if'
 SETR D2 GD22; if() #144 Body Start
 RSHIFTV D2 8
 STORE D2 0.0002
@@ -3263,14 +3265,14 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 3246 ==; Test 'if'
+GOTOCMP 3248 ==; Test 'if'
 LOAD D2 0.0003; if() #145 Body Start
 PUSHR D2
 LOAD D2 0.0006
 POP D3
 ADDR D2 D3
 STORE D2 0.0003
-GOTO 3268; if() #145 Body End
+GOTO 3270; if() #145 Body End
 PUSHR D4; if() #146 Test AND if() #145 Else Start
 PUSHV 2; UsrFunc[bool Ghost_CanMove(int, int, int)] Params Start
 LOAD D2 0.0006
@@ -3281,14 +3283,14 @@ PUSHR D2; UsrFunc[bool Ghost_CanMove(int, int, int)] Params End
 CALLFUNC 0.0334; UsrFunc[bool Ghost_CanMove(int, int, int)] Call
 POP D4
 COMPAREV D2 0
-GOTOCMP 3264 ==; Test 'if'
+GOTOCMP 3266 ==; Test 'if'
 LOAD D2 0.0003; if() #146 Body Start
 PUSHR D2
 LOAD D2 0.0006
 POP D3
 ADDR D2 D3
 STORE D2 0.0003
-GOTO 3268; if() #146 Body End
+GOTO 3270; if() #146 Body End
 LOAD D2 0.0003; if() #146 Else Start
 RSHIFTV D2 3
 LSHIFTV D2 3
@@ -3300,12 +3302,12 @@ POP D3
 SUBR D3 D2
 SETR D2 D3
 SETR GD1 D2
-GOTO 3359; if() #144 Body End
+GOTO 3361; if() #144 Body End
 LOAD D2 0.0006; if() #317 Test AND if() #144 Else Start
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
-GOTOCMP 3359 ==; Test 'if'
+GOTOCMP 3361 ==; Test 'if'
 SETR D2 GD12; if() #317 Body Start
 MULTV D2 16
 SETV D2 16
@@ -3346,14 +3348,14 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 3329 ==; Test 'if'
+GOTOCMP 3331 ==; Test 'if'
 LOAD D2 0.0003; if() #147 Body Start
 PUSHR D2
 LOAD D2 0.0006
 POP D3
 ADDR D2 D3
 STORE D2 0.0003
-GOTO 3352; if() #147 Body End
+GOTO 3354; if() #147 Body End
 PUSHR D4; if() #148 Test AND if() #147 Else Start
 PUSHV 3; UsrFunc[bool Ghost_CanMove(int, int, int)] Params Start
 LOAD D2 0.0006
@@ -3363,14 +3365,14 @@ PUSHR D2; UsrFunc[bool Ghost_CanMove(int, int, int)] Params End
 CALLFUNC 0.0334; UsrFunc[bool Ghost_CanMove(int, int, int)] Call
 POP D4
 COMPAREV D2 0
-GOTOCMP 3346 ==; Test 'if'
+GOTOCMP 3348 ==; Test 'if'
 LOAD D2 0.0003; if() #148 Body Start
 PUSHR D2
 LOAD D2 0.0006
 POP D3
 ADDR D2 D3
 STORE D2 0.0003
-GOTO 3352; if() #148 Body End
+GOTO 3354; if() #148 Body End
 LOAD D2 0.0003; if() #148 Else Start
 ADDV D2 7
 RSHIFTV D2 3
@@ -3388,7 +3390,7 @@ LOAD D2 0.0005; if() #144 Else End AND if() #149 Test
 COMPAREV D2 0
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 3430 ==; Test 'if'
+GOTOCMP 3432 ==; Test 'if'
 SETR D2 GD23; if() #149 Body Start
 RSHIFTV D2 8
 STORE D2 0.0002
@@ -3417,14 +3419,14 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 3400 ==; Test 'if'
+GOTOCMP 3402 ==; Test 'if'
 LOAD D2 0.0003; if() #150 Body Start
 PUSHR D2
 LOAD D2 0.0005
 POP D3
 ADDR D2 D3
 STORE D2 0.0003
-GOTO 3422; if() #150 Body End
+GOTO 3424; if() #150 Body End
 PUSHR D4; if() #151 Test AND if() #150 Else Start
 PUSHV 0; UsrFunc[bool Ghost_CanMove(int, int, int)] Params Start
 LOAD D2 0.0005
@@ -3435,14 +3437,14 @@ PUSHR D2; UsrFunc[bool Ghost_CanMove(int, int, int)] Params End
 CALLFUNC 0.0334; UsrFunc[bool Ghost_CanMove(int, int, int)] Call
 POP D4
 COMPAREV D2 0
-GOTOCMP 3418 ==; Test 'if'
+GOTOCMP 3420 ==; Test 'if'
 LOAD D2 0.0003; if() #151 Body Start
 PUSHR D2
 LOAD D2 0.0005
 POP D3
 ADDR D2 D3
 STORE D2 0.0003
-GOTO 3422; if() #151 Body End
+GOTO 3424; if() #151 Body End
 LOAD D2 0.0003; if() #151 Else Start
 RSHIFTV D2 3
 LSHIFTV D2 3
@@ -3454,12 +3456,12 @@ POP D3
 SUBR D3 D2
 SETR D2 D3
 SETR GD2 D2
-GOTO 3513; if() #149 Body End
+GOTO 3515; if() #149 Body End
 LOAD D2 0.0005; if() #318 Test AND if() #149 Else Start
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
-GOTOCMP 3513 ==; Test 'if'
+GOTOCMP 3515 ==; Test 'if'
 SETR D2 GD13; if() #318 Body Start
 MULTV D2 16
 SETV D2 16
@@ -3500,14 +3502,14 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 3483 ==; Test 'if'
+GOTOCMP 3485 ==; Test 'if'
 LOAD D2 0.0003; if() #152 Body Start
 PUSHR D2
 LOAD D2 0.0005
 POP D3
 ADDR D2 D3
 STORE D2 0.0003
-GOTO 3506; if() #152 Body End
+GOTO 3508; if() #152 Body End
 PUSHR D4; if() #153 Test AND if() #152 Else Start
 PUSHV 1; UsrFunc[bool Ghost_CanMove(int, int, int)] Params Start
 LOAD D2 0.0005
@@ -3517,14 +3519,14 @@ PUSHR D2; UsrFunc[bool Ghost_CanMove(int, int, int)] Params End
 CALLFUNC 0.0334; UsrFunc[bool Ghost_CanMove(int, int, int)] Call
 POP D4
 COMPAREV D2 0
-GOTOCMP 3500 ==; Test 'if'
+GOTOCMP 3502 ==; Test 'if'
 LOAD D2 0.0003; if() #153 Body Start
 PUSHR D2
 LOAD D2 0.0005
 POP D3
 ADDR D2 D3
 STORE D2 0.0003
-GOTO 3506; if() #153 Body End
+GOTO 3508; if() #153 Body End
 LOAD D2 0.0003; if() #153 Else Start
 ADDV D2 7
 RSHIFTV D2 3
@@ -3543,22 +3545,22 @@ PUSHV 64; UsrFunc[bool Ghost_FlagIsSet(int)] Params
 CALLFUNC 0.1485; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP D4
 COMPAREV D2 0
-GOTOCMP 3525 ==
+GOTOCMP 3527 ==
 SETR D2 GD17
 ANDV D2 4
 COMPAREV D2 0
-GOTOCMP 3525 !=
+GOTOCMP 3527 !=
 SETV D2 1
-GOTO 3526
+GOTO 3528
 SETV D2 0
 COMPAREV D2 0
-GOTOCMP 3583 ==; Test 'if'
+GOTOCMP 3585 ==; Test 'if'
 PUSHR D4; if() #154 Test AND if() #319 Body Start
 PUSHV 512; UsrFunc[bool Ghost_FlagIsSet(int)] Params
 CALLFUNC 0.1485; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP D4
 COMPAREV D2 0
-GOTOCMP 3548 ==; Test 'if'
+GOTOCMP 3550 ==; Test 'if'
 PUSHR D4; if() #154 Body Start
 LOAD D2 0.0006; InlineFunc[int ArcTan(int, int)] Params Start AND InlineFunc[int WrapAngle(int)] Params Start AND UsrFunc[int AngleDir8(int)] Params Start
 PUSHR D2
@@ -3572,7 +3574,7 @@ PUSHR D2; UsrFunc[int AngleDir8(int)] Params End
 CALLFUNC 0.0103; UsrFunc[int AngleDir8(int)] Call
 POP D4
 SETR GD4 D2
-GOTO 3579; if() #154 Body End
+GOTO 3581; if() #154 Body End
 LOAD D2 0.0006; InlineFunc[int Abs(int)] Params AND if() #155 Test AND if() #154 Else Start
 ABS D2; InlineFunc[int Abs(int)] Body
 PUSHR D2
@@ -3582,26 +3584,26 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 3569 ==; Test 'if'
+GOTOCMP 3571 ==; Test 'if'
 LOAD D2 0.0005; if() #156 Test AND if() #155 Body Start
 COMPAREV D2 0
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 3566 ==; Test 'if'
+GOTOCMP 3568 ==; Test 'if'
 SETV D2 0; if() #156 Body Start
 SETR GD4 D2
-GOTO 3579; if() #156 Body End
+GOTO 3581; if() #156 Body End
 SETV D2 1; if() #156 Else Start
 SETR GD4 D2; if() #156 Else End
-GOTO 3579; if() #155 Body End
+GOTO 3581; if() #155 Body End
 LOAD D2 0.0006; if() #157 Test AND if() #155 Else Start
 COMPAREV D2 0
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 3577 ==; Test 'if'
+GOTOCMP 3579 ==; Test 'if'
 SETV D2 2; if() #157 Body Start
 SETR GD4 D2
-GOTO 3579; if() #157 Body End
+GOTO 3581; if() #157 Body End
 SETV D2 3; if() #157 Else Start
 SETR GD4 D2; if() #157 Else End
 SETR D2 GD1; if() #155 Else End AND if() #154 Else End
@@ -3725,7 +3727,7 @@ LOAD D2 0; for() #170 LoopTest
 COMPAREV D2 11
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 3717 ==; for() #170 TestFail?
+GOTOCMP 3719 ==; for() #170 TestFail?
 SETV D2 0; for() #170 Body Start
 PUSHR D2
 LOAD D2 0.0001
@@ -3741,7 +3743,7 @@ SETR FFFLAGSD D2; for() #170 Body End
 LOAD D2 0; for() #170 LoopIncrement
 ADDV D2 1
 STORE D2 0
-GOTO 3696; for() #170 End
+GOTO 3698; for() #170 End
 POPARGS D5 0.0002
 RETURNFUNC; Func[void __GhCleanUp(ffc)] Body End
 SETR D4 SP2; Func[void Ghost_ForceDir(int)] Body Start
@@ -3760,41 +3762,41 @@ LOAD D2 0.0004; if() #133 Test
 COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 3740 ==; Test 'if'
+GOTOCMP 3742 ==; Test 'if'
 LOAD D2 0.0003; if() #133 Body Start
 SUBV2 0 D2
 STORE D2 0
-GOTO 3818; if() #133 Body End
+GOTO 3820; if() #133 Body End
 LOAD D2 0.0004; if() #134 Test AND if() #133 Else Start
 COMPAREV D2 1
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 3748 ==; Test 'if'
+GOTOCMP 3750 ==; Test 'if'
 LOAD D2 0.0003; if() #134 Body Start
 STORE D2 0
-GOTO 3818; if() #134 Body End
+GOTO 3820; if() #134 Body End
 LOAD D2 0.0004; if() #135 Test AND if() #134 Else Start
 COMPAREV D2 2
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 3757 ==; Test 'if'
+GOTOCMP 3759 ==; Test 'if'
 LOAD D2 0.0003; if() #135 Body Start
 SUBV2 0 D2
 STORE D2 0.0001
-GOTO 3818; if() #135 Body End
+GOTO 3820; if() #135 Body End
 LOAD D2 0.0004; if() #136 Test AND if() #135 Else Start
 COMPAREV D2 3
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 3765 ==; Test 'if'
+GOTOCMP 3767 ==; Test 'if'
 LOAD D2 0.0003; if() #136 Body Start
 STORE D2 0.0001
-GOTO 3818; if() #136 Body End
+GOTO 3820; if() #136 Body End
 LOAD D2 0.0004; if() #137 Test AND if() #136 Else Start
 COMPAREV D2 4
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 3779 ==; Test 'if'
+GOTOCMP 3781 ==; Test 'if'
 LOAD D2 0.0003; if() #137 Body Start
 SUBV2 0 D2
 MULTV D2 0.7071
@@ -3803,12 +3805,12 @@ LOAD D2 0.0003
 SUBV2 0 D2
 MULTV D2 0.7071
 STORE D2 0
-GOTO 3818; if() #137 Body End
+GOTO 3820; if() #137 Body End
 LOAD D2 0.0004; if() #138 Test AND if() #137 Else Start
 COMPAREV D2 5
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 3792 ==; Test 'if'
+GOTOCMP 3794 ==; Test 'if'
 LOAD D2 0.0003; if() #138 Body Start
 MULTV D2 0.7071
 STORE D2 0.0001
@@ -3816,12 +3818,12 @@ LOAD D2 0.0003
 SUBV2 0 D2
 MULTV D2 0.7071
 STORE D2 0
-GOTO 3818; if() #138 Body End
+GOTO 3820; if() #138 Body End
 LOAD D2 0.0004; if() #139 Test AND if() #138 Else Start
 COMPAREV D2 6
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 3805 ==; Test 'if'
+GOTOCMP 3807 ==; Test 'if'
 LOAD D2 0.0003; if() #139 Body Start
 SUBV2 0 D2
 MULTV D2 0.7071
@@ -3829,20 +3831,20 @@ STORE D2 0.0001
 LOAD D2 0.0003
 MULTV D2 0.7071
 STORE D2 0
-GOTO 3818; if() #139 Body End
+GOTO 3820; if() #139 Body End
 LOAD D2 0.0004; if() #140 Test AND if() #139 Else Start
 COMPAREV D2 7
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 3827 ==; Test 'if'
+GOTOCMP 3829 ==; Test 'if'
 LOAD D2 0.0003; if() #140 Body Start
 MULTV D2 0.7071
 STORE D2 0.0001
 LOAD D2 0.0003
 MULTV D2 0.7071
 STORE D2 0
-GOTO 3818; if() #140 Body End
-GOTO 3827; return (Void) AND if() #140 Else
+GOTO 3820; if() #140 Body End
+GOTO 3829; return (Void) AND if() #140 Else
 PUSHR D4; if() #139 Else End AND if() #138 Else End AND if() #137 Else End AND if() #136 Else End AND if() #135 Else End AND if() #134 Else End AND if() #133 Else End
 LOAD D2 0.0001; UsrFunc[void Ghost_MoveXY(int, int, int)] Params Start
 PUSHR D2
@@ -3850,22 +3852,22 @@ LOAD D2 0
 PUSHR D2
 LOAD D2 0.0002
 PUSHR D2; UsrFunc[void Ghost_MoveXY(int, int, int)] Params End
-CALLFUNC 0.3101; UsrFunc[void Ghost_MoveXY(int, int, int)] Call
+CALLFUNC 0.3103; UsrFunc[void Ghost_MoveXY(int, int, int)] Call
 POP D4
 POPARGS D5 0.0005
 RETURNFUNC; Func[void Ghost_Move(int, int, int)] Body End
 SETR D4 SP2; Func[void __Ghost_InitInternal(ffc, npc, bool, int, int)] Body Start
 LOAD D2 0.0001; if() #634 Test
 COMPAREV D2 -1
-GOTOCMP 3838 ==
+GOTOCMP 3840 ==
 LOAD D2 0.0001
 COMPAREV D2 -2
-GOTOCMP 3838 ==
+GOTOCMP 3840 ==
 SETV D2 0
-GOTO 3839
+GOTO 3841
 SETV D2 1
 COMPAREV D2 0
-GOTOCMP 3843 ==; Test 'if'
+GOTOCMP 3845 ==; Test 'if'
 SETV D2 1; if() #634 Body Start
 STORE D2 0.0001; if() #634 Body End
 LOAD D2 0.0001
@@ -3892,7 +3894,7 @@ LOAD D2 0
 SETR GD11 D2
 LOAD D2 0.0002; if() #377 Test
 COMPAREV D2 0
-GOTOCMP 3889 ==; Test 'if'
+GOTOCMP 3891 ==; Test 'if'
 LOAD D2 0.0003; if() #377 Body Start
 PUSHR D2
 POP REFNPC
@@ -3913,7 +3915,7 @@ PUSHR D2
 POP REFNPC
 SETR D2 NPCJUMP
 SETR GD5 D2
-GOTO 3921; if() #377 Body End
+GOTO 3923; if() #377 Body End
 LOAD D2 0.0004; if() #377 Else Start
 PUSHR D2
 POP REFFFC
@@ -3951,7 +3953,7 @@ LOAD D2 0.0004; UsrFunc[void Ghost_SetPosition(ffc, npc)] Params Start
 PUSHR D2
 LOAD D2 0.0003
 PUSHR D2; UsrFunc[void Ghost_SetPosition(ffc, npc)] Params End
-CALLFUNC 0.2508; UsrFunc[void Ghost_SetPosition(ffc, npc)] Call
+CALLFUNC 0.2510; UsrFunc[void Ghost_SetPosition(ffc, npc)] Call
 POP D4
 LOAD D2 0.0003
 PUSHR D2
@@ -3988,7 +3990,7 @@ LOAD D2 0.0001; if() #635 Test
 COMPAREV D2 1
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 4039 ==; Test 'if'
+GOTOCMP 4041 ==; Test 'if'
 SETV D2 3; if(true) #378 [Opt:AlwaysOn] AND if() #635 Body Start
 PUSHR D2
 LOAD D2 0.0003
@@ -4081,7 +4083,7 @@ ANDV D2 32
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 4070 ==; Test 'if'
+GOTOCMP 4072 ==; Test 'if'
 SETV D2 1; if() #379 Body Start
 PUSHR D2
 LOAD D2 0.0004
@@ -4094,7 +4096,7 @@ POP D0
 POP D2
 POP REFFFC
 SETR FFFLAGSD D2
-GOTO 4082; if() #379 Body End
+GOTO 4084; if() #379 Body End
 SETV D2 0; if() #379 Else Start
 PUSHR D2
 LOAD D2 0.0004
@@ -4152,7 +4154,7 @@ LOAD D2 0.0005; for() #55 LoopTest
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
-GOTOCMP 4218 ==; for() #55 TestFail?
+GOTOCMP 4220 ==; for() #55 TestFail?
 LOAD D2 0.0005; InlineFunc[npc screendata::LoadNPC(int)] Params AND for() #55 Body Start
 SUBV D2 1; InlineFunc[npc screendata::LoadNPC(int)] Body Start
 LOADNPCR D2
@@ -4168,11 +4170,11 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 4148 ==; Test 'if'
+GOTOCMP 4150 ==; Test 'if'
 SETV D2 0; if() #131 Body Start
 STORE D2 0.0006
-GOTO 4214; continue 1;
-GOTO 4150; if() #131 Body End
+GOTO 4216; continue 1;
+GOTO 4152; if() #131 Body End
 SETV D2 1; if() #131 Else Start
 STORE D2 0.0006; if() #131 Else End
 LOAD D2 0.0007; if() #308 Test
@@ -4186,13 +4188,13 @@ ANDV D2 65536
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 4165 ==; Test 'if'
+GOTOCMP 4167 ==; Test 'if'
 SETV D2 0; if() #308 Body Start
 STORE D2 0.0006
-GOTO 4214; continue 1; AND if() #308 Body End
+GOTO 4216; continue 1; AND if() #308 Body End
 LOAD D2 0.0006; if() #132 Test
 COMPAREV D2 0
-GOTOCMP 4218 ==; Test 'if'
+GOTOCMP 4220 ==; Test 'if'
 PUSHR D4; if() #132 Body Start
 LOAD D2 0.0009; UsrFunc[void __Ghost_InitInternal(ffc, npc, bool, int, int)] Params Start
 PUSHR D2
@@ -4212,7 +4214,7 @@ LOAD D2 0.0007
 PUSHR D2
 POP REFNPC
 PUSHR NPCCSET; UsrFunc[void __Ghost_InitInternal(ffc, npc, bool, int, int)] Params End
-CALLFUNC 0.3829; UsrFunc[void __Ghost_InitInternal(ffc, npc, bool, int, int)] Call
+CALLFUNC 0.3831; UsrFunc[void __Ghost_InitInternal(ffc, npc, bool, int, int)] Call
 POP D4
 LOAD D2 0.0007; if() #309 Test
 PUSHR D2
@@ -4222,7 +4224,7 @@ ANDV D2 256
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 4210 ==; Test 'if'
+GOTOCMP 4212 ==; Test 'if'
 SETV D2 1; if() #309 Body Start
 PUSHR D2
 LOAD D2 0.0009
@@ -4236,22 +4238,22 @@ POP D2
 POP REFFFC
 SETR FFFLAGSD D2; if() #309 Body End
 LOAD D2 0.0007; return Start
-GOTO 4263; return End
-GOTO 4214; if() #132 Body End
-GOTO 4218; break 1; AND if() #132 Else
+GOTO 4265; return End
+GOTO 4216; if() #132 Body End
+GOTO 4220; break 1; AND if() #132 Else
 LOAD D2 0.0005; for() #55 Body End AND for() #55 LoopIncrement
 SUBV D2 1
 STORE D2 0.0005
-GOTO 4123; for() #55 End
+GOTO 4125; for() #55 End
 ALLOCATEMEMV D2 60 0
-STORE D2 0.0004
 WRITEPODSTRING D2 "ghost.zh: AutoGhost initialization failed - enemy missing.\n"
+STORE D2 0.0004
 ALLOCATEMEMV D2 30 0
-STORE D2 0.0002
 WRITEPODSTRING D2 "  DMap %d, screen %X\n"
+STORE D2 0.0002
 ALLOCATEMEMV D2 30 0
-STORE D2 0
 WRITEPODSTRING D2 "  Script %d, enemy ID %d\n"
+STORE D2 0
 LOAD D2 0.0004; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
@@ -4341,7 +4343,7 @@ LOAD D2 0.0002; UsrFunc[int VectorX(int, int)] Params Start
 PUSHR D2
 LOAD D2 0
 PUSHR D2; UsrFunc[int VectorX(int, int)] Params End
-CALLFUNC 0.4265; UsrFunc[int VectorX(int, int)] Call
+CALLFUNC 0.4267; UsrFunc[int VectorX(int, int)] Call
 POP D4
 PUSHR D2
 PUSHR D4
@@ -4349,12 +4351,12 @@ LOAD D2 0.0002; UsrFunc[int VectorY(int, int)] Params Start
 PUSHR D2
 LOAD D2 0
 PUSHR D2; UsrFunc[int VectorY(int, int)] Params End
-CALLFUNC 0.4275; UsrFunc[int VectorY(int, int)] Call
+CALLFUNC 0.4277; UsrFunc[int VectorY(int, int)] Call
 POP D4
 PUSHR D2
 LOAD D2 0.0001
 PUSHR D2; UsrFunc[void Ghost_MoveXY(int, int, int)] Params End
-CALLFUNC 0.3101; UsrFunc[void Ghost_MoveXY(int, int, int)] Call
+CALLFUNC 0.3103; UsrFunc[void Ghost_MoveXY(int, int, int)] Call
 POP D4
 POPARGS D5 0.0003
 RETURNFUNC; Func[void Ghost_MoveTowardLink(int, int)] Body End
@@ -4391,27 +4393,27 @@ PUSHV 32; UsrFunc[bool Ghost_FlagIsSet(int)] Params
 CALLFUNC 0.1485; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP D4
 COMPAREV D2 0
-GOTOCMP 4507 !=; Test 'unless'
+GOTOCMP 4509 !=; Test 'unless'
 PUSHR D4; if() #161 Test AND unless() #346 Body Start
-CALLFUNC 0.4333; UsrFunc[bool IsSideview()] Call
+CALLFUNC 0.4335; UsrFunc[bool IsSideview()] Call
 POP D4
 COMPAREV D2 0
-GOTOCMP 4470 ==; Test 'if'
+GOTOCMP 4472 ==; Test 'if'
 SETR D2 GD5; if() #347 Test AND if() #161 Body Start
 COMPAREV D2 0
-GOTOCMP 4384 !=
+GOTOCMP 4386 !=
 PUSHR D4
 PUSHARGSV 1 0.0002; UsrFunc[bool Ghost_CanMove(int, int, int)] Params Start
 PUSHV 2; UsrFunc[bool Ghost_CanMove(int, int, int)] Params End
 CALLFUNC 0.0334; UsrFunc[bool Ghost_CanMove(int, int, int)] Call
 POP D4
 COMPAREV D2 0
-GOTOCMP 4384 !=
+GOTOCMP 4386 !=
 SETV D2 0
-GOTO 4385
+GOTO 4387
 SETV D2 1
 COMPAREV D2 0
-GOTOCMP 4507 ==; Test 'if'
+GOTOCMP 4509 ==; Test 'if'
 PUSHR D4; if() #347 Body Start
 PUSHV 64; UsrFunc[bool Ghost_FlagIsSet(int)] Params
 CALLFUNC 0.1485; UsrFunc[bool Ghost_FlagIsSet(int)] Call
@@ -4419,21 +4421,21 @@ POP D4
 STORE D2 0
 PUSHR D4
 PUSHV 64; UsrFunc[void Ghost_UnsetFlag(int)] Params
-CALLFUNC 0.3074; UsrFunc[void Ghost_UnsetFlag(int)] Call
+CALLFUNC 0.3076; UsrFunc[void Ghost_UnsetFlag(int)] Call
 POP D4
 SETR D2 GD5; if() #162 Test
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
-GOTOCMP 4439 ==; Test 'if'
+GOTOCMP 4441 ==; Test 'if'
 PUSHR D4; if() #162 Body Start
 PUSHV 32; UsrFunc[void Ghost_SetFlag(int)] Params
-CALLFUNC 0.3048; UsrFunc[void Ghost_SetFlag(int)] Call
+CALLFUNC 0.3050; UsrFunc[void Ghost_SetFlag(int)] Call
 PEEK D4
 PUSHV 0; UsrFunc[void Ghost_Move(int, int, int)] Params Start
 PUSHR GD5
 PUSHV 2; UsrFunc[void Ghost_Move(int, int, int)] Params End
-CALLFUNC 0.3727; UsrFunc[void Ghost_Move(int, int, int)] Call
+CALLFUNC 0.3729; UsrFunc[void Ghost_Move(int, int, int)] Call
 POP D4
 SETR D2 GD5; InlineFunc[int Max(int, int)] Params Start
 SUBV D2 0.1600
@@ -4443,7 +4445,7 @@ MAXVARG; InlineFunc[int Max(int, int)] Body
 SETR GD5 D2
 SETR D2 GD5; if() #348 Test
 COMPAREV D2 0
-GOTOCMP 4429 <=
+GOTOCMP 4431 <=
 PUSHR D4
 PUSHV 0; UsrFunc[bool Ghost_CanMove(int, int, int)] Params Start
 PUSHV 1
@@ -4451,61 +4453,61 @@ PUSHV 2; UsrFunc[bool Ghost_CanMove(int, int, int)] Params End
 CALLFUNC 0.0334; UsrFunc[bool Ghost_CanMove(int, int, int)] Call
 POP D4
 COMPAREV D2 0
-GOTOCMP 4429 !=
+GOTOCMP 4431 !=
 SETV D2 1
-GOTO 4430
+GOTO 4432
 SETV D2 0
 COMPAREV D2 0
-GOTOCMP 4434 ==; Test 'if'
+GOTOCMP 4436 ==; Test 'if'
 SETV D2 0; if() #348 Body Start
 SETR GD5 D2; if() #348 Body End
 PUSHR D4
 PUSHV 32; UsrFunc[void Ghost_UnsetFlag(int)] Params
-CALLFUNC 0.3074; UsrFunc[void Ghost_UnsetFlag(int)] Call
+CALLFUNC 0.3076; UsrFunc[void Ghost_UnsetFlag(int)] Call
 POP D4
-GOTO 4462; if() #162 Body End
+GOTO 4464; if() #162 Body End
 PUSHR D4; if() #162 Else Start
 PUSHV 1; UsrFunc[void Ghost_Move(int, int, int)] Params Start
 SETR D2 GD5
 SUBV2 0 D2
 PUSHR D2
 PUSHV 2; UsrFunc[void Ghost_Move(int, int, int)] Params End
-CALLFUNC 0.3727; UsrFunc[void Ghost_Move(int, int, int)] Call
+CALLFUNC 0.3729; UsrFunc[void Ghost_Move(int, int, int)] Call
 PEEK D4
 PUSHARGSV 1 0.0002; UsrFunc[bool Ghost_CanMove(int, int, int)] Params Start
 PUSHV 2; UsrFunc[bool Ghost_CanMove(int, int, int)] Params End
 CALLFUNC 0.0334; UsrFunc[bool Ghost_CanMove(int, int, int)] Call
 POP D4
 COMPAREV D2 0
-GOTOCMP 4460 ==; Test 'if'
+GOTOCMP 4462 ==; Test 'if'
 SETR D2 GD5; InlineFunc[int Max(int, int)] Params Start AND if() #163 Body Start
 SUBV D2 0.1600
 PUSHVARGR D2
 PUSHVARGV -3.2000; InlineFunc[int Max(int, int)] Params End
 MAXVARG; InlineFunc[int Max(int, int)] Body
 SETR GD5 D2
-GOTO 4462; if() #163 Body End
+GOTO 4464; if() #163 Body End
 SETV D2 0; if() #163 Else Start
 SETR GD5 D2; if() #163 Else End
 LOAD D2 0; if() #162 Else End AND if() #349 Test
 COMPAREV D2 0
-GOTOCMP 4507 ==; Test 'if'
+GOTOCMP 4509 ==; Test 'if'
 PUSHR D4; if() #349 Body Start
 PUSHV 64; UsrFunc[void Ghost_SetFlag(int)] Params
-CALLFUNC 0.3048; UsrFunc[void Ghost_SetFlag(int)] Call
+CALLFUNC 0.3050; UsrFunc[void Ghost_SetFlag(int)] Call
 POP D4; if() #349 Body End
-GOTO 4507; if() #347 Body End AND if() #161 Body End
+GOTO 4509; if() #347 Body End AND if() #161 Body End
 SETR D2 GD5; if() #350 Test AND if() #161 Else Start
 COMPAREV D2 0
-GOTOCMP 4478 !=
+GOTOCMP 4480 !=
 SETR D2 GD3
 COMPAREV D2 0
-GOTOCMP 4478 >
+GOTOCMP 4480 >
 SETV D2 0
-GOTO 4479
+GOTO 4481
 SETV D2 1
 COMPAREV D2 0
-GOTOCMP 4507 ==; Test 'if'
+GOTOCMP 4509 ==; Test 'if'
 SETR D2 GD3; if() #164 Test AND if() #350 Body Start
 PUSHR D2
 SETR D2 GD5
@@ -4514,12 +4516,12 @@ ADDR D2 D3
 COMPAREV D2 0
 SETCMP D2 I<=
 COMPAREV D2 0
-GOTOCMP 4495 ==; Test 'if'
+GOTOCMP 4497 ==; Test 'if'
 SETV D2 0; if() #164 Body Start
 SETR GD3 D2
 SETV D2 0
 SETR GD5 D2
-GOTO 4507; if() #164 Body End
+GOTO 4509; if() #164 Body End
 SETR D2 GD3; if() #164 Else Start
 PUSHR D2
 SETR D2 GD5
@@ -4534,21 +4536,21 @@ MAXVARG; InlineFunc[int Max(int, int)] Body
 SETR GD5 D2; if() #164 Else End
 SETR D2 GD6; if() #350 Body End AND if() #161 Else End AND unless() #346 Body End AND if() #351 Test
 COMPAREV D2 0
-GOTOCMP 4521 !=
+GOTOCMP 4523 !=
 SETR D2 GD7
 COMPAREV D2 0
-GOTOCMP 4521 !=
+GOTOCMP 4523 !=
 SETR D2 GD8
 COMPAREV D2 0
-GOTOCMP 4521 !=
+GOTOCMP 4523 !=
 SETR D2 GD9
 COMPAREV D2 0
-GOTOCMP 4521 !=
+GOTOCMP 4523 !=
 SETV D2 0
-GOTO 4522
+GOTO 4524
 SETV D2 1
 COMPAREV D2 0
-GOTOCMP 4545 ==; Test 'if'
+GOTOCMP 4547 ==; Test 'if'
 SETR D2 GD6; if() #351 Body Start
 PUSHR D2
 SETR D2 GD8
@@ -4565,24 +4567,24 @@ PUSHR D4
 PUSHR GD6; UsrFunc[void Ghost_MoveXY(int, int, int)] Params Start
 PUSHR GD7
 PUSHV 2; UsrFunc[void Ghost_MoveXY(int, int, int)] Params End
-CALLFUNC 0.3101; UsrFunc[void Ghost_MoveXY(int, int, int)] Call
+CALLFUNC 0.3103; UsrFunc[void Ghost_MoveXY(int, int, int)] Call
 PEEK D4
 PUSHR GD4; UsrFunc[void Ghost_ForceDir(int)] Params
-CALLFUNC 0.3719; UsrFunc[void Ghost_ForceDir(int)] Call
+CALLFUNC 0.3721; UsrFunc[void Ghost_ForceDir(int)] Call
 POP D4; if() #351 Body End
 PUSHR D4
 LOAD D2 0.0004; UsrFunc[void Ghost_SetPosition(ffc, npc)] Params Start
 PUSHR D2
 LOAD D2 0.0003
 PUSHR D2; UsrFunc[void Ghost_SetPosition(ffc, npc)] Params End
-CALLFUNC 0.2508; UsrFunc[void Ghost_SetPosition(ffc, npc)] Call
+CALLFUNC 0.2510; UsrFunc[void Ghost_SetPosition(ffc, npc)] Call
 PEEK D4
 LOAD D2 0.0004; UsrFunc[void __Ghost_WaitframePart1(ffc, npc, bool)] Params Start
 PUSHR D2
 LOAD D2 0.0003
 PUSHR D2
 PUSHV 0; UsrFunc[void __Ghost_WaitframePart1(ffc, npc, bool)] Params End
-CALLFUNC 0.4587; UsrFunc[void __Ghost_WaitframePart1(ffc, npc, bool)] Call
+CALLFUNC 0.4589; UsrFunc[void __Ghost_WaitframePart1(ffc, npc, bool)] Call
 PEEK D4
 LOAD D2 0.0004; UsrFunc[void __Ghost_UpdateFlashing(ffc, npc)] Params Start
 PUSHR D2
@@ -4608,7 +4610,7 @@ LOAD D2 0.0002
 PUSHR D2
 LOAD D2 0.0001
 PUSHR D2; UsrFunc[bool __Ghost_WaitframePart2(ffc, npc, bool, bool)] Params End
-CALLFUNC 0.5091; UsrFunc[bool __Ghost_WaitframePart2(ffc, npc, bool, bool)] Call
+CALLFUNC 0.5093; UsrFunc[bool __Ghost_WaitframePart2(ffc, npc, bool, bool)] Call
 POP D4
 POPARGS D5 0.0005; return End
 RETURNFUNC; Func[bool Ghost_Waitframe(ffc, npc, bool, bool)] Body End
@@ -4619,7 +4621,7 @@ ANDV D2 4
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 4605 ==; Test 'if'
+GOTOCMP 4607 ==; Test 'if'
 SETR D2 GD4; if() #401 Body Start
 PUSHR D2
 LOAD D2 0.0003
@@ -4629,39 +4631,39 @@ PUSHR D3
 POP D2
 POP REFNPC
 SETR NPCDIR D2
-GOTO 4702; if() #401 Body End
+GOTO 4704; if() #401 Body End
 LOAD D2 0.0002; if() #402 Test AND if() #401 Else Start
 COMPAREV D2 0
-GOTOCMP 4614 ==; Test 'if'
+GOTOCMP 4616 ==; Test 'if'
 LOAD D2 0.0003; if() #402 Body Start
 PUSHR D2
 POP REFNPC
 SETR D2 NPCDIR
 SETR GD4 D2
-GOTO 4702; if() #402 Body End
+GOTO 4704; if() #402 Body End
 PUSHR D4; if() #671 Test AND if() #402 Else Start
 PUSHV 64; UsrFunc[bool Ghost_FlagIsSet(int)] Params
 CALLFUNC 0.1485; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP D4
 COMPAREV D2 0
-GOTOCMP 4634 ==
+GOTOCMP 4636 ==
 SETR D2 GD18
 PUSHR D2
 SETR D2 GD1
 POP D3
 COMPARER D3 D2
-GOTOCMP 4632 !=
+GOTOCMP 4634 !=
 SETR D2 GD19
 PUSHR D2
 SETR D2 GD2
 POP D3
 COMPARER D3 D2
-GOTOCMP 4634 ==
+GOTOCMP 4636 ==
 SETV D2 1
-GOTO 4635
+GOTO 4637
 SETV D2 0
 COMPAREV D2 0
-GOTOCMP 4702 ==; Test 'if'
+GOTOCMP 4704 ==; Test 'if'
 SETR D2 GD1; if() #671 Body Start
 PUSHR D2
 SETR D2 GD18
@@ -4681,7 +4683,7 @@ PUSHV 512; UsrFunc[bool Ghost_FlagIsSet(int)] Params
 CALLFUNC 0.1485; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP D4
 COMPAREV D2 0
-GOTOCMP 4671 ==; Test 'if'
+GOTOCMP 4673 ==; Test 'if'
 PUSHR D4; if() #403 Body Start
 LOAD D2 0.0001; InlineFunc[int ArcTan(int, int)] Params Start AND InlineFunc[int WrapAngle(int)] Params Start AND UsrFunc[int AngleDir8(int)] Params Start
 PUSHR D2
@@ -4695,7 +4697,7 @@ PUSHR D2; UsrFunc[int AngleDir8(int)] Params End
 CALLFUNC 0.0103; UsrFunc[int AngleDir8(int)] Call
 POP D4
 SETR GD4 D2
-GOTO 4702; if() #403 Body End
+GOTO 4704; if() #403 Body End
 LOAD D2 0.0001; InlineFunc[int Abs(int)] Params AND if() #404 Test AND if() #403 Else Start
 ABS D2; InlineFunc[int Abs(int)] Body
 PUSHR D2
@@ -4705,26 +4707,26 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I>
 COMPAREV D2 0
-GOTOCMP 4692 ==; Test 'if'
+GOTOCMP 4694 ==; Test 'if'
 LOAD D2 0.0001; if() #405 Test AND if() #404 Body Start
 COMPAREV D2 0
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 4689 ==; Test 'if'
+GOTOCMP 4691 ==; Test 'if'
 SETV D2 2; if() #405 Body Start
 SETR GD4 D2
-GOTO 4702; if() #405 Body End
+GOTO 4704; if() #405 Body End
 SETV D2 3; if() #405 Else Start
 SETR GD4 D2; if() #405 Else End
-GOTO 4702; if() #404 Body End
+GOTO 4704; if() #404 Body End
 LOAD D2 0; if() #406 Test AND if() #404 Else Start
 COMPAREV D2 0
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 4700 ==; Test 'if'
+GOTOCMP 4702 ==; Test 'if'
 SETV D2 0; if() #406 Body Start
 SETR GD4 D2
-GOTO 4702; if() #406 Body End
+GOTO 4704; if() #406 Body End
 SETV D2 1; if() #406 Else Start
 SETR GD4 D2; if() #406 Else End
 SETR D2 GD4; if() #404 Else End AND if() #403 Else End AND if() #671 Body End AND if() #402 Else End AND if() #401 Else End
@@ -4742,15 +4744,15 @@ SETR D2 GD2
 SETR GD19 D2
 SETR D2 GD10; if() #407 Test
 COMPAREV D2 0
-GOTOCMP 4723 ==
+GOTOCMP 4725 ==
 SETR D2 GD10
 COMPAREV D2 1
-GOTOCMP 4723 ==
+GOTOCMP 4725 ==
 SETV D2 0
-GOTO 4724
+GOTO 4726
 SETV D2 1
 COMPAREV D2 0
-GOTOCMP 4747 ==; Test 'if'
+GOTOCMP 4749 ==; Test 'if'
 LOAD D2 0.0004; if() #672 Test AND if() #407 Body Start
 PUSHR D2
 POP REFFFC
@@ -4761,7 +4763,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 4843 ==; Test 'if'
+GOTOCMP 4845 ==; Test 'if'
 SETR D2 GD10; if() #672 Body Start
 PUSHR D2
 LOAD D2 0.0004
@@ -4771,13 +4773,13 @@ PUSHR D3
 POP D2
 POP REFFFC
 SETR DATA D2; if() #672 Body End
-GOTO 4843; if() #407 Body End
+GOTO 4845; if() #407 Body End
 PUSHR D4; if() #408 Test AND if() #407 Else Start
 PUSHV 512; UsrFunc[bool Ghost_FlagIsSet(int)] Params
 CALLFUNC 0.1485; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP D4
 COMPAREV D2 0
-GOTOCMP 4785 ==; Test 'if'
+GOTOCMP 4787 ==; Test 'if'
 LOAD D2 0.0004; if() #673 Test AND if() #408 Body Start
 PUSHR D2
 POP REFFFC
@@ -4792,7 +4794,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 4843 ==; Test 'if'
+GOTOCMP 4845 ==; Test 'if'
 SETR D2 GD10; if() #673 Body Start
 PUSHR D2
 PUSHR D4
@@ -4809,13 +4811,13 @@ PUSHR D3
 POP D2
 POP REFFFC
 SETR DATA D2; if() #673 Body End
-GOTO 4843; if() #408 Body End
+GOTO 4845; if() #408 Body End
 PUSHR D4; if() #409 Test AND if() #408 Else Start
 PUSHV 256; UsrFunc[bool Ghost_FlagIsSet(int)] Params
 CALLFUNC 0.1485; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP D4
 COMPAREV D2 0
-GOTOCMP 4823 ==; Test 'if'
+GOTOCMP 4825 ==; Test 'if'
 LOAD D2 0.0004; if() #674 Test AND if() #409 Body Start
 PUSHR D2
 POP REFFFC
@@ -4830,7 +4832,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 4843 ==; Test 'if'
+GOTOCMP 4845 ==; Test 'if'
 SETR D2 GD10; if() #674 Body Start
 PUSHR D2
 PUSHR D4
@@ -4847,7 +4849,7 @@ PUSHR D3
 POP D2
 POP REFFFC
 SETR DATA D2; if() #674 Body End
-GOTO 4843; if() #409 Body End
+GOTO 4845; if() #409 Body End
 LOAD D2 0.0004; if() #675 Test AND if() #409 Else Start
 PUSHR D2
 POP REFFFC
@@ -4858,7 +4860,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 4843 ==; Test 'if'
+GOTOCMP 4845 ==; Test 'if'
 SETR D2 GD10; if() #675 Body Start
 PUSHR D2
 LOAD D2 0.0004
@@ -4878,7 +4880,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 4863 ==; Test 'if'
+GOTOCMP 4865 ==; Test 'if'
 SETR D2 GD12; if() #676 Body Start
 PUSHR D2
 LOAD D2 0.0004
@@ -4898,7 +4900,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 4907 ==; Test 'if'
+GOTOCMP 4909 ==; Test 'if'
 SETR D2 GD12; if() #677 Body Start
 PUSHR D2
 LOAD D2 0.0003
@@ -4942,7 +4944,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 4927 ==; Test 'if'
+GOTOCMP 4929 ==; Test 'if'
 SETR D2 GD13; if() #678 Body Start
 PUSHR D2
 LOAD D2 0.0004
@@ -4962,7 +4964,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 4971 ==; Test 'if'
+GOTOCMP 4973 ==; Test 'if'
 SETR D2 GD13; if() #679 Body Start
 PUSHR D2
 LOAD D2 0.0003
@@ -5001,10 +5003,10 @@ PUSHV 128; UsrFunc[bool Ghost_FlagIsSet(int)] Params
 CALLFUNC 0.1485; UsrFunc[bool Ghost_FlagIsSet(int)] Call
 POP D4
 COMPAREV D2 0
-GOTOCMP 5036 ==; Test 'if'
+GOTOCMP 5038 ==; Test 'if'
 SETR D2 GD3; if() #410 Test AND if() #680 Body Start
 COMPAREV D2 32
-GOTOCMP 4991 <
+GOTOCMP 4993 <
 LOAD D2 0.0004
 PUSHR D2
 SETV D2 0
@@ -5013,12 +5015,12 @@ POP D0
 POP REFFFC
 SETR D2 FFFLAGSD
 COMPAREV D2 0
-GOTOCMP 4991 !=
+GOTOCMP 4993 !=
 SETV D2 1
-GOTO 4992
+GOTO 4994
 SETV D2 0
 COMPAREV D2 0
-GOTOCMP 5007 ==; Test 'if'
+GOTOCMP 5009 ==; Test 'if'
 SETV D2 1; if() #410 Body Start
 PUSHR D2
 LOAD D2 0.0004
@@ -5031,10 +5033,10 @@ POP D0
 POP D2
 POP REFFFC
 SETR FFFLAGSD D2
-GOTO 5036; if() #410 Body End
+GOTO 5038; if() #410 Body End
 SETR D2 GD3; if() #681 Test AND if() #410 Else Start
 COMPAREV D2 32
-GOTOCMP 5021 >=
+GOTOCMP 5023 >=
 LOAD D2 0.0004
 PUSHR D2
 SETV D2 0
@@ -5043,12 +5045,12 @@ POP D0
 POP REFFFC
 SETR D2 FFFLAGSD
 COMPAREV D2 0
-GOTOCMP 5021 ==
+GOTOCMP 5023 ==
 SETV D2 1
-GOTO 5022
+GOTO 5024
 SETV D2 0
 COMPAREV D2 0
-GOTOCMP 5036 ==; Test 'if'
+GOTOCMP 5038 ==; Test 'if'
 SETV D2 0; if() #681 Body Start
 PUSHR D2
 LOAD D2 0.0004
@@ -5084,7 +5086,7 @@ ANDV D2 8
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 5070 ==; Test 'if'
+GOTOCMP 5072 ==; Test 'if'
 SETR D2 GD11; if() #411 Body Start
 PUSHR D2
 LOAD D2 0.0004
@@ -5094,12 +5096,12 @@ PUSHR D3
 POP D2
 POP REFFFC
 SETR CSET D2
-GOTO 5084; if() #411 Body End
+GOTO 5086; if() #411 Body End
 SETR D2 GD20; if() #682 Test AND if() #411 Else Start
 COMPAREV D2 0
 SETCMP D2 I<=
 COMPAREV D2 0
-GOTOCMP 5084 ==; Test 'if'
+GOTOCMP 5086 ==; Test 'if'
 SETR D2 GD11; if() #682 Body Start
 PUSHR D2
 LOAD D2 0.0004
@@ -5121,28 +5123,28 @@ SETR D4 SP2
 LOAD D2 0.0003; InlineFunc[bool npc::isValid()] Params AND unless() #683 Test
 ISVALIDNPC D2; InlineFunc[bool npc::isValid()] Body
 COMPAREV D2 0
-GOTOCMP 5118 !=; Test 'unless'
+GOTOCMP 5120 !=; Test 'unless'
 LOAD D2 0.0002; if() #684 Test AND unless() #683 Body Start
 COMPAREV D2 0
-GOTOCMP 5110 ==; Test 'if'
+GOTOCMP 5112 ==; Test 'if'
 PUSHR D4; if() #684 Body Start
 LOAD D2 0.0004; UsrFunc[void __GhCleanUp(ffc)] Params Start
 PUSHR D2; UsrFunc[void __GhCleanUp(ffc)] Params End
-CALLFUNC 0.3585; UsrFunc[void __GhCleanUp(ffc)] Call
+CALLFUNC 0.3587; UsrFunc[void __GhCleanUp(ffc)] Call
 POP D4
 SETV D2 0
 SETR GD10 D2
 PUSHR D4
-CALLFUNC 0.3040; UsrFunc[void Ghost_ClearCombos()] Call
+CALLFUNC 0.3042; UsrFunc[void Ghost_ClearCombos()] Call
 POP D4; if() #684 Body End
 LOAD D2 0.0001; if() #685 Test
 COMPAREV D2 0
-GOTOCMP 5114 ==; Test 'if'
+GOTOCMP 5116 ==; Test 'if'
 QUIT; InlineFunc[void Quit()] Body AND if() #685 Body
 SETV D2 0
 SETR GD14 D2
 SETV D2 0; return Start
-GOTO 5242; return End AND unless() #683 Body End
+GOTO 5244; return End AND unless() #683 Body End
 STOREV 0 0
 LOAD D2 0.0003; if() #686 Test
 PUSHR D2
@@ -5151,18 +5153,18 @@ SETR D2 NPCHP
 COMPAREV D2 0
 SETCMP D2 I<=
 COMPAREV D2 0
-GOTOCMP 5129 ==; Test 'if'
+GOTOCMP 5131 ==; Test 'if'
 SETV D2 1; if() #686 Body Start
 STORE D2 0; if() #686 Body End
 LOAD D2 0; unless() #687 Test
 COMPAREV D2 0
-GOTOCMP 5148 !=; Test 'unless'
+GOTOCMP 5150 !=; Test 'unless'
 PUSHR D4; unless() #687 Body Start
 LOAD D2 0.0004; UsrFunc[void Ghost_CheckHit(ffc, npc)] Params Start
 PUSHR D2
 LOAD D2 0.0003
 PUSHR D2; UsrFunc[void Ghost_CheckHit(ffc, npc)] Params End
-CALLFUNC 0.2642; UsrFunc[void Ghost_CheckHit(ffc, npc)] Call
+CALLFUNC 0.2644; UsrFunc[void Ghost_CheckHit(ffc, npc)] Call
 PEEK D4
 LOAD D2 0.0004; UsrFunc[bool Ghost_CheckFreeze(ffc, npc)] Params Start
 PUSHR D2
@@ -5180,10 +5182,10 @@ SETR D2 NPCHP
 SETR GD14 D2
 LOAD D2 0; if() #688 Test
 COMPAREV D2 0
-GOTOCMP 5241 ==; Test 'if'
+GOTOCMP 5243 ==; Test 'if'
 LOAD D2 0.0002; if() #689 Test AND if() #688 Body Start
 COMPAREV D2 0
-GOTOCMP 5235 ==; Test 'if'
+GOTOCMP 5237 ==; Test 'if'
 SETV D2 1; if() #689 Body Start
 PUSHR D2
 LOAD D2 0.0003
@@ -5256,16 +5258,16 @@ SETR NPCZ D2
 PUSHR D4
 LOAD D2 0.0004; UsrFunc[void __GhCleanUp(ffc)] Params Start
 PUSHR D2; UsrFunc[void __GhCleanUp(ffc)] Params End
-CALLFUNC 0.3585; UsrFunc[void __GhCleanUp(ffc)] Call
+CALLFUNC 0.3587; UsrFunc[void __GhCleanUp(ffc)] Call
 POP D4
 SETV D2 0
 SETR GD10 D2; if() #689 Body End
 LOAD D2 0.0001; if() #690 Test
 COMPAREV D2 0
-GOTOCMP 5239 ==; Test 'if'
+GOTOCMP 5241 ==; Test 'if'
 QUIT; InlineFunc[void Quit()] Body AND if() #690 Body
 SETV D2 0; return Start
-GOTO 5242; return End AND if() #688 Body End
+GOTO 5244; return End AND if() #688 Body End
 SETV D2 1; return Start
 POPARGS D5 0.0005; return End
 RETURNFUNC; Func[bool __Ghost_WaitframePart2(ffc, npc, bool, bool)] Body End
@@ -5280,7 +5282,7 @@ POP D0
 POP REFFFC
 SETR D2 FFFLAGSD
 COMPAREV D2 0
-GOTOCMP 5259 ==; Test 'if'
+GOTOCMP 5261 ==; Test 'if'
 LOAD D2 0.0005; if() #710 Body Start
 ORV D2 4
 STORE D2 0.0005; if() #710 Body End
@@ -5292,17 +5294,17 @@ POP D0
 POP REFFFC
 SETR D2 FFFLAGSD
 COMPAREV D2 0
-GOTOCMP 5271 ==; Test 'if'
+GOTOCMP 5273 ==; Test 'if'
 LOAD D2 0.0005; if() #711 Body Start
 ORV D2 1
 STORE D2 0.0005; if() #711 Body End
 PUSHR D4; if() #712 Test
 LOAD D2 0.0007; UsrFunc[bool __Ghost_IsFlickering(npc)] Params Start
 PUSHR D2; UsrFunc[bool __Ghost_IsFlickering(npc)] Params End
-CALLFUNC 0.5584; UsrFunc[bool __Ghost_IsFlickering(npc)] Call
+CALLFUNC 0.5586; UsrFunc[bool __Ghost_IsFlickering(npc)] Call
 POP D4
 COMPAREV D2 0
-GOTOCMP 5281 ==; Test 'if'
+GOTOCMP 5283 ==; Test 'if'
 LOAD D2 0.0005; if() #712 Body Start
 ORV D2 2
 STORE D2 0.0005; if() #712 Body End
@@ -5359,7 +5361,7 @@ READPODARRAYV D2 0
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
-GOTOCMP 5449 ==; Test 'if'
+GOTOCMP 5451 ==; Test 'if'
 STOREV 1 0.0001; if() #713 Body Start
 STOREV 0 0; for() #182 setup
 LOAD D2 0; for() #182 LoopTest
@@ -5372,7 +5374,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 5449 ==; for() #182 TestFail?
+GOTOCMP 5451 ==; for() #182 TestFail?
 SETR D2 GD25; for() #182 Body Start
 PUSHR D2
 LOAD D2 0.0001
@@ -5473,7 +5475,7 @@ WRITEPODARRAYVR 0 D2; for() #182 Body End
 LOAD D2 0; for() #182 LoopIncrement
 ADDV D2 1
 STORE D2 0
-GOTO 5337; for() #182 End
+GOTO 5339; for() #182 End
 LOAD D2 0.0008; if() #713 Body End AND if(true) #714 [Opt:AlwaysOn]
 PUSHR D2
 POP REFFFC
@@ -5583,29 +5585,29 @@ LOAD D2 0; if() #368 Test
 COMPAREV D2 41
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 5561 ==; Test 'if'
+GOTOCMP 5563 ==; Test 'if'
 SETV D2 1; return Start AND if() #368 Body Start
-GOTO 5582; return End AND if() #368 Body End
+GOTO 5584; return End AND if() #368 Body End
 LOAD D2 0; if() #369 Test
 COMPAREV D2 93
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 5568 ==; Test 'if'
+GOTOCMP 5570 ==; Test 'if'
 SETV D2 1; return Start AND if() #369 Body Start
-GOTO 5582; return End AND if() #369 Body End
+GOTO 5584; return End AND if() #369 Body End
 LOAD D2 0; if() #370 Test
 COMPAREV D2 80
-GOTOCMP 5576 <
+GOTOCMP 5578 <
 LOAD D2 0
 COMPAREV D2 82
-GOTOCMP 5576 >
+GOTOCMP 5578 >
 SETV D2 1
-GOTO 5577
+GOTO 5579
 SETV D2 0
 COMPAREV D2 0
-GOTOCMP 5581 ==; Test 'if'
+GOTOCMP 5583 ==; Test 'if'
 SETV D2 1; return Start AND if() #370 Body Start
-GOTO 5582; return End AND if() #370 Body End
+GOTO 5584; return End AND if() #370 Body End
 SETV D2 0; return Start
 POPARGS D5 0.0002; return End
 RETURNFUNC; Func[bool IsPit(int)] Body End
@@ -5618,9 +5620,9 @@ ANDV D2 128
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 5596 ==; Test 'if'
+GOTOCMP 5598 ==; Test 'if'
 SETV D2 1; return Start AND if() #638 Body Start
-GOTO 5597; return End AND if() #638 Body End
+GOTO 5599; return End AND if() #638 Body End
 SETV D2 0; return Start
 POP D5; return End
 RETURNFUNC; Func[bool __Ghost_IsFlickering(npc)] Body End
@@ -5646,7 +5648,7 @@ LOAD D2 0.0005; UsrFunc[void Ghost_SetPosition(ffc, npc)] Params Start
 PUSHR D2
 LOAD D2 0.0004
 PUSHR D2; UsrFunc[void Ghost_SetPosition(ffc, npc)] Params End
-CALLFUNC 0.2508; UsrFunc[void Ghost_SetPosition(ffc, npc)] Call
+CALLFUNC 0.2510; UsrFunc[void Ghost_SetPosition(ffc, npc)] Call
 POP D4
 SETV D2 0
 PUSHR D2
@@ -5663,7 +5665,7 @@ LOAD D2 0; for() #226 LoopTest
 COMPAREV D2 32
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 5744 ==; for() #226 TestFail?
+GOTOCMP 5746 ==; for() #226 TestFail?
 SETV D2 0; for() #226 Body Start
 PUSHR D2
 LOAD D2 0.0005
@@ -5687,7 +5689,7 @@ LOAD D2 0.0005; UsrFunc[void Ghost_SetPosition(ffc, npc)] Params Start
 PUSHR D2
 LOAD D2 0.0004
 PUSHR D2; UsrFunc[void Ghost_SetPosition(ffc, npc)] Params End
-CALLFUNC 0.2508; UsrFunc[void Ghost_SetPosition(ffc, npc)] Call
+CALLFUNC 0.2510; UsrFunc[void Ghost_SetPosition(ffc, npc)] Call
 PEEK D4
 LOAD D2 0.0005; UsrFunc[void Ghost_WaitframeLight(ffc, npc)] Params Start
 PUSHR D2
@@ -5718,7 +5720,7 @@ LOAD D2 0.0005; UsrFunc[void Ghost_SetPosition(ffc, npc)] Params Start
 PUSHR D2
 LOAD D2 0.0004
 PUSHR D2; UsrFunc[void Ghost_SetPosition(ffc, npc)] Params End
-CALLFUNC 0.2508; UsrFunc[void Ghost_SetPosition(ffc, npc)] Call
+CALLFUNC 0.2510; UsrFunc[void Ghost_SetPosition(ffc, npc)] Call
 PEEK D4
 LOAD D2 0.0005; UsrFunc[void Ghost_WaitframeLight(ffc, npc)] Params Start
 PUSHR D2
@@ -5730,7 +5732,7 @@ LOAD D2 0; if() #842 Test
 COMPAREV D2 29
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 5740 ==; Test 'if'
+GOTOCMP 5742 ==; Test 'if'
 SETR D2 UNDERCOMBO; if() #842 Body Start
 PUSHR D2
 PUSHR D4
@@ -5768,7 +5770,7 @@ SETR COMBOCD D2; if() #842 Body End
 LOAD D2 0; for() #226 Body End AND for() #226 LoopIncrement
 ADDV D2 1
 STORE D2 0
-GOTO 5634; for() #226 End
+GOTO 5636; for() #226 End
 LOAD D2 0.0003
 PUSHR D2
 LOAD D2 0.0005
@@ -6324,11 +6326,11 @@ SETCMP D2 I<=
 COMPAREV D2 0
 GOTOCMP 647 ==; Test 'if'
 ALLOCATEMEMV D2 59 0; if() #585 Body Start
-STORE D2 0.0002
 WRITEPODSTRING D2 "ghost.zh: AutoGhost setup failed - script does not exist.\n"
+STORE D2 0.0002
 ALLOCATEMEMV D2 80 0
-STORE D2 0
 WRITEPODSTRING D2 "  Script name: %s\n"
+STORE D2 0
 LOAD D2 0.0002; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
@@ -6460,14 +6462,14 @@ SETCMP D2 I<=
 COMPAREV D2 0
 GOTOCMP 701 ==; Test 'if'
 ALLOCATEMEMV D2 54 0; if() #589 Body Start
-STORE D2 0.0005
 WRITEPODSTRING D2 "ghost.zh: AutoGhost setup failed - script not found.\n"
+STORE D2 0.0005
 ALLOCATEMEMV D2 80 0
-STORE D2 0.0003
 WRITEPODSTRING D2 "  Enemy name: %s\n"
+STORE D2 0.0003
 ALLOCATEMEMV D2 55 0
-STORE D2 0.0001
 WRITEPODSTRING D2 "  Script name should start after this character: %c\n"
+STORE D2 0.0001
 LOAD D2 0.0005; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
@@ -12690,8 +12692,8 @@ SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 6910 ==; Test 'if'
 ALLOCATEMEMV D2 43 0; if() #596 Body Start
-STORE D2 0
 WRITEPODSTRING D2 "ghost.zh: Failed to find prototype eweapon"
+STORE D2 0
 LOAD D2 0; InlineFunc[void TraceS(char32[])] Params Start
 SETR D3 D2; InlineFunc[void TraceS(char32[])] Params End
 TRACE6 D3; InlineFunc[void TraceS(char32[])] Body
