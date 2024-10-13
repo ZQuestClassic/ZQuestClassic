@@ -26604,6 +26604,37 @@ int32_t main(int32_t argc,char **argv)
 		exit(0);
 	}
 
+	int smart_assign_arg = used_switch(argc, argv, "-smart-assign");
+	if (smart_assign_arg > 0)
+	{
+		is_zq_replay_test = true;
+		set_headless_mode();
+
+		int load_ret = load_quest(argv[smart_assign_arg + 1], false);
+		bool success = load_ret == qe_OK;
+		if (!success)
+		{
+			printf("Failed to load quest: %d\n", load_ret);
+			exit(1);
+		}
+
+		success = do_compile_and_slots(2, false);
+		if (!success)
+		{
+			printf("Failed to compile\n");
+			exit(1);
+		}
+
+		success = save_quest(argv[smart_assign_arg + 1], false) == 0;
+		if (!success)
+		{
+			printf("Failed to save quest\n");
+			exit(1);
+		}
+
+		exit(0);
+	}
+
 	int export_strings_arg = used_switch(argc, argv, "-export-strings");
 	if (export_strings_arg > 0)
 	{
