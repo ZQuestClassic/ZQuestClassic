@@ -142,7 +142,7 @@ std::shared_ptr<GUI::Widget> ScreenEnemiesDialog::view()
 						text = Map.CanPaste() ? fmt::format("Past&e (from {}x{:02x})", (Map.CopyScr() >> 8) + 1, Map.CopyScr() & 255) : "Past&e from screen",
 						colSpan=2, fitParent=true,
 						minwidth = 90_px,
-						onClick = message::OK,
+						onClick = message::PASTEFROMSCREEN,
 						disabled = !Map.CanPaste()
 					),
 					Button(
