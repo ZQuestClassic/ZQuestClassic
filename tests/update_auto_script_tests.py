@@ -174,8 +174,8 @@ def validate(tests: List[Test]):
         errors = []
         if not any(l for l in test_lines if '[Test] started' in l):
             errors.append('missing call to Test::Init()')
-        if failed_lines:
-            errors.append(*failed_lines)
+        for line in failed_lines:
+            errors.append(line)
         if not any(l for l in test_lines if '[Test] done' in l):
             errors.append('test ended abnormally')
 
