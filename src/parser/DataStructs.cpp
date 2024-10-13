@@ -17,30 +17,30 @@ FunctionData::FunctionData(Program& program)
 	: program(program),
 	  globalData(program.getScope().getLocalData())
 {
-	for (vector<Datum*>::const_iterator it = globalData.begin();
-	     it != globalData.end(); ++it)
+	for(Datum* datum : globalData)
 	{
-		Datum& datum = **it;
-		if (!datum.getCompileTimeValue())
-			globalVariables.push_back(&datum);
+		if (!datum->getCompileTimeValue())
+			globalVariables.push_back(datum);
 	}
 
-	for (vector<Script*>::const_iterator it = program.scripts.begin();
-	     it != program.scripts.end(); ++it)
+	for (Script* script : program.scripts)
 	{
-		ScriptScope& scope = (*it)->getScope();
-		vector<Datum*> data = scope.getLocalData();
-		globalVariables.insert(globalVariables.end(),
-		                       data.begin(), data.end());
+		ScriptScope& scope = script->getScope();
+		for(Datum* datum : scope.getLocalData())
+		{
+			if (!datum->getCompileTimeValue())
+				globalVariables.push_back(datum);
+		}
 	}
 	
-	for (vector<Namespace*>::const_iterator it = program.namespaces.begin();
-		it != program.namespaces.end(); ++it)
+	for (Namespace* namesp : program.namespaces)
 	{
-		NamespaceScope& scope = (*it)->getScope();
-		vector<Datum*> data = scope.getLocalData();
-		globalVariables.insert(globalVariables.end(),
-		                       data.begin(), data.end());
+		NamespaceScope& scope = namesp->getScope();
+		for(Datum* datum : scope.getLocalData())
+		{
+			if (!datum->getCompileTimeValue())
+				globalVariables.push_back(datum);
+		}
 	}
 }
 
