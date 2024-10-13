@@ -256,6 +256,7 @@ void ItemListerDialog::update()
 	widgPrev->setDoSized(true);
 	widgPrev->overrideWidth(Size::pixels(48+4));
 	widgPrev->overrideHeight(Size::pixels(48+4));
+	widgPrev->resetAnim();
 }
 void ItemListerDialog::edit()
 {
