@@ -48,6 +48,11 @@ commit_url_prefix = 'https://github.com/ZQuestClassic/ZQuestClassic/commit'
 overrides = dict()
 overrides_squashes = dict()
 
+# "dropped" commits (ex: "fix!: bug is gone now") are excluded from stable changelogs. Commits are "dropped" from the stable
+# changelog if they fix a regression that occured after the last stable (during a nightly release), and so are not relevant
+# to mention. However, they are relevant for nightly releases, so let's show 'em in that case.
+should_drop_commits = not args.for_nightly
+
 
 def parse_override_file(file: Path):
     last_override = None
@@ -393,7 +398,7 @@ def generate_changelog(from_sha: str, to_sha: str) -> str:
         if m:
             body = body[0 : m.start()].strip()
         type, scope, oneline, drop = parse_scope_and_type(subject)
-        if drop:
+        if drop and should_drop_commits:
             continue
         commits.append(Commit(type, scope, short_hash, hash, subject, oneline, body))
 
