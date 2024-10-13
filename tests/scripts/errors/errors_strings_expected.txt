@@ -1,0 +1,7 @@
+Compiling 'errors_strings.zs'
+Pass 1: Parsing
+ERROR: expected a single character value - did you mean to use double quotes for a string? [ZQ_BUFFER Line 4 Column 46 ''should have been double quotes'']
+ERROR: Unknown escape character. [ZQ_BUFFER Line 5 Column 18 ''\c'']
+ERROR: expected a single character value - did you mean to use double quotes for a string? [ZQ_BUFFER Line 6 Column 46 ''should have been double quotes'']
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
