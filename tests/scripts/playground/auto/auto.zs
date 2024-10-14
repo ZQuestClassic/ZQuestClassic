@@ -3,3 +3,4 @@
 #include "auto/arrays.zs"
 #include "auto/classes.zs"
 #include "auto/garbage_collection.zs"
+#include "auto/scc.zs"
