@@ -11941,9 +11941,9 @@ int32_t get_register(const int32_t arg)
 		case COMBODFOO:			break;						//W
 		case COMBODATASCRIPT:			GET_COMBO_VAR_DWORD(script, "Script"); break;						//W
 		case COMBODFRAMES:		GET_COMBO_VAR_BYTE(frames, "Frames"); break;					//C
-		case COMBODNEXTD:		GET_COMBO_VAR_DWORD(speed, "NextData"); break;					//W
-		case COMBODNEXTC:		GET_COMBO_VAR_BYTE(nextcombo, "NextCSet"); break;				//C
-		case COMBODFLAG:		GET_COMBO_VAR_BYTE(nextcset, "Flag"); break;					//C
+		case COMBODNEXTD:		GET_COMBO_VAR_INT(nextcombo, "NextData"); break;					//W
+		case COMBODNEXTC:		GET_COMBO_VAR_BYTE(nextcset, "NextCSet"); break;				//C
+		case COMBODFLAG:		GET_COMBO_VAR_BYTE(flag, "Flag"); break;					//C
 		case COMBODSKIPANIM:		GET_COMBO_VAR_BYTE(skipanim, "SkipAnim"); break;				//C
 		case COMBODNEXTTIMER:		GET_COMBO_VAR_DWORD(nexttimer, "NextTimer"); break;				//W
 		case COMBODAKIMANIMY:		GET_COMBO_VAR_BYTE(skipanimy, "SkipAnimY"); break;				//C
@@ -24838,9 +24838,9 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case COMBODFOO:		break;							//W
 		case COMBODFRAMES:	SET_COMBO_VAR_BYTE(frames, "Frames"); break;						//C
-		case COMBODNEXTD:	SET_COMBO_VAR_DWORD(speed, "NextData"); break;						//W
-		case COMBODNEXTC:	SET_COMBO_VAR_BYTE(nextcombo, "NextCSet"); break;					//C
-		case COMBODFLAG:	SET_COMBO_VAR_BYTE(nextcset, "Flag"); break;						//C
+		case COMBODNEXTD:	SET_COMBO_VAR_INT(nextcombo, "NextData"); break;						//W
+		case COMBODNEXTC:	SET_COMBO_VAR_BYTE(nextcset, "NextCSet"); break;					//C
+		case COMBODFLAG:	SET_COMBO_VAR_BYTE(flag, "Flag"); break;						//C
 		case COMBODSKIPANIM:	SET_COMBO_VAR_BYTE(skipanim, "SkipAnim"); break;					//C
 		case COMBODNEXTTIMER:	SET_COMBO_VAR_DWORD(nexttimer, "NextTimer"); break;					//W
 		case COMBODAKIMANIMY:	SET_COMBO_VAR_BYTE(skipanimy, "SkipAnimY"); break;					//C
