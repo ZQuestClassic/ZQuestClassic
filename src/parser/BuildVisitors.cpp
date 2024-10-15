@@ -1665,7 +1665,7 @@ void BuildOpcodes::buildVariable(ASTDataDecl& host, OpcodeContext& context)
 	// Set variable to EXP1 or comptime_val, depending on the initializer.
 	if (auto globalId = manager.getGlobalId())
 	{
-		if (holds_object)
+		if (holds_object && !is_array)
 			addOpcode(new OMarkTypeRegister(new GlobalArgument(*globalId), new LiteralArgument((int)writeType->getScriptObjectTypeId())));
 
 		if (comptime_val)

@@ -16,6 +16,16 @@ namespace Test
 		}
 	}
 
+	void AssertEqual<T>(T actual, T expected, char32[] error)
+	{
+		if (expected != actual)
+		{
+			printf("[Test] failed assertion: expected %d but got %d\n", expected, actual);
+			printf("[Test] %s\n", error);
+			Game->Exit();
+		}
+	}
+
 	void Assert<T>(T actual)
 	{
 		if (!actual)
