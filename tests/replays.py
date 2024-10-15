@@ -923,33 +923,6 @@ def run_replays(
         )
         test_results.runs.append(results)
 
-        for result in results:
-            run_dir = runs_dir / result.directory
-
-            # Only print on failure and last attempt.
-            if (not result.success or result.exceptions) and i == retries:
-                print(f'failure: {result.name}')
-
-                if result.exceptions:
-                    print(f'  EXCEPTION: {" | ".join(result.exceptions)}')
-
-                def print_nicely(title: str, path: Path):
-                    if not path.exists():
-                        return
-
-                    title = f' {title} '
-                    length = len(title) * 2
-                    print()
-                    print('=' * length)
-                    print(title.center(length, '='))
-                    print('=' * length)
-                    print()
-                    sys.stdout.buffer.write(path.read_bytes())
-
-                print_nicely('STDOUT', run_dir / 'stdout.txt')
-                print_nicely('STDERR', run_dir / 'stderr.txt')
-                print_nicely('ALLEGRO LOG', run_dir / 'allegro.log')
-
     if prune_test_results:
         # Only keep the last run of each replay.
         replay_runs: List[RunResult] = []
