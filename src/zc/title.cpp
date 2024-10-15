@@ -12,6 +12,7 @@
 
 #include "base/zdefs.h"
 #include "zc/replay_upload.h"
+#include "zc/zc_sys.h"
 #include "zc/zelda.h"
 #include "base/zsys.h"
 #include "qst.h"
@@ -1145,6 +1146,7 @@ static int32_t game_details(save_t* save)
 					InfoDialog("Error updating save", r.error()).show();
 					exit_sys_pal();
 				}
+				selectscreen();
 				break;
 			}
 		}
