@@ -2283,6 +2283,44 @@ expected<save_t*, std::string> saves_create_slot(fs::path path, bool write_to_di
 	return &save;
 }
 
+expected<bool, std::string> saves_update_slot(save_t* save, std::string qstpath)
+{
+	if (save->header->has_played)
+		return make_unexpected("cannot modify quest path for save file that has been played");
+
+	gamedata* new_game = new gamedata();
+	new_game->header.qstpath = qstpath;
+	new_game->header.name = save->header->name;
+	new_game->set_maxlife(3*16);
+	new_game->set_life(3*16);
+	new_game->set_maxbombs(8);
+	new_game->set_continue_dmap(0);
+	new_game->set_continue_scrn(0xFF);
+
+	delete save->header;
+	save->header = &new_game->header;
+	save->game = new_game;
+
+	if (save->write_to_disk && !save->path.empty() && fs::exists(save->path))
+	{
+		std::error_code ec;
+		fs::remove(save->path, ec);
+		if (ec)
+			return make_unexpected(ec.message());
+
+		save->path = "";
+	}
+
+	std::string err;
+	if (!initialize_new_save(save, err))
+	{
+		saves.pop_back();
+		return make_unexpected(err);
+	}
+
+	return true;
+}
+
 save_t* saves_create_test_slot(gamedata* game, fs::path path)
 {
 	auto& save = saves.emplace_back();

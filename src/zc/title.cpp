@@ -1139,7 +1139,12 @@ static int32_t game_details(save_t* save)
 		{
 			if (prompt_for_quest_path(save->header->qstpath))
 			{
-				save->header->qstpath = qstpath;
+				if (auto r = saves_update_slot(save, qstpath); !r)
+				{
+					enter_sys_pal();
+					InfoDialog("Error updating save", r.error()).show();
+					exit_sys_pal();
+				}
 				break;
 			}
 		}
@@ -1364,7 +1369,7 @@ static void select_game(bool skip = false)
 			select_mode();
 		}
 		
-		if(rAbtn() && !mode && pos<3)
+		if (rAbtn() && !mode && pos<3 && saveslot < saves_count())
 		{
 			if (auto r = saves_get_slot(saveslot); !r)
 			{

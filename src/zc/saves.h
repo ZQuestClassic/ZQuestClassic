@@ -54,6 +54,7 @@ int32_t saves_count();
 int32_t saves_current_selection();
 expected<save_t*, std::string> saves_create_slot(gamedata* game, fs::path path = "", bool write_to_disk = true);
 expected<save_t*, std::string> saves_create_slot(fs::path path, bool write_to_disk = true);
+expected<bool, std::string> saves_update_slot(save_t* save, std::string qstpath);
 save_t* saves_create_test_slot(gamedata* game, fs::path path);
 bool saves_is_slot_loaded(int32_t index, bool full_data = false);
 bool saves_has_error(int32_t index);
