@@ -1188,6 +1188,7 @@ static int32_t game_details(save_t* save)
 					InfoDialog("Error updating save", r.error()).show();
 					exit_sys_pal();
 				}
+				selectscreen();
 				break;
 			}
 		}
