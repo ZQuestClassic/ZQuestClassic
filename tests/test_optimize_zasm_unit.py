@@ -57,7 +57,7 @@ class TestOptimizeZasmUnit(ZCTestCase):
         ]
         p = run_target.run('zplayer', run_args)
         if p.returncode:
-            raise Exception(f'error: {p.returncode}\n{p.stderr}')
+            raise Exception(f'error: {p.returncode}\n\nSTDERR:\n\n{p.stderr}\n\nSTDOUT:\n\n{p.stdout}')
 
         output_index = p.stdout.index('output:\n') + len('output:\n')
         output = p.stdout[output_index:].strip() + '\n'
