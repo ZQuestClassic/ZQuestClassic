@@ -5946,8 +5946,8 @@ bool weapon::animate(int32_t index)
 					if(id==ewMagic)
 					{
 						w=new weapon(*this);
-						Lwpns.add(w);
 						dead=0;
+						if (!Lwpns.add(w)) break;
 					}
 					else
 					{
@@ -5979,8 +5979,8 @@ bool weapon::animate(int32_t index)
 					if(id==ewMagic)
 					{
 						w=new weapon(*this);
-						Lwpns.add(w);
 						dead=0;
+						if (!Lwpns.add(w)) break;
 					}
 					else
 					{
@@ -6030,8 +6030,8 @@ bool weapon::animate(int32_t index)
 					if(id==ewMagic)
 					{
 						w=new weapon(*this);
-						Lwpns.add(w);
 						dead=0;
+						if (!Lwpns.add(w)) break;
 					}
 					else
 					{
@@ -6224,8 +6224,8 @@ bool weapon::animate(int32_t index)
 					if(id==ewMagic)
 					{
 						w=new weapon(*this);
-						Lwpns.add(w);
 						dead=0;
+						if (!Lwpns.add(w)) break;
 					}
 					else
 					{
@@ -6347,8 +6347,8 @@ bool weapon::animate(int32_t index)
 					if(id==ewMagic)
 					{
 						w=new weapon(*this);
-						Lwpns.add(w);
 						dead=0;
+						if (!Lwpns.add(w)) break;
 					}
 					else
 					{
@@ -6381,8 +6381,8 @@ bool weapon::animate(int32_t index)
 					if(id==ewMagic)
 					{
 						w=new weapon(*this);
-						Lwpns.add(w);
 						dead=0;
+						if (!Lwpns.add(w)) break;
 					}
 					else
 					{
@@ -6432,8 +6432,8 @@ bool weapon::animate(int32_t index)
 					if(id==ewMagic)
 					{
 						w=new weapon(*this);
-						Lwpns.add(w);
 						dead=0;
+						if (!Lwpns.add(w)) break;
 					}
 					else
 					{
@@ -6633,8 +6633,8 @@ bool weapon::animate(int32_t index)
 					if (id == ewMagic)
 					{
 						w = new weapon(*this);
-						Lwpns.add(w);
 						dead = 0;
+						if (!Lwpns.add(w)) break;
 					}
 
 					w->dir = newdir;
