@@ -994,7 +994,7 @@ void Z_scripterrlog(const char * const format,...)
 {
     if(get_qr(qr_SCRIPTERRLOG) || DEVLEVEL > 0)
     {
-        FFCore.TraceScriptIDs();
+        FFCore.TraceScriptIDs(true);
 		
         char buf[2048];
         

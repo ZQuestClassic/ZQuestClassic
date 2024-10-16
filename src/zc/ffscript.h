@@ -953,7 +953,7 @@ void do_tracetobase();
 void ZScriptConsole(bool open);
 template <typename ...Params>
 void ZScriptConsole(int32_t attributes,const char *format, Params&&... params);
-void TraceScriptIDs();
+void TraceScriptIDs(bool force_show_context = false);
 /*
 int32_t getQuestHeaderInfo(int32_t type)
 {
