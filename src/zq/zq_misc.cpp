@@ -1048,6 +1048,8 @@ int32_t onPreviewMode()
 
 	if(prv_mode)
 	{
+		popup_zqdialog_start();
+
 		Map.set_prvscr(Map.getCurrMap(),Map.getCurrScr());
 		
 		mmap_set_zoom(false);
@@ -1058,6 +1060,8 @@ int32_t onPreviewMode()
 		clear_tooltip();
 		dopreview();
 		ComboBrush=tempcb;
+
+		popup_zqdialog_end();
 	}
 	return D_O_K;
 }
