@@ -18,6 +18,7 @@ int16_t autocombo_entry::base_engrave_offset(byte type)
 		case AUTOCOMBO_RELATIONAL: return 96;
 		case AUTOCOMBO_DGNCARVE: return 144;
 		case AUTOCOMBO_DOR: return 240;
+		case AUTOCOMBO_DENSEFOREST: return 320;
 	}
 	return 0;
 }
@@ -52,18 +53,27 @@ void combo_auto::removeEntry()
 void combo_auto::updateValid()
 {
 	bool isvalid = true;
+	bool canDupe = false;
+	bool canCombo0 = false;
+
+	bool hasCombo0 = false;
+
 	invalid_reasons = 0;
 	switch(type)
 	{
-		case AUTOCOMBO_BASIC:
 		case AUTOCOMBO_Z1:
+		case AUTOCOMBO_BASIC:
+		case AUTOCOMBO_REPLACE:
+		case AUTOCOMBO_RELATIONAL:
+		case AUTOCOMBO_EXTEND:
+			canDupe = true;
 		case AUTOCOMBO_FENCE:
 		case AUTOCOMBO_Z4:
-		case AUTOCOMBO_RELATIONAL:
 		case AUTOCOMBO_DGNCARVE:
 		case AUTOCOMBO_DOR:
 		case AUTOCOMBO_TILING:
-		case AUTOCOMBO_REPLACE:
+		case AUTOCOMBO_DENSEFOREST:
+			canCombo0 = true;
 			break;
 		default:
 			invalid_reasons |= ACIR_ILLEGAL_TYPE;
@@ -77,29 +87,35 @@ void combo_auto::updateValid()
 	}
 	for (auto c : combos)
 	{
-		if (c.cid == 0)
+		if (c.cid == cid_erase)
+		{
+			invalid_reasons |= ACIR_ERASE_IN_SET;
+			flags &= ~ACF_VALID;
+			isvalid = false;
+		}
+		if (!canCombo0&&c.cid == 0)
 		{
 			invalid_reasons |= ACIR_MISSING_COMBO;
 			flags &= ~ACF_VALID;
 			isvalid = false;
 		}
-		else
+		for (auto c2 : combos)
 		{
-			for (auto c2 : combos)
+			if (c2.offset != c.offset && c2.cid == c.cid)
 			{
-				if (c2.offset != c.offset && c2.cid == c.cid)
+				if(!canDupe)
 				{
-					if(type!=AUTOCOMBO_REPLACE)
-					{
-						invalid_reasons |= ACIR_DUPLICATE_COMBO;
-						flags &= ~ACF_VALID;
-						isvalid = false;
-						break;
-					}
+					invalid_reasons |= ACIR_DUPLICATE_COMBO;
+					flags &= ~ACF_VALID;
+					isvalid = false;
+					break;
 				}
 			}
+			if (c2.cid == 0)
+				hasCombo0 = true;
 		}
 	}
+
 	if(isvalid)
 		flags |= ACF_VALID;
 }
@@ -114,9 +130,11 @@ std::string combo_auto::getInvalidReason()
 			ret += "\n-Autocombo is an invalid Type";
 	}
 	if (invalid_reasons & ACIR_MISSING_COMBO)
-		ret += "\n-Some combos are combo 0 (invalid)";
+		ret += "\n-This type does not allow combo 0 in the set";
+	if (invalid_reasons & ACIR_ERASE_IN_SET)
+		ret += "\n-The erase combo is shared with one or more combos in the set";
 	if (invalid_reasons & ACIR_DUPLICATE_COMBO)
-		ret += "\n-Two or more combos use the same ID";
+		ret += "\n-This type does not allow two combos with the same ID";
 	return ret;
 }
 bool combo_auto::hasTemplate()

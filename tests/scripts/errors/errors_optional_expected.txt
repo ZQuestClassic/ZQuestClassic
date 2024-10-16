@@ -1,0 +1,68 @@
+stderr:
+
+Compiling 'errors_optional.zs'
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+errors_optional.zs Line 14 @ Columns 36-38 - Error S109: Function 'optional_params_3' has an optional parameter whose default value is not a constant expression
+errors_optional.zs Line 28 @ Columns 31-50 - Error R075: Global variable initializers can only contain calls to 'constexpr' functions
+errors_optional.zs Line 28 @ Columns 31-50 - Error S109: Function 'optional_params_5' has an optional parameter whose default value is not a constant expression
+Failure!
+Compile finished with exit code '109' (compiled with errors)
+
+stdout:
+
+{
+  "success": false,
+  "code": 109,
+  "diagnostics": [
+    {
+      "range": {
+        "start": {
+          "line": 13,
+          "character": 35
+        },
+        "end": {
+          "line": 13,
+          "character": 37
+        }
+      },
+      "severity": 1,
+      "message": "S109: Function 'optional_params_3' has an optional parameter whose default value is not a constant expression"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 27,
+          "character": 30
+        },
+        "end": {
+          "line": 27,
+          "character": 49
+        }
+      },
+      "severity": 1,
+      "message": "R075: Global variable initializers can only contain calls to 'constexpr' functions"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 27,
+          "character": 30
+        },
+        "end": {
+          "line": 27,
+          "character": 49
+        }
+      },
+      "severity": 1,
+      "message": "S109: Function 'optional_params_5' has an optional parameter whose default value is not a constant expression"
+    }
+  ],
+  "metadata": {
+    "currentFileSymbols": 6,
+    "symbols": 0,
+    "identifiers": 0,
+    "elided": true
+  }
+}

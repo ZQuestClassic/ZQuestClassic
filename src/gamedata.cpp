@@ -872,7 +872,7 @@ void gamedata::set_item(int32_t id, bool value)
 void gamedata::set_item_no_flush(int32_t id, bool value)
 {
     if(value != item[id])
-        Z_eventlog("%sed item %i: %s\n", value ? "Gain" : "Remov", id, item_string[id]); //Gain + ed, Remov + ed. %s + ed.
+        Z_eventlog("%s item %i: %s\n", value ? "Gained" : "Removed", id, item_string[id]);
         
     item[id]=value;
 }

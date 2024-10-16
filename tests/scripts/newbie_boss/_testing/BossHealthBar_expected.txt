@@ -730,11 +730,11 @@ SETCMP D2 I<=
 COMPAREV D2 0
 GOTOCMP 647 ==; Test 'if'
 ALLOCATEMEMV D2 59 0; if() #585 Body Start
-STORE D2 0.0002
 WRITEPODSTRING D2 "ghost.zh: AutoGhost setup failed - script does not exist.\n"
+STORE D2 0.0002
 ALLOCATEMEMV D2 80 0
-STORE D2 0
 WRITEPODSTRING D2 "  Script name: %s\n"
+STORE D2 0
 LOAD D2 0.0002; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
@@ -866,14 +866,14 @@ SETCMP D2 I<=
 COMPAREV D2 0
 GOTOCMP 701 ==; Test 'if'
 ALLOCATEMEMV D2 54 0; if() #589 Body Start
-STORE D2 0.0005
 WRITEPODSTRING D2 "ghost.zh: AutoGhost setup failed - script not found.\n"
+STORE D2 0.0005
 ALLOCATEMEMV D2 80 0
-STORE D2 0.0003
 WRITEPODSTRING D2 "  Enemy name: %s\n"
+STORE D2 0.0003
 ALLOCATEMEMV D2 55 0
-STORE D2 0.0001
 WRITEPODSTRING D2 "  Script name should start after this character: %c\n"
+STORE D2 0.0001
 LOAD D2 0.0005; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
@@ -7096,8 +7096,8 @@ SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 6910 ==; Test 'if'
 ALLOCATEMEMV D2 43 0; if() #596 Body Start
-STORE D2 0
 WRITEPODSTRING D2 "ghost.zh: Failed to find prototype eweapon"
+STORE D2 0
 LOAD D2 0; InlineFunc[void TraceS(char32[])] Params Start
 SETR D3 D2; InlineFunc[void TraceS(char32[])] Params End
 TRACE6 D3; InlineFunc[void TraceS(char32[])] Body

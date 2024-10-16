@@ -141,6 +141,29 @@ class ReplayTestResults:
         as_dict = dataclasses.asdict(self)
         return json.dumps(as_dict, indent=indent)
 
+    def print_failures(self, directory: Path):
+        failing_strs = []
+
+        for run in self.runs[-1]:
+            if not run.success:
+                failing_str = f'({run.name}) failure at frame {run.failing_frame}'
+                if run.unexpected_gfx_segments:
+                    segments_str = [
+                        f'{r[0]}-{r[1]}' for r in run.unexpected_gfx_segments
+                    ]
+                    failing_str += ': ' + ', '.join(segments_str)
+                if run.exceptions:
+                    failing_str += '\nExceptions:\n\t' + '\n\t'.join(run.exceptions)
+                roundtrip_path = directory / run.directory / f'{run.name}.roundtrip'
+                if roundtrip_path.exists():
+                    roundtrip = roundtrip_path.read_text()
+                    failing_str += 'roundtrip file:\n'
+                    failing_str += roundtrip_path.read_text()
+                failing_str += '\n'
+                failing_strs.append(failing_str)
+
+            print('\n'.join(failing_strs))
+
 
 class ReplayResultUpdatedHandler(FileSystemEventHandler):
 
@@ -646,7 +669,7 @@ def _run_replay_test(
                 )
             # .zplay files are updated in-place, but lets also copy over to the test output folder.
             # This makes it easy to upload an archive of updated replays in CI.
-            if ctx.mode == 'update' and watcher.result['changed']:
+            if ctx.mode == 'update' and watcher.result.get('changed'):
                 (test_results_dir / 'updated').mkdir(exist_ok=True)
                 shutil.copy2(
                     replay_file, test_results_dir / 'updated' / replay_file.name
@@ -899,33 +922,6 @@ def run_replays(
             on_update,
         )
         test_results.runs.append(results)
-
-        for result in results:
-            run_dir = runs_dir / result.directory
-
-            # Only print on failure and last attempt.
-            if (not result.success or result.exceptions) and i == retries:
-                print(f'failure: {result.name}')
-
-                if result.exceptions:
-                    print(f'  EXCEPTION: {" | ".join(result.exceptions)}')
-
-                def print_nicely(title: str, path: Path):
-                    if not path.exists():
-                        return
-
-                    title = f' {title} '
-                    length = len(title) * 2
-                    print()
-                    print('=' * length)
-                    print(title.center(length, '='))
-                    print('=' * length)
-                    print()
-                    sys.stdout.buffer.write(path.read_bytes())
-
-                print_nicely('STDOUT', run_dir / 'stdout.txt')
-                print_nicely('STDERR', run_dir / 'stderr.txt')
-                print_nicely('ALLEGRO LOG', run_dir / 'allegro.log')
 
     if prune_test_results:
         # Only keep the last run of each replay.

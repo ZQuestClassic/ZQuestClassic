@@ -4,7 +4,7 @@
 #include "base/zc_alleg.h"
 #include <string>
 
-#define HOTKEY_FLAG_FILTER (KB_SHIFT_FLAG|KB_CTRL_FLAG|KB_ALT_FLAG)
+#define HOTKEY_FLAG_FILTER (KB_SHIFT_FLAG|KB_CTRL_FLAG|KB_COMMAND_FLAG|KB_ALT_FLAG)
 struct Hotkey
 {
 	int modflag[2];

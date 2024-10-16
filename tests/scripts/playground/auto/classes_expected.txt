@@ -1,0 +1,207 @@
+stderr:
+
+Compiling 'classes.zs'
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+Pass 5: Checking code paths
+Pass 6: Generating object code
+Pass 7: Assembling
+Success!
+Compile finished with exit code '0' (success)
+
+stdout:
+
+{
+  "success": true,
+  "diagnostics": [],
+  "metadata": {
+    "currentFileSymbols": 10,
+    "symbols": 13,
+    "identifiers": 19,
+    "elided": true
+  }
+}
+
+zasm:
+
+PUSHARGSV 0 0.0006; void run() Body Start
+SETR D4 SP2
+ALLOCATEMEMV D2 100 0
+STORE D2 0.0004
+LOAD D2 0.0004; InlineFunc[void Game::GetSaveName(char32[])] Params
+GETSAVENAME D2; InlineFunc[void Game::GetSaveName(char32[])] Body
+ALLOCATEMEMV D2 19 0
+STORE D2 0.0003
+WRITEPODSTRING D2 "[Test] Running %s\n"
+LOAD D2 0.0003; InlineFunc[void printf(char32[])] Params Start
+PUSHR D2
+LOAD D2 0.0004
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
+LOAD D3 0.0003
+DEALLOCATEMEMR D3
+LOAD D2 0.0004; InlineFunc[int Game::GetGenericScript(char32[])] Params
+GETGENERICSCRIPT D2; InlineFunc[int Game::GetGenericScript(char32[])] Body
+STORE D2 0.0002
+LOAD D2 0.0002; if() #2 Test
+COMPAREV D2 -1
+SETCMP D2 I==
+COMPAREV D2 0
+GOTOCMP 36 ==; Test 'if'
+ALLOCATEMEMV D2 53 0; if() #2 Body Start
+STORE D2 0.0001
+WRITEPODSTRING D2 "[Test] failed to start - could not find test script\n"
+LOAD D2 0.0001; InlineFunc[void printf(char32[])] Params Start
+PUSHR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
+LOAD D3 0.0001
+DEALLOCATEMEMR D3
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #2 Body End
+LOAD D2 0.0002; InlineFunc[genericdata Game::LoadGenericData(int)] Params
+LOADGENERICDATA D2; InlineFunc[genericdata Game::LoadGenericData(int)] Body Start
+SETR D2 REFGENERICDATA; InlineFunc[genericdata Game::LoadGenericData(int)] Body End
+STORE D2 0.0001
+SETV D2 1
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+CASTBOOLI D2
+POP REFGENERICDATA
+SETR GENDATARUNNING D2
+LOAD D2 0.0001; while() #1 Test
+PUSHR D2
+POP REFGENERICDATA
+SETR D2 GENDATARUNNING
+COMPAREV D2 0
+GOTOCMP 58 ==; Test 'while'
+WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #1 Body
+GOTO 50; while() #1 End
+ALLOCATEMEMV D2 13 0
+STORE D2 0
+WRITEPODSTRING D2 "[Test] done\n"
+LOAD D2 0; InlineFunc[void printf(char32[])] Params Start
+PUSHR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
+LOAD D3 0
+DEALLOCATEMEMR D3
+GAMEEXIT; InlineFunc[void Game::Exit()] Body
+LOAD D3 0.0004
+DEALLOCATEMEMR D3; [Opt:NeverRet] AND void run() Body End
+
+
+PUSHR REFGENERICDATA; void run() Body Start
+PUSHARGSV 0 0.0003
+SETR D4 SP2
+PUSHR D4
+PUSHV 5; UsrFunc[void Init(int, int)] Params Start
+PUSHV 15; UsrFunc[void Init(int, int)] Params End
+CALLFUNC 0.0037; UsrFunc[void Init(int, int)] Call
+POP D4
+PUSHR CLASS_THISKEY
+PUSHR D4
+CALLFUNC 0.0071; ClassFunc[Car Car::Car()] Constructor Call
+POP D4
+POP CLASS_THISKEY
+STORE_OBJECT D2 0.0002
+LOAD D2 0.0002
+ZCLASS_FREE D2
+WAITFRAME; InlineFunc[void Waitframe()] Body
+PUSHR CLASS_THISKEY
+PUSHR D4
+PUSHV 2000; ClassFunc[Car Car::Car(int)] Params
+CALLFUNC 0.0083; ClassFunc[Car Car::Car(int)] Constructor Call
+POP D4
+POP CLASS_THISKEY
+STORE_OBJECT D2 0.0001
+PUSHR CLASS_THISKEY
+PUSHR D4
+PUSHV 5000; ClassFunc[Car Car::Car(int)] Params
+CALLFUNC 0.0083; ClassFunc[Car Car::Car(int)] Constructor Call
+POP D4
+POP CLASS_THISKEY
+STORE_OBJECT D2 0
+REF_REMOVE 0.0002
+REF_REMOVE 0.0001
+REF_REMOVE 0
+POPARGS D5 0.0004
+QUIT; void run() Body End
+PUSHV 0; Func[void Init(int, int)] Body Start
+SETR D4 SP2
+ALLOCATEMEMV D2 35 0
+STORE D2 0
+WRITEPODSTRING D2 "[Test] started: dmap %d screen %d\n"
+LOAD D2 0; InlineFunc[void printf(char32[])] Params Start
+PUSHR D2
+LOAD D2 0.0002
+PUSHVARGR D2
+LOAD D2 0.0001
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
+LOAD D3 0
+DEALLOCATEMEMR D3
+LOAD D2 0.0002; if() #1 Test
+COMPAREV D2 5
+GOTOCMP 60 !=
+LOAD D2 0.0001
+COMPAREV D2 15
+GOTOCMP 60 !=
+SETV D2 0
+GOTO 61
+SETV D2 1
+COMPAREV D2 0
+GOTOCMP 69 ==; Test 'if'
+LOAD D2 0.0002; InlineFunc[void player::Warp(int, int)] Params Start AND if() #1 Body Start
+PUSHR D2
+LOAD D2 0.0001; InlineFunc[void player::Warp(int, int)] Params End
+POP D3; InlineFunc[void player::Warp(int, int)] Body Start
+POP D6
+WARPR D3 D2; InlineFunc[void player::Warp(int, int)] Body End AND if() #1 Body End
+POPARGS D5 0.0003
+RETURNFUNC; Func[void Init(int, int)] Body End
+SETV D2 0.0100; Func[Car Car::Car()] Body Start
+SETR CLASS_THISKEY2 CLASS_THISKEY
+ZCLASS_CONSTRUCT CLASS_THISKEY {0.0001}
+SETR D4 SP2
+PUSHR CLASS_THISKEY2
+SETV D2 100
+ZCLASS_WRITE CLASS_THISKEY 0
+ZCLASS_READ CLASS_THISKEY 0; InlineFunc[void Trace(untyped)] Params
+TRACER D2; InlineFunc[void Trace(untyped)] Body
+SETR D2 CLASS_THISKEY
+POP CLASS_THISKEY
+RETURNFUNC; Func[Car Car::Car()] Body End
+SETV D2 0.0100; Func[Car Car::Car(int)] Body Start
+SETR CLASS_THISKEY2 CLASS_THISKEY
+ZCLASS_CONSTRUCT CLASS_THISKEY {0.0001}
+SETR D4 SP2
+PUSHR CLASS_THISKEY2
+LOAD D2 0
+PUSHR D2
+SETR D2 CLASS_THISKEY
+SETR D3 D2
+POP D2
+ZCLASS_WRITE D3 0
+LOAD D2 0; InlineFunc[void Trace(untyped)] Params
+TRACER D2; InlineFunc[void Trace(untyped)] Body
+POP D5
+SETR D2 CLASS_THISKEY
+POP CLASS_THISKEY
+RETURNFUNC; Func[Car Car::Car(int)] Body End
+STARTDESTRUCTOR "Car"; Func[void ~Car::Car()] Body Start
+SETR D4 SP2
+ZCLASS_READ CLASS_THISKEY 0; InlineFunc[void Trace(untyped)] Params Start
+SUBV2 0 D2; InlineFunc[void Trace(untyped)] Params End
+TRACER D2; InlineFunc[void Trace(untyped)] Body
+RETURNFUNC; Func[void ~Car::Car()] Body End
+
+
+QUIT; void run() Body

@@ -5803,8 +5803,8 @@ bool weapon::animate(int32_t index)
 					if(id==ewMagic)
 					{
 						w=new weapon(*this);
-						Lwpns.add(w);
 						dead=0;
+						if (!Lwpns.add(w)) break;
 					}
 					else
 					{
@@ -5836,8 +5836,8 @@ bool weapon::animate(int32_t index)
 					if(id==ewMagic)
 					{
 						w=new weapon(*this);
-						Lwpns.add(w);
 						dead=0;
+						if (!Lwpns.add(w)) break;
 					}
 					else
 					{
@@ -5887,8 +5887,8 @@ bool weapon::animate(int32_t index)
 					if(id==ewMagic)
 					{
 						w=new weapon(*this);
-						Lwpns.add(w);
 						dead=0;
+						if (!Lwpns.add(w)) break;
 					}
 					else
 					{
@@ -6081,8 +6081,8 @@ bool weapon::animate(int32_t index)
 					if(id==ewMagic)
 					{
 						w=new weapon(*this);
-						Lwpns.add(w);
 						dead=0;
+						if (!Lwpns.add(w)) break;
 					}
 					else
 					{
@@ -6204,8 +6204,8 @@ bool weapon::animate(int32_t index)
 					if(id==ewMagic)
 					{
 						w=new weapon(*this);
-						Lwpns.add(w);
 						dead=0;
+						if (!Lwpns.add(w)) break;
 					}
 					else
 					{
@@ -6238,8 +6238,8 @@ bool weapon::animate(int32_t index)
 					if(id==ewMagic)
 					{
 						w=new weapon(*this);
-						Lwpns.add(w);
 						dead=0;
+						if (!Lwpns.add(w)) break;
 					}
 					else
 					{
@@ -6289,8 +6289,8 @@ bool weapon::animate(int32_t index)
 					if(id==ewMagic)
 					{
 						w=new weapon(*this);
-						Lwpns.add(w);
 						dead=0;
+						if (!Lwpns.add(w)) break;
 					}
 					else
 					{
@@ -6478,18 +6478,7 @@ bool weapon::animate(int32_t index)
 				if(newmirror > -1)
 				{
 					newcombo const& cmb = combobuf[newmirror];
-					weapon *w=NULL;
-					
-					if(id==ewMagic)
-					{
-						w=new weapon(*this);
-						Lwpns.add(w);
-						dead=0;
-					}
-					else
-					{
-						w=this;
-					}
+					weapon *w = this;
 					
 					byte newdir = cmb.attribytes[NORMAL_DIR(w->dir)];
 					if(newdir > 7)
@@ -6497,6 +6486,14 @@ bool weapon::animate(int32_t index)
 						dead = 0;
 						break;
 					}
+
+					if (id == ewMagic)
+					{
+						w = new weapon(*this);
+						dead = 0;
+						if (!Lwpns.add(w)) break;
+					}
+
 					w->dir = newdir;
 					
 					if(w->id != wWind)

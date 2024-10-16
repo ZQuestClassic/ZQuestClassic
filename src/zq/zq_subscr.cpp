@@ -245,7 +245,7 @@ int32_t onSubscrPaste()
 {
 	if(subscr_edit.cur_page().empty())
 		return onDuplCopiedWidget();
-	if(key_shifts & KB_CTRL_FLAG)
+	if(key_shifts & KB_CTRL_CMD_FLAG)
 		paste_widget_to(curr_widg);
 	else paste_properties(curr_widg);
 	return D_O_K;

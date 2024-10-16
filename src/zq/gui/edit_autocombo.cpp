@@ -52,11 +52,12 @@ AutoComboDialog::AutoComboDialog() :
 
 }
 
-void AutoComboDialog::addCombos(int32_t count)
+void AutoComboDialog::addCombos(int32_t count, bool from0)
 {
+	int32_t startfrom = from0 ? 0 : temp_autocombo.combos.size();
 	for (int32_t q = 0; q < count; ++q)
 	{
-		temp_autocombo.addEntry(0, ACT_NORMAL, q, -1);
+		temp_autocombo.addEntry(0, ACT_NORMAL, startfrom + q, -1);
 	}
 }
 void AutoComboDialog::removeCombos(int32_t count)
@@ -116,6 +117,9 @@ void AutoComboDialog::refreshPanels()
 			addCombos(w * h);
 			break;
 		}
+		case AUTOCOMBO_DENSEFOREST:
+			addCombos(7);
+			break;
 	}
 }
 
@@ -193,7 +197,7 @@ std::shared_ptr<GUI::Widget> AutoComboDialog::view()
 				templatebtn = Button(vAlign = 0.5,
 					text = "Auto Generate",
 					minwidth = 90_px,
-					disabled = !temp_autocombo.hasTemplate(),
+					disabled = !temp_autocombo.hasTemplate() || temp_autocombo.combos.size() <= 0,
 					onClick = message::RELOAD,
 					onPressFunc = [&]() {
 						int32_t cmb, cs;
@@ -232,6 +236,24 @@ std::shared_ptr<GUI::Widget> AutoComboDialog::view()
 												w.entry->cid = cid;
 												if (w.slot % wid == wid - 1)
 													tiling_offs += 4 - wid;
+												break;
+											}
+											case AUTOCOMBO_EXTEND:
+											{
+												int32_t cid = vbound(cmb + w.slot, 0, MAXCOMBOS - 1);
+												if (temp_autocombo.getFlags() & ACF_VERTICAL)
+												{
+													cid = vbound(cmb + tiling_offs + (w.slot % 4) * 4, 0, MAXCOMBOS - 1);
+													if (w.slot % 4 == 3)
+													{
+														++tiling_offs;
+														if ((cmb + (w.slot / 4)) % 4 == 3)
+															tiling_offs += 12;
+													}
+												}
+												w.cpane->setCombo(cid);
+												w.cpane->setCSet(CSet);
+												w.entry->cid = cid;
 												break;
 											}
 											case AUTOCOMBO_RELATIONAL:
@@ -385,6 +407,14 @@ std::shared_ptr<GUI::Widget> AutoComboDialog::view()
 									temp_arg = (temp_arg & 0x0F) | ((val - 1) << 4);
 									templatebtn->setDisabled(true);
 								})
+						),
+						// 8 - extend
+						Rows<2>(vAlign = 0.0,
+							AUTO_CB(flags, ACF_CROSSSCREENS, 1, "Cross Screens", "If checked, this autocombo can affect combos on adjacent screens."),
+							AUTO_CB(flags, ACF_CONNECTEDGE, 1, "Connect to Edge", "If checked, this autocombo will connect to the edge of the screen."),
+							AUTO_CB(flags, ACF_VERTICAL, 1, "Vertical", "If checked, extends tiles vertically instead of horizontally."),
+							AUTO_CB(flags, ACF_NOCREATE, 1, "Only Extend", "If checked, prevents creating or destroying the last combo in a set."),
+							AUTO_CB(flags, ACF_DOGROUP, 1, "Extend Group", "If checked, will also extend any adjacent combos going at a perpendicular.")
 						)
 					)
 				))
@@ -526,6 +556,53 @@ void AutoComboDialog::addSlotReplace(autocombo_entry& entrybefore, autocombo_ent
 		wid = row->getTotalWidth();
 	}
 	ind += 2;
+}
+
+void AutoComboDialog::addSlotsExtend(std::vector<autocombo_entry>& entries, size_t& ind, size_t& wid, size_t& hei)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Key;
+	using namespace GUI::Props;
+
+	std::shared_ptr<GUI::Grid> row = Row(framed = true, padding = 8_px);
+	int32_t engravingID = 340;
+	if (temp_autocombo.flags & ACF_VERTICAL)
+		engravingID = 336;
+
+	for (int32_t q = 0; q < 4; ++q)
+	{
+		autocombo_widg& widg = widgs.emplace_back();
+		widg.slot = ind;
+		widg.entry = &temp_autocombo.combos[ind];
+		widg.cpane = SelComboSwatch(
+			combo = temp_autocombo.combos[ind].cid,
+			cset = CSet,
+			showvals = false,
+			onSelectFunc = [&, ind](int32_t cmb, int32_t c)
+			{
+				if (!(gui_mouse_b() & 2))
+				{
+					CSet = c;
+					refreshPreviewCSets();
+				}
+				temp_autocombo.combos[ind].cid = cmb;
+				widgs.at(ind).cpane->setCSet(CSet);
+				temp_autocombo.updateValid();
+			});
+
+		row->add(Engraving(data = engravingID + q));
+		row->add(widg.cpane);
+		++ind;
+	}
+
+	sgrid->add(row);
+
+	if (!hei)
+	{
+		row->calculateSize();
+		hei = row->getTotalHeight();
+		wid = row->getTotalWidth();
+	}
 }
 
 void AutoComboDialog::addSlotNoEngrave(autocombo_entry& entry, size_t& ind, size_t& wid, size_t& hei)
@@ -675,6 +752,23 @@ void AutoComboDialog::refreshTypes(int32_t type)
 				"Right Click: Replace combo (reverse)";
 			switch_settings->switchTo(0);
 			break;
+		case AUTOCOMBO_DENSEFOREST:
+			typeinfostr =
+				"An autocombo for placing 2x2 trees that alternate position every other row.\n\n"
+				"CONTROLS:\n"
+				"Left Click: Place combo\n"
+				"Right Click: Remove combo\n"
+				"Shift + Click: Update the X/Y offset for the top-left corner of the pattern";
+			switch_settings->switchTo(1);
+			break;
+		case AUTOCOMBO_EXTEND:
+			typeinfostr =
+				"An autocombo for extending things along one axis.\n\n"
+				"CONTROLS:\n"
+				"Left Click: Place combo\n"
+				"Right Click: Remove combo";
+			switch_settings->switchTo(8);
+			break;
 		default:
 			switch_settings->switchTo(0);
 			break;
@@ -759,6 +853,11 @@ void AutoComboDialog::refreshWidgets()
 				sgrid = Rows<8>();
 				break;
 		}
+	}
+	else if (temp_autocombo.getType() == AUTOCOMBO_EXTEND)
+	{
+		sgrid = Column();
+		per_row = 1;
 	}
 	else
 		sgrid = Rows<4>();
@@ -892,6 +991,9 @@ void AutoComboDialog::refreshWidgets()
 				case AUTOCOMBO_REPLACE:
 					addSlotReplace(temp_autocombo.combos[widg_ind], temp_autocombo.combos[widg_ind + 1], grid_ind, widg_ind, wid, hei);
 					break;
+				case AUTOCOMBO_EXTEND:
+					addSlotsExtend(temp_autocombo.combos, widg_ind, wid, hei);
+					break;
 				default:
 					addSlot(temp_autocombo.combos[widg_ind], widg_ind, wid, hei);
 					break;
@@ -919,6 +1021,27 @@ void AutoComboDialog::refreshWidgets()
 				onClick = message::RELOAD,
 				onPressFunc = [&]() {
 					addCombos(2);
+				})
+		);
+	}
+	else if (temp_autocombo.getType() == AUTOCOMBO_EXTEND)
+	{
+		extrarow = Row(vAlign = 1.0,
+			Button(vAlign = 1.0,
+				text = "-",
+				width = 32_px, height = 32_px,
+				disabled = temp_autocombo.combos.size() <= 0,
+				onClick = message::RELOAD,
+				onPressFunc = [&]() {
+					removeCombos(4);
+				}),
+			Button(vAlign = 1.0,
+				text = "+",
+				width = 32_px, height = 32_px,
+				disabled = temp_autocombo.combos.size() >= 512,
+				onClick = message::RELOAD,
+				onPressFunc = [&]() {
+					addCombos(4);
 				})
 		);
 	}

@@ -200,6 +200,7 @@ static constexpr script_command command_list[]=
 	{ "ARCCOSR", ARCCOSR, 2, { REG_W, REG_R }, 0, 0 },
 	{ "ARCCOSV", ARCCOSV, 2, { NUM, REG }, 0, UNIMPL }, //!TODO ERROR Writes to sarg1 as a register, reads from sarg2 as a literal
 	{ "GAMEEND", GAMEEND, 0, {}, 0, 0 },
+	{ "GAMEEXIT", GAMEEXIT, 0, {}, 0, 0 },
 	{ "DRAWINTR", DRAWINTR, 0, {}, 0, 0 },
 	{ "SETTRUE", SETTRUE, 1, { REG_W }, 0, CMPUSED },
 	{ "SETFALSE", SETFALSE, 1, { REG_W }, 0, CMPUSED },
@@ -1794,7 +1795,7 @@ static constexpr script_variable variable_list[]=
 	//npcdata nd->
 	{"NPCDATATILE", NPCDATATILE, 0},
 	{"NPCDATAHEIGHT", NPCDATAHEIGHT, 0},
-	{"NPCDATAFLAGS", NPCDATAFLAGS, 0},
+	{"NPCDATAFLAGS1", NPCDATAFLAGS1, 0},
 	{"NPCDATAFLAGS2", NPCDATAFLAGS2, 0},
 	{"NPCDATAWIDTH", NPCDATAWIDTH, 0},
 	{"NPCDATAHITSFX", NPCDATAHITSFX, 0},
@@ -1840,6 +1841,8 @@ static constexpr script_variable variable_list[]=
 	{"NPCDATAFROZENTILE", NPCDATAFROZENTILE, 0},
 	{"NPCDATAFROZENCSET", NPCDATAFROZENCSET, 0},
 	{"NPCDATAFIRESFX", NPCDATAFIRESFX, 0 },
+	{"NPCDATAFLAG", NPCDATAFLAG, 0 },
+	
 	//mapdata md->
 	{"MAPDATAVALID", MAPDATAVALID, 0},
 	{"MAPDATAGUY", MAPDATAGUY, 0},
@@ -3414,6 +3417,7 @@ std::initializer_list<int> get_register_dependencies(int reg)
 		case NPCDATAATTRIBUTE:
 		case NPCDATABEHAVIOUR:
 		case NPCDATADEFENSE:
+		case NPCDATAFLAG:
 		case NPCDATAINITD:
 		case NPCDATASHIELD:
 		case NPCDATAWEAPONINITD:

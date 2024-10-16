@@ -995,9 +995,9 @@ If set, this string's contents will be printed after that of the previous string
  - Text wraps around bounding box
 If this is set, the string's text will wrap around automatically. In previous versions it was necessary to manually position the string text with spaces.
 
-+-----------------------------+
-| 4.7c STRING CONTROL CODES   |
-+-----------------------------+
++-----------------------------------+
+| 4.7c STRING CONTROL CODES (SCC)   |
++-----------------------------------+
 
 Enter these control codes into a message string for special formatting, effects, basic dialog branching, or modification. (Henceforth, "X" denotes a number from 0 to 9999.) 
 
@@ -1007,7 +1007,7 @@ Enter these control codes into a message string for special formatting, effects,
 
 \1\X\X - Text Colour. Changes the following text to a certain colour. Argument 1 is the CSet, and argument 2 is the colour within that CSet. The text in the Preview Pane changes to reflect the addition and modification of this Control Code. 
 
-\2\X - Text Speed. Changes the length of the delay between text characters appearing. If 0, text appears instantaneously. Argument 1 is the speed. 
+\2\X - Text Speed. Changes the length of the delay between text characters appearing. If 0, text appears instantaneously. Argument 1 is the speed (default speed = 5). 
 
 \25 - New Line. Equivalent to pressing Enter in a document. Best used when text wrapping is enabled.
 

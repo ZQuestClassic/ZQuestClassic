@@ -1083,8 +1083,8 @@ namespace ZScript
 
 		Type getDeclarationType() const /*override*/ {return TYPE_DATA;}
 
-		ASTExprVarInitializer* getInitializer() {return initializer_.get();}
-		ASTExprVarInitializer const* getInitializer() const {return initializer_.get();}
+		ASTExpr* getInitializer() {return initializer_.get();}
+		ASTExpr const* getInitializer() const {return initializer_.get();}
 		void setInitializer(ASTExpr* initializer);
 
 		// Resolves the type, using either the list's or this node's own base type
@@ -1129,7 +1129,7 @@ namespace ZScript
 
 	private:
 		// The initialization expression. Optional.
-		owning_ptr<ASTExprVarInitializer> initializer_;
+		owning_ptr<ASTExpr> initializer_;
 	};
 
 	bool hasSize(ASTDataDecl const&);

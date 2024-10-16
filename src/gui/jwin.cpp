@@ -4,6 +4,7 @@
 #include "base/zc_alleg.h"
 #include <allegro/internal/aintern.h>
 #include "gui/jwin.h"
+#include "base/zdefs.h"
 #include "gui/editbox.h"
 #include <iostream>
 #include <sstream>
@@ -2047,7 +2048,7 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 			if(d->flags & (D_DISABLED|D_READONLY))
 				break;
 			bool shifted = key_shifts & KB_SHIFT_FLAG;
-			bool ctrl = key_shifts & KB_CTRL_FLAG;
+			bool ctrl = key_shifts & KB_CTRL_CMD_FLAG;
 			bool word_modifier = key_shifts & WORD_FLAG;
 			bool line_modifier = key_shifts & LINE_FLAG;
 			bool change_cursor = true;
@@ -2281,7 +2282,7 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 				change_cursor = false;
 				return D_O_K;
 			}
-			else if(ctrl && lower_c == KEY_C)
+			else if(ctrl && upper_c == KEY_C)
 			{
 				change_cursor = false;
 				std::ostringstream oss;
@@ -2300,7 +2301,7 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 				}
 				set_al_clipboard(oss.str());
 			}
-			else if(clipboard_has_text() && ctrl && lower_c == KEY_V)
+			else if (ctrl && upper_c == KEY_V && clipboard_has_text())
 			{
 				std::string cb;
 				if(get_al_clipboard(cb))
@@ -2347,7 +2348,7 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 					GUI_EVENT(d, geCHANGE_VALUE);
 				}
 			}
-			else if(ctrl && lower_c == KEY_A)
+			else if (ctrl && upper_c == KEY_A)
 			{
 				cursor_start = 0;
 				cursor_end = (int16_t)strlen((char*)d->dp) - 1;
@@ -2355,7 +2356,7 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 				d->flags |= D_DIRTY;
 				break;
 			}
-			else if(lower_c >= 32)
+			else if(lower_c >= 32 && !ctrl)
 			{
 				if(range_selected)
 				{
@@ -2684,7 +2685,7 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 			if(d->flags & (D_DISABLED|D_READONLY))
 				break;
 			bool shifted = key_shifts & KB_SHIFT_FLAG;
-			bool ctrl = key_shifts & KB_CTRL_FLAG;
+			bool ctrl = key_shifts & KB_CTRL_CMD_FLAG;
 			bool word_modifier = key_shifts & WORD_FLAG;
 			bool line_modifier = key_shifts & LINE_FLAG;
 			bool change_cursor = true;
@@ -2693,6 +2694,7 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 			bool range_selected = cursor_end > -1;
 			auto upper_c = c>>8;
 			auto lower_c = c&0xFF;
+
 			if(shifted)
 			{
 				if(ecursor < 0)
@@ -2831,7 +2833,7 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 				change_cursor = false;
 				return D_O_K;
 			}
-			else if(ctrl && lower_c == KEY_C)
+			else if (ctrl && upper_c == KEY_C)
 			{
 				change_cursor = false;
 				std::ostringstream oss;
@@ -2850,7 +2852,7 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 				}
 				set_al_clipboard(oss.str());
 			}
-			else if(clipboard_has_text() && ctrl && lower_c == KEY_V)
+			else if (ctrl && upper_c == KEY_V && clipboard_has_text())
 			{
 				std::string cb;
 				if(get_al_clipboard(cb))
@@ -2898,7 +2900,7 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 					change_value = true;
 				}
 			}
-			else if(ctrl && lower_c == KEY_A)
+			else if (ctrl && upper_c == KEY_A)
 			{
 				cursor_start = 0;
 				cursor_end = (int16_t)strlen((char*)d->dp) - 1;
@@ -2906,7 +2908,7 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 				d->flags |= D_DIRTY;
 				break;
 			}
-			else if(lower_c >= 32)
+			else if(lower_c >= 32 && !ctrl)
 			{
 				if(range_selected)
 				{
@@ -2978,7 +2980,7 @@ bool editproc_special_key(int32_t c)
 		case KEY_ENTER: case KEY_TAB:
 			return true;
 	}
-	if(key_shifts & KB_CTRL_FLAG)
+	if(key_shifts & KB_CTRL_CMD_FLAG)
 		switch(c&255)
 		{
 			case 'c': case 'C':
@@ -2990,7 +2992,7 @@ bool editproc_special_key(int32_t c)
 }
 bool editproc_combined_key(int32_t c)
 {
-	if(key_shifts & KB_CTRL_FLAG)
+	if(key_shifts & KB_CTRL_CMD_FLAG)
 		switch(c&255)
 		{
 			case 'c': case 'C':
@@ -3005,7 +3007,7 @@ int32_t jwin_hexedit_proc(int32_t msg,DIALOG *d,int32_t c)
 	bool caps_paste = false;
 	if(msg==MSG_CHAR)
 	{
-		if(key_shifts & KB_CTRL_FLAG)
+		if(key_shifts & KB_CTRL_CMD_FLAG)
 		{
 			if(clipboard_has_text() && ((c&255)=='v' || (c&255)=='V'))
 			{
@@ -3067,7 +3069,7 @@ int32_t jwin_numedit_proc(int32_t msg,DIALOG *d,int32_t c)
 {
 	if(msg==MSG_CHAR)
 	{
-		if(key_shifts & KB_CTRL_FLAG)
+		if(key_shifts & KB_CTRL_CMD_FLAG)
 		{
 			if(clipboard_has_text() && ((c&255)=='v' || (c&255)=='V'))
 			{
@@ -4794,7 +4796,7 @@ static bool _handle_jwin_listbox_click(DIALOG *d)
     {
         if(sel)
         {
-            if(key_shifts & (KB_SHIFT_FLAG | KB_CTRL_FLAG))
+            if(key_shifts & (KB_SHIFT_FLAG | KB_CTRL_CMD_FLAG))
             {
                 if((key_shifts & KB_SHIFT_FLAG) || (d->flags & D_INTERNAL))
                 {
@@ -5092,7 +5094,7 @@ int32_t jwin_list_proc(int32_t msg, DIALOG *d, int32_t c)
         
         if((!bar) || (gui_mouse_x() < d->x+d->w-18))
         {
-            if((sel) && (!(key_shifts & KB_CTRL_FLAG)))
+            if((sel) && (!(key_shifts & KB_CTRL_CMD_FLAG)))
             {
                 for(i=0; i<listsize; i++)
                 {
@@ -5274,7 +5276,7 @@ int32_t jwin_list_proc(int32_t msg, DIALOG *d, int32_t c)
                 
             if(sel)
             {
-                if(!(key_shifts & (KB_SHIFT_FLAG | KB_CTRL_FLAG)))
+                if(!(key_shifts & (KB_SHIFT_FLAG | KB_CTRL_CMD_FLAG)))
                 {
                     for(i=0; i<listsize; i++)
                         sel[i] = FALSE;
@@ -5283,7 +5285,7 @@ int32_t jwin_list_proc(int32_t msg, DIALOG *d, int32_t c)
                 {
                     for(i=MIN(orig, d->d1); i<=MAX(orig, d->d1); i++)
                     {
-                        if(key_shifts & KB_CTRL_FLAG)
+                        if(key_shifts & KB_CTRL_CMD_FLAG)
                             sel[i] = (i != d->d1);
                         else
                             sel[i] = TRUE;
@@ -5357,7 +5359,7 @@ int32_t jwin_do_abclist_proc(int32_t msg, DIALOG *d, int32_t c)
 			
 			if((!bar) || (gui_mouse_x() < d->x+d->w-18))
 			{
-				if((sel) && (!(key_shifts & KB_CTRL_FLAG)))
+				if((sel) && (!(key_shifts & KB_CTRL_CMD_FLAG)))
 				{
 					for(i=0; i<listsize; i++)
 					{
@@ -5541,7 +5543,7 @@ int32_t jwin_do_abclist_proc(int32_t msg, DIALOG *d, int32_t c)
                 
             if(sel)
             {
-                if(!(key_shifts & (KB_SHIFT_FLAG | KB_CTRL_FLAG)))
+                if(!(key_shifts & (KB_SHIFT_FLAG | KB_CTRL_CMD_FLAG)))
                 {
                     for(i=0; i<listsize; i++)
                         sel[i] = FALSE;
@@ -5550,7 +5552,7 @@ int32_t jwin_do_abclist_proc(int32_t msg, DIALOG *d, int32_t c)
                 {
                     for(i=MIN(orig, d->d1); i<=MAX(orig, d->d1); i++)
                     {
-                        if(key_shifts & KB_CTRL_FLAG)
+                        if(key_shifts & KB_CTRL_CMD_FLAG)
                             sel[i] = (i != d->d1);
                         else
                             sel[i] = TRUE;
@@ -6945,7 +6947,7 @@ int32_t jwin_abclist_proc(int32_t msg,DIALOG *d,int32_t c)
     ListData *data = (ListData *)d->dp;
     if(msg == MSG_START) wipe_abc_keypresses();
     
-	if(msg == MSG_CHAR && (key_shifts&KB_CTRL_FLAG))
+	if(msg == MSG_CHAR && (key_shifts&KB_CTRL_CMD_FLAG))
 		return D_O_K;
 	
 	if(abc_patternmatch) // Search style pattern match. 

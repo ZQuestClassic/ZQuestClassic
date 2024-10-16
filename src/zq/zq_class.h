@@ -493,17 +493,11 @@ bool load_pals(const char *path, int32_t startcset);
 bool save_pals(const char *path);
 int32_t writecolordata(PACKFILE *f, word version, word build, word start_cset, word max_csets);
 
-bool load_combos(const char *path, int32_t startcombo);
-bool save_combos(const char *path);
 int32_t writecombos(PACKFILE *f, word version, word build, word start_combo, word max_combos);
 int32_t writecomboaliases(PACKFILE *f, word version, word build);
 
-bool load_tiles(const char *path, int32_t starttile);
-bool save_tiles(const char *path);
 int32_t writetiles(PACKFILE *f, word version, word build, int32_t start_tile, int32_t max_tiles);
 
-bool load_dmaps(const char *path, int32_t startdmap);
-bool save_dmaps(const char *path);
 int32_t writedmaps(PACKFILE *f, word version, word build, word start_dmap, word max_dmaps);
 
 bool save_guys(const char *path);

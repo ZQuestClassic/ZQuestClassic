@@ -22,25 +22,33 @@ parser.add_argument('--starting_index', type=int, default=0)
 parser.add_argument(
     '--quest_database', type=Path, default=tmp_dir / 'database/manifest.json'
 )
-parser.add_argument('--build_folder', default='build/Release')
 parser.add_argument('command', nargs=argparse.REMAINDER)
 args = parser.parse_args()
-
-build_folder = Path(args.build_folder).absolute()
 
 db = json.loads(args.quest_database.read_text())
 quests: List[Path] = []
 for entry in db.values():
     if not entry['id'].startswith('quests/'):
         continue
+    # This quest is from 1.92b182, which usually we can load by not this one. There's unexpected bytes
+    # prior to the "Zelda Classic Quest File" string.
+    if entry['id'] == 'quests/purezc/73':
+        continue
 
-    quests.append(entry)
+    qst_path = args.quest_database.parent / entry['defaultPath']
+    if not qst_path.exists():
+        print(f'does not exist: {qst_path}')
+        print('make sure you\'ve cloned the database:')
+        print('  cd scripts/database')
+        print('  OFFICIAL_SYNC=1 npm run collect')
+        # TODO: would be better if we just downloaded things as we go.
+        exit(1)
+    quests.append(qst_path)
 
-for index, quest in enumerate(quests):
+for index, path in enumerate(quests):
     if index < args.starting_index:
         continue
 
-    path = args.quest_database.parent / quest['defaultPath']
     print(f'= {index} {path}', flush=True)
     p = subprocess.call([arg.replace('%s', str(path)) for arg in args.command])
     if p != 0:

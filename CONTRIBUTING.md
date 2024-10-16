@@ -32,7 +32,7 @@ This command will run a single replay test:
 python tests/run_replay_tests.py --filter tests/replays/classic_1st.zplay
 ```
 
-* by default this runs against `build/Release`, but you can configure any other folder with `--build_folder`
+* by default this runs against `build/Release`, but you can configure which folder to use with `--build_folder`
 * by default this runs ZC in headless mode and as fast as possible; this can be configured with `--no-headless` and `--throttle_fps` (or `--show` to do both)
 * limit how many frames of the replay runs like: `--frame 100`
 * use `--help` to see more options
@@ -49,6 +49,10 @@ Separate from the replay rests, we have a number of test files written in Python
 * by default, the most recently built build folder is used. Set the `BUILD_FOLDER` environment variable to use a specific folder: `BUILD_FOLDER=build/Debug python tests/test_zplayer.py`
 
 Some tests validate against known good output - these are called snapshot tests. The known good output for these tests are kept in `tests/snapshots`. For example, `test_zscript.py` compiles many ZScript scripts and ensures the output of the compiler remains unchanged. If a code change modifies the output of one of these tests, you must update the snapshot results (either specifically with `python test_zscript.py --update`, or everything with `python tests/update_snapshots.py`). Be sure to visually confirm the change in output is expected.
+
+### More on testing
+
+See [./tests/scripts/README.md](./tests/scripts/README.md) for more information about replay and ZScript tests.
 
 ## Submitting a PR
 

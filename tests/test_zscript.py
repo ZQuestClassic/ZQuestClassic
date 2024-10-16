@@ -46,6 +46,7 @@ class TestZScript(ZCTestCase):
             str(test_scripts_dir),
             str(root_dir / 'resources/include'),
             str(root_dir / 'resources/headers'),
+            str(test_scripts_dir / 'playground'),
         ]
         zasm_path = run_target.get_build_folder() / 'out.zasm'
         zasm_path.unlink(missing_ok=True)
@@ -115,6 +116,9 @@ class TestZScript(ZCTestCase):
         script_paths = list(test_scripts_dir.rglob('*.zs'))
         script_paths += list((test_scripts_dir / 'newbie_boss').rglob('*.z'))
         for script_path in script_paths:
+            if script_path.name in ['auto.zs', 'playground.zs']:
+                continue
+
             with self.subTest(msg=f'compile {script_path.name}'):
                 output = self.compile_script(script_path)
                 script_subpath = script_path.relative_to(test_scripts_dir)

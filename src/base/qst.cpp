@@ -55,6 +55,7 @@ extern void setZScriptVersion(int32_t s_version);
 static bool read_ext_zinfo = false, read_zinfo = false;
 static bool loadquest_report = false;
 static char const* loading_qst_name = NULL;
+static std::string last_loaded_qstpath;
 static byte loading_qst_num = 0;
 static byte subscr_mode = ssdtMAX;
 // Very old quests only used a byte for combos, and each screen had a "combo page" to vary
@@ -867,30 +868,18 @@ PACKFILE *open_quest_file(int32_t *open_error, const char *filename, bool show_p
 	return f;
 }
 
-PACKFILE *open_quest_template(zquestheader *Header, char *deletefilename, bool validate)
+PACKFILE *open_quest_template(zquestheader *Header, const char *filename, bool validate)
 {
-    char *filename;
     PACKFILE *f=NULL;
     int32_t open_error=0;
  
-	strcpy(qstdat_string, "modules/classic/default.qst");
-    if(Header->templatepath[0]==0)
-    {
-        filename=(char *)malloc(2048);
-        strcpy(filename, qstdat_string);
-    }
-    else
+    if (Header->templatepath[0] != 0)
     {
         // TODO: should be safe to remove this, no one seems to use custom quest templates.
         filename=Header->templatepath;
     }
     
     f=open_quest_file(&open_error, filename, false);
-    
-    if(Header->templatepath[0]==0)
-    {
-        free(filename);
-    }
     
     if(!f)
     {
@@ -911,11 +900,11 @@ PACKFILE *open_quest_template(zquestheader *Header, char *deletefilename, bool v
     return f;
 }
 
-bool init_section(zquestheader *Header, int32_t section_id, miscQdata *Misc, zctune *tunes, bool validate)
+static bool init_section(zquestheader *Header, int32_t section_id, miscQdata *Misc, zctune *tunes, bool validate, const char* filename)
 {
-    // We absolutely do not support loading from a template file to initialize data outside the editor.
-	// TODO: move this code into zq/
-    if (get_app_id() != App::zquest) return false;
+	// The only time the player uses this is to init tiles for some quests 1.90 or older. See readtiles.
+	if (get_app_id() == App::zelda)
+		assert(section_id == ID_TILES);
 
     combosread=false;
     mapsread=false;
@@ -953,9 +942,6 @@ bool init_section(zquestheader *Header, int32_t section_id, miscQdata *Misc, zct
     word version, build;
     PACKFILE *f=NULL;
     
-    char deletefilename[1024];
-    deletefilename[0]=0;
-    
     //why is this here?
     /*
       if(colordata==NULL)
@@ -963,7 +949,7 @@ bool init_section(zquestheader *Header, int32_t section_id, miscQdata *Misc, zct
       */
     
     //setPackfilePassword(datapwd);
-    f=open_quest_template(Header, deletefilename, validate);
+    f=open_quest_template(Header, filename, validate);
     
     if(!f)  //no file, nothing to delete
     {
@@ -978,11 +964,6 @@ bool init_section(zquestheader *Header, int32_t section_id, miscQdata *Misc, zct
         pack_fclose(f);
 		clear_quest_tmpfile();
         
-        if(deletefilename[0])
-        {
-            delete_file(deletefilename);
-        }
-        
 //	setPackfilePassword(NULL);
         return false;
     }
@@ -992,11 +973,6 @@ bool init_section(zquestheader *Header, int32_t section_id, miscQdata *Misc, zct
         al_trace("Can't find section!\n");
         pack_fclose(f);
         clear_quest_tmpfile();
-		
-        if(deletefilename[0])
-        {
-            delete_file(deletefilename);
-        }
         
         //setPackfilePassword(NULL);
         return false;
@@ -1115,12 +1091,7 @@ bool init_section(zquestheader *Header, int32_t section_id, miscQdata *Misc, zct
     
     pack_fclose(f);
     clear_quest_tmpfile();
-	
-    if(deletefilename[0])
-    {
-        delete_file(deletefilename);
-    }
-    
+
     //setPackfilePassword(NULL);
     if(!ret)
     {
@@ -1130,19 +1101,24 @@ bool init_section(zquestheader *Header, int32_t section_id, miscQdata *Misc, zct
     return false;
 }
 
+bool init_tiles_for_190(bool validate, zquestheader *Header)
+{
+    return init_section(Header, ID_TILES, NULL, NULL, validate, "modules/classic/classic_1st.qst");
+}
+
 bool init_tiles(bool validate, zquestheader *Header)
 {
-    return init_section(Header, ID_TILES, NULL, NULL, validate);
+    return init_section(Header, ID_TILES, NULL, NULL, validate, "modules/classic/default.qst");
 }
 
 bool init_combos(bool validate, zquestheader *Header)
 {
-    return init_section(Header, ID_COMBOS, NULL, NULL, validate);
+    return init_section(Header, ID_COMBOS, NULL, NULL, validate, "modules/classic/default.qst");
 }
 
 bool init_colordata(bool validate, zquestheader *Header, miscQdata *Misc)
 {
-    return init_section(Header, ID_CSETS, Misc, NULL, validate);
+    return init_section(Header, ID_CSETS, Misc, NULL, validate, "modules/classic/default.qst");
 }
 
 void init_spritelists()
@@ -1173,7 +1149,7 @@ bool reset_items(bool validate, zquestheader *Header)
 {
     bool ret = true;
     if (get_app_id() == App::zquest)
-        ret = init_section(Header, ID_ITEMS, NULL, NULL, validate);
+        ret = init_section(Header, ID_ITEMS, NULL, NULL, validate, "modules/classic/default.qst");
     
     for(int32_t i=0; i<MAXITEMS; i++) reset_itemname(i);
     
@@ -1191,7 +1167,7 @@ bool reset_wpns(bool validate, zquestheader *Header)
 {
 	bool ret = true;
     if (get_app_id() == App::zquest)
-        ret = init_section(Header, ID_WEAPONS, NULL, NULL, validate);
+        ret = init_section(Header, ID_WEAPONS, NULL, NULL, validate, "modules/classic/default.qst");
     
     for(int32_t i=0; i<MAXWPNS; i++)
         reset_weaponname(i);
@@ -13090,7 +13066,7 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, int32_t script_index, wor
 		}
 		
 		script->meta = temp_meta;
-	}
+	} else script->meta = {};
 	
 	for(int32_t j=0; j<num_commands; j++)
 	{
@@ -18798,7 +18774,7 @@ int32_t readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version
 	
     if(Header!=NULL&&(!Header->data_flags[ZQ_TILES]&&!from_init))         //keep for old quests
     {
-		if(!init_tiles(true, Header))
+		if(!init_tiles_for_190(true, Header))
 		{
 			al_trace("Unable to initialize tiles\n");
 		}
@@ -22360,6 +22336,11 @@ bool is_loading_quest()
 	return _is_loading_quest;
 }
 
+std::string get_last_loaded_qstpath()
+{
+	return last_loaded_qstpath;
+}
+
 int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc,
 	zctune *tunes, bool show_progress, byte *skip_flags, byte printmetadata,
 	bool report, byte qst_num, dword tilesetflags)
@@ -22369,6 +22350,7 @@ int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc,
 	zapp_reporting_add_breadcrumb("load_quest", basename);
 	zapp_reporting_set_tag("qst.filename", basename);
 
+	last_loaded_qstpath = filename;
 	loading_qst_name = filename;
 	loading_qst_num = qst_num;
 	// In CI, builds are cached for replay tests, which can result in their build dates being earlier than what it would be locally.
@@ -22378,16 +22360,20 @@ int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc,
 
 	_is_loading_quest = true;
 	auto start = std::chrono::steady_clock::now();
+	zprint2("Loading qst: %s\n", filename);
 	int32_t ret = _lq_int(filename, Header, Misc, tunes, show_progress, skip_flags, printmetadata);
 	int32_t load_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
 	zprint2("Time to load qst: %d ms\n", load_ms);
 	_is_loading_quest = false;
-	
+	if (ret)
+		zprint2("Error: %s\n", qst_error[ret]);
+
 	if(show_progress)
 	{
 		if(ret)
 		{
 			box_out("-- Error loading quest file! --");
+			box_out(fmt::format("Error: {}", qst_error[ret]).c_str());
 			box_end(true);
 		}
 		else box_end(false);

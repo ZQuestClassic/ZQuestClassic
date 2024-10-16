@@ -64,6 +64,14 @@ yylval = new CONSTRUCTOR; \
 comment_str.str(""); \
 return TOK_##NAME
 
+// Error, but still return token and value (so we can keep reporting errors).
+#define ERR_VALUE(NAME, CONSTRUCTOR, ERR) \
+UPDATE_YYLLOC; \
+yyerrmsg(ERR); \
+yylval = new CONSTRUCTOR; \
+comment_str.str(""); \
+return TOK_##NAME
+
 #define ESC_CHAR(CHAR) \
 yycol += yyleng + 1; \
 qstr << CHAR; \
@@ -483,6 +491,10 @@ appx_equal	TOKEN( APPXEQUAL );
 }
 
  /* Char */
+\'[^\\'][^\\']+\' {
+	ERR_VALUE( SINGLECHAR, ASTString(yytext, yylloc),
+		"ERROR: expected a single character value - did you mean to use double quotes for a string?" );
+}
 \'[^\']?\' {
 	VALUE( SINGLECHAR, ASTString(yytext, yylloc) );
 }
@@ -518,8 +530,8 @@ appx_equal	TOKEN( APPXEQUAL );
 			yytext[yyleng-3] = yytext[yyleng-2];
 			break;
 		default:
-			yyerrmsg("ERROR: Unknown escape character.", srow, scol);
-			TERMINATE;
+			ERR_VALUE( SINGLECHAR, ASTString(yytext, yylloc),
+				"ERROR: Unknown escape character." );
 	}
 	yytext[yyleng-2] = yytext[yyleng-1];
 	yytext[yyleng-1] = 0;

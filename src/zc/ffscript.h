@@ -842,7 +842,7 @@ void do_tracetobase();
 void ZScriptConsole(bool open);
 template <typename ...Params>
 void ZScriptConsole(int32_t attributes,const char *format, Params&&... params);
-void TraceScriptIDs();
+void TraceScriptIDs(bool force_show_context = false);
 /*
 int32_t getQuestHeaderInfo(int32_t type)
 {
@@ -1636,7 +1636,7 @@ public:
 	//Like getString but for an array of longs instead of chars. *(arrayPtr is not checked for validity)
 	static void getValues(const int32_t ptr, int32_t* arrayPtr, dword num_values, dword offset = 0);
 	
-	static void copyValues(const int32_t ptr, const int32_t ptr2, size_t num_values);
+	static void copyValues(const int32_t ptr, const int32_t ptr2);
 
 	//Get element from array
 	static INLINE int32_t getElement(const int32_t ptr, int32_t offset, const bool neg = false);

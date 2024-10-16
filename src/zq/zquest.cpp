@@ -41,6 +41,8 @@
 #include "zq/autocombo/pattern_dormtn.h"
 #include "zq/autocombo/pattern_tiling.h"
 #include "zq/autocombo/pattern_replace.h"
+#include "zq/autocombo/pattern_denseforest.h"
+#include "zq/autocombo/pattern_extend.h"
 #include "zq/render_hotkeys.h"
 #include "zq/render_minimap.h"
 #include "zq/render_tooltip.h"
@@ -523,7 +525,6 @@ int32_t showxypos_cursor_color;
 bool showxypos_dummy = false;
 
 bool canfill=true;                                          //to prevent double-filling (which stops undos)
-bool resize_mouse_pos=false;                                //for eyeball combos
 int32_t lens_hint_item[MAXITEMS][2];                            //aclk, aframe
 int32_t lens_hint_weapon[MAXWPNS][5];                           //aclk, aframe, dir, x, y
 //int32_t mode, switch_mode, orig_mode;
@@ -701,7 +702,6 @@ int32_t ImportMapBias = 0;                                          //tells what
 int32_t BrushWidth=1, BrushHeight=1;
 bool saved=true;
 bool __debug=false;
-//bool usetiles=true;
 int32_t LayerMaskInt[7]={0};
 int32_t CurrentLayer=0;
 int32_t DuplicateAction[4]={0};
@@ -833,28 +833,14 @@ bool bad_version(int32_t ver)
     return false;
 }
 
+// These are for drawing eyeballs correctly in combo_tile.
 zfix HeroModifiedX()
 {
-    if(resize_mouse_pos)
-    {
-        return (zfix)((gui_mouse_x()/mapscreen_single_scale)-((8*mapscreen_single_scale)-1)+(showedges?8:0));
-    }
-    else
-    {
-        return (zfix)(gui_mouse_x()-7);
-    }
+	return gui_mouse_x() - 7;
 }
-
 zfix HeroModifiedY()
 {
-    if(resize_mouse_pos)
-    {
-        return (zfix)((gui_mouse_y()/mapscreen_single_scale)-((8*mapscreen_single_scale)-1)-16+(showedges?16:0));
-    }
-    else
-    {
-        return (zfix)(gui_mouse_y()-7);
-    }
+	return gui_mouse_y() - 7;
 }
 
 static NewMenu import_250_menu
@@ -5341,7 +5327,15 @@ void draw_screenunit_map_screen(VisibleScreen visible_screen)
 	if (scr_y != view_scr_y && showedges)
 		yoff -= 16;
 
+	combotile_add_x = mapscreen_x + xoff;
+	combotile_add_y = mapscreen_y + yoff;
+	combotile_mul_x = mapscreen_single_scale;
+	combotile_mul_y = mapscreen_single_scale;
 	Map.draw(mapscreenbmp, scr_x == view_scr_x && showedges ? 16 : 0, scr_y == view_scr_y && showedges ? 16 : 0, Flags, Map.getCurrMap(), screen, ActiveLayerHighlight ? CurrentLayer : -1);
+	combotile_add_x = 0;
+	combotile_add_y = 0;
+	combotile_mul_x = 1;
+	combotile_mul_y = 1;
 
 	// TODO: should be better to move this out of draw_screenunit_map_screen.
 	if (showedges && screen < 128)
@@ -7744,6 +7738,32 @@ static void draw_autocombo(ComboPosition combo_pos, bool rclick, bool pressframe
 					ap.execute(scr, pos);
 				break;
 			}
+			case AUTOCOMBO_DENSEFOREST:
+			{
+				if (pressframe && (key[KEY_LSHIFT] || key[KEY_RSHIFT]))
+				{
+					int32_t x = (scr % 16) * 16 + (pos % 16);
+					int32_t y = (scr / 16) * 11 + (pos / 16);
+					ca.setOffsets(x % 2, y % 2);
+				}
+				AutoPattern::autopattern_denseforest ap(ca.getType(), CurrentLayer, scr, pos, &ca);
+				if (rclick)
+					ap.erase(scr, pos);
+				else
+					ap.execute(scr, pos);
+				break;
+			}
+			case AUTOCOMBO_EXTEND:
+			{
+				if (CHECK_CTRL_CMD)
+					break;
+				AutoPattern::autopattern_extend ap(ca.getType(), CurrentLayer, scr, pos, &ca);
+				if (rclick)
+					ap.erase(scr, pos);
+				else
+					ap.execute(scr, pos);
+				break;
+			}
 		}
 	}
 	else
@@ -7861,6 +7881,18 @@ static int32_t get_autocombo_floating_cid(ComboPosition combo_pos, bool clicked)
 			case AUTOCOMBO_REPLACE:
 			{
 				AutoPattern::autopattern_replace ap(ca.getType(), CurrentLayer, scr, pos, &ca);
+				cid = ap.get_floating_cid(scr, pos);
+				break;
+			}
+			case AUTOCOMBO_DENSEFOREST:
+			{
+				AutoPattern::autopattern_denseforest ap(ca.getType(), CurrentLayer, scr, pos, &ca);
+				cid = ap.get_floating_cid(scr, pos);
+				break;
+			}
+			case AUTOCOMBO_EXTEND:
+			{
+				AutoPattern::autopattern_extend ap(ca.getType(), CurrentLayer, scr, pos, &ca);
 				cid = ap.get_floating_cid(scr, pos);
 				break;
 			}
@@ -8076,9 +8108,9 @@ void draw(bool justcset)
 							break;
 						}
 						
-						for(int32_t cy=0; cy-oy+cystart<num_combos_height-1&&cy<=combo->height; cy++)
+						for(int32_t cy=0; cy-oy+cystart<num_combos_height&&cy<=combo->height; cy++)
 						{
-							for(int32_t cx=0; cx-ox+cxstart<num_combos_width-1&&cx<=combo->width; cx++)
+							for(int32_t cx=0; cx-ox+cxstart<num_combos_width&&cx<=combo->width; cx++)
 							{
 								if((cx+cxstart-ox>=0)&&(cy+cystart-oy>=0))
 								{
@@ -13590,7 +13622,7 @@ int32_t d_wlist_proc(int32_t msg,DIALOG *d,int32_t c)
 {
 	if(msg == MSG_XCHAR)
 	{
-		if(key_shifts & KB_CTRL_FLAG) //CTRL overrides the lister search function
+		if(key_shifts & KB_CTRL_CMD_FLAG) //CTRL overrides the lister search function
 		{
 			int32_t ret = D_USED_CHAR;
 			switch(c>>8)
@@ -24515,7 +24547,8 @@ int32_t main(int32_t argc,char **argv)
 			zq_exit(1);
 		}
 
-		success = do_compile_and_slots(1, false);
+		// Note: This is actually "smart assign".
+		success = do_compile_and_slots(2, false);
 		if (!success)
 		{
 			printf("Failed to compile\n");

@@ -123,7 +123,6 @@ extern int32_t mouse_scroll_h;
 extern int32_t tooltip_timer, tooltip_maxtimer;
 
 extern bool canfill;                                        //to prevent double-filling (which stops undos)
-extern bool resize_mouse_pos;                               //for eyeball combos
 
 extern int32_t lens_hint_item[MAXITEMS][2];                     //aclk, aframe
 extern int32_t lens_hint_weapon[MAXWPNS][5];                    //aclk, aframe, dir, x, y

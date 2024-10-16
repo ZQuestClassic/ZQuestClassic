@@ -2012,16 +2012,16 @@ void ArrayH::getValues(const int32_t ptr, int32_t* arrayPtr, dword num_values, d
 	}
 }
 
-void ArrayH::copyValues(const int32_t ptr, const int32_t ptr2, size_t num_values)
+void ArrayH::copyValues(const int32_t ptr, const int32_t ptr2)
 {
 	ArrayManager am1(ptr), am2(ptr2);
 	if(am1.invalid() || am2.invalid())
 		return;
-	size_t sz = std::min(am1.size(),am2.size());
-	for(word i = 0; (BC::checkUserArrayIndex(i, sz) == _NoError) && num_values != 0; i++)
+
+	int sz = std::min(am1.size(),am2.size());
+	for (int i = 0; i < sz; i++)
 	{
 		am1.set(i,am2.get(i));
-		num_values--;
 	}
 }
 //Get element from array
@@ -2434,16 +2434,8 @@ weapon *checkLWpn(int32_t eid, const char *what)
 	}
 	if(s == NULL)
 	{
-	
-		Z_eventlog("Script attempted to reference a nonexistent LWeapon!\n");
-		Z_eventlog("You were trying to reference the %s of an LWeapon with UID = %ld; LWeapons on screen are UIDs ", what, eid);
-		
-		for(int32_t i=0; i<Lwpns.Count(); i++)
-		{
-			Z_eventlog("%ld ", Lwpns.spr(i)->getUID());
-		}
-		
-		Z_eventlog("\n");
+		Z_scripterrlog("Script attempted to reference a nonexistent LWeapon!\n");
+		Z_scripterrlog("You were trying to reference the %s of an LWeapon with UID = %ld\n", what, eid);
 		return NULL;
 	}
 	
@@ -2456,16 +2448,8 @@ weapon *checkEWpn(int32_t eid, const char *what)
 	
 	if(s == NULL)
 	{
-	
-		Z_eventlog("Script attempted to reference a nonexistent EWeapon!\n");
-		Z_eventlog("You were trying to reference the %s of an EWeapon with UID = %ld; EWeapons on screen are UIDs ", what, eid);
-		
-		for(int32_t i=0; i<Ewpns.Count(); i++)
-		{
-			Z_eventlog("%ld ", Ewpns.spr(i)->getUID());
-		}
-		
-		Z_eventlog("\n");
+		Z_scripterrlog("Script attempted to reference a nonexistent EWeapon!\n");
+		Z_scripterrlog("You were trying to reference the %s of an EWeapon with UID = %ld\n", what, eid);
 		return NULL;
 	}
 	
@@ -6279,6 +6263,7 @@ int32_t get_register(int32_t arg)
 					case 1: flag = BTFLAG_ALLOWIFFULL; break;
 					case 2: flag = BTFLAG_CURESWJINX; break;
 					case 3: flag = BTFLAG_CUREITJINX; break;
+					case 4: flag = BTFLAG_CURESHJINX; break;
 				}
 				ret = (ptr->flags & flag) ? 10000L : 0;
 			}
@@ -8303,7 +8288,7 @@ int32_t get_register(int32_t arg)
 		{ 
 			
 			int32_t ref = ri->shopsref; 
-			bool isInfo = ( ref > NUMSHOPS && ref <= NUMINFOSHOPS ); 
+			bool isInfo = ( ref >= NUMSHOPS && ref <= NUMINFOSHOPS ); 
 			int32_t indx = ri->d[rINDEX] / 10000; 
 			if ( indx < 0 || indx > 2 ) 
 			{ 
@@ -8331,7 +8316,7 @@ int32_t get_register(int32_t arg)
 		{ 
 			
 			int32_t ref = ri->shopsref; 
-			bool isInfo = ( ref > NUMSHOPS && ref <= NUMINFOSHOPS ); 
+			bool isInfo = ( ref >= NUMSHOPS && ref <= NUMINFOSHOPS ); 
 			int32_t indx = ri->d[rINDEX] / 10000; 
 			if ( indx < 0 || indx > 2 ) 
 			{ 
@@ -8359,7 +8344,7 @@ int32_t get_register(int32_t arg)
 		{ 
 			
 			int32_t ref = ri->shopsref; 
-			bool isInfo = ( ref > NUMSHOPS && ref <= NUMINFOSHOPS ); 
+			bool isInfo = ( ref >= NUMSHOPS && ref <= NUMINFOSHOPS ); 
 			int32_t indx = ri->d[rINDEX] / 10000; 
 			if ( indx < 0 || indx > 2 ) 
 			{ 
@@ -8393,7 +8378,7 @@ int32_t get_register(int32_t arg)
 			}
 			else 
 			{
-				bool isInfo = ( ref > NUMSHOPS && ref <= NUMINFOSHOPS ); 
+				bool isInfo = ( ref >= NUMSHOPS && ref <= NUMINFOSHOPS ); 
 				int32_t indx = ri->d[rINDEX] / 10000; 
 				if ( indx < 0 || indx > 2 ) 
 				{ 
@@ -9305,9 +9290,9 @@ int32_t get_register(int32_t arg)
 		case COMBODFOO:			break;						//W
 		case COMBODATASCRIPT:			GET_COMBO_VAR_DWORD(script, "Script"); break;						//W
 		case COMBODFRAMES:		GET_COMBO_VAR_BYTE(frames, "Frames"); break;					//C
-		case COMBODNEXTD:		GET_COMBO_VAR_DWORD(speed, "NextData"); break;					//W
-		case COMBODNEXTC:		GET_COMBO_VAR_BYTE(nextcombo, "NextCSet"); break;				//C
-		case COMBODFLAG:		GET_COMBO_VAR_BYTE(nextcset, "Flag"); break;					//C
+		case COMBODNEXTD:		GET_COMBO_VAR_INT(nextcombo, "NextData"); break;					//W
+		case COMBODNEXTC:		GET_COMBO_VAR_BYTE(nextcset, "NextCSet"); break;				//C
+		case COMBODFLAG:		GET_COMBO_VAR_BYTE(flag, "Flag"); break;					//C
 		case COMBODSKIPANIM:		GET_COMBO_VAR_BYTE(skipanim, "SkipAnim"); break;				//C
 		case COMBODNEXTTIMER:		GET_COMBO_VAR_DWORD(nexttimer, "NextTimer"); break;				//W
 		case COMBODAKIMANIMY:		GET_COMBO_VAR_BYTE(skipanimy, "SkipAnimY"); break;				//C
@@ -10138,12 +10123,40 @@ int32_t get_register(int32_t arg)
 				ret = (guysbuf[ID].member&flag) ? 10000 : 0); \
 			} \
 		} \
+
+		// These are for compat only, though seemingly no quests even use these.
+		case NPCDATAFLAGS1:
+		{
+			if( (unsigned) ri->npcdataref > (MAXNPCS-1) )
+			{
+				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", "Flags (deprecated)", (ri->npcdataref*10000));
+				ret = -10000;
+			}
+			else
+			{
+				uint32_t value = guysbuf[ri->npcdataref].flags & 0xFFFFFFFFLL;
+				ret = value * 10000;
+			}
+		}
+		break;
+		case NPCDATAFLAGS2:
+		{
+			if( (unsigned) ri->npcdataref > (MAXNPCS-1) )
+			{
+				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", "Flags2 (deprecated)", (ri->npcdataref*10000));
+				ret = -10000;
+			}
+			else
+			{
+				uint32_t value = (guysbuf[ri->npcdataref].flags >> 32) & 0xFFFFFFFFLL;
+				ret = value * 10000;
+			}
+		}
+		break;
 		
 		case NPCDATATILE: GET_NPCDATA_VAR_BYTE(tile, "Tile"); break;
 		case NPCDATAWIDTH: GET_NPCDATA_VAR_BYTE(width, "Width"); break;
 		case NPCDATAHEIGHT: GET_NPCDATA_VAR_BYTE(height, "Height"); break;
-		case NPCDATAFLAGS: GET_NPCDATA_VAR_INT16(flags, "Flags"); break; //FIX ME
-		case NPCDATAFLAGS2: GET_NPCDATA_VAR_INT16(flags, "Flags2"); break; //FIX ME
 		case NPCDATASTILE: GET_NPCDATA_VAR_BYTE(s_tile, "STile"); break;
 		case NPCDATASWIDTH: GET_NPCDATA_VAR_BYTE(s_width, "SWidth"); break;
 		case NPCDATASHEIGHT: GET_NPCDATA_VAR_BYTE(s_height, "SHeight"); break;
@@ -10208,6 +10221,28 @@ int32_t get_register(int32_t arg)
 			{ 
 				ret = (guysbuf[ri->npcdataref].attributes[indx] * 10000);
 			} 
+
+			break;
+		}
+
+		case NPCDATAFLAG: 
+		{
+			int32_t indx = ri->d[rINDEX] / 10000; 
+			if(ri->npcdataref > (MAXNPCS-1) ) 
+			{
+				Z_scripterrlog("Invalid Sprite ID passed to npcdata->Flags[]: %d\n", (ri->npcdataref*10000)); 
+				ret = -10000;
+			}
+			else if ( indx < 0 || indx >= MAX_NPC_FLAGS )
+			{ 
+				Z_scripterrlog("Invalid Array Index passed to npcdata->Flags[]: %d\n", indx);
+				ret = -10000; 
+			} 
+			else 
+			{
+				guy_flags bit = (guy_flags)(1<<indx);
+				ret = (guysbuf[ri->npcdataref].flags&bit) * 10000;
+			}
 
 			break;
 		}
@@ -16913,6 +16948,7 @@ void set_register(int32_t arg, int32_t value)
 					case 1: flag = BTFLAG_ALLOWIFFULL; break;
 					case 2: flag = BTFLAG_CURESWJINX; break;
 					case 3: flag = BTFLAG_CUREITJINX; break;
+					case 4: flag = BTFLAG_CURESHJINX; break;
 				}
 				SETFLAG(ptr->flags, flag, value);
 			}
@@ -18917,7 +18953,7 @@ void set_register(int32_t arg, int32_t value)
 		{ 
 			
 			int32_t ref = ri->shopsref; 
-			bool isInfo = ( ref > NUMSHOPS && ref <= NUMINFOSHOPS ); 
+			bool isInfo = ( ref >= NUMSHOPS && ref <= NUMINFOSHOPS ); 
 			int32_t indx = ri->d[rINDEX] / 10000; 
 			if ( indx < 0 || indx > 2 ) 
 			{ 
@@ -18944,7 +18980,7 @@ void set_register(int32_t arg, int32_t value)
 		{ 
 			
 			int32_t ref = ri->shopsref; 
-			bool isInfo = ( ref > NUMSHOPS && ref <= NUMINFOSHOPS ); 
+			bool isInfo = ( ref >= NUMSHOPS && ref <= NUMINFOSHOPS ); 
 			int32_t indx = ri->d[rINDEX] / 10000; 
 			if ( indx < 0 || indx > 2 ) 
 			{ 
@@ -18970,7 +19006,7 @@ void set_register(int32_t arg, int32_t value)
 		{ 
 			
 			int32_t ref = ri->shopsref; 
-			bool isInfo = ( ref > NUMSHOPS && ref <= NUMINFOSHOPS ); 
+			bool isInfo = ( ref >= NUMSHOPS && ref <= NUMINFOSHOPS ); 
 			int32_t indx = ri->d[rINDEX] / 10000; 
 			if ( indx < 0 || indx > 2 ) 
 			{ 
@@ -19004,7 +19040,7 @@ void set_register(int32_t arg, int32_t value)
 				}
 				else 
 				{
-					bool isInfo = ( ref > NUMSHOPS && ref <= NUMINFOSHOPS ); 
+					bool isInfo = ( ref >= NUMSHOPS && ref <= NUMINFOSHOPS ); 
 					int32_t indx = ri->d[rINDEX] / 10000; 
 					if ( indx < 0 || indx > 2 ) 
 					{ 
@@ -19922,9 +19958,9 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case COMBODFOO:		break;							//W
 		case COMBODFRAMES:	SET_COMBO_VAR_BYTE(frames, "Frames"); break;						//C
-		case COMBODNEXTD:	SET_COMBO_VAR_DWORD(speed, "NextData"); break;						//W
-		case COMBODNEXTC:	SET_COMBO_VAR_BYTE(nextcombo, "NextCSet"); break;					//C
-		case COMBODFLAG:	SET_COMBO_VAR_BYTE(nextcset, "Flag"); break;						//C
+		case COMBODNEXTD:	SET_COMBO_VAR_INT(nextcombo, "NextData"); break;						//W
+		case COMBODNEXTC:	SET_COMBO_VAR_BYTE(nextcset, "NextCSet"); break;					//C
+		case COMBODFLAG:	SET_COMBO_VAR_BYTE(flag, "Flag"); break;						//C
 		case COMBODSKIPANIM:	SET_COMBO_VAR_BYTE(skipanim, "SkipAnim"); break;					//C
 		case COMBODNEXTTIMER:	SET_COMBO_VAR_DWORD(nexttimer, "NextTimer"); break;					//W
 		case COMBODAKIMANIMY:	SET_COMBO_VAR_BYTE(skipanimy, "SkipAnimY"); break;					//C
@@ -20714,8 +20750,8 @@ void set_register(int32_t arg, int32_t value)
 		case NPCDATATILE: SET_NPCDATA_VAR_BYTE(tile, "Tile"); break;
 		case NPCDATAWIDTH: SET_NPCDATA_VAR_BYTE(width, "Width"); break;
 		case NPCDATAHEIGHT: SET_NPCDATA_VAR_BYTE(height, "Height"); break;
-		case NPCDATAFLAGS: SET_NPCDATA_VAR_ENUM(flags, "Flags"); break; //FIX ME
-		case NPCDATAFLAGS2: SET_NPCDATA_VAR_ENUM(flags, "Flags2"); break; //FIX ME
+		case NPCDATAFLAGS1: SET_NPCDATA_VAR_ENUM(flags, "Flags (deprecated)"); break;
+		case NPCDATAFLAGS2: SET_NPCDATA_VAR_ENUM(flags, "Flags2 (deprecated)"); break;
 		case NPCDATASTILE: SET_NPCDATA_VAR_BYTE(s_tile, "STile"); break;
 		case NPCDATASWIDTH: SET_NPCDATA_VAR_BYTE(s_width, "SWidth"); break;
 		case NPCDATASHEIGHT: SET_NPCDATA_VAR_BYTE(s_height, "SHeight"); break;
@@ -20776,6 +20812,28 @@ void set_register(int32_t arg, int32_t value)
 			else 
 			{ 
 				guysbuf[ri->npcdataref].attributes[indx] = (value / 10000);
+			} 
+			break;
+		}
+
+		case NPCDATAFLAG:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000; 
+			if(ri->npcdataref > (MAXNPCS-1) ) 
+			{
+				Z_scripterrlog("Invalid Sprite ID passed to npcdata->Flags[]: %d\n", (ri->npcdataref*10000)); 
+			}
+			else if ( indx < 0 || indx >= MAX_NPC_FLAGS )
+			{ 
+				Z_scripterrlog("Invalid Array Index passed to npcdata->Flags[]: %d\n", indx);
+			} 
+			else 
+			{
+				guy_flags bit = (guy_flags)(1<<indx);
+				if(value)
+					guysbuf[ri->npcdataref].flags |= bit;
+				else
+					guysbuf[ri->npcdataref].flags &= ~bit;
 			} 
 			break;
 		}
@@ -24172,7 +24230,7 @@ void do_loada(const byte a)
 {
 	if(ri->a[a] == 0)
 	{
-		Z_eventlog("Global scripts currently have no A registers\n");
+		Z_scripterrlog("Global scripts currently have no A registers\n");
 		return;
 	}
 	
@@ -24364,7 +24422,7 @@ void do_log10(const bool v)
 		set_register(sarg1, int32_t(log10(temp) * 10000.0));
 	else
 	{
-		Z_eventlog("Script tried to calculate log of %f\n", temp / 10000.0);
+		Z_scripterrlog("Script tried to calculate log of %f\n", temp / 10000.0);
 		set_register(sarg1, 0);
 	}
 }
@@ -24375,14 +24433,9 @@ void do_naturallog(const bool v)
 	
 	if(temp > 0)
 		set_register(sarg1, int32_t(log(temp) * 10000.0));
-	// else if(temp == 0)
-	// {
-		// Z_eventlog("Script tried to calculate ln of 0\n");
-		// set_register(sarg1, MIN_SIGNED_32);
-	// }
 	else
 	{
-		Z_eventlog("Script tried to calculate ln of %f\n", temp / 10000.0);
+		Z_scripterrlog("Script tried to calculate ln of %f\n", temp / 10000.0);
 		set_register(sarg1, 0);
 	}
 }
@@ -32267,6 +32320,11 @@ int32_t run_script_int(bool is_jitted)
 				skipcont = 1;
 				scommand = 0xFFFF;
 				break;
+			case GAMEEXIT:
+				Quit = qEXIT;
+				skipcont = 1;
+				scommand = 0xFFFF;
+				break;
 			case GAMERELOAD:
 				if ( using_SRAM )
 				{
@@ -38105,7 +38163,7 @@ void FFScript::do_arraycpy(const bool a, const bool b)
 {
 	int32_t arrayptr_dest = SH::get_arg(sarg1, a) / 10000;
 	int32_t arrayptr_src = SH::get_arg(sarg2, b) / 10000;
-	ArrayH::copyValues(arrayptr_dest, arrayptr_src, ArrayH::getSize(arrayptr_src));
+	ArrayH::copyValues(arrayptr_dest, arrayptr_src);
 }
 void FFScript::do_strlen(const bool v)
 {
@@ -38876,7 +38934,7 @@ void FFScript::do_tracenl()
 }
 
 
-void FFScript::TraceScriptIDs()
+void FFScript::TraceScriptIDs(bool force_show_context)
 {
 	if(DEVTIMESTAMP)
 	{
@@ -38897,7 +38955,9 @@ void FFScript::TraceScriptIDs()
 		if ( cond ) {console.safeprint((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),buf); }
 	}
-	if(get_qr(qr_TRACESCRIPTIDS) || DEVLOGGING )
+
+	bool show_context = force_show_context || (get_qr(qr_TRACESCRIPTIDS) || DEVLOGGING);
+	if (show_context)
 	{
 		CConsoleLoggerEx console = zscript_coloured_console;
 		bool cond = console_enabled;

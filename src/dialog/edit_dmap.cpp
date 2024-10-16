@@ -702,6 +702,7 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 													str.assign(tempdmapzcmusic->filename);
 													strncpy(local_dmap.tmusic, str.c_str(), 56);
 													local_dmap.tmusic[55] = 0;
+													local_dmap.tmusictrack = 0;
 
 													zcmusic_unload_file(tempdmapzcmusic);
 												}

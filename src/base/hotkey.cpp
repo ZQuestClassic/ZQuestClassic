@@ -25,35 +25,14 @@ void Hotkey::setval(int val)
 	modflag[0] = (val>>8)&HOTKEY_FLAG_FILTER;
 	hotkey[1] = (val>>16)&0xFF;
 	modflag[1] = (val>>24)&HOTKEY_FLAG_FILTER;
-	for(int q = 0; q < 2; ++q)
-		if(modflag[q] & KB_COMMAND_FLAG)
-		{
-			modflag[q] &= ~KB_COMMAND_FLAG;
-			modflag[q] |= KB_CTRL_FLAG;
-		}
 }
 void Hotkey::setval(int ind,int k,int shifts)
 {
-	if(shifts & KB_COMMAND_FLAG)
-	{
-		shifts &= ~KB_COMMAND_FLAG;
-		shifts |= KB_CTRL_FLAG;
-	}
 	hotkey[ind] = k&0xFF;
 	modflag[ind] = shifts&HOTKEY_FLAG_FILTER;
 }
 void Hotkey::setval(int k,int shifts,int k2,int shifts2)
 {
-	if(shifts & KB_COMMAND_FLAG)
-	{
-		shifts &= ~KB_COMMAND_FLAG;
-		shifts |= KB_CTRL_FLAG;
-	}
-	if(shifts2 & KB_COMMAND_FLAG)
-	{
-		shifts2 &= ~KB_COMMAND_FLAG;
-		shifts2 |= KB_CTRL_FLAG;
-	}
 	hotkey[0] = k&0xFF;
 	modflag[0] = shifts&HOTKEY_FLAG_FILTER;
 	hotkey[1] = k2&0xFF;
@@ -68,6 +47,8 @@ std::string Hotkey::get_name(int ind) const
 	std::ostringstream oss;
 	if(modflag[ind] & KB_CTRL_FLAG)
 		oss << "Ctrl+";
+	if(modflag[ind] & KB_COMMAND_FLAG)
+		oss << "Cmd+";
 	if(modflag[ind] & KB_ALT_FLAG)
 		oss << "Alt+";
 	if(modflag[ind] & KB_SHIFT_FLAG)
@@ -150,12 +131,6 @@ bool is_modkey(int c)
 }
 int get_mods(int mask)
 {
-	int shifts = key_shifts;
-	if(shifts&KB_COMMAND_FLAG)
-	{
-		shifts &= ~KB_COMMAND_FLAG;
-		shifts |= KB_CTRL_FLAG;
-	}
-	return shifts&mask;
+	return key_shifts&mask;
 }
 

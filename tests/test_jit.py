@@ -72,7 +72,7 @@ class TestJIT(ZCTestCase):
         ]
         p = run_target.run('zplayer', run_args)
         if p.returncode:
-            raise Exception(f'error: {p.returncode}\n{p.stderr}')
+            raise Exception(f'error: {p.returncode}\n\nSTDERR:\n\n{p.stderr}\n\nSTDOUT:\n\n{p.stdout}')
 
         return output_dir
 
@@ -115,7 +115,7 @@ class TestJIT(ZCTestCase):
         if 'emscripten' in str(run_target.get_build_folder()):
             raise unittest.SkipTest('unsupported platform')
 
-        self.run_for_qst('playground', test_dir / 'replays/playground_maths.zplay')
+        self.run_for_qst('playground', test_dir / 'replays/playground/maths.zplay')
         # These are quite big, so just hash their outputs.
         self.run_for_qst(
             'hollow_forest', test_dir / 'replays/hollow_forest.zplay', hash=True

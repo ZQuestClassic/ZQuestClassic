@@ -124,6 +124,7 @@ namespace ZScript
 		template <class Container>
 		void addOpcodes(Container const& container);
 	
+		void registerLocalArrayDealloc(int stackoffset);
 		void deallocateArrayRef(int32_t arrayRef);
 		void deallocateArrayRef(int32_t arrayRef, std::vector<std::shared_ptr<Opcode>>& code);
 		void deallocateRefsUntilCount(int32_t count);
@@ -224,8 +225,6 @@ namespace ZScript
 		void pop_params(uint count);
 		// For when ASTDataDecl is for a single variable.
 		void buildVariable(ASTDataDecl& host, OpcodeContext& context);
-		// For when ASTDataDecl is an initialized array.
-		void buildArrayInit(ASTDataDecl& host, OpcodeContext& context);
 		// For when ASTDataDecl is an uninitialized array.
 		void buildArrayUninit(ASTDataDecl& host, OpcodeContext& context);
 		// For when ASTStringLiteral is a declaration initializer.
