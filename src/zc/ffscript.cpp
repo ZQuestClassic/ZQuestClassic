@@ -2265,16 +2265,8 @@ weapon *checkLWpn(int32_t eid, const char *what)
 	}
 	if(s == NULL)
 	{
-	
-		Z_eventlog("Script attempted to reference a nonexistent LWeapon!\n");
-		Z_eventlog("You were trying to reference the %s of an LWeapon with UID = %ld; LWeapons on screen are UIDs ", what, eid);
-		
-		for(int32_t i=0; i<Lwpns.Count(); i++)
-		{
-			Z_eventlog("%ld ", Lwpns.spr(i)->getUID());
-		}
-		
-		Z_eventlog("\n");
+		Z_scripterrlog("Script attempted to reference a nonexistent LWeapon!\n");
+		Z_scripterrlog("You were trying to reference the %s of an LWeapon with UID = %ld\n", what, eid);
 		return NULL;
 	}
 	
@@ -2287,16 +2279,8 @@ weapon *checkEWpn(int32_t eid, const char *what)
 	
 	if(s == NULL)
 	{
-	
-		Z_eventlog("Script attempted to reference a nonexistent EWeapon!\n");
-		Z_eventlog("You were trying to reference the %s of an EWeapon with UID = %ld; EWeapons on screen are UIDs ", what, eid);
-		
-		for(int32_t i=0; i<Ewpns.Count(); i++)
-		{
-			Z_eventlog("%ld ", Ewpns.spr(i)->getUID());
-		}
-		
-		Z_eventlog("\n");
+		Z_scripterrlog("Script attempted to reference a nonexistent EWeapon!\n");
+		Z_scripterrlog("You were trying to reference the %s of an EWeapon with UID = %ld\n", what, eid);
 		return NULL;
 	}
 	
@@ -24259,7 +24243,7 @@ void do_loada(const byte a)
 {
 	if(ri->a[a] == 0)
 	{
-		Z_eventlog("Global scripts currently have no A registers\n");
+		Z_scripterrlog("Global scripts currently have no A registers\n");
 		return;
 	}
 	
@@ -24451,7 +24435,7 @@ void do_log10(const bool v)
 		set_register(sarg1, int32_t(log10(temp) * 10000.0));
 	else
 	{
-		Z_eventlog("Script tried to calculate log of %f\n", temp / 10000.0);
+		Z_scripterrlog("Script tried to calculate log of %f\n", temp / 10000.0);
 		set_register(sarg1, 0);
 	}
 }
@@ -24462,14 +24446,9 @@ void do_naturallog(const bool v)
 	
 	if(temp > 0)
 		set_register(sarg1, int32_t(log(temp) * 10000.0));
-	// else if(temp == 0)
-	// {
-		// Z_eventlog("Script tried to calculate ln of 0\n");
-		// set_register(sarg1, MIN_SIGNED_32);
-	// }
 	else
 	{
-		Z_eventlog("Script tried to calculate ln of %f\n", temp / 10000.0);
+		Z_scripterrlog("Script tried to calculate ln of %f\n", temp / 10000.0);
 		set_register(sarg1, 0);
 	}
 }
@@ -39123,7 +39102,7 @@ void FFScript::do_tracenl()
 }
 
 
-void FFScript::TraceScriptIDs()
+void FFScript::TraceScriptIDs(bool force_show_context)
 {
 	if(DEVTIMESTAMP)
 	{
@@ -39144,7 +39123,9 @@ void FFScript::TraceScriptIDs()
 		if ( cond ) {console.safeprint((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),buf); }
 	}
-	if(get_qr(qr_TRACESCRIPTIDS) || DEVLOGGING )
+
+	bool show_context = force_show_context || (get_qr(qr_TRACESCRIPTIDS) || DEVLOGGING);
+	if (show_context)
 	{
 		CConsoleLoggerEx console = zscript_coloured_console;
 		bool cond = console_enabled;
