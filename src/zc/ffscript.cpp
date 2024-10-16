@@ -2240,16 +2240,16 @@ public:
 		}
 	}
 	
-	static void copyValues(const int32_t ptr, const int32_t ptr2, size_t num_values)
+	static void copyValues(const int32_t ptr, const int32_t ptr2)
 	{
 		ArrayManager am1(ptr), am2(ptr2);
 		if(am1.invalid() || am2.invalid())
 			return;
-		size_t sz = std::min(am1.size(),am2.size());
-		for(word i = 0; (BC::checkUserArrayIndex(i, sz) == _NoError) && num_values != 0; i++)
+
+		int sz = std::min(am1.size(),am2.size());
+		for (int i = 0; i < sz; i++)
 		{
 			am1.set(i,am2.get(i));
-			num_values--;
 		}
 	}
 	//Get element from array
@@ -44566,7 +44566,7 @@ void FFScript::do_arraycpy(const bool a, const bool b)
 {
 	int32_t arrayptr_dest = SH::get_arg(sarg1, a) / 10000;
 	int32_t arrayptr_src = SH::get_arg(sarg2, b) / 10000;
-	ArrayH::copyValues(arrayptr_dest, arrayptr_src, ArrayH::getSize(arrayptr_src));
+	ArrayH::copyValues(arrayptr_dest, arrayptr_src);
 }
 void FFScript::do_strlen(const bool v)
 {
