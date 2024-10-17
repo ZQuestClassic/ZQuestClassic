@@ -228,6 +228,8 @@ bool TestQstDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		{
 			if (test_init_data_val == 0)
 				return false;
+			if (test_init_data_val - 1 >= test_init_data.size())
+				return false;
 
 			std::string error;
 			zinitdata* zinit_test = apply_init_data_delta(&zinit, test_init_data[test_init_data_val - 1], error);
