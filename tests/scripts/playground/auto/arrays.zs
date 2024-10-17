@@ -5,7 +5,7 @@ generic script arrays
 {
 	int a[] = {1, 2};
 	int b[1];
-	char32[] hello = "world";
+	char32[] hello = "world\n";
 
 	void run()
 	{
@@ -57,12 +57,18 @@ generic script arrays
 		Test::AssertEqual(items3[0], item);
 
 		TraceS(hello);
-		char32[] hello2 = "world2";
+		char32[] hello2 = "world2\n";
 		TraceS(hello2);
-		char32 hello3[] = "world3";
+		char32 hello3[] = "world3\n";
 		TraceS(hello3);
 
 		int string_format[80] = "some string: %s\n";
 		printf(string_format, "name");
+
+		int nums1[] = {1, 2, 3};
+		int nums2[] = {4, 5};
+		ArrayCopy(nums2, nums1);
+		Test::AssertEqual(nums2[0], 1);
+		Test::AssertEqual(nums2[1], 2);
 	}
 }

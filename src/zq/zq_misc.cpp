@@ -1033,6 +1033,8 @@ int32_t onPreviewMode()
 
 	if(prv_mode)
 	{
+		popup_zqdialog_start();
+
 		MapCursor previous_cursor = Map.getCursor();
 		Map.setViewSize(1);
 
@@ -1051,6 +1053,8 @@ int32_t onPreviewMode()
 		ComboBrush=tempcb;
 		Map.setCursor(previous_cursor);
 		reload_zq_gui();
+
+		popup_zqdialog_end();
 	}
 	return D_O_K;
 }
