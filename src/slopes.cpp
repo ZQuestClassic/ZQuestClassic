@@ -86,14 +86,30 @@ void draw_slopes_a5(int32_t x, int32_t y, ALLEGRO_COLOR col)
 
 slope_info slope_object::get_info() const
 {
-	bool ff = ffc && ffc->getLoaded();
-	word const* id = ff ? &ffc->data : cmbid;
-	if(!id) return slope_info();
-	newcombo const& cmb = combobuf[*id];
+	word cid;
+	zfix x, y;
+
+	if (ffc && ffc->getLoaded())
+	{
+		cid = ffc->data;
+		x = ffc->x;
+		y = ffc->y;
+	}
+	else
+	{
+		if (!cmbid)
+			return slope_info();
+
+		cid = *cmbid;
+		x = xoffs;
+		y = yoffs;
+	}
+
+	newcombo const& cmb = combobuf[cid];
 	if(cmb.type != cSLOPE)
 		return slope_info();
 	
-	return slope_info(cmb, ff ? ffc->x : xoffs, ff ? ffc->y : yoffs);
+	return slope_info(cmb, x, y);
 }
 
 void slope_object::updateslope()
@@ -105,8 +121,8 @@ void slope_object::updateslope()
 	oy2 = inf.y2;
 }
 
-slope_object::slope_object(word* cid, ffcdata* ff, int32_t id, word cpos)
-	: ffc(ff), cmbid(cid), id(id)
+slope_object::slope_object(word* cid, ffcdata* ff, int xoffs_, int yoffs_)
+	: ffc(ff), cmbid(cid)
 {
 	if(ffc)
 	{
@@ -116,8 +132,8 @@ slope_object::slope_object(word* cid, ffcdata* ff, int32_t id, word cpos)
 	}
 	else
 	{
-		xoffs = COMBOX(cpos);
-		yoffs = COMBOY(cpos);
+		xoffs = xoffs_;
+		yoffs = yoffs_;
 	}
 }
 
@@ -203,7 +219,8 @@ zfix check_new_slope(zfix tx, zfix ty, zfix tw, zfix th, zfix otx, zfix oty, boo
 			if (s.y2 == s.y1) cosangle = 0;
 			if(s.ignore(sinangle, cosangle, fallthrough)) continue;
 			zfix ret = sign(zc::math::Sin(lineangle));
-			if (ret < 0 || !platformonly) return ret?ret:1_zf;
+			if (ret < 0 || !platformonly)
+				return ret?ret:1_zf;
 		}
 	}
 	return 0;

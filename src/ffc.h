@@ -35,6 +35,7 @@ public:
 	word data;
 	
 	ffcdata() = default;
+	virtual ~ffcdata() = default;
 	virtual void solid_update(bool push = true) override;
 	// Note: If you use this to clear a ffc during gameplay, you must also call zc_ffc_set(ffc, 0)
 	void clear();
