@@ -452,16 +452,13 @@ int32_t MAPCOMBO2(int32_t layer,int32_t x,int32_t y)
     return tmpscr2[layer].data[combo];                        // entire combo code
 }
 
-static int32_t MAPCOMBO3_impl(int32_t map, int32_t screen, int32_t layer, int32_t pos, bool secrets)
-{ 
-	if (map < 0 || screen < 0) return 0;
-	
-	if(pos>175 || pos < 0)
-		return 0;
+std::optional<mapscr> load_temp_mapscr_and_apply_secrets(int32_t map, int32_t screen, int32_t layer, bool secrets, bool secrets_do_replay_comment)
+{
+	if (map < 0 || screen < 0) return std::nullopt;
 		
 	mapscr *m = &TheMaps[(map*MAPSCRS)+screen];
     
-	if(m->valid==0) return 0;
+	if(m->valid==0) return std::nullopt;
 	
 	int32_t mi = (map*MAPSCRSNORMAL)+screen;
 	int32_t flags = 0;
@@ -473,16 +470,16 @@ static int32_t MAPCOMBO3_impl(int32_t map, int32_t screen, int32_t layer, int32_
 	
 	int32_t mapid = (layer < 0 ? -1 : ((m->layermap[layer] - 1) * MAPSCRS + m->layerscreen[layer]));
 	
-	if (layer >= 0 && (mapid < 0 || mapid > MAXMAPS*MAPSCRS)) return 0;
+	if (layer >= 0 && (mapid < 0 || mapid > MAXMAPS*MAPSCRS)) return std::nullopt;
 	
 	mapscr scr = ((mapid < 0 || mapid > MAXMAPS*MAPSCRS) ? *m : TheMaps[mapid]);
     
-	if(scr.valid==0) return 0;
+	if(scr.valid==0) return std::nullopt;
 	
 	if ((flags & mSECRET) && canPermSecret(currdmap, screen))
 	{
 		hiddenstair2(&scr, false);
-		hidden_entrance2(&scr, (mapscr*)NULL, false, -3);
+		hidden_entrance2(&scr, (mapscr*)NULL, false, -3, secrets_do_replay_comment);
 	}
 	if(flags & mLIGHTBEAM)
 	{
@@ -525,8 +522,21 @@ static int32_t MAPCOMBO3_impl(int32_t map, int32_t screen, int32_t layer, int32_
 	
 	clear_xdoors2(&scr, nullptr, mi);
 	clear_xstatecombos2(&scr, nullptr, mi);
-	
-	return scr.data[pos];						// entire combo code
+
+	return scr;
+}
+
+static int32_t MAPCOMBO3_impl(int32_t map, int32_t screen, int32_t layer, int32_t pos, bool secrets)
+{
+	if (map < 0 || screen < 0) return 0;
+
+	if(pos>175 || pos < 0)
+		return 0;
+
+	if (auto s = load_temp_mapscr_and_apply_secrets(map, screen, layer, secrets))
+		return s->data[pos];
+
+	return 0;
 }
 
 // Read from the current temporary screens or, if (map, screen) is not loaded,
@@ -2077,9 +2087,11 @@ void hidden_entrance(int32_t tmp,bool refresh, bool high16only,int32_t single) /
 	}
 	hidden_entrance2(tmpscr + tmp, tmpscr2, high16only, single);
 }
-void hidden_entrance2(mapscr *s, mapscr *t, bool high16only,int32_t single) //Perhaps better known as 'Trigger Secrets'
+void hidden_entrance2(mapscr *s, mapscr *t, bool high16only,int32_t single,bool do_replay_comment) //Perhaps better known as 'Trigger Secrets'
 {
-	if (replay_is_active())
+	// No real reason for "do_replay_comment" to exist - I just did not want to update many replays when fixing
+	// slopes in sideview mode (which required loading nearby screens in loadscr).
+	if (replay_is_active() && do_replay_comment)
 		replay_step_comment(fmt::format("trigger secrets scr={}", currscr));
 
 	/*
@@ -6352,7 +6364,8 @@ bool hit_walkflag(int32_t x,int32_t y,int32_t cnt)
 
 bool solpush_walkflag(int32_t x, int32_t y, int32_t cnt, solid_object const* ign)
 {
-	if(x<0 || y<0 || x>=256 || y>=176)
+	// 16 pixel buffer to account for slopes that are on bordering screens.
+	if(x<0 || y<0 || x>=256+16 || y>=176+16)
 		return true;
 		
 	//  for(int32_t i=0; i<4; i++)

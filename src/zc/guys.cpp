@@ -1,5 +1,7 @@
 #include <cstring>
 #include <stdio.h>
+#include "base/combo.h"
+#include "base/general.h"
 #include "base/zc_alleg.h"
 #include "zc/guys.h"
 #include "zc/replay.h"
@@ -18805,13 +18807,31 @@ void load_default_enemies()
 	activate_fireball_statues();
 }
 
+#define SLOPE_STAGE_COMBOS 0
+#define SLOPE_STAGE_FFCS 1
+#define SLOPE_STAGE_COMBOS_BORDERING_SCREENS 2
+
+static int create_slope_id(int stage, int arg1, int arg2)
+{
+	if (stage == SLOPE_STAGE_COMBOS)
+		return (176*arg1)+arg2;
+	if (stage == SLOPE_STAGE_FFCS)
+		return (176*7)+arg1;
+	if (stage == SLOPE_STAGE_COMBOS_BORDERING_SCREENS)
+		return (176*7 + MAXFFCS)+arg1*7*(16 * 2 + 11 * 2) + arg2;
+	// TODO: what about FFCs from bordering screens?
+
+	assert(false);
+	return 0;
+}
+
 void update_slope_combopos(int32_t lyr, int32_t pos)
 {
 	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return;
 	mapscr* s = FFCore.tempScreens[lyr];
 	newcombo const& cmb = combobuf[s->data[pos]];
 	
-	auto id = (176*lyr)+pos;
+	auto id = create_slope_id(SLOPE_STAGE_COMBOS, lyr, pos);
 	auto it = slopes.find(id);
 	
 	bool wasSlope = it!=slopes.end();
@@ -18819,13 +18839,90 @@ void update_slope_combopos(int32_t lyr, int32_t pos)
 	
 	if(isSlope && !wasSlope)
 	{
-		slopes.try_emplace(id, &(s->data[pos]), nullptr, -1, id, pos);
+		slopes.try_emplace(id, &(s->data[pos]), nullptr, -1, id, COMBOX(pos), COMBOY(pos));
 	}
 	else if(wasSlope && !isSlope)
 	{
 		slopes.erase(it);
 	}
 }
+
+static void update_slope_combopos_bordering_screen(int dir, int slope_count, int cid, bool is_slope, int offx, int offy)
+{
+	auto id = create_slope_id(SLOPE_STAGE_COMBOS_BORDERING_SCREENS, dir, slope_count);
+	auto it = slopes.find(id);
+	
+	bool wasSlope = it!=slopes.end();
+	bool isSlope = is_slope;
+	
+	if(isSlope && !wasSlope)
+	{
+		static word TMP[5000];
+		int tmp_index = id-create_slope_id(SLOPE_STAGE_COMBOS_BORDERING_SCREENS,0,0);
+		TMP[tmp_index] = cid;
+		slopes.try_emplace(id, &TMP[tmp_index], nullptr, -1, id, offx, offy);
+	}
+	else if(wasSlope && !isSlope)
+	{
+		slopes.erase(it);
+	}
+}
+
+// Load a single column or row from a nearby screen, and load its slopes.
+static void handle_slope_combopos_bordering_screen(int dir)
+{
+	int mi;
+	if (auto r = nextscr(dir, true))
+		mi = *r;
+	else
+		return;
+
+	int map = mi / MAPSCRSNORMAL;
+	int screen = mi % MAPSCRSNORMAL;
+
+	int offx = 0;
+	int offy = 0;
+	if (dir == up)
+		offy = -16;
+	else if (dir == down)
+		offy = 176;
+	else if (dir == left)
+		offx = -16;
+	else if (dir == right)
+		offx = 256;
+
+	for (int layer = 0; layer < 7; layer++)
+	{
+		auto scr = load_temp_mapscr_and_apply_secrets(map, screen, layer - 1, true, false);
+		if (!scr) continue;
+
+		int slope_count = layer * (16*2);
+
+		if (dir == left || dir == right)
+		{
+			int x = dir == left ? 15 : 0;
+			for (int y = 0; y < 11; y++)
+			{
+				int pos = y * 16 + x;
+				int cid = scr->data[pos];
+				bool is_slope = combobuf[cid].type == cSLOPE;
+				update_slope_combopos_bordering_screen(dir, slope_count++, cid, is_slope, offx, offy + y*16);
+			}
+		}
+		else if (dir == up || dir == down)
+		{
+			int y = dir == up ? 10 : 0;
+			for (int x = 0; x < 16; x++)
+			{
+				int pos = y * 16 + x;
+				int cid = scr->data[pos];
+				bool is_slope = combobuf[cid].type == cSLOPE;
+				update_slope_combopos_bordering_screen(dir, slope_count++, cid, is_slope, offx + x*16, offy);
+			}
+		}
+	}
+}
+
 void update_slope_comboposes()
 {
 	for(auto lyr = 0; lyr < 7; ++lyr)
@@ -18833,6 +18930,14 @@ void update_slope_comboposes()
 		for(auto pos = 0; pos < 176; ++pos)
 			update_slope_combopos(lyr,pos);
 	}
+
+	if (Hero.sideview_mode())
+	{
+		for (int dir = up; dir <= right; dir++)
+			handle_slope_combopos_bordering_screen(dir);
+	}
+
+	update_slopes();
 }
 
 // Everything that must be done before we change a screen's combo to another combo, or a combo's type to another type.
@@ -18878,7 +18983,7 @@ void screen_ffc_modify_postroutine(word index)
 	ffcdata& ff = tmpscr->ffcs[index];
 	newcombo const& cmb = combobuf[ff.data];
 	
-	auto id = (176*7)+int32_t(index);
+	auto id = create_slope_id(SLOPE_STAGE_FFCS, index, -1);
 	auto it = slopes.find(id);
 	
 	bool wasSlope = it!=slopes.end();

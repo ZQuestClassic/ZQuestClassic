@@ -91,27 +91,27 @@ slope_info slope_object::get_info() const
 {
 	extern mapscr tmpscr[2];
 
-	word const* id;
+	word cid;
 	zfix x, y;
 
 	if (ffc_id != -1 && slopes_getFFC(ffc_id)->getLoaded())
 	{
 		ffcdata* ffc = slopes_getFFC(ffc_id);
-		id = &ffc->data; // TODO: is this an issue? what if ffcs resizes.
+		cid = ffc->data;
 		x = ffc->x;
 		y = ffc->y;
 	}
 	else
 	{
-		id = cmbid;
+		if (!cmbid)
+			return slope_info();
+
+		cid = *cmbid;
 		x = xoffs;
 		y = yoffs;
 	}
 
-	if (!id)
-		return slope_info();
-
-	newcombo const& cmb = combobuf[*id];
+	newcombo const& cmb = combobuf[cid];
 	if(cmb.type != cSLOPE)
 		return slope_info();
 
@@ -127,7 +127,7 @@ void slope_object::updateslope()
 	oy2 = inf.y2;
 }
 
-slope_object::slope_object(word* cid, ffcdata* ffc, int32_t ffc_id, int32_t id, word cpos)
+slope_object::slope_object(word* cid, ffcdata* ffc, int32_t ffc_id, int32_t id, int xoffs_, int yoffs_)
 	: cmbid(cid), id(id), ffc_id(ffc_id)
 {
 	if(ffc)
@@ -138,8 +138,8 @@ slope_object::slope_object(word* cid, ffcdata* ffc, int32_t ffc_id, int32_t id, 
 	}
 	else
 	{
-		xoffs = COMBOX(cpos);
-		yoffs = COMBOY(cpos);
+		xoffs = xoffs_;
+		yoffs = yoffs_;
 	}
 }
 
@@ -225,7 +225,8 @@ zfix check_new_slope(zfix tx, zfix ty, zfix tw, zfix th, zfix otx, zfix oty, boo
 			if (s.y2 == s.y1) cosangle = 0;
 			if(s.ignore(sinangle, cosangle, fallthrough)) continue;
 			zfix ret = sign(zc::math::Sin(lineangle));
-			if (ret < 0 || !platformonly) return ret?ret:1_zf;
+			if (ret < 0 || !platformonly)
+				return ret?ret:1_zf;
 		}
 	}
 	return 0;

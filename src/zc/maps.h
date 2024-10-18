@@ -35,6 +35,7 @@ int32_t FFORCOMBOTYPE(int32_t x, int32_t y);
 int32_t FFORCOMBO_L(int32_t layer, int32_t x, int32_t y);
 int32_t FFORCOMBOTYPE_L(int32_t layer, int32_t x, int32_t y);
 int32_t MAPCOMBO2(int32_t layer,int32_t x,int32_t y);
+std::optional<mapscr> load_temp_mapscr_and_apply_secrets(int32_t map, int32_t screen, int32_t layer, bool secrets, bool secrets_do_replay_comment = true);
 int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer,int32_t x,int32_t y, bool secrets = false);
 int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer,int32_t pos, bool secrets = false);
 int32_t MAPCSET2(int32_t layer,int32_t x,int32_t y);
@@ -146,7 +147,7 @@ bool remove_bosschests(int32_t tmp);                // tmp = index of tmpscr[]
 bool overheadcombos(mapscr *s);
 void delete_fireball_shooter(mapscr *s, int32_t i);
 void hidden_entrance(int32_t tmp,bool refresh, bool high16only=false,int32_t single=-1);
-void hidden_entrance2(mapscr *s, mapscr *t, bool high16only=false,int32_t single=-1);
+void hidden_entrance2(mapscr *s, mapscr *t, bool high16only=false,int32_t single=-1,bool do_replay_comment=true);
 void update_slopes();
 void update_freeform_combos();
 bool findentrance(int x, int y, int flag, bool setflag);
