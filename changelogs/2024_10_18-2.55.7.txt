@@ -1,0 +1,98 @@
+https://zquestclassic.com/releases/2.55.7
+
+# Features
+
+zc: show save path in game details view
+
+zq: add "Auto-Save" and "Auto-Restart" options to test dialog
+  The test dialog no longer prompts you about unsaved changes. Instead, a
+  new option in the dialog "Auto-Save" will save for you just before
+  launching test mode. This defaults to on, but can be disabled.
+  
+  Additionally, the existing "Auto-Restart" option was moved from the
+  launcher to the test dialog, where it belongs.
+
+zq: show error reason when failing to load quest
+zq: dense forest autocombo mode
+zq: extension autocombo mode, for resizing things along one axis
+
+# Bug Fixes
+
+mapscr::numFFC() no longer returns 1 when there are 0 ffcs
+issue where double clicking could stop working in lists
+
+load NES tiles for old quests without tile data
+  Some 1.90 and older quests save no tile data if they just used the
+  default NES graphics. That broke sometime around 2.50, resulting in
+  crashes or random behavior when loading these rare old quests.
+
+[mac] Change all CTRL shortcuts to CMD, and allow CTRL in hotkeys
+  The hotkey system already used CMD instead of CTRL, but many old allegro
+  shortcuts were still checking CTRL on Mac (like copy/pasting text). Now
+  they use CMD.
+  
+  Also, can now use CTRL when configuring hotkeys on Mac.
+
+zc: for old quests, darknut shields no longer incorrectly break when hit with hammer
+zc: supress Z_eventlog when game is not active
+zc: improve error handling for saves in titlescreen
+  * When loading a save file failed, the program would exit. Now an error
+    message is displayed
+  * Previous places that showed a generic save-related error message are
+    now more specific
+  * Fixed a few things that were causing errors related to saves when
+    canceling during save slot creation
+  * Canceling the dialog that pops up after creating a new save slot now
+    deletes the save, rather than it defaulting to classic_1st.qst
+
+zc: New mirrors hanging the game when using their 'Block' feature
+zc: avoid crash on magic relections when sprite list is full
+zc: handle screen transitions on slopes in sideview mode
+  Slopes bugged out big time when moving between screens in sideview mode,
+  shooting players across the screen. That is now fixed, but one should
+  avoid starting upwards-stairs on the edge of a screen, as the player
+  still does not traverse up it when entering from the other side.
+
+zq: reenable floating selection for dense forest
+zq: lifted duplicate combo and combo 0 restrictions from autocombo types that did not need them.
+zq: reset animation in item dialog on selection change
+zq: set track to 0 when updating dmap music
+  This prevents a bug where an invalid track could be selected when
+  changing the tracker music file in the dmap editor.
+
+zq: fix Preview mode not working when opened from top menu
+zq: prevent crash when saving test init data
+zscript: remove a bunch of unnecessary logging
+zscript: constants at script or namespace scope counting against the global variable limit
+zscript: properly handle optional params not being compile time values
+  If an optional parameter was not a defaulted to a compile time value,
+  the compiler inserted a random value instead. Now it will emit an error.
+
+zscript: fix off-by-one error in shopdata
+zscript: show useful error message when single-quote char string is too long
+zscript: fix `combodata` Flag, NextData and NextCSet
+  These were never correctly implemented.
+
+zscript: remove bogus error log when using `ArrayCopy`
+
+# Documentation
+
+zscript: fix order of arguments in DrawString on webdocs
+
+# Refactors
+
+
+zc: improve how title screen assets are loaded
+  * Use `title_gfx.dat` instead of `default.qst`. This file is smaller and
+    so is quicker to load (200ms -> 100ms on my machine)
+  * Don't reload the assets if they are already currently loaded.
+    Previously this file was unnecessarily loaded multiple times while
+    simply navigating the save select screens
+
+zscript: remove unused ->ScriptEntry, ->ScriptOccupancy, ->ExitScript
+zscript: always show script context when logging errors
+  Previously the "Print Script Metadata on Traces" QR had to be enabled to
+  show what script caused an error. However, this context is always useful
+  for debugging and so should always be displayed.
+
+
