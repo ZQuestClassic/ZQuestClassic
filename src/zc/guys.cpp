@@ -18839,7 +18839,7 @@ void update_slope_combopos(int32_t lyr, int32_t pos)
 	
 	if(isSlope && !wasSlope)
 	{
-		slopes.try_emplace(id, &(s->data[pos]), nullptr, -1, id, COMBOX(pos), COMBOY(pos));
+		slopes.try_emplace(id, &(s->data[pos]), nullptr, -1, COMBOX(pos), COMBOY(pos));
 	}
 	else if(wasSlope && !isSlope)
 	{
@@ -18860,7 +18860,7 @@ static void update_slope_combopos_bordering_screen(int dir, int slope_count, int
 		static word TMP[5000];
 		int tmp_index = id-create_slope_id(SLOPE_STAGE_COMBOS_BORDERING_SCREENS,0,0);
 		TMP[tmp_index] = cid;
-		slopes.try_emplace(id, &TMP[tmp_index], nullptr, -1, id, offx, offy);
+		slopes.try_emplace(id, &TMP[tmp_index], nullptr, -1, offx, offy);
 	}
 	else if(wasSlope && !isSlope)
 	{
@@ -18990,7 +18990,7 @@ void screen_ffc_modify_postroutine(word index)
 	bool isSlope = cmb.type == cSLOPE && !(ff.flags&ffc_changer);
 	if(isSlope && !wasSlope)
 	{
-		slopes.try_emplace(id, nullptr, &ff, index, id);
+		slopes.try_emplace(id, nullptr, &ff, index);
 	}
 	else if(wasSlope && !isSlope)
 	{

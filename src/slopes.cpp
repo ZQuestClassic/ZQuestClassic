@@ -89,8 +89,6 @@ ffcdata* slopes_getFFC(int index);
 
 slope_info slope_object::get_info() const
 {
-	extern mapscr tmpscr[2];
-
 	word cid;
 	zfix x, y;
 
@@ -127,8 +125,8 @@ void slope_object::updateslope()
 	oy2 = inf.y2;
 }
 
-slope_object::slope_object(word* cid, ffcdata* ffc, int32_t ffc_id, int32_t id, int xoffs_, int yoffs_)
-	: cmbid(cid), id(id), ffc_id(ffc_id)
+slope_object::slope_object(word* cid, ffcdata* ffc, int32_t ffc_id, int xoffs_, int yoffs_)
+	: cmbid(cid), ffc_id(ffc_id)
 {
 	if(ffc)
 	{
