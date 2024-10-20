@@ -1246,18 +1246,12 @@ class screendata {
 	//
 	// @zasm
 	//   SETSIDEWARP
-	//   POP D3
-	//   POP D3
-	//   POP D3
-	//   POP D3
+	//   POPARGS D5 0.0004
 	internal void SetSideWarp(int side, int screen, int dmap, int type);
 
 	// @zasm
 	//   SETTILEWARP
-	//   POP D3
-	//   POP D3
-	//   POP D3
-	//   POP D3
+	//   POPARGS D5 0.0004
 	internal void SetTileWarp(int arg1, int arg2, int arg3, int arg4);
 
 	// Create an lweapon with sprites, sounds, and other values set as if it was

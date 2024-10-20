@@ -922,37 +922,25 @@ internal void SetGlobalRAM(int arg1, int arg2);
 // @deprecated
 // @zasm
 //   SETCOLORB
-//   POP D3
-//   POP D3
-//   POP D3
-//   POP D3
+//   POPARGS D5 0.0004
 internal void SetColorBuffer(int arg1, int arg2, int arg3, int arg4);
 
 // @deprecated
 // @zasm
 //   SETDEPTHB
-//   POP D3
-//   POP D3
-//   POP D3
-//   POP D3
+//   POPARGS D5 0.0004
 internal void SetDepthBuffer(int arg1, int arg2, int arg3, int arg4);
 
 // @deprecated
 // @zasm
 //   GETCOLORB
-//   POP D3
-//   POP D3
-//   POP D3
-//   POP D3
+//   POPARGS D5 0.0004
 internal void GetColorBuffer(int arg1, int arg2, int arg3, int arg4);
 
 // @deprecated
 // @zasm
 //   GETDEPTHB
-//   POP D3
-//   POP D3
-//   POP D3
-//   POP D3
+//   POPARGS D5 0.0004
 internal void GetDepthBuffer(int arg1, int arg2, int arg3, int arg4);
 
 // @zasm

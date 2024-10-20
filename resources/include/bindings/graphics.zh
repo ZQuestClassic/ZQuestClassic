@@ -45,9 +45,7 @@ class Graphics {
 	//
 	// @zasm
 	//   TINT
-	//   POP D3
-	//   POP D3
-	//   POP D3
+	//   POPARGS D5 0.0003
 	internal void Tint(int red, int green, int blue);
 
 	// Tints the palette by adding `red`, `green`, and `blue` to the respective
@@ -56,10 +54,7 @@ class Graphics {
 	//
 	// @zasm
 	//   MONOHUE
-	//   POP D3
-	//   POP D3
-	//   POP D3
-	//   POP D3
+	//   POPARGS D5 0.0004
 	internal void MonochromeHue(int red, int green, int blue,
 								bool distributed = true);
 

@@ -1722,9 +1722,7 @@ class Game {
 	// @deprecated Use [dmapdata::SetMusic] instead!
 	// @zasm
 	//   SETDMAPENHMUSIC
-	//   POP D3
-	//   POP D3
-	//   POP D3
+	//   POPARGS D5 0.0003
 	internal void SetDMapEnhancedMusic(int dmap, char32[] filename, int track);
 
 	// @deprecated Use [dmapdata::GetName] instead!
