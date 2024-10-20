@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2024-10-16 04:38:54</td>
+      <td>2024-10-20 10:36:38</td>
     </tr>
   </table>
 </div>
@@ -192,7 +192,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">autopattern_container</span><span class="p">(</span><span class="n">ntype</span><span class="p">,</span><span class="w"> </span><span class="n">nlayer</span><span class="p">,</span><span class="w"> </span><span class="n">nbasescreen</span><span class="p">,</span><span class="w"> </span><span class="n">nbasepos</span><span class="p">,</span><span class="w"> </span><span class="n">nsource</span><span class="p">)</span><span class="w"> </span><span class="p">{}</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">autopattern_container</span><span class="p">(</span><span class="n">ntype</span><span class="p">,</span><span class="w"> </span><span class="n">nlayer</span><span class="p">,</span><span class="w"> </span><span class="n">nbasescreen</span><span class="p">,</span><span class="w"> </span><span class="n">nbasepos</span><span class="p">,</span><span class="w"> </span><span class="n">nsource</span><span class="p">),</span><span class="w"> </span><span class="n">uniquecorners</span><span class="p">(</span><span class="n">nsource</span><span class="o">-&gt;</span><span class="n">flags</span><span class="o">&amp;</span><span class="n">ACF_UNIQUECORNER</span><span class="p">)</span><span class="w"> </span><span class="p">{}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l16" href="#l16">16</a></td>
@@ -220,66 +220,101 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="kt">void</span><span class="w"> </span><span class="nf">form_connections</span><span class="p">(</span><span class="n">apcombo</span><span class="o">*</span><span class="w"> </span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">rem</span><span class="p">);</span></td>
+      <td class="src "><span class="w">		</span><span class="kt">void</span><span class="w"> </span><span class="nf">convert_corner</span><span class="p">(</span><span class="n">apcombo</span><span class="o">*</span><span class="w"> </span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">rem</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l20" href="#l20">20</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="kt">void</span><span class="w"> </span><span class="nf">calculate_connections</span><span class="p">(</span><span class="n">apcombo</span><span class="o">*</span><span class="w"> </span><span class="n">p</span><span class="p">);</span></td>
+      <td class="src "><span class="w">		</span><span class="kt">void</span><span class="w"> </span><span class="nf">place_corner</span><span class="p">(</span><span class="n">apcombo</span><span class="o">*</span><span class="w"> </span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">xo</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">yo</span><span class="p">,</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">slots</span><span class="p">[],</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">topleft</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">rem</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l21" href="#l21">21</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">virtual</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">slot_to_flags</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">slot</span><span class="p">)</span><span class="w"> </span><span class="n">override</span><span class="p">;</span></td>
+      <td class="src "><span class="w">		</span><span class="kt">void</span><span class="w"> </span><span class="nf">form_connections</span><span class="p">(</span><span class="n">apcombo</span><span class="o">*</span><span class="w"> </span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">rem</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l22" href="#l22">22</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">virtual</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">flags_to_slot</span><span class="p">(</span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">flags</span><span class="p">)</span><span class="w"> </span><span class="n">override</span><span class="p">;</span></td>
+      <td class="src "><span class="w">		</span><span class="kt">void</span><span class="w"> </span><span class="nf">calculate_connections</span><span class="p">(</span><span class="n">apcombo</span><span class="o">*</span><span class="w"> </span><span class="n">p</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l23" href="#l23">23</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="p">};</span></td>
+      <td class="src "><span class="w">		</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">get_alt_slot</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">slot</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l24" href="#l24">24</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">		</span><span class="n">virtual</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">slot_to_flags</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">slot</span><span class="p">)</span><span class="w"> </span><span class="n">override</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l25" href="#l25">25</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">}</span></td>
+      <td class="src "><span class="w">		</span><span class="n">virtual</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">flags_to_slot</span><span class="p">(</span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">flags</span><span class="p">)</span><span class="w"> </span><span class="n">override</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l26" href="#l26">26</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">	</span><span class="n">private</span><span class="o">:</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l27" href="#l27">27</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#endif</span></td>
+      <td class="src "><span class="w">		</span><span class="kt">bool</span><span class="w"> </span><span class="n">uniquecorners</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l28" href="#l28">28</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="p">};</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l29" href="#l29">29</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l30" href="#l30">30</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="p">}</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l31" href="#l31">31</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l32" href="#l32">32</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">#endif</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l33" href="#l33">33</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
