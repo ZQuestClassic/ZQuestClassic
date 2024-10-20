@@ -51,12 +51,12 @@ AutoComboDialog::AutoComboDialog() :
 
 }
 
-void AutoComboDialog::addCombos(int32_t count, bool from0)
+void AutoComboDialog::addCombos(int32_t count, bool from0, int32_t engraveoff)
 {
 	int32_t startfrom = from0 ? 0 : temp_autocombo.combos.size();
 	for (int32_t q = 0; q < count; ++q)
 	{
-		temp_autocombo.addEntry(0, ACT_NORMAL, startfrom + q, -1);
+		temp_autocombo.addEntry(0, ACT_NORMAL, startfrom + q, engraveoff == -1 ? -1 : engraveoff + q);
 	}
 }
 void AutoComboDialog::removeCombos(int32_t count)
@@ -359,7 +359,19 @@ std::shared_ptr<GUI::Widget> AutoComboDialog::view()
 						Rows<2>(vAlign = 0.0,
 							AUTO_CB(flags, ACF_CROSSSCREENS, 1, "Cross Screens", "If checked, this autocombo can affect combos on adjacent screens."),
 							AUTO_CB(flags, ACF_CONNECTEDGE, 1, "Connect to Edge", "If checked, this autocombo will connect to the edge of the screen."),
-							AUTO_CB(flags, ACF_LEGACY, 1, "Legacy Ordering", "Makes 'Auto Generate' use combo ordering from older versions.\nFor tilesets that have combos set up for Relational and Dungeon Carving modes")
+							AUTO_CB(flags, ACF_LEGACY, 1, "Legacy Ordering", "Makes 'Auto Generate' use combo ordering from older versions.\nFor tilesets that have combos set up for Relational and Dungeon Carving modes"),
+							INFOBTN_EX("Adds extra slots for eight 2x2 blocks that replace the corners", width = 20_px, height = 20_px, hAlign = 1.0), \
+							Checkbox(hAlign = 0.0,
+								checked = temp_autocombo.flags & ACF_UNIQUECORNER,
+								text = "Large Corners",
+								onToggleFunc = [&](bool state)
+									{
+										SETFLAG(temp_autocombo.flags, ACF_UNIQUECORNER, state);
+										if (temp_autocombo.flags & ACF_UNIQUECORNER && temp_autocombo.combos.size() <= 94)
+											addCombos(32, false, 352);
+										else if(!(temp_autocombo.flags & ACF_UNIQUECORNER))
+											removeCombos(32);
+									})
 							),
 						// 6 - DoR
 						Rows<2>(vAlign = 0.0,
@@ -459,7 +471,7 @@ std::shared_ptr<GUI::Widget> AutoComboDialog::view()
 	return window;
 }
 
-void AutoComboDialog::addSlot(autocombo_entry& entry, size_t& ind, size_t& wid, size_t& hei)
+void AutoComboDialog::addSlot(autocombo_entry& entry, size_t& ind, size_t& wid, size_t& hei, int32_t engraveoff)
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Key;
@@ -468,11 +480,13 @@ void AutoComboDialog::addSlot(autocombo_entry& entry, size_t& ind, size_t& wid, 
 	autocombo_widg& widg = widgs.emplace_back();
 	std::shared_ptr<GUI::Grid> row;
 
+	int32_t eo = ((engraveoff == -1) ? entry.engrave_offset : engraveoff);
+
 	widg.slot = ind;
 	widg.entry = &entry;
 	sgrid->add(
 		row = Row(framed = true,
-			Engraving(data = entry.engrave_offset),
+			Engraving(data = eo),
 			widg.cpane = SelComboSwatch(
 				combo = entry.cid,
 				cset = CSet,
@@ -940,7 +954,17 @@ void AutoComboDialog::refreshWidgets()
 				0, 0, 0, 0,
 				0, 0, 0, 0,
 				0, 0, 0, 0,
-				0, 1, 0
+				0, 1, 0, 1,
+
+				0, 0, 0, 0,
+				0, 0, 0, 0,
+				0, 0, 0, 0,
+				0, 0, 0, 0,
+
+				0, 0, 0, 0,
+				0, 0, 0, 0,
+				0, 0, 0, 0,
+				0, 0, 0, 0
 			};
 			grid = dgn_grid;
 			break;
@@ -993,6 +1017,12 @@ void AutoComboDialog::refreshWidgets()
 				case AUTOCOMBO_EXTEND:
 					addSlotsExtend(temp_autocombo.combos, widg_ind, wid, hei);
 					break;
+				case AUTOCOMBO_DGNCARVE:
+				{
+					int32_t eo = autocombo_entry::base_engrave_offset(AUTOCOMBO_DGNCARVE) + (widg_ind < 94 ? widg_ind : widg_ind + 114);
+					addSlot(temp_autocombo.combos[widg_ind], widg_ind, wid, hei, eo);
+					break;
+				}
 				default:
 					addSlot(temp_autocombo.combos[widg_ind], widg_ind, wid, hei);
 					break;

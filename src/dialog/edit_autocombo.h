@@ -36,13 +36,13 @@ public:
 
 	AutoComboDialog();
 
-	void addCombos(int32_t count, bool from0=false);
+	void addCombos(int32_t count, bool from0=false, int32_t engraveoff=-1);
 	void removeCombos(int32_t count);
 	int32_t numCombosSet();
 	void refreshPanels();
 
 	std::shared_ptr<GUI::Widget> view() override;
-	void addSlot(autocombo_entry& entry, size_t& ind, size_t& wid, size_t& hei);
+	void addSlot(autocombo_entry& entry, size_t& ind, size_t& wid, size_t& hei, int32_t engraveoff=-1);
 	void addSlotReplace(autocombo_entry& entrybefore, autocombo_entry& entryafter, size_t& grid_ind, size_t& ind, size_t& wid, size_t& hei);
 	void addSlotsExtend(std::vector<autocombo_entry>& entries, size_t& ind, size_t& wid, size_t& hei);
 	void addSlotNoEngrave(autocombo_entry& entry, size_t& ind, size_t& wid, size_t& hei);
