@@ -8,7 +8,6 @@ class ZInfo {
 	// @zasm
 	//   POP D2
 	//   POP D3
-	//   POP D6
 	//   MODULEGETIC D3 D2
 	internal void GetItemClass(char32 buffer, int itemclass_id);
 

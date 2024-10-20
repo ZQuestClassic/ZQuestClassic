@@ -139,7 +139,7 @@ class lweapon {
 	// @zasm_var LWPNCSET
 	internal int CSet;
 
-	// If the weapon is flashing or not. When flashing, it changes between its'
+	// If the weapon is flashing or not. When flashing, it changes between its
 	// CSet and FlashCSet.
 	//
 	// @zasm_var LWPNFLASH
@@ -410,7 +410,7 @@ class lweapon {
 	// @zasm_var LWPNVY
 	internal int Vy;
 
-	// If true, the weapon's 'Rotation' will be automatically set based on its'
+	// If true, the weapon's 'Rotation' will be automatically set based on its
 	// Angle.
 	//
 	// @zasm_var LWPNAUTOROTATE
@@ -541,16 +541,16 @@ class lweapon {
 	//   SWITCHLW D2
 	internal bool Switch(int effect);
 
-	// If the weapon is not Angular, makes it Angular, and sets its' Angle based
-	// on its' Dir.
+	// If the weapon is not Angular, makes it Angular, and sets its Angle based
+	// on its Dir.
 	//
 	// @zasm
 	//   POP D2
 	//   LWPNMAKEANGULAR D2
 	internal bool MakeAngular();
 
-	// If the weapon is Angular, makes it not Angular, and sets its' Dir based
-	// on its' Angle.
+	// If the weapon is Angular, makes it not Angular, and sets its Dir based
+	// on its Angle.
 	//
 	// @zasm
 	//   POP D2

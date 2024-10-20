@@ -823,7 +823,6 @@ class player {
 	// @zasm
 	//   POP D2
 	//   POP D3
-	//   POP D6
 	//   WARPR D3 D2
 	internal void Warp(int DMap, int screen);
 
@@ -840,7 +839,6 @@ class player {
 	// @zasm
 	//   POP D2
 	//   POP D3
-	//   POP D6
 	//   PITWARPR D3 D2
 	internal void PitWarp(int arg1, int arg2);
 

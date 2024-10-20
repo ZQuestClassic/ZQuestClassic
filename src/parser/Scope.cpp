@@ -105,6 +105,10 @@ void Scope::initFunctionBinding(Function* fn, CompileErrorHandler* handler)
 		util::split(zasm_str, zasm_lines, '\n');
 	}
 
+	int stack_change = fn->numParams();
+	if (fn->getClass() && !fn->getClass()->internalRefVar.empty() && !fn->getFlag(FUNCFLAG_CONSTRUCTOR) && !fn->getFlag(FUNCFLAG_DESTRUCTOR))
+		stack_change += 1;
+
 	std::vector<std::shared_ptr<Opcode>> code;
 	for (auto& op_string : zasm_lines)
 	{
@@ -175,23 +179,48 @@ void Scope::initFunctionBinding(Function* fn, CompileErrorHandler* handler)
 			}
 		}
 
+		if (sc->command == POP)
+			stack_change -= 1;
+		else if (sc->command == PUSHR || sc->command == PUSHV)
+			stack_change += 1;
+		else if (sc->command == POPARGS)
+		{
+			int num = util::ffparse2(tokens[2]);
+			if (num >= 100)
+			{
+				handler->handleError(CompileError::BadInternal(fn->node, fmt::format("Popping way too much, make sure to use '0.0001' syntax")));
+				return;
+			}
+			stack_change -= util::ffparse2(tokens[2]);
+		}
+		else if (sc->command == PUSHARGSR || sc->command == PUSHARGSV)
+		{
+			int num = util::ffparse2(tokens[2]);
+			if (num >= 100)
+			{
+				handler->handleError(CompileError::BadInternal(fn->node, fmt::format("Pushing way too much, make sure to use '0.0001' syntax")));
+				return;
+			}
+			stack_change += util::ffparse2(tokens[2]);
+		}
+
 		// Optimizations in the compiler will look at the class of the code in functions,
 		// so do minimal parsing to cover that. For the rest, just do RawOpcode.
-		if (command == "POP")
+		if (sc->command == POP)
 			addOpcode2(code, new OPopRegister(new VarArgument(StringToVar(tokens[1]))));
-		else if (command == "PUSHR")
+		else if (sc->command == PUSHR)
 			addOpcode2(code, new OPushRegister(new VarArgument(StringToVar(tokens[1]))));
-		else if (command == "PUSHV")
+		else if (sc->command == PUSHV)
 			addOpcode2(code, new OPushImmediate(new LiteralArgument(util::ffparse2(tokens[1]))));
-		else if (command == "TRACER")
+		else if (sc->command == TRACER)
 			addOpcode2(code, new OTraceRegister(new VarArgument(StringToVar(tokens[1]))));
-		else if (command == "SETR")
+		else if (sc->command == SETR)
 		{
 			auto arg1 = new VarArgument(StringToVar(tokens[1]));
 			auto arg2 = new VarArgument(StringToVar(tokens[2]));
 			addOpcode2(code, new OSetRegister(arg1, arg2));
 		}
-		else if (op_string.starts_with("SETV "))
+		else if (sc->command == SETV)
 		{
 			auto arg1 = new VarArgument(StringToVar(tokens[1]));
 			auto arg2 = new LiteralArgument(util::ffparse2(tokens[2]));
@@ -204,6 +233,12 @@ void Scope::initFunctionBinding(Function* fn, CompileErrorHandler* handler)
 	if (code.empty())
 	{
 		handler->handleError(CompileError::BadInternal(fn->node, fmt::format("No @zasm provided for internal function `{}`", fn->name)));
+		return;
+	}
+
+	if (!fn->getFlag(FUNCFLAG_VARARGS) && stack_change != 0)
+	{
+		handler->handleError(CompileError::BadInternal(fn->node, fmt::format("Stack is not preserved - did you forget to POP the parameters?", fn->name)));
 		return;
 	}
 

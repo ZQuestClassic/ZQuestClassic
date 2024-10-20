@@ -137,7 +137,7 @@ class eweapon {
 	// @zasm_var EWPNCSET
 	internal int CSet;
 
-	// If the weapon is flashing or not. When flashing, it changes between its'
+	// If the weapon is flashing or not. When flashing, it changes between its
 	// CSet and FlashCSet.
 	//
 	// @zasm_var EWPNFLASH
@@ -378,7 +378,7 @@ class eweapon {
 	// @zasm_var EWPNVY
 	internal int Vy;
 
-	// If true, the weapon's 'Rotation' will be automatically set based on its'
+	// If true, the weapon's 'Rotation' will be automatically set based on its
 	// Angle.
 	//
 	// @zasm_var EWPNAUTOROTATE
@@ -519,9 +519,15 @@ class eweapon {
 	// @zasm
 	//   POP D2
 	//   EWPNMAKEANGULAR D2
+	internal void MakeAngular();
+
+	// If the weapon is Angular, makes it not Angular, and set its Dir based
+	// on its Angle
+	//
+	// @zasm
 	//   POP D2
 	//   EWPNMAKEDIRECTIONAL D2
-	internal void MakeAngular();
+	internal void MakeDirectional();
 
 	// Grants 'Ownership' of the parameter object to the weapon.
 	//

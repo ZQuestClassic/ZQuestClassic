@@ -107,7 +107,7 @@ CALLFUNC 0.0037; UsrFunc[void Init(int, int)] Call
 POP D4
 PUSHR CLASS_THISKEY
 PUSHR D4
-CALLFUNC 0.0071; ClassFunc[Car Car::Car()] Constructor Call
+CALLFUNC 0.0070; ClassFunc[Car Car::Car()] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE_OBJECT D2 0.0002
@@ -117,14 +117,14 @@ WAITFRAME; InlineFunc[void Waitframe()] Body
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 2000; ClassFunc[Car Car::Car(int)] Params
-CALLFUNC 0.0083; ClassFunc[Car Car::Car(int)] Constructor Call
+CALLFUNC 0.0082; ClassFunc[Car Car::Car(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE_OBJECT D2 0.0001
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 5000; ClassFunc[Car Car::Car(int)] Params
-CALLFUNC 0.0083; ClassFunc[Car Car::Car(int)] Constructor Call
+CALLFUNC 0.0082; ClassFunc[Car Car::Car(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE_OBJECT D2 0
@@ -158,16 +158,15 @@ SETV D2 0
 GOTO 61
 SETV D2 1
 COMPAREV D2 0
-GOTOCMP 69 ==; Test 'if'
+GOTOCMP 68 ==; Test 'if'
 LOAD D2 0.0002; InlineFunc[void player::Warp(int, int)] Params Start AND if() #1 Body Start
 PUSHR D2
 LOAD D2 0.0001; InlineFunc[void player::Warp(int, int)] Params End
 POP D3; InlineFunc[void player::Warp(int, int)] Body Start
-POP D6
 WARPR D3 D2; InlineFunc[void player::Warp(int, int)] Body End AND if() #1 Body End
 POPARGS D5 0.0003
 RETURNFUNC; Func[void Init(int, int)] Body End
-SETV D2 0.0100; Func[Car Car::Car()] Body Start
+SETV D2 0.0099; Func[Car Car::Car()] Body Start
 SETR CLASS_THISKEY2 CLASS_THISKEY
 ZCLASS_CONSTRUCT CLASS_THISKEY {0.0001}
 SETR D4 SP2
@@ -179,7 +178,7 @@ TRACER D2; InlineFunc[void Trace(untyped)] Body
 SETR D2 CLASS_THISKEY
 POP CLASS_THISKEY
 RETURNFUNC; Func[Car Car::Car()] Body End
-SETV D2 0.0100; Func[Car Car::Car(int)] Body Start
+SETV D2 0.0099; Func[Car Car::Car(int)] Body Start
 SETR CLASS_THISKEY2 CLASS_THISKEY
 ZCLASS_CONSTRUCT CLASS_THISKEY {0.0001}
 SETR D4 SP2

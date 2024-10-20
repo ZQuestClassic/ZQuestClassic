@@ -678,7 +678,6 @@ class Game {
 	//
 	// @exit
 	// @zasm
-	//   POP D5
 	//   GAMESAVEQUIT
 	internal void SaveAndQuit();
 
@@ -686,7 +685,6 @@ class Game {
 	//
 	// @exit
 	// @zasm
-	//   POP D5
 	//   GAMESAVECONTINUE
 	internal void SaveAndContinue();
 
@@ -1110,7 +1108,7 @@ class Game {
 	//
 	// @zasm
 	//   CURRENTITEMID
-	//   POPARGS D2 0.0005
+	//   POPARGS D5 0.0002
 	internal int CurrentItemID(int itemtype, int flags = 1L);
 
 	// Loads the [subscreendata] pointer for the specified
@@ -1145,20 +1143,22 @@ class Game {
 
 	// @zasm
 	//   SWAPSUBSCREENV 0
+	//   POPARGS D5 0.0002
 	internal int SwapActiveSubscreens(int arg1, int arg2);
 
 	// @zasm
 	//   SWAPSUBSCREENV 1
+	//   POPARGS D5 0.0002
 	internal int SwapPassiveSubscreens(int arg1, int arg2);
 
 	// @zasm
 	//   SWAPSUBSCREENV 2
+	//   POPARGS D5 0.0002
 	internal int SwapOverlaySubscreens(int arg1, int arg2);
 
 	// @zasm
 	//   POP D2
 	//   POP D3
-	//   POP D6
 	//   GETMESSAGE D3 D2
 	internal void GetMessage(int string, char32[] buffer);
 
@@ -1167,7 +1167,6 @@ class Game {
 	// @zasm
 	//   POP D2
 	//   POP D3
-	//   POP D6
 	//   SETMESSAGE D3 D2
 	internal void SetMessage(int message, char32[] str);
 
@@ -1732,7 +1731,6 @@ class Game {
 	// @zasm
 	//   POP D2
 	//   POP D3
-	//   POP D6
 	//   GETDMAPNAME D3 D2
 	internal void GetDMapName(int DMap, char32[] buffer);
 
@@ -1740,7 +1738,6 @@ class Game {
 	// @zasm
 	//   POP D2
 	//   POP D3
-	//   POP D6
 	//   SETDMAPNAME D3 D2
 	internal void SetDMapName(int DMap, char32[] buffer);
 
@@ -1748,7 +1745,6 @@ class Game {
 	// @zasm
 	//   POP D2
 	//   POP D3
-	//   POP D6
 	//   GETDMAPTITLE D3 D2
 	internal void GetDMapTitle(int DMap, char32[] buffer);
 
@@ -1756,7 +1752,6 @@ class Game {
 	// @zasm
 	//   POP D2
 	//   POP D3
-	//   POP D6
 	//   SETDMAPTITLE D3 D2
 	internal void SetDMapTitle(int DMap, char32[] buffer);
 
@@ -1764,7 +1759,6 @@ class Game {
 	// @zasm
 	//   POP D2
 	//   POP D3
-	//   POP D6
 	//   GETDMAPINTRO D3 D2
 	internal void GetDMapIntro(int DMap, char32[] buffer);
 
@@ -1772,7 +1766,6 @@ class Game {
 	// @zasm
 	//   POP D2
 	//   POP D3
-	//   POP D6
 	//   SETDMAPINTRO D3 D2
 	internal void SetDMapIntro(int DMap, char32[] buffer);
 }
