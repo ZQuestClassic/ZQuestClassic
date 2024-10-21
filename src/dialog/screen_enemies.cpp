@@ -82,16 +82,7 @@ void ScreenEnemiesDialog::UpdatePreview()
 				? enemy.tysz - 1 : 0);
 		}
 		else
-		{
 			widgPrev->setDisabled(true);
-			widgPrev->setTile(0);
-			widgPrev->setCSet(0);
-			widgPrev->setFrames(0);
-			widgPrev->setSpeed(0);
-			widgPrev->setDelay(0);
-			widgPrev->setSkipX(0);
-			widgPrev->setSkipY(0);
-		}
 	}
 	widgPrev->setVisible(true);
 	widgPrev->setDoSized(true);
@@ -130,9 +121,8 @@ std::shared_ptr<GUI::Widget> ScreenEnemiesDialog::view()
 					fitParent = true,
 					onSelectFunc = [&](int32_t val)
 					{
-						//selectedValue = scr_enemies->getSelectedValue();
-						//selectedIndex = scr_enemies->getSelectedIndex();
-						message::SELECT;
+						selectedIndex = val;
+						UpdatePreview();
 					},
 					onDClick = message::EDIT
 				),
@@ -194,8 +184,6 @@ bool ScreenEnemiesDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 	{
 	case message::COPY:
 		copied_enemy_id = thescr->enemy[scr_enemies->getSelectedIndex()];
-		[[fallthrough]];
-	case message::SELECT:
 		UpdatePreview();
 		refresh = true;
 		break;

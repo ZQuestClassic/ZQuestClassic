@@ -434,19 +434,24 @@ void EnemyListerDialog::update()
 			selected_val, enemy.tile, enemy.s_tile,
 			enemy.e_tile, enemy.hp, enemy.dp, enemy.wdp, enemy.family, enemy.item_set, enemy.script, enemy.weaponscript,
 			copied_name));
-		widgPrev->setDisabled(false);
-		if (get_qr(qr_NEWENEMYTILES))
-			widgPrev->setTile(enemy.e_tile + efrontfacingtile(selected_val));
+		if(unsigned(selected_val) > 0)
+		{
+			widgPrev->setDisabled(false);
+			if (get_qr(qr_NEWENEMYTILES))
+				widgPrev->setTile(enemy.e_tile + efrontfacingtile(selected_val));
+			else
+				widgPrev->setTile(enemy.tile + efrontfacingtile(selected_val));
+			widgPrev->setCSet(enemy.cset & 0xF);
+			widgPrev->setFrames(0);
+			widgPrev->setSpeed(0);
+			widgPrev->setDelay(0);
+			widgPrev->setSkipX((enemy.SIZEflags & OVERRIDE_TILE_WIDTH)
+				? enemy.txsz - 1 : 0);
+			widgPrev->setSkipY((enemy.SIZEflags & OVERRIDE_TILE_HEIGHT)
+				? enemy.tysz - 1 : 0);
+		}
 		else
-			widgPrev->setTile(enemy.tile + efrontfacingtile(selected_val));
-		widgPrev->setCSet(enemy.cset & 0xF);
-		widgPrev->setFrames(0);
-		widgPrev->setSpeed(0);
-		widgPrev->setDelay(0);
-		widgPrev->setSkipX((enemy.SIZEflags & OVERRIDE_TILE_WIDTH)
-			? enemy.txsz - 1 : 0);
-		widgPrev->setSkipY((enemy.SIZEflags & OVERRIDE_TILE_HEIGHT)
-			? enemy.tysz - 1 : 0);
+			widgPrev->setDisabled(true);
 	}
 	else
 	{

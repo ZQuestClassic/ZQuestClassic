@@ -19,7 +19,7 @@ class ScreenEnemiesDialog : public GUI::Dialog<ScreenEnemiesDialog>
 public:
     enum class message
     {
-        REFR_INFO, COPY, PASTE, SELECT, EDIT, CLEAR, PASTEFROMSCREEN, FLAGS, PATTERN, OK, CANCEL
+        REFR_INFO, COPY, PASTE, EDIT, CLEAR, PASTEFROMSCREEN, FLAGS, PATTERN, OK, CANCEL
     };
 
     void RebuildList();
