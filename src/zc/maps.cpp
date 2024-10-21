@@ -3329,7 +3329,7 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, int32_t layer, mapscr* basesc
 			{
 				if(scrolling && (basescr->ffcs[i].flags & ffc_carryover) != 0 && tempscreen == 3)
 					continue; //If scrolling, only draw carryover ffcs from newscr and not oldscr,
-				basescr->ffcs[i].draw(bmp, -x, -y+playing_field_offset, (type==-4));
+				basescr->ffcs[i].draw_ffc(bmp, -x, -y+playing_field_offset, (type==-4));
 			}
 			
 			return;

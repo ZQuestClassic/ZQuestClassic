@@ -57,7 +57,7 @@ public:
     zfix shadowxofs,shadowyofs;
     // no hzofs - it's always equal to zofs.
     int32_t hzsz;
-    int32_t txsz,tysz;
+    int32_t txsz = -1, tysz = -1;
     /*
      * Explanation of hzsz:
      * Hzsz is how "tall" a sprite is.

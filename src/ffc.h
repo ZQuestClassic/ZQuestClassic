@@ -5,7 +5,7 @@
 #include "base/cpos_info.h"
 #include "base/flags.h"
 #include "base/zfix.h"
-#include "solidobject.h"
+#include "sprite.h"
 
 namespace flags {
 enum ffc_flags : uint32_t
@@ -51,13 +51,13 @@ enum ffc_flags : uint32_t
 //script = ffscript
 //ffwidth, ffheight?
 
-class ffcdata : public solid_object
+class ffcdata : public sprite
 {
 public:
 	zfix ax, ay;
 	ffc_flags flags;
 	word delay;
-	byte cset, link, txsz = 1, tysz = 1;
+	byte cset, link;
 	word script;
 	int32_t initd[INITIAL_D];
 	int32_t inita[INITIAL_A];
@@ -66,13 +66,13 @@ public:
 	word data;
 	
 	ffcdata() = default;
-	virtual ~ffcdata() = default;
 	virtual void solid_update(bool push = true) override;
 	// Note: If you use this to clear a ffc during gameplay, you must also call zc_ffc_set(ffc, 0)
 	void clear();
-	
-	void draw(BITMAP* dest, int32_t xofs, int32_t yofs, bool overlay);
-	
+
+	void draw(BITMAP* dest) override;
+	void draw_ffc(BITMAP* dest, int32_t xofs, int32_t yofs, bool overlay);
+
 	virtual bool setSolid(bool set) override;
 	virtual void updateSolid() override;
 	void setLoaded(bool set);
