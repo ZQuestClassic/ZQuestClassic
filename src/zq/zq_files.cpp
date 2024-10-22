@@ -2,6 +2,7 @@
 #include <stdio.h>
 
 #include "base/files.h"
+#include "base/misctypes.h"
 #include "base/qrs.h"
 #include "base/dmap.h"
 #include "base/packfile.h"
@@ -1350,6 +1351,7 @@ int32_t readzdoorsets(PACKFILE *f, int32_t first, int32_t count, int32_t deststa
 	int32_t zbuild = 0;
 	int32_t doorscount = 0;
 	DoorComboSet tempDoorComboSet;
+	std::string dcs_name;
 	memset(&tempDoorComboSet, 0, sizeof(DoorComboSet));
 	int32_t lastset = 0;
 	int32_t firstset = 0;
@@ -1428,10 +1430,13 @@ int32_t readzdoorsets(PACKFILE *f, int32_t first, int32_t count, int32_t deststa
 		//Clear per set
 		memset(&tempDoorComboSet, 0, sizeof(DoorComboSet));
 		//name
-		if(!pfread(&tempDoorComboSet.name,sizeof(tempDoorComboSet.name),f))
+		char name[21];
+		if(!pfread(&name,sizeof(name),f))
 		{
 			return 0;
 		}
+		dcs_name = name;
+
 		//up door
 		for(int32_t j=0; j<9; j++)
 		{
@@ -1600,6 +1605,7 @@ int32_t readzdoorsets(PACKFILE *f, int32_t first, int32_t count, int32_t deststa
 			}
 		}
 		memcpy(&DoorComboSets[i], &tempDoorComboSet, sizeof(tempDoorComboSet));
+		DoorComboSetNames[i] = dcs_name;
 	}
 	return ret;
 }
@@ -1663,7 +1669,10 @@ int32_t writezdoorsets(PACKFILE *f, int32_t first = 0, int32_t count = door_comb
         {
 		al_trace("Door writecycle %d\n", i);
 		//name
-		if(!pfwrite(&DoorComboSets[i].name,sizeof(DoorComboSets[0].name),f))
+		char name[21];
+		memset(name, 21, (char)0);
+		strcpy(name, DoorComboSetNames[i].c_str());
+		if(!pfwrite(name,sizeof(name),f))
 		{
 			return 0;
 		}
@@ -1883,10 +1892,14 @@ int32_t writeonezdoorset(PACKFILE *f, int32_t index)
 	
         {
 		//name
-		if(!pfwrite(&DoorComboSets[index].name,sizeof(DoorComboSets[0].name),f))
+		char name[21];
+		memset(name, 21, (char)0);
+		strcpy(name, DoorComboSetNames[index].c_str());
+		if(!pfwrite(name,sizeof(name),f))
 		{
 			return 0;
 		}
+
 		//up door
 		for(int32_t j=0; j<9; j++)
 		{
@@ -2069,6 +2082,7 @@ int32_t readonezdoorset(PACKFILE *f, int32_t index)
 	int32_t zbuild = 0;
 	int32_t doorscount = 0;
 	DoorComboSet tempDoorComboSet;
+	std::string dcs_name;
 	memset(&tempDoorComboSet, 0, sizeof(DoorComboSet));
 	int32_t firstset = 0;
 	int32_t last = 0;
@@ -2125,11 +2139,12 @@ int32_t readonezdoorset(PACKFILE *f, int32_t index)
 	{
 		//Clear per set
 		memset(&tempDoorComboSet, 0, sizeof(DoorComboSet));
-		//name
-		if(!pfread(&tempDoorComboSet.name,sizeof(tempDoorComboSet.name),f))
+		char name[21];
+		if(!pfread(&name,sizeof(name),f))
 		{
 			return 0;
 		}
+		dcs_name = name;
 		//up door
 		for(int32_t j=0; j<9; j++)
 		{
@@ -2298,6 +2313,7 @@ int32_t readonezdoorset(PACKFILE *f, int32_t index)
 			}
 		}
 		memcpy(&DoorComboSets[index], &tempDoorComboSet, sizeof(tempDoorComboSet));
+		DoorComboSetNames[index] = dcs_name;
 	}
 	return ret;
 }

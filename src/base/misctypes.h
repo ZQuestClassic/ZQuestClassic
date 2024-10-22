@@ -1,6 +1,8 @@
 #ifndef MISCTYPES_H_
 #define MISCTYPES_H_
 
+#include <array>
+
 #include "base/ints.h"
 #include "base/general.h"
 
@@ -9,7 +11,8 @@ enum {df_walktrans=0};
 
 struct DoorComboSet
 {
-	char name[21];
+	bool operator==(const DoorComboSet& o) const = default;
+
 	word doorcombo_u[9][4];                                   //[door type][door combo]
 	byte doorcset_u[9][4];                                    //[door type][door combo]
 	word doorcombo_d[9][4];                                   //[door type][door combo]
@@ -203,7 +206,8 @@ struct miscQdata
 	byte miscsfx[sfxMAX];
 };
 
-extern DoorComboSet *DoorComboSets;
+extern std::array<DoorComboSet, MAXDOORCOMBOSETS> DoorComboSets;
+extern std::array<std::string, MAXDOORCOMBOSETS> DoorComboSetNames;
 extern miscQdata QMisc;
 
 #endif
