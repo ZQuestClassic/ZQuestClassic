@@ -7045,21 +7045,22 @@ bool _handle_combo_move(ComboMoveProcess dest_process, optional<ComboMoveProcess
 		for(int32_t i=0; i<MAXDOORCOMBOSETS; i++)
 		{
 			auto& dcs = DoorComboSets[i];
+			auto& name = DoorComboSetNames[i];			
 			for(int32_t j=0; j<9; j++)
 			{
 				if(j<4)
 				{
-					ADDC(&dcs.walkthroughcombo[j], fmt::format("{} ({}): Walk-Through {}", i, dcs.name, j));
+					ADDC(&dcs.walkthroughcombo[j], fmt::format("{} ({}): Walk-Through {}", i, name, j));
 					
 					if(j<3)
 					{
 						if(j<2)
 						{
-							ADDC(&dcs.bombdoorcombo_u[j], fmt::format("{} ({}): Unused? bombdoorcombo_u {}", i, dcs.name, j));
-							ADDC(&dcs.bombdoorcombo_d[j], fmt::format("{} ({}): Unused? bombdoorcombo_d {}", i, dcs.name, j));
+							ADDC(&dcs.bombdoorcombo_u[j], fmt::format("{} ({}): Unused? bombdoorcombo_u {}", i, name, j));
+							ADDC(&dcs.bombdoorcombo_d[j], fmt::format("{} ({}): Unused? bombdoorcombo_d {}", i, name, j));
 						}
-						ADDC(&dcs.bombdoorcombo_l[j], fmt::format("{} ({}): Unused? bombdoorcombo_l {}", i, dcs.name, j));
-						ADDC(&dcs.bombdoorcombo_r[j], fmt::format("{} ({}): Unused? bombdoorcombo_r {}", i, dcs.name, j));
+						ADDC(&dcs.bombdoorcombo_l[j], fmt::format("{} ({}): Unused? bombdoorcombo_l {}", i, name, j));
+						ADDC(&dcs.bombdoorcombo_r[j], fmt::format("{} ({}): Unused? bombdoorcombo_r {}", i, name, j));
 					}
 				}
 				
@@ -7067,12 +7068,12 @@ bool _handle_combo_move(ComboMoveProcess dest_process, optional<ComboMoveProcess
 				{
 					if(k<4)
 					{
-						ADDC(&dcs.doorcombo_u[j][k], fmt::format("{} ({}): Top, {} #{}", i, dcs.name, door_names[j], k));
-						ADDC(&dcs.doorcombo_d[j][k], fmt::format("{} ({}): Bottom, {} #{}", i, dcs.name, door_names[j], k));
+						ADDC(&dcs.doorcombo_u[j][k], fmt::format("{} ({}): Top, {} #{}", i, name, door_names[j], k));
+						ADDC(&dcs.doorcombo_d[j][k], fmt::format("{} ({}): Bottom, {} #{}", i, name, door_names[j], k));
 					}
 					
-					ADDC(&dcs.doorcombo_l[j][k], fmt::format("{} ({}): Left, {} #{}", i, dcs.name, door_names[j], k));
-					ADDC(&dcs.doorcombo_r[j][k], fmt::format("{} ({}): Right, {} #{}", i, dcs.name, door_names[j], k));
+					ADDC(&dcs.doorcombo_l[j][k], fmt::format("{} ({}): Left, {} #{}", i, name, door_names[j], k));
+					ADDC(&dcs.doorcombo_r[j][k], fmt::format("{} ({}): Right, {} #{}", i, name, door_names[j], k));
 				}
 			}
 		}

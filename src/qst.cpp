@@ -1,4 +1,5 @@
 #include "allegro/file.h"
+#include "base/general.h"
 #include "base/util.h"
 #include "base/zapp.h"
 #include "base/qrs.h"
@@ -18,6 +19,7 @@
 #include <fmt/format.h>
 
 
+#include "fmt/core.h"
 #include "metadata/sigs/devsig.h.sig"
 #include "metadata/sigs/compilersig.h.sig"
 #include "metadata/versionsig.h"
@@ -1198,13 +1200,7 @@ int32_t get_qst_buffers()
 	for(auto q = 0; q < msg_strings_size; ++q)
 	{
 		MsgStrings[q].clear();
-	}
-    
-    
-    if((DoorComboSets=(DoorComboSet*)malloc(sizeof(DoorComboSet)*MAXDOORCOMBOSETS))==NULL)
-        return 0;
-        
-    
+	}   
     
     if((DMaps=new dmap[MAXDMAPS])==NULL)
         return 0;
@@ -1298,8 +1294,6 @@ void free_grabtilebuf()
 void del_qst_buffers()
 {
     if(MsgStrings) delete[] MsgStrings;
-    
-    if(DoorComboSets) free(DoorComboSets);
     
 	if (DMaps) delete[] DMaps;
     
@@ -1523,127 +1517,6 @@ void reset_scr(int32_t scr)
     
 }
 
-/*  For reference:
-
-  enum { qe_OK, qe_notfound, qe_invalid, qe_version, qe_obsolete,
-  qe_missing, qe_internal, qe_pwd, qe_match, qe_minver };
-  */
-
-int32_t operator ==(DoorComboSet a, DoorComboSet b)
-{
-    for(int32_t i=0; i<9; i++)
-    {
-        for(int32_t j=0; j<6; j++)
-        {
-            if(j<4)
-            {
-                if(a.doorcombo_u[i][j]!=b.doorcombo_u[i][j])
-                {
-                    return false;
-                }
-                
-                if(a.doorcset_u[i][j]!=b.doorcset_u[i][j])
-                {
-                    return false;
-                }
-                
-                if(a.doorcombo_d[i][j]!=b.doorcombo_d[i][j])
-                {
-                    return false;
-                }
-                
-                if(a.doorcset_d[i][j]!=b.doorcset_d[i][j])
-                {
-                    return false;
-                }
-            }
-            
-            if(a.doorcombo_l[i][j]!=b.doorcombo_l[i][j])
-            {
-                return false;
-            }
-            
-            if(a.doorcset_l[i][j]!=b.doorcset_l[i][j])
-            {
-                return false;
-            }
-            
-            if(a.doorcombo_r[i][j]!=b.doorcombo_r[i][j])
-            {
-                return false;
-            }
-            
-            if(a.doorcset_r[i][j]!=b.doorcset_r[i][j])
-            {
-                return false;
-            }
-        }
-        
-        if(i<2)
-        {
-            if(a.flags[i]!=b.flags[i])
-            {
-                return false;
-            }
-            
-            if(a.bombdoorcombo_u[i]!=b.bombdoorcombo_u[i])
-            {
-                return false;
-            }
-            
-            if(a.bombdoorcset_u[i]!=b.bombdoorcset_u[i])
-            {
-                return false;
-            }
-            
-            if(a.bombdoorcombo_d[i]!=b.bombdoorcombo_d[i])
-            {
-                return false;
-            }
-            
-            if(a.bombdoorcset_d[i]!=b.bombdoorcset_d[i])
-            {
-                return false;
-            }
-        }
-        
-        if(i<3)
-        {
-            if(a.bombdoorcombo_l[i]!=b.bombdoorcombo_l[i])
-            {
-                return false;
-            }
-            
-            if(a.bombdoorcset_l[i]!=b.bombdoorcset_l[i])
-            {
-                return false;
-            }
-            
-            if(a.bombdoorcombo_r[i]!=b.bombdoorcombo_r[i])
-            {
-                return false;
-            }
-            
-            if(a.bombdoorcset_r[i]!=b.bombdoorcset_r[i])
-            {
-                return false;
-            }
-        }
-        
-        if(a.walkthroughcombo[i]!=b.walkthroughcombo[i])
-        {
-            return false;
-        }
-        
-        if(a.walkthroughcset[i]!=b.walkthroughcset[i])
-        {
-            return false;
-        }
-    }
-    
-    return true;
-}
-
 int32_t doortranslations_u[9][4]=
 {
     {37,38,53,54},
@@ -1722,8 +1595,7 @@ int32_t MakeDoors(int32_t map, int32_t scr)
         return 0;
     }
     
-    DoorComboSet tempdcs;
-    memset(&tempdcs, 0, sizeof(DoorComboSet));
+    DoorComboSet tempdcs{};
     
     //up
     for(int32_t i=0; i<9; i++)
@@ -1826,11 +1698,16 @@ int32_t MakeDoors(int32_t map, int32_t scr)
             break;
         }
     }
-    
+
+    if (k >= DoorComboSets.size())
+    {
+        return 0;
+    }
+
     if(k==door_combo_set_count)
     {
         DoorComboSets[k]=tempdcs;
-        sprintf(DoorComboSets[k].name, "Door Combo Set %d", k);
+        DoorComboSetNames[k] = fmt::format("Door Combo Set {}", k);
         ++door_combo_set_count;
     }
     
@@ -4030,9 +3907,9 @@ int32_t readdoorcombosets(PACKFILE *f, zquestheader *Header)
     int32_t s_version = 0;
     
 	if (!should_skip)
-	for(int32_t i=0; i<MAXDOORCOMBOSETS; i++)
 	{
-		memset(DoorComboSets+i, 0, sizeof(DoorComboSet));
+		DoorComboSets = {};
+		DoorComboSetNames = {};
 	}
     
     if(Header->zelda_version > 0x192)
@@ -4074,10 +3951,13 @@ int32_t readdoorcombosets(PACKFILE *f, zquestheader *Header)
         memset(&tempDoorComboSet, 0, sizeof(DoorComboSet));
         
         //name
-        if(!pfread(&tempDoorComboSet.name,sizeof(tempDoorComboSet.name),f))
+		char name[21];
+        if(!pfread(&name,sizeof(name),f))
         {
             return qe_invalid;
         }
+		if (!should_skip)
+			DoorComboSetNames[i] = name;
         
         if(Header->zelda_version < 0x193)
         {
