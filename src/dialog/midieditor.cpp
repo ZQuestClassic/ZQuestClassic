@@ -321,6 +321,7 @@ bool MidiEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		[[fallthrough]];
 	case message::CANCEL:
 		{
+			zc_stop_midi();
 			return true;
 		}
 	}
