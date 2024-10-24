@@ -106,7 +106,8 @@ public:
 	int32_t pit_pullclk; // Pitfall pull clk
 	int32_t fallclk; // Pitfall fall clk
 	int32_t fallCombo; // Pitfall fallen combo
-	int32_t old_cset; // Storage var for an old cset; used by pitfalls
+	int32_t o_tile;
+	int32_t o_cset; // Storage var for an old cset; used by pitfalls
 	int32_t drownclk; // Pitfall fall clk
 	int32_t drownCombo; // Pitfall fallen combo
 	bool isspawning;
@@ -282,7 +283,7 @@ class portal : public sprite
 {
 public:
 	int32_t destdmap = -1, destscr, weffect, wsfx;
-    int32_t aclk, aframe, o_tile, aspd, frames;
+    int32_t aclk, aframe, aspd, frames;
 	int32_t saved_data;
 	bool prox_active;
 	portal();
@@ -295,7 +296,7 @@ public:
 class breakable : public sprite
 {
 public:
-    int32_t aclk, aframe, o_tile, aspd, frames;
+    int32_t aclk, aframe, aspd, frames;
 	newcombo const& cmb;
 	int32_t dropitem, breaktimer, fromdropset;
 	int8_t breaksprtype;

@@ -811,8 +811,6 @@ weapon::weapon(weapon const & other):
     wid(other.wid),			//word		ID
     aframe(other.aframe),		//word		Anim frame
     csclk(other.csclk),			//word		CSet flash clk (?)
-    o_tile(other.o_tile),		//int32_t		The base item tile
-    o_cset(other.o_cset),		//int32_t		The CSet		
     o_speed(other.o_speed),		//int32_t		Original anim (?) speed.
     o_type(other.o_type),		//int32_t		The weapon ID (type)
     frames(other.frames),		//int32_t		Frames of the anim cycle

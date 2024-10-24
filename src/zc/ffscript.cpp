@@ -15951,10 +15951,10 @@ void set_register(int32_t arg, int32_t value)
 			{
 				if(((weapon*)(s))->fallclk != 0 && value == 0)
 				{
-					((weapon*)(s))->cs = ((weapon*)(s))->old_cset;
+					((weapon*)(s))->cs = ((weapon*)(s))->o_cset;
 					((weapon*)(s))->tile = ((weapon*)(s))->o_tile;
 				}
-				else if(((weapon*)(s))->fallclk == 0 && value != 0) ((weapon*)(s))->old_cset = ((weapon*)(s))->cs;
+				else if(((weapon*)(s))->fallclk == 0 && value != 0) ((weapon*)(s))->o_cset = ((weapon*)(s))->cs;
 				((weapon*)(s))->fallclk = vbound(value/10000,0,70);
 			}
 			break;
@@ -15969,10 +15969,10 @@ void set_register(int32_t arg, int32_t value)
 			{
 				if(((weapon*)(s))->drownclk != 0 && value == 0)
 				{
-					((weapon*)(s))->cs = ((weapon*)(s))->old_cset;
+					((weapon*)(s))->cs = ((weapon*)(s))->o_cset;
 					((weapon*)(s))->tile = ((weapon*)(s))->o_tile;
 				}
-				else if(((weapon*)(s))->drownclk == 0 && value != 0) ((weapon*)(s))->old_cset = ((weapon*)(s))->cs;
+				else if(((weapon*)(s))->drownclk == 0 && value != 0) ((weapon*)(s))->o_cset = ((weapon*)(s))->cs;
 				((weapon*)(s))->drownclk = vbound(value/10000,0,70);
 			}
 			break;
@@ -16598,10 +16598,10 @@ void set_register(int32_t arg, int32_t value)
 			{
 				if(((weapon*)(s))->fallclk != 0 && value == 0)
 				{
-					((weapon*)(s))->cs = ((weapon*)(s))->old_cset;
+					((weapon*)(s))->cs = ((weapon*)(s))->o_cset;
 					((weapon*)(s))->tile = ((weapon*)(s))->o_tile;
 				}
-				else if(((weapon*)(s))->fallclk == 0 && value != 0) ((weapon*)(s))->old_cset = ((weapon*)(s))->cs;
+				else if(((weapon*)(s))->fallclk == 0 && value != 0) ((weapon*)(s))->o_cset = ((weapon*)(s))->cs;
 				((weapon*)(s))->fallclk = vbound(value/10000,0,70);
 			}
 			break;
@@ -16616,10 +16616,10 @@ void set_register(int32_t arg, int32_t value)
 			{
 				if(((weapon*)(s))->drownclk != 0 && value == 0)
 				{
-					((weapon*)(s))->cs = ((weapon*)(s))->old_cset;
+					((weapon*)(s))->cs = ((weapon*)(s))->o_cset;
 					((weapon*)(s))->tile = ((weapon*)(s))->o_tile;
 				}
-				else if(((weapon*)(s))->drownclk == 0 && value != 0) ((weapon*)(s))->old_cset = ((weapon*)(s))->cs;
+				else if(((weapon*)(s))->drownclk == 0 && value != 0) ((weapon*)(s))->o_cset = ((weapon*)(s))->cs;
 				((weapon*)(s))->drownclk = vbound(value/10000,0,70);
 			}
 			break;

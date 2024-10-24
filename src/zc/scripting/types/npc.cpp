@@ -2323,10 +2323,10 @@ bool npc_set_register(int32_t reg, int32_t value)
 			{
 				if(GuyH::getNPC()->fallclk != 0 && value == 0)
 				{
-					GuyH::getNPC()->cs = GuyH::getNPC()->old_cset;
+					GuyH::getNPC()->cs = GuyH::getNPC()->o_cset;
 					GuyH::getNPC()->tile = GuyH::getNPC()->o_tile;
 				}
-				else if(GuyH::getNPC()->fallclk == 0 && value != 0) GuyH::getNPC()->old_cset = GuyH::getNPC()->cs;
+				else if(GuyH::getNPC()->fallclk == 0 && value != 0) GuyH::getNPC()->o_cset = GuyH::getNPC()->cs;
 				GuyH::getNPC()->fallclk = vbound(value/10000,0,70);
 			}
 			break;
@@ -2341,10 +2341,10 @@ bool npc_set_register(int32_t reg, int32_t value)
 			{
 				if(GuyH::getNPC()->drownclk != 0 && value == 0)
 				{
-					GuyH::getNPC()->cs = GuyH::getNPC()->old_cset;
+					GuyH::getNPC()->cs = GuyH::getNPC()->o_cset;
 					GuyH::getNPC()->tile = GuyH::getNPC()->o_tile;
 				}
-				else if(GuyH::getNPC()->drownclk == 0 && value != 0) GuyH::getNPC()->old_cset = GuyH::getNPC()->cs;
+				else if(GuyH::getNPC()->drownclk == 0 && value != 0) GuyH::getNPC()->o_cset = GuyH::getNPC()->cs;
 				GuyH::getNPC()->drownclk = vbound(value/10000,0,70);
 			}
 			break;

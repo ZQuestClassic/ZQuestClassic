@@ -1123,10 +1123,10 @@ bool item_set_register(int32_t reg, int32_t value)
 			{
 				if(s->fallclk != 0 && value == 0)
 				{
-					s->cs = s->old_cset;
+					s->cs = s->o_cset;
 					s->tile = s->o_tile;
 				}
-				else if(s->fallclk == 0 && value != 0) s->old_cset = s->cs;
+				else if(s->fallclk == 0 && value != 0) s->o_cset = s->cs;
 				s->fallclk = vbound(value/10000,0,70);
 			}
 			break;
@@ -1141,10 +1141,10 @@ bool item_set_register(int32_t reg, int32_t value)
 			{
 				if(s->drownclk != 0 && value == 0)
 				{
-					s->cs = s->old_cset;
+					s->cs = s->o_cset;
 					s->tile = s->o_tile;
 				}
-				else if(s->drownclk == 0 && value != 0) s->old_cset = s->cs;
+				else if(s->drownclk == 0 && value != 0) s->o_cset = s->cs;
 				s->drownclk = vbound(value/10000,0,70);
 			}
 			break;

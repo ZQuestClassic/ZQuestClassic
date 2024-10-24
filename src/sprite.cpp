@@ -73,7 +73,7 @@ sprite::sprite(): solid_object()
 	pit_pullclk = 0;
 	fallclk = 0;
 	fallCombo = 0;
-	old_cset = 0;
+	o_cset = 0;
 	drownclk = 0;
 	drownCombo = 0;
 	
@@ -149,7 +149,7 @@ sprite::sprite(sprite const & other):
 	script_knockback_speed(other.script_knockback_speed),
 	pit_pulldir(other.pit_pulldir), pit_pullclk(other.pit_pullclk),
 	fallclk(other.fallclk), fallCombo(other.fallCombo),
-	old_cset(other.old_cset), drownclk(other.drownclk),
+	o_tile(other.o_tile), o_cset(other.o_cset), drownclk(other.drownclk),
 	drownCombo(other.drownCombo), can_flicker(other.can_flicker),
 	spr_shadow(other.spr_shadow), spr_death(other.spr_death),
 	spr_spawn(other.spr_spawn), spr_death_anim_clk(other.spr_death_anim_clk),
@@ -237,7 +237,7 @@ sprite::sprite(zfix X,zfix Y,int32_t T,int32_t CS,int32_t F,int32_t Clk,int32_t 
     pit_pullclk = 0;
     fallclk = 0;
     fallCombo = 0;
-    old_cset = 0;
+    o_cset = 0;
     drownclk = 0;
     drownCombo = 0;
     drawflags = 0;
@@ -439,7 +439,7 @@ int32_t sprite::check_pits() //Returns combo ID of pit fallen into; 0 for not fa
 			{
 				fallclk = PITFALL_FALL_FRAMES; //Fall
 				has_fallen = true;
-				old_cset = cs;
+				o_cset = cs;
 				return ispitul_50 ? ispitul_50 : ispitul;
 			}
 			case 3:
@@ -580,7 +580,7 @@ int32_t sprite::check_pits() //Returns combo ID of pit fallen into; 0 for not fa
 	{
 		int32_t old_fall = fallclk; //sanity check
 		fallclk = PITFALL_FALL_FRAMES;
-		old_cset = cs;
+		o_cset = cs;
 		if(ispitul_50) return ispitul_50;
 		if(ispitur_50) return ispitur_50;
 		if(ispitbl_50) return ispitbl_50;
@@ -695,7 +695,7 @@ int32_t sprite::check_water() //Returns combo ID of water fallen into; 0 for not
 			case 4:
 			{
 				drownclk = WATER_DROWN_FRAMES; //Fall
-				old_cset = cs;
+				o_cset = cs;
 				return ispitul_50 ? ispitul_50 : ispitul;
 			}
 			case 3:
@@ -836,7 +836,7 @@ int32_t sprite::check_water() //Returns combo ID of water fallen into; 0 for not
 	{
 		int32_t old_drown = drownclk; //sanity check
 		drownclk = WATER_DROWN_FRAMES;
-		old_cset = cs;
+		o_cset = cs;
 		if(ispitul_50) return ispitul_50;
 		if(ispitur_50) return ispitur_50;
 		if(ispitbl_50) return ispitbl_50;

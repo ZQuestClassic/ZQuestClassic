@@ -70,7 +70,7 @@ public:
     char PriceIndex;
     bool flash,twohand,anim, subscreenItem;
     bool dummy;
-    int32_t o_tile,o_cset, o_speed, o_delay, frames;
+    int32_t o_speed, o_delay, frames;
     int32_t fairyUID;
     word pstring; //pickup string
     word pickup_string_flags;
