@@ -5223,14 +5223,12 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 			else
 			{
 				FFCore.deallocateAllScriptOwned(ScriptType::FFC, i, false);
-				memset(ffmisc[i], 0, 16 * sizeof(int32_t));
 				FFCore.reset_script_engine_data(ScriptType::FFC, i);
 			}
 		}
 		for(word i = c; i < MAXFFCS; i++)
 		{
 			FFCore.deallocateAllScriptOwned(ScriptType::FFC, i, false);
-			memset(ffmisc[i], 0, 16 * sizeof(int32_t));
 			FFCore.reset_script_engine_data(ScriptType::FFC, i);
 		}
 	}

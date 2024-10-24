@@ -1524,8 +1524,6 @@ static bool set_current_script_engine_data(ScriptType type, int script, int inde
 	return got_initialized;
 }
 
-int32_t ffmisc[MAXFFCS][16];
-
 int32_t genscript_timing = SCR_TIMING_START_FRAME;
 static word max_valid_genscript;
 
@@ -2748,7 +2746,7 @@ int32_t get_register(int32_t arg)
 			else
 			{
 				if(BC::checkFFC(ri->ffcref, "ffc->Misc[]") == SH::_NoError)
-					ret = ffmisc[ri->ffcref][a];
+					ret = FFC_GET(miscellaneous[a]);
 			}
 		}
 		break;
@@ -13185,7 +13183,7 @@ void set_register(int32_t arg, int32_t value)
 				ffcdata& ffc = tmpscr->getFFC(ri->ffcref);
 				ffc.script = vbound(value/10000, 0, NUMSCRIPTFFC-1);
 				for(int32_t i=0; i<16; i++)
-					ffmisc[ri->ffcref][i] = 0;
+					ffc.miscellaneous[i] = 0;
 				if (get_qr(qr_CLEARINITDONSCRIPTCHANGE))
 				{
 					for(int32_t i=0; i<2; i++)
@@ -13283,7 +13281,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			int32_t a = vbound(ri->d[rINDEX]/10000,0,15);
 			if(BC::checkFFC(ri->ffcref, "ffc->Misc[]")== SH::_NoError)
-				ffmisc[ri->ffcref][a]=value;
+				tmpscr->getFFC(ri->ffcref).miscellaneous[a]=value;
 			break;
 		}
 		
