@@ -8,6 +8,8 @@ Pass 4: Analyzing Code
 Pass 5: Checking code paths
 Pass 6: Generating object code
 Pass 7: Assembling
+Debug: could not resolve symbol "ffc->Data"
+Debug: could not resolve symbol "player->ScriptCSet"
 Success!
 Compile finished with exit code '0' (success)
 
@@ -36,13 +38,19 @@ PUSHR D2
 POP D2
 SETR LINKHP D2
 PUSHR D4; while(true) #2 Body [Opt:AlwaysOn] Start
-SETR D2 LINKX; UsrFunc[int ComboAt(int, int)] Params Start
+SETV D2 0.0001; UsrFunc[int ComboAt(int, int)] Params Start
+PUSHR D2
+POP REFSPRITE
+SETR D2 SPRITE_X
 ADDV D2 8
 PUSHR D2
-SETR D2 LINKY
+SETV D2 0.0001
+PUSHR D2
+POP REFSPRITE
+SETR D2 SPRITE_Y
 ADDV D2 8
 PUSHR D2; UsrFunc[int ComboAt(int, int)] Params End
-CALLFUNC 0.0076; UsrFunc[int ComboAt(int, int)] Call
+CALLFUNC 0.0106; UsrFunc[int ComboAt(int, int)] Call
 POP D4
 STORE D2 0
 LOAD D2 0; if() #447 Test
@@ -55,7 +63,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 44 ==; Test 'if'
+GOTOCMP 50 ==; Test 'if'
 LOAD D2 0; if() #447 Body Start
 PUSHR D2
 POP D0
@@ -70,13 +78,25 @@ SETR COMBODD D2
 LOAD D2 0.0002; InlineFunc[void Audio::PlaySound(int)] Params
 PLAYSOUNDR D2; InlineFunc[void Audio::PlaySound(int)] Body AND if() #447 Body End
 PUSHV 6; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start
-PUSHR LINKX
-SETR D2 LINKY
+SETV D2 0.0001
+PUSHR D2
+POP REFSPRITE
+PUSHR SPRITE_X
+SETV D2 0.0001
+PUSHR D2
+POP REFSPRITE
+SETR D2 SPRITE_Y
 SUBV D2 16
 PUSHR D2
-PUSHR LINKTILE
+SETV D2 0.0001
+PUSHR D2
+POP REFSPRITE
+PUSHR SPRITE_TILE
 PUSHARGSV 1 0.0002
-PUSHR LINKCSET
+SETV D2 0.0001
+PUSHR D2
+POP REFSPRITE
+PUSHR SPRITE_CSET
 PUSHARGSV -1 0.0002
 PUSHARGSV 0 0.0004
 PUSHV 1
@@ -85,13 +105,25 @@ DRAWTILER; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, in
 POPARGS D5 0.0015; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
 WAITDRAW; InlineFunc[void Waitdraw()] Body
 PUSHV 6; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start
-PUSHR LINKX
-SETR D2 LINKY
+SETV D2 0.0001
+PUSHR D2
+POP REFSPRITE
+PUSHR SPRITE_X
+SETV D2 0.0001
+PUSHR D2
+POP REFSPRITE
+SETR D2 SPRITE_Y
 ADDV D2 16
 PUSHR D2
-PUSHR LINKTILE
+SETV D2 0.0001
+PUSHR D2
+POP REFSPRITE
+PUSHR SPRITE_TILE
 PUSHARGSV 1 0.0002
-PUSHR LINKCSET
+SETV D2 0.0001
+PUSHR D2
+POP REFSPRITE
+PUSHR SPRITE_CSET
 PUSHARGSV -1 0.0002
 PUSHARGSV 0 0.0003
 PUSHV 2
@@ -107,7 +139,7 @@ LOAD D2 0.0001; UsrFunc[int VBound(int, int, int)] Params Start
 PUSHR D2
 PUSHV 255
 PUSHV 0; UsrFunc[int VBound(int, int, int)] Params End
-CALLFUNC 0.0102; UsrFunc[int VBound(int, int, int)] Call
+CALLFUNC 0.0132; UsrFunc[int VBound(int, int, int)] Call
 POP D4
 STORE D2 0.0001
 PUSHR D4
@@ -115,7 +147,7 @@ LOAD D2 0; UsrFunc[int VBound(int, int, int)] Params Start
 PUSHR D2
 PUSHV 175
 PUSHV 0; UsrFunc[int VBound(int, int, int)] Params End
-CALLFUNC 0.0102; UsrFunc[int VBound(int, int, int)] Call
+CALLFUNC 0.0132; UsrFunc[int VBound(int, int, int)] Call
 POP D4
 STORE D2 0
 LOAD D2 0; return Start
@@ -135,10 +167,10 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 114 ==; Test 'if'
+GOTOCMP 144 ==; Test 'if'
 LOAD D2 0; if() #133 Body Start
 STORE D2 0.0002
-GOTO 124; if() #133 Body End
+GOTO 154; if() #133 Body End
 LOAD D2 0.0002; if() #355 Test AND if() #133 Else Start
 PUSHR D2
 LOAD D2 0.0001
@@ -146,7 +178,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I>
 COMPAREV D2 0
-GOTOCMP 124 ==; Test 'if'
+GOTOCMP 154 ==; Test 'if'
 LOAD D2 0.0001; if() #355 Body Start
 STORE D2 0.0002; if() #355 Body End
 LOAD D2 0.0002; if() #133 Else End AND return Start

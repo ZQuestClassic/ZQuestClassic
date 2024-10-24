@@ -1502,7 +1502,7 @@ void script_init_name_to_slot_index_maps();
 
 int32_t get_register(int32_t arg);
 void set_register(int32_t arg, int32_t value);
-int32_t run_script(ScriptType type, const word script, const int32_t i = -1); //Global scripts don't need 'i'
+int32_t run_script(ScriptType type, word script, int32_t i = -1); //Global scripts don't need 'i'
 int32_t ffscript_engine(const bool preload);
 
 int32_t get_own_i(ScriptType type);

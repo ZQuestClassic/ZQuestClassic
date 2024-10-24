@@ -1065,8 +1065,9 @@ void SemanticAnalyzer::caseClass(ASTClass& host, void* param)
 
 	// Recurse on user_class elements with its scope.
 	scope = &user_class.getScope();
+	auto prev_scope = scope;
 	RecursiveVisitor::caseClass(host,param);
-	scope = scope->getParent();
+	scope = prev_scope;
 	if (breakRecursion(host)) return;
 	//
 	if(!host.constructors.size())
@@ -1330,7 +1331,7 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 		}
 		
 		vector<DataType const*>& paramTypes = host.readFunction->paramTypes;
-		if (paramTypes.size() != ((host.index && !host.arrayFunction) ? 2 : 1) || *paramTypes[0] != *leftType)
+		if (paramTypes.size() != ((host.index && !host.arrayFunction) ? 2 : 1) || !leftType->canCastTo(*paramTypes[0]))
 		{
 			handleError(
 					CompileError::ArrowNoVar(
@@ -1351,7 +1352,7 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 		if(host.arrayFunction)
 		{
 			vector<DataType const*>& paramTypes = host.arrayFunction->paramTypes;
-			if (paramTypes.size() != 1 || *paramTypes[0] != *leftType)
+			if (paramTypes.size() != 1 || !leftType->canCastTo(*paramTypes[0]))
 			{
 				handleError(
 						CompileError::ArrowNoVar(
@@ -1374,8 +1375,7 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 				return;
 			}
 			vector<DataType const*>& paramTypes = host.writeFunction->paramTypes;
-			if (paramTypes.size() != (host.index ? 3 : 2)
-				|| *paramTypes[0] != *leftType)
+			if (paramTypes.size() != (host.index ? 3 : 2) || !leftType->canCastTo(*paramTypes[0]))
 			{
 				handleError(
 						CompileError::ArrowNoVar(

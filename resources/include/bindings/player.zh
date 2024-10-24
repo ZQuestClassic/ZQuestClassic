@@ -1,3 +1,5 @@
+#include "bindings/sprite.zh"
+
 enum PlayerSliding
 {
 	SLD_NONE,
@@ -8,24 +10,10 @@ enum PlayerSliding
 	SLD_MAX
 };
 
+// @extends sprite
 class player {
 	// @delete
 	internal player();
-
-	// @zasm_var LINKX
-	internal int X;
-
-	// @zasm_var LINKY
-	internal int Y;
-
-	// @zasm_var LINKZ
-	internal int Z;
-
-	// @zasm_var LINKJUMP
-	internal int Jump;
-
-	// @zasm_var LINKDIR
-	internal int Dir;
 
 	// @zasm_var LINKHITDIR
 	internal int HitDir;
@@ -126,25 +114,8 @@ class player {
 	// @zasm_var HERONOSTEPFORWARD
 	internal bool NoStepForward;
 
-	// Normally 'true'. If enabled, the player sprite is animated by the ZC
-	// engine.
-	//
-	// Set this false to disable engine animation.
-	//
-	// @zasm_var LINKENGINEANIMATE
-	internal bool Animation;
-
 	// @zasm_var LINKINVINC
 	internal bool CollDetection;
-
-	// Expanded from a size of [16] to [32]. An array of 32 miscellaneous
-	// variables for you to use as you please.
-	//
-	// The Misc[] array now supports all datatypes, and has been expanded to a
-	// size of [32].
-	//
-	// @zasm_var LINKMISCD
-	internal untyped Misc[];
 
 	// Unused at this time.
 	//
@@ -161,12 +132,6 @@ class player {
 
 	// @zasm_var LINKLADDERY
 	internal const int LadderY;
-
-	// @zasm_var LINKTILE
-	internal int Tile;
-
-	// @zasm_var LINKFLIP
-	internal int Flip;
 
 	// This returns how long Link will remain invincible, 0 if not invincible.
 	// Can be set.
@@ -250,18 +215,6 @@ class player {
 	// @zasm_var HEROSCRIPTCSET
 	internal int ScriptCSet;
 
-	// If this is > 0, then Link will be drawn using this tile ID.
-	//
-	// The specific tile is drawn. This is not an offset, nor OTile.
-	//
-	// @zasm_var LINKSCRIPTTILE
-	internal int ScriptTile;
-
-	// If this is > 0, then Link's tile will be drawn using this flip value.
-	//
-	// @zasm_var LINKSCRIPFLIP
-	internal int ScriptFlip;
-
 	// This corresponds to whether 'Diagonal Movement' is enabled, or not.
 	//
 	// @zasm_var LINKDIAG
@@ -271,28 +224,6 @@ class player {
 	//
 	// @zasm_var LINKBIGHITBOX
 	internal bool BigHitbox;
-
-	// If set true (the default), the hero falls in sideview gravity.
-	//
-	// @zasm_var LINKGRAVITY
-	internal bool Gravity;
-
-	// The rotation factor for this sprited object, in degrees.
-	//
-	// You can only rotate sprites if you disable the Compatibility Quest rule
-	//
-	// @zasm_var LINKROTATION
-	internal int Rotation;
-
-	// The scale factor for this sprited object.
-	// Scale values are a multiplier: 1.5 == 50% larger (150%).
-	// A scale of 0 and a scale of 1 are identical.
-	// Negative values are undefined.
-	//
-	// You can only scale sprites if you disable the Compatibility Quest rule
-	//
-	// @zasm_var LINKSCALE
-	internal int Scale;
 
 	// Returns as 'true' when the hero is climbing a sideview ladder
 	//
@@ -331,40 +262,6 @@ class player {
 	// @zasm_var HEROPULLCLK
 	internal int PitPullTimer;
 
-	// The timer indicating how long left the Hero will be falling
-	// If 0, the Hero is not falling
-	// Max value of 70, which is the value when you begin falling
-	// Writing 'Hero->Action = LA_FALLING' is identical to setting this to 70.
-	//
-	// @zasm_var HEROFALLCLK
-	internal int Falling;
-
-	// The pit combo that the Hero is falling into.
-	//
-	// If non-zero, this combo's attributes will affect things such as if the
-	// Hero will warp, and how much damage they will take upon finishing
-	// falling.
-	//
-	// If 0, the Hero will take 1/4 heart of damage, and not warp.
-	//
-	// Setting [Action] to `LA_FALLING` will overwrite this value.
-	//
-	// Setting [Falling] will overwrite this value.
-	//
-	// @zasm_var HEROFALLCMB
-	internal int FallCombo;
-
-	// Flags relating to movement.
-	//
-	// See 'HEROMV_' constants in std_constants.zh for values
-	//
-	// [0] == Obeys gravity (see ->Gravity)
-	//
-	// [1] == Can fall in pitfalls
-	//
-	// @zasm_var HEROMOVEFLAGS
-	internal bool MoveFlags[];
-
 	// Returns true if a stopwatch/clock is active.
 	//
 	// Writing to this acts like picking up a stopwatch/clock item, and sets the
@@ -385,16 +282,6 @@ class player {
 	//
 	// @zasm_var CLOCKCLK
 	internal int ClockTimer;
-
-	// Returns the current CSet used to draw the player sprite.
-	//
-	// This normally only changes when the player is hurt, and flashing.
-	//
-	// Writing to this is permitted, but it will be overwritten on the next
-	// frame.
-	//
-	// @zasm_var LINKCSET
-	internal int CSet;
 
 	// Returns true if the player is currently being warped
 	//
@@ -463,40 +350,6 @@ class player {
 	//
 	// @zasm_var HEROIMMORTAL
 	internal int Immortal;
-
-	// @zasm_var HERODROWNCLK
-	internal int Drowning;
-
-	// @zasm_var HERODROWNCMB
-	internal int DrownCombo;
-
-	// Current FakeZ position. This value is treated as a second, separate Z
-	// axis;
-	//
-	// Sprites will be offset upwards by this amount when drawn just like the Z
-	// axis and shadows will draw if applicable.
-	//
-	// However, the sprite's hitbox will not be moved upwards into the Z Axis;
-	// instead it will be moved upwards on the Y axis, mimicking how Vires and
-	// Pols Voice worked in the original Zelda.
-	//
-	// This value is affected by FakeJump instead of Jump.
-	//
-	// @zasm_var HEROFAKEZ
-	internal int FakeZ;
-
-	// The current velocity on the FakeZ axis. This value is added to FakeZ
-	// every frame; and this value is decreased by the gravity value until it is
-	// lower than the terminal velocity value.
-	//
-	// @zasm_var HEROFAKEJUMP
-	internal int FakeJump;
-
-	// @zasm_var HEROSHADOWXOFS
-	internal int ShadowXOffset;
-
-	// @zasm_var HEROSHADOWYOFS
-	internal int ShadowYOffset;
 
 	// Returns true if the hero is 'standing', as is used to check if they are
 	// capable of jumping. Automatically accounts for sideview.
@@ -765,48 +618,8 @@ class player {
 	// @zasm_var INPUTPRESSMAP
 	internal bool PressMap;
 
-	// Link's Hitbox width in pixels starting from his x0,y0 (upper-left)
-	// corner, going right.
-	//
-	// @zasm_var LINKHXSZ
-	internal int HitWidth;
-
-	// link's Hitbox height in pixels starting from his 0x,0y (upper-left)
-	// corner, going down.
-	//
-	// @zasm_var LINKHYSZ
-	internal int HitHeight;
-
-	// @zasm_var LINKHZSZ
-	internal int HitZHeight;
-
-	// @zasm_var LINKTXSZ
-	internal int TileWidth;
-
-	// @zasm_var LINKTYSZ
-	internal int TileHeight;
-
-	// @zasm_var LINKXOFS
-	internal int DrawXOffset;
-
-	// @zasm_var LINKYOFS
-	internal int DrawYOffset;
-
 	// @zasm_var HEROTOTALDYOFFS
 	internal const int TotalDYOffset;
-
-	// @zasm_var LINKZOFS
-	internal int DrawZOffset;
-
-	// The X offset of Link's hitbox, or collision rectangle.
-	//
-	// @zasm_var LINKHXOFS
-	internal int HitXOffset;
-
-	// The Y offset of Link's hitbox, or collision rectangle.
-	//
-	// @zasm_var LINKHYOFS
-	internal int HitYOffset;
 
 	// Link->Equipment is now read-write, and needs testing.
 	//
@@ -1049,8 +862,12 @@ class player {
 	internal int GetOriginalFlip(int arg1, int arg2);
 }
 
-internal const player Hero;
-internal const player Link;	  // @deprecated Use Hero->
-internal const player Player; // @deprecated Use Hero->
+// 1 is the sprite uid for Hero.
+const player Hero = <player>1L;
+// @deprecated Use Hero->
+const player Link = <player>1L;
+// @deprecated Use Hero->
+const player Player = <player>1L;
+
 script typedef player link;
 script typedef player hero;

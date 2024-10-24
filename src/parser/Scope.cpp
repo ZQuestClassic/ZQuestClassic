@@ -2333,9 +2333,16 @@ void ClassScope::parse_ucv()
 
 UserClassVar* ClassScope::getClassVar(std::string const& name)
 {
-	if (std::optional<UserClassVar*> var = find<UserClassVar*>(classData_, name))
+	if (auto var = find<UserClassVar*>(classData_, name))
 	{
 		return *var;
+	}
+	if (user_class.getParentClass())
+	{
+		if (auto var = user_class.getParentClass()->getScope().getClassVar(name))
+		{
+			return var;
+		}
 	}
 	return nullptr;
 }

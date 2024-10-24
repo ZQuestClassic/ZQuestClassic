@@ -1,4 +1,7 @@
+#include "bindings/sprite.zh"
+
 // @zasm_ref REFFFC
+// @extends sprite
 class ffc {
 	// @delete
 	internal ffc();
@@ -13,21 +16,10 @@ class ffc {
 	// @zasm_var FFSCRIPT
 	internal int Script;
 
-	// The CSet the FFC displays in.
-	//
-	// @zasm_var CSET
-	internal int CSet;
-
 	// The time in frames before the FFC will begin moving.
 	//
 	// @zasm_var DELAY
 	internal int Delay;
-
-	// @zasm_var X
-	internal int X;
-
-	// @zasm_var Y
-	internal int Y;
 
 	// X velocity.
 	//
@@ -52,20 +44,6 @@ class ffc {
 	// @zasm_var FFFLAGSD
 	internal bool Flags[];
 
-	// The visual width, in tiles (1 to 4), of the FFC. The tile set by its
-	// combo will be the upper-left tile, with the rest drawn as a tile block
-	// from there.
-	//
-	// @zasm_var FFTWIDTH
-	internal int TileWidth;
-
-	// The visual height, in tiles (1 to 4), of the FFC. The tile set by its
-	// combo will be the upper-left tile, with the rest drawn as a tile block
-	// from there.
-	//
-	// @zasm_var FFTHEIGHT
-	internal int TileHeight;
-
 	// The hitbox width, in pixels (1 to 64), of the FFC. Unless the FFC is
 	// [ffc::Flags], the type of its combo will affect this area. NOTE: Not all
 	// combo types function when placed on FFCs.
@@ -84,11 +62,6 @@ class ffc {
 	//
 	// @zasm_var FFLINK
 	internal int Link;
-
-	// A miscellaneous data array, for script use.
-	//
-	// @zasm_var FFMISCD
-	internal untyped Misc[];
 
 	// The 8 InitD[] parameters for the FFC's script.
 	//

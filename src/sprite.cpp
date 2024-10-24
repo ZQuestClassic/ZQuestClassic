@@ -29,6 +29,7 @@ extern bool show_hitboxes;
 extern void debugging_box(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
 #include "zc/ffscript.h"
 
+static std::map<int32_t, sprite*> all_sprites;
 byte sprite_flicker_color = 0;
 byte sprite_flicker_transp_passes = 0;
 
@@ -48,7 +49,8 @@ fixed rad_to_fixed(T d)
 
 sprite::sprite(): solid_object()
 {
-    uid = getNextUID();
+    uid = 0;
+	all_sprites[uid] = this;
 	isspawning = false;
     x=y=z=tile=shadowtile=cs=flip=c_clk=clk=xofs=yofs=shadowxofs=shadowyofs=zofs=fall=fakefall=fakez=0;
     slopeid = 0;
@@ -159,7 +161,8 @@ sprite::sprite(sprite const & other):
 	glowRad(other.glowRad), glowShape(other.glowShape),
 	ignore_delete(other.ignore_delete)
 {
-    uid = getNextUID();
+    uid = 0;
+	all_sprites[uid] = this;
 	isspawning = other.isspawning;
     
     for(int32_t i=0; i<10; ++i)
@@ -192,7 +195,8 @@ sprite::sprite(zfix X,zfix Y,int32_t T,int32_t CS,int32_t F,int32_t Clk,int32_t 
 {
 	x = X;
 	y = Y;
-    uid = getNextUID();
+    uid = 0;
+	all_sprites[uid] = this;
     isspawning = false;
     slopeid = 0;
     onplatid = 0;
@@ -270,6 +274,7 @@ sprite::sprite(zfix X,zfix Y,int32_t T,int32_t CS,int32_t F,int32_t Clk,int32_t 
 sprite::~sprite()
 {
 	#ifdef IS_PLAYER
+	all_sprites.erase(uid);
 	if(auto scrty = get_scrtype())
 	{
 		FFCore.clear_script_engine_data(*scrty, getUID());
@@ -277,15 +282,33 @@ sprite::~sprite()
 	#endif
 }
 
-static int32_t nextid = 0;
-int32_t sprite::getNextUID()
+// 0 is an unassigned uid.
+// 1 is reserved for Hero.
+static int32_t next_uid = 2;
+
+sprite* sprite::getByUID(int32_t uid)
 {
-	return nextid++;
+#ifdef IS_PLAYER
+	if (uid == 1)
+		return &Hero;
+#endif
+
+	auto it = all_sprites.find(uid);
+    return it == all_sprites.end() ? nullptr : it->second;
 }
-void sprite::unget_UID()
+void sprite::registerUID()
 {
-	if(uid == nextid-1)
-		--nextid;
+	if (!uid)
+		uid = next_uid++;
+
+	all_sprites.erase(uid);
+	all_sprites[uid] = this;
+}
+void sprite::reassignUid(int32_t new_uid)
+{
+	all_sprites.erase(uid);
+	uid = new_uid;
+	all_sprites[uid] = this;
 }
 
 void sprite::draw2(BITMAP *)                            // top layer for special needs
@@ -2070,6 +2093,7 @@ bool sprite_list::add(sprite *s)
         return false;
     }
     
+    s->registerUID();
     containedUIDs[s->getUID()] = count;
     sprites[count++]=s;
     //checkConsistency();
@@ -2109,7 +2133,6 @@ gotit:
     
     --count;
     if(j<=active_iterator) --active_iterator;
-    //checkConsistency();
     return true;
 }
 

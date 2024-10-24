@@ -52,6 +52,14 @@ void mapscr::zero_memory()
 	*this = mapscr();
 }
 
+void mapscr::resizeFFC(size_t size)
+{
+	if (size > 0)
+		getFFC(size - 1);
+	else
+		ffcs.clear();
+}
+
 void mapscr::ensureFFC(size_t ind)
 {
 	getFFC(ind);
@@ -64,10 +72,20 @@ ffcdata& mapscr::getFFC(size_t ind)
 	if (ind < ffcs.size())
 		return ffcs[ind];
 
+	size_t prev = ffcs.size();
+	int32_t uids[MAXFFCS];
+	for (size_t i = 0; i < prev; i++)
+		uids[i] = ffcs[i].uid;
+
 	// ffc_count_dirty does not need to be set because `data` is still zero, so the count
-	// won't have changed. Only need to mark it dirty when `data`
-	// changes (handled in `screen_ffc_modify_postroutine`).
+	// won't have changed. Only need to mark it dirty when `data` changes (handled in
+	// `screen_ffc_modify_postroutine`).
 	ffcs.resize(ind + 1);
+	for (size_t i = 0; i < prev; i++)
+		if (uids[i]) ffcs[i].reassignUid(uids[i]);
+	for (size_t i = prev; i < ffcs.size(); i++)
+		ffcs[i].index = i;
+
 	return ffcs[ind];
 }
 

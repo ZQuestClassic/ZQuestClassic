@@ -1,3 +1,5 @@
+#include "bindings/sprite.zh"
+
 enum NpcType
 {
 	NPCT_GUY,
@@ -255,18 +257,10 @@ enum NpcFade
 };
 
 // @zasm_ref REFNPC
+// @extends sprite
 class npc {
 	// @delete
 	internal npc();
-
-	// @zasm_var NPCX
-	internal int X;
-
-	// @zasm_var NPCY
-	internal int Y;
-
-	// @zasm_var NPCZ
-	internal int Z;
 
 	// The current frame of the npc's animation.
 	//
@@ -277,17 +271,6 @@ class npc {
 	//
 	// @zasm_var SPRITEMAXNPC
 	internal int Max;
-
-	// The npc's upward velocity, in pixels per frame. Affected by gravity each
-	// frame, if gravity is enabled for this npc.
-	//
-	// @zasm_var NPCJUMP
-	internal int Jump;
-
-	// The npc's direction.
-	//
-	// @zasm_var NPCDIR
-	internal int Dir;
 
 	// The timer used for enemy knockback.
 	// The first byte is the clock.
@@ -336,9 +319,6 @@ class npc {
 	// @zasm_var NPCRANDOM
 	internal int Random;
 
-	// @zasm_var NPCDRAWTYPE
-	internal int DrawStyle;
-
 	// @zasm_var NPCHP
 	internal int HP;
 
@@ -367,24 +347,6 @@ class npc {
 	// @zasm_var NPCWDP
 	internal int WeaponDamage;
 
-	// @zasm_var NPCTILE
-	internal int Tile;
-
-	// If set to 0 or higher, then the npc will be drawn with this tile.
-	//
-	// The default value for this is -1.
-	//
-	// @zasm_var NPCSCRIPTTILE
-	internal int ScriptTile;
-
-	// If set to 0, or higher, then the engine will use this Flip state to draw
-	// the npc.
-	//
-	// The default value for this is -1.
-	//
-	// @zasm_var NPCSCRIPTFLIP
-	internal int ScriptFlip;
-
 	// @zasm_var NPCOTILE
 	internal int OriginalTile;
 
@@ -407,9 +369,6 @@ class npc {
 	// @zasm_var NPCITEMSET
 	internal int Dropset;
 
-	// @zasm_var NPCCSET
-	internal int CSet;
-
 	// Valid values: [BossPal] (`BPAL_`).
 	//
 	// @zasm_var NPCBOSSPAL
@@ -418,71 +377,10 @@ class npc {
 	// @zasm_var NPCBGSFX
 	internal int SFX;
 
-	// If the sprite should be extended (large). Set to 3 to extend, 0
-	// otherwise.
-	//
-	// @zasm_var NPCEXTEND
-	internal int Extend;
-
-	// The width/height of the hitbox, in pixels.
-	//
-	// @zasm_var NPCHXSZ
-	internal int HitWidth;
-
-	// The width/height of the hitbox, in pixels.
-	//
-	// @zasm_var NPCHYSZ
-	internal int HitHeight;
-
-	// The height of the hitbox in the Z-axis, in pixels.
-	//
-	// @zasm_var NPCHZSZ
-	internal int HitZHeight;
-
-	// The width/height of the sprite's graphic, in tiles.
-	//
-	// @zasm_var NPCTXSZ
-	internal int TileWidth;
-
-	// The width/height of the sprite's graphic, in tiles.
-	//
-	// @zasm_var NPCTYSZ
-	internal int TileHeight;
-
-	// The visual offset, in pixels.
-	//
-	// @zasm_var NPCXOFS
-	internal int DrawXOffset;
-
-	// The visual offset, in pixels.
-	//
-	// @zasm_var NPCYOFS
-	internal int DrawYOffset;
-
 	// the weapon's total visual Y-offset.
 	//
 	// @zasm_var NPCTOTALDYOFFS
 	internal const int TotalDYOffset;
-
-	// The Z offset, in pixels.
-	//
-	// @zasm_var NPCZOFS
-	internal int DrawZOffset;
-
-	// The hitbox offset, in pixels.
-	//
-	// @zasm_var NPCHXOFS
-	internal int HitXOffset;
-
-	// The hitbox offset, in pixels.
-	//
-	// @zasm_var NPCHYOFS
-	internal int HitYOffset;
-
-	// An array of misc values for script use.
-	//
-	// @zasm_var NPCMISCD
-	internal untyped Misc[];
 
 	// The 8 InitD[] arguments for the npc script.
 	//
@@ -499,16 +397,6 @@ class npc {
 
 	// @zasm_var NPCCOLLDET
 	internal bool CollDetection;
-
-	// If false, gravity will not affect this npc.
-	//
-	// @zasm_var NPCGRAVITY
-	internal bool Gravity;
-
-	// If the engine should animate the npc's graphics.
-	//
-	// @zasm_var NPCENGINEANIMATE
-	internal bool Animation;
 
 	// The duration the npc is stunned for. If 0, the npc is not stunned.
 	//
@@ -630,25 +518,6 @@ class npc {
 	// @zasm_var NPCSCRIPT
 	internal int Script;
 
-	// The rotation factor for this sprited object, in degrees.
-	//
-	// You can only rotate sprites if you disable the Compatibility Quest rule
-	//
-	// 'Old (Faster) Sprite Drawing'.
-	//
-	// @zasm_var NPCROTATION
-	internal int Rotation;
-
-	// The scale factor for this sprited object.
-	// Scale values are a multiplier: 1.5 == 50% larger (150%).
-	// A scale of 0 and a scale of 1 are identical.
-	// Negative values are undefined.
-	// You can only scale sprites if you disable the Compatibility Quest rule
-	// 'Old (Faster) Sprite Drawing'.
-	//
-	// @zasm_var NPCSCALE
-	internal int Scale;
-
 	// If true, the enemy will not 'die' even if it has 0hp or is too far
 	// off-screen.
 	//
@@ -674,25 +543,6 @@ class npc {
 	// @zasm_var NPCKNOCKBACKSPEED
 	internal int SlideSpeed;
 
-	// The timer indicating how long left the sprite will be falling. If 0, the
-	// sprite is not falling. Max value of 70, which is the value at the start
-	// of falling.
-	//
-	// @zasm_var NPCFALLCLK
-	internal int Falling;
-
-	// The pitfall combo the sprite is falling into, if it is falling.
-	//
-	// @zasm_var NPCFALLCMB
-	internal int FallCombo;
-
-	// The movement flags of the npc.
-	//
-	// Valid indices are [NpcMoveFlagIndex] (`NPCMV_`).
-	//
-	// @zasm_var NPCMOVEFLAGS
-	internal bool MoveFlags[];
-
 	// The radius of light this object emits in a dark room
 	//
 	// @zasm_var NPCGLOWRAD
@@ -702,11 +552,6 @@ class npc {
 	//
 	// @zasm_var NPCGLOWSHP
 	internal int LightShape;
-
-	// The shadow sprite used by the npc, 0-255
-	//
-	// @zasm_var NPCSHADOWSPR
-	internal int ShadowSprite;
 
 	// The spawn sprite used by the npc, 0-255
 	//
@@ -718,43 +563,10 @@ class npc {
 	// @zasm_var NPCDEATHSPR
 	internal int DeathSprite;
 
-	// If the sprite is currently being switch-hooked.
-	//
-	// @zasm_var NPCSWHOOKED
-	internal bool SwitchHooked;
-
 	// If set false, the npc will neither flash, nor flicker when invincible.
 	//
 	// @zasm_var NPCCANFLICKER
 	internal bool InvFlicker;
-
-	// The timer indicating how long left the sprite will be drowning. If 0, the
-	// sprite is not drowning. Max value of 64, which is the value at the start
-	// of drowning.
-	//
-	// @zasm_var NPCDROWNCLK
-	internal int Drowning;
-
-	// The liquid combo the sprite is drowning in, if it is drowning.
-	//
-	// @zasm_var NPCDROWNCMB
-	internal int DrownCombo;
-
-	// The position of the npc on the FakeZ axis.
-	//
-	// @zasm_var NPCFAKEZ
-	internal int FakeZ;
-
-	// The velocity of the npc in the FakeZ axis.
-	//
-	// @zasm_var NPCFAKEJUMP
-	internal int FakeJump;
-
-	// @zasm_var NPCSHADOWXOFS
-	internal int ShadowXOffset;
-
-	// @zasm_var NPCSHADOWYOFS
-	internal int ShadowYOffset;
 
 	// This sets what color the enemy is drawn when flickering.
 	//

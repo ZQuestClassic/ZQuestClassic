@@ -990,7 +990,7 @@ void Z_scripterrlog(const char * const format,...)
 }
 
 #include "sprite.h"
-movingblock mblock2;                                        //mblock[4]?
+movingblock mblock2;
 portal mirror_portal;
 
 sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations, portals;

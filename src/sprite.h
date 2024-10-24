@@ -34,18 +34,18 @@ class refInfo;
 
 class sprite : public solid_object
 {
-private:
-    static int32_t getNextUID();
-    //unique sprite ID
-    //given upon construction
-    int32_t uid;
-    
 public:
-	void unget_UID();
+	static sprite* getByUID(int32_t uid);
+
+    //unique sprite ID
+    int32_t uid;
     int32_t getUID()
     {
+		registerUID();
         return uid;
     }
+	void registerUID();
+	void reassignUid(int32_t new_uid);
     
    
     
@@ -56,8 +56,11 @@ public:
 	zfix xofs,yofs,zofs;
     zfix shadowxofs,shadowyofs;
     // no hzofs - it's always equal to zofs.
-    int32_t hzsz;
-    int32_t txsz = -1, tysz = -1;
+    int32_t hzsz; // hit z-height
+	// tile width
+    int32_t txsz = -1;
+	// tile height
+	int32_t tysz = -1;
     /*
      * Explanation of hzsz:
      * Hzsz is how "tall" a sprite is.
@@ -314,5 +317,4 @@ bool lineLineColl(zfix x1, zfix y1, zfix x2, zfix y2, zfix x3, zfix y3, zfix x4,
 bool lineBoxCollision(zfix linex1, zfix liney1, zfix linex2, zfix liney2, zfix boxx, zfix boxy, zfix boxwidth, zfix boxheight);
 double comparePointLine(double x, double y, double x1, double x2, double y1, double y2);
 
-#include "items.h"
 #endif

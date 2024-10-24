@@ -54,6 +54,7 @@ enum ffc_flags : uint32_t
 class ffcdata : public sprite
 {
 public:
+	uint16_t index;
 	zfix ax, ay;
 	ffc_flags flags;
 	word delay;

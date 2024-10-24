@@ -391,8 +391,8 @@ namespace ZScript
 
 		int32_t stackDepth_;
 		virtual bool remove(Datum&);
-	protected:
 		Scope* parent_;
+	protected:
 		FileScope* parentFile_;
 		std::map<std::string, Scope*> children_;
 		std::vector<Scope*> anonymousChildren_;

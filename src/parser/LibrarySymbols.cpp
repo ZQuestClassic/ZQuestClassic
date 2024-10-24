@@ -345,14 +345,7 @@ static std::map<std::string, CONSTEXPR_CBACK_TY> const_expr_global_impl = {
 };
 
 static std::map<std::string, CONSTEXPR_CBACK_TY> const_expr_screen_impl = {
-	{"LoadFFC", CONSTEXPR_CBACK_HEADER()
-		{
-			optional<int> val;
-			if(args[0])
-				val = *args[0] - 10000;
-			return val;
-		}
-	},
+	// Empty now :)
 };
 
 bool setConstExprForBinding(Function* fn)

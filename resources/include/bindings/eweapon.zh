@@ -1,39 +1,35 @@
+#include "bindings/sprite.zh"
+
 // @zasm_ref REFEWPN
+// @extends sprite
 class eweapon {
 	// @delete
 	internal eweapon();
+
+	// The weapon type of the weapon. Some types have hardcoded behaviors.
+	//
+	// @zasm_var EWPNID
+	internal int ID;
+
+	// The weapon type of the weapon. Some types have hardcoded behaviors. Same as [ID].
+	//
+	// @zasm_var EWPNID
+	internal int Type;
+
+	// The weapon type of the weapon. Some types have hardcoded behaviors. Same as [ID].
+	//
+	// @zasm_var EWPNID
+	internal int Family;
 
 	// For lweapons, the level of the weapon.
 	//
 	// @zasm_var EWPNLEVEL
 	internal int Level;
 
-	// These values store the weapon's position on each of the three axes.
-	//
-	// @zasm_var EWPNX
-	internal int X;
-
 	// Returns the max number of weapons currently allowed.
 	//
 	// @zasm_var SPRITEMAXEWPN
 	internal int Max;
-
-	// @zasm_var EWPNY
-	internal int Y;
-
-	// @zasm_var EWPNZ
-	internal int Z;
-
-	// The weapon's upward velocity, in pixels per frame. Affected by gravity
-	// each frame, if gravity is enabled for this weapon.
-	//
-	// @zasm_var EWPNJUMP
-	internal int Jump;
-
-	// The weapon's direction.
-	//
-	// @zasm_var EWPNDIR
-	internal int Dir;
 
 	// The angle of the weapon, in radians for Angle or degrees for DegAngle.
 	// Has no real effect if the weapon is not `Angular`.
@@ -56,13 +52,6 @@ class eweapon {
 	// @zasm_var EWPNFRAME
 	internal int Frame;
 
-	// The mode for the sprite's draws.
-	//
-	// Valid values: [DrawStyle] (`DS_`).
-	//
-	// @zasm_var EWPNDRAWTYPE
-	internal int DrawStyle;
-
 	// The amount of damage the weapon deals.
 	//
 	// @zasm_var EWPNPOWER
@@ -72,21 +61,6 @@ class eweapon {
 	//
 	// @zasm_var EWPNPOWER
 	internal int Damage;
-
-	// The weapon type of the weapon. Some types have hardcoded behaviors.
-	//
-	// @zasm_var EWPNID
-	internal int ID;
-
-	// The weapon type of the weapon. Some types have hardcoded behaviors.
-	//
-	// @zasm_var EWPNID
-	internal int Type;
-
-	// The weapon type of the weapon. Some types have hardcoded behaviors.
-	//
-	// @zasm_var EWPNID
-	internal int Family;
 
 	// If the weapon is angular (instead of directional)
 	//
@@ -103,25 +77,6 @@ class eweapon {
 	// @zasm_var EWPNASPEED
 	internal int ASpeed;
 
-	// The currently displaying tile of the weapon's animation. Set by the
-	// engine each frame if [lweapon::Animation] is enabled.
-	//
-	// @zasm_var EWPNTILE
-	internal int Tile;
-
-	// -1 by default. If this is set > -1, this tile will be displayed by the
-	// engine, regardless of the normal engine animation. Set back to -1 to
-	// restore engine animation.
-	//
-	// @zasm_var EWPNSCRIPTTILE
-	internal int ScriptTile;
-
-	// -1 by default. If this is set > -1, this flip value will be used instead
-	// of the normal 'Flip' value. Set back to -1 to restore normal flip.
-	//
-	// @zasm_var EWPNSCRIPTFLIP
-	internal int ScriptFlip;
-
 	// The secondary CSet used for flashing.
 	//
 	// @zasm_var EWPNFLASHCSET
@@ -132,23 +87,11 @@ class eweapon {
 	// @zasm_var EWPNDEAD
 	internal int DeadState;
 
-	// The CSet of the weapon.
-	//
-	// @zasm_var EWPNCSET
-	internal int CSet;
-
 	// If the weapon is flashing or not. When flashing, it changes between its
 	// CSet and FlashCSet.
 	//
 	// @zasm_var EWPNFLASH
 	internal bool Flash;
-
-	// How to flip (or rotate) the weapon.
-	//
-	// Valid values: [TransformationType] (`FLIP_` or `ROT_`).
-	//
-	// @zasm_var EWPNFLIP
-	internal int Flip;
 
 	// The starting tile of the weapon's animation.
 	//
@@ -160,66 +103,10 @@ class eweapon {
 	// @zasm_var EWPNOCSET
 	internal int OriginalCSet;
 
-	// If the sprite should be extended (large). Set to 3 to extend, 0
-	// otherwise.
-	//
-	// @zasm_var EWPNEXTEND
-	internal int Extend;
-
-	// The width/height of the hitbox, in pixels.
-	//
-	// @zasm_var EWPNHXSZ
-	internal int HitWidth;
-
-	// The width/height of the hitbox, in pixels.
-	//
-	// @zasm_var EWPNHYSZ
-	internal int HitHeight;
-
-	// The height of the hitbox in the Z-axis, in pixels.
-	//
-	// @zasm_var EWPNHZSZ
-	internal int HitZHeight;
-
-	// The width/height of the sprite's graphic, in tiles.
-	//
-	// @zasm_var EWPNTXSZ
-	internal int TileWidth;
-
-	// The width/height of the sprite's graphic, in tiles.
-	//
-	// @zasm_var EWPNTYSZ
-	internal int TileHeight;
-
-	// The visual offset, in pixels.
-	//
-	// @zasm_var EWPNXOFS
-	internal int DrawXOffset;
-
-	// The visual offset, in pixels.
-	//
-	// @zasm_var EWPNYOFS
-	internal int DrawYOffset;
-
 	// the weapon's total visual Y-offset.
 	//
 	// @zasm_var EWPNTOTALDYOFFS
 	internal const int TotalDYOffset;
-
-	// The Z offset, in pixels.
-	//
-	// @zasm_var EWPNZOFS
-	internal int DrawZOffset;
-
-	// The hitbox offset, in pixels.
-	//
-	// @zasm_var EWPNHXOFS
-	internal int HitXOffset;
-
-	// The hitbox offset, in pixels.
-	//
-	// @zasm_var EWPNHYOFS
-	internal int HitYOffset;
 
 	// The ID of the item, or pointer of the npc (respectively for lweapon, and
 	// for eweapon) that created this weapon.
@@ -238,21 +125,11 @@ class eweapon {
 	// @zasm_var EWPNPARENT
 	internal npc Parent;
 
-	// An array of misc values for script use.
-	//
-	// @zasm_var EWPNMISCD
-	internal untyped Misc[];
-
 	// If the weapon's collision is enabled. Set to false to disable collision
 	// entirely.
 	//
 	// @zasm_var EWPNCOLLDET
 	internal bool CollDetection;
-
-	// If the engine should animate the weapon's graphics.
-	//
-	// @zasm_var EWPNENGINEANIMATE
-	internal bool Animation;
 
 	// The weapon script running on this weapon.
 	//
@@ -264,99 +141,15 @@ class eweapon {
 	// @zasm_var EWPNINITD
 	internal untyped InitD[];
 
-	// A rotation of the sprite draw, in degrees.
-	//
-	// @zasm_var EWPNROTATION
-	internal int Rotation;
-
-	// A scale of the sprite draw, as a multiplier.
-	//
-	// @zasm_var EWPNSCALE
-	internal int Scale;
-
-	// True by default. If false, gravity will no longer affect this weapon.
-	//
-	// @zasm_var EWPNGRAVITY
-	internal bool Gravity;
-
-	// The timer indicating how long left the sprite will be falling. If 0, the
-	// sprite is not falling. Max value of 70, which is the value at the start
-	// of falling.
-	//
-	// @zasm_var EWPNFALLCLK
-	internal int Falling;
-
-	// The pitfall combo the sprite is falling into, if it is falling.
-	//
-	// @zasm_var EWPNFALLCMB
-	internal int FallCombo;
-
-	// The movement flags of the weapon. See `WPNMV_` constants.
-	//
-	// @zasm_var EWPNMOVEFLAGS
-	internal bool MoveFlags[];
-
-	// The size of the light emitted by this sprite, in pixels.
-	//
-	// @zasm_var EWPNGLOWRAD
-	internal int LightRadius;
-
-	// The shape of light emitted by this sprite. Uses the `LIGHT_` constants.
-	//
-	// @zasm_var EWPNGLOWSHP
-	internal int LightShape;
-
 	// A bitwise flagset of unblockable flags, using the `UNBLOCK_` constants.
 	//
 	// @zasm_var EWPNUNBL
 	internal int Unblockable;
 
-	// The ${spritedata} sprite ID to use for the item's shadow.
-	//
-	// @zasm_var EWPNSHADOWSPR
-	internal int ShadowSprite;
-
-	// If the sprite is currently being switch-hooked.
-	//
-	// @zasm_var EWSWHOOKED
-	internal bool SwitchHooked;
-
 	// If > 0, ticks down each frame. When ticking down to 0, kills the weapon.
 	//
 	// @zasm_var EWPNTIMEOUT
 	internal int Timeout;
-
-	// The timer indicating how long left the sprite will be drowning. If 0, the
-	// sprite is not drowning. Max value of 64, which is the value at the start
-	// of drowning.
-	//
-	// @zasm_var EWPNDROWNCLK
-	internal int Drowning;
-
-	// The liquid combo the sprite is drowning in, if it is drowning.
-	//
-	// @zasm_var EWPNDROWNCMB
-	internal int DrownCombo;
-
-	// The position of the weapon on the FakeZ axis.
-	//
-	// @zasm_var EWPNFAKEZ
-	internal int FakeZ;
-
-	// The velocity of the weapon in the FakeZ axis.
-	//
-	// @zasm_var EWPNFAKEJUMP
-	internal int FakeJump;
-
-	// The x/y offset of the sprite's shadow.
-	//
-	// @zasm_var EWPNSHADOWXOFS
-	internal int ShadowXOffset;
-
-	// The x/y offset of the sprite's shadow.
-	//
-	// @zasm_var EWPNSHADOWYOFS
-	internal int ShadowYOffset;
 
 	// The angle of the weapon, in radians for Angle or degrees for DegAngle.
 	// Has no real effect if the weapon is not `Angular`.

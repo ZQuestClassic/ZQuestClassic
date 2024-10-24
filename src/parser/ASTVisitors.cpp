@@ -275,6 +275,8 @@ void RecursiveVisitor::checkCast(
 		return;
 	}
 
+	if (sourceType.canCastTo(targetType, false)) return;
+
 	// Types are not compatabile - error.
 	handleError(
 		CompileError::IllegalCast(

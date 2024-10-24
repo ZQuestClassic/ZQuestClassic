@@ -5143,6 +5143,7 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 		{
 			tmpscr[tmp].ffcs[i].setLoaded(true);
 			tmpscr[tmp].ffcs[i].solid_update(false);
+			tmpscr[tmp].ffcs[i].registerUID();
 			screen_ffc_modify_postroutine(i);
 		}
 	}

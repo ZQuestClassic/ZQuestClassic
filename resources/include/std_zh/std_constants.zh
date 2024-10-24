@@ -2557,6 +2557,7 @@ enum mapscreenflags
 	MSF_LAST
 };
 
+// @deprecated Use [MoveFlag] instead.
 enum HeroMoveFlag
 {
 	HEROMV_OBEYS_GRAVITY,
@@ -2565,6 +2566,7 @@ enum HeroMoveFlag
 	HEROMV_NO_REAL_Z
 };
 
+// @deprecated Use [MoveFlag] instead.
 enum ItemspriteMoveFlag
 {
 	ITEMMV_OBEYS_GRAVITY,
@@ -2573,12 +2575,21 @@ enum ItemspriteMoveFlag
 	ITEMMV_NO_REAL_Z
 };
 
+// @deprecated Use [MoveFlag] instead.
 enum WeaponMoveFlag
 {
 	WPNMV_OBEYS_GRAVITY,
 	WPNMV_CAN_PITFALL,
 	WPNMV_NO_FAKE_Z = 8,
 	WPNMV_NO_REAL_Z
+};
+
+enum MoveFlag
+{
+	MV_OBEYS_GRAVITY,
+	MV_CAN_PITFALL,
+	MV_NO_FAKE_Z = 8,
+	MV_NO_REAL_Z
 };
 
 define CHRT_VISITED = 10000000b;

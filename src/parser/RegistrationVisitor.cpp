@@ -200,7 +200,30 @@ void RegistrationVisitor::caseScript(ASTScript& host, void* param)
 
 void RegistrationVisitor::caseClass(ASTClass& host, void* param)
 {
-	UserClass& user_class = host.user_class ? *host.user_class : *(host.user_class = program.addClass(host, *scope, this));
+	auto parsed_comment = host.getParsedDocComment();
+	UserClass* parent_class = nullptr;
+	if (parsed_comment.contains("extends"))
+	{
+		std::string parent_class_name = parsed_comment["extends"];
+		ASTExprIdentifier ident{};
+		ident.components.push_back(parent_class_name);
+		if (auto type = lookupDataType(*scope, ident, nullptr))
+		{
+			if (auto custom_type = dynamic_cast<const DataTypeCustom*>(type); custom_type)
+				parent_class = custom_type->getUsrClass();
+		}
+		else
+		{
+			handleError(CompileError::BadInternal(&host, fmt::format("Unknown class \"{}\" in @extends", parent_class_name)));
+		}
+	}
+
+	UserClass& user_class = host.user_class ? *host.user_class : *(host.user_class = program.addClass(host, parent_class ? parent_class->getScope() : *scope, this));
+	// UserClass& user_class = host.user_class ? *host.user_class : *(host.user_class = program.addClass(host, *scope, this));
+	if (parsed_comment.contains("zasm_ref"))
+		user_class.internalRefVar = parsed_comment["zasm_ref"];
+	if (parent_class)
+		user_class.setParentClass(parent_class);
 	if (breakRecursion(host))
 	{
 		doRegister(host);
@@ -245,37 +268,32 @@ void RegistrationVisitor::caseClass(ASTClass& host, void* param)
 		}
 	}
 
-	auto parsed_comment = host.getParsedDocComment();
-	if (parsed_comment.contains("zasm_ref"))
-	{
-		host.user_class->internalRefVar = parsed_comment["zasm_ref"];
-	}
-
 	// Recurse on user_class elements with its scope.
+	auto prev_scope = scope;
 	scope = &user_class.getScope();
 
 	block_regvisit_vec(host.options, param);
-	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
+	if (breakRecursion(host, param)) {scope = prev_scope; return;}
 	block_regvisit_vec(host.use, param);
-	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
+	if (breakRecursion(host, param)) {scope = prev_scope; return;}
 	block_regvisit_vec(host.types, param);
-	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
+	if (breakRecursion(host, param)) {scope = prev_scope; return;}
 	parsing_user_class = puc_vars;
 	block_regvisit_vec(host.variables, param);
 	parsing_user_class = puc_none;
-	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
+	if (breakRecursion(host, param)) {scope = prev_scope; return;}
 	parsing_user_class = puc_funcs;
 	block_regvisit_vec(host.functions, param);
 	parsing_user_class = puc_none;
-	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
+	if (breakRecursion(host, param)) {scope = prev_scope; return;}
 	parsing_user_class = puc_construct;
 	block_regvisit_vec(host.constructors, param);
 	parsing_user_class = puc_none;
-	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
+	if (breakRecursion(host, param)) {scope = prev_scope; return;}
 	parsing_user_class = puc_destruct;
 	visit(host.destructor.get(), param);
 	parsing_user_class = puc_none;
-	scope = scope->getParent();
+	scope = prev_scope;
 	if (breakRecursion(host)) return;
 	//
 	if(!(registered_vec(host.options) && registered_vec(host.use) && registered_vec(host.types)

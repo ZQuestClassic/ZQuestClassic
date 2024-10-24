@@ -3,11 +3,12 @@
 
 #include "base/zdefs.h"
 #include "base/cpos_info.h"
-#include "zc/weapons.h"
 #include "base/combo.h"
 
 #define minSECRET_TYPE 0
 #define maxSECRET_TYPE 43
+
+class weapon;
 
 void do_cutscene_flags(newcombo const& cmb);
 class CutsceneState

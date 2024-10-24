@@ -155,7 +155,7 @@
 				},
 				{
 					"name": "storage.type.primitive.zscript",
-					"match": "\\b(auto|void|untyped|bool|float|int|char32|long|rgb|bitmap|cheatdata|combodata|doorsetdat|dropsetdata|dmapdata|eweapon|ffc|gamedata|itemdata|lweapon|mapdata|messagedata|misccolordata|misccolourdata|npc|npcdata|palcycledata|ponddata|shopdata|spritedata|musicdata|screendata|player|link|hero|itemsprite|file|directory|stack|randgen|paldata|bottledata|bottleshopdata|subscreendata|subscreenpage|subscreenwidget|generic|genericdata|portal|savedportal|particlesprite|decorationsprite|global)\\b"
+					"match": "\\b(auto|void|untyped|bool|float|int|char32|long|rgb|bitmap|cheatdata|combodata|doorsetdat|dropsetdata|dmapdata|eweapon|ffc|gamedata|itemdata|lweapon|mapdata|messagedata|misccolordata|misccolourdata|npc|npcdata|palcycledata|ponddata|shopdata|spritedata|musicdata|screendata|player|link|hero|itemsprite|sprite|file|directory|stack|randgen|paldata|bottledata|bottleshopdata|subscreendata|subscreenpage|subscreenwidget|generic|genericdata|portal|savedportal|particlesprite|decorationsprite|global)\\b"
 				},
 				{
 					"name": "storage.modifier.zscript",

@@ -594,7 +594,6 @@ void putitem2(BITMAP *dest,int32_t x,int32_t y,int32_t item_id, int32_t &aclk, i
 	temp.draw(dest);
 	aclk=temp.aclk;
 	aframe=temp.aframe;
-	temp.unget_UID();
 }
 
 void dummyitem_animate(item* dummy, int32_t clk)
@@ -637,7 +636,6 @@ void putitem3(BITMAP *dest,int32_t x,int32_t y,int32_t item_id, int32_t clk)
 	
 	dummyitem_animate(&temp, clk);
 	temp.draw(dest);
-	temp.unget_UID();
 }
 
 //some methods for dealing with items

@@ -6,6 +6,7 @@
 #include "zc/scripting/types/game.h"
 #include "zc/scripting/types/item.h"
 #include "zc/scripting/types/npc.h"
+#include "zc/scripting/types/sprite.h"
 #include "zc/scripting/types/user_object.h"
 #include "zc/scripting/types/websocket.h"
 
@@ -13,6 +14,8 @@
 
 ZC_FORCE_INLINE std::optional<int32_t> scripting_engine_get_register(int32_t reg)
 {
+	if (auto r = sprite_get_register(reg))
+		return *r;
 	if (auto r = item_get_register(reg))
 		return *r;
 	if (auto r = game_get_register(reg))
@@ -27,6 +30,8 @@ ZC_FORCE_INLINE std::optional<int32_t> scripting_engine_get_register(int32_t reg
 
 ZC_FORCE_INLINE bool scripting_engine_set_register(int32_t reg, int32_t value)
 {
+	if (sprite_set_register(reg, value))
+		return true;
 	if (item_set_register(reg, value))
 		return true;
 	if (game_set_register(reg, value))

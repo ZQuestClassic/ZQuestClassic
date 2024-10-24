@@ -1,11 +1,11 @@
 #ifndef ITEMS_H_
 #define ITEMS_H_
 
-#include "sprite.h"
 #include "base/zdefs.h"
 #include "base/flags.h"
 #include "base/initdata.h"
 #include "base/zfix.h"
+#include "sprite.h"
 
 namespace flags {
 // TODO: these generically named flags need to be renamed / documented.

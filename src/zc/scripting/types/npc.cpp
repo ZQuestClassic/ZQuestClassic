@@ -15,12 +15,14 @@ extern int32_t sarg2;
 extern int32_t sarg3;
 extern char *guy_string[];
 
+// For the "npc" type - also called "guys" internally, and backed by the "enemy" class... :)
+
 int32_t GuyH::loadNPC(const int32_t eid, const char * const funcvar)
 {
 	if ( !eid ) 
 	{
 		//can never be zero?
-		Z_scripterrlog("The npc pointer used for %s is NULL or uninitialised.", funcvar);
+		Z_scripterrlog("The npc pointer used for %s is NULL or uninitialised.\n", funcvar);
 		return _InvalidSpriteUID;
 	}
 	tempenemy = (enemy *) guys.getByUID(eid);

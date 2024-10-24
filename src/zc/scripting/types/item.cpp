@@ -1,5 +1,6 @@
 #include "base/qrs.h"
 #include "base/zdefs.h"
+#include "items.h"
 #include "zasm/defines.h"
 #include "zc/ffscript.h"
 #include "zc/guys.h"

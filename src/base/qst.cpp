@@ -16270,7 +16270,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 		word tempw;
 		temp_mapscr->ffcCountMarkDirty();
 		temp_mapscr->ffcs.clear();
-		temp_mapscr->ffcs.resize(32);
+		temp_mapscr->resizeFFC(32);
 		for(m=0; m<32; m++)
 		{
 			ffcdata& tempffc = temp_mapscr->ffcs[m];
@@ -16503,7 +16503,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	}
 
 	temp_mapscr->ffcCountMarkDirty();
-	temp_mapscr->ffcs.resize(temp_mapscr->numFFC());
+	temp_mapscr->resizeFFC(temp_mapscr->numFFC());
 	temp_mapscr->ffcs.shrink_to_fit();
 	
 	//add in the new whistle flags
@@ -16937,7 +16937,7 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 		static ffcdata nil_ffc;
 		temp_mapscr->ffcCountMarkDirty();
 		temp_mapscr->ffcs.clear();
-		temp_mapscr->ffcs.resize(std::min(MAXFFCS, (int)numffc));
+		temp_mapscr->resizeFFC(std::min(MAXFFCS, (int)numffc));
 		for(word m = 0; m < numffc; ++m)
 		{
 			ffcdata& tempffc = (m < MAXFFCS)
@@ -17023,7 +17023,7 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 	}
 
 	temp_mapscr->ffcCountMarkDirty();
-	temp_mapscr->ffcs.resize(temp_mapscr->numFFC());
+	temp_mapscr->resizeFFC(temp_mapscr->numFFC());
 	temp_mapscr->ffcs.shrink_to_fit();
 
 	return 0;
@@ -22019,7 +22019,7 @@ static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Mi
         {
             for(int32_t j=0; j<MAPSCRS; j++)
             {
-                TheMaps[(i*MAPSCRS)+j].ensureFFC(32);
+                TheMaps[(i*MAPSCRS)+j].resizeFFC(32);
                 for(int32_t m=0; m<32; m++)
                 {
                     if(combobuf[TheMaps[(i*MAPSCRS)+j].ffcs[m].data].type == cCHANGE)
