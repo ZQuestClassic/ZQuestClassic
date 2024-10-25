@@ -18820,7 +18820,9 @@ int32_t onSelectFFCombo()
     while(ret==1)
     {
         ff_combo = ffcombo_sel_dlg[3].d1;
-        call_ffc_dialog(ff_combo, active_visible_screen->scr, active_visible_screen->screen);
+        mapscr* scr = active_visible_screen ? active_visible_screen->scr : Map.CurrScr();
+        int screen = active_visible_screen ? active_visible_screen->screen : Map.getCurrScr();
+        call_ffc_dialog(ff_combo, scr, screen);
         ret=do_zqdialog(ffcombo_sel_dlg,0);
     }
     
