@@ -381,7 +381,7 @@ std::shared_ptr<GUI::Widget> NumPickDialog::view()
 			focused = true,
 			width = 8_em, hPadding = 0_px,
 			type = GUI::TextField::type::SWAP_ZSINT2,
-			val = local_val, low = min, high = max,
+			low = min, high = max, val = local_val,
 			onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 			{
 				local_val = val;
@@ -393,7 +393,7 @@ std::shared_ptr<GUI::Widget> NumPickDialog::view()
 			focused = true,
 			width = 8_em, hPadding = 0_px,
 			type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
-			val = local_val, low = min, high = max,
+			low = min, high = max, val = local_val,
 			onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 			{
 				local_val = val;
