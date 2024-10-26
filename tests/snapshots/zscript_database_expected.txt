@@ -674,7 +674,7 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-resources/headers/ghost_zh/2.8/ghost2_global.zh Line 262 - Error S009: Variable __GH_ETHEREAL has not been declared.
+resources/headers/ghost_zh/2.8/ghost2_global.zh Line 265 - Error S009: Variable __GH_ETHEREAL has not been declared.
 Failure!
 Compile finished with exit code '9' (compiled with errors)
 
@@ -683,7 +683,7 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-resources/headers/ghost_zh/2.8/ghost2_global.zh Line 262 - Error S009: Variable __GH_ETHEREAL has not been declared.
+resources/headers/ghost_zh/2.8/ghost2_global.zh Line 265 - Error S009: Variable __GH_ETHEREAL has not been declared.
 Failure!
 Compile finished with exit code '9' (compiled with errors)
 
@@ -692,7 +692,7 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-resources/headers/ghost_zh/2.8/ghost2_global.zh Line 262 - Error S009: Variable __GH_ETHEREAL has not been declared.
+resources/headers/ghost_zh/2.8/ghost2_global.zh Line 265 - Error S009: Variable __GH_ETHEREAL has not been declared.
 Failure!
 Compile finished with exit code '9' (compiled with errors)
 
@@ -701,7 +701,7 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-resources/headers/ghost_zh/2.8/ghost2_global.zh Line 262 - Error S009: Variable __GH_ETHEREAL has not been declared.
+resources/headers/ghost_zh/2.8/ghost2_global.zh Line 265 - Error S009: Variable __GH_ETHEREAL has not been declared.
 Failure!
 Compile finished with exit code '9' (compiled with errors)
 
@@ -710,7 +710,7 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-resources/headers/ghost_zh/2.8/ghost2_global.zh Line 262 - Error S009: Variable __GH_ETHEREAL has not been declared.
+resources/headers/ghost_zh/2.8/ghost2_global.zh Line 265 - Error S009: Variable __GH_ETHEREAL has not been declared.
 Failure!
 Compile finished with exit code '9' (compiled with errors)
 
@@ -719,7 +719,7 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-resources/headers/ghost_zh/2.8/ghost2_global.zh Line 262 - Error S009: Variable __GH_ETHEREAL has not been declared.
+resources/headers/ghost_zh/2.8/ghost2_global.zh Line 265 - Error S009: Variable __GH_ETHEREAL has not been declared.
 Failure!
 Compile finished with exit code '9' (compiled with errors)
 
@@ -728,7 +728,7 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-resources/headers/ghost_zh/2.8/ghost2_global.zh Line 262 - Error S009: Variable __GH_ETHEREAL has not been declared.
+resources/headers/ghost_zh/2.8/ghost2_global.zh Line 265 - Error S009: Variable __GH_ETHEREAL has not been declared.
 Failure!
 Compile finished with exit code '9' (compiled with errors)
 
@@ -737,7 +737,7 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-resources/headers/ghost_zh/2.8/ghost2_global.zh Line 262 - Error S009: Variable __GH_ETHEREAL has not been declared.
+resources/headers/ghost_zh/2.8/ghost2_global.zh Line 265 - Error S009: Variable __GH_ETHEREAL has not been declared.
 Failure!
 Compile finished with exit code '9' (compiled with errors)
 
@@ -746,7 +746,7 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-resources/headers/ghost_zh/2.8/ghost2_global.zh Line 262 - Error S009: Variable __GH_ETHEREAL has not been declared.
+resources/headers/ghost_zh/2.8/ghost2_global.zh Line 265 - Error S009: Variable __GH_ETHEREAL has not been declared.
 Failure!
 Compile finished with exit code '9' (compiled with errors)
 
