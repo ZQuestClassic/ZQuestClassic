@@ -954,11 +954,13 @@ static GUI::ListData compatRulesList
 		"If enabled, Push (Generic) combos won't lock into place via the 'Pushed' flag"
 		" (ex. 'clicking into place' for a block trigger)" },
 	{ "Broken Enemy Fire/Arrow Reflecting", qr_BROKEN_FLAME_ARROW_REFLECTING,
-		"If enabled, Enemy Fire/Arrows won't reflect off of player shields, even when the reflect flag is set."
-		"Enemy 'Fire 2' will, contrarily, ALWAYS be BLOCKED by player shields, regardless of block/reflect flags." },
+		"If enabled, Enemy Fire/Arrows won't reflect off of player shields, even when the reflect flag is set."
+		"\nEnemy 'Fire 2' will, contrarily, ALWAYS be BLOCKED by player shields, regardless of block/reflect flags." },
 	{ "Broken Sideview Sprite Jump", qr_BROKEN_SIDEVIEW_SPRITE_JUMP,
 		"If enabled, certain sprites (enemy, weapon, and item) will stick to the ground in sideview"
-		" and cannot be made to jump off via script. " },
+		" and cannot be made to jump off via script." },
+	{ "Broken Conveyors", qr_BROKEN_CONVEYOR_WATER,
+		"If enabled, conveyors will affect the hero when rafting or using the ladder." }
 };
 
 static GUI::ListData enemiesRulesList

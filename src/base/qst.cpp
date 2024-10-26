@@ -3476,6 +3476,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_SCRIPTS_6_BIT_COLOR,1);
 	if(compatrule_version < 69)
 		set_qr(qr_SETENEMYWEAPONSOUNDSONWPNCHANGE, 1);
+	if (compatrule_version < 70)
+		set_qr(qr_BROKEN_CONVEYOR_WATER, 1);
 	
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
