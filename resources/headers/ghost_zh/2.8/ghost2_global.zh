@@ -226,11 +226,13 @@ void AutoGhost()
 		// Invalid script?
 		if ( scriptNum <= 0 ) //|| scriptNum>511)
 		{
+			TraceS("ghost.zh: failed to create enemy, script <= 0\n");
 		    __AutoGhostKill(enemy);
 		    continue;
 		}
 		if ( scriptNum > 511 )
 		{
+			TraceS("ghost.zh: failed to create enemy, script > 511\n");
 		    __AutoGhostKill(enemy);
 		    continue;
 		}
@@ -241,6 +243,7 @@ void AutoGhost()
 		// No suitable FFC? Kill the enemy, then
 		if(!ffcID)
 		{
+			TraceS("ghost.zh: failed to create enemy, no ffc available\n");
 			__AutoGhostKill(enemy);
 			continue;
 		}
