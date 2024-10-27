@@ -959,8 +959,8 @@ static GUI::ListData compatRulesList
 	{ "Broken Sideview Sprite Jump", qr_BROKEN_SIDEVIEW_SPRITE_JUMP,
 		"If enabled, certain sprites (enemy, weapon, and item) will stick to the ground in sideview"
 		" and cannot be made to jump off via script." },
-	{ "Broken Conveyors", qr_BROKEN_CONVEYOR_WATER,
-		"If enabled, conveyors will affect the hero when rafting or using the ladder." }
+	{ "Broken Conveyors", qr_BROKEN_CONVEYORS,
+		"If enabled, conveyors will affect the hero when rafting." }
 };
 
 static GUI::ListData enemiesRulesList
