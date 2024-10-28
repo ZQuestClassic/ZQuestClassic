@@ -1,4 +1,4 @@
-649 / 794 (81%) passed
+650 / 794 (81%) passed
 
 Failures:
 	00026-deku-leaf/script.zs
@@ -133,7 +133,6 @@ Failures:
 	00457-magnets-and-iron-beams-puzzle/magnetswitch.z
 	00457-magnets-and-iron-beams-puzzle/script.zs
 	00479-mouse-header-for-debugging/tbt_mouse/tbt_mouse_global.zh
-	00498-enemy-hp-bars-damage-numbers/enemy_hpbars.zs
 	00499-npcanim-zh/NPCAnim.zh
 	00500--monarch-ascendant/MonarchAscendant.zs
 	00520-poker-monsters/NofaKind.z
@@ -1542,14 +1541,6 @@ Pass 4: Analyzing Code
 00479-mouse-header-for-debugging/tbt_mouse/tbt_mouse_global.zh Line 10 - Error S009: Variable MOUSE_LAYER has not been declared.
 Failure!
 Compile finished with exit code '9' (compiled with errors)
-
-=== 00498-enemy-hp-bars-damage-numbers/enemy_hpbars.zs
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-Pass 5: Checking code paths
-Pass 6: Generating object code
 
 === 00499-npcanim-zh/NPCAnim.zh
 Pass 1: Parsing

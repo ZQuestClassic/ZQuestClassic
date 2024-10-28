@@ -3612,8 +3612,8 @@ void BuildOpcodes::caseExprTernary(ASTTernaryExpr& host, void* param)
 	if(lval)
 	{
 		if(*lval)
-			visit(host.middle.get());
-		else visit(host.right.get());
+			visit(host.middle.get(), param);
+		else visit(host.right.get(), param);
 	}
 	else
 	{
