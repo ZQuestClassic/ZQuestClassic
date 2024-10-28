@@ -394,7 +394,7 @@ EnemyListerDialog::EnemyListerDialog(int enemyid, bool selecting):
 	}
 void EnemyListerDialog::preinit()
 {
-	lister = GUI::ZCListData::enemies();
+	lister = GUI::ZCListData::enemies(true);
 	if (!selecting)
 	{
 		lister.removeInd(0); //remove '(None)'
