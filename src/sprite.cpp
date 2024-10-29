@@ -50,7 +50,6 @@ fixed rad_to_fixed(T d)
 sprite::sprite(): solid_object()
 {
     uid = 0;
-	all_sprites[uid] = this;
 	isspawning = false;
     x=y=z=tile=shadowtile=cs=flip=c_clk=clk=xofs=yofs=shadowxofs=shadowyofs=zofs=fall=fakefall=fakez=0;
     slopeid = 0;
