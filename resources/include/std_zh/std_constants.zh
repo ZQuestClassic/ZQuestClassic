@@ -1618,7 +1618,7 @@ enum
 	DMFS_SCRIPT3,             //DMap Script Flag 3
 	DMFS_SCRIPT4,             //DMap Script Flag 4
 	DMFS_SCRIPT5,             //DMap Script Flag 5
-	DMFS_SIDEVIEW,            //DMap is Sideview
+	DMFS_RESERVED,            //RESERVED DO NOT USE
 	DMFS_LAYER3ISBACKGROUND,  //Layer 3 is Background
 	DMFS_LAYER2ISBACKGROUND,  //Layer 2 is bBackground
 	DMFS_TRUECELLARENEMIES,   //True Cellar Enemies
