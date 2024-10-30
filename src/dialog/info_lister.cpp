@@ -543,16 +543,16 @@ bool EnemyListerDialog::load()
 
 MidiListerDialog::MidiListerDialog(int index, bool selecting) :
 	BasicListerDialog("Select MIDI", index, selecting)
+{}
+
+void MidiListerDialog::preinit()
 {
 	lister = GUI::ZCListData::midinames(true, false);
 	lister.removeInd(0);
 	selected_val = lister.getValue(0);
 	selected_val = vbound(selected_val, (selecting ? -1 : 0), MAXCUSTOMMIDIS - 1);
 }
-void MidiListerDialog::preinit()
-{
-	
-}
+
 void MidiListerDialog::postinit()
 {
 	size_t len = 36;
@@ -563,7 +563,7 @@ void MidiListerDialog::postinit()
 			len = tlen;
 	}
 	widgInfo->minWidth(Size::pixels(len + 8));
-	window->setHelp(get_info(selecting, true));
+	window->setHelp(get_info(selecting, false, false, false));
 }
 void MidiListerDialog::update()
 {
@@ -588,12 +588,29 @@ void MidiListerDialog::edit()
 
 SFXListerDialog::SFXListerDialog(int index, bool selecting) :
 	BasicListerDialog("Select SFX", index, selecting)
+{}
+
+void SFXListerDialog::preinit()
 {
 	lister = GUI::ZCListData::sfxnames(true);
-	lister.removeInd(0);	
+	lister.removeInd(0);
 	selected_val = lister.getValue(0);
-	selected_val = vbound(selected_val, 1, sfxMAX-1);
+	selected_val = vbound(selected_val, 1, sfxMAX - 1);
 }
+
+void SFXListerDialog::postinit()
+{
+	size_t len = 36;
+	for (int q = 0; q < sfxMAX; ++q)
+	{
+		size_t tlen = text_length(GUI_DEF_FONT, sfx_string[q]);
+		if (tlen > len)
+			len = tlen;
+	}
+	widgInfo->minWidth(Size::pixels(len + 8));
+	window->setHelp(get_info(selecting, false, false, false));
+}
+
 void SFXListerDialog::edit()
 {
 	call_sfxdata_dialog(selected_val);
