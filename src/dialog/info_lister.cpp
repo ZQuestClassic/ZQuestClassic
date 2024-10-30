@@ -588,7 +588,9 @@ void MidiListerDialog::edit()
 
 SFXListerDialog::SFXListerDialog(int index, bool selecting) :
 	BasicListerDialog("Select SFX", index, selecting)
-{}
+{
+	use_preview = false;
+}
 
 void SFXListerDialog::preinit()
 {
@@ -607,7 +609,6 @@ void SFXListerDialog::postinit()
 		if (tlen > len)
 			len = tlen;
 	}
-	widgInfo->minWidth(Size::pixels(len + 8));
 	window->setHelp(get_info(selecting, false, false, false));
 }
 
