@@ -923,10 +923,9 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(Program& program,
 	appendElements(allFunctions, program.getUserClassConstructors());
 	appendElements(allFunctions, program.getUserClassDestructors());
 	map<int32_t, Function*> functionsByLabel;
-	for (vector<Function*>::iterator it = allFunctions.begin();
-	     it != allFunctions.end(); ++it)
+	for (size_t i = 0; i < allFunctions.size(); i++)
 	{
-		Function& function = **it;
+		Function& function = *allFunctions[i];
 		if(function.is_aliased())
 			continue;
 		if(function.isTemplateSkip())

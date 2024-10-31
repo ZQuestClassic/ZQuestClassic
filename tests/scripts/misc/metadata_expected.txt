@@ -861,7 +861,7 @@ stdout:
         },
         "doc": "THIS COMMENT USED #1"
       },
-      "2468": {
+      "2403": {
         "loc": {
           "range": {
             "start": {
@@ -939,7 +939,7 @@ stdout:
         },
         "doc": "x marks the spot\nstill line one still line one still line one still line one still line one\nline two\nline two still\nline three\n- list item 1\n- list item 2\n- list item 3"
       },
-      "2470": {
+      "2405": {
         "loc": {
           "range": {
             "start": {
@@ -971,7 +971,7 @@ stdout:
         },
         "doc": "A car, duh"
       },
-      "2474": {
+      "2409": {
         "loc": {
           "range": {
             "start": {
@@ -1145,7 +1145,7 @@ stdout:
           "uri": "URI"
         }
       },
-      "3208": {
+      "3143": {
         "loc": {
           "range": {
             "start": {
@@ -1270,7 +1270,7 @@ stdout:
         },
         "doc": "How fast it goes. See [`the vroom method()`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A32%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A32%2C%22character%22%3A14%7D%7D%7D) or [`speed`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A23%2C%22character%22%3A8%7D%2C%22end%22%3A%7B%22line%22%3A23%2C%22character%22%3A13%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A16%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A16%2C%22character%22%3A5%7D%7D%7D) or [`Waitframe()`](command:zscript.openLink?%7B%22file%22%3A%22global.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A27%2C%22character%22%3A14%7D%2C%22end%22%3A%7B%22line%22%3A27%2C%22character%22%3A23%7D%7D%7D) or [`bitmap`](command:zscript.openLink?%7B%22file%22%3A%22bitmap.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A1%2C%22character%22%3A6%7D%2C%22end%22%3A%7B%22line%22%3A1%2C%22character%22%3A12%7D%7D%7D) or `bitmap::Width`"
       },
-      "2472": {
+      "2407": {
         "loc": {
           "range": {
             "start": {
@@ -1286,7 +1286,7 @@ stdout:
         },
         "doc": "Go fast"
       },
-      "5075": {
+      "4917": {
         "loc": {
           "range": {
             "start": {
@@ -1325,7 +1325,7 @@ stdout:
           "character": 18,
           "length": 1
         },
-        "symbol": "2468"
+        "symbol": "2403"
       },
       {
         "loc": {
@@ -1373,7 +1373,7 @@ stdout:
           "character": 15,
           "length": 2
         },
-        "symbol": "2470"
+        "symbol": "2405"
       },
       {
         "loc": {
@@ -1397,7 +1397,7 @@ stdout:
           "character": 21,
           "length": 3
         },
-        "symbol": "2474"
+        "symbol": "2409"
       },
       {
         "loc": {
@@ -1493,7 +1493,7 @@ stdout:
           "character": 21,
           "length": 13
         },
-        "symbol": "3208"
+        "symbol": "3143"
       },
       {
         "loc": {
@@ -1509,7 +1509,7 @@ stdout:
           "character": 21,
           "length": 3
         },
-        "symbol": "2474"
+        "symbol": "2409"
       },
       {
         "loc": {
@@ -1613,7 +1613,7 @@ stdout:
           "character": 8,
           "length": 5
         },
-        "symbol": "2472"
+        "symbol": "2407"
       },
       {
         "loc": {
@@ -1629,7 +1629,7 @@ stdout:
           "character": 22,
           "length": 5
         },
-        "symbol": "5075"
+        "symbol": "4917"
       }
     ]
   }

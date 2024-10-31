@@ -588,12 +588,15 @@ void MidiListerDialog::edit()
 
 SFXListerDialog::SFXListerDialog(int index, bool selecting) :
 	BasicListerDialog("Select SFX", index, selecting)
-{}
+{
+	use_preview = false;
+}
 
 void SFXListerDialog::preinit()
 {
 	lister = GUI::ZCListData::sfxnames(true);
 	lister.removeInd(0);
+	lister.alphabetize();
 	selected_val = lister.getValue(0);
 	selected_val = vbound(selected_val, 1, sfxMAX - 1);
 }
@@ -607,7 +610,6 @@ void SFXListerDialog::postinit()
 		if (tlen > len)
 			len = tlen;
 	}
-	widgInfo->minWidth(Size::pixels(len + 8));
 	window->setHelp(get_info(selecting, false, false, false));
 }
 
