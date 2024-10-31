@@ -596,6 +596,7 @@ void SFXListerDialog::preinit()
 {
 	lister = GUI::ZCListData::sfxnames(true);
 	lister.removeInd(0);
+	lister.alphabetize();
 	selected_val = lister.getValue(0);
 	selected_val = vbound(selected_val, 1, sfxMAX - 1);
 }
