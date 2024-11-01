@@ -6821,17 +6821,18 @@ bool _handle_tile_move(TileMoveProcess dest_process, optional<TileMoveProcess> s
 		{
 			guydata& enemy=guysbuf[bie[u].i];
 			bool darknut=false;
-			int32_t gleeok=0;
+			bool gleeok=false;
 			
 			if(enemy.family==eeWALK && ((enemy.flags&(guy_shield_back|guy_shield_front|guy_shield_left|guy_shield_right))!=0))
 				darknut=true;
 			else if(enemy.family==eeGLEEOK)
+				gleeok=true;
+			else if (enemy.family == eePATRA)
 			{
-				// Not certain this is the right thing to check...
-				if(enemy.attributes[2] == 0)
-					gleeok=1;
-				else
-					gleeok=2;
+				if (!get_qr(qr_PATRAS_USE_HARDCODED_OFFSETS))
+				{
+					darknut=true; //uses the same logic no need for separate variables!
+				}
 			}
 			
 			// Dummied out enemies
@@ -6845,46 +6846,42 @@ bool _handle_tile_move(TileMoveProcess dest_process, optional<TileMoveProcess> s
 			
 			if(newtiles)
 			{
-				if(guysbuf[bie[u].i].e_tile==0)
+				if(enemy.e_tile==0)
 				{
 					continue;
 				}
 				
 				vector<std::tuple<int,int,int>> rects;
 				
-				if(darknut)
+				if(darknut) //or anything that uses S. Tile for with new tiles
 				{
-					rects.emplace_back(enemy.e_tile+6*TILES_PER_ROW, enemy.e_width, enemy.e_height);
-				}
-				else if(enemy.family==eeGANON)
-				{
-					rects.emplace_back(enemy.e_tile+2*TILES_PER_ROW, 20, 4);
-				}
-				else if(gleeok) //No idea if this is actually *RIGHT*, but I copied what was here before faithfully -Em
-				{
-					for(int32_t j=0; j<4; ++j)
+					if (enemy.s_tile != 0)
 					{
-						rects.emplace_back(
-							TILECOL(guysbuf[bie[u].i].e_tile+(gleeok>1?-4:8)) + TILES_PER_ROW*TILEROW(guysbuf[bie[u].i].e_tile+8)+(j<<1)+(gleeok>1?1:0),
-							4, 1);
+						movelist->add_tile(&enemy.s_tile, enemy.s_width, enemy.s_height, fmt::format("Enemy {} ({}) 'Special'", u, bie[u].s));
 					}
-					int32_t c=TILECOL(guysbuf[bie[u].i].e_tile)+(gleeok>1?-12:0);
-					int32_t r=TILEROW(guysbuf[bie[u].i].e_tile)+(gleeok>1?17:8);
-					rects.emplace_back(c+TILES_PER_ROW*r, 20, 3);
-					rects.emplace_back(c+TILES_PER_ROW*(r+3), 16, 6);
+				}
+				else if (gleeok)
+				{
+					for (int32_t j = 0; j < enemy.attributes[4]; ++j)
+					{
+						rects.emplace_back(enemy.e_tile + enemy.attributes[5] + (enemy.attributes[6]*j), 4, 1);
+					}
+					rects.emplace_back(enemy.e_tile + enemy.attributes[7], 4, 1);
+					rects.emplace_back(enemy.e_tile + enemy.attributes[8], 4, 1);
 				}
 				movelist->add_tile(&enemy.e_tile, enemy.e_width, enemy.e_height, fmt::format("Enemy {} ({}) 'New'", u, bie[u].s),
 					false, 0, 0, rects);
+				
 			}
 			else
 			{
-				if(guysbuf[bie[u].i].tile==0)
+				if(enemy.tile==0)
 				{
 					continue;
 				}
 				movelist->add_tile(&enemy.tile, enemy.width, enemy.height, fmt::format("Enemy {} ({}) 'Old'", u, bie[u].s));
 				
-				if(guysbuf[bie[u].i].s_tile!=0)
+				if(enemy.s_tile!=0)
 				{
 					movelist->add_tile(&enemy.s_tile, enemy.s_width, enemy.s_height, fmt::format("Enemy {} ({}) 'Special'", u, bie[u].s));
 				}
