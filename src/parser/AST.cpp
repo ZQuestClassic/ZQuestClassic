@@ -7,6 +7,7 @@
 #include <optional>
 #include <sstream>
 
+#include "base/util.h"
 #include "parser/ParserHelper.h"
 #include "zc/ffscript.h"
 
@@ -63,8 +64,6 @@ std::map<std::string, std::string> AST::getParsedDocComment() const
 	for (auto& line : lines)
 	{
 		util::trimstr(line);
-		if (line.empty())
-			continue;
 
 		if (line.starts_with("@"))
 		{
@@ -82,11 +81,19 @@ std::map<std::string, std::string> AST::getParsedDocComment() const
 			}
 		}
 
-		if (result.contains(current_key))
+		bool has_key = result.contains(current_key);
+		if (!current_key.empty() && line.empty() && has_key)
+			continue;
+
+		if (has_key)
 			result[current_key] += "\n" + line;
 		else
 			result[current_key] = line;
 	}
+
+	if (result.contains(""))
+		util::trimstr(result[""]);
+
 	return result;
 }
 
@@ -1373,10 +1380,8 @@ ASTDataEnum::ASTDataEnum(ASTDataEnum const& other)
 
 std::optional<LocationData> ASTDataEnum::getIdentifierLocation() const
 {
-	// TODO: need to work out enum location data.
-	// if (auto custom_type = dynamic_cast<const DataTypeCustom*>(baseType->type.get()); custom_type && custom_type->getSource())
-	// 	return custom_type->getSource()->getIdentifierLocation();
-
+	if (auto custom_type = dynamic_cast<const DataTypeCustom*>(baseType->type.get()); custom_type && custom_type->getSource())
+		return custom_type->getSource()->getIdentifierLocation();
 	return std::nullopt;
 }
 

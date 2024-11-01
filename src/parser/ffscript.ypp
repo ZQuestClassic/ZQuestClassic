@@ -591,6 +591,7 @@ StandardDataTypedef : TYPEDEF DataType IDENTIFIER {
 
 EnumDataTypedef : ENUM IDENTIFIER LBRACE Enum_Block RBRACE {
 	ASTDataEnum* en = (ASTDataEnum*)$4;
+	en->location = @$;
 	ASTString* identifier = (ASTString*)$2;
 	$$ = new ASTCustomDataTypeDef(NULL, identifier, en, @$);
 	}
@@ -1840,6 +1841,7 @@ DataEnum:
 		ASTDataType* type = (ASTDataType*)$3;
 		type->constant_ = 1; //force to be constant, skip `const const` errors
 		list->baseType = type;
+		list->location = @$;
 		$$ = list;};
 
 Enum_Block:
@@ -1847,7 +1849,6 @@ Enum_Block:
 			ASTDataEnum* list = (ASTDataEnum*)$1;
 			ASTDataDecl* element = (ASTDataDecl*)$3;
 			list->addDeclaration(element);
-			list->location = @$;
 			$$ = list;}
 	| Data_Element {
 			ASTDataDecl* element = (ASTDataDecl*)$1;
