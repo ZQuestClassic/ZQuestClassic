@@ -1,6 +1,7 @@
 #include "base/util.h"
 #include "parser/AST.h"
 #include "parser/ASTVisitors.h"
+#include "parser/CommentUtils.h"
 #include "parser/Types.h"
 #include "parserDefs.h"
 #include "MetadataVisitor.h"
@@ -10,7 +11,6 @@
 #include <filesystem>
 #include <nlohmann/json.hpp>
 #include <fmt/format.h>
-#include <regex>
 #include <sstream>
 
 using namespace ZScript;
@@ -19,8 +19,8 @@ using json = nlohmann::ordered_json;
 std::string metadata_tmp_path;
 std::string metadata_orig_path;
 
-json root;
-json* active;
+static json root;
+static json* active;
 
 // https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#symbolKind
 enum class SymbolKind
@@ -95,36 +95,6 @@ static auto LocationData_pos_json(const LocationData& loc)
 	};
 }
 
-static ASTExprIdentifier parseExprIdentifier(const std::string& str)
-{
-	ASTExprIdentifier ident{};
-	int i = 0;
-	int j = 0;
-	while (j < str.size())
-	{
-		if (j + 1 < str.size())
-		{
-			bool matches = false;
-			matches |= str[j] == ':' && str[j + 1] == ':';
-			matches |= str[j] == '-' && str[j + 1] == '>';
-			if (matches)
-			{
-				ident.components.push_back(str.substr(i, j));
-				ident.delimiters.push_back(str.substr(j, 2));
-				j += 2;
-				i = j;
-				continue;
-			}
-		}
-
-		j++;
-		if (j == str.size())
-			ident.components.push_back(str.substr(i));
-	}
-
-	return ident;
-}
-
 static std::string url_encode(const std::string &value)
 {
     std::ostringstream escaped;
@@ -149,131 +119,28 @@ static std::string url_encode(const std::string &value)
     return escaped.str();
 }
 
-static void parseCommentForLinks(std::string& comment, const AST* node)
+static void linkifyComment(std::string& comment, const AST* node)
 {
-	Scope* scope = scope = node->getScope();
-	if (!scope)
+	bool check_params = true;
+	auto matches = parseForSymbolLinks(comment, node, check_params);
+	if (matches.empty())
 		return;
-
-	// identifier, followed by an optional and non-captured "[]" or "()"
-	static std::string p_ident = "([a-zA-Z_][->:a-zA-Z0-9_]*)(?:\\[\\]|\\(\\))?";
-	static std::string p_link = fmt::format("\\{{@link {}[|]?([^}}]+)?\\}}", p_ident);
-	static std::string p_shorthand = fmt::format("\\[{}\\]", p_ident);
-	static std::string p_regex = fmt::format("{}|{}", p_link, p_shorthand);
-	// Supports:
-	// @link {symbol}
-	// @link {symbol|text}
-	// [symbol]
-	static const std::regex r(p_regex);
-	std::sregex_iterator it(comment.begin(), comment.end(), r);
-	std::sregex_iterator end;
-
-	std::vector<std::tuple<std::string, int, int, std::string>> matches;
-	while (it != end)
-	{
-		auto pos = (*it).position(0);
-		auto len = (*it).length(0);
-		std::string symbol_name, link_text;
-		if ((*it)[3].matched)
-		{
-			symbol_name = (*it)[3].str();
-		}
-		else
-		{
-			symbol_name = (*it)[1].str();
-			link_text = (*it)[2].matched ? (*it)[2].str() : "";
-		}
-		matches.emplace_back(symbol_name, pos, len, link_text);
-		it++;
-	}
 
 	for (auto it = matches.rbegin(); it != matches.rend(); it++)
 	{
-		auto& [symbol_name, pos, len, link_text] = *it;
-		if (link_text.empty())
-			link_text = symbol_name;
-
-		bool is_array = false;
-		bool is_fn = false;
-		const AST* symbol_node = nullptr;
-		auto fn = lookupGetter(*scope, symbol_name);
-		if (!fn)
-			fn = lookupSetter(*scope, symbol_name);
-		if (!fn)
+		if (!it->symbol_node)
 		{
-			// TODO: possibly support param types for overloaded functions: `CenterX(npc, bool)`
-			auto ident = parseExprIdentifier(symbol_name);
-			auto fns = lookupFunctions(*scope, ident.components, ident.delimiters, {}, false, false, true);
-			if (!fns.empty())
-				fn = fns[0];
-		}
-		if (fn && fn->node)
-		{
-			symbol_node = fn->node;
-			is_fn = true;
-		}
-		// Parameter?
-		if (!symbol_node)
-		{
-			if (auto fn_node = dynamic_cast<const ASTFuncDecl*>(node))
-			{
-				for (auto param_node : fn_node->parameters.data())
-				{
-					if (param_node->getName() == symbol_name)
-					{
-						symbol_node = param_node;
-						break;
-					}
-				}
-			}
-		}
-		if (!symbol_node)
-		{
-			auto ident = parseExprIdentifier(symbol_name);
-			if (auto datum = lookupDatum(*scope, ident, nullptr))
-			{
-				symbol_node = datum->getNode();
-				is_array = datum->type.isArray();
-			}
-		}
-		if (!symbol_node)
-		{
-			auto ident = parseExprIdentifier(symbol_name);
-			if (auto datum = lookupClassVars(*scope, ident, nullptr))
-			{
-				symbol_node = datum->getNode();
-				is_array = datum->type.isArray();
-			}
-		}
-		if (!symbol_node)
-		{
-			auto ident = parseExprIdentifier(symbol_name);
-			if (auto type = lookupDataType(*scope, ident, nullptr))
-			{
-				if (auto custom_type = dynamic_cast<const DataTypeCustom*>(type); custom_type)
-					symbol_node = custom_type->getSource();
-			}
-		}
-
-		if (!symbol_node)
-		{
-			comment.replace(pos, len, fmt::format("`{}`", link_text));
-			logDebugMessage(fmt::format("could not resolve symbol \"{}\"", symbol_name).c_str());
+			comment.replace(it->pos, it->len, fmt::format("`{}`", it->link_text));
 			continue;
 		}
 
-		if (is_array)
-			link_text += "[]";
-		else if (is_fn)
-			link_text += "()";
-
-		auto location = symbol_node->getIdentifierLocation().value_or(symbol_node->location);
+		auto location = it->symbol_node->getIdentifierLocation().value_or(it->symbol_node->location);
 		auto args = json{
 			{"file", make_uri(location.fname)},
 			{"position", LocationData_json(location)},
 		};
 		std::string command = fmt::format("zscript.openLink?{}", url_encode(args.dump()));
-		comment.replace(pos, len, fmt::format("[`{}`](command:{})", link_text, command));
+		comment.replace(it->pos, it->len, fmt::format("[`{}`](command:{})", it->link_text, command));
 	}
 }
 
@@ -363,7 +230,7 @@ static void appendIdentifier(std::string symbol_id, const AST* symbol_node, cons
 		auto comment = getComment(symbol_node);
 		if (!comment.empty())
 		{
-			parseCommentForLinks(comment, symbol_node);
+			linkifyComment(comment, symbol_node);
 			root["symbols"][symbol_id]["doc"] = comment;
 		}
 	}
