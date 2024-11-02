@@ -25490,7 +25490,8 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 	// Drawing commands probably shouldn't carry over...
 	if ( !get_qr(qr_SCRIPTDRAWSINWARPS) )
 		script_drawing_commands.Clear();
-	
+
+	reset_ladder();
 	switch(type)
 	{
 		case 0:                                                 // tile warp
