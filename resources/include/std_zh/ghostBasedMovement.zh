@@ -8,11 +8,13 @@
 namespace GhostBasedMovement
 {
 	/* For each 'Walk' type function:
-	 * Pass a variable for the 'counter' param which is initialized to '-1',
+	 * Pass a variable for the 'counter' param which is initialized to `-1`,
 	 *     and assign the return from the function back to the counter variable.
 	 * Ex:
+	 * ```
 	 * int counter = -1;
 	 * counter = ConstWalk4(n, counter);
+	 * ```
 	 */
 	int ConstWalk4(npc n, int counter, bool flying = false)
 	{
@@ -231,8 +233,7 @@ namespace GhostBasedMovement
 			walkCounter = VarWalk8(n, walkCounter, step, rate, homing, hunger, turnCheckTime, true);
 		return ((state<<14) | walkCounter) + (stateTimer*1L);
 	}
-	
-	//Helper functions, used by the above functions.
+
 	void FixCoords(npc n)
 	{
 		n->X = (n->X & 0xF0) + ((n->X&8)?16:0);

@@ -63,7 +63,7 @@ class file {
 	//   FILECLOSE
 	internal void Close();
 
-	// Closes the currently open file as if calling [Close()], then deallocates
+	// Closes the currently open file as if calling [Close], then deallocates
 	// the file pointer so it may be re-used.
 	//
 	// @deprecated Free() no longer does anything as of ZC 3.0. Objects are now
@@ -224,7 +224,7 @@ class file {
 	//   FILEGETERROR D2
 	internal void GetError(char32[] buf);
 
-	// Deletes the file. This will close it, as with [Close()], and then delete
+	// Deletes the file. This will close it, as with [Close], and then delete
 	// it from the filesystem.
 	//
 	// @zasm

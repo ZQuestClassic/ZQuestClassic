@@ -10,6 +10,10 @@ enum PlayerSliding
 	SLD_MAX
 };
 
+// Contains functions and variables related to the playable hero character.
+//
+// Access with `Hero->`.
+//
 // @extends sprite
 class player {
 	// @delete
@@ -53,27 +57,27 @@ class player {
 	internal bool Item[];
 
 	// The number of pixels that the player moves in a frame, based on
-	// present coordinates. The movement is taken from his x and y:
+	// present coordinates. The movement is taken from [X] and [Y]:
 	// ```
-	// x_move_in_pixels = Hero->Step[Hero->X&7]
-	// y_move_in_pixels = Hero->Step[Hero->Y&7]
+	// x_move_in_pixels = Hero->Steps[Hero->X&7];
+	// y_move_in_pixels = Hero->Steps[Hero->Y&7];
 	// ```
 	// The default values are: `{ 1, 1, 2, 1, 1, 2, 1, 1 }`
 	//
 	// You can double the speed by doubling these values.
 	//
 	// NOTE: This only affects 4-way movement, and has no effect if the quest
-	// rule 'New Hero Movement' is enabled.
+	// rule `New Hero Movement` is enabled.
 	//
 	// @zasm_var HEROSTEPS
 	internal int Steps[];
 
-	// The steprate that the player moves at. This functions similarly to
-	// "npc->Step": a step rate of '100' means that you move '1 pixel per
-	// frame'. The default step rate is '150', moving at '1.5 pixels per frame'.
+	// The rate the player moves at. This is similar to [npc::Step]: a step of
+	// 100 moves the player 1 pixel per frame. The default step rate is 150,
+	// which moves the player 1.5 pixels per frame.
 	//
 	// NOTE: This affects BOTH 4-way and 8-way movement, but ONLY if the quest
-	// rule "New Player Movement" is enabled.
+	// rule `New Player Movement` is enabled.
 	//
 	// @zasm_var HEROSTEPRATE
 	internal int Step;
@@ -81,7 +85,7 @@ class player {
 	// The offset from corners that the player's movement will 'shove' them
 	// around. Ranges from 0-16
 	//
-	// NOTE: Only applies if "Newer Player Movement" Quest Rule is enabled.
+	// NOTE: Only applies if `Newer Player Movement` Quest Rule is enabled.
 	//
 	// @zasm_var HEROSHOVEOFFSET
 	internal int ShoveOffset;
@@ -144,7 +148,7 @@ class player {
 	// @zasm_var LINKCANFLICKER
 	internal bool InvFlicker;
 
-	// The sound that plays when Link is injured. By default this is '16', but
+	// The sound that plays when Link is injured. By default this is `16`, but
 	// you may change it at any time.
 	//
 	// @zasm_var LINKHURTSFX
@@ -426,7 +430,7 @@ class player {
 	// This returns Link's current displayed cset when taking damage or
 	// invincible. If not in one of these states, will return his normal cset.
 	//
-	// If called before [Waitdraw()] / player update, results may be off by a
+	// If called before [Waitdraw] / player update, results may be off by a
 	// frame.
 	//
 	// If the quest rule 'Invincible Player Flickers' is checked, this is
@@ -456,14 +460,14 @@ class player {
 
 	// The player's ice velocity (in pixels per frame).
 	// Has no effect unless the player is [Sliding].
-	// If the player is not [Sliding], the engine will clear these to '0'.
+	// If the player is not [Sliding], the engine will clear these to `0`.
 	//
 	// @zasm_var HEROICEVX
 	internal int IceVx;
 
 	// The player's ice velocity (in pixels per frame).
 	// Has no effect unless the player is [Sliding].
-	// If the player is not Sliding, the engine will clear these to '0'.
+	// If the player is not Sliding, the engine will clear these to `0`.
 	//
 	// @zasm_var HEROICEVY
 	internal int IceVy;
@@ -629,8 +633,8 @@ class player {
 	// Warps link to the given screen in the given DMap, just like if he'd
 	// triggered an 'Insta-Warp'-type warp.
 	//
-	// Uses warp return square A, unless compat rule `Old 'Hero->Warp' Return
-	// Square' is on, in which case it uses the warp return square of the
+	// Uses warp return square A, unless compat rule `Old 'Hero->Warp' Return Square`
+	// is on, in which case it uses the warp return square of the
 	// current screen's Sidewarp A.
 	//
 	// @zasm
@@ -737,7 +741,7 @@ class player {
 	// walk-through-walls enabled, or is sideview swimming)
 	//
 	// [corner_shove]: if this is true, and the movement is not diagonal (i.e.
-	// one of dx or dy is '0'), then if the movement pushes the player into the
+	// one of dx or dy is `0`), then if the movement pushes the player into the
 	// corner of a solid, the player will automatically be shoved 'around' the
 	// corner. (Same as how engine movement does it)
 	//
@@ -760,7 +764,7 @@ class player {
 							bool ignore_sideview = false,
 							bool corner_shove = true);
 
-	// Like [MoveXY()], but for a [pixels] movement in the [degrees] angle.
+	// Like [MoveXY], but for a [pixels] movement in the [degrees] angle.
 	//
 	// @zasm
 	//   HEROMOVEATANGLE
@@ -781,7 +785,7 @@ class player {
 								 bool ignore_sideview = false,
 								 bool corner_shove = true);
 
-	// Like [MoveXY()], but for a [pixels] movement in the [dir] direction.
+	// Like [MoveXY], but for a [pixels] movement in the [dir] direction.
 	//
 	// @zasm
 	//   HEROMOVE
@@ -811,7 +815,7 @@ class player {
 	// This returns true if the player is currently in a flicker frame (either
 	// invisible or color masked).
 	//
-	// If called before [Waitdraw()] / player update, results may be off by a
+	// If called before [Waitdraw] / player update, results may be off by a
 	// frame.
 	//
 	// If the quest rule 'Invincible Player Flickers' is unchecked, this is
@@ -864,9 +868,9 @@ class player {
 
 // 1 is the sprite uid for Hero.
 const player Hero = <player>1L;
-// @deprecated Use Hero->
+// @deprecated Use [Hero]
 const player Link = <player>1L;
-// @deprecated Use Hero->
+// @deprecated Use [Hero]
 const player Player = <player>1L;
 
 script typedef player link;

@@ -27,7 +27,7 @@ enum EnemyPattern
 };
 
 // Indices for generic counters.
-// Use with [itemdata->Counter], [Game->Counter[]], [Game->MCounter[]] and [Game->DCounter[]]
+// Use with [itemdata::Counter], [Game->Counter], [Game->MCounter] and [Game->DCounter]
 enum CounterIndex
 {
 	CR_NONE = -1,
@@ -95,7 +95,7 @@ enum SwitchEffect
 	SW_EFF_RISE
 };
 
-// Use with [Screen->SetSideWarp()] and [Link->WarpEx()]
+// Use with [Screen->SetSideWarp] and [Link->WarpEx]
 enum WarpType
 {
 	WT_CAVE,

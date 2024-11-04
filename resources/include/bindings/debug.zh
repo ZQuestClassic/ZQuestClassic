@@ -1,3 +1,6 @@
+// Contains various debug-only functionality.
+//
+// Access with `Debug->`.
 class Debug {
 	// @delete
 	internal Debug();

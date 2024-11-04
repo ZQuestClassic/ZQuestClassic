@@ -593,7 +593,9 @@ EnumDataTypedef : ENUM IDENTIFIER LBRACE Enum_Block RBRACE {
 	ASTDataEnum* en = (ASTDataEnum*)$4;
 	en->location = @$;
 	ASTString* identifier = (ASTString*)$2;
-	$$ = new ASTCustomDataTypeDef(NULL, identifier, en, @$);
+	auto custom_typedef = new ASTCustomDataTypeDef(NULL, identifier, en, @$);
+	custom_typedef->doc_comment = std::move(identifier->doc_comment);
+	$$ = custom_typedef;
 	}
 
 DataType :

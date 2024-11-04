@@ -1,5 +1,7 @@
 #include "bindings/sprite.zh"
 
+// Weapons active on the screen from enemies. See [Screen->LoadEWeapon] and [Screen->CreateEWeapon].
+//
 // @zasm_ref REFEWPN
 // @extends sprite
 class eweapon {
@@ -82,7 +84,7 @@ class eweapon {
 	// @zasm_var EWPNFLASHCSET
 	internal int FlashCSet;
 
-	// The deadstate of the weapon, denoted by the `WDS_` constants.
+	// The deadstate of the weapon, denoted by the [WeaponDeadState] (`WDS_`) constants.
 	//
 	// @zasm_var EWPNDEAD
 	internal int DeadState;
@@ -211,7 +213,7 @@ class eweapon {
 	// @zasm_var EWPNDEATHSFX
 	internal int DeathSFX;
 
-	// NOTE: Currently only `lweapon`s can be lifted.
+	// NOTE: Not implemented - currently only [lweapon] can be lifted.
 	//
 	// @zasm_var EWPNLIFTLEVEL
 	internal int LiftLevel;

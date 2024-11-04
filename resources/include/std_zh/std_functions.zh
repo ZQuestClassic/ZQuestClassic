@@ -175,8 +175,6 @@ int AtFrontY(int dir)
 	return y;
 }
 
-//B
-
 //Returns if Link is below an npc.
 bool Below(npc n){ return Link->Y > n->Y; }
 
@@ -188,8 +186,6 @@ bool Below(eweapon n){ return Link->Y > n->Y; }
 
 //Returns if Link is above, below, left of, or right of an lweapon.
 bool Below(lweapon n){ return Link->Y > n->Y; }
-
-//C
 
 //This should allow any scripted object to easily mimic Link styled LOZ solidity collision
 //checking, be it Link, FFCs, or enemies.
@@ -401,7 +397,7 @@ bool Collision(ffc f, ffc f2)
 	return RectCollision(f->X, f->Y, f->X+(f->TileWidth*16)-1, f->Y+(f->TileHeight*16)-1, f2->X, f2->Y, f2->X+f2->TileWidth*16-1, f2->Y+f2->TileHeight*16-1);
 }
 
-//A circular collision between an ffc and an ffc. Uses TileWidth and TileHeight to find the centre of the FFCs.
+//A circular collision between an ffc and an ffc. Uses TileWidth and TileHeight to find the center of the FFCs.
 bool Collision(ffc f, int radius1, ffc f2, int radius2)
 {
 	return CircleCollision(f->X+f->TileWidth/2, f->Y+f->TileHeight/2, radius1,f2->X+f2->TileWidth/2, f2->Y+f2->TileHeight/2, radius2);
@@ -492,7 +488,7 @@ bool Collision(item b)
 }
 
 // Returns true if there is a collision between Link's hitbox and the npc's.
-// This only checks hitboxes.  Uses TileWidth and TileHeight to find the centre of the FFCs.
+// This only checks hitboxes.  Uses TileWidth and TileHeight to find the center of the FFCs.
 bool Collision(npc b)
 {
 	int ax = Link->X + Link->HitXOffset;
@@ -2339,7 +2335,7 @@ bool LinkCollision(item b)
 }
 
 // Returns true if there is a collision between Link's hitbox and the npc's.
-// This only checks hitboxes.  Uses TileWidth and TileHeight to find the centre of the FFCs.
+// This only checks hitboxes.  Uses TileWidth and TileHeight to find the center of the FFCs.
 bool LinkCollision(npc b)
 {
 	int ax = Link->X + Link->HitXOffset;
@@ -2451,8 +2447,6 @@ int longrand(int max)
 	}
 	return ret;
 }
-
-//M
 
 int MapToDMap(int screen, int dmap)
 {
@@ -4098,4 +4092,52 @@ void SetLevelSwitchState(int level, int switchNum, bool state)
     else Game->LSwitches[level] ~= (1Lb<<switchNum);
 }
 
+//Returns the Nth combo index of a combo based on a central point, and a direction.
+//For example, combo 22 + COMBO_UPRIGHT returns `7`, 
+//as combo 7 is to the upper-right of combo 22.
+//Returns -1 on error. 
+int AdjacentCombo(int cmb, int dir)
+{
+	if (dir < 0 || dir > 15) return -1;
+	dir = DirNormal(dir);
+	int combooffsets[12]={-0x10, 0x10, -1, 1, -0x11, -0x0F, 0x0F, 0x11, 0, 0, 0, 0};
+	if ( cmb % 16 == 0 ) combooffsets[8] = -1;//if it's the left edge
+	if ( (cmb % 16) == 15 ) combooffsets[9] = -1; //if it's the right edge
+	if ( cmb < 0x10 ) combooffsets[10] = -1; //if it's the top row
+	if ( cmb > 0x9F ) combooffsets[11] = -1; //if it's on the bottom row
+	if ( combooffsets[8]==-1 && ( dir == DIR_LEFT || dir == DIR_LEFTUP || dir == DIR_LEFTDOWN ) ) return -1; //if the left columb
+	if ( combooffsets[9]==-1 && ( dir == DIR_RIGHT || dir == DIR_RIGHTUP || dir == DIR_RIGHTDOWN ) ) return -1; //if the right column
+	if ( combooffsets[10]==-1 && ( dir == DIR_UP || dir == DIR_RIGHTUP || dir == DIR_LEFTUP ) ) return -1; //if the top row
+	if ( combooffsets[11]==-1 && ( dir == DIR_DOWN || dir == DIR_RIGHTDOWN || dir == DIR_LEFTDOWN ) ) return -1; //if the bottom row
+	if ( cmb >= 0 && cmb < 176 ) return cmb + combooffsets[dir];
+	else return -1;
+}
 
+//Fairly select between true or false.
+bool ChooseB()
+{
+	return (Rand(0,1));
+}
+
+//Terminate an FFC, and set all its properties to 0. 
+void ClearFFC(int ffc_id)
+{
+	ffc f = Screen->LoadFFC(ffc_id);
+	f->Data = 0;
+	f->Script = 0;
+	f->CSet = 0;
+	f->Delay = 0;
+	f->X = 0;
+	f->Y = 0;
+	f->Vx = 0;
+	f->Vy = 0;
+	f->Ax = 0;
+	f->Ay = 0;
+	for ( int q = 0; q < 11; ++q ) f->Flags[q] = 0;
+	f->TileWidth = 0;
+	f->TileHeight = 0;
+	f->EffectWidth = 0;
+	f->EffectHeight = 0;
+	f->Link = 0;
+	for ( int q = 0; q < 16; ++q ) f->Misc[q] = 0;
+}

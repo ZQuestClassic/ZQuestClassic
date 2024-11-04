@@ -1,3 +1,4 @@
+// Base class for (most) script-exposed engine sprites.
 // @zasm_ref REFSPRITE
 class sprite {
 	// @delete
@@ -68,7 +69,7 @@ class sprite {
 	// The currently displaying tile of the sprite's animation. Set by the
 	// engine each frame if [Animation] is enabled.
 	//
-	// [ffc]: Not used - set [ffc->Data] to the desired combo instead.
+	// [ffc]: Not used - set [ffc::Data] to the desired combo instead.
 	//
 	// @zasm_var SPRITE_TILE
 	internal int Tile;
@@ -85,7 +86,7 @@ class sprite {
 	// If the sprite should be extended (large). Set to 3 to extend, 0
 	// otherwise.
 	//
-	// [ffc], [player]: Not used.
+	// [ffc], [Hero]: Not used.
 	//
 	// @zasm_var SPRITE_EXTEND
 	internal int Extend;
@@ -97,7 +98,7 @@ class sprite {
 	// Max value is 20.
 	//
 	// [ffc]: max value is 4.
-	// [player]: Not used.
+	// [Hero]: Not used.
 	//
 	// @zasm_var SPRITE_TILE_W
 	internal int TileWidth;
@@ -109,13 +110,13 @@ class sprite {
 	// Max value is 20.
 	//
 	// [ffc]: max value is 4.
-	// [player]: Not used.
+	// [Hero]: Not used.
 	//
 	// @zasm_var SPRITE_TILE_H
 	internal int TileHeight;
 
-	// [player]: This changes when the player is hurt and flashing. Writing to this does nothing,
-	// as the player cset is updated by the engine every frame - use [player->ScriptCSet] instead.
+	// [Hero]: This changes when the player is hurt and flashing. Writing to this does nothing,
+	// as the player cset is updated by the engine every frame - use [Hero->ScriptCSet] instead.
 	//
 	// @zasm_var SPRITE_CSET
 	internal int CSet;
@@ -211,14 +212,14 @@ class sprite {
 	// sprite is not falling. Max value of 70, which is the value at the start
 	// of falling.
 	//
-	// [player]: Setting [Action] to [LA_FALLING] also sets this to 70.
+	// [Hero]: Setting [Hero->Action] to [LA_FALLING] also sets this to 70.
 	//
 	// @zasm_var SPRITE_FALL_CLK
 	internal int Falling;
 
 	// The pitfall combo the sprite is falling into, if it is falling.
 	//
-	// [player]:
+	// [Hero]:
 	//
 	// If non-zero, this combo's attributes will affect things such as if the
 	// Hero will warp, and how much damage they will take upon finishing
@@ -226,7 +227,7 @@ class sprite {
 	//
 	// If 0, the Hero will take 1/4 heart of damage, and not warp.
 	//
-	// Setting [Action] to `LA_FALLING` will overwrite this value.
+	// Setting [Hero->Action] to `LA_FALLING` will overwrite this value.
 	//
 	// Setting [Falling] will overwrite this value.
 	//
@@ -250,7 +251,7 @@ class sprite {
 
 	// If the sprite is currently being switch-hooked.
 	//
-	// Note: currently not supported for [ffc], [player].
+	// Note: currently not supported for [ffc], [Hero].
 	//
 	// @zasm_var SPRITE_SWHOOKED
 	internal const bool SwitchHooked;

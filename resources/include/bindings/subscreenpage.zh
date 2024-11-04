@@ -65,8 +65,7 @@ class subscreenpage {
 	// 'flags' determines:
 	//
 	// - SUBSEL_FLAG_NO_NONEQUIP: Skip widgets that are "Non-equippable"
-	// - SUBSEL_FLAG_NEED_ITEM: Skip widgets that currently have no equippable
-	// item
+	// - SUBSEL_FLAG_NEED_ITEM: Skip widgets that currently have no equippable item
 	//
 	// @zasm
 	//   SUBPAGE_MOVE_SEL

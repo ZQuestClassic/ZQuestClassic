@@ -1,0 +1,4 @@
+[TEMPLATE_CONFIGURATION]
+name = my template configuration
+template = book
+stylesheet = pdf.rts

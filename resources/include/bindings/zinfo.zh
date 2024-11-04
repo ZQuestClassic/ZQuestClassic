@@ -1,3 +1,4 @@
+// Access with `ZInfo->`.
 class ZInfo {
 	// @delete
 	internal ZInfo();

@@ -1,7 +1,3 @@
-// ghost.zh
-// Version 2.8.15
-
-
 void Ghost_Init(ffc this, npc ghost)
 {
     __Ghost_InitInternal(this, ghost, false, this->Data, this->CSet);
@@ -120,68 +116,6 @@ npc Ghost_InitSpawn(ffc this, int enemyID)
 	__Ghost_InitInternal(this, ghost, false, this->Data, this->CSet);
 	return ghost;
 }
-
-/*
-npc Ghost_InitAutoGhost(ffc this, int enemyID)
-{
-    npc ghost; bool found = true;
-    
-    // Find the right enemy
-    for(int i=Screen->NumNPCs; i>0; --i)
-    {
-        ghost=Screen->LoadNPC(i);
-        
-        // Wrong ID or already in use
-        if(ghost->ID!=enemyID)
-	{
-	    found = false;
-            continue;
-	}
-        //if((ghost->Misc[__GHI_NPC_DATA]&0x10000)!=0)
-        if((ghost->Misc[__GHI_NPC_DATA]&0x10000))
-	{
-		int sss[]="ghost->Misc[__GHI_NPC_DATA]&0x10000 is %d\n";
-		printf(sss, (ghost->Misc[__GHI_NPC_DATA]&0x10000));
-	    found = false;
-            continue;
-	}
-        //int log1[]="Reached __Ghost_InitInternal call\n";
-	//printf(log1);
-	
-        __Ghost_InitInternal(this, ghost, true, ghost->Misc[__GHI_NPC_DATA]&0xFFFF, ghost->CSet);
-        
-        //if((ghost->MiscFlags&100000000b)!=0) // That's "Is Transparent"
-        if((ghost->MiscFlags&100000000b)) // That's "Is Transparent"
-	{
-            this->Flags[FFCF_TRANS]=true;
-	}
-	//int log2[]="Reached Ghost_InitAutoGhost return\n";
-	//printf(log2);
-	if ( found ) 
-	{
-		return ghost;
-	}
-    }
-    
-    if ( found ) 
-    {
-	return ghost;
-    }
-    else
-    {
-	// No enemy found, so quit. This shouldn't ever happen, so log it.
-	int error1[]="ghost.zh: AutoGhost initialization failed - enemy missing.\n";
-	int error2[30]="  DMap %d, screen %X\n";
-	int error3[30]="  Script %d, enemy ID %d\n";
-	printf(error1);
-	printf(error2, Game->CurDMap, Game->CurDMapScreen);
-	printf(error3, this->Script, enemyID);
-	    
-	__GhCleanUp(this);
-	Quit();
-    }
-}
-*/
 
 npc Ghost_InitAutoGhost(ffc this, int enemyID)
 {

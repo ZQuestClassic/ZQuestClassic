@@ -1,3 +1,10 @@
+// Represents a single map screen.
+//
+// Depending on how the `mapdata` was loaded, it may represent:
+// - a temporary copy of the current screen ([Game->LoadTempScreen])
+// - a temporary copy of a scrolling screen ([Game->LoadScrollingScreen])
+// - the canonical copy of a screen ([Game->LoadMapData])
+//
 // @zasm_ref REFMAPDATA
 class mapdata {
 	// @delete
@@ -7,7 +14,6 @@ class mapdata {
 	// default blue background in ZQuest are 'invalid'. Modifying a combo on a
 	// screen makes it become 'valid'. If a layer is 'invalid', it will not be
 	// drawn.
-	//
 	// @zasm_var MAPDATAVALID
 	internal int Valid;
 
@@ -166,7 +172,7 @@ class mapdata {
 	// @zasm_var MAPDATASIDEWARPSC
 	internal int SideWarpScreen[];
 
-	// Returns the sidewarp ID for a given screen edge, as SideWarpID[dir];
+	// Returns the sidewarp ID for a given screen edge, as `SideWarpID[dir]`;
 	//
 	// Returns [SIDEWARP_NONE] if there is no sidewarp in that direction.
 	//
@@ -176,12 +182,12 @@ class mapdata {
 	// @zasm_var MAPDATASIDEWARPID
 	internal int SideWarpID[];
 
-	// The return square (A->D) used by Tile Warp[A->D].
+	// The return square used by the Tile Warp (A, B, C, D).
 	//
 	// @zasm_var MAPDATATWARPRETSQR
 	internal int TileWarpReturnSquare[];
 
-	// The return square (A->D) used by Side Warp[A->D].
+	// The return square used by the Side Warp (A, B, C, D).
 	//
 	// @zasm_var MAPDATASWARPRETSQR
 	internal int SideWarpReturnSquare[];
@@ -368,14 +374,14 @@ class mapdata {
 
 	// The TileWidth variable for each of the ffcs on the screen.
 	//
-	// See [ffc::TilwWidth] for more details.
+	// See [ffc::TileWidth] for more details.
 	//
 	// @zasm_var MAPDATAFFWIDTH
 	internal int FFCTileWidth[];
 
 	// The TileHeighr variable for each of the ffcs on the screen.
 	//
-	// See [ffc::TilwHeight] for more details.
+	// See [ffc::TileHeight] for more details.
 	//
 	// @zasm_var MAPDATAFFHEIGHT
 	internal int FFCTileHeight[];
@@ -579,7 +585,7 @@ class mapdata {
 
 	// The warp return IDs.
 	//
-	// @deprecated by [SideWarpID[]].
+	// @deprecated by [SideWarpID].
 	// @zasm_var MAPDATASIDEWARPINDEX
 	internal int SideWarpIndex;
 

@@ -1,7 +1,3 @@
-// tango.zh
-// Version 1.3.3
-
-
 // Functions used to draw to the screen or an offscreen bitmap.
 
 // Draws a single character and returns the width of the character drawn.

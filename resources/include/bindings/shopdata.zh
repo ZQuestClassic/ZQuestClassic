@@ -1,3 +1,5 @@
+// Load with [Game->LoadShopData] and [Game->LoadInfoShopData].
+//
 // @zasm_ref REFSHOPDATA
 class shopdata {
 	// @delete

@@ -1,7 +1,3 @@
-// tango.zh
-// Version 1.3.3
-
-
 // Used for save validation
 const int __TANGO_COMPAT_VERSION = 3;
 

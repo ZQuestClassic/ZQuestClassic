@@ -8,8 +8,6 @@ Pass 4: Analyzing Code
 Pass 5: Checking code paths
 Pass 6: Generating object code
 Pass 7: Assembling
-Debug: could not resolve symbol "dest"
-Debug: could not resolve symbol "dest"
 Success!
 Compile finished with exit code '0' (success)
 
@@ -48,12 +46,12 @@ DEALLOCATEMEMR D3
 LOAD D2 0.0004; InlineFunc[int Game::GetGenericScript(char32[])] Params
 GETGENERICSCRIPT D2; InlineFunc[int Game::GetGenericScript(char32[])] Body
 STORE D2 0.0002
-LOAD D2 0.0002; if() #448 Test
+LOAD D2 0.0002; if() #437 Test
 COMPAREV D2 -1
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 36 ==; Test 'if'
-ALLOCATEMEMV D2 53 0; if() #448 Body Start
+ALLOCATEMEMV D2 53 0; if() #437 Body Start
 STORE D2 0.0001
 WRITEPODSTRING D2 "[Test] failed to start - could not find test script\n"
 LOAD D2 0.0001; InlineFunc[void printf(char32[])] Params Start
@@ -62,7 +60,7 @@ PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0001
 DEALLOCATEMEMR D3
-GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #448 Body End
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #437 Body End
 LOAD D2 0.0002; InlineFunc[genericdata Game::LoadGenericData(int)] Params
 LOADGENERICDATA D2; InlineFunc[genericdata Game::LoadGenericData(int)] Body Start
 SETR D2 REFGENERICDATA; InlineFunc[genericdata Game::LoadGenericData(int)] Body End
@@ -126,13 +124,13 @@ CALLFUNC 0.0483; UsrFunc[void playMessage(char32[])] Call
 POP D4
 LOAD D3 0.0010
 DEALLOCATEMEMR D3
-STOREV 32 0.0009; for() #156 setup
-LOAD D2 0.0009; for() #156 LoopTest
+STOREV 32 0.0009; for() #149 setup
+LOAD D2 0.0009; for() #149 LoopTest
 COMPAREV D2 126
 SETCMP D2 I<=
 COMPAREV D2 0
-GOTOCMP 65 ==; for() #156 TestFail?
-ALLOCATEMEMV D2 1 0; for() #156 Body Start
+GOTOCMP 65 ==; for() #149 TestFail?
+ALLOCATEMEMV D2 1 0; for() #149 Body Start
 STORE D2 0.0008
 ALLOCATEMEMV D2 3 0
 STORE D2 0.0007
@@ -158,11 +156,11 @@ SETR D1 D2; InlineFunc[int strcat(char32[], char32[])] Params End
 POP D0; InlineFunc[int strcat(char32[], char32[])] Body Start
 STRCAT D2; InlineFunc[int strcat(char32[], char32[])] Body End
 LOAD D3 0.0008
-DEALLOCATEMEMR D3; for() #156 Body End
-LOAD D2 0.0009; for() #156 LoopIncrement
+DEALLOCATEMEMR D3; for() #149 Body End
+LOAD D2 0.0009; for() #149 LoopIncrement
 ADDV D2 1
 STORE D2 0.0009
-GOTO 29; for() #156 End
+GOTO 29; for() #149 End
 PUSHR D4
 LOAD D2 0.0011; UsrFunc[void playMessage(char32[])] Params Start
 PUSHR D2; UsrFunc[void playMessage(char32[])] Params End
@@ -215,13 +213,13 @@ SPRINTFVARG; InlineFunc[int sprintf(char32[], char32[])] Body Start
 POPARGS D5 0.0002; InlineFunc[int sprintf(char32[], char32[])] Body End
 LOAD D3 0.0008
 DEALLOCATEMEMR D3
-STOREV 0 0.0007; for() #157 setup
-LOAD D2 0.0007; for() #157 LoopTest
+STOREV 0 0.0007; for() #150 setup
+LOAD D2 0.0007; for() #150 LoopTest
 COMPAREV D2 50
 SETCMP D2 I<=
 COMPAREV D2 0
-GOTOCMP 165 ==; for() #157 TestFail?
-ALLOCATEMEMV D2 1 0; for() #157 Body Start
+GOTOCMP 165 ==; for() #150 TestFail?
+ALLOCATEMEMV D2 1 0; for() #150 Body Start
 STORE D2 0.0006
 ALLOCATEMEMV D2 8 0
 STORE D2 0.0005
@@ -258,11 +256,11 @@ SETR D1 D2; InlineFunc[int strcat(char32[], char32[])] Params End
 POP D0; InlineFunc[int strcat(char32[], char32[])] Body Start
 STRCAT D2; InlineFunc[int strcat(char32[], char32[])] Body End
 LOAD D3 0.0006
-DEALLOCATEMEMR D3; for() #157 Body End
-LOAD D2 0.0007; for() #157 LoopIncrement
+DEALLOCATEMEMR D3; for() #150 Body End
+LOAD D2 0.0007; for() #150 LoopIncrement
 ADDV D2 1
 STORE D2 0.0007
-GOTO 118; for() #157 End
+GOTO 118; for() #150 End
 PUSHR D4
 LOAD D2 0.0011; UsrFunc[void playMessage(char32[])] Params Start
 PUSHR D2; UsrFunc[void playMessage(char32[])] Params End
@@ -541,7 +539,7 @@ PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0
 DEALLOCATEMEMR D3
-LOAD D2 0.0002; if() #447 Test
+LOAD D2 0.0002; if() #436 Test
 COMPAREV D2 5
 GOTOCMP 451 !=
 LOAD D2 0.0001
@@ -552,11 +550,11 @@ GOTO 452
 SETV D2 1
 COMPAREV D2 0
 GOTOCMP 459 ==; Test 'if'
-LOAD D2 0.0002; InlineFunc[void player::Warp(int, int)] Params Start AND if() #447 Body Start
+LOAD D2 0.0002; InlineFunc[void player::Warp(int, int)] Params Start AND if() #436 Body Start
 PUSHR D2
 LOAD D2 0.0001; InlineFunc[void player::Warp(int, int)] Params End
 POP D3; InlineFunc[void player::Warp(int, int)] Body Start
-WARPR D3 D2; InlineFunc[void player::Warp(int, int)] Body End AND if() #447 Body End
+WARPR D3 D2; InlineFunc[void player::Warp(int, int)] Body End AND if() #436 Body End
 POPARGS D5 0.0003
 RETURNFUNC; Func[void Init(int, int)] Body End
 SETR D4 SP2; Func[void playMessage(int)] Body Start

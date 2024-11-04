@@ -1,5 +1,7 @@
 #include "bindings/sprite.zh"
 
+// Weapons active on the screen from the hero. See [Screen->LoadLWeapon] and [Screen->CreateLWeapon].
+//
 // @zasm_ref REFLWPN
 // @extends sprite
 class lweapon {
@@ -84,7 +86,7 @@ class lweapon {
 	// @zasm_var LWPNFLASHCSET
 	internal int FlashCSet;
 
-	// The deadstate of the weapon, denoted by the `WDS_` constants.
+	// The deadstate of the weapon, denoted by the [WeaponDeadState] (`WDS_`) constants.
 	//
 	// @zasm_var LWPNDEAD
 	internal int DeadState;
@@ -242,8 +244,6 @@ class lweapon {
 	// @zasm_var LWPNDEATHSFX
 	internal int DeathSFX;
 
-	// NOTE: Currently only `lweapon`s can be lifted.
-	//
 	// @zasm_var LWPNLIFTLEVEL
 	internal int LiftLevel;
 

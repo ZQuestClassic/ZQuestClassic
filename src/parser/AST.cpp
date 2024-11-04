@@ -1180,6 +1180,11 @@ void ASTClass::addDeclaration(ASTDecl& declaration)
 	}
 }
 
+Scope* ASTClass::getScope() const
+{
+	return &user_class->getScope();
+}
+
 // ASTNamespace
 
 ASTNamespace::ASTNamespace(LocationData const& location)

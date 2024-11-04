@@ -1,5 +1,10 @@
 #include "bindings/sprite.zh"
 
+// "Freeform combo" represent combos that may move freely around the
+// screen, not tied to the grid.
+//
+// Load with [Screen->LoadFFC].
+//
 // @zasm_ref REFFFC
 // @extends sprite
 class ffc {

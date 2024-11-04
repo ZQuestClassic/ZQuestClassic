@@ -1,3 +1,6 @@
+// Contains functions related to drawing and visual effects.
+//
+// Access with `Graphics->`.
 class Graphics {
 	// @delete
 	internal Graphics();
@@ -90,17 +93,12 @@ class Graphics {
 	//   GRAPHICSGETPIXEL D2
 	internal int GetPixel(untyped b, int x, int y);
 
-	// Creates a new paldata. If 'color' is specified, fills the palette with
-	// that rgb color.
-	//
 	// @deprecated Use `new paldata()` instead!
 	// @zasm
 	//   CREATEPALDATA
 	internal paldata CreatePalData();
 
-	// Creates a new paldata. If 'color' is specified, fills the palette with
-	// that rgb color.
-	//
+	// @deprecated Use `new paldata(color)` instead!
 	// @zasm
 	//   POP D2
 	//   CREATEPALDATACLR D2

@@ -1,3 +1,5 @@
+// Represents a generic script. Load with `Game->LoadGenericData`.
+//
 // @zasm_ref REFGENERICDATA
 class genericdata {
 	// @delete
@@ -9,24 +11,24 @@ class genericdata {
 	// @zasm_var GENDATARUNNING
 	internal bool Running;
 
-	// The size of the script's [Data[]] (see below). Writing this
+	// The size of the script's [Data] (see below). Writing this
 	// resizes the array, where any area above the previous maximum is cleared
-	// to '0'.
+	// to `0`.
 	//
 	// @zasm_var GENDATASIZE
 	internal int DataSize;
 
-	// Arrays of exit and reload conditions. All states default to 'false'.
+	// Arrays of exit and reload conditions. All states default to `false`.
 	//
 	// @zasm_var GENDATAEXITSTATE
 	internal bool ExitState[];
 
-	// Arrays of exit and reload conditions. All states default to 'false'.
+	// Arrays of exit and reload conditions. All states default to `false`.
 	//
 	// @zasm_var GENDATARELOADSTATE
 	internal bool ReloadState[];
 
-	// Array of event listener conditions. When [WaitEvent()] is called, the
+	// Array of event listener conditions. When [WaitEvent] is called, the
 	// script will wait until any event which has a value of 'true' in this
 	// array occurs.
 	//
