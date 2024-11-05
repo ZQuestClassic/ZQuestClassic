@@ -25222,7 +25222,7 @@ void do_getscreenforcombopos(const bool v)
 {
 	int rpos = (SH::get_arg(sarg1, v) / 10000);
 	
-	if (BC::checkBoundsPos(rpos, 0, 175, "Region->GetScreenForComoboPos") != SH::_NoError)
+	if (BC::checkBoundsPos(rpos, 0, 175, "Region->GetScreenForComboPos") != SH::_NoError)
 	{
 		set_register(sarg1, -1);
 		return;
