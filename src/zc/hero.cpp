@@ -25461,37 +25461,40 @@ bool HeroClass::HasHeavyBoots()
 bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 {
 	byte reposition_sword_postwarp = 0;
-	if(index<0)
+	if (index < 0)
 	{
 		return false;
 	}
 	is_warping = true;
-	for ( int32_t q = 0; q < Lwpns.Count(); ++q )
+	for (int32_t q = 0; q < Lwpns.Count(); ++q)
 	{
-		weapon *swd=NULL;
+		weapon* swd = NULL;
 		swd = (weapon*)Lwpns.spr(q);
-		if(swd->id == (attack==wSword ? wSword : wWand))
+		if (swd->id == (attack == wSword ? wSword : wWand))
 		{
 			Lwpns.del(q);
 		}
 	}
-	
+
 	attackclk = charging = spins = tapping = 0;
 	attack = none;
-	if ( warp_sound > 0 ) warpsfx = warp_sound;
+	if (warp_sound > 0) warpsfx = warp_sound;
 	warp_sound = 0;
-	word wdmap=0;
-	byte wscr=0,wtype=0,t=0;
-	bool overlay=false;
-	t=(currscr<128)?0:1;
+	word wdmap = 0;
+	byte wscr = 0, wtype = 0, t = 0;
+	bool overlay = false;
+	t = (currscr < 128) ? 0 : 1;
 	int32_t wrindex = 0;
 	bool wasSideview = isSideViewGravity(t); // (tmpscr[t].flags7 & fSIDEVIEW)!=0 && !ignoreSideview;
-	
+
 	// Drawing commands probably shouldn't carry over...
-	if ( !get_qr(qr_SCRIPTDRAWSINWARPS) )
+	if (!get_qr(qr_SCRIPTDRAWSINWARPS))
 		script_drawing_commands.Clear();
 
-	reset_ladder();
+	if (replay_version_check(35))
+	{
+		reset_ladder();
+	}
 	switch(type)
 	{
 		case 0:                                                 // tile warp
