@@ -6864,10 +6864,10 @@ bool _handle_tile_move(TileMoveProcess dest_process, optional<TileMoveProcess> s
 				{
 					for (int32_t j = 0; j < enemy.attributes[4]; ++j)
 					{
-						rects.emplace_back(enemy.e_tile + enemy.attributes[5] + (enemy.attributes[6]*j), 4, 1);
+						rects.emplace_back(enemy.attributes[5] + (enemy.attributes[6]*j), 4, 1);
 					}
-					rects.emplace_back(enemy.e_tile + enemy.attributes[7], 4, 1);
-					rects.emplace_back(enemy.e_tile + enemy.attributes[8], 4, 1);
+					rects.emplace_back(enemy.attributes[7], 4, 1);
+					rects.emplace_back(enemy.attributes[8], 4, 1);
 				}
 				movelist->add_tile(&enemy.e_tile, enemy.e_width, enemy.e_height, fmt::format("Enemy {} ({}) 'New'", u, bie[u].s),
 					false, 0, 0, rects);
