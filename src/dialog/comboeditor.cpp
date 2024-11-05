@@ -3449,6 +3449,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								Label(text = "Lift SFX:"),
 								DropDownList(data = list_sfx,
 									fitParent = true, selectedValue = local_comboref.liftsfx,
+									width = 300_px,
 									onSelectFunc = [&](int32_t val)
 									{
 										local_comboref.liftsfx = val;
@@ -3457,6 +3458,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								Label(text = "Break SFX:"),
 								DropDownList(data = list_sfx,
 									fitParent = true, selectedValue = local_comboref.liftbreaksfx,
+									width = 300_px,
 									onSelectFunc = [&](int32_t val)
 									{
 										local_comboref.liftbreaksfx = val;
@@ -3465,6 +3467,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								Label(text = "Lift Weapon:"),
 								DropDownList(data = list_lift_parent_items,
 									fitParent = true, selectedValue = local_comboref.lift_parent_item,
+									width = 300_px,
 									onSelectFunc = [&](int32_t val)
 									{
 										local_comboref.lift_parent_item = val;
