@@ -78,10 +78,10 @@ SETR D2 VIEWPORT_Y
 POP D3
 ADDR D2 D3
 STORE D2 0
-LOAD D2 0.0002; if() #447 Test
+LOAD D2 0.0002; if() #436 Test
 PUSHR D2
-POP REFFFC
-SETR D2 X
+POP REFSPRITE
+SETR D2 SPRITE_X
 PUSHR D2
 LOAD D2 0.0001
 POP D3
@@ -89,8 +89,8 @@ COMPARER D3 D2
 GOTOCMP 93 >=
 LOAD D2 0.0002
 PUSHR D2
-POP REFFFC
-SETR D2 Y
+POP REFSPRITE
+SETR D2 SPRITE_Y
 PUSHR D2
 LOAD D2 0
 POP D3
@@ -98,8 +98,8 @@ COMPARER D3 D2
 GOTOCMP 93 >=
 LOAD D2 0.0002
 PUSHR D2
-POP REFFFC
-SETR D2 X
+POP REFSPRITE
+SETR D2 SPRITE_X
 ADDV D2 32
 PUSHR D2
 LOAD D2 0.0001
@@ -108,8 +108,8 @@ COMPARER D3 D2
 GOTOCMP 93 <
 LOAD D2 0.0002
 PUSHR D2
-POP REFFFC
-SETR D2 Y
+POP REFSPRITE
+SETR D2 SPRITE_Y
 ADDV D2 32
 PUSHR D2
 LOAD D2 0
@@ -121,8 +121,8 @@ GOTO 94
 SETV D2 0
 COMPAREV D2 0
 GOTOCMP 98 ==; Test 'if'
-LOAD D2 0.0003; InlineFunc[void Region::TriggerSecrets(int)] Params AND if() #447 Body Start
-REGION_TRIGGER_SECRETS D2; InlineFunc[void Region::TriggerSecrets(int)] Body AND if() #447 Body End
+LOAD D2 0.0003; InlineFunc[void Region::TriggerSecrets(int)] Params AND if() #436 Body Start
+REGION_TRIGGER_SECRETS D2; InlineFunc[void Region::TriggerSecrets(int)] Body AND if() #436 Body End
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #2 Body [Opt:AlwaysOn] End
 GOTO 16; while() #2 End AND [Opt:NeverRet] AND void run(int, int) Body End
 

@@ -1,3 +1,4 @@
+#include "parser/DocVisitor.h"
 #include "parser/MetadataVisitor.h"
 #include "zsyssimple.h"
 #include "ByteCode.h"
@@ -88,7 +89,7 @@ static void _fill_metadata(std::string filename, Program* program, ScriptsData* 
 	result->metadata = md.takeOutput();
 }
 
-static unique_ptr<ScriptsData> _compile_helper(string const& filename, bool include_metadata)
+static unique_ptr<ScriptsData> _compile_helper(string const& filename, bool include_metadata, bool include_docs)
 {
 	using namespace ZScript;
 
@@ -116,7 +117,13 @@ static unique_ptr<ScriptsData> _compile_helper(string const& filename, bool incl
 		zconsole_info("%s", "Pass 2: Preprocessing");
 		zconsole_idle();
 
-		root->imports.insert(root->imports.begin(), new ASTImportDecl(new ASTString("bindings.zh")));
+		bool shouldImportBindings = true;
+		extern std::string metadata_orig_path;
+		if (metadata_orig_path.find("bindings") != std::string::npos)
+			shouldImportBindings = false;
+		if (shouldImportBindings)
+			root->imports.insert(root->imports.begin(), new ASTImportDecl(new ASTString("bindings.zh")));
+
 		if (!ScriptParser::preprocess(root.get(), ScriptParser::recursionLimit))
 			return result;
 		if(zscript_error_out) return result;
@@ -205,6 +212,14 @@ static unique_ptr<ScriptsData> _compile_helper(string const& filename, bool incl
 		if (include_metadata)
 			_fill_metadata(filename, &program, result.get());
 
+		if (include_docs)
+		{
+			DocVisitor doc(program);
+			if (zscript_error_out || doc.hasFailed())
+				return result;
+			result->docs = doc.getOutput();
+		}
+
 		zconsole_info("%s", "Success!");
 		result->success = true;
 		return result;
@@ -248,11 +263,11 @@ static unique_ptr<ScriptsData> _compile_helper(string const& filename, bool incl
 	}
 #endif
 }
-unique_ptr<ScriptsData> ZScript::compile(string const& filename, bool include_metadata)
+unique_ptr<ScriptsData> ZScript::compile(string const& filename, bool metadata_visitor, bool doc_visitor)
 {
 	DataType::STRING = DataTypeArray::create(DataType::CHAR);
 
-	auto ret = _compile_helper(filename, include_metadata);
+	auto ret = _compile_helper(filename, metadata_visitor, doc_visitor);
 
 	DataTypeArray::created_arr_types.clear();
 
@@ -923,10 +938,9 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(Program& program,
 	appendElements(allFunctions, program.getUserClassConstructors());
 	appendElements(allFunctions, program.getUserClassDestructors());
 	map<int32_t, Function*> functionsByLabel;
-	for (vector<Function*>::iterator it = allFunctions.begin();
-	     it != allFunctions.end(); ++it)
+	for (size_t i = 0; i < allFunctions.size(); i++)
 	{
-		Function& function = **it;
+		Function& function = *allFunctions[i];
 		if(function.is_aliased())
 			continue;
 		if(function.isTemplateSkip())

@@ -10,7 +10,7 @@ class directory {
 	// @zasm_var DIRECTORYSIZE
 	internal const int Size;
 
-	// Loads the name of the [index] file (0 <= [index] < Size)
+	// Loads the name of the [index] file (0 <= [index] < [Size])
 	//
 	// @zasm
 	//   POP D3
@@ -19,8 +19,7 @@ class directory {
 	//   DIRECTORYGET D2 D3
 	internal bool GetFilename(int index, char32[] buf);
 
-	// Refreshes the directory, updating the 'Size' and results of
-	// [GetFilename()] to reflect any changes.
+	// Refreshes the directory, updating [Size] and the results of [GetFilename].
 	//
 	// @zasm
 	//   POP REFDIRECTORY

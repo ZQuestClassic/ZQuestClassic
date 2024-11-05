@@ -4,6 +4,7 @@ set(ZELDA_CORE_SOURCES
 ################################
 # Add or remove files here
 ################################
+src/sprite.cpp
 src/zscriptversion.cpp
 src/zc/ffscript.cpp
 src/zc/script_debug.cpp
@@ -32,6 +33,7 @@ src/zc/scripting/script_object.cpp
 src/zc/scripting/types/game.cpp
 src/zc/scripting/types/item.cpp
 src/zc/scripting/types/npc.cpp
+src/zc/scripting/types/sprite.cpp
 src/zc/scripting/types/user_object.cpp
 src/zc/scripting/types/websocket.cpp
 src/zc/zasm_optimize.cpp

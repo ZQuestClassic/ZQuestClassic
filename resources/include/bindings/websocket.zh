@@ -6,10 +6,11 @@ enum WebsocketState {
 };
 
 enum WebsocketType {
-    WEBSOCKET_MESSAGE_TYPE_TEXT = 1L,
-    WEBSOCKET_MESSAGE_TYPE_BINARY = 2L
+    WEBSOCKET_MESSAGE_TYPE_TEXT = 1L,  // send text data
+    WEBSOCKET_MESSAGE_TYPE_BINARY = 2L // send binary data
 };
 
+// @tutorial /tutorials/websockets
 // @zasm_ref REFWEBSOCKET
 class websocket {
 	// @zasm
@@ -17,12 +18,12 @@ class websocket {
 	//   WEBSOCKET_LOAD D2
 	internal websocket(char32[] url);
 
-	// Returns the current state of the socket.
+	// Current state of the websocket.
 	//
 	// @zasm_var WEBSOCKET_STATE
 	internal const WebsocketState State;
 
-	// True if the socket has a message waiting to be received.
+	// True if there is a message waiting to be received.
 	//
 	// @zasm_var WEBSOCKET_HAS_MESSAGE
 	internal const bool HasMessage;
@@ -33,6 +34,35 @@ class websocket {
 	// @zasm_var WEBSOCKET_URL
 	internal char32 URL;
 
+	// Gets the current websocket error message (if any).
+	//
+	// @zasm
+	//   POP D2
+	//   POP REFWEBSOCKET
+	//   WEBSOCKET_ERROR D2
+	internal void GetError(char32[] buf);
+
+	// Sends a message over the websocket.
+	//
+	// @zasm
+	//   POP D2
+	//   POP D3
+	//   POP REFWEBSOCKET
+	//   WEBSOCKET_SEND D2 D3
+	internal void Send(char32[] buf, WebsocketType type = WEBSOCKET_MESSAGE_TYPE_TEXT);
+
+	// If [HasMessage] is true, returns a pointer to the websocket's internal data array
+	// representing the next message in the queue. If there is no message, returns NULL.
+	//
+	// Calling this function again will overwrite the contents of this array.
+	//
+	// The array is destroyed automatically when the websocket is freed.
+	//
+	// @zasm
+	//   POP REFWEBSOCKET
+	//   WEBSOCKET_RECEIVE D2
+	internal untyped[] Receive();
+	
 	// DEPRECATED: This no longer does anything - objects are freed
 	// automatically now.
 	//
@@ -53,7 +83,7 @@ class websocket {
 
 	// Grants 'Ownership' of the pointer to the currently running script.
 	//
-	// [pre-3.0] When the script terminates (at the same time any Local Arrays
+	// *pre-3.0*: When the script terminates (at the same time any Local Arrays
 	// in the script are cleared), the pointer will be automatically freed.
 	//
 	// See "Object Memory Management" section
@@ -62,40 +92,4 @@ class websocket {
 	//   POP REFWEBSOCKET
 	//   WEBSOCKET_OWN
 	internal void Own();
-
-	// Gets the current socket error message (if any)
-	//
-	// @zasm
-	//   POP D2
-	//   POP REFWEBSOCKET
-	//   WEBSOCKET_ERROR D2
-	internal void GetError(char32[] buf);
-
-	// Sends a message over the socket.
-	//
-	// 'type' is a `WEBSOCKET_MESSAGE_TYPE_` constant.
-	//
-	// - WEBSOCKET_MESSAGE_TYPE_TEXT: send a string
-	// - WEBSOCKET_MESSAGE_TYPE_BINARY: send an array
-	//
-	// @zasm
-	//   POP D2
-	//   POP D3
-	//   POP REFWEBSOCKET
-	//   WEBSOCKET_SEND D2 D3
-	internal void Send(char32[] buf, long type = 1L);
-
-	// If there's a message waiting to be received (see [HasMessage]), returns a
-	// pointer to the websocket's internal data array.
-	//
-	// If no message is waiting, returns NULL.
-	//
-	// Calling 'Receive()' again will overwrite the contents of this array.
-	//
-	// The array will be destroyed automatically when the websocket is freed.
-	//
-	// @zasm
-	//   POP REFWEBSOCKET
-	//   WEBSOCKET_RECEIVE D2
-	internal untyped[] Receive();
 }

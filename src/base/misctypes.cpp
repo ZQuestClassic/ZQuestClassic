@@ -1,5 +1,5 @@
 #include "misctypes.h"
 
-DoorComboSet *DoorComboSets;
+std::array<DoorComboSet, MAXDOORCOMBOSETS> DoorComboSets;
+std::array<std::string, MAXDOORCOMBOSETS> DoorComboSetNames;
 miscQdata QMisc;
-

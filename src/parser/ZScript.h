@@ -195,6 +195,8 @@ namespace ZScript
 		ClassScope const& getScope() const {return *scope;}
 		DataType* getType() {return classType;}
 		void setType(DataType* t) {classType = t;}
+		void setParentClass(UserClass* c) {parentClass = c;}
+		UserClass* getParentClass() const {return parentClass;}
 		
 		std::string internalRefVar;
 		std::vector<int32_t> members;
@@ -206,6 +208,7 @@ namespace ZScript
 		Program& program;
 		ASTClass& node;
 		ClassScope* scope;
+		UserClass* parentClass;
 	};
 
 	UserClass* createClass(Program&, Scope&, ASTClass&, CompileErrorHandler* = NULL);

@@ -5,7 +5,7 @@ class stack {
 	internal stack();
 
 	// The size of the stack, given as a LONG. This means that a stack with 5
-	// items will have a size of '5L'.
+	// items will have a size of `5L`.
 	//
 	// @zasm_var STACKSIZE
 	internal const long Size;
@@ -65,7 +65,7 @@ class stack {
 
 	// Removes the back or front element of the stack, and returns it.
 	//
-	// If the stack is empty, '0' is returned.
+	// If the stack is empty, `0` is returned.
 	//
 	// @zasm
 	//   POP REFSTACK
@@ -74,7 +74,7 @@ class stack {
 
 	// Removes the back or front element of the stack, and returns it.
 	//
-	// If the stack is empty, '0' is returned.
+	// If the stack is empty, `0` is returned.
 	//
 	// @zasm
 	//   POP REFSTACK
@@ -83,7 +83,7 @@ class stack {
 
 	// Returns the back or front element of the stack, without removing it.
 	//
-	// If the stack is empty, '0' is returned.
+	// If the stack is empty, `0` is returned.
 	//
 	// @zasm
 	//   POP REFSTACK
@@ -92,7 +92,7 @@ class stack {
 
 	// Returns the back or front element of the stack, without removing it.
 	//
-	// If the stack is empty, '0' is returned.
+	// If the stack is empty, `0` is returned.
 	//
 	// @zasm
 	//   POP REFSTACK
@@ -100,7 +100,7 @@ class stack {
 	internal untyped PeekFront();
 
 	// Returns the element at the index 'ind', which is a LONG value. This means
-	// that '0L' is the first element, '1L' is the second, etc.
+	// that `0L` is the first element, `1L` is the second, etc.
 	//
 	// @zasm
 	//   POP D2
@@ -109,7 +109,7 @@ class stack {
 	internal untyped Get(long ind);
 
 	// Overwrites the element at the index 'ind' (which is a LONG value) with
-	// 'val'. This means that '0L' is the first element, '1L' is the second,
+	// 'val'. This means that `0L` is the first element, `1L` is the second,
 	// etc.
 	//
 	// @zasm

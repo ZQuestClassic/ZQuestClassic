@@ -1400,9 +1400,9 @@ void extract_dcs_dlg()
 
 int32_t edit_dcs(int32_t index)
 {
-    char door_combo_set_name[sizeof(DoorComboSets[0].name)];
+    char door_combo_set_name[21];
     working_dcs=DoorComboSets[index];
-    sprintf(door_combo_set_name,"%s",working_dcs.name);
+    sprintf(door_combo_set_name,"%s",DoorComboSetNames[index].c_str());
     doorcomboset_dlg[0].dp2 = get_zc_font(font_lfont);
     doorcomboset_dlg[6].dp = door_combo_set_name;
     
@@ -1448,7 +1448,7 @@ int32_t edit_dcs(int32_t index)
     
     if(ret==2)
     {
-        sprintf(working_dcs.name, "%s", door_combo_set_name);
+		DoorComboSetNames[index] = door_combo_set_name;
         extract_dcs_dlg();
         set_bit(working_dcs.flags,df_walktrans,doorcomboset_dlg[294].flags);
         DoorComboSets[index]=working_dcs;
@@ -1481,7 +1481,7 @@ const char *doorcombosetlist(int32_t index, int32_t *list_size)
         if(index>=door_combo_set_count)
             index=door_combo_set_count-1;
             
-        return DoorComboSets[index].name;
+        return DoorComboSetNames[index].c_str();
     }
     
     *list_size=door_combo_set_count;
@@ -1581,14 +1581,11 @@ void fix_door_combo_set(word &door_combo_set, byte index);
 
 int32_t doorcombosetlist_del()
 {
-    char buf[25];
     int32_t d=doorcombosetlist_dlg[2].d1;
     
     if((d>0 || door_combo_set_count>2) && d<door_combo_set_count-1)
     {
-        strncpy(buf,DoorComboSets[d].name,sizeof(DoorComboSets[d].name));
-        
-        if(jwin_alert("Confirm Delete","Delete this door combo set?",buf,NULL,"Yes","No",'y',27,get_zc_font(font_lfont))==1)
+        if(jwin_alert("Confirm Delete","Delete this door combo set?",DoorComboSetNames[d].c_str(),NULL,"Yes","No",'y',27,get_zc_font(font_lfont))==1)
         {
             saved=false;
             
@@ -1692,7 +1689,7 @@ int32_t onDoorCombos()
         if(door_combo_set_count<MAXDOORCOMBOSETS)
         {
             hasroom=true;
-            strcpy(DoorComboSets[door_combo_set_count++].name,"<New Door Combo Set>");
+            DoorComboSetNames[door_combo_set_count++] = "<New Door Combo Set>";
         }
         
         large_dialog(doorcombosetlist_dlg,1.5);
@@ -1716,7 +1713,7 @@ int32_t onDoorCombos()
         }
         
         if(hasroom)
-            memset(DoorComboSets[--door_combo_set_count].name,0,sizeof(DoorComboSets[0].name));
+			DoorComboSetNames[--door_combo_set_count].clear();
             
         if(doedit)
         {

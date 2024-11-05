@@ -1,7 +1,3 @@
-// tango.zh
-// Version 1.3.3
-
-
 // Functions involved in loading text into __Tango_Buffer[].
 
 // Text-producing functions need a bit of padding to overwrite.

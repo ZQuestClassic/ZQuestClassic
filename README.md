@@ -1,3 +1,7 @@
+<p align="center">
+  <img style="image-rendering: pixelated" width=400px src="./resources/assets/zc/ZC_Logo.png" alt="ZQuest Classic logo"/>
+</p>
+
 # ZQuest Classic
 
 ZQuest Classic is a free, open source engine for making games similar to the original NES Zelda. Choose from hundreds of quests, or create your own.

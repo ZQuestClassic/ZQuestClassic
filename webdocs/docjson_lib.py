@@ -1,7 +1,12 @@
-import json, re, math, sys
-from datetime import date
-from datetime import datetime
+import json
+import math
+import re
+import sys
+
+from datetime import date, datetime
+
 import pytz
+
 
 def _dict_get(d:dict,s:str,default=None):
     try:
@@ -1687,6 +1692,7 @@ def generate_output(obj,sm=None) -> str:
 <header class = "pagecont">
 	<h1>{header}</h1>
 	<p>Last Updated: {update_date()}{url}</p>
+	<div style="margin: 5px; font-size: larger">NOTE: this will soon be replaced by <a href="https://docs.zquestclassic.com/zscript/">the new docs</a></div>
 </header>
 <main class = "pagecont">
 	<div class='modal' id = 'ttipmodal'>

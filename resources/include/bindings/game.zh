@@ -1,6 +1,6 @@
 import "bindings/qrs.zh"
 
-// Use as index for [Game->Gravity[]].
+// Use as index for [Game->Gravity].
 enum GravityIndex
 {
 	GR_STRENGTH,
@@ -9,7 +9,7 @@ enum GravityIndex
 	GR_AIRDRAG
 };
 
-// Use as index for [Game->Scrolling[]].
+// Use as index for [Game->Scrolling].
 enum ScrollingIndex
 {
 	SCROLL_DIR,
@@ -28,7 +28,7 @@ enum ScrollingIndex
 	SCROLLDATA_NEW_REGION_OFFSET_X, SCROLLDATA_NEW_REGION_OFFSET_Y
 };
 
-// Use as index for [Game->MiscSprites[]].
+// Use as index for [Game->MiscSprites].
 enum MiscSpriteIndex
 {
 	MISCSPR_FALL,
@@ -38,7 +38,7 @@ enum MiscSpriteIndex
 	MISCSPR_MAX
 };
 
-// Use as index for [Game->MiscSFX[]].
+// Use as index for [Game->MiscSFX].
 enum MiscSfx
 {
 	MISCSFX_BUSH,
@@ -54,7 +54,7 @@ enum MiscSfx
 	MISCSFX_MAX
 };
 
-// Use as index for [Game->Generic[]].
+// Use as index for [Game->Generic].
 enum GenericIndex
 {
 	GEN_HEARTPIECES        = 0, // Heart Pieces currently possessed
@@ -101,6 +101,9 @@ enum MouseCursor
 	ZCM_MAX
 };
 
+// Contains general internal functions and variables.
+//
+// Access with `Game->`.
 class Game {
 	// @delete
 	internal Game();
@@ -234,7 +237,7 @@ class Game {
 	// The level-specific switch states for each level. Each level has a single
 	// `long`, representing 32 bitwise states. Ex:
 	// `(Game->LSwitches[Game->CurLevel] & (1Lb << (5)))` will get the switch
-	// state indexed '5'.
+	// state indexed `5`.
 	//
 	// @zasm_var GAMELSWITCH
 	internal long LSwitches[];
@@ -430,7 +433,7 @@ class Game {
 
 	// The Y offset of the active subscreen, used while it is opening/closing.
 	//
-	// Value is '-224' if subscreen is closed, '-56' if it is open, or the
+	// Value is `-224` if subscreen is closed, `-56` if it is open, or the
 	// current draw offset otherwise.
 	//
 	// @zasm_var GAMEASUBYOFF
@@ -456,23 +459,23 @@ class Game {
 	// @zasm_var GAMENUMMESSAGES
 	internal const int HighestStringID;
 
-	// @deprecated Use [Input->KeyPress[]] instead!
+	// @deprecated Use [Input->KeyPress] instead!
 	// @zasm_var READKEY
 	internal const bool ReadKey[];
 
-	// @deprecated Use [Input->Joypad[]] instead!
+	// @deprecated Use [Input->Joypad] instead!
 	// @zasm_var JOYPADPRESS
 	internal const bool JoypadPress[];
 
-	// @deprecated Use [Input->Press[]] instead!
+	// @deprecated Use [Input->Press] instead!
 	// @zasm_var BUTTONPRESS
 	internal bool ButtonPress[];
 
-	// @deprecated Use [Input->Button[]] instead!
+	// @deprecated Use [Input->Button] instead!
 	// @zasm_var BUTTONINPUT
 	internal bool ButtonInput[];
 
-	// @deprecated Use [Input->Button[]] instead!
+	// @deprecated Use [Input->Button] instead!
 	// @zasm_var BUTTONHELD
 	internal bool ButtonHeld[];
 
@@ -482,7 +485,7 @@ class Game {
 	// @zasm_var DMAPLEVELPAL
 	internal int DMapPalette[];
 
-	// @deprecated Use [dmapdata::Flagset[]] instead!
+	// @deprecated Use [dmapdata::Flagset] instead!
 	// @zasm_var DMAPFLAGSD
 	internal int DMapFlags[];
 
@@ -687,7 +690,6 @@ class Game {
 	//
 	// @exit
 	// @zasm
-	//   POP D5
 	//   GAMESAVEQUIT
 	internal void SaveAndQuit();
 
@@ -695,7 +697,6 @@ class Game {
 	//
 	// @exit
 	// @zasm
-	//   POP D5
 	//   GAMESAVECONTINUE
 	internal void SaveAndContinue();
 
@@ -891,7 +892,7 @@ class Game {
 	// Loads the mapdata pointer for the screen at `(map,screen)`. Edits to
 	// these pointers do not persist through quest exit. Edits to these pointers
 	// will NOT affect the "current screen", even if the current map/screen is
-	// supplied; see [LoadTempScreen()] below for that.
+	// supplied; see [LoadTempScreen] below for that.
 	//
 	// @zasm
 	//   POP D1
@@ -1022,7 +1023,7 @@ class Game {
 	// Loads the [genericdata] pointer referencing the specified generic
 	// [scriptslot].
 	//
-	// Note that '0' is invalid.
+	// Note that `0` is invalid.
 	//
 	// @zasm
 	//   POP D2
@@ -1085,7 +1086,7 @@ class Game {
 	internal int NumSavedPortals();
 
 	// Loads a 'Saved Portal' pointer. Use 1 <= [saved_portal_id] <=
-	// [NumSavedPortals()], OR [saved_portal_id] == -1 to access the Magic
+	// [NumSavedPortals], OR [saved_portal_id] == -1 to access the Magic
 	// Mirror's portal.
 	//
 	// @zasm
@@ -1115,17 +1116,17 @@ class Game {
 	// With `CIID_FLAG_CHECKBUNNY`, it will ignore items which are currently
 	// disabled by BunnyClk.
 	//
-	// Returns '-1' for 'no item'.
+	// Returns `-1` for 'no item'.
 	//
 	// @zasm
 	//   CURRENTITEMID
-	//   POPARGS D2 0.0005
+	//   POPARGS D5 0.0002
 	internal int CurrentItemID(int itemtype, int flags = 1L);
 
 	// Loads the [subscreendata] pointer for the specified
 	// active/passive/overlay subscreen.
 	//
-	// Use id '-1' to load the current subscreen of the type.
+	// Use id `-1` to load the current subscreen of the type.
 	//
 	// @zasm
 	//   POP D2
@@ -1135,7 +1136,7 @@ class Game {
 	// Loads the [subscreendata] pointer for the specified
 	// active/passive/overlay subscreen.
 	//
-	// Use id '-1' to load the current subscreen of the type.
+	// Use id `-1` to load the current subscreen of the type.
 	//
 	// @zasm
 	//   POP D2
@@ -1145,7 +1146,7 @@ class Game {
 	// Loads the [subscreendata] pointer for the specified
 	// active/passive/overlay subscreen.
 	//
-	// Use id '-1' to load the current subscreen of the type.
+	// Use id `-1` to load the current subscreen of the type.
 	//
 	// @zasm
 	//   POP D2
@@ -1154,20 +1155,22 @@ class Game {
 
 	// @zasm
 	//   SWAPSUBSCREENV 0
+	//   POPARGS D5 0.0002
 	internal int SwapActiveSubscreens(int arg1, int arg2);
 
 	// @zasm
 	//   SWAPSUBSCREENV 1
+	//   POPARGS D5 0.0002
 	internal int SwapPassiveSubscreens(int arg1, int arg2);
 
 	// @zasm
 	//   SWAPSUBSCREENV 2
+	//   POPARGS D5 0.0002
 	internal int SwapOverlaySubscreens(int arg1, int arg2);
 
 	// @zasm
 	//   POP D2
 	//   POP D3
-	//   POP D6
 	//   GETMESSAGE D3 D2
 	internal void GetMessage(int string, char32[] buffer);
 
@@ -1176,7 +1179,6 @@ class Game {
 	// @zasm
 	//   POP D2
 	//   POP D3
-	//   POP D6
 	//   SETMESSAGE D3 D2
 	internal void SetMessage(int message, char32[] str);
 
@@ -1601,7 +1603,7 @@ class Game {
 	//   SETCMP SCREENSTATEDD !=
 	internal void SetScreenState(int map, int screen, int flag, bool value);
 
-	// @deprecated Use [mapdata::ComboD[]]' instead!
+	// @deprecated Use [mapdata::ComboD]' instead!
 	// @zasm
 	//   POP D0
 	//   POP D2
@@ -1609,7 +1611,7 @@ class Game {
 	//   SETR D2 COMBODDM
 	internal int GetComboData(int map, int screen, int position);
 
-	// @deprecated Use [mapdata::ComboD[]]'  instead!
+	// @deprecated Use [mapdata::ComboD]'  instead!
 	// @zasm
 	//   POP D3
 	//   POP D0
@@ -1618,7 +1620,7 @@ class Game {
 	//   SETR COMBODDM D3
 	internal void SetComboData(int map, int screen, int position, int value);
 
-	// @deprecated Use [mapdata::ComboC[]]'  instead!
+	// @deprecated Use [mapdata::ComboC]'  instead!
 	// @zasm
 	//   POP D0
 	//   POP D2
@@ -1626,7 +1628,7 @@ class Game {
 	//   SETR D2 COMBOCDM
 	internal int GetComboCSet(int map, int screen, int position);
 
-	// @deprecated Use [mapdata::ComboC[]]'  instead!
+	// @deprecated Use [mapdata::ComboC]'  instead!
 	// @zasm
 	//   POP D3
 	//   POP D0
@@ -1635,7 +1637,7 @@ class Game {
 	//   SETR COMBOCDM D3
 	internal void SetComboCSet(int map, int screen, int position, int value);
 
-	// @deprecated Use [mapdata::ComboF[]]'  instead!
+	// @deprecated Use [mapdata::ComboF]'  instead!
 	// @zasm
 	//   POP D0
 	//   POP D2
@@ -1643,7 +1645,7 @@ class Game {
 	//   SETR D2 COMBOFDM
 	internal int GetComboFlag(int map, int screen, int position);
 
-	// @deprecated Use [mapdata::ComboF[]]'  instead!
+	// @deprecated Use [mapdata::ComboF]'  instead!
 	// @zasm
 	//   POP D3
 	//   POP D0
@@ -1652,7 +1654,7 @@ class Game {
 	//   SETR COMBOFDM D3
 	internal void SetComboFlag(int map, int screen, int position, int value);
 
-	// @deprecated Use [mapdata::ComboT[]]'  instead!
+	// @deprecated Use [mapdata::ComboT]'  instead!
 	// @zasm
 	//   POP D0
 	//   POP D2
@@ -1660,7 +1662,7 @@ class Game {
 	//   SETR D2 COMBOTDM
 	internal int GetComboType(int map, int screen, int position);
 
-	// @deprecated Use [mapdata::ComboT[]]'  instead!
+	// @deprecated Use [mapdata::ComboT]'  instead!
 	// @zasm
 	//   POP D3
 	//   POP D0
@@ -1669,7 +1671,7 @@ class Game {
 	//   SETR COMBOTDM D3
 	internal void SetComboType(int map, int screen, int position, int value);
 
-	// @deprecated Use [mapdata::ComboI[]]'  instead!
+	// @deprecated Use [mapdata::ComboI]'  instead!
 	// @zasm
 	//   POP D0
 	//   POP D2
@@ -1677,7 +1679,7 @@ class Game {
 	//   SETR D2 COMBOIDM
 	internal int GetComboInherentFlag(int map, int screen, int position);
 
-	// @deprecated Use [mapdata::ComboI[]]'  instead!
+	// @deprecated Use [mapdata::ComboI]'  instead!
 	// @zasm
 	//   POP D3
 	//   POP D0
@@ -1687,7 +1689,7 @@ class Game {
 	internal void SetComboInherentFlag(int map, int screen, int position,
 									   int value);
 
-	// @deprecated Use [mapdata::ComboS[]]'  instead!
+	// @deprecated Use [mapdata::ComboS]'  instead!
 	// @zasm
 	//   POP D0
 	//   POP D2
@@ -1695,7 +1697,7 @@ class Game {
 	//   SETR D2 COMBOSDM
 	internal int GetComboSolid(int map, int screen, int position);
 
-	// @deprecated Use [mapdata::ComboS[]]'  instead!
+	// @deprecated Use [mapdata::ComboS]'  instead!
 	// @zasm
 	//   POP D3
 	//   POP D0
@@ -1732,16 +1734,13 @@ class Game {
 	// @deprecated Use [dmapdata::SetMusic] instead!
 	// @zasm
 	//   SETDMAPENHMUSIC
-	//   POP D3
-	//   POP D3
-	//   POP D3
+	//   POPARGS D5 0.0003
 	internal void SetDMapEnhancedMusic(int dmap, char32[] filename, int track);
 
 	// @deprecated Use [dmapdata::GetName] instead!
 	// @zasm
 	//   POP D2
 	//   POP D3
-	//   POP D6
 	//   GETDMAPNAME D3 D2
 	internal void GetDMapName(int DMap, char32[] buffer);
 
@@ -1749,7 +1748,6 @@ class Game {
 	// @zasm
 	//   POP D2
 	//   POP D3
-	//   POP D6
 	//   SETDMAPNAME D3 D2
 	internal void SetDMapName(int DMap, char32[] buffer);
 
@@ -1757,7 +1755,6 @@ class Game {
 	// @zasm
 	//   POP D2
 	//   POP D3
-	//   POP D6
 	//   GETDMAPTITLE D3 D2
 	internal void GetDMapTitle(int DMap, char32[] buffer);
 
@@ -1765,7 +1762,6 @@ class Game {
 	// @zasm
 	//   POP D2
 	//   POP D3
-	//   POP D6
 	//   SETDMAPTITLE D3 D2
 	internal void SetDMapTitle(int DMap, char32[] buffer);
 
@@ -1773,7 +1769,6 @@ class Game {
 	// @zasm
 	//   POP D2
 	//   POP D3
-	//   POP D6
 	//   GETDMAPINTRO D3 D2
 	internal void GetDMapIntro(int DMap, char32[] buffer);
 
@@ -1781,7 +1776,6 @@ class Game {
 	// @zasm
 	//   POP D2
 	//   POP D3
-	//   POP D6
 	//   SETDMAPINTRO D3 D2
 	internal void SetDMapIntro(int DMap, char32[] buffer);
 }

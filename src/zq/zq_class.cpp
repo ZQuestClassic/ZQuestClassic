@@ -7219,7 +7219,10 @@ int32_t writedoorcombosets(PACKFILE *f, zquestheader *Header)
         for(int32_t i=0; i<door_combo_set_count; i++)
         {
             //name
-            if(!pfwrite(&DoorComboSets[i].name,sizeof(DoorComboSets[0].name),f))
+            char name[21];
+            memset(name, 21, (char)0);
+            strcpy(name, DoorComboSetNames[i].c_str());
+            if(!pfwrite(name,sizeof(name),f))
             {
                 new_return(6);
             }

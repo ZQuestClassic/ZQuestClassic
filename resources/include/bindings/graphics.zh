@@ -1,3 +1,6 @@
+// Contains functions related to drawing and visual effects.
+//
+// Access with `Graphics->`.
 class Graphics {
 	// @delete
 	internal Graphics();
@@ -45,9 +48,7 @@ class Graphics {
 	//
 	// @zasm
 	//   TINT
-	//   POP D3
-	//   POP D3
-	//   POP D3
+	//   POPARGS D5 0.0003
 	internal void Tint(int red, int green, int blue);
 
 	// Tints the palette by adding `red`, `green`, and `blue` to the respective
@@ -56,10 +57,7 @@ class Graphics {
 	//
 	// @zasm
 	//   MONOHUE
-	//   POP D3
-	//   POP D3
-	//   POP D3
-	//   POP D3
+	//   POPARGS D5 0.0004
 	internal void MonochromeHue(int red, int green, int blue,
 								bool distributed = true);
 
@@ -95,17 +93,12 @@ class Graphics {
 	//   GRAPHICSGETPIXEL D2
 	internal int GetPixel(untyped b, int x, int y);
 
-	// Creates a new paldata. If 'color' is specified, fills the palette with
-	// that rgb color.
-	//
 	// @deprecated Use `new paldata()` instead!
 	// @zasm
 	//   CREATEPALDATA
 	internal paldata CreatePalData();
 
-	// Creates a new paldata. If 'color' is specified, fills the palette with
-	// that rgb color.
-	//
+	// @deprecated Use `new paldata(color)` instead!
 	// @zasm
 	//   POP D2
 	//   CREATEPALDATACLR D2

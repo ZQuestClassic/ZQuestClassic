@@ -34,18 +34,18 @@ class refInfo;
 
 class sprite : public solid_object
 {
-private:
-    static int32_t getNextUID();
-    //unique sprite ID
-    //given upon construction
-    int32_t uid;
-    
 public:
-	void unget_UID();
+	static sprite* getByUID(int32_t uid);
+
+    //unique sprite ID
+    int32_t uid;
     int32_t getUID()
     {
+		registerUID();
         return uid;
     }
+	void registerUID();
+	void reassignUid(int32_t new_uid);
     
    
     int32_t screen_spawned;
@@ -56,8 +56,11 @@ public:
 	zfix xofs,yofs,zofs;
     zfix shadowxofs,shadowyofs;
     // no hzofs - it's always equal to zofs.
-    int32_t hzsz;
-    int32_t txsz,tysz;
+    int32_t hzsz; // hit z-height
+	// tile width
+    int32_t txsz = -1;
+	// tile height
+	int32_t tysz = -1;
     /*
      * Explanation of hzsz:
      * Hzsz is how "tall" a sprite is.
@@ -106,7 +109,8 @@ public:
 	int32_t pit_pullclk; // Pitfall pull clk
 	int32_t fallclk; // Pitfall fall clk
 	int32_t fallCombo; // Pitfall fallen combo
-	int32_t old_cset; // Storage var for an old cset; used by pitfalls
+	int32_t o_tile;
+	int32_t o_cset; // Storage var for an old cset; used by pitfalls
 	int32_t drownclk; // Pitfall fall clk
 	int32_t drownCombo; // Pitfall fallen combo
 	bool isspawning;
@@ -284,7 +288,7 @@ class portal : public sprite
 {
 public:
 	int32_t destdmap = -1, destscr, weffect, wsfx;
-    int32_t aclk, aframe, o_tile, aspd, frames;
+    int32_t aclk, aframe, aspd, frames;
 	int32_t saved_data;
 	bool prox_active;
 	portal();
@@ -297,7 +301,7 @@ public:
 class breakable : public sprite
 {
 public:
-    int32_t aclk, aframe, o_tile, aspd, frames;
+    int32_t aclk, aframe, aspd, frames;
 	newcombo const& cmb;
 	int32_t dropitem, breaktimer, fromdropset;
 	int8_t breaksprtype;
@@ -315,5 +319,4 @@ bool lineLineColl(zfix x1, zfix y1, zfix x2, zfix y2, zfix x3, zfix y3, zfix x4,
 bool lineBoxCollision(zfix linex1, zfix liney1, zfix linex2, zfix liney2, zfix boxx, zfix boxy, zfix boxwidth, zfix boxheight);
 double comparePointLine(double x, double y, double x1, double x2, double y1, double y2);
 
-#include "items.h"
 #endif

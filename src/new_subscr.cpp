@@ -4009,7 +4009,6 @@ void SW_Selector::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& pag
 		tempsel.tile+=zc_max(itemsbuf[tempsel.id].frames,1);
 	}
 	destroy_bitmap(tmpbmp);
-	tempsel.unget_UID();
 }
 SubscrWidget* SW_Selector::clone() const
 {

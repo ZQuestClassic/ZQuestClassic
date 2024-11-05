@@ -15,12 +15,14 @@ extern int32_t sarg2;
 extern int32_t sarg3;
 extern char *guy_string[];
 
+// For the "npc" type - also called "guys" internally, and backed by the "enemy" class... :)
+
 int32_t GuyH::loadNPC(const int32_t eid, const char * const funcvar)
 {
 	if ( !eid ) 
 	{
 		//can never be zero?
-		Z_scripterrlog("The npc pointer used for %s is NULL or uninitialised.", funcvar);
+		Z_scripterrlog("The npc pointer used for %s is NULL or uninitialised.\n", funcvar);
 		return _InvalidSpriteUID;
 	}
 	tempenemy = (enemy *) guys.getByUID(eid);
@@ -2323,10 +2325,10 @@ bool npc_set_register(int32_t reg, int32_t value)
 			{
 				if(GuyH::getNPC()->fallclk != 0 && value == 0)
 				{
-					GuyH::getNPC()->cs = GuyH::getNPC()->old_cset;
+					GuyH::getNPC()->cs = GuyH::getNPC()->o_cset;
 					GuyH::getNPC()->tile = GuyH::getNPC()->o_tile;
 				}
-				else if(GuyH::getNPC()->fallclk == 0 && value != 0) GuyH::getNPC()->old_cset = GuyH::getNPC()->cs;
+				else if(GuyH::getNPC()->fallclk == 0 && value != 0) GuyH::getNPC()->o_cset = GuyH::getNPC()->cs;
 				GuyH::getNPC()->fallclk = vbound(value/10000,0,70);
 			}
 			break;
@@ -2341,10 +2343,10 @@ bool npc_set_register(int32_t reg, int32_t value)
 			{
 				if(GuyH::getNPC()->drownclk != 0 && value == 0)
 				{
-					GuyH::getNPC()->cs = GuyH::getNPC()->old_cset;
+					GuyH::getNPC()->cs = GuyH::getNPC()->o_cset;
 					GuyH::getNPC()->tile = GuyH::getNPC()->o_tile;
 				}
-				else if(GuyH::getNPC()->drownclk == 0 && value != 0) GuyH::getNPC()->old_cset = GuyH::getNPC()->cs;
+				else if(GuyH::getNPC()->drownclk == 0 && value != 0) GuyH::getNPC()->o_cset = GuyH::getNPC()->cs;
 				GuyH::getNPC()->drownclk = vbound(value/10000,0,70);
 			}
 			break;

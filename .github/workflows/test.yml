@@ -122,6 +122,7 @@ jobs:
         if: ${{ contains(inputs.runs-on, 'ubuntu') }}
 
       - name: update_auto_script_tests.py
+        if: inputs.config != 'Coverage'
         run: bash .github/workflows/run_python.sh tests/update_auto_script_tests.py
 
       # Note: Uses JIT by default, except for win32.

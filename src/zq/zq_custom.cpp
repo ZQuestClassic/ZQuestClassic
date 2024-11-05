@@ -2428,6 +2428,54 @@ int32_t readonenpc(PACKFILE *f, int32_t index)
 			{
 				if (!p_igetl(&tempguy.attributes[q], f)) return 0;
 			}
+
+			//was missing for some reason has been added
+			if (!p_getc(&tempguy.spr_shadow, f))
+				return 0;
+			if (!p_getc(&tempguy.spr_death, f))
+				return 0;
+			if (!p_getc(&tempguy.spr_spawn, f))
+				return 0;
+			if (!p_igetl(&tempguy.moveflags, f))
+				return 0;
+			
+			//enemy editor attacktab
+			if (!p_igetl(&tempguy.wmoveflags, f))
+				return 0;
+			if (!p_getc(&tempguy.wunblockable, f))
+				return 0;
+			if (!p_igetl(&tempguy.weapoverrideFLAGS, f))
+				return 0;
+			if (!p_igetl(&tempguy.weap_hxofs, f))
+				return 0;
+			if (!p_igetl(&tempguy.weap_hyofs, f))
+				return 0;
+			if (!p_igetl(&tempguy.weap_hxsz, f))
+				return 0;
+			if (!p_igetl(&tempguy.weap_hysz, f))
+				return 0;
+			if (!p_igetl(&tempguy.weap_hzsz, f))
+				return 0;
+			if (!p_igetl(&tempguy.weap_xofs, f))
+				return 0;
+			if (!p_igetl(&tempguy.weap_yofs, f))
+				return 0;
+			if (!p_igetl(&tempguy.weap_tilew, f))
+				return 0;
+			if (!p_igetl(&tempguy.weap_tileh, f))
+				return 0;
+			if (!p_igetl(&tempguy.wstep, f))
+				return 0;
+			for (int q=0; q < WPNSPR_MAX; ++q)
+			{
+				if (!p_getc(&tempguy.burnsprs[q], f))
+					return 0;
+				if (!p_getc(&tempguy.light_rads[q], f))
+					return 0;
+			}
+			if (!p_getc(&tempguy.specialsfx, f))
+				return 0;
+
 		}
 	}
 	memcpy(&guysbuf[index], &tempguy, sizeof(guydata));
@@ -2798,6 +2846,50 @@ int32_t writeonenpc(PACKFILE *f, int32_t i)
 				return 0;
 			}
 		}
+		if (!p_putc(guysbuf[i].spr_shadow, f))
+			return 0;
+		if (!p_putc(guysbuf[i].spr_death, f))
+			return 0;
+		if (!p_putc(guysbuf[i].spr_spawn, f))
+			return 0;
+		if (!p_iputl(guysbuf[i].moveflags, f))
+			return 0;
+		if (!p_iputl(guysbuf[i].wmoveflags, f))
+			return 0;
+		if (!p_putc(guysbuf[i].wunblockable, f))
+			return 0;
+		if (!p_iputl(guysbuf[i].weapoverrideFLAGS, f))
+			return 0;
+		if (!p_iputl(guysbuf[i].weap_hxofs, f))
+			return 0;
+		if (!p_iputl(guysbuf[i].weap_hyofs, f))
+			return 0;
+		if (!p_iputl(guysbuf[i].weap_hxsz, f))
+			return 0;
+		if (!p_iputl(guysbuf[i].weap_hysz, f))
+			return 0;
+		if (!p_iputl(guysbuf[i].weap_hzsz, f))
+			return 0;
+		if (!p_iputl(guysbuf[i].weap_xofs, f))
+			return 0;
+		if (!p_iputl(guysbuf[i].weap_yofs, f))
+			return 0;
+		if (!p_iputl(guysbuf[i].weap_tilew, f))
+			return 0;
+		if (!p_iputl(guysbuf[i].weap_tileh, f))
+			return 0;
+		if (!p_iputl(guysbuf[i].wstep, f))
+			return 0;
+		for (int q=0; q < WPNSPR_MAX; ++q)
+		{
+			if (!p_putc(guysbuf[i].burnsprs[q], f))
+				return 0;
+			if (!p_putc(guysbuf[i].light_rads[q], f))
+				return 0;
+		}
+		if (!p_putc(guysbuf[i].specialsfx, f))
+			return 0;
+
 	return 1;
 }
 

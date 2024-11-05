@@ -1215,31 +1215,46 @@ static void apply_state_changes_to_screen(mapscr& scr, int32_t map, int32_t scre
 	clear_xstatecombos_mi(&scr, screen, mi);
 }
 
-static int32_t MAPCOMBO3_impl(int32_t map, int32_t screen, int32_t layer, int32_t pos, bool secrets)
+std::optional<mapscr> load_temp_mapscr_and_apply_secrets(int32_t map, int32_t screen, int32_t layer, bool secrets, bool secrets_do_replay_comment)
 {
-	const mapscr *m = get_canonical_scr(map, screen);
-	if(!m->valid) return 0;
-
+	if (map < 0 || screen < 0) return std::nullopt;
+		
+	mapscr *m = &TheMaps[(map*MAPSCRS)+screen];
+    
+	if(m->valid==0) return std::nullopt;
+	
 	int32_t mi = (map*MAPSCRSNORMAL)+screen;
 	int32_t flags = 0;
-
+	
 	if(secrets)
 	{
 		flags = game->maps[mi];
 	}
-
+	
 	int32_t mapid = (layer < 0 ? -1 : ((m->layermap[layer] - 1) * MAPSCRS + m->layerscreen[layer]));
-
-	if (layer >= 0 && (mapid < 0 || mapid > MAXMAPS*MAPSCRS)) return 0;
-
-	// TODO: copying a mapscr and applying secrets is a lot of work, and this may be called a lot.
-	// consider caching (and invalidate per-frame/or at least on loadscr).
+	
+	if (layer >= 0 && (mapid < 0 || mapid > MAXMAPS*MAPSCRS)) return std::nullopt;
+	
 	mapscr scr = ((mapid < 0 || mapid > MAXMAPS*MAPSCRS) ? *m : TheMaps[mapid]);
-	if (scr.valid==0) return 0;
+    
+	if(scr.valid==0) return std::nullopt;
 
 	apply_state_changes_to_screen(scr, map, screen, flags);
 
-	return scr.data[pos];
+	return scr;
+}
+
+static int32_t MAPCOMBO3_impl(int32_t map, int32_t screen, int32_t layer, int32_t pos, bool secrets)
+{
+	if (map < 0 || screen < 0) return 0;
+
+	if(pos>175 || pos < 0)
+		return 0;
+
+	if (auto s = load_temp_mapscr_and_apply_secrets(map, screen, layer, secrets))
+		return s->data[pos];
+
+	return 0;
 }
 
 // Read from the current temporary screens or, if (map, screen) is not loaded,
@@ -2767,13 +2782,15 @@ void trigger_secrets_for_screen(TriggerSource source, int32_t screen, mapscr *s,
 	trigger_secrets_for_screen_internal(screen, s, do_combo_triggers, high16only, single);
 }
 
-void trigger_secrets_for_screen_internal(int32_t screen, mapscr *s, bool do_combo_triggers, bool high16only, int32_t single)
+void trigger_secrets_for_screen_internal(int32_t screen, mapscr *s, bool do_combo_triggers, bool high16only, int32_t single, bool do_replay_comment)
 {
 	DCHECK(screen != -1 || s);
 	if (!s) s = get_scr(screen);
 	if (screen == -1) screen = currscr;
 
-	if (replay_is_active())
+	// No real reason for "do_replay_comment" to exist - I just did not want to update many replays when fixing
+	// slopes in sideview mode (which required loading nearby screens in loadscr).
+	if (replay_is_active() && do_replay_comment)
 		replay_step_comment(fmt::format("trigger secrets scr={}", screen));
 
 	if (do_combo_triggers)
@@ -3699,7 +3716,7 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen
 			if (screenscrolling && (base_scr->ffcs[i].flags & ffc_carryover) != 0 && screen_handle.screen != scrolling_scr)
 				continue; //If scrolling, only draw carryover ffcs from newscr and not oldscr.
 
-			base_scr->ffcs[i].draw(bmp, x, y, (type==-4));
+			base_scr->ffcs[i].draw_ffc(bmp, x, y, (type==-4));
 		}
 		return;
 	}
@@ -4080,14 +4097,14 @@ void put_walkflags_a5(int32_t x,int32_t y,int32_t xofs,int32_t yofs, word cmbdat
 		{
 			if (get_qr(qr_OLD_BRIDGE_COMBOS))
 			{
-				if (combobuf[MAPCOMBO2(m,tx2,ty2)].type == cBRIDGE && !_walkflag_layer(tx2,ty2,1, &(tmpscr2[m]))) 
+				if (m >= 0 && combobuf[MAPCOMBO2(m,tx2,ty2)].type == cBRIDGE && !_walkflag_layer(tx2,ty2,1, &(tmpscr2[m]))) 
 				{
 					bridgedetected |= (1<<i);
 				}
 			}
 			else
 			{
-				if (combobuf[MAPCOMBO2(m,tx2,ty2)].type == cBRIDGE && _effectflag_layer(tx2,ty2,1, &(tmpscr2[m]))) 
+				if (m >= 0 && combobuf[MAPCOMBO2(m,tx2,ty2)].type == cBRIDGE && _effectflag_layer(tx2,ty2,1, &(tmpscr2[m]))) 
 				{
 					bridgedetected |= (1<<i);
 				}
@@ -6053,6 +6070,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 		{
 			scr->ffcs[i].setLoaded(true);
 			scr->ffcs[i].solid_update(false);
+			scr->ffcs[i].registerUID();
 			screen_ffc_modify_postroutine({scr, (uint8_t)screen, i, i, &scr->ffcs[i]});
 		}
 	}
@@ -6127,6 +6145,13 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 					FFCore.reset_script_engine_data(ScriptType::FFC, ffc_id);
 				}
 			}
+		}
+
+		for(word i = c; i < MAXFFCS; i++)
+		{
+			int ffc_id = get_region_screen_index_offset(screen)*MAXFFCS + i;
+			FFCore.deallocateAllScriptOwned(ScriptType::FFC, ffc_id, false);
+			FFCore.reset_script_engine_data(ScriptType::FFC, ffc_id);
 		}
 
 		for(int32_t i=0; i<6; i++)
@@ -7003,7 +7028,8 @@ bool hit_walkflag(int32_t x,int32_t y,int32_t cnt)
 
 bool solpush_walkflag(int32_t x, int32_t y, int32_t cnt, solid_object const* ign)
 {
-	if(x<0 || y<0 || x>=world_w || y>=world_h)
+	// 16 pixel buffer to account for slopes that are on bordering screens.
+	if(x<0 || y<0 || x>=world_w+16 || y>=world_h+16)
 		return true;
 		
 	//  for(int32_t i=0; i<4; i++)

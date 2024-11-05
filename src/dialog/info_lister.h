@@ -102,6 +102,8 @@ public:
 	SFXListerDialog(int sfxid = -1, bool selecting = false);
 
 protected:
+	void preinit() override;
+	void postinit() override;
 	void edit() override;
 };
 

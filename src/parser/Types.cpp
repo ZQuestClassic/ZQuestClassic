@@ -499,6 +499,17 @@ bool DataTypeCustom::canCastTo(DataType const& target, bool allowDeprecatedArray
 	if (DataTypeCustom const* t =
 			dynamic_cast<DataTypeCustom const*>(&target))
 	{
+		UserClass* parent = user_class ? user_class->getParentClass() : nullptr;
+		while (parent)
+		{
+			if (DataTypeCustom const* parent_type = dynamic_cast<DataTypeCustom const*>(parent->getType()))
+			{
+				if (parent_type->id == t->id)
+					return true;
+			}
+			parent = parent->getParentClass();
+		}
+
 		//Enum-declared types and class types cannot cast to each other,
 		//only within themselves
 		return id == t->id;

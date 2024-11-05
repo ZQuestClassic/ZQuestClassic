@@ -12,8 +12,7 @@ class solid_object;
 struct newcombo;
 struct slope_object;
 
-#define SLOPE_ID(index, layer) ((rpos_t)(region_num_rpos * (layer) + (index)))
-extern std::map<rpos_t, slope_object> slopes;
+extern std::map<uint32_t, slope_object> slopes;
 void draw_slopes(BITMAP *dest, int32_t x, int32_t y, int32_t col);
 void draw_slopes_a5(int32_t x, int32_t y, ALLEGRO_COLOR col);
 
@@ -50,14 +49,13 @@ struct slope_object
 {
 	word const* cmbid;
 	zfix ox1,oy1,ox2,oy2;
-	rpos_t id;
-	int32_t ffc_id;
+	int32_t ffc_id; // TODO z3 ! uint32_t
 	zfix xoffs,yoffs;
 	
 	slope_info get_info() const;
 	
 	void updateslope();
-	slope_object(word* cid = nullptr, ffcdata* ffc = nullptr, int32_t ffc_id = -1, rpos_t id = rpos_t::None, int32_t x = 0, int32_t y = 0);
+	slope_object(word* cid = nullptr, ffcdata* ffc = nullptr, int32_t ffc_id = -1, int xoffs_ = 0, int yoffs_ = 0);
 	slope_object(slope_object const& other) = delete;
 	slope_object& operator=(slope_object const& other) = delete;
 };

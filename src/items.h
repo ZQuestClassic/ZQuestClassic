@@ -1,11 +1,11 @@
 #ifndef ITEMS_H_
 #define ITEMS_H_
 
-#include "sprite.h"
 #include "base/zdefs.h"
 #include "base/flags.h"
 #include "base/initdata.h"
 #include "base/zfix.h"
+#include "sprite.h"
 
 namespace flags {
 // TODO: these generically named flags need to be renamed / documented.
@@ -70,7 +70,7 @@ public:
     char PriceIndex;
     bool flash,twohand,anim, subscreenItem;
     bool dummy;
-    int32_t o_tile,o_cset, o_speed, o_delay, frames;
+    int32_t o_speed, o_delay, frames;
     int32_t fairyUID;
     word pstring; //pickup string
     word pickup_string_flags;

@@ -1002,7 +1002,7 @@ void Z_scripterrlog(const char * const format,...)
 }
 
 #include "sprite.h"
-movingblock mblock2;                                        //mblock[4]?
+movingblock mblock2;
 portal mirror_portal;
 
 sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations, portals;
@@ -1220,6 +1220,7 @@ static void SUPER_DEBUG(std::string name, rpos_t val, rpos_t& prev_val)
 	prev_val = val;
 }
 
+// TODO z3 ! keep? remove?
 void HeroSuperDebug()
 {
     #define STR_VALUE(arg)      #arg
@@ -1329,7 +1330,7 @@ void HeroSuperDebug()
 	SUPER_DEBUG_(misc);
 	SUPER_DEBUG_(misc_internal_hero_flags);
 	SUPER_DEBUG_ENUM_(moveflags);
-	SUPER_DEBUG_(old_cset);
+	SUPER_DEBUG_(o_cset);
 	SUPER_DEBUG_(on_sideview_ladder);
 	SUPER_DEBUG_(onpassivedmg);
 	SUPER_DEBUG_(onplatid);

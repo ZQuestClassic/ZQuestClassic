@@ -210,9 +210,10 @@ namespace ZScript
 		std::map<std::string, disassembled_script_data> theScripts;
 		std::map<std::string, ParserScriptType> scriptTypes;
 		json metadata;
+		std::string docs;
 	};
 
-	unique_ptr<ScriptsData> compile(std::string const& filename, bool include_metadata);
+	unique_ptr<ScriptsData> compile(std::string const& filename, bool metadata_visitor, bool doc_visitor);
 
 	class ScriptParser
 	{

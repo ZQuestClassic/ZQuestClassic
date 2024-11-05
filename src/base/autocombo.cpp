@@ -623,13 +623,11 @@ int32_t combo_auto::convert_offsets(byte type, int16_t offset)
 		}
 		case AUTOCOMBO_DGNCARVE:
 		{
-			switch (offset)
-			{
-				case 93:
-					return offset + 1;
-				default:
-					return offset;
-			}
+			if (offset < 93)
+				return offset;
+			if (offset == 93)
+				return offset + 1;
+			return offset + 2;
 			break;
 		}
 		case AUTOCOMBO_DOR:
@@ -713,11 +711,43 @@ bool combo_auto::ignore_fill(byte type, int32_t slot)
 				case 25:
 				case 27:
 				case 93:
+				case 99:
+				case 100:
+				case 103:
+				case 104:
+				case 110:
+				case 111:
+				case 112:
+				case 113:
+				case 114:
+				case 117:
+				case 118:
+				case 121:
+				case 122:
+				case 123:
+				case 124:
+				case 125:
 					return true;
 				case 21:
 				case 23:
 				case 24:
 				case 26:
+				case 94:
+				case 95:
+				case 96:
+				case 97:
+				case 98:
+				case 101:
+				case 102:
+				case 105:
+				case 106:
+				case 107:
+				case 108:
+				case 109:
+				case 115:
+				case 116:
+				case 119:
+				case 120:
 					return false;
 			}
 			if (slot % 4 > 1)

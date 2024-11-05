@@ -18815,7 +18815,9 @@ int32_t onSelectFFCombo()
     while(ret==1)
     {
         ff_combo = ffcombo_sel_dlg[3].d1;
-        call_ffc_dialog(ff_combo, active_visible_screen->scr, active_visible_screen->screen);
+        mapscr* scr = active_visible_screen ? active_visible_screen->scr : Map.CurrScr();
+        int screen = active_visible_screen ? active_visible_screen->screen : Map.getCurrScr();
+        call_ffc_dialog(ff_combo, scr, screen);
         ret=do_zqdialog(ffcombo_sel_dlg,0);
     }
     
@@ -24547,8 +24549,7 @@ int32_t main(int32_t argc,char **argv)
 			zq_exit(1);
 		}
 
-		// Note: This is actually "smart assign".
-		success = do_compile_and_slots(2, false);
+		success = do_compile_and_slots(1, false);
 		if (!success)
 		{
 			printf("Failed to compile\n");
@@ -24556,6 +24557,37 @@ int32_t main(int32_t argc,char **argv)
 		}
 
 		success = save_quest(argv[quick_assign_arg + 1], false) == 0;
+		if (!success)
+		{
+			printf("Failed to save quest\n");
+			zq_exit(1);
+		}
+
+		zq_exit(0);
+	}
+
+	int smart_assign_arg = used_switch(argc, argv, "-smart-assign");
+	if (smart_assign_arg > 0)
+	{
+		is_zq_replay_test = true;
+		set_headless_mode();
+
+		int load_ret = load_quest(argv[smart_assign_arg + 1], false);
+		bool success = load_ret == qe_OK;
+		if (!success)
+		{
+			printf("Failed to load quest: %d\n", load_ret);
+			zq_exit(1);
+		}
+
+		success = do_compile_and_slots(2, false);
+		if (!success)
+		{
+			printf("Failed to compile\n");
+			zq_exit(1);
+		}
+
+		success = save_quest(argv[smart_assign_arg + 1], false) == 0;
 		if (!success)
 		{
 			printf("Failed to save quest\n");

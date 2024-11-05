@@ -1,3 +1,5 @@
+// For accessing and editing message strings. Load with [Game->LoadMessageData].
+//
 // @zasm_ref REFMSGDATA
 class messagedata {
 	// @delete
@@ -99,13 +101,13 @@ class messagedata {
 	internal int PortraitY;
 
 	// The tile width/height of the portrait. Max 16 and 14 respectively. If
-	// either is '0', no portrait will be displayed.
+	// either is `0`, no portrait will be displayed.
 	//
 	// @zasm_var MESSAGEDATAPORTWID
 	internal int PortraitTileWidth;
 
 	// The tile width/height of the portrait. Max 16 and 14 respectively. If
-	// either is '0', no portrait will be displayed.
+	// either is `0`, no portrait will be displayed.
 	//
 	// @zasm_var MESSAGEDATAPORTHEI
 	internal int PortraitTileHeight;
@@ -131,7 +133,7 @@ class messagedata {
 	// @zasm_var MESSAGEDATATRANS
 	internal bool Transparent;
 
-	// @deprecated Use [Flags[]] instead!
+	// @deprecated Use [Flags] instead!
 	// @zasm_var MESSAGEDATAFLAGS
 	internal int Flag;
 

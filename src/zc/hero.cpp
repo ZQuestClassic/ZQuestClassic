@@ -15,6 +15,7 @@
 #include "zc/hero.h"
 #include "zc/guys.h"
 #include "subscr.h"
+#include "zc/maps.h"
 #include "zc/replay.h"
 #include "zc/zc_ffc.h"
 #include "zc/zc_subscr.h"
@@ -28,6 +29,7 @@
 #include "base/zc_math.h"
 #include "user_object.h"
 #include "slopes.h"
+#include "zc/zc_sys.h"
 #include "zinfo.h"
 #include "base/misctypes.h"
 #include "music_playback.h"
@@ -127,6 +129,7 @@ static inline bool on_sideview_solid(zfix x, zfix y, bool ignoreFallthrough = fa
 	return false;
 }
 
+// TODO z3 !!! delete?
 static inline bool on_sideview_solid_oldpos(zfix x, zfix y, zfix oldx, zfix oldy, bool ignoreFallthrough = false, int32_t slopesmisc = 0)
 {
 	if(slopesmisc != 1 && check_new_slope(x, y+0.0001_zf, 16, 16, oldx, oldy, (slopesmisc == 3), true) < 0) return true;
@@ -147,12 +150,17 @@ static inline bool on_sideview_solid_oldpos(sprite* obj, bool ignoreFallthrough 
 	rw = obj->hit_width+obj->sxsz_ofs, rh = obj->hit_height+obj->sysz_ofs,
 	orx = obj->old_x+obj->hxofs+obj->sxofs, ory = obj->old_y+obj->hyofs+obj->syofs,
 	x = obj->x+xofs, y = obj->y+yofs;
-	if(slopesmisc != 1 && check_new_slope(rx, ry+0.0001_zf, rw, rh, orx, ory, (slopesmisc == 3), true, obj->slopeid) < 0) return true;
-	if(slopesmisc == 2) return false;
-	if (_walkflag(x+4,y+16,1) || _walkflag(x+12,y+16,1)) return true;
-	if (y>=160_zf && currscr>=0x70 && !(hero_scr->flags2&wfDOWN)) return true;
+	if(slopesmisc != 1 && check_new_slope(rx, ry+0.0001_zf, rw, rh, orx, ory, (slopesmisc == 3), true, obj->slopeid) < 0)
+		return true;
+	if(slopesmisc == 2)
+		return false;
+	if (_walkflag(x+4,y+16,1) || _walkflag(x+12,y+16,1))
+		return true;
+	if (y>=160_zf && currscr>=0x70 && !(hero_scr->flags2&wfDOWN))
+		return true;
 	if (platform_fallthrough() && !ignoreFallthrough) return false;
-	if (slopesmisc != 1 && check_new_slope(rx, ry+0.0001_zf, rw, rh, orx, ory, false, true, obj->slopeid) < 0) return true;
+	if (slopesmisc != 1 && check_new_slope(rx, ry+0.0001_zf, rw, rh, orx, ory, false, true, obj->slopeid) < 0)
+		return true;
 	if (y.getInt()%16==0 && (checkSVLadderPlatform(x+4,y+16) || checkSVLadderPlatform(x+12,y+16)))
 		return true;
 	return false;
@@ -8653,9 +8661,12 @@ heroanimate_skip_liftwpn:;
 				}
 			}
 		}
-		else needFall = true;
+		else
+		{
+			needFall = true;
+		}
 		// Continue falling.
-		
+
 		if(fall <= termv && needFall)
 		{
 			inair = true;
@@ -28439,6 +28450,58 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		return;
 	}
 
+	// If on a slope in sideview mode, move along that slope a bit.
+	// TODO z3 !!!! z3 update
+	zfix sideview_scrolling_slope;
+	if (sideview_mode())
+	{
+		y+=2+0.0001_zf;
+		slope_info const& s = get_slope(this, true).get_info();
+		y-=2+0.0001_zf;
+
+		sideview_scrolling_slope = s.slope();
+		if (sideview_scrolling_slope)
+		{
+			int dx = 0;
+			int dy = 0;
+			if (scrolldir == left)
+				dx = -1;
+			else if (scrolldir == right)
+				dx = 1;
+			else if (scrolldir == up)
+				dy = -1;
+			else if (scrolldir == down)
+				dy = 1;
+
+			// "Ride" the slope for 16 pixels.
+			for (int i = 0; i < 16; i++)
+			{
+				if (scrolldir == left || scrolldir == right)
+				{
+					x += dx;
+					y = s.getY(x + (sideview_scrolling_slope > 0 ? 0 : hit_width)) - hit_height;
+				}
+				else
+				{
+					x += 1 / sideview_scrolling_slope * dy;
+					y = s.getY(x + (sideview_scrolling_slope > 0 ? 0 : hit_width)) - hit_height;;
+				}
+
+				herostep();
+				draw_screen(tmpscr);
+				advanceframe(true);
+
+				// Check if the slope the player is on has changed.
+				y+=2+0.0001_zf;
+				slope_info const& s = get_slope(this, true).get_info();
+				y-=2+0.0001_zf;
+				sideview_scrolling_slope = s.slope();
+				if (!sideview_scrolling_slope)
+					break;
+			}
+		}
+	}
+
 	bool overlay = false;
 	if(scrolldir >= 0 && scrolldir <= 3)
 	{
@@ -29199,9 +29262,12 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			if(script_hero_x < 0)   script_hero_x = 0;
 
 			// This is the only thing that moves the hero.
-			x.doClamp(viewport.x, viewport.x + viewport.w - 16);
-			int bounds_y = viewport.y;
-			y.doClamp(bounds_y, bounds_y + viewport.h - 16);
+			if (!sideview_scrolling_slope)
+			{
+				x.doClamp(viewport.x, viewport.x + viewport.w - 16);
+				int bounds_y = viewport.y;
+				y.doClamp(bounds_y, bounds_y + viewport.h - 16);
+			}
 
 			if (is_unsmooth_vertical_scrolling) viewport.y += 3;
 
@@ -29446,6 +29512,14 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		y = prev_y;
 	}
 	currdmap = old_dmap;
+
+	// Might not be needed, but just in case.
+	if (sideview_scrolling_slope)
+	{
+		x.doClamp(viewport.x, viewport.x + viewport.w - 16);
+		int bounds_y = viewport.y;
+		y.doClamp(bounds_y, bounds_y + viewport.h - 16);
+	}
 
 	// TODO z3 old scrolling code didn't clear the darkroom bitmaps at end of scroll, so first frame will have some lighting from
 	// previous screen... game_loop clears these bitmaps but that should be moved to draw_screen.
@@ -32291,7 +32365,7 @@ void HeroClass::check_conveyor()
 	if (is_conveyor_stunned)
 		--is_conveyor_stunned;
 	
-	if(action==casting||action==sideswimcasting||action==drowning || action==sidedrowning||action==lavadrowning||inlikelike||pull_hero||((z>0||fakez>0) && !(hero_scr->flags2&fAIRCOMBOS)))
+	if((!get_qr(qr_BROKEN_CONVEYORS) && action==rafting) || action==casting||action==sideswimcasting||action==drowning || action==sidedrowning||action==lavadrowning||inlikelike||pull_hero||((z>0||fakez>0) && !(hero_scr->flags2&fAIRCOMBOS)))
 	{
 		is_conveyor_stunned = 0;
 		return;

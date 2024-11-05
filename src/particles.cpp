@@ -20,7 +20,7 @@ void particle::draw(BITMAP *dest)
 
 particle::particle(zfix X,zfix Y,int32_t L,int32_t CS,int32_t C)
 {
-    uid = getNextUID();
+    uid = 0;
 	x=X;
 	y=Y;
 	layer=L;

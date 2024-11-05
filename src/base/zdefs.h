@@ -163,11 +163,11 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_HEROSPRITES      16
 #define V_SUBSCREEN        11
 #define V_ITEMDROPSETS     2
-#define V_FFSCRIPT         25
+#define V_FFSCRIPT         26
 #define V_SFX              8
 #define V_FAVORITES        4
 
-#define V_COMPATRULE       69
+#define V_COMPATRULE       70
 #define V_ZINFO            3
 
 //= V_SHOPS is under V_MISC
@@ -1314,7 +1314,7 @@ struct guydata
     //Adding earlier will offset defdata arrays. -Z
     
     //2.6 enemy editor tile and hit sizes. -Z
-    int32_t xofs,yofs,zofs; //saved to the packfile, so I am using int32_t. I can typecast to fix and back in the functions. 
+    int32_t xofs,yofs,zofs;
     // no hzofs - it's always equal to zofs.
     int32_t hxofs,hyofs,hxsz,hysz,hzsz;
     int32_t txsz,tysz;
@@ -1389,10 +1389,10 @@ public:
 	dword wait_index; // nth WaitX instruction (0 being pc 0) last execution stopped at. for jit only
 	uint32_t retsp; //stack pointer for the return stack
 	
-	uint16_t ffcref;
+	uint32_t ffcref;
 	int32_t idata;
 	dword itemref, guyref, lwpn, ewpn;
-	dword screenref, npcdataref, bitmapref, spritesref, dmapsref, zmsgref, shopsref, untypedref;
+	dword screenref, npcdataref, bitmapref, spriteref, spritedataref, dmapsref, zmsgref, shopsref, untypedref;
 	int32_t mapsref;
 	//to implement
 	dword dropsetref, pondref, warpringref, doorsref, zcoloursref, rgbref, paletteref, palcycleref, tunesref;

@@ -1,0 +1,43 @@
+html {
+    --pst-header-height: 5rem;
+}
+
+.navbar-brand img {
+    padding: 3px;
+}
+
+.bd-main .bd-content .bd-article-container {
+    max-width: 100%;
+}
+
+.bd-sidebar-primary {
+    max-width: 230px;
+}
+
+.bd-page-width {
+  max-width: 100%; /* default is 88rem */
+}
+
+.classref-enumeration-constant, .classref-comment {
+    margin-left: 30px;
+    margin-bottom: 5px;
+}
+
+.classref-enumeration-constant+.classref-comment {
+    margin-left: 60px;
+}
+
+.toctree-grid ul {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(3, 1fr);
+    max-width: 800px;
+}
+
+.del {
+    text-decoration: line-through;
+}
+
+a.reference[href^="https://github.com"]:not(.github) {
+    font-size: 11px;
+}

@@ -158,10 +158,10 @@ namespace ZScript
 	class LocationData
 	{
 	public:
-		int32_t first_line;
-		int32_t last_line;
-		int32_t first_column;
-		int32_t last_column;
+		int32_t first_line; // 1-indexed
+		int32_t last_line; // 1-indexed
+		int32_t first_column; // 1-indexed
+		int32_t last_column; // 1-indexed
 		std::string fname;
 
 		LocationData()
@@ -872,6 +872,7 @@ namespace ZScript
 
 		const std::string& getName() const {return identifier->getValue();}
 		std::optional<LocationData> getIdentifierLocation() const {return identifier->location;}
+		Scope* getScope() const;
 
 		owning_ptr<ASTString> identifier;
 		owning_vector<ASTSetOption> options;
@@ -1188,6 +1189,8 @@ namespace ZScript
 		bool isCustomDataType() const {return true;}
 
 		std::optional<LocationData> getIdentifierLocation() const {return identifier->location;}
+
+		virtual Scope* getScope() const {return definition->getScope();}
 
 		owning_ptr<ASTString> identifier;
 		owning_ptr<ASTDataEnum> definition;

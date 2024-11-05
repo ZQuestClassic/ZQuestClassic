@@ -34,6 +34,97 @@ namespace AutoPattern
 		form_connections(ap, false);
 		return ap->cid;
 	}
+	void autopattern_dungeoncarve::convert_corner(apcombo* p, bool rem)
+	{
+		for (int32_t q = 0; q < 9; ++q)
+		{
+			int32_t xo = (q % 3) - 1;
+			int32_t yo = (q / 3) - 1;
+			apcombo* root = add_relative(p, xo, yo);
+			if(root)
+			{
+				switch (get_alt_slot(root->slot))
+				{
+					case 4:
+					{
+						int32_t old[4] = { 4, 21, 26, 6 };
+						place_corner(root, 0, 0, old, 94, rem);
+						break;
+					}
+					case 5:
+					{
+						int32_t old[4] = { 21, 5, 7, 23 };
+						place_corner(root, -1, 0, old, 96, rem);
+						break;
+					}
+					case 8:
+					{
+						int32_t old[4] = { 26, 10, 8, 24 };
+						place_corner(root, 0, -1, old, 102, rem);
+						break;
+					}
+					case 9:
+					{
+						int32_t old[4] = { 11, 23, 24, 9 };
+						place_corner(root, -1, -1, old, 104, rem);
+						break;
+					}
+					case 12:
+					{
+						int32_t old[4] = { 14, 20, 22, 12 };
+						place_corner(root, -1, -1, old, 110, rem);
+						break;
+					}
+					case 13:
+					{
+						int32_t old[4] = { 20, 15, 13, 27 };
+						place_corner(root, 0, -1, old, 112, rem);
+						break;
+					}
+					case 16:
+					{
+						int32_t old[4] = { 22, 16, 18, 25 };
+						place_corner(root, -1, 0, old, 118, rem);
+						break;
+					}
+					case 17:
+					{
+						int32_t old[4] = { 17, 27, 25, 19 };
+						place_corner(root, 0, 0, old, 120, rem);
+						break;
+					}
+				}
+			}
+		}
+	}
+	void autopattern_dungeoncarve::place_corner(apcombo* p, int32_t xo, int32_t yo, int32_t slots[], int32_t topleft, bool rem)
+	{
+		apcombo* root = add_relative(p, xo, yo);
+		if (!root)
+			return;
+		for (int32_t q = 0; q < 4; ++q)
+		{
+			apcombo* adj = add_relative(root, (q % 2), (q / 2));
+			if (adj)
+			{
+				if (get_alt_slot(adj->slot) != slots[q])
+					return;
+			}
+			else
+				return;
+		}
+		for (int32_t q = 0; q < 4; ++q)
+		{
+			apcombo* adj = add_relative(root, (q % 2), (q / 2));
+			if (adj)
+			{
+				adj->slot = topleft + (q % 2) + (q / 2) * 4;
+				adj->cid = slot_to_cid(adj->slot);
+				adj->force_cset = !rem;
+				adj->changed = true;
+			}
+		}
+	}
 	void autopattern_dungeoncarve::form_connections(apcombo* p, bool rem)
 	{
 		apcombo* relatives[5][5];
@@ -76,9 +167,23 @@ namespace AutoPattern
 				{
 					calculate_connections(relatives[x][y]);
 					int32_t slot = flags_to_slot(relatives[x][y]->connflags);
+					relatives[x][y]->slot = slot;
 					relatives[x][y]->cid = slot_to_cid(slot);
 					relatives[x][y]->force_cset = !rem;
 					relatives[x][y]->changed = true;
+				}
+			}
+		}
+		if (uniquecorners)
+		{
+			for (int32_t x = 0; x < 5; ++x)
+			{
+				for (int32_t y = 0; y < 5; ++y)
+				{
+					if (relatives[x][y] && relatives[x][y]->in_set)
+					{
+						convert_corner(relatives[x][y], rem);
+					}
 				}
 			}
 		}
@@ -109,8 +214,50 @@ namespace AutoPattern
 		}
 		p->connflags = newflags | h;
 	}
+	int32_t autopattern_dungeoncarve::get_alt_slot(int32_t slot)
+	{
+		switch (slot)
+		{
+			// inner corners
+			case 94: slot = 4; break;
+			case 95: slot = 21; break;
+			case 96: slot = 21; break;
+			case 97: slot = 5; break;
+			case 98: slot = 26; break;
+			case 99: slot = 6; break;
+			case 100: slot = 7; break;
+			case 101: slot = 23; break;
+			case 102: slot = 26; break;
+			case 103: slot = 10; break;
+			case 104: slot = 11; break;
+			case 105: slot = 23; break;
+			case 106: slot = 8; break;
+			case 107: slot = 24; break;
+			case 108: slot = 24; break;
+			case 109: slot = 9; break;
+			// outer corners
+			case 110: slot = 14; break;
+			case 111: slot = 20; break;
+			case 112: slot = 20; break;
+			case 113: slot = 15; break;
+			case 114: slot = 22; break;
+			case 115: slot = 12; break;
+			case 116: slot = 13; break;
+			case 117: slot = 27; break;
+			case 118: slot = 22; break;
+			case 119: slot = 16; break;
+			case 120: slot = 17; break;
+			case 121: slot = 27; break;
+			case 122: slot = 18; break;
+			case 123: slot = 25; break;
+			case 124: slot = 25; break;
+			case 125: slot = 19; break;
+		}
+		return slot;
+	}
 	uint32_t autopattern_dungeoncarve::slot_to_flags(int32_t slot)
 	{
+		slot = get_alt_slot(slot);
 		switch (slot)
 		{
 			// First four

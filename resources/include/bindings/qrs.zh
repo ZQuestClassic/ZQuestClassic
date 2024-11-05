@@ -1,3 +1,4 @@
+// Quest rules. Used to toggle legacy behavior and other quest-wide options.
 enum QR
 {
 	qr_SOLIDBLK, 				// Combos (>>>) Can't Push Blocks Onto Unwalkable Combos

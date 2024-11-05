@@ -1,31 +1,6 @@
 #include "std_zh/std_functions.zh"
 
-//A
-
-//Returns the Nth combo index of a combo based on a central point, and a direction.
-//For example, combo 22 + COMBO_UPRIGHT returns '7', 
-//as combo 7 is to the upper-right of combo 22.
-//Returns -1 on error. 
-//Credit to Alucard648 for providing a fixed version
-int AdjacentCombo(int cmb, int dir)
-{
-	if (dir < 0 || dir > 15) return -1;
-	dir = DirNormal(dir);
-	int combooffsets[12]={-0x10, 0x10, -1, 1, -0x11, -0x0F, 0x0F, 0x11, 0, 0, 0, 0};
-	if ( cmb % 16 == 0 ) combooffsets[8] = -1;//if it's the left edge
-	if ( (cmb % 16) == 15 ) combooffsets[9] = -1; //if it's the right edge
-	if ( cmb < 0x10 ) combooffsets[10] = -1; //if it's the top row
-	if ( cmb > 0x9F ) combooffsets[11] = -1; //if it's on the bottom row
-	if ( combooffsets[8]==-1 && ( dir == DIR_LEFT || dir == DIR_LEFTUP || dir == DIR_LEFTDOWN ) ) return -1; //if the left columb
-	if ( combooffsets[9]==-1 && ( dir == DIR_RIGHT || dir == DIR_RIGHTUP || dir == DIR_RIGHTDOWN ) ) return -1; //if the right column
-	if ( combooffsets[10]==-1 && ( dir == DIR_UP || dir == DIR_RIGHTUP || dir == DIR_LEFTUP ) ) return -1; //if the top row
-	if ( combooffsets[11]==-1 && ( dir == DIR_DOWN || dir == DIR_RIGHTDOWN || dir == DIR_LEFTDOWN ) ) return -1; //if the bottom row
-	if ( cmb >= 0 && cmb < 176 ) return cmb + combooffsets[dir];
-	else return -1;
-}
-
 //As AdjacentCombo, but 'dist' squares away in a given direction. 
-//Credit to Alucard648 for providing a fixed version
 int AdjacentCombo(int cmb, int dir, int dist)
 {
 	if (dir < 0 || dir > 15) return -1;
@@ -63,8 +38,6 @@ int AdjacentCombo(int cmb, int dir, int dist)
 	else return -1;
 } 
 
-//B
-
 //Convert boolean variable 'input' to floating point, or int.
 float BoolToFloat(bool input)
 {
@@ -76,37 +49,6 @@ int BoolToInt(bool input)
 	return ( input ? 1 : 0 );
 }
 
-//C
-
-//Returns the centre coordinates of a combo at position 'loc' similar to Center*() functions, and ComboX/Y.
-int CenterComboX(int loc)
-{
-	return (loc%16*16) + 8;
-}
-
-int CenterComboY(int loc)
-{
-	return (loc&0xF0) +8;
-}
-
-int CenterLinkX(bool hitoffset) 
-{ 
-	return ( (hitoffset) ? (Link->X + 8 * Link->TileWidth + Link->HitXOffset) : (Link->X + 8 * Link->TileWidth) );
-}
-
-int CenterLinkX(bool hitoffset, bool drawoffset) 
-{ 
-	int lx = Link->X + 8 * Link->TileWidth;
-	if ( hitoffset ) lx += Link->HitXOffset;
-	if ( drawoffset ) lx += Link->DrawXOffset;	
-	return lx;
-}
-
-int CenterLinkY(bool hitoffset) 
-{
-	return ( (hitoffset) ? (Link->Y + 8 * Link->TileHeight + Link->HitYOffset) : (Link->Y + 8 * Link->TileHeight) );
-}
-
 int CenterLinkY(bool hitoffset, bool drawoffset)
 {
 	int ly = Link->Y + 8 * Link->TileHeight;
@@ -115,36 +57,36 @@ int CenterLinkY(bool hitoffset, bool drawoffset)
 	return ly;
 }
 
-//Returns centre of npc, with option to use either its actual coordinates, or those of its sprite. 
-//Set 'usehitbox' true to use the hitbox centre, or false to use the sprite centre. 
+//Returns center of npc, with option to use either its actual coordinates, or those of its sprite. 
+//Set 'usehitbox' true to use the hitbox center, or false to use the sprite center. 
 int CenterX(item it, bool usehitbox) 
 { 
 	return ( (usehitbox) ? (it->X+it->HitWidth/2 + it->HitXOffset) : (it->X+8*it->TileWidth + it->DrawXOffset) );
 }
 
-//Returns centre of npc, with option to use either its actual coordinates, or those of its sprite. 
-//Set 'usehitbox' true to use the hitbox centre, or false to use the sprite centre. 
+//Returns center of npc, with option to use either its actual coordinates, or those of its sprite. 
+//Set 'usehitbox' true to use the hitbox center, or false to use the sprite center. 
 int CenterX(npc n, bool usehitbox) 
 { 
 	return ( (usehitbox) ? (n->X+n->HitWidth/2 + n->HitXOffset) : (n->X+8*n->TileWidth + n->DrawXOffset) );
 }
 
-//Returns centre of eweapon, with option to use either its actual coordinates, or those of its sprite. 
-//Set 'usehitbox' true to use the hitbox centre, or false to use the sprite centre. 
+//Returns center of eweapon, with option to use either its actual coordinates, or those of its sprite. 
+//Set 'usehitbox' true to use the hitbox center, or false to use the sprite center. 
 int CenterX(eweapon anEWeapon, bool usehitbox) 
 { 
 	return ( ( usehitbox ) ? (anEWeapon->X+anEWeapon->HitWidth/2 + anEWeapon->HitXOffset) : (anEWeapon->X+8*anEWeapon->TileWidth + anEWeapon->DrawXOffset) );
 }
 
-//Returns centre of lweapon, with option to use either its actual coordinates, or those of its sprite. 
-//Set 'usehitbox' true to use the hitbox centre, or false to use the sprite centre. 
+//Returns center of lweapon, with option to use either its actual coordinates, or those of its sprite. 
+//Set 'usehitbox' true to use the hitbox center, or false to use the sprite center. 
 int CenterX(lweapon anLWeapon, bool usehitbox) 
 { 
 	return ( ( usehitbox ) ? (anLWeapon->X+anLWeapon->HitWidth/2 + anLWeapon->HitXOffset) : (anLWeapon->X+8*anLWeapon->TileWidth + anLWeapon->DrawXOffset) );
 }
 
-//Returns centre of lweapon, with option to include its HitXOffset and DrawXOffset (individually).
-//Set 'usehitbox' true to use the hitbox centre, or false to use the sprite centre. 
+//Returns center of lweapon, with option to include its HitXOffset and DrawXOffset (individually).
+//Set 'usehitbox' true to use the hitbox center, or false to use the sprite center. 
 int CenterX(lweapon anLWeapon, bool usehitbox, bool trueoffset, bool drawoffset) 
 { 
 	int lx = anLWeapon->X;
@@ -155,8 +97,8 @@ int CenterX(lweapon anLWeapon, bool usehitbox, bool trueoffset, bool drawoffset)
 	return lx;
 }
 
-//Returns centre of eweapon, with option to include its HitXOffset and DrawXOffset (individually).
-//Set 'usehitbox' true to use the hitbox centre, or false to use the sprite centre. 
+//Returns center of eweapon, with option to include its HitXOffset and DrawXOffset (individually).
+//Set 'usehitbox' true to use the hitbox center, or false to use the sprite center. 
 int CenterX(eweapon anEWeapon, bool usehitbox, bool trueoffset, bool drawoffset) 
 { 
 	int ex = anEWeapon->X;
@@ -167,8 +109,8 @@ int CenterX(eweapon anEWeapon, bool usehitbox, bool trueoffset, bool drawoffset)
 	return ex;
 }
 
-//Returns centre of npc, with option to include its HitXOffset and DrawXOffset (individually).
-//Set 'usehitbox' true to use the hitbox centre, or false to use the sprite centre. 
+//Returns center of npc, with option to include its HitXOffset and DrawXOffset (individually).
+//Set 'usehitbox' true to use the hitbox center, or false to use the sprite center. 
 int CenterX(npc n, bool usehitbox, bool trueoffset, bool drawoffset) 
 { 
 	int nx = n->X;
@@ -179,8 +121,8 @@ int CenterX(npc n, bool usehitbox, bool trueoffset, bool drawoffset)
 	return nx;
 }
 
-//Returns centre of item, with option to include its HitXOffset and DrawXOffset (individually).
-//Set 'usehitbox' true to use the hitbox centre, or false to use the sprite centre. 
+//Returns center of item, with option to include its HitXOffset and DrawXOffset (individually).
+//Set 'usehitbox' true to use the hitbox center, or false to use the sprite center. 
 int CenterX(item i, bool usehitbox, bool trueoffset, bool drawoffset) 
 { 
 	int ix = i->X;
@@ -191,36 +133,36 @@ int CenterX(item i, bool usehitbox, bool trueoffset, bool drawoffset)
 	return ix;
 }
 
-//Returns centre of lweapon, with option to use either its actual coordinates, or those of its sprite. 
-//Set 'usehitbox' true to use the hitbox centre, or false to use the sprite centre. 
+//Returns center of lweapon, with option to use either its actual coordinates, or those of its sprite. 
+//Set 'usehitbox' true to use the hitbox center, or false to use the sprite center. 
 int CenterY(lweapon anLWeapon, bool usehitbox) 
 {
 	return ( (usehitbox) ? (anLWeapon->Y+anLWeapon->HitHeight/2 + anLWeapon->HitYOffset) : (anLWeapon->Y+8*anLWeapon->TileHeight + anLWeapon->DrawYOffset) );
 }
 
-//Returns centre of eweapon, with option to use either its actual coordinates, or those of its sprite. 
-//Set 'usehitbox' true to use the hitbox centre, or false to use the sprite centre. 
+//Returns center of eweapon, with option to use either its actual coordinates, or those of its sprite. 
+//Set 'usehitbox' true to use the hitbox center, or false to use the sprite center. 
 int CenterY(eweapon anEWeapon, bool usehitbox) 
 {
 	return ( (usehitbox) ? (anEWeapon->Y+anEWeapon->HitHeight/2 + anEWeapon->HitYOffset) : (anEWeapon->Y+8*anEWeapon->TileHeight + anEWeapon->DrawYOffset) );
 }
 
-//Returns centre of npc, with option to use either its actual coordinates, or those of its sprite. 
-//Set 'usehitbox' true to use the hitbox centre, or false to use the sprite centre. 
+//Returns center of npc, with option to use either its actual coordinates, or those of its sprite. 
+//Set 'usehitbox' true to use the hitbox center, or false to use the sprite center. 
 int CenterY(npc n, bool usehitbox) 
 {
 	return ( (usehitbox) ? (n->Y+n->HitHeight/2 + n->HitYOffset) : (n->Y+8*n->TileHeight + n->DrawYOffset) );
 }
 
-//Returns centre of npc, with option to use either its actual coordinates, or those of its sprite. 
-//Set 'usehitbox' true to use the hitbox centre, or false to use the sprite centre. 
+//Returns center of npc, with option to use either its actual coordinates, or those of its sprite. 
+//Set 'usehitbox' true to use the hitbox center, or false to use the sprite center. 
 int CenterY(item it, bool usehitbox) 
 {
 	return ( (usehitbox) ? (it->Y+it->HitHeight/2 + it->HitYOffset) : (it->X+8*it->TileHeight + it->DrawYOffset) );
 }
 
-//Returns centre of lweapon, with option to include its HitYOffset and DrawYOffset (individually).
-//Set 'usehitbox' true to use the hitbox centre, or false to use the sprite centre. 
+//Returns center of lweapon, with option to include its HitYOffset and DrawYOffset (individually).
+//Set 'usehitbox' true to use the hitbox center, or false to use the sprite center. 
 int CenterY(lweapon anLWeapon, bool usehitbox, bool trueoffset, bool drawoffset) 
 { 
 	int ly = anLWeapon->Y;
@@ -231,8 +173,8 @@ int CenterY(lweapon anLWeapon, bool usehitbox, bool trueoffset, bool drawoffset)
 	return ly;
 }
 
-//Returns centre of eweapon, with option to include its HitYOffset and DrawYOffset (individually).
-//Set 'usehitbox' true to use the hitbox centre, or false to use the sprite centre. 
+//Returns center of eweapon, with option to include its HitYOffset and DrawYOffset (individually).
+//Set 'usehitbox' true to use the hitbox center, or false to use the sprite center. 
 int CenterY(eweapon anEWeapon, bool usehitbox, bool trueoffset, bool drawoffset) 
 { 
 	int ey = anEWeapon->Y;
@@ -243,8 +185,8 @@ int CenterY(eweapon anEWeapon, bool usehitbox, bool trueoffset, bool drawoffset)
 	return ey;
 }
 
-//Returns centre of npc, with option to include its HitYOffset and DrawYOffset (individually).
-//Set 'usehitbox' true to use the hitbox centre, or false to use the sprite centre. 
+//Returns center of npc, with option to include its HitYOffset and DrawYOffset (individually).
+//Set 'usehitbox' true to use the hitbox center, or false to use the sprite center. 
 int CenterY(npc n, bool usehitbox, bool trueoffset, bool drawoffset) 
 { 
 	int ny = n->Y;
@@ -255,8 +197,8 @@ int CenterY(npc n, bool usehitbox, bool trueoffset, bool drawoffset)
 	return ny;
 }
 
-//Returns centre of item, with option to include its HitYOffset and DrawYOffset (individually).
-//Set 'usehitbox' true to use the hitbox centre, or false to use the sprite centre. 
+//Returns center of item, with option to include its HitYOffset and DrawYOffset (individually).
+//Set 'usehitbox' true to use the hitbox center, or false to use the sprite center. 
 int CenterY(item i, bool usehitbox, bool trueoffset, bool drawoffset) 
 { 
 	int iy = i->Y;
@@ -265,161 +207,6 @@ int CenterY(item i, bool usehitbox, bool trueoffset, bool drawoffset)
 	if ( trueoffset ) iy += i->HitYOffset;
 	if ( drawoffset ) iy += i->DrawYOffset;
 	return iy;
-}
-
-//Randomly returns true, or false, using input 'percentChance' to determine the percentage change of a 'true return'
-bool Chance(int percentChance)
-{
-	return (Rand(0,100)<percentChance);
-}
-
-//Fairly select between true or false.
-bool ChooseB()
-{
-	return (Rand(0,1));
-}
-
-// Chooses one of the boolean options randomly and fairly.
-bool ChooseB(bool a, bool b) 
-{
-	return ( ((!(Rand(0,1)))) ? a : b );
-}
-
-bool ChooseB(bool a, bool b, bool c) 
-{
-	int r = Rand(0,2);
-	switch(r)
-	{
-		case 0: return a;
-		case 1: return b;
-		default: return c;
-	}
-}
-
-bool ChooseB(bool a, bool b, bool c, bool d) 
-{
-	int r = Rand(0,3);
-	switch(r)
-	{
-		case 0: return a;
-		case 1: return b;
-		case 2: return c;
-		default: return d;
-	}
-}
-
-bool ChooseB(bool a, bool b, bool c, bool d, bool e) 
-{
-	int r = Rand(0,4);
-	switch(r)
-	{
-		case 0: return a;
-		case 1: return b;
-		case 2: return c;
-		case 3: return d;
-		default: return e;
-	}
-}
-
-bool ChooseB(bool a, bool b, bool c, bool d, bool e, bool f) 
-{
-	int r = Rand(0,5);
-	switch(r)
-	{
-		case 0: return a;
-		case 1: return b;
-		case 2: return c;
-		case 3: return d;
-		case 4: return e;
-		default: return f;
-	}
-}
-
-bool ChooseB(bool a, bool b, bool c, bool d, bool e, bool f, bool g) 
-{
-	int r = Rand(0,6);
-	switch(r)
-	{
-		case 0: return a;
-		case 1: return b;
-		case 2: return c;
-		case 3: return d;
-		case 4: return e;
-		case 5: return f;
-		default: return g;
-	}
-}
-
-bool ChooseB(bool a, bool b, bool c, bool d, bool e, bool f, bool g, bool h) 
-{
-	int r = Rand(0,7);
-	switch(r)
-	{
-		case 0: return a;
-		case 1: return b;
-		case 2: return c;
-		case 3: return d;
-		case 4: return e;
-		case 5: return f;
-		case 6: return g;
-		default: return h;
-	}
-}
-
-//Terminate an FFC, and set all its properties to 0. 
-void ClearFFC(int ffc_id)
-{
-	ffc f = Screen->LoadFFC(ffc_id);
-	f->Data = 0;
-	f->Script = 0;
-	f->CSet = 0;
-	f->Delay = 0;
-	f->X = 0;
-	f->Y = 0;
-	f->Vx = 0;
-	f->Vy = 0;
-	f->Ax = 0;
-	f->Ay = 0;
-	for ( int q = 0; q < 11; ++q ) f->Flags[q] = 0;
-	f->TileWidth = 0;
-	f->TileHeight = 0;
-	f->EffectWidth = 0;
-	f->EffectHeight = 0;
-	f->Link = 0;
-	for ( int q = 0; q < 16; ++q ) f->Misc[q] = 0;
-}
-
-//Clones combo from position 'pos_a' to position 'pos_b'
-void CloneCombo(int pos_a, int pos_b)
-{
-	Screen->ComboD[pos_b] = Screen->ComboD[pos_a];
-	Screen->ComboT[pos_b] = Screen->ComboT[pos_a];
-	Screen->ComboF[pos_b] = Screen->ComboF[pos_a];
-	Screen->ComboI[pos_b] = Screen->ComboI[pos_a];
-	Screen->ComboC[pos_b] = Screen->ComboC[pos_a];
-	Screen->ComboS[pos_b] = Screen->ComboS[pos_a];
-}
-
-//Clones combo on layer 'layer' posigtion 'pos_a' to the same layer at position 'pos_b'
-void CloneLayerCombo(int layer, int pos_a, int pos_b)
-{
-	SetLayerComboD(layer,pos_b,GetLayerComboD(layer,pos_a));
-	SetLayerComboT(layer,pos_b,GetLayerComboT(layer,pos_a));
-	SetLayerComboF(layer,pos_b,GetLayerComboF(layer,pos_a));
-	SetLayerComboI(layer,pos_b,GetLayerComboI(layer,pos_a));
-	SetLayerComboC(layer,pos_b,GetLayerComboC(layer,pos_a));
-	SetLayerComboS(layer,pos_b,GetLayerComboS(layer,pos_a));
-}
-
-//Clones a combo on layer 'layer_a' at position 'pos_a', to layer 'layer_b" at position 'pos_b'.
-void CloneLayerCombo(int layer_a, int layer_b, int pos_a, int pos_b)
-{
-	SetLayerComboD(layer_b,pos_b,GetLayerComboD(layer_a,pos_a));
-	SetLayerComboT(layer_b,pos_b,GetLayerComboT(layer_a,pos_a));
-	SetLayerComboF(layer_b,pos_b,GetLayerComboF(layer_a,pos_a));
-	SetLayerComboI(layer_b,pos_b,GetLayerComboI(layer_a,pos_a));
-	SetLayerComboC(layer_b,pos_b,GetLayerComboC(layer_a,pos_a));
-	SetLayerComboS(layer_b,pos_b,GetLayerComboS(layer_a,pos_a));
 }
 
 //Check for collision between Link and a combo at location 'cmb'. 
@@ -702,7 +489,7 @@ namespace std
 	//Allows scaling for large distance determinations.
 	//Argument 'scale' represents a ratio of 1:scale.
 	//Argument 'scale' is most precise when using powers of 10 (e.g.. 0.1, 1, 10, 100, 1000, 10000).
-	//If arg 'scale' is set to 0, it defaults to '1'. 
+	//If arg 'scale' is set to 0, it defaults to `1`. 
 	//Returns -1 on error. 
 	float Distance(int x1, int y1, int x2, int y2, int scale) 
 	{
@@ -744,389 +531,66 @@ float Distance2(int x1, int y1, int x2, int y2)
 	return Sqrt(x*x+y*y);
 }
 
-
 //Returns if two pointers are within a proximity of 'distance' in pixels.
 //Link and an object (X-Axis)
 bool DistX(int a, int distance) 
 {
 	return ( Abs(ComboX(a)-Link->X) < distance );
-} 
-bool DistX(ffc a, int distance) 
-{
-	return ( Abs(a->X - Link->X) < distance );
-} 
-
-bool DistX(lweapon a, int distance) 
-{
-	return ( Abs(a->X - Link->X) < distance );
 }
-bool DistX(eweapon a, int distance) 
-{
-	return ( Abs(a->X - Link->X) < distance );
-}
-bool DistX(npc a, int distance) 
-{
-	return ( Abs(a->X - Link->X) < distance );
-}
-bool DistX(item a, int distance) 
+bool DistX<T>(T a, int distance) 
 {
 	return ( Abs(a->X - Link->X) < distance );
 }
 
 //Returns if two pointers are within a proximity of 'distance' in pixels.
+//Link and an object (Y-Axis)
+bool DistY(int a, int distance) 
+{
+	return ( Abs(ComboY(a)-Link->Y) < distance );
+}
+bool DistY<T>(T a, int distance) 
+{
+	return ( Abs(a->Y - Link->Y) < distance );
+}
+
+//Returns if two pointers are within a proximity of 'distance' in pixels.
 //Two objects (X-Axis)
 
-//X (combo)
 bool DistX(int a, int b, int distance) 
 {
 	return ( Abs(ComboX(a) - ComboX(b)) < distance );
 }
-bool DistX(int a, ffc b, int distance) 
+bool DistX<T>(int a, T b, int distance) 
 {
 	return ( Abs(ComboX(a) - b->X) < distance );
 }
-bool DistX(int a, lweapon b, int distance) 
-{
-	return ( Abs(ComboX(a) - b->X) < distance );
-} 
-bool DistX(int a, eweapon b, int distance) 
-{
-	return ( Abs(ComboX(a) - b->X) < distance );
-} 
-bool DistX(int a, npc b, int distance) 
-{
-	return ( Abs(ComboX(a) - b->X) < distance );
-} 
-bool DistX(int a, item b, int distance) 
-{
-	return ( Abs(ComboX(a) - b->X) < distance );
-}
-
-//X (ffc)
-bool DistX(ffc a, int b, int distance) 
-{
-	return ( Abs(ComboX(b) - a->X) < distance );
-}
-bool DistX(ffc a, ffc b, int distance) 
-{
-	return ( Abs(a->X - b->X) < distance );
-} 
-bool DistX(ffc a, lweapon b, int distance) 
-{
-	return ( Abs(a->X - b->X) < distance );
-} 
-bool DistX(ffc a, eweapon b, int distance) 
-{
-	return ( Abs(a->X - b->X) < distance );
-} 
-bool DistX(ffc a, npc b, int distance) 
-{
-	return ( Abs(a->X - b->X) < distance );
-} 
-bool DistX(ffc a, item b, int distance) 
-{
-	return ( Abs(a->X - b->X) < distance );
-} 
-
-//X (lweapon)
-bool DistX(lweapon a, int b, int distance) 
+bool DistX<T>(T a, int b, int distance) 
 {
 	return ( Abs(a->X - ComboX(b)) < distance );
 } 
-bool DistX(lweapon a, ffc b, int distance) 
-{    
+bool DistX<T1, T2>(T1 a, T2 b, int distance) 
+{
 	return ( Abs(a->X - b->X) < distance );
-} 
-bool DistX(lweapon a, lweapon b, int distance) 
-{    
-	return ( Abs(a->X - b->X) < distance );
-} 
-bool DistX(lweapon a, eweapon b, int distance) 
-{    
-	return ( Abs(a->X - b->X) < distance );
-} 
-bool DistX(lweapon a, npc b, int distance) 
-{    
-	return ( Abs(a->X - b->X) < distance );
-} 
-bool DistX(lweapon a, item b, int distance) 
-{    
-	return ( Abs(a->X - b->X) < distance );
-} 
-
-//X (eweapon)
-
-bool DistX(eweapon a, int b, int distance) 
-{    
-	return ( Abs(a->X - ComboX(b)) < distance );
 }
-
-bool DistX(eweapon a, ffc b, int distance) 
-{    
-	return ( Abs(a->X - b->X) < distance );
-} 
-bool DistX(eweapon a, lweapon b, int distance) 
-{    
-	return ( Abs(a->X - b->X) < distance );
-} 
-bool DistX(eweapon a, eweapon b, int distance) 
-{    
-	return ( Abs(a->X - b->X) < distance );
-} 
-bool DistX(eweapon a, npc b, int distance) 
-{    
-	return ( Abs(a->X - b->X) < distance );
-} 
-bool DistX(eweapon a, item b, int distance) 
-{    
-	return ( Abs(a->X - b->X) < distance );
-} 
-
-//X (npc)
-bool DistX(npc a, int b, int distance) 
-{    
-	return ( Abs(a->X - ComboX(b)) < distance );
-}
-bool DistX(npc a, ffc b, int distance) 
-{
-	return ( Abs(a->X - b->X) < distance );
-} 
-bool DistX(npc a, lweapon b, int distance) 
-{
-	return ( Abs(a->X - b->X) < distance );
-} 
-bool DistX(npc a, eweapon b, int distance) 
-{
-	return ( Abs(a->X - b->X) < distance );
-} 
-bool DistX(npc a, npc b, int distance) 
-{
-	return ( Abs(a->X - b->X) < distance );
-} 
-bool DistX(npc a, item b, int distance) 
-{
-	return ( Abs(a->X - b->X) < distance );
-} 
-
-//X (item)
-bool DistX(item a, int b, int distance) 
-{
-	return ( Abs(a->X - ComboX(b)) < distance );
-}
-bool DistX(item a, ffc b, int distance) 
-{
-	return ( Abs(a->X - b->X) < distance );
-} 
-bool DistX(item a, lweapon b, int distance) 
-{
-	return ( Abs(a->X - b->X) < distance );
-} 
-bool DistX(item a, eweapon b, int distance) 
-{
-	return ( Abs(a->X - b->X) < distance );
-} 
-bool DistX(item a, npc b, int distance) 
-{    
-	return ( Abs(a->X - b->X) < distance );
-} 
-bool DistX(item a, item b, int distance) 
-{
-	return ( Abs(a->X - b->X) < distance );
-} 
-
-
-
 
 //Returns if two pointers are within a proximity of 'distance' in pixels.
 //Link and an object (X-Axis)
-bool DistY(int a, int distance) 
-{
-	return ( Abs(ComboY(a)-Link->Y) < distance );
-} 
-bool DistY(ffc a, int distance) 
-{
-	return ( Abs(a->Y - Link->Y) < distance );
-} 
-
-bool DistY(lweapon a, int distance) 
-{
-	return ( Abs(a->Y - Link->Y) < distance );
-}
-bool DistY(eweapon a, int distance) 
-{
-	return ( Abs(a->Y - Link->Y) < distance );
-}
-bool DistY(npc a, int distance) 
-{
-	return ( Abs(a->Y - Link->Y) < distance );
-}
-bool DistY(item a, int distance) 
-{
-	return ( Abs(a->Y - Link->Y) < distance );
-}
-
-//Returns if two pointers are within a proximity of 'distance' in pixels.
-//Two objects (X-Axis)
-
-//X (combo)
 bool DistY(int a, int b, int distance) 
 {
 	return ( Abs(ComboY(a) - ComboY(b)) < distance );
 }
-bool DistY(int a, ffc b, int distance) 
+bool DistY<T>(int a, T b, int distance) 
 {
 	return ( Abs(ComboY(a) - b->Y) < distance );
 }
-bool DistY(int a, lweapon b, int distance) 
-{
-	return ( Abs(ComboY(a) - b->Y) < distance );
-} 
-bool DistY(int a, eweapon b, int distance) 
-{
-	return ( Abs(ComboY(a) - b->Y) < distance );
-} 
-bool DistY(int a, npc b, int distance) 
-{
-	return ( Abs(ComboY(a) - b->Y) < distance );
-} 
-bool DistY(int a, item b, int distance) 
-{
-	return ( Abs(ComboY(a) - b->Y) < distance );
-}
-
-//X (ffc)
-bool DistY(ffc a, int b, int distance) 
-{
-	return ( Abs(ComboY(b) - a->Y) < distance );
-}
-bool DistY(ffc a, ffc b, int distance) 
-{
-	return ( Abs(a->Y - b->Y) < distance );
-} 
-bool DistY(ffc a, lweapon b, int distance) 
-{
-	return ( Abs(a->Y - b->Y) < distance );
-} 
-bool DistY(ffc a, eweapon b, int distance) 
-{
-	return ( Abs(a->Y - b->Y) < distance );
-} 
-bool DistY(ffc a, npc b, int distance) 
-{
-	return ( Abs(a->Y - b->Y) < distance );
-} 
-bool DistY(ffc a, item b, int distance) 
-{
-	return ( Abs(a->Y - b->Y) < distance );
-} 
-
-//X (lweapon)
-bool DistY(lweapon a, int b, int distance) 
+bool DistY<T>(T a, int b, int distance) 
 {
 	return ( Abs(a->Y - ComboY(b)) < distance );
 } 
-bool DistY(lweapon a, ffc b, int distance) 
-{    
+bool DistY<T1, T2>(T1 a, T2 b, int distance) 
+{
 	return ( Abs(a->Y - b->Y) < distance );
-} 
-bool DistY(lweapon a, lweapon b, int distance) 
-{    
-	return ( Abs(a->Y - b->Y) < distance );
-} 
-bool DistY(lweapon a, eweapon b, int distance) 
-{    
-	return ( Abs(a->Y - b->Y) < distance );
-} 
-bool DistY(lweapon a, npc b, int distance) 
-{    
-	return ( Abs(a->Y - b->Y) < distance );
-} 
-bool DistY(lweapon a, item b, int distance) 
-{    
-	return ( Abs(a->Y - b->Y) < distance );
-} 
-
-//X (eweapon)
-
-bool DistY(eweapon a, int b, int distance) 
-{    
-	return ( Abs(a->Y - ComboY(b)) < distance );
 }
-
-bool DistY(eweapon a, ffc b, int distance) 
-{    
-	return ( Abs(a->Y - b->Y) < distance );
-} 
-bool DistY(eweapon a, lweapon b, int distance) 
-{    
-	return ( Abs(a->Y - b->Y) < distance );
-} 
-bool DistY(eweapon a, eweapon b, int distance) 
-{    
-	return ( Abs(a->Y - b->Y) < distance );
-} 
-bool DistY(eweapon a, npc b, int distance) 
-{    
-	return ( Abs(a->Y - b->Y) < distance );
-} 
-bool DistY(eweapon a, item b, int distance) 
-{    
-	return ( Abs(a->Y - b->Y) < distance );
-} 
-
-//X (npc)
-bool DistY(npc a, int b, int distance) 
-{    
-	return ( Abs(a->Y - ComboY(b)) < distance );
-}
-bool DistY(npc a, ffc b, int distance) 
-{
-	return ( Abs(a->Y - b->Y) < distance );
-} 
-bool DistY(npc a, lweapon b, int distance) 
-{
-	return ( Abs(a->Y - b->Y) < distance );
-} 
-bool DistY(npc a, eweapon b, int distance) 
-{
-	return ( Abs(a->Y - b->Y) < distance );
-} 
-bool DistY(npc a, npc b, int distance) 
-{
-	return ( Abs(a->Y - b->Y) < distance );
-} 
-bool DistY(npc a, item b, int distance) 
-{
-	return ( Abs(a->Y - b->Y) < distance );
-} 
-
-//X (item)
-bool DistY(item a, int b, int distance) 
-{
-	return ( Abs(a->Y - ComboY(b)) < distance );
-}
-bool DistY(item a, ffc b, int distance) 
-{
-	return ( Abs(a->Y - b->Y) < distance );
-} 
-bool DistY(item a, lweapon b, int distance) 
-{
-	return ( Abs(a->Y - b->Y) < distance );
-} 
-bool DistY(item a, eweapon b, int distance) 
-{
-	return ( Abs(a->Y - b->Y) < distance );
-} 
-bool DistY(item a, npc b, int distance) 
-{    
-	return ( Abs(a->Y - b->Y) < distance );
-} 
-bool DistY(item a, item b, int distance) 
-{
-	return ( Abs(a->Y - b->Y) < distance );
-} 
-
-//E
 
 void EToLWeapon(lweapon b, eweapon a) { EWeaponToLWeapon(a,b);}
 void EToLWeapon(eweapon a, lweapon b) { EWeaponToLWeapon(a,b);}
@@ -1281,10 +745,6 @@ int EWeaponToLWeaponID(int type)
 	}
 }
 
-//F
-
-//G
-
 //Extracts a single digit from n at the place specified. 
 //-4 is the ten-thousandTHs place, 0 is the ones spot, and 4 is the ten-thousanDs spot. 
 int GetDigitValue(int n, int place)
@@ -1371,84 +831,6 @@ void GiveLinkItem(int itm_id)
 	GiveLinkItem(itm_id,0);
 }
 
-
-//Returns the greater of passed args. Overloaded for up to eight values.
-int Greater(int valA, int valB)
-{
-	return (( valA > valB ) ? valA : valB );
-}
-
-int Greater(int valA, int valB, int valC)
-{
-	if ( valA > valB && valA > valC ) return valA;
-	else if ( valB > valA && valB > valC ) return valB;
-	else return valC;
-}
-
-int Greater(int valA, int valB, int valC, int valD)
-{
-	if ( valA > valB && valA > valC && valA > valD) return valA;
-	else if ( valB > valA && valB > valC && valB > valD ) return valB;
-	else if ( valC > valA && valC > valB && valC > valD ) return valC;
-	else return valD;
-}
-
-int Greater(int valA, int valB, int valC, int valD, int valE)
-{
-	if ( valA > valB && valA > valC && valA > valD && valA > valE) return valA;
-	else if ( valB > valA && valB > valC && valB > valD && valB > valE ) return valB;
-	else if ( valC > valA && valC > valB && valC > valD && valC > valE ) return valC;
-	else if ( valD > valA && valD > valB && valD > valC && valD > valE ) return valD;
-	else return valE;
-}
-
-
-int Greater(int valA, int valB, int valC, int valD, int valE, int valF)
-{
-	if ( valA > valB && valA > valC && valA > valD && valA > valE && valA > valF) return valA;
-	else if ( valB > valA && valB > valC && valB > valD && valB > valE && valB > valF ) return valB;
-	else if ( valC > valA && valC > valB && valC > valD && valC > valE && valC > valF ) return valC;
-	else if ( valD > valA && valD > valB && valD > valC && valD > valE && valD > valF ) return valD;
-	else if ( valE > valA && valE > valB && valE > valC && valE > valD && valE > valF ) return valE;
-	else return valF;
-}
-
-int Greater(int valA, int valB, int valC, int valD, int valE, int valF, int valG)
-{
-	if ( valA > valB && valA > valC && valA > valD && valA > valE && valA > valF && valA > valG) return valA;
-	else if ( valB > valA && valB > valC && valB > valD && valB > valE && valB > valF && valB > valG ) return valB;
-	else if ( valC > valA && valC > valB && valC > valD && valC > valE && valC > valF && valC > valG ) return valC;
-	else if ( valD > valA && valD > valB && valD > valC && valD > valE && valD > valF && valD > valG ) return valD;
-	else if ( valE > valA && valE > valB && valE > valC && valE > valD && valE > valF && valE > valG ) return valE;
-	else if ( valF > valA && valF > valB && valF > valC && valF > valD && valF > valE && valF > valG ) return valF;
-	else return valG;
-}
-
-int Greater(int valA, int valB, int valC, int valD, int valE, int valF, int valG, int valH)
-{
-	if ( valA > valB && valA > valC && valA > valD && valA > valE && valA > valF && valA > valG && valA > valH) return valA;
-	else if ( valB > valA && valB > valC && valB > valD && valB > valE && valB > valF && valB > valG && valB > valH ) return valB;
-	else if ( valC > valA && valC > valB && valC > valD && valC > valE && valC > valF && valC > valG && valC > valH) return valC;
-	else if ( valD > valA && valD > valB && valD > valC && valD > valE && valD > valF && valD > valG && valD > valH ) return valD;
-	else if ( valE > valA && valE > valB && valE > valC && valE > valD && valE > valF && valE > valG && valE > valH ) return valE;
-	else if ( valF > valA && valF > valB && valF > valC && valF > valD && valF > valE && valF > valG && valF > valH ) return valF;
-	else if ( valG > valA && valG > valB && valG > valC && valG > valD && valG > valE && valG > valF && valG > valH ) return valG;
-	else return valH;
-}
-
-//Returns the greatest value in an array
-int Greatest(int[] arr)
-{
-	int val1;
-	int val2 = arr[SizeOfArray(arr)-1];
-	for ( int q = SizeOfArray(arr)-2; q >= 0; --q ) 
-	{
-		val1 = arr[q];
-		if ( val1 > val2 ) val2 = val1;
-	}
-	return val2;
-}
-
 //Returns the index holding the highest value in an array
 //If the highest value is present in two or more indices, this will return the highest-numbered index of the set.
 int GreatestIndex(int[] arr)
@@ -1466,9 +848,6 @@ int GreatestIndex(int[] arr)
 	}
 	return indx;
 }
-
-//H
-
 
 //Read link's HitBox values
 int HitboxBottom() 
@@ -1628,70 +1007,6 @@ int LeastIndex(int[] arr)
 		}
 	}
 	return indx;
-}
-
-//Returns the lesser of values passed as args. Overloaded for up to eight values.
-int Lesser(int valA, int valB)
-{
-	return (( valA < valB ) ? valA : valB );
-}
-
-int Lesser(int valA, int valB, int valC)
-{
-	if ( valA < valB && valA < valC ) return valA;
-	else if ( valB < valA && valB < valC ) return valB;
-	else return valC;
-}
-
-int Lesser(int valA, int valB, int valC, int valD)
-{
-	if ( valA < valB && valA < valC && valA < valD) return valA;
-	else if ( valB < valA && valB < valC && valB < valD ) return valB;
-	else if ( valC < valA && valC < valB && valC < valD ) return valC;
-	else return valD;
-}
-
-int Lesser(int valA, int valB, int valC, int valD, int valE)
-{
-	if ( valA < valB && valA < valC && valA < valD && valA < valE) return valA;
-	else if ( valB < valA && valB < valC && valB < valD && valB < valE ) return valB;
-	else if ( valC < valA && valC < valB && valC < valD && valC < valE ) return valC;
-	else if ( valD < valA && valD < valB && valD < valC && valD < valE ) return valD;
-	else return valE;
-}
-
-
-int Lesser(int valA, int valB, int valC, int valD, int valE, int valF)
-{
-	if ( valA < valB && valA < valC && valA < valD && valA < valE && valA < valF) return valA;
-	else if ( valB < valA && valB < valC && valB < valD && valB < valE && valB < valF ) return valB;
-	else if ( valC < valA && valC < valB && valC < valD && valC < valE && valC < valF ) return valC;
-	else if ( valD < valA && valD < valB && valD < valC && valD < valE && valD < valF ) return valD;
-	else if ( valE < valA && valE < valB && valE < valC && valE < valD && valE < valF ) return valE;
-	else return valF;
-}
-
-int Lesser(int valA, int valB, int valC, int valD, int valE, int valF, int valG)
-{
-	if ( valA < valB && valA < valC && valA < valD && valA < valE && valA < valF && valA < valG) return valA;
-	else if ( valB < valA && valB < valC && valB < valD && valB < valE && valB < valF && valB < valG ) return valB;
-	else if ( valC < valA && valC < valB && valC < valD && valC < valE && valC < valF && valC < valG ) return valC;
-	else if ( valD < valA && valD < valB && valD < valC && valD < valE && valD < valF && valD < valG ) return valD;
-	else if ( valE < valA && valE < valB && valE < valC && valE < valD && valE < valF && valE < valG ) return valE;
-	else if ( valF < valA && valF < valB && valF < valC && valF < valD && valF < valE && valF < valG ) return valF;
-	else return valG;
-}
-
-int Lesser(int valA, int valB, int valC, int valD, int valE, int valF, int valG, int valH)
-{
-	if ( valA < valB && valA < valC && valA < valD && valA < valE && valA < valF && valA < valG && valA < valH) return valA;
-	else if ( valB < valA && valB < valC && valB < valD && valB < valE && valB < valF && valB < valG && valB < valH ) return valB;
-	else if ( valC < valA && valC < valB && valC < valD && valC < valE && valC < valF && valC < valG && valC < valH) return valC;
-	else if ( valD < valA && valD < valB && valD < valC && valD < valE && valD < valF && valD < valG && valD < valH ) return valD;
-	else if ( valE < valA && valE < valB && valE < valC && valE < valD && valE < valF && valE < valG && valE < valH ) return valE;
-	else if ( valF < valA && valF < valB && valF < valC && valF < valD && valF < valE && valF < valG && valF < valH ) return valF;
-	else if ( valG < valA && valG < valB && valG < valC && valG < valD && valG < valE && valG < valF && valG < valH ) return valG;
-	else return valH;
 }
 
 //Returns if Link is facing an object. 
@@ -2438,7 +1753,7 @@ int ProximityX(item a)
 }
 
 
-//Proximity from centre of object's hitbox:
+//Proximity from center of object's hitbox:
 int ProximityX(ffc a, ffc b, bool fromcentre ) 
 {
 	return ( (fromcentre) ? ( Abs(CenterX(a)-CenterX(b)) ) : ( Abs(a->X - a->X) ) );
@@ -2570,67 +1885,67 @@ int ProximityX(item a, item b, bool fromcentre )
 }
 
 
-int ProximityX(int b, ffc a, bool centre) 
+int ProximityX(int b, ffc a, bool center) 
 {
-	return ( ( centre ) ? ( Abs(CenterX(a) - (ComboX(b)+16)) ) : (Abs(ComboX(b) - a->X)) );
+	return ( ( center ) ? ( Abs(CenterX(a) - (ComboX(b)+16)) ) : (Abs(ComboX(b) - a->X)) );
 }
 
 
-int ProximityX(int b, lweapon a, bool centre) 
+int ProximityX(int b, lweapon a, bool center) 
 {
-	return ( ( centre ) ? ( Abs(CenterX(a) - (ComboX(b)+16)) ) : (Abs(ComboX(b) - a->X)) );
+	return ( ( center ) ? ( Abs(CenterX(a) - (ComboX(b)+16)) ) : (Abs(ComboX(b) - a->X)) );
 }
 
 
-int ProximityX(int b, eweapon a, bool centre) 
+int ProximityX(int b, eweapon a, bool center) 
 {
-	return ( ( centre ) ? ( Abs(CenterX(a) - (ComboX(b)+16)) ) : (Abs(ComboX(b) - a->X)) );
-}
-	
-
-int ProximityX(int b, npc a, bool centre) 
-{
-	return ( ( centre ) ? ( Abs(CenterX(a) - (ComboX(b)+16)) ) : (Abs(ComboX(b) - a->X)) );
-}
-
-
-int ProximityX(int b, item a, bool centre) 
-{
-	return ( ( centre ) ? ( Abs(CenterX(a) - (ComboX(b)+16)) ) : (Abs(ComboX(b) - a->X)) );
-}
-
-int ProximityX(ffc a, int b, bool centre) 
-{
-	return ( ( centre ) ? ( Abs(CenterX(a) - (ComboX(b)+16)) ) : (Abs(ComboX(b) - a->X)) );
-}
-
-
-int ProximityX(lweapon a, int b, bool centre) 
-{
-	return ( ( centre ) ? ( Abs(CenterX(a) - (ComboX(b)+16)) ) : (Abs(ComboX(b) - a->X)) );
-}
-
-
-int ProximityX(eweapon a, int b, bool centre) 
-{
-	return ( ( centre ) ? ( Abs(CenterX(a) - (ComboX(b)+16)) ) : (Abs(ComboX(b) - a->X)) );
+	return ( ( center ) ? ( Abs(CenterX(a) - (ComboX(b)+16)) ) : (Abs(ComboX(b) - a->X)) );
 }
 	
 
-int ProximityX(npc a, int b, bool centre) 
+int ProximityX(int b, npc a, bool center) 
 {
-	return ( ( centre ) ? ( Abs(CenterX(a) - (ComboX(b)+16)) ) : (Abs(ComboX(b) - a->X)) );
+	return ( ( center ) ? ( Abs(CenterX(a) - (ComboX(b)+16)) ) : (Abs(ComboX(b) - a->X)) );
 }
 
 
-int ProximityX(item a, int b, bool centre) 
+int ProximityX(int b, item a, bool center) 
 {
-	return ( ( centre ) ? ( Abs(CenterX(a) - (ComboX(b)+16)) ) : (Abs(ComboX(b) - a->X)) );
+	return ( ( center ) ? ( Abs(CenterX(a) - (ComboX(b)+16)) ) : (Abs(ComboX(b) - a->X)) );
 }
 
-int ProximityX(int b, int a, bool centre) 
+int ProximityX(ffc a, int b, bool center) 
 {
-	return ( ( centre ) ? ( Abs((ComboX(a)+16) - (ComboX(b)+16)) ) : ( Abs(ComboX(a) - ComboX(b)) ) );
+	return ( ( center ) ? ( Abs(CenterX(a) - (ComboX(b)+16)) ) : (Abs(ComboX(b) - a->X)) );
+}
+
+
+int ProximityX(lweapon a, int b, bool center) 
+{
+	return ( ( center ) ? ( Abs(CenterX(a) - (ComboX(b)+16)) ) : (Abs(ComboX(b) - a->X)) );
+}
+
+
+int ProximityX(eweapon a, int b, bool center) 
+{
+	return ( ( center ) ? ( Abs(CenterX(a) - (ComboX(b)+16)) ) : (Abs(ComboX(b) - a->X)) );
+}
+	
+
+int ProximityX(npc a, int b, bool center) 
+{
+	return ( ( center ) ? ( Abs(CenterX(a) - (ComboX(b)+16)) ) : (Abs(ComboX(b) - a->X)) );
+}
+
+
+int ProximityX(item a, int b, bool center) 
+{
+	return ( ( center ) ? ( Abs(CenterX(a) - (ComboX(b)+16)) ) : (Abs(ComboX(b) - a->X)) );
+}
+
+int ProximityX(int b, int a, bool center) 
+{
+	return ( ( center ) ? ( Abs((ComboX(a)+16) - (ComboX(b)+16)) ) : ( Abs(ComboX(a) - ComboX(b)) ) );
 }
 
 
@@ -2866,7 +2181,7 @@ int ProximityY(int a)
 	return ( Abs(Link->Y - ComboY(a)) );
 }
 
-//Proximity from centre of object's hitbox:
+//Proximity from center of object's hitbox:
 int ProximityY(ffc a, ffc b, bool fromcentre ) 
 {
 	return ( ( fromcentre ) ? ( Abs(CenterY(a)-CenterY(b)) ) : ( Abs(a->Y - a->Y) ) );
@@ -2998,68 +2313,68 @@ int ProximityY(item a, item b, bool fromcentre )
 }
 
 
-int ProximityY(int b, ffc a, bool centre) 
+int ProximityY(int b, ffc a, bool center) 
 {
-	return ( ( centre ) ? ( Abs(CenterY(a) - (ComboY(b)+16)) ) : (Abs(ComboY(b) - a->Y)) );
+	return ( ( center ) ? ( Abs(CenterY(a) - (ComboY(b)+16)) ) : (Abs(ComboY(b) - a->Y)) );
 }
 
 
-int ProximityY(int b, lweapon a, bool centre) 
+int ProximityY(int b, lweapon a, bool center) 
 {
-	return ( ( centre ) ? ( Abs(CenterY(a) - (ComboY(b)+16)) ) : (Abs(ComboY(b) - a->Y)) );
+	return ( ( center ) ? ( Abs(CenterY(a) - (ComboY(b)+16)) ) : (Abs(ComboY(b) - a->Y)) );
 }
 
 
-int ProximityY(int b, eweapon a, bool centre) 
+int ProximityY(int b, eweapon a, bool center) 
 {
-	return ( ( centre ) ? ( Abs(CenterY(a) - (ComboY(b)+16)) ) : (Abs(ComboY(b) - a->Y)) );
+	return ( ( center ) ? ( Abs(CenterY(a) - (ComboY(b)+16)) ) : (Abs(ComboY(b) - a->Y)) );
 }
 	
 
-int ProximityY(int b, npc a, bool centre) 
+int ProximityY(int b, npc a, bool center) 
 {
-	return ( ( centre ) ? ( Abs(CenterY(a) - (ComboY(b)+16)) ) : (Abs(ComboY(b) - a->Y)) );
+	return ( ( center ) ? ( Abs(CenterY(a) - (ComboY(b)+16)) ) : (Abs(ComboY(b) - a->Y)) );
 }
 
 
-int ProximityY(int b, item a, bool centre) 
+int ProximityY(int b, item a, bool center) 
 {
-	if ( centre ) return ( Abs(CenterY(a) - (ComboY(b)+16)) );
+	if ( center ) return ( Abs(CenterY(a) - (ComboY(b)+16)) );
 	return (Abs(ComboY(b) - a->Y));
 }
 
-int ProximityY(ffc a, int b, bool centre) 
+int ProximityY(ffc a, int b, bool center) 
 {
-	return ( ( centre ) ? ( Abs(CenterY(a) - (ComboY(b)+16)) ) : (Abs(ComboY(b) - a->Y)) );
+	return ( ( center ) ? ( Abs(CenterY(a) - (ComboY(b)+16)) ) : (Abs(ComboY(b) - a->Y)) );
 }
 
 
-int ProximityY(lweapon a, int b, bool centre) 
+int ProximityY(lweapon a, int b, bool center) 
 {
-	return ( ( centre ) ? ( Abs(CenterY(a) - (ComboY(b)+16)) ) : (Abs(ComboY(b) - a->Y)) );
+	return ( ( center ) ? ( Abs(CenterY(a) - (ComboY(b)+16)) ) : (Abs(ComboY(b) - a->Y)) );
 }
 
 
-int ProximityY(eweapon a, int b, bool centre) 
+int ProximityY(eweapon a, int b, bool center) 
 {
-	return ( ( centre ) ? ( Abs(CenterY(a) - (ComboY(b)+16)) ) : (Abs(ComboY(b) - a->Y)) );
+	return ( ( center ) ? ( Abs(CenterY(a) - (ComboY(b)+16)) ) : (Abs(ComboY(b) - a->Y)) );
 }
 	
 
-int ProximityY(npc a, int b, bool centre) 
+int ProximityY(npc a, int b, bool center) 
 {
-	return ( ( centre ) ? ( Abs(CenterY(a) - (ComboY(b)+16)) ) : (Abs(ComboY(b) - a->Y)) );
+	return ( ( center ) ? ( Abs(CenterY(a) - (ComboY(b)+16)) ) : (Abs(ComboY(b) - a->Y)) );
 }
 
 
-int ProximityY(item a, int b, bool centre) 
+int ProximityY(item a, int b, bool center) 
 {
-	return ( ( centre ) ? ( Abs(CenterY(a) - (ComboY(b)+16)) ) : (Abs(ComboY(b) - a->Y)) );
+	return ( ( center ) ? ( Abs(CenterY(a) - (ComboY(b)+16)) ) : (Abs(ComboY(b) - a->Y)) );
 }
 
-int ProximityY(int b, int a, bool centre) 
+int ProximityY(int b, int a, bool center) 
 {
-	return ( ( centre ) ? ( Abs((ComboY(a)+16) - (ComboY(b)+16)) ) : ( Abs(ComboY(a) - ComboY(b)) ) );
+	return ( ( center ) ? ( Abs((ComboY(a)+16) - (ComboY(b)+16)) ) : ( Abs(ComboY(a) - ComboY(b)) ) );
 }
 
 //Q
@@ -3095,8 +2410,8 @@ float SafeDistance(int x1, int y1, int x2, int y2)
 }
 
 //Safe Sqrt functions if an irrational number would be involved.
-//Returns '464' (square root of 215296), if the value passed is negative. 
-//Returns '0' on Sqrt(0).
+//Returns `464` (square root of 215296), if the value passed is negative. 
+//Returns `0` on Sqrt(0).
 float SafeSqrt(float val)
 {
 	
@@ -3116,7 +2431,7 @@ float SafeSqrt(float val)
 	}
 }
 
-//Returns square root of 'val'. Returns 'specifyNegRet' if a negative value is passed as 'val'. Returns '0' for Sqrt(0).
+//Returns square root of 'val'. Returns 'specifyNegRet' if a negative value is passed as 'val'. Returns `0` for Sqrt(0).
 float SafeSqrt(float val, float specifyNegRet)
 {
 	if ( val > 214747.9999 ) val = 214747.9999;
@@ -3214,8 +2529,6 @@ int SpeedRev(int speed, int reduceinertia)
 {
 	return ( ( speed > 0 ) ? (((speed * -1) + reduceinertia)) : ( ((speed * -1) - reduceinertia) ) );
 }
-
-//T
 
 //Trace the indices of an array, with a space between each. max 20 per line. 
 //NOT overloaded to accept all array types. Trace() does not work on ffc, item, itemdata, lweapon, or eweapon until 2.54.x->2.55.
@@ -3317,34 +2630,8 @@ void TraceStr(char32[] ptr, int value)
 	TraceNL(); TraceS(ptr); Trace(value); TraceNL();
 }
 
-//This is where having char would be nice.
-
 //As TraceStr, but for boolean values.
 void TraceStrB(char32[] ptr, bool val)
 {
 	TraceNL(); TraceS(ptr); TraceB(val); TraceNL();
 }
-
-//U
-
-//V
-
-//W
-
-//X
-
-//Xor comparison of two boolean values. 
-bool Xor(bool valA, bool valB)
-{
-	if ( !valA && valB ) return true;
-	if ( valA && !valB ) return true;
-	return false;
-}
-
-//Y
-
-//Z
-
-//NOTES
-
-//ProximityX also could use precise variation. 

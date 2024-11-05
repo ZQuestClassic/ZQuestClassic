@@ -1294,7 +1294,7 @@ static bool set_current_script_engine_data(ScriptType type, int script, int inde
 				data.initialized = true;
 			}
 
-			ri->ffcref = index;
+			ri->ffcref = ZScriptVersion::ffcRefIsSpriteId() ? get_ffc_raw(index)->getUID() : index;
 		}
 		break;
 		
@@ -2423,6 +2423,31 @@ void FFScript::deallocateAllScriptOwnedCont()
 	}
 }
 
+ffcdata *checkFFC(int32_t id, const char *what)
+{
+	if (ZScriptVersion::ffcRefIsSpriteId())
+	{
+		if (auto s = sprite::getByUID(id))
+		{
+			if (auto ffc = dynamic_cast<ffcdata*>(s))
+				return ffc;
+
+			Z_scripterrlog("Script attempted to reference a FFC, but the sprite found was not an FFC.\n");
+			Z_scripterrlog("You were trying to reference the %s of an FFC with UID = %ld\n", what, id);
+			return nullptr;
+		}
+
+		Z_scripterrlog("Script attempted to reference a nonexistent FFC!\n");
+		Z_scripterrlog("You were trying to reference the %s of an FFC with UID = %ld\n", what, id);
+		return nullptr;
+	}
+
+	if (BC::checkFFC(id, what) == SH::_NoError)
+		return get_ffc_raw(id);
+
+	return nullptr;
+}
+
 weapon *checkLWpn(int32_t eid, const char *what)
 {
 	weapon *s = (weapon *)Lwpns.getByUID(eid);
@@ -2771,13 +2796,13 @@ int32_t get_register(int32_t arg)
 	
 	#define GET_SPRITEDATA_VAR_INT(member, str) \
 	{ \
-		if(unsigned(ri->spritesref) > (MAXWPNS-1) )    \
+		if(unsigned(ri->spritedataref) > (MAXWPNS-1) )    \
 		{ \
 			ret = -10000; \
-			Z_scripterrlog("Invalid Sprite ID passed to spritedata->%s: %d\n", str, (ri->spritesref*10000));\
+			Z_scripterrlog("Invalid Sprite ID passed to spritedata->%s: %d\n", str, (ri->spritedataref*10000));\
 		} \
 		else \
-			ret = (wpnsbuf[ri->spritesref].member * 10000); \
+			ret = (wpnsbuf[ri->spritedataref].member * 10000); \
 	}
 	
 	switch(arg)
@@ -2824,87 +2849,87 @@ int32_t get_register(int32_t arg)
 		///----------------------------------------------------------------------------------------------------//
 		//FFC Variables
 		case DATA:
-			if(BC::checkFFC(ri->ffcref, "ffc->Data") == SH::_NoError)
-				ret = get_ffc_raw(ri->ffcref)->data *10000;
+			if (auto ffc = checkFFC(ri->ffcref, "ffc->Data"))
+				ret = ffc->data * 10000;
 			break;
 			
 		case FFSCRIPT:
-			if(BC::checkFFC(ri->ffcref, "ffc->Script") == SH::_NoError)
-				ret = get_ffc_raw(ri->ffcref)->script*10000;
+			if(auto ffc = checkFFC(ri->ffcref, "ffc->Script"))
+				ret = ffc->script * 10000;
 			break;
 			
 		case FCSET:
-			if(BC::checkFFC(ri->ffcref, "ffc->CSet") == SH::_NoError)
-				ret = get_ffc_raw(ri->ffcref)->cset*10000;
+			if(auto ffc = checkFFC(ri->ffcref, "ffc->CSet"))
+				ret = ffc->cset * 10000;
 			break;
 			
 		case DELAY:
-			if(BC::checkFFC(ri->ffcref, "ffc->Delay") == SH::_NoError)
-				ret = get_ffc_raw(ri->ffcref)->delay*10000;
+			if(auto ffc = checkFFC(ri->ffcref, "ffc->Delay"))
+				ret = ffc->delay * 10000;
 			break;
 			
 		case FX:
-			if(BC::checkFFC(ri->ffcref, "ffc->X") == SH::_NoError)
-				ret = get_ffc_raw(ri->ffcref)->x.getZLong();
+			if(auto ffc = checkFFC(ri->ffcref, "ffc->X"))
+				ret = ffc->x.getZLong();
 			break;
 			
 		case FY:
-			if(BC::checkFFC(ri->ffcref, "ffc->Y") == SH::_NoError)
-				ret = get_ffc_raw(ri->ffcref)->y.getZLong();
+			if(auto ffc = checkFFC(ri->ffcref, "ffc->Y"))
+				ret = ffc->y.getZLong();
 			break;
 			
 		case XD:
-			if(BC::checkFFC(ri->ffcref, "ffc->Vx") == SH::_NoError)
-				ret = get_ffc_raw(ri->ffcref)->vx.getZLong();
+			if(auto ffc = checkFFC(ri->ffcref, "ffc->Vx"))
+				ret = ffc->vx.getZLong();
 			break;
 			
 		case YD:
-			if(BC::checkFFC(ri->ffcref, "ffc->Vy") == SH::_NoError)
-				ret = get_ffc_raw(ri->ffcref)->vy.getZLong();
+			if(auto ffc = checkFFC(ri->ffcref, "ffc->Vy"))
+				ret = ffc->vy.getZLong();
 			break;
 		case FFCID:
-			if(BC::checkFFC(ri->ffcref, "ffc->ID") == SH::_NoError)
-				ret=(ri->ffcref*10000)+10000;
+			if (auto ffc = checkFFC(ri->ffcref, "ffc->ID"))
+				ret = (get_region_screen_index_offset(ffc->screen) * MAXFFCS + ffc->index + 1) * 10000;
 			break;
 			
 		case XD2:
-			if(BC::checkFFC(ri->ffcref, "ffc->Ax") == SH::_NoError)
-				ret = get_ffc_raw(ri->ffcref)->ax.getZLong();
+			if(auto ffc = checkFFC(ri->ffcref, "ffc->Ax"))
+				ret = ffc->ax.getZLong();
 			break;
 			
 		case YD2:
-			if(BC::checkFFC(ri->ffcref, "ffc->Ay") == SH::_NoError)
-				ret = get_ffc_raw(ri->ffcref)->ay.getZLong();
+			if(auto ffc = checkFFC(ri->ffcref, "ffc->Ay"))
+				ret = ffc->ay.getZLong();
 			break;
 			
 		case FFFLAGSD:
-			if(BC::checkFFC(ri->ffcref, "ffc->Flags[]") == SH::_NoError)
-				ret=((get_ffc_raw(ri->ffcref)->flags >> (ri->d[rINDEX] / 10000))&1) ? 10000 : 0;
+			if(auto ffc = checkFFC(ri->ffcref, "ffc->Flags[]"))
+				ret = (ffc->flags >> (ri->d[rINDEX] / 10000)) & 1 ? 10000 : 0;
 			break;
 			
 		case FFCWIDTH:
-			if(BC::checkFFC(ri->ffcref, "ffc->EffectWidth") == SH::_NoError)
-				ret=(get_ffc_raw(ri->ffcref)->hit_width*10000);
+			if(auto ffc = checkFFC(ri->ffcref, "ffc->EffectWidth"))
+				ret = ffc->hit_width * 10000;
 			break;
 			
 		case FFCHEIGHT:
-			if(BC::checkFFC(ri->ffcref, "ffc->EffectHeight") == SH::_NoError)
-				ret=(get_ffc_raw(ri->ffcref)->hit_height*10000);
+			if(auto ffc = checkFFC(ri->ffcref, "ffc->EffectHeight"))
+				ret = ffc->hit_height * 10000;
 			break;
 			
 		case FFTWIDTH:
-			if(BC::checkFFC(ri->ffcref, "ffc->TileWidth") == SH::_NoError)
-				ret=(get_ffc_raw(ri->ffcref)->txsz*10000);
+			if(auto ffc = checkFFC(ri->ffcref, "ffc->TileWidth"))
+				ret = ffc->txsz * 10000;
 			break;
 			
 		case FFTHEIGHT:
-			if(BC::checkFFC(ri->ffcref, "ffc->TileHeight") == SH::_NoError)
-				ret=(get_ffc_raw(ri->ffcref)->tysz*10000);
+			if(auto ffc = checkFFC(ri->ffcref, "ffc->TileHeight"))
+				ret = ffc->tysz * 10000;
 			break;
 			
 		case FFLINK:
-			if(BC::checkFFC(ri->ffcref, "ffc->Link") == SH::_NoError)
-				ret=(get_ffc_raw(ri->ffcref)->link)*10000;
+			if(auto ffc = checkFFC(ri->ffcref, "ffc->Link"))
+				ret = ffc->link * 10000;
 			break;
 			
 		case FFMISCD:
@@ -2915,8 +2940,8 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 			else
 			{
-				if(BC::checkFFC(ri->ffcref, "ffc->Misc[]") == SH::_NoError)
-					ret = get_ffc_raw(ri->ffcref)->script_misc[a];
+				if(auto ffc = checkFFC(ri->ffcref, "ffc->Misc[]"))
+					ret = ffc->miscellaneous[a];
 			}
 		}
 		break;
@@ -2929,15 +2954,15 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 			else
 			{
-				if(BC::checkFFC(ri->ffcref, "ffc->InitD[]") == SH::_NoError)
-				ret = get_ffc_raw(ri->ffcref)->initd[a];
+				if(auto ffc = checkFFC(ri->ffcref, "ffc->InitD[]"))
+					ret = ffc->initd[a];
 			}
 		}
 		break;
 
 		case FF_SCREEN_INDEX:
-			if(BC::checkFFC(ri->ffcref, "ffc->ScreenIndex") == SH::_NoError)
-				ret=(get_ffc_raw(ri->ffcref)->screen)*10000;
+			if (auto ffc = checkFFC(ri->ffcref, "ffc->ScreenIndex"))
+				ret = ffc->screen * 10000;
 			break;
 		
 		///----------------------------------------------------------------------------------------------------//
@@ -7235,24 +7260,24 @@ int32_t get_register(int32_t arg)
 		case SPRITEDATAMISC: GET_SPRITEDATA_VAR_INT(misc, "Misc") break;
 		case SPRITEDATACSETS:
 		{
-			if(unsigned(ri->spritesref) > (MAXWPNS-1) )
+			if(unsigned(ri->spritedataref) > (MAXWPNS-1) )
 			{
 				ret = -10000;
-				Z_scripterrlog("Invalid Sprite ID passed to spritedata->CSet: %d\n", (ri->spritesref*10000));
+				Z_scripterrlog("Invalid Sprite ID passed to spritedata->CSet: %d\n", (ri->spritedataref*10000));
 			}
 			else
-				ret = ((wpnsbuf[ri->spritesref].csets & 0xF) * 10000);
+				ret = ((wpnsbuf[ri->spritedataref].csets & 0xF) * 10000);
 			break;
 		}
 		case SPRITEDATAFLCSET:
 		{
-			if(unsigned(ri->spritesref) > (MAXWPNS-1) )
+			if(unsigned(ri->spritedataref) > (MAXWPNS-1) )
 			{
 				ret = -10000;
-				Z_scripterrlog("Invalid Sprite ID passed to spritedata->%s: %d\n", (ri->spritesref*10000), "FlashCSet");
+				Z_scripterrlog("Invalid Sprite ID passed to spritedata->%s: %d\n", (ri->spritedataref*10000), "FlashCSet");
 				break;
 			}
-			ret = (((wpnsbuf[ri->spritesref].csets & 0xF0)>>4) * 10000);
+			ret = (((wpnsbuf[ri->spritedataref].csets & 0xF0)>>4) * 10000);
 			break;
 		}
 		case SPRITEDATAFRAMES: GET_SPRITEDATA_VAR_INT(frames, "Frames") break;
@@ -7260,10 +7285,10 @@ int32_t get_register(int32_t arg)
 		case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
 		case SPRITEDATAFLAGS:
 		{
-			if(unsigned(ri->spritesref) > (MAXWPNS-1) )
+			if(unsigned(ri->spritedataref) > (MAXWPNS-1) )
 			{
 				ret = 0;
-				Z_scripterrlog("Invalid Sprite ID passed to spritedata->Flags[]: %d\n", (ri->spritesref*10000));
+				Z_scripterrlog("Invalid Sprite ID passed to spritedata->Flags[]: %d\n", (ri->spritedataref*10000));
 				break;
 			}
 			int32_t index = ri->d[rINDEX]/10000;
@@ -7273,18 +7298,18 @@ int32_t get_register(int32_t arg)
 				Z_scripterrlog("Invalid index passed to spritedata->Flags[]: %d\n", index);
 				break;
 			}
-			ret = (wpnsbuf[ri->spritesref].misc & (1<<index)) ? 10000 : 0;
+			ret = (wpnsbuf[ri->spritedataref].misc & (1<<index)) ? 10000 : 0;
 			break;
 		}
 		case SPRITEDATAID:
 		{
-			if(unsigned(ri->spritesref) > (MAXWPNS-1) )
+			if(unsigned(ri->spritedataref) > (MAXWPNS-1) )
 			{
 				ret = -10000;
-				Z_scripterrlog("Invalid Sprite ID passed to spritedata->ID: %d\n", (ri->spritesref*10000));
+				Z_scripterrlog("Invalid Sprite ID passed to spritedata->ID: %d\n", (ri->spritedataref*10000));
 				break;
 			}
-			ret = ri->spritesref*10000;
+			ret = ri->spritedataref*10000;
 			break;
 		}
 		
@@ -10657,7 +10682,7 @@ int32_t get_register(int32_t arg)
 		///----------------------------------------------------------------------------------------------------//
 		//Misc./Internal
 		case REFFFC:
-			ret = ri->ffcref * 10000;
+			ret = ZScriptVersion::ffcRefIsSpriteId() ? ri->ffcref : ri->ffcref * 10000;
 			break;
 			
 		case REFITEM:
@@ -10680,10 +10705,14 @@ int32_t get_register(int32_t arg)
 			ret = ri->guyref;
 			break;
 		
+		case REFSPRITE:
+			ret = ri->spriteref;
+			break;
+		
 		case REFMAPDATA: ret = ri->mapsref; break;
 		case REFSCREENDATA: ret = ri->screenref; break;
 		case REFCOMBODATA: ret = ri->combosref; break;
-		case REFSPRITEDATA: ret = ri->spritesref; break;
+		case REFSPRITEDATA: ret = ri->spritedataref; break;
 		case REFBITMAP: ret = ri->bitmapref; break;
 		case REFNPCCLASS: ret = ri->npcdataref; break;
 		
@@ -13182,25 +13211,25 @@ void set_register(int32_t arg, int32_t value)
 	
 	#define	SET_SPRITEDATA_VAR_INT(member, str) \
 	{ \
-		if(unsigned(ri->spritesref) > (MAXWPNS-1) ) \
+		if(unsigned(ri->spritedataref) > (MAXWPNS-1) ) \
 		{ \
-			Z_scripterrlog("Invalid Sprite ID passed to spritedata->%s: %d\n", str, (ri->spritesref*10000)); \
+			Z_scripterrlog("Invalid Sprite ID passed to spritedata->%s: %d\n", str, (ri->spritedataref*10000)); \
 		} \
 		else \
 		{ \
-			wpnsbuf[ri->spritesref].member = vbound((value / 10000),0,214747); \
+			wpnsbuf[ri->spritedataref].member = vbound((value / 10000),0,214747); \
 		} \
 	} \
 
 	#define	SET_SPRITEDATA_VAR_BYTE(member, str) \
 	{ \
-		if(unsigned(ri->spritesref) > (MAXWPNS-1) ) \
+		if(unsigned(ri->spritedataref) > (MAXWPNS-1) ) \
 		{ \
-			Z_scripterrlog("Invalid Sprite ID passed to spritedata->%s: %d\n", str, (ri->spritesref*10000)); \
+			Z_scripterrlog("Invalid Sprite ID passed to spritedata->%s: %d\n", str, (ri->spritedataref*10000)); \
 		} \
 		else \
 		{ \
-			wpnsbuf[ri->spritesref].member = vbound((value / 10000),0,255); \
+			wpnsbuf[ri->spritedataref].member = vbound((value / 10000),0,255); \
 		} \
 	} \
 	
@@ -13217,19 +13246,18 @@ void set_register(int32_t arg, int32_t value)
 	///----------------------------------------------------------------------------------------------------//
 	//FFC Variables
 		case DATA:
-			if(BC::checkFFC(ri->ffcref, "ffc->Data") == SH::_NoError)
+			if (auto ffc = checkFFC(ri->ffcref, "ffc->Data"))
 			{
-				zc_ffc_set(*get_ffc_raw(ri->ffcref), vbound(value/10000,0,MAXCOMBOS-1));
+				zc_ffc_set(*ffc, vbound(value/10000,0,MAXCOMBOS-1));
 			}
 			break;
 		
 		case FFSCRIPT:
-			if(BC::checkFFC(ri->ffcref, "ffc->Script") == SH::_NoError)
+			if (auto ffc = checkFFC(ri->ffcref, "ffc->Script"))
 			{
-				ffcdata* ffc = get_ffc_raw(ri->ffcref);
 				ffc->script = vbound(value/10000, 0, NUMSCRIPTFFC-1);
 				for(int32_t i=0; i<16; i++)
-					ffc->script_misc[i] = 0;
+					ffc->miscellaneous[i] = 0;
 				if (get_qr(qr_CLEARINITDONSCRIPTCHANGE))
 				{
 					for(int32_t i=0; i<2; i++)
@@ -13238,111 +13266,111 @@ void set_register(int32_t arg, int32_t value)
 					for(int32_t i=0; i<8; i++)
 						ffc->initd[i] = 0;
 				}
-				on_reassign_script_engine_data(ScriptType::FFC, ri->ffcref);
+				on_reassign_script_engine_data(ScriptType::FFC, ffc->index);
 			}
 			break;
 			
 			
 		case FCSET:
-			if(BC::checkFFC(ri->ffcref, "ffc->CSet") == SH::_NoError)
-				get_ffc_raw(ri->ffcref)->cset = (value/10000)&15;
+			if (auto ffc = checkFFC(ri->ffcref, "ffc->CSet"))
+				ffc->cset = (value/10000)&15;
 			break;
 			
 		case DELAY:
-			if(BC::checkFFC(ri->ffcref, "ffc->Delay") == SH::_NoError)
-				get_ffc_raw(ri->ffcref)->delay = value/10000;
+			if (auto ffc = checkFFC(ri->ffcref, "ffc->Delay"))
+				ffc->delay = value/10000;
 			break;
 			
 		case FX:
-			if(BC::checkFFC(ri->ffcref, "ffc->X") == SH::_NoError)
-				get_ffc_raw(ri->ffcref)->x = zslongToFix(value);
+			if (auto ffc = checkFFC(ri->ffcref, "ffc->X"))
+				ffc->x = zslongToFix(value);
 			break;
 			
 		case FY:
-			if(BC::checkFFC(ri->ffcref, "ffc->Y") == SH::_NoError)
-				get_ffc_raw(ri->ffcref)->y=zslongToFix(value);
+			if (auto ffc = checkFFC(ri->ffcref, "ffc->Y"))
+				ffc->y=zslongToFix(value);
 			break;
 			
 		case XD:
-			if(BC::checkFFC(ri->ffcref, "ffc->Vx") == SH::_NoError)
-				get_ffc_raw(ri->ffcref)->vx=zslongToFix(value);
+			if (auto ffc = checkFFC(ri->ffcref, "ffc->Vx"))
+				ffc->vx=zslongToFix(value);
 			break;
 			
 		case YD:
-			if(BC::checkFFC(ri->ffcref, "ffc->Vy") == SH::_NoError)
-				get_ffc_raw(ri->ffcref)->vy=zslongToFix(value);
+			if (auto ffc = checkFFC(ri->ffcref, "ffc->Vy"))
+				ffc->vy=zslongToFix(value);
 			break;
 		
 		case FFCID:
 			break;
 			
 		case XD2:
-			if(BC::checkFFC(ri->ffcref, "ffc->Ax") == SH::_NoError)
-				get_ffc_raw(ri->ffcref)->ax=zslongToFix(value);
+			if (auto ffc = checkFFC(ri->ffcref, "ffc->Ax"))
+				ffc->ax=zslongToFix(value);
 			break;
 			
 		case YD2:
-			if(BC::checkFFC(ri->ffcref, "ffc->Ay") == SH::_NoError)
-				get_ffc_raw(ri->ffcref)->ay=zslongToFix(value);
+			if (auto ffc = checkFFC(ri->ffcref, "ffc->Ay"))
+				ffc->ay=zslongToFix(value);
 			break;
 			
 		case FFFLAGSD:
-			if(BC::checkFFC(ri->ffcref, "ffc->Flags[]") == SH::_NoError)
+			if (auto ffc = checkFFC(ri->ffcref, "ffc->Flags[]"))
 			{
-				auto flag = (ffc_flags)(1<<((ri->d[rINDEX])/10000));
-				ffcdata* ff = get_ffc_raw(ri->ffcref);
-				SETFLAG(ff->flags, flag, value);
+				ffc_flags flag = (ffc_flags)(1<<((ri->d[rINDEX])/10000));
+				SETFLAG(ffc->flags, flag, value);
 				if (flag == ffc_solid || flag == ffc_changer)
-					ff->updateSolid();
+					ffc->updateSolid();
 			}
 			break;
 			
 		case FFCWIDTH:
-			if(BC::checkFFC(ri->ffcref, "ffc->EffectWidth") == SH::_NoError)
-				get_ffc_raw(ri->ffcref)->hit_width = (value/10000);
+			if (auto ffc = checkFFC(ri->ffcref, "ffc->EffectWidth"))
+				ffc->hit_width = (value/10000);
 			break;
 			
 		case FFCHEIGHT:
-			if(BC::checkFFC(ri->ffcref, "ffc->EffectHeight") == SH::_NoError)
-				get_ffc_raw(ri->ffcref)->hit_height = (value/10000);
+			if (auto ffc = checkFFC(ri->ffcref, "ffc->EffectHeight"))
+				ffc->hit_height = (value/10000);
 			break;
 			
 		case FFTWIDTH:
-			if(BC::checkFFC(ri->ffcref, "ffc->TileWidth") == SH::_NoError)
-				get_ffc_raw(ri->ffcref)->txsz = vbound(value/10000, 1, 4);
+			if (auto ffc = checkFFC(ri->ffcref, "ffc->TileWidth"))
+				ffc->txsz = vbound(value/10000, 1, 4);
 			break;
 			
 		case FFTHEIGHT:
-			if(BC::checkFFC(ri->ffcref, "ffc->TileHeight") == SH::_NoError)
-				get_ffc_raw(ri->ffcref)->tysz = vbound(value/10000, 1, 4);
+			if (auto ffc = checkFFC(ri->ffcref, "ffc->TileHeight"))
+				ffc->tysz = vbound(value/10000, 1, 4);
 			break;
 			
 		case FFLINK:
-			if(BC::checkFFC(ri->ffcref, "ffc->Link") == SH::_NoError)
-				(get_ffc_raw(ri->ffcref)->link)=vbound(value/10000, 0, MAX_FFCID+1); // Allow "ffc->Link = 0" to unlink ffc.
+			if (auto ffc = checkFFC(ri->ffcref, "ffc->Link"))
+				(ffc->link)=vbound(value/10000, 0, MAXFFCS); // Allow "ffc->Link = 0" to unlink ffc.
+			//0 is none, setting this before made it impssible to clear it. -Z
 			break;
 			
 		case FFMISCD:
 		{
 			int32_t a = vbound(ri->d[rINDEX]/10000,0,15);
-			if(BC::checkFFC(ri->ffcref, "ffc->Misc[]")== SH::_NoError)
-				get_ffc_raw(ri->ffcref)->script_misc[a] = value;
+			if (auto ffc = checkFFC(ri->ffcref, "ffc->Misc[]"))
+				ffc->miscellaneous[a]=value;
 			break;
 		}
 		
 		case FFINITDD:
-			if(BC::checkFFC(ri->ffcref, "ffc->InitD[]") == SH::_NoError)
-				(get_ffc_raw(ri->ffcref)->initd[vbound(ri->d[rINDEX]/10000,0,7)])=value;
+			if (auto ffc = checkFFC(ri->ffcref, "ffc->InitD[]") )
+				(ffc->initd[vbound(ri->d[rINDEX]/10000,0,7)])=value;
 			break;
 			
 		case FFCLASTCHANGERX:
-			if(BC::checkFFC(ri->ffcref, "ffc->LastChangerX") == SH::_NoError)
-				get_ffc_raw(ri->ffcref)->changer_x=vbound(zslongToFix(value).getInt(),-32768, 32767);
+			if (auto ffc = checkFFC(ri->ffcref, "ffc->LastChangerX") )
+				ffc->changer_x=vbound(zslongToFix(value).getInt(),-32768, 32767);
 			break;
 			
 		case FFCLASTCHANGERY:
-			if(BC::checkFFC(ri->ffcref, "ffc->LastChangerY") == SH::_NoError)
-				get_ffc_raw(ri->ffcref)->changer_y=vbound(zslongToFix(value).getInt(),-32768, 32767);
+			if (auto ffc = checkFFC(ri->ffcref, "ffc->LastChangerY") )
+				ffc->changer_y=vbound(zslongToFix(value).getInt(),-32768, 32767);
 			break;
 		
 			
@@ -15994,10 +16022,10 @@ void set_register(int32_t arg, int32_t value)
 			{
 				if(((weapon*)(s))->fallclk != 0 && value == 0)
 				{
-					((weapon*)(s))->cs = ((weapon*)(s))->old_cset;
+					((weapon*)(s))->cs = ((weapon*)(s))->o_cset;
 					((weapon*)(s))->tile = ((weapon*)(s))->o_tile;
 				}
-				else if(((weapon*)(s))->fallclk == 0 && value != 0) ((weapon*)(s))->old_cset = ((weapon*)(s))->cs;
+				else if(((weapon*)(s))->fallclk == 0 && value != 0) ((weapon*)(s))->o_cset = ((weapon*)(s))->cs;
 				((weapon*)(s))->fallclk = vbound(value/10000,0,70);
 			}
 			break;
@@ -16012,10 +16040,10 @@ void set_register(int32_t arg, int32_t value)
 			{
 				if(((weapon*)(s))->drownclk != 0 && value == 0)
 				{
-					((weapon*)(s))->cs = ((weapon*)(s))->old_cset;
+					((weapon*)(s))->cs = ((weapon*)(s))->o_cset;
 					((weapon*)(s))->tile = ((weapon*)(s))->o_tile;
 				}
-				else if(((weapon*)(s))->drownclk == 0 && value != 0) ((weapon*)(s))->old_cset = ((weapon*)(s))->cs;
+				else if(((weapon*)(s))->drownclk == 0 && value != 0) ((weapon*)(s))->o_cset = ((weapon*)(s))->cs;
 				((weapon*)(s))->drownclk = vbound(value/10000,0,70);
 			}
 			break;
@@ -16641,10 +16669,10 @@ void set_register(int32_t arg, int32_t value)
 			{
 				if(((weapon*)(s))->fallclk != 0 && value == 0)
 				{
-					((weapon*)(s))->cs = ((weapon*)(s))->old_cset;
+					((weapon*)(s))->cs = ((weapon*)(s))->o_cset;
 					((weapon*)(s))->tile = ((weapon*)(s))->o_tile;
 				}
-				else if(((weapon*)(s))->fallclk == 0 && value != 0) ((weapon*)(s))->old_cset = ((weapon*)(s))->cs;
+				else if(((weapon*)(s))->fallclk == 0 && value != 0) ((weapon*)(s))->o_cset = ((weapon*)(s))->cs;
 				((weapon*)(s))->fallclk = vbound(value/10000,0,70);
 			}
 			break;
@@ -16659,10 +16687,10 @@ void set_register(int32_t arg, int32_t value)
 			{
 				if(((weapon*)(s))->drownclk != 0 && value == 0)
 				{
-					((weapon*)(s))->cs = ((weapon*)(s))->old_cset;
+					((weapon*)(s))->cs = ((weapon*)(s))->o_cset;
 					((weapon*)(s))->tile = ((weapon*)(s))->o_tile;
 				}
-				else if(((weapon*)(s))->drownclk == 0 && value != 0) ((weapon*)(s))->old_cset = ((weapon*)(s))->cs;
+				else if(((weapon*)(s))->drownclk == 0 && value != 0) ((weapon*)(s))->o_cset = ((weapon*)(s))->cs;
 				((weapon*)(s))->drownclk = vbound(value/10000,0,70);
 			}
 			break;
@@ -17838,27 +17866,27 @@ void set_register(int32_t arg, int32_t value)
 		case SPRITEDATAMISC: SET_SPRITEDATA_VAR_BYTE(misc, "Misc"); break;
 		case SPRITEDATACSETS:
 		{
-			if(unsigned(ri->spritesref) > (MAXWPNS-1) )
+			if(unsigned(ri->spritedataref) > (MAXWPNS-1) )
 			{
-				Z_scripterrlog("Invalid Sprite ID passed to spritedata->CSet: %d\n", (ri->spritesref*10000));
+				Z_scripterrlog("Invalid Sprite ID passed to spritedata->CSet: %d\n", (ri->spritedataref*10000));
 			}
 			else
 			{
-				wpnsbuf[ri->spritesref].csets &= 0xF0;
-				wpnsbuf[ri->spritesref].csets |= vbound((value / 10000),0,15);
+				wpnsbuf[ri->spritedataref].csets &= 0xF0;
+				wpnsbuf[ri->spritedataref].csets |= vbound((value / 10000),0,15);
 			}
 			break;
 		}
 		case SPRITEDATAFLCSET:
 		{
-			if(unsigned(ri->spritesref) > (MAXWPNS-1) )
+			if(unsigned(ri->spritedataref) > (MAXWPNS-1) )
 			{
-				Z_scripterrlog("Invalid Sprite ID passed to spritedata->FlashCSet: %d\n", (ri->spritesref*10000));
+				Z_scripterrlog("Invalid Sprite ID passed to spritedata->FlashCSet: %d\n", (ri->spritedataref*10000));
 			}
 			else
 			{
-				wpnsbuf[ri->spritesref].csets &= 0x0F;
-				wpnsbuf[ri->spritesref].csets |= vbound((value / 10000),0,15)<<4;
+				wpnsbuf[ri->spritedataref].csets &= 0x0F;
+				wpnsbuf[ri->spritedataref].csets |= vbound((value / 10000),0,15)<<4;
 			}
 			break;
 		}
@@ -17867,9 +17895,9 @@ void set_register(int32_t arg, int32_t value)
 		case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
 		case SPRITEDATAFLAGS:
 		{
-			if(unsigned(ri->spritesref) > (MAXWPNS-1) )
+			if(unsigned(ri->spritedataref) > (MAXWPNS-1) )
 			{
-				Z_scripterrlog("Invalid Sprite ID passed to spritedata->Flags[]: %d\n", (ri->spritesref*10000));
+				Z_scripterrlog("Invalid Sprite ID passed to spritedata->Flags[]: %d\n", (ri->spritedataref*10000));
 				break;
 			}
 			int32_t index = ri->d[rINDEX]/10000;
@@ -17878,7 +17906,7 @@ void set_register(int32_t arg, int32_t value)
 				Z_scripterrlog("Invalid index passed to spritedata->Flags[]: %d\n", index);
 				break;
 			}
-			SETFLAG(wpnsbuf[ri->spritesref].misc, 1<<index, value);
+			SETFLAG(wpnsbuf[ri->spritedataref].misc, 1<<index, value);
 			break;
 		}
 		
@@ -21189,7 +21217,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case REFFFC:
-			ri->ffcref = value / 10000;
+			ri->ffcref = ZScriptVersion::ffcRefIsSpriteId() ? value : value / 10000;
 			break;
 			
 		case REFITEM:
@@ -21211,11 +21239,15 @@ void set_register(int32_t arg, int32_t value)
 		case REFNPC:
 			ri->guyref = value;
 			break;
-		
+
+		case REFSPRITE:
+			ri->spriteref = value;
+			break;
+
 		case REFMAPDATA: ri->mapsref = value; break;
 		case REFSCREENDATA: ri->screenref = value; break;
 		case REFCOMBODATA: ri->combosref = value; break;
-		case REFSPRITEDATA: ri->spritesref = value; break;
+		case REFSPRITEDATA: ri->spritedataref = value; break;
 		case REFBITMAP: ri->bitmapref = value; break;
 		case REFNPCCLASS: ri->npcdataref = value; break;
 		
@@ -23697,6 +23729,12 @@ int32_t get_int_arr(const int32_t ptr, int32_t indx)
 		{
 			if(BC::checkFFC(indx, "Screen->FFCs[]") != SH::_NoError)
 				return 0;
+
+			// TODO z3 !!!
+			if (ZScriptVersion::ffcRefIsSpriteId())
+				return tmpscr->getFFC(indx).getUID();
+
+			tmpscr->ensureFFC(indx);
 			return indx*10000;
 		}
 		case INTARR_SCREEN_PORTALS:
@@ -23853,8 +23891,11 @@ void do_set(const bool v, ScriptType whichType, const int32_t whichUID)
 		//case ScriptType::Global:
 		
 		case ScriptType::FFC:
-			if(sarg1==FFSCRIPT && ri->ffcref==whichUID)
-				allowed = false;
+			if (sarg1 == FFSCRIPT)
+			{
+				if (auto ffc = checkFFC(ri->ffcref, "SET"); ffc && ffc->index == whichUID)
+					allowed = false;
+			}
 			break;
 		
 		case ScriptType::Screen:
@@ -24226,8 +24267,11 @@ void do_deallocatemem()
 	FFScript::deallocateArray(ptrval);
 }
 
+// very old.
 void do_loada(const byte a)
 {
+	assert(!ZScriptVersion::ffcRefIsSpriteId());
+
 	if(ri->a[a] == 0)
 	{
 		Z_scripterrlog("Global scripts currently have no A registers\n");
@@ -24251,8 +24295,11 @@ void do_loada(const byte a)
 	//Can get everything else using REFFFC
 }
 
+// very old.
 void do_seta(const byte a)
 {
+	assert(!ZScriptVersion::ffcRefIsSpriteId());
+
 	if(ri->a[a] == 0)
 	{
 		Z_eventlog("Global scripts currently have no A registers\n");
@@ -27572,10 +27619,10 @@ void FFScript::do_loadspritedata(const bool v)
 	if ( (unsigned)ID > (MAXWPNS-1) )
 	{
 		Z_scripterrlog("Invalid Sprite ID passed to Game->LoadSpriteData: %d\n", ID);
-		ri->spritesref = 0; 
+		ri->spritedataref = 0; 
 	}
 
-	else ri->spritesref = ID;
+	else ri->spritedataref = ID;
 }
 
 // TODO: Remove? Compiler does not emit this and screenref is not used.
@@ -27707,18 +27754,6 @@ void do_createitem(const bool v)
 		ri->itemref = 0;
 		Z_scripterrlog("Couldn't create item \"%s\", screen item limit reached\n", item_string[ID]);
 	}
-	/*
-	if(items.Count() < 1)
-	{
-		ri->itemref = MAX_DWORD;
-		Z_scripterrlog("Couldn't create item \"%s\", screen item limit reached\n", item_string[ID]);
-	}
-	else
-	{
-		ri->itemref = items.spr(items.Count() - 1)->getUID();
-		Z_eventlog("Script created item \"%s\" with UID = %ld\n", item_string[ID], ri->itemref);
-	}
-	*/
 }
 
 void do_createnpc(const bool v)
@@ -29829,7 +29864,8 @@ int32_t get_own_i(ScriptType type)
 		case ScriptType::NPC:
 			return ri->guyref;
 		case ScriptType::FFC:
-			return ri->ffcref;
+			if (auto ffc = checkFFC(ri->ffcref, "ffc->Data"))
+				return ffc->index;
 	}
 	return 0;
 }
@@ -29913,8 +29949,10 @@ void goto_err(char const* opname)
 	}
 }
 
-int32_t run_script(ScriptType type, const word script, const int32_t i)
+int32_t run_script(ScriptType type, word script, int32_t i)
 {
+	if (type == ScriptType::DMap)
+		printf(".");
 	if(Quit==qRESET || Quit==qEXIT) // In case an earlier script hung
 		return RUNSCRIPT_ERROR;
 		
@@ -30765,7 +30803,19 @@ int32_t run_script_int(bool is_jitted)
 			case GETITEMSCRIPT:
 				do_getitemscript();
 				break;
-				
+
+			case LOAD_FFC:
+			{
+				assert(ZScriptVersion::ffcRefIsSpriteId());
+				int ffc_id = get_register(sarg1) / 10000 - 1;
+
+				if (BC::checkFFC(ffc_id, "Screen->LoadFFC") == SH::_NoError)
+					set_register(sarg1, get_ffc_raw(ffc_id)->getUID());
+				else
+					set_register(sarg1, 0);
+				break;
+			}
+
 			case CASTBOOLI:
 				do_boolcast(false);
 				break;

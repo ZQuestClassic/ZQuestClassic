@@ -1221,6 +1221,8 @@ enum ASM_DEFINE
 
 	GETNPCDATAFIRESFX,
 	SETNPCDATAFIRESFX,
+
+	LOAD_FFC,
 	
 	NUMCOMMANDS
 };
@@ -3091,7 +3093,51 @@ enum ASM_DEFINE
 #define COMBODTRIGPUSHTIME      0x15BE
 #define COMBODTRIGSHIELDJINX    0x15BF
 
-#define NUMVARIABLES            0x15C0
+#define RSRVED_001              0x15C0
+
+#define REFSPRITE               0x15C1
+#define SPRITE_X                0x15C2
+#define SPRITE_Y                0x15C3
+#define SPRITE_Z                0x15C4
+#define SPRITE_FAKE_Z           0x15C5
+#define SPRITE_X_OFFSET         0x15C6
+#define SPRITE_Y_OFFSET         0x15C7
+#define SPRITE_Z_OFFSET             0x15C8
+#define SPRITE_ROTATION         0x15C9
+#define SPRITE_DIR              0x15CA
+#define SPRITE_TILE             0x15CB
+#define SPRITE_SCRIPT_TILE      0x15CC
+#define SPRITE_TILE_W             0x15CD
+#define SPRITE_TILE_H             0x15CE
+#define SPRITE_CSET             0x15CF
+#define SPRITE_SCALE            0x15D0
+#define SPRITE_DRAW_STYLE        0x15D1
+#define SPRITE_JUMP             0x15D2
+#define SPRITE_FAKE_JUMP        0x15D3
+#define SPRITE_GRAVITY          0x15D4
+#define SPRITE_FLIP             0x15D5
+#define SPRITE_SCRIPT_FLIP      0x15D6
+#define SPRITE_ENGINE_ANIMATE   0x15D7
+#define SPRITE_EXTEND           0x15D8
+#define SPRITE_HIT_WIDTH             0x15D9
+#define SPRITE_HIT_HEIGHT             0x15DA
+#define SPRITE_HIT_ZHEIGHT             0x15DB
+#define SPRITE_HIT_OFFSET_X            0x15DC
+#define SPRITE_HIT_OFFSET_Y            0x15DD
+#define SPRITE_FALL_CLK         0x15DE
+#define SPRITE_FALL_CMB         0x15DF
+#define SPRITE_MOVE_FLAGS       0x15E0
+#define SPRITE_LIGHT_RADIUS      0x15E1
+#define SPRITE_LIGHT_SHAPE       0x15E2
+#define SPRITE_SWHOOKED         0x15E3
+#define SPRITE_SHADOW_SPR       0x15E4
+#define SPRITE_DROWN_CLK        0x15E5
+#define SPRITE_DROWN_CMB        0x15E6
+#define SPRITE_SHADOW_XOFS      0x16E7
+#define SPRITE_SHADOW_YOFS      0x15E8
+#define SPRITE_MISCD            0x15E9
+
+#define NUMVARIABLES            0x15EA
 
 //} End variables
 

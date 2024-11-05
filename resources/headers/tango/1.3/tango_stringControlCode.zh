@@ -1,7 +1,3 @@
-// tango.zh
-// Version 1.3.3
-
-
 const int __TANGO_CONTROL_CODES_ENABLED = 1;
 
 // ZC stores control codes one higher than the code, e.g. \15 is really 16

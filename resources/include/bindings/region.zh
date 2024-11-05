@@ -1,3 +1,4 @@
+// Access with `Region->`.
 class Region {
 	// @delete
 	internal Region();

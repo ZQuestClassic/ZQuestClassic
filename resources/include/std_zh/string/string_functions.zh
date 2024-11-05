@@ -22,26 +22,6 @@ int NumCharsOf(char32[] ptr, int pos, char32 chr)
 	return chars;
 }
 
-//reversed
-//Returns the number of chracters of a given type in a specified string.
-int NumCharsOfRev(char32[] ptr, char32 chr)
-{
-	int chars;
-	for ( int q = SizeOfArray(ptr)-1; q >= 0; --q ) {
-		if ( ptr[q] == chr ) chars++;
-	}
-	return chars;
-}
-
-int NumCharsOfRev(char32[] ptr, int pos, char32 chr)
-{
-	int chars; 
-	for ( int q = pos; q >= 0; --q ) {
-		if ( ptr[q] == chr ) chars++;
-	}
-	return chars;
-}
-
 //Single character functions
 //Returns true if 'chr' is in the control code range of ascii characters
 bool isControlCode(char32 chr)
@@ -167,49 +147,6 @@ int ContainsCharPos(char32 chr, int pos, char32[] buffer)
 	}
 	return -1;
 }
-
-
-//Returns true if the string contains a specific character.
-bool ContainsCharRev(char32 chr, char32[] buffer)
-{
-	for ( int q = (SizeOfArray(buffer)-1); q >= 0; --q )
-	{
-		if ( buffer[q] == chr ) return true;
-	}
-	return false;
-}
-
-//Returns first character position if the string contains a specific character, else -1.
-int ContainsCharPosRev(char32 chr, char32[] buffer)
-{
-	for ( int q = (SizeOfArray(buffer)-1); q >= 0; --q )
-	{
-		if ( buffer[q] == chr ) return q;
-	}
-	return -1;
-}
-
-
-//Returns true if the string contains a specific character.
-bool ContainsCharRev(char32 chr, int pos, char32[] buffer)
-{
-	for ( int q = pos; q >= 0; --q )
-	{
-		if ( buffer[q] == chr ) return true;
-	}
-	return false;
-}
-
-//Returns first character position if the string contains a specific character, else -1.
-int ContainsCharPosRev(char32 chr, int pos, char32[] buffer)
-{
-	for ( int q = pos; q >= 0; --q )
-	{
-		if ( buffer[q] == chr ) return q;
-	}
-	return -1;
-}
-
 
 //Converts all upper case characters to lower case, leaving non-alphabetic
 //characters unchanged
@@ -944,13 +881,6 @@ int ReturnStringCharPosRev(char32[] ptr, int pos, char32 chr)
 char32 IsChar(char32 chr) { return chr; }
 bool IsChar(char32 chr, char32 comp) { return (chr == comp); }
 
-
-void TraceError(char32 s, float v)
-{
-	printf("%s: %d\n", s, v);
-}
-	
-
 //Prints a formatted string to the screen. 
 //	`int v` can be a string, a float, or an int and is inserted to 
 //	the string using the tokens `%s`, `%f`, and `%d` respectively.
@@ -1049,10 +979,10 @@ namespace std
 			return xtoa(ptr, 0, num, true);
 		}
 		
-		//printf / sprintf now internal
-		
-		//Prints string 'formatstr' into 'ret' according to the arguments inputted (see C function for reference)
-		//Maximum 16 arguments
+		// Prints string 'formatstr' into 'ret' according to the arguments inputted (see C function for reference)
+		// Maximum 16 arguments
+		//
+		// @deprecated Use the internal [sprintf] instead.
 		int sprintf(char32[] ret, char32[] formatstr,int a0=0,int a1=0,int a2=0,int a3=0,int a4=0,int a5=0,int a6=0,int a7=0,
 										  int a8=0,int a9=0,int aa=0,int ab=0,int ac=0,int ad=0,int ae=0,int af=0)
 		{
@@ -1094,7 +1024,10 @@ namespace std
 
 			return pos;
 		}
-		//Uses a buffer to print the results of sprintf(formatstr,...) straight to allegro.log
+
+		// Uses a buffer to print the results of sprintf(formatstr,...) straight to allegro.log
+		//
+		// @deprecated Use the internal [printf] instead.
 		void printf(char32[] formatstr,int a0=0,int a1=0,int a2=0,int a3=0,int a4=0,int a5=0,int a6=0,int a7=0,
 								  int a8=0,int a9=0,int aa=0,int ab=0,int ac=0,int ad=0,int ae=0,int af=0)
 		{

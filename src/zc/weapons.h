@@ -1,10 +1,12 @@
 #ifndef WEAPONS_H_
 #define WEAPONS_H_
 
+#include "base/combo.h"
 #include "base/zdefs.h"
-#include "sprite.h"
 #include "base/zfix.h"
 #include "base/flags.h"
+#include "sprite.h"
+
 #include <set>
 
 class enemy;
@@ -40,7 +42,7 @@ public:
     zfix step;
     bool bounce, ignoreHero;
     word flash,wid,aframe,csclk;
-    int32_t o_tile, o_cset, o_speed, o_type, frames, o_flip, ref_o_tile;
+    int32_t o_speed, o_type, frames, o_flip, ref_o_tile;
 	byte script_wrote_otile;
     int32_t temp1;
     bool behind;

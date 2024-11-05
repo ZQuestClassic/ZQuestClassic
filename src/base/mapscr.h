@@ -119,6 +119,7 @@ struct mapscr
 	// 1) it has just been checked to be less than `numFFC()` or
 	// 2) `getFFC(ind)` or `ensureFFC(ind)` was just called
 	std::vector<ffcdata> ffcs;
+	void resizeFFC(size_t size);
 	void ensureFFC(size_t ind);
 	ffcdata& getFFC(size_t ind);
 	word numFFC();

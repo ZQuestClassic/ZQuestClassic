@@ -35,7 +35,10 @@ SETV D2 0.0002; while(true) #2 Body [Opt:AlwaysOn] Start
 PUSHR D2
 POP D2
 SETR VIEWPORT_MODE D2
-SETR D2 LINKX
+SETV D2 0.0001
+PUSHR D2
+POP REFSPRITE
+SETR D2 SPRITE_X
 PUSHR D2
 SETR D2 VIEWPORT_WIDTH
 DIVV D2 2
@@ -55,7 +58,10 @@ ADDR D2 D3
 PUSHR D2
 POP D2
 SETR VIEWPORT_X D2
-SETR D2 LINKY
+SETV D2 0.0001
+PUSHR D2
+POP REFSPRITE
+SETR D2 SPRITE_Y
 PUSHR D2
 SETR D2 VIEWPORT_HEIGHT
 DIVV D2 2
@@ -81,24 +87,24 @@ LOAD D2 0
 POP D3
 ADDR D2 D3
 STORE D2 0.0001
-LOAD D2 0.0001; if() #163 Test
+LOAD D2 0.0001; if() #109 Test
 COMPAREV D2 -360
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 65 ==; Test 'if'
-LOAD D2 0.0001; if() #163 Body Start
+GOTOCMP 71 ==; Test 'if'
+LOAD D2 0.0001; if() #109 Body Start
 ADDV D2 360
 STORE D2 0.0001
-GOTO 73; if() #163 Body End
-LOAD D2 0.0001; if() #447 Test AND if() #163 Else Start
+GOTO 79; if() #109 Body End
+LOAD D2 0.0001; if() #436 Test AND if() #109 Else Start
 COMPAREV D2 360
 SETCMP D2 I>
 COMPAREV D2 0
-GOTOCMP 73 ==; Test 'if'
-LOAD D2 0.0001; if() #447 Body Start
+GOTOCMP 79 ==; Test 'if'
+LOAD D2 0.0001; if() #436 Body Start
 SUBV D2 360
-STORE D2 0.0001; if() #447 Body End
-WAITFRAME; if() #163 Else End AND InlineFunc[void Waitframe()] Body AND while(true) #2 Body [Opt:AlwaysOn] End
+STORE D2 0.0001; if() #436 Body End
+WAITFRAME; if() #109 Else End AND InlineFunc[void Waitframe()] Body AND while(true) #2 Body [Opt:AlwaysOn] End
 GOTO 6; while() #2 End AND [Opt:NeverRet] AND void run() Body End
 
 

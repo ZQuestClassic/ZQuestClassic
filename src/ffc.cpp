@@ -25,7 +25,12 @@ void ffcdata::clear()
 	*this = ffcdata();
 }
 
-void ffcdata::draw(BITMAP* dest, int32_t xofs, int32_t yofs, bool overlay)
+void ffcdata::draw(BITMAP* dest)
+{
+	draw_ffc(dest, 0, 0, false);
+}
+
+void ffcdata::draw_ffc(BITMAP* dest, int32_t xofs, int32_t yofs, bool overlay)
 {
 	if (flags&ffc_changer) return;
 	#ifdef IS_PLAYER

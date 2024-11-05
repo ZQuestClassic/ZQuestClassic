@@ -1,0 +1,94 @@
+https://zquestclassic.com/releases/2.55.6
+
+# Features
+
+
+configurable charge step for enemy rope walk style (#953)
+  If "Walk Attr." (aka misc attribute 10) is >0, enemies with the "Rope" walk style will use that custom value
+  for the charging step.
+
+use allegro 5 for DUMB tracker audio (mod, it, s3m, xm)
+  The listed tracker formats now support setting loop points in the DMap
+  Music tab, including setting the speed / position in ZScript. Note, the
+  only enhanced music formats that do not support these features now are:
+  spc, gbs, vgm, gym, and nsf.
+  
+  This also happens to fix an issue where tracks that have builtin loops
+  were incorrectly playing silence before looping.
+
+support delete keyboard shortcuts for most text controls
+  * Ctrl+Backspace (Mac: Opt+Backspace) - deletes from cursor to next word
+    boundrary
+  * Alt+Backspace (Mac: Cmd+Backspace) - deletes from cursor to beginning
+    of the line
+
+
+# Bug Fixes
+
+improve key input latency by simplifying d_vsync_proc
+call allegro_exit before exit to avoid rare hang seen on linux
+generate correct version string for 1.92 quests
+ctrl+a,c,v work again in text fields
+
+use correct conversion from 6-bit to 8-bit colors
+  Multiple places converted 6-bit colors to 8-bit by just multiplying by
+  4, which is wrong (ex: 63 * 4 = 252, but 255 is expected). Now we use a
+  lookup table. This fixes:
+  
+  * The hex color shown in palette and tile editors
+  * various components drawn in the editor (like the minimap)
+  * exporting jpg images
+
+prevent crash when deleting all text in some input fields
+zc: Damage combos with Custom Damage not working on FFCs
+zc: correctly restore sword/potion/triforce items with fairies in pre-2.55 quests
+zc: restore palette after wavy effect
+  The wavy effect was leaving the palette slightly off what it should
+  have been, which was making the colors slightly saturated until the
+  next time the palette changed.
+
+zc: do not ignore replay forever if save has not been played yet
+zc: draw decorations correctly during scrolling
+  Some decorations (like combo sprites) are drawn without the correct
+  offset during screen scrolling, and worse were not disappearing after
+  the end of the scroll (not until its animation naturally finished). Now
+  these decoration sprites are drawn correctly during scrolling, and get
+  removed.
+
+zc: lockblocks on layer 0 no longer ignored in cave dmaps if locked door present
+  Context: https://discord.com/channels/876899628556091432/1278165595321405554
+
+zc: pause music when opening player data with cheat shortcut
+zc: avoid crash in Go To cheat by checking destination is valid
+  This cheat dialog expects you to input the screen number before any DMap
+  xoff is applied, which can result in directing the game to load an
+  invalid screen and crash. Now the screen is validated, and the xoff
+  is displayed next to each DMap in the dropdown.
+
+zc: fire trail weapons glow in dark rooms, just like flames
+zq: prevent dmap editor crash when map is no longer valid
+zq: prevent various quest report crashes
+zq: set the default values for patra's (2 and 3) inner eyes
+zq: reduce latency on combo page paste
+zscript: scripts no longer use wrong context after many sprites created
+  After 65536 sprites have been created without closing the player, the ID
+  of subsequent sprites was too high for how the internal script engine
+  stored the state for each script. This resulted in randomly using some
+  other script's state, causing general mayhem.
+
+zscript: LoadDirectory always failing due to bad path validation
+
+# Build
+
+
+upgrade to latest GME
+  https://github.com/libgme/game-music-emu/compare/6b676192d98302e698ac78fe3c00833eae6a74e5...05a2aa29e8eae29316804fdd28ceaa96c74a1531
+
+
+# Refactors
+
+
+reduce amount of copying in readmaps
+  This makes loading yuurand.qst 21% faster (2445ms -> 1927ms)
+
+

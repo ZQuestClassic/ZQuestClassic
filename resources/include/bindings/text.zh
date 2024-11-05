@@ -1,9 +1,12 @@
+// Contains functions related to text rendering.
+//
+// Access with `Text->`.
 class Text {
 	// @delete
 	internal Text();
 
-	// Returns the width of the character [c] in the given [font], as
-	// [Screen->DrawString()] would draw it.
+	// Returns the width of the string [s] in the given [font], as
+	// [Screen->DrawString] would draw it.
 	//
 	// @zasm
 	//   POP D2
@@ -12,7 +15,7 @@ class Text {
 	internal int StringWidth(char32[] s, int font);
 
 	// Returns the width of the character [c], in the given font,
-	// as [Screen->DrawString()] would draw it.
+	// as [Screen->DrawString] would draw it.
 	//
 	// @zasm
 	//   POP D2
@@ -20,7 +23,7 @@ class Text {
 	//   CHARWIDTHR D3 D2
 	internal int CharWidth(char32 c, int font);
 
-	// Returns the height of [c] in [font], in pixels.
+	// Returns the height of the string [s] in [font], in pixels.
 	//
 	// @zasm
 	//   POP D2
@@ -28,7 +31,7 @@ class Text {
 	//   FONTHEIGHTR D2
 	internal int StringHeight(char32[] s, int font);
 
-	// Returns the height of [c] in [font], in pixels.
+	// Returns the height of the character [c] in [font], in pixels.
 	//
 	// @zasm
 	//   POP D2
@@ -43,7 +46,7 @@ class Text {
 	//   FONTHEIGHTR D2
 	internal int FontHeight(int font);
 
-	// Returns the width of the [messagedata] 'msg', as [Screen->DrawString()]
+	// Returns the width of the [messagedata] `msg`, as [Screen->DrawString]
 	// would draw it.
 	//
 	// @zasm
@@ -51,7 +54,7 @@ class Text {
 	//   MESSAGEWIDTHR D2
 	internal int MessageWidth(int msg);
 
-	// Returns the height of the font assigned to the 'msg' [messagedata].
+	// Returns the height of the font assigned to the `msg` [messagedata].
 	//
 	// @zasm
 	//   POP D2

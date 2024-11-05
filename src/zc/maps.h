@@ -191,6 +191,7 @@ int32_t FFORCOMBOTYPE(int32_t x, int32_t y);
 int32_t FFORCOMBO_L(int32_t layer, int32_t x, int32_t y);
 int32_t FFORCOMBOTYPE_L(int32_t layer, int32_t x, int32_t y);
 int32_t MAPCOMBO2(int32_t layer,int32_t x,int32_t y);
+std::optional<mapscr> load_temp_mapscr_and_apply_secrets(int32_t map, int32_t screen, int32_t layer, bool secrets, bool secrets_do_replay_comment = true);
 int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, int32_t x, int32_t y, bool secrets = false);
 int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, rpos_t rpos, bool secrets = false);
 int32_t MAPCSET2(int32_t layer,int32_t x,int32_t y);
@@ -315,7 +316,7 @@ enum class TriggerSource {
 };
 void trigger_secrets_for_screen(TriggerSource source, int32_t screen, bool high16only=false, int32_t single=-1);
 void trigger_secrets_for_screen(TriggerSource source, int32_t screen, mapscr *s, bool high16only=false, int32_t single=-1);
-void trigger_secrets_for_screen_internal(int32_t screen, mapscr *s, bool do_combo_triggers, bool high16only, int32_t single);
+void trigger_secrets_for_screen_internal(int32_t screen, mapscr *s, bool do_combo_triggers, bool high16only, int32_t single, bool do_replay_comment=true);
 
 void update_freeform_combos();
 void update_slopes();

@@ -5,7 +5,7 @@
 #include "base/cpos_info.h"
 #include "base/flags.h"
 #include "base/zfix.h"
-#include "solidobject.h"
+#include "sprite.h"
 
 namespace flags {
 enum ffc_flags : uint32_t
@@ -37,29 +37,15 @@ enum ffc_flags : uint32_t
 };
 } // ends namespace
 
-//x = ffx
-//y = ffy
-//vx = ffxdelta
-//vy = ffydelta
-//ax = ffxdelta2
-//ay = ffydelta2
-//flags  = ffflags
-//data = ffdata
-//delay = ffdelay
-//cset = ffcset
-//link = fflink
-//script = ffscript
-//ffwidth, ffheight?
-
-class ffcdata : public solid_object
+class ffcdata : public sprite
 {
 public:
+	uint16_t index;
 	zfix ax, ay;
 	ffc_flags flags;
 	word delay;
 	byte cset;
-	word link;
-	byte txsz = 1, tysz = 1;
+	word link; // TODO !!! what type? increase editor/qst file size. uint16_t? ffcid_t? etc
 	word script;
 	int32_t initd[INITIAL_D];
 	int32_t inita[INITIAL_A];
@@ -77,9 +63,10 @@ public:
 	virtual void solid_update(bool push = true) override;
 	// Note: If you use this to clear a ffc during gameplay, you must also call zc_ffc_set(ffc, 0)
 	void clear();
-	
-	void draw(BITMAP* dest, int32_t xofs, int32_t yofs, bool overlay);
-	
+
+	void draw(BITMAP* dest) override;
+	void draw_ffc(BITMAP* dest, int32_t xofs, int32_t yofs, bool overlay);
+
 	virtual bool setSolid(bool set) override;
 	virtual void updateSolid() override;
 	void setLoaded(bool set);

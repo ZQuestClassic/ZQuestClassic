@@ -17,6 +17,7 @@
 */
 
 import "bindings/common.zh"
+import "bindings/sprite.zh"
 
 import "bindings/audio.zh"
 import "bindings/bitmap.zh"

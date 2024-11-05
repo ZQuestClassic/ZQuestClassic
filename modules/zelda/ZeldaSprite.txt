@@ -11,7 +11,6 @@ src/zc/combos.cpp
 src/zc/hero.cpp
 src/particles.cpp
 src/items.cpp
-src/sprite.cpp
 src/solidobject.cpp
 src/tiles.cpp
 src/zc/maps.cpp
