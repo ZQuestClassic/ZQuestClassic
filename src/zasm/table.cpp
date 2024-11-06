@@ -811,9 +811,9 @@ static constexpr script_command command_list[]=
 	{ "STRSPN3", STRSPN3, 1, { REG }, 0, UNIMPL }, // Unimplemented - no case
 	{ "STRCSPN3", STRCSPN3, 1, { REG }, 0, UNIMPL }, // Unimplemented - no case
 	
-	{ "UPPERTOLOWER", UPPERTOLOWER, 2, { REG_RW, REG }, 0, 0 },
-	{ "LOWERTOUPPER", LOWERTOUPPER, 2, { REG_RW, REG }, 0, 0 },
-	{ "CONVERTCASE", CONVERTCASE, 2, { REG_RW, REG }, 0, 0 },
+	{ "UPPERTOLOWER", UPPERTOLOWER, 2, { REG_W, REG_R }, 0, 0 },
+	{ "LOWERTOUPPER", LOWERTOUPPER, 2, { REG_W, REG_R }, 0, 0 },
+	{ "CONVERTCASE", CONVERTCASE, 2, { REG_W, REG_R }, 0, 0 },
 	//Game->Get
 	{ "GETNPCSCRIPT", GETNPCSCRIPT, 1, { REG_RW }, 0, 0 },
 	{ "GETLWEAPONSCRIPT", GETLWEAPONSCRIPT, 1, { REG_RW }, 0, 0 },
