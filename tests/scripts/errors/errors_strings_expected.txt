@@ -3,8 +3,32 @@ stderr:
 Compiling 'errors_strings.zs'
 Pass 1: Parsing
 ERROR: expected a single character value - did you mean to use double quotes for a string? [errors_strings.zs Line 4 Column 46 ''should have been double quotes'']
+
+
+2    
+3    void strings() {
+4        char32 c1 = 'should have been double quotes'; // char too long
+                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 ERROR: Unknown escape character. [errors_strings.zs Line 5 Column 18 ''\c'']
+
+
+3    void strings() {
+4        char32 c1 = 'should have been double quotes'; // char too long
+5        char32 c2 = '\c'; // invalid escape
+                     ^~~~
+
+
 ERROR: expected a single character value - did you mean to use double quotes for a string? [errors_strings.zs Line 6 Column 46 ''should have been double quotes'']
+
+
+4    char32 c1 = 'should have been double quotes'; // char too long
+5    char32 c2 = '\c'; // invalid escape
+6    char32 c3 = 'should have been double quotes';
+                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 

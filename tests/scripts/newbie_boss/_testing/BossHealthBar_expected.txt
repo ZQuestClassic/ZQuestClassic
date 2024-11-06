@@ -6,18 +6,102 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 BossHealthBar.z Line 233 @ Columns 7-13 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+231    void HealthBar_CapString(int str){
+232        for(int i=SizeOfArray(str)-1; i>=0; i--){
+233            if(str[i]>32){
+                  ^~~~~~
+
+
 BossHealthBar.z Line 234 @ Columns 5-13 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+232    for(int i=SizeOfArray(str)-1; i>=0; i--){
+233        if(str[i]>32){
+234            str[i+1] = 0;
+               ^~~~~~~~
+
+
 BossHealthBar.z Line 405 @ Columns 7-13 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+403    void HealthBar_CapString(int str){
+404        for(int i=SizeOfArray(str)-1; i>=0; i--){
+405            if(str[i]>32){
+                  ^~~~~~
+
+
 BossHealthBar.z Line 406 @ Columns 5-13 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+404    for(int i=SizeOfArray(str)-1; i>=0; i--){
+405        if(str[i]>32){
+406            str[i+1] = 0;
+               ^~~~~~~~
+
+
 BossHealthBar.z Line 699 @ Columns 7-13 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+697    void HealthBar_CapString(int str){
+698        for(int i=SizeOfArray(str)-1; i>=0; i--){
+699            if(str[i]>32){
+                  ^~~~~~
+
+
 BossHealthBar.z Line 700 @ Columns 5-13 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+698    for(int i=SizeOfArray(str)-1; i>=0; i--){
+699        if(str[i]>32){
+700            str[i+1] = 0;
+               ^~~~~~~~
+
+
 BossHealthBar.z Line 928 @ Columns 7-13 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+926    void HealthBar_CapString(int str){
+927        for(int i=SizeOfArray(str)-1; i>=0; i--){
+928            if(str[i]>32){
+                  ^~~~~~
+
+
 BossHealthBar.z Line 929 @ Columns 5-13 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+927    for(int i=SizeOfArray(str)-1; i>=0; i--){
+928        if(str[i]>32){
+929            str[i+1] = 0;
+               ^~~~~~~~
+
+
 Pass 5: Checking code paths
 BossHealthBar.z Line 155 @ Columns 6-22 - Warning S101: Function 'HealthBar_GetNPC' is not void, and should return a value!
+
+153    }
+154    //Returns the nth enemy with a certain ID on the screen
+155    npc HealthBar_GetNPC(int id, int extra){
+           ^~~~~~~~~~~~~~~~
+
+
 BossHealthBar.z Line 565 @ Columns 6-22 - Warning S101: Function 'HealthBar_GetNPC' is not void, and should return a value!
+
+563    }
+564    //Returns the nth enemy with a certain ID on the screen
+565    npc HealthBar_GetNPC(int id, int extra){
+           ^~~~~~~~~~~~~~~~
+
+
 BossHealthBar.z Line 155 @ Columns 6-22 - Warning S101: Function 'HealthBar_GetNPC' is not void, and should return a value!
+
+153    }
+154    //Returns the nth enemy with a certain ID on the screen
+155    npc HealthBar_GetNPC(int id, int extra){
+           ^~~~~~~~~~~~~~~~
+
+
 BossHealthBar.z Line 565 @ Columns 6-22 - Warning S101: Function 'HealthBar_GetNPC' is not void, and should return a value!
+
+563    }
+564    //Returns the nth enemy with a certain ID on the screen
+565    npc HealthBar_GetNPC(int id, int extra){
+           ^~~~~~~~~~~~~~~~
+
+
 Pass 6: Generating object code
 Pass 7: Assembling
 Success!

@@ -155,7 +155,7 @@ static std::map<std::string, CONSTEXPR_CBACK_TY> const_expr_global_impl = {
 				double v1 = *args[0]/10000.0;
 				if(!*args[1])
 				{
-					handler->handleError(CompileError::DivByZero(&node,"divide","InvPow(): "));
+					handler->handleError(CompileError::DivByZero(&node));
 					val = 10000;
 				}
 				else
