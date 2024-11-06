@@ -12,10 +12,23 @@ extern const GUI::ListData ruletemplatesList;
 
 void displayinfo(string const& title, string const& text, optional<string> subtext)
 {
+	if (is_headless() || is_ci())
+	{
+		al_trace("[info] %s\n", fmt::format("{} - {}\n{}", title, text, subtext.value_or("")).c_str());
+		return;
+	}
+
 	InfoDialog(title,text,subtext).show();
 }
+
 void displayinfo(string const& title, vector<string> const& lines, optional<string> subtext)
 {
+	if (is_headless() || is_ci())
+	{
+		al_trace("[info] %s\n", fmt::format("{} - {}\n{}", title, fmt::join(lines, "\n"), subtext.value_or("")).c_str());
+		return;
+	}
+
 	InfoDialog(title,lines,subtext).show();
 }
 
