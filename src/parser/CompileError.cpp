@@ -1,8 +1,13 @@
 #include "CompileError.h"
+#include <cctype>
 #include <iostream>
 #include <iomanip>
+#include <limits>
+#include <optional>
 #include <string>
 #include <sstream>
+#include "base/zapp.h"
+#include "parser/ZScript.h"
 #include "zsyssimple.h"
 #include "AST.h"
 #include "CompilerUtils.h"
@@ -291,14 +296,18 @@ string CompileError::toString() const
 	
 	ostringstream oss;
 
-	// Output location data.
+	// Get location data.
+	std::optional<LocationData> loc;
 	if (AST const* source = pimpl_->getSource())
 	{
-		if (auto loc = source->getIdentifierLocation())
-			oss << loc->asString();
+		if (auto ident_loc = source->getIdentifierLocation(); ident_loc)
+			loc = ident_loc;
 		else
-	    	oss << source->location.asString();
+	    	loc = source->location;
 	}
+
+	if (loc)
+		oss << loc->asString();
 
 	// Error or warning?
 	oss << " - " << (isStrict() ? "Error" : "Warning");
@@ -310,6 +319,9 @@ string CompileError::toString() const
 
 	// Message.
 	oss << pimpl_->getMessage();
+
+	if (loc)
+		oss << getErrorContext(*loc);
 
 	return oss.str();
 }

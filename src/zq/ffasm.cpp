@@ -541,7 +541,7 @@ int32_t parse_script_string(script_data *script, string const& scriptstr, bool r
 				// sprintf(buf2,"The error was: %s",errstrbuf[parse_err]);
 				// sprintf(buf3,"The command was (%s) (%s,%s)",combuf,arg1buf,arg2buf);
 				// jwin_alert("Error",buf,buf2,buf3,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-				InfoDialog("Error",buf).show();
+				displayinfo("Error", buf);
 				stop=true;
 				success=false;
 				script->disable();

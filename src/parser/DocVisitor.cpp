@@ -215,40 +215,6 @@ void DocVisitor::caseDataEnum(ASTDataEnum& host, void* param)
 	active = prev_active;
 }
 
-static std::string getSourceCodeSnippet(const LocationData& loc)
-{
-	struct cache_entry
-	{
-		std::string contents;
-		std::vector<uint32_t> lines;
-	};
-	static std::map<std::string, cache_entry> sourceContentsCache;
-
-	cache_entry* entry;
-	auto it = sourceContentsCache.find(loc.fname);
-	if (it == sourceContentsCache.end())
-	{
-		sourceContentsCache[loc.fname] = {util::read_text_file(loc.fname), {}};
-		entry = &sourceContentsCache[loc.fname];
-
-		uint32_t count = 0;
-		std::vector<std::string> lines = util::split(entry->contents, "\n");
-		for (auto& line : lines)
-		{
-			entry->lines.push_back(count);
-			count += line.size() + 1;
-		}
-	}
-	else
-	{
-		entry = &it->second;
-	}
-
-	uint32_t start = entry->lines[loc.first_line - 1] + loc.first_column - 1;
-	uint32_t end = entry->lines[loc.last_line - 1] + loc.last_column - 1;
-	return entry->contents.substr(start, end - start);
-}
-
 void DocVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 {
 	if (host.prototype || host.getFlag(FUNCFLAG_NIL))

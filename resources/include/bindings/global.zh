@@ -522,21 +522,21 @@ internal int ilen(char32[] string);
 // @zasm
 //   POP D3
 //   UPPERTOLOWER D2 D3
-internal int utol(char32[] string);
+internal void utol(char32[] string);
 
 // Uppercases the string (modifies).
 //
 // @zasm
 //   POP D3
 //   LOWERTOUPPER D2 D3
-internal int ltou(char32[] string);
+internal void ltou(char32[] string);
 
 // Swaps casing (a->A, A->a) for the string passed (modifies).
 //
 // @zasm
 //   POP D3
 //   CONVERTCASE D2 D3
-internal int convcase(char32[] string);
+internal void convcase(char32[] string);
 
 // Converts the value [val] to a string, and writes to [dest].
 //

@@ -277,7 +277,8 @@ class TestZScriptDatabase(ZCTestCase):
             # In general, scripts are not isolated / do not import what they use.
             # So let's lend a hand.
             imports, include_paths = intuit_imports(database_dir, script_path)
-            imports.append(script_path)
+            include_paths.append(database_dir)
+            imports.append(rel_name)
             lines = [
                 '#option ON_MISSING_RETURN warn',
                 '',

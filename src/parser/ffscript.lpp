@@ -291,9 +291,7 @@ appx_equal	TOKEN( APPXEQUAL );
 
  /* Hash Commands */
 <HASH>{
-	\\\n			NEWLINE;
-	[ \t\r]+		ADVANCE;
-	[ \t\r]*\n		NEWLINE; BEGIN( INITIAL ); TOKEN ( ENDLINE ); 
+	[ \t\r]*\n		NEWLINE; BEGIN( INITIAL ); UPDATE_YYLLOC; yycol = 1; return TOK_ENDLINE;
 	"option"		TOKEN( OPTION );
 	"ignore error"		TOKEN( EXPECTERROR );
 	"IGNORE ERROR"		TOKEN( EXPECTERROR );
