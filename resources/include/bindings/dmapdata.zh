@@ -1,3 +1,5 @@
+// Load with [Game->LoadDMapData].
+//
 // @zasm_ref REFDMAPDATA
 class dmapdata {
 	// @delete
@@ -43,7 +45,7 @@ class dmapdata {
 	// @zasm_var DMAPDATACONTINUE
 	internal int Continue;
 
-	// The type of the dmap, using the `DMAP_` constants.
+	// The type of the dmap, using the [DmapType] (`DMAP_`) constants.
 	//
 	// @zasm_var DMAPDATATYPE
 	internal int Type;
@@ -157,7 +159,7 @@ class dmapdata {
 	// @zasm_var DMAPDATACHARTED
 	internal int Charted[];
 
-	// The DMap ID that using a Mirror will take you to. If this is '-1',
+	// The DMap ID that using a Mirror will take you to. If this is `-1`,
 	// Mirrors will not be able to warp you to another dmap. If the [Flagset]
 	// 'Mirror Continues instead of Warping' is set, the mirror dmap setting is
 	// not used.

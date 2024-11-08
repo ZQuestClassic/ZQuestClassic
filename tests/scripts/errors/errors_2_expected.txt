@@ -3,6 +3,14 @@ stderr:
 Compiling 'errors_2.zs'
 Pass 1: Parsing
 syntax error, unexpected RBRACE, expecting end of file [errors_2.zs Line 3 Column 25 '}']
+
+
+1    #option NO_ERROR_HALT on
+2    
+3    global script Global {}}}}}{{}}
+                            ^
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 

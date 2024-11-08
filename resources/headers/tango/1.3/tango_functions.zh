@@ -1,7 +1,3 @@
-// tango.zh
-// Version 1.3.3
-
-
 // Constants and functions relating to functions and variables.
 
 // Max function args; should match array size in __Tango_RunFunction

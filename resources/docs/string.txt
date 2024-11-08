@@ -223,28 +223,6 @@ int strrchr(int string[], int character)
 int strrchr(int string, int pos, int chr)
  * As strrchr(), but with a specified starting position.
  
-bool ContainsCharRev(int chr, int buffer)
- * Returns true is string 'buffer' contains the character 'chr'. 
- * Searching is reversed, starting with the end of the string. 
-
-bool ContainsCharRev(int chr, int pos, int buffer)
- * As ContainsCharRev(), but with a specified starting position.
-
-int ContainsCharPosRev(int chr, int buffer)
-* Returns the index position of the first occurrence of charcter 'chr' in string 'buffer'.
-* Returns -1 if the char was not present. 
-* Searching starts on the last character of the string. 
- 
-int ContainsCharPosRev(int chr, int pos, int buffer)
- * As ContainsCharPosRev(), but with a specified starting position.
- 
-int NumCharsOfRev(int str, int chr)
- * Returns the number of chracters of a given type in a specified string.
- * Searching starts at the end of the string. 
-
-int NumCharsOfRev(int str, int pos, int chr)
- * As NumCharsOfRev(), but with a specified starting position.
- 
 int ReturnStringCharPosRev(int str, int chr)
  * Returns the index of the first character matching 'chr', starting at the end of the string.
  

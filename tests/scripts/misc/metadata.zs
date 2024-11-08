@@ -22,7 +22,6 @@ int y, z = 2;
 class Car {
     /** How fast it goes. See {@link vroom|the vroom method} or {@link speed} or [x] or [Waitframe] or [bitmap] or [bitmap::Width] */
     int speed;
-    // TODO: bitmap::Width does not work
 
     // a ctor with 1 param
     Car(int speed) {
@@ -62,8 +61,7 @@ ffc script Metadata {
         auto c = new Car(2);
         printf("%d %d %d\n", c->speed, radius, utils::hmm + y + z + Dull + Fancy + Mid);
         auto d = new IhaveAdefCtor();
-        Car c2 = new Car(2); // TODO: let's make `Car` in type decl point to the class defn. also do same for auto?
-        // TODO: support this in the scope lookup (see lookupDatum)
+        Car c2 = new Car(2);
         // equal to [c->speed]
         int e = c->speed;
         WrapDeg(e);
@@ -77,6 +75,8 @@ ffc script Metadata {
         {
             Trace(ahhh);
         }
+        Brand b = Fancy;
+        Trace(b);
     }
 }
 

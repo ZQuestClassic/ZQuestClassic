@@ -723,10 +723,11 @@ vector<Function*> ZScript::lookupConstructors(UserClass const& user_class, vecto
 	return functions;
 }
 vector<Function*> ZScript::lookupClassFuncs(UserClass const& user_class,
-	std::string const& name, vector<DataType const*> const& parameterTypes, Scope const* scope)
+	std::string const& name, vector<DataType const*> const& parameterTypes, Scope const* scope, bool ignoreParams)
 {
 	vector<Function*> functions = user_class.getScope().getLocalFunctions(name);
-	trimBadFunctions(functions, parameterTypes, scope, false);
+	if (!ignoreParams)
+		trimBadFunctions(functions, parameterTypes, scope, false);
 	for (vector<Function*>::iterator it = functions.begin();
 		 it != functions.end();)
 	{

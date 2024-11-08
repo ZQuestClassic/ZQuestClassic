@@ -408,63 +408,6 @@ std::pair<SubscrWidget*,byte> load_subwidg(dword ref)
 
 //no ifdef here
 extern CConsoleLoggerEx zscript_coloured_console;
-	
-int32_t FFScript::UpperToLower(std::string *s)
-{
-	if ( s->size() < 1 ) 
-	{
-		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", s->size());
-		return 0;
-	}
-	for ( size_t q = 0; q < s->size(); ++q )
-	{
-		//if ( s->at(q) >= 'A' || s->at(q) <= 'Z' )
-		//{
-		//	s->at(q) += 32;
-		//}
-		s->at(q) += 32 * (s->at(q) >= 'A' && s->at(q) <= 'Z');
-	}
-	return 1;
-}
-
-int32_t FFScript::LowerToUpper(std::string *s)
-{
-	if ( s->size() < 1 ) 
-	{
-		Z_scripterrlog("String passed to LowerToUpper() is too small. Size is: %d \n", s->size());
-		return 0;
-	}
-	for ( size_t q = 0; q < s->size(); ++q )
-	{
-		//if ( s->at(q) >= 'a' || s->at(q) <= 'z' )
-		//{
-		//	s->at(q) -= 32;
-		//}
-		s->at(q) -= 32 * (s->at(q) >= 'a' && s->at(q) <= 'z');
-	}
-	return 1;
-}
-
-int32_t FFScript::ConvertCase(std::string *s)
-{
-	if ( s->size() < 1 ) 
-	{
-		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", s->size());
-		return 0;
-	}
-	for ( size_t q = 0; q < s->size(); ++q )
-	{
-		if ( s->at(q) >= 'a' || s->at(q) <= 'z' )
-		{
-			s->at(q) -= 32;
-		}
-		else if ( s->at(q) >= 'A' || s->at(q) <= 'Z' )
-		{
-			s->at(q) += 32;
-		}
-	}
-	return 1;
-}
 
 bool FFScript::isNumber(char chr)
 {
@@ -484,23 +427,10 @@ int32_t FFScript::ilen(char *p)
 	return ret;
 }
 
-int32_t FFScript::zc_strlen(char *p)
-{
-	int32_t count = 0;
- 
-	while(*p!='\0')
-	{
-		count++;
-		p++;
-	}
- 
-	return count;
-}
-
 int32_t FFScript::atox(char *ip_str)
 {
 	char tmp[2]={'2','\0'};
-	int32_t op_val=0, i=0, ip_len = FFCore.zc_strlen(ip_str);
+	int32_t op_val=0, i=0, ip_len = strlen(ip_str);
 
 	if(strncmp(ip_str, "0x", 2) == 0)
 	{
@@ -24884,17 +24814,7 @@ void do_pitwarp(bool v)
 	Hero.ffpit = true;
 }
 
-void do_breakshield()
-{
-	int32_t UID = get_register(sarg1);
-	
-	for(int32_t j = 0; j < guys.Count(); j++)
-		if(guys.spr(j)->getUID() == UID)
-		{
-			((enemy*)guys.spr(j))->break_shield();
-			return;
-		}
-}
+
 
 void do_showsavescreen()
 {
@@ -25222,7 +25142,7 @@ void do_getscreenforcombopos(const bool v)
 {
 	int rpos = (SH::get_arg(sarg1, v) / 10000);
 	
-	if (BC::checkBoundsPos(rpos, 0, 175, "Region->GetScreenForComoboPos") != SH::_NoError)
+	if (BC::checkBoundsPos(rpos, 0, 175, "Region->GetScreenForComboPos") != SH::_NoError)
 	{
 		set_register(sarg1, -1);
 		return;
@@ -31336,10 +31256,6 @@ int32_t run_script_int(bool is_jitted)
 				
 			case PITWARPR:
 				do_pitwarp(false);
-				break;
-				
-			case BREAKSHIELD:
-				do_breakshield();
 				break;
 				
 			case SELECTAWPNV:
@@ -37805,61 +37721,24 @@ void FFScript::do_stricmp()
 
 void FFScript::do_LowerToUpper(const bool v)
 {
-	
 	int32_t arrayptr_a = get_register(sarg1) / 10000;
 	string strA;
 	ArrayH::getString(arrayptr_a, strA);
-	if ( strA.size() < 1 ) 
-	{
-		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", strA.size());
-		set_register(sarg1, 0); return;
-	}
-	for ( size_t q = 0; q < strA.size(); ++q )
-	{
-		strA[q] -= 32 * (strA[q] >= 'a' && strA[q] <= 'z');
-		//if(( strA[q] >= 'a' && strA[q] <= 'z' ) || ( strA[q] >= 'A' && strA[q] <= 'Z' ))
-		//{
-		//	if ( strA[q] < 'a' ) { continue; }
-		//	else strA[q] -= 32;
-		//	continue;
-		//}
-		
-	}
-	if(ArrayH::setArray(arrayptr_a, strA) == SH::_Overflow)
-	{
-		Z_scripterrlog("Dest string supplied to 'LowerToUpper()' not large enough\n");
-		set_register(sarg1, 0);
-	}
-	else set_register(sarg1, (10000));
+	for (char& c : strA)
+		c = std::toupper(c); 
+	ArrayH::setArray(arrayptr_a, strA);
+	set_register(sarg1, 10000); // used to return 0 if string was empty.
 }
 
 void FFScript::do_UpperToLower(const bool v)
 {
-	
 	int32_t arrayptr_a = get_register(sarg1) / 10000;
 	string strA;
 	ArrayH::getString(arrayptr_a, strA);
-	if ( strA.size() < 1 ) 
-	{
-		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", strA.size());
-		set_register(sarg1, 0); return;
-	}
-	for ( size_t q = 0; q < strA.size(); ++q )
-	{
-		strA[q] += 32 * (strA[q] >= 'A' && strA[q] <= 'Z');
-		//if(( strA[q] >= 'a' && strA[q] <= 'z' ) || ( strA[q] >= 'A' && strA[q] <= 'Z' ))
-		//{
-		//	if ( strA[q] < 'a' ) { strA[q] += 32; }
-		//	else continue;
-		//	continue;
-		//}
-	}
-	if(ArrayH::setArray(arrayptr_a, strA) == SH::_Overflow)
-	{
-		Z_scripterrlog("Dest string supplied to 'LowerToUpper()' not large enough\n");
-		set_register(sarg1, 0);
-	}
-	else set_register(sarg1, (10000));
+	for (char& c : strA)
+		c = std::tolower(c); 
+	ArrayH::setArray(arrayptr_a, strA);
+	set_register(sarg1, 10000); // used to return 0 if string was empty.
 }
 
 void FFScript::do_getnpcscript()
@@ -37994,36 +37873,15 @@ void FFScript::do_ConvertCase(const bool v)
 	int32_t arrayptr_a = get_register(sarg1) / 10000;
 	string strA;
 	ArrayH::getString(arrayptr_a, strA);
-	if ( strA.size() < 1 ) 
+	for (char& c : strA)
 	{
-		Z_scripterrlog("String passed to UpperToLower() is too small. Size is: %d \n", strA.size());
-		set_register(sarg1, 0); return;
-	}
-	for ( size_t q = 0; q < strA.size(); ++q )
-	{
-		if ( strA[q] < 'a' )
-			strA[q] += 32 * (strA[q] >= 'A' && strA[q] <= 'Z');
-			
+		if (c < 'a')
+			c += 32 * (c >= 'A' && c <= 'Z');
 		else 
-			strA[q] -= 32 * (strA[q] >= 'a' && strA[q] <= 'z');
-		//strA[q] -= (32 * (strA[q] >= 'a' && strA[q] <= 'z')) * (-1*((strA[q] >= 'A' && strA[q] <= 'Z')));
-		//int32_t n = 'c';
-		
-		//strA[q] -= 32 * ((strA[q] >= 'a' && strA[q] <= 'z')) * (-1*((strA[q] >= 'A' && strA[q] <= 'Z')));
-		//if(( strA[q] >= 'a' || strA[q] <= 'z' ) || ( strA[q] >= 'A' || strA[q] <= 'Z' ))
-		//{
-		//	if ( strA[q] < 'a' ) { strA[q] += 32; }
-		//	else strA[q] -= 32;
-		//	continue;
-		//}
-		
+			c -= 32 * (c >= 'a' && c <= 'z');
 	}
-	if(ArrayH::setArray(arrayptr_a, strA) == SH::_Overflow)
-	{
-		Z_scripterrlog("Dest string supplied to 'LowerToUpper()' not large enough\n");
-		set_register(sarg1, 0);
-	}
-	else set_register(sarg1, (10000));
+	ArrayH::setArray(arrayptr_a, strA);
+	set_register(sarg1, (10000)); // used to return 0 if string was empty.
 }
 
 void FFScript::do_xlen(const bool v)
@@ -38339,22 +38197,6 @@ void FFScript::do_itoacat()
 	//set_register(sarg1, (strcat((char)strB.c_str(), strB.c_str()) * 10000));
 	else set_register(sarg1, arrayptr_a); //returns the pointer to the dest
 }
-
-/*
-void FFScript::do_itoa()
-{
-	
-	int32_t arrayptr_a = ri->d[rINDEX2]/10000;
-	int32_t value = ri->d[rINDEX]/10000;
-	char the_string[13];
-	char* chrptr = NULL;
-	chrptr = zc_itoa(value, the_string, 10);
-	//Returns the number of characters used. 
-	if(ArrayH::setArray(arrayptr_a, the_string) == SH::_Overflow)
-		Z_scripterrlog("Dest string supplied to 'itoa()' not large enough\n");
-	set_register(sarg1, (FFCore.zc_strlen(the_string)*10000));
-}
-*/
 
 void FFScript::do_strcpy(const bool a, const bool b)
 {

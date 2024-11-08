@@ -84,12 +84,12 @@ class combodata {
 	// @zasm_var COMBODFLIP
 	internal int Flip;
 
-	// The solidity bitmask of the combo (same as [Screen->ComboS[]])
+	// The solidity bitmask of the combo (same as [Screen->ComboS])
 	//
 	// @zasm_var COMBODWALK
 	internal int Walk;
 
-	// The effect bitmask of the combo (same as [Screen->ComboE[]])
+	// The effect bitmask of the combo (same as [Screen->ComboE])
 	//
 	// @zasm_var COMBODEFFECT
 	internal int Effect;
@@ -109,7 +109,7 @@ class combodata {
 	internal int CSet2;
 
 	// Bitwise access to the 4 corners of the cset2 square.
-	// <todo>Untested!</todo>
+	// TODO: Untested!
 	//
 	// @zasm_var COMBODCSET2FLAGS
 	internal int CSet2Flags;
@@ -209,9 +209,9 @@ class combodata {
 
 	// The amount the combo will change by when triggered.
 	//
-	// Ex. '1' acts as '->Next', '-1' acts as '->Prev'.
+	// Ex. `1` acts as '->Next', `-1` acts as '->Prev'.
 	//
-	// If '0', no change occurs.
+	// If `0`, no change occurs.
 	//
 	// @zasm_var COMBODTRIGGERCHANGECMB
 	internal int TrigChange;
@@ -224,8 +224,8 @@ class combodata {
 	// 0 means any beams, 1-32 mean only matching beams.
 	//
 	// Related:
-	// - TriggerFlags[TRIGFLAG_LIGHTON] (trigger when hit by matching light)
-	// - TriggerFlags[TRIGFLAG_LIGHTOFF] (trigger when NOT hit by matching
+	// - `TriggerFlags[TRIGFLAG_LIGHTON]` (trigger when hit by matching light)
+	// - `TriggerFlags[TRIGFLAG_LIGHTOFF]` (trigger when NOT hit by matching
 	// light)
 	//
 	// @zasm_var COMBODTRIGGERLIGHTBEAM

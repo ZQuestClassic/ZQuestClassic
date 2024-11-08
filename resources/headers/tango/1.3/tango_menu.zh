@@ -1,7 +1,3 @@
-// tango.zh
-// Version 1.3.3
-
-
 // Menu-related functions and constants.
 
 const int TANGO_MENU_CAN_CANCEL = 1;

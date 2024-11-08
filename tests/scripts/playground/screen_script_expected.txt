@@ -8,8 +8,6 @@ Pass 4: Analyzing Code
 Pass 5: Checking code paths
 Pass 6: Generating object code
 Pass 7: Assembling
-Debug: could not resolve symbol "ffc->Data"
-Debug: could not resolve symbol "player->ScriptCSet"
 Success!
 Compile finished with exit code '0' (success)
 
@@ -53,7 +51,7 @@ PUSHR D2; UsrFunc[int ComboAt(int, int)] Params End
 CALLFUNC 0.0106; UsrFunc[int ComboAt(int, int)] Call
 POP D4
 STORE D2 0
-LOAD D2 0; if() #447 Test
+LOAD D2 0; if() #436 Test
 PUSHR D2
 POP D0
 SETR D2 COMBODD
@@ -64,7 +62,7 @@ COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 50 ==; Test 'if'
-LOAD D2 0; if() #447 Body Start
+LOAD D2 0; if() #436 Body Start
 PUSHR D2
 POP D0
 SETR D2 COMBODD
@@ -76,7 +74,7 @@ POP D0
 POP D2
 SETR COMBODD D2
 LOAD D2 0.0002; InlineFunc[void Audio::PlaySound(int)] Params
-PLAYSOUNDR D2; InlineFunc[void Audio::PlaySound(int)] Body AND if() #447 Body End
+PLAYSOUNDR D2; InlineFunc[void Audio::PlaySound(int)] Body AND if() #436 Body End
 PUSHV 6; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start
 SETV D2 0.0001
 PUSHR D2
@@ -160,7 +158,7 @@ ADDR D2 D3
 POPARGS D5 0.0002; return End
 RETURNFUNC; Func[int ComboAt(int, int)] Body End
 SETR D4 SP2; Func[int VBound(int, int, int)] Body Start
-LOAD D2 0.0002; if() #133 Test
+LOAD D2 0.0002; if() #79 Test
 PUSHR D2
 LOAD D2 0
 POP D3
@@ -168,10 +166,10 @@ COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 144 ==; Test 'if'
-LOAD D2 0; if() #133 Body Start
+LOAD D2 0; if() #79 Body Start
 STORE D2 0.0002
-GOTO 154; if() #133 Body End
-LOAD D2 0.0002; if() #355 Test AND if() #133 Else Start
+GOTO 154; if() #79 Body End
+LOAD D2 0.0002; if() #346 Test AND if() #79 Else Start
 PUSHR D2
 LOAD D2 0.0001
 POP D3
@@ -179,9 +177,9 @@ COMPARER D3 D2
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 154 ==; Test 'if'
-LOAD D2 0.0001; if() #355 Body Start
-STORE D2 0.0002; if() #355 Body End
-LOAD D2 0.0002; if() #133 Else End AND return Start
+LOAD D2 0.0001; if() #346 Body Start
+STORE D2 0.0002; if() #346 Body End
+LOAD D2 0.0002; if() #79 Else End AND return Start
 POPARGS D5 0.0003; return End
 RETURNFUNC; Func[int VBound(int, int, int)] Body End
 

@@ -6,19 +6,117 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 errors_3.zs Line 13 @ Columns 13-19 - Error T017: Cannot cast from Object to int.
+
+11    
+12            // Invalid.
+13            int number = obj;
+                  ^~~~~~
+
+
 errors_3.zs Line 14 @ Columns 3-15 - Error T017: Cannot cast from int to Object.
+
+12    // Invalid.
+13    int number = obj;
+14    obj = number;
+      ^~~~~~~~~~~~
+
+
 errors_3.zs Line 15 @ Columns 7-14 - Error T017: Cannot cast from Object[] to int[].
+
+13    int number = obj;
+14    obj = number;
+15    int numbers[] = {obj};
+          ^~~~~~~
+
+
 errors_3.zs Line 16 @ Columns 10-17 - Error T017: Cannot cast from int[] to Object[].
+
+14    obj = number;
+15    int numbers[] = {obj};
+16    Object objects[] = numbers;
+             ^~~~~~~
+
+
 errors_3.zs Line 17 @ Columns 10-18 - Error T017: Cannot cast from Object to Object[].
+
+15    int numbers[] = {obj};
+16    Object objects[] = numbers;
+17    Object objects2[] = new Object();
+             ^~~~~~~~
+
+
 errors_3.zs Line 18 @ Columns 7-15 - Error T017: Cannot cast from Object[] to int[].
+
+16    Object objects[] = numbers;
+17    Object objects2[] = new Object();
+18    int numbers2[] = {obj, <untyped>1};
+          ^~~~~~~~
+
+
 errors_3.zs Line 37 @ Columns 3-17 - Error C036: Variable enemy3 is constant and cannot be changed.
+
+35    
+36    // Invalid.
+37    enemy3 = enemy;
+      ^~~~~~~~~~~~~~
+
+
 errors_3.zs Line 38 @ Columns 3-22 - Error T017: Cannot cast from Object[] to int[].
+
+36    // Invalid.
+37    enemy3 = enemy;
+38    numbers3 = objects4;
+      ^~~~~~~~~~~~~~~~~~~
+
+
 errors_3.zs Line 39 @ Columns 3-21 - Error C036: Variable enemies1[0] is constant and cannot be changed.
+
+37    enemy3 = enemy;
+38    numbers3 = objects4;
+39    enemies1[0] = NULL;
+      ^~~~~~~~~~~~~~~~~~
+
+
 errors_3.zs Line 40 @ Columns 3-28 - Error C036: Variable enemies3[2] is constant and cannot be changed.
+
+38    numbers3 = objects4;
+39    enemies1[0] = NULL;
+40    enemies3[2] = enemies1[3];
+      ^~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 errors_3.zs Line 41 @ Columns 12-20 - Error S097: 'auto[][]' must have an initializer with type that is at least 2-depth array
+
+39    enemies1[0] = NULL;
+40    enemies3[2] = enemies1[3];
+41    auto[][] enemies4 = enemies1[0];
+               ^~~~~~~~
+
+
 errors_3.zs Line 42 @ Columns 16-24 - Error S097: 'auto[][][][]' must have an initializer with type that is at least 4-depth array
+
+40    enemies3[2] = enemies1[3];
+41    auto[][] enemies4 = enemies1[0];
+42    auto[][][][] enemies5 = enemies1[2];
+                   ^~~~~~~~
+
+
 errors_3.zs Line 43 @ Columns 12-20 - Error S097: 'auto[][]' must have an initializer with type that is at least 2-depth array
+
+41    auto[][] enemies4 = enemies1[0];
+42    auto[][][][] enemies5 = enemies1[2];
+43    auto[][] numbers6 = {1, 2, 3};
+               ^~~~~~~~
+
+
 errors_3.zs Line 44 @ Columns 8-9 - Error S097: 'auto' must have an initializer with valid type to mimic.
+
+42    auto[][][][] enemies5 = enemies1[2];
+43    auto[][] numbers6 = {1, 2, 3};
+44    auto x;
+           ^
+
+
 Failure!
 Compile finished with exit code '17' (compiled with errors)
 

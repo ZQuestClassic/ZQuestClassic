@@ -8,6 +8,11 @@ enum WipeEffect
 	WIPE_MAX
 };
 
+// Contains functions and variables related to the current map screen,
+// including functions for drawing and creating/loading objects belonging
+// to the screen.
+//
+// Access with `Screen->`.
 class screendata {
 	// @delete
 	internal screendata();
@@ -45,7 +50,7 @@ class screendata {
 	// @zasm_var SCRDOORD
 	internal int Door[];
 
-	// The 32 screen states used by this screen. Use the 'ST_' constants to
+	// The 32 screen states used by this screen. Use the [ScreenState] (`ST_`) constants to
 	// access.
 	//
 	// @zasm_var SCREENSTATED
@@ -170,7 +175,7 @@ class screendata {
 	// 0 as a valid screen item in your quest, you will also want to read
 	// [HasItem] for that screen.
 	//
-	// Note: The NULL value is '0', which is a valid item.
+	// Note: The NULL value is `0`, which is a valid item.
 	//
 	// @zasm_var SCREENDATAITEM
 	internal int Item;
@@ -287,7 +292,7 @@ class screendata {
 	// @zasm_var SCREENDATASIDEWARPSC
 	internal int SideWarpScreen[];
 
-	// Returns the sidewarp ID for a given screen edge, as SideWarpID[dir];
+	// Returns the sidewarp ID for a given screen edge, as `SideWarpID[dir]`;
 	//
 	// Returns [SIDEWARP_NONE] if there is no sidewarp in that direction.
 	//
@@ -297,12 +302,12 @@ class screendata {
 	// @zasm_var SCREENSIDEWARPID
 	internal int SideWarpID[];
 
-	// The return square (A->D) used by Tile Warp[A->D].
+	// The return square used by Tile Warp (A, B, C, D).
 	//
 	// @zasm_var SCREENDATATWARPRETSQR
 	internal int TileWarpReturnSquare[];
 
-	// The return square (A->D) used by Side Warp[A->D].
+	// The return square used by Side Warp (A, B, C, D).
 	//
 	// @zasm_var SCREENDATASWARPRETSQR
 	internal int SideWarpReturnSquare[];
@@ -524,7 +529,7 @@ class screendata {
 	// @zasm_var SCREENLENSHIDES
 	internal bool LensHides[];
 
-	// The size of the [Data[]] array.
+	// The size of the [Data] array.
 	//
 	// Changes save to the save file.
 	//
@@ -620,7 +625,7 @@ class screendata {
 	//   SETR D2 ITEMCOUNT
 	internal int NumItems();
 
-	// Where '1 <= n <= [NumObjects]', returns a pointer to the nth object on
+	// Where '1 <= n <= [NumItems]', returns a pointer to the nth object on
 	// the screen.
 	//
 	// @zasm
@@ -640,7 +645,7 @@ class screendata {
 	//   SETR D2 REFITEM
 	internal itemsprite CreateItem(int id);
 
-	// Returns a pointer to the nth FFC on the screen, where `1 <= n <=
+	// Returns a pointer to the nth [ffc] on the screen, where `1 <= n <=
 	// MAX_FFC`.
 	//
 	// @zasm
@@ -924,14 +929,14 @@ class screendata {
 	// const int BITDX_NORMAL = 0;
 	// const int BITDX_TRANS = 0x01; //Translucent
 	// const int BITDX_PIVOT = 0x02; //THe sprite will rotate at a specific
-	// point, instead of its centre. const int BITDX_HFLIP = 0x04; //Horizontal
+	// point, instead of its center. const int BITDX_HFLIP = 0x04; //Horizontal
 	// Flip const int BITDX_VFLIP = 0x08; //Vertical Flip.
 	// ```
 	//
 	// You can also set a pivot point for the rotation, using 'int cx' and 'int
 	// cy'
 	//
-	// If these are non-zero, the rotation anchor point will centre on these
+	// If these are non-zero, the rotation anchor point will center on these
 	// coordinates.
 	//
 	// You may specify a colour to 'int lit' to use a lit mode. This tints the
@@ -953,14 +958,14 @@ class screendata {
 	// const int BITDX_NORMAL = 0;
 	// const int BITDX_TRANS = 0x01; //Translucent
 	// const int BITDX_PIVOT = 0x02; //THe sprite will rotate at a specific
-	// point, instead of its centre. const int BITDX_HFLIP = 0x04; //Horizontal
+	// point, instead of its center. const int BITDX_HFLIP = 0x04; //Horizontal
 	// Flip const int BITDX_VFLIP = 0x08; //Vertical Flip.
 	// ```
 	//
 	// You can also set a pivot point for the rotation, using 'int cx' and 'int
 	// cy'
 	//
-	// If these are non-zero, the rotation anchor point will centre on these
+	// If these are non-zero, the rotation anchor point will center on these
 	// coordinates.
 	//
 	// You may specify a colour to 'int lit' to use a lit mode. This tints the
@@ -1002,7 +1007,7 @@ class screendata {
 	//   SETR D2 LWPNCOUNT
 	internal int NumLWeapons();
 
-	// Where `1 <= n <= NumObjects`, returns a pointer to the nth object on the
+	// Where `1 <= n <= [NumItems]`, returns a pointer to the nth object on the
 	// screen.
 	//
 	// @zasm
@@ -1028,7 +1033,7 @@ class screendata {
 	//   SETR D2 EWPNCOUNT
 	internal int NumEWeapons();
 
-	// Where `1 <= n <= NumObjects`, returns a pointer to the nth object on the
+	// Where `1 <= n <= [NumItems]`, returns a pointer to the nth object on the
 	// screen.
 	//
 	// @zasm
@@ -1181,7 +1186,7 @@ class screendata {
 	//   SETR D2 PORTALCOUNT
 	internal int NumPortals();
 
-	// Where `1 <= n <= NumObjects`, returns a pointer to the nth object on the
+	// Where `1 <= n <= [NumItems]`, returns a pointer to the nth object on the
 	// screen.
 	//
 	// @zasm
@@ -1282,13 +1287,13 @@ class screendata {
 	//   SETR D2 REFEWPN
 	internal eweapon LoadEWeaponByUID(int arg1);
 
-	// @deprecated Use [LayerMap[]] instead!
+	// @deprecated Use [LayerMap] instead!
 	// @zasm
 	//   POP D3
 	//   LAYERMAP D2 D3
 	internal int LayerMap(int arg1);
 
-	// @deprecated Use [LayerScreen[]] instead!
+	// @deprecated Use [LayerScreen] instead!
 	// @zasm
 	//   POP D3
 	//   LAYERSCREEN D2 D3

@@ -1,3 +1,5 @@
+// Metadata for a specific enemy type (not an instance of one). Load with [Game->LoadNPCData].
+//
 // @zasm_ref REFNPCCLASS
 class npcdata {
 	// @delete
@@ -126,7 +128,7 @@ class npcdata {
 	//
 	// Higher values make it more likely that the enemy is attracted to Bait.
 	//
-	// Valid only for [NPCT_WALKING] enemies.
+	// Valid only for [NPCT_WALK] enemies.
 	//
 	// @zasm_var NPCDATAHUNGER
 	internal int Hunger;

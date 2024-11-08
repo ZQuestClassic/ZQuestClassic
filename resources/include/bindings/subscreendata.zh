@@ -112,7 +112,7 @@ class subscreendata {
 	internal int TransRightArgs[];
 
 	// The X/Y/W/H offsets for the selector on this subscreen, if the selector
-	// is overridden (see [Flags[]]).
+	// is overridden (see [Flags]).
 	//
 	// These values will be ADDED to the x/y/w/h that the selector would
 	// normally draw to.
@@ -121,7 +121,7 @@ class subscreendata {
 	internal int SelectorDestX;
 
 	// The X/Y/W/H offsets for the selector on this subscreen, if the selector
-	// is overridden (see [Flags[]]).
+	// is overridden (see [Flags]).
 	//
 	// These values will be ADDED to the x/y/w/h that the selector would
 	// normally draw to.
@@ -130,7 +130,7 @@ class subscreendata {
 	internal int SelectorDestY;
 
 	// The X/Y/W/H offsets for the selector on this subscreen, if the selector
-	// is overridden (see [Flags[]]).
+	// is overridden (see [Flags]).
 	//
 	// These values will be ADDED to the x/y/w/h that the selector would
 	// normally draw to.
@@ -139,7 +139,7 @@ class subscreendata {
 	internal int SelectorDestW;
 
 	// The X/Y/W/H offsets for the selector on this subscreen, if the selector
-	// is overridden (see [Flags[]]).
+	// is overridden (see [Flags]).
 	//
 	// These values will be ADDED to the x/y/w/h that the selector would
 	// normally draw to.
@@ -151,7 +151,7 @@ class subscreendata {
 	// two selector overrides.
 	//
 	// These will be used by the selector on this subscreen, if the selector is
-	// overridden (see [Flags[]]).
+	// overridden (see [Flags]).
 	//
 	// @zasm_var SUBDATASELECTORWID
 	internal int SelectorWid[];
@@ -160,7 +160,7 @@ class subscreendata {
 	// two selector overrides.
 	//
 	// These will be used by the selector on this subscreen, if the selector is
-	// overridden (see [Flags[]]).
+	// overridden (see [Flags]).
 	//
 	// @zasm_var SUBDATASELECTORHEI
 	internal int SelectorHei[];
@@ -169,7 +169,7 @@ class subscreendata {
 	// two selector overrides.
 	//
 	// These will be used by the selector on this subscreen, if the selector is
-	// overridden (see [Flags[]]).
+	// overridden (see [Flags]).
 	//
 	// @zasm_var SUBDATASELECTORTILE
 	internal int SelectorTile[];
@@ -178,7 +178,7 @@ class subscreendata {
 	// two selector overrides.
 	//
 	// These will be used by the selector on this subscreen, if the selector is
-	// overridden (see [Flags[]]).
+	// overridden (see [Flags]).
 	//
 	// @zasm_var SUBDATASELECTORCSET
 	internal int SelectorCSet[];
@@ -187,7 +187,7 @@ class subscreendata {
 	// two selector overrides.
 	//
 	// These will be used by the selector on this subscreen, if the selector is
-	// overridden (see [Flags[]]).
+	// overridden (see [Flags]).
 	//
 	// @zasm_var SUBDATASELECTORFLASHCSET
 	internal int SelectorFlashCSet[];
@@ -196,7 +196,7 @@ class subscreendata {
 	// two selector overrides.
 	//
 	// These will be used by the selector on this subscreen, if the selector is
-	// overridden (see [Flags[]]).
+	// overridden (see [Flags]).
 	//
 	// @zasm_var SUBDATASELECTORFRM
 	internal int SelectorFrames[];
@@ -205,7 +205,7 @@ class subscreendata {
 	// two selector overrides.
 	//
 	// These will be used by the selector on this subscreen, if the selector is
-	// overridden (see [Flags[]]).
+	// overridden (see [Flags]).
 	//
 	// @zasm_var SUBDATASELECTORASPD
 	internal int SelectorASpeed[];
@@ -214,14 +214,14 @@ class subscreendata {
 	// two selector overrides.
 	//
 	// These will be used by the selector on this subscreen, if the selector is
-	// overridden (see [Flags[]]).
+	// overridden (see [Flags]).
 	//
 	// @zasm_var SUBDATASELECTORDELAY
 	internal int SelectorDelay[];
 
 	// The timer clock used by the currently active transition.
 	//
-	// '-1' indicates no transition. Writing to '-1' clears the current
+	// `-1` indicates no transition. Writing to `-1` clears the current
 	// transition.
 	//
 	// Writing a positive value starts a transition if none is currently active.

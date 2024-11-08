@@ -1,3 +1,6 @@
+// Represents animation sprite data found in the editor at `Quest->Graphics->Sprites->Sprite Data`.
+// Load with [Game->LoadSpriteData].
+//
 // @zasm_ref REFSPRITEDATA
 class spritedata {
 	// @delete

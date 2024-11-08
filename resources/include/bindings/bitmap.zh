@@ -1,3 +1,5 @@
+// A 2D canvas of pixels for drawing to.
+//
 // @zasm_ref REFBITMAP
 class bitmap {
 	// @zasm
@@ -36,7 +38,7 @@ class bitmap {
 	internal int CountColor(bitmap mask, int x, int y, int checkColor,
 							int maskColor = -1);
 
-	// Identical to [Screen->Rectangle()], but it draws to a target bitmap.
+	// Identical to [Screen->Rectangle], but it draws to a target bitmap.
 	//
 	// @zasm
 	//   BMPRECTR
@@ -46,7 +48,7 @@ class bitmap {
 							int rangle = 0, bool fill = true,
 							int opacity = 128);
 
-	// Identical to Screen->Circle(), but it draws to a target bitmap.
+	// Identical to [Screen->Circle], but it draws to a target bitmap.
 	//
 	// @zasm
 	//   BMPCIRCLER
@@ -55,7 +57,7 @@ class bitmap {
 						 int scale = 1, int rx = 0, int ry = 0, int rangle = 0,
 						 bool fill = true, int opacity = 128);
 
-	// Identical to Screen->Arc(), but it draws to a target bitmap.
+	// Identical to [Screen->Arc], but it draws to a target bitmap.
 	//
 	// @zasm
 	//   BMPARCR
@@ -65,7 +67,7 @@ class bitmap {
 					  int ry = 0, int rangle = 0, bool closed = true,
 					  bool fill = true, int opacity = 128);
 
-	// Identical to Screen->Ellipse(), but it draws to a target bitmap.
+	// Identical to [Screen->Ellipse], but it draws to a target bitmap.
 	//
 	// @zasm
 	//   BMPELLIPSER
@@ -74,7 +76,7 @@ class bitmap {
 						  int color, int scale = 1, int rx = 0, int ry = 0,
 						  int rangle = 0, bool fill = true, int opacity = 128);
 
-	// Identical to Screen->Line(), but it draws to a target bitmap.
+	// Identical to [Screen->Line], but it draws to a target bitmap.
 	//
 	// @zasm
 	//   BMPLINER
@@ -83,7 +85,7 @@ class bitmap {
 					   int scale = 1, int rx = 0, int ry = 0, int rangle = 0,
 					   int opacity = 128);
 
-	// Identical to Screen->Spline(), but it draws to a target bitmap.
+	// Identical to [Screen->Spline], but it draws to a target bitmap.
 	//
 	// @zasm
 	//   BMPSPLINER
@@ -91,7 +93,7 @@ class bitmap {
 	internal void Spline(int layer, int x1, int y1, int x2, int y2, int x3,
 						 int y3, int x4, int y4, int color, int opacity = 1);
 
-	// Identical to Screen->PutPixel(), but it draws to a target bitmap.
+	// Identical to [Screen->PutPixel], but it draws to a target bitmap.
 	//
 	// @zasm
 	//   BMPPUTPIXELR
@@ -99,7 +101,7 @@ class bitmap {
 	internal void PutPixel(int layer, int x, int y, int color, int rx = 0,
 						   int ry = 0, int rangle = 0, int opacity = 128);
 
-	// Identical to Screen->DrawCharacter(), but it draws to a target bitmap.
+	// Identical to [Screen->DrawCharacter], but it draws to a target bitmap.
 	//
 	// @zasm
 	//   BMPDRAWCHARR
@@ -108,7 +110,7 @@ class bitmap {
 								int background_color, int width, int height,
 								char32 char, int opacity = 128);
 
-	// Identical to Screen->DrawInteger(), but it draws to a target bitmap.
+	// Identical to [Screen->DrawInteger], but it draws to a target bitmap.
 	//
 	// @zasm
 	//   BMPDRAWINTR
@@ -118,7 +120,7 @@ class bitmap {
 							  int number, int number_decimal_places = 0,
 							  int opacity = 128);
 
-	// Identical to Screen->DrawTile(), but it draws to a target bitmap.
+	// Identical to [Screen->DrawTile], but it draws to a target bitmap.
 	//
 	// @zasm
 	//   BMPDRAWTILER
@@ -129,7 +131,7 @@ class bitmap {
 						   int rangle = 0, int flip = 0,
 						   bool transparency = true, int opacity = 128);
 
-	// Identical to Screen->DrawTileCloaked(), but it draws to a target bitmap.
+	// Identical to [Screen->DrawTileCloaked], but it draws to a target bitmap.
 	//
 	// @zasm
 	//   BMPDRAWTILECLOAKEDR
@@ -146,7 +148,7 @@ class bitmap {
 							int arg13 = 0, int arg14 = 0, bool arg15 = true,
 							int arg16 = 128);
 
-	// Identical to Screen->DrawComboCloaked(), but it draws to a target bitmap.
+	// Identical to [Screen->DrawComboCloaked], but it draws to a target bitmap.
 	//
 	// @zasm
 	//   BMPDRAWCOMBOCLOAKEDR
@@ -154,7 +156,7 @@ class bitmap {
 	internal void DrawComboCloaked(int layer, int x, int y, int combo,
 								   int tilewidth, int tileheight, int flip = 0);
 
-	// Identical to Screen->Quad(), but it draws to a target bitmap, and you can
+	// Identical to [Screen->Quad], but it draws to a target bitmap, and you can
 	// specify a bitmap as your texture.
 	//
 	// Pass the bitmap pointer that you want to use to 'bitmap render_source'.
@@ -191,7 +193,7 @@ class bitmap {
 						   int y3, int w, int h, int cset, int flip,
 						   int texture, int render_mode, bitmap render_source);
 
-	// Identical to Screen->Quad(), but it draws to a target bitmap, and you can
+	// Identical to [Screen->Quad], but it draws to a target bitmap, and you can
 	// specify a bitmap as your texture.
 	//
 	// Pass the bitmap pointer that you want to use to [render_source].
@@ -244,7 +246,7 @@ class bitmap {
 	internal void FastCombo(int layer, int x, int y, int combo, int cset,
 							int opacity = 128);
 
-	// Identical to Screen->DrawString(), but it draws to a target bitmap.
+	// Identical to [Screen->DrawString], but it draws to a target bitmap.
 	//
 	// @zasm
 	//   BMPDRAWSTRINGR
@@ -253,7 +255,7 @@ class bitmap {
 							 int background_color, int format, char32[] str,
 							 int opacity = 128);
 
-	// Identical to [Screen->DrawString()], but it draws to a target bitmap.
+	// Identical to [Screen->DrawString], but it draws to a target bitmap.
 	//
 	// @zasm
 	//   BMPDRAWSTRINGR2
@@ -262,7 +264,7 @@ class bitmap {
 							 int background_color, int format, char32[] str,
 							 int opacity, int shadow_type, int shadow_color);
 
-	// Identical to [Screen->DrawLayer()], but it draws to a target bitmap.
+	// Identical to [Screen->DrawLayer], but it draws to a target bitmap.
 	//
 	// @zasm
 	//   BMPDRAWLAYERR
@@ -279,10 +281,8 @@ class bitmap {
 
 	// BLITS THE BITMAP ON POINTER 'b' TO A TARGET BITMAP.
 	//
-	// As DrawBitmapEx(), except that it draws FROM an initialised bitmap
-	// pointer,
-	//
-	// TO a target bitmap, which may be a user-created bitmap, or it may be the
+	// Like [Screen->DrawBitmapEx], except that it draws FROM an initialised bitmap
+	// pointer, TO a target bitmap, which may be a user-created bitmap, or it may be the
 	// screen.
 	//
 	// To draw to the screen, or to one of the old system bitmaps, use the RT_*
@@ -296,17 +296,16 @@ class bitmap {
 	// const int BITDX_NORMAL = 0;
 	// const int BITDX_TRANS = 0x01; //Translucent
 	// const int BITDX_PIVOT = 0x02; //THe sprite will rotate at a specific
-	// point, instead of its centre. const int BITDX_HFLIP = 0x04; //Horizontal
+	// point, instead of its center. const int BITDX_HFLIP = 0x04; //Horizontal
 	// Flip const int BITDX_VFLIP = 0x08; //Vertical Flip.
 	// ```
 	//
-	// You can also set a pivot point for the rotation, using 'int cx' and 'int
-	// cy'
+	// You can also set a pivot point for the rotation, using `int cx` and `int cy`
 	//
-	// If these are non-zero, the rotation anchor point will centre on these
+	// If these are non-zero, the rotation anchor point will center on these
 	// coordinates.
 	//
-	// You may specify a colour to 'int lit' to use a lit mode. This tints the
+	// You may specify a colour to `int lit` to use a lit mode. This tints the
 	// entire bitmap using that colour index of the main palette.
 	//
 	// @zasm
@@ -337,14 +336,14 @@ class bitmap {
 	// const int BITDX_NORMAL = 0;
 	// const int BITDX_TRANS = 0x01; //Translucent
 	// const int BITDX_PIVOT = 0x02; //THe sprite will rotate at a specific
-	// point, instead of its centre. const int BITDX_HFLIP = 0x04; //Horizontal
+	// point, instead of its center. const int BITDX_HFLIP = 0x04; //Horizontal
 	// Flip const int BITDX_VFLIP = 0x08; //Vertical Flip.
 	// ```
 	//
 	// You can also set a pivot point for the rotation, using 'int cx' and 'int
 	// cy'
 	//
-	// If these are non-zero, the rotation anchor point will centre on these
+	// If these are non-zero, the rotation anchor point will center on these
 	// coordinates.
 	//
 	// You may specify a colour to 'int lit' to use a lit mode. This tints the
@@ -368,14 +367,14 @@ class bitmap {
 	// const int BITDX_NORMAL = 0;
 	// const int BITDX_TRANS = 0x01; //Translucent
 	// const int BITDX_PIVOT = 0x02; //THe sprite will rotate at a specific
-	// point, instead of its centre. const int BITDX_HFLIP = 0x04; //Horizontal
+	// point, instead of its center. const int BITDX_HFLIP = 0x04; //Horizontal
 	// Flip const int BITDX_VFLIP = 0x08; //Vertical Flip.
 	// ```
 	//
 	// You can also set a pivot point for the rotation, using 'int cx' and 'int
 	// cy'
 	//
-	// If these are non-zero, the rotation anchor point will centre on these
+	// If these are non-zero, the rotation anchor point will center on these
 	// coordinates.
 	//
 	// You may specify a colour to 'int lit' to use a lit mode. This tints the
@@ -397,14 +396,14 @@ class bitmap {
 	// const int BITDX_NORMAL = 0;
 	// const int BITDX_TRANS = 0x01; //Translucent
 	// const int BITDX_PIVOT = 0x02; //THe sprite will rotate at a specific
-	// point, instead of its centre. const int BITDX_HFLIP = 0x04; //Horizontal
+	// point, instead of its center. const int BITDX_HFLIP = 0x04; //Horizontal
 	// Flip const int BITDX_VFLIP = 0x08; //Vertical Flip.
 	// ```
 	//
 	// You can also set a pivot point for the rotation, using 'int cx' and 'int
 	// cy'
 	//
-	// If these are non-zero, the rotation anchor point will centre on these
+	// If these are non-zero, the rotation anchor point will center on these
 	// coordinates.
 	//
 	// You may specify a colour to 'int lit' to use a lit mode. This tints the
@@ -505,7 +504,7 @@ class bitmap {
 	//   BITMAPOWN
 	internal void Own();
 
-	// Identical to [Screen->DrawFrame()], but it draws to a target bitmap.
+	// Identical to [Screen->DrawFrame], but it draws to a target bitmap.
 	//
 	// @zasm
 	//   BMPFRAMER
@@ -526,7 +525,7 @@ class bitmap {
 
 	// Draws [color] onto the bitmap on pixels that are non-color-0 on the
 	// [mask] bitmap, based on the
-	// Identical to [Screen->Rectangle()], but it draws to a target bitmap.
+	// Identical to [Screen->Rectangle], but it draws to a target bitmap.
 	//
 	// @zasm
 	//   BMPDITHER
@@ -549,8 +548,8 @@ class bitmap {
 	//   POPARGS D5 0.0005
 	internal void ShiftColors(int layer, int shift, int startCol, int endCol);
 
-	// Draws [color] to this bitmap, in the area specified by the [mask]. Any
-	// pixel on the [mask] which matches the [maskColor] will be drawn.
+	// Draws [color] to this bitmap, in the area specified by the [mask] by its
+	// non-zero pixels.
 	//
 	// @zasm
 	//   BMPMASKDRAW
@@ -566,7 +565,7 @@ class bitmap {
 	internal void MaskedDraw(int layer, bitmap mask, int color, int maskColor);
 
 	// Draws [color] to this bitmap, in the area specified by the [mask]. Any
-	// pixel on the [mask] which matches the [maskColor] will be drawn.
+	// pixel on the [mask] which between [startMaskColor] and [endMaskColor] will be drawn.
 	//
 	// @zasm
 	//   BMPMASKDRAW3
@@ -574,7 +573,7 @@ class bitmap {
 	internal void MaskedDraw(int layer, bitmap mask, int color,
 							 int startMaskColor, int endMaskColor);
 
-	// Same as [MaskedDraw], except instead of drawing a specified [color] to
+	// Same as [MaskedDraw], except instead of drawing a specified color to
 	// this bitmap, it draws from a [pattern] bitmap.
 	//
 	// @zasm
@@ -583,7 +582,7 @@ class bitmap {
 	internal void MaskedBlit(int layer, bitmap mask, bitmap pattern,
 							 bool repeatPattern);
 
-	// Same as [MaskedDraw], except instead of drawing a specified [color] to
+	// Same as [MaskedDraw], except instead of drawing a specified color to
 	// this bitmap, it draws from a [pattern] bitmap.
 	//
 	// @zasm
@@ -592,7 +591,7 @@ class bitmap {
 	internal void MaskedBlit(int layer, bitmap mask, bitmap pattern,
 							 bool repeatPattern, int maskColor);
 
-	// Same as [MaskedDraw], except instead of drawing a specified [color] to
+	// Same as [MaskedDraw], except instead of drawing a specified color to
 	// this bitmap, it draws from a [pattern] bitmap.
 	//
 	// @zasm

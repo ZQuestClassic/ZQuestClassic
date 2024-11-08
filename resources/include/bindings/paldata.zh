@@ -1,3 +1,7 @@
+const rgb INVALID_COLOR = <rgb>(-1);
+
+// Represents a set of palette colors. 256 `rgb` colors divided into 16 csets.
+//
 // @zasm_ref REFPALDATA
 class paldata {
 	// @zasm
@@ -9,30 +13,30 @@ class paldata {
 	//   CREATEPALDATACLR D2
 	internal paldata(rgb color);
 
-	// Access colors of the paldata as [PalData::rgb]. Reading an invalid color
-	// will return INVALID_COLOR (-1). To write a color as invalid, use
-	// ClearColor() instead.
+	// Access colors of the paldata as `rgb`. Reading an invalid color
+	// will return [INVALID_COLOR] (`-1`). To write a color as invalid, use
+	// [ClearColor] instead.
 	//
 	// @zasm_var PALDATACOLOR
 	internal rgb Color[];
 
 	// Access the Red values of the paldata, ranging from 0-255. Reading an
 	// invalid color will return -1. To write a color as invalid, use
-	// ClearColor() instead.
+	// [ClearColor] instead.
 	//
 	// @zasm_var PALDATAR
 	internal int R[];
 
 	// Access the Green values of the paldata, ranging from 0-255. Reading an
 	// invalid color will return -1. To write a color as invalid, use
-	// ClearColor() instead.
+	// [ClearColor] instead.
 	//
 	// @zasm_var PALDATAG
 	internal int G[];
 
 	// Access the Blue values of the paldata, ranging from 0-255. Reading an
 	// invalid color will return -1. To write a color as invalid, use
-	// ClearColor() instead.
+	// [ClearColor] instead.
 	//
 	// @zasm_var PALDATAB
 	internal int B[];

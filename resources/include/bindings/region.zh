@@ -1,3 +1,4 @@
+// Access with `Region->`.
 class Region {
 	// @delete
 	internal Region();
@@ -45,12 +46,12 @@ class Region {
 	// @zasm
 	//   POP D2
 	//   REGION_SCREEN_FOR_COMBO_POS D2
-	internal screendata GetScreenForComoboPos(int pos);
+	internal screendata GetScreenForComboPos(int pos);
 
 	// @zasm
 	//   POP D2
 	//   REGION_SCREEN_FOR_COMBO_POS D2
-	internal int GetScreenIndexForComoboPos(int pos);
+	internal int GetScreenIndexForComboPos(int pos);
 
 	// @zasm
 	//   POP D2

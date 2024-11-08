@@ -56,7 +56,7 @@ RETURNFUNC; Func[void addHeader(char32[])] Body End
 PUSHARGSV 0 0.0003; Func[void addLine(char32[], int, int, int, int)] Body Start
 SETR D4 SP2
 STOREV 0 0.0002
-LOAD D2 0.0005; switch() #62 Key
+LOAD D2 0.0005; switch() #56 Key
 SETR SWITCHKEY D2; Store key
 COMPAREV SWITCHKEY 0
 GOTOCMP 40 ==; case '0'
@@ -64,7 +64,7 @@ COMPAREV SWITCHKEY 2
 GOTOCMP 46 ==; case '20000'
 COMPAREV SWITCHKEY 1
 GOTOCMP 53 ==; case '10000'
-GOTO 53; switch() #62 NoMatch
+GOTO 53; switch() #56 NoMatch
 SETR D2 GD2; Case block
 PUSHR D2
 POP D0
@@ -85,7 +85,7 @@ FONTHEIGHTR D2; InlineFunc[int Text::FontHeight(int)] Body
 STORE D2 0.0001
 SETR D2 GD1
 STORE_OBJECT D2 0
-SETR D2 GD2; if() #447 Test
+SETR D2 GD2; if() #436 Test
 PUSHR D2
 POP D0
 READPODARRAYV D2 0
@@ -107,7 +107,7 @@ COMPARER D3 D2
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 93 ==; Test 'if'
-PUSHR D4; if() #447 Body Start
+PUSHR D4; if() #436 Body Start
 LOAD D2 0; UsrFunc[void resize(int)] Params Start
 PUSHR D2
 POP REFBITMAP
@@ -117,7 +117,7 @@ PUSHR D2; UsrFunc[void resize(int)] Params End
 CALLFUNC 0.0160; UsrFunc[void resize(int)] Call
 POP D4
 SETR D2 GD1
-STORE_OBJECT D2 0; if() #447 Body End
+STORE_OBJECT D2 0; if() #436 Body End
 LOAD D2 0; InlineFunc[void bitmap::DrawString(int, int, int, int, int, int, int, char32[], int)] Params Start
 PUSHR D2
 PUSHV 0
@@ -187,7 +187,7 @@ POPARGS D5 0.0002
 RETURNFUNC; Func[void addLine(char32[], int)] Body End
 PUSHARGSV 0 0.0002; Func[void resize(int)] Body Start
 SETR D4 SP2
-SETR D2 GD1; if() #453 Test
+SETR D2 GD1; if() #442 Test
 PUSHR D2
 POP REFBITMAP
 SETR D2 BITMAPHEIGHT
@@ -197,7 +197,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 215 !=; Test 'if' AND return (Void) AND if() #453 Body
+GOTOCMP 215 !=; Test 'if' AND return (Void) AND if() #442 Body
 PUSHR D4
 PUSHV 256; UsrFunc[bitmap create(int, int)] Params Start
 LOAD D2 0.0002
@@ -269,38 +269,38 @@ GOTO 218; while() #2 End
 POP D5
 RETURNFUNC; Func[void blackDelay(int)] Body End
 SETR D4 SP2; Func[bitmap create(int, int)] Body Start
-SETV D2 652; if() #160 Test
+SETV D2 652; if() #106 Test
 PUSHR D2
 POP D0
 SETR D2 FFRULE
 COMPAREV D2 0
 GOTOCMP 258 ==; Test 'if'
-LOAD D2 0; InlineFunc[bitmap Game::CreateBitmap(int, int)] Params Start AND return Start AND if() #160 Body Start
+LOAD D2 0; InlineFunc[bitmap Game::CreateBitmap(int, int)] Params Start AND return Start AND if() #106 Body Start
 PUSHR D2
 LOAD D2 0.0001
 SETR D1 D2; InlineFunc[bitmap Game::CreateBitmap(int, int)] Params End
 POP D0; InlineFunc[bitmap Game::CreateBitmap(int, int)] Body Start
 SETR D2 CREATEBITMAP; InlineFunc[bitmap Game::CreateBitmap(int, int)] Body End
 GOTO 266; return End
-GOTO 265; if() #160 Body End
-LOAD D2 0.0001; InlineFunc[bitmap Game::CreateBitmap(int, int)] Params Start AND return Start AND if() #160 Else Start
+GOTO 265; if() #106 Body End
+LOAD D2 0.0001; InlineFunc[bitmap Game::CreateBitmap(int, int)] Params Start AND return Start AND if() #106 Else Start
 PUSHR D2
 LOAD D2 0
 SETR D1 D2; InlineFunc[bitmap Game::CreateBitmap(int, int)] Params End
 POP D0; InlineFunc[bitmap Game::CreateBitmap(int, int)] Body Start
 SETR D2 CREATEBITMAP; InlineFunc[bitmap Game::CreateBitmap(int, int)] Body End
-GOTO 266; return End AND if() #160 Else End
+GOTO 266; return End AND if() #106 Else End
 REF_AUTORELEASE D2
 POPARGS D5 0.0002
 RETURNFUNC; Func[bitmap create(int, int)] Body End
 SETR D4 SP2; Func[void destroy()] Body Start
-SETR D2 GD1; InlineFunc[bool bitmap::isValid()] Params AND if() #449 Test
+SETR D2 GD1; InlineFunc[bool bitmap::isValid()] Params AND if() #438 Test
 ISVALIDBITMAP D2; InlineFunc[bool bitmap::isValid()] Body
 COMPAREV D2 0
 GOTOCMP 276 ==; Test 'if'
-SETR D2 GD1; InlineFunc[void bitmap::Free()] Params Start AND if() #449 Body Start
+SETR D2 GD1; InlineFunc[void bitmap::Free()] Params Start AND if() #438 Body Start
 SETR REFBITMAP D2; InlineFunc[void bitmap::Free()] Params End
-BITMAPFREE; InlineFunc[void bitmap::Free()] Body AND if() #449 Body End
+BITMAPFREE; InlineFunc[void bitmap::Free()] Body AND if() #438 Body End
 SETV D2 0
 SET_OBJECT GD1 D2
 SETV D2 0
@@ -364,11 +364,11 @@ GOTO 337
 SETV D2 0
 ADDV D2 224
 STORE D2 0.0001
-LOAD D2 0.0001; if() #450 Test
+LOAD D2 0.0001; if() #439 Test
 COMPAREV D2 0
 SETCMP D2 I<=
 COMPAREV D2 0
-GOTOCMP 382 !=; Test 'if' AND return (Void) AND if() #450 Body
+GOTOCMP 382 !=; Test 'if' AND return (Void) AND if() #439 Body
 LOAD D2 0.0002
 COMPAREV D2 0
 SETCMP D2 I<
@@ -380,13 +380,13 @@ GOTO 353
 SETV D2 0
 SUBV D2 56
 STORE D2 0
-LOAD D2 0.0002; if() #451 Test
+LOAD D2 0.0002; if() #440 Test
 COMPAREV D2 0
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 362 ==; Test 'if'
-SETV D2 0; if() #451 Body Start
-STORE D2 0.0002; if() #451 Body End
+SETV D2 0; if() #440 Body Start
+STORE D2 0.0002; if() #440 Body End
 SETR D2 GD1; InlineFunc[void bitmap::Blit(int, untyped, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Params Start
 PUSHR D2
 PUSHV 7
@@ -410,13 +410,13 @@ POPARGS D5 0.0017; InlineFunc[void bitmap::Blit(int, untyped, int, int, int, int
 POPARGS D5 0.0003
 RETURNFUNC; Func[void drawCredits(int)] Body End
 SETR D4 SP2; Func[void init()] Body Start
-SETR D2 GD1; InlineFunc[bool bitmap::isValid()] Params AND if() #452 Test
+SETR D2 GD1; InlineFunc[bool bitmap::isValid()] Params AND if() #441 Test
 ISVALIDBITMAP D2; InlineFunc[bool bitmap::isValid()] Body
 COMPAREV D2 0
 GOTOCMP 392 ==; Test 'if'
-SETR D2 GD1; InlineFunc[void bitmap::Free()] Params Start AND if() #452 Body Start
+SETR D2 GD1; InlineFunc[void bitmap::Free()] Params Start AND if() #441 Body Start
 SETR REFBITMAP D2; InlineFunc[void bitmap::Free()] Params End
-BITMAPFREE; InlineFunc[void bitmap::Free()] Body AND if() #452 Body End
+BITMAPFREE; InlineFunc[void bitmap::Free()] Body AND if() #441 Body End
 PUSHR D4
 PUSHV 256; UsrFunc[bitmap create(int, int)] Params Start
 PUSHV 1024; UsrFunc[bitmap create(int, int)] Params End
@@ -515,8 +515,8 @@ POPARGS D5 0.0002
 RETURNFUNC; Func[void output(char32[])] Body End
 PUSHARGSV 0 0.0002; Func[void rollCredits(int)] Body Start
 SETR D4 SP2
-STOREV -224 0.0001; for() #156 setup
-LOAD D2 0.0001; for() #156 LoopTest
+STOREV -224 0.0001; for() #149 setup
+LOAD D2 0.0001; for() #149 LoopTest
 PUSHR D2
 SETR D2 GD2
 PUSHR D2
@@ -526,19 +526,19 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 539 ==; for() #156 TestFail?
-PUSHR D4; for() #156 Body Start
+GOTOCMP 539 ==; for() #149 TestFail?
+PUSHR D4; for() #149 Body Start
 LOAD D2 0.0001; UsrFunc[void drawCredits(int)] Params Start
 PUSHR D2; UsrFunc[void drawCredits(int)] Params End
 CALLFUNC 0.0315; UsrFunc[void drawCredits(int)] Call
 POP D4
-STOREV 0 0; for() #157 setup
-LOAD D2 0; for() #157 LoopTest
+STOREV 0 0; for() #150 setup
+LOAD D2 0; for() #150 LoopTest
 COMPAREV D2 18
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 531 ==; for() #157 TestFail?
-SETV D2 0; for() #157 Body Start
+GOTOCMP 531 ==; for() #150 TestFail?
+SETV D2 0; for() #150 Body Start
 PUSHR D2
 LOAD D2 0
 PUSHR D2
@@ -551,19 +551,19 @@ LOAD D2 0
 PUSHR D2
 POP D0
 POP D2
-SETR BUTTONPRESS D2; for() #157 Body End
-LOAD D2 0; for() #157 LoopIncrement
+SETR BUTTONPRESS D2; for() #150 Body End
+LOAD D2 0; for() #150 LoopIncrement
 ADDV D2 1
 STORE D2 0
-GOTO 508; for() #157 End
-WAITFRAME; InlineFunc[void Waitframe()] Body AND for() #156 Body End
-LOAD D2 0.0001; for() #156 LoopIncrement
+GOTO 508; for() #150 End
+WAITFRAME; InlineFunc[void Waitframe()] Body AND for() #149 Body End
+LOAD D2 0.0001; for() #149 LoopIncrement
 PUSHR D2
 LOAD D2 0.0002
 POP D3
 ADDR D2 D3
 STORE D2 0.0001
-GOTO 491; for() #156 End
+GOTO 491; for() #149 End
 POPARGS D5 0.0003
 RETURNFUNC; Func[void rollCredits(int)] Body End
 PUSHARGSV 0 0.0008; Func[void runTestCredits()] Body Start
@@ -656,17 +656,17 @@ CALLFUNC 0.0217; UsrFunc[void blackDelay(int)] Call
 PEEK D4
 CALLFUNC 0.0268; UsrFunc[void destroy()] Call
 POP D4
-STOREV 0 0; for() #158 setup
-LOAD D2 0; for() #158 LoopTest
+STOREV 0 0; for() #151 setup
+LOAD D2 0; for() #151 LoopTest
 COMPAREV D2 10
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 642 ==; for() #158 TestFail?
-WAITFRAME; InlineFunc[void Waitframe()] Body AND for() #158 Body
-LOAD D2 0; for() #158 LoopIncrement
+GOTOCMP 642 ==; for() #151 TestFail?
+WAITFRAME; InlineFunc[void Waitframe()] Body AND for() #151 Body
+LOAD D2 0; for() #151 LoopIncrement
 ADDV D2 1
 STORE D2 0
-GOTO 632; for() #158 End
+GOTO 632; for() #151 End
 QUIT; InlineFunc[void Quit()] Body AND [Opt:NeverRet] AND Func[void runTestCredits()] Body End
 
 

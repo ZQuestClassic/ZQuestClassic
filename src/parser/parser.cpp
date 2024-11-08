@@ -85,6 +85,16 @@ void zparser_error_out(std::string message)
 
 	if (!current_diagnostics || curfilename != input_script_filename) return;
 
+	ZScript::LocationData loc{};
+	loc.first_line = yylloc.first_line;
+	loc.last_line = yylloc.last_line;
+	loc.first_column = yylloc.first_column;
+	loc.last_column = yylloc.last_column;
+	loc.fname = input_script_filename;
+	std::string context = getErrorContext(loc);
+	if (!context.empty())
+		zconsole_error(context);
+
 	auto& diag = current_diagnostics->emplace_back();
 	diag.severity = DiagnosticSeverity::Error;
 	diag.message = message;
@@ -97,6 +107,16 @@ void zparser_error_out(std::string message)
 void zparser_warn_out(std::string message)
 {
 	if (!current_diagnostics || curfilename != input_script_filename) return;
+
+	ZScript::LocationData loc{};
+	loc.first_line = yylloc.first_line;
+	loc.last_line = yylloc.last_line;
+	loc.first_column = yylloc.first_column;
+	loc.last_column = yylloc.last_column;
+	loc.fname = input_script_filename;
+	std::string context = getErrorContext(loc);
+	if (!context.empty())
+		zconsole_error(context);
 
 	auto& diag = current_diagnostics->emplace_back();
 	diag.severity = DiagnosticSeverity::Warning;
@@ -233,7 +253,7 @@ void zconsole_idle(dword seconds)
 }
 
 static bool linked = true;
-std::unique_ptr<ZScript::ScriptsData> compile(std::string script_path, bool include_metadata)
+std::unique_ptr<ZScript::ScriptsData> compile(std::string script_path, bool metadata, bool docs)
 {
 	if(linked)
 		zconsole_info("Compiling the editor script buffer...");
@@ -246,7 +266,7 @@ std::unique_ptr<ZScript::ScriptsData> compile(std::string script_path, bool incl
 		return NULL;
 	}
 	
-	std::unique_ptr<ZScript::ScriptsData> res(ZScript::compile(script_path, include_metadata));
+	std::unique_ptr<ZScript::ScriptsData> res(ZScript::compile(script_path, metadata, docs));
 	return res;
 }
 
@@ -298,7 +318,7 @@ static void fill_result(json& data, int code, ZScript::ScriptsData* result)
 		data["metadata"] = result->metadata;
 }
 
-bool delay_asserts = false, ignore_asserts = false;
+bool delay_asserts = false, ignore_asserts = false, is_json_output = false;
 std::vector<std::filesystem::path> force_ignores;
 int32_t main(int32_t argc, char **argv)
 {
@@ -431,6 +451,7 @@ int32_t main(int32_t argc, char **argv)
 	}
 
 	bool do_json_output = used_switch(argc, argv, "-json") > 0;
+	is_json_output = do_json_output;
 
 	bool metadata = used_switch(argc, argv, "-metadata") > 0;
 	int metadata_tmp_path_idx = used_switch(argc, argv, "-metadata-tmp-path");
@@ -442,13 +463,21 @@ int32_t main(int32_t argc, char **argv)
 		metadata_tmp_path = argv[metadata_tmp_path_idx + 1];
 		metadata_orig_path = argv[metadata_orig_path_idx + 1];
 	}
+
+	bool docs = used_switch(argc, argv, "-doc") > 0;
 	
 	ZScript::ScriptParser::initialize(has_qrs);
-	unique_ptr<ZScript::ScriptsData> result(compile(script_path, metadata));
+	unique_ptr<ZScript::ScriptsData> result(compile(script_path, metadata, docs));
 	if(!result || !result->success)
 		zconsole_info("%s", "Failure!");
 	int32_t res = (result && result->success ? 0 : (zscript_failcode ? zscript_failcode : -1));
-	
+
+	if (result && !result->docs.empty())
+	{
+		printf("%s\n", result->docs.c_str());
+		exit(0);
+	}
+
 	if(linked)
 	{
 		if(!res)
@@ -504,10 +533,11 @@ extern "C" int compile_script(const char* script_path)
 {
 	updateIncludePaths();
 	bool metadata = true;
+	bool docs = false;
 	bool has_qrs = false;
 	ZScript::CompileOption::OPT_NO_ERROR_HALT.setDefault(ZScript::OPTION_ON);
 	ZScript::ScriptParser::initialize(has_qrs);
-	unique_ptr<ZScript::ScriptsData> result(compile(script_path, metadata));
+	unique_ptr<ZScript::ScriptsData> result(compile(script_path, metadata, docs));
 	int32_t code = (result && result->success ? 0 : (zscript_failcode ? zscript_failcode : -1));
 
 	json data;

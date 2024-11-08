@@ -1,7 +1,3 @@
-// tango.zh
-// Version 1.3.3
-
-
 // Various validation functions. Any that return bools return false
 // if whatever they test is invalid. They may also log errors.
 

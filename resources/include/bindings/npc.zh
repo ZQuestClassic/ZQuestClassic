@@ -521,7 +521,7 @@ class npc {
 	// If true, the enemy will not 'die' even if it has 0hp or is too far
 	// off-screen.
 	//
-	// [Remove()] will still delete the npc.
+	// [Remove] will still delete the npc.
 	//
 	// @zasm_var NPCIMMORTAL
 	internal bool Immortal;

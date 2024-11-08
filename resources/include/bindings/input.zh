@@ -1,3 +1,6 @@
+// Contains variables related to button, mouse, and keyboard input.
+//
+// Access with `Input->`.
 class Input {
 	// @delete
 	internal Input();

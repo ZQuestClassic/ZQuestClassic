@@ -147,3 +147,5 @@ web/playground/zscript.data.js
 web/playground/zscript.mjs
 
 api_server/secrets.sh
+
+docs-www/source/zscript

@@ -6,7 +6,21 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 errors_1.zs Line 3 @ Columns 15-21 - Error S011: Script Global needs a void run() function.
+
+1    #option NO_ERROR_HALT on
+2    
+3    global script Global
+                   ^~~~~~
+
+
 errors_1.zs Line 8 @ Columns 37-48 - Error S009: Variable number_oops has not been declared.
+
+6    {
+7        int number = 123;
+8        printf("hello world: %d\n", number_oops);
+                                     ^~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '11' (compiled with errors)
 

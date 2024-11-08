@@ -282,7 +282,6 @@ ASTExpr* handle_statement_expr(ASTExpr* expr)
  // Hash Only
 %token HASH
 %token ENDLINE
-%token NEWLINE
 %token OPTION
 %token INHERIT
 
@@ -518,17 +517,7 @@ Option :
 		$$ = new ASTSetOption(name->getValue(), expr, @$);
 		delete name;}
 	|
-	HASH OPTION IDENTIFIER Expression_Constant NEWLINE {
-		ASTString* name = (ASTString*)$3;
-		ASTExprConst* expr = (ASTExprConst*)$4;
-		$$ = new ASTSetOption(name->getValue(), expr, @$);
-		delete name;}
-	| HASH OPTION IDENTIFIER INHERIT ENDLINE {
-		ASTString* name = (ASTString*)$3;
-		$$ = new ASTSetOption(
-				name->getValue(), CompileOptionSetting::Inherit, @$);
-		delete name;}
-	| HASH OPTION IDENTIFIER INHERIT NEWLINE {
+	HASH OPTION IDENTIFIER INHERIT ENDLINE {
 		ASTString* name = (ASTString*)$3;
 		$$ = new ASTSetOption(
 				name->getValue(), CompileOptionSetting::Inherit, @$);
@@ -538,27 +527,13 @@ Option :
 		$$ = new ASTSetOption(
 				name->getValue(), CompileOptionSetting::Default, @$);
 		delete name;}
-	| HASH OPTION IDENTIFIER DEFAULT NEWLINE {
-		ASTString* name = (ASTString*)$3;
-		$$ = new ASTSetOption(
-				name->getValue(), CompileOptionSetting::Default, @$);
-		delete name;}
 	| HASH OPTION DEFAULT Expression_Constant ENDLINE {
-		ASTExprConst* expr = (ASTExprConst*)$4;
-		$$ = new ASTSetOption("default", expr, @$);}
-	| HASH OPTION DEFAULT Expression_Constant NEWLINE {
 		ASTExprConst* expr = (ASTExprConst*)$4;
 		$$ = new ASTSetOption("default", expr, @$);}
 	| HASH OPTION DEFAULT INHERIT ENDLINE {
 		$$ = new ASTSetOption(
 				"default", CompileOptionSetting::Inherit, @$);}
-	| HASH OPTION DEFAULT INHERIT NEWLINE {
-		$$ = new ASTSetOption(
-				"default", CompileOptionSetting::Inherit, @$);}
 	| HASH OPTION DEFAULT DEFAULT ENDLINE {
-		$$ = new ASTSetOption(
-				"default", CompileOptionSetting::Default, @$);}
-	| HASH OPTION DEFAULT DEFAULT NEWLINE {
 		$$ = new ASTSetOption(
 				"default", CompileOptionSetting::Default, @$);}
 	;
@@ -593,7 +568,9 @@ EnumDataTypedef : ENUM IDENTIFIER LBRACE Enum_Block RBRACE {
 	ASTDataEnum* en = (ASTDataEnum*)$4;
 	en->location = @$;
 	ASTString* identifier = (ASTString*)$2;
-	$$ = new ASTCustomDataTypeDef(NULL, identifier, en, @$);
+	auto custom_typedef = new ASTCustomDataTypeDef(NULL, identifier, en, @$);
+	custom_typedef->doc_comment = std::move(identifier->doc_comment);
+	$$ = custom_typedef;
 	}
 
 DataType :
@@ -2479,13 +2456,13 @@ void yymsg(string const& message, int32_t row, int32_t col, char const* txt)
 }
 void yywarn(string const& message, int32_t row, int32_t col, char const* txt)
 {
-	zparser_warn_out(message);
 	zconsole_warn(yyerrstr(message,row,col,txt).c_str());
+	zparser_warn_out(message);
 }
 void yyerrmsg(string const& message, int32_t row, int32_t col, char const* txt)
 {
-	zparser_error_out(message);
 	zconsole_error(yyerrstr(message,row,col,txt).c_str());
+	zparser_error_out(message);
 }
 void yydb(string const& message, int32_t row, int32_t col, char const* txt)
 {

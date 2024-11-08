@@ -15,6 +15,8 @@ using std::string;
 using std::ostringstream;
 using std::shared_ptr;
 
+extern bool is_json_output;
+
 ////////////////////////////////////////////////////////////////
 // ZScript::Program
 
@@ -767,4 +769,136 @@ int32_t ZScript::getStackSize(Function const& function)
 int32_t ZScript::getParameterCount(Function const& function)
 {
 	return function.paramTypes.size() + (isRun(function) ? 1 : 0);
+}
+
+bool ZScript::is_test()
+{
+	static bool state = std::getenv("TEST_ZSCRIPT") != nullptr;
+	return state;
+}
+
+struct cache_entry
+{
+	std::string contents;
+	std::vector<uint32_t> lines;
+};
+static std::map<std::string, cache_entry> sourceContentsCache;
+static const cache_entry* getSourceCodeCacheEntry(const std::string& fname)
+{
+	cache_entry* entry;
+	auto it = sourceContentsCache.find(fname);
+	if (it != sourceContentsCache.end())
+		return &it->second;
+
+	sourceContentsCache[fname] = {util::read_text_file(fname), {}};
+	entry = &sourceContentsCache[fname];
+
+	uint32_t count = 0;
+	std::vector<std::string> lines = util::split(entry->contents, "\n");
+	for (auto& line : lines)
+	{
+		entry->lines.push_back(count);
+		count += line.size() + 1;
+	}
+
+	return entry;
+}
+
+int ZScript::getSourceCodeNumLines(const LocationData& loc)
+{
+	return getSourceCodeCacheEntry(loc.fname)->lines.size() + 1;
+}
+
+std::string ZScript::getSourceCodeSnippet(const LocationData& loc)
+{
+	auto entry = getSourceCodeCacheEntry(loc.fname);
+	uint32_t start = entry->lines[loc.first_line - 1] + loc.first_column - 1;
+	uint32_t end = entry->lines[loc.last_line - 1] + loc.last_column - 1;
+	return entry->contents.substr(start, end - start);
+}
+
+std::string ZScript::getErrorContext(const LocationData& loc)
+{
+	// Don't print context for IDE usages (ex: vscode extension), too much work and is not needed.
+	bool should_print_context = !is_json_output || is_test();
+	if (!should_print_context)
+		return "";
+
+	int num_lines_context = 2;
+	int num_lines_prev = std::min(loc.first_line - 1, num_lines_context);
+
+	LocationData expanded_loc = loc;
+	expanded_loc.first_line -= num_lines_prev;
+	expanded_loc.last_line = std::min(expanded_loc.last_line + 1, getSourceCodeNumLines(loc));
+	expanded_loc.first_column = 1;
+	expanded_loc.last_column = 1;
+
+	std::string context = getSourceCodeSnippet(expanded_loc);
+	if (context.empty())
+		return "";
+
+	auto lines = util::split(context, "\n");
+
+	// Add underline. Example:
+	//    auto[][] numbers6 = {1, 2, 3};
+	//             ^~~~~~~~
+	bool show_underline = loc.first_line == loc.last_line;
+	if (show_underline)
+	{
+		// Increase width by "num of leading tabs * 3" of target line.
+		int prefix_w = loc.first_column - 1;
+		const std::string& target_line = lines[num_lines_prev];
+		for (int i = 0; i < loc.first_column; i++)
+		{
+			char c = target_line[i];
+			if (c == '\t') prefix_w += 3;
+			else if (!isspace(c)) break;
+		}
+
+		std::string underline =
+			fmt::format("{}{:~<{}}", std::string(prefix_w, ' '), "^", loc.last_column - loc.first_column);
+		lines.push_back(underline);
+	}
+
+	for (auto& line : lines)
+		util::replstr(line, "\t", "    ");
+
+	// Trim leading whitespace.
+	int min_ws = INT_MAX;
+	for (const auto& line : lines)
+	{
+		int ws = 0;
+		for (const char& c : line)
+		{
+			if (c == ' ')
+				ws++;
+			else break;
+		}
+		min_ws = std::min(min_ws, ws);
+	}
+	if (min_ws > 0)
+	{
+		for (auto& line : lines)
+			line = line.substr(min_ws);
+	}
+
+	// Add line numbers.
+	int prefix_w = fmt::format("{}", expanded_loc.last_line).size();
+	int line_num = expanded_loc.first_line;
+	bool ignore_next = false;
+	for (auto& line : lines)
+	{
+		if (ignore_next)
+		{
+			line = fmt::format("{: >{}}    {}", "", prefix_w, line);
+			ignore_next = false;
+			continue;
+		}
+
+		line = fmt::format("{: >{}}    {}", line_num, prefix_w, line);
+		ignore_next = show_underline && line_num == loc.first_line;
+		line_num += 1;
+	}
+
+	return fmt::format("\n\n{}\n\n", fmt::join(lines, "\n"));
 }

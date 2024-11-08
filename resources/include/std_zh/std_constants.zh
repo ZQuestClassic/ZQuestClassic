@@ -19,14 +19,9 @@ typedef const untyped CONFIGU;
 
 DEFINE ERR_RETURN 			= -1; 
 
-///////////////////////
-/// Mathematical values
-
 DEFINEF PI				= 3.1416;
 DEFINEF PI2				= 6.2832;
 DEFINEF E				= 2.7183;
-
-const rgb INVALID_COLOR = <rgb>(-1);
 
 DEFINEF RADIAN 			= 57.2958; //Multiplication value for converting radians to degrees. 
 DEFINEF DEGREE			= 0.0174; //Multiplication value for converting degrees to radians.
@@ -35,11 +30,7 @@ DEFINE SQRT_ERROR			= 464; // The return value of SafeSqrt() if a negative value
 DEFINEF SQRT_MAX			= 463.4095; //The largest square root thet ZC can return.
 
 
-////////////////////////////
-/// ZC Minimums and Maximums
-
 DEFINEF MAX_CONSTANT		= 214747.9999 + (OPTION_VALUE(TRUE_INT_SIZE) ? 0.3648 : 0);
-//DEFINEF MAX_VARIABLE		= 214748.3648; //Obviously this is truncated as a constant. Equal to ((2^31)-1)/10000
 DEFINEF MIN_CONSTANT		= -214747.9999 - (OPTION_VALUE(TRUE_INT_SIZE) ? 0.3649 : 0);
 
 
@@ -134,13 +125,8 @@ DEFINE GAMEMISC_SIZE 		= 32;
 DEFINE MAX_DEFENSE 			= 42;
 DEFINE MAX_DEFENCE 			= 42;
 
-/////////////////////
-/// Screen Dimensions
-
-DEFINE SCREEN_W 			= 256; //X width of the Screen, starting at 0 (left) and goign right). 
-//!SCREEN_WIDTH  is already called in stdExtra.zh
-DEFINE SCREEN_H 			= 176; //Y height of the screen, starting at 0 (top), going down.
-//!SCREEN_HEIGHT  is already called in stdExtra.zh
+DEFINE SCREEN_W 			= 256; // Width of the screen, in pixels.
+DEFINE SCREEN_H 			= 176; // Height of the screen, in pixels.
 
 DEFINE SCREEN_RIGHT 			= 255; //The rightmost screen pixel.
 DEFINE SCREEN_LEFT 			= 0; //The leftmost screen pixel.
@@ -149,7 +135,6 @@ DEFINE SCREEN_BOTTOM 		= 175; //The lowest screen pixel.
 
 DEFINE SUBSCREEN_BOTTOM		= -1; //Bottom of passive subscreen.
 DEFINE SUBSCREEN_TOP 		= -56; //Top of passive subscreen.
-//! In stdExtra.zh, this is -64. ?!
 
 DEFINE SCREEN_CENTER_X 		= 128;
 DEFINE SCREEN_CENTRE_X 		= 128;
@@ -157,16 +142,13 @@ DEFINE SCREEN_CENTER_Y 		= 88;
 DEFINE SCREEN_CENTRE_Y 		= 88; 
 
 
-///////////////////
-/// Game Properties
-
 //Defaults from Init Data
 DEFINEF GRAVITY			= 0.16;
 DEFINEF TERMINAL_VELOCITY		= 3.20;
 DEFINE JUMPING_LAYER_THRESHOLD	= 16;
 
 //CSet Initial Colour Swatch positions
-DEFINE CSET_0 	= 0; //Sixteen colours per, starting at '0' each.
+DEFINE CSET_0 	= 0; //Sixteen colours per, starting at `0` each.
 DEFINE CSET_1 	= 16;
 DEFINE CSET_2 	= 32;
 DEFINE CSET_3 	= 48;
@@ -441,12 +423,6 @@ DEFINE CB_MAX        = 18;
 
 
 
-////////////////////
-/// Items & Itemdata
-
-
-
-
 //Item IDs. Use with CreateItem() and Link->Item[].
 //These are DEFAULT values, and may not be correct for custom quests which
 //have overridden item action data.
@@ -592,9 +568,6 @@ DEFINE IP_TRIGGERSECRETS = 0x1000; // Triggers screen secrets when collected
 DEFINE IP_ALWAYSGRAB     = 0x2000; // Item is always able to be picked up (ex. brang/hshot/arrows/melee weapons)
 
 
-/////////////////////////
-/// EWeapons and LWeapons
-
 //LWeapon types. Use with Screen->CreateLWeapon() and Screen->LoadLWeapon().
 DEFINE LW_SWORD              = 1; // This cannot be created
 DEFINE LW_WAND               = 12; // This cannot be created
@@ -633,14 +606,14 @@ DEFINE LW_SCRIPT8            = 38;
 DEFINE LW_SCRIPT9            = 39;
 DEFINE LW_SCRIPT10           = 40;
 
-//Planned for 2.6
+// unimplemented
 DEFINE LW_ICE                = 41;
 DEFINE LW_THROWN             = 44;
 DEFINE LW_REFARROW           = 53;
 DEFINE LW_REFFIRE            = 54;
 DEFINE LW_REFFIRE2            = 55;
 
-//EWeapon types. Use with Screen->CreateEWeapon() and Screen->LoadEWeapon().
+//EWeapon types. Use with [Screen->CreateEWeapon] and [Screen->LoadEWeapon].
 DEFINE EW_ARROW              = 130;
 DEFINE EW_BRANG              = 131;
 DEFINE EW_BEAM               = 132; // Sword beam
@@ -668,20 +641,17 @@ DEFINE EW_SCRIPT8            = 38;
 DEFINE EW_SCRIPT9            = 39;
 DEFINE EW_SCRIPT10           = 40;
 
-//Weapon DeadState values. Use with Weapon->DeadState.
-DEFINE WDS_NOHIT             = -10; // This value switches collision detection off. Deprecated by weapon->CollDetection.
-DEFINE WDS_ALIVE		= -1; // Weapon is currently 'alive'.
-DEFINE WDS_DEAD              = 0;  // Use to dispose of most weapons.
-DEFINE WDS_BEAMSHARDS        = 23; // Use with LW_BEAMs to shatter it into shards.
-DEFINE WDS_ARROW             = 4;  // Use with LW_ARROWs to make them 'wink out' using tile 54.
-DEFINE WDS_BOUNCE            = 1;  // Use with LW_BRANGs or LW_HOOKSHOTs to
-                                      // make it 'bounce off' and begin returning to Link.
+// Use with [lweapon::DeadState] and [eweapon::DeadState].
+enum WeaponDeadState {
+	WDS_NOHIT             = -10, // This value switches collision detection off. Deprecated by [lweapon::CollDetection].
+	WDS_ALIVE             = -1,  // Weapon is currently 'alive'.
+	WDS_DEAD              = 0,   // Use to dispose of most weapons.
+	WDS_BEAMSHARDS        = 23,  // Use with [LW_BEAM] to shatter it into shards.
+	WDS_ARROW             = 4,   // Use with [LW_ARROW] to make them 'wink out' using tile 54.
+	WDS_BOUNCE            = 1    // Use with [LW_BRANG] or [LW_HOOKSHOT] to make it 'bounce off' and begin returning to Link.
+};
 
-
-////////////////////
-/// NPCs and Enemies
-
-//Guy IDs. Use with CreateNPC().
+//Guy IDs. Use with [Screen->CreateNPC].
 DEFINE NPC_ABEI              = 1;
 DEFINE NPC_AMA               = 2;
 DEFINE NPC_MERCHANT          = 3;
@@ -841,22 +811,6 @@ DEFINE NPC_ZORA              = 33;
 //NPC hit point values. Use with npc->HP to make the enemy die in a special manner.
 DEFINE HP_SILENT = -1000;  // The enemy will die without their Death Sound playing.
 DEFINE HP_GLEEOKHEAD = 1000; //Floating Gleeok heads have this as their HP value. 
-
-//////////////////////////////////////////////////////
-/// Enemy Editor NPC Attributes / Attribute types
-
-// Note: The editor attribute is offset by +1, when compared to the ZScript Attributes[] array.
-// Use this chart as a reference.
-//Editor Attribute 1 ( Atttributes[0] )
-//Editor Attribute 2 ( Atttributes[1] )
-//Editor Attribute 3 ( Atttributes[2] )
-//Editor Attribute 4 ( Atttributes[3] )
-//Editor Attribute 5 ( Atttributes[4] )
-//Editor Attribute 6 ( Atttributes[5] )
-//Editor Attribute 7 ( Atttributes[6] )
-//Editor Attribute 8 ( Atttributes[7] )
-//Editor Attribute 9 ( Atttributes[8] )
-//Editor Attribute 10 ( Atttributes[9] )
 
 //Walking Enemy Indices
 DEFINE NPCA_WALK_SHOTTYPE 		= 0;
@@ -1101,11 +1055,6 @@ DEFINE NPCSF_SPAWNANIM		= 0x2000; //Spawn Animation Type
 
 
 
-
-
-///////////////////
-/// Script Drawing
-
 // Font types. Use with Screen->DrawCharacter *note -some of these fonts may not represent normal ascii characters,
 //and all of these are completely undocumented. Use at your own peril
 DEFINE FONT_Z1           = 0;
@@ -1334,10 +1283,7 @@ DEFINE RT_BITMAP5            = 5; // draws to off-screen bitmap 5
 DEFINE RT_BITMAP6            = 6; // draws to off-screen bitmap 6
 
 
-
-
-/////////////////////////
-/// DMaps, Screens, Rooms
+// DMaps, Screens, Rooms
 
 //Screen Flag categories. Flags from each category are ORed together, starting with the first flag
 //See Screen Data dialog for what flags are contained in each category. Use in Screen->Flags
@@ -1361,9 +1307,9 @@ enum
 //Screen Flag Roomtype
 enum
 {
-	SFR_INTERIOR, //0x0000 ?
-	SFR_DUNGEON, //0x0001
-	SFR_SIDEVIEW, //0x0002
+	SFR_INTERIOR,
+	SFR_DUNGEON,
+	SFR_SIDEVIEW,
 	
 	SFR_LAST
 };
@@ -1371,15 +1317,15 @@ enum
 //Screen Flag View
 enum
 {
-	SFV_INVISLINK, //0x0001;
-	SFV_NOLINKMARKER,// 0x0002;
-	SFV_NOSUBSCREEN,// 0x0004;
-	SFV_NOOFFSET, // 0x0008; //'...but don't offset'
-	SFV_LAYER2BG, // 0x0010; //Layer 2 is Background
-	SFV_LAYER3BG, //0x0020;
-	SFV_DARKROOM, //0x0040; 
-	SFV_DARK_DITHER, //0x0080; 
-	SFV_DARK_TRANS, //0x0100; 
+	SFV_INVISLINK,
+	SFV_NOLINKMARKER,
+	SFV_NOSUBSCREEN,
+	SFV_NOOFFSET,  //'...but don't offset'
+	SFV_LAYER2BG,  //Layer 2 is Background
+	SFV_LAYER3BG,
+	SFV_DARKROOM, 
+	SFV_DARK_DITHER, 
+	SFV_DARK_TRANS, 
 	
 	SFV_LAST
 };
@@ -1387,10 +1333,10 @@ enum
 //Screen Flag Secrets
 enum
 {
-	SFS_BLOCKSHUT, //0x0001; //Block->Shutters
-	SFS_TEMPSECRETS, //0x0002; //Secrets are temporary.
-	SFS_TRIGPERM, //0x0004; //All Triggers->Perm Secret
-	SFS_ALLTRIGFLAGS, //0x0008; //All triggers->16-31
+	SFS_BLOCKSHUT, //Block->Shutters
+	SFS_TEMPSECRETS, //Secrets are temporary.
+	SFS_TRIGPERM,  //All Triggers->Perm Secret
+	SFS_ALLTRIGFLAGS,  //All triggers->16-31
 	
 	SFS_LAST
 };
@@ -1398,12 +1344,12 @@ enum
 //Screen Flag Warp
 enum
 {
-	SFW_AUTODIRECT, //  0x0001; //Auto Warps are Direct
-	SFW_SENDSIRECT, //0x0002; //Sensitive Warps are direct.
-	SFW_MAZEPATHS, //0x0004; //Use maze Path
-	SFW_MAZEOVERRIDE, //0x0008; //maze Overrides Sidewarps
-	SFW_SPRITECARRY, //0x0010; //Sprites carry over. 
-	SFW_DISABLE_MIRROR, //0x0020; //Disable Magic Mirror
+	SFW_AUTODIRECT, //Auto Warps are Direct
+	SFW_SENDSIRECT, //Sensitive Warps are direct.
+	SFW_MAZEPATHS,  //Use maze Path
+	SFW_MAZEOVERRIDE,  //maze Overrides Sidewarps
+	SFW_SPRITECARRY, //Sprites carry over. 
+	SFW_DISABLE_MIRROR, //Disable Magic Mirror
 	
 	SFW_LAST
 };
@@ -1412,13 +1358,13 @@ enum
 //Screen Flag Items
 enum 
 {
-	SFI_HOLDUP, //0x0001; //Hold up item.
-	SFI_FALLS, //0x0002; //Falls from ceiling
-	SFI_SECRETSITEM, //0x0004; //Secret reveals item
-	SFI_ITEMSECRET, //0x0008; //Item triggers secrets
-	SFI_ITEMSECRETPERM, //0x0010; //Item triggering secrets is permanent
-	SFI_ITEMRETURNS, //0x0020; //Regular item always returns
-	SFI_SPECIALITEMRETURNS, //0x0040; //Special item always returns
+	SFI_HOLDUP, //Hold up item.
+	SFI_FALLS, //Falls from ceiling
+	SFI_SECRETSITEM,  //Secret reveals item
+	SFI_ITEMSECRET,  //Item triggers secrets
+	SFI_ITEMSECRETPERM, //Item triggering secrets is permanent
+	SFI_ITEMRETURNS, //Regular item always returns
+	SFI_SPECIALITEMRETURNS, //Special item always returns
 	
 	SFI_LAST
 };
@@ -1426,10 +1372,10 @@ enum
 //Screen Flag Combos
 enum
 {
-	SFC_MIDAIR,// 0x0001; //Combos affect midair Link
-	SFC_CYCLEINIT, //0x0002; //Cycle combos on screen init.
-	SFC_IGNOREBOOTS, //0x0004; //Damage combos ignore boots. 
-	SFC_TOGGLERINGS, //0x0008; //Toggle 'Rings Affect Combos'
+	SFC_MIDAIR, //Combos affect midair Link
+	SFC_CYCLEINIT, //Cycle combos on screen init.
+	SFC_IGNOREBOOTS,  //Damage combos ignore boots. 
+	SFC_TOGGLERINGS,  //Toggle 'Rings Affect Combos'
 	
 	SFC_LAST
 };
@@ -1437,10 +1383,10 @@ enum
 //Screen Flag Save
 enum
 {
-	SFSV_SAVECONTHERE, //0x0001; //Save Point->ontinue here.
-	SFSV_SAVEONENTRY, //0x0002; //Save game on entry.
-	SFSV_CONTHERE, // 0x0004; //Comtinue here.
-	SFSV_NOCONTINUEWARP, //0x0008; //No continue Here after warp. 
+	SFSV_SAVECONTHERE, //Save Point->ontinue here.
+	SFSV_SAVEONENTRY, //Save game on entry.
+	SFSV_CONTHERE,  //Comtinue here.
+	SFSV_NOCONTINUEWARP,  //No continue Here after warp. 
 	
 	SFSV_LAST
 };
@@ -1448,8 +1394,8 @@ enum
 //Screen Flags FFC
 enum
 {
-	SFF_WRAP,  //  0x0001; //Freeform Combos Wrap Around
-	SFF_NOCARRYOVER, //0x0002; //No FFC carry over. 
+	SFF_WRAP,   //Freeform Combos Wrap Around
+	SFF_NOCARRYOVER, //No FFC carry over. 
 	
 	SFF_LAST
 };
@@ -1457,28 +1403,28 @@ enum
 //Screen Flags Whistle
 enum
 {
-	SFWH_STAIRS = 0, //0x0001; //Whistle->Stairs
-	SFWH_PALCHANGE, //0x0002; //Whistle->Palette Change
-	SFWH_DRYLAKE, //0x0004; //Whistle->Dry lake
+	SFWH_STAIRS = 0, //Whistle->Stairs
+	SFWH_PALCHANGE, //Whistle->Palette Change
+	SFWH_DRYLAKE,  //Whistle->Dry lake
 	
 	SFWH_LAST
 };
 
 //Old constants, use the ones above.
-DEFINE SFW_STAIRS = SFWH_STAIRS; //0x0001; //Whistle->Stairs
-DEFINE SFW_PALCHANGE = SFWH_PALCHANGE; //0x0002; //Whistle->Palette Change
-DEFINE SFW_DRYLAKE = SFWH_DRYLAKE; //0x0004; //Whistle->Dry lake
+DEFINE SFW_STAIRS = SFWH_STAIRS; //Whistle->Stairs
+DEFINE SFW_PALCHANGE = SFWH_PALCHANGE; //Whistle->Palette Change
+DEFINE SFW_DRYLAKE = SFWH_DRYLAKE;  //Whistle->Dry lake
 
 //Misc. Screen flags. Bitshift 1 by the constant and OR to use.
 enum
 {
-	SFM_ALLOW_LADDER,   //0x0001; //Toggle 'Allow Ladder'
-	SFM_NO_DIVING,      //0x0002; //Toggle 'No Diving' 
-	SFM_SCRIPT1,        //0x0004; //General use 1 (Scripts)
-	SFM_SCRIPT2,        //0x0008; //General use 2 (Scripts)
-	SFM_SCRIPT3,        //0x0010; //General use 3 (Scripts)
-	SFM_SCRIPT4,        //0x0020; //General use 4 (Scripts)
-	SFM_SCRIPT5,        //0x0040; //General use 5 (Scripts)
+	SFM_ALLOW_LADDER,   //Toggle 'Allow Ladder'
+	SFM_NO_DIVING,      //Toggle 'No Diving' 
+	SFM_SCRIPT1,         //General use 1 (Scripts)
+	SFM_SCRIPT2,         //General use 2 (Scripts)
+	SFM_SCRIPT3,        //General use 3 (Scripts)
+	SFM_SCRIPT4,        //General use 4 (Scripts)
+	SFM_SCRIPT5,        //General use 5 (Scripts)
 
 	SFM_LAST
 };
@@ -1492,11 +1438,11 @@ DEFINE SEF_LIST2				= 2; //right-hand list
 //Screen Enemy Flags: Spawn
 enum
 {
-	SEFSP_ZORA, //0x0001
-	SEFSP_CORNERTRAP, //0x0002
-	SEFSP_MIDDLETRAP, //0x0004
-	SEFSP_ROCK, //0x0008
-	SEFSP_SHOOTER, //0x0010
+	SEFSP_ZORA,
+	SEFSP_CORNERTRAP,
+	SEFSP_MIDDLETRAP,
+	SEFSP_ROCK,
+	SEFSP_SHOOTER,
 	
 	SEFSP_LAST
 };
@@ -1504,11 +1450,11 @@ enum
 //Screen Enemy Flags: List1
 enum
 {
-	SEFL1_RINGLEADER, //0x0001
-	SEFL1_CARRYITEM, //0x0002
-	SEFL1_INVIS, //0x0004
-	SEFL1_BOSS, //0x0008
-	SEFL1_TRAPS_IGNORE_SOLID, //0x0010
+	SEFL1_RINGLEADER,
+	SEFL1_CARRYITEM,
+	SEFL1_INVIS,
+	SEFL1_BOSS,
+	SEFL1_TRAPS_IGNORE_SOLID,
 	
 	SEFL1_LAST
 };
@@ -1516,11 +1462,11 @@ enum
 //Screen Enemy Flags: List2
 enum
 {
-	SEFL2_ALWAYSRET, //0x0001
-	SEFL2_ENEMIES_ITEM, //0x0002
-	SEFL2_ENEMEIS_SECRET, //0x0004
-	SEFL2_ENEMIES_SECRET_PERM, //0x0008
-	SEFL2_CHAIN_ENEMIES_TRIGGERS, //0x0010
+	SEFL2_ALWAYSRET,
+	SEFL2_ENEMIES_ITEM,
+	SEFL2_ENEMEIS_SECRET,
+	SEFL2_ENEMIES_SECRET_PERM,
+	SEFL2_CHAIN_ENEMIES_TRIGGERS,
 	
 	SEFL2_LAST
 };
@@ -1552,27 +1498,20 @@ DEFINE RT_ZELDA              = 16;
 
 enum roomtypes
 {
-	//0
 	rtNONE, rtSPECIALITEM, rtPAYINFO, rtSECRETMONEY, rtGAMBLE,
-	//5
 	rtDOORREPAIR, rtPOTIONORHEART, rtGORIYA, rtLEVEL9, rtPOTION,
-	//10
 	rtSHOP, rtBOMBS, rtMOYL, rtTENRUPY, rtSTAIRWARP,
-	//15
-	rtGAN, rtWINGAME, rtITEMPOND, /*item ponds not implemented*/ rtMAGIC, rtSLASH, 
-	//20
+	rtGAN, rtWINGAME,
+	rtITEMPOND, // not implemented
+	rtMAGIC, rtSLASH, 
 	rtARROWS, rtONEITEM, rtLAST
 };
 
 enum catchalltypes
 {
-	//0
 	caNONE, caITEM, caPRICE, caAMOUNT, caGAMBLE,
-	//5
 	caSHOPID, caINFOSHOPID, caWARPRING, caPONDID, 
-	//10
 	caLAST
-	
 };
 
 //DMap Flag constants. Use with Game->DMapFlags.
@@ -1628,22 +1567,24 @@ enum
 };
 
 //Screen states. Use these with Screen->State[], etc.
-DEFINE ST_DOORUP             = 0; // The locked/bomb door has been permanently unlocked/bombed
-DEFINE ST_DOORDOWN           = 1; // The locked/bomb door has been permanently unlocked/bombed
-DEFINE ST_DOORLEFT           = 2; // The locked/bomb door has been permanently unlocked/bombed
-DEFINE ST_DOORRIGHT          = 3; // The locked/bomb door has been permanently unlocked/bombed
-DEFINE ST_ITEM               = 4; // If set, the item is gone
-DEFINE ST_SPECIALITEM        = 5; // If set, the Cave/Item Cellar/Dive For Item/Armos item is gone
-DEFINE ST_ENEMYNORETURN      = 6; // If set, enemies won't return
-DEFINE ST_TEMPNORETURN       = 7; // If set, enemies won't return. This is automatically unset when you leave the DMap
-DEFINE ST_LOCKBLOCK          = 8; // The lock block on the screen has been triggered
-DEFINE ST_BOSSLOCKBLOCK      = 9; // The boss lock block on the screen has been triggered
-DEFINE ST_CHEST              = 10; // The unlocked chest on this screen has been opened
-DEFINE ST_LOCKEDCHEST        = 11; // The locked chest on this screen has been opened
-DEFINE ST_BOSSCHEST          = 12; // The boss chest on this screen has been opened
-DEFINE ST_SECRET             = 13; // Screen Secrets have been made permanent
-DEFINE ST_VISITED            = 14; // If set, this screen will appear on the Overworld Map
-DEFINE ST_LIGHTBEAM          = 15; // If set, the light triggers on the screen have been triggered
+enum ScreenState {
+	ST_DOORUP             = 0, // The locked/bomb door has been permanently unlocked/bombed
+	ST_DOORDOWN           = 1, // The locked/bomb door has been permanently unlocked/bombed
+	ST_DOORLEFT           = 2, // The locked/bomb door has been permanently unlocked/bombed
+	ST_DOORRIGHT          = 3, // The locked/bomb door has been permanently unlocked/bombed
+	ST_ITEM               = 4, // If set, the item is gone
+	ST_SPECIALITEM        = 5, // If set, the Cave/Item Cellar/Dive For Item/Armos item is gone
+	ST_ENEMYNORETURN      = 6, // If set, enemies won't return
+	ST_TEMPNORETURN       = 7, // If set, enemies won't return. This is automatically unset when you leave the DMap
+	ST_LOCKBLOCK          = 8, // The lock block on the screen has been triggered
+	ST_BOSSLOCKBLOCK      = 9, // The boss lock block on the screen has been triggered
+	ST_CHEST              = 10, // The unlocked chest on this screen has been opened
+	ST_LOCKEDCHEST        = 11, // The locked chest on this screen has been opened
+	ST_BOSSCHEST          = 12, // The boss chest on this screen has been opened
+	ST_SECRET             = 13, // Screen Secrets have been made permanent
+	ST_VISITED            = 14, // If set, this screen will appear on the Overworld Map
+	ST_LIGHTBEAM          = 15  // If set, the light triggers on the screen have been triggered
+};
 
 //Door Positions; indices of Screen->Door[]
 DEFINE DOOR_UP               = 0;
@@ -1674,10 +1615,6 @@ DEFINE SL_LWPNS              = 3; // Link's weapons
 DEFINE SL_DECORATIONS        = 4; // Grass clippings, Hover boots glow, etc.
 DEFINE SL_PARTICLES          = 5; // Farore's Wind particles
 
-///////////////////
-/// Link Properties
-
-//Link actions
 enum HeroAction
 {
 	LA_NONE,
@@ -1723,15 +1660,6 @@ enum HeroAction
 	LA_LIFTING,
 	LA_MAX
 };
-
-							/*lavadrowning, sideswimming, sideswimhit, sideswimattacking, 
-								sidewaterhold1, sidewaterhold2, sideswimcasting, sideswimfreeze, sidedrowning,
-								sideswimisspinning, sideswimischarging*/
-
-///////////////////////
-/// Combo Types & Flags
-
-
 
 //Combo flags. Use with Screen->ComboF[]
 DEFINE CF_NONE               = 0;
@@ -1936,13 +1864,6 @@ DEFINE CF_NO_ENEMIES_SPAWN   = 163; //No Enemies Spawn
 DEFINE CF_ALL_ENEMIES_SPAWN  = 164; //All Enemies Spawn
 DEFINE CF_SECRETS_NEXT       = 165; //Secrets->Next
 
-//chests  to 16, unlocked, locked, boss; small, big. Probably better as combo types?
-
-// 200 :  Reserved for CF_STEP from TheRandomHeader.zh
-
-//////////////////
-/// FFC Properties
-
 //FFC Flags. To be used as indices into ffc->Flags[].
 DEFINE FFCF_OVERLAY          	= 0; // Draw Over (draw between layers 4 and 5)
 DEFINE FFCF_TRANS            	= 1; // Translucent
@@ -2030,7 +1951,7 @@ DEFINE GOS_QUIT		= 6;	//Save and Quit Screen
 
 DEFINE BITDX_NORMAL = 0;
 DEFINE BITDX_TRANS = 1; //Translucent
-DEFINE BITDX_PIVOT = 2; //THe sprite will rotate at a specific point, instead of its centre.
+DEFINE BITDX_PIVOT = 2; //THe sprite will rotate at a specific point, instead of its center.
 DEFINE BITDX_VFLIP = 4; //Vertical Flip.
 DEFINE BITDX_HFLIP = 8; //Horizontal Flip
 //Note:	Some modes cannot be combined. if a combination is not supported, an error
@@ -2236,11 +2157,13 @@ DEFINEF DIR16_RADS_RIGHTRIGHTUP = 5.8905;
 DEFINEF DIR16_RADS_RIGHTUP 	= 5.4978;
 DEFINEF DIR16_RADS_RIGHTUPUP 	= 5.1141;
 
-//DMap Types for use with dmapdata->Type
-DEFINE DMAP_DUNGEON = 0;
-DEFINE DMAP_OVERWORLD = 1;
-DEFINE DMAP_CAVE = 2;
-DEFINE DMAP_BSOVERWORLD = 3;
+// DMap Types for use with [dmapdata::Type]
+enum DmapType {
+	DMAP_DUNGEON,
+	DMAP_OVERWORLD,
+	DMAP_CAVE,
+	DMAP_BSOVERWORLD
+};
 
 enum dmapgridpositions
 { 
@@ -2436,37 +2359,35 @@ enum linkspritetype
 enum { 
 	//Typical processes that we want to pause, similar to ALLOFF()
 	
-	//0 : Combo animation
+	// Combo animation
 	susptCOMBOANIM,
 	
-	//1->5 Main Sprite animation by type
+	// Main Sprite animation by type
 	susptGUYS, susptLWEAPONS, susptEWEAPONS, susptITEMS, susptLINK, 
 	
-	//6 : FFC (e.g. movement, changers, but not scripts)
+	// FFC (e.g. movement, changers, but not scripts)
 	susptUPDATEFFC, //ffcs
 	
-	//7->8 : Sprite subclasses
+	// Sprite subclasses
 	susptDECORATIONS, susptPARTICLES, //sprite subclasses
 	
-	//9->10: Palette events
+	// Palette events
 	susptPALCYCLE, susptLAKES, //lake dries up
 	
-	//11->15 : game system events
+	// game system events
 	susptCOLLISIONS, susptCONTROLSTATE, susptONEFRAMECONDS, susptSCRIPDRAWCLEAR, susptQUAKE,
 
-	//16->27 Script Types
+	// Script Types
 	susptGLOBALGAME, susptNPCSCRIPTS, susptLWEAPONSCRIPTS, susptEWEAPONSCRIPTS, susptITEMSPRITESCRIPTS,
-	//21
+
 	susptFFCSCRIPTS, susptLINKACTIVE, susptITEMSCRIPTENGINE, susptDMAPSCRIPT, susptSCREENSCRIPTS,
-	susptSUBSCREENSCRIPTS, susptCOMBOSCRIPTS, //27
+	susptSUBSCREENSCRIPTS, susptCOMBOSCRIPTS,
 	
-	//28->59: Reserved padding
-	
-	//60->42 : Moving items
+	// Moving items
 	susptCONVEYORSITEMS = 60, susptDRAGGINGITEM, susptROAMINGITEM,
-	//63->67 : Misc
+	// Misc
 	susptLENS, susptHOOKSHOT, susptMOVINGBLOCKS, susptMAGICCAST, susptSCREENDRAW,
-	//68
+
 	susptLAST };
 
 
@@ -2867,33 +2788,26 @@ DEFINEL L_BLOCKFLAG_SCRIPT10     = 0x00080000L;
 enum scr_timing
 {
 	SCR_TIMING_INIT = -1,
-	//0
 	SCR_TIMING_START_FRAME, SCR_TIMING_POST_COMBO_ANIM, SCR_TIMING_POST_POLL_INPUT,
 	SCR_TIMING_POST_FFCS, SCR_TIMING_POST_GLOBAL_ACTIVE,
-	//5
 	SCR_TIMING_POST_PLAYER_ACTIVE, SCR_TIMING_POST_DMAPDATA_ACTIVE,
 	SCR_TIMING_POST_DMAPDATA_PASSIVESUBSCREEN, SCR_TIMING_POST_COMBOSCRIPT,
 	SCR_TIMING_POST_PUSHBLOCK,
-	//10
 	SCR_TIMING_POST_ITEMSPRITE_SCRIPT, SCR_TIMING_POST_ITEMSPRITE_ANIMATE,
 	SCR_TIMING_POST_NPC_ANIMATE, SCR_TIMING_POST_EWPN_ANIMATE, SCR_TIMING_POST_EWPN_SCRIPT,
-	//15
 	SCR_TIMING_POST_OLD_ITEMDATA_SCRIPT, SCR_TIMING_POST_PLAYER_ANIMATE,
 	SCR_TIMING_POST_NEW_ITEMDATA_SCRIPT, SCR_TIMING_POST_CASTING,
 	SCR_TIMING_POST_LWPN_ANIMATE,
-	//20
 	SCR_TIMING_POST_DECOPARTICLE_ANIMATE, SCR_TIMING_POST_COLLISIONS_PALETTECYCLE,
 	SCR_TIMING_WAITDRAW, SCR_TIMING_POST_GLOBAL_WAITDRAW, SCR_TIMING_POST_PLAYER_WAITDRAW,
-	//25
 	SCR_TIMING_POST_DMAPDATA_ACTIVE_WAITDRAW, SCR_TIMING_POST_DMAPDATA_PASSIVESUBSCREEN_WAITDRAW,
 	SCR_TIMING_POST_SCREEN_WAITDRAW, SCR_TIMING_POST_FFC_WAITDRAW, SCR_TIMING_POST_COMBO_WAITDRAW,
-	//30
 	SCR_TIMING_POST_ITEM_WAITDRAW, SCR_TIMING_POST_NPC_WAITDRAW, SCR_TIMING_POST_EWPN_WAITDRAW,
 	SCR_TIMING_POST_LWPN_WAITDRAW, SCR_TIMING_POST_ITEMSPRITE_WAITDRAW,
-	//35
 	SCR_TIMING_PRE_DRAW, SCR_TIMING_POST_DRAW, SCR_TIMING_POST_STRINGS, SCR_TIMING_END_FRAME,
 	SCR_NUM_TIMINGS
 };
+
 //Generic Script States, for 'ExitState[]'/'ReloadState[]'
 enum
 {
@@ -2904,6 +2818,7 @@ enum
 	GENSCR_ST_CHANGE_LEVEL, //When level changes
 	GENSCR_NUMST
 };
+
 //Generic Script events, for 'WaitEvent()'
 enum
 {
@@ -2955,7 +2870,7 @@ enum //Game->EventData[] indexes for 'GENSCR_EVENT_ENEMY_DROP_ITEM_1'
 	GENEV_EDI1_NPC, //the npc pointer
 	GENEV_EDI1_ITEMID, //the chosen item ID
 	GENEV_EDI1_DROPSET //the dropset the ID was chosen from
-	//If the ITEMID is set to '-2', the dropset will be rolled automatically.
+	//If the ITEMID is set to `-2`, the dropset will be rolled automatically.
 	//ITEMID of -1 means no item will be dropped.
 };
 enum //Game->EventData[] indexes for 'GENSCR_EVENT_ENEMY_DROP_ITEM_2'
@@ -3241,7 +3156,7 @@ enum //Transition Flags
 DEFINE SUBSEL_FLAG_NO_NONEQUIP = 0x01;
 DEFINE SUBSEL_FLAG_NEED_ITEM = 0x02;
 
-enum //Widget Types
+enum SubscreenWidgetType
 {
 	SUBWIDG_NULL, SUBWIDG_FRAME, SUBWIDG_TEXT, SUBWIDG_LINE, SUBWIDG_RECT,
 	SUBWIDG_TIME, SUBWIDG_MMETER, SUBWIDG_LMETER, SUBWIDG_BTNITM, SUBWIDG_COUNTER,
@@ -3269,7 +3184,7 @@ enum //Widget genflags
 	SUBW_GENFL_MAX
 };
 
-enum //Page Modes
+enum SubscreenPageMode
 {
 	SUB_PGMODE_NONE, //no page change
 	SUB_PGMODE_NEXT, //next page

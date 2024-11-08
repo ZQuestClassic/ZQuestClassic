@@ -1,6 +1,3 @@
-// ffcscript.zh
-// Version 2.0.2
-
 // Combo to be used for generic script vehicle FFCs. This should be
 // an invisible combo with no type or flag. It cannot be combo 0.
 const int FFCS_INVISIBLE_COMBO = 1;

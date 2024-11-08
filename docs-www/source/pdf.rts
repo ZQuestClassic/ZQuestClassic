@@ -1,0 +1,6 @@
+[STYLESHEET]
+name = My custom style sheet
+base = sphinx
+
+[linked reference]
+type = custom

@@ -153,7 +153,14 @@ Pass 3: Registration
 Pass 4: Analyzing Code
 Pass 5: Checking code paths
 Pass 6: Generating object code
-00026-deku-leaf/script.zs Line 60 - Error T019: moduloAttempting to  by 0.
+00026-deku-leaf/script.zs Line 60 - Error T019: Attempting to divide by 0.
+
+58    //Otherwise if not scrolling glide down to the ground.
+59    else if(Link->Action != LA_SCROLLING){
+60        looptimer = (looptimer + 1) % DEKU_LOOP;
+                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '19' (compiled with errors)
 
@@ -161,7 +168,14 @@ Compile finished with exit code '19' (compiled with errors)
 Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected LOOP, expecting EMPTYBRACKETS or IDENTIFIER [00044-animation-zh/script.zs Line 25 Column 62 'loop']
-.tmp/test_zscript_database/00044-animation-zh/script.zs Line 5 - Error P001: Included file '00044-animation-zh/script.zs' encountered an error.
+.tmp/test_zscript_database/00044-animation-zh/script.zs Line 6 - Error P001: Included file '00044-animation-zh/script.zs' encountered an error.
+
+4    
+5    #include "std.zh"
+6    #include "00044-animation-zh/script.zs"
+     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -171,6 +185,13 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 00055-enemy-stun-and-death-animations/script.zs Line 23 - Error S009: Variable FLIP_NO has not been declared.
+
+21    }
+22    else if ( enem->HP > 0 && enem->Stun > 0 ){
+23        Screen->DrawCombo(4, CenterX(enem)-8, enem->Y-16, CMB_ENEMSTUN, 1, 1, CMB_CSET_ENEMSTUN, -1, -1, 0, 0, 0, -1, FLIP_NO, true, OP_OPAQUE);
+                                                                                                                        ^~~~~~~
+
+
 Failure!
 Compile finished with exit code '9' (compiled with errors)
 
@@ -180,6 +201,13 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 00066-homing-fireball-shooter-autoghost/script.zs Line 81 - Error T021: Function SetEWeaponmovement(eweapon, const int, int) has not been declared.
+
+79    fireball=FireEWeapon(EW_FIREBALL, Ghost_X, Ghost_Y, DegtoRad(angle), step, damage, sprite, sound, flags);
+80    if(turnSpeed!=0)
+81        SetEWeaponmovement(fireball, EWM_HOMING, turnSpeed);
+          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '21' (compiled with errors)
 
@@ -189,6 +217,13 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 00076-lights-out/script.zs Line 20 - Error S009: Variable FFCMISC_PUZZLECHECK has not been declared.
+
+18    int on_combo; int off_combo; int on_cset; int off_cset;
+19    if (state) { // ON
+20        this->Misc[FFCMISC_PUZZLECHECK] = 1;
+                     ^~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '9' (compiled with errors)
 
@@ -197,6 +232,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 00087-tree-layers/script.zs Line 23 - Error S004: Function GetLayerComboC was already declared with that type signature.
+
+21    
+22    
+23    int GetLayerComboC(int layer, int cpos){
+          ^~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '4' (compiled with errors)
 
@@ -205,6 +247,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 00089-real-dungeon-map/script.zs Line 21 - Error S006: Duplicate script with name Slot_2 already exists.
+
+19    
+20    //If one of your dungeons uses 2 dmaps (for instance for a boss-battles), use this script:
+21    global script Slot_2{
+                    ^~~~~~
+
+
 Failure!
 Compile finished with exit code '6' (compiled with errors)
 
@@ -213,6 +262,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 00094-water-air-counter/script.zs Line 3 - Error S008: There is already a variable with name SCREEN_W in this scope.
+
+1    import "std.zh"
+2    
+3    const int SCREEN_W = 320;
+               ^~~~~~~~
+
+
 Failure!
 Compile finished with exit code '8' (compiled with errors)
 
@@ -220,7 +276,14 @@ Compile finished with exit code '8' (compiled with errors)
 Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected RPAREN [00096-shallow-water-splash-and-tall-grass-sfx/script.zs Line 16 Column 5 ')']
-.tmp/test_zscript_database/00096-shallow-water-splash-and-tall-grass-sfx/script.zs Line 5 - Error P001: Included file '00096-shallow-water-splash-and-tall-grass-sfx/script.zs' encountered an error.
+.tmp/test_zscript_database/00096-shallow-water-splash-and-tall-grass-sfx/script.zs Line 6 - Error P001: Included file '00096-shallow-water-splash-and-tall-grass-sfx/script.zs' encountered an error.
+
+4    
+5    #include "std.zh"
+6    #include "00096-shallow-water-splash-and-tall-grass-sfx/script.zs"
+     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -229,6 +292,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 00121-stdextra-zh/script.zs Line 16 - Error S008: There is already a variable with name COLOR_WHITE in this scope.
+
+14    
+15    //Text colors
+16    const int COLOR_WHITE        = 1;
+                ^~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '8' (compiled with errors)
 
@@ -237,6 +307,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 00121-stdextra-zh/stdExtra.zh Line 19 - Error S008: There is already a variable with name COLOR_WHITE in this scope.
+
+17    
+18    //Text colors
+19    const int COLOR_WHITE        = 1;
+                ^~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '8' (compiled with errors)
 
@@ -244,7 +321,14 @@ Compile finished with exit code '8' (compiled with errors)
 Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected REPEAT, expecting EMPTYBRACKETS or IDENTIFIER [00132-automated-weapon-or-item-auto-fire/AutoFire_v2.1.z Line 100 Column 21 'repeat']
-.tmp/test_zscript_database/00132-automated-weapon-or-item-auto-fire/AutoFire_v2.1.z Line 5 - Error P001: Included file '00132-automated-weapon-or-item-auto-fire/AutoFire_v2.1.z' encountered an error.
+.tmp/test_zscript_database/00132-automated-weapon-or-item-auto-fire/AutoFire_v2.1.z Line 6 - Error P001: Included file '00132-automated-weapon-or-item-auto-fire/AutoFire_v2.1.z' encountered an error.
+
+4    
+5    #include "std.zh"
+6    #include "00132-automated-weapon-or-item-auto-fire/AutoFire_v2.1.z"
+     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -254,6 +338,13 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 00156-jump-drown-spawn/merge jumppit.z Line 27 - Error T021: Function Update_HoleLava(int, int, int, int, int) has not been declared.
+
+25    
+26             if(Link->Action != LA_SCROLLING){
+27                Update_HoleLava(startx, starty, olddmap, oldscreen, startdir);
+                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '21' (compiled with errors)
 
@@ -263,6 +354,13 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 00170-the-river-of-destiny-custom-maps/MapGlobal.z Line 27 - Error T021: Function InitializeSList() has not been declared.
+
+25    //If this is the first time the game is run, the functions below in brackets are called.
+26    {
+27        InitializeSList();
+          ^~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '21' (compiled with errors)
 
@@ -270,7 +368,21 @@ Compile finished with exit code '21' (compiled with errors)
 Pass 1: Parsing
 Pass 2: Preprocessing
 00170-the-river-of-destiny-custom-maps/MapImport.z Line 7 - Error P083: Could not find included file 'MapHeader.zh'. Please check your include paths!
+
+5    
+6    import "std.zh"
+7    import "MapHeader.zh"
+     ^~~~~~~~~~~~~~~~~~~~
+
+
 00170-the-river-of-destiny-custom-maps/MapImport.z Line 8 - Error P083: Could not find included file 'MapGlobal.z'. Please check your include paths!
+
+6    import "std.zh"
+7    import "MapHeader.zh"
+8    import "MapGlobal.z"
+     ^~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -278,19 +390,117 @@ Compile finished with exit code '-1' (compiled with warnings)
 Pass 1: Parsing
 Pass 2: Preprocessing
 00175-scripted-traps/script.zs Line 332 - Error P083: Could not find included file 'ghost_zh/common.z'. Please check your include paths!
+
+330    
+331    
+332    import "ghost_zh/common.z"
+       ^~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 00175-scripted-traps/script.zs Line 333 - Error P083: Could not find included file 'ghost_zh/depreciated.z'. Please check your include paths!
+
+331    
+332    import "ghost_zh/common.z"
+333    import "ghost_zh/depreciated.z"
+       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 00175-scripted-traps/script.zs Line 334 - Error P083: Could not find included file 'ghost_zh/drawing.z'. Please check your include paths!
+
+332    import "ghost_zh/common.z"
+333    import "ghost_zh/depreciated.z"
+334    import "ghost_zh/drawing.z"
+       ^~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 00175-scripted-traps/script.zs Line 335 - Error P083: Could not find included file 'ghost_zh/eweapon.z'. Please check your include paths!
+
+333    import "ghost_zh/depreciated.z"
+334    import "ghost_zh/drawing.z"
+335    import "ghost_zh/eweapon.z"
+       ^~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 00175-scripted-traps/script.zs Line 336 - Error P083: Could not find included file 'ghost_zh/eweaponDeath.z'. Please check your include paths!
+
+334    import "ghost_zh/drawing.z"
+335    import "ghost_zh/eweapon.z"
+336    import "ghost_zh/eweaponDeath.z"
+       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 00175-scripted-traps/script.zs Line 337 - Error P083: Could not find included file 'ghost_zh/eweaponMovement.z'. Please check your include paths!
+
+335    import "ghost_zh/eweapon.z"
+336    import "ghost_zh/eweaponDeath.z"
+337    import "ghost_zh/eweaponMovement.z"
+       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 00175-scripted-traps/script.zs Line 338 - Error P083: Could not find included file 'ghost_zh/flags.z'. Please check your include paths!
+
+336    import "ghost_zh/eweaponDeath.z"
+337    import "ghost_zh/eweaponMovement.z"
+338    import "ghost_zh/flags.z"
+       ^~~~~~~~~~~~~~~~~~~~~~~~
+
+
 00175-scripted-traps/script.zs Line 339 - Error P083: Could not find included file 'ghost_zh/global.z'. Please check your include paths!
+
+337    import "ghost_zh/eweaponMovement.z"
+338    import "ghost_zh/flags.z"
+339    import "ghost_zh/global.z"
+       ^~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 00175-scripted-traps/script.zs Line 340 - Error P083: Could not find included file 'ghost_zh/init.z'. Please check your include paths!
+
+338    import "ghost_zh/flags.z"
+339    import "ghost_zh/global.z"
+340    import "ghost_zh/init.z"
+       ^~~~~~~~~~~~~~~~~~~~~~~
+
+
 00175-scripted-traps/script.zs Line 341 - Error P083: Could not find included file 'ghost_zh/modification.z'. Please check your include paths!
+
+339    import "ghost_zh/global.z"
+340    import "ghost_zh/init.z"
+341    import "ghost_zh/modification.z"
+       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 00175-scripted-traps/script.zs Line 342 - Error P083: Could not find included file 'ghost_zh/movement.z'. Please check your include paths!
+
+340    import "ghost_zh/init.z"
+341    import "ghost_zh/modification.z"
+342    import "ghost_zh/movement.z"
+       ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 00175-scripted-traps/script.zs Line 343 - Error P083: Could not find included file 'ghost_zh/other.z'. Please check your include paths!
+
+341    import "ghost_zh/modification.z"
+342    import "ghost_zh/movement.z"
+343    import "ghost_zh/other.z"
+       ^~~~~~~~~~~~~~~~~~~~~~~~
+
+
 00175-scripted-traps/script.zs Line 344 - Error P083: Could not find included file 'ghost_zh/update.z'. Please check your include paths!
+
+342    import "ghost_zh/movement.z"
+343    import "ghost_zh/other.z"
+344    import "ghost_zh/update.z"
+       ^~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 00175-scripted-traps/script.zs Line 346 - Error P083: Could not find included file 'ghost_zh/scripts.z'. Please check your include paths!
+
+344    import "ghost_zh/update.z"
+345    
+346    import "ghost_zh/scripts.z"
+       ^~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -300,6 +510,13 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 00188-solid-ffc/script.zs Line 58 - Error T021: Function Cond(bool, const ComboType, const int) has not been declared.
+
+56    {
+57        int ct = Screen->ComboT[ComboAt(CenterLinkX(),CenterLinkY())];
+58        return (ct == Cond(CT_LADDER==0,CT_RIGHTSTATUE,CT_LADDER));
+                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '21' (compiled with errors)
 
@@ -308,6 +525,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 00196-links-awakening-alpha/LinksAwakening_0.63_Dist.z Line 1518 - Error S008: There is already a variable with name FFCS_INVISIBLE_COMBO in this scope.
+
+1516    // Combo to be used for generic script vehicle FFCs. This should be
+1517    // an invisible combo with no type or flag. It cannot be combo 0.
+1518    const int FFCS_INVISIBLE_COMBO = 735;
+                  ^~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '8' (compiled with errors)
 
@@ -316,6 +540,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 00196-links-awakening-alpha/ffcscript_LA.zh Line 6 - Error S008: There is already a variable with name FFCS_INVISIBLE_COMBO in this scope.
+
+4    // Combo to be used for generic script vehicle FFCs. This should be
+5    // an invisible combo with no type or flag. It cannot be combo 0.
+6    const int FFCS_INVISIBLE_COMBO = 735;
+               ^~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '8' (compiled with errors)
 
@@ -324,6 +555,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 00196-links-awakening-alpha/stdExtra.zh Line 15 - Error S008: There is already a variable with name COLOR_WHITE in this scope.
+
+13    
+14    //Text colors
+15    const int COLOR_WHITE        = 1;
+                ^~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '8' (compiled with errors)
 
@@ -331,6 +569,12 @@ Compile finished with exit code '8' (compiled with errors)
 Pass 1: Parsing
 Pass 2: Preprocessing
 00215-pot-script/script.zs Line 2 - Error P083: Could not find included file 'screen_change.zh'. Please check your include paths!
+
+1    import "std.zh"
+2    import "screen_change.zh"
+     ^~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -338,7 +582,14 @@ Compile finished with exit code '-1' (compiled with warnings)
 Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected LBRACE, expecting RPAREN [00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects.zh Line 162 Column 65 '{']
-.tmp/test_zscript_database/00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects.zh Line 6 - Error P001: Included file '00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects.zh' encountered an error.
+.tmp/test_zscript_database/00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects.zh Line 7 - Error P001: Included file '00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects.zh' encountered an error.
+
+5    #include "std.zh"
+6    #include "ghost.zh"
+7    #include "00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects.zh"
+     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -346,7 +597,14 @@ Compile finished with exit code '-1' (compiled with warnings)
 Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected LBRACE, expecting RPAREN [00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects_v1.1.zh Line 129 Column 65 '{']
-.tmp/test_zscript_database/00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects_v1.1.zh Line 6 - Error P001: Included file '00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects_v1.1.zh' encountered an error.
+.tmp/test_zscript_database/00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects_v1.1.zh Line 7 - Error P001: Included file '00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects_v1.1.zh' encountered an error.
+
+5    #include "std.zh"
+6    #include "ghost.zh"
+7    #include "00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects_v1.1.zh"
+     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -354,7 +612,14 @@ Compile finished with exit code '-1' (compiled with warnings)
 Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected LBRACE, expecting RPAREN [00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects_v1.2.zh Line 162 Column 65 '{']
-.tmp/test_zscript_database/00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects_v1.2.zh Line 6 - Error P001: Included file '00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects_v1.2.zh' encountered an error.
+.tmp/test_zscript_database/00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects_v1.2.zh Line 7 - Error P001: Included file '00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects_v1.2.zh' encountered an error.
+
+5    #include "std.zh"
+6    #include "ghost.zh"
+7    #include "00228-hurteffects-zh-link-knockback-sound-etc/HurtEffects_v1.2.zh"
+     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -363,6 +628,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 00234-zversion-zh-zcversion-zh/ZCVersion.zh Line 57 - Error S004: Function InvertedCircle was already declared with that type signature.
+
+55    //Replacement for InvertedCircle() in stdExtra.zh, that is compliant with this header. 
+56    //Draw an inverted circle (fill whole screen except circle)
+57    void InvertedCircle(int bitmapID, int layer, int x, int y, int radius, int scale, int fillcolor){
+           ^~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '4' (compiled with errors)
 
@@ -371,8 +643,22 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+
+84    import "stdWeapons/stdWeaponsParticles.zh"
+85    import "stdWeapons/stdWeaponsMelee.zh"
+86    import "stdWeapons/update.zh"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+
+84    import "stdWeapons/stdWeaponsParticles.zh"
+85    import "stdWeapons/stdWeaponsMelee.zh"
+86    import "stdWeapons/update.zh"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -381,6 +667,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+
+84    import "stdWeapons/stdWeaponsParticles.zh"
+85    import "stdWeapons/stdWeaponsMelee.zh"
+86    import "stdWeapons/update.zh"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -389,6 +682,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+
+84    import "stdWeapons/stdWeaponsParticles.zh"
+85    import "stdWeapons/stdWeaponsMelee.zh"
+86    import "stdWeapons/update.zh"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -397,6 +697,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+
+84    import "stdWeapons/stdWeaponsParticles.zh"
+85    import "stdWeapons/stdWeaponsMelee.zh"
+86    import "stdWeapons/update.zh"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -405,6 +712,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+
+84    import "stdWeapons/stdWeaponsParticles.zh"
+85    import "stdWeapons/stdWeaponsMelee.zh"
+86    import "stdWeapons/update.zh"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -413,6 +727,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+
+84    import "stdWeapons/stdWeaponsParticles.zh"
+85    import "stdWeapons/stdWeaponsMelee.zh"
+86    import "stdWeapons/update.zh"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -421,6 +742,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+
+84    import "stdWeapons/stdWeaponsParticles.zh"
+85    import "stdWeapons/stdWeaponsMelee.zh"
+86    import "stdWeapons/update.zh"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -429,6 +757,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+
+84    import "stdWeapons/stdWeaponsParticles.zh"
+85    import "stdWeapons/stdWeaponsMelee.zh"
+86    import "stdWeapons/update.zh"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -437,6 +772,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+
+84    import "stdWeapons/stdWeaponsParticles.zh"
+85    import "stdWeapons/stdWeaponsMelee.zh"
+86    import "stdWeapons/update.zh"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -445,6 +787,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+
+84    import "stdWeapons/stdWeaponsParticles.zh"
+85    import "stdWeapons/stdWeaponsMelee.zh"
+86    import "stdWeapons/update.zh"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -453,6 +802,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+
+84    import "stdWeapons/stdWeaponsParticles.zh"
+85    import "stdWeapons/stdWeaponsMelee.zh"
+86    import "stdWeapons/update.zh"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -461,6 +817,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+
+84    import "stdWeapons/stdWeaponsParticles.zh"
+85    import "stdWeapons/stdWeaponsMelee.zh"
+86    import "stdWeapons/update.zh"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -469,6 +832,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+
+84    import "stdWeapons/stdWeaponsParticles.zh"
+85    import "stdWeapons/stdWeaponsMelee.zh"
+86    import "stdWeapons/update.zh"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -477,6 +847,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+
+84    import "stdWeapons/stdWeaponsParticles.zh"
+85    import "stdWeapons/stdWeaponsMelee.zh"
+86    import "stdWeapons/update.zh"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -485,6 +862,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+
+84    import "stdWeapons/stdWeaponsParticles.zh"
+85    import "stdWeapons/stdWeaponsMelee.zh"
+86    import "stdWeapons/update.zh"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -493,6 +877,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+
+84    import "stdWeapons/stdWeaponsParticles.zh"
+85    import "stdWeapons/stdWeaponsMelee.zh"
+86    import "stdWeapons/update.zh"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -501,6 +892,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+
+84    import "stdWeapons/stdWeaponsParticles.zh"
+85    import "stdWeapons/stdWeaponsMelee.zh"
+86    import "stdWeapons/update.zh"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -509,6 +907,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+
+84    import "stdWeapons/stdWeaponsParticles.zh"
+85    import "stdWeapons/stdWeaponsMelee.zh"
+86    import "stdWeapons/update.zh"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -517,6 +922,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+
+84    import "stdWeapons/stdWeaponsParticles.zh"
+85    import "stdWeapons/stdWeaponsMelee.zh"
+86    import "stdWeapons/update.zh"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -525,6 +937,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+
+84    import "stdWeapons/stdWeaponsParticles.zh"
+85    import "stdWeapons/stdWeaponsMelee.zh"
+86    import "stdWeapons/update.zh"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -533,6 +952,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+
+84    import "stdWeapons/stdWeaponsParticles.zh"
+85    import "stdWeapons/stdWeaponsMelee.zh"
+86    import "stdWeapons/update.zh"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -541,6 +967,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+
+84    import "stdWeapons/stdWeaponsParticles.zh"
+85    import "stdWeapons/stdWeaponsMelee.zh"
+86    import "stdWeapons/update.zh"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -549,6 +982,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+
+84    import "stdWeapons/stdWeaponsParticles.zh"
+85    import "stdWeapons/stdWeaponsMelee.zh"
+86    import "stdWeapons/update.zh"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -557,6 +997,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+
+84    import "stdWeapons/stdWeaponsParticles.zh"
+85    import "stdWeapons/stdWeaponsMelee.zh"
+86    import "stdWeapons/update.zh"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -565,6 +1012,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+
+84    import "stdWeapons/stdWeaponsParticles.zh"
+85    import "stdWeapons/stdWeaponsMelee.zh"
+86    import "stdWeapons/update.zh"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -573,6 +1027,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+
+84    import "stdWeapons/stdWeaponsParticles.zh"
+85    import "stdWeapons/stdWeaponsMelee.zh"
+86    import "stdWeapons/update.zh"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -581,6 +1042,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+
+84    import "stdWeapons/stdWeaponsParticles.zh"
+85    import "stdWeapons/stdWeaponsMelee.zh"
+86    import "stdWeapons/update.zh"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -589,6 +1057,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+
+84    import "stdWeapons/stdWeaponsParticles.zh"
+85    import "stdWeapons/stdWeaponsMelee.zh"
+86    import "stdWeapons/update.zh"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -597,6 +1072,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+
+84    import "stdWeapons/stdWeaponsParticles.zh"
+85    import "stdWeapons/stdWeaponsMelee.zh"
+86    import "stdWeapons/update.zh"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -605,6 +1087,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+
+84    import "stdWeapons/stdWeaponsParticles.zh"
+85    import "stdWeapons/stdWeaponsMelee.zh"
+86    import "stdWeapons/update.zh"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -613,6 +1102,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+
+84    import "stdWeapons/stdWeaponsParticles.zh"
+85    import "stdWeapons/stdWeaponsMelee.zh"
+86    import "stdWeapons/update.zh"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -621,8 +1117,22 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+
+84    import "stdWeapons/stdWeaponsParticles.zh"
+85    import "stdWeapons/stdWeaponsMelee.zh"
+86    import "stdWeapons/update.zh"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
-.tmp/test_zscript_database/00235-stdweapons-zh/stdWeapons/update.zh Line 12 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+.tmp/test_zscript_database/00235-stdweapons-zh/stdWeapons/update.zh Line 13 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+
+11    #include "00235-stdweapons-zh/stdWeapons.zh"
+12    #include "00415-grayswandir-sideview-engine/GSD_sideview/GSD_sideview.z"
+13    #include "00235-stdweapons-zh/stdWeapons/update.zh"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -631,6 +1141,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 00236-empty-bottles/script.zs Line 33 - Error S008: There is already a variable with name IC_BOTTLE in this scope.
+
+31    const int SFX_FAIRY = 64; //Sound that plays when a fairy appears
+32    
+33    const int IC_BOTTLE = 67; //Item class used for bottles. Custom 1 by default.
+                ^~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '8' (compiled with errors)
 
@@ -640,6 +1157,13 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 00238-splitting-and-tribbling-enemies/script.zs Line 458 - Error T027: The left of the -> is not a pointer type (ffc, etc).
+
+456    if ( n[0]->HP < 1 && n[0]->HP > -9999 && n[0]->X != -32768 && n[0]->Y != -32768 ) {
+457        
+458        a[3] = n->X; //Store its position, so that we know where to spawn its splits.
+                  ^~~~
+
+
 Failure!
 Compile finished with exit code '27' (compiled with errors)
 
@@ -649,6 +1173,13 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 00238-splitting-and-tribbling-enemies/splitter_0.9.0.z Line 458 - Error T027: The left of the -> is not a pointer type (ffc, etc).
+
+456    if ( n[0]->HP < 1 && n[0]->HP > -9999 && n[0]->X != -32768 && n[0]->Y != -32768 ) {
+457        
+458        a[3] = n->X; //Store its position, so that we know where to spawn its splits.
+                  ^~~~
+
+
 Failure!
 Compile finished with exit code '27' (compiled with errors)
 
@@ -656,7 +1187,14 @@ Compile finished with exit code '27' (compiled with errors)
 Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected LBRACE, expecting RPAREN [00238-splitting-and-tribbling-enemies/splitter_v0.6.2.z Line 88 Column 47 '{']
-.tmp/test_zscript_database/00238-splitting-and-tribbling-enemies/splitter_v0.6.2.z Line 5 - Error P001: Included file '00238-splitting-and-tribbling-enemies/splitter_v0.6.2.z' encountered an error.
+.tmp/test_zscript_database/00238-splitting-and-tribbling-enemies/splitter_v0.6.2.z Line 6 - Error P001: Included file '00238-splitting-and-tribbling-enemies/splitter_v0.6.2.z' encountered an error.
+
+4    
+5    #include "std.zh"
+6    #include "00238-splitting-and-tribbling-enemies/splitter_v0.6.2.z"
+     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -665,6 +1203,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 00245-ffcscript-zh/ffcscript.zh Line 6 - Error S008: There is already a variable with name FFCS_INVISIBLE_COMBO in this scope.
+
+4    // Combo to be used for generic script vehicle FFCs. This should be
+5    // an invisible combo with no type or flag. It cannot be combo 0.
+6    const int FFCS_INVISIBLE_COMBO = 1;
+               ^~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '8' (compiled with errors)
 
@@ -674,6 +1219,13 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 resources/headers/ghost_zh/2.8/ghost2_global.zh Line 265 - Error S009: Variable __GH_ETHEREAL has not been declared.
+
+263    f->Script = scriptNum;
+264    f->InitD[0] = enemy->ID;
+265    if (__GH_ETHEREAL )
+           ^~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '9' (compiled with errors)
 
@@ -683,6 +1235,13 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 resources/headers/ghost_zh/2.8/ghost2_global.zh Line 265 - Error S009: Variable __GH_ETHEREAL has not been declared.
+
+263    f->Script = scriptNum;
+264    f->InitD[0] = enemy->ID;
+265    if (__GH_ETHEREAL )
+           ^~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '9' (compiled with errors)
 
@@ -692,6 +1251,13 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 resources/headers/ghost_zh/2.8/ghost2_global.zh Line 265 - Error S009: Variable __GH_ETHEREAL has not been declared.
+
+263    f->Script = scriptNum;
+264    f->InitD[0] = enemy->ID;
+265    if (__GH_ETHEREAL )
+           ^~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '9' (compiled with errors)
 
@@ -701,6 +1267,13 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 resources/headers/ghost_zh/2.8/ghost2_global.zh Line 265 - Error S009: Variable __GH_ETHEREAL has not been declared.
+
+263    f->Script = scriptNum;
+264    f->InitD[0] = enemy->ID;
+265    if (__GH_ETHEREAL )
+           ^~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '9' (compiled with errors)
 
@@ -710,6 +1283,13 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 resources/headers/ghost_zh/2.8/ghost2_global.zh Line 265 - Error S009: Variable __GH_ETHEREAL has not been declared.
+
+263    f->Script = scriptNum;
+264    f->InitD[0] = enemy->ID;
+265    if (__GH_ETHEREAL )
+           ^~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '9' (compiled with errors)
 
@@ -719,6 +1299,13 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 resources/headers/ghost_zh/2.8/ghost2_global.zh Line 265 - Error S009: Variable __GH_ETHEREAL has not been declared.
+
+263    f->Script = scriptNum;
+264    f->InitD[0] = enemy->ID;
+265    if (__GH_ETHEREAL )
+           ^~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '9' (compiled with errors)
 
@@ -728,6 +1315,13 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 resources/headers/ghost_zh/2.8/ghost2_global.zh Line 265 - Error S009: Variable __GH_ETHEREAL has not been declared.
+
+263    f->Script = scriptNum;
+264    f->InitD[0] = enemy->ID;
+265    if (__GH_ETHEREAL )
+           ^~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '9' (compiled with errors)
 
@@ -737,6 +1331,13 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 resources/headers/ghost_zh/2.8/ghost2_global.zh Line 265 - Error S009: Variable __GH_ETHEREAL has not been declared.
+
+263    f->Script = scriptNum;
+264    f->InitD[0] = enemy->ID;
+265    if (__GH_ETHEREAL )
+           ^~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '9' (compiled with errors)
 
@@ -746,6 +1347,13 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 resources/headers/ghost_zh/2.8/ghost2_global.zh Line 265 - Error S009: Variable __GH_ETHEREAL has not been declared.
+
+263    f->Script = scriptNum;
+264    f->InitD[0] = enemy->ID;
+265    if (__GH_ETHEREAL )
+           ^~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '9' (compiled with errors)
 
@@ -754,6 +1362,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 00246-ghost-zh/header/ghost_zh/2.8/ghost2_common.zh Line 5 - Error S008: There is already a variable with name __GHI_DRAW_COMBO in this scope.
+
+3    
+4    // Used for DrawGhostFFCs()
+5    const int __GHI_DRAW_COMBO      = 0;
+               ^~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '8' (compiled with errors)
 
@@ -762,6 +1377,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 00246-ghost-zh/header/ghost_zh/2.8/ghost2_deprecated.zh Line 7 - Error S008: There is already a variable with name EWM_SINE_WAVE_FAST in this scope.
+
+5    // compatibility. They should not be used in new scripts.
+6    
+7    const int EWM_SINE_WAVE_FAST    = 2;
+               ^~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '8' (compiled with errors)
 
@@ -770,6 +1392,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 00246-ghost-zh/header/ghost_zh/2.8/ghost2_drawing.zh Line 4 - Error S008: There is already a variable with name __ghzhDrawData in this scope.
+
+2    // Version 2.8.6
+3    
+4    int __ghzhDrawData[1000];
+         ^~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '8' (compiled with errors)
 
@@ -778,6 +1407,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 00246-ghost-zh/header/ghost_zh/2.8/ghost2_eweapon.zh Line 5 - Error S008: There is already a variable with name EWM_SINE_WAVE in this scope.
+
+3    
+4    // Arguments to SetEWeaponMovement()
+5    const int EWM_SINE_WAVE         = 1;
+               ^~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '8' (compiled with errors)
 
@@ -786,6 +1422,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 00246-ghost-zh/header/ghost_zh/2.8/ghost2_eweaponDeath.zh Line 6 - Error S004: Function __DoEWeaponDeathPrototype was already declared with that type signature.
+
+4    // All the EWeapon death effect functions are in this file.
+5    
+6    void __DoEWeaponDeathPrototype(eweapon wpn)
+          ^~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '4' (compiled with errors)
 
@@ -794,6 +1437,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 00246-ghost-zh/header/ghost_zh/2.8/ghost2_eweaponMovement.zh Line 6 - Error S004: Function __UpdateEWMSineWave was already declared with that type signature.
+
+4    // All the EWeapon movement update functions are in this file.
+5    
+6    void __UpdateEWMSineWave(eweapon wpn)
+          ^~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '4' (compiled with errors)
 
@@ -802,6 +1452,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 00246-ghost-zh/header/ghost_zh/2.8/ghost2_eweapon_death.zh Line 6 - Error S004: Function __DoEWeaponDeathPrototype was already declared with that type signature.
+
+4    // All the EWeapon death effect functions are in this file.
+5    
+6    void __DoEWeaponDeathPrototype(eweapon wpn)
+          ^~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '4' (compiled with errors)
 
@@ -810,6 +1467,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 00246-ghost-zh/header/ghost_zh/2.8/ghost2_eweapon_movement.zh Line 6 - Error S004: Function __UpdateEWMSineWave was already declared with that type signature.
+
+4    // All the EWeapon movement update functions are in this file.
+5    
+6    void __UpdateEWMSineWave(eweapon wpn)
+          ^~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '4' (compiled with errors)
 
@@ -818,6 +1482,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 00246-ghost-zh/header/ghost_zh/2.8/ghost2_flags.zh Line 5 - Error S008: There is already a variable with name GHF_KNOCKBACK in this scope.
+
+3    
+4    // Old flags - 16 bits, can be ORed together
+5    const int GHF_KNOCKBACK          = 0000000000000001b;
+               ^~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '8' (compiled with errors)
 
@@ -826,6 +1497,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 00246-ghost-zh/header/ghost_zh/2.8/ghost2_global.zh Line 4 - Error S004: Function StartGhostZH was already declared with that type signature.
+
+2    // Version 2.8.6
+3    
+4    void StartGhostZH()
+          ^~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '4' (compiled with errors)
 
@@ -834,6 +1512,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 00246-ghost-zh/header/ghost_zh/2.8/ghost2_init.zh Line 5 - Error S004: Function Ghost_Init was already declared with that type signature.
+
+3    
+4    
+5    void Ghost_Init(ffc this, npc ghost)
+          ^~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '4' (compiled with errors)
 
@@ -842,6 +1527,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 00246-ghost-zh/header/ghost_zh/2.8/ghost2_modification.zh Line 5 - Error S004: Function Ghost_Transform was already declared with that type signature.
+
+3    
+4    
+5    void Ghost_Transform(ffc this, npc ghost, int combo, int cset, int tileWidth, int tileHeight)
+          ^~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '4' (compiled with errors)
 
@@ -850,6 +1542,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 00246-ghost-zh/header/ghost_zh/2.8/ghost2_movement.zh Line 5 - Error S004: Function Ghost_MoveXY was already declared with that type signature.
+
+3    
+4    
+5    void Ghost_MoveXY(float xStep, float yStep, int imprecision)
+          ^~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '4' (compiled with errors)
 
@@ -858,6 +1557,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 00246-ghost-zh/header/ghost_zh/2.8/ghost2_other.zh Line 5 - Error S004: Function FindSpawnPoint was already declared with that type signature.
+
+3    
+4    
+5    int FindSpawnPoint(bool landOK, bool wallsOK, bool waterOK, bool pitsOK)
+         ^~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '4' (compiled with errors)
 
@@ -866,6 +1572,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 00246-ghost-zh/header/ghost_zh/2.8/ghost2_scripts.zh Line 5 - Error S006: Duplicate script with name GhostZHActiveScript already exists.
+
+3    
+4    
+5    global script GhostZHActiveScript
+                   ^~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '6' (compiled with errors)
 
@@ -874,6 +1587,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 00246-ghost-zh/header/ghost_zh/2.8/ghost2_scripts.zs Line 5 - Error S006: Duplicate script with name GhostZHActiveScript already exists.
+
+3    
+4    
+5    global script GhostZHActiveScript
+                   ^~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '6' (compiled with errors)
 
@@ -882,6 +1602,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 00246-ghost-zh/header/ghost_zh/2.8/ghost2_update.zh Line 5 - Error S004: Function Ghost_Waitframe was already declared with that type signature.
+
+3    
+4    
+5    bool Ghost_Waitframe(ffc this, npc ghost, bool clearOnDeath, bool quitOnDeath)
+          ^~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '4' (compiled with errors)
 
@@ -891,6 +1618,13 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 00252-monty-hall-minigame/script.zs Line 38 - Error T021: Function LinkComboStepped(int, int, bool, int) has not been declared.
+
+36    else if (phase == 1){//Game started, all 3 chests are closed.            
+37        for (int i=0; i<=2; i++){
+38            if (LinkComboStepped(cmb_step[i], 1, false, -1)) step=i;
+                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '21' (compiled with errors)
 
@@ -900,6 +1634,13 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 00254-zelda-style-chest-minigame/ChestGame/FFC_ChestGame_v0.4.4.zs Line 254 - Error S009: Variable CMB_LEFT has not been declared.
+
+252    if ( cmb < 0x10 ) combooffsets[11] = 1; //if it's the top row
+253    if ( cmb > 0x9F ) combooffsets[12] = 1; //if it's on the bottom row
+254    if ( combooffsets[9] && ( dir == CMB_LEFT || dir == CMB_UPLEFT || dir == CMB_DOWNLEFT || dir == CMB_LEFTUP ) ) return 0; //if the left columb
+                                        ^~~~~~~~
+
+
 Failure!
 Compile finished with exit code '9' (compiled with errors)
 
@@ -908,7 +1649,14 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 The 'try' keyword is reserved and may not be used as an identifier.
 syntax error, unexpected end of file, expecting EMPTYBRACKETS or IDENTIFIER [00255-swindle-haggle/script.zs Line 66 Column 7 'try']
-.tmp/test_zscript_database/00255-swindle-haggle/script.zs Line 5 - Error P001: Included file '00255-swindle-haggle/script.zs' encountered an error.
+.tmp/test_zscript_database/00255-swindle-haggle/script.zs Line 6 - Error P001: Included file '00255-swindle-haggle/script.zs' encountered an error.
+
+4    
+5    #include "std.zh"
+6    #include "00255-swindle-haggle/script.zs"
+     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -917,6 +1665,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 00266-advanced-gameboy-style-shields/script.zs Line 891 - Error S004: Function reverseDir was already declared with that type signature.
+
+889    //Returns the reverse of the given direction.
+890    
+891    int reverseDir(int dir)
+           ^~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '4' (compiled with errors)
 
@@ -926,6 +1681,13 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 00282-oracle-minecarts/script.zs Line 72 - Error T021: Function ScrollingLinkX() has not been declared.
+
+70    if(Link->Action==LA_SCROLLING){
+71        GBCart[GBC_ACTIVEFFC] = -1;
+72        Minecart_Draw(ScrollingLinkX(), ScrollingLinkY(), GBCart[GBC_DIR], true);
+                        ^~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '21' (compiled with errors)
 
@@ -935,6 +1697,13 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 00296-moosh-npc-dialogue-branch-add-on/DialogueBranch.zs Line 15 - Error T021: Function String_Cap(int[]) has not been declared.
+
+13    if(op1>0){
+14        Game->GetMessage(op1, op1s);
+15        String_Cap(op1s);
+          ^~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '21' (compiled with errors)
 
@@ -944,269 +1713,2117 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 00310-newbie-item/script.zs Line 966 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+964    }
+965    int MooshItem_AddLWeapon(int vars, lweapon lgroup, lweapon l, int type, int angle, int flags){
+966        int lTimer = vars[1];
+                        ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 967 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+965    int MooshItem_AddLWeapon(int vars, lweapon lgroup, lweapon l, int type, int angle, int flags){
+966        int lTimer = vars[1];
+967        int lTile = vars[2];
+                       ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 968 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+966    int lTimer = vars[1];
+967    int lTile = vars[2];
+968    int lAng = vars[3];
+                  ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 969 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+967    int lTile = vars[2];
+968    int lAng = vars[3];
+969    int lType = vars[4];
+                   ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 970 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+968    int lAng = vars[3];
+969    int lType = vars[4];
+970    int lMisc1 = vars[5];
+                    ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 971 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+969    int lType = vars[4];
+970    int lMisc1 = vars[5];
+971    int lMisc2 = vars[6];
+                    ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 972 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+970    int lMisc1 = vars[5];
+971    int lMisc2 = vars[6];
+972    int lDecay = vars[7];
+                    ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 973 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+971    int lMisc2 = vars[6];
+972    int lDecay = vars[7];
+973    int lFlags = vars[8];
+                    ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 974 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+972    int lDecay = vars[7];
+973    int lFlags = vars[8];
+974    int lACounter = vars[9];
+                       ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 975 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+973    int lFlags = vars[8];
+974    int lACounter = vars[9];
+975    int lNumFrames = vars[10];
+                        ^~~~~~~~
+
+
 00310-newbie-item/script.zs Line 976 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+974    int lACounter = vars[9];
+975    int lNumFrames = vars[10];
+976    int lASpeed = vars[11];
+                     ^~~~~~~~
+
+
 00310-newbie-item/script.zs Line 977 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+975    int lNumFrames = vars[10];
+976    int lASpeed = vars[11];
+977    int lLastX = vars[13];
+                    ^~~~~~~~
+
+
 00310-newbie-item/script.zs Line 978 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+976    int lASpeed = vars[11];
+977    int lLastX = vars[13];
+978    int lLastY = vars[14];
+                    ^~~~~~~~
+
+
 00310-newbie-item/script.zs Line 981 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+979    
+980    //All weapons are added at the end of the active part of the array
+981    lgroup[vars[0]] = l;
+       ^~~~~~~~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 981 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+979    
+980    //All weapons are added at the end of the active part of the array
+981    lgroup[vars[0]] = l;
+              ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 982 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+980    //All weapons are added at the end of the active part of the array
+981    lgroup[vars[0]] = l;
+982    lTimer[vars[0]] = 0;
+       ^~~~~~~~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 982 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+980    //All weapons are added at the end of the active part of the array
+981    lgroup[vars[0]] = l;
+982    lTimer[vars[0]] = 0;
+              ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 983 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+981    lgroup[vars[0]] = l;
+982    lTimer[vars[0]] = 0;
+983    lTile[vars[0]] = l->OriginalTile;
+       ^~~~~~~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 983 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+981    lgroup[vars[0]] = l;
+982    lTimer[vars[0]] = 0;
+983    lTile[vars[0]] = l->OriginalTile;
+             ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 984 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+982    lTimer[vars[0]] = 0;
+983    lTile[vars[0]] = l->OriginalTile;
+984    lAng[vars[0]] = angle;
+       ^~~~~~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 984 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+982    lTimer[vars[0]] = 0;
+983    lTile[vars[0]] = l->OriginalTile;
+984    lAng[vars[0]] = angle;
+            ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 985 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+983    lTile[vars[0]] = l->OriginalTile;
+984    lAng[vars[0]] = angle;
+985    lType[vars[0]] = type;
+       ^~~~~~~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 985 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+983    lTile[vars[0]] = l->OriginalTile;
+984    lAng[vars[0]] = angle;
+985    lType[vars[0]] = type;
+             ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 986 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+984    lAng[vars[0]] = angle;
+985    lType[vars[0]] = type;
+986    lMisc1[vars[0]] = 0;
+       ^~~~~~~~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 986 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+984    lAng[vars[0]] = angle;
+985    lType[vars[0]] = type;
+986    lMisc1[vars[0]] = 0;
+              ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 987 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+985    lType[vars[0]] = type;
+986    lMisc1[vars[0]] = 0;
+987    lMisc2[vars[0]] = 0;
+       ^~~~~~~~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 987 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+985    lType[vars[0]] = type;
+986    lMisc1[vars[0]] = 0;
+987    lMisc2[vars[0]] = 0;
+              ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 988 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+986    lMisc1[vars[0]] = 0;
+987    lMisc2[vars[0]] = 0;
+988    lDecay[vars[0]] = 0;
+       ^~~~~~~~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 988 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+986    lMisc1[vars[0]] = 0;
+987    lMisc2[vars[0]] = 0;
+988    lDecay[vars[0]] = 0;
+              ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 989 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+987    lMisc2[vars[0]] = 0;
+988    lDecay[vars[0]] = 0;
+989    lFlags[vars[0]] = flags;
+       ^~~~~~~~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 989 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+987    lMisc2[vars[0]] = 0;
+988    lDecay[vars[0]] = 0;
+989    lFlags[vars[0]] = flags;
+              ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 990 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+988    lDecay[vars[0]] = 0;
+989    lFlags[vars[0]] = flags;
+990    lACounter[vars[0]] = 0;
+       ^~~~~~~~~~~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 990 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+988    lDecay[vars[0]] = 0;
+989    lFlags[vars[0]] = flags;
+990    lACounter[vars[0]] = 0;
+                 ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 991 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+989    lFlags[vars[0]] = flags;
+990    lACounter[vars[0]] = 0;
+991    lNumFrames[vars[0]] = Max(l->NumFrames, 1);
+       ^~~~~~~~~~~~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 991 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+989    lFlags[vars[0]] = flags;
+990    lACounter[vars[0]] = 0;
+991    lNumFrames[vars[0]] = Max(l->NumFrames, 1);
+                  ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 992 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+990    lACounter[vars[0]] = 0;
+991    lNumFrames[vars[0]] = Max(l->NumFrames, 1);
+992    lASpeed[vars[0]] = Max(l->ASpeed, 1);
+       ^~~~~~~~~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 992 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+990    lACounter[vars[0]] = 0;
+991    lNumFrames[vars[0]] = Max(l->NumFrames, 1);
+992    lASpeed[vars[0]] = Max(l->ASpeed, 1);
+               ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 993 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+991    lNumFrames[vars[0]] = Max(l->NumFrames, 1);
+992    lASpeed[vars[0]] = Max(l->ASpeed, 1);
+993    lLastX[vars[0]] = l->X;
+       ^~~~~~~~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 993 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+991    lNumFrames[vars[0]] = Max(l->NumFrames, 1);
+992    lASpeed[vars[0]] = Max(l->ASpeed, 1);
+993    lLastX[vars[0]] = l->X;
+              ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 994 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+992    lASpeed[vars[0]] = Max(l->ASpeed, 1);
+993    lLastX[vars[0]] = l->X;
+994    lLastY[vars[0]] = l->Y;
+       ^~~~~~~~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 994 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+992    lASpeed[vars[0]] = Max(l->ASpeed, 1);
+993    lLastX[vars[0]] = l->X;
+994    lLastY[vars[0]] = l->Y;
+              ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 997 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+995    
+996    //Grow the "size" of the "array" to accomodate
+997    vars[0]++;
+       ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 999 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+ 997    vars[0]++;
+ 998    //But the return value is what it used to be
+ 999    return vars[0]-1;
+               ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 1079 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1077    }
+1078    bool MooshItem_CanBlockEWeapon(int vars, int i, eweapon e){
+1079        int lMisc1 = vars[5];
+                         ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 1082 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1080    //This is pretty much just imitating shield block flags
+1081    if(e->ID==EW_ROCK){
+1082        if(lMisc1[i]&1)
+               ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 1086 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1084    }
+1085    else if(e->ID==EW_ARROW){
+1086        if(lMisc1[i]&2)
+               ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 1090 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1088    }
+1089    else if(e->ID==EW_BRANG){
+1090        if(lMisc1[i]&4)
+               ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 1094 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1092    }
+1093    else if(e->ID==EW_FIREBALL){
+1094        if(lMisc1[i]&8)
+               ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 1098 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1096    }
+1097    else if(e->ID==EW_BEAM){
+1098        if(lMisc1[i]&16)
+               ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 1102 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1100    }
+1101    else if(e->ID==EW_MAGIC){
+1102        if(lMisc1[i]&32)
+               ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 1106 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1104    }
+1105    else if(e->ID==EW_FIRE||e->ID==EW_FIRE2){
+1106        if(lMisc1[i]&64)
+               ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 1110 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1108    }
+1109    else if(e->ID<=EW_SCRIPT10){
+1110        if(lMisc1[i]&128)
+               ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 1114 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1112    }
+1113    else if(e->ID==EW_FIREBALL2){
+1114        if(lMisc1[i]&256)
+               ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 1119 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1117    //But there's an extra flag for bombs and supers
+1118    else if(e->ID==EW_BOMB||e->ID==EW_SBOMB){
+1119        if(lMisc1[i]&512)
+               ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 1002 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1000    }
+1001    void MooshItem_RemLWeapon(int vars, lweapon lgroup, int i){
+1002        int lTimer = vars[1];
+                         ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 1003 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1001    void MooshItem_RemLWeapon(int vars, lweapon lgroup, int i){
+1002        int lTimer = vars[1];
+1003        int lTile = vars[2];
+                        ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 1004 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1002    int lTimer = vars[1];
+1003    int lTile = vars[2];
+1004    int lAng = vars[3];
+                   ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 1005 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1003    int lTile = vars[2];
+1004    int lAng = vars[3];
+1005    int lType = vars[4];
+                    ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 1006 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1004    int lAng = vars[3];
+1005    int lType = vars[4];
+1006    int lMisc1 = vars[5];
+                     ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 1007 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1005    int lType = vars[4];
+1006    int lMisc1 = vars[5];
+1007    int lMisc2 = vars[6];
+                     ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 1008 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1006    int lMisc1 = vars[5];
+1007    int lMisc2 = vars[6];
+1008    int lDecay = vars[7];
+                     ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 1009 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1007    int lMisc2 = vars[6];
+1008    int lDecay = vars[7];
+1009    int lFlags = vars[8];
+                     ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 1010 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1008    int lDecay = vars[7];
+1009    int lFlags = vars[8];
+1010    int lACounter = vars[9];
+                        ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 1011 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1009    int lFlags = vars[8];
+1010    int lACounter = vars[9];
+1011    int lNumFrames = vars[10];
+                         ^~~~~~~~
+
+
 00310-newbie-item/script.zs Line 1012 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1010    int lACounter = vars[9];
+1011    int lNumFrames = vars[10];
+1012    int lASpeed = vars[11];
+                      ^~~~~~~~
+
+
 00310-newbie-item/script.zs Line 1013 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1011    int lNumFrames = vars[10];
+1012    int lASpeed = vars[11];
+1013    int lLastX = vars[13];
+                     ^~~~~~~~
+
+
 00310-newbie-item/script.zs Line 1014 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1012    int lASpeed = vars[11];
+1013    int lLastX = vars[13];
+1014    int lLastY = vars[14];
+                     ^~~~~~~~
+
+
 00310-newbie-item/script.zs Line 1018 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1016    //Whenever a weapon is removed, the weapon at the end of the array gets copied over to it.
+1017    //It's then marked as free space for a new weapon to be created over.
+1018    vars[0]--;
+        ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 1019 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+1017    //It's then marked as free space for a new weapon to be created over.
+1018    vars[0]--;
+1019    lgroup[i] = lgroup[vars[0]];
+        ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 1019 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+1017    //It's then marked as free space for a new weapon to be created over.
+1018    vars[0]--;
+1019    lgroup[i] = lgroup[vars[0]];
+                    ^~~~~~~~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 1019 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1017    //It's then marked as free space for a new weapon to be created over.
+1018    vars[0]--;
+1019    lgroup[i] = lgroup[vars[0]];
+                           ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 1020 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1018    vars[0]--;
+1019    lgroup[i] = lgroup[vars[0]];
+1020    lTimer[i] = lTimer[vars[0]];
+        ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 1020 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1018    vars[0]--;
+1019    lgroup[i] = lgroup[vars[0]];
+1020    lTimer[i] = lTimer[vars[0]];
+                    ^~~~~~~~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 1020 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1018    vars[0]--;
+1019    lgroup[i] = lgroup[vars[0]];
+1020    lTimer[i] = lTimer[vars[0]];
+                           ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 1021 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1019    lgroup[i] = lgroup[vars[0]];
+1020    lTimer[i] = lTimer[vars[0]];
+1021    lTile[i] = lTile[vars[0]];
+        ^~~~~~~~
+
+
 00310-newbie-item/script.zs Line 1021 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1019    lgroup[i] = lgroup[vars[0]];
+1020    lTimer[i] = lTimer[vars[0]];
+1021    lTile[i] = lTile[vars[0]];
+                   ^~~~~~~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 1021 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1019    lgroup[i] = lgroup[vars[0]];
+1020    lTimer[i] = lTimer[vars[0]];
+1021    lTile[i] = lTile[vars[0]];
+                         ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 1022 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1020    lTimer[i] = lTimer[vars[0]];
+1021    lTile[i] = lTile[vars[0]];
+1022    lAng[i] = lAng[vars[0]];
+        ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 1022 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1020    lTimer[i] = lTimer[vars[0]];
+1021    lTile[i] = lTile[vars[0]];
+1022    lAng[i] = lAng[vars[0]];
+                  ^~~~~~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 1022 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1020    lTimer[i] = lTimer[vars[0]];
+1021    lTile[i] = lTile[vars[0]];
+1022    lAng[i] = lAng[vars[0]];
+                       ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 1023 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1021    lTile[i] = lTile[vars[0]];
+1022    lAng[i] = lAng[vars[0]];
+1023    lType[i] = lType[vars[0]];
+        ^~~~~~~~
+
+
 00310-newbie-item/script.zs Line 1023 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1021    lTile[i] = lTile[vars[0]];
+1022    lAng[i] = lAng[vars[0]];
+1023    lType[i] = lType[vars[0]];
+                   ^~~~~~~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 1023 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1021    lTile[i] = lTile[vars[0]];
+1022    lAng[i] = lAng[vars[0]];
+1023    lType[i] = lType[vars[0]];
+                         ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 1024 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1022    lAng[i] = lAng[vars[0]];
+1023    lType[i] = lType[vars[0]];
+1024    lMisc1[i] = lMisc1[vars[0]];
+        ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 1024 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1022    lAng[i] = lAng[vars[0]];
+1023    lType[i] = lType[vars[0]];
+1024    lMisc1[i] = lMisc1[vars[0]];
+                    ^~~~~~~~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 1024 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1022    lAng[i] = lAng[vars[0]];
+1023    lType[i] = lType[vars[0]];
+1024    lMisc1[i] = lMisc1[vars[0]];
+                           ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 1025 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1023    lType[i] = lType[vars[0]];
+1024    lMisc1[i] = lMisc1[vars[0]];
+1025    lMisc2[i] = lMisc2[vars[0]];
+        ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 1025 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1023    lType[i] = lType[vars[0]];
+1024    lMisc1[i] = lMisc1[vars[0]];
+1025    lMisc2[i] = lMisc2[vars[0]];
+                    ^~~~~~~~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 1025 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1023    lType[i] = lType[vars[0]];
+1024    lMisc1[i] = lMisc1[vars[0]];
+1025    lMisc2[i] = lMisc2[vars[0]];
+                           ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 1026 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1024    lMisc1[i] = lMisc1[vars[0]];
+1025    lMisc2[i] = lMisc2[vars[0]];
+1026    lDecay[i] = lDecay[vars[0]];
+        ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 1026 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1024    lMisc1[i] = lMisc1[vars[0]];
+1025    lMisc2[i] = lMisc2[vars[0]];
+1026    lDecay[i] = lDecay[vars[0]];
+                    ^~~~~~~~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 1026 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1024    lMisc1[i] = lMisc1[vars[0]];
+1025    lMisc2[i] = lMisc2[vars[0]];
+1026    lDecay[i] = lDecay[vars[0]];
+                           ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 1027 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1025    lMisc2[i] = lMisc2[vars[0]];
+1026    lDecay[i] = lDecay[vars[0]];
+1027    lFlags[i] = lFlags[vars[0]];
+        ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 1027 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1025    lMisc2[i] = lMisc2[vars[0]];
+1026    lDecay[i] = lDecay[vars[0]];
+1027    lFlags[i] = lFlags[vars[0]];
+                    ^~~~~~~~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 1027 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1025    lMisc2[i] = lMisc2[vars[0]];
+1026    lDecay[i] = lDecay[vars[0]];
+1027    lFlags[i] = lFlags[vars[0]];
+                           ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 1028 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1026    lDecay[i] = lDecay[vars[0]];
+1027    lFlags[i] = lFlags[vars[0]];
+1028    lACounter[i] = lACounter[vars[0]];
+        ^~~~~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 1028 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1026    lDecay[i] = lDecay[vars[0]];
+1027    lFlags[i] = lFlags[vars[0]];
+1028    lACounter[i] = lACounter[vars[0]];
+                       ^~~~~~~~~~~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 1028 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1026    lDecay[i] = lDecay[vars[0]];
+1027    lFlags[i] = lFlags[vars[0]];
+1028    lACounter[i] = lACounter[vars[0]];
+                                 ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 1029 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1027    lFlags[i] = lFlags[vars[0]];
+1028    lACounter[i] = lACounter[vars[0]];
+1029    lNumFrames[i] = lNumFrames[vars[0]];
+        ^~~~~~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 1029 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1027    lFlags[i] = lFlags[vars[0]];
+1028    lACounter[i] = lACounter[vars[0]];
+1029    lNumFrames[i] = lNumFrames[vars[0]];
+                        ^~~~~~~~~~~~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 1029 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1027    lFlags[i] = lFlags[vars[0]];
+1028    lACounter[i] = lACounter[vars[0]];
+1029    lNumFrames[i] = lNumFrames[vars[0]];
+                                   ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 1030 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1028    lACounter[i] = lACounter[vars[0]];
+1029    lNumFrames[i] = lNumFrames[vars[0]];
+1030    lASpeed[i] = lASpeed[vars[0]];
+        ^~~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 1030 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1028    lACounter[i] = lACounter[vars[0]];
+1029    lNumFrames[i] = lNumFrames[vars[0]];
+1030    lASpeed[i] = lASpeed[vars[0]];
+                     ^~~~~~~~~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 1030 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1028    lACounter[i] = lACounter[vars[0]];
+1029    lNumFrames[i] = lNumFrames[vars[0]];
+1030    lASpeed[i] = lASpeed[vars[0]];
+                             ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 1031 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1029    lNumFrames[i] = lNumFrames[vars[0]];
+1030    lASpeed[i] = lASpeed[vars[0]];
+1031    lLastX[i] = lLastX[vars[0]];
+        ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 1031 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1029    lNumFrames[i] = lNumFrames[vars[0]];
+1030    lASpeed[i] = lASpeed[vars[0]];
+1031    lLastX[i] = lLastX[vars[0]];
+                    ^~~~~~~~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 1031 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1029    lNumFrames[i] = lNumFrames[vars[0]];
+1030    lASpeed[i] = lASpeed[vars[0]];
+1031    lLastX[i] = lLastX[vars[0]];
+                           ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 1032 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1030    lASpeed[i] = lASpeed[vars[0]];
+1031    lLastX[i] = lLastX[vars[0]];
+1032    lLastY[i] = lLastY[vars[0]];
+        ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 1032 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1030    lASpeed[i] = lASpeed[vars[0]];
+1031    lLastX[i] = lLastX[vars[0]];
+1032    lLastY[i] = lLastY[vars[0]];
+                    ^~~~~~~~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 1032 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+1030    lASpeed[i] = lASpeed[vars[0]];
+1031    lLastX[i] = lLastX[vars[0]];
+1032    lLastY[i] = lLastY[vars[0]];
+                           ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 726 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+724    
+725    //vars[0] = Total weapons onscreen
+726    int lTimer = vars[1];
+                    ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 727 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+725    //vars[0] = Total weapons onscreen
+726    int lTimer = vars[1];
+727    int lTile = vars[2];
+                   ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 728 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+726    int lTimer = vars[1];
+727    int lTile = vars[2];
+728    int lAng = vars[3];
+                  ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 729 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+727    int lTile = vars[2];
+728    int lAng = vars[3];
+729    int lType = vars[4];
+                   ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 730 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+728    int lAng = vars[3];
+729    int lType = vars[4];
+730    int lMisc1 = vars[5];
+                    ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 731 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+729    int lType = vars[4];
+730    int lMisc1 = vars[5];
+731    int lMisc2 = vars[6];
+                    ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 732 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+730    int lMisc1 = vars[5];
+731    int lMisc2 = vars[6];
+732    int lDecay = vars[7];
+                    ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 733 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+731    int lMisc2 = vars[6];
+732    int lDecay = vars[7];
+733    int lFlags = vars[8];
+                    ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 734 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+732    int lDecay = vars[7];
+733    int lFlags = vars[8];
+734    int lACounter = vars[9];
+                       ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 735 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+733    int lFlags = vars[8];
+734    int lACounter = vars[9];
+735    int lNumFrames = vars[10];
+                        ^~~~~~~~
+
+
 00310-newbie-item/script.zs Line 736 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+734    int lACounter = vars[9];
+735    int lNumFrames = vars[10];
+736    int lASpeed = vars[11];
+                     ^~~~~~~~
+
+
 00310-newbie-item/script.zs Line 738 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+736    int lASpeed = vars[11];
+737    //vars[12] = BombSP
+738    int lLastX = vars[13];
+                    ^~~~~~~~
+
+
 00310-newbie-item/script.zs Line 739 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+737    //vars[12] = BombSP
+738    int lLastX = vars[13];
+739    int lLastY = vars[14];
+                    ^~~~~~~~
+
+
 00310-newbie-item/script.zs Line 743 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+741    //vars[16] = Prevent weapon clear
+742    //Only cycle through weapons currently in use to save iterations
+743    for(i=0; i<vars[0]; i++){
+                  ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 745 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+743    for(i=0; i<vars[0]; i++){
+744        //If the weapon itself is there, run its behavior
+745        if(lgroup[i]->isValid()){
+              ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 746 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+744    //If the weapon itself is there, run its behavior
+745    if(lgroup[i]->isValid()){
+746        lTimer[i] = (lTimer[i]+1)%360;
+           ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 746 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+744    //If the weapon itself is there, run its behavior
+745    if(lgroup[i]->isValid()){
+746        lTimer[i] = (lTimer[i]+1)%360;
+                        ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 747 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+745    if(lgroup[i]->isValid()){
+746        lTimer[i] = (lTimer[i]+1)%360;
+747        x = lgroup[i]->X;
+               ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 748 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+746    lTimer[i] = (lTimer[i]+1)%360;
+747    x = lgroup[i]->X;
+748    y = lgroup[i]->Y;
+           ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 749 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+747    x = lgroup[i]->X;
+748    y = lgroup[i]->Y;
+749    if(lType[i]==1){ //Sine Wave
+          ^~~~~~~~
+
+
 00310-newbie-item/script.zs Line 750 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+748    y = lgroup[i]->Y;
+749    if(lType[i]==1){ //Sine Wave
+750        k = RadtoDeg(lgroup[i]->Angle);
+                        ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 751 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+749    if(lType[i]==1){ //Sine Wave
+750        k = RadtoDeg(lgroup[i]->Angle);
+751        o = lgroup[i]->Step/100;
+               ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 752 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+750    k = RadtoDeg(lgroup[i]->Angle);
+751    o = lgroup[i]->Step/100;
+752    j = lMisc1[i]*Sin((180/lMisc2[i]*o)*lTimer[i]);
+           ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 752 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+750    k = RadtoDeg(lgroup[i]->Angle);
+751    o = lgroup[i]->Step/100;
+752    j = lMisc1[i]*Sin((180/lMisc2[i]*o)*lTimer[i]);
+                              ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 752 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+750    k = RadtoDeg(lgroup[i]->Angle);
+751    o = lgroup[i]->Step/100;
+752    j = lMisc1[i]*Sin((180/lMisc2[i]*o)*lTimer[i]);
+                                           ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 753 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+751    o = lgroup[i]->Step/100;
+752    j = lMisc1[i]*Sin((180/lMisc2[i]*o)*lTimer[i]);
+753    lgroup[i]->HitXOffset = VectorX(j, k+90);
+       ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 754 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+752    j = lMisc1[i]*Sin((180/lMisc2[i]*o)*lTimer[i]);
+753    lgroup[i]->HitXOffset = VectorX(j, k+90);
+754    lgroup[i]->HitYOffset = VectorY(j, k+90);
+       ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 757 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+755    //Weapons with -1000 draw offset are being drawn by the script instead of ZC.
+756    //Thus they don't need draw offsets to be applied.
+757    if(lgroup[i]->DrawYOffset>-1000){
+          ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 758 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+756    //Thus they don't need draw offsets to be applied.
+757    if(lgroup[i]->DrawYOffset>-1000){
+758        lgroup[i]->DrawXOffset = lgroup[i]->HitXOffset;
+           ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 758 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+756    //Thus they don't need draw offsets to be applied.
+757    if(lgroup[i]->DrawYOffset>-1000){
+758        lgroup[i]->DrawXOffset = lgroup[i]->HitXOffset;
+                                    ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 759 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+757    if(lgroup[i]->DrawYOffset>-1000){
+758        lgroup[i]->DrawXOffset = lgroup[i]->HitXOffset;
+759        lgroup[i]->DrawYOffset = lgroup[i]->HitYOffset;
+           ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 759 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+757    if(lgroup[i]->DrawYOffset>-1000){
+758        lgroup[i]->DrawXOffset = lgroup[i]->HitXOffset;
+759        lgroup[i]->DrawYOffset = lgroup[i]->HitYOffset;
+                                    ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 762 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+760    }
+761    //Adding hit offsets to X and Y affects where the script draws them in special cases
+762    x += lgroup[i]->HitXOffset;
+            ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 763 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+761    //Adding hit offsets to X and Y affects where the script draws them in special cases
+762    x += lgroup[i]->HitXOffset;
+763    y += lgroup[i]->HitYOffset;
+            ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 765 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+763    y += lgroup[i]->HitYOffset;
+764    //Here we predict the weapon's position in the next frame so 360 rotating ones are angled right
+765    m = lMisc1[i]*Sin((180/lMisc2[i]*o)*(lTimer[i]+1));
+           ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 765 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+763    y += lgroup[i]->HitYOffset;
+764    //Here we predict the weapon's position in the next frame so 360 rotating ones are angled right
+765    m = lMisc1[i]*Sin((180/lMisc2[i]*o)*(lTimer[i]+1));
+                              ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 765 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+763    y += lgroup[i]->HitYOffset;
+764    //Here we predict the weapon's position in the next frame so 360 rotating ones are angled right
+765    m = lMisc1[i]*Sin((180/lMisc2[i]*o)*(lTimer[i]+1));
+                                            ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 766 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+764    //Here we predict the weapon's position in the next frame so 360 rotating ones are angled right
+765    m = lMisc1[i]*Sin((180/lMisc2[i]*o)*(lTimer[i]+1));
+766    int nextX = lgroup[i]->X+VectorX(Max(1, o), k)+VectorX(m, k+90);
+                   ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 767 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+765    m = lMisc1[i]*Sin((180/lMisc2[i]*o)*(lTimer[i]+1));
+766    int nextX = lgroup[i]->X+VectorX(Max(1, o), k)+VectorX(m, k+90);
+767    int nextY = lgroup[i]->Y+VectorY(Max(1, o), k)+VectorY(m, k+90);
+                   ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 768 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+766    int nextX = lgroup[i]->X+VectorX(Max(1, o), k)+VectorX(m, k+90);
+767    int nextY = lgroup[i]->Y+VectorY(Max(1, o), k)+VectorY(m, k+90);
+768    lAng[i] = Angle(x, y, nextX, nextY);
+       ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 770 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+768        lAng[i] = Angle(x, y, nextX, nextY);
+769    }
+770    else if(lType[i]==2){ //Homing
+               ^~~~~~~~
+
+
 00310-newbie-item/script.zs Line 771 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+769    }
+770    else if(lType[i]==2){ //Homing
+771        k = MooshItem_Homing_TargetAngle(vars, lAng[i], lgroup[i]);
+                                                  ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 771 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+769    }
+770    else if(lType[i]==2){ //Homing
+771        k = MooshItem_Homing_TargetAngle(vars, lAng[i], lgroup[i]);
+                                                           ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 772 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+770    else if(lType[i]==2){ //Homing
+771        k = MooshItem_Homing_TargetAngle(vars, lAng[i], lgroup[i]);
+772        j = MooshItem_AngDiff(lAng[i], k);
+                                 ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 774 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+772    j = MooshItem_AngDiff(lAng[i], k);
+773    //If the distance to the target angle is less than the turn speed, turn it
+774    if(Abs(j)>lMisc1[i]/100){
+                 ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 775 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+773    //If the distance to the target angle is less than the turn speed, turn it
+774    if(Abs(j)>lMisc1[i]/100){
+775        lAng[i] = WrapDegrees(lAng[i]+Sign(j)*(lMisc1[i]/100));
+           ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 775 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+773    //If the distance to the target angle is less than the turn speed, turn it
+774    if(Abs(j)>lMisc1[i]/100){
+775        lAng[i] = WrapDegrees(lAng[i]+Sign(j)*(lMisc1[i]/100));
+                                 ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 775 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+773    //If the distance to the target angle is less than the turn speed, turn it
+774    if(Abs(j)>lMisc1[i]/100){
+775        lAng[i] = WrapDegrees(lAng[i]+Sign(j)*(lMisc1[i]/100));
+                                                  ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 779 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+777    //Otherwise set the angle to the target angle
+778    else
+779        lAng[i] = k;
+           ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 780 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+778    else
+779        lAng[i] = k;
+780    lgroup[i]->Angle = DegtoRad(lAng[i]);
+       ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 780 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+778    else
+779        lAng[i] = k;
+780    lgroup[i]->Angle = DegtoRad(lAng[i]);
+                                   ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 782 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+780        lgroup[i]->Angle = DegtoRad(lAng[i]);
+781    }
+782    else if(lType[i]==3){ //Shield
+               ^~~~~~~~
+
+
 00310-newbie-item/script.zs Line 784 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+782    else if(lType[i]==3){ //Shield
+783        //Once again setting offsets to x and y for special cases
+784        x += lgroup[i]->HitXOffset;
+                ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 785 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+783    //Once again setting offsets to x and y for special cases
+784    x += lgroup[i]->HitXOffset;
+785    y += lgroup[i]->HitYOffset;
+            ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 786 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+784    x += lgroup[i]->HitXOffset;
+785    y += lgroup[i]->HitYOffset;
+786    if(lMisc1[i]>0){ //If the shield has block flags, run the block weapons function
+          ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 787 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+785    y += lgroup[i]->HitYOffset;
+786    if(lMisc1[i]>0){ //If the shield has block flags, run the block weapons function
+787        if(lFlags[i]&MIF_PIERCE)
+              ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 788 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+786    if(lMisc1[i]>0){ //If the shield has block flags, run the block weapons function
+787        if(lFlags[i]&MIF_PIERCE)
+788            MooshItem_BlockWeapons(vars, lgroup[i], i, false);
+                                            ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 790 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+788        MooshItem_BlockWeapons(vars, lgroup[i], i, false);
+789    else
+790        MooshItem_BlockWeapons(vars, lgroup[i], i, true);
+                                        ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 793 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+791        }
+792    }
+793    else if(lType[i]==4){ //Wall bounce
+               ^~~~~~~~
+
+
 00310-newbie-item/script.zs Line 795 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+793    else if(lType[i]==4){ //Wall bounce
+794        //Turn angle into vX and vY components
+795        int vX = VectorX(10, lAng[i]);
+                                ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 796 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+794    //Turn angle into vX and vY components
+795    int vX = VectorX(10, lAng[i]);
+796    int vY = VectorY(10, lAng[i]);
+                            ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 797 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+795    int vX = VectorX(10, lAng[i]);
+796    int vY = VectorY(10, lAng[i]);
+797    o = Max(lgroup[i]->Step/100, 1);
+               ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 800 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+798    bool bounce = false;
+799    //Flip if they hit a wall
+800    if((vX<0&&!MooshItem_CanWalk(lgroup[i], DIR_LEFT, o)) || (vX>0&&!MooshItem_CanWalk(lgroup[i], DIR_RIGHT, o))){
+                                    ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 800 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+798    bool bounce = false;
+799    //Flip if they hit a wall
+800    if((vX<0&&!MooshItem_CanWalk(lgroup[i], DIR_LEFT, o)) || (vX>0&&!MooshItem_CanWalk(lgroup[i], DIR_RIGHT, o))){
+                                                                                          ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 805 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+803        bounce = true;
+804    }
+805    if((vY<0&&!MooshItem_CanWalk(lgroup[i], DIR_UP, o)) || (vY>0&&!MooshItem_CanWalk(lgroup[i], DIR_DOWN, o))){
+                                    ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 805 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+803        bounce = true;
+804    }
+805    if((vY<0&&!MooshItem_CanWalk(lgroup[i], DIR_UP, o)) || (vY>0&&!MooshItem_CanWalk(lgroup[i], DIR_DOWN, o))){
+                                                                                        ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 813 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+811    if(bounce){
+812        Game->PlaySound(SFX_MOOSHITEM_WALLBOUNCE);
+813        lAng[i] = Angle(0, 0, vX, vY);
+           ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 814 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+812    Game->PlaySound(SFX_MOOSHITEM_WALLBOUNCE);
+813    lAng[i] = Angle(0, 0, vX, vY);
+814    lgroup[i]->Angle = DegtoRad(lAng[i]);
+       ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 814 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+812    Game->PlaySound(SFX_MOOSHITEM_WALLBOUNCE);
+813    lAng[i] = Angle(0, 0, vX, vY);
+814    lgroup[i]->Angle = DegtoRad(lAng[i]);
+                                   ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 815 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+813    lAng[i] = Angle(0, 0, vX, vY);
+814    lgroup[i]->Angle = DegtoRad(lAng[i]);
+815    lMisc1[i]--;
+       ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 816 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+814    lgroup[i]->Angle = DegtoRad(lAng[i]);
+815    lMisc1[i]--;
+816    if(lMisc1[i]<=0){
+          ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 817 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+815    lMisc1[i]--;
+816    if(lMisc1[i]<=0){
+817        lgroup[i]->DeadState = 0;
+           ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 818 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+816    if(lMisc1[i]<=0){
+817        lgroup[i]->DeadState = 0;
+818        lFlags[i] &= ~MIF_PIERCE; //Pierce messes with killing weapons here so we take it away when a weapon should be killed
+           ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 818 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+816    if(lMisc1[i]<=0){
+817        lgroup[i]->DeadState = 0;
+818        lFlags[i] &= ~MIF_PIERCE; //Pierce messes with killing weapons here so we take it away when a weapon should be killed
+           ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 822 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+820        }
+821    }
+822    int tile = lgroup[i]->Tile;
+                  ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 826 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+824    //We have a special way of handling these. Because ZC is so intent on drawing the beam shards, I had to clear the weapon's sprite completely.
+825    //Then we redraw what it should be with scripts.
+826    if(lgroup[i]->ID==LW_BEAM){
+          ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 828 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+826    if(lgroup[i]->ID==LW_BEAM){
+827        //Detect any uncleared beams.
+828        if(lgroup[i]->OriginalTile!=TIL_INVISIBLE){
+              ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 829 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+827    //Detect any uncleared beams.
+828    if(lgroup[i]->OriginalTile!=TIL_INVISIBLE){
+829        lACounter[i] = 0;
+           ^~~~~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 830 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+828    if(lgroup[i]->OriginalTile!=TIL_INVISIBLE){
+829        lACounter[i] = 0;
+830        lgroup[i]->OriginalTile = TIL_INVISIBLE;
+           ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 831 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+829    lACounter[i] = 0;
+830    lgroup[i]->OriginalTile = TIL_INVISIBLE;
+831    lgroup[i]->Tile = lgroup[i]->OriginalTile;
+       ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 831 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+829    lACounter[i] = 0;
+830    lgroup[i]->OriginalTile = TIL_INVISIBLE;
+831    lgroup[i]->Tile = lgroup[i]->OriginalTile;
+                         ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 832 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+830    lgroup[i]->OriginalTile = TIL_INVISIBLE;
+831    lgroup[i]->Tile = lgroup[i]->OriginalTile;
+832    lgroup[i]->NumFrames = 0;
+       ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 833 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+831    lgroup[i]->Tile = lgroup[i]->OriginalTile;
+832    lgroup[i]->NumFrames = 0;
+833    lgroup[i]->ASpeed = 0;
+       ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 836 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+834    }
+835    else{
+836        lACounter[i] = (lACounter[i]+1)%(lNumFrames[i]*lASpeed[i]);
+           ^~~~~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 836 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+834    }
+835    else{
+836        lACounter[i] = (lACounter[i]+1)%(lNumFrames[i]*lASpeed[i]);
+                           ^~~~~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 836 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+834    }
+835    else{
+836        lACounter[i] = (lACounter[i]+1)%(lNumFrames[i]*lASpeed[i]);
+                                            ^~~~~~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 836 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+834    }
+835    else{
+836        lACounter[i] = (lACounter[i]+1)%(lNumFrames[i]*lASpeed[i]);
+                                                          ^~~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 837 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+835    else{
+836        lACounter[i] = (lACounter[i]+1)%(lNumFrames[i]*lASpeed[i]);
+837        tile = lTile[i]+Clamp(Floor(lACounter[i]/lASpeed[i]), 0, lNumFrames[i]-1)*lgroup[i]->TileWidth;
+                  ^~~~~~~~
+
+
 00310-newbie-item/script.zs Line 837 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+835    else{
+836        lACounter[i] = (lACounter[i]+1)%(lNumFrames[i]*lASpeed[i]);
+837        tile = lTile[i]+Clamp(Floor(lACounter[i]/lASpeed[i]), 0, lNumFrames[i]-1)*lgroup[i]->TileWidth;
+                                       ^~~~~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 837 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+835    else{
+836        lACounter[i] = (lACounter[i]+1)%(lNumFrames[i]*lASpeed[i]);
+837        tile = lTile[i]+Clamp(Floor(lACounter[i]/lASpeed[i]), 0, lNumFrames[i]-1)*lgroup[i]->TileWidth;
+                                                    ^~~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 837 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+835    else{
+836        lACounter[i] = (lACounter[i]+1)%(lNumFrames[i]*lASpeed[i]);
+837        tile = lTile[i]+Clamp(Floor(lACounter[i]/lASpeed[i]), 0, lNumFrames[i]-1)*lgroup[i]->TileWidth;
+                                                                    ^~~~~~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 837 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+835    else{
+836        lACounter[i] = (lACounter[i]+1)%(lNumFrames[i]*lASpeed[i]);
+837        tile = lTile[i]+Clamp(Floor(lACounter[i]/lASpeed[i]), 0, lNumFrames[i]-1)*lgroup[i]->TileWidth;
+                                                                                     ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 840 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+838    }
+839    //When the beam shards happen, kill the weapon early so drawing doesn't bug out
+840    if(lgroup[i]->DeadState>0)
+          ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 841 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+839    //When the beam shards happen, kill the weapon early so drawing doesn't bug out
+840    if(lgroup[i]->DeadState>0)
+841        lgroup[i]->DeadState = 0;
+           ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 844 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+842    }
+843    //These weapons have special collision exceptions because they can cause friendly fire damage
+844    else if(lgroup[i]->ID==LW_FIRE||lgroup[i]->ID==LW_REFBEAM||lgroup[i]->ID==LW_REFMAGIC||lgroup[i]->ID==LW_REFROCK){
+               ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 844 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+842    }
+843    //These weapons have special collision exceptions because they can cause friendly fire damage
+844    else if(lgroup[i]->ID==LW_FIRE||lgroup[i]->ID==LW_REFBEAM||lgroup[i]->ID==LW_REFMAGIC||lgroup[i]->ID==LW_REFROCK){
+                                       ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 844 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+842    }
+843    //These weapons have special collision exceptions because they can cause friendly fire damage
+844    else if(lgroup[i]->ID==LW_FIRE||lgroup[i]->ID==LW_REFBEAM||lgroup[i]->ID==LW_REFMAGIC||lgroup[i]->ID==LW_REFROCK){
+                                                                  ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 844 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+842    }
+843    //These weapons have special collision exceptions because they can cause friendly fire damage
+844    else if(lgroup[i]->ID==LW_FIRE||lgroup[i]->ID==LW_REFBEAM||lgroup[i]->ID==LW_REFMAGIC||lgroup[i]->ID==LW_REFROCK){
+                                                                                              ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 845 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+843    //These weapons have special collision exceptions because they can cause friendly fire damage
+844    else if(lgroup[i]->ID==LW_FIRE||lgroup[i]->ID==LW_REFBEAM||lgroup[i]->ID==LW_REFMAGIC||lgroup[i]->ID==LW_REFROCK){
+845        if(MooshItem_LinkCollisionNoZ(lgroup[i]))
+                                         ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 846 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+844    else if(lgroup[i]->ID==LW_FIRE||lgroup[i]->ID==LW_REFBEAM||lgroup[i]->ID==LW_REFMAGIC||lgroup[i]->ID==LW_REFROCK){
+845        if(MooshItem_LinkCollisionNoZ(lgroup[i]))
+846            lgroup[i]->CollDetection = false;
+               ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 848 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+846        lgroup[i]->CollDetection = false;
+847    else
+848        lgroup[i]->CollDetection = true;
+           ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 850 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+848            lgroup[i]->CollDetection = true;
+849    }
+850    int frames = Max(1, lNumFrames[i]);
+                           ^~~~~~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 852 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+850    int frames = Max(1, lNumFrames[i]);
+851    //These all handle redrawing of beam animations and setting the directions of other weapon types based on angle so they animate correctly.
+852    if(lFlags[i]&MIF_4WAY){ //4 way animations
+          ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 853 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+851    //These all handle redrawing of beam animations and setting the directions of other weapon types based on angle so they animate correctly.
+852    if(lFlags[i]&MIF_4WAY){ //4 way animations
+853        dir = AngleDir4(WrapDegrees(lAng[i]));
+                                       ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 854 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+852    if(lFlags[i]&MIF_4WAY){ //4 way animations
+853        dir = AngleDir4(WrapDegrees(lAng[i]));
+854        if(lType[i]!=3)
+              ^~~~~~~~
+
+
 00310-newbie-item/script.zs Line 855 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+853    dir = AngleDir4(WrapDegrees(lAng[i]));
+854    if(lType[i]!=3)
+855        lgroup[i]->Dir = dir;
+           ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 856 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+854    if(lType[i]!=3)
+855        lgroup[i]->Dir = dir;
+856    j = (lgroup[i]->Tile-lTile[i])%frames;
+            ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 856 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+854    if(lType[i]!=3)
+855        lgroup[i]->Dir = dir;
+856    j = (lgroup[i]->Tile-lTile[i])%frames;
+                            ^~~~~~~~
+
+
 00310-newbie-item/script.zs Line 857 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+855        lgroup[i]->Dir = dir;
+856    j = (lgroup[i]->Tile-lTile[i])%frames;
+857    if(lgroup[i]->ID!=LW_BEAM&&lgroup[i]->OriginalTile!=lTile[i]+frames*dir){
+          ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 857 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+855        lgroup[i]->Dir = dir;
+856    j = (lgroup[i]->Tile-lTile[i])%frames;
+857    if(lgroup[i]->ID!=LW_BEAM&&lgroup[i]->OriginalTile!=lTile[i]+frames*dir){
+                                  ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 857 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+855        lgroup[i]->Dir = dir;
+856    j = (lgroup[i]->Tile-lTile[i])%frames;
+857    if(lgroup[i]->ID!=LW_BEAM&&lgroup[i]->OriginalTile!=lTile[i]+frames*dir){
+                                                           ^~~~~~~~
+
+
 00310-newbie-item/script.zs Line 858 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+856    j = (lgroup[i]->Tile-lTile[i])%frames;
+857    if(lgroup[i]->ID!=LW_BEAM&&lgroup[i]->OriginalTile!=lTile[i]+frames*dir){
+858        lgroup[i]->OriginalTile = lTile[i]+frames*dir;
+           ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 858 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+856    j = (lgroup[i]->Tile-lTile[i])%frames;
+857    if(lgroup[i]->ID!=LW_BEAM&&lgroup[i]->OriginalTile!=lTile[i]+frames*dir){
+858        lgroup[i]->OriginalTile = lTile[i]+frames*dir;
+                                     ^~~~~~~~
+
+
 00310-newbie-item/script.zs Line 859 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+857    if(lgroup[i]->ID!=LW_BEAM&&lgroup[i]->OriginalTile!=lTile[i]+frames*dir){
+858        lgroup[i]->OriginalTile = lTile[i]+frames*dir;
+859        lgroup[i]->Tile = lgroup[i]->OriginalTile+j;
+           ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 859 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+857    if(lgroup[i]->ID!=LW_BEAM&&lgroup[i]->OriginalTile!=lTile[i]+frames*dir){
+858        lgroup[i]->OriginalTile = lTile[i]+frames*dir;
+859        lgroup[i]->Tile = lgroup[i]->OriginalTile+j;
+                             ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 861 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+859        lgroup[i]->Tile = lgroup[i]->OriginalTile+j;
+860    }
+861    if(lgroup[i]->ID==LW_BEAM&&lgroup[i]->DeadState==WDS_ALIVE){
+          ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 861 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+859        lgroup[i]->Tile = lgroup[i]->OriginalTile+j;
+860    }
+861    if(lgroup[i]->ID==LW_BEAM&&lgroup[i]->DeadState==WDS_ALIVE){
+                                  ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 864 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+862    tile += frames*dir;
+863    if(Link->HP>0){
+864        if(lFlags[i]&MIF_2X2)
+              ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 865 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+863    if(Link->HP>0){
+864        if(lFlags[i]&MIF_2X2)
+865            Screen->DrawTile(2, x, y-2-lgroup[i]->Z, tile, 2, 2, lgroup[i]->CSet, -1, -1, 0, 0, 0, 0, true, 128);
+                                          ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 865 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+863    if(Link->HP>0){
+864        if(lFlags[i]&MIF_2X2)
+865            Screen->DrawTile(2, x, y-2-lgroup[i]->Z, tile, 2, 2, lgroup[i]->CSet, -1, -1, 0, 0, 0, 0, true, 128);
+                                                                    ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 867 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+865        Screen->DrawTile(2, x, y-2-lgroup[i]->Z, tile, 2, 2, lgroup[i]->CSet, -1, -1, 0, 0, 0, 0, true, 128);
+866    else 
+867        Screen->FastTile(2, x, y-2-lgroup[i]->Z, tile, lgroup[i]->CSet, 128);
+                                      ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 867 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+865        Screen->DrawTile(2, x, y-2-lgroup[i]->Z, tile, 2, 2, lgroup[i]->CSet, -1, -1, 0, 0, 0, 0, true, 128);
+866    else 
+867        Screen->FastTile(2, x, y-2-lgroup[i]->Z, tile, lgroup[i]->CSet, 128);
+                                                          ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 871 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+869        }
+870    }
+871    else if(lFlags[i]&MIF_8WAY){ //8 way animations
+               ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 872 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+870    }
+871    else if(lFlags[i]&MIF_8WAY){ //8 way animations
+872        dir = AngleDir8(WrapDegrees(lAng[i]));
+                                       ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 873 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+871    else if(lFlags[i]&MIF_8WAY){ //8 way animations
+872        dir = AngleDir8(WrapDegrees(lAng[i]));
+873        if(lType[i]!=3)
+              ^~~~~~~~
+
+
 00310-newbie-item/script.zs Line 874 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+872    dir = AngleDir8(WrapDegrees(lAng[i]));
+873    if(lType[i]!=3)
+874        lgroup[i]->Dir = AngleDir4(WrapDegrees(lAng[i]));
+           ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 874 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+872    dir = AngleDir8(WrapDegrees(lAng[i]));
+873    if(lType[i]!=3)
+874        lgroup[i]->Dir = AngleDir4(WrapDegrees(lAng[i]));
+                                                  ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 875 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+873    if(lType[i]!=3)
+874        lgroup[i]->Dir = AngleDir4(WrapDegrees(lAng[i]));
+875    j = (lgroup[i]->Tile-lTile[i])%frames;
+            ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 875 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+873    if(lType[i]!=3)
+874        lgroup[i]->Dir = AngleDir4(WrapDegrees(lAng[i]));
+875    j = (lgroup[i]->Tile-lTile[i])%frames;
+                            ^~~~~~~~
+
+
 00310-newbie-item/script.zs Line 876 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+874        lgroup[i]->Dir = AngleDir4(WrapDegrees(lAng[i]));
+875    j = (lgroup[i]->Tile-lTile[i])%frames;
+876    if(lgroup[i]->ID!=LW_BEAM&&lgroup[i]->OriginalTile!=lTile[i]+frames*dir){
+          ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 876 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+874        lgroup[i]->Dir = AngleDir4(WrapDegrees(lAng[i]));
+875    j = (lgroup[i]->Tile-lTile[i])%frames;
+876    if(lgroup[i]->ID!=LW_BEAM&&lgroup[i]->OriginalTile!=lTile[i]+frames*dir){
+                                  ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 876 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+874        lgroup[i]->Dir = AngleDir4(WrapDegrees(lAng[i]));
+875    j = (lgroup[i]->Tile-lTile[i])%frames;
+876    if(lgroup[i]->ID!=LW_BEAM&&lgroup[i]->OriginalTile!=lTile[i]+frames*dir){
+                                                           ^~~~~~~~
+
+
 00310-newbie-item/script.zs Line 877 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+875    j = (lgroup[i]->Tile-lTile[i])%frames;
+876    if(lgroup[i]->ID!=LW_BEAM&&lgroup[i]->OriginalTile!=lTile[i]+frames*dir){
+877        lgroup[i]->OriginalTile = lTile[i]+frames*dir;
+           ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 877 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+875    j = (lgroup[i]->Tile-lTile[i])%frames;
+876    if(lgroup[i]->ID!=LW_BEAM&&lgroup[i]->OriginalTile!=lTile[i]+frames*dir){
+877        lgroup[i]->OriginalTile = lTile[i]+frames*dir;
+                                     ^~~~~~~~
+
+
 00310-newbie-item/script.zs Line 878 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+876    if(lgroup[i]->ID!=LW_BEAM&&lgroup[i]->OriginalTile!=lTile[i]+frames*dir){
+877        lgroup[i]->OriginalTile = lTile[i]+frames*dir;
+878        lgroup[i]->Tile = lgroup[i]->OriginalTile+j;
+           ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 878 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+876    if(lgroup[i]->ID!=LW_BEAM&&lgroup[i]->OriginalTile!=lTile[i]+frames*dir){
+877        lgroup[i]->OriginalTile = lTile[i]+frames*dir;
+878        lgroup[i]->Tile = lgroup[i]->OriginalTile+j;
+                             ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 880 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+878        lgroup[i]->Tile = lgroup[i]->OriginalTile+j;
+879    }
+880    if(lgroup[i]->ID==LW_BEAM&&lgroup[i]->DeadState==WDS_ALIVE){
+          ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 880 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+878        lgroup[i]->Tile = lgroup[i]->OriginalTile+j;
+879    }
+880    if(lgroup[i]->ID==LW_BEAM&&lgroup[i]->DeadState==WDS_ALIVE){
+                                  ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 883 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+881    tile += frames*dir;
+882    if(Link->HP>0){
+883        if(lFlags[i]&MIF_2X2)
+              ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 884 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+882    if(Link->HP>0){
+883        if(lFlags[i]&MIF_2X2)
+884            Screen->DrawTile(2, x, y-2-lgroup[i]->Z, tile, 2, 2, lgroup[i]->CSet, -1, -1, 0, 0, 0, 0, true, 128);
+                                          ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 884 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+882    if(Link->HP>0){
+883        if(lFlags[i]&MIF_2X2)
+884            Screen->DrawTile(2, x, y-2-lgroup[i]->Z, tile, 2, 2, lgroup[i]->CSet, -1, -1, 0, 0, 0, 0, true, 128);
+                                                                    ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 886 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+884        Screen->DrawTile(2, x, y-2-lgroup[i]->Z, tile, 2, 2, lgroup[i]->CSet, -1, -1, 0, 0, 0, 0, true, 128);
+885    else
+886        Screen->FastTile(2, x, y-2-lgroup[i]->Z, tile, lgroup[i]->CSet, 128);
+                                      ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 886 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+884        Screen->DrawTile(2, x, y-2-lgroup[i]->Z, tile, 2, 2, lgroup[i]->CSet, -1, -1, 0, 0, 0, 0, true, 128);
+885    else
+886        Screen->FastTile(2, x, y-2-lgroup[i]->Z, tile, lgroup[i]->CSet, 128);
+                                                          ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 890 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+888        }
+889    }
+890    else if(lFlags[i]&MIF_360WAY){ //360 degree animations
+               ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 891 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+889    }
+890    else if(lFlags[i]&MIF_360WAY){ //360 degree animations
+891        lgroup[i]->DrawYOffset = -1000;
+           ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 892 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+890    else if(lFlags[i]&MIF_360WAY){ //360 degree animations
+891        lgroup[i]->DrawYOffset = -1000;
+892        if(lType[i]!=3)
+              ^~~~~~~~
+
+
 00310-newbie-item/script.zs Line 893 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+891    lgroup[i]->DrawYOffset = -1000;
+892    if(lType[i]!=3)
+893        lgroup[i]->Dir = AngleDir4(WrapDegrees(lAng[i]));
+           ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 893 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+891    lgroup[i]->DrawYOffset = -1000;
+892    if(lType[i]!=3)
+893        lgroup[i]->Dir = AngleDir4(WrapDegrees(lAng[i]));
+                                                  ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 896 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+894        
+895    if(Link->HP>0){
+896        if(lFlags[i]&MIF_2X2)
+              ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 897 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+895    if(Link->HP>0){
+896        if(lFlags[i]&MIF_2X2)
+897            DrawTile(2, x, y-2-lgroup[i]->Z, tile, 2, 2, lgroup[i]->CSet, -1, -1, x, y-2-lgroup[i]->Z, lAng[i], 0, true, 128);
+                                  ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 897 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+895    if(Link->HP>0){
+896        if(lFlags[i]&MIF_2X2)
+897            DrawTile(2, x, y-2-lgroup[i]->Z, tile, 2, 2, lgroup[i]->CSet, -1, -1, x, y-2-lgroup[i]->Z, lAng[i], 0, true, 128);
+                                                            ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 897 - Warning S108: Arrays should be explicitly typed - change `lweapon` to `lweapon[]`
+
+895    if(Link->HP>0){
+896        if(lFlags[i]&MIF_2X2)
+897            DrawTile(2, x, y-2-lgroup[i]->Z, tile, 2, 2, lgroup[i]->CSet, -1, -1, x, y-2-lgroup[i]->Z, lAng[i], 0, true, 128);
+                                                                                            ^~~~~~~~~
+
+
 00310-newbie-item/script.zs Line 897 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+895    if(Link->HP>0){
+896        if(lFlags[i]&MIF_2X2)
+897            DrawTile(2, x, y-2-lgroup[i]->Z, tile, 2, 2, lgroup[i]->CSet, -1, -1, x, y-2-lgroup[i]->Z, lAng[i], 0, true, 128);
+                                                                                                          ^~~~~~~
+
+
 00310-newbie-item/script.zs Line 897 - Error T021: Function DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int) has not been declared.
+
+895    if(Link->HP>0){
+896        if(lFlags[i]&MIF_2X2)
+897            DrawTile(2, x, y-2-lgroup[i]->Z, tile, 2, 2, lgroup[i]->CSet, -1, -1, x, y-2-lgroup[i]->Z, lAng[i], 0, true, 128);
+               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '21' (compiled with errors)
 
@@ -1216,6 +3833,13 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 00313-la-hatrobe/Hatrobe.z Line 51 - Error T021: Function dirToRad(int) has not been declared.
+
+49    {
+50        int tempangle = RadianAngle(Ghost_X, Ghost_Y, Link->X, Link->Y) + (2*PI);
+51        int maxangle = dirToRad(Ghost_Dir) + DegtoRad(ghost->Attributes[2]) + (2*PI);
+                         ^~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '21' (compiled with errors)
 
@@ -1224,6 +3848,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 00330-dungeon-outside-inside/Dungeon Inside-Outside Script.z Line 36 - Error S006: Duplicate script with name DungeonOutside already exists.
+
+34    
+35    
+36    ffc script DungeonOutside{
+                 ^~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '6' (compiled with errors)
 
@@ -1232,6 +3863,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 00330-dungeon-outside-inside/script.zs Line 33 - Error S006: Duplicate script with name DungeonOutside already exists.
+
+31    
+32    
+33    ffc script DungeonOutside{
+                 ^~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '6' (compiled with errors)
 
@@ -1240,6 +3878,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+
+84    import "stdWeapons/stdWeaponsParticles.zh"
+85    import "stdWeapons/stdWeaponsMelee.zh"
+86    import "stdWeapons/update.zh"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -1249,6 +3894,13 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 00332-lweapons-zh/lw_deprecated.zs Line 22 - Error T021: Function ComboFIT(int, int, int) has not been declared.
+
+20    // Returns true if FFC collides with a combo which has specific placed flag
+21    bool ComboFlagCollision (int loc, int flag, int type,lweapon l){
+22        if (ComboFIT(loc,flag,type)){
+              ^~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '21' (compiled with errors)
 
@@ -1258,6 +3910,13 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 00332-lweapons-zh/lw_global.zs Line 21 - Error S009: Variable LW_ZH_I_FLAGS has not been declared.
+
+19    for(int i= Screen->NumLWeapons();i>0;i--){
+20        lweapon wpn = Screen->LoadLWeapon(i);
+21        if((wpn->Misc[LW_ZH_I_FLAGS]&__LWFI_IS_LWZH_LWPN)==0)
+                        ^~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '9' (compiled with errors)
 
@@ -1266,6 +3925,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+
+84    import "stdWeapons/stdWeaponsParticles.zh"
+85    import "stdWeapons/stdWeaponsMelee.zh"
+86    import "stdWeapons/update.zh"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -1274,8 +3940,22 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+
+84    import "stdWeapons/stdWeaponsParticles.zh"
+85    import "stdWeapons/stdWeaponsMelee.zh"
+86    import "stdWeapons/update.zh"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 syntax error, unexpected NEW, expecting SEMICOLON [00332-lweapons-zh/lw_life.zs Line 135 Column 24 'new']
-.tmp/test_zscript_database/00332-lweapons-zh/lw_life.zs Line 7 - Error P001: Included file '00332-lweapons-zh/lw_life.zs' encountered an error.
+.tmp/test_zscript_database/00332-lweapons-zh/lw_life.zs Line 8 - Error P001: Included file '00332-lweapons-zh/lw_life.zs' encountered an error.
+
+6    #include "std.zh"
+7    #include "00235-stdweapons-zh/stdWeapons.zh"
+8    #include "00332-lweapons-zh/lw_life.zs"
+     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -1284,6 +3964,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+
+84    import "stdWeapons/stdWeaponsParticles.zh"
+85    import "stdWeapons/stdWeaponsMelee.zh"
+86    import "stdWeapons/update.zh"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -1293,6 +3980,13 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 00332-lweapons-zh/lw_movement.zs Line 13 - Error S009: Variable LW_ZH_I_XPOS has not been declared.
+
+11    void SetLWeaponMovement(lweapon wpn, int type, int arg, int arg2)
+12    {
+13        wpn->Misc[LW_ZH_I_XPOS]= wpn->X;
+                    ^~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '9' (compiled with errors)
 
@@ -1301,6 +3995,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+
+84    import "stdWeapons/stdWeaponsParticles.zh"
+85    import "stdWeapons/stdWeaponsMelee.zh"
+86    import "stdWeapons/update.zh"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -1309,6 +4010,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+
+84    import "stdWeapons/stdWeaponsParticles.zh"
+85    import "stdWeapons/stdWeaponsMelee.zh"
+86    import "stdWeapons/update.zh"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -1317,6 +4025,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+
+84    import "stdWeapons/stdWeaponsParticles.zh"
+85    import "stdWeapons/stdWeaponsMelee.zh"
+86    import "stdWeapons/update.zh"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -1325,6 +4040,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+
+84    import "stdWeapons/stdWeaponsParticles.zh"
+85    import "stdWeapons/stdWeaponsMelee.zh"
+86    import "stdWeapons/update.zh"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -1333,21 +4055,133 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 00235-stdweapons-zh/stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+
+84    import "stdWeapons/stdWeaponsParticles.zh"
+85    import "stdWeapons/stdWeaponsMelee.zh"
+86    import "stdWeapons/update.zh"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 00332-lweapons-zh/lweapons.zh Line 7 - Error P083: Could not find included file 'headers/stdExtra.zh'. Please check your include paths!
+
+5    
+6    import "include/std.zh"
+7    import "headers/stdExtra.zh"
+     ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 00332-lweapons-zh/lweapons.zh Line 8 - Error P083: Could not find included file 'headers/ffcscript.zh'. Please check your include paths!
+
+6    import "include/std.zh"
+7    import "headers/stdExtra.zh"
+8    import "headers/ffcscript.zh"
+     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 00332-lweapons-zh/lweapons.zh Line 11 - Error P083: Could not find included file 'CustomFunctions.zs'. Please check your include paths!
+
+ 9    import "headers/ghost.zh"
+10    import "include/string.zh"
+11    import "CustomFunctions.zs"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 00332-lweapons-zh/lweapons.zh Line 13 - Error P083: Could not find included file 'LW_ZH/lw_deprecated.zs'. Please check your include paths!
+
+11    import "CustomFunctions.zs"
+12    
+13    import "LW_ZH/lw_deprecated.zs"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 00332-lweapons-zh/lweapons.zh Line 14 - Error P083: Could not find included file 'LW_ZH/lw_global.zs'. Please check your include paths!
+
+12    
+13    import "LW_ZH/lw_deprecated.zs"
+14    import "LW_ZH/lw_global.zs"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 00332-lweapons-zh/lweapons.zh Line 15 - Error P083: Could not find included file 'LW_ZH/lw_generic.zs'. Please check your include paths!
+
+13    import "LW_ZH/lw_deprecated.zs"
+14    import "LW_ZH/lw_global.zs"
+15    import "LW_ZH/lw_generic.zs"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 00332-lweapons-zh/lweapons.zh Line 16 - Error P083: Could not find included file 'LW_ZH/lw_common.zs'. Please check your include paths!
+
+14    import "LW_ZH/lw_global.zs"
+15    import "LW_ZH/lw_generic.zs"
+16    import "LW_ZH/lw_common.zs"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 00332-lweapons-zh/lweapons.zh Line 17 - Error P083: Could not find included file 'LW_ZH/lw_update.zs'. Please check your include paths!
+
+15    import "LW_ZH/lw_generic.zs"
+16    import "LW_ZH/lw_common.zs"
+17    import "LW_ZH/lw_update.zs"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 00332-lweapons-zh/lweapons.zh Line 18 - Error P083: Could not find included file 'LW_ZH/lw_movement.zs'. Please check your include paths!
+
+16    import "LW_ZH/lw_common.zs"
+17    import "LW_ZH/lw_update.zs"
+18    import "LW_ZH/lw_movement.zs"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 00332-lweapons-zh/lweapons.zh Line 19 - Error P083: Could not find included file 'LW_ZH/lw_life.zs'. Please check your include paths!
+
+17    import "LW_ZH/lw_update.zs"
+18    import "LW_ZH/lw_movement.zs"
+19    import "LW_ZH/lw_life.zs"
+      ^~~~~~~~~~~~~~~~~~~~~~~~
+
+
 00332-lweapons-zh/lweapons.zh Line 20 - Error P083: Could not find included file 'LW_ZH/lw_other.zs'. Please check your include paths!
+
+18    import "LW_ZH/lw_movement.zs"
+19    import "LW_ZH/lw_life.zs"
+20    import "LW_ZH/lw_other.zs"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 00332-lweapons-zh/lweapons.zh Line 21 - Error P083: Could not find included file 'LW_ZH/lw_scripts.zs'. Please check your include paths!
+
+19    import "LW_ZH/lw_life.zs"
+20    import "LW_ZH/lw_other.zs"
+21    import "LW_ZH/lw_scripts.zs"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 00332-lweapons-zh/lweapons.zh Line 22 - Error P083: Could not find included file 'LW_ZH/lw_medallions.zs'. Please check your include paths!
+
+20    import "LW_ZH/lw_other.zs"
+21    import "LW_ZH/lw_scripts.zs"
+22    import "LW_ZH/lw_medallions.zs"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 00332-lweapons-zh/lweapons.zh Line 23 - Error P083: Could not find included file 'LW_ZH/lw_hookshots.zs'. Please check your include paths!
+
+21    import "LW_ZH/lw_scripts.zs"
+22    import "LW_ZH/lw_medallions.zs"
+23    import "LW_ZH/lw_hookshots.zs"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 00332-lweapons-zh/lweapons.zh Line 24 - Error P083: Could not find included file 'LW_ZH/lw_somaria.zs'. Please check your include paths!
+
+22    import "LW_ZH/lw_medallions.zs"
+23    import "LW_ZH/lw_hookshots.zs"
+24    import "LW_ZH/lw_somaria.zs"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -1355,7 +4189,14 @@ Compile finished with exit code '-1' (compiled with warnings)
 Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected LBRACE, expecting COMMA or RPAREN [00336-splitting-segmented-worm/SegmentWorm.zs Line 47 Column 62 '{']
-.tmp/test_zscript_database/00336-splitting-segmented-worm/SegmentWorm.zs Line 5 - Error P001: Included file '00336-splitting-segmented-worm/SegmentWorm.zs' encountered an error.
+.tmp/test_zscript_database/00336-splitting-segmented-worm/SegmentWorm.zs Line 6 - Error P001: Included file '00336-splitting-segmented-worm/SegmentWorm.zs' encountered an error.
+
+4    
+5    #include "std.zh"
+6    #include "00336-splitting-segmented-worm/SegmentWorm.zs"
+     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -1365,6 +4206,13 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 00337-emilymisc-zh/EmilyMisc.zh Line 28 - Error T021: Function Debug->NULL() has not been declared.
+
+26    // Invalid script
+27    if(scriptNum < 0 || scriptNum > 511)
+28        return Debug->NULL();
+                 ^~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '21' (compiled with errors)
 
@@ -1372,6 +4220,13 @@ Compile finished with exit code '21' (compiled with errors)
 Pass 1: Parsing
 Pass 2: Preprocessing
 00339-day-night-cycle-tint-zh/DayNight.zs Line 9 - Error P083: Could not find included file 'Tint.zh'. Please check your include paths!
+
+ 7    #option SHORT_CIRCUIT on
+ 8    #option HEADER_GUARD on
+ 9    #include "Tint.zh"
+      ^~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -1382,6 +4237,13 @@ Pass 3: Registration
 Pass 4: Analyzing Code
 Pass 5: Checking code paths
 00352-betterconveyors/BetterConveyors.zs Line 140 - Error S102: Function '_CanWalk' is not void, and must return a value!
+
+138     * A version of CanWalk() that works with large enemies/items.
+139     */
+140    bool _CanWalk(int x, int y, int wid, int hei, int dir, int step) 
+            ^~~~~~~~
+
+
 Failure!
 Compile finished with exit code '102' (compiled with errors)
 
@@ -1391,6 +4253,13 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 00360-ffc-shop/FFCShop/2.53 Version/FFCShop.zs Line 74 - Error S009: Variable tangoTemp has not been declared.
+
+72    Link->PressA = false;
+73    //Set shop vars
+74    tangoTemp=false; //Set the default answer, if the menu is canceled out of, to "no"
+      ^~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '9' (compiled with errors)
 
@@ -1398,6 +4267,13 @@ Compile finished with exit code '9' (compiled with errors)
 Pass 1: Parsing
 Pass 2: Preprocessing
 00360-ffc-shop/FFCShop/2.55 Version/FFCShop.zs Line 9 - Error P083: Could not find included file 'TangoHandler.zh'. Please check your include paths!
+
+ 7    #option HEADER_GUARD on
+ 8    #option BINARY_32BIT off
+ 9    #include "TangoHandler.zh"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -1405,6 +4281,13 @@ Compile finished with exit code '-1' (compiled with warnings)
 Pass 1: Parsing
 Pass 2: Preprocessing
 00360-ffc-shop/FFCShop/2.55 Version/v1.03/FFCShop.zs Line 4 - Error P083: Could not find included file 'TangoHandler.zh'. Please check your include paths!
+
+2    #option HEADER_GUARD on
+3    #option BINARY_32BIT off
+4    #include "TangoHandler.zh"
+     ^~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -1413,6 +4296,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 00361-simpletangohandler/SimpleTangoHandler/2.53 Version/customTango.zh Line 8 - Error S008: There is already a variable with name __TANGO_SCROLL_SPEED in this scope.
+
+6    
+7    // How fast messages scroll.
+8    const int __TANGO_SCROLL_SPEED = 4;
+               ^~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '8' (compiled with errors)
 
@@ -1421,6 +4311,13 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 00361-simpletangohandler/SimpleTangoHandler/2.55 Version/customTango.zh Line 8 - Error S008: There is already a variable with name __TANGO_SCROLL_SPEED in this scope.
+
+6    
+7    // How fast messages scroll.
+8    const int __TANGO_SCROLL_SPEED = 4;
+               ^~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '8' (compiled with errors)
 
@@ -1430,6 +4327,13 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 00363-thanos-snap-infinity-gauntlet/ThanosSnap.zs Line 104 - Error T017: Cannot cast from bool to void.
+
+102    case NPCT_PATRA:
+103    case NPCT_GANON:
+104        return false; //Immune types
+           ^~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '17' (compiled with errors)
 
@@ -1439,6 +4343,13 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 00366-templinkstate-zh/TempLinkState.zh Line 69 - Error T021: Function ScrollingLinkX() has not been declared.
+
+67    --_TempLinkState[_TLSI_LTOTIMER];
+68    if(TEMPLINKSTATE_TILE_OVERRIDE_DRAW_DURING_SCROLL&&Link->Action==LA_SCROLLING)
+69        _TempLinkState_DrawLink(ScrollingLinkX(), ScrollingLinkY());
+                                  ^~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '21' (compiled with errors)
 
@@ -1448,6 +4359,13 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 00374-dodge-roll-action/script.zs Line 97 - Error T021: Function TempLinkState_UnsetCollDetection() has not been declared.
+
+95    //Make Link invincible during iframes
+96    if(LinkRoll[_LRI_COUNTER]>=LINKROLL_IFRAMES_DELAY&&LinkRoll[_LRI_COUNTER]<LINKROLL_IFRAMES_DELAY+LINKROLL_IFRAMES)
+97        TempLinkState_UnsetCollDetection();
+          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '21' (compiled with errors)
 
@@ -1455,6 +4373,13 @@ Compile finished with exit code '21' (compiled with errors)
 Pass 1: Parsing
 Pass 2: Preprocessing
 00381-better-ladder/script.zs Line 6 - Error P083: Could not find included file 'headers/stdExtra.zh'. Please check your include paths!
+
+4    //#include "CustomFunctions.zs"// You probably won't need this.
+5    //I'm not sure you'll need this either.
+6    #include "headers/stdExtra.zh"
+     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -1464,6 +4389,13 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 00415-grayswandir-sideview-engine/GSD_sideview/GSD/GSD_sideview_anim.z Line 67 - Error S009: Variable LinkX has not been declared.
+
+65    void CreateLinkWaterSplashAnim(){
+66        bool burn = false;
+67        lweapon l = CreateLWeaponAt(LW_SPARKLE, LinkX, LinkY);
+                                                  ^~~~~
+
+
 Failure!
 Compile finished with exit code '9' (compiled with errors)
 
@@ -1473,6 +4405,13 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 00415-grayswandir-sideview-engine/GSD_sideview/GSD_extras/GSD_firebar.z Line 18 - Error T027: The left of the -> is not a pointer type (ffc, etc).
+
+16    for (int i=0; i<numballs; i++){
+17        if (innerenemyID>0)ball[i] = Screen->CreateNPC(innerenemyID);
+18        if (ball[i]->Damage==0) ball->CollDetection=false;
+                                  ^~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '27' (compiled with errors)
 
@@ -1482,6 +4421,13 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 00415-grayswandir-sideview-engine/GSD_sideview/GSD_extras/GSD_jumping_fireball.z Line 33 - Error S009: Variable CT_SIDEVIEW_WATER has not been declared.
+
+31    else{
+32        int loc = ComboAt(CenterX(ghost), CenterY(ghost));
+33        if ((Screen->ComboT[loc]==CT_SIDEVIEW_WATER)||(ComboFI(loc,CF_LAVA))){
+                                    ^~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '9' (compiled with errors)
 
@@ -1491,6 +4437,13 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 00415-grayswandir-sideview-engine/GSD_sideview/GSD_extras/mooshbumper.z Line 44 - Error S009: Variable LinkX has not been declared.
+
+42    for(int i=0; i<MAX_PUSH&&PushX<=-1; i++){
+43        if(CanWalk(Link->X, Link->Y, DIR_LEFT, 1, false)){
+44            LinkX--;
+              ^~~~~
+
+
 Failure!
 Compile finished with exit code '9' (compiled with errors)
 
@@ -1500,6 +4453,13 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 00419-slab-connection-puzzle/script.zs Line 63 - Error S009: Variable FFC_MISC_PUSHBLOCK_IMPULSE has not been declared.
+
+61    ffc f = Screen->LoadFFC(i);
+62    if (f->Script != scr) continue;
+63    if (f->Misc[FFC_MISC_PUSHBLOCK_IMPULSE] ==-1) continue;
+                  ^~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '9' (compiled with errors)
 
@@ -1507,7 +4467,14 @@ Compile finished with exit code '9' (compiled with errors)
 Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected RBRACE, expecting SEMICOLON [00431-no-cycle-spinning-tiles/script.zs Line 231 Column 3 '}']
-.tmp/test_zscript_database/00431-no-cycle-spinning-tiles/script.zs Line 5 - Error P001: Included file '00431-no-cycle-spinning-tiles/script.zs' encountered an error.
+.tmp/test_zscript_database/00431-no-cycle-spinning-tiles/script.zs Line 6 - Error P001: Included file '00431-no-cycle-spinning-tiles/script.zs' encountered an error.
+
+4    
+5    #include "std.zh"
+6    #include "00431-no-cycle-spinning-tiles/script.zs"
+     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -1517,6 +4484,13 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 00457-magnets-and-iron-beams-puzzle/magnetswitch.z Line 14 - Error T021: Function SwitchState(ffc, ffc) has not been declared.
+
+12    while(true){
+13        ffc n = Screen->LoadFFC(ffcid);
+14        if (SwitchState(n, this) && !MagnetActive()){
+              ^~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '21' (compiled with errors)
 
@@ -1526,10 +4500,45 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 00457-magnets-and-iron-beams-puzzle/script.zs Line 224 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+222    int rcmb = Screen->ComboD[i];
+223    int rcset = Screen->ComboC[i];
+224    Screen->ComboD[i] = ucmb[arr];
+                           ^~~~~~~~~
+
+
 00457-magnets-and-iron-beams-puzzle/script.zs Line 225 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+223    int rcset = Screen->ComboC[i];
+224    Screen->ComboD[i] = ucmb[arr];
+225    Screen->ComboC[i] = ucset[arr];
+                           ^~~~~~~~~~
+
+
 00457-magnets-and-iron-beams-puzzle/script.zs Line 226 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+224    Screen->ComboD[i] = ucmb[arr];
+225    Screen->ComboC[i] = ucset[arr];
+226    ucmb[arr] = rcmb;
+       ^~~~~~~~~
+
+
 00457-magnets-and-iron-beams-puzzle/script.zs Line 227 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+225    Screen->ComboC[i] = ucset[arr];
+226    ucmb[arr] = rcmb;
+227    ucset[arr]=rcset;
+       ^~~~~~~~~~
+
+
 00457-magnets-and-iron-beams-puzzle/script.zs Line 461 - Error T021: Function SwitchState(ffc, ffc) has not been declared.
+
+459    while(true){
+460        ffc n = Screen->LoadFFC(ffcid);
+461        if (SwitchState(n, this) && !MagnetActive()){
+               ^~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '21' (compiled with errors)
 
@@ -1539,6 +4548,13 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 00479-mouse-header-for-debugging/tbt_mouse/tbt_mouse_global.zh Line 10 - Error S009: Variable MOUSE_LAYER has not been declared.
+
+ 8    unless(Link->InputR)
+ 9    {
+10        render_mouse(MOUSE_LAYER, MOUSE_COLOR, MOUSE_OPACITY, MOUSE_STYLE);
+                       ^~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '9' (compiled with errors)
 
@@ -1546,7 +4562,14 @@ Compile finished with exit code '9' (compiled with errors)
 Pass 1: Parsing
 Pass 2: Preprocessing
 syntax error, unexpected LOOP, expecting EMPTYBRACKETS or IDENTIFIER [00499-npcanim-zh/NPCAnim.zh Line 272 Column 14 'loop']
-.tmp/test_zscript_database/00499-npcanim-zh/NPCAnim.zh Line 6 - Error P001: Included file '00499-npcanim-zh/NPCAnim.zh' encountered an error.
+.tmp/test_zscript_database/00499-npcanim-zh/NPCAnim.zh Line 7 - Error P001: Included file '00499-npcanim-zh/NPCAnim.zh' encountered an error.
+
+5    #include "std.zh"
+6    #include "ghost.zh"
+7    #include "00499-npcanim-zh/NPCAnim.zh"
+     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 
@@ -1556,6 +4579,13 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 00500--monarch-ascendant/MonarchAscendant.zs Line 11 - Error P073: 'using' found no matches for the namespace NPCAnim.
+
+ 9    
+10    npc script MonarchAscendant{
+11        using namespace NPCAnim;
+          ^~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '73' (compiled with errors)
 
@@ -1565,6 +4595,13 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 00520-poker-monsters/NofaKind.z Line 150 - Error T021: Function IsNoaKind(int[], int, bool, bool, int) has not been declared.
+
+148    if (ready && !check){
+149        if (combination==0){
+150            fit = IsNoaKind(poker, miscval1, ex, side, miscval2);
+                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '21' (compiled with errors)
 
@@ -1574,6 +4611,13 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 00520-poker-monsters/script.zs Line 150 - Error T021: Function IsNoaKind(int[], int, bool, bool, int) has not been declared.
+
+148    if (ready && !check){
+149        if (combination==0){
+150            fit = IsNoaKind(poker, miscval1, ex, side, miscval2);
+                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '21' (compiled with errors)
 
@@ -1583,6 +4627,13 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 00532-status-effects/statusEffects.zs Line 84 - Error T021: Function Min(const Status, int) has not been declared.
+
+82    if(int arr = weap->Misc[EWMISC_STATUS])
+83    {
+84        int sz = Min(NUM_STATS, SizeOfArray(arr));
+                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '21' (compiled with errors)
 
@@ -1592,8 +4643,29 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 00533-test-play-init-data-backups/script.zs Line 543 - Warning S108: Arrays should be explicitly typed - change `TestPlayInitData` to `TestPlayInitData[]`
+
+541    for(int i=0; i<10; ++i)
+542    {
+543        if(slots[i]->Valid&&slots[i]->SavedDMap==Game->GetCurDMap())
+              ^~~~~~~~
+
+
 00533-test-play-init-data-backups/script.zs Line 543 - Warning S108: Arrays should be explicitly typed - change `TestPlayInitData` to `TestPlayInitData[]`
+
+541    for(int i=0; i<10; ++i)
+542    {
+543        if(slots[i]->Valid&&slots[i]->SavedDMap==Game->GetCurDMap())
+                               ^~~~~~~~
+
+
 00533-test-play-init-data-backups/script.zs Line 402 - Error T021: Function TryFindDMapSlot(TestPlayInitData[], int) has not been declared.
+
+400        Quit();
+401        
+402    slot = TryFindDMapSlot(slots, slot);
+              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '21' (compiled with errors)
 
@@ -1603,6 +4675,13 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 00536-poker-combos/pokercombos.z Line 116 - Error T021: Function IsNoaKind(int[], int, bool, bool, int) has not been declared.
+
+114    if (ready){
+115        if (combination==0){
+116            fit = IsNoaKind(poker, miscval1, ex, side, miscval2);
+                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '21' (compiled with errors)
 
@@ -1612,6 +4691,13 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 00536-poker-combos/script.zs Line 231 - Error T021: Function IsNoaKind(int[], int, bool, bool, int) has not been declared.
+
+229                    if (combination==0){
+230    
+231                        fit = IsNoaKind(poker, miscval1, ex, side, miscval2);
+                                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '21' (compiled with errors)
 
@@ -1621,6 +4707,13 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 00547--new-palette-based-day-night-system/DayNightNew.zs Line 331 - Error T017: Cannot cast from DMapDayNight to int.
+
+329    
+330                // If the DMap has day/night data defined
+331                if(DDN[whichDMap]>NULL)
+                      ^~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '17' (compiled with errors)
 
@@ -1630,6 +4723,13 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 00571-gumzol/gumzol.z Line 80 - Error S009: Variable STATUS_STATE has not been declared.
+
+78    //Status effect code to be put inside global script.
+79    void GumStatusUpdate(){
+80        if (STATUS_STATE[STATUS_GUM]>0){//A more advanced version of status effect template.
+              ^~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '9' (compiled with errors)
 
@@ -1639,6 +4739,13 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 00571-gumzol/script.zs Line 80 - Error S009: Variable STATUS_STATE has not been declared.
+
+78    //Status effect code to be put inside global script.
+79    void GumStatusUpdate(){
+80        if (STATUS_STATE[STATUS_GUM]>0){//A more advanced version of status effect template.
+              ^~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '9' (compiled with errors)
 
@@ -1648,6 +4755,13 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 00580-mani-s-script-header/script.zs Line 312 - Error S009: Variable BLNK_SPRITE has not been declared.
+
+310    int Swordtile = Sword->Tile;
+311    int SwordCSet = Sword->CSet;
+312    Sword->UseSprite(BLNK_SPRITE);
+                        ^~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '9' (compiled with errors)
 

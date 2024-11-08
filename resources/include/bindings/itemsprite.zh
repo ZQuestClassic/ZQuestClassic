@@ -2,6 +2,8 @@
 
 typedef itemsprite item;
 
+// An active item on the screen. See [Screen->LoadItem] and [Screen->CreateItem].
+//
 // @zasm_ref REFITEM
 // @extends sprite
 class itemsprite {
