@@ -6,8 +6,7 @@
 #include "sprite.h"
 #include "zc/maps.h"
 
-// TODO ! slope_id_t
-std::map<uint32_t, slope_object> slopes;
+std::map<slope_id_t, slope_object> slopes;
 
 slope_info::slope_info(newcombo const& cmb, zfix const& xoffs, zfix const& yoffs)
 	: cmb(&cmb)

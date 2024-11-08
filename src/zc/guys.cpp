@@ -18472,14 +18472,14 @@ void load_default_enemies(mapscr* scr)
 #define SLOPE_STAGE_FFCS 1
 #define SLOPE_STAGE_COMBOS_BORDERING_SCREENS 2
 
-static int create_slope_id(int stage, int arg1, int arg2)
+static slope_id_t create_slope_id(int stage, int arg1, int arg2)
 {
 	if (stage == SLOPE_STAGE_COMBOS)
 		return (region_num_rpos*arg1)+arg2;
 	if (stage == SLOPE_STAGE_FFCS)
 		return (region_num_rpos*7)+arg1;
 	if (stage == SLOPE_STAGE_COMBOS_BORDERING_SCREENS)
-		return (region_num_rpos*7 + MAXFFCS)+arg1*7*(16 * 2 + 11 * 2) + arg2;
+		return (region_num_rpos*7 + MAX_FFCID+1)+arg1*7*(16 * 2 + 11 * 2) + arg2;
 	// TODO: what about FFCs from bordering screens?
 
 	assert(false);

@@ -141,7 +141,7 @@ static inline bool on_sideview_solid_oldpos(sprite* obj, bool ignoreFallthrough 
 		return false;
 	if (_walkflag(x+4,y+16,1) || _walkflag(x+12,y+16,1))
 		return true;
-	if (y>=160_zf && currscr>=0x70 && !(hero_scr->flags2&wfDOWN))
+	if (y>=world_h-16 && currscr>=0x70 && !(hero_scr->flags2&wfDOWN))
 		return true;
 	if (platform_fallthrough() && !ignoreFallthrough) return false;
 	if (slopesmisc != 1 && check_new_slope(rx, ry+0.0001_zf, rw, rh, orx, ory, false, true, obj->slopeid) < 0)

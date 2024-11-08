@@ -12,7 +12,8 @@ class solid_object;
 struct newcombo;
 struct slope_object;
 
-extern std::map<uint32_t, slope_object> slopes;
+typedef int32_t slope_id_t;
+extern std::map<slope_id_t, slope_object> slopes;
 void draw_slopes(BITMAP *dest, int32_t x, int32_t y, int32_t col);
 void draw_slopes_a5(int32_t x, int32_t y, ALLEGRO_COLOR col);
 
