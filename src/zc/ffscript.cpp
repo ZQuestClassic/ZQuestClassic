@@ -23660,11 +23660,10 @@ int32_t get_int_arr(const int32_t ptr, int32_t indx)
 			if(BC::checkFFC(indx, "Screen->FFCs[]") != SH::_NoError)
 				return 0;
 
-			// TODO z3 !!!
 			if (ZScriptVersion::ffcRefIsSpriteId())
-				return tmpscr->getFFC(indx).getUID();
+				return get_ffc_raw(indx)->getUID();
 
-			tmpscr->ensureFFC(indx);
+			get_ffc_raw(indx); // ensure it exists.
 			return indx*10000;
 		}
 		case INTARR_SCREEN_PORTALS:

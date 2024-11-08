@@ -32,11 +32,25 @@ Note: all this is ignoring the fact that the bottom 8 pixels has always and cont
 
 TODO
 
-### MapData and ScreenData
+### `mapdata` and `Screen`
 
-First of all, the `Screen->` methods all operate on the origin screen, and cannot be changed. Before regions that would just be the only screen that is loaded. With regions, it is the top-left screen of the region. In general these methods have been surpassed by `mapdata`, so if you are scripting with Regions you should entirely avoid `Screen->` for reading/writing to the active map screens. The only exceptions to this are methods that takes as input a `pos`, such as `Screen->ComboD[pos]` - these can still be used to access any position in the base screen, since `pos` can now be greater than 175. Read on for more details.
+First of all, the `Screen->` methods all operate on the origin screen, and cannot be changed. Before regions, `Screen` was the only screen that is loaded. In a region:
 
-There is `Game->LoadMapData(map, screen)`, `Game->LoadTempScreen(layer)`, and `Game->LoadScrollingScreen(layer)`. These all return a `mapdata`.
+* `Screen` refers to the top-left screen
+* `Screen->ComboD[pos]` can return any combo in the current region. Before regions, `pos` (which stands for combo position) could be `0-175`. The same is true with regions, but the range is `0` to `Region->NumCombos` (exclusive), where `Region->NumCombos` is 176 multiplied by the number of screens in a region.
+* The above is also true for:
+* * `Screen->ComboC[pos]`
+* * `Screen->ComboF[pos]`
+* * `Screen->ComboI[pos]`
+* * `Screen->ComboT[pos]`
+* * `Screen->ComboS[pos]`
+* * `Screen->ComboE[pos]`
+* `Screen->LoadFFC(ffcid)` can return any FFC within the current region. Before regions, `ffcid` could be `1-128`
+* For everything else on `Screen->`, it accesses the top-left screen in the region
+
+Before regions, to iterate every combo on a screen you loop between 0 and 176. With regions, the upper value is instead `Region->NumCombos` - when not in a region, this value is 176. To make scripts compatible with regions, replace 176 with `Region->NumCombos`.
+
+To access other screens of the current region, use `mapdata`. There is `Game->LoadMapData(map, screen)`, `Game->LoadTempScreen(layer)`, and `Game->LoadScrollingScreen(layer)`. These all return a `mapdata`:
 
 * `Game->LoadMapData(map, screen)`: Returns a handle that accesses canonical screens. If the player is currently on this screen, no changes will be observed until the screen is reloaded. Modifications will not persist after saving/continue.
 * `Game->LoadTempScreen(layer)`: Returns a handle that accesses the currently loaded screen at the given layer. When the player enters a screen, the canonical screen is copied to a temporary screen, such that any modifications to the temporary screen will not persist when the player leaves the screen.
@@ -45,8 +59,6 @@ There is `Game->LoadMapData(map, screen)`, `Game->LoadTempScreen(layer)`, and `G
 With a `mapdata` from a temporary or scrolling screen, methods such as `mapdata->ComboD[pos]` behave slightly differently than before regions. Before, `pos` (which stands for combo position) is a `0-175` value indexes into the individual combos of a screen. The same is true with regions, but the range is `0` to `Region->NumCombos` (exclusive), where `Region->NumCombos` is 176 multiplied by the number of screens in a region.
 
 To get the correct value of `pos` for a given `x` and `y` coordinate, you can still use `ComboAt(x, y)`. This will use the current region to determine the combo position.
-
-If you were iterating between 0 and 175 to hit every combo in a `mapdata`, you can use the new `Region->NumCombos`. If not in a region, this values is just 176. Changing your code to use this instead of 176 is necessary to make a script compatible with regions.
 
 (NOT YET IMPLEMENTED): FFCs
 

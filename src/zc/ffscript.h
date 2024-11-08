@@ -1777,7 +1777,7 @@ public:
 	
 	static INLINE int32_t checkFFC(const int32_t ffc, const char * const str)
 	{
-		return checkBounds(ffc, 0, MAXFFCS-1, str);
+		return checkBounds(ffc, 0, MAX_FFCID, str);
 	}
 	
 	static INLINE int32_t checkGuyIndex(const int32_t index, const char * const str)
