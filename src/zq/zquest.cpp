@@ -21360,7 +21360,8 @@ bool handle_slot(script_slot_data& slotdata, int indx, script_data** scriptdata)
 	{
 		string scriptstr;
 		(*doslot_scripts)[slotdata.scriptname].write(scriptstr, doslots_log_output, false, doslots_comment_output);
-		parse_script_string(scriptdata[indx],scriptstr,false);
+		if (parse_script_string(scriptdata[indx],scriptstr,false) != D_O_K)
+			return false;
 		
 		if(slotdata.isDisassembled()) scriptdata[indx]->meta.setFlag(ZMETA_DISASSEMBLED);
 		else if(slotdata.isImportedZASM()) scriptdata[indx]->meta.setFlag(ZMETA_IMPORTED);

@@ -655,6 +655,12 @@ namespace ZScript
 
 	// Get the function's parameter count, including "this" if present.
 	int32_t getParameterCount(Function const&);
+
+	bool is_test();
+
+	int getSourceCodeNumLines(const LocationData& loc);
+	std::string getSourceCodeSnippet(const LocationData& loc);
+	std::string getErrorContext(const LocationData& loc);
 }
 
 #endif

@@ -85,6 +85,16 @@ void zparser_error_out(std::string message)
 
 	if (!current_diagnostics || curfilename != input_script_filename) return;
 
+	ZScript::LocationData loc{};
+	loc.first_line = yylloc.first_line;
+	loc.last_line = yylloc.last_line;
+	loc.first_column = yylloc.first_column;
+	loc.last_column = yylloc.last_column;
+	loc.fname = input_script_filename;
+	std::string context = getErrorContext(loc);
+	if (!context.empty())
+		zconsole_error(context);
+
 	auto& diag = current_diagnostics->emplace_back();
 	diag.severity = DiagnosticSeverity::Error;
 	diag.message = message;
@@ -97,6 +107,16 @@ void zparser_error_out(std::string message)
 void zparser_warn_out(std::string message)
 {
 	if (!current_diagnostics || curfilename != input_script_filename) return;
+
+	ZScript::LocationData loc{};
+	loc.first_line = yylloc.first_line;
+	loc.last_line = yylloc.last_line;
+	loc.first_column = yylloc.first_column;
+	loc.last_column = yylloc.last_column;
+	loc.fname = input_script_filename;
+	std::string context = getErrorContext(loc);
+	if (!context.empty())
+		zconsole_error(context);
 
 	auto& diag = current_diagnostics->emplace_back();
 	diag.severity = DiagnosticSeverity::Warning;
@@ -298,7 +318,7 @@ static void fill_result(json& data, int code, ZScript::ScriptsData* result)
 		data["metadata"] = result->metadata;
 }
 
-bool delay_asserts = false, ignore_asserts = false;
+bool delay_asserts = false, ignore_asserts = false, is_json_output = false;
 std::vector<std::filesystem::path> force_ignores;
 int32_t main(int32_t argc, char **argv)
 {
@@ -431,6 +451,7 @@ int32_t main(int32_t argc, char **argv)
 	}
 
 	bool do_json_output = used_switch(argc, argv, "-json") > 0;
+	is_json_output = do_json_output;
 
 	bool metadata = used_switch(argc, argv, "-metadata") > 0;
 	int metadata_tmp_path_idx = used_switch(argc, argv, "-metadata-tmp-path");

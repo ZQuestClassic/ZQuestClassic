@@ -413,7 +413,8 @@ bool do_compile_and_slots(int assign_mode, bool delay)
 	do_script_disassembly(scripts, true);
 	
 	//assign scripts to slots
-	do_slots(scripts, assign_mode);
+	if (!do_slots(scripts, assign_mode))
+		return false;
 	
 	if(WarnOnInitChanged && noquick_compile)
 	{

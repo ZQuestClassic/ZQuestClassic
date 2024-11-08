@@ -59,7 +59,7 @@ static std::string make_uri(std::string path)
 		path = metadata_orig_path;
 
 	// For consistent test results no matter the machine.
-	if (std::getenv("TEST_ZSCRIPT") != nullptr)
+	if (is_test())
 		return !path.empty() ? fs::path(path).filename().string() : "";
 
 	path = (fs::current_path() / path).string();

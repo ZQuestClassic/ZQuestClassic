@@ -6,12 +6,54 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 errors_5.zs Line 9 @ Columns 3-22 - Error C036: Variable Game->CurScreen is constant and cannot be changed.
+
+ 7    {
+ 8        //Read-only vars should warn
+ 9        Game->CurScreen = 2;
+          ^~~~~~~~~~~~~~~~~~~
+
+
 errors_5.zs Line 10 @ Columns 3-20 - Error C036: Variable Game->CurDMap is constant and cannot be changed.
+
+ 8    //Read-only vars should warn
+ 9    Game->CurScreen = 2;
+10    Game->CurDMap = 5;
+      ^~~~~~~~~~~~~~~~~
+
+
 errors_5.zs Line 11 @ Columns 3-21 - Error C036: Variable Hero->IceCombo is constant and cannot be changed.
+
+ 9    Game->CurScreen = 2;
+10    Game->CurDMap = 5;
+11    Hero->IceCombo = 0;
+      ^~~~~~~~~~~~~~~~~~
+
+
 errors_5.zs Line 13 @ Columns 3-12 - Error S095: Function 'Untype(untyped)' is deprecated, and cannot be used due to current compiler settings.
+
+11    Hero->IceCombo = 0;
+12    //Deprecated things error due to #option
+13    Untype(5);
+      ^~~~~~~~~
+
+
 errors_5.zs Line 14 @ Columns 3-31 - Error S095: Function 'TraceNPC(untyped)' is deprecated, and cannot be used due to current compiler settings.
+
+12    //Deprecated things error due to #option
+13    Untype(5);
+14    TraceNPC(Screen->LoadNPC(0));
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 INFO: Use Trace instead
 errors_5.zs Line 15 @ Columns 9-28 - Error T029: There is no variable ScriptEntry for the pointer (screendata) on the left side of ->.
+
+13    Untype(5);
+14    TraceNPC(Screen->LoadNPC(0));
+15    Trace(Screen->ScriptEntry);
+            ^~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '36' (compiled with errors)
 

@@ -5,10 +5,45 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 errors_6.zs Line 14 @ Columns 5-6 - Error S008: There is already a variable with name a in this scope.
+
+12    
+13    int a = 1;
+14    int a = 1;
+          ^
+
+
 errors_6.zs Line 17 @ Columns 6-10 - Error S004: Function blah was already declared with that type signature.
+
+15    
+16    void blah(){}
+17    void blah(){}
+           ^~~~
+
+
 errors_6.zs Line 5 @ Columns 6-7 - Error S008: There is already a variable with name a in this scope.
+
+3    class Car {
+4        int a;
+5        int a;
+             ^
+
+
 errors_6.zs Line 10 @ Columns 7-10 - Error S087: Duplicate class with name Car already exists.
+
+ 8        void blah(){}
+ 9    }
+10    class Car {
+            ^~~
+
+
 errors_6.zs Line 8 @ Columns 7-11 - Error S004: Function blah was already declared with that type signature.
+
+6    
+7        void blah(){}
+8        void blah(){}
+              ^~~~
+
+
 Failure!
 Compile finished with exit code '8' (compiled with errors)
 

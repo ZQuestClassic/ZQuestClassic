@@ -6,15 +6,85 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 arrays.zs Line 71 @ Columns 37-43 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+69    void fnOldStyleArray(int arr)
+70    {
+71        printf("fnOldStyleArray(int arr)", arr[0]);
+                                             ^~~~~~
+
+
 arrays.zs Line 82 @ Columns 3-9 - Error S109: Arrays should be explicitly typed - change `int` to `int[]`
+
+80            #option LEGACY_ARRAYS off
+81    
+82            arr[0];
+              ^~~~~~
+
+
 arrays.zs Line 9 @ Columns 6-10 - Warning S108: Array mismatch for types int[] and int
+
+ 7    
+ 8        // Warn
+ 9        int arr2 = {1};
+              ^~~~
+
+
 arrays.zs Line 10 @ Columns 8-12 - Warning S108: Array mismatch for types int and int[]
+
+ 8    // Warn
+ 9    int arr2 = {1};
+10    int[] arr3 = 1;
+            ^~~~
+
+
 arrays.zs Line 15 @ Columns 7-11 - Error S109: Array mismatch for types int[] and int
+
+13            #option LEGACY_ARRAYS off
+14    
+15            int arr2 = {1};
+                  ^~~~
+
+
 arrays.zs Line 16 @ Columns 9-13 - Error S109: Array mismatch for types int and int[]
+
+14    
+15            int arr2 = {1};
+16            int[] arr3 = 1;
+                    ^~~~
+
+
 arrays.zs Line 43 @ Columns 2-26 - Warning S108: Array mismatch for types int[][] and int[]
+
+41    
+42        int[] arr_multi[] = {arr, arr};
+43        arr_multi[2] = arr_multi;
+          ^~~~~~~~~~~~~~~~~~~~~~~~
+
+
 arrays.zs Line 46 @ Columns 9-24 - Error T017: Cannot cast from bitmap[] to bitmap.
+
+44    
+45        // Legacy arrays for reference counted objects is always an error, regardless of LEGACY_ARRAYS.
+46        bitmap bitmaps_bad_arr = {new bitmap()};
+                 ^~~~~~~~~~~~~~~
+
+
 arrays.zs Line 48 @ Columns 2-41 - Error T021: Function fnNewStyleArrayObjects(bitmap) has not been declared.
+
+46    bitmap bitmaps_bad_arr = {new bitmap()};
+47    bitmap[] bitmaps_good_arr = {new bitmap()};
+48    fnNewStyleArrayObjects(bitmaps_bad_arr);
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 arrays.zs Line 53 @ Columns 10-28 - Warning S108: Array mismatch for types untyped[] and lweapon
+
+51    
+52        // lweapon is not a reference counted object, so this type mismatch defaults to a warning.
+53        lweapon weapons_legacy_arr = {NULL};
+                  ^~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '109' (compiled with errors)
 

@@ -6,230 +6,1805 @@ Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
 NewbieBoss.z Line 3463 @ Columns 4-29 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3461    
+3462    if(attack>=91&&attack<=93){
+3463        vars[EZBI_SPEEDUPCOUNTER] = 0;
+            ^~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3464 @ Columns 4-24 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3462    if(attack>=91&&attack<=93){
+3463        vars[EZBI_SPEEDUPCOUNTER] = 0;
+3464        vars[EZBI_INITSPEED] = ghost->Step;
+            ^~~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3466 @ Columns 5-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3464    vars[EZBI_INITSPEED] = ghost->Step;
+3465    if(attack==91){
+3466        vars[EZBI_MAXSPEEDCOUNTER] = FRAMES_EZB_SPEEDUP;
+            ^~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3467 @ Columns 5-24 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3465    if(attack==91){
+3466        vars[EZBI_MAXSPEEDCOUNTER] = FRAMES_EZB_SPEEDUP;
+3467        vars[EZBI_TOPSPEED] = vars[EZBI_INITSPEED]*2;
+            ^~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3467 @ Columns 27-47 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3465    if(attack==91){
+3466        vars[EZBI_MAXSPEEDCOUNTER] = FRAMES_EZB_SPEEDUP;
+3467        vars[EZBI_TOPSPEED] = vars[EZBI_INITSPEED]*2;
+                                  ^~~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3470 @ Columns 5-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3468    }
+3469    else if(attack==92){
+3470        vars[EZBI_MAXSPEEDCOUNTER] = FRAMES_EZB_SPEEDUP*2;
+            ^~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3471 @ Columns 5-24 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3469    else if(attack==92){
+3470        vars[EZBI_MAXSPEEDCOUNTER] = FRAMES_EZB_SPEEDUP*2;
+3471        vars[EZBI_TOPSPEED] = vars[EZBI_INITSPEED]*3;
+            ^~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3471 @ Columns 27-47 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3469    else if(attack==92){
+3470        vars[EZBI_MAXSPEEDCOUNTER] = FRAMES_EZB_SPEEDUP*2;
+3471        vars[EZBI_TOPSPEED] = vars[EZBI_INITSPEED]*3;
+                                  ^~~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3474 @ Columns 5-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3472    }
+3473    else if(attack==93){
+3474        vars[EZBI_MAXSPEEDCOUNTER] = FRAMES_EZB_SPEEDUP*3;
+            ^~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3475 @ Columns 5-24 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3473    else if(attack==93){
+3474        vars[EZBI_MAXSPEEDCOUNTER] = FRAMES_EZB_SPEEDUP*3;
+3475        vars[EZBI_TOPSPEED] = vars[EZBI_INITSPEED]*4;
+            ^~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3475 @ Columns 27-47 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3473    else if(attack==93){
+3474        vars[EZBI_MAXSPEEDCOUNTER] = FRAMES_EZB_SPEEDUP*3;
+3475        vars[EZBI_TOPSPEED] = vars[EZBI_INITSPEED]*4;
+                                  ^~~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3480 @ Columns 3-30 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3478    }
+3479    
+3480    attackPool[1+attackPool[0]] = attack;
+        ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3480 @ Columns 16-29 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3478    }
+3479    
+3480    attackPool[1+attackPool[0]] = attack;
+                     ^~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3481 @ Columns 5-18 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3479    
+3480    attackPool[1+attackPool[0]] = attack;
+3481    ++attackPool[0];
+          ^~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3500 @ Columns 8-18 - Warning S108: Arrays should be explicitly typed - change `npc` to `npc[]`
+
+3498    void EZB_AddSummon(npc n, npc summons){
+3499        for(int i=0; i<256; ++i){
+3500            if(!summons[i]->isValid()){
+                    ^~~~~~~~~~
+
+
 NewbieBoss.z Line 3501 @ Columns 5-15 - Warning S108: Arrays should be explicitly typed - change `npc` to `npc[]`
+
+3499    for(int i=0; i<256; ++i){
+3500        if(!summons[i]->isValid()){
+3501            summons[i] = n;
+                ^~~~~~~~~~
+
+
 NewbieBoss.z Line 3486 @ Columns 3-34 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3484    if(form==0)
+3485        return;
+3486    attackPool[101+attackPool[100]] = form;
+        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3486 @ Columns 18-33 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3484    if(form==0)
+3485        return;
+3486    attackPool[101+attackPool[100]] = form;
+                       ^~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3487 @ Columns 5-20 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3485        return;
+3486    attackPool[101+attackPool[100]] = form;
+3487    ++attackPool[100];
+          ^~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 2855 @ Columns 15-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+2853    }
+2854    int EZB_AngleDir(ffc this, npc ghost, int vars, int angle){
+2855        int flags = vars[EZBI_FLAGS];
+                        ^~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3348 @ Columns 6-25 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3346    int i;
+3347    int startIndex = 0;
+3348    if(vars[EZBI_BSBUFFER]==0)
+           ^~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3351 @ Columns 14-36 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3349        startIndex = 100;
+3350    
+3351    int size = vars[startIndex+011+6];
+                   ^~~~~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3310 @ Columns 6-25 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3308    int i;
+3309    int startIndex = 0;
+3310    if(vars[EZBI_BSBUFFER]==0)
+           ^~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3313 @ Columns 16-36 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3311        startIndex = 100;
+3312    
+3313    Ghost_CSet = vars[startIndex+000];
+                     ^~~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3315 @ Columns 20-40 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3313    Ghost_CSet = vars[startIndex+000];
+3314    if(!onlyDefenses){
+3315        ghost->Damage = vars[startIndex+001];
+                            ^~~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3316 @ Columns 26-46 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3314    if(!onlyDefenses){
+3315        ghost->Damage = vars[startIndex+001];
+3316        ghost->WeaponDamage = vars[startIndex+002];
+                                  ^~~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3317 @ Columns 20-40 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3315    ghost->Damage = vars[startIndex+001];
+3316    ghost->WeaponDamage = vars[startIndex+002];
+3317    ghost->Hunger = vars[startIndex+003];
+                        ^~~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3318 @ Columns 18-38 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3316    ghost->WeaponDamage = vars[startIndex+002];
+3317    ghost->Hunger = vars[startIndex+003];
+3318    ghost->Rate = vars[startIndex+004];
+                      ^~~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3319 @ Columns 22-42 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3317    ghost->Hunger = vars[startIndex+003];
+3318    ghost->Rate = vars[startIndex+004];
+3319    ghost->Haltrate = vars[startIndex+005];
+                          ^~~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3320 @ Columns 20-40 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3318    ghost->Rate = vars[startIndex+004];
+3319    ghost->Haltrate = vars[startIndex+005];
+3320    ghost->Homing = vars[startIndex+006];
+                        ^~~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3321 @ Columns 18-38 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3319    ghost->Haltrate = vars[startIndex+005];
+3320    ghost->Homing = vars[startIndex+006];
+3321    ghost->Step = vars[startIndex+007];
+                      ^~~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3322 @ Columns 20-40 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3320    ghost->Homing = vars[startIndex+006];
+3321    ghost->Step = vars[startIndex+007];
+3322    ghost->Weapon = vars[startIndex+008];
+                        ^~~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3323 @ Columns 21-41 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3321    ghost->Step = vars[startIndex+007];
+3322    ghost->Weapon = vars[startIndex+008];
+3323    ghost->ItemSet = vars[startIndex+009];
+                         ^~~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3324 @ Columns 17-37 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3322    ghost->Weapon = vars[startIndex+008];
+3323    ghost->ItemSet = vars[startIndex+009];
+3324    ghost->SFX = vars[startIndex+010];
+                     ^~~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3327 @ Columns 5-16 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3325    
+3326    for(i=0; i<11; ++i){
+3327        vars[300+i] = vars[startIndex+011+i];
+            ^~~~~~~~~~~
+
+
 NewbieBoss.z Line 3327 @ Columns 19-41 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3325    
+3326    for(i=0; i<11; ++i){
+3327        vars[300+i] = vars[startIndex+011+i];
+                          ^~~~~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3332 @ Columns 24-46 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3330    
+3331    for(i=0; i<18; ++i){
+3332        ghost->Defense[i] = vars[startIndex+022+i];
+                                ^~~~~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3335 @ Columns 16-36 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3333    }
+3334    if(includeHP){
+3335        ghost->HP = vars[startIndex+040];
+                        ^~~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3338 @ Columns 3-23 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3336        Ghost_HP = ghost->HP;
+3337    }
+3338    vars[EZBI_CURFORMID] = vars[startIndex+041];
+        ^~~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3338 @ Columns 26-46 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3336        Ghost_HP = ghost->HP;
+3337    }
+3338    vars[EZBI_CURFORMID] = vars[startIndex+041];
+                               ^~~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3340 @ Columns 6-25 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3338        vars[EZBI_CURFORMID] = vars[startIndex+041];
+3339    
+3340        if(vars[EZBI_BSBUFFER]==0)
+               ^~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3341 @ Columns 4-23 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3339    
+3340        if(vars[EZBI_BSBUFFER]==0)
+3341            vars[EZBI_BSBUFFER] = 1;
+                ^~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3343 @ Columns 4-23 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3341        vars[EZBI_BSBUFFER] = 1;
+3342    else
+3343        vars[EZBI_BSBUFFER] = 0;
+            ^~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3256 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3254    npc n = CreateNPCAt(newForm, 128, -1000);
+3255    
+3256    vars[000] = Ghost_CSet;
+        ^~~~~~~~~
+
+
 NewbieBoss.z Line 3257 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3255    
+3256    vars[000] = Ghost_CSet;
+3257    vars[001] = ghost->Damage;
+        ^~~~~~~~~
+
+
 NewbieBoss.z Line 3258 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3256    vars[000] = Ghost_CSet;
+3257    vars[001] = ghost->Damage;
+3258    vars[002] = ghost->WeaponDamage;
+        ^~~~~~~~~
+
+
 NewbieBoss.z Line 3259 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3257    vars[001] = ghost->Damage;
+3258    vars[002] = ghost->WeaponDamage;
+3259    vars[003] = ghost->Hunger;
+        ^~~~~~~~~
+
+
 NewbieBoss.z Line 3260 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3258    vars[002] = ghost->WeaponDamage;
+3259    vars[003] = ghost->Hunger;
+3260    vars[004] = ghost->Rate;
+        ^~~~~~~~~
+
+
 NewbieBoss.z Line 3261 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3259    vars[003] = ghost->Hunger;
+3260    vars[004] = ghost->Rate;
+3261    vars[005] = ghost->Haltrate;
+        ^~~~~~~~~
+
+
 NewbieBoss.z Line 3262 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3260    vars[004] = ghost->Rate;
+3261    vars[005] = ghost->Haltrate;
+3262    vars[006] = ghost->Homing;
+        ^~~~~~~~~
+
+
 NewbieBoss.z Line 3263 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3261    vars[005] = ghost->Haltrate;
+3262    vars[006] = ghost->Homing;
+3263    vars[007] = ghost->Step;
+        ^~~~~~~~~
+
+
 NewbieBoss.z Line 3264 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3262    vars[006] = ghost->Homing;
+3263    vars[007] = ghost->Step;
+3264    vars[008] = ghost->Weapon;
+        ^~~~~~~~~
+
+
 NewbieBoss.z Line 3265 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3263    vars[007] = ghost->Step;
+3264    vars[008] = ghost->Weapon;
+3265    vars[009] = ghost->ItemSet;
+        ^~~~~~~~~
+
+
 NewbieBoss.z Line 3266 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3264    vars[008] = ghost->Weapon;
+3265    vars[009] = ghost->ItemSet;
+3266    vars[010] = ghost->SFX;
+        ^~~~~~~~~
+
+
 NewbieBoss.z Line 3268 @ Columns 4-15 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3266    vars[010] = ghost->SFX;
+3267    for(i=0; i<11; ++i){
+3268        vars[011+i] = ghost->Attributes[i];
+            ^~~~~~~~~~~
+
+
 NewbieBoss.z Line 3271 @ Columns 4-15 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3269    }
+3270    for(i=0; i<18; ++i){
+3271        vars[022+i] = ghost->Defense[i];
+            ^~~~~~~~~~~
+
+
 NewbieBoss.z Line 3273 @ Columns 3-11 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3271        vars[022+i] = ghost->Defense[i];
+3272    }
+3273    vars[40] = ghost->HP;
+        ^~~~~~~~
+
+
 NewbieBoss.z Line 3274 @ Columns 3-11 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3272    }
+3273    vars[40] = ghost->HP;
+3274    vars[41] = ghost->ID;
+        ^~~~~~~~
+
+
 NewbieBoss.z Line 3276 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3274    vars[41] = ghost->ID;
+3275    
+3276    vars[100] = n->CSet;
+        ^~~~~~~~~
+
+
 NewbieBoss.z Line 3277 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3275    
+3276    vars[100] = n->CSet;
+3277    vars[101] = n->Damage;
+        ^~~~~~~~~
+
+
 NewbieBoss.z Line 3278 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3276    vars[100] = n->CSet;
+3277    vars[101] = n->Damage;
+3278    vars[102] = n->WeaponDamage;
+        ^~~~~~~~~
+
+
 NewbieBoss.z Line 3279 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3277    vars[101] = n->Damage;
+3278    vars[102] = n->WeaponDamage;
+3279    vars[103] = n->Hunger;
+        ^~~~~~~~~
+
+
 NewbieBoss.z Line 3280 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3278    vars[102] = n->WeaponDamage;
+3279    vars[103] = n->Hunger;
+3280    vars[104] = n->Rate;
+        ^~~~~~~~~
+
+
 NewbieBoss.z Line 3281 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3279    vars[103] = n->Hunger;
+3280    vars[104] = n->Rate;
+3281    vars[105] = n->Haltrate;
+        ^~~~~~~~~
+
+
 NewbieBoss.z Line 3282 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3280    vars[104] = n->Rate;
+3281    vars[105] = n->Haltrate;
+3282    vars[106] = n->Homing;
+        ^~~~~~~~~
+
+
 NewbieBoss.z Line 3283 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3281    vars[105] = n->Haltrate;
+3282    vars[106] = n->Homing;
+3283    vars[107] = n->Step;
+        ^~~~~~~~~
+
+
 NewbieBoss.z Line 3284 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3282    vars[106] = n->Homing;
+3283    vars[107] = n->Step;
+3284    vars[108] = n->Weapon;
+        ^~~~~~~~~
+
+
 NewbieBoss.z Line 3285 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3283    vars[107] = n->Step;
+3284    vars[108] = n->Weapon;
+3285    vars[109] = n->ItemSet;
+        ^~~~~~~~~
+
+
 NewbieBoss.z Line 3286 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3284    vars[108] = n->Weapon;
+3285    vars[109] = n->ItemSet;
+3286    vars[110] = n->SFX;
+        ^~~~~~~~~
+
+
 NewbieBoss.z Line 3288 @ Columns 4-15 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3286    vars[110] = n->SFX;
+3287    for(i=0; i<11; ++i){
+3288        vars[111+i] = n->Attributes[i];
+            ^~~~~~~~~~~
+
+
 NewbieBoss.z Line 3291 @ Columns 4-15 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3289    }
+3290    for(i=0; i<18; ++i){
+3291        vars[122+i] = n->Defense[i];
+            ^~~~~~~~~~~
+
+
 NewbieBoss.z Line 3293 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3291        vars[122+i] = n->Defense[i];
+3292    }
+3293    vars[140] = n->HP;
+        ^~~~~~~~~
+
+
 NewbieBoss.z Line 3294 @ Columns 3-12 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3292    }
+3293    vars[140] = n->HP;
+3294    vars[141] = n->ID;
+        ^~~~~~~~~
+
+
 NewbieBoss.z Line 3296 @ Columns 3-22 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3294    vars[141] = n->ID;
+3295    
+3296    vars[EZBI_BSBUFFER] = 0;
+        ^~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3080 @ Columns 47-61 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3078    if(state==0){
+3079        if(frame%4<2)
+3080            EZB_DrawLaser(layer, x, y, width, angle, laserColors[2]);
+                                                         ^~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3083 @ Columns 52-66 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3081    }
+3082    else{
+3083        EZB_DrawLaser3Color(layer, x, y, width, angle, laserColors[0], laserColors[1], laserColors[2]);
+                                                           ^~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3083 @ Columns 68-82 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3081    }
+3082    else{
+3083        EZB_DrawLaser3Color(layer, x, y, width, angle, laserColors[0], laserColors[1], laserColors[2]);
+                                                                           ^~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3083 @ Columns 84-98 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3081    }
+3082    else{
+3083        EZB_DrawLaser3Color(layer, x, y, width, angle, laserColors[0], laserColors[1], laserColors[2]);
+                                                                                           ^~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3093 @ Columns 18-32 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3091    int w; int wRand;
+3092    if(state==0){
+3093        clr = Choose(laserColors[1], laserColors[2]);
+                         ^~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3093 @ Columns 34-48 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3091    int w; int wRand;
+3092    if(state==0){
+3093        clr = Choose(laserColors[1], laserColors[2]);
+                                         ^~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3116 @ Columns 18-32 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3114    }
+3115    else{
+3116        clr = Choose(laserColors[0], laserColors[1], laserColors[2]);
+                         ^~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3116 @ Columns 34-48 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3114    }
+3115    else{
+3116        clr = Choose(laserColors[0], laserColors[1], laserColors[2]);
+                                         ^~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3116 @ Columns 50-64 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3114    }
+3115    else{
+3116        clr = Choose(laserColors[0], laserColors[1], laserColors[2]);
+                                                         ^~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 2758 @ Columns 15-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+2756    int h = Ghost_TileHeight;
+2757    
+2758    int flags = vars[EZBI_FLAGS];
+                    ^~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 2924 @ Columns 15-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+2922    }
+2923    void EZB_FaceAngle(ffc this, npc ghost, int vars, int angle){
+2924        int flags = vars[EZBI_FLAGS];
+                        ^~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 2931 @ Columns 15-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+2929    }
+2930    void EZB_FaceDir(ffc this, npc ghost, int vars, int dir){
+2931        int flags = vars[EZBI_FLAGS];
+                        ^~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 2917 @ Columns 15-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+2915    }
+2916    void EZB_FaceLink(ffc this, npc ghost, int vars){
+2917        int flags = vars[EZBI_FLAGS];
+                        ^~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 2686 @ Columns 15-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+2684    }
+2685    eweapon EZB_Fire(ffc this, npc ghost, int vars, int x, int y, int angle, int step, int wflags){
+2686        int flags = vars[EZBI_FLAGS];
+                        ^~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 2690 @ Columns 17-34 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+2688    if(flags&EZBF_UNBLOCKABLE)
+2689        wflags |= EWF_UNBLOCKABLE;
+2690    int fireSFX = vars[EZBI_WPNSFX];
+                      ^~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 2691 @ Columns 17-34 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+2689        wflags |= EWF_UNBLOCKABLE;
+2690    int fireSFX = vars[EZBI_WPNSFX];
+2691    int fireSPR = vars[EZBI_WPNSPR];
+                      ^~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 2596 @ Columns 23-42 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+2594    void EZB_FiringAnim(ffc this, npc ghost, int vars, int delayType){
+2595        int i;
+2596        int movementStyle = vars[EZBI_WALKTYPE];
+                                ^~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 2597 @ Columns 15-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+2595    int i;
+2596    int movementStyle = vars[EZBI_WALKTYPE];
+2597    int flags = vars[EZBI_FLAGS];
+                    ^~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 2598 @ Columns 15-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+2596    int movementStyle = vars[EZBI_WALKTYPE];
+2597    int flags = vars[EZBI_FLAGS];
+2598    int combo = vars[EZBI_COMBO];
+                    ^~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3613 @ Columns 15-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3611    void EZB_FishWizardUpdate(ffc this, npc ghost, int vars, int movementMisc){
+3612        int i;
+3613        int flags = vars[EZBI_FLAGS];
+                        ^~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3627 @ Columns 3-18 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3625    //11 - Phase Cooldown
+3626    //12 - Knockback
+3627    movementMisc[2] = 0;
+        ^~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3628 @ Columns 3-18 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3626    //12 - Knockback
+3627    movementMisc[2] = 0;
+3628    movementMisc[3] = 0;
+        ^~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3629 @ Columns 6-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3627    movementMisc[2] = 0;
+3628    movementMisc[3] = 0;
+3629    if(movementMisc[7]==0){ //Walking
+           ^~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3630 @ Columns 7-22 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3628    movementMisc[3] = 0;
+3629    if(movementMisc[7]==0){ //Walking
+3630        if(movementMisc[1])
+               ^~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3631 @ Columns 7-22 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3629    if(movementMisc[7]==0){ //Walking
+3630        if(movementMisc[1])
+3631            --movementMisc[1];
+                  ^~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3632 @ Columns 7-23 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3630    if(movementMisc[1])
+3631        --movementMisc[1];
+3632    if(movementMisc[11])
+           ^~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3633 @ Columns 7-23 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3631        --movementMisc[1];
+3632    if(movementMisc[11])
+3633        --movementMisc[11];
+              ^~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3634 @ Columns 4-19 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3632    if(movementMisc[11])
+3633        --movementMisc[11];
+3634    movementMisc[0] = Ghost_ConstantWalk4(movementMisc[0], ghost->Step, ghost->Rate, ghost->Homing, ghost->Hunger);
+        ^~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3634 @ Columns 42-57 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3632    if(movementMisc[11])
+3633        --movementMisc[11];
+3634    movementMisc[0] = Ghost_ConstantWalk4(movementMisc[0], ghost->Step, ghost->Rate, ghost->Homing, ghost->Hunger);
+                                              ^~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3636 @ Columns 27-42 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3634    movementMisc[0] = Ghost_ConstantWalk4(movementMisc[0], ghost->Step, ghost->Rate, ghost->Homing, ghost->Hunger);
+3635    //Ice Wave Attack
+3636    if(EZB_InSight(ghost)&&movementMisc[1]==0){
+                               ^~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3637 @ Columns 5-20 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3635    //Ice Wave Attack
+3636    if(EZB_InSight(ghost)&&movementMisc[1]==0){
+3637        movementMisc[1] = ghost->Haltrate*10;
+            ^~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3638 @ Columns 5-20 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3636    if(EZB_InSight(ghost)&&movementMisc[1]==0){
+3637        movementMisc[1] = ghost->Haltrate*10;
+3638        movementMisc[2] = 1; //Regular Attack
+            ^~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3641 @ Columns 28-43 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3639    }
+3640    //Diagonal Dash Attack
+3641    else if(Rand(1, 90)==1&&movementMisc[1]==0){
+                                ^~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3670 @ Columns 6-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3668    if(step==0)
+3669        step = 0.5;
+3670    movementMisc[3] = 1; //Constant Attack
+        ^~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3671 @ Columns 6-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3669        step = 0.5;
+3670    movementMisc[3] = 1; //Constant Attack
+3671    movementMisc[4] = vX;
+        ^~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3672 @ Columns 6-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3670    movementMisc[3] = 1; //Constant Attack
+3671    movementMisc[4] = vX;
+3672    movementMisc[5] = vY;
+        ^~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3673 @ Columns 6-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3671    movementMisc[4] = vX;
+3672    movementMisc[5] = vY;
+3673    movementMisc[6] = dist/step;
+        ^~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3674 @ Columns 6-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3672    movementMisc[5] = vY;
+3673    movementMisc[6] = dist/step;
+3674    movementMisc[7] = 1; //Dash State
+        ^~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3675 @ Columns 6-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3673    movementMisc[6] = dist/step;
+3674    movementMisc[7] = 1; //Dash State
+3675    movementMisc[8] = vars[EZBI_FLAGS];
+        ^~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3675 @ Columns 24-40 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3673    movementMisc[6] = dist/step;
+3674    movementMisc[7] = 1; //Dash State
+3675    movementMisc[8] = vars[EZBI_FLAGS];
+                          ^~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3677 @ Columns 7-22 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3675    movementMisc[8] = vars[EZBI_FLAGS];
+3676    if(!Ghost_FlagIsSet(GHF_IGNORE_ALL_TERRAIN))
+3677        movementMisc[8] = GHF_IGNORE_ALL_TERRAIN;
+            ^~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3679 @ Columns 7-22 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3677        movementMisc[8] = GHF_IGNORE_ALL_TERRAIN;
+3678    if(!Ghost_FlagIsSet(GHF_IGNORE_NO_ENEMY))
+3679        movementMisc[9] = GHF_FLYING_ENEMY;
+            ^~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3681 @ Columns 7-23 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3679        movementMisc[9] = GHF_FLYING_ENEMY;
+3680    if(Ghost_FlagIsSet(GHF_KNOCKBACK))
+3681        movementMisc[12] = GHF_KNOCKBACK;
+            ^~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3685 @ Columns 6-22 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3683    Ghost_SetFlag(GHF_IGNORE_NO_ENEMY);
+3684    Ghost_UnsetFlag(GHF_KNOCKBACK);
+3685    movementMisc[10] = step;
+        ^~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3686 @ Columns 6-22 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3684    Ghost_UnsetFlag(GHF_KNOCKBACK);
+3685    movementMisc[10] = step;
+3686    movementMisc[11] = ghost->Haltrate*10;
+        ^~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3690 @ Columns 11-26 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3688        }
+3689    }
+3690    else if(movementMisc[7]==1){
+                ^~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3691 @ Columns 17-32 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3689    }
+3690    else if(movementMisc[7]==1){
+3691        Ghost_MoveXY(movementMisc[4]*movementMisc[10], movementMisc[5]*movementMisc[10], 0);
+                         ^~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3691 @ Columns 33-49 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3689    }
+3690    else if(movementMisc[7]==1){
+3691        Ghost_MoveXY(movementMisc[4]*movementMisc[10], movementMisc[5]*movementMisc[10], 0);
+                                         ^~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3691 @ Columns 51-66 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3689    }
+3690    else if(movementMisc[7]==1){
+3691        Ghost_MoveXY(movementMisc[4]*movementMisc[10], movementMisc[5]*movementMisc[10], 0);
+                                                           ^~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3691 @ Columns 67-83 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3689    }
+3690    else if(movementMisc[7]==1){
+3691        Ghost_MoveXY(movementMisc[4]*movementMisc[10], movementMisc[5]*movementMisc[10], 0);
+                                                                           ^~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3692 @ Columns 7-22 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3690    else if(movementMisc[7]==1){
+3691        Ghost_MoveXY(movementMisc[4]*movementMisc[10], movementMisc[5]*movementMisc[10], 0);
+3692        if(movementMisc[6]%4<2)
+               ^~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3696 @ Columns 6-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3694    else
+3695        ghost->DrawYOffset = -2;
+3696    --movementMisc[6];
+          ^~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3697 @ Columns 7-22 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3695        ghost->DrawYOffset = -2;
+3696    --movementMisc[6];
+3697    if(movementMisc[6]<=0){
+           ^~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3699 @ Columns 8-23 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3697    if(movementMisc[6]<=0){
+3698        ghost->DrawYOffset = -2;
+3699        if(movementMisc[4]<0)
+               ^~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3703 @ Columns 8-23 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3701    else
+3702        Ghost_Dir = DIR_RIGHT;
+3703    if(movementMisc[8])
+           ^~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3705 @ Columns 8-23 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3703    if(movementMisc[8])
+3704        Ghost_UnsetFlag(GHF_IGNORE_ALL_TERRAIN);
+3705    if(movementMisc[9])
+           ^~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3707 @ Columns 8-24 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3705    if(movementMisc[9])
+3706        Ghost_UnsetFlag(GHF_IGNORE_NO_ENEMY);
+3707    if(movementMisc[12])
+           ^~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3709 @ Columns 5-20 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3707    if(movementMisc[12])
+3708        Ghost_SetFlag(GHF_KNOCKBACK);
+3709    movementMisc[7] = 0;
+        ^~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3710 @ Columns 5-20 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3708        Ghost_SetFlag(GHF_KNOCKBACK);
+3709    movementMisc[7] = 0;
+3710    movementMisc[0] = 0;
+        ^~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3369 @ Columns 17-35 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3367    void EZB_GetExtraProperties(ffc this, npc ghost, int id, int vars, int attack1, int attack2, int attack3, int attackPool, int laserColors){
+3368        int i; int j;
+3369        int special = vars[EZBI_SPECIAL];
+                          ^~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3370 @ Columns 3-16 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3368    int i; int j;
+3369    int special = vars[EZBI_SPECIAL];
+3370    attackPool[0] = 0;
+        ^~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3380 @ Columns 3-20 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3378    
+3379    //If attack 1 is a transformation, set which one
+3380    vars[EZBI_BSTYPE] = 0;
+        ^~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3383 @ Columns 4-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3381    if(attack1==50||attack1==51||attack1==71){
+3382        EZB_AddTransformation(this, ghost, vars, special, attackPool);
+3383        vars[EZBI_BSTYPE] = 1;
+            ^~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3385 @ Columns 5-22 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3383    vars[EZBI_BSTYPE] = 1;
+3384    if(attack1==51)
+3385        vars[EZBI_BSTYPE] = 2;
+            ^~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3387 @ Columns 5-22 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3385        vars[EZBI_BSTYPE] = 2;
+3386    else if(attack1==71)
+3387        vars[EZBI_BSTYPE] = 3;
+            ^~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3421 @ Columns 7-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3419    if(f->InitD[0]==id){
+3420        if(f->InitD[1]||f->InitD[2]||f->InitD[3]){
+3421            laserColors[0] = f->InitD[1];
+                ^~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3422 @ Columns 7-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3420    if(f->InitD[1]||f->InitD[2]||f->InitD[3]){
+3421        laserColors[0] = f->InitD[1];
+3422        laserColors[1] = f->InitD[2];
+            ^~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3423 @ Columns 7-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3421    laserColors[0] = f->InitD[1];
+3422    laserColors[1] = f->InitD[2];
+3423    laserColors[2] = f->InitD[3];
+        ^~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3426 @ Columns 7-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3424    }
+3425    if(f->InitD[4]||f->InitD[5]||f->InitD[6]){
+3426        laserColors[3] = f->InitD[4];
+            ^~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3427 @ Columns 7-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3425    if(f->InitD[4]||f->InitD[5]||f->InitD[6]){
+3426        laserColors[3] = f->InitD[4];
+3427        laserColors[4] = f->InitD[5];
+            ^~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3428 @ Columns 7-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3426    laserColors[3] = f->InitD[4];
+3427    laserColors[4] = f->InitD[5];
+3428    laserColors[5] = f->InitD[6];
+        ^~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3436 @ Columns 7-35 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3434    if(f->InitD[0]==id){
+3435        if(f->InitD[1]>0)
+3436            vars[EZBI_TRANSFORMCOOLDOWN] = f->InitD[1]-1;
+                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3438 @ Columns 7-35 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3436        vars[EZBI_TRANSFORMCOOLDOWN] = f->InitD[1]-1;
+3437    if(f->InitD[2]>1)
+3438        vars[EZBI_TRANSFORMVARIANCE] = f->InitD[2];
+            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3449 @ Columns 6-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3447    
+3448    //If the enemy has transformations in the pool but no transforming attack, assume 51, a complete transformation
+3449    if(attackPool[100]&&vars[EZBI_BSTYPE]==0){
+           ^~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3449 @ Columns 23-40 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3447    
+3448    //If the enemy has transformations in the pool but no transforming attack, assume 51, a complete transformation
+3449    if(attackPool[100]&&vars[EZBI_BSTYPE]==0){
+                            ^~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3450 @ Columns 4-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3448    //If the enemy has transformations in the pool but no transforming attack, assume 51, a complete transformation
+3449    if(attackPool[100]&&vars[EZBI_BSTYPE]==0){
+3450        vars[EZBI_BSTYPE] = 2;
+            ^~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3454 @ Columns 6-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3452    
+3453    //If the enemy has transformations in the pool, select one at random to load for the next transformation
+3454    if(attackPool[100]){
+           ^~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3455 @ Columns 34-71 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3453    //If the enemy has transformations in the pool, select one at random to load for the next transformation
+3454    if(attackPool[100]){
+3455        EZB_Barriershift_Store(ghost, attackPool[101+Rand(attackPool[100])], vars);
+                                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3455 @ Columns 54-69 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3453    //If the enemy has transformations in the pool, select one at random to load for the next transformation
+3454    if(attackPool[100]){
+3455        EZB_Barriershift_Store(ghost, attackPool[101+Rand(attackPool[100])], vars);
+                                                              ^~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3128 @ Columns 15-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3126    }
+3127    int EZB_GetSpecialCombo(ffc this, npc ghost, int vars, int graphic){
+3128        int flags = vars[EZBI_FLAGS];
+                        ^~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3129 @ Columns 15-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3127    int EZB_GetSpecialCombo(ffc this, npc ghost, int vars, int graphic){
+3128        int flags = vars[EZBI_FLAGS];
+3129        int combo = vars[EZBI_COMBO];
+                        ^~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3362 @ Columns 3-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3360    }
+3361    void EZB_InitVars(int vars){
+3362        vars[EZBI_TRANSFORMCOOLDOWN] = 0;
+            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3363 @ Columns 3-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3361    void EZB_InitVars(int vars){
+3362        vars[EZBI_TRANSFORMCOOLDOWN] = 0;
+3363        vars[EZBI_TRANSFORMVARIANCE] = 0;
+            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3365 @ Columns 3-29 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3363    vars[EZBI_TRANSFORMVARIANCE] = 0;
+3364    
+3365    vars[EZBI_MAXSPEEDCOUNTER] = 0;
+        ^~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3492 @ Columns 7-17 - Warning S108: Arrays should be explicitly typed - change `npc` to `npc[]`
+
+3490    int count;
+3491    for(int i=0; i<256; ++i){
+3492        if(summons[i]->isValid()){
+               ^~~~~~~~~~
+
+
 NewbieBoss.z Line 3531 @ Columns 3-13 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3529    void EZB_SetLaserArray(int arr, int count, int index, int x, int y, int scale, int angle, int chargeTime, int upTime, int damage){
+3530        Game->PlaySound(SFX_EZB_LASERCHARGE);
+3531        arr[index] = x;
+            ^~~~~~~~~~
+
+
 NewbieBoss.z Line 3532 @ Columns 3-19 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3530    Game->PlaySound(SFX_EZB_LASERCHARGE);
+3531    arr[index] = x;
+3532    arr[count+index] = y;
+        ^~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3533 @ Columns 3-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3531    arr[index] = x;
+3532    arr[count+index] = y;
+3533    arr[count*2+index] = scale;
+        ^~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3534 @ Columns 3-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3532    arr[count+index] = y;
+3533    arr[count*2+index] = scale;
+3534    arr[count*3+index] = angle;
+        ^~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3535 @ Columns 3-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3533    arr[count*2+index] = scale;
+3534    arr[count*3+index] = angle;
+3535    arr[count*4+index] = chargeTime;
+        ^~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3536 @ Columns 3-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3534    arr[count*3+index] = angle;
+3535    arr[count*4+index] = chargeTime;
+3536    arr[count*5+index] = upTime;
+        ^~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3537 @ Columns 3-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3535    arr[count*4+index] = chargeTime;
+3536    arr[count*5+index] = upTime;
+3537    arr[count*6+index] = 1;
+        ^~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3538 @ Columns 3-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3536    arr[count*5+index] = upTime;
+3537    arr[count*6+index] = 1;
+3538    arr[count*7+index] = 0;
+        ^~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3539 @ Columns 3-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3537    arr[count*6+index] = 1;
+3538    arr[count*7+index] = 0;
+3539    arr[count*8+index] = damage;
+        ^~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 2774 @ Columns 14-29 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+2772    }
+2773    void EZB_Teleport(ffc this, npc ghost, int vars, int x, int y, int teleFrames){
+2774        int size = vars[EZBI_SIZE];
+                       ^~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 2775 @ Columns 15-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+2773    void EZB_Teleport(ffc this, npc ghost, int vars, int x, int y, int teleFrames){
+2774        int size = vars[EZBI_SIZE];
+2775        int flags = vars[EZBI_FLAGS];
+                        ^~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 2776 @ Columns 15-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+2774    int size = vars[EZBI_SIZE];
+2775    int flags = vars[EZBI_FLAGS];
+2776    int combo = vars[EZBI_COMBO];
+                    ^~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 2648 @ Columns 15-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+2646        return;
+2647    
+2648    int flags = vars[EZBI_FLAGS];
+                    ^~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3508 @ Columns 7-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3506    void EZB_UpdateLaserArray(int arr, int laserColors, int count){
+3507        for(int i=0; i<count; ++i){
+3508            if(arr[count*6+i]){
+                   ^~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3509 @ Columns 8-22 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3507    for(int i=0; i<count; ++i){
+3508        if(arr[count*6+i]){
+3509            if(arr[count*6+i]==1){
+                   ^~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3510 @ Columns 35-41 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3508    if(arr[count*6+i]){
+3509        if(arr[count*6+i]==1){
+3510            EZB_DoLaser(LAYER_EZB_LASER, arr[i], arr[count+i], arr[count*2+i], arr[count*3+i], 0, laserColors, -1, 0, arr[count*7+i], arr[count*4+i]);
+                                             ^~~~~~
+
+
 NewbieBoss.z Line 3510 @ Columns 43-55 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3508    if(arr[count*6+i]){
+3509        if(arr[count*6+i]==1){
+3510            EZB_DoLaser(LAYER_EZB_LASER, arr[i], arr[count+i], arr[count*2+i], arr[count*3+i], 0, laserColors, -1, 0, arr[count*7+i], arr[count*4+i]);
+                                                     ^~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3510 @ Columns 57-71 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3508    if(arr[count*6+i]){
+3509        if(arr[count*6+i]==1){
+3510            EZB_DoLaser(LAYER_EZB_LASER, arr[i], arr[count+i], arr[count*2+i], arr[count*3+i], 0, laserColors, -1, 0, arr[count*7+i], arr[count*4+i]);
+                                                                   ^~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3510 @ Columns 73-87 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3508    if(arr[count*6+i]){
+3509        if(arr[count*6+i]==1){
+3510            EZB_DoLaser(LAYER_EZB_LASER, arr[i], arr[count+i], arr[count*2+i], arr[count*3+i], 0, laserColors, -1, 0, arr[count*7+i], arr[count*4+i]);
+                                                                                   ^~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3510 @ Columns 112-126 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3508    if(arr[count*6+i]){
+3509        if(arr[count*6+i]==1){
+3510            EZB_DoLaser(LAYER_EZB_LASER, arr[i], arr[count+i], arr[count*2+i], arr[count*3+i], 0, laserColors, -1, 0, arr[count*7+i], arr[count*4+i]);
+                                                                                                                          ^~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3510 @ Columns 128-142 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3508    if(arr[count*6+i]){
+3509        if(arr[count*6+i]==1){
+3510            EZB_DoLaser(LAYER_EZB_LASER, arr[i], arr[count+i], arr[count*2+i], arr[count*3+i], 0, laserColors, -1, 0, arr[count*7+i], arr[count*4+i]);
+                                                                                                                                          ^~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3511 @ Columns 8-22 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3509    if(arr[count*6+i]==1){
+3510        EZB_DoLaser(LAYER_EZB_LASER, arr[i], arr[count+i], arr[count*2+i], arr[count*3+i], 0, laserColors, -1, 0, arr[count*7+i], arr[count*4+i]);
+3511        ++arr[count*7+i];
+              ^~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3512 @ Columns 9-23 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3510    EZB_DoLaser(LAYER_EZB_LASER, arr[i], arr[count+i], arr[count*2+i], arr[count*3+i], 0, laserColors, -1, 0, arr[count*7+i], arr[count*4+i]);
+3511    ++arr[count*7+i];
+3512    if(arr[count*7+i]>=arr[count*4+i]){
+           ^~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3512 @ Columns 25-39 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3510    EZB_DoLaser(LAYER_EZB_LASER, arr[i], arr[count+i], arr[count*2+i], arr[count*3+i], 0, laserColors, -1, 0, arr[count*7+i], arr[count*4+i]);
+3511    ++arr[count*7+i];
+3512    if(arr[count*7+i]>=arr[count*4+i]){
+                           ^~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3514 @ Columns 7-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3512    if(arr[count*7+i]>=arr[count*4+i]){
+3513        Game->PlaySound(SFX_EZB_LASER);
+3514        arr[count*7+i] = 0;
+            ^~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3515 @ Columns 7-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3513    Game->PlaySound(SFX_EZB_LASER);
+3514    arr[count*7+i] = 0;
+3515    arr[count*6+i] = 2;
+        ^~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3518 @ Columns 13-27 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3516        }
+3517    }
+3518    else if(arr[count*6+i]==2){
+                ^~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3519 @ Columns 35-41 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3517    }
+3518    else if(arr[count*6+i]==2){
+3519        EZB_DoLaser(LAYER_EZB_LASER, arr[i], arr[count+i], arr[count*2+i], arr[count*3+i], arr[count*8+i], laserColors, -1, 1, arr[count*7+i], arr[count*5+i]);
+                                         ^~~~~~
+
+
 NewbieBoss.z Line 3519 @ Columns 43-55 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3517    }
+3518    else if(arr[count*6+i]==2){
+3519        EZB_DoLaser(LAYER_EZB_LASER, arr[i], arr[count+i], arr[count*2+i], arr[count*3+i], arr[count*8+i], laserColors, -1, 1, arr[count*7+i], arr[count*5+i]);
+                                                 ^~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3519 @ Columns 57-71 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3517    }
+3518    else if(arr[count*6+i]==2){
+3519        EZB_DoLaser(LAYER_EZB_LASER, arr[i], arr[count+i], arr[count*2+i], arr[count*3+i], arr[count*8+i], laserColors, -1, 1, arr[count*7+i], arr[count*5+i]);
+                                                               ^~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3519 @ Columns 73-87 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3517    }
+3518    else if(arr[count*6+i]==2){
+3519        EZB_DoLaser(LAYER_EZB_LASER, arr[i], arr[count+i], arr[count*2+i], arr[count*3+i], arr[count*8+i], laserColors, -1, 1, arr[count*7+i], arr[count*5+i]);
+                                                                               ^~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3519 @ Columns 89-103 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3517    }
+3518    else if(arr[count*6+i]==2){
+3519        EZB_DoLaser(LAYER_EZB_LASER, arr[i], arr[count+i], arr[count*2+i], arr[count*3+i], arr[count*8+i], laserColors, -1, 1, arr[count*7+i], arr[count*5+i]);
+                                                                                               ^~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3519 @ Columns 125-139 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3517    }
+3518    else if(arr[count*6+i]==2){
+3519        EZB_DoLaser(LAYER_EZB_LASER, arr[i], arr[count+i], arr[count*2+i], arr[count*3+i], arr[count*8+i], laserColors, -1, 1, arr[count*7+i], arr[count*5+i]);
+                                                                                                                                   ^~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3519 @ Columns 141-155 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3517    }
+3518    else if(arr[count*6+i]==2){
+3519        EZB_DoLaser(LAYER_EZB_LASER, arr[i], arr[count+i], arr[count*2+i], arr[count*3+i], arr[count*8+i], laserColors, -1, 1, arr[count*7+i], arr[count*5+i]);
+                                                                                                                                                   ^~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3520 @ Columns 8-22 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3518    else if(arr[count*6+i]==2){
+3519        EZB_DoLaser(LAYER_EZB_LASER, arr[i], arr[count+i], arr[count*2+i], arr[count*3+i], arr[count*8+i], laserColors, -1, 1, arr[count*7+i], arr[count*5+i]);
+3520        ++arr[count*7+i];
+              ^~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3521 @ Columns 9-23 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3519    EZB_DoLaser(LAYER_EZB_LASER, arr[i], arr[count+i], arr[count*2+i], arr[count*3+i], arr[count*8+i], laserColors, -1, 1, arr[count*7+i], arr[count*5+i]);
+3520    ++arr[count*7+i];
+3521    if(arr[count*7+i]>=arr[count*5+i]){
+           ^~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3521 @ Columns 25-39 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3519    EZB_DoLaser(LAYER_EZB_LASER, arr[i], arr[count+i], arr[count*2+i], arr[count*3+i], arr[count*8+i], laserColors, -1, 1, arr[count*7+i], arr[count*5+i]);
+3520    ++arr[count*7+i];
+3521    if(arr[count*7+i]>=arr[count*5+i]){
+                           ^~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3522 @ Columns 7-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3520    ++arr[count*7+i];
+3521    if(arr[count*7+i]>=arr[count*5+i]){
+3522        arr[count*7+i] = 0;
+            ^~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3523 @ Columns 7-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3521    if(arr[count*7+i]>=arr[count*5+i]){
+3522        arr[count*7+i] = 0;
+3523        arr[count*6+i] = 0;
+            ^~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3721 @ Columns 15-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3719    }
+3720    void EZB_Waitframe(ffc this, npc ghost, int vars){
+3721        int flags = vars[EZBI_FLAGS];
+                        ^~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3729 @ Columns 7-28 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3727    }
+3728    
+3729    if(!vars[EZBI_ATTACKFLAG]){
+            ^~~~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3730 @ Columns 7-33 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3728    
+3729    if(!vars[EZBI_ATTACKFLAG]){
+3730        if(vars[EZBI_MAXSPEEDCOUNTER]){
+               ^~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3731 @ Columns 8-33 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3729    if(!vars[EZBI_ATTACKFLAG]){
+3730        if(vars[EZBI_MAXSPEEDCOUNTER]){
+3731            if(vars[EZBI_SPEEDUPCOUNTER]<vars[EZBI_MAXSPEEDCOUNTER]){
+                   ^~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3731 @ Columns 34-60 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3729    if(!vars[EZBI_ATTACKFLAG]){
+3730        if(vars[EZBI_MAXSPEEDCOUNTER]){
+3731            if(vars[EZBI_SPEEDUPCOUNTER]<vars[EZBI_MAXSPEEDCOUNTER]){
+                                             ^~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3732 @ Columns 8-33 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3730    if(vars[EZBI_MAXSPEEDCOUNTER]){
+3731        if(vars[EZBI_SPEEDUPCOUNTER]<vars[EZBI_MAXSPEEDCOUNTER]){
+3732            ++vars[EZBI_SPEEDUPCOUNTER];
+                  ^~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3733 @ Columns 20-40 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3731    if(vars[EZBI_SPEEDUPCOUNTER]<vars[EZBI_MAXSPEEDCOUNTER]){
+3732        ++vars[EZBI_SPEEDUPCOUNTER];
+3733        ghost->Step = vars[EZBI_INITSPEED]+(vars[EZBI_TOPSPEED]-vars[EZBI_INITSPEED])*(vars[EZBI_SPEEDUPCOUNTER]/vars[EZBI_MAXSPEEDCOUNTER]);
+                          ^~~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3733 @ Columns 42-61 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3731    if(vars[EZBI_SPEEDUPCOUNTER]<vars[EZBI_MAXSPEEDCOUNTER]){
+3732        ++vars[EZBI_SPEEDUPCOUNTER];
+3733        ghost->Step = vars[EZBI_INITSPEED]+(vars[EZBI_TOPSPEED]-vars[EZBI_INITSPEED])*(vars[EZBI_SPEEDUPCOUNTER]/vars[EZBI_MAXSPEEDCOUNTER]);
+                                                ^~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3733 @ Columns 62-82 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3731    if(vars[EZBI_SPEEDUPCOUNTER]<vars[EZBI_MAXSPEEDCOUNTER]){
+3732        ++vars[EZBI_SPEEDUPCOUNTER];
+3733        ghost->Step = vars[EZBI_INITSPEED]+(vars[EZBI_TOPSPEED]-vars[EZBI_INITSPEED])*(vars[EZBI_SPEEDUPCOUNTER]/vars[EZBI_MAXSPEEDCOUNTER]);
+                                                                    ^~~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3733 @ Columns 85-110 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3731    if(vars[EZBI_SPEEDUPCOUNTER]<vars[EZBI_MAXSPEEDCOUNTER]){
+3732        ++vars[EZBI_SPEEDUPCOUNTER];
+3733        ghost->Step = vars[EZBI_INITSPEED]+(vars[EZBI_TOPSPEED]-vars[EZBI_INITSPEED])*(vars[EZBI_SPEEDUPCOUNTER]/vars[EZBI_MAXSPEEDCOUNTER]);
+                                                                                           ^~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3733 @ Columns 111-137 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3731    if(vars[EZBI_SPEEDUPCOUNTER]<vars[EZBI_MAXSPEEDCOUNTER]){
+3732        ++vars[EZBI_SPEEDUPCOUNTER];
+3733        ghost->Step = vars[EZBI_INITSPEED]+(vars[EZBI_TOPSPEED]-vars[EZBI_INITSPEED])*(vars[EZBI_SPEEDUPCOUNTER]/vars[EZBI_MAXSPEEDCOUNTER]);
+                                                                                                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3738 @ Columns 6-23 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3736    }
+3737    
+3738    if(vars[EZBI_BSTYPE]==3){
+           ^~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3742 @ Columns 5-24 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3740    ghost->HP = 1;
+3741    Ghost_HP = 1;
+3742    vars[EZBI_BSISDEAD] = 1;
+        ^~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 3999 @ Columns 4-20 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3997    tmpX = x+VectorX(dist, angle)+VectorX(dist2, angle+90)+VectorX(randOff, angle+90+angleSkew);
+3998    tmpY = y+VectorY(dist, angle)+VectorY(dist2, angle+90)+VectorY(randOff, angle+90+angleSkew);
+3999    lightning[2*i+0] = tmpX;
+        ^~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 4000 @ Columns 4-20 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+3998    tmpY = y+VectorY(dist, angle)+VectorY(dist2, angle+90)+VectorY(randOff, angle+90+angleSkew);
+3999    lightning[2*i+0] = tmpX;
+4000    lightning[2*i+1] = tmpY;
+        ^~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 4013 @ Columns 10-26 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+4011    for(int i=0; i<count-1; ++i){
+4012        if(endDist>distPerSegment*i&&endDist<distPerSegment*(i+1)){
+4013            x1 = lightning[i*2+0];
+                     ^~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 4014 @ Columns 10-26 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+4012    if(endDist>distPerSegment*i&&endDist<distPerSegment*(i+1)){
+4013        x1 = lightning[i*2+0];
+4014        y1 = lightning[i*2+1];
+                 ^~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 4015 @ Columns 10-30 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+4013    x1 = lightning[i*2+0];
+4014    y1 = lightning[i*2+1];
+4015    x2 = lightning[(i+1)*2+0];
+             ^~~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 4016 @ Columns 10-30 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+4014    y1 = lightning[i*2+1];
+4015    x2 = lightning[(i+1)*2+0];
+4016    y2 = lightning[(i+1)*2+1];
+             ^~~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 4029 @ Columns 10-26 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+4027    }
+4028    else if(startDist>distPerSegment*i&&startDist<distPerSegment*(i+1)){
+4029        x1 = lightning[i*2+0];
+                 ^~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 4030 @ Columns 10-26 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+4028    else if(startDist>distPerSegment*i&&startDist<distPerSegment*(i+1)){
+4029        x1 = lightning[i*2+0];
+4030        y1 = lightning[i*2+1];
+                 ^~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 4031 @ Columns 10-30 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+4029    x1 = lightning[i*2+0];
+4030    y1 = lightning[i*2+1];
+4031    x2 = lightning[(i+1)*2+0];
+             ^~~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 4032 @ Columns 10-30 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+4030    y1 = lightning[i*2+1];
+4031    x2 = lightning[(i+1)*2+0];
+4032    y2 = lightning[(i+1)*2+1];
+             ^~~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 4045 @ Columns 10-26 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+4043    }
+4044    else if(startDist<=distPerSegment*i&&endDist>=distPerSegment*(i+1)){
+4045        x1 = lightning[i*2+0];
+                 ^~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 4046 @ Columns 10-26 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+4044    else if(startDist<=distPerSegment*i&&endDist>=distPerSegment*(i+1)){
+4045        x1 = lightning[i*2+0];
+4046        y1 = lightning[i*2+1];
+                 ^~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 4047 @ Columns 10-30 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+4045    x1 = lightning[i*2+0];
+4046    y1 = lightning[i*2+1];
+4047    x2 = lightning[(i+1)*2+0];
+             ^~~~~~~~~~~~~~~~~~~~
+
+
 NewbieBoss.z Line 4048 @ Columns 10-30 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+4046    y1 = lightning[i*2+1];
+4047    x2 = lightning[(i+1)*2+0];
+4048    y2 = lightning[(i+1)*2+1];
+             ^~~~~~~~~~~~~~~~~~~~
+
+
 Pass 5: Checking code paths
 Pass 6: Generating object code
 Pass 7: Assembling

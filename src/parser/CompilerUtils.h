@@ -3,30 +3,6 @@
 #ifndef ZSCRIPT_COMPILER_UTILS_H_
 #define ZSCRIPT_COMPILER_UTILS_H_
 
-// prevent compiler errors
-#ifdef ASTDINT_H
-#undef char
-#undef uint8_t
-#undef int16_t
-#undef uint16_t
-#undef int32_t
-#undef uint32_t
-#undef intptr_t
-#undef uintptr_t
-#endif // ASTDINT_H
-
-#ifdef int64_t
-#undef int64_t
-#endif // int64_t
-
-#ifdef uint64_t
-#undef uint64_t
-#endif // uint64_t
-
-#ifdef new
-#undef new
-#endif // new
-
 #include <optional>
 
 #include <algorithm>
