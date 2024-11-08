@@ -18489,8 +18489,7 @@ static int create_slope_id(int stage, int arg1, int arg2)
 void update_slope_combopos(const rpos_handle_t& rpos_handle)
 {
 	mapscr* s = rpos_handle.scr;
-	int pos = rpos_handle.pos;
-	newcombo const& cmb = combobuf[s->data[pos]];
+	auto& cmb = rpos_handle.combo();
 	
 	auto id = create_slope_id(SLOPE_STAGE_COMBOS, rpos_handle.layer, (int)rpos_handle.rpos);
 	auto it = slopes.find(id);
@@ -18501,7 +18500,7 @@ void update_slope_combopos(const rpos_handle_t& rpos_handle)
 	if(isSlope && !wasSlope)
 	{
 		auto [x, y] = COMBOXY_REGION(rpos_handle.rpos);
-		slopes.try_emplace(id, &(s->data[pos]), nullptr, -1, x, y);
+		slopes.try_emplace(id, &(s->data[rpos_handle.pos]), nullptr, -1, x, y);
 	}
 	else if(wasSlope && !isSlope)
 	{
@@ -18519,7 +18518,9 @@ static void update_slope_combopos_bordering_screen(int dir, int slope_count, int
 	
 	if(isSlope && !wasSlope)
 	{
-		static word TMP[5000];
+		static std::vector<word> TMP;
+		TMP.resize((current_region.screen_width+current_region.screen_height) * 2 * 16 * 7);
+
 		int tmp_index = id-create_slope_id(SLOPE_STAGE_COMBOS_BORDERING_SCREENS,0,0);
 		TMP[tmp_index] = cid;
 		slopes.try_emplace(id, &TMP[tmp_index], nullptr, -1, offx, offy);
@@ -18547,11 +18548,11 @@ static void handle_slope_combopos_bordering_screen(int dir)
 	if (dir == up)
 		offy = -16;
 	else if (dir == down)
-		offy = 176;
+		offy = world_h;
 	else if (dir == left)
 		offx = -16;
 	else if (dir == right)
-		offx = 256;
+		offx = world_w;
 
 	// TODO z3 !!!! for every screen
 	for (int layer = 0; layer < 7; layer++)

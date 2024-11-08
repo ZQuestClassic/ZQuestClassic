@@ -29879,8 +29879,6 @@ void goto_err(char const* opname)
 
 int32_t run_script(ScriptType type, word script, int32_t i)
 {
-	if (type == ScriptType::DMap)
-		printf(".");
 	if(Quit==qRESET || Quit==qEXIT) // In case an earlier script hung
 		return RUNSCRIPT_ERROR;
 		

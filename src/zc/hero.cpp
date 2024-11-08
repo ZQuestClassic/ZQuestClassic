@@ -129,21 +129,6 @@ static inline bool on_sideview_solid(zfix x, zfix y, bool ignoreFallthrough = fa
 	return false;
 }
 
-// TODO z3 !!! delete?
-static inline bool on_sideview_solid_oldpos(zfix x, zfix y, zfix oldx, zfix oldy, bool ignoreFallthrough = false, int32_t slopesmisc = 0)
-{
-	if(slopesmisc != 1 && check_new_slope(x, y+0.0001_zf, 16, 16, oldx, oldy, (slopesmisc == 3), true) < 0) return true;
-	if(slopesmisc == 2) return false;
-	if (_walkflag(x+4,y+16,1) || _walkflag(x+12,y+16,1)) return true;
-	mapscr* s = get_screen_for_world_xy(x, y);
-	if (y>=world_h-16 && currscr>=0x70 && !(s->flags2&wfDOWN)) return true;
-	if (platform_fallthrough() && !ignoreFallthrough) return false;
-	if (slopesmisc != 1 && check_new_slope(x, y + 0.0001_zf, 16, 16, oldx, oldy, false, true) < 0) return true;
-	if (y.getInt()%16==0 && (checkSVLadderPlatform(x+4,y+16) || checkSVLadderPlatform(x+12,y+16)))
-		return true;
-	return false;
-}
-
 static inline bool on_sideview_solid_oldpos(sprite* obj, bool ignoreFallthrough = false, int32_t slopesmisc = 0, zfix xofs = 0, zfix yofs = 0)
 {
 	zfix rx = obj->x+obj->hxofs+obj->sxofs+xofs, ry = obj->y+obj->hyofs+obj->syofs+yofs,
