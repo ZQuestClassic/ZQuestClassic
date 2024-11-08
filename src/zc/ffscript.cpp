@@ -24814,17 +24814,7 @@ void do_pitwarp(bool v)
 	Hero.ffpit = true;
 }
 
-void do_breakshield()
-{
-	int32_t UID = get_register(sarg1);
-	
-	for(int32_t j = 0; j < guys.Count(); j++)
-		if(guys.spr(j)->getUID() == UID)
-		{
-			((enemy*)guys.spr(j))->break_shield();
-			return;
-		}
-}
+
 
 void do_showsavescreen()
 {
@@ -31266,10 +31256,6 @@ int32_t run_script_int(bool is_jitted)
 				
 			case PITWARPR:
 				do_pitwarp(false);
-				break;
-				
-			case BREAKSHIELD:
-				do_breakshield();
 				break;
 				
 			case SELECTAWPNV:

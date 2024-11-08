@@ -694,6 +694,18 @@ void get_npcdata_initd_label(const bool v)
 		Z_scripterrlog("Array supplied to 'npcdata->GetInitDLabel()' not large enough\n");
 }
 
+void do_breakshield()
+{
+	int32_t UID = get_register(sarg1);
+
+	for (int32_t j = 0; j < guys.Count(); j++)
+		if (guys.spr(j)->getUID() == UID)
+		{
+			((enemy*)guys.spr(j))->break_shield();
+			return;
+		}
+}
+
 } // end namespace
 
 std::optional<int32_t> npc_get_register(int32_t reg)
@@ -2670,6 +2682,9 @@ std::optional<int32_t> npc_run_command(word command)
 			do_npc_delete();
 			break;
 		}
+		case BREAKSHIELD:
+			do_breakshield();
+			break;
 
 		// TODO: oops, these two should be in a "npcdata.cpp" file.
 		case NPCDATAGETNAME:
