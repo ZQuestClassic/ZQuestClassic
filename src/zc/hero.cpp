@@ -28469,7 +28469,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 				else
 				{
 					x += 1 / sideview_scrolling_slope * dy;
-					y = s.getY(x + (sideview_scrolling_slope > 0 ? 0 : hit_width)) - hit_height;;
+					y = s.getY(x + (sideview_scrolling_slope > 0 ? 0 : hit_width)) - hit_height;
 				}
 
 				herostep();
@@ -29376,6 +29376,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			do_walkflags(base_scr, offx, offy, tempscreen); // show walkflags if the cheat is on
 			do_effectflags(base_scr, offx, offy, tempscreen); // show effectflags if the cheat is on
 		});
+
+		do_walkflags(nx, ny);
 
 		for_every_nearby_screen_during_scroll(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int draw_dx, int draw_dy, bool is_new_screen) {
 			int offx = draw_dx * 256;

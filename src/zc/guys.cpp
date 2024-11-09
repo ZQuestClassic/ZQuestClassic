@@ -18519,7 +18519,8 @@ static void update_slope_combopos_bordering_screen(int dir, int slope_count, int
 	if(isSlope && !wasSlope)
 	{
 		static std::vector<word> TMP;
-		TMP.resize((current_region.screen_width+current_region.screen_height) * 2 * 16 * 7);
+		int num_border_combos = current_region.screen_width*16 * 2 + current_region.screen_height*11 * 2;
+		TMP.resize(num_border_combos * 7 * 4);
 
 		int tmp_index = id-create_slope_id(SLOPE_STAGE_COMBOS_BORDERING_SCREENS,0,0);
 		TMP[tmp_index] = cid;
@@ -18534,14 +18535,9 @@ static void update_slope_combopos_bordering_screen(int dir, int slope_count, int
 // Load a single column or row from a nearby screen, and load its slopes.
 static void handle_slope_combopos_bordering_screen(int dir)
 {
-	int mi;
-	if (auto r = nextscr(dir, true))
-		mi = *r;
-	else
+	auto [map, screen] = nextscr2(currmap, currscr, dir);
+	if (map == -1)
 		return;
-
-	int map = mi / MAPSCRSNORMAL;
-	int screen = mi % MAPSCRSNORMAL;
 
 	int offx = 0;
 	int offy = 0;

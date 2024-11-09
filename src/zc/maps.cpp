@@ -4068,7 +4068,7 @@ void put_walkflags(BITMAP *dest,int32_t x,int32_t y,int32_t xofs,int32_t yofs, w
 		}
 	}
 }
-void put_walkflags_a5(int32_t x,int32_t y,int32_t xofs,int32_t yofs, word cmbdat,int32_t lyr)
+static void put_walkflags_a5(int32_t x, int32_t y, word cmbdat, int32_t lyr)
 {
 	ALLEGRO_COLOR col_solid = al_map_rgba(178,36,36,info_opacity);
 	ALLEGRO_COLOR col_water1 = al_map_rgba(85,85,255,info_opacity);
@@ -4079,8 +4079,8 @@ void put_walkflags_a5(int32_t x,int32_t y,int32_t xofs,int32_t yofs, word cmbdat
 	
 	if (c.type == cBRIDGE && get_qr(qr_OLD_BRIDGE_COMBOS)) return;
 	
-	int32_t xx = x-xofs;
-	int32_t yy = y+playing_field_offset-yofs;
+	int32_t xx = x-viewport.x;
+	int32_t yy = y+playing_field_offset-viewport.y;
 	
 	int32_t bridgedetected = 0;
 	
@@ -4163,13 +4163,13 @@ void put_effectflags(BITMAP *dest,int32_t x,int32_t y,int32_t xofs,int32_t yofs,
 {
 	newcombo const &c = combobuf[cmbdat];
 	
-	int32_t xx = x-xofs;
-	int32_t yy = y+playing_field_offset-yofs;
+	int32_t xx = x-xofs-viewport.x;
+	int32_t yy = y+playing_field_offset-yofs-viewport.y;
 	
 	for(int32_t i=0; i<4; i++)
 	{
-		int32_t tx=((i&2)<<2)+xx - viewport.x;
-		int32_t ty=((i&1)<<3)+yy - viewport.y;
+		int32_t tx=((i&2)<<2)+xx;
+		int32_t ty=((i&1)<<3)+yy;
 	
 		if(((c.walk>>4)&(1<<i)) && c.type != cNONE)
 		{
@@ -4179,13 +4179,13 @@ void put_effectflags(BITMAP *dest,int32_t x,int32_t y,int32_t xofs,int32_t yofs,
 		}
 	}
 }
-void put_effectflags_a5(int32_t x,int32_t y,int32_t xofs,int32_t yofs, word cmbdat,int32_t lyr)
+static void put_effectflags_a5(int32_t x, int32_t y, word cmbdat, int32_t lyr)
 {
 	ALLEGRO_COLOR col_eff = al_map_rgba(85,255,85,info_opacity);
 	newcombo const &c = combobuf[cmbdat];
 	
-	int32_t xx = x-xofs;
-	int32_t yy = y+playing_field_offset-yofs;
+	int32_t xx = x-viewport.x;
+	int32_t yy = y+playing_field_offset-viewport.y;
 	
 	for(int32_t i=0; i<4; i++)
 	{
@@ -4249,37 +4249,47 @@ void draw_ladder_platform_a5(int32_t x, int32_t y, ALLEGRO_COLOR c)
 // Walkflags L4 cheat
 void do_walkflags(mapscr* layer,int32_t x, int32_t y, int32_t tempscreen)
 {
-	if(show_walkflags)
+	if (!show_walkflags)
+		return;
+
+	start_info_bmp();
+	
+	for(int32_t i=0; i<176; i++)
 	{
-		start_info_bmp();
+		put_walkflags_a5(((i&15)<<4) + x, (i&0xF0) + y, layer->data[i], 0);
+	}
+	
+	for(int32_t k=0; k<2; k++)
+	{
+		mapscr* lyr = (tempscreen==2 ? tmpscr2+k : tmpscr3+k);
 		
-		for(int32_t i=0; i<176; i++)
+		if(lyr->valid)
 		{
-			put_walkflags_a5(((i&15)<<4),(i&0xF0),x,y,layer->data[i], 0);
-		}
-		
-		for(int32_t k=0; k<2; k++)
-		{
-			mapscr* lyr = (tempscreen==2 ? tmpscr2+k : tmpscr3+k);
-			
-			if(lyr->valid)
+			for(int32_t i=0; i<176; i++)
 			{
-				for(int32_t i=0; i<176; i++)
-				{
-					put_walkflags_a5(((i&15)<<4),(i&0xF0),x,y,lyr->data[i], k%2+1);
-				}
+				put_walkflags_a5(((i&15)<<4) + x, (i&0xF0) + y, lyr->data[i], k%2+1);
 			}
 		}
-		
-		if (tempscreen == 2)
-		{
-			draw_ladder_platform_a5(-x,-y+playing_field_offset,al_map_rgba(165,105,8,info_opacity));
-			draw_solid_objects_a5(-x,-y+playing_field_offset,al_map_rgba(178,36,36,info_opacity));
-			draw_slopes_a5(-x,-y+playing_field_offset,al_map_rgba(255,85,255,info_opacity));
-		}
-		
-		end_info_bmp();
 	}
+	
+	end_info_bmp();
+}
+
+void do_walkflags(int32_t x, int32_t y)
+{
+	if (!show_walkflags)
+		return;
+
+	x += -viewport.x;
+	y += playing_field_offset - viewport.y;
+
+	start_info_bmp();
+
+	draw_ladder_platform_a5(x,y,al_map_rgba(165,105,8,info_opacity));
+	draw_solid_objects_a5(x,y,al_map_rgba(178,36,36,info_opacity));
+	draw_slopes_a5(x,y,al_map_rgba(255,85,255,info_opacity));
+
+	end_info_bmp();
 }
 
 // Effectflags L4 cheat
@@ -4291,7 +4301,7 @@ void do_effectflags(mapscr* layer,int32_t x, int32_t y, int32_t tempscreen)
 		
 		for(int32_t i=0; i<176; i++)
 		{
-			put_effectflags_a5(((i&15)<<4),(i&0xF0),x,y,layer->data[i], 0);
+			put_effectflags_a5(((i&15)<<4) + x, (i&0xF0) + y, layer->data[i], 0);
 		}
 		
 		end_info_bmp();
@@ -4651,7 +4661,9 @@ void draw_screen(bool showhero, bool runGeneric)
 		do_walkflags(base_scr, offx, offy, 2);
 		do_effectflags(base_scr, offx, offy, 2);
 	});
-	
+
+	do_walkflags(0, 0);
+
 	putscrdoors(nearby_screens, scrollbuf, 0, playing_field_offset);
 	
 	// Lens hints, doors etc.
