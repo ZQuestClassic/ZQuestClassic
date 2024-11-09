@@ -18533,9 +18533,9 @@ static void update_slope_combopos_bordering_screen(int dir, int slope_count, int
 }
 
 // Load a single column or row from a nearby screen, and load its slopes.
-static void handle_slope_combopos_bordering_screen(int dir)
+static void handle_slope_combopos_bordering_screen(int initial_screen, int dir)
 {
-	auto [map, screen] = nextscr2(currmap, currscr, dir);
+	auto [map, screen] = nextscr2(currmap, initial_screen, dir);
 	if (map == -1)
 		return;
 
@@ -18550,7 +18550,6 @@ static void handle_slope_combopos_bordering_screen(int dir)
 	else if (dir == right)
 		offx = world_w;
 
-	// TODO z3 !!!! for every screen
 	for (int layer = 0; layer < 7; layer++)
 	{
 		auto scr = load_temp_mapscr_and_apply_secrets(map, screen, layer - 1, true, false);
@@ -18591,8 +18590,10 @@ void update_slope_comboposes()
 
 	if (Hero.sideview_mode())
 	{
-		for (int dir = up; dir <= right; dir++)
-			handle_slope_combopos_bordering_screen(dir);
+		for_every_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
+			for (int dir = up; dir <= right; dir++)
+				handle_slope_combopos_bordering_screen(scr->screen, dir);
+		});
 	}
 
 	update_slopes();

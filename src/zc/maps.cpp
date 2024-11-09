@@ -6215,13 +6215,6 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 		scr->ffcs[i].y += offy;
 	}
 
-	if (!tmp)
-	{
-		// TODO z3 ! rm?
-		// cpos_force_update();
-		// trig_trigger_groups();
-	}
-
 	// Apply perm secrets, if applicable.
 	if(canPermSecret(destdmap,screen)/*||TheMaps[(currmap*MAPSCRS)+currscr].flags6&fTRIGGERFPERM*/)
 	{

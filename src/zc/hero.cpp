@@ -28436,7 +28436,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	}
 
 	// If on a slope in sideview mode, move along that slope a bit.
-	// TODO z3 !!!! z3 update
 	zfix sideview_scrolling_slope;
 	if (sideview_mode())
 	{
@@ -28473,7 +28472,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 				}
 
 				herostep();
-				draw_screen(tmpscr);
+				draw_screen();
 				advanceframe(true);
 
 				// Check if the slope the player is on has changed.
