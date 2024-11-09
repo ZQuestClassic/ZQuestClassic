@@ -669,13 +669,13 @@ mapscr* get_layer_scr_allow_scrolling(int map, int screen, int layer)
 	return FFCore.ScrollingScreensAll[screen * 7 + layer + 1];
 }
 
-ffc_handle_t get_ffc(int id)
+ffc_handle_t get_ffc(ffc_id_t id)
 {
 	uint8_t screen = get_screen_index_for_region_index_offset(id / MAXFFCS);
 	uint8_t i = id % MAXFFCS;
 	mapscr* scr = get_scr(screen);
 	ffcdata* ffc = &scr->getFFC(id % MAXFFCS);
-	return {scr, screen, (uint16_t)id, i, ffc};
+	return {scr, screen, id, i, ffc};
 }
 
 std::pair<int32_t, int32_t> translate_screen_coordinates_to_world(int screen, int x, int y)
@@ -2488,10 +2488,9 @@ bool remove_xstatecombos_mi(mapscr *s, int32_t screen, int32_t mi, byte xflag, b
 		int screen_index_offset = get_region_screen_index_offset(screen);
 		for (uint8_t i = 0; i < c; i++)
 		{
-			ffcdata* ffc2 = &s->ffcs[i];
-			uint16_t ffc_id = screen_index_offset * MAXFFCS + i;
-			newcombo const& cmb = combobuf[ffc2->data];
-			if(triggers && force_ex_trigger_ffc({s, (uint8_t)screen, ffc_id, i, ffc2}, xflag))
+			auto ffc_handle = s->getFFCHandle(i, screen_index_offset);
+			auto& cmb = ffc_handle.combo();
+			if(triggers && force_ex_trigger_ffc(ffc_handle, xflag))
 				didit = true;
 			else switch(cmb.type)
 			{
@@ -2504,7 +2503,7 @@ bool remove_xstatecombos_mi(mapscr *s, int32_t screen, int32_t mi, byte xflag, b
 					if(!(cmb.usrflags&cflag16)) continue; //custom state instead of normal state
 					if(cmb.attribytes[5] == xflag)
 					{
-						zc_ffc_modify(*ffc2, 1);
+						zc_ffc_modify(*ffc_handle.ffc, 1);
 						didit=true;
 					}
 					break;
@@ -2572,9 +2571,8 @@ bool remove_xdoors_mi(mapscr *scr, int32_t mi, uint dir, uint ind, bool triggers
 		int screen_index_offset = get_region_screen_index_offset(screen);
 		for (uint8_t i = 0; i < c; i++)
 		{
-			ffcdata* ffc2 = &scr->ffcs[i];
-			uint16_t ffc_id = screen_index_offset * MAXFFCS + i;
-			if(triggers && force_ex_door_trigger_ffc({scr, (uint8_t)screen, ffc_id, i, ffc2}, dir, ind))
+			auto ffc_handle = scr->getFFCHandle(i, screen_index_offset);
+			if (triggers && force_ex_door_trigger_ffc(ffc_handle, dir, ind))
 				didit = true;
 			else; //future door combo types?
 		}
@@ -6150,7 +6148,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 			{
 				scr->getFFC(i) = previous_scr.ffcs[i];
 
-				int ffc_id = get_region_screen_index_offset(screen)*MAXFFCS + i;
+				ffc_id_t ffc_id = get_region_screen_index_offset(screen)*MAXFFCS + i;
 				ffc_script_indices_to_remove.erase(ffc_id);
 				if (previous_scr.ffcs[i].flags&ffc_scriptreset)
 				{
@@ -6161,7 +6159,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 
 		for(word i = c; i < MAXFFCS; i++)
 		{
-			int ffc_id = get_region_screen_index_offset(screen)*MAXFFCS + i;
+			ffc_id_t ffc_id = get_region_screen_index_offset(screen)*MAXFFCS + i;
 			FFCore.deallocateAllScriptOwned(ScriptType::FFC, ffc_id, false);
 			FFCore.reset_script_engine_data(ScriptType::FFC, ffc_id);
 		}
@@ -6332,10 +6330,6 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 			}
 		}
 	}
-
-	// TODO z3 ! rm?
-	// if (tmp == 0)
-	// 	update_slope_comboposes();
 	
 	for(int32_t j=-1; j<6; ++j)  // j == -1 denotes the current screen
 	{
@@ -7198,11 +7192,11 @@ void toggle_switches(dword flags, bool entry, mapscr* m)
 		word c = m->numFFC();
 		for (uint8_t q = 0; q < c; ++q)
 		{
-			uint16_t ffc_id = screen_index_offset * MAXFFCS + q;
-			newcombo const& cmb = combobuf[m->ffcs[q].data];
+			auto ffc_handle = m->getFFCHandle(q, screen_index_offset);
+			auto& cmb = ffc_handle.combo();
 			if((cmb.triggerflags[3] & combotriggerTRIGLEVELSTATE) && cmb.trig_lstate < 32)
 				if(flags&(1<<cmb.trig_lstate))
-					do_trigger_combo_ffc({m, m->screen, ffc_id, q, &m->ffcs[q]}, ctrigSWITCHSTATE);
+					do_trigger_combo_ffc(ffc_handle, ctrigSWITCHSTATE);
 		}
 	}
 }
@@ -7345,11 +7339,11 @@ void toggle_gswitches(bool* states, bool entry, mapscr* base_scr)
 		int screen_index_offset = get_region_screen_index_offset(screen);
 		for (uint8_t q = 0; q < c; ++q)
 		{
-			newcombo const& cmb = combobuf[base_scr->ffcs[q].data];
-			uint16_t ffc_id = screen_index_offset * MAXFFCS + q;
+			auto ffc_handle = base_scr->getFFCHandle(q, screen_index_offset);
+			auto& cmb = ffc_handle.combo();
 			if(cmb.triggerflags[3] & combotriggerTRIGGLOBALSTATE)
 				if(states[cmb.trig_gstate])
-					do_trigger_combo_ffc({base_scr, (uint8_t)screen, ffc_id, q, &base_scr->ffcs[q]}, ctrigSWITCHSTATE);
+					do_trigger_combo_ffc(ffc_handle, ctrigSWITCHSTATE);
 		}
 	}
 }
@@ -7903,9 +7897,9 @@ optional<int32_t> get_combo(int x, int y, int maxlayer, bool ff, std::function<b
 		return nullopt;
 	if(ff)
 	{
-		int ffcid = MAPFFCOMBO(x,y);
-		if(ffcid && proc(combobuf[ffcid]))
-			return ffcid;
+		int cid = MAPFFCOMBO(x,y);
+		if(cid && proc(combobuf[cid]))
+			return cid;
 	}
 	if(maxlayer > 6)
 		maxlayer = 6;

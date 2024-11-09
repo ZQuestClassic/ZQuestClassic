@@ -125,7 +125,7 @@ void slope_object::updateslope()
 	oy2 = inf.y2;
 }
 
-slope_object::slope_object(word* cid, ffcdata* ffc, int32_t ffc_id, int xoffs_, int yoffs_)
+slope_object::slope_object(word* cid, ffcdata* ffc, int ffc_id, int xoffs_, int yoffs_)
 	: cmbid(cid), ffc_id(ffc_id)
 {
 	if(ffc)

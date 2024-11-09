@@ -92,6 +92,12 @@ ffcdata& mapscr::getFFC(size_t ind)
 	return ffcs[ind];
 }
 
+ffc_handle_t mapscr::getFFCHandle(int index, int screen_index_offset)
+{
+	ffc_id_t ffc_id = screen_index_offset * MAXFFCS + index;
+	return {this, (uint8_t)screen, ffc_id, (uint8_t)index, &getFFC(index)};
+}
+
 word mapscr::numFFC()
 {
 	if (!ffc_count_dirty)

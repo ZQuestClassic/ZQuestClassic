@@ -51,14 +51,16 @@ struct rpos_handle_t
 	uint8_t cflag() const;
 };
 
+// A unique identifier for an ffc in the current region.
+// Equal to: (region screen index offset) * 128 + (index in mapscr ffcs)
+// For non-regions, or for the top-left screen in a region, this is equal to the index.
+typedef uint16_t ffc_id_t;
+
 struct ffc_handle_t
 {
 	mapscr* scr;
 	uint8_t screen;
-	// A unique identifier for this ffc in this region.
-	// Roughly = (region screen index offset) * 128 + i.
-	// For non-regions, or for the top-left screen in a region, this is equal to i.
-	uint16_t id;
+	ffc_id_t id;
 	// The index into mapscr.ffcs
 	uint8_t i;
 	ffcdata* ffc;

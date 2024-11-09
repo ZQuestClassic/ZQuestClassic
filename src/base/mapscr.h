@@ -122,6 +122,7 @@ struct mapscr
 	void resizeFFC(size_t size);
 	void ensureFFC(size_t ind);
 	ffcdata& getFFC(size_t ind);
+	ffc_handle_t getFFCHandle(int index, int screen_index_offset);
 	word numFFC();
 	void ffcCountMarkDirty();
 	

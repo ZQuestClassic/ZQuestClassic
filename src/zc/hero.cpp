@@ -7419,7 +7419,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 		}
 	}
 
-	int32_t ffc_ids[] = {-1, -1, -1, -1};
+	int ffc_ids[] = {-1, -1, -1, -1};
 	{
 		auto ffc_handle = getFFCAt(dx1,dy1);
 		ffc_ids[0] = ffc_handle ? ffc_handle->id : -1;

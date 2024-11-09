@@ -1622,7 +1622,7 @@ static ffc_handle_t ResolveMapRefFFC(int32_t mapref, int id, const char* context
 		return ffc_handle_t{};
 	}
 
-	return {m, (uint8_t)getScreen(mapref), (uint16_t)id, (uint8_t)id, &m->getFFC(id)};
+	return m->getFFCHandle(id, 0);
 }
 
 int32_t genscript_timing = SCR_TIMING_START_FRAME;
@@ -6646,7 +6646,7 @@ int32_t get_register(int32_t arg)
 		case SCREENDATANUMFF: 	
 		{
 			uint32_t indx = ri->d[rINDEX] / 10000;
-			int max_ffc_id = MAX_FFCID;
+			ffc_id_t max_ffc_id = MAX_FFCID;
 			if (!indx || indx > max_ffc_id)
 			{
 				Z_scripterrlog("Invalid Index passed to Screen->NumFFCs[%d].\n Valid indices are 1 through %d.\n", indx, max_ffc_id);

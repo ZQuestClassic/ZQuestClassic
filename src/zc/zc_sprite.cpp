@@ -76,10 +76,10 @@ int32_t get_conveyor(int32_t x, int32_t y)
 	int pos = RPOS_TO_POS(rpos);
 	int found_layer = -1;
 	int cmbid = -1;
-	int ffcid = MAPFFCOMBO(x,y);
-	if(maxlayer == 6 && ffcid && is_conveyor(combobuf[ffcid].type))
+	int ffc_cid = MAPFFCOMBO(x,y);
+	if(maxlayer == 6 && ffc_cid && is_conveyor(combobuf[ffc_cid].type))
 	{
-		cmbid = ffcid;
+		cmbid = ffc_cid;
 		found_layer = 999;
 	}
 	else for(int q = maxlayer; q >= 0; --q)
