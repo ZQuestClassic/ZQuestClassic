@@ -510,7 +510,7 @@ bool sprite_set_register(int32_t reg, int32_t value)
 			// TODO: use sprite::scriptile
 			if (is_player())
 			{
-				Hero.scripttile = tile;
+				script_hero_sprite = tile;
 				break;
 			}
 			if (auto s = get_sprite(ri->spriteref, "ScriptTile"))
@@ -657,7 +657,7 @@ bool sprite_set_register(int32_t reg, int32_t value)
 			// TODO: use sprite::scriptflip
 			if (is_player())
 			{
-				Hero.scripttile = vbound(value / 10000, -1, 256);
+				script_hero_flip = vbound(value / 10000, -1, 256);
 				break;
 			}
 
