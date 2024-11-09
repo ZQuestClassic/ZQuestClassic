@@ -1163,13 +1163,13 @@ int32_t MAPCOMBO2(int32_t layer, int32_t x, int32_t y)
 	return rpos_handle.data();
 }
 
-static void apply_state_changes_to_screen(mapscr& scr, int32_t map, int32_t screen, int32_t flags)
+static void apply_state_changes_to_screen(mapscr& scr, int32_t map, int32_t screen, int32_t flags, bool secrets_do_replay_comment)
 {
 	if ((flags & mSECRET) && canPermSecret(currdmap, screen))
 	{
 		reveal_hidden_stairs(&scr, screen, false);
 		bool do_layers = false;
-		trigger_secrets_for_screen_internal(-1, &scr, do_layers, false, -3);
+		trigger_secrets_for_screen_internal(-1, &scr, do_layers, false, -3, secrets_do_replay_comment);
 	}
 	if(flags & mLIGHTBEAM)
 	{
@@ -1239,7 +1239,7 @@ std::optional<mapscr> load_temp_mapscr_and_apply_secrets(int32_t map, int32_t sc
     
 	if(scr.valid==0) return std::nullopt;
 
-	apply_state_changes_to_screen(scr, map, screen, flags);
+	apply_state_changes_to_screen(scr, map, screen, flags, secrets_do_replay_comment);
 
 	return scr;
 }
