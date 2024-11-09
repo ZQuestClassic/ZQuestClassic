@@ -20,7 +20,8 @@ ZInfoDialog::ZInfoDialog() : lzinfo(),
 	list_combotype(GUI::ZCListData::combotype(true, true)),
 	list_mapflag(GUI::ZCListData::mapflag(numericalFlags, true, true)),
 	list_counters(GUI::ZCListData::counters(true, true)),
-	list_weapon(GUI::ZCListData::weaptypes(true))
+	list_weapon(GUI::ZCListData::weaptypes(true)),
+	list_efamilies(GUI::ZCListData::efamilies(true))
 {}
 
 static bool extzinf;
@@ -40,10 +41,10 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 	}
 	else lzinfo.copyFrom(ZI); //Load ZInfo Data
 	
-	static int32_t selic = 0, selct = 0, selmf = 0, selctr = 0, selwpn = 0;
+	static int32_t selic = 0, selct = 0, selmf = 0, selctr = 0, selwpn = 0, seletype = 0;;
 	static char **icnameptr = nullptr, **ichelpptr = nullptr, **ctnameptr = nullptr,
 	            **cthelpptr = nullptr, **mfnameptr = nullptr, **mfhelpptr = nullptr,
-				**ctrnameptr = nullptr, **wpnptr = nullptr;
+				**ctrnameptr = nullptr, **wpnptr = nullptr,  **etypeptr = nullptr;
 	extzinf = header.external_zinfo;
 	icnameptr = &(lzinfo.ic_name[selic]);
 	ichelpptr = &(lzinfo.ic_help_string[selic]);
@@ -53,6 +54,7 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 	mfhelpptr = &(lzinfo.mf_help_string[selmf]);
 	ctrnameptr = &(lzinfo.ctr_name[selctr]);
 	wpnptr = &(lzinfo.weap_name[selwpn]);
+	etypeptr = &(lzinfo.etype_name[seletype]);
 	std::shared_ptr<GUI::Window> window = Window(
 		title = "ZInfo Editor",
 		info = "By unchecking 'default' for an itemclass, it will allow entry of a string which will be stored in"
@@ -490,7 +492,7 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 							onPressFunc = [&]()
 							{
 								AlertDialog("Are you sure?",
-									"This will clear ALL mapflag names to default!",
+									"This will clear ALL Counter names to default!",
 									[&](bool ret,bool)
 									{
 										if(ret)
@@ -503,7 +505,66 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 									}).show();
 							})
 					)
+				)),
+				TabRef(name = "Enemy Types", Rows<3>(
+					vAlign = 0.0,
+					DropDownList(data = list_efamilies,
+						colSpan = 3, fitParent = true,
+						selectedValue = selctr,
+						onSelectFunc = [&](int32_t val)
+						{
+							seletype = val;
+							etypeptr = &(lzinfo.etype_name[seletype]);
+							fields[FLD_ETYPE_NAME]->setText((*etypeptr) ? (*etypeptr) : "");
+							fields[FLD_ETYPE_NAME]->setDisabled(!(*etypeptr));
+							defcheck[FLD_ETYPE_NAME]->setChecked(!(*etypeptr));
+						}
+					),
+					Label(text = "Enemy Type Name:"),
+					fields[FLD_ETYPE_NAME] = TextField(
+						maxwidth = 20_em,
+						maxLength = 255, text = ((*etypeptr) ? (*etypeptr) : ""),
+						onValChangedFunc = [&](GUI::TextField::type,std::string_view sv,int32_t)
+						{
+							std::string str(sv);
+							assignchar(etypeptr, str.size() ? str.c_str() : nullptr);
+						}),
+					defcheck[FLD_ETYPE_NAME] = Checkbox(text = "Default",
+						onToggleFunc = [&](bool state)
+						{
+							if(state)
+							{
+								assignchar(etypeptr, nullptr);
+								fields[FLD_ETYPE_NAME]->setText("");
+								fields[FLD_ETYPE_NAME]->setDisabled(true);
+							}
+							else fields[FLD_ETYPE_NAME]->setDisabled(false);
+						}),
+					Row(
+						padding = 0_px,
+						colSpan = 3,
+						Label(text = "Reset all enemy types..."),
+						Button(
+							text = "Names",
+							minwidth = 40_px,
+							onPressFunc = [&]()
+							{
+								AlertDialog("Are you sure?",
+									"This will clear ALL enemy type names to default!",
+									[&](bool ret,bool)
+									{
+										if(ret)
+										{
+											lzinfo.clear_etype_name();
+											fields[FLD_ETYPE_NAME]->setText("");
+											fields[FLD_ETYPE_NAME]->setDisabled(true);
+											defcheck[FLD_ETYPE_NAME]->setChecked(true);
+										}
+									}).show();
+							})
+					)
 				))
+				
 			),
 			Row(padding = 0_px,
 				Checkbox(text = "External ZInfo",

@@ -276,7 +276,6 @@ const char weap_name_default_string[wMax][255] =
 	"Fireball (Rising)"
 	//wMax
 };
-
 const char default_itype_strings[itype_max][255] = 
 { 
 	"Swords", "Boomerangs", "Arrows", "Candles", "Whistles",
@@ -349,6 +348,18 @@ const char counter_default_names[MAX_COUNTERS][255] =
 	"Custom 94", "Custom 95", "Custom 96", "Custom 97", "Custom 98",
 	"Custom 99", "Custom 100"
 };
+const char etype_default_names[eeMAX][255] =
+{
+	"-Guy", "Walking Enemy", "-DEPRECATED", "Tektite", "Leever", "Peahat", "Zora", "Rock", "Ghini", "-DEPRECATED",
+	"Keese", "-DEPRECATED", "-DEPRECATED", "-DEPRECATED", "-DEPRECATED", "Trap", "Wall Master", "-DEPRECATED", "-DEPRECATED", "-DEPRECATED",
+	"-DEPRECATED", "Wizzrobe", "Aquamentus", "Moldorm", "Dodongo", "Manhandla", "Gleeok", "Digdogger", "Ghoma", "Lanmola", "Patra",
+	"Ganon", "Projectile Shooter", "-DEPRECATED", "-DEPRECATED", "-DEPRECATED", "-DEPRECATED", "Spin Tile", "(None)", "-Fairy", "Other (Floating)",
+	"Other", "-OLDMAX",
+	"Custom 01","Custom 02","Custom 03","Custom 04","Custom 05","Custom 06","Custom 07","Custom 08","Custom 09","Custom 10",
+	"Custom 11","Custom 12","Custom 13","Custom 14","Custom 15","Custom 16","Custom 17","Custom 18","Custom 19","Custom 20",
+	"Friendly NPC 01","Friendly NPC 02","Friendly NPC 03","Friendly NPC 04","Friendly NPC 05",
+	"Friendly NPC 06","Friendly NPC 07","Friendly NPC 08","Friendly NPC 09","Friendly NPC 10"
+};
 
 void assignchar(char** p, char const* str)
 {
@@ -375,6 +386,7 @@ zinfo::zinfo()
 	memset(ic_name, 0, sizeof(ic_name));
 	memset(ctr_name, 0, sizeof(ctr_name));
 	memset(weap_name, 0, sizeof(weap_name));
+	memset(etype_name, 0, sizeof(etype_name));
 }
 
 void zinfo::clear_ic_help()
@@ -433,6 +445,13 @@ void zinfo::clear_ctr_name()
 		assignchar(ctr_name+q,nullptr);
 	}
 }
+void zinfo::clear_etype_name()
+{
+	for (auto q = 0; q < eeMAX; ++q)
+	{
+		assignchar(etype_name+q, nullptr);
+	}
+}
 void zinfo::clear()
 {
 	clear_ic_help();
@@ -443,6 +462,7 @@ void zinfo::clear()
 	clear_mf_help();
 	clear_weap_name();
 	clear_ctr_name();
+	clear_etype_name();
 }
 
 static char const* nilptr = "";
@@ -467,6 +487,10 @@ bool zinfo::isUsableCtr(int32_t q)
 {
 	return q >= crNONE && q < MAX_COUNTERS;
 	//return valid_str(counter_default_names[q+1],'-');
+}
+bool zinfo::isUsableEnemyType(size_t q)
+{
+	return valid_str(etype_default_names[q], '-');
 }
 char const* zinfo::getItemClassName(size_t q)
 {
@@ -541,6 +565,14 @@ char const* zinfo::getCtrName(int32_t q)
 		return counter_default_names[q];
 	return nilptr;
 }
+char const* zinfo::getEnemyTypeName(size_t q)
+{
+	if (valid_str(etype_name[q]))
+		return etype_name[q];
+	if (valid_str(etype_default_names[q]))
+		return etype_default_names[q];
+	return nilptr;
+}
 
 void zinfo::copyFrom(zinfo const& other)
 {
@@ -567,6 +599,10 @@ void zinfo::copyFrom(zinfo const& other)
 	for(auto q = 0; q < wMax; ++q)
 	{
 		assignchar(weap_name+q, other.weap_name[q]);
+	}
+	for (auto q = 0; q < eeMAX; ++q)
+	{
+		assignchar(etype_name+q, other.etype_name[q]);
 	}
 }
 
@@ -704,7 +740,7 @@ int32_t writezinfo(PACKFILE *f, zinfo const& z)
 					new_return(23);
 		}
 		
-		if(!p_iputw(wMax,f)) //num counters
+		if(!p_iputw(wMax,f)) //num weapons
 		{
 			new_return(21);
 		}
@@ -718,6 +754,23 @@ int32_t writezinfo(PACKFILE *f, zinfo const& z)
 			}
 			if(namesize)
 				if(!pfwrite(z.weap_name[q],namesize,f))
+					new_return(23);
+		}
+
+		if (!p_iputw(eeMAX, f)) //num enemy types
+		{
+			new_return(21);
+		}
+		for (auto q = 0; q < eeMAX; ++q)
+		{
+			byte namesize = (byte)(vbound(valid_str(z.etype_name[q]) ? strlen(z.etype_name[q]) : 0, 0, 255));
+
+			if (!p_putc(namesize, f))
+			{
+				new_return(22);
+			}
+			if (namesize)
+				if (!pfwrite(z.etype_name[q], namesize, f))
 					new_return(23);
 		}
 		
@@ -926,6 +979,29 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 					return qe_invalid;
 				p[namesize] = 0;
 				z.weap_name[q] = p;
+			}
+		}
+	}
+	if(section_version > 3)
+	{
+		word num_etypes;
+		if (!p_igetw(&num_etypes, f))
+			return qe_invalid;
+		if (num_etypes > eeMAX)
+			return qe_invalid;
+		for (auto q = 0; q < num_etypes; ++q)
+		{
+			byte namesize;
+			if (!p_getc(&namesize, f))
+				return qe_invalid;
+			if (namesize)
+			{
+				char* p = (char*)malloc(namesize + 1);
+				if (!p) return qe_nomem;
+				if (!pfread(p, namesize, f))
+					return qe_invalid;
+				p[namesize] = 0;
+				z.etype_name[q] = p;
 			}
 		}
 	}
