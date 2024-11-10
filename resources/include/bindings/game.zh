@@ -914,7 +914,7 @@ class Game {
 	// Loads the temp mapdata pointer for the specified layer's *scrolling
 	// screen*. This is only used during scrolling, for drawing the screen you
 	// just came from during the scrolling animation. Writing to this at any
-	// time other than during scrolling will have no effect.
+	// time other than during scrolling has no effect.
 	//
 	// @zasm
 	//   POP D2

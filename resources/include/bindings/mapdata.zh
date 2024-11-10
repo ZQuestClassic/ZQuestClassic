@@ -1,9 +1,12 @@
 // Represents a single map screen.
 //
 // Depending on how the `mapdata` was loaded, it may represent:
-// - a temporary copy of the current screen ([Game->LoadTempScreen])
-// - a temporary copy of a scrolling screen ([Game->LoadScrollingScreen])
-// - the canonical copy of a screen ([Game->LoadMapData])
+// - a temporary screen, aka a live reference to the current screen ([Game->LoadTempScreen])
+//   Modifications are reset when the screen changes.
+// - a temporary screen, aka a live reference to the current scrolling screen ([Game->LoadScrollingScreen])
+// - the canonical copy of a screen ([Game->LoadMapData]).
+//   If made to the current screen, modifications do not appear until next load. Also, modifications do not
+//   persist to future game reloads.
 //
 // @zasm_ref REFMAPDATA
 class mapdata {
@@ -292,6 +295,9 @@ class mapdata {
 	//
 	// See [ffc::Data] for more details.
 	//
+	// If this `mapdata` was loaded via [Game->LoadTempScreen] and layer 0,
+	// this array and the other FFC arrays reference the live FFCs.
+	//
 	// @zasm_var MAPDATAFFDATA
 	internal int FFCData[];
 
@@ -432,41 +438,54 @@ class mapdata {
 
 	// The Combo ID placed at each position on the screen.
 	//
+	// If this is a temporary screen, this allows access to every combo in the current region.
+	//
 	// @zasm_var MAPDATACOMBODD
 	internal int ComboD[];
 
 	// The CSet of the combo placed at each position on the screen.
+	//
+	// If this is a temporary screen, this allows access to every combo in the current region.
 	//
 	// @zasm_var MAPDATACOMBOCD
 	internal int ComboC[];
 
 	// The mapflag placed at each position on the screen.
 	//
+	// If this is a temporary screen, this allows access to every combo in the current region.
+	//
 	// @zasm_var MAPDATACOMBOFD
 	internal int ComboF[];
 
 	// The inherent flag of the combo placed at each position on the screen.
+	//
+	// If this is a temporary screen, this allows access to every combo in the current region.
 	//
 	// @zasm_var MAPDATACOMBOID
 	internal int ComboI[];
 
 	// The combo type of the combo placed at each position on the screen.
 	//
+	// If this is a temporary screen, this allows access to every combo in the current region.
+	//
 	// @zasm_var MAPDATACOMBOTD
 	internal int ComboT[];
 
 	// The solidity map of the combo placed at each position on the screen.
+	//
+	// If this is a temporary screen, this allows access to every combo in the current region.
 	//
 	// @zasm_var MAPDATACOMBOSD
 	internal int ComboS[];
 
 	// The effect map of the combo placed at each position on the screen.
 	//
+	// If this is a temporary screen, this allows access to every combo in the current region.
+	//
 	// @zasm_var MAPDATACOMBOED
 	internal int ComboE[];
 
-	// The screen states used for this screen. Use the `ST_` constants to access
-	// this.
+	// The screen states used for this screen. Use the `ST_` constants to access this.
 	//
 	// @zasm_var MAPDATASCREENSTATED
 	internal bool State[];
@@ -501,7 +520,7 @@ class mapdata {
 	// @zasm_var MAPDATALENSHIDES
 	internal bool LensHides[];
 
-	// Read-write, the size of the `Data[]` array.
+	// Read-write, the size of the [Data]` array.
 	//
 	// @zasm_var MAPDATASCRDATASIZE
 	internal int DataSize;
@@ -552,11 +571,9 @@ class mapdata {
 	// @zasm_var MAPDATAMISCD
 	internal untyped D[];
 
-	// If not zero, then the item for this screen will be shown.
+	// If not zero, then the item for this screen is shown.
 	//
-	// When Link takes the item on a screen, this is set to 0.
-	//
-	// @deprecated Check '->Item > -1' instead!
+	// @deprecated Use `Item > -1` instead!
 	// @zasm_var MAPDATAHASITEM
 	internal int HasItem;
 
