@@ -231,30 +231,52 @@ void FFScript::Waitframe(bool allowwavy, bool sfxcleanup)
 		sfx_cleanup();
 }
 
+static int create_mapdata_temp_ref(int screen, int layer, bool is_scrolling)
+{
+	int result = 0;
+	result |= is_scrolling ? 1 : 0;
+	result |= ((screen & 0xFF) << 8);
+	result |= ((layer & 0xFF) << 16);
+	return -result-1;
+}
+
+static auto decode_mapdata_temp_ref(int result)
+{
+	struct decode_result {
+		mapscr* scr;
+		int screen;
+		int layer;
+		bool is_scrolling;
+	};
+
+	result = -(result + 1);
+	bool is_scrolling = result & 1;
+	int screen = (result & 0x0000FF00) >> 8;
+	int layer  = (result & 0x00FF0000) >> 16;
+
+	mapscr* scr = nullptr;
+	if (is_scrolling)
+	{
+		int index = screen * 7 + layer;
+		if (index >= 0 && index < FFCore.ScrollingScreensAll.size())
+			scr = FFCore.ScrollingScreensAll[index];
+	}
+	else
+	{
+		if (layer >= 0 && layer <= 6)
+			scr = get_layer_scr(screen, layer - 1);
+	}
+
+	return decode_result{scr, screen, layer, is_scrolling};
+}
+
 mapscr* GetMapscr(int32_t mapref)
 {
-	switch(mapref)
-	{
-		case MAPSCR_TEMP0: return FFCore.tempScreens[0]; //Temp layer 0
-		case MAPSCR_TEMP1: return FFCore.tempScreens[1]; //Temp layer 1
-		case MAPSCR_TEMP2: return FFCore.tempScreens[2]; //Temp layer 2
-		case MAPSCR_TEMP3: return FFCore.tempScreens[3]; //Temp layer 3
-		case MAPSCR_TEMP4: return FFCore.tempScreens[4]; //Temp layer 4
-		case MAPSCR_TEMP5: return FFCore.tempScreens[5]; //Temp layer 5
-		case MAPSCR_TEMP6: return FFCore.tempScreens[6]; //Temp layer 6
-		case MAPSCR_SCROLL0: return FFCore.ScrollingScreens[0]; //Temp scrolllayer 0
-		case MAPSCR_SCROLL1: return FFCore.ScrollingScreens[1]; //Temp scrolllayer 1
-		case MAPSCR_SCROLL2: return FFCore.ScrollingScreens[2]; //Temp scrolllayer 2
-		case MAPSCR_SCROLL3: return FFCore.ScrollingScreens[3]; //Temp scrolllayer 3
-		case MAPSCR_SCROLL4: return FFCore.ScrollingScreens[4]; //Temp scrolllayer 4
-		case MAPSCR_SCROLL5: return FFCore.ScrollingScreens[5]; //Temp scrolllayer 5
-		case MAPSCR_SCROLL6: return FFCore.ScrollingScreens[6]; //Temp scrolllayer 6
-		default:
-		{
-			if(mapref < 0) return NULL; //Bad negative value
-			else return &TheMaps[mapref]; //Standard mapdata
-		}
-	}
+	if (mapref >= 0)
+		return &TheMaps[mapref];
+
+	auto result = decode_mapdata_temp_ref(mapref);
+	return result.scr;
 }
 
 mapscr* GetScrollingMapscr(int layer, int x, int y)
@@ -1481,84 +1503,28 @@ static bool set_current_script_engine_data(ScriptType type, int script, int inde
 	return got_initialized;
 }
 
-static int mapRefToLayer(int32_t ref)
-{
-	switch (ref)
-	{
-		case MAPSCR_TEMP0:
-		case MAPSCR_TEMP1:
-		case MAPSCR_TEMP2:
-		case MAPSCR_TEMP3:
-		case MAPSCR_TEMP4:
-		case MAPSCR_TEMP5:
-		case MAPSCR_TEMP6:
-			return -ref - 1;
-
-		case MAPSCR_SCROLL0:
-		case MAPSCR_SCROLL1:
-		case MAPSCR_SCROLL2:
-		case MAPSCR_SCROLL3:
-		case MAPSCR_SCROLL4:
-		case MAPSCR_SCROLL5:
-		case MAPSCR_SCROLL6:
-			return -ref - 8;
-	}
-
-	return -1;
-}
-
-static bool mapRefIsTemp(int32_t ref)
-{
-	switch (ref)
-	{
-		case MAPSCR_TEMP0:
-		case MAPSCR_TEMP1:
-		case MAPSCR_TEMP2:
-		case MAPSCR_TEMP3:
-		case MAPSCR_TEMP4:
-		case MAPSCR_TEMP5:
-		case MAPSCR_TEMP6:
-			return true;
-	}
-
-	return false;
-}
-
-static bool mapRefIsScrolling(int32_t ref)
-{
-	switch (ref)
-	{
-		case MAPSCR_SCROLL0:
-		case MAPSCR_SCROLL1:
-		case MAPSCR_SCROLL2:
-		case MAPSCR_SCROLL3:
-		case MAPSCR_SCROLL4:
-		case MAPSCR_SCROLL5:
-		case MAPSCR_SCROLL6:
-			return true;
-	}
-
-	return false;
-}
-
 // A `mapref` can refer to the canonical mapscr data via `Game->LoadMapData(int map, int scr)`,
 // one of the temporary mapscrs loaded via `Game->LoadTempScreen(int layer)` or `Game->LoadScrollingScreen(int layer)`.
 // If temporary, and we are in a region, we allow some functions (like `mapref->ComboX[pos]`) to address any rpos in the current region.
 // Otherwise, only positions in the exact screen referenced by `mapref` can be used (0-175).
 static rpos_handle_t ResolveMapRef(int32_t mapref, rpos_t rpos, const char* context)
 {
-	if (mapRefIsTemp(mapref))
+	if (mapref >= 0)
 	{
-		if (BC::checkComboRpos(rpos, context) != SH::_NoError)
-		{
+		if (BC::checkComboPos((int)rpos, context) != SH::_NoError)
 			return rpos_handle_t{};
-		}
 
-		int layer = mapRefToLayer(mapref);
-		return get_rpos_handle(rpos, layer);
+		return {GetMapscr(mapref), getScreen(mapref), 0, rpos, RPOS_TO_POS(rpos)};
 	}
 
-	if (mapRefIsScrolling(mapref))
+	auto result = decode_mapdata_temp_ref(mapref);
+	if (!result.scr)
+	{
+		Z_scripterrlog("mapdata id (%d) is invalid (%s)\n", mapref, context); 
+		return rpos_handle_t{};
+	}
+
+	if (result.is_scrolling)
 	{
 		rpos_t max = (rpos_t)(scrolling_region.width * scrolling_region.height - 1);
 		if (BC::checkBoundsRpos(rpos, (rpos_t)0, max, context) != SH::_NoError)
@@ -1566,7 +1532,7 @@ static rpos_handle_t ResolveMapRef(int32_t mapref, rpos_t rpos, const char* cont
 			return rpos_handle_t{};
 		}
 
-		int layer = mapRefToLayer(mapref);
+		int layer = result.layer;
 		int scr;
 		{
 			int origin_scr_x = scrolling_region.origin_screen_index % 16;
@@ -1576,32 +1542,53 @@ static rpos_handle_t ResolveMapRef(int32_t mapref, rpos_t rpos, const char* cont
 			int scr_y = origin_scr_y + scr_index/current_region.screen_width;
 			scr = scr_x + scr_y * 16;
 		}
-		mapscr* m = FFCore.ScrollingScreensAll[scr * 7 + layer];
-		if (m->valid == 0)
+
+		if (result.scr->valid == 0)
 		{
 			return rpos_handle_t{};
 		}
 
-		return {m, scr, layer, rpos, RPOS_TO_POS(rpos)};
+		return {result.scr, scr, layer, rpos, RPOS_TO_POS(rpos)};
 	}
-
-	if (mapref < 0)
+	else
 	{
-		Z_scripterrlog("%s pointer (%d) is either invalid or uninitialised.\n", context, mapref);
-		return rpos_handle_t{};
-	}
+		if (BC::checkComboRpos(rpos, context) != SH::_NoError)
+		{
+			return rpos_handle_t{};
+		}
 
-	if (BC::checkComboPos((int)rpos, context) != SH::_NoError)
-	{
-		return rpos_handle_t{};
+		return get_rpos_handle(rpos, result.layer);
 	}
-
-	return {GetMapscr(mapref), getScreen(mapref), 0, rpos, RPOS_TO_POS(rpos)};
 }
 
 static ffc_handle_t ResolveMapRefFFC(int32_t mapref, int id, const char* context)
 {
-	if (mapref == MAPSCR_TEMP0)
+	if (mapref >= 0)
+	{
+		if ( (unsigned)id > MAXFFCS-1 ) 
+		{
+			Z_scripterrlog("%s FFC id (%d) is invalid", context, id);
+			return ffc_handle_t{};
+		}
+
+		mapscr* m = GetMapscr(mapref);
+		if (!m)
+		{
+			Z_scripterrlog("%s pointer (%d) is either invalid or uninitialised.\n", context, mapref);
+			return ffc_handle_t{};
+		}
+
+		return m->getFFCHandle(id, 0);
+	}
+
+	auto result = decode_mapdata_temp_ref(mapref);
+	if (!result.scr)
+	{
+		Z_scripterrlog("mapdata id (%d) is invalid (%s)\n", mapref, context);
+		return ffc_handle_t{};
+	}
+
+	if (!result.is_scrolling && result.layer == 0 && result.screen == currscr)
 	{
 		if (BC::checkFFC(id, context) != SH::_NoError)
 			return ffc_handle_t{};
@@ -1615,14 +1602,7 @@ static ffc_handle_t ResolveMapRefFFC(int32_t mapref, int id, const char* context
 		return ffc_handle_t{};
 	}
 
-	mapscr* m = GetMapscr(mapref);
-	if (!m)
-	{
-		Z_scripterrlog("%s pointer (%d) is either invalid or uninitialised.\n", context, mapref);
-		return ffc_handle_t{};
-	}
-
-	return m->getFFCHandle(id, 0);
+	return result.scr->getFFCHandle(id, 0);
 }
 
 int32_t genscript_timing = SCR_TIMING_START_FRAME;
@@ -6878,14 +6858,14 @@ int32_t get_register(int32_t arg)
 		
 		case MAPDATAINITDARRAY:
 		{
-			if ( ri->mapsref == MAX_SIGNED_32 ) 
+			mapscr *m = GetMapscr(ri->mapsref);
+			if (!m) 
 			{ 
 				Z_scripterrlog("Script attempted to use a mapdata->InitD[%d] on a pointer that is uninitialised\n",ri->d[rINDEX]/10000); 
 				break; 
 			} 
 			else 
-			{ 
-				mapscr *m = GetMapscr(ri->mapsref); 
+			{
 				ret = m->screeninitd[ri->d[rINDEX]/10000];
 			} 
 			break;
@@ -6901,14 +6881,14 @@ int32_t get_register(int32_t arg)
 			}
 			else
 			{
-				if ( ri->mapsref == MAX_SIGNED_32 )
+				mapscr *m = GetMapscr(ri->mapsref);
+				if ( !m )
 				{
 						Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","LayerInvisible");
 						ret = -10000;
 				}
 				else
 				{
-					mapscr *m = GetMapscr(ri->mapsref);
 					ret = ((m->hidelayers >> indx) & 1) *10000;
 				}
 			}
@@ -6924,14 +6904,14 @@ int32_t get_register(int32_t arg)
 			}
 			else
 			{
-				if ( ri->mapsref == MAX_SIGNED_32 )
+				mapscr *m = GetMapscr(ri->mapsref);
+				if ( !m )
 				{
 						Z_scripterrlog("Script attempted to use a mapdata->DisableScriptDraws on a pointer that is uninitialised\n");
 						ret = -10000;
 				}
 				else
 				{
-					mapscr *m = GetMapscr(ri->mapsref);
 					ret = ((m->hidescriptlayers >> indx) & 1) ? 0 : 10000;
 				}
 			}
@@ -24896,7 +24876,8 @@ void do_issolid()
 
 void do_mapdataissolid()
 {
-	if ( ri->mapsref == MAX_SIGNED_32  )
+	mapscr *m = GetMapscr(ri->mapsref);
+	if ( !m )
 	{
 		Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","isSolid()");
 		set_register(sarg1,10000);
@@ -24906,31 +24887,38 @@ void do_mapdataissolid()
 		int32_t x = int32_t(ri->d[rINDEX] / 10000);
 		int32_t y = int32_t(ri->d[rINDEX2] / 10000);
 
-		switch(ri->mapsref)
+		if (ri->mapsref >= 0)
 		{
-			case MAPSCR_TEMP0:
-				set_register(sarg1, (_walkflag(x, y, 1)) ? 10000 : 0);
-				break;
-			case MAPSCR_SCROLL0:
-			{
-				mapscr* s0 = GetScrollingMapscr(0, x, y);
-				mapscr* s1 = GetScrollingMapscr(1, x, y);
-				mapscr* s2 = GetScrollingMapscr(2, x, y);
-				if (!s1->valid) s1 = s0;
-				if (!s2->valid) s2 = s0;
-				bool result = _walkflag_new(s0, s1, s2, x, y, 0_zf, true);
-				set_register(sarg1, result ? 10000 : 0);
-				break;
-			}
-			default:
-				set_register(sarg1, (_walkflag(x, y, 1, GetMapscr(ri->mapsref)) ? 10000 : 0));
+			set_register(sarg1, (_walkflag(x, y, 1, m) ? 10000 : 0));
+			return;
+		}
+
+		auto result = decode_mapdata_temp_ref(ri->mapsref);
+		if (!result.is_scrolling && result.screen == currscr && result.layer == 0)
+		{
+			set_register(sarg1, (_walkflag(x, y, 1)) ? 10000 : 0);
+		}
+		else if (result.is_scrolling && result.screen == currscr && result.layer == 0)
+		{
+			mapscr* s0 = GetScrollingMapscr(0, x, y);
+			mapscr* s1 = GetScrollingMapscr(1, x, y);
+			mapscr* s2 = GetScrollingMapscr(2, x, y);
+			if (!s1->valid) s1 = s0;
+			if (!s2->valid) s2 = s0;
+			bool result = _walkflag_new(s0, s1, s2, x, y, 0_zf, true);
+			set_register(sarg1, result ? 10000 : 0);
+		}
+		else
+		{
+			set_register(sarg1, (_walkflag(x, y, 1, result.scr) ? 10000 : 0));
 		}
 	}
 }
 
 void do_mapdataissolid_layer()
 {
-	if ( ri->mapsref == MAX_SIGNED_32  )
+	mapscr *m = GetMapscr(ri->mapsref);
+	if ( !m )
 	{
 		Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","isSolidLayer()");
 		set_register(sarg1,10000);
@@ -24946,29 +24934,29 @@ void do_mapdataissolid_layer()
 		}
 		else
 		{
-			switch(ri->mapsref)
+			auto result = decode_mapdata_temp_ref(ri->mapsref);
+			if (!result.is_scrolling && result.screen == currscr && result.layer == 0)
 			{
-				case MAPSCR_TEMP0:
-					set_register(sarg1, (_walkflag_layer(x, y, 1, GetMapscr(ri->mapsref))) ? 10000 : 0);
-					break;
-
-				case MAPSCR_SCROLL0:
-					set_register(sarg1, (_walkflag_layer_scrolling(x, y, 1, GetMapscr(ri->mapsref))) ? 10000 : 0);
-					break;
-
-				default:
-					mapscr* m = GetMapscr(ri->mapsref);
-					if(layer > 0)
+				set_register(sarg1, (_walkflag_layer(x, y, 1, GetMapscr(ri->mapsref))) ? 10000 : 0);
+			}
+			else if (result.is_scrolling && result.screen == currscr && result.layer == 0)
+			{
+				set_register(sarg1, (_walkflag_layer_scrolling(x, y, 1, GetMapscr(ri->mapsref))) ? 10000 : 0);
+			}
+			else
+			{
+				if(layer > 0)
+				{
+					if(m->layermap[layer] == 0)
 					{
-						if(m->layermap[layer] == 0)
-						{
-							set_register(sarg1,10000);
-							break;
-						}
-						m = &TheMaps[(m->layermap[layer]*MAPSCRS + m->layerscreen[layer])];
+						set_register(sarg1,10000);
+						return;
 					}
-					set_register(sarg1, (_walkflag_layer(x, y, 1, m) ? 10000 : 0));
-					break;
+
+					m = &TheMaps[(m->layermap[layer]*MAPSCRS + m->layerscreen[layer])];
+				}
+
+				set_register(sarg1, (_walkflag_layer(x, y, 1, m) ? 10000 : 0));
 			}
 		}
 	}
@@ -27473,6 +27461,8 @@ void FFScript::do_loadmapdata(const bool v)
 	else ri->mapsref = indx;
 }
 
+// TODO z3 !!!
+// negative:  first bit: scrolling? next 3: layer? rest: screen number?
 void FFScript::do_loadmapdata_tempscr(const bool v)
 {
 	int32_t layer = SH::get_arg(sarg1, v) / 10000;
@@ -27481,16 +27471,8 @@ void FFScript::do_loadmapdata_tempscr(const bool v)
 		ri->mapsref = 0;
 		return;
 	}
-	switch(layer)
-	{
-		case 0: ri->mapsref = MAPSCR_TEMP0; break;
-		case 1: ri->mapsref = MAPSCR_TEMP1; break;
-		case 2: ri->mapsref = MAPSCR_TEMP2; break;
-		case 3: ri->mapsref = MAPSCR_TEMP3; break;
-		case 4: ri->mapsref = MAPSCR_TEMP4; break;
-		case 5: ri->mapsref = MAPSCR_TEMP5; break;
-		case 6: ri->mapsref = MAPSCR_TEMP6; break;
-	}
+
+	ri->mapsref = create_mapdata_temp_ref(currscr, layer, false);
 	set_register(sarg1, ri->mapsref);
 }
 
@@ -27502,16 +27484,8 @@ void FFScript::do_loadmapdata_scrollscr(const bool v)
 		ri->mapsref = 0;
 		return;
 	}
-	switch(layer)
-	{
-		case 0: ri->mapsref = MAPSCR_SCROLL0; break;
-		case 1: ri->mapsref = MAPSCR_SCROLL1; break;
-		case 2: ri->mapsref = MAPSCR_SCROLL2; break;
-		case 3: ri->mapsref = MAPSCR_SCROLL3; break;
-		case 4: ri->mapsref = MAPSCR_SCROLL4; break;
-		case 5: ri->mapsref = MAPSCR_SCROLL5; break;
-		case 6: ri->mapsref = MAPSCR_SCROLL6; break;
-	}
+
+	ri->mapsref = create_mapdata_temp_ref(scrolling_scr, layer, true);
 	set_register(sarg1, ri->mapsref);
 }
 	
