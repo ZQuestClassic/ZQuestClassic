@@ -236,19 +236,19 @@ const char map_flag_default_string[mfMAX][255] =
 };
 const char weap_name_default_string[wMax][255] =
 {
-	"(None)","-Sword","Sword Beam","Boomerang","Bomb Blast",
+	"(None)","Sword","Sword Beam","Boomerang","Bomb Blast",
 	"Super Bomb Blast","Bomb","Super Bomb","Arrow","Fire",
 	//10
 	"Whistle","Bait","-Melee Handle","Magic","-Catching",
-	"Wind","Reflected Magic","Reflected Fireball","Reflected Rock","-Hammer",
+	"Wind","Reflected Magic","Reflected Fireball","Reflected Rock","Hammer",
 	//20
-	"-Hookshot","-Hookshot Handle","-Hookshot Chain","Sparkle","Fire Sparkle",
-	"-Smack","-Phantom","-Byrna","Reflected Beam","-Stomp",
+	"Hookshot","-Hookshot Handle","-Hookshot Chain","Sparkle","Fire Sparkle",
+	"-Smack","-Phantom","Byrna Beam","Reflected Beam","Stomp Boots",
 	//30
 	"-lwMax","Custom Weapon 1","Custom Weapon 2","Custom Weapon 3","Custom Weapon 4",
 	"Custom Weapon 5","Custom Weapon 6","Custom Weapon 7","Custom Weapon 8","Custom Weapon 9",
 	//40
-	"Custom Weapon 10","Ice","-Flame","-Sound","Thrown",
+	"Custom Weapon 10","-Ice","-Flame","-Sound","Thrown",
 	"-Pot","-Lit","-Med1","-Med2","-Med3",
 	//50
 	"-Sword180","-SwordLA","-Bug Net","Reflected Arrow","Reflected Fire",
@@ -267,13 +267,13 @@ const char weap_name_default_string[wMax][255] =
 	"","","","","","","","","","",
 	//120
 	"","","","","",
-	"","","","-wEnemyWeapons","E Fireball",
+	"","","","-wEnemyWeapons","Fireball",
 	//130
-	"E Arrow","E Boomerang","E Sword","E Rock","E Magic",
-	"E Bomb Blast","E Super Bomb Blast","E Bomb","E Super Bomb","E Fire Trail",
+	"Arrow","Boomerang","Sword","Rock","Magic",
+	"Bomb Blast","Super Bomb Blast","Bomb","Super Bomb","Fire Trail",
 	//140
-	"E Fire","E Wind","E Fire 2","-E Fire Trail 2","-E Ice",
-	"-E Fireball 2"
+	"Fire","Wind","Fire 2","-Fire Trail 2","-Ice",
+	"Fireball (Rising)"
 	//wMax
 };
 

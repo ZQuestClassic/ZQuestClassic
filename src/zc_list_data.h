@@ -21,8 +21,8 @@ namespace GUI::ZCListData
 	GUI::ListData miscsprites(bool skipNone = true, bool inclNegSpecialVals = false, bool numbered = true);
 	GUI::ListData bottletype();
 	GUI::ListData dmaps(bool numbered = false);
-	GUI::ListData lweaptypes();
-	GUI::ListData eweaptypes();
+	GUI::ListData lweaptypes(bool numbered = false);
+	GUI::ListData eweaptypes(bool numbered = false);
 	GUI::ListData weaptypes(bool numbered = false);
 	GUI::ListData sfxnames(bool numbered = false);
 	GUI::ListData midinames(bool numbered = false, bool incl_engine = false);
