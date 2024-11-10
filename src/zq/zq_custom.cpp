@@ -1669,77 +1669,6 @@ const char *itemsetlist(int32_t index, int32_t *list_size)
 list_data_struct biew[MAXWPNS];
 int32_t biew_cnt=-1;
 
-char temp_custom_ew_strings[10][40];
-
-static int32_t enemy_weapon_types[]=
-{
-	128, ewFireball,ewArrow,ewBrang,ewSword,
-	ewRock,ewMagic,ewBomb,ewSBomb,
-	//137
-	ewLitBomb,ewLitSBomb,ewFireTrail,ewFlame,
-	ewWind,ewFlame2,ewFlame2Trail,
-	//145
-	ewIce,ewFireball2
-	
-};
-
-static int32_t enemy_script_weapon_types[]=
-{
-	wScript1, wScript2, wScript3, wScript4,
-	//35
-	wScript5, wScript6, wScript7, wScript8,
-	//39
-	wScript9, wScript10
-	
-};
-
-void build_biew_list()
-{
-	biew_cnt=0;
-
-	memset(temp_custom_ew_strings, 0, sizeof(temp_custom_ew_strings));
-	
-	for(int32_t i=0; i<wMax-wEnemyWeapons; i++)
-	{
-		//if(eweapon_string[i][0]!='-')
-		if(moduledata.enemy_weapon_names[i][0]!='-')
-		{
-			//biew[biew_cnt].s = (char *)eweapon_string[i];
-			biew[biew_cnt].s = (char *)moduledata.enemy_weapon_names[i];
-			biew[biew_cnt].i = enemy_weapon_types[i];
-			++biew_cnt;
-		}
-	}
-	for(int32_t i = 0; i < 10; i++)
-	{
-		biew[biew_cnt].s = (char *)moduledata.enemy_scriptweaponweapon_names[i];
-	biew[biew_cnt].i = enemy_script_weapon_types[i];
-	++biew_cnt;
-	}
-	al_trace("biew_cnt is: %d\n", biew_cnt);
-	for ( int32_t i = 0; i < biew_cnt; i++ )
-	{
-	al_trace("biew[%d] id is (%d) and string is (%s)\n", i, biew[i].i, biew[i].s);
-		
-	}
-	
-}
-
-const char *eweaponlist(int32_t index, int32_t *list_size)
-{
-	if(biew_cnt==-1)
-		build_biew_list();
-		
-	if(index>=0)
-	{
-		bound(index,0,biew_cnt-1);
-		return biew[index].s;
-	}
-	
-	*list_size=biew_cnt;
-	return NULL;
-}
-
 const char *npcscriptdroplist(int32_t index, int32_t *list_size)
 {
 	if(index<0)
@@ -1755,24 +1684,6 @@ ListData npcscript_list(npcscriptdroplist, &font);
 static ListData itemset_list(itemsetlist, &font);
 static ListData eneanim_list(eneanimlist, &font);
 static ListData enetype_list(enetypelist, &font);
-static ListData eweapon_list(eweaponlist, &font);
-
-
-const char *eweaponscriptdroplist(int32_t index, int32_t *list_size)
-{
-	if(index<0)
-	{
-		*list_size = bieweapons_cnt;
-		return NULL;
-	}
-	
-	return bieweapons[index].first.c_str();
-}
-
-
-//droplist like the dialog proc, naming scheme for this stuff is awful...
-ListData eweaponscript_list(eweaponscriptdroplist, &a4fonts[font_pfont]);
-
 
 static ListData sfx__list(sfxlist, &font);
 
