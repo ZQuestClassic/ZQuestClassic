@@ -1437,6 +1437,7 @@ static void setHeroBigHitbox(bool v);
 	static void do_loadcombodata(const bool v);
 	static void do_loadmapdata(const bool v);
 	static void do_loadmapdata_tempscr(const bool v);
+	static void do_loadmapdata_tempscr2(const bool v);
 	static void do_loadmapdata_scrollscr(const bool v);
 	static int32_t loadMapData();
 	static void do_loadspritedata(const bool v);

@@ -911,6 +911,15 @@ class Game {
 	//   LOADTMPSCR D2
 	internal mapdata LoadTempScreen(int layer);
 
+	// Same as [LoadTempScreen], but for the specific [screen], which must be
+	// within the current [Region].
+	//
+	// @zasm
+	//   POP D1
+	//   POP D0
+	//   LOADTMPSCR2 D2
+	internal mapdata LoadTempScreen(int screen, int layer);
+
 	// Loads the temp mapdata pointer for the specified layer's *scrolling
 	// screen*. This is only used during scrolling, for drawing the screen you
 	// just came from during the scrolling animation. Writing to this at any

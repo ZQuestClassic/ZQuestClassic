@@ -27461,8 +27461,6 @@ void FFScript::do_loadmapdata(const bool v)
 	else ri->mapsref = indx;
 }
 
-// TODO z3 !!!
-// negative:  first bit: scrolling? next 3: layer? rest: screen number?
 void FFScript::do_loadmapdata_tempscr(const bool v)
 {
 	int32_t layer = SH::get_arg(sarg1, v) / 10000;
@@ -27473,6 +27471,20 @@ void FFScript::do_loadmapdata_tempscr(const bool v)
 	}
 
 	ri->mapsref = create_mapdata_temp_ref(currscr, layer, false);
+	set_register(sarg1, ri->mapsref);
+}
+
+void FFScript::do_loadmapdata_tempscr2(const bool v)
+{
+	int32_t screen = (ri->d[rINDEX]/10000);
+	int32_t layer = (ri->d[rINDEX2]/10000);
+	if(BC::checkBounds(layer, 0, 6, "Game->LoadTempScreen()") != SH::_NoError)
+	{
+		ri->mapsref = 0;
+		return;
+	}
+
+	ri->mapsref = create_mapdata_temp_ref(screen, layer, false);
 	set_register(sarg1, ri->mapsref);
 }
 
@@ -31513,6 +31525,9 @@ int32_t run_script_int(bool is_jitted)
 				break;
 			case LOADTMPSCR:
 				FFScript::do_loadmapdata_tempscr(false);
+				break;
+			case LOADTMPSCR2:
+				FFScript::do_loadmapdata_tempscr2(false);
 				break;
 			case LOADSCROLLSCR:
 				FFScript::do_loadmapdata_scrollscr(false);

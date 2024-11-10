@@ -1105,7 +1105,7 @@ static constexpr script_command command_list[]=
 	{ "WAITFRAMESR", WAITFRAMESR, 1, { REG_R }, 0, 0 },
 	{ "REGION_SCREEN_FOR_COMBO_POS", REGION_SCREEN_FOR_COMBO_POS, 1, {REG_RW}, 0, 0 },
 	{ "REGION_TRIGGER_SECRETS", REGION_TRIGGER_SECRETS, 1, {REG_R}, 0, 0 },
-	{ "RESRVD_OP_Z3_03", RESRVD_OP_Z3_03, 0, {}, 0, 0 },
+	{ "LOADTMPSCR2", LOADTMPSCR2, 1, { REG_W }, 0, 0 },
 	{ "RESRVD_OP_Z3_04", RESRVD_OP_Z3_04, 0, {}, 0, 0 },
 	{ "RESRVD_OP_Z3_05", RESRVD_OP_Z3_05, 0, {}, 0, 0 },
 	{ "RESRVD_OP_Z3_06", RESRVD_OP_Z3_06, 0, {}, 0, 0 },
