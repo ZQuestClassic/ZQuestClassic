@@ -12923,8 +12923,8 @@ bool HeroClass::doattack()
 	
 	if(itemid>=0)
 	{
-		normalcharge = itemsbuf[itemid].misc1;
-		magiccharge = itemsbuf[itemid].misc2;
+		normalcharge = (itemsbuf[itemid].misc1>0)?itemsbuf[itemid].misc1:64;
+		magiccharge = (itemsbuf[itemid].misc2>normalcharge)?itemsbuf[itemid].misc2:192;
 	}
 	
 	int scrollid = current_item_id(attack==wHammer ? itype_quakescroll : itype_spinscroll);
