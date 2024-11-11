@@ -706,6 +706,14 @@ void do_breakshield()
 		}
 }
 
+void do_repairshield()
+{
+	if (GuyH::loadNPC(ri->guyref, "npc->RepairShield()") == SH::_NoError)
+	{
+		GuyH::getNPC()->repair_shield();
+	}
+}
+
 } // end namespace
 
 std::optional<int32_t> npc_get_register(int32_t reg)
@@ -2684,6 +2692,10 @@ std::optional<int32_t> npc_run_command(word command)
 		}
 		case BREAKSHIELD:
 			do_breakshield();
+			break;
+
+		case REPAIRSHIELD:
+			do_repairshield();
 			break;
 
 		// TODO: oops, these two should be in a "npcdata.cpp" file.
