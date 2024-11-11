@@ -3,18 +3,18 @@
 Function #0
     0: CALLFUNC        5                            [Block 0 -> ][Call Function #1]
     1: CALLFUNC        21                           [Call Function #3]
-    2: SETV            D2              1000
+    2: SETV            D2               1000
     3: PUSHR           D2
     4: QUIT
 
 
 Function #1
     5: PUSHV           999                          [Block 0 -> ]
-    6: SETV            D2              1000
+    6: SETV            D2               1000
     7: PUSHR           D2
-    8: SETV            D2              1001
+    8: SETV            D2               1001
     9: PUSHR           D2
-   10: SETV            D2              1002
+   10: SETV            D2               1002
    11: PUSHR           D2
    12: CALLFUNC        15                           [Call Function #2]
    13: TRACER          D2
@@ -26,17 +26,17 @@ Function #2
    16: POP             D1
    17: POP             D0
    18: POP             D5
-   19: SETR            D2              SDDDD
+   19: SETR            D2               SDDDD
    20: RETURNFUNC
 
 
 Function #3
    21: PUSHV           999                          [Block 0 -> ]
-   22: SETV            D2              1000
+   22: SETV            D2               1000
    23: PUSHR           D2
-   24: SETV            D2              1001
+   24: SETV            D2               1001
    25: PUSHR           D2
-   26: SETV            D2              1002
+   26: SETV            D2               1002
    27: PUSHR           D2
    28: CALLFUNC        31                           [Call Function #4]
    29: TRACER          D2
@@ -48,5 +48,5 @@ Function #4
    32: POP             D1
    33: POP             D0
    34: POP             D5
-   35: SETR            D2              SDDDD
+   35: SETR            D2               SDDDD
    36: RETURNFUNC

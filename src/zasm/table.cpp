@@ -1040,7 +1040,7 @@ static constexpr script_command command_list[]=
 	{ "ZCLASS_WRITE", ZCLASS_WRITE, 2, { REG_R, NUM }, 0, 0 },
 	{ "ZCLASS_FREE", ZCLASS_FREE, 1, { REG_R }, 0, 0 },
 	{ "ZCLASS_OWN", ZCLASS_OWN, 1, { REG_R }, 0, 0 },
-	{ "STARTDESTRUCTOR", STARTDESTRUCTOR, 0, {}, 1, 0 },
+	{ "STARTDESTRUCTOR", STARTDESTRUCTOR, 0, {}, 0, 0 },
 	{ "ZCLASS_GLOBALIZE", ZCLASS_GLOBALIZE, 1, { REG_R }, 0, 0 },
 	{ "LOADD", LOADD, 2, { REG_W, NUM }, 0, 0 },
 	{ "STORED", STORED, 2, { REG_R, NUM }, 0, 0 },

@@ -1,37 +1,37 @@
 rewrite 3: 3 -> 1 commands
-3: SINR            D2              D2     
+3: SINR            D2               D2     
 4: NOP            
 5: NOP            
 rewrite 13: 3 -> 1 commands
-13: ADDR            D4              D4     
+13: ADDR            D4               D4     
 14: NOP            
 15: NOP            
 rewrite 23: 3 -> 1 commands
-23: ADDR            D4              D4     
+23: ADDR            D4               D4     
 24: NOP            
 25: NOP            
 Function #0
-    0: SETR            D4              SP2          [Block 0 -> ]
-    1: PUSHARGSR       SP2             1
-    2: LOAD            D2              7
-    3: SINR            D2              D2
+    0: SETR            D4               SP2         [Block 0 -> ]
+    1: PUSHARGSR       SP2              1
+    2: LOAD            D2               7
+    3: SINR            D2               D2
     4: NOP
     5: NOP
     6: PUSHR           D2
     7: PUSHR           D4
-    8: LOAD            D2              7
+    8: LOAD            D2               7
     9: PUSHR           D2
    10: CALLFUNC        39                           [Call Function #2]
    11: POP             D4
    12: PUSHR           D2
-   13: ADDR            D4              D4
+   13: ADDR            D4               D4
    14: NOP
    15: NOP
    16: PUSHR           D2
    17: PUSHR           D4
    18: CALLFUNC        35                           [Call Function #1]
    19: POP             D4
-   20: PUSHARGSR       D4              2
+   20: PUSHARGSR       D4               2
    21: CALLFUNC        44                           [Call Function #3]
    22: POP             D4
    23: NOP
@@ -50,7 +50,7 @@ Function #0
 
 Function #1
    35: NOP                                          [Block 0 -> ]
-   36: SETR            D2              INPUTA
+   36: SETR            D2               INPUTA
    37: GOTO            31
    38: RETURNFUNC
 
@@ -65,7 +65,7 @@ Function #2
 
 Function #3
    44: NOP                                          [Block 0 -> ]
-   45: SETR            D2              LINKX
+   45: SETR            D2               LINKX
    46: NOP
    47: RETURNFUNC
    48: NOP

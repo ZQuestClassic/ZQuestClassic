@@ -1,13 +1,13 @@
 Function #0
-    0: SETR            D4              SP           [Block 0 -> ]
-    1: PUSHARGSR       D4              2
-    2: LOADD           D2              70000
+    0: SETR            D4               SP          [Block 0 -> ]
+    1: PUSHARGSR       D4               2
+    2: LOADD           D2               70000
     3: PUSHR           D2
     4: CALLFUNC        31                           [Call Function #1]
     5: POP             D4
     6: PUSHR           D2
     7: PUSHR           D4
-    8: LOADD           D2              70000
+    8: LOADD           D2               70000
     9: PUSHR           D2
    10: CALLFUNC        39                           [Call Function #3]
    11: POP             D4
@@ -19,7 +19,7 @@ Function #0
    17: PUSHR           D4
    18: CALLFUNC        35                           [Call Function #2]
    19: POP             D4
-   20: PUSHARGSR       D4              2
+   20: PUSHARGSR       D4               2
    21: CALLFUNC        44                           [Call Function #4]
    22: POP             D4
    23: PUSHR           D4
@@ -34,14 +34,14 @@ Function #0
 
 Function #1
    31: POP             D3                           [Block 0 -> ]
-   32: SINR            D2              D3
+   32: SINR            D2               D3
    33: NOP
    34: RETURNFUNC
 
 
 Function #2
-   35: SETR            D4              SP           [Block 0 -> ]
-   36: SETR            D2              INPUTA
+   35: SETR            D4               SP          [Block 0 -> ]
+   36: SETR            D2               INPUTA
    37: GOTO            31                           [Call Function #1]
    38: RETURNFUNC
 
@@ -56,13 +56,13 @@ Function #3
 
 Function #4
    44: NOP                                          [Block 0 -> ]
-   45: SETR            D2              LINKX
+   45: SETR            D2               LINKX
    46: NOP
    47: RETURNFUNC
 
 
 Function #5
    48: POP             D2                           [Block 0 -> ]
-   49: ADDR            D2              D2
+   49: ADDR            D2               D2
    50: NOP
    51: RETURNFUNC

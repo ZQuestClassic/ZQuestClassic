@@ -9,6 +9,8 @@
 #include "parser/AST.h"
 #include "parser/CompileError.h"
 #include "parser/CompileOption.h"
+#include "zasm/table.h"
+#include "zasm/serialize.h"
 #include "zc/ffscript.h"
 #include "base/util.h"
 #include "parser/ZScript.h"
@@ -323,6 +325,29 @@ std::vector<std::filesystem::path> force_ignores;
 int32_t main(int32_t argc, char **argv)
 {
 	common_main_setup(App::zscript, argc, argv);
+
+	if (used_switch(argc, argv, "-print-zasm-commands"))
+	{
+		for (int i = 0; i < NUMCOMMANDS; i++)
+		{
+			auto sc = get_script_command(i);
+			if (sc && std::string(sc->name) != "(null)")
+				printf("%d %s\n", i, sc->name);
+		}
+		return 0;
+	}
+
+	if (used_switch(argc, argv, "-print-zasm-registers"))
+	{
+		for (int i = 0; i < NUMVARIABLES; i++)
+		{
+			std::string name = zasm_var_to_string(i);
+			if (name != "(null)")
+				printf("%d %s\n", i, name.c_str());
+		}
+		return 0;
+	}
+
 	linked = true;
 	if (!used_switch(argc, argv, "-linked"))
 	{
