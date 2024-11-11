@@ -25493,6 +25493,8 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 
 	if (replay_version_check(35))
 	{
+		// TODO: Would be better to remove a bit later, after fading out the current screen. For now, do this here.
+		// https://github.com/ZQuestClassic/ZQuestClassic/pull/1017#discussion_r1828880117
 		reset_ladder();
 	}
 	switch(type)
