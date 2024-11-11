@@ -2235,27 +2235,27 @@ bool npc_set_register(int32_t reg, int32_t value)
 				{
 					case 0:
 					{
-						(ri->d[rINDEX2])? (GuyH::getNPC()->flags |= guy_shield_front) : (GuyH::getNPC()->flags &= ~guy_shield_front);
+						(value) ? (GuyH::getNPC()->flags |= guy_shield_front) : (GuyH::getNPC()->flags &= ~guy_shield_front);
 						break;
 					}
 					case 1:
 					{
-						(ri->d[rINDEX2])? (GuyH::getNPC()->flags |= guy_shield_left) : (GuyH::getNPC()->flags &= ~guy_shield_left);
+						(value) ? (GuyH::getNPC()->flags |= guy_shield_left) : (GuyH::getNPC()->flags &= ~guy_shield_left);
 						break;
 					}
 					case 2:
 					{
-						(ri->d[rINDEX2])? (GuyH::getNPC()->flags |= guy_shield_right) : (GuyH::getNPC()->flags &= ~guy_shield_right);
+						(value) ? (GuyH::getNPC()->flags |= guy_shield_right) : (GuyH::getNPC()->flags &= ~guy_shield_right);
 						break;
 					}
 					case 3:
 					{
-						(ri->d[rINDEX2])? (GuyH::getNPC()->flags |= guy_shield_back) : (GuyH::getNPC()->flags &= ~guy_shield_back);
+						(value) ? (GuyH::getNPC()->flags |= guy_shield_back) : (GuyH::getNPC()->flags &= ~guy_shield_back);
 						break;
 					}
 					case 4: //shield can be broken
 					{
-						(ri->d[rINDEX2])? (GuyH::getNPC()->flags |= guy_bkshield) : (GuyH::getNPC()->flags &= ~guy_bkshield);
+						(value) ? (GuyH::getNPC()->flags |= guy_bkshield) : (GuyH::getNPC()->flags &= ~guy_bkshield);
 						break;
 					}
 					default:
