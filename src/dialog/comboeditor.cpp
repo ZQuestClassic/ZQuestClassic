@@ -980,9 +980,9 @@ void ComboEditorDialog::loadComboType()
 			if(FL(cflag2)) //Custom speed
 			{
 				l_attribute[0] = "X Speed:";
-				h_attribute[0] = "Pixels moved in the X direction per rate frames";
+				h_attribute[0] = "Pixels moved in the X direction per rate frames.\nNegative is Left, Positive is Right";
 				l_attribute[1] = "Y Speed:";
-				h_attribute[1] = "Pixels moved in the Y direction per rate frames";
+				h_attribute[1] = "Pixels moved in the Y direction per rate frames\nNegative is Up, Positive is Down";
 				l_attribyte[0] = "Rate:";
 				h_attribyte[0] = "Every this many frames the conveyor moves by the set speeds. If set to 0, acts as if set to 1.";
 			}
