@@ -30688,27 +30688,6 @@ int32_t run_script_int(bool is_jitted)
 			case ARRAYSIZE:
 				do_arraysize();
 				break;
-			 case ARRAYSIZEB:
-				do_arraysize();
-				break;
-			case ARRAYSIZEF:
-				do_arraysize();
-				break;
-			case ARRAYSIZEN:
-				do_arraysize();
-				break;
-			case ARRAYSIZEI:
-				do_arraysize();
-				break;
-			case ARRAYSIZEID:
-				do_arraysize();
-				break;
-			case ARRAYSIZEL:
-				do_arraysize();
-				break;
-			case ARRAYSIZEE:
-				do_arraysize();
-				break;
 			
 			case GETFFCSCRIPT:
 				do_getffcscript();
@@ -31424,25 +31403,6 @@ int32_t run_script_int(bool is_jitted)
 				//resume_all_sfx();
 				// midi_paused = false; 
 				//Backend::sfx->resumeAll();
-				break;
-			
-			//!!! typecasting
-			case LWPNARRPTR:
-			case EWPNARRPTR:
-			case ITEMARRPTR:
-			case IDATAARRPTR:
-			case FFCARRPTR:
-			case BOOLARRPTR:
-			case NPCARRPTR:
-				
-			case LWPNARRPTR2:
-			case EWPNARRPTR2:
-			case ITEMARRPTR2:
-			case IDATAARRPTR2:
-			case FFCARRPTR2:
-			case BOOLARRPTR2:
-			case NPCARRPTR2:
-				FFScript::do_typedpointer_typecast(false);
 				break;
 				
 			case MSGSTRR:
@@ -36462,22 +36422,8 @@ void FFScript::FFChangeSubscreenText()
 	}
 
 	string filename_str;
-
-		
-		
 	ArrayH::getString(arrayptr, filename_str, 73);
 	ChangeSubscreenText(index,filename_str.c_str());
-	
-	//newtext[32]='\0';
-	
-	
-	
-}
-
-void FFScript::do_typedpointer_typecast(const bool v)
-{
-	 int32_t ptr = SH::get_arg(sarg1, v);
-	 set_register(sarg1, ptr);
 }
 
 void FFScript::SetItemMessagePlayed(int32_t itm)
