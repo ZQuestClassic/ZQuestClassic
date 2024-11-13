@@ -2089,7 +2089,7 @@ std::optional<int32_t> ASTExprExpn::getCompileTimeValue(
 	std::optional<int32_t> rightValue = right->getCompileTimeValue(errorHandler, scope);
 	bool is_long = left->isLong(scope, errorHandler) || right->isLong(scope, errorHandler);
 	
-	if(rightValue && (*rightValue == 0)) return 10000; //x^0 == 1
+	if(rightValue && (*rightValue == 0)) return is_long ? 1 : 10000; //x^0 == 1
 	if(leftValue) //1^x == 1
 	{
 		if(is_long)
