@@ -18,9 +18,6 @@ bool ZModule::init(bool d) //bool default
 	memset(moduledata.walkmisc7_names, 0, sizeof(moduledata.walkmisc7_names));
 	memset(moduledata.walkmisc9_names, 0, sizeof(moduledata.walkmisc9_names));
 	memset(moduledata.guy_type_names, 0, sizeof(moduledata.guy_type_names));
-	memset(moduledata.enemy_weapon_names, 0, sizeof(moduledata.enemy_weapon_names));
-	memset(moduledata.enemy_weapon_names, 0, sizeof(moduledata.enemy_scriptweaponweapon_names)); 
-	memset(moduledata.player_weapon_names, 0, sizeof(moduledata.player_weapon_names));
 	memset(moduledata.base_NSF_file, 0, sizeof(moduledata.base_NSF_file));
 	memset(moduledata.copyright_strings, 0, sizeof(moduledata.copyright_strings));
 	memset(moduledata.copyright_string_vars, 0, sizeof(moduledata.copyright_string_vars));
@@ -284,94 +281,7 @@ bool ZModule::init(bool d) //bool default
 			strcpy(moduledata.guy_type_names[q],zc_get_config_basic("GUYS",guy_types[q],guy_default_names[q]));
 		}
 		
-		const char enemy_weapon_cats[wMax-wEnemyWeapons][255]=
-		{
-			"ewNone",
-			"ewFireball",
-			"ewArrow",
-			"ewBrang",
-			"ewSword",
-			"ewRock",
-			"ewMagic",
-			"ewBomb",
-			"ewSBomb",
-			"ewLitBomb",
-			"ewLitSBomb",
-			"ewFireTrail",
-			"ewFlame",
-			"ewWind",
-			"ewFlame2",
-			"ewFlame2Trail",
-			"ewIce",
-			"ewFireball2"
-		};
 		
-		const char enemy_weapon_default_names[wMax-wEnemyWeapons][255]=
-		{
-			"(None)",
-			"Fireball",
-			"Arrow",
-			"Boomerang",
-			"Sword",
-			"Rock",
-			"Magic",
-			"Bomb Blast",
-			"Super Bomb Blast",
-			"Lit Bomb",
-			"Lit Super Bomb",
-			"Fire Trail",
-			"Flame",
-			"Wind",
-			"Flame 2",
-			"-Flame 2 Trail <unused>",
-			"-Ice <unused>",
-			"Fireball (Rising)"
-		};
-		
-		for ( int32_t q = 0; q < sizeof(enemy_weapon_default_names)/255; q++ )
-		{
-			strcpy(moduledata.enemy_weapon_names[q],zc_get_config_basic("EWEAPONS",enemy_weapon_cats[q],enemy_weapon_default_names[q]));
-		}
-		
-		
-		strcpy(moduledata.enemy_scriptweaponweapon_names[0],zc_get_config_basic("EWEAPONS","Custom_1","Custom 01"));
-		strcpy(moduledata.enemy_scriptweaponweapon_names[1],zc_get_config_basic("EWEAPONS","Custom_2","Custom 02"));
-		strcpy(moduledata.enemy_scriptweaponweapon_names[2],zc_get_config_basic("EWEAPONS","Custom_3","Custom 03"));
-		strcpy(moduledata.enemy_scriptweaponweapon_names[3],zc_get_config_basic("EWEAPONS","Custom_4","Custom 04"));
-		strcpy(moduledata.enemy_scriptweaponweapon_names[4],zc_get_config_basic("EWEAPONS","Custom_5","Custom 05"));
-		strcpy(moduledata.enemy_scriptweaponweapon_names[5],zc_get_config_basic("EWEAPONS","Custom_6","Custom 06"));
-		strcpy(moduledata.enemy_scriptweaponweapon_names[6],zc_get_config_basic("EWEAPONS","Custom_7","Custom 07"));
-		strcpy(moduledata.enemy_scriptweaponweapon_names[7],zc_get_config_basic("EWEAPONS","Custom_8","Custom 08"));
-		strcpy(moduledata.enemy_scriptweaponweapon_names[8],zc_get_config_basic("EWEAPONS","Custom_9","Custom 09"));
-		strcpy(moduledata.enemy_scriptweaponweapon_names[9],zc_get_config_basic("EWEAPONS","Custom_10","Custom 10"));
-		
-		const char lweapon_cats[wRefFire2+1][255]=
-		{
-			"lwNone","lwSword","lwBeam","lwBrang","lwBomb","lwSBomb","lwLitBomb",
-			"lwLitSBomb","lwArrow","lwFire","lwWhistle","lwMeat","lwWand","lwMagic","lwCatching",
-			"lwWind","lwRefMagic","lwRefFireball","lwRefRock", "lwHammer","lwGrapple", "lwHSHandle", 
-			"lwHSChain", "lwSSparkle","lwFSparkle", "lwSmack", "lwPhantom", 
-			"lwCane","lwRefBeam", "lwStomp","","lwScript1", "lwScript2", "lwScript3", 
-			"lwScript4","lwScript5", "lwScript6", "lwScript7", "lwScript8","lwScript9", "lwScript10", "lwIce",
-			"-wFlame", "-wSound", "-wThrown", "-wPot", "-wLit", "-wBombos", "-wEther", "-wQuake",
-			"-wSword180", "-wSwordLA", "-wBugNet", "lwRefArrow", "lwRefFire", "lwRefFire2"
-		};
-		const char lweapon_default_names[wRefFire2+1][255]=
-		{
-			"(None)","Sword","Sword Beam","Boomerang","Bomb","Super Bomb","Lit Bomb",
-			"Lit Super Bomb","Arrow","Fire","Whistle","Bait","Wand","Magic","-Catching",
-			"Wind","Reflected Magic","Reflected Fireball","Reflected Rock", "Hammer","Hookshot", "-HSHandle", 
-			"-HSChain", "Sparkle","-FSparkle", "-Smack", "-Phantom", 
-			"Cane of Byrna","Reflected Sword Beam", "-Stomp","-lwmax","Script1", "Script2", "Script3", 
-			"Script4","Script5", "Script6", "Script7", "Script8","Script9", "Script10", "Ice",
-			"-wFlame", "-wSound", "-wThrown", "-wPot", "-wLit", "-wBombos", "-wEther", "-wQuake",
-			"-wSword180", "-wSwordLA", "-wBugNet", "Reflected Arrow", "Reflected Fire", "Reflected Fire 2"
-		};
-		for ( int32_t q = 0; q < wRefFire2+1; q++ )
-		{
-			if(lweapon_cats[q][0] != '-')
-				strcpy(moduledata.player_weapon_names[q],(lweapon_cats[q][0] ? zc_get_config_basic("LWEAPONS",lweapon_cats[q],lweapon_default_names[q]) : lweapon_default_names[q]));
-		}
 		
 		al_trace("Module Title: %s\n", moduledata.moduletitle);
 		al_trace("Module Author: %s\n", moduledata.moduleauthor);

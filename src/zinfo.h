@@ -76,9 +76,6 @@ struct zcmodule
 	char walkmisc7_names[e7tEATHURT+1][255];
 	char walkmisc9_names[e9tARMOS+1][255];
 	char guy_type_names[gDUMMY1][255];
-	char enemy_weapon_names[wMax-wEnemyWeapons][255];
-	char enemy_scriptweaponweapon_names[10][255];
-	char player_weapon_names[wRefFire2+1][255];
 	
 	char base_NSF_file[1024];
 	char copyright_strings[3][2048];

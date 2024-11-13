@@ -9,7 +9,6 @@ int32_t d_cstile_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t jwin_as_droplist_proc(int32_t msg,DIALOG *d,int32_t c);
 void build_bief_list();
 void build_biea_list();
-void build_biew_list();
 
 struct list_data_struct
 {
