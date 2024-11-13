@@ -964,7 +964,7 @@ void ImpactVelocity(lweapon a, eweapon b, int massA, int velocityA, int massB, i
 	b->Step += accelB;
 }
 
-//Returns true if the player is inside a dungeon screen room. 
+//Returns true if the [Hero] is inside a dungeon screen room. 
 //If he is still in a doorway, it returns false. 
 bool inRoom()
 {

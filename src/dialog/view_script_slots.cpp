@@ -40,7 +40,7 @@ void ViewScriptSlotsDialog::UpdateSlotList(ScriptType t)
 		case ScriptType::Ewpn:
 			slots_list->setListData(list_eweaponslots);
 			break;
-		case ScriptType::Player:
+		case ScriptType::Hero:
 			slots_list->setListData(list_heroslots);
 			break;
 		case ScriptType::DMap:

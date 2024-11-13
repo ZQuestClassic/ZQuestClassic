@@ -3219,7 +3219,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_OLDINFMAGIC, 1);
 	}
 	
-	if((tempheader.zelda_version < 0x250)) //2.10 and earlier allowed the triforce to Warp Player out of Item Cellars in Dungeons. -Z (15th March, 2019 )
+	if((tempheader.zelda_version < 0x250)) //2.10 and earlier allowed the triforce to Warp Hero out of Item Cellars in Dungeons. -Z (15th March, 2019 )
 	{
 		set_qr(qr_SIDEVIEWTRIFORCECELLAR,1);
 	}
@@ -11934,7 +11934,7 @@ extern script_data *lwpnscripts[NUMSCRIPTWEAPONS];
 extern script_data *ewpnscripts[NUMSCRIPTWEAPONS];
 extern script_data *globalscripts[NUMSCRIPTGLOBAL];
 extern script_data *genericscripts[NUMSCRIPTSGENERIC];
-extern script_data *playerscripts[NUMSCRIPTPLAYER];
+extern script_data *playerscripts[NUMSCRIPTHERO];
 extern script_data *screenscripts[NUMSCRIPTSCREEN];
 extern script_data *dmapscripts[NUMSCRIPTSDMAP];
 extern script_data *itemspritescripts[NUMSCRIPTSITEMSPRITE];
@@ -12151,9 +12151,9 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 			globalscripts[GLOBAL_SCRIPT_ONSAVE] = new script_data(ScriptType::Global, GLOBAL_SCRIPT_ONSAVE);
 		}
 		
-		if(s_version > 10) //expanded the number of Player scripts to 5. 
+		if(s_version > 10) //expanded the number of Hero scripts to 5. 
 		{
-			for(int32_t i = 0; i < NUMSCRIPTPLAYER; i++)
+			for(int32_t i = 0; i < NUMSCRIPTHERO; i++)
 			{
 				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, playerscripts[i], zmeta_version);
 				
@@ -12177,12 +12177,12 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 			if(playerscripts[3] != NULL)
 				delete playerscripts[3];
 					
-			playerscripts[3] = new script_data(ScriptType::Player, 3);
+			playerscripts[3] = new script_data(ScriptType::Hero, 3);
 			
 			if(playerscripts[4] != NULL)
 				delete playerscripts[4];
 					
-			playerscripts[4] = new script_data(ScriptType::Player, 4);
+			playerscripts[4] = new script_data(ScriptType::Hero, 4);
 		}
 		if(s_version > 8 && s_version < 10)
 		{
@@ -12476,7 +12476,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 				buf[bufsize]=0;
 				
 				//fix this too
-				if(id <NUMSCRIPTPLAYER-1)
+				if(id <NUMSCRIPTHERO-1)
 					playermap[id].scriptname = buf;
 					
 				delete[] buf;
@@ -12705,12 +12705,12 @@ void reset_scripts()
 			globalscripts[i] = new script_data(ScriptType::Global, i);
 	}
 	
-	for(int32_t i=0; i<NUMSCRIPTPLAYER; i++)
+	for(int32_t i=0; i<NUMSCRIPTHERO; i++)
 	{
 		if (playerscripts[i])
 			playerscripts[i]->disable();
 		else
-			playerscripts[i] = new script_data(ScriptType::Player, i);
+			playerscripts[i] = new script_data(ScriptType::Hero, i);
 	}
 	
 	for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
@@ -13042,9 +13042,9 @@ const char *old_sfx_string[Z35] =
     "Arrow", "Sword beam", "Bomb blast", "Boomerang",  "Subscreen cursor",
     "Shield is hit", "Item chime",  "Roar (Dodongo, Gohma)", "Shutter", "Enemy dies",
     "Enemy is hit", "Low hearts warning", "Fire", "Ganon's fanfare", "Boss is hit", "Hammer",
-    "Hookshot", "Message", "Player is hit", "Item fanfare", "Bomb placed", "Item pickup",
+    "Hookshot", "Message", "Hero is hit", "Item fanfare", "Bomb placed", "Item pickup",
     "Refill", "Roar (Aquamentus, Gleeok, Ganon)", "Item pickup 2", "Ocean ambience",
-    "Secret chime", "Player dies", "Stairs", "Sword", "Roar (Manhandla, Digdogger, Patra)",
+    "Secret chime", "Hero dies", "Stairs", "Sword", "Roar (Manhandla, Digdogger, Patra)",
     "Wand magic", "Whistle", "Zelda's fanfare", "Charging weapon", "Charging weapon 2",
     "Divine Fire", "Enemy falls from ceiling", "Divine Escape", "Fireball", "Tall Grass slashed",
     "Pound pounded", "Hover Boots", "Ice magic", "Jump", "Lens of Truth off", "Lens of Truth on",
@@ -21321,7 +21321,7 @@ static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Mi
 		{
 			ewpnmap[i].clear();
 		}
-		for(int32_t i=0; i<NUMSCRIPTPLAYER-1; i++)
+		for(int32_t i=0; i<NUMSCRIPTHERO-1; i++)
 		{
 			playermap[i].clear();
 		}
@@ -21735,7 +21735,7 @@ static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Mi
                 
             case ID_HEROSPRITES:
             
-                //player sprites
+                //hero sprites
                 if(catchup)
                 {
                     box_out("found.");
@@ -21743,7 +21743,7 @@ static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Mi
                     catchup=false;
                 }
                 
-                box_out("Reading Custom Player Sprite Data...");
+                box_out("Reading Custom Hero Sprite Data...");
                 ret=readherosprites(f, &tempheader);
                 checkstatus(ret);
                 box_out("okay.");
@@ -21925,7 +21925,7 @@ static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Mi
 			{ "Tunes", ID_MIDIS, [&](){ return readtunes(f, &tempheader, tunes); }},
 			{ "Cheat Codes", ID_CHEATS, [&](){ return readcheatcodes(f, &tempheader); }},
 			{ "Init. Data", ID_INITDATA, [&](){ return readinitdata(f, &tempheader); }},
-			{ "Custom Player Sprite Data", ID_HEROSPRITES, [&](){ return readherosprites2(f, -1, 0); }},
+			{ "Custom Hero Sprite Data", ID_HEROSPRITES, [&](){ return readherosprites2(f, -1, 0); }},
 			{ "Up Default Item Drop Sets", ID_ITEMDROPSETS, [&](){ return readitemdropsets(f, -1, 0); }},
 		};
 

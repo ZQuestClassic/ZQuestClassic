@@ -40,7 +40,7 @@ std::shared_ptr<GUI::Widget> BottleShopDialog::view()
 		title = titlebuf,
 		minwidth = 30_em,
 		info = "Buying from a bottle shop will fill your first empty bottle. If"
-			" the player has none, they will be unable to purchase anything.",
+			" the Hero has none, they will be unable to purchase anything.",
 		onClose = message::CANCEL,
 		Column(
 			Row(

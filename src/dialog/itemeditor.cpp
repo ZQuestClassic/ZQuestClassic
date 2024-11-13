@@ -160,18 +160,18 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 		{
 			_SET(misc[0], "Block Flags:", "(Rock=1, Arrow=2, BRang=4, Fireball=8, Sword=16, Magic=32, Flame=64, Script(All)=128, Fireball2=256, Lightbeam=512,\n"
 				"Script1=1024, Script2=2048, Script3=4096, Script4=8192, Script5=16384, Script6=32768, Script7=65536, Script8=131072, Script9=262144, Script10=524288)\n"
-				"Sum all of the values you want to apply. Weapons and lightbeams with their flags set will be blocked from in front of the player.");
+				"Sum all of the values you want to apply. Weapons and lightbeams with their flags set will be blocked from in front of the Hero.");
 			_SET(misc[1], "Reflect Flags:", "(Rock=1, Fireball=8, Sword=16, Magic=32, Flame=64, Script(All)=128, Fireball2=256, Lightbeam=512,\n"
 				"Script1=1024, Script2=2048, Script3=4096, Script4=8192, Script5=16384, Script6=32768, Script7=65536, Script8=131072, Script9=262144, Script10=524288)\n"
-				"Sum all of the values you want to apply. Weapons and lightbeams with their flags set will be reflected from in front of the player.\n"
+				"Sum all of the values you want to apply. Weapons and lightbeams with their flags set will be reflected from in front of the Hero.\n"
 				"Weapons are only reflected if their value is in both 'Block Flags' and 'Reflect Flags'.");
 			_SET(actionsnd[0], "De/Reflection Sound:", "Plays when the shield successfully blocks or reflects a weapon");
 			
-			_SET(flag[0], "Protects Front", "The shield will protect the front side of the player");
-			_SET(flag[1], "Protects Back", "The shield will protect the back side of the player");
-			_SET(flag[2], "Protects Left", "The shield will protect the left side of the player");
-			_SET(flag[3], "Protects Right", "The shield will protect the right side of the player");
-			_SET(flag[8], "Active Use", "If enabled, the shield only protects the player (and provides its' LTM)"
+			_SET(flag[0], "Protects Front", "The shield will protect the front side of the Hero");
+			_SET(flag[1], "Protects Back", "The shield will protect the back side of the Hero");
+			_SET(flag[2], "Protects Left", "The shield will protect the left side of the Hero");
+			_SET(flag[3], "Protects Right", "The shield will protect the right side of the Hero");
+			_SET(flag[8], "Active Use", "If enabled, the shield only protects the Hero (and provides its' LTM)"
 				" while it is equipped to a button that is being held.");
 			if(FLAG(9))
 			{
@@ -180,16 +180,16 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 				_SET(flag[5], "Inactive Back", "Protects the back when button is NOT held");
 				_SET(flag[6], "Inactive Left", "Protects the left when button is NOT held");
 				_SET(flag[7], "Inactive Right", "Protects the right when button is NOT held");
-				_SET(misc[5], "Inactive PTM", "Player Tile Modifier to use while shield is inactive");
-				_SET(flag[9], "Change Speed", "Change the player's walking speed while the shield is active");
-				_SET(flag[10], "Lock Direction", "When the shield is activated, lock the player's direction until"
+				_SET(misc[5], "Inactive PTM", "Hero Tile Modifier to use while shield is inactive");
+				_SET(flag[9], "Change Speed", "Change the Hero's walking speed while the shield is active");
+				_SET(flag[10], "Lock Direction", "When the shield is activated, lock the Hero's direction until"
 					" it is released.");
 				if(FLAG(10))
 				{
-					_SET(misc[6], "Speed Percentage", "A percentage multiplier for the player's movement speed."
+					_SET(misc[6], "Speed Percentage", "A percentage multiplier for the Hero's movement speed."
 						" A negative value will give that amount *more* speed; i.e. '-100' is the same as '200'.");
 					_SET(misc[7], "Speed Bonus", "A step value (in 100ths of a pixel per frame) to be added to the"
-						" player's speed.");
+						" Hero's speed.");
 				}
 			}
 			break;
@@ -216,7 +216,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			inf->misc[3] = "Melee Damage:";
 			inf->misc[9] = "Slash Sound:";
 			inf->flag[0] = "Penetrates Enemies";
-			inf->flag[1] = "Invincible Player";
+			inf->flag[1] = "Invincible Hero";
 			inf->flag[2] = "No Melee Attack";
 			inf->flag[3] = "Can Slash";
 			inf->flag[5] = "Melee Weapons Use Magic Cost";
@@ -234,7 +234,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 		{
 			_SET(power, "Jinx Divisor:", "Amount to divide jinx duration by.\n"
 				"If 'Perm. Jinx Are Temp' is checked, perm jinxes last for 150/[divisor] frames."
-				" If divisor is 0, player is immune to affected jinxes.\n"
+				" If divisor is 0, Hero is immune to affected jinxes.\n"
 				"When picked up, regardless of flags, perm jinxes matching the Jinx Type become 150-frame temp jinxes.");
 			_SET(misc[0], "Jinx Type:", "Sum all of the values you want to apply. 1 = sword, 2 = item, 4 = shield");
 			_SET(flag[0], "Perm. Jinx Are Temp.", "Perm jinxes inflicted instead are temp for 150/[divisor] frames");
@@ -242,8 +242,8 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 		}
 		case itype_ladder:
 		{
-			_SET(power, "Four-Way:", "If >1, the player can exit the ladder in all 4 directions.\n"
-				"If <=1, the player can only exit parallel to the direction they entered from.");
+			_SET(power, "Four-Way:", "If >1, the Hero can exit the ladder in all 4 directions.\n"
+				"If <=1, the Hero can only exit parallel to the direction they entered from.");
 			_SET(flag[0], "Can Ladder Over Pitfalls", "Can be used to cross Pitfall combos");
 			break;
 		}
@@ -347,7 +347,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			_SET(actionsnd[1], "Throw Sound", "SFX to play when an object is thrown");
 			_SET(flag[0], "Fake Z Throw", "Throws weapons in the fakez axis instead of the z axis");
 			_SET(flag[1], "Lift In Water", "Allows lifting while swimming");
-			_SET(flag[2], "Disable Shield", "Makes the shield not protect from projectiles, in the same way as when the player is attacking");
+			_SET(flag[2], "Disable Shield", "Makes the shield not protect from projectiles, in the same way as when the Hero is attacking");
 			_SET(flag[3], "Disable Item Use", "Stop the use of items unrelated to lifting while an object is lifted");
 			break;
 		}
@@ -386,26 +386,26 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 				"Otherwise, any of the specified buttons will jump, even when not equipped to a button.\n"
 				"Sum all the buttons you want to be usable:\n(A=1, B=2, L=4, R=8, Ex1=16, Ex2=32, Ex3=64, Ex4=128)");
 			if(FLAG(1))
-				_SET(power, "Jump Power:", "The player will jump with a force of 'power'");
-			else _SET(power, "Jump Power:", "The player will jump with a force of '(power*80)+160)'");
+				_SET(power, "Jump Power:", "The Hero will jump with a force of 'power'");
+			else _SET(power, "Jump Power:", "The Hero will jump with a force of '(power*80)+160)'");
 			if(FLAG(2))
 				_SET(misc[2], "Held Gravity", "Gravity applied to Link when this item is held. Used for variable jumps"
 					" such as holding the button to jump higher. Value is divided by 100 (314 would be equal to 3.14).");
 			if(FLAG(5))
 				_SET(misc[3], "Held Terminal Velocity", "Max fall speed of Link when this item is held. Useful for floating down while holding jump.");
 			_SET(misc[4], "Coyote Time", "Number of frames after leaving a ledge via non-jump that you can still jump");
-			_SET(flag[0], "Jump is Power/100", "If enabled, the player jumps with a force"
+			_SET(flag[0], "Jump is Power/100", "If enabled, the Hero jumps with a force"
 				" of 'power' instead of '(power*80)+160'");
-			_SET(flag[1], "Hold to change player gravity", "If enabled, holding the button this item is attached to will change"
-				" the player's gravity to the value specified in attributes[2]");
-			_SET(flag[4], "Hold to change player terminal velocity", "If enabled, holding the button this item is attached to will change"
-				" the player's terminal velocity (max fall speed) to the value specified in attributes[3]");
+			_SET(flag[1], "Hold to change Hero gravity", "If enabled, holding the button this item is attached to will change"
+				" the Hero's gravity to the value specified in attributes[2]");
+			_SET(flag[4], "Hold to change Hero terminal velocity", "If enabled, holding the button this item is attached to will change"
+				" the Hero's terminal velocity (max fall speed) to the value specified in attributes[3]");
 			if(FLAG(2))
-				_SET(flag[2], "Held Gravity doesn't affect downward momentum", "If enabled, 'Hold to change player gravity' will"
-					" not affect the player when falling.");
+				_SET(flag[2], "Held Gravity doesn't affect downward momentum", "If enabled, 'Hold to change Hero gravity' will"
+					" not affect the Hero when falling.");
 			if(FLAG(2))
-				_SET(flag[3], "Held Gravity doesn't affect upward momentum", "If enabled, 'Hold to change player gravity' will"
-					" not affect the player when rising.");
+				_SET(flag[3], "Held Gravity doesn't affect upward momentum", "If enabled, 'Hold to change Hero gravity' will"
+					" not affect the Hero when rising.");
 			inf->actionsnd[0] = "Jumping Sound:";
 			break;
 		}
@@ -414,14 +414,14 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			inf->power = "Damage:";
 			inf->misc[0] = "Fuse Duration (0 = Remote):";
 			inf->misc[1] = "Max. On Screen:";
-			inf->misc[2] = "Damage to Player:";
+			inf->misc[2] = "Damage to Hero:";
 			_SET(misc[3], "Lift Level", "If 0, the weapon is not liftable. Otherwise, liftable using Lift Gloves of at least this level.");
-			_SET(misc[4], "Lift Time", "The time, in frames, to lift the weapon above the player's head.");
-			_SET(misc[5], "Lift Height", "The Z height above the player's head to lift the weapon.");
+			_SET(misc[4], "Lift Time", "The time, in frames, to lift the weapon above the Hero's head.");
+			_SET(misc[5], "Lift Height", "The Z height above the Hero's head to lift the weapon.");
 			_SET(misc[6], "Boom Radius", "If 0, uses a classic boxy hitbox- otherwise uses a circular radius of this many pixels." + QRHINT({qr_OLD_BOMB_HITBOXES}));
-			inf->flag[1] = "Explosion Hurts Player";
+			inf->flag[1] = "Explosion Hurts Hero";
 			_SET(flag[2], "Stops Movement on Landing", "If the weapon lands due to gravity, its step will be set to 0.");
-			_SET(flag[3], "Auto-Lift", "If the player owns a Lift Glove, place the bomb directly in the player's hands.");
+			_SET(flag[3], "Auto-Lift", "If the Hero owns a Lift Glove, place the bomb directly in the Hero's hands.");
 			inf->wpn[0] = "Bomb Sprite:";
 			inf->wpn[1] = "Explosion Sprite:";
 			inf->actionsnd[0] = "Explosion Sound:";
@@ -432,15 +432,15 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			inf->power = "Damage:";
 			inf->misc[0] = "Fuse Duration (0 = Remote):";
 			inf->misc[1] = "Max. On Screen:";
-			inf->misc[2] = "Damage to Player:";
+			inf->misc[2] = "Damage to Hero:";
 			_SET(misc[3], "Lift Level", "If 0, the weapon is not liftable. Otherwise, liftable using Lift Gloves of at least this level.");
-			_SET(misc[4], "Lift Time", "The time, in frames, to lift the weapon above the player's head.");
-			_SET(misc[5], "Lift Height", "The Z height above the player's head to lift the weapon.");
+			_SET(misc[4], "Lift Time", "The time, in frames, to lift the weapon above the Hero's head.");
+			_SET(misc[5], "Lift Height", "The Z height above the Hero's head to lift the weapon.");
 			_SET(misc[6], "Boom Radius", "If 0, uses a classic boxy hitbox- otherwise uses a circular radius of this many pixels." + QRHINT({qr_OLD_BOMB_HITBOXES}));
 			inf->flag[0] = "Use 1.92 Timing";
-			inf->flag[1] = "Explosion Hurts Player";
+			inf->flag[1] = "Explosion Hurts Hero";
 			_SET(flag[2], "Stops Movement on Landing", "If the weapon lands due to gravity, its step will be set to 0.");
-			_SET(flag[3], "Auto-Lift", "If the player owns a Lift Glove, place the bomb directly in the player's hands.");
+			_SET(flag[3], "Auto-Lift", "If the Hero owns a Lift Glove, place the bomb directly in the Hero's hands.");
 			_SET(flag[4], "Stops Movement on Solid", "If the weapon collides with a solid while moving, its step will be set to 0.");
 			inf->wpn[0] = "Bomb Sprite:";
 			inf->wpn[1] = "Explosion Sprite:";
@@ -473,7 +473,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 				"0 = Scatter into dust particles"
 				"\n1 = Rise into the sky as color 0x00 particles"
 				"\n2 = Rise into the sky as a mix of color 0x12 and 0x01 particles");
-			_SET(actionsnd[0], "Warp Sound:", "This sound plays when the player turns into particles");
+			_SET(actionsnd[0], "Warp Sound:", "This sound plays when the Hero turns into particles");
 			_SET(flag[0], "Continue acts as F6->Continue",
 				"Activates F6->Continue instead of just 'restarting the level'.");
 			break;
@@ -528,7 +528,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			_SET(flag[0], "No Handle Damage", "The handle does not collide with enemies");
 			_SET(flag[1], "Allow Diagonal", "The hookshot can be fired diagonally. (EXPERIMENTAL)");
 			_SET(flag[3], "Pick Up Anything", "Any collided item will be grabbed, not just dropped items");
-			_SET(flag[4], "Drags Items", "Collected items are dragged towards the player");
+			_SET(flag[4], "Drags Items", "Collected items are dragged towards the Hero");
 			_SET(flag[5], "Hits Enemy Projectiles", "If checked, the weapon can collide with projectiles, either blocking or reflecting them.");
 			_SET(flag[6], "Picks Up Keys", "Will pick up Key type items");
 			
@@ -567,9 +567,9 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			_SET(flag[5], "Hits Enemy Projectiles", "If checked, the weapon can collide with projectiles, either blocking or reflecting them.");
 			_SET(flag[6], "Picks Up Keys", "Will pick up Key type items");
 			_SET(flag[7], "Cost on Swap", "The cost of the item is only paid upon swapping successfully.");
-			_SET(flag[8], "Swaps Items", "Items that would be collected are instead swapped with the player.");
+			_SET(flag[8], "Swaps Items", "Items that would be collected are instead swapped with the Hero.");
 			if(!FLAG(9))
-				_SET(flag[4], "Drags Items", "Collected items are dragged towards the player");
+				_SET(flag[4], "Drags Items", "Collected items are dragged towards the Hero");
 			
 			inf->wpn[0] = "Tip Sprite:";
 			inf->wpn[1] = "Chain Sprite (H):";
@@ -644,7 +644,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			if(FLAG(1))
 			{
 				inf->misc[3] = "Fire Damage";
-				inf->flag[2] = "Fire Doesn't Hurt Player";
+				inf->flag[2] = "Fire Doesn't Hurt Hero";
 				inf->flag[4] = "Temporary Light";
 				inf->actionsnd[0] = "Fire Sound:";
 				_SET(flag[8], "Counts as Strong Fire", fmt::format("The flames will trigger '{}' flags",ZI.getMapFlagName(mfSTRONGFIRE)));
@@ -667,7 +667,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 		}
 		case itype_ring:
 		{
-			_SET(misc[0], "Player Sprite Pal:", "The Sprite Palette row to load into CSet 6");
+			_SET(misc[0], "Hero Sprite Pal:", "The Sprite Palette row to load into CSet 6");
 			_SET(flag[0], "Affects Damage Combos", "Whether or not the ring reduces damage from damage combos.");
 			_SET(flag[1], "Percentage Multiplier", "Changes the 'Damage Divisor' to a 'Damage % Mult'"
 				", allowing more precise control over the defense granted.");
@@ -676,7 +676,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 					" will deal that amount *more* damage; i.e. '-100' is the same as '200'.");
 			else
 				_SET(power, "Damage Divisor:", "The number to divide the damage by. A divisor of 0"
-					" makes the player take no damage at all.");
+					" makes the Hero take no damage at all.");
 			break;
 		}
 		case itype_wand: //!TODO Help Text
@@ -764,7 +764,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			_SET(misc[3], "Step Speed", "The step speed of the created fire weapon, where 100 = 1px/frame. Default 50.");
 			_SET(flag[0], "Limited Per Screen", "Can only use a set number of times per screen");
 			_SET(flag[1], "Don't Provide Light", "Does not light up dark rooms");
-			inf->flag[2] = "Fire Doesn't Hurt Player";
+			inf->flag[2] = "Fire Doesn't Hurt Hero";
 			_SET(flag[3], "Can Slash", "The candle slashes instead of stabs");
 			inf->flag[7] = "Flip Right-Facing Slash";
 			_SET(flag[8], "Counts as Strong Fire", fmt::format("The flames will trigger '{}' flags",ZI.getMapFlagName(mfSTRONGFIRE)));
@@ -784,7 +784,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			}
 			if(!FLAG(3))
 			{
-				_SET(misc[0], "Damage to Player:", "Damage value to be used for self-damage");
+				_SET(misc[0], "Damage to Hero:", "Damage value to be used for self-damage");
 			}
 			break;
 		}
@@ -871,14 +871,14 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 		case itype_stompboots:
 		{
 			inf->power = "Damage:";
-			_SET(flag[0], "Can bounce off enemies", "If enabled, damaging an enemy with this will cause the player to bounce upwards."
+			_SET(flag[0], "Can bounce off enemies", "If enabled, damaging an enemy with this will cause the Hero to bounce upwards."
 				" The jump speed gained is set by Attributes[0]");
 			if(FLAG(1))
 				_SET(misc[0], "Bounce Power:", "Amount of jump power gained from a bounce."
-					" This value is equal to setting Player->Jump by value divided by 100");
+					" This value is equal to setting Hero->Jump by value divided by 100");
 			_SET(misc[1], "Block Flags:", "(Rock=1, Arrow=2, BRang=4, Fireball=8, Sword=16, Magic=32, Flame=64, Script(All)=128, Firebal2=256,\n"
 				"Script1=1024, Script2=2048, Script3=4096, Script4=8192, Script5=16384, Script6=32768, Script7=65536, Script8=131072, Script9=262144, Script10=524288)\n"
-				"Sum all of the values you want to apply. Weapons with their flags set will be blocked if the player lands on them.");
+				"Sum all of the values you want to apply. Weapons with their flags set will be blocked if the Hero lands on them.");
 			break;
 		}
 		case itype_bow:
@@ -1234,7 +1234,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 							SETFLAG(local_itemref.flags,item_gamedata,state);
 						}
 					),
-					INFOBTN("Only 'Equipment Item's can be 'owned' by the player,"
+					INFOBTN("Only 'Equipment Item's can be 'owned' by the Hero,"
 						" and appear in Init Data."),
 					//
 					Label(text = "Display Name:", hAlign = 1.0),
@@ -1343,9 +1343,9 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									SETFLAG(local_itemref.flags,item_sideswim_disabled,state);
 								}
 							),
-							INFOBTN("If checked, this item can be used even while the player"
+							INFOBTN("If checked, this item can be used even while the Hero"
 								" has been turned into a 'bunny', and will still apply its"
-								" Player Tile Modifier."),
+								" Hero Tile Modifier."),
 							Checkbox(
 								width = FLAGS_WID,
 								checked = (local_itemref.flags & item_bunny_enabled),
@@ -2005,7 +2005,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								}
 							),
 							DummyWidget(),
-							Label(text = "Player Tile Modifier:", hAlign = 1.0),
+							Label(text = "Hero Tile Modifier:", hAlign = 1.0),
 							TextField(
 								val = local_itemref.ltm, rightPadding = 0_px,
 								type = GUI::TextField::type::INT_DECIMAL,
@@ -2021,8 +2021,8 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								{
 									InfoDialog("Tile Modifiers",
 										"The tile modifiers of the highest level item owned from each itemclass"
-										" are added up, and the total is added to the Player's tile.\n"
-										"If the player is a Bunny, then only items which have the 'Usable as a Bunny'"
+										" are added up, and the total is added to the Hero's tile.\n"
+										"If the Hero is a Bunny, then only items which have the 'Usable as a Bunny'"
 										" flag checked will have their tile modifiers count, but the 'Bunny Tile Mod'"
 										" found in Init Data is also added."
 									).show();

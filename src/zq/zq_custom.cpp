@@ -319,7 +319,7 @@ const char *defenselist(int32_t index, int32_t *list_size)
 				return "Freeze Solid";
 				
 			case edSWITCH:
-				return "Switch w/ Player";
+				return "Switch w/ Hero";
 			default:
 				return "[reserved]";
 		}
@@ -3140,13 +3140,13 @@ static ListData swimspeed_list(swimspeedlist, &font);
 static DIALOG herotile_dlg[] =
 {
 	// (dialog proc)                       (x)     (y)     (w)     (h)    (fg)                     (bg)                 (key)     (flags)    (d1)        (d2)              (dp)                             (dp2)   (dp3)
-	{  jwin_win_proc,                        0,      0,    320,    240,    vc(14),                 vc(1),                   0,    D_EXIT,     0,          0, (void *) "Player Sprites",         NULL,   NULL                   },
+	{  jwin_win_proc,                        0,      0,    320,    240,    vc(14),                 vc(1),                   0,    D_EXIT,     0,          0, (void *) "Hero Sprites",         NULL,   NULL                   },
 	{  d_vsync_proc,                         0,      0,      0,      0,    0,                      0,                       0,    0,          0,          0,               NULL,                            NULL,   NULL                   },
 	{  d_keyboard_proc,                      0,      0,      0,      0,    0,                      0,                       0,    0,          KEY_F1,     0, (void *) onHelp,                 NULL,   NULL                   },
 	{  jwin_button_proc,                    90,    220,     61,     21,    vc(14),                 vc(1),                  13,    D_EXIT,     0,          0, (void *) "OK",                   NULL,   NULL                   },
 	{  jwin_button_proc,                   170,    220,     61,     21,    vc(14),                 vc(1),                  27,    D_EXIT,     0,          0, (void *) "Cancel",               NULL,   NULL                   },
 	// 5
-	{  d_dummy_proc,                       217,    200,      0,      9,    vc(14),                 vc(1),                   0,    0,          1,          0, (void *) "Large Player Hit Box",   NULL,   NULL                   },
+	{  d_dummy_proc,                       217,    200,      0,      9,    vc(14),                 vc(1),                   0,    0,          1,          0, (void *) "Large Hero Hit Box",   NULL,   NULL                   },
 	{  d_dummy_proc,                         4,    201,     17,      9,    vc(14),                 vc(1),                   0,    0,          1,          0, (void *) "Animation Style:",     NULL,   NULL                   },
 	{  d_dummy_proc,                        77,    197,     78,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,          0,          0, (void *) &animationstyle_list,   NULL,   NULL                   },
 	{  jwin_tab_proc,                        4,     17,    312,    200,    0,                      0,                       0,    0,          0,          0, (void *) herotile_tabs,          NULL, (void *)herotile_dlg   },
@@ -3297,7 +3297,7 @@ static DIALOG herotile_dlg[] =
 	{  d_ltile_proc,                       104,    112,     40,     40,    6,                      jwin_pal[jcBOX],         0,    0,          right,      ls_lavadrown,         NULL,                            NULL,   NULL                   },
 	
 	// DEFENSE TAB BEGINS
-	// 121 (Player defenses)
+	// 121 (Hero defenses)
 	{ jwin_tab_proc,                        7,      33,    305,    183,    0,                      0,                       0,    0,          0,          0, (void*)herotile_defense_tabs,    NULL, (void*)herotile_dlg },
 	// 122 - Enemy weapons (currently 17)
 	{ jwin_text_proc,           9,     54,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Fireball Defense:",                                  NULL,   NULL },
@@ -3320,7 +3320,7 @@ static DIALOG herotile_dlg[] =
 	{ jwin_text_proc,           9,    180,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Fireball 2 Defense:",                              NULL,   NULL },
 	// 139 - Other weapons (Currently 6)
 	{ jwin_text_proc,           9,     54,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Candle Fire Defense:",                              NULL,   NULL },
-	{ jwin_text_proc,           9,     72,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Player Bomb Defense:",                              NULL,   NULL },
+	{ jwin_text_proc,           9,     72,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Hero Bomb Defense:",                              NULL,   NULL },
 	{ jwin_text_proc,           9,     90,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Refl. Magic Defense:",                              NULL,   NULL },
 	{ jwin_text_proc,           9,    108,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Refl. Fireball Defense:",                              NULL,   NULL },
 	{ jwin_text_proc,           9,    126,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void*)"Refl. Rock Defense:",                              NULL,   NULL },
@@ -3380,7 +3380,7 @@ static DIALOG herotile_dlg[] =
 	{ jwin_droplist_proc,      126, 179 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
 	{ jwin_droplist_proc,      126, 196 - 4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void*)&defense_list,                                         NULL,   NULL },
 	// 189 - Options relocated to handle new tab
-	{ jwin_check_proc,                      9,    78,      0,      9,    vc(14),                 vc(1),                   0,    0,          1,          0, (void*)"Large Player Hit Box",   NULL,   NULL },
+	{ jwin_check_proc,                      9,    78,      0,      9,    vc(14),                 vc(1),                   0,    0,          1,          0, (void*)"Large Hero Hit Box",   NULL,   NULL },
 	{ jwin_text_proc,                       9,    38,     17,      9,    vc(14),                 vc(1),                   0,    0,          1,          0, (void*)"Animation Style:",     NULL,   NULL },
 	{ jwin_as_droplist_proc,               89,    34,     78,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,          0,          0, (void*)&animationstyle_list,   NULL,   NULL },
 	{ jwin_check_proc,                      9,    90,      0,      9,    vc(14),                 vc(1),                   0,    0,          1,          0, (void*)"Diagonal Movement",    NULL,   NULL },
@@ -5142,7 +5142,7 @@ int32_t onCustomHero()
 	memcpy(oldLiftingSpr, liftingspr, 4*4*sizeof(int32_t));
 	memcpy(oldLiftingWalkSpr, liftingwalkspr, 4*3*sizeof(int32_t));
 	
-	//Populate Player defenses
+	//Populate Hero defenses
 	for (int32_t i = 0; i < wMax - wEnemyWeapons - 1; i++)
 	{
 		herotile_dlg[144 + i].d1 = hero_defence[wEnemyWeapons+i];
@@ -5177,7 +5177,7 @@ int32_t onCustomHero()
 			set_qr(qr_LTTPWALK, (herotile_dlg[184+8].flags & D_SELECTED) ? 1 : 0);
 			zinit.hero_swim_speed = (herotile_dlg[186+8].d1 == 0) ? 50 : 67;
 
-			//Save Player defenses
+			//Save Hero defenses
 			for (int32_t i = 0; i < wMax - wEnemyWeapons - 1; i++)
 			{
 				hero_defence[wEnemyWeapons + i] = herotile_dlg[137 + 7 + i].d1;

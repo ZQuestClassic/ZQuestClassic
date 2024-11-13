@@ -7342,10 +7342,10 @@ static NewMenu cheat_menu
 	{ "&Heart Containers...", onHeartC },
 	{ "&Magic Containers...", onMagicC },
 	{ MENUID_CHEAT_CHOP_L3 },
-	{ "&Player Data...", onCheatConsole },
+	{ "&Hero Data...", onCheatConsole },
 	{ MENUID_CHEAT_CHOP_L4 },
 	{ "Walk Through &Walls", onNoWalls, MENUID_CHEAT_NOCLIP },
-	{ "Player Ignores Side&view", onIgnoreSideview, MENUID_CHEAT_IGNORESV },
+	{ "Hero Ignores Side&view", onIgnoreSideview, MENUID_CHEAT_IGNORESV },
 	{ "&Quick Movement", onGoFast, MENUID_CHEAT_GOFAST },
 	{ "&Kill All Enemies", onKillCheat },
 	{ "Trigger &Secrets", onSecretsCheat },
@@ -8282,7 +8282,15 @@ void sfx(int32_t index,int32_t pan,bool loop, bool restart, int32_t vol, int32_t
 	}
 
 	if (restart && replay_is_debug())
-		replay_step_comment(fmt::format("sfx {}", sfx_string[index]));
+	{
+		// TODO: get rid of this bandaid next time replays are mass-updated.
+		const char* sfx_name = sfx_string[index];
+		if (strcmp(sfx_name, "Hero is hit") == 0)
+			sfx_name = "Player is hit";
+		else if (strcmp(sfx_name, "Hero dies") == 0)
+			sfx_name = "Player dies";
+		replay_step_comment(fmt::format("sfx {}", sfx_name));
+	}
 }
 
 // true if sfx is allocated

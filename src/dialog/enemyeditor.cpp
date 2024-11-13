@@ -258,9 +258,9 @@ static const GUI::ListData list_trapmisc1
 
 static const GUI::ListData list_leevermisc1
 {
-	{"Player's path + second",0},
+	{"Hero's path + second",0},
 	{"In place",1},
-	{"Player's path",2}
+	{"Hero's path",2}
 };
 
 static const GUI::ListData list_rockmisc10
@@ -1219,10 +1219,10 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 								INFOBTN("How many hit points this enemy has."),
 								NumberField(&local_guyref.hp, 0, 32767, 5),
 								Label(text = "Damage:", hAlign = 1.0, rightPadding = 0_px),
-								INFOBTN("How much HP the player loses if this enemy touches him."),
+								INFOBTN("How much HP the Hero loses if this enemy touches him."),
 								NumberField(&local_guyref.dp, 0, 32767, 5),
 								Label(text = "W. Damage:", hAlign = 1.0, rightPadding = 0_px),
-								INFOBTN("How much HP the player loses if this enemy's weapon hits him"),
+								INFOBTN("How much HP the Hero loses if this enemy's weapon hits him"),
 								NumberField(&local_guyref.wdp, 0, 32767, 5),
 								Label(text = "Hunger:", hAlign = 1.0, rightPadding = 0_px),
 								INFOBTN("Determines how attracted this enemy is to the Bait weapon."
@@ -1246,7 +1246,7 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 										"\nRanges from 0 (never)to 16 (always)."),
 								NumberField(&local_guyref.rate, 0, MAXRATE, 4),
 								Label(text = "Homing Factor:", hAlign = 1.0, rightPadding = 0_px),
-								INFOBTN("How often this enemy changes to a direction that points toward the player."
+								INFOBTN("How often this enemy changes to a direction that points toward the Hero."
 										"\nRanges from 0 (never)to 255 (always)."),
 								NumberField(&local_guyref.homing, 0, MAXHOMING, 4),
 								Label(text = "Step Speed:", hAlign = 1.0, rightPadding = 0_px),
@@ -1543,7 +1543,7 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 						Rows<3>(hAlign = 1.0, fitParent = true,
 							//
 							Label(text = "W. Damage:", hAlign = 1.0, rightPadding = 0_px),
-							INFOBTN("How much HP the player loses if this enemy's weapon hits him"),
+							INFOBTN("How much HP the Hero loses if this enemy's weapon hits him"),
 							NumberField(&local_guyref.wdp, 0, 32767, 5),
 							//
 							Label(text = "W. Step Speed:", hAlign = 1.0, rightPadding = 0_px),

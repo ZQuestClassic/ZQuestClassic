@@ -569,7 +569,7 @@ namespace ZScript
 				case idLWeapon:
 					return ScriptType::Lwpn;
 				case idPlayer:
-					return ScriptType::Player;
+					return ScriptType::Hero;
 				case idScreen:
 					return ScriptType::Screen;
 				case idDMap:

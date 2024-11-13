@@ -1605,7 +1605,7 @@ DEFINE D_BOSSLOCKED          = 10;
 DEFINE D_BOSSUNLOCKED        = 11; // A boss door that has been opened
 DEFINE D_OPENSHUTTER         = 12; // A shutter that has been opened
 DEFINE D_1WAYSHUTTER         = 14; // A shutter that locks behind you and never opens
-DEFINE D_NONE                = 16; // No door at all. Player will not auto-walk.
+DEFINE D_NONE                = 16; // No door at all. Hero will not auto-walk.
 
 //Sprite lists. Use with Screen->ClearSprites()
 DEFINE SL_GUYS               = 0; // Enemies
@@ -2669,7 +2669,7 @@ enum ComboTrigFlag
 	TRIGFLAG_COUNTER_NOT_ONLY_TRIG_EAT, //Counters/Items->Consume w/o trig - Consume the specified amount from the counter even if the combo failed to trigger.
 	TRIGFLAG_LIGHTON, //Other->'Light On->' - Triggered by a lightbeam.
 	TRIGFLAG_LIGHTOFF, //Other->'Light Off->' - Triggered by lack of a lightbeam.
-	TRIGFLAG_PUSH, //Other->'Push->' - Triggered when the player pushes into the combo.
+	TRIGFLAG_PUSH, //Other->'Push->' - Triggered when the [Hero] pushes into the combo.
 	TRIGFLAG_LENS_ON, //Other->'Lens On->' - Triggered when the lens is revealing.
 	TRIGFLAG_LENS_OFF, //Other->'Lens Off->' - Triggered when the lens is not revealing.
 	TRIGFLAG_EW_ARROW, //Weapons->EWeapons->Arrow - Triggered by Arrow EWeapons
@@ -2727,8 +2727,8 @@ enum ComboTrigFlag
 	TRIGFLAG_TGROUP_LESS, //States/Spawning->'TrigGroup Less->' - When the number of combos that contribute to this combo's Trigger Group is LESS than the Trigger Group Val, trigger this combo.
 	TRIGFLAG_TGROUP_GREATER, //States/Spawning->'TrigGroup Greater->' - When the number of combos that contribute to this combo's Trigger Group is GREATER than the Trigger Group Val, trigger this combo.
 	TRIGFLAG_TRIG_PUSHED, //Other->'Pushed->' - Triggers when this combo, as a pushblock, settles into a new positon.
-	TRIGFLAG_TRIG_DIVE, //Other->'Dive->' - Triggers when the player dives on this combo.
-	TRIGFLAG_TRIG_DIVE_SENS, //Other->'Dive-> (Sensitive)' - Triggers when the player dives on this combo. More sensitive hitbox than 'TRIGFLAG_TRIG_DIVE'
+	TRIGFLAG_TRIG_DIVE, //Other->'Dive->' - Triggers when the [Hero] dives on this combo.
+	TRIGFLAG_TRIG_DIVE_SENS, //Other->'Dive-> (Sensitive)' - Triggers when the [Hero] dives on this combo. More sensitive hitbox than 'TRIGFLAG_TRIG_DIVE'
 	TRIGFLAG_REFARROW, //Weapons->LWeapons->Refl. Arrow - Triggered by Reflected Arrow LWeapons
 	TRIGFLAG_REFFIRE, //Weapons->LWeapons->Refl. Fire - Triggered by Reflected Fire LWeapons
 	TRIGFLAG_REFFIRE2, //Weapons->LWeapons->Refl. Fire 2 - Triggered by Reflected Fire 2 LWeapons
@@ -2829,8 +2829,8 @@ enum
 	GENSCR_EVENT_CHANGE_SCREEN, //When the screen changes
 	GENSCR_EVENT_CHANGE_DMAP, //When the dmap changes
 	GENSCR_EVENT_CHANGE_LEVEL, //When the level changes
-	GENSCR_EVENT_HERO_HIT_1, //Player is hit, before ring applied
-	GENSCR_EVENT_HERO_HIT_2, //Player is hit, after ring applied
+	GENSCR_EVENT_HERO_HIT_1, //Hero is hit, before ring applied
+	GENSCR_EVENT_HERO_HIT_2, //Hero is hit, after ring applied
 	GENSCR_EVENT_COLLECT_ITEM, //Item is collected
 	GENSCR_EVENT_ENEMY_DROP_ITEM_1, //Enemy drops item (before item created)
 	GENSCR_EVENT_ENEMY_DROP_ITEM_2, //Enemy drops item (if & after item created)
@@ -2838,8 +2838,8 @@ enum
 	GENSCR_EVENT_ENEMY_HIT1, //Enemy hit, before defenses
 	GENSCR_EVENT_ENEMY_HIT2, //Enemy hit, after defenses
 	GENSCR_EVENT_POST_COLLECT_ITEM, //After item is collected (post hold if held)
-	GENSCR_EVENT_PLAYER_FALL, //Player falls in a pitfall
-	GENSCR_EVENT_PLAYER_DROWN, //Player drowns
+	GENSCR_EVENT_PLAYER_FALL, //Hero falls in a pitfall
+	GENSCR_EVENT_PLAYER_DROWN, //Hero drowns
 	GENSCR_NUMEVENT
 };
 enum //Game->EventData[] indexes for 'GENSCR_EVENT_HERO_HIT_1' and 'GENSCR_EVENT_HERO_HIT_2'
@@ -2895,7 +2895,7 @@ enum //Game->EventData[] indexes for 'GENSCR_EVENT_ENEMY_HIT1' and 'GENSCR_EVENT
 };
 enum //Game->EventData[] indexes for 'GENSCR_EVENT_PLAYER_FALL' and 'GENSCR_EVENT_PLAYER_DROWN'
 {
-	GENEV_PLAYER_FALLDROWN_COMBO //The combo ID the player is falling/drowning into.
+	GENEV_PLAYER_FALLDROWN_COMBO //The combo ID the [Hero] is falling/drowning into.
 };
 
 enum //constants for 'GENEV_ITEMCOL_TYPE'
@@ -2914,29 +2914,29 @@ enum //constants for 'GENEV_HEROHIT_HITTYPE' / 'GENEV_HEROHIT_HITTYPE2'
 };
 
 //For Screen->LoadNPC() and etc; the screen index of the thing
-DEFINE HIT_BY_NPC                   = 0; //Player only
-DEFINE HIT_BY_EWEAPON               = 1; //Player only
+DEFINE HIT_BY_NPC                   = 0; //Hero only
+DEFINE HIT_BY_EWEAPON               = 1; //Hero only
 DEFINE HIT_BY_LWEAPON               = 2;
 DEFINE HIT_BY_FFC                   = 3; //Unimplemented
 //For Screen->LoadNPCByUID() and etc; corresponds with the ->UID of the thing. Not to be confused with the internal UID used by the engine.
-DEFINE HIT_BY_NPC_UID               = 4; //Player only
-DEFINE HIT_BY_EWEAPON_UID           = 5; //Player only
+DEFINE HIT_BY_NPC_UID               = 4; //Hero only
+DEFINE HIT_BY_EWEAPON_UID           = 5; //Hero only
 DEFINE HIT_BY_LWEAPON_UID           = 6;
 DEFINE HIT_BY_FFC_UID               = 7; //Unimplemented
 //Returns the item id of the item that the weapon that hit came from; -1 if the lweapon is script created
 DEFINE HIT_BY_LWEAPON_PARENT_ID     = 8;
 //Returns the item class of the item that the weapon that hit came from (see IC_ constants); -1 if the lweapon is script created
 DEFINE HIT_BY_LWEAPON_PARENT_FAMILY = 9;
-//Returns the enemy class of the enemy that hit the player (see [NpcType] (`NPCT_`) constants)
-DEFINE HIT_BY_NPC_TYPE              = 10; //Player only
+//Returns the enemy class of the enemy that hit the [Hero] (see [NpcType] (`NPCT_`) constants)
+DEFINE HIT_BY_NPC_TYPE              = 10; //Hero only
 //Returns the ID of the weapon that hit (see LW_ and EW_ constants)
-DEFINE HIT_BY_EWEAPON_TYPE          = 11; //Player only
+DEFINE HIT_BY_EWEAPON_TYPE          = 11; //Hero only
 DEFINE HIT_BY_LWEAPON_TYPE          = 12;
-//Returns the internal UID used by the engine for the thing. Can case these to their respective types (example: npc n = <npc>(Player->HitBy[HIT_BY_NPC_PTR]);)
+//Returns the internal UID used by the engine for the thing. Can case these to their respective types (example: npc n = <npc>(Hero->HitBy[HIT_BY_NPC_PTR]);)
 DEFINE HIT_BY_NPC_PTR               = 13;
 DEFINE HIT_BY_EWEAPON_PTR           = 14;
 DEFINE HIT_BY_LWEAPON_PTR           = 15;
-//Returns the ID of the enemy that hit the Player
+//Returns the ID of the enemy that hit the Hero
 DEFINE HIT_BY_NPC_ID                = 16;
 
 DEFINE AF_FRESH          = 0x01;
@@ -3034,15 +3034,15 @@ const int SZOF_DRAWZOFFSET    = 512;     //1000000000b, 0x200, Enemies only.
 //      Timing may vary from frame to frame, and based on QRs or other settings.
 enum
 {
-	SPLAYER_PLAYER_DRAW = -200000,  //The player, when this occurs changes based on various conditions.
+	SPLAYER_PLAYER_DRAW = -200000,  //The [Hero], when this occurs changes based on various conditions.
 	SPLAYER_EWEAP_BEHIND_DRAW, //Eweapons with 'Behind = true'
 	SPLAYER_EWEAP_FRONT_DRAW, //Eweapons with 'Behind = false'
 	SPLAYER_LWEAP_BEHIND_DRAW, //Lweapons with 'Behind = true'
 	SPLAYER_LWEAP_FRONT_DRAW, //Lweapons with 'Behind = false'
-	SPLAYER_LWEAP_ABOVE_DRAW, //Lweapons with (Z+FakeZ) > Init Data 'Jump Layer Height', IF the player is also above this height.
+	SPLAYER_LWEAP_ABOVE_DRAW, //Lweapons with (Z+FakeZ) > Init Data 'Jump Layer Height', IF the [Hero] is also above this height.
 	SPLAYER_CHAINLINK_DRAW, //Hookshot chain links. This may draw multiple times per frame.
 	SPLAYER_NPC_DRAW, //Enemies
-	SPLAYER_NPC_ABOVEPLAYER_DRAW, //Enemies 'grabbing' the player, or with a higher Z than the player
+	SPLAYER_NPC_ABOVEPLAYER_DRAW, //Enemies 'grabbing' the [Hero], or with a higher Z than the [Hero]
 	SPLAYER_NPC_AIRBORNE_DRAW, //Flying enemies, or enemies in the Z axis (amount required QR dependant)
 	SPLAYER_ITEMSPRITE_DRAW, //Itemsprites
 	SPLAYER_FAIRYITEM_DRAW, //Moving fairies

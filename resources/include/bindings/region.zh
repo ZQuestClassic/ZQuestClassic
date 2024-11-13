@@ -59,7 +59,7 @@ class Region {
 	internal void TriggerSecrets(int arg1);
 }
 
-// The Region the player is currently in.
+// The Region the [Hero] is currently in.
 // A Region is a collection of screens that can be freely scrolled between.
 // An area without any scrolling is technically still a Region of 1x1 screen size.
 // The position of the region currently visible is defined by the [Viewport].

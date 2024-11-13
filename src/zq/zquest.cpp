@@ -569,7 +569,7 @@ script_data *lwpnscripts[NUMSCRIPTWEAPONS];
 script_data *ewpnscripts[NUMSCRIPTWEAPONS];
 script_data *globalscripts[NUMSCRIPTGLOBAL];
 script_data *genericscripts[NUMSCRIPTSGENERIC];
-script_data *playerscripts[NUMSCRIPTPLAYER];
+script_data *playerscripts[NUMSCRIPTHERO];
 script_data *screenscripts[NUMSCRIPTSCREEN];
 script_data *dmapscripts[NUMSCRIPTSDMAP];
 script_data *itemspritescripts[NUMSCRIPTSITEMSPRITE];
@@ -1209,7 +1209,7 @@ static NewMenu misc_menu
 static NewMenu spr_menu
 {
 	{ "&Sprite Data", onCustomWpns },
-	{ "&Player", onCustomHero },
+	{ "&Hero", onCustomHero },
 	{ "&Misc Sprites", onMiscSprites },
 };
 
@@ -1301,7 +1301,7 @@ static NewMenu quest_menu
 	{ "&Test", onTestQst },
 	{ "&Items", onCustomItems },
 	{ "Ene&mies", onCustomEnemies },
-	{ "&Player", onCustomHero },
+	{ "&Hero", onCustomHero },
 	{ "&Strings", onStrings },
 	{ "&DMaps", onDmaps },
 	{ "I&nit Data", onInit },
@@ -6799,7 +6799,7 @@ void refresh(int32_t flags, bool update)
 			do_previewtext();
 	}
 	// Show Errors & Details
-	//This includes the presence of: Screen State Carryover, Timed Warp, Maze Path, the 'Sideview Gravity', 'Invisible Player',
+	//This includes the presence of: Screen State Carryover, Timed Warp, Maze Path, the 'Sideview Gravity', 'Invisible Hero',
 	//'Save Screen', 'Continue Here' and 'Treat As..' Screen Flags,
 	// the String, every Room Type and Catch All, and all four Tile and Side Warps.
 	if(!prv_mode && ShowInfo)
@@ -6810,7 +6810,7 @@ void refresh(int32_t flags, bool update)
 		// Start with general information
 		if(Map.CurrScr()->flags3&fINVISHERO)
 		{
-			sprintf(buf,"Invisible Player");
+			sprintf(buf,"Invisible Hero");
 			show_screen_error(buf,i++,vc(15));
 		}
 		
@@ -18955,7 +18955,7 @@ int32_t bilweapons_cnt = -1;
 script_struct bieweapons[NUMSCRIPTWEAPONS]; //eweapon script
 int32_t bieweapons_cnt = -1;
 
-script_struct bihero[NUMSCRIPTPLAYER]; //link script
+script_struct bihero[NUMSCRIPTHERO]; //link script
 int32_t bihero_cnt = -1;
 
 script_struct biscreens[NUMSCRIPTSCREEN]; //screen (screendata) script
@@ -19192,7 +19192,7 @@ void build_bihero_list()
     bihero[0].second = -1;
     bihero_cnt = 1;
     
-    for(int32_t i = 0; i < NUMSCRIPTPLAYER - 1; i++)
+    for(int32_t i = 0; i < NUMSCRIPTHERO - 1; i++)
     {
         if(playermap[i].scriptname.length()==0)
             continue;
@@ -19205,7 +19205,7 @@ void build_bihero_list()
     }
     
     // Blank out the rest of the list
-    for(int32_t i=bihero_cnt; i<NUMSCRIPTPLAYER; i++)
+    for(int32_t i=bihero_cnt; i<NUMSCRIPTHERO; i++)
     {
         bihero[i].first="";
         bihero[i].second=-1;
@@ -19223,7 +19223,7 @@ void build_bihero_list()
     
     bihero_cnt = 0;
     
-    for(int32_t i = 0; i < NUMSCRIPTPLAYER; i++)
+    for(int32_t i = 0; i < NUMSCRIPTHERO; i++)
         if(bihero[i].first.length() > 0)
             bihero_cnt = i+1;
 }
@@ -19633,7 +19633,7 @@ static int32_t as_item_list[] = { 10, 11, 12, -1};
 static int32_t as_npc_list[] = { 18, 19, 20, -1}; //npc scripts TAB
 static int32_t as_lweapon_list[] = { 21, 22, 23, -1}; //lweapon scripts TAB
 static int32_t as_eweapon_list[] = { 24, 25, 26, -1}; //eweapon scripts TAB
-static int32_t as_hero_list[] = { 27, 28, 29, -1}; //player scripts TAB
+static int32_t as_hero_list[] = { 27, 28, 29, -1}; //hero scripts TAB
 static int32_t as_screen_list[] = { 30, 31, 32, -1}; //screendata scripts TAB
 static int32_t as_dmap_list[] = { 33, 34, 35, -1}; //dmapdata scripts TAB
 static int32_t as_itemsprite_list[] = { 36, 37, 38, -1}; //dmapdata scripts TAB
@@ -20385,7 +20385,7 @@ const char *playerscriptlist2(int32_t index, int32_t *list_size)
         return playerscript_str_buf2;
     }
     
-    *list_size=(NUMSCRIPTPLAYER-1);
+    *list_size=(NUMSCRIPTHERO-1);
     return NULL;
 }
 static char itemspritescript_str_buf2[32];
@@ -20699,11 +20699,11 @@ void do_script_disassembly(map<string, disassembled_script_data>& scripts, bool 
 			ewpnmap[i].format = SCRIPT_FORMAT_INVALID;
 		}
 	}
-	for(int32_t i = 0; i < NUMSCRIPTPLAYER-1; ++i)
+	for(int32_t i = 0; i < NUMSCRIPTHERO-1; ++i)
 	{
 		if(scripts.find(playermap[i].scriptname) != scripts.end())
 		{
-			if(scripts[playermap[i].scriptname].first.script_type != ScriptType::Player)
+			if(scripts[playermap[i].scriptname].first.script_type != ScriptType::Hero)
 			{
 				while(scripts.find(playermap[i].scriptname) != scripts.end())
 					inc_script_name(playermap[i].scriptname);
@@ -20829,7 +20829,7 @@ script_slot_type getType(ScriptType type)
 		case ScriptType::NPC: return type_npc;
 		case ScriptType::Lwpn: return type_lweapon;
 		case ScriptType::Ewpn: return type_eweapon;
-		case ScriptType::Player: return type_hero;
+		case ScriptType::Hero: return type_hero;
 		case ScriptType::DMap:
 		case ScriptType::ScriptedActiveSubscreen:
 		case ScriptType::ScriptedPassiveSubscreen:
@@ -20931,7 +20931,7 @@ void clearAllSlots(int32_t type, byte flags = 0)
 		}
 		case type_hero:
 		{
-			for(int32_t q = 0; q < NUMSCRIPTPLAYER-1; ++q)
+			for(int32_t q = 0; q < NUMSCRIPTHERO-1; ++q)
 			{
 				if(checkSkip(playermap[q].format, flags)) continue;
 				playermap[q].scriptname = "";
@@ -21048,7 +21048,7 @@ std::string global_slotnames[NUMSCRIPTGLOBAL] = {
 	"onF6Menu",
 	"onSave",
 };
-std::string player_slotnames[NUMSCRIPTPLAYER-1] = {
+std::string player_slotnames[NUMSCRIPTHERO-1] = {
 	"Init",
 	"Active",
 	"onDeath",
@@ -21193,7 +21193,7 @@ byte reload_scripts(map<string, disassembled_script_data> &scripts)
 		lwpnmap[i].slotname = temp;
 		lwpnmap[i].update();
 	}
-	for(int32_t i = 0; i < NUMSCRIPTPLAYER-1; i++)
+	for(int32_t i = 0; i < NUMSCRIPTHERO-1; i++)
 	{
 		playermap[i].slotname=fmt::format("{}:",player_slotnames[i]);
 		if(!playermap[i].isEmpty())
@@ -21626,7 +21626,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts, int assign_mode)
 				break;
 			}
 			case 29:
-				//<<, Player
+				//<<, Hero
 			{
 				int32_t lind = assignscript_dlg[27].d1;
 				int32_t rind = assignscript_dlg[28].d1;
@@ -22042,7 +22042,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts, int assign_mode)
 	{
 		//For global/hero scripts, match slot names if unoccupied
 		smart_slot_named(scripts, asglobalscripts, globalmap, global_slotnames, 1, NUMSCRIPTGLOBAL);
-		smart_slot_named(scripts, asplayerscripts, playermap, player_slotnames, 0, NUMSCRIPTPLAYER-1);
+		smart_slot_named(scripts, asplayerscripts, playermap, player_slotnames, 0, NUMSCRIPTHERO-1);
 		//For other scripts, assign all un-assigned scripts
 		smart_slot_type(scripts, asffcscripts, ffcmap, NUMSCRIPTFFC-1);
 		smart_slot_type(scripts, asitemscripts, itemmap, NUMSCRIPTITEM-1);
@@ -22910,7 +22910,7 @@ static DIALOG misccolors_dlg[] =
     { jwin_text_proc,       215-25-12-15,   112-4,     0,  8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "Triforce Frame:", NULL, NULL },
     { jwin_text_proc,       215-25-12-15,   130-4,     0,  8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "Big Map Background:", NULL, NULL },
     { jwin_text_proc,       215-25-12-15,   148-4,     0,  8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "Big Map Foreground:", NULL, NULL },
-    { jwin_text_proc,       215-25-12-15,   76-4,      0,  8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "Player's Position:", NULL, NULL },
+    { jwin_text_proc,       215-25-12-15,   76-4,      0,  8,    vc(11),  vc(1),  0,       0,          0,             0, (void *) "Hero's Position:", NULL, NULL },
     
     //20
     { d_misccolors_hexedit_proc,       294-25+14+2,   76-8,    21,   16,    vc(11),  vc(1),  0,       0,          2,             0,       NULL, NULL, (void *)0, },
@@ -23923,10 +23923,10 @@ static void allocate_crap()
 		globalscripts[i] = new script_data(ScriptType::Global, i);
 	}
 	
-	for(int32_t i=0; i<NUMSCRIPTPLAYER; i++)
+	for(int32_t i=0; i<NUMSCRIPTHERO; i++)
 	{
 		delete playerscripts[i];
-		playerscripts[i] = new script_data(ScriptType::Player, i);
+		playerscripts[i] = new script_data(ScriptType::Hero, i);
 	}
 	
 	for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
@@ -25714,7 +25714,7 @@ void quit_game()
         if(globalscripts[i]!=NULL) delete globalscripts[i];
     }
     
-    for(int32_t i=0; i<NUMSCRIPTPLAYER; i++)
+    for(int32_t i=0; i<NUMSCRIPTHERO; i++)
     {
         if(playerscripts[i]!=NULL) delete playerscripts[i];
     }
@@ -25851,7 +25851,7 @@ void quit_game2()
         if(globalscripts[i]!=NULL) delete globalscripts[i];
     }
     
-    for(int32_t i=0; i<NUMSCRIPTPLAYER; i++)
+    for(int32_t i=0; i<NUMSCRIPTHERO; i++)
     {
         if(playerscripts[i]!=NULL) delete playerscripts[i];
     }

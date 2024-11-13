@@ -306,7 +306,7 @@ std::shared_ptr<GUI::Widget> ItemWizardDialog::view()
 						Column(
 							Row(
 								Frame(title = "Protects",
-									info = "These sides of the player are protected while the shield is in effect",
+									info = "These sides of the Hero are protected while the shield is in effect",
 									Column(padding = 0_px,
 										CBOX("Front", flags, item_flag1),
 										CBOX("Back", flags, item_flag2),
@@ -316,7 +316,7 @@ std::shared_ptr<GUI::Widget> ItemWizardDialog::view()
 								),
 								push_widg(0,Column(
 									Frame(title = "Inactive Prot",
-										info = "These sides of the player are protected while the shield is NOT in effect",
+										info = "These sides of the Hero are protected while the shield is NOT in effect",
 										Column(padding = 0_px,
 											CBOX("Front", flags, item_flag5),
 											CBOX("Back", flags, item_flag6),
@@ -348,10 +348,10 @@ std::shared_ptr<GUI::Widget> ItemWizardDialog::view()
 						),
 						Column(
 							CBOX_I("Active Use", flags, item_flag9,
-								"If enabled, the shield only protects the player (and provides"
+								"If enabled, the shield only protects the Hero (and provides"
 								" its' LTM) while it is equipped to a button that is being held."),
-							push_widg(0,CBOX_I("Change Speed", flags, item_flag10, "Change the player's walking speed while the shield is active")),
-							push_widg(0,CBOX_I("Lock Direction", flags, item_flag11, "When the shield is activated, lock the player's direction until it is released.")),
+							push_widg(0,CBOX_I("Change Speed", flags, item_flag10, "Change the Hero's walking speed while the shield is active")),
+							push_widg(0,CBOX_I("Lock Direction", flags, item_flag11, "When the shield is activated, lock the Hero's direction until it is released.")),
 							push_widg(0,Rows<3>(
 								Label(text = "Inactive PTM:", hAlign = 1.0),
 								TextField(maxLength = 11,
@@ -361,7 +361,7 @@ std::shared_ptr<GUI::Widget> ItemWizardDialog::view()
 									{
 										local_ref.misc6 = val;
 									}),
-								INFOBTN("Player Tile Modifier to use while shield is inactive"),
+								INFOBTN("Hero Tile Modifier to use while shield is inactive"),
 								//
 								push_widg(1,Label(text = "Speed Percentage:", hAlign = 1.0)),
 								push_widg(1,TextField(maxLength = 11,
@@ -371,7 +371,7 @@ std::shared_ptr<GUI::Widget> ItemWizardDialog::view()
 									{
 										local_ref.misc7 = val;
 									})),
-								push_widg(1,INFOBTN("A percentage multiplier for the player's movement speed. A negative value will give that amount *more* speed; i.e. '-100' is the same as '200'.")),
+								push_widg(1,INFOBTN("A percentage multiplier for the Hero's movement speed. A negative value will give that amount *more* speed; i.e. '-100' is the same as '200'.")),
 								//
 								push_widg(1,Label(text = "Speed Bonus:", hAlign = 1.0)),
 								push_widg(1,TextField(maxLength = 11,
@@ -381,7 +381,7 @@ std::shared_ptr<GUI::Widget> ItemWizardDialog::view()
 									{
 										local_ref.misc8 = val;
 									})),
-								push_widg(1,INFOBTN("A step value (in 100ths of a pixel per frame) to be added to the player's speed."))
+								push_widg(1,INFOBTN("A step value (in 100ths of a pixel per frame) to be added to the Hero's speed."))
 							))
 						)
 					)

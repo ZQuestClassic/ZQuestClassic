@@ -6619,17 +6619,17 @@ bool _handle_tile_move(TileMoveProcess dest_process, optional<TileMoveProcess> s
 		if(!every_proc && !movelist->check_prot())
 			return false;
 	}
-	//Player sprites
+	//Hero sprites
 	{
 		auto& movelist = vec.emplace_back(std::make_unique<TileMoveList>(
 			dest_process, source_process, mode,
 			move
-			? "The tiles used by the following player sprites will be partially cleared by the move."
-			: "The tiles used by the following player sprites will be partially or completely overwritten by this process."
+			? "The tiles used by the following Hero sprites will be partially cleared by the move."
+			: "The tiles used by the following Hero sprites will be partially or completely overwritten by this process."
 			));
 		{
 			int32_t a_style=(zinit.heroAnimationStyle);
-			#define ADD_PLAYER_SPRITE(ref_sprite, frames, name) \
+			#define ADD_HERO_SPRITE(ref_sprite, frames, name) \
 			do \
 			{ \
 				movelist->add_tile(&ref_sprite[spr_tile], \
@@ -6643,115 +6643,115 @@ bool _handle_tile_move(TileMoveProcess dest_process, optional<TileMoveProcess> s
 			
 			for(int32_t i=0; i<4; ++i)
 			{
-				ADD_PLAYER_SPRITE(walkspr[i], quick_select_3(a_style, (i==0?1:2), 3, 9), fmt::format("Walking ({})", dirstr_proper[i]));
+				ADD_HERO_SPRITE(walkspr[i], quick_select_3(a_style, (i==0?1:2), 3, 9), fmt::format("Walking ({})", dirstr_proper[i]));
 			}
 			
 			for(int32_t i=0; i<4; ++i)
 			{
-				ADD_PLAYER_SPRITE(slashspr[i], quick_select_3(a_style, 1, 1, 6), fmt::format("Slashing ({})", dirstr_proper[i]));
+				ADD_HERO_SPRITE(slashspr[i], quick_select_3(a_style, 1, 1, 6), fmt::format("Slashing ({})", dirstr_proper[i]));
 			}
 			
 			for(int32_t i=0; i<4; ++i)
 			{
-				ADD_PLAYER_SPRITE(stabspr[i], quick_select_3(a_style, 1, 1, 3), fmt::format("Stabbing ({})", dirstr_proper[i]));
+				ADD_HERO_SPRITE(stabspr[i], quick_select_3(a_style, 1, 1, 3), fmt::format("Stabbing ({})", dirstr_proper[i]));
 			}
 			
 			for(int32_t i=0; i<4; ++i)
 			{
-				ADD_PLAYER_SPRITE(poundspr[i], quick_select_3(a_style, 1, 1, 3), fmt::format("Pounding ({})", dirstr_proper[i]));
-			}
-			
-			for(int32_t i=0; i<2; ++i)
-			{
-				ADD_PLAYER_SPRITE(holdspr[0][i], 1, fmt::format("Hold (Land, {}-hand)", i+1));
-			}
-			
-			ADD_PLAYER_SPRITE(castingspr, 1, "Casting");
-			
-			for(int32_t i=0; i<4; ++i)
-			{
-				ADD_PLAYER_SPRITE(floatspr[i], quick_select_3(a_style, 2, 3, 4), fmt::format("Floating ({})", dirstr_proper[i]));
-			}
-			
-			for(int32_t i=0; i<4; ++i)
-			{
-				ADD_PLAYER_SPRITE(swimspr[i], quick_select_3(a_style, 2, 3, 4), fmt::format("Swimming ({})", dirstr_proper[i]));
-			}
-			
-			for(int32_t i=0; i<4; ++i)
-			{
-				ADD_PLAYER_SPRITE(divespr[i], quick_select_3(a_style, 2, 3, 4), fmt::format("Diving ({})", dirstr_proper[i]));
+				ADD_HERO_SPRITE(poundspr[i], quick_select_3(a_style, 1, 1, 3), fmt::format("Pounding ({})", dirstr_proper[i]));
 			}
 			
 			for(int32_t i=0; i<2; ++i)
 			{
-				ADD_PLAYER_SPRITE(holdspr[1][i], 1, fmt::format("Hold (Water, {}-hand)", i));
+				ADD_HERO_SPRITE(holdspr[0][i], 1, fmt::format("Hold (Land, {}-hand)", i+1));
+			}
+			
+			ADD_HERO_SPRITE(castingspr, 1, "Casting");
+			
+			for(int32_t i=0; i<4; ++i)
+			{
+				ADD_HERO_SPRITE(floatspr[i], quick_select_3(a_style, 2, 3, 4), fmt::format("Floating ({})", dirstr_proper[i]));
 			}
 			
 			for(int32_t i=0; i<4; ++i)
 			{
-				ADD_PLAYER_SPRITE(jumpspr[i], 3, fmt::format("Jumping ({})", dirstr_proper[i]));
+				ADD_HERO_SPRITE(swimspr[i], quick_select_3(a_style, 2, 3, 4), fmt::format("Swimming ({})", dirstr_proper[i]));
 			}
 			
 			for(int32_t i=0; i<4; ++i)
 			{
-				ADD_PLAYER_SPRITE(chargespr[i], quick_select_3(a_style, 2, 3, 9), fmt::format("Charging ({})", dirstr_proper[i]));
+				ADD_HERO_SPRITE(divespr[i], quick_select_3(a_style, 2, 3, 4), fmt::format("Diving ({})", dirstr_proper[i]));
+			}
+			
+			for(int32_t i=0; i<2; ++i)
+			{
+				ADD_HERO_SPRITE(holdspr[1][i], 1, fmt::format("Hold (Water, {}-hand)", i));
+			}
+			
+			for(int32_t i=0; i<4; ++i)
+			{
+				ADD_HERO_SPRITE(jumpspr[i], 3, fmt::format("Jumping ({})", dirstr_proper[i]));
+			}
+			
+			for(int32_t i=0; i<4; ++i)
+			{
+				ADD_HERO_SPRITE(chargespr[i], quick_select_3(a_style, 2, 3, 9), fmt::format("Charging ({})", dirstr_proper[i]));
 			}
 			for(int32_t i=0; i<4; ++i)
 			{
-				ADD_PLAYER_SPRITE(revslashspr[i], quick_select_3(a_style, 1, 1, 6), fmt::format("Slash 2 ({})", dirstr_proper[i]));
+				ADD_HERO_SPRITE(revslashspr[i], quick_select_3(a_style, 1, 1, 6), fmt::format("Slash 2 ({})", dirstr_proper[i]));
 			}
 			for(int32_t i=0; i<4; ++i)
 			{
-				ADD_PLAYER_SPRITE(fallingspr[i], 7, fmt::format("Falling ({})", dirstr_proper[i]));
+				ADD_HERO_SPRITE(fallingspr[i], 7, fmt::format("Falling ({})", dirstr_proper[i]));
 			}
 			for(int32_t i=0; i<4; ++i)
 			{
-				ADD_PLAYER_SPRITE(liftingspr[i], liftingspr[i][spr_frames], fmt::format("Lifting ({})", dirstr_proper[i]));
+				ADD_HERO_SPRITE(liftingspr[i], liftingspr[i][spr_frames], fmt::format("Lifting ({})", dirstr_proper[i]));
 			}
 			for(int32_t i=0; i<4; ++i)
 			{
-				ADD_PLAYER_SPRITE(liftingwalkspr[i], quick_select_3(a_style, (i==0?1:2), 3, 9), fmt::format("Lift-Walking ({})", dirstr_proper[i]));
+				ADD_HERO_SPRITE(liftingwalkspr[i], quick_select_3(a_style, (i==0?1:2), 3, 9), fmt::format("Lift-Walking ({})", dirstr_proper[i]));
 			}
 			for(int32_t i=0; i<4; ++i)
 			{
-				ADD_PLAYER_SPRITE(drowningspr[i], quick_select_3(a_style, 2, 3, 3), fmt::format("Drowning ({})", dirstr_proper[i]));
+				ADD_HERO_SPRITE(drowningspr[i], quick_select_3(a_style, 2, 3, 3), fmt::format("Drowning ({})", dirstr_proper[i]));
 			}
 			for(int32_t i=0; i<4; ++i)
 			{
-				ADD_PLAYER_SPRITE(drowning_lavaspr[i], quick_select_3(a_style, 2, 3, 3), fmt::format("Lava Drowning ({})", dirstr_proper[i]));
+				ADD_HERO_SPRITE(drowning_lavaspr[i], quick_select_3(a_style, 2, 3, 3), fmt::format("Lava Drowning ({})", dirstr_proper[i]));
 			}
 			for(int32_t i=0; i<4; ++i)
 			{
-				ADD_PLAYER_SPRITE(sideswimspr[i], quick_select_3(a_style, 2, 3, 3), fmt::format("Side-Swimming ({})", dirstr_proper[i]));
+				ADD_HERO_SPRITE(sideswimspr[i], quick_select_3(a_style, 2, 3, 3), fmt::format("Side-Swimming ({})", dirstr_proper[i]));
 			}
 			//69
 			for(int32_t i=0; i<4; ++i)
 			{
-				ADD_PLAYER_SPRITE(sideswimslashspr[i], quick_select_3(a_style, 1, 1, 6), fmt::format("Side-Swim Slash ({})", dirstr_proper[i]));
+				ADD_HERO_SPRITE(sideswimslashspr[i], quick_select_3(a_style, 1, 1, 6), fmt::format("Side-Swim Slash ({})", dirstr_proper[i]));
 			}
 			//73
 			for(int32_t i=0; i<4; ++i)
 			{
-				ADD_PLAYER_SPRITE(sideswimstabspr[i], quick_select_3(a_style, 1, 1, 3), fmt::format("Side-Swim Stab ({})", dirstr_proper[i]));
+				ADD_HERO_SPRITE(sideswimstabspr[i], quick_select_3(a_style, 1, 1, 3), fmt::format("Side-Swim Stab ({})", dirstr_proper[i]));
 			}
 			//77
 			for(int32_t i=0; i<4; ++i)
 			{
-				ADD_PLAYER_SPRITE(sideswimpoundspr[i], quick_select_3(a_style, 1, 1, 3), fmt::format("Side-Swim Pound ({})", dirstr_proper[i]));
+				ADD_HERO_SPRITE(sideswimpoundspr[i], quick_select_3(a_style, 1, 1, 3), fmt::format("Side-Swim Pound ({})", dirstr_proper[i]));
 			}
 			//81
 			for(int32_t i=0; i<4; ++i)
 			{
-				ADD_PLAYER_SPRITE(sideswimchargespr[i], quick_select_3(a_style, 2, 3, 9), fmt::format("Side-Swim Charging ({})", dirstr_proper[i]));
+				ADD_HERO_SPRITE(sideswimchargespr[i], quick_select_3(a_style, 2, 3, 9), fmt::format("Side-Swim Charging ({})", dirstr_proper[i]));
 			}
 			//85
-			ADD_PLAYER_SPRITE(sideswimholdspr[spr_hold1], 1, "Hold (Side-Water, 1-hand)");
-			ADD_PLAYER_SPRITE(sideswimholdspr[spr_hold2], 1, "Hold (Side-Water, 2-hand)");
-			ADD_PLAYER_SPRITE(sideswimcastingspr, 1, "Side-Swim Casting");
+			ADD_HERO_SPRITE(sideswimholdspr[spr_hold1], 1, "Hold (Side-Water, 1-hand)");
+			ADD_HERO_SPRITE(sideswimholdspr[spr_hold2], 1, "Hold (Side-Water, 2-hand)");
+			ADD_HERO_SPRITE(sideswimcastingspr, 1, "Side-Swim Casting");
 			for(int32_t i=0; i<4; ++i)
 			{
-				ADD_PLAYER_SPRITE(sidedrowningspr[i], quick_select_3(a_style, 2, 3, 3), fmt::format("Side-Swim Drowning ({})", dirstr_proper[i]));
+				ADD_HERO_SPRITE(sidedrowningspr[i], quick_select_3(a_style, 2, 3, 3), fmt::format("Side-Swim Drowning ({})", dirstr_proper[i]));
 			}
 			//91
 		}

@@ -129,8 +129,8 @@ ComboEditorDialog::ComboEditorDialog(int32_t index):
 static const char *combotype_help_string[cMAX] =
 {
 	"",
-	"The player is warped via Tile Warp A if they step on the bottom half of this combo.",
-	"The player marches down into this combo and is warped via Tile Warp A if they step on this. The combo's tile will be drawn above the player during this animation.",
+	"The Hero is warped via Tile Warp A if they step on the bottom half of this combo.",
+	"The Hero marches down into this combo and is warped via Tile Warp A if they step on this. The combo's tile will be drawn above the Hero during this animation.",
 	"",
 	"",
 	"",
@@ -141,13 +141,13 @@ static const char *combotype_help_string[cMAX] =
 	"A Bracelet is needed to push this combo, and it can't be pushed until the enemies are cleared from the screen.",
 	"If the 'Statues Shoot Fire' Screen Data flag is checked, an invisible fireball shooting enemy is spawned on this combo.",
 	"If the 'Statues Shoot Fire' Screen Data flag is checked, an invisible fireball shooting enemy is spawned on this combo.",
-	"The player's movement speed is reduced while they walk on this combo. Enemies will not be affected.",
-	"While the player is standing on top of this, they will be moved upward at 2 pixels per 3 frames (or some dir at a custom-set speed), until they collide with a solid combo.",
-	"While the player is standing on top of this, they will be moved downward at 2 pixels per 3 frames (or some dir at a custom-set speed), until they collide with a solid combo.",
-	"While the player is standing on top of this, they will be moved leftward at 2 pixels per 3 frames (or some dir at a custom-set speed), until they collide with a solid combo.",
-	"While the player is standing on top of this, they will be moved rightward at 2 pixels per 3 frames (or some dir at a custom-set speed), until they collide with a solid combo.",
-	"The player is warped via Tile Warp A if they swim on this combo. Otherwise, this is identical to Water.",
-	"The player is warped via Tile Warp A if they dive on this combo. Otherwise, this is identical to Water.",
+	"The Hero's movement speed is reduced while they walk on this combo. Enemies will not be affected.",
+	"While the Hero is standing on top of this, they will be moved upward at 2 pixels per 3 frames (or some dir at a custom-set speed), until they collide with a solid combo.",
+	"While the Hero is standing on top of this, they will be moved downward at 2 pixels per 3 frames (or some dir at a custom-set speed), until they collide with a solid combo.",
+	"While the Hero is standing on top of this, they will be moved leftward at 2 pixels per 3 frames (or some dir at a custom-set speed), until they collide with a solid combo.",
+	"While the Hero is standing on top of this, they will be moved rightward at 2 pixels per 3 frames (or some dir at a custom-set speed), until they collide with a solid combo.",
+	"The Hero is warped via Tile Warp A if they swim on this combo. Otherwise, this is identical to Water.",
+	"The Hero is warped via Tile Warp A if they dive on this combo. Otherwise, this is identical to Water.",
 	"If this combo is solid, the Ladder and Hookshot can be used to cross over it. It only permits the Ladder if its on Layer 0.",
 	"This activates Screen Secrets when the bottom half of this combo is stepped on, but it does not set the screen's 'Secret' Screen State.",
 	"This activates Screen Secrets when the bottom half of this combo is stepped on, and sets the screen's 'Secret' Screen State, making the secrets permanent.",
@@ -157,7 +157,7 @@ static const char *combotype_help_string[cMAX] =
 	"A Bracelet with a Push Combo Level of 2 is needed to push this combo. Otherwise, this is identical to Push (Heavy).",
 	"A Bracelet with a Push Combo Level of 2 is needed to push this combo. Otherwise, this is identical to Push (Heavy, Wait).",
 	"When hit by a Hammer, this combo changes into the next combo in the list.",
-	"If this combo is struck by the Hookshot, the player is pulled towards the combo.",
+	"If this combo is struck by the Hookshot, the Hero is pulled towards the combo.",
 	"", //cHSBRIDGE (Unimplemented)
 	// Damage Combos
 	"",
@@ -171,7 +171,7 @@ static const char *combotype_help_string[cMAX] =
 	"This flag is obsolete. It behaves identically to Combo Flag 34, Trap (4-Way, Line of Sight).",
 	"This flag is obsolete. It behaves identically to Combo Flag 35, Trap (Horizontal, Constant).",
 	"This flag is obsolete. It behaves identically to Combo Flag 36, Trap (Vertical Constant).",
-	"The player is warped via Tile Warp A if they touch any part of this combo, but their on-screen position remains the same. Ground enemies can't enter.",
+	"The Hero is warped via Tile Warp A if they touch any part of this combo, but their on-screen position remains the same. Ground enemies can't enter.",
 	"If this combo is solid, the Hookshot can be used to cross over it.",
 	"This combo's tile is drawn between layers 3 and 4 if it is placed on layer 0.",
 	"Flying enemies (Keese, Peahats, Moldorms, Patras, Fairys, Digdogger, Manhandla, Ghinis, Gleeok heads) can't fly over or appear on this combo.",
@@ -181,14 +181,14 @@ static const char *combotype_help_string[cMAX] =
 	"Wand magic and enemy magic that hits  this combo is duplicated twice, causing three shots to be fired in three directions.",
 	"Wand magic and enemy magic that hits  this combo is duplicated thrice, causing four shots to be fired from each direction.",
 	"Wand magic and enemy magic that hits this combo is destroyed.",
-	"The player marches up into this combo and is warped via Tile Warp A if they step on this. The combo's tile will be drawn above the player during this animation.",
-	"The combo's tile changes depending on the player's position relative to the combo. It uses eight tiles per animation frame.",
+	"The Hero marches up into this combo and is warped via Tile Warp A if they step on this. The combo's tile will be drawn above the Hero during this animation.",
+	"The combo's tile changes depending on the Hero's position relative to the combo. It uses eight tiles per animation frame.",
 	"Identical to Eyeball (8-Way A), but the angles at which the tile will change are offset by 22.5 degrees (pi/8 radians).",
 	"Tektites cannot jump through or appear on this combo.",
 	"Identical to Slash->Item, but when it is slashed, Bush Leaves sprites are drawn and the 'Tall Grass slashed' sound plays.",
 	"Identical to Slash->Item, but when it is slashed, Flower Clippings sprites are drawn and the 'Tall Grass slashed' sound plays.",
 	"Identical to Slash->Item, but when it is slashed, Grass Clippings sprites are drawn and the 'Tall Grass slashed' sound plays.",
-	"Ripples sprites are drawn on the player when they walk on this combo. Also, Quake Hammer pounds are nullified by this combo.",
+	"Ripples sprites are drawn on the Hero when they walk on this combo. Also, Quake Hammer pounds are nullified by this combo.",
 	"",
 	"Identical to Lock Block, but if any other Lock Blocks are opened on the same screen, this changes to the next combo.",
 	"",
@@ -197,27 +197,27 @@ static const char *combotype_help_string[cMAX] =
 	"",
 	//Chests
 	"", "", "", "", "", "",
-	"If the player touches this, the Screen States are cleared, and the player is re-warped back into the screen, effectively resetting the screen entirely.",
-	"Press the 'Start' button when the player is standing on the bottom of this combo, and the Save menu appears. Best used with the Save Point->Continue Here Screen Flag.",
+	"If the Hero touches this, the Screen States are cleared, and the Hero is re-warped back into the screen, effectively resetting the screen entirely.",
+	"Press the 'Start' button when the Hero is standing on the bottom of this combo, and the Save menu appears. Best used with the Save Point->Continue Here Screen Flag.",
 	"Identical to Save Point, but the Quit option is also available in the menu.",
-	"The player marches down into this combo and is warped via Tile Warp B if they step on this. The combo's tile will be drawn above the player during this animation.",
-	"The player marches down into this combo and is warped via Tile Warp C if they step on this. The combo's tile will be drawn above the player during this animation.",
-	"The player marches down into this combo and is warped via Tile Warp D if they step on this. The combo's tile will be drawn above the player during this animation.",
-	"The player is warped via Tile Warp B if they step on the bottom half of this combo.",
-	"The player is warped via Tile Warp C if they step on the bottom half of this combo.",
-	"The player is warped via Tile Warp D if they step on the bottom half of this combo.",
-	"The player is warped via Tile Warp B if they touch any part of this combo, but their on-screen position remains the same. Ground enemies can't enter.",
-	"The player is warped via Tile Warp C if they touch any part of this combo, but their on-screen position remains the same. Ground enemies can't enter.",
-	"The player is warped via Tile Warp D if they touch any part of this combo, but their on-screen position remains the same. Ground enemies can't enter.",
-	"The player marches up into this combo and is warped via Tile Warp B if they step on this. The combo's tile will be drawn above the player during this animation.",
-	"The player marches up into this combo and is warped via Tile Warp C if they step on this. The combo's tile will be drawn above the player during this animation.",
-	"The player marches up into this combo and is warped via Tile Warp D if they step on this. The combo's tile will be drawn above the player during this animation.",
-	"The player is warped via Tile Warp B if they swim on this combo. Otherwise, this is identical to Water.",
-	"The player is warped via Tile Warp C if they swim on this combo. Otherwise, this is identical to Water.",
-	"The player is warped via Tile Warp D if they swim on this combo. Otherwise, this is identical to Water.",
-	"The player is warped via Tile Warp B if they dive on this combo. Otherwise, this is identical to Water.",
-	"The player is warped via Tile Warp C if they dive on this combo. Otherwise, this is identical to Water.",
-	"The player is warped via Tile Warp D if they dive on this combo. Otherwise, this is identical to Water.",
+	"The Hero marches down into this combo and is warped via Tile Warp B if they step on this. The combo's tile will be drawn above the Hero during this animation.",
+	"The Hero marches down into this combo and is warped via Tile Warp C if they step on this. The combo's tile will be drawn above the Hero during this animation.",
+	"The Hero marches down into this combo and is warped via Tile Warp D if they step on this. The combo's tile will be drawn above the Hero during this animation.",
+	"The Hero is warped via Tile Warp B if they step on the bottom half of this combo.",
+	"The Hero is warped via Tile Warp C if they step on the bottom half of this combo.",
+	"The Hero is warped via Tile Warp D if they step on the bottom half of this combo.",
+	"The Hero is warped via Tile Warp B if they touch any part of this combo, but their on-screen position remains the same. Ground enemies can't enter.",
+	"The Hero is warped via Tile Warp C if they touch any part of this combo, but their on-screen position remains the same. Ground enemies can't enter.",
+	"The Hero is warped via Tile Warp D if they touch any part of this combo, but their on-screen position remains the same. Ground enemies can't enter.",
+	"The Hero marches up into this combo and is warped via Tile Warp B if they step on this. The combo's tile will be drawn above the Hero during this animation.",
+	"The Hero marches up into this combo and is warped via Tile Warp C if they step on this. The combo's tile will be drawn above the Hero during this animation.",
+	"The Hero marches up into this combo and is warped via Tile Warp D if they step on this. The combo's tile will be drawn above the Hero during this animation.",
+	"The Hero is warped via Tile Warp B if they swim on this combo. Otherwise, this is identical to Water.",
+	"The Hero is warped via Tile Warp C if they swim on this combo. Otherwise, this is identical to Water.",
+	"The Hero is warped via Tile Warp D if they swim on this combo. Otherwise, this is identical to Water.",
+	"The Hero is warped via Tile Warp B if they dive on this combo. Otherwise, this is identical to Water.",
+	"The Hero is warped via Tile Warp C if they dive on this combo. Otherwise, this is identical to Water.",
+	"The Hero is warped via Tile Warp D if they dive on this combo. Otherwise, this is identical to Water.",
 	"Identical to Stairs [A], but the Tile Warp used (A, B, C, or D) is chosen at random. Use this only in screens where all four Tile Warps are defined.",
 	"Identical to Direct Warp [A], but the Tile Warp used (A, B, C, or D) is chosen at random. Use this only in screens where all four Tile Warps are defined.",
 	"As soon as this combo appears on the screen, Side Warp A is activated. This is best used with secret combos or combo cycling.",
@@ -225,25 +225,25 @@ static const char *combotype_help_string[cMAX] =
 	"As soon as this combo appears on the screen, Side Warp C is activated. This is best used with secret combos or combo cycling.",
 	"As soon as this combo appears on the screen, Side Warp D is activated. This is best used with secret combos or combo cycling.",
 	"Identical to Auto Side Warp [A], but the Side Warp used (A, B, C, or D) is chosen at random. Use this only in screens where all four Side Warps are defined.",
-	"Identical to Stairs [A], but the player will be warped as soon as they touch the edge of this combo.",
-	"Identical to Stairs [B], but the player will be warped as soon as they touch the edge of this combo.",
-	"Identical to Stairs [C], but the player will be warped as soon as they touch the edge of this combo.",
-	"Identical to Stairs [D], but the player will be warped as soon as they touch the edge of this combo.",
-	"Identical to Stairs [Random], but the player will be warped as soon as they touch the edge of this combo.",
-	"Identical to Step->Secrets (Temporary), but Screen Secrets are activated as soon as the player touches the edge of this combo.",
-	"Identical to Step->Secrets (Permanent), but Screen Secrets are activated as soon as the player touches the edge of this combo.",
-	"When the player steps on this combo, it will change into the next combo in the list.",
+	"Identical to Stairs [A], but the Hero will be warped as soon as they touch the edge of this combo.",
+	"Identical to Stairs [B], but the Hero will be warped as soon as they touch the edge of this combo.",
+	"Identical to Stairs [C], but the Hero will be warped as soon as they touch the edge of this combo.",
+	"Identical to Stairs [D], but the Hero will be warped as soon as they touch the edge of this combo.",
+	"Identical to Stairs [Random], but the Hero will be warped as soon as they touch the edge of this combo.",
+	"Identical to Step->Secrets (Temporary), but Screen Secrets are activated as soon as the Hero touches the edge of this combo.",
+	"Identical to Step->Secrets (Permanent), but Screen Secrets are activated as soon as the Hero touches the edge of this combo.",
+	"When the Hero steps on this combo, it will change into the next combo in the list.",
 	"Identical to Step->Next, but if other instances of this particular combo are stepped on, this also changes to the next combo in the list.",
-	"When the player steps on this combo, each of the Step->Next combos on screen will change to the next combo after them in the list.",
-	"When the player steps on a Step->Next (All) type combo, this will change into the next combo in the list.",
+	"When the Hero steps on this combo, each of the Step->Next combos on screen will change to the next combo after them in the list.",
+	"When the Hero steps on a Step->Next (All) type combo, this will change into the next combo in the list.",
 	"Enemies cannot enter or appear on this combo.",
-	"Level 1 player arrows that hit this combo are destroyed. Enemy arrows are unaffected.",
-	"Level 1 or 2 player arrows that hit this combo are destroyed. Enemy arrows are unaffected.",
-	"All player arrows that hit this combo are destroyed. Enemy arrows are unaffected.",
-	"Level 1 player boomerangs bounce off this combo. Enemy boomerangs are unaffected.",
-	"Level 1 or 2 player boomerangs bounce off this combo. Enemy boomerangs are unaffected.",
-	"All player boomerangs bounce off this combo. Enemy boomerangs are unaffected.",
-	"The player's sword beams or enemy sword beams that hit this combo are destroyed.",
+	"Level 1 Hero arrows that hit this combo are destroyed. Enemy arrows are unaffected.",
+	"Level 1 or 2 Hero arrows that hit this combo are destroyed. Enemy arrows are unaffected.",
+	"All Hero arrows that hit this combo are destroyed. Enemy arrows are unaffected.",
+	"Level 1 Hero boomerangs bounce off this combo. Enemy boomerangs are unaffected.",
+	"Level 1 or 2 Hero boomerangs bounce off this combo. Enemy boomerangs are unaffected.",
+	"All Hero boomerangs bounce off this combo. Enemy boomerangs are unaffected.",
+	"The Hero's sword beams or enemy sword beams that hit this combo are destroyed.",
 	"All weapons that hit this combo are either destroyed, or bounce off.",
 	"Enemy fireballs and reflected fireballs that hit this combo are destroyed.",
 	// More damage
@@ -312,7 +312,7 @@ std::string getComboTypeHelpText(int32_t id)
 			typehelp = "Select a Type, then click this button to find out what it does.";
 			break;
 		case cWATER:
-			typehelp = "Liquid can contain Zora enemies and can be crossed with various weapons and items. If the matching quest rule is set, the player can drown in it."
+			typehelp = "Liquid can contain Zora enemies and can be crossed with various weapons and items. If the matching quest rule is set, the Hero can drown in it."
 				+ QRHINT({qr_DROWN,qr_SMARTER_WATER,qr_NO_HOPPING,qr_NO_SOLID_SWIM,qr_WATER_ON_LAYER_1,qr_WATER_ON_LAYER_2,qr_SIDESWIM,qr_SIDESWIMDIR,qr_SHALLOW_SENSITIVE,qr_NO_SCROLL_WHILE_IN_AIR});
 			break;
 		case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
@@ -326,7 +326,7 @@ std::string getComboTypeHelpText(int32_t id)
 				sprintf(buf2,"1/2 of a heart.");
 			else
 				sprintf(buf2,"%d heart%s.", d/2, d == 2 ? "" : "s");
-			sprintf(buf,"If the Player touches this combo without Boots that protect against Damage Combo Level %d, they are damaged for %s.",lvl,buf2);
+			sprintf(buf,"If the Hero touches this combo without Boots that protect against Damage Combo Level %d, they are damaged for %s.",lvl,buf2);
 			typehelp = buf;
 			break;
 		}
@@ -334,7 +334,7 @@ std::string getComboTypeHelpText(int32_t id)
 		case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST:
 			typehelp = "If no button is assigned, the chest opens when pushed against from a valid side. If buttons are assigned,"
 				" then when the button is pressed while facing the chest from a valid side.\n"
-				"When the chest is opened, if it has the 'Armos/Chest->Item' combo flag, the player will recieve the contained item, and the combo will advance to the next combo.";
+				"When the chest is opened, if it has the 'Armos/Chest->Item' combo flag, the Hero will recieve the contained item, and the combo will advance to the next combo.";
 			if(id==cLOCKEDCHEST)
 				typehelp += "\nRequires a key to open.";
 			else if(id==cBOSSCHEST)
@@ -342,11 +342,11 @@ std::string getComboTypeHelpText(int32_t id)
 			typehelp += QRHINT({qr_OLD_CHEST_COLLISION});
 			break;
 		case cLOCKBLOCK:
-			typehelp = "If the combo is solid and the player pushes it with at least one Key, it changes to the next combo, the 'Lock Blocks' Screen State is set, and one key is used up."
+			typehelp = "If the combo is solid and the Hero pushes it with at least one Key, it changes to the next combo, the 'Lock Blocks' Screen State is set, and one key is used up."
 				+ QRHINT({qr_OLD_LOCKBLOCK_COLLISION});
 			break;
 		case cBOSSLOCKBLOCK:
-			typehelp = "If the combo is solid and the player pushes it with the Boss Key, it changes to the next combo and the 'Boss Lock Blocks' Screen State is set."
+			typehelp = "If the combo is solid and the Hero pushes it with the Boss Key, it changes to the next combo and the 'Boss Lock Blocks' Screen State is set."
 				+ QRHINT({qr_OLD_LOCKBLOCK_COLLISION});
 			break;
 		case cTORCH:
@@ -387,7 +387,7 @@ std::string getComboTypeHelpText(int32_t id)
 				" If the 'Use Global State' flag is set, a set of 256 global states shared between levels will be used instead.";
 			break;
 		case cSWITCHHOOK:
-			typehelp = "When hit with a switch-hook, swaps position with the player (staying on the same layer).";
+			typehelp = "When hit with a switch-hook, swaps position with the Hero (staying on the same layer).";
 			break;
 		case cBUTTONPROMPT:
 			typehelp = "Displays a button prompt based on the 'Btn:' triggerflags";
@@ -447,25 +447,25 @@ std::string getMapFlagHelpText(int32_t id)
 			flaghelp = "Select a Flag, then click this button to find out what it does.";
 			break;
 		case mfPUSHUD:
-			flaghelp = "Allows the Player to push the combo up or down once, activating Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.";
+			flaghelp = "Allows the Hero to push the combo up or down once, activating Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.";
 			break;
 		case mfPUSH4:
-			flaghelp = "Allows the Player to push the combo in any direction once, activating Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.";
+			flaghelp = "Allows the Hero to push the combo in any direction once, activating Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.";
 			break;
 		case mfWHISTLE:
-			flaghelp = "Triggers Screen Secrets when the Player plays the Whistle on it. Is replaced with the 'Whistle' Secret Combo. Doesn't interfere with Whistle related Screen Flags.";
+			flaghelp = "Triggers Screen Secrets when the Hero plays the Whistle on it. Is replaced with the 'Whistle' Secret Combo. Doesn't interfere with Whistle related Screen Flags.";
 			break;
 		case mfANYFIRE:
-			flaghelp = "Triggers Screen Secrets when the Player touches it with fire from any source. Is replaced with the 'Any Fire' Secret Combo.";
+			flaghelp = "Triggers Screen Secrets when the Hero touches it with fire from any source. Is replaced with the 'Any Fire' Secret Combo.";
 			break;
 		case mfARROW:
-			flaghelp = "Triggers Screen Secrets when the Player touches it with one of his Arrows. Is replaced with the 'Wooden Arrow' Secret Combo.";
+			flaghelp = "Triggers Screen Secrets when the Hero touches it with one of his Arrows. Is replaced with the 'Wooden Arrow' Secret Combo.";
 			break;
 		case mfBOMB:
 			flaghelp = "Triggers Screen Secrets when the middle part of a Bomb explosion touches it. Is replaced with the 'Bomb' Secret Combo.";
 			break;
 		case mfRAFT:
-			flaghelp = "Place in paths to define the path the Player travels when using the Raft. Use with Dock-type combos. If a path branches, the Player takes the clockwise-most path.";
+			flaghelp = "Place in paths to define the path the Hero travels when using the Raft. Use with Dock-type combos. If a path branches, the Hero takes the clockwise-most path.";
 			break;
 		case mfARMOS_SECRET:
 			flaghelp = "When placed on an Armos-type combo, causes the 'Stairs'  Secret Combo to appear when the Armos is activated, instead of the screen's Under Combo.";
@@ -477,16 +477,16 @@ std::string getMapFlagHelpText(int32_t id)
 			flaghelp = "Triggers Screen Secrets when the middle part of a Super Bomb explosion touches it. Is replaced with the 'Super Bomb' Secret Combo.";
 			break;
 		case mfRAFT_BRANCH:
-			flaghelp = "Place at intersections of Raft flag paths to define points where the player may change directions. Change directions by holding down a directional key.";
+			flaghelp = "Place at intersections of Raft flag paths to define points where the Hero may change directions. Change directions by holding down a directional key.";
 			break;
 		case mfDIVE_ITEM:
-			flaghelp = "When the Player dives on a flagged water-type combo they will recieve the screen's Special Item. Requires the 'Special Item' Room Type.";
+			flaghelp = "When the Hero dives on a flagged water-type combo they will recieve the screen's Special Item. Requires the 'Special Item' Room Type.";
 			break;
 		case mfLENSMARKER:
 			flaghelp = "Combos with this flag will flash white when viewed with the Lens of Truth item.";
 			break;
 		case mfZELDA:
-			flaghelp = "When the Player steps on this flag, the quest will end, and the credits will roll.";
+			flaghelp = "When the Hero steps on this flag, the quest will end, and the credits will roll.";
 			break;
 		case mfTRAP_H:
 		case mfTRAP_V:
@@ -505,7 +505,7 @@ std::string getMapFlagHelpText(int32_t id)
 		case mfPUSHR:
 		{
 			static const char* name[]{"left or right","up","down","left","right"};
-			flaghelp = fmt::format("Allows the Player to push the combo {} once, activating Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.",name[id-mfPUSHLR]);
+			flaghelp = fmt::format("Allows the Hero to push the combo {} once, activating Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.",name[id-mfPUSHLR]);
 			break;
 		}
 		case mfBLOCKTRIGGER:
@@ -516,73 +516,73 @@ std::string getMapFlagHelpText(int32_t id)
 			flaghelp = "Prevents push blocks from being pushed onto the flagged combo, even if it is not solid.";
 			break;
 		case mfBRANG:
-			flaghelp = "Triggers Screen Secrets when the Player touches it with one of his Boomerangs. Is replaced with the 'Wooden Boomerang' Secret Combo.";
+			flaghelp = "Triggers Screen Secrets when the Hero touches it with one of his Boomerangs. Is replaced with the 'Wooden Boomerang' Secret Combo.";
 			break;
 		case mfMBRANG:
-			flaghelp = "Triggers Screen Secrets when the Player touches it with a level 2 or higher Boomerang. Is replaced with the 'Magic Boomerang' Secret Combo.";
+			flaghelp = "Triggers Screen Secrets when the Hero touches it with a level 2 or higher Boomerang. Is replaced with the 'Magic Boomerang' Secret Combo.";
 			break;
 		case mfFBRANG:
-			flaghelp = "Triggers Screen Secrets when the Player touches it with a level 3 or higher Boomerang. Is replaced with the 'Fire Boomerang' Secret Combo.";
+			flaghelp = "Triggers Screen Secrets when the Hero touches it with a level 3 or higher Boomerang. Is replaced with the 'Fire Boomerang' Secret Combo.";
 			break;
 		case mfSARROW:
-			flaghelp = "Triggers Screen Secrets when the Player touches it with a level 2 or higher Arrow. Is replaced with the 'Silver Arrow' Secret Combo.";
+			flaghelp = "Triggers Screen Secrets when the Hero touches it with a level 2 or higher Arrow. Is replaced with the 'Silver Arrow' Secret Combo.";
 			break;
 		case mfGARROW:
-			flaghelp = "Triggers Screen Secrets when the Player touches it with a level 3 or higher Arrow. Is replaced with the 'Golden Arrow' Secret Combo.";
+			flaghelp = "Triggers Screen Secrets when the Hero touches it with a level 3 or higher Arrow. Is replaced with the 'Golden Arrow' Secret Combo.";
 			break;
 		case mfSTRONGFIRE:
-			flaghelp = "Triggers Screen Secrets when the Player touches it with fire from a 'Strong Fire' source. Is replaced with the 'Strong Fire' Secret Combo.";
+			flaghelp = "Triggers Screen Secrets when the Hero touches it with fire from a 'Strong Fire' source. Is replaced with the 'Strong Fire' Secret Combo.";
 			break;
 		case mfMAGICFIRE:
-			flaghelp = "Triggers Screen Secrets when the Player touches it with fire from a 'Magic Fire' source. Is replaced with the 'Magic Fire' Secret Combo.";
+			flaghelp = "Triggers Screen Secrets when the Hero touches it with fire from a 'Magic Fire' source. Is replaced with the 'Magic Fire' Secret Combo.";
 			break;
 		case mfDIVINEFIRE:
-			flaghelp = "Triggers Screen Secrets when the Player touches it with fire from a 'Divine Fire' source. Is replaced with the 'Divine Fire' Secret Combo.";
+			flaghelp = "Triggers Screen Secrets when the Hero touches it with fire from a 'Divine Fire' source. Is replaced with the 'Divine Fire' Secret Combo.";
 			break;
 		case mfWANDMAGIC:
-			flaghelp = "Triggers Screen Secrets when the Player touches it with Wand magic, be it fire or not. Is replaced with the 'Wand Magic' Secret Combo.";
+			flaghelp = "Triggers Screen Secrets when the Hero touches it with Wand magic, be it fire or not. Is replaced with the 'Wand Magic' Secret Combo.";
 			break;
 		case mfREFMAGIC:
-			flaghelp = "Triggers Screen Secrets when the Player touches it with reflected Wand magic. Is replaced with the 'Reflected Magic' Secret Combo.";
+			flaghelp = "Triggers Screen Secrets when the Hero touches it with reflected Wand magic. Is replaced with the 'Reflected Magic' Secret Combo.";
 			break;
 		case mfREFFIREBALL:
-			flaghelp = "Triggers Screen Secrets when the Player touches it with a Shield-reflected fireball. Is replaced with the 'Reflected Fireball' Secret Combo.";
+			flaghelp = "Triggers Screen Secrets when the Hero touches it with a Shield-reflected fireball. Is replaced with the 'Reflected Fireball' Secret Combo.";
 			break;
 		case mfSWORD:
-			flaghelp = "Triggers Screen Secrets when the Player touches it with one of his Swords. Is replaced with the 'Wooden Sword' Secret Combo.";
+			flaghelp = "Triggers Screen Secrets when the Hero touches it with one of his Swords. Is replaced with the 'Wooden Sword' Secret Combo.";
 			break;
 		case mfWSWORD:
-			flaghelp = "Triggers Screen Secrets when the Player touches it with a level 2 or higher Sword. Is replaced with the 'White Sword' Secret Combo.";
+			flaghelp = "Triggers Screen Secrets when the Hero touches it with a level 2 or higher Sword. Is replaced with the 'White Sword' Secret Combo.";
 			break;
 		case mfMSWORD:
-			flaghelp = "Triggers Screen Secrets when the Player touches it with a level 3 or higher Sword. Is replaced with the 'Magic Sword' Secret Combo.";
+			flaghelp = "Triggers Screen Secrets when the Hero touches it with a level 3 or higher Sword. Is replaced with the 'Magic Sword' Secret Combo.";
 			break;
 		case mfXSWORD:
-			flaghelp = "Triggers Screen Secrets when the Player touches it with a level 4 or higher Sword. Is replaced with the 'Master Sword' Secret Combo.";
+			flaghelp = "Triggers Screen Secrets when the Hero touches it with a level 4 or higher Sword. Is replaced with the 'Master Sword' Secret Combo.";
 			break;
 		case mfSWORDBEAM:
-			flaghelp = "Triggers Screen Secrets when the Player touches it with one of his Sword beams. Is replaced with the 'Sword Beam' Secret Combo.";
+			flaghelp = "Triggers Screen Secrets when the Hero touches it with one of his Sword beams. Is replaced with the 'Sword Beam' Secret Combo.";
 			break;
 		case mfWSWORDBEAM:
-			flaghelp = "Triggers Screen Secrets when the Player touches it with a level 2 or higher Sword's beam. Is replaced with the 'White Sword Beam' Secret Combo.";
+			flaghelp = "Triggers Screen Secrets when the Hero touches it with a level 2 or higher Sword's beam. Is replaced with the 'White Sword Beam' Secret Combo.";
 			break;
 		case mfMSWORDBEAM:
-			flaghelp = "Triggers Screen Secrets when the Player touches it with a level 3 or higher Sword's beam. Is replaced with the 'Magic Sword Beam' Secret Combo.";
+			flaghelp = "Triggers Screen Secrets when the Hero touches it with a level 3 or higher Sword's beam. Is replaced with the 'Magic Sword Beam' Secret Combo.";
 			break;
 		case mfXSWORDBEAM:
-			flaghelp = "Triggers Screen Secrets when the Player touches it with a level 4 or higher Sword's beam. Is replaced with the 'Master Sword Beam' Secret Combo.";
+			flaghelp = "Triggers Screen Secrets when the Hero touches it with a level 4 or higher Sword's beam. Is replaced with the 'Master Sword Beam' Secret Combo.";
 			break;
 		case mfHOOKSHOT:
-			flaghelp = "Triggers Screen Secrets when the Player touches it with one of his Hookshot hooks. Is replaced with the 'Hookshot' Secret Combo.";
+			flaghelp = "Triggers Screen Secrets when the Hero touches it with one of his Hookshot hooks. Is replaced with the 'Hookshot' Secret Combo.";
 			break;
 		case mfWAND:
-			flaghelp = "Triggers Screen Secrets when the Player touches it with one of his Wands. Is replaced with the 'Wand' Secret Combo.";
+			flaghelp = "Triggers Screen Secrets when the Hero touches it with one of his Wands. Is replaced with the 'Wand' Secret Combo.";
 			break;
 		case mfHAMMER:
-			flaghelp = "Triggers Screen Secrets when the Player pounds it with one of his Hammers. Is replaced with the 'Hammer' Secret Combo.";
+			flaghelp = "Triggers Screen Secrets when the Hero pounds it with one of his Hammers. Is replaced with the 'Hammer' Secret Combo.";
 			break;
 		case mfSTRIKE:
-			flaghelp = "Triggers Screen Secrets when the Player touches it with any weapon or projectile. Is replaced with the 'Any Weapon' Secret Combo.";
+			flaghelp = "Triggers Screen Secrets when the Hero touches it with any weapon or projectile. Is replaced with the 'Any Weapon' Secret Combo.";
 			break;
 		case mfBLOCKHOLE:
 			flaghelp = "A push block pushed onto this flag will cycle to the next combo in the list, and lose the Push flag that was presumably on it."
@@ -602,7 +602,7 @@ std::string getMapFlagHelpText(int32_t id)
 			break;
 		
 		case mfRAFT_BOUNCE:
-			flaghelp = "When the Player is rafting, and hits this flag, they will be turned around.";
+			flaghelp = "When the Hero is rafting, and hits this flag, they will be turned around.";
 			break;
 		
 		case mfFAIRY:
@@ -611,7 +611,7 @@ std::string getMapFlagHelpText(int32_t id)
 		{
 			static const char* name[]{"life","magic","life and magic"};
 			int ind = (id == mfFAIRY ? 0 : (id == mfMAGICFAIRY ? 1 : 2));
-			flaghelp = fmt::format("Makes a heart circle appear on screen when the Player steps on it, and refills their {}.",name[ind])
+			flaghelp = fmt::format("Makes a heart circle appear on screen when the Hero steps on it, and refills their {}.",name[ind])
 				+ QRHINT({qr_HEARTRINGFIX,qr_NOHEARTRING});
 			break;
 		}
@@ -638,7 +638,7 @@ std::string getMapFlagHelpText(int32_t id)
 		case mfPUSHLINS: case mfPUSHRINS:
 		{
 			int32_t t = ((id-mfPUSHUDNS) % 7);
-			flaghelp = "Allows the Player to push the combo "
+			flaghelp = "Allows the Hero to push the combo "
 				+ std::string((t == 0) ? "up and down" : (t == 1) ? "left and right" : (t == 2) ? "in any direction" : (t == 3) ? "up" : (t == 4) ? "down" : (t == 5) ? "left" : "right")
 				+ std::string((id>=mfPUSHUDINS) ? "many times":"once")
 				+ " activating Block->Shutters but not Screen Secrets.";
@@ -840,14 +840,14 @@ void ComboEditorDialog::loadComboType()
 			h_flag[0] = "If a liquid is Lava, it uses a different drowning sprite, and only flippers with the"
 				" 'Can Swim In Lava' flag set will apply.";
 			l_flag[1] = "Modify HP (Passive)";
-			h_flag[1] = "If checked, the player's HP will change over time while in the liquid"
+			h_flag[1] = "If checked, the Hero's HP will change over time while in the liquid"
 				" (either healing or damaging).";
 			l_flag[2] = "Solid is Land";
 			h_flag[2] = "Solid areas of the combo are treated as non-solid land";
 			l_flag[3] = "Solid is Shallow Liquid";
 			h_flag[3] = "Solid areas of the combo are treated as non-solid Shallow Liquid combo";
 			l_attribute[0] = "Drown Damage:";
-			h_attribute[0] = "The amount of damage dealt when drowning, in HP points. If negative, drowning will heal the player.";
+			h_attribute[0] = "The amount of damage dealt when drowning, in HP points. If negative, drowning will heal the Hero.";
 			l_attribyte[0] = "Flipper Level:";
 			h_attribyte[0] = "The minimum level flippers required to swim in the water. Flippers of lower level will have no effect.";
 			l_attribyte[4] = "Drown SFX:";
@@ -880,7 +880,7 @@ void ComboEditorDialog::loadComboType()
 		case cSHALLOWWATER:
 		{
 			l_flag[1] = "Modify HP (Passive)";
-			h_flag[1] = "If checked, the player's HP will change over time while in the liquid"
+			h_flag[1] = "If checked, the Hero's HP will change over time while in the liquid"
 				" (either healing or damaging).";
 			if (get_qr(qr_OLD_SHALLOW_SFX))
 			{
@@ -972,11 +972,11 @@ void ComboEditorDialog::loadComboType()
 			l_flag[1] = "Custom Speed";
 			h_flag[1] = fmt::format("Uses a custom speed/direction via attributes. If disabled, moves at 2 pixels every 3 frames in the {}ward direction.", dirstr[local_comboref.type-cCVUP]);
 			l_flag[2] = "Force Dir";
-			h_flag[2] = "Forces the Player to face in the conveyor's direction";
+			h_flag[2] = "Forces the Hero to face in the conveyor's direction";
 			l_flag[4] = "Heavy Boots Disable";
-			h_flag[4] = "If the player has boots with the 'heavy' flag, the conveyor will not push them.";
+			h_flag[4] = "If the Hero has boots with the 'heavy' flag, the conveyor will not push them.";
 			l_flag[5] = "Force Walk";
-			h_flag[5] = "The player will walk the speed/dir of the conveyor, unable to walk against it. Requires Newer Player Movement." + QRHINT({qr_NEW_HERO_MOVEMENT2});
+			h_flag[5] = "The Hero will walk the speed/dir of the conveyor, unable to walk against it. Requires Newer Hero Movement." + QRHINT({qr_NEW_HERO_MOVEMENT2});
 			if(FL(cflag2)) //Custom speed
 			{
 				l_attribute[0] = "X Speed:";
@@ -989,7 +989,7 @@ void ComboEditorDialog::loadComboType()
 			if(!FL(cflag6)) //Force Walk
 			{
 				l_flag[0] = "Stunned while moving";
-				h_flag[0] = "While the conveyor is moving the Player, they are 'stunned'.";
+				h_flag[0] = "While the conveyor is moving the Hero, they are 'stunned'.";
 				l_flag[3] = "Smart Corners";
 				h_flag[3] = "Uses the half-combo-grid to help avoid getting stuck on corners";
 			}
@@ -1019,9 +1019,9 @@ void ComboEditorDialog::loadComboType()
 			l_flag[2] = "Custom Slash SFX";
 			h_flag[2] = "Specify a custom slash SFX";
 			l_attribyte[3] = "Walking Sound:";
-			h_attribyte[3] = "The SFX to play when the player walks through this combo. If 0, no sound is played.";
+			h_attribyte[3] = "The SFX to play when the Hero walks through this combo. If 0, no sound is played.";
 			l_attribyte[6] = "Grass Sprite";
-			h_attribyte[6] = "The sprite to show when the player walks through this combo.";
+			h_attribyte[6] = "The sprite to show when the Hero walks through this combo.";
 			if(FL(cflag2))
 			{
 				l_flag[10] = "Specific Item";
@@ -1098,7 +1098,7 @@ void ComboEditorDialog::loadComboType()
 			l_flag[0] = "Custom Damage";
 			h_flag[0] = "Uses custom damage amount";
 			l_flag[1] = "No Knockback";
-			h_flag[1] = "Does not knock the player back when damaging them if checked. Otherwise, knocks the player in the direction"
+			h_flag[1] = "Does not knock the Hero back when damaging them if checked. Otherwise, knocks the Hero in the direction"
 				" opposite the one they face.";
 			if(FL(cflag1))
 			{
@@ -1180,9 +1180,9 @@ void ComboEditorDialog::loadComboType()
 				h_attribute[2] = "Combo to display as a 'prompt', if you are not currently able to"
 					" open it. If 0, the normal prompt will be used instead.";
 				l_attrishort[0] = "Prompt Xoffset";
-				h_attrishort[0] = "X offset from player's position for the prompt to display at";
+				h_attrishort[0] = "X offset from Hero's position for the prompt to display at";
 				l_attrishort[1] = "Prompt Yoffset";
-				h_attrishort[1] = "Y offset from player's position for the prompt to display at";
+				h_attrishort[1] = "Y offset from Hero's position for the prompt to display at";
 				l_attribyte[4] = "Prompt CSet";
 				h_attribyte[4] = "CSet to draw the prompt in";
 			}
@@ -1300,9 +1300,9 @@ void ComboEditorDialog::loadComboType()
 				l_attribute[1] = "Prompt Combo";
 				h_attribute[1] = "Combo to display as a 'prompt'";
 				l_attrishort[0] = "Prompt Xoffset";
-				h_attrishort[0] = "X offset from player's position for the prompt to display at";
+				h_attrishort[0] = "X offset from Hero's position for the prompt to display at";
 				l_attrishort[1] = "Prompt Yoffset";
-				h_attrishort[1] = "Y offset from player's position for the prompt to display at";
+				h_attrishort[1] = "Y offset from Hero's position for the prompt to display at";
 				l_attribyte[4] = "Prompt CSet";
 				h_attribyte[4] = "CSet to draw the prompt in";
 			}
@@ -1363,9 +1363,9 @@ void ComboEditorDialog::loadComboType()
 				l_attribute[1] = "Prompt Combo";
 				h_attribute[1] = "Combo to display as a 'prompt'";
 				l_attrishort[0] = "Prompt Xoffset";
-				h_attrishort[0] = "X offset from player's position for the prompt to display at";
+				h_attrishort[0] = "X offset from Hero's position for the prompt to display at";
 				l_attrishort[1] = "Prompt Yoffset";
-				h_attrishort[1] = "Y offset from player's position for the prompt to display at";
+				h_attrishort[1] = "Y offset from Hero's position for the prompt to display at";
 				l_attribyte[4] = "Prompt CSet";
 				h_attribyte[4] = "CSet to draw the prompt in";
 			}
@@ -1376,9 +1376,9 @@ void ComboEditorDialog::loadComboType()
 			l_attribute[0] = "Prompt Combo";
 			h_attribute[0] = "Combo to display as a 'prompt'";
 			l_attrishort[0] = "Prompt Xoffset";
-			h_attrishort[0] = "X offset from player's position for the prompt to display at";
+			h_attrishort[0] = "X offset from Hero's position for the prompt to display at";
 			l_attrishort[1] = "Prompt Yoffset";
-			h_attrishort[1] = "Y offset from player's position for the prompt to display at";
+			h_attrishort[1] = "Y offset from Hero's position for the prompt to display at";
 			l_attribyte[0] = "Prompt CSet";
 			h_attribyte[0] = "CSet to draw the prompt in";
 			break;
@@ -1402,8 +1402,8 @@ void ComboEditorDialog::loadComboType()
 			h_attribyte[4] = "Sum the following values to create a flagset:"
 				"\n1: Bypass 'Block' defense"
 				"\n2: Bypass 'Ignore' defense"
-				"\n4: Bypass enemy/player shield blocking"
-				"\n8: Bypass player shield reflecting";
+				"\n4: Bypass enemy/Hero shield blocking"
+				"\n8: Bypass Hero shield reflecting";
 			l_attribyte[5] = "Script:";
 			h_attribyte[5] = "LWeapon or EWeapon script ID to attach to the fired weapons."
 				"\nNote that there is no way to supply InitD to such scripts.";
@@ -1426,8 +1426,8 @@ void ComboEditorDialog::loadComboType()
 			h_flag[1] = "Fires at a varying rate instead of a constant rate";
 			l_flag[2] = "Instant Shot";
 			h_flag[2] = "Shoots when the timer starts, rather than ends";
-			l_flag[3] = "Stops by Player Proximity";
-			h_flag[3] = "If the player is within the specified number of pixels, the shooter will be unable to shoot.";
+			l_flag[3] = "Stops by Hero Proximity";
+			h_flag[3] = "If the Hero is within the specified number of pixels, the shooter will be unable to shoot.";
 			l_flag[4] = "'Custom Weapons' are LWeapons";
 			h_flag[4] = "If a 'Custom Weapon' ID is used, it will be treated as an LWeapon with this checked, and an EWeapon otherwise.";
 			l_flag[5] = "Auto-rotate sprite";
@@ -1440,9 +1440,9 @@ void ComboEditorDialog::loadComboType()
 			{
 				l_attribute[0] = "Angle (Degrees)";
 				h_attribute[0] = "If between 0 and 360, acts as an angle in degrees."
-					"\nUse '-1' to aim at the player (4-dir)"
-					"\nUse '-2' to aim at the player (8-dir)"
-					"\nUse '-3' to aim at the player (angular)";
+					"\nUse '-1' to aim at the Hero (4-dir)"
+					"\nUse '-2' to aim at the Hero (8-dir)"
+					"\nUse '-3' to aim at the Hero (angular)";
 			}
 			else
 			{
@@ -1461,14 +1461,14 @@ void ComboEditorDialog::loadComboType()
 				l_attrishort[0] = "Fire Rate:";
 				h_attrishort[0] = "Combo fires every this many frames (0 = don't fire)";
 			}
-			if(FL(cflag4)) //Stops by Player Proximity
+			if(FL(cflag4)) //Stops by Hero Proximity
 			{
 				l_attribute[1] = "Proximity Limit";
-				h_attribute[1] = "If the player is at least this close (in pixels)"
+				h_attribute[1] = "If the Hero is at least this close (in pixels)"
 					" to the combo, the combo will fail to shoot.";
 				l_flag[8] = "Invert Proximity";
 				h_flag[8] = "If checked, the combo will fail to shoot if the"
-					" player is FARTHER than specified.";
+					" Hero is FARTHER than specified.";
 			}
 			if(FL(cflag7)) //Multi Shot
 			{
@@ -1633,11 +1633,11 @@ void ComboEditorDialog::loadComboType()
 			l_flag[0] = "Warp";
 			h_flag[0] = "Warp to another screen using a tile warp when falling";
 			l_flag[2] = "Damage is Percent";
-			h_flag[2] = "The damage amount is a percentage of the player's max life";
+			h_flag[2] = "The damage amount is a percentage of the Hero's max life";
 			l_flag[3] = "Allow Ladder";
 			h_flag[3] = "A ladder with 'Can step over pitfalls' checked can step over this combo";
 			l_flag[4] = "No Pull";
-			h_flag[4] = "Don't suck in the player at all";
+			h_flag[4] = "Don't suck in the Hero at all";
 			l_attribute[0] = "Damage:";
 			h_attribute[0] = "The amount of damage, in HP, to take when falling. Negative values heal.";
 			l_attribyte[0] = "Fall SFX:";
@@ -1645,14 +1645,14 @@ void ComboEditorDialog::loadComboType()
 			if(FL(cflag1)) //Warp enabled
 			{
 				l_flag[1] = "Direct Warp";
-				h_flag[1] = "The warp keeps the player at the same x/y position";
+				h_flag[1] = "The warp keeps the Hero at the same x/y position";
 				l_attribyte[1] = "TileWarp ID";
 				h_attribyte[1] = "0 = A, 1 = B, 2 = C, 3 = D";
 			}
 			if(!(FL(cflag5))) //"No Pull"
 			{
 				l_attribyte[2] = "Pull Sensitivity:";
-				h_attribyte[2] = "Pull the player 1 pixel every this many frames.\n"
+				h_attribyte[2] = "Pull the Hero 1 pixel every this many frames.\n"
 					"If set to 0, pulls 2 pixels every frame.";
 			}
 			break;
@@ -1672,7 +1672,7 @@ void ComboEditorDialog::loadComboType()
 					" This may cause the landmine to activate multiple times in a row.";
 				l_flag[3] = "Direct Damage Script LW / Sparkles";
 				h_flag[3] = "If the weapon type is a Script weapon and 'Script Weapon IDs spawn LWeapons' is checked, or the weapon type is"
-					" a sparkle type, it will immediately damage the player (knocking them back none).";
+					" a sparkle type, it will immediately damage the Hero (knocking them back none).";
 				l_attribute[0] = "Damage:";
 				h_attribute[0] = "The damage value for the spawned weapon. If this is < 1, it will default to 4 damage.";
 				l_attribyte[1] = "Weapon Type:";
@@ -1736,7 +1736,7 @@ void ComboEditorDialog::loadComboType()
 			l_flag[7] = "Skip Cycle on Screen Entry";
 			h_flag[7] = "Combo cycle the switch combo on screen entry, to skip any rising/falling animation";
 			l_flag[8] = "Allow walk-on-top";
-			h_flag[8] = "Allows the player to walk along solid switchblocks if they are on them";
+			h_flag[8] = "Allows the Hero to walk along solid switchblocks if they are on them";
 			l_attribute[0] = "Combo Change:";
 			h_attribute[0] = "Value to add to the combo ID when activated";
 			l_attribute[1] = "CSet Change:";
@@ -1744,8 +1744,8 @@ void ComboEditorDialog::loadComboType()
 			if(FL(cflag9)) //Allow walk-on-top
 			{
 				l_flag[9] = "-8px DrawYOffset";
-				h_flag[9] = "If enabled, when the Player stands atop the block (solid area), the player's DrawYOffset is decremented by 8."
-					" When the Player leaves the block, the DrawYOffset is incremented back by 8.";
+				h_flag[9] = "If enabled, when the Hero stands atop the block (solid area), the Hero's DrawYOffset is decremented by 8."
+					" When the Hero leaves the block, the DrawYOffset is incremented back by 8.";
 				l_attribute[2] = "Z-value:";
 				h_attribute[2] = "A Z-height for the block, allowing you to jump atop it, and from block to block."
 					" If set to 0, acts as infinitely tall.";
@@ -1833,7 +1833,7 @@ void ComboEditorDialog::loadComboType()
 			h_flag[1] = "Placed flags on the same layer and position as this combo will be swapped along with the combo";
 			l_flag[2] = "Break upon swap";
 			h_flag[2] = "The combo will 'break' upon swapping, displaying a break sprite and potentially"
-				" dropping an item. Instead of swapping with the combo under the player,"
+				" dropping an item. Instead of swapping with the combo under the Hero,"
 				" it will be replaced by the screen's Undercombo.";
 			l_flag[6] = "Counts as 'pushblock'";
 			h_flag[6] = "This combo counts as a 'pushblock' for purposes of switching it onto"
@@ -1950,14 +1950,14 @@ void ComboEditorDialog::loadComboType()
 			l_flag[0] = "Slides Blocks";
 			h_flag[0] = "Pushable blocks pushed onto this combo will"
 				" slide past it, if nothing blocks their way.";
-			l_flag[1] = "Slides Player";
-			h_flag[1] = "The player will slip and slide on the ice.";
+			l_flag[1] = "Slides Hero";
+			h_flag[1] = "The Hero will slip and slide on the ice.";
 			if(FL(cflag2))
 			{
 				l_attribyte[0] = "Start Speed Percentage";
-				h_attribyte[0] = "The percentage of the player's movement speed to carry onto the ice when first stepping onto it.";
+				h_attribyte[0] = "The percentage of the Hero's movement speed to carry onto the ice when first stepping onto it.";
 				l_attribyte[1] = "Entry Leeway Frames";
-				h_attribyte[1] = "For this many frames after entering the ice, the player will have additional traction. The traction gradually decreases over time until the frames are up.";
+				h_attribyte[1] = "For this many frames after entering the ice, the Hero will have additional traction. The traction gradually decreases over time until the frames are up.";
 				l_attribute[0] = "Acceleration";
 				h_attribute[0] = "Speed gained when holding a direction, in pixels per frame.";
 				l_attribute[1] = "Deceleration";
@@ -2024,7 +2024,7 @@ void ComboEditorDialog::loadComboType()
 			{
 				l_attrishort[1] = "Reset Change";
 				h_attrishort[1] = "If non-zero, the combo will change by this amount (ex. 1 = Next, -1 = Prev)"
-					" when the player steps off of the combo before it finishes crumbling. (Might be used to reset a crumble animation)";
+					" when the Hero steps off of the combo before it finishes crumbling. (Might be used to reset a crumble animation)";
 			}
 			break;
 		}
@@ -2561,7 +2561,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						{
 							local_comboref.prompt_x = val;
 						}),
-					INFOBTN("X Offset of the prompt combo from the player."),
+					INFOBTN("X Offset of the prompt combo from the Hero."),
 					Label(text = "Prompt Yoffset:"),
 					TextField(
 						fitParent = true,
@@ -2572,7 +2572,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						{
 							local_comboref.prompt_y = val;
 						}),
-					INFOBTN("Y Offset of the prompt combo from the player.")
+					INFOBTN("Y Offset of the prompt combo from the Hero.")
 				),
 				Rows<3>(framed = true, vAlign = 1.0,
 					Label(text = "Proximity:", fitParent = true),
@@ -2590,8 +2590,8 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						text = "?", hAlign = 1.0, onPressFunc = [&]()
 						{
 							InfoDialog("Proximity Requirement","If the value is >0, the combo "
-								" will only trigger if the player is within that number of pixels of the combo."
-								"\nIf 'Invert Proximity Req' is checked, the player must be FARTHER than that distance instead."
+								" will only trigger if the Hero is within that number of pixels of the combo."
+								"\nIf 'Invert Proximity Req' is checked, the Hero must be FARTHER than that distance instead."
 								"\n\nThis is a 'Condition'. It won't trigger the combo on its own, but it must apply for other triggers to work.").show();
 						}
 					),
@@ -2682,14 +2682,14 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						+ " with 'Triggers Lens Trigflag' checked is NOT activated."),
 					TRIGFLAG(59,"Lens Off->"),
 					//
-					INFOBTN("Triggered when the player pushes against the combo"),
+					INFOBTN("Triggered when the Hero pushes against the combo"),
 					TRIGFLAG(57,"Push->"),
 					INFOBTN("Triggered when the combo is pushed as a pushblock (after it settles into the new position)."),
 					TRIGFLAG(112,"Pushed->"),
 					//
-					INFOBTN("Triggers when the player dives on this combo"),
+					INFOBTN("Triggers when the Hero dives on this combo"),
 					TRIGFLAG(113, "Dive->"),
-					INFOBTN("Triggers when the player dives on this combo (more sensitive hitbox)"),
+					INFOBTN("Triggers when the Hero dives on this combo (more sensitive hitbox)"),
 					TRIGFLAG(114, "Dive-> (Sensitive)"),
 					//
 					INFOBTN("Can only trigger if the room is darkened."
@@ -2699,7 +2699,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						"\n\nThis is a 'Condition'. It won't trigger the combo on its own, but it must apply for other triggers to work."),
 					TRIGFLAG(120, "Req. No Darkness"),
 					//
-					INFOBTN("'Proximity:' requires the player to be far away, instead of close"),
+					INFOBTN("'Proximity:' requires the Hero to be far away, instead of close"),
 					TRIGFLAG(19,"Invert Proximity Req"),
 					INFOBTN("Triggers every frame automatically"),
 					TRIGFLAG(47,"Always Triggered"),
@@ -3006,11 +3006,11 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									int32_t flags = local_comboref.trig_levelitems;
 									static const vector<CheckListInfo> litem_names =
 									{
-										{ "McGuffin", "The player has the McGuffin for the 'Trig DMap Level'" },
-										{ "Map", "The player has the Map for the 'Trig DMap Level'" },
-										{ "Compass", "The player has the Compass for the 'Trig DMap Level'" },
-										{ "Boss Killed", "The player has cleared the 'Dungeon Boss' room for the 'Trig DMap Level'" },
-										{ "Boss Key", "The player has the Boss Key for the 'Trig DMap Level'" },
+										{ "McGuffin", "The Hero has the McGuffin for the 'Trig DMap Level'" },
+										{ "Map", "The Hero has the Map for the 'Trig DMap Level'" },
+										{ "Compass", "The Hero has the Compass for the 'Trig DMap Level'" },
+										{ "Boss Killed", "The Hero has cleared the 'Dungeon Boss' room for the 'Trig DMap Level'" },
+										{ "Boss Key", "The Hero has the Boss Key for the 'Trig DMap Level'" },
 									};
 									if(!call_checklist_dialog("Select 'Req Flags'",litem_names,flags))
 										return;
@@ -3322,7 +3322,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 			Rows<4>(framed = true, fitParent = true,
 				INFOBTN("'Spawn Item' will be linked to the room's Special Item state"),
 				TRIGFLAG(83, "Spawns Special Item",3),
-				INFOBTN("The item spawned by the combo will automatically be collected by the player."),
+				INFOBTN("The item spawned by the combo will automatically be collected by the Hero."),
 				TRIGFLAG(86, "Spawned Item auto-collects",3),
 				INFOBTN("The combo's 'ExState' will be set when the spawned item is picked up, rather than when it is triggered."),
 				TRIGFLAG(84, "Trigger ExState after item pickup",3),
@@ -4007,7 +4007,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									{
 										local_comboref.sfx_walking = val;
 									}),
-								INFOBTN("Plays when the player walks on the combo. In sideview, this is the combo actually BELOW the player."),
+								INFOBTN("Plays when the Hero walks on the combo. In sideview, this is the combo actually BELOW the Hero."),
 								//
 								Label(text = "Standing:"),
 								DropDownList(data = list_sfx,
@@ -4017,7 +4017,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									{
 										local_comboref.sfx_standing = val;
 									}),
-								INFOBTN("Plays when the player stands (not walking) on the combo. In sideview, this is the combo actually BELOW the player."),
+								INFOBTN("Plays when the Hero stands (not walking) on the combo. In sideview, this is the combo actually BELOW the Hero."),
 								//
 								Label(text = "Sword Tap:"),
 								DropDownList(data = list_sfx,
@@ -4027,7 +4027,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									{
 										local_comboref.sfx_tap = val;
 									}),
-								INFOBTN("Plays when the player taps their sword against this combo. Only the highest-layer combo with custom tap SFX will take effect.")
+								INFOBTN("Plays when the Hero taps their sword against this combo. Only the highest-layer combo with custom tap SFX will take effect.")
 							)
 						),
 						Frame(title = "Sprites", hAlign = 1.0, fitParent = true,
@@ -4060,7 +4060,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									{
 										local_comboref.spr_walking = val;
 									}),
-								INFOBTN("Spawns when the player walks on the combo. In sideview, this is the combo actually BELOW the player."),
+								INFOBTN("Spawns when the Hero walks on the combo. In sideview, this is the combo actually BELOW the Hero."),
 								//
 								Label(text = "Standing:"),
 								DropDownList(data = list_sprites_0none,
@@ -4070,12 +4070,12 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									{
 										local_comboref.spr_standing = val;
 									}),
-								INFOBTN("Spawns when the player stands (not walking) on the combo. In sideview, this is the combo actually BELOW the player.")
+								INFOBTN("Spawns when the Hero stands (not walking) on the combo. In sideview, this is the combo actually BELOW the Hero.")
 							)
 						)
 					),
-					Frame(title = "Player Speed Mod",
-						info = "Speed Modification only applies if the Quest Rule 'Newer Player Movement' is enabled." + QRHINT({qr_NEW_HERO_MOVEMENT2}),
+					Frame(title = "Hero Speed Mod",
+						info = "Speed Modification only applies if the Quest Rule 'Newer Hero Movement' is enabled." + QRHINT({qr_NEW_HERO_MOVEMENT2}),
 						Rows<3>(
 							Label(text = "Multiplier:"),
 							TextField(type = GUI::TextField::type::INT_DECIMAL,
@@ -4085,7 +4085,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								{
 									local_comboref.speed_mult = val;
 								}),
-							INFOBTN("Multiplies the player's speed by this value when walking over this combo."),
+							INFOBTN("Multiplies the Hero's speed by this value when walking over this combo."),
 							Label(text = "Divisor:"),
 							TextField(type = GUI::TextField::type::INT_DECIMAL,
 								hAlign = 1.0, low = 0, high = 255, val = local_comboref.speed_div,
@@ -4094,7 +4094,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								{
 									local_comboref.speed_div = val;
 								}),
-							INFOBTN("Divides the player's speed by this value when walking over this combo. Applies after mult."
+							INFOBTN("Divides the Hero's speed by this value when walking over this combo. Applies after mult."
 								"\nIf 0, no division is performed."),
 							Label(text = "Additive:"),
 							TextField(maxLength = 13, type = GUI::TextField::type::NOSWAP_ZSINT,
@@ -4105,7 +4105,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								{
 									local_comboref.speed_add = zslongToFix(val);
 								}),
-							INFOBTN("Adds this value, in px/frame, to the player's speed walking over this combo. Applies after mult and div. Can be negative.")
+							INFOBTN("Adds this value, in px/frame, to the Hero's speed walking over this combo. Applies after mult and div. Can be negative.")
 						)
 					)
 				)),

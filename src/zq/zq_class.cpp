@@ -12111,7 +12111,7 @@ int32_t writeherosprites(PACKFILE *f, zquestheader *Header)
 		}
         
 		
-        for (int32_t q = 0; q < wMax; q++) // Player defense values
+        for (int32_t q = 0; q < wMax; q++) // Hero defense values
         {
             if (!p_putc(hero_defence[q], f))
                 new_return(15);
@@ -12231,7 +12231,7 @@ extern script_data *lwpnscripts[NUMSCRIPTWEAPONS];
 extern script_data *ewpnscripts[NUMSCRIPTWEAPONS];
 extern script_data *globalscripts[NUMSCRIPTGLOBAL];
 extern script_data *genericscripts[NUMSCRIPTSGENERIC];
-extern script_data *playerscripts[NUMSCRIPTPLAYER];
+extern script_data *playerscripts[NUMSCRIPTHERO];
 extern script_data *screenscripts[NUMSCRIPTSCREEN];
 extern script_data *dmapscripts[NUMSCRIPTSDMAP];
 extern script_data *itemspritescripts[NUMSCRIPTSITEMSPRITE];
@@ -12350,7 +12350,7 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
             }
         }
 		
-        for(int32_t i=0; i<NUMSCRIPTPLAYER; i++)
+        for(int32_t i=0; i<NUMSCRIPTHERO; i++)
         {
             int32_t ret = write_one_ffscript(f, Header, i, &playerscripts[i]);
             fake_pack_writing=(writecycle==0);
@@ -13873,7 +13873,7 @@ static int32_t _save_unencoded_quest_int(const char *filename, bool compressed, 
 	box_out("okay.");
 	box_eol();
 	
-	box_out("Writing Custom Player Sprite Data...");
+	box_out("Writing Custom Hero Sprite Data...");
 	
 	if(writeherosprites(f,&header)!=0)
 		return 21;

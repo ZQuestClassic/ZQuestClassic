@@ -367,7 +367,7 @@ extern script_data *genericscripts[NUMSCRIPTSGENERIC];
 extern script_data *guyscripts[NUMSCRIPTGUYS];
 extern script_data *lwpnscripts[NUMSCRIPTWEAPONS];
 extern script_data *ewpnscripts[NUMSCRIPTWEAPONS];
-extern script_data *playerscripts[NUMSCRIPTPLAYER];
+extern script_data *playerscripts[NUMSCRIPTHERO];
 extern script_data *screenscripts[NUMSCRIPTSCREEN];
 extern script_data *dmapscripts[NUMSCRIPTSDMAP];
 extern script_data *itemspritescripts[NUMSCRIPTSITEMSPRITE];

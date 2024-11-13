@@ -397,7 +397,7 @@ ScriptType get_script_type(string const& name)
 	else if(name=="SCREEN")
 		return ScriptType::Screen;
 	else if(name=="HERO" || name=="PLAYER" || name=="LINK")
-		return ScriptType::Player;
+		return ScriptType::Hero;
 	else if(name=="ITEMDATA" || name=="ITEM")
 		return ScriptType::Item;
 	else if(name=="LWEAPON" || name=="LWPN")
@@ -426,7 +426,7 @@ string get_script_name(ScriptType type)
 			return "FFC";
 		case ScriptType::Screen:
 			return "SCREEN";
-		case ScriptType::Player:
+		case ScriptType::Hero:
 			return "HERO";
 		case ScriptType::Item:
 			return "ITEMDATA";

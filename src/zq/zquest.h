@@ -520,7 +520,7 @@ extern int32_t bieweapons_cnt;
 
 //player script list for editors
 void build_bihero_list();
-extern script_struct bihero[NUMSCRIPTPLAYER]; //item script
+extern script_struct bihero[NUMSCRIPTHERO]; //item script
 extern int32_t bihero_cnt;
 
 //screen script list for editors

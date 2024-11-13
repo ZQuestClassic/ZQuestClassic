@@ -56,8 +56,8 @@ std::string cheatName(Cheat c)
 			return fmt::format("Max {}", ZI.getCtrName(crMAGIC));
 		case Cheat::MaxBombs:
 			return fmt::format("Max {}", ZI.getCtrName(crBOMBS));
-		case Cheat::PlayerData:
-			return "Player Data";
+		case Cheat::HeroData:
+			return "Hero Data";
 		case Cheat::TrigSecrets:
 			return "Trigger Secrets (T)";
 		case Cheat::TrigSecretsPerm:

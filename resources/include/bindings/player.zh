@@ -43,7 +43,7 @@ class player {
 	// @zasm_var LINKACTION
 	internal int Action;
 
-	// The current *total* Player Tile Modifier.
+	// The current *total* Hero Tile Modifier.
 	//
 	// @zasm_var LINKTILEMOD
 	internal int TileMod;
@@ -56,7 +56,7 @@ class player {
 	// @zasm_var LINKITEMD
 	internal bool Item[];
 
-	// The number of pixels that the player moves in a frame, based on
+	// The number of pixels that the Hero moves in a frame, based on
 	// present coordinates. The movement is taken from [X] and [Y]:
 	// ```
 	// x_move_in_pixels = Hero->Steps[Hero->X&7];
@@ -72,20 +72,20 @@ class player {
 	// @zasm_var HEROSTEPS
 	internal int Steps[];
 
-	// The rate the player moves at. This is similar to [npc::Step]: a step of
-	// 100 moves the player 1 pixel per frame. The default step rate is 150,
-	// which moves the player 1.5 pixels per frame.
+	// The rate the Hero moves at. This is similar to [npc::Step]: a step of
+	// 100 moves the Hero 1 pixel per frame. The default step rate is 150,
+	// which moves the Hero 1.5 pixels per frame.
 	//
 	// NOTE: This affects BOTH 4-way and 8-way movement, but ONLY if the quest
-	// rule `New Player Movement` is enabled.
+	// rule `New Hero Movement` is enabled.
 	//
 	// @zasm_var HEROSTEPRATE
 	internal int Step;
 
-	// The offset from corners that the player's movement will 'shove' them
+	// The offset from corners that the Hero's movement will 'shove' them
 	// around. Ranges from 0-16
 	//
-	// NOTE: Only applies if `Newer Player Movement` Quest Rule is enabled.
+	// NOTE: Only applies if `Newer Hero Movement` Quest Rule is enabled.
 	//
 	// @zasm_var HEROSHOVEOFFSET
 	internal int ShoveOffset;
@@ -108,7 +108,7 @@ class player {
 	// @zasm_var LINKINVIS
 	internal bool Invisible;
 
-	// If set true, the player will not take two steps into NES dungeon rooms.
+	// If set true, the Hero will not take two steps into NES dungeon rooms.
 	//
 	// This value is reset to false every time that the hero sprite is
 	// initialised, so should be written ideally in the hero init script.
@@ -176,13 +176,13 @@ class player {
 	// @zasm_var LINKITEMY
 	internal int ItemY;
 
-	// Returns 0 if the player is not eaten, otherwise it returns the duration
+	// Returns 0 if the Hero is not eaten, otherwise it returns the duration
 	// of them being eaten.
 	//
 	// @zasm_var LINKEATEN
 	internal int Eaten;
 
-	// Returns if the player is grabbed (i.e. by wallmaster)
+	// Returns if the Hero is grabbed (i.e. by wallmaster)
 	//
 	// @zasm_var LINKGRABBED
 	internal bool Grabbed;
@@ -196,11 +196,11 @@ class player {
 	// @zasm_var LINKSTUN
 	internal int Stun;
 
-	// Returns the number of frames for which the player will be a Bunny.
+	// Returns the number of frames for which the Hero will be a Bunny.
 	//
 	// If -1, the effect will be removed by the engine if the current
 	//
-	// dmap does not have the bunny flag, or the player possesses a pearl item.
+	// dmap does not have the bunny flag, or the Hero possesses a pearl item.
 	//
 	// -2 through -99 reserved for potential future engine use
 	// If <-100, the effect will last until script-modified
@@ -272,7 +272,7 @@ class player {
 	// duration of its effect based on ClockTimer. If ClockTimer is 0, the
 	// effect.
 	//
-	// Lasts until the player changes screens.
+	// Lasts until the Hero changes screens.
 	//
 	// @zasm_var CLOCKACTIVE
 	internal bool ClockActive;
@@ -287,7 +287,7 @@ class player {
 	// @zasm_var CLOCKCLK
 	internal int ClockTimer;
 
-	// Returns true if the player is currently being warped
+	// Returns true if the Hero is currently being warped
 	//
 	// Note that as scripts generally do not run in warps, this may not ever
 	// return true during a given warp, depending on the warp type, QRs, script
@@ -296,7 +296,7 @@ class player {
 	// @zasm_var HEROISWARPING
 	internal const bool IsWarping;
 
-	// The X-coordinate at which the player will respawn upon drowning or such.
+	// The X-coordinate at which the Hero will respawn upon drowning or such.
 	//
 	// The engine may overwrite this value upon changing screens or standing on
 	// safe ground.
@@ -304,7 +304,7 @@ class player {
 	// @zasm_var HERORESPAWNX
 	internal int RespawnX;
 
-	// The Y-coordinate at which the player will respawn upon drowning or such.
+	// The Y-coordinate at which the Hero will respawn upon drowning or such.
 	//
 	// The engine may overwrite this value upon changing screens or standing on
 	// safe ground.
@@ -312,7 +312,7 @@ class player {
 	// @zasm_var HERORESPAWNY
 	internal int RespawnY;
 
-	// The DMap at which the player will respawn upon drowning or such.
+	// The DMap at which the Hero will respawn upon drowning or such.
 	//
 	// The engine may overwrite this value upon changing screens or standing on
 	// safe ground.
@@ -320,7 +320,7 @@ class player {
 	// @zasm_var HERORESPAWNDMAP
 	internal int RespawnDMap;
 
-	// The screen at which the player will respawn upon drowning or such.
+	// The screen at which the Hero will respawn upon drowning or such.
 	//
 	// The engine may overwrite this value upon changing screens or standing on
 	// safe ground.
@@ -330,7 +330,7 @@ class player {
 
 	// The timer for the switchhook effect. If > 0, a switch effect is active.
 	//
-	// The player will swap positions with the target when this is equal to
+	// The Hero will swap positions with the target when this is equal to
 	// `Hero->SwitchMaxTimer / 2`, and the animation completes when this reaches
 	// 0.
 	//
@@ -342,13 +342,13 @@ class player {
 	// @zasm_var HEROSWITCHMAXTIMER
 	internal const int SwitchMaxTimer;
 
-	// If non-zero, the player will not die, even if their HP drops to 0.
+	// If non-zero, the Hero will not die, even if their HP drops to 0.
 	//
 	// This will prevent effects such as bottled fairies from being triggered.
 	//
 	// If greater than 0, decrements by 1 each frame.
 	//
-	// If it becomes 0 while the player has 0 hp, it will act as though their HP
+	// If it becomes 0 while the Hero has 0 hp, it will act as though their HP
 	// just dropped to 0 that frame, and normal effects such as fairies will
 	// trigger.
 	//
@@ -410,7 +410,7 @@ class player {
 	//
 	// If -1, will use the default from Init Data.
 	//
-	// If the quest rule 'Invincible Player Flickers' is unchecked, this is
+	// If the quest rule 'Invincible Hero Flickers' is unchecked, this is
 	// unused.
 	//
 	// @zasm_var HEROFLICKERCOLOR
@@ -421,7 +421,7 @@ class player {
 	//
 	// If -1, will use the default from Init Data. If 0, will use a solid color.
 	//
-	// If the quest rule 'Invincible Player Flickers' is unchecked, this is
+	// If the quest rule 'Invincible Hero Flickers' is unchecked, this is
 	// unused.
 	//
 	// @zasm_var HEROFLICKERTRANSP
@@ -430,10 +430,10 @@ class player {
 	// This returns Link's current displayed cset when taking damage or
 	// invincible. If not in one of these states, will return his normal cset.
 	//
-	// If called before [Waitdraw] / player update, results may be off by a
+	// If called before [Waitdraw] / Hero update, results may be off by a
 	// frame.
 	//
-	// If the quest rule 'Invincible Player Flickers' is checked, this is
+	// If the quest rule 'Invincible Hero Flickers' is checked, this is
 	// unused.
 	//
 	// @zasm_var HEROFLASHINGCSET
@@ -444,59 +444,59 @@ class player {
 	// @zasm_var HEROSLIDING
 	internal const int Sliding;
 
-	// The icy combo the player is sliding on.
+	// The icy combo the Hero is sliding on.
 	//
 	// @zasm_var HEROICECMB
 	internal const int IceCombo;
 
 	// Read-write. If nonzero, this combo is used instead of the IceCombo (can
-	// be used to force the player to slide).
+	// be used to force the Hero to slide).
 	//
-	// If the specified combo is not an Icy Floor combo that affects the player,
+	// If the specified combo is not an Icy Floor combo that affects the Hero,
 	// no sliding will occur.
 	//
 	// @zasm_var HEROSCRICECMB
 	internal int ScriptIceCombo;
 
-	// The player's ice velocity (in pixels per frame).
-	// Has no effect unless the player is [Sliding].
-	// If the player is not [Sliding], the engine will clear these to `0`.
+	// The Hero's ice velocity (in pixels per frame).
+	// Has no effect unless the Hero is [Sliding].
+	// If the Hero is not [Sliding], the engine will clear these to `0`.
 	//
 	// @zasm_var HEROICEVX
 	internal int IceVx;
 
-	// The player's ice velocity (in pixels per frame).
-	// Has no effect unless the player is [Sliding].
-	// If the player is not Sliding, the engine will clear these to `0`.
+	// The Hero's ice velocity (in pixels per frame).
+	// Has no effect unless the Hero is [Sliding].
+	// If the Hero is not Sliding, the engine will clear these to `0`.
 	//
 	// @zasm_var HEROICEVY
 	internal int IceVy;
 
-	// Read/write, 0-255, has no effect unless the player is [Sliding].
+	// Read/write, 0-255, has no effect unless the Hero is [Sliding].
 	//
-	// Used to grant the player some leeway when first entering the ice.
+	// Used to grant the Hero some leeway when first entering the ice.
 	//
 	// On entering the ice, these are set to the same value, and
 	// 'IceEntryFrames' then ticks down each frame to 0. Instantly goes to 0 if
-	// the player is still.
+	// the Hero is still.
 	//
-	// Based on the ratio between these values, the player's deceleration will
-	// be somewhere between the IceCombo's deceleration and half of the player's
+	// Based on the ratio between these values, the Hero's deceleration will
+	// be somewhere between the IceCombo's deceleration and half of the Hero's
 	// step speed.
 	//
 	// @zasm_var HEROICEENTRYFRAMES
 	internal int IceEntryFrames;
 
-	// Read/write, 0-255, has no effect unless the player is [Sliding].
+	// Read/write, 0-255, has no effect unless the Hero is [Sliding].
 	//
-	// Used to grant the player some leeway when first entering the ice.
+	// Used to grant the Hero some leeway when first entering the ice.
 	//
 	// On entering the ice, these are set to the same value, and
 	// 'IceEntryFrames' then ticks down each frame to 0. Instantly goes to 0 if
-	// the player is still.
+	// the Hero is still.
 	//
-	// Based on the ratio between these values, the player's deceleration will
-	// be somewhere between the IceCombo's deceleration and half of the player's
+	// Based on the ratio between these values, the Hero's deceleration will
+	// be somewhere between the IceCombo's deceleration and half of the Hero's
 	// step speed.
 	//
 	// @zasm_var HEROICEENTRYMAXFRAMES
@@ -704,7 +704,7 @@ class player {
 	//   SELECTYWPNR D2
 	internal void SelectYWeapon(int dir);
 
-	// Switch the player with the given combo position.
+	// Switch the Hero with the given combo position.
 	// Returns true if successful.
 	//
 	// Valid values for [effect]: [SwitchEffect] (`SW_EFF_`).
@@ -715,7 +715,7 @@ class player {
 	//   SWITCHCMB D2 D3
 	internal bool SwitchCombo(int pos, int effect);
 
-	// Kills the player. Their HP will be set to 0, and 'Immortal' will be
+	// Kills the Hero. Their HP will be set to 0, and 'Immortal' will be
 	// bypassed.
 	//
 	// If 'bypass_revive' is true, bottles will not be checked for revival
@@ -729,20 +729,20 @@ class player {
 	//   KILLPLAYER D2
 	internal void Kill(bool bypass_revive = false);
 
-	// Attempts to move the player by 'dx, dy'; obeying solidity.
+	// Attempts to move the Hero by 'dx, dy'; obeying solidity.
 	//
 	// [is_knockback] should be true if this movement is the result of some
 	// scripted form of knockback.
 	//
-	// This currently has no effect for the player... It may in the future?
+	// This currently has no effect for the Hero... It may in the future?
 	//
 	// 'ignore_sideview': if this is false, and the current screen is sideview
-	// gravity, 'dy' will be ignored (unless the player is 'Climbing', has
+	// gravity, 'dy' will be ignored (unless the Hero is 'Climbing', has
 	// walk-through-walls enabled, or is sideview swimming)
 	//
 	// [corner_shove]: if this is true, and the movement is not diagonal (i.e.
-	// one of dx or dy is `0`), then if the movement pushes the player into the
-	// corner of a solid, the player will automatically be shoved 'around' the
+	// one of dx or dy is `0`), then if the movement pushes the Hero into the
+	// corner of a solid, the Hero will automatically be shoved 'around' the
 	// corner. (Same as how engine movement does it)
 	//
 	// Returns true if the full distance was moved, false otherwise.
@@ -754,7 +754,7 @@ class player {
 						 bool ignore_sideview = false,
 						 bool corner_shove = true);
 
-	// Same as [MoveXY], but does not move the player- instead, just returns
+	// Same as [MoveXY], but does not move the Hero- instead, just returns
 	// true/false based on what [MoveXY] would return.
 	//
 	// @zasm
@@ -774,7 +774,7 @@ class player {
 							  bool ignore_sideview = false,
 							  bool corner_shove = true);
 
-	// Like [MoveAtAngle], but does not move the player - instead, just returns
+	// Like [MoveAtAngle], but does not move the Hero - instead, just returns
 	// true/false based on what [MoveAtAngle] would return.
 	//
 	// @zasm
@@ -793,7 +793,7 @@ class player {
 	internal bool Move(int dir, int pixels, bool is_knockback = false,
 					   bool ignore_sideview = false, bool corner_shove = true);
 
-	// Like [Move], but does not move the player - instead, just returns
+	// Like [Move], but does not move the Hero - instead, just returns
 	// true/false based on what [Move] would return.
 	//
 	// @zasm
@@ -812,13 +812,13 @@ class player {
 	//   POPARGS D5 0.0003
 	internal void LiftWeapon(lweapon arg1, int arg2, int arg3);
 
-	// This returns true if the player is currently in a flicker frame (either
+	// This returns true if the Hero is currently in a flicker frame (either
 	// invisible or color masked).
 	//
-	// If called before [Waitdraw] / player update, results may be off by a
+	// If called before [Waitdraw] / Hero update, results may be off by a
 	// frame.
 	//
-	// If the quest rule 'Invincible Player Flickers' is unchecked, this is
+	// If the quest rule 'Invincible Hero Flickers' is unchecked, this is
 	// unused.
 	//
 	// @zasm

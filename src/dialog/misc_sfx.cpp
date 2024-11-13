@@ -11,10 +11,10 @@
 static const GUI::ListData miscSFXList
 {
 	{ "Grass Cut:", sfxBUSHGRASS, "Played when bush/grass/etc is cut, and does not have a custom SFX set." },
-	{ "'Switch With Player':", sfxSWITCHED, "Played when an enemy's 'Switch w/ Player' defense is triggered, or a switchhook with 0 for 'Switch Sound' switches." },
-	{ "Low Health Beep:", sfxLOWHEART, "Played when the player's health is low." },
+	{ "'Switch With Hero':", sfxSWITCHED, "Played when an enemy's 'Switch w/ Hero' defense is triggered, or a switchhook with 0 for 'Switch Sound' switches." },
+	{ "Low Health Beep:", sfxLOWHEART, "Played when the Hero's health is low." },
 	{ "Error:", sfxERROR, "Played when something errors (Ex. Using an item without enough magic)" },
-	{ "Player Hurt:", sfxHURTPLAYER, "Plays when the player is hurt." },
+	{ "Hero Hurt:", sfxHURTPLAYER, "Plays when the Hero is hurt." },
 	{ "Hammer Peg Pound:", sfxHAMMERPOUND, "Plays when a hammer peg is pounded." },
 	{ "Subscreen Item Select:", sfxSUBSCR_ITEM_ASSIGN, "Plays when an item is assigned to a button in the subscreen." },
 	{ "Subscreen Cursor Move:", sfxSUBSCR_CURSOR_MOVE, "Plays when the subscreen cursor moves." },

@@ -388,31 +388,31 @@ class combodata {
 	// @zasm_var COMBODTRIGWAVYTIME
 	internal int TrigWavyTimer;
 
-	// The duration to Sword Jinx the player for. -2 for none, -1 for 'until
+	// The duration to Sword Jinx the [Hero] for. -2 for none, -1 for 'until
 	// cured', 0 to cure.
 	//
 	// @zasm_var COMBODTRIGSWORDJINX
 	internal int TrigSwordJinx;
 
-	// The duration to Item Jinx the player for. -2 for none, -1 for 'until
+	// The duration to Item Jinx the [Hero] for. -2 for none, -1 for 'until
 	// cured', 0 to cure.
 	//
 	// @zasm_var COMBODTRIGITEMJINX
 	internal int TrigItemJinx;
 
-	// The duration to Shield Jinx the player for. -2 for none, -1 for 'until
+	// The duration to Shield Jinx the [Hero] for. -2 for none, -1 for 'until
 	// cured', 0 to cure.
 	//
 	// @zasm_var COMBODTRIGSHIELDJINX
 	internal int TrigShieldJinx;
 
-	// The duration to Stun the player for. -2 for none, -1 for 'until cured', 0
+	// The duration to Stun the [Hero] for. -2 for none, -1 for 'until cured', 0
 	// to cure.
 	//
 	// @zasm_var COMBODTRIGSTUN
 	internal int TrigStun;
 
-	// The duration to Bunny the player for. -2 for none, -1 for 'until cured',
+	// The duration to Bunny the [Hero] for. -2 for none, -1 for 'until cured',
 	// 0 to cure.
 	//
 	// @zasm_var COMBODTRIGBUNNY
@@ -492,7 +492,7 @@ class combodata {
 	// @zasm_var COMBODLIFTBREAKSFX
 	internal int LiftBreakSFX;
 
-	// The height above the player's head to lift the object.
+	// The height above the [Hero]'s head to lift the object.
 	//
 	// @zasm_var COMBODLIFTHEIGHT
 	internal int LiftHeight;

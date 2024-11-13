@@ -115,8 +115,8 @@ class sprite {
 	// @zasm_var SPRITE_TILE_H
 	internal int TileHeight;
 
-	// [Hero]: This changes when the player is hurt and flashing. Writing to this does nothing,
-	// as the player cset is updated by the engine every frame - use [Hero->ScriptCSet] instead.
+	// [Hero]: This changes when the Hero is hurt and flashing. Writing to this does nothing,
+	// as the Hero cset is updated by the engine every frame - use [Hero->ScriptCSet] instead.
 	//
 	// @zasm_var SPRITE_CSET
 	internal int CSet;

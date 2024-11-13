@@ -555,9 +555,9 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 								padding = 0_px,
 								VAL_FIELD(byte,"Jump Layer Height:",0,255,jump_hero_layer_threshold,isZC), INFOBTN("Some objects draw higher-layer when their Z is greater than this value"),
 								VAL_FIELD(word,"Subscreen Fall Mult:",1,85,subscrSpeed,isZC), INFOBTN("Multiplier of the subscreen's fall speed"),
-								VAL_FIELD(byte,"Player Damage Mult:",1,255,hero_damage_multiplier,false), INFOBTN("This multiplies most damage dealt by the player."),
+								VAL_FIELD(byte,"Hero Damage Mult:",1,255,hero_damage_multiplier,false), INFOBTN("This multiplies most damage dealt by the Hero."),
 								VAL_FIELD(byte,"Enemy Damage Mult:",1,255,ene_damage_multiplier,false), INFOBTN("This multiplies most damage dealt by enemies."),
-								VAL_FIELD(int32_t,"Bunny Tile Mod:",-214748,214748,bunny_ltm,false), INFOBTN("The 'Player Tile Modifier' added when the player is a bunny."),
+								VAL_FIELD(int32_t,"Bunny Tile Mod:",-214748,214748,bunny_ltm,false), INFOBTN("The 'Hero Tile Modifier' added when the Hero is a bunny."),
 								//
 								VAL_FIELD(byte,"SwitchHook Style:",0,255,switchhookstyle,false),
 								INFOBTN("The switch hook effect's default animation style."
@@ -573,7 +573,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 								VAL_FIELD(byte, "Flicker Timing:", 0, 255, spriteflickerspeed, false), INFOBTN("How many frames sprites will flicker for. If 0, will hide for the duration of the iframes" + QRHINT({ qr_HEROFLICKER, qr_ENEMIESFLICKER })),
 								COLOR_FIELD("Flicker Color:", spriteflickercolor, false), INFOBTN("If not color 0, sprites will flicker to this color. Will not work with 'Old (Faster) Sprite Drawing'" + QRHINT({ qr_HEROFLICKER, qr_ENEMIESFLICKER, qr_OLDSPRITEDRAWS })),
 								VAL_FIELD(byte, "Flicker Transparency Passes:", 0, 3, spriteflickertransp, false), INFOBTN("How many transparency passes the flicker effect uses. 0 will be a solid color" + QRHINT({ qr_HEROFLICKER, qr_ENEMIESFLICKER, qr_OLDSPRITEDRAWS })),
-								VAL_FIELD(byte, "Heart Pieces:", 0, 255, hcp, false), INFOBTN("Number of Heart Pieces the player starts with"),
+								VAL_FIELD(byte, "Heart Pieces:", 0, 255, hcp, false), INFOBTN("Number of Heart Pieces the Hero starts with"),
 								VAL_FIELD(byte, "HP Per HC:", 1, 255, hcp_per_hc, false), INFOBTN("Number of Heart Pieces to create a new Heart Container"),
 								//
 								VAL_FIELD(byte, "Magic Drain Rate:", 0, 255, magicdrainrate, false),
@@ -596,10 +596,10 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 								DEC_VAL_FIELD("Gravity:", 1, 99990000, 4, gravity, isZC), INFOBTN("The rate of gravity, in px/frame^2"),
 								DEC_VAL_FIELD("Terminal Vel:", 1, 999900, 2, terminalv, isZC), INFOBTN("The terminal velocity, in px/frame"),
 								ZFIX_VAL_FIELD("Air Drag:", 0, SWAP_MAX, air_drag, isZC), INFOBTN("The 'Air Drag'. This affects how objects with momentum"
-									" (such as the player, after jumping off of slippery ice) slow down in the air."
+									" (such as the Hero, after jumping off of slippery ice) slow down in the air."
 									" Measured as a deceleration in px/frame^2"),
-								VAL_FIELD(word, "Player Step:", 0, 65535, heroStep, isZC), INFOBTN("The player's movement speed, in 100ths px/frame. Only applies if 'New Player Movement' is enabled." + QRHINT({ qr_NEW_HERO_MOVEMENT,qr_NEW_HERO_MOVEMENT2 })),
-								ZFIX_VAL_FIELD("Player Shove:", 0, 160000, shove_offset, isZC), INFOBTN("The player's 'corner shove' leniency, in pixels. Only applies if 'Newer Player Movement' is enabled." + QRHINT({ qr_NEW_HERO_MOVEMENT2 }))
+								VAL_FIELD(word, "Hero Step:", 0, 65535, heroStep, isZC), INFOBTN("The Hero's movement speed, in 100ths px/frame. Only applies if 'New Hero Movement' is enabled." + QRHINT({ qr_NEW_HERO_MOVEMENT,qr_NEW_HERO_MOVEMENT2 })),
+								ZFIX_VAL_FIELD("Hero Shove:", 0, 160000, shove_offset, isZC), INFOBTN("The Hero's 'corner shove' leniency, in pixels. Only applies if 'Newer Hero Movement' is enabled." + QRHINT({ qr_NEW_HERO_MOVEMENT2 }))
 							)
 						),
 						Column(vAlign = 0.0,
@@ -607,12 +607,12 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 								margins = 0_px,
 								padding = 0_px,
 								DEC_VAL_FIELD("Water Gravity:", -99990000, 99990000, 4, swimgravity, false), INFOBTN("The gravity value used in sideview water"),
-								VAL_FIELD(word, "Sideswim Up Step:", 0, 9999, heroSideswimUpStep, false), INFOBTN("The player's movement speed in sideview water, upwards"),
-								VAL_FIELD(word, "Sideswim Side Step:", 0, 9999, heroSideswimSideStep, false), INFOBTN("The player's movement speed in sideview water, sideways"),
-								VAL_FIELD(word, "Sideswim Down Step:", 0, 9999, heroSideswimDownStep, false), INFOBTN("The player's movement speed in sideview water, downwards"),
+								VAL_FIELD(word, "Sideswim Up Step:", 0, 9999, heroSideswimUpStep, false), INFOBTN("The Hero's movement speed in sideview water, upwards"),
+								VAL_FIELD(word, "Sideswim Side Step:", 0, 9999, heroSideswimSideStep, false), INFOBTN("The Hero's movement speed in sideview water, sideways"),
+								VAL_FIELD(word, "Sideswim Down Step:", 0, 9999, heroSideswimDownStep, false), INFOBTN("The Hero's movement speed in sideview water, downwards"),
 								DEC_VAL_FIELD("Sideswim Leaving Jump:", -2550000, 2550000, 4, exitWaterJump, false), INFOBTN("Jump value used when moving out the top of sideview water"),
-								VAL_FIELD(byte, "Hero Swim Step Multiplier:", 0, 255, hero_swim_mult, false), INFOBTN("Multiplier applied to movement speed in water, requires 'Newer Player Movement'" + QRHINT({ qr_NEW_HERO_MOVEMENT2 })),
-								VAL_FIELD(byte, "Hero Swim Step Divisor:", 0, 255, hero_swim_div, false), INFOBTN("Divisor applied to movement speed in water, requires 'Newer Player Movement'" + QRHINT({ qr_NEW_HERO_MOVEMENT2 }))
+								VAL_FIELD(byte, "Hero Swim Step Multiplier:", 0, 255, hero_swim_mult, false), INFOBTN("Multiplier applied to movement speed in water, requires 'Newer Hero Movement'" + QRHINT({ qr_NEW_HERO_MOVEMENT2 })),
+								VAL_FIELD(byte, "Hero Swim Step Divisor:", 0, 255, hero_swim_div, false), INFOBTN("Divisor applied to movement speed in water, requires 'Newer Hero Movement'" + QRHINT({ qr_NEW_HERO_MOVEMENT2 }))
 							)
 						)
 					)),
@@ -985,7 +985,7 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::view()
 							{
 								SETFLAG(local_zinit.gen_eventstate[index],(1<<GENSCR_EVENT_HERO_HIT_1),state);
 							}),
-						INFOBTN("When the player is hit, before applying ring defense"),
+						INFOBTN("When the Hero is hit, before applying ring defense"),
 						//
 						Checkbox(hAlign = 0.0,
 							checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_HERO_HIT_2),
@@ -994,7 +994,7 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::view()
 							{
 								SETFLAG(local_zinit.gen_eventstate[index],(1<<GENSCR_EVENT_HERO_HIT_2),state);
 							}),
-						INFOBTN("When the player is hit, after applying ring defense"),
+						INFOBTN("When the Hero is hit, after applying ring defense"),
 						//
 						Checkbox(hAlign = 0.0,
 							checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_COLLECT_ITEM),
@@ -1062,21 +1062,21 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::view()
 						//
 						Checkbox(hAlign = 0.0,
 							checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_PLAYER_FALL),
-							text = "Player Fall",
+							text = "Hero Fall",
 							onToggleFunc = [&](bool state)
 							{
 								SETFLAG(local_zinit.gen_eventstate[index],(1<<GENSCR_EVENT_PLAYER_FALL),state);
 							}),
-						INFOBTN("After the player falls in a Pitfall"),
+						INFOBTN("After the Hero falls in a Pitfall"),
 						//
 						Checkbox(hAlign = 0.0,
 							checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_PLAYER_DROWN),
-							text = "Player Drown",
+							text = "Hero Drown",
 							onToggleFunc = [&](bool state)
 							{
 								SETFLAG(local_zinit.gen_eventstate[index],(1<<GENSCR_EVENT_PLAYER_DROWN),state);
 							}),
-						INFOBTN("After the player drowns")
+						INFOBTN("After the Hero drowns")
 					)
 				)
 			)
