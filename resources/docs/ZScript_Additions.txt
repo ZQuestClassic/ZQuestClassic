@@ -3974,18 +3974,6 @@ int GetPointer(bool *ptr[]);
 
 /* The following have been deprecated by other pointer types.
 
-	int GetScreenEnemy(int map, int screen, int enemy_index)			
-	* Reads values from enemy lists anywhere in the game. 
-
-	int SetScreenEnemy(int map, int screen, int enemy_index, int enemy_id)			
-	* Sets values to enemy lists anywhere in the game.
-
-	int GetScreenDoor(int map, int screen, int index)			
-	* Reads value of a door on any screen in the game environment.
-
-	int SetScreenDoor(int map, int screen, int index, int type)			
-	* Sets the value of a door on any screen in the game environment.
-
 	void ContinueSound(int sfx); 					
 
 	void PauseMusic()	
