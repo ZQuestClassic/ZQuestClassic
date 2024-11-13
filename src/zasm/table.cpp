@@ -1214,6 +1214,7 @@ static constexpr script_command command_list[]=
 	{ "BMPTILEBLIT", BMPTILEBLIT, 0, {}, 0, 0 },
 	{ "BMPCOMBOBLIT", BMPCOMBOBLIT, 0, {}, 0, 0 },
 	{ "LOAD_FFC", LOAD_FFC, 1, {REG_RW}, 0, 0},
+	{ "REPAIRSHIELD", REPAIRSHIELD, 1, { REG_R }, 0, 0 },
 };
 
 static constexpr script_variable variable_list[]=
@@ -2970,6 +2971,8 @@ static constexpr script_variable variable_list[]=
 	{ "COMBODTRIGBUNNY", COMBODTRIGBUNNY, 0 },
 	{ "COMBODTRIGPUSHTIME", COMBODTRIGPUSHTIME, 0 },
 	{ "COMBODTRIGSHIELDJINX", COMBODTRIGSHIELDJINX, 0 },
+
+
 };
 
 // Don't rely on `command_list` to be indexed by command.

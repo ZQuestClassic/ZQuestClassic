@@ -651,6 +651,11 @@ class npc {
 	//   BREAKSHIELD D2
 	internal void BreakShield();
 
+	// @zasm
+	//   POP D2
+	//   REPAIRSHIELD D2
+	internal void RepairShield();
+
 	// Returns if the NPC is dead, or dying
 	//
 	// @zasm
