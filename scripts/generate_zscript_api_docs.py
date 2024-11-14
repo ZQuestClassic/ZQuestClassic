@@ -245,7 +245,7 @@ def parse_doc_type(type_str: str) -> Type:
         const = True
     if type_str == 'screendata':
         type_str = 'Screen'
-    if type_str == 'player':
+    if type_str == 'hero':
         type_str = 'Hero'
     return Type(name=type_str, const=const)
 
@@ -356,10 +356,9 @@ def parse_doc_symbol(x, parent=None) -> File:
         loc = parse_location(x)
         comment = parse_doc_comment(x)
         name = x['name']
-        # TODO: maybe just rename these things for real? :)
         if name == 'screendata':
             name = 'Screen'
-        if name == 'player':
+        if name == 'hero':
             name = 'Hero'
         parent = x.get('parent', None)  # 'str' for now, but set to Class later.
         constructors = []

@@ -1,6 +1,6 @@
 #include "bindings/sprite.zh"
 
-enum PlayerSliding
+enum HeroSliding
 {
 	SLD_NONE,
 	// sliding on the ground, on ice
@@ -15,9 +15,9 @@ enum PlayerSliding
 // Access with `Hero->`.
 //
 // @extends sprite
-class player {
+class hero {
 	// @delete
-	internal player();
+	internal hero();
 
 	// @zasm_var LINKHITDIR
 	internal int HitDir;
@@ -439,7 +439,7 @@ class player {
 	// @zasm_var HEROFLASHINGCSET
 	internal const int FlashingCSet;
 
-	// Valid values: [PlayerSliding] (`SLD_`).
+	// Valid values: [HeroSliding] (`SLD_`).
 	//
 	// @zasm_var HEROSLIDING
 	internal const int Sliding;
@@ -867,11 +867,11 @@ class player {
 }
 
 // 1 is the sprite uid for Hero.
-const player Hero = <player>1L;
+const hero Hero = <hero>1L;
 // @deprecated Use [Hero]
-const player Link = <player>1L;
+const hero Link = <hero>1L;
 // @deprecated Use [Hero]
-const player Player = <player>1L;
+const hero Player = <hero>1L;
 
 script typedef player link;
 script typedef player hero;
