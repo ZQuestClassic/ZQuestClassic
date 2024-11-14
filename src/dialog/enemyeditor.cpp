@@ -928,7 +928,7 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 #define MAXRATE (local_guyref.family==eeFIRE||local_guyref.family==eeOTHER||(local_guyref.family>=eeSCRIPT01&&local_guyref.family<=eeFFRIENDLY10))?999:16
 #define MAXHOMING (local_guyref.family==eeFIRE||local_guyref.family==eeOTHER||(local_guyref.family>=eeSCRIPT01&&local_guyref.family<=eeFFRIENDLY10))?9999:256
 #define MAXSTEP (local_guyref.family==eeFIRE||local_guyref.family==eeOTHER||(local_guyref.family>=eeSCRIPT01&&local_guyref.family<=eeFFRIENDLY10))?9999:1000
-#define HAS_SHIELD (local_guyref.family==eeWALK||local_guyref.family==eeFIRE||local_guyref.family==eeOTHER)
+#define HAS_SHIELD (local_guyref.family==eeWALK||local_guyref.family==eeFIRE||local_guyref.family==eeOTHER||(local_guyref.family>=eeSCRIPT01&&local_guyref.family<=eeFFRIENDLY10))
 #define	TURNFREQHALTRATE local_guyref.family == eeKEESE || local_guyref.family == eeGHINI || local_guyref.family == eePEAHAT || local_guyref.family == eeMANHAN \
 	|| local_guyref.family == eeGLEEOK || local_guyref.family == eePATRA || local_guyref.family == eeDIG ? "Turn Freq:" : "Halt Rate:"
 #define	TURNFREQHALTRATEHINT local_guyref.family == eeKEESE || local_guyref.family == eeGHINI || local_guyref.family == eePEAHAT || local_guyref.family == eeMANHAN \
@@ -940,22 +940,18 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 	sprintf(titlebuf, "Enemy %d: %s", index, guy_string[index]);
 
 	// ATTRIBUTE SWITCHERS
-	std::shared_ptr<GUI::Grid> attributes1_tab = Rows<3>();
-	std::shared_ptr<GUI::Grid> attributes2_tab = Rows<3>();
-	std::shared_ptr<GUI::Grid> attributes3_tab = Rows<3>();
+	std::shared_ptr<GUI::Grid> sgrid = Rows<3>();
 
 	for (int q = 0; q < 32; ++q)
 	{
-		auto& tab = q < 12 ? attributes1_tab : q < 22 ? attributes2_tab : attributes3_tab;
-
-		tab->add(l_attributes[q] = Label(hAlign = 1.0, rightPadding=0_px));
-		tab->add(ib_attributes[q] = Button(forceFitH = true, text = "?",
+		sgrid->add(l_attributes[q] = Label(hAlign = 1.0, rightPadding=0_px));
+		sgrid->add(ib_attributes[q] = Button(forceFitH = true, text = "?",
 			disabled = true,
 			onPressFunc = [&, q]()
 			{
 				InfoDialog("Attribute Info", h_attribute[q]).show();
 			}));
-		tab->add(sw_attributes[q] = Switcher(
+		sgrid->add(sw_attributes[q] = Switcher(
 			tf_attributes[q] = TextField(
 				width = 300_px,
 				hAlign = 0.0,
@@ -1297,15 +1293,9 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 		ptr = &guy_tabs[3],
 		TabRef(name = "Attributes", TabPanel(
 			ptr = &guy_tabs[4],
-			TabRef(name = "Attributes 1", Row(
-				attributes1_tab
-			)),
-			TabRef(name = "Attributes 2", Row(
-				attributes2_tab
-			)),
-			TabRef(name = "Attributes 3", Row(
-				attributes3_tab
-			))
+			TabRef(name = "Attributes", 
+				ScrollingPane(targHeight=400_px, sgrid)
+			)
 		))
 	);
 	auto defenses_tab = TabPanel(
