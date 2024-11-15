@@ -550,11 +550,11 @@ GOTO 452
 SETV D2 1
 COMPAREV D2 0
 GOTOCMP 459 ==; Test 'if'
-LOAD D2 0.0002; InlineFunc[void player::Warp(int, int)] Params Start AND if() #436 Body Start
+LOAD D2 0.0002; InlineFunc[void hero::Warp(int, int)] Params Start AND if() #436 Body Start
 PUSHR D2
-LOAD D2 0.0001; InlineFunc[void player::Warp(int, int)] Params End
-POP D3; InlineFunc[void player::Warp(int, int)] Body Start
-WARPR D3 D2; InlineFunc[void player::Warp(int, int)] Body End AND if() #436 Body End
+LOAD D2 0.0001; InlineFunc[void hero::Warp(int, int)] Params End
+POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
+WARPR D3 D2; InlineFunc[void hero::Warp(int, int)] Body End AND if() #436 Body End
 POPARGS D5 0.0003
 RETURNFUNC; Func[void Init(int, int)] Body End
 SETR D4 SP2; Func[void playMessage(int)] Body Start

@@ -121,7 +121,7 @@ class itemsprite {
 	// @zasm_var ITEMDROPPEDBY
 	internal int DroppedBy;
 
-	// If set to true, the item will automatically be collected by the player as
+	// If set to true, the item will automatically be collected by the [Hero] as
 	// soon as possible.
 	//
 	// @zasm_var ITEMFORCEGRAB
@@ -180,7 +180,7 @@ class itemsprite {
 	//   ITEMDEL
 	internal void Remove();
 
-	// Switch the player with this sprite.
+	// Switch the [Hero] with this sprite.
 	//
 	// Valid values for [effect]: [SwitchEffect] (`SW_EFF_`).
 	//

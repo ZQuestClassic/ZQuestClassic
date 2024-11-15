@@ -39,7 +39,7 @@ enum
 	rules_item,
 	rules_misc,
 	rules_nesfix,
-	rules_player,
+	rules_hero,
 	rules_subscr,
 	rules_weapon,
 	rules_zs_script,
@@ -60,7 +60,7 @@ std::string tagNames[rules_tagcount + 1] =
 	"Item",
 	"Misc",
 	"NESFix",
-	"Player",
+	"Hero",
 	"Subscreen",
 	"Weapon",
 	"ZS: Script",
@@ -89,12 +89,12 @@ static GUI::ListData animRulesList
 	{ "BS-Zelda Animation Quirks", qr_BSZELDA, 
 		"Affects a number of small miscellaneous stuff to make Z1 more"
 		" accurate to BS Zelda. Guy fires have their positions adjusted,"
-		" enemy spawn animations are faster, enemy and player death"
+		" enemy spawn animations are faster, enemy and Hero death"
 		" animations have more frames, wand magic moves 0.5 pixels"
 		" per frame faster, weapon flashing is slightly different,"
 		" boomerangs may animate different, and most weapons gain a"
 		" 2 pixel Y offset when created. Having this enabled also"
-		" deprecates the 'Fix Player's Position in Dungeons' quest rule,"
+		" deprecates the 'Fix Hero's Position in Dungeons' quest rule,"
 		" as this rule fixes that behavior as well. If this rule is"
 		" disabled, Whistle Whirlwinds appear as flame for a single"
 		" frame when hitting the edge of the screen."},
@@ -164,13 +164,13 @@ static GUI::ListData animRulesList
 	{ "Bomb Explosions Don't Flash Palette", qr_NOBOMBPALFLASH, 
 		"When enabled, bombs won't flash the screen when exploding." },
 	{ "Layers 1 and 2 Are Drawn Under Caves", qr_LAYER12UNDERCAVE, 
-		"If enabled, the Player and the cave they're exiting/entering are"
+		"If enabled, the Hero and the cave they're exiting/entering are"
 		" drawn above Layer 1 and 2 when entering/exiting a cave." },
 	{ "Translucent Shadows", qr_TRANSSHADOWS,
 		"If enabled, the shadows of all sprites are drawn as translucent."
-		" This includes the Player, Weapons, Enemies, and Items."},
+		" This includes the Hero, Weapons, Enemies, and Items."},
 	{ "Shadows Flicker", qr_SHADOWSFLICKER,
-		" If enabled, the Player's Shadow and Enemy Shadows only draw every other frame."
+		" If enabled, the Hero's Shadow and Enemy Shadows only draw every other frame."
 		" Items and Weapons are not affected by this."},
 	{ "CSet 1 is level-specific", qr_CSET1_LEVEL,
 		" If enabled, CSet 1 becomes level dependent, allowing you to"
@@ -211,12 +211,12 @@ static GUI::ListData animRulesList
 
 static GUI::ListData comboRulesList
 {
-	{ "Player Drowns in Walkable Water", qr_DROWN,
-		"When the Player steps in water without powerful enough flippers"
+	{ "Hero Drowns in Walkable Water", qr_DROWN,
+		"When the Hero steps in water without powerful enough flippers"
 		" to swim in it, they will drown." },
 	{ "Classic Respawn Points", qr_OLD_RESPAWN_POINTS,
 		"Respawn points on drowning/pitfall will always be the screen entry point with this checked."
-		"\nIf unchecked, the respawn will be the last safe place the player has stood, including across screens." },
+		"\nIf unchecked, the respawn will be the last safe place the Hero has stood, including across screens." },
 	{ "Smart Screen Scrolling", qr_SMARTSCREENSCROLL, 
 		"Before scrolling the screen, checks the destination screen"
 		" and position to see if it's solid. If so, scrolling is cancelled."
@@ -225,7 +225,7 @@ static GUI::ListData comboRulesList
 	{ "Fixed Smart Scrolling", qr_SMARTER_SMART_SCROLL, 
 		"Fixes the many, many bugs with Smart Scrolling. Solidity on"
 		" layers is now respected, Secret states and the like are now"
-		" obeyed, and it now checks the Player's entire hitbox instead"
+		" obeyed, and it now checks the Hero's entire hitbox instead"
 		" of the upperleft most corner."},
 	{ "Can't Push Blocks Onto Unwalkable Combos", qr_SOLIDBLK, 
 		"Prevents you from pushing a push block into a solid combo."
@@ -254,7 +254,7 @@ static GUI::ListData comboRulesList
 	{ "Magic Mirror/Prism Combos Reflect Enemy and Scripted Sword Beams", qr_SWORDMIRROR, 
 		"Allows sword beams to reflect off Mirror/Prism Combos. Note"
 		" that this does not affect the Sword Beams that come from"
-		" the Player's Sword; to have those reflect off mirrors, check"
+		" the Hero's Sword; to have those reflect off mirrors, check"
 		" the 'Sword Beams Reflect off Mirror/Prism Combos' Item Flag on"
 		" the sword items you wish to have reflecting Sword Beams for in"
 		" the item editor."},
@@ -313,22 +313,22 @@ static GUI::ListData comboRulesList
 		" positioned incorrectly, usually leading to it being more"
 		" to the northwest."},
 	{ "Always Face Up On Sideview Ladders", qr_SIDEVIEWLADDER_FACEUP, 
-		"When enabled, the Player will always face up when standing"
+		"When enabled, the Hero will always face up when standing"
 		" or walking on a sideview ladder. This does not force the"
-		" player to face up when attacking or doing anything that"
+		" Hero to face up when attacking or doing anything that"
 		" isn't walking or standing."},
 	{ "Press 'Down' To Fall Through Sideview Platforms", qr_DOWN_FALL_THROUGH_SIDEVIEW_PLATFORMS, 
-		"When enabled, the Player can press down to fall through"
+		"When enabled, the Hero can press down to fall through"
 		" a sideview platform flagged combo." },
 	{ "Press 'Down+Jump' To Fall Through Sideview Platforms", qr_DOWNJUMP_FALL_THROUGH_SIDEVIEW_PLATFORMS, 
-		"When enabled, the Player can press down while using the"
+		"When enabled, the Hero can press down while using the"
 		" Roc's Feather to fall through a sideview platform"
 		" flagged combo." },
 	{ "Falling Through Sideview Platforms Respects 'Drunk' Inputs", qr_SIDEVIEW_FALLTHROUGH_USES_DRUNK, 
-		"If enabled, Drunk Player pressing down (or down+jump) can"
+		"If enabled, Drunk Hero pressing down (or down+jump) can"
 		" accidentally fall through a sideview platform."},
 	{ "Pressing Down Will Not Grab Sideview Ladders", qr_DOWN_DOESNT_GRAB_LADDERS, 
-		"If enabled, the Player can't grab onto Sideview Ladders by"
+		"If enabled, the Hero can't grab onto Sideview Ladders by"
 		" pressing down; only pressing up can grab sideview ladders." },
 	{ "Custom Combos Work On Layers 1 And 2", qr_CUSTOMCOMBOSLAYERS1AND2, 
 		"If enabled, Layers 1 and 2 will also be checked for custom"
@@ -371,13 +371,13 @@ static GUI::ListData comboRulesList
 		" for combodata->OriginalTile."},
 	{ "New Water Collision", qr_SMARTER_WATER, 
 		"Internally changes how water is checked to allow for easier"
-		" feature additions. It also allows the Player to disembark"
+		" feature additions. It also allows the Hero to disembark"
 		" out of water onto an FFC or Bridge combo. 'Water Works On"
 		" Layer 1/Layer 2' relies on this Quest Rule."},
 	{ "Disable LA_HOPPING", qr_NO_HOPPING, 
 		"Disables the transition state when entering/exiting walkable"
-		" water where the Player walks for a few frames without any"
-		" player control. This transition state, also known as LA_HOPPING,"
+		" water where the Hero walks for a few frames without any"
+		" Hero control. This transition state, also known as LA_HOPPING,"
 		" is a major source of frustration among players not just for an"
 		" unneccesary loss of control, but also because it has a frequent"
 		" habit of glitching you through walls without your control and"
@@ -386,7 +386,7 @@ static GUI::ListData comboRulesList
 	{ "Can't Swim In Solid Water", qr_NO_SOLID_SWIM, 
 		"If enabled, prevents swimming in solid water. Normally,"
 		" when disabled, you can swim in walkable water (only if"
-		" 'Player Drowns in Walkable Water' is checked) and solid water"
+		" 'Hero Drowns in Walkable Water' is checked) and solid water"
 		" (which requires pushing against it and triggers the LA_HOPPING"
 		" state). Because of this, you could never have partially solid"
 		" water. This changes it so only walkable water is swimmable,"
@@ -400,47 +400,47 @@ static GUI::ListData comboRulesList
 		" acts as a Bridge combo, overwriting the solidity/properties"
 		" of combos placed below it. Requires 'New Water Collision'"},
 	{ "Sideview Swimming", qr_SIDESWIM, 
-		"Enables Sideview Swimming. With this enabled, the Player"
+		"Enables Sideview Swimming. With this enabled, the Hero"
 		" gains a whole set of new actions and custom physics when"
 		" in water placed in Sideview. If disabled, water in Sideview"
 		" acts very oddly, with gravity still applying."},
-	{ "Player Faces Left/Right While Sideview Swimming", qr_SIDESWIMDIR, 
-		"When enabled, the Player can only face Left and Right in sideview water."},
+	{ "Hero Faces Left/Right While Sideview Swimming", qr_SIDESWIMDIR, 
+		"When enabled, the Hero can only face Left and Right in sideview water."},
 	{ "New Shallow Water Detection", qr_SHALLOW_SENSITIVE, 
 		"When enabled, Shallow Water will use the same collision"
-		" used to check if the Player should swim/drown. If disabled,"
+		" used to check if the Hero should swim/drown. If disabled,"
 		" you can get situations where you're swimming but the shallow"
 		" water graphic displays."},
 	{ "New Tall Grass Detection", qr_GRASS_SENSITIVE, 
 		"When enabled, Tall Grass will use the same collision"
-		" used to check if the Player should swim/drown. If disabled,"
+		" used to check if the Hero should swim/drown. If disabled,"
 		" you can get situations where you're swimming but the tall"
 		" grass graphic displays."},
 	{ "Better Sideview Damage Combo Detection", qr_LESS_AWFUL_SIDESPIKES, 
 		"When enabled, damage combos in sideview will only do their"
-		" check if the Player is standing on solid ground and is"
+		" check if the Hero is standing on solid ground and is"
 		" mostly on the damage combo. This does not affect the"
 		" check for bonking your head on a damaging ceiling; see"
 		" 'Sideview Spike Detection Prior to 2.50.1RC3' for that."},
 	{ "Fairy Rings Don't Remove Sword Jinxes", qr_NONBUBBLEFAIRIES,
-		"If enabled, fairy ring flags won't heal sword jinxes when the player steps on them."
+		"If enabled, fairy ring flags won't heal sword jinxes when the Hero steps on them."
 		" This used to prevent 'Fairy Combos Remove Item Jinxes' from working, but"
 		" this has since been patched and both quest rules can work independently."},
 	{ "Fairy Rings Remove Item Jinxes", qr_ITEMBUBBLE,
-		"If enabled, fairy ring flags will heal item jinxes when the player steps on them."
+		"If enabled, fairy ring flags will heal item jinxes when the Hero steps on them."
 		" This used to also affect potions and triforce pieces, but this behavior has since"
 		" been relocated to the respective item flags."},
 	{ "Fairy Rings Remove Shield Jinxes", qr_SHIELDBUBBLE,
-		"If enabled, fairy ring flags will heal shield jinxes when the player steps on them."},
+		"If enabled, fairy ring flags will heal shield jinxes when the Hero steps on them."},
 	{ "Light Beams draw Transparently", qr_LIGHTBEAM_TRANSPARENT, 
 		"Light Beams from Spotlight combos are transparently drawn."},
 	{ "Less Arbitrary Dock Combos", qr_BETTER_RAFT, 
-		"If enabled, the player will be able to raft off a dock if there is a raft flag in"
+		"If enabled, the Hero will be able to raft off a dock if there is a raft flag in"
 		" either of the 4 directions from the dock, regardless of direction. If disabled, the"
-		" player can only raft if there is a raft flag in the direction they are facing when they"
+		" Hero can only raft if there is a raft flag in the direction they are facing when they"
 		" step on the dock."},
 	{ "More Sensitive Dock Combos", qr_BETTER_RAFT_2, 
-		"If enabled, the collision for dock combos will only check the bottom part of the player's"
+		"If enabled, the collision for dock combos will only check the bottom part of the Hero's"
 		" hitbox, as opposed to the bottom and top parts of their hitbox."},
 	{ "Docks use Raft Item's sound", qr_RAFT_SOUND,
 		"The raft will use the sound specified in UseSound when starting rafting,"
@@ -461,14 +461,14 @@ static GUI::ListData comboRulesList
 		"Disables taking damage by stepping on solid sideview damage."
 		" Does not affect damage taken by walkin into solid damage combos." +QRHINT({qr_NOSOLIDDAMAGECOMBOS}) },
 	{ "Lenient Solid Damage Combos", qr_LENIENT_SOLID_DAMAGE, 
-		"Solid damage combos only check the center of the Player's hitbox. Does not affect sideview damage combos you step on."
+		"Solid damage combos only check the center of the Hero's hitbox. Does not affect sideview damage combos you step on."
 		" Does nothing if 'No Solid Damage Combos' is checked." +QRHINT({qr_NOSOLIDDAMAGECOMBOS}) },
 	{ "Sensitive Solid Damage Combos", qr_SENSITIVE_SOLID_DAMAGE, 
-		"Solid damage combos only check the center of the Player's hitbox. Does not affect sideview damage combos you step on."
+		"Solid damage combos only check the center of the Hero's hitbox. Does not affect sideview damage combos you step on."
 		" Does nothing if 'No Solid Damage Combos' or 'Lenient Solid Damage Combos' is checked." +QRHINT({qr_NOSOLIDDAMAGECOMBOS,qr_LENIENT_SOLID_DAMAGE}) },
 	{ "Allow Multiple Platform FFCs", qr_MULTI_PLATFORM_FFC, 
-		"If checked, more than one FFC with the 'Platform' flag can move the player in a single frame."
-		" Otherwise, the first 'Platform' FFC to move the player will prevent other platforms from moving the player that frame." },
+		"If checked, more than one FFC with the 'Platform' flag can move the Hero in a single frame."
+		" Otherwise, the first 'Platform' FFC to move the Hero will prevent other platforms from moving the Hero that frame." },
 	{ "Separate Tap SFX for bombable walls", qr_SEPARATE_BOMBABLE_TAPPING_SFX,
 		"If checked, bombable walls will use a separate SFX 'Sword Tap (Hollow)' when tapped against,"
 		" instead of the default 'Sword Tap' sound. (sounds set in the Misc SFX menu)" },
@@ -510,7 +510,7 @@ static GUI::ListData compatRulesList
 		"If this is enabled, the check for if a hookshot has grabbed a"
 		" combo going left or right will check its Y value plus 7."
 		" If disabled, it will check its Y value plus 13. Note that"
-		" the hookshot's Y position is 3 pixels more than the Player's when"
+		" the hookshot's Y position is 3 pixels more than the Hero's when"
 		" facing left/right, and note that this rule does not affect"
 		" the hookshot when travelling up or down."},
 	{ "Peahats Are Vulnerable When Frozen By Clocks", qr_PEAHATCLOCKVULN, 
@@ -570,9 +570,9 @@ static GUI::ListData compatRulesList
 		" If disabled, enemies can't walk into a combo if any part"
 		" of it is solid."},
 	{ "Old Sideview Ceiling Collision", qr_OLD_SIDEVIEW_CEILING_COLLISON, 
-		"If this is enabled, the player's entire hitbox is checked"
+		"If this is enabled, the Hero's entire hitbox is checked"
 		" for hitting a ceiling, instead of just their bottom half."
-		" Additionally, it allows the Player to clip into ceilings"
+		" Additionally, it allows the Hero to clip into ceilings"
 		" immediately above their heads when they start the Jump from"
 		" land, as the solidity isn't checked until they are in the air."},
 	{ "Items set to 0 AFrames ignore AFrame changes", qr_0AFRAME_ITEMS_IGNORE_AFRAME_CHANGES, 
@@ -590,7 +590,7 @@ static GUI::ListData compatRulesList
 		"If enabled, LW_SCRIPT and EW_SCRIPT weapons are killed earlier"
 		" before hitting the edge of the screen."},
 	{ "1.92 Dungeon Autowalk Speed", qr_SHORTDGNWALK, 
-		"If enabled, the Player autowalks a few pixels less into dungeon"
+		"If enabled, the Hero autowalks a few pixels less into dungeon"
 		" screens than he usually does."},
 	{ "Old String Margins", qr_OLD_STRING_EDITOR_MARGINS, 
 		"If enabled, disables the border spacing of strings and allows"
@@ -620,7 +620,7 @@ static GUI::ListData compatRulesList
 		" the old math accidentally had double negatives, which turned negative"
 		" values back into positive values. If disabled, the fixed behavior is"
 		" used, which allows for proper negative defense (negative defense"
-		" meaning the player takes more damage). This rule exists only to be"
+		" meaning the Hero takes more damage). This rule exists only to be"
 		" enabled automatically for old quests."},
 	{ "Overworld DMaps Do Not Chart Progress", qr_NO_OVERWORLD_MAP_CHARTING, 
 		"Uses old (nonexistent) behavior for overworld charting. If enabled,"
@@ -641,13 +641,13 @@ static GUI::ListData compatRulesList
 		" edit Combo 0, though it is *not* recommended."},
 	{ "Old Chest Collision", qr_OLD_CHEST_COLLISION, 
 		"Enabling this rule brings back the old chest behavior. The old chest"
-		" behavior required the player to be below the chest facing up (or,"
+		" behavior required the Hero to be below the chest facing up (or,"
 		" if the screen was sideview, to the side of the chest facing left"
-		" or right, but only if the chest was half solid and the player was"
+		" or right, but only if the chest was half solid and the Hero was"
 		" attempting to open it from the side it was walkable) and walk into"
 		" it for a few frames. If this QR is disabled, the new chest collision"
 		" is enabled. The new collision allows you to customize which directions"
-		" the chest is openable in the combo editor, as well as letting the player"
+		" the chest is openable in the combo editor, as well as letting the Hero"
 		" use a defined button to open the chest (or the old behavior of walking"
 		" into the chest if set). These new features are not available if this"
 		" rule is enabled."},
@@ -675,11 +675,11 @@ static GUI::ListData compatRulesList
 		" hardcoded. They will use hardcoded aframe and aspeed values regardless"
 		" of what they are set as in the sprite editor. If this is disabled,"
 		" these sprites will obey the values set in their respective sprite data."
-		" Note that this rule also affects the 'death poof' the Player does when"
+		" Note that this rule also affects the 'death poof' the Hero does when"
 		" they die!"},
 	{ "Old Itemdata Script timing", qr_OLD_ITEMDATA_SCRIPT_TIMING, 
 		"Changes the timing of itemdata scripts. If this is disabled, they run"
-		" immediately after the Player's internal code. If this is enabled,"
+		" immediately after the Hero's internal code. If this is enabled,"
 		" it will run immediately before."},
 	{ "Old fairy spawn limit", qr_OLD_FAIRY_LIMIT, 
 		"If this rule is enabled, there is a limit of one fairy onscreen that enemies"
@@ -845,7 +845,7 @@ static GUI::ListData compatRulesList
 	{ "Ganon-Type Rooms Don't Work On Continuing", qr_GANON_CANT_SPAWN_ON_CONTINUE,
 		"If enabled, continuing/starting the quest will not trigger Ganon Rooms."},
 	{ "Old Bug Net Animation", qr_OLD_BUG_NET,
-		"If enabled, the player won't use slashing tiles while using the Bug Net."},
+		"If enabled, the Hero won't use slashing tiles while using the Bug Net."},
 	{ "Manhandla Uses Hit Sound For Center Body", qr_MANHANDLA_BLOCK_SFX,
 		"If enabled, Manhandla will play the hit sound when hitting the center body"
 		" instead of the block sound."},
@@ -861,8 +861,8 @@ static GUI::ListData compatRulesList
 	{ "Old Scripted Knockback", qr_OLD_SCRIPTED_KNOCKBACK,
 		"If enabled, npc->Knockback will use older logic, which had a tendency to clip enemies into walls." },
 	{ "Old Keese Z Axis Behavior", qr_OLD_KEESE_Z_AXIS,
-		"If enabled, Keese will barely change their z value unless over 128 pixels away from the Player. If disabled,"
-		" they will use the Z axis up to 40 pixels away and go higher up than before, but still be hittable when close to the Player."},
+		"If enabled, Keese will barely change their z value unless over 128 pixels away from the Hero. If disabled,"
+		" they will use the Z axis up to 40 pixels away and go higher up than before, but still be hittable when close to the Hero."},
 	{ "No Pols Voice/Vire Shadows with Z axis", qr_POLVIRE_NO_SHADOW,
 		"If enabled, Pols Voice and Vires won't have shadows when jumping in the Z axis."},
 	{ "Decorations -2 yoffset", qr_DECO_2_YOFFSET,
@@ -875,7 +875,7 @@ static GUI::ListData compatRulesList
 		"If enabled, FFCs that 'run on screen init' will not run before the opening wipe on the first screen"
 		" loading from the save select screen." },
 	{ "No lifting sprite", qr_NO_LIFT_SPRITE,
-		"If enabled, the player will not display a 'lifting' sprite." },
+		"If enabled, the Hero will not display a 'lifting' sprite." },
 	{ "Old Sideview Landing", qr_OLD_SIDEVIEW_LANDING_CODE,
 		"If enabled, the old code for landing in sideview will be used." },
 	{ "FFC 128 speed cap", qr_OLD_FFC_SPEED_CAP,
@@ -900,7 +900,7 @@ static GUI::ListData compatRulesList
 		"If enabled, pushblocks will not use 'real' solidity." },
 	{ "Broken ->HitBY UIDs", qr_BROKENHITBY,
 		"If enabled, ->HitBy[HIT_BY_(thing)_UID] will use the real engine uid instead of the script uid,"
-		" and both Player fire and bomb weapons won't work with HitBy if they hurt the player." 
+		" and both Hero fire and bomb weapons won't work with HitBy if they hurt the Hero." 
 		" Note that you can access the real engine uid with ->HitBy[HIT_BY_(thing)_ENGINE_UID] regardless of this rule."},
 	{ "Broken Moving && Air Bombs", qr_BROKEN_MOVING_BOMBS,
 		"If enabled, bombs exploding while moving will behave oddly and broken, and bomb explosions"
@@ -954,8 +954,8 @@ static GUI::ListData compatRulesList
 		"If enabled, Push (Generic) combos won't lock into place via the 'Pushed' flag"
 		" (ex. 'clicking into place' for a block trigger)" },
 	{ "Broken Enemy Fire/Arrow Reflecting", qr_BROKEN_FLAME_ARROW_REFLECTING,
-		"If enabled, Enemy Fire/Arrows won't reflect off of player shields, even when the reflect flag is set."
-		"\nEnemy 'Fire 2' will, contrarily, ALWAYS be BLOCKED by player shields, regardless of block/reflect flags." },
+		"If enabled, Enemy Fire/Arrows won't reflect off of Hero shields, even when the reflect flag is set."
+		"\nEnemy 'Fire 2' will, contrarily, ALWAYS be BLOCKED by Hero shields, regardless of block/reflect flags." },
 	{ "Broken Sideview Sprite Jump", qr_BROKEN_SIDEVIEW_SPRITE_JUMP,
 		"If enabled, certain sprites (enemy, weapon, and item) will stick to the ground in sideview"
 		" and cannot be made to jump off via script." },
@@ -976,12 +976,12 @@ static GUI::ListData enemiesRulesList
 		" Tektites, Vires, Pols Voice, Rocks, and Boulders will jump/bounce through"
 		" the Z-Axis instead of faking it via the Y-Axis, Peahats will lose their"
 		" invulnerability while flying but will instead fly high enough that most"
-		" weapons can't hit it without the player jumping, and Summoner Wizzrobes"
+		" weapons can't hit it without the Hero jumping, and Summoner Wizzrobes"
 		" will spawn their summoned enemies in the air."},
 	{ "Hide Enemy-Carried Items", qr_HIDECARRIEDITEMS, 
 		"If enabled, enemy-carried items are moved offscreen whenever the item"
 		"-carrying enemy spawns, and is only moved back whenever the enemy dies."
-		" This prevents the player from bumping into the enemy to pick up the item"
+		" This prevents the Hero from bumping into the enemy to pick up the item"
 		" before the enemy is killed. The exact coordinates the item is set to is"
 		" -128, -128."},
 	{ "Enemies Always Return", qr_ALWAYSRET,
@@ -1049,7 +1049,7 @@ static GUI::ListData enemiesRulesList
 	{ "Unbeatable enemies don't prevent enemies from respawning",  qr_UNBEATABLES_DONT_KEEP_DEAD,
 		"If enabled, a screen that only has unbeatable enemies left will act as if it has"
 		" 0 enemies left alive, allowing the enemies on the screen to respawn if the screen"
-		" isn't one of the last 6 unique screen visited or if the player has F6'd."},
+		" isn't one of the last 6 unique screen visited or if the Hero has F6'd."},
 	{ "No 'Leave one enemy alive' trick",  qr_NO_LEAVE_ONE_ENEMY_ALIVE_TRICK,
 		"If enabled, enemies will always return after either f6ing or if the current screen"
 		" isn't one of the last 6 unique screens visited; regardless of how many enemies are"
@@ -1109,8 +1109,8 @@ static GUI::ListData itemRulesList
 		"If enabled, Items will fall through combos flagged with the 'Sideview Platform' flag"
 		" or the 'Sideview Ladder' flag. If disabled, they will land on and not fall through"
 		" either of these."},
-	{ "Items Held Above Player's Head Continue To Animate", qr_HOLDITEMANIMATION,
-		"If enabled, when the player holds an item above their head, the item"
+	{ "Items Held Above Hero's Head Continue To Animate", qr_HOLDITEMANIMATION,
+		"If enabled, when the Hero holds an item above their head, the item"
 		" will continue to animate. If disabled, the item will be static and"
 		" only use the first frame of their animation."},
 	{ "Fairies spawn with random direction", qr_FAIRYDIR,
@@ -1190,17 +1190,17 @@ static GUI::ListData miscRulesList
 		"If enabled, current Game Time can be shown on the subscreen. This displays how long you've"
 		" been playing on that save file. Note that having cheats turned on will prevent the Game Time"
 		" from displaying, even if this quest rule is enabled."},
-	{ "Healing Fairy Heart Circle Is Centered Around Player", qr_HEARTRINGFIX,
-		"If enabled, the circle of hearts that display around the player when they step on a Fairy"
-		" Circle will be centered around the Player. If disabled, they will center on the center of the"
+	{ "Healing Fairy Heart Circle Is Centered Around Hero", qr_HEARTRINGFIX,
+		"If enabled, the circle of hearts that display around the Hero when they step on a Fairy"
+		" Circle will be centered around the Hero. If disabled, they will center on the center of the"
 		" screen, or 125, 88."},
 	{ "No Healing Fairy Heart Circle", qr_NOHEARTRING,
-		"If enabled, the circle of hearts that normally display around the player when they step on a Fairy" 
+		"If enabled, the circle of hearts that normally display around the Hero when they step on a Fairy" 
 		" Circle will not display."},
 	{ "No Saving When Continuing", qr_NOSAVE,
 		"If enabled, removes the 'Save' option from the Game Over screen. Saving must be done through other methods."},
 	{ "Return To File Select On Death/F6", qr_NOCONTINUE,
-		"If enabled, the Continue Screen is skipped, and the player is returned to the file select screen on Death or Game->End."
+		"If enabled, the Continue Screen is skipped, and the Hero is returned to the file select screen on Death or Game->End."
 		" Note that this means all progress is lost since last save."
 		"\nIf an 'onF6Menu' script is assigned, this prevents the"
 		" engine F6 menu from appearing after the scripted one is cancelled."},
@@ -1233,18 +1233,18 @@ static GUI::ListData miscRulesList
 		"If enabled, you can spend rupees while they are draining, even if after the drain"
 		" would finish you'd be unable to afford the shop item. As an example, if you have"
 		" 500 rupees and you buy a 300 rupee item, you'd normally be left with 200 rupees;"
-		" but if the player is fast enough, they can buy an item with their still-draining"
+		" but if the Hero is fast enough, they can buy an item with their still-draining"
 		" money, possibly buying an item worth more than the 200 rupees they'd be left with."
 		" \nIf disabled, shops will check both your rupee count and your rupee drain amount to"
-		" make sure you can afford whatever the player is buying."},
-	{ "Triforce in Cellar Warps Player Out", qr_SIDEVIEWTRIFORCECELLAR,
+		" make sure you can afford whatever the Hero is buying."},
+	{ "Triforce in Cellar Warps Hero Out", qr_SIDEVIEWTRIFORCECELLAR,
 		"If enabled, the Triforce can warp you out of passageways if 'Side Warp Out' is checked on"
 		" the Triforce item. Otherwise, if disabled, you will stay in the passageway after the animation"
 		" ends, regardless of whether 'Side Warp Out' is checked."},
 	{ "Reduced Flashing (Epilepsy Protection)", qr_EPILEPSY,
 		"If enabled, certain features in the game are limited visually to make things more epilepsy-friendly"
 		" for players. This includes capping the intensity of wavy effects, reducing the triforce flashes, and more."
-		" Note that players can turn on this rule themselves in the player; if you desire consistency, you should turn"
+		" Note that players can turn on this rule themselves in the Hero; if you desire consistency, you should turn"
 		" this quest rule on and design around it."},
 	{ "Screen->Wavy Intensity is not affected by Epilepsy Protection", qr_WAVY_NO_EPILEPSY,
 		"If enabled, the intensity of wavy effects is not capped by epilepsy protection. The cap is at 2048*sin for"
@@ -1267,12 +1267,12 @@ static GUI::ListData miscRulesList
 		" break where you aren't supposed to by drowning in water on the next screen, and jumping again after respawning. Enabling"
 		" this will prevent you from changing screens while jumping or otherwise in the air, allowing you to design around the feather easier."},
 	{ "No Scrolling Screen While Carrying", qr_NO_SCROLL_WHILE_CARRYING,
-		"If enabled, you cannot scroll the screen while the player is carrying something with a Lift Glove."},
+		"If enabled, you cannot scroll the screen while the Hero is carrying something with a Lift Glove."},
 	{ "Carryables Can't Leave Screen", qr_CARRYABLE_NO_ACROSS_SCREEN,
 		"If enabled, leaving a screen while carrying something with a Lift Glove will delete the carried object."},
 	{ "New Dark Rooms", qr_NEW_DARKROOM,
 		"If enabled, Dark Rooms behave less like Z1 and more like LttP/Minish Cap, having light circles around torches and giving a customizeable"
-		" spotlight around the Player. If disabled, Z1-styled dark rooms are used, which only darken the screen until lit up with a candle."},
+		" spotlight around the Hero. If disabled, Z1-styled dark rooms are used, which only darken the screen until lit up with a candle."},
 	{ "New Darkness Draws Under Layer 7", qr_NEWDARK_L6,
 		"If enabled, the new dark rooms will draw under layer 7, allowing scripts to draw over dark rooms by drawing to Layer 7."
 		" If disabled, scripts are never able to draw above the new dark rooms."},
@@ -1298,19 +1298,19 @@ static GUI::ListData nesfixesRulesList
 {
 	{ "Freeform Dungeons", qr_FREEFORM,
 		"If enabled, dungeons lose the hardcoded behaviors regarding the edge of the screen. Normally, when disabled,"
-		" the player can only walk towards or away from the edge of the screen when less than 2 tiles away from the edge"
+		" the Hero can only walk towards or away from the edge of the screen when less than 2 tiles away from the edge"
 		" of the screen, you cannot walk upwards onto the topmost two rows of combos except where the northern door would be,"
 		" and all combos on the edge of the screen draw over sprites. Enabling this rule disables these behaviors."},
 	{ "Can Safely Trigger Armos/Grave From The South", qr_SAFEENEMYFADE,
-		"If enabled, fade-spawning enemies have no collision until after they finish spawning, preventing the player from taking"
-		" damage from these enemies if they spawn from graves or armos and the player activates them from the south."},
+		"If enabled, fade-spawning enemies have no collision until after they finish spawning, preventing the Hero from taking"
+		" damage from these enemies if they spawn from graves or armos and the Hero activates them from the south."},
 	{ "Can Use Items/Weapons on Edge of Screen", qr_ITEMSONEDGES,
 		"If enabled, you can use items when in doorways or on screen edges. Normally, you can only use items when facing in a"
 		" direction perpendicular to the screen edge you'e close to when you're within 2 tiles of the screen edge, and you can't"
 		" use items at all when in the corner of the screen. Enabling this will disable this behavior and allow you to use items"
 		" and weapons on the screen edge."},
-	{ "Fix Player's Position in Dungeons", qr_HERODUNGEONPOSFIX,
-		"If disabled, and the rule 'BS-Zelda Animation Quirks' is disabled, the player gains a -2 y offset when in dungeons."
+	{ "Fix Hero's Position in Dungeons", qr_HERODUNGEONPOSFIX,
+		"If disabled, and the rule 'BS-Zelda Animation Quirks' is disabled, the Hero gains a -2 y offset when in dungeons."
 		"Having either this or 'BS-Zelda Animation Quirks' enabled will disable this -2 y offset in dungeons."},
 	{ "Raft/Ladder Sprite Direction Fix", qr_RLFIX,
 		"If enabled, the Raft and Ladder will rotate their sprites when going left or right."
@@ -1318,9 +1318,9 @@ static GUI::ListData nesfixesRulesList
 	{ "Level 3 CSet 6 Fix", qr_NOLEVEL3FIX,
 		"When disabled, color 2 of CSet 6 will use color 7 of CSet 3 when in a dmap with a level of 3."
 		" If enabled, this behavior is ignored."},
-	{ "Player Holds Special Bombs Over Their Head", qr_BOMBHOLDFIX,
-		"If enabled, the player can hold bombs over their head if the bomb is a Special Item in a Special Item Room."
-		" Otherwise, bombs will only be held over head if the player dives for them."},
+	{ "Hero Holds Special Bombs Over Their Head", qr_BOMBHOLDFIX,
+		"If enabled, the Hero can hold bombs over their head if the bomb is a Special Item in a Special Item Room."
+		" Otherwise, bombs will only be held over head if the Hero dives for them."},
 	{ "Holding Up Items Doesn't Restart Music", qr_HOLDNOSTOPMUSIC,
 		"If enabled, holding up an item will not restart the currently playing music."
 		" If disabled, holding up an item will restart the current music."},
@@ -1340,7 +1340,7 @@ static GUI::ListData nesfixesRulesList
 		" have the -2 Y offset all enemies usually spawn with."},
 	{ "No Invisible Border on Non-Dungeon DMaps", qr_NOBORDER,
 		"Normally, there is a 1 tile border surrounding the edge of the screen that prevents enemies from walking on the"
-		" screen edge, a 16 pixel border that kills the player's weapons around the edge of the screen early, and a 8"
+		" screen edge, a 16 pixel border that kills the Hero's weapons around the edge of the screen early, and a 8"
 		" pixel border that kills enemy weapons around the edge of the screen early. Additionally, there is a change to"
 		" how close to the edge of the screen you are allowed to use melee weapons if the NES Fix 'Can Use Items/Weapons on Edge of"
 		" Screen' is enabled, increasing the distance you need to be away from the edge by 8 pixels (or half a tile)."
@@ -1351,11 +1351,11 @@ static GUI::ListData nesfixesRulesList
 	{ "Subscreen Appears Above Sprites", qr_SUBSCREENOVERSPRITES,
 		"If enabled, the subscreen is drawn above Layer 6, and the use of Layer 7 is enabled."
 		" If disabled, the subscreen is drawn above layer 4 but below flying/jumping enemies,"
-		" an airborne player, etc; and Layer 7 is not drawn."},
+		" an airborne Hero, etc; and Layer 7 is not drawn."},
 	{ "Shielded Enemies Check Bomb's Position Instead Of Direction", qr_BOMBDARKNUTFIX,
 		"If enabled, bomb collision with shielded enemies is checked by comparing the angle of the"
 		" explosion to the enemy, and uses the direction of that angle to check if the enemy would"
-		" be shielded in that direction. If disabled, the bomb will use the direction the player was"
+		" be shielded in that direction. If disabled, the bomb will use the direction the Hero was"
 		" facing when the bomb was placed when comparing if the enemy is shielded in that direction."
 		"\nPlease note that regardless of this Quest Rule, shielded enemies will always be shown as"
 		" taking damage regardless of if they blocked it and were dealt no damage, unless the NES Fix"
@@ -1366,8 +1366,8 @@ static GUI::ListData nesfixesRulesList
 		" whenever an explosion hits them, even if they are not actually being damaged because"
 		" of their shield blocking the explosion."},
 	{ "Correct Offset Enemy Weapon Collision Detection", qr_OFFSETEWPNCOLLISIONFIX,
-		"If enabled, hit offsets of enemy weapons are changed, preventing a common exploit of the player"
-		" standing in between two tiles to avoid getting hit by certain projectiles. If disabled, the player"
+		"If enabled, hit offsets of enemy weapons are changed, preventing a common exploit of the Hero"
+		" standing in between two tiles to avoid getting hit by certain projectiles. If disabled, the Hero"
 		" can stand in between two tiles to avoid certain projectiles."},
 	{ "Special Items Don't Appear In Passageways", qr_ITEMSINPASSAGEWAYS,
 		"If enabled, special items do not appear in passageways if a screen has both a special item and a"
@@ -1378,8 +1378,8 @@ static GUI::ListData nesfixesRulesList
 		" The order alternates between 'Behind Weapons, Shadows, Enemies, Chainlinks, Non-Behind Weapons, Items'"
 		" and 'Behind Weapons, Shadows, Items, Chainlinks, Enemies, Non-Behind Weapons'. If this rule is enabled,"
 		" the drawing order is forced to be the former order regardless of frame."},
-	{ "Invincible Player Isn't Hurt By Own Fire Weapons", qr_FIREPROOFHERO2,
-		"Normally, the player can be hurt by their own fire weapons even if they are invincible from some source,"
+	{ "Invincible Hero Isn't Hurt By Own Fire Weapons", qr_FIREPROOFHERO2,
+		"Normally, the Hero can be hurt by their own fire weapons even if they are invincible from some source,"
 		" like the clock item or scripts. Enabling this rule disables this, making them actually invincible."},
 	{ "No Position Offset Of Screen Items", qr_NOITEMOFFSET,
 		"If enabled, items gain a -1 Y offset to counterbalance a +1 Y offset they would normally otherwise have."},
@@ -1398,52 +1398,52 @@ static GUI::ListData nesfixesRulesList
 		" is enabled, as enemies will not flash during their death animation"
 		" if that rule is enabled regardless."},
 	{ "No Statue Minimum Range Or Double Fireballs", qr_BROKENSTATUES,
-		"If enabled, statues will still fire at the player even if the player is close."
+		"If enabled, statues will still fire at the Hero even if the Hero is close."
 		" Statues also have a 1 in 16 chance to double shoot if enabled, with the second"
 		" shot being 4 pixels to the left. If disabled, statues cannot double shoot, and"
-		" they have a minimum range where they won't fire if the player is within 24 pixels"
+		" they have a minimum range where they won't fire if the Hero is within 24 pixels"
 		" of the statue."},
-	{ "Killing Stunned Enemy With Melee Weapons Won't Hurt Player", qr_DYING_ENEMIES_IGNORE_STUN,
-		"If enabled, dying enemies won't damage the player if they are stunned, the player is"
-		" on top of them, and the player kills them with a melee weapon. Presumably this was"
+	{ "Killing Stunned Enemy With Melee Weapons Won't Hurt Hero", qr_DYING_ENEMIES_IGNORE_STUN,
+		"If enabled, dying enemies won't damage the Hero if they are stunned, the Hero is"
+		" on top of them, and the Hero kills them with a melee weapon. Presumably this was"
 		" a feature to replicate NES behavior."},
 	{ "Shop Items Disappear on Pickup", qr_SHOP_ITEMS_VANISH,
 		"If enabled, all items will vanish after picking up a shop item. If both this and"
 		" 'Items Disappear During Hold-Up' are disabled, shop items will not disappear when"
 		" you buy one."},
-	{ "Expanded Player Tile Modifiers", qr_EXPANDEDLTM,
-		"If enabled, Player Tile Modifiers from items (such as shields) will always be applied to the player."
-		" \nIf disabled, they will only be applied if the player is walking or standing (either on land or while"
-		" sideswimming), and only if the player is not facing up."},
+	{ "Expanded Hero Tile Modifiers", qr_EXPANDEDLTM,
+		"If enabled, Hero Tile Modifiers from items (such as shields) will always be applied to the Hero."
+		" \nIf disabled, they will only be applied if the Hero is walking or standing (either on land or while"
+		" sideswimming), and only if the Hero is not facing up."},
 };
 
 static GUI::ListData playerRulesList
 {
 	{ "Diagonal Movement", qr_LTTPWALK,
-		"If enabled, disables the built in player gridlock, and allows the player to move diagonally."
-		" \nDiagonal Movement also uses different logic for determining how many pixels the Player should"
-		" move from  non-Diagonal Movement (or '4-way Movement', from here out) when 'New Player Movement'"
-		" is disabled; 4-way Movement gives a different step speed depending on the player's current X/Y"
+		"If enabled, disables the built in Hero gridlock, and allows the Hero to move diagonally."
+		" \nDiagonal Movement also uses different logic for determining how many pixels the Hero should"
+		" move from  non-Diagonal Movement (or '4-way Movement', from here out) when 'New Hero Movement'"
+		" is disabled; 4-way Movement gives a different step speed depending on the Hero's current X/Y"
 		" position, usually averaging out to 1.3333 pixels of movement per frame; while Diagonal Movement"
 		" alternates between 1 and 2 pixels every frame, averaging out to 1.5 pixels of movement per frame."
-		" \nIf 'New Player Movement' is enabled, there is no speed difference between 4-Way Movement and"
-		" Diagonal Movement, as the Player's position and speed use decimal precision."},
+		" \nIf 'New Hero Movement' is enabled, there is no speed difference between 4-Way Movement and"
+		" Diagonal Movement, as the Hero's position and speed use decimal precision."},
 	{ "Large Hitbox", qr_LTTPCOLLISION,
-		"If enabled, the player's walking hitbox is changed from 16x8 (the bottom half of the player's sprite)"
-		" to 16x16 (their entire sprite). The player cannot walk halfway into a solid combo from the bottom, and"
+		"If enabled, the Hero's walking hitbox is changed from 16x8 (the bottom half of the Hero's sprite)"
+		" to 16x16 (their entire sprite). The Hero cannot walk halfway into a solid combo from the bottom, and"
 		" the collision detection of certain combos and flags is modified to account for this change of hitbox."},
-	{ "New Player Movement", qr_NEW_HERO_MOVEMENT,
-		"Alters the player's movement; with this enabled, movement includes decimal precision,"
-		" diagonal movement is 'smoother', and the player's speed can be adjusted using"
-		" 'Player->Step' via ZScript, as well as the 'Player Step' option in 'Init Data'." },
-	{ "Newer Player Movement", qr_NEW_HERO_MOVEMENT2,
-		"Alters the player's movement; with this enabled, most of the effects of 'New Player Movement' and 'Disable 4-Way Movement's Gridlock'"
-		" apply, and the player's collision code is newly cleaned up."+QRHINT({qr_NEW_HERO_MOVEMENT,qr_DISABLE_4WAY_GRIDLOCK}) },
+	{ "New Hero Movement", qr_NEW_HERO_MOVEMENT,
+		"Alters the Hero's movement; with this enabled, movement includes decimal precision,"
+		" diagonal movement is 'smoother', and the Hero's speed can be adjusted using"
+		" 'Hero->Step' via ZScript, as well as the 'Hero Step' option in 'Init Data'." },
+	{ "Newer Hero Movement", qr_NEW_HERO_MOVEMENT2,
+		"Alters the Hero's movement; with this enabled, most of the effects of 'New Hero Movement' and 'Disable 4-Way Movement's Gridlock'"
+		" apply, and the Hero's collision code is newly cleaned up."+QRHINT({qr_NEW_HERO_MOVEMENT,qr_DISABLE_4WAY_GRIDLOCK}) },
 	{ "Disable 4-Way Movement's Gridlock", qr_DISABLE_4WAY_GRIDLOCK,
-		"If enabled, disables the built in player gridlock. This does not allow the player to move diagonally,"
+		"If enabled, disables the built in Hero gridlock. This does not allow the Hero to move diagonally,"
 		" but it does allow them to change direction when not aligned with the 8x8 pixel grid."},
-	{ "Invincible Player Flickers", qr_HEROFLICKER,
-		"If enabled, the Player will flicker when invincible or after taking damage instead of flashing colors."}
+	{ "Invincible Hero Flickers", qr_HEROFLICKER,
+		"If enabled, the Hero will flicker when invincible or after taking damage instead of flashing colors."}
 };
 
 static GUI::ListData subscrRulesList
@@ -1481,7 +1481,7 @@ static GUI::ListData subscrRulesList
 		"If enabled, allows setting items to the Y (Ex2) button. If disabled, the"
 		" Y/Ex2 button has no usage outside of scripting."},
 	{ "Enable 1/4 Heart Life Bar", qr_QUARTERHEART,
-		"If enabled, the Life Meter subscreen widget will display quarter hearts if the Player"
+		"If enabled, the Life Meter subscreen widget will display quarter hearts if the Hero"
 		" has that much life. Otherwise, it will only display half and full hearts, rounding up."},
 	{ "No L/R Inventory Shifting", qr_NO_L_R_BUTTON_INVENTORY_SWAP,
 		"If enabled, L/R item switching is disabled. Normally, you can quickly change what item is selected to the B button"
@@ -1524,25 +1524,25 @@ static GUI::ListData weaponsRulesList
 	{ "Scripted and Enemy Fire Lights Temporarily", qr_TEMPCANDLELIGHT,
 		"If enabled, script created and enemy created fires will only light up"
 		" the room temporarily, and will unlight the room when the last one"
-		" disappears. This used to affect Player-created fire, but that functionality"
+		" disappears. This used to affect Hero-created fire, but that functionality"
 		" can now be toggled on a per-candle or per-book basis in the item editor."},
-	{ "Scripted Fire LWeapons Don't Hurt Player", qr_FIREPROOFHERO,
-		"If enabled, script-created Fire LWeapons will not hurt the Player. In the original"
-		" NES Zelda, the Player took damage from their own fire weapons. Though Candle and Book"
+	{ "Scripted Fire LWeapons Don't Hurt Hero", qr_FIREPROOFHERO,
+		"If enabled, script-created Fire LWeapons will not hurt the Hero. In the original"
+		" NES Zelda, the Hero took damage from their own fire weapons. Though Candle and Book"
 		"-created fire weapons are determined by the item editor for those items now, this rule"
-		" still affects script-created player fire weapons."
-		" If disabled, the Player will take damage from script created player fire weapons, even though"
-		" they are player weapons and not enemy weapons."},
-	{ "Scripted Bomb LWeapons Hurt Player", qr_OUCHBOMBS,
-		"If enabled, script-created player Bomb Explosions hurt the player. This mimics more modern"
-		" Zelda games where the players own bombs can hurt them. This used to affect player-placed bombs,"
+		" still affects script-created Hero fire weapons."
+		" If disabled, the Hero will take damage from script created Hero fire weapons, even though"
+		" they are Hero weapons and not enemy weapons."},
+	{ "Scripted Bomb LWeapons Hurt Hero", qr_OUCHBOMBS,
+		"If enabled, script-created Hero Bomb Explosions hurt the Hero. This mimics more modern"
+		" Zelda games where the players own bombs can hurt them. This used to affect Hero-placed bombs,"
 		" but that functionality has since been moved to the bomb item in the item editor. This rule now"
-		" only determines if script-created player bombs can hurt the player."},
+		" only determines if script-created Hero bombs can hurt the Hero."},
 	{ "Lifted Bombs Explode In Hand", qr_HELD_BOMBS_EXPLODE,
-		"If enabled, bomb lweapons that are 'lifted' by the player (currently script-only)"
+		"If enabled, bomb lweapons that are 'lifted' by the Hero (currently script-only)"
 		" will still tick down their fuse and explode." },
 	{ "Enemy Fire Lights New Dark Rooms", qr_EW_FIRE_EMITS_LIGHT,
-		"If enabled, enemy fire weapons will emit light by default, as player fire does." },
+		"If enabled, enemy fire weapons will emit light by default, as Hero fire does." },
 	
 	//should maybe keep these last
 	{ "Scripted and Enemy Boomerangs Have Corrected, Non-Hardcoded Animation", qr_CORRECTED_EW_BRANG_ANIM,
@@ -1562,7 +1562,7 @@ static GUI::ListData weaponsRulesList
 		" \nThe exact offsets and flip values are, as follows: (0, 0), (1, 0), (2, 0), (1, 1), (0, 1), (1, 3), (2, 2), (1, 2)."
 		" \nAgain, none of this matters if you have this rule enabled, as enabling this rule will disable these"
 		" hardcoded values, and will allow you to use the same animation system as every other weapon."
-		" If looking for the player-created weapons version of this, look at the boomerang itemclass."},
+		" If looking for the Hero-created weapons version of this, look at the boomerang itemclass."},
 	{ "Weapons Move Offscreen (Buggy, use at own risk)", qr_WEAPONSMOVEOFFSCREEN,
 		"If enabled, weapons can go out of bounds without getting removed. This is"
 		" mainly intended for script use and should not be turned on unless a script"
@@ -1583,7 +1583,7 @@ GUI::ListData const& combinedQRList()
 		itemRulesList.tag(rules_item);
 		miscRulesList.tag(rules_misc);
 		nesfixesRulesList.tag(rules_nesfix);
-		playerRulesList.tag(rules_player);
+		playerRulesList.tag(rules_hero);
 		subscrRulesList.tag(rules_subscr);
 		weaponsRulesList.tag(rules_weapon);
 		
@@ -2056,7 +2056,7 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 						)
 					),
 					TabRef(
-						name = "Player",
+						name = "Hero",
 						QRPanel(
 							padding = 3_px,
 							onToggle = message::TOGGLE_QR,

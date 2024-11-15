@@ -451,7 +451,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				SW_LMap* w = dynamic_cast<SW_LMap*>(local_subref);
 				col_grid = Column(
 					MISC_COLOR_SEL(w->c_room, "Room Color", 1),
-					MISC_COLOR_SEL(w->c_plr, "Player Color", 2));
+					MISC_COLOR_SEL(w->c_plr, "Hero Color", 2));
 				break;
 			}
 			case widgLGAUGE:
@@ -472,7 +472,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			{
 				SW_MMap* w = dynamic_cast<SW_MMap*>(local_subref);
 				col_grid = Column(
-					MISC_COLOR_SEL(w->c_plr, "Player Color", 1),
+					MISC_COLOR_SEL(w->c_plr, "Hero Color", 1),
 					MISC_COLOR_SEL(w->c_cmp_blink, "Compass Blink Color", 2),
 					MISC_COLOR_SEL(w->c_cmp_off, "Compass Const Color", 3));
 				break;
@@ -867,10 +867,10 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 								Label(text = "Container:", hAlign = 1.0),
 								NUM_FIELD(w->container, 0, 9999),
 								INFOBTN("The container number this piece represents. For a value of n,"
-									"\nIf the Player has exactly n containers, 'Last' displays."
-									"\nIf the Player has > n containers, 'Not Last' displays."
-									"\nIf the Player has exactly n-1 containers, 'Cap' displays."
-									"\nIf the Player has < n-1 containers, 'After Cap' displays."
+									"\nIf the Hero has exactly n containers, 'Last' displays."
+									"\nIf the Hero has > n containers, 'Not Last' displays."
+									"\nIf the Hero has exactly n-1 containers, 'Cap' displays."
+									"\nIf the Hero has < n-1 containers, 'After Cap' displays."
 									),
 								//
 								Label(text = "Frames:", hAlign = 1.0),
@@ -1083,7 +1083,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				mergetype = mtFORCE_TAB;
 				attrib_grid = Column(
 					CBOX(w->flags, SUBSCR_MMAP_SHOWMAP, "Show Map", 1),
-					CBOX(w->flags, SUBSCR_MMAP_SHOWPLR, "Show Player", 1),
+					CBOX(w->flags, SUBSCR_MMAP_SHOWPLR, "Show Hero", 1),
 					CBOX(w->flags, SUBSCR_MMAP_SHOWCMP, "Show Compass", 1)
 				);
 				break;

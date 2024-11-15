@@ -87,13 +87,13 @@ std::string cheat_help(Cheat cheat)
 		case Kill:
 			return "Kill all enemies on the screen";
 		case Fast:
-			return "Make the player go 8 times as fast";
+			return "Make the Hero go 8 times as fast";
 		case Clock:
 			return "Toggle Invincibility";
 		case Walls:
 			return "Toggle Walk-Through-Walls";
 		case Freeze:
-			return "Toggle the player's frozen status?";
+			return "Toggle the Hero's frozen status?";
 		case Light:
 			return "Toggle the room's light status";
 		case GoTo:
@@ -106,8 +106,8 @@ std::string cheat_help(Cheat cheat)
 			return fmt::format("Popup a box to modify your max {}", ZI.getCtrName(crMAGIC));
 		case MaxBombs:
 			return fmt::format("Popup a box to modify your max {}", ZI.getCtrName(crBOMBS));
-		case PlayerData:
-			return "Open the Player Data dialog";
+		case HeroData:
+			return "Open the Hero Data dialog";
 		case TrigSecrets:
 			return "Trigger current screen secrets (Temp)";
 		case TrigSecretsPerm:
@@ -165,7 +165,7 @@ int cheat_lvl(Cheat cheat)
 		case MaxMagic:
 		case MaxBombs:
 			return 2;
-		case PlayerData:
+		case HeroData:
 			return 3;
 		default:
 			return 4;
@@ -309,7 +309,7 @@ static void cheats_execute(Cheat cheat, int arg1, int arg2, std::string arg3)
     }
     break;
 
-    case PlayerData:
+    case HeroData:
     {
 		zinitdata* base = copyIntoZinit(game);
 		std::string error;
@@ -520,7 +520,7 @@ void cheats_hit_bind(Cheat cheat)
 			onMaxBombs();
 			exit_sys_pal();
 			break;
-		case PlayerData:
+		case HeroData:
 			enter_sys_pal();
 			music_pause();
 			onCheatConsole();

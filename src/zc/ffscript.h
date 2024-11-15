@@ -1430,8 +1430,6 @@ static void setHeroBigHitbox(bool v);
 	static void FFSetSaveScreenSetting();
 	static void FFChangeSubscreenText();
 	
-	static void do_typedpointer_typecast(const bool v);
-	
 	//New Datatypes
 	static void do_loadnpcdata(const bool v);
 	static void do_loadcombodata(const bool v);

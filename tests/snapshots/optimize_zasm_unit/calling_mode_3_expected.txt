@@ -11,7 +11,7 @@ Function #0
     9: NOP
    10: CALLFUNC        22                           [Call Function #3]
    11: PEEK            D4
-   12: LOAD            LINKX           0
+   12: LOAD            LINKX            0
    13: QUIT
 
 

@@ -2595,7 +2595,7 @@ int NumItemsOf(int type)
 	return ret;
 }
 
-//Returns the number of keys that the player has for the level 'level'
+//Returns the number of keys that the Hero has for the level 'level'
 int NumKeys(int level = -1)
 {
 	if(level < 0) level = Game->CurLevel;

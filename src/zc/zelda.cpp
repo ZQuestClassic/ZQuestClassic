@@ -407,7 +407,7 @@ script_data *genericscripts[NUMSCRIPTSGENERIC];
 script_data *guyscripts[NUMSCRIPTGUYS];
 script_data *lwpnscripts[NUMSCRIPTWEAPONS];
 script_data *ewpnscripts[NUMSCRIPTWEAPONS];
-script_data *playerscripts[NUMSCRIPTPLAYER];
+script_data *playerscripts[NUMSCRIPTHERO];
 script_data *screenscripts[NUMSCRIPTSCREEN];
 script_data *dmapscripts[NUMSCRIPTSDMAP];
 script_data *itemspritescripts[NUMSCRIPTSITEMSPRITE];
@@ -2244,9 +2244,9 @@ int32_t init_game()
 		}
 		if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-			ZScriptVersion::RunScript(ScriptType::Player, SCRIPT_PLAYER_INIT); //We run this here so that the user can set up custom
+			ZScriptVersion::RunScript(ScriptType::Hero, SCRIPT_HERO_INIT); //We run this here so that the user can set up custom
 									//positional data, sprites, tiles, csets, invisibility states, and the like.
-			FFCore.deallocateAllScriptOwned(ScriptType::Player, SCRIPT_PLAYER_INIT);
+			FFCore.deallocateAllScriptOwned(ScriptType::Hero, SCRIPT_HERO_INIT);
 		}
 		FFCore.initZScriptHeroScripts(); //Clear the stack and the refinfo data to be ready for Hero's active script.
 		Hero.set_respawn_point(); //This should be after the init script, so that Hero->X and Hero->Y set by the script
@@ -3488,9 +3488,9 @@ void game_loop()
 			ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_GLOBAL_ACTIVE);
-		if(!FFCore.system_suspend[susptHEROACTIVE] && !freezemsg && FFCore.doscript(ScriptType::Player) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
+		if(!FFCore.system_suspend[susptHEROACTIVE] && !freezemsg && FFCore.doscript(ScriptType::Hero) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
 		{
-			ZScriptVersion::RunScript(ScriptType::Player, SCRIPT_PLAYER_ACTIVE);
+			ZScriptVersion::RunScript(ScriptType::Hero, SCRIPT_HERO_ACTIVE);
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_PLAYER_ACTIVE);
 		if(!FFCore.system_suspend[susptDMAPSCRIPT] && !freezemsg && FFCore.doscript(ScriptType::DMap) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
@@ -3607,10 +3607,10 @@ void game_loop()
 			FFCore.waitdraw(ScriptType::Global, GLOBAL_SCRIPT_GAME) = false;
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_GLOBAL_WAITDRAW);
-		if ( !FFCore.system_suspend[susptHEROACTIVE] && FFCore.waitdraw(ScriptType::Player) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( !FFCore.system_suspend[susptHEROACTIVE] && FFCore.waitdraw(ScriptType::Hero) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-			ZScriptVersion::RunScript(ScriptType::Player, SCRIPT_PLAYER_ACTIVE);
-			FFCore.waitdraw(ScriptType::Player) = false;
+			ZScriptVersion::RunScript(ScriptType::Hero, SCRIPT_HERO_ACTIVE);
+			FFCore.waitdraw(ScriptType::Hero) = false;
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_PLAYER_WAITDRAW);
 		if ( !FFCore.system_suspend[susptDMAPSCRIPT] && FFCore.waitdraw(ScriptType::DMap) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
@@ -4166,9 +4166,9 @@ static void allocate_crap()
 		globalscripts[i] = new script_data(ScriptType::Global, i);
 	}
 	
-	for(int32_t i=0; i<NUMSCRIPTPLAYER; i++)
+	for(int32_t i=0; i<NUMSCRIPTHERO; i++)
 	{
-		playerscripts[i] = new script_data(ScriptType::Player, i);
+		playerscripts[i] = new script_data(ScriptType::Hero, i);
 	}
 	
 	for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
@@ -5067,7 +5067,7 @@ reload_for_replay_file:
 		Playing=Paused=false;
 		//Clear active script array ownership
 		FFCore.deallocateAllScriptOwned(ScriptType::Global, GLOBAL_SCRIPT_GAME);
-		FFCore.deallocateAllScriptOwned(ScriptType::Player, SCRIPT_PLAYER_ACTIVE);
+		FFCore.deallocateAllScriptOwned(ScriptType::Hero, SCRIPT_HERO_ACTIVE);
 		switch(Quit)
 		{
 			case qSAVE:
@@ -5151,7 +5151,7 @@ reload_for_replay_file:
 				FFCore.initZScriptScriptedActiveSubscreen();
 				FFCore.clear_combo_scripts();
 				//Run global script OnExit
-				//ZScriptVersion::RunScript(ScriptType::Player, SCRIPT_PLAYER_WIN); //runs in ending()
+				//ZScriptVersion::RunScript(ScriptType::Hero, SCRIPT_HERO_WIN); //runs in ending()
 				//while(player_doscript) advanceframe(true); //Not safe. The script can run for only one frame. 
 				//We need a special routine for win and death player scripts. Otherwise, they work. 
 				ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_END, GLOBAL_SCRIPT_END);
@@ -5360,7 +5360,7 @@ void quit_game()
 		if(globalscripts[i]!=NULL) delete globalscripts[i];
 		globalscripts[i] = NULL;
 	}
-	for(int32_t i=0; i<NUMSCRIPTPLAYER; i++)
+	for(int32_t i=0; i<NUMSCRIPTHERO; i++)
 	{
 		if(playerscripts[i]!=NULL) delete playerscripts[i];
 		playerscripts[i] = NULL;

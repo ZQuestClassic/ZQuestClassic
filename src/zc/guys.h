@@ -183,6 +183,7 @@ public:
 	virtual bool hit(int32_t tx,int32_t ty,int32_t txsz,int32_t tysz);
 	virtual bool hit(weapon *w);
 	virtual void break_shield() {}; // Overridden by types that can have shields
+	virtual void repair_shield() {}; // Overridden by types that can have shields
 	
 	bool can_pitfall(bool checkspawning = true);
 	void try_death(bool force_kill = false);
@@ -347,6 +348,7 @@ public:
 	virtual void draw(BITMAP *dest);
 	virtual int32_t takehit(weapon *w, weapon* realweap = nullptr);
 	virtual void break_shield();
+	virtual void repair_shield();
 };
 
 class eOther : public enemy
@@ -359,6 +361,7 @@ public:
 	virtual void draw(BITMAP *dest);
 	virtual int32_t takehit(weapon *w, weapon* realweap = nullptr);
 	virtual void break_shield();
+	virtual void repair_shield();
 };
 
 class eScript : public enemy
@@ -371,6 +374,7 @@ public:
 	virtual void draw(BITMAP *dest);
 	virtual int32_t takehit(weapon *w, weapon* realweap = nullptr);
 	virtual void break_shield();
+	virtual void repair_shield();
 };
 
 class eFriendly : public enemy
@@ -383,6 +387,7 @@ public:
 	virtual void draw(BITMAP *dest);
 	virtual int32_t takehit(weapon *w, weapon* realweap = nullptr);
 	virtual void break_shield();
+	virtual void repair_shield();
 };
 
 void removearmos(int32_t ax,int32_t ay, word ffcactive = 0);
@@ -570,6 +575,7 @@ public:
 	void vire_hop();
 	virtual void drawshadow(BITMAP *dest, bool translucent);
 	virtual void break_shield();
+	virtual void repair_shield();
 };
 
 class eKeese : public enemy

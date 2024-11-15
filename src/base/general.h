@@ -73,7 +73,7 @@ int wrap(int x,int low,int high);
 #define NUMSCRIPTGLOBAL253         4
 #define NUMSCRIPTGLOBALOLD         3
 #define NUMSCRIPTHEROOLD           3
-#define NUMSCRIPTPLAYER            5
+#define NUMSCRIPTHERO            5
 #define NUMSCRIPTSCREEN            256
 #define NUMSCRIPTSDMAP             256
 #define NUMSCRIPTSITEMSPRITE       256
@@ -340,7 +340,7 @@ enum class ScriptType {
 	Global,
 	FFC,
 	Screen,
-	Player,
+	Hero,
 	Item,
 	Lwpn,
 	NPC,

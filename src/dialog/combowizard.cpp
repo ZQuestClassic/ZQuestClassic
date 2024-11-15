@@ -1553,7 +1553,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 								drown_damage = val * 10000;
 							}),
 						INFOBTN("The amount of damage dealt when drowning, in HP points."
-							" If negative, drowning will heal the player."),
+							" If negative, drowning will heal the Hero."),
 						//
 						Label(text = "Drown SFX:", hAlign = 1.0),
 						ddls[1] = DropDownList(data = parent.list_sfx,
@@ -1664,7 +1664,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							{
 								mod_sfx = val*10000;
 							}),
-						INFOBTN("The SFX played every 'HP Delay' frames the player is in the liquid."),
+						INFOBTN("The SFX played every 'HP Delay' frames the Hero is in the liquid."),
 						//
 						Rows<2>(padding = 0_px, colSpan = 3, hAlign = 1.0,
 							cboxes[2] = Checkbox(
@@ -1752,8 +1752,8 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						//
 					),
 					Rows<2>(
-						INFOBTN("Does not knock the player back when damaging them if checked."
-							" Otherwise, knocks the player in the direction opposite"
+						INFOBTN("Does not knock the Hero back when damaging them if checked."
+							" Otherwise, knocks the Hero in the direction opposite"
 							" the one they face."),
 						cboxes[0] = Checkbox(
 							text = "No Knockback",
@@ -1924,7 +1924,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							}
 						),
 						cboxes[2] = Checkbox(
-							text = "Bypass enemy/player shield blocking",
+							text = "Bypass enemy/Hero shield blocking",
 							hAlign = 0.0, colSpan = 2,
 							checked = unblockable & WPNUNB_SHLD, fitParent = true,
 							onToggleFunc = [&](bool state)
@@ -1933,7 +1933,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							}
 						),
 						cboxes[3] = Checkbox(
-							text = "Bypass player shield reflecting",
+							text = "Bypass Hero shield reflecting",
 							hAlign = 0.0, colSpan = 2,
 							checked = unblockable & WPNUNB_REFL, fitParent = true,
 							onToggleFunc = [&](bool state)
@@ -2059,7 +2059,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 									{
 										prox = val;
 									}),
-								INFOBTN("If enabled, the shooter will stop shooting when the player"
+								INFOBTN("If enabled, the shooter will stop shooting when the Hero"
 									" is within this distance (in pixels) of the combo."),
 								//
 								cboxes[10] = Checkbox(
@@ -2071,7 +2071,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 										SETFLAG(local_ref.usrflags,cflag9,state);
 									}
 								),
-								INFOBTN("If checked, the shooter will only shoot when the player is closer, rather than farther.")
+								INFOBTN("If checked, the shooter will only shoot when the Hero is closer, rather than farther.")
 							)
 						),
 						Frame(padding = 0_px, fitParent = true,
@@ -2158,7 +2158,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 								indx = 2,
 								onToggle = message::RSET0
 							),
-							IH_BTN(DDH,"Aim 4-directionally at the player"),
+							IH_BTN(DDH,"Aim 4-directionally at the Hero"),
 							DummyWidget(),
 							//
 							rset[0][3] = Radio(
@@ -2168,7 +2168,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 								indx = 3,
 								onToggle = message::RSET0
 							),
-							IH_BTN(DDH,"Aim 8-directionally at the player"),
+							IH_BTN(DDH,"Aim 8-directionally at the Hero"),
 							DummyWidget(),
 							//
 							rset[0][4] = Radio(
@@ -2178,7 +2178,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 								indx = 4,
 								onToggle = message::RSET0
 							),
-							IH_BTN(DDH,"Aim angularly at the player"),
+							IH_BTN(DDH,"Aim angularly at the Hero"),
 							DummyWidget()
 							//
 						)
@@ -2309,7 +2309,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							}
 						),
 						INFOBTN("If the weapon type is a Script weapon and 'Script Weapon IDs spawn LWeapons' is checked, or the weapon type is"
-							" a sparkle type, it will immediately damage the player (knocking them back none)."),
+							" a sparkle type, it will immediately damage the Hero (knocking them back none)."),
 						cboxes[3] = Checkbox(
 							text = "Direct Damage Script LW / Sparkles",
 							hAlign = 0.0,
@@ -2450,9 +2450,9 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							{
 								SETFLAG(local_ref.usrflags,cflag1,state);
 							}),
-						INFOBTN("The player will slip and slide on the ice."),
+						INFOBTN("The Hero will slip and slide on the ice."),
 						Checkbox(
-							text = "Slides Player",
+							text = "Slides Hero",
 							hAlign = 0.0,
 							checked = local_ref.usrflags&cflag2, fitParent = true,
 							onToggleFunc = [&](bool state)
@@ -2463,7 +2463,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 					),
 					grids[0] = Rows<3>(
 						Label(text = "Start Speed Percentage", hAlign = 1.0),
-						INFOBTN("The percentage of the player's movement speed to carry onto the ice when first stepping onto it."),
+						INFOBTN("The percentage of the Hero's movement speed to carry onto the ice when first stepping onto it."),
 						TextField(
 							fitParent = true, minwidth = 8_em,
 							type = GUI::TextField::type::SWAP_BYTE,
@@ -2473,7 +2473,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 								local_ref.attribytes[0] = val;
 							}),
 						Label(text = "Entry Leeway Frames", hAlign = 1.0),
-						INFOBTN("For this many frames after entering the ice, the player will have additional traction. The traction gradually decreases over time until the frames are up."),
+						INFOBTN("For this many frames after entering the ice, the Hero will have additional traction. The traction gradually decreases over time until the frames are up."),
 						TextField(
 							fitParent = true, minwidth = 8_em,
 							type = GUI::TextField::type::SWAP_BYTE,
@@ -2590,7 +2590,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						//
 					),
 					Rows<2>(
-						INFOBTN("While the conveyor is moving the Player, they are 'stunned'."),
+						INFOBTN("While the conveyor is moving the Hero, they are 'stunned'."),
 						cboxes[0] = Checkbox(
 							text = "Stunned while moving",
 							hAlign = 0.0,
@@ -2600,7 +2600,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 								SETFLAG(local_ref.usrflags,cflag1,state);
 							}
 						),
-						INFOBTN("Forces the Player to face in the conveyor's direction"),
+						INFOBTN("Forces the Hero to face in the conveyor's direction"),
 						cboxes[1] = Checkbox(
 							text = "Force Dir",
 							hAlign = 0.0,
@@ -2620,7 +2620,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 								SETFLAG(local_ref.usrflags,cflag4,state);
 							}
 						),
-						INFOBTN("If the player has boots with the 'heavy' flag, the conveyor will not push them."),
+						INFOBTN("If the Hero has boots with the 'heavy' flag, the conveyor will not push them."),
 						cboxes[3] = Checkbox(
 							text = "Heavy Boots Disable",
 							hAlign = 0.0,
@@ -2789,7 +2789,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							{
 								walksfx = val;
 							}),
-						INFOBTN("The SFX to play when the player walks through this combo. If 0, no sound is played."),
+						INFOBTN("The SFX to play when the Hero walks through this combo. If 0, no sound is played."),
 						//
 						Label(text = "Grass Sprite:", hAlign = 1.0),
 						ddls[6] = DropDownList(data = list_sprites,
@@ -4272,7 +4272,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 								reset_change = val;
 							}),
 						INFOBTN("If non-zero, the combo will change by this amount (ex. 1 = Next, -1 = Prev)"
-							" when the player steps off of the combo before it finishes crumbling. (Might be used to reset a crumble animation)")
+							" when the Hero steps off of the combo before it finishes crumbling. (Might be used to reset a crumble animation)")
 					)
 				)
 			));

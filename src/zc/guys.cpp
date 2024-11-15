@@ -7968,6 +7968,23 @@ void eFire::break_shield()
 		o_tile=s_tile;
 }
 
+void eFire::repair_shield()
+{
+	if (shield)
+		return;
+
+	if (!(flags & (guy_shield_front | guy_shield_back | guy_shield_left | guy_shield_right)))
+		return;
+
+	shield = true;
+
+	if (get_qr(qr_BRKNSHLDTILES))
+	{
+		if get_qr(qr_NEWENEMYTILES) o_tile = d->e_tile;
+		else o_tile = d->tile;
+	}
+}
+
 eOther::eOther(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 {
 	clk4=0;
@@ -8062,6 +8079,22 @@ void eOther::break_shield()
 		o_tile=s_tile;
 }
 
+void eOther::repair_shield()
+{
+	if (shield)
+		return;
+
+	if (!(flags & (guy_shield_front | guy_shield_back | guy_shield_left | guy_shield_right)))
+		return;
+
+	shield = true;
+
+	if (get_qr(qr_BRKNSHLDTILES))
+	{
+		if get_qr(qr_NEWENEMYTILES) o_tile = d->e_tile;
+		else o_tile = d->tile;
+	}
+}
 
 eScript::eScript(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 {
@@ -8155,6 +8188,23 @@ void eScript::break_shield()
 	
 	if(get_qr(qr_BRKNSHLDTILES))
 		o_tile=s_tile;
+}
+
+void eScript::repair_shield()
+{
+	if (shield)
+		return;
+
+	if (!(flags & (guy_shield_front | guy_shield_back | guy_shield_left | guy_shield_right)))
+		return;
+
+	shield = true;
+
+	if (get_qr(qr_BRKNSHLDTILES))
+	{
+		if get_qr(qr_NEWENEMYTILES) o_tile = d->e_tile;
+		else o_tile = d->tile;
+	}
 }
 
 
@@ -8251,6 +8301,23 @@ void eFriendly::break_shield()
 	
 	if(get_qr(qr_BRKNSHLDTILES))
 		o_tile=s_tile;
+}
+
+void eFriendly::repair_shield()
+{
+	if (shield)
+		return;
+
+	if (!(flags & (guy_shield_front | guy_shield_back | guy_shield_left | guy_shield_right)))
+		return;
+
+	shield = true;
+
+	if (get_qr(qr_BRKNSHLDTILES))
+	{
+		if get_qr(qr_NEWENEMYTILES) o_tile = d->e_tile;
+		else o_tile = d->tile;
+	}
 }
 
 
@@ -11501,6 +11568,20 @@ void eStalfos::break_shield()
 	
 	if(get_qr(qr_BRKNSHLDTILES))
 		o_tile=s_tile;
+}
+
+void eStalfos::repair_shield()
+{
+	if (shield)
+		return;
+
+	shield = true;
+
+	if (get_qr(qr_BRKNSHLDTILES))
+	{
+		if get_qr(qr_NEWENEMYTILES) o_tile = d->e_tile;
+		else o_tile = d->tile;
+	}
 }
 
 eKeese::eKeese(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)

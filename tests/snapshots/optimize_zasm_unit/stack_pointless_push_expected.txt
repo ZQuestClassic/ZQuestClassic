@@ -7,49 +7,49 @@ Function #0
 
 
 Function #1
-    5: LOAD            D0              0            [Block 0 -> ]
+    5: LOAD            D0               0           [Block 0 -> ]
     6: NOP
-    7: SETV            D2              750000
+    7: SETV            D2               750000
     8: NOP
-    9: SETV            D1              0
-   10: SETR            SCRIPTRAM       D2
+    9: SETV            D1               0
+   10: SETR            SCRIPTRAM        D2
    11: NOP
-   12: SETV            D2              970000
+   12: SETV            D2               970000
    13: NOP
-   14: SETV            D1              10000
-   15: SETR            SCRIPTRAM       D2
+   14: SETV            D1               10000
+   15: SETR            SCRIPTRAM        D2
    16: NOP
-   17: SETV            D2              1180000
+   17: SETV            D2               1180000
    18: NOP
-   19: SETV            D1              20000
-   20: SETR            SCRIPTRAM       D2
+   19: SETV            D1               20000
+   20: SETR            SCRIPTRAM        D2
    21: NOP
-   22: SETV            D2              1010000
+   22: SETV            D2               1010000
    23: NOP
-   24: SETV            D1              30000
-   25: SETR            SCRIPTRAM       D2
+   24: SETV            D1               30000
+   25: SETR            SCRIPTRAM        D2
    26: NOP
-   27: SETV            D2              1140000
+   27: SETV            D2               1140000
    28: NOP
-   29: SETV            D1              40000
-   30: SETR            SCRIPTRAM       D2
+   29: SETV            D1               40000
+   30: SETR            SCRIPTRAM        D2
    31: NOP
-   32: SETV            D2              1050000
+   32: SETV            D2               1050000
    33: NOP
-   34: SETV            D1              50000
-   35: SETR            SCRIPTRAM       D2
+   34: SETV            D1               50000
+   35: SETR            SCRIPTRAM        D2
    36: PUSHR           D0
-   37: SETV            D2              0
+   37: SETV            D2               0
    38: RETURNFUNC
 
 
 Function #2
-   39: LOAD            D0              0            [Block 0 -> ]
+   39: LOAD            D0               0           [Block 0 -> ]
    40: NOP
-   41: SETV            D2              750000
+   41: SETV            D2               750000
    42: NOP
-   43: SETV            D1              0
-   44: SETR            SCRIPTRAM       D2
+   43: SETV            D1               0
+   44: SETR            SCRIPTRAM        D2
    45: PUSHR           D0
    46: PUSHR           D4
    47: CALLFUNC        50                           [Call Function #3]
@@ -58,7 +58,7 @@ Function #2
 
 
 Function #3
-   50: SETR            D0              LINKX        [Block 0 -> ]
+   50: SETR            D0               LINKX       [Block 0 -> ]
    51: TRACER          D0
    52: TRACER          D0
    53: RETURNFUNC
@@ -67,15 +67,15 @@ Function #3
 Function #4
    54: PUSHR           D0                           [Block 0 -> ]
    55: PUSHR           REFFFC
-   56: PUSHARGSV       0               7
-   57: SETR            D4              SP2
-   58: LOAD            D2              7
+   56: PUSHARGSV       0                7
+   57: SETR            D4               SP2
+   58: LOAD            D2               7
    59: PUSHR           D2
    60: POP             REFFFC
-   61: SETR            D2              DATA
-   62: STORE           D2              6
+   61: SETR            D2               DATA
+   62: STORE           D2               6
    63: PUSHV           0
-   64: LOAD            D2              7
+   64: LOAD            D2               7
    65: POP             D3
    66: PUSHR           D2
    67: PUSHR           D3
@@ -85,14 +85,14 @@ Function #4
 
 
 Function #5
-   71: LOAD            D3              0            [Block 0 -> ]
+   71: LOAD            D3               0           [Block 0 -> ]
    72: NOP
    73: NOP
    74: POP             REFFFC
-   75: SETR            X               D3
+   75: SETR            X                D3
    76: PUSHR           D4
    77: NOP
    78: NOP
-   79: SETR            D2              GD4
+   79: SETR            D2               GD4
    80: NOP
    81: RETURNFUNC

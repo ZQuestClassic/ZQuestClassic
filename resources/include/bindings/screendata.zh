@@ -577,7 +577,7 @@ class screendata {
 
 	// If not zero, then the item for this screen will be shown.
 	//
-	// When the player takes the item on a screen, this is set to 0.
+	// When the [Hero] takes the item on a screen, this is set to 0.
 	//
 	// @deprecated Check '->Item > -1' instead!
 	// @zasm_var SCREENDATAHASITEM

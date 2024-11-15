@@ -35,7 +35,7 @@ std::shared_ptr<GUI::Widget> EnemyPatternDialog::view()
 			Label(text="Classic: Pseudorandom locations near"
 				"\nthe middle of the screen."),
 			Label(text="Random: Any available location"
-				"\nat a sufficient distance from the player."),
+				"\nat a sufficient distance from the Hero."),
 			scr_pattern = List(fitParent = true,
 				selectedIndex = last_pattern,
 				data = GUI::ZCListData::patterntypes(),

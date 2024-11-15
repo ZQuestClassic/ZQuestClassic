@@ -819,13 +819,13 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 							Label(text = "These flags have to do with game mechanics.", hAlign = 0.0, vAlign = 0.0),
 							Rows<2>(hAlign = 0.0, vAlign = 0.0,
 								DMAP_CB(flags, dmfWHIRLWIND, 1, "Allow Whistle Whirlwinds", "Check to enable warping whirlwinds spawned by the whistle."),
-								DMAP_CB(flags, dmfWHIRLWINDRET, 1, "Whistle Whirlwinds Return Player To Start", "If checked, whirlwinds will take the player back to their continue point. Otherwise it will use the warp ring specified by the item."),
-								DMAP_CB(flags, dmfALWAYSMSG, 1, "Always Display Intro String", "If checked, the DMap's intro string will play every time the player enters."),
+								DMAP_CB(flags, dmfWHIRLWINDRET, 1, "Whistle Whirlwinds Return Hero To Start", "If checked, whirlwinds will take the Hero back to their continue point. Otherwise it will use the warp ring specified by the item."),
+								DMAP_CB(flags, dmfALWAYSMSG, 1, "Always Display Intro String", "If checked, the DMap's intro string will play every time the Hero enters."),
 								DMAP_CB(flags, dmfVIEWMAP, 1, "View Overworld Map By Pressing Map", "If checked, spacebar will open a map view of the entire map. "),
 								DMAP_CB(flags, dmfDMAPMAP, 1, "...But Only Show Screens Marked In Minimap", "Combined with the previous flag, this will mask out any screens not checked in the grid in the 'Mechanics' tab."),
 								DMAP_CB_SV(flags, 1, "Sideview", "If checked, the default state of the 'Toggle Sideview Gravity' screen flag will be inverted. All screens will default to sideview and the screen flag turns it off."),
-								DMAP_CB(flags, dmfBUNNYIFNOPEARL, 1, "Become Bunny With No Pearl", "If checked, the player will be transformed on this DMap if not carrying a Pearl item. See the 'Pearls' itemclass for more details."),
-								DMAP_CB(flags, dmfMIRRORCONTINUE, 1, "Mirror Continues Instead Of Warping", "If checked, using the mirror on this DMap will return the player to the entrance, as if they used 'Divine Escape' or F6 based on the item's flags.")
+								DMAP_CB(flags, dmfBUNNYIFNOPEARL, 1, "Become Bunny With No Pearl", "If checked, the Hero will be transformed on this DMap if not carrying a Pearl item. See the 'Pearls' itemclass for more details."),
+								DMAP_CB(flags, dmfMIRRORCONTINUE, 1, "Mirror Continues Instead Of Warping", "If checked, using the mirror on this DMap will return the Hero to the entrance, as if they used 'Divine Escape' or F6 based on the item's flags.")
 								)
 						)),
 						TabRef(name = "Visual", Column(hAlign = 0.0, vAlign = 0.0,

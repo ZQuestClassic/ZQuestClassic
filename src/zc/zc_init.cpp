@@ -18,7 +18,7 @@ void zc_init_apply_cheat_delta()
 {
 	if (cheat_delta.size())
 	{
-		cheats_enqueue(Cheat::PlayerData, -1, -1, cheat_delta);
+		cheats_enqueue(Cheat::HeroData, -1, -1, cheat_delta);
 		cheat_delta.clear();
 	}
 }

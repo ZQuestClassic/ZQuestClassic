@@ -277,7 +277,7 @@ static void create_compile_tasks()
 	});
 	// Make sure player and global scripts (just the INIT and GAME ones) are compiled first, as they
 	// are needed on frame 1.
-	create_compile_tasks(playerscripts, NUMSCRIPTPLAYER, ScriptType::Player);
+	create_compile_tasks(playerscripts, NUMSCRIPTHERO, ScriptType::Hero);
 	create_compile_tasks(globalscripts, GLOBAL_SCRIPT_INIT, 2, ScriptType::Global);
 	if (jit_log_enabled)
 	{

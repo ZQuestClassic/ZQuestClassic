@@ -25,7 +25,7 @@ enum ffc_flags : uint32_t
 	ffc_ignorechanger       = F(11), //Ignore changers
 	ffc_imprecisionchanger  = F(12), //Ignore subpixel for changer collision
 	ffc_lensinvis           = F(13), //Visible, but not to the Lens of Truth
-	ffc_platform            = F(14), //Move the player with, if touching
+	ffc_platform            = F(14), //Move the Hero with, if touching
 
 	// Changer flags.
 	ffc_changespeed         = F(26), //Change speed to this (default, not implemented yet)

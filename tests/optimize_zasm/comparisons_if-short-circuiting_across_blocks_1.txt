@@ -7,16 +7,16 @@
 ; the block following the non-true edge of the conditional.
 ; It is rewritten to jump directly to the final block, as long as there are no side effects it would skip.
 Function #0
-    0: COMPARER        D3              D2           [Block 0 -> 1, 2]
-    1: SETCMP          D2              I<
-    2: COMPAREV        D2              0
+    0: COMPARER        D3               D2          [Block 0 -> 1, 2]
+    1: SETCMP          D2               I<
+    2: COMPAREV        D2               0
     3: GOTOTRUE        7
-    4: SETR            D2              LINKZ        [Block 1 -> 2]
-    5: COMPAREV        D2              0
-    6: SETCMP          D2              I==
-    7: COMPAREV        D2              0            [Block 2 -> 3, 4]
-    8: SETCMP          D2              I!=
-    9: COMPAREV        D2              0
+    4: SETR            D2               LINKZ       [Block 1 -> 2]
+    5: COMPAREV        D2               0
+    6: SETCMP          D2               I==
+    7: COMPAREV        D2               0           [Block 2 -> 3, 4]
+    8: SETCMP          D2               I!=
+    9: COMPAREV        D2               0
    10: GOTOTRUE        12
    11: TRACEV          0                            [Block 3 -> 4]
    12: QUIT                                         [Block 4 -> ]

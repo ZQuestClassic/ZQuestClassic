@@ -202,7 +202,7 @@ char const* get_hotkey_name(uint hkey)
 		case ZQKEY_EDIT_ITEMS: return "Item Editor";
 		case ZQKEY_PASTE_LAYERS: return "Paste Layers";
 		case ZQKEY_PALETTES_LEVEL: return "Palettes - Levels";
-		case ZQKEY_PLAYER_SPRITE: return "Player Sprite";
+		case ZQKEY_HERO_SPRITE: return "Hero Sprite";
 		case ZQKEY_USED_COMBOS: return "List Combos Used";
 		case ZQKEY_PALETTES_MAIN: return "Palettes - Main";
 		case ZQKEY_DEFAULT_MAP_STYLES: return "Default Map Styles";
@@ -427,7 +427,7 @@ char const* get_hotkey_cfg_name(uint hkey)
 		case ZQKEY_EDIT_ITEMS: return "ZQKEY_EDIT_ITEMS";
 		case ZQKEY_PASTE_LAYERS: return "ZQKEY_PASTE_LAYERS";
 		case ZQKEY_PALETTES_LEVEL: return "ZQKEY_PALETTES_LEVEL";
-		case ZQKEY_PLAYER_SPRITE: return "ZQKEY_PLAYER_SPRITE";
+		case ZQKEY_HERO_SPRITE: return "ZQKEY_PLAYER_SPRITE";
 		case ZQKEY_USED_COMBOS: return "ZQKEY_USED_COMBOS";
 		case ZQKEY_PALETTES_MAIN: return "ZQKEY_PALETTES_MAIN";
 		case ZQKEY_DEFAULT_MAP_STYLES: return "ZQKEY_DEFAULT_MAP_STYLES";
@@ -787,8 +787,8 @@ char const* get_hotkey_helptext(uint hkey)
 			return "Paste the Layers from the copied screen";
 		case ZQKEY_PALETTES_LEVEL:
 			return "Open the Level Palettes";
-		case ZQKEY_PLAYER_SPRITE:
-			return "Edit the Player's sprites";
+		case ZQKEY_HERO_SPRITE:
+			return "Edit the Hero's sprites";
 		case ZQKEY_USED_COMBOS:
 			return "List the combos used on the current screen";
 		case ZQKEY_PALETTES_MAIN:
@@ -1095,7 +1095,7 @@ void default_hotkeys()
 	zq_hotkeys[ZQKEY_EDIT_ITEMS].setval(0, 0, 0, 0);
 	zq_hotkeys[ZQKEY_PASTE_LAYERS].setval(0, 0, 0, 0);
 	zq_hotkeys[ZQKEY_PALETTES_LEVEL].setval(0, 0, 0, 0);
-	zq_hotkeys[ZQKEY_PLAYER_SPRITE].setval(0, 0, 0, 0);
+	zq_hotkeys[ZQKEY_HERO_SPRITE].setval(0, 0, 0, 0);
 	zq_hotkeys[ZQKEY_USED_COMBOS].setval(0, 0, 0, 0);
 	zq_hotkeys[ZQKEY_PALETTES_MAIN].setval(0, 0, 0, 0);
 	zq_hotkeys[ZQKEY_DEFAULT_MAP_STYLES].setval(0, 0, 0, 0);
@@ -1579,7 +1579,7 @@ int run_hotkey(uint hkey)
 		case ZQKEY_PALETTES_LEVEL:
 			onColors_Levels();
 			break;
-		case ZQKEY_PLAYER_SPRITE:
+		case ZQKEY_HERO_SPRITE:
 			onCustomHero();
 			break;
 		case ZQKEY_USED_COMBOS:

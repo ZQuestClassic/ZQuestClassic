@@ -86,7 +86,7 @@ const GUI::ListData SCCListData()
 	ld.add("Play SFX", 20);
 	ld.add("Play MIDI", 21);
 	
-	ld.add("Insert Player Name", 22);
+	ld.add("Insert Hero Name", 22);
 	ld.add("Line Break", 25);
 	ld.add("Draw Tile", 28);
 	
@@ -207,10 +207,10 @@ std::string scc_help(byte scc)
 		case MSGC_GOTOIFGLOBAL: return "Switch to another string if an index of the"
 			" current screen's 'Screen->D[]' is at least a given value";
 		case MSGC_GOTOIFRAND: return "Switch to another string based on random chance";
-		case MSGC_GOTOIF: return "Switch to another string if the player owns an item";
-		case MSGC_GOTOIFCTR: return "Switch to another string if the player has enough"
+		case MSGC_GOTOIF: return "Switch to another string if the Hero owns an item";
+		case MSGC_GOTOIFCTR: return "Switch to another string if the Hero has enough"
 			" of a specific counter";
-		case MSGC_GOTOIFCTRPC: return "Switch to another string if the player has enough"
+		case MSGC_GOTOIFCTRPC: return "Switch to another string if the Hero has enough"
 			" of a specific counter, percentage-based";
 		case MSGC_GOTOIFTRI: return "Switch to another string if the specified level's '"
 			+mcguffinname+"' is owned";
@@ -222,15 +222,15 @@ std::string scc_help(byte scc)
 		case MSGC_CTRUPPC: return "Increase a counter by a percentage of its' maximum";
 		case MSGC_CTRDNPC: return "Decrease a counter by a percentage of its' maximum";
 		case MSGC_CTRSETPC: return "Set a counter to a percentage of its' maximum";
-		case MSGC_GIVEITEM: return "'Silently' give an item to the player. This will not"
+		case MSGC_GIVEITEM: return "'Silently' give an item to the Hero. This will not"
 			" cause all normal item pickup effects to occur.";
-		case MSGC_TAKEITEM: return "Remove an item from the player. This works similarly to"
+		case MSGC_TAKEITEM: return "Remove an item from the Hero. This works similarly to"
 			" an enemy eating the item.";
-		case MSGC_WARP: return "Warp the player";
+		case MSGC_WARP: return "Warp the Hero";
 		case MSGC_SETSCREEND: return "Set the value of any screen's 'Screen->D[]'";
 		case MSGC_SFX: return "Plays an SFX";
 		case MSGC_MIDI: return "Plays a MIDI";
-		case MSGC_NAME: return "Insert the player's save file name in the string";
+		case MSGC_NAME: return "Insert the Hero's save file name in the string";
 		case MSGC_GOTOIFCREEND: return "Switch to another string if an index of a"
 			" remote screen's 'Screen->D[]' is at least a given value";
 		case MSGC_NEWLINE: return "Add a line break to the string";
@@ -239,7 +239,7 @@ std::string scc_help(byte scc)
 		case MSGC_DRAWTILE: return "Draws a tile in the textbox";
 		case MSGC_ENDSTRING: return "Immediately exit the current string, going to the 'next string'"
 			" if one is set.";
-		case MSGC_WAIT_ADVANCE: return "Immediately pause the string until the player presses 'A'"
+		case MSGC_WAIT_ADVANCE: return "Immediately pause the string until the Hero presses 'A'"
 			" to advance the text";
 		case MSGC_SETUPMENU: return "Sets the Menu Cursor up as a tile draw";
 		case MSGC_MENUCHOICE: return "Adds a menu choice";

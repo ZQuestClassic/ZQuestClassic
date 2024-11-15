@@ -3974,18 +3974,6 @@ int GetPointer(bool *ptr[]);
 
 /* The following have been deprecated by other pointer types.
 
-	int GetScreenEnemy(int map, int screen, int enemy_index)			
-	* Reads values from enemy lists anywhere in the game. 
-
-	int SetScreenEnemy(int map, int screen, int enemy_index, int enemy_id)			
-	* Sets values to enemy lists anywhere in the game.
-
-	int GetScreenDoor(int map, int screen, int index)			
-	* Reads value of a door on any screen in the game environment.
-
-	int SetScreenDoor(int map, int screen, int index, int type)			
-	* Sets the value of a door on any screen in the game environment.
-
 	void ContinueSound(int sfx); 					
 
 	void PauseMusic()	
@@ -6023,11 +6011,11 @@ int Step;
  * a step rate of '100' means that you move '1 pixel per frame'. The default step rate is
  * '150', moving at '1.5 pixels per frame'.
  * NOTE: This affects BOTH 4-way and 8-way movement, but ONLY
- *       if the quest rule "New Player Movement" is enabled.
+ *       if the quest rule "New Hero Movement" is enabled.
 
 int ShoveOffset;
  * The offset from corners that the player's movement will 'shove' them around.
- * Only applies if "Newer Player Movement" Quest Rule is enabled.
+ * Only applies if "Newer Hero Movement" Quest Rule is enabled.
  * Ranges from 0-16
 
 bool MoveXY(float dx, float dy, bool is_knockback = false,
@@ -6106,7 +6094,7 @@ int Immortal;
 
 int TileMod;
  * Read-only
- * The current *total* Player Tile Modifier.
+ * The current *total* Hero Tile Modifier.
 
 void Kill(bool bypass_revive = false);
  * Kills the player. Their HP will be set to 0, and 'Immortal' will be bypassed.
@@ -6224,22 +6212,22 @@ bool DisableItem[256];
 int FlashingCSet;
  * This returns Link's current displayed cset when taking damage or invincible. If not in one of these states, will return his normal cset.
  * If called before Waitdraw() / player update, results may be off by a frame.
- * If the quest rule 'Invincible Player Flickers' is checked, this is unused.
+ * If the quest rule 'Invincible Hero Flickers' is checked, this is unused.
 
 bool isFlickerFrame();
  * This returns true if Link is currently in a flicker frame (either invisible or color masked).
  * If called before Waitdraw() / player update, results may be off by a frame.
- * If the quest rule 'Invincible Player Flickers' is unchecked, this is unused.
+ * If the quest rule 'Invincible Hero Flickers' is unchecked, this is unused.
 
 int FlickerColor;
  * This sets what color Link is drawn when flickering.
  * If -1, will use the default from Init Data.
- * If the quest rule 'Invincible Player Flickers' is unchecked, this is unused.
+ * If the quest rule 'Invincible Hero Flickers' is unchecked, this is unused.
 
 int FlickerTransparencyPasses;
  * This sets how many times the transparency effect is applied to Link's flicker effect.
  * If -1, will use the default from Init Data. If 0, will use a solid color.
- * If the quest rule 'Invincible Player Flickers' is unchecked, this is unused.
+ * If the quest rule 'Invincible Hero Flickers' is unchecked, this is unused.
 
 int InvFrames;				 
  * This returns how long Link will remain invincible, 0 if not invincible. Can be set. 
@@ -6530,7 +6518,7 @@ int WeaponInitD[8];
  * The eight InitD args used by the weapon script for this item.
 
 int TileMod;
- * The Player Tile Modifier
+ * The Hero Tile Modifier
 
 int Tile;	
  * The tile used by the item.

@@ -48,7 +48,7 @@ static const ListData miscColList
 	{ "Tri. Frame", 12 },
 	{ "Big Map BG", 13 },
 	{ "Big Map FG", 14 },
-	{ "Player's Pos", 15 },
+	{ "Hero's Pos", 15 },
 	{ "Message Text", 16 }
 };
 

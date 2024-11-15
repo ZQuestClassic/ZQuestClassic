@@ -1778,8 +1778,8 @@ void HeroClass::init()
 	//Run script!
 	if (( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) && (game->get_hasplayed()) ) //if (!hasplayed) runs in game_loop()
 	{
-		ZScriptVersion::RunScript(ScriptType::Player, SCRIPT_PLAYER_INIT); 
-		FFCore.deallocateAllScriptOwned(ScriptType::Player, SCRIPT_PLAYER_INIT);
+		ZScriptVersion::RunScript(ScriptType::Hero, SCRIPT_HERO_INIT); 
+		FFCore.deallocateAllScriptOwned(ScriptType::Hero, SCRIPT_HERO_INIT);
 		FFCore.initZScriptHeroScripts(); //Clear the stack and the refinfo data to be ready for Hero's active script. 
 		set_respawn_point(); //screen entry at spawn; //This should be after the init script, so that Hero->X and Hero->Y set by the script
 						//are properly set by the engine.
@@ -9716,7 +9716,7 @@ heroanimate_skip_liftwpn:;
 					is_conveyor_stunned = 0;
 					FFCore.setHeroAction(dying);
 					FFCore.deallocateAllScriptOwned(ScriptType::Global, GLOBAL_SCRIPT_GAME);
-					FFCore.deallocateAllScriptOwned(ScriptType::Player, SCRIPT_PLAYER_ACTIVE);
+					FFCore.deallocateAllScriptOwned(ScriptType::Hero, SCRIPT_HERO_ACTIVE);
 					ALLOFF(true,true);
 					GameFlags |= GAMEFLAG_NO_F6;
 					if(!debug_enabled)
@@ -9726,7 +9726,7 @@ heroanimate_skip_liftwpn:;
 					if(!get_qr(qr_ONDEATH_RUNS_AFTER_DEATH_ANIM))
 					{
 						FFCore.runOnDeathEngine();
-						FFCore.deallocateAllScriptOwned(ScriptType::Player, SCRIPT_PLAYER_DEATH);
+						FFCore.deallocateAllScriptOwned(ScriptType::Hero, SCRIPT_HERO_DEATH);
 					}
 					Playing = false;
 					heroDeathAnimation();
@@ -9734,7 +9734,7 @@ heroanimate_skip_liftwpn:;
 					{
 						Playing = true;
 						FFCore.runOnDeathEngine();
-						FFCore.deallocateAllScriptOwned(ScriptType::Player, SCRIPT_PLAYER_DEATH);
+						FFCore.deallocateAllScriptOwned(ScriptType::Hero, SCRIPT_HERO_DEATH);
 						Playing = false;
 					}
 					GameFlags &= ~GAMEFLAG_NO_F6;
@@ -12945,8 +12945,8 @@ bool HeroClass::doattack()
 	
 	if(itemid>=0)
 	{
-		normalcharge = itemsbuf[itemid].misc1;
-		magiccharge = itemsbuf[itemid].misc2;
+		normalcharge = (itemsbuf[itemid].misc1>0)?itemsbuf[itemid].misc1:64;
+		magiccharge = (itemsbuf[itemid].misc2>normalcharge)?itemsbuf[itemid].misc2:192;
 	}
 	
 	int scrollid = current_item_id(attack==wHammer ? itype_quakescroll : itype_spinscroll);
@@ -25589,40 +25589,46 @@ bool HeroClass::HasHeavyBoots()
 bool HeroClass::dowarp(mapscr* scr, int32_t type, int32_t index, int32_t warpsfx)
 {
 	byte reposition_sword_postwarp = 0;
-	if(index<0)
+	if (index < 0)
 	{
 		return false;
 	}
 	is_warping = true;
-	for ( int32_t q = 0; q < Lwpns.Count(); ++q )
+	for (int32_t q = 0; q < Lwpns.Count(); ++q)
 	{
-		weapon *swd=NULL;
+		weapon* swd = NULL;
 		swd = (weapon*)Lwpns.spr(q);
-		if(swd->id == (attack==wSword ? wSword : wWand))
+		if (swd->id == (attack == wSword ? wSword : wWand))
 		{
 			Lwpns.del(q);
 		}
 	}
-	
+
 	attackclk = charging = spins = tapping = 0;
 	attack = none;
-	if ( warp_sound > 0 ) warpsfx = warp_sound;
+	if (warp_sound > 0) warpsfx = warp_sound;
 	warp_sound = 0;
-	word wdmap=0;
-	byte wscr=0,wtype=0,t=0;
-	bool overlay=false;
-	t=(currscr<128)?0:1;
+	word wdmap = 0;
+	byte wscr = 0, wtype = 0, t = 0;
+	bool overlay = false;
+	t = (currscr < 128) ? 0 : 1;
 	int32_t wrindex = 0;
 	bool wasSideview = isSideViewGravity(t); // (tmpscr[t].flags7 & fSIDEVIEW)!=0 && !ignoreSideview;
 
 	mapscr* cur_scr = scr ? scr : hero_scr;
 	// Either the current screen, or if in a 0x80 room the screen player came from.
 	mapscr* base_scr = currscr >= 128 ? &special_warp_return_screen : cur_scr;
-	
+
 	// Drawing commands probably shouldn't carry over...
-	if ( !get_qr(qr_SCRIPTDRAWSINWARPS) )
+	if (!get_qr(qr_SCRIPTDRAWSINWARPS))
 		script_drawing_commands.Clear();
-	
+
+	if (replay_version_check(35))
+	{
+		// TODO: Would be better to remove a bit later, after fading out the current screen. For now, do this here.
+		// https://github.com/ZQuestClassic/ZQuestClassic/pull/1017#discussion_r1828880117
+		reset_ladder();
+	}
 	switch(type)
 	{
 		case 0:                                                 // tile warp
@@ -27956,10 +27962,10 @@ void HeroClass::run_scrolling_script_int(bool waitdraw)
 			FFCore.waitdraw(ScriptType::Global, GLOBAL_SCRIPT_GAME) = false;
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_GLOBAL_WAITDRAW);
-		if ( (!( FFCore.system_suspend[susptHEROACTIVE] )) && FFCore.waitdraw(ScriptType::Player) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( (!( FFCore.system_suspend[susptHEROACTIVE] )) && FFCore.waitdraw(ScriptType::Hero) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-			ZScriptVersion::RunScript(ScriptType::Player, SCRIPT_PLAYER_ACTIVE);
-			FFCore.waitdraw(ScriptType::Player) = false;
+			ZScriptVersion::RunScript(ScriptType::Hero, SCRIPT_HERO_ACTIVE);
+			FFCore.waitdraw(ScriptType::Hero) = false;
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_PLAYER_WAITDRAW);
 		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(ScriptType::DMap) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
@@ -28009,9 +28015,9 @@ void HeroClass::run_scrolling_script_int(bool waitdraw)
 			ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_GLOBAL_ACTIVE);
-		if ((!( FFCore.system_suspend[susptHEROACTIVE] )) && FFCore.doscript(ScriptType::Player) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
+		if ((!( FFCore.system_suspend[susptHEROACTIVE] )) && FFCore.doscript(ScriptType::Hero) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
 		{
-			ZScriptVersion::RunScript(ScriptType::Player, SCRIPT_PLAYER_ACTIVE);
+			ZScriptVersion::RunScript(ScriptType::Hero, SCRIPT_HERO_ACTIVE);
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_PLAYER_ACTIVE);
 		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.doscript(ScriptType::DMap) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
@@ -28733,10 +28739,10 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			FFCore.waitdraw(ScriptType::Global, GLOBAL_SCRIPT_GAME) = false;
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_GLOBAL_WAITDRAW);
-		if ( (!( FFCore.system_suspend[susptHEROACTIVE] )) && FFCore.waitdraw(ScriptType::Player) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( (!( FFCore.system_suspend[susptHEROACTIVE] )) && FFCore.waitdraw(ScriptType::Hero) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-			ZScriptVersion::RunScript(ScriptType::Player, SCRIPT_PLAYER_ACTIVE);
-			FFCore.waitdraw(ScriptType::Player) = false;
+			ZScriptVersion::RunScript(ScriptType::Hero, SCRIPT_HERO_ACTIVE);
+			FFCore.waitdraw(ScriptType::Hero) = false;
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_PLAYER_WAITDRAW);
 		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(ScriptType::DMap) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )

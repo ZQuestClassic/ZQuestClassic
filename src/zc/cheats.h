@@ -24,7 +24,7 @@ enum Cheat
 	MaxLife,
 	MaxMagic,
 	MaxBombs,
-	PlayerData,
+	HeroData,
 	TrigSecrets,
 	TrigSecretsPerm,
 	ShowL0,

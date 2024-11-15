@@ -71,7 +71,7 @@ class lweapon {
 	// @zasm_var LWPNANGULAR
 	internal bool Angular;
 
-	// If true, the weapon's sprite will draw behind the player and enemies.
+	// If true, the weapon's sprite will draw behind the [Hero] and enemies.
 	//
 	// @zasm_var LWPNBEHIND
 	internal bool Behind;
@@ -323,7 +323,7 @@ class lweapon {
 	//   LWPNDEL
 	internal void Remove();
 
-	// Switch the player with this sprite.
+	// Switch the [Hero] with this sprite.
 	//
 	// Valid values for [effect]: [SwitchEffect] (`SW_EFF_`).
 	//

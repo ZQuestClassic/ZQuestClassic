@@ -24,7 +24,7 @@ Function #2
    16: POP             D1
    17: POP             D0
    18: POP             D5
-   19: SETR            D2              SDDDD
+   19: SETR            D2               SDDDD
    20: RETURNFUNC
 
 
@@ -46,5 +46,5 @@ Function #4
    32: POP             D1
    33: POP             D0
    34: POP             D5
-   35: SETR            D2              SDDDD
+   35: SETR            D2               SDDDD
    36: RETURNFUNC

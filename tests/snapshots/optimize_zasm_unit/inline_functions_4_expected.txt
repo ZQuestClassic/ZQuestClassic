@@ -12,7 +12,7 @@ rewrite 9: 3 -> 1 commands
 11: NOP            
 Function #0
     0: PUSHV           0                            [Block 0 -> ]
-    1: SETR            D4              SP2
+    1: SETR            D4               SP2
     2: PUSHR           SP2
     3: TRACEV          1
     4: NOP
@@ -23,7 +23,7 @@ Function #0
     9: TRACEV          3
    10: NOP
    11: NOP
-   12: LOAD            LINKX           0
+   12: LOAD            LINKX            0
    13: QUIT
    14: NOP
    15: NOP

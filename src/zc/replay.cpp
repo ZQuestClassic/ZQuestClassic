@@ -34,7 +34,7 @@ struct ReplayStep;
 
 static const int ASSERT_SNAPSHOT_BUFFER = 10;
 static const int ASSERT_FAILED_EXIT_CODE = 120;
-static const int VERSION = 35;
+static const int VERSION = 36;
 
 static const std::string ANNOTATION_MARKER = "«";
 static const char TypeMeta = 'M';
@@ -321,7 +321,7 @@ struct CheatReplayStep : ReplayStep
     std::string print()
     {
         std::string cheat_name = cheat_to_string(cheat);
-        if (cheat == Cheat::PlayerData)
+        if (cheat == Cheat::HeroData)
             return fmt::format("{} {} {} {}", type, frame, cheat_name, arg3);
         else if (arg1 == -1)
             return fmt::format("{} {} {}", type, frame, cheat_name);
@@ -750,7 +750,7 @@ static void load_replay(std::map<std::string, std::string>& meta_map, std::files
             cheat = cheat_from_string(cheat_name);
             ASSERT(cheat > Cheat::None && cheat < Cheat::Last);
 
-            if (cheat == Cheat::PlayerData)
+            if (cheat == Cheat::HeroData)
             {
                 iss.ignore(1);
                 util::portable_get_line(iss, arg3);

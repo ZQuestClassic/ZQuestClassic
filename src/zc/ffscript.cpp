@@ -175,7 +175,7 @@ int32_t CScriptDrawingCommands::GetCount()
 	return count;
 }
 //Advances the game frame without checking 'Quit' variable status.
-//Used for making scripts such as Player's onWin and onDeath scripts
+//Used for making scripts such as Hero's onWin and onDeath scripts
 //run for multiple frames.
 
 void FFScript::Waitframe(bool allowwavy, bool sfxcleanup)
@@ -1372,7 +1372,7 @@ static bool set_current_script_engine_data(ScriptType type, int script, int inde
 		}
 		break;
 		
-		case ScriptType::Player:
+		case ScriptType::Hero:
 		{
 			curscript = playerscripts[script];
 		}
@@ -1784,7 +1784,7 @@ void FFScript::initZScriptOnMapScript()
 
 void FFScript::initZScriptHeroScripts()
 {
-	scriptEngineDatas[{ScriptType::Player, 0}] = ScriptEngineData();
+	scriptEngineDatas[{ScriptType::Hero, 0}] = ScriptEngineData();
 }
 
 void FFScript::initZScriptItemScripts()
@@ -3068,7 +3068,7 @@ int32_t get_register(int32_t arg)
 					ret = (int32_t)(Hero.gethitHeroUID(indx)); //do not multiply by 10000! UIDs are not *10000!
 					break;
 				}
-				default: { Z_scripterrlog("Invalid index passed to Player->HitBy[%d]/n", indx); ret = -1; break; }
+				default: { Z_scripterrlog("Invalid index passed to Hero->HitBy[%d]/n", indx); ret = -1; break; }
 			}
 			break;
 		}
@@ -3081,7 +3081,7 @@ int32_t get_register(int32_t arg)
 			if ( get_qr(qr_OLDSPRITEDRAWS) ) 
 			{
 				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
-					"Player->Rotation");
+					"Hero->Rotation");
 				ret = -1; break;
 			}
 			ret = (int32_t)(Hero.rotation)*10000;
@@ -3092,7 +3092,7 @@ int32_t get_register(int32_t arg)
 			if ( get_qr(qr_OLDSPRITEDRAWS) ) 
 			{
 				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
-					"Player->Scale");
+					"Hero->Scale");
 				ret = -1; break;
 			}
 			ret = (int32_t)(Hero.scale*100.0);
@@ -6999,7 +6999,7 @@ int32_t get_register(int32_t arg)
 		//Useful in conjunction with the new weapon editor. 
 		case CREATELWPNDX:
 		{
-			//Z_message("Trying to get Player->SetExtend().\n");
+			//Z_message("Trying to get Hero->SetExtend().\n");
 			int32_t ID = (ri->d[rINDEX] / 10000);
 			int32_t itemid = (ri->d[rINDEX2]/10000);
 			itemid = vbound(itemid,0,(MAXITEMS-1));
@@ -7069,7 +7069,7 @@ int32_t get_register(int32_t arg)
 		//collision routines. 
 		case COLLISIONDX:
 		{
-			//Z_message("Trying to get Player->SetExtend().\n");
+			//Z_message("Trying to get Hero->SetExtend().\n");
 			int32_t index = (ri->d[rINDEX] / 10000);
 			int32_t lweapon_type = (ri->d[rINDEX2] / 10000);
 			int32_t power = (ri->d[rEXP1]/10000);
@@ -13429,7 +13429,7 @@ void set_register(int32_t arg, int32_t value)
 		case HEROSTEPRATE:
 			if(!get_qr(qr_NEW_HERO_MOVEMENT))
 			{
-				Z_scripterrlog("To use '%s', you must %s the quest rule '%s'.", "Hero->Step", "enable", "New Player Movement");
+				Z_scripterrlog("To use '%s', you must %s the quest rule '%s'.", "Hero->Step", "enable", "New Hero Movement");
 			}
 			Hero.setStepRate(zc_max(value/10000,0));
 			if(!get_qr(qr_SCRIPT_WRITING_HEROSTEP_DOESNT_CARRY_OVER))
@@ -13437,7 +13437,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 		case HEROSHOVEOFFSET:
 			if(!get_qr(qr_NEW_HERO_MOVEMENT2))
-				Z_scripterrlog("To use 'Hero->ShoveOffset', you must enable the quest rule 'Newer Player Movement'.");
+				Z_scripterrlog("To use 'Hero->ShoveOffset', you must enable the quest rule 'Newer Hero Movement'.");
 			Hero.shove_offset = vbound(zslongToFix(value),16_zf,0_zf);
 			if(!get_qr(qr_SCRIPT_WRITING_HEROSTEP_DOESNT_CARRY_OVER))
 				zinit.shove_offset = Hero.shove_offset;
@@ -13777,7 +13777,7 @@ void set_register(int32_t arg, int32_t value)
 					Hero.sethitHeroUID(indx, value); //Why the Flidd did I vbound this? UIDs are LONGs, with a starting value of 0.0001. Why did I allow it, in fact? -Z
 					break;
 				}
-				default: { al_trace("Invalid index passed to Player->HitBy[%d] /n", indx); break; }
+				default: { al_trace("Invalid index passed to Hero->HitBy[%d] /n", indx); break; }
 			}
 			break;
 		}
@@ -13794,7 +13794,7 @@ void set_register(int32_t arg, int32_t value)
 			if ( get_qr(qr_OLDSPRITEDRAWS) ) 
 			{
 				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
-					"Player->Rotation");
+					"Hero->Rotation");
 				break;
 			}
 			(Hero.rotation)=(value/10000);
@@ -13805,7 +13805,7 @@ void set_register(int32_t arg, int32_t value)
 			if ( get_qr(qr_OLDSPRITEDRAWS) ) 
 			{
 				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
-					"Player->Scale");
+					"Hero->Scale");
 				break;
 			}
 			(Hero.scale)=(value/100.0);
@@ -13885,12 +13885,12 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if ( value/10000 < -1 ) 
 			{
-				al_trace("Tried to write an invalid item ID to Player->ItemB: %d\n",value/10000);
+				al_trace("Tried to write an invalid item ID to Hero->ItemB: %d\n",value/10000);
 				break;
 			}		
 			if ( value/10000 > MAXITEMS-1 ) 
 			{
-				al_trace("Tried to write an invalid item ID to Player->ItemB: %d\n",value/10000);
+				al_trace("Tried to write an invalid item ID to Hero->ItemB: %d\n",value/10000);
 				break;
 			}
 			//Hero->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
@@ -13912,12 +13912,12 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if ( value/10000 < -1 ) 
 			{
-				Z_scripterrlog("Tried to write an invalid item ID to Player->ItemA: %d\n",value/10000);
+				Z_scripterrlog("Tried to write an invalid item ID to Hero->ItemA: %d\n",value/10000);
 				break;
 			}		
 			if ( value/10000 > MAXITEMS-1 ) 
 			{
-				Z_scripterrlog("Tried to write an invalid item ID to Player->ItemA: %d\n",value/10000);
+				Z_scripterrlog("Tried to write an invalid item ID to Hero->ItemA: %d\n",value/10000);
 				break;
 			}		
 			//Hero->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
@@ -13937,12 +13937,12 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if ( value/10000 < -1 ) 
 			{
-				Z_scripterrlog("Tried to write an invalid item ID to Player->ItemX: %d\n",value/10000);
+				Z_scripterrlog("Tried to write an invalid item ID to Hero->ItemX: %d\n",value/10000);
 				break;
 			}		
 			if ( value/10000 > MAXITEMS-1 ) 
 			{
-				Z_scripterrlog("Tried to write an invalid item ID to Player->ItemX: %d\n",value/10000);
+				Z_scripterrlog("Tried to write an invalid item ID to Hero->ItemX: %d\n",value/10000);
 				break;
 			}		
 			//Hero->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
@@ -13961,12 +13961,12 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if ( value/10000 < -1 ) 
 			{
-				Z_scripterrlog("Tried to write an invalid item ID to Player->ItemY: %d\n",value/10000);
+				Z_scripterrlog("Tried to write an invalid item ID to Hero->ItemY: %d\n",value/10000);
 				break;
 			}		
 			if ( value/10000 > MAXITEMS-1 ) 
 			{
-				Z_scripterrlog("Tried to write an invalid item ID to Player->ItemY: %d\n",value/10000);
+				Z_scripterrlog("Tried to write an invalid item ID to Hero->ItemY: %d\n",value/10000);
 				break;
 			}		
 			//Hero->setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
@@ -23812,8 +23812,6 @@ void do_set(const bool v, ScriptType whichType, const int32_t whichUID)
 				allowed = false;
 			break;
 		
-		//case ScriptType::Player:
-		
 		case ScriptType::Item:
 		{
 			bool collect = ( ( whichUID < 1 ) || (whichUID == COLLECT_SCRIPT_ITEM_ZERO) );
@@ -24785,17 +24783,7 @@ void do_pitwarp(bool v)
 	Hero.ffpit = true;
 }
 
-void do_breakshield()
-{
-	int32_t UID = get_register(sarg1);
-	
-	for(int32_t j = 0; j < guys.Count(); j++)
-		if(guys.spr(j)->getUID() == UID)
-		{
-			((enemy*)guys.spr(j))->break_shield();
-			return;
-		}
-}
+
 
 void do_showsavescreen()
 {
@@ -28665,7 +28653,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 			}
 			else
 			{
-				Z_scripterrlog("Invalid Warp Return Square Type (%d) provided as an arg to Player->WarpEx().\n",warpDestY);
+				Z_scripterrlog("Invalid Warp Return Square Type (%d) provided as an arg to Hero->WarpEx().\n",warpDestY);
 				return false;
 			}
 		}
@@ -28679,7 +28667,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 		}
 		else
 		{
-			Z_scripterrlog("Invalid pixel coordinates of x = %d, y = %d, supplied to Player->WarpEx()\n",warpDestX,warpDestY);
+			Z_scripterrlog("Invalid pixel coordinates of x = %d, y = %d, supplied to Hero->WarpEx()\n",warpDestX,warpDestY);
 			return false;
 		}
 		
@@ -28895,7 +28883,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 			}
 				
 			
-			//Move Player's coordinates
+			//Move Hero's coordinates
 			Hero.x = (zfix)wx;
 			Hero.y = (zfix)wy;
 			//set his dir
@@ -29847,7 +29835,7 @@ void goto_err(char const* opname)
 			Z_scripterrlog("%s Script %s attempted to %s an invalid jump to (%d).\n", type_str, itemmap[i].scriptname.c_str(), opname, sarg1); break;
 		case ScriptType::Global:
 			Z_scripterrlog("%s Script %s attempted to %s an invalid jump to (%d).\n", type_str, globalmap[i].scriptname.c_str(), opname, sarg1); break;
-		case ScriptType::Player:
+		case ScriptType::Hero:
 			Z_scripterrlog("%s Script %s attempted to %s an invalid jump to (%d).\n", type_str, playermap[i].scriptname.c_str(), opname, sarg1); break;
 		case ScriptType::Screen:
 			Z_scripterrlog("%s Script %s attempted to %s an invalid jump to (%d).\n", type_str, screenmap[i].scriptname.c_str(), opname, sarg1); break;
@@ -29887,7 +29875,7 @@ int32_t run_script(ScriptType type, word script, int32_t i)
 	{
 		case ScriptType::FFC:
 		case ScriptType::Global:
-		case ScriptType::Player:
+		case ScriptType::Hero:
 		case ScriptType::DMap:
 		case ScriptType::OnMap:
 		case ScriptType::ScriptedActiveSubscreen:
@@ -30251,7 +30239,7 @@ int32_t run_script_int(bool is_jitted)
 						zprint("%s Script %s has exited.\n", type_str, itemmap[i].scriptname.c_str()); break;
 					case ScriptType::Global:
 						zprint("%s Script %s has exited.\n", type_str, globalmap[i].scriptname.c_str()); break;
-					case ScriptType::Player:
+					case ScriptType::Hero:
 						zprint("%s Script %s has exited.\n", type_str, playermap[i].scriptname.c_str()); break;
 					case ScriptType::Screen:
 						zprint("%s Script %s has exited.\n", type_str, screenmap[i].scriptname.c_str()); break;
@@ -30685,27 +30673,6 @@ int32_t run_script_int(bool is_jitted)
 				using_SRAM = 0;
 				break;
 			case ARRAYSIZE:
-				do_arraysize();
-				break;
-			 case ARRAYSIZEB:
-				do_arraysize();
-				break;
-			case ARRAYSIZEF:
-				do_arraysize();
-				break;
-			case ARRAYSIZEN:
-				do_arraysize();
-				break;
-			case ARRAYSIZEI:
-				do_arraysize();
-				break;
-			case ARRAYSIZEID:
-				do_arraysize();
-				break;
-			case ARRAYSIZEL:
-				do_arraysize();
-				break;
-			case ARRAYSIZEE:
 				do_arraysize();
 				break;
 			
@@ -31258,10 +31225,6 @@ int32_t run_script_int(bool is_jitted)
 				do_pitwarp(false);
 				break;
 				
-			case BREAKSHIELD:
-				do_breakshield();
-				break;
-				
 			case SELECTAWPNV:
 				do_selectweapon(true, 1);
 				break;
@@ -31428,25 +31391,6 @@ int32_t run_script_int(bool is_jitted)
 				//resume_all_sfx();
 				// midi_paused = false; 
 				//Backend::sfx->resumeAll();
-				break;
-			
-			//!!! typecasting
-			case LWPNARRPTR:
-			case EWPNARRPTR:
-			case ITEMARRPTR:
-			case IDATAARRPTR:
-			case FFCARRPTR:
-			case BOOLARRPTR:
-			case NPCARRPTR:
-				
-			case LWPNARRPTR2:
-			case EWPNARRPTR2:
-			case ITEMARRPTR2:
-			case IDATAARRPTR2:
-			case FFCARRPTR2:
-			case BOOLARRPTR2:
-			case NPCARRPTR2:
-				FFScript::do_typedpointer_typecast(false);
 				break;
 				
 			case MSGSTRR:
@@ -32784,7 +32728,7 @@ int32_t run_script_int(bool is_jitted)
 				int32_t mode = get_register(sarg1) / 10000;
 				if ( (unsigned) mode > 2 ) 
 				{
-					Z_scripterrlog("Invalid mode (%d) passed to Player->Explode(int32_t mode)\n",mode);
+					Z_scripterrlog("Invalid mode (%d) passed to Hero->Explode(int32_t mode)\n",mode);
 				}
 				else Hero.explode(mode);
 				break;
@@ -34170,7 +34114,7 @@ int32_t run_script_int(bool is_jitted)
 		switch(type)
 		{
 			case ScriptType::Global:
-			case ScriptType::Player:
+			case ScriptType::Hero:
 			case ScriptType::DMap:
 			case ScriptType::OnMap:
 			case ScriptType::ScriptedPassiveSubscreen:
@@ -34233,7 +34177,7 @@ int32_t run_script_int(bool is_jitted)
 			case ScriptType::Screen:
 				get_scr(i)->script = 0;
 			case ScriptType::Global:
-			case ScriptType::Player:
+			case ScriptType::Hero:
 			case ScriptType::DMap:
 			case ScriptType::OnMap:
 			case ScriptType::ScriptedActiveSubscreen:
@@ -34362,7 +34306,7 @@ script_data* load_scrdata(ScriptType type, word script, int32_t i)
 		case ScriptType::Generic:
 		case ScriptType::GenericFrozen:
 			return genericscripts[script];
-		case ScriptType::Player:
+		case ScriptType::Hero:
 			return playerscripts[script];
 		case ScriptType::DMap:
 			return dmapscripts[script];
@@ -36294,22 +36238,8 @@ void FFScript::FFChangeSubscreenText()
 	}
 
 	string filename_str;
-
-		
-		
 	ArrayH::getString(arrayptr, filename_str, 73);
 	ChangeSubscreenText(index,filename_str.c_str());
-	
-	//newtext[32]='\0';
-	
-	
-	
-}
-
-void FFScript::do_typedpointer_typecast(const bool v)
-{
-	 int32_t ptr = SH::get_arg(sarg1, v);
-	 set_register(sarg1, ptr);
 }
 
 void FFScript::SetItemMessagePlayed(int32_t itm)
@@ -36649,7 +36579,7 @@ void FFScript::do_warp_ex(bool v)
 	
 		default: 
 		{
-			Z_scripterrlog("Array supplied to Player->WarpEx() is the wrong size!\n The array size was: &d, and valid sizes are [8] and [9].\n",zscript_array_size);
+			Z_scripterrlog("Array supplied to Hero->WarpEx() is the wrong size!\n The array size was: &d, and valid sizes are [8] and [9].\n",zscript_array_size);
 			break;
 		}
 	}
@@ -36697,10 +36627,10 @@ void FFScript::runWarpScripts(bool waitdraw)
 		{
 			FFCore.itemScriptEngineOnWaitdraw();
 		}
-		if ( (!( FFCore.system_suspend[susptHEROACTIVE] )) && FFCore.waitdraw(ScriptType::Player) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( (!( FFCore.system_suspend[susptHEROACTIVE] )) && FFCore.waitdraw(ScriptType::Hero) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-			ZScriptVersion::RunScript(ScriptType::Player, SCRIPT_PLAYER_ACTIVE);
-			FFCore.waitdraw(ScriptType::Player) = false;
+			ZScriptVersion::RunScript(ScriptType::Hero, SCRIPT_HERO_ACTIVE);
+			FFCore.waitdraw(ScriptType::Hero) = false;
 		}
 		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(ScriptType::DMap) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
@@ -36734,9 +36664,9 @@ void FFScript::runWarpScripts(bool waitdraw)
 		{
 			FFCore.itemScriptEngine();
 		}
-		if ((!( FFCore.system_suspend[susptHEROACTIVE] )) && doscript(ScriptType::Player) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
+		if ((!( FFCore.system_suspend[susptHEROACTIVE] )) && doscript(ScriptType::Hero) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
 		{
-			ZScriptVersion::RunScript(ScriptType::Player, SCRIPT_PLAYER_ACTIVE);
+			ZScriptVersion::RunScript(ScriptType::Hero, SCRIPT_HERO_ACTIVE);
 		}
 		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && doscript(ScriptType::DMap) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
 		{
@@ -36825,7 +36755,7 @@ void FFScript::runF6Engine()
 }
 void FFScript::runOnDeathEngine()
 {
-	if(!playerscripts[SCRIPT_PLAYER_DEATH]->valid()) return; //No script to run
+	if(!playerscripts[SCRIPT_HERO_DEATH]->valid()) return; //No script to run
 	clear_bitmap(script_menu_buf);
 	blit(framebuf, script_menu_buf, 0, 0, 0, 0, 256, 224);
 	initZScriptHeroScripts();
@@ -36833,15 +36763,15 @@ void FFScript::runOnDeathEngine()
 	kill_sfx(); //No need to pause/resume; the player is dead.
 	//auto tmpDrawCommands = script_drawing_commands.pop_commands();
 	
-	auto& data = get_script_engine_data(ScriptType::Player);
+	auto& data = get_script_engine_data(ScriptType::Hero);
 	while (data.doscript && !Quit)
 	{
 		script_drawing_commands.Clear();
 		load_control_state();
-		ZScriptVersion::RunScript(ScriptType::Player, SCRIPT_PLAYER_DEATH);
+		ZScriptVersion::RunScript(ScriptType::Hero, SCRIPT_HERO_DEATH);
 		if (data.waitdraw)
 		{
-			ZScriptVersion::RunScript(ScriptType::Player, SCRIPT_PLAYER_DEATH);
+			ZScriptVersion::RunScript(ScriptType::Hero, SCRIPT_HERO_DEATH);
 			data.waitdraw = false;
 		}
 		//Draw
@@ -38891,21 +38821,21 @@ void FFScript::TraceScriptIDs(bool force_show_context)
 				break;
 			}
 			
-			case ScriptType::Player:
+			case ScriptType::Hero:
 			{
 				switch(curScriptNum)
 				{
-					case SCRIPT_PLAYER_INIT:
-						sprintf(buf, "Player Init(%s): ", playermap[curScriptNum-1].scriptname.c_str());
+					case SCRIPT_HERO_INIT:
+						sprintf(buf, "Hero Init(%s): ", playermap[curScriptNum-1].scriptname.c_str());
 						break;
-					case SCRIPT_PLAYER_ACTIVE:
-						sprintf(buf, "Player Active(%s): ", playermap[curScriptNum-1].scriptname.c_str());
+					case SCRIPT_HERO_ACTIVE:
+						sprintf(buf, "Hero Active(%s): ", playermap[curScriptNum-1].scriptname.c_str());
 						break;
-					case SCRIPT_PLAYER_DEATH:
-						sprintf(buf, "Player Death(%s): ", playermap[curScriptNum-1].scriptname.c_str());
+					case SCRIPT_HERO_DEATH:
+						sprintf(buf, "Hero Death(%s): ", playermap[curScriptNum-1].scriptname.c_str());
 						break;
-					case SCRIPT_PLAYER_WIN:
-						sprintf(buf, "Player Win(%s): ", playermap[curScriptNum-1].scriptname.c_str());
+					case SCRIPT_HERO_WIN:
+						sprintf(buf, "Hero Win(%s): ", playermap[curScriptNum-1].scriptname.c_str());
 						break;
 				}
 				break;

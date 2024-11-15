@@ -81,8 +81,8 @@ enum QR
 	qr_CMBCYCLELAYERS, 			// Combos (>>>) Combo Cycling On Layers
 	qr_DMGCOMBOPRI, 			// Combos (>>>) Full Priority Damage Combos
 	qr_WARPSIGNOREARRIVALPOINT, 		// Combos (>>>) Warps Ignore Arrival X/Y Position When Setting Continue Screen
-	qr_LTTPCOLLISION, 			// Player (>>>) Full Tile Collision
-	qr_LTTPWALK, 				// Player (>>>) Diagonal Movement
+	qr_LTTPCOLLISION, 			// Hero (>>>) Full Tile Collision
+	qr_LTTPWALK, 				// Hero (>>>) Diagonal Movement
 	qr_SLOWENEMYANIM_DEP,			// DEPRECATED
 	qr_TRUEARROWS, 				// Items (>>>) True Arrows
 	qr_NOSAVE, 				// Misc (>>>) No Saving When Continuing
@@ -247,7 +247,7 @@ enum QR
 	qr_HARDCODED_ENEMY_ANIMS,	// Compatibility (>>>) Hardcoded Shadow/Spawn/Death anim frames
 	qr_OLD_ITEMDATA_SCRIPT_TIMING,	// Compatibility (>>>) Old Itemdata Script timing
 	qr_SIDESWIM,	// Combos (>>>) Sideview Swimming
-	qr_SIDESWIMDIR,	// Combos (>>>) Player Faces Left/Right While Sieview Swimming
+	qr_SIDESWIMDIR,	// Combos (>>>) Hero Faces Left/Right While Sieview Swimming
 	qr_PUSHBLOCK_LAYER_1_2,	// Combos (>>>) Pushblocks Work On Layer 1 and 2
 	qr_NEWDARK_SCROLLEDGE,	// Misc (>>>) New Darkroom Lanterns Cross Screen Boundary
 	qr_STEPTEMP_SECRET_ONLY_16_31,	// Compatibility (>>>) Step->Secrets (Temp) only affects flags 16-31
@@ -302,7 +302,7 @@ enum QR
 	qr_SMARTER_DROPS,	// Items (>>>) Reroll Drops If Capacity is Full
 	qr_WAVY_NO_EPILEPSY,	// Misc (>>>) Screen->Wavy Intensity is not affected by Epilepsy Protection
 	qr_WAVY_NO_EPILEPSY_2,	// Misc (>>>) Screen->Wavy Speed is not affected by Epilepsy Protection
-	qr_DYING_ENEMIES_IGNORE_STUN,	// NES (>>>) Killing Stunned Enemy With Melee Weapons Won't Hurt Player
+	qr_DYING_ENEMIES_IGNORE_STUN,	// NES (>>>) Killing Stunned Enemy With Melee Weapons Won't Hurt Hero
 	qr_SHOP_ITEMS_VANISH,	// NES (>>>) Shop Items Disappear on Pickup
 	qr_ANGULAR_REFLECT_BROKEN,	// Compatibility (>>>) 'Prisms Reflect Angular Weapons' Uses Broken Logic
 	qr_CSET1_LEVEL,	// Animaton (>>>) CSet 1 is level-specific
@@ -371,7 +371,7 @@ enum QR
 	qr_HARDCODED_FFC_BUSH_DROPS,	// Compatibility (>>>) Old FFC Bush Drops
 	qr_POUNDLAYERS1AND2,	// Combos (>>>) Pound Combos Work On Layers 1 and 2
 	qr_MOVINGBLOCK_FAKE_SOLID,	// Compatibility (>>>) Fake-solid Pushblocks
-	qr_NEW_HERO_MOVEMENT2,	// Player (>>>) Newer Player Movement
+	qr_NEW_HERO_MOVEMENT2,	// Hero (>>>) Newer Hero Movement
 	qr_CARRYABLE_NO_ACROSS_SCREEN,	// Misc (>>>) Carryables Can't Leave Screen
 	qr_NO_SCROLL_WHILE_CARRYING,	// Misc (>>>) No Scrolling Screen While Carrying
 	qr_HELD_BOMBS_EXPLODE,	// Weapons (>>>) Lifted Bombs Explode In Hand

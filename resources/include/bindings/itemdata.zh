@@ -179,7 +179,7 @@ class itemdata {
 	internal int MaxIncrement;
 
 	// If the item is an equipment item or not. Items which are not equipment
-	// items cannot be "owned" by the player or put on buttons.
+	// items cannot be "owned" by the [Hero] or put on buttons.
 	//
 	// @zasm_var IDATAKEEP
 	internal bool EquipmentItem;
@@ -227,7 +227,7 @@ class itemdata {
 	// @zasm_var IDATAINITDD
 	internal untyped InitD[];
 
-	// The Player Tile Modifier associated with this item.
+	// The Hero Tile Modifier associated with this item.
 	//
 	// @zasm_var IDATALTM
 	internal int TileMod;

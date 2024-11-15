@@ -218,9 +218,9 @@ void ending()
 	for(int32_t f=0; f<365; f++)
 	{
 	script_drawing_commands.Clear();
-	if ( FFCore.doscript(ScriptType::Player) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255  ) 
+	if ( FFCore.doscript(ScriptType::Hero) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255  ) 
 	{
-		ZScriptVersion::RunScript(ScriptType::Player, SCRIPT_PLAYER_WIN);
+		ZScriptVersion::RunScript(ScriptType::Hero, SCRIPT_HERO_WIN);
 		--f; load_control_state(); goto adv;
 	}
 	if ( f == 0 ) { sfx(WAV_ZELDA); music_stop(); }

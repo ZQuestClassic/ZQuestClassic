@@ -144,7 +144,7 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 			),
 			preview = MsgPreview(data = &tmpMsgStr, indx = strIndex, text = start_text),
 			Row(padding = 0_px,
-				Label(text = "Player Name Preview:"),
+				Label(text = "Hero Name Preview:"),
 				TextField(
 					type = GUI::TextField::type::TEXT, text = namebuf,
 					maxLength = 8,

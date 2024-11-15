@@ -7,15 +7,15 @@ Function #0
 
 
 Function #1
-    3: COMPARER        D3              D2           [Block 0 -> 1, 1]
+    3: COMPARER        D3               D2          [Block 0 -> 1, 1]
     4: SETMORE         D2
-    5: COMPAREV        D2              0
+    5: COMPAREV        D2               0
     6: SETTRUEI        D2
     7: CASTBOOLF       D2
-    8: COMPAREV        D2              1
+    8: COMPAREV        D2               1
     9: SETMOREI        D2
-   10: COMPAREV        D2              0
+   10: COMPAREV        D2               0
    11: GOTOTRUE        12
    12: NOP                                          [Block 1 -> ]
-   13: SETV            D3              0
+   13: SETV            D3               0
    14: RETURNFUNC

@@ -651,6 +651,11 @@ class npc {
 	//   BREAKSHIELD D2
 	internal void BreakShield();
 
+	// @zasm
+	//   POP D2
+	//   REPAIRSHIELD D2
+	internal void RepairShield();
+
 	// Returns if the NPC is dead, or dying
 	//
 	// @zasm
@@ -932,7 +937,7 @@ class npc {
 	//   NPCKNOCKBACK D2 D3
 	internal bool Knockback(int time, int dir, int speed = 4);
 
-	// Switch the player with this sprite.
+	// Switch the [Hero] with this sprite.
 	//
 	// Valid values for [effect] is [SwitchEffect] (`SW_EFF_`).
 	//

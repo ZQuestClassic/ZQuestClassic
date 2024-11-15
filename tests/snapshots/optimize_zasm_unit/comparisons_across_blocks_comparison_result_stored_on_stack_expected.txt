@@ -1,18 +1,18 @@
 [spurious_branches] Block #0
 
-0: COMPARER        D3              D2     
+0: COMPARER        D3               D2     
 1: SETMORE         D2              
 	D2 = D3 >= D2
-2: COMPAREV        D2              0      
+2: COMPAREV        D2               0      
 	D2 = D3 >= D2
 3: SETTRUEI        D2              
 	D2 = D3 I< D2
-4: COMPAREV        D2              0      
+4: COMPAREV        D2               0      
 	D2 = D3 I< D2
 5: GOTOTRUE        7               
 	D2 = D3 I< D2
 inferred D2: 0
-7: COMPAREV        D2              1      
+7: COMPAREV        D2               1      
 	D2 = 0
 8: SETMOREI        D2              
 	D2 = 0
@@ -22,7 +22,7 @@ inferred D2: 0
 10: NOP            
 	D2 = 0
 	side_effects
-11: STORE           D2              9      
+11: STORE           D2               9      
 	D2 = 0
 	side_effects
 12: NOP            
@@ -31,17 +31,17 @@ inferred D2: 0
 13: NOP            
 	D2 = 0
 	side_effects
-14: LOAD            D2              19     
+14: LOAD            D2               19     
 	side_effects
-15: COMPAREV        D2              0      
+15: COMPAREV        D2               0      
 	side_effects
 16: GOTOTRUE        18              
 	side_effects
-rewrite 5: GOTOCMP         7               ==     
+rewrite 5: GOTOCMP         7                ==     
 
 [spurious_branches] Block #2
 
-7: COMPAREV        D2              1      
+7: COMPAREV        D2               1      
 8: SETMOREI        D2              
 	D2 = D2 I>= 1
 9: NOP            
@@ -50,7 +50,7 @@ rewrite 5: GOTOCMP         7               ==
 10: NOP            
 	D2 = D2 I>= 1
 	side_effects
-11: STORE           D2              9      
+11: STORE           D2               9      
 	D2 = D2 I>= 1
 	side_effects
 12: NOP            
@@ -59,9 +59,9 @@ rewrite 5: GOTOCMP         7               ==
 13: NOP            
 	D2 = D2 I>= 1
 	side_effects
-14: LOAD            D2              19     
+14: LOAD            D2               19     
 	side_effects
-15: COMPAREV        D2              0      
+15: COMPAREV        D2               0      
 	side_effects
 16: GOTOTRUE        18              
 	side_effects
@@ -69,45 +69,45 @@ inferred D2: 0
 18: QUIT           
 	D2 = 0
 	side_effects
-rewrite 16: GOTOCMP         18              ==     
+rewrite 16: GOTOCMP         18               ==     
 
 [reduce_comparisons] Block #0
 
-0: COMPARER        D3              D2     
+0: COMPARER        D3               D2     
 1: SETMORE         D2              
 	D2 = D3 >= D2
-2: COMPAREV        D2              0      
+2: COMPAREV        D2               0      
 	D2 = D3 >= D2
 3: SETTRUEI        D2              
 	D2 = D3 I< D2
-4: COMPAREV        D2              0      
+4: COMPAREV        D2               0      
 	D2 = D3 I< D2
-5: GOTOCMP         7               ==     
+5: GOTOCMP         7                ==     
 	D2 = D3 I< D2
 rewrite 0: 6 -> 3 commands
-0: COMPARER        D3              D2     
-1: SETCMP          D2              I<     
-2: GOTOCMP         7               >=     
+0: COMPARER        D3               D2     
+1: SETCMP          D2               I<     
+2: GOTOCMP         7                >=     
 3: NOP            
 4: NOP            
 5: NOP            
 Function #0
-    0: COMPARER        D3              D2           [Block 0 -> 1, 2]
-    1: SETCMP          D2              I<
-    2: GOTOCMP         7               >=
+    0: COMPARER        D3               D2          [Block 0 -> 1, 2]
+    1: SETCMP          D2               I<
+    2: GOTOCMP         7                >=
     3: NOP                                          [Block 1 -> 2]
     4: NOP
     5: NOP
     6: TRACEV          1
-    7: COMPAREV        D2              1            [Block 2 -> 3, 4]
+    7: COMPAREV        D2               1           [Block 2 -> 3, 4]
     8: SETMOREI        D2
     9: NOP
    10: NOP
-   11: STORE           D2              9
+   11: STORE           D2               9
    12: NOP
    13: NOP
-   14: LOAD            D2              19
-   15: COMPAREV        D2              0
-   16: GOTOCMP         18              ==
+   14: LOAD            D2               19
+   15: COMPAREV        D2               0
+   16: GOTOCMP         18               ==
    17: TRACEV          1                            [Block 3 -> 4]
    18: QUIT                                         [Block 4 -> ]

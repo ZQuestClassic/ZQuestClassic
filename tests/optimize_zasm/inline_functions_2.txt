@@ -1,13 +1,13 @@
 Function #0
-    0: SETR            D4              SP           [Block 0 -> ]
-    1: PUSHARGSR       D4              2
-    2: LOADD           D2              70000
+    0: SETR            D4               SP          [Block 0 -> ]
+    1: PUSHARGSR       D4               2
+    2: LOADD           D2               70000
     3: PUSHR           D2
     4: CALLFUNC        43                           [Call Function #5]
     5: POP             D4
     6: PUSHR           D2
     7: PUSHR           D4
-    8: LOADD           D2              70000
+    8: LOADD           D2               70000
     9: PUSHR           D2
    10: CALLFUNC        32                           [Call Function #3]
    11: POP             D4
@@ -26,21 +26,21 @@ Function #0
 
 
 Function #1
-   24: SETR            D4              SP           [Block 0 -> ]
-   25: SETR            D2              LINKX
-   26: ADDV            D2              80000
+   24: SETR            D4               SP          [Block 0 -> ]
+   25: SETR            D2               LINKX
+   26: ADDV            D2               80000
    27: RETURNFUNC
 
 
 Function #2
-   28: SETR            D4              SP           [Block 0 -> ]
-   29: SETR            D2              LINKY
-   30: ADDV            D2              80000
+   28: SETR            D4               SP          [Block 0 -> ]
+   29: SETR            D2               LINKY
+   30: ADDV            D2               80000
    31: RETURNFUNC
 
 
 Function #3
-   32: SETR            D4              SP           [Block 0 -> ]
+   32: SETR            D4               SP          [Block 0 -> ]
    33: POP             D2
    34: TRACER          D2
    35: TRACEV          1
@@ -52,12 +52,12 @@ Function #4
    38: POP             D1
    39: POP             D0
    40: POP             D6
-   41: SETR            D2              DISTANCE
+   41: SETR            D2               DISTANCE
    42: RETURNFUNC
 
 
 Function #5
-   43: SETR            D0              LINKX        [Block 0 -> ]
+   43: SETR            D0               LINKX       [Block 0 -> ]
    44: TRACER          D0
    45: TRACER          D0
    46: RETURNFUNC

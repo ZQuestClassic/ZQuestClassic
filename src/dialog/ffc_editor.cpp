@@ -428,7 +428,7 @@ std::shared_ptr<GUI::Widget> FFCDialog::view()
 						CHECKB("Stationary", ffc_stationary, "If enabled, the FFC will not move, even if it has"
 							" movement values given to it."),
 						CHECKB("Platform", ffc_platform, "If enabled, the FFC will act as a platform,"
-							" moving the player with it if the player is standing on it."+QRHINT({qr_MULTI_PLATFORM_FFC}))
+							" moving the Hero with it if the Hero is standing on it."+QRHINT({qr_MULTI_PLATFORM_FFC}))
 					),
 					Rows<2>(
 						Label(text = "Changer-Specific Flags", colSpan = 2),

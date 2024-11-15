@@ -501,7 +501,7 @@ class subscreenwidget {
 	// @zasm_var SUBWIDGTY_COSTIND
 	internal int CostIndex;
 
-	// The widget's color index used to indicate the player
+	// The widget's color index used to indicate the [Hero]
 	//
 	// - [SUBWIDG_MMAP]
 	// - [SUBWIDG_LMAP]

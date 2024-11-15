@@ -547,52 +547,70 @@ GUI::ListData GUI::ZCListData::bottletype()
 	return ls;
 }
 
-GUI::ListData GUI::ZCListData::lweaptypes()
+GUI::ListData GUI::ZCListData::lweaptypes(bool numbered)
 {
 	std::map<std::string, int32_t> vals;
-	
-	std::string none(moduledata.player_weapon_names[0]);
-	if(skipchar(moduledata.player_weapon_names[0][0]))
-		none = "(None)";
-	
+
 	GUI::ListData ls;
-	ls.add(none, 0);
-	for(int32_t i=1; i<41; ++i)
+	ls.add("(None)", 0);
+	for (int32_t q = 1; q < lwMax; ++q)
 	{
-		if(skipchar(moduledata.player_weapon_names[i][0]))
-			continue;
-		
-		std::string sname(moduledata.player_weapon_names[i]);
-		ls.add(sname, i);
+		if (!ZI.isUsableWeap(q))
+			continue; //Hidden
+		char const* module_str = ZI.getWeapName(q);
+		if (numbered)
+			ls.add(fmt::format("{} ({:03})", module_str, q), q);
+		else ls.add(module_str, q);
 	}
-	
+	for (int32_t q = wIce; q < wEnemyWeapons; ++q)
+	{
+		if (!ZI.isUsableWeap(q))
+			continue; //Hidden
+		char const* module_str = ZI.getWeapName(q);
+		if (numbered)
+			ls.add(fmt::format("{} ({:03})", module_str, q), q);
+		else ls.add(module_str, q);
+	}
+	ls.alphabetize();
+	//should these always be at the end?
+	for (int32_t q = wScript1; q < wScript1+10; ++q)
+	{
+		if (!ZI.isUsableWeap(q))
+			continue; //Hidden
+		char const* module_str = ZI.getWeapName(q);
+		if (numbered)
+			ls.add(fmt::format("{} ({:03})", module_str, q), q);
+		else ls.add(module_str, q);
+	}
 	return ls;
 }
 
-GUI::ListData GUI::ZCListData::eweaptypes()
+GUI::ListData GUI::ZCListData::eweaptypes(bool numbered)
 {
 	std::map<std::string, int32_t> vals;
 
-	std::string none(moduledata.enemy_weapon_names[0]);
-	if (skipchar(moduledata.enemy_weapon_names[0][0]))
-		none = "(None)";
-
 	GUI::ListData ls;
-	ls.add(none, 0);
-	for (int32_t i = 1; i < wMax-wEnemyWeapons; ++i)
+	ls.add("(None)", 0);
+	for (int32_t q = wEnemyWeapons+1; q < wMax; ++q)
 	{
-		if (skipchar(moduledata.enemy_weapon_names[i][0]))
-			continue;
-
-		std::string sname(moduledata.enemy_weapon_names[i]);
-		ls.add(sname, wEnemyWeapons+i);
+		if (!ZI.isUsableWeap(q))
+			continue; //Hidden
+		char const* module_str = ZI.getWeapName(q);
+		if (numbered)
+			ls.add(fmt::format("{} ({:03})", module_str, q), q);
+		else ls.add(module_str, q);
 	}
-	for (int32_t i = 0; i < 10; ++i)
+	ls.alphabetize();
+	//should these always be at the end?
+	for (int32_t q = wScript1; q < wScript1 + 10; ++q)
 	{
-		std::string sname(moduledata.enemy_scriptweaponweapon_names[i]);
-		ls.add(sname, 30+i);
+		if (!ZI.isUsableWeap(q))
+			continue; //Hidden
+		char const* module_str = ZI.getWeapName(q);
+		if (numbered)
+			ls.add(fmt::format("{} ({:03})", module_str, q), q);
+		else ls.add(module_str, q);
 	}
-
 	return ls;
 }
 
@@ -612,6 +630,72 @@ GUI::ListData GUI::ZCListData::weaptypes(bool numbered)
 		else ls.add(module_str, q);
 	}
 	
+	return ls;
+}
+
+GUI::ListData GUI::ZCListData::defenses(byte first, byte last, bool enemy)
+{
+	std::map<std::string, int32_t> vals;
+
+	GUI::ListData ls;
+	//ls.add("(None)", 0);
+	if (first == 0) first = 1;
+	if (last <= first || last >= wMax) last = wMax - 1;
+	for (int32_t q = first; q < last + 1; ++q)
+	{
+		if (!ZI.isUsableWeap(q))
+			continue; //Hidden
+		char const* defense_str = ZI.getWeapName(q);
+		byte defense = q;
+		if (enemy)
+		{
+			switch (defense)
+			{
+			case wSword: defense = edefSWORD; break;
+			case wBeam: defense = edefBEAM; break;
+			case wBrang: defense = edefBRANG; break;
+			case wBomb: defense = edefBOMB; break;
+			case wSBomb: defense = edefSBOMB; break;
+			case wLitBomb: defense = -1; break;
+			case wLitSBomb: defense = -1; break;
+			case wArrow: defense = edefARROW; break;
+			case wFire: defense = edefFIRE; break;
+			case wWhistle: defense = edefWhistle; break;
+			case wBait: defense = edefBAIT; break;
+			case wWand: defense = edefWAND; break;
+			case wMagic: defense = edefMAGIC; break;
+			case wWind: defense = edefWIND; break;
+			case wRefMagic: defense = edefREFMAGIC; break;
+			case wRefFireball: defense = edefREFBALL; break;
+			case wRefRock: defense = edefREFROCK; break;
+			case wHammer: defense = edefHAMMER; break;
+			case wHookshot: defense = edefHOOKSHOT; break;
+			case wSSparkle: defense = -1; break;
+			case wFSparkle:  defense = -1; break;
+			case wCByrna: defense = edefBYRNA; break;
+			case wRefBeam: defense = edefREFBEAM; break;
+			case wStomp: defense = edefSTOMP; break;
+			case wScript1: defense = edefSCRIPT01; break;
+			case wScript2: defense = edefSCRIPT02; break;
+			case wScript3: defense = edefSCRIPT03; break;
+			case wScript4: defense = edefSCRIPT04; break;
+			case wScript5: defense = edefSCRIPT05; break;
+			case wScript6: defense = edefSCRIPT06; break;
+			case wScript7: defense = edefSCRIPT07; break;
+			case wScript8: defense = edefSCRIPT08; break;
+			case wScript9: defense = edefSCRIPT09; break;
+			case wScript10: defense = edefSCRIPT10; break;
+			case wIce: defense = -1; break;
+			case wSound: defense = -1; break;
+			case wThrown: defense = edefTHROWN; break;
+			case wRefArrow: defense = edefREFARROW; break;
+			case wRefFire: defense = edefREFFIRE; break;
+			case wRefFire2: defense = edefREFFIRE2; break;
+			}
+		}
+		ls.add(fmt::format("{} Defense:", defense_str), defense);
+	}
+
 	return ls;
 }
 
@@ -741,7 +825,7 @@ static void load_scriptnames(std::set<std::string> &names, std::map<std::string,
 // Global and player slot names only used by the editor
 #ifdef IS_EDITOR
 extern std::string global_slotnames[NUMSCRIPTGLOBAL];
-extern std::string player_slotnames[NUMSCRIPTPLAYER - 1];
+extern std::string player_slotnames[NUMSCRIPTHERO - 1];
 
 static GUI::ListData load_scriptnames_slots(std::map<int32_t, script_slot_data> scrmap, int32_t count, std::string* slotnames, bool alphabetize, bool skipempty)
 {
@@ -972,7 +1056,7 @@ GUI::ListData GUI::ZCListData::slots_eweapon_script(bool alphabetize, bool skipe
 
 GUI::ListData GUI::ZCListData::slots_hero_script(bool alphabetize, bool skipempty)
 {
-	return load_scriptnames_slots(playermap, NUMSCRIPTPLAYER - 1, player_slotnames, alphabetize, skipempty);
+	return load_scriptnames_slots(playermap, NUMSCRIPTHERO - 1, player_slotnames, alphabetize, skipempty);
 }
 
 GUI::ListData GUI::ZCListData::slots_dmap_script(bool alphabetize, bool skipempty)
@@ -1213,7 +1297,7 @@ static const GUI::ListData script_types
 	{ "NPC", int(ScriptType::NPC) },
 	{ "LWeapon", int(ScriptType::Lwpn) },
 	{ "EWeapon", int(ScriptType::Ewpn) },
-	{ "Hero", int(ScriptType::Player) },
+	{ "Hero", int(ScriptType::Hero) },
 	{ "DMap", int(ScriptType::DMap) },
 	{ "Screen", int(ScriptType::Screen) },
 	{ "Item Sprite", int(ScriptType::ItemSprite) },
