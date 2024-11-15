@@ -54,8 +54,20 @@ EnemyEditorDialog::EnemyEditorDialog(guydata const& ref, int32_t index) :
 	list_dropsets(GUI::ZCListData::dropsets(false)),
 	list_sprites(GUI::ZCListData::miscsprites()),
 	list_eweaptype(GUI::ZCListData::eweaptypes()),
+	list_defenses(GUI::ZCListData::defenses(wSword, wRefFire2, true).filter(
+		[&](GUI::ListItem& itm)
+		{
+			if (itm.value == -1) return false;
+			if ((itm.value < edefSCRIPT || itm.value > edefSONIC) && itm.value < edefLAST255) return true;
+			else return false;
+		}).alphabetize() + GUI::ZCListData::defenses(wScript1, wScript10, true)),
 	list_deftypes(GUI::ZCListData::deftypes())
-{}
+{
+	for (auto q = 0; q < edefLAST255; ++q)
+	{
+		local_defense[q] = local_guyref.defense[q];
+	}
+}
 
 EnemyEditorDialog::EnemyEditorDialog(int32_t index) :
 	EnemyEditorDialog(guysbuf[index], index) 
@@ -1300,87 +1312,22 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 	);
 	auto defenses_tab = TabPanel(
 		ptr = &guy_tabs[5],
-		TabRef(name = "Defenses", TabPanel(
-			ptr = &guy_tabs[6],
-			TabRef(name = "Defenses 1", Row(
-				Columns<10>(hAlign = 1.0, vAlign = 1.0, rowSpacing = 0.5_em,
-					Label(text = "Boomerang Defense", hAlign = 1.0, rightPadding = 0_px, disabled = NoDefenses()),
-					Label(text = "Bomb Defense", hAlign = 1.0, rightPadding = 0_px, disabled = NoDefenses()),
-					Label(text = "Super Bomb Defense", hAlign = 1.0, rightPadding = 0_px, disabled = NoDefenses()),
-					Label(text = "Arrow Defense", hAlign = 1.0, rightPadding = 0_px, disabled = NoDefenses()),
-					Label(text = "Fire Defense", hAlign = 1.0, rightPadding = 0_px, disabled = NoDefenses()),
-					Label(text = "Wand Defense", hAlign = 1.0, rightPadding = 0_px, disabled = NoDefenses()),
-					Label(text = "Magic Defense", hAlign = 1.0, rightPadding = 0_px, disabled = NoDefenses()),
-					Label(text = "Hookshot Defense", hAlign = 1.0, rightPadding = 0_px, disabled = NoDefenses()),
-					Label(text = "Hammer Defense", hAlign = 1.0, rightPadding = 0_px, disabled = NoDefenses()),
-					Label(text = "Sword Defense", hAlign = 1.0, rightPadding = 0_px, disabled = NoDefenses()),
-					DefenseField(&local_guyref.defense[edefBRANG], list_deftypes),
-					DefenseField(&local_guyref.defense[edefBOMB], list_deftypes),
-					DefenseField(&local_guyref.defense[edefSBOMB], list_deftypes),
-					DefenseField(&local_guyref.defense[edefARROW], list_deftypes),
-					DefenseField(&local_guyref.defense[edefFIRE], list_deftypes),
-					DefenseField(&local_guyref.defense[edefWAND], list_deftypes),
-					DefenseField(&local_guyref.defense[edefMAGIC], list_deftypes),
-					DefenseField(&local_guyref.defense[edefHOOKSHOT], list_deftypes),
-					DefenseField(&local_guyref.defense[edefHAMMER], list_deftypes),
-					DefenseField(&local_guyref.defense[edefSWORD], list_deftypes),
-					Button(
-						text = "Set All",
-						minwidth = 40_px,
-						forceFitH = true,
-						vPadding = 0_px,
-						onClick = message::SETALLDEFENSE
-					)
-				)
-			)),
-			TabRef(name = "Defenses 2", Row(
-				Columns<9>(hAlign = 1.0, vAlign = 1.0, rowSpacing = 0.5_em,
-					Label(text = "Sword Beam Defense", hAlign = 1.0, rightPadding = 0_px, disabled = NoDefenses()),
-					Label(text = "Ref. Beam Defense", hAlign = 1.0, rightPadding = 0_px, disabled = NoDefenses()),
-					Label(text = "Ref. Magic Defense", hAlign = 1.0, rightPadding = 0_px, disabled = NoDefenses()),
-					Label(text = "Ref. Fireball Defense", hAlign = 1.0, rightPadding = 0_px, disabled = NoDefenses()),
-					Label(text = "Ref. Rock Defense", hAlign = 1.0, rightPadding = 0_px, disabled = NoDefenses()),
-					Label(text = "Stomp Defense", hAlign = 1.0, rightPadding = 0_px, disabled = NoDefenses()),
-					Label(text = "Byrna Defense", hAlign = 1.0, rightPadding = 0_px, disabled = NoDefenses()),
-					//Label(text = "Quake Hammer Defense", hAlign = 1.0, rightPadding = 0_px, disabled = NoDefenses()),
-					Label(text = "Whistle Defense", hAlign = 1.0, rightPadding = 0_px, disabled = NoDefenses()),
-					Label(text = "SwitchHook Defense", hAlign = 1.0, rightPadding = 0_px, disabled = NoDefenses()),
-					DefenseField(&local_guyref.defense[edefBEAM], list_deftypes),
-					DefenseField(&local_guyref.defense[edefREFBEAM], list_deftypes),
-					DefenseField(&local_guyref.defense[edefREFMAGIC], list_deftypes),
-					DefenseField(&local_guyref.defense[edefREFBALL], list_deftypes),
-					DefenseField(&local_guyref.defense[edefREFROCK], list_deftypes),
-					DefenseField(&local_guyref.defense[edefSTOMP], list_deftypes),
-					DefenseField(&local_guyref.defense[edefBYRNA], list_deftypes),
-					//DefenseField(&local_guyref.defense[edefQUAKE], list_deftypes),
-					DefenseField(&local_guyref.defense[edefWhistle], list_deftypes),
-					DefenseField(&local_guyref.defense[edefSwitchHook], list_deftypes)
-				)
-			)),
-			TabRef(name = "Script", Row(
-				Columns<10>(hAlign = 1.0, rowSpacing = 0.5_em,
-					Label(text = "Custom Weapon 1 Defense", hAlign = 1.0, rightPadding = 0_px, disabled = NoDefenses()),
-					Label(text = "Custom Weapon 2 Defense", hAlign = 1.0, rightPadding = 0_px, disabled = NoDefenses()),
-					Label(text = "Custom Weapon 3 Defense", hAlign = 1.0, rightPadding = 0_px, disabled = NoDefenses()),
-					Label(text = "Custom Weapon 4 Defense", hAlign = 1.0, rightPadding = 0_px, disabled = NoDefenses()),
-					Label(text = "Custom Weapon 5 Defense", hAlign = 1.0, rightPadding = 0_px, disabled = NoDefenses()),
-					Label(text = "Custom Weapon 6 Defense", hAlign = 1.0, rightPadding = 0_px, disabled = NoDefenses()),
-					Label(text = "Custom Weapon 7 Defense", hAlign = 1.0, rightPadding = 0_px, disabled = NoDefenses()),
-					Label(text = "Custom Weapon 8 Defense", hAlign = 1.0, rightPadding = 0_px, disabled = NoDefenses()),
-					Label(text = "Custom Weapon 9 Defense", hAlign = 1.0, rightPadding = 0_px, disabled = NoDefenses()),
-					Label(text = "Custom Weapon 10 Defense", hAlign = 1.0, rightPadding = 0_px, disabled = NoDefenses()),
-					DefenseField(&local_guyref.defense[edefSCRIPT01], list_deftypes),
-					DefenseField(&local_guyref.defense[edefSCRIPT02], list_deftypes),
-					DefenseField(&local_guyref.defense[edefSCRIPT03], list_deftypes),
-					DefenseField(&local_guyref.defense[edefSCRIPT04], list_deftypes),
-					DefenseField(&local_guyref.defense[edefSCRIPT05], list_deftypes),
-					DefenseField(&local_guyref.defense[edefSCRIPT06], list_deftypes),
-					DefenseField(&local_guyref.defense[edefSCRIPT07], list_deftypes),
-					DefenseField(&local_guyref.defense[edefSCRIPT08], list_deftypes),
-					DefenseField(&local_guyref.defense[edefSCRIPT09], list_deftypes),
-					DefenseField(&local_guyref.defense[edefSCRIPT10], list_deftypes)
-				)
-			))
+		TabRef(name = "Defenses", Row(
+			DDPanel(
+				padding = 3_px,
+				values = local_defense,
+				count = 20,
+				ddlist = list_deftypes,
+				data = list_defenses
+			),
+			Button(
+				text = "Set All To First",
+				minwidth = 40_px,
+				height = 1.5_em,
+				vAlign = 0.1,
+				vPadding = 0_px,
+				onClick = message::SETALLDEFENSE
+			)
 		))
 	);
 	auto flags_tab = TabPanel(
@@ -1707,7 +1654,6 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 			))
 		))
 	);
-
 	auto scripts_tab = TabPanel(
 		ptr = &guy_tabs[13],
 		TabRef(name = "Scripts", TabPanel(
@@ -1819,9 +1765,11 @@ void EnemyEditorDialog::apply_enemy()
 	else if (spawn_type==2)
 		local_guyref.flags = (local_guyref.flags & ~(guy_fade_flicker)) | guy_fade_instant;
 
-
+	for (auto q = 0; q < edefLAST255; ++q)
+		local_guyref.defense[q] = byte(local_defense[q]);
 	guysbuf[index] = local_guyref;
 	strncpy(guy_string[index], enemy_name.c_str(), 63);
+
 	saved = false;
 	edited = true;
 }
@@ -1840,7 +1788,7 @@ bool EnemyEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 	case message::SETALLDEFENSE:
 	{
 		for (int q = 0; q < edefLAST255; ++q)
-			local_guyref.defense[q] = local_guyref.defense[edefBRANG];
+			local_defense[q] = local_defense[0];
 		loadEnemyType();
 		rerun_dlg = true;
 		return true;
