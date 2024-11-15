@@ -251,7 +251,7 @@ const char weap_name_default_string[wMax][255] =
 	"Custom Weapon 10","-Ice","-Flame","-Sound","Thrown",
 	"-Pot","-Lit","-Med1","-Med2","-Med3",
 	//50
-	"-Sword180","-SwordLA","-Bug Net","Reflected Arrow","Reflected Fire",
+	"-Sword180","-SwordLA","-Bug Net","Reflected Arrow","Reflected Fire 1",
 	"Reflected Fire 2","","","","",
 	//60
 	"","","","","","","","","","",
@@ -272,7 +272,7 @@ const char weap_name_default_string[wMax][255] =
 	"Arrow","Boomerang","Sword","Rock","Magic",
 	"Bomb Blast","Super Bomb Blast","Bomb","Super Bomb","Fire Trail",
 	//140
-	"Fire","Wind","Fire 2","-Fire Trail 2","-Ice",
+	"Fire 1","Wind","Fire 2","-Fire Trail 2","-Ice",
 	"Fireball (Rising)"
 	//wMax
 };
