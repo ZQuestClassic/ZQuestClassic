@@ -61,13 +61,11 @@ private:
 
 	int32_t index;
 	guydata local_guyref;
-	int32_t local_defense[edefLAST255+1];
 	string enemy_name;
 	int32_t spawn_type,death_type;
 
 	GUI::ListData list_enemies, list_families, list_animations, list_guyscripts, list_ewpnscripts,
-		list_sfx, list_counters_nn, list_dropsets, list_sprites, list_eweaptype, list_defenses,
-		list_lwpn_defenses, list_scriptwpn_defenses, list_deftypes;
+		list_sfx, list_counters_nn, list_dropsets, list_sprites, list_eweaptype, list_deftypes;
 
 	std::shared_ptr<GUI::Widget> NumberField(auto* data, int32_t _min, int32_t _max, int _length = 5, bool _disabled = false);
 
