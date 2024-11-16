@@ -38,6 +38,7 @@
 #include "subscr.h"
 #include "sfx.h"
 #include "md5.h"
+#include "zc/zelda.h"
 #include "zinfo.h"
 #include "zc/ffscript.h"
 #include "particles.h"
@@ -1891,22 +1892,22 @@ void print_quest_metadata(zquestheader const& tempheader, char const* path, byte
 	zprint2("[QUEST METADATA]\n");
 	if(qst_num < moduledata.max_quest_files)
 		zprint2("Loading module quest %d\n", qst_num+1);
-	if(path) zprint2("Loading '%s'\n", path);
-	zprint2("Last saved in version %s\n", tempheader.getVerStr());
-
-	if ( tempheader.made_in_module_name[0] ) zprint2("Created with ZC Module: %s\n\n", tempheader.made_in_module_name);
-	if ( tempheader.new_version_devsig[0] ) zprint2("Developr Signoff by: %s\n", tempheader.new_version_devsig);
-	if ( tempheader.new_version_compilername[0] ) zprint2("Compiled with: %s, (ID: %d)\n", tempheader.new_version_compilername, tempheader.compilerid);
-	if ( tempheader.new_version_compilerversion[0] ) zprint2("Compiler Version: %s, (%d,%d,%d,%d)\n", tempheader.new_version_compilerversion,tempheader.compilerversionnumber_first,tempheader.compilerversionnumber_second,tempheader.compilerversionnumber_third,tempheader.compilerversionnumber_fourth);
-	if ( tempheader.product_name[0] ) zprint2("Project ID: %s\n", tempheader.product_name);
-	if ( tempheader.new_version_id_date_day ) zprint2("Editor Built at date and time: %d-%d-%d at @ %s %s\n", tempheader.new_version_id_date_day, tempheader.new_version_id_date_month, tempheader.new_version_id_date_year, tempheader.build_timestamp, tempheader.build_timezone);
+	if(path)
+		zprint2("Path: %s\n", path);
+	zprint2("ZC Version: %s\n", tempheader.getVerStr());
+	if(tempheader.new_version_id_date_day)
+		zprint2("ZC Build Date: %d-%d-%d %s %s\n", tempheader.new_version_id_date_year, tempheader.new_version_id_date_month, tempheader.new_version_id_date_day, tempheader.build_timestamp, tempheader.build_timezone);
+	if(tempheader.version[0])
+		zprint2("Qst Version: %s\n", tempheader.version);
+	if(tempheader.author[0])
+		zprint2("Author: %s\n", tempheader.author);
 	zprint2("\n");
 }
 
 int32_t readheader(PACKFILE *f, zquestheader *Header, byte printmetadata)
 {
 	int32_t dummy;
-	zquestheader tempheader;
+	zquestheader tempheader{};
 	char dummybuf[80];
 	byte temp_map_count;
 	byte temp_midi_flags[MIDIFLAGS_SIZE];
@@ -1915,7 +1916,6 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, byte printmetadata)
 	int16_t temp_pwdkey;
 	cvs_MD5Context ctx;
 	memset(temp_midi_flags, 0, MIDIFLAGS_SIZE);
-	memset(&tempheader, 0, sizeof(tempheader));
 	memset(FFCore.quest_format, 0, sizeof(FFCore.quest_format));
 	
 
@@ -2639,11 +2639,11 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, byte printmetadata)
 		{
 			snprintf(tempheader.zelda_version_string, sizeof(tempheader.zelda_version_string), "%d.%d.%d", tempheader.version_major, tempheader.version_minor, tempheader.version_patch);
 		}
+	}
 
-		if(printmetadata || __isZQuest)
-		{
-			print_quest_metadata(tempheader, loading_qst_name, loading_qst_num);
-		}
+	if(printmetadata || __isZQuest)
+	{
+		print_quest_metadata(tempheader, loading_qst_name, loading_qst_num);
 	}
 	
 	//{ Version Warning
@@ -22068,97 +22068,6 @@ static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Mi
     {
         memcpy(midi_flags, old_midi_flags, MIDIFLAGS_SIZE);
     }
-    
-    if( FFCore.quest_format[vZelda] < 0x210 ) 
-	{
-		zprint2("\n[QUEST METADATA]\n");
-		
-		switch(FFCore.quest_format[vZelda])
-		{
-			case 0x193:
-			{
-				zprint2("Last saved in version: 1.93, Beta %d\n", FFCore.quest_format[vBuild]); break;
-			}
-			case 0x192:
-			{
-				zprint2("Last saved in version: 1.92, Beta %d\n", FFCore.quest_format[vBuild]); break;
-			}
-			case 0x190:
-			{
-				zprint2("Last saved in version: 1.90"); 
-				if ( FFCore.quest_format[vBuild] ) zprint2(", Beta/Build %d\n", FFCore.quest_format[vBuild]); 
-				else zprint2("\n");
-				break;
-			}
-			case 0x188:
-			{
-				zprint2("Last saved in version: 1.88");
-				if ( FFCore.quest_format[vBuild] ) zprint2(", Beta/Build %d\n", FFCore.quest_format[vBuild]); 
-				else zprint2("\n");
-				break;
-			}
-			case 0x187:
-			{
-				zprint2("Last saved in version: 1.87");
-				if ( FFCore.quest_format[vBuild] ) zprint2(", Beta/Build %d\n", FFCore.quest_format[vBuild]); 
-				else zprint2("\n");
-				break;
-			}
-			case 0x186:
-			{
-				zprint2("Last saved in version: 1.86");
-				if ( FFCore.quest_format[vBuild] ) zprint2(", Beta/Build %d\n", FFCore.quest_format[vBuild]); 
-				else zprint2("\n");
-				break;
-			}
-			case 0x185:
-			{
-				zprint2("Last saved in version: 1.85");
-				if ( FFCore.quest_format[vBuild] ) zprint2(", Beta/Build %d\n", FFCore.quest_format[vBuild]); 
-				else zprint2("\n");
-				break;
-			}
-			case 0x184:
-			{
-				zprint2("Last saved in version: 1.84");
-				if ( FFCore.quest_format[vBuild] ) zprint2(", Beta/Build %d\n", FFCore.quest_format[vBuild]); 
-				else zprint2("\n");
-				break;
-			}
-			case 0x183:
-			{
-				zprint2("Last saved in version: 1.83");
-				if ( FFCore.quest_format[vBuild] ) zprint2(", Beta/Build %d\n", FFCore.quest_format[vBuild]); 
-				else zprint2("\n");
-				break;
-			}
-			case 0x182:
-			{
-				zprint2("Last saved in version: 1.82");
-				if ( FFCore.quest_format[vBuild] ) zprint2(", Beta/Build %d\n", FFCore.quest_format[vBuild]); 
-				else zprint2("\n");
-				break;
-			}
-			case 0x181:
-			{
-				zprint2("Last saved in version: 1.81");
-				if ( FFCore.quest_format[vBuild] ) zprint2(", Beta/Build %d\n", FFCore.quest_format[vBuild]); 
-				else zprint2("\n");
-				break;
-			}
-			case 0x180:
-			{
-				zprint2("Last saved in version: 1.80");
-				if ( FFCore.quest_format[vBuild] ) zprint2(", Beta/Build %d\n", FFCore.quest_format[vBuild]); 
-				else zprint2("\n");
-				break;
-			}
-			default:
-			{
-				zprint2("Last saved in version: %x, Beta %d\n", FFCore.quest_format[vZelda],FFCore.quest_format[vBuild]); break;
-			}
-		}
-	}
     
 	if(loading_tileset_flags & TILESET_CLEARMAPS)
 	{
