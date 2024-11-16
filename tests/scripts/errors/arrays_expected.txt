@@ -69,12 +69,12 @@ arrays.zs Line 46 @ Columns 9-24 - Error T017: Cannot cast from bitmap[] to bitm
                  ^~~~~~~~~~~~~~~
 
 
-arrays.zs Line 48 @ Columns 2-41 - Error T021: Function fnNewStyleArrayObjects(bitmap) has not been declared.
+arrays.zs Line 48 @ Columns 2-24 - Error T021: Function fnNewStyleArrayObjects(bitmap) has not been declared.
 
 46    bitmap bitmaps_bad_arr = {new bitmap()};
 47    bitmap[] bitmaps_good_arr = {new bitmap()};
 48    fnNewStyleArrayObjects(bitmaps_bad_arr);
-      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      ^~~~~~~~~~~~~~~~~~~~~~
 
 
 arrays.zs Line 53 @ Columns 10-28 - Warning S108: Array mismatch for types untyped[] and lweapon
@@ -214,7 +214,7 @@ stdout:
         },
         "end": {
           "line": 47,
-          "character": 40
+          "character": 23
         }
       },
       "severity": 1,
