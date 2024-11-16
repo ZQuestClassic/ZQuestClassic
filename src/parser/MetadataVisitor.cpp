@@ -183,7 +183,8 @@ static std::string getComment(const AST* node)
 
 	auto parsed_comment = node->getParsedDocComment();
 	std::ostringstream s;
-	s << parsed_comment[""];
+	if (auto it = parsed_comment.find(""); it != parsed_comment.end())
+		s << it->second;
 	for (const auto& [k, v] : parsed_comment)
 	{
 		if (k == "")
