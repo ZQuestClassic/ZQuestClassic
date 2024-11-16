@@ -61,7 +61,6 @@ private:
 
 	int32_t index;
 	guydata local_guyref;
-	int32_t local_defense[edefLAST255+1];
 	string enemy_name;
 	int32_t spawn_type,death_type;
 
@@ -77,7 +76,7 @@ private:
 
 	bool NoDefenses();
 
-	std::shared_ptr<GUI::Widget> DefenseField(auto* field, GUI::ListData const& ls);
+	std::shared_ptr<GUI::Widget> DefenseField(auto* indexs, bool _dobutton=false);
 
 	std::shared_ptr<GUI::Widget> SizeFlag(int32_t index);
 
