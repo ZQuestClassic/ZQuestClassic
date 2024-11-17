@@ -4076,7 +4076,7 @@ void do_load_and_quit_command(const char* quest_path)
 	allocate_crap();
 
 	byte skip_flags[] = {0, 0, 0, 0};
-	int ret = loadquest(quest_path,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,skip_flags,false,false,0xFF);
+	int ret = loadquest(quest_path,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,skip_flags,true,false,0xFF);
 	exit(ret);
 }
 
