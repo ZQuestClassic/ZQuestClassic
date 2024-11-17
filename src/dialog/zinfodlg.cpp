@@ -510,7 +510,7 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 					vAlign = 0.0,
 					DropDownList(data = list_efamilies,
 						colSpan = 3, fitParent = true,
-						selectedValue = selctr,
+						selectedValue = seletype,
 						onSelectFunc = [&](int32_t val)
 						{
 							seletype = val;
