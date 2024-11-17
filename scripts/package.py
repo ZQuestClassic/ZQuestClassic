@@ -57,6 +57,7 @@ args = parser.parse_args()
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
 resources_dir = root_dir / 'resources'
+resources_extra_dir = root_dir / 'resources-extra'
 build_dir: Path = Path.cwd() / args.build_folder
 packages_dir = build_dir / 'packages'
 package_dir = Path(args.package_folder) if args.package_folder else packages_dir / 'zc'
@@ -91,12 +92,6 @@ def files(base_dir: Path, files: List[str] = None):
         path = base_dir / f
         new_files.append((base_dir, path))
     return new_files
-
-
-extras = [
-    *glob(resources_dir, 'Addons/**/*'),
-    *glob(resources_dir, 'utilities/**/*'),
-]
 
 
 def system_to_cfg_os(system: str):
@@ -274,7 +269,6 @@ def do_web_packaging():
 
     all_files = glob(resources_dir, '**/*')
     ignore_files = [
-        *extras,
         *files(
             resources_dir,
             [
@@ -451,7 +445,7 @@ if 'TEST' in os.environ:
         'ignore_monitor_scale = yes',
     )
 elif args.extras:
-    do_packaging(packages_dir / 'extras', extras)
+    do_packaging(packages_dir / 'extras', glob(resources_extra_dir, '**/*'))
 elif args.cfg_os == 'web':
     do_web_packaging()
 else:
@@ -523,7 +517,7 @@ else:
     ]
 
     if args.copy_to_build_folder:
-        copy_files_to_package(zc_files, build_dir, exclude_files=extras)
+        copy_files_to_package(zc_files, build_dir)
         exit(0)
 
     if not args.skip_binaries:
@@ -551,4 +545,4 @@ else:
         if system == 'Linux' and 'PACKAGE_DEBUG_INFO' in os.environ:
             zc_files += glob_maybe(build_dir, '*.debug')
 
-    do_packaging(package_dir, zc_files, exclude_files=extras, include_licenses=True)
+    do_packaging(package_dir, zc_files, include_licenses=True)
