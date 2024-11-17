@@ -61,7 +61,6 @@ public:
 	byte cset, link;
 	word script;
 	int32_t initd[INITIAL_D];
-	int32_t inita[INITIAL_A];
 	bool hooked;
 	cpos_info info;
 	word data;

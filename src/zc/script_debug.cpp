@@ -265,13 +265,6 @@ std::string script_debug_registers_and_stack_to_string()
 	}
 	ss << "\n";
 
-	ss << "A:\t";
-	for (int i = 0; i < 2; i++)
-	{
-		ss << ri->a[i] << " ";
-	}
-	ss << "\n";
-
 	ss << "stack:\t";
 	if (ri->sp > 0)
 	{

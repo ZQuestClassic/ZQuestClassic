@@ -173,7 +173,6 @@ struct itemdata
     word collect_script;
 //  byte exp[10];                                             // not used
     int32_t initiald[INITIAL_D];
-    byte initiala[INITIAL_A];
     byte wpn;
     byte wpn2;
     byte wpn3;
@@ -211,7 +210,6 @@ struct itemdata
     int32_t wpn_misc_d[FFSCRIPT_MISC]; //THe initial Misc[d] that will be assiged to the weapon, 
     
     int32_t weap_initiald[INITIAL_D];
-    byte weap_initiala[INITIAL_A];
     
     byte drawlayer;
     int32_t collectflags;
@@ -238,7 +236,6 @@ struct itemdata
     char sprite_initD_label[8][65];
     
     int32_t sprite_initiald[INITIAL_D];
-    byte sprite_initiala[INITIAL_A];
     word sprite_script;
 	
 	char display_name[256];

@@ -865,7 +865,7 @@ async function processLordCronicArchive() {
     }
 
     const slug = new URL(url).pathname.replaceAll('/', '');
-    const id = `quests/lordcronic/${slug}`;
+    const id = `quests/azc/${slug}`;
     const questDir = `${DB}/${id}`;
 
     if (slug === 'bszeldaremake') {

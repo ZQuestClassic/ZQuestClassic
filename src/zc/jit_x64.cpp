@@ -76,7 +76,7 @@ public:
 static x86::Gp get_z_register(CompilationState& state, x86::Compiler &cc, x86::Gp vStackIndex, int r)
 {
 	x86::Gp val = cc.newInt32();
-	if (r >= D(0) && r <= A(1))
+	if (r >= D(0) && r < D(INITIAL_D))
 	{
 		cc.mov(val, x86::ptr_32(state.ptrRegisters, r * 4));
 	}
@@ -111,7 +111,7 @@ static x86::Gp get_z_register(CompilationState& state, x86::Compiler &cc, x86::G
 static x86::Gp get_z_register_64(CompilationState& state, x86::Compiler &cc, x86::Gp vStackIndex, int r)
 {
 	x86::Gp val = cc.newInt64();
-	if (r >= D(0) && r <= A(1))
+	if (r >= D(0) && r < D(INITIAL_D))
 	{
 		cc.movsxd(val, x86::ptr_32(state.ptrRegisters, r * 4));
 	}
@@ -148,7 +148,7 @@ static x86::Gp get_z_register_64(CompilationState& state, x86::Compiler &cc, x86
 template <typename T>
 static void set_z_register(CompilationState& state, x86::Compiler &cc, x86::Gp vStackIndex, int r, T val)
 {
-	if (r >= D(0) && r <= A(1))
+	if (r >= D(0) && r < D(INITIAL_D))
 	{
 		cc.mov(x86::ptr_32(state.ptrRegisters, r * 4), val);
 	}
