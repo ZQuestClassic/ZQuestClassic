@@ -15,12 +15,12 @@ make html
 # old ghost docs
 rm -rf build/html/_static/old/ghost
 mkdir -p build/html/_static/old/ghost
-cp -r ../resources/docs/ghost/{index.html,search.html,autoGhost,css,enemyScript,eweapon,fonts,globalScript,img,js,mkdocs,other,usage} build/html/_static/old/ghost
+cp -r old/ghost/{index.html,search.html,autoGhost,css,enemyScript,eweapon,fonts,globalScript,img,js,mkdocs,other,usage} build/html/_static/old/ghost
 
 # old tango docs
 rm -rf build/html/_static/old/tango
 mkdir -p build/html/_static/old/tango
-cp -r ../resources/docs/tango/{index.html,search.html,mkdocs,faq,css,fonts,js,img,tangoCode,zscriptFuncs,usage,errors,constants,dataFormats} build/html/_static/old/tango
+cp -r old/tango/{index.html,search.html,mkdocs,faq,css,fonts,js,img,tangoCode,zscriptFuncs,usage,errors,constants,dataFormats} build/html/_static/old/tango
 
 rm -rf build/html/_sources
 rm -rf build/html/_static/scripts/fontawesome.js
