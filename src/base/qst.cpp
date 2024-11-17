@@ -2372,6 +2372,11 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, byte printmetadata)
 			{
 				return qe_invalid;
 			}
+
+			// 2.55 alpha 86 incorrectly used 56 as the second version component. Fix that here.
+			if (tempheader.version_major == 2 && tempheader.version_minor == 56 && tempheader.new_version_id_alpha == 86)
+				tempheader.version_minor = 55;
+
 			if(!p_igetw(&tempheader.new_version_id_date_year,f))
 			{
 				return qe_invalid;
