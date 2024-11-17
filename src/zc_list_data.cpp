@@ -633,69 +633,64 @@ GUI::ListData GUI::ZCListData::weaptypes(bool numbered)
 	return ls;
 }
 
+//problably not the best name
+static string DefenseToWeaponName(byte def)
+{
+	switch (def)
+	{
+	case edefBRANG: return ZI.getWeapName(wBrang); break;
+	case edefBOMB: return ZI.getWeapName(wLitBomb); break;
+	case edefSBOMB: return ZI.getWeapName(wLitSBomb); break;
+	case edefARROW: return ZI.getWeapName(wArrow); break;
+	case edefFIRE: return ZI.getWeapName(wFire); break;
+	case edefWAND: return "Wand"; break;
+	case edefMAGIC: return ZI.getWeapName(wMagic); break;
+	case edefHOOKSHOT: return ZI.getWeapName(wHookshot); break;
+	case edefHAMMER: return ZI.getWeapName(wHammer); break;
+	case edefSWORD: return ZI.getWeapName(wSword); break;
+	case edefBEAM: return ZI.getWeapName(wBeam); break;
+	case edefREFBEAM: return ZI.getWeapName(wRefBeam); break;
+	case edefREFMAGIC: return ZI.getWeapName(wRefMagic); break;
+	case edefREFBALL: return ZI.getWeapName(wRefFireball); break;
+	case edefREFROCK: return ZI.getWeapName(wRefRock); break;
+	case edefSTOMP: return ZI.getWeapName(wStomp); break;
+	case edefBYRNA: return ZI.getWeapName(wCByrna); break;
+	case edefSCRIPT01: return ZI.getWeapName(wScript1); break;
+	case edefSCRIPT02: return ZI.getWeapName(wScript2); break;
+	case edefSCRIPT03: return ZI.getWeapName(wScript3); break;
+	case edefSCRIPT04: return ZI.getWeapName(wScript4); break;
+	case edefSCRIPT05: return ZI.getWeapName(wScript5); break;
+	case edefSCRIPT06: return ZI.getWeapName(wScript6); break;
+	case edefSCRIPT07: return ZI.getWeapName(wScript7); break;
+	case edefSCRIPT08: return ZI.getWeapName(wScript8); break;
+	case edefSCRIPT09: return ZI.getWeapName(wScript9); break;
+	case edefSCRIPT10: return ZI.getWeapName(wScript10); break;
+	case edefWhistle: return ZI.getWeapName(wWhistle); break;
+	case edefSwitchHook: return "SwitchHook"; break;
+	case edefTHROWN: return ZI.getWeapName(wThrown); break;
+	case edefREFARROW: return ZI.getWeapName(wRefArrow); break;
+	case edefREFFIRE: return ZI.getWeapName(wRefFire); break;
+	case edefREFFIRE2: return ZI.getWeapName(wRefFire2); break;
+	//???
+	case edefICE: return ZI.getWeapName(wIce); break;
+	case edefBAIT: return ZI.getWeapName(wBait); break;
+	case edefWIND: return ZI.getWeapName(wWind); break;
+	case edefSPARKLE: return ZI.getWeapName(wFSparkle); break;
+	case edefSONIC: return ZI.getWeapName(wSound); break;
+	default: return "";
+	}
+}
+
 GUI::ListData GUI::ZCListData::defenses(byte first, byte last, bool enemy)
 {
-	std::map<std::string, int32_t> vals;
+	map<std::string, int32_t> vals;
 
 	GUI::ListData ls;
-	//ls.add("(None)", 0);
-	if (first == 0) first = 1;
-	if (last <= first || last >= wMax) last = wMax - 1;
-	for (int32_t q = first; q < last + 1; ++q)
+	for (int32_t q = first; q < last; ++q)
 	{
-		if (!ZI.isUsableWeap(q))
-			continue; //Hidden
-		char const* defense_str = ZI.getWeapName(q);
-		byte defense = q;
-		if (enemy)
-		{
-			switch (defense)
-			{
-			case wSword: defense = edefSWORD; break;
-			case wBeam: defense = edefBEAM; break;
-			case wBrang: defense = edefBRANG; break;
-			case wBomb: defense = edefBOMB; break;
-			case wSBomb: defense = edefSBOMB; break;
-			case wLitBomb: defense = -1; break;
-			case wLitSBomb: defense = -1; break;
-			case wArrow: defense = edefARROW; break;
-			case wFire: defense = edefFIRE; break;
-			case wWhistle: defense = edefWhistle; break;
-			case wBait: defense = edefBAIT; break;
-			case wWand: defense = edefWAND; break;
-			case wMagic: defense = edefMAGIC; break;
-			case wWind: defense = edefWIND; break;
-			case wRefMagic: defense = edefREFMAGIC; break;
-			case wRefFireball: defense = edefREFBALL; break;
-			case wRefRock: defense = edefREFROCK; break;
-			case wHammer: defense = edefHAMMER; break;
-			case wHookshot: defense = edefHOOKSHOT; break;
-			case wSSparkle: defense = -1; break;
-			case wFSparkle:  defense = -1; break;
-			case wCByrna: defense = edefBYRNA; break;
-			case wRefBeam: defense = edefREFBEAM; break;
-			case wStomp: defense = edefSTOMP; break;
-			case wScript1: defense = edefSCRIPT01; break;
-			case wScript2: defense = edefSCRIPT02; break;
-			case wScript3: defense = edefSCRIPT03; break;
-			case wScript4: defense = edefSCRIPT04; break;
-			case wScript5: defense = edefSCRIPT05; break;
-			case wScript6: defense = edefSCRIPT06; break;
-			case wScript7: defense = edefSCRIPT07; break;
-			case wScript8: defense = edefSCRIPT08; break;
-			case wScript9: defense = edefSCRIPT09; break;
-			case wScript10: defense = edefSCRIPT10; break;
-			case wIce: defense = -1; break;
-			case wSound: defense = -1; break;
-			case wThrown: defense = edefTHROWN; break;
-			case wRefArrow: defense = edefREFARROW; break;
-			case wRefFire: defense = edefREFFIRE; break;
-			case wRefFire2: defense = edefREFFIRE2; break;
-			}
-		}
-		ls.add(fmt::format("{} Defense:", defense_str), defense);
+		std::string name = DefenseToWeaponName(q);
+		ls.add(name, q);
 	}
-
 	return ls;
 }
 
