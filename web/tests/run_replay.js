@@ -129,13 +129,13 @@ async function runReplay(zplay) {
   await getResultFile();
 
   await page.addScriptTag({ content: fs.readFileSync(`${dirname}/buffer.js`).toString() });
-  const zplayDir = path.dirname(`/test_replays/${zplayName}`);
+  const zplayDir = path.dirname(zplay);
   const snapshots = await page.evaluate((zplayName, zplayDir) => {
     const files = FS.readdir(zplayDir)
       .filter(file => file.endsWith('.png') && file.includes(zplayName));
     return files.map(file => ({
       file,
-      content: Buffer.from(FS.readFile(`/test_replays/${file}`)).toString('binary'),
+      content: Buffer.from(FS.readFile(`${zplayDir}/${file}`)).toString('binary'),
     }));
   }, zplayName, zplayDir);
 
