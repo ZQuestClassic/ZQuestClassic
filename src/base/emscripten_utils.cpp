@@ -89,7 +89,7 @@ void em_fetch_file(std::string path) {
 bool em_is_lazy_file(std::string path) {
   path = (fs::current_path() / path).string();
 
-  if (strncmp("/quests/purezc/", path.c_str(), strlen("/quests/purezc/")) == 0) {
+  if (strncmp("/quests/", path.c_str(), strlen("/quests/")) == 0) {
     return true;
   }
 

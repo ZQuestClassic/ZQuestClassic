@@ -5,20 +5,20 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-errors_4.zs Line 60 @ Columns 4-25 - Error T021: Function ArrayPushBack(char32, int) has not been declared.
+errors_4.zs Line 60 @ Columns 4-17 - Error T021: Function ArrayPushBack(char32, int) has not been declared.
 
 58                #option LEGACY_ARRAYS off
 59    
 60                ArrayPushBack(ptr, 1);
-                  ^~~~~~~~~~~~~~~~~~~~~
+                  ^~~~~~~~~~~~~
 
 
-errors_4.zs Line 61 @ Columns 4-23 - Error T021: Function ResizeArray(char32, int) has not been declared.
+errors_4.zs Line 61 @ Columns 4-15 - Error T021: Function ResizeArray(char32, int) has not been declared.
 
 59    
 60                ArrayPushBack(ptr, 1);
 61                ResizeArray(ptr, 1);
-                  ^~~~~~~~~~~~~~~~~~~
+                  ^~~~~~~~~~~
 
 
 errors_4.zs Line 14 @ Columns 10-12 - Error T017: Cannot cast from int to Object.
@@ -29,20 +29,20 @@ errors_4.zs Line 14 @ Columns 10-12 - Error T017: Cannot cast from int to Object
                      ^~
 
 
-errors_4.zs Line 15 @ Columns 3-30 - Error T021: Function ArrayPushBack(int[], Object) has not been declared.
+errors_4.zs Line 15 @ Columns 3-16 - Error T021: Function ArrayPushBack(int[], Object) has not been declared.
 
 13    // Invalid.
 14    Object n1 = ArrayPopBack(numbers);
 15    ArrayPushBack(numbers, obj);
-      ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+      ^~~~~~~~~~~~~
 
 
-errors_4.zs Line 16 @ Columns 3-29 - Error T021: Function ArrayPushBack(int[], char32[]) has not been declared.
+errors_4.zs Line 16 @ Columns 3-16 - Error T021: Function ArrayPushBack(int[], char32[]) has not been declared.
 
 14    Object n1 = ArrayPopBack(numbers);
 15    ArrayPushBack(numbers, obj);
 16    ArrayPushBack(numbers, "");
-      ^~~~~~~~~~~~~~~~~~~~~~~~~~
+      ^~~~~~~~~~~~~
 
 
 errors_4.zs Line 18 @ Columns 10-18 - Error T017: Cannot cast from int to Object.
@@ -53,36 +53,36 @@ errors_4.zs Line 18 @ Columns 10-18 - Error T017: Cannot cast from int to Object
              ^~~~~~~~
 
 
-errors_4.zs Line 19 @ Columns 19-36 - Error T021: Function Choose(int, int, Object) has not been declared.
+errors_4.zs Line 19 @ Columns 19-25 - Error T021: Function Choose(int, int, Object) has not been declared.
 
 17    ArrayPushBack(numbers, 1L); // TODO: this should be invalid (else: we perform an implicit cast and multiply by 10000...)
 18    Object choice_1 = Choose(1, 2, 3);
 19    auto choice_2 = Choose(1, 2, obj);
-                      ^~~~~~~~~~~~~~~~~
+                      ^~~~~~
 
 
-errors_4.zs Line 20 @ Columns 16-30 - Error T021: Function Max(int, int, Object) has not been declared.
+errors_4.zs Line 20 @ Columns 16-19 - Error T021: Function Max(int, int, Object) has not been declared.
 
 18    Object choice_1 = Choose(1, 2, 3);
 19    auto choice_2 = Choose(1, 2, obj);
 20    auto max_1 = Max(1, 2, obj);
-                   ^~~~~~~~~~~~~~
+                   ^~~
 
 
-errors_4.zs Line 21 @ Columns 16-27 - Error T021: Function Max(int, Object) has not been declared.
+errors_4.zs Line 21 @ Columns 16-19 - Error T021: Function Max(int, Object) has not been declared.
 
 19    auto choice_2 = Choose(1, 2, obj);
 20    auto max_1 = Max(1, 2, obj);
 21    auto max_2 = Max(1, obj);
-                   ^~~~~~~~~~~
+                   ^~~
 
 
-errors_4.zs Line 22 @ Columns 16-22 - Error T021: Function Max(int) has not been declared.
+errors_4.zs Line 22 @ Columns 16-19 - Error T021: Function Max(int) has not been declared.
 
 20    auto max_1 = Max(1, 2, obj);
 21    auto max_2 = Max(1, obj);
 22    auto max_3 = Max(1);
-                   ^~~~~~
+                   ^~~
 
 
 Failure!
@@ -102,7 +102,7 @@ stdout:
         },
         "end": {
           "line": 59,
-          "character": 24
+          "character": 16
         }
       },
       "severity": 1,
@@ -116,7 +116,7 @@ stdout:
         },
         "end": {
           "line": 60,
-          "character": 22
+          "character": 14
         }
       },
       "severity": 1,
@@ -144,7 +144,7 @@ stdout:
         },
         "end": {
           "line": 14,
-          "character": 29
+          "character": 15
         }
       },
       "severity": 1,
@@ -158,7 +158,7 @@ stdout:
         },
         "end": {
           "line": 15,
-          "character": 28
+          "character": 15
         }
       },
       "severity": 1,
@@ -186,7 +186,7 @@ stdout:
         },
         "end": {
           "line": 18,
-          "character": 35
+          "character": 24
         }
       },
       "severity": 1,
@@ -200,7 +200,7 @@ stdout:
         },
         "end": {
           "line": 19,
-          "character": 29
+          "character": 18
         }
       },
       "severity": 1,
@@ -214,7 +214,7 @@ stdout:
         },
         "end": {
           "line": 20,
-          "character": 26
+          "character": 18
         }
       },
       "severity": 1,
@@ -228,7 +228,7 @@ stdout:
         },
         "end": {
           "line": 21,
-          "character": 21
+          "character": 18
         }
       },
       "severity": 1,

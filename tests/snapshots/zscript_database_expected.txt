@@ -205,7 +205,7 @@ Pass 4: Analyzing Code
 79    fireball=FireEWeapon(EW_FIREBALL, Ghost_X, Ghost_Y, DegtoRad(angle), step, damage, sprite, sound, flags);
 80    if(turnSpeed!=0)
 81        SetEWeaponmovement(fireball, EWM_HOMING, turnSpeed);
-          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          ^~~~~~~~~~~~~~~~~~
 
 
 Failure!
@@ -342,7 +342,7 @@ Pass 4: Analyzing Code
 25    
 26             if(Link->Action != LA_SCROLLING){
 27                Update_HoleLava(startx, starty, olddmap, oldscreen, startdir);
-                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                  ^~~~~~~~~~~~~~~
 
 
 Failure!
@@ -358,7 +358,7 @@ Pass 4: Analyzing Code
 25    //If this is the first time the game is run, the functions below in brackets are called.
 26    {
 27        InitializeSList();
-          ^~~~~~~~~~~~~~~~~
+          ^~~~~~~~~~~~~~~
 
 
 Failure!
@@ -514,7 +514,7 @@ Pass 4: Analyzing Code
 56    {
 57        int ct = Screen->ComboT[ComboAt(CenterLinkX(),CenterLinkY())];
 58        return (ct == Cond(CT_LADDER==0,CT_RIGHTSTATUE,CT_LADDER));
-                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                        ^~~~
 
 
 Failure!
@@ -1622,7 +1622,7 @@ Pass 4: Analyzing Code
 36    else if (phase == 1){//Game started, all 3 chests are closed.            
 37        for (int i=0; i<=2; i++){
 38            if (LinkComboStepped(cmb_step[i], 1, false, -1)) step=i;
-                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                  ^~~~~~~~~~~~~~~~
 
 
 Failure!
@@ -1685,7 +1685,7 @@ Pass 4: Analyzing Code
 70    if(Link->Action==LA_SCROLLING){
 71        GBCart[GBC_ACTIVEFFC] = -1;
 72        Minecart_Draw(ScrollingLinkX(), ScrollingLinkY(), GBCart[GBC_DIR], true);
-                        ^~~~~~~~~~~~~~~~
+                        ^~~~~~~~~~~~~~
 
 
 Failure!
@@ -1701,7 +1701,7 @@ Pass 4: Analyzing Code
 13    if(op1>0){
 14        Game->GetMessage(op1, op1s);
 15        String_Cap(op1s);
-          ^~~~~~~~~~~~~~~~
+          ^~~~~~~~~~
 
 
 Failure!
@@ -3821,7 +3821,7 @@ Pass 4: Analyzing Code
 895    if(Link->HP>0){
 896        if(lFlags[i]&MIF_2X2)
 897            DrawTile(2, x, y-2-lgroup[i]->Z, tile, 2, 2, lgroup[i]->CSet, -1, -1, x, y-2-lgroup[i]->Z, lAng[i], 0, true, 128);
-               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+               ^~~~~~~~
 
 
 Failure!
@@ -3837,7 +3837,7 @@ Pass 4: Analyzing Code
 49    {
 50        int tempangle = RadianAngle(Ghost_X, Ghost_Y, Link->X, Link->Y) + (2*PI);
 51        int maxangle = dirToRad(Ghost_Dir) + DegtoRad(ghost->Attributes[2]) + (2*PI);
-                         ^~~~~~~~~~~~~~~~~~~
+                         ^~~~~~~~
 
 
 Failure!
@@ -3898,7 +3898,7 @@ Pass 4: Analyzing Code
 20    // Returns true if FFC collides with a combo which has specific placed flag
 21    bool ComboFlagCollision (int loc, int flag, int type,lweapon l){
 22        if (ComboFIT(loc,flag,type)){
-              ^~~~~~~~~~~~~~~~~~~~~~~
+              ^~~~~~~~
 
 
 Failure!
@@ -4210,7 +4210,7 @@ Pass 4: Analyzing Code
 26    // Invalid script
 27    if(scriptNum < 0 || scriptNum > 511)
 28        return Debug->NULL();
-                 ^~~~~~~~~~~~~
+                 ^~~~~~~~~~~
 
 
 Failure!
@@ -4347,7 +4347,7 @@ Pass 4: Analyzing Code
 67    --_TempLinkState[_TLSI_LTOTIMER];
 68    if(TEMPLINKSTATE_TILE_OVERRIDE_DRAW_DURING_SCROLL&&Link->Action==LA_SCROLLING)
 69        _TempLinkState_DrawLink(ScrollingLinkX(), ScrollingLinkY());
-                                  ^~~~~~~~~~~~~~~~
+                                  ^~~~~~~~~~~~~~
 
 
 Failure!
@@ -4363,7 +4363,7 @@ Pass 4: Analyzing Code
 95    //Make Link invincible during iframes
 96    if(LinkRoll[_LRI_COUNTER]>=LINKROLL_IFRAMES_DELAY&&LinkRoll[_LRI_COUNTER]<LINKROLL_IFRAMES_DELAY+LINKROLL_IFRAMES)
 97        TempLinkState_UnsetCollDetection();
-          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 Failure!
@@ -4488,7 +4488,7 @@ Pass 4: Analyzing Code
 12    while(true){
 13        ffc n = Screen->LoadFFC(ffcid);
 14        if (SwitchState(n, this) && !MagnetActive()){
-              ^~~~~~~~~~~~~~~~~~~~
+              ^~~~~~~~~~~
 
 
 Failure!
@@ -4536,7 +4536,7 @@ Pass 4: Analyzing Code
 459    while(true){
 460        ffc n = Screen->LoadFFC(ffcid);
 461        if (SwitchState(n, this) && !MagnetActive()){
-               ^~~~~~~~~~~~~~~~~~~~
+               ^~~~~~~~~~~
 
 
 Failure!
@@ -4599,7 +4599,7 @@ Pass 4: Analyzing Code
 148    if (ready && !check){
 149        if (combination==0){
 150            fit = IsNoaKind(poker, miscval1, ex, side, miscval2);
-                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                     ^~~~~~~~~
 
 
 Failure!
@@ -4615,7 +4615,7 @@ Pass 4: Analyzing Code
 148    if (ready && !check){
 149        if (combination==0){
 150            fit = IsNoaKind(poker, miscval1, ex, side, miscval2);
-                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                     ^~~~~~~~~
 
 
 Failure!
@@ -4631,7 +4631,7 @@ Pass 4: Analyzing Code
 82    if(int arr = weap->Misc[EWMISC_STATUS])
 83    {
 84        int sz = Min(NUM_STATS, SizeOfArray(arr));
-                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                   ^~~
 
 
 Failure!
@@ -4663,7 +4663,7 @@ Pass 4: Analyzing Code
 400        Quit();
 401        
 402    slot = TryFindDMapSlot(slots, slot);
-              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+              ^~~~~~~~~~~~~~~
 
 
 Failure!
@@ -4679,7 +4679,7 @@ Pass 4: Analyzing Code
 114    if (ready){
 115        if (combination==0){
 116            fit = IsNoaKind(poker, miscval1, ex, side, miscval2);
-                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                     ^~~~~~~~~
 
 
 Failure!
@@ -4695,7 +4695,7 @@ Pass 4: Analyzing Code
 229                    if (combination==0){
 230    
 231                        fit = IsNoaKind(poker, miscval1, ex, side, miscval2);
-                                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                                 ^~~~~~~~~
 
 
 Failure!

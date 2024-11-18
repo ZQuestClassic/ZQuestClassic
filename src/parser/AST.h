@@ -1491,9 +1491,9 @@ namespace ZScript
 		virtual DataType const* getWriteType(Scope* scope, CompileErrorHandler* errorHandler);
 		void setConstructor(bool _c) {_constructor = _c;}
 		bool isConstructor() const {return _constructor;}
+		std::optional<LocationData> getIdentifierLocation() const {return left->location;}
 		owning_ptr<ASTExpr> left;
 		owning_vector<ASTExpr> parameters;
-		owning_ptr<ASTBlock> inlineBlock;
 		owning_vector<ASTDataDecl> inlineParams;
 		bool _constructor;
 		

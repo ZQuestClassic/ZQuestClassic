@@ -1927,7 +1927,7 @@ struct zquestheader
     byte  data_flags[ZQ_MAXDATA];
     byte  old_rules2[2];
     char  old_options;
-    char  version[17];
+    char  version[17]; // The quest version (not ZC). Could be an empty string.
     char  title[65];
     char  author[65];
     bool  dirty_password;

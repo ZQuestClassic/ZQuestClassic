@@ -2,6 +2,7 @@
 // downloads all pzc quests, external music, and metadata to .tmp/database
 
 import fs from 'fs';
+import assert from 'assert';
 import path from 'path';
 import {fileURLToPath} from 'url';
 import {execFileSync} from 'child_process';
@@ -17,6 +18,7 @@ const OFFICIAL = Boolean(process.env.OFFICIAL);
 const OFFICIAL_SYNC = Boolean(process.env.OFFICIAL_SYNC);
 const ONLY_NEW = Boolean(process.env.ONLY_NEW);
 const ONE_SHOT = Number(process.env.ONE_SHOT);
+const CRONIC = Number(process.env.CRONIC);
 const TYPE = (process.env.TYPE || 'quests') as EntryType;
 const START = Number(process.env.START);
 const MAX = Number(process.env.MAX);
@@ -47,7 +49,7 @@ interface QuestManifest {
   type: EntryType;
   name: string;
   projectUrl: string;
-  dateAdded: string;
+  dateAdded?: string;
   dateUpdated?: string;
   /**
    * auto: approved on basis of inactive author
@@ -111,6 +113,17 @@ function loadQuests() {
   }
 }
 
+async function setReleaseResourceHashes(id: string, release: QuestManifest['releases'][number]) {
+  release.resourceHashes = await Promise.all(release.resources.map(resource => {
+    const resourcePath = `${id}/${release.name}/${resource}`;
+    const fullPath = `${DB}/${resourcePath}`;
+    if (!fs.existsSync(fullPath)) {
+      execFileSync('s3cmd', ['sync', `s3://zc-data/${resourcePath}`, '--no-preserve', fullPath], {stdio: 'inherit'});
+    }
+    return getMd5Hash(fullPath);
+  }));
+}
+
 function getFirstQstFile(release: QuestManifest['releases'][number]) {
   const qst = release.resources.find(r => path.extname(r).toLowerCase() === '.qst');
   if (!qst) {
@@ -122,7 +135,9 @@ function getFirstQstFile(release: QuestManifest['releases'][number]) {
 function saveManifest() {
   const entries = [...questsMap.entries()]
     .sort((a, b) => {
-      const c = a[1].type.localeCompare(b[1].type);
+      let c = a[1].type.localeCompare(b[1].type);
+      if (c !== 0) return c;
+      c = a[1].id.split('/')[1].localeCompare(b[1].id.split('/')[1]);
       if (c !== 0) return c;
       return a[1].index - b[1].index;
     });
@@ -190,6 +205,13 @@ function saveCache() {
 }
 
 function download(url: string, outputPath: string) {
+  if (fs.existsSync(outputPath)) return;
+
+  const dir = path.dirname(outputPath);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, {recursive: true});
+  }
+
   return new Promise(async (resolve, reject) => {
       const res = await fetch(url);
       if (!res.body) throw new Error(`body is null: ${url}`);
@@ -317,6 +339,17 @@ async function getLatestPzcId(page: puppeteer.Page, type: EntryType) {
   });
 }
 
+function getZcInstallFolder() {
+  const releasePath = `${TMP}/archives/release/2.55.4`;
+  if (!fs.existsSync(releasePath)) {
+    console.error(`not found: ${releasePath}`);
+    process.exit(1);
+  }
+  return releasePath;
+}
+
+// Uncompress the contents of the qst file, so that loading code is a bit faster.
+// Should still compress for the network, so let's gzip it. Gzip is actually way better than a4 PACKFILE (Yuurand.qst was 43M -> 27M).
 async function uncompressQstAndGzip(qstPath: string) {
   const gzPath = qstPath + '.gz';
   if (fs.existsSync(gzPath)) {
@@ -324,12 +357,7 @@ async function uncompressQstAndGzip(qstPath: string) {
     return;
   }
 
-  const releasePath = `${TMP}/archives/release/2.55.4`;
-  if (!fs.existsSync(releasePath)) {
-    console.error(`not found: ${releasePath}`);
-    process.exit(1);
-  }
-
+  const releasePath = getZcInstallFolder();
   const zeditorPath = releasePath + '/' + glob.sync('**/zeditor', {cwd: releasePath})[0];
   if (!fs.existsSync(zeditorPath)) {
     console.error(`not found: ${zeditorPath}`);
@@ -354,7 +382,38 @@ async function uncompressQstAndGzip(qstPath: string) {
   if (fs.existsSync(out)) fs.unlinkSync(out);
 }
 
-async function processId(page: puppeteer.Page, type: EntryType, index: number) {
+async function getQstMetadata(qstPath: string) {
+  const releasePath = getZcInstallFolder();
+  const zplayerPath = releasePath + '/' + glob.sync('**/zplayer', {cwd: releasePath})[0];
+  if (!fs.existsSync(zplayerPath)) {
+    console.error(`not found: ${zplayerPath}`);
+    process.exit(1);
+  }
+
+  const output = execFileSync(zplayerPath, [
+    '-load-and-quit',
+    qstPath,
+  ], {encoding: 'utf-8', cwd: path.dirname(zplayerPath)});
+  const lines = output.split('\n');
+  
+  const data = {} as Record<string, string>;
+  let found = false;
+  for (const line of lines) {
+    if (line.includes('[QUEST METADATA]')) {
+      found = true;
+      continue;
+    }
+
+    if (!found) continue;
+    if (!line.trim()) break;
+
+    const [key, value] = line.split(':', 2);
+    data[key] = value.trim();
+  }
+  return data;
+}
+
+async function processPurezcId(page: puppeteer.Page, type: EntryType, index: number) {
   if (type === 'quests') {
     if ([81, 178, 400, 401].includes(index)) {
       // Zip is busted - or maybe I'm using a bad library.
@@ -642,9 +701,7 @@ async function processId(page: puppeteer.Page, type: EntryType, index: number) {
     thisRelease.resources = glob.sync('**/*', {cwd: resourcesDir, nodir: true}).sort().filter(r => !r.endsWith('.gz'));
     getFirstQstFile(thisRelease);
     for (const qst of thisRelease.resources.filter(r => r.endsWith('.qst'))) {
-      const path = `${DB}/${id}/${thisRelease.name}/${qst}`;
-      // Uncompress the contents of the qst file, so that loading code is a bit faster.
-      // Should still compress for the network, so let's gzip it. Gzip is actually way better than a4 PACKFILE (Yuurand.qst was 43M -> 27M).
+      const path = `${resourcesDir}/${qst}`;
       await uncompressQstAndGzip(path);
     }
   }
@@ -660,14 +717,7 @@ async function processId(page: puppeteer.Page, type: EntryType, index: number) {
   // TODO: Don't forget previous value.
   const defaultPath = `${id}/${thisRelease.name}/${qst}`;
 
-  thisRelease.resourceHashes = await Promise.all(thisRelease.resources.map(resource => {
-    const resourcePath = `${id}/${thisRelease.name}/${resource}`;
-    const fullPath = `${DB}/${resourcePath}`;
-    if (!fs.existsSync(fullPath)) {
-      execFileSync('s3cmd', ['sync', `s3://zc-data/${resourcePath}`, '--no-preserve', fullPath], {stdio: 'inherit'});
-    }
-    return getMd5Hash(fullPath);
-  }));
+  await setReleaseResourceHashes(id, thisRelease);
 
   const quest: QuestManifest = {
     id,
@@ -756,6 +806,183 @@ async function forEveryQst(cb: (args: {quest: QuestManifest, release: QuestManif
       }
     }
   }
+}
+
+async function processLordCronicArchive() {
+  const browser = await puppeteer.launch({ headless: false });
+  const page = await browser.newPage();
+
+  const urls: string[] = [
+    'https://lordcronic.tripod.com/bloodline/',
+    'https://lordcronic.tripod.com/doubletrouble/',
+    'https://lordcronic.tripod.com/dragonballzquest/',
+    'https://lordcronic.tripod.com/inthemidstofdarkness/',
+    'https://lordcronic.tripod.com/thegoldenseal/',
+    'https://lordcronic.tripod.com/alinktothepast/',
+    'https://lordcronic.tripod.com/bszeldaremake/',
+    'https://lordcronic.tripod.com/zeldathebeginningofdarkness/',
+    'https://lordcronic.tripod.com/hoppersquest/',
+    'https://lordcronic.tripod.com/OcarinaofTimeFull.zip',
+    'https://lordcronic.tripod.com/sonofthebeachfunquest/',
+    'https://lordcronic.tripod.com/swordoforicon/',
+    'https://lordcronic.tripod.com/thereturnoflink/',
+    'https://lordcronic.tripod.com/aworldintheclouds/',
+    'https://lordcronic.tripod.com/conquestofsarpadia/',
+    'https://lordcronic.tripod.com/grasslandattack/',
+    'https://lordcronic.tripod.com/landofthetriforce/',
+    'https://lordcronic.tripod.com/microplex/',
+    'https://lordcronic.tripod.com/atari2600/',
+    'https://lordcronic.tripod.com/darklink/',
+    'https://lordcronic.tripod.com/linkinlalaria/',
+    'https://lordcronic.tripod.com/planetquest/',
+    'https://lordcronic.tripod.com/battleoftime/',
+    'https://lordcronic.tripod.com/zeldaevilintentions/',
+    'https://lordcronic.tripod.com/talesofhyruleriseofenlil/',
+    'https://lordcronic.tripod.com/vicvipersquest/',
+    'https://lordcronic.tripod.com/wheeloftimeanewage/',
+    'https://lordcronic.tripod.com/thelegendofzeldastruggleofwisdom/',
+    'https://lordcronic.tripod.com/alinktoanotherdimension/',
+    'https://lordcronic.tripod.com/enterthedarkones/',
+    'https://lordcronic.tripod.com/thedarkstar/',
+    'https://lordcronic.tripod.com/balladofdeath/',
+    'https://lordcronic.tripod.com/ct2thedesendantoffrog/',
+    'https://lordcronic.tripod.com/thelegendofsonicthehedgehog/',
+    'https://lordcronic.tripod.com/mariosinsanerampage/'
+  ];
+  // for (let i = 1; i <= 4; i++) {
+  //   await page.goto(`https://lordcronic.tripod.com/absolutequestdb/id${i}.html`, {waitUntil: 'domcontentloaded'});
+  //   const theseUrls = await page.evaluate(() => {
+  //     return [...document.querySelectorAll('a')]
+  //       .map(el => el.href)
+  //       .filter(url => !url.includes('.html') && url.includes('lordcronic.tripod.com'));
+  //   });
+  //   urls.push(...theseUrls);
+  // }
+
+  for (const url of urls) {
+    if (url.endsWith('.zip')) {
+      continue;
+    }
+
+    const slug = new URL(url).pathname.replaceAll('/', '');
+    const id = `quests/lordcronic/${slug}`;
+    const questDir = `${DB}/${id}`;
+
+    if (slug === 'bszeldaremake') {
+      // no qst ...
+      continue;
+    }
+
+    if (questsMap.has(id)) {
+      console.log(`already did ${id}, skipping`);
+      continue;
+    }
+
+    console.log(`scraping ${url}`);
+    await page.goto(url, {waitUntil: 'domcontentloaded'});
+
+    const name = await page.evaluate(() => document.querySelector('b')?.textContent);
+    assert(name);
+
+    const info = await page.evaluate(() => [...document.querySelectorAll('table')][1].textContent?.trim());
+    assert(info);
+
+    const images = await page.evaluate(() => [...document.querySelectorAll('img')]
+      .filter(el => !el.alt.includes('oni_link'))
+      .filter(el => el.src.includes('lordcronic.tripod.com'))
+      .filter(el => el.width >= 200)
+      .map(el => el.src)
+    );
+    for (const [i, url] of images.entries()) {
+      const name = url.split('/').at(-1) ?? '';
+      const outputPath = `${questDir}/${name}`;
+      await download(url, outputPath)
+      images[i] = name;
+    }
+
+    let author = await page.evaluate(() => {
+      for (const el of document.querySelectorAll('b')) {
+        const text = el.textContent ?? '';
+        const match = text.match(/by:(.+)/i);
+        if (match) {
+          return match[1].trim();
+        }
+      }
+    });
+    assert(author);
+
+    const zipUrl = await page.evaluate(() => {
+      for (const el of document.querySelectorAll('a')) {
+        if (el.href.toLowerCase().endsWith('.zip')) {
+          return el.href;
+        }
+      }
+    });
+    assert(zipUrl);
+
+    const archivePath = `${ARCHIVES}/${id}.zip`;
+    if (!fs.existsSync(archivePath)) {
+      await download(zipUrl, archivePath);
+    }
+
+    const contentHash = await getFileHash(archivePath, 'sha1');
+    const release: QuestManifest['releases'][number] = {
+      name: 'r01',
+      date: '',
+      hash: contentHash,
+      resources: [],
+      resourceHashes: [],
+    };
+
+    const resourcesDir = `${questDir}/${release.name}`;
+    await decompress(archivePath, resourcesDir, {map(f) {
+      return f;
+    }});
+
+    release.resources = glob.sync('**/*', {cwd: resourcesDir, nodir: true}).sort().filter(r => !r.endsWith('.gz'));
+    for (const qst of release.resources.filter(r => r.endsWith('.qst'))) {
+      const path = `${resourcesDir}/${qst}`;
+      await uncompressQstAndGzip(path);
+    }
+    await setReleaseResourceHashes(id, release);
+
+    const qstPath = resourcesDir + '/' + getFirstQstFile(release);
+    const metadata = await getQstMetadata(qstPath);
+
+    const zcVersion = metadata['ZC Version'];
+    assert(zcVersion);
+
+    if (metadata.Author) {
+      author = metadata.Author;
+    }
+
+    const defaultPath = `${id}/${release.name}/` + getFirstQstFile(release)
+
+    const quest: QuestManifest = {
+      id,
+      index: 0,
+      type: 'quests',
+      name,
+      projectUrl: url,
+      approval: 'auto',
+      music: [],
+      authors: [{name: author}],
+      releases: [release],
+      defaultPath,
+      images,
+      genre: '',
+      zcVersion,
+      informationHtml: info,
+      descriptionHtml: '',
+      storyHtml: '',
+      tipsAndCheatsHtml: '',
+      creditsHtml: '',
+    };
+    questsMap.set(quest.id, quest);
+    saveManifest();
+  }
+
+  await browser.close();
 }
 
 async function main() {
@@ -924,7 +1151,9 @@ A: No.
       }
     }
   } else if (ONE_SHOT) {
-    await processId(page, TYPE, ONE_SHOT);
+    await processPurezcId(page, TYPE, ONE_SHOT);
+  } else if (CRONIC) {
+    await processLordCronicArchive();
   } else {
     const type = TYPE;
     const start = START || 1;
@@ -935,7 +1164,7 @@ A: No.
 
       try {
         console.log(`[${id}]`);
-        await processId(page, type, i);
+        await processPurezcId(page, type, i);
       } catch (e) {
         console.error(`[${id}]`, e);
         console.error(`[${id}]`, 'will try again next run');

@@ -149,3 +149,4 @@ web/playground/zscript.mjs
 api_server/secrets.sh
 
 docs-www/source/zscript
+.sentry-native
