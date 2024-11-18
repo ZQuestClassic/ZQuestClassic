@@ -122,14 +122,19 @@ extern int32_t mapscreen_x, mapscreen_y, showedges, showallpanels;
 extern int32_t mouse_scroll_h;
 extern int32_t tooltip_timer, tooltip_maxtimer;
 
-extern bool canfill;                                        //to prevent double-filling (which stops undos)
+extern BITMAP* asset_icons_bmp;
+extern BITMAP* asset_engravings_bmp;
+extern BITMAP* asset_mouse_bmp;
+extern BITMAP* asset_select_bmp;
+extern BITMAP* asset_arrows_bmp;
+extern MIDI* asset_tunes_midi;
+extern PALETTE asset_pal;
 
 extern int32_t lens_hint_item[MAXITEMS][2];                     //aclk, aframe
 extern int32_t lens_hint_weapon[MAXWPNS][5];                    //aclk, aframe, dir, x, y
 extern RGB_MAP rgb_table;
 extern COLOR_MAP trans_table, trans_table2;
 extern RGB_MAP zq_rgb_table;
-extern DATAFILE *zcdata;
 extern MIDI *song;
 extern BITMAP *menu1,*menu3, *mapscreenbmp, *tmp_scr, *screen2, *mouse_bmp[MOUSE_BMP_MAX][4], *mouse_bmp_1x[MOUSE_BMP_MAX][4], *icon_bmp[ICON_BMP_MAX][4], *flag_bmp[16][4], *panel_button_icon_bmp[m_menucount][4], *select_bmp[2],*dmapbmp_small, *dmapbmp_large;
 extern BITMAP *arrow_bmp[MAXARROWS],*brushbmp, *brushscreen;

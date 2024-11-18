@@ -25,7 +25,6 @@
 #include "base/qst.h"
 #include "base/colors.h"
 #include "tiles.h"
-#include "zq/zquestdat.h"
 #include "base/zsys.h"
 #include "sprite.h"
 #include "items.h"
@@ -1578,7 +1577,7 @@ void put_engraving(BITMAP* dest, int32_t x, int32_t y, int32_t slot, int32_t sca
 {
 	auto blitx = 1 + (slot % 16) * 17;
 	auto blity = 1 + (slot / 16) * 17;
-	masked_stretch_blit((BITMAP*)zcdata[BMP_ENGRAVINGS].dat, dest, blitx, blity, 16, 16, x, y, 16 * scale, 16 * scale);
+	masked_stretch_blit(asset_engravings_bmp, dest, blitx, blity, 16, 16, x, y, 16 * scale, 16 * scale);
 }
 
 

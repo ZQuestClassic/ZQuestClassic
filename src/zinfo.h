@@ -58,7 +58,7 @@ struct zcmodule
 	char module_name[2048]; //filepath for current zcmodule file
 	char quests[10][255]; //first five quests, filenames
 	char skipnames[10][255]; //name entry passwords
-	char datafiles[5][255]; //qst.dat, zquest.dat, fonts.dat, sfx.dat, zelda.dat
+	char datafiles[4][255]; //qst.dat, fonts.dat, sfx.dat, zelda.dat
 
 	byte old_quest_serial_flow; //Do we go from 3rd to 5th,
 	//and from 5th to 4th, or just 1->2->3->4->5

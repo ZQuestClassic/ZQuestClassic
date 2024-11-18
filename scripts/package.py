@@ -312,15 +312,17 @@ def do_web_packaging():
             'zquest_web.cfg',
         ],
     )
-    zeditor_data_files = files(
-        resources_dir,
-        [
-            'assets/zc/ZC_Icon_Medium_Editor.png',
-            'docs/zquest.txt',
-            'docs/zstrings.txt',
-            'modules/classic/classic_zquest.dat',
-        ],
-    )
+    zeditor_data_files = [
+        *files(
+            resources_dir,
+            [
+                'assets/zc/ZC_Icon_Medium_Editor.png',
+                'docs/zquest.txt',
+                'docs/zstrings.txt',
+            ],
+        ),
+        *glob(resources_dir, 'assets/editor/**/*'),
+    ]
     lazy_files = list(
         set(all_files) - set(zplayer_data_files) - set(zeditor_data_files)
     )

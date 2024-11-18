@@ -5,7 +5,6 @@
 #include "base/zc_alleg.h"
 #include "zq/zq_misc.h"
 #include "zq/render_hotkeys.h"
-#include "zq/zquestdat.h"
 #include "zq/zquest.h"
 #include "base/colors.h"
 #include "base/qst.h"
@@ -115,7 +114,7 @@ void load_mice()
 			BITMAP* subbmp = create_bitmap_ex(8,16,16);
 			clear_bitmap(tmpbmp);
 			clear_bitmap(subbmp);
-			blit((BITMAP*)zcdata[BMP_MOUSEZQ].dat,tmpbmp,i*17+1,j*17+1,0,0,16,16);
+			blit(asset_mouse_bmp,tmpbmp,i*17+1,j*17+1,0,0,16,16);
 			for(int32_t x = 0; x < 16; ++x)
 			{
 				for(int32_t y = 0; y < 16; ++y)
@@ -170,7 +169,7 @@ void load_icons()
 		for(int32_t j=0; j<4; j++)
 		{
 			icon_bmp[i][j] = create_bitmap_ex(8,16,16);
-			blit((BITMAP*)zcdata[BMP_ICONS].dat,icon_bmp[i][j],i*17+1,j*17+1,0,0,16,16);
+			blit(asset_icons_bmp,icon_bmp[i][j],i*17+1,j*17+1,0,0,16,16);
 			if(i==3)
 			{
 				for(int col = 0; col < 16; ++col)
@@ -189,8 +188,7 @@ void load_selections()
     for(int32_t i=0; i<2; i++)
     {
         select_bmp[i] = create_bitmap_ex(8,16,16);
-        //  blit((BITMAP*)zcdata[BMP_SELECT].dat,select_bmp[i],i*17+1,1,0,0,16,16);
-        blit((BITMAP*)zcdata[BMP_SELECT].dat,select_bmp[i],i*17+1,1,0,0,16,16);
+        blit(asset_select_bmp,select_bmp[i],i*17+1,1,0,0,16,16);
     }
 }
 
@@ -200,7 +198,7 @@ void load_arrows()
     {
         arrow_bmp[i] = create_bitmap_ex(8,16,16);
 		BITMAP* tmpbmp = create_bitmap_ex(8,16,16);
-        blit((BITMAP*)zcdata[BMP_ARROWS].dat,tmpbmp,i*17+1,1,0,0,16,16);
+        blit(asset_arrows_bmp,tmpbmp,i*17+1,1,0,0,16,16);
 		for(int32_t x = 0; x < 16; ++x)
 		{
 			for(int32_t y = 0; y < 16; ++y)

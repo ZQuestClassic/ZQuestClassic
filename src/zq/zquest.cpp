@@ -87,7 +87,6 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "zq/zq_tiles.h"                                       // tile and combo code
 
 #include "zq/zquest.h"
-#include "zq/zquestdat.h"
 #include "zq/ffasm.h"
 #include "zq/render.h"
 
@@ -530,7 +529,6 @@ int32_t lens_hint_weapon[MAXWPNS][5];                           //aclk, aframe, 
 int32_t tempmode=GFX_AUTODETECT;
 RGB_MAP zq_rgb_table;
 COLOR_MAP trans_table, trans_table2;
-DATAFILE *zcdata=NULL;
 MIDI *song=NULL;
 BITMAP *menu1, *menu3, *mapscreenbmp, *tmp_scr, *screen2, *mouse_bmp[MOUSE_BMP_MAX][4], *mouse_bmp_1x[MOUSE_BMP_MAX][4], *icon_bmp[ICON_BMP_MAX][4], *flag_bmp[16][4], *select_bmp[2], *dmapbmp_small, *dmapbmp_large;
 BITMAP *arrow_bmp[MAXARROWS],*brushbmp, *brushscreen; //*brushshadowbmp;
@@ -4058,7 +4056,7 @@ int32_t playTune(int32_t pos)
 		zcmixer->newtrack = NULL;
     }
     
-    if(zc_play_midi((MIDI*)zcdata[THETRAVELSOFLINK_MID].dat,true)==0)
+    if(zc_play_midi(asset_tunes_midi,true)==0)
     {
         zc_midi_seek(pos);
         set_media_tunes();
@@ -24092,6 +24090,48 @@ template <typename ...Params>
 	Z_error_fatal(format, std::forward<Params>(params)...);
 }
 
+static BITMAP* load_asset_bmp(const char* path)
+{
+	BITMAP* bmp = load_bmp(path, nullptr);
+	if (!bmp)
+		Z_error_fatal("Failed to load required asset: %s\n", path);
+	return bmp;
+}
+
+static void load_asset_pal(PALETTE pal, const char* path)
+{
+	BITMAP* bmp = load_bmp(path, pal);
+	if (!bmp)
+		Z_error_fatal("Failed to load required asset: %s\n", path);
+}
+
+static MIDI* load_asset_midi(const char* path)
+{
+	MIDI* midi = load_midi(path);
+	if (!midi)
+		Z_error_fatal("Failed to load required asset: %s\n", path);
+	return midi;
+}
+
+BITMAP* asset_icons_bmp;
+BITMAP* asset_engravings_bmp;
+BITMAP* asset_mouse_bmp;
+BITMAP* asset_select_bmp;
+BITMAP* asset_arrows_bmp;
+MIDI* asset_tunes_midi;
+PALETTE asset_pal;
+
+static void load_assets()
+{
+	asset_icons_bmp = load_asset_bmp("assets/editor/icons.bmp");
+	asset_engravings_bmp = load_asset_bmp("assets/editor/engravings.bmp");
+	asset_mouse_bmp = load_asset_bmp("assets/editor/mouse.bmp");
+	asset_select_bmp = load_asset_bmp("assets/editor/select.bmp");
+	asset_arrows_bmp = load_asset_bmp("assets/editor/arrows.bmp");
+	asset_tunes_midi = load_asset_midi("assets/editor/tunes.mid");
+	load_asset_pal(asset_pal, "assets/editor/pal.bmp");
+}
+
 static bool application_has_loaded;
 
 int32_t main(int32_t argc,char **argv)
@@ -24250,19 +24290,10 @@ int32_t main(int32_t argc,char **argv)
 	install_int(dclick_check, 20);
 	
 	set_gfx_mode(GFX_TEXT,80,50,0,0);
-	
-	Z_message("Loading data files:\n");
-	
-	packfile_password(datapwd);
-	
-	Z_message("ZQuest.Dat...");
-	
-	if((zcdata=load_datafile(moduledata.datafiles[zquest_dat]))==NULL)
-		FatalConsole("failed to load zquest.dat");
+
+	load_assets();
 
 	Z_message("OK\n");
-	
-	packfile_password("");
 
 	helpstr = util::read_text_file("docs/zquest.txt");
 	zstringshelpstr = util::read_text_file("docs/zstrings.txt");
@@ -24626,15 +24657,7 @@ int32_t main(int32_t argc,char **argv)
 
 	if (!is_headless())
 	{
-		RGB* zquest_pal = (RGB*)zcdata[PAL_ZQUEST].dat;
-		for (int i = 0; i < 256; i++)
-		{
-			zquest_pal[i].r = _rgb_scale_6[zquest_pal[i].r];
-			zquest_pal[i].g = _rgb_scale_6[zquest_pal[i].g];
-			zquest_pal[i].b = _rgb_scale_6[zquest_pal[i].b];
-		}
-
-		zc_set_palette(zquest_pal);
+		zc_set_palette(asset_pal);
 		get_palette(RAMpal);
 		load_colorset(gui_colorset);
 		zc_set_palette(RAMpal);

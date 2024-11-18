@@ -68,8 +68,6 @@ struct cpos_info;
 #define FONTSDAT_BUILD        30                            //build of fonts.dat
 #define QSTDAT_VERSION        0x0253                        //version of qst.dat
 #define QSTDAT_BUILD          30                            //build of qst.dat
-#define ZQUESTDAT_VERSION     0x0211                        //version of zquest.dat
-#define ZQUESTDAT_BUILD       18                            //build of zquest.dat
 
 enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_211B9, ENC_METHOD_211B18, ENC_METHOD_MAX};
 
@@ -2140,7 +2138,7 @@ enum
 
 // TODO: we would like to remove the module system / loading from datafiles eventually.
 
-enum { zelda_dat, zquest_dat, fonts_dat, sfx_dat };
+enum { zelda_dat, fonts_dat, sfx_dat };
 
 enum {
     sels_tile_frame, sels_tile_questicon_1A, sels_tile_questicon_1B, sels_tile_questicon_2A,
