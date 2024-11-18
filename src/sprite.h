@@ -87,9 +87,7 @@ public:
     word script;
     word weaponscript;
     int32_t initD[8];
-    int32_t initA[2];
     int32_t weap_initd[8];
-    int32_t weap_inita[2];
     int32_t scripttile;
     signed char scriptflip;
     bool do_animation;

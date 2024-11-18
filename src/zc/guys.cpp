@@ -455,11 +455,6 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 		//Z_scripterrlog("(enemy::enemy(zfix)): Loading weapon InitD[%d] to an enemy with a value of (%d)\n",q,d->weap_initiald[q]);
 		weap_initiald[q] = d->weap_initiald[q];
 	}
-	for ( int32_t q = 0; q < 2; q++ ) 
-	{
-		initA[q] = d->initA[q];
-		weap_initiala[q] = d->weap_initiala[q];
-	}
 	
 	stickclk = 0;
 	submerged = false;

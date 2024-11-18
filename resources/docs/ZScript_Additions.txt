@@ -2169,7 +2169,6 @@ TOKEN(s):		ffc script
 POINTER: 		ffc
 InitD:			Yes, [8]
 InitD Labels:		No
-InitA:			Yes, [2]
 Multiple Frames:	Yes
 Waitdraw Support:	Yes, depends on QR
 
@@ -2211,7 +2210,6 @@ TOKEN(s):		global script
 POINTER: 		n/a
 InitD:			No
 InitD Labels:		No
-InitA:			No
 Multiple Frames:	Yes, based on slot.
 Waitdraw Support:	Yes, based on slot.
 
@@ -2399,7 +2397,6 @@ TOKEN(s):		hero script, player script; link script (deprecated)
 POINTER: 		Hero, Player, Link
 InitD:			No
 InitD Labels:		No
-InitA:			No
 Multiple Frames:	Yes, based on slot.
 Waitdraw Support:	Yes, based on slot.
 
@@ -2504,7 +2501,6 @@ TOKEN(s):		dmapdata script
 POINTER: 		dmapdata
 InitD:			Yes, [8] each (active, scripted subscreen)
 InitD Labels:		Yes, [8] each (active, scripted subscreen)
-InitA:			No
 Multiple Frames:	Yes
 Waitdraw Support:	Yes
 
@@ -2585,7 +2581,6 @@ TOKEN(s):		screendata script
 POINTER: 		Screen
 InitD:			Yes, [8]
 InitD Labels:		No
-InitA:			No
 Multiple Frames:	Yes
 Waitdraw Support:	Yes
 
@@ -2621,7 +2616,6 @@ TOKEN(s):		npc script
 POINTER: 		npc
 InitD:			Yes, [8]
 InitD Labels:		Yes, [8]
-InitA:			No
 Multiple Frames:	Yes
 Waitdraw Support:	No
 
@@ -2651,7 +2645,6 @@ TOKEN(s):		eweapon script
 POINTER: 		eweapon
 InitD:			Yes, [8]
 InitD Labels:		Yes, [8]
-InitA:			No
 Multiple Frames:	Yes
 Waitdraw Support:	No
 
@@ -2680,7 +2673,6 @@ TOKEN(s):		lweapon script
 POINTER: 		lweapon
 InitD:			Yes, [8]
 InitD Labels:		Yes, [8]
-InitA:			No
 Multiple Frames:	Yes
 Waitdraw Support:	No
 
@@ -2709,7 +2701,6 @@ TOKEN(s):		itemsprite script
 POINTER: 		itemsprite
 InitD:			Yes, [8]
 InitD Labels:		Yes, [8]
-InitA:			No
 Multiple Frames:	Yes
 Waitdraw Support:	Yes
 
@@ -2741,7 +2732,6 @@ TOKEN(s):		itemdata script
 POINTER: 		itemdata
 InitD:			Yes, [8]
 InitD Labels:		Yes, [8]
-InitA:			Yes, [2]
 Multiple Frames:	Yes, depends on QR or item flag
 Waitdraw Support:	Yes, depends on QR
 
@@ -2763,7 +2753,6 @@ TOKEN(s):		combodata script
 POINTER: 		combodata
 InitD:			Yes, [8]
 InitD Labels:		No
-InitA:			No
 Multiple Frames:	Yes
 Waitdraw Support:	t/b/a
 
@@ -2818,7 +2807,6 @@ Secondly, it can run 'frozen':
 // POINTER: 		subscreendata
 // InitD:			Yes, [8]
 // InitD Labels:		No
-// InitA:			No
 // Multiple Frames:	Yes
 // Waitdraw Support:	Yes
 // 
@@ -7537,17 +7525,6 @@ void SetFFCInitD(int ffc_index, int n, float value);
  * 	Note: Expressed as a function due to lack of 2D arrays in ZScript. 
  * 	With 2D arrays, this would simply be FFCInitD[32][8].
 
-
-int GetFFCInitA(int ffc_index, int n);
- * Returns the value of InitA[n] for the ffc on the screen with an ID of ffc_index.
- * 	Note: Expressed as a function due to lack of 2D arrays in ZScript. 
- * 	With 2D arrays, this would simply be FFCInitA[32][2].
-
-
-void SetFFCInitA(int ffc_index, int init_a, float value);
- * Sets the value of InitA[n] for the ffc on the screen with an ID of ffc_index.
- * 	Note: Expressed as a function due to lack of 2D arrays in ZScript. 
- * 	With 2D arrays, this would simply be FFCInitA[32][2].
 
 
 ///////////////////

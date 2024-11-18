@@ -48,7 +48,6 @@ public:
 	word link; // TODO !!! what type? increase editor/qst file size. uint16_t? ffcid_t? etc
 	word script;
 	int32_t initd[INITIAL_D];
-	int32_t inita[INITIAL_A];
 	uint8_t screen;
 	bool hooked;
 	bool recently_hit;

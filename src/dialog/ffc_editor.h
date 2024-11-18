@@ -33,7 +33,6 @@ struct ffdata
 	byte fhei : 6;
 	int32_t script;
 	std::array<int, 8> initd;
-	std::array<int, 2> inita;
 	
 	ffdata();
 	ffdata(mapscr* scr, int32_t ind);

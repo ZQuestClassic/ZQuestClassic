@@ -10569,7 +10569,6 @@ void domouse()
 												.ew = 16,
 												.eh = 16,
 												.flags = ffc_none,
-												.inita = 10000,
 												.initd = 0,
 											});
 											saved = false;

@@ -42,7 +42,7 @@ EnemyEditorDialog::EnemyEditorDialog(guydata const& ref, int32_t index) :
 	//pointer crap
 
 	index(index), local_guyref(ref), enemy_name(guy_string[index]),
-	spawn_type(ref.flags & guy_fade_instant ? 2 : ref.flags & guy_fade_flicker ? 1 : 0),
+	spawn_type(ref.flags& guy_fade_instant ? 2 : ref.flags & guy_fade_flicker ? 1 : 0),
 	death_type(0), //unimplemented for now
 	list_enemies(GUI::ZCListData::enemies(false, true)),
 	list_families(GUI::ZCListData::efamilies()),
@@ -54,20 +54,14 @@ EnemyEditorDialog::EnemyEditorDialog(guydata const& ref, int32_t index) :
 	list_dropsets(GUI::ZCListData::dropsets(false)),
 	list_sprites(GUI::ZCListData::miscsprites()),
 	list_eweaptype(GUI::ZCListData::eweaptypes()),
-	list_defenses(GUI::ZCListData::defenses(wSword, wRefFire2, true).filter(
+	list_defenses(GUI::ZCListData::defenses(edefBRANG, edefLAST255, true).filter(
 		[&](GUI::ListItem& itm)
 		{
-			if (itm.value == -1) return false;
-			if ((itm.value < edefSCRIPT || itm.value > edefSONIC) && itm.value < edefLAST255) return true;
+			if ((itm.value < edefSCRIPT || itm.value > edefSONIC)) return true;
 			else return false;
-		}).alphabetize() + GUI::ZCListData::defenses(wScript1, wScript10, true)),
+		}) + GUI::ZCListData::defenses(edefSCRIPT01, edefSCRIPT10 + 1, true)),
 	list_deftypes(GUI::ZCListData::deftypes())
-{
-	for (auto q = 0; q < edefLAST255; ++q)
-	{
-		local_defense[q] = local_guyref.defense[q];
-	}
-}
+{}
 
 EnemyEditorDialog::EnemyEditorDialog(int32_t index) :
 	EnemyEditorDialog(guysbuf[index], index) 
@@ -746,22 +740,50 @@ inline bool EnemyEditorDialog::NoDefenses()
 	return local_guyref.family == eeROCK || local_guyref.family == eeTRAP || local_guyref.family == eeDONGO || local_guyref.family == eeGANON;
 }
 
-std::shared_ptr<GUI::Widget> EnemyEditorDialog::DefenseField(auto* field, GUI::ListData const& ls)
+std::shared_ptr<GUI::Widget> EnemyEditorDialog::DefenseField(auto* indexs, bool _dobutton)
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
 
-	return DropDownList(
-		disabled = NoDefenses(),
-		data = ls,
-		hAlign = 0.0,
-		selectedValue = *field,
-		fitParent = true,
-		onSelectFunc = [field](int32_t val)
+	std::shared_ptr<GUI::Grid> grid = Rows<3>();
+	for (int32_t q = 0; q < sizeof(indexs)+1; q++)
+	{
+		int32_t index = indexs[q];
+		if (index == -1)
 		{
-			*field = val;
+			grid->add(_d);
+			grid->add(_d);
+			grid->add(_d);
+			return grid;
 		}
-	);
+		GUI::ListItem& li = list_defenses.accessItem(index);
+		grid->add(Label(
+			text = li.text,
+			hAlign = 1.0,
+			rightPadding = 0_px,
+			disabled = NoDefenses()));
+		grid->add(DropDownList(
+			disabled = NoDefenses(),
+			data = list_deftypes,
+			hAlign = 0.0,
+			selectedValue = local_guyref.defense[index],
+			fitParent = true,
+			onSelectFunc = [&, index](int32_t val)
+			{
+				local_guyref.defense[index] = val;
+			}));
+		if (q == 0 && _dobutton)
+			grid->add(Button(
+				fitParent = true,
+				disabled = NoDefenses(),
+				text = "Set All",
+				minwidth = 40_px,
+				height = 1.5_em,
+				onClick = message::SETALLDEFENSE
+			));
+		else grid->add(_d);
+	}
+	return grid;
 }
 
 //Flags Tab
@@ -1309,35 +1331,38 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 		ptr = &guy_tabs[3],
 		TabRef(name = "Attributes", TabPanel(
 			ptr = &guy_tabs[4],
-			TabRef(name = "Attributes 1", Row(
+			TabRef(name = "1", Row(
 				attributes1_tab
 			)),
-			TabRef(name = "Attributes 2", Row(
+			TabRef(name = "2", Row(
 				attributes2_tab
 			)),
-			TabRef(name = "Attributes 3", Row(
+			TabRef(name = "3", Row(
 				attributes3_tab
 			))
 		))
 	);
+	//sanity check required these are legit the defenses we have gaps in the defenses and they 10 per page.
+	int32_t defensearray1[10] = { 0,1,2,3,4,5,6,7,8,9 };
+	int32_t defensearray2[10] = { 10,11,12,13,14,15,16,35,36,-1 };
+	int32_t defensearray3[10] = { 37,38,39,40,-1,-1,-1,-1,-1,-1 };
+	int32_t defensearray4[10] = { 20,21,22,23,24,25,26,27,28,29 };
 	auto defenses_tab = TabPanel(
 		ptr = &guy_tabs[5],
-		TabRef(name = "Defenses", Row(
-			DDPanel(
-				padding = 3_px,
-				values = local_defense,
-				count = 20,
-				ddlist = list_deftypes,
-				data = list_defenses
-			),
-			Button(
-				text = "Set All To First",
-				minwidth = 40_px,
-				height = 1.5_em,
-				vAlign = 0.1,
-				vPadding = 0_px,
-				onClick = message::SETALLDEFENSE
-			)
+		TabRef(name = "Defenses", TabPanel(
+			ptr = &guy_tabs[6],
+			TabRef(name = "1", Column(
+				DefenseField(defensearray1, true)
+			)),
+			TabRef(name = "2", Column(
+				DefenseField(defensearray2)
+			)),
+			TabRef(name = "3", Column(
+				DefenseField(defensearray3)
+			)),
+			TabRef(name = "Script", Column(
+				DefenseField(defensearray4)
+			))
 		))
 	);
 	auto flags_tab = TabPanel(
@@ -1775,8 +1800,6 @@ void EnemyEditorDialog::apply_enemy()
 	else if (spawn_type==2)
 		local_guyref.flags = (local_guyref.flags & ~(guy_fade_flicker)) | guy_fade_instant;
 
-	for (auto q = 0; q < edefLAST255; ++q)
-		local_guyref.defense[q] = byte(local_defense[q]);
 	guysbuf[index] = local_guyref;
 	strncpy(guy_string[index], enemy_name.c_str(), 63);
 
@@ -1798,7 +1821,7 @@ bool EnemyEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 	case message::SETALLDEFENSE:
 	{
 		for (int q = 0; q < edefLAST255; ++q)
-			local_defense[q] = local_defense[0];
+			local_guyref.defense[q] = local_guyref.defense[0];
 		loadEnemyType();
 		rerun_dlg = true;
 		return true;

@@ -51,7 +51,7 @@ std::shared_ptr<GUI::Widget> HeaderDialog::view()
 		Column(
 			Row(
 				hAlign = 0.5,
-				Label(text = "Quest Made in ZQ Version:", hAlign = 0.0),
+				Label(text = "Quest made in version:", hAlign = 0.0),
 				Label(noHLine = true, text = verstr, hAlign = 1.0)
 			),
 			Rows<2>(

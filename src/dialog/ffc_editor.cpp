@@ -64,8 +64,6 @@ void ffdata::load(mapscr* scr, int32_t ind)
 	fwid = scr->ffEffectWidth(ind)-1;
 	fhei = scr->ffEffectHeight(ind)-1;
 	script = ffc.script;
-	for(auto q = 0; q < 2; ++q)
-		inita[q] = ffc.inita[q];
 	for(auto q = 0; q < 8; ++q)
 		initd[q] = ffc.initd[q];
 }
@@ -90,7 +88,6 @@ void ffdata::save(mapscr* scr, int32_t screen, int32_t ind)
 		.ew = (byte)(fwid+1),
 		.eh = (byte)(fhei+1),
 		.flags = flags,
-		.inita = inita,
 		.initd = initd,
 	});
 }
@@ -114,7 +111,6 @@ ffdata& ffdata::operator=(ffdata const& other)
 	fhei = other.fhei;
 	script = other.script;
 	initd = other.initd;
-	inita = other.inita;
 	return *this;
 }
 
@@ -461,30 +457,6 @@ std::shared_ptr<GUI::Widget> FFCDialog::view()
 						padding = 0_px, fitParent = true,
 						Rows<2>(vAlign = 0.0,
 							SCRIPT_LIST_PROC("Action Script:", list_ffcscript, ffc.script, refreshScript)
-						),
-						Rows<3>(hAlign = 1.0,
-							Label(text = "A1:"),
-							INFOBTN("Used for old ZASM script stuff. In new quests, this is basically useless."),
-							TextField(
-								val = ffc.inita[0],
-								type = GUI::TextField::type::INT_DECIMAL,
-								high = 32,
-								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-								{
-									ffc.inita[0] = val;
-								}
-							),
-							Label(text = "A2:"),
-							INFOBTN("Used for old ZASM script stuff. In new quests, this is basically useless."),
-							TextField(
-								val = ffc.inita[1],
-								type = GUI::TextField::type::INT_DECIMAL,
-								high = 32,
-								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-								{
-									ffc.inita[1] = val;
-								}
-							)
 						)
 					)
 				))

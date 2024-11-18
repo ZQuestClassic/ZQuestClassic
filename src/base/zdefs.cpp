@@ -867,6 +867,21 @@ char const* zquestheader::getVerStr() const
 			case 0x192:
 				sprintf(buf, "1.92, Beta %d", build);
 				break;
+			case 0x190:
+			case 0x188:
+			case 0x187:
+			case 0x186:
+			case 0x185:
+			case 0x184:
+			case 0x183:
+			case 0x182:
+			case 0x181:
+			case 0x180:
+				if (build)
+					sprintf(buf, "1.%x, Beta/Build %d", zelda_version - 0x100, build);
+				else
+					sprintf(buf, "1.%x", zelda_version - 0x100);
+				break;
 			case 0:
 				buf[0] = 0;
 				break;

@@ -82,7 +82,6 @@ int wrap(int x,int low,int high);
 #define NUMSCRIPTSSUBSCREEN        256
 
 //Script-related
-#define INITIAL_A                  2
 #define INITIAL_D                  8
 #define FFSCRIPT_MISC              32
 #define BITS_SP                    10

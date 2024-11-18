@@ -96,10 +96,9 @@ public:
 	int32_t movement[32]; //Reserved for npc movement types and args. 
 	int32_t new_weapon[32]; //Reserved for weapon patterns and args.
 	word npcscript; 
-	int32_t initD[8], initA[2];
+	int32_t initD[8];
 	word weaponscript;
 	int32_t weap_initiald[8];
-	int32_t weap_initiala[2];
 	byte stickclk;
 	int32_t parent_script_UID;
    

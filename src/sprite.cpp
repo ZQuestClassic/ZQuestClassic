@@ -115,11 +115,6 @@ sprite::sprite(): solid_object()
 	    initD[q] = 0;
 	    weap_initd[q] = 0;
     }
-    for ( int32_t q = 0; q < 2; q++ )
-    {
-	    initA[q] = 0;
-	    weap_inita[q] = 0;
-    }
 	glowRad = 0;
 	glowShape = 0;
 	switch_hooked = false;
@@ -187,11 +182,6 @@ sprite::sprite(sprite const & other):
 		initD[i]=other.initD[i];
 		weap_initd[i]=other.weap_initd[i];
 	}
-	for (int32_t i=0; i<2; ++i)
-	{
-		initA[i]=other.initA[i];
-		weap_inita[i]=other.weap_inita[i];
-	}
 }
 
 sprite::sprite(zfix X,zfix Y,int32_t T,int32_t CS,int32_t F,int32_t Clk,int32_t Yofs):
@@ -253,11 +243,6 @@ sprite::sprite(zfix X,zfix Y,int32_t T,int32_t CS,int32_t F,int32_t Clk,int32_t 
     {
         initD[q] = 0;
         weap_initd[q] = 0;
-    }
-    for ( int32_t q = 0; q < 2; q++ ) 
-    {
-        initA[q] = 0;
-        weap_inita[q] = 0;
     }
 	glowRad = 0;
 	glowShape = 0;

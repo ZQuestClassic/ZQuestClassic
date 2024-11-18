@@ -29,20 +29,20 @@ errors_5.zs Line 11 @ Columns 3-21 - Error C036: Variable Hero->IceCombo is cons
       ^~~~~~~~~~~~~~~~~~
 
 
-errors_5.zs Line 13 @ Columns 3-12 - Error S095: Function 'Untype(untyped)' is deprecated, and cannot be used due to current compiler settings.
+errors_5.zs Line 13 @ Columns 3-9 - Error S095: Function 'Untype(untyped)' is deprecated, and cannot be used due to current compiler settings.
 
 11    Hero->IceCombo = 0;
 12    //Deprecated things error due to #option
 13    Untype(5);
-      ^~~~~~~~~
+      ^~~~~~
 
 
-errors_5.zs Line 14 @ Columns 3-31 - Error S095: Function 'TraceNPC(untyped)' is deprecated, and cannot be used due to current compiler settings.
+errors_5.zs Line 14 @ Columns 3-11 - Error S095: Function 'TraceNPC(untyped)' is deprecated, and cannot be used due to current compiler settings.
 
 12    //Deprecated things error due to #option
 13    Untype(5);
 14    TraceNPC(Screen->LoadNPC(0));
-      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      ^~~~~~~~
 
 
 INFO: Use Trace instead
@@ -113,7 +113,7 @@ stdout:
         },
         "end": {
           "line": 12,
-          "character": 11
+          "character": 8
         }
       },
       "severity": 1,
@@ -127,7 +127,7 @@ stdout:
         },
         "end": {
           "line": 13,
-          "character": 30
+          "character": 10
         }
       },
       "severity": 1,

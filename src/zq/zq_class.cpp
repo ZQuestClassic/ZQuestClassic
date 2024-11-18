@@ -4215,8 +4215,6 @@ void set_combo_command::undo()
 
 set_ffc_command::data_t set_ffc_command::create_data(const ffcdata& ffc)
 {
-	std::array<int, 2> inita_arr;
-	std::copy(std::begin(ffc.inita), std::end(ffc.inita), inita_arr.begin());
 	std::array<int, 8> initd_arr;
 	std::copy(std::begin(ffc.initd), std::end(ffc.initd), initd_arr.begin());
 
@@ -4237,7 +4235,6 @@ set_ffc_command::data_t set_ffc_command::create_data(const ffcdata& ffc)
 		.ew = ffc.hit_width,
 		.eh = ffc.hit_height,
 		.flags = ffc.flags,
-		.inita = inita_arr,
 		.initd = initd_arr,
 	};
 }
@@ -4264,7 +4261,6 @@ void set_ffc_command::execute()
 	mapscr_ptr->ffEffectHeight(i, data.eh);
 	mapscr_ptr->ffTileWidth(i, data.tw);
 	mapscr_ptr->ffTileHeight(i, data.th);
-	std::copy(std::begin(data.inita), std::end(data.inita), std::begin(mapscr_ptr->ffcs[i].inita));
 	std::copy(std::begin(data.initd), std::end(data.initd), std::begin(mapscr_ptr->ffcs[i].initd));
 	mapscr_ptr->ffcCountMarkDirty();
 	mapscr_ptr->ffcs[i].updateSolid();
@@ -4291,7 +4287,6 @@ void set_ffc_command::undo()
 	mapscr_ptr->ffEffectHeight(i, prev_data.eh);
 	mapscr_ptr->ffTileWidth(i, prev_data.tw);
 	mapscr_ptr->ffTileHeight(i, prev_data.th);
-	std::copy(std::begin(prev_data.inita), std::end(prev_data.inita), std::begin(mapscr_ptr->ffcs[i].inita));
 	std::copy(std::begin(prev_data.initd), std::end(prev_data.initd), std::begin(mapscr_ptr->ffcs[i].initd));
 	mapscr_ptr->ffcCountMarkDirty();
 	mapscr_ptr->ffcs[i].updateSolid();
@@ -4599,8 +4594,6 @@ void zmap::DoSetFFCCommand(int map, int scr, int i, set_ffc_command::data_t data
 
 	std::shared_ptr<set_ffc_command> command(new set_ffc_command);
 
-	std::array<int, 2> inita_arr;
-	std::copy(std::begin(mapscr_ptr->ffcs[i].inita), std::end(mapscr_ptr->ffcs[i].inita), inita_arr.begin());
 	std::array<int, 8> initd_arr;
 	std::copy(std::begin(mapscr_ptr->ffcs[i].initd), std::end(mapscr_ptr->ffcs[i].initd), initd_arr.begin());
 
@@ -8429,7 +8422,7 @@ int32_t writeitems(PACKFILE *f, zquestheader *Header)
             
             for(int32_t j=0; j<2; j++)
             {
-                if(!p_putc(itemsbuf[i].initiala[j],f))
+                if(!p_putc(0,f))
                 {
                     new_return(25);
                 }
@@ -8595,9 +8588,9 @@ int32_t writeitems(PACKFILE *f, zquestheader *Header)
 					new_return(55);
 				}
 			}
-			for ( int32_t q = 0; q < INITIAL_A; q++ )
+			for ( int32_t q = 0; q < 2; q++ )
 			{
-				if(!p_putc(itemsbuf[i].weap_initiala[q],f))
+				if(!p_putc(0,f))
 				{
 					new_return(56);
 				}
@@ -8756,7 +8749,7 @@ int32_t writeitems(PACKFILE *f, zquestheader *Header)
 			}
 			for ( int32_t q = 0; q < 2; q++ )
 			{
-				if(!p_putc(itemsbuf[i].sprite_initiala[q],f))
+				if(!p_putc(0,f))
 				{
 					new_return(89);
 				} 
@@ -9393,11 +9386,10 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 			if(!p_iputl(tempffc.initd[q],f))
 				return qe_invalid;
 		}
-		
-		if(!p_putc(tempffc.inita[0]/10000,f))
+
+		if(!p_putc(0,f))
 			return qe_invalid;
-		
-		if(!p_putc(tempffc.inita[1]/10000,f))
+		if(!p_putc(0,f))
 			return qe_invalid;
 	}
 	
@@ -11404,7 +11396,7 @@ int32_t writeguys(PACKFILE *f, zquestheader *Header)
 			}
 			for ( int32_t q = 0; q < 2; q++ )
 			{
-				if(!p_iputl(guysbuf[i].initA[q],f))
+				if(!p_iputl(0,f))
 				{
 					new_return(90);
 				}

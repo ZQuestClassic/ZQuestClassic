@@ -647,10 +647,6 @@ class mapdata {
 	// This needs to be converted to the type 'untyped' to comply with the
 	// change of float ffc->InitD[] to untyped ffc->InitD[]
 	//
-	// Note: Expressed as a function due to lack of 2D arrays in ZScript.
-	//
-	// With 2D arrays, this would simply be FFCInitD[32][8].
-	//
 	// @zasm
 	//   POP D1
 	//   POP D0
@@ -663,10 +659,6 @@ class mapdata {
 	//
 	// 'int value' needs to be converted to the type 'untyped' to comply with
 	// the change of float ffc->InitD[] to untyped ffc->InitD[]
-	//
-	// Note: Expressed as a function due to lack of 2D arrays in ZScript.
-	//
-	// With 2D arrays, this would simply be FFCInitD[32][8].
 	//
 	// @zasm
 	//   POP D6
@@ -692,33 +684,4 @@ class mapdata {
 	//   SETR MAPDATAEXDOOR D2
 	//   POPARGS D5 0.0003
 	internal void SetExDoor(int dir, int index, bool state);
-
-	// Returns the value of InitA[n] for the ffc on the screen with an ID of
-	// ffc_index.
-	//
-	// Note: Expressed as a function due to lack of 2D arrays in ZScript.
-	//
-	// With 2D arrays, this would simply be FFCInitA[32][2].
-	//
-	// @zasm
-	//   POP D1
-	//   POP D0
-	//   POP REFMAPDATA
-	//   SETR D2 MAPDATAINITA
-	internal int GetFFCInitA(int ffc_index, int n);
-
-	// Sets the value of InitA[n] for the ffc on the screen with an ID of
-	// ffc_index.
-	//
-	// Note: Expressed as a function due to lack of 2D arrays in ZScript.
-	//
-	// With 2D arrays, this would simply be FFCInitA[32][2].
-	//
-	// @zasm
-	//   POP D6
-	//   POP D1
-	//   POP D0
-	//   POP REFMAPDATA
-	//   SETR MAPDATAINITA D6
-	internal int SetFFCInitA(int ffc_index, int init_a, int value);
 }

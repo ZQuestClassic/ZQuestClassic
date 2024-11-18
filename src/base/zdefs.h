@@ -1327,7 +1327,7 @@ struct guydata
     int16_t firesfx; //weapon fire (attack) sound
     int32_t movement[32]; //Reserved for npc movement types and args. 
     int32_t new_weapon[32]; //Reserved for weapon patterns and args.
-    int32_t initD[8], initA[2];
+    int32_t initD[8];
     
     word script; //For future npc action scripts. 
     //int16_t parentCore; //Probably not needed here. -Z
@@ -1339,7 +1339,6 @@ struct guydata
     
     word weaponscript;
     int32_t weap_initiald[INITIAL_D];
-    byte weap_initiala[INITIAL_A];
     
 	byte spr_shadow, spr_death, spr_spawn;
 
@@ -1384,7 +1383,6 @@ public:
 	dword pc; //current command offset
 	
 	int32_t d[8]; //d registers
-	int32_t a[2]; //a regsisters (reference to another ffc on screen)
 	uint32_t sp; //stack pointer for current script
 	dword wait_index; // nth WaitX instruction (0 being pc 0) last execution stopped at. for jit only
 	uint32_t retsp; //stack pointer for the return stack
@@ -1928,7 +1926,7 @@ struct zquestheader
     byte  data_flags[ZQ_MAXDATA];
     byte  old_rules2[2];
     char  old_options;
-    char  version[17];
+    char  version[17]; // The quest version (not ZC). Could be an empty string.
     char  title[65];
     char  author[65];
     bool  dirty_password;
