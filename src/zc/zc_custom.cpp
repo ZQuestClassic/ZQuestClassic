@@ -60,6 +60,12 @@ int32_t medallionsprs[3][3];                             //medallion,           
 
 void herotile(int32_t *tile, int32_t *flip, int32_t *extend, int32_t state, int32_t dir, int32_t style)
 {
+	if (script_hero_sprite > 0)
+	{
+		herotile(tile, flip, state, dir, style);
+		return;
+	}
+
 	switch(state)
 	{
 		case ls_float:
