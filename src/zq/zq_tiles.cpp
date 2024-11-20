@@ -13,7 +13,6 @@
 #include "base/zdefs.h"
 #include "new_subscr.h"
 #include "subscr.h"
-#include "zq/zquestdat.h"
 #include "zq/zq_tiles.h"
 #include "zq/zquest.h"
 #include "tiles.h"
