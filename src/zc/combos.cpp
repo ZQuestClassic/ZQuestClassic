@@ -516,7 +516,7 @@ void trigger_cuttable(const rpos_handle_t& rpos_handle)
 			tmp->data[pos] = tmp->secretcombo[sSTAIRS];
 			tmp->cset[pos] = tmp->secretcset[sSTAIRS];
 			tmp->sflag[pos] = tmp->secretflag[sSTAIRS];
-			sfx(tmpscr->secretsfx);
+			sfx(tmp->secretsfx);
 		}
 		else if((flag>=mfSWORD && flag<=mfXSWORD) || flag==mfSTRIKE)
 		{
@@ -538,7 +538,7 @@ void trigger_cuttable(const rpos_handle_t& rpos_handle)
 			tmp->data[pos] = tmp->secretcombo[sSTAIRS];
 			tmp->cset[pos] = tmp->secretcset[sSTAIRS];
 			tmp->sflag[pos] = tmp->secretflag[sSTAIRS];
-			sfx(tmpscr->secretsfx);
+			sfx(tmp->secretsfx);
 		}
 		else if((flag2>=mfSWORD && flag2<=mfXSWORD)|| flag2==mfSTRIKE)
 		{
@@ -619,6 +619,7 @@ void trigger_cuttable_ffc(const ffc_handle_t& ffc_handle)
 	int pos = ffc_handle.i;
 	if (ffc_handle.id > MAX_FFCID) return;
 	ffcdata& ffc = *ffc_handle.ffc;
+	mapscr* scr = ffc_handle.scr;
 	auto& cmb = ffc_handle.combo();
 	auto type = cmb.type;
 	if (!isCuttableType(type)) return;
@@ -660,15 +661,15 @@ void trigger_cuttable_ffc(const ffc_handle_t& ffc_handle)
 		}
 		else
 		{
-			zc_ffc_set(ffc, tmpscr->undercombo);
-			ffc.cset = tmpscr->undercset;
+			zc_ffc_set(ffc, scr->undercombo);
+			ffc.cset = scr->undercset;
 		}
 	}
 	
-	if((flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr->flags9&fBELOWRETURN)))
+	if((flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (scr->flags9&fBELOWRETURN)))
 	{
-		items.add(new item((zfix)x, (zfix)y,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
-		sfx(tmpscr->secretsfx);
+		items.add(new item((zfix)x, (zfix)y,(zfix)0, scr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((scr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
+		sfx(scr->secretsfx);
 	}
 	else if(isCuttableItemType(type))
 	{

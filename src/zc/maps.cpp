@@ -7045,15 +7045,15 @@ void map_bkgsfx(bool on)
 {
 	if(on)
 	{
-		cont_sfx(tmpscr->oceansfx);
+		cont_sfx(hero_scr->oceansfx);
 		
-		if(tmpscr->bosssfx && !(game->lvlitems[dlevel]&liBOSS))
-			cont_sfx(tmpscr->bosssfx);
+		if(hero_scr->bosssfx && !(game->lvlitems[dlevel]&liBOSS))
+			cont_sfx(hero_scr->bosssfx);
 	}
 	else
 	{
-		adjust_sfx(tmpscr->oceansfx,128,false);
-		adjust_sfx(tmpscr->bosssfx,128,false);
+		adjust_sfx(hero_scr->oceansfx,128,false);
+		adjust_sfx(hero_scr->bosssfx,128,false);
 		
 		for(int32_t i=0; i<guys.Count(); i++)
 		{

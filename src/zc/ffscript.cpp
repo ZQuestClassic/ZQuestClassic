@@ -18473,7 +18473,7 @@ void set_register(int32_t arg, int32_t value)
 			if (mapscr *m = GetMapscr(ri->mapsref))
 			{
 				int32_t v = vbound(value/10000, 0, 255);
-				if(m == tmpscr && m->oceansfx != v)
+				if(m == hero_scr && m->oceansfx != v)
 				{
 					stop_sfx(m->oceansfx);
 					m->oceansfx = v;

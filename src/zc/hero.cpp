@@ -3937,14 +3937,14 @@ void HeroClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
 	}
 	else
 	{
-		s->data[i] = tmpscr->undercombo;
-		s->cset[i] = tmpscr->undercset;
+		s->data[i] = s->undercombo;
+		s->cset[i] = s->undercset;
 		s->sflag[i] = 0;
 	}
 	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (s->flags9&fBELOWRETURN)))
 	{
 		items.add(new item((zfix)bx, (zfix)by,(zfix)0, s->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((s->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
-		sfx(tmpscr->secretsfx);
+		sfx(s->secretsfx);
 	}
 	else if(isCuttableItemType(type))
 	{
@@ -4112,7 +4112,7 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 			s->data[i] = s->secretcombo[sSTAIRS];
 			s->cset[i] = s->secretcset[sSTAIRS];
 			s->sflag[i] = s->secretflag[sSTAIRS];
-			sfx(tmpscr->secretsfx);
+			sfx(s->secretsfx);
 		}
 		else if(((flag2>=mfSWORD&&flag2<=mfXSWORD)||(flag2==mfSTRIKE)))
 		{
@@ -4181,8 +4181,8 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 		
 		if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr->flags9&fBELOWRETURN)))
 		{
-			items.add(new item((zfix)bx, (zfix)by,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
-			sfx(tmpscr->secretsfx);
+			items.add(new item((zfix)bx, (zfix)by,(zfix)0, s->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((s->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
+			sfx(s->secretsfx);
 		}
 		else if(isCuttableItemType(type))
 		{
@@ -4459,14 +4459,14 @@ void HeroClass::check_slash_block_layer2(int32_t bx, int32_t by, weapon *w, int3
             }
             else
             {
-                s->data[i] = tmpscr->undercombo;
-                s->cset[i] = tmpscr->undercset;
+                s->data[i] = s->undercombo;
+                s->cset[i] = s->undercset;
                 s->sflag[i] = 0;
             }
-	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr->flags9&fBELOWRETURN)))
+	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (s->flags9&fBELOWRETURN)))
         {
-            items.add(new item((zfix)bx, (zfix)by,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
-            sfx(tmpscr->secretsfx);
+            items.add(new item((zfix)bx, (zfix)by,(zfix)0, s->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((s->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
+            sfx(s->secretsfx);
         }
         else if(isCuttableItemType(type))
         {
@@ -4647,7 +4647,7 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
             s->data[i] = s->secretcombo[sSTAIRS];
             s->cset[i] = s->secretcset[sSTAIRS];
             s->sflag[i] = s->secretflag[sSTAIRS];
-            sfx(tmpscr->secretsfx);
+            sfx(s->secretsfx);
         }
         else if(((flag>=mfSWORD&&flag<=mfXSWORD)||(flag==mfSTRIKE)))
         {
@@ -4669,7 +4669,7 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
             s->data[i] = s->secretcombo[sSTAIRS];
             s->cset[i] = s->secretcset[sSTAIRS];
             s->sflag[i] = s->secretflag[sSTAIRS];
-            sfx(tmpscr->secretsfx);
+            sfx(s->secretsfx);
         }
         else if(((flag2>=mfSWORD&&flag2<=mfXSWORD)||(flag2==mfSTRIKE)))
         {
@@ -4738,8 +4738,8 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
         
         if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr->flags9&fBELOWRETURN)))
         {
-            items.add(new item((zfix)bx, (zfix)by,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
-            sfx(tmpscr->secretsfx);
+            items.add(new item((zfix)bx, (zfix)by,(zfix)0, s->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((s->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
+            sfx(s->secretsfx);
         }
 		else if(isCuttableItemType(type))
         {
@@ -5054,7 +5054,7 @@ void HeroClass::check_slash_block(weapon *w)
             s->data[i] = s->secretcombo[sSTAIRS];
             s->cset[i] = s->secretcset[sSTAIRS];
             s->sflag[i] = s->secretflag[sSTAIRS];
-            sfx(tmpscr->secretsfx);
+            sfx(s->secretsfx);
         }
         else if(((flag>=mfSWORD&&flag<=mfXSWORD)||(flag==mfSTRIKE)))
         {
@@ -5076,7 +5076,7 @@ void HeroClass::check_slash_block(weapon *w)
             s->data[i] = s->secretcombo[sSTAIRS];
             s->cset[i] = s->secretcset[sSTAIRS];
             s->sflag[i] = s->secretflag[sSTAIRS];
-            sfx(tmpscr->secretsfx);
+            sfx(s->secretsfx);
         }
         else if(((flag2>=mfSWORD&&flag2<=mfXSWORD)||(flag2==mfSTRIKE)))
         {
@@ -5130,10 +5130,10 @@ void HeroClass::check_slash_block(weapon *w)
     {
         if(!isTouchyType(type) && !get_qr(qr_CONT_SWORD_TRIGGERS)) set_bit(screengrid,i,1);
         
-        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr->flags9&fBELOWRETURN)))
+        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (s->flags9&fBELOWRETURN)))
         {
-            items.add(new item((zfix)bx, (zfix)by,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
-            sfx(tmpscr->secretsfx);
+            items.add(new item((zfix)bx, (zfix)by,(zfix)0, s->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((s->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
+            sfx(s->secretsfx);
         }
         else if(isCuttableItemType(type))
         {
@@ -5400,7 +5400,7 @@ void HeroClass::check_pound_block(int bx, int by, weapon* w)
             s->data[pos] = s->secretcombo[sSTAIRS];
             s->cset[pos] = s->secretcset[sSTAIRS];
             s->sflag[pos] = s->secretflag[sSTAIRS];
-            sfx(tmpscr->secretsfx);
+            sfx(s->secretsfx);
         }
         else if((flag2 >= 16)&&(flag2 <= 31))
         {
@@ -5413,7 +5413,7 @@ void HeroClass::check_pound_block(int bx, int by, weapon* w)
             s->data[pos] = s->secretcombo[sSTAIRS];
             s->cset[pos] = s->secretcset[sSTAIRS];
             s->sflag[pos] = s->secretflag[sSTAIRS];
-            sfx(tmpscr->secretsfx);
+            sfx(s->secretsfx);
         }
         else pound = true;
     }
@@ -5440,10 +5440,10 @@ void HeroClass::check_pound_block(int bx, int by, weapon* w)
         
         set_bit(screengrid,pos,1);
         
-        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr->flags9&fBELOWRETURN)))
+        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (s->flags9&fBELOWRETURN)))
         {
-            items.add(new item((zfix)bx, (zfix)by, (zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
-            sfx(tmpscr->secretsfx);
+            items.add(new item((zfix)bx, (zfix)by, (zfix)0, s->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((s->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
+            sfx(s->secretsfx);
         }
         
         if(type==cPOUND && get_qr(qr_MORESOUNDS))
@@ -5517,7 +5517,7 @@ void HeroClass::check_pound_block_layer(int bx, int by, int lyr, weapon* w)
 		s->data[i] = s->secretcombo[sSTAIRS];
 		s->cset[i] = s->secretcset[sSTAIRS];
 		s->sflag[i] = s->secretflag[sSTAIRS];
-		sfx(tmpscr->secretsfx);
+		sfx(s->secretsfx);
 	}
 	else if((flag2 >= 16)&&(flag2 <= 31))
 	{
@@ -5530,7 +5530,7 @@ void HeroClass::check_pound_block_layer(int bx, int by, int lyr, weapon* w)
 		s->data[i] = s->secretcombo[sSTAIRS];
 		s->cset[i] = s->secretcset[sSTAIRS];
 		s->sflag[i] = s->secretflag[sSTAIRS];
-		sfx(tmpscr->secretsfx);
+		sfx(s->secretsfx);
 	}
 	else pound = true;
 	
@@ -5542,7 +5542,7 @@ void HeroClass::check_pound_block_layer(int bx, int by, int lyr, weapon* w)
 	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (s->flags9&fBELOWRETURN)))
 	{
 		items.add(new item((zfix)bx, (zfix)by, (zfix)0, s->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((s->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
-		sfx(tmpscr->secretsfx);
+		sfx(s->secretsfx);
 	}
 	
 	if(type==cPOUND && get_qr(qr_MORESOUNDS))
@@ -7547,7 +7547,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 	bool global_defring = ((itemsbuf[current_item_id(itype_ring)].flags & item_flag1));
 	bool global_perilring = ((itemsbuf[current_item_id(itype_perilring)].flags & item_flag1));
 
-	bool current_ring = ((tmpscr->flags6&fTOGGLERINGDAMAGE) != 0);
+	bool current_ring = ((hero_scr->flags6&fTOGGLERINGDAMAGE) != 0);
 	if(current_ring)
 	{
 		global_defring = !global_defring;
@@ -25163,7 +25163,7 @@ RaftingStuff:
 							action=rafting; FFCore.setHeroAction(rafting);
 							raftclk=0;
 							if (get_qr(qr_RAFT_SOUND)) sfx(itemsbuf[current_item_id(itype_raft)].usesound,pan(x.getInt()));
-							else sfx(tmpscr->secretsfx);
+							else sfx(tmpscr->secretsfx); // TODO z3 ! "tmpscr->secretsfx"
 						}
 						else if (get_qr(qr_BETTER_RAFT) && doraft)
 						{
@@ -31176,7 +31176,7 @@ void HeroClass::checkitems(int32_t index)
 		
 		if(itemsbuf[id2].family!=itype_triforcepiece || !(itemsbuf[id2].flags & item_gamedata))
 		{
-			if (!ptr->noHoldSound) sfx(tmpscr->holdupsfx);
+			if (!ptr->noHoldSound) sfx(item_scr->holdupsfx);
 		}
 		
 		ptr->set_forcegrab(false);
@@ -31419,8 +31419,8 @@ bool HeroClass::refill()
                 //kill_sfx(); //this 1. needs to be pause resme, and 2. needs an item flag.
                 for ( int32_t q = 0; q < WAV_COUNT; q++ )
 				{
-					if ( q == (int32_t)tmpscr->oceansfx ) continue;
-					if ( q == (int32_t)tmpscr->bosssfx ) continue;
+					if ( q == (int32_t)hero_scr->oceansfx ) continue;
+					if ( q == (int32_t)hero_scr->bosssfx ) continue;
 					stop_sfx(q);
 				}
 				sfx(QMisc.miscsfx[sfxREFILL]);
@@ -31439,8 +31439,8 @@ bool HeroClass::refill()
                 //kill_sfx(); //this 1. needs to be pause resme, and 2. needs an item flag.
                 for ( int32_t q = 0; q < WAV_COUNT; q++ )
 				{
-					if ( q == (int32_t)tmpscr->oceansfx ) continue;
-					if ( q == (int32_t)tmpscr->bosssfx ) continue;
+					if ( q == (int32_t)hero_scr->oceansfx ) continue;
+					if ( q == (int32_t)hero_scr->bosssfx ) continue;
 					stop_sfx(q);
 				}
                 sfx(QMisc.miscsfx[sfxREFILL]);
@@ -31461,8 +31461,8 @@ bool HeroClass::refill()
                 //kill_sfx(); //this 1. needs to be pause resme, and 2. needs an item flag.
                 for ( int32_t q = 0; q < WAV_COUNT; q++ )
 				{
-					if ( q == (int32_t)tmpscr->oceansfx ) continue;
-					if ( q == (int32_t)tmpscr->bosssfx ) continue;
+					if ( q == (int32_t)hero_scr->oceansfx ) continue;
+					if ( q == (int32_t)hero_scr->bosssfx ) continue;
 					stop_sfx(q);
 				}
                 sfx(QMisc.miscsfx[sfxREFILL]);
