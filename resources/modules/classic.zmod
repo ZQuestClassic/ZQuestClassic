@@ -149,7 +149,6 @@ sels_link_cset = 16
 
 [DATAFILES]
 zcplayer_datafile = modules/classic/classic_zelda.dat	
-zquest_datafile = modules/classic/classic_zquest.dat
 fonts_datafile = modules/classic/classic_fonts.dat
 base_NSF_file = modules/classic/zelda.nsf
 title_track = 0

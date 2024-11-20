@@ -949,14 +949,7 @@ weapon::weapon(weapon const & other):
     {
 	clocks[q] = other.clocks[q];		//int32_t	An array of misc clocks. 
     }
-   // for ( int32_t q = 0; q < INITIAL_A; q++ )
-    //{
-	//initiala[q] = other.initiala[q];		//byte	InitA[]
-    //}
-    //for ( int32_t q = 0; q < INITIAL_D; q++ ) 
-    //{
-//	initiald[q] = other.initiald[q];		//int32_t	InitD[]
-    //}
+
     for ( int32_t q = 0; q < FFSCRIPT_MISC; q++ ) 
     {
 	ffmisc[q] = other.ffmisc[q];		//int32_t -The base wpn->Misc[32] set from the editor
@@ -1276,7 +1269,6 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	for ( int32_t q = 0; q < 128; q++ ) weapname[q] = 0;
 	
 	for ( int32_t q = 0; q < FFSCRIPT_MISC; q++ ) wpn_misc_d[q] = 0;
-	//for ( int32_t q = 0; q < 2; q++ ) initiala[q] = 0;
 	for ( int32_t q = 0; q < WEAPON_CLOCKS; q++ ) clocks[q] = 0;
 	for ( int32_t q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ ) 
 	{

@@ -1,5 +1,6 @@
 // npm run collect
 // downloads all pzc quests, external music, and metadata to .tmp/database
+// also manages the s3 database, used by the web version: https://zc-data.nyc3.digitaloceanspaces.com
 
 import fs from 'fs';
 import assert from 'assert';
@@ -865,7 +866,7 @@ async function processLordCronicArchive() {
     }
 
     const slug = new URL(url).pathname.replaceAll('/', '');
-    const id = `quests/lordcronic/${slug}`;
+    const id = `quests/azc/${slug}`;
     const questDir = `${DB}/${id}`;
 
     if (slug === 'bszeldaremake') {
@@ -1008,16 +1009,6 @@ async function main() {
   loadAuthors();
   loadRatings();
   loadCache();
-
-  // for (const quest of questsMap.values()) {
-  //   for (const release of quest.releases) {
-  //     for (const qst of release.resources.filter(r => r.endsWith('.qst'))) {
-  //       const path = `${DB}/${quest.id}/${release.name}/${qst}`;
-  //       await uncompressQstAndGzip(path);
-  //     }
-  //   }
-  // }
-  // process.exit(0);
 
   const browser = await puppeteer.launch({headless: 'new'});
   const page = await browser.newPage();
@@ -1171,6 +1162,25 @@ A: No.
       }
   
       if (i % 10 === 0) saveManifest();
+    }
+  }
+
+  // check for qst that haven't been uncompressed+gzipped, in case something was missed somehow.
+  for (const quest of questsMap.values()) {
+    for (const release of quest.releases) {
+      for (const qst of release.resources.filter(r => r.endsWith('.qst'))) {
+        const path = `${DB}/${quest.id}/${release.name}/${qst}`;
+        if (!fs.existsSync(path)) {
+          continue;
+        }
+
+        if (fs.existsSync(path + '.gz') && fs.statSync(path + '.gz').size === 0) {
+          fs.rmSync(path + '.gz');
+        }
+        if (!fs.existsSync(path + '.gz')) {
+          await uncompressQstAndGzip(path);
+        }
+      }
     }
   }
 

@@ -83,10 +83,10 @@ class sprite {
 	// @zasm_var SPRITE_SCRIPT_TILE
 	internal int ScriptTile;
 
-	// If the sprite should be extended (large). Set to 3 to extend, 0
-	// otherwise.
+	// If the sprite should be extended (large). Set to 3 to extend, 0 otherwise.
 	//
-	// [ffc], [Hero]: Not used.
+	// [ffc]: Not used.
+	// [Hero]: Reset every frame based on current action, unless [ScriptTile] is > 0.
 	//
 	// @zasm_var SPRITE_EXTEND
 	internal int Extend;
@@ -98,7 +98,6 @@ class sprite {
 	// Max value is 20.
 	//
 	// [ffc]: max value is 4.
-	// [Hero]: Not used.
 	//
 	// @zasm_var SPRITE_TILE_W
 	internal int TileWidth;
@@ -110,7 +109,6 @@ class sprite {
 	// Max value is 20.
 	//
 	// [ffc]: max value is 4.
-	// [Hero]: Not used.
 	//
 	// @zasm_var SPRITE_TILE_H
 	internal int TileHeight;

@@ -1,5 +1,6 @@
-// For accessing and editing message strings. Load with [Game->LoadMessageData].
+// For accessing and editing message strings (`Quests > Strings`). Load with [Game->LoadMessageData].
 //
+// @tutorial /tutorials/scc
 // @zasm_ref REFMSGDATA
 class messagedata {
 	// @delete

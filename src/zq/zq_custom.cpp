@@ -530,7 +530,8 @@ int32_t readoneitem(PACKFILE *f, int32_t index)
 	
 	for(int32_t j=0; j<2; j++)
 	{
-		if(!p_getc(&tempitem.initiala[j],f))
+		byte temp;
+		if(!p_getc(&temp,f))
 		{
 			return 0;
 		}
@@ -722,13 +723,6 @@ int32_t readoneitem(PACKFILE *f, int32_t index)
 					return 0;
 				}
 			}
-			for ( int32_t q = 0; q < INITIAL_A; q++ )
-			{
-				if(!p_getc(&tempitem.weap_initiala[q],f))
-				{
-					return 0;
-				}
-			}
 
 			if(!p_getc(&tempitem.drawlayer,f))
 			{
@@ -885,7 +879,8 @@ int32_t readoneitem(PACKFILE *f, int32_t index)
 			}
 			for ( int32_t q = 0; q < 2; q++ )
 			{
-				if(!p_getc(&tempitem.sprite_initiala[q],f))
+				byte temp;
+				if(!p_getc(&temp,f))
 				{
 					return 0;
 				} 
@@ -1049,7 +1044,7 @@ int32_t writeoneitem(PACKFILE *f, int32_t i)
 			
 			for(int32_t j=0; j<2; j++)
 			{
-				if(!p_putc(itemsbuf[i].initiala[j],f))
+				if(!p_putc(0,f))
 				{
 					new_return(25);
 				}
@@ -1215,13 +1210,6 @@ int32_t writeoneitem(PACKFILE *f, int32_t i)
 				new_return(55);
 			}
 		}
-		for ( int32_t q = 0; q < INITIAL_A; q++ )
-		{
-			if(!p_putc(itemsbuf[i].weap_initiala[q],f))
-			{
-				new_return(56);
-			}
-		}
 
 		if(!p_putc(itemsbuf[i].drawlayer,f))
 		{
@@ -1377,7 +1365,7 @@ int32_t writeoneitem(PACKFILE *f, int32_t i)
 		}
 		for ( int32_t q = 0; q < 2; q++ )
 		{
-			if(!p_putc(itemsbuf[i].sprite_initiala[q],f))
+			if(!p_putc(0,f))
 			{
 				new_return(89);
 			} 
@@ -2294,7 +2282,8 @@ int32_t readonenpc(PACKFILE *f, int32_t index)
 			}
 			for ( int32_t q = 0; q < 2; q++ )
 			{
-			if(!p_igetl(&tempguy.initA[q],f))
+				int32_t temp;
+			if(!p_igetl(&temp,f))
 			{
 				return 0;
 			}
@@ -2709,7 +2698,7 @@ int32_t writeonenpc(PACKFILE *f, int32_t i)
 		}
 		for ( int32_t q = 0; q < 2; q++ )
 		{
-		if(!p_iputl(guysbuf[i].initA[q],f))
+		if(!p_iputl(0,f))
 		{
 			return 0;
 		}

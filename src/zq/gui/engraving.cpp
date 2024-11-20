@@ -11,9 +11,6 @@
 
 #include "zq/zquest.h"
 #include "zq/zq_tiles.h"
-#include <zq/zquestdat.h>
-
-extern DATAFILE* zcdata;
 
 int32_t engraving_proc(int32_t msg,DIALOG *d,int32_t)
 {
@@ -29,7 +26,7 @@ int32_t engraving_proc(int32_t msg,DIALOG *d,int32_t)
 				
 				clear_bitmap(buf);
 				
-				blit((BITMAP*)zcdata[BMP_ENGRAVINGS].dat, buf, d->d1, d->d2, 0, 0, 16, 16);
+				blit(asset_engravings_bmp, buf, d->d1, d->d2, 0, 0, 16, 16);
 				
 				stretch_blit(buf, bigbmp, 0, 0, 16, 16, 0, 0, h, h);
 				

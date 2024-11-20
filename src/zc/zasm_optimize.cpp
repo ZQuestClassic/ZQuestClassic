@@ -1143,13 +1143,13 @@ static void simulate_set_value(OptContext& ctx, SimulationState& state, int reg,
 		if (v == reg(reg))
 			v = {ValueType::Unknown};
 	}
-	for (int i = 0; i < 8; i++)
+	for (int i = 0; i < INITIAL_D; i++)
 	{
 		if (state.d[i] == reg(reg) && i != reg)
 			state.d[i] = {ValueType::Unknown};
 	}
 
-	if (!(reg >= D(0) && reg < D(8)))
+	if (!(reg >= D(0) && reg < D(INITIAL_D)))
 	{
 		state.side_effects = true;
 		return;
@@ -1162,7 +1162,7 @@ static void simulate_set_value(OptContext& ctx, SimulationState& state, int reg,
 // and the comparison result.
 static void simulate(OptContext& ctx, SimulationState& state)
 {
-	#define IS_GENERIC_REG(x) (x >= D(0) && x < D(8))
+	#define IS_GENERIC_REG(x) (x >= D(0) && x < D(INITIAL_D))
 
 	int command = C(state.pc).command;
 	int arg1 = C(state.pc).arg1;
@@ -1197,8 +1197,8 @@ static void simulate(OptContext& ctx, SimulationState& state)
 				state.bail = true;
 				return;
 			}
-			ASSERT(arg1 >= D(0) && arg1 < D(8));
-			ASSERT(arg2 >= D(0) && arg2 < D(8));
+			ASSERT(arg1 >= D(0) && arg1 < D(INITIAL_D));
+			ASSERT(arg2 >= D(0) && arg2 < D(INITIAL_D));
 			state.operand_1 = state.d[arg1];
 			state.operand_2 = state.d[arg2];
 			state.operand_1_backing_reg = arg1;
@@ -1632,7 +1632,7 @@ static void optimize_propagate_values(OptContext& ctx)
 			for_every_command_register_arg_include_indices(C(state.pc), [&](bool read, bool write, int reg, int argn){
 				if (read && !write)
 				{
-					if (!(reg >= D(0) && reg < D(8)))
+					if (!(reg >= D(0) && reg < D(INITIAL_D)))
 						return;
 
 					if (state.d[reg] == reg(reg))
@@ -1658,7 +1658,7 @@ static void optimize_propagate_values(OptContext& ctx)
 					return;
 				}
 
-				if (write && reg >= D(0) && reg < D(8))
+				if (write && reg >= D(0) && reg < D(INITIAL_D))
 				{
 					flush(reg);
 					reg_reads[reg] = false;
@@ -1684,7 +1684,7 @@ static void optimize_propagate_values(OptContext& ctx)
 			int command = C(state.pc).command;
 			int arg1 = C(state.pc).arg1;
 
-			if (command == POP && arg1 >= D(0) && arg1 < D(8))
+			if (command == POP && arg1 >= D(0) && arg1 < D(INITIAL_D))
 			{
 				if (state.d[arg1].is_register() && state.d[arg1].data != arg1)
 				{
@@ -2153,7 +2153,7 @@ static void optimize_inline_functions(OptContext& ctx)
 					continue;
 
 				int reg = arg1;
-				if (reg >= D(8))
+				if (reg >= D(INITIAL_D))
 				{
 					bail = true;
 					break;

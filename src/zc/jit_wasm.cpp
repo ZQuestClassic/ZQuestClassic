@@ -183,10 +183,10 @@ static void modify_global_idx(WasmAssembler& wasm, int idx, int delta)
 
 static void get_z_register(CompilationState& state, int r)
 {
-	if (r >= 0 && r <= A(1))
+	if (r >= D(0) && r < D(INITIAL_D))
 	{
 		state.wasm->emitGlobalGet(state.g_idx_ri);
-		state.wasm->emitI32Load(4 + r*4); // ri->d[r] (or: spills into ri->a)
+		state.wasm->emitI32Load(4 + r*4);
 	}
 	else if (r >= GD(0) && r <= GD(MAX_SCRIPT_REGISTERS))
 	{
@@ -212,11 +212,11 @@ static void get_z_register(CompilationState& state, int r)
 
 static void set_z_register(CompilationState& state, int r, std::function<void()> fn)
 {
-	if (r >= 0 && r <= A(1))
+	if (r >= D(0) && r < D(INITIAL_D))
 	{
 		state.wasm->emitGlobalGet(state.g_idx_ri);
 		fn();
-		state.wasm->emitI32Store(4 + r*4); // ri->d[r] (or: spills into ri->a)
+		state.wasm->emitI32Store(4 + r*4);
 	}
 	else if (r >= GD(0) && r <= GD(MAX_SCRIPT_REGISTERS))
 	{
@@ -254,7 +254,7 @@ static void compile_command_interpreter(CompilationState& state, const zasm_scri
 		// ri->sp = g_idx_sp
 		state.wasm->emitLocalGet(state.l_idx_ri);
 		state.wasm->emitGlobalGet(state.g_idx_sp);
-		state.wasm->emitI32Store(4*11); // ri->sp
+		state.wasm->emitI32Store(4*9); // ri->sp
 	}
 
 	state.wasm->emitI32Const(pc);
@@ -666,7 +666,7 @@ static WasmAssembler compile_function(CompilationState& state, const zasm_script
 				{
 					wasm.emitGlobalGet(g_idx_ri);
 					wasm.emitI32Const(current_block_index + 1);
-					wasm.emitI32Store(48);
+					wasm.emitI32Store(40);
 				}
 
 				// Wait commands normally yield back to the engine, however there are some
@@ -1330,14 +1330,14 @@ JittedFunction jit_compile_script(zasm_script* script)
 		// g_idx_sp = ri->sp
 		{
 			wasm.emitLocalGet(state.l_idx_ri);
-			wasm.emitI32Load(4*11); // ri->sp
+			wasm.emitI32Load(4*9); // ri->sp
 			wasm.emitGlobalSet(state.g_idx_sp);
 		}
 
 		// g_idx_target_block_id = ri->wait_index
 		{
 			wasm.emitLocalGet(state.l_idx_ri);
-			wasm.emitI32Load(48);
+			wasm.emitI32Load(40);
 			wasm.emitGlobalSet(state.g_idx_target_block_id);
 		}
 
@@ -1357,7 +1357,7 @@ JittedFunction jit_compile_script(zasm_script* script)
 		{
 			wasm.emitLocalGet(state.l_idx_ri);
 			wasm.emitGlobalGet(state.g_idx_sp);
-			wasm.emitI32Store(4*11); // ri->sp
+			wasm.emitI32Store(4*9); // ri->sp
 		}
 
 		{

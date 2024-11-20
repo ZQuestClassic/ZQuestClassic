@@ -40,10 +40,6 @@ static constexpr script_command command_list[]=
 	{ "GOTOFALSE", GOTOFALSE, 1, { NUM }, 0, CMPUSED },
 	{ "GOTOLESS", GOTOLESS, 1, { NUM }, 0, CMPUSED },
 	{ "GOTOMORE", GOTOMORE, 1, { NUM }, 0, CMPUSED },
-	{ "LOAD1", LOAD1, 2, { REG_W, REG_R }, 0, 0 },
-	{ "LOAD2", LOAD2, 2, { REG_W, REG_R }, 0, 0 },
-	{ "SETA1", SETA1, 2, { REG_R, REG_R }, 0, 0 },
-	{ "SETA2", SETA2, 2, { REG_R, REG_R }, 0, 0 },
 	{ "QUIT", QUIT, 0, {}, 0, 0 },
 	{ "SINR", SINR, 2, { REG_W, REG_R }, 0, 0 },
 	{ "SINV", SINV, 2, { REG_W, NUM }, 0, 0 },
@@ -1184,8 +1180,7 @@ static constexpr script_command command_list[]=
 static constexpr script_variable variable_list[]=
 {
 	//name id maxcount
-	{ "D", D(0), 8},
-	{ "A", A(0), 2},
+	{ "D", D(0), INITIAL_D},
 	{ "DATA", DATA, 0},
 	{ "CSET", FCSET, 0},
 	{ "DELAY", DELAY, 0},
@@ -1898,8 +1893,7 @@ static constexpr script_variable variable_list[]=
 	{"MAPDATAFFHEIGHT", MAPDATAFFHEIGHT, 0},
 	{"MAPDATAFFLINK", MAPDATAFFLINK, 0},
 	{"MAPDATAFFSCRIPT", MAPDATAFFSCRIPT, 0},
-	{"MAPDATAINTID", MAPDATAINTID, 0}, //Needs to be a function [32][10]
-	{"MAPDATAINITA", MAPDATAINITA, 0}, //needs to be a function, [32][2]
+	{"MAPDATAINTID", MAPDATAINTID, 0},
 	{"MAPDATAFFINITIALISED", MAPDATAFFINITIALISED, 0},
 	{"MAPDATASCRIPTENTRY", MAPDATASCRIPTENTRY, 0},
 	{"MAPDATASCRIPTOCCUPANCY", MAPDATASCRIPTOCCUPANCY, 0},
@@ -1993,7 +1987,6 @@ static constexpr script_variable variable_list[]=
 	{"SCREENDATAFFLINK", SCREENDATAFFLINK, 0},
 	{"SCREENDATAFFSCRIPT", SCREENDATAFFSCRIPT, 0},
 	{"SCREENDATAINTID", SCREENDATAINTID, 0}, //Needs to be a function [32][10]
-	{"SCREENDATAINITA", SCREENDATAINITA, 0}, //needs to be a function, [32][2]
 	{"SCREENDATAFFINITIALISED", SCREENDATAFFINITIALISED, 0},
 	{"SCREENDATASCRIPTENTRY", SCREENDATASCRIPTENTRY, 0},
 	{"SCREENDATASCRIPTOCCUPANCY", SCREENDATASCRIPTOCCUPANCY, 0},
@@ -2990,12 +2983,7 @@ std::optional<int> get_script_variable(const std::string& var_name)
 		if (var_name[0] == 'D' || var_name[0] == 'd')
 		{
 			int c = var_name[1] - '0';
-			if (c >= 0 && c < 8) return D(c);
-		}
-		else if (var_name[0] == 'A' || var_name[0] == 'a')
-		{
-			int c = var_name[1] - '0';
-			if (c >= 0 && c < 2) return A(c);
+			if (c >= 0 && c < INITIAL_D) return D(c);
 		}
 	}
 	else if ((var_name[0] == 'G' || var_name[0] == 'g') && (var_name[1] == 'D' || var_name[1] == 'd'))
@@ -3515,7 +3503,6 @@ std::initializer_list<int> get_register_dependencies(int reg)
 		case GLOBALRAM:
 		case LINKOTILE:
 		case LOADMAPDATA:
-		case MAPDATAINITA:
 		case MAPDATAINTID:
 		case MODULEGETINT:
 		case NPCCOLLISION:

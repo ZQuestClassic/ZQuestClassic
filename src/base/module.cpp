@@ -131,8 +131,6 @@ bool ZModule::init(bool d) //bool default
 		//datafiles
 		strcpy(moduledata.datafiles[zelda_dat],zc_get_config_basic("DATAFILES","zcplayer_datafile","zelda.dat"));
 		al_trace("Module zelda_dat set to %s\n",moduledata.datafiles[zelda_dat]);
-		strcpy(moduledata.datafiles[zquest_dat],zc_get_config_basic("DATAFILES","zquest_datafile","zquest.dat"));
-		al_trace("Module zquest_dat set to %s\n",moduledata.datafiles[zquest_dat]);
 		strcpy(moduledata.datafiles[fonts_dat],zc_get_config_basic("DATAFILES","fonts_datafile","fonts.dat"));
 		al_trace("Module fonts_dat set to %s\n",moduledata.datafiles[fonts_dat]);
 		strcpy(moduledata.datafiles[sfx_dat],zc_get_config_basic("DATAFILES","sounds_datafile","sfx.dat"));

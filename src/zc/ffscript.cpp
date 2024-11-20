@@ -1194,7 +1194,6 @@ static bool set_current_script_engine_data(ScriptType type, int script, int inde
 			{
 				got_initialized = true;
 				memcpy(ri->d, tmpscr->ffcs[index].initd, 8 * sizeof(int32_t));
-				memcpy(ri->a, tmpscr->ffcs[index].inita, 2 * sizeof(int32_t));
 				data.initialized = true;
 			}
 
@@ -1282,7 +1281,6 @@ static bool set_current_script_engine_data(ScriptType type, int script, int inde
 			{
 				got_initialized = true;
 				memcpy(ri->d, ( collect ) ? itemsbuf[new_i].initiald : itemsbuf[i].initiald, 8 * sizeof(int32_t));
-				memcpy(ri->a, ( collect ) ? itemsbuf[new_i].initiala : itemsbuf[i].initiala, 2 * sizeof(int32_t));
 				data.initialized = true;
 			}			
 			ri->idata = ( collect ) ? new_i : i; //'this' pointer
@@ -6444,7 +6442,7 @@ int32_t get_register(int32_t arg)
 			}
 			break;
 		}
-			//inita	//INT32, 32 OF THESE, EACH WITH 2
+			//INT32, 32 OF THESE, EACH WITH 2
 		case SCREENDATAFFINITIALISED: 	{
 			int32_t indx = ri->d[rINDEX] / 10000;
 			if (indx < 0 || indx > MAXFFCS-1)
@@ -7664,42 +7662,7 @@ int32_t get_register(int32_t arg)
 
 		//initd	//INT32 , 32 OF THESE, EACH WITH 10 INDICES. 
 
-		case MAPDATAINITA: 		
-			//same form as SetScreenD
-		{
-			if (mapscr *m = GetMapscr(ri->mapsref))
-			{
-				//int32_t ffindex = ri->d[rINDEX]/10000;
-				//int32_t d = ri->d[rINDEX2]/10000;
-				//int32_t v = (value/10000);
-				
-				int32_t ffid = (ri->d[rINDEX]/10000) -1;
-				int32_t indx = ri->d[rINDEX2]/10000;
-					
-				if ( (unsigned)ffid > MAXFFCS-1 ) 
-				{
-					Z_scripterrlog("Invalid FFC id passed to mapdata->FFCInitD[]: %d",ffid); 
-					ret = -10000;
-				}
-				else if ( (unsigned)indx > 1 )
-				{
-					Z_scripterrlog("Invalid InitD[] index passed to mapdata->FFCInitD[]: %d",indx);
-					ret = -10000;
-				}
-				else
-				{ 
-					ret = (m->getFFC(ffid).inita[indx]);
-				}
-			}
-			else
-			{
-				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","GetFFCInitD()");
-				ret = -10000;
-			}
-			break;
-		}	
-
-			//inita	//INT32, 32 OF THESE, EACH WITH 2
+			//INT32, 32 OF THESE, EACH WITH 2
 		
 		case MAPDATAFFINITIALISED:
 		{
@@ -13064,9 +13027,6 @@ int32_t get_register(int32_t arg)
 		{
 			if (auto r = scripting_engine_get_register(arg))
 				return *r;
-
-			if(arg >= A(0) && arg <= A(1))		ret = ri->a[arg - A(0)];
-			
 			break;
 		}
 	}
@@ -13143,9 +13103,6 @@ void set_register(int32_t arg, int32_t value)
 					ffc->miscellaneous[i] = 0;
 				if (get_qr(qr_CLEARINITDONSCRIPTCHANGE))
 				{
-					for(int32_t i=0; i<2; i++)
-						ffc->inita[i] = 0;
-					
 					for(int32_t i=0; i<8; i++)
 						ffc->initd[i] = 0;
 				}
@@ -18447,37 +18404,6 @@ void set_register(int32_t arg, int32_t value)
 
 		//initd	//INT32 , 32 OF THESE, EACH WITH 10 INDICES. 
 
-
-		case MAPDATAINITA: 		
-			//same form as SetScreenD
-		{
-			if (mapscr *m = GetMapscr(ri->mapsref))
-			{//int32_t ffindex = ri->d[rINDEX]/10000;
-				//int32_t d = ri->d[rINDEX2]/10000;
-				//int32_t v = (value/10000);
-				int32_t ffid = (ri->d[rINDEX]/10000) -1;
-				int32_t indx = ri->d[rINDEX2]/10000;
-					
-				if ( (unsigned)ffid > MAXFFCS-1 ) 
-				{
-					Z_scripterrlog("Invalid FFC id passed to mapdata->FFCInitD[]: %d",ffid); 
-				}
-				else if ( (unsigned)indx > 7 )
-				{
-					Z_scripterrlog("Invalid InitD[] index passed to mapdata->FFCInitD[]: %d",indx);
-				}
-				else
-				{ 
-					 m->getFFC(ffid).inita[indx] = value;
-				}
-			}
-			else
-			{
-				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","SetFFCInitA()");
-			}
-			break;
-		}
-
 		case MAPDATAFFINITIALISED:
 		{
 			int32_t indx = ri->d[rINDEX] / 10000;
@@ -23567,14 +23493,7 @@ void set_register(int32_t arg, int32_t value)
 		///----------------------------------------------------------------------------------------------------//
 		
 		default:
-		{
-			if (scripting_engine_set_register(arg, value))
-				return;
-
-			if(arg >= A(0) && arg <= A(1))		ri->a[arg - A(0)] = value;
-
-			break;
-		}
+			scripting_engine_set_register(arg, value);
 	}
 } //end set_register
 
@@ -24201,60 +24120,6 @@ void do_deallocatemem()
 	const int32_t ptrval = get_register(sarg1) / 10000;
 	
 	FFScript::deallocateArray(ptrval);
-}
-
-// very old.
-void do_loada(const byte a)
-{
-	assert(!ZScriptVersion::ffcRefIsSpriteId());
-
-	if(ri->a[a] == 0)
-	{
-		Z_scripterrlog("Global scripts currently have no A registers\n");
-		return;
-	}
-	
-	int32_t ffcref = (ri->a[a] / 10000) - 1; //FFC 2
-	
-	if(BC::checkFFC(ffcref, "LOAD%i") != SH::_NoError)
-		return;
-		
-	int32_t reg = get_register(sarg2); //Register in FFC 2
-	
-	if(reg >= D(0) && reg <= D(7))
-		set_register(sarg1, FFCore.ref(ScriptType::FFC, ffcref).d[reg - D(0)]); //get back the info into *sarg1
-	else if(reg == A(0) || reg == A(1))
-		set_register(sarg1, FFCore.ref(ScriptType::FFC, ffcref).a[reg - A(0)]);
-	else if(reg == SP)
-		set_register(sarg1, FFCore.ref(ScriptType::FFC, ffcref).sp * 10000);
-		
-	//Can get everything else using REFFFC
-}
-
-// very old.
-void do_seta(const byte a)
-{
-	assert(!ZScriptVersion::ffcRefIsSpriteId());
-
-	if(ri->a[a] == 0)
-	{
-		Z_eventlog("Global scripts currently have no A registers\n");
-		return;
-	}
-	
-	int32_t ffcref = (ri->a[a] / 10000) - 1; //FFC 2
-	
-	if(BC::checkFFC(ffcref, "SETA%i") != SH::_NoError)
-		return;
-		
-	int32_t reg = get_register(sarg2); //Register in FFC 2
-	
-	if(reg >= D(0) && reg <= D(7))
-		FFCore.ref(ScriptType::FFC, ffcref).d[reg - D(0)] = get_register(sarg1); //Set it to *sarg1
-	else if(reg == A(0) || reg == A(1))
-		FFCore.ref(ScriptType::FFC, ffcref).a[reg - A(0)] = get_register(sarg1);
-	else if(reg == SP)
-		FFCore.ref(ScriptType::FFC, ffcref).sp = get_register(sarg1) / 10000;
 }
 
 ///----------------------------------------------------------------------------------------------------//
@@ -30623,22 +30488,6 @@ int32_t run_script_int(bool is_jitted)
 				break;
 			case STORE_OBJECT:
 				do_store_object(false);
-				break;
-				
-			case LOAD1:
-				do_loada(0);
-				break;
-				
-			case LOAD2:
-				do_loada(1);
-				break;
-				
-			case SETA1:
-				do_seta(0);
-				break;
-				
-			case SETA2:
-				do_seta(1);
 				break;
 				
 			case ALLOCATEGMEMR:
@@ -40217,13 +40066,6 @@ void FFScript::read_enemies(PACKFILE *f, int32_t vers_id)
 				Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",89);
 			}
 			}
-			for ( int32_t q = 0; q < 2; q++ )
-			{
-			if(!p_igetl(&guysbuf[i].initA[q],f))
-			{
-				Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",90);
-			}
-			}
 			if(!p_igetl(&guysbuf[i].editorflags,f))
 			{
 			Z_scripterrlog("do_savegamestructs FAILED to read GUY NODE: %d",91);
@@ -40581,13 +40423,6 @@ void FFScript::write_enemies(PACKFILE *f, int32_t vers_id)
 			Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",89);
 		}
 		}
-		for ( int32_t q = 0; q < 2; q++ )
-		{
-		if(!p_iputl(guysbuf[i].initA[q],f))
-		{
-			Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",90);
-		}
-		}
 		if(!p_iputl(guysbuf[i].editorflags,f))
 		{
 		Z_scripterrlog("do_savegamestructs FAILED to write GUY NODE: %d",91);
@@ -40735,14 +40570,6 @@ void FFScript::write_items(PACKFILE *f, int32_t vers_id)
 				if(!p_iputl(itemsbuf[i].initiald[j],f))
 				{
 					Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",24);
-				}
-			}
-			
-			for(int32_t j=0; j<2; j++)
-			{
-				if(!p_putc(itemsbuf[i].initiala[j],f))
-				{
-					Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",25);
 				}
 			}
 			
@@ -40903,13 +40730,6 @@ void FFScript::write_items(PACKFILE *f, int32_t vers_id)
 				Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",55);
 			}
 		}
-		for ( int32_t q = 0; q < INITIAL_A; q++ )
-		{
-			if(!p_putc(itemsbuf[i].weap_initiala[q],f))
-			{
-				Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",56);
-			}
-		}
 
 		if(!p_putc(itemsbuf[i].drawlayer,f))
 		{
@@ -41056,14 +40876,7 @@ void FFScript::write_items(PACKFILE *f, int32_t vers_id)
 				Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",88);
 			} 
 		}
-		for ( int32_t q = 0; q < 2; q++ )
-		{
-			if(!p_putc(itemsbuf[i].sprite_initiala[q],f))
-			{
-				Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",89);
-			} 
-			
-		}
+
 		if(!p_iputw(itemsbuf[i].sprite_script,f))
 		{
 			Z_scripterrlog("do_savegamestructs FAILED to read ITEM NODE: %d",90);
@@ -41172,14 +40985,6 @@ void FFScript::read_items(PACKFILE *f, int32_t vers_id)
 				if(!p_igetl(&itemsbuf[i].initiald[j],f))
 				{
 					Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",24);
-				}
-			}
-			
-			for(int32_t j=0; j<2; j++)
-			{
-				if(!p_getc(&itemsbuf[i].initiala[j],f))
-				{
-					Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",25);
 				}
 			}
 			
@@ -41340,13 +41145,6 @@ void FFScript::read_items(PACKFILE *f, int32_t vers_id)
 				Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",55);
 			}
 		}
-		for ( int32_t q = 0; q < INITIAL_A; q++ )
-		{
-			if(!p_getc(&itemsbuf[i].weap_initiala[q],f))
-			{
-				Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",56);
-			}
-		}
 
 		if(!p_getc(&itemsbuf[i].drawlayer,f))
 		{
@@ -41493,14 +41291,7 @@ void FFScript::read_items(PACKFILE *f, int32_t vers_id)
 				Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",88);
 			} 
 		}
-		for ( int32_t q = 0; q < 2; q++ )
-		{
-			if(!p_getc(&itemsbuf[i].sprite_initiala[q],f))
-			{
-				Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",89);
-			} 
-			
-		}
+
 		if(!p_igetw(&itemsbuf[i].sprite_script,f))
 		{
 			Z_scripterrlog("do_savegamestructs FAILED to write ITEM NODE: %d",90);

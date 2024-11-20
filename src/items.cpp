@@ -409,11 +409,7 @@ item::item(zfix X,zfix Y,zfix Z,int32_t i,int32_t p,int32_t c, bool isDummy) : s
 #endif
 	}
 	
-	/*for(int32_t j=0;j<8;j++)
-	{
-	  if(j<2) a[j]=itm.initiala[j]*10000;
-	  d[j]=itm.initiald[j];
-	}*/
+
 	if ( itm.overrideFLAGS > 0 ) {
 		extend = 3; 
 		if ( itm.overrideFLAGS&OVERRIDE_TILE_WIDTH ) { txsz = itm.tilew;}
@@ -1119,8 +1115,6 @@ void itemdata::advpaste(itemdata const& other, bitstring const& pasteflags)
 			initiald[q] = other.initiald[q];
 			strcpy(initD_label[q], other.initD_label[q]);
 			strcpy(sprite_initD_label[q], other.sprite_initD_label[q]);
-			if(q < 2)
-				initiala[q] = other.initiala[q];
 		}
 		script = other.script;
 		collect_script = other.collect_script;

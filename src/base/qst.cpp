@@ -6464,7 +6464,8 @@ int32_t readitems(PACKFILE *f, word version, word build)
             
             for(int32_t j=0; j<2; j++)
             {
-                if(!p_getc(&tempitem.initiala[j],f))
+				byte temp;
+                if(!p_getc(&temp,f))
                 {
                     return qe_invalid;
                 }
@@ -6727,9 +6728,10 @@ int32_t readitems(PACKFILE *f, word version, word build)
 						return qe_invalid;
 					}
 				}
-				for ( int32_t q = 0; q < INITIAL_A; q++ )
+				for ( int32_t q = 0; q < 2; q++ )
 				{
-					if(!p_getc(&tempitem.weap_initiala[q],f))
+					byte temp;
+					if(!p_getc(&temp,f))
 					{
 						return qe_invalid;
 					}
@@ -6925,7 +6927,8 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				}
 				for ( int32_t q = 0; q < 2; q++ )
 				{
-					if(!p_getc(&(tempitem.sprite_initiala[q]),f))
+					byte temp;
+					if(!p_getc(&temp,f))
 					{
 						return qe_invalid;
 					}
@@ -9272,7 +9275,6 @@ int32_t readitems(PACKFILE *f, word version, word build)
 				sprintf(tempitem.sprite_initD_label[q],"InitD[%d]",q);
 				tempitem.sprite_initiald[q] = 0;
 			}
-			for ( int32_t q = 0; q < 2; q++ ) tempitem.sprite_initiala[q] = 0;
 			tempitem.sprite_script = 0;
 		}
 		if ( s_version < 47 ) //InitD Labels and Sprite Script Data
@@ -14145,7 +14147,8 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 		}
 		for ( int32_t q = 0; q < 2; q++ )
 		{
-			if(!p_igetl(&(tempguy.initA[q]),f))
+			int32_t temp;
+			if(!p_igetl(&temp,f))
 			{
 				return qe_invalid;
 			} 			
@@ -14360,7 +14363,6 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 		//NPC Script attributes.
 		tempguy.script = 0; //No scripted enemies existed. -Z
 		for ( int32_t q = 0; q < 8; q++ ) tempguy.initD[q] = 0; //Script Data
-		for ( int32_t q = 0; q < 2; q++ ) tempguy.initA[q] = 0; //Script Data
 		
 		for ( int32_t q = 15; q < 32; q++) tempguy.attributes[q] = 0; //misc 16-32
 
@@ -16479,20 +16481,10 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 					{
 						return qe_invalid;
 					}
-					
-					tempffc.inita[0]=tempbyte*10000;
-					
 					if(!p_getc(&(tempbyte),f))
 					{
 						return qe_invalid;
 					}
-					
-					tempffc.inita[1]=tempbyte*10000;
-				}
-				else
-				{
-					tempffc.inita[0] = 10000;
-					tempffc.inita[1] = 10000;
 				}
 				
 				if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
@@ -17010,11 +17002,8 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 			}
 			if(!p_getc(&(tempbyte),f))
 				return qe_invalid;
-			tempffc.inita[0]=tempbyte*10000;
-			
 			if(!p_getc(&(tempbyte),f))
 				return qe_invalid;
-			tempffc.inita[1]=tempbyte*10000;
 			
 			if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
 			{

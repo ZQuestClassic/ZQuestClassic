@@ -24,10 +24,10 @@ enum ASM_DEFINE
 	GOTOFALSE,            //0x0011
 	GOTOLESS,             //0x0012
 	GOTOMORE,             //0x0013
-	LOAD1,                //0x0014
-	LOAD2,                //0x0015
-	SETA1,                //0x0016
-	SETA2,                //0x0017
+	DELETED_LOAD1,                //0x0014
+	DELETED_LOAD2,                //0x0015
+	DELETED_SETA1,                //0x0016
+	DELETED_SETA2,                //0x0017
 	QUIT,                 //0x0018
 	SINR,                 //0x0019
 	SINV,                 //0x001A
@@ -1229,9 +1229,8 @@ enum ASM_DEFINE
 
 
 //{ ZASM registers
-//When adding indexed variables the index will be loaded into ri.d[0], don't add a register for each one!
 #define D(n)               ((0x0000)+(n)) //8
-#define A(n)               ((0x0008)+(n)) //2
+// 0x0008 - 0x0010, A registers (never used)
 #define DATA                 0x000A
 #define FCSET                0x000B
 #define DELAY                0x000C
@@ -2076,7 +2075,7 @@ enum ASM_DEFINE
 #define MAPDATAFFLINK 		0x1215	//B, 32 OF THESE
 #define MAPDATAFFSCRIPT 	0x1216	//W, 32 OF THESE
 #define MAPDATAINTID 		0x1217	//INT32 , 32 OF THESE, EACH WITH 10 INDICES. 
-#define MAPDATAINITA 		0x1218	//INT32, 32 OF THESE, EACH WITH 2
+#define DELETED_MAPDATAINITA 		0x1218	//INT32, 32 OF THESE, EACH WITH 2
 #define MAPDATAFFINITIALISED 	0x1219	//BOOL, 32 OF THESE
 #define MAPDATASCRIPTENTRY 	0x121A	// Never implemented.
 #define MAPDATASCRIPTOCCUPANCY 	0x121B	// Never implemented.
@@ -2156,7 +2155,7 @@ enum ASM_DEFINE
 #define SCREENDATAFFLINK 		0x1264	//B, 32 OF THESE
 #define SCREENDATAFFSCRIPT 		0x1265	//W, 32 OF THESE
 #define SCREENDATAINTID 		0x1266	//INT32 , 32 OF THESE, EACH WITH 10 INDICES. 
-#define SCREENDATAINITA 		0x1267	//INT32, 32 OF THESE, EACH WITH 2
+#define DELETED_SCREENDATAINITA 		0x1267	//INT32, 32 OF THESE, EACH WITH 2
 #define SCREENDATAFFINITIALISED 	0x1268	//BOOL, 32 OF THESE
 #define SCREENDATASCRIPTENTRY 		0x1269	//W Never implemented.
 #define SCREENDATASCRIPTOCCUPANCY 	0x126A	//W Never implemented.
