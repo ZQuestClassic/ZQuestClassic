@@ -24144,6 +24144,7 @@ static std::array<rpos_t, 4> getRposes(int32_t x1, int32_t y1, int32_t x2, int32
 	return rposes;
 }
 
+// TODO: this function has an ungodly amount of code duplication. Fix it.
 void HeroClass::checkspecial2(int32_t *ls)
 {
 	if(get_qr(qr_OLDSTYLEWARP) && !(diagonalMovement||NO_GRIDLOCK))
@@ -25163,7 +25164,7 @@ RaftingStuff:
 							action=rafting; FFCore.setHeroAction(rafting);
 							raftclk=0;
 							if (get_qr(qr_RAFT_SOUND)) sfx(itemsbuf[current_item_id(itype_raft)].usesound,pan(x.getInt()));
-							else sfx(tmpscr->secretsfx); // TODO z3 ! "tmpscr->secretsfx"
+							else sfx(get_screen_for_world_xy(tx,ty+11)->secretsfx);
 						}
 						else if (get_qr(qr_BETTER_RAFT) && doraft)
 						{
@@ -25175,7 +25176,7 @@ RaftingStuff:
 									action=rafting; FFCore.setHeroAction(rafting);
 									raftclk=0;
 									if (get_qr(qr_RAFT_SOUND)) sfx(itemsbuf[current_item_id(itype_raft)].usesound,pan(x.getInt()));
-									else sfx(tmpscr->secretsfx);
+									else sfx(get_screen_for_world_xy(tx+8,ty+11)->secretsfx);
 									dir = i;
 									break;
 								}
@@ -25189,11 +25190,11 @@ RaftingStuff:
 		switch(flag)
 		{
 		case mfDIVE_ITEM:
-			if(isDiving() && (!getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr->flags9&fBELOWRETURN)))
+			if(isDiving() && (!getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (hero_scr->flags9&fBELOWRETURN)))
 			{
-				additem(x, y, tmpscr->catchall,
-						ipONETIME2 | ipBIGRANGE | ipHOLDUP | ipNODRAW | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0));
-				sfx(tmpscr->secretsfx);
+				additem(x, y, hero_scr->catchall,
+						ipONETIME2 | ipBIGRANGE | ipHOLDUP | ipNODRAW | ((hero_scr->flags8&fITEMSECRET) ? ipSECRETS : 0));
+				sfx(hero_scr->secretsfx);
 			}
 			
 			return;
@@ -25220,7 +25221,7 @@ RaftingStuff:
 						action=rafting; FFCore.setHeroAction(rafting);
 						raftclk=0;
 						if (get_qr(qr_RAFT_SOUND)) sfx(itemsbuf[current_item_id(itype_raft)].usesound,pan(x.getInt()));
-						else sfx(tmpscr->secretsfx);
+						else sfx(get_screen_for_world_xy(tx,ty)->secretsfx);
 					}
 					else if (get_qr(qr_BETTER_RAFT) && doraft)
 					{
@@ -25232,7 +25233,7 @@ RaftingStuff:
 								action=rafting; FFCore.setHeroAction(rafting);
 								raftclk=0;
 								if (get_qr(qr_RAFT_SOUND)) sfx(itemsbuf[current_item_id(itype_raft)].usesound,pan(x.getInt()));
-								else sfx(tmpscr->secretsfx);
+								else sfx(get_screen_for_world_xy(tx+8,ty+8)->secretsfx);
 								dir = i;
 								break;
 							}
@@ -25251,11 +25252,11 @@ RaftingStuff:
 		switch(flag2)
 		{
 		case mfDIVE_ITEM:
-			if(isDiving() && (!getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr->flags9&fBELOWRETURN)))
+			if(isDiving() && (!getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (hero_scr->flags9&fBELOWRETURN)))
 			{
-				additem(x, y, tmpscr->catchall,
-						ipONETIME2 | ipBIGRANGE | ipHOLDUP | ipNODRAW | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0));
-				sfx(tmpscr->secretsfx);
+				additem(x, y, hero_scr->catchall,
+						ipONETIME2 | ipBIGRANGE | ipHOLDUP | ipNODRAW | ((hero_scr->flags8&fITEMSECRET) ? ipSECRETS : 0));
+				sfx(hero_scr->secretsfx);
 			}
 			
 			return;
@@ -25282,7 +25283,7 @@ RaftingStuff:
 						action=rafting; FFCore.setHeroAction(rafting);
 						raftclk=0;
 						if (get_qr(qr_RAFT_SOUND)) sfx(itemsbuf[current_item_id(itype_raft)].usesound,pan(x.getInt()));
-						else sfx(tmpscr->secretsfx);
+						else sfx(get_screen_for_world_xy(tx,ty)->secretsfx);
 					}
 					else if (get_qr(qr_BETTER_RAFT) && doraft)
 					{
@@ -25294,7 +25295,7 @@ RaftingStuff:
 								action=rafting; FFCore.setHeroAction(rafting);
 								raftclk=0;
 								if (get_qr(qr_RAFT_SOUND)) sfx(itemsbuf[current_item_id(itype_raft)].usesound,pan(x.getInt()));
-								else sfx(tmpscr->secretsfx);
+								else sfx(get_screen_for_world_xy(tx+8,ty+8)->secretsfx);
 								dir = i;
 								break;
 							}
@@ -25313,11 +25314,11 @@ RaftingStuff:
 		switch(flag3)
 		{
 		case mfDIVE_ITEM:
-			if(isDiving() && (!getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr->flags9&fBELOWRETURN)))
+			if(isDiving() && (!getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (hero_scr->flags9&fBELOWRETURN)))
 			{
-				additem(x, y, tmpscr->catchall,
-						ipONETIME2 | ipBIGRANGE | ipHOLDUP | ipNODRAW | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0));
-				sfx(tmpscr->secretsfx);
+				additem(x, y, hero_scr->catchall,
+						ipONETIME2 | ipBIGRANGE | ipHOLDUP | ipNODRAW | ((hero_scr->flags8&fITEMSECRET) ? ipSECRETS : 0));
+				sfx(hero_scr->secretsfx);
 			}
 			
 			return;
@@ -25344,7 +25345,7 @@ RaftingStuff:
 						action=rafting; FFCore.setHeroAction(rafting);
 						raftclk=0;
 						if (get_qr(qr_RAFT_SOUND)) sfx(itemsbuf[current_item_id(itype_raft)].usesound,pan(x.getInt()));
-						else sfx(tmpscr->secretsfx);
+						else sfx(get_screen_for_world_xy(tx,ty)->secretsfx);
 					}
 					else if (get_qr(qr_BETTER_RAFT) && doraft)
 					{
@@ -25356,7 +25357,7 @@ RaftingStuff:
 								action=rafting; FFCore.setHeroAction(rafting);
 								raftclk=0;
 								if (get_qr(qr_RAFT_SOUND)) sfx(itemsbuf[current_item_id(itype_raft)].usesound,pan(x.getInt()));
-								else sfx(tmpscr->secretsfx);
+								else sfx(get_screen_for_world_xy(tx+8,ty+8)->secretsfx);
 								dir = i;
 								break;
 							}
