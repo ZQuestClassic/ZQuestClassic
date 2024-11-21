@@ -81,7 +81,7 @@ bool item::animate(int32_t)
 			return false;
 		}
 #ifndef IS_EDITOR
-		if(isSideViewGravity())
+		if(isSideViewGravity() && !subscreenItem)
 		{
 			if((
 					(((fall<0 && !get_qr(qr_BROKEN_SIDEVIEW_SPRITE_JUMP)) || can_drop(x,y)) && !(pickup & ipDUMMY) && !(pickup & ipCHECK))
