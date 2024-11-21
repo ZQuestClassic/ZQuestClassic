@@ -4480,27 +4480,13 @@ void draw_screen(bool showhero, bool runGeneric)
 	}
 	
 	if(runGeneric) FFCore.runGenericPassiveEngine(SCR_TIMING_PRE_DRAW);
-	
-	//The Plan:
-	//1. Draw some background layers
-	//2. Blit scrollbuf onto framebuf
-	//3. Draw some sprites
-	//4. -----
-	//5. Draw some layers
-	//6. -----
-	//6b. Draw the subscreen, without clipping
-	//7. Draw some flying sprites
-	//8. -----
-	//9. Draw some layers
-	//10. ----
-	//11. Draw some text
-	//12. Draw the subscreen, without clipping
+
 	clear_bitmap(framebuf);
 	clear_clip_rect(framebuf);
 	
 	int32_t cmby2=0;
 	
-	//1. Draw some background layers
+	// Draw some background layers
 	clear_bitmap(scrollbuf);
 
 	auto nearby_screens = get_nearby_screens();
@@ -4677,7 +4663,7 @@ void draw_screen(bool showhero, bool runGeneric)
 		do_primitives(scrollbuf, SPLAYER_LENS_UNDER_2, 0, playing_field_offset);
 	}
 	
-	//2. Blit those layers onto framebuf
+	// Blit those layers onto framebuf
 	
 	set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
 
@@ -4686,15 +4672,15 @@ void draw_screen(bool showhero, bool runGeneric)
 	// After this point, we no longer draw to the scrollbuf - so things like dosubscr have access to a "partially rendered" frame.
 	// I think only used for COOLSCROLL==0? Seems like a silly feature...
 
-	//6b. Draw the subscreen, without clipping
+	// Draw the subscreen, without clipping
 	if(!get_qr(qr_SUBSCREENOVERSPRITES))
 	{
 		bool dotime = false;
-		if (replay_version_check(22) || !replay_is_active()) dotime = game->should_show_time();
+		if (replay_version_check(22)) dotime = game->should_show_time();
 		put_passive_subscr(framebuf, 0, passive_subscreen_offset, dotime, sspUP);
 	}
 	
-	//3. Draw some sprites onto framebuf
+	// Draw some sprites onto framebuf
 	set_clip_rect(framebuf,0,0,256,224);
 	
 	if(!(pricesdisplaybuf->clip))
@@ -4865,7 +4851,7 @@ void draw_screen(bool showhero, bool runGeneric)
 		do_primitives(framebuf, SPLAYER_NPC_ABOVEPLAYER_DRAW, 0, playing_field_offset);
 	}
 	
-	//5. Draw some layers onto framebuf
+	// Draw some layers onto framebuf
 	set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
 	
 	for_every_nearby_screen(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy) {
@@ -4900,16 +4886,7 @@ void draw_screen(bool showhero, bool runGeneric)
 	
 	particles.draw(framebuf, true, -1);
 	
-	// //6b. Draw the subscreen, without clipping
-	// if(!get_qr(qr_SUBSCREENOVERSPRITES))
-	// {
-	// 	bool dotime = false;
-	// 	if (replay_version_check(22) || !replay_is_active()) dotime = game->should_show_time();
-	// 	put_passive_subscr(framebuf, 0, passive_subscreen_offset, dotime, sspUP);
-	// }
-	
-	
-	//7. Draw some flying sprites onto framebuf
+	// Draw some flying sprites onto framebuf
 	clear_clip_rect(framebuf);
 	// set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
 	
@@ -4958,7 +4935,7 @@ void draw_screen(bool showhero, bool runGeneric)
 			items.spr(i)->draw(framebuf);
 	do_primitives(framebuf, SPLAYER_FAIRYITEM_DRAW, 0, playing_field_offset);
 	
-	//9. Draw some layers onto framebuf
+	// Draw some layers onto framebuf
 
 	set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
 	
@@ -4998,7 +4975,7 @@ void draw_screen(bool showhero, bool runGeneric)
 		}
 	});
 	
-	//11. Handle low drawn darkness
+	// Handle low drawn darkness
 	bool draw_dark = false;
 	if(get_qr(qr_NEW_DARKROOM) && room_is_dark)
 	{
@@ -5057,12 +5034,11 @@ void draw_screen(bool showhero, bool runGeneric)
 	}
 	
 	
-	//12. Draw some text on framebuf
+	// Draw some text on framebuf
 	
 	set_clip_rect(framebuf,0,0,256,224);
 	
-	//13. Draw the subscreen, without clipping
-	// TODO z3
+	// Draw the subscreen, without clipping
 	if(get_qr(qr_SUBSCREENOVERSPRITES))
 	{
 		put_passive_subscr(framebuf, 0, passive_subscreen_offset, game->should_show_time(), sspUP);
@@ -5073,7 +5049,7 @@ void draw_screen(bool showhero, bool runGeneric)
 
 	draw_msgstr(6);
 	
-	//14. Handle high-drawn darkness
+	// Handle high-drawn darkness
 	if(get_qr(qr_NEW_DARKROOM) && !get_qr(qr_NEWDARK_L6) && draw_dark && room_is_dark)
 	{
 		do_primitives(framebuf, SPLAYER_DARKROOM_UNDER, 0, playing_field_offset);
