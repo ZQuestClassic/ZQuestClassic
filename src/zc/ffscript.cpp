@@ -231,6 +231,14 @@ void FFScript::Waitframe(bool allowwavy, bool sfxcleanup)
 		sfx_cleanup();
 }
 
+enum class mapdata_type
+{
+	None,
+	Canonical,
+	Temporary_Cur,
+	Temporary_Scrolling,
+};
+
 // Creates a `mapref` (reference number) for a temporary screen.
 //
 // A mapref can refer to:
@@ -247,20 +255,19 @@ void FFScript::Waitframe(bool allowwavy, bool sfxcleanup)
 static auto decode_mapdata_ref(int ref)
 {
 	struct decode_result {
+		mapdata_type type;
 		mapscr* scr;
 		int screen;
 		int layer;
-		bool is_scrolling;
-		bool is_temp;
 	};
 
 	if (ref >= 0)
 	{
 		if (ref >= TheMaps.size())
-			return decode_result{nullptr, -1, -1, false, false};
+			return decode_result{mapdata_type::None, nullptr, -1, -1};
 
 		int screen = ref % MAPSCRS;
-		return decode_result{&TheMaps[ref], screen, 0, false, false};
+		return decode_result{mapdata_type::Canonical, &TheMaps[ref], screen, 0};
 	}
 
 	// Negative values are for temporary screens.
@@ -283,13 +290,15 @@ static auto decode_mapdata_ref(int ref)
 			scr = get_layer_scr(screen, layer - 1);
 	}
 
+	auto type = is_scrolling ? mapdata_type::Temporary_Scrolling : mapdata_type::Temporary_Cur;
 	if (!scr)
 	{
+		type = mapdata_type::None;
 		screen = -1;
 		layer = -1;
 	}
 
-	return decode_result{scr, screen, layer, is_scrolling, true};
+	return decode_result{type, scr, screen, layer};
 }
 
 static int create_mapdata_temp_ref(int screen, int layer, bool is_scrolling)
@@ -1537,7 +1546,7 @@ static rpos_handle_t ResolveMapRef(int32_t mapref, rpos_t rpos, const char* cont
 		return rpos_handle_t{};
 	}
 
-	if (!result.is_temp)
+	if (result.type == mapdata_type::Canonical)
 	{
 		if (BC::checkComboPos((int)rpos, context) != SH::_NoError)
 			return rpos_handle_t{};
@@ -1545,7 +1554,7 @@ static rpos_handle_t ResolveMapRef(int32_t mapref, rpos_t rpos, const char* cont
 		return {result.scr, result.screen, 0, rpos, RPOS_TO_POS(rpos)};
 	}
 
-	if (result.is_scrolling)
+	if (result.type == mapdata_type::Temporary_Scrolling)
 	{
 		rpos_t max = (rpos_t)(scrolling_region.width * scrolling_region.height - 1);
 		if (BC::checkBoundsRpos(rpos, (rpos_t)0, max, context) != SH::_NoError)
@@ -1574,7 +1583,7 @@ static ffc_handle_t ResolveMapRefFFC(int32_t mapref, int id, const char* context
 		return ffc_handle_t{};
 	}
 
-	if (result.is_temp && !result.is_scrolling && result.layer == 0 && result.screen == currscr)
+	if (result.type == mapdata_type::Temporary_Cur && result.layer == 0)
 	{
 		if (BC::checkFFC(id, context) != SH::_NoError)
 			return ffc_handle_t{};
@@ -24725,17 +24734,17 @@ void do_mapdataissolid()
 		int32_t x = int32_t(ri->d[rINDEX] / 10000);
 		int32_t y = int32_t(ri->d[rINDEX2] / 10000);
 
-		if (!result.is_temp)
+		if (result.type == mapdata_type::Canonical)
 		{
 			set_register(sarg1, (_walkflag(x, y, 1, result.scr) ? 10000 : 0));
 			return;
 		}
 
-		if (!result.is_scrolling && result.screen == currscr && result.layer == 0)
+		if (result.type == mapdata_type::Temporary_Cur && result.screen == currscr && result.layer == 0)
 		{
 			set_register(sarg1, (_walkflag(x, y, 1)) ? 10000 : 0);
 		}
-		else if (result.is_scrolling && result.screen == scrolling_scr && result.layer == 0)
+		else if (result.type == mapdata_type::Temporary_Scrolling && result.screen == scrolling_scr && result.layer == 0)
 		{
 			mapscr* s0 = GetScrollingMapscr(0, x, y);
 			mapscr* s1 = GetScrollingMapscr(1, x, y);
@@ -24771,11 +24780,11 @@ void do_mapdataissolid_layer()
 		}
 		else
 		{
-			if (result.is_temp && !result.is_scrolling && result.screen == currscr && result.layer == 0)
+			if (result.type == mapdata_type::Temporary_Cur && result.screen == currscr && result.layer == 0)
 			{
 				set_register(sarg1, (_walkflag_layer(x, y, 1, GetMapscr(ri->mapsref))) ? 10000 : 0);
 			}
-			else if (result.is_temp && result.is_scrolling && result.screen == scrolling_scr && result.layer == 0)
+			else if (result.type == mapdata_type::Temporary_Scrolling && result.screen == scrolling_scr && result.layer == 0)
 			{
 				set_register(sarg1, (_walkflag_layer_scrolling(x, y, 1, GetMapscr(ri->mapsref))) ? 10000 : 0);
 			}
