@@ -1,12 +1,12 @@
 // Represents a single map screen.
 //
 // Depending on how the `mapdata` was loaded, it may represent:
-// - a temporary screen, aka a live reference to the current screen ([Game->LoadTempScreen])
+//
+// - a temporary screen for the active region, aka a live reference to the current screen ([Game->LoadTempScreen])
 //   Modifications are reset when the screen changes.
-// - a temporary screen, aka a live reference to the current scrolling screen ([Game->LoadScrollingScreen])
-// - the canonical copy of a screen ([Game->LoadMapData]).
-//   If made to the current screen, modifications do not appear until next load. Also, modifications do not
-//   persist to future game reloads.
+// - a temporary screen for the previous region during scrolling, aka a live reference to the current scrolling screen ([Game->LoadScrollingScreen])
+// - the canonical copy of a screen ([Game->LoadMapData]). If made to the current screen, modifications do not appear until next load.
+//   Also, modifications do not persist to future game reloads.
 //
 // @zasm_ref REFMAPDATA
 class mapdata {

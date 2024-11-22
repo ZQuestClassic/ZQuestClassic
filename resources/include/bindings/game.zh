@@ -915,20 +915,28 @@ class Game {
 	// within the current [Region].
 	//
 	// @zasm
-	//   POP D1
-	//   POP D0
-	//   LOADTMPSCR2 D2
+	//   POP D2
+	//   POP D3
+	//   LOADTMPSCR2 D2 D3
 	internal mapdata LoadTempScreen(int screen, int layer);
 
 	// Loads the temp mapdata pointer for the specified layer's *scrolling
 	// screen*. This is only used during scrolling, for drawing the screen you
-	// just came from during the scrolling animation. Writing to this at any
-	// time other than during scrolling has no effect.
+	// just came from during the scrolling animation.
 	//
 	// @zasm
 	//   POP D2
 	//   LOADSCROLLSCR D2
 	internal mapdata LoadScrollingScreen(int layer);
+
+	// Same as [LoadScrollingScreen], but for the specific [screen], which must be
+	// within the [Region] being scrolled away from.
+	//
+	// @zasm
+	//   POP D2
+	//   POP D3
+	//   LOADSCROLLSCR2 D2 D3
+	internal mapdata LoadScrollingScreen(int screen, int layer);
 
 	// Loads an Weapon Sprite Editor table data ref for sprite 'id', to a
 	// 'spritedata' typed pointer.

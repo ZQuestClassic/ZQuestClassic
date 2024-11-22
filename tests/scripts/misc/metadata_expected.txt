@@ -1168,7 +1168,7 @@ stdout:
           "uri": "URI"
         }
       },
-      "3101": {
+      "3102": {
         "loc": {
           "range": {
             "start": {
@@ -1340,7 +1340,7 @@ stdout:
         },
         "doc": "Go fast"
       },
-      "4754": {
+      "4757": {
         "loc": {
           "range": {
             "start": {
@@ -1547,7 +1547,7 @@ stdout:
           "character": 21,
           "length": 13
         },
-        "symbol": "3101"
+        "symbol": "3102"
       },
       {
         "loc": {
@@ -1715,7 +1715,7 @@ stdout:
           "character": 22,
           "length": 5
         },
-        "symbol": "4754"
+        "symbol": "4757"
       }
     ]
   }
