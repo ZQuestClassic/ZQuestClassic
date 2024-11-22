@@ -2712,7 +2712,12 @@ int32_t get_register(int32_t arg)
 	
 	switch(arg)
 	{
-		
+		case MAX_FFC_ID:
+		{
+			ret = (MAX_FFCID + 1) * 10000;
+			break;
+		}
+
 		case INCQST:
 		{
 			int32_t newqst = 0;

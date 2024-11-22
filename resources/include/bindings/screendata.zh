@@ -645,7 +645,7 @@ class screendata {
 	//   SETR D2 REFITEM
 	internal itemsprite CreateItem(int id);
 
-	// Returns the [ffc] for the given [id], where `1 <= id <= MAX_FFC`.
+	// Returns the [ffc] for the given [id], where 1 <= id <= [MAX_FFC].
 	//
 	// See [ffc::ID].
 	//

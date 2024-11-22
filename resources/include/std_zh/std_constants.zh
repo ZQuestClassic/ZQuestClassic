@@ -59,8 +59,6 @@ DEFINE MAX_EWEAPON 			= 255; //1 to 255.
 DEFINE MAX_NPCS	 		= 255; //1 to 255.
 DEFINE MAX_ITEM	 		= 255; //1 to 255;
 
-DEFINE MIN_FFC			= 1;
-DEFINE MAX_FFC			= 128;
 DEFINE MIN_OBJ			= 1; //Short, const for loops.
 
 DEFINE MIN_COUNTER_INDEX		= 0;
