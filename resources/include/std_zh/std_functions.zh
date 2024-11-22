@@ -1180,13 +1180,13 @@ bool Facing(ffc f)
 	return false;
 }
 
-// TODO z3 !
-//Returns the number of an FFC, and -1 for a non-valid FFC (which should never happen)
+// Returns the ID of an FFC, and -1 for a non-valid FFC (which should never happen)
+//
+// @deprecated Use [ffc::ID] instead.
 int FFCNum(ffc f)
 {
-	for(int i=1; i<=128; ++i)
-		if(f == Screen->LoadFFC(i))
-			return i;
+	if (f->ID >= MIN_FFC && f->ID <= MAX_FFC)
+		return f->ID;
 	return -1;
 }
 

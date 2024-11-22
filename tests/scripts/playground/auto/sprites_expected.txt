@@ -290,16 +290,16 @@ POP D4
 LOAD D2 0.0011; InlineFunc[int SizeOfArray(sprite[])] Params
 ARRAYSIZE D2; InlineFunc[int SizeOfArray(sprite[])] Body
 STORE D2 0.0010
-STOREV 0 0.0009; for() #149 setup
-LOAD D2 0.0009; for() #149 LoopTest
+STOREV 0 0.0009; for() #148 setup
+LOAD D2 0.0009; for() #148 LoopTest
 PUSHR D2
 LOAD D2 0.0010
 POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 237 ==; for() #149 TestFail?
-LOAD D2 0.0011; for() #149 Body Start
+GOTOCMP 237 ==; for() #148 TestFail?
+LOAD D2 0.0011; for() #148 Body Start
 PUSHR D2
 LOAD D2 0.0009
 POP D0
@@ -330,11 +330,11 @@ PUSHR D2
 PUSHR D3
 POP D2
 POP REFSPRITE
-SETR SPRITE_Y D2; for() #149 Body End
-LOAD D2 0.0009; for() #149 LoopIncrement
+SETR SPRITE_Y D2; for() #148 Body End
+LOAD D2 0.0009; for() #148 LoopIncrement
 ADDV D2 1
 STORE D2 0.0009
-GOTO 193; for() #149 End
+GOTO 193; for() #148 End
 ALLOCATEMEMV D2 6 0
 PUSHR D2
 SETR D0 D2
@@ -498,16 +498,16 @@ DRAWSTRINGR; InlineFunc[void screendata::DrawString(int, int, int, int, int, int
 POPARGS D5 0.0009; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body End
 LOAD D3 0.0002
 DEALLOCATEMEMR D3
-STOREV 0 0.0001; for() #150 setup
-LOAD D2 0.0001; for() #150 LoopTest
+STOREV 0 0.0001; for() #149 setup
+LOAD D2 0.0001; for() #149 LoopTest
 PUSHR D2
 LOAD D2 0.0010
 POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 459 ==; for() #150 TestFail?
-LOAD D2 0.0011; for() #150 Body Start
+GOTOCMP 459 ==; for() #149 TestFail?
+LOAD D2 0.0011; for() #149 Body Start
 PUSHR D2
 LOAD D2 0.0001
 POP D0
@@ -552,26 +552,26 @@ PUSHR D2
 LOAD D2 0
 PUSHR D2; UsrFunc[void drawText(int, sprite)] Params End
 CALLFUNC 0.1004; UsrFunc[void drawText(int, sprite)] Call
-POP D4; for() #150 Body End
-LOAD D2 0.0001; for() #150 LoopIncrement
+POP D4; for() #149 Body End
+LOAD D2 0.0001; for() #149 LoopIncrement
 ADDV D2 1
 STORE D2 0.0001
-GOTO 401; for() #150 End
+GOTO 401; for() #149 End
 LOAD D2 0.0003
 ADDV D2 1
 STORE D2 0.0003
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #3 Body End
 GOTO 379; while() #3 End
-STOREV 0 0.0002; for() #151 setup
-LOAD D2 0.0002; for() #151 LoopTest
+STOREV 0 0.0002; for() #150 setup
+LOAD D2 0.0002; for() #150 LoopTest
 PUSHR D2
 LOAD D2 0.0010
 POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 540 ==; for() #151 TestFail?
-LOAD D2 0.0011; for() #151 Body Start
+GOTOCMP 540 ==; for() #150 TestFail?
+LOAD D2 0.0011; for() #150 Body Start
 PUSHR D2
 LOAD D2 0.0002
 POP D0
@@ -633,11 +633,11 @@ PUSHR D2
 PUSHR D3
 POP D2
 POP REFSPRITE
-SETR SPRITE_SCALE D2; for() #151 Body End
-LOAD D2 0.0002; for() #151 LoopIncrement
+SETR SPRITE_SCALE D2; for() #150 Body End
+LOAD D2 0.0002; for() #150 LoopIncrement
 ADDV D2 1
 STORE D2 0.0002
-GOTO 465; for() #151 End
+GOTO 465; for() #150 End
 SETV D2 0
 STORE D2 0.0003
 LOAD D2 0.0003; while() #4 Test
@@ -661,16 +661,16 @@ DRAWSTRINGR; InlineFunc[void screendata::DrawString(int, int, int, int, int, int
 POPARGS D5 0.0009; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body End
 LOAD D3 0.0002
 DEALLOCATEMEMR D3
-STOREV 0 0.0001; for() #152 setup
-LOAD D2 0.0001; for() #152 LoopTest
+STOREV 0 0.0001; for() #151 setup
+LOAD D2 0.0001; for() #151 LoopTest
 PUSHR D2
 LOAD D2 0.0010
 POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 618 ==; for() #152 TestFail?
-LOAD D2 0.0011; for() #152 Body Start
+GOTOCMP 618 ==; for() #151 TestFail?
+LOAD D2 0.0011; for() #151 Body Start
 PUSHR D2
 LOAD D2 0.0001
 POP D0
@@ -711,26 +711,26 @@ PUSHR D2
 LOAD D2 0
 PUSHR D2; UsrFunc[void drawText(int, sprite)] Params End
 CALLFUNC 0.1004; UsrFunc[void drawText(int, sprite)] Call
-POP D4; for() #152 Body End
-LOAD D2 0.0001; for() #152 LoopIncrement
+POP D4; for() #151 Body End
+LOAD D2 0.0001; for() #151 LoopIncrement
 ADDV D2 1
 STORE D2 0.0001
-GOTO 564; for() #152 End
+GOTO 564; for() #151 End
 LOAD D2 0.0003
 ADDV D2 1
 STORE D2 0.0003
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #4 Body End
 GOTO 542; while() #4 End
-STOREV 0 0.0002; for() #153 setup
-LOAD D2 0.0002; for() #153 LoopTest
+STOREV 0 0.0002; for() #152 setup
+LOAD D2 0.0002; for() #152 LoopTest
 PUSHR D2
 LOAD D2 0.0010
 POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 660 ==; for() #153 TestFail?
-LOAD D2 0.0011; for() #153 Body Start
+GOTOCMP 660 ==; for() #152 TestFail?
+LOAD D2 0.0011; for() #152 Body Start
 PUSHR D2
 LOAD D2 0.0002
 POP D0
@@ -753,11 +753,11 @@ PUSHR D2
 PUSHR D3
 POP D2
 POP REFSPRITE
-SETR SPRITE_Y_OFFSET D2; for() #153 Body End
-LOAD D2 0.0002; for() #153 LoopIncrement
+SETR SPRITE_Y_OFFSET D2; for() #152 Body End
+LOAD D2 0.0002; for() #152 LoopIncrement
 ADDV D2 1
 STORE D2 0.0002
-GOTO 624; for() #153 End
+GOTO 624; for() #152 End
 SETV D2 0
 STORE D2 0.0003
 LOAD D2 0.0003; while() #5 Test
@@ -781,16 +781,16 @@ DRAWSTRINGR; InlineFunc[void screendata::DrawString(int, int, int, int, int, int
 POPARGS D5 0.0009; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body End
 LOAD D3 0.0002
 DEALLOCATEMEMR D3
-STOREV 0 0.0001; for() #154 setup
-LOAD D2 0.0001; for() #154 LoopTest
+STOREV 0 0.0001; for() #153 setup
+LOAD D2 0.0001; for() #153 LoopTest
 PUSHR D2
 LOAD D2 0.0010
 POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 739 ==; for() #154 TestFail?
-LOAD D2 0.0011; for() #154 Body Start
+GOTOCMP 739 ==; for() #153 TestFail?
+LOAD D2 0.0011; for() #153 Body Start
 PUSHR D2
 LOAD D2 0.0001
 POP D0
@@ -832,26 +832,26 @@ PUSHR D2
 LOAD D2 0
 PUSHR D2; UsrFunc[void drawText(int, sprite)] Params End
 CALLFUNC 0.1004; UsrFunc[void drawText(int, sprite)] Call
-POP D4; for() #154 Body End
-LOAD D2 0.0001; for() #154 LoopIncrement
+POP D4; for() #153 Body End
+LOAD D2 0.0001; for() #153 LoopIncrement
 ADDV D2 1
 STORE D2 0.0001
-GOTO 684; for() #154 End
+GOTO 684; for() #153 End
 LOAD D2 0.0003
 ADDV D2 1
 STORE D2 0.0003
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #5 Body End
 GOTO 662; while() #5 End
-STOREV 0 0.0002; for() #155 setup
-LOAD D2 0.0002; for() #155 LoopTest
+STOREV 0 0.0002; for() #154 setup
+LOAD D2 0.0002; for() #154 LoopTest
 PUSHR D2
 LOAD D2 0.0010
 POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 781 ==; for() #155 TestFail?
-LOAD D2 0.0011; for() #155 Body Start
+GOTOCMP 781 ==; for() #154 TestFail?
+LOAD D2 0.0011; for() #154 Body Start
 PUSHR D2
 LOAD D2 0.0002
 POP D0
@@ -874,11 +874,11 @@ PUSHR D2
 PUSHR D3
 POP D2
 POP REFSPRITE
-SETR SPRITE_SCRIPT_FLIP D2; for() #155 Body End
-LOAD D2 0.0002; for() #155 LoopIncrement
+SETR SPRITE_SCRIPT_FLIP D2; for() #154 Body End
+LOAD D2 0.0002; for() #154 LoopIncrement
 ADDV D2 1
 STORE D2 0.0002
-GOTO 745; for() #155 End
+GOTO 745; for() #154 End
 SETV D2 0
 STORE D2 0.0003
 LOAD D2 0.0003; while() #6 Test
@@ -902,16 +902,16 @@ DRAWSTRINGR; InlineFunc[void screendata::DrawString(int, int, int, int, int, int
 POPARGS D5 0.0009; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body End
 LOAD D3 0.0002
 DEALLOCATEMEMR D3
-STOREV 0 0.0001; for() #156 setup
-LOAD D2 0.0001; for() #156 LoopTest
+STOREV 0 0.0001; for() #155 setup
+LOAD D2 0.0001; for() #155 LoopTest
 PUSHR D2
 LOAD D2 0.0010
 POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 870 ==; for() #156 TestFail?
-LOAD D2 0.0011; for() #156 Body Start
+GOTOCMP 870 ==; for() #155 TestFail?
+LOAD D2 0.0011; for() #155 Body Start
 PUSHR D2
 LOAD D2 0.0001
 POP D0
@@ -963,26 +963,26 @@ PUSHR D2
 LOAD D2 0
 PUSHR D2; UsrFunc[void drawText(int, sprite)] Params End
 CALLFUNC 0.1004; UsrFunc[void drawText(int, sprite)] Call
-POP D4; for() #156 Body End
-LOAD D2 0.0001; for() #156 LoopIncrement
+POP D4; for() #155 Body End
+LOAD D2 0.0001; for() #155 LoopIncrement
 ADDV D2 1
 STORE D2 0.0001
-GOTO 805; for() #156 End
+GOTO 805; for() #155 End
 LOAD D2 0.0003
 ADDV D2 1
 STORE D2 0.0003
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #6 Body End
 GOTO 783; while() #6 End
-STOREV 0 0.0002; for() #157 setup
-LOAD D2 0.0002; for() #157 LoopTest
+STOREV 0 0.0002; for() #156 setup
+LOAD D2 0.0002; for() #156 LoopTest
 PUSHR D2
 LOAD D2 0.0010
 POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 930 ==; for() #157 TestFail?
-LOAD D2 0.0011; for() #157 Body Start
+GOTOCMP 930 ==; for() #156 TestFail?
+LOAD D2 0.0011; for() #156 Body Start
 PUSHR D2
 LOAD D2 0.0002
 POP D0
@@ -1023,11 +1023,11 @@ PUSHR D2
 PUSHR D3
 POP D2
 POP REFSPRITE
-SETR SPRITE_TILE_H D2; for() #157 Body End
-LOAD D2 0.0002; for() #157 LoopIncrement
+SETR SPRITE_TILE_H D2; for() #156 Body End
+LOAD D2 0.0002; for() #156 LoopIncrement
 ADDV D2 1
 STORE D2 0.0002
-GOTO 876; for() #157 End
+GOTO 876; for() #156 End
 LOAD D3 0.0004
 DEALLOCATEMEMR D3
 LOAD D3 0.0006
