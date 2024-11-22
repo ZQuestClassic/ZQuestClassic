@@ -520,7 +520,7 @@ class mapdata {
 	// @zasm_var MAPDATALENSHIDES
 	internal bool LensHides[];
 
-	// Read-write, the size of the [Data]` array.
+	// Read-write, the size of the [Data] array.
 	//
 	// @zasm_var MAPDATASCRDATASIZE
 	internal int DataSize;
