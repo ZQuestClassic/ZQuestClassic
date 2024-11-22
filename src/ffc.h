@@ -45,7 +45,7 @@ public:
 	ffc_flags flags;
 	word delay;
 	byte cset;
-	word link; // TODO !!! what type? increase editor/qst file size. uint16_t? ffcid_t? etc
+	ffc_id_t link;
 	word script;
 	int32_t initd[INITIAL_D];
 	uint8_t screen;

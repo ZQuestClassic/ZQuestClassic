@@ -645,13 +645,14 @@ class screendata {
 	//   SETR D2 REFITEM
 	internal itemsprite CreateItem(int id);
 
-	// Returns a pointer to the nth [ffc] on the screen, where `1 <= n <=
-	// MAX_FFC`.
+	// Returns the [ffc] for the given [id], where `1 <= id <= MAX_FFC`.
+	//
+	// See [ffc::ID].
 	//
 	// @zasm
 	//   POP D2
 	//   LOAD_FFC D2
-	internal ffc LoadFFC(int n);
+	internal ffc LoadFFC(int id);
 
 	// Returns the number of the given object type that are present on the
 	// current screen.

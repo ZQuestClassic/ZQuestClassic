@@ -1,6 +1,6 @@
 #include "bindings/sprite.zh"
 
-// "Freeform combo" represent combos that may move freely around the
+// "Freeform combo" (FFC) represent combos that may move freely around the
 // screen, not tied to the grid.
 //
 // Load with [Screen->LoadFFC].
@@ -11,10 +11,28 @@ class ffc {
 	// @delete
 	internal ffc();
 
+	// The FFC's ID.
+	//
+	// The general formula for an FFC's ID is the following:
+	//
+	// >  id = (screen region offset)*128 + (index into screen's ffc array) + 1
+	//
+	// where "screen region offset" refers to the index of the screen in the
+	// current region, like so:
+	//
+	// ```
+	//   0 1 2
+	//   3 4 5
+	//   6 7 8
+	// ```
+	//
+	// @zasm_var FFCID
+	internal const int ID;
+
 	// The screen index this FFC was created on.
 	//
 	// @zasm_var FF_SCREEN_INDEX
-	internal int ScreenIndex;
+	internal const int ScreenIndex;
 
 	// The combo used by the FFC for its visuals and type.
 	//
@@ -77,11 +95,6 @@ class ffc {
 	//
 	// @zasm_var FFINITDD
 	internal untyped InitD[];
-
-	// the screen index of the FFC.
-	//
-	// @zasm_var FFCID
-	internal const int ID;
 
 	// @zasm_var FFCLASTCHANGERX
 	internal int LastChangerX;
