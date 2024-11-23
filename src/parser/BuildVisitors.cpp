@@ -1763,8 +1763,16 @@ void BuildOpcodes::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 			return;
 		}
 	}
-	OpcodeContext* c = (OpcodeContext*)param;
-	
+
+	if (auto ivar = dynamic_cast<InternalVariable*>(host.binding))
+	{
+		assert(ivar->readfn);
+		std::vector<std::shared_ptr<Opcode>> const& funcCode = ivar->readfn->getCode();
+		for (auto it = funcCode.begin(); it != funcCode.end(); ++it)
+			addOpcode((*it)->makeClone(false));
+		return;
+	}
+
 	if(UserClassVar* ucv = dynamic_cast<UserClassVar*>(host.binding))
 	{
 		UserClass& user_class = *ucv->getClass();
@@ -1780,8 +1788,6 @@ void BuildOpcodes::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 		host.markConstant();
 		return;
 	}
-
-	int32_t vid = host.binding->id;
 
 	if (auto globalId = host.binding->getGlobalId())
 	{
@@ -4243,6 +4249,15 @@ void LValBOHelper::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 	{
 		UserClass& user_class = *ucv->getClass();
 		addOpcode(new OWriteObject(new VarArgument(CLASS_THISKEY), new LiteralArgument(ucv->getIndex())));
+		return;
+	}
+
+	if (auto ivar = dynamic_cast<InternalVariable*>(host.binding))
+	{
+		assert(ivar->writefn);
+		std::vector<std::shared_ptr<Opcode>> const& funcCode = ivar->writefn->getCode();
+		for (auto it = funcCode.begin(); it != funcCode.end(); ++it)
+			addOpcode((*it)->makeClone(false));
 		return;
 	}
 

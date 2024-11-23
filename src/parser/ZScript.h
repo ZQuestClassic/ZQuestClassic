@@ -198,7 +198,8 @@ namespace ZScript
 		void setParentClass(UserClass* c) {parentClass = c;}
 		UserClass* getParentClass() const {return parentClass;}
 		
-		std::string internalRefVar;
+		std::string internalRefVarString;
+		int internalRefVar;
 		std::vector<int32_t> members;
 	protected:
 		UserClass(Program& program, ASTClass& user_class);
@@ -325,6 +326,24 @@ namespace ZScript
 
 		ASTDataDecl& node;
 		std::optional<int32_t> globalId;
+	};
+
+	class InternalVariable : public Datum
+	{
+	public:
+		static InternalVariable* create(
+				Scope&, ASTDataDecl&, DataType const&,
+				CompileErrorHandler* = NULL);
+
+		std::optional<std::string> getName() const {return node.getName();}
+		std::optional<std::string> getDocComment() const {return node.doc_comment;}
+		ASTDataDecl* getNode() const {return &node;}
+		Function* readfn;
+		Function* writefn;
+	private:
+		InternalVariable(Scope& scope, ASTDataDecl& node, DataType const& type);
+
+		ASTDataDecl& node;
 	};
 	
 	//A UserClass variable

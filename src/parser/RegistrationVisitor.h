@@ -19,6 +19,9 @@ namespace ZScript
 		RegistrationVisitor(ZScript::Program& program);
 		using RecursiveVisitor::visit;
 		void visit(AST& node, void* param = NULL);
+
+		void initInternalVar(ASTDataDeclList* var);
+
 		////////////////
 		// Cases
 		void caseDefault(AST& host, void* param = NULL);
