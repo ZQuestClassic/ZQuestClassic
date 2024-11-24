@@ -3004,7 +3004,7 @@ DataType const& ASTDataType::resolve(ZScript::Scope& scope, CompileErrorHandler*
 		DataType const* ty = type->resolve(scope, errorHandler);
 		if (ty && ty->isResolved())
 		{
-			if (constant_)
+			if (constant_ > 0)
 			{
 				string name = ty->getName();
 				if (constant_ > 1 || ty->isConstant())
@@ -3013,6 +3013,19 @@ DataType const& ASTDataType::resolve(ZScript::Scope& scope, CompileErrorHandler*
 					return DataType::ZVOID;
 				}
 				ty = ty->getConstType();
+			}
+			else if(constant_ < 0) // force to be mutable
+			{
+				if(ty->isConstant())
+				{
+					DataType const* mutType = ty->getMutType();
+					assert(mutType);
+					auto arr = becomeArray;
+					replace(*mutType);
+					becomeArray = arr;
+					return resolve(scope, errorHandler);
+				}
+				constant_ = 0;
 			}
 			if (becomeArray && ty->isResolved())
 			{
