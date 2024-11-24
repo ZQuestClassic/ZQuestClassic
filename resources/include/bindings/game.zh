@@ -108,7 +108,8 @@ class Game {
 	// @delete
 	internal Game();
 
-	// Returns the screen the [Hero] is currently on.
+	// Returns the screen index the [Hero] is currently in.
+	// If currently in a large [Region], this is the top-left screen.
 	//
 	// @zasm_var CURSCR
 	internal const int CurScreen;

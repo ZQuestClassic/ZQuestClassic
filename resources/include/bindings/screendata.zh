@@ -12,6 +12,12 @@ enum WipeEffect
 // including functions for drawing and creating/loading objects belonging
 // to the screen.
 //
+// If a [Region] has multiple screens, many fields in `Screen` access just the
+// top-left screen - the only exception is for screen scripts, which refer to the
+// screen that the script was loaded for. Use [mapdata] to access individual screens.
+//
+// See z3_user_guide.md for more. TODO z3 !
+//
 // Access with `Screen->`.
 class screendata {
 	// @delete

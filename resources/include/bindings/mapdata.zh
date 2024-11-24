@@ -2,7 +2,7 @@
 //
 // Depending on how the `mapdata` was loaded, it may represent:
 //
-// - a temporary screen for the active region, aka a live reference to the current screen ([Game->LoadTempScreen])
+// - a temporary screen for the active region, aka a live reference to the current screen ([Game->LoadTempScreen], [Region->LoadTempScreenForComboPos])
 //   Modifications are reset when the screen changes.
 // - a temporary screen for the previous region during scrolling, aka a live reference to the current scrolling screen ([Game->LoadScrollingScreen])
 // - the canonical copy of a screen ([Game->LoadMapData]). If made to the current screen, modifications do not appear until next load.

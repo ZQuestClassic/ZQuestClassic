@@ -1440,7 +1440,6 @@ static void setHeroBigHitbox(bool v);
 	static void do_loadmapdata_scrollscr2(const bool v);
 	static int32_t loadMapData();
 	static void do_loadspritedata(const bool v);
-	static void do_loadscreendata(const bool v);
 	static void do_loadbitmapid(const bool v);
 	static void do_loadshopdata(const bool v);
 	static void do_loadinfoshopdata(const bool v);

@@ -31,22 +31,16 @@ class Region {
 	// @zasm_var REGION_NUM_COMBOS
 	internal const int NumCombos;
 
-	// The top-left screen in the current region.
-	// If not in a large region, this is the same as [Screen].
-	//
-	// @zasm_var REGION_ORIGIN_SCREEN
-	internal const screendata OriginScreen;
-
 	// The index of the top-left screen in the current region.
-	// If not in a large region, this is the same as [Game->CurScreen].
+	// This is the same as [Game->CurScreen].
 	//
 	// @zasm_var REGION_ORIGIN_SCREEN
 	internal const long OriginScreenIndex;
 
 	// @zasm
 	//   POP D2
-	//   REGION_SCREEN_FOR_COMBO_POS D2
-	internal screendata GetScreenForComboPos(int pos);
+	//   REGION_LOAD_TMPSCR_FOR_COMBO_POS D2
+	internal mapdata LoadTempScreenForComboPos(int pos);
 
 	// @zasm
 	//   POP D2
