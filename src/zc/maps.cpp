@@ -139,7 +139,7 @@ int get_region_id(int dmap, int scr)
 
 int get_current_region_id()
 {
-	return get_region_id(currdmap, cur_origin_screen_index);
+	return get_region_id(currdmap, currscr);
 }
 
 void z3_calculate_region(int dmap, int screen, region& region, int& region_scr_dx, int& region_scr_dy)
@@ -231,7 +231,7 @@ void z3_load_region(int screen, int dmap)
 	}
 
 	z3_calculate_region(dmap, screen, current_region, region_scr_dx, region_scr_dy);
-	currscr = cur_origin_screen_index = current_region.origin_screen_index;
+	currscr = current_region.origin_screen_index;
 	world_w = current_region.width;
 	world_h = current_region.height;
 	region_scr_count = current_region.screen_count;
@@ -245,7 +245,7 @@ void z3_load_region(int screen, int dmap)
 	{
 		for (int y = 0; y < current_region.screen_height; y++)
 		{
-			int screen = cur_origin_screen_index + x + y*16;
+			int screen = currscr + x + y*16;
 			if (screen < 136)
 				screen_in_current_region[screen] = true;
 		}
@@ -260,7 +260,7 @@ void z3_prepare_current_region_handles()
 	{
 		for (int x = 0; x < current_region.screen_width; x++)
 		{
-			int screen = cur_origin_screen_index + x + y*16;
+			int screen = currscr + x + y*16;
 			int index_start = current_region_screen_count;
 			for (int layer = 0; layer <= 6; layer++)
 			{
@@ -377,7 +377,7 @@ void z3_calculate_viewport(int dmap, int screen, int world_w, int world_h, int h
 
 void z3_update_viewport()
 {
-	z3_calculate_viewport(currdmap, cur_origin_screen_index, world_w, world_h, Hero.getX(), Hero.getY(), viewport);
+	z3_calculate_viewport(currdmap, currscr, world_w, world_h, Hero.getX(), Hero.getY(), viewport);
 }
 
 void playLevelMusic();
@@ -388,7 +388,7 @@ void z3_update_heroscr()
 	int y = vbound(Hero.getY().getInt(), 0, world_h - 1);
 	int dx = x / 256;
 	int dy = y / 176;
-	int new_screen = cur_origin_screen_index + dx + dy * 16;
+	int new_screen = currscr + dx + dy * 16;
 	if (hero_screen != new_screen && dx >= 0 && dy >= 0 && dx < 16 && dy < 8 && is_in_current_region(new_screen))
 	{
 		region_scr_dx = dx;
@@ -421,8 +421,8 @@ int get_screen_index_for_world_xy(int x, int y)
 
 	int dx = vbound(x, 0, world_w - 1) / 256;
 	int dy = vbound(y, 0, world_h - 1) / 176;
-	int origin_scr_x = cur_origin_screen_index % 16;
-	int origin_scr_y = cur_origin_screen_index / 16;
+	int origin_scr_x = currscr % 16;
+	int origin_scr_y = currscr / 16;
 	int scr_x = origin_scr_x + dx;
 	int scr_y = origin_scr_y + dy;
 	return scr_xy_to_index(scr_x, scr_y);
@@ -430,8 +430,8 @@ int get_screen_index_for_world_xy(int x, int y)
 
 int get_screen_index_for_rpos(rpos_t rpos)
 {
-	int origin_scr_x = cur_origin_screen_index % 16;
-	int origin_scr_y = cur_origin_screen_index / 16;
+	int origin_scr_x = currscr % 16;
+	int origin_scr_y = currscr / 16;
 	int scr_index = static_cast<int32_t>(rpos) / 176;
 	int scr_x = origin_scr_x + scr_index%current_region.screen_width;
 	int scr_y = origin_scr_y + scr_index/current_region.screen_width;
@@ -530,7 +530,7 @@ mapscr* get_screen_layer_for_world_xy(int x, int y, int layer)
 
 int z3_get_region_relative_dx(int screen)
 {
-	return z3_get_region_relative_dx(screen, cur_origin_screen_index);
+	return z3_get_region_relative_dx(screen, currscr);
 }
 int z3_get_region_relative_dx(int screen, int origin_screen_index)
 {
@@ -539,7 +539,7 @@ int z3_get_region_relative_dx(int screen, int origin_screen_index)
 
 int z3_get_region_relative_dy(int screen)
 {
-	return z3_get_region_relative_dy(screen, cur_origin_screen_index);
+	return z3_get_region_relative_dy(screen, currscr);
 }
 int z3_get_region_relative_dy(int screen, int origin_screen_index)
 {
@@ -555,7 +555,7 @@ int get_screen_index_for_region_index_offset(int offset)
 {
 	int scr_dx = offset % current_region.screen_width;
 	int scr_dy = offset / current_region.screen_width;
-	int screen = cur_origin_screen_index + scr_dx + scr_dy*16;
+	int screen = currscr + scr_dx + scr_dy*16;
 	return screen;
 }
 
@@ -1140,7 +1140,7 @@ std::optional<ffc_handle_t> getFFCAt(int32_t x, int32_t y)
 // 	uint8_t screen_index_offset = ffc_id / MAXFFCS;
 // 	uint8_t scr_dx = screen_index_offset % current_region.screen_width;
 // 	uint8_t scr_dy = screen_index_offset / current_region.screen_width;
-// 	uint8_t screen = cur_origin_screen_index + scr_dx + scr_dy*16;
+// 	uint8_t screen = currscr + scr_dx + scr_dy*16;
 // 	mapscr* scr = get_scr(screen);
 // 	return {scr, screen, ffc_id, i, &scr->ffcs[i]};
 // }
@@ -5923,7 +5923,7 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	currscr_for_passive_subscr = -1;
 	z3_load_region(scr, destdmap);
 	z3_mark_current_region_handles_dirty();
-	homescr = scr >= 0x80 ? hero_screen : cur_origin_screen_index;
+	homescr = scr >= 0x80 ? hero_screen : currscr;
 
 	cpos_clear_all();
 	FFCore.clear_script_engine_data_of_type(ScriptType::Screen);
@@ -5941,7 +5941,7 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	}
 
 	// Load the origin screen (top-left in region) into tmpscr
-	loadscr_old(0, orig_destdmap, cur_origin_screen_index, ldir, overlay, ffc_script_indices_to_remove);
+	loadscr_old(0, orig_destdmap, currscr, ldir, overlay, ffc_script_indices_to_remove);
 	// Store the current tmpscr into special_warp_return_screen, if on a special screen.
 	if (scr >= 0x80)
 		loadscr_old(1, orig_destdmap, homescr, no_x80_dir ? -1 : ldir, overlay, ffc_script_indices_to_remove);
@@ -5950,7 +5950,7 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	{
 		for (int screen = 0; screen < 128; screen++)
 		{
-			if (screen != cur_origin_screen_index && is_in_current_region(screen))
+			if (screen != currscr && is_in_current_region(screen))
 			{
 				load_a_screen_and_layers(destdmap, currmap, screen, ldir);
 			}
@@ -5975,7 +5975,7 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	// TODO z3 ! ffc carryovers?
 	for_every_ffc([&](const ffc_handle_t& ffc_handle) {
 		// Handled in loadscr_old.
-		if (ffc_handle.screen == cur_origin_screen_index)
+		if (ffc_handle.screen == currscr)
 			return;
 
 		ffc_script_indices_to_remove.erase(ffc_handle.id);

@@ -18938,7 +18938,7 @@ static void side_load_enemies(mapscr* scr)
 		sle_pattern = scr->pattern;
 		sle_cnt = 0;
 		int32_t guycnt = 0;
-		int16_t s = (currmap<<7)+cur_origin_screen_index;
+		int16_t s = (currmap<<7)+currscr;
 		bool beenhere=false;
 		bool reload=true;
 		bool unbeatablereload = true;
@@ -19389,7 +19389,7 @@ bool scriptloadenemies()
 void loadenemies()
 {
 	// check if it's been long enough to reload all enemies
-	int16_t s = (currmap<<7)+cur_origin_screen_index;
+	int16_t s = (currmap<<7)+currscr;
 	bool beenhere = false;
 	bool reload = true;
 	bool unbeatablereload = true;

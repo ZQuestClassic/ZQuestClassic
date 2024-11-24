@@ -6416,7 +6416,7 @@ int32_t get_register(int32_t arg)
 
 		case REGION_ORIGIN_SCREEN:
 		{
-			ret = cur_origin_screen_index;
+			ret = currscr;
 		}
 		break;
 
