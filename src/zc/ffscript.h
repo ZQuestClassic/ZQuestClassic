@@ -1421,7 +1421,6 @@ static void setHeroBigHitbox(bool v);
 	//New Datatypes
 	static void do_loadnpcdata(const bool v);
 	static void do_loadcombodata(const bool v);
-	static void do_loadmapdata(const bool v);
 	static void do_loadmapdata_tempscr(const bool v);
 	static void do_loadmapdata_scrollscr(const bool v);
 	static int32_t loadMapData();
