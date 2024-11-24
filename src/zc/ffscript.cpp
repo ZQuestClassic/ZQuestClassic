@@ -401,11 +401,6 @@ int32_t getScreen(int32_t ref)
 	}
 }
 
-static mapscr* get_ffc_screen(int ffc_id)
-{
-	return get_screen_for_region_index_offset(ffc_id / MAXFFCS);
-}
-
 static ffcdata* get_ffc_raw(int ffc_id)
 {
 	return &get_screen_for_region_index_offset(ffc_id / MAXFFCS)->getFFC(ffc_id % MAXFFCS);
@@ -1280,16 +1275,16 @@ static bool set_current_script_engine_data(ScriptType type, int script, int inde
 		case ScriptType::FFC:
 		{
 			curscript = ffscripts[script];
+			ffcdata* ffc = get_ffc_raw(index);
 
 			if (!data.initialized)
 			{
 				got_initialized = true;
-				mapscr* scr = get_ffc_screen(index);
+				mapscr* scr = get_scr(ffc->screen_spawned);
 				memcpy(ri->d, scr->ffcs[index % 128].initd, 8 * sizeof(int32_t));
 				data.initialized = true;
 			}
 
-			ffcdata* ffc = get_ffc_raw(index);
 			ri->ffcref = ZScriptVersion::ffcRefIsSpriteId() ? ffc->getUID() : index;
 			ri->screenref = ffc->screen_spawned;
 		}
@@ -1555,8 +1550,11 @@ static bool set_current_script_engine_data(ScriptType type, int script, int inde
 	return got_initialized;
 }
 
-static rpos_handle_t ResolveMapRef(int32_t mapref, rpos_t rpos, const char* context)
+static rpos_handle_t ResolveMapRef(int32_t mapref, int pos, const char* context)
 {
+	if (BC::checkComboPos(pos, context) != SH::_NoError)
+		return rpos_handle_t{};
+
 	auto result = decode_mapdata_ref(mapref);
 	if (!result.scr)
 	{
@@ -1566,34 +1564,32 @@ static rpos_handle_t ResolveMapRef(int32_t mapref, rpos_t rpos, const char* cont
 
 	if (result.type == mapdata_type::Canonical)
 	{
-		if (BC::checkComboPos((int)rpos, context) != SH::_NoError)
-			return rpos_handle_t{};
-
-		return {result.scr, result.screen, 0, rpos, RPOS_TO_POS(rpos)};
+		return {result.scr, result.screen, 0, (rpos_t)pos, pos};
 	}
 
 	if (result.type == mapdata_type::Temporary_Scrolling)
 	{
-		rpos_t max = (rpos_t)(scrolling_region.width * scrolling_region.height - 1);
-		if (BC::checkBoundsRpos(rpos, (rpos_t)0, max, context) != SH::_NoError)
-			return rpos_handle_t{};
-
 		if (result.scr->valid == 0)
 			return rpos_handle_t{};
 
-		return {result.scr, result.screen, result.layer, rpos, RPOS_TO_POS(rpos)};
+		return {result.scr, result.screen, result.layer, (rpos_t)pos, pos};
 	}
-	else
-	{
-		if (BC::checkComboRpos(rpos, context) != SH::_NoError)
-			return rpos_handle_t{};
 
-		return get_rpos_handle(rpos, result.layer);
-	}
+	rpos_t rpos = POS_TO_RPOS(pos, result.screen);
+	if (BC::checkComboRpos(rpos, context) != SH::_NoError)
+		return rpos_handle_t{};
+
+	return get_rpos_handle(rpos, result.layer);
 }
 
 static ffc_handle_t ResolveMapRefFFC(int32_t mapref, int id, const char* context)
 {
+	if ( (unsigned)id > MAXFFCS-1 ) 
+	{
+		Z_scripterrlog("%s FFC id (%d) is invalid", context, id);
+		return ffc_handle_t{};
+	}
+
 	auto result = decode_mapdata_ref(mapref);
 	if (!result.scr)
 	{
@@ -1601,21 +1597,11 @@ static ffc_handle_t ResolveMapRefFFC(int32_t mapref, int id, const char* context
 		return ffc_handle_t{};
 	}
 
+	int screen_index_offset = 0;
 	if (result.type == mapdata_type::Temporary_Cur && result.layer == 0)
-	{
-		if (BC::checkFFC(id, context) != SH::_NoError)
-			return ffc_handle_t{};
+		screen_index_offset = get_region_screen_index_offset(result.screen);
 
-		return get_ffc(id);
-	}
-
-	if ( (unsigned)id > MAXFFCS-1 ) 
-	{
-		Z_scripterrlog("%s FFC id (%d) is invalid", context, id);
-		return ffc_handle_t{};
-	}
-
-	return result.scr->getFFCHandle(id, 0);
+	return result.scr->getFFCHandle(id, screen_index_offset);
 }
 
 int32_t genscript_timing = SCR_TIMING_START_FRAME;
@@ -6529,20 +6515,6 @@ int32_t get_register(int32_t arg)
 				ret = (get_scr(ri->screenref)->member[indx]?10000:0); \
 			} \
 		} \
-
-		#define GET_FFC_BOOL_INDEX(member, str, indexbound) \
-		{ \
-			int32_t indx = ri->d[rINDEX] / 10000; \
-			if(indx < 0 || indx > indexbound ) \
-			{ \
-				Z_scripterrlog("Invalid Index passed to Screen->%s[]: %d\n", (indx), str); \
-				ret = -10000; \
-			} \
-			else \
-			{ \
-				ret = (get_ffc_raw(indx)->member?10000:0); \
-			} \
-		} \
 		
 		
 		#define GET_SCREENDATA_FLAG(member, str, indexbound) \
@@ -7757,8 +7729,8 @@ int32_t get_register(int32_t arg)
 		}
 			
 		 
-		case MAPDATAFFLINK:         GET_MAPDATA_FFC_INDEX32(link, "FFCLink", MAX_FFCID); break;
-		case MAPDATAFFSCRIPT:       GET_MAPDATA_FFC_INDEX32(script, "FFCScript", MAX_FFCID); break;
+		case MAPDATAFFLINK:         GET_MAPDATA_FFC_INDEX32(link, "FFCLink", MAXFFCS-1); break;
+		case MAPDATAFFSCRIPT:       GET_MAPDATA_FFC_INDEX32(script, "FFCScript", MAXFFCS-1); break;
 
 		case MAPDATAINTID: 	 //Same form as SetScreenD()
 			//SetFFCInitD(ffindex, d, value)
@@ -7942,8 +7914,8 @@ int32_t get_register(int32_t arg)
 
 		case MAPDATACOMBODD:
 		{
-			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
-			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboD[pos]"); rpos_handle.scr != nullptr)
+			int pos = ri->d[rINDEX] / 10000;
+			if (auto rpos_handle = ResolveMapRef(ri->mapsref, pos, "mapdata->ComboD[pos]"); rpos_handle.scr != nullptr)
 			{
 				ret = rpos_handle.data() * 10000;
 			}
@@ -7956,8 +7928,8 @@ int32_t get_register(int32_t arg)
 			
 		case MAPDATACOMBOCD:
 		{
-			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
-			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboC[pos]"); rpos_handle.scr != nullptr)
+			int pos = ri->d[rINDEX] / 10000;
+			if (auto rpos_handle = ResolveMapRef(ri->mapsref, pos, "mapdata->ComboC[pos]"); rpos_handle.scr != nullptr)
 			{
 				ret = rpos_handle.cset() * 10000;
 			}
@@ -7970,8 +7942,8 @@ int32_t get_register(int32_t arg)
 
 		case MAPDATACOMBOFD:
 		{
-			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
-			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboF[pos]"); rpos_handle.scr != nullptr)
+			int pos = ri->d[rINDEX] / 10000;
+			if (auto rpos_handle = ResolveMapRef(ri->mapsref, pos, "mapdata->ComboF[pos]"); rpos_handle.scr != nullptr)
 			{
 				ret = rpos_handle.sflag() * 10000;
 			}
@@ -7984,8 +7956,8 @@ int32_t get_register(int32_t arg)
 
 		case MAPDATACOMBOTD:
 		{
-			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
-			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboT[pos]"); rpos_handle.scr != nullptr)
+			int pos = ri->d[rINDEX] / 10000;
+			if (auto rpos_handle = ResolveMapRef(ri->mapsref, pos, "mapdata->ComboT[pos]"); rpos_handle.scr != nullptr)
 			{
 				ret = rpos_handle.combo().type * 10000;
 			}
@@ -7998,8 +7970,8 @@ int32_t get_register(int32_t arg)
 			
 		case MAPDATACOMBOID:
 		{
-			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
-			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboI[pos]"); rpos_handle.scr != nullptr)
+			int pos = ri->d[rINDEX] / 10000;
+			if (auto rpos_handle = ResolveMapRef(ri->mapsref, pos, "mapdata->ComboI[pos]"); rpos_handle.scr != nullptr)
 			{
 				ret = rpos_handle.cflag() * 10000;
 			}
@@ -8009,36 +7981,25 @@ int32_t get_register(int32_t arg)
 			}
 			break;
 		}
-			
+
 		case MAPDATACOMBOSD:
 		{
-			if (mapscr *m = GetMapscr(ri->mapsref))
+			int pos = ri->d[rINDEX] / 10000;
+			if (auto rpos_handle = ResolveMapRef(ri->mapsref, pos, "mapdata->ComboS[pos]"); rpos_handle.scr != nullptr)
 			{
-				//int32_t ffindex = ri->d[rINDEX]/10000;
-				//int32_t d = ri->d[rINDEX2]/10000;
-				//int32_t v = (value/10000);
-				int32_t pos = ri->d[rINDEX] / 10000;
-				if(BC::checkComboPos(pos, "mapdata->ComboS[pos]") != SH::_NoError)
-				{
-					ret = -10000;
-				}
-				else
-				{
-					ret = (combobuf[m->data[pos]].walk & 0xF) * 10000;
-				}	
+				ret = (rpos_handle.combo().walk & 0xF) * 10000;
 			}
 			else
 			{
-				Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","ComboS[]", ri->mapsref);
 				ret = -10000;
 			}
 			break;
 		}
-			
+
 		case MAPDATACOMBOED:
 		{
-			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
-			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboE[pos]"); rpos_handle.scr != nullptr)
+			int pos = ri->d[rINDEX] / 10000;
+			if (auto rpos_handle = ResolveMapRef(ri->mapsref, pos, "mapdata->ComboE[pos]"); rpos_handle.scr != nullptr) // TODO z3 !!! bool implicit conversion
 			{
 				ret = ((rpos_handle.combo().walk & 0xF0)>>4) * 10000;
 			}
@@ -17234,17 +17195,6 @@ void set_register(int32_t arg, int32_t value)
 			} \
 			tmpscr->member[indx] =( (value/10000) ? 1 : 0 ); \
 		}
-
-		#define SET_FFC_BOOL_INDEX(member, str, indexbound) \
-		{ \
-			int32_t indx = ri->d[rINDEX] / 10000; \
-			if(indx < 0 || indx > (indexbound) ) \
-			{ \
-				Z_scripterrlog("Invalid Index passed to Screen->%s[]: %d\n", (indx), str); \
-				break; \
-			} \
-			get_ffc_raw(indx)->member =( (value/10000) ? 1 : 0 ); \
-		}
 		
 		case SCREENDATAVALID:
 		{
@@ -18006,7 +17956,7 @@ void set_register(int32_t arg, int32_t value)
 			break; \
 		} \
 
-		#define SET_MAPDATA_FFC_INDEX_VBOUND(member, str, indexbound, min, max) \
+		#define SET_MAPDATA_FFC_INDEX_VBOUND(member, str, min, max) \
 		{ \
 			int32_t v = value/10000; \
 			int32_t id = (ri->d[rINDEX] / 10000)-1; \
@@ -18439,8 +18389,8 @@ void set_register(int32_t arg, int32_t value)
 			break;
 		}
 		 
-		case MAPDATAFFLINK:         SET_MAPDATA_FFC_INDEX_VBOUND(link, "FFCLink", MAX_FFCID, 0, MAX_FFCID+1); break;  //B, MAXFFCS OF THESE
-		case MAPDATAFFSCRIPT:       SET_MAPDATA_FFC_INDEX_VBOUND(script, "FFCScript", MAX_FFCID, 0, 255); break; //W, 32 OF THESE
+		case MAPDATAFFLINK:         SET_MAPDATA_FFC_INDEX_VBOUND(link, "FFCLink", 0, MAXFFCS); break;  //B, MAXFFCS OF THESE
+		case MAPDATAFFSCRIPT:       SET_MAPDATA_FFC_INDEX_VBOUND(script, "FFCScript", 0, MAXFFCS); break; //W, 32 OF THESE
 
 		case MAPDATAINTID:
 		{
@@ -18596,31 +18546,37 @@ void set_register(int32_t arg, int32_t value)
 				return;
 			}
 
-			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
-			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboD[pos]"); rpos_handle.scr != nullptr)
+			int pos = ri->d[rINDEX] / 10000;
+			auto result = decode_mapdata_ref(ri->mapsref);
+			if (auto rpos_handle = ResolveMapRef(ri->mapsref, pos, "mapdata->ComboD[pos]"); rpos_handle.scr != nullptr)
 			{
-				screen_combo_modify_preroutine(rpos_handle);
+				if (result.type == mapdata_type::Canonical)
+					screen_combo_modify_preroutine(rpos_handle);
 				rpos_handle.set_data(val);
-				screen_combo_modify_postroutine(rpos_handle);
+				if (result.type == mapdata_type::Canonical)
+					screen_combo_modify_postroutine(rpos_handle);
 			}
 		}
 		break;
 		
 		case MAPDATACOMBOCD:
 		{
-			int32_t val = (value/10000); //cset
+			int32_t val = (value/10000); // cset
 			if ( ((unsigned) val) >= 15 )
 			{
 				Z_scripterrlog("Invalid CSet ID %d used to write to mapdata->ComboC[]\n", val);
 				return;
 			}
 
-			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
-			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboC[]"); rpos_handle.scr != nullptr)
+			int pos = ri->d[rINDEX] / 10000;
+			auto result = decode_mapdata_ref(ri->mapsref);
+			if (auto rpos_handle = ResolveMapRef(ri->mapsref, pos, "mapdata->ComboC[pos]"); rpos_handle.scr != nullptr)
 			{
-				screen_combo_modify_preroutine(rpos_handle);
+				if (result.type == mapdata_type::Canonical)
+					screen_combo_modify_preroutine(rpos_handle);
 				rpos_handle.set_cset(val&15);
-				screen_combo_modify_postroutine(rpos_handle);
+				if (result.type == mapdata_type::Canonical)
+					screen_combo_modify_postroutine(rpos_handle);
 			}
 		}
 		break;
@@ -18634,8 +18590,8 @@ void set_register(int32_t arg, int32_t value)
 				return;
 			}
 
-			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
-			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboF[]"); rpos_handle.scr != nullptr)
+			int pos = ri->d[rINDEX] / 10000;
+			if (auto rpos_handle = ResolveMapRef(ri->mapsref, pos, "mapdata->ComboF[]"); rpos_handle.scr != nullptr)
 			{
 				rpos_handle.set_sflag(val);
 			}
@@ -18651,13 +18607,16 @@ void set_register(int32_t arg, int32_t value)
 				return;
 			}
 
-			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
-			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboT[]"); rpos_handle.scr != nullptr)
+			int pos = ri->d[rINDEX] / 10000;
+			auto result = decode_mapdata_ref(ri->mapsref);
+			if (auto rpos_handle = ResolveMapRef(ri->mapsref, pos, "mapdata->ComboT[]"); rpos_handle.scr != nullptr)
 			{
 				auto cid = rpos_handle.data();
-				screen_combo_modify_pre(cid);
+				if (result.type == mapdata_type::Canonical)
+					screen_combo_modify_pre(cid);
 				combobuf[cid].type=val;
-				screen_combo_modify_post(cid);
+				if (result.type == mapdata_type::Canonical)
+					screen_combo_modify_post(cid);
 			}
 		}
 		break;
@@ -18671,8 +18630,8 @@ void set_register(int32_t arg, int32_t value)
 				return;
 			}
 			
-			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
-			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboI[]"); rpos_handle.scr != nullptr)
+			int pos = ri->d[rINDEX] / 10000;
+			if (auto rpos_handle = ResolveMapRef(ri->mapsref, pos, "mapdata->ComboI[]"); rpos_handle.scr != nullptr)
 			{
 				rpos_handle.combo().flag = value/10000;
 			}
@@ -18688,8 +18647,8 @@ void set_register(int32_t arg, int32_t value)
 				return;
 			}
 
-			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
-			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboS[]"); rpos_handle.scr != nullptr)
+			int pos = ri->d[rINDEX] / 10000;
+			if (auto rpos_handle = ResolveMapRef(ri->mapsref, pos, "mapdata->ComboS[]"); rpos_handle.scr != nullptr)
 			{
 				int32_t cid = rpos_handle.data();
 				combobuf[cid].walk &= ~0x0F;
@@ -18707,8 +18666,8 @@ void set_register(int32_t arg, int32_t value)
 				return;
 			}
 			
-			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
-			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboE[]"); rpos_handle.scr != nullptr)
+			int pos = ri->d[rINDEX] / 10000;
+			if (auto rpos_handle = ResolveMapRef(ri->mapsref, pos, "mapdata->ComboE[]"); rpos_handle.scr != nullptr)
 			{
 				int32_t cid = rpos_handle.data();
 				combobuf[cid].walk &= ~0xF0;

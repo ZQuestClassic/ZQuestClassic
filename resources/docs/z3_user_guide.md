@@ -34,9 +34,8 @@ TODO
 
 ### `mapdata` and `Screen`
 
-First of all, the `Screen->` methods all operate on the origin screen, and cannot be changed. Before regions, `Screen` was the only screen that is loaded. In a region:
+By default, the `Screen->` methods operate on the origin screen. Some script types (screen, ffc, weapon) operate on the screen that spawned the script. Player scripts operate on the screen the player is currently in.
 
-* `Screen` refers to the top-left screen
 * `Screen->ComboD[pos]` can return any combo in the current region. Before regions, `pos` (which stands for combo position) could be `0-175`. The same is true with regions, but the range is `0` to `Region->NumCombos` (exclusive), where `Region->NumCombos` is 176 multiplied by the number of screens in a region.
 * The above is also true for:
 * * `Screen->ComboC[pos]`
@@ -46,9 +45,11 @@ First of all, the `Screen->` methods all operate on the origin screen, and canno
 * * `Screen->ComboS[pos]`
 * * `Screen->ComboE[pos]`
 * `Screen->LoadFFC(ffcid)` can return any FFC within the current region. Before regions, `ffcid` could be `1-128`
-* For everything else on `Screen->`, it accesses the top-left screen in the region
+* For everything else on `Screen->`, it accesses just a single screen
 
 Before regions, to iterate every combo on a screen you loop between 0 and 176. With regions, the upper value is instead `Region->NumCombos` - when not in a region, this value is 176. To make scripts compatible with regions, replace 176 with `Region->NumCombos`.
+
+To get the correct value of `pos` for a given `x` and `y` coordinate, you can still use `ComboAt(x, y)`. This will use the current region to determine the combo position.
 
 To access other screens of the current region, use `mapdata`. There is `Game->LoadMapData(map, screen)`, `Game->LoadTempScreen(layer)`, and `Game->LoadScrollingScreen(layer)`. These all return a `mapdata`:
 
@@ -56,9 +57,7 @@ To access other screens of the current region, use `mapdata`. There is `Game->Lo
 * `Game->LoadTempScreen(layer)`: Returns a handle that accesses the currently loaded screen at the given layer. When the player enters a screen, the canonical screen is copied to a temporary screen, such that any modifications to the temporary screen will not persist when the player leaves the screen.
 * `Game->LoadScrollingScreen(layer)`: Returns a handle that accesses the temporary screens that the player is scrolling away from, at the given layer. This is only valid during screen scrolling.
 
-With a `mapdata` from a temporary or scrolling screen, methods such as `mapdata->ComboD[pos]` behave slightly differently than before regions. Before, `pos` (which stands for combo position) is a `0-175` value indexes into the individual combos of a screen. The same is true with regions, but the range is `0` to `Region->NumCombos` (exclusive), where `Region->NumCombos` is 176 multiplied by the number of screens in a region.
-
-To get the correct value of `pos` for a given `x` and `y` coordinate, you can still use `ComboAt(x, y)`. This will use the current region to determine the combo position.
+`mapdata` only ever refers to a single screen.
 
 (NOT YET IMPLEMENTED): FFCs
 
