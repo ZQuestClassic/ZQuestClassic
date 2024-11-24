@@ -302,6 +302,7 @@ void SemanticAnalyzer::caseStmtForEach(ASTStmtForEach& host, void* param)
 	ASTDataDecl* decl = new ASTDataDecl(host.location);
 	decl->identifier = host.identifier;
 	decl->baseType = new ASTDataType(elemtype, host.location);
+	decl->baseType->constant_ = -1; // force to not be constant
 	host.decl = decl;
 	
 	visit(host.indxdecl.get(), param);
