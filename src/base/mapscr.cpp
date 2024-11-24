@@ -85,7 +85,8 @@ ffcdata& mapscr::getFFC(size_t ind)
 		if (uids[i]) ffcs[i].reassignUid(uids[i]);
 	for (size_t i = prev; i < ffcs.size(); i++)
 	{
-		ffcs[i].screen = screen;
+		ffcs[i].screen = screen; // TODO z3 ! rm 'screen'
+		ffcs[i].screen_spawned = screen;
 		ffcs[i].index = i;
 	}
 

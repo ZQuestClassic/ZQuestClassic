@@ -17115,12 +17115,12 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header)
 		{
 			scr=i*MAPSCRS+j;
 			mapscr* screen = should_skip ? &temp_mapscr : &TheMaps[scr];
+			screen->map = i;
+			screen->screen = j;
 			if(valid)
 				readmapscreen(f, Header, screen, version, scr);
 			else if (!should_skip)
 				clear_screen(screen);
-			screen->map = i;
-			screen->screen = j;
 		}
 
 		if (should_skip)

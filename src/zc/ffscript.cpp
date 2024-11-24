@@ -1271,8 +1271,8 @@ static bool set_current_script_engine_data(ScriptType type, int script, int inde
 	stack = &data.stack;
 	ret_stack = &data.ret_stack;
 
-	// Make `Screen->` always refer to the top-left screen.
-	// May be set to something more specific for screen scripts.
+	// By default, make `Screen->` refer to the top-left screen.
+	// Will be set to something more specific for relevant script types.
 	ri->screenref = currscr;
 
 	switch (type)
@@ -1289,7 +1289,9 @@ static bool set_current_script_engine_data(ScriptType type, int script, int inde
 				data.initialized = true;
 			}
 
-			ri->ffcref = ZScriptVersion::ffcRefIsSpriteId() ? get_ffc_raw(index)->getUID() : index;
+			ffcdata* ffc = get_ffc_raw(index);
+			ri->ffcref = ZScriptVersion::ffcRefIsSpriteId() ? ffc->getUID() : index;
+			ri->screenref = ffc->screen_spawned;
 		}
 		break;
 		
@@ -1307,6 +1309,7 @@ static bool set_current_script_engine_data(ScriptType type, int script, int inde
 			}
 			
 			ri->guyref = index;
+			ri->screenref = spr->screen_spawned;
 		}
 		break;
 		
@@ -1324,6 +1327,7 @@ static bool set_current_script_engine_data(ScriptType type, int script, int inde
 			}
 			
 			ri->lwpn = index;
+			ri->screenref = spr->screen_spawned;
 		}
 		break;
 		
@@ -1341,6 +1345,7 @@ static bool set_current_script_engine_data(ScriptType type, int script, int inde
 			}
 			
 			ri->ewpn = index;
+			ri->screenref = spr->screen_spawned;
 		}
 		break;
 		
@@ -1357,6 +1362,7 @@ static bool set_current_script_engine_data(ScriptType type, int script, int inde
 			}
 			
 			ri->itemref = index;
+			ri->screenref = spr->screen_spawned;
 		}
 		break;
 		
@@ -1417,6 +1423,7 @@ static bool set_current_script_engine_data(ScriptType type, int script, int inde
 		case ScriptType::Hero:
 		{
 			curscript = playerscripts[script];
+			ri->screenref = hero_screen;
 		}
 		break;
 		
@@ -1505,7 +1512,6 @@ static bool set_current_script_engine_data(ScriptType type, int script, int inde
 		case ScriptType::Screen:
 		{
 			curscript = screenscripts[script];
-			ri->screenref = index;
 
 			if (!data.initialized)
 			{
@@ -1517,6 +1523,8 @@ static bool set_current_script_engine_data(ScriptType type, int script, int inde
 				}
 				data.initialized = true;
 			}
+
+			ri->screenref = index;
 		}
 		break;
 		
@@ -1526,7 +1534,8 @@ static bool set_current_script_engine_data(ScriptType type, int script, int inde
 
 			rpos_t rpos = combopos_ref_to_rpos(index);
 			int32_t lyr = combopos_ref_to_layer(index);
-			int32_t id = get_rpos_handle(rpos, lyr).data();
+			auto rpos_handle = get_rpos_handle(rpos, lyr);
+			int32_t id = rpos_handle.data();
 			if (!data.initialized)
 			{
 				got_initialized = true;
@@ -1538,6 +1547,7 @@ static bool set_current_script_engine_data(ScriptType type, int script, int inde
 
 			ri->combosref = id; //'this' pointer
 			ri->comboposref = index; //used for X(), Y(), Layer(), and so forth.
+			ri->screenref = rpos_handle.screen;
 			break;
 		}
 	}
