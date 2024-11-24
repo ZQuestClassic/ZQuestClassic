@@ -6122,7 +6122,8 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 		{
 			if((previous_scr.ffcs[i].flags&ffc_carryover) && !(previous_scr.flags5&fNOFFCARRYOVER))
 			{
-				scr->getFFC(i) = previous_scr.ffcs[i];
+				auto& ffc = scr->getFFC(i) = previous_scr.ffcs[i];
+				ffc.screen_spawned = ffc.screen = screen;
 
 				ffc_id_t ffc_id = get_region_screen_index_offset(screen)*MAXFFCS + i;
 				ffc_script_indices_to_remove.erase(ffc_id);

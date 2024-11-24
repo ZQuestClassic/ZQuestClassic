@@ -44,7 +44,7 @@ By default, the `Screen->` methods operate on the origin screen. Some script typ
 * * `Screen->ComboT[pos]`
 * * `Screen->ComboS[pos]`
 * * `Screen->ComboE[pos]`
-* `Screen->LoadFFC(ffcid)` can return any FFC within the current region. Before regions, `ffcid` could be `1-128`
+* `Screen->LoadFFC(id)` can return any FFC within the current region. `id` can be `1-MAX_FFC`
 * For everything else on `Screen->`, it accesses just a single screen
 
 Before regions, to iterate every combo on a screen you loop between 0 and 176. With regions, the upper value is instead `Region->NumCombos` - when not in a region, this value is 176. To make scripts compatible with regions, replace 176 with `Region->NumCombos`.
@@ -71,5 +71,4 @@ int RegionRelativeScreenY(int scr);
 int RegionWorldOffsetX(int scr);
 int RegionWorldOffsetY(int scr);
 bool RegionIncludesScreen(int scr);
-int RegionGetFFCId(int scr, int index);
 ```

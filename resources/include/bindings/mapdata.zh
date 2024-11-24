@@ -438,35 +438,49 @@ class mapdata {
 
 	// The Combo ID placed at each position on the screen.
 	//
+	// If this is a temporary screen loading with `Game->LoadTempScreen(layer)`, then this allows access to every combo in the current region.
+	//
 	// @zasm_var MAPDATACOMBODD
 	internal int ComboD[];
 
 	// The CSet of the combo placed at each position on the screen.
+	//
+	// If this is a temporary screen loading with `Game->LoadTempScreen(layer)`, then this allows access to every combo in the current region.
 	//
 	// @zasm_var MAPDATACOMBOCD
 	internal int ComboC[];
 
 	// The mapflag placed at each position on the screen.
 	//
+	// If this is a temporary screen loading with `Game->LoadTempScreen(layer)`, then this allows access to every combo in the current region.
+	//
 	// @zasm_var MAPDATACOMBOFD
 	internal int ComboF[];
 
 	// The inherent flag of the combo placed at each position on the screen.
+	//
+	// If this is a temporary screen loading with `Game->LoadTempScreen(layer)`, then this allows access to every combo in the current region.
 	//
 	// @zasm_var MAPDATACOMBOID
 	internal int ComboI[];
 
 	// The combo type of the combo placed at each position on the screen.
 	//
+	// If this is a temporary screen loading with `Game->LoadTempScreen(layer)`, then this allows access to every combo in the current region.
+	//
 	// @zasm_var MAPDATACOMBOTD
 	internal int ComboT[];
 
 	// The solidity map of the combo placed at each position on the screen.
 	//
+	// If this is a temporary screen loading with `Game->LoadTempScreen(layer)`, then this allows access to every combo in the current region.
+	//
 	// @zasm_var MAPDATACOMBOSD
 	internal int ComboS[];
 
 	// The effect map of the combo placed at each position on the screen.
+	//
+	// If this is a temporary screen loading with `Game->LoadTempScreen(layer)`, then this allows access to every combo in the current region.
 	//
 	// @zasm_var MAPDATACOMBOED
 	internal int ComboE[];

@@ -46,12 +46,12 @@ DEALLOCATEMEMR D3
 LOAD D2 0.0004; InlineFunc[int Game::GetGenericScript(char32[])] Params
 GETGENERICSCRIPT D2; InlineFunc[int Game::GetGenericScript(char32[])] Body
 STORE D2 0.0002
-LOAD D2 0.0002; if() #437 Test
+LOAD D2 0.0002; if() #419 Test
 COMPAREV D2 -1
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 36 ==; Test 'if'
-ALLOCATEMEMV D2 53 0; if() #437 Body Start
+ALLOCATEMEMV D2 53 0; if() #419 Body Start
 STORE D2 0.0001
 WRITEPODSTRING D2 "[Test] failed to start - could not find test script\n"
 LOAD D2 0.0001; InlineFunc[void printf(char32[])] Params Start
@@ -60,7 +60,7 @@ PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0001
 DEALLOCATEMEMR D3
-GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #437 Body End
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #419 Body End
 LOAD D2 0.0002; InlineFunc[genericdata Game::LoadGenericData(int)] Params
 LOADGENERICDATA D2; InlineFunc[genericdata Game::LoadGenericData(int)] Body Start
 SETR D2 REFGENERICDATA; InlineFunc[genericdata Game::LoadGenericData(int)] Body End
@@ -539,7 +539,7 @@ PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0
 DEALLOCATEMEMR D3
-LOAD D2 0.0002; if() #436 Test
+LOAD D2 0.0002; if() #418 Test
 COMPAREV D2 5
 GOTOCMP 451 !=
 LOAD D2 0.0001
@@ -550,11 +550,11 @@ GOTO 452
 SETV D2 1
 COMPAREV D2 0
 GOTOCMP 459 ==; Test 'if'
-LOAD D2 0.0002; InlineFunc[void hero::Warp(int, int)] Params Start AND if() #436 Body Start
+LOAD D2 0.0002; InlineFunc[void hero::Warp(int, int)] Params Start AND if() #418 Body Start
 PUSHR D2
 LOAD D2 0.0001; InlineFunc[void hero::Warp(int, int)] Params End
 POP D3; InlineFunc[void hero::Warp(int, int)] Body Start
-WARPR D3 D2; InlineFunc[void hero::Warp(int, int)] Body End AND if() #436 Body End
+WARPR D3 D2; InlineFunc[void hero::Warp(int, int)] Body End AND if() #418 Body End
 POPARGS D5 0.0003
 RETURNFUNC; Func[void Init(int, int)] Body End
 SETR D4 SP2; Func[void playMessage(int)] Body Start

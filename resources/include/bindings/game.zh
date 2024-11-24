@@ -108,46 +108,45 @@ class Game {
 	// @delete
 	internal Game();
 
-	// Returns the screen index the [Hero] is currently in.
-	// If currently in a large [Region], this is the top-left screen.
+	// The top-left screen of the current [Region] that the player is in.
 	//
 	// @zasm_var CURSCR
 	internal const int CurScreen;
 
-	// Returns the screen the [Hero] is currently on, offset by the current dmap
-	// offset.
+	// The top-left screen of the current [Region] that the player is in, offset
+	// by the current dmap.
 	//
 	// @zasm_var CURDSCR
 	internal const int CurDMapScreen;
 
-	// Returns the map the [Hero] is currently on.
+	// The map the player is currently on.
 	//
 	// @zasm_var CURMAP
 	internal const int CurMap;
 
-	// Returns the dmap the [Hero] is currently on.
+	// The dmap the player is currently on.
 	//
 	// @zasm_var CURDMAP
 	internal const int CurDMap;
 
-	// Returns the level the [Hero] is currently on.
+	// The level the player is currently on.
 	//
 	// @zasm_var CURLEVEL
 	internal const int CurLevel;
 
-	// The number of times the [Hero] has died.
+	// The number of times the player has died.
 	//
 	// @zasm_var GAMEDEATHS
 	internal int NumDeaths;
 
-	// The current activated cheat level. (range 0-4)
+	// The current activated cheat level (range 0-4).
 	//
 	// @zasm_var GAMECHEAT
 	internal int Cheat;
 
-	// The highest cheat level that is enabled for the [Hero]. The [Hero] can
+	// The highest cheat level that is enabled for the player. The player can
 	// change their cheat level in the cheat menu to any value <= this value
-	// (range 0-4). Updates when the [Hero] enters a cheat code.
+	// (range 0-4). Updates when the player enters a cheat code.
 	//
 	// @zasm_var GAMEMAXCHEAT
 	internal int MaxCheat;
@@ -156,12 +155,6 @@ class Game {
 	//
 	// @zasm_var ACTIVESSSPEED
 	internal long SubscreenSpeed;
-
-	// The number of frames passed on the save file.
-	// `include/time.zh` has several functions that help manage this value.
-	//
-	// @zasm_var GAMETIME
-	internal long Time;
 
 	// Returns true if the current save file was loaded, false if it was a
 	// freshly created save.
@@ -174,22 +167,29 @@ class Game {
 	// @zasm_var TYPINGMODE
 	internal bool TypingMode;
 
-	// If 'false', `Game->Time` does not contain accurate time information.
+	// If [Game->Time] contains accurate time information.
 	//
 	// @zasm_var GAMETIMEVALID
 	internal bool TimeValid;
+
+	// The number of frames passed on the save file.
+	//
+	// `include/deprecated/time.zh` has several functions that help manage this value.
+	//
+	// @zasm_var GAMETIME
+	internal long Time;
 
 	// The count of enemies remaining alive for each screen on the current map.
 	//
 	// @zasm_var GAMEGUYCOUNT
 	internal int GuyCount[];
 
-	// The continue point the [Hero] will be reset to when continuing.
+	// The continue point the player will be reset to when continuing.
 	//
 	// @zasm_var GAMECONTSCR
 	internal int ContinueScreen;
 
-	// The continue point the [Hero] will be reset to when continuing.
+	// The continue point the player will be reset to when continuing.
 	//
 	// @zasm_var GAMECONTDMAP
 	internal int ContinueDMap;
@@ -578,36 +578,36 @@ class Game {
 	//   SETR SPRITEMAXITEM D2
 	internal void MaxItemsprites(int value);
 
-	// Returns the screen the [Hero] is currently on.
+	// The top-left screen of the current [Region] that the player is in.
 	//
 	// @deprecated Use [CurScreen] instead!
 	// @zasm
 	//   SETR D2 CURSCR
 	internal int GetCurScreen();
 
-	// Returns the screen the [Hero] is currently on, offset by the current dmap
-	// offset.
+	// The top-left screen of the current [Region] that the player is in, offset
+	// by the current dmap.
 	//
 	// @deprecated Use [CurDMapScreen] instead!
 	// @zasm
 	//   SETR D2 CURDSCR
 	internal int GetCurDMapScreen();
 
-	// Returns the map the [Hero] is currently on.
+	// The map the player is currently on.
 	//
 	// @deprecated Use [CurMap] instead!
 	// @zasm
 	//   SETR D2 CURMAP
 	internal int GetCurMap();
 
-	// Returns the dmap the [Hero] is currently on.
+	// The dmap the player is currently on.
 	//
 	// @deprecated Use [CurDMap] instead!
 	// @zasm
 	//   SETR D2 CURDMAP
 	internal int GetCurDMap();
 
-	// Returns the level the [Hero] is currently on.
+	// The level the player is currently on.
 	//
 	// @deprecated Use [CurLevel] instead!
 	// @zasm
@@ -906,6 +906,8 @@ class Game {
 	// `Screen->`, while passing 1 through 6 will give equal access to the other
 	// layers of the screen. Modifications to these pointers are reset when the
 	// screen changes.
+	//
+	// This is the same as `Game->LoadTempScreen(Game->CurScreen, layer)`.
 	//
 	// @zasm
 	//   POP D2

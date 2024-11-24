@@ -63,7 +63,7 @@ POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0002
 DEALLOCATEMEMR D3
 STOREV 0 0.0001
-LOAD D2 0.0001; if() #436 Test AND while(true) #2 Body [Opt:AlwaysOn] Start
+LOAD D2 0.0001; if() #418 Test AND while(true) #2 Body [Opt:AlwaysOn] Start
 PUSHR D2
 ADDV D2 1
 STORE D2 0.0001
@@ -72,7 +72,7 @@ COMPAREV D2 30
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 68 ==; Test 'if'
-ALLOCATEMEMV D2 43 0; if() #436 Body Start
+ALLOCATEMEMV D2 43 0; if() #418 Body Start
 STORE D2 0
 WRITEPODSTRING D2 "FFC script is running, ID: %d x: %d y: %d\n"
 LOAD D2 0; InlineFunc[void printf(char32[])] Params Start
@@ -92,7 +92,7 @@ PUSHVARGR SPRITE_Y; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0
-DEALLOCATEMEMR D3; if() #436 Body End
+DEALLOCATEMEMR D3; if() #418 Body End
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #2 Body [Opt:AlwaysOn] End
 GOTO 38; while() #2 End AND [Opt:NeverRet] AND void run(int) Body End
 

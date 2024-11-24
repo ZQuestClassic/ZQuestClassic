@@ -1256,6 +1256,76 @@ bool& FFScript::waitdraw(ScriptType type, int index)
 	return get_script_engine_data(type, index).waitdraw;
 }
 
+// TODO z3 !!
+static void update_screenref(int index)
+{
+	// By default, make `Screen->` refer to the top-left screen.
+	// Will be set to something more specific for relevant script types.
+	ri->screenref = currscr;
+
+	switch (curScriptType)
+	{
+		case ScriptType::FFC:
+		{
+			ffcdata* ffc = get_ffc_raw(index);
+			ri->screenref = ffc->screen_spawned;
+		}
+		break;
+		
+		case ScriptType::NPC:
+		{
+			auto indx = GuyH::getNPCIndex(index);
+			enemy *spr = (enemy*)guys.spr(indx);
+			ri->screenref = spr->screen_spawned;
+		}
+		break;
+		
+		case ScriptType::Lwpn:
+		{
+			auto indx = LwpnH::getLWeaponIndex(index);
+			weapon *spr = (weapon*)Lwpns.spr(indx);
+			ri->screenref = spr->screen_spawned;
+		}
+		break;
+		
+		case ScriptType::Ewpn:
+		{
+			auto indx = EwpnH::getEWeaponIndex(index);
+			weapon *spr = (weapon*)Ewpns.spr(indx);
+			ri->screenref = spr->screen_spawned;
+		}
+		break;
+		
+		case ScriptType::ItemSprite:
+		{
+			item *spr = (item*)items.getByUID(index);
+			ri->screenref = spr->screen_spawned;
+		}
+		break;
+
+		case ScriptType::Hero:
+		{
+			ri->screenref = hero_screen;
+		}
+		break;
+		
+		case ScriptType::Screen:
+		{
+			ri->screenref = index;
+		}
+		break;
+		
+		case ScriptType::Combo:
+		{
+			rpos_t rpos = combopos_ref_to_rpos(index);
+			int32_t lyr = combopos_ref_to_layer(index);
+			auto rpos_handle = get_rpos_handle(rpos, lyr);
+			ri->screenref = rpos_handle.screen;
+			break;
+		}
+	}
+}
+
 // Returns true if registers had to be initialized.
 static bool set_current_script_engine_data(ScriptType type, int script, int index)
 {
@@ -1552,9 +1622,6 @@ static bool set_current_script_engine_data(ScriptType type, int script, int inde
 
 static rpos_handle_t ResolveMapRef(int32_t mapref, int pos, const char* context)
 {
-	if (BC::checkComboPos(pos, context) != SH::_NoError)
-		return rpos_handle_t{};
-
 	auto result = decode_mapdata_ref(mapref);
 	if (!result.scr)
 	{
@@ -1562,10 +1629,34 @@ static rpos_handle_t ResolveMapRef(int32_t mapref, int pos, const char* context)
 		return rpos_handle_t{};
 	}
 
-	if (result.type == mapdata_type::Canonical)
+	// mapdata loaded via `Game->LoadTempScreen(Game->CurScreen, layer)` or `Game->LoadTempScreen(layer)` have
+	// access to the entire region.
+	if (result.type == mapdata_type::Temporary_Cur && result.screen == currscr)
 	{
-		return {result.scr, result.screen, 0, (rpos_t)pos, pos};
+		rpos_t rpos = (rpos_t)pos;
+		if (BC::checkComboRpos(rpos, context) != SH::_NoError)
+			return rpos_handle_t{};
+
+		return get_rpos_handle(rpos, result.layer);
 	}
+
+	// Similiarly for the scrolling temporary screens.
+	if (result.type == mapdata_type::Temporary_Scrolling && result.screen == scrolling_scr)
+	{
+		rpos_t rpos = (rpos_t)pos;
+		rpos_t max = (rpos_t)(scrolling_region.width * scrolling_region.height - 1);
+		if (BC::checkBoundsRpos(rpos, (rpos_t)0, max, context) != SH::_NoError)
+			return rpos_handle_t{};
+
+		return {result.scr, result.screen, result.layer, rpos, RPOS_TO_POS(rpos)};
+	}
+
+	// Otherwise, access is limited to just one screen.
+	if (BC::checkComboPos(pos, context) != SH::_NoError)
+		return rpos_handle_t{};
+
+	if (result.type == mapdata_type::Canonical)
+		return {result.scr, result.screen, 0, (rpos_t)pos, pos};
 
 	if (result.type == mapdata_type::Temporary_Scrolling)
 	{
@@ -1579,6 +1670,7 @@ static rpos_handle_t ResolveMapRef(int32_t mapref, int pos, const char* context)
 	if (BC::checkComboRpos(rpos, context) != SH::_NoError)
 		return rpos_handle_t{};
 
+	// return {result.scr, result.screen, result.layer, rpos, pos}; // TODO z3 ! use?
 	return get_rpos_handle(rpos, result.layer);
 }
 
@@ -6941,11 +7033,11 @@ int32_t get_register(int32_t arg)
 			break;
 			
 		case SCREENFLAGSD:
-			ret = get_screenflags(tmpscr,vbound(ri->d[rINDEX] / 10000,0,9));
+			ret = get_screenflags(get_scr(ri->screenref),vbound(ri->d[rINDEX] / 10000,0,9));
 			break;
 			
 		case SCREENEFLAGSD:
-			ret = get_screeneflags(tmpscr,vbound(ri->d[rINDEX] / 10000,0,2));
+			ret = get_screeneflags(get_scr(ri->screenref),vbound(ri->d[rINDEX] / 10000,0,2));
 			break;
 			
 		case NPCCOUNT:
@@ -6953,11 +7045,11 @@ int32_t get_register(int32_t arg)
 			break;
 			
 		case ROOMDATA:
-			ret = tmpscr->catchall*10000;
+			ret = get_scr(ri->screenref)->catchall*10000;
 			break;
 			
 		case ROOMTYPE:
-			ret = tmpscr->room*10000;
+			ret = get_scr(ri->screenref)->room*10000;
 			break;
 			
 		case PUSHBLOCKX:
@@ -6981,13 +7073,17 @@ int32_t get_register(int32_t arg)
 			break;
 			
 		case UNDERCOMBO:
-			ret = tmpscr->undercombo*10000;
+			ret = get_scr(ri->screenref)->undercombo*10000;
 			break;
 			
 		case UNDERCSET:
-			ret = tmpscr->undercset*10000;
+			ret = get_scr(ri->screenref)->undercset*10000;
 			break;
-		
+
+		case SCREEN_INDEX:
+			ret = ri->screenref*10000;
+			break;
+
 		//Creates an lweapon using an iemdata struct values to generate its properties.
 		//Useful in conjunction with the new weapon editor. 
 		case CREATELWPNDX:
@@ -13195,7 +13291,7 @@ void set_register(int32_t arg, int32_t value)
 			
 		case FFLINK:
 			if (auto ffc = checkFFC(ri->ffcref, "ffc->Link"))
-				(ffc->link)=vbound(value/10000, 0, MAXFFCS); // Allow "ffc->Link = 0" to unlink ffc.
+				(ffc->link)=vbound(value/10000, 0, MAXFFCS-1); // Allow "ffc->Link = 0" to unlink ffc.
 			//0 is none, setting this before made it impssible to clear it. -Z
 			break;
 			
@@ -17117,35 +17213,35 @@ void set_register(int32_t arg, int32_t value)
 		
 		#define	SET_SCREENDATA_VAR_INT32(member, str) \
 		{ \
-			tmpscr->member = vbound((value / 10000),-214747,214747); \
+			get_scr(ri->screenref)->member = vbound((value / 10000),-214747,214747); \
 		} \
 		
 		#define	SET_SCREENDATA_VAR_INT16(member, str) \
 		{ \
-			tmpscr->member = vbound((value / 10000),0,32767); \
+			get_scr(ri->screenref)->member = vbound((value / 10000),0,32767); \
 		} \
 
 		#define	SET_SCREENDATA_VAR_BYTE(member, str) \
 		{ \
-			tmpscr->member = vbound((value / 10000),0,255); \
+			get_scr(ri->screenref)->member = vbound((value / 10000),0,255); \
 		} \
 		
 		#define SET_SCREENDATA_VAR_INDEX32(member, str, indexbound) \
 		{ \
 			int32_t indx = ri->d[rINDEX] / 10000; \
-			tmpscr->member[indx] = vbound((value / 10000),-214747,214747); \
+			get_scr(ri->screenref)->member[indx] = vbound((value / 10000),-214747,214747); \
 		} \
 		
 		#define SET_SCREENDATA_VAR_INDEX16(member, str, indexbound) \
 		{ \
 			int32_t indx = ri->d[rINDEX] / 10000; \
-			tmpscr->member[indx] = vbound((value / 10000),-32767,32767); \
+			get_scr(ri->screenref)->member[indx] = vbound((value / 10000),-32767,32767); \
 		} \
 
 		#define SET_SCREENDATA_BYTE_INDEX(member, str, indexbound) \
 		{ \
 			int32_t indx = ri->d[rINDEX] / 10000; \
-			tmpscr->member[indx] = vbound((value / 10000),0,255); \
+			get_scr(ri->screenref)->member[indx] = vbound((value / 10000),0,255); \
 		}
 		#define SET_SCREENDATA_LAYER_INDEX(member, str, indexbound) \
 		{ \
@@ -17155,7 +17251,7 @@ void set_register(int32_t arg, int32_t value)
 			{ \
 				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
 			} \
-			else tmpscr->member[indx-1] = vbound((value / 10000),0,255); \
+			else get_scr(ri->screenref)->member[indx-1] = vbound((value / 10000),0,255); \
 		}
 		///max screen id is higher! vbound properly... -Z
 		#define SET_SCREENDATA_LAYERSCREEN_INDEX(member, str, indexbound) \
@@ -17172,7 +17268,7 @@ void set_register(int32_t arg, int32_t value)
 				Z_scripterrlog("Script attempted to use a mapdata->LayerScreen[%d].\n",scrn_id); \
 				Z_scripterrlog("Valid Screen values are (0) through (%d).\n",MAPSCRS); \
 			} \
-			else tmpscr->member[indx-1] = vbound((scrn_id),0,MAPSCRS); \
+			else get_scr(ri->screenref)->member[indx-1] = vbound((scrn_id),0,MAPSCRS); \
 		}
 		
 		#define SET_SCREENDATA_FLAG(member, str) \
@@ -17180,9 +17276,9 @@ void set_register(int32_t arg, int32_t value)
 			int32_t flag =  (value/10000);  \
 			if ( flag != 0 ) \
 			{ \
-				tmpscr->member|=flag; \
+				get_scr(ri->screenref)->member|=flag; \
 			} \
-			else tmpscr->.member|= ~flag; \
+			else get_scr(ri->screenref)->.member|= ~flag; \
 		} \
 		
 		#define SET_SCREENDATA_BOOL_INDEX(member, str, indexbound) \
@@ -17193,7 +17289,7 @@ void set_register(int32_t arg, int32_t value)
 				Z_scripterrlog("Invalid Index passed to Screen->%s[]: %d\n", (indx), str); \
 				break; \
 			} \
-			tmpscr->member[indx] =( (value/10000) ? 1 : 0 ); \
+			get_scr(ri->screenref)->member[indx] =( (value/10000) ? 1 : 0 ); \
 		}
 		
 		case SCREENDATAVALID:
@@ -17208,9 +17304,10 @@ void set_register(int32_t arg, int32_t value)
 		case SCREENDATAITEM:
 		{
 			auto v = vbound((value / 10000),-1,255);
+			auto scr = get_scr(ri->screenref);
 			if(v > -1)
-				tmpscr->item = v;
-			tmpscr->hasitem = v > -1;
+				scr->item = v;
+			scr->hasitem = v > -1;
 			break;
 		}
 		case SCREENDATAHASITEM: 		SET_SCREENDATA_VAR_BYTE(hasitem, "HasItem"); break;	//b
@@ -17287,9 +17384,9 @@ void set_register(int32_t arg, int32_t value)
 			else
 			{
 				if(value)
-					tmpscr->hidelayers |= (1<<indx);
+					get_scr(ri->screenref)->hidelayers |= (1<<indx);
 				else
-					tmpscr->hidelayers &= ~(1<<indx);
+					get_scr(ri->screenref)->hidelayers &= ~(1<<indx);
 			}
 			break;
 		}
@@ -17303,9 +17400,9 @@ void set_register(int32_t arg, int32_t value)
 			else
 			{
 				if(value)
-					tmpscr->hidescriptlayers &= ~(1<<indx);
+					get_scr(ri->screenref)->hidescriptlayers &= ~(1<<indx);
 				else
-					tmpscr->hidescriptlayers |= (1<<indx);
+					get_scr(ri->screenref)->hidescriptlayers |= (1<<indx);
 			}
 			break;
 		}
@@ -17319,8 +17416,8 @@ void set_register(int32_t arg, int32_t value)
 			}
 			else
 			{
-				if ( value ) tmpscr->tilewarpoverlayflags |= (1<<indx);
-				else tmpscr->tilewarpoverlayflags &= ~(1<<indx);
+				if ( value ) get_scr(ri->screenref)->tilewarpoverlayflags |= (1<<indx);
+				else get_scr(ri->screenref)->tilewarpoverlayflags &= ~(1<<indx);
 			}
 			break;
 		}
@@ -17334,8 +17431,8 @@ void set_register(int32_t arg, int32_t value)
 			}
 			else
 			{
-				if ( value ) tmpscr->sidewarpoverlayflags |= (1<<indx);
-				else tmpscr->sidewarpoverlayflags &= ~(1<<indx);
+				if ( value ) get_scr(ri->screenref)->sidewarpoverlayflags |= (1<<indx);
+				else get_scr(ri->screenref)->sidewarpoverlayflags &= ~(1<<indx);
 			}
 			break;
 		}
@@ -17353,7 +17450,7 @@ void set_register(int32_t arg, int32_t value)
 		case SCREENDATAENTRYX: 		
 		{
 			int32_t newx = vbound((value/10000),0,255);
-			tmpscr->entry_x = newx;
+			get_scr(ri->screenref)->entry_x = newx;
 			if ( get_qr(qr_WRITE_ENTRYPOINTS_AFFECTS_HEROCLASS) )
 			{
 				Hero.respawn_x = (zfix)(newx);
@@ -17364,7 +17461,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			
 			int32_t newy = vbound((value/10000),0,175);
-			tmpscr->entry_y = newy;
+			get_scr(ri->screenref)->entry_y = newy;
 			if ( get_qr(qr_WRITE_ENTRYPOINTS_AFFECTS_HEROCLASS) )
 			{
 				Hero.respawn_y = (zfix)(newy);
@@ -17408,11 +17505,13 @@ void set_register(int32_t arg, int32_t value)
 		case SCREENDATAOCEANSFX:
 		{
 			int32_t v = vbound(value/10000, 0, 255);
-			if(tmpscr->oceansfx != v)
+			auto scr = get_scr(ri->screenref);
+			// TODO z3 !! replay check ... scr == tmpscr && 
+			if (scr->oceansfx != v)
 			{
-				stop_sfx(tmpscr->oceansfx);
-				tmpscr->oceansfx = v;
-				cont_sfx(tmpscr->oceansfx);
+				stop_sfx(scr->oceansfx);
+				scr->oceansfx = v;
+				cont_sfx(scr->oceansfx);
 			}
 			break;
 		}
@@ -17421,7 +17520,7 @@ void set_register(int32_t arg, int32_t value)
 		case SCREENDATAHOLDUPSFX:	 	SET_SCREENDATA_VAR_BYTE(holdupsfx,	"ItemSFX"); break; //B
 		case SCREENDATASCREENMIDI:
 		{
-			tmpscr->screen_midi = vbound((value / 10000)-(MIDIOFFSET_MAPSCR-MIDIOFFSET_ZSCRIPT),-1,32767);
+			get_scr(ri->screenref)->screen_midi = vbound((value / 10000)-(MIDIOFFSET_MAPSCR-MIDIOFFSET_ZSCRIPT),-1,32767);
 			break;
 		}
 		case SCREENDATALENSLAYER:	 	SET_SCREENDATA_VAR_BYTE(lens_layer, "LensLayer"); break;	//B, OLD QUESTS ONLY?
@@ -17431,16 +17530,17 @@ void set_register(int32_t arg, int32_t value)
 			int32_t indx = ri->d[rINDEX] / 10000; //dir
 			
 			int32_t new_warp_return = vbound((value / 10000),-1,3); //none, A, B, C, D
+			auto scr = get_scr(ri->screenref);
 			if(new_warp_return == -1)
 			{
-				tmpscr->flags2 &= ~(1<<indx); //Unset the "Enabled" flag for this dir
-				tmpscr->sidewarpindex &= ~(3<<(2*indx)); //Clear the dir as well.
+				scr->flags2 &= ~(1<<indx); //Unset the "Enabled" flag for this dir
+				scr->sidewarpindex &= ~(3<<(2*indx)); //Clear the dir as well.
 			}
 			else
 			{
-				tmpscr->flags2 |= 1<<indx; //Set the "Enabled" flag for this dir
-				tmpscr->sidewarpindex &= ~(3<<(2*indx)); //Clear the dir bits
-				tmpscr->sidewarpindex |= (new_warp_return<<(2*indx)); //Set the new dir
+				scr->flags2 |= 1<<indx; //Set the "Enabled" flag for this dir
+				scr->sidewarpindex &= ~(3<<(2*indx)); //Clear the dir bits
+				scr->sidewarpindex |= (new_warp_return<<(2*indx)); //Set the new dir
 			}
 			
 			break;
@@ -17455,8 +17555,9 @@ void set_register(int32_t arg, int32_t value)
 			}
 			else
 			{
+				auto scr = get_scr(ri->screenref);
 				int32_t wrindex = vbound(value/10000, 0, 3);
-				tmpscr->warpreturnc = (tmpscr->warpreturnc&~(3<<(indx*2))) | (wrindex<<(indx*2));
+				scr->warpreturnc = (scr->warpreturnc&~(3<<(indx*2))) | (wrindex<<(indx*2));
 			}
 			break;
 		}
@@ -17472,8 +17573,9 @@ void set_register(int32_t arg, int32_t value)
 			}
 			else
 			{
+				auto scr = get_scr(ri->screenref);
 				int32_t wrindex = vbound(value/10000, 0, 3);
-				tmpscr->warpreturnc = (tmpscr->warpreturnc&~(3<<(8+(indx*2)))) | (wrindex<<(8+(indx*2)));
+				scr->warpreturnc = (scr->warpreturnc&~(3<<(8+(indx*2)))) | (wrindex<<(8+(indx*2)));
 			}
 			break;
 		}
@@ -17481,20 +17583,21 @@ void set_register(int32_t arg, int32_t value)
 
 		case SCREENDATAFLAGS: 
 		{
+			auto scr = get_scr(ri->screenref);
 			int32_t flagid = (ri->d[rINDEX])/10000;
 			//bool valtrue = ( value ? 10000 : 0);
 			switch(flagid)
 			{
-				case 0: tmpscr->flags = (value / 10000); break;
-				case 1: tmpscr->flags2 = (value / 10000); break;
-				case 2: tmpscr->flags3 = (value / 10000); break;
-				case 3: tmpscr->flags4 = (value / 10000); break;
-				case 4: tmpscr->flags5 = (value / 10000); break;
-				case 5: tmpscr->flags6 = (value / 10000); break;
-				case 6: tmpscr->flags7 = (value / 10000); break;
-				case 7: tmpscr->flags8 = (value / 10000); break;
-				case 8: tmpscr->flags9 = (value / 10000); break;
-				case 9: tmpscr->flags10 = (value / 10000); break;
+				case 0: scr->flags = (value / 10000); break;
+				case 1: scr->flags2 = (value / 10000); break;
+				case 2: scr->flags3 = (value / 10000); break;
+				case 3: scr->flags4 = (value / 10000); break;
+				case 4: scr->flags5 = (value / 10000); break;
+				case 5: scr->flags6 = (value / 10000); break;
+				case 6: scr->flags7 = (value / 10000); break;
+				case 7: scr->flags8 = (value / 10000); break;
+				case 8: scr->flags9 = (value / 10000); break;
+				case 9: scr->flags10 = (value / 10000); break;
 				default:
 				{
 					Z_scripterrlog("Invalid index passed to mapdata->flags[]: %d\n", flagid); 
@@ -18389,8 +18492,8 @@ void set_register(int32_t arg, int32_t value)
 			break;
 		}
 		 
-		case MAPDATAFFLINK:         SET_MAPDATA_FFC_INDEX_VBOUND(link, "FFCLink", 0, MAXFFCS); break;  //B, MAXFFCS OF THESE
-		case MAPDATAFFSCRIPT:       SET_MAPDATA_FFC_INDEX_VBOUND(script, "FFCScript", 0, MAXFFCS); break; //W, 32 OF THESE
+		case MAPDATAFFLINK:         SET_MAPDATA_FFC_INDEX_VBOUND(link, "FFCLink", 0, MAXFFCS-1); break;  //B, MAXFFCS OF THESE
+		case MAPDATAFFSCRIPT:       SET_MAPDATA_FFC_INDEX_VBOUND(script, "FFCScript", 0, MAXFFCS-1); break; //W, 32 OF THESE
 
 		case MAPDATAINTID:
 		{
@@ -18550,10 +18653,11 @@ void set_register(int32_t arg, int32_t value)
 			auto result = decode_mapdata_ref(ri->mapsref);
 			if (auto rpos_handle = ResolveMapRef(ri->mapsref, pos, "mapdata->ComboD[pos]"); rpos_handle.scr != nullptr)
 			{
-				if (result.type == mapdata_type::Canonical)
+				// TODO z3 ! needs replay check ...
+				// if (result.type == mapdata_type::Canonical)
 					screen_combo_modify_preroutine(rpos_handle);
 				rpos_handle.set_data(val);
-				if (result.type == mapdata_type::Canonical)
+				// if (result.type == mapdata_type::Canonical)
 					screen_combo_modify_postroutine(rpos_handle);
 			}
 		}
@@ -31652,7 +31756,7 @@ int32_t run_script_int(bool is_jitted)
 				break;
 				
 			case SECRETS:
-				do_triggersecrets(currscr);
+				do_triggersecrets(ri->screenref);
 				break;
 			
 			case GRAPHICSGETPIXEL:

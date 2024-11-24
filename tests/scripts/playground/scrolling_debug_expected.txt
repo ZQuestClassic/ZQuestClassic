@@ -164,10 +164,10 @@ STORE D2 0.0003
 SETR D2 VIEWPORT_HEIGHT
 SUBV D2 9
 STORE D2 0.0002
-SETR D2 REGION_ID; if() #436 Test
+SETR D2 REGION_ID; if() #418 Test
 COMPAREV D2 0
 GOTOCMP 203 ==; Test 'if'
-PUSHV 7; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start AND if() #436 Body Start
+PUSHV 7; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start AND if() #418 Body Start
 LOAD D2 0.0005
 ADDV D2 4
 PUSHR D2
@@ -227,8 +227,8 @@ PUSHVARGR GAMESCROLLING; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0
-DEALLOCATEMEMR D3; if() #436 Body End
-SETV D2 0; if() #437 Test
+DEALLOCATEMEMR D3; if() #418 Body End
+SETV D2 0; if() #419 Test
 PUSHR D2
 POP D0
 SETR D2 GAMESCROLLING
@@ -236,7 +236,7 @@ COMPAREV D2 -1
 SETCMP D2 I!=
 COMPAREV D2 0
 GOTOCMP 341 ==; Test 'if'
-SETV D2 0.0001; if() #437 Body Start
+SETV D2 0.0001; if() #419 Body Start
 PUSHR D2
 POP REFSPRITE
 SETR D2 SPRITE_X
@@ -270,7 +270,7 @@ PUSHV 1
 PUSHV 128; InlineFunc[void screendata::DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
 DRAWCOMBOR; InlineFunc[void screendata::DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
 POPARGS D5 0.0016; InlineFunc[void screendata::DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
-SETR D2 VIEWPORT_X; if() #438 Test
+SETR D2 VIEWPORT_X; if() #420 Test
 PUSHR D2
 SETV D2 21
 PUSHR D2
@@ -295,7 +295,7 @@ GOTO 268
 SETV D2 1
 COMPAREV D2 0
 GOTOCMP 289 ==; Test 'if'
-ALLOCATEMEMV D2 33 0; if() #438 Body Start
+ALLOCATEMEMV D2 33 0; if() #420 Body Start
 STORE D2 0.0001
 WRITEPODSTRING D2 "failed expectation! %d %d %d %d\n"
 LOAD D2 0.0001; InlineFunc[void printf(char32[])] Params Start
@@ -313,7 +313,7 @@ PUSHVARGR GAMESCROLLING; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0001
-DEALLOCATEMEMR D3; if() #438 Body End
+DEALLOCATEMEMR D3; if() #420 Body End
 SETV D2 3
 PUSHR D2
 POP D0
@@ -365,7 +365,7 @@ PUSHARGSV 0 0.0005
 PUSHV 1
 PUSHV 128; InlineFunc[void screendata::DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params End
 DRAWCOMBOR; InlineFunc[void screendata::DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
-POPARGS D5 0.0016; InlineFunc[void screendata::DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End AND if() #437 Body End
+POPARGS D5 0.0016; InlineFunc[void screendata::DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End AND if() #419 Body End
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #2 Body [Opt:AlwaysOn] End
 GOTO 4; while() #2 End AND [Opt:NeverRet] AND void run() Body End
 

@@ -87,24 +87,24 @@ LOAD D2 0
 POP D3
 ADDR D2 D3
 STORE D2 0.0001
-LOAD D2 0.0001; if() #109 Test
+LOAD D2 0.0001; if() #104 Test
 COMPAREV D2 -360
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 71 ==; Test 'if'
-LOAD D2 0.0001; if() #109 Body Start
+LOAD D2 0.0001; if() #104 Body Start
 ADDV D2 360
 STORE D2 0.0001
-GOTO 79; if() #109 Body End
-LOAD D2 0.0001; if() #436 Test AND if() #109 Else Start
+GOTO 79; if() #104 Body End
+LOAD D2 0.0001; if() #418 Test AND if() #104 Else Start
 COMPAREV D2 360
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 79 ==; Test 'if'
-LOAD D2 0.0001; if() #436 Body Start
+LOAD D2 0.0001; if() #418 Body Start
 SUBV D2 360
-STORE D2 0.0001; if() #436 Body End
-WAITFRAME; if() #109 Else End AND InlineFunc[void Waitframe()] Body AND while(true) #2 Body [Opt:AlwaysOn] End
+STORE D2 0.0001; if() #418 Body End
+WAITFRAME; if() #104 Else End AND InlineFunc[void Waitframe()] Body AND while(true) #2 Body [Opt:AlwaysOn] End
 GOTO 6; while() #2 End AND [Opt:NeverRet] AND void run() Body End
 
 
