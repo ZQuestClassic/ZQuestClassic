@@ -230,18 +230,16 @@ void movingblock::push(zfix bx,zfix by,int32_t d2,int32_t f)
 	size_t combopos = RPOS_TO_POS(rpos);
 	auto rpos_handle = get_rpos_handle(rpos, blockLayer);
 	mapscr *m = rpos_handle.scr;
-    word *di = &(m->data[combopos]);
-    byte *ci = &(m->cset[combopos]);
     bcombo =  m->data[combopos];
     oldcset = m->cset[combopos];
     cs     = (isdungeon() && !get_qr(qr_PUSHBLOCKCSETFIX)) ? 9 : oldcset;
     tile = combobuf[bcombo].tile;
     flip = combobuf[bcombo].flip;
     //   cs = ((*di)&0x700)>>8;
-    *di = m->undercombo;
-    *ci = m->undercset;
+    m->data[combopos] = m->undercombo;
+    m->cset[combopos] = m->undercset;
 	FFCore.clear_combo_script(blockLayer, rpos);
-    putcombo(scrollbuf,x-viewport.x,y-viewport.y,*di,*ci);
+    putcombo(scrollbuf,x-viewport.x,y-viewport.y,m->undercombo,m->undercset);
     clk=32;
 	if(!get_qr(qr_MOVINGBLOCK_FAKE_SOLID))
 		setSolid(true);
@@ -282,18 +280,16 @@ void movingblock::push_new(zfix bx,zfix by,int d2,int f,zfix spd)
 	auto rpos_handle = get_rpos_handle(rpos, blockLayer);
 	int32_t combopos = RPOS_TO_POS(rpos);
 	mapscr *m = rpos_handle.scr;
-    word *di = &(m->data[combopos]);
-    byte *ci = &(m->cset[combopos]);
     bcombo =  m->data[combopos];
     oldcset = m->cset[combopos];
     cs     = (isdungeon() && !get_qr(qr_PUSHBLOCKCSETFIX)) ? 9 : oldcset;
     tile = combobuf[bcombo].tile;
     flip = combobuf[bcombo].flip;
     //   cs = ((*di)&0x700)>>8;
-    *di = m->undercombo;
-    *ci = m->undercset;
+    m->data[combopos] = m->undercombo;
+    m->cset[combopos] = m->undercset;
 	FFCore.clear_combo_script(blockLayer, rpos);
-    putcombo(scrollbuf,x-viewport.x,y-viewport.y,*di,*ci);
+    putcombo(scrollbuf,x-viewport.x,y-viewport.y,m->undercombo,m->undercset);
     clk=32;
 	if(!get_qr(qr_MOVINGBLOCK_FAKE_SOLID))
 		setSolid(true);
@@ -358,9 +354,10 @@ bool movingblock::animate(int32_t)
 		return false;
 	}
 
-	auto rpos_handle = get_rpos_handle_for_world_xy(x, y, blockLayer);
-	mapscr* m = rpos_handle.scr;
-	mapscr* m0 = get_screen_for_world_xy(x, y);
+	auto end_rpos_handle = get_rpos_handle_for_world_xy(endx, endy, blockLayer);
+	int combopos = end_rpos_handle.pos;
+	mapscr* m = end_rpos_handle.scr;
+	mapscr* m0 = get_screen_for_world_xy(endx, endy);
 	if(get_qr(qr_MOVINGBLOCK_FAKE_SOLID))
 		setSolid(false);
 	else setSolid(clk > 0 && !(fallclk || drownclk));
@@ -513,6 +510,11 @@ bool movingblock::animate(int32_t)
 					done = false;
 					endx = new_endx;
 					endy = new_endy;
+
+					end_rpos_handle = get_rpos_handle_for_world_xy(endx, endy, blockLayer);
+					combopos = end_rpos_handle.pos;
+					m = end_rpos_handle.scr;
+					m0 = get_screen_for_world_xy(endx, endy);
 				}
 			}
 		}
@@ -578,6 +580,11 @@ bool movingblock::animate(int32_t)
 				endx = new_endx;
 				endy = new_endy;
 				clk = 32;
+
+				end_rpos_handle = get_rpos_handle_for_world_xy(endx, endy, blockLayer);
+				combopos = end_rpos_handle.pos;
+				m = end_rpos_handle.scr;
+				m0 = get_screen_for_world_xy(endx, endy);
 			}
 		}
 	}
@@ -591,28 +598,29 @@ bool movingblock::animate(int32_t)
 	//Click the block into place, the push ended.
 	if(done)
 	{
-		rpos_t comborpos = COMBOPOS_REGION(x, y);
+		if (!end_rpos_handle.scr->is_valid())
+		{
+			Z_message("Push block error: destination screen does not exist. Check the screen's layers.\n");
+		}
+
 		if(new_block)
 		{
 			clk = 0;
 			x = endx;
 			y = endy;
 			trigger = false; bhole = false;
-			
-			auto rpos_handle = get_rpos_handle_for_world_xy(x, y, 0);
-			int combopos = rpos_handle.pos;
-			m = rpos_handle.scr;
-			int f1 = rpos_handle.sflag();
-			int f2 = MAPCOMBOFLAG2(blockLayer-1,x,y);
+
+			int f1 = end_rpos_handle.sflag();
+			int f2 = MAPCOMBOFLAG2(blockLayer-1,endx,endy);
 			auto maxLayer = get_qr(qr_PUSHBLOCK_LAYER_1_2) ? 2 : 0;
 			bool no_trig_replace = get_qr(qr_BLOCKS_DONT_LOCK_OTHER_LAYERS);
 			bool trig_hole_same_only = get_qr(qr_BLOCKHOLE_SAME_ONLY);
 			bool trig_is_layer = false;
 			if(!fallclk && !drownclk)
 			{
-				m->data[combopos]=bcombo;
-				m->cset[combopos]=oldcset;
-				FFCore.clear_combo_script(blockLayer, rpos_handle.rpos);
+				end_rpos_handle.set_data(bcombo);
+				end_rpos_handle.set_cset(oldcset);
+				FFCore.clear_combo_script(end_rpos_handle.layer, end_rpos_handle.rpos);
 				
 				if((f1==mfBLOCKTRIGGER)||f2==mfBLOCKTRIGGER)
 				{
@@ -694,7 +702,7 @@ bool movingblock::animate(int32_t)
 						return;
 					if (rpos_handle.layer > maxLayer)
 						return;
-					if ((!trig_hole_same_only || rpos_handle.layer == blockLayer) && rpos_handle.rpos == comborpos)
+					if ((!trig_hole_same_only || rpos_handle.layer == blockLayer) && rpos_handle.rpos == end_rpos_handle.rpos)
 						return;
 
 					if (rpos_handle.sflag() == mfBLOCKTRIGGER || rpos_handle.cflag() == mfBLOCKTRIGGER)
@@ -756,13 +764,13 @@ bool movingblock::animate(int32_t)
 					}
 				}
 				
-				if (reveal_hidden_stairs(rpos_handle.scr, rpos_handle.screen, true))
+				if (reveal_hidden_stairs(end_rpos_handle.scr, end_rpos_handle.screen, true))
 				{
 					sfx(m0->secretsfx);
 				}
 				else
 				{
-					trigger_secrets_for_screen(TriggerSource::Unspecified, rpos_handle.screen, true);
+					trigger_secrets_for_screen(TriggerSource::Unspecified, end_rpos_handle.screen, true);
 					
 					if((combobuf[bcombo].type == cPUSH_WAIT) ||
 							(combobuf[bcombo].type == cPUSH_HW) ||
@@ -777,14 +785,14 @@ bool movingblock::animate(int32_t)
 					opendoors=8;
 				}
 				
-				if(canPermSecret(currdmap, rpos_handle.screen))
+				if(canPermSecret(currdmap, end_rpos_handle.screen))
 				{
 					if(get_qr(qr_NONHEAVY_BLOCKTRIGGER_PERM) ||
 						(combobuf[bcombo].type==cPUSH_HEAVY || combobuf[bcombo].type==cPUSH_HW
 							|| combobuf[bcombo].type==cPUSH_HEAVY2 || combobuf[bcombo].type==cPUSH_HW2))
 					{
 						if(!(m0->flags5&fTEMPSECRETS))
-							setmapflag(rpos_handle.scr, mSECRET);
+							setmapflag(end_rpos_handle.scr, mSECRET);
 					}
 				}
 			}
@@ -793,17 +801,14 @@ bool movingblock::animate(int32_t)
 			
 			if(m->data[combopos] == bcombo)
 			{
-				cpos_get(get_rpos_handle(rpos_handle.rpos, blockLayer)).updateInfo(blockinfo);
+				cpos_get(end_rpos_handle).updateInfo(blockinfo);
 			}
 		}
 		else
 		{
 			trigger = false; bhole = false;
 			
-			auto rpos_handle = get_rpos_handle_for_world_xy(x, y, blockLayer);
-			m = rpos_handle.scr;
-			int combopos = rpos_handle.pos;
-			int32_t f1 = rpos_handle.sflag();
+			int32_t f1 = end_rpos_handle.sflag();
 			int32_t f2 = MAPCOMBOFLAG2(blockLayer-1,x,y);
 			auto maxLayer = get_qr(qr_PUSHBLOCK_LAYER_1_2) ? 2 : 0;
 			bool no_trig_replace = get_qr(qr_BLOCKS_DONT_LOCK_OTHER_LAYERS);
@@ -811,9 +816,9 @@ bool movingblock::animate(int32_t)
 			bool trig_is_layer = false;
 			if(!fallclk && !drownclk)
 			{
-				rpos_handle.set_data(bcombo);
-				rpos_handle.set_cset(oldcset);
-				FFCore.clear_combo_script(rpos_handle.layer, rpos_handle.rpos);
+				end_rpos_handle.set_data(bcombo);
+				end_rpos_handle.set_cset(oldcset);
+				FFCore.clear_combo_script(end_rpos_handle.layer, end_rpos_handle.rpos);
 			}
 			if(!fallclk && !drownclk)
 			{
@@ -846,13 +851,13 @@ bool movingblock::animate(int32_t)
 				if(trigger)
 				{
 					if(!(no_trig_replace && trig_is_layer))
-						rpos_handle.set_sflag(mfPUSHED);
+						end_rpos_handle.set_sflag(mfPUSHED);
 				}
 			}
 			
 			if((f1==mfBLOCKHOLE)||f2==mfBLOCKHOLE)
 			{
-				rpos_handle.increment_data();
+				end_rpos_handle.increment_data();
 				bhole=true;
 			}
 			else if(!trig_hole_same_only)
@@ -994,13 +999,13 @@ bool movingblock::animate(int32_t)
 					}
 				}
 				
-				if (reveal_hidden_stairs(m0, rpos_handle.screen, true))
+				if (reveal_hidden_stairs(m0, end_rpos_handle.screen, true))
 				{
 					sfx(m0->secretsfx);
 				}
 				else
 				{
-					trigger_secrets_for_screen(TriggerSource::Unspecified, rpos_handle.screen, true);
+					trigger_secrets_for_screen(TriggerSource::Unspecified, end_rpos_handle.screen, true);
 					
 					if((combobuf[bcombo].type == cPUSH_WAIT) ||
 							(combobuf[bcombo].type == cPUSH_HW) ||
@@ -1015,14 +1020,14 @@ bool movingblock::animate(int32_t)
 					opendoors=8;
 				}
 				
-				if(canPermSecret(currdmap, rpos_handle.screen))
+				if(canPermSecret(currdmap, end_rpos_handle.screen))
 				{
 					if(get_qr(qr_NONHEAVY_BLOCKTRIGGER_PERM) ||
 						(combobuf[bcombo].type==cPUSH_HEAVY || combobuf[bcombo].type==cPUSH_HW
 							|| combobuf[bcombo].type==cPUSH_HEAVY2 || combobuf[bcombo].type==cPUSH_HW2))
 					{
 						if(!(m0->flags5&fTEMPSECRETS))
-							setmapflag(rpos_handle.scr, mSECRET);
+							setmapflag(end_rpos_handle.scr, mSECRET);
 					}
 				}
 			}
@@ -1032,7 +1037,7 @@ bool movingblock::animate(int32_t)
 		newcombo const& blockcmb = combobuf[bcombo];
 		if(blockcmb.triggerflags[3] & combotriggerPUSHEDTRIG)
 		{
-			do_trigger_combo(get_rpos_handle(comborpos, blockLayer));
+			do_trigger_combo(end_rpos_handle);
 		}
 		clear();
 	}
