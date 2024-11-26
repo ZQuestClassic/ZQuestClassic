@@ -1670,17 +1670,14 @@ static rpos_handle_t ResolveMapRef(int32_t mapref, int pos, const char* context)
 	if (BC::checkComboRpos(rpos, context) != SH::_NoError)
 		return rpos_handle_t{};
 
-	// return {result.scr, result.screen, result.layer, rpos, pos}; // TODO z3 ! use?
-	return get_rpos_handle(rpos, result.layer);
+	return {result.scr, result.screen, result.layer, rpos, pos};
 }
 
-static ffc_handle_t ResolveMapRefFFC(int32_t mapref, int id, const char* context)
+static ffc_handle_t ResolveMapdataFFC(int32_t mapref, int index, const char* context)
 {
-	if ( (unsigned)id > MAXFFCS-1 ) 
-	{
-		Z_scripterrlog("%s FFC id (%d) is invalid", context, id);
+	index -= 1;
+	if (BC::checkMapdataFFC(index, context) != SH::_NoError)
 		return ffc_handle_t{};
-	}
 
 	auto result = decode_mapdata_ref(mapref);
 	if (!result.scr)
@@ -1693,7 +1690,7 @@ static ffc_handle_t ResolveMapRefFFC(int32_t mapref, int id, const char* context
 	if (result.type == mapdata_type::Temporary_Cur && result.layer == 0)
 		screen_index_offset = get_region_screen_index_offset(result.screen);
 
-	return result.scr->getFFCHandle(id, screen_index_offset);
+	return result.scr->getFFCHandle(index, screen_index_offset);
 }
 
 int32_t genscript_timing = SCR_TIMING_START_FRAME;
@@ -7463,21 +7460,6 @@ int32_t get_register(int32_t arg)
 				} \
 			} \
 		} \
-
-		#define GET_FFC_MAPDATA_BOOL_INDEX(member, str, indexbound) \
-		{ \
-			int32_t id = ri->d[rINDEX] / 10000; \
-			{ \
-				if (auto handle = ResolveMapRefFFC(ri->mapsref, id, str); handle.scr != nullptr) \
-				{ \
-					ret = (handle.ffc->member?10000:0); \
-				} \
-				else \
-				{ \
-					ret = -10000; \
-				} \
-			} \
-		} \
 		
 		#define GET_MAPDATA_FLAG(member, str) \
 		{ \
@@ -7495,8 +7477,8 @@ int32_t get_register(int32_t arg)
 		
 		#define GET_MAPDATA_FFCPOS_INDEX32(member, str, indexbound) \
 		{ \
-			int32_t id = (ri->d[rINDEX] / 10000)-1; \
-			if (auto handle = ResolveMapRefFFC(ri->mapsref, id, str); handle.scr != nullptr) \
+			int32_t index = (ri->d[rINDEX] / 10000); \
+			if (auto handle = ResolveMapdataFFC(ri->mapsref, index, str); handle.scr != nullptr) \
 			{ \
 				ret = (handle.ffc->member).getZLong(); \
 			} \
@@ -7508,8 +7490,8 @@ int32_t get_register(int32_t arg)
 		
 		#define GET_MAPDATA_FFC_INDEX32(member, str, indexbound) \
 		{ \
-			int32_t id = (ri->d[rINDEX] / 10000)-1; \
-			if (auto handle = ResolveMapRefFFC(ri->mapsref, id, str); handle.scr != nullptr) \
+			int32_t index = (ri->d[rINDEX] / 10000); \
+			if (auto handle = ResolveMapdataFFC(ri->mapsref, index, str); handle.scr != nullptr) \
 			{ \
 				ret = (handle.ffc->member)*10000; \
 			} \
@@ -7521,8 +7503,8 @@ int32_t get_register(int32_t arg)
 
 		#define GET_MAPDATA_FFC_INDEX32(member, str, indexbound) \
 		{ \
-			int32_t id = (ri->d[rINDEX] / 10000)-1; \
-			if (auto handle = ResolveMapRefFFC(ri->mapsref, id, str); handle.scr != nullptr) \
+			int32_t index = (ri->d[rINDEX] / 10000); \
+			if (auto handle = ResolveMapdataFFC(ri->mapsref, index, str); handle.scr != nullptr) \
 			{ \
 				ret = (handle.ffc->member)*10000; \
 			} \
@@ -7644,9 +7626,9 @@ int32_t get_register(int32_t arg)
 		//Number of ffcs that are in use (have valid data
 		case MAPDATANUMFF: 	
 		{
-			uint32_t id = ri->d[rINDEX] / 10000;
+			int index = ri->d[rINDEX] / 10000;
 
-			if (auto handle = ResolveMapRefFFC(ri->mapsref, id, "NumFFCs[]"); handle.scr != nullptr)
+			if (auto handle = ResolveMapdataFFC(ri->mapsref, index, "NumFFCs[]"); handle.scr != nullptr)
 			{
 				ret = (handle.data() != 0) ? 10000 : 0;
 			}
@@ -7831,13 +7813,13 @@ int32_t get_register(int32_t arg)
 		case MAPDATAINTID: 	 //Same form as SetScreenD()
 			//SetFFCInitD(ffindex, d, value)
 		{
-			int32_t ffc_index = (ri->d[rINDEX]/10000) -1;
+			int32_t index = (ri->d[rINDEX]/10000);
 			int32_t d_index = ri->d[rINDEX2]/10000;
 
 			if (BC::checkBounds(d_index, 0, 7, "mapdata->FFCInitD[]") != SH::_NoError)
 				break;
 
-			if (auto handle = ResolveMapRefFFC(ri->mapsref, ffc_index, "mapdata->FFCInitD[]"); handle.scr != nullptr)
+			if (auto handle = ResolveMapdataFFC(ri->mapsref, index, "mapdata->FFCInitD[]"); handle.scr != nullptr)
 				ret = handle.ffc->initd[d_index];
 			else
 			{
@@ -18012,8 +17994,8 @@ void set_register(int32_t arg, int32_t value)
 
 		#define SET_FFC_MAPDATA_BOOL_INDEX(member, str, indexbound) \
 		{ \
-			int32_t id = ri->d[rINDEX] / 10000; \
-			if (auto handle = ResolveMapRefFFC(ri->mapsref, id, str); handle.scr != nullptr) \
+			int32_t index = ri->d[rINDEX] / 10000; \
+			if (auto handle = ResolveMapdataFFC(ri->mapsref, index, str); handle.scr != nullptr) \
 			{ \
 				handle.ffc->member =( (value/10000) ? 1 : 0 ); \
 			} \
@@ -18040,8 +18022,8 @@ void set_register(int32_t arg, int32_t value)
 		
 		#define SET_MAPDATA_FFCPOS_INDEX32(member, str, indexbound) \
 		{ \
-			int32_t id = (ri->d[rINDEX] / 10000)-1; \
-			if (auto handle = ResolveMapRefFFC(ri->mapsref, id, str); handle.scr != nullptr) \
+			int32_t index = (ri->d[rINDEX] / 10000); \
+			if (auto handle = ResolveMapdataFFC(ri->mapsref, index, str); handle.scr != nullptr) \
 			{ \
 				handle.ffc->member = zslongToFix(value); \
 			} \
@@ -18050,8 +18032,8 @@ void set_register(int32_t arg, int32_t value)
 		
 		#define SET_MAPDATA_FFC_INDEX32(member, str, indexbound) \
 		{ \
-			int32_t id = (ri->d[rINDEX] / 10000)-1; \
-			if (auto handle = ResolveMapRefFFC(ri->mapsref, id, str); handle.scr != nullptr) \
+			int32_t index = (ri->d[rINDEX] / 10000); \
+			if (auto handle = ResolveMapdataFFC(ri->mapsref, index, str); handle.scr != nullptr) \
 			{ \
 				handle.ffc->member = value/10000; \
 			} \
@@ -18061,12 +18043,12 @@ void set_register(int32_t arg, int32_t value)
 		#define SET_MAPDATA_FFC_INDEX_VBOUND(member, str, min, max) \
 		{ \
 			int32_t v = value/10000; \
-			int32_t id = (ri->d[rINDEX] / 10000)-1; \
+			int32_t index = (ri->d[rINDEX] / 10000); \
 			if(v < min || v > max ) \
 			{ \
-				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, (id+1)); \
+				Z_scripterrlog("Invalid value passed to mapdata->%s[%d]: %d\n", str, (index+1), v); \
 			} \
-			else if (auto handle = ResolveMapRefFFC(ri->mapsref, id, str); handle.scr != nullptr) \
+			else if (auto handle = ResolveMapdataFFC(ri->mapsref, index, str); handle.scr != nullptr) \
 			{ \
 				handle.ffc->member = v; \
 			} \
@@ -18301,9 +18283,9 @@ void set_register(int32_t arg, int32_t value)
 		case MAPDATAENTRYY: 		SET_MAPDATA_VAR_BYTE(entry_y, "EntryY"); break;	//B
 		case MAPDATAFFDATA:         
 		{
-			int32_t id = (ri->d[rINDEX] / 10000)-1;
+			int32_t index = (ri->d[rINDEX] / 10000);
 
-			if (auto handle = ResolveMapRefFFC(ri->mapsref, id, "FFCData"); handle.scr != nullptr)
+			if (auto handle = ResolveMapdataFFC(ri->mapsref, index, "FFCData"); handle.scr != nullptr)
 			{
 				zc_ffc_set(*handle.ffc, value/10000);
 			}
@@ -18320,9 +18302,9 @@ void set_register(int32_t arg, int32_t value)
 		
 		case MAPDATAFFFLAGS:
 		{
-			int32_t id = (ri->d[rINDEX] / 10000)-1;
+			int32_t index = (ri->d[rINDEX] / 10000);
 
-			if (auto handle = ResolveMapRefFFC(ri->mapsref, id, "FFCFlags"); handle.scr != nullptr)
+			if (auto handle = ResolveMapdataFFC(ri->mapsref, index, "FFCFlags"); handle.scr != nullptr)
 			{
 				handle.ffc->flags = (ffc_flags)(value/10000);
 				handle.ffc->updateSolid();
@@ -18496,14 +18478,14 @@ void set_register(int32_t arg, int32_t value)
 
 		case MAPDATAINTID:
 		{
-			int32_t id = (ri->d[rINDEX]/10000) -1;
-			int32_t indx = ri->d[rINDEX2]/10000;
+			int32_t index = (ri->d[rINDEX]/10000);
+			int32_t dindex = ri->d[rINDEX2]/10000;
 
-			if (BC::checkBounds(indx, 0, 7, "mapdata->FFCInitD[]") != SH::_NoError)
+			if (BC::checkBounds(dindex, 0, 7, "mapdata->FFCInitD[]") != SH::_NoError)
 				break;
 
-			if (auto handle = ResolveMapRefFFC(ri->mapsref, id, "mapdata->FFCInitD[]"); handle.scr != nullptr)
-				handle.ffc->initd[indx] = value;
+			if (auto handle = ResolveMapdataFFC(ri->mapsref, index, "mapdata->FFCInitD[]"); handle.scr != nullptr)
+				handle.ffc->initd[dindex] = value;
 			break;
 		}	
 			

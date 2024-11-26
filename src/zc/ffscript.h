@@ -1,6 +1,7 @@
 #ifndef FFSCRIPT_H_
 #define FFSCRIPT_H_
 
+#include "base/general.h"
 #include "base/mapscr.h"
 #include "base/zdefs.h"
 #include "base/initdata.h"
@@ -1774,9 +1775,14 @@ public:
 		return checkBounds(layer, 0, 6, str);
 	}
 	
-	static INLINE int32_t checkFFC(const int32_t ffc, const char * const str)
+	static INLINE int32_t checkFFC(ffc_id_t id, const char * const str)
 	{
-		return checkBounds(ffc, 0, MAX_FFCID, str);
+		return checkBounds(id, 0, MAX_FFCID, str);
+	}
+
+	static INLINE int32_t checkMapdataFFC(int index, const char * const str)
+	{
+		return checkBoundsOneIndexed(index, 0, MAXFFCS-1, str);
 	}
 	
 	static INLINE int32_t checkGuyIndex(const int32_t index, const char * const str)
