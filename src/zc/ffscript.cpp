@@ -1550,7 +1550,16 @@ static bool set_current_script_engine_data(ScriptType type, int script, int inde
 	return got_initialized;
 }
 
-static rpos_handle_t ResolveMapRef(int32_t mapref, int pos, const char* context)
+// TODO: convert most/all of the `GetMapscr` to this.
+static mapscr* ResolveMapdata(int32_t mapref, const char* context)
+{
+	auto result = decode_mapdata_ref(mapref);
+	if (!result.scr)
+		Z_scripterrlog("mapdata id (%d) is invalid (%s)\n", mapref, context); 
+	return result.scr;
+}
+
+static rpos_handle_t ResolveMapdataPos(int32_t mapref, int pos, const char* context)
 {
 	auto result = decode_mapdata_ref(mapref);
 	if (!result.scr)
@@ -1570,7 +1579,7 @@ static rpos_handle_t ResolveMapRef(int32_t mapref, int pos, const char* context)
 		return get_rpos_handle(rpos, result.layer);
 	}
 
-	// Similiarly for the scrolling temporary screens.
+	// Same for the scrolling temporary screens.
 	if (result.type == mapdata_type::Temporary_Scrolling && result.screen == scrolling_scr)
 	{
 		rpos_t rpos = (rpos_t)pos;
@@ -6870,16 +6879,8 @@ int32_t get_register(int32_t arg)
 		
 		case MAPDATAINITDARRAY:
 		{
-			mapscr *m = GetMapscr(ri->mapsref);
-			if (!m) 
-			{ 
-				Z_scripterrlog("Script attempted to use a mapdata->InitD[%d] on a pointer that is uninitialised\n",ri->d[rINDEX]/10000); 
-				break; 
-			} 
-			else 
-			{
-				ret = m->screeninitd[ri->d[rINDEX]/10000];
-			} 
+			if (auto scr = ResolveMapdata(ri->mapsref, "mapdata->InitD[]"))
+				ret = scr->screeninitd[ri->d[rINDEX]/10000];
 			break;
 		}
 		
@@ -7923,7 +7924,7 @@ int32_t get_register(int32_t arg)
 		case MAPDATACOMBODD:
 		{
 			int pos = ri->d[rINDEX] / 10000;
-			if (auto rpos_handle = ResolveMapRef(ri->mapsref, pos, "mapdata->ComboD[pos]"))
+			if (auto rpos_handle = ResolveMapdataPos(ri->mapsref, pos, "mapdata->ComboD[pos]"))
 			{
 				ret = rpos_handle.data() * 10000;
 			}
@@ -7937,7 +7938,7 @@ int32_t get_register(int32_t arg)
 		case MAPDATACOMBOCD:
 		{
 			int pos = ri->d[rINDEX] / 10000;
-			if (auto rpos_handle = ResolveMapRef(ri->mapsref, pos, "mapdata->ComboC[pos]"))
+			if (auto rpos_handle = ResolveMapdataPos(ri->mapsref, pos, "mapdata->ComboC[pos]"))
 			{
 				ret = rpos_handle.cset() * 10000;
 			}
@@ -7951,7 +7952,7 @@ int32_t get_register(int32_t arg)
 		case MAPDATACOMBOFD:
 		{
 			int pos = ri->d[rINDEX] / 10000;
-			if (auto rpos_handle = ResolveMapRef(ri->mapsref, pos, "mapdata->ComboF[pos]"))
+			if (auto rpos_handle = ResolveMapdataPos(ri->mapsref, pos, "mapdata->ComboF[pos]"))
 			{
 				ret = rpos_handle.sflag() * 10000;
 			}
@@ -7965,7 +7966,7 @@ int32_t get_register(int32_t arg)
 		case MAPDATACOMBOTD:
 		{
 			int pos = ri->d[rINDEX] / 10000;
-			if (auto rpos_handle = ResolveMapRef(ri->mapsref, pos, "mapdata->ComboT[pos]"))
+			if (auto rpos_handle = ResolveMapdataPos(ri->mapsref, pos, "mapdata->ComboT[pos]"))
 			{
 				ret = rpos_handle.combo().type * 10000;
 			}
@@ -7979,7 +7980,7 @@ int32_t get_register(int32_t arg)
 		case MAPDATACOMBOID:
 		{
 			int pos = ri->d[rINDEX] / 10000;
-			if (auto rpos_handle = ResolveMapRef(ri->mapsref, pos, "mapdata->ComboI[pos]"))
+			if (auto rpos_handle = ResolveMapdataPos(ri->mapsref, pos, "mapdata->ComboI[pos]"))
 			{
 				ret = rpos_handle.cflag() * 10000;
 			}
@@ -7993,7 +7994,7 @@ int32_t get_register(int32_t arg)
 		case MAPDATACOMBOSD:
 		{
 			int pos = ri->d[rINDEX] / 10000;
-			if (auto rpos_handle = ResolveMapRef(ri->mapsref, pos, "mapdata->ComboS[pos]"))
+			if (auto rpos_handle = ResolveMapdataPos(ri->mapsref, pos, "mapdata->ComboS[pos]"))
 			{
 				ret = (rpos_handle.combo().walk & 0xF) * 10000;
 			}
@@ -8007,7 +8008,7 @@ int32_t get_register(int32_t arg)
 		case MAPDATACOMBOED:
 		{
 			int pos = ri->d[rINDEX] / 10000;
-			if (auto rpos_handle = ResolveMapRef(ri->mapsref, pos, "mapdata->ComboE[pos]"))
+			if (auto rpos_handle = ResolveMapdataPos(ri->mapsref, pos, "mapdata->ComboE[pos]"))
 			{
 				ret = ((rpos_handle.combo().walk & 0xF0)>>4) * 10000;
 			}
@@ -18567,7 +18568,7 @@ void set_register(int32_t arg, int32_t value)
 
 			int pos = ri->d[rINDEX] / 10000;
 			auto result = decode_mapdata_ref(ri->mapsref);
-			if (auto rpos_handle = ResolveMapRef(ri->mapsref, pos, "mapdata->ComboD[pos]"))
+			if (auto rpos_handle = ResolveMapdataPos(ri->mapsref, pos, "mapdata->ComboD[pos]"))
 			{
 				// TODO z3 ! needs replay check ...
 				// if (result.type == mapdata_type::Canonical)
@@ -18590,7 +18591,7 @@ void set_register(int32_t arg, int32_t value)
 
 			int pos = ri->d[rINDEX] / 10000;
 			auto result = decode_mapdata_ref(ri->mapsref);
-			if (auto rpos_handle = ResolveMapRef(ri->mapsref, pos, "mapdata->ComboC[pos]"))
+			if (auto rpos_handle = ResolveMapdataPos(ri->mapsref, pos, "mapdata->ComboC[pos]"))
 			{
 				if (result.type == mapdata_type::Canonical)
 					screen_combo_modify_preroutine(rpos_handle);
@@ -18611,7 +18612,7 @@ void set_register(int32_t arg, int32_t value)
 			}
 
 			int pos = ri->d[rINDEX] / 10000;
-			if (auto rpos_handle = ResolveMapRef(ri->mapsref, pos, "mapdata->ComboF[]"))
+			if (auto rpos_handle = ResolveMapdataPos(ri->mapsref, pos, "mapdata->ComboF[]"))
 			{
 				rpos_handle.set_sflag(val);
 			}
@@ -18629,7 +18630,7 @@ void set_register(int32_t arg, int32_t value)
 
 			int pos = ri->d[rINDEX] / 10000;
 			auto result = decode_mapdata_ref(ri->mapsref);
-			if (auto rpos_handle = ResolveMapRef(ri->mapsref, pos, "mapdata->ComboT[]"))
+			if (auto rpos_handle = ResolveMapdataPos(ri->mapsref, pos, "mapdata->ComboT[]"))
 			{
 				auto cid = rpos_handle.data();
 				if (result.type == mapdata_type::Canonical)
@@ -18651,7 +18652,7 @@ void set_register(int32_t arg, int32_t value)
 			}
 			
 			int pos = ri->d[rINDEX] / 10000;
-			if (auto rpos_handle = ResolveMapRef(ri->mapsref, pos, "mapdata->ComboI[]"))
+			if (auto rpos_handle = ResolveMapdataPos(ri->mapsref, pos, "mapdata->ComboI[]"))
 			{
 				rpos_handle.combo().flag = value/10000;
 			}
@@ -18668,7 +18669,7 @@ void set_register(int32_t arg, int32_t value)
 			}
 
 			int pos = ri->d[rINDEX] / 10000;
-			if (auto rpos_handle = ResolveMapRef(ri->mapsref, pos, "mapdata->ComboS[]"))
+			if (auto rpos_handle = ResolveMapdataPos(ri->mapsref, pos, "mapdata->ComboS[]"))
 			{
 				int32_t cid = rpos_handle.data();
 				combobuf[cid].walk &= ~0x0F;
@@ -18687,7 +18688,7 @@ void set_register(int32_t arg, int32_t value)
 			}
 			
 			int pos = ri->d[rINDEX] / 10000;
-			if (auto rpos_handle = ResolveMapRef(ri->mapsref, pos, "mapdata->ComboE[]"))
+			if (auto rpos_handle = ResolveMapdataPos(ri->mapsref, pos, "mapdata->ComboE[]"))
 			{
 				int32_t cid = rpos_handle.data();
 				combobuf[cid].walk &= ~0xF0;
