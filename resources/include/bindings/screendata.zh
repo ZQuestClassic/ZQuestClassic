@@ -1,3 +1,8 @@
+// 176 per screen in the current region. Same as [Region->NumCombos].
+//
+// @zasm_var REGION_NUM_COMBOS
+internal const int NUM_COMBO_POS;
+
 enum WipeEffect
 {
 	WIPE_CIRCLE,

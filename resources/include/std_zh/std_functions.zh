@@ -2235,12 +2235,14 @@ int LastComboFlagOf(int t, int layer)
 {
 	if(layer < 0 || layer > 6)
 		return -1;
+
 	mapdata m = Game->LoadTempScreen(layer);
-	for (int i = 175; i >= 0; --i)
+	for (int i = Region->NumCombos - 1; i >= 0; --i)
 	{
 		if(m->ComboF[i] == t || m->ComboI[i] == t)
 			return i;
 	}
+
 	return -1;
 }
 
@@ -2250,12 +2252,14 @@ int LastComboTypeOf(int t, int layer)
 {
 	if(layer < 0 || layer > 6)
 		return -1;
+
 	mapdata m = Game->LoadTempScreen(layer);
-	for (int i = 175; i >= 0; --i)
+	for (int i = Region->NumCombos - 1; i >= 0; --i)
 	{
 		if(m->ComboT[i] == t)
 			return i;
 	}
+
 	return -1;
 }
 
@@ -2264,12 +2268,14 @@ int LastComboOf(int t, int layer)
 {
 	if(layer < 0 || layer > 6)
 		return -1;
+
 	mapdata m = Game->LoadTempScreen(layer);
-	for (int i = 175; i >= 0; --i)
+	for (int i = Region->NumCombos - 1; i >= 0; --i)
 	{
 		if(m->ComboD[i] == t)
 			return i;
 	}
+
 	return -1;
 }
 
