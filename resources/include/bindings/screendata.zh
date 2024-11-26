@@ -34,8 +34,8 @@ class screendata {
 	// @delete
 	internal screendata();
 
-	// The index for the underlying screen. This determines what screen properties such as
-	// [UnderCombo], [Valid], or [Guy] refer to (just to name a few).
+	// The index for the underlying screen. This determines which screen some variables refer to
+	// (such as [UnderCombo], [Valid], or [Guy], just to name a few).
 	//
 	// For a large [Region], the default is for this to equal [Game->CurScreen] (the top-left
 	// screen). However, script types that relate to a specific screen will use that screen instead.
@@ -49,27 +49,39 @@ class screendata {
 	// @zasm_var SDD
 	internal untyped D[];
 
+	// The combo ID of each of the [Region->NumCombos] combo positions on the screen.
+	//
 	// @zasm_var COMBODD
 	internal int ComboD[];
 
+	// The CSet of each of the [Region->NumCombos] combo positions on the screen.
+	//
 	// @zasm_var COMBOCD
 	internal int ComboC[];
 
+	// The placed (map) flag of each of the [Region->NumCombos] combo positions on the screen.
+	//
 	// @zasm_var COMBOFD
 	internal int ComboF[];
 
+	// The inherent flag of each of the [Region->NumCombos] combo positions on the screen.
+	//
 	// @zasm_var COMBOID
 	internal int ComboI[];
 
+	// The combo type of each of the [Region->NumCombos] combo positions on the screen.
+	//
 	// Valid values: [ComboType] (`CT_`).
 	//
 	// @zasm_var COMBOTD
 	internal int ComboT[];
 
+	// The solidity bits of each of the [Region->NumCombos] combo positions on the screen.
+	//
 	// @zasm_var COMBOSD
 	internal int ComboS[];
 
-	// The effect area bits of each of the 176 combos used on the screen.
+	// The effect area bits of each of the [Region->NumCombos] combo positions on the screen.
 	//
 	// @zasm_var COMBOED
 	internal int ComboE[];

@@ -3,6 +3,11 @@ class combodata {
 	// @delete
 	internal combodata();
 
+	// The combo's ID.
+	//
+	// @zasm_var COMBODATAID
+	internal const int ID;
+
 	// Returns the X-coordinate of a combo from a combodata script, from the
 	// 'this->' pointer as 'this->X'.
 	//
@@ -39,11 +44,6 @@ class combodata {
 	//
 	// @zasm_var COMBODATAINITD
 	internal untyped InitD[];
-
-	// The combo ID this combodata points to.
-	//
-	// @zasm_var COMBODATAID
-	internal const int ID;
 
 	// The 'Original Tile' of the combo, used as the start of its animation.
 	//

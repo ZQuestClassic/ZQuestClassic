@@ -41,7 +41,7 @@ class ffc {
 	// @zasm_var FF_SCREEN_INDEX
 	internal const int ScreenIndex;
 
-	// The combo used by the FFC for its visuals and type.
+	// The combo ID used by the FFC for its visuals and type.
 	//
 	// @zasm_var DATA
 	internal int Data;
