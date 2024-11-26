@@ -33,6 +33,11 @@ struct rpos_handle_t
 	// rpos % 176
 	int32_t pos;
 
+	operator bool () const
+	{
+		return scr;
+	}
+
 	mapscr* base_scr() const;
 
 	newcombo& combo() const;
@@ -64,6 +69,11 @@ struct ffc_handle_t
 	// The index into mapscr.ffcs
 	uint8_t i;
 	ffcdata* ffc;
+
+	operator bool () const
+	{
+		return scr;
+	}
 
 	const newcombo& combo() const;
 	cpos_info& info() const;
