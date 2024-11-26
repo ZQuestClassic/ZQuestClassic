@@ -48,7 +48,7 @@ public:
 	void reassignUid(int32_t new_uid);
     
    
-    int32_t screen_spawned;
+    uint8_t screen_spawned;
     zfix z,fall,fakefall,fakez;
     int32_t tile,shadowtile,cs,flip,c_clk,clk,misc;
     int16_t flickercolor;

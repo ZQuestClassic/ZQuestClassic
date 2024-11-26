@@ -10,17 +10,17 @@ void zc_ffc_set(ffcdata& ffc, word data)
 {
 	ffc.data = data;
 
-	mapscr* scr = get_scr_no_load(currmap, ffc.screen);
+	mapscr* scr = get_scr_no_load(currmap, ffc.screen_spawned);
 	if (!scr) return;
 
-	uint8_t screen_index_offset = get_region_screen_index_offset(ffc.screen);
+	uint8_t screen_index_offset = get_region_screen_index_offset(ffc.screen_spawned);
 	int c = scr->ffcs.size();
 	for (uint8_t i = 0; i < c; i++)
 	{
 		if (&ffc == &scr->ffcs[i])
 		{
 			uint16_t id = screen_index_offset * MAXFFCS + i;
-			screen_ffc_modify_postroutine({scr, ffc.screen, id, i, &ffc});
+			screen_ffc_modify_postroutine({scr, ffc.screen_spawned, id, i, &ffc});
 			return;
 		}
 	}

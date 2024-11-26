@@ -2831,7 +2831,7 @@ int32_t get_register(int32_t arg)
 			break;
 		case FFCID:
 			if (auto ffc = checkFFC(ri->ffcref, "ffc->ID"))
-				ret = (get_region_screen_index_offset(ffc->screen) * MAXFFCS + ffc->index + 1) * 10000;
+				ret = (get_region_screen_index_offset(ffc->screen_spawned) * MAXFFCS + ffc->index + 1) * 10000;
 			break;
 			
 		case XD2:
@@ -2904,7 +2904,7 @@ int32_t get_register(int32_t arg)
 
 		case FF_SCREEN_INDEX:
 			if (auto ffc = checkFFC(ri->ffcref, "ffc->ScreenIndex"))
-				ret = ffc->screen * 10000;
+				ret = ffc->screen_spawned * 10000;
 			break;
 		
 		///----------------------------------------------------------------------------------------------------//

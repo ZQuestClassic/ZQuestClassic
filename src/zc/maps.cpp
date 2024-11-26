@@ -5850,13 +5850,13 @@ void load_a_screen_and_layers(int dmap, int map, int screen, int ldir)
 	int c = base_scr->numFFC();
 	for (word i = 0; i < c; i++)
 	{
-		base_scr->ffcs[i].screen = screen;
+		base_scr->ffcs[i].screen_spawned = screen;
 		base_scr->ffcs[i].x += offx;
 		base_scr->ffcs[i].y += offy;
 	}
 }
 
-// Sets `currscr` to `scr` and loads new screens into temporary memory.
+// Set `currscr` to `scr` and load new screens into temporary memory.
 // Called anytime a player moves to a new screen (either via warping, scrolling, continue,
 // starting the game, etc...)
 // Note: for regions, only the initial screen load calls this function. Simply walking between screens
@@ -6123,7 +6123,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 			if((previous_scr.ffcs[i].flags&ffc_carryover) && !(previous_scr.flags5&fNOFFCARRYOVER))
 			{
 				auto& ffc = scr->getFFC(i) = previous_scr.ffcs[i];
-				ffc.screen_spawned = ffc.screen = screen;
+				ffc.screen_spawned = screen;
 
 				ffc_id_t ffc_id = get_region_screen_index_offset(screen)*MAXFFCS + i;
 				ffc_script_indices_to_remove.erase(ffc_id);
@@ -6185,7 +6185,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 	int c = scr->numFFC();
 	for (word i = 0; i < c; i++)
 	{
-		scr->ffcs[i].screen = screen;
+		scr->ffcs[i].screen_spawned = screen;
 		scr->ffcs[i].x += offx;
 		scr->ffcs[i].y += offy;
 	}
