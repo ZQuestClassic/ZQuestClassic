@@ -293,7 +293,7 @@ void movingblock::push_new(zfix bx,zfix by,int d2,int f,zfix spd)
     *di = m->undercombo;
     *ci = m->undercset;
 	FFCore.clear_combo_script(blockLayer, rpos);
-    putcombo(scrollbuf,x,y,*di,*ci);
+    putcombo(scrollbuf,x-viewport.x,y-viewport.y,*di,*ci);
     clk=32;
 	if(!get_qr(qr_MOVINGBLOCK_FAKE_SOLID))
 		setSolid(true);
@@ -601,6 +601,7 @@ bool movingblock::animate(int32_t)
 			
 			auto rpos_handle = get_rpos_handle_for_world_xy(x, y, 0);
 			int combopos = rpos_handle.pos;
+			m = rpos_handle.scr;
 			int f1 = rpos_handle.sflag();
 			int f2 = MAPCOMBOFLAG2(blockLayer-1,x,y);
 			auto maxLayer = get_qr(qr_PUSHBLOCK_LAYER_1_2) ? 2 : 0;
@@ -622,14 +623,16 @@ bool movingblock::animate(int32_t)
 					for(auto lyr = 0; lyr <= maxLayer; ++lyr)
 					{
 						if(lyr==blockLayer) continue;
-						if(FFCore.tempScreens[lyr]->sflag[combopos] == mfBLOCKTRIGGER
+
+						mapscr* m0 = get_screen_layer_for_world_xy(x, y, lyr);
+						if(m0->sflag[combopos] == mfBLOCKTRIGGER
 							|| MAPCOMBOFLAG2(lyr-1,x,y) == mfBLOCKTRIGGER)
 						{
 							trigger = true;
 							trig_is_layer = true;
 							if(!no_trig_replace)
 							{
-								mapscr* m2 = FFCore.tempScreens[lyr];
+								mapscr* m2 = m0;
 								m2->data[combopos] = m2->undercombo;
 								m2->cset[combopos] = m2->undercset;
 								m2->sflag[combopos] = 0;
@@ -786,7 +789,7 @@ bool movingblock::animate(int32_t)
 				}
 			}
 			
-			putcombo(scrollbuf,x,y,bcombo,cs);
+			putcombo(scrollbuf,x-viewport.x,y-viewport.y,bcombo,cs);
 			
 			if(m->data[combopos] == bcombo)
 			{
@@ -906,6 +909,7 @@ bool movingblock::animate(int32_t)
 				for(auto lyr = 0; lyr <= maxLayer; ++lyr)
 				{
 					mapscr* tmp = get_screen_layer_for_world_xy(x, y, lyr);
+					// TODO z3 !
 					for(int32_t pos=0; pos<176; pos++)
 					{
 						if((!trig_hole_same_only || lyr == blockLayer) && pos == combopos)
@@ -917,7 +921,8 @@ bool movingblock::animate(int32_t)
 							if(no_trig_replace)
 								for(auto lyr2 = 0; lyr2 <= maxLayer; ++lyr2)
 								{
-									if(is_push(FFCore.tempScreens[lyr2], pos))
+									mapscr* m0 = get_screen_layer_for_world_xy(x, y, lyr2);
+									if(is_push(m0, pos))
 									{
 										found = true;
 										break;
@@ -1022,7 +1027,7 @@ bool movingblock::animate(int32_t)
 				}
 			}
 			
-			putcombo(scrollbuf,x,y,bcombo,cs);
+			putcombo(scrollbuf,x-viewport.x,y-viewport.y,bcombo,cs);
 		}
 		newcombo const& blockcmb = combobuf[bcombo];
 		if(blockcmb.triggerflags[3] & combotriggerPUSHEDTRIG)
