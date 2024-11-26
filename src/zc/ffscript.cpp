@@ -17506,8 +17506,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			int32_t v = vbound(value/10000, 0, 255);
 			auto scr = get_scr(ri->screenref);
-			// TODO z3 !! replay check ... scr == tmpscr && 
-			if (scr->oceansfx != v)
+			if (scr == tmpscr && scr->oceansfx != v)
 			{
 				stop_sfx(scr->oceansfx);
 				scr->oceansfx = v;
