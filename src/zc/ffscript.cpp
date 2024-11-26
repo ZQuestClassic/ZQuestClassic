@@ -5993,7 +5993,7 @@ int32_t get_register(int32_t arg)
 			int ind = ri->d[rINDEX]/10000;
 			if(ind < 0 || ind > 6)
 				Z_scripterrlog("Bad index Screen->LensShows[%d]\n",ind);
-			else ret = (tmpscr->lens_show & (1<<ind)) ? 10000 : 0;
+			else ret = (get_scr(ri->screenref)->lens_show & (1<<ind)) ? 10000 : 0;
 			break;
 		}
 		case SCREENLENSHIDES:
@@ -6001,7 +6001,7 @@ int32_t get_register(int32_t arg)
 			int ind = ri->d[rINDEX]/10000;
 			if(ind < 0 || ind > 6)
 				Z_scripterrlog("Bad index Screen->LensHides[%d]\n",ind);
-			else ret = (tmpscr->lens_hide & (1<<ind)) ? 10000 : 0;
+			else ret = (get_scr(ri->screenref)->lens_hide & (1<<ind)) ? 10000 : 0;
 			break;
 		}
 		case SCREENSCRDATASIZE:
@@ -16725,8 +16725,8 @@ void set_register(int32_t arg, int32_t value)
 				Z_scripterrlog("Bad index Screen->LensShows[%d]\n",ind);
 			else
 			{
-				SETFLAG(tmpscr->lens_show, 1<<ind, value);
-				if(value) tmpscr->lens_hide &= ~(1<<ind);
+				SETFLAG(get_scr(ri->screenref)->lens_show, 1<<ind, value);
+				if(value) get_scr(ri->screenref)->lens_hide &= ~(1<<ind);
 			}
 			break;
 		}
@@ -16737,8 +16737,8 @@ void set_register(int32_t arg, int32_t value)
 				Z_scripterrlog("Bad index Screen->LensHides[%d]\n",ind);
 			else
 			{
-				SETFLAG(tmpscr->lens_hide, 1<<ind, value);
-				if(value) tmpscr->lens_show &= ~(1<<ind);
+				SETFLAG(get_scr(ri->screenref)->lens_hide, 1<<ind, value);
+				if(value) get_scr(ri->screenref)->lens_show &= ~(1<<ind);
 			}
 			break;
 		}
@@ -16987,7 +16987,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		
 		else
-			tmpscr->sflag[pos]=(val);
+			get_scr(ri->screenref)->sflag[pos]=(val);
 	}
 	break;
     
@@ -17005,7 +17005,8 @@ void set_register(int32_t arg, int32_t value)
 		}
         else
         {
-			auto cid = tmpscr->data[pos];
+			mapscr* scr = get_scr(ri->screenref);
+			int cid = scr->data[pos];
             screen_combo_modify_pre(cid);
             combobuf[cid].type=val;
             screen_combo_modify_post(cid);
@@ -17025,9 +17026,8 @@ void set_register(int32_t arg, int32_t value)
 	{
 		Z_scripterrlog("Invalid Flag ID %d used to write to Screen->ComboI[]\n", val);
 	}
-        
         else
-            combobuf[tmpscr->data[pos]].flag=val;
+            combobuf[get_scr(ri->screenref)->data[pos]].flag=val;
     }
     break;
     
@@ -17045,8 +17045,9 @@ void set_register(int32_t arg, int32_t value)
 		}
         else
 		{
-			combobuf[tmpscr->data[pos]].walk &= ~0x0F;
-            combobuf[tmpscr->data[pos]].walk |= (val)&0x0F;
+			mapscr* scr = get_scr(ri->screenref);
+			combobuf[scr->data[pos]].walk &= ~0x0F;
+            combobuf[scr->data[pos]].walk |= (val)&0x0F;
 		}
     }
     break;
@@ -17065,8 +17066,9 @@ void set_register(int32_t arg, int32_t value)
 		}
         else
 		{
-			combobuf[tmpscr->data[pos]].walk &= ~0xF0;
-            combobuf[tmpscr->data[pos]].walk |= ((val)&0x0F)<<4;
+			mapscr* scr = get_scr(ri->screenref);
+			combobuf[scr->data[pos]].walk &= ~0xF0;
+            combobuf[scr->data[pos]].walk |= ((val)&0x0F)<<4;
 		}
     }
     break;
@@ -17253,7 +17255,8 @@ void set_register(int32_t arg, int32_t value)
 				Z_scripterrlog("Invalid index (%d) used for Screen->Enemy[]", indx);
 				break;
 			}
-			tmpscr->enemy[indx] = enemyid; 
+			mapscr* scr = get_scr(ri->screenref);
+			scr->enemy[indx] = enemyid; 
 			break;
 		} 
 		//case SCREENDATAENEMY: 		SET_SCREENDATA_VAR_INDEX32(enemy, "Enemy", 9); break;	//w, 10 of these
@@ -17418,6 +17421,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			int32_t v = vbound(value/10000, 0, 255);
 			auto scr = get_scr(ri->screenref);
+			// TODO z3! origin screen? nah should use hero screen ...
 			if (scr == tmpscr && scr->oceansfx != v)
 			{
 				stop_sfx(scr->oceansfx);
@@ -17584,12 +17588,12 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case SCREENINITD:
-			tmpscr->screeninitd[ri->d[rINDEX]/10000] = value;
+			get_scr(ri->screenref)->screeninitd[ri->d[rINDEX]/10000] = value;
 			break;
 		
 		case SCREENSCRIPT:
 		{
-			mapscr* scr = get_scr(curScriptIndex);
+			mapscr* scr = get_scr(ri->screenref);
 
 			if ( get_qr(qr_CLEARINITDONSCRIPTCHANGE))
 			{
@@ -17603,11 +17607,12 @@ void set_register(int32_t arg, int32_t value)
 		}
 		
 		case MAPDATAINITD:
-			tmpscr->screeninitd[ri->d[rINDEX]/10000]=value;
+			if (auto scr = GetMapscr(ri->mapsref))
+				scr->screeninitd[ri->d[rINDEX]/10000] = value;
 			break;
 		
 		case SCRDOORD:
-			tmpscr->door[ri->d[rINDEX]/10000]=value/10000;
+			get_scr(ri->screenref)->door[ri->d[rINDEX]/10000]=value/10000;
 			putdoor(scrollbuf,0,ri->d[rINDEX]/10000,value/10000,true,true);
 			break;
 			
@@ -17624,10 +17629,10 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case ROOMTYPE:
-			tmpscr->room=value/10000; break; //this probably doesn't work too well...
+			get_scr(ri->screenref)->room=value/10000; break; //this probably doesn't work too well...
 		
 		case ROOMDATA:
-			tmpscr->catchall=value/10000;
+			get_scr(ri->screenref)->catchall=value/10000;
 			break;
 			
 		case PUSHBLOCKLAYER:
@@ -17644,11 +17649,11 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case UNDERCOMBO:
-			tmpscr->undercombo=value/10000;
+			get_scr(ri->screenref)->undercombo=value/10000;
 			break;
 			
 		case UNDERCSET:
-			tmpscr->undercset=value/10000;
+			get_scr(ri->screenref)->undercset=value/10000;
 			break;
 		
 		
@@ -18080,11 +18085,11 @@ void set_register(int32_t arg, int32_t value)
 				{
 					if(value)
 					{
-						tmpscr->hidelayers |= (1<<indx);
+						m->hidelayers |= (1<<indx);
 					}
 					else
 					{
-						tmpscr->hidelayers &= ~(1<<indx);
+						m->hidelayers &= ~(1<<indx);
 					}
 				}
 				else
@@ -18107,11 +18112,11 @@ void set_register(int32_t arg, int32_t value)
 				{
 					if(value)
 					{
-						tmpscr->hidescriptlayers &= ~(1<<indx);
+						m->hidescriptlayers &= ~(1<<indx);
 					}
 					else
 					{
-						tmpscr->hidescriptlayers |= (1<<indx);
+						m->hidescriptlayers |= (1<<indx);
 					}
 				}
 				else
