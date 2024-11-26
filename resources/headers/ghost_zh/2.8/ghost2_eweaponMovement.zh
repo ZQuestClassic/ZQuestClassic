@@ -247,12 +247,12 @@ void __UpdateEWMThrow(eweapon wpn)
 		}
 		else
 		{
-			wpn->Y = 176-wpn->Misc[__EWI_WORK_2];
+			wpn->Y = Region->Height-wpn->Misc[__EWI_WORK_2];
 		}
 	}
 	else
 	{
-		wpn->Y = 176-wpn->Misc[__EWI_WORK_2];
+		wpn->Y = Region->Height-wpn->Misc[__EWI_WORK_2];
 	}
     
 	// Still in the air; adjust velocity

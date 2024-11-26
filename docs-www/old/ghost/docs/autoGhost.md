@@ -77,16 +77,6 @@ GH_PREFER_GHOST_ZH_SHADOWS
 :   ghost.zh's shadows will be used instead of built-in ones whenever possible.
     Set the number to 1 (yes) or 0 (no).
 
-AUTOGHOST_MIN_FFC
-AUTOGHOST_MAX_FFC
-:   Every scripted enemy uses at least one FFC. Set these to limit the range of
-    FFCs they will use automatically. Use these if you want to reserve some FFCs
-    for other purposes. Both must be between 1 and 32.
-    
-    !!! attention
-        If all FFCs in this range are in use when an enemy appears, the script
-        won't be able to run, so you shouldn't limit the range more than necessary.
-
 AUTOGHOST_MIN_ENEMY_ID
 AUTOGHOST_MAX_ENEMY_ID
 :   These allow you to limit the range of enemy IDs that can be set up

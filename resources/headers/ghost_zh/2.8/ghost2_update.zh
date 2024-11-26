@@ -94,8 +94,8 @@ bool Ghost_Waitframe2(ffc this, npc ghost, bool clearOnDeath, bool quitOnDeath)
     Ghost_Z=ghost->Z;
     Ghost_Jump=ghost->Jump;
     
-    this->X=Clamp(Ghost_X+ghost->DrawXOffset, -64, 256);
-    this->Y=Clamp(Ghost_Y-Ghost_Z+ghost->DrawYOffset-ghost->DrawZOffset, -64, 176);
+    this->X=Clamp(Ghost_X+ghost->DrawXOffset, -64, Region->Width);
+    this->Y=Clamp(Ghost_Y-Ghost_Z+ghost->DrawYOffset-ghost->DrawZOffset, -64, Region->Height);
     
     __Ghost_WaitframePart1(this, ghost, true);
     __Ghost_UpdateFlashing(this, ghost);
