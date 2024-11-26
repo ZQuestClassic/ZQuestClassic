@@ -1718,8 +1718,6 @@ enum ASM_DEFINE
 
 //! ItemData Misc# and Wpn#
 
-//here are all the new datatypes. I'm not adding more!!! -Z
-//(I may add fonts types, one day. -Z)
 #define REFMAPDATA 0x10BA
 #define REFSCREENDATA 0x10BB
 #define REFCOMBODATA 0x10BC

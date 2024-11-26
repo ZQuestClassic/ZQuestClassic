@@ -1256,76 +1256,6 @@ bool& FFScript::waitdraw(ScriptType type, int index)
 	return get_script_engine_data(type, index).waitdraw;
 }
 
-// TODO z3 !!
-static void update_screenref(int index)
-{
-	// By default, make `Screen->` refer to the top-left screen.
-	// Will be set to something more specific for relevant script types.
-	ri->screenref = currscr;
-
-	switch (curScriptType)
-	{
-		case ScriptType::FFC:
-		{
-			ffcdata* ffc = get_ffc_raw(index);
-			ri->screenref = ffc->screen_spawned;
-		}
-		break;
-		
-		case ScriptType::NPC:
-		{
-			auto indx = GuyH::getNPCIndex(index);
-			enemy *spr = (enemy*)guys.spr(indx);
-			ri->screenref = spr->screen_spawned;
-		}
-		break;
-		
-		case ScriptType::Lwpn:
-		{
-			auto indx = LwpnH::getLWeaponIndex(index);
-			weapon *spr = (weapon*)Lwpns.spr(indx);
-			ri->screenref = spr->screen_spawned;
-		}
-		break;
-		
-		case ScriptType::Ewpn:
-		{
-			auto indx = EwpnH::getEWeaponIndex(index);
-			weapon *spr = (weapon*)Ewpns.spr(indx);
-			ri->screenref = spr->screen_spawned;
-		}
-		break;
-		
-		case ScriptType::ItemSprite:
-		{
-			item *spr = (item*)items.getByUID(index);
-			ri->screenref = spr->screen_spawned;
-		}
-		break;
-
-		case ScriptType::Hero:
-		{
-			ri->screenref = hero_screen;
-		}
-		break;
-		
-		case ScriptType::Screen:
-		{
-			ri->screenref = index;
-		}
-		break;
-		
-		case ScriptType::Combo:
-		{
-			rpos_t rpos = combopos_ref_to_rpos(index);
-			int32_t lyr = combopos_ref_to_layer(index);
-			auto rpos_handle = get_rpos_handle(rpos, lyr);
-			ri->screenref = rpos_handle.screen;
-			break;
-		}
-	}
-}
-
 // Returns true if registers had to be initialized.
 static bool set_current_script_engine_data(ScriptType type, int script, int index)
 {
@@ -24906,15 +24836,17 @@ void do_setsidewarp()
 			BC::checkBounds(dmap, -1, MAXDMAPS - 1, "Screen->SetSideWarp") != SH::_NoError ||
 			BC::checkBounds(type, -1, wtMAX - 1, "Screen->SetSideWarp") != SH::_NoError)
 		return;
+	
+	mapscr* scr = get_scr(ri->screenref);
 		
 	if(scrn > -1)
-		tmpscr->sidewarpscr[warp] = scrn;
+		scr->sidewarpscr[warp] = scrn;
 		
 	if(dmap > -1)
-		tmpscr->sidewarpdmap[warp] = dmap;
+		scr->sidewarpdmap[warp] = dmap;
 		
 	if(type > -1)
-		tmpscr->sidewarptype[warp] = type;
+		scr->sidewarptype[warp] = type;
 }
 
 void do_settilewarp()
@@ -24929,15 +24861,17 @@ void do_settilewarp()
 			BC::checkBounds(dmap, -1, MAXDMAPS - 1, "Screen->SetTileWarp") != SH::_NoError ||
 			BC::checkBounds(type, -1, wtMAX - 1, "Screen->SetTileWarp") != SH::_NoError)
 		return;
+	
+	mapscr* scr = get_scr(ri->screenref);
 		
 	if(scrn > -1)
-		tmpscr->tilewarpscr[warp] = scrn;
+		scr->tilewarpscr[warp] = scrn;
 		
 	if(dmap > -1)
-		tmpscr->tilewarpdmap[warp] = dmap;
+		scr->tilewarpdmap[warp] = dmap;
 		
 	if(type > -1)
-		tmpscr->tilewarptype[warp] = type;
+		scr->tilewarptype[warp] = type;
 }
 
 void do_getsidewarpdmap(const bool v)
@@ -24950,7 +24884,7 @@ void do_getsidewarpdmap(const bool v)
 		return;
 	}
 	
-	set_register(sarg1, tmpscr->sidewarpdmap[warp]*10000);
+	set_register(sarg1, get_scr(ri->screenref)->sidewarpdmap[warp]*10000);
 }
 
 void do_getsidewarpscr(const bool v)
@@ -24963,7 +24897,7 @@ void do_getsidewarpscr(const bool v)
 		return;
 	}
 	
-	set_register(sarg1, tmpscr->sidewarpscr[warp]*10000);
+	set_register(sarg1, get_scr(ri->screenref)->sidewarpscr[warp]*10000);
 }
 
 void do_getsidewarptype(const bool v)
@@ -24976,7 +24910,7 @@ void do_getsidewarptype(const bool v)
 		return;
 	}
 	
-	set_register(sarg1, tmpscr->sidewarptype[warp]*10000);
+	set_register(sarg1, get_scr(ri->screenref)->sidewarptype[warp]*10000);
 }
 
 void do_gettilewarpdmap(const bool v)
@@ -24989,7 +24923,7 @@ void do_gettilewarpdmap(const bool v)
 		return;
 	}
 	
-	set_register(sarg1, tmpscr->tilewarpdmap[warp]*10000);
+	set_register(sarg1, get_scr(ri->screenref)->tilewarpdmap[warp]*10000);
 }
 
 void do_gettilewarpscr(const bool v)
@@ -25002,7 +24936,7 @@ void do_gettilewarpscr(const bool v)
 		return;
 	}
 	
-	set_register(sarg1, tmpscr->tilewarpscr[warp]*10000);
+	set_register(sarg1, get_scr(ri->screenref)->tilewarpscr[warp]*10000);
 }
 
 void do_gettilewarptype(const bool v)
@@ -25015,26 +24949,24 @@ void do_gettilewarptype(const bool v)
 		return;
 	}
 	
-	set_register(sarg1, tmpscr->tilewarptype[warp]*10000);
+	set_register(sarg1, get_scr(ri->screenref)->tilewarptype[warp]*10000);
 }
 
 void do_layerscreen()
 {
 	int32_t layer = (get_register(sarg2) / 10000) - 1;
 	
-	if(BC::checkBounds(layer, 0, 5, "Screen->LayerScreen") != SH::_NoError ||
-			tmpscr->layermap[layer] == 0)
+	if(BC::checkBounds(layer, 0, 5, "Screen->LayerScreen") != SH::_NoError || get_scr(ri->screenref)->layermap[layer] == 0)
 		set_register(sarg1, -10000);
 	else
-		set_register(sarg1, tmpscr->layerscreen[layer] * 10000);
+		set_register(sarg1, get_scr(ri->screenref)->layerscreen[layer] * 10000);
 }
 
 void do_layermap()
 {
 	int32_t layer = (get_register(sarg2) / 10000) - 1;
 	
-	if(BC::checkBounds(layer, 0, 5, "Screen->LayerMap") != SH::_NoError ||
-			tmpscr->layermap[layer] == 0)
+	if(BC::checkBounds(layer, 0, 5, "Screen->LayerMap") != SH::_NoError || get_scr(ri->screenref)->layermap[layer] == 0)
 		set_register(sarg1, -10000);
 	else
 		set_register(sarg1, tmpscr->layermap[layer] * 10000);
