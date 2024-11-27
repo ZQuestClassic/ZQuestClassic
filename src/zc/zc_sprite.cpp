@@ -914,7 +914,6 @@ bool movingblock::animate(int32_t)
 				for(auto lyr = 0; lyr <= maxLayer; ++lyr)
 				{
 					mapscr* tmp = get_screen_layer_for_world_xy(x, y, lyr);
-					// TODO z3 !
 					for(int32_t pos=0; pos<176; pos++)
 					{
 						if((!trig_hole_same_only || lyr == blockLayer) && pos == combopos)

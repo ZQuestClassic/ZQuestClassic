@@ -25373,9 +25373,8 @@ RaftingStuff:
 		}
 	}
 	
-	// Either the current screen, or if in a 0x80 room the screen player came from.
-	mapscr* base_scr = currscr >= 128 ? &special_warp_return_screen : get_scr(currscr);
-	mapscr* cur_scr = get_scr(currscr);
+	// Either the screen the hero is currently in, or if in a 0x80 room the screen player came from.
+	mapscr* base_scr = currscr >= 128 ? &special_warp_return_screen : hero_scr;
 	
 	if((type==cCAVE || type==cCAVE2) && (base_scr->tilewarptype[index]==wtNOWARP)) return;
 	
@@ -25407,7 +25406,7 @@ RaftingStuff:
 						(zcmusic->type == ZCMF_GME && zcmusic->track != DMaps[tdm].tmusictrack))
 						music_stop();
 				}
-				else if (DMaps[cur_scr->tilewarpdmap[index]].midi != (currmidi - ZC_MIDI_COUNT + 4) &&
+				else if (DMaps[hero_scr->tilewarpdmap[index]].midi != (currmidi - ZC_MIDI_COUNT + 4) &&
 					TheMaps[(DMaps[tdm].map * MAPSCRS + (base_scr->tilewarpscr[index] + DMaps[tdm].xoff))].screen_midi != (currmidi - ZC_MIDI_COUNT + 4))
 					music_stop();
 			}
@@ -25496,38 +25495,38 @@ RaftingStuff:
 			advanceframe(true);
 		}
 		
-		if(!(cur_scr->noreset&mSECRET)) unsetmapflag(mSECRET);
+		if(!(hero_scr->noreset&mSECRET)) unsetmapflag(hero_scr, mSECRET);
 		
-		if(!(cur_scr->noreset&mITEM)) unsetmapflag(mITEM);
+		if(!(hero_scr->noreset&mITEM)) unsetmapflag(hero_scr, mITEM);
 		
-		if(!(cur_scr->noreset&mSPECIALITEM)) unsetmapflag(mSPECIALITEM);
+		if(!(hero_scr->noreset&mSPECIALITEM)) unsetmapflag(hero_scr, mSPECIALITEM);
 		
-		if(!(cur_scr->noreset&mNEVERRET)) unsetmapflag(mNEVERRET);
+		if(!(hero_scr->noreset&mNEVERRET)) unsetmapflag(hero_scr, mNEVERRET);
 		
-		if(!(cur_scr->noreset&mCHEST)) unsetmapflag(mCHEST);
+		if(!(hero_scr->noreset&mCHEST)) unsetmapflag(hero_scr, mCHEST);
 		
-		if(!(cur_scr->noreset&mLOCKEDCHEST)) unsetmapflag(mLOCKEDCHEST);
+		if(!(hero_scr->noreset&mLOCKEDCHEST)) unsetmapflag(hero_scr, mLOCKEDCHEST);
 		
-		if(!(cur_scr->noreset&mBOSSCHEST)) unsetmapflag(mBOSSCHEST);
+		if(!(hero_scr->noreset&mBOSSCHEST)) unsetmapflag(hero_scr, mBOSSCHEST);
 		
-		if(!(cur_scr->noreset&mLOCKBLOCK)) unsetmapflag(mLOCKBLOCK);
+		if(!(hero_scr->noreset&mLOCKBLOCK)) unsetmapflag(hero_scr, mLOCKBLOCK);
 		
-		if(!(cur_scr->noreset&mBOSSLOCKBLOCK)) unsetmapflag(mBOSSLOCKBLOCK);
+		if(!(hero_scr->noreset&mBOSSLOCKBLOCK)) unsetmapflag(hero_scr, mBOSSLOCKBLOCK);
 		
 		if(isdungeon())
 		{
-			if(!(cur_scr->noreset&mDOOR_LEFT)) unsetmapflag(mDOOR_LEFT);
+			if(!(hero_scr->noreset&mDOOR_LEFT)) unsetmapflag(hero_scr, mDOOR_LEFT);
 			
-			if(!(cur_scr->noreset&mDOOR_RIGHT)) unsetmapflag(mDOOR_RIGHT);
+			if(!(hero_scr->noreset&mDOOR_RIGHT)) unsetmapflag(hero_scr, mDOOR_RIGHT);
 			
-			if(!(cur_scr->noreset&mDOOR_DOWN)) unsetmapflag(mDOOR_DOWN);
+			if(!(hero_scr->noreset&mDOOR_DOWN)) unsetmapflag(hero_scr, mDOOR_DOWN);
 			
-			if(!(cur_scr->noreset&mDOOR_UP)) unsetmapflag(mDOOR_UP);
+			if(!(hero_scr->noreset&mDOOR_UP)) unsetmapflag(hero_scr, mDOOR_UP);
 		}
 		
 		setpit();
 		sdir=dir;
-		dowarp(cur_scr, 4, 0, warpsfx2);
+		dowarp(hero_scr, 4, 0, warpsfx2);
 	}
 	else
 	{
@@ -25539,7 +25538,7 @@ RaftingStuff:
 		}
 		
 		sdir = dir;
-		dowarp(nullptr, 0, index, warpsfx2); // TODO z3 !! ?
+		dowarp(hero_scr, 0, index, warpsfx2);
 	}
 }
 
