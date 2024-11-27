@@ -18190,27 +18190,27 @@ void set_register(int32_t arg, int32_t value)
 		case MAPDATAVIEWX: 		break;//SET_MAPDATA_VAR_INT32(viewX, "ViewX"); break;	//W
 		case MAPDATASCRIPT:
 		{
-			if (mapscr *m = GetMapscr(ri->mapsref)) 
+			auto result = decode_mapdata_ref(ri->mapsref);
+			if (result.scr)
 			{
-				if(ri->mapsref == MAPSCR_TEMP0) //This mapsref references tmpscr, so can reference a running script!
+				if (result.type == mapdata_type::Temporary_Cur)
 				{
-					if ( get_qr(qr_CLEARINITDONSCRIPTCHANGE))
+					if (get_qr(qr_CLEARINITDONSCRIPTCHANGE))
 					{
-						mapscr* scr = get_scr(curScriptIndex);
-						for(int32_t q=0; q<8; q++)
-							scr->screeninitd[q] = 0;
+						for (int q=0; q<8; q++)
+							result.scr->screeninitd[q] = 0;
 					}
 
 					on_reassign_script_engine_data(ScriptType::Screen, ri->screenref);
 				}
-				m->script=vbound(value/10000, 0, NUMSCRIPTSCREEN-1);
+
+				result.scr->script = vbound(value/10000, 0, NUMSCRIPTSCREEN-1);
 			} 
 			else 
 			{ 
 				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","Script");
 			} 
 			break;
-			
 		}
 		case MAPDATAVIEWY: 		break;//SET_MAPDATA_VAR_INT32(viewY, "ViewY"); break; //W
 		case MAPDATASCREENWIDTH: 	break;//SET_MAPDATA_VAR_BYTE(scrWidth, "Width"); break;	//B
