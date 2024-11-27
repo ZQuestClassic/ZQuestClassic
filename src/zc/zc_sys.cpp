@@ -2388,6 +2388,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 		
 		++strike_hint_timer;
 		
+		// TODO z3 !
 		for(int32_t i=0; i<176; i++)
 		{
 			int32_t x = (i & 15) << 4;

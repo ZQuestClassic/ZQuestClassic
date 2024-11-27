@@ -1682,13 +1682,13 @@ void HeroClass::init()
     
     if(get_qr(qr_NOARRIVALPOINT))
     {
-        x=tmpscr->warpreturnx[0];
-        y=tmpscr->warpreturny[0];
+        x=hero_scr->warpreturnx[0];
+        y=hero_scr->warpreturny[0];
     }
     else
     {
-        x=tmpscr->warparrivalx;
-        y=tmpscr->warparrivaly;
+        x=hero_scr->warparrivalx;
+        y=hero_scr->warparrivaly;
     }
     
     z=fakez=fall=fakefall=0;
@@ -4179,7 +4179,7 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 	{
 		if(!isTouchyType(type) && !get_qr(qr_CONT_SWORD_TRIGGERS)) set_bit(screengrid,i,1);
 		
-		if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr->flags9&fBELOWRETURN)))
+		if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (s->flags9&fBELOWRETURN)))
 		{
 			items.add(new item((zfix)bx, (zfix)by,(zfix)0, s->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((s->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
 			sfx(s->secretsfx);
@@ -4736,7 +4736,7 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
     {
         if(!isTouchyType(type) && !get_qr(qr_CONT_SWORD_TRIGGERS)) set_bit(w->wscreengrid,i,1);
         
-        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr->flags9&fBELOWRETURN)))
+        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (s->flags9&fBELOWRETURN)))
         {
             items.add(new item((zfix)bx, (zfix)by,(zfix)0, s->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((s->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
             sfx(s->secretsfx);
@@ -4888,28 +4888,9 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
 
 void HeroClass::check_wand_block2(int32_t bx, int32_t by, weapon *w)
 {
-	/*
-	int32_t par_item = w->parentitem;
-	al_trace("check_wand_block(weapon *w): par_item is: %d\n", par_item);
-	int32_t usewpn = -1;
-	if ( par_item > -1 )
-	{
-		usewpn = itemsbuf[par_item].useweapon;
-	}
-	else if ( par_item == -1 && w->ScriptGenerated ) 
-	{
-		usewpn = w->useweapon;
-	}
-	al_trace("check_wand_block(weapon *w): usewpn is: %d\n", usewpn);
-	*/
-	
 	byte dontignore = 0;
 	byte dontignoreffc = 0;
     
-	
-	
-    
-
     //keep things inside the screen boundaries
     bx=vbound(bx, 0, world_w-1);
     by=vbound(by, 0, world_h);
@@ -4941,8 +4922,6 @@ void HeroClass::check_wand_block2(int32_t bx, int32_t by, weapon *w)
         
     if(flag31==mfSTRIKE||flag32==mfSTRIKE||flag33==mfSTRIKE||flag34==mfSTRIKE)
         flag3=mfSTRIKE;
-        
-    int32_t i = (bx>>4) + by;
     
     if(flag!=mfWAND&&flag2!=mfWAND&&flag3!=mfWAND&&flag!=mfSTRIKE&&flag2!=mfSTRIKE&&flag3!=mfSTRIKE)
         return;
@@ -7560,6 +7539,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 	
 	if(hp_modmin<0)
 	{
+		// TODO z3
 		if((itemid<0) || ignoreBoots || (tmpscr->flags5&fDAMAGEWITHBOOTS) || (4<<current_item_power(itype_boots)<(abs(hp_modmin))) || (solid && bootsnosolid) || !(checkbunny(itemid) && checkmagiccost(itemid)))
 		{
 			if (!do_health_check) return true;
@@ -10171,7 +10151,7 @@ heroanimate_skip_liftwpn:;
 	
 	if((!loaded_guys) && (frame - newscr_clk >= 1))
 	{
-		if(tmpscr->room==rGANON)
+		if(hero_scr->room==rGANON)
 		{
 			ganon_intro();
 		}
