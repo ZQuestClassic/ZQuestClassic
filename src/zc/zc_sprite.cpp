@@ -238,7 +238,7 @@ void movingblock::push(zfix bx,zfix by,int32_t d2,int32_t f)
     //   cs = ((*di)&0x700)>>8;
     m->data[combopos] = m->undercombo;
     m->cset[combopos] = m->undercset;
-	FFCore.clear_combo_script(blockLayer, rpos);
+	FFCore.clear_combo_script(rpos_handle);
     putcombo(scrollbuf,x-viewport.x,y-viewport.y,m->undercombo,m->undercset);
     clk=32;
 	if(!get_qr(qr_MOVINGBLOCK_FAKE_SOLID))
@@ -288,7 +288,7 @@ void movingblock::push_new(zfix bx,zfix by,int d2,int f,zfix spd)
     //   cs = ((*di)&0x700)>>8;
     m->data[combopos] = m->undercombo;
     m->cset[combopos] = m->undercset;
-	FFCore.clear_combo_script(blockLayer, rpos);
+	FFCore.clear_combo_script(rpos_handle);
     putcombo(scrollbuf,x-viewport.x,y-viewport.y,m->undercombo,m->undercset);
     clk=32;
 	if(!get_qr(qr_MOVINGBLOCK_FAKE_SOLID))
@@ -620,7 +620,7 @@ bool movingblock::animate(int32_t)
 			{
 				end_rpos_handle.set_data(bcombo);
 				end_rpos_handle.set_cset(oldcset);
-				FFCore.clear_combo_script(end_rpos_handle.layer, end_rpos_handle.rpos);
+				FFCore.clear_combo_script(end_rpos_handle);
 				
 				if((f1==mfBLOCKTRIGGER)||f2==mfBLOCKTRIGGER)
 				{
@@ -818,7 +818,7 @@ bool movingblock::animate(int32_t)
 			{
 				end_rpos_handle.set_data(bcombo);
 				end_rpos_handle.set_cset(oldcset);
-				FFCore.clear_combo_script(end_rpos_handle.layer, end_rpos_handle.rpos);
+				FFCore.clear_combo_script(end_rpos_handle);
 			}
 			if(!fallclk && !drownclk)
 			{

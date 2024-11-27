@@ -1284,108 +1284,161 @@ class Game {
 	//   SETCMP SCREENSTATEDD !=
 	internal void SetScreenState(int map, int screen, int flag, bool value);
 
+	// Reads the canonical screen. If the screen is currently active (including as a layer), the temporary screen is read instead.
+	//
+	// Note: since Regions came after this was deprecated, only the top-left screen may be considered "active" for purposes of this function.
+	//       Referencing any other screen in the current region will access the canonical screen instead.
+	//
 	// @deprecated Use [mapdata::ComboD]' instead!
 	// @zasm
 	//   POP D0
 	//   POP D2
 	//   POP D1
 	//   SETR D2 COMBODDM
-	internal int GetComboData(int map, int screen, int position);
+	internal int GetComboData(int map, int screen, int pos);
 
-	// @deprecated Use [mapdata::ComboD]'  instead!
+	// Updates the canonical screen. If the screen is currently active, the temporary screen is also updated.
+	//
+	// Note: since Regions came after this was deprecated, only the top-left screen may be considered "active" for purposes of this function.
+	//       Referencing any other screen in the current region will access the canonical screen instead.
+	//
+	// @deprecated Use [mapdata::ComboD] instead!
 	// @zasm
 	//   POP D3
 	//   POP D0
 	//   POP D2
 	//   POP D1
 	//   SETR COMBODDM D3
-	internal void SetComboData(int map, int screen, int position, int value);
+	internal void SetComboData(int map, int screen, int pos, int value);
 
-	// @deprecated Use [mapdata::ComboC]'  instead!
+	// Reads the canonical screen. If the screen is currently active (including as a layer), the temporary screen is read instead.
+	//
+	// Note: since Regions came after this was deprecated, only the top-left screen may be considered "active" for purposes of this function.
+	//       Referencing any other screen in the current region will access the canonical screen instead.
+	//
+	// @deprecated Use [mapdata::ComboC] instead!
 	// @zasm
 	//   POP D0
 	//   POP D2
 	//   POP D1
 	//   SETR D2 COMBOCDM
-	internal int GetComboCSet(int map, int screen, int position);
+	internal int GetComboCSet(int map, int screen, int pos);
 
-	// @deprecated Use [mapdata::ComboC]'  instead!
+	// Updates the canonical screen. If the screen is currently active, the temporary screen is also updated.
+	//
+	// Note: since Regions came after this was deprecated, only the top-left screen may be considered "active" for purposes of this function.
+	//       Referencing any other screen in the current region will access the canonical screen instead.
+	//
+	// @deprecated Use [mapdata::ComboC] instead!
 	// @zasm
 	//   POP D3
 	//   POP D0
 	//   POP D2
 	//   POP D1
 	//   SETR COMBOCDM D3
-	internal void SetComboCSet(int map, int screen, int position, int value);
+	internal void SetComboCSet(int map, int screen, int pos, int value);
 
-	// @deprecated Use [mapdata::ComboF]'  instead!
+	// Reads the canonical screen. If the screen is currently active (including as a layer), the temporary screen is read instead.
+	//
+	// Note: since Regions came after this was deprecated, only the top-left screen may be considered "active" for purposes of this function.
+	//       Referencing any other screen in the current region will access the canonical screen instead.
+	//
+	// @deprecated Use [mapdata::ComboF] instead!
 	// @zasm
 	//   POP D0
 	//   POP D2
 	//   POP D1
 	//   SETR D2 COMBOFDM
-	internal int GetComboFlag(int map, int screen, int position);
+	internal int GetComboFlag(int map, int screen, int pos);
 
-	// @deprecated Use [mapdata::ComboF]'  instead!
+	// Updates the canonical screen. If the screen is currently active, the temporary screen is also updated.
+	//
+	// Note: since Regions came after this was deprecated, only the top-left screen may be considered "active" for purposes of this function.
+	//       Referencing any other screen in the current region will access the canonical screen instead.
+	//
+	// @deprecated Use [mapdata::ComboF] instead!
 	// @zasm
 	//   POP D3
 	//   POP D0
 	//   POP D2
 	//   POP D1
 	//   SETR COMBOFDM D3
-	internal void SetComboFlag(int map, int screen, int position, int value);
+	internal void SetComboFlag(int map, int screen, int pos, int value);
 
-	// @deprecated Use [mapdata::ComboT]'  instead!
+	// Reads the canonical screen. If the screen is currently active (including as a layer), the temporary screen is read instead.
+	//
+	// Note: since Regions came after this was deprecated, only the top-left screen may be considered "active" for purposes of this function.
+	//       Referencing any other screen in the current region will access the canonical screen instead.
+	//
+	// @deprecated Use [mapdata::ComboT] instead!
 	// @zasm
 	//   POP D0
 	//   POP D2
 	//   POP D1
 	//   SETR D2 COMBOTDM
-	internal int GetComboType(int map, int screen, int position);
+	internal int GetComboType(int map, int screen, int pos);
 
-	// @deprecated Use [mapdata::ComboT]'  instead!
+	// Updates the combo type at the position in the canonical screen.
+	//
+	// Note: since Regions came after this was deprecated, only the top-left screen may be considered "active" for purposes of this function.
+	//       Referencing any other screen in the current region will access the canonical screen instead.
+	//
+	// @deprecated Use [mapdata::ComboT] instead!
 	// @zasm
 	//   POP D3
 	//   POP D0
 	//   POP D2
 	//   POP D1
 	//   SETR COMBOTDM D3
-	internal void SetComboType(int map, int screen, int position, int value);
+	internal void SetComboType(int map, int screen, int pos, int value);
 
-	// @deprecated Use [mapdata::ComboI]'  instead!
+	// Reads the canonical screen. If the screen is currently active (including as a layer), the temporary screen is read instead.
+	//
+	// Note: since Regions came after this was deprecated, only the top-left screen may be considered "active" for purposes of this function.
+	//       Referencing any other screen in the current region will access the canonical screen instead.
+	//
+	// @deprecated Use [mapdata::ComboI] instead!
 	// @zasm
 	//   POP D0
 	//   POP D2
 	//   POP D1
 	//   SETR D2 COMBOIDM
-	internal int GetComboInherentFlag(int map, int screen, int position);
+	internal int GetComboInherentFlag(int map, int screen, int pos);
 
-	// @deprecated Use [mapdata::ComboI]'  instead!
+	// Updates the combo inherent flag at the position in the canonical screen.
+	//
+	// @deprecated Use [mapdata::ComboI] instead!
 	// @zasm
 	//   POP D3
 	//   POP D0
 	//   POP D2
 	//   POP D1
 	//   SETR COMBOIDM D3
-	internal void SetComboInherentFlag(int map, int screen, int position,
-									   int value);
+	internal void SetComboInherentFlag(int map, int screen, int pos, int value);
 
-	// @deprecated Use [mapdata::ComboS]'  instead!
+	// Reads the canonical screen. If the screen is currently active (including as a layer), the temporary screen is read instead.
+	//
+	// Note: since Regions came after this was deprecated, only the top-left screen may be considered "active" for purposes of this function.
+	//       Referencing any other screen in the current region will access the canonical screen instead.
+	//
+	// @deprecated Use [mapdata::ComboS] instead!
 	// @zasm
 	//   POP D0
 	//   POP D2
 	//   POP D1
 	//   SETR D2 COMBOSDM
-	internal int GetComboSolid(int map, int screen, int position);
+	internal int GetComboSolid(int map, int screen, int pos);
 
-	// @deprecated Use [mapdata::ComboS]'  instead!
+	// Updates the combo solidity at the position in the canonical screen.
+	//
+	// @deprecated Use [mapdata::ComboS] instead!
 	// @zasm
 	//   POP D3
 	//   POP D0
 	//   POP D2
 	//   POP D1
 	//   SETR COMBOSDM D3
-	internal void SetComboSolid(int map, int screen, int position, int value);
+	internal void SetComboSolid(int map, int screen, int pos, int value);
 
 	// @deprecated
 	// @zasm

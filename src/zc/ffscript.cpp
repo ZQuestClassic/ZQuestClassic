@@ -42546,9 +42546,9 @@ void FFScript::clear_combo_scripts()
 	clear_script_engine_data_of_type(ScriptType::Combo);
 }
 
-void FFScript::clear_combo_script(int32_t layer, rpos_t rpos)
+void FFScript::clear_combo_script(const rpos_handle_t& rpos_handle)
 {
-	int32_t index = get_combopos_ref(rpos, layer);
+	int32_t index = get_combopos_ref(rpos_handle);
 	combo_id_cache[index] = -1;
 	combopos_modified = index;
 	clear_script_engine_data(ScriptType::Combo, index);
@@ -42627,7 +42627,7 @@ int32_t FFScript::combo_script_engine(const bool preload, const bool waitdraw)
 		if (!enabled[rpos_handle.layer])
 			return;
 
-		int32_t combopos_ref = get_combopos_ref(rpos_handle.rpos, rpos_handle.layer);
+		int32_t combopos_ref = get_combopos_ref(rpos_handle);
 		word cid = rpos_handle.data();
 		if(combo_id_cache[combopos_ref] != cid)
 		{
@@ -42943,6 +42943,11 @@ bool command_is_pure(int command)
 	}
 
 	return false;
+}
+
+int32_t get_combopos_ref(const rpos_handle_t& rpos_handle)
+{
+	return rpos_handle.layer * region_num_rpos + (int)rpos_handle.rpos;
 }
 
 int32_t get_combopos_ref(rpos_t rpos, int32_t layer)

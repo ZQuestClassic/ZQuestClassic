@@ -1031,7 +1031,7 @@ bool& waitdraw(ScriptType type, int index = 0);
 
 //Combo Scripts
 void clear_combo_scripts();
-void clear_combo_script(int32_t layer, rpos_t rpos);
+void clear_combo_script(const rpos_handle_t& rpos_handle);
 int32_t getComboDataLayer(int32_t c, ScriptType scripttype);
 int32_t getCombodataPos(int32_t c, ScriptType scripttype);
 int32_t getCombodataY(int32_t c, ScriptType scripttype);
@@ -1553,6 +1553,7 @@ bool command_could_return_not_ok(int command);
 // command, given its register output is not needed.
 bool command_is_pure(int command);
 
+int32_t get_combopos_ref(const rpos_handle_t& rpos_handle);
 int32_t get_combopos_ref(rpos_t rpos, int32_t layer);
 rpos_t combopos_ref_to_rpos(int32_t combopos_ref);
 int32_t combopos_ref_to_layer(int32_t combopos_ref);
