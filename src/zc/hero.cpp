@@ -10225,25 +10225,25 @@ heroanimate_skip_liftwpn:;
 		fairyclk = holdclk = refill_why = 0;
 	}
 	
-	if((!activated_timed_warp) && (tmpscr->timedwarptics>0))
+	if((!activated_timed_warp) && (origin_scr->timedwarptics>0))
 	{
-		tmpscr->timedwarptics--;
+		origin_scr->timedwarptics--;
 		
-		if(tmpscr->timedwarptics==0)
+		if(origin_scr->timedwarptics==0)
 		{
 			activated_timed_warp=true;
 			
-			if(tmpscr->flags4 & fTIMEDDIRECT)
+			if(origin_scr->flags4 & fTIMEDDIRECT)
 			{
 				setpit();
 			}
 			
 			int32_t index2 = 0;
 			
-			if(tmpscr->flags5 & fRANDOMTIMEDWARP) index2=zc_oldrand()%4;
+			if(origin_scr->flags5 & fRANDOMTIMEDWARP) index2=zc_oldrand()%4;
 			
 			sdir = dir;
-			dowarp(tmpscr, 1, index2);
+			dowarp(origin_scr, 1, index2);
 		}
 	}
 	
@@ -14560,7 +14560,7 @@ void HeroClass::moveheroOld()
 	else if(action == swimming && dive_pressed)
 	{
 		bool global_diving=(flippers_id > -1 && itemsbuf[flippers_id].flags & item_flag1);
-		bool screen_diving=(tmpscr->flags5&fTOGGLEDIVING) != 0;
+		bool screen_diving=(hero_scr->flags5&fTOGGLEDIVING) != 0;
 		
 		if(global_diving==screen_diving)
 		{
@@ -18956,7 +18956,7 @@ bool HeroClass::premove()
 	else if(action == swimming && dive_pressed)
 	{
 		bool global_diving=(flippers_id > -1 && itemsbuf[flippers_id].flags & item_flag1);
-		bool screen_diving=(tmpscr->flags5&fTOGGLEDIVING) != 0;
+		bool screen_diving=(hero_scr->flags5&fTOGGLEDIVING) != 0;
 		
 		if(global_diving==screen_diving)
 		{
@@ -25613,7 +25613,7 @@ bool HeroClass::dowarp(mapscr* scr, int32_t type, int32_t index, int32_t warpsfx
 	bool overlay = false;
 	t = (currscr < 128) ? 0 : 1;
 	int32_t wrindex = 0;
-	bool wasSideview = isSideViewGravity(t); // (tmpscr[t].flags7 & fSIDEVIEW)!=0 && !ignoreSideview;
+	bool wasSideview = isSideViewGravity(t);
 
 	mapscr* cur_scr = scr ? scr : hero_scr;
 	// Either the current screen, or if in a 0x80 room the screen player came from.
@@ -25645,9 +25645,6 @@ bool HeroClass::dowarp(mapscr* scr, int32_t type, int32_t index, int32_t warpsfx
 			wscr = base_scr->sidewarpscr[index];
 			overlay = get_bit(&base_scr->sidewarpoverlayflags,index)?1:0;
 			wrindex=(cur_scr->warpreturnc>>(8+(index*2)))&3;
-			//tmpscr->doscript = 0; //kill the currebt screen's script so that it does not continue to run during the scroll.
-			//there is no doscript for screen scripts. They run like ffcs. 
-
 			break;
 			
 		case 2:                                                 // whistle warp
@@ -26904,8 +26901,8 @@ void HeroClass::exitcave()
 
     stop_sfx(QMisc.miscsfx[sfxLOWHEART]);
     loadscr(currdmap, homescr, 255, false);                                   // bogus direction
-    x = tmpscr->warpreturnx[0];
-    y = tmpscr->warpreturny[0];
+    x = hero_scr->warpreturnx[0];
+    y = hero_scr->warpreturny[0];
     
     if(didpit)
     {
@@ -26916,9 +26913,9 @@ void HeroClass::exitcave()
     
     if(x+y == 0)
         x = y = 80;
-	
-	x += region_scr_dx*256;
-	y += region_scr_dy*176;
+    
+    x += region_scr_dx*256;
+    y += region_scr_dy*176;
         
     int32_t type1 = combobuf[MAPCOMBO(x,y-16)].type;
     int32_t type2 = combobuf[MAPCOMBO(x,y)].type;
@@ -26936,8 +26933,8 @@ void HeroClass::exitcave()
 	if (updatemusic || !musicnocut)
 		music_stop();
     kill_sfx();
-    putscr(scrollbuf,0,0,tmpscr);
-    putscrdoors(scrollbuf,0,0,tmpscr);
+    putscr(scrollbuf,0,0,hero_scr);
+    putscrdoors(scrollbuf,0,0,hero_scr);
     
     if((type1==cCAVE)||(type1>=cCAVEB && type1<=cCAVED) || (type2==cCAVE)||(type2>=cCAVEB && type2<=cCAVED))
     {
@@ -27753,12 +27750,12 @@ void HeroClass::do_scroll_direction(direction dir)
 			scrolling_map = currmap;
 			scrollscr(dir);
 			
-			if(tmpscr->flags4&fAUTOSAVE)
+			if(hero_scr->flags4&fAUTOSAVE)
 			{
 				save_game(true,0);
 			}
 			
-			if(tmpscr->flags6&fCONTINUEHERE)
+			if(hero_scr->flags6&fCONTINUEHERE)
 			{
 				lastentrance_dmap = currdmap;
 				lastentrance = homescr;
@@ -30219,7 +30216,7 @@ bool canget(int32_t id)
 
 void dospecialmoney(int32_t index)
 {
-	mapscr& scr = currscr >= 128 ? special_warp_return_screen : *tmpscr;
+	mapscr& scr = currscr >= 128 ? special_warp_return_screen : *hero_scr;
     int32_t priceindex = ((item*)items.spr(index))->PriceIndex;
     
     switch(scr.room)
@@ -32004,50 +32001,64 @@ void HeroClass::heroDeathAnimation()
 			}
 			else //!qr_FADE
 			{
-				if(f==58)
-				{
-					for(int32_t i = 0; i < 96; i++)
-						tmpscr->cset[i] = 3;
-                        
-					for(int32_t j=0; j<6; j++)
-						if(tmpscr->layermap[j]>0)
-							for(int32_t i=0; i<96; i++)
-								tmpscr2[j].cset[i] = 3;
-				}
-                
-				if(f==59)
-				{
-					for(int32_t i = 96; i < 176; i++)
-						tmpscr->cset[i] = 3;
-                        
-					for(int32_t j=0; j<6; j++)
-						if(tmpscr->layermap[j]>0)
-							for(int32_t i=96; i<176; i++)
-								tmpscr2[j].cset[i] = 3;
-				}
-                
+				for_every_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
+					if(f==58)
+					{
+						for(int32_t i = 0; i < 96; i++)
+							scr->cset[i] = 3;
+							
+						for(int32_t j=0; j<6; j++)
+							if(scr->layermap[j]>0)
+							{
+								mapscr* lyr_scr = get_layer_scr(scr->screen, j);
+								for(int32_t i=0; i<96; i++)
+									lyr_scr->cset[i] = 3;
+							}
+					}
+					
+					if(f==59)
+					{
+						for(int32_t i = 96; i < 176; i++)
+							scr->cset[i] = 3;
+							
+						for(int32_t j=0; j<6; j++)
+							if(scr->layermap[j]>0)
+							{
+								mapscr* lyr_scr = get_layer_scr(scr->screen, j);
+								for(int32_t i=96; i<176; i++)
+									lyr_scr->cset[i] = 3;
+							}
+					}
+					
+					if(f==60)
+					{
+						for(int32_t i=0; i<176; i++)
+						{
+							scr->cset[i] = 2;
+						}
+						
+						for(int32_t j=0; j<6; j++)
+							if(scr->layermap[j]>0)
+							{
+								mapscr* lyr_scr = get_layer_scr(scr->screen, j);
+								for(int32_t i=0; i<176; i++)
+									lyr_scr->cset[i] = 2;
+							}
+					}
+				});
+
 				if(f==60)
 				{
-					for(int32_t i=0; i<176; i++)
-					{
-						tmpscr->cset[i] = 2;
-					}
-                    
-					for(int32_t j=0; j<6; j++)
-						if(tmpscr->layermap[j]>0)
-							for(int32_t i=0; i<176; i++)
-								tmpscr2[j].cset[i] = 2;
-                                
 					for(int32_t i=1; i<16; i+=3)
 					{
 						RAMpal[CSET(2)+i]   = NESpal(0x17);
 						RAMpal[CSET(2)+i+1] = NESpal(0x16);
 						RAMpal[CSET(2)+i+2] = NESpal(0x26);
 					}
-                    
+					
 					refreshpal=true;
 				}
-                
+
 				if(f==139)
 					slide_in_color(0x06);
                     

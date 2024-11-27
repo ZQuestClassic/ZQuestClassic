@@ -391,6 +391,8 @@ class screendata {
 	// Index [0] does nothing, and trying to access it will report an error to
 	// the log.
 	//
+	// This only refers to the screen denoted by [Index].
+	//
 	// @zasm_var SCREENDATALAYERMAP
 	internal int LayerMap[];
 
@@ -399,6 +401,8 @@ class screendata {
 	//
 	// Index [0] does nothing, and trying to access it will report an error to
 	// the log.
+	//
+	// This only refers to the screen denoted by [Index].
 	//
 	// @zasm_var SCREENDATALAYERSCREEN
 	internal int LayerScreen[];

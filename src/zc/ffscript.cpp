@@ -24975,7 +24975,7 @@ void do_layermap()
 	if(BC::checkBounds(layer, 0, 5, "Screen->LayerMap") != SH::_NoError || get_scr(ri->screenref)->layermap[layer] == 0)
 		set_register(sarg1, -10000);
 	else
-		set_register(sarg1, tmpscr->layermap[layer] * 10000);
+		set_register(sarg1, get_scr(ri->screenref)->layermap[layer] * 10000);
 }
 
 
@@ -28685,8 +28685,8 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 			//preloaded freeform combos
 			ffscript_engine(true);
 			
-			putscr(scrollbuf,0,0,tmpscr);
-			putscrdoors(scrollbuf,0,0,tmpscr);
+			putscr(scrollbuf,0,0,hero_scr);
+			putscrdoors(scrollbuf,0,0,hero_scr);
 			
 			doWarpEffect(warpEffect, false);
 			show_subscreen_life=true;
@@ -28740,7 +28740,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 			//lastentrance_dmap = currdmap;
 			loadscr(currdmap, scrID + DMaps[currdmap].xoff, -1, overlay);
 			
-			if((tmpscr->flags&fDARK) && !get_qr(qr_NEW_DARKROOM))
+			if((hero_scr->flags&fDARK) && !get_qr(qr_NEW_DARKROOM))
 			{
 				if(get_qr(qr_FADE))
 				{
@@ -28894,7 +28894,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 			
 			if(!intradmap)
 			{
-				if(((wx>0||wy>0)||(get_qr(qr_WARPSIGNOREARRIVALPOINT)))&&(!get_qr(qr_NOSCROLLCONTINUE))&&(!(tmpscr->flags6&fNOCONTINUEHERE)))
+				if(((wx>0||wy>0)||(get_qr(qr_WARPSIGNOREARRIVALPOINT)))&&(!get_qr(qr_NOSCROLLCONTINUE))&&(!(hero_scr->flags6&fNOCONTINUEHERE)))
 				{
 					if(dlevel)
 					{
@@ -29011,12 +29011,12 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 		if ( (warpFlags&warpFlagSETCONTINUESCREEN) ) game->set_continue_scrn(currscr);
 		if ( (warpFlags&warpFlagSETCONTINUEDMAP) ) game->set_continue_dmap(dmapID);
 	}
-	if(tmpscr->flags4&fAUTOSAVE)
+	if(hero_scr->flags4&fAUTOSAVE)
 	{
 		save_game(true,0);
 	}
 		
-	if(tmpscr->flags6&fCONTINUEHERE)
+	if(hero_scr->flags6&fCONTINUEHERE)
 	{
 		lastentrance_dmap = currdmap;
 		lastentrance = homescr;
@@ -35417,7 +35417,7 @@ void FFScript::do_wavyout() { wavyout(false); }
 void FFScript::do_triggersecret(const bool v)
 {
 	int32_t ID = vbound((SH::get_arg(sarg1, v) / 10000), 0, 255);
-	mapscr *s = tmpscr;
+	mapscr *s = hero_scr;
 	//Convert a flag type to a secret type.
 	int32_t ft = combo_trigger_flag_to_secret_combo_index(ID);
 	if (ft != -1)
@@ -35430,7 +35430,7 @@ void FFScript::do_triggersecret(const bool v)
 				if ( iter == 1 )
 				{
 					if ( s->sflag[q] == ID ) {
-						auto rpos_handle = get_rpos_handle_for_screen(currscr, 0, q);
+						auto rpos_handle = get_rpos_handle_for_screen(s->screen, 0, q);
 						screen_combo_modify_preroutine(rpos_handle);
 						s->data[q] = s->secretcombo[ft];
 						s->cset[q] = s->secretcset[ft];
@@ -35442,7 +35442,7 @@ void FFScript::do_triggersecret(const bool v)
 				else
 				{
 					if ( combobuf[s->data[q]].flag == ID ) {
-						auto rpos_handle = get_rpos_handle_for_screen(currscr, 0, q);
+						auto rpos_handle = get_rpos_handle_for_screen(s->screen, 0, q);
 						screen_combo_modify_preroutine(rpos_handle);
 						s->data[q] = s->secretcombo[ft];
 						s->cset[q] = s->secretcset[ft];
@@ -36355,7 +36355,7 @@ void FFScript::do_fs_remove()
 
 void FFScript::Play_Level_Music()
 {
-	int32_t m=tmpscr->screen_midi;
+	int32_t m = hero_scr->screen_midi;
 	
 	switch(m)
 	{
