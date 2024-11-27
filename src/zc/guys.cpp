@@ -8338,7 +8338,7 @@ void enemy::removearmos(int32_t ax,int32_t ay, std::optional<ffc_handle_t> ffcac
 	int32_t f = rpos_handle.sflag();
 	int32_t f2 = rpos_handle.cflag();
 
-	if(combobuf[scr->data[cd]].type!=cARMOS)
+	if (rpos_handle.ctype() != cARMOS)
 	{
 		return;
 	}
@@ -18441,9 +18441,7 @@ static void activate_fireball_statues(mapscr* scr)
 
 	for_every_rpos_in_screen(scr, [&](const rpos_handle_t& rpos_handle) {
 		if (rpos_handle.layer == 0)
-		{
 			activate_fireball_statue(rpos_handle);
-		}
 	});
 }
 

@@ -41,6 +41,7 @@ ZC_FORCE_INLINE void for_every_screen_in_region(T&& fn)
 }
 
 // Iterates over every rpos in the current region, but only for screens that are valid.
+// Hits every layer too.
 // Callback function: void fn(const pos_handle_t& rpos_handle)
 template<typename T>
 requires std::is_invocable_v<T, const rpos_handle_t&>
@@ -51,6 +52,28 @@ ZC_FORCE_INLINE void for_every_rpos(T&& fn)
 	for (int i = 0; i < count; i++)
 	{
 		rpos_handle_t rpos_handle = handles[i];
+		for (int j = 0; j < 176; j++)
+		{
+			fn(rpos_handle);
+			rpos_handle.rpos = (rpos_t)((int)rpos_handle.rpos + 1);
+			rpos_handle.pos += 1;
+		}
+	}
+}
+
+// Iterates over every rpos in the current region, but only for screens that are valid.
+// Callback function: void fn(const pos_handle_t& rpos_handle)
+template<typename T>
+requires std::is_invocable_v<T, const rpos_handle_t&>
+ZC_FORCE_INLINE void for_every_rpos_layer0(T&& fn)
+{
+	auto [handles, count] = z3_get_current_region_handles();
+
+	for (int i = 0; i < count; i++)
+	{
+		rpos_handle_t rpos_handle = handles[i];
+		if (rpos_handle.layer != 0) continue;
+
 		for (int j = 0; j < 176; j++)
 		{
 			fn(rpos_handle);

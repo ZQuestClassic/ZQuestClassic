@@ -62,6 +62,11 @@ uint8_t rpos_handle_t::cflag() const
 	return combobuf[scr->data[pos]].flag;
 }
 
+uint8_t rpos_handle_t::ctype() const
+{
+	return combobuf[scr->data[pos]].type;
+}
+
 const newcombo& ffc_handle_t::combo() const
 {
 	return combobuf[ffc->data];

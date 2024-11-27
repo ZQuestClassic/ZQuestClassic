@@ -298,7 +298,6 @@ bool remove_chests(mapscr* s);
 bool remove_lockedchests(mapscr* s);
 bool remove_bosschests(mapscr* s);
 
-bool overheadcombos(mapscr *s);
 void delete_fireball_shooter(const rpos_handle_t& rpos_handle);
 
 enum class TriggerSource {

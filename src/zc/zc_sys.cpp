@@ -63,8 +63,9 @@
 #include "zinfo.h"
 #include "base/misctypes.h"
 #include "music_playback.h"
-#include <base/new_menu.h>
-#include <base/files.h>
+#include "base/new_menu.h"
+#include "base/files.h"
+#include "iter.h"
 
 #ifdef __EMSCRIPTEN__
 #include "base/emscripten_utils.h"
@@ -2359,6 +2360,7 @@ int32_t bunny_tile_mod()
 }
 
 // Hints are drawn on a separate layer to combo reveals.
+// TODO: move out of zc_sys.cpp, weird place for this code.
 void draw_lens_under(BITMAP *dest, bool layer)
 {
 	//Lens flag 1: Replacement for qr_LENSHINTS; if set, lens will show hints. Does nothing if flag 2 is set.
@@ -2387,12 +2389,13 @@ void draw_lens_under(BITMAP *dest, bool layer)
 		}
 		
 		++strike_hint_timer;
-		
-		// TODO z3 !
-		for(int32_t i=0; i<176; i++)
-		{
-			int32_t x = (i & 15) << 4;
-			int32_t y = (i & 0xF0) + playing_field_offset;
+
+		// TODO: if we had a "for_every_visible_rpos", it could be used here.
+		for_every_rpos_layer0([&](const rpos_handle_t& rpos_handle) {
+			mapscr* scr = tmpscr;
+			auto [x, y] = COMBOXY_REGION(rpos_handle.rpos);
+			y += playing_field_offset;
+
 			int32_t tempitemx=-16, tempitemy=-16;
 			int32_t tempweaponx=-16, tempweapony=-16;
 			
@@ -2402,18 +2405,19 @@ void draw_lens_under(BITMAP *dest, bool layer)
 				
 				if(iter==0)
 				{
-					checkflag=combobuf[tmpscr->data[i]].flag;
+					checkflag = rpos_handle.cflag();
 				}
 				else
 				{
-					checkflag=tmpscr->sflag[i];
+					
+					checkflag = rpos_handle.sflag();
 				}
 				
 				if(checkflag==mfSTRIKE)
 				{
 					if(!hints)
 					{
-						if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sSTRIKE],tmpscr->secretcset[sSTRIKE]);
+						if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->secretcombo[sSTRIKE],scr->secretcset[sSTRIKE]);
 					}
 					else
 					{
@@ -2627,7 +2631,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 						if(!hints && ((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&16))
 									  || ((get_debug() && zc_getkey(KEY_N)) && (frame&16))))
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->undercombo,tmpscr->undercset);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->undercombo,scr->undercset);
 						}
 						
 						if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&blink_rate))
@@ -2635,7 +2639,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 						{
 							if(hints)
 							{
-								switch(combobuf[tmpscr->data[i]].type)
+								switch (rpos_handle.ctype())
 								{
 								case cPUSH_HEAVY:
 								case cPUSH_HW:
@@ -2706,7 +2710,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfANYFIRE:
 						if(!hints)
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sBCANDLE],tmpscr->secretcset[sBCANDLE]);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->secretcombo[sBCANDLE],scr->secretcset[sBCANDLE]);
 						}
 						else
 						{
@@ -2729,7 +2733,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfSTRONGFIRE:
 						if(!hints)
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sRCANDLE],tmpscr->secretcset[sRCANDLE]);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->secretcombo[sRCANDLE],scr->secretcset[sRCANDLE]);
 						}
 						else
 						{
@@ -2752,7 +2756,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfMAGICFIRE:
 						if(!hints)
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sWANDFIRE],tmpscr->secretcset[sWANDFIRE]);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->secretcombo[sWANDFIRE],scr->secretcset[sWANDFIRE]);
 						}
 						else
 						{
@@ -2783,7 +2787,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfDIVINEFIRE:
 						if(!hints)
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sDIVINEFIRE],tmpscr->secretcset[sDIVINEFIRE]);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->secretcombo[sDIVINEFIRE],scr->secretcset[sDIVINEFIRE]);
 						}
 						else
 						{
@@ -2806,7 +2810,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfARROW:
 						if(!hints)
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sARROW],tmpscr->secretcset[sARROW]);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->secretcombo[sARROW],scr->secretcset[sARROW]);
 						}
 						else
 						{
@@ -2829,7 +2833,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfSARROW:
 						if(!hints)
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sSARROW],tmpscr->secretcset[sSARROW]);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->secretcombo[sSARROW],scr->secretcset[sSARROW]);
 						}
 						else
 						{
@@ -2852,7 +2856,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfGARROW:
 						if(!hints)
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sGARROW],tmpscr->secretcset[sGARROW]);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->secretcombo[sGARROW],scr->secretcset[sGARROW]);
 						}
 						else
 						{
@@ -2875,7 +2879,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfBOMB:
 						if(!hints)
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sBOMB],tmpscr->secretcset[sBOMB]);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->secretcombo[sBOMB],scr->secretcset[sBOMB]);
 						}
 						else
 						{
@@ -2898,7 +2902,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfSBOMB:
 						if(!hints)
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sSBOMB],tmpscr->secretcset[sSBOMB]);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->secretcombo[sSBOMB],scr->secretcset[sSBOMB]);
 						}
 						else
 						{
@@ -2922,7 +2926,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 						if(!hints)
 						{
 							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))
-								putcombo(dest,x,y,tmpscr->secretcombo[sSTAIRS],tmpscr->secretcset[sSTAIRS]);
+								putcombo(dest,x,y,scr->secretcombo[sSTAIRS],scr->secretcset[sSTAIRS]);
 						}
 						break;
 						
@@ -2930,7 +2934,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 						if(!hints)
 						{
 							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))
-								putcombo(dest,x,y,tmpscr->secretcombo[sBRANG],tmpscr->secretcset[sBRANG]);
+								putcombo(dest,x,y,scr->secretcombo[sBRANG],scr->secretcset[sBRANG]);
 						}
 						else
 						{
@@ -2953,7 +2957,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfMBRANG:
 						if(!hints)
 				{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sMBRANG],tmpscr->secretcset[sMBRANG]);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->secretcombo[sMBRANG],scr->secretcset[sMBRANG]);
 						}
 						else
 						{
@@ -2976,7 +2980,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfFBRANG:
 						if(!hints)
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sFBRANG],tmpscr->secretcset[sFBRANG]);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->secretcombo[sFBRANG],scr->secretcset[sFBRANG]);
 						}
 						else
 						{
@@ -2999,7 +3003,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfWANDMAGIC:
 						if(!hints)
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sWANDMAGIC],tmpscr->secretcset[sWANDMAGIC]);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->secretcombo[sWANDMAGIC],scr->secretcset[sWANDMAGIC]);
 						}
 						else
 						{
@@ -3036,7 +3040,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfREFMAGIC:
 						if(!hints)
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sREFMAGIC],tmpscr->secretcset[sREFMAGIC]);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->secretcombo[sREFMAGIC],scr->secretcset[sREFMAGIC]);
 						}
 						else
 						{
@@ -3086,7 +3090,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfREFFIREBALL:
 						if(!hints)
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sREFFIREBALL],tmpscr->secretcset[sREFFIREBALL]);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->secretcombo[sREFFIREBALL],scr->secretcset[sREFFIREBALL]);
 						}
 						else
 						{
@@ -3130,7 +3134,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfSWORD:
 						if(!hints)
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sSWORD],tmpscr->secretcset[sSWORD]);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->secretcombo[sSWORD],scr->secretcset[sSWORD]);
 						}
 						else
 						{
@@ -3153,7 +3157,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfWSWORD:
 						if(!hints)
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sWSWORD],tmpscr->secretcset[sWSWORD]);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->secretcombo[sWSWORD],scr->secretcset[sWSWORD]);
 						}
 						else
 						{
@@ -3176,7 +3180,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfMSWORD:
 						if(!hints)
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sMSWORD],tmpscr->secretcset[sMSWORD]);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->secretcombo[sMSWORD],scr->secretcset[sMSWORD]);
 						}
 						else
 						{
@@ -3199,7 +3203,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfXSWORD:
 						if(!hints)
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sXSWORD],tmpscr->secretcset[sXSWORD]);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->secretcombo[sXSWORD],scr->secretcset[sXSWORD]);
 						}
 						else
 						{
@@ -3222,7 +3226,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfSWORDBEAM:
 						if(!hints)
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sSWORDBEAM],tmpscr->secretcset[sSWORDBEAM]);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->secretcombo[sSWORDBEAM],scr->secretcset[sSWORDBEAM]);
 						}
 						else
 						{
@@ -3245,7 +3249,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfWSWORDBEAM:
 						if(!hints)
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sWSWORDBEAM],tmpscr->secretcset[sWSWORDBEAM]);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->secretcombo[sWSWORDBEAM],scr->secretcset[sWSWORDBEAM]);
 						}
 						else
 						{
@@ -3268,7 +3272,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfMSWORDBEAM:
 						if(!hints)
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sMSWORDBEAM],tmpscr->secretcset[sMSWORDBEAM]);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->secretcombo[sMSWORDBEAM],scr->secretcset[sMSWORDBEAM]);
 						}
 						else
 						{
@@ -3291,7 +3295,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfXSWORDBEAM:
 						if(!hints)
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sXSWORDBEAM],tmpscr->secretcset[sXSWORDBEAM]);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->secretcombo[sXSWORDBEAM],scr->secretcset[sXSWORDBEAM]);
 						}
 						else
 						{
@@ -3314,7 +3318,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfHOOKSHOT:
 						if(!hints)
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sHOOKSHOT],tmpscr->secretcset[sHOOKSHOT]);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->secretcombo[sHOOKSHOT],scr->secretcset[sHOOKSHOT]);
 						}
 						else
 						{
@@ -3337,7 +3341,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfWAND:
 						if(!hints)
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sWAND],tmpscr->secretcset[sWAND]);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->secretcombo[sWAND],scr->secretcset[sWAND]);
 						}
 						else
 						{
@@ -3360,7 +3364,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case mfHAMMER:
 						if(!hints)
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,tmpscr->secretcombo[sHAMMER],tmpscr->secretcset[sHAMMER]);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))putcombo(dest,x,y,scr->secretcombo[sHAMMER],scr->secretcset[sHAMMER]);
 						}
 						else
 						{
@@ -3382,9 +3386,9 @@ void draw_lens_under(BITMAP *dest, bool layer)
 						
 					case mfARMOS_ITEM:
 					case mfDIVE_ITEM:
-						if((!getmapflag() || (tmpscr->flags9&fBELOWRETURN)) && !(itemsbuf[Hero.getLastLensID()].flags & item_flag3))
+						if((!getmapflag() || (scr->flags9&fBELOWRETURN)) && !(itemsbuf[Hero.getLastLensID()].flags & item_flag3))
 						{
-							putitem2(dest,x,y,tmpscr->catchall, lens_hint_item[tmpscr->catchall][0], lens_hint_item[tmpscr->catchall][1], 0);
+							putitem2(dest,x,y,scr->catchall, lens_hint_item[scr->catchall][0], lens_hint_item[scr->catchall][1], 0);
 						}
 						break;
 						
@@ -3406,13 +3410,13 @@ void draw_lens_under(BITMAP *dest, bool layer)
 					case 31:
 						if(!hints)
 							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))
-								putcombo(dest,x,y,tmpscr->secretcombo[checkflag-16+4],tmpscr->secretcset[checkflag-16+4]);
+								putcombo(dest,x,y,scr->secretcombo[checkflag-16+4],scr->secretcset[checkflag-16+4]);
 									 
 						break;
 					case mfSECRETSNEXT:
 						if(!hints)
 							if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))
-								putcombo(dest,x,y,tmpscr->data[i]+1,tmpscr->cset[i]);
+								putcombo(dest,x,y,rpos_handle.data()+1,rpos_handle.cset());
 									 
 						break;
 					
@@ -3440,69 +3444,71 @@ void draw_lens_under(BITMAP *dest, bool layer)
 						break;
 				}
 			}
-		}
-		
-		if(layer)
-		{
-			if(tmpscr->door[0]==dWALK)
-				rectfill(dest, 120, 16+playing_field_offset, 135, 31+playing_field_offset, WHITE);
-				
-			if(tmpscr->door[1]==dWALK)
-				rectfill(dest, 120, 144+playing_field_offset, 135, 159+playing_field_offset, WHITE);
-				
-			if(tmpscr->door[2]==dWALK)
-				rectfill(dest, 16, 80+playing_field_offset, 31, 95+playing_field_offset, WHITE);
-				
-			if(tmpscr->door[3]==dWALK)
-				rectfill(dest, 224, 80+playing_field_offset, 239, 95+playing_field_offset, WHITE);
-				
-			if(tmpscr->door[0]==dBOMB)
+		});
+
+		for_every_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
+			if (layer)
 			{
-				showbombeddoor(dest, 0);
-			}
-			
-			if(tmpscr->door[1]==dBOMB)
-			{
-				showbombeddoor(dest, 1);
-			}
-			
-			if(tmpscr->door[2]==dBOMB)
-			{
-				showbombeddoor(dest, 2);
-			}
-			
-			if(tmpscr->door[3]==dBOMB)
-			{
-				showbombeddoor(dest, 3);
-			}
-		}
-		
-		if(tmpscr->stairx + tmpscr->stairy)
-		{
-			if(!hints)
-			{
-				if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))
-					putcombo(dest,tmpscr->stairx,tmpscr->stairy+playing_field_offset,tmpscr->secretcombo[sSTAIRS],tmpscr->secretcset[sSTAIRS]);
-			}
-			else
-			{
-				if(tmpscr->flags&fWHISTLE)
+				if(scr->door[0]==dWALK)
+					rectfill(dest, 120, 16+playing_field_offset, 135, 31+playing_field_offset, WHITE);
+					
+				if(scr->door[1]==dWALK)
+					rectfill(dest, 120, 144+playing_field_offset, 135, 159+playing_field_offset, WHITE);
+					
+				if(scr->door[2]==dWALK)
+					rectfill(dest, 16, 80+playing_field_offset, 31, 95+playing_field_offset, WHITE);
+					
+				if(scr->door[3]==dWALK)
+					rectfill(dest, 224, 80+playing_field_offset, 239, 95+playing_field_offset, WHITE);
+					
+				if(scr->door[0]==dBOMB)
 				{
-					tempitem=getItemID(itemsbuf,itype_whistle,1);
-					int32_t tempitemx=-16;
-					int32_t tempitemy=-16;
-					
-					if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&(blink_rate/4)))
-							|| ((get_debug() && zc_getkey(KEY_N)) && (frame&(blink_rate/4))))
-					{
-						tempitemx=tmpscr->stairx;
-						tempitemy=tmpscr->stairy+playing_field_offset;
-					}
-					
-					putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+					showbombeddoor(dest, 0);
+				}
+				
+				if(scr->door[1]==dBOMB)
+				{
+					showbombeddoor(dest, 1);
+				}
+				
+				if(scr->door[2]==dBOMB)
+				{
+					showbombeddoor(dest, 2);
+				}
+				
+				if(scr->door[3]==dBOMB)
+				{
+					showbombeddoor(dest, 3);
 				}
 			}
-		}
+
+			if (scr->stairx + scr->stairy)
+			{
+				if(!hints)
+				{
+					if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))
+						putcombo(dest,scr->stairx,scr->stairy+playing_field_offset,scr->secretcombo[sSTAIRS],scr->secretcset[sSTAIRS]);
+				}
+				else
+				{
+					if(scr->flags&fWHISTLE)
+					{
+						tempitem=getItemID(itemsbuf,itype_whistle,1);
+						int32_t tempitemx=-16;
+						int32_t tempitemy=-16;
+						
+						if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&(blink_rate/4)))
+								|| ((get_debug() && zc_getkey(KEY_N)) && (frame&(blink_rate/4))))
+						{
+							tempitemx=scr->stairx;
+							tempitemy=scr->stairy+playing_field_offset;
+						}
+						
+						putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+					}
+				}
+			}
+		});
 	}
 }
 

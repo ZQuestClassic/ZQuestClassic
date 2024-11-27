@@ -54,6 +54,7 @@ struct rpos_handle_t
 	void set_sflag(uint8_t value) const;
 
 	uint8_t cflag() const;
+	uint8_t ctype() const;
 };
 
 // A unique identifier for an ffc in the current region.

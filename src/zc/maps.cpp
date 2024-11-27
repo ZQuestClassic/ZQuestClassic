@@ -2620,20 +2620,6 @@ bool remove_bosschests(mapscr* s)
     return remove_screenstatecombos2(s, true, cBOSSCHEST, cBOSSCHEST2);
 }
 
-
-bool overheadcombos(mapscr *s)
-{
-    for(int32_t i=0; i<176; i++)
-    {
-        if(combo_class_buf[combobuf[s->data[i]].type].overhead)
-        {
-            return true;
-        }
-    }
-    
-    return false;
-}
-
 void delete_fireball_shooter(const rpos_handle_t& rpos_handle)
 {
     int32_t ct=rpos_handle.combo().type;

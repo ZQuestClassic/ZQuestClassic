@@ -1680,16 +1680,19 @@ void HeroClass::init()
 	
 	prompt_combo = prompt_x = prompt_y = prompt_cset = 0;
     
-    if(get_qr(qr_NOARRIVALPOINT))
-    {
-        x=hero_scr->warpreturnx[0];
-        y=hero_scr->warpreturny[0];
-    }
-    else
-    {
-        x=hero_scr->warparrivalx;
-        y=hero_scr->warparrivaly;
-    }
+	if (hero_scr)
+	{
+		if(get_qr(qr_NOARRIVALPOINT))
+		{
+			x=hero_scr->warpreturnx[0];
+			y=hero_scr->warpreturny[0];
+		}
+		else
+		{
+			x=hero_scr->warparrivalx;
+			y=hero_scr->warparrivaly;
+		}
+	}
     
     z=fakez=fall=fakefall=0;
     hzsz = 12; // So that flying peahats can still hit him.
