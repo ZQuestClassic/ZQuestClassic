@@ -5972,7 +5972,6 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	cpos_force_update();
 	trig_trigger_groups();
 
-	// TODO z3 ! ffc carryovers?
 	for_every_ffc([&](const ffc_handle_t& ffc_handle) {
 		// Handled in loadscr_old.
 		if (ffc_handle.screen == currscr)

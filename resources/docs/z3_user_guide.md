@@ -72,3 +72,14 @@ int RegionWorldOffsetX(int scr);
 int RegionWorldOffsetY(int scr);
 bool RegionIncludesScreen(int scr);
 ```
+
+
+
+______
+
+scratch notes
+
+- Item pickup behavior. Triggers secret of the screen the item was created on. If item move about, its associated screen is unchanged. Same for all sprites
+
+Commit message: TODO
+
