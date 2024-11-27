@@ -7,6 +7,7 @@
 #include "base/files.h"
 #include "base/fonts.h"
 #include "base/render.h"
+#include "base/zapp.h"
 #include "base/zc_alleg.h"
 #include "base/qrs.h"
 #include "base/packfile.h"
@@ -1441,6 +1442,9 @@ static void select_game(bool skip = false)
 
 static void actual_titlescreen()
 {
+	if (is_headless())
+		return;
+
 	int starting_volume = 0;
 	if (exists("assets/title_music.mp3"))
 	{

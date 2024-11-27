@@ -9,46 +9,6 @@
 #include "base/mapscr.h"
 #include "iter.h"
 
-/*
-void sprite::check_conveyor()
-{
-  if (conveyclk<=0)
-  {
-    int32_t ctype=(combobuf[MAPCOMBO(x+8,y+8)].type);
-    if((ctype>=cOLD_CVUP) && (ctype<=cOLD_CVRIGHT))
-    {
-      switch (ctype-cOLD_CVUP)
-      {
-        case up:
-        if(!_walkflag(x,y+8-2,2))
-        {
-          y=y-2;
-        }
-        break;
-        case down:
-        if(!_walkflag(x,y+15+2,2))
-        {
-          y=y+2;
-        }
-        break;
-        case left:
-        if(!_walkflag(x-2,y+8,1))
-        {
-          x=x-2;
-        }
-        break;
-        case right:
-        if(!_walkflag(x+15+2,y+8,1))
-        {
-          x=x+2;
-        }
-        break;
-      }
-    }
-  }
-}
-*/
-
 void sprite::handle_sprlighting()
 {
 	if(!get_qr(qr_NEW_DARKROOM)) return;
@@ -239,7 +199,6 @@ void movingblock::push(zfix bx,zfix by,int32_t d2,int32_t f)
     m->data[combopos] = m->undercombo;
     m->cset[combopos] = m->undercset;
 	FFCore.clear_combo_script(rpos_handle);
-    putcombo(scrollbuf,x-viewport.x,y-viewport.y,m->undercombo,m->undercset);
     clk=32;
 	if(!get_qr(qr_MOVINGBLOCK_FAKE_SOLID))
 		setSolid(true);
@@ -289,7 +248,6 @@ void movingblock::push_new(zfix bx,zfix by,int d2,int f,zfix spd)
     m->data[combopos] = m->undercombo;
     m->cset[combopos] = m->undercset;
 	FFCore.clear_combo_script(rpos_handle);
-    putcombo(scrollbuf,x-viewport.x,y-viewport.y,m->undercombo,m->undercset);
     clk=32;
 	if(!get_qr(qr_MOVINGBLOCK_FAKE_SOLID))
 		setSolid(true);
@@ -797,8 +755,6 @@ bool movingblock::animate(int32_t)
 				}
 			}
 			
-			putcombo(scrollbuf,x-viewport.x,y-viewport.y,bcombo,cs);
-			
 			if(m->data[combopos] == bcombo)
 			{
 				cpos_get(end_rpos_handle).updateInfo(blockinfo);
@@ -1030,8 +986,6 @@ bool movingblock::animate(int32_t)
 					}
 				}
 			}
-			
-			putcombo(scrollbuf,x-viewport.x,y-viewport.y,bcombo,cs);
 		}
 		newcombo const& blockcmb = combobuf[bcombo];
 		if(blockcmb.triggerflags[3] & combotriggerPUSHEDTRIG)

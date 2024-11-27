@@ -2409,7 +2409,6 @@ void draw_lens_under(BITMAP *dest, bool layer)
 				}
 				else
 				{
-					
 					checkflag = rpos_handle.sflag();
 				}
 				
