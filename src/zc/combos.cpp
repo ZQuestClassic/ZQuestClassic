@@ -717,7 +717,6 @@ void trigger_cuttable_ffc(const ffc_handle_t& ffc_handle)
 
 bool trigger_step(const rpos_handle_t& rpos_handle)
 {
-	int32_t pos = rpos_handle.pos;
 	auto& cmb = rpos_handle.combo();	
 	if(!isStepType(cmb.type) || cmb.type == cSTEPCOPY) return false;
 	if(cmb.attribytes[1] && !game->item[cmb.attribytes[1]])
@@ -725,7 +724,7 @@ bool trigger_step(const rpos_handle_t& rpos_handle)
 	if((cmb.usrflags & cflag1) && !Hero.HasHeavyBoots())
 		return false;
 	if(cmb.attribytes[0])
-		sfx(cmb.attribytes[0], pan(COMBOX(pos)));
+		sfx(cmb.attribytes[0], pan(COMBOX_REGION(rpos_handle.rpos)));
 	switch(cmb.type)
 	{
 		case cSTEP:
@@ -1729,14 +1728,15 @@ bool trigger_damage_combo(mapscr* scr, int32_t cid, int type, int ptrval, int32_
 bool trigger_stepfx(const rpos_handle_t& rpos_handle, bool stepped)
 {
 	auto [tx, ty] = COMBOXY_REGION(rpos_handle.rpos);
+
+	auto& cmb = rpos_handle.combo();
+
+	int32_t thesfx = cmb.attribytes[0];
+	sfx_no_repeat(thesfx,pan(tx));
+
 	tx += 8;
 	ty += 8;
 
-	int pos = rpos_handle.pos;
-	auto& cmb = rpos_handle.combo();	
-
-	int32_t thesfx = cmb.attribytes[0];
-	sfx_no_repeat(thesfx,pan(COMBOX(pos)));
 	if ( cmb.usrflags&cflag1) //landmine
 	{
 		int32_t wpn = cmb.attribytes[1];
@@ -1906,7 +1906,7 @@ bool trigger_stepfx(const rpos_handle_t& rpos_handle, bool stepped)
 		}
 		if (!(cmb.usrflags&cflag3) ) //Don't Advance
 		{
-			rpos_handle.scr->data[pos]++;
+			rpos_handle.increment_data();
 		}
 	}
 	return true;

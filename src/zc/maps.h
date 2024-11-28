@@ -315,7 +315,7 @@ enum class TriggerSource {
 };
 void trigger_secrets_for_screen(TriggerSource source, int32_t screen, bool high16only=false, int32_t single=-1);
 void trigger_secrets_for_screen(TriggerSource source, int32_t screen, mapscr *s, bool high16only=false, int32_t single=-1);
-void trigger_secrets_for_screen_internal(int32_t screen, mapscr *s, bool do_combo_triggers, bool high16only, int32_t single, bool do_replay_comment=true);
+void trigger_secrets_for_screen_internal(int32_t screen, mapscr *scr, bool do_combo_triggers, bool high16only, int32_t single, bool do_replay_comment=true);
 
 void update_freeform_combos();
 void update_slopes();

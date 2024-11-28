@@ -2766,10 +2766,10 @@ void trigger_secrets_for_screen(TriggerSource source, int32_t screen, mapscr *s,
 	trigger_secrets_for_screen_internal(screen, s, do_combo_triggers, high16only, single);
 }
 
-void trigger_secrets_for_screen_internal(int32_t screen, mapscr *s, bool do_combo_triggers, bool high16only, int32_t single, bool do_replay_comment)
+void trigger_secrets_for_screen_internal(int32_t screen, mapscr *scr, bool do_combo_triggers, bool high16only, int32_t single, bool do_replay_comment)
 {
 	DCHECK(screen != -1 || s);
-	if (!s) s = get_scr(screen);
+	if (!scr) scr = get_scr(screen);
 	if (screen == -1) screen = currscr;
 
 	// No real reason for "do_replay_comment" to exist - I just did not want to update many replays when fixing
@@ -2779,13 +2779,13 @@ void trigger_secrets_for_screen_internal(int32_t screen, mapscr *s, bool do_comb
 
 	if (do_combo_triggers)
 	{
-		for_every_rpos_in_screen(s, [&](const rpos_handle_t& rpos_handle) {
+		for_every_rpos_in_screen(scr, [&](const rpos_handle_t& rpos_handle) {
 			if (rpos_handle.combo().triggerflags[2] & combotriggerSECRETSTR)
 				do_trigger_combo(rpos_handle, ctrigSECRETS);
 		});
 		if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
 		{
-			for_every_ffc_in_screen(s, [&](const ffc_handle_t& ffc_handle) {
+			for_every_ffc_in_screen(scr, [&](const ffc_handle_t& ffc_handle) {
 				if (ffc_handle.combo().triggerflags[2] & combotriggerSECRETSTR)
 					do_trigger_combo_ffc(ffc_handle);
 			});
@@ -2800,10 +2800,10 @@ void trigger_secrets_for_screen_internal(int32_t screen, mapscr *s, bool do_comb
 		if(single>=0 && i!=single) continue; //If it's got a singular flag and i isn't where the flag is
 		
 		// Remember the misc. secret flag; if triggered, use this instead
-		if(s->sflag[i]>=mfSECRETS01 && s->sflag[i]<=mfSECRETS16)
-			msflag=sSECRET01+(s->sflag[i]-mfSECRETS01);
-		else if(combobuf[s->data[i]].flag>=mfSECRETS01 && combobuf[s->data[i]].flag<=mfSECRETS16)
-			msflag=sSECRET01+(combobuf[s->data[i]].flag-mfSECRETS01);
+		if(scr->sflag[i]>=mfSECRETS01 && scr->sflag[i]<=mfSECRETS16)
+			msflag=sSECRET01+(scr->sflag[i]-mfSECRETS01);
+		else if(combobuf[scr->data[i]].flag>=mfSECRETS01 && combobuf[scr->data[i]].flag<=mfSECRETS16)
+			msflag=sSECRET01+(combobuf[scr->data[i]].flag-mfSECRETS01);
 		else
 			msflag=0;
 			
@@ -2813,9 +2813,9 @@ void trigger_secrets_for_screen_internal(int32_t screen, mapscr *s, bool do_comb
 			
 			for(int32_t iter=0; iter<2; ++iter)
 			{
-				int32_t checkflag=combobuf[s->data[i]].flag; //Inherent
+				int32_t checkflag=combobuf[scr->data[i]].flag; //Inherent
 				
-				if(iter==1) checkflag=s->sflag[i]; //Placed
+				if(iter==1) checkflag=scr->sflag[i]; //Placed
 				
 				ft = combo_trigger_flag_to_secret_combo_index(checkflag);
 				if (ft != -1)  //Change the combos for the secret
@@ -2824,23 +2824,23 @@ void trigger_secrets_for_screen_internal(int32_t screen, mapscr *s, bool do_comb
 					if(msflag!=0)
 						ft=msflag;
 					
-					auto rpos_handle = get_rpos_handle_for_screen(s, 0, i);
+					auto rpos_handle = get_rpos_handle_for_screen(scr, 0, i);
 					screen_combo_modify_preroutine(rpos_handle);
 					if(ft==sSECNEXT)
 					{
-						s->data[i]++;
+						scr->data[i]++;
 					}
 					else
 					{
-						s->data[i] = s->secretcombo[ft];
-						s->cset[i] = s->secretcset[ft];
+						scr->data[i] = scr->secretcombo[ft];
+						scr->cset[i] = scr->secretcset[ft];
 					}
-					newflag = s->secretflag[ft];
+					newflag = scr->secretflag[ft];
 					screen_combo_modify_postroutine(rpos_handle);
 				}
 			}
 			
-			if(newflag >-1) s->sflag[i] = newflag; //Tiered secret
+			if(newflag >-1) scr->sflag[i] = newflag; //Tiered secret
 			
 			if (do_combo_triggers)
 			{
@@ -2900,7 +2900,7 @@ void trigger_secrets_for_screen_internal(int32_t screen, mapscr *s, bool do_comb
 		}
 	}
 	
-	word c = s->numFFC();
+	word c = scr->numFFC();
 	for(word i=0; i<c; i++) //FFC 'trigger flags'
 	{
 		if(single>=0) if(i+176!=single) continue;
@@ -2909,7 +2909,7 @@ void trigger_secrets_for_screen_internal(int32_t screen, mapscr *s, bool do_comb
 		{
 			//for (int32_t iter=0; iter<1; ++iter) // Only one kind of FFC flag now.
 			{
-				int32_t checkflag=combobuf[s->ffcs[i].data].flag; //Inherent
+				int32_t checkflag=combobuf[scr->ffcs[i].data].flag; //Inherent
 				//No placed flags yet
 
 				ft = combo_trigger_flag_to_secret_combo_index(checkflag);
@@ -2917,12 +2917,12 @@ void trigger_secrets_for_screen_internal(int32_t screen, mapscr *s, bool do_comb
 				{
 					if(ft==sSECNEXT)
 					{
-						zc_ffc_modify(s->ffcs[i], 1);
+						zc_ffc_modify(scr->ffcs[i], 1);
 					}
 					else
 					{
-						zc_ffc_set(s->ffcs[i], s->secretcombo[ft]);
-						s->ffcs[i].cset = s->secretcset[ft];
+						zc_ffc_set(scr->ffcs[i], scr->secretcombo[ft]);
+						scr->ffcs[i].cset = scr->secretcset[ft];
 					}
 				}
 			}
@@ -2933,7 +2933,7 @@ void trigger_secrets_for_screen_internal(int32_t screen, mapscr *s, bool do_comb
 	{
 		checktrigger=false;
 		
-		if(s->flags6&fTRIGGERF1631)
+		if(scr->flags6&fTRIGGERF1631)
 		{
 			int32_t tr = findtrigger(screen);  //Normal flags
 			
@@ -2950,28 +2950,28 @@ void trigger_secrets_for_screen_internal(int32_t screen, mapscr *s, bool do_comb
 		//If it's an enemies->secret screen, only do the high 16 if told to
 		//That way you can have secret and burn/bomb entrance separately
 		bool old_enem_secret = get_qr(qr_ENEMIES_SECRET_ONLY_16_31);
-		if(((!(old_enem_secret && (s->flags2&fCLEARSECRET)) /*Enemies->Secret*/ && single < 0) || high16only || s->flags4&fENEMYSCRTPERM))
+		if(((!(old_enem_secret && (scr->flags2&fCLEARSECRET)) /*Enemies->Secret*/ && single < 0) || high16only || scr->flags4&fENEMYSCRTPERM))
 		{
 			int32_t newflag = -1;
 			
 			for(int32_t iter=0; iter<2; ++iter)
 			{
-				int32_t checkflag=combobuf[s->data[i]].flag; //Inherent
+				int32_t checkflag=combobuf[scr->data[i]].flag; //Inherent
 				
-				if(iter==1) checkflag=s->sflag[i];  //Placed
+				if(iter==1) checkflag=scr->sflag[i];  //Placed
 				
 				if((checkflag > 15)&&(checkflag < 32)) //If we've got a 16->32 flag change the combo
 				{
-					auto rpos_handle = get_rpos_handle_for_screen(s, 0, i);
+					auto rpos_handle = get_rpos_handle_for_screen(scr, 0, i);
 					screen_combo_modify_preroutine(rpos_handle);
-					s->data[i] = s->secretcombo[checkflag-16+4];
-					s->cset[i] = s->secretcset[checkflag-16+4];
-					newflag = s->secretflag[checkflag-16+4];
+					scr->data[i] = scr->secretcombo[checkflag-16+4];
+					scr->cset[i] = scr->secretcset[checkflag-16+4];
+					newflag = scr->secretflag[checkflag-16+4];
 					screen_combo_modify_postroutine(rpos_handle);
 				}
 			}
 			
-			if(newflag >-1) s->sflag[i] = newflag;  //Tiered flag
+			if(newflag >-1) scr->sflag[i] = newflag;  //Tiered flag
 			
 			if (do_combo_triggers)
 			{
@@ -3004,25 +3004,25 @@ void trigger_secrets_for_screen_internal(int32_t screen, mapscr *s, bool do_comb
 	
 	for(word i=0; i<c; i++) // FFCs
 	{
-		if((!(s->flags2&fCLEARSECRET) /*Enemies->Secret*/ && single < 0) || high16only || s->flags4&fENEMYSCRTPERM)
+		if((!(scr->flags2&fCLEARSECRET) /*Enemies->Secret*/ && single < 0) || high16only || scr->flags4&fENEMYSCRTPERM)
 		{
-			int32_t checkflag=combobuf[s->ffcs[i].data].flag; //Inherent
+			int32_t checkflag=combobuf[scr->ffcs[i].data].flag; //Inherent
 			
 			//No placed flags yet
 			if((checkflag > 15)&&(checkflag < 32)) //If we find a flag, change the combo
 			{
-				zc_ffc_set(s->ffcs[i], s->secretcombo[checkflag - 16 + 4]);
-				s->ffcs[i].cset = s->secretcset[checkflag-16+4];
+				zc_ffc_set(scr->ffcs[i], scr->secretcombo[checkflag - 16 + 4]);
+				scr->ffcs[i].cset = scr->secretcset[checkflag-16+4];
 			}
 		}
 	}
 	
 endhe:
 
-	if (s->flags4&fDISABLETIME) //Finish timed warp if 'Secrets Disable Timed Warp'
+	if (scr->flags4&fDISABLETIME) //Finish timed warp if 'Secrets Disable Timed Warp'
 	{
 		activated_timed_warp = true;
-		s->timedwarptics = 0;
+		scr->timedwarptics = 0;
 	}
 }
 

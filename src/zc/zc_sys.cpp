@@ -3511,31 +3511,26 @@ void draw_lens_under(BITMAP *dest, bool layer)
 	}
 }
 
-BITMAP *lens_scr_d; // The "d" is for "destructible"!
-
 void draw_lens_over()
 {
-	// Oh, what the heck.
-	static BITMAP *lens_scr = NULL;
+	int w = 288;
+	int h = 240;
+
+	static BITMAP *lens_scr = create_bitmap_ex(8,2*w,2*h);
 	static int32_t last_width = -1;
 	int32_t width = itemsbuf[current_item_id(itype_lens,true)].misc1;
 	
 	// Only redraw the circle if the size has changed
-	if(width != last_width)
+	if (width != last_width)
 	{
-		if(lens_scr == NULL)
-		{
-			lens_scr = create_bitmap_ex(8,2*288,2*(240-playing_field_offset));
-		}
-		
 		clear_to_color(lens_scr, BLACK);
-		circlefill(lens_scr, 288, 240-playing_field_offset, width, 0);
-		circle(lens_scr, 288, 240-playing_field_offset, width+2, 0);
-		circle(lens_scr, 288, 240-playing_field_offset, width+5, 0);
+		circlefill(lens_scr, w, h, width, 0);
+		circle(lens_scr, w, h, width+2, 0);
+		circle(lens_scr, w, h, width+5, 0);
 		last_width=width;
 	}
 	
-	masked_blit(lens_scr, framebuf, 288-(HeroX()+8), 240-playing_field_offset-(HeroY()+8), 0, playing_field_offset, 256, 168);
+	masked_blit(lens_scr, framebuf, w-(HeroX()+8)+viewport.x, h-(HeroY()+8)+viewport.y, 0, playing_field_offset, 256, viewport.h - 8);
 	do_primitives(framebuf, SPLAYER_LENS_OVER, 0, playing_field_offset);
 }
 
