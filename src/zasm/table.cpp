@@ -554,9 +554,6 @@ static constexpr script_command command_list[]=
 	{ "LOADCOMBODATAR", LOADCOMBODATAR, 1, { REG_R }, 0, 0 },
 	{ "LOADCOMBODATAV", LOADCOMBODATAV, 1, { NUM }, 0, 0 },
 	
-	{ "LOADMAPDATAR", LOADMAPDATAR, 1, { REG_R }, 0, 0 },
-	{ "LOADMAPDATAV", LOADMAPDATAV, 1, { NUM }, 0, 0 },
-	
 	{ "LOADSPRITEDATAR", LOADSPRITEDATAR, 1, { REG_R }, 0, 0 },
 	{ "LOADSPRITEDATAV", LOADSPRITEDATAV, 1, { NUM }, 0, 0 },
  
