@@ -3794,7 +3794,9 @@ void game_loop()
 					game->set_arrows(zc_min(game->get_arrows() + itemsbuf[itemid].misc1, game->get_maxarrows()));
 				}
 			}
-			if(lensclk && !FFCore.system_suspend[susptLENS])
+
+			// In extended height mode, the lens effect has to be done before drawing the subscreen.
+			if(!is_extended_height_mode() && lensclk && !FFCore.system_suspend[susptLENS])
 			{
 				draw_lens_over();
 				--lensclk;

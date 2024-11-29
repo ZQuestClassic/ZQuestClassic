@@ -5024,8 +5024,13 @@ void draw_screen(bool showhero, bool runGeneric)
 		set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
 		do_primitives(framebuf, SPLAYER_DARKROOM_OVER, 0, playing_field_offset);
 	}
-	
-	
+
+	if (is_extended_height_mode() && lensclk && !FFCore.system_suspend[susptLENS])
+	{
+		draw_lens_over();
+		--lensclk;
+	}
+
 	// Draw some text on framebuf
 	
 	set_clip_rect(framebuf,0,0,256,224);
