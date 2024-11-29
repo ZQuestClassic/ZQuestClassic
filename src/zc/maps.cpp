@@ -2197,28 +2197,34 @@ int get_icy(int x, int y, int type)
 {
 	int32_t c = MAPCOMBOL(2,x,y);
 	if(check_icy(combobuf[c], type)) return c;
-	if(tmpscr2[1].valid!=0)
+
+	int screen = get_screen_index_for_world_xy(x, y);
+
+	mapscr* scr = get_layer_scr_valid(screen, 1);
+	if (scr)
 	{
 		if (get_qr(qr_OLD_BRIDGE_COMBOS))
 		{
-			if (combobuf[MAPCOMBO2(1,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, &(tmpscr2[1]))) return 0;
+			if (combobuf[MAPCOMBO2(1,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, scr)) return 0;
 		}
 		else
 		{
-			if (combobuf[MAPCOMBO2(1,x,y)].type == cBRIDGE && _effectflag_layer(x,y,1, &(tmpscr2[1]))) return 0;
+			if (combobuf[MAPCOMBO2(1,x,y)].type == cBRIDGE && _effectflag_layer(x,y,1, scr)) return 0;
 		}
 	}
 	c = MAPCOMBOL(1,x,y);
 	if(check_icy(combobuf[c], type)) return c;
-	if(tmpscr2[0].valid!=0)
+
+	scr = get_layer_scr_valid(screen, 0);
+	if (scr)
 	{
 		if (get_qr(qr_OLD_BRIDGE_COMBOS))
 		{
-			if (combobuf[MAPCOMBO2(0,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, &(tmpscr2[0]))) return 0;
+			if (combobuf[MAPCOMBO2(0,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, scr)) return 0;
 		}
 		else
 		{
-			if (combobuf[MAPCOMBO2(0,x,y)].type == cBRIDGE && _effectflag_layer(x,y,1, &(tmpscr2[0]))) return 0;
+			if (combobuf[MAPCOMBO2(0,x,y)].type == cBRIDGE && _effectflag_layer(x,y,1, scr)) return 0;
 		}
 	}
 	c = MAPCOMBO(x,y);
