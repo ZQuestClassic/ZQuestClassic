@@ -15524,12 +15524,6 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	
 	for(int32_t k=0; k<10; k++)
 	{
-		/*
-			if (!temp_mapscr->enemy[k])
-			{
-			  continue;
-			}
-		*/
 		if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<10)))
 		{
 			if(!p_getc(&tempbyte,f))
@@ -15571,7 +15565,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 		//don't read in any invalid data
 		if ( ((unsigned)temp_mapscr->enemy[k]) > MAXGUYS )
 		{
-			al_trace("Tried to read an invalid enemy ID (%d) for tmpscr->enemy[%d]. This has been cleared to 0.\n", temp_mapscr->enemy[k], k);
+			al_trace("Tried to read an invalid enemy ID (%d) for enemy[%d]. This has been cleared to 0.\n", temp_mapscr->enemy[k], k);
 			temp_mapscr->enemy[k] = 0;
 		}
 	}
