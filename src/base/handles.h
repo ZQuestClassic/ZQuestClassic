@@ -95,6 +95,8 @@ struct combined_handle_t : std::variant<rpos_handle_t, ffc_handle_t>
 
 	bool is_rpos() const;
 	bool is_ffc() const;
+	mapscr* base_scr() const;
+	const newcombo& combo() const;
 	int data() const;
 	int id() const;
 };

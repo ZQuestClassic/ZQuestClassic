@@ -112,6 +112,22 @@ bool combined_handle_t::is_ffc() const
 	return !std::holds_alternative<rpos_handle_t>(*this);
 }
 
+mapscr* combined_handle_t::base_scr() const
+{
+	if (std::holds_alternative<rpos_handle_t>(*this))
+		return std::get<rpos_handle_t>(*this).base_scr();
+
+	return std::get<ffc_handle_t>(*this).scr;
+}
+
+const newcombo& combined_handle_t::combo() const
+{
+	if (std::holds_alternative<rpos_handle_t>(*this))
+		return std::get<rpos_handle_t>(*this).combo();
+
+	return std::get<ffc_handle_t>(*this).combo();
+}
+
 int32_t combined_handle_t::data() const
 {
 	if (std::holds_alternative<rpos_handle_t>(*this))

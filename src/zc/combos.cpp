@@ -923,10 +923,13 @@ void trigger_sign(newcombo const& cmb)
 	play_combo_string(cmb.attributes[0]/10000L, currscr);
 }
 
-bool trigger_warp(newcombo const& cmb)
+bool trigger_warp(const combined_handle_t& handle)
 {
+	auto& cmb = handle.combo();
 	if(!isWarpType(cmb.type)) return false;
-	mapscr* wscr = currscr >= 128 ? &special_warp_return_screen : tmpscr;
+
+	mapscr* scr = handle.base_scr();
+	mapscr* wscr = currscr >= 128 ? &special_warp_return_screen : scr;
 	auto index = getWarpLetter(cmb.type);
 	if(index == 4) index = zc_oldrand()%4; //Random warp
 	auto wtype = wscr->tilewarptype[index];
@@ -968,7 +971,7 @@ bool trigger_warp(newcombo const& cmb)
 	}
 	
 	auto wflag = 0;
-	if(tmpscr->flags3&fIWARPFULLSCREEN) wflag |= warpFlagDONTCLEARSPRITES;
+	if(scr->flags3&fIWARPFULLSCREEN) wflag |= warpFlagDONTCLEARSPRITES;
 	//Queue the warp for the next frame, as doing anything else breaks terribly
 	FFCore.queueWarp(wtype, tdm, tscr, wx, wy, weff, wsfx, wflag, -1);
 	return true;
@@ -1183,7 +1186,7 @@ bool trigger_chest_ffc(const ffc_handle_t& ffc_handle)
 				break;
 			}
 			case -1:
-				itid = tmpscr->catchall;
+				itid = ffc_handle.scr->catchall;
 				break;
 		}
 		if(unsigned(itid) >= MAXITEMS) itid = 0;
@@ -1339,8 +1342,8 @@ bool trigger_armos_grave(const rpos_handle_t& rpos_handle, int32_t trigdir)
 		}
 	}
 	if(gc > 10) return false; //Unsure what this purpose is
-	mapscr* tmp = rpos_handle.scr;
-	newcombo const& cmb = combobuf[tmp->data[pos]];
+
+	auto& cmb = rpos_handle.combo();
 	int32_t eclk = -14;
 	int32_t id2 = 0;
 	auto [tx, ty] = COMBOXY_REGION(rpos_handle.rpos);
@@ -1412,9 +1415,10 @@ bool trigger_armos_grave(const rpos_handle_t& rpos_handle, int32_t trigdir)
 						{
 							while(searching == 1) //find the top edge of an armos block
 							{
-								chy += 16;
-								if ( pos - chy < 0 ) break; //don't go out of bounds
-								if ( combobuf[(tmpscr->data[pos-chy])].type == cARMOS )
+								chy -= 16;
+								if ( ty + chy < 0 ) break; //don't go out of bounds
+								
+								if (get_rpos_handle_for_world_xy(tx, ty + chy, rpos_handle.layer).ctype() == cARMOS)
 								{
 									ypos -=16;
 								}
@@ -1422,10 +1426,10 @@ bool trigger_armos_grave(const rpos_handle_t& rpos_handle, int32_t trigdir)
 							}
 							while(searching == 2) //find the left edge of an armos block
 							{
-								if ( (pos % 16) == 0 || pos == 0 ) break; //don't wrap rows
-								++chx;
-								if ( pos - chx < 0 ) break; //don't go out of bounds
-								if ( combobuf[(tmpscr->data[pos-chx])].type == cARMOS )
+								chx -= 16;
+								if ( tx + chx < 0 ) break; //don't go out of bounds
+
+								if (get_rpos_handle_for_world_xy(tx + chx, ty, rpos_handle.layer).ctype() == cARMOS)
 								{
 									xpos -=16;
 								}
@@ -1438,10 +1442,10 @@ bool trigger_armos_grave(const rpos_handle_t& rpos_handle, int32_t trigdir)
 						{
 							while(searching == 1) //find the left edge of an armos block
 							{
-								if ( (pos % 16) == 0 ) break; //don't wrap rows
-								++chx;
+								chx -= 16;
+								if ( tx + chx < 0 ) break; //don't go out of bounds
 								
-								if ( combobuf[(tmpscr->data[pos-chx])].type == cARMOS )
+								if (get_rpos_handle_for_world_xy(tx + chx, ty, rpos_handle.layer).ctype() == cARMOS)
 								{
 									xpos -=16;
 								}
@@ -1453,9 +1457,10 @@ bool trigger_armos_grave(const rpos_handle_t& rpos_handle, int32_t trigdir)
 						{
 							while(searching == 1) //find the top edge of an armos block
 							{
-								chy += 16;
-								if ( pos - chy < 0 ) break; //don't go out of bounds
-								if ( combobuf[(tmpscr->data[pos-chy])].type == cARMOS )
+								chy -= 16;
+								if ( ty + chy < 0 ) break; //don't go out of bounds
+
+								if (get_rpos_handle_for_world_xy(tx, ty + chy, rpos_handle.layer).ctype() == cARMOS)
 								{
 									ypos -=16;
 								}
@@ -1463,10 +1468,10 @@ bool trigger_armos_grave(const rpos_handle_t& rpos_handle, int32_t trigdir)
 							}
 							while(searching == 2) //find the left edge of an armos block
 							{
-								if ( (pos % 16) == 0 || pos == 0 ) break; //don't wrap rows
-								++chx;
-								if ( pos - chx < 0 ) break; //don't go out of bounds
-								if ( combobuf[(tmpscr->data[pos-chx])].type == cARMOS ) 
+								chx -= 16;
+								if ( tx + chx < 0 ) break; //don't go out of bounds
+
+								if (get_rpos_handle_for_world_xy(tx + chx, ty, rpos_handle.layer).ctype() == cARMOS)
 								{
 									xpos -=16;
 								}
@@ -1479,9 +1484,10 @@ bool trigger_armos_grave(const rpos_handle_t& rpos_handle, int32_t trigdir)
 						{
 							while(searching == 1) //find the top edge of an armos block
 							{
-								chy += 16;
-								if ( pos - chy < 0 ) break; //don't go out of bounds
-								if ( combobuf[(tmpscr->data[pos-chy])].type == cARMOS ) 
+								chy -= 16;
+								if ( ty + chy < 0 ) break; //don't go out of bounds
+
+								if (get_rpos_handle_for_world_xy(tx, ty + chy, rpos_handle.layer).ctype() == cARMOS)
 								{
 									ypos -=16;
 								}
@@ -1545,7 +1551,7 @@ bool trigger_armos_grave(const rpos_handle_t& rpos_handle, int32_t trigdir)
 				}
 			}
 			if(nextcmb)
-				tmp->data[pos]++;
+				rpos_handle.increment_data();
 			break;
 		}
 		default: return false;
@@ -2875,7 +2881,7 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special, weapon*
 					case cPIT: case cPITB: case cPITC: case cPITD: case cPITR:
 					case cAWARPA: case cAWARPB: case cAWARPC: case cAWARPD: case cAWARPR:
 					case cSWARPA: case cSWARPB: case cSWARPC: case cSWARPD: case cSWARPR:
-						trigger_warp(cmb);
+						trigger_warp(rpos_handle);
 						break;
 					
 					case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST:
@@ -3072,7 +3078,7 @@ bool do_trigger_combo_ffc(const ffc_handle_t& ffc_handle, int32_t special, weapo
 					case cPIT: case cPITB: case cPITC: case cPITD: case cPITR:
 					case cAWARPA: case cAWARPB: case cAWARPC: case cAWARPD: case cAWARPR:
 					case cSWARPA: case cSWARPB: case cSWARPC: case cSWARPD: case cSWARPR:
-						trigger_warp(cmb);
+						trigger_warp(ffc_handle);
 						break;
 					
 					case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST:
