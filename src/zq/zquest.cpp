@@ -23964,6 +23964,30 @@ static void allocate_crap()
 	}
 }
 
+static void handle_sentry_tags()
+{
+	static bool sentry_first_time = true;
+
+	static MapCursor sentry_last_map_cursor;
+	if (Map.getCursor() != sentry_last_map_cursor || sentry_first_time)
+	{
+		sentry_last_map_cursor = Map.getCursor();
+		zapp_reporting_set_tag("cursor.map", sentry_last_map_cursor.map);
+		zapp_reporting_set_tag("cursor.screen", sentry_last_map_cursor.screen);
+		zapp_reporting_set_tag("cursor.viewscr", sentry_last_map_cursor.viewscr);
+		zapp_reporting_set_tag("cursor.size", sentry_last_map_cursor.size);
+	}
+
+	static bool sentry_last_is_compact;
+	if (is_compact != sentry_last_is_compact || sentry_first_time)
+	{
+		sentry_last_is_compact = is_compact;
+		zapp_reporting_set_tag("compact", sentry_last_is_compact);
+	}
+
+	sentry_first_time = false;
+}
+
 // Removes the top layer encoding from a quest file. See open_quest_file.
 // This has zero impact on the contents of the quest file. There should be no way for this to
 // break anything.
@@ -24858,6 +24882,8 @@ int32_t main(int32_t argc,char **argv)
 
 	while(!exiting_program)
 	{
+		handle_sentry_tags();
+
 #ifdef _WIN32
 		if(zqUseWin32Proc != FALSE)
 			win32data.Update(Frameskip); //experimental win32 fixes
