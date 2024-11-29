@@ -23950,7 +23950,7 @@ int32_t HeroClass::nextflag(int32_t cx, int32_t cy, int32_t cdir, bool comboflag
     return MAPFLAG(cx,cy);
 }
 
-bool did_secret;
+static std::set<int> screen_did_enemy_secret;
 
 void HeroClass::checkspecial()
 {
@@ -23962,7 +23962,7 @@ void HeroClass::checkspecial()
 		bool loaded_enemies = loaded_enemies_for_screen.contains(screen);
 		if (!loaded_enemies || hasmainguy)
 		{
-			did_secret = false;
+			screen_did_enemy_secret.erase(scr->screen);
 		}
 		else
 		{
@@ -24019,7 +24019,7 @@ void HeroClass::checkspecial()
 							setmapflag(scr, mTMPNORET);
 				}
 				// clear enemies and open secret
-				if (!did_secret && (scr->flags2&fCLEARSECRET))
+				if (!screen_did_enemy_secret.contains(screen) && (scr->flags2&fCLEARSECRET))
 				{
 					bool only16_31 = get_qr(qr_ENEMIES_SECRET_ONLY_16_31)?true:false;
 					trigger_secrets_for_screen(TriggerSource::EnemiesScreenFlag, screen, only16_31);
@@ -24030,7 +24030,7 @@ void HeroClass::checkspecial()
 					}
 					
 					sfx(scr->secretsfx);
-					did_secret=true;
+					screen_did_enemy_secret.insert(screen);
 				}
 			}
 		}

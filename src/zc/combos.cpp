@@ -492,11 +492,11 @@ void spawn_decoration(newcombo const& cmb, const rpos_handle_t& rpos_handle)
 void trigger_cuttable(const rpos_handle_t& rpos_handle)
 {
 	int pos = rpos_handle.pos;
-	mapscr* tmp = rpos_handle.scr;
+	mapscr* scr = rpos_handle.scr;
 	auto& cmb = rpos_handle.combo();	
 	auto type = cmb.type;
 	if(!isCuttableType(type)) return;
-	auto flag = tmp->sflag[pos];
+	auto flag = scr->sflag[pos];
 	auto flag2 = cmb.flag;
 	auto [x, y] = COMBOXY_REGION(rpos_handle.rpos);
 	
@@ -507,16 +507,16 @@ void trigger_cuttable(const rpos_handle_t& rpos_handle)
 		done = true;
 		if((flag >= 16 && flag <= 31))
 		{  
-			tmp->data[pos] = tmp->secretcombo[flag-16+4];
-			tmp->cset[pos] = tmp->secretcset[flag-16+4];
-			tmp->sflag[pos] = tmp->secretflag[flag-16+4];
+			scr->data[pos] = scr->secretcombo[flag-16+4];
+			scr->cset[pos] = scr->secretcset[flag-16+4];
+			scr->sflag[pos] = scr->secretflag[flag-16+4];
 		}
 		else if(flag == mfARMOS_SECRET)
 		{
-			tmp->data[pos] = tmp->secretcombo[sSTAIRS];
-			tmp->cset[pos] = tmp->secretcset[sSTAIRS];
-			tmp->sflag[pos] = tmp->secretflag[sSTAIRS];
-			sfx(tmp->secretsfx);
+			scr->data[pos] = scr->secretcombo[sSTAIRS];
+			scr->cset[pos] = scr->secretcset[sSTAIRS];
+			scr->sflag[pos] = scr->secretflag[sSTAIRS];
+			sfx(scr->secretsfx);
 		}
 		else if((flag>=mfSWORD && flag<=mfXSWORD) || flag==mfSTRIKE)
 		{
@@ -529,16 +529,16 @@ void trigger_cuttable(const rpos_handle_t& rpos_handle)
 		}
 		else if(flag2 >= 16 && flag2 <= 31)
 		{ 
-			tmp->data[pos] = tmp->secretcombo[(tmp->sflag[pos])-16+4];
-			tmp->cset[pos] = tmp->secretcset[(tmp->sflag[pos])-16+4];
-			tmp->sflag[pos] = tmp->secretflag[(tmp->sflag[pos])-16+4];
+			scr->data[pos] = scr->secretcombo[(scr->sflag[pos])-16+4];
+			scr->cset[pos] = scr->secretcset[(scr->sflag[pos])-16+4];
+			scr->sflag[pos] = scr->secretflag[(scr->sflag[pos])-16+4];
 		}
 		else if(flag2 == mfARMOS_SECRET)
 		{
-			tmp->data[pos] = tmp->secretcombo[sSTAIRS];
-			tmp->cset[pos] = tmp->secretcset[sSTAIRS];
-			tmp->sflag[pos] = tmp->secretflag[sSTAIRS];
-			sfx(tmp->secretsfx);
+			scr->data[pos] = scr->secretcombo[sSTAIRS];
+			scr->cset[pos] = scr->secretcset[sSTAIRS];
+			scr->sflag[pos] = scr->secretflag[sSTAIRS];
+			sfx(scr->secretsfx);
 		}
 		else if((flag2>=mfSWORD && flag2<=mfXSWORD)|| flag2==mfSTRIKE)
 		{
@@ -555,20 +555,20 @@ void trigger_cuttable(const rpos_handle_t& rpos_handle)
 	{
 		if(isCuttableNextType(type))
 		{
-			tmp->data[pos]++;
+			scr->data[pos]++;
 		}
 		else
 		{
-			tmp->data[pos] = tmp->undercombo;
-			tmp->cset[pos] = tmp->undercset;
-			tmp->sflag[pos] = 0;
+			scr->data[pos] = scr->undercombo;
+			scr->cset[pos] = scr->undercset;
+			scr->sflag[pos] = 0;
 		}
 	}
 	
-	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((rpos_handle.screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmp->flags9&fBELOWRETURN)))
+	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((rpos_handle.screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (scr->flags9&fBELOWRETURN)))
 	{
-		items.add(new item((zfix)x, (zfix)y,(zfix)0, tmp->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmp->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
-		sfx(tmp->secretsfx);
+		items.add(new item((zfix)x, (zfix)y,(zfix)0, scr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((scr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
+		sfx(scr->secretsfx);
 	}
 	else if(isCuttableItemType(type))
 	{
