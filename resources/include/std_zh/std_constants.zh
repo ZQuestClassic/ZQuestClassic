@@ -1557,6 +1557,7 @@ enum
 	DMFS_TRUECELLARENEMIES,   //True Cellar Enemies
 	DMFS_BUNNY,               //Become Bunny with no Pearl
 	DMFS_MIRRORCONTINUE,      //Mirror Continues instead of Warping
+	DMFS_EXTENDEDVIEWPORT,    //Viewport extends into the part of the screen normally occupied by the passive subscreen
 	DMFS_MAX
 };
 
