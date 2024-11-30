@@ -744,13 +744,13 @@ PUSHR D2
 LOAD D2 0.0008; InlineFunc[void npc::GetName(char32[])] Params End
 POP REFNPC; InlineFunc[void npc::GetName(char32[])] Body Start
 NPCNAME D2; InlineFunc[void npc::GetName(char32[])] Body End
-STOREV 0 0.0006; for() #143 setup
-LOAD D2 0.0006; for() #143 LoopTest
+STOREV 0 0.0006; for() #145 setup
+LOAD D2 0.0006; for() #145 LoopTest
 COMPAREV D2 63
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 675 ==; for() #143 TestFail?
-LOAD D2 0.0008; if() #555 Test AND for() #143 Body Start
+GOTOCMP 675 ==; for() #145 TestFail?
+LOAD D2 0.0008; if() #555 Test AND for() #145 Body Start
 PUSHR D2
 LOAD D2 0.0006
 POP D0
@@ -775,10 +775,10 @@ POP D4
 COMPAREV D2 0
 GOTOCMP 578 ==; Test 'if'
 STOREV 0 0.0004; if() #293 Body Start
-LOAD D2 0.0006; for() #144 setup
+LOAD D2 0.0006; for() #146 setup
 ADDV D2 1
 STORE D2 0.0006
-PUSHR D4; for() #144 LoopTest
+PUSHR D4; for() #146 LoopTest
 LOAD D2 0.0008; UsrFunc[bool __IsScriptNameChar(int, bool)] Params Start
 PUSHR D2
 LOAD D2 0.0006
@@ -789,8 +789,8 @@ PUSHV 0; UsrFunc[bool __IsScriptNameChar(int, bool)] Params End
 CALLFUNC 0.9015; UsrFunc[bool __IsScriptNameChar(int, bool)] Call
 POP D4
 COMPAREV D2 0
-GOTOCMP 520 ==; for() #144 TestFail?
-LOAD D2 0.0008; for() #144 Body Start
+GOTOCMP 520 ==; for() #146 TestFail?
+LOAD D2 0.0008; for() #146 Body Start
 PUSHR D2
 LOAD D2 0.0006
 POP D0
@@ -805,11 +805,11 @@ POP D2
 WRITEPODARRAYRR D3 D2
 LOAD D2 0.0004
 ADDV D2 1
-STORE D2 0.0004; for() #144 Body End
-LOAD D2 0.0006; for() #144 LoopIncrement
+STORE D2 0.0004; for() #146 Body End
+LOAD D2 0.0006; for() #146 LoopIncrement
 ADDV D2 1
 STORE D2 0.0006
-GOTO 488; for() #144 End
+GOTO 488; for() #146 End
 SETV D2 0
 PUSHR D2
 LOAD D2 0.0007
@@ -899,10 +899,10 @@ STORE D2 0.0004
 LOAD D2 0.0006
 ADDV D2 1
 STORE D2 0.0006; if() #558 Body End
-LOAD D2 0.0006; for() #145 setup
+LOAD D2 0.0006; for() #147 setup
 ADDV D2 1
 STORE D2 0.0006
-LOAD D2 0.0008; for() #145 LoopTest
+LOAD D2 0.0008; for() #147 LoopTest
 PUSHR D2
 LOAD D2 0.0006
 POP D0
@@ -920,8 +920,8 @@ SETV D2 1
 GOTO 629
 SETV D2 0
 COMPAREV D2 0
-GOTOCMP 651 ==; for() #145 TestFail?
-LOAD D2 0.0008; for() #145 Body Start
+GOTOCMP 651 ==; for() #147 TestFail?
+LOAD D2 0.0008; for() #147 Body Start
 PUSHR D2
 LOAD D2 0.0006
 POP D0
@@ -936,11 +936,11 @@ POP D2
 WRITEPODARRAYRR D3 D2
 LOAD D2 0.0004
 ADDV D2 1
-STORE D2 0.0004; for() #145 Body End
-LOAD D2 0.0006; for() #145 LoopIncrement
+STORE D2 0.0004; for() #147 Body End
+LOAD D2 0.0006; for() #147 LoopIncrement
 ADDV D2 1
 STORE D2 0.0006
-GOTO 612; for() #145 End
+GOTO 612; for() #147 End
 SETV D2 0
 PUSHR D2
 LOAD D2 0.0007
@@ -961,10 +961,10 @@ WRITEPODARRAYVR 1 D2
 LOAD D2 0.0006
 SUBV D2 1
 STORE D2 0.0006; if() #557 Body End
-LOAD D2 0.0006; if() #293 Else End AND if() #555 Body End AND for() #143 Body End AND for() #143 LoopIncrement
+LOAD D2 0.0006; if() #293 Else End AND if() #555 Body End AND for() #145 Body End AND for() #145 LoopIncrement
 ADDV D2 1
 STORE D2 0.0006
-GOTO 455; for() #143 End
+GOTO 455; for() #145 End
 LOAD D2 0.0009; if() #560 Test AND unless(false) #559 [Opt:AlwaysOn]
 PUSHR D2
 POP D0
@@ -7190,14 +7190,14 @@ POP REFSPRITE
 SETR D2 SPRITE_MISCD; InlineFunc[untyped Floor(untyped)] Params End
 FLOOR D2; InlineFunc[untyped Floor(untyped)] Body
 STORE D2 0.0010
-SETR D2 EWPNCOUNT; for() #157 setup
+SETR D2 EWPNCOUNT; for() #159 setup
 STORE D2 0.0003
-LOAD D2 0.0003; for() #157 LoopTest
+LOAD D2 0.0003; for() #159 LoopTest
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
-GOTOCMP 6942 ==; for() #157 TestFail?
-LOAD D2 0.0003; InlineFunc[eweapon screendata::LoadEWeapon(int)] Params AND for() #157 Body Start
+GOTOCMP 6942 ==; for() #159 TestFail?
+LOAD D2 0.0003; InlineFunc[eweapon screendata::LoadEWeapon(int)] Params AND for() #159 Body Start
 SUBV D2 1; InlineFunc[eweapon screendata::LoadEWeapon(int)] Body Start
 LOADEWEAPONR D2
 SETR D2 REFEWPN; InlineFunc[eweapon screendata::LoadEWeapon(int)] Body End
@@ -7228,10 +7228,10 @@ COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 6942 !=; Test 'if' AND break 1; AND if() #566 Body
-LOAD D2 0.0003; for() #157 Body End AND for() #157 LoopIncrement
+LOAD D2 0.0003; for() #159 Body End AND for() #159 LoopIncrement
 SUBV D2 1
 STORE D2 0.0003
-GOTO 6902; for() #157 End
+GOTO 6902; for() #159 End
 LOAD D2 0.0003; if() #567 Test
 COMPAREV D2 0
 SETCMP D2 I==
@@ -7365,16 +7365,16 @@ COMPAREV D2 1
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 7123 ==; Test 'if'
-STOREV 0 0.0001; for() #158 setup AND if() #304 Body Start
-LOAD D2 0.0001; for() #158 LoopTest
+STOREV 0 0.0001; for() #160 setup AND if() #304 Body Start
+LOAD D2 0.0001; for() #160 LoopTest
 PUSHR D2
 LOAD D2 0.0004
 POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 7114 ==; for() #158 TestFail?
-PUSHR D4; for() #158 Body Start
+GOTOCMP 7114 ==; for() #160 TestFail?
+PUSHR D4; for() #160 Body Start
 LOAD D2 0.0009; UsrFunc[void __CopyEWeapon(eweapon, int, int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0007
@@ -7399,11 +7399,11 @@ POP D3
 ADDR D2 D3
 PUSHR D2; UsrFunc[void __CopyEWeapon(eweapon, int, int, int)] Params End
 CALLFUNC 0.9065; UsrFunc[void __CopyEWeapon(eweapon, int, int, int)] Call
-POP D4; for() #158 Body End
-LOAD D2 0.0001; for() #158 LoopIncrement
+POP D4; for() #160 Body End
+LOAD D2 0.0001; for() #160 LoopIncrement
 ADDV D2 1
 STORE D2 0.0001
-GOTO 7076; for() #158 End
+GOTO 7076; for() #160 End
 LOAD D2 0.0009; InlineFunc[void Audio::PlaySound(int)] Params Start
 PUSHR D2
 SETV D2 2
@@ -7418,16 +7418,16 @@ COMPAREV D2 2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 7163 ==; Test 'if'
-STOREV 0 0.0001; for() #159 setup AND if() #305 Body Start
-LOAD D2 0.0001; for() #159 LoopTest
+STOREV 0 0.0001; for() #161 setup AND if() #305 Body Start
+LOAD D2 0.0001; for() #161 LoopTest
 PUSHR D2
 LOAD D2 0.0004
 POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 7154 ==; for() #159 TestFail?
-PUSHR D4; for() #159 Body Start
+GOTOCMP 7154 ==; for() #161 TestFail?
+PUSHR D4; for() #161 Body Start
 LOAD D2 0.0009; UsrFunc[void __CopyEWeapon(eweapon, int, int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0007
@@ -7439,11 +7439,11 @@ RNDR D2 D3; InlineFunc[int Rand(int)] Body
 DIVV D2 5000
 PUSHR D2; UsrFunc[void __CopyEWeapon(eweapon, int, int, int)] Params End
 CALLFUNC 0.9065; UsrFunc[void __CopyEWeapon(eweapon, int, int, int)] Call
-POP D4; for() #159 Body End
-LOAD D2 0.0001; for() #159 LoopIncrement
+POP D4; for() #161 Body End
+LOAD D2 0.0001; for() #161 LoopIncrement
 ADDV D2 1
 STORE D2 0.0001
-GOTO 7129; for() #159 End
+GOTO 7129; for() #161 End
 LOAD D2 0.0009; InlineFunc[void Audio::PlaySound(int)] Params Start
 PUSHR D2
 SETV D2 2
@@ -7487,16 +7487,16 @@ POP D3
 SUBR D3 D2
 SETR D2 D3
 STORE D2 0.0001
-STOREV 0 0; for() #160 setup
-LOAD D2 0; for() #160 LoopTest
+STOREV 0 0; for() #162 setup
+LOAD D2 0; for() #162 LoopTest
 PUSHR D2
 LOAD D2 0.0004
 POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 7273 ==; for() #160 TestFail?
-PUSHR D4; for() #160 Body Start
+GOTOCMP 7273 ==; for() #162 TestFail?
+PUSHR D4; for() #162 Body Start
 LOAD D2 0.0009; UsrFunc[void __CopyEWeapon(eweapon, int, int, int)] Params Start
 PUSHR D2
 LOAD D2 0.0007
@@ -7520,11 +7520,11 @@ POP D3
 ADDR D2 D3
 PUSHR D2; UsrFunc[void __CopyEWeapon(eweapon, int, int, int)] Params End
 CALLFUNC 0.9065; UsrFunc[void __CopyEWeapon(eweapon, int, int, int)] Call
-POP D4; for() #160 Body End
-LOAD D2 0; for() #160 LoopIncrement
+POP D4; for() #162 Body End
+LOAD D2 0; for() #162 LoopIncrement
 ADDV D2 1
 STORE D2 0
-GOTO 7198; for() #160 End
+GOTO 7198; for() #162 End
 GOTO 7273; if() #306 Body End
 LOAD D2 0.0004; if() #568 Test AND if() #306 Else Start
 COMPAREV D2 1
@@ -7845,180 +7845,12 @@ POP D5
 RETURNFUNC; Func[void __DoEWeaponDeathSBombExplode(eweapon)] Body End
 PUSHV 0; Func[void __DoEWeaponDeath4FireballsHV(eweapon)] Body Start
 SETR D4 SP2
-STOREV 0 0; for() #147 setup
-LOAD D2 0; for() #147 LoopTest
-COMPAREV D2 4
-SETCMP D2 I<
-COMPAREV D2 0
-GOTOCMP 7600 ==; for() #147 TestFail?
-PUSHR D4; for() #147 Body Start
-PUSHV 129; UsrFunc[eweapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Params Start
-PUSHR D4
-LOAD D2 0.0001; UsrFunc[int CenterX(eweapon)] Params Start
-PUSHR D2; UsrFunc[int CenterX(eweapon)] Params End
-CALLFUNC 0.0849; UsrFunc[int CenterX(eweapon)] Call
-POP D4
-SUBV D2 8
-PUSHR D2
-PUSHR D4
-LOAD D2 0.0001; UsrFunc[int CenterY(eweapon)] Params Start
-PUSHR D2; UsrFunc[int CenterY(eweapon)] Params End
-CALLFUNC 0.0872; UsrFunc[int CenterY(eweapon)] Call
-POP D4
-SUBV D2 8
-PUSHR D2
-LOAD D2 0
-PUSHR D2
-PUSHV 200
-LOAD D2 0.0001
-PUSHR D2
-POP REFEWPN
-SETR D2 EWPNPOWER
-DIVV D2 2
-PUSHR D2
-LOAD D2 0.0001
-PUSHR D2
-SETV D2 14
-PUSHR D2
-POP D0
-POP REFSPRITE
-PUSHR SPRITE_MISCD
-PUSHARGSV 0 0.0002; UsrFunc[eweapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Params End
-CALLFUNC 0.1336; UsrFunc[eweapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Call
-POP D4; for() #147 Body End
-LOAD D2 0; for() #147 LoopIncrement
-ADDV D2 1
-STORE D2 0
-GOTO 7556; for() #147 End
-SETV D2 0
-PUSHR D2
-LOAD D2 0.0001
-POP D3
-PUSHR D2
-PUSHR D3
-POP D2
-POP REFEWPN
-SETR EWPNDEAD D2
-POPARGS D5 0.0002
-RETURNFUNC; Func[void __DoEWeaponDeath4FireballsHV(eweapon)] Body End
-PUSHV 0; Func[void __DoEWeaponDeath4FireballsDiag(eweapon)] Body Start
-SETR D4 SP2
-STOREV 4 0; for() #146 setup
-LOAD D2 0; for() #146 LoopTest
-COMPAREV D2 8
-SETCMP D2 I<
-COMPAREV D2 0
-GOTOCMP 7658 ==; for() #146 TestFail?
-PUSHR D4; for() #146 Body Start
-PUSHV 129; UsrFunc[eweapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Params Start
-PUSHR D4
-LOAD D2 0.0001; UsrFunc[int CenterX(eweapon)] Params Start
-PUSHR D2; UsrFunc[int CenterX(eweapon)] Params End
-CALLFUNC 0.0849; UsrFunc[int CenterX(eweapon)] Call
-POP D4
-SUBV D2 8
-PUSHR D2
-PUSHR D4
-LOAD D2 0.0001; UsrFunc[int CenterY(eweapon)] Params Start
-PUSHR D2; UsrFunc[int CenterY(eweapon)] Params End
-CALLFUNC 0.0872; UsrFunc[int CenterY(eweapon)] Call
-POP D4
-SUBV D2 8
-PUSHR D2
-LOAD D2 0
-PUSHR D2
-PUSHV 200
-LOAD D2 0.0001
-PUSHR D2
-POP REFEWPN
-SETR D2 EWPNPOWER
-DIVV D2 2
-PUSHR D2
-LOAD D2 0.0001
-PUSHR D2
-SETV D2 14
-PUSHR D2
-POP D0
-POP REFSPRITE
-PUSHR SPRITE_MISCD
-PUSHARGSV 0 0.0002; UsrFunc[eweapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Params End
-CALLFUNC 0.1336; UsrFunc[eweapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Call
-POP D4; for() #146 Body End
-LOAD D2 0; for() #146 LoopIncrement
-ADDV D2 1
-STORE D2 0
-GOTO 7614; for() #146 End
-SETV D2 0
-PUSHR D2
-LOAD D2 0.0001
-POP D3
-PUSHR D2
-PUSHR D3
-POP D2
-POP REFEWPN
-SETR EWPNDEAD D2
-POPARGS D5 0.0002
-RETURNFUNC; Func[void __DoEWeaponDeath4FireballsDiag(eweapon)] Body End
-PUSHV 0; Func[void __DoEWeaponDeath4FireballsRand(eweapon)] Body Start
-SETR D4 SP2
-SETV D3 2; InlineFunc[int Rand(int)] Params AND if() #296 Test
-RNDR D2 D3; InlineFunc[int Rand(int)] Body
-COMPAREV D2 0
-SETCMP D2 I==
-COMPAREV D2 0
-GOTOCMP 7723 ==; Test 'if'
-STOREV 0 0; for() #148 setup AND if() #296 Body Start
-LOAD D2 0; for() #148 LoopTest
-COMPAREV D2 4
-SETCMP D2 I<
-COMPAREV D2 0
-GOTOCMP 7768 ==; for() #148 TestFail?
-PUSHR D4; for() #148 Body Start
-PUSHV 129; UsrFunc[eweapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Params Start
-PUSHR D4
-LOAD D2 0.0001; UsrFunc[int CenterX(eweapon)] Params Start
-PUSHR D2; UsrFunc[int CenterX(eweapon)] Params End
-CALLFUNC 0.0849; UsrFunc[int CenterX(eweapon)] Call
-POP D4
-SUBV D2 8
-PUSHR D2
-PUSHR D4
-LOAD D2 0.0001; UsrFunc[int CenterY(eweapon)] Params Start
-PUSHR D2; UsrFunc[int CenterY(eweapon)] Params End
-CALLFUNC 0.0872; UsrFunc[int CenterY(eweapon)] Call
-POP D4
-SUBV D2 8
-PUSHR D2
-LOAD D2 0
-PUSHR D2
-PUSHV 200
-LOAD D2 0.0001
-PUSHR D2
-POP REFEWPN
-SETR D2 EWPNPOWER
-DIVV D2 2
-PUSHR D2
-LOAD D2 0.0001
-PUSHR D2
-SETV D2 14
-PUSHR D2
-POP D0
-POP REFSPRITE
-PUSHR SPRITE_MISCD
-PUSHARGSV 0 0.0002; UsrFunc[eweapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Params End
-CALLFUNC 0.1336; UsrFunc[eweapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Call
-POP D4; for() #148 Body End
-LOAD D2 0; for() #148 LoopIncrement
-ADDV D2 1
-STORE D2 0
-GOTO 7678; for() #148 End
-GOTO 7768; if() #296 Body End
-STOREV 4 0; for() #149 setup AND if() #296 Else Start
+STOREV 0 0; for() #149 setup
 LOAD D2 0; for() #149 LoopTest
-COMPAREV D2 8
+COMPAREV D2 4
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 7768 ==; for() #149 TestFail?
+GOTOCMP 7600 ==; for() #149 TestFail?
 PUSHR D4; for() #149 Body Start
 PUSHV 129; UsrFunc[eweapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Params Start
 PUSHR D4
@@ -8057,8 +7889,8 @@ POP D4; for() #149 Body End
 LOAD D2 0; for() #149 LoopIncrement
 ADDV D2 1
 STORE D2 0
-GOTO 7724; for() #149 End
-SETV D2 0; if() #296 Else End
+GOTO 7556; for() #149 End
+SETV D2 0
 PUSHR D2
 LOAD D2 0.0001
 POP D3
@@ -8068,16 +7900,16 @@ POP D2
 POP REFEWPN
 SETR EWPNDEAD D2
 POPARGS D5 0.0002
-RETURNFUNC; Func[void __DoEWeaponDeath4FireballsRand(eweapon)] Body End
-PUSHV 0; Func[void __DoEWeaponDeath8Fireballs(eweapon)] Body Start
+RETURNFUNC; Func[void __DoEWeaponDeath4FireballsHV(eweapon)] Body End
+PUSHV 0; Func[void __DoEWeaponDeath4FireballsDiag(eweapon)] Body Start
 SETR D4 SP2
-STOREV 0 0; for() #154 setup
-LOAD D2 0; for() #154 LoopTest
+STOREV 4 0; for() #148 setup
+LOAD D2 0; for() #148 LoopTest
 COMPAREV D2 8
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 7826 ==; for() #154 TestFail?
-PUSHR D4; for() #154 Body Start
+GOTOCMP 7658 ==; for() #148 TestFail?
+PUSHR D4; for() #148 Body Start
 PUSHV 129; UsrFunc[eweapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Params Start
 PUSHR D4
 LOAD D2 0.0001; UsrFunc[int CenterX(eweapon)] Params Start
@@ -8111,11 +7943,179 @@ POP REFSPRITE
 PUSHR SPRITE_MISCD
 PUSHARGSV 0 0.0002; UsrFunc[eweapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Params End
 CALLFUNC 0.1336; UsrFunc[eweapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Call
-POP D4; for() #154 Body End
-LOAD D2 0; for() #154 LoopIncrement
+POP D4; for() #148 Body End
+LOAD D2 0; for() #148 LoopIncrement
 ADDV D2 1
 STORE D2 0
-GOTO 7782; for() #154 End
+GOTO 7614; for() #148 End
+SETV D2 0
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFEWPN
+SETR EWPNDEAD D2
+POPARGS D5 0.0002
+RETURNFUNC; Func[void __DoEWeaponDeath4FireballsDiag(eweapon)] Body End
+PUSHV 0; Func[void __DoEWeaponDeath4FireballsRand(eweapon)] Body Start
+SETR D4 SP2
+SETV D3 2; InlineFunc[int Rand(int)] Params AND if() #296 Test
+RNDR D2 D3; InlineFunc[int Rand(int)] Body
+COMPAREV D2 0
+SETCMP D2 I==
+COMPAREV D2 0
+GOTOCMP 7723 ==; Test 'if'
+STOREV 0 0; for() #150 setup AND if() #296 Body Start
+LOAD D2 0; for() #150 LoopTest
+COMPAREV D2 4
+SETCMP D2 I<
+COMPAREV D2 0
+GOTOCMP 7768 ==; for() #150 TestFail?
+PUSHR D4; for() #150 Body Start
+PUSHV 129; UsrFunc[eweapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Params Start
+PUSHR D4
+LOAD D2 0.0001; UsrFunc[int CenterX(eweapon)] Params Start
+PUSHR D2; UsrFunc[int CenterX(eweapon)] Params End
+CALLFUNC 0.0849; UsrFunc[int CenterX(eweapon)] Call
+POP D4
+SUBV D2 8
+PUSHR D2
+PUSHR D4
+LOAD D2 0.0001; UsrFunc[int CenterY(eweapon)] Params Start
+PUSHR D2; UsrFunc[int CenterY(eweapon)] Params End
+CALLFUNC 0.0872; UsrFunc[int CenterY(eweapon)] Call
+POP D4
+SUBV D2 8
+PUSHR D2
+LOAD D2 0
+PUSHR D2
+PUSHV 200
+LOAD D2 0.0001
+PUSHR D2
+POP REFEWPN
+SETR D2 EWPNPOWER
+DIVV D2 2
+PUSHR D2
+LOAD D2 0.0001
+PUSHR D2
+SETV D2 14
+PUSHR D2
+POP D0
+POP REFSPRITE
+PUSHR SPRITE_MISCD
+PUSHARGSV 0 0.0002; UsrFunc[eweapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Params End
+CALLFUNC 0.1336; UsrFunc[eweapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Call
+POP D4; for() #150 Body End
+LOAD D2 0; for() #150 LoopIncrement
+ADDV D2 1
+STORE D2 0
+GOTO 7678; for() #150 End
+GOTO 7768; if() #296 Body End
+STOREV 4 0; for() #151 setup AND if() #296 Else Start
+LOAD D2 0; for() #151 LoopTest
+COMPAREV D2 8
+SETCMP D2 I<
+COMPAREV D2 0
+GOTOCMP 7768 ==; for() #151 TestFail?
+PUSHR D4; for() #151 Body Start
+PUSHV 129; UsrFunc[eweapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Params Start
+PUSHR D4
+LOAD D2 0.0001; UsrFunc[int CenterX(eweapon)] Params Start
+PUSHR D2; UsrFunc[int CenterX(eweapon)] Params End
+CALLFUNC 0.0849; UsrFunc[int CenterX(eweapon)] Call
+POP D4
+SUBV D2 8
+PUSHR D2
+PUSHR D4
+LOAD D2 0.0001; UsrFunc[int CenterY(eweapon)] Params Start
+PUSHR D2; UsrFunc[int CenterY(eweapon)] Params End
+CALLFUNC 0.0872; UsrFunc[int CenterY(eweapon)] Call
+POP D4
+SUBV D2 8
+PUSHR D2
+LOAD D2 0
+PUSHR D2
+PUSHV 200
+LOAD D2 0.0001
+PUSHR D2
+POP REFEWPN
+SETR D2 EWPNPOWER
+DIVV D2 2
+PUSHR D2
+LOAD D2 0.0001
+PUSHR D2
+SETV D2 14
+PUSHR D2
+POP D0
+POP REFSPRITE
+PUSHR SPRITE_MISCD
+PUSHARGSV 0 0.0002; UsrFunc[eweapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Params End
+CALLFUNC 0.1336; UsrFunc[eweapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Call
+POP D4; for() #151 Body End
+LOAD D2 0; for() #151 LoopIncrement
+ADDV D2 1
+STORE D2 0
+GOTO 7724; for() #151 End
+SETV D2 0; if() #296 Else End
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFEWPN
+SETR EWPNDEAD D2
+POPARGS D5 0.0002
+RETURNFUNC; Func[void __DoEWeaponDeath4FireballsRand(eweapon)] Body End
+PUSHV 0; Func[void __DoEWeaponDeath8Fireballs(eweapon)] Body Start
+SETR D4 SP2
+STOREV 0 0; for() #156 setup
+LOAD D2 0; for() #156 LoopTest
+COMPAREV D2 8
+SETCMP D2 I<
+COMPAREV D2 0
+GOTOCMP 7826 ==; for() #156 TestFail?
+PUSHR D4; for() #156 Body Start
+PUSHV 129; UsrFunc[eweapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Params Start
+PUSHR D4
+LOAD D2 0.0001; UsrFunc[int CenterX(eweapon)] Params Start
+PUSHR D2; UsrFunc[int CenterX(eweapon)] Params End
+CALLFUNC 0.0849; UsrFunc[int CenterX(eweapon)] Call
+POP D4
+SUBV D2 8
+PUSHR D2
+PUSHR D4
+LOAD D2 0.0001; UsrFunc[int CenterY(eweapon)] Params Start
+PUSHR D2; UsrFunc[int CenterY(eweapon)] Params End
+CALLFUNC 0.0872; UsrFunc[int CenterY(eweapon)] Call
+POP D4
+SUBV D2 8
+PUSHR D2
+LOAD D2 0
+PUSHR D2
+PUSHV 200
+LOAD D2 0.0001
+PUSHR D2
+POP REFEWPN
+SETR D2 EWPNPOWER
+DIVV D2 2
+PUSHR D2
+LOAD D2 0.0001
+PUSHR D2
+SETV D2 14
+PUSHR D2
+POP D0
+POP REFSPRITE
+PUSHR SPRITE_MISCD
+PUSHARGSV 0 0.0002; UsrFunc[eweapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Params End
+CALLFUNC 0.1336; UsrFunc[eweapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Call
+POP D4; for() #156 Body End
+LOAD D2 0; for() #156 LoopIncrement
+ADDV D2 1
+STORE D2 0
+GOTO 7782; for() #156 End
 SETV D2 0
 PUSHR D2
 LOAD D2 0.0001
@@ -8129,13 +8129,13 @@ POPARGS D5 0.0002
 RETURNFUNC; Func[void __DoEWeaponDeath8Fireballs(eweapon)] Body End
 PUSHV 0; Func[void __DoEWeaponDeath4FiresHV(eweapon)] Body Start
 SETR D4 SP2
-STOREV 0 0; for() #151 setup
-LOAD D2 0; for() #151 LoopTest
+STOREV 0 0; for() #153 setup
+LOAD D2 0; for() #153 LoopTest
 COMPAREV D2 4
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 7884 ==; for() #151 TestFail?
-PUSHR D4; for() #151 Body Start
+GOTOCMP 7884 ==; for() #153 TestFail?
+PUSHR D4; for() #153 Body Start
 PUSHV 140; UsrFunc[eweapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Params Start
 PUSHR D4
 LOAD D2 0.0001; UsrFunc[int CenterX(eweapon)] Params Start
@@ -8169,11 +8169,11 @@ POP REFSPRITE
 PUSHR SPRITE_MISCD
 PUSHARGSV 0 0.0002; UsrFunc[eweapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Params End
 CALLFUNC 0.1336; UsrFunc[eweapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Call
-POP D4; for() #151 Body End
-LOAD D2 0; for() #151 LoopIncrement
+POP D4; for() #153 Body End
+LOAD D2 0; for() #153 LoopIncrement
 ADDV D2 1
 STORE D2 0
-GOTO 7840; for() #151 End
+GOTO 7840; for() #153 End
 SETV D2 13; InlineFunc[void Audio::PlaySound(int)] Params
 PLAYSOUNDR D2; InlineFunc[void Audio::PlaySound(int)] Body
 SETV D2 0
@@ -8189,13 +8189,13 @@ POPARGS D5 0.0002
 RETURNFUNC; Func[void __DoEWeaponDeath4FiresHV(eweapon)] Body End
 PUSHV 0; Func[void __DoEWeaponDeath4FiresDiag(eweapon)] Body Start
 SETR D4 SP2
-STOREV 4 0; for() #150 setup
-LOAD D2 0; for() #150 LoopTest
+STOREV 4 0; for() #152 setup
+LOAD D2 0; for() #152 LoopTest
 COMPAREV D2 8
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 7944 ==; for() #150 TestFail?
-PUSHR D4; for() #150 Body Start
+GOTOCMP 7944 ==; for() #152 TestFail?
+PUSHR D4; for() #152 Body Start
 PUSHV 140; UsrFunc[eweapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Params Start
 PUSHR D4
 LOAD D2 0.0001; UsrFunc[int CenterX(eweapon)] Params Start
@@ -8229,11 +8229,11 @@ POP REFSPRITE
 PUSHR SPRITE_MISCD
 PUSHARGSV 0 0.0002; UsrFunc[eweapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Params End
 CALLFUNC 0.1336; UsrFunc[eweapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Call
-POP D4; for() #150 Body End
-LOAD D2 0; for() #150 LoopIncrement
+POP D4; for() #152 Body End
+LOAD D2 0; for() #152 LoopIncrement
 ADDV D2 1
 STORE D2 0
-GOTO 7900; for() #150 End
+GOTO 7900; for() #152 End
 SETV D2 13; InlineFunc[void Audio::PlaySound(int)] Params
 PLAYSOUNDR D2; InlineFunc[void Audio::PlaySound(int)] Body
 SETV D2 0
@@ -8255,13 +8255,13 @@ COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 8011 ==; Test 'if'
-STOREV 0 0; for() #152 setup AND if() #297 Body Start
-LOAD D2 0; for() #152 LoopTest
+STOREV 0 0; for() #154 setup AND if() #297 Body Start
+LOAD D2 0; for() #154 LoopTest
 COMPAREV D2 4
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 8056 ==; for() #152 TestFail?
-PUSHR D4; for() #152 Body Start
+GOTOCMP 8056 ==; for() #154 TestFail?
+PUSHR D4; for() #154 Body Start
 PUSHV 140; UsrFunc[eweapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Params Start
 PUSHR D4
 LOAD D2 0.0001; UsrFunc[int CenterX(eweapon)] Params Start
@@ -8295,78 +8295,18 @@ POP REFSPRITE
 PUSHR SPRITE_MISCD
 PUSHARGSV 0 0.0002; UsrFunc[eweapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Params End
 CALLFUNC 0.1336; UsrFunc[eweapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Call
-POP D4; for() #152 Body End
-LOAD D2 0; for() #152 LoopIncrement
+POP D4; for() #154 Body End
+LOAD D2 0; for() #154 LoopIncrement
 ADDV D2 1
 STORE D2 0
-GOTO 7966; for() #152 End
+GOTO 7966; for() #154 End
 GOTO 8056; if() #297 Body End
-STOREV 4 0; for() #153 setup AND if() #297 Else Start
-LOAD D2 0; for() #153 LoopTest
+STOREV 4 0; for() #155 setup AND if() #297 Else Start
+LOAD D2 0; for() #155 LoopTest
 COMPAREV D2 8
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 8056 ==; for() #153 TestFail?
-PUSHR D4; for() #153 Body Start
-PUSHV 140; UsrFunc[eweapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Params Start
-PUSHR D4
-LOAD D2 0.0001; UsrFunc[int CenterX(eweapon)] Params Start
-PUSHR D2; UsrFunc[int CenterX(eweapon)] Params End
-CALLFUNC 0.0849; UsrFunc[int CenterX(eweapon)] Call
-POP D4
-SUBV D2 8
-PUSHR D2
-PUSHR D4
-LOAD D2 0.0001; UsrFunc[int CenterY(eweapon)] Params Start
-PUSHR D2; UsrFunc[int CenterY(eweapon)] Params End
-CALLFUNC 0.0872; UsrFunc[int CenterY(eweapon)] Call
-POP D4
-SUBV D2 8
-PUSHR D2
-LOAD D2 0
-PUSHR D2
-PUSHV 71
-LOAD D2 0.0001
-PUSHR D2
-POP REFEWPN
-SETR D2 EWPNPOWER
-DIVV D2 2
-PUSHR D2
-LOAD D2 0.0001
-PUSHR D2
-SETV D2 14
-PUSHR D2
-POP D0
-POP REFSPRITE
-PUSHR SPRITE_MISCD
-PUSHARGSV 0 0.0002; UsrFunc[eweapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Params End
-CALLFUNC 0.1336; UsrFunc[eweapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Call
-POP D4; for() #153 Body End
-LOAD D2 0; for() #153 LoopIncrement
-ADDV D2 1
-STORE D2 0
-GOTO 8012; for() #153 End
-SETV D2 13; if() #297 Else End AND InlineFunc[void Audio::PlaySound(int)] Params
-PLAYSOUNDR D2; InlineFunc[void Audio::PlaySound(int)] Body
-SETV D2 0
-PUSHR D2
-LOAD D2 0.0001
-POP D3
-PUSHR D2
-PUSHR D3
-POP D2
-POP REFEWPN
-SETR EWPNDEAD D2
-POPARGS D5 0.0002
-RETURNFUNC; Func[void __DoEWeaponDeath4FiresRand(eweapon)] Body End
-PUSHV 0; Func[void __DoEWeaponDeath8Fires(eweapon)] Body Start
-SETR D4 SP2
-STOREV 0 0; for() #155 setup
-LOAD D2 0; for() #155 LoopTest
-COMPAREV D2 4
-SETCMP D2 I<
-COMPAREV D2 0
-GOTOCMP 8116 ==; for() #155 TestFail?
+GOTOCMP 8056 ==; for() #155 TestFail?
 PUSHR D4; for() #155 Body Start
 PUSHV 140; UsrFunc[eweapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Params Start
 PUSHR D4
@@ -8385,7 +8325,7 @@ SUBV D2 8
 PUSHR D2
 LOAD D2 0
 PUSHR D2
-PUSHV 100
+PUSHV 71
 LOAD D2 0.0001
 PUSHR D2
 POP REFEWPN
@@ -8405,14 +8345,74 @@ POP D4; for() #155 Body End
 LOAD D2 0; for() #155 LoopIncrement
 ADDV D2 1
 STORE D2 0
-GOTO 8072; for() #155 End
-STOREV 4 0; for() #156 setup
-LOAD D2 0; for() #156 LoopTest
+GOTO 8012; for() #155 End
+SETV D2 13; if() #297 Else End AND InlineFunc[void Audio::PlaySound(int)] Params
+PLAYSOUNDR D2; InlineFunc[void Audio::PlaySound(int)] Body
+SETV D2 0
+PUSHR D2
+LOAD D2 0.0001
+POP D3
+PUSHR D2
+PUSHR D3
+POP D2
+POP REFEWPN
+SETR EWPNDEAD D2
+POPARGS D5 0.0002
+RETURNFUNC; Func[void __DoEWeaponDeath4FiresRand(eweapon)] Body End
+PUSHV 0; Func[void __DoEWeaponDeath8Fires(eweapon)] Body Start
+SETR D4 SP2
+STOREV 0 0; for() #157 setup
+LOAD D2 0; for() #157 LoopTest
+COMPAREV D2 4
+SETCMP D2 I<
+COMPAREV D2 0
+GOTOCMP 8116 ==; for() #157 TestFail?
+PUSHR D4; for() #157 Body Start
+PUSHV 140; UsrFunc[eweapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Params Start
+PUSHR D4
+LOAD D2 0.0001; UsrFunc[int CenterX(eweapon)] Params Start
+PUSHR D2; UsrFunc[int CenterX(eweapon)] Params End
+CALLFUNC 0.0849; UsrFunc[int CenterX(eweapon)] Call
+POP D4
+SUBV D2 8
+PUSHR D2
+PUSHR D4
+LOAD D2 0.0001; UsrFunc[int CenterY(eweapon)] Params Start
+PUSHR D2; UsrFunc[int CenterY(eweapon)] Params End
+CALLFUNC 0.0872; UsrFunc[int CenterY(eweapon)] Call
+POP D4
+SUBV D2 8
+PUSHR D2
+LOAD D2 0
+PUSHR D2
+PUSHV 100
+LOAD D2 0.0001
+PUSHR D2
+POP REFEWPN
+SETR D2 EWPNPOWER
+DIVV D2 2
+PUSHR D2
+LOAD D2 0.0001
+PUSHR D2
+SETV D2 14
+PUSHR D2
+POP D0
+POP REFSPRITE
+PUSHR SPRITE_MISCD
+PUSHARGSV 0 0.0002; UsrFunc[eweapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Params End
+CALLFUNC 0.1336; UsrFunc[eweapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Call
+POP D4; for() #157 Body End
+LOAD D2 0; for() #157 LoopIncrement
+ADDV D2 1
+STORE D2 0
+GOTO 8072; for() #157 End
+STOREV 4 0; for() #158 setup
+LOAD D2 0; for() #158 LoopTest
 COMPAREV D2 8
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 8161 ==; for() #156 TestFail?
-PUSHR D4; for() #156 Body Start
+GOTOCMP 8161 ==; for() #158 TestFail?
+PUSHR D4; for() #158 Body Start
 PUSHV 140; UsrFunc[eweapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Params Start
 PUSHR D4
 LOAD D2 0.0001; UsrFunc[int CenterX(eweapon)] Params Start
@@ -8446,11 +8446,11 @@ POP REFSPRITE
 PUSHR SPRITE_MISCD
 PUSHARGSV 0 0.0002; UsrFunc[eweapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Params End
 CALLFUNC 0.1336; UsrFunc[eweapon FireNonAngularEWeapon(int, int, int, int, int, int, int, int, int)] Call
-POP D4; for() #156 Body End
-LOAD D2 0; for() #156 LoopIncrement
+POP D4; for() #158 Body End
+LOAD D2 0; for() #158 LoopIncrement
 ADDV D2 1
 STORE D2 0
-GOTO 8117; for() #156 End
+GOTO 8117; for() #158 End
 SETV D2 13; InlineFunc[void Audio::PlaySound(int)] Params
 PLAYSOUNDR D2; InlineFunc[void Audio::PlaySound(int)] Body
 SETV D2 0
@@ -8590,14 +8590,14 @@ GOTO 8436; return (Void) AND if() #569 Body End
 LOAD D2 0.0004; InlineFunc[ffc screendata::LoadFFC(int)] Params
 LOAD_FFC D2; InlineFunc[ffc screendata::LoadFFC(int)] Body
 STORE D2 0.0003
-SETR D2 EWPNCOUNT; for() #161 setup
+SETR D2 EWPNCOUNT; for() #163 setup
 STORE D2 0
-LOAD D2 0; for() #161 LoopTest
+LOAD D2 0; for() #163 LoopTest
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
-GOTOCMP 8339 ==; for() #161 TestFail?
-LOAD D2 0; InlineFunc[eweapon screendata::LoadEWeapon(int)] Params AND for() #161 Body Start
+GOTOCMP 8339 ==; for() #163 TestFail?
+LOAD D2 0; InlineFunc[eweapon screendata::LoadEWeapon(int)] Params AND for() #163 Body Start
 SUBV D2 1; InlineFunc[eweapon screendata::LoadEWeapon(int)] Body Start
 LOADEWEAPONR D2
 SETR D2 REFEWPN; InlineFunc[eweapon screendata::LoadEWeapon(int)] Body End
@@ -8624,11 +8624,11 @@ POP D0
 POP REFSPRITE
 PUSHVARGR SPRITE_MISCD; InlineFunc[int Min(int, int)] Params End
 MINVARG; InlineFunc[int Min(int, int)] Body
-STORE D2 0.0001; for() #161 Body End
-LOAD D2 0; for() #161 LoopIncrement
+STORE D2 0.0001; for() #163 Body End
+LOAD D2 0; for() #163 LoopIncrement
 SUBV D2 1
 STORE D2 0
-GOTO 8302; for() #161 End
+GOTO 8302; for() #163 End
 LOAD D2 0.0001
 SUBV D2 1
 PUSHR D2
@@ -8748,14 +8748,14 @@ GOTO 8456
 SETV D2 1
 COMPAREV D2 0
 GOTOCMP 8505 !=; Test 'unless'
-SETR D2 EWPNCOUNT; for() #141 setup AND unless() #289 Body Start
+SETR D2 EWPNCOUNT; for() #143 setup AND unless() #289 Body Start
 STORE D2 0
-LOAD D2 0; for() #141 LoopTest
+LOAD D2 0; for() #143 LoopTest
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
-GOTOCMP 8551 ==; for() #141 TestFail?
-LOAD D2 0; InlineFunc[eweapon screendata::LoadEWeapon(int)] Params AND for() #141 Body Start
+GOTOCMP 8551 ==; for() #143 TestFail?
+LOAD D2 0; InlineFunc[eweapon screendata::LoadEWeapon(int)] Params AND for() #143 Body Start
 SUBV D2 1; InlineFunc[eweapon screendata::LoadEWeapon(int)] Body Start
 LOADEWEAPONR D2
 SETR D2 REFEWPN; InlineFunc[eweapon screendata::LoadEWeapon(int)] Body End
@@ -8789,20 +8789,20 @@ PUSHR D4
 LOAD D2 0.0001; UsrFunc[void UpdateEWeapon(eweapon)] Params Start
 PUSHR D2; UsrFunc[void UpdateEWeapon(eweapon)] Params End
 CALLFUNC 0.2421; UsrFunc[void UpdateEWeapon(eweapon)] Call
-POP D4; for() #141 Body End
-LOAD D2 0; for() #141 LoopIncrement
+POP D4; for() #143 Body End
+LOAD D2 0; for() #143 LoopIncrement
 SUBV D2 1
 STORE D2 0
-GOTO 8460; for() #141 End
+GOTO 8460; for() #143 End
 GOTO 8551; unless() #289 Body End
-SETR D2 EWPNCOUNT; for() #142 setup AND unless() #289 Else Start
+SETR D2 EWPNCOUNT; for() #144 setup AND unless() #289 Else Start
 STORE D2 0
-LOAD D2 0; for() #142 LoopTest
+LOAD D2 0; for() #144 LoopTest
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
-GOTOCMP 8551 ==; for() #142 TestFail?
-LOAD D2 0; InlineFunc[eweapon screendata::LoadEWeapon(int)] Params AND for() #142 Body Start
+GOTOCMP 8551 ==; for() #144 TestFail?
+LOAD D2 0; InlineFunc[eweapon screendata::LoadEWeapon(int)] Params AND for() #144 Body Start
 SUBV D2 1; InlineFunc[eweapon screendata::LoadEWeapon(int)] Body Start
 LOADEWEAPONR D2
 SETR D2 REFEWPN; InlineFunc[eweapon screendata::LoadEWeapon(int)] Body End
@@ -8836,11 +8836,11 @@ PUSHR D4
 LOAD D2 0.0001; UsrFunc[void __UpdateEWeaponVisualFlags(eweapon)] Params Start
 PUSHR D2; UsrFunc[void __UpdateEWeaponVisualFlags(eweapon)] Params End
 CALLFUNC 0.8553; UsrFunc[void __UpdateEWeaponVisualFlags(eweapon)] Call
-POP D4; for() #142 Body End
-LOAD D2 0; for() #142 LoopIncrement
+POP D4; for() #144 Body End
+LOAD D2 0; for() #144 LoopIncrement
 SUBV D2 1
 STORE D2 0
-GOTO 8507; for() #142 End
+GOTO 8507; for() #144 End
 POPARGS D5 0.0002; unless() #289 Else End
 RETURNFUNC; Func[void UpdateEWeapons()] Body End
 PUSHARGSV 0 0.0002; Func[void __UpdateEWeaponVisualFlags(eweapon)] Body Start
@@ -9852,8 +9852,8 @@ POPARGS D5 0.0005
 RETURNFUNC; Func[void __CopyEWeapon(eweapon, int, int, int)] Body End
 PUSHV 0; Func[bool ghost2__OnSidePlatform(int, int, int, int, int, int)] Body Start
 SETR D4 SP2
-STOREV 0 0; for() #181 setup
-LOAD D2 0; for() #181 LoopTest
+STOREV 0 0; for() #183 setup
+LOAD D2 0; for() #183 LoopTest
 PUSHR D2
 LOAD D2 0.0001
 SUBV D2 1
@@ -9861,8 +9861,8 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I<=
 COMPAREV D2 0
-GOTOCMP 9609 ==; for() #181 TestFail?
-LOAD D2 0.0006; InlineFunc[bool screendata::isSolid(int, int)] Params Start AND if() #732 Test AND for() #181 Body Start
+GOTOCMP 9609 ==; for() #183 TestFail?
+LOAD D2 0.0006; InlineFunc[bool screendata::isSolid(int, int)] Params Start AND if() #732 Test AND for() #183 Body Start
 PUSHR D2
 LOAD D2 0.0004
 POP D3
@@ -9895,10 +9895,10 @@ COMPAREV D2 0
 GOTOCMP 9605 ==; Test 'if'
 SETV D2 1; return Start AND if() #733 Body Start
 GOTO 9610; return End AND if() #733 Body End
-LOAD D2 0; if() #732 Body End AND for() #181 Body End AND for() #181 LoopIncrement
+LOAD D2 0; if() #732 Body End AND for() #183 Body End AND for() #183 LoopIncrement
 ADDV D2 1
 STORE D2 0
-GOTO 9563; for() #181 End
+GOTO 9563; for() #183 End
 SETV D2 0; return Start
 POPARGS D5 0.0007; return End
 RETURNFUNC; Func[bool ghost2__OnSidePlatform(int, int, int, int, int, int)] Body End
@@ -10171,13 +10171,13 @@ CALLFUNC 0.0452; UsrFunc[void HealthBar_Draw(int, int, int, int, int, int, int)]
 POP D4
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #10 Body [Opt:AlwaysOn] End
 GOTO 219; while() #10 End AND unless() #836 Body End
-STOREV 0 0; for() #220 setup
-LOAD D2 0; for() #220 LoopTest
+STOREV 0 0; for() #222 setup
+LOAD D2 0; for() #222 LoopTest
 COMPAREV D2 40
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 276 ==; for() #220 TestFail?
-LOAD D2 0.0002; if() #838 Test AND for() #220 Body Start
+GOTOCMP 276 ==; for() #222 TestFail?
+LOAD D2 0.0002; if() #838 Test AND for() #222 Body Start
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
@@ -10199,11 +10199,11 @@ PUSHR D2
 PUSHV 0; UsrFunc[void HealthBar_Draw(int, int, int, int, int, int, int)] Params End
 CALLFUNC 0.0452; UsrFunc[void HealthBar_Draw(int, int, int, int, int, int, int)] Call
 POP D4
-WAITFRAME; InlineFunc[void Waitframe()] Body AND for() #220 Body End
-LOAD D2 0; for() #220 LoopIncrement
+WAITFRAME; InlineFunc[void Waitframe()] Body AND for() #222 Body End
+LOAD D2 0; for() #222 LoopIncrement
 ADDV D2 1
 STORE D2 0
-GOTO 244; for() #220 End
+GOTO 244; for() #222 End
 LOAD D3 0.0001
 DEALLOCATEMEMR D3
 POPARGS D5 0.0018
@@ -10345,16 +10345,16 @@ POP D5; return End
 RETURNFUNC; Func[int HealthBar_GetHP(npc)] Body End
 PUSHV 0; Func[void HealthBar_CapString(int)] Body Start
 SETR D4 SP2
-LOAD D2 0.0001; InlineFunc[int SizeOfArray(int[])] Params AND for() #218 setup
+LOAD D2 0.0001; InlineFunc[int SizeOfArray(int[])] Params AND for() #220 setup
 ARRAYSIZE D2; InlineFunc[int SizeOfArray(int[])] Body
 SUBV D2 1
 STORE D2 0
-LOAD D2 0; for() #218 LoopTest
+LOAD D2 0; for() #220 LoopTest
 COMPAREV D2 0
 SETCMP D2 I>=
 COMPAREV D2 0
-GOTOCMP 450 ==; for() #218 TestFail?
-LOAD D2 0.0001; if() #813 Test AND for() #218 Body Start
+GOTOCMP 450 ==; for() #220 TestFail?
+LOAD D2 0.0001; if() #813 Test AND for() #220 Body Start
 PUSHR D2
 LOAD D2 0
 POP D0
@@ -10374,10 +10374,10 @@ POP D0
 POP D2
 WRITEPODARRAYRR D3 D2
 GOTO 450; return (Void) AND if() #813 Body End
-LOAD D2 0; for() #218 Body End AND for() #218 LoopIncrement
+LOAD D2 0; for() #220 Body End AND for() #220 LoopIncrement
 SUBV D2 1
 STORE D2 0
-GOTO 421; for() #218 End
+GOTO 421; for() #220 End
 POPARGS D5 0.0002
 RETURNFUNC; Func[void HealthBar_CapString(int)] Body End
 PUSHARGSV 0 0.0006; Func[void HealthBar_Draw(int, int, int, int, int, int, int)] Body Start
@@ -10817,14 +10817,14 @@ RETURNFUNC; Func[void HealthBar_DrawDamage(int, int, int, int, int, int, int)] B
 PUSHARGSV 0 0.0003; Func[int HealthBar_GetHPTotal(int, int, int, int, int, int)] Body Start
 SETR D4 SP2
 STOREV 0 0.0002
-SETR D2 NPCCOUNT; InlineFunc[int screendata::NumNPCs()] Body AND for() #219 setup
+SETR D2 NPCCOUNT; InlineFunc[int screendata::NumNPCs()] Body AND for() #221 setup
 STORE D2 0.0001
-LOAD D2 0.0001; for() #219 LoopTest
+LOAD D2 0.0001; for() #221 LoopTest
 COMPAREV D2 1
 SETCMP D2 I>=
 COMPAREV D2 0
-GOTOCMP 1049 ==; for() #219 TestFail?
-LOAD D2 0.0001; InlineFunc[npc screendata::LoadNPC(int)] Params AND for() #219 Body Start
+GOTOCMP 1049 ==; for() #221 TestFail?
+LOAD D2 0.0001; InlineFunc[npc screendata::LoadNPC(int)] Params AND for() #221 Body Start
 SUBV D2 1; InlineFunc[npc screendata::LoadNPC(int)] Body Start
 LOADNPCR D2
 SETR D2 REFNPC; InlineFunc[npc screendata::LoadNPC(int)] Body End
@@ -10973,10 +10973,10 @@ MAXVARG; InlineFunc[int Max(int, int)] Body
 POP D3
 ADDR D2 D3
 STORE D2 0.0002; if() #828 Body End
-LOAD D2 0.0001; for() #219 Body End AND for() #219 LoopIncrement
+LOAD D2 0.0001; for() #221 Body End AND for() #221 LoopIncrement
 SUBV D2 1
 STORE D2 0.0001
-GOTO 891; for() #219 End
+GOTO 891; for() #221 End
 LOAD D2 0.0002; return Start
 POPARGS D5 0.0009; return End
 RETURNFUNC; Func[int HealthBar_GetHPTotal(int, int, int, int, int, int)] Body End
@@ -11037,13 +11037,13 @@ STORE D2 0.0005
 STOREV 0 0.0004
 STOREV 0 0.0003
 STOREV 0 0.0002
-STOREV 1 0.0001; for() #224 setup
-LOAD D2 0.0001; for() #224 LoopTest
+STOREV 1 0.0001; for() #226 setup
+LOAD D2 0.0001; for() #226 LoopTest
 COMPAREV D2 32
 SETCMP D2 I<=
 COMPAREV D2 0
-GOTOCMP 96 ==; for() #224 TestFail?
-LOAD D2 0.0001; InlineFunc[ffc screendata::LoadFFC(int)] Params AND for() #224 Body Start
+GOTOCMP 96 ==; for() #226 TestFail?
+LOAD D2 0.0001; InlineFunc[ffc screendata::LoadFFC(int)] Params AND for() #226 Body Start
 LOAD_FFC D2; InlineFunc[ffc screendata::LoadFFC(int)] Body
 STORE D2 0
 LOAD D2 0; if() #853 Test
@@ -11073,10 +11073,10 @@ GOTO 92; if() #446 Body End
 LOAD D2 0.0002; if() #446 Else Start
 ADDV D2 1
 STORE D2 0.0002; if() #446 Else End
-LOAD D2 0.0001; if() #853 Body End AND for() #224 Body End AND for() #224 LoopIncrement
+LOAD D2 0.0001; if() #853 Body End AND for() #226 Body End AND for() #226 LoopIncrement
 ADDV D2 1
 STORE D2 0.0001
-GOTO 57; for() #224 End
+GOTO 57; for() #226 End
 ALLOCATEMEMV D2 256 0
 STORE D2 0.0001
 LOAD D2 0.0014; if() #447 Test
@@ -11301,13 +11301,13 @@ COMPAREV D2 0
 GOTOCMP 320 !=; Test 'if' AND break 1; AND if() #860 Body
 WAITFRAME; if() #859 Body End AND InlineFunc[void Waitframe()] Body AND while(true) #12 Body [Opt:AlwaysOn] End
 GOTO 279; while() #12 End
-STOREV 0 0; for() #225 setup
-LOAD D2 0; for() #225 LoopTest
+STOREV 0 0; for() #227 setup
+LOAD D2 0; for() #227 LoopTest
 COMPAREV D2 40
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 360 ==; for() #225 TestFail?
-LOAD D2 0.0003; if() #861 Test AND for() #225 Body Start
+GOTOCMP 360 ==; for() #227 TestFail?
+LOAD D2 0.0003; if() #861 Test AND for() #227 Body Start
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
@@ -11336,11 +11336,11 @@ MULTR D2 D3
 PUSHR D2; UsrFunc[void HealthBar_Draw(int, int, int, int, int, int, int)] Params End
 CALLFUNC 0.0581; UsrFunc[void HealthBar_Draw(int, int, int, int, int, int, int)] Call
 POP D4
-WAITFRAME; InlineFunc[void Waitframe()] Body AND for() #225 Body End
-LOAD D2 0; for() #225 LoopIncrement
+WAITFRAME; InlineFunc[void Waitframe()] Body AND for() #227 Body End
+LOAD D2 0; for() #227 LoopIncrement
 ADDV D2 1
 STORE D2 0
-GOTO 321; for() #225 End
+GOTO 321; for() #227 End
 LOAD D3 0.0001
 DEALLOCATEMEMR D3
 POPARGS D5 0.0016
@@ -11482,16 +11482,16 @@ POP D5; return End
 RETURNFUNC; Func[int HealthBar_GetHP(npc)] Body End
 PUSHV 0; Func[void HealthBar_CapString(int)] Body Start
 SETR D4 SP2
-LOAD D2 0.0001; InlineFunc[int SizeOfArray(int[])] Params AND for() #221 setup
+LOAD D2 0.0001; InlineFunc[int SizeOfArray(int[])] Params AND for() #223 setup
 ARRAYSIZE D2; InlineFunc[int SizeOfArray(int[])] Body
 SUBV D2 1
 STORE D2 0
-LOAD D2 0; for() #221 LoopTest
+LOAD D2 0; for() #223 LoopTest
 COMPAREV D2 0
 SETCMP D2 I>=
 COMPAREV D2 0
-GOTOCMP 534 ==; for() #221 TestFail?
-LOAD D2 0.0001; if() #839 Test AND for() #221 Body Start
+GOTOCMP 534 ==; for() #223 TestFail?
+LOAD D2 0.0001; if() #839 Test AND for() #223 Body Start
 PUSHR D2
 LOAD D2 0
 POP D0
@@ -11511,21 +11511,21 @@ POP D0
 POP D2
 WRITEPODARRAYRR D3 D2
 GOTO 534; return (Void) AND if() #839 Body End
-LOAD D2 0; for() #221 Body End AND for() #221 LoopIncrement
+LOAD D2 0; for() #223 Body End AND for() #223 LoopIncrement
 SUBV D2 1
 STORE D2 0
-GOTO 505; for() #221 End
+GOTO 505; for() #223 End
 POPARGS D5 0.0002
 RETURNFUNC; Func[void HealthBar_CapString(int)] Body End
 PUSHARGSV 0 0.0002; Func[bool HealthBar_CheckDone(ffc)] Body Start
 SETR D4 SP2
-STOREV 1 0.0001; for() #222 setup
-LOAD D2 0.0001; for() #222 LoopTest
+STOREV 1 0.0001; for() #224 setup
+LOAD D2 0.0001; for() #224 LoopTest
 COMPAREV D2 32
 SETCMP D2 I<=
 COMPAREV D2 0
-GOTOCMP 578 ==; for() #222 TestFail?
-LOAD D2 0.0001; InlineFunc[ffc screendata::LoadFFC(int)] Params AND for() #222 Body Start
+GOTOCMP 578 ==; for() #224 TestFail?
+LOAD D2 0.0001; InlineFunc[ffc screendata::LoadFFC(int)] Params AND for() #224 Body Start
 LOAD_FFC D2; InlineFunc[ffc screendata::LoadFFC(int)] Body
 STORE D2 0
 LOAD D2 0; if() #840 Test
@@ -11555,10 +11555,10 @@ COMPAREV D2 0
 GOTOCMP 574 ==; Test 'if'
 SETV D2 0; return Start AND if() #841 Body Start
 GOTO 579; return End AND if() #841 Body End
-LOAD D2 0.0001; if() #840 Body End AND for() #222 Body End AND for() #222 LoopIncrement
+LOAD D2 0.0001; if() #840 Body End AND for() #224 Body End AND for() #224 LoopIncrement
 ADDV D2 1
 STORE D2 0.0001
-GOTO 539; for() #222 End
+GOTO 539; for() #224 End
 SETV D2 1; return Start
 POPARGS D5 0.0003; return End
 RETURNFUNC; Func[bool HealthBar_CheckDone(ffc)] Body End
@@ -11998,14 +11998,14 @@ POPARGS D5 0.0009
 RETURNFUNC; Func[void HealthBar_DrawDamage(int, int, int, int, int, int, int)] Body End
 PUSHARGSV 0 0.0002; Func[npc HealthBar_GetNPC(int, int)] Body Start
 SETR D4 SP2
-SETR D2 NPCCOUNT; InlineFunc[int screendata::NumNPCs()] Body AND for() #223 setup
+SETR D2 NPCCOUNT; InlineFunc[int screendata::NumNPCs()] Body AND for() #225 setup
 STORE D2 0.0001
-LOAD D2 0.0001; for() #223 LoopTest
+LOAD D2 0.0001; for() #225 LoopTest
 COMPAREV D2 1
 SETCMP D2 I>=
 COMPAREV D2 0
-GOTOCMP 1055 ==; for() #223 TestFail?
-LOAD D2 0.0001; InlineFunc[npc screendata::LoadNPC(int)] Params AND for() #223 Body Start
+GOTOCMP 1055 ==; for() #225 TestFail?
+LOAD D2 0.0001; InlineFunc[npc screendata::LoadNPC(int)] Params AND for() #225 Body Start
 SUBV D2 1; InlineFunc[npc screendata::LoadNPC(int)] Body Start
 LOADNPCR D2
 SETR D2 REFNPC; InlineFunc[npc screendata::LoadNPC(int)] Body End
@@ -12032,10 +12032,10 @@ GOTO 1051; if() #445 Body End
 LOAD D2 0.0002; if() #445 Else Start
 SUBV D2 1
 STORE D2 0.0002; if() #445 Else End
-LOAD D2 0.0001; if() #851 Body End AND for() #223 Body End AND for() #223 LoopIncrement
+LOAD D2 0.0001; if() #851 Body End AND for() #225 Body End AND for() #225 LoopIncrement
 SUBV D2 1
 STORE D2 0.0001
-GOTO 1019; for() #223 End
+GOTO 1019; for() #225 End
 POPARGS D5 0.0004
 RETURNFUNC; Func[npc HealthBar_GetNPC(int, int)] Body End
 
@@ -12282,13 +12282,13 @@ CALLFUNC 0.0452; UsrFunc[void HealthBar_Draw(int, int, int, int, int, int, int)]
 POP D4
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #14 Body [Opt:AlwaysOn] End
 GOTO 219; while() #14 End AND unless() #888 Body End
-STOREV 0 0; for() #229 setup
-LOAD D2 0; for() #229 LoopTest
+STOREV 0 0; for() #231 setup
+LOAD D2 0; for() #231 LoopTest
 COMPAREV D2 40
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 276 ==; for() #229 TestFail?
-LOAD D2 0.0002; if() #890 Test AND for() #229 Body Start
+GOTOCMP 276 ==; for() #231 TestFail?
+LOAD D2 0.0002; if() #890 Test AND for() #231 Body Start
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
@@ -12310,11 +12310,11 @@ PUSHR D2
 PUSHV 0; UsrFunc[void HealthBar_Draw(int, int, int, int, int, int, int)] Params End
 CALLFUNC 0.0452; UsrFunc[void HealthBar_Draw(int, int, int, int, int, int, int)] Call
 POP D4
-WAITFRAME; InlineFunc[void Waitframe()] Body AND for() #229 Body End
-LOAD D2 0; for() #229 LoopIncrement
+WAITFRAME; InlineFunc[void Waitframe()] Body AND for() #231 Body End
+LOAD D2 0; for() #231 LoopIncrement
 ADDV D2 1
 STORE D2 0
-GOTO 244; for() #229 End
+GOTO 244; for() #231 End
 LOAD D3 0.0001
 DEALLOCATEMEMR D3
 POPARGS D5 0.0018
@@ -12456,16 +12456,16 @@ POP D5; return End
 RETURNFUNC; Func[int HealthBar_GetHP(npc)] Body End
 PUSHV 0; Func[void HealthBar_CapString(int)] Body Start
 SETR D4 SP2
-LOAD D2 0.0001; InlineFunc[int SizeOfArray(int[])] Params AND for() #226 setup
+LOAD D2 0.0001; InlineFunc[int SizeOfArray(int[])] Params AND for() #228 setup
 ARRAYSIZE D2; InlineFunc[int SizeOfArray(int[])] Body
 SUBV D2 1
 STORE D2 0
-LOAD D2 0; for() #226 LoopTest
+LOAD D2 0; for() #228 LoopTest
 COMPAREV D2 0
 SETCMP D2 I>=
 COMPAREV D2 0
-GOTOCMP 450 ==; for() #226 TestFail?
-LOAD D2 0.0001; if() #862 Test AND for() #226 Body Start
+GOTOCMP 450 ==; for() #228 TestFail?
+LOAD D2 0.0001; if() #862 Test AND for() #228 Body Start
 PUSHR D2
 LOAD D2 0
 POP D0
@@ -12485,10 +12485,10 @@ POP D0
 POP D2
 WRITEPODARRAYRR D3 D2
 GOTO 450; return (Void) AND if() #862 Body End
-LOAD D2 0; for() #226 Body End AND for() #226 LoopIncrement
+LOAD D2 0; for() #228 Body End AND for() #228 LoopIncrement
 SUBV D2 1
 STORE D2 0
-GOTO 421; for() #226 End
+GOTO 421; for() #228 End
 POPARGS D5 0.0002
 RETURNFUNC; Func[void HealthBar_CapString(int)] Body End
 PUSHARGSV 0 0.0003; Func[void HealthBar_Draw(int, int, int, int, int, int, int)] Body Start
@@ -12655,13 +12655,13 @@ COMPAREV D2 0
 GOTOCMP 616 ==; Test 'if'
 SETV D2 15; if() #872 Body Start
 STORE D2 0.0001; if() #872 Body End
-STOREV 0 0; for() #227 setup
-LOAD D2 0; for() #227 LoopTest
+STOREV 0 0; for() #229 setup
+LOAD D2 0; for() #229 LoopTest
 COMPAREV D2 14
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 707 ==; for() #227 TestFail?
-LOAD D2 0.0017; for() #227 Body Start
+GOTOCMP 707 ==; for() #229 TestFail?
+LOAD D2 0.0017; for() #229 Body Start
 STORE D2 0.0007
 LOAD D2 0.0016
 STORE D2 0.0006
@@ -12742,10 +12742,10 @@ PUSHR D2
 PUSHV 128; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Params End
 FASTTILER; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Body Start
 POPARGS D5 0.0006; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Body End AND if() #453 Else End
-LOAD D2 0; if() #452 Else End AND for() #227 Body End AND for() #227 LoopIncrement
+LOAD D2 0; if() #452 Else End AND for() #229 Body End AND for() #229 LoopIncrement
 ADDV D2 1
 STORE D2 0
-GOTO 617; for() #227 End
+GOTO 617; for() #229 End
 LOAD D2 0.0009; if() #455 Test AND if(false) #454 [Opt:AlwaysOff] AND if(true) #874 [Opt:AlwaysOn]
 COMPAREV D2 0
 SETCMP D2 I>
@@ -13055,14 +13055,14 @@ RETURNFUNC; Func[void HealthBar_DrawDamage(int, int, int, int, int, int, int)] B
 PUSHARGSV 0 0.0003; Func[int HealthBar_GetHPTotal(int, int, int, int, int, int)] Body Start
 SETR D4 SP2
 STOREV 0 0.0002
-SETR D2 NPCCOUNT; InlineFunc[int screendata::NumNPCs()] Body AND for() #228 setup
+SETR D2 NPCCOUNT; InlineFunc[int screendata::NumNPCs()] Body AND for() #230 setup
 STORE D2 0.0001
-LOAD D2 0.0001; for() #228 LoopTest
+LOAD D2 0.0001; for() #230 LoopTest
 COMPAREV D2 1
 SETCMP D2 I>=
 COMPAREV D2 0
-GOTOCMP 1176 ==; for() #228 TestFail?
-LOAD D2 0.0001; InlineFunc[npc screendata::LoadNPC(int)] Params AND for() #228 Body Start
+GOTOCMP 1176 ==; for() #230 TestFail?
+LOAD D2 0.0001; InlineFunc[npc screendata::LoadNPC(int)] Params AND for() #230 Body Start
 SUBV D2 1; InlineFunc[npc screendata::LoadNPC(int)] Body Start
 LOADNPCR D2
 SETR D2 REFNPC; InlineFunc[npc screendata::LoadNPC(int)] Body End
@@ -13211,10 +13211,10 @@ MAXVARG; InlineFunc[int Max(int, int)] Body
 POP D3
 ADDR D2 D3
 STORE D2 0.0002; if() #880 Body End
-LOAD D2 0.0001; for() #228 Body End AND for() #228 LoopIncrement
+LOAD D2 0.0001; for() #230 Body End AND for() #230 LoopIncrement
 SUBV D2 1
 STORE D2 0.0001
-GOTO 1018; for() #228 End
+GOTO 1018; for() #230 End
 LOAD D2 0.0002; return Start
 POPARGS D5 0.0009; return End
 RETURNFUNC; Func[int HealthBar_GetHPTotal(int, int, int, int, int, int)] Body End
@@ -13275,13 +13275,13 @@ STORE D2 0.0005
 STOREV 0 0.0004
 STOREV 0 0.0003
 STOREV 0 0.0002
-STOREV 1 0.0001; for() #234 setup
-LOAD D2 0.0001; for() #234 LoopTest
+STOREV 1 0.0001; for() #236 setup
+LOAD D2 0.0001; for() #236 LoopTest
 COMPAREV D2 32
 SETCMP D2 I<=
 COMPAREV D2 0
-GOTOCMP 96 ==; for() #234 TestFail?
-LOAD D2 0.0001; InlineFunc[ffc screendata::LoadFFC(int)] Params AND for() #234 Body Start
+GOTOCMP 96 ==; for() #236 TestFail?
+LOAD D2 0.0001; InlineFunc[ffc screendata::LoadFFC(int)] Params AND for() #236 Body Start
 LOAD_FFC D2; InlineFunc[ffc screendata::LoadFFC(int)] Body
 STORE D2 0
 LOAD D2 0; if() #908 Test
@@ -13311,10 +13311,10 @@ GOTO 92; if() #466 Body End
 LOAD D2 0.0002; if() #466 Else Start
 ADDV D2 1
 STORE D2 0.0002; if() #466 Else End
-LOAD D2 0.0001; if() #908 Body End AND for() #234 Body End AND for() #234 LoopIncrement
+LOAD D2 0.0001; if() #908 Body End AND for() #236 Body End AND for() #236 LoopIncrement
 ADDV D2 1
 STORE D2 0.0001
-GOTO 57; for() #234 End
+GOTO 57; for() #236 End
 ALLOCATEMEMV D2 256 0
 STORE D2 0.0001
 LOAD D2 0.0014; if() #467 Test
@@ -13539,13 +13539,13 @@ COMPAREV D2 0
 GOTOCMP 320 !=; Test 'if' AND break 1; AND if() #915 Body
 WAITFRAME; if() #914 Body End AND InlineFunc[void Waitframe()] Body AND while(true) #16 Body [Opt:AlwaysOn] End
 GOTO 279; while() #16 End
-STOREV 0 0; for() #235 setup
-LOAD D2 0; for() #235 LoopTest
+STOREV 0 0; for() #237 setup
+LOAD D2 0; for() #237 LoopTest
 COMPAREV D2 40
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 360 ==; for() #235 TestFail?
-LOAD D2 0.0003; if() #916 Test AND for() #235 Body Start
+GOTOCMP 360 ==; for() #237 TestFail?
+LOAD D2 0.0003; if() #916 Test AND for() #237 Body Start
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
@@ -13574,11 +13574,11 @@ MULTR D2 D3
 PUSHR D2; UsrFunc[void HealthBar_Draw(int, int, int, int, int, int, int)] Params End
 CALLFUNC 0.0581; UsrFunc[void HealthBar_Draw(int, int, int, int, int, int, int)] Call
 POP D4
-WAITFRAME; InlineFunc[void Waitframe()] Body AND for() #235 Body End
-LOAD D2 0; for() #235 LoopIncrement
+WAITFRAME; InlineFunc[void Waitframe()] Body AND for() #237 Body End
+LOAD D2 0; for() #237 LoopIncrement
 ADDV D2 1
 STORE D2 0
-GOTO 321; for() #235 End
+GOTO 321; for() #237 End
 LOAD D3 0.0001
 DEALLOCATEMEMR D3
 POPARGS D5 0.0016
@@ -13720,16 +13720,16 @@ POP D5; return End
 RETURNFUNC; Func[int HealthBar_GetHP(npc)] Body End
 PUSHV 0; Func[void HealthBar_CapString(int)] Body Start
 SETR D4 SP2
-LOAD D2 0.0001; InlineFunc[int SizeOfArray(int[])] Params AND for() #230 setup
+LOAD D2 0.0001; InlineFunc[int SizeOfArray(int[])] Params AND for() #232 setup
 ARRAYSIZE D2; InlineFunc[int SizeOfArray(int[])] Body
 SUBV D2 1
 STORE D2 0
-LOAD D2 0; for() #230 LoopTest
+LOAD D2 0; for() #232 LoopTest
 COMPAREV D2 0
 SETCMP D2 I>=
 COMPAREV D2 0
-GOTOCMP 534 ==; for() #230 TestFail?
-LOAD D2 0.0001; if() #891 Test AND for() #230 Body Start
+GOTOCMP 534 ==; for() #232 TestFail?
+LOAD D2 0.0001; if() #891 Test AND for() #232 Body Start
 PUSHR D2
 LOAD D2 0
 POP D0
@@ -13749,21 +13749,21 @@ POP D0
 POP D2
 WRITEPODARRAYRR D3 D2
 GOTO 534; return (Void) AND if() #891 Body End
-LOAD D2 0; for() #230 Body End AND for() #230 LoopIncrement
+LOAD D2 0; for() #232 Body End AND for() #232 LoopIncrement
 SUBV D2 1
 STORE D2 0
-GOTO 505; for() #230 End
+GOTO 505; for() #232 End
 POPARGS D5 0.0002
 RETURNFUNC; Func[void HealthBar_CapString(int)] Body End
 PUSHARGSV 0 0.0002; Func[bool HealthBar_CheckDone(ffc)] Body Start
 SETR D4 SP2
-STOREV 1 0.0001; for() #231 setup
-LOAD D2 0.0001; for() #231 LoopTest
+STOREV 1 0.0001; for() #233 setup
+LOAD D2 0.0001; for() #233 LoopTest
 COMPAREV D2 32
 SETCMP D2 I<=
 COMPAREV D2 0
-GOTOCMP 578 ==; for() #231 TestFail?
-LOAD D2 0.0001; InlineFunc[ffc screendata::LoadFFC(int)] Params AND for() #231 Body Start
+GOTOCMP 578 ==; for() #233 TestFail?
+LOAD D2 0.0001; InlineFunc[ffc screendata::LoadFFC(int)] Params AND for() #233 Body Start
 LOAD_FFC D2; InlineFunc[ffc screendata::LoadFFC(int)] Body
 STORE D2 0
 LOAD D2 0; if() #892 Test
@@ -13793,10 +13793,10 @@ COMPAREV D2 0
 GOTOCMP 574 ==; Test 'if'
 SETV D2 0; return Start AND if() #893 Body Start
 GOTO 579; return End AND if() #893 Body End
-LOAD D2 0.0001; if() #892 Body End AND for() #231 Body End AND for() #231 LoopIncrement
+LOAD D2 0.0001; if() #892 Body End AND for() #233 Body End AND for() #233 LoopIncrement
 ADDV D2 1
 STORE D2 0.0001
-GOTO 539; for() #231 End
+GOTO 539; for() #233 End
 SETV D2 1; return Start
 POPARGS D5 0.0003; return End
 RETURNFUNC; Func[bool HealthBar_CheckDone(ffc)] Body End
@@ -13964,13 +13964,13 @@ COMPAREV D2 0
 GOTOCMP 745 ==; Test 'if'
 SETV D2 15; if() #903 Body Start
 STORE D2 0.0001; if() #903 Body End
-STOREV 0 0; for() #232 setup
-LOAD D2 0; for() #232 LoopTest
+STOREV 0 0; for() #234 setup
+LOAD D2 0; for() #234 LoopTest
 COMPAREV D2 14
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 836 ==; for() #232 TestFail?
-LOAD D2 0.0017; for() #232 Body Start
+GOTOCMP 836 ==; for() #234 TestFail?
+LOAD D2 0.0017; for() #234 Body Start
 STORE D2 0.0007
 LOAD D2 0.0016
 STORE D2 0.0006
@@ -14051,10 +14051,10 @@ PUSHR D2
 PUSHV 128; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Params End
 FASTTILER; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Body Start
 POPARGS D5 0.0006; InlineFunc[void screendata::FastTile(int, int, int, int, int, int)] Body End AND if() #461 Else End
-LOAD D2 0; if() #460 Else End AND for() #232 Body End AND for() #232 LoopIncrement
+LOAD D2 0; if() #460 Else End AND for() #234 Body End AND for() #234 LoopIncrement
 ADDV D2 1
 STORE D2 0
-GOTO 746; for() #232 End
+GOTO 746; for() #234 End
 LOAD D2 0.0009; if() #463 Test AND if(false) #462 [Opt:AlwaysOff] AND if(true) #905 [Opt:AlwaysOn]
 COMPAREV D2 0
 SETCMP D2 I>
@@ -14363,14 +14363,14 @@ POPARGS D5 0.0009
 RETURNFUNC; Func[void HealthBar_DrawDamage(int, int, int, int, int, int, int)] Body End
 PUSHARGSV 0 0.0002; Func[npc HealthBar_GetNPC(int, int)] Body Start
 SETR D4 SP2
-SETR D2 NPCCOUNT; InlineFunc[int screendata::NumNPCs()] Body AND for() #233 setup
+SETR D2 NPCCOUNT; InlineFunc[int screendata::NumNPCs()] Body AND for() #235 setup
 STORE D2 0.0001
-LOAD D2 0.0001; for() #233 LoopTest
+LOAD D2 0.0001; for() #235 LoopTest
 COMPAREV D2 1
 SETCMP D2 I>=
 COMPAREV D2 0
-GOTOCMP 1182 ==; for() #233 TestFail?
-LOAD D2 0.0001; InlineFunc[npc screendata::LoadNPC(int)] Params AND for() #233 Body Start
+GOTOCMP 1182 ==; for() #235 TestFail?
+LOAD D2 0.0001; InlineFunc[npc screendata::LoadNPC(int)] Params AND for() #235 Body Start
 SUBV D2 1; InlineFunc[npc screendata::LoadNPC(int)] Body Start
 LOADNPCR D2
 SETR D2 REFNPC; InlineFunc[npc screendata::LoadNPC(int)] Body End
@@ -14397,10 +14397,10 @@ GOTO 1178; if() #465 Body End
 LOAD D2 0.0002; if() #465 Else Start
 SUBV D2 1
 STORE D2 0.0002; if() #465 Else End
-LOAD D2 0.0001; if() #906 Body End AND for() #233 Body End AND for() #233 LoopIncrement
+LOAD D2 0.0001; if() #906 Body End AND for() #235 Body End AND for() #235 LoopIncrement
 SUBV D2 1
 STORE D2 0.0001
-GOTO 1146; for() #233 End
+GOTO 1146; for() #235 End
 POPARGS D5 0.0004
 RETURNFUNC; Func[npc HealthBar_GetNPC(int, int)] Body End
 

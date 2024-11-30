@@ -4143,3 +4143,20 @@ void ClearFFC(int ffc_id)
 	f->Link = 0;
 	for ( int q = 0; q < 16; ++q ) f->Misc[q] = 0;
 }
+
+void ClearRegion(int map)
+{
+	SetRegion(map, 0, 16, 8, 0);
+}
+
+void SetRegion(int map, int origin_screen, int width, int height, int region_id)
+{
+	for (int x = 0; x < width; x++)
+	{
+		for (int y = 0; y < height; y++)
+		{
+			int screen = origin_screen + x + y*16;
+			Game->LoadMapData(map, screen)->RegionID = region_id;
+		}
+	}
+}

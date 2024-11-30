@@ -205,16 +205,16 @@ PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0002
 DEALLOCATEMEMR D3
-STOREV 0 0.0001; for() #148 setup
-LOAD D2 0.0001; for() #148 LoopTest
+STOREV 0 0.0001; for() #150 setup
+LOAD D2 0.0001; for() #150 LoopTest
 PUSHR D2
 LOAD D2 0.0003
 POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 129 ==; for() #148 TestFail?
-ALLOCATEMEMV D2 8 0; for() #148 Body Start
+GOTOCMP 129 ==; for() #150 TestFail?
+ALLOCATEMEMV D2 8 0; for() #150 Body Start
 STORE D2 0
 WRITEPODSTRING D2 "%d: %l\n"
 LOAD D2 0; InlineFunc[void printf(char32[])] Params Start
@@ -230,11 +230,11 @@ PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0
-DEALLOCATEMEMR D3; for() #148 Body End
-LOAD D2 0.0001; for() #148 LoopIncrement
+DEALLOCATEMEMR D3; for() #150 Body End
+LOAD D2 0.0001; for() #150 LoopIncrement
 ADDV D2 1
 STORE D2 0.0001
-GOTO 181; for() #148 End
+GOTO 181; for() #150 End
 GOTO 129; if() #106 Body End
 ALLOCATEMEMV D2 40 0; if() #106 Else Start
 STORE D2 0.0003

@@ -515,8 +515,8 @@ POPARGS D5 0.0002
 RETURNFUNC; Func[void output(char32[])] Body End
 PUSHARGSV 0 0.0002; Func[void rollCredits(int)] Body Start
 SETR D4 SP2
-STOREV -224 0.0001; for() #148 setup
-LOAD D2 0.0001; for() #148 LoopTest
+STOREV -224 0.0001; for() #150 setup
+LOAD D2 0.0001; for() #150 LoopTest
 PUSHR D2
 SETR D2 GD2
 PUSHR D2
@@ -526,19 +526,19 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 539 ==; for() #148 TestFail?
-PUSHR D4; for() #148 Body Start
+GOTOCMP 539 ==; for() #150 TestFail?
+PUSHR D4; for() #150 Body Start
 LOAD D2 0.0001; UsrFunc[void drawCredits(int)] Params Start
 PUSHR D2; UsrFunc[void drawCredits(int)] Params End
 CALLFUNC 0.0315; UsrFunc[void drawCredits(int)] Call
 POP D4
-STOREV 0 0; for() #149 setup
-LOAD D2 0; for() #149 LoopTest
+STOREV 0 0; for() #151 setup
+LOAD D2 0; for() #151 LoopTest
 COMPAREV D2 18
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 531 ==; for() #149 TestFail?
-SETV D2 0; for() #149 Body Start
+GOTOCMP 531 ==; for() #151 TestFail?
+SETV D2 0; for() #151 Body Start
 PUSHR D2
 LOAD D2 0
 PUSHR D2
@@ -551,19 +551,19 @@ LOAD D2 0
 PUSHR D2
 POP D0
 POP D2
-SETR BUTTONPRESS D2; for() #149 Body End
-LOAD D2 0; for() #149 LoopIncrement
+SETR BUTTONPRESS D2; for() #151 Body End
+LOAD D2 0; for() #151 LoopIncrement
 ADDV D2 1
 STORE D2 0
-GOTO 508; for() #149 End
-WAITFRAME; InlineFunc[void Waitframe()] Body AND for() #148 Body End
-LOAD D2 0.0001; for() #148 LoopIncrement
+GOTO 508; for() #151 End
+WAITFRAME; InlineFunc[void Waitframe()] Body AND for() #150 Body End
+LOAD D2 0.0001; for() #150 LoopIncrement
 PUSHR D2
 LOAD D2 0.0002
 POP D3
 ADDR D2 D3
 STORE D2 0.0001
-GOTO 491; for() #148 End
+GOTO 491; for() #150 End
 POPARGS D5 0.0003
 RETURNFUNC; Func[void rollCredits(int)] Body End
 PUSHARGSV 0 0.0008; Func[void runTestCredits()] Body Start
@@ -656,17 +656,17 @@ CALLFUNC 0.0217; UsrFunc[void blackDelay(int)] Call
 PEEK D4
 CALLFUNC 0.0268; UsrFunc[void destroy()] Call
 POP D4
-STOREV 0 0; for() #150 setup
-LOAD D2 0; for() #150 LoopTest
+STOREV 0 0; for() #152 setup
+LOAD D2 0; for() #152 LoopTest
 COMPAREV D2 10
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 642 ==; for() #150 TestFail?
-WAITFRAME; InlineFunc[void Waitframe()] Body AND for() #150 Body
-LOAD D2 0; for() #150 LoopIncrement
+GOTOCMP 642 ==; for() #152 TestFail?
+WAITFRAME; InlineFunc[void Waitframe()] Body AND for() #152 Body
+LOAD D2 0; for() #152 LoopIncrement
 ADDV D2 1
 STORE D2 0
-GOTO 632; for() #150 End
+GOTO 632; for() #152 End
 QUIT; InlineFunc[void Quit()] Body AND [Opt:NeverRet] AND Func[void runTestCredits()] Body End
 
 
