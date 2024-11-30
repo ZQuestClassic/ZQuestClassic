@@ -552,27 +552,13 @@ void zmap::regions_refresh()
 	if (!regions_dirty)
 		return;
 
+	regions_dirty = false;
+
 	int map = cursor.map;
-
-	// yoink'd the following from zc/maps.cpp z3_load_region
-
-	for (int sy = 0; sy < 8; sy++)
-	{
-		for (int sx = 0; sx < 16; sx++)
-		{
-			int id = Regions[map].get_region_id(sx, sy);
-			int screen = map_scr_xy_to_index(sx, sy);
-			if (id && get_canonical_scr(map, screen)->is_valid())
-				current_region_ids[screen] = id;
-			else
-				current_region_ids[screen] = 0;
-		}
-	}
+	current_region_ids = Regions[map].get_all_region_ids(map);
 
 	for (int i = 0; i < 128; i++)
-	{
 		screen_is_in_current_region[i] = false;
-	}
 
 	// yoink'd the following from zc/maps.cpp z3_calculate_region
 
@@ -616,8 +602,6 @@ void zmap::regions_refresh()
 			screen_is_in_current_region[map_scr_xy_to_index(x, y)] = true;
 		}
 	}
-
-	regions_dirty = false;
 }
 int zmap::get_region_id(int screen)
 {

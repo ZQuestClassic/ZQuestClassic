@@ -5516,7 +5516,9 @@ void draw_screenunit_map_screen(VisibleScreen visible_screen)
 	}
 
 	bool should_dither;
-	if (Map.is_region(Map.getCurrScr()))
+	if (!Map.isValid(Map.getCurrScr()))
+		should_dither = false;
+	else if (Map.is_region(Map.getCurrScr()))
 		should_dither = !Map.is_screen_in_current_region(screen);
 	else
 		should_dither = Map.is_region(screen);

@@ -1,8 +1,8 @@
 #ifndef MAPSCR_H_
 #define MAPSCR_H_
 
-#include "base/util.h"
 #include "ffc.h"
+#include <array>
 #include <vector>
 
 enum
@@ -309,6 +309,13 @@ enum
 	rMAX
 };
 
+struct region_data
+{
+	int origin_screen;
+	int width;
+	int height;
+};
+
 // Region data for an entire map.
 struct regions_data
 {
@@ -321,26 +328,10 @@ struct regions_data
 	// IDs can be repeated - they currently don't hold any special meaning.
 	byte region_ids[8][8];
 
-	byte get_region_id(int screen_x, int screen_y)
-	{
-		return util::nibble(region_ids[screen_y][screen_x/2], screen_x % 2 == 0);
-	}
-
-	byte get_region_id(int screen)
-	{
-		return get_region_id(screen % 16, screen / 16);
-	}
-
-	void set_region_id(int screen, byte value)
-	{
-		int screen_x = screen % 16;
-		int screen_y = screen / 16;
-		byte& datum = region_ids[screen_y][screen_x/2];
-		if (screen_x % 2 == 0)
-			datum = util::nibble_set_upper_byte(datum, value);
-		else
-			datum = util::nibble_set_lower_byte(datum, value);
-	}
+	byte get_region_id(int screen_x, int screen_y);
+	byte get_region_id(int screen);
+	void set_region_id(int screen, byte value);
+	std::array<int, MAPSCRSNORMAL> get_all_region_ids(int map);
 };
 
 extern std::array<regions_data, MAXMAPS> Regions;

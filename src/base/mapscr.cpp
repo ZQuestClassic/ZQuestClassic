@@ -1,12 +1,54 @@
 #include "base/mapscr.h"
+
 #include "base/general.h"
-#include "base/zsys.h"
 #include "base/qrs.h"
+#include "base/util.h"
+#include "base/zsys.h"
 
 std::array<regions_data, MAXMAPS> Regions;
 std::vector<mapscr> TheMaps;
 std::vector<word> map_autolayers;
 word map_count = 0;
+
+byte regions_data::get_region_id(int screen_x, int screen_y)
+{
+	return util::nibble(region_ids[screen_y][screen_x/2], screen_x % 2 == 0);
+}
+
+byte regions_data::get_region_id(int screen)
+{
+	return get_region_id(screen % 16, screen / 16);
+}
+
+void regions_data::set_region_id(int screen, byte value)
+{
+	int screen_x = screen % 16;
+	int screen_y = screen / 16;
+	byte& datum = region_ids[screen_y][screen_x/2];
+	if (screen_x % 2 == 0)
+		datum = util::nibble_set_upper_byte(datum, value);
+	else
+		datum = util::nibble_set_lower_byte(datum, value);
+}
+
+std::array<int, MAPSCRSNORMAL> regions_data::get_all_region_ids(int map)
+{
+	std::array<int, MAPSCRSNORMAL> screen_region_id = {};
+
+	for (int sy = 0; sy < 8; sy++)
+	{
+		for (int sx = 0; sx < 16; sx++)
+		{
+			int screen = map_scr_xy_to_index(sx, sy);
+			if (!get_canonical_scr(map, screen)->is_valid())
+				continue;
+
+			screen_region_id[screen] = get_region_id(sx, sy);
+		}
+	}
+
+	return screen_region_id;
+}
 
 byte mapscr::ffEffectWidth(size_t ind) const
 {

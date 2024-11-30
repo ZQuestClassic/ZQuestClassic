@@ -70,7 +70,7 @@ int scrolling_maze_scr, scrolling_maze_state;
 int scrolling_maze_mode = 0;
 region current_region, scrolling_region;
 
-static int current_region_ids[128];
+static std::array<int, MAPSCRSNORMAL> current_region_ids;
 
 static bool is_a_region(int map, int scr)
 {
@@ -201,18 +201,7 @@ void z3_load_region(int map, int screen)
 {
 	z3_clear_temporary_screens();
 
-	for (int sy = 0; sy < 8; sy++)
-	{
-		for (int sx = 0; sx < 16; sx++)
-		{
-			int id = Regions[map].get_region_id(sx, sy);
-			int screen = map_scr_xy_to_index(sx, sy);
-			if (id && get_canonical_scr(map, screen)->is_valid())
-				current_region_ids[screen] = id;
-			else
-				current_region_ids[screen] = 0;
-		}
-	}
+	current_region_ids = Regions[map].get_all_region_ids(map);
 
 	z3_calculate_region(map, screen, current_region, region_scr_dx, region_scr_dy);
 	currscr = current_region.origin_screen_index;
