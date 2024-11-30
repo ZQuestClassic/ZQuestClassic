@@ -2901,11 +2901,6 @@ int32_t get_register(int32_t arg)
 			}
 		}
 		break;
-
-		case FF_SCREEN_INDEX:
-			if (auto ffc = checkFFC(ri->ffcref, "ffc->ScreenIndex"))
-				ret = ffc->screen_spawned * 10000;
-			break;
 		
 		///----------------------------------------------------------------------------------------------------//
 		//Hero's Variables

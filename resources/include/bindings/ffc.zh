@@ -36,11 +36,6 @@ class ffc {
 	// @zasm_var FFCID
 	internal const int ID;
 
-	// The screen index this FFC was created on.
-	//
-	// @zasm_var FF_SCREEN_INDEX
-	internal const int ScreenIndex;
-
 	// The combo ID used by the FFC for its visuals and type.
 	//
 	// @zasm_var DATA

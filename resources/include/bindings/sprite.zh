@@ -4,6 +4,11 @@ class sprite {
 	// @delete
 	internal sprite();
 
+	// The screen index this sprite was created on. Does not update as the sprite moves around a region.
+	//
+	// @zasm_var SPRITE_SCREEN_INDEX
+	internal const int ScreenIndex;
+
 	// @zasm_var SPRITE_X
 	internal int X;
 
