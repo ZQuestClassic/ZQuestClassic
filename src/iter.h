@@ -61,7 +61,8 @@ ZC_FORCE_INLINE void for_every_rpos(T&& fn)
 	}
 }
 
-// Iterates over every rpos in the current region, but only for screens that are valid.
+// Iterates over every rpos in the current region, but only for screens that are valid,
+// and only for layer 0.
 // Callback function: void fn(const pos_handle_t& rpos_handle)
 template<typename T>
 requires std::is_invocable_v<T, const rpos_handle_t&>
@@ -79,6 +80,34 @@ ZC_FORCE_INLINE void for_every_rpos_layer0(T&& fn)
 			fn(rpos_handle);
 			rpos_handle.rpos = (rpos_t)((int)rpos_handle.rpos + 1);
 			rpos_handle.pos += 1;
+		}
+	}
+}
+
+// Iterates over every visbile rpos in the current region, but only for screens that are valid,
+// but only for layer 0.
+// Callback function: void fn(const pos_handle_t& rpos_handle)
+template<typename T>
+requires std::is_invocable_v<T, const rpos_handle_t&>
+ZC_FORCE_INLINE void for_every_visible_rpos_layer0(T&& fn)
+{
+	if (!is_z3_scrolling_mode())
+	{
+		for_every_rpos_layer0(fn);
+		return;
+	}
+
+	int x0 = viewport.x / 16;
+	int y0 = viewport.y / 16;
+	int x1 = std::ceil(viewport.right() / 16.0);
+	int y1 = std::ceil(viewport.bottom() / 16.0);
+
+	for (int x = x0; x <= x1; x++)
+	{
+		for (int y = y0; y <= y1; y++)
+		{
+			rpos_handle_t rpos_handle = get_rpos_handle_for_world_xy(x*16, y*16, 0);
+			fn(rpos_handle);
 		}
 	}
 }

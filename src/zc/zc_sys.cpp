@@ -2390,8 +2390,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 		
 		++strike_hint_timer;
 
-		// TODO: if we had a "for_every_visible_rpos", it could be used here.
-		for_every_rpos_layer0([&](const rpos_handle_t& rpos_handle) {
+		for_every_visible_rpos_layer0([&](const rpos_handle_t& rpos_handle) {
 			mapscr* scr = tmpscr;
 			auto [x, y] = COMBOXY_REGION(rpos_handle.rpos);
 			y += playing_field_offset;
