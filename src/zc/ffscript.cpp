@@ -1555,7 +1555,7 @@ static mapscr* ResolveMapdata(int32_t mapref, const char* context)
 {
 	auto result = decode_mapdata_ref(mapref);
 	if (!result.scr)
-		Z_scripterrlog("mapdata id (%d) is invalid (%s)\n", mapref, context); 
+		Z_scripterrlog("mapdata id (%d) is invalid (mapdata->%s)\n", mapref, context); 
 	return result.scr;
 }
 
@@ -6879,7 +6879,7 @@ int32_t get_register(int32_t arg)
 		
 		case MAPDATAINITDARRAY:
 		{
-			if (auto scr = ResolveMapdata(ri->mapsref, "mapdata->InitD[]"))
+			if (auto scr = ResolveMapdata(ri->mapsref, "InitD[]"))
 				ret = scr->screeninitd[ri->d[rINDEX]/10000];
 			break;
 		}
@@ -7475,6 +7475,12 @@ int32_t get_register(int32_t arg)
 			}
 			break;
 		}
+		case MAPDATAREGIONID:
+		{
+			if (auto scr = ResolveMapdata(ri->mapsref, "RegionID"))
+				ret = get_region_id(scr->map, scr->screen) * 10000;
+			break;
+		}
 		case MAPDATAHASITEM: 		GET_MAPDATA_VAR_BYTE(hasitem, "HasItem"); break;	//b
 		case MAPDATATILEWARPTYPE: 	GET_MAPDATA_BYTE_INDEX(tilewarptype, "TileWarpType", 3); break;	//b, 4 of these
 		//case MAPDATATILEWARPOVFLAGS: 	GET_MAPDATA_VAR_BYTE(tilewarpoverlayflags, "TileWarpOverlayFlags"); break;	//b, tilewarpoverlayflags
@@ -7625,7 +7631,7 @@ int32_t get_register(int32_t arg)
 			}
 			else 
 			{ 
-				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); 
+				Z_scripterrlog("mapdata->%s pointer is either invalid or uninitialised","str"); 
 				ret = -10000;
 			}
 			break;
@@ -7646,7 +7652,7 @@ int32_t get_register(int32_t arg)
 			}
 			else 
 			{
-				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); 
+				Z_scripterrlog("mapdata->%s pointer is either invalid or uninitialised","str"); 
 				ret = -10000; 
 			}
 			break;
@@ -7667,7 +7673,7 @@ int32_t get_register(int32_t arg)
 			}
 			else
 			{
-				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCTileWidth[]");
+				Z_scripterrlog("mapdata->%s pointer is either invalid or uninitialised","FFCTileWidth[]");
 				ret = -10000;
 			}
 			break;
@@ -7688,7 +7694,7 @@ int32_t get_register(int32_t arg)
 			}
 			else
 			{
-				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCTileHeight[]");
+				Z_scripterrlog("mapdata->%s pointer is either invalid or uninitialised","FFCTileHeight[]");
 				ret = -10000;
 			}
 			break;
@@ -7710,7 +7716,7 @@ int32_t get_register(int32_t arg)
 			}
 			else
 			{
-				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCEffectWidth[]");
+				Z_scripterrlog("mapdata->%s pointer is either invalid or uninitialised","FFCEffectWidth[]");
 				ret = -10000;
 			}
 			break;
@@ -7731,7 +7737,7 @@ int32_t get_register(int32_t arg)
 			}
 			else
 			{
-				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCEffectHeight[]");
+				Z_scripterrlog("mapdata->%s pointer is either invalid or uninitialised","FFCEffectHeight[]");
 				ret = -10000;
 			}
 			break;
@@ -7754,7 +7760,7 @@ int32_t get_register(int32_t arg)
 				ret = handle.ffc->initd[d_index];
 			else
 			{
-				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCInitD[]");
+				Z_scripterrlog("mapdata->%s pointer is either invalid or uninitialised","FFCInitD[]");
 				ret = -10000;
 			}
 			break;
@@ -8029,7 +8035,7 @@ int32_t get_register(int32_t arg)
 			}
 			else
 			{
-				Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","State[]", ri->mapsref);
+				Z_scripterrlog("mapdata->%s pointer (%d) is either invalid or uninitialised.\n","State[]", ri->mapsref);
 				ret = 0;
 			}
 			break;
@@ -8044,7 +8050,7 @@ int32_t get_register(int32_t arg)
 			}
 			else
 			{
-				Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","State[]", ri->mapsref);
+				Z_scripterrlog("mapdata->%s pointer (%d) is either invalid or uninitialised.\n","State[]", ri->mapsref);
 				ret = 0;
 			}
 			break;
@@ -8106,7 +8112,7 @@ int32_t get_register(int32_t arg)
 			}
 			else
 			{
-				Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","SFlags[]", ri->mapsref);
+				Z_scripterrlog("mapdata->%s pointer (%d) is either invalid or uninitialised.\n","SFlags[]", ri->mapsref);
 				ret = -10000;
 			}
 			break;
@@ -8120,7 +8126,7 @@ int32_t get_register(int32_t arg)
 			}
 			else
 			{
-				Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","EFlags[]", ri->mapsref);
+				Z_scripterrlog("mapdata->%s pointer (%d) is either invalid or uninitialised.\n","EFlags[]", ri->mapsref);
 				ret = -10000;
 			}
 			break;
@@ -8137,7 +8143,7 @@ int32_t get_register(int32_t arg)
 				}
 			}
 			ret = -10000;
-			Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","GuyCount", ri->mapsref);
+			Z_scripterrlog("mapdata->%s pointer (%d) is either invalid or uninitialised.\n","GuyCount", ri->mapsref);
 			break;
 		}
 		case MAPDATAEXDOOR:
@@ -18009,6 +18015,30 @@ void set_register(int32_t arg, int32_t value)
 			}
 			break;
 		}
+		case MAPDATAREGIONID:
+		{
+			int region_id = value / 10000;
+			if (BC::checkBounds(region_id, 0, 9, "mapdata->RegionID") != SH::_NoError)
+				break;
+
+			auto result = decode_mapdata_ref(ri->mapsref);
+			if (result.scr)
+			{
+				if (result.type == mapdata_type::Canonical)
+				{
+					Regions[result.scr->map].set_region_id(result.screen, region_id);
+				}
+				else
+				{
+					Z_scripterrlog("mapdata->RegionID may only be set for canonical screens");
+				}
+			}
+			else
+			{
+				Z_scripterrlog("mapdata->%s pointer is either invalid or uninitialised","RegionID");
+			}
+			break;
+		}
 		case MAPDATAHASITEM: 		SET_MAPDATA_VAR_BYTE(hasitem, "HasItem"); break;	//b
 		case MAPDATATILEWARPTYPE: 	SET_MAPDATA_BYTE_INDEX(tilewarptype, "TileWarpType", 3); break;	//b, 4 of these
 		//case MAPDATATILEWARPOVFLAGS: 	SET_MAPDATA_VAR_BYTE(tilewarpoverlayflags, "TileWarpOverlayFlags"); break;	//b, tilewarpoverlayflags
@@ -18036,7 +18066,7 @@ void set_register(int32_t arg, int32_t value)
 			} 
 			else if ( ((unsigned)enemyid) > MAXGUYS ) 
 			{ 
-				Z_scripterrlog("Invaid enemy ID (%d) passed to Mapdata->%s.", enemyid,"Enemy[]");
+				Z_scripterrlog("Invaid enemy ID (%d) passed to mapdata->%s.", enemyid,"Enemy[]");
 			} 
 			else if (mapscr *m = GetMapscr(ri->mapsref)) 
 			{ 
@@ -18044,7 +18074,7 @@ void set_register(int32_t arg, int32_t value)
 			} 
 			else 
 			{ 
-				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","Enemy[]");
+				Z_scripterrlog("mapdata->%s pointer is either invalid or uninitialised","Enemy[]");
 			} 
 			break;
 		} 
@@ -18293,7 +18323,7 @@ void set_register(int32_t arg, int32_t value)
 			} 
 			else
 			{
-				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); 
+				Z_scripterrlog("mapdata->%s pointer is either invalid or uninitialised","str"); 
 			}
 			break;
 		}
@@ -18314,7 +18344,7 @@ void set_register(int32_t arg, int32_t value)
 			} 
 			else
 			{
-				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","str"); 
+				Z_scripterrlog("mapdata->%s pointer is either invalid or uninitialised","str"); 
 			}
 			break;
 		}
@@ -18336,7 +18366,7 @@ void set_register(int32_t arg, int32_t value)
 			}
 			else
 			{
-				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCTileWidth[]");
+				Z_scripterrlog("mapdata->%s pointer is either invalid or uninitialised","FFCTileWidth[]");
 			}
 			break;
 		}  
@@ -18358,7 +18388,7 @@ void set_register(int32_t arg, int32_t value)
 			}
 			else
 			{
-				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCTileHeight[]");
+				Z_scripterrlog("mapdata->%s pointer is either invalid or uninitialised","FFCTileHeight[]");
 			}
 			break;
 			
@@ -18381,7 +18411,7 @@ void set_register(int32_t arg, int32_t value)
 			}
 			else
 			{
-				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCEffectWidth[]");
+				Z_scripterrlog("mapdata->%s pointer is either invalid or uninitialised","FFCEffectWidth[]");
 			}
 			break;
 		}
@@ -18403,7 +18433,7 @@ void set_register(int32_t arg, int32_t value)
 			}
 			else
 			{
-				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","FFCEffectHeight[]");
+				Z_scripterrlog("mapdata->%s pointer is either invalid or uninitialised","FFCEffectHeight[]");
 			}
 			break;
 		}
@@ -18786,7 +18816,7 @@ void set_register(int32_t arg, int32_t value)
 					break;
 				}
 			}
-			else Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","GuyCount", ri->mapsref);
+			else Z_scripterrlog("mapdata->%s pointer (%d) is either invalid or uninitialised.\n","GuyCount", ri->mapsref);
 			break;
 		}
 		case MAPDATAEXDOOR:
@@ -24731,7 +24761,7 @@ void do_mapdataissolid()
 	auto result = decode_mapdata_ref(ri->mapsref);
 	if (!result.scr)
 	{
-		Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","isSolid()");
+		Z_scripterrlog("mapdata->%s pointer is either invalid or uninitialised","isSolid()");
 		set_register(sarg1,10000);
 	}
 	else
@@ -24771,7 +24801,7 @@ void do_mapdataissolid_layer()
 	auto result = decode_mapdata_ref(ri->mapsref);
 	if (!result.scr)
 	{
-		Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","isSolidLayer()");
+		Z_scripterrlog("mapdata->%s pointer is either invalid or uninitialised","isSolidLayer()");
 		set_register(sarg1,10000);
 	}
 	else

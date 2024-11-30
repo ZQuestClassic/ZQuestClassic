@@ -13,12 +13,20 @@ class mapdata {
 	// @delete
 	internal mapdata();
 
-	// Returns true if the screen is 'valid'. Screens that appear with the
-	// default blue background in ZQuest are 'invalid'. Modifying a combo on a
-	// screen makes it become 'valid'. If a layer is 'invalid', it will not be
-	// drawn.
+	// True if the screen is valid. Screens that appear with the default blue background
+	// in the editor are invalid. Modifying a combo on a screen turns it valid.
+	//
+	// If a layer is invalid, it will not be drawn.
+	//
 	// @zasm_var MAPDATAVALID
 	internal int Valid;
+
+	// The screen's [Region] ID.
+	//
+	// May only be written to for canonical mapdata ([Game->LoadMapData]).
+	//
+	// @zasm_var MAPDATAREGIONID
+	internal int RegionID;
 
 	// The screen guy.
 	//

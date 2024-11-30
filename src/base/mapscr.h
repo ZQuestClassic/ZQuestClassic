@@ -1,6 +1,7 @@
 #ifndef MAPSCR_H_
 #define MAPSCR_H_
 
+#include "base/util.h"
 #include "ffc.h"
 #include <vector>
 
@@ -328,6 +329,17 @@ struct regions_data
 	byte get_region_id(int screen)
 	{
 		return get_region_id(screen % 16, screen / 16);
+	}
+
+	void set_region_id(int screen, byte value)
+	{
+		int screen_x = screen % 16;
+		int screen_y = screen / 16;
+		byte& datum = region_ids[screen_y][screen_x/2];
+		if (screen_x % 2 == 0)
+			datum = util::nibble_set_upper_byte(datum, value);
+		else
+			datum = util::nibble_set_lower_byte(datum, value);
 	}
 };
 

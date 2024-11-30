@@ -11,22 +11,6 @@ using namespace GUI;
 
 void custom_vsync();
 
-static byte setLowerNibble(byte orig, byte nibble)
-{
-	byte res = orig;
-	res &= 0xF0; // Clear out the lower nibble
-	res |= (nibble & 0x0F); // OR in the desired mask
-	return res;
-}
-
-static byte setUpperNibble(byte orig, byte nibble)
-{
-	byte res = orig;
-	res &= 0x0F; // Clear out the upper nibble
-	res |= ((nibble << 4) & 0xF0); // OR in the desired mask
-	return res;
-}
-
 // This is a snapshot of all the compat QRs as of Jan 26, 2024.
 static std::vector<int> qrs_that_prevent_regions = {
 	qr_0AFRAME_ITEMS_IGNORE_AFRAME_CHANGES,
@@ -313,13 +297,9 @@ int32_t d_region_grid_proc(int32_t msg, DIALOG* d, int32_t c)
 				xx = x;
 				yy = y;
 
-				if (y >= 0 && y < 8 && x >= 0 && x < rg_cols && Map.isValid(map, y * 16 + x))
-				{
-					byte old_region_datum = local_regions_data->region_ids[y][x / 2];
-					local_regions_data->region_ids[y][x / 2] = x % 2 == 0 ?
-						setUpperNibble(old_region_datum, rg_current_region_id) :
-						setLowerNibble(old_region_datum, rg_current_region_id);
-				}
+				int screen = y * 16 + x;
+				if (y >= 0 && y < 8 && x >= 0 && x < rg_cols && Map.isValid(map, screen))
+					local_regions_data->set_region_id(screen, rg_current_region_id);
 			}
 
 			scare_mouse();

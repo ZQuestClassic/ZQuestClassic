@@ -109,6 +109,8 @@ namespace util
 	}
 
 	uint8_t nibble(uint8_t byte, bool high);
+	uint8_t nibble_set_lower_byte(uint8_t orig, uint8_t nibble);
+	uint8_t nibble_set_upper_byte(uint8_t orig, uint8_t nibble);
 }
 
 std::string dayextension(int32_t dy);

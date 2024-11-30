@@ -993,6 +993,22 @@ namespace util
 		if (high) return byte >> 4 & 0xF;
 		else      return byte & 0xF;
 	}
+
+	uint8_t nibble_set_lower_byte(uint8_t orig, uint8_t nibble)
+	{
+		uint8_t res = orig;
+		res &= 0xF0; // Clear out the lower nibble
+		res |= (nibble & 0x0F); // OR in the desired mask
+		return res;
+	}
+
+	uint8_t nibble_set_upper_byte(uint8_t orig, uint8_t nibble)
+	{
+		uint8_t res = orig;
+		res &= 0x0F; // Clear out the upper nibble
+		res |= ((nibble << 4) & 0xF0); // OR in the desired mask
+		return res;
+	}
 }
 
 using namespace util;
