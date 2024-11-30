@@ -1,5 +1,6 @@
 #include "allegro/gui.h"
 #include "base/files.h"
+#include "dialog/edit_region.h"
 #define MIDI_TRACK_BUFFER_SIZE 50
 
 #include <memory>
@@ -1303,6 +1304,7 @@ static NewMenu quest_menu
 	{ "&Hero", onCustomHero },
 	{ "&Strings", onStrings },
 	{ "&DMaps", onDmaps },
+	{ "&Regions", onRegions },
 	{ "I&nit Data", onInit },
 	{ "Misc D&ata ", &misc_menu },
 	{ "&ZInfo", onZInfo },
@@ -15516,6 +15518,30 @@ int32_t onDmaps()
         ret=do_zqdialog(selectdmap_dlg,2);
     }
     
+    return D_O_K;
+}
+
+int32_t onRegions()
+{
+	bool valid = false;
+	for (int i = 0; i < MAPSCRS; i++)
+	{
+		if (Map.Scr(i)->is_valid())
+		{
+			valid = true;
+			break;
+		}
+	}
+
+	if (valid)
+	{
+    	call_edit_region_dialog(Map.getCurrMap());
+	}
+	else
+	{
+		InfoDialog("Invalid maps", "There must be at least one valid screen in a map to configure regions").show();
+	}
+
     return D_O_K;
 }
 

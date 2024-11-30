@@ -168,14 +168,6 @@ Checkbox(checked = local_dmap.sideview, \
 		local_dmap.sideview = state; \
 	})
 
-#define BTN_REGIONIDX(index, indexstr) \
-region_checks[index] = Checkbox(checked = region_grid->getCurrentRegionIndex() == index, \
-	text = indexstr, maxheight = 16_px, \
-	onToggleFunc = [&](bool state) \
-	{ \
-		region_grid->setCurrentRegionIndex(index); \
-		refreshRegionGrid(); \
-	}) \
 
 std::shared_ptr<GUI::Widget> EditDMapDialog::DMAP_AC_INITD(int index)
 {
@@ -834,7 +826,8 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 								DMAP_CB(flags, dmfWAVY, 1, "Underwater Wave Effect", "Draws a wavy effect over the whole screen."),
 								DMAP_CB(flags, dmfMINIMAPCOLORFIX, 1, "Use Minimap Foreground Color 2", "If checked, the NES and Interior minimap squares will use 'Minimap Foreground 2' from misc colors."),
 								DMAP_CB(flags, dmfLAYER3BG, 1, "Layer 3 Is Background On All Screens", "If checked, the default state of the 'Toggle Layer 3 is Background' screen flag will be inverted. All screens will default to background and the screen flag turns it off."),
-								DMAP_CB(flags, dmfLAYER2BG, 1, "Layer 2 Is Background On All Screens", "If checked, the default state of the 'Toggle Layer 2 is Background' screen flag will be inverted. All screens will default to background and the screen flag turns it off.")
+								DMAP_CB(flags, dmfLAYER2BG, 1, "Layer 2 Is Background On All Screens", "If checked, the default state of the 'Toggle Layer 2 is Background' screen flag will be inverted. All screens will default to background and the screen flag turns it off."),
+								DMAP_CB(flags, dmfEXTENDEDVIEWPORT, 1, "Extended Viewport", "If checked, the viewport extends into the part of the screen normally occupied by the passive subscreen. \nMake your passive subscreen background transparent when using this feature.")
 							)
 						)),
 						TabRef(name = "NES", Column(hAlign = 0.0, vAlign = 0.0,
@@ -977,42 +970,6 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 								)
 							)
 						))
-					)
-				)),
-				TabRef(name = "Region", Column(
-					Frame(
-						DMapRegionGrid(
-							focused = true,
-							regionMapPtr = &Map,
-							localDmap = &local_dmap,
-							onUpdate = [&]()
-							{
-								refreshRegionGrid();
-							})
-					),
-					Frame(title = "Edit Region:",
-						Row(
-							BTN_REGIONIDX(0, "0"),
-							BTN_REGIONIDX(1, "1"),
-							BTN_REGIONIDX(2, "2"),
-							BTN_REGIONIDX(3, "3"),
-							BTN_REGIONIDX(4, "4"),
-							BTN_REGIONIDX(5, "5"),
-							BTN_REGIONIDX(6, "6"),
-							BTN_REGIONIDX(7, "7"),
-							BTN_REGIONIDX(8, "8"),
-							BTN_REGIONIDX(9, "9")
-						)
-					),
-					Row(
-						Button(text = "Z3 User Guide",
-							onPressFunc = [&]()
-							{
-								launch_file("docs/z3_user_guide.md");
-							}),
-						Row(
-							DMAP_CB(flags, dmfEXTENDEDVIEWPORT, 1, "Extended Viewport", "If checked, the viewport extends into the part of the screen normally occupied by the passive subscreen. \nMake your passive subscreen background transparent when using this feature.")
-						)
 					)
 				))
 			),
@@ -1159,15 +1116,6 @@ void EditDMapDialog::refreshScripts()
 		ib_ac_initds[q]->setDisabled(h_ac_initds[q].empty());
 		ib_ss_initds[q]->setDisabled(h_ss_initds[q].empty());
 		ib_map_initds[q]->setDisabled(h_map_initds[q].empty());
-	}
-}
-
-void EditDMapDialog::refreshRegionGrid()
-{
-	int32_t idx = region_grid->getCurrentRegionIndex();
-	for (int32_t i = 0; i < 10; ++i)
-	{
-		region_checks[i]->setChecked(i == idx);
 	}
 }
 

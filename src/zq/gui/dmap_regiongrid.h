@@ -2,6 +2,7 @@
 #define ZC_GUI_DMAPREGIONGRID_H_
 
 #include "base/dmap.h"
+#include "base/mapscr.h"
 #include "gui/widget.h"
 #include "gui/dialog_ref.h"
 #include <zq/zq_class.h>
@@ -25,13 +26,13 @@ namespace GUI
 			return regionmap;
 		}
 
-		void setLocalDmap(dmap* localDmap_)
+		void setLocalRegionsData(regions_data* localRegionsData_)
 		{
-			localDmap = localDmap_;
+			localRegionsData = localRegionsData_;
 		}
-		dmap* getLocalDmap()
+		regions_data* getLocalRegionsData()
 		{
-			return localDmap;
+			return localRegionsData;
 		}
 
 		void setCurrentRegionIndex(int newindex);
@@ -53,7 +54,7 @@ namespace GUI
 		std::function<void()> onUpdateFunc;
 
 		zmap* regionmap;
-		dmap* localDmap;
+		regions_data* localRegionsData;
 
 		DialogRef alDialog;
 

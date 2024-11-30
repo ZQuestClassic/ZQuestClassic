@@ -16,14 +16,6 @@ struct dmap
 	byte cont;
 	byte type;
 	byte grid[8];
-	// [8 rows][half byte for each screen in a row]
-    // Covers an entire map.
-    // Currently the only valid nibble values are 0-9.
-    // 0 indicates that screen is not a scrolling region.
-    // Positive values indicate a contiguous scrolling region.
-    // Currently, scrolling regions MUST be rectangles and have no holes.
-    // Indexes can be repeated - they currently don't hold any special meaning.
-    byte region_indices[8][8];
 	char name[22];
 	std::string title;
 	char intro[74];

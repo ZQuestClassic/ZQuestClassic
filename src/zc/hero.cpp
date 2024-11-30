@@ -28229,8 +28229,8 @@ static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector
 {
 	nearby_scrolling_screens_t nearby_screens;
 
-	int old_region = get_region_id(scrolling_dmap, scrolling_scr);
-	int new_region = get_region_id(scrolling_destdmap, currscr);
+	int old_region = get_region_id(scrolling_map, scrolling_scr);
+	int new_region = get_region_id(DMaps[scrolling_destdmap].map, currscr);
 	bool is_region_scrolling = old_region || new_region;
 
 	int start_dy = -1;
@@ -28295,7 +28295,7 @@ static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector
 		if (!is_region_scrolling && screen != hero_screen && screen != scrolling_scr) continue;
 
 		// Only show screens that are in the old or the new regions.
-		int region = get_region_id(base_dmap, screen);
+		int region = get_region_id(base_map, screen);
 		if (!(screen == scrolling_scr || screen == currscr || (old_region && old_region == region) || (new_region && region == new_region)))
 			continue;
 
@@ -28480,6 +28480,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 
 	int old_dmap = currdmap;
 	int new_dmap = destdmap >= 0 ? destdmap : currdmap;
+	int new_map = DMaps[new_dmap].map;
 
 	bool updatemusic = FFCore.can_dmap_change_music(destdmap);
 	bool musicrevert = FFCore.music_update_flags & MUSIC_UPDATE_FLAG_REVERT;
@@ -28511,7 +28512,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	region new_region;
 	auto calc_new_viewport_and_pos = [&](){
 		int scr_dx, scr_dy;
-		z3_calculate_region(new_dmap, destscr, new_region, scr_dx, scr_dy);
+		z3_calculate_region(new_map, destscr, new_region, scr_dx, scr_dy);
 
 		// These mark the top-left coordinate of the new region and the old region, relative to the old region world coordinates.
 		new_region_offset_x = (new_region.origin_screen_x - old_region.origin_screen_x)*256;

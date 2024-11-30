@@ -43,7 +43,6 @@ private:
 	void refreshGridSquares();
 	void refreshDMapStrings();
 	void refreshScripts();
-	void refreshRegionGrid();
 
 	std::shared_ptr<GUI::Window> window;
 	std::shared_ptr<GUI::DMapMinimap> dmap_mmap;

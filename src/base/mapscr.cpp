@@ -3,6 +3,7 @@
 #include "base/zsys.h"
 #include "base/qrs.h"
 
+std::array<regions_data, MAXMAPS> Regions;
 std::vector<mapscr> TheMaps;
 std::vector<word> map_autolayers;
 word map_count = 0;

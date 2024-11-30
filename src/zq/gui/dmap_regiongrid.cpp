@@ -1,13 +1,10 @@
 #include "zq/gui/dmap_regiongrid.h"
 #include "base/qrs.h"
 #include "gui/common.h"
-#include "gui/dialog.h"
 #include "gui/dialog_runner.h"
 #include "gui/size.h"
 #include "gui/jwin.h"
-#include "dialog/info.h"
 #include <cassert>
-#include <utility>
 
 using namespace GUI;
 
@@ -228,8 +225,9 @@ int32_t d_region_grid_proc(int32_t msg, DIALOG* d, int32_t c)
 
 	FONT* nf = get_zc_font(font_nfont);
 
-	dmap* local_dmap = widg->getLocalDmap();
-	byte* region_index_data = (byte*)&local_dmap->region_indices;
+	int map = widg->getRegionMapPtr()->getCurrMap();
+	regions_data* local_regions_data = widg->getLocalRegionsData();
+	byte* region_index_data = (byte*)&local_regions_data->region_indices;
 
 	switch (msg)
 	{
@@ -264,7 +262,7 @@ int32_t d_region_grid_proc(int32_t msg, DIALOG* d, int32_t c)
 		{
 			for (k = 0; k < rg_cols; ++k)
 			{
-				if (!widg->getRegionMapPtr()->isValid(local_dmap->map, j * 16 + k))
+				if (!widg->getRegionMapPtr()->isValid(map, j * 16 + k))
 					continue;
 
 				byte region_index = getNibble(region_index_data[j * 8 + k / 2], k % 2 == 0);
@@ -319,7 +317,7 @@ int32_t d_region_grid_proc(int32_t msg, DIALOG* d, int32_t c)
 				xx = x;
 				yy = y;
 
-				if (y >= 0 && y < 8 && x >= 0 && x < rg_cols && widg->getRegionMapPtr()->isValid(local_dmap->map, y * 16 + x))
+				if (y >= 0 && y < 8 && x >= 0 && x < rg_cols && widg->getRegionMapPtr()->isValid(map, y * 16 + x))
 				{
 					byte old_region_datum = region_index_data[y * 8 + x / 2];
 					region_index_data[y * 8 + x / 2] = x % 2 == 0 ?
@@ -344,7 +342,7 @@ int32_t d_region_grid_proc(int32_t msg, DIALOG* d, int32_t c)
 namespace GUI
 {
 	DMapRegionGrid::DMapRegionGrid() : 
-		message(-1), regionmap(nullptr), localDmap(nullptr)
+		message(-1), regionmap(nullptr), localRegionsData(nullptr)
 		
 	{
 		setPreferredWidth(465_px);

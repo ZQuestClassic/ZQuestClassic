@@ -308,6 +308,21 @@ enum
 	rMAX
 };
 
+// Region data for an entire map.
+struct regions_data
+{
+	// [8 rows][half byte for each screen in a row]
+	// Covers an entire map.
+	// Currently the only valid nibble values are 0-9.
+	// 0 indicates that screen is not a scrolling region.
+	// Positive values indicate a contiguous scrolling region.
+	// Currently, scrolling regions MUST be rectangles and have no holes.
+	// Indices can be repeated - they currently don't hold any special meaning.
+	byte region_indices[8][8];
+};
+
+extern std::array<regions_data, MAXMAPS> Regions;
+// Every map screen (136 per map).
 extern std::vector<mapscr> TheMaps;
 extern std::vector<word>   map_autolayers;
 extern word map_count;

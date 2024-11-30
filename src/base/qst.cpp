@@ -4430,7 +4430,10 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 		sprintf(DMaps[start_dmap+i].intro,"                                                                        ");
 		DMaps[start_dmap+i].type |= dmCAVE;
 	}
-	
+
+	if (!should_skip && s_version == 21)
+		Regions = {};
+
 	Header->is_z3 = false;
 	if(!Header || Header->zelda_version > 0x192)
 	{
@@ -5009,13 +5012,15 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 		else
 			tempDMap.intro_string_id = 0;
 
-		if(s_version >= 21 || global_z3_hacky_load)
+		if(s_version == 21 || global_z3_hacky_load)
 		{
+			static regions_data tmp_rd;
+			regions_data& rd = should_skip ? tmp_rd : Regions[tempDMap.map];
 			for(int32_t j=0; j<8; j++)
             {
                 for(int32_t k=0; k<8; k++)
                 {
-					if(!p_getc(&tempDMap.region_indices[j][k],f))
+					if(!p_getc(&rd.region_indices[j][k],f))
 					{
 						return qe_invalid;
 					}
@@ -17087,6 +17092,8 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header)
 		old_combo_pages.resize(_mapsSize);
 		map_autolayers.clear();
 		map_autolayers.resize(temp_map_count*6);
+		if(version >= 31)
+			Regions = {};
 	}
 	
 	for(int32_t i=0; i<temp_map_count && i<MAXMAPS; i++)
@@ -17097,12 +17104,31 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header)
 			if(!p_getc(&valid,f))
 				return qe_invalid;
 		}
-		if(valid && version > 25)
+		if(valid)
 		{
-			for(int q = 0; q < 6; ++q)
+			if (version > 25)
 			{
-				if(!p_igetw(&map_autolayers[i*6+q],f))
-					return qe_invalid;
+				for(int q = 0; q < 6; ++q)
+				{
+					if(!p_igetw(&map_autolayers[i*6+q],f))
+						return qe_invalid;
+				}
+			}
+
+			if (version >= 31)
+			{
+				static regions_data tmp_rd;
+				regions_data& rd = should_skip ? tmp_rd : Regions[i];
+				for(int32_t j=0; j<8; j++)
+				{
+					for(int32_t k=0; k<8; k++)
+					{
+						if(!p_getc(&rd.region_indices[j][k],f))
+						{
+							return qe_invalid;
+						}
+					}
+				}
 			}
 		}
 		for(int32_t j=0; j<screens_to_read; j++)

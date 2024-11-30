@@ -7719,17 +7719,6 @@ int32_t writedmaps(PACKFILE *f, word version, word build, word start_dmap, word 
 				new_return(46);
 			if (!p_iputl(DMaps[i].intro_string_id, f))
 				new_return(47);
-
-			for(int32_t j=0; j<8; j++)
-            {
-                for(int32_t k=0; k<8; k++)
-                {
-                    if(!p_putc(DMaps[i].region_indices[j][k],f))
-                    {
-                        new_return(48);
-                    }
-                }
-			}
 		}
         
         if(writecycle==0)
@@ -9447,7 +9436,7 @@ int32_t writemaps(PACKFILE *f, zquestheader *)
 				if((i*MAPSCRS+j)>=int32_t(TheMaps.size()))
 					break;
 				mapscr& screen=TheMaps.at(i*MAPSCRS+j);
-				if(screen.valid & mVALID)
+				if (screen.is_valid())
 				{
 					valid = 1;
 					break;
@@ -9465,6 +9454,17 @@ int32_t writemaps(PACKFILE *f, zquestheader *)
 					size_t ind = i*6+q;
 					if(!p_iputw(map_autolayers[ind],f))
 						new_return(7);
+				}
+
+				for(int32_t j=0; j<8; j++)
+				{
+				    for(int32_t k=0; k<8; k++)
+				    {
+				        if(!p_putc(Regions[i].region_indices[j][k],f))
+				        {
+				            new_return(8);
+				        }
+				    }
 				}
 			}
 			

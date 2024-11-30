@@ -100,7 +100,7 @@ extern int scrolling_maze_mode;
 struct region
 {
 	int region_id;
-	int dmap;
+	int map;
 	int origin_screen_index;
 	int origin_screen_x;
 	int origin_screen_y;
@@ -113,14 +113,14 @@ struct region
 };
 extern region current_region, scrolling_region;
 
-int get_region_id(int dmap, int screen);
+int get_region_id(int map, int screen);
 int get_current_region_id();
 bool is_in_current_region(int map, int screen);
 bool is_in_current_region(int screen);
 bool is_in_current_region(mapscr* scr);
 bool is_valid_rpos(rpos_t rpos);
-void z3_calculate_region(int dmap, int screen, region& region, int& region_scr_dx, int& region_scr_dy);
-void z3_load_region(int screen, int dmap = -1);
+void z3_calculate_region(int map, int screen, region& region, int& region_scr_dx, int& region_scr_dy);
+void z3_load_region(int map, int screen);
 void z3_prepare_current_region_handles();
 // Returns a rpos_handle of the top-left position for every valid
 // screen (including each layer) for the current region.

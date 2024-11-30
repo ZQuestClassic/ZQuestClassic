@@ -84,16 +84,16 @@ static byte getNibble(byte byte, bool high)
     else      return byte & 0xF;
 }
 
-static bool is_a_region(int dmap, int scr)
+static bool is_a_region(int map, int scr)
 {
-	return get_region_id(dmap, scr) != 0;
+	return get_region_id(map, scr) != 0;
 }
 
-static bool is_same_region_id(int region_origin_scr, int dmap, int scr)
+static bool is_same_region_id(int region_origin_scr, int map, int scr)
 {
-	if (!is_a_region(dmap, scr)) return false;
-	int region_id = get_region_id(dmap, region_origin_scr);
-	return region_id && region_id == get_region_id(dmap, scr);
+	if (!is_a_region(map, scr)) return false;
+	int region_id = get_region_id(map, region_origin_scr);
+	return region_id && region_id == get_region_id(map, scr);
 }
 
 bool is_in_current_region(int map, int screen)
@@ -127,26 +127,26 @@ bool is_extended_height_mode()
 }
 
 // Returns 0 if this is not a region.
-int get_region_id(int dmap, int scr)
+int get_region_id(int map, int scr)
 {
 	if (scr >= 128) return 0;
-	if (dmap == current_region.dmap) return current_region_indices[scr];
+	if (map == current_region.map) return current_region_indices[scr];
 
 	int sx = scr % 16;
 	int sy = scr / 16;
-	return getNibble(DMaps[dmap].region_indices[sy][sx/2], sx % 2 == 0);
+	return getNibble(Regions[map].region_indices[sy][sx/2], sx % 2 == 0);
 }
 
 int get_current_region_id()
 {
-	return get_region_id(currdmap, currscr);
+	return get_region_id(currmap, currscr);
 }
 
-void z3_calculate_region(int dmap, int screen, region& region, int& region_scr_dx, int& region_scr_dy)
+void z3_calculate_region(int map, int screen, region& region, int& region_scr_dx, int& region_scr_dy)
 {
-	region.dmap = dmap;
+	region.map = map;
 
-	if (!(is_a_region(dmap, screen)) || screen >= 0x80)
+	if (!(is_a_region(map, screen)) || screen >= 0x80)
 	{
 		region.region_id = 0;
 		region.origin_screen_index = screen;
@@ -171,12 +171,12 @@ void z3_calculate_region(int dmap, int screen, region& region, int& region_scr_d
 	int origin_scr = screen;
 	while (origin_scr_x > 0)
 	{
-		if (!is_same_region_id(origin_scr, dmap, scr_xy_to_index(origin_scr_x - 1, origin_scr_y))) break;
+		if (!is_same_region_id(origin_scr, map, scr_xy_to_index(origin_scr_x - 1, origin_scr_y))) break;
 		origin_scr_x--;
 	}
 	while (origin_scr_y > 0)
 	{
-		if (!is_same_region_id(origin_scr, dmap, scr_xy_to_index(origin_scr_x, origin_scr_y - 1))) break;
+		if (!is_same_region_id(origin_scr, map, scr_xy_to_index(origin_scr_x, origin_scr_y - 1))) break;
 		origin_scr_y--;
 	}
 	origin_scr = scr_xy_to_index(origin_scr_x, origin_scr_y);
@@ -185,17 +185,17 @@ void z3_calculate_region(int dmap, int screen, region& region, int& region_scr_d
 	int region_scr_right = origin_scr_x;
 	while (region_scr_right < 15)
 	{
-		if (!is_same_region_id(origin_scr, dmap, scr_xy_to_index(region_scr_right + 1, origin_scr_y))) break;
+		if (!is_same_region_id(origin_scr, map, scr_xy_to_index(region_scr_right + 1, origin_scr_y))) break;
 		region_scr_right++;
 	}
 	int region_scr_bottom = origin_scr_y;
 	while (region_scr_bottom < 7)
 	{
-		if (!is_same_region_id(origin_scr, dmap, scr_xy_to_index(origin_scr_x, region_scr_bottom + 1))) break;
+		if (!is_same_region_id(origin_scr, map, scr_xy_to_index(origin_scr_x, region_scr_bottom + 1))) break;
 		region_scr_bottom++;
 	}
 
-	region.region_id = get_region_id(dmap, origin_scr);
+	region.region_id = get_region_id(map, origin_scr);
 	region.origin_screen_index = origin_scr;
 	region.origin_screen_x = origin_scr_x;
 	region.origin_screen_y = origin_scr_y;
@@ -211,26 +211,24 @@ void z3_calculate_region(int dmap, int screen, region& region, int& region_scr_d
 	DCHECK_RANGE_INCLUSIVE(region.screen_height, 0, 8);
 }
 
-void z3_load_region(int screen, int dmap)
+void z3_load_region(int map, int screen)
 {
 	z3_clear_temporary_screens();
-
-	if (dmap == -1) dmap = currdmap;
 
 	for (int sy = 0; sy < 8; sy++)
 	{
 		for (int sx = 0; sx < 16; sx++)
 		{
-			int id = getNibble(DMaps[dmap].region_indices[sy][sx/2], sx % 2 == 0);
+			int id = getNibble(Regions[map].region_indices[sy][sx/2], sx % 2 == 0);
 			int screen = scr_xy_to_index(sx, sy);
-			if (id && (get_canonical_scr(DMaps[dmap].map, screen)->valid & mVALID))
+			if (id && get_canonical_scr(map, screen)->is_valid())
 				current_region_indices[screen] = id;
 			else
 				current_region_indices[screen] = 0;
 		}
 	}
 
-	z3_calculate_region(dmap, screen, current_region, region_scr_dx, region_scr_dy);
+	z3_calculate_region(map, screen, current_region, region_scr_dx, region_scr_dy);
 	currscr = current_region.origin_screen_index;
 	world_w = current_region.width;
 	world_h = current_region.height;
@@ -357,7 +355,7 @@ void z3_calculate_viewport(int dmap, int screen, int world_w, int world_h, int h
 		return;
 	}
 
-	if (!is_a_region(dmap, screen))
+	if (!is_a_region(DMaps[dmap].map, screen))
 	{
 		viewport.x = 0;
 		viewport.y = 0;
@@ -5841,7 +5839,7 @@ void load_a_screen_and_layers(int dmap, int map, int screen, int ldir)
 		}
 	}
 
-	auto [offx, offy] = is_a_region(dmap, screen) ?
+	auto [offx, offy] = is_a_region(map, screen) ?
 		translate_screen_coordinates_to_world(screen) :
 		std::make_pair(0, 0);
 	int c = base_scr->numFFC();
@@ -5918,7 +5916,7 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	reset_combo_animations2();
 
 	currscr_for_passive_subscr = -1;
-	z3_load_region(scr, destdmap);
+	z3_load_region(DMaps[destdmap].map, scr);
 	z3_mark_current_region_handles_dirty();
 	homescr = scr >= 0x80 ? hero_screen : currscr;
 
@@ -6175,7 +6173,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 		}
 	}
 
-	auto [offx, offy] = is_a_region(destdmap < 0 ? currdmap : destdmap, screen) ?
+	auto [offx, offy] = is_a_region(DMaps[destdmap < 0 ? currdmap : destdmap].map, screen) ?
 		translate_screen_coordinates_to_world(screen) :
 		std::make_pair(0, 0);
 	int c = scr->numFFC();

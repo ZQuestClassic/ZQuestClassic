@@ -1,6 +1,9 @@
 #ifndef ZQ_HOTKEY_H_
 #define ZQ_HOTKEY_H_
 
+#include "allegro/gui.h"
+#include "base/general.h"
+
 struct Hotkey;
 
 enum
@@ -93,6 +96,7 @@ enum
 	ZQKEY_DEFAULT_COMBOS,
 	ZQKEY_DELETE_MAP,
 	ZQKEY_DMAPS,
+	ZQKEY_REGIONS,
 	ZQKEY_DOOR_COMBO_SETS,
 	ZQKEY_PASTE_DOORS,
 	ZQKEY_ENDSTRING,
