@@ -127,3 +127,14 @@ void mapscr::ffcCountMarkDirty()
 {
 	ffc_count_dirty = true;
 }
+
+const mapscr* get_canonical_scr(int map, int screen)
+{
+	return &TheMaps[map*MAPSCRS + screen];
+}
+
+int map_scr_xy_to_index(int x, int y)
+{
+	DCHECK(x >= 0 && x < 16 && y >= 0 && y < 8);
+	return x + y*16;
+}

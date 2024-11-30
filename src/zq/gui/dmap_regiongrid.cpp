@@ -11,23 +11,20 @@ using namespace GUI;
 
 void custom_vsync();
 
-static byte setLowerNibble(byte orig, byte nibble) {
+static byte setLowerNibble(byte orig, byte nibble)
+{
 	byte res = orig;
 	res &= 0xF0; // Clear out the lower nibble
 	res |= (nibble & 0x0F); // OR in the desired mask
 	return res;
 }
 
-static byte setUpperNibble(byte orig, byte nibble) {
+static byte setUpperNibble(byte orig, byte nibble)
+{
 	byte res = orig;
 	res &= 0x0F; // Clear out the upper nibble
 	res |= ((nibble << 4) & 0xF0); // OR in the desired mask
 	return res;
-}
-
-static byte getNibble(byte byte, bool high) {
-	if (high) return byte >> 4 & 0xF;
-	else      return byte & 0xF;
 }
 
 // This is a snapshot of all the compat QRs as of Jan 26, 2024.
@@ -176,7 +173,7 @@ static bool should_allow_regions()
 	return true;
 }
 
-static int rg_current_region_index = 0;
+static int rg_current_region_id = 0;
 static int rg_frame_thickness = 5;
 static int rg_button_thickness = 2;
 static int rg_header_width = 6;
@@ -185,9 +182,9 @@ static int rg_cols = 16;
 static int rg_col_width = 27;
 static int rg_l = 25;
 
-static void draw_region_square(BITMAP* bmp, int frame, int region_index, int x, int y, FONT* f, int text_height)
+static void draw_region_square(BITMAP* bmp, int frame, int region_id, int x, int y, FONT* f, int text_height)
 {
-	int color = vc(region_index);
+	int color = vc(region_id);
 	jwin_draw_frame(bmp, x, y, rg_col_width, rg_l, frame);
 
 	int x0 = x + rg_button_thickness;
@@ -197,7 +194,7 @@ static void draw_region_square(BITMAP* bmp, int frame, int region_index, int x, 
 
 	// Ideally would just use `getHighlightColor(color)` but the method isn't good enough yet.
 	int text_color;
-	switch (region_index) {
+	switch (region_id) {
 	case 2:
 	case 3:
 	case 5:
@@ -209,7 +206,7 @@ static void draw_region_square(BITMAP* bmp, int frame, int region_index, int x, 
 	default:
 		text_color = getHighlightColor(color);
 	}
-	textprintf_centre_ex(bmp, f, x0 + rg_col_width / 2 - rg_button_thickness, y0 + rg_l / 2 - text_height / 2, text_color, -1, "%d", region_index);
+	textprintf_centre_ex(bmp, f, x0 + rg_col_width / 2 - rg_button_thickness, y0 + rg_l / 2 - text_height / 2, text_color, -1, "%d", region_id);
 }
 
 int32_t d_region_grid_proc(int32_t msg, DIALOG* d, int32_t c)
@@ -227,7 +224,6 @@ int32_t d_region_grid_proc(int32_t msg, DIALOG* d, int32_t c)
 
 	int map = Map.getCurrMap();
 	regions_data* local_regions_data = widg->getLocalRegionsData();
-	byte* region_index_data = (byte*)&local_regions_data->region_indices;
 
 	switch (msg)
 	{
@@ -266,16 +262,14 @@ int32_t d_region_grid_proc(int32_t msg, DIALOG* d, int32_t c)
 				if (!Map.isValid(map, screen))
 					continue;
 
-				byte region_index = getNibble(region_index_data[j * 8 + k / 2], k % 2 == 0);
+				byte region_id = local_regions_data->get_region_id(k, j);
 
 				int frame = Map.getCurrScr() == screen ? FR_GREEN : FR_MEDDARK;
 				int x2 = x + rg_header_width + (k * rg_col_width) + rg_frame_thickness;
 				int y2 = y + rg_header_height + (j * rg_l) + rg_frame_thickness;
-				draw_region_square(tempbmp, frame, region_index, x2, y2, nf, txtheight);
+				draw_region_square(tempbmp, frame, region_id, x2, y2, nf, txtheight);
 			}
 		}
-
-		//draw_region_square(tempbmp, rg_current_region_index, x + 100, y + 215, nf, txtheight);
 
 		masked_blit(tempbmp, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
 		destroy_bitmap(tempbmp);
@@ -296,7 +290,7 @@ int32_t d_region_grid_proc(int32_t msg, DIALOG* d, int32_t c)
 
 		if (num != -1)
 		{
-			rg_current_region_index = num;
+			rg_current_region_id = num;
 			d->flags |= D_DIRTY;
 			GUI_EVENT(d, geCHANGE_VALUE);
 			return D_USED_CHAR;
@@ -321,10 +315,10 @@ int32_t d_region_grid_proc(int32_t msg, DIALOG* d, int32_t c)
 
 				if (y >= 0 && y < 8 && x >= 0 && x < rg_cols && Map.isValid(map, y * 16 + x))
 				{
-					byte old_region_datum = region_index_data[y * 8 + x / 2];
-					region_index_data[y * 8 + x / 2] = x % 2 == 0 ?
-						setUpperNibble(old_region_datum, rg_current_region_index) :
-						setLowerNibble(old_region_datum, rg_current_region_index);
+					byte old_region_datum = local_regions_data->region_ids[y][x / 2];
+					local_regions_data->region_ids[y][x / 2] = x % 2 == 0 ?
+						setUpperNibble(old_region_datum, rg_current_region_id) :
+						setLowerNibble(old_region_datum, rg_current_region_id);
 				}
 			}
 
@@ -353,11 +347,11 @@ namespace GUI
 
 	void DMapRegionGrid::setCurrentRegionIndex(int newindex)
 	{
-		rg_current_region_index = newindex;
+		rg_current_region_id = newindex;
 	}
 	int DMapRegionGrid::getCurrentRegionIndex()
 	{
-		return rg_current_region_index;
+		return rg_current_region_id;
 	}
 
 	void DMapRegionGrid::applyVisibility(bool visible)

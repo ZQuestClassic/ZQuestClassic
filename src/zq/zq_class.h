@@ -261,6 +261,10 @@ class zmap
     // A screen which uses the current screen as a layer
     int32_t layer_target_map, layer_target_scr, layer_target_multiple;
 
+	bool regions_dirty = true;
+	int current_region_ids[128];
+	int screen_is_in_current_region[128];
+
 public:
 
     zmap();
@@ -367,6 +371,11 @@ public:
     mapscr *AbsoluteScr(int32_t map, int32_t screen);
 	mapscr *AbsoluteScrMakeValid(int32_t map, int32_t scr);
     int32_t  getCurrMap();
+	void regions_mark_dirty();
+	void regions_refresh();
+	int get_region_id(int screen);
+	bool is_region(int screen);
+	bool is_screen_in_current_region(int screen);
     bool isDark(int scr);
 	bool isValid(int32_t scr);
 	bool isValid(int32_t map, int32_t scr);

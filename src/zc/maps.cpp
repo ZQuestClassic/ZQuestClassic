@@ -70,19 +70,7 @@ int scrolling_maze_scr, scrolling_maze_state;
 int scrolling_maze_mode = 0;
 region current_region, scrolling_region;
 
-static int current_region_indices[128];
-
-static int scr_xy_to_index(int x, int y)
-{
-	DCHECK(x >= 0 && x < 16 && y >= 0 && y < 8);
-	return x + y*16;
-}
-
-static byte getNibble(byte byte, bool high)
-{
-    if (high) return byte >> 4 & 0xF;
-    else      return byte & 0xF;
-}
+static int current_region_ids[128];
 
 static bool is_a_region(int map, int scr)
 {
@@ -127,14 +115,12 @@ bool is_extended_height_mode()
 }
 
 // Returns 0 if this is not a region.
-int get_region_id(int map, int scr)
+int get_region_id(int map, int screen)
 {
-	if (scr >= 128) return 0;
-	if (map == current_region.map) return current_region_indices[scr];
+	if (screen >= 128) return 0;
+	if (map == current_region.map) return current_region_ids[screen];
 
-	int sx = scr % 16;
-	int sy = scr / 16;
-	return getNibble(Regions[map].region_indices[sy][sx/2], sx % 2 == 0);
+	return Regions[map].get_region_id(screen);
 }
 
 int get_current_region_id()
@@ -171,27 +157,27 @@ void z3_calculate_region(int map, int screen, region& region, int& region_scr_dx
 	int origin_scr = screen;
 	while (origin_scr_x > 0)
 	{
-		if (!is_same_region_id(origin_scr, map, scr_xy_to_index(origin_scr_x - 1, origin_scr_y))) break;
+		if (!is_same_region_id(origin_scr, map, map_scr_xy_to_index(origin_scr_x - 1, origin_scr_y))) break;
 		origin_scr_x--;
 	}
 	while (origin_scr_y > 0)
 	{
-		if (!is_same_region_id(origin_scr, map, scr_xy_to_index(origin_scr_x, origin_scr_y - 1))) break;
+		if (!is_same_region_id(origin_scr, map, map_scr_xy_to_index(origin_scr_x, origin_scr_y - 1))) break;
 		origin_scr_y--;
 	}
-	origin_scr = scr_xy_to_index(origin_scr_x, origin_scr_y);
+	origin_scr = map_scr_xy_to_index(origin_scr_x, origin_scr_y);
 	
 	// Now find the bottom-right corner.
 	int region_scr_right = origin_scr_x;
 	while (region_scr_right < 15)
 	{
-		if (!is_same_region_id(origin_scr, map, scr_xy_to_index(region_scr_right + 1, origin_scr_y))) break;
+		if (!is_same_region_id(origin_scr, map, map_scr_xy_to_index(region_scr_right + 1, origin_scr_y))) break;
 		region_scr_right++;
 	}
 	int region_scr_bottom = origin_scr_y;
 	while (region_scr_bottom < 7)
 	{
-		if (!is_same_region_id(origin_scr, map, scr_xy_to_index(origin_scr_x, region_scr_bottom + 1))) break;
+		if (!is_same_region_id(origin_scr, map, map_scr_xy_to_index(origin_scr_x, region_scr_bottom + 1))) break;
 		region_scr_bottom++;
 	}
 
@@ -219,12 +205,12 @@ void z3_load_region(int map, int screen)
 	{
 		for (int sx = 0; sx < 16; sx++)
 		{
-			int id = getNibble(Regions[map].region_indices[sy][sx/2], sx % 2 == 0);
-			int screen = scr_xy_to_index(sx, sy);
+			int id = Regions[map].get_region_id(sx, sy);
+			int screen = map_scr_xy_to_index(sx, sy);
 			if (id && get_canonical_scr(map, screen)->is_valid())
-				current_region_indices[screen] = id;
+				current_region_ids[screen] = id;
 			else
-				current_region_indices[screen] = 0;
+				current_region_ids[screen] = 0;
 		}
 	}
 
@@ -408,7 +394,7 @@ bool edge_of_region(direction dir)
 	if (dir == left) screen_x -= 1;
 	if (dir == right) screen_x += 1;
 	if (screen_x < 0 || screen_x > 16 || screen_y < 0 || screen_y > 8) return true;
-	return !is_in_current_region(scr_xy_to_index(screen_x, screen_y));
+	return !is_in_current_region(map_scr_xy_to_index(screen_x, screen_y));
 }
 
 // x, y are world coordinates (aka, in relation to origin screen at the top-left)
@@ -423,7 +409,7 @@ int get_screen_index_for_world_xy(int x, int y)
 	int origin_scr_y = currscr / 16;
 	int scr_x = origin_scr_x + dx;
 	int scr_y = origin_scr_y + dy;
-	return scr_xy_to_index(scr_x, scr_y);
+	return map_scr_xy_to_index(scr_x, scr_y);
 }
 
 int get_screen_index_for_rpos(rpos_t rpos)
@@ -433,7 +419,7 @@ int get_screen_index_for_rpos(rpos_t rpos)
 	int scr_index = static_cast<int32_t>(rpos) / 176;
 	int scr_x = origin_scr_x + scr_index%current_region.screen_width;
 	int scr_y = origin_scr_y + scr_index/current_region.screen_width;
-	return scr_xy_to_index(scr_x, scr_y);
+	return map_scr_xy_to_index(scr_x, scr_y);
 }
 
 rpos_handle_t get_rpos_handle(rpos_t rpos, int layer)
@@ -561,11 +547,6 @@ mapscr* get_screen_for_region_index_offset(int offset)
 {
 	int screen = get_screen_index_for_region_index_offset(offset);
 	return get_scr(screen);
-}
-
-const mapscr* get_canonical_scr(int map, int screen)
-{
-	return &TheMaps[map*MAPSCRS + screen];
 }
 
 mapscr* get_scr(int map, int screen)

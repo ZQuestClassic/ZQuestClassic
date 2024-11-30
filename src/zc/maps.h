@@ -156,7 +156,6 @@ int get_screen_index_for_region_index_offset(int offset);
 mapscr* get_screen_for_region_index_offset(int offset);
 bool is_z3_scrolling_mode();
 bool is_extended_height_mode();
-const mapscr* get_canonical_scr(int map, int screen);
 mapscr* get_scr(int map, int screen);
 mapscr* get_scr(int screen);
 mapscr* get_scr_no_load(int map, int screen);

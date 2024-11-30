@@ -1,7 +1,6 @@
 #include "allegro/gui.h"
 #include "base/files.h"
 #include "dialog/edit_region.h"
-#define MIDI_TRACK_BUFFER_SIZE 50
 
 #include <memory>
 #include <stdio.h>
@@ -55,9 +54,6 @@
 #include "dialog/alert.h"
 #include "dialog/alertfunc.h"
 #include "zq/gui/edit_autocombo.h"
-
-particle_list particles;
-void setZScriptVersion(int32_t) { } //bleh...
 
 #include <al5_img.h>
 #include <loadpng.h>
@@ -127,10 +123,6 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "zq/zq_files.h"
 #include "music_playback.h"
 
-extern CConsoleLoggerEx parser_console;
-
-namespace fs = std::filesystem;
-
 //Windows mmemory tools
 #ifdef _WIN32
 #include <windows.h>
@@ -143,7 +135,12 @@ namespace fs = std::filesystem;
 #include <emscripten/emscripten.h>
 #endif
 
-//SDL_Surface *sdl_screen;
+#define MIDI_TRACK_BUFFER_SIZE 50
+particle_list particles;
+void setZScriptVersion(int32_t) { } //bleh...
+extern CConsoleLoggerEx parser_console;
+
+namespace fs = std::filesystem;
 
 #if defined(ALLEGRO_WINDOWS)
 static const char *data_path_name   = "win_data_path";
@@ -5517,6 +5514,15 @@ void draw_screenunit_map_screen(VisibleScreen visible_screen)
 			}
 		}
 	}
+
+	bool should_dither;
+	if (Map.is_region(Map.getCurrScr()))
+		should_dither = !Map.is_screen_in_current_region(screen);
+	else
+		should_dither = Map.is_region(screen);
+
+	if (should_dither)
+		ditherblit(mapscreenbmp, nullptr, vc(0), dithCrissCross, 8);
 
 	int w = mapscreenbmp->w * mapscreen_single_scale;
 	int h = mapscreenbmp->h * mapscreen_single_scale;
@@ -15536,6 +15542,7 @@ int32_t onRegions()
 	if (valid)
 	{
     	call_edit_region_dialog(Map.getCurrMap());
+		Map.regions_mark_dirty();
 	}
 	else
 	{

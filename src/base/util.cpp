@@ -987,6 +987,12 @@ namespace util
 							s.begin(), s.end());
 		return m.first == b.end();
 	}
+
+	uint8_t nibble(uint8_t byte, bool high)
+	{
+		if (high) return byte >> 4 & 0xF;
+		else      return byte & 0xF;
+	}
 }
 
 using namespace util;

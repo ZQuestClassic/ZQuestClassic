@@ -446,6 +446,7 @@ void zmap::setCursor(MapCursor new_cursor)
 	
 	reset_combo_animations2();
 	mmap_mark_dirty();
+	regions_mark_dirty();
 	refresh(rALL);
 }
 
@@ -542,6 +543,106 @@ int32_t  zmap::getCurrMap()
 {
     return cursor.map;
 }
+void zmap::regions_mark_dirty()
+{
+	regions_dirty = true;
+}
+void zmap::regions_refresh()
+{
+	if (!regions_dirty)
+		return;
+
+	int map = cursor.map;
+
+	// yoink'd the following from zc/maps.cpp z3_load_region
+
+	for (int sy = 0; sy < 8; sy++)
+	{
+		for (int sx = 0; sx < 16; sx++)
+		{
+			int id = Regions[map].get_region_id(sx, sy);
+			int screen = map_scr_xy_to_index(sx, sy);
+			if (id && get_canonical_scr(map, screen)->is_valid())
+				current_region_ids[screen] = id;
+			else
+				current_region_ids[screen] = 0;
+		}
+	}
+
+	for (int i = 0; i < 128; i++)
+	{
+		screen_is_in_current_region[i] = false;
+	}
+
+	// yoink'd the following from zc/maps.cpp z3_calculate_region
+
+	int input_screen = cursor.screen;
+	int id = current_region_ids[input_screen];
+	int input_scr_x = input_screen % 16;
+	int input_scr_y = input_screen / 16;
+
+	// For the currently selected screen, find the top-left corner of its region.
+	int origin_scr_x = input_scr_x;
+	int origin_scr_y = input_scr_y;
+	while (origin_scr_x > 0)
+	{
+		if (id != current_region_ids[map_scr_xy_to_index(origin_scr_x - 1, origin_scr_y)]) break;
+		origin_scr_x--;
+	}
+	while (origin_scr_y > 0)
+	{
+		if (id != current_region_ids[map_scr_xy_to_index(origin_scr_x, origin_scr_y - 1)]) break;
+		origin_scr_y--;
+	}
+
+	// Now find the bottom-right corner.
+	int region_scr_right = origin_scr_x;
+	while (region_scr_right < 15)
+	{
+		if (id != current_region_ids[map_scr_xy_to_index(region_scr_right + 1, origin_scr_y)]) break;
+		region_scr_right++;
+	}
+	int region_scr_bottom = origin_scr_y;
+	while (region_scr_bottom < 7)
+	{
+		if (id != current_region_ids[map_scr_xy_to_index(origin_scr_x, region_scr_bottom + 1)]) break;
+		region_scr_bottom++;
+	}
+
+	for (int x = origin_scr_x; x <= region_scr_right; x++)
+	{
+		for (int y = origin_scr_y; y <= region_scr_bottom; y++)
+		{
+			screen_is_in_current_region[map_scr_xy_to_index(x, y)] = true;
+		}
+	}
+
+	regions_dirty = false;
+}
+int zmap::get_region_id(int screen)
+{
+	if (screen < 0 || screen >= 128)
+		return 0;
+
+	regions_refresh();
+	return current_region_ids[screen];
+}
+bool zmap::is_region(int screen)
+{
+	if (screen < 0 || screen >= 128)
+		return false;
+
+	regions_refresh();
+	return current_region_ids[screen];
+}
+bool zmap::is_screen_in_current_region(int screen)
+{
+	if (screen < 0 || screen >= 128)
+		return false;
+
+	regions_refresh();
+	return screen_is_in_current_region[screen];
+}
 bool zmap::isDark(int scr)
 {
     return (screens[scr].flags&fDARK)!=0;
@@ -575,6 +676,7 @@ void zmap::setCurrMap(int32_t index)
 	
 	reset_combo_animations2();
 	mmap_mark_dirty();
+	regions_mark_dirty();
 }
 
 int32_t  zmap::getCurrScr()
@@ -603,6 +705,7 @@ void zmap::setCurrScr(int32_t scr)
     reset_combo_animations2();
     setlayertarget();
     mmap_mark_dirty();
+	regions_mark_dirty();
 }
 
 int32_t zmap::getViewScr()
@@ -872,6 +975,7 @@ int32_t zmap::load(const char *path)
 	
 	setCurrScr(0);
 	mmap_mark_dirty();
+	regions_mark_dirty();
 	return 0;
 	
 file_error:
@@ -9460,7 +9564,7 @@ int32_t writemaps(PACKFILE *f, zquestheader *)
 				{
 				    for(int32_t k=0; k<8; k++)
 				    {
-				        if(!p_putc(Regions[i].region_indices[j][k],f))
+				        if(!p_putc(Regions[i].region_ids[j][k],f))
 				        {
 				            new_return(8);
 				        }

@@ -5020,7 +5020,7 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
             {
                 for(int32_t k=0; k<8; k++)
                 {
-					if(!p_getc(&rd.region_indices[j][k],f))
+					if(!p_getc(&rd.region_ids[j][k],f))
 					{
 						return qe_invalid;
 					}
@@ -17123,7 +17123,7 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header)
 				{
 					for(int32_t k=0; k<8; k++)
 					{
-						if(!p_getc(&rd.region_indices[j][k],f))
+						if(!p_getc(&rd.region_ids[j][k],f))
 						{
 							return qe_invalid;
 						}

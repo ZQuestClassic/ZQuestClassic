@@ -317,8 +317,18 @@ struct regions_data
 	// 0 indicates that screen is not a scrolling region.
 	// Positive values indicate a contiguous scrolling region.
 	// Currently, scrolling regions MUST be rectangles and have no holes.
-	// Indices can be repeated - they currently don't hold any special meaning.
-	byte region_indices[8][8];
+	// IDs can be repeated - they currently don't hold any special meaning.
+	byte region_ids[8][8];
+
+	byte get_region_id(int screen_x, int screen_y)
+	{
+		return util::nibble(region_ids[screen_y][screen_x/2], screen_x % 2 == 0);
+	}
+
+	byte get_region_id(int screen)
+	{
+		return get_region_id(screen % 16, screen / 16);
+	}
 };
 
 extern std::array<regions_data, MAXMAPS> Regions;
@@ -326,5 +336,8 @@ extern std::array<regions_data, MAXMAPS> Regions;
 extern std::vector<mapscr> TheMaps;
 extern std::vector<word>   map_autolayers;
 extern word map_count;
+
+const mapscr* get_canonical_scr(int map, int screen);
+int map_scr_xy_to_index(int x, int y);
 
 #endif

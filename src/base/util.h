@@ -5,6 +5,7 @@
 #define UTIL_H_
 
 #include "base/zdefs.h"
+#include <cstdint>
 #include <sstream>
 #include <string>
 #include <sys/types.h>
@@ -106,6 +107,8 @@ namespace util
 	{
 		std::copy(&source[0][0], &source[0][0] + (R*C)/sizeof(source[0][0]), &dest[0][0]);
 	}
+
+	uint8_t nibble(uint8_t byte, bool high);
 }
 
 std::string dayextension(int32_t dy);
