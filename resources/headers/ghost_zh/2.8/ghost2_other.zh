@@ -13,7 +13,7 @@ int FindSpawnPoint(bool landOK, bool wallsOK, bool waterOK, bool pitsOK)
     int tries;
     npc otherNPC;
 
-    ResizeArray(tileRatings, Region->NumCombos);
+    ResizeArray(tileRatings, NUM_COMBO_POS);
 
     // First, rate each tile for suitability. Lower is better,
     // but negative means it's strictly off-limits.
@@ -36,7 +36,7 @@ int FindSpawnPoint(bool landOK, bool wallsOK, bool waterOK, bool pitsOK)
     }
     
     // Mark prohibited tiles
-    for(int i=0; i<Region->NumCombos; i++)
+    for(int i=0; i<NUM_COMBO_POS; i++)
     {
         // Screen edges in NES dungeon
         if((Screen->Flags[SF_ROOMTYPE]&010b)!=0 && (i<32 || i>143 || i%16<2 || i%16>13))
@@ -97,7 +97,7 @@ int FindSpawnPoint(bool landOK, bool wallsOK, bool waterOK, bool pitsOK)
     // Find the best rating and count the number of tiles with that rating
     bestRating=10000;
     bestCount=0;
-    for(int i=0; i<Region->NumCombos; i++)
+    for(int i=0; i<NUM_COMBO_POS; i++)
     {
         if(tileRatings[i]<0)
             continue;
@@ -140,7 +140,7 @@ int FindSpawnPoint(int type, int flag)
     int tries;
     npc otherNPC;
 
-    ResizeArray(tileRatings, Region->NumCombos);
+    ResizeArray(tileRatings, NUM_COMBO_POS);
     
     // Too close to other enemies
     for(int i=Screen->NumNPCs; i>0; i--)
@@ -160,7 +160,7 @@ int FindSpawnPoint(int type, int flag)
     }
     
     // Mark prohibited tiles
-    for(int i=0; i<Region->NumCombos; i++)
+    for(int i=0; i<NUM_COMBO_POS; i++)
     {
         // Wrong combo type
         if(type>=0)
@@ -184,7 +184,7 @@ int FindSpawnPoint(int type, int flag)
     // Find the best rating and count the tiles
     bestRating=10000;
     bestCount=0;
-    for(int i=0; i<Region->NumCombos; i++)
+    for(int i=0; i<NUM_COMBO_POS; i++)
     {
         if(tileRatings[i]<0)
             continue;

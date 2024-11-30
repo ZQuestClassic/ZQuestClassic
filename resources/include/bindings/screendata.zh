@@ -23,7 +23,7 @@ enum WipeEffect
 //
 // The combo array variables (such as [Screen->ComboD]) may access any combo position
 // in the current region. Use [ComboAt] to translate (x, y) pixel coordinates into a
-// combo position. The size of these arrays is [Region->NumCombos].
+// combo position. The size of these arrays is [NUM_COMBO_POS].
 //
 // For accessing specific screens, see [mapdata].
 //
@@ -49,39 +49,39 @@ class screendata {
 	// @zasm_var SDD
 	internal untyped D[];
 
-	// The combo ID of each of the [Region->NumCombos] combo positions on the screen.
+	// The combo ID of each of the [NUM_COMBO_POS] combo positions on the screen.
 	//
 	// @zasm_var COMBODD
 	internal int ComboD[];
 
-	// The CSet of each of the [Region->NumCombos] combo positions on the screen.
+	// The CSet of each of the [NUM_COMBO_POS] combo positions on the screen.
 	//
 	// @zasm_var COMBOCD
 	internal int ComboC[];
 
-	// The placed (map) flag of each of the [Region->NumCombos] combo positions on the screen.
+	// The placed (map) flag of each of the [NUM_COMBO_POS] combo positions on the screen.
 	//
 	// @zasm_var COMBOFD
 	internal int ComboF[];
 
-	// The inherent flag of each of the [Region->NumCombos] combo positions on the screen.
+	// The inherent flag of each of the [NUM_COMBO_POS] combo positions on the screen.
 	//
 	// @zasm_var COMBOID
 	internal int ComboI[];
 
-	// The combo type of each of the [Region->NumCombos] combo positions on the screen.
+	// The combo type of each of the [NUM_COMBO_POS] combo positions on the screen.
 	//
 	// Valid values: [ComboType] (`CT_`).
 	//
 	// @zasm_var COMBOTD
 	internal int ComboT[];
 
-	// The solidity bits of each of the [Region->NumCombos] combo positions on the screen.
+	// The solidity bits of each of the [NUM_COMBO_POS] combo positions on the screen.
 	//
 	// @zasm_var COMBOSD
 	internal int ComboS[];
 
-	// The effect area bits of each of the [Region->NumCombos] combo positions on the screen.
+	// The effect area bits of each of the [NUM_COMBO_POS] combo positions on the screen.
 	//
 	// @zasm_var COMBOED
 	internal int ComboE[];

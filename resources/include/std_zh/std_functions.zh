@@ -1192,7 +1192,7 @@ int FirstComboFlagOf(int t, int layer)
 		return -1;
 
 	mapdata m = Game->LoadTempScreen(layer);
-	for (int i = 0; i < Region->NumCombos; ++i)
+	for (int i = 0; i < NUM_COMBO_POS; ++i)
 	{
 		if(m->ComboF[i] == t || m->ComboI[i] == t)
 			return i;
@@ -1208,7 +1208,7 @@ int FirstComboTypeOf(int t, int layer)
 		return -1;
 
 	mapdata screen = Game->LoadTempScreen(layer);
-	for (int i = 0; i < Region->NumCombos; ++i)
+	for (int i = 0; i < NUM_COMBO_POS; ++i)
 	{
 		if (screen->ComboT[i] == t)
 			return i;
@@ -1224,7 +1224,7 @@ int FirstComboOf(int t, int layer)
 		return -1;
 
 	mapdata screen = Game->LoadTempScreen(layer);
-	for (int i = 0; i < Region->NumCombos; ++i)
+	for (int i = 0; i < NUM_COMBO_POS; ++i)
 	{
 		if (screen->ComboD[i] == t)
 			return i;
@@ -2237,7 +2237,7 @@ int LastComboFlagOf(int t, int layer)
 		return -1;
 
 	mapdata m = Game->LoadTempScreen(layer);
-	for (int i = Region->NumCombos - 1; i >= 0; --i)
+	for (int i = NUM_COMBO_POS - 1; i >= 0; --i)
 	{
 		if(m->ComboF[i] == t || m->ComboI[i] == t)
 			return i;
@@ -2254,7 +2254,7 @@ int LastComboTypeOf(int t, int layer)
 		return -1;
 
 	mapdata m = Game->LoadTempScreen(layer);
-	for (int i = Region->NumCombos - 1; i >= 0; --i)
+	for (int i = NUM_COMBO_POS - 1; i >= 0; --i)
 	{
 		if(m->ComboT[i] == t)
 			return i;
@@ -2270,7 +2270,7 @@ int LastComboOf(int t, int layer)
 		return -1;
 
 	mapdata m = Game->LoadTempScreen(layer);
-	for (int i = Region->NumCombos - 1; i >= 0; --i)
+	for (int i = NUM_COMBO_POS - 1; i >= 0; --i)
 	{
 		if(m->ComboD[i] == t)
 			return i;
