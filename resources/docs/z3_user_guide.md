@@ -30,13 +30,22 @@ Note: all this is ignoring the fact that the bottom 8 pixels has always and cont
 
 ## ZScript
 
-TODO
+### TL;DR
+
+Most scripts can be migrated by simply making the following changes:
+
+* for iterating every combo position, change 176 to `NUM_COMBO_POS`
+* for the max FFC id, use `MAX_FFC` (instead of 32 or 128 or whatever)
+* to translate x/y to a combo position, only use `ComboAt`
+* to check if something is out-of-bounds, change 256 / 176 to `Region->Width` / `Region->Height`
+
+Read on for more detail.
 
 ### `mapdata` and `Screen`
 
 By default, the `Screen->` methods operate on the origin screen. Some script types (screen, ffc, weapon) operate on the screen that spawned the script. Player scripts operate on the screen the player is currently in.
 
-* `Screen->ComboD[pos]` can return any combo in the current region. Before regions, `pos` (which stands for combo position) could be `0-175`. The same is true with regions, but the range is `0` to `Region->NumCombos` (exclusive), where `Region->NumCombos` is 176 multiplied by the number of screens in a region.
+* `Screen->ComboD[pos]` can return any combo in the current region. Before regions, `pos` (which stands for combo position) could be `0-175`. The same is true with regions, but the range is `0` to `NUM_COMBO_POS` (exclusive), where `NUM_COMBO_POS` is equal to 176 multiplied by the number of screens in a region.
 * The above is also true for:
 * * `Screen->ComboC[pos]`
 * * `Screen->ComboF[pos]`
@@ -47,7 +56,7 @@ By default, the `Screen->` methods operate on the origin screen. Some script typ
 * `Screen->LoadFFC(id)` can return any FFC within the current region. `id` can be `1-MAX_FFC`
 * For everything else on `Screen->`, it accesses just a single screen
 
-Before regions, to iterate every combo on a screen you loop between 0 and 176. With regions, the upper value is instead `Region->NumCombos` - when not in a region, this value is 176. To make scripts compatible with regions, replace 176 with `Region->NumCombos`.
+Before regions, to iterate every combo on a screen you loop between 0 and 176. With regions, the upper value is instead `NUM_COMBO_POS` - when not in a region, this value is 176. To make scripts compatible with regions, replace 176 with `NUM_COMBO_POS`.
 
 To get the correct value of `pos` for a given `x` and `y` coordinate, you can still use `ComboAt(x, y)`. This will use the current region to determine the combo position.
 
