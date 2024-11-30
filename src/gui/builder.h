@@ -638,7 +638,6 @@ ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(DMapMapGrid, DMapMapGrid, makeDMapMapGrid)
 
 ZCGUI_BUILDER_START(DMapRegionGrid)
-	ZCGUI_ACCEPT_PROP(regionMapPtr, setRegionMapPtr, zmap*)
 	ZCGUI_ACCEPT_PROP(localRegionsData, setLocalRegionsData, regions_data*)
 	ZCGUI_ACCEPT_PROP(onUpdate, setOnUpdate, std::function<void()>)
 ZCGUI_BUILDER_END()

@@ -40,7 +40,6 @@ std::shared_ptr<GUI::Widget> EditRegionDialog::view()
 			Frame(
 				DMapRegionGrid(
 					focused = true,
-					regionMapPtr = &Map,
 					localRegionsData = &local_regions_data,
 					onUpdate = [&]()
 					{

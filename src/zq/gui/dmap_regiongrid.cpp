@@ -4,6 +4,7 @@
 #include "gui/dialog_runner.h"
 #include "gui/size.h"
 #include "gui/jwin.h"
+#include "zq/zq_class.h"
 #include <cassert>
 
 using namespace GUI;
@@ -184,10 +185,9 @@ static int rg_cols = 16;
 static int rg_col_width = 27;
 static int rg_l = 25;
 
-static void draw_region_square(BITMAP* bmp, int region_index, int x, int y, FONT* f, int text_height)
+static void draw_region_square(BITMAP* bmp, int frame, int region_index, int x, int y, FONT* f, int text_height)
 {
 	int color = vc(region_index);
-	int frame = FR_MEDDARK;
 	jwin_draw_frame(bmp, x, y, rg_col_width, rg_l, frame);
 
 	int x0 = x + rg_button_thickness;
@@ -225,7 +225,7 @@ int32_t d_region_grid_proc(int32_t msg, DIALOG* d, int32_t c)
 
 	FONT* nf = get_zc_font(font_nfont);
 
-	int map = widg->getRegionMapPtr()->getCurrMap();
+	int map = Map.getCurrMap();
 	regions_data* local_regions_data = widg->getLocalRegionsData();
 	byte* region_index_data = (byte*)&local_regions_data->region_indices;
 
@@ -262,14 +262,16 @@ int32_t d_region_grid_proc(int32_t msg, DIALOG* d, int32_t c)
 		{
 			for (k = 0; k < rg_cols; ++k)
 			{
-				if (!widg->getRegionMapPtr()->isValid(map, j * 16 + k))
+				int screen = j * 16 + k;
+				if (!Map.isValid(map, screen))
 					continue;
 
 				byte region_index = getNibble(region_index_data[j * 8 + k / 2], k % 2 == 0);
 
+				int frame = Map.getCurrScr() == screen ? FR_GREEN : FR_MEDDARK;
 				int x2 = x + rg_header_width + (k * rg_col_width) + rg_frame_thickness;
 				int y2 = y + rg_header_height + (j * rg_l) + rg_frame_thickness;
-				draw_region_square(tempbmp, region_index, x2, y2, nf, txtheight);
+				draw_region_square(tempbmp, frame, region_index, x2, y2, nf, txtheight);
 			}
 		}
 
@@ -317,7 +319,7 @@ int32_t d_region_grid_proc(int32_t msg, DIALOG* d, int32_t c)
 				xx = x;
 				yy = y;
 
-				if (y >= 0 && y < 8 && x >= 0 && x < rg_cols && widg->getRegionMapPtr()->isValid(map, y * 16 + x))
+				if (y >= 0 && y < 8 && x >= 0 && x < rg_cols && Map.isValid(map, y * 16 + x))
 				{
 					byte old_region_datum = region_index_data[y * 8 + x / 2];
 					region_index_data[y * 8 + x / 2] = x % 2 == 0 ?
@@ -342,7 +344,7 @@ int32_t d_region_grid_proc(int32_t msg, DIALOG* d, int32_t c)
 namespace GUI
 {
 	DMapRegionGrid::DMapRegionGrid() : 
-		message(-1), regionmap(nullptr), localRegionsData(nullptr)
+		message(-1), localRegionsData(nullptr)
 		
 	{
 		setPreferredWidth(465_px);

@@ -17,15 +17,6 @@ namespace GUI
 	public:
 		DMapRegionGrid();
 
-		void setRegionMapPtr(zmap* ptr)
-		{
-			regionmap = ptr;
-		}
-		zmap* getRegionMapPtr()
-		{
-			return regionmap;
-		}
-
 		void setLocalRegionsData(regions_data* localRegionsData_)
 		{
 			localRegionsData = localRegionsData_;
@@ -53,7 +44,6 @@ namespace GUI
 		int32_t message;
 		std::function<void()> onUpdateFunc;
 
-		zmap* regionmap;
 		regions_data* localRegionsData;
 
 		DialogRef alDialog;
