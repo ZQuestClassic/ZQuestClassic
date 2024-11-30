@@ -21284,7 +21284,9 @@ static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Mi
     {
         memcpy(old_midi_flags, midi_flags, MIDIFLAGS_SIZE);
     }
-    
+
+	if (!get_bit(skip_flags, skip_maps))
+		Regions = {};
     
 	if(do_clear_scripts)
 	{
