@@ -197,11 +197,19 @@ void z3_calculate_region(int map, int screen, region& region, int& region_scr_dx
 	DCHECK_RANGE_INCLUSIVE(region.screen_height, 0, 8);
 }
 
-void z3_load_region(int map, int screen)
+void z3_load_region(int dmap, int screen)
 {
 	z3_clear_temporary_screens();
 
+	int map = DMaps[dmap].map;
 	current_region_ids = Regions[map].get_all_region_ids(map);
+
+	if ((DMaps[dmap].type&dmfTYPE) == dmDNGN)
+	{
+		if (current_region_ids[screen])
+			Z_message("Region error: Scrolling is not supported for NES Dungeon dmaps.\n");
+		current_region_ids = {};
+	}
 
 	z3_calculate_region(map, screen, current_region, region_scr_dx, region_scr_dy);
 	currscr = current_region.origin_screen_index;
@@ -5886,7 +5894,7 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	reset_combo_animations2();
 
 	currscr_for_passive_subscr = -1;
-	z3_load_region(DMaps[destdmap].map, scr);
+	z3_load_region(destdmap, scr);
 	z3_mark_current_region_handles_dirty();
 	homescr = scr >= 0x80 ? hero_screen : currscr;
 

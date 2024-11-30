@@ -31,9 +31,14 @@ std::shared_ptr<GUI::Widget> EditRegionDialog::view()
 	using namespace GUI::Key;
 
 	char titlebuf[256];
-	sprintf(titlebuf, "Edit Region for Map %d", mapslot);
+	sprintf(titlebuf, "Edit Regions for Map %d", mapslot);
 	window = Window(
 		title = titlebuf,
+		info =  "Screens with the same Region ID define a single Region\n"
+				"  of screens connected via free-scrolling\n\n"
+				"Regions must be rectangular\n\n"
+				"Regions do not work with the NES Dungeon DMap type\n\n"
+				"For more on Regions, see the Z3 User Guide",
 		onClose = message::CANCEL,
 		use_vsync = true,
 		Column(
@@ -46,7 +51,7 @@ std::shared_ptr<GUI::Widget> EditRegionDialog::view()
 						refreshRegionGrid();
 					})
 			),
-			Frame(title = "Edit Region:",
+			Frame(title = "Edit Region IDs:",
 				Row(
 					BTN_REGIONIDX(0, "0 (no scrolling)"),
 					BTN_REGIONIDX(1, "1"),
