@@ -31,7 +31,7 @@ std::shared_ptr<GUI::Widget> EditRegionDialog::view()
 	using namespace GUI::Key;
 
 	char titlebuf[256];
-	sprintf(titlebuf, "Edit Region (%d)", mapslot);
+	sprintf(titlebuf, "Edit Region for Map %d", mapslot);
 	window = Window(
 		title = titlebuf,
 		onClose = message::CANCEL,

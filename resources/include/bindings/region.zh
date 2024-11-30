@@ -27,6 +27,7 @@ class Region {
 	internal const int ScreenHeight;
 
 	// The number of combo positions. 176 per screen.
+	// This is the same as [NUM_COMBO_POS].
 	//
 	// @zasm_var REGION_NUM_COMBOS
 	internal const int NumCombos;
