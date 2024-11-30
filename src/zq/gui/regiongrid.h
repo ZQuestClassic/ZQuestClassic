@@ -1,7 +1,6 @@
-#ifndef ZC_GUI_DMAPREGIONGRID_H_
-#define ZC_GUI_DMAPREGIONGRID_H_
+#ifndef ZC_GUI_REGIONGRID_H_
+#define ZC_GUI_REGIONGRID_H_
 
-#include "base/dmap.h"
 #include "base/mapscr.h"
 #include "gui/widget.h"
 #include "gui/dialog_ref.h"
@@ -11,11 +10,10 @@ class RenderTreeItem;
 
 namespace GUI
 {
-
-	class DMapRegionGrid : public Widget
+	class RegionGrid : public Widget
 	{
 	public:
-		DMapRegionGrid();
+		RegionGrid();
 
 		void setLocalRegionsData(regions_data* localRegionsData_)
 		{

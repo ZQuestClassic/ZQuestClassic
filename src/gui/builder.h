@@ -40,7 +40,7 @@
 #include "zq/gui/misc_color_row.h"
 #include "zq/gui/dmap_minimap.h"
 #include "zq/gui/dmap_mapgrid.h"
-#include "zq/gui/dmap_regiongrid.h"
+#include "zq/gui/regiongrid.h"
 #include "zq/gui/engraving.h"
 #endif
 
@@ -284,9 +284,9 @@ inline std::shared_ptr<Engraving> makeEngraving()
 	return std::make_shared<Engraving>();
 }
 
-inline std::shared_ptr<DMapRegionGrid> makeDMapRegionGrid()
+inline std::shared_ptr<RegionGrid> makeRegionGrid()
 {
-	return std::make_shared<DMapRegionGrid>();
+	return std::make_shared<RegionGrid>();
 }
 #endif
 
@@ -637,11 +637,11 @@ ZCGUI_BUILDER_START(DMapMapGrid)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(DMapMapGrid, DMapMapGrid, makeDMapMapGrid)
 
-ZCGUI_BUILDER_START(DMapRegionGrid)
+ZCGUI_BUILDER_START(RegionGrid)
 	ZCGUI_ACCEPT_PROP(localRegionsData, setLocalRegionsData, regions_data*)
 	ZCGUI_ACCEPT_PROP(onUpdate, setOnUpdate, std::function<void()>)
 ZCGUI_BUILDER_END()
-ZCGUI_BUILDER_FUNCTION(DMapRegionGrid, DMapRegionGrid, makeDMapRegionGrid)
+ZCGUI_BUILDER_FUNCTION(RegionGrid, RegionGrid, makeRegionGrid)
 
 ZCGUI_BUILDER_START(Engraving)
 	ZCGUI_ACCEPT_PROP(data, setSlot, int32_t)

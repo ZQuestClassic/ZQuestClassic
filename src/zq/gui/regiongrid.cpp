@@ -1,4 +1,4 @@
-#include "zq/gui/dmap_regiongrid.h"
+#include "zq/gui/regiongrid.h"
 #include "base/qrs.h"
 #include "gui/common.h"
 #include "gui/dialog_runner.h"
@@ -218,7 +218,7 @@ int32_t d_region_grid_proc(int32_t msg, DIALOG* d, int32_t c)
 		// TODO z3 !
 	}
 
-	DMapRegionGrid* widg = (DMapRegionGrid*)d->dp2;
+	RegionGrid* widg = (RegionGrid*)d->dp2;
 
 	FONT* nf = get_zc_font(font_nfont);
 
@@ -337,7 +337,7 @@ int32_t d_region_grid_proc(int32_t msg, DIALOG* d, int32_t c)
 
 namespace GUI
 {
-	DMapRegionGrid::DMapRegionGrid() : 
+	RegionGrid::RegionGrid() : 
 		message(-1), localRegionsData(nullptr)
 		
 	{
@@ -345,28 +345,28 @@ namespace GUI
 		setPreferredHeight(218_px);
 	}
 
-	void DMapRegionGrid::setCurrentRegionIndex(int newindex)
+	void RegionGrid::setCurrentRegionIndex(int newindex)
 	{
 		rg_current_region_id = newindex;
 	}
-	int DMapRegionGrid::getCurrentRegionIndex()
+	int RegionGrid::getCurrentRegionIndex()
 	{
 		return rg_current_region_id;
 	}
 
-	void DMapRegionGrid::applyVisibility(bool visible)
+	void RegionGrid::applyVisibility(bool visible)
 	{
 		Widget::applyVisibility(visible);
 		if (alDialog) alDialog.applyVisibility(visible);
 	}
 
-	void DMapRegionGrid::applyDisabled(bool dis)
+	void RegionGrid::applyDisabled(bool dis)
 	{
 		Widget::applyDisabled(dis);
 		if (alDialog) alDialog.applyDisabled(dis);
 	}
 
-	void DMapRegionGrid::realize(DialogRunner& runner)
+	void RegionGrid::realize(DialogRunner& runner)
 	{
 		Widget::realize(runner);
 		alDialog = runner.push(shared_from_this(), DIALOG{
@@ -380,7 +380,7 @@ namespace GUI
 			});
 	}
 
-	int32_t DMapRegionGrid::onEvent(int32_t event, MessageDispatcher& sendMessage)
+	int32_t RegionGrid::onEvent(int32_t event, MessageDispatcher& sendMessage)
 	{
 		assert(event == geCHANGE_VALUE);
 		int ret = -1;

@@ -38,7 +38,7 @@ std::shared_ptr<GUI::Widget> EditRegionDialog::view()
 		use_vsync = true,
 		Column(
 			Frame(
-				DMapRegionGrid(
+				RegionGrid(
 					focused = true,
 					localRegionsData = &local_regions_data,
 					onUpdate = [&]()

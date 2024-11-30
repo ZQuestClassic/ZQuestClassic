@@ -8,7 +8,7 @@
 #include <zq/gui/selcombo_swatch.h>
 #include <zq/gui/dmap_minimap.h>
 #include <zq/gui/dmap_mapgrid.h>
-#include <zq/gui/dmap_regiongrid.h>
+#include <zq/gui/regiongrid.h>
 #include <gui/list.h>
 #include <gui/frame.h>
 #include <gui/drop_down_list.h>
@@ -35,7 +35,7 @@ private:
 	void refreshRegionGrid();
 
 	std::shared_ptr<GUI::Window> window;
-	std::shared_ptr<GUI::DMapRegionGrid> region_grid;
+	std::shared_ptr<GUI::RegionGrid> region_grid;
 	std::shared_ptr<GUI::Checkbox> region_checks[10];
 
 	int32_t mapslot;
