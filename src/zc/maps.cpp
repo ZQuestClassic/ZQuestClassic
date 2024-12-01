@@ -106,7 +106,7 @@ bool is_valid_rpos(rpos_t rpos)
 
 bool is_z3_scrolling_mode()
 {
-	return current_region.region_id && is_in_current_region(currscr);
+	return current_region.region_id && is_in_current_region(cur_screen);
 }
 
 bool is_extended_height_mode()
@@ -125,7 +125,7 @@ int get_region_id(int map, int screen)
 
 int get_current_region_id()
 {
-	return get_region_id(currmap, currscr);
+	return get_region_id(currmap, cur_screen);
 }
 
 void z3_calculate_region(int map, int screen, region& region, int& region_scr_dx, int& region_scr_dy)
@@ -212,7 +212,7 @@ void z3_load_region(int dmap, int screen)
 	}
 
 	z3_calculate_region(map, screen, current_region, region_scr_dx, region_scr_dy);
-	currscr = current_region.origin_screen_index;
+	cur_screen = current_region.origin_screen_index;
 	world_w = current_region.width;
 	world_h = current_region.height;
 	region_scr_count = current_region.screen_count;
@@ -226,7 +226,7 @@ void z3_load_region(int dmap, int screen)
 	{
 		for (int y = 0; y < current_region.screen_height; y++)
 		{
-			int screen = currscr + x + y*16;
+			int screen = cur_screen + x + y*16;
 			if (screen < 136)
 				screen_in_current_region[screen] = true;
 		}
@@ -241,7 +241,7 @@ void z3_prepare_current_region_handles()
 	{
 		for (int x = 0; x < current_region.screen_width; x++)
 		{
-			int screen = currscr + x + y*16;
+			int screen = cur_screen + x + y*16;
 			int index_start = current_region_screen_count;
 			for (int layer = 0; layer <= 6; layer++)
 			{
@@ -316,10 +316,10 @@ std::vector<mapscr*> z3_take_temporary_screens()
 	// in the temporary screens array.
 	for (int i = 0; i < 7; i++)
 	{
-		mapscr* s = get_layer_scr(currscr, i - 1);
+		mapscr* s = get_layer_scr(cur_screen, i - 1);
 		DCHECK(s);
-		DCHECK(!screens[currscr*7 + i]);
-		screens[currscr*7 + i] = new mapscr(*s);
+		DCHECK(!screens[cur_screen*7 + i]);
+		screens[cur_screen*7 + i] = new mapscr(*s);
 	}
 
 	return screens;
@@ -358,7 +358,7 @@ void z3_calculate_viewport(int dmap, int screen, int world_w, int world_h, int h
 
 void z3_update_viewport()
 {
-	z3_calculate_viewport(currdmap, currscr, world_w, world_h, Hero.getX(), Hero.getY(), viewport);
+	z3_calculate_viewport(currdmap, cur_screen, world_w, world_h, Hero.getX(), Hero.getY(), viewport);
 }
 
 void playLevelMusic();
@@ -369,7 +369,7 @@ void z3_update_heroscr()
 	int y = vbound(Hero.getY().getInt(), 0, world_h - 1);
 	int dx = x / 256;
 	int dy = y / 176;
-	int new_screen = currscr + dx + dy * 16;
+	int new_screen = cur_screen + dx + dy * 16;
 	if (hero_screen != new_screen && dx >= 0 && dy >= 0 && dx < 16 && dy < 8 && is_in_current_region(new_screen))
 	{
 		region_scr_dx = dx;
@@ -398,12 +398,12 @@ bool edge_of_region(direction dir)
 int get_screen_index_for_world_xy(int x, int y)
 {
 	if (!is_z3_scrolling_mode())
-		return currscr;
+		return cur_screen;
 
 	int dx = vbound(x, 0, world_w - 1) / 256;
 	int dy = vbound(y, 0, world_h - 1) / 176;
-	int origin_scr_x = currscr % 16;
-	int origin_scr_y = currscr / 16;
+	int origin_scr_x = cur_screen % 16;
+	int origin_scr_y = cur_screen / 16;
 	int scr_x = origin_scr_x + dx;
 	int scr_y = origin_scr_y + dy;
 	return map_scr_xy_to_index(scr_x, scr_y);
@@ -411,8 +411,8 @@ int get_screen_index_for_world_xy(int x, int y)
 
 int get_screen_index_for_rpos(rpos_t rpos)
 {
-	int origin_scr_x = currscr % 16;
-	int origin_scr_y = currscr / 16;
+	int origin_scr_x = cur_screen % 16;
+	int origin_scr_y = cur_screen / 16;
 	int scr_index = static_cast<int32_t>(rpos) / 176;
 	int scr_x = origin_scr_x + scr_index%current_region.screen_width;
 	int scr_y = origin_scr_y + scr_index/current_region.screen_width;
@@ -423,7 +423,7 @@ rpos_handle_t get_rpos_handle(rpos_t rpos, int layer)
 {
 	DCHECK_LAYER_ZERO_INDEX(layer);
 	if (!is_z3_scrolling_mode())
-		return {get_layer_scr(currscr, layer - 1), currscr, layer, rpos, RPOS_TO_POS(rpos)};
+		return {get_layer_scr(cur_screen, layer - 1), cur_screen, layer, rpos, RPOS_TO_POS(rpos)};
 	int screen = get_screen_index_for_rpos(rpos);
 	mapscr* scr = get_layer_scr(screen, layer - 1);
 	return {scr, screen, layer, rpos, RPOS_TO_POS(rpos)};
@@ -435,7 +435,7 @@ rpos_handle_t get_rpos_handle_for_world_xy(int x, int y, int layer)
 	if (!is_z3_scrolling_mode())
 	{
 		int pos = COMBOPOS(x, y);
-		return {get_layer_scr(currscr, layer - 1), currscr, layer, (rpos_t)pos, pos};
+		return {get_layer_scr(cur_screen, layer - 1), cur_screen, layer, (rpos_t)pos, pos};
 	}
 	return get_rpos_handle(COMBOPOS_REGION(x, y), layer);
 }
@@ -511,7 +511,7 @@ mapscr* get_screen_layer_for_world_xy(int x, int y, int layer)
 
 int z3_get_region_relative_dx(int screen)
 {
-	return z3_get_region_relative_dx(screen, currscr);
+	return z3_get_region_relative_dx(screen, cur_screen);
 }
 int z3_get_region_relative_dx(int screen, int origin_screen_index)
 {
@@ -520,7 +520,7 @@ int z3_get_region_relative_dx(int screen, int origin_screen_index)
 
 int z3_get_region_relative_dy(int screen)
 {
-	return z3_get_region_relative_dy(screen, currscr);
+	return z3_get_region_relative_dy(screen, cur_screen);
 }
 int z3_get_region_relative_dy(int screen, int origin_screen_index)
 {
@@ -536,7 +536,7 @@ int get_screen_index_for_region_index_offset(int offset)
 {
 	int scr_dx = offset % current_region.screen_width;
 	int scr_dy = offset / current_region.screen_width;
-	int screen = currscr + scr_dx + scr_dy*16;
+	int screen = cur_screen + scr_dx + scr_dy*16;
 	return screen;
 }
 
@@ -549,7 +549,7 @@ mapscr* get_screen_for_region_index_offset(int offset)
 mapscr* get_scr(int map, int screen)
 {
 	DCHECK_RANGE_INCLUSIVE(screen, 0, 135);
-	if (screen == currscr && map == currmap) return tmpscr;
+	if (screen == cur_screen && map == currmap) return tmpscr;
 	if (screen == home_screen && map == currmap) return &special_warp_return_screen;
 
 	if (map == currmap)
@@ -578,7 +578,7 @@ mapscr* get_scr(int screen)
 mapscr* get_scr_no_load(int map, int screen)
 {
 	DCHECK_RANGE_INCLUSIVE(screen, 0, 135);
-	if (screen == currscr && map == currmap) return tmpscr;
+	if (screen == cur_screen && map == currmap) return tmpscr;
 	if (screen == home_screen && map == currmap) return &special_warp_return_screen;
 
 	if (map == currmap)
@@ -599,7 +599,7 @@ mapscr* get_layer_scr(int map, int screen, int layer)
 {
 	DCHECK_LAYER_NEG1_INDEX(layer);
 	if (layer == -1) return get_scr(map, screen);
-	if (screen == currscr && map == currmap) return &tmpscr2[layer];
+	if (screen == cur_screen && map == currmap) return &tmpscr2[layer];
 	if (screen == home_screen && map == currmap) return &tmpscr3[layer];
 
 	if (map == currmap)
@@ -851,7 +851,7 @@ void clear_dmaps()
 
 int32_t isdungeon(int32_t dmap, int32_t scr) // The arg is only used by loadscr2 and loadscr
 {
-    if (scr < 0) scr = currscr;
+    if (scr < 0) scr = cur_screen;
     if (dmap < 0) dmap = currdmap;
     
     // dungeons can have any dlevel above 0
@@ -1116,7 +1116,7 @@ std::optional<ffc_handle_t> getFFCAt(int32_t x, int32_t y)
 // 	uint8_t screen_index_offset = ffc_id / MAXFFCS;
 // 	uint8_t scr_dx = screen_index_offset % current_region.screen_width;
 // 	uint8_t scr_dy = screen_index_offset / current_region.screen_width;
-// 	uint8_t screen = currscr + scr_dx + scr_dy*16;
+// 	uint8_t screen = cur_screen + scr_dx + scr_dy*16;
 // 	mapscr* scr = get_scr(screen);
 // 	return {scr, screen, ffc_id, i, &scr->ffcs[i]};
 // }
@@ -1665,7 +1665,7 @@ void set_doorstate(uint screen, uint dir)
 }
 void set_doorstate(uint dir)
 {
-	set_doorstate_mi((currmap*MAPSCRSNORMAL) + currscr, dir);
+	set_doorstate_mi((currmap*MAPSCRSNORMAL) + cur_screen, dir);
 }
 
 void set_xdoorstate(uint mi, uint dir, uint ind)
@@ -1678,7 +1678,7 @@ void set_xdoorstate(uint mi, uint dir, uint ind)
 }
 void set_xdoorstate(uint dir, uint ind)
 {
-	set_xdoorstate((currmap*MAPSCRSNORMAL) + currscr, dir, ind);
+	set_xdoorstate((currmap*MAPSCRSNORMAL) + cur_screen, dir, ind);
 }
 
 int32_t WARPCODE(int32_t dmap,int32_t scr,int32_t dw)
@@ -2756,7 +2756,7 @@ void trigger_secrets_for_screen_internal(int32_t screen, mapscr *scr, bool do_co
 {
 	DCHECK(screen != -1 || s);
 	if (!scr) scr = get_scr(screen);
-	if (screen == -1) screen = currscr;
+	if (screen == -1) screen = cur_screen;
 
 	// No real reason for "do_replay_comment" to exist - I just did not want to update many replays when fixing
 	// slopes in sideview mode (which required loading nearby screens in loadscr).
@@ -3812,11 +3812,11 @@ bool lenscheck(mapscr* basescr, int layer)
 void do_layer_old(BITMAP *bmp, int32_t type, int32_t layer, mapscr* basescr, int32_t x, int32_t y, int32_t tempscreen, bool scrolling, bool drawprimitives)
 {
 	DCHECK_LAYER_ZERO_INDEX(layer);
-	mapscr* layerscr = get_layer_scr_valid(currscr, layer - 1);
+	mapscr* layerscr = get_layer_scr_valid(cur_screen, layer - 1);
 	if (!layerscr)
 		return;
 
-	do_layer(bmp, type, {basescr, layerscr, currmap, currscr, layer}, x, y, drawprimitives);
+	do_layer(bmp, type, {basescr, layerscr, currmap, cur_screen, layer}, x, y, drawprimitives);
 }
 
 void do_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen_handle, int32_t x, int32_t y, bool drawprimitives)
@@ -4324,10 +4324,10 @@ static nearby_screens_t get_nearby_screens()
 
 	if (!is_z3_scrolling_mode())
 	{
-		int screen = currscr;
+		int screen = cur_screen;
 		mapscr* base_scr = get_scr(screen);
 		auto& nearby_screen = nearby_screens.emplace_back();
-		nearby_screen.screen = currscr;
+		nearby_screen.screen = cur_screen;
 		nearby_screen.screen_handles[0] = {base_scr, base_scr, currmap, screen, 0};
 		for (int i = 1; i < 7; i++)
 		{
@@ -4468,15 +4468,15 @@ void draw_screen(bool showhero, bool runGeneric)
 		if(XOR(base_scr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))
 		{
 			do_layer(scrollbuf, 0, screen_handles[2], offx, offy, true);
-			if (screen == currscr) particles.draw(framebuf, true, 1);
-			if (screen == currscr) draw_msgstr(2);
+			if (screen == cur_screen) particles.draw(framebuf, true, 1);
+			if (screen == cur_screen) draw_msgstr(2);
 		}
 		
 		if(XOR(base_scr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG))
 		{
 			do_layer(scrollbuf, 0, screen_handles[3], offx, offy, true);
-			if (screen == currscr) particles.draw(framebuf, true, 2);
-			if (screen == currscr) draw_msgstr(3);
+			if (screen == cur_screen) particles.draw(framebuf, true, 2);
+			if (screen == cur_screen) draw_msgstr(3);
 		}
 	});
 
@@ -4548,8 +4548,8 @@ void draw_screen(bool showhero, bool runGeneric)
 		if (in_viewport)
 		{
 			do_layer(scrollbuf, 0, screen_handles[1], offx, offy, true); // LAYER 1
-			if (screen == currscr) particles.draw(framebuf, true, 0);
-			if (screen == currscr) draw_msgstr(1);
+			if (screen == cur_screen) particles.draw(framebuf, true, 0);
+			if (screen == cur_screen) draw_msgstr(1);
 		}
 		
 		do_layer(scrollbuf, -3, screen_handles[0], 0, 0); // freeform combos!
@@ -4559,8 +4559,8 @@ void draw_screen(bool showhero, bool runGeneric)
 			if(!XOR(base_scr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))
 			{
 				do_layer(scrollbuf, 0, screen_handles[2], offx, offy, true); // LAYER 2
-				if (screen == currscr) particles.draw(framebuf, true, 1);
-				if (screen == currscr) draw_msgstr(2);
+				if (screen == cur_screen) particles.draw(framebuf, true, 1);
+				if (screen == cur_screen) draw_msgstr(2);
 			}
 		}
 	});
@@ -4832,15 +4832,15 @@ void draw_screen(bool showhero, bool runGeneric)
 		if(!XOR(base_scr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG))
 		{
 			do_layer(framebuf, 0, screen_handles[3], offx, offy, true);
-			if (screen == currscr) particles.draw(framebuf, true, 2);
-			if (screen == currscr) draw_msgstr(3);
+			if (screen == cur_screen) particles.draw(framebuf, true, 2);
+			if (screen == cur_screen) draw_msgstr(3);
 		}
 		
 		do_layer(framebuf, 0, screen_handles[4], offx, offy, true);
 		//do_primitives(framebuf, 3, 0,playing_field_offset);//don't uncomment me
 		
-		if (screen == currscr) particles.draw(framebuf, true, 3);
-		if (screen == currscr) draw_msgstr(4);
+		if (screen == cur_screen) particles.draw(framebuf, true, 3);
+		if (screen == cur_screen) draw_msgstr(4);
 
 		do_layer(framebuf, -1, screen_handles[0], offx, offy);
 		if (get_qr(qr_OVERHEAD_COMBOS_L1_L2))
@@ -4928,8 +4928,8 @@ void draw_screen(bool showhero, bool runGeneric)
 		if (in_viewport)
 		{
 			do_layer(framebuf, 0, screen_handles[5], offx, offy, true);
-			if (screen == currscr) particles.draw(framebuf, true, 4);
-			if (screen == currscr) draw_msgstr(5);
+			if (screen == cur_screen) particles.draw(framebuf, true, 4);
+			if (screen == cur_screen) draw_msgstr(5);
 		}
 
 		// overhead freeform combos!
@@ -4937,13 +4937,13 @@ void draw_screen(bool showhero, bool runGeneric)
 
 		if (in_viewport)
 		{
-			if (screen == currscr)
+			if (screen == cur_screen)
 			{
 				do_primitives(framebuf, SPLAYER_OVERHEAD_FFC, offx, offy + playing_field_offset);
 			}
 			// ---
 			do_layer(framebuf, 0, screen_handles[6], offx, offy, true);
-			if (screen == currscr) particles.draw(framebuf, true, 5);
+			if (screen == cur_screen) particles.draw(framebuf, true, 5);
 		}
 	});
 	
@@ -5833,7 +5833,7 @@ void load_a_screen_and_layers(int dmap, int map, int screen, int ldir)
 	}
 }
 
-// Set `currscr` to `screen` and load new screens into temporary memory.
+// Set `cur_screen` to `screen` and load new screens into temporary memory.
 // Called anytime a player moves to a new screen (either via warping, scrolling, continue,
 // starting the game, etc...)
 // Note: for regions, only the initial screen load calls this function. Simply walking between screens
@@ -5900,7 +5900,7 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool overlay, bool 
 	currscr_for_passive_subscr = -1;
 	z3_load_region(destdmap, screen);
 	z3_mark_current_region_handles_dirty();
-	home_screen = screen >= 0x80 ? hero_screen : currscr;
+	home_screen = screen >= 0x80 ? hero_screen : cur_screen;
 
 	cpos_clear_all();
 	FFCore.clear_script_engine_data_of_type(ScriptType::Screen);
@@ -5918,7 +5918,7 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool overlay, bool 
 	}
 
 	// Load the origin screen (top-left in region) into tmpscr
-	loadscr_old(0, orig_destdmap, currscr, ldir, overlay, ffc_script_indices_to_remove);
+	loadscr_old(0, orig_destdmap, cur_screen, ldir, overlay, ffc_script_indices_to_remove);
 	// Store the current tmpscr into special_warp_return_screen, if on a special screen.
 	if (screen >= 0x80)
 		loadscr_old(1, orig_destdmap, home_screen, no_x80_dir ? -1 : ldir, overlay, ffc_script_indices_to_remove);
@@ -5927,7 +5927,7 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool overlay, bool 
 	{
 		for (int screen = 0; screen < 128; screen++)
 		{
-			if (screen != currscr && is_in_current_region(screen))
+			if (screen != cur_screen && is_in_current_region(screen))
 			{
 				load_a_screen_and_layers(destdmap, currmap, screen, ldir);
 			}
@@ -5951,7 +5951,7 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool overlay, bool 
 
 	for_every_ffc([&](const ffc_handle_t& ffc_handle) {
 		// Handled in loadscr_old.
-		if (ffc_handle.screen == currscr)
+		if (ffc_handle.screen == cur_screen)
 			return;
 
 		ffc_script_indices_to_remove.erase(ffc_handle.id);
@@ -6169,12 +6169,12 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 	}
 
 	// Apply perm secrets, if applicable.
-	if(canPermSecret(destdmap,screen)/*||TheMaps[(currmap*MAPSCRS)+currscr].flags6&fTRIGGERFPERM*/)
+	if(canPermSecret(destdmap,screen)/*||TheMaps[(currmap*MAPSCRS)+cur_screen].flags6&fTRIGGERFPERM*/)
 	{
 		if(game->maps[(currmap*MAPSCRSNORMAL)+screen]&mSECRET)			   // if special stuff done before
 		{
 			reveal_hidden_stairs(scr, screen, false);
-			trigger_secrets_for_screen(TriggerSource::SecretsScreenState, currscr, tmp == 0 ? tmpscr : &special_warp_return_screen, false, -1);
+			trigger_secrets_for_screen(TriggerSource::SecretsScreenState, cur_screen, tmp == 0 ? tmpscr : &special_warp_return_screen, false, -1);
 		}
 		if(game->maps[(currmap*MAPSCRSNORMAL)+screen]&mLIGHTBEAM) // if special stuff done before
 		{
@@ -7389,10 +7389,10 @@ void ViewMap()
 		0.50, 0.707, 1.0, 1.414, 2.0, 2.828, 4.0, 5.657, 8.0
 	};
 	
-	int32_t px = ((8-(currscr&15)) << 9)  - 256;
-	int32_t py = ((4-(currscr>>4)) * 352) - 176;
-	int32_t lx = ((currscr&15)<<8)  + HeroX()+8;
-	int32_t ly = ((currscr>>4)*176) + HeroY()+8;
+	int32_t px = ((8-(cur_screen&15)) << 9)  - 256;
+	int32_t py = ((4-(cur_screen>>4)) * 352) - 176;
+	int32_t lx = ((cur_screen&15)<<8)  + HeroX()+8;
+	int32_t ly = ((cur_screen>>4)*176) + HeroY()+8;
 	int32_t sc = 6;
 	
 	bool done=false, redraw=true;
@@ -7642,7 +7642,7 @@ void ViewMap()
 
 int32_t onViewMap()
 {
-    if(Playing && currscr<128 && DMaps[currdmap].flags&dmfVIEWMAP)
+    if(Playing && cur_screen<128 && DMaps[currdmap].flags&dmfVIEWMAP)
     {
         clear_to_color(framebuf,BLACK);
         textout_centre_ex(framebuf,font,"Drawing map...",128,108,WHITE,BLACK);

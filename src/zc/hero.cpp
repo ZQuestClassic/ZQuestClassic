@@ -121,7 +121,7 @@ static inline bool on_sideview_solid(zfix x, zfix y, bool ignoreFallthrough = fa
 	if(slopesmisc == 2) return false;
 	if (_walkflag(x+4,y+16,1) || _walkflag(x+12,y+16,1)) return true;
 	mapscr* s = get_screen_for_world_xy(x, y);
-	if (y>=world_h-16 && currscr>=0x70 && !(s->flags2&wfDOWN)) return true;
+	if (y>=world_h-16 && cur_screen>=0x70 && !(s->flags2&wfDOWN)) return true;
 	if (platform_fallthrough() && !ignoreFallthrough) return false;
 	if(slopesmisc != 1 && check_slope(x, y + 0.0001_zf, 16, 16, false, true) < 0) return true;
 	if (y.getInt() % 16 ==0 && (checkSVLadderPlatform(x+4,y+16) || checkSVLadderPlatform(x+12,y+16)))
@@ -141,7 +141,7 @@ static inline bool on_sideview_solid_oldpos(sprite* obj, bool ignoreFallthrough 
 		return false;
 	if (_walkflag(x+4,y+16,1) || _walkflag(x+12,y+16,1))
 		return true;
-	if (y>=world_h-16 && currscr>=0x70 && !(hero_scr->flags2&wfDOWN))
+	if (y>=world_h-16 && cur_screen>=0x70 && !(hero_scr->flags2&wfDOWN))
 		return true;
 	if (platform_fallthrough() && !ignoreFallthrough) return false;
 	if (slopesmisc != 1 && check_new_slope(rx, ry+0.0001_zf, rw, rh, orx, ory, false, true, obj->slopeid) < 0)
@@ -231,7 +231,7 @@ void HeroClass::snap_platform()
 {
 	if(check_new_slope(x, y+1, 16, 16, old_x, old_y, false, true) < 0)
 		return;
-	if (y>=world_h-16 && currscr>=0x70 && !(hero_scr->flags2&wfDOWN))
+	if (y>=world_h-16 && cur_screen>=0x70 && !(hero_scr->flags2&wfDOWN))
 	{
 		y = world_h-16;
 		return;
@@ -413,7 +413,7 @@ void HeroClass::set_respawn_point(bool setwarp)
 	{
 		if(!get_qr(qr_OLD_RESPAWN_POINTS))
 		{
-			if(currscr >= 0x80) break;
+			if(cur_screen >= 0x80) break;
 			bool is_safe = true;
 			switch(action)
 			{
@@ -495,7 +495,7 @@ void HeroClass::set_respawn_point(bool setwarp)
 		}
 		respawn_x = x;
 		respawn_y = y;
-		respawn_scr = currscr;
+		respawn_scr = cur_screen;
 		respawn_dmap = currdmap;
 	}
 	while(false); //run once, but 'break' works
@@ -532,7 +532,7 @@ void HeroClass::go_respawn_point()
 	if(get_qr(qr_OLD_RESPAWN_POINTS))
 		return; //No cross-screen return
 	
-	if(currdmap != respawn_dmap || currscr != respawn_scr)
+	if(currdmap != respawn_dmap || cur_screen != respawn_scr)
 	{
 		FFCore.warp_player(wtIWARP, respawn_dmap, respawn_scr-DMaps[currdmap].xoff,
 			-1, -1, 0, 0, warpFlagNOSTEPFORWARD, -1);
@@ -1740,7 +1740,7 @@ void HeroClass::init()
     respawn_x=x;
     respawn_y=y;
 	respawn_dmap=currdmap;
-	respawn_scr=currscr;
+	respawn_scr=cur_screen;
     falling_oldy = y;
     magiccastclk=0;
     magicitem = div_prot_item = -1;
@@ -2284,7 +2284,7 @@ void HeroClass::positionSword(weapon *w, int32_t itemid)
         cs2=(BSZ ? (frame&3)+6 : ((frame>>2)&1)+7);
     }
     
-    /*if(BSZ || ((isdungeon() && currscr<128) && !get_qr(qr_HERODUNGEONPOSFIX)))
+    /*if(BSZ || ((isdungeon() && cur_screen<128) && !get_qr(qr_HERODUNGEONPOSFIX)))
     {
       wy+=2;
     }*/
@@ -2346,7 +2346,7 @@ void HeroClass::draw(BITMAP* dest)
 		
 		
 		if(!invisible)
-			yofs = oyofs-((!BSZ && isdungeon() && currscr<128 && !get_qr(qr_HERODUNGEONPOSFIX)) ? 2 : 0);
+			yofs = oyofs-((!BSZ && isdungeon() && cur_screen<128 && !get_qr(qr_HERODUNGEONPOSFIX)) ? 2 : 0);
 			
 		// Stone of Agony
 		bool agony=false;
@@ -2646,7 +2646,7 @@ void HeroClass::draw(BITMAP* dest)
 					break;
 				}
 				
-				if(BSZ || ((isdungeon() && currscr<128) && !get_qr(qr_HERODUNGEONPOSFIX)))
+				if(BSZ || ((isdungeon() && cur_screen<128) && !get_qr(qr_HERODUNGEONPOSFIX)))
 				{
 					wy+=2;
 				}
@@ -3061,7 +3061,7 @@ void HeroClass::draw(BITMAP* dest)
 			}
 		}
 		
-		yofs = oyofs-((!BSZ && isdungeon() && currscr<128 && !get_qr(qr_HERODUNGEONPOSFIX)) ? 2 : 0);
+		yofs = oyofs-((!BSZ && isdungeon() && cur_screen<128 && !get_qr(qr_HERODUNGEONPOSFIX)) ? 2 : 0);
 		
 		if(action==won)
 		{
@@ -3071,7 +3071,7 @@ void HeroClass::draw(BITMAP* dest)
 		if(action==landhold1 || action==landhold2)
 		{
 			useltm=(get_qr(qr_EXPANDEDLTM) != 0);
-			yofs = oyofs-((!BSZ && isdungeon() && currscr<128 && !get_qr(qr_HERODUNGEONPOSFIX)) ? 2 : 0);
+			yofs = oyofs-((!BSZ && isdungeon() && cur_screen<128 && !get_qr(qr_HERODUNGEONPOSFIX)) ? 2 : 0);
 			herotile(&tile, &flip, &extend, (action==landhold1)?ls_landhold1:ls_landhold2, dir, zinit.heroAnimationStyle);
 		}
 		else if(action==waterhold1 || action==waterhold2)
@@ -3211,7 +3211,7 @@ void HeroClass::masked_draw(BITMAP* dest)
 		lfz = lift_wpn->fakez;
 	}
 	
-	if(isdungeon() && currscr<128 && (x<16 || x>(world_w-32) || y<18 || y>(world_h-30)) && !get_qr(qr_FREEFORM))
+	if(isdungeon() && cur_screen<128 && (x<16 || x>(world_w-32) || y<18 || y>(world_h-30)) && !get_qr(qr_FREEFORM))
 	{
 		// clip under doorways
 		BITMAP *sub=create_sub_bitmap(dest,16,playing_field_offset+16,224,144);
@@ -3615,7 +3615,7 @@ bool HeroClass::checkstab()
 						if(pickup&ipONETIME) // set mITEM for one-time-only items
 							setmapflag(scr, mITEM);
 						else if(pickup&ipONETIME2) // set mSPECIALITEM flag for other one-time-only items
-							setmapflag(scr, (currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
+							setmapflag(scr, (cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
 						
 						if(ptr->pickupexstate > -1 && ptr->pickupexstate < 32)
 							setxmapflag(screen, 1<<ptr->pickupexstate);
@@ -4066,7 +4066,7 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 		ignoreffc = true;
 	}
 	
-	mapscr *s = currscr >= 128 ? &special_warp_return_screen : rpos_handle.scr;
+	mapscr *s = cur_screen >= 128 ? &special_warp_return_screen : rpos_handle.scr;
 	
 	int32_t sworditem = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? itemsbuf[directWpn].fam_type : current_item(itype_sword);
 	byte skipsecrets = 0;
@@ -4182,7 +4182,7 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 	{
 		if(!isTouchyType(type) && !get_qr(qr_CONT_SWORD_TRIGGERS)) set_bit(screengrid,i,1);
 		
-		if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (s->flags9&fBELOWRETURN)))
+		if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (s->flags9&fBELOWRETURN)))
 		{
 			items.add(new item((zfix)bx, (zfix)by,(zfix)0, s->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((s->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
 			sfx(s->secretsfx);
@@ -4466,7 +4466,7 @@ void HeroClass::check_slash_block_layer2(int32_t bx, int32_t by, weapon *w, int3
                 s->cset[i] = s->undercset;
                 s->sflag[i] = 0;
             }
-	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (s->flags9&fBELOWRETURN)))
+	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (s->flags9&fBELOWRETURN)))
         {
             items.add(new item((zfix)bx, (zfix)by,(zfix)0, s->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((s->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
             sfx(s->secretsfx);
@@ -4625,7 +4625,7 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
         ignoreffc = true;
     }
     
-    mapscr *s = currscr >= 128 ? &special_warp_return_screen : rpos_handle.scr;
+    mapscr *s = cur_screen >= 128 ? &special_warp_return_screen : rpos_handle.scr;
     
     int32_t sworditem = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? itemsbuf[directWpn].fam_type : current_item(itype_sword);
     byte skipsecrets = 0;
@@ -4739,7 +4739,7 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
     {
         if(!isTouchyType(type) && !get_qr(qr_CONT_SWORD_TRIGGERS)) set_bit(w->wscreengrid,i,1);
         
-        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (s->flags9&fBELOWRETURN)))
+        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (s->flags9&fBELOWRETURN)))
         {
             items.add(new item((zfix)bx, (zfix)by,(zfix)0, s->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((s->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
             sfx(s->secretsfx);
@@ -4929,7 +4929,7 @@ void HeroClass::check_wand_block2(int32_t bx, int32_t by, weapon *w)
     if(flag!=mfWAND&&flag2!=mfWAND&&flag3!=mfWAND&&flag!=mfSTRIKE&&flag2!=mfSTRIKE&&flag3!=mfSTRIKE)
         return;
 
-    //mapscr *s = currscr >= 128 ? &special_warp_return_screen : *tmpscr;
+    //mapscr *s = cur_screen >= 128 ? &special_warp_return_screen : *tmpscr;
     
     //trigger_secrets_if_flag(bx,by,mfWAND,true);
     //trigger_secrets_if_flag(bx,by,mfSTRIKE,true);
@@ -5019,7 +5019,7 @@ void HeroClass::check_slash_block(weapon *w)
         ignoreffc = true;
     }
     
-    mapscr *s = currscr >= 128 ? &special_warp_return_screen : rpos_handle.scr;
+    mapscr *s = cur_screen >= 128 ? &special_warp_return_screen : rpos_handle.scr;
     
     int32_t sworditem = (par_item >-1 ? itemsbuf[par_item].fam_type : current_item(itype_sword)); //Get the level of the item, else the highest sword level in inventory.
     
@@ -5112,7 +5112,7 @@ void HeroClass::check_slash_block(weapon *w)
     {
         if(!isTouchyType(type) && !get_qr(qr_CONT_SWORD_TRIGGERS)) set_bit(screengrid,i,1);
         
-        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (s->flags9&fBELOWRETURN)))
+        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (s->flags9&fBELOWRETURN)))
         {
             items.add(new item((zfix)bx, (zfix)by,(zfix)0, s->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((s->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
             sfx(s->secretsfx);
@@ -5286,7 +5286,7 @@ void HeroClass::check_wand_block(int32_t bx, int32_t by)
     if(flag!=mfWAND&&flag2!=mfWAND&&flag3!=mfWAND&&flag!=mfSTRIKE&&flag2!=mfSTRIKE&&flag3!=mfSTRIKE)
         return;
         
-    //mapscr *s = currscr >= 128 ? &special_warp_return_screen : *tmpscr;
+    //mapscr *s = cur_screen >= 128 ? &special_warp_return_screen : *tmpscr;
     
     //trigger_secrets_if_flag(bx,by,mfWAND,true);
     //trigger_secrets_if_flag(bx,by,mfSTRIKE,true);
@@ -5357,7 +5357,7 @@ void HeroClass::check_pound_block(int bx, int by, weapon* w)
     if(ignorescreen && ignoreffc)  // Nothing to do.
         return;
         
-    mapscr *s = currscr >= 128 ? &special_warp_return_screen : get_screen_for_world_xy(bx, by);
+    mapscr *s = cur_screen >= 128 ? &special_warp_return_screen : get_screen_for_world_xy(bx, by);
     
     if(!ignorescreen)
     {
@@ -5422,7 +5422,7 @@ void HeroClass::check_pound_block(int bx, int by, weapon* w)
         
         set_bit(screengrid,pos,1);
         
-        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (s->flags9&fBELOWRETURN)))
+        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (s->flags9&fBELOWRETURN)))
         {
             items.add(new item((zfix)bx, (zfix)by, (zfix)0, s->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((s->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
             sfx(s->secretsfx);
@@ -5521,7 +5521,7 @@ void HeroClass::check_pound_block_layer(int bx, int by, int lyr, weapon* w)
 		
 	set_bit(grid,i,1);
 	
-	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (s->flags9&fBELOWRETURN)))
+	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (s->flags9&fBELOWRETURN)))
 	{
 		items.add(new item((zfix)bx, (zfix)by, (zfix)0, s->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((s->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
 		sfx(s->secretsfx);
@@ -5586,7 +5586,7 @@ void HeroClass::check_wand_block(weapon *w)
     if(flag!=mfWAND&&flag2!=mfWAND&&flag3!=mfWAND&&flag!=mfSTRIKE&&flag2!=mfSTRIKE&&flag3!=mfSTRIKE)
         return;
         
-    //mapscr *s = currscr >= 128 ? &special_warp_return_screen : *tmpscr;
+    //mapscr *s = cur_screen >= 128 ? &special_warp_return_screen : *tmpscr;
     
     //trigger_secrets_if_flag(bx,by,mfWAND,true);
     //trigger_secrets_if_flag(bx,by,mfSTRIKE,true);
@@ -7983,7 +7983,7 @@ bool HeroClass::handle_portal_collide(portal* p)
 					tLastEntranceDMap = lastentrance_dmap,
 					tContScr = game->get_continue_scrn(),
 					tContDMap = game->get_continue_dmap();
-			int32_t sourcescr = currscr, sourcedmap = currdmap;
+			int32_t sourcescr = cur_screen, sourcedmap = currdmap;
 			zfix tx = x, ty = y, tz = z;
 			x = p->x;
 			y = p->y;
@@ -8565,7 +8565,7 @@ heroanimate_skip_liftwpn:;
 			inair = false;
 			hoverflags = 0;
 			
-			if(y>=world_h-16 && currscr>=0x70 && !(get_screen_for_world_xy(x, y)->flags2&wfDOWN))  // Landed on the bottommost screen.
+			if(y>=world_h-16 && cur_screen>=0x70 && !(get_screen_for_world_xy(x, y)->flags2&wfDOWN))  // Landed on the bottommost screen.
 				y = world_h-16;
 		}
 		// Stop hovering if you press down.
@@ -9855,7 +9855,7 @@ heroanimate_skip_liftwpn:;
 		if(--drownclk==0)
 		{
 			action=none; FFCore.setHeroAction(none);
-			int32_t water = drownCombo ? drownCombo : iswaterex_z3(MAPCOMBO(x.getInt()+7.5,y.getInt()+12), currmap, currscr, -1, x.getInt()+7.5,y.getInt()+12, true, false);
+			int32_t water = drownCombo ? drownCombo : iswaterex_z3(MAPCOMBO(x.getInt()+7.5,y.getInt()+12), currmap, cur_screen, -1, x.getInt()+7.5,y.getInt()+12, true, false);
 			
 			std::vector<int32_t> &ev = FFCore.eventData;
 			ev.clear();
@@ -10900,7 +10900,7 @@ void HeroClass::doMirror(int32_t mirrorid)
 	else
 	{
 		int32_t destdmap = DMaps[currdmap].mirrorDMap;
-		int32_t offscr = currscr - DMaps[currdmap].xoff;
+		int32_t offscr = cur_screen - DMaps[currdmap].xoff;
 		if(destdmap < 0)
 			return;
 		int32_t destscr = DMaps[destdmap].xoff + offscr;
@@ -10914,7 +10914,7 @@ void HeroClass::doMirror(int32_t mirrorid)
 				tContScr = game->get_continue_scrn(),
 				tContDMap = game->get_continue_dmap(),
 				tPortalDMap = game->saved_mirror_portal.srcdmap;
-		int32_t sourcescr = currscr, sourcedmap = currdmap;
+		int32_t sourcescr = cur_screen, sourcedmap = currdmap;
 		zfix tx = x, ty = y, tz = z;
 		game->saved_mirror_portal.srcdmap = -1;
 		action = none; FFCore.setHeroAction(none);
@@ -11873,10 +11873,10 @@ bool HeroClass::startwpn(int32_t itemid)
 		case itype_letter:
 		{
 			if(current_item(itype_letter)==i_letter &&
-					(currscr >= 128 ? special_warp_return_screen : *tmpscr).room==rP_SHOP &&
-					(currscr >= 128 ? special_warp_return_screen : *tmpscr).guy &&
-					((currscr<128&&!(DMaps[currdmap].flags&dmfGUYCAVES))
-						||(currscr>=128&&DMaps[currdmap].flags&dmfGUYCAVES)) &&
+					(cur_screen >= 128 ? special_warp_return_screen : *tmpscr).room==rP_SHOP &&
+					(cur_screen >= 128 ? special_warp_return_screen : *tmpscr).guy &&
+					((cur_screen<128&&!(DMaps[currdmap].flags&dmfGUYCAVES))
+						||(cur_screen>=128&&DMaps[currdmap].flags&dmfGUYCAVES)) &&
 					checkbunny(itemid)
 				)
 			{
@@ -11885,7 +11885,7 @@ bool HeroClass::startwpn(int32_t itemid)
 				if(usedid != -1)
 					getitem(usedid, true, true);
 					
-				sfx((currscr >= 128 ? special_warp_return_screen : *tmpscr).secretsfx);
+				sfx((cur_screen >= 128 ? special_warp_return_screen : *tmpscr).secretsfx);
 				setupscreen();
 				action=none; FFCore.setHeroAction(none);
 			}
@@ -11949,7 +11949,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			if((whistleflag=trigger_secrets_if_flag(x,y,mfWHISTLE,get_qr(qr_PERMANENT_WHISTLE_SECRETS))))
 				didstuff |= did_whistle;
 				
-			if((didstuff&did_whistle && itm.flags&item_flag1) || currscr>=128)
+			if((didstuff&did_whistle && itm.flags&item_flag1) || cur_screen>=128)
 				return false;
 				
 			if(itm.flags&item_flag1) didstuff |= did_whistle;
@@ -12345,7 +12345,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			if(!checkbunny(itemid))
 				return item_error();
 			
-			bool grumble = (hero_scr->room==rGRUMBLE && (!getmapflag(hero_scr, (currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (hero_scr->flags9&fBELOWRETURN)));
+			bool grumble = (hero_scr->room==rGRUMBLE && (!getmapflag(hero_scr, (cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (hero_scr->flags9&fBELOWRETURN)));
 			bool checkcost = grumble || !(itm.flags & item_flag4);
 			bool paycost = grumble || !(itm.flags & (item_flag4|item_flag5));
 			
@@ -12366,7 +12366,7 @@ bool HeroClass::startwpn(int32_t itemid)
 				dismissmsg();
 				clear_bitmap(pricesdisplaybuf);
 				set_clip_state(pricesdisplaybuf, 1);
-				setmapflag(hero_scr, (currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
+				setmapflag(hero_scr, (cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
 				if(!(itm.flags & item_flag3)) //"Don't remove when feeding" flag
 				{
 					removeItemsOfFamily(game,itemsbuf,itype_bait);
@@ -17905,14 +17905,14 @@ bool HeroClass::scr_walkflag(zfix_round zdx,zfix_round zdy,int d2,bool kb, int* 
 		return true;
 	//collide_object handled in scr_canmove
 	
-	if(isdungeon() && currscr<128 && dy<40
+	if(isdungeon() && cur_screen<128 && dy<40
 		&& ((x<=112||x>=128) || _walkflag(120,24,2,SWITCHBLOCK_STATE))
 		&& !get_qr(qr_FREEFORM))
 		return true; //Old NES dungeon stuff
 	
 	bool solid = _walkflag(zdx,zdy,1,SWITCHBLOCK_STATE);
 	
-	if(isdungeon() && currscr<128 && !get_qr(qr_FREEFORM))
+	if(isdungeon() && cur_screen<128 && !get_qr(qr_FREEFORM))
 	{
 		if(dx>=112&&dx<120&&dy<40&&dy>=32)
 			solid=true;
@@ -20451,7 +20451,7 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
 	return ret;
     }
     
-    if(isdungeon() && currscr<128 && wy<(bigHitbox?32:40) && (((diagonalMovement||NO_GRIDLOCK)?(x<=112||x>=128):x!=120) || _walkflag(120,24,2,SWITCHBLOCK_STATE))
+    if(isdungeon() && cur_screen<128 && wy<(bigHitbox?32:40) && (((diagonalMovement||NO_GRIDLOCK)?(x<=112||x>=128):x!=120) || _walkflag(120,24,2,SWITCHBLOCK_STATE))
             && !get_qr(qr_FREEFORM))
     {
         ret.setUnwalkable(true);
@@ -20460,7 +20460,7 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
     
     bool wf = _walkflag(wx,wy,cnt,SWITCHBLOCK_STATE);
     
-    if(isdungeon() && currscr<128 && !get_qr(qr_FREEFORM))
+    if(isdungeon() && cur_screen<128 && !get_qr(qr_FREEFORM))
     {
         if((diagonalMovement||NO_GRIDLOCK))
         {
@@ -23727,7 +23727,7 @@ void HeroClass::handleSpotlights()
 			if(trigged ? (cmb->triggerflags[1] & combotriggerLIGHTON)
 				: (cmb->triggerflags[1] & combotriggerLIGHTOFF))
 			{
-				ffc_handle_t ffc_handle = {tmpscr, (uint8_t)currscr, i, (uint8_t)i, &ffc};
+				ffc_handle_t ffc_handle = {tmpscr, (uint8_t)cur_screen, i, (uint8_t)i, &ffc};
 				do_trigger_combo_ffc(ffc_handle);
 			}
 		}
@@ -24921,10 +24921,10 @@ void HeroClass::checkspecial2(int32_t *ls)
 	//
 	// Time to act on our results for type, flag, flag2 and flag3...
 	//
-	if(type==cSAVE&&currscr<128)
+	if(type==cSAVE&&cur_screen<128)
 		*ls=1;
 		
-	if(type==cSAVE2&&currscr<128)
+	if(type==cSAVE2&&cur_screen<128)
 		*ls=2;
 		
 	if(refilling==REFILL_LIFE || flag==mfFAIRY||flag2==mfFAIRY||flag3==mfFAIRY)
@@ -25173,7 +25173,7 @@ RaftingStuff:
 		switch(flag)
 		{
 		case mfDIVE_ITEM:
-			if(isDiving() && (!getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (hero_scr->flags9&fBELOWRETURN)))
+			if(isDiving() && (!getmapflag((cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (hero_scr->flags9&fBELOWRETURN)))
 			{
 				additem(x, y, hero_scr->catchall,
 						ipONETIME2 | ipBIGRANGE | ipHOLDUP | ipNODRAW | ((hero_scr->flags8&fITEMSECRET) ? ipSECRETS : 0));
@@ -25235,7 +25235,7 @@ RaftingStuff:
 		switch(flag2)
 		{
 		case mfDIVE_ITEM:
-			if(isDiving() && (!getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (hero_scr->flags9&fBELOWRETURN)))
+			if(isDiving() && (!getmapflag((cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (hero_scr->flags9&fBELOWRETURN)))
 			{
 				additem(x, y, hero_scr->catchall,
 						ipONETIME2 | ipBIGRANGE | ipHOLDUP | ipNODRAW | ((hero_scr->flags8&fITEMSECRET) ? ipSECRETS : 0));
@@ -25297,7 +25297,7 @@ RaftingStuff:
 		switch(flag3)
 		{
 		case mfDIVE_ITEM:
-			if(isDiving() && (!getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (hero_scr->flags9&fBELOWRETURN)))
+			if(isDiving() && (!getmapflag((cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (hero_scr->flags9&fBELOWRETURN)))
 			{
 				additem(x, y, hero_scr->catchall,
 						ipONETIME2 | ipBIGRANGE | ipHOLDUP | ipNODRAW | ((hero_scr->flags8&fITEMSECRET) ? ipSECRETS : 0));
@@ -25357,7 +25357,7 @@ RaftingStuff:
 	}
 	
 	// Either the screen the hero is currently in, or if in a 0x80 room the screen player came from.
-	mapscr* base_scr = currscr >= 128 ? &special_warp_return_screen : hero_scr;
+	mapscr* base_scr = cur_screen >= 128 ? &special_warp_return_screen : hero_scr;
 	
 	if((type==cCAVE || type==cCAVE2) && (base_scr->tilewarptype[index]==wtNOWARP)) return;
 	
@@ -25416,7 +25416,7 @@ RaftingStuff:
 	}
 	
 	
-	if (DMaps[currdmap].flags&dmf3STAIR && (currscr==129 || !(DMaps[currdmap].flags&dmfGUYCAVES))
+	if (DMaps[currdmap].flags&dmf3STAIR && (cur_screen==129 || !(DMaps[currdmap].flags&dmfGUYCAVES))
 			&& (specialcave > 0 && DMaps[currdmap].flags & dmfGUYCAVES ? special_warp_return_screen : *tmpscr).room==rWARP && type==cSTAIR
 		    && !is_z3_scrolling_mode())
 	{
@@ -25460,7 +25460,7 @@ RaftingStuff:
 			home_screen = (code&0xFF) + DMaps[currdmap].xoff;
 			init_dmap();
 			
-			if(canPermSecret(currdmap, currscr))
+			if(canPermSecret(currdmap, cur_screen))
 				setmapflag_homescr(mSECRET);
 		}
 		
@@ -25594,13 +25594,13 @@ bool HeroClass::dowarp(mapscr* scr, int32_t type, int32_t index, int32_t warpsfx
 	word wdmap = 0;
 	byte wscr = 0, wtype = 0, t = 0;
 	bool overlay = false;
-	t = (currscr < 128) ? 0 : 1;
+	t = (cur_screen < 128) ? 0 : 1;
 	int32_t wrindex = 0;
 	bool wasSideview = isSideViewGravity(t);
 
 	mapscr* cur_scr = scr ? scr : hero_scr;
 	// Either the current screen, or if in a 0x80 room the screen player came from.
-	mapscr* base_scr = currscr >= 128 ? &special_warp_return_screen : cur_scr;
+	mapscr* base_scr = cur_screen >= 128 ? &special_warp_return_screen : cur_scr;
 
 	// Drawing commands probably shouldn't carry over...
 	if (!get_qr(qr_SCRIPTDRAWSINWARPS))
@@ -25683,7 +25683,7 @@ bool HeroClass::dowarp(mapscr* scr, int32_t type, int32_t index, int32_t warpsfx
 		ALLOFF();
 
 		// some draw_screen code (the passive subscreen compass dot) depends
-		// on currscr and home_screen being set first when drawing the screen during a warp.
+		// on cur_screen and home_screen being set first when drawing the screen during a warp.
 		// Without this the compass dot would remain drawn while warping.
 		// This might be better, but for now this code keeps the rendering
 		// equivalent to before z3 draw_screen refactor.
@@ -25857,7 +25857,7 @@ bool HeroClass::dowarp(mapscr* scr, int32_t type, int32_t index, int32_t warpsfx
 		
 		if((home_screen&15) == (warpscr2&15))
 		{
-			if((currscr>>4) > (warpscr2>>4))
+			if((cur_screen>>4) > (warpscr2>>4))
 			{
 				x=192;
 			}
@@ -25984,7 +25984,7 @@ bool HeroClass::dowarp(mapscr* scr, int32_t type, int32_t index, int32_t warpsfx
 		{
 			if(dlevel)
 			{
-				lastentrance = currscr;
+				lastentrance = cur_screen;
 			}
 			else
 			{
@@ -26184,7 +26184,7 @@ bool HeroClass::dowarp(mapscr* scr, int32_t type, int32_t index, int32_t warpsfx
 			{
 				if(dlevel)
 				{
-					lastentrance = currscr;
+					lastentrance = cur_screen;
 				}
 				else
 				{
@@ -26348,7 +26348,7 @@ bool HeroClass::dowarp(mapscr* scr, int32_t type, int32_t index, int32_t warpsfx
 		if(DMaps[currdmap].color != c)
 			loadlvlpal(DMaps[currdmap].color);
 		
-		int prevscr = currscr;
+		int prevscr = cur_screen;
 		loadscr(currdmap, wscr + DMaps[currdmap].xoff, -1, overlay);
 		lightingInstant(); // Also sets naturaldark
 
@@ -26357,7 +26357,7 @@ bool HeroClass::dowarp(mapscr* scr, int32_t type, int32_t index, int32_t warpsfx
 		if (!kill_action)
 		{
 			if (loaded_enemies_for_screen.contains(prevscr))
-				loaded_enemies_for_screen.insert(currscr);
+				loaded_enemies_for_screen.insert(cur_screen);
 		}
 		
 		x = hero_scr->warpreturnx[wrindex];
@@ -26840,7 +26840,7 @@ bool HeroClass::dowarp(mapscr* scr, int32_t type, int32_t index, int32_t warpsfx
 		else
 			Z_eventlog("Entered %s.",DMaps[currdmap].flags&dmfCAVES ? "Cave" : "Item Cellar");
 	}
-	else Z_eventlog("Warped to DMap %d: %s, screen %d, via %s.\n", currdmap, DMaps[currdmap].name,currscr,
+	else Z_eventlog("Warped to DMap %d: %s, screen %d, via %s.\n", currdmap, DMaps[currdmap].name,cur_screen,
 						wtype==wtPASS ? "Passageway" :
 						wtype==wtEXIT ? "Entrance/Exit" :
 						wtype==wtSCROLL ? "Scrolling Warp" :
@@ -27586,7 +27586,7 @@ bool HeroClass::nextcombo_wf(int32_t d2)
 
 bool HeroClass::nextcombo_solid(int32_t d2)
 {
-	if(toogam || currscr>=128)
+	if(toogam || cur_screen>=128)
 		return false;
 
 	// assumes Hero is about to scroll screens
@@ -27704,7 +27704,7 @@ void HeroClass::do_scroll_direction(direction dir)
 
 	if (should_scroll || action == inwind)
 	{
-		if(currscr>=128)
+		if(cur_screen>=128)
 		{
 			if(specialcave >= GUYCAVE)
 				exitcave();
@@ -27759,7 +27759,7 @@ void HeroClass::checkscroll()
 	// been tested for non-scrolling mode.
 	if (!scrolling_maze_state && is_z3_scrolling_mode() && hero_scr->flags&fMAZE)
 	{
-		scrolling_maze_scr = currscr;
+		scrolling_maze_scr = cur_screen;
 		scrolling_maze_state = 1;
 	}
 	int x0 = x.getInt();
@@ -28230,7 +28230,7 @@ static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector
 	nearby_scrolling_screens_t nearby_screens;
 
 	int old_region = get_region_id(scrolling_map, scrolling_scr);
-	int new_region = get_region_id(DMaps[scrolling_destdmap].map, currscr);
+	int new_region = get_region_id(DMaps[scrolling_destdmap].map, cur_screen);
 	bool is_region_scrolling = old_region || new_region;
 
 	int start_dy = -1;
@@ -28242,7 +28242,7 @@ static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector
 	std::vector<std::pair<int, int>> old_screen_deltas;
 	std::vector<std::pair<int, int>> new_screen_deltas;
 
-	// Note: (draw_dx = 0, draw_dy = 0) denotes the starting screen (currscr),
+	// Note: (draw_dx = 0, draw_dy = 0) denotes the starting screen (cur_screen),
 	// while (   < scrolling_dir >    ) denotes the destination screen (scrolling_scr).
 	for (int draw_dx = -1; draw_dx <= 1; draw_dx++)
 	{
@@ -28296,7 +28296,7 @@ static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector
 
 		// Only show screens that are in the old or the new regions.
 		int region = get_region_id(base_map, screen);
-		if (!(screen == scrolling_scr || screen == currscr || (old_region && old_region == region) || (new_region && region == new_region)))
+		if (!(screen == scrolling_scr || screen == cur_screen || (old_region && old_region == region) || (new_region && region == new_region)))
 			continue;
 
 		mapscr* base_scr = use_new_screens ?
@@ -28360,7 +28360,7 @@ static void scrollscr_handle_dark(mapscr* newscr, mapscr* oldscr, const nearby_s
 
 	for_every_nearby_screen_during_scroll(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int draw_dx, int draw_dy, bool is_new_screen) {
 		mapscr* base_scr = screen_handles[0].base_scr;
-		bool should_be_dark = (base_scr->flags & fDARK) && (scr == currscr || get_qr(qr_NEWDARK_SCROLLEDGE));
+		bool should_be_dark = (base_scr->flags & fDARK) && (scr == cur_screen || get_qr(qr_NEWDARK_SCROLLEDGE));
 		if (!should_be_dark)
 		{
 			int offx = draw_dx * 256;
@@ -28372,7 +28372,7 @@ static void scrollscr_handle_dark(mapscr* newscr, mapscr* oldscr, const nearby_s
 
 	for_every_nearby_screen_during_scroll(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int draw_dx, int draw_dy, bool is_new_screen) {
 		mapscr* base_scr = screen_handles[0].base_scr;
-		bool should_be_dark = (base_scr->flags & fDARK) && (scr == currscr || get_qr(qr_NEWDARK_SCROLLEDGE));
+		bool should_be_dark = (base_scr->flags & fDARK) && (scr == cur_screen || get_qr(qr_NEWDARK_SCROLLEDGE));
 		if (!should_be_dark)
 			return;
 
@@ -28475,7 +28475,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	bool overlay = false;
 	if(scrolldir >= 0 && scrolldir <= 3)
 	{
-		overlay = get_bit(&(currscr >= 128 ? special_warp_return_screen : *tmpscr).sidewarpoverlayflags, scrolldir) ? true : false;
+		overlay = get_bit(&(cur_screen >= 128 ? special_warp_return_screen : *tmpscr).sidewarpoverlayflags, scrolldir) ? true : false;
 	}
 
 	int old_dmap = currdmap;
@@ -28686,7 +28686,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	conveyclk = 2;
 	scrolling_dir = (direction) scrolldir;
 	scrolling_scr = hero_screen;
-	scrolling_origin_scr = currscr;
+	scrolling_origin_scr = cur_screen;
 	scrolling_region = current_region;
 
 	int32_t scx = get_qr(qr_FASTDNGN) ? 30 : 0;
@@ -28790,7 +28790,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	// currdmap won't change until the end of the scroll. Store new dmap in this global variable.
 	scrolling_destdmap = new_dmap;
 
-	// Calling functions are responsible for setting currmap (but not currscr...), but before we _actually_
+	// Calling functions are responsible for setting currmap (but not cur_screen...), but before we _actually_
 	// start to scroll we draw a few frames of the current screen (draw_screen). So we need currmap to be the
 	// old value initially. Callers also set the old map value to `scrolling_map`, so we can use that.
 	int destmap = currmap;
@@ -30200,7 +30200,7 @@ bool canget(int32_t id)
 
 void dospecialmoney(int32_t index)
 {
-	mapscr& scr = currscr >= 128 ? special_warp_return_screen : *hero_scr;
+	mapscr& scr = cur_screen >= 128 ? special_warp_return_screen : *hero_scr;
     int32_t priceindex = ((item*)items.spr(index))->PriceIndex;
     
     switch(scr.room)
@@ -30253,7 +30253,7 @@ void dospecialmoney(int32_t index)
 	//game->set_drupy(game->get_drupy()+price); may be needed everywhere
 
         putprices(false);
-        setmapflag(hero_scr, (currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
+        setmapflag(hero_scr, (cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
         break;
     }
         
@@ -30293,7 +30293,7 @@ void dospecialmoney(int32_t index)
 		total = vbound(total, 0, game->get_maxcounter(1)); //Never overflow! Overflow here causes subscreen bugs! -Z
 		game->set_drupy(game->get_drupy()-total);
         //game->set_drupy(game->get_drupy()+price);
-        setmapflag(hero_scr, (currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
+        setmapflag(hero_scr, (cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
         game->change_maxbombs(4);
         game->set_bombs(game->get_maxbombs());
         {
@@ -30339,7 +30339,7 @@ void dospecialmoney(int32_t index)
 	game->set_drupy(game->get_drupy()-total);
 
 	//game->set_drupy(game->get_drupy()+price);
-        setmapflag(hero_scr, (currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
+        setmapflag(hero_scr, (cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
         game->change_maxarrows(10);
         game->set_arrows(game->get_maxarrows());
         ((item*)items.spr(index))->pickup=ipDUMMY+ipFADE;
@@ -30370,7 +30370,7 @@ void dospecialmoney(int32_t index)
             game->set_maxlife(zc_max(game->get_maxlife()-game->get_hp_per_heart(),(game->get_hp_per_heart())));
         }
         
-        setmapflag(hero_scr, (currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
+        setmapflag(hero_scr, (cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
         ((item*)items.spr(0))->pickup=ipDUMMY+ipFADE;
         ((item*)items.spr(1))->pickup=ipDUMMY+ipFADE;
         fadeclk=66;
@@ -30583,7 +30583,7 @@ void getitem(int32_t id, bool nosound, bool doRunPassive)
 			
 		case itype_ring:
 		case itype_magicring:
-			if((get_qr(qr_OVERWORLDTUNIC) != 0) || (currscr<128 || dlevel))
+			if((get_qr(qr_OVERWORLDTUNIC) != 0) || (cur_screen<128 || dlevel))
 			{
 				ringcolor(false);
 			}
@@ -30743,7 +30743,7 @@ void takeitem(int32_t id)
 			break;
 			
 		case itype_ring:
-			if((get_qr(qr_OVERWORLDTUNIC) != 0) || (currscr<128 || dlevel))
+			if((get_qr(qr_OVERWORLDTUNIC) != 0) || (cur_screen<128 || dlevel))
 			{
 				ringcolor(false);
 			}
@@ -30824,7 +30824,7 @@ void HeroClass::checkitems(int32_t index)
 	mapscr* item_scr = get_scr(item_screen);
 
 	// For items grabbed while in a special screen.
-	if (currscr >= 128)
+	if (cur_screen >= 128)
 		item_scr = &special_warp_return_screen;
 
 	if(ptr->fallclk > 0) return; //Don't pick up a falling item
@@ -31018,7 +31018,7 @@ void HeroClass::checkitems(int32_t index)
 			//Okay so having old source files is a godsend. You wanna know why?
 			//Because the issue here was never to so with the wrong flag being set; no it's always been setting the right flag.
 			//The problem here is that guy rooms were always checking for getmapflag, which used to have an internal check for the default.
-			//The default would be mITEM if currscr was under 128 (AKA not in a cave), and mSPECIALITEM if in a cave.
+			//The default would be mITEM if cur_screen was under 128 (AKA not in a cave), and mSPECIALITEM if in a cave.
 			//However, now the check just always defaults to mSPECIALITEM, which causes this bug.
 			//This means that this section of code is no longer a bunch of eggshells, cause none of these overcomplicated compats actually solved shit lmao - Dimi
 			
@@ -31039,7 +31039,7 @@ void HeroClass::checkitems(int32_t index)
 			*/
 		}
 		else if(pickup&ipONETIME2)                                // set mSPECIALITEM flag for other one-time-only items
-			setmapflag(item_scr, (currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
+			setmapflag(item_scr, (cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
 		
 		if(exstate > -1 && exstate < 32)
 		{
@@ -31574,7 +31574,7 @@ void HeroClass::getTriforce(int32_t id2)
 			    loadpalset(1,1);
 			    loadpalset(5,5);
 			    
-			    if(currscr<128) loadlvlpal(DMaps[currdmap].color);
+			    if(cur_screen<128) loadlvlpal(DMaps[currdmap].color);
 			    else loadlvlpal(0xB); // TODO: Cave/Item Cellar distinction?
 			}
 		    }
@@ -31595,7 +31595,7 @@ void HeroClass::getTriforce(int32_t id2)
 			
 			if((f&7)==4)
 			{
-			    if(currscr<128) loadlvlpal(DMaps[currdmap].color);
+			    if(cur_screen<128) loadlvlpal(DMaps[currdmap].color);
 			    else loadlvlpal(0xB);
 			    
 			    loadpalset(5,5);
@@ -31685,7 +31685,7 @@ void HeroClass::getTriforce(int32_t id2)
     
 	//Warp Hero out of item cellars, in 2.10 and earlier quests. -Z ( 16th January, 2019 )
 	//Added a QR for this, to Other->2, as `Triforce in Cellar Warps Hero Out`. -Z 15th March, 2019 
-	if((itemsbuf[id2].flags & item_flag1) && ( get_qr(qr_SIDEVIEWTRIFORCECELLAR) ? ( currscr < MAPSCRS192b136 ) : (currscr < MAPSCRSNORMAL) ) )
+	if((itemsbuf[id2].flags & item_flag1) && ( get_qr(qr_SIDEVIEWTRIFORCECELLAR) ? ( cur_screen < MAPSCRS192b136 ) : (cur_screen < MAPSCRSNORMAL) ) )
 	{
 		sdir=dir;
 		dowarp(hero_scr, 1, 0); //side warp
@@ -32203,11 +32203,11 @@ void HeroClass::ganon_intro()
             
             if(current_item(itype_ring))
             {
-                addenemy(currscr,offx+160,offy+96,Id,0);
+                addenemy(cur_screen,offx+160,offy+96,Id,0);
             }
             else
             {
-                addenemy(currscr,offx+80,offy+32,Id,0);
+                addenemy(cur_screen,offx+80,offy+32,Id,0);
             }
         }
         
@@ -32282,7 +32282,7 @@ void HeroClass::win_game()
     Quit=qWON;
     hclk=0;
     x = 136;
-    y = (isdungeon() && currscr<128) ? 75 : 73;
+    y = (isdungeon() && cur_screen<128) ? 75 : 73;
     z = fakez = fall = fakefall = spins = 0;
     dir=left;
 }

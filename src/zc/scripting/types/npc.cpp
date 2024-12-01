@@ -544,7 +544,7 @@ void do_npc_add(const bool v)
 		return;
 		
 	//If we make a segmented enemy there'll be more than one sprite created
-	word numcreated = addenemy(currscr, nx, ny, id, -10);
+	word numcreated = addenemy(cur_screen, nx, ny, id, -10);
 	
 	if(numcreated == 0)
 	{

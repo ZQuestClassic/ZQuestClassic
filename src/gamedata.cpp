@@ -941,7 +941,7 @@ portal* loadportal(savedportal& p)
 {
 	portal* retp = nullptr;
 #ifndef IS_EDITOR
-	if(currdmap == p.srcdmap && currscr == p.srcscr)
+	if(currdmap == p.srcdmap && cur_screen == p.srcscr)
 	{
 		retp = new portal(p.destdmap, p.destscr+DMaps[p.destdmap].xoff,
 			p.warpfx, p.sfx, p.spr);

@@ -216,7 +216,7 @@ static int HandleGameScreenGetter(std::function<int(mapscr*, int)> cb, const cha
 	else if(m < 0) return 0; //No layer present
 	else
 	{
-		if( scr == currmap*MAPSCRS+currscr)
+		if( scr == currmap*MAPSCRS+cur_screen)
 			return cb(tmpscr, pos);
 		// Since this is deprecated, we only support looking at the origin screen.
 		else if (layr > -1)
@@ -265,7 +265,7 @@ static auto ResolveGameScreens(const char* context)
 
 	result.canonical_rpos_handle = {&TheMaps[scr], sc, 0, (rpos_t)pos, pos};
 	// Since this is deprecated, we only support looking at the origin screen.
-	if (scr == currmap*MAPSCRS + currscr)
+	if (scr == currmap*MAPSCRS + cur_screen)
 		result.tmp_rpos_handle = {tmpscr, sc, 0, (rpos_t)pos, pos};
 	if (layr>-1)
 		result.tmp_rpos_handle = {&tmpscr2[layr], sc, 0, (rpos_t)pos, pos};
@@ -583,7 +583,7 @@ std::optional<int32_t> game_get_register(int32_t reg)
 			break;
 			
 		case CURSCR:
-			ret=currscr*10000;
+			ret=cur_screen*10000;
 			break;
 			
 		case ALLOCATEBITMAPR:
@@ -597,7 +597,7 @@ std::optional<int32_t> game_get_register(int32_t reg)
 		case CURDSCR:
 		{
 			int32_t di = (get_currscr()-DMaps[get_currdmap()].xoff);
-			ret=(DMaps[get_currdmap()].type==dmOVERW ? currscr : di)*10000;
+			ret=(DMaps[get_currdmap()].type==dmOVERW ? cur_screen : di)*10000;
 		}
 		break;
 		
@@ -687,7 +687,7 @@ std::optional<int32_t> game_get_register(int32_t reg)
 			//if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
 			else
 			{
-				if(scr==(currmap*MAPSCRS+currscr))
+				if(scr==(currmap*MAPSCRS+cur_screen))
 					ret=(combobuf[tmpscr->data[pos]].walk&15)*10000;
 				else if(layr>-1)
 					ret=(combobuf[tmpscr2[layr].data[pos]].walk&15)*10000;

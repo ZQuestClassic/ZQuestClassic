@@ -4246,7 +4246,7 @@ void syskeys()
 	
 	if(zc_read_system_key(KEY_F8))   f_Quit(qEXIT);
 #endif
-	if(zc_read_system_key(KEY_F5)&&(Playing && currscr<128 && DMaps[currdmap].flags&dmfVIEWMAP))	onSaveMapPic();
+	if(zc_read_system_key(KEY_F5)&&(Playing && cur_screen<128 && DMaps[currdmap].flags&dmfVIEWMAP))	onSaveMapPic();
 	
 	if (zc_read_system_key(KEY_F12))
 	{
@@ -8064,7 +8064,7 @@ void playLevelMusic()
 	if (is_headless())
 		return;
 
-	int32_t m=get_scr(currscr)->screen_midi;
+	int32_t m=get_scr(cur_screen)->screen_midi;
 	
 	switch(m)
 	{

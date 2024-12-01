@@ -316,7 +316,7 @@ byte zc_vsync=0;
 byte use_win32_proc=1, console_enabled = 0;
 int32_t home_screen,frame=0,currmap=0,dlevel,warpscr,worldscr,scrolling_scr=0,scrolling_map=0,scrolling_dmap=0,scrolling_destdmap=-1;
 int32_t hero_screen=0;
-int32_t currscr=0;
+int32_t cur_screen=0;
 int32_t scrolling_origin_scr=0;
 int32_t currscr_for_passive_subscr;
 direction scrolling_dir;
@@ -2138,27 +2138,27 @@ int32_t init_game()
 	{
 		if((DMaps[currdmap].type&dmfTYPE)==dmOVERW)
 		{
-			home_screen = currscr = hero_screen = DMaps[currdmap].cont;
+			home_screen = cur_screen = hero_screen = DMaps[currdmap].cont;
 		}
 		else
 		{
-			home_screen = currscr = hero_screen = DMaps[currdmap].cont + DMaps[currdmap].xoff;
+			home_screen = cur_screen = hero_screen = DMaps[currdmap].cont + DMaps[currdmap].xoff;
 		}
 	}
 	else
 	{
-		home_screen = currscr = hero_screen = game->get_continue_scrn();
+		home_screen = cur_screen = hero_screen = game->get_continue_scrn();
 	}
 	
-	lastentrance = currscr;
+	lastentrance = cur_screen;
 	game->set_continue_scrn(lastentrance);
 	lastentrance_dmap = currdmap;
 	currmap = DMaps[currdmap].map;
 	dlevel = DMaps[currdmap].level;
 	
-	if(currscr < 0x80 && (DMaps[currdmap].flags&dmfVIEWMAP))
+	if(cur_screen < 0x80 && (DMaps[currdmap].flags&dmfVIEWMAP))
 	{
-		game->maps[(currmap*MAPSCRSNORMAL)+currscr] |= mVISITED;			  // mark as visited
+		game->maps[(currmap*MAPSCRSNORMAL)+cur_screen] |= mVISITED;			  // mark as visited
 	}
 	
 	game->lvlitems[9] &= ~liBOSS;
@@ -2198,7 +2198,7 @@ int32_t init_game()
 		FFCore.deallocateAllScriptOwned(ScriptType::Global, GLOBAL_SCRIPT_ONSAVELOAD);
 	}
 	
-	loadscr(currdmap, currscr, -1, false);
+	loadscr(currdmap, cur_screen, -1, false);
 	putscr(scrollbuf,0,0,tmpscr);
 	putscrdoors(scrollbuf,0,0,tmpscr);
 	
@@ -2692,18 +2692,18 @@ void restart_level()
 		{
 			throwGenScriptEvent(GENSCR_EVENT_CHANGE_LEVEL);
 		}
-		home_screen = currscr = hero_screen = lastentrance;
+		home_screen = cur_screen = hero_screen = lastentrance;
 		init_dmap();
 	}
 	else
 	{
 		if((DMaps[currdmap].type&dmfTYPE)==dmOVERW)
 		{
-			home_screen = currscr = hero_screen = DMaps[currdmap].cont;
+			home_screen = cur_screen = hero_screen = DMaps[currdmap].cont;
 		}
 		else
 		{
-			home_screen = currscr = hero_screen = DMaps[currdmap].cont + DMaps[currdmap].xoff;
+			home_screen = cur_screen = hero_screen = DMaps[currdmap].cont + DMaps[currdmap].xoff;
 		}
 	}
 	
@@ -2719,7 +2719,7 @@ void restart_level()
 	tmpscr->zero_memory();
 	special_warp_return_screen.zero_memory();
 	
-	loadscr(currdmap, currscr, -1, false);
+	loadscr(currdmap, cur_screen, -1, false);
 	putscr(scrollbuf,0,0,tmpscr);
 	putscrdoors(scrollbuf,0,0,tmpscr);
 	//preloaded freeform combos
@@ -3424,7 +3424,7 @@ void game_loop()
 		
 		if(fadeclk>=0 && !freezemsg)
 		{
-			if(fadeclk==0 && currscr<128)
+			if(fadeclk==0 && cur_screen<128)
 				blockpath=false;
 				
 			--fadeclk;
@@ -3842,7 +3842,7 @@ int32_t get_dlevel()
 
 int32_t get_currscr()
 {
-    return currscr;
+    return cur_screen;
 }
 
 int32_t get_currmap()
@@ -5418,7 +5418,7 @@ extern "C" void get_shareable_url()
 {
 	EM_ASM({
 		ZC.setShareableUrl({test: UTF8ToString($0), dmap: $1, screen: $2});
-	}, qstpath, currdmap, currscr);
+	}, qstpath, currdmap, cur_screen);
 }
 #endif
 

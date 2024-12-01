@@ -60,7 +60,7 @@ std::optional<int32_t> sprite_get_register(int32_t reg)
 		case SPRITE_SCREEN_INDEX:
 		{
 			if (is_player())
-				return currscr * 10000;
+				return cur_screen * 10000;
 
 			if (auto s = get_sprite(ri->spriteref, "ScreenIndex"))
 				return s->screen_spawned * 10000;

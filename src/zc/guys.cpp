@@ -1657,7 +1657,7 @@ bool enemy::isOnSideviewPlatform()
 	int32_t usehei = (SIZEflags&OVERRIDE_HIT_HEIGHT) ? hit_height : 16;
 	if(!get_qr(qr_BROKEN_SIDEVIEW_SPRITE_JUMP)&&fall<0)
 		return false;
-	if(y + usehei >= world_h && currscr>=0x70 && !(get_screen_for_world_xy(x, y)->flags2&wfDOWN)) return true; //Bottom of the map
+	if(y + usehei >= world_h && cur_screen>=0x70 && !(get_screen_for_world_xy(x, y)->flags2&wfDOWN)) return true; //Bottom of the map
 	if(check_slope(x, y+1, usewid, usehei)) return true;
 	for(int32_t nx = x + 4; nx <= x + usewid - 4; nx+=16)
 	{
@@ -2948,7 +2948,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 				default:
 					hp = -1000; break;
 			}
-			++game->guys[(currmap*MAPSCRSNORMAL)+currscr];
+			++game->guys[(currmap*MAPSCRSNORMAL)+cur_screen];
 			return 1;
 			
 		}
@@ -8357,7 +8357,7 @@ void enemy::removearmos(int32_t ax,int32_t ay, std::optional<ffc_handle_t> ffcac
 	
 	if(f == mfARMOS_ITEM || f2 == mfARMOS_ITEM)
 	{
-		if(!getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (scr->flags9&fBELOWRETURN))
+		if(!getmapflag((cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (scr->flags9&fBELOWRETURN))
 		{
 			additem(ax,ay,scr->catchall, (ipONETIME2 + ipBIGRANGE) | ((scr->flags3&fHOLDITEM) ? ipHOLDUP : 0) | ((scr->flags8&fITEMSECRET) ? ipSECRETS : 0));
 			sfx(scr->secretsfx);
@@ -8397,7 +8397,7 @@ void enemy::removearmosffc(const ffc_handle_t& ffc_handle)
 	
 	if(f2 == mfARMOS_ITEM)
 	{
-		if(!getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (scr->flags9&fBELOWRETURN))
+		if(!getmapflag((cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (scr->flags9&fBELOWRETURN))
 		{
 			additem(ffc.x,ffc.y,scr->catchall, (ipONETIME2 + ipBIGRANGE) | ((scr->flags3&fHOLDITEM) ? ipHOLDUP : 0) | ((scr->flags8&fITEMSECRET) ? ipSECRETS : 0));
 			sfx(scr->secretsfx);
@@ -13325,7 +13325,7 @@ eGanon::eGanon(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	hzsz=16; //can't be jumped.
 	clk2=70;
 	misc=-1;
-	mainguy=(!getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr->flags9&fBELOWRETURN));
+	mainguy=(!getmapflag((cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr->flags9&fBELOWRETURN));
 }
 
 bool eGanon::animate(int32_t index) //DO NOT ADD a check for do_animation to this version of GANON!! -Z
@@ -13600,7 +13600,7 @@ void getBigTri(mapscr* scr, int32_t id2)
 		game->lvlitems[dlevel]|=liTRIFORCE;
 	}
 	
-	setmapflag(scr, (currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
+	setmapflag(scr, (cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
 	
 	draw_screen();
 	
@@ -13629,7 +13629,7 @@ void getBigTri(mapscr* scr, int32_t id2)
 		
 		if((f&7)==4)
 		{
-			if(currscr<128) loadlvlpal(DMaps[currdmap].color);
+			if(cur_screen<128) loadlvlpal(DMaps[currdmap].color);
 			else loadlvlpal(0xB);
 		}
 		
@@ -13644,7 +13644,7 @@ void getBigTri(mapscr* scr, int32_t id2)
 	//play_DmapMusic();
 	playLevelMusic();
 	
-	if(itemsbuf[id2].flags & item_flag1 && currscr < 128)
+	if(itemsbuf[id2].flags & item_flag1 && cur_screen < 128)
 	{
 		Hero.dowarp(hero_scr, 1, 0); //side warp
 	}
@@ -18077,7 +18077,7 @@ void addfires()
 {
 	if(!get_qr(qr_NOGUYFIRES))
 	{
-		auto [dx, dy] = translate_screen_coordinates_to_world(currscr);
+		auto [dx, dy] = translate_screen_coordinates_to_world(cur_screen);
 		int32_t bs = get_qr(qr_BSZELDA);
 		addguy(dx+(bs? 64: 72),dy+64,gFIRE,-17,false,nullptr);
 		addguy(dx+(bs?176:168),dy+64,gFIRE,-18,false,nullptr);
@@ -18936,7 +18936,7 @@ static void side_load_enemies(mapscr* scr)
 		sle_pattern = scr->pattern;
 		sle_cnt = 0;
 		int32_t guycnt = 0;
-		int16_t s = (currmap<<7)+currscr;
+		int16_t s = (currmap<<7)+cur_screen;
 		bool beenhere=false;
 		bool reload=true;
 		bool unbeatablereload = true;
@@ -19387,7 +19387,7 @@ bool scriptloadenemies()
 void loadenemies()
 {
 	// check if it's been long enough to reload all enemies
-	int16_t s = (currmap<<7)+currscr;
+	int16_t s = (currmap<<7)+cur_screen;
 	bool beenhere = false;
 	bool reload = true;
 	bool unbeatablereload = true;
@@ -19407,7 +19407,7 @@ void loadenemies()
 
 		// dungeon basements
 		static byte dngn_enemy_x[4] = {32,96,144,208};
-		if (currscr>=128)
+		if (cur_screen>=128)
 		{
 			if(DMaps[currdmap].flags&dmfCAVES) return;
 			if ( DMaps[currdmap].flags&dmfNEWCELLARENEMIES )
@@ -19547,7 +19547,7 @@ void loadenemies()
 
 void moneysign()
 {
-	auto [dx, dy] = translate_screen_coordinates_to_world(currscr);
+	auto [dx, dy] = translate_screen_coordinates_to_world(cur_screen);
 	additem(dx+48,dy+108,iRupy,ipDUMMY);
 	set_clip_state(pricesdisplaybuf, 0);
 	textout_ex(pricesdisplaybuf,get_zc_font(font_zfont),"X",64,112,CSET(0)+1,-1);
@@ -19597,7 +19597,7 @@ void setupscreen()
 	boughtsomething=false;
 
 	// Either the origin screen, or if in a 0x80 room the screen player came from.
-	mapscr* base_scr = currscr >= 128 ? &special_warp_return_screen : origin_scr;
+	mapscr* base_scr = cur_screen >= 128 ? &special_warp_return_screen : origin_scr;
 	mapscr* scr = origin_scr;
 
 	word str=base_scr->str;
@@ -19686,7 +19686,7 @@ void setupscreen()
 		break;
 		
 	case rREPAIR:                                           // door repair
-		setmapflag(scr, (currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
+		setmapflag(scr, (cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
 		//  }
 		repaircharge=base_scr->catchall;
 		break;
@@ -21007,7 +21007,7 @@ disappear:
 				//       if (get_qr(qr_REPAIRFIX)) {
 				//         fixed_door=true;
 				//       }
-				game->change_drupy(-(currscr >= 128 ? special_warp_return_screen : *msgscr).catchall);
+				game->change_drupy(-(cur_screen >= 128 ? special_warp_return_screen : *msgscr).catchall);
 				repaircharge = 0;
 			}
 			
@@ -21024,7 +21024,7 @@ disappear:
 				}
 				adjustmagic = false;
 				sfx(WAV_SCALE);
-				setmapflag(msgscr, (currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
+				setmapflag(msgscr, (cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
 			}
 			
 			if(learnslash)
@@ -21032,7 +21032,7 @@ disappear:
 				game->set_canslash(1);
 				learnslash = false;
 				sfx(WAV_SCALE);
-				setmapflag(msgscr, (currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
+				setmapflag(msgscr, (cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
 			}
 		}
 	}

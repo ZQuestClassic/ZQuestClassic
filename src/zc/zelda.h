@@ -301,13 +301,15 @@ extern bool usebombpal;
 extern int32_t slot_arg, slot_arg2;
 
 // The top-left screen index of the current region. Also know as the origin screen index.
-extern int32_t currscr;
-// Screen the player is currently on. If in a large region, this updates as the player moves around. Otherwise this is equal to currscr.
+// Corresponds to tmpscr and origin_scr.
+extern int32_t cur_screen;
+// Screen the player is currently on. If in a large region, this updates as the player moves around. Otherwise this is equal to cur_screen.
+// Corresponds to hero_scr.
 extern int32_t hero_screen;
 // Screen the player is currently on. If in a large region, this updates as the player moves around. Otherwise this is equal to tmpscr.
 extern mapscr* hero_scr;
 // If currently on an 0x80+ screen, this is where the player came from. Corresponds to special_warp_return_screen.
-// Otherwise, is equal to currscr.
+// Otherwise, is equal to cur_screen.
 extern int32_t home_screen;
 extern int32_t frame,currmap,dlevel,warpscr,worldscr,scrolling_scr,scrolling_map,scrolling_dmap,scrolling_destdmap;
 extern direction scrolling_dir;

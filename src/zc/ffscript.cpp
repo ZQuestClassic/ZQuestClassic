@@ -369,7 +369,7 @@ int32_t getScreen(int32_t ref)
 	switch(ref)
 	{
 		case MAPSCR_TEMP0:
-			return currscr;
+			return cur_screen;
 		case MAPSCR_TEMP1:
 			return FFCore.tempScreens[0]->layerscreen[0];
 		case MAPSCR_TEMP2:
@@ -1268,7 +1268,7 @@ static bool set_current_script_engine_data(ScriptType type, int script, int inde
 
 	// By default, make `Screen->` refer to the top-left screen.
 	// Will be set to something more specific for relevant script types.
-	ri->screenref = currscr;
+	ri->screenref = cur_screen;
 
 	switch (type)
 	{
@@ -1570,7 +1570,7 @@ static rpos_handle_t ResolveMapdataPos(int32_t mapref, int pos, const char* cont
 
 	// mapdata loaded via `Game->LoadTempScreen(Game->CurScreen, layer)` or `Game->LoadTempScreen(layer)` have
 	// access to the entire region.
-	if (result.type == mapdata_type::Temporary_Cur && result.screen == currscr)
+	if (result.type == mapdata_type::Temporary_Cur && result.screen == cur_screen)
 	{
 		rpos_t rpos = (rpos_t)pos;
 		if (BC::checkComboRpos(rpos, context) != SH::_NoError)
@@ -6114,7 +6114,7 @@ int32_t get_register(int32_t arg)
 			break;
 			
 		case CURSCR:
-			ret=currscr*10000;
+			ret=cur_screen*10000;
 			break;
 			
 		case ALLOCATEBITMAPR:
@@ -6128,7 +6128,7 @@ int32_t get_register(int32_t arg)
 		case CURDSCR:
 		{
 			int32_t di = (get_currscr()-DMaps[get_currdmap()].xoff);
-			ret=(DMaps[get_currdmap()].type==dmOVERW ? currscr : di)*10000;
+			ret=(DMaps[get_currdmap()].type==dmOVERW ? cur_screen : di)*10000;
 		}
 		break;
 		
@@ -6435,7 +6435,7 @@ int32_t get_register(int32_t arg)
 
 		case REGION_ORIGIN_SCREEN:
 		{
-			ret = currscr;
+			ret = cur_screen;
 		}
 		break;
 
@@ -13428,7 +13428,7 @@ void set_register(int32_t arg, int32_t value)
 				game->set_item(itemID,(value != 0));
 			}
 					
-			if((get_qr(qr_OVERWORLDTUNIC) != 0) || (currscr<128 || dlevel)) 
+			if((get_qr(qr_OVERWORLDTUNIC) != 0) || (cur_screen<128 || dlevel)) 
 			{
 				ringcolor(false);
 				//refreshpal=true;
@@ -16710,13 +16710,13 @@ void set_register(int32_t arg, int32_t value)
 			
 		case SCREENSTATED:
 		{
-			int32_t mi2 = (currmap*MAPSCRSNORMAL)+currscr;
+			int32_t mi2 = (currmap*MAPSCRSNORMAL)+cur_screen;
 			(value)?setmapflag_mi(mi2, 1<<((ri->d[rINDEX])/10000)) : unsetmapflag(mi2, 1 << ((ri->d[rINDEX]) / 10000));
 		}
 		break;
 		case SCREENEXSTATED:
 		{
-			int32_t mi2 = (currmap*MAPSCRSNORMAL)+currscr;
+			int32_t mi2 = (currmap*MAPSCRSNORMAL)+cur_screen;
 			(value)?setxmapflag_mi(mi2, 1<<((ri->d[rINDEX])/10000)) : unsetxmapflag_mi(mi2, 1 << ((ri->d[rINDEX]) / 10000));
 		}
 		break;
@@ -24770,7 +24770,7 @@ void do_mapdataissolid()
 			return;
 		}
 
-		if (result.type == mapdata_type::Temporary_Cur && result.screen == currscr && result.layer == 0)
+		if (result.type == mapdata_type::Temporary_Cur && result.screen == cur_screen && result.layer == 0)
 		{
 			set_register(sarg1, (_walkflag(x, y, 1)) ? 10000 : 0);
 		}
@@ -24810,7 +24810,7 @@ void do_mapdataissolid_layer()
 		}
 		else
 		{
-			if (result.type == mapdata_type::Temporary_Cur && result.screen == currscr && result.layer == 0)
+			if (result.type == mapdata_type::Temporary_Cur && result.screen == cur_screen && result.layer == 0)
 			{
 				set_register(sarg1, (_walkflag_layer(x, y, 1, GetMapscr(ri->mapsref))) ? 10000 : 0);
 			}
@@ -27341,7 +27341,7 @@ void FFScript::do_loadmapdata_tempscr(const bool v)
 		return;
 	}
 
-	ri->mapsref = create_mapdata_temp_ref(currscr, layer, false);
+	ri->mapsref = create_mapdata_temp_ref(cur_screen, layer, false);
 	set_register(sarg1, ri->mapsref);
 }
 
@@ -27547,7 +27547,7 @@ void do_createnpc(const bool v)
 		return;
 		
 	//If we make a segmented enemy there'll be more than one sprite created
-	word numcreated = addenemy(currscr, 0, 0, ID, -10);
+	word numcreated = addenemy(cur_screen, 0, 0, ID, -10);
 	
 	if(numcreated == 0)
 	{
@@ -28495,7 +28495,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 		return false;
 	}
 	byte t = 0;
-	t=(currscr<128)?0:1;
+	t=(cur_screen<128)?0:1;
 	bool overlay=false;
 	bool intradmap = (dmapID == currdmap);
 	int32_t olddmap = currdmap;
@@ -28504,7 +28504,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 	//	initZScriptDMapScripts();    //Not needed.
 	//}
 
-	if ( warpType == wtNOWARP ) { Z_eventlog("Used a Cancel Warped to DMap %d: %s, screen %d", currdmap, DMaps[currdmap].name,currscr); return false; }
+	if ( warpType == wtNOWARP ) { Z_eventlog("Used a Cancel Warped to DMap %d: %s, screen %d", currdmap, DMaps[currdmap].name,cur_screen); return false; }
 	int32_t mapID = (DMaps[dmapID].map+1);
 	int32_t dest_dmap_xoff = DMaps[dmapID].xoff;	
 	//mapscr *m = &TheMaps[mapID * MAPSCRS + scrID]; 
@@ -28627,7 +28627,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 				loadlvlpal(DMaps[currdmap].color);
 			
 			lightingInstant(); // Also sets naturaldark
-			int prevscr = currscr;
+			int prevscr = cur_screen;
 			loadscr(currdmap, scrID + DMaps[currdmap].xoff, -1, overlay);
 
 			// In the case where we did not call ALLOFF, preserve the "enemies have spawned"
@@ -28635,7 +28635,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 			if (warpFlags&warpFlagDONTCLEARSPRITES)
 			{
 				if (loaded_enemies_for_screen.contains(prevscr))
-					loaded_enemies_for_screen.insert(currscr);
+					loaded_enemies_for_screen.insert(cur_screen);
 			}
 			
 			Hero.x = (zfix)wx;
@@ -28903,7 +28903,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 				{
 					if(dlevel)
 					{
-						lastentrance = currscr;
+						lastentrance = cur_screen;
 					}
 					else
 					{
@@ -29004,16 +29004,16 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 	}
 	if ( warpType == wtEXIT )
 	{
-		game->set_continue_scrn(currscr);
+		game->set_continue_scrn(cur_screen);
 		game->set_continue_dmap(dmapID);
-		lastentrance = currscr;
+		lastentrance = cur_screen;
 		lastentrance_dmap = dmapID;
 	}
 	else
 	{
-		if ( (warpFlags&warpFlagSETENTRANCESCREEN) ) lastentrance = currscr;
+		if ( (warpFlags&warpFlagSETENTRANCESCREEN) ) lastentrance = cur_screen;
 		if ( (warpFlags&warpFlagSETENTRANCEDMAP) ) lastentrance_dmap = dmapID;
-		if ( (warpFlags&warpFlagSETCONTINUESCREEN) ) game->set_continue_scrn(currscr);
+		if ( (warpFlags&warpFlagSETCONTINUESCREEN) ) game->set_continue_scrn(cur_screen);
 		if ( (warpFlags&warpFlagSETCONTINUEDMAP) ) game->set_continue_dmap(dmapID);
 	}
 	if(hero_scr->flags4&fAUTOSAVE)
@@ -29029,7 +29029,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 		
 	update_subscreens();
 	verifyBothWeapons();
-	Z_eventlog("Warped to DMap %d: %s, screen %d, via %s.\n", currdmap, DMaps[currdmap].name,currscr,
+	Z_eventlog("Warped to DMap %d: %s, screen %d, via %s.\n", currdmap, DMaps[currdmap].name,cur_screen,
 						warpType==wtEXIT ? "Entrance/Exit" :
 						warpType==wtSCROLL ? "Scrolling Warp" :
 						warpType==wtNOWARP ? "Cancel Warp" :

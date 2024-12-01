@@ -377,7 +377,7 @@ void lighting(bool existslight, bool setnaturaldark, int32_t specialstate)
 	{
 		existslight=true;
 	}
-    bool newstate = !existslight && (setnaturaldark ? ((TheMaps[currmap*MAPSCRS+currscr].flags&fDARK) != 0) : naturaldark);
+    bool newstate = !existslight && (setnaturaldark ? ((TheMaps[currmap*MAPSCRS+cur_screen].flags&fDARK) != 0) : naturaldark);
     if(get_qr(qr_NEW_DARKROOM)) newstate = false;
     if(darkroom != newstate)
     {
@@ -393,7 +393,7 @@ void lighting(bool existslight, bool setnaturaldark, int32_t specialstate)
 void lightingInstant()
 {
 	stayLit=false;
-	bool newstate = ((TheMaps[currmap*MAPSCRS+currscr].flags&fDARK) != 0);
+	bool newstate = ((TheMaps[currmap*MAPSCRS+cur_screen].flags&fDARK) != 0);
 	if(get_qr(qr_NEW_DARKROOM)) newstate = false;
 	if(darkroom != newstate)
 	{

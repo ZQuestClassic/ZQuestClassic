@@ -666,7 +666,7 @@ void trigger_cuttable_ffc(const ffc_handle_t& ffc_handle)
 		}
 	}
 	
-	if((flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (scr->flags9&fBELOWRETURN)))
+	if((flag2==mfARMOS_ITEM) && (!getmapflag((cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (scr->flags9&fBELOWRETURN)))
 	{
 		items.add(new item((zfix)x, (zfix)y,(zfix)0, scr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((scr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
 		sfx(scr->secretsfx);
@@ -910,7 +910,7 @@ bool play_combo_string(int str, int screen)
 
 bool play_combo_string(int str)
 {
-	return play_combo_string(str, currscr);
+	return play_combo_string(str, cur_screen);
 }
 
 void trigger_sign(newcombo const& cmb, int screen)
@@ -920,7 +920,7 @@ void trigger_sign(newcombo const& cmb, int screen)
 
 void trigger_sign(newcombo const& cmb)
 {
-	play_combo_string(cmb.attributes[0]/10000L, currscr);
+	play_combo_string(cmb.attributes[0]/10000L, cur_screen);
 }
 
 bool trigger_warp(const combined_handle_t& handle)
@@ -929,7 +929,7 @@ bool trigger_warp(const combined_handle_t& handle)
 	if(!isWarpType(cmb.type)) return false;
 
 	mapscr* scr = handle.base_scr();
-	mapscr* wscr = currscr >= 128 ? &special_warp_return_screen : scr;
+	mapscr* wscr = cur_screen >= 128 ? &special_warp_return_screen : scr;
 	auto index = getWarpLetter(cmb.type);
 	if(index == 4) index = zc_oldrand()%4; //Random warp
 	auto wtype = wscr->tilewarptype[index];
@@ -1169,8 +1169,8 @@ bool trigger_chest_ffc(const ffc_handle_t& ffc_handle)
 	int32_t ipflag = 0;
 	if(cmb.usrflags & cflag7)
 	{
-		itemstate = getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
-		ipflag = (currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? ipONETIME : ipONETIME2;
+		itemstate = getmapflag((cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
+		ipflag = (cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? ipONETIME : ipONETIME2;
 	}
 	if(itemflag && !itemstate)
 	{
