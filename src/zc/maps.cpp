@@ -6539,7 +6539,7 @@ void putscr(BITMAP* dest,int32_t x,int32_t y, mapscr* scr)
 		{
 			int i = cx + cy*16;
 			auto rpos = screenscrolling ? rpos_t::None : POS_TO_RPOS(i, screen);
-			draw_cmb_pos(dest, x + COMBOX(i), y + COMBOY(i), rpos, scr->data[i], scr->cset[i], 0, over, false);
+			draw_cmb_pos(dest, x + cx*16, y + cy*16, rpos, scr->data[i], scr->cset[i], 0, over, false);
 		}
 	}
 }
