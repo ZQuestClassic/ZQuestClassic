@@ -1425,10 +1425,15 @@ void setmapflag_homescr(int32_t flag)
 {
     setmapflag_mi(origin_scr, (currmap*MAPSCRSNORMAL)+home_screen, flag);
 }
-// TODO z3 ! rm
 void setmapflag_mi(int32_t mi2, int32_t flag)
 {
-	setmapflag_mi(origin_scr, mi2, flag);
+	byte cscr = mi2&((1<<7)-1);
+	byte cmap = (mi2>>7);
+	mapscr* scr = origin_scr;
+	if (is_in_current_region(cmap, cscr))
+		scr = get_scr(cmap, cscr);
+
+	setmapflag_mi(scr, mi2, flag);
 }
 void setmapflag_mi(mapscr* scr, int32_t mi2, int32_t flag)
 {
@@ -1498,7 +1503,13 @@ void unsetmapflag(mapscr* scr, int32_t flag, bool anyflag)
 
 void unsetmapflag_mi(int32_t mi2, int32_t flag, bool anyflag)
 {
-	unsetmapflag_mi(origin_scr, mi2, flag, anyflag);
+	byte cscr = mi2&((1<<7)-1);
+	byte cmap = (mi2>>7);
+	mapscr* scr = origin_scr;
+	if (is_in_current_region(cmap, cscr))
+		scr = get_scr(cmap, cscr);
+
+	unsetmapflag_mi(scr, mi2, flag, anyflag);
 }
 
 void unsetmapflag_mi(mapscr* scr, int32_t mi2, int32_t flag, bool anyflag)
