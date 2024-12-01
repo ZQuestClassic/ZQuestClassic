@@ -4303,6 +4303,7 @@ bool weapon::animate(int32_t index)
 					checky -= fakez;
 				}
 
+				// TODO z3 rpos
 				if (ignorecombo == ((int32_t(checky) & 0xF0) + (int32_t(checkx) >> 4)))
 					break;
 
@@ -4399,6 +4400,7 @@ bool weapon::animate(int32_t index)
 							w->id = wRefBeam;
 							w->parentid = parentid;
 							w->parentitem = parentitem;
+							// TODO z3 rpos
 							w->ignorecombo = ((int32_t(checky) & 0xF0) + (int32_t(checkx) >> 4));
 							w->hyofs = w->hxofs = 0;
 							//also set up the magic's correct animation -DD

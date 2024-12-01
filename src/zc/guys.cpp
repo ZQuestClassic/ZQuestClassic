@@ -7915,7 +7915,7 @@ bool eFire::animate(int32_t index)
 			if(!canmove(down,(zfix)8,spw_none,false))
 			{
 				dir=0;
-				y = y.getInt() & 0xF0;
+				y = TRUNCATE_TILE(y.getInt());
 			}
 			
 			return Dead(index);
@@ -8026,7 +8026,7 @@ bool eOther::animate(int32_t index)
 			if(!canmove(down,(zfix)8,spw_none,false))
 			{
 				dir=0;
-				y = y.getInt() & 0xF0;
+				y = TRUNCATE_TILE(y.getInt());
 			}
 			
 			return Dead(index);
@@ -8137,7 +8137,7 @@ bool eScript::animate(int32_t index)
 			if(!canmove(down,(zfix)8,spw_none,false))
 			{
 				dir=0;
-				y = y.getInt() & 0xF0;
+				y = TRUNCATE_TILE(y.getInt());
 			}
 			
 			return Dead(index);
@@ -8250,7 +8250,7 @@ bool eFriendly::animate(int32_t index)
 			if(!canmove(down,(zfix)8,spw_none,false))
 			{
 				dir=0;
-				y = y.getInt() & 0xF0;
+				y = TRUNCATE_TILE(y.getInt());
 			}
 			
 			return Dead(index);
