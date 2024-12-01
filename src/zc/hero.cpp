@@ -22604,30 +22604,30 @@ void HeroClass::checkswordtap()
 	attackclk=SWORDTAPFRAME;
 	pushing=-8; //16 frames between taps
 	tapping=true;
-	
-	int32_t type = COMBOTYPE(bx,by);
-	
-	if(!isCuttableType(type))
+
+	auto rpos_handle = get_rpos_handle_for_world_xy(bx, by, 0);
+
+	if(!isCuttableType(rpos_handle.ctype()))
 	{
 		int tap_sfx = -1;
-		auto pos = COMBOPOS(bx,by);
 		bool hollow = false;
 		for(int lyr = 7; lyr >= 0; --lyr)
 		{
-			mapscr* m = FFCore.tempScreens[lyr];
-			newcombo const& cmb = combobuf[m->data[pos]];
+			auto rpos_handle_lyr = get_rpos_handle(rpos_handle.rpos, lyr);
+			auto& cmb = rpos_handle_lyr.combo();
 			if(cmb.sfx_tap)
 			{
 				tap_sfx = cmb.sfx_tap;
 				break;
 			}
-			if(m->sflag[pos] == mfBOMB || m->sflag[pos] == mfSBOMB
+
+			if(rpos_handle_lyr.sflag() == mfBOMB || rpos_handle_lyr.sflag() == mfSBOMB
 				|| cmb.flag == mfBOMB || cmb.flag == mfSBOMB)
 				hollow = true;
 		}
 		if(tap_sfx < 0 && get_qr(qr_SEPARATE_BOMBABLE_TAPPING_SFX))
 		{
-			if(hollow || (tmpscr->door[dir]==dBOMB && ((dir==up||dir==down)
+			if(hollow || (!is_z3_scrolling_mode() && origin_scr->door[dir]==dBOMB && ((dir==up||dir==down)
 					? (bx>=112 && bx<144 && (by>=144 || by<=32))
 					: by>=72 && by<104 && (bx>=224 || bx<=32))))
 				tap_sfx = QMisc.miscsfx[sfxTAP_HOLLOW];

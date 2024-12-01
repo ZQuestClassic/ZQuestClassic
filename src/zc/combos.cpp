@@ -1653,7 +1653,7 @@ bool trigger_armos_grave_ffc(const ffc_handle_t& ffc_handle, int32_t trigdir)
 
 bool trigger_damage_combo(const rpos_handle_t& rpos_handle, int type, int ptrval, int32_t hdir, bool force_solid)
 {
-	return trigger_damage_combo(rpos_handle.scr, rpos_handle.data(), type, ptrval, hdir, force_solid);
+	return trigger_damage_combo(rpos_handle.base_scr(), rpos_handle.data(), type, ptrval, hdir, force_solid);
 }
 
 bool trigger_damage_combo(mapscr* scr, int32_t cid, int type, int ptrval, int32_t hdir, bool force_solid)
@@ -1684,7 +1684,7 @@ bool trigger_damage_combo(mapscr* scr, int32_t cid, int type, int ptrval, int32_
 	bool ignoreBoots = itemid >= 0 && (itemsbuf[itemid].flags & item_flag3);
 	if(dmg < 0)
 	{
-		if(itemid < 0 || ignoreBoots || (tmpscr->flags5&fDAMAGEWITHBOOTS)
+		if(itemid < 0 || ignoreBoots || (scr->flags5&fDAMAGEWITHBOOTS)
 			|| (4<<current_item_power(itype_boots)<(abs(dmg)))
 			|| ((force_solid||(cmb.walk&0xF)) && bootsnosolid)
 			|| !(checkbunny(itemid) && checkmagiccost(itemid)))

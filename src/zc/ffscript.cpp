@@ -36849,7 +36849,7 @@ void FFScript::doScriptMenuDraws()
 	BITMAP* menu_buf = ((GameFlags & GAMEFLAG_F6SCRIPT_ACTIVE) != 0) ? f6_menu_buf : script_menu_buf;
 	blit(menu_buf, framebuf, 0, 0, 0, 0, 256, 224);
 	//Script draws
-	do_script_draws(framebuf, tmpscr, 0, playing_field_offset);
+	do_script_draws(framebuf, origin_scr, 0, playing_field_offset);
 }
 
 void FFScript::runOnSaveEngine()
