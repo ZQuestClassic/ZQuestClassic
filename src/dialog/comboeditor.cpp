@@ -637,11 +637,9 @@ std::string getMapFlagHelpText(int32_t id)
 		case mfPUSHLRINS: case mfPUSH4INS: case mfPUSHUINS: case mfPUSHDINS:
 		case mfPUSHLINS: case mfPUSHRINS:
 		{
-			int32_t t = ((id-mfPUSHUDNS) % 7);
-			flaghelp = "Allows the Hero to push the combo "
-				+ std::string((t == 0) ? "up and down" : (t == 1) ? "left and right" : (t == 2) ? "in any direction" : (t == 3) ? "up" : (t == 4) ? "down" : (t == 5) ? "left" : "right")
-				+ std::string((id>=mfPUSHUDINS) ? "many times":"once")
-				+ " activating Block->Shutters but not Screen Secrets.";
+			static const char* name[]{"up/down", "left/right","in any direction","up","down","left","right"};
+			flaghelp = fmt::format("Allows the Hero to push the combo {} {} activating Block->Shutters but not Screen Secrets.",
+				name[(id-mfPUSHUDNS) % 7], (id>=mfPUSHUDINS) ? "many times" : "once");
 			break;
 		}
 		case mfPUSHED:
