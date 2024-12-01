@@ -7517,13 +7517,19 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 			best_ffcid = ffc_ids[i];
 		}
 	}
-	
+
+	mapscr* damage_scr;
 	int32_t hp_modmin = zc_min(hp_modtotal, hp_modtotalffc);
 	int best_type = 0;
 	if(hp_modtotalffc < hp_modtotal)
 	{
+		damage_scr = get_ffc(best_ffcid).scr;
 		bestcid = bestffccid;
 		best_type = 1;
+	}
+	else
+	{
+		damage_scr = get_screen_for_rpos(best_rpos);
 	}
 	
 	bool global_defring = ((itemsbuf[current_item_id(itype_ring)].flags & item_flag1));
@@ -7542,8 +7548,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 	
 	if(hp_modmin<0)
 	{
-		// TODO z3
-		if((itemid<0) || ignoreBoots || (tmpscr->flags5&fDAMAGEWITHBOOTS) || (4<<current_item_power(itype_boots)<(abs(hp_modmin))) || (solid && bootsnosolid) || !(checkbunny(itemid) && checkmagiccost(itemid)))
+		if((itemid<0) || ignoreBoots || (damage_scr->flags5&fDAMAGEWITHBOOTS) || (4<<current_item_power(itype_boots)<(abs(hp_modmin))) || (solid && bootsnosolid) || !(checkbunny(itemid) && checkmagiccost(itemid)))
 		{
 			if (!do_health_check) return true;
 			std::vector<int32_t> &ev = FFCore.eventData;
