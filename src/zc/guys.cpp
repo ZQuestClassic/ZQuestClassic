@@ -4061,7 +4061,8 @@ void enemy::draw(BITMAP *dest)
 		}	
 	}
 	//Room specific
-	if (tmpscr->flags3&fINVISROOM)
+	mapscr* scr = get_scr(screen_spawned);
+	if (scr->flags3&fINVISROOM)
 	{
 		if (canSee == DRAW_NORMAL && !(current_item(itype_amulet)) && 
 		!((itemsbuf[Hero.getLastLensID()].flags & item_flag5) && lensclk) && family!=eeGANON) canSee = DRAW_CLOAKED;
@@ -4267,8 +4268,10 @@ void enemy::drawzcboss(BITMAP *dest)
 	{
 		cs = getFlashingCSet();
 	}
+
+	mapscr* scr = get_scr(screen_spawned);
 	
-	if((tmpscr->flags3&fINVISROOM) &&
+	if((scr->flags3&fINVISROOM) &&
 			!(current_item(itype_amulet)) &&
 			!(get_qr(qr_LENSSEESENEMIES) &&
 			  lensclk) && family!=eeGANON)
@@ -4382,7 +4385,8 @@ void enemy::drawshadow(BITMAP *dest, bool translucent)
 		return;
 	}
 	
-	if(((tmpscr->flags3&fINVISROOM)&& !(current_item(itype_amulet)))||
+	mapscr* scr = get_scr(screen_spawned);
+	if(((scr->flags3&fINVISROOM)&& !(current_item(itype_amulet)))||
 			(darkroom))
 	{
 		return;
@@ -9542,11 +9546,14 @@ bool eTrap::trapmove(int32_t ndir)
 {
 	if(get_qr(qr_MEANTRAPS))
 	{
-		if(tmpscr->flags2&fFLOATTRAPS)
+		mapscr* scr = get_scr(screen_spawned);
+		if(scr->flags2&fFLOATTRAPS)
 			return canmove(ndir,(zfix)1,spw_floater, 0, 0, 15, 15,false);
 			
 		return canmove(ndir,(zfix)1,spw_water, 0, 0, 15, 15,false);
 	}
+
+	// TODO z3 traps
 	
 	if(oy==80 && !(ndir==left || ndir == right))
 		return false;
@@ -9791,7 +9798,8 @@ bool eTrap2::animate(int32_t index)
 
 bool eTrap2::trapmove(int32_t ndir)
 {
-	if(tmpscr->flags2&fFLOATTRAPS)
+	mapscr* scr = get_scr(screen_spawned);
+	if(scr->flags2&fFLOATTRAPS)
 		return canmove(ndir,(zfix)1,spw_floater, 0, 0, 15, 15,false);
 		
 	return canmove(ndir,(zfix)1,spw_water, 0, 0, 15, 15,false);
@@ -13323,7 +13331,8 @@ eGanon::eGanon(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	hzsz=16; //can't be jumped.
 	clk2=70;
 	misc=-1;
-	mainguy=(!getmapflag((cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr->flags9&fBELOWRETURN));
+	mapscr* scr = get_scr(screen_spawned);
+	mainguy=(!getmapflag((cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (scr->flags9&fBELOWRETURN));
 }
 
 bool eGanon::animate(int32_t index) //DO NOT ADD a check for do_animation to this version of GANON!! -Z
@@ -15000,7 +15009,8 @@ void eGleeok::draw2(BITMAP *dest)
 	
 	if(hp > 0 && !dont_draw())
 	{
-		if((tmpscr->flags3&fINVISROOM)&& !(current_item(itype_amulet)))
+		mapscr* scr = get_scr(screen_spawned);
+		if((scr->flags3&fINVISROOM)&& !(current_item(itype_amulet)))
 			sprite::drawcloaked(dest);
 		else
 			sprite::draw(dest);
@@ -15287,16 +15297,17 @@ void esGleeok::draw(BITMAP *dest)
 		{
 			for(int32_t i=1; i<dmisc5; i++)                              //draw the neck
 			{
+				mapscr* scr = get_scr(screen_spawned);
 				if(get_qr(qr_NEWENEMYTILES))
 				{
-					if((tmpscr->flags3&fINVISROOM)&& !(current_item(itype_amulet)))
+					if((scr->flags3&fINVISROOM)&& !(current_item(itype_amulet)))
 						overtilecloaked16(dest,necktile+(i*dmisc7),nx[i]-4,ny[i]+playing_field_offset,0);
 					else
 						overtile16(dest,necktile+(i*dmisc7),nx[i]-4,ny[i]+playing_field_offset,cs,0);
 				}
 				else
 				{
-					if((tmpscr->flags3&fINVISROOM)&& !(current_item(itype_amulet)))
+					if((scr->flags3&fINVISROOM)&& !(current_item(itype_amulet)))
 						overtilecloaked16(dest,necktile,nx[i]-4,ny[i]+playing_field_offset,0);
 					else
 						overtile16(dest,necktile,nx[i]-4,ny[i]+playing_field_offset,cs,0);
@@ -15314,14 +15325,6 @@ void esGleeok::draw(BITMAP *dest)
 			tile+=((clk&24)>>3);
 			break;
 		}
-		
-		/*
-			else
-			{
-			  tile=(clk&1)?147:148;
-			  break;
-			}
-		*/
 	}
 }
 
@@ -18670,7 +18673,6 @@ void update_slope_comboposes()
 }
 
 // Everything that must be done before we change a screen's combo to another combo, or a combo's type to another type.
-// There's 2 routines because it's unclear if combobuf or tmpscr->data gets modified. -L
 void screen_combo_modify_preroutine(const rpos_handle_t& rpos_handle)
 {
 	delete_fireball_shooter(rpos_handle);
@@ -18914,6 +18916,7 @@ static bool script_sle = false;
 static int32_t sle_pattern = 0;
 void script_side_load_enemies()
 {
+	// TODO z3
 	if(script_sle || sle_clk) return;
 	sle_cnt = 0;
 	while(sle_cnt<10 && tmpscr->enemy[sle_cnt]!=0)
