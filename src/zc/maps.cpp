@@ -2405,19 +2405,19 @@ bool remove_screenstatecombos2(mapscr *s, bool do_layers, int32_t what1, int32_t
 			}
 		}
 	}
-	
-	// TODO z3 !
-	if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
+
+	// 'do_layers' also means that this is called on an active temp screen, so update its ffcs.
+	if (!get_qr(qr_OLD_FFC_FUNCTIONALITY) && do_layers)
 	{
-		word c = tmpscr->numFFC();
+		word c = s->numFFC();
 		for(word i=0; i<c; i++)
 		{
-			ffcdata* ffc2 = &tmpscr->ffcs[i];
-			newcombo const& cmb = combobuf[ffc2->data];
+			ffcdata* ffc = &s->ffcs[i];
+			newcombo const& cmb = combobuf[ffc->data];
 			if(cmb.usrflags&cflag16) continue; //custom state instead of normal state
 			if((cmb.type== what1) || (cmb.type== what2))
 			{
-				zc_ffc_modify(*ffc2, 1);
+				zc_ffc_modify(*ffc, 1);
 				didit=true;
 			}
 		}
