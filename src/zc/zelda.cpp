@@ -3198,6 +3198,7 @@ void game_loop()
 		}
 		
 		// Messages also freeze FF combos.
+		// TODO: this could be better handled with screen_combo_modify_postroutine/screen_ffc_modify_postroutine/etc.
 		bool freezeff = freezemsg;
 		bool freeze = false;
 		for_every_combo([&](const auto& handle) {

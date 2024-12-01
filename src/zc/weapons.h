@@ -34,7 +34,8 @@ private:
 public:
     void setAngle(double angletoset);
     void doAutoRotate(bool dodir = false, bool doboth = false);
-    int32_t power,type,dead,clk2,misc2,ignorecombo;
+    int32_t power,type,dead,clk2,misc2;
+	rpos_t ignorecombo;
     bool isLit; //if true, this weapon is providing light to the current screen
     int32_t parentid, //Enemy who created it
         parentitem; //Item which created it

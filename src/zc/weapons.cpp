@@ -1003,7 +1003,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	dir=zc_max(Dir,0);
 	clk=clk2=flip=misc=misc2=0;
 	frames=flash=wid=aframe=csclk=0;
-	ignorecombo=-1;
+	ignorecombo=rpos_t::None;
 	step=0;
 	dead=-1;
 	specialinfo = special;
@@ -1432,7 +1432,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			
 			if(id==wRefBeam)
 			{
-				ignorecombo=(((int32_t)y&0xF0)+((int32_t)x>>4));
+				ignorecombo=COMBOPOS_REGION(x, y);
 			}
 			switch(dir)
 			{
@@ -2085,7 +2085,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					break;
 			}
 			if(id==wRefMagic)
-				ignorecombo=(((int32_t)y&0xF0)+((int32_t)x>>4));
+				ignorecombo=COMBOPOS_REGION(x, y);
 			break;
 		}
 		case ewFlame: case ewFlame2:
@@ -4303,8 +4303,7 @@ bool weapon::animate(int32_t index)
 					checky -= fakez;
 				}
 
-				// TODO z3 rpos
-				if (ignorecombo == ((int32_t(checky) & 0xF0) + (int32_t(checkx) >> 4)))
+				if (ignorecombo == COMBOPOS_REGION(checkx, checky))
 					break;
 
 				int32_t posx, posy;
@@ -4330,7 +4329,7 @@ bool weapon::animate(int32_t index)
 						flip ^= 2;
 						
 					ignoreHero = false;
-					ignorecombo = ((TRUNCATE_TILE((int32_t)checky)) + (int32_t(checkx) >> 4));
+					ignorecombo = COMBOPOS_REGION(checkx, checky);
 					x = (int32_t)TRUNCATE_TILE(posx) + check_x_ofs;
 					y = (int32_t)TRUNCATE_TILE(posy) + check_y_ofs;
 				}
@@ -4342,7 +4341,7 @@ bool weapon::animate(int32_t index)
 					dir = 3 - dir;
 					fix_mirror_anim = true;
 					ignoreHero = false;
-					ignorecombo = ((TRUNCATE_TILE((int32_t)checky)) + (int32_t(checkx) >> 4));
+					ignorecombo = COMBOPOS_REGION(checkx, checky);
 					x = (int32_t)TRUNCATE_TILE(posx) + check_x_ofs;
 					y = (int32_t)TRUNCATE_TILE(posy) + check_y_ofs;
 				}
@@ -4353,7 +4352,7 @@ bool weapon::animate(int32_t index)
 					dir ^= 2;
 					fix_mirror_anim = true;
 					ignoreHero = false;
-					ignorecombo = ((TRUNCATE_TILE((int32_t)checky)) + (int32_t(checkx) >> 4));
+					ignorecombo = COMBOPOS_REGION(checkx, checky);
 					x = (int32_t)TRUNCATE_TILE(posx) + check_x_ofs;
 					y = (int32_t)TRUNCATE_TILE(posy) + check_y_ofs;
 				}
@@ -4400,8 +4399,7 @@ bool weapon::animate(int32_t index)
 							w->id = wRefBeam;
 							w->parentid = parentid;
 							w->parentitem = parentitem;
-							// TODO z3 rpos
-							w->ignorecombo = ((int32_t(checky) & 0xF0) + (int32_t(checkx) >> 4));
+							w->ignorecombo = COMBOPOS_REGION(checkx, checky);
 							w->hyofs = w->hxofs = 0;
 							//also set up the magic's correct animation -DD
 							w->flip = 0;
@@ -4469,7 +4467,7 @@ bool weapon::animate(int32_t index)
 						w->parentid = parentid;
 						w->parentitem = parentitem;
 						w->hyofs = w->hxofs = 0;
-						w->ignorecombo = ((int32_t(checky) & 0xF0) + (int32_t(checkx) >> 4));
+						w->ignorecombo = COMBOPOS_REGION(checkx, checky);
 						//also set up the magic's correct animation -DD
 						w->flip = 0;
 						if (do_animation)
@@ -4517,9 +4515,10 @@ bool weapon::animate(int32_t index)
 					dir = newdir;
 					fix_mirror_anim = true;
 					ignoreHero = false;
-					ignorecombo = ((int32_t(checky) & 0xF0) + (int32_t(checkx) >> 4));
-					y = (int32_t)(posy & 0xF0) + check_y_ofs;
-					x = (int32_t)(posx & 0xF0) + check_x_ofs;
+					ignorecombo = COMBOPOS_REGION(checkx, checky);
+					
+					x = TRUNCATE_TILE(posx) + check_x_ofs;
+					y = TRUNCATE_TILE(posy) + check_y_ofs;
 				}
 
 				if (fix_mirror_anim)
@@ -5786,7 +5785,7 @@ bool weapon::animate(int32_t index)
 				checky-=fakez;
 			}
 			
-			if(ignorecombo!=((int32_t(checky)&0xF0)+(int32_t(checkx)>>4)))
+			if (ignorecombo != COMBOPOS_REGION(checkx, checky))
 			{
 				byte layers = get_qr(qr_MIRROR_PRISM_LAYERS) ? 0b1111111 : 0b0000001;
 				if(hitcombo(checkx, checky, cMIRROR, layers))
@@ -5817,9 +5816,9 @@ bool weapon::animate(int32_t index)
 					}
 					
 					w->ignoreHero=false;
-					w->ignorecombo=((int32_t(checky)&0xF0)+(int32_t(checkx)>>4));
-					w->y=(int32_t(checky)&0xF0)+check_y_ofs;
-					w->x=(int32_t(checkx)&0xF0)+check_x_ofs;
+					w->ignorecombo=COMBOPOS_REGION(checkx, checky);
+					w->x=TRUNCATE_TILE(checkx.getInt())+check_x_ofs;
+					w->y=TRUNCATE_TILE(checky.getInt())+check_y_ofs;
 				}
 				
 				if(hitcombo(checkx, checky, cMIRRORSLASH, layers))
@@ -5868,9 +5867,9 @@ bool weapon::animate(int32_t index)
 						}
 					}
 					w->ignoreHero=false;
-					w->ignorecombo=((int32_t(checky)&0xF0)+(int32_t(checkx)>>4));
-					w->y=(int32_t(checky)&0xF0)+check_y_ofs;
-					w->x=(int32_t(checkx)&0xF0)+check_x_ofs;
+					w->ignorecombo=COMBOPOS_REGION(checkx, checky);
+					w->x=TRUNCATE_TILE(checkx.getInt())+check_x_ofs;
+					w->y=TRUNCATE_TILE(checky.getInt())+check_y_ofs;
 				}
 				
 				if(hitcombo(checkx, checky, cMIRRORBACKSLASH, layers))
@@ -5922,15 +5921,15 @@ bool weapon::animate(int32_t index)
 					}
 					
 					w->ignoreHero=false;
-					w->ignorecombo=((int32_t(checky)&0xF0)+(int32_t(checkx)>>4));
-					w->y=(int32_t(checky)&0xF0)+check_y_ofs;
-					w->x=(int32_t(checkx)&0xF0)+check_x_ofs;
+					w->ignorecombo=COMBOPOS_REGION(checkx, checky);
+					w->x=TRUNCATE_TILE(checkx.getInt())+check_x_ofs;
+					w->y=TRUNCATE_TILE(checky.getInt())+check_y_ofs;
 				}
 				
 				if(hitcombo(checkx, checky, cMAGICPRISM, layers) && (id != wWind))
 				{
 					int32_t newx, newy;
-					newy=(int32_t(checky)&0xF0)+check_y_ofs;
+					newy=TRUNCATE_TILE(checky.getInt())+check_y_ofs;
 					newx=(int32_t(checkx)&0xF0)+check_x_ofs;
 					
 					for(int32_t tdir=0; tdir<4; tdir++)
@@ -5963,7 +5962,7 @@ bool weapon::animate(int32_t index)
 							w->flip = 0;
 							w->ignoreHero = false;
 							w->hyofs = w->hxofs = 0;
-							w->ignorecombo=((int32_t(checky)&0xF0)+(int32_t(checkx)>>4));
+							w->ignorecombo=COMBOPOS_REGION(checkx, checky);
 							if ( do_animation ) 
 							{
 								//also set up the magic's correct animation -DD
@@ -6000,7 +5999,7 @@ bool weapon::animate(int32_t index)
 				if(hitcombo(checkx, checky, cMAGICPRISM4, layers) && (id != wWind))
 				{
 					int32_t newx, newy;
-					newy=(int32_t(checky)&0xF0)+check_y_ofs;
+					newy=TRUNCATE_TILE(checky.getInt())+check_y_ofs;
 					newx=(int32_t(checkx)&0xF0)+check_x_ofs;
 					
 					for(int32_t tdir=0; tdir<4; tdir++)
@@ -6031,7 +6030,7 @@ bool weapon::animate(int32_t index)
 						w->flip = 0;
 						w->ignoreHero = false;
 						w->hyofs = w->hxofs = 0;
-						w->ignorecombo=((int32_t(checky)&0xF0)+(int32_t(checkx)>>4));
+						w->ignorecombo=COMBOPOS_REGION(checkx, checky);
 						
 						if ( do_animation ) 
 						{
@@ -6133,9 +6132,9 @@ bool weapon::animate(int32_t index)
 					}
 					
 					w->ignoreHero=false;
-					w->ignorecombo=((int32_t(checky)&0xF0)+(int32_t(checkx)>>4));
-					w->y=(int32_t(checky)&0xF0)+check_y_ofs;
-					w->x=(int32_t(checkx)&0xF0)+check_x_ofs;
+					w->ignorecombo=COMBOPOS_REGION(checkx, checky);
+					w->x=TRUNCATE_TILE(checkx.getInt())+check_x_ofs;
+					w->y=TRUNCATE_TILE(checky.getInt())+check_y_ofs;
 				}
 				
 				if(blocked(0, 0))
@@ -6187,7 +6186,7 @@ bool weapon::animate(int32_t index)
 				checky-=fakez;
 			}
 			
-			if(ignorecombo!=((int32_t(checky)&0xF0)+(int32_t(checkx)>>4)))
+			if (ignorecombo != COMBOPOS_REGION(checkx, checky))
 			{
 				byte layers = get_qr(qr_MIRROR_PRISM_LAYERS) ? 0b1111111 : 0b0000001;
 				if(hitcombo(checkx, checky, cMIRROR, layers))
@@ -6219,9 +6218,9 @@ bool weapon::animate(int32_t index)
 					}
 					
 					w->ignoreHero=false;
-					w->ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
-					w->y=(int32_t(checky)&0xF0)+check_y_ofs;
-					w->x=(int32_t(checkx)&0xF0)+check_x_ofs;
+					w->ignorecombo=COMBOPOS_REGION(checkx, checky);
+					w->x=TRUNCATE_TILE(checkx.getInt())+check_x_ofs;
+					w->y=TRUNCATE_TILE(checky.getInt())+check_y_ofs;
 				}
 				
 				if(hitcombo(checkx, checky, cMIRRORSLASH, layers))
@@ -6270,9 +6269,9 @@ bool weapon::animate(int32_t index)
 						}
 					}
 					w->ignoreHero=false;
-					w->ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
-					w->y=(int32_t(checky)&0xF0)+check_y_ofs;
-					w->x=(int32_t(checkx)&0xF0)+check_x_ofs;
+					w->ignorecombo=COMBOPOS_REGION(checkx, checky);
+					w->x=TRUNCATE_TILE(checkx.getInt())+check_x_ofs;
+					w->y=TRUNCATE_TILE(checky.getInt())+check_y_ofs;
 				}
 				
 				if(hitcombo(checkx, checky, cMIRRORBACKSLASH, layers))
@@ -6324,15 +6323,15 @@ bool weapon::animate(int32_t index)
 					}
 					
 					w->ignoreHero=false;
-					w->ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
-					w->y=(int32_t(checky)&0xF0)+check_y_ofs;
-					w->x=(int32_t(checkx)&0xF0)+check_x_ofs;
+					w->ignorecombo=COMBOPOS_REGION(checkx, checky);
+					w->x=TRUNCATE_TILE(checkx.getInt())+check_x_ofs;
+					w->y=TRUNCATE_TILE(checky.getInt())+check_y_ofs;
 				}
 				
 				if(hitcombo(checkx, checky, cMAGICPRISM, layers) && (id != wWind))
 				{
 					int32_t newx, newy;
-					newy=(int32_t(checky)&0xF0)+check_y_ofs;
+					newy=TRUNCATE_TILE(checky.getInt())+check_y_ofs;
 					newx=(int32_t(checkx)&0xF0)+check_x_ofs;
 					
 					for(int32_t tdir=0; tdir<4; tdir++)
@@ -6365,7 +6364,7 @@ bool weapon::animate(int32_t index)
 							w->flip = 0;
 							w->ignoreHero = false;
 							w->hyofs = w->hxofs = 0;
-							w->ignorecombo=((int32_t(checky)&0xF0)+(int32_t(checkx)>>4));
+							w->ignorecombo=COMBOPOS_REGION(checkx, checky);
 							if ( do_animation ) 
 							{
 								//also set up the magic's correct animation -DD
@@ -6402,7 +6401,7 @@ bool weapon::animate(int32_t index)
 				if(hitcombo(checkx, checky, cMAGICPRISM4, layers) && (id != wWind))
 				{
 					int32_t newx, newy;
-					newy=(int32_t(checky)&0xF0)+check_y_ofs;
+					newy=TRUNCATE_TILE(checky.getInt())+check_y_ofs;
 					newx=(int32_t(checkx)&0xF0)+check_x_ofs;
 					
 					for(int32_t tdir=0; tdir<4; tdir++)
@@ -6433,7 +6432,7 @@ bool weapon::animate(int32_t index)
 						w->flip = 0;
 						w->ignoreHero = false;
 						w->hyofs = w->hxofs = 0;
-						w->ignorecombo=((int32_t(checky)&0xF0)+(int32_t(checkx)>>4));
+						w->ignorecombo=COMBOPOS_REGION(checkx, checky);
 						
 						if ( do_animation ) 
 						{
@@ -6532,9 +6531,9 @@ bool weapon::animate(int32_t index)
 					}
 					
 					w->ignoreHero=false;
-					w->ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
-					w->y=(int32_t(checky)&0xF0)+check_y_ofs;
-					w->x=(int32_t(checkx)&0xF0)+check_x_ofs;
+					w->ignorecombo=COMBOPOS_REGION(checkx, checky);
+					w->x=TRUNCATE_TILE(checkx.getInt())+check_x_ofs;
+					w->y=TRUNCATE_TILE(checky.getInt())+check_y_ofs;
 				}
 				
 				if(blocked(0, 0))
@@ -7064,7 +7063,7 @@ void weapon::onhit(bool clipped, int32_t special, int32_t linkdir, enemy* e, int
 		{
 			ignoreHero = true;
 			if(!(replay_is_active()&&replay_get_meta_str("sav")=="link_to_the_heavens_16_of_17.sav"))
-				ignorecombo = -1;
+				ignorecombo = rpos_t::None;
 			if(!isLWeapon)
 			{
 				if(Ewpns.remove(this))
@@ -7136,7 +7135,7 @@ void weapon::onhit(bool clipped, int32_t special, int32_t linkdir, enemy* e, int
 				return;
 			case wRefMagic:
 				ignoreHero=true;
-				ignorecombo=-1;
+				ignorecombo=rpos_t::None;
 				break;
 		}
 	}
@@ -7956,7 +7955,7 @@ void weapon::draw(BITMAP *dest)
 void putweapon(BITMAP *dest,int32_t x,int32_t y,int32_t weapon_id, int32_t type, int32_t dir, int32_t &aclk, int32_t &aframe, int32_t parentid)
 {
     weapon temp((zfix)x,(zfix)y,(zfix)0,weapon_id,type,0,dir,-1,parentid,true);
-    temp.ignorecombo=((dir==up?y+8:y)&0xF0)+((dir==left?x+8:x)>>4); // Lens hints can sometimes create real weapons without this
+    temp.ignorecombo=COMBOPOS_REGION(dir==left?x+8:x, dir==up?y+8:y); // Lens hints can sometimes create real weapons without this
     temp.ignoreHero=true;
     temp.yofs=0;
     temp.clk2=aclk;
@@ -8103,7 +8102,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t usesprite, int32_t Dir, i
     dir=zc_max(Dir,0);
     clk=clk2=flip=misc=misc2=0;
     frames=flash=wid=aframe=csclk=0;
-    ignorecombo=-1;
+    ignorecombo=rpos_t::None;
     step=0;
     dead=-1;
     ref_o_tile = 0;
