@@ -419,21 +419,21 @@ static void trigger_cswitch_block_ffc(const ffc_handle_t& ffc_handle)
 		combobuf[newcid].cur_frame=0;
 		combobuf[newcid].aclk = 0;
 	}
-	int32_t pos2 = COMBOPOS(ffc->x+8, ffc->y+8);
+
+	rpos_t rpos = COMBOPOS_REGION(ffc->x+8, ffc->y+8);
 	for(auto lyr = 0; lyr < 7; ++lyr)
 	{
 		if(!(cmb.usrflags&(1<<lyr))) continue;
 
-		mapscr* scr_2 = get_layer_scr_valid(ffc_handle.screen, lyr);
-		if (!scr_2)
+		auto rpos_handle = get_rpos_handle(rpos, lyr + 1);
+		if (!rpos_handle.scr->is_valid())
 			continue;
-		if(!scr_2->data[pos2]) //Don't increment empty space
+		if(!rpos_handle.data()) //Don't increment empty space
 			continue;
 
-		newcombo const& cmb_2 = combobuf[scr_2->data[pos2]];
-		scr_2->data[pos2] = BOUND_COMBO(scr_2->data[pos2] + cmbofs);
-		scr_2->cset[pos2] = (scr_2->cset[pos2] + csofs) & 15;
-		int32_t newcid2 = scr_2->data[pos2];
+		rpos_handle.set_data(BOUND_COMBO(rpos_handle.data() + cmbofs));
+		rpos_handle.set_cset((rpos_handle.cset() + csofs) & 15);
+		int32_t newcid2 = rpos_handle.data();
 		if(combobuf[newcid2].animflags & AF_CYCLE)
 		{
 			combobuf[newcid2].tile = combobuf[newcid2].o_tile;
