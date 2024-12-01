@@ -9552,8 +9552,6 @@ bool eTrap::trapmove(int32_t ndir)
 			
 		return canmove(ndir,(zfix)1,spw_water, 0, 0, 15, 15,false);
 	}
-
-	// TODO z3 traps
 	
 	if(oy==80 && !(ndir==left || ndir == right))
 		return false;
