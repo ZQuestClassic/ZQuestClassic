@@ -401,7 +401,6 @@ int32_t getScreen(int32_t ref)
 	}
 }
 
-// TODO z3 ! fix null cases
 static ffcdata* get_ffc(ffc_id_t ffc_id)
 {
 	return &get_scr_for_region_index_offset(ffc_id / MAXFFCS)->getFFC(ffc_id % MAXFFCS);
@@ -1551,6 +1550,43 @@ static bool set_current_script_engine_data(ScriptType type, int script, int inde
 	return got_initialized;
 }
 
+static ffcdata *ResolveFFCWithID(ffc_id_t id, const char *what)
+{
+	if (BC::checkFFC(id, what) != SH::_NoError)
+		return nullptr;
+
+	ffcdata* ffc = get_ffc(id);
+	if (!ffc)
+	{
+		Z_scripterrlog("Script attempted to reference a nonexistent FFC!\n");
+		Z_scripterrlog("You were trying to reference the %s of an FFC with ID = %ld\n", what, id);
+	}
+
+	return ffc;
+}
+
+static ffcdata *ResolveFFC(int32_t ffcref, const char *what)
+{
+	if (ZScriptVersion::ffcRefIsSpriteId())
+	{
+		if (auto s = sprite::getByUID(ffcref))
+		{
+			if (auto ffc = dynamic_cast<ffcdata*>(s))
+				return ffc;
+
+			Z_scripterrlog("Script attempted to reference a FFC, but the sprite found was not an FFC.\n");
+			Z_scripterrlog("You were trying to reference the %s of an FFC with UID = %ld\n", what, ffcref);
+			return nullptr;
+		}
+
+		Z_scripterrlog("Script attempted to reference a nonexistent FFC!\n");
+		Z_scripterrlog("You were trying to reference the %s of an FFC with UID = %ld\n", what, ffcref);
+		return nullptr;
+	}
+
+	return ResolveFFCWithID(ffcref, what);
+}
+
 // TODO: convert most/all of the `GetMapscr` to this.
 static mapscr* ResolveMapdata(int32_t mapref, const char* context)
 {
@@ -2359,31 +2395,6 @@ void FFScript::deallocateAllScriptOwnedCont()
 				deallocateArray(i);
 		}
 	}
-}
-
-ffcdata *ResolveFFC(int32_t ffcref, const char *what)
-{
-	if (ZScriptVersion::ffcRefIsSpriteId())
-	{
-		if (auto s = sprite::getByUID(ffcref))
-		{
-			if (auto ffc = dynamic_cast<ffcdata*>(s))
-				return ffc;
-
-			Z_scripterrlog("Script attempted to reference a FFC, but the sprite found was not an FFC.\n");
-			Z_scripterrlog("You were trying to reference the %s of an FFC with UID = %ld\n", what, ffcref);
-			return nullptr;
-		}
-
-		Z_scripterrlog("Script attempted to reference a nonexistent FFC!\n");
-		Z_scripterrlog("You were trying to reference the %s of an FFC with UID = %ld\n", what, ffcref);
-		return nullptr;
-	}
-
-	if (BC::checkFFC(ffcref, what) == SH::_NoError)
-		return get_ffc(ffcref);
-
-	return nullptr;
 }
 
 weapon *checkLWpn(int32_t eid, const char *what)
@@ -6640,17 +6651,9 @@ int32_t get_register(int32_t arg)
 		// Note: that is totally not what its doing.
 		case SCREENDATANUMFF: 	
 		{
-			int indx = ri->d[rINDEX] / 10000;
-			if (!indx || indx > MAX_FFCID)
-			{
-				Z_scripterrlog("Invalid Index passed to Screen->NumFFCs[%d].\nValid indices are 1 through %d.\n", indx, MAX_FFCID);
-				ret = 0;
-			}
-			else
-			{
-				--indx;
-				ret = (get_ffc(indx)->data != 0) ? 10000 : 0;
-			}
+			int id = ri->d[rINDEX] / 10000;
+			if (auto ffc = ResolveFFCWithID(id, "Screen->NumFFCs"))
+				ret = ffc->data != 0 ? 10000 : 0;
 			break;
 		}
 
@@ -23577,14 +23580,15 @@ int32_t get_int_arr(const int32_t ptr, int32_t indx)
 		}
 		case INTARR_SCREEN_FFC:
 		{
-			if(BC::checkFFC(indx, "Screen->FFCs[]") != SH::_NoError)
-				return 0;
+			if (auto ffc = ResolveFFCWithID(indx, "Screen->FFCs"))
+			{
+				if (ZScriptVersion::ffcRefIsSpriteId())
+					return ffc->getUID();
 
-			if (ZScriptVersion::ffcRefIsSpriteId())
-				return get_ffc(indx)->getUID();
+				return indx * 10000;
+			}
 
-			get_ffc(indx); // ensure it exists.
-			return indx*10000;
+			return 0;
 		}
 		case INTARR_SCREEN_PORTALS:
 		{
@@ -30548,12 +30552,13 @@ int32_t run_script_int(bool is_jitted)
 			case LOAD_FFC:
 			{
 				assert(ZScriptVersion::ffcRefIsSpriteId());
-				int ffc_id = get_register(sarg1) / 10000 - 1;
 
-				if (BC::checkFFC(ffc_id, "Screen->LoadFFC") == SH::_NoError)
-					set_register(sarg1, get_ffc(ffc_id)->getUID());
+				int ffc_id = get_register(sarg1) / 10000 - 1;
+				if (auto ffc = ResolveFFCWithID(ffc_id, "Screen->LoadFFC"))
+					set_register(sarg1, ffc->getUID());
 				else
 					set_register(sarg1, 0);
+
 				break;
 			}
 
@@ -34021,7 +34026,8 @@ int32_t run_script_int(bool is_jitted)
 		{
 			case ScriptType::FFC:
 			{
-				get_ffc(i)->script = 0;
+				if (auto ffc = ResolveFFCWithID(i, "QUIT"))
+					ffc->script = 0;
 				auto& data = get_script_engine_data(type, i);
 				data.doscript = false;
 			}
