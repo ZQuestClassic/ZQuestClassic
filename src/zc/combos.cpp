@@ -2280,10 +2280,10 @@ bool trigger_shooter(newcombo const& cmb, zfix wx, zfix wy)
 		sfx(shotsfx);
 	return true;
 }
-bool trigger_shooter(newcombo const& cmb, int32_t pos)
+bool trigger_shooter(const rpos_handle_t& rpos_handle)
 {
-	if(unsigned(pos) > 175) return false;
-	return trigger_shooter(cmb, COMBOX(pos), COMBOY(pos));
+	auto [x, y] = COMBOXY_REGION(rpos_handle.rpos);
+	return trigger_shooter(rpos_handle.combo(), x, y);
 }
 
 void trigger_save(newcombo const& cmb, mapscr* scr)
@@ -2914,7 +2914,7 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special, weapon*
 						break;
 					
 					case cSHOOTER:
-						if(!trigger_shooter(cmb,pos))
+						if(!trigger_shooter(rpos_handle))
 							return false;
 						break;
 					case cSAVE: case cSAVE2:
@@ -3111,7 +3111,7 @@ bool do_trigger_combo_ffc(const ffc_handle_t& ffc_handle, int32_t special, weapo
 						break;
 					
 					case cSHOOTER:
-						if(!trigger_shooter(cmb,cx,cy))
+						if(!trigger_shooter(ffc_handle.combo(), cx, cy))
 							return false;
 						break;
 					case cSAVE: case cSAVE2:
