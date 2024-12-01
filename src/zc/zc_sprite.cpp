@@ -1,5 +1,6 @@
 #include "base/qrs.h"
 #include "sprite.h"
+#include "zc/replay.h"
 #include "zc/zelda.h"
 #include "zc/maps.h"
 #include "tiles.h"
@@ -191,11 +192,13 @@ void movingblock::push(zfix bx,zfix by,int32_t d2,int32_t f)
 {
 	new_block = false;
 	step = 0.5;
-    trigger=false;
-    x=bx;
-    y=by;
-    dir=d2;
-    switch(dir)
+	trigger=false;
+	x=bx;
+	y=by;
+	dir=d2;
+	xofs = 0;
+	yofs = playing_field_offset;
+	switch(dir)
 	{
 		case up:
 			endx = x;
@@ -204,6 +207,7 @@ void movingblock::push(zfix bx,zfix by,int32_t d2,int32_t f)
 		case down:
 			endx = x;
 			endy = y+16;
+			yofs = playing_field_offset - 0.5;
 			break;
 		case left:
 			endx = x-16;
@@ -212,27 +216,34 @@ void movingblock::push(zfix bx,zfix by,int32_t d2,int32_t f)
 		case right:
 			endx = x+16;
 			endy = y;
+			xofs = -0.5;
 			break;
 		default:
 			endx = x;
 			endy = y;
 	}
-    oldflag=f;
+	// TODO(replays): remove in future bulk replay update. These are just visual changes.
+	if (replay_version_check(0, 37))
+	{
+		xofs = 0;
+		yofs = playing_field_offset;
+	}
+	oldflag=f;
 	size_t combopos = size_t((int32_t(y)&0xF0)+(int32_t(x)>>4));
 	mapscr *m = FFCore.tempScreens[blockLayer];
-    word *di = &(m->data[combopos]);
-    byte *ci = &(m->cset[combopos]);
-    bcombo =  m->data[combopos];
-    oldcset = m->cset[combopos];
-    cs     = (isdungeon() && !get_qr(qr_PUSHBLOCKCSETFIX)) ? 9 : oldcset;
-    tile = combobuf[bcombo].tile;
-    flip = combobuf[bcombo].flip;
-    //   cs = ((*di)&0x700)>>8;
-    *di = m->undercombo;
-    *ci = m->undercset;
+	word *di = &(m->data[combopos]);
+	byte *ci = &(m->cset[combopos]);
+	bcombo =  m->data[combopos];
+	oldcset = m->cset[combopos];
+	cs     = (isdungeon() && !get_qr(qr_PUSHBLOCKCSETFIX)) ? 9 : oldcset;
+	tile = combobuf[bcombo].tile;
+	flip = combobuf[bcombo].flip;
+	//   cs = ((*di)&0x700)>>8;
+	*di = m->undercombo;
+	*ci = m->undercset;
 	FFCore.clear_combo_script(blockLayer, combopos);
-    putcombo(scrollbuf,x,y,*di,*ci);
-    clk=32;
+	putcombo(scrollbuf,x,y,*di,*ci);
+	clk=32;
 	if(!get_qr(qr_MOVINGBLOCK_FAKE_SOLID))
 		setSolid(true);
 	solid_update(false);
@@ -241,11 +252,13 @@ void movingblock::push_new(zfix bx,zfix by,int d2,int f,zfix spd)
 {
 	new_block = true;
 	step = spd;
-    trigger=false;
-    x=bx;
-    y=by;
+	trigger=false;
+	x=bx;
+	y=by;
 	dir=d2;
-    switch(dir)
+	xofs = 0;
+	yofs = playing_field_offset;
+	switch(dir)
 	{
 		case up:
 			endx = x;
@@ -254,6 +267,7 @@ void movingblock::push_new(zfix bx,zfix by,int d2,int f,zfix spd)
 		case down:
 			endx = x;
 			endy = y+16;
+			yofs = playing_field_offset - 0.5;
 			break;
 		case left:
 			endx = x-16;
@@ -262,27 +276,34 @@ void movingblock::push_new(zfix bx,zfix by,int d2,int f,zfix spd)
 		case right:
 			endx = x+16;
 			endy = y;
+			xofs = -0.5;
 			break;
 		default:
 			endx = x;
 			endy = y;
 	}
-    oldflag=f;
+	// TODO(replays): remove in future bulk replay update. These are just visual changes.
+	if (replay_version_check(0, 37))
+	{
+		xofs = 0;
+		yofs = playing_field_offset;
+	}
+	oldflag=f;
 	size_t combopos = size_t((int32_t(y)&0xF0)+(int32_t(x)>>4));
 	mapscr *m = FFCore.tempScreens[blockLayer];
-    word *di = &(m->data[combopos]);
-    byte *ci = &(m->cset[combopos]);
-    bcombo =  m->data[combopos];
-    oldcset = m->cset[combopos];
-    cs     = (isdungeon() && !get_qr(qr_PUSHBLOCKCSETFIX)) ? 9 : oldcset;
-    tile = combobuf[bcombo].tile;
-    flip = combobuf[bcombo].flip;
-    //   cs = ((*di)&0x700)>>8;
-    *di = m->undercombo;
-    *ci = m->undercset;
+	word *di = &(m->data[combopos]);
+	byte *ci = &(m->cset[combopos]);
+	bcombo =  m->data[combopos];
+	oldcset = m->cset[combopos];
+	cs     = (isdungeon() && !get_qr(qr_PUSHBLOCKCSETFIX)) ? 9 : oldcset;
+	tile = combobuf[bcombo].tile;
+	flip = combobuf[bcombo].flip;
+	//   cs = ((*di)&0x700)>>8;
+	*di = m->undercombo;
+	*ci = m->undercset;
 	FFCore.clear_combo_script(blockLayer, combopos);
-    putcombo(scrollbuf,x,y,*di,*ci);
-    clk=32;
+	putcombo(scrollbuf,x,y,*di,*ci);
+	clk=32;
 	if(!get_qr(qr_MOVINGBLOCK_FAKE_SOLID))
 		setSolid(true);
 	solid_update(false);

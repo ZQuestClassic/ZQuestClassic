@@ -27306,25 +27306,6 @@ void FFScript::do_loadcombodata(const bool v)
 	else ri->combosref = ID;
 }
 
-void FFScript::do_loadmapdata(const bool v)
-{
-	int32_t _map = SH::get_arg(sarg1, v) / 10000;
-	
-	int32_t _scr = SH::get_arg(sarg2, v) / 10000;
-	int32_t indx = (_map * MAPSCRS + _scr);
-	if ( _map < 1 || _map > (map_count-1) )
-	{
-		Z_scripterrlog("Invalid Map ID passed to Game->LoadMapData: %d\n", _map);
-		ri->mapsref = 0;
-	}
-	else if ( (unsigned)_scr > 129 ) //0x00 to 0x81 -Z
-	{
-		Z_scripterrlog("Invalid Screen ID passed to Game->LoadMapData: %d\n", _scr);
-		ri->mapsref = 0;
-	}
-	else ri->mapsref = indx;
-}
-
 void FFScript::do_loadmapdata_tempscr(const bool v)
 {
 	int32_t layer = SH::get_arg(sarg1, v) / 10000;
@@ -31320,12 +31301,6 @@ int32_t run_script_int(bool is_jitted)
 				FFScript::do_loadcombodata(true);
 				break;
 			
-			case LOADMAPDATAR:
-				FFScript::do_loadmapdata(false);
-				break;
-			case LOADMAPDATAV:
-				FFScript::do_loadmapdata(true);
-				break;
 			case LOADTMPSCR:
 				FFScript::do_loadmapdata_tempscr(false);
 				break;
