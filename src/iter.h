@@ -21,7 +21,7 @@ ZC_FORCE_INLINE void for_every_screen_in_region(T&& fn)
 {
 	if (!is_z3_scrolling_mode())
 	{
-		fn(tmpscr, 0, 0);
+		fn(origin_scr, 0, 0);
 		return;
 	}
 

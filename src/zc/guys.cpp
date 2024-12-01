@@ -190,10 +190,10 @@ int32_t count_layer_enemies(int screen)
 	int32_t cnt=0;
 
 	mapscr* base_scr = get_scr(screen);
-	
+
 	for(int32_t i=0; i<6; ++i)
 	{
-		if(tmpscr->layermap[i]!=0)
+		if (base_scr->layermap[i])
 		{
 			const mapscr* layerscreen = get_canonical_scr(base_scr->layermap[i]-1, base_scr->layerscreen[i]);
 			
