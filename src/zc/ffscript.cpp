@@ -16713,13 +16713,13 @@ void set_register(int32_t arg, int32_t value)
 			
 		case SCREENSTATED:
 		{
-			int32_t mi2 = (currmap*MAPSCRSNORMAL)+cur_screen;
+			int32_t mi2 = (currmap*MAPSCRSNORMAL)+ri->screenref;
 			(value)?setmapflag_mi(mi2, 1<<((ri->d[rINDEX])/10000)) : unsetmapflag_mi(mi2, 1 << ((ri->d[rINDEX]) / 10000));
 		}
 		break;
 		case SCREENEXSTATED:
 		{
-			int32_t mi2 = (currmap*MAPSCRSNORMAL)+cur_screen;
+			int32_t mi2 = (currmap*MAPSCRSNORMAL)+ri->screenref;
 			(value)?setxmapflag_mi(mi2, 1<<((ri->d[rINDEX])/10000)) : unsetxmapflag_mi(mi2, 1 << ((ri->d[rINDEX]) / 10000));
 		}
 		break;
@@ -27477,6 +27477,7 @@ void do_createlweapon(const bool v)
 		);
 		ri->lwpn = Lwpns.spr(Lwpns.Count() - 1)->getUID();
 		weapon *w = (weapon*)Lwpns.spr(Lwpns.Count()-1); //last created
+		w->screen_spawned = ri->screenref;
 		w->ScriptGenerated = 1;
 		w->isLWeapon = 1;
 		if(ID == wWind) w->specialinfo = 1;
@@ -27502,6 +27503,7 @@ void do_createeweapon(const bool v)
 		if( ID > wEnemyWeapons || ( ID >= wScript1 && ID <= wScript10) )
 		{
 			weapon *w = (weapon*)Ewpns.spr(Ewpns.Count()-1); //last created
+			w->screen_spawned = ri->screenref;
 			w->ScriptGenerated = 1;
 			w->isLWeapon = 0;
 			ri->ewpn = Ewpns.spr(Ewpns.Count() - 1)->getUID();
@@ -27530,7 +27532,9 @@ void do_createitem(const bool v)
 	if ( items.has_space() )
 	{
 		additem(0, (get_qr(qr_NOITEMOFFSET) ? 1: 0), ID, ipBIGRANGE);
-		ri->itemref = items.spr(items.Count() - 1)->getUID();
+		sprite* item = items.spr(items.Count() - 1);
+		item->screen_spawned = ri->screenref;
+		ri->itemref = item->getUID();
 		Z_eventlog("Script created item \"%s\" with UID = %ld\n", item_string[ID], ri->itemref);
 	}
 	else
@@ -27548,7 +27552,7 @@ void do_createnpc(const bool v)
 		return;
 		
 	//If we make a segmented enemy there'll be more than one sprite created
-	word numcreated = addenemy(cur_screen, 0, 0, ID, -10);
+	word numcreated = addenemy(ri->screenref, 0, 0, ID, -10);
 	
 	if(numcreated == 0)
 	{
@@ -27586,7 +27590,7 @@ void do_message(const bool v)
 		Hero.finishedmsg();
 	}
 	else
-		donewmsg(hero_scr, ID);
+		donewmsg(get_scr(ri->screenref), ID);
 }
 
 INLINE void set_drawing_command_args(const int32_t j, const word numargs)
@@ -28628,15 +28632,15 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 				loadlvlpal(DMaps[currdmap].color);
 			
 			lightingInstant(); // Also sets naturaldark
-			int prevscr = cur_screen;
+			int prev_screen = hero_screen;
 			loadscr(currdmap, scrID + DMaps[currdmap].xoff, -1, overlay);
 
 			// In the case where we did not call ALLOFF, preserve the "enemies have spawned"
 			// state for the new screen.
 			if (warpFlags&warpFlagDONTCLEARSPRITES)
 			{
-				if (loaded_enemies_for_screen.contains(prevscr))
-					loaded_enemies_for_screen.insert(cur_screen);
+				if (loaded_enemies_for_screen.contains(prev_screen))
+					loaded_enemies_for_screen.insert(hero_screen);
 			}
 			
 			Hero.x = (zfix)wx;
