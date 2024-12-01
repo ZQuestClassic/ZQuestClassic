@@ -214,23 +214,21 @@ int32_t hero_on_wall()
 {
 	zfix lx = Hero.getX();
 	zfix ly = Hero.getY();
-	
-	
-	
-	if(lx>=48 && lx<=192)
+
+	if(lx>=48 && lx<=world_w-64)
 	{
 		if(ly==32)  return up+1;
 		
-		if(ly==128) return down+1;
+		if(ly==world_h-48) return down+1;
 	}
-	
-	if(ly>=48 && ly<=112)
+
+	if(ly>=48 && ly<=world_h-64)
 	{
 		if(lx==32)  return left+1;
 		
-		if(lx==208) return right+1;
+		if(lx==world_w-48) return right+1;
 	}
-	
+
 	return 0;
 }
 
