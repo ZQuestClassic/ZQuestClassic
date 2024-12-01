@@ -1,13 +1,11 @@
 #include "zc/replay.h"
 #include "base/version.h"
 #include "base/zapp.h"
-#include "zc/ffscript.h"
 #include "zc/zc_sys.h"
 #include "base/zc_alleg.h"
 #include "base/util.h"
 #include "zc/zelda.h"
 #include <array>
-#include <exception>
 #include <string>
 #include <vector>
 #include <map>
@@ -17,7 +15,6 @@
 #include <ctime>
 #include <filesystem>
 #include <chrono>
-#include <system_error>
 #include <fmt/format.h>
 
 #define XXH_STATIC_LINKING_ONLY
@@ -581,7 +578,6 @@ static void do_recording_poll()
 				prev_debug_y = y;
 			}
 		}
-		HeroSuperDebug();
 
 		uint32_t hash = hash_bitmap(framebuf);
 		replay_step_gfx(hash);
