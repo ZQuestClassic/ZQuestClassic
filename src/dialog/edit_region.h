@@ -24,7 +24,7 @@ void call_edit_region_dialog(int32_t slot);
 class EditRegionDialog : public GUI::Dialog<EditRegionDialog>
 {
 public:
-	enum class message { OK, CANCEL };
+	enum class message { OK, CANCEL, QRS };
 
 	EditRegionDialog(int32_t slot);
 

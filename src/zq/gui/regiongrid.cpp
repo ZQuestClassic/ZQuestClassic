@@ -1,5 +1,4 @@
 #include "zq/gui/regiongrid.h"
-#include "base/qrs.h"
 #include "gui/common.h"
 #include "gui/dialog_runner.h"
 #include "gui/size.h"
@@ -10,152 +9,6 @@
 using namespace GUI;
 
 void custom_vsync();
-
-// This is a snapshot of all the compat QRs as of Jan 26, 2024.
-static std::vector<int> qrs_that_prevent_regions = {
-	qr_0AFRAME_ITEMS_IGNORE_AFRAME_CHANGES,
-	qr_192b163_WARP,
-	qr_210_WARPRETURN,
-	qr_8WAY_SHOT_SFX_DEP,
-	qr_ALLOW_EDITING_COMBO_0,
-	qr_ALLTRIG_PERMSEC_NO_TEMP,
-	qr_ANGULAR_REFLECT_BROKEN,
-	qr_ANONE_NOANIM,
-	qr_ARROWCLIP,
-	qr_BITMAPOFFSETFIX,
-	qr_BROKEN_ASKIP_Y_FRAMES,
-	qr_BROKEN_ATTRIBUTE_31_32,
-	qr_BROKEN_BIG_ENEMY_ANIMATION,
-	qr_BROKEN_BOMB_AMMO_COSTS,
-	qr_BROKEN_DRAWSCREEN_FUNCTIONS,
-	qr_BROKEN_FLAME_ARROW_REFLECTING,
-	qr_BROKEN_GENERIC_PUSHBLOCK_LOCKING,
-	qr_BROKEN_HORIZONTAL_WEAPON_ANIM,
-	qr_BROKEN_INPUT_DOWN_STATE,
-	qr_BROKEN_ITEM_CARRYING,
-	qr_BROKEN_KEEPOLD_FLAG,
-	qr_BROKEN_LIFTSWIM,
-	qr_BROKEN_LIGHTBEAM_HITBOX,
-	qr_BROKEN_MOVING_BOMBS,
-	qr_BROKEN_OVERWORLD_MINIMAP,
-	qr_BROKEN_RAFT_SCROLL,
-	qr_BROKEN_RING_POWER,
-	qr_BROKEN_SWORD_SPIN_TRIGGERS,
-	qr_BROKEN_Z3_ANIMATION,
-	qr_BROKENBOOKCOST,
-	qr_BROKENHITBY,
-	qr_BUGGED_LAYERED_FLAGS,
-	qr_BUGGY_BUGGY_SLASH_TRIGGERS,
-	qr_CANDLES_SHARED_LIMIT,
-	qr_CHECKSCRIPTWEAPONOFFSCREENCLIP,
-	qr_CONT_SWORD_TRIGGERS,
-	qr_COPIED_SWIM_SPRITES,
-	qr_CUSTOMWEAPON_IGNORE_COST,
-	qr_DECO_2_YOFFSET,
-	qr_DMAP_0_CONTINUE_BUG,
-	qr_DUNGEONS_USE_CLASSIC_CHARTING,
-	qr_ENEMIES_DONT_SCRIPT_FIRST_FRAME,
-	qr_ENEMIES_SECRET_ONLY_16_31,
-	qr_ENEMY_BROKEN_TOP_HALF_SOLIDITY,
-	qr_FAIRY_FLAG_COMPAT,
-	qr_FFCPRELOAD_BUGGED_LOAD,
-	qr_FLUCTUATING_ENEMY_JUMP,
-	qr_GANON_CANT_SPAWN_ON_CONTINUE,
-	qr_GANONINTRO,
-	qr_GOHMA_UNDAMAGED_BUG,
-	qr_GOTOLESSNOTEQUAL,
-	qr_HARDCODED_BS_PATRA,
-	qr_HARDCODED_ENEMY_ANIMS,
-	qr_HARDCODED_FFC_BUSH_DROPS,
-	qr_HARDCODED_LITEM_LTMS,
-	qr_HOOKSHOTDOWNBUG,
-	qr_ITEMPICKUPSETSBELOW,
-	qr_LEEVERS_DONT_OBEY_STUN,
-	qr_MANHANDLA_BLOCK_SFX,
-	qr_MOVINGBLOCK_FAKE_SOLID,
-	qr_NO_LANMOLA_RINGLEADER,
-	qr_NO_LIFT_SPRITE,
-	qr_NO_OVERWORLD_MAP_CHARTING,
-	qr_NOFAIRYGUYFIRES,
-	qr_NOSOLIDDAMAGECOMBOS,
-	qr_OFFSCREENWEAPONS,
-	qr_OLD_210_WATER,
-	qr_OLD_BOMB_HITBOXES,
-	qr_OLD_BRIDGE_COMBOS,
-	qr_OLD_BUG_NET,
-	qr_OLD_CHEST_COLLISION,
-	qr_OLD_DMAP_INTRO_STRINGS,
-	qr_OLD_DOORREPAIR,
-	qr_OLD_DRAWOFFSET,
-	qr_OLD_ENEMY_KNOCKBACK_COLLISION,
-	qr_OLD_F6,
-	qr_OLD_FAIRY_LIMIT,
-	qr_OLD_FFC_FUNCTIONALITY,
-	qr_OLD_FFC_SPEED_CAP,
-	qr_OLD_FLAMETRAIL_DURATION,
-	qr_OLD_GUY_HANDLING,
-	qr_OLD_HALF_MAGIC,
-	qr_OLD_ITEMDATA_SCRIPT_TIMING,
-	qr_OLD_KEESE_Z_AXIS,
-	qr_OLD_LADDER_ITEM_SIDEVIEW,
-	qr_OLD_LENS_LAYEREFFECT,
-	qr_OLD_LOCKBLOCK_COLLISION,
-	qr_OLD_POTION_OR_HC,
-	qr_OLD_SCRIPT_VOLUME,
-	qr_OLD_SCRIPTED_KNOCKBACK,
-	qr_OLD_SECRETMONEY,
-	qr_OLD_SHALLOW_SFX,
-	qr_OLD_SIDEVIEW_CEILING_COLLISON,
-	qr_OLD_SIDEVIEW_LANDING_CODE,
-	qr_OLD_SLASHNEXT_SECRETS,
-	// TODO QRHINT doesnt know about needing to do what onStrFix does
-	// qr_OLD_STRING_EDITOR_MARGINS,
-	qr_OLD_TILE_INITIALIZATION,
-	qr_OLD_WIZZROBE_SUBMERGING,
-	qr_OLDCS2,
-	qr_OLDHOOKSHOTGRAB,
-	qr_OLDINFMAGIC,
-	qr_OLDLENSORDER,
-	qr_OLDSIDEVIEWSPIKES,
-	qr_OLDSPRITEDRAWS,
-	qr_PATRAS_USE_HARDCODED_OFFSETS,
-	qr_PEAHATCLOCKVULN,
-	qr_POLVIRE_NO_SHADOW,
-	qr_REPLACEOPENDOORS,
-	qr_SCREENSTATE_80s_BUG,
-	qr_SCRIPT_FRIENDLY_ENEMY_TYPES,
-	qr_SCROLLING_KILLS_CHARGE,
-	qr_SCROLLWARP_NO_RESET_FRAME,
-	qr_SHORTDGNWALK,
-	qr_SPARKLES_INHERIT_PROPERTIES,
-	qr_SPOTLIGHT_IGNR_SOLIDOBJ,
-	qr_SPRITE_JUMP_IS_TRUNCATED,
-	qr_STEPTEMP_SECRET_ONLY_16_31,
-	// TODO QRHINT doesnt know about needing to do what onStrFix does
-	// qr_STRING_FRAME_OLD_WIDTH_HEIGHT,
-	qr_SUBSCR_BACKWARDS_ID_ORDER,
-	qr_SUBSCR_OLD_SELECTOR,
-	qr_TRIGGERSREPEAT,
-	qr_WALKTHROUGHWALL_NO_DOORSTATE,
-	qr_WARPS_RESTART_DMAPSCRIPT,
-	qr_WIZZROBES_DONT_OBEY_STUN,
-	qr_WRONG_BRANG_TRAIL_DIR,
-};
-
-// To reduce the amount of old features that need to be upgraded for region support, we draw a line in the sand and require
-// that all these compat rules must be disabled for regions to be enabled.
-static bool should_allow_regions()
-{
-	for (auto qr : qrs_that_prevent_regions)
-	{
-		if (get_bit(quest_rules, qr))
-		{
-			return false;
-		}
-	}
-
-	return true;
-}
 
 static int rg_current_region_id = 0;
 static int rg_frame_thickness = 5;
@@ -195,13 +48,6 @@ static void draw_region_square(BITMAP* bmp, int frame, int region_id, int x, int
 
 int32_t d_region_grid_proc(int32_t msg, DIALOG* d, int32_t c)
 {
-	if (msg == MSG_DRAW && !should_allow_regions())
-	{
-		// InfoDialog("Regions are disabled because of QRs", "You must disable all of the following compat QRs to use regions." + QRHINT(qrs_that_prevent_regions)).show();
-		// return D_O_K;
-		// TODO z3 !
-	}
-
 	RegionGrid* widg = (RegionGrid*)d->dp2;
 
 	FONT* nf = get_zc_font(font_nfont);
