@@ -1216,7 +1216,7 @@ class screendata {
 	//   SETR D2 SCREENSECRETSTRIGGERED
 	internal bool SecretsTriggered();
 
-	// Immediately attempts to spawn the [Enemy], using the [Pattern].
+	// Immediately attempts to spawn all the screen enemies ([Enemy]), using the [Pattern].
 	//
 	// @zasm
 	//   SCREENDOSPAWN

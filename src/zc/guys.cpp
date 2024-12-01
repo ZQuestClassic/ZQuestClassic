@@ -18912,17 +18912,18 @@ bool can_side_load(int32_t id)
 	return true;
 }
 
-static bool script_sle = false;
+static std::array<bool, MAPSCRS> script_sle;
+
 static int32_t sle_pattern = 0;
-void script_side_load_enemies()
+static void script_side_load_enemies(mapscr* scr)
 {
-	// TODO z3
-	if(script_sle || sle_clk) return;
+	if (script_sle[scr->screen] || sle_clk) return;
+
 	sle_cnt = 0;
-	while(sle_cnt<10 && tmpscr->enemy[sle_cnt]!=0)
+	while(sle_cnt<10 && scr->enemy[sle_cnt]!=0)
 		++sle_cnt;
-	script_sle = true;
-	sle_pattern = tmpscr->pattern;
+	script_sle[scr->screen] = true;
+	sle_pattern = scr->pattern;
 	sle_clk = 0;
 }
 
@@ -18930,7 +18931,7 @@ static void side_load_enemies(mapscr* scr)
 {
 	int screen = scr->screen;
 
-	if(!script_sle && sle_clk==0)
+	if (sle_clk==0 && !script_sle[scr->screen])
 	{
 		sle_pattern = scr->pattern;
 		sle_cnt = 0;
@@ -19041,8 +19042,8 @@ static void side_load_enemies(mapscr* scr)
 	
 	if(sle_cnt<=0)
 	{
-		if(script_sle)
-			script_sle = false;
+		if(script_sle[scr->screen])
+			script_sle[scr->screen] = false;
 		else
 		{
 			loaded_enemies_for_screen.insert(screen);
@@ -19347,26 +19348,29 @@ enemy* find_guy_nth_for_id(int screen, int id, int n, int mask)
     return nullptr;
 }
 
-bool scriptloadenemies()
+bool scriptloadenemies(int screen)
 {
-	if(script_sle || sle_clk) return false;
-	if(tmpscr->pattern==pNOSPAWN) return false;
+	if (sle_clk || script_sle[screen]) return false;
+
+	mapscr* scr = get_scr(screen);
+	if(scr->pattern==pNOSPAWN) return false;
 	
-	if(tmpscr->pattern==pSIDES || tmpscr->pattern==pSIDESR)
+	if(scr->pattern==pSIDES || scr->pattern==pSIDESR)
 	{
-		script_side_load_enemies();
+		script_side_load_enemies(scr);
 		return true;
 	}
 	
+	auto [x, y] = translate_screen_coordinates_to_world(screen);
 	int32_t pos=zc_oldrand()%9;
-	int32_t clk=-15,x=0,y=0,fastguys=0;
+	int32_t clk=-15,fastguys=0;
 	int32_t i=0,guycnt=0;
 	int32_t loadcnt = 10;
-	
-	for(; i<loadcnt && tmpscr->enemy[i]>0; i++)
+
+	for(; i<loadcnt && scr->enemy[i]>0; i++)
 	{
 		int32_t preguycount = guys.Count(); //I'm not experienced enough to know if this is an awful hack but it feels like one.
-		spawnEnemy(tmpscr, pos, clk, x, y, fastguys, i, guycnt, loadcnt);
+		spawnEnemy(scr, pos, clk, x, y, fastguys, i, guycnt, loadcnt);
 		if (guys.Count() > preguycount)
 		{
 			if (!get_qr(qr_ENEMIES_DONT_SCRIPT_FIRST_FRAME))

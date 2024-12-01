@@ -32251,7 +32251,7 @@ int32_t run_script_int(bool is_jitted)
 			
 			case SCREENDOSPAWN:
 			{
-				ri->d[rEXP1] = scriptloadenemies() ? 10000 : 0;
+				ri->d[rEXP1] = scriptloadenemies(ri->screenref) ? 10000 : 0;
 				break;
 			}
 			

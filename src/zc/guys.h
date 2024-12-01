@@ -889,7 +889,7 @@ void load_default_enemies(mapscr* scr);
 void nsp(bool random);
 int32_t next_side_pos(int32_t screen, bool random);
 bool can_side_load(int32_t id);
-bool scriptloadenemies();
+bool scriptloadenemies(int screen);
 void loadenemies();
 void moneysign();
 void putprices(bool sign);
