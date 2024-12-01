@@ -8449,7 +8449,7 @@ bool eGhini::animate(int32_t index)
 			}
 			else 
 			{
-				activation_counters[(int)COMBOPOS_REGION(x, y)]=0;
+				activation_counters[(int)COMBOPOS_REGION(x, y) % 176]=0;
 				removearmos(x,y);
 			}
 		}

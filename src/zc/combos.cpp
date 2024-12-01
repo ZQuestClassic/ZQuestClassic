@@ -1502,8 +1502,9 @@ bool trigger_armos_grave(const rpos_handle_t& rpos_handle, int32_t trigdir)
 				
 				int32_t xpos2 = tx+xpos;
 				int32_t ypos2 = ty+ypos;
-				int32_t id3 = COMBOPOS(xpos2, ypos2);
-				// TODO z3 ?
+				// for now just coerce a rpos to a pos. these are just for respawn timers, and it seems
+				// like two combos a screen away can share the same cooldown clock for armos/graves.
+				int32_t id3 = (int)COMBOPOS_REGION(xpos2, ypos2) % 176;
 				for (int32_t n = 0; n < armosysz && id3 < 176; n++)
 				{
 					for (int32_t m = 0; m < armosxsz && id3 < 176; m++) 
@@ -1515,7 +1516,7 @@ bool trigger_armos_grave(const rpos_handle_t& rpos_handle, int32_t trigdir)
 				}
 				if (guysbuf[id2].family == eeGHOMA) 
 				{
-					if ( combobuf[(tmpscr->data[pos-chx+1])].type == cARMOS ) xpos += 16;
+					if ( COMBOTYPE(tx + chx + 1, ty) == cARMOS ) xpos += 16;
 				}
 				if(addenemy(rpos_handle.screen,tx+xpos,ty+1+ypos,id2,0))
 				{
