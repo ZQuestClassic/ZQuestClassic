@@ -9539,12 +9539,13 @@ heroanimate_skip_liftwpn:;
 		    ty = y.getInt()+8;//(bigHitbox?8:12);
 		if (unsigned(ty) < world_h && unsigned(tx) < world_w)
 		{
+			rpos_t rpos = COMBOPOS_REGION(tx, ty);
 			for(int32_t q = 0; q < 3; ++q)
 			{
-				mapscr* s = get_screen_layer_for_world_xy(tx, ty, q);
-				if (q && !s->valid) continue;
+				auto rpos_handle = get_rpos_handle(rpos, q);
+				if (!rpos_handle.scr->is_valid()) continue;
 
-				newcombo const& cmb = combobuf[s->data[COMBOPOS(tx%256,ty%176)]];
+				auto& cmb = rpos_handle.combo();
 				if(cmb.type != cCSWITCHBLOCK || !(cmb.usrflags&cflag9)) continue;
 				int32_t b = 1;
 				if(tx&8) b <<= 2;
@@ -22741,16 +22742,16 @@ static int32_t GridY(int32_t y)
 	return (y >> 4) << 4;
 }
 
-int32_t grabComboFromPos(int32_t pos, int32_t type)
+static int32_t grabComboFromPos(int32_t epos, int32_t type)
 {
-	int x = COMBOX_REGION_EXTENDED(pos);
-	int y = COMBOY_REGION_EXTENDED(pos);
-	int normalpos = COMBOPOS(x%256, y%176);
+	int x = COMBOX_REGION_EXTENDED(epos);
+	int y = COMBOY_REGION_EXTENDED(epos);
+	int pos = COMBOPOS(x%256, y%176);
 	int scr = get_screen_index_for_world_xy(x, y);
 
 	for(int32_t lyr = 6; lyr >= 0; --lyr)
 	{
-		int32_t id = get_layer_scr(scr, lyr - 1)->data[normalpos];
+		int32_t id = get_layer_scr(scr, lyr - 1)->data[pos];
 		if(combobuf[id].type == type)
 			return id;
 	}

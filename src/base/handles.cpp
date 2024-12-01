@@ -102,6 +102,16 @@ void ffc_handle_t::decrement_data() const
 	zc_ffc_modify(*ffc, -1);
 }
 
+uint8_t ffc_handle_t::cflag() const
+{
+	return combobuf[ffc->data].flag;
+}
+
+uint8_t ffc_handle_t::ctype() const
+{
+	return combobuf[ffc->data].type;
+}
+
 bool combined_handle_t::is_rpos() const
 {
 	return std::holds_alternative<rpos_handle_t>(*this);

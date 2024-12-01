@@ -42,7 +42,7 @@ ZC_FORCE_INLINE void for_every_screen_in_region(T&& fn)
 
 // Iterates over every rpos in the current region, but only for screens that are valid.
 // Hits every layer too.
-// Callback function: void fn(const pos_handle_t& rpos_handle)
+// Callback function: void fn(const rpos_handle_t& rpos_handle)
 template<typename T>
 requires std::is_invocable_v<T, const rpos_handle_t&>
 ZC_FORCE_INLINE void for_every_rpos(T&& fn)
@@ -63,7 +63,7 @@ ZC_FORCE_INLINE void for_every_rpos(T&& fn)
 
 // Iterates over every rpos in the current region, but only for screens that are valid,
 // and only for layer 0.
-// Callback function: void fn(const pos_handle_t& rpos_handle)
+// Callback function: void fn(const rpos_handle_t& rpos_handle)
 template<typename T>
 requires std::is_invocable_v<T, const rpos_handle_t&>
 ZC_FORCE_INLINE void for_every_rpos_layer0(T&& fn)
@@ -86,7 +86,7 @@ ZC_FORCE_INLINE void for_every_rpos_layer0(T&& fn)
 
 // Iterates over every visbile rpos in the current region, but only for screens that are valid,
 // but only for layer 0.
-// Callback function: void fn(const pos_handle_t& rpos_handle)
+// Callback function: void fn(const rpos_handle_t& rpos_handle)
 template<typename T>
 requires std::is_invocable_v<T, const rpos_handle_t&>
 ZC_FORCE_INLINE void for_every_visible_rpos_layer0(T&& fn)
@@ -114,7 +114,7 @@ ZC_FORCE_INLINE void for_every_visible_rpos_layer0(T&& fn)
 
 // Iterates over every rpos in the current region, but only for screens that are valid,
 // until execution is requested to stop.
-// Callback function: bool fn(const pos_handle_t& rpos_handle)
+// Callback function: bool fn(const rpos_handle_t& rpos_handle)
 // If the callback returns false, the exeuction stops early.
 template<typename T>
 requires std::is_invocable_v<T, const rpos_handle_t&>
@@ -255,7 +255,7 @@ ZC_FORCE_INLINE std::optional<ffc_handle_t> find_ffc(T&& fn)
 }
 
 // Iterates over every rpos for a specified screen.
-// Callback function: void fn(const pos_handle_t& pos_handle_t)
+// Callback function: void fn(const rpos_handle_t& rpos_handle_t)
 template<typename T>
 requires std::is_invocable_v<T, const rpos_handle_t&>
 ZC_FORCE_INLINE void for_every_rpos_in_screen(mapscr* scr, T&& fn)

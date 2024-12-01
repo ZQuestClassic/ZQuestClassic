@@ -2491,12 +2491,12 @@ int32_t zmap::MAPCOMBO2(int32_t lyr,int32_t x,int32_t y, int32_t map, int32_t sc
     else
         layer = AbsoluteScr(layermap,screen1->layerscreen[lyr]);
         
-    int32_t combo = COMBOPOS(x,y);
+    int32_t pos = COMBOPOS(x,y);
     
-    if(combo>175 || combo < 0)
+    if(pos>175 || pos < 0)
         return 0;
         
-    return layer->data[combo];
+    return layer->data[pos];
 }
 
 int32_t zmap::MAPCOMBO(int32_t x,int32_t y, int32_t map, int32_t scr) //map=-1,scr=-1

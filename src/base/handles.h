@@ -85,6 +85,9 @@ struct ffc_handle_t
 	void decrement_data() const;
 
 	void set_cset(int32_t cset) const;
+
+	uint8_t cflag() const;
+	uint8_t ctype() const;
 };
 
 // TODO: this may be a tad overengineered for its current usecases. Consider replacing
