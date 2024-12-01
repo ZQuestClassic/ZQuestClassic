@@ -678,7 +678,7 @@ public:
 	void draw_flash(BITMAP *dest);
 };
 
-void getBigTri(int32_t id2);
+void getBigTri(mapscr* scr, int32_t id2);
 
 // segment manager
 class eMoldorm : public enemy

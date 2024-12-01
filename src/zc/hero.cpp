@@ -12345,7 +12345,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			if(!checkbunny(itemid))
 				return item_error();
 			
-			bool grumble = (hero_scr->room==rGRUMBLE && (!getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (hero_scr->flags9&fBELOWRETURN)));
+			bool grumble = (hero_scr->room==rGRUMBLE && (!getmapflag(hero_scr, (currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (hero_scr->flags9&fBELOWRETURN)));
 			bool checkcost = grumble || !(itm.flags & item_flag4);
 			bool paycost = grumble || !(itm.flags & (item_flag4|item_flag5));
 			
@@ -12366,7 +12366,7 @@ bool HeroClass::startwpn(int32_t itemid)
 				dismissmsg();
 				clear_bitmap(pricesdisplaybuf);
 				set_clip_state(pricesdisplaybuf, 1);
-				setmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
+				setmapflag(hero_scr, (currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
 				if(!(itm.flags & item_flag3)) //"Don't remove when feeding" flag
 				{
 					removeItemsOfFamily(game,itemsbuf,itype_bait);
@@ -23735,12 +23735,12 @@ void HeroClass::handleSpotlights()
 	if(hastrigs && istrigged && !alltrig)
 	{
 		// TODO what screen?
-		trigger_secrets_for_screen(TriggerSource::LightTrigger, hero_screen, false);
+		trigger_secrets_for_screen(TriggerSource::LightTrigger, tmpscr->screen, false);
 		sfx(tmpscr->secretsfx);
 		if(!(tmpscr->flags5&fTEMPSECRETS))
 		{
-			setmapflag(mSECRET);
-			setmapflag(mLIGHTBEAM);
+			setmapflag(tmpscr, mSECRET);
+			setmapflag(tmpscr, mLIGHTBEAM);
 		}
 	}
 }
@@ -25461,7 +25461,7 @@ RaftingStuff:
 			init_dmap();
 			
 			if(canPermSecret(currdmap, currscr))
-				setmapflag(mSECRET);
+				setmapflag_homescr(mSECRET);
 		}
 		
 		if(specialcave==STAIRCAVE) exitcave();
@@ -30253,7 +30253,7 @@ void dospecialmoney(int32_t index)
 	//game->set_drupy(game->get_drupy()+price); may be needed everywhere
 
         putprices(false);
-        setmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
+        setmapflag(hero_scr, (currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
         break;
     }
         
@@ -30293,7 +30293,7 @@ void dospecialmoney(int32_t index)
 		total = vbound(total, 0, game->get_maxcounter(1)); //Never overflow! Overflow here causes subscreen bugs! -Z
 		game->set_drupy(game->get_drupy()-total);
         //game->set_drupy(game->get_drupy()+price);
-        setmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
+        setmapflag(hero_scr, (currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
         game->change_maxbombs(4);
         game->set_bombs(game->get_maxbombs());
         {
@@ -30339,7 +30339,7 @@ void dospecialmoney(int32_t index)
 	game->set_drupy(game->get_drupy()-total);
 
 	//game->set_drupy(game->get_drupy()+price);
-        setmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
+        setmapflag(hero_scr, (currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
         game->change_maxarrows(10);
         game->set_arrows(game->get_maxarrows());
         ((item*)items.spr(index))->pickup=ipDUMMY+ipFADE;
@@ -30370,7 +30370,7 @@ void dospecialmoney(int32_t index)
             game->set_maxlife(zc_max(game->get_maxlife()-game->get_hp_per_heart(),(game->get_hp_per_heart())));
         }
         
-        setmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
+        setmapflag(hero_scr, (currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
         ((item*)items.spr(0))->pickup=ipDUMMY+ipFADE;
         ((item*)items.spr(1))->pickup=ipDUMMY+ipFADE;
         fadeclk=66;
@@ -30759,7 +30759,7 @@ void post_item_collect()
 	throwGenScriptEvent(GENSCR_EVENT_POST_COLLECT_ITEM);
 }
 
-void HeroClass::handle_triforce(int32_t id)
+void HeroClass::handle_triforce(mapscr* scr, int32_t id)
 {
 	if(unsigned(id) >= MAXITEMS)
 		return;
@@ -30773,7 +30773,7 @@ void HeroClass::handle_triforce(int32_t id)
 			for(auto q = 0; q < 10; ++q)
 			{
 				if(unsigned(ids[q]) >= MAXITEMS) continue;
-				handle_triforce(ids[q]);
+				handle_triforce(scr, ids[q]);
 			}
 		}
 		break;
@@ -30781,7 +30781,7 @@ void HeroClass::handle_triforce(int32_t id)
 		{
 			if(itm.misc2>0)
 				getTriforce(id); //small
-			else getBigTri(id); //big
+			else getBigTri(scr, id); //big
 		}
 		break;
 	}
@@ -31272,7 +31272,7 @@ void HeroClass::checkitems(int32_t index)
 	{
 		game->lvlitems[dlevel]|=liBOSS;
 	}
-	handle_triforce(id2);
+	handle_triforce(item_scr, id2);
 	if(!holdclk)
 		post_item_collect();
 }

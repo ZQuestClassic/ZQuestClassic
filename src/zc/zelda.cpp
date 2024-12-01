@@ -2136,7 +2136,6 @@ int32_t init_game()
 	
 	if(game->get_continue_scrn() >= 0x80)
 	{
-		//if ((DMaps[currdmap].type&dmfTYPE)==dmOVERW || QHeader.zelda_version <= 0x190)
 		if((DMaps[currdmap].type&dmfTYPE)==dmOVERW)
 		{
 			homescr = currscr = hero_screen = DMaps[currdmap].cont;
@@ -2521,15 +2520,7 @@ int32_t cont_game()
 	add_nl1bsparkle=false;
 	add_nl2asparkle=false;
 	add_nl2bsparkle=false;
-	/*
-	  if(DMaps[currdmap].cont >= 0x80)
-	  {
-	  homescr = currscr = DMaps[0].cont;
-	  currdmap = warpscr = worldscr=0;
-	  currmap = DMaps[0].map;
-	  dlevel = DMaps[0].level;
-	  }
-	  */
+
 	bool changedlevel = false;
 	bool changeddmap = false;
 	if(currdmap != lastentrance_dmap)

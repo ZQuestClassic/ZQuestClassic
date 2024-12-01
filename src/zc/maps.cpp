@@ -1430,7 +1430,7 @@ void setmapflag(mapscr* scr, int32_t flag)
 	int mi = (currmap * MAPSCRSNORMAL) + scr->screen;
 	setmapflag_mi(scr, mi, flag);
 }
-void setmapflag(int32_t flag)
+void setmapflag_homescr(int32_t flag)
 {
     setmapflag_mi(tmpscr, (currmap*MAPSCRSNORMAL)+homescr, flag);
 }
@@ -1567,6 +1567,10 @@ bool getmapflag(int32_t screen, int32_t flag)
 {
 	int mi = (currmap * MAPSCRSNORMAL) + (screen >= 0x80 ? homescr : screen);
     return (game->maps[mi] & flag) != 0;
+}
+bool getmapflag(mapscr* scr, int32_t flag)
+{
+	return getmapflag(scr->screen, flag);
 }
 
 void setxmapflag(int32_t screen, uint32_t flag)
@@ -5834,7 +5838,7 @@ void load_a_screen_and_layers(int dmap, int map, int screen, int ldir)
 // starting the game, etc...)
 // Note: for regions, only the initial screen load calls this function. Simply walking between screens
 // in the same region does not use this, because every screen in a region is loaded into temporary memory up front.
-// If scr >= 0x80, `heroscr` will be saved to `homescr` and also be loaded into `special_warp_return_screen`.
+// If scr >= 0x80, `hero_screen` will be saved to `homescr` and also be loaded into `special_warp_return_screen`.
 // If overlay is true, the old tmpscr combos will be copied to the new tmpscr combos on all layers (but only where
 // the new screen has a 0 combo).
 // TODO: loadscr should set curdmap, but currently callers do that.
@@ -6013,6 +6017,8 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool overlay, std::set<int>& ffc_script_indices_to_remove)
 {
 	bool is_setting_special_warp_return_screen = tmp == 1;
+	if (is_setting_special_warp_return_screen)
+		is_setting_special_warp_return_screen=is_setting_special_warp_return_screen;
 	int32_t destlvl = DMaps[destdmap < 0 ? currdmap : destdmap].level;
 
 	mapscr previous_scr = tmp == 0 ? *tmpscr : special_warp_return_screen;

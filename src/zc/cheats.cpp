@@ -336,7 +336,7 @@ static void cheats_execute(Cheat cheat, int arg1, int arg2, std::string arg3)
 	case TrigSecretsPerm:
 	{
 		trigger_secrets_for_screen(TriggerSource::CheatPerm, hero_screen);
-		setmapflag(mSECRET);
+		setmapflag(hero_scr, mSECRET);
 	}
 	break;
 	case ShowL0:

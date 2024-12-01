@@ -444,7 +444,7 @@ private:
 	void stepout();
 	void masked_draw(BITMAP *dest);
 	void prompt_draw(BITMAP *dest);
-	void handle_triforce(int32_t id);
+	void handle_triforce(mapscr* scr, int32_t id);
 	void getTriforce(int32_t id);
 	int32_t weaponattackpower(int32_t itid = -1);
 	void positionNet(weapon* w,int32_t itemid);

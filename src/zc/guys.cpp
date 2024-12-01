@@ -13577,7 +13577,7 @@ void eGanon::draw_flash(BITMAP *dest)
 	overtile16(dest,196,x+8+c,y+8+c+playing_field_offset,cs,3);
 }
 
-void getBigTri(int32_t id2)
+void getBigTri(mapscr* scr, int32_t id2)
 {
 	/*
 	  *************************
@@ -13600,7 +13600,7 @@ void getBigTri(int32_t id2)
 		game->lvlitems[dlevel]|=liTRIFORCE;
 	}
 	
-	setmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
+	setmapflag(scr, (currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
 	
 	draw_screen();
 	
@@ -19596,19 +19596,19 @@ void setupscreen()
 {
 	boughtsomething=false;
 
-	// Either the current screen, or if in a 0x80 room the screen player came from.
-	mapscr* base_scr = currscr >= 128 ? &special_warp_return_screen : get_scr(currscr);
-	mapscr* cur_scr = get_scr(currscr);
+	// Either the origin screen, or if in a 0x80 room the screen player came from.
+	mapscr* base_scr = currscr >= 128 ? &special_warp_return_screen : origin_scr;
+	mapscr* scr = origin_scr;
 
 	word str=base_scr->str;
 
-	auto [dx, dy] = translate_screen_coordinates_to_world(currscr);
+	auto [dx, dy] = translate_screen_coordinates_to_world(scr->screen);
 	
 	// Prices are already set to 0 in dowarp()
 	switch(base_scr->room)
 	{
 	case rSP_ITEM:                                          // special item
-		additem(dx+120,dy+89,base_scr->catchall,ipONETIME2+ipHOLDUP+ipCHECK | ((cur_scr->flags8&fITEMSECRET) ? ipSECRETS : 0));
+		additem(dx+120,dy+89,base_scr->catchall,ipONETIME2+ipHOLDUP+ipCHECK | ((scr->flags8&fITEMSECRET) ? ipSECRETS : 0));
 		break;
 		
 	case rINFO:                                             // pay for info
@@ -19686,7 +19686,7 @@ void setupscreen()
 		break;
 		
 	case rREPAIR:                                           // door repair
-		setmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
+		setmapflag(scr, (currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
 		//  }
 		repaircharge=base_scr->catchall;
 		break;
