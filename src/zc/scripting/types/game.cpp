@@ -1259,7 +1259,7 @@ bool game_set_register(int32_t reg, int32_t value)
 			mi2 -= 8*(mi2/MAPSCRS);
 			
 			if(BC::checkMapID(mi2>>7, "Game->SetScreenState") == SH::_NoError)
-				(value)?setmapflag_mi(mi2, 1<<(ri->d[rINDEX2]/10000)) : unsetmapflag(mi2, 1 << (ri->d[rINDEX2] / 10000), true);
+				(value)?setmapflag_mi(mi2, 1<<(ri->d[rINDEX2]/10000)) : unsetmapflag_mi(mi2, 1 << (ri->d[rINDEX2] / 10000), true);
 		}
 		break;
 

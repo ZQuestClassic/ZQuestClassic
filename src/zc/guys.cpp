@@ -20493,9 +20493,9 @@ bool parsemsgcode()
 			}
 			bool state = bool(grab_next_argument());
 			if(state)
-				setmapflag_mi(mapind(map,scrid),1<<flag);
+				setmapflag_mi(msgscr, mapind(map,scrid),1<<flag);
 			else
-				unsetmapflag(mapind(map,scrid),1<<flag,true);
+				unsetmapflag_mi(msgscr, mapind(map,scrid),1<<flag,true);
 			return true;
 		}
 switched:

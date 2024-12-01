@@ -1435,6 +1435,7 @@ void setmapflag_homescr(int32_t flag)
 {
     setmapflag_mi(origin_scr, (currmap*MAPSCRSNORMAL)+home_screen, flag);
 }
+// TODO z3 ! rm
 void setmapflag_mi(int32_t mi2, int32_t flag)
 {
 	setmapflag_mi(origin_scr, mi2, flag);
@@ -1493,19 +1494,24 @@ void setmapflag_mi(mapscr* scr, int32_t mi2, int32_t flag)
     }
 }
 
-void unsetmapflag(int32_t flag, bool anyflag)
+void unsetmapflag_home(int32_t flag, bool anyflag)
 {
-    unsetmapflag((currmap*MAPSCRSNORMAL)+home_screen,flag,anyflag);
+    unsetmapflag_mi(origin_scr, (currmap*MAPSCRSNORMAL)+home_screen,flag,anyflag);
 }
 
 void unsetmapflag(mapscr* scr, int32_t flag, bool anyflag)
 {
 	if (scr->screen >= 0x80) scr = &special_warp_return_screen;
 	int mi = (currmap * MAPSCRSNORMAL) + scr->screen;
-	unsetmapflag(mi, flag, anyflag);
+	unsetmapflag_mi(scr, mi, flag, anyflag);
 }
 
-void unsetmapflag(int32_t mi2, int32_t flag, bool anyflag)
+void unsetmapflag_mi(int32_t mi2, int32_t flag, bool anyflag)
+{
+	unsetmapflag_mi(origin_scr, mi2, flag, anyflag);
+}
+
+void unsetmapflag_mi(mapscr* scr, int32_t mi2, int32_t flag, bool anyflag)
 {
     byte cscr = mi2&((1<<7)-1);
     byte cmap = (mi2>>7);
@@ -1514,7 +1520,7 @@ void unsetmapflag(int32_t mi2, int32_t flag, bool anyflag)
         game->maps[mi2] &= ~flag;
     else if(flag==mITEM || flag==mSPECIALITEM)
     {
-        if(!(get_scr(cmap, cscr)->flags4&fNOITEMRESET))
+        if(!(scr->flags4&fNOITEMRESET))
             game->maps[mi2] &= ~flag;
     }
     else game->maps[mi2] &= ~flag;
@@ -1538,8 +1544,7 @@ void unsetmapflag(int32_t mi2, int32_t flag, bool anyflag)
         
         while((nmap!=0) && !looped && !(nscr>=128))
         {
-			// TODO z3 !
-            if((tmpscr->nocarry&flag)!=flag && (game->maps[((nmap-1)<<7)+nscr] & flag))
+            if((scr->nocarry&flag)!=flag && (game->maps[((nmap-1)<<7)+nscr] & flag))
             {
                 Z_eventlog("State change carried over to (%d, %02X)\n",nmap,nscr);
                 game->maps[((nmap-1)<<7)+nscr] &= ~flag;

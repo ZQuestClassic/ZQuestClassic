@@ -16711,7 +16711,7 @@ void set_register(int32_t arg, int32_t value)
 		case SCREENSTATED:
 		{
 			int32_t mi2 = (currmap*MAPSCRSNORMAL)+cur_screen;
-			(value)?setmapflag_mi(mi2, 1<<((ri->d[rINDEX])/10000)) : unsetmapflag(mi2, 1 << ((ri->d[rINDEX]) / 10000));
+			(value)?setmapflag_mi(mi2, 1<<((ri->d[rINDEX])/10000)) : unsetmapflag_mi(mi2, 1 << ((ri->d[rINDEX]) / 10000));
 		}
 		break;
 		case SCREENEXSTATED:
@@ -18724,11 +18724,11 @@ void set_register(int32_t arg, int32_t value)
 			{
 				int32_t mi = get_mi(ri->mapsref);
 				if(mi<0) break;
-				(value)?setmapflag_mi(mi, 1<<((ri->d[rINDEX])/10000)) : unsetmapflag(mi, 1 << ((ri->d[rINDEX]) / 10000));
+				(value)?setmapflag_mi(mi, 1<<((ri->d[rINDEX])/10000)) : unsetmapflag_mi(mi, 1 << ((ri->d[rINDEX]) / 10000));
 			}
 			else
 			{
-				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","mapdata->State[]");
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","State[]");
 			}
 		}
 		break;

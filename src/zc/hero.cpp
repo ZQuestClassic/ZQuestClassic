@@ -28854,7 +28854,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 
 	if(fixed_door)
 	{
-		unsetmapflag(mSECRET);
+		unsetmapflag_home(mSECRET);
 		fixed_door = false;
 	}
 
