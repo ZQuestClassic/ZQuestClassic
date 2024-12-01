@@ -1972,8 +1972,6 @@ int32_t init_game()
 	}
 	
 	loadscr(currdmap, cur_screen, -1, false);
-	putscr(scrollbuf,0,0,tmpscr);
-	putscrdoors(scrollbuf,0,0,tmpscr);
 	
 	//preloaded freeform combos
 	//ffscript_engine(true); Can't do this here! Global arrays haven't been allocated yet... ~Joe
@@ -2338,8 +2336,6 @@ int32_t cont_game()
 	special_warp_return_screen.zero_memory();
 	
 	loadscr(currdmap, lastentrance, -1, false);
-	putscr(scrollbuf,0,0,tmpscr);
-	putscrdoors(scrollbuf,0,0,tmpscr);
 	script_drawing_commands.Clear();
 	
 	//preloaded freeform combos
@@ -2493,8 +2489,6 @@ void restart_level()
 	special_warp_return_screen.zero_memory();
 	
 	loadscr(currdmap, cur_screen, -1, false);
-	putscr(scrollbuf,0,0,tmpscr);
-	putscrdoors(scrollbuf,0,0,tmpscr);
 	//preloaded freeform combos
 	ffscript_engine(true);
 	
