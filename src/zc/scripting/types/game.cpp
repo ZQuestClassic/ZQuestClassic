@@ -28,7 +28,7 @@ int32_t whichlayer(int32_t scr)
 {
 	for (int32_t i = 0; i < 6; i++)
 	{
-		if (scr == (tmpscr->layermap[i] - 1) * MAPSCRS + tmpscr->layerscreen[i])
+		if (scr == (origin_scr->layermap[i] - 1) * MAPSCRS + origin_scr->layerscreen[i])
 			return i;
 	}
 
@@ -184,7 +184,7 @@ void do_setdmapintro(const bool v)
 
 } // end namespace
 
-// This is for the deprecated GetComboData functions (and friends).
+// This is for the deprecated Game->GetComboData functions (and friends).
 static int HandleGameScreenGetter(std::function<int(mapscr*, int)> cb, const char* context)
 {
 	int32_t pos = (ri->d[rINDEX])/10000;

@@ -3635,7 +3635,7 @@ int32_t get_bmaps(int32_t si)
 
 bool no_subscreen()
 {
-    return (tmpscr->flags3&fNOSUBSCR)!=0;
+    return (hero_scr->flags3&fNOSUBSCR)!=0;
 }
 
 bool isUserTinted()
