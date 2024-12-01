@@ -258,8 +258,8 @@ void do_generic_combo(const rpos_handle_t& rpos_handle, weapon *w, int32_t wid,
 					//undercombo or next?
 					if((combobuf[cid].usrflags&cflag12))
 					{
-						scr->data[pos] = tmpscr->undercombo;
-						scr->cset[pos] = tmpscr->undercset;
+						scr->data[pos] = scr->undercombo;
+						scr->cset[pos] = scr->undercset;
 						scr->sflag[pos] = 0;	
 					}
 					else
@@ -4574,6 +4574,7 @@ bool weapon::animate(int32_t index)
 			
 			int32_t wrx;
 			
+			// TODO z3
 			if(get_qr(qr_NOARRIVALPOINT))
 				wrx=tmpscr->warpreturnx[0];
 			else wrx=tmpscr->warparrivalx;

@@ -484,14 +484,14 @@ combined_handle_t get_combined_handle_for_world_xy(int x, int y, int layer)
 mapscr* get_screen_for_world_xy(int x, int y)
 {
 	// Quick path, but should work the same without.
-	if (!is_z3_scrolling_mode()) return tmpscr;
+	if (!is_z3_scrolling_mode()) return origin_scr;
 	return get_scr(get_screen_index_for_world_xy(x, y));
 }
 
 mapscr* get_scr_for_rpos(rpos_t rpos)
 {
 	// Quick path, but should work the same without.
-	if (!is_z3_scrolling_mode()) return tmpscr;
+	if (!is_z3_scrolling_mode()) return origin_scr;
 	return get_scr(get_screen_index_for_rpos(rpos));
 }
 
@@ -550,7 +550,7 @@ mapscr* get_scr_for_region_index_offset(int offset)
 mapscr* get_scr(int map, int screen)
 {
 	DCHECK_RANGE_INCLUSIVE(screen, 0, 135);
-	if (screen == cur_screen && map == currmap) return tmpscr;
+	if (screen == cur_screen && map == currmap) return origin_scr;
 	if (screen == home_screen && map == currmap) return &special_warp_return_screen;
 
 	if (map == currmap)
@@ -1433,11 +1433,11 @@ void setmapflag(mapscr* scr, int32_t flag)
 }
 void setmapflag_homescr(int32_t flag)
 {
-    setmapflag_mi(tmpscr, (currmap*MAPSCRSNORMAL)+home_screen, flag);
+    setmapflag_mi(origin_scr, (currmap*MAPSCRSNORMAL)+home_screen, flag);
 }
 void setmapflag_mi(int32_t mi2, int32_t flag)
 {
-	setmapflag_mi(tmpscr, mi2, flag);
+	setmapflag_mi(origin_scr, mi2, flag);
 }
 void setmapflag_mi(mapscr* scr, int32_t mi2, int32_t flag)
 {
@@ -1538,6 +1538,7 @@ void unsetmapflag(int32_t mi2, int32_t flag, bool anyflag)
         
         while((nmap!=0) && !looped && !(nscr>=128))
         {
+			// TODO z3 !
             if((tmpscr->nocarry&flag)!=flag && (game->maps[((nmap-1)<<7)+nscr] & flag))
             {
                 Z_eventlog("State change carried over to (%d, %02X)\n",nmap,nscr);
@@ -2398,6 +2399,7 @@ bool remove_screenstatecombos2(mapscr *s, bool do_layers, int32_t what1, int32_t
 		}
 	}
 	
+	// TODO z3
 	if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
 	{
 		word c = tmpscr->numFFC();
@@ -7032,7 +7034,7 @@ void toggle_switches(dword flags, bool entry, mapscr* m)
 	if(!flags) return; //No flags to toggle
 
 	int screen = m->screen;
-	bool iscurscr = m==tmpscr;
+	bool iscurscr = m==origin_scr;
 
 	for_every_rpos_in_screen(m, [&](const rpos_handle_t& rpos_handle) {
 		byte togglegrid[176] = {0};

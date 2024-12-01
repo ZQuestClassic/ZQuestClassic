@@ -2224,7 +2224,7 @@ int32_t init_game()
 	initZScriptGlobalScript(GLOBAL_SCRIPT_GAME); // before 'openscreen' incase FFCore.warpScriptCheck()
 	openscreen();
 	dointro();
-	if(!(tmpscr->room==rGANON && !get_qr(qr_GANON_CANT_SPAWN_ON_CONTINUE)))
+	if(!(hero_scr->room==rGANON && !get_qr(qr_GANON_CANT_SPAWN_ON_CONTINUE)))
 	{
 		loadguys();
 	}
@@ -2238,7 +2238,7 @@ int32_t init_game()
 	
 	if(!Quit)
 	{
-		if(tmpscr->room==rGANON && !get_qr(qr_GANON_CANT_SPAWN_ON_CONTINUE))
+		if(hero_scr->room==rGANON && !get_qr(qr_GANON_CANT_SPAWN_ON_CONTINUE))
 		{
 			Hero.ganon_intro();
 		}
@@ -2412,7 +2412,7 @@ int32_t cont_game()
 	show_subscreen_numbers=true;
 	show_subscreen_life=true;
 	dointro();
-	if(!(tmpscr->room==rGANON && !get_qr(qr_GANON_CANT_SPAWN_ON_CONTINUE)))
+	if(!(hero_scr->room==rGANON && !get_qr(qr_GANON_CANT_SPAWN_ON_CONTINUE)))
 	{
 		loadguys();
 	}
@@ -2421,14 +2421,14 @@ int32_t cont_game()
 	if(!Quit)
 	{
 		//play_DmapMusic();
-		if(!(tmpscr->room==rGANON && !get_qr(qr_GANON_CANT_SPAWN_ON_CONTINUE))) playLevelMusic();
+		if(!(hero_scr->room==rGANON && !get_qr(qr_GANON_CANT_SPAWN_ON_CONTINUE))) playLevelMusic();
 		
 		if(isdungeon())
 			Hero.stepforward(get_qr(qr_LTTPWALK)?11:12, false);
 			
 		newscr_clk=frame;
 		activated_timed_warp=false;
-		if(tmpscr->room==rGANON && !get_qr(qr_GANON_CANT_SPAWN_ON_CONTINUE))
+		if(hero_scr->room==rGANON && !get_qr(qr_GANON_CANT_SPAWN_ON_CONTINUE))
 		{
 			Hero.ganon_intro();
 		}
@@ -2520,7 +2520,7 @@ void restart_level()
 	Hero.trySideviewLadder();
 	show_subscreen_numbers=true;
 	show_subscreen_life=true;
-	if(!(tmpscr->room==rGANON && !get_qr(qr_GANON_CANT_SPAWN_ON_CONTINUE)))
+	if(!(hero_scr->room==rGANON && !get_qr(qr_GANON_CANT_SPAWN_ON_CONTINUE)))
 	{
 		loadguys();
 	}
@@ -2528,14 +2528,14 @@ void restart_level()
 	if(!Quit)
 	{
 		//play_DmapMusic();
-		if(!(tmpscr->room==rGANON && !get_qr(qr_GANON_CANT_SPAWN_ON_CONTINUE))) playLevelMusic();
+		if(!(hero_scr->room==rGANON && !get_qr(qr_GANON_CANT_SPAWN_ON_CONTINUE))) playLevelMusic();
 		
 		if(isdungeon())
 			Hero.stepforward(get_qr(qr_LTTPWALK)?11:12, false);
 			
 		newscr_clk=frame;
 		activated_timed_warp=false;
-		if(tmpscr->room==rGANON && !get_qr(qr_GANON_CANT_SPAWN_ON_CONTINUE))
+		if(hero_scr->room==rGANON && !get_qr(qr_GANON_CANT_SPAWN_ON_CONTINUE))
 		{
 			Hero.ganon_intro();
 		}

@@ -4928,11 +4928,7 @@ void HeroClass::check_wand_block2(int32_t bx, int32_t by, weapon *w)
     
     if(flag!=mfWAND&&flag2!=mfWAND&&flag3!=mfWAND&&flag!=mfSTRIKE&&flag2!=mfSTRIKE&&flag3!=mfSTRIKE)
         return;
-
-    //mapscr *s = cur_screen >= 128 ? &special_warp_return_screen : *tmpscr;
     
-    //trigger_secrets_if_flag(bx,by,mfWAND,true);
-    //trigger_secrets_if_flag(bx,by,mfSTRIKE,true);
     if((trigger_secrets_if_flag(bx,by,mfWAND,true)==false)&&(trigger_secrets_if_flag(bx,by,mfSTRIKE,true)==false))
     {
         if(flag3==mfWAND||flag3==mfSTRIKE)
@@ -4942,7 +4938,8 @@ void HeroClass::check_wand_block2(int32_t bx, int32_t by, weapon *w)
         }
     }
     
-    if(dontignore) { trigger_secrets_if_flag(bx,by,mfWAND,true); }
+    if(dontignore)
+		trigger_secrets_if_flag(bx,by,mfWAND,true);
 }
 
 void HeroClass::check_slash_block(weapon *w)
@@ -5586,10 +5583,6 @@ void HeroClass::check_wand_block(weapon *w)
     if(flag!=mfWAND&&flag2!=mfWAND&&flag3!=mfWAND&&flag!=mfSTRIKE&&flag2!=mfSTRIKE&&flag3!=mfSTRIKE)
         return;
         
-    //mapscr *s = cur_screen >= 128 ? &special_warp_return_screen : *tmpscr;
-    
-    //trigger_secrets_if_flag(bx,by,mfWAND,true);
-    //trigger_secrets_if_flag(bx,by,mfSTRIKE,true);
     if((trigger_secrets_if_flag(bx,by,mfWAND,true)==false)&&(trigger_secrets_if_flag(bx,by,mfSTRIKE,true)==false))
     {
         if(flag3==mfWAND||flag3==mfSTRIKE)
@@ -11878,8 +11871,8 @@ bool HeroClass::startwpn(int32_t itemid)
 		case itype_letter:
 		{
 			if(current_item(itype_letter)==i_letter &&
-					(cur_screen >= 128 ? special_warp_return_screen : *tmpscr).room==rP_SHOP &&
-					(cur_screen >= 128 ? special_warp_return_screen : *tmpscr).guy &&
+					(cur_screen >= 128 ? special_warp_return_screen : *hero_scr).room==rP_SHOP &&
+					(cur_screen >= 128 ? special_warp_return_screen : *hero_scr).guy &&
 					((cur_screen<128&&!(DMaps[currdmap].flags&dmfGUYCAVES))
 						||(cur_screen>=128&&DMaps[currdmap].flags&dmfGUYCAVES)) &&
 					checkbunny(itemid)
@@ -11890,7 +11883,7 @@ bool HeroClass::startwpn(int32_t itemid)
 				if(usedid != -1)
 					getitem(usedid, true, true);
 					
-				sfx((cur_screen >= 128 ? special_warp_return_screen : *tmpscr).secretsfx);
+				sfx((cur_screen >= 128 ? special_warp_return_screen : *hero_scr).secretsfx);
 				setupscreen();
 				action=none; FFCore.setHeroAction(none);
 			}
@@ -21463,10 +21456,10 @@ bool usekey(int32_t num)
 bool islockeddoor(int32_t x, int32_t y, int32_t lock)
 {
     int32_t mc = (y&0xF0)+(x>>4);
-    bool ret = (((mc==7||mc==8||mc==23||mc==24) && tmpscr->door[up]==lock)
-                || ((mc==151||mc==152||mc==167||mc==168) && tmpscr->door[down]==lock)
-                || ((mc==64||mc==65||mc==80||mc==81) && tmpscr->door[left]==lock)
-                || ((mc==78||mc==79||mc==94||mc==95) && tmpscr->door[right]==lock));
+    bool ret = (((mc==7||mc==8||mc==23||mc==24) && origin_scr->door[up]==lock)
+                || ((mc==151||mc==152||mc==167||mc==168) && origin_scr->door[down]==lock)
+                || ((mc==64||mc==65||mc==80||mc==81) && origin_scr->door[left]==lock)
+                || ((mc==78||mc==79||mc==94||mc==95) && origin_scr->door[right]==lock));
     return ret;
 }
 
@@ -22530,24 +22523,24 @@ void HeroClass::checklocked()
 	if(openDir)
 	{
 		int d = *openDir;
-		if(tmpscr->door[d]==dLOCKED)
+		if(origin_scr->door[d]==dLOCKED)
 		{
 			if(usekey())
 			{
 				putdoor(scrollbuf,0,d,dUNLOCKED);
-				tmpscr->door[d]=dUNLOCKED;
+				origin_scr->door[d]=dUNLOCKED;
 				set_doorstate(d);
 				sfx(WAV_DOOR);
 				markBmap(-1);
 			}
 			else return;
 		}
-		else if(tmpscr->door[d]==dBOSS)
+		else if(origin_scr->door[d]==dBOSS)
 		{
 			if(game->lvlitems[dlevel]&liBOSSKEY)
 			{
 				putdoor(scrollbuf,0,d,dOPENBOSS);
-				tmpscr->door[d]=dOPENBOSS;
+				origin_scr->door[d]=dOPENBOSS;
 				set_doorstate(d);
 				sfx(WAV_DOOR);
 				markBmap(-1);
@@ -23524,7 +23517,7 @@ void HeroClass::handleSpotlights()
 	}
 
 	static bool had_spotlight = true;
-	word c = tmpscr->numFFC();
+	word c = origin_scr->numFFC();
 	if(cpos_exists_spotlight())
 	{
 		//Store each different tile/color as grids
@@ -23599,7 +23592,7 @@ void HeroClass::handleSpotlights()
 		}
 		for(word i=0; i<c; i++)
 		{
-			ffcdata& ffc = tmpscr->ffcs[i];
+			ffcdata& ffc = origin_scr->ffcs[i];
 			if(ffc.flags & (ffc_changer|ffc_ethereal))
 				continue;
 			newcombo const& cmb = combobuf[ffc.data];
@@ -23696,7 +23689,7 @@ void HeroClass::handleSpotlights()
 	}
 	for(word i=0; i<c; i++)
 	{
-		ffcdata& ffc = tmpscr->ffcs[i];
+		ffcdata& ffc = origin_scr->ffcs[i];
 		newcombo const* cmb = &combobuf[ffc.data];
 		size_t pos = get_qr(qr_BROKEN_LIGHTBEAM_HITBOX)
 			? COMBOPOS_B(ffc.x+8, ffc.y+8)
@@ -23732,7 +23725,7 @@ void HeroClass::handleSpotlights()
 			if(trigged ? (cmb->triggerflags[1] & combotriggerLIGHTON)
 				: (cmb->triggerflags[1] & combotriggerLIGHTOFF))
 			{
-				ffc_handle_t ffc_handle = {tmpscr, (uint8_t)cur_screen, i, (uint8_t)i, &ffc};
+				ffc_handle_t ffc_handle = {origin_scr, (uint8_t)cur_screen, i, (uint8_t)i, &ffc};
 				do_trigger_combo_ffc(ffc_handle);
 			}
 		}
@@ -23740,12 +23733,12 @@ void HeroClass::handleSpotlights()
 	if(hastrigs && istrigged && !alltrig)
 	{
 		// TODO what screen?
-		trigger_secrets_for_screen(TriggerSource::LightTrigger, tmpscr->screen, false);
-		sfx(tmpscr->secretsfx);
-		if(!(tmpscr->flags5&fTEMPSECRETS))
+		trigger_secrets_for_screen(TriggerSource::LightTrigger, origin_scr->screen, false);
+		sfx(origin_scr->secretsfx);
+		if(!(origin_scr->flags5&fTEMPSECRETS))
 		{
-			setmapflag(tmpscr, mSECRET);
-			setmapflag(tmpscr, mLIGHTBEAM);
+			setmapflag(origin_scr, mSECRET);
+			setmapflag(origin_scr, mLIGHTBEAM);
 		}
 	}
 }
@@ -25561,7 +25554,7 @@ void kill_enemy_sfx()
             stop_sfx(((enemy*)guys.spr(i))->bgsfx);
     }
     if (Hero.action!=inwind) stop_sfx(WAV_ZN1WHIRLWIND);
-    if(tmpscr->room==rGANON)
+    if(hero_scr->room==rGANON)
         stop_sfx(WAV_ROAR);
 }
 
@@ -26784,13 +26777,13 @@ bool HeroClass::dowarp(mapscr* scr, int32_t type, int32_t index, int32_t warpsfx
 			
 			if(get_qr(qr_NOARRIVALPOINT))
 			{
-				wrx=tmpscr->warpreturnx[0];
-				wry=tmpscr->warpreturny[0];
+				wrx=origin_scr->warpreturnx[0];
+				wry=origin_scr->warpreturny[0];
 			}
 			else
 			{
-				wrx=tmpscr->warparrivalx;
-				wry=tmpscr->warparrivaly;
+				wrx=origin_scr->warparrivalx;
+				wry=origin_scr->warparrivaly;
 			}
 			
 			if((wtype == wtEXIT)
@@ -26823,12 +26816,12 @@ bool HeroClass::dowarp(mapscr* scr, int32_t type, int32_t index, int32_t warpsfx
 		lastentrance = game->get_continue_scrn();
 	}
 	
-	if(tmpscr->flags4&fAUTOSAVE)
+	if(origin_scr->flags4&fAUTOSAVE)
 	{
 		save_game(true,0);
 	}
 	
-	if(tmpscr->flags6&fCONTINUEHERE)
+	if(origin_scr->flags6&fCONTINUEHERE)
 	{
 		lastentrance_dmap = currdmap;
 		lastentrance = home_screen;
@@ -28097,53 +28090,55 @@ void HeroClass::run_scrolling_script(int32_t scrolldir, int32_t cx, int32_t sx, 
 // return true to abort the topmost scrollscr() call. -L
 bool HeroClass::maze_enabled_sizewarp(int32_t scrolldir)
 {
+	mapscr* scr = tmpscr;
+
     for(int32_t i = 0; i < 3; i++) lastdir[i] = lastdir[i+1];
     
-    lastdir[3] = tmpscr->flags&fMAZE ? scrolldir : 0xFF;
+    lastdir[3] = scr->flags&fMAZE ? scrolldir : 0xFF;
     
-    if(tmpscr->flags8&fMAZEvSIDEWARP && tmpscr->flags&fMAZE && scrolldir != tmpscr->exitdir)
+    if(scr->flags8&fMAZEvSIDEWARP && scr->flags&fMAZE && scrolldir != scr->exitdir)
     {
         switch(scrolldir)
         {
         case up:
-            if(tmpscr->flags2&wfUP && checkmaze(tmpscr,true))
+            if(scr->flags2&wfUP && checkmaze(scr,true))
             {
                 lastdir[3] = 0xFF;
                 sdir=up;
-                dowarp(tmpscr,1,(tmpscr->sidewarpindex)&3);
+                dowarp(scr,1,(scr->sidewarpindex)&3);
                 return true;
             }
             
             break;
             
         case down:
-            if(tmpscr->flags2&wfDOWN && checkmaze(tmpscr,true))
+            if(scr->flags2&wfDOWN && checkmaze(scr,true))
             {
                 lastdir[3] = 0xFF;
                 sdir=down;
-                dowarp(tmpscr,1,(tmpscr->sidewarpindex>>2)&3);
+                dowarp(scr,1,(scr->sidewarpindex>>2)&3);
                 return true;
             }
             
             break;
             
         case left:
-            if(tmpscr->flags2&wfLEFT && checkmaze(tmpscr,true))
+            if(scr->flags2&wfLEFT && checkmaze(scr,true))
             {
                 lastdir[3] = 0xFF;
                 sdir=left;
-                dowarp(tmpscr,1,(tmpscr->sidewarpindex>>4)&3);
+                dowarp(scr,1,(scr->sidewarpindex>>4)&3);
                 return true;
             }
             
             break;
             
         case right:
-            if(tmpscr->flags2&wfRIGHT && checkmaze(tmpscr,true))
+            if(scr->flags2&wfRIGHT && checkmaze(scr,true))
             {
                 lastdir[3] = 0xFF;
                 sdir=right;
-                dowarp(tmpscr,1,(tmpscr->sidewarpindex)&3);
+                dowarp(scr,1,(scr->sidewarpindex)&3);
                 return true;
             }
             
