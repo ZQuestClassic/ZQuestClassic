@@ -25027,13 +25027,13 @@ void HeroClass::checkspecial2(int32_t *ls)
 	
 	
 	if(type==cSTEP)
-	{ 
-		if (COMBOPOS_REGION(tx+8, ty+8) != stepnext)
+	{
+		rpos_t next_step = COMBOPOS_REGION(tx+8, ty+8);
+		if (next_step != stepnext)
 		{
-			stepnext = COMBOPOS_REGION(tx+8, ty+8);
+			stepnext = next_step;
 			auto rpos_handle = get_rpos_handle(stepnext, 0);
 			int cid = MAPCOMBO(rpos_handle);
-			int pos = RPOS_TO_POS(stepnext);
 			
 			if
 		(
@@ -25044,7 +25044,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 		)
 		{
 			sfx(combobuf[cid].attribytes[0],pan((int32_t)x));
-			rpos_handle.scr->data[pos]++;
+			rpos_handle.increment_data();
 		}
 			
 			if
@@ -25056,13 +25056,10 @@ void HeroClass::checkspecial2(int32_t *ls)
 		)
 			{
 				sfx(combobuf[cid].attribytes[0],pan((int32_t)x));
-				for(int32_t k=0; k<176; k++)
-				{
-					if(rpos_handle.scr->data[k]==cid)
-					{
-						rpos_handle.scr->data[k]++;
-					}
-				}
+				for_every_rpos([&](const rpos_handle_t& rpos_handle) {
+					if (rpos_handle.data() == cid)
+						rpos_handle.increment_data();
+				});
 			}
 			
 			if

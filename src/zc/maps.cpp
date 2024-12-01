@@ -1092,7 +1092,6 @@ int32_t MAPCOMBOFLAG(int32_t x,int32_t y)
 	if (x < 0 || x >= world_w || y < 0 || y >= world_h)
 		return 0;
 
-	// TODO z3 ?
 	mapscr* scr = get_screen_for_world_xy(x, y);
 	int pos = COMBOPOS(x%256, y%176);
 	return combobuf[scr->data[pos]].flag;
