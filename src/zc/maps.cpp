@@ -135,7 +135,7 @@ void z3_calculate_region(int map, int screen, region& region, int& region_scr_dx
 	if (!(is_a_region(map, screen)) || screen >= 0x80)
 	{
 		region.region_id = 0;
-		region.origin_screen_index = screen;
+		region.origin_screen = screen;
 		region.origin_screen_x = screen % 16;
 		region.origin_screen_y = screen / 16;
 		region.screen_width = 1;
@@ -182,7 +182,7 @@ void z3_calculate_region(int map, int screen, region& region, int& region_scr_dx
 	}
 
 	region.region_id = get_region_id(map, origin_scr);
-	region.origin_screen_index = origin_scr;
+	region.origin_screen = origin_scr;
 	region.origin_screen_x = origin_scr_x;
 	region.origin_screen_y = origin_scr_y;
 	region.screen_width = region_scr_right - origin_scr_x + 1;
@@ -212,7 +212,7 @@ void z3_load_region(int dmap, int screen)
 	}
 
 	z3_calculate_region(map, screen, current_region, region_scr_dx, region_scr_dy);
-	cur_screen = current_region.origin_screen_index;
+	cur_screen = current_region.origin_screen;
 	world_w = current_region.width;
 	world_h = current_region.height;
 	region_scr_count = current_region.screen_count;
@@ -304,7 +304,7 @@ void z3_clear_temporary_screens()
 	}
 }
 
-std::vector<mapscr*> z3_take_temporary_screens()
+std::vector<mapscr*> z3_take_temporary_scrs()
 {
 	std::vector<mapscr*> screens(temporary_screens_currmap, temporary_screens_currmap + 136*7);
 	for (int i = 0; i < 136*7; i++)
@@ -449,7 +449,7 @@ rpos_handle_t get_rpos_handle_for_screen(int screen, int layer, int pos)
 
 // Return a pos_handle_t for a screen-specific `pos` (0-175).
 // Use this instead of the other `get_pos_handle_for_screen` if you already have a reference to the screen.
-rpos_handle_t get_rpos_handle_for_screen(mapscr* scr, int layer, int pos)
+rpos_handle_t get_rpos_handle_for_scr(mapscr* scr, int layer, int pos)
 {
 	DCHECK_LAYER_ZERO_INDEX(layer);
 	return {scr, scr->screen, layer, POS_TO_RPOS(pos, scr->screen), pos};
@@ -487,14 +487,14 @@ mapscr* get_screen_for_world_xy(int x, int y)
 	return get_scr(get_screen_index_for_world_xy(x, y));
 }
 
-mapscr* get_screen_for_rpos(rpos_t rpos)
+mapscr* get_scr_for_rpos(rpos_t rpos)
 {
 	// Quick path, but should work the same without.
 	if (!is_z3_scrolling_mode()) return tmpscr;
 	return get_scr(get_screen_index_for_rpos(rpos));
 }
 
-mapscr* get_screen_layer_for_rpos(rpos_t rpos, int layer)
+mapscr* get_scr_layer_for_rpos(rpos_t rpos, int layer)
 {
 	return get_layer_scr(get_screen_index_for_rpos(rpos), layer);
 }
@@ -513,18 +513,18 @@ int z3_get_region_relative_dx(int screen)
 {
 	return z3_get_region_relative_dx(screen, cur_screen);
 }
-int z3_get_region_relative_dx(int screen, int origin_screen_index)
+int z3_get_region_relative_dx(int screen, int origin_screen)
 {
-	return screen % 16 - origin_screen_index % 16;
+	return screen % 16 - origin_screen % 16;
 }
 
 int z3_get_region_relative_dy(int screen)
 {
 	return z3_get_region_relative_dy(screen, cur_screen);
 }
-int z3_get_region_relative_dy(int screen, int origin_screen_index)
+int z3_get_region_relative_dy(int screen, int origin_screen)
 {
-	return screen / 16 - origin_screen_index / 16;
+	return screen / 16 - origin_screen / 16;
 }
 
 int get_region_screen_index_offset(int screen)
@@ -540,7 +540,7 @@ int get_screen_index_for_region_index_offset(int offset)
 	return screen;
 }
 
-mapscr* get_screen_for_region_index_offset(int offset)
+mapscr* get_scr_for_region_index_offset(int offset)
 {
 	int screen = get_screen_index_for_region_index_offset(offset);
 	return get_scr(screen);
@@ -2810,7 +2810,7 @@ void trigger_secrets_for_screen_internal(int32_t screen, mapscr *scr, bool do_co
 					if(msflag!=0)
 						ft=msflag;
 					
-					auto rpos_handle = get_rpos_handle_for_screen(scr, 0, i);
+					auto rpos_handle = get_rpos_handle_for_scr(scr, 0, i);
 					screen_combo_modify_preroutine(rpos_handle);
 					if(ft==sSECNEXT)
 					{
@@ -2948,7 +2948,7 @@ void trigger_secrets_for_screen_internal(int32_t screen, mapscr *scr, bool do_co
 				
 				if((checkflag > 15)&&(checkflag < 32)) //If we've got a 16->32 flag change the combo
 				{
-					auto rpos_handle = get_rpos_handle_for_screen(scr, 0, i);
+					auto rpos_handle = get_rpos_handle_for_scr(scr, 0, i);
 					screen_combo_modify_preroutine(rpos_handle);
 					scr->data[i] = scr->secretcombo[checkflag-16+4];
 					scr->cset[i] = scr->secretcset[checkflag-16+4];

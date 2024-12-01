@@ -403,7 +403,7 @@ int32_t getScreen(int32_t ref)
 
 static ffcdata* get_ffc_raw(int ffc_id)
 {
-	return &get_screen_for_region_index_offset(ffc_id / MAXFFCS)->getFFC(ffc_id % MAXFFCS);
+	return &get_scr_for_region_index_offset(ffc_id / MAXFFCS)->getFFC(ffc_id % MAXFFCS);
 }
 
 dword get_subref(int sub, byte ty, byte pg = 0, word ind = 0)
@@ -6340,7 +6340,7 @@ int32_t get_register(int32_t arg)
 		    ret = -10000; \
 		} \
 		else \
-		    ret = get_screen_for_rpos(rpos)->member[pos]*10000; \
+		    ret = get_scr_for_rpos(rpos)->member[pos]*10000; \
 		}
 
 		case COMBODD:
@@ -6361,7 +6361,7 @@ int32_t get_register(int32_t arg)
 			ret = -10000; \
 		    } \
 		    else \
-			ret = combobuf[get_screen_for_rpos(rpos)->data[pos]].member * 10000; \
+			ret = combobuf[get_scr_for_rpos(rpos)->data[pos]].member * 10000; \
 		}
 			
 		case COMBOTD:
@@ -6378,7 +6378,7 @@ int32_t get_register(int32_t arg)
 			if(BC::checkComboRpos(rpos, "Screen->ComboS[]") != SH::_NoError)
 				ret = -10000;
 			else
-				ret = (combobuf[get_screen_for_rpos(rpos)->data[pos]].walk & 0xF) * 10000;
+				ret = (combobuf[get_scr_for_rpos(rpos)->data[pos]].walk & 0xF) * 10000;
 		}
 		break;
 			
@@ -6390,7 +6390,7 @@ int32_t get_register(int32_t arg)
 			if(BC::checkComboPos(pos, "Screen->ComboE[]") != SH::_NoError)
 				ret = -10000;
 			else
-				ret = ((combobuf[get_screen_for_rpos(rpos)->data[pos]].walk & 0xF0)>>4) * 10000;
+				ret = ((combobuf[get_scr_for_rpos(rpos)->data[pos]].walk & 0xF0)>>4) * 10000;
 		}
 		break;
 

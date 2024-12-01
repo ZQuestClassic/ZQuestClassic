@@ -7529,7 +7529,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 	}
 	else
 	{
-		damage_scr = get_screen_for_rpos(best_rpos);
+		damage_scr = get_scr_for_rpos(best_rpos);
 	}
 	
 	bool global_defring = ((itemsbuf[current_item_id(itype_ring)].flags & item_flag1));
@@ -28685,7 +28685,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	bool should_delay_taking_old_screens =
 		!(replay_is_debug() && replay_get_meta_str("qst") == "crucible_quest.qst");
 	if (!should_delay_taking_old_screens)
-		old_temporary_screens = z3_take_temporary_screens();
+		old_temporary_screens = z3_take_temporary_scrs();
 
 	mapscr *oldscr = &special_warp_return_screen;
 	conveyclk = 2;
@@ -28865,7 +28865,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 
 	// Remember everything about the current region, because `loadscr` is about to reset this data.
 	if (should_delay_taking_old_screens)
-		old_temporary_screens = z3_take_temporary_screens();
+		old_temporary_screens = z3_take_temporary_scrs();
 	FFCore.ScrollingScreensAll = old_temporary_screens;
 	currmap = destmap;
 

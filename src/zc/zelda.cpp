@@ -5335,5 +5335,5 @@ string get_box_cfg_hdr(int num)
 
 ffcdata* slopes_getFFC(int id)
 {
-	return &get_screen_for_region_index_offset(id / MAXFFCS)->getFFC(id % MAXFFCS);
+	return &get_scr_for_region_index_offset(id / MAXFFCS)->getFFC(id % MAXFFCS);
 }
