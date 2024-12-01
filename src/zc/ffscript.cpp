@@ -18594,11 +18594,10 @@ void set_register(int32_t arg, int32_t value)
 			auto result = decode_mapdata_ref(ri->mapsref);
 			if (auto rpos_handle = ResolveMapdataPos(ri->mapsref, pos, "mapdata->ComboD[pos]"))
 			{
-				// TODO z3 ! needs replay check ...
-				// if (result.type == mapdata_type::Canonical)
+				if (result.type == mapdata_type::Temporary_Cur)
 					screen_combo_modify_preroutine(rpos_handle);
 				rpos_handle.set_data(val);
-				// if (result.type == mapdata_type::Canonical)
+				if (result.type == mapdata_type::Temporary_Cur)
 					screen_combo_modify_postroutine(rpos_handle);
 			}
 		}
@@ -18617,10 +18616,10 @@ void set_register(int32_t arg, int32_t value)
 			auto result = decode_mapdata_ref(ri->mapsref);
 			if (auto rpos_handle = ResolveMapdataPos(ri->mapsref, pos, "mapdata->ComboC[pos]"))
 			{
-				if (result.type == mapdata_type::Canonical)
+				if (result.type == mapdata_type::Temporary_Cur)
 					screen_combo_modify_preroutine(rpos_handle);
 				rpos_handle.set_cset(val&15);
-				if (result.type == mapdata_type::Canonical)
+				if (result.type == mapdata_type::Temporary_Cur)
 					screen_combo_modify_postroutine(rpos_handle);
 			}
 		}
@@ -18657,11 +18656,9 @@ void set_register(int32_t arg, int32_t value)
 			if (auto rpos_handle = ResolveMapdataPos(ri->mapsref, pos, "mapdata->ComboT[]"))
 			{
 				auto cid = rpos_handle.data();
-				if (result.type == mapdata_type::Canonical)
-					screen_combo_modify_pre(cid);
+				screen_combo_modify_pre(cid);
 				combobuf[cid].type=val;
-				if (result.type == mapdata_type::Canonical)
-					screen_combo_modify_post(cid);
+				screen_combo_modify_post(cid);
 			}
 		}
 		break;
