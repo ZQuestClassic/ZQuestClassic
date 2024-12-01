@@ -646,7 +646,7 @@ mapscr* get_layer_scr_allow_scrolling(int map, int screen, int layer)
 	return FFCore.ScrollingScreensAll[screen * 7 + layer + 1];
 }
 
-ffc_handle_t get_ffc(ffc_id_t id)
+ffc_handle_t get_ffc_handle(ffc_id_t id)
 {
 	uint8_t screen = get_screen_index_for_region_index_offset(id / MAXFFCS);
 	uint8_t i = id % MAXFFCS;
@@ -1111,18 +1111,6 @@ std::optional<ffc_handle_t> getFFCAt(int32_t x, int32_t y)
 		return ffcIsAt(ffc_handle, x, y);
 	});
 }
-
-// TODO z3 !
-// ffc_handle_t get_ffc_handle(uint16_t ffc_id)
-// {
-// 	uint8_t i = ffc_id % MAXFFCS;
-// 	uint8_t screen_index_offset = ffc_id / MAXFFCS;
-// 	uint8_t scr_dx = screen_index_offset % current_region.screen_width;
-// 	uint8_t scr_dy = screen_index_offset / current_region.screen_width;
-// 	uint8_t screen = cur_screen + scr_dx + scr_dy*16;
-// 	mapscr* scr = get_scr(screen);
-// 	return {scr, screen, ffc_id, i, &scr->ffcs[i]};
-// }
 
 int32_t MAPCOMBO(const rpos_handle_t& rpos_handle)
 {
@@ -3295,7 +3283,7 @@ void update_freeform_combos()
 				});
 			}
 
-			ffcdata* linked_ffc = thisffc.link ? get_ffc(thisffc.link - 1).ffc : nullptr;
+			ffcdata* linked_ffc = thisffc.link ? get_ffc_handle(thisffc.link - 1).ffc : nullptr;
 			if (linked_ffc ? !linked_ffc->delay : !thisffc.delay)
 			{
 				if(thisffc.link && (thisffc.link-1) != ffc_handle.id)

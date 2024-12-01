@@ -401,7 +401,8 @@ int32_t getScreen(int32_t ref)
 	}
 }
 
-static ffcdata* get_ffc_raw(int ffc_id)
+// TODO z3 ! fix null cases
+static ffcdata* get_ffc(ffc_id_t ffc_id)
 {
 	return &get_scr_for_region_index_offset(ffc_id / MAXFFCS)->getFFC(ffc_id % MAXFFCS);
 }
@@ -1275,7 +1276,7 @@ static bool set_current_script_engine_data(ScriptType type, int script, int inde
 		case ScriptType::FFC:
 		{
 			curscript = ffscripts[script];
-			ffcdata* ffc = get_ffc_raw(index);
+			ffcdata* ffc = get_ffc(index);
 
 			if (!data.initialized)
 			{
@@ -2360,27 +2361,27 @@ void FFScript::deallocateAllScriptOwnedCont()
 	}
 }
 
-ffcdata *checkFFC(int32_t id, const char *what)
+ffcdata *ResolveFFC(int32_t ffcref, const char *what)
 {
 	if (ZScriptVersion::ffcRefIsSpriteId())
 	{
-		if (auto s = sprite::getByUID(id))
+		if (auto s = sprite::getByUID(ffcref))
 		{
 			if (auto ffc = dynamic_cast<ffcdata*>(s))
 				return ffc;
 
 			Z_scripterrlog("Script attempted to reference a FFC, but the sprite found was not an FFC.\n");
-			Z_scripterrlog("You were trying to reference the %s of an FFC with UID = %ld\n", what, id);
+			Z_scripterrlog("You were trying to reference the %s of an FFC with UID = %ld\n", what, ffcref);
 			return nullptr;
 		}
 
 		Z_scripterrlog("Script attempted to reference a nonexistent FFC!\n");
-		Z_scripterrlog("You were trying to reference the %s of an FFC with UID = %ld\n", what, id);
+		Z_scripterrlog("You were trying to reference the %s of an FFC with UID = %ld\n", what, ffcref);
 		return nullptr;
 	}
 
-	if (BC::checkFFC(id, what) == SH::_NoError)
-		return get_ffc_raw(id);
+	if (BC::checkFFC(ffcref, what) == SH::_NoError)
+		return get_ffc(ffcref);
 
 	return nullptr;
 }
@@ -2791,86 +2792,86 @@ int32_t get_register(int32_t arg)
 		///----------------------------------------------------------------------------------------------------//
 		//FFC Variables
 		case DATA:
-			if (auto ffc = checkFFC(ri->ffcref, "ffc->Data"))
+			if (auto ffc = ResolveFFC(ri->ffcref, "ffc->Data"))
 				ret = ffc->data * 10000;
 			break;
 			
 		case FFSCRIPT:
-			if(auto ffc = checkFFC(ri->ffcref, "ffc->Script"))
+			if(auto ffc = ResolveFFC(ri->ffcref, "ffc->Script"))
 				ret = ffc->script * 10000;
 			break;
 			
 		case FCSET:
-			if(auto ffc = checkFFC(ri->ffcref, "ffc->CSet"))
+			if(auto ffc = ResolveFFC(ri->ffcref, "ffc->CSet"))
 				ret = ffc->cset * 10000;
 			break;
 			
 		case DELAY:
-			if(auto ffc = checkFFC(ri->ffcref, "ffc->Delay"))
+			if(auto ffc = ResolveFFC(ri->ffcref, "ffc->Delay"))
 				ret = ffc->delay * 10000;
 			break;
 			
 		case FX:
-			if(auto ffc = checkFFC(ri->ffcref, "ffc->X"))
+			if(auto ffc = ResolveFFC(ri->ffcref, "ffc->X"))
 				ret = ffc->x.getZLong();
 			break;
 			
 		case FY:
-			if(auto ffc = checkFFC(ri->ffcref, "ffc->Y"))
+			if(auto ffc = ResolveFFC(ri->ffcref, "ffc->Y"))
 				ret = ffc->y.getZLong();
 			break;
 			
 		case XD:
-			if(auto ffc = checkFFC(ri->ffcref, "ffc->Vx"))
+			if(auto ffc = ResolveFFC(ri->ffcref, "ffc->Vx"))
 				ret = ffc->vx.getZLong();
 			break;
 			
 		case YD:
-			if(auto ffc = checkFFC(ri->ffcref, "ffc->Vy"))
+			if(auto ffc = ResolveFFC(ri->ffcref, "ffc->Vy"))
 				ret = ffc->vy.getZLong();
 			break;
 		case FFCID:
-			if (auto ffc = checkFFC(ri->ffcref, "ffc->ID"))
+			if (auto ffc = ResolveFFC(ri->ffcref, "ffc->ID"))
 				ret = (get_region_screen_index_offset(ffc->screen_spawned) * MAXFFCS + ffc->index + 1) * 10000;
 			break;
 			
 		case XD2:
-			if(auto ffc = checkFFC(ri->ffcref, "ffc->Ax"))
+			if(auto ffc = ResolveFFC(ri->ffcref, "ffc->Ax"))
 				ret = ffc->ax.getZLong();
 			break;
 			
 		case YD2:
-			if(auto ffc = checkFFC(ri->ffcref, "ffc->Ay"))
+			if(auto ffc = ResolveFFC(ri->ffcref, "ffc->Ay"))
 				ret = ffc->ay.getZLong();
 			break;
 			
 		case FFFLAGSD:
-			if(auto ffc = checkFFC(ri->ffcref, "ffc->Flags[]"))
+			if(auto ffc = ResolveFFC(ri->ffcref, "ffc->Flags[]"))
 				ret = (ffc->flags >> (ri->d[rINDEX] / 10000)) & 1 ? 10000 : 0;
 			break;
 			
 		case FFCWIDTH:
-			if(auto ffc = checkFFC(ri->ffcref, "ffc->EffectWidth"))
+			if(auto ffc = ResolveFFC(ri->ffcref, "ffc->EffectWidth"))
 				ret = ffc->hit_width * 10000;
 			break;
 			
 		case FFCHEIGHT:
-			if(auto ffc = checkFFC(ri->ffcref, "ffc->EffectHeight"))
+			if(auto ffc = ResolveFFC(ri->ffcref, "ffc->EffectHeight"))
 				ret = ffc->hit_height * 10000;
 			break;
 			
 		case FFTWIDTH:
-			if(auto ffc = checkFFC(ri->ffcref, "ffc->TileWidth"))
+			if(auto ffc = ResolveFFC(ri->ffcref, "ffc->TileWidth"))
 				ret = ffc->txsz * 10000;
 			break;
 			
 		case FFTHEIGHT:
-			if(auto ffc = checkFFC(ri->ffcref, "ffc->TileHeight"))
+			if(auto ffc = ResolveFFC(ri->ffcref, "ffc->TileHeight"))
 				ret = ffc->tysz * 10000;
 			break;
 			
 		case FFLINK:
-			if(auto ffc = checkFFC(ri->ffcref, "ffc->Link"))
+			if(auto ffc = ResolveFFC(ri->ffcref, "ffc->Link"))
 				ret = ffc->link * 10000;
 			break;
 			
@@ -2882,7 +2883,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 			else
 			{
-				if(auto ffc = checkFFC(ri->ffcref, "ffc->Misc[]"))
+				if(auto ffc = ResolveFFC(ri->ffcref, "ffc->Misc[]"))
 					ret = ffc->miscellaneous[a];
 			}
 		}
@@ -2896,7 +2897,7 @@ int32_t get_register(int32_t arg)
 				ret = -10000;
 			else
 			{
-				if(auto ffc = checkFFC(ri->ffcref, "ffc->InitD[]"))
+				if(auto ffc = ResolveFFC(ri->ffcref, "ffc->InitD[]"))
 					ret = ffc->initd[a];
 			}
 		}
@@ -6639,17 +6640,16 @@ int32_t get_register(int32_t arg)
 		// Note: that is totally not what its doing.
 		case SCREENDATANUMFF: 	
 		{
-			uint32_t indx = ri->d[rINDEX] / 10000;
-			ffc_id_t max_ffc_id = MAX_FFCID;
-			if (!indx || indx > max_ffc_id)
+			int indx = ri->d[rINDEX] / 10000;
+			if (!indx || indx > MAX_FFCID)
 			{
-				Z_scripterrlog("Invalid Index passed to Screen->NumFFCs[%d].\n Valid indices are 1 through %d.\n", indx, max_ffc_id);
+				Z_scripterrlog("Invalid Index passed to Screen->NumFFCs[%d].\nValid indices are 1 through %d.\n", indx, MAX_FFCID);
 				ret = 0;
 			}
 			else
 			{
 				--indx;
-				ret = (get_ffc_raw(indx)->data != 0) ? 10000 : 0;
+				ret = (get_ffc(indx)->data != 0) ? 10000 : 0;
 			}
 			break;
 		}
@@ -13108,14 +13108,14 @@ void set_register(int32_t arg, int32_t value)
 	///----------------------------------------------------------------------------------------------------//
 	//FFC Variables
 		case DATA:
-			if (auto ffc = checkFFC(ri->ffcref, "ffc->Data"))
+			if (auto ffc = ResolveFFC(ri->ffcref, "ffc->Data"))
 			{
 				zc_ffc_set(*ffc, vbound(value/10000,0,MAXCOMBOS-1));
 			}
 			break;
 		
 		case FFSCRIPT:
-			if (auto ffc = checkFFC(ri->ffcref, "ffc->Script"))
+			if (auto ffc = ResolveFFC(ri->ffcref, "ffc->Script"))
 			{
 				ffc->script = vbound(value/10000, 0, NUMSCRIPTFFC-1);
 				for(int32_t i=0; i<16; i++)
@@ -13131,32 +13131,32 @@ void set_register(int32_t arg, int32_t value)
 			
 			
 		case FCSET:
-			if (auto ffc = checkFFC(ri->ffcref, "ffc->CSet"))
+			if (auto ffc = ResolveFFC(ri->ffcref, "ffc->CSet"))
 				ffc->cset = (value/10000)&15;
 			break;
 			
 		case DELAY:
-			if (auto ffc = checkFFC(ri->ffcref, "ffc->Delay"))
+			if (auto ffc = ResolveFFC(ri->ffcref, "ffc->Delay"))
 				ffc->delay = value/10000;
 			break;
 			
 		case FX:
-			if (auto ffc = checkFFC(ri->ffcref, "ffc->X"))
+			if (auto ffc = ResolveFFC(ri->ffcref, "ffc->X"))
 				ffc->x = zslongToFix(value);
 			break;
 			
 		case FY:
-			if (auto ffc = checkFFC(ri->ffcref, "ffc->Y"))
+			if (auto ffc = ResolveFFC(ri->ffcref, "ffc->Y"))
 				ffc->y=zslongToFix(value);
 			break;
 			
 		case XD:
-			if (auto ffc = checkFFC(ri->ffcref, "ffc->Vx"))
+			if (auto ffc = ResolveFFC(ri->ffcref, "ffc->Vx"))
 				ffc->vx=zslongToFix(value);
 			break;
 			
 		case YD:
-			if (auto ffc = checkFFC(ri->ffcref, "ffc->Vy"))
+			if (auto ffc = ResolveFFC(ri->ffcref, "ffc->Vy"))
 				ffc->vy=zslongToFix(value);
 			break;
 		
@@ -13164,17 +13164,17 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case XD2:
-			if (auto ffc = checkFFC(ri->ffcref, "ffc->Ax"))
+			if (auto ffc = ResolveFFC(ri->ffcref, "ffc->Ax"))
 				ffc->ax=zslongToFix(value);
 			break;
 			
 		case YD2:
-			if (auto ffc = checkFFC(ri->ffcref, "ffc->Ay"))
+			if (auto ffc = ResolveFFC(ri->ffcref, "ffc->Ay"))
 				ffc->ay=zslongToFix(value);
 			break;
 			
 		case FFFLAGSD:
-			if (auto ffc = checkFFC(ri->ffcref, "ffc->Flags[]"))
+			if (auto ffc = ResolveFFC(ri->ffcref, "ffc->Flags[]"))
 			{
 				ffc_flags flag = (ffc_flags)(1<<((ri->d[rINDEX])/10000));
 				SETFLAG(ffc->flags, flag, value);
@@ -13184,27 +13184,27 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case FFCWIDTH:
-			if (auto ffc = checkFFC(ri->ffcref, "ffc->EffectWidth"))
+			if (auto ffc = ResolveFFC(ri->ffcref, "ffc->EffectWidth"))
 				ffc->hit_width = (value/10000);
 			break;
 			
 		case FFCHEIGHT:
-			if (auto ffc = checkFFC(ri->ffcref, "ffc->EffectHeight"))
+			if (auto ffc = ResolveFFC(ri->ffcref, "ffc->EffectHeight"))
 				ffc->hit_height = (value/10000);
 			break;
 			
 		case FFTWIDTH:
-			if (auto ffc = checkFFC(ri->ffcref, "ffc->TileWidth"))
+			if (auto ffc = ResolveFFC(ri->ffcref, "ffc->TileWidth"))
 				ffc->txsz = vbound(value/10000, 1, 4);
 			break;
 			
 		case FFTHEIGHT:
-			if (auto ffc = checkFFC(ri->ffcref, "ffc->TileHeight"))
+			if (auto ffc = ResolveFFC(ri->ffcref, "ffc->TileHeight"))
 				ffc->tysz = vbound(value/10000, 1, 4);
 			break;
 			
 		case FFLINK:
-			if (auto ffc = checkFFC(ri->ffcref, "ffc->Link"))
+			if (auto ffc = ResolveFFC(ri->ffcref, "ffc->Link"))
 				(ffc->link)=vbound(value/10000, 0, MAXFFCS-1); // Allow "ffc->Link = 0" to unlink ffc.
 			//0 is none, setting this before made it impssible to clear it. -Z
 			break;
@@ -13212,23 +13212,23 @@ void set_register(int32_t arg, int32_t value)
 		case FFMISCD:
 		{
 			int32_t a = vbound(ri->d[rINDEX]/10000,0,15);
-			if (auto ffc = checkFFC(ri->ffcref, "ffc->Misc[]"))
+			if (auto ffc = ResolveFFC(ri->ffcref, "ffc->Misc[]"))
 				ffc->miscellaneous[a]=value;
 			break;
 		}
 		
 		case FFINITDD:
-			if (auto ffc = checkFFC(ri->ffcref, "ffc->InitD[]") )
+			if (auto ffc = ResolveFFC(ri->ffcref, "ffc->InitD[]") )
 				(ffc->initd[vbound(ri->d[rINDEX]/10000,0,7)])=value;
 			break;
 			
 		case FFCLASTCHANGERX:
-			if (auto ffc = checkFFC(ri->ffcref, "ffc->LastChangerX") )
+			if (auto ffc = ResolveFFC(ri->ffcref, "ffc->LastChangerX") )
 				ffc->changer_x=vbound(zslongToFix(value).getInt(),-32768, 32767);
 			break;
 			
 		case FFCLASTCHANGERY:
-			if (auto ffc = checkFFC(ri->ffcref, "ffc->LastChangerY") )
+			if (auto ffc = ResolveFFC(ri->ffcref, "ffc->LastChangerY") )
 				ffc->changer_y=vbound(zslongToFix(value).getInt(),-32768, 32767);
 			break;
 		
@@ -23581,9 +23581,9 @@ int32_t get_int_arr(const int32_t ptr, int32_t indx)
 				return 0;
 
 			if (ZScriptVersion::ffcRefIsSpriteId())
-				return get_ffc_raw(indx)->getUID();
+				return get_ffc(indx)->getUID();
 
-			get_ffc_raw(indx); // ensure it exists.
+			get_ffc(indx); // ensure it exists.
 			return indx*10000;
 		}
 		case INTARR_SCREEN_PORTALS:
@@ -23742,7 +23742,7 @@ void do_set(const bool v, ScriptType whichType, const int32_t whichUID)
 		case ScriptType::FFC:
 			if (sarg1 == FFSCRIPT)
 			{
-				if (auto ffc = checkFFC(ri->ffcref, "SET"); ffc && ffc->index == whichUID)
+				if (auto ffc = ResolveFFC(ri->ffcref, "SET"); ffc && ffc->index == whichUID)
 					allowed = false;
 			}
 			break;
@@ -29644,7 +29644,7 @@ int32_t get_own_i(ScriptType type)
 		case ScriptType::NPC:
 			return ri->guyref;
 		case ScriptType::FFC:
-			if (auto ffc = checkFFC(ri->ffcref, "ffc->Data"))
+			if (auto ffc = ResolveFFC(ri->ffcref, "ffc->Data"))
 				return ffc->index;
 	}
 	return 0;
@@ -30551,7 +30551,7 @@ int32_t run_script_int(bool is_jitted)
 				int ffc_id = get_register(sarg1) / 10000 - 1;
 
 				if (BC::checkFFC(ffc_id, "Screen->LoadFFC") == SH::_NoError)
-					set_register(sarg1, get_ffc_raw(ffc_id)->getUID());
+					set_register(sarg1, get_ffc(ffc_id)->getUID());
 				else
 					set_register(sarg1, 0);
 				break;
@@ -34021,7 +34021,7 @@ int32_t run_script_int(bool is_jitted)
 		{
 			case ScriptType::FFC:
 			{
-				get_ffc_raw(i)->script = 0;
+				get_ffc(i)->script = 0;
 				auto& data = get_script_engine_data(type, i);
 				data.doscript = false;
 			}

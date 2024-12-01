@@ -7516,7 +7516,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 	int best_type = 0;
 	if(hp_modtotalffc < hp_modtotal)
 	{
-		damage_scr = get_ffc(best_ffcid).scr;
+		damage_scr = get_ffc_handle(best_ffcid).scr;
 		bestcid = bestffccid;
 		best_type = 1;
 	}

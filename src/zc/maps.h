@@ -164,7 +164,7 @@ mapscr* get_layer_scr(int screen, int layer);
 mapscr* get_layer_scr_valid(int screen, int layer);
 mapscr* get_layer_scr_allow_scrolling(int map, int screen, int layer);
 
-ffc_handle_t get_ffc(ffc_id_t id);
+ffc_handle_t get_ffc_handle(ffc_id_t id);
 
 std::pair<int32_t, int32_t> translate_screen_coordinates_to_world(int screen, int x, int y);
 std::pair<int32_t, int32_t> translate_screen_coordinates_to_world(int screen);
