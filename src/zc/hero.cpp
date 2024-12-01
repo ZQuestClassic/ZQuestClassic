@@ -25429,7 +25429,7 @@ RaftingStuff:
 		
 		// "take any road you want"
 		int32_t dw = x<112 ? 1 : (x>136 ? 3 : 2);
-		int32_t code = WARPCODE(currdmap,homescr,dw);
+		int32_t code = WARPCODE(currdmap,home_screen,dw);
 		
 		if(code>-1)
 		{
@@ -25457,7 +25457,7 @@ RaftingStuff:
 			}
 			
 			currmap = DMaps[currdmap].map;
-			homescr = (code&0xFF) + DMaps[currdmap].xoff;
+			home_screen = (code&0xFF) + DMaps[currdmap].xoff;
 			init_dmap();
 			
 			if(canPermSecret(currdmap, currscr))
@@ -25664,7 +25664,7 @@ bool HeroClass::dowarp(mapscr* scr, int32_t type, int32_t index, int32_t warpsfx
 		case 4:
 			wtype = wtIWARP;
 			wdmap = currdmap;
-			wscr = homescr-DMaps[currdmap].xoff;
+			wscr = home_screen-DMaps[currdmap].xoff;
 			break;
 	}
 	
@@ -25683,7 +25683,7 @@ bool HeroClass::dowarp(mapscr* scr, int32_t type, int32_t index, int32_t warpsfx
 		ALLOFF();
 
 		// some draw_screen code (the passive subscreen compass dot) depends
-		// on currscr and homescr being set first when drawing the screen during a warp.
+		// on currscr and home_screen being set first when drawing the screen during a warp.
 		// Without this the compass dot would remain drawn while warping.
 		// This might be better, but for now this code keeps the rendering
 		// equivalent to before z3 draw_screen refactor.
@@ -25850,12 +25850,12 @@ bool HeroClass::dowarp(mapscr* scr, int32_t type, int32_t index, int32_t warpsfx
 		dir=down;
 		x=48;
 		
-		if((homescr&15) > (warpscr2&15))
+		if((home_screen&15) > (warpscr2&15))
 		{
 			x=192;
 		}
 		
-		if((homescr&15) == (warpscr2&15))
+		if((home_screen&15) == (warpscr2&15))
 		{
 			if((currscr>>4) > (warpscr2>>4))
 			{
@@ -26793,7 +26793,7 @@ bool HeroClass::dowarp(mapscr* scr, int32_t type, int32_t index, int32_t warpsfx
 			{
 				if(!(wtype==wtSCROLL)||!(get_qr(qr_NOSCROLLCONTINUE)))
 				{
-					game->set_continue_scrn(homescr);
+					game->set_continue_scrn(home_screen);
 				}
 				else if(currdmap != game->get_continue_dmap())
 				{
@@ -26826,7 +26826,7 @@ bool HeroClass::dowarp(mapscr* scr, int32_t type, int32_t index, int32_t warpsfx
 	if(tmpscr->flags6&fCONTINUEHERE)
 	{
 		lastentrance_dmap = currdmap;
-		lastentrance = homescr;
+		lastentrance = home_screen;
 	}
 	
 	update_subscreens();
@@ -26883,7 +26883,7 @@ void HeroClass::exitcave()
 	bool musicnocut = FFCore.music_update_flags & MUSIC_UPDATE_FLAG_NOCUT;
 
     stop_sfx(QMisc.miscsfx[sfxLOWHEART]);
-    loadscr(currdmap, homescr, 255, false);                                   // bogus direction
+    loadscr(currdmap, home_screen, 255, false);                                   // bogus direction
     x = hero_scr->warpreturnx[0];
     y = hero_scr->warpreturny[0];
     
@@ -27420,10 +27420,10 @@ void HeroClass::stepout() // Step out of item cellars and passageways
         currcset=DMaps[currdmap].color;
         
         init_dmap();
-        homescr=stepoutscr;
+        home_screen=stepoutscr;
     }
     
-    loadscr(currdmap, homescr, 255, false);                                   // bogus direction
+    loadscr(currdmap, home_screen, 255, false);                                   // bogus direction
     draw_screen(false);
     
     if(get_qr(qr_NEW_DARKROOM) || !(hero_scr->flags&fDARK))
@@ -27741,7 +27741,7 @@ void HeroClass::do_scroll_direction(direction dir)
 			if(hero_scr->flags6&fCONTINUEHERE)
 			{
 				lastentrance_dmap = currdmap;
-				lastentrance = homescr;
+				lastentrance = home_screen;
 			}
 		}
 	}

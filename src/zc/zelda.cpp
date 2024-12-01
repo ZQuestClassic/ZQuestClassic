@@ -314,7 +314,7 @@ int32_t gui_colorset=99;
 int32_t fullscreen = 0;
 byte zc_vsync=0;
 byte use_win32_proc=1, console_enabled = 0;
-int32_t homescr,frame=0,currmap=0,dlevel,warpscr,worldscr,scrolling_scr=0,scrolling_map=0,scrolling_dmap=0,scrolling_destdmap=-1;
+int32_t home_screen,frame=0,currmap=0,dlevel,warpscr,worldscr,scrolling_scr=0,scrolling_map=0,scrolling_dmap=0,scrolling_destdmap=-1;
 int32_t hero_screen=0;
 int32_t currscr=0;
 int32_t scrolling_origin_scr=0;
@@ -2138,16 +2138,16 @@ int32_t init_game()
 	{
 		if((DMaps[currdmap].type&dmfTYPE)==dmOVERW)
 		{
-			homescr = currscr = hero_screen = DMaps[currdmap].cont;
+			home_screen = currscr = hero_screen = DMaps[currdmap].cont;
 		}
 		else
 		{
-			homescr = currscr = hero_screen = DMaps[currdmap].cont + DMaps[currdmap].xoff;
+			home_screen = currscr = hero_screen = DMaps[currdmap].cont + DMaps[currdmap].xoff;
 		}
 	}
 	else
 	{
-		homescr = currscr = hero_screen = game->get_continue_scrn();
+		home_screen = currscr = hero_screen = game->get_continue_scrn();
 	}
 	
 	lastentrance = currscr;
@@ -2543,7 +2543,7 @@ int32_t cont_game()
 	{
 		throwGenScriptEvent(GENSCR_EVENT_CHANGE_LEVEL);
 	}
-	//homescr = currscr = lastentrance;
+
 	currmap = DMaps[currdmap].map;
 	init_dmap();
 	
@@ -2692,18 +2692,18 @@ void restart_level()
 		{
 			throwGenScriptEvent(GENSCR_EVENT_CHANGE_LEVEL);
 		}
-		homescr = currscr = hero_screen = lastentrance;
+		home_screen = currscr = hero_screen = lastentrance;
 		init_dmap();
 	}
 	else
 	{
 		if((DMaps[currdmap].type&dmfTYPE)==dmOVERW)
 		{
-			homescr = currscr = hero_screen = DMaps[currdmap].cont;
+			home_screen = currscr = hero_screen = DMaps[currdmap].cont;
 		}
 		else
 		{
-			homescr = currscr = hero_screen = DMaps[currdmap].cont + DMaps[currdmap].xoff;
+			home_screen = currscr = hero_screen = DMaps[currdmap].cont + DMaps[currdmap].xoff;
 		}
 	}
 	
@@ -3852,7 +3852,7 @@ int32_t get_currmap()
 
 int32_t get_homescr()
 {
-    return homescr;
+    return home_screen;
 }
 
 int32_t get_bmaps(int32_t si)

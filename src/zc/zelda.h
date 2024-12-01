@@ -308,7 +308,7 @@ extern int32_t hero_screen;
 extern mapscr* hero_scr;
 // If currently on an 0x80+ screen, this is where the player came from. Corresponds to special_warp_return_screen.
 // Otherwise, is equal to currscr.
-extern int32_t homescr;
+extern int32_t home_screen;
 extern int32_t frame,currmap,dlevel,warpscr,worldscr,scrolling_scr,scrolling_map,scrolling_dmap,scrolling_destdmap;
 extern direction scrolling_dir;
 extern int32_t scrolling_origin_scr;

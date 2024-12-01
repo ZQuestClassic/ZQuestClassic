@@ -550,7 +550,7 @@ mapscr* get_scr(int map, int screen)
 {
 	DCHECK_RANGE_INCLUSIVE(screen, 0, 135);
 	if (screen == currscr && map == currmap) return tmpscr;
-	if (screen == homescr && map == currmap) return &special_warp_return_screen;
+	if (screen == home_screen && map == currmap) return &special_warp_return_screen;
 
 	if (map == currmap)
 	{
@@ -579,7 +579,7 @@ mapscr* get_scr_no_load(int map, int screen)
 {
 	DCHECK_RANGE_INCLUSIVE(screen, 0, 135);
 	if (screen == currscr && map == currmap) return tmpscr;
-	if (screen == homescr && map == currmap) return &special_warp_return_screen;
+	if (screen == home_screen && map == currmap) return &special_warp_return_screen;
 
 	if (map == currmap)
 	{
@@ -600,7 +600,7 @@ mapscr* get_layer_scr(int map, int screen, int layer)
 	DCHECK_LAYER_NEG1_INDEX(layer);
 	if (layer == -1) return get_scr(map, screen);
 	if (screen == currscr && map == currmap) return &tmpscr2[layer];
-	if (screen == homescr && map == currmap) return &tmpscr3[layer];
+	if (screen == home_screen && map == currmap) return &tmpscr3[layer];
 
 	if (map == currmap)
 	{
@@ -1358,10 +1358,10 @@ void eventlog_mapflags()
 {
 	std::ostringstream oss;
 	
-	int32_t mi = (currmap*MAPSCRSNORMAL)+homescr;
+	int32_t mi = (currmap*MAPSCRSNORMAL)+home_screen;
     word g = game->maps[mi] &0x3FFF;
     
-	oss << fmt::format("Screen ({}, {:02X})", currmap+1, homescr);
+	oss << fmt::format("Screen ({}, {:02X})", currmap+1, home_screen);
 	if(g) // Main States
 	{
 		static const int order[] =
@@ -1432,7 +1432,7 @@ void setmapflag(mapscr* scr, int32_t flag)
 }
 void setmapflag_homescr(int32_t flag)
 {
-    setmapflag_mi(tmpscr, (currmap*MAPSCRSNORMAL)+homescr, flag);
+    setmapflag_mi(tmpscr, (currmap*MAPSCRSNORMAL)+home_screen, flag);
 }
 void setmapflag_mi(int32_t mi2, int32_t flag)
 {
@@ -1450,7 +1450,7 @@ void setmapflag_mi(mapscr* scr, int32_t mi2, int32_t flag)
         replay_step_comment(fmt::format("map {} scr {} flag {}", cmap, cscr, flag > 0 ? screenstate_string[(int32_t)temp] : "<Unknown>"));
     game->maps[mi2] |= flag;
     Z_eventlog("%s's State was set: %s\n",
-               mi2 != (currmap*MAPSCRSNORMAL)+homescr ? buf : "Current screen",
+               mi2 != (currmap*MAPSCRSNORMAL)+home_screen ? buf : "Current screen",
                flag>0 ? screenstate_string[(int32_t)temp] : "<Unknown>");
                
     if(flag==mSECRET||flag==mITEM||flag==mSPECIALITEM||flag==mLOCKBLOCK||
@@ -1494,7 +1494,7 @@ void setmapflag_mi(mapscr* scr, int32_t mi2, int32_t flag)
 
 void unsetmapflag(int32_t flag, bool anyflag)
 {
-    unsetmapflag((currmap*MAPSCRSNORMAL)+homescr,flag,anyflag);
+    unsetmapflag((currmap*MAPSCRSNORMAL)+home_screen,flag,anyflag);
 }
 
 void unsetmapflag(mapscr* scr, int32_t flag, bool anyflag)
@@ -1523,7 +1523,7 @@ void unsetmapflag(int32_t mi2, int32_t flag, bool anyflag)
     
     float temp=log2((float)flag);
     Z_eventlog("%s's State was unset: %s\n",
-               mi2 != (currmap*MAPSCRSNORMAL)+homescr ? buf : "Current screen",
+               mi2 != (currmap*MAPSCRSNORMAL)+home_screen ? buf : "Current screen",
                flag>0 ? screenstate_string[(int32_t)temp] : "<Unknown>");
                
     if(flag==mSECRET||flag==mITEM||flag==mSPECIALITEM||flag==mLOCKBLOCK||
@@ -1561,11 +1561,11 @@ void unsetmapflag(int32_t mi2, int32_t flag, bool anyflag)
 
 bool getmapflag(int32_t flag)
 {
-    return (game->maps[(currmap*MAPSCRSNORMAL)+homescr] & flag) != 0;
+    return (game->maps[(currmap*MAPSCRSNORMAL)+home_screen] & flag) != 0;
 }
 bool getmapflag(int32_t screen, int32_t flag)
 {
-	int mi = (currmap * MAPSCRSNORMAL) + (screen >= 0x80 ? homescr : screen);
+	int mi = (currmap * MAPSCRSNORMAL) + (screen >= 0x80 ? home_screen : screen);
     return (game->maps[mi] & flag) != 0;
 }
 bool getmapflag(mapscr* scr, int32_t flag)
@@ -1575,7 +1575,7 @@ bool getmapflag(mapscr* scr, int32_t flag)
 
 void setxmapflag(int32_t screen, uint32_t flag)
 {
-	int mi = (currmap * MAPSCRSNORMAL) + (screen >= 0x80 ? homescr : screen);
+	int mi = (currmap * MAPSCRSNORMAL) + (screen >= 0x80 ? home_screen : screen);
 	setxmapflag_mi(mi, flag);
 }
 void setxmapflag_mi(int32_t mi2, uint32_t flag)
@@ -1588,13 +1588,13 @@ void setxmapflag_mi(int32_t mi2, uint32_t flag)
     
     byte temp=(byte)log2((double)flag);
 	Z_eventlog("%s's ExtraState was set: %d\n",
-		mi2 != (currmap*MAPSCRSNORMAL)+homescr ? buf : "Current screen", temp);
+		mi2 != (currmap*MAPSCRSNORMAL)+home_screen ? buf : "Current screen", temp);
 	
 	game->xstates[mi2] |= flag;
 }
 void unsetxmapflag(int32_t screen, uint32_t flag)
 {
-	int mi = (currmap * MAPSCRSNORMAL) + (screen >= 0x80 ? homescr : screen);
+	int mi = (currmap * MAPSCRSNORMAL) + (screen >= 0x80 ? home_screen : screen);
 	unsetxmapflag_mi(mi, flag);
 }
 void unsetxmapflag_mi(int32_t mi2, uint32_t flag)
@@ -1607,13 +1607,13 @@ void unsetxmapflag_mi(int32_t mi2, uint32_t flag)
     
     byte temp=(byte)log2((double)flag);
 	Z_eventlog("%s's ExtraState was unset: %d\n",
-		mi2 != (currmap*MAPSCRSNORMAL)+homescr ? buf : "Current screen", temp);
+		mi2 != (currmap*MAPSCRSNORMAL)+home_screen ? buf : "Current screen", temp);
 	
 	game->xstates[mi2] &= ~flag;
 }
 bool getxmapflag(int32_t screen, uint32_t flag)
 {
-	int mi = (currmap * MAPSCRSNORMAL) + (screen >= 0x80 ? homescr : screen);
+	int mi = (currmap * MAPSCRSNORMAL) + (screen >= 0x80 ? home_screen : screen);
 	return getxmapflag_mi(mi, flag);
 }
 bool getxmapflag_mi(int32_t mi2, uint32_t flag)
@@ -1630,14 +1630,14 @@ void setxdoor(uint mi, uint dir, uint ind, bool state)
 	SETFLAG(game->xdoors[mi][dir], 1<<ind, state);
     int cscr = mi % MAPSCRSNORMAL;
     int cmap = mi / MAPSCRSNORMAL;
-	bool iscurrscr = mi == ((currmap*MAPSCRSNORMAL)+homescr);
+	bool iscurrscr = mi == ((currmap*MAPSCRSNORMAL)+home_screen);
 	Z_eventlog("%s's ExDoor[%s][%d] was %sset\n",
 		iscurrscr ? "Current screen" : fmt::format("Screen ({}, {:02X})",cmap+1,cscr).c_str(),
 		dirstr[dir], ind, state ? "" : "un");
 }
 void setxdoor(uint dir, uint ind, bool state)
 {
-	setxdoor((currmap*MAPSCRSNORMAL)+homescr,dir,ind,state);
+	setxdoor((currmap*MAPSCRSNORMAL)+home_screen,dir,ind,state);
 }
 bool getxdoor(uint mi, uint dir, uint ind)
 {
@@ -1647,7 +1647,7 @@ bool getxdoor(uint mi, uint dir, uint ind)
 }
 bool getxdoor(uint dir, uint ind)
 {
-	return getxdoor((currmap*MAPSCRSNORMAL)+homescr,dir,ind);
+	return getxdoor((currmap*MAPSCRSNORMAL)+home_screen,dir,ind);
 }
 
 void set_doorstate_mi(uint mi, uint dir)
@@ -2418,7 +2418,7 @@ bool remove_screenstatecombos2(mapscr *s, bool do_layers, int32_t what1, int32_t
 
 bool remove_xstatecombos(mapscr *s, byte xflag, bool triggers)
 {
-	int mi = (currmap * MAPSCRSNORMAL) + (s->screen >= 0x80 ? homescr : s->screen);
+	int mi = (currmap * MAPSCRSNORMAL) + (s->screen >= 0x80 ? home_screen : s->screen);
 	return remove_xstatecombos_mi(s, s->screen, mi, xflag, triggers);
 }
 bool remove_xstatecombos_mi(mapscr *s, int32_t screen, int32_t mi, byte xflag, bool triggers)
@@ -2427,7 +2427,7 @@ bool remove_xstatecombos_mi(mapscr *s, int32_t screen, int32_t mi, byte xflag, b
 	if(!getxmapflag_mi(mi, 1<<xflag)) return false;
 
 	if (screen >= 0x80) s = &special_warp_return_screen;
-	screen = screen >= 0x80 ? homescr : screen;
+	screen = screen >= 0x80 ? home_screen : screen;
 
 	rpos_handle_t rpos_handle;
 	rpos_handle.screen = screen;
@@ -2503,7 +2503,7 @@ bool remove_xstatecombos_mi(mapscr *s, int32_t screen, int32_t mi, byte xflag, b
 
 void clear_xstatecombos(mapscr *s, int32_t screen, bool triggers)
 {
-	int mi = (currmap*MAPSCRSNORMAL) + (screen >= 0x80 ? homescr : screen);
+	int mi = (currmap*MAPSCRSNORMAL) + (screen >= 0x80 ? home_screen : screen);
 	clear_xstatecombos_mi(s, screen, mi, triggers);
 }
 
@@ -2517,7 +2517,7 @@ void clear_xstatecombos_mi(mapscr *s, int32_t screen, int32_t mi, bool triggers)
 
 bool remove_xdoors(mapscr *scr, uint dir, uint ind, bool triggers)
 {
-	int mi = (currmap * MAPSCRSNORMAL) + (scr->screen >= 0x80 ? homescr : scr->screen);
+	int mi = (currmap * MAPSCRSNORMAL) + (scr->screen >= 0x80 ? home_screen : scr->screen);
 	return remove_xdoors_mi(scr, mi, dir, ind, triggers);
 }
 bool remove_xdoors_mi(mapscr *scr, int32_t mi, uint dir, uint ind, bool triggers)
@@ -2569,7 +2569,7 @@ bool remove_xdoors_mi(mapscr *scr, int32_t mi, uint dir, uint ind, bool triggers
 
 void clear_xdoors(mapscr *scr, bool triggers)
 {
-	int mi = (currmap*MAPSCRSNORMAL) + (scr->screen >= 0x80 ? homescr : scr->screen);
+	int mi = (currmap*MAPSCRSNORMAL) + (scr->screen >= 0x80 ? home_screen : scr->screen);
 	clear_xdoors_mi(scr, mi, triggers);
 }
 
@@ -5833,18 +5833,18 @@ void load_a_screen_and_layers(int dmap, int map, int screen, int ldir)
 	}
 }
 
-// Set `currscr` to `scr` and load new screens into temporary memory.
+// Set `currscr` to `screen` and load new screens into temporary memory.
 // Called anytime a player moves to a new screen (either via warping, scrolling, continue,
 // starting the game, etc...)
 // Note: for regions, only the initial screen load calls this function. Simply walking between screens
 // in the same region does not use this, because every screen in a region is loaded into temporary memory up front.
-// If scr >= 0x80, `hero_screen` will be saved to `homescr` and also be loaded into `special_warp_return_screen`.
+// If scr >= 0x80, `hero_screen` will be saved to `home_screen` and also be loaded into `special_warp_return_screen`.
 // If overlay is true, the old tmpscr combos will be copied to the new tmpscr combos on all layers (but only where
 // the new screen has a 0 combo).
 // TODO: loadscr should set curdmap, but currently callers do that.
-void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_x80_dir)
+void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool overlay, bool no_x80_dir)
 {
-	zapp_reporting_set_tag("screen", scr);
+	zapp_reporting_set_tag("screen", screen);
 	if (destdmap != -1)
 		zapp_reporting_set_tag("dmap", destdmap);
 
@@ -5867,7 +5867,7 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 				replay_step_comment(fmt::format("dmap={}", orig_destdmap));
 			}
 		}
-		replay_step_comment_loadscr(scr);
+		replay_step_comment_loadscr(screen);
 
 		// Reset the rngs and frame count so that recording steps can be modified without impacting
 		// behavior of later screens.
@@ -5898,9 +5898,9 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	reset_combo_animations2();
 
 	currscr_for_passive_subscr = -1;
-	z3_load_region(destdmap, scr);
+	z3_load_region(destdmap, screen);
 	z3_mark_current_region_handles_dirty();
-	homescr = scr >= 0x80 ? hero_screen : currscr;
+	home_screen = screen >= 0x80 ? hero_screen : currscr;
 
 	cpos_clear_all();
 	FFCore.clear_script_engine_data_of_type(ScriptType::Screen);
@@ -5920,8 +5920,8 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	// Load the origin screen (top-left in region) into tmpscr
 	loadscr_old(0, orig_destdmap, currscr, ldir, overlay, ffc_script_indices_to_remove);
 	// Store the current tmpscr into special_warp_return_screen, if on a special screen.
-	if (scr >= 0x80)
-		loadscr_old(1, orig_destdmap, homescr, no_x80_dir ? -1 : ldir, overlay, ffc_script_indices_to_remove);
+	if (screen >= 0x80)
+		loadscr_old(1, orig_destdmap, home_screen, no_x80_dir ? -1 : ldir, overlay, ffc_script_indices_to_remove);
 
 	if (is_z3_scrolling_mode())
 	{
@@ -5942,8 +5942,8 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 
 	update_slope_comboposes();
 	currdmap = o_currdmap;
-	hero_screen = scr;
-	hero_scr = get_scr_no_load(currmap, scr);
+	hero_screen = screen;
+	hero_scr = get_scr_no_load(currmap, screen);
 	CHECK(hero_scr);
 
 	cpos_force_update();
@@ -6320,8 +6320,8 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 // Screen is being viewed by the Overworld Map viewer.
 void loadscr2(int32_t tmp,int32_t screen,int32_t)
 {
-	auto oscr = homescr;
-	homescr = screen;
+	auto oscr = home_screen;
+	home_screen = screen;
 
 	for(word x=0; x<animated_combos; x++)
 	{
@@ -6498,7 +6498,7 @@ void loadscr2(int32_t tmp,int32_t screen,int32_t)
 		}
 	}
 
-	homescr = oscr;
+	home_screen = oscr;
 }
 
 void putscr(BITMAP* dest,int32_t x,int32_t y, mapscr* scr)

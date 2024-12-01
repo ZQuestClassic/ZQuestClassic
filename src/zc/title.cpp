@@ -1806,7 +1806,7 @@ void save_game(bool savepoint)
 	FFCore.runOnSaveEngine();
 	if(savepoint)
 	{
-		game->set_continue_scrn(homescr);
+		game->set_continue_scrn(home_screen);
 		game->set_continue_dmap(currdmap);
 		lastentrance_dmap = currdmap;
 		lastentrance = game->get_continue_scrn();
@@ -1937,7 +1937,7 @@ bool save_game(bool savepoint, int32_t type)
 				FFCore.runOnSaveEngine();
 				if(savepoint)
 				{
-					game->set_continue_scrn(homescr);
+					game->set_continue_scrn(home_screen);
 					game->set_continue_dmap(currdmap);
 					lastentrance_dmap = currdmap;
 					lastentrance = game->get_continue_scrn();

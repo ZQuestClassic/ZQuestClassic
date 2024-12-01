@@ -29024,7 +29024,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 	if(hero_scr->flags6&fCONTINUEHERE)
 	{
 		lastentrance_dmap = currdmap;
-		lastentrance = homescr;
+		lastentrance = home_screen;
 	}
 		
 	update_subscreens();
