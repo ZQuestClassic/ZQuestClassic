@@ -631,7 +631,7 @@ mapscr* get_layer_scr(int screen, int layer)
 // Return nullptr if screen is not valid.
 mapscr* get_layer_scr_valid(int screen, int layer)
 {
-	if (mapscr* scr = get_layer_scr(currmap, screen, layer); scr->valid)
+	if (mapscr* scr = get_layer_scr(currmap, screen, layer); scr->is_valid())
 		return scr;
 	return nullptr;
 }
