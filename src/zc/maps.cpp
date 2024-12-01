@@ -377,6 +377,7 @@ void z3_update_heroscr()
 		hero_screen = new_screen;
 		hero_scr = get_scr(hero_screen);
 		playLevelMusic();
+		mark_visited(hero_screen);
 	}
 }
 
@@ -7887,4 +7888,10 @@ optional<int32_t> get_combo(int x, int y, int maxlayer, bool ff, std::function<b
 		}
 	}
 	return nullopt;
+}
+
+void mark_visited(int screen)
+{
+	if (screen < 0x80 && (DMaps[currdmap].flags&dmfVIEWMAP))
+		game->maps[(currmap*MAPSCRSNORMAL)+screen] |= mVISITED;
 }

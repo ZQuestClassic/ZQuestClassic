@@ -1932,11 +1932,7 @@ int32_t init_game()
 	lastentrance_dmap = currdmap;
 	currmap = DMaps[currdmap].map;
 	dlevel = DMaps[currdmap].level;
-	
-	if(cur_screen < 0x80 && (DMaps[currdmap].flags&dmfVIEWMAP))
-	{
-		game->maps[(currmap*MAPSCRSNORMAL)+cur_screen] |= mVISITED;			  // mark as visited
-	}
+	mark_visited(cur_screen);
 	
 	game->lvlitems[9] &= ~liBOSS;
 	

@@ -404,4 +404,6 @@ void screen_item_clear_state();
 
 optional<int32_t> get_combo(int x, int y, int maxlayer, bool ff, std::function<bool(newcombo const&)> proc);
 
+void mark_visited(int screen);
+
 #endif

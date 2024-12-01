@@ -18105,9 +18105,7 @@ static void loadguys(mapscr* scr)
 	else
 	{
 		Guy=scr->guy;
-		
-		if(screen < 0x80 && (DMaps[currdmap].flags&dmfVIEWMAP))
-			game->maps[(currmap*MAPSCRSNORMAL)+screen] |= mVISITED;          // mark as visited
+		mark_visited(screen);
 	}
 	
 	auto [dx, dy] = translate_screen_coordinates_to_world(screen);
