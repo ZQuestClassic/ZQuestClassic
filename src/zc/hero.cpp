@@ -28251,7 +28251,7 @@ struct nearby_scrolling_screen_t
 };
 typedef std::vector<nearby_scrolling_screen_t> nearby_scrolling_screens_t;
 
-static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector<mapscr*>& old_temporary_screens)
+static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector<mapscr*>& old_temporary_screens, viewport_t old_viewport)
 {
 	nearby_scrolling_screens_t nearby_screens;
 
@@ -28332,19 +28332,20 @@ static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector
 		{
 			int dx = draw_dx + z3_get_region_relative_dx(scrolling_scr, scrolling_origin_scr);
 			int dy = draw_dy + z3_get_region_relative_dy(scrolling_scr, scrolling_origin_scr);
-			// int dx = draw_dx;
-			// int dy = draw_dy;
-
-			// if (scrolling_dir == up)    dy += 1;
-			// if (scrolling_dir == down)  dy -= 1;
-			// if (scrolling_dir == left)  dx += 1;
-			// if (scrolling_dir == right) dx -= 1;
 
 			auto& nearby_screen = nearby_screens.emplace_back();
 			nearby_screen.screen = screen;
 			nearby_screen.offx = dx * 256;
 			nearby_screen.offy = dy * 176;
 			nearby_screen.is_new = use_new_screens;
+
+			if (use_new_screens && HeroInOutgoingWhistleWarp())
+			{
+				if (scrolling_dir == right)
+					nearby_screen.offx = old_viewport.right() + z3_get_region_relative_dx(scrolling_scr, scrolling_origin_scr);
+				else if (scrolling_dir == left)
+					nearby_screen.offx = old_viewport.left() + z3_get_region_relative_dx(scrolling_scr, scrolling_origin_scr);
+			}
 
 			nearby_screen.screen_handles[0] = {base_scr, base_scr, base_map, screen, 0};
 			for (int i = 1; i < 7; i++)
@@ -28543,18 +28544,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 
 		new_hero_x = 0;
 		new_hero_y = 0;
-		/*if (HeroInOutgoingWhistleWarp())
-		{
-			mapscr* newscr = get_scr(new_map, destscr);
-			if(get_qr(qr_NOARRIVALPOINT))
-				new_hero_x=newscr->warpreturnx[0];
-			else new_hero_x=newscr->warparrivalx;
-
-			if(get_qr(qr_NOARRIVALPOINT))
-				new_hero_y=newscr->warpreturny[0];
-			else new_hero_y=newscr->warparrivaly;
-		}
-		else */switch (scrolldir)
+		switch (scrolldir)
 		{
 			case up:
 			{
@@ -28621,10 +28611,9 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		int old_hero_screen_y = y.getInt() - old_viewport.y + old_original_playing_field_offset;
 		int new_hero_screen_x = new_hero_x - new_viewport.x;
 		int new_hero_screen_y = new_hero_y - new_viewport.y + (232 - new_viewport.h);
-		if (HeroInOutgoingWhistleWarp()) secondary_axis_alignment_amount = 0;
-		else if (dx)                     secondary_axis_alignment_amount = new_hero_screen_y - old_hero_screen_y;
-		else if (dy)                     secondary_axis_alignment_amount = new_hero_screen_x - old_hero_screen_x;
-		else                             secondary_axis_alignment_amount = 0;
+		if (dx)      secondary_axis_alignment_amount = new_hero_screen_y - old_hero_screen_y;
+		else if (dy) secondary_axis_alignment_amount = new_hero_screen_x - old_hero_screen_x;
+		else         secondary_axis_alignment_amount = 0;
 	};
 	calc_scroll_data();
 
@@ -28904,7 +28893,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	// For the duration of the scrolling, the old screen/region viewport is used for all drawing operations.
 	// This means that the new screens are drawn with offsets relative to the old coordinate system.
 	// This is handled in get_nearby_scrolling_screens.
-	auto nearby_screens = get_nearby_scrolling_screens(old_temporary_screens);
+	auto nearby_screens = get_nearby_scrolling_screens(old_temporary_screens, old_viewport);
 
 	mapscr* newscr = get_scr(destmap, destscr);
 	// TODO z3 !! remove
