@@ -4449,7 +4449,7 @@ static void putscrdoors(const nearby_screens_t& nearby_screens, BITMAP *dest, in
 
 void draw_screen(bool showhero, bool runGeneric)
 {
-	if (!screenscrolling)
+	if (!screenscrolling && !HeroInOutgoingWhistleWarp())
 		z3_update_viewport();
 
 	mapscr* this_screen = tmpscr;

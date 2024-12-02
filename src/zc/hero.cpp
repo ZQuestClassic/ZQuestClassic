@@ -9964,10 +9964,12 @@ heroanimate_skip_liftwpn:;
 			{
 				exit=true;
 			}
-			else if(y<=0 && dir==up) y=-1;
-			else if(y>=world_h-16 && dir==down) y=world_h-16+1;
-			else if(x<=0 && dir==left) x=-1;
-			else if(x>=world_w-16 && dir==right) x=world_w-16+1;
+			// When the wind weapon goes away, check if the player has been brought to the edge of the screen
+			// by the wind. If so, push them one more pixel to trigger the screen scrolling code.
+			else if (dir==up && y<=viewport.top()) y=viewport.top()-1;
+			else if (dir==down && y>=viewport.bottom()-16) y=viewport.bottom()-16+1;
+			else if (dir==left && x<=viewport.left()) x=viewport.left()-1;
+			else if (dir==right && x>=viewport.right()-16) x=viewport.right()-16+1;
 			else exit=true;
 			
 			if(exit)
@@ -9980,17 +9982,12 @@ heroanimate_skip_liftwpn:;
 				set_respawn_point();
 			}
 		}
-		/*
-			  else if (((weapon*)Lwpns.spr(i))->dead==1)
-			  {
-				whirlwind=255;
-			  }
-		*/
 		else
 		{
-			x=Lwpns.spr(i)->x;
-			y=Lwpns.spr(i)->y;
-			dir=Lwpns.spr(i)->dir;
+			auto wind = Lwpns.spr(i);
+			x = wind->x;
+			y = wind->y;
+			dir = wind->dir;
 		}
 	}
 	break;
@@ -11966,14 +11963,19 @@ bool HeroClass::startwpn(int32_t itemid)
 				
 				if(((DMaps[currdmap].flags&dmfWHIRLWIND && TriforceCount()) || DMaps[currdmap].flags&dmfWHIRLWINDRET) &&
 						itm.misc2 >= 0 && itm.misc2 <= 8 && !whistleflag)
-					Lwpns.add(new weapon((zfix)(where==left?240_zf:where==right?0_zf:x),
-				(zfix)(where==down?0_zf:where==up?160_zf:y),
-				(zfix)0,
-				wWind,
-				0, //type
-				0,
-				where,
-				itemid,getUID(),false,false,true,0)); //last arg is byte special, used to override type for wWind for now. -Z 18JULY2020
+				{
+					zfix windx = where == left ? (zfix)(viewport.right()-16) : where == right ? (zfix)viewport.left() : x;
+					zfix windy = where == down ? (zfix)viewport.top() : where == up ? zfix(viewport.bottom()-16) : y;
+					Lwpns.add(new weapon(
+						windx,
+						windy,
+						(zfix)0,
+						wWind,
+						0, //type
+						0,
+						where,
+						itemid,getUID(),false,false,true,0)); //last arg is byte special, used to override type for wWind for now. -Z 18JULY2020
+				}
 										 
 				whistleitem=itemid;
 			}
@@ -27761,7 +27763,7 @@ void HeroClass::checkscroll()
 	int x0 = x.getInt();
 	int y0 = y.getInt();
 
-	if (scrolling_maze_state && (scrolling_maze_mode == 0 || get_screen_index_for_world_xy(x0, y0) != scrolling_maze_scr))
+	if (action != inwind && scrolling_maze_state && (scrolling_maze_mode == 0 || get_screen_index_for_world_xy(x0, y0) != scrolling_maze_scr))
 	{
 		mapscr* scrolling_scr = &TheMaps[(currmap*MAPSCRS)+scrolling_maze_scr];
 		int x0 = x.getInt();
@@ -27821,6 +27823,32 @@ void HeroClass::checkscroll()
 		return;
 	}
 	scrolling_maze_state = 0;
+
+	if (action == inwind && whirlwind == 0)
+	{
+		if (x > viewport.right()-16)
+		{
+			x = viewport.right()-16;
+			do_scroll_direction(right);
+		}
+		else if (x < viewport.left())
+		{
+			x = viewport.left();
+			do_scroll_direction(left);
+		}
+		else if (y > viewport.bottom()-16)
+		{
+			y = viewport.bottom()-16;
+			do_scroll_direction(down);
+		}
+		else if (y < viewport.top())
+		{
+			y = viewport.top();
+			do_scroll_direction(up);
+		}
+
+		return;
+	}
 
 	if (x > world_w-16)
 	{
@@ -28515,7 +28543,18 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 
 		new_hero_x = 0;
 		new_hero_y = 0;
-		switch (scrolldir)
+		/*if (HeroInOutgoingWhistleWarp())
+		{
+			mapscr* newscr = get_scr(new_map, destscr);
+			if(get_qr(qr_NOARRIVALPOINT))
+				new_hero_x=newscr->warpreturnx[0];
+			else new_hero_x=newscr->warparrivalx;
+
+			if(get_qr(qr_NOARRIVALPOINT))
+				new_hero_y=newscr->warpreturny[0];
+			else new_hero_y=newscr->warparrivaly;
+		}
+		else */switch (scrolldir)
 		{
 			case up:
 			{
@@ -28582,9 +28621,10 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		int old_hero_screen_y = y.getInt() - old_viewport.y + old_original_playing_field_offset;
 		int new_hero_screen_x = new_hero_x - new_viewport.x;
 		int new_hero_screen_y = new_hero_y - new_viewport.y + (232 - new_viewport.h);
-		if (dx)      secondary_axis_alignment_amount = new_hero_screen_y - old_hero_screen_y;
-		else if (dy) secondary_axis_alignment_amount = new_hero_screen_x - old_hero_screen_x;
-		else         secondary_axis_alignment_amount = 0;
+		if (HeroInOutgoingWhistleWarp()) secondary_axis_alignment_amount = 0;
+		else if (dx)                     secondary_axis_alignment_amount = new_hero_screen_y - old_hero_screen_y;
+		else if (dy)                     secondary_axis_alignment_amount = new_hero_screen_x - old_hero_screen_x;
+		else                             secondary_axis_alignment_amount = 0;
 	};
 	calc_scroll_data();
 

@@ -1413,9 +1413,6 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					if ( parent.weapoverrideFLAGS&OVERRIDE_HIT_Y_OFFSET ) { hyofs = parent.weap_hyofs;}
 					if ( parent.weapoverrideFLAGS&OVERRIDE_DRAW_X_OFFSET ) { xofs = parent.weap_xofs;}
 					if ( parent.weapoverrideFLAGS&OVERRIDE_DRAW_Y_OFFSET ) {  yofs = parent.weap_yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
-					/* yofs+playing_field_offset == yofs+56.
-					It is needed for the passive subscreen offset.
-					*/
 				}
 			}
 			
@@ -4574,24 +4571,21 @@ bool weapon::animate(int32_t index)
 			}
 			
 			int32_t wrx;
-			
-			// TODO z3
 			if(get_qr(qr_NOARRIVALPOINT))
-				wrx=tmpscr->warpreturnx[0];
-			else wrx=tmpscr->warparrivalx;
+				wrx=hero_scr->warpreturnx[0];
+			else wrx=hero_scr->warparrivalx;
 			
 			int32_t wry;
-			
 			if(get_qr(qr_NOARRIVALPOINT))
-				wry=tmpscr->warpreturny[0];
-			else wry=tmpscr->warparrivaly;
+				wry=hero_scr->warpreturny[0];
+			else wry=hero_scr->warparrivaly;
 			
 			if(specialinfo==1 && dead==-1 && x==(int32_t)wrx && y==(int32_t)wry)
 			{
 				stop_sfx(WAV_ZN1WHIRLWIND);
 				dead=2;
 			}
-			else if(HeroAction() !=inwind && ((dir==right && x>=240) || (dir==down && y>=160) || (dir==left && x<=0) || (dir==up && y<=0)))
+			else if(HeroAction() !=inwind && ((dir==right && x>=viewport.right()-16) || (dir==down && y>=viewport.bottom()-16) || (dir==left && x<=viewport.left()) || (dir==up && y<=viewport.top())))
 			{
 				stop_sfx(WAV_ZN1WHIRLWIND);
 				dead=1;

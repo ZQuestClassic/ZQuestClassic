@@ -1150,6 +1150,10 @@ int32_t  HeroAction()
 {
     return Hero.getAction();
 }
+bool  HeroInOutgoingWhistleWarp()
+{
+	return Hero.getAction() == inwind && Hero.whirlwind == 0;
+}
 int32_t  HeroCharged()
 {
     return Hero.isCharged();
@@ -3173,7 +3177,8 @@ void game_loop()
 		runDrunkRNG();
 		clear_darkroom_bitmaps();
 		Hero.check_platform_ffc();
-		z3_update_viewport();
+		if (!HeroInOutgoingWhistleWarp())
+			z3_update_viewport();
 		
 		// Three kinds of freezes: freeze, freezemsg, freezeff
 		
