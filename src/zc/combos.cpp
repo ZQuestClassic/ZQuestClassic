@@ -957,23 +957,36 @@ bool trigger_warp(newcombo const& cmb)
 	auto index = getWarpLetter(cmb.type);
 	if(index == 4) index = zc_oldrand()%4; //Random warp
 	auto wtype = wscr->tilewarptype[index];
-	if(wtype==wtNOWARP)
-		return false;
 	auto stype = simplifyWarpType(cmb.type);
+	if(wtype==wtNOWARP && stype != cAWARPA)
+		return false;
 	auto wsfx = cmb.attribytes[0];
 	auto tdm = wscr->tilewarpdmap[index];
 	auto tscr = wscr->tilewarpscr[index];
 	auto wrindex=(wscr->warpreturnc>>(index*2))&3;
 	int32_t ws=(DMaps[tdm].map*MAPSCRS+wscr->tilewarpscr[index]+DMaps[tdm].xoff);
 	mapscr* wscr2=&TheMaps[ws];
-	auto wx = wscr2->warpreturnx[wrindex];
-	auto wy = wscr2->warpreturny[wrindex];
-	if(stype == cPIT)
-	{
-		wx = -1;
-		wy = -1;
-	}
+	int wx = wscr2->warpreturnx[wrindex];
+	int wy = wscr2->warpreturny[wrindex];
 	auto weff = warpEffectNONE;
+	if (stype == cAWARPA) //these use sidewarps
+	{
+		wtype = wscr->sidewarptype[index];
+		if (wtype == wtNOWARP)
+			return false;
+		wsfx = cmb.attribytes[0];
+		tdm = wscr->sidewarpdmap[index];
+		tscr = wscr->sidewarpscr[index];
+		ws = (DMaps[tdm].map * MAPSCRS + wscr->sidewarpscr[index] + DMaps[tdm].xoff);
+		wscr2 = &TheMaps[ws];
+		wx = wscr2->warpreturnx[wrindex];
+		wy = wscr2->warpreturny[wrindex];
+	}
+	if (stype == cPIT || (stype == cAWARPA && (tmpscr->flags5 & fDIRECTAWARP)) || (stype == cSWARPA && (tmpscr->flags5 & fDIRECTSWARP)))
+	{
+		wx = Hero.getX().getInt();
+		wy = Hero.getY().getInt();
+	}
 	switch(wtype)
 	{
 		case wtIWARPZAP:
