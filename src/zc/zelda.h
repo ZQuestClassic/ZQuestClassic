@@ -94,6 +94,7 @@ int32_t  HeroItemClk();
 int32_t  HeroShieldClk();
 int32_t  HeroAction();
 bool  HeroInOutgoingWhistleWarp();
+bool  HeroInWhistleWarp();
 int32_t  HeroCharged();
 bool HeroIsJinxed();
 byte HeroGetDontDraw();

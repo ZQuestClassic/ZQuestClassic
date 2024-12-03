@@ -4579,6 +4579,9 @@ bool weapon::animate(int32_t index)
 			if(get_qr(qr_NOARRIVALPOINT))
 				wry=hero_scr->warpreturny[0];
 			else wry=hero_scr->warparrivaly;
+
+			wrx += region_scr_dx*256;
+			wry += region_scr_dy*176;
 			
 			if(specialinfo==1 && dead==-1 && x==(int32_t)wrx && y==(int32_t)wry)
 			{

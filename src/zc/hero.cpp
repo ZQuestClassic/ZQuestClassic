@@ -26241,8 +26241,13 @@ bool HeroClass::dowarp(mapscr* scr, int32_t type, int32_t index, int32_t warpsfx
 		if(get_qr(qr_NOARRIVALPOINT))
 			wrx=hero_scr->warpreturnx[0];
 		else wrx=hero_scr->warparrivalx;
-		
-		Lwpns.add(new weapon((zfix)(index==left?240:index==right?0:wrx),(zfix)(index==down?0:index==up?160:wry),
+
+		zfix whistle_x = region_scr_dx * 256 + (index==left?240:index==right?0:wrx);
+		zfix whistle_y = region_scr_dy * 176 + (index==down?0:index==up?160:wry);
+
+		z3_calculate_viewport(currdmap, cur_screen, world_w, world_h, wrx + region_scr_dx * 256, wry + region_scr_dy * 176, viewport);
+
+		Lwpns.add(new weapon(whistle_x,whistle_y,
 							 (zfix)0,wWind,1,0,index,whistleitem,getUID(),false,false,true,1));
 		whirlwind=255;
 		whistleitem=-1;
@@ -28278,7 +28283,7 @@ struct nearby_scrolling_screens_t
 	rect_t new_screens_rect;
 };
 
-static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector<mapscr*>& old_temporary_screens, viewport_t old_viewport)
+static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector<mapscr*>& old_temporary_screens, viewport_t old_viewport, viewport_t new_viewport)
 {
 	nearby_scrolling_screens_t nearby_screens{};
 	nearby_screens.has_overlapping_screens = HeroInOutgoingWhistleWarp();
@@ -28449,10 +28454,6 @@ static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector
 		// repro: z3.qst 0 0, without moving use the flute, will see 8px gaps
 		// this is b/c when draw_dx==1,draw_dy==0, only the "new screen" is loaded in the above loops.
 		// would need to somehow load both new and old in that direction to fix this ...
-
-		// also, randomly tree layers are drawing when they shouldnt (gotta move around the map and use flute to see).
-		// the use of clips in for_every_nearby_screen_during_scroll fixed lots of that but not all... issue seems to be
-		// some lower-level drawing code (tiles.cpp?) that is not respecting the clip rect.
 	}
 
 	return nearby_screens;
@@ -29030,7 +29031,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	// For the duration of the scrolling, the old screen/region viewport is used for all drawing operations.
 	// This means that the new screens are drawn with offsets relative to the old coordinate system.
 	// This is handled in get_nearby_scrolling_screens.
-	auto nearby_screens = get_nearby_scrolling_screens(old_temporary_screens, old_viewport);
+	auto nearby_screens = get_nearby_scrolling_screens(old_temporary_screens, old_viewport, new_viewport);
 
 	mapscr* newscr = get_scr(destmap, destscr);
 	// TODO z3 !! remove
