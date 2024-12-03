@@ -24278,6 +24278,8 @@ void HeroClass::checkspecial2(int32_t *ls)
 		bool hasStep[4] = {false};
 		for(auto p = 0; p < 4; ++p)
 		{
+			if ((z > 0 || fakez > 0) && !(tmpscr->flags2 & fAIRCOMBOS))
+				break;
 			for(auto lyr = 0; lyr < 7; ++lyr)
 			{
 				newcombo const* cmb = poses[p]<0 ? nullptr : &combobuf[FFCore.tempScreens[lyr]->data[poses[p]]];
