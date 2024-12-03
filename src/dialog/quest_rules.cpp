@@ -960,7 +960,9 @@ static GUI::ListData compatRulesList
 		"If enabled, certain sprites (enemy, weapon, and item) will stick to the ground in sideview"
 		" and cannot be made to jump off via script." },
 	{ "Broken Conveyors", qr_BROKEN_CONVEYORS,
-		"If enabled, conveyors will affect the hero when rafting." }
+		"If enabled, conveyors will affect the hero when rafting." },
+	{ "Broken Pushblock Top-Half Solids", qr_BROKEN_PUSHBLOCK_TOP_HALF_SOLIDS,
+		"If enabled, blocks will ignore the top half combo solidity when being pushed." }
 };
 
 static GUI::ListData enemiesRulesList

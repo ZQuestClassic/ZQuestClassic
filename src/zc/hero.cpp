@@ -21321,25 +21321,41 @@ void HeroClass::checkpushblock()
 		{
 			switch(blockdir)
 			{
-			case up:
-				if(_walkflag(bx,by-8,2,SWITCHBLOCK_STATE)&&!(MAPFLAG2(lyr-1,bx,by-8)==mfBLOCKHOLE||MAPCOMBOFLAG2(lyr-1,bx,by-8)==mfBLOCKHOLE))    doit=false;
-				
-				break;
-				
-			case down:
-				if(_walkflag(bx,by+24,2,SWITCHBLOCK_STATE)&&!(MAPFLAG2(lyr-1,bx,by+24)==mfBLOCKHOLE||MAPCOMBOFLAG2(lyr-1,bx,by+24)==mfBLOCKHOLE))   doit=false;
-				
-				break;
-				
-			case left:
-				if(_walkflag(bx-16,by+8,2,SWITCHBLOCK_STATE)&&!(MAPFLAG2(lyr-1,bx-16,by+8)==mfBLOCKHOLE||MAPCOMBOFLAG2(lyr-1,bx-16,by+8)==mfBLOCKHOLE)) doit=false;
-				
-				break;
-				
-			case right:
-				if(_walkflag(bx+16,by+8,2,SWITCHBLOCK_STATE)&&!(MAPFLAG2(lyr-1,bx+16,by+8)==mfBLOCKHOLE||MAPCOMBOFLAG2(lyr-1,bx+16,by+8)==mfBLOCKHOLE)) doit=false;
-				
-				break;
+				case up:
+					if(MAPFLAG2(lyr-1,bx,by-8)==mfBLOCKHOLE||MAPCOMBOFLAG2(lyr-1,bx,by-8)==mfBLOCKHOLE)
+						break; // ignore solidity for BLOCKHOLE flagged combos
+					if(_walkflag(bx,by-8,2,SWITCHBLOCK_STATE))
+						doit = false;
+					else if(!get_qr(qr_BROKEN_PUSHBLOCK_TOP_HALF_SOLIDS) && _walkflag(bx,by-16,2,SWITCHBLOCK_STATE))
+						doit = false; // top half wasn't checked before...
+					break;
+					
+				case down:
+					if(MAPFLAG2(lyr-1,bx,by+24)==mfBLOCKHOLE||MAPCOMBOFLAG2(lyr-1,bx,by+24)==mfBLOCKHOLE)
+						break; // ignore solidity for BLOCKHOLE flagged combos
+					if(_walkflag(bx,by+24,2,SWITCHBLOCK_STATE))
+						doit = false;
+					else if(!get_qr(qr_BROKEN_PUSHBLOCK_TOP_HALF_SOLIDS) && _walkflag(bx,by+16,2,SWITCHBLOCK_STATE))
+						doit = false; // top half wasn't checked before...
+					break;
+					
+				case left:
+					if(MAPFLAG2(lyr-1,bx-16,by+8)==mfBLOCKHOLE||MAPCOMBOFLAG2(lyr-1,bx-16,by+8)==mfBLOCKHOLE)
+						break; // ignore solidity for BLOCKHOLE flagged combos
+					if(_walkflag(bx-16,by+8,2,SWITCHBLOCK_STATE))
+						doit = false;
+					else if(!get_qr(qr_BROKEN_PUSHBLOCK_TOP_HALF_SOLIDS) && _walkflag(bx-16,by,2,SWITCHBLOCK_STATE))
+						doit = false; // top half wasn't checked before...
+					break;
+					
+				case right:
+					if(MAPFLAG2(lyr-1,bx+16,by+8)==mfBLOCKHOLE||MAPCOMBOFLAG2(lyr-1,bx+16,by+8)==mfBLOCKHOLE)
+						break; // ignore solidity for BLOCKHOLE flagged combos
+					if(_walkflag(bx+16,by+8,2,SWITCHBLOCK_STATE))
+						doit = false;
+					else if(!get_qr(qr_BROKEN_PUSHBLOCK_TOP_HALF_SOLIDS) && _walkflag(bx+16,by,2,SWITCHBLOCK_STATE))
+						doit = false; // top half wasn't checked before...
+					break;
 			}
 		}
 		
