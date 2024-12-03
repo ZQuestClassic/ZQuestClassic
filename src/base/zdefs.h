@@ -163,7 +163,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_FAVORITES        4
 
 #define V_COMPATRULE       71
-#define V_ZINFO            3
+#define V_ZINFO            4
 
 //= V_SHOPS is under V_MISC
 

@@ -34,6 +34,7 @@ private:
 		FLD_MF_HELP,
 		FLD_CTR_NAME,
 		FLD_WPN_NAME,
+		FLD_ETYPE_NAME,
 		NUM_FIELDS
 	};
 	enum
@@ -47,7 +48,7 @@ private:
 	std::shared_ptr<GUI::Checkbox> defcheck[NUM_FIELDS];
 	std::shared_ptr<GUI::Label> helplbl[NUM_LBLS];
 	zinfo lzinfo;
-	GUI::ListData list_itemclass, list_combotype, list_mapflag, list_counters, list_weapon;
+	GUI::ListData list_itemclass, list_combotype, list_mapflag, list_counters, list_weapon, list_efamilies;
 };
 
 #endif
