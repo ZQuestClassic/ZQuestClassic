@@ -1506,6 +1506,7 @@ bool viewport_t::intersects_with(int x, int y, int w, int h) const
 	int r = x + w;
 	int t = y;
 	int b = y + h;
+	// TODO z3 !!! shouldnt this be <  and > ?
 	return left() <= r && right() >= l && top() <= b && bottom() >= t;
 }
 

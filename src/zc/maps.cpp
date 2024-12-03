@@ -3672,6 +3672,15 @@ void draw_cmb_pos(BITMAP* dest, int32_t x, int32_t y, rpos_t rpos, int32_t cid,
 // `x` and `y` are the offsets the combos will be drawn into the bitmap.
 static void get_bounds_for_draw_cmb_calls(BITMAP* bmp, int x, int y, int& start_x, int& end_x, int& start_y, int& end_y)
 {
+	// if (bmp->clip)
+	// {
+	// 	start_x = MAX(0,  ceil((bmp->cl - 15 - x)    / 16.0));
+	// 	end_x   = MIN(16, ceil((bmp->cr - x) / 16.0));
+	// 	start_y = MAX(0,  ceil((bmp->ct - 15 - y)    / 16.0));
+	// 	end_y   = MIN(11, ceil((bmp->cb - y) / 16.0));
+	// 	return;
+	// }
+
 	start_x = MAX(0,  ceil((-15 - x)    / 16.0));
 	end_x   = MIN(16, ceil((bmp->w - x) / 16.0));
 	start_y = MAX(0,  ceil((-15 - y)    / 16.0));

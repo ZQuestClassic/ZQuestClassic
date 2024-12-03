@@ -1,5 +1,6 @@
 #include "base/general.h"
 #include "base/handles.h"
+#include "base/util.h"
 #include "base/zdefs.h"
 #include "zc/maps.h"
 #include "zc/replay.h"
@@ -28249,11 +28250,38 @@ struct nearby_scrolling_screen_t
 	bool is_new;
 	std::array<screen_handle_t, 7> screen_handles;
 };
-typedef std::vector<nearby_scrolling_screen_t> nearby_scrolling_screens_t;
+
+struct rect_t
+{
+	int l, r, t, b;
+	
+	void union_with(const rect_t& other)
+	{
+		l = std::min(l, other.l);
+		r = std::max(r, other.r);
+		t = std::min(t, other.t);
+		b = std::max(b, other.b);
+	}
+
+	bool intersects_with(const rect_t& other) const
+	{
+		return std::max(t, other.t) < std::min(b, other.b) && std::max(l, other.l) < std::min(r, other.r);
+		// return other.l < r && other.r > l && other.t < b && other.b > t;
+	}
+};
+
+struct nearby_scrolling_screens_t
+{
+	std::vector<nearby_scrolling_screen_t> screens;
+	bool has_overlapping_screens;
+	rect_t old_screens_rect;
+	rect_t new_screens_rect;
+};
 
 static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector<mapscr*>& old_temporary_screens, viewport_t old_viewport)
 {
-	nearby_scrolling_screens_t nearby_screens;
+	nearby_scrolling_screens_t nearby_screens{};
+	nearby_screens.has_overlapping_screens = HeroInOutgoingWhistleWarp();
 
 	int old_region = get_region_id(scrolling_map, scrolling_scr);
 	int new_region = get_region_id(DMaps[scrolling_destdmap].map, cur_screen);
@@ -28268,8 +28296,8 @@ static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector
 	std::vector<std::pair<int, int>> old_screen_deltas;
 	std::vector<std::pair<int, int>> new_screen_deltas;
 
-	// Note: (draw_dx = 0, draw_dy = 0) denotes the starting screen (cur_screen),
-	// while (   < scrolling_dir >    ) denotes the destination screen (scrolling_scr).
+	// Note: (draw_dx = 0, draw_dy = 0) denotes the destination screen (hero_screen),
+	// while (   < scrolling_dir >    ) denotes the starting screen (scrolling_scr).
 	for (int draw_dx = -1; draw_dx <= 1; draw_dx++)
 	{
 		for (int draw_dy = start_dy; draw_dy <= end_dy; draw_dy++)
@@ -28302,7 +28330,6 @@ static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector
 		int draw_dy = pair.second;
 		bool use_new_screens = XY_DELTA_TO_DIR(draw_dx, 0) == scrolling_dir || XY_DELTA_TO_DIR(0, sign2(draw_dy)) == scrolling_dir;
 		int base_map = use_new_screens ? currmap : scrolling_map;
-		int base_dmap = use_new_screens ? scrolling_destdmap : scrolling_dmap;
 		int base_screen = use_new_screens ? hero_screen : scrolling_scr;
 		int base_screen_x = base_screen % 16;
 		int base_screen_y = base_screen / 16;
@@ -28333,18 +28360,35 @@ static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector
 			int dx = draw_dx + z3_get_region_relative_dx(scrolling_scr, scrolling_origin_scr);
 			int dy = draw_dy + z3_get_region_relative_dy(scrolling_scr, scrolling_origin_scr);
 
-			auto& nearby_screen = nearby_screens.emplace_back();
+			auto& nearby_screen = nearby_screens.screens.emplace_back();
 			nearby_screen.screen = screen;
 			nearby_screen.offx = dx * 256;
 			nearby_screen.offy = dy * 176;
 			nearby_screen.is_new = use_new_screens;
 
-			if (use_new_screens && HeroInOutgoingWhistleWarp())
+			if (use_new_screens && nearby_screens.has_overlapping_screens)
 			{
+				dx = z3_get_region_relative_dx(screen) - z3_get_region_relative_dx(hero_screen);
+				dy = z3_get_region_relative_dy(screen) - z3_get_region_relative_dy(hero_screen);
+
 				if (scrolling_dir == right)
-					nearby_screen.offx = old_viewport.right() + z3_get_region_relative_dx(scrolling_scr, scrolling_origin_scr);
+					nearby_screen.offx = dx*256 + old_viewport.right();
 				else if (scrolling_dir == left)
-					nearby_screen.offx = old_viewport.left() + z3_get_region_relative_dx(scrolling_scr, scrolling_origin_scr);
+					nearby_screen.offx = dx*256 + old_viewport.left();
+				// if (scrolling_dir == right)
+				// 	nearby_screen.offx = dx*256 + viewport.right() - old_viewport.right();
+				// else if (scrolling_dir == left)
+				// 	nearby_screen.offx = dx*256 + viewport.right() - old_viewport.left();
+				// if (scrolling_dir == right)
+				// 	nearby_screen.offx = (draw_dx - z3_get_region_relative_dx(scrolling_scr, scrolling_origin_scr))*256 + old_viewport.right();
+				// else if (scrolling_dir == left)
+				// 	nearby_screen.offx = (draw_dx - z3_get_region_relative_dx(scrolling_scr, scrolling_origin_scr))*256 + old_viewport.left();
+				// if (scrolling_dir == right)
+				// 	nearby_screen.offx += old_viewport.right();
+				// else if (scrolling_dir == left)
+				// 	nearby_screen.offx += old_viewport.left();
+
+				nearby_screen.offy = dy*176 + viewport.top();
 			}
 
 			nearby_screen.screen_handles[0] = {base_scr, base_scr, base_map, screen, 0};
@@ -28358,6 +28402,59 @@ static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector
 		}
 	}
 
+	// Find which new screens are overlapping old screens.
+	// New screens are always drawn over old ones, but due to how layers are drawn
+	// one at a time, 
+	if (nearby_screens.has_overlapping_screens)
+	{
+		std::vector<rect_t> old_rects;
+		std::vector<rect_t> new_rects;
+
+		for (const auto& nearby_screen : nearby_screens.screens)
+		{
+			rect_t rect;
+			rect.l = nearby_screen.offx;
+			rect.r = nearby_screen.offx + 256;
+			rect.t = nearby_screen.offy;
+			rect.b = nearby_screen.offy + 176;
+			if (nearby_screen.is_new)
+				new_rects.push_back(rect);
+			else
+				old_rects.push_back(rect);
+		}
+
+		rect_t viewport_rect = {viewport.left(), viewport.right(), viewport.top(), viewport.bottom()};
+		old_rects.push_back(viewport_rect);
+
+		rect_t old_rect = old_rects.at(0);
+		for (int i = 1; i < old_rects.size(); i++)
+			old_rect.union_with(old_rects[i]);
+
+		rect_t new_rect = new_rects.at(0);
+		for (int i = 1; i < new_rects.size(); i++)
+			new_rect.union_with(new_rects[i]);
+
+		// Reduce the old_rect such that it doesn't cover any part of what the new screens render.
+		if (old_rect.intersects_with(new_rect))
+		{
+			assert(HeroInOutgoingWhistleWarp());
+			if (old_rect.r > new_rect.l)
+				old_rect.r = new_rect.l - 1;
+		}
+
+		nearby_screens.old_screens_rect = old_rect;
+		nearby_screens.new_screens_rect = new_rect;
+
+		// TODO: there is sometimes a small gap between the old and new screens.
+		// repro: z3.qst 0 0, without moving use the flute, will see 8px gaps
+		// this is b/c when draw_dx==1,draw_dy==0, only the "new screen" is loaded in the above loops.
+		// would need to somehow load both new and old in that direction to fix this ...
+
+		// also, randomly tree layers are drawing when they shouldnt (gotta move around the map and use flute to see).
+		// the use of clips in for_every_nearby_screen_during_scroll fixed lots of that but not all... issue seems to be
+		// some lower-level drawing code (tiles.cpp?) that is not respecting the clip rect.
+	}
+
 	return nearby_screens;
 }
 
@@ -28365,10 +28462,35 @@ static void for_every_nearby_screen_during_scroll(
 	const nearby_scrolling_screens_t& nearby_screens,
 	const std::function <void (std::array<screen_handle_t, 7>, int, int, int, bool)>& fn)
 {
-	for (const auto& nearby_screen : nearby_screens)
+	if (!nearby_screens.has_overlapping_screens)
 	{
+		for (const auto& nearby_screen : nearby_screens.screens)
+			fn(nearby_screen.screen_handles, nearby_screen.screen, nearby_screen.offx, nearby_screen.offy, nearby_screen.is_new);
+		return;
+	}
+
+	int cl = framebuf->cl;
+	int cr = framebuf->cr;
+	int ct = framebuf->ct;
+	int cb = framebuf->cb;
+
+	for (const auto& nearby_screen : nearby_screens.screens)
+	{
+		set_clip_rect(framebuf, cl, ct, cr, cb);
+
+		if (!nearby_screen.is_new)
+		{
+			int l = nearby_screens.old_screens_rect.l - viewport.x;
+			int t = nearby_screens.old_screens_rect.t - viewport.y + playing_field_offset;
+			int r = nearby_screens.old_screens_rect.r - viewport.x;
+			int b = nearby_screens.old_screens_rect.b - viewport.y + playing_field_offset;
+			add_clip_rect(framebuf, l, t, r, b);
+		}
+
 		fn(nearby_screen.screen_handles, nearby_screen.screen, nearby_screen.offx, nearby_screen.offy, nearby_screen.is_new);
 	}
+
+	set_clip_rect(framebuf, cl, ct, cr, cb);
 }
 
 static int dir_to_scr_offset(direction dir)
@@ -28581,6 +28703,19 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			}
 		}
 
+		// python tests/run_replay_tests.py --filter nargads_trail_crystal_crusades/nargads_trail_crystal_crusades_18_of_24.zplay --frame 2000
+		// TODO z3 ! replay check?
+		if (HeroInOutgoingWhistleWarp() && is_z3_scrolling_mode())
+		{
+			assert(scrolldir == left || scrolldir == right);
+
+			mapscr* newscr = get_scr(new_map, destscr);
+			if(get_qr(qr_NOARRIVALPOINT))
+				new_hero_y=newscr->warpreturny[0];
+			else new_hero_y=newscr->warparrivaly;
+			new_hero_y += scr_dy*176;
+		}
+
 		new_viewport = {};
 		z3_calculate_viewport(new_dmap, destscr, new_region.width, new_region.height, new_hero_x, new_hero_y, new_viewport);
 	};
@@ -28614,6 +28749,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		if (dx)      secondary_axis_alignment_amount = new_hero_screen_y - old_hero_screen_y;
 		else if (dy) secondary_axis_alignment_amount = new_hero_screen_x - old_hero_screen_x;
 		else         secondary_axis_alignment_amount = 0;
+
+		if (HeroInOutgoingWhistleWarp()) secondary_axis_alignment_amount = 0;
 	};
 	calc_scroll_data();
 
