@@ -626,6 +626,9 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 	fields[FLD_WPN_NAME]->setText((*wpnptr) ? (*wpnptr) : "");
 	fields[FLD_WPN_NAME]->setDisabled(!(*wpnptr));
 	defcheck[FLD_WPN_NAME]->setChecked(!(*wpnptr));
+	fields[FLD_ETYPE_NAME]->setText((*etypeptr) ? (*etypeptr) : "");
+	fields[FLD_ETYPE_NAME]->setDisabled(!(*etypeptr));
+	defcheck[FLD_ETYPE_NAME]->setChecked(!(*etypeptr));
 	return window;
 }
 
