@@ -5353,6 +5353,8 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 	{
 		memset(&temp_misc.info, 0, sizeof(infotype)*256);
 	}
+
+	memset(&temp_misc.warp, 0, sizeof(temp_misc.warp));
 	
 	if(Header->zelda_version > 0x192)
 	{
