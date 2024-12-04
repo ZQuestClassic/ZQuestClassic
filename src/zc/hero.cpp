@@ -28401,14 +28401,30 @@ static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector
 			mapscr* base_scr = get_scr(currmap, screen);
 			bool use_new_screens = true;
 
-			int sx = z3_get_region_relative_dx(screen, scrolling_origin_scr) - dx;
-			int sy = z3_get_region_relative_dy(screen, scrolling_origin_scr) - dy;
-			if (scrolling_dir == up) sy -= 1;
-			if (scrolling_dir == down) sy += 1;
-			if (scrolling_dir == left) sx -= 1;
-			if (scrolling_dir == right) sx += 1;
-			int offx = sx * 256;
-			int offy = sy * 176;
+			int offx, offy;
+			if (use_new_screens && nearby_screens.has_overlapping_screens)
+			{
+				int dx2 = z3_get_region_relative_dx(screen, cur_screen) - z3_get_region_relative_dx(hero_screen, cur_screen);
+				int dy2 = z3_get_region_relative_dy(screen, cur_screen) - z3_get_region_relative_dy(hero_screen, cur_screen);
+
+				if (scrolling_dir == right)
+					offx = old_viewport.right() + dx2*256;
+				else if (scrolling_dir == left)
+					offx = old_viewport.left() + dx2*256;
+
+				offy = viewport.top() + dy2*176;
+			}
+			else
+			{
+				int sx = z3_get_region_relative_dx(screen, scrolling_origin_scr);
+				int sy = z3_get_region_relative_dy(screen, scrolling_origin_scr);
+				if      (scrolling_dir == up) sy -= 1;
+				else if (scrolling_dir == down) sy += 1;
+				else if (scrolling_dir == left) sx -= 1;
+				else if (scrolling_dir == right) sx += 1;
+				offx = (sx - dx) * 256;
+				offy = (sy - dy) * 176;
+			}
 
 			new_screen_deltas.push_back({base_scr, use_new_screens, offx, offy});
 		}
@@ -28435,21 +28451,14 @@ static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector
 		nearby_screen.is_new = use_new_screens;
 
 		// for the whistle warp ...
-		// ... this all works well in the simple case where the destination is the top-left screen of a region,
-		// but totally fails otherwise.
-		// part of the issue is that the method here of grabbing the "new screens" is not getting enough of them.
-		// needs total rework.
 		// if (use_new_screens && nearby_screens.has_overlapping_screens)
 		// {
-		// 	dx = z3_get_region_relative_dx(screen) - z3_get_region_relative_dx(hero_screen);
-		// 	dy = z3_get_region_relative_dy(screen) - z3_get_region_relative_dy(hero_screen);
-
 		// 	if (scrolling_dir == right)
-		// 		nearby_screen.offx = dx*256 + old_viewport.right();
+		// 		nearby_screen.offx = old_viewport.right() - dx*256;
 		// 	else if (scrolling_dir == left)
-		// 		nearby_screen.offx = dx*256 + old_viewport.left();
+		// 		nearby_screen.offx = old_viewport.left() - dx*256;
 
-		// 	nearby_screen.offy = dy*176 + viewport.top();
+		// 	nearby_screen.offy = viewport.top() - dy*176;
 		// }
 
 		nearby_screen.screen_handles[0] = {base_scr, base_scr, map, screen, 0};
