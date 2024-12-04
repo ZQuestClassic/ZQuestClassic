@@ -251,6 +251,7 @@ bool ScreenEnemiesDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			rerun_dlg = true;
 			last_enemy = scr_enemies->getSelectedIndex();
 		}
+		saved = false;
 		return true;
 	}
 	case message::CANCEL:
