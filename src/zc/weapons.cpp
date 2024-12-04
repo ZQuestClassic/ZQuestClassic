@@ -4569,20 +4569,21 @@ bool weapon::animate(int32_t index)
 			{
 				dead=1;
 			}
+
+			mapscr* scr = get_scr(screen_spawned);
 			
 			int32_t wrx;
 			if(get_qr(qr_NOARRIVALPOINT))
-				wrx=hero_scr->warpreturnx[0];
-			else wrx=hero_scr->warparrivalx;
+				wrx=scr->warpreturnx[0];
+			else wrx=scr->warparrivalx;
 			
 			int32_t wry;
 			if(get_qr(qr_NOARRIVALPOINT))
-				wry=hero_scr->warpreturny[0];
-			else wry=hero_scr->warparrivaly;
+				wry=scr->warpreturny[0];
+			else wry=scr->warparrivaly;
 
-			wrx += region_scr_dx*256;
-			wry += region_scr_dy*176;
-			
+			std::tie(wrx, wry) = translate_screen_coordinates_to_world(screen_spawned, wrx, wry);
+
 			if(specialinfo==1 && dead==-1 && x==(int32_t)wrx && y==(int32_t)wry)
 			{
 				stop_sfx(WAV_ZN1WHIRLWIND);
