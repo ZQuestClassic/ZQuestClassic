@@ -28290,7 +28290,7 @@ struct nearby_scrolling_screens_t
 	rect_t new_screens_rect;
 };
 
-static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector<mapscr*>& old_temporary_screens, viewport_t old_viewport)
+static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector<mapscr*>& old_temporary_screens, viewport_t old_viewport, viewport_t new_viewport)
 {
 	nearby_scrolling_screens_t nearby_screens{};
 	nearby_screens.has_overlapping_screens = HeroInOutgoingWhistleWarp();
@@ -28305,8 +28305,8 @@ static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector
 	if (scrolling_dir == down) end_dy += 1;
 
 	// First handle the old screens, then the new screens.
-	std::vector<std::pair<int, int>> old_screen_deltas;
-	std::vector<std::pair<int, int>> new_screen_deltas;
+	std::vector<std::tuple<mapscr*, bool, int, int>> old_screen_deltas;
+	std::vector<std::tuple<mapscr*, bool, int, int>> new_screen_deltas;
 
 	// Note: (draw_dx = 0, draw_dy = 0) denotes the destination screen (hero_screen),
 	// while (   < scrolling_dir >    ) denotes the starting screen (scrolling_scr).
@@ -28321,89 +28321,144 @@ static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector
 
 			// Depending on which direction we are scrolling, need to select the correct set of screens.
 			bool use_new_screens = XY_DELTA_TO_DIR(draw_dx, 0) == scrolling_dir || XY_DELTA_TO_DIR(0, sign2(draw_dy)) == scrolling_dir;
+
+			int base_map = use_new_screens ? currmap : scrolling_map;
+			int base_screen = use_new_screens ? hero_screen : scrolling_scr;
+			int base_screen_x = base_screen % 16;
+			int base_screen_y = base_screen / 16;
+
 			if (use_new_screens)
 			{
-				new_screen_deltas.push_back({draw_dx, draw_dy});
+				if (scrolling_dir == up || scrolling_dir == down) base_screen_y -= sign2(draw_dy);
+				else                                              base_screen_x -= draw_dx;
+			}
+
+			int scr_x = base_screen_x + draw_dx;
+			int scr_y = base_screen_y + draw_dy;
+			if (scr_x < 0 || scr_x >= 16 || scr_y < 0 || scr_y >= 8) continue;
+
+			int screen = scr_x + scr_y * 16;
+			if (!is_region_scrolling && screen != hero_screen && screen != scrolling_scr) continue;
+
+			// Only show screens that are in the old or the new regions.
+			int region = get_region_id(base_map, screen);
+			if (!(screen == scrolling_scr || screen == cur_screen || (old_region && old_region == region) || (new_region && region == new_region)))
+				continue;
+
+			mapscr* base_scr = use_new_screens ?
+				get_scr(base_map, screen) :
+				old_temporary_screens[screen*7];
+			if (!base_scr) continue;
+
+			int offx = 256 * (draw_dx + z3_get_region_relative_dx(scrolling_scr, scrolling_origin_scr));
+			int offy = 176 * (draw_dy + z3_get_region_relative_dy(scrolling_scr, scrolling_origin_scr));
+
+			if (use_new_screens)
+			{
+				new_screen_deltas.push_back({base_scr, use_new_screens, offx, offy});
 			}
 			else
 			{
-				old_screen_deltas.push_back({draw_dx, draw_dy});
+				old_screen_deltas.push_back({base_scr, use_new_screens, offx, offy});
 			}
 		}
 	}
 
-	std::vector<std::pair<int, int>> screen_deltas;
+	// TODO z3 ! delete the above once happy with new code :)
+
+	old_screen_deltas.clear();
+	int old_screens_x0 = old_viewport.left() / 256;
+	int old_screens_x1 = (old_viewport.right() - 1) / 256;
+	int old_screens_y0 = old_viewport.top() / 176;
+	int old_screens_y1 = (old_viewport.bottom() - 1) / 176;
+	for (int x = old_screens_x0; x <= old_screens_x1; x++)
+	{
+		for (int y = old_screens_y0; y <= old_screens_y1; y++)
+		{
+			int screen = scrolling_origin_scr + x + y*16;
+			mapscr* base_scr = old_temporary_screens[screen*7];
+			bool use_new_screens = false;
+			int offx = z3_get_region_relative_dx(screen, scrolling_origin_scr) * 256;
+			int offy = z3_get_region_relative_dy(screen, scrolling_origin_scr) * 176;
+			old_screen_deltas.push_back({base_scr, use_new_screens, offx, offy});
+		}
+	}
+
+	// These help translate from the new region to the old region's coordinates.
+	int dx = z3_get_region_relative_dx(hero_screen, scrolling_origin_scr) - z3_get_region_relative_dx(scrolling_scr, scrolling_origin_scr);
+	int dy = z3_get_region_relative_dy(hero_screen, scrolling_origin_scr) - z3_get_region_relative_dy(scrolling_scr, scrolling_origin_scr);
+
+	new_screen_deltas.clear();
+	int new_screens_x0 = new_viewport.left() / 256;
+	int new_screens_x1 = (new_viewport.right() - 1) / 256;
+	int new_screens_y0 = new_viewport.top() / 176;
+	int new_screens_y1 = (new_viewport.bottom() - 1) / 176;
+	for (int x = new_screens_x0; x <= new_screens_x1; x++)
+	{
+		for (int y = new_screens_y0; y <= new_screens_y1; y++)
+		{
+			int screen = cur_screen + x + y*16;
+			mapscr* base_scr = get_scr(currmap, screen);
+			bool use_new_screens = true;
+
+			int sx = z3_get_region_relative_dx(screen, scrolling_origin_scr) - dx;
+			int sy = z3_get_region_relative_dy(screen, scrolling_origin_scr) - dy;
+			if (scrolling_dir == up) sy -= 1;
+			if (scrolling_dir == down) sy += 1;
+			if (scrolling_dir == left) sx -= 1;
+			if (scrolling_dir == right) sx += 1;
+			int offx = sx * 256;
+			int offy = sy * 176;
+
+			new_screen_deltas.push_back({base_scr, use_new_screens, offx, offy});
+		}
+	}
+
+	std::vector<std::tuple<mapscr*, bool, int, int>> screen_deltas;
 	screen_deltas.insert(screen_deltas.end(), old_screen_deltas.begin(), old_screen_deltas.end());
 	screen_deltas.insert(screen_deltas.end(), new_screen_deltas.begin(), new_screen_deltas.end());
 
 	for (const auto& pair : screen_deltas)
 	{
-		int draw_dx = pair.first;
-		int draw_dy = pair.second;
-		bool use_new_screens = XY_DELTA_TO_DIR(draw_dx, 0) == scrolling_dir || XY_DELTA_TO_DIR(0, sign2(draw_dy)) == scrolling_dir;
-		int base_map = use_new_screens ? currmap : scrolling_map;
-		int base_screen = use_new_screens ? hero_screen : scrolling_scr;
-		int base_screen_x = base_screen % 16;
-		int base_screen_y = base_screen / 16;
+		mapscr* base_scr = std::get<0>(pair);
+		bool use_new_screens = std::get<1>(pair);
+		int offx = std::get<2>(pair);
+		int offy = std::get<3>(pair);
 
-		if (use_new_screens)
+		int screen = base_scr->screen;
+		int map = base_scr->map;
+
+		auto& nearby_screen = nearby_screens.screens.emplace_back();
+		nearby_screen.screen = screen;
+		nearby_screen.offx = offx;
+		nearby_screen.offy = offy;
+		nearby_screen.is_new = use_new_screens;
+
+		// for the whistle warp ...
+		// ... this all works well in the simple case where the destination is the top-left screen of a region,
+		// but totally fails otherwise.
+		// part of the issue is that the method here of grabbing the "new screens" is not getting enough of them.
+		// needs total rework.
+		// if (use_new_screens && nearby_screens.has_overlapping_screens)
+		// {
+		// 	dx = z3_get_region_relative_dx(screen) - z3_get_region_relative_dx(hero_screen);
+		// 	dy = z3_get_region_relative_dy(screen) - z3_get_region_relative_dy(hero_screen);
+
+		// 	if (scrolling_dir == right)
+		// 		nearby_screen.offx = dx*256 + old_viewport.right();
+		// 	else if (scrolling_dir == left)
+		// 		nearby_screen.offx = dx*256 + old_viewport.left();
+
+		// 	nearby_screen.offy = dy*176 + viewport.top();
+		// }
+
+		nearby_screen.screen_handles[0] = {base_scr, base_scr, map, screen, 0};
+		for (int i = 1; i < 7; i++)
 		{
-			if (scrolling_dir == up || scrolling_dir == down) base_screen_y -= sign2(draw_dy);
-			else                                              base_screen_x -= draw_dx;
-		}
-
-		int scr_x = base_screen_x + draw_dx;
-		int scr_y = base_screen_y + draw_dy;
-		if (scr_x < 0 || scr_x >= 16 || scr_y < 0 || scr_y >= 8) continue;
-		
-		int screen = scr_x + scr_y * 16;
-		if (!is_region_scrolling && screen != hero_screen && screen != scrolling_scr) continue;
-
-		// Only show screens that are in the old or the new regions.
-		int region = get_region_id(base_map, screen);
-		if (!(screen == scrolling_scr || screen == cur_screen || (old_region && old_region == region) || (new_region && region == new_region)))
-			continue;
-
-		mapscr* base_scr = use_new_screens ?
-			get_scr(base_map, screen) :
-			old_temporary_screens[screen*7];
-		if (base_scr)
-		{
-			int dx = draw_dx + z3_get_region_relative_dx(scrolling_scr, scrolling_origin_scr);
-			int dy = draw_dy + z3_get_region_relative_dy(scrolling_scr, scrolling_origin_scr);
-
-			auto& nearby_screen = nearby_screens.screens.emplace_back();
-			nearby_screen.screen = screen;
-			nearby_screen.offx = dx * 256;
-			nearby_screen.offy = dy * 176;
-			nearby_screen.is_new = use_new_screens;
-
-			// for the whistle warp ...
-			// ... this all works well in the simple case where the destination is the top-left screen of a region,
-			// but totally fails otherwise.
-			// part of the issue is that the method here of grabbing the "new screens" is not getting enough of them.
-			// needs total rework.
-			if (use_new_screens && nearby_screens.has_overlapping_screens)
-			{
-				dx = z3_get_region_relative_dx(screen) - z3_get_region_relative_dx(hero_screen);
-				dy = z3_get_region_relative_dy(screen) - z3_get_region_relative_dy(hero_screen);
-
-				if (scrolling_dir == right)
-					nearby_screen.offx = dx*256 + old_viewport.right();
-				else if (scrolling_dir == left)
-					nearby_screen.offx = dx*256 + old_viewport.left();
-
-				nearby_screen.offy = dy*176 + viewport.top();
-			}
-
-			nearby_screen.screen_handles[0] = {base_scr, base_scr, base_map, screen, 0};
-			for (int i = 1; i < 7; i++)
-			{
-				mapscr* scr = use_new_screens ?
-					get_layer_scr(base_map, screen, i - 1) :
-					old_temporary_screens[screen*7 + i];
-				nearby_screen.screen_handles[i] = {base_scr, scr, base_map, screen, i};
-			}
+			mapscr* scr = use_new_screens ?
+				get_layer_scr(map, screen, i - 1) :
+				old_temporary_screens[screen*7 + i];
+			nearby_screen.screen_handles[i] = {base_scr, scr, map, screen, i};
 		}
 	}
 
@@ -29054,7 +29109,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	// For the duration of the scrolling, the old screen/region viewport is used for all drawing operations.
 	// This means that the new screens are drawn with offsets relative to the old coordinate system.
 	// This is handled in get_nearby_scrolling_screens.
-	auto nearby_screens = get_nearby_scrolling_screens(old_temporary_screens, old_viewport);
+	auto nearby_screens = get_nearby_scrolling_screens(old_temporary_screens, old_viewport, new_viewport);
 
 	mapscr* newscr = get_scr(destmap, destscr);
 	// TODO z3 !! remove
@@ -29498,10 +29553,22 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 
 		if (get_qr(qr_FFCSCROLL))
 		{
+			// Draw all FFCs from the previous screen, even if their spawn screen is out of view.
+			for (int i = 0; i < FFCore.ScrollingScreensAll.size(); i += 7)
+			{
+				mapscr* scr = FFCore.ScrollingScreensAll[i];
+				if (!scr)
+					continue;
+
+				auto screen_handle = screen_handle_t{scr, scr, scr->map, scr->screen, 0};
+				do_layer(framebuf, -3, screen_handle, 0, 0); // ffcs
+			}
+
 			for_every_nearby_screen_during_scroll(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int offx, int offy, bool is_new_screen) {
-				int draw_ffc_x = is_new_screen ? new_ffc_offset_x : 0;
-				int draw_ffc_y = is_new_screen ? new_ffc_offset_y : 0;
-				do_layer(framebuf, -3, screen_handles[0], draw_ffc_x, draw_ffc_y);
+				if (!is_new_screen)
+					return;
+
+				do_layer(framebuf, -3, screen_handles[0], new_ffc_offset_x, new_ffc_offset_y); // ffcs
 			});
 		}
 
