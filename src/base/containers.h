@@ -445,6 +445,10 @@ public:
 		else if(get(ind))
 			cont[ind/8] &= ~(1 << ind%8);
 	}
+	void toggle(index_t ind)
+	{
+		cont[ind/8] ^= (1 << ind%8);
+	}
 	index_t length() const
 	{
 		return cont.inner().size() * 8;
@@ -475,6 +479,10 @@ public:
 			cont[ind/8] |= (1 << ind%8);
 		else if(get(ind))
 			cont[ind/8] &= ~(1 << ind%8);
+	}
+	void toggle(index_t ind)
+	{
+		cont[ind/8] ^= (1 << ind%8);
 	}
 	index_t length() const
 	{
