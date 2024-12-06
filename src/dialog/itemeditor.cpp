@@ -349,6 +349,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			_SET(flag[1], "Lift In Water", "Allows lifting while swimming");
 			_SET(flag[2], "Disable Shield", "Makes the shield not protect from projectiles, in the same way as when the Hero is attacking");
 			_SET(flag[3], "Disable Item Use", "Stop the use of items unrelated to lifting while an object is lifted");
+			_SET(flag[4], "Drop When Hit", "Held object is dropped when receiving damage");
 			break;
 		}
 		case itype_magicring:
