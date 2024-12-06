@@ -413,6 +413,7 @@ public:
 	bool can_lift(int32_t gloveid);
 	void handle_lift(bool dec = true);
 	void lift(weapon* w, byte timer, zfix height);
+	void check_on_hit();
 	bool doattack();
 	bool can_attack();
 	void do_rafting();
