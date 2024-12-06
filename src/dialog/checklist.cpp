@@ -71,7 +71,12 @@ std::shared_ptr<GUI::Widget> ChecklistDialog::view()
 					onPressFunc = [&]()
 					{
 						for(uint q = 0; q < flagnames.size(); ++q)
+						{
+							auto ref = flagnames[q];
+							if(ref.flags & CheckListInfo::DISABLED)
+								continue;
 							flags.set(q, true);
+						}
 						refresh_dlg();
 					}),
 				Button(
@@ -79,7 +84,12 @@ std::shared_ptr<GUI::Widget> ChecklistDialog::view()
 					onPressFunc = [&]()
 					{
 						for(uint q = 0; q < flagnames.size(); ++q)
+						{
+							auto ref = flagnames[q];
+							if(ref.flags & CheckListInfo::DISABLED)
+								continue;
 							flags.set(q, false);
+						}
 						refresh_dlg();
 					}),
 				Button(
@@ -87,7 +97,12 @@ std::shared_ptr<GUI::Widget> ChecklistDialog::view()
 					onPressFunc = [&]()
 					{
 						for(uint q = 0; q < flagnames.size(); ++q)
+						{
+							auto ref = flagnames[q];
+							if(ref.flags & CheckListInfo::DISABLED)
+								continue;
 							flags.toggle(q);
+						}
 						refresh_dlg();
 					})
 			),
