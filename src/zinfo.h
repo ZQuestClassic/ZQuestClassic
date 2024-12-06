@@ -74,12 +74,7 @@ struct zcmodule
 	word startingscreen[10];
 	int32_t title_track, tf_track, gameover_track, ending_track, dungeon_track, overworld_track, lastlevel_track;
 	
-	char enem_type_names[eeMAX][255];
-	char enem_anim_type_names[aMAX][255];
 	char roomtype_names[rMAX][255];
-	char walkmisc7_names[e7tEATHURT+1][255];
-	char walkmisc9_names[e9tARMOS+1][255];
-	char guy_type_names[gDUMMY1][255];
 	
 	char base_NSF_file[1024];
 	char copyright_strings[3][2048];
