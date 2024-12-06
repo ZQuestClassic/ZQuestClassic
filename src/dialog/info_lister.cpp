@@ -144,9 +144,9 @@ std::shared_ptr<GUI::Widget> BasicListerDialog::view()
 void BasicListerDialog::resort()
 {
 	if(alphabetized)
-		lister.alphabetize();
+		lister.alphabetize(frozen_inds);
 	else
-		lister.valsort();
+		lister.valsort(frozen_inds);
 	widgList->setSelectedValue(selected_val);
 }
 
@@ -200,9 +200,11 @@ ItemListerDialog::ItemListerDialog(int itemid, bool selecting):
 void ItemListerDialog::preinit()
 {
 	lister = GUI::ZCListData::items(true);
-	if(!selecting)
+	if(selecting)
+		frozen_inds = 1; // lock '(None)'
+	else
 	{
-		lister.removeInd(0); //remove '(None)'
+		lister.removeInd(0); // remove '(None)'
 		if(selected_val < 0)
 			selected_val = lister.getValue(0);
 	}
@@ -417,9 +419,11 @@ EnemyListerDialog::EnemyListerDialog(int enemyid, bool selecting):
 void EnemyListerDialog::preinit()
 {
 	lister = GUI::ZCListData::enemies(true);
-	if (!selecting)
+	if(selecting)
+		frozen_inds = 1; // lock '(None)'
+	else
 	{
-		lister.removeInd(0); //remove '(None)'
+		lister.removeInd(0); // remove '(None)'
 		if (selected_val < 0)
 			selected_val = lister.getValue(0);
 	}
@@ -570,7 +574,7 @@ MidiListerDialog::MidiListerDialog(int index, bool selecting) :
 void MidiListerDialog::preinit()
 {
 	lister = GUI::ZCListData::midinames(true, false);
-	lister.removeInd(0);
+	lister.removeInd(0); // remove '(None)'
 	selected_val = lister.getValue(0);
 	selected_val = vbound(selected_val, (selecting ? -1 : 0), MAXCUSTOMMIDIS - 1);
 }
@@ -618,7 +622,7 @@ SFXListerDialog::SFXListerDialog(int index, bool selecting) :
 void SFXListerDialog::preinit()
 {
 	lister = GUI::ZCListData::sfxnames(true);
-	lister.removeInd(0);
+	lister.removeInd(0); // remove '(None)'
 	selected_val = lister.getValue(0);
 	selected_val = vbound(selected_val, 1, sfxMAX - 1);
 }
