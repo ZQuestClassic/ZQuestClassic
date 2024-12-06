@@ -25651,9 +25651,6 @@ bool HeroClass::dowarp(mapscr* scr, int32_t type, int32_t index, int32_t warpsfx
 			
 			wdmap = QMisc.warp[wind].dmap[level];
 			wscr = QMisc.warp[wind].scr[level];
-
-			// wdmap = 0; // TODO z3 ! rm
-			// wscr = 18;
 		}
 		break;
 		
@@ -28290,92 +28287,31 @@ struct nearby_scrolling_screens_t
 	rect_t new_screens_rect;
 };
 
+// Note: The destination screen is hero_screen, the starting screen is scrolling_scr.
 static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector<mapscr*>& old_temporary_screens, viewport_t old_viewport, viewport_t new_viewport)
 {
-	nearby_scrolling_screens_t nearby_screens{};
-	nearby_screens.has_overlapping_screens = HeroInOutgoingWhistleWarp();
-
+	bool is_whistle_warp_scroll = HeroInOutgoingWhistleWarp();
 	int old_region = get_region_id(scrolling_map, scrolling_scr);
-	int new_region = get_region_id(DMaps[scrolling_destdmap].map, cur_screen);
-	bool is_region_scrolling = old_region || new_region;
 
-	int start_dy = -1;
-	int end_dy = 1;
-	if (scrolling_dir == up) start_dy -= 1;
-	if (scrolling_dir == down) end_dy += 1;
+	nearby_scrolling_screens_t nearby_screens{};
+	nearby_screens.has_overlapping_screens = is_whistle_warp_scroll;
 
-	// First handle the old screens, then the new screens.
+	// base_scr, use_new_screens, offx, offy
 	std::vector<std::tuple<mapscr*, bool, int, int>> old_screen_deltas;
 	std::vector<std::tuple<mapscr*, bool, int, int>> new_screen_deltas;
 
-	// Note: (draw_dx = 0, draw_dy = 0) denotes the destination screen (hero_screen),
-	// while (   < scrolling_dir >    ) denotes the starting screen (scrolling_scr).
-	for (int draw_dx = -1; draw_dx <= 1; draw_dx++)
-	{
-		for (int draw_dy = start_dy; draw_dy <= end_dy; draw_dy++)
-		{
-			if (!is_region_scrolling)
-			{
-				if (draw_dx && draw_dy) continue;
-			}
-
-			// Depending on which direction we are scrolling, need to select the correct set of screens.
-			bool use_new_screens = XY_DELTA_TO_DIR(draw_dx, 0) == scrolling_dir || XY_DELTA_TO_DIR(0, sign2(draw_dy)) == scrolling_dir;
-
-			int base_map = use_new_screens ? currmap : scrolling_map;
-			int base_screen = use_new_screens ? hero_screen : scrolling_scr;
-			int base_screen_x = base_screen % 16;
-			int base_screen_y = base_screen / 16;
-
-			if (use_new_screens)
-			{
-				if (scrolling_dir == up || scrolling_dir == down) base_screen_y -= sign2(draw_dy);
-				else                                              base_screen_x -= draw_dx;
-			}
-
-			int scr_x = base_screen_x + draw_dx;
-			int scr_y = base_screen_y + draw_dy;
-			if (scr_x < 0 || scr_x >= 16 || scr_y < 0 || scr_y >= 8) continue;
-
-			int screen = scr_x + scr_y * 16;
-			if (!is_region_scrolling && screen != hero_screen && screen != scrolling_scr) continue;
-
-			// Only show screens that are in the old or the new regions.
-			int region = get_region_id(base_map, screen);
-			if (!(screen == scrolling_scr || screen == cur_screen || (old_region && old_region == region) || (new_region && region == new_region)))
-				continue;
-
-			mapscr* base_scr = use_new_screens ?
-				get_scr(base_map, screen) :
-				old_temporary_screens[screen*7];
-			if (!base_scr) continue;
-
-			int offx = 256 * (draw_dx + z3_get_region_relative_dx(scrolling_scr, scrolling_origin_scr));
-			int offy = 176 * (draw_dy + z3_get_region_relative_dy(scrolling_scr, scrolling_origin_scr));
-
-			if (use_new_screens)
-			{
-				new_screen_deltas.push_back({base_scr, use_new_screens, offx, offy});
-			}
-			else
-			{
-				old_screen_deltas.push_back({base_scr, use_new_screens, offx, offy});
-			}
-		}
-	}
-
-	// TODO z3 ! delete the above once happy with new code :)
-
-	old_screen_deltas.clear();
-	int old_screens_x0 = old_viewport.left() / 256;
-	int old_screens_x1 = (old_viewport.right() - 1) / 256;
-	int old_screens_y0 = old_viewport.top() / 176;
-	int old_screens_y1 = (old_viewport.bottom() - 1) / 176;
+	int old_screens_x0 = std::clamp(old_viewport.left() / 256, 0, 15);
+	int old_screens_x1 = std::clamp((old_viewport.right() - 1) / 256, 0, 15);
+	int old_screens_y0 = std::clamp(old_viewport.top() / 176, 0, 8);
+	int old_screens_y1 = std::clamp((old_viewport.bottom() - 1) / 176, 0, 8);
 	for (int x = old_screens_x0; x <= old_screens_x1; x++)
 	{
 		for (int y = old_screens_y0; y <= old_screens_y1; y++)
 		{
 			int screen = scrolling_origin_scr + x + y*16;
+			if (get_region_id(scrolling_map, screen) != old_region)
+				continue;
+
 			mapscr* base_scr = old_temporary_screens[screen*7];
 			bool use_new_screens = false;
 			int offx = z3_get_region_relative_dx(screen, scrolling_origin_scr) * 256;
@@ -28384,52 +28320,30 @@ static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector
 		}
 	}
 
-	// These help translate from the new region to the old region's coordinates.
-	int dx = z3_get_region_relative_dx(hero_screen, scrolling_origin_scr) - z3_get_region_relative_dx(scrolling_scr, scrolling_origin_scr);
-	int dy = z3_get_region_relative_dy(hero_screen, scrolling_origin_scr) - z3_get_region_relative_dy(scrolling_scr, scrolling_origin_scr);
+	// This translates from the new region to the old region's coordinates ...
+	int dx, dy;
+	if (is_whistle_warp_scroll)
+	{
+		// ... anchored at the current viewport.
+		dx = old_viewport.right() - new_viewport.right();
+		dy = old_viewport.top() - new_viewport.top();
+	}
+	else
+	{
+		// ... anchored at the point where the screen scrolling starts.
+		dx = z3_get_region_relative_dx(cur_screen, scrolling_origin_scr) -
+			(z3_get_region_relative_dx(hero_screen, scrolling_origin_scr) - z3_get_region_relative_dx(scrolling_scr, scrolling_origin_scr));
+		dy = z3_get_region_relative_dy(cur_screen, scrolling_origin_scr) -
+			(z3_get_region_relative_dy(hero_screen, scrolling_origin_scr) - z3_get_region_relative_dy(scrolling_scr, scrolling_origin_scr));
+		dx *= 256;
+		dy *= 176;
+	}
 
-	// TODO z3 !!! clean up the chaos
-	int dx3 = z3_get_region_relative_dx(scrolling_scr, scrolling_origin_scr);
-	int dy3 = z3_get_region_relative_dy(scrolling_scr, scrolling_origin_scr);
-	// if      (scrolling_dir == up) dy3 -= 1;
-	// else if (scrolling_dir == down) dy3 += 1;
-	// else if (scrolling_dir == left) dx3 -= 1;
-	// else if (scrolling_dir == right) dx3 += 1;
-	int dx4 = z3_get_region_relative_dx(hero_screen, cur_screen);
-	int dy4 = z3_get_region_relative_dy(hero_screen, cur_screen);
-	// if      (scrolling_dir == up) dy4 += 1;
-	// else if (scrolling_dir == down) dy4 -= 1;
-	// else if (scrolling_dir == left) dx4 += 1;
-	// else if (scrolling_dir == right) dx4 -= 1;
+	if      (scrolling_dir == up) dy -= 176;
+	else if (scrolling_dir == down) dy += 176;
+	else if (scrolling_dir == left) dx -= 256;
+	else if (scrolling_dir == right) dx += 256;
 
-	// int dx5 = dx3 - dx4;
-	// int dy5 = dy3 - dy4;
-	int dx5 = z3_get_region_relative_dx(cur_screen, scrolling_origin_scr) - dx;
-	int dy5 = z3_get_region_relative_dy(cur_screen, scrolling_origin_scr) - dy;
-	if      (scrolling_dir == up) dy5 -= 1;
-	else if (scrolling_dir == down) dy5 += 1;
-	else if (scrolling_dir == left) dx5 -= 1;
-	else if (scrolling_dir == right) dx5 += 1;
-	dx5 *= 256;
-	dy5 *= 176;
-
-	// int dx0 = z3_get_region_relative_dx(hero_screen, scrolling_origin_scr) - z3_get_region_relative_dx(scrolling_scr, scrolling_origin_scr);
-	// int dy0 = z3_get_region_relative_dy(hero_screen, scrolling_origin_scr) - z3_get_region_relative_dy(scrolling_scr, scrolling_origin_scr);
-	int dx0 = z3_get_region_relative_dx(scrolling_origin_scr, cur_screen) - z3_get_region_relative_dx(cur_screen, cur_screen);
-	int dy0 = z3_get_region_relative_dy(scrolling_origin_scr, cur_screen) - z3_get_region_relative_dy(cur_screen, cur_screen);
-	// int dx6 = old_viewport.right() - dx0*256;
-	// int dy6 = old_viewport.top() - dy0*176;
-	int dx6 = old_viewport.right();
-	int dy6 = old_viewport.top();
-	// if      (scrolling_dir == up) dy5 -= 1;
-	// else if (scrolling_dir == down) dy5 += 1;
-	// else if (scrolling_dir == left) dx5 -= 1;
-	// else if (scrolling_dir == right) dx5 += 1;
-	// dx5 *= 256;
-	// dy5 *= 176;
-
-
-	new_screen_deltas.clear();
 	int new_screens_x0 = std::clamp(new_viewport.left() / 256, 0, 15);
 	int new_screens_x1 = std::clamp((new_viewport.right() - 1) / 256, 0, 15);
 	int new_screens_y0 = std::clamp(new_viewport.top() / 176, 0, 8);
@@ -28439,58 +28353,21 @@ static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector
 		for (int y = new_screens_y0; y <= new_screens_y1; y++)
 		{
 			int screen = cur_screen + x + y*16;
+			if (!is_in_current_region(screen))
+				continue;
+
+			int sx = z3_get_region_relative_dx(screen, cur_screen);
+			int sy = z3_get_region_relative_dy(screen, cur_screen);
+			int offx = sx * 256 + dx;
+			int offy = sy * 176 + dy;
+
 			mapscr* base_scr = get_scr(currmap, screen);
 			bool use_new_screens = true;
-
-			int offx, offy;
-			if (use_new_screens && nearby_screens.has_overlapping_screens)
-			{
-				int dx2 = z3_get_region_relative_dx(screen, cur_screen)*256;
-				int dy2 = z3_get_region_relative_dy(screen, cur_screen)*176;
-
-				// int xxx = (new_viewport.x + new_viewport.w / 2) - (old_viewport.x + old_viewport.w / 2);
-				// int xxx = old_viewport.x - new_viewport.x;
-				int xxx = (new_hero_x.getInt() - new_viewport.x) - (HeroX().getInt() - old_viewport.x);
-				int yyy = (new_hero_y.getInt() - new_viewport.y) - (HeroY().getInt() - old_viewport.y);
-				// xxx = 0; yyy = 0;
-				if (scrolling_dir == right)
-					offx = old_viewport.right() + dx2 + xxx;
-				else if (scrolling_dir == left)
-					offx = old_viewport.left() + dx2 + xxx;
-				// offy = old_viewport.top() + dy2 + yyy;
-
-				offx = dx2 + old_viewport.right() - new_viewport.right();
-				if (scrolling_dir == right)
-					offx += 256;
-				offy = dy2 + old_viewport.top() - new_viewport.top();
-
-
-				// int sx = z3_get_region_relative_dx(screen, cur_screen);
-				// int sy = z3_get_region_relative_dy(screen, cur_screen);
-				// offx = (sx) * 256 + dx6;
-				// offy = (sy) * 176 + dy6;
-			}
-			else
-			{
-				// int sx = z3_get_region_relative_dx(screen, scrolling_origin_scr);
-				// int sy = z3_get_region_relative_dy(screen, scrolling_origin_scr);
-				// if      (scrolling_dir == up) sy -= 1;
-				// else if (scrolling_dir == down) sy += 1;
-				// else if (scrolling_dir == left) sx -= 1;
-				// else if (scrolling_dir == right) sx += 1;
-				// offx = (sx - dx) * 256;
-				// offy = (sy - dy) * 176;
-
-				int sx = z3_get_region_relative_dx(screen, cur_screen);
-				int sy = z3_get_region_relative_dy(screen, cur_screen);
-				offx = (sx) * 256 + dx5;
-				offy = (sy) * 176 + dy5;
-			}
-
 			new_screen_deltas.push_back({base_scr, use_new_screens, offx, offy});
 		}
 	}
 
+	// First handle the old screens, then the new screens.
 	std::vector<std::tuple<mapscr*, bool, int, int>> screen_deltas;
 	screen_deltas.insert(screen_deltas.end(), old_screen_deltas.begin(), old_screen_deltas.end());
 	screen_deltas.insert(screen_deltas.end(), new_screen_deltas.begin(), new_screen_deltas.end());
@@ -28511,17 +28388,6 @@ static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector
 		nearby_screen.offy = offy;
 		nearby_screen.is_new = use_new_screens;
 
-		// for the whistle warp ...
-		// if (use_new_screens && nearby_screens.has_overlapping_screens)
-		// {
-		// 	if (scrolling_dir == right)
-		// 		nearby_screen.offx = old_viewport.right() - dx*256;
-		// 	else if (scrolling_dir == left)
-		// 		nearby_screen.offx = old_viewport.left() - dx*256;
-
-		// 	nearby_screen.offy = viewport.top() - dy*176;
-		// }
-
 		nearby_screen.screen_handles[0] = {base_scr, base_scr, map, screen, 0};
 		for (int i = 1; i < 7; i++)
 		{
@@ -28535,6 +28401,7 @@ static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector
 	// Find which new screens are overlapping old screens.
 	// New screens are always drawn over old ones, but due to how layers are drawn
 	// one at a time, 
+	// TODO z3 ! fix comment above
 	if (nearby_screens.has_overlapping_screens)
 	{
 		std::vector<rect_t> old_rects;
@@ -28552,9 +28419,6 @@ static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector
 			else
 				old_rects.push_back(rect);
 		}
-
-		// rect_t viewport_rect = {old_viewport.left(), old_viewport.right(), old_viewport.top(), old_viewport.bottom()};
-		// old_rects.push_back(viewport_rect);
 
 		rect_t old_rect = old_rects.at(0);
 		for (int i = 1; i < old_rects.size(); i++)
@@ -28585,17 +28449,8 @@ static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector
 				new_rect.l = viewport_rect.r + 1;
 		}
 
-		// old_rect.union_with(viewport_rect);
-
-		// new_rect.r += 256;
-
 		nearby_screens.old_screens_rect = old_rect;
 		nearby_screens.new_screens_rect = new_rect;
-
-		// TODO: there is sometimes a small gap between the old and new screens.
-		// repro: z3.qst 0 0, without moving use the flute, will see 8px gaps
-		// this is b/c when draw_dx==1,draw_dy==0, only the "new screen" is loaded in the above loops.
-		// would need to somehow load both new and old in that direction to fix this ...
 	}
 
 	return nearby_screens;
@@ -28621,24 +28476,12 @@ static void for_every_nearby_screen_during_scroll(
 	{
 		set_clip_rect(framebuf, cl, ct, cr, cb);
 
-		if (!nearby_screen.is_new)
-		{
-			int l = nearby_screens.old_screens_rect.l - viewport.x;
-			int t = nearby_screens.old_screens_rect.t - viewport.y + playing_field_offset;
-			int r = nearby_screens.old_screens_rect.r - viewport.x;
-			int b = nearby_screens.old_screens_rect.b - viewport.y + playing_field_offset;
-			add_clip_rect(framebuf, l, t, r, b);
-			// rectfill(framebuf, l, t, r, b, vc(2)); continue;
-		}
-		else
-		{
-			int l = nearby_screens.new_screens_rect.l - viewport.x;
-			int t = nearby_screens.new_screens_rect.t - viewport.y + playing_field_offset;
-			int r = nearby_screens.new_screens_rect.r - viewport.x;
-			int b = nearby_screens.new_screens_rect.b - viewport.y + playing_field_offset;
-			add_clip_rect(framebuf, l, t, r, b);
-			// rectfill(framebuf, l, t, r, b, vc(5)); continue;
-		}
+		auto& rect = nearby_screen.is_new ? nearby_screens.new_screens_rect : nearby_screens.old_screens_rect;
+		int l = rect.l - viewport.x;
+		int t = rect.t - viewport.y + playing_field_offset;
+		int r = rect.r - viewport.x;
+		int b = rect.b - viewport.y + playing_field_offset;
+		add_clip_rect(framebuf, l, t, r, b);
 
 		fn(nearby_screen.screen_handles, nearby_screen.screen, nearby_screen.offx, nearby_screen.offy, nearby_screen.is_new);
 	}
