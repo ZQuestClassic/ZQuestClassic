@@ -182,6 +182,7 @@ enum miscsfx
 	sfxDRAIN,
 	sfxTAP,
 	sfxTAP_HOLLOW,
+	sfxHERO_LANDS,
 	sfxMAX = 256
 };
 

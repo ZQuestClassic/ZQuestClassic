@@ -8288,6 +8288,7 @@ heroanimate_skip_liftwpn:;
 			hoverflags &= ~HOV_OUT;
 		}
 	}
+	bool was_airborne = isStanding(false) && (z > 0 || isSideViewHero());
 	bool platformfell2 = false;
 	int32_t gravity3 = (zinit.gravity/100);
 	int32_t termv = (zinit.terminalv);
@@ -10060,6 +10061,22 @@ heroanimate_skip_liftwpn:;
 		{
 			return true;
 		}
+	}
+	
+	if(was_airborne && isStanding(false)) // Just landed from air
+	{
+		// This block is late enough that if you land in water, you will already be swimming/drowning before this runs
+		int land_sfx = 0;
+		//TODO: per-combo landing SFX? If the combo you're landing on has one, set that, ELSE switch(action)... -Em
+		switch(action)
+		{
+			case none: case walking: case attacking: case gothit: case landhold1: case landhold2:
+				// standard landing on ground actions
+				land_sfx = QMisc.miscsfx[sfxHERO_LANDS];  // Generic landing on ground SFX
+				break;
+		}
+		if(land_sfx)
+			sfx(land_sfx, pan(x.getInt()));
 	}
 	
 	// Somehow Hero was displaced from the fairy flag...
