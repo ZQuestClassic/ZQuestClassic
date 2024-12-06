@@ -2080,6 +2080,7 @@ void ComboEditorDialog::updateCSet()
 	if(local_comboref.animflags&AF_CYCLENOCSET)
 		cycleswatch->setCSet(CSet);
 	else cycleswatch->setCSet(local_comboref.nextcset);
+	cycleswatch->setDisabled(local_comboref.animflags & AF_CYCLEUNDERCOMBO);
 	animFrame->setCSet(CSet);
 	l_cset->setText(std::to_string(CSet));
 }
@@ -3653,6 +3654,15 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							}
 						),
 						Checkbox(
+							text = "Cycle To Screen Undercombo", hAlign = 0.0,
+							checked = local_comboref.animflags & AF_CYCLEUNDERCOMBO,
+							onToggleFunc = [&](bool state)
+							{
+								SETFLAG(local_comboref.animflags,AF_CYCLEUNDERCOMBO,state);
+								updateCSet();
+							}
+						),
+						Checkbox(
 							text = "Cycle Ignores CSet", hAlign = 0.0,
 							checked = local_comboref.animflags & AF_CYCLENOCSET,
 							onToggleFunc = [&](bool state)
@@ -4165,6 +4175,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 	l_minmax_trig->setText((local_comboref.triggerflags[0] & (combotriggerINVERTMINMAX))
 		? maxstr : minstr);
 	refreshScript();
+	updateAnimation();
 	updateWarnings();
 #if DEVLEVEL > 0
 	if(force_wizard)

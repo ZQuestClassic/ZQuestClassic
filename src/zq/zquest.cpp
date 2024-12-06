@@ -5075,8 +5075,15 @@ void draw_sqr_btn(size_and_pos const& sqr, int icon, int flags, FONT* f = nullpt
 void drawpanel()
 {
 	mapscr *scr=Map.CurrScr();
-	int32_t NextCombo=combobuf[Combo].nextcombo;
-	int32_t NextCSet=(combobuf[Combo].animflags & AF_CYCLENOCSET) ? CSet : combobuf[Combo].nextcset;
+	int32_t NextCombo = combobuf[Combo].nextcombo;
+	int32_t NextCSet = combobuf[Combo].nextcset;
+	if(combobuf[Combo].animflags & AF_CYCLEUNDERCOMBO)
+	{
+		NextCombo = scr->undercombo;
+		NextCSet = scr->undercset;
+	}
+	if(combobuf[Combo].animflags & AF_CYCLENOCSET)
+		NextCSet = CSet;
 	
 	FONT* tfont = font;
 	if(prv_mode)
@@ -6458,8 +6465,16 @@ void draw_screenunit(int32_t unit, int32_t flags)
 			// Cycle
 			if(!is_compact)
 			{
-				int32_t NextCombo=combobuf[Combo].nextcombo;
-				int32_t NextCSet=(combobuf[Combo].animflags & AF_CYCLENOCSET) ? CSet : combobuf[Combo].nextcset;
+				int32_t NextCombo = combobuf[Combo].nextcombo;
+				int32_t NextCSet = combobuf[Combo].nextcset;
+				if(combobuf[Combo].animflags & AF_CYCLEUNDERCOMBO)
+				{
+					mapscr* scr = Map.CurrScr();
+					NextCombo = scr->undercombo;
+					NextCSet = scr->undercset;
+				}
+				if(combobuf[Combo].animflags & AF_CYCLENOCSET)
+					NextCSet = CSet;
 				bool normal_dm = draw_mode != dm_alias && draw_mode != dm_cpool && draw_mode != dm_auto;
 				jwin_draw_frame(menu1,combo_preview2.x-2,combo_preview2.y-2,combo_preview2.w+4,combo_preview2.h+4, FR_DEEP);
 				if(NextCombo>0 && normal_dm)

@@ -10623,7 +10623,7 @@ void combo_info(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copyc
 		int32_t nextcset=(combobuf[tile].animflags & AF_CYCLENOCSET) ? cs : combobuf[tile].nextcset;
 		jwin_draw_frame(screen2,(136*mul)-2,(216*mul)+yofs-2,(16*mul)+4,(16*mul)+4,FR_DEEP);
 		
-		if(nextcombo>0)
+		if(nextcombo>0 && !(combobuf[tile].animflags & AF_CYCLEUNDERCOMBO))
 		{
 			put_combo(buf,0,0,nextcombo,nextcset,0,0);
 			stretch_blit(buf,screen2,0,0,16,16,136*mul,216*mul+yofs,16*mul,16*mul);
