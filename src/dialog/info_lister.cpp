@@ -63,7 +63,17 @@ std::shared_ptr<GUI::Widget> BasicListerDialog::view()
 			Enter=message::CONFIRM,
 		},
 		Column(
-			hPadding = 0_px, 
+			hPadding = 0_px,
+			Row(vPadding = 0_px, fitParent = true,
+				Checkbox(text = "Alphabetized",
+					hAlign = 0.0,
+					checked = alphabetized,
+					onToggleFunc = [&](bool state)
+					{
+						alphabetized = state;
+						resort();
+					})
+			),
 			g = Columns<2>(
 				widgList = List(data = lister, isABC = true,
 					selectedValue = selected_val,
@@ -125,9 +135,19 @@ std::shared_ptr<GUI::Widget> BasicListerDialog::view()
 		g->add(widgInfo = Label(text = "", fitParent = true, rowSpan = 2));
 	}
 	
+	resort();
 	postinit();
 	update();
 	return window;
+}
+
+void BasicListerDialog::resort()
+{
+	if(alphabetized)
+		lister.alphabetize();
+	else
+		lister.valsort();
+	widgList->setSelectedValue(selected_val);
 }
 
 bool BasicListerDialog::handleMessage(const GUI::DialogMessage<message>& msg)
@@ -175,6 +195,7 @@ ItemListerDialog::ItemListerDialog(int itemid, bool selecting):
 	BasicListerDialog("Select Item",itemid,selecting)
 {
 	use_preview = true;
+	alphabetized = true;
 }
 void ItemListerDialog::preinit()
 {
@@ -366,9 +387,9 @@ bool ItemListerDialog::load()
 SubscrWidgListerDialog::SubscrWidgListerDialog():
 	BasicListerDialog("Select Widget Type",0,true)
 {
+	alphabetized = true;
 	lister = GUI::ZCListData::subscr_widgets();
 	lister.removeInd(0); //remove '(None)'
-	lister.alphabetize();
 	selected_val = lister.getValue(0);
 	editable = false;
 }
@@ -389,12 +410,13 @@ void SubscrWidgListerDialog::update()
 
 EnemyListerDialog::EnemyListerDialog(int enemyid, bool selecting):
 	BasicListerDialog("Select Enemy", enemyid, selecting)
-	{
-		use_preview = true;
-	}
+{
+	use_preview = true;
+	alphabetized = true;
+}
 void EnemyListerDialog::preinit()
 {
-	lister = GUI::ZCListData::enemies();
+	lister = GUI::ZCListData::enemies(true);
 	if (!selecting)
 	{
 		lister.removeInd(0); //remove '(None)'
@@ -590,13 +612,13 @@ SFXListerDialog::SFXListerDialog(int index, bool selecting) :
 	BasicListerDialog("Select SFX", index, selecting)
 {
 	use_preview = false;
+	alphabetized = true;
 }
 
 void SFXListerDialog::preinit()
 {
 	lister = GUI::ZCListData::sfxnames(true);
 	lister.removeInd(0);
-	lister.alphabetize();
 	selected_val = lister.getValue(0);
 	selected_val = vbound(selected_val, 1, sfxMAX - 1);
 }

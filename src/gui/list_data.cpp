@@ -100,6 +100,20 @@ ListData& ListData::filter(std::function<bool(ListItem&)> filt_func)
 	return *this;
 }
 
+ListData& ListData::valsort()
+{
+	map<int32_t,std::vector<ListItem>> list;
+	for(ListItem& li : listItems)
+		list[li.value].push_back(li);
+	listItems.clear();
+	for(auto& p : list)
+	{
+		auto& vec = p.second;
+		for(auto& li : vec)
+			listItems.push_back(li);
+	}
+	return *this;
+}
 ListData& ListData::tagsort()
 {
 	map<int32_t,std::vector<ListItem>> list;
@@ -116,12 +130,16 @@ ListData& ListData::tagsort()
 }
 ListData& ListData::alphabetize()
 {
-	map<string,ListItem> list;
+	map<string,std::vector<ListItem>> list;
 	for(ListItem& li : listItems)
-		list[li.text] = li;
+		list[li.text].push_back(li);
 	listItems.clear();
 	for(auto& p : list)
-		listItems.push_back(p.second);
+	{
+		auto& vec = p.second;
+		for(auto& li : vec)
+			listItems.push_back(li);
+	}
 	return *this;
 }
 

@@ -20,10 +20,10 @@ public:
 	
 	BasicListerDialog(std::string title, int start_val = 0, bool selecting = false) :
 		titleTxt(title), selected_val(start_val), start_val(start_val), selecting(selecting),
-		use_preview(false), editable(true){};
+		use_preview(false), editable(true), alphabetized(false){};
 	BasicListerDialog(std::string title, GUI::ListData lister, int start_val = 0, bool selecting = false) :
 		titleTxt(title), lister(lister), selected_val(start_val), start_val(start_val),
-		selecting(selecting), use_preview(false), editable(true){};
+		selecting(selecting), use_preview(false), editable(true), alphabetized(false){};
 	
 	std::shared_ptr<GUI::Widget> view() override;
 	virtual bool handleMessage(const GUI::DialogMessage<message>& msg);
@@ -38,11 +38,12 @@ protected:
 	virtual bool adv_paste(){return false;};
 	virtual void save(){};
 	virtual bool load(){return false;};
+	void resort();
 	
 	std::string titleTxt;
 	GUI::ListData lister;
 	int selected_val, start_val;
-	bool selecting, use_preview, editable;
+	bool selecting, use_preview, editable, alphabetized;
 	
 	std::shared_ptr<GUI::List> widgList;
 	std::shared_ptr<GUI::Label> widgInfo;
