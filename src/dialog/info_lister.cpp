@@ -71,6 +71,7 @@ std::shared_ptr<GUI::Widget> BasicListerDialog::view()
 					onToggleFunc = [&](bool state)
 					{
 						alphabetized = state;
+						set_config("alphabetized", state);
 						resort();
 					})
 			),
@@ -150,6 +151,45 @@ void BasicListerDialog::resort()
 	widgList->setSelectedValue(selected_val);
 }
 
+bool BasicListerDialog::get_config(string const& name, bool default_val)
+{
+	return get_config(name, default_val ? 1 : 0) != 0;
+}
+int32_t BasicListerDialog::get_config(string const& name, int32_t default_val)
+{
+	if(cfg_key.empty()) return default_val;
+	return zc_get_config("zquest", fmt::format("lister_{}_{}", cfg_key, name).c_str(), default_val);
+}
+string BasicListerDialog::get_config(string const& name, string const& default_val)
+{
+	if(cfg_key.empty()) return default_val;
+	return zc_get_config("zquest", fmt::format("lister_{}_{}", cfg_key, name).c_str(), default_val.c_str());
+}
+double BasicListerDialog::get_config(string const& name, double default_val)
+{
+	if(cfg_key.empty()) return default_val;
+	return zc_get_config("zquest", fmt::format("lister_{}_{}", cfg_key, name).c_str(), default_val);
+}
+void BasicListerDialog::set_config(string const& name, bool value)
+{
+	set_config(name, value ? 1 : 0);
+}
+void BasicListerDialog::set_config(string const& name, int32_t value)
+{
+	if(cfg_key.empty()) return;
+	zc_set_config("zquest", fmt::format("lister_{}_{}", cfg_key, name).c_str(), value);
+}
+void BasicListerDialog::set_config(string const& name, string const& value)
+{
+	if(cfg_key.empty()) return;
+	zc_set_config("zquest", fmt::format("lister_{}_{}", cfg_key, name).c_str(), value.c_str());
+}
+void BasicListerDialog::set_config(string const& name, double value)
+{
+	if(cfg_key.empty()) return;
+	zc_set_config("zquest", fmt::format("lister_{}_{}", cfg_key, name).c_str(), value);
+}
+
 bool BasicListerDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 {
 	bool refresh = false;
@@ -192,10 +232,10 @@ bool BasicListerDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 }
 
 ItemListerDialog::ItemListerDialog(int itemid, bool selecting):
-	BasicListerDialog("Select Item",itemid,selecting)
+	BasicListerDialog("Select Item","itemdata",itemid,selecting)
 {
 	use_preview = true;
-	alphabetized = true;
+	alphabetized = get_config("alphabetized", true);
 }
 void ItemListerDialog::preinit()
 {
@@ -387,9 +427,9 @@ bool ItemListerDialog::load()
 }
 
 SubscrWidgListerDialog::SubscrWidgListerDialog():
-	BasicListerDialog("Select Widget Type",0,true)
+	BasicListerDialog("Select Widget Type","subscr_widgets",0,true)
 {
-	alphabetized = true;
+	alphabetized = get_config("alphabetized", true);
 	lister = GUI::ZCListData::subscr_widgets();
 	lister.removeInd(0); //remove '(None)'
 	selected_val = lister.getValue(0);
@@ -411,10 +451,10 @@ void SubscrWidgListerDialog::update()
 }
 
 EnemyListerDialog::EnemyListerDialog(int enemyid, bool selecting):
-	BasicListerDialog("Select Enemy", enemyid, selecting)
+	BasicListerDialog("Select Enemy", "enemydata", enemyid, selecting)
 {
 	use_preview = true;
-	alphabetized = true;
+	alphabetized = get_config("alphabetized", true);
 }
 void EnemyListerDialog::preinit()
 {
@@ -568,8 +608,10 @@ bool EnemyListerDialog::load()
 }
 
 MidiListerDialog::MidiListerDialog(int index, bool selecting) :
-	BasicListerDialog("Select MIDI", index, selecting)
-{}
+	BasicListerDialog("Select MIDI", "mididata", index, selecting)
+{
+	alphabetized = get_config("alphabetized", false);
+}
 
 void MidiListerDialog::preinit()
 {
@@ -613,10 +655,10 @@ void MidiListerDialog::edit()
 }
 
 SFXListerDialog::SFXListerDialog(int index, bool selecting) :
-	BasicListerDialog("Select SFX", index, selecting)
+	BasicListerDialog("Select SFX", "sfxdata", index, selecting)
 {
 	use_preview = false;
-	alphabetized = true;
+	alphabetized = get_config("alphabetized", true);
 }
 
 void SFXListerDialog::preinit()
