@@ -25653,7 +25653,7 @@ bool HeroClass::dowarp(mapscr* scr, int32_t type, int32_t index, int32_t warpsfx
 			wscr = QMisc.warp[wind].scr[level];
 
 			// wdmap = 0; // TODO z3 ! rm
-			// wscr = 17;
+			// wscr = 18;
 		}
 		break;
 		
@@ -28445,8 +28445,8 @@ static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector
 			int offx, offy;
 			if (use_new_screens && nearby_screens.has_overlapping_screens)
 			{
-				int dx2 = z3_get_region_relative_dx(screen, cur_screen)*256 - z3_get_region_relative_dx(hero_screen, cur_screen)*256;
-				int dy2 = z3_get_region_relative_dy(screen, cur_screen)*176 - z3_get_region_relative_dy(hero_screen, cur_screen)*176;
+				int dx2 = z3_get_region_relative_dx(screen, cur_screen)*256;
+				int dy2 = z3_get_region_relative_dy(screen, cur_screen)*176;
 
 				// int xxx = (new_viewport.x + new_viewport.w / 2) - (old_viewport.x + old_viewport.w / 2);
 				// int xxx = old_viewport.x - new_viewport.x;
