@@ -28388,11 +28388,52 @@ static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector
 	int dx = z3_get_region_relative_dx(hero_screen, scrolling_origin_scr) - z3_get_region_relative_dx(scrolling_scr, scrolling_origin_scr);
 	int dy = z3_get_region_relative_dy(hero_screen, scrolling_origin_scr) - z3_get_region_relative_dy(scrolling_scr, scrolling_origin_scr);
 
+	// TODO z3 !!! clean up the chaos
+	int dx3 = z3_get_region_relative_dx(scrolling_scr, scrolling_origin_scr);
+	int dy3 = z3_get_region_relative_dy(scrolling_scr, scrolling_origin_scr);
+	// if      (scrolling_dir == up) dy3 -= 1;
+	// else if (scrolling_dir == down) dy3 += 1;
+	// else if (scrolling_dir == left) dx3 -= 1;
+	// else if (scrolling_dir == right) dx3 += 1;
+	int dx4 = z3_get_region_relative_dx(hero_screen, cur_screen);
+	int dy4 = z3_get_region_relative_dy(hero_screen, cur_screen);
+	// if      (scrolling_dir == up) dy4 += 1;
+	// else if (scrolling_dir == down) dy4 -= 1;
+	// else if (scrolling_dir == left) dx4 += 1;
+	// else if (scrolling_dir == right) dx4 -= 1;
+
+	// int dx5 = dx3 - dx4;
+	// int dy5 = dy3 - dy4;
+	int dx5 = z3_get_region_relative_dx(cur_screen, scrolling_origin_scr) - dx;
+	int dy5 = z3_get_region_relative_dy(cur_screen, scrolling_origin_scr) - dy;
+	if      (scrolling_dir == up) dy5 -= 1;
+	else if (scrolling_dir == down) dy5 += 1;
+	else if (scrolling_dir == left) dx5 -= 1;
+	else if (scrolling_dir == right) dx5 += 1;
+	dx5 *= 256;
+	dy5 *= 176;
+
+	// int dx0 = z3_get_region_relative_dx(hero_screen, scrolling_origin_scr) - z3_get_region_relative_dx(scrolling_scr, scrolling_origin_scr);
+	// int dy0 = z3_get_region_relative_dy(hero_screen, scrolling_origin_scr) - z3_get_region_relative_dy(scrolling_scr, scrolling_origin_scr);
+	int dx0 = z3_get_region_relative_dx(scrolling_origin_scr, cur_screen) - z3_get_region_relative_dx(cur_screen, cur_screen);
+	int dy0 = z3_get_region_relative_dy(scrolling_origin_scr, cur_screen) - z3_get_region_relative_dy(cur_screen, cur_screen);
+	// int dx6 = old_viewport.right() - dx0*256;
+	// int dy6 = old_viewport.top() - dy0*176;
+	int dx6 = old_viewport.right();
+	int dy6 = old_viewport.top();
+	// if      (scrolling_dir == up) dy5 -= 1;
+	// else if (scrolling_dir == down) dy5 += 1;
+	// else if (scrolling_dir == left) dx5 -= 1;
+	// else if (scrolling_dir == right) dx5 += 1;
+	// dx5 *= 256;
+	// dy5 *= 176;
+
+
 	new_screen_deltas.clear();
-	int new_screens_x0 = new_viewport.left() / 256;
-	int new_screens_x1 = (new_viewport.right() - 1) / 256;
-	int new_screens_y0 = new_viewport.top() / 176;
-	int new_screens_y1 = (new_viewport.bottom() - 1) / 176;
+	int new_screens_x0 = std::clamp(new_viewport.left() / 256, 0, 15);
+	int new_screens_x1 = std::clamp((new_viewport.right() - 1) / 256, 0, 15);
+	int new_screens_y0 = std::clamp(new_viewport.top() / 176, 0, 8);
+	int new_screens_y1 = std::clamp((new_viewport.bottom() - 1) / 176, 0, 8);
 	for (int x = new_screens_x0; x <= new_screens_x1; x++)
 	{
 		for (int y = new_screens_y0; y <= new_screens_y1; y++)
@@ -28404,26 +28445,46 @@ static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector
 			int offx, offy;
 			if (use_new_screens && nearby_screens.has_overlapping_screens)
 			{
-				int dx2 = z3_get_region_relative_dx(screen, cur_screen) - z3_get_region_relative_dx(hero_screen, cur_screen);
-				int dy2 = z3_get_region_relative_dy(screen, cur_screen) - z3_get_region_relative_dy(hero_screen, cur_screen);
+				int dx2 = z3_get_region_relative_dx(screen, cur_screen)*256 - z3_get_region_relative_dx(hero_screen, cur_screen)*256;
+				int dy2 = z3_get_region_relative_dy(screen, cur_screen)*176 - z3_get_region_relative_dy(hero_screen, cur_screen)*176;
 
+				// int xxx = (new_viewport.x + new_viewport.w / 2) - (old_viewport.x + old_viewport.w / 2);
+				// int xxx = old_viewport.x - new_viewport.x;
+				int xxx = (new_hero_x.getInt() - new_viewport.x) - (HeroX().getInt() - old_viewport.x);
+				int yyy = (new_hero_y.getInt() - new_viewport.y) - (HeroY().getInt() - old_viewport.y);
+				// xxx = 0; yyy = 0;
 				if (scrolling_dir == right)
-					offx = old_viewport.right() + dx2*256;
+					offx = old_viewport.right() + dx2 + xxx;
 				else if (scrolling_dir == left)
-					offx = old_viewport.left() + dx2*256;
+					offx = old_viewport.left() + dx2 + xxx;
+				// offy = old_viewport.top() + dy2 + yyy;
 
-				offy = viewport.top() + dy2*176;
+				offx = dx2 + old_viewport.right() - new_viewport.right();
+				if (scrolling_dir == right)
+					offx += 256;
+				offy = dy2 + old_viewport.top() - new_viewport.top();
+
+
+				// int sx = z3_get_region_relative_dx(screen, cur_screen);
+				// int sy = z3_get_region_relative_dy(screen, cur_screen);
+				// offx = (sx) * 256 + dx6;
+				// offy = (sy) * 176 + dy6;
 			}
 			else
 			{
-				int sx = z3_get_region_relative_dx(screen, scrolling_origin_scr);
-				int sy = z3_get_region_relative_dy(screen, scrolling_origin_scr);
-				if      (scrolling_dir == up) sy -= 1;
-				else if (scrolling_dir == down) sy += 1;
-				else if (scrolling_dir == left) sx -= 1;
-				else if (scrolling_dir == right) sx += 1;
-				offx = (sx - dx) * 256;
-				offy = (sy - dy) * 176;
+				// int sx = z3_get_region_relative_dx(screen, scrolling_origin_scr);
+				// int sy = z3_get_region_relative_dy(screen, scrolling_origin_scr);
+				// if      (scrolling_dir == up) sy -= 1;
+				// else if (scrolling_dir == down) sy += 1;
+				// else if (scrolling_dir == left) sx -= 1;
+				// else if (scrolling_dir == right) sx += 1;
+				// offx = (sx - dx) * 256;
+				// offy = (sy - dy) * 176;
+
+				int sx = z3_get_region_relative_dx(screen, cur_screen);
+				int sy = z3_get_region_relative_dy(screen, cur_screen);
+				offx = (sx) * 256 + dx5;
+				offy = (sy) * 176 + dy5;
 			}
 
 			new_screen_deltas.push_back({base_scr, use_new_screens, offx, offy});
@@ -28492,8 +28553,8 @@ static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector
 				old_rects.push_back(rect);
 		}
 
-		rect_t viewport_rect = {old_viewport.left(), old_viewport.right(), old_viewport.top(), old_viewport.bottom()};
-		old_rects.push_back(viewport_rect);
+		// rect_t viewport_rect = {old_viewport.left(), old_viewport.right(), old_viewport.top(), old_viewport.bottom()};
+		// old_rects.push_back(viewport_rect);
 
 		rect_t old_rect = old_rects.at(0);
 		for (int i = 1; i < old_rects.size(); i++)
@@ -28510,11 +28571,19 @@ static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector
 				old_rect.r = new_rect.l - 1;
 		}
 
-		// if (new_rect.intersects_with(viewport_rect))
+		// if (new_rect.intersects_with(old_rect))
 		// {
-		// 	if (new_rect.l < viewport_rect.r)
-		// 		new_rect.l = viewport_rect.r + 1;
+		// 	if (new_rect.l < old_rect.r)
+		// 		new_rect.l = old_rect.r + 1;
 		// }
+
+		rect_t viewport_rect = {old_viewport.left(), old_viewport.right(), old_viewport.top(), old_viewport.bottom()};
+		old_rect.union_with(viewport_rect);
+		if (new_rect.intersects_with(viewport_rect))
+		{
+			if (new_rect.l < viewport_rect.r)
+				new_rect.l = viewport_rect.r + 1;
+		}
 
 		// old_rect.union_with(viewport_rect);
 
@@ -28559,6 +28628,7 @@ static void for_every_nearby_screen_during_scroll(
 			int r = nearby_screens.old_screens_rect.r - viewport.x;
 			int b = nearby_screens.old_screens_rect.b - viewport.y + playing_field_offset;
 			add_clip_rect(framebuf, l, t, r, b);
+			// rectfill(framebuf, l, t, r, b, vc(2)); continue;
 		}
 		else
 		{
@@ -28567,6 +28637,7 @@ static void for_every_nearby_screen_during_scroll(
 			int r = nearby_screens.new_screens_rect.r - viewport.x;
 			int b = nearby_screens.new_screens_rect.b - viewport.y + playing_field_offset;
 			add_clip_rect(framebuf, l, t, r, b);
+			// rectfill(framebuf, l, t, r, b, vc(5)); continue;
 		}
 
 		fn(nearby_screen.screen_handles, nearby_screen.screen, nearby_screen.offx, nearby_screen.offy, nearby_screen.is_new);
