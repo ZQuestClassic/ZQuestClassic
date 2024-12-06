@@ -21276,15 +21276,18 @@ void HeroClass::checkpushblock()
 					doit = cmb.usrflags & cflag4;
 					break;
 			}
+			bool cancel_opp = (cmb.usrflags & cflag9);
 			if(cmb.usrflags & cflag5) //Separate directions
 			{
-				if(int limit = cmb.attribytes[4+blockdir])
+				int limit = cmb.attribytes[4+blockdir];
+				if(limit || (cmb.usrflags & cflag9)) // don't limit if limit should be infinite
 				{
-					if(cpinfo.pushes[blockdir] >= limit)
+					int pushes = cpinfo.pushes[blockdir];
+					if(cancel_opp)
+						pushes -= cpinfo.pushes[oppositeDir[blockdir]];
+					if(pushes >= limit)
 						doit = false;
 				}
-				else if(cmb.usrflags & cflag9)
-					doit = false;
 			}
 			else
 			{
