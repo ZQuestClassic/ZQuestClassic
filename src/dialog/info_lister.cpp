@@ -586,21 +586,21 @@ void MidiListerDialog::postinit()
 	}
 	widgInfo->minWidth(Size::pixels(len + 8));
 	window->setHelp(get_info(selecting, false, false, false));
+	widgInfo->capWidth(10_em); // Midi titles can be long, want them to wrap instead of widen
 }
 void MidiListerDialog::update()
 {
 	if (unsigned(selected_val) < MAXCUSTOMMIDIS)
 	{
-		zctune const& midi = customtunes[selected_val];
+		zctune const& midi = customtunes[selected_val-1]; //vals are 1-indexed, customtunes is 0-indexed
 		widgInfo->setText(fmt::format(
-			"Volume: {}\nLoop: {}\nStart: {}\nLoop Start: {}\nLoop End: {}",
-			midi.volume,midi.loop?"On":"Off", midi.start, midi.loop_start, midi.loop_end));
+			"Index: {}\nVolume: {}\nLoop: {}\nStart: {}\nLoop Start: {}\nLoop End: {}\nTitle: {}",
+			selected_val, midi.volume,midi.loop?"On":"Off", midi.start, midi.loop_start, midi.loop_end, midi.title));
 	}
 	else
 	{
 		widgInfo->setText(fmt::format(
-			"\n\n\n\n\n"));
-		
+			"\n\n\n\n\n\n\n\n\n"));
 	}
 }
 void MidiListerDialog::edit()
