@@ -320,7 +320,7 @@ mapscr* GetScrollingMapscr(int layer, int x, int y)
 	if (!screenscrolling)
 		return nullptr;
 
-	int scr = scrolling_origin_scr + (x / 256) + (y / 176) * 16;
+	int scr = scrolling_cur_screen + (x / 256) + (y / 176) * 16;
 	mapscr* m = FFCore.ScrollingScreensAll[scr * 7 + layer];
 	if (m->valid == 0)
 		return nullptr;
@@ -383,7 +383,7 @@ int32_t getScreen(int32_t ref)
 		case MAPSCR_TEMP6:
 			return FFCore.tempScreens[0]->layerscreen[5];
 		case MAPSCR_SCROLL0:
-			return scrolling_scr;
+			return scrolling_hero_screen;
 		case MAPSCR_SCROLL1:
 			return FFCore.ScrollingScreens[0]->layerscreen[0];
 		case MAPSCR_SCROLL2:
@@ -1617,7 +1617,7 @@ static rpos_handle_t ResolveMapdataPos(int32_t mapref, int pos, const char* cont
 	}
 
 	// Same for the scrolling temporary screens.
-	if (result.type == mapdata_type::Temporary_Scrolling && result.screen == scrolling_scr)
+	if (result.type == mapdata_type::Temporary_Scrolling && result.screen == scrolling_hero_screen)
 	{
 		rpos_t rpos = (rpos_t)pos;
 		rpos_t max = (rpos_t)(scrolling_region.width * scrolling_region.height - 1);
@@ -24775,7 +24775,7 @@ void do_mapdataissolid()
 		{
 			set_register(sarg1, (_walkflag(x, y, 1)) ? 10000 : 0);
 		}
-		else if (result.type == mapdata_type::Temporary_Scrolling && result.screen == scrolling_scr && result.layer == 0)
+		else if (result.type == mapdata_type::Temporary_Scrolling && result.screen == scrolling_hero_screen && result.layer == 0)
 		{
 			mapscr* s0 = GetScrollingMapscr(0, x, y);
 			mapscr* s1 = GetScrollingMapscr(1, x, y);
@@ -24815,7 +24815,7 @@ void do_mapdataissolid_layer()
 			{
 				set_register(sarg1, (_walkflag_layer(x, y, 1, GetMapscr(ri->mapsref))) ? 10000 : 0);
 			}
-			else if (result.type == mapdata_type::Temporary_Scrolling && result.screen == scrolling_scr && result.layer == 0)
+			else if (result.type == mapdata_type::Temporary_Scrolling && result.screen == scrolling_hero_screen && result.layer == 0)
 			{
 				set_register(sarg1, (_walkflag_layer_scrolling(x, y, 1, GetMapscr(ri->mapsref))) ? 10000 : 0);
 			}
@@ -27369,7 +27369,7 @@ void FFScript::do_loadmapdata_scrollscr(const bool v)
 		return;
 	}
 
-	ri->mapsref = create_mapdata_temp_ref(scrolling_scr, layer, true);
+	ri->mapsref = create_mapdata_temp_ref(scrolling_hero_screen, layer, true);
 	set_register(sarg1, ri->mapsref);
 }
 

@@ -640,7 +640,7 @@ mapscr* get_layer_scr_valid(int screen, int layer)
 mapscr* get_layer_scr_allow_scrolling(int map, int screen, int layer)
 {
 	DCHECK_LAYER_NEG1_INDEX(layer);
-	if (!screenscrolling || screen != scrolling_scr || FFCore.ScrollingScreensAll.empty())
+	if (!screenscrolling || screen != scrolling_hero_screen || FFCore.ScrollingScreensAll.empty())
 		return get_layer_scr(map, screen, layer);
 
 	return FFCore.ScrollingScreensAll[screen * 7 + layer + 1];
@@ -3452,7 +3452,7 @@ optional<int> nextscr(int screen, int dir)
 std::pair<int32_t, int32_t> nextscr2(int32_t dir)
 {
 	int32_t map = currmap;
-    int32_t screen = screenscrolling ? scrolling_scr : hero_screen;
+    int32_t screen = screenscrolling ? scrolling_hero_screen : hero_screen;
 	return nextscr2(map, screen, dir);
 }
 
@@ -3701,7 +3701,7 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen
 			if (base_scr->ffcs[i].data == 0)
 				continue;
 
-			if (screenscrolling && (base_scr->ffcs[i].flags & ffc_carryover) != 0 && screen_handle.screen != scrolling_scr)
+			if (screenscrolling && (base_scr->ffcs[i].flags & ffc_carryover) != 0 && screen_handle.screen != scrolling_hero_screen)
 				continue; //If scrolling, only draw carryover ffcs from newscr and not oldscr.
 
 			base_scr->ffcs[i].draw_ffc(bmp, x, y, (type==-4));

@@ -27798,7 +27798,7 @@ void HeroClass::checkscroll()
 
 	if (action != inwind && scrolling_maze_state && (scrolling_maze_mode == 0 || get_screen_index_for_world_xy(x0, y0) != scrolling_maze_scr))
 	{
-		mapscr* scrolling_scr = &TheMaps[(currmap*MAPSCRS)+scrolling_maze_scr];
+		mapscr* scr = &TheMaps[(currmap*MAPSCRS)+scrolling_maze_scr];
 		int x0 = x.getInt();
 		int y0 = y.getInt();
 
@@ -27826,7 +27826,7 @@ void HeroClass::checkscroll()
 				return;
 			}
 
-			if (checkmaze(scrolling_scr, true))
+			if (checkmaze(scr, true))
 			{
 				if (scrolling_maze_mode == 0)
 				{
@@ -28309,11 +28309,11 @@ struct nearby_scrolling_screens_t
 	rect_t new_screens_rect;
 };
 
-// Note: The destination screen is hero_screen, the starting screen is scrolling_scr.
+// Note: The destination screen is hero_screen, the starting screen is scrolling_hero_screen.
 static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector<mapscr*>& old_temporary_screens, viewport_t old_viewport, viewport_t new_viewport)
 {
 	bool is_whistle_warp_scroll = HeroInOutgoingWhistleWarp();
-	int old_region = get_region_id(scrolling_map, scrolling_scr);
+	int old_region = get_region_id(scrolling_map, scrolling_hero_screen);
 
 	nearby_scrolling_screens_t nearby_screens{};
 	nearby_screens.has_overlapping_screens = is_whistle_warp_scroll;
@@ -28330,14 +28330,14 @@ static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector
 	{
 		for (int y = old_screens_y0; y <= old_screens_y1; y++)
 		{
-			int screen = scrolling_origin_scr + x + y*16;
+			int screen = scrolling_cur_screen + x + y*16;
 			if (get_region_id(scrolling_map, screen) != old_region)
 				continue;
 
 			mapscr* base_scr = old_temporary_screens[screen*7];
 			bool use_new_screens = false;
-			int offx = z3_get_region_relative_dx(screen, scrolling_origin_scr) * 256;
-			int offy = z3_get_region_relative_dy(screen, scrolling_origin_scr) * 176;
+			int offx = z3_get_region_relative_dx(screen, scrolling_cur_screen) * 256;
+			int offy = z3_get_region_relative_dy(screen, scrolling_cur_screen) * 176;
 			old_screen_deltas.push_back({base_scr, use_new_screens, offx, offy});
 		}
 	}
@@ -28365,10 +28365,10 @@ static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector
 	else
 	{
 		// ... anchored at the point where the screen scrolling starts.
-		dx = z3_get_region_relative_dx(cur_screen, scrolling_origin_scr) -
-			(z3_get_region_relative_dx(hero_screen, scrolling_origin_scr) - z3_get_region_relative_dx(scrolling_scr, scrolling_origin_scr));
-		dy = z3_get_region_relative_dy(cur_screen, scrolling_origin_scr) -
-			(z3_get_region_relative_dy(hero_screen, scrolling_origin_scr) - z3_get_region_relative_dy(scrolling_scr, scrolling_origin_scr));
+		dx = z3_get_region_relative_dx(cur_screen, scrolling_cur_screen) -
+			(z3_get_region_relative_dx(hero_screen, scrolling_cur_screen) - z3_get_region_relative_dx(scrolling_hero_screen, scrolling_cur_screen));
+		dy = z3_get_region_relative_dy(cur_screen, scrolling_cur_screen) -
+			(z3_get_region_relative_dy(hero_screen, scrolling_cur_screen) - z3_get_region_relative_dy(scrolling_hero_screen, scrolling_cur_screen));
 		if      (scrolling_dir == up) dy -= 1;
 		else if (scrolling_dir == down) dy += 1;
 		else if (scrolling_dir == left) dx -= 1;
@@ -28863,8 +28863,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	mapscr *oldscr = &special_warp_return_screen;
 	conveyclk = 2;
 	scrolling_dir = (direction) scrolldir;
-	scrolling_scr = hero_screen;
-	scrolling_origin_scr = cur_screen;
+	scrolling_hero_screen = hero_screen;
+	scrolling_cur_screen = cur_screen;
 	scrolling_region = current_region;
 
 	int32_t scx = get_qr(qr_FASTDNGN) ? 30 : 0;
@@ -29254,7 +29254,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			nx = offx;
 			ny = offy;
 		}
-		else if (scr == scrolling_scr && !is_new_screen)
+		else if (scr == scrolling_hero_screen && !is_new_screen)
 		{
 			ox = offx;
 			oy = offy;
