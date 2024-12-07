@@ -3387,8 +3387,8 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 				Label(text = "Load Level Palette", fitParent = true),
 				TextField(
 					fitParent = true, padding = 0_px,
-					type = GUI::TextField::type::NOSWAP_ZSINT,
-					swap_type = nswapLDEC,
+					type = GUI::TextField::type::SWAP_SSHORT,
+					swap_type = nswapHEX,
 					low = -1, high = 512, val = local_comboref.triglvlpalette,
 					onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 					{
@@ -3400,8 +3400,8 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 				Label(text = "Load Boss Palette", fitParent = true),
 				TextField(
 					fitParent = true, padding = 0_px,
-					type = GUI::TextField::type::NOSWAP_ZSINT,
-					swap_type = nswapLDEC,
+					type = GUI::TextField::type::SWAP_SSHORT,
+					swap_type = nswapDEC,
 					low = -1, high = 29, val = local_comboref.trigbosspalette,
 					onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 					{
