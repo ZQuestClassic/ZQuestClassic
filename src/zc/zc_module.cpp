@@ -37,17 +37,10 @@ bool ZModule::init(bool d) //bool default
 	memset(moduledata.module_name, 0, sizeof(moduledata.module_name));
 	memset(moduledata.quests, 0, sizeof(moduledata.quests));
 	memset(moduledata.skipnames, 0, sizeof(moduledata.skipnames));
-	memset(moduledata.datafiles, 0, sizeof(moduledata.datafiles));
-	memset(moduledata.enem_type_names, 0, sizeof(moduledata.enem_type_names));
-	memset(moduledata.enem_anim_type_names, 0, sizeof(moduledata.enem_anim_type_names));
-	
+	memset(moduledata.datafiles, 0, sizeof(moduledata.datafiles));	
 	memset(moduledata.startingdmap, 0, sizeof(moduledata.startingdmap));
-	memset(moduledata.startingscreen, 0, sizeof(moduledata.startingscreen));
-	
+	memset(moduledata.startingscreen, 0, sizeof(moduledata.startingscreen));	
 	memset(moduledata.roomtype_names, 0, sizeof(moduledata.roomtype_names));
-	memset(moduledata.walkmisc7_names, 0, sizeof(moduledata.walkmisc7_names));
-	memset(moduledata.walkmisc9_names, 0, sizeof(moduledata.walkmisc9_names));
-	memset(moduledata.guy_type_names, 0, sizeof(moduledata.guy_type_names));
 	memset(moduledata.delete_quest_data_on_wingame, 0, sizeof(moduledata.delete_quest_data_on_wingame));
 	memset(moduledata.base_NSF_file, 0, sizeof(moduledata.base_NSF_file));
 	memset(moduledata.copyright_strings, 0, sizeof(moduledata.copyright_strings));

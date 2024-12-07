@@ -697,8 +697,10 @@ GUI::ListData GUI::ZCListData::midinames(bool numbered, bool incl_engine)
 	for(int32_t i=0; i<MAXCUSTOMTUNES; ++i)
 	{
 		char const* midi_name = customtunes[i].title;
+		if(midi_name[0] == ' ' || !midi_name[0])
+			midi_name = "zzUntitled";
 		if(numbered)
-			ls.add(fmt::format("({:03}) {}", i + 1, midi_name), i+ofs);
+			ls.add(fmt::format("{} ({:03})", midi_name, i + 1), i+ofs);
 		else ls.add(midi_name, i+ofs);
 	}
 	
