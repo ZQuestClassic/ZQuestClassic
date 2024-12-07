@@ -962,7 +962,9 @@ static GUI::ListData compatRulesList
 	{ "Broken Conveyors", qr_BROKEN_CONVEYORS,
 		"If enabled, conveyors will affect the hero when rafting." },
 	{ "Broken Pushblock Top-Half Solids", qr_BROKEN_PUSHBLOCK_TOP_HALF_SOLIDS,
-		"If enabled, blocks will ignore the top half combo solidity when being pushed." }
+		"If enabled, blocks will ignore the top half combo solidity when being pushed." },
+	{ "Pushblock Flag Cloning", qr_BROKEN_PUSHBLOCK_FLAG_CLONING,
+		"If enabled, pushblocks will clone any non-'Push' placed flag (only numbered 59 or higher, except `Push (Generic)` which does all) on them to every square they stop in." }
 };
 
 static GUI::ListData enemiesRulesList
