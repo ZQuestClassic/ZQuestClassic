@@ -9943,7 +9943,7 @@ void domouse()
 	{
 		int32_t test_list=0;
 		
-		for(test_list=0; test_list<3; ++test_list)
+		for(test_list=0; test_list<num_combo_cols; ++test_list)
 		{
 			if((x>=combolist[test_list].x) && (x<combolist[test_list].x+(combolist[test_list].xscale*combolist[test_list].w)))
 			{
@@ -9951,7 +9951,7 @@ void domouse()
 			}
 		}
 		
-		if(test_list<3)
+		if(test_list<num_combo_cols)
 		{
 			if(y>=combolist[test_list].y-mouse_scroll_h && y<=combolist[test_list].y && First[test_list])
 			{
