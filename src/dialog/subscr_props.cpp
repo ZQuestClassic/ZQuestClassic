@@ -126,6 +126,7 @@ Frame(fitParent = true, Column(fitParent = true, \
 		mini = true, \
 		minicorner = vMTInfo.crn(), \
 		showvals = false, \
+		showT0 = true, \
 		onSelectFunc = [=](int32_t t, int32_t c, int32_t,int32_t crn) \
 		{ \
 			vMTInfo.setTileCrn(t,crn); \
