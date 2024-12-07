@@ -1220,9 +1220,9 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 				else sw_attributes[7]->switchTo(SW_TEXTFIELD);
 			});
 		ddl_attributes[8]->setOnSelectFunc([&](int32_t val) { //movestyle
+			local_guyref.attributes[8] = val;
 			switch (val)
 			{
-			local_guyref.attributes[8] = val;
 			default:
 			case e9tNORMAL:
 				l_attributes[9]->setText("Unused:");
@@ -1940,15 +1940,7 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 		))
 	);
 
-	assert(list_enemies.size() > 0);
-	assert(list_families.size() > 0);
-	assert(list_animations.size() > 0);
-	assert(list_dropsets.size() > 0);
-	assert(list_sfx.size() > 0);
-	assert(list_counters_nn.size() > 0);
-	assert(list_sprites.size() > 0);
-	assert(list_deftypes.size() > 0);
-	
+
 	window = Window(
 		use_vsync = true,
 		title = titlebuf,
