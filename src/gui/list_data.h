@@ -196,8 +196,9 @@ public:
 	
 	//Modifies the listdata, and returns a self-reference
 	ListData& filter(std::function<bool(ListItem&)>);
-	ListData& tagsort();
-	ListData& alphabetize();
+	ListData& valsort(size_t frozen = 0);
+	ListData& tagsort(size_t frozen = 0);
+	ListData& alphabetize(size_t frozen = 0);
 	ListData& tag(int32_t tagval, bool onlyUntagged = false);
 	
 	ListItem& accessItem(int32_t val);

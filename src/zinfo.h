@@ -14,6 +14,7 @@ struct zinfo
 	void clear_mf_help();
 	void clear_ctr_name();
 	void clear_weap_name();
+	void clear_etype_name();
 	void clear();
 	zinfo();
 
@@ -24,6 +25,7 @@ struct zinfo
 	char *mf_name[mfMAX];
 	char *mf_help_string[mfMAX];
 	char *weap_name[wMax];
+	char *etype_name[eeMAX];
 
 	//Shared
 	char *ic_name[itype_max];
@@ -34,6 +36,7 @@ struct zinfo
 	bool isUsableMapFlag(size_t q);
 	bool isUsableWeap(size_t q);
 	bool isUsableCtr(int32_t q);
+	bool isUsableEnemyType(size_t q);
 	char const* getItemClassName(size_t q);
 	char const* getItemClassHelp(size_t q);
 	char const* getComboTypeName(size_t q);
@@ -42,6 +45,7 @@ struct zinfo
 	char const* getWeapName(size_t q);
 	char const* getMapFlagHelp(size_t q);
 	char const* getCtrName(int32_t q);
+	char const* getEnemyTypeName(size_t q);
 	
 	void copyFrom(zinfo const& other);
 	bool isNull();
@@ -70,12 +74,7 @@ struct zcmodule
 	word startingscreen[10];
 	int32_t title_track, tf_track, gameover_track, ending_track, dungeon_track, overworld_track, lastlevel_track;
 	
-	char enem_type_names[eeMAX][255];
-	char enem_anim_type_names[aMAX][255];
 	char roomtype_names[rMAX][255];
-	char walkmisc7_names[e7tEATHURT+1][255];
-	char walkmisc9_names[e9tARMOS+1][255];
-	char guy_type_names[gDUMMY1][255];
 	
 	char base_NSF_file[1024];
 	char copyright_strings[3][2048];

@@ -10,8 +10,7 @@ namespace GUI::ZCListData
 	GUI::ListData strings(bool combostr = false, bool respect_order = true, bool numbered = true);
 	GUI::ListData ss_counters(bool numbered = false, bool skipNone = false);
 	GUI::ListData enemies(bool numbered = false, bool defaultFilter = true);
-	GUI::ListData efamilies();
-	GUI::ListData eanimations();
+	GUI::ListData efamilies(bool numbered = false);
 	GUI::ListData items(bool numbered = false, bool none = true);
 	GUI::ListData dropsets(bool numbered = false, bool none = false);
 	GUI::ListData itemclass(bool numbered = false, bool zero_none = false);
@@ -57,6 +56,7 @@ namespace GUI::ZCListData
 	GUI::ListData slots_generic_script(bool alphabetize = false, bool skipempty = false);
 	GUI::ListData slots_subscreen_script(bool alphabetize = false, bool skipempty = false);
 	//const& returns
+	GUI::ListData const& eanimations();
 	GUI::ListData const& deftypes();
 	GUI::ListData const& warpeffects();
 	GUI::ListData const& screenstate();

@@ -18,15 +18,18 @@ class BasicListerDialog: public GUI::Dialog<BasicListerDialog>
 public:
 	enum class message { REFR_INFO, OK, EDIT, EXIT, COPY, PASTE, ADV_PASTE, SAVE, LOAD, CONFIRM };
 	
-	BasicListerDialog(std::string title, int start_val = 0, bool selecting = false) :
-		titleTxt(title), selected_val(start_val), start_val(start_val), selecting(selecting),
-		use_preview(false), editable(true){};
-	BasicListerDialog(std::string title, GUI::ListData lister, int start_val = 0, bool selecting = false) :
-		titleTxt(title), lister(lister), selected_val(start_val), start_val(start_val),
-		selecting(selecting), use_preview(false), editable(true){};
+	BasicListerDialog(std::string title, std::string cfg_key, int start_val = 0, bool selecting = false) :
+		titleTxt(title), selected_val(start_val), start_val(start_val), frozen_inds(0),
+		selecting(selecting), use_preview(false), editable(true), alphabetized(false),
+		cfg_key(cfg_key){};
+	BasicListerDialog(std::string title, std::string cfg_key, GUI::ListData lister, int start_val = 0, bool selecting = false) :
+		titleTxt(title), lister(lister), selected_val(start_val), start_val(start_val), frozen_inds(0),
+		selecting(selecting), use_preview(false), editable(true), alphabetized(false),
+		cfg_key(cfg_key){};
 	
 	std::shared_ptr<GUI::Widget> view() override;
 	virtual bool handleMessage(const GUI::DialogMessage<message>& msg);
+	
 protected:
 	virtual void preinit(){};
 	virtual void postinit(){};
@@ -39,10 +42,23 @@ protected:
 	virtual void save(){};
 	virtual bool load(){return false;};
 	
+	void resort();
+	bool get_config(std::string const& name, bool default_val);
+	int32_t get_config(std::string const& name, int32_t default_val);
+	std::string get_config(std::string const& name, std::string const& default_val);
+	double get_config(std::string const& name, double default_val);
+	void set_config(std::string const& name, bool value);
+	void set_config(std::string const& name, int32_t value);
+	void set_config(std::string const& name, std::string const& value);
+	void set_config(std::string const& name, double value);
+	
 	std::string titleTxt;
 	GUI::ListData lister;
 	int selected_val, start_val;
-	bool selecting, use_preview, editable;
+	size_t frozen_inds;
+	bool selecting, use_preview, editable, alphabetized;
+	
+	std::string cfg_key;
 	
 	std::shared_ptr<GUI::List> widgList;
 	std::shared_ptr<GUI::Label> widgInfo;

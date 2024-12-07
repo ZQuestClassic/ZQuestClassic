@@ -17411,57 +17411,6 @@ void build_bie_list(bool hide)
     }
 }
 
-void build_big_list(bool hide)
-{
-    //big[0].s = (char *)"(None)";
-    //big[0].i = 0;
-    //big_cnt=1;
-    big_cnt=0;
-    for(int32_t i=0; i<gDUMMY1; i++)
-    {
-        if(moduledata.guy_type_names[i][0]!=' ' || !hide)
-        {
-            big[big_cnt].s = (char *)moduledata.guy_type_names[i];
-            big[big_cnt].i = i;
-            ++big_cnt;
-        }
-    }
-    
-    for(int32_t i=1; i<big_cnt-1; i++) //start at 1, so that the none value is not alphabetized.
-    {
-        for(int32_t j=i+1; j<big_cnt; j++)
-        {
-            if(strcmp(big[i].s,big[j].s)>0)
-            {
-                zc_swap(big[i],big[j]);
-            }
-        }
-    }
-}
-
-const char *guylist(int32_t index, int32_t *list_size)
-{
-    if(index<0)
-    {
-        *list_size = guy_type ? cg_cnt : big_cnt;
-        return NULL;
-    }
-    
-    return guy_type ? cg[index].s : big[index].s;
-}
-
-static DIALOG glist_dlg[] =
-{
-    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
-    { jwin_win_proc,     50,   40,   220,  145,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,       NULL, NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { jwin_abclist_proc,    62,   68,   196,  88,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       D_EXIT,     0,             0,       NULL, NULL, NULL },
-    { jwin_button_proc,     70,   160,  51,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-    { jwin_button_proc,     190,  160,  51,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { jwin_button_proc,     130,  160,  51,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Help", NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
 int32_t efrontfacingtile(int32_t id)
 {
     int32_t anim = get_qr(qr_NEWENEMYTILES)?guysbuf[id].e_anim:guysbuf[id].anim;
@@ -26012,7 +25961,6 @@ void center_zquest_dialogs()
     jwin_center_dialog(editshop_dlg);
     jwin_center_dialog(ffcombo_sel_dlg);
     jwin_center_dialog(getnum_dlg);
-    jwin_center_dialog(glist_dlg);
     jwin_center_dialog(layerdata_dlg);
     jwin_center_dialog(list_dlg);
     jwin_center_dialog(loadmap_dlg);

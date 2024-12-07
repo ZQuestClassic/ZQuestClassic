@@ -21240,15 +21240,18 @@ void HeroClass::checkpushblock()
 					doit = cmb.usrflags & cflag4;
 					break;
 			}
+			bool cancel_opp = (cmb.usrflags & cflag9);
 			if(cmb.usrflags & cflag5) //Separate directions
 			{
-				if(int limit = cmb.attribytes[4+blockdir])
+				int limit = cmb.attribytes[4+blockdir];
+				if(limit || (cmb.usrflags & cflag9)) // don't limit if limit should be infinite
 				{
-					if(cpinfo.pushes[blockdir] >= limit)
+					int pushes = cpinfo.pushes[blockdir];
+					if(cancel_opp)
+						pushes -= cpinfo.pushes[oppositeDir[blockdir]];
+					if(pushes >= limit)
 						doit = false;
 				}
-				else if(cmb.usrflags & cflag9)
-					doit = false;
 			}
 			else
 			{
@@ -21285,25 +21288,41 @@ void HeroClass::checkpushblock()
 		{
 			switch(blockdir)
 			{
-			case up:
-				if(_walkflag(bx,by-8,2,SWITCHBLOCK_STATE)&&!(MAPFLAG2(lyr-1,bx,by-8)==mfBLOCKHOLE||MAPCOMBOFLAG2(lyr-1,bx,by-8)==mfBLOCKHOLE))    doit=false;
-				
-				break;
-				
-			case down:
-				if(_walkflag(bx,by+24,2,SWITCHBLOCK_STATE)&&!(MAPFLAG2(lyr-1,bx,by+24)==mfBLOCKHOLE||MAPCOMBOFLAG2(lyr-1,bx,by+24)==mfBLOCKHOLE))   doit=false;
-				
-				break;
-				
-			case left:
-				if(_walkflag(bx-16,by+8,2,SWITCHBLOCK_STATE)&&!(MAPFLAG2(lyr-1,bx-16,by+8)==mfBLOCKHOLE||MAPCOMBOFLAG2(lyr-1,bx-16,by+8)==mfBLOCKHOLE)) doit=false;
-				
-				break;
-				
-			case right:
-				if(_walkflag(bx+16,by+8,2,SWITCHBLOCK_STATE)&&!(MAPFLAG2(lyr-1,bx+16,by+8)==mfBLOCKHOLE||MAPCOMBOFLAG2(lyr-1,bx+16,by+8)==mfBLOCKHOLE)) doit=false;
-				
-				break;
+				case up:
+					if(MAPFLAG2(lyr-1,bx,by-8)==mfBLOCKHOLE||MAPCOMBOFLAG2(lyr-1,bx,by-8)==mfBLOCKHOLE)
+						break; // ignore solidity for BLOCKHOLE flagged combos
+					if(_walkflag(bx,by-8,2,SWITCHBLOCK_STATE))
+						doit = false;
+					else if(!get_qr(qr_BROKEN_PUSHBLOCK_TOP_HALF_SOLIDS) && _walkflag(bx,by-16,2,SWITCHBLOCK_STATE))
+						doit = false; // top half wasn't checked before...
+					break;
+					
+				case down:
+					if(MAPFLAG2(lyr-1,bx,by+24)==mfBLOCKHOLE||MAPCOMBOFLAG2(lyr-1,bx,by+24)==mfBLOCKHOLE)
+						break; // ignore solidity for BLOCKHOLE flagged combos
+					if(_walkflag(bx,by+24,2,SWITCHBLOCK_STATE))
+						doit = false;
+					else if(!get_qr(qr_BROKEN_PUSHBLOCK_TOP_HALF_SOLIDS) && _walkflag(bx,by+16,2,SWITCHBLOCK_STATE))
+						doit = false; // top half wasn't checked before...
+					break;
+					
+				case left:
+					if(MAPFLAG2(lyr-1,bx-16,by+8)==mfBLOCKHOLE||MAPCOMBOFLAG2(lyr-1,bx-16,by+8)==mfBLOCKHOLE)
+						break; // ignore solidity for BLOCKHOLE flagged combos
+					if(_walkflag(bx-16,by+8,2,SWITCHBLOCK_STATE))
+						doit = false;
+					else if(!get_qr(qr_BROKEN_PUSHBLOCK_TOP_HALF_SOLIDS) && _walkflag(bx-16,by,2,SWITCHBLOCK_STATE))
+						doit = false; // top half wasn't checked before...
+					break;
+					
+				case right:
+					if(MAPFLAG2(lyr-1,bx+16,by+8)==mfBLOCKHOLE||MAPCOMBOFLAG2(lyr-1,bx+16,by+8)==mfBLOCKHOLE)
+						break; // ignore solidity for BLOCKHOLE flagged combos
+					if(_walkflag(bx+16,by+8,2,SWITCHBLOCK_STATE))
+						doit = false;
+					else if(!get_qr(qr_BROKEN_PUSHBLOCK_TOP_HALF_SOLIDS) && _walkflag(bx+16,by,2,SWITCHBLOCK_STATE))
+						doit = false; // top half wasn't checked before...
+					break;
 			}
 		}
 		
@@ -24620,6 +24639,9 @@ void HeroClass::checkspecial2(int32_t *ls)
 			for (auto lyr = 0; lyr < 7; ++lyr)
 			{
 				auto rpos_handle = get_rpos_handle(rposes[p], lyr);
+				if ((z > 0 || fakez > 0) && !(rpos_handle.base_scr()->flags2 & fAIRCOMBOS))
+					continue;
+
 				if (rpos_handle.combo().triggerflags[0] & (combotriggerSTEP|combotriggerSTEPSENS) || types[p] == cSTEP)
 				{
 					hasStep[p] = true;

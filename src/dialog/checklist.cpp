@@ -66,6 +66,47 @@ std::shared_ptr<GUI::Widget> ChecklistDialog::view()
 		Column(padding = 0_px,
 			grid,
 			Row(
+				Button(
+					text = "Check All",
+					onPressFunc = [&]()
+					{
+						for(uint q = 0; q < flagnames.size(); ++q)
+						{
+							auto ref = flagnames[q];
+							if(ref.flags & CheckListInfo::DISABLED)
+								continue;
+							flags.set(q, true);
+						}
+						refresh_dlg();
+					}),
+				Button(
+					text = "Uncheck All",
+					onPressFunc = [&]()
+					{
+						for(uint q = 0; q < flagnames.size(); ++q)
+						{
+							auto ref = flagnames[q];
+							if(ref.flags & CheckListInfo::DISABLED)
+								continue;
+							flags.set(q, false);
+						}
+						refresh_dlg();
+					}),
+				Button(
+					text = "Toggle All",
+					onPressFunc = [&]()
+					{
+						for(uint q = 0; q < flagnames.size(); ++q)
+						{
+							auto ref = flagnames[q];
+							if(ref.flags & CheckListInfo::DISABLED)
+								continue;
+							flags.toggle(q);
+						}
+						refresh_dlg();
+					})
+			),
+			Row(
 				spacing = 2_em,
 				Button(
 					focused = true,

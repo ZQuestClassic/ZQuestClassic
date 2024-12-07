@@ -100,12 +100,23 @@ ListData& ListData::filter(std::function<bool(ListItem&)> filt_func)
 	return *this;
 }
 
-ListData& ListData::tagsort()
+ListData& ListData::valsort(size_t frozen)
 {
+	vector<ListItem> frozen_items;
+	size_t frozen_ind = 0;
 	map<int32_t,std::vector<ListItem>> list;
 	for(ListItem& li : listItems)
-		list[li.tag].push_back(li);
+	{
+		if(frozen_ind < frozen)
+		{
+			frozen_items.push_back(li);
+			++frozen_ind;
+		}
+		else list[li.value].push_back(li);
+	}
 	listItems.clear();
+	for(auto& li : frozen_items)
+		listItems.push_back(li);
 	for(auto& p : list)
 	{
 		auto& vec = p.second;
@@ -114,14 +125,54 @@ ListData& ListData::tagsort()
 	}
 	return *this;
 }
-ListData& ListData::alphabetize()
+ListData& ListData::tagsort(size_t frozen)
 {
-	map<string,ListItem> list;
+	vector<ListItem> frozen_items;
+	size_t frozen_ind = 0;
+	map<int32_t,std::vector<ListItem>> list;
 	for(ListItem& li : listItems)
-		list[li.text] = li;
+	{
+		if(frozen_ind < frozen)
+		{
+			frozen_items.push_back(li);
+			++frozen_ind;
+		}
+		else list[li.tag].push_back(li);
+	}
 	listItems.clear();
+	for(auto& li : frozen_items)
+		listItems.push_back(li);
 	for(auto& p : list)
-		listItems.push_back(p.second);
+	{
+		auto& vec = p.second;
+		for(auto& li : vec)
+			listItems.push_back(li);
+	}
+	return *this;
+}
+ListData& ListData::alphabetize(size_t frozen)
+{
+	vector<ListItem> frozen_items;
+	size_t frozen_ind = 0;
+	map<string,std::vector<ListItem>> list;
+	for(ListItem& li : listItems)
+	{
+		if(frozen_ind < frozen)
+		{
+			frozen_items.push_back(li);
+			++frozen_ind;
+		}
+		else list[li.text].push_back(li);
+	}
+	listItems.clear();
+	for(auto& li : frozen_items)
+		listItems.push_back(li);
+	for(auto& p : list)
+	{
+		auto& vec = p.second;
+		for(auto& li : vec)
+			listItems.push_back(li);
+	}
 	return *this;
 }
 

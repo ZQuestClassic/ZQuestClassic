@@ -16,8 +16,6 @@ extern char *sfx_string[];
 extern char *item_string[];
 extern const char* old_guy_string[OLDMAXGUYS];
 extern char *guy_string[eMAXGUYS];
-extern const char *enetype_string[eeMAX];
-extern const char *eneanim_string[aMAX];
 extern item_drop_object item_drop_sets[MAXITEMDROPSETS];
 
 #ifdef IS_PARSER
@@ -222,49 +220,21 @@ GUI::ListData GUI::ZCListData::enemies(bool numbered, bool defaultFilter)
 	return ls;
 }
 
-GUI::ListData GUI::ZCListData::efamilies()
+GUI::ListData GUI::ZCListData::efamilies(bool numbered)
 {
 	std::map<std::string, int32_t> vals;
 
-	std::string none(moduledata.enem_type_names[0]);
-	if (skipchar(moduledata.enem_type_names[0][0]))
-		none = "(None)";
-
 	GUI::ListData ls;
-	ls.add(none, eeNONE);
 	for (int32_t q = 1; q < eeMAX; ++q)
 	{
-		if (skipchar(moduledata.enem_type_names[q][0]))
-			continue;
-		if (q==eeNONE)
-			continue;
-
-		std::string sname(moduledata.enem_type_names[q]);
-		ls.add(sname, q);
+		if (!ZI.isUsableEnemyType(q))
+			continue; //Hidden
+		char const* module_str = ZI.getEnemyTypeName(q);
+		if (numbered)
+			ls.add(fmt::format("{} ({:03})", module_str, q), q);
+		else ls.add(module_str, q);
 	}
 
-	return ls;
-}
-
-GUI::ListData GUI::ZCListData::eanimations()
-{
-	std::map<std::string, int32_t> vals;
-
-	std::string none(moduledata.enem_anim_type_names[0]);
-	if (skipchar(moduledata.enem_anim_type_names[0][0]))
-		none = "(None)";
-
-	GUI::ListData ls;
-	ls.add(none, 0);
-	for (int32_t q = 1; q < aMAX; ++q)
-	{
-		if (skipchar(moduledata.enem_anim_type_names[q][0]))
-			continue;
-
-		std::string sname(moduledata.enem_anim_type_names[q]);
-		ls.add(sname, q);
-	}
-	ls.alphabetize();
 	return ls;
 }
 
@@ -727,8 +697,10 @@ GUI::ListData GUI::ZCListData::midinames(bool numbered, bool incl_engine)
 	for(int32_t i=0; i<MAXCUSTOMTUNES; ++i)
 	{
 		char const* midi_name = customtunes[i].title;
+		if(midi_name[0] == ' ' || !midi_name[0])
+			midi_name = "zzUntitled";
 		if(numbered)
-			ls.add(fmt::format("({:03}) {}", i + 1, midi_name), i+ofs);
+			ls.add(fmt::format("{} ({:03})", midi_name, i + 1), i+ofs);
 		else ls.add(midi_name, i+ofs);
 	}
 	
@@ -1086,6 +1058,71 @@ GUI::ListData GUI::ZCListData::slots_subscreen_script(bool alphabetize, bool ski
 #endif
 
 //CONST& RETURNS
+
+static const GUI::ListData eanimation_types
+{
+	{"(None)",0},
+	{"Flip",1},
+	{"-Unused",2},
+	{"2-Frame",3},
+	{"-Unused",4},
+	{"Octorok (NES)",5},
+	{"Tektite (NES)",6},
+	{"Leever (NES)",7},
+	{"Walker",8},
+	{"Zora (NES)",9},
+	{"Zora (4-Frame)",10},
+	{"Ghini",11},
+	{"Armos (NES)",12},
+	{"Rope",13},
+	{"Wall Master (NES)",14},
+	{"Wall Master (4-Frame)",15},
+	{"Darknut (NES)",16},
+	{"Vire",17},
+	{"3-Frame",18},
+	{"Wizzrobe (NES)",19},
+	{"Aquamentus",20},
+	{"Dodongo (NES)",21},
+	{"Manhandla",22},
+	{"Gleeok",23},
+	{"Digdogger",24},
+	{"Gohma",26},
+	{"Lanmola",26},
+	{"2-Frame Flying",27},
+	{"4-Frame 4-Dir + Tracking",28},
+	{"4-Frame 8-Dir + Tracking",29},
+	{"4-Frame 4-Dir + Firing",30},
+	{"4-Frame 4-Dir",31},
+	{"4-Frame 8-Dir + Firing",32},
+	{"Armos (4-Frame)",33},
+	{"4-Frame Flying 4-Dir",34},
+	{"4-Frame Flying 8-Dir",35},
+	{"-Unused",36},
+	{"4-Frame 8-Dir Big",37},
+	{"Tektite (4-Frame)",38},
+	{"3-Frame 4-Dir",39},
+	{"2-Frame 4-Dir",40},
+	{"Leever (4-Frame)",41},
+	{"2-Frame 4-Dir + Tracking",42},
+	{"Wizzrobe (4-Frame)",43},
+	{"Dodongo (4-Frame)",44},
+	{"Dodongo BS (4-Frame)",45},
+	{"4-Frame Flying 8-Dir + Firing",46},
+	{"4-Frame Flying 4-Dir + Firing",47},
+	{"4-Frame",48},
+	{"Ganon",49},
+	{"2-Frame Big",50},
+	{"4-Frame 8-Dir Big + Tracking",51},
+	{"4-Frame 4-Dir Big + Tracking",52},
+	{"4-Frame 8-Dir Big + Firing",53},
+	{"4-Frame 4-Dir Big",54},
+	{"4-Frame 4-Dir Big + Firing",55},
+};
+
+GUI::ListData const& GUI::ZCListData::eanimations()
+{
+	return eanimation_types;
+}
 
 static const GUI::ListData defense_types
 {
