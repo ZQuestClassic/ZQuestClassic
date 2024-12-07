@@ -182,7 +182,7 @@ std::shared_ptr<GUI::Widget> EditRegionDialog::view()
 	auto problematic_qrs = get_problematic_qrs();
 
 	char titlebuf[256];
-	sprintf(titlebuf, "Edit Regions for Map %d", mapslot);
+	sprintf(titlebuf, "Edit Regions for Map %d", mapslot + 1);
 	window = Window(
 		title = titlebuf,
 		info =  "Screens with the same Region ID define a single Region\n"
