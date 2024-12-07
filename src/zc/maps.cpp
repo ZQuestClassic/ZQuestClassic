@@ -4356,12 +4356,14 @@ static nearby_screens_t get_nearby_screens()
 		return nearby_screens;
 	}
 
+	// TODO z3 !!! should be based on viewport corners.
+
 	int heroscr_x = hero_screen % 16;
 	int heroscr_y = hero_screen / 16;
 
 	for (int heroscr_dx = -1; heroscr_dx <= 1; heroscr_dx++)
 	{
-		for (int heroscr_dy = -1; heroscr_dy <= 1; heroscr_dy++)
+		for (int heroscr_dy = -2; heroscr_dy <= 2; heroscr_dy++)
 		{
 			int scr_x = heroscr_x + heroscr_dx;
 			int scr_y = heroscr_y + heroscr_dy;
