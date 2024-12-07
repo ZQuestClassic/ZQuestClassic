@@ -21235,10 +21235,8 @@ void HeroClass::checkpushblock()
 			//   for(int32_t i=0; i<1; i++)
 			if(!mblock2.active())
 			{
-				if(is_push_flag(f,dir))
-				{
-					m->sflag[combopos]=0;
-				}
+				if(is_push_flag(f,dir)) // Only erase push flags, because only push flags should be copied in the block code.
+					m->sflag[combopos] = 0;
 				
 				mblock2.blockLayer = lyr;
 				

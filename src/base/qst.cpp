@@ -3485,6 +3485,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_BROKEN_CONVEYORS, 1);
 	if (compatrule_version < 71)
 		set_qr(qr_BROKEN_PUSHBLOCK_TOP_HALF_SOLIDS, 1);
+	if (compatrule_version < 72)
+		set_qr(qr_BROKEN_PUSHBLOCK_FLAG_CLONING, 1);
 	
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
