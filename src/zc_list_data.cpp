@@ -212,7 +212,7 @@ GUI::ListData GUI::ZCListData::enemies(bool numbered, bool defaultFilter)
 	}
 	
 	GUI::ListData ls;
-	ls.add("(None)", 0);
+	ls.add(numbered ? "(None) (000)" : "(None)", 0);
 	for(auto it = names.begin(); it != names.end(); ++it)
 	{
 		ls.add(*it, ids[*it]);
@@ -330,7 +330,7 @@ GUI::ListData GUI::ZCListData::itemclass(bool numbered, bool zero_none)
 	
 	GUI::ListData ls;
 	if(zero_none)
-		ls.add("(None)", 0);
+		ls.add(numbered ? "(None) (000)" : "(None)", 0);
 	for(auto it = famnames.begin(); it != famnames.end(); ++it)
 	{
 		ls.add(*it, fams[*it]);
@@ -344,7 +344,7 @@ GUI::ListData GUI::ZCListData::combotype(bool numbered, bool skipNone)
 	map<std::string, int32_t> types;
 	std::set<std::string> typenames;
 
-	if(!skipNone) ls.add("(None)", 0);
+	if(!skipNone) ls.add(numbered ? "(None) (000)" : "(None)", 0);
 	for(int32_t i=1; i<cMAX; ++i)
 	{
 		if(!ZI.isUsableComboType(i))
@@ -385,7 +385,7 @@ GUI::ListData GUI::ZCListData::mapflag(int32_t numericalFlags, bool numbered, bo
 	std::map<std::string, int32_t> vals;
 	std::set<std::string> names;
 	
-	if(!skipNone) ls.add("(None)", 0);
+	if(!skipNone) ls.add(numbered ? "(None) (000)" : "(None)", 0);
 	for(int32_t q = 1; q < mfMAX; ++q)
 	{
 		if(!ZI.isUsableMapFlag(q))
@@ -522,7 +522,7 @@ GUI::ListData GUI::ZCListData::lweaptypes(bool numbered)
 	std::map<std::string, int32_t> vals;
 
 	GUI::ListData ls;
-	ls.add("(None)", 0);
+	ls.add(numbered ? "(None) (000)" : "(None)", 0);
 	for (int32_t q = 1; q < lwMax; ++q)
 	{
 		if (!ZI.isUsableWeap(q))
@@ -560,7 +560,7 @@ GUI::ListData GUI::ZCListData::eweaptypes(bool numbered)
 	std::map<std::string, int32_t> vals;
 
 	GUI::ListData ls;
-	ls.add("(None)", 0);
+	ls.add(numbered ? "(None) (000)" : "(None)", 0);
 	for (int32_t q = wEnemyWeapons+1; q < wMax; ++q)
 	{
 		if (!ZI.isUsableWeap(q))
@@ -589,7 +589,7 @@ GUI::ListData GUI::ZCListData::weaptypes(bool numbered)
 	std::map<std::string, int32_t> vals;
 	
 	GUI::ListData ls;
-	ls.add("(None)", 0);
+	ls.add(numbered ? "(None) (000)" : "(None)", 0);
 	for(int32_t q=1; q<wMax; ++q)
 	{
 		if(!ZI.isUsableWeap(q))
@@ -669,7 +669,7 @@ GUI::ListData GUI::ZCListData::sfxnames(bool numbered)
 	std::map<std::string, int32_t> vals;
 	
 	GUI::ListData ls;
-	ls.add("(None)", 0);
+	ls.add(numbered ? "(None) (000)" : "(None)", 0);
 	for(int32_t i=1; i<WAV_COUNT; ++i)
 	{
 		char const* sfx_name = sfx_string[i];
@@ -685,7 +685,7 @@ GUI::ListData GUI::ZCListData::midinames(bool numbered, bool incl_engine)
 	std::map<std::string, int32_t> vals;
 	
 	GUI::ListData ls;
-	ls.add("(None)", 0);
+	ls.add(numbered ? "(None) (000)" : "(None)", 0);
 	auto ofs = 1;
 	if (incl_engine)
 	{

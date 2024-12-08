@@ -15,7 +15,7 @@ void newcombo::clear()
 	*this = newcombo();
 }
 	
-bool newcombo::is_blank(bool ignoreEff)
+bool newcombo::is_blank(bool ignoreEff) const
 {
 	if(tile) return false;
 	if(flip) return false;
@@ -126,6 +126,15 @@ bool newcombo::is_blank(bool ignoreEff)
 	if(spr_walking) return false;
 	if(spr_standing) return false;
 	return true;
+}
+
+bool newcombo::can_cycle() const
+{
+	if(nextcombo != 0)
+		return true;
+	if(animflags & AF_CYCLEUNDERCOMBO)
+		return true;
+	return false;
 }
 
 int newcombo::each_tile(std::function<bool(int32_t)> proc) const

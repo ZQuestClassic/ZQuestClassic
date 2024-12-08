@@ -382,7 +382,7 @@ public:
 	bool try_ewpn_hit(weapon* w, bool force = false);
 	void checkhit();
 	
-	void doHit(int32_t hitdir);
+	void doHit(int32_t hitdir, int iframes = 48);
 	bool checkdamagecombos(int32_t dx, int32_t dy);
 	bool checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t dy2, int32_t layer = -1, bool solid = false, bool do_health_check = true);
 	
@@ -413,6 +413,7 @@ public:
 	bool can_lift(int32_t gloveid);
 	void handle_lift(bool dec = true);
 	void lift(weapon* w, byte timer, zfix height);
+	void check_on_hit();
 	bool doattack();
 	bool can_attack();
 	void do_rafting();

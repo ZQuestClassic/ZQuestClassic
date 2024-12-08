@@ -385,6 +385,7 @@ void HeroClass::set_liftflags(int liftid)
 	SETFLAG(liftflags, LIFTFL_DIS_SWIMMING, !(itm.flags & item_flag2));
 	SETFLAG(liftflags, LIFTFL_DIS_SHIELD, itm.flags & item_flag3);
 	SETFLAG(liftflags, LIFTFL_DIS_ITEMS, itm.flags & item_flag4);
+	SETFLAG(liftflags, LIFTFL_DROP_ON_HIT, itm.flags & item_flag5);
 }
 
 void HeroClass::set_respawn_point(bool setwarp)
@@ -1535,7 +1536,7 @@ void HeroClass::setAction(actiontype new_action) // Used by ZScript
 	case sideswimhit:
 		if(!hclk)
 			hclk=48;
-			
+		check_on_hit();
 		break;
 		
 	case landhold1:
@@ -6370,33 +6371,7 @@ bool HeroClass::try_lwpn_hit(weapon* w)
 				}
 			}
 			
-			hitdir = hdir;
-			
-			if (action != rafting && action != freeze && action != sideswimfreeze)
-			{
-				if (IsSideSwim())
-				{
-					action=sideswimhit; FFCore.setHeroAction(sideswimhit); 
-				}
-				else if (action == swimming || hopclk == 0xFF)
-				{
-					action=swimhit; FFCore.setHeroAction(swimhit);
-				}
-				else
-				{
-					action=gothit; FFCore.setHeroAction(gothit);
-				}
-			}
-				
-			if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
-			{
-				spins = charging = attackclk = 0;
-				attack=none;
-				tapping = false;
-			}
-			
-			hclk=iframes;
-			sfx(getHurtSFX(),pan(x.getInt()));
+			doHit(hdir, iframes);
 			return true;
 		}
 	}
@@ -6503,33 +6478,7 @@ bool HeroClass::try_lwpn_hit(weapon* w)
 					}
 				}
 				
-				hitdir = hdir;
-				
-				if (action != rafting && action != freeze && action != sideswimfreeze)
-				{
-					if (IsSideSwim())
-					{
-						action=sideswimhit; FFCore.setHeroAction(sideswimhit); 
-					}
-					else if (action == swimming || hopclk == 0xFF)
-					{
-						action=swimhit; FFCore.setHeroAction(swimhit);
-					}
-					else
-					{
-						action=gothit; FFCore.setHeroAction(gothit);
-					}
-				}
-					
-				if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
-				{
-					spins = charging = attackclk = 0;
-					attack=none;
-					tapping = false;
-				}
-				
-				hclk=iframes;
-				sfx(getHurtSFX(),pan(x.getInt()));
+				doHit(hdir, iframes);
 				return true;
 			}
 		}
@@ -6655,33 +6604,10 @@ bool HeroClass::try_ewpn_hit(weapon* w, bool force)
 		}
 	}
 	
-	hitdir = hdir;
 	if(w)
 		w->onhit(false);
 	
-	if (IsSideSwim())
-	{
-		action=sideswimhit; FFCore.setHeroAction(sideswimhit); 
-	}
-	else if(action==swimming || hopclk==0xFF)
-	{
-		action=swimhit; FFCore.setHeroAction(swimhit);
-	}
-	else
-	{
-		action=gothit; FFCore.setHeroAction(gothit);
-	}
-		
-	hclk=iframes;
-	
-	if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
-	{
-		spins = charging = attackclk = 0;
-		attack=none;
-		tapping = false;
-	}
-	
-	sfx(getHurtSFX(),pan(x.getInt()));
+	doHit(hdir, iframes);
 	return true;
 }
 
@@ -6851,33 +6777,7 @@ void HeroClass::checkhit()
 					}
 				}
 				
-				hitdir = hdir;
-				
-				if (action != rafting && action != freeze && action != sideswimfreeze)
-				{
-					if (IsSideSwim())
-					{
-						action=sideswimhit; FFCore.setHeroAction(sideswimhit); 
-					}
-					else if (action == swimming || hopclk == 0xFF)
-					{
-						action=swimhit; FFCore.setHeroAction(swimhit);
-					}
-					else
-					{
-						action=gothit; FFCore.setHeroAction(gothit);
-					}
-				}
-					
-				if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
-				{
-					spins = charging = attackclk = 0;
-					attack=none;
-					tapping = false;
-				}
-				
-				hclk=iframes;
-				sfx(getHurtSFX(),pan(x.getInt()));
+				doHit(hdir, iframes);
 				return;
 			}
 		}
@@ -6986,33 +6886,7 @@ void HeroClass::checkhit()
 						}
 					}
 					
-					hitdir = hdir;
-					
-					if (action != rafting && action != freeze && action != sideswimfreeze)
-					{
-						if (IsSideSwim())
-						{
-							action=sideswimhit; FFCore.setHeroAction(sideswimhit); 
-						}
-						else if (action == swimming || hopclk == 0xFF)
-						{
-							action=swimhit; FFCore.setHeroAction(swimhit);
-						}
-						else
-						{
-							action=gothit; FFCore.setHeroAction(gothit);
-						}
-					}
-						
-					if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
-					{
-						spins = charging = attackclk = 0;
-						attack=none;
-						tapping = false;
-					}
-					
-					hclk=iframes;
-					sfx(getHurtSFX(),pan(x.getInt()));
+					doHit(hdir, iframes);
 					return;
 				}
 			}
@@ -7151,33 +7025,10 @@ void HeroClass::checkhit()
 			}
 		}
 		
-		hitdir = hdir;
 		if(lwpnspr)
 			lwpnspr->onhit(false);
 		
-		if (IsSideSwim())
-		{
-			action=sideswimhit; FFCore.setHeroAction(sideswimhit); 
-		}
-		else if(action==swimming || hopclk==0xFF)
-		{
-			action=swimhit; FFCore.setHeroAction(swimhit);
-		}
-		else
-		{
-			action=gothit; FFCore.setHeroAction(gothit);
-		}
-			
-		hclk=iframes;
-		
-		if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
-		{
-			spins = charging = attackclk = 0;
-			attack=none;
-			tapping = false;
-		}
-		
-		sfx(getHurtSFX(),pan(x.getInt()));
+		doHit(hdir, iframes);
 		return;
 	}
 	
@@ -7244,33 +7095,10 @@ void HeroClass::checkhit()
 			}
 		}
 		
-		hitdir = hdir;
 		if(ewpnspr)
 			ewpnspr->onhit(false);
 		
-		if (IsSideSwim())
-		{
-			action=sideswimhit; FFCore.setHeroAction(sideswimhit); 
-		}
-		else if(action==swimming || hopclk==0xFF)
-		{
-			action=swimhit; FFCore.setHeroAction(swimhit);
-		}
-		else
-		{
-			action=gothit; FFCore.setHeroAction(gothit);
-		}
-			
-		hclk=iframes;
-		
-		if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
-		{
-			spins = charging = attackclk = 0;
-			attack=none;
-			tapping = false;
-		}
-		
-		sfx(getHurtSFX(),pan(x.getInt()));
+		doHit(hdir, iframes);
 		return;
 	}
 	
@@ -7291,7 +7119,7 @@ bool HeroClass::checkdamagecombos(int32_t dx, int32_t dy)
     return checkdamagecombos(dx,dx,dy,dy);
 }
 
-void HeroClass::doHit(int32_t hdir)
+void HeroClass::doHit(int32_t hdir, int iframes)
 {
 	hitdir = hdir;
 	
@@ -7311,7 +7139,8 @@ void HeroClass::doHit(int32_t hdir)
 		}
 	}
 		
-	hclk=48;
+	hclk = iframes;
+	check_on_hit();
 	
 	if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
 	{
@@ -7622,8 +7451,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 			}
 			
 			hitdir = hdir;
-			doHit(hitdir);
-			hclk = iframes;
+			doHit(hitdir, iframes);
 			return true;
 		}
 		else if (do_health_check) paymagiccost(itemid); // Boots are successful
@@ -7740,6 +7568,7 @@ int32_t HeroClass::hithero(int32_t hit2, int32_t force_hdir)
 	}
 		
 	hclk=iframes;
+	check_on_hit();
 	sfx(getHurtSFX(),pan(x.getInt()));
 	
 	if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
@@ -8318,6 +8147,7 @@ heroanimate_skip_liftwpn:;
 											hclk = ev[4]/10000;
 											hitdir = ev[1]/10000;
 											action = gothit; FFCore.setHeroAction(gothit);
+											check_on_hit();
 										}
 									}
 								}
@@ -9905,6 +9735,7 @@ heroanimate_skip_liftwpn:;
 			drownCombo = 0;
 			go_respawn_point();
 			hclk=48;
+			check_on_hit();
 		}
 		
 		break;
@@ -10080,6 +9911,7 @@ heroanimate_skip_liftwpn:;
 						{
 							hclk = 48;
 							hitdir = -1;
+							check_on_hit();
 							if (IsSideSwim()) {action = sideswimhit; FFCore.setHeroAction(sideswimhit);}
 							else {action = swimhit; FFCore.setHeroAction(swimhit);}
 						}
@@ -11077,7 +10909,7 @@ void HeroClass::drop_liftwpn()
 	if(!lift_wpn) return;
 	
 	handle_lift(false); //sets position properly, accounting for large weapons
-	auto liftid = current_item_id(itype_liftglove,true,true);
+	int liftid = last_lift_id ? *last_lift_id : current_item_id(itype_liftglove,true,true);
 	itemdata const& glove = itemsbuf[liftid];
 	if(isSideViewGravity())
 	{
@@ -11485,6 +11317,12 @@ void HeroClass::lift(weapon* w, byte timer, zfix height)
 	if(height < 0)
 		liftheight = 0;
 	else liftheight = height;
+}
+
+void HeroClass::check_on_hit() // Called when the player is hit
+{
+	if(lift_wpn && (liftflags & LIFTFL_DROP_ON_HIT))
+		drop_liftwpn();
 }
 
 void HeroClass::doSwitchHook(byte style)
@@ -14268,7 +14106,11 @@ void HeroClass::pitfall()
 				dmg = 0;
 			if(dmg) //Damage
 			{
-				if(dmg > 0) hclk=48; //IFrames only if damaged, not if healed
+				if(dmg > 0)
+				{
+					hclk=48; //IFrames only if damaged, not if healed
+					check_on_hit();
+				}
 				game->set_life(vbound(int32_t(dmg_perc ? game->get_life() - ((vbound(dmg,-100,100)/100.0)*game->get_maxlife()) : (game->get_life()-int64_t(dmg))),0,game->get_maxlife()));
 			}
 			if(warp) //Warp

@@ -1373,7 +1373,8 @@ struct guydata
 #define LIFTFL_DIS_SHIELD             0x00000001
 #define LIFTFL_DIS_ITEMS              0x00000002
 #define LIFTFL_DIS_SWIMMING           0x00000004
-#define NUM_LIFTFL 3
+#define LIFTFL_DROP_ON_HIT            0x00000008
+#define NUM_LIFTFL 4
 
 class refInfo
 {

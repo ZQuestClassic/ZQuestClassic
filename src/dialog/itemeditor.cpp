@@ -349,6 +349,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			_SET(flag[1], "Lift In Water", "Allows lifting while swimming");
 			_SET(flag[2], "Disable Shield", "Makes the shield not protect from projectiles, in the same way as when the Hero is attacking");
 			_SET(flag[3], "Disable Item Use", "Stop the use of items unrelated to lifting while an object is lifted");
+			_SET(flag[4], "Drop When Hit", "Held object is dropped when receiving damage");
 			break;
 		}
 		case itype_magicring:
@@ -745,16 +746,19 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			
 			break;
 		}
-		case itype_whistle: //!TODO Help Text
+		case itype_whistle:
 		{
-			inf->misc[0] = "Whirlwind Direction:";
-			inf->misc[1] = "Warp Ring:";
-			inf->misc[4] = "Weapon Damage";
-			inf->flag[0] = "One W.Wind Per Scr.";
-			inf->flag[1] = "Has Damage";
-			inf->flag[2] = "Whirlwinds Reflect off Prism/Mirror Combos";
-			inf->wpn[0] = "Whirlwind Sprite:";
-			inf->actionsnd[0] = "Music Sound:";
+			auto windname = ZI.getWeapName(wWind);
+			auto whistlename = ZI.getWeapName(wWhistle);
+			_SET(misc[0], fmt::format("{} Direction:", windname), fmt::format("Direction the {} faces. 0 = Up, 1 = Down, 2 = Left, 3 = Right, 4 = Opposite the Hero", windname));
+			_SET(misc[1], "Warp Ring:", "Which warp ring to use when warping the Hero");
+			if(FLAG(2))
+				_SET(misc[4], fmt::format("{} Damage", whistlename), fmt::format("The damage of the {} to anything that hears it.",whistlename));
+			_SET(flag[0], "One W.Wind Per Scr.", fmt::format("Only allow a {} to be summoned once per screen.", windname));
+			_SET(flag[1], "Has Damage", fmt::format("If checked, the {0} weapon will deal the damage set in the '{0} Damage' attribute.",whistlename));
+			_SET(flag[2], fmt::format("{} Reflects off Prism/Mirror Combos", windname), fmt::format("If checked, {} weapons will reflect off of Mirrors and be duplicated by Prisms.", windname));
+			inf->wpn[0] = fmt::format("{} Sprite:", windname);
+			_SET(actionsnd[0], "Music Sound:", "The musical tune played");
 			break;
 		}
 		case itype_candle:

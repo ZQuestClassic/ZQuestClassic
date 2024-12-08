@@ -151,7 +151,8 @@ struct newcombo
 	
 	void set_tile(int32_t newtile);
 	void clear();
-	bool is_blank(bool ignoreEff = false);
+	bool is_blank(bool ignoreEff = false) const;
+	bool can_cycle() const;
 	
 	int each_tile(std::function<bool(int32_t)> proc) const;
 	
@@ -162,6 +163,7 @@ struct newcombo
 #define AF_CYCLE                        0x02
 #define AF_CYCLENOCSET                  0x04
 #define AF_TRANSPARENT                  0x08
+#define AF_CYCLEUNDERCOMBO              0x10
 
 //triggerflags[0]
 #define combotriggerSWORD               0x00000001

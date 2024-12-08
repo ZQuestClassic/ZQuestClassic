@@ -121,12 +121,12 @@ class combodata {
 
 	// If `> 0`, cycling is enabled for this combo. When the combo's animation
 	// would normally loop, instead the combo will change to the `NextData`
-	// combo.
+	// combo. If the [AnimFlags] `AF_CYCLEUNDERCOMBO` is set, it overrides this.
 	//
 	// @zasm_var COMBODNEXTD
 	internal int NextData;
 
-	// If the [AnimFlags] `AF_CYCLENOCSET` is NOT set, the combo will change to
+	// If the [AnimFlags] `AF_CYCLENOCSET` and `AF_CYCLEUNDERCOMBO` are NOT set, the combo will change to
 	// this cset when it cycles.
 	//
 	// @zasm_var COMBODNEXTC
