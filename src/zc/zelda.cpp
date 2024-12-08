@@ -1668,6 +1668,8 @@ void init_game_vars(bool is_cont_game = false)
 	show_subscreen_numbers=true;
 	show_subscreen_life=true;
 	msgscr=nullptr;
+	viewport = {};
+	viewport_sprite_uid = 0;
 	for(int32_t x = 0; x < MAXITEMS; x++)
 	{
 		lens_hint_item[x][0]=0;
