@@ -4356,32 +4356,31 @@ static nearby_screens_t get_nearby_screens()
 		return nearby_screens;
 	}
 
-	// TODO z3 !!! should be based on viewport corners.
+	int heroscr_x = z3_get_region_relative_dx(hero_screen);
+	int heroscr_y = z3_get_region_relative_dy(hero_screen);
 
-	int heroscr_x = hero_screen % 16;
-	int heroscr_y = hero_screen / 16;
-
-	for (int heroscr_dx = -1; heroscr_dx <= 1; heroscr_dx++)
+	int screens_x0 = std::clamp(viewport.left() / 256, 0, 15);
+	int screens_x1 = std::clamp((viewport.right() - 1) / 256, 0, 15);
+	int screens_y0 = std::clamp(viewport.top() / 176, 0, 8);
+	int screens_y1 = std::clamp((viewport.bottom() - 1) / 176, 0, 8);
+	for (int x = screens_x0; x <= screens_x1; x++)
 	{
-		for (int heroscr_dy = -2; heroscr_dy <= 2; heroscr_dy++)
+		for (int y = screens_y0; y <= screens_y1; y++)
 		{
-			int scr_x = heroscr_x + heroscr_dx;
-			int scr_y = heroscr_y + heroscr_dy;
+			int screen = cur_screen + x + y*16;
+			if (!is_in_current_region(screen)) continue;
+
+			int scr_x = z3_get_region_relative_dx(screen);
+			int scr_y = z3_get_region_relative_dy(screen);
+
+			int heroscr_dx = scr_x - heroscr_x;
+			int heroscr_dy = scr_y - heroscr_y;
+
 			if (tmpscr->flags&fMAZE && !(XY_DELTA_TO_DIR(heroscr_dx, 0) == tmpscr->exitdir || XY_DELTA_TO_DIR(0, heroscr_dy) == tmpscr->exitdir))
 			{
 				scr_x = heroscr_x;
 				scr_y = heroscr_y;
 			}
-			if (heroscr_dx || heroscr_dy)
-			{
-				if (Hero.edge_of_dmap(XY_DELTA_TO_DIR(heroscr_dx, 0))) continue;
-				if (Hero.edge_of_dmap(XY_DELTA_TO_DIR(0, heroscr_dy))) continue;
-				if (scr_x < 0 || scr_x >= 16) continue;
-				if (scr_y < 0 || scr_y >= 8) continue;
-			}
-
-			int screen = scr_x + scr_y * 16;
-			if (!is_in_current_region(screen)) continue;
 
 			mapscr* base_scr = get_scr(screen);
 			if (!(base_scr->valid & mVALID)) continue;
