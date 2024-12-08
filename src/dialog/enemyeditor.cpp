@@ -492,7 +492,7 @@ void EnemyEditorDialog::loadEnemyType()
 				break;
 			case e9tVIRE:
 			case e9tPOLSVOICE:
-				l_attribute[9] = "Reserved:";
+				l_attribute[9] = "Jump Height:";
 				break;
 			case e9tARMOS:
 				l_attribute[9] = "Other Step:";
