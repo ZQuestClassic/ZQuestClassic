@@ -2939,10 +2939,11 @@ DEFINE HIT_BY_LWEAPON_PTR           = 15;
 //Returns the ID of the enemy that hit the Hero
 DEFINE HIT_BY_NPC_ID                = 16;
 
-DEFINE AF_FRESH          = 0x01;
-DEFINE AF_CYCLE          = 0x02;
-DEFINE AF_CYCLENOCSET    = 0x04;
-DEFINE AF_TRANSPARENT    = 0x08;
+DEFINE AF_FRESH           = 0x01;
+DEFINE AF_CYCLE           = 0x02;
+DEFINE AF_CYCLENOCSET     = 0x04;
+DEFINE AF_TRANSPARENT     = 0x08;
+DEFINE AF_CYCLEUNDERCOMBO = 0x10;
 
 enum //Combodata LiftFlags[]
 {
@@ -3063,6 +3064,7 @@ enum //for Hero->LiftFlags[]
 	LIFTFL_DISABLE_SHIELD,
 	LIFTFL_DISABLE_ITEMS,
 	LIFTFL_NO_SWIMMING,
+	LIFTFL_DROP_ON_HIT,
 	LIFTFL_MAX
 };
 
