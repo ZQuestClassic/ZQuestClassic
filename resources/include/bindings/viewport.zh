@@ -19,10 +19,10 @@ class Viewport {
 	internal int Y;
 
 	// @zasm_var VIEWPORT_WIDTH
-	internal int Width;
+	internal const int Width;
 
 	// @zasm_var VIEWPORT_HEIGHT
-	internal int Height;
+	internal const int Height;
 }
 
 internal const Viewport Viewport;

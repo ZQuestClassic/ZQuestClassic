@@ -7,6 +7,12 @@ namespace Test
 			Player->Warp(dmap, screen);
 	}
 
+	void End()
+	{
+		printf("[Test] done\n");
+		Game->Exit();
+	}
+
 	void AssertEqual<T>(T actual, T expected)
 	{
 		if (expected != actual)
@@ -70,7 +76,6 @@ screendata script TestRunner
 			Waitframe();
 		}
 
-		printf("[Test] done\n");
-		Game->Exit();
+		Test::End();
 	}
 }

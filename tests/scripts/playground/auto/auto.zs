@@ -5,3 +5,4 @@
 #include "auto/garbage_collection.zs"
 #include "auto/scc.zs"
 #include "auto/sprites.zs"
+#include "auto/viewport.zs"

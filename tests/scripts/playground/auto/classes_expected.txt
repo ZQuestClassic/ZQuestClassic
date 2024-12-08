@@ -26,48 +26,48 @@ stdout:
 
 zasm:
 
-PUSHARGSV 0 0.0006; void run() Body Start
+PUSHARGSV 0 0.0005; void run() Body Start
 SETR D4 SP2
 ALLOCATEMEMV D2 100 0
-STORE D2 0.0004
-LOAD D2 0.0004; InlineFunc[void Game::GetSaveName(char32[])] Params
+STORE D2 0.0003
+LOAD D2 0.0003; InlineFunc[void Game::GetSaveName(char32[])] Params
 GETSAVENAME D2; InlineFunc[void Game::GetSaveName(char32[])] Body
 ALLOCATEMEMV D2 19 0
-STORE D2 0.0003
+STORE D2 0.0002
 WRITEPODSTRING D2 "[Test] Running %s\n"
-LOAD D2 0.0003; InlineFunc[void printf(char32[])] Params Start
+LOAD D2 0.0002; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2
-LOAD D2 0.0004
+LOAD D2 0.0003
 PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
-LOAD D3 0.0003
+LOAD D3 0.0002
 DEALLOCATEMEMR D3
-LOAD D2 0.0004; InlineFunc[int Game::GetGenericScript(char32[])] Params
+LOAD D2 0.0003; InlineFunc[int Game::GetGenericScript(char32[])] Params
 GETGENERICSCRIPT D2; InlineFunc[int Game::GetGenericScript(char32[])] Body
-STORE D2 0.0002
-LOAD D2 0.0002; if() #2 Test
+STORE D2 0.0001
+LOAD D2 0.0001; if() #2 Test
 COMPAREV D2 -1
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 36 ==; Test 'if'
 ALLOCATEMEMV D2 53 0; if() #2 Body Start
-STORE D2 0.0001
+STORE D2 0
 WRITEPODSTRING D2 "[Test] failed to start - could not find test script\n"
-LOAD D2 0.0001; InlineFunc[void printf(char32[])] Params Start
+LOAD D2 0; InlineFunc[void printf(char32[])] Params Start
 PUSHR D2; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
-LOAD D3 0.0001
+LOAD D3 0
 DEALLOCATEMEMR D3
 GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #2 Body End
-LOAD D2 0.0002; InlineFunc[genericdata Game::LoadGenericData(int)] Params
+LOAD D2 0.0001; InlineFunc[genericdata Game::LoadGenericData(int)] Params
 LOADGENERICDATA D2; InlineFunc[genericdata Game::LoadGenericData(int)] Body Start
 SETR D2 REFGENERICDATA; InlineFunc[genericdata Game::LoadGenericData(int)] Body End
-STORE D2 0.0001
+STORE D2 0
 SETV D2 1
 PUSHR D2
-LOAD D2 0.0001
+LOAD D2 0
 POP D3
 PUSHR D2
 PUSHR D3
@@ -75,7 +75,7 @@ POP D2
 CASTBOOLI D2
 POP REFGENERICDATA
 SETR GENDATARUNNING D2
-LOAD D2 0.0001; while() #1 Test
+LOAD D2 0; while() #1 Test
 PUSHR D2
 POP REFGENERICDATA
 SETR D2 GENDATARUNNING
@@ -83,6 +83,11 @@ COMPAREV D2 0
 GOTOCMP 58 ==; Test 'while'
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #1 Body
 GOTO 50; while() #1 End
+CALLFUNC 0.0061; UsrFunc[void End()] Call AND [Opt:NeverRet]
+LOAD D3 0.0003
+DEALLOCATEMEMR D3; [Opt:NeverRet] AND void run() Body End
+PUSHV 0; Func[void End()] Body Start
+SETR D4 SP2
 ALLOCATEMEMV D2 13 0
 STORE D2 0
 WRITEPODSTRING D2 "[Test] done\n"
@@ -92,9 +97,7 @@ PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0
 DEALLOCATEMEMR D3
-GAMEEXIT; InlineFunc[void Game::Exit()] Body
-LOAD D3 0.0004
-DEALLOCATEMEMR D3; [Opt:NeverRet] AND void run() Body End
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND [Opt:NeverRet] AND Func[void End()] Body End
 
 
 PUSHR REFGENERICDATA; void run() Body Start
