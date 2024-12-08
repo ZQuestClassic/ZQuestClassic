@@ -42839,6 +42839,7 @@ bool command_could_return_not_ok(int command)
 	case EWPNDEL:
 	case GAMECONTINUE:
 	case GAMEEND:
+	case GAMEEXIT:
 	case GAMERELOAD:
 	case GAMESAVECONTINUE:
 	case GAMESAVEQUIT:
