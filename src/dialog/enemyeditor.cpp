@@ -321,8 +321,8 @@ static const GUI::ListData list_jinxdata
 	{ "All", e8tSWORD | e8tITEM | e8tSHIELD}
 };
 
-#define SW_DROPDOWN 1
 #define SW_TEXTFIELD 0
+#define SW_DROPDOWN 1
 
 void EnemyEditorDialog::refreshScript()
 {
