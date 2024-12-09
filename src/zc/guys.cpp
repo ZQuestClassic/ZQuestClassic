@@ -558,11 +558,8 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 	wunblockable = d->wunblockable;
 	wmoveflags = d->wmoveflags;
 	wstep = zslongToFix(d->wstep*100);
-	for (int q=0; q < WPNSPR_MAX; ++q)
-	{
-		burnsprs[q] = d->burnsprs[q];
-		light_rads[q] = d->light_rads[q];
-	}
+	memcpy(burnsprs, d->burnsprs, sizeof(d->burnsprs));
+	memcpy(light_rads, d->light_rads, sizeof(d->light_rads));
 	specialsfx = d->specialsfx;
 }
 

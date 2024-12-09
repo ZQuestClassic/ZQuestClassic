@@ -11522,12 +11522,12 @@ int32_t writeguys(PACKFILE *f, zquestheader *Header)
 			for(int32_t q = 0; q < WPNSPR_MAX; ++q)
 			{
 				if (!p_iputw(guysbuf[i].burnsprs[q], f))
-					new_return(116 + q);
+					new_return(116);
 				if (!p_iputw(guysbuf[i].light_rads[q], f))
-					new_return(116 + WPNSPR_MAX + q);
+					new_return(117);
 			}
 			if (!p_putc(guysbuf[i].specialsfx, f))
-				new_return(126)
+				new_return(118);
 		}
 		
 		if(writecycle==0)

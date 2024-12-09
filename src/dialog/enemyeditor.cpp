@@ -249,12 +249,6 @@ static const GUI::ListData list_keesemisc2
 	{"Tribble",1},
 };
 
-static const GUI::ListData list_trapmisc2
-{
-	{"Line Of Sight",0},
-	{"Constant",1}
-};
-
 static const GUI::ListData list_trapmisc1
 {
 	{"4-Way",0},
@@ -262,11 +256,17 @@ static const GUI::ListData list_trapmisc1
 	{"Vertical",2},
 };
 
+static const GUI::ListData list_trapmisc2
+{
+	{"Line Of Sight",0},
+	{"Constant",1}
+};
+
 static const GUI::ListData list_leevermisc1
 {
-	{"Hero's path + second",0},
+	{"Hero's path",0},
 	{"In place",1},
-	{"Hero's path",2}
+	{"Hero's path + Random",2}
 };
 
 static const GUI::ListData list_rockmisc10
