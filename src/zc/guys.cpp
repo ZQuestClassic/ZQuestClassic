@@ -559,7 +559,7 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 	wmoveflags = d->wmoveflags;
 	wstep = zslongToFix(d->wstep*100);
 	memcpy(burnsprs, d->burnsprs, sizeof(d->burnsprs));
-	memcpy(light_rads, d->light_rads, sizeof(d->burnsprs));
+	memcpy(light_rads, d->light_rads, sizeof(d->light_rads));
 	specialsfx = d->specialsfx;
 }
 
