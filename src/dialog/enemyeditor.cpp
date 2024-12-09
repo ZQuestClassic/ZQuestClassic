@@ -722,10 +722,10 @@ void EnemyEditorDialog::loadEnemyType()
 		ib_attributes[q]->setDisabled(h_attribute[q].empty());
 		tf_attributes[q]->setLowBound(-999999);
 		tf_attributes[q]->setHighBound(999999);
-		if (sw_attributes[q]->getCurrentIndex() != 0) // change this 0 to a constant representing the textfield spot in the switcher
+		if (sw_attributes[q]->getCurrentIndex() != SW_TEXTFIELD)
 		{
-			sw_attributes[q]->switchTo(SW_DROPDOWN); // change this 0 to a constant representing the textfield spot in the switcher
-			tf_attributes[q]->setVal(local_guyref.attributes[q]); //update the value
+			sw_attributes[q]->switchTo(SW_TEXTFIELD);
+			tf_attributes[q]->setVal(local_guyref.attributes[q]);
 		}
 
 		if (q > 15)
