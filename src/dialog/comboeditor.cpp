@@ -1961,7 +1961,7 @@ void ComboEditorDialog::loadComboType()
 				l_attribute[1] = "Deceleration";
 				h_attribute[1] = "Speed lost when not holding a direction, in pixels per frame.";
 				l_attribute[2] = "Max Speed";
-				h_attribute[2] = "The highest speed that can be reached";
+				h_attribute[2] = "The highest speed that can be reached, in pixels per frame.";
 			}
 			break;
 		}
