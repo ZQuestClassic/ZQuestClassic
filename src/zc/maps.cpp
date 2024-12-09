@@ -60,7 +60,6 @@ static int current_region_screen_count;
 static std::pair<const rpos_handle_t*, int> current_region_rpos_handles_scr[136];
 
 viewport_t viewport;
-int viewport_sprite_uid;
 ViewportMode viewport_mode;
 int world_w, world_h;
 int region_scr_dx, region_scr_dy;
@@ -326,7 +325,7 @@ std::vector<mapscr*> z3_take_temporary_scrs()
 	return screens;
 }
 
-void z3_calculate_viewport(int dmap, int screen, int world_w, int world_h, int sprite_x, int spirte_y, int sprite_height, viewport_t& viewport)
+void z3_calculate_viewport(int dmap, int screen, int world_w, int world_h, int hero_x, int hero_y, viewport_t& viewport)
 {
 	bool extended_height_mode = (DMaps[dmap].flags & dmfEXTENDEDVIEWPORT) && world_h > 176;
 	viewport.w = 256;
@@ -345,26 +344,19 @@ void z3_calculate_viewport(int dmap, int screen, int world_w, int world_h, int s
 	else if (viewport_mode == ViewportMode::CenterAndBound)
 	{
 		// Clamp the viewport to the edges of the region.
-		viewport.x = CLAMP(0, world_w - viewport.w, sprite_x - viewport.w/2);
-		viewport.y = CLAMP(0, world_h - viewport.h, spirte_y - viewport.h/2 + viewport.centering_y_offset + sprite_height);
+		viewport.x = CLAMP(0, world_w - viewport.w, hero_x - viewport.w/2);
+		viewport.y = CLAMP(0, world_h - viewport.h, hero_y - viewport.h/2 + viewport.centering_y_offset + Hero.tysz*16);
 	}
 	else if (viewport_mode == ViewportMode::Center)
 	{
-		viewport.x = sprite_x - viewport.w/2;
-		viewport.y = spirte_y - viewport.h/2 + viewport.centering_y_offset + sprite_height;
+		viewport.x = hero_x - viewport.w/2;
+		viewport.y = hero_y - viewport.h/2 + viewport.centering_y_offset + Hero.tysz*16;
 	}
 }
 
 void z3_update_viewport()
 {
-	sprite* spr = sprite::getByUID(viewport_sprite_uid);
-	if (!spr)
-	{
-		viewport_sprite_uid = 1; // Hero uid.
-		spr = &Hero;
-	}
-
-	z3_calculate_viewport(currdmap, cur_screen, world_w, world_h, spr->x, spr->y, spr->yofs*16, viewport);
+	z3_calculate_viewport(currdmap, cur_screen, world_w, world_h, Hero.getX(), Hero.getY(), viewport);
 }
 
 void playLevelMusic();

@@ -26124,7 +26124,7 @@ bool HeroClass::dowarp(mapscr* scr, int32_t type, int32_t index, int32_t warpsfx
 		wrx += region_scr_dx * 256;
 		wry += region_scr_dy * 176;
 
-		z3_calculate_viewport(currdmap, cur_screen, world_w, world_h, wrx, wry, Hero.yofs*16, viewport);
+		z3_calculate_viewport(currdmap, cur_screen, world_w, world_h, wrx, wry, viewport);
 
 		zfix whistle_x = index==left?viewport.right()-16:index==right?viewport.left():wrx;
 		zfix whistle_y = index==down?viewport.top():index==up?viewport.bottom()-16:wry;
@@ -28591,7 +28591,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		}
 
 		new_viewport = {};
-		z3_calculate_viewport(new_dmap, destscr, new_region.width, new_region.height, new_hero_x, new_hero_y, Hero.yofs*16, new_viewport);
+		z3_calculate_viewport(new_dmap, destscr, new_region.width, new_region.height, new_hero_x, new_hero_y, new_viewport);
 	};
 	calc_new_viewport_and_pos();
 

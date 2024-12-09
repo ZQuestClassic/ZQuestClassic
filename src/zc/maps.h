@@ -131,7 +131,7 @@ std::tuple<const rpos_handle_t*, int> z3_get_current_region_handles(mapscr* scr)
 void z3_mark_current_region_handles_dirty();
 void z3_clear_temporary_screens();
 std::vector<mapscr*> z3_take_temporary_scrs();
-void z3_calculate_viewport(int dmap, int screen, int world_w, int world_h, int sprite_x, int sprite_y, int sprite_height, viewport_t& viewport);
+void z3_calculate_viewport(int dmap, int screen, int world_w, int world_h, int hero_x, int hero_y, viewport_t& viewport);
 void z3_update_viewport();
 void z3_update_heroscr();
 bool edge_of_region(direction dir);
