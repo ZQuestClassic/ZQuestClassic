@@ -326,3 +326,15 @@ void zapp_reporting_set_tag(const char* key, int value)
 	sentry_set_tag(key, std::to_string(value).c_str());
 #endif
 }
+
+static bool g_is_exiting;
+
+bool is_exiting()
+{
+	return g_is_exiting;
+}
+
+void set_is_exiting()
+{
+	g_is_exiting = true;
+}

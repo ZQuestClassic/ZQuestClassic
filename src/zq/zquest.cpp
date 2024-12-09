@@ -24896,6 +24896,7 @@ END_OF_MAIN()
 
 void zq_exit(int code)
 {
+	set_is_exiting();
 	parser_console.kill();
 	killConsole();
 	

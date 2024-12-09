@@ -155,6 +155,8 @@ void zc_exit(int code)
 {
 	extern CConsoleLoggerEx zscript_coloured_console;
 
+	set_is_exiting();
+
 	if (replay_get_mode() == ReplayMode::Record) replay_save();
 	replay_stop();
 	music_stop();

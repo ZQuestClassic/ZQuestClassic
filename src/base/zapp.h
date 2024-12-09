@@ -30,4 +30,7 @@ void zapp_reporting_add_breadcrumb(const char* category, const char* message);
 void zapp_reporting_set_tag(const char* key, const char* value);
 void zapp_reporting_set_tag(const char* key, int value);
 
+bool is_exiting();
+void set_is_exiting();
+
 #endif

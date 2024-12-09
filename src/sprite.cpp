@@ -257,6 +257,12 @@ sprite::sprite(zfix X,zfix Y,int32_t T,int32_t CS,int32_t F,int32_t Clk,int32_t 
 
 sprite::~sprite()
 {
+	// The order dtors run for globals across translation units is undefined, so to prevent
+	// possibly accessing `all_sprites` post-delete (which can happen in MSVC), do nothing here if
+	// shutting down.
+	if (is_exiting())
+		return;
+
 	#ifdef IS_PLAYER
 	all_sprites.erase(uid);
 	if(auto scrty = get_scrtype())
