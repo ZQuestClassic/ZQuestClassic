@@ -242,6 +242,60 @@ static void appendIdentifier(std::string symbol_id, const AST* symbol_node, cons
 	});
 }
 
+static std::string getSymbolId(const DataType* type)
+{
+	if (auto t = dynamic_cast<const DataTypeCustom*>(type))
+	{
+		// For tests, use an id that is more stable (but not guaranteed to be unique).
+		if (is_test())
+			return type->getName();
+
+		return fmt::format("custom.{}", t->getCustomId());
+	}
+
+	// unexpected, should have only called this with DataTypeCustom.
+	assert(false);
+	return "custom.?";
+}
+
+static std::string getSymbolId(const Datum* datum)
+{
+	// For tests, use an id that is more stable (but not guaranteed to be unique).
+	if (is_test())
+	{
+		std::string name = datum->getName().value();
+		if (datum->scope.getName())
+			return fmt::format("{}-{}", datum->scope.getName().value(), name);
+		return name;
+	}
+
+	return std::to_string(datum->id);
+}
+
+static std::string getSymbolId(const Function* fn)
+{
+	// For tests, use an id that is more stable (but not guaranteed to be unique).
+	if (is_test())
+	{
+		if (fn->getFlag(FUNCFLAG_CONSTRUCTOR))
+			return fmt::format("ctor-{}", fn->name);
+		if (fn->getFlag(FUNCFLAG_DESTRUCTOR))
+			return fmt::format("dtor-{}", fn->name);
+		if (fn->templ_bound_ts.size())
+		{
+			std::string name;
+			for (const auto& type : fn->templ_bound_ts)
+				name += type->getName() + "-";
+			name += fn->name;
+			return name;
+		}
+
+		return fn->name;
+	}
+
+	return fmt::format("fn.{}", fn->id);
+}
+
 MetadataVisitor::MetadataVisitor(Program& program, std::string root_file_name)
 	: RecursiveVisitor(program), root_file_name(root_file_name), is_enabled(false)
 {
@@ -325,7 +379,7 @@ void MetadataVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 		// TODO: this user_class branch could be removed, but it catches things like `const npc[]`
 		// (ex: auto npcs = Screen->NPCs), since in that case `custom_type->getSource()` is currently null
 		// for some reason.
-		std::string symbol_id = fmt::format("custom.{}", user_class->getType()->getUniqueCustomId());
+		std::string symbol_id = getSymbolId(user_class->getType());
 		appendIdentifier(symbol_id, user_class->getNode(), getSelectionRange(*host.list->baseType));
 	}
 	else if (host.resolvedType)
@@ -335,7 +389,7 @@ void MetadataVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 			resolvedType = &host.resolvedType->getBaseType();
 		if (auto custom_type = dynamic_cast<const DataTypeCustom*>(resolvedType); custom_type)
 		{
-			std::string symbol_id = fmt::format("custom.{}", custom_type->getUniqueCustomId());
+			std::string symbol_id = getSymbolId(custom_type);
 			appendIdentifier(symbol_id, custom_type->getSource(), getSelectionRange(*host.list->baseType));
 		}
 	}
@@ -353,7 +407,7 @@ void MetadataVisitor::caseDataEnum(ASTDataEnum& host, void* param)
 	{
 		if (auto custom_type = dynamic_cast<const DataTypeCustom*>(base_type->type.get()); custom_type)
 		{
-			std::string symbol_id = fmt::format("custom.{}", custom_type->getUniqueCustomId());
+			std::string symbol_id = getSymbolId(custom_type);
 			appendIdentifier(symbol_id, custom_type->getSource(), getSelectionRange(*custom_type->getSource()));
 		}
 	}
@@ -391,7 +445,7 @@ void MetadataVisitor::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 {
 	// TODO: create identifiers for namespace components
 	if (host.binding && !host.componentNodes.empty())
-		appendIdentifier(std::to_string(host.binding->id), host.binding->getNode(), host.componentNodes.back()->location);
+		appendIdentifier(getSymbolId(host.binding), host.binding->getNode(), host.componentNodes.back()->location);
 
 	RecursiveVisitor::caseExprIdentifier(host, param);
 }
@@ -418,10 +472,10 @@ void MetadataVisitor::caseExprCall(ASTExprCall& host, void* param)
 	if (auto expr_ident = dynamic_cast<ASTExprIdentifier*>(host.left.get()))
 	{
 		AST* symbol_node = host.binding->aliased_func ? host.binding->aliased_func->getNode() : host.binding->getNode();
-		appendIdentifier(std::to_string(host.binding->id), symbol_node, expr_ident->componentNodes.back()->location);
+		appendIdentifier(getSymbolId(host.binding), symbol_node, expr_ident->componentNodes.back()->location);
 	}
 	else if (auto expr_ident = dynamic_cast<ASTExprArrow*>(host.left.get()))
-		appendIdentifier(std::to_string(host.binding->id), host.binding->getNode(), expr_ident->right->location);
+		appendIdentifier(getSymbolId(host.binding), host.binding->getNode(), expr_ident->right->location);
 	RecursiveVisitor::caseExprCall(host, param);
 }
 

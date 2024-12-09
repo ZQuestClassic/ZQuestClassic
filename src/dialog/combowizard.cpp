@@ -2503,7 +2503,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 								local_ref.attributes[1] = val;
 							}),
 						Label(text = "Max Speed", hAlign = 1.0),
-						INFOBTN("The highest speed that can be reached"),
+						INFOBTN("The highest speed that can be reached, in pixels per frame."),
 						TextField(
 							fitParent = true, minwidth = 8_em,
 							type = GUI::TextField::type::SWAP_ZSINT,

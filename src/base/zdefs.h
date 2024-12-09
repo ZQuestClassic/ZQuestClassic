@@ -165,7 +165,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_SFX              8
 #define V_FAVORITES        4
 
-#define V_COMPATRULE       71
+#define V_COMPATRULE       72
 #define V_ZINFO            4
 
 //= V_SHOPS is under V_MISC
@@ -1372,7 +1372,8 @@ struct guydata
 #define LIFTFL_DIS_SHIELD             0x00000001
 #define LIFTFL_DIS_ITEMS              0x00000002
 #define LIFTFL_DIS_SWIMMING           0x00000004
-#define NUM_LIFTFL 3
+#define LIFTFL_DROP_ON_HIT            0x00000008
+#define NUM_LIFTFL 4
 
 class refInfo
 {

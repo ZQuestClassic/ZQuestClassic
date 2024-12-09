@@ -5198,11 +5198,13 @@ void zmap::update_combo_cycling()
         //time to restart
         if((combobuf[x].aclk>=combobuf[x].speed) &&
                 (combobuf[x].tile-combobuf[x].frames>=combobuf[x].o_tile-1) &&
-                (combobuf[x].nextcombo!=0))
+                combobuf[x].can_cycle())
         {
-            newdata[i]=combobuf[x].nextcombo;
+			bool cycle_under = (combobuf[x].animflags & AF_CYCLEUNDERCOMBO);
+            newdata[i] = cycle_under ? prvscr.undercombo : combobuf[x].nextcombo;
+				
 			if(!(combobuf[x].animflags & AF_CYCLENOCSET))
-				newcset[i]=combobuf[x].nextcset;
+				newcset[i] = cycle_under ? prvscr.undercset : combobuf[x].nextcset;
             int32_t c = newdata[i];
             
             if(combobuf[c].animflags & AF_CYCLE)
@@ -5219,11 +5221,13 @@ void zmap::update_combo_cycling()
         //time to restart
         if((combobuf[x].aclk>=combobuf[x].speed) &&
                 (combobuf[x].tile-combobuf[x].frames>=combobuf[x].o_tile-1) &&
-                (combobuf[x].nextcombo!=0))
+                combobuf[x].can_cycle())
         {
-            newdata[i]=combobuf[x].nextcombo;
-            if(!(combobuf[x].animflags & AF_CYCLENOCSET))
-				newcset[i]=combobuf[x].nextcset;
+			bool cycle_under = (combobuf[x].animflags & AF_CYCLEUNDERCOMBO);
+            newdata[i] = cycle_under ? prvscr.undercombo : combobuf[x].nextcombo;
+				
+			if(!(combobuf[x].animflags & AF_CYCLENOCSET))
+				newcset[i] = cycle_under ? prvscr.undercset : combobuf[x].nextcset;
             int32_t c = newdata[i];
             
             if(combobuf[c].animflags & AF_CYCLE)
@@ -5251,11 +5255,13 @@ void zmap::update_combo_cycling()
         //time to restart
         if((cmb.aclk>=cmb.speed) &&
                 (cmb.tile-cmb.frames>=cmb.o_tile-1) &&
-                (cmb.nextcombo!=0))
+                cmb.can_cycle())
         {
-            ffc.data = cmb.nextcombo;
-            if(!(cmb.animflags & AF_CYCLENOCSET))
-				ffc.cset=cmb.nextcset;
+			bool cycle_under = (cmb.animflags & AF_CYCLEUNDERCOMBO);
+            ffc.data = cycle_under ? prvscr.undercombo : cmb.nextcombo;
+				
+			if(!(cmb.animflags & AF_CYCLENOCSET))
+				newcset[i] = cycle_under ? prvscr.undercset : cmb.nextcset;
             
             if(combobuf[ffc.data].animflags & AF_CYCLE)
             {
@@ -5284,11 +5290,13 @@ void zmap::update_combo_cycling()
                 //time to restart
                 if((combobuf[x].aclk>=combobuf[x].speed) &&
                         (combobuf[x].tile-combobuf[x].frames>=combobuf[x].o_tile-1)	&&
-                        (combobuf[x].nextcombo!=0))
+                        combobuf[x].can_cycle())
                 {
-                    newdata[i]=combobuf[x].nextcombo;
-                    if(!(combobuf[x].animflags & AF_CYCLENOCSET))
-						newcset[i]=combobuf[x].nextcset;
+					bool cycle_under = (combobuf[x].animflags & AF_CYCLEUNDERCOMBO);
+					newdata[i] = cycle_under ? prvscr.undercombo : combobuf[x].nextcombo;
+						
+					if(!(combobuf[x].animflags & AF_CYCLENOCSET))
+						newcset[i] = cycle_under ? prvscr.undercset : combobuf[x].nextcset;
                     int32_t c = newdata[i];
                     
                     if(combobuf[c].animflags & AF_CYCLE)
@@ -5305,11 +5313,13 @@ void zmap::update_combo_cycling()
                 //time to restart
                 if((combobuf[x].aclk>=combobuf[x].speed) &&
                         (combobuf[x].tile-combobuf[x].frames>=combobuf[x].o_tile-1) &&
-                        (combobuf[x].nextcombo!=0))
+                        combobuf[x].can_cycle())
                 {
-                    newdata[i]=combobuf[x].nextcombo;
-                    if(!(combobuf[x].animflags & AF_CYCLENOCSET))
-						newcset[i]=combobuf[x].nextcset;
+					bool cycle_under = (combobuf[x].animflags & AF_CYCLEUNDERCOMBO);
+					newdata[i] = cycle_under ? prvscr.undercombo : combobuf[x].nextcombo;
+						
+					if(!(combobuf[x].animflags & AF_CYCLENOCSET))
+						newcset[i] = cycle_under ? prvscr.undercset : combobuf[x].nextcset;
                     int32_t c = newdata[i];
                     
                     if(combobuf[c].animflags & AF_CYCLE)
@@ -11573,12 +11583,12 @@ int32_t writeguys(PACKFILE *f, zquestheader *Header)
 			for(int32_t q = 0; q < WPNSPR_MAX; ++q)
 			{
 				if (!p_iputw(guysbuf[i].burnsprs[q], f))
-					new_return(116 + q);
+					new_return(116);
 				if (!p_iputw(guysbuf[i].light_rads[q], f))
-					new_return(116 + WPNSPR_MAX + q);
+					new_return(117);
 			}
 			if (!p_putc(guysbuf[i].specialsfx, f))
-				new_return(126)
+				new_return(118);
 		}
 		
 		if(writecycle==0)

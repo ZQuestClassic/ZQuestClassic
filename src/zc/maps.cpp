@@ -1755,16 +1755,18 @@ void update_combo_cycling()
 		for(int32_t i=0; i<176; i++)
 		{
 			x=scr->data[i];
+			newcombo const& cmb = combobuf[x];
 			
-			if(combobuf[x].animflags & AF_FRESH) continue;
+			if(cmb.animflags & AF_FRESH) continue;
 			
 			//time to restart
-			if ((combobuf[x].aclk>=combobuf[x].speed) && combobuf[x].nextcombo!=0 && combocheck(combobuf[x]))
+			if ((cmb.aclk>=cmb.speed) && cmb.can_cycle() && combocheck(cmb))
 			{
-				newdata[i]=combobuf[x].nextcombo;
-				if(!(combobuf[x].animflags & AF_CYCLENOCSET))
-					newcset[i]=combobuf[x].nextcset;
-				int32_t c=newdata[i];
+				bool cycle_under = (cmb.animflags & AF_CYCLEUNDERCOMBO);
+				auto c = cycle_under ? tmpscr->undercombo : cmb.nextcombo;
+				newdata[i] = c;
+				if(!(cmb.animflags & AF_CYCLENOCSET))
+					newcset[i] = cycle_under ? tmpscr->undercset : cmb.nextcset;
 				
 				if(combobuf[c].animflags & AF_CYCLE)
 				{
@@ -1776,16 +1778,18 @@ void update_combo_cycling()
 		for(int32_t i=0; i<176; i++)
 		{
 			x=scr->data[i];
+			newcombo const& cmb = combobuf[x];
 			
-			if(!(combobuf[x].animflags & AF_FRESH)) continue;
+			if(!(cmb.animflags & AF_FRESH)) continue;
 			
 			//time to restart
-			if ((combobuf[x].aclk>=combobuf[x].speed) && combobuf[x].nextcombo!=0 && combocheck(combobuf[x]))
+			if ((cmb.aclk>=cmb.speed) && cmb.can_cycle() && combocheck(cmb))
 			{
-				newdata[i]=combobuf[x].nextcombo;
-				if(!(combobuf[x].animflags & AF_CYCLENOCSET))
-					newcset[i]=combobuf[x].nextcset;
-				int32_t c=newdata[i];
+				bool cycle_under = (cmb.animflags & AF_CYCLEUNDERCOMBO);
+				auto c = cycle_under ? tmpscr->undercombo : cmb.nextcombo;
+				newdata[i] = c;
+				if(!(cmb.animflags & AF_CYCLENOCSET))
+					newcset[i] = cycle_under ? tmpscr->undercset : cmb.nextcset;
 				
 				if(combobuf[c].animflags & AF_CYCLE)
 				{
@@ -1821,11 +1825,13 @@ void update_combo_cycling()
 			bool fresh = cmb.animflags & AF_FRESH;
 			
 			//time to restart
-			if ((cmb.aclk>=cmb.speed) && cmb.nextcombo!=0 && combocheck(cmb))
+			if ((cmb.aclk>=cmb.speed) && cmb.can_cycle() && combocheck(cmb))
 			{
-				zc_ffc_set(ffc, cmb.nextcombo);
+				bool cycle_under = (cmb.animflags & AF_CYCLEUNDERCOMBO);
+				auto c = cycle_under ? tmpscr->undercombo : cmb.nextcombo;
+				zc_ffc_set(ffc, c);
 				if(!(cmb.animflags & AF_CYCLENOCSET))
-					ffc.cset=cmb.nextcset;
+					ffc.cset = cycle_under ? tmpscr->undercset : cmb.nextcset;
 
 				if(combobuf[ffc.data].animflags & AF_CYCLE)
 				{
@@ -1846,16 +1852,19 @@ void update_combo_cycling()
 				for(int32_t i=0; i<176; i++)
 				{
 					x=layer_scr->data[i];
+					newcombo const& cmb = combobuf[x];
 					
-					if(combobuf[x].animflags & AF_FRESH) continue;
+					if(cmb.animflags & AF_FRESH) continue;
 					
 					//time to restart
-					if ((combobuf[x].aclk>=combobuf[x].speed) && combobuf[x].nextcombo!=0 && combocheck(combobuf[x]))
+					if ((cmb.aclk>=cmb.speed) && cmb.can_cycle() && combocheck(cmb))
 					{
-						newdata[i]=combobuf[x].nextcombo;
-						if(!(combobuf[x].animflags & AF_CYCLENOCSET))
-							newcset[i]=combobuf[x].nextcset;
-						int32_t c=newdata[i];
+						bool cycle_under = (cmb.animflags & AF_CYCLEUNDERCOMBO);
+						auto c = cycle_under ? layer_scr->undercombo : cmb.nextcombo;
+						newdata2[i] = c;
+						if(!(cmb.animflags & AF_CYCLENOCSET))
+							newcset2[i] = cycle_under ? layer_scr->undercset : cmb.nextcset;
+						else newcset2[i] = layer_scr->cset[i];
 						
 						if(combobuf[c].animflags & AF_CYCLE)
 						{
@@ -1867,17 +1876,19 @@ void update_combo_cycling()
 				for(int32_t i=0; i<176; i++)
 				{
 					x=layer_scr->data[i];
+					newcombo const& cmb = combobuf[x];
 					
-					if(!(combobuf[x].animflags & AF_FRESH)) continue;
+					if(!(cmb.animflags & AF_FRESH)) continue;
 					
 					//time to restart
-					if ((combobuf[x].aclk>=combobuf[x].speed) && combobuf[x].nextcombo!=0 && combocheck(combobuf[x]))
+					if ((cmb.aclk>=cmb.speed) && cmb.nextcombo!=0 && combocheck(cmb))
 					{
-						newdata2[i]=combobuf[x].nextcombo;
-						if(!(combobuf[x].animflags & AF_CYCLENOCSET))
-							newcset2[i]=combobuf[x].nextcset;
-						else newcset2[i]=layer_scr->cset[i];
-						int32_t c=newdata2[i];
+						bool cycle_under = (cmb.animflags & AF_CYCLEUNDERCOMBO);
+						auto c = cycle_under ? layer_scr->undercombo : cmb.nextcombo;
+						newdata2[i] = c;
+						if(!(cmb.animflags & AF_CYCLENOCSET))
+							newcset2[i] = cycle_under ? layer_scr->undercset : cmb.nextcset;
+						else newcset2[i] = layer_scr->cset[i];
 						int32_t cs=newcset2[i];
 						
 						if(combobuf[c].animflags & AF_CYCLE)
@@ -6328,13 +6339,16 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 				{
 					int32_t r = 0;
 					
-					while(combobuf[c].nextcombo != 0 && r++ < 10)
+					while(combobuf[c].can_cycle() && r++ < 10)
 					{
-						layerscreen->data[i] = combobuf[c].nextcombo;
+						newcombo const& cmb = combobuf[c];
+						bool cycle_under = (cmb.animflags & AF_CYCLEUNDERCOMBO);
+						auto cid = cycle_under ? layerscreen->undercombo : cmb.nextcombo;
+						layerscreen->data[i] = cid;
 						if(!(combobuf[c].animflags & AF_CYCLENOCSET))
-							layerscreen->cset[i] = combobuf[c].nextcset;
-						c=layerscreen->data[i];
-						cs=layerscreen->cset[i];
+							layerscreen->cset[i] = cycle_under ? layerscreen->undercset : cmb.nextcset;
+						c = layerscreen->data[i];
+						cs = layerscreen->cset[i];
 					}
 				}
 			}
@@ -6510,13 +6524,16 @@ void loadscr2(int32_t tmp,int32_t screen,int32_t)
 				{
 					int32_t r = 0;
 					
-					while(combobuf[c].nextcombo != 0 && r++ < 10)
+					while(combobuf[c].can_cycle() && r++ < 10)
 					{
-						layerscreen->data[i] = combobuf[c].nextcombo;
+						newcombo const& cmb = combobuf[c];
+						bool cycle_under = (cmb.animflags & AF_CYCLEUNDERCOMBO);
+						auto cid = cycle_under ? layerscreen->undercombo : cmb.nextcombo;
+						layerscreen->data[i] = cid;
 						if(!(combobuf[c].animflags & AF_CYCLENOCSET))
-							layerscreen->cset[i] = combobuf[c].nextcset;
-						c=layerscreen->data[i];
-						cs=layerscreen->cset[i];
+							layerscreen->cset[i] = cycle_under ? layerscreen->undercset : cmb.nextcset;
+						c = layerscreen->data[i];
+						cs = layerscreen->cset[i];
 					}
 				}
 			}
@@ -7083,13 +7100,18 @@ void toggle_switches(dword flags, bool entry, mapscr* m)
 				if(entry && (cmb.usrflags&cflag8))
 				{
 					newcombo const* tmp = &combobuf[scr->data[pos]];
-					while(tmp->nextcombo && (oldData.find(tmp->nextcombo) == oldData.end()))
+					while(tmp->can_cycle())
 					{
-						scr->data[pos] = tmp->nextcombo;
+						bool cycle_under = (tmp->animflags & AF_CYCLEUNDERCOMBO);
+						auto cid = cycle_under ? scr->undercombo : tmp->nextcombo;
+						if(oldData.find(cid) != oldData.end())
+							break;
+
+						scr->data[pos] = cid;
 						if(!(tmp->animflags & AF_CYCLENOCSET))
-							scr->cset[pos] = tmp->nextcset;
-						oldData.insert(tmp->nextcombo);
-						tmp = &combobuf[tmp->nextcombo];
+							scr->cset[pos] = cycle_under ? scr->undercset : tmp->nextcset;
+						oldData.insert(cid);
+						tmp = &combobuf[cid];
 					}
 				}
 				int32_t cmbid = scr->data[pos];
@@ -7121,13 +7143,18 @@ void toggle_switches(dword flags, bool entry, mapscr* m)
 					if(entry && (cmb.usrflags&cflag8)) //Skip cycling on screen entry
 					{
 						newcombo const* tmp = &combobuf[scr_2->data[pos]];
-						while(tmp->nextcombo && (oldData2.find(tmp->nextcombo) == oldData2.end()))
+						while(tmp->can_cycle())
 						{
-							scr_2->data[pos] = tmp->nextcombo;
+							bool cycle_under = (tmp->animflags & AF_CYCLEUNDERCOMBO);
+							auto cid = cycle_under ? scr_2->undercombo : tmp->nextcombo;
+							if(oldData2.find(cid) != oldData2.end())
+								break;
+
+							scr_2->data[pos] = cid;
 							if(!(tmp->animflags & AF_CYCLENOCSET))
-								scr_2->cset[pos] = tmp->nextcset;
-							oldData2.insert(tmp->nextcombo);
-							tmp = &combobuf[tmp->nextcombo];
+								scr_2->cset[pos] = cycle_under ? scr_2->undercset : tmp->nextcset;
+							oldData2.insert(cid);
+							tmp = &combobuf[cid];
 						}
 					}
 					int32_t cmbid2 = scr_2->data[pos];
@@ -7229,13 +7256,17 @@ void toggle_gswitches(bool* states, bool entry, mapscr* base_scr)
 					if(entry && (cmb.usrflags&cflag8))
 					{
 						newcombo const* tmp = &combobuf[scr->data[pos]];
-						while(tmp->nextcombo && (oldData.find(tmp->nextcombo) == oldData.end()))
+						while(tmp->can_cycle())
 						{
-							scr->data[pos] = tmp->nextcombo;
+							bool cycle_under = (tmp->animflags & AF_CYCLEUNDERCOMBO);
+							auto cid = cycle_under ? scr->undercombo : tmp->nextcombo;
+							if(oldData.find(cid) != oldData.end())
+								break;
+							scr->data[pos] = cid;
 							if(!(tmp->animflags & AF_CYCLENOCSET))
-								scr->cset[pos] = tmp->nextcset;
-							oldData.insert(tmp->nextcombo);
-							tmp = &combobuf[tmp->nextcombo];
+								scr->cset[pos] = cycle_under ? scr->undercset : tmp->nextcset;
+							oldData.insert(cid);
+							tmp = &combobuf[cid];
 						}
 					}
 					int32_t cmbid = scr->data[pos];
@@ -7267,13 +7298,17 @@ void toggle_gswitches(bool* states, bool entry, mapscr* base_scr)
 						if(entry && (cmb.usrflags&cflag8)) //Skip cycling on screen entry
 						{
 							newcombo const* tmp = &combobuf[scr_2->data[pos]];
-							while(tmp->nextcombo && (oldData2.find(tmp->nextcombo) == oldData2.end()))
+							while(tmp->can_cycle())
 							{
-								scr_2->data[pos] = tmp->nextcombo;
+								bool cycle_under = (tmp->animflags & AF_CYCLEUNDERCOMBO);
+								auto cid = cycle_under ? scr_2->undercombo : tmp->nextcombo;
+								if(oldData2.find(cid) != oldData2.end())
+									break;
+								scr_2->data[pos] = cid;
 								if(!(tmp->animflags & AF_CYCLENOCSET))
-									scr_2->cset[pos] = tmp->nextcset;
-								oldData2.insert(tmp->nextcombo);
-								tmp = &combobuf[tmp->nextcombo];
+									scr_2->cset[pos] = cycle_under ? scr_2->undercset : tmp->nextcset;
+								oldData2.insert(cid);
+								tmp = &combobuf[cid];
 							}
 						}
 						int32_t cmbid2 = scr_2->data[pos];

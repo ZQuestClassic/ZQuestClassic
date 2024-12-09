@@ -1961,7 +1961,7 @@ void ComboEditorDialog::loadComboType()
 				l_attribute[1] = "Deceleration";
 				h_attribute[1] = "Speed lost when not holding a direction, in pixels per frame.";
 				l_attribute[2] = "Max Speed";
-				h_attribute[2] = "The highest speed that can be reached";
+				h_attribute[2] = "The highest speed that can be reached, in pixels per frame.";
 			}
 			break;
 		}
@@ -2080,6 +2080,7 @@ void ComboEditorDialog::updateCSet()
 	if(local_comboref.animflags&AF_CYCLENOCSET)
 		cycleswatch->setCSet(CSet);
 	else cycleswatch->setCSet(local_comboref.nextcset);
+	cycleswatch->setDisabled(local_comboref.animflags & AF_CYCLEUNDERCOMBO);
 	animFrame->setCSet(CSet);
 	l_cset->setText(std::to_string(CSet));
 }
@@ -3387,8 +3388,8 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 				Label(text = "Load Level Palette", fitParent = true),
 				TextField(
 					fitParent = true, padding = 0_px,
-					type = GUI::TextField::type::NOSWAP_ZSINT,
-					swap_type = nswapLDEC,
+					type = GUI::TextField::type::SWAP_SSHORT,
+					swap_type = nswapHEX,
 					low = -1, high = 512, val = local_comboref.triglvlpalette,
 					onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 					{
@@ -3400,8 +3401,8 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 				Label(text = "Load Boss Palette", fitParent = true),
 				TextField(
 					fitParent = true, padding = 0_px,
-					type = GUI::TextField::type::NOSWAP_ZSINT,
-					swap_type = nswapLDEC,
+					type = GUI::TextField::type::SWAP_SSHORT,
+					swap_type = nswapDEC,
 					low = -1, high = 29, val = local_comboref.trigbosspalette,
 					onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 					{
@@ -3650,6 +3651,15 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							onToggleFunc = [&](bool state)
 							{
 								SETFLAG(local_comboref.animflags,AF_CYCLE,state);
+							}
+						),
+						Checkbox(
+							text = "Cycle To Screen Undercombo", hAlign = 0.0,
+							checked = local_comboref.animflags & AF_CYCLEUNDERCOMBO,
+							onToggleFunc = [&](bool state)
+							{
+								SETFLAG(local_comboref.animflags,AF_CYCLEUNDERCOMBO,state);
+								updateCSet();
 							}
 						),
 						Checkbox(
@@ -4165,6 +4175,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 	l_minmax_trig->setText((local_comboref.triggerflags[0] & (combotriggerINVERTMINMAX))
 		? maxstr : minstr);
 	refreshScript();
+	updateAnimation();
 	updateWarnings();
 #if DEVLEVEL > 0
 	if(force_wizard)

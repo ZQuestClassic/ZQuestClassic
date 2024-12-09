@@ -5071,8 +5071,15 @@ void draw_sqr_btn(size_and_pos const& sqr, int icon, int flags, FONT* f = nullpt
 void drawpanel()
 {
 	mapscr *scr=Map.CurrScr();
-	int32_t NextCombo=combobuf[Combo].nextcombo;
-	int32_t NextCSet=(combobuf[Combo].animflags & AF_CYCLENOCSET) ? CSet : combobuf[Combo].nextcset;
+	int32_t NextCombo = combobuf[Combo].nextcombo;
+	int32_t NextCSet = combobuf[Combo].nextcset;
+	if(combobuf[Combo].animflags & AF_CYCLEUNDERCOMBO)
+	{
+		NextCombo = scr->undercombo;
+		NextCSet = scr->undercset;
+	}
+	if(combobuf[Combo].animflags & AF_CYCLENOCSET)
+		NextCSet = CSet;
 	
 	FONT* tfont = font;
 	if(prv_mode)
@@ -6465,8 +6472,16 @@ void draw_screenunit(int32_t unit, int32_t flags)
 			// Cycle
 			if(!is_compact)
 			{
-				int32_t NextCombo=combobuf[Combo].nextcombo;
-				int32_t NextCSet=(combobuf[Combo].animflags & AF_CYCLENOCSET) ? CSet : combobuf[Combo].nextcset;
+				int32_t NextCombo = combobuf[Combo].nextcombo;
+				int32_t NextCSet = combobuf[Combo].nextcset;
+				if(combobuf[Combo].animflags & AF_CYCLEUNDERCOMBO)
+				{
+					mapscr* scr = Map.CurrScr();
+					NextCombo = scr->undercombo;
+					NextCSet = scr->undercset;
+				}
+				if(combobuf[Combo].animflags & AF_CYCLENOCSET)
+					NextCSet = CSet;
 				bool normal_dm = draw_mode != dm_alias && draw_mode != dm_cpool && draw_mode != dm_auto;
 				jwin_draw_frame(menu1,combo_preview2.x-2,combo_preview2.y-2,combo_preview2.w+4,combo_preview2.h+4, FR_DEEP);
 				if(NextCombo>0 && normal_dm)
@@ -9781,7 +9796,7 @@ void domouse()
 	{
 		int32_t test_list=0;
 		
-		for(test_list=0; test_list<3; ++test_list)
+		for(test_list=0; test_list<num_combo_cols; ++test_list)
 		{
 			if((x>=combolist[test_list].x) && (x<combolist[test_list].x+(combolist[test_list].xscale*combolist[test_list].w)))
 			{
@@ -9789,7 +9804,7 @@ void domouse()
 			}
 		}
 		
-		if(test_list<3)
+		if(test_list<num_combo_cols)
 		{
 			if(y>=combolist[test_list].y-mouse_scroll_h && y<=combolist[test_list].y && First[test_list])
 			{
@@ -24944,6 +24959,7 @@ END_OF_MAIN()
 
 void zq_exit(int code)
 {
+	set_is_exiting();
 	parser_console.kill();
 	killConsole();
 	

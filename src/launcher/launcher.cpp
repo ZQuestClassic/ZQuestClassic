@@ -83,6 +83,7 @@ int32_t main(int32_t argc, char* argv[])
 		bool success = run_and_get_output(ZUPDATER_FILE, {"-headless", "-cache"}, output);
 		success &= output.find("Success!") != std::string::npos;
 		printf("%s\n", output.c_str());
+		set_is_exiting();
 		allegro_exit();
 		exit(success ? 0 : 1);
 	}
@@ -176,6 +177,7 @@ int32_t main(int32_t argc, char* argv[])
 	Z_message("Exiting launcher...\n");
 	
 	flush_config_file();
+	set_is_exiting();
 	allegro_exit();
 	return 0;
 }

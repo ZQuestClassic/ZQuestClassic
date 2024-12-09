@@ -705,10 +705,8 @@ bool movingblock::animate(int32_t)
 				});
 			}
 			
-			if(!(trigger && !(no_trig_replace && trig_is_layer)) && !bhole)
-			{
+			if(get_qr(qr_BROKEN_PUSHBLOCK_FLAG_CLONING) && !(trigger && !(no_trig_replace && trig_is_layer)) && !bhole)
 				m->sflag[combopos]=oldflag;
-			}
 			
 			//triggers a secret
 			if(didtrigger)
@@ -920,7 +918,8 @@ bool movingblock::animate(int32_t)
 				}
 			}
 			
-			if(oldflag>=mfPUSHUDINS && !(trigger && !(no_trig_replace && trig_is_layer))
+			if(oldflag>=mfPUSHUDINS && (oldflag < mfPUSHRINS || get_qr(qr_BROKEN_PUSHBLOCK_FLAG_CLONING))
+				&& !(trigger && !(no_trig_replace && trig_is_layer))
 				&& !bhole)
 			{
 				m->sflag[combopos]=oldflag;
