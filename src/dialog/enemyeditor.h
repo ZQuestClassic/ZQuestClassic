@@ -33,6 +33,7 @@ private:
 	EnemyEditorDialog(int32_t index);
 
 	void refreshScript();
+	void loadAttributes();
 	void loadEnemyType();
 	void updateWarnings();
 	void apply_enemy();
