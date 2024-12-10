@@ -433,6 +433,7 @@ void EnemyEditorDialog::loadAttributes()
 		ddl_attributes[0]->setOnSelectFunc([&](int32_t val) //summoning
 			{
 				local_guyref.attributes[0] = val;
+				tf_attributes[0]->setVal(val);
 				switch (val)
 				{
 				case e1tSUMMON:
@@ -453,6 +454,7 @@ void EnemyEditorDialog::loadAttributes()
 		ddl_attributes[1]->setOnSelectFunc([&](int32_t val) //deatheffect
 			{
 				local_guyref.attributes[1] = val;
+				tf_attributes[1]->setVal(val);
 				if (local_guyref.attributes[0] == e1tSUMMON)
 				{
 					return;
@@ -488,6 +490,7 @@ void EnemyEditorDialog::loadAttributes()
 		ddl_attributes[6]->setOnSelectFunc([&](int32_t val) //toucheffect
 			{
 				local_guyref.attributes[6] = val;
+				tf_attributes[6]->setVal(val);
 				switch (val)
 				{
 				default:
@@ -524,6 +527,7 @@ void EnemyEditorDialog::loadAttributes()
 			});
 		ddl_attributes[8]->setOnSelectFunc([&](int32_t val) { //movestyle
 			local_guyref.attributes[8] = val;
+			tf_attributes[8]->setVal(val);
 			switch (val)
 			{
 			default:
@@ -1362,7 +1366,8 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 				onValChangedFunc = [&, q](GUI::TextField::type, std::string_view, int32_t val)
 				{
 					local_guyref.attributes[q] = val;
-					loadAttributes();
+					ddl_attributes[q]->setSelectedValue(val);
+					loadAttributes(); //shouldn't be need but just in case
 				}),
 			ddl_attributes[q] = DropDownList(
 				width = 300_px,
@@ -1373,6 +1378,8 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 				onSelectFunc = [&, q](int32_t val)
 				{
 					local_guyref.attributes[q] = val;
+					tf_attributes[q]->setVal(val);
+					loadAttributes();
 				})
 		));
 	}
