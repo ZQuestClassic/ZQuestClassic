@@ -11503,8 +11503,12 @@ void eStalfos::vire_hop()
 		return;
 		
 	int32_t jump_width = (dmisc9==e9tPOLSVOICE) ? 2 : 1;
-	int32_t jump_height = (dmisc9==e9tPOLSVOICE) ? 27 : 16;
-	
+	int32_t jump_height;
+
+	if ((dmisc10 <= 0))
+		jump_height = (dmisc9 == e9tPOLSVOICE) ? 27 : 16;
+	else jump_height = dmisc10;
+
 	y=floor_y;
 	
 	if(clk3<=0)
