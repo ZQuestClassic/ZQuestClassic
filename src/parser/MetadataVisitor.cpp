@@ -265,7 +265,7 @@ static std::string getSymbolId(const Datum* datum)
 	{
 		std::string name = datum->getName().value();
 		if (datum->scope.getName())
-			return fmt::format("{}-{}", datum->scope.getName().value(), name);
+			return fmt::format("{}-{}", fs::path(datum->scope.getName().value()).filename().string(), name);
 		return name;
 	}
 
