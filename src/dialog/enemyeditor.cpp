@@ -1985,7 +1985,6 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 			)
 		)
 	);
-	loadEnemyType();
 	refreshScript();
 	updateWarnings();
 	return window;
