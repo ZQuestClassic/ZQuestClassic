@@ -81,7 +81,6 @@ void addLwpnEx(int32_t x,int32_t y,int32_t z,int32_t id,int32_t type,int32_t pow
 bool is_hitflickerframe_hero();
 bool is_hitflickerframe();
 void ALLOFF(bool messagesToo = true, bool decorationsToo = true, bool force = false);
-void centerHero();
 zfix  HeroX();
 zfix  HeroY();
 zfix  HeroZ();

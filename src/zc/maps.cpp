@@ -60,7 +60,8 @@ static int current_region_screen_count;
 static std::pair<const rpos_handle_t*, int> current_region_rpos_handles_scr[136];
 
 viewport_t viewport;
-int viewport_sprite_uid;
+bool freeze_viewport_update;
+static int viewport_sprite_uid;
 ViewportMode viewport_mode;
 int world_w, world_h;
 int region_scr_dx, region_scr_dy;
@@ -70,6 +71,14 @@ int region_num_rpos;
 int scrolling_maze_scr, scrolling_maze_state;
 int scrolling_maze_mode = 0;
 region current_region, scrolling_region;
+
+void maps_init_game_vars()
+{
+	viewport = {};
+	viewport_mode = ViewportMode::CenterAndBound;
+	viewport_sprite_uid = 1;
+	freeze_viewport_update = false;
+}
 
 static std::array<int, MAPSCRSNORMAL> current_region_ids;
 
@@ -326,7 +335,7 @@ std::vector<mapscr*> z3_take_temporary_scrs()
 	return screens;
 }
 
-void z3_calculate_viewport(int dmap, int screen, int world_w, int world_h, int sprite_x, int spirte_y, int sprite_height, viewport_t& viewport)
+void z3_calculate_viewport(viewport_t& viewport, int dmap, int screen, int world_w, int world_h, int x, int y)
 {
 	bool extended_height_mode = (DMaps[dmap].flags & dmfEXTENDEDVIEWPORT) && world_h > 176;
 	viewport.w = 256;
@@ -345,17 +354,17 @@ void z3_calculate_viewport(int dmap, int screen, int world_w, int world_h, int s
 	else if (viewport_mode == ViewportMode::CenterAndBound)
 	{
 		// Clamp the viewport to the edges of the region.
-		viewport.x = CLAMP(0, world_w - viewport.w, sprite_x - viewport.w/2);
-		viewport.y = CLAMP(0, world_h - viewport.h, spirte_y - viewport.h/2 + viewport.centering_y_offset + sprite_height);
+		viewport.x = CLAMP(0, world_w - viewport.w, x - viewport.w/2);
+		viewport.y = CLAMP(0, world_h - viewport.h, y - viewport.h/2 + viewport.centering_y_offset);
 	}
 	else if (viewport_mode == ViewportMode::Center)
 	{
-		viewport.x = sprite_x - viewport.w/2;
-		viewport.y = spirte_y - viewport.h/2 + viewport.centering_y_offset + sprite_height;
+		viewport.x = x - viewport.w/2;
+		viewport.y = y - viewport.h/2 + viewport.centering_y_offset;
 	}
 }
 
-void z3_update_viewport()
+sprite* z3_get_viewport_sprite()
 {
 	sprite* spr = sprite::getByUID(viewport_sprite_uid);
 	if (!spr)
@@ -364,13 +373,26 @@ void z3_update_viewport()
 		spr = &Hero;
 	}
 
-	z3_calculate_viewport(currdmap, cur_screen, world_w, world_h, spr->x, spr->y, spr->yofs*16, viewport);
+	return spr;
 }
 
-void playLevelMusic();
+void z3_set_viewport_sprite(sprite* spr)
+{
+	viewport_sprite_uid = spr->uid;
+}
+
+void z3_update_viewport()
+{
+	sprite* spr = z3_get_viewport_sprite();
+	int x = spr->x + spr->txsz*16/2;
+	int y = spr->y + spr->tysz*16/2;
+	z3_calculate_viewport(viewport, currdmap, cur_screen, world_w, world_h, x, y);
+}
 
 void z3_update_heroscr()
 {
+	void playLevelMusic();
+
 	int x = vbound(Hero.getX().getInt(), 0, world_w - 1);
 	int y = vbound(Hero.getY().getInt(), 0, world_h - 1);
 	int dx = x / 256;
@@ -3186,6 +3208,66 @@ bool trigger_secrets_if_flag(int32_t x, int32_t y, int32_t flag, bool setflag)
 	if (setflag && canPermSecret(currdmap, screen))
 		if(!(scr->flags5&fTEMPSECRETS))
 			setmapflag(scr, mSECRET);
+	
+	// TODO z3 ! prob just delete this?
+	// auto [rx, ry] = translate_screen_coordinates_to_world(screen, scr->itemx, scr->itemy);
+
+	// viewport_t initial_viewport = viewport;
+	// viewport_t final_viewport = viewport;
+	// z3_calculate_viewport(final_viewport, currdmap, cur_screen, world_w, world_h, rx, ry);
+	// freeze_viewport_update = true;
+
+	// int speed = 2;
+	// int x_rem = std::abs(final_viewport.x - viewport.x);
+	// int y_rem = std::abs(final_viewport.y - viewport.y);
+	// int dx = sign2(final_viewport.x - viewport.x);
+	// int dy = sign2(final_viewport.y - viewport.y);
+	// while (x_rem || y_rem)
+	// {
+	// 	if (Quit)
+	// 		break;
+
+	// 	int x_change = std::min(speed, x_rem);
+	// 	int y_change = std::min(speed, y_rem);
+	// 	x_rem -= x_change;
+	// 	y_rem -= y_change;
+	// 	viewport.x += x_change * dx;
+	// 	viewport.y += y_change * dy;
+
+	// 	draw_screen();
+	// 	advanceframe(true);
+	// }
+
+	// for (int i = 0; i < 60; i++)
+	// {
+	// 	if (Quit)
+	// 		break;
+
+	// 	draw_screen();
+	// 	advanceframe(true);
+	// }
+
+	// x_rem = std::abs(initial_viewport.x - viewport.x);
+	// y_rem = std::abs(initial_viewport.y - viewport.y);
+	// dx = sign2(initial_viewport.x - viewport.x);
+	// dy = sign2(initial_viewport.y - viewport.y);
+	// while (x_rem || y_rem)
+	// {
+	// 	if (Quit)
+	// 		break;
+
+	// 	int x_change = std::min(speed, x_rem);
+	// 	int y_change = std::min(speed, y_rem);
+	// 	x_rem -= x_change;
+	// 	y_rem -= y_change;
+	// 	viewport.x += x_change * dx;
+	// 	viewport.y += y_change * dy;
+
+	// 	draw_screen();
+	// 	advanceframe(true);
+	// }
+
+	// freeze_viewport_update = false;
 
 	return true;
 }
@@ -4476,7 +4558,7 @@ static void putscrdoors(const nearby_screens_t& nearby_screens, BITMAP *dest, in
 
 void draw_screen(bool showhero, bool runGeneric)
 {
-	if (!screenscrolling && !HeroInWhistleWarp())
+	if (!freeze_viewport_update && !screenscrolling && !HeroInWhistleWarp())
 		z3_update_viewport();
 
 	mapscr* this_screen = tmpscr;

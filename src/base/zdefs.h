@@ -2315,7 +2315,7 @@ void enter_sys_pal();
 void exit_sys_pal();
 
 extern viewport_t viewport;
-extern int viewport_sprite_uid;
+extern bool freeze_viewport_update;
 
 enum {nswapDEC, nswapHEX, nswapLDEC, nswapLHEX, nswapBOOL, nswapMAX};
 

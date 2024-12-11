@@ -6454,6 +6454,12 @@ int32_t get_register(int32_t arg)
 		///----------------------------------------------------------------------------------------------------//
 		//Viewport
 
+		case VIEWPORT_TARGET:
+		{
+			ret = z3_get_viewport_sprite()->uid;
+		}
+		break;
+
 		case VIEWPORT_MODE:
 		{
 			ret = (int)viewport_mode;
@@ -17080,6 +17086,19 @@ void set_register(int32_t arg, int32_t value)
 
 	///----------------------------------------------------------------------------------------------------//
 	//Viewport
+
+	case VIEWPORT_TARGET:
+	{
+		sprite* s = sprite::getByUID(value);
+		if (!s)
+		{
+			Z_scripterrlog("Invalid pointer for UID %ld (setting '%s').\n", value, "Viewport->Target");
+			return;
+		}
+
+		z3_set_viewport_sprite(s);
+	}
+	break;
 
 	case VIEWPORT_MODE:
 	{

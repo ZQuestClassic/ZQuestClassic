@@ -34,14 +34,14 @@ static sprite* get_sprite(int uid, const char* context)
 {
 	if (!uid)
 	{
-		Z_scripterrlog("The pointer is NULL or uninitialised (reading 'sprite->%s').\n", context);
+		Z_scripterrlog("The pointer is NULL or uninitialised (sprite->%s).\n", context);
 		return nullptr;
 	}
 
 	sprite* s = sprite::getByUID(uid);
 	if (!s)
 	{
-		Z_scripterrlog("Invalid pointer for UID %ld (reading 'sprite->%s').\n", uid, context);
+		Z_scripterrlog("Invalid pointer for UID %ld (sprite->%s).\n", uid, context);
 		return nullptr;
 	}
 

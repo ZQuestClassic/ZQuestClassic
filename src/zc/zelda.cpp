@@ -1121,11 +1121,6 @@ void ALLOFF(bool messagesToo, bool decorationsToo, bool force)
         usebombpal=false;
     }
 }
-void centerHero()
-{
-    Hero.setX(120);
-    Hero.setY(80);
-}
 zfix  HeroX()
 {
     return Hero.getX();
@@ -1668,8 +1663,7 @@ void init_game_vars(bool is_cont_game = false)
 	show_subscreen_numbers=true;
 	show_subscreen_life=true;
 	msgscr=nullptr;
-	viewport = {};
-	viewport_sprite_uid = 0;
+	maps_init_game_vars();
 	for(int32_t x = 0; x < MAXITEMS; x++)
 	{
 		lens_hint_item[x][0]=0;
@@ -3183,7 +3177,7 @@ void game_loop()
 		runDrunkRNG();
 		clear_darkroom_bitmaps();
 		Hero.check_platform_ffc();
-		if (!HeroInWhistleWarp())
+		if (!freeze_viewport_update && !HeroInWhistleWarp())
 			z3_update_viewport();
 		
 		// Three kinds of freezes: freeze, freezemsg, freezeff

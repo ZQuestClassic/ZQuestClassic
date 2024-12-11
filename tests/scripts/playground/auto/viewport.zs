@@ -16,7 +16,7 @@ lweapon script seeking_arrow
 {
 	void run()
 	{
-		Viewport->Mode = VIEW_MODE_SCRIPT;
+		Viewport->Target = this;
 
 		Input->DisableButton[CB_UP] = true;
 		Input->DisableButton[CB_DOWN] = true;
@@ -67,8 +67,6 @@ lweapon script seeking_arrow
 
 			this->Rotation = rotation + 10*Cos(time++ * 15);
 
-			Viewport->X = this->X - Viewport->Width/2;
-			Viewport->Y = this->Y + this->TileHeight*16 - Viewport->Height/2;
 			Waitframe();
 		}
 
@@ -91,8 +89,6 @@ lweapon script seeking_arrow
 		Input->DisableButton[CB_DOWN] = false;
 		Input->DisableButton[CB_LEFT] = false;
 		Input->DisableButton[CB_RIGHT] = false;
-
-		Viewport->Mode = VIEW_MODE_CENTER_AND_BOUND;
 
 		this->Remove();
 	}

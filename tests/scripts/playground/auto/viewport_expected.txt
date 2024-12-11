@@ -8,7 +8,6 @@ Pass 4: Analyzing Code
 Pass 5: Checking code paths
 Pass 6: Generating object code
 Pass 7: Assembling
-Debug: could not resolve symbol "fcc"
 Success!
 Compile finished with exit code '0' (success)
 
@@ -20,7 +19,7 @@ stdout:
   "metadata": {
     "currentFileSymbols": 22,
     "symbols": 86,
-    "identifiers": 259,
+    "identifiers": 244,
     "elided": true
   }
 }
@@ -104,10 +103,10 @@ GAMEEXIT; InlineFunc[void Game::Exit()] Body AND [Opt:NeverRet] AND Func[void En
 PUSHR REFLWPN; void run() Body Start
 PUSHARGSV 0 0.0004
 SETR D4 SP2
-SETV D2 0.0002
+LOAD D2 0.0004
 PUSHR D2
 POP D2
-SETR VIEWPORT_MODE D2
+SETR VIEWPORT_TARGET D2
 SETV D2 1
 PUSHR D2
 SETV D2 0
@@ -146,7 +145,7 @@ SETR D2 LWPNDEAD
 COMPAREV D2 0
 SETCMP D2 I!=
 COMPAREV D2 0
-GOTOCMP 228 ==; Test 'while'
+GOTOCMP 194 ==; Test 'while'
 LOAD D2 0.0002; if() #420 Test AND while() #3 Body Start
 MODV D2 60
 COMPAREV D2 0
@@ -258,7 +257,7 @@ COMPAREV D2 0
 GOTOCMP 159 ==; Test 'if'
 SETV D2 1; if() #425 Body Start
 STORE D2 0.0001
-GOTO 228; break 1; AND if() #425 Body End
+GOTO 194; break 1; AND if() #425 Body End
 LOAD D2 0.0003
 PUSHR D2
 LOAD D2 0.0002; InlineFunc[int Cos(int)] Params Start
@@ -292,45 +291,11 @@ PUSHR D3
 POP D2
 POP REFSPRITE
 SETR SPRITE_ROTATION D2
-LOAD D2 0.0004
-PUSHR D2
-POP REFSPRITE
-SETR D2 SPRITE_X
-PUSHR D2
-SETR D2 VIEWPORT_WIDTH
-DIVV D2 2
-POP D3
-SUBR D3 D2
-SETR D2 D3
-PUSHR D2
-POP D2
-SETR VIEWPORT_X D2
-LOAD D2 0.0004
-PUSHR D2
-POP REFSPRITE
-SETR D2 SPRITE_Y
-PUSHR D2
-LOAD D2 0.0004
-PUSHR D2
-POP REFSPRITE
-SETR D2 SPRITE_TILE_H
-MULTV D2 16
-POP D3
-ADDR D2 D3
-PUSHR D2
-SETR D2 VIEWPORT_HEIGHT
-DIVV D2 2
-POP D3
-SUBR D3 D2
-SETR D2 D3
-PUSHR D2
-POP D2
-SETR VIEWPORT_Y D2
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #3 Body End
 GOTO 39; while() #3 End
 LOAD D2 0.0001; if() #426 Test
 COMPAREV D2 0
-GOTOCMP 290 ==; Test 'if'
+GOTOCMP 256 ==; Test 'if'
 SETV D2 4; InlineFunc[lweapon screendata::CreateLWeapon(int)] Params AND if() #426 Body Start
 CREATELWEAPONR D2; InlineFunc[lweapon screendata::CreateLWeapon(int)] Body Start
 SETR D2 REFLWPN; InlineFunc[lweapon screendata::CreateLWeapon(int)] Body End
@@ -418,10 +383,6 @@ PUSHR D2
 POP D0
 POP D2
 SETR DISABLEBUTTON D2
-SETV D2 0
-PUSHR D2
-POP D2
-SETR VIEWPORT_MODE D2
 LOAD D2 0.0004; InlineFunc[void lweapon::Remove()] Params Start
 SETR REFLWPN D2; InlineFunc[void lweapon::Remove()] Params End
 LWPNDEL; InlineFunc[void lweapon::Remove()] Body
