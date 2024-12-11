@@ -14,13 +14,15 @@ class Viewport {
 	// @delete
 	internal Viewport();
 
+	// Defaults to [VIEW_MODE_CENTER_AND_BOUND], and is reset when the screen changes.
+	//
 	// @zasm_var VIEWPORT_MODE
 	internal ViewportMode Mode;
 
 	// The sprite that the viewport is centered around. If this sprite no longer exists,
 	// this will be reset to the [Hero] sprite.
 	//
-	// Defaults to [Hero].
+	// Defaults to [Hero], and is reset when the screen changes.
 	//
 	// @zasm_var VIEWPORT_TARGET
 	internal sprite Target;

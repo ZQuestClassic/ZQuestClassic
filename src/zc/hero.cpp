@@ -27089,7 +27089,7 @@ void HeroClass::walkdown(bool opening) //entering cave
     Ewpns.clear();
     items.clear();
     
-	viewport.centering_y_offset = 0;
+	freeze_viewport_update = true;
     for(int32_t i=0; i<64; i++)
     {
         herostep();
@@ -27100,7 +27100,6 @@ void HeroClass::walkdown(bool opening) //entering cave
         if((i&3)==3)
 		{
             ++y;
-			--viewport.centering_y_offset;
 		}
 
         draw_screen();
@@ -27109,7 +27108,7 @@ void HeroClass::walkdown(bool opening) //entering cave
         if(Quit)
             break;
     }
-	viewport.centering_y_offset = 0;
+	freeze_viewport_update = false;
     
     action=none; FFCore.setHeroAction(none);
 }
@@ -27151,7 +27150,7 @@ void HeroClass::walkdown2(bool opening) //exiting cave 2
     Ewpns.clear();
     items.clear();
     
-	viewport.centering_y_offset = 16;
+	freeze_viewport_update = true;
     for(int32_t i=0; i<64; i++)
     {
         herostep();
@@ -27162,7 +27161,6 @@ void HeroClass::walkdown2(bool opening) //exiting cave 2
         if((i&3)==3)
 		{
             ++y;
-			--viewport.centering_y_offset;
 		}
             
         draw_screen();
@@ -27171,7 +27169,7 @@ void HeroClass::walkdown2(bool opening) //exiting cave 2
         if(Quit)
             break;
     }
-	viewport.centering_y_offset = 0;
+	freeze_viewport_update = false;
     
 	
     action=none; FFCore.setHeroAction(none);
@@ -27210,8 +27208,8 @@ void HeroClass::walkup(bool opening) //exiting cave
     Lwpns.clear();
     Ewpns.clear();
     items.clear();
-    
-	viewport.centering_y_offset = -16;
+
+	freeze_viewport_update = true;
     for(int32_t i=0; i<64; i++)
     {
         herostep();
@@ -27222,7 +27220,6 @@ void HeroClass::walkup(bool opening) //exiting cave
         if((i&3)==0)
 		{
             --y;
-			++viewport.centering_y_offset;
 		}
             
         draw_screen();
@@ -27231,7 +27228,8 @@ void HeroClass::walkup(bool opening) //exiting cave
         if(Quit)
             break;
     }
-	viewport.centering_y_offset = 0;
+
+	freeze_viewport_update = false;
     map_bkgsfx(true);
     loadside=dir^1;
     action=none; FFCore.setHeroAction(none);
@@ -28486,6 +28484,13 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 					break;
 			}
 		}
+	}
+
+	if (viewport_mode != ViewportMode::CenterAndBound || z3_get_viewport_sprite() != &Hero)
+	{
+		z3_set_viewport_sprite(&Hero);
+		viewport_mode = ViewportMode::CenterAndBound;
+		z3_update_viewport();
 	}
 
 	bool overlay = false;

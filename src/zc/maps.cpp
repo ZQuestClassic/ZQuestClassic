@@ -337,6 +337,8 @@ std::vector<mapscr*> z3_take_temporary_scrs()
 
 void z3_calculate_viewport(viewport_t& viewport, int dmap, int screen, int world_w, int world_h, int x, int y)
 {
+	// TODO: In future, maybe add x/y centering offsets to zscript (Viewport->TargetXOffset/Viewport->TargetYOffset).
+
 	bool extended_height_mode = (DMaps[dmap].flags & dmfEXTENDEDVIEWPORT) && world_h > 176;
 	viewport.w = 256;
 	// Note: the viewport height does not take into account that the bottom 8 pixels are not visible, for historical reasons.
@@ -355,12 +357,12 @@ void z3_calculate_viewport(viewport_t& viewport, int dmap, int screen, int world
 	{
 		// Clamp the viewport to the edges of the region.
 		viewport.x = CLAMP(0, world_w - viewport.w, x - viewport.w/2);
-		viewport.y = CLAMP(0, world_h - viewport.h, y - viewport.h/2 + viewport.centering_y_offset);
+		viewport.y = CLAMP(0, world_h - viewport.h, y - viewport.h/2);
 	}
 	else if (viewport_mode == ViewportMode::Center)
 	{
 		viewport.x = x - viewport.w/2;
-		viewport.y = y - viewport.h/2 + viewport.centering_y_offset;
+		viewport.y = y - viewport.h/2;
 	}
 }
 
@@ -3208,66 +3210,6 @@ bool trigger_secrets_if_flag(int32_t x, int32_t y, int32_t flag, bool setflag)
 	if (setflag && canPermSecret(currdmap, screen))
 		if(!(scr->flags5&fTEMPSECRETS))
 			setmapflag(scr, mSECRET);
-	
-	// TODO z3 ! prob just delete this?
-	// auto [rx, ry] = translate_screen_coordinates_to_world(screen, scr->itemx, scr->itemy);
-
-	// viewport_t initial_viewport = viewport;
-	// viewport_t final_viewport = viewport;
-	// z3_calculate_viewport(final_viewport, currdmap, cur_screen, world_w, world_h, rx, ry);
-	// freeze_viewport_update = true;
-
-	// int speed = 2;
-	// int x_rem = std::abs(final_viewport.x - viewport.x);
-	// int y_rem = std::abs(final_viewport.y - viewport.y);
-	// int dx = sign2(final_viewport.x - viewport.x);
-	// int dy = sign2(final_viewport.y - viewport.y);
-	// while (x_rem || y_rem)
-	// {
-	// 	if (Quit)
-	// 		break;
-
-	// 	int x_change = std::min(speed, x_rem);
-	// 	int y_change = std::min(speed, y_rem);
-	// 	x_rem -= x_change;
-	// 	y_rem -= y_change;
-	// 	viewport.x += x_change * dx;
-	// 	viewport.y += y_change * dy;
-
-	// 	draw_screen();
-	// 	advanceframe(true);
-	// }
-
-	// for (int i = 0; i < 60; i++)
-	// {
-	// 	if (Quit)
-	// 		break;
-
-	// 	draw_screen();
-	// 	advanceframe(true);
-	// }
-
-	// x_rem = std::abs(initial_viewport.x - viewport.x);
-	// y_rem = std::abs(initial_viewport.y - viewport.y);
-	// dx = sign2(initial_viewport.x - viewport.x);
-	// dy = sign2(initial_viewport.y - viewport.y);
-	// while (x_rem || y_rem)
-	// {
-	// 	if (Quit)
-	// 		break;
-
-	// 	int x_change = std::min(speed, x_rem);
-	// 	int y_change = std::min(speed, y_rem);
-	// 	x_rem -= x_change;
-	// 	y_rem -= y_change;
-	// 	viewport.x += x_change * dx;
-	// 	viewport.y += y_change * dy;
-
-	// 	draw_screen();
-	// 	advanceframe(true);
-	// }
-
-	// freeze_viewport_update = false;
 
 	return true;
 }
