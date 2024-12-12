@@ -17,7 +17,6 @@ struct screen_handle_t
 {
 	mapscr* base_scr;
 	mapscr* scr;
-	int32_t map;
 	int32_t screen;
 	// 0 = base screen, 1 = layer 1, etc. Up to 6.
 	int32_t layer;

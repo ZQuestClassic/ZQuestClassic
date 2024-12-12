@@ -28276,13 +28276,13 @@ static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector
 		nearby_screen.offy = offy;
 		nearby_screen.is_new = use_new_screens;
 
-		nearby_screen.screen_handles[0] = {base_scr, base_scr, map, screen, 0};
+		nearby_screen.screen_handles[0] = {base_scr, base_scr, screen, 0};
 		for (int i = 1; i < 7; i++)
 		{
 			mapscr* scr = use_new_screens ?
 				get_layer_scr(map, screen, i - 1) :
 				old_temporary_screens[screen*7 + i];
-			nearby_screen.screen_handles[i] = {base_scr, scr, map, screen, i};
+			nearby_screen.screen_handles[i] = {base_scr, scr, screen, i};
 		}
 	}
 
@@ -29360,7 +29360,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 				if (!scr)
 					continue;
 
-				auto screen_handle = screen_handle_t{scr, scr, scr->map, scr->screen, 0};
+				auto screen_handle = screen_handle_t{scr, scr, scr->screen, 0};
 				do_layer(framebuf, -3, screen_handle, 0, 0); // ffcs
 			}
 

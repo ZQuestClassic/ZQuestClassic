@@ -3875,7 +3875,7 @@ void do_layer_old(BITMAP *bmp, int32_t type, int32_t layer, mapscr* basescr, int
 	if (!layerscr)
 		return;
 
-	do_layer(bmp, type, {basescr, layerscr, currmap, cur_screen, layer}, x, y, drawprimitives);
+	do_layer(bmp, type, {basescr, layerscr, cur_screen, layer}, x, y, drawprimitives);
 }
 
 void do_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen_handle, int32_t x, int32_t y, bool drawprimitives)
@@ -4387,11 +4387,11 @@ static nearby_screens_t get_nearby_screens()
 		mapscr* base_scr = get_scr(screen);
 		auto& nearby_screen = nearby_screens.emplace_back();
 		nearby_screen.screen = cur_screen;
-		nearby_screen.screen_handles[0] = {base_scr, base_scr, currmap, screen, 0};
+		nearby_screen.screen_handles[0] = {base_scr, base_scr, screen, 0};
 		for (int i = 1; i < 7; i++)
 		{
 			mapscr* scr = get_layer_scr_valid(screen, i - 1);
-			nearby_screen.screen_handles[i] = {base_scr, scr, currmap, screen, i};
+			nearby_screen.screen_handles[i] = {base_scr, scr, screen, i};
 		}
 
 		return nearby_screens;
@@ -4428,6 +4428,7 @@ static nearby_screens_t get_nearby_screens()
 
 			auto [offx, offy] = translate_screen_coordinates_to_world(screen);
 
+			// TODO z3 ! skip these checks ?
 			// Skip processsing screen if out of viewport.
 			if (offx - viewport.x <= -256) continue;
 			if (offy - viewport.y <= -176) continue;
@@ -4438,11 +4439,11 @@ static nearby_screens_t get_nearby_screens()
 			nearby_screen.screen = screen;
 			nearby_screen.offx = offx;
 			nearby_screen.offy = offy;
-			nearby_screen.screen_handles[0] = {base_scr, base_scr, currmap, screen, 0};
+			nearby_screen.screen_handles[0] = {base_scr, base_scr, screen, 0};
 			for (int i = 1; i < 7; i++)
 			{
 				mapscr* scr = get_layer_scr_valid(screen, i - 1);
-				nearby_screen.screen_handles[i] = {base_scr, scr, currmap, screen, i};
+				nearby_screen.screen_handles[i] = {base_scr, scr, screen, i};
 			}
 		}
 	}
@@ -4461,11 +4462,11 @@ static void for_every_screen_in_region_check_viewport(const std::function <void 
 	for_every_screen_in_region([&](mapscr* base_scr, unsigned int region_scr_x, unsigned int region_scr_y) {
 		int screen = base_scr->screen;
 		std::array<screen_handle_t, 7> screen_handles;
-		screen_handles[0] = {base_scr, base_scr, currmap, screen, 0};
+		screen_handles[0] = {base_scr, base_scr, screen, 0};
 		for (int i = 1; i < 7; i++)
 		{
 			mapscr* scr = get_layer_scr_valid(screen, i - 1);
-			screen_handles[i] = {base_scr, scr, currmap, screen, i};
+			screen_handles[i] = {base_scr, scr, screen, i};
 		}
 
 		int offx = region_scr_x * 256;
