@@ -29074,7 +29074,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		old_viewport_aligned.y -= (dx ? secondary_axis_alignment_amount : 0);
 		// The playing field offset is changed before aligning, so apply the delta in this check.
 		old_viewport_aligned.y += new_playing_field_offset - old_original_playing_field_offset;
-		if (old_world_rect.contains(old_viewport_aligned))
+		if (old_world_rect.contains_or_on(old_viewport_aligned))
 			align_mode = 0;
 		else
 			align_mode = 1;

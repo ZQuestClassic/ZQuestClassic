@@ -1506,17 +1506,17 @@ bool viewport_t::intersects_with(int x, int y, int w, int h) const
 	int r = x + w;
 	int t = y;
 	int b = y + h;
-	// TODO z3 !!! shouldnt this be <  and > ?
-	return left() <= r && right() >= l && top() <= b && bottom() >= t;
+	return left() <= r && right() > l && top() <= b && bottom() > t;
 }
 
 bool viewport_t::contains_point(int x0, int y0) const
 {
-	return left() <= x0 && right() >= x0 && top() <= y0 && bottom() >= y0;
+	return left() <= x0 && right() > x0 && top() <= y0 && bottom() > y0;
 }
 
-bool viewport_t::contains(const viewport_t& other) const
+bool viewport_t::contains_or_on(const viewport_t& other) const
 {
+	// The `=` equality portions of all these conditions makes this more than just a "contains" check.
 	return other.right() <= right() && other.left() >= left() && other.top() >= top() && other.bottom() <= bottom();
 }
 
