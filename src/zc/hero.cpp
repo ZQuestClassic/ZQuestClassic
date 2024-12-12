@@ -12072,8 +12072,8 @@ bool HeroClass::startwpn(int32_t itemid)
 			if(!(misc_internal_hero_flags & LF_PAID_SWORD_COST))//If already paid to use sword melee, don't charge again
 				paymagiccost(itemid);
 			else misc_internal_hero_flags &= ~LF_PAID_SWORD_COST;
-			float temppower;
-			
+
+			int temppower;
 			if(itm.flags & item_flag2)
 			{
 				temppower=game->get_hero_dmgmult()*itm.power;
@@ -12084,13 +12084,8 @@ bool HeroClass::startwpn(int32_t itemid)
 			{
 				temppower = game->get_hero_dmgmult()*itm.misc2;
 			}
-			
-			//Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wBeam,itm.fam_type,int32_t(temppower),dir,itemid,getUID()));
-			//Add weapon script to sword beams.
+
 			Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wBeam,itm.fam_type,int32_t(temppower),dir,itemid,getUID(),false,false,true));
-			//weapon *w = (weapon*)Lwpns.spr(Lwpns.Count()-1); //the pointer to this beam
-			//w->weaponscript = itm.weaponscript;
-			//w->canrunscript = 0;
 			sfx(WAV_BEAM,pan(wx));
 		}
 		break;
