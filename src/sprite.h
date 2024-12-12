@@ -41,7 +41,8 @@ public:
     int32_t uid;
     int32_t getUID()
     {
-		registerUID();
+		if (!uid)
+			registerUID();
         return uid;
     }
 	void registerUID();
