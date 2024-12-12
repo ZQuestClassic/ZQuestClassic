@@ -246,7 +246,7 @@ void set_doorstate(uint dir);
 void set_xdoorstate(uint mi,uint dir, uint ind);
 void set_xdoorstate(uint dir, uint ind);
 
-int32_t WARPCODE(int32_t dmap,int32_t scr,int32_t dw);
+int32_t WARPCODE(int32_t dmap,int32_t screen,int32_t dw);
 void update_combo_cycling();
 bool isSVLadder(int32_t x, int32_t y);
 bool isSVPlatform(int32_t x, int32_t y);

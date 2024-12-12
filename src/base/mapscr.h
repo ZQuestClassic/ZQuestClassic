@@ -340,6 +340,7 @@ extern std::vector<mapscr> TheMaps;
 extern std::vector<word>   map_autolayers;
 extern word map_count;
 
+int map_screen_index(int map, int screen);
 const mapscr* get_canonical_scr(int map, int screen);
 int map_scr_xy_to_index(int x, int y);
 

@@ -940,7 +940,7 @@ bool trigger_warp(const combined_handle_t& handle)
 	auto tdm = wscr->tilewarpdmap[index];
 	auto tscr = wscr->tilewarpscr[index];
 	auto wrindex=(wscr->warpreturnc>>(index*2))&3;
-	int32_t ws=(DMaps[tdm].map*MAPSCRS+wscr->tilewarpscr[index]+DMaps[tdm].xoff);
+	int32_t ws = map_screen_index(DMaps[tdm].map, wscr->tilewarpscr[index] + DMaps[tdm].xoff);
 	mapscr* wscr2=&TheMaps[ws];
 	int wx = wscr2->warpreturnx[wrindex];
 	int wy = wscr2->warpreturny[wrindex];

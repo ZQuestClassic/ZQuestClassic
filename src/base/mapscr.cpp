@@ -170,9 +170,14 @@ void mapscr::ffcCountMarkDirty()
 	ffc_count_dirty = true;
 }
 
+int map_screen_index(int map, int screen)
+{
+	return map*MAPSCRS + screen;
+}
+
 const mapscr* get_canonical_scr(int map, int screen)
 {
-	return &TheMaps[map*MAPSCRS + screen];
+	return &TheMaps[map_screen_index(map, screen)];
 }
 
 int map_scr_xy_to_index(int x, int y)

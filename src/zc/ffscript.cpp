@@ -18,6 +18,7 @@
 
 #include "base/handles.h"
 #include "base/general.h"
+#include "base/mapscr.h"
 #include "base/qrs.h"
 #include "base/dmap.h"
 #include "base/msgstr.h"
@@ -24633,24 +24634,24 @@ int32_t do_msgheight(int32_t msg, char const* str)
 void do_warp(bool v)
 {
 	int32_t dmapid = SH::get_arg(sarg1, v) / 10000;
-	int32_t screenid = SH::get_arg(sarg2, v) / 10000;
+	int32_t screen = SH::get_arg(sarg2, v) / 10000;
 	if ( ((unsigned)dmapid) >= MAXDMAPS ) 
 	{
 		Z_scripterrlog("Invalid DMap ID (%d) passed to Warp(). Aborting.\n", dmapid);
 		return;
 	}
-	if ( ((unsigned)screenid) >= MAPSCRS ) 
+	if ( ((unsigned)screen) >= MAPSCRS ) 
 	{
-		Z_scripterrlog("Invalid Screen ID (%d) passed to Warp(). Aborting.\n", screenid);
+		Z_scripterrlog("Invalid Screen Index (%d) passed to Warp(). Aborting.\n", screen);
 		return;
 	}
-	if ( DMaps[dmapid].map*MAPSCRS+DMaps[dmapid].xoff+screenid >= (int32_t)TheMaps.size() )
+	if ( map_screen_index(DMaps[dmapid].map, screen + DMaps[dmapid].xoff) >= (int32_t)TheMaps.size() )
 	{
 		Z_scripterrlog("Invalid destination passed to Warp(). Aborting.\n");
 		return;
 	}
 	hero_scr->sidewarpdmap[0] = dmapid;
-	hero_scr->sidewarpscr[0]  = screenid;
+	hero_scr->sidewarpscr[0]  = screen;
 	hero_scr->sidewarptype[0] = wtIWARP;
 	if(!get_qr(qr_OLD_HERO_WARP_RETSQUARE))
 	{
@@ -24663,25 +24664,25 @@ void do_warp(bool v)
 void do_pitwarp(bool v)
 {
 	int32_t dmapid = SH::get_arg(sarg1, v) / 10000;
-	int32_t screenid = SH::get_arg(sarg2, v) / 10000;
+	int32_t screen = SH::get_arg(sarg2, v) / 10000;
 	if ( ((unsigned)dmapid) >= MAXDMAPS ) 
 	{
 		Z_scripterrlog("Invalid DMap ID (%d) passed to PitWarp(). Aborting.\n", dmapid);
 		return;
 	}
-	if ( ((unsigned)screenid) >= MAPSCRS ) 
+	if ( ((unsigned)screen) >= MAPSCRS ) 
 	{
-		Z_scripterrlog("Invalid Screen ID (%d) passed to PitWarp(). Aborting.\n", screenid);
+		Z_scripterrlog("Invalid Screen Index (%d) passed to PitWarp(). Aborting.\n", screen);
 		return;
 	}
 	//Extra sanity guard. 
-	if ( DMaps[dmapid].map*MAPSCRS+DMaps[dmapid].xoff+screenid >= (int32_t)TheMaps.size() )
+	if ( map_screen_index(DMaps[dmapid].map, screen + DMaps[dmapid].xoff) >= (int32_t)TheMaps.size() )
 	{
 		Z_scripterrlog("Invalid destination passed to Warp(). Aborting.\n");
 		return;
 	}
 	hero_scr->sidewarpdmap[0] = dmapid;
-	hero_scr->sidewarpscr[0]  = screenid;
+	hero_scr->sidewarpscr[0]  = screen;
 	hero_scr->sidewarptype[0] = wtIWARP;
 	if(!get_qr(qr_OLD_HERO_WARP_RETSQUARE))
 	{
@@ -28488,13 +28489,13 @@ void FFScript::queueWarp(int32_t wtype, int32_t tdm, int32_t tscr, int32_t wx, i
 	warpex[wexDir] = wdir;
 }
 
-bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int32_t warpDestX, int32_t warpDestY, int32_t warpEffect, int32_t warpSound, int32_t warpFlags, int32_t heroFacesDir)
+bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32_t warpDestX, int32_t warpDestY, int32_t warpEffect, int32_t warpSound, int32_t warpFlags, int32_t heroFacesDir)
 {
 	if(DEVLOGGING)
 	{
 		zprint("FFScript::warp_player() arg %s is: %d \n", "warpType", warpType);
-		zprint("FFScript::warp_player() arg %s is: %d \n", "dmapID", dmapID);
-		zprint("FFScript::warp_player() arg %s is: %d \n", "scrID", scrID);
+		zprint("FFScript::warp_player() arg %s is: %d \n", "dmap", dmap);
+		zprint("FFScript::warp_player() arg %s is: %d \n", "screen", screen);
 		zprint("FFScript::warp_player() arg %s is: %d \n", "warpDestX", warpDestX);
 		zprint("FFScript::warp_player() arg %s is: %d \n", "warpDestY", warpDestY);
 		zprint("FFScript::warp_player() arg %s is: %d \n", "warpEffect", warpEffect);
@@ -28502,18 +28503,18 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 		zprint("FFScript::warp_player() arg %s is: %d \n", "warpFlags", warpFlags);
 		zprint("FFScript::warp_player() arg %s is: %d \n", "heroFacesDir", heroFacesDir);
 	}
-	if ( ((unsigned)dmapID) >= MAXDMAPS ) 
+	if ( ((unsigned)dmap) >= MAXDMAPS ) 
 	{
-		Z_scripterrlog("Invalid DMap ID (%d) passed to WarpEx(). Aborting.\n", dmapID);
+		Z_scripterrlog("Invalid DMap ID (%d) passed to WarpEx(). Aborting.\n", dmap);
 		return false;
 	}
-	if ( ((unsigned)scrID) >= MAPSCRS ) 
+	if ( ((unsigned)screen) >= MAPSCRS ) 
 	{
-		Z_scripterrlog("Invalid Screen ID (%d) passed to WarpEx(). Aborting.\n", scrID);
+		Z_scripterrlog("Invalid Screen Index (%d) passed to WarpEx(). Aborting.\n", screen);
 		return false;
 	}
 	//Extra sanity guard. 
-	if ( DMaps[dmapID].map*MAPSCRS+DMaps[dmapID].xoff+scrID >= (int32_t)TheMaps.size() )
+	if ( map_screen_index(DMaps[dmap].map, screen + DMaps[dmap].xoff) >= (int32_t)TheMaps.size() )
 	{
 		Z_scripterrlog("Invalid destination passed to WarpEx(). Aborting.\n");
 		return false;
@@ -28521,7 +28522,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 	byte t = 0;
 	t=(cur_screen<128)?0:1;
 	bool overlay=false;
-	bool intradmap = (dmapID == currdmap);
+	bool intradmap = (dmap == currdmap);
 	int32_t olddmap = currdmap;
 	//if ( intradmap ) 
 	//{
@@ -28529,10 +28530,10 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 	//}
 
 	if ( warpType == wtNOWARP ) { Z_eventlog("Used a Cancel Warped to DMap %d: %s, screen %d", currdmap, DMaps[currdmap].name,cur_screen); return false; }
-	int32_t mapID = (DMaps[dmapID].map+1);
-	int32_t dest_dmap_xoff = DMaps[dmapID].xoff;	
+	int32_t mapID = (DMaps[dmap].map+1);
+	int32_t dest_dmap_xoff = DMaps[dmap].xoff;	
 	//mapscr *m = &TheMaps[mapID * MAPSCRS + scrID]; 
-	mapscr *m = &TheMaps[(zc_max((mapID)-1,0) * MAPSCRS + dest_dmap_xoff + scrID)];
+	mapscr *m = &TheMaps[(zc_max((mapID)-1,0) * MAPSCRS + dest_dmap_xoff + screen)];
 	if ( warpFlags&warpFlagNOSTEPFORWARD ) FFCore.temp_no_stepforward = 1;
 	int32_t wx = 0, wy = 0;
 	if ( warpDestX < 0 )
@@ -28621,18 +28622,18 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 			int32_t c = DMaps[currdmap].color;
 			bool changedlevel = false;
 			bool changeddmap = false;
-			if(currdmap != dmapID)
+			if(currdmap != dmap)
 			{
 				timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
 				changeddmap = true;
 			}
-			if(dlevel != DMaps[dmapID].level)
+			if(dlevel != DMaps[dmap].level)
 			{
 				timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
 				changedlevel = true;
 			}
-			dlevel = DMaps[dmapID].level;
-			currdmap = dmapID;
+			dlevel = DMaps[dmap].level;
+			currdmap = dmap;
 			if(changeddmap)
 			{
 				throwGenScriptEvent(GENSCR_EVENT_CHANGE_DMAP);
@@ -28643,7 +28644,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 			}
 			currmap = DMaps[currdmap].map;
 			init_dmap();
-			update_subscreens(dmapID);
+			update_subscreens(dmap);
 			
 			ringcolor(false);
 			
@@ -28652,7 +28653,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 			
 			lightingInstant(); // Also sets naturaldark
 			int prev_screen = hero_screen;
-			loadscr(currdmap, scrID + DMaps[currdmap].xoff, -1, overlay);
+			loadscr(currdmap, screen + DMaps[currdmap].xoff, -1, overlay);
 
 			// In the case where we did not call ALLOFF, preserve the "enemies have spawned"
 			// state for the new screen.
@@ -28740,18 +28741,18 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 			blackscr(30,false);
 			bool changedlevel = false;
 			bool changeddmap = false;
-			if(currdmap != dmapID)
+			if(currdmap != dmap)
 			{
 				timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
 				changeddmap = true;
 			}
-			if(dlevel != DMaps[dmapID].level)
+			if(dlevel != DMaps[dmap].level)
 			{
 				timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
 				changedlevel = true;
 			}
-			dlevel = DMaps[dmapID].level;
-			currdmap = dmapID;
+			dlevel = DMaps[dmap].level;
+			currdmap = dmap;
 			if(changeddmap)
 			{
 				throwGenScriptEvent(GENSCR_EVENT_CHANGE_DMAP);
@@ -28762,12 +28763,12 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 			}
 			currmap=DMaps[currdmap].map;
 			init_dmap();
-			update_subscreens(dmapID);
+			update_subscreens(dmap);
 			loadfullpal();
 			ringcolor(false);
 			loadlvlpal(DMaps[currdmap].color);
 			//lastentrance_dmap = currdmap;
-			loadscr(currdmap, scrID + DMaps[currdmap].xoff, -1, overlay);
+			loadscr(currdmap, screen + DMaps[currdmap].xoff, -1, overlay);
 			
 			if((hero_scr->flags&fDARK) && !get_qr(qr_NEW_DARKROOM))
 			{
@@ -28876,14 +28877,14 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 			int32_t c = DMaps[currdmap].color;
 			scrolling_dmap = currdmap;
 			scrolling_map = currmap;
-			currmap = DMaps[dmapID].map;
-			update_subscreens(dmapID);
+			currmap = DMaps[dmap].map;
+			update_subscreens(dmap);
 			
-			dlevel = DMaps[dmapID].level;
+			dlevel = DMaps[dmap].level;
 				//check if Hero has the map for the new location before updating the subscreen. ? -Z
 				//This works only in one direction, if Hero had a map, to not having one.
 				//If Hero does not have a map, and warps somewhere where he does, then the map still briefly shows. 
-			update_subscreens(dmapID);
+			update_subscreens(dmap);
 				
 			// if ( has_item(itype_map, dlevel) ) 
 			// {
@@ -28895,21 +28896,21 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 			Hero.sdir = vbound(Hero.dir,0,3);
 			
 			
-			Hero.scrollscr(Hero.sdir, scrID+DMaps[dmapID].xoff, dmapID);
+			Hero.scrollscr(Hero.sdir, screen+DMaps[dmap].xoff, dmap);
 			bool changedlevel = false;
 			bool changeddmap = false;
-			if(currdmap != dmapID)
+			if(currdmap != dmap)
 			{
 				timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
 				changeddmap = true;
 			}
-			if(dlevel != DMaps[dmapID].level)
+			if(dlevel != DMaps[dmap].level)
 			{
 				timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
 				changedlevel = true;
 			}
-			dlevel = DMaps[dmapID].level;
-			currdmap = dmapID;
+			dlevel = DMaps[dmap].level;
+			currdmap = dmap;
 			if(changeddmap)
 			{
 				throwGenScriptEvent(GENSCR_EVENT_CHANGE_DMAP);
@@ -28934,7 +28935,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 						lastentrance = DMaps[currdmap].cont + DMaps[currdmap].xoff;
 					}
 					
-					lastentrance_dmap = dmapID;
+					lastentrance_dmap = dmap;
 				}
 			}
 			
@@ -29029,16 +29030,16 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 	if ( warpType == wtEXIT )
 	{
 		game->set_continue_scrn(cur_screen);
-		game->set_continue_dmap(dmapID);
+		game->set_continue_dmap(dmap);
 		lastentrance = cur_screen;
-		lastentrance_dmap = dmapID;
+		lastentrance_dmap = dmap;
 	}
 	else
 	{
 		if ( (warpFlags&warpFlagSETENTRANCESCREEN) ) lastentrance = cur_screen;
-		if ( (warpFlags&warpFlagSETENTRANCEDMAP) ) lastentrance_dmap = dmapID;
+		if ( (warpFlags&warpFlagSETENTRANCEDMAP) ) lastentrance_dmap = dmap;
 		if ( (warpFlags&warpFlagSETCONTINUESCREEN) ) game->set_continue_scrn(cur_screen);
-		if ( (warpFlags&warpFlagSETCONTINUEDMAP) ) game->set_continue_dmap(dmapID);
+		if ( (warpFlags&warpFlagSETCONTINUEDMAP) ) game->set_continue_dmap(dmap);
 	}
 	if(hero_scr->flags4&fAUTOSAVE)
 	{
@@ -35324,17 +35325,17 @@ void FFScript::do_bmpcollision()
 
 int32_t FFScript::loadMapData()
 {
-	int32_t _map = (ri->d[rINDEX] / 10000);
-	int32_t _scr = (ri->d[rINDEX2]/10000);
-	int32_t indx = (zc_max((_map)-1,0) * MAPSCRS + _scr);
-	 if ( _map < 1 || _map > map_count )
+	int32_t map = (ri->d[rINDEX] / 10000);
+	int32_t screen = (ri->d[rINDEX2]/10000);
+	int32_t indx = (zc_max((map)-1,0) * MAPSCRS + screen);
+	 if ( map < 1 || map > map_count )
 	{
-		Z_scripterrlog("Invalid Map ID passed to Game->LoadMapData: %d\n", _map);
+		Z_scripterrlog("Invalid Map ID passed to Game->LoadMapData: %d\n", map);
 		ri->mapsref = MAX_SIGNED_32;
 	}
-	else if ( _scr < 0 || _scr > 129 ) //0x00 to 0x81 -Z
+	else if ( screen < 0 || screen > 129 ) //0x00 to 0x81 -Z
 	{
-		Z_scripterrlog("Invalid Screen ID passed to Game->LoadMapData: %d\n", _scr);
+		Z_scripterrlog("Invalid Screen Index passed to Game->LoadMapData: %d\n", screen);
 		ri->mapsref = MAX_SIGNED_32;
 	}
 	else ri->mapsref = indx;
@@ -36436,11 +36437,11 @@ void FFScript::do_warp_ex(bool v)
 			}
 			if ( ((unsigned)tmpwarp[2]) >= MAPSCRS ) 
 			{
-				Z_scripterrlog("Invalid Screen ID (%d) passed to WarpEx(). Aborting.\n", tmpwarp[2]);
+				Z_scripterrlog("Invalid Screen Index (%d) passed to WarpEx(). Aborting.\n", tmpwarp[2]);
 				return;
 			}
 			//Extra sanity guard.
-			if ( DMaps[tmpwarp[1]].map*MAPSCRS+DMaps[tmpwarp[1]].xoff+tmpwarp[2] >= (int32_t)TheMaps.size() )
+			if ( map_screen_index(DMaps[tmpwarp[1]].map, tmpwarp[2] + DMaps[tmpwarp[1]].xoff) >= (int32_t)TheMaps.size() )
 			{
 				Z_scripterrlog("Invalid destination passed to WarpEx(). Aborting.\n");
 				return;

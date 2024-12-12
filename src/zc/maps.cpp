@@ -594,7 +594,7 @@ mapscr* get_scr(int map, int screen)
 		return temporary_screens_currmap[index];
 	}
 
-	int index = map*MAPSCRS + screen;
+	int index = map_screen_index(map, screen);
 	auto it = temporary_screens.find(index);
 	if (it != temporary_screens.end()) return it->second[0];
 	load_a_screen_and_layers(currdmap, map, screen, -1);
@@ -618,7 +618,7 @@ mapscr* get_scr_no_load(int map, int screen)
 		return temporary_screens_currmap[index];
 	}
 
-	int index = map*MAPSCRS + screen;
+	int index = map_screen_index(map, screen);
 	auto it = temporary_screens.find(index);
 	if (it != temporary_screens.end()) return it->second[0];
 
@@ -644,7 +644,7 @@ mapscr* get_layer_scr(int map, int screen, int layer)
 		return temporary_screens_currmap[index+layer+1];
 	}
 
-	int index = map*MAPSCRS + screen;
+	int index = map_screen_index(map, screen);
 	auto it = temporary_screens.find(index);
 	if (it != temporary_screens.end()) return it->second[layer + 1];
 	load_a_screen_and_layers(currdmap, map, screen, -1);
@@ -1216,7 +1216,7 @@ std::optional<mapscr> load_temp_mapscr_and_apply_secrets(int32_t map, int32_t sc
 {
 	if (map < 0 || screen < 0) return std::nullopt;
 		
-	mapscr *m = &TheMaps[(map*MAPSCRS)+screen];
+	const mapscr *m = get_canonical_scr(map, screen);
     
 	if(m->valid==0) return std::nullopt;
 	
@@ -1719,16 +1719,16 @@ void set_xdoorstate(uint dir, uint ind)
 	set_xdoorstate((currmap*MAPSCRSNORMAL) + cur_screen, dir, ind);
 }
 
-int32_t WARPCODE(int32_t dmap,int32_t scr,int32_t dw)
+int32_t WARPCODE(int32_t dmap,int32_t screen,int32_t dw)
 // returns: -1 = not a warp screen
 //          0+ = warp screen code ( high byte=dmap, low byte=scr )
 {
-    mapscr *s = &TheMaps[DMaps[dmap].map*MAPSCRS+scr];
+    const mapscr *scr = get_canonical_scr(DMaps[dmap].map, screen);
     
-    if(s->room!=rWARP)
+    if(scr->room!=rWARP)
         return -1;
         
-    int32_t ring=s->catchall;
+    int32_t ring=scr->catchall;
     int32_t size=QMisc.warp[ring].size;
     
     if(size==0)
@@ -1737,7 +1737,7 @@ int32_t WARPCODE(int32_t dmap,int32_t scr,int32_t dw)
     int32_t index=-1;
     
     for(int32_t i=0; i<size; i++)
-        if(dmap==QMisc.warp[ring].dmap[i] && scr==
+        if(dmap==QMisc.warp[ring].dmap[i] && screen==
                 (QMisc.warp[ring].scr[i] + DMaps[dmap].xoff))
             index=i;
             
@@ -5753,7 +5753,7 @@ void load_a_screen_and_layers(int dmap, int map, int screen, int ldir)
 		if (map == currmap) temporary_screens_currmap[screen*7+i+1] = screens[i+1];
 	}
 
-	if (map != currmap) temporary_screens[map*MAPSCRS + screen] = screens;
+	if (map != currmap) temporary_screens[map_screen_index(map, screen)] = screens;
 
 	// Apply perm secrets, if applicable.
 	if (canPermSecret(dmap, screen))
