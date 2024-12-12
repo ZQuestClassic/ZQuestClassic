@@ -2334,7 +2334,7 @@ void sprite_list::animate()
 		bool should_freeze = freeze_guys;
 #ifndef IS_EDITOR
 		auto spr = sprites[active_iterator];
-		if (is_z3_scrolling_mode() && !freeze_rect.intersects_with(spr->x.getInt(), spr->y.getInt(), spr->hit_width, spr->hit_height))
+		if (is_z3_scrolling_mode() && !freeze_rect.intersects_with(spr->x.getInt(), spr->y.getInt(), spr->txsz*16, spr->tysz*16))
 		{
 			should_freeze = true;
 		}
