@@ -2321,42 +2321,44 @@ void sprite_list::animate()
 
 	while(active_iterator<count)
 	{
+		sprite* spr = sprites[active_iterator];
+
 		// TODO: add a higher debug mode for this. For now, just comment out as-needed for debugging.
-		// if (replay_is_active() && replay_is_debug() && dynamic_cast<enemy*>(sprites[active_iterator]) != nullptr)
+		// if (replay_is_active() && replay_is_debug() && dynamic_cast<enemy*>(spr) != nullptr)
 		// {
-		// 	enemy* as_enemy = dynamic_cast<enemy*>(sprites[active_iterator]);
+		// 	enemy* as_enemy = dynamic_cast<enemy*>(spr);
 		// 	replay_step_comment(fmt::format("enemy {} id: {} x: {} y: {} clk: {} {} {}",
 		// 		guy_string[as_enemy->id&0xFFF], as_enemy->id, as_enemy->x.getInt(), as_enemy->y.getInt(),
 		// 		as_enemy->clk, as_enemy->clk2, as_enemy->clk3)
 		// 	);
 		// }
 
-		bool should_freeze = freeze_guys;
+		bool freeze_sprite = false;
+		if (spr->canfreeze)
+		{
+			freeze_sprite = freeze_guys;
 #ifndef IS_EDITOR
-		auto spr = sprites[active_iterator];
-		if (is_z3_scrolling_mode() && !freeze_rect.intersects_with(spr->x.getInt(), spr->y.getInt(), spr->txsz*16, spr->tysz*16))
-		{
-			should_freeze = true;
-		}
+			if (is_z3_scrolling_mode())
+				freeze_sprite |= !freeze_rect.intersects_with(spr->x.getInt(), spr->y.getInt(), spr->txsz*16, spr->tysz*16);
 #endif
+		}
 
-		if(!(should_freeze && sprites[active_iterator]->canfreeze))
+		if (!freeze_sprite)
 		{
-			setCurObject(sprites[active_iterator]);
+			setCurObject(spr);
 			auto tmp_iter = active_iterator;
-			sprite* cur_sprite = sprites[active_iterator];
-			if (cur_sprite->animate(active_iterator) || delete_active_iterator)
+			if (spr->animate(active_iterator) || delete_active_iterator)
 			{
 #ifdef IS_PLAYER
-				if (replay_is_active() && dynamic_cast<enemy*>(cur_sprite) != nullptr)
+				if (replay_is_active() && dynamic_cast<enemy*>(spr) != nullptr)
 				{
-					enemy* as_enemy = dynamic_cast<enemy*>(cur_sprite);
+					enemy* as_enemy = dynamic_cast<enemy*>(spr);
 					replay_step_comment(fmt::format("enemy died {}", guy_string[as_enemy->id&0xFFF]));
 				}
 #endif
 				if (delete_active_iterator)
 				{
-					delete cur_sprite;
+					delete spr;
 					delete_active_iterator = false;
 				}
 				else
@@ -2366,7 +2368,7 @@ void sprite_list::animate()
 			}
 			else if(tmp_iter == active_iterator)
 			{
-				sprites[active_iterator]->post_animate();
+				spr->post_animate();
 			}
 			setCurObject(NULL);
 		}

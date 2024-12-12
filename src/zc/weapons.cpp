@@ -7603,7 +7603,7 @@ void weapon::draw(BITMAP *dest)
 		case wSword:
 		case wHammer:
 			if(Hero.is_hitflickerframe() ||
-					Hero.getDontDraw() || tmpscr->flags3&fINVISHERO)
+					Hero.getDontDraw() || tmpscr->flags3&fINVISHERO) // TODO z3 ! hero_scr
 				return;
 				
 		case wBeam:
