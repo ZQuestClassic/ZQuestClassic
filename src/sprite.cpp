@@ -2384,6 +2384,7 @@ void sprite_list::solid_push(solid_object* pusher)
         sprites[i]->solid_push(pusher);
 }
 
+// TODO z3 ! freeze if out of viewport ?
 void sprite_list::run_script(int32_t mode)
 {
 	active_iterator = 0;

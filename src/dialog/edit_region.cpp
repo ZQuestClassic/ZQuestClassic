@@ -261,7 +261,8 @@ bool EditRegionDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 	case message::QRS:
 	{
 		InfoDialog("Problematic QRs",
-			"Regions may not work correctly with the following compat QRs enabled\n"
+			"Compat QRs use less tested portions of the ZC engine, and so may create issues\n"
+			"when enabled while using the Regions feature.\n"
 			"You should disable as many of these as you can." + QRHINT(get_problematic_qrs())
 		).show();
 		break;
