@@ -4427,14 +4427,6 @@ static nearby_screens_t get_nearby_screens()
 			if (!(base_scr->valid & mVALID)) continue;
 
 			auto [offx, offy] = translate_screen_coordinates_to_world(screen);
-
-			// TODO z3 ! skip these checks ?
-			// Skip processsing screen if out of viewport.
-			if (offx - viewport.x <= -256) continue;
-			if (offy - viewport.y <= -176) continue;
-			if (offx - viewport.x >= 256) continue;
-			if (offy - viewport.y >= (is_extended_height_mode() ? 240 : 176)) continue;
-
 			auto& nearby_screen = nearby_screens.emplace_back();
 			nearby_screen.screen = screen;
 			nearby_screen.offx = offx;
@@ -4457,13 +4449,12 @@ static void for_every_nearby_screen(const nearby_screens_t& nearby_screens, cons
 		fn(nearby_screen.screen_handles, nearby_screen.screen, nearby_screen.offx, nearby_screen.offy);
 }
 
-static void for_every_screen_in_region_check_viewport(const std::function <void (std::array<screen_handle_t, 7>, int, int, bool)>& fn)
+static void for_every_screen_in_region_some_layers(std::vector<int> layers, const std::function <void (std::array<screen_handle_t, 7>, int, int, bool)>& fn)
 {
 	for_every_screen_in_region([&](mapscr* base_scr, unsigned int region_scr_x, unsigned int region_scr_y) {
 		int screen = base_scr->screen;
 		std::array<screen_handle_t, 7> screen_handles;
-		screen_handles[0] = {base_scr, base_scr, screen, 0};
-		for (int i = 1; i < 7; i++)
+		for (int i : layers)
 		{
 			mapscr* scr = get_layer_scr_valid(screen, i - 1);
 			screen_handles[i] = {base_scr, scr, screen, i};
@@ -4471,7 +4462,7 @@ static void for_every_screen_in_region_check_viewport(const std::function <void 
 
 		int offx = region_scr_x * 256;
 		int offy = region_scr_y * 176;
-		bool in_viewport = viewport.intersects_with(offx, offy, offx + 256, offy + 256);
+		bool in_viewport = viewport.intersects_with(offx, offy, offx + 256, offy + 176);
 
 		fn(screen_handles, offx, offy, in_viewport);
 	});
@@ -4523,7 +4514,7 @@ void draw_screen(bool showhero, bool runGeneric)
 	clear_bitmap(scrollbuf);
 
 	auto nearby_screens = get_nearby_screens();
-	
+
 	for_every_nearby_screen(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy) {
 		mapscr* base_scr = screen_handles[0].base_scr;
 		if(XOR(base_scr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))
@@ -4602,7 +4593,7 @@ void draw_screen(bool showhero, bool runGeneric)
 		}
 	}
 	
-	for_every_screen_in_region_check_viewport([&](std::array<screen_handle_t, 7> screen_handles, int offx, int offy, bool in_viewport) {
+	for_every_screen_in_region_some_layers({0, 1, 2}, [&](std::array<screen_handle_t, 7> screen_handles, int offx, int offy, bool in_viewport) {
 		mapscr* base_scr = screen_handles[0].base_scr;
 		int screen = base_scr->screen;
 
@@ -4982,7 +4973,7 @@ void draw_screen(bool showhero, bool runGeneric)
 		color_map = &trans_table;
 	}
 
-	for_every_screen_in_region_check_viewport([&](std::array<screen_handle_t, 7> screen_handles, int offx, int offy, bool in_viewport) {
+	for_every_screen_in_region_some_layers({0, 5, 6}, [&](std::array<screen_handle_t, 7> screen_handles, int offx, int offy, bool in_viewport) {
 		mapscr* base_scr = screen_handles[0].base_scr;
 		int screen = base_scr->screen;
 
