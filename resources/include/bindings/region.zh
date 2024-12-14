@@ -57,8 +57,11 @@ class Region {
 	internal void TriggerSecrets(int screen_index);
 }
 
-// The Region the [Hero] is currently in.
-// A Region is a rectangle of map screens that can be freely scrolled between.
-// An area without any scrolling is technically still a Region of 1x1 screen size.
-// The position of the region currently visible is defined by the [Viewport].
+// The region the [Hero] is currently in.
+//
+// A region is a set of map screens that can be freely scrolled between.
+// An region of 1 screen is technically still a region, but is referred to
+// as a "non-scrolling region".
+//
+// The visible porition of the region currently visible is defined by the [Viewport].
 internal const Region Region;

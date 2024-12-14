@@ -73,8 +73,8 @@ To get the correct value of `pos` for a given `x` and `y` coordinate, you can st
 To access other screens of the current region, use `mapdata`. There is `Game->LoadMapData(map, screen)`, `Game->LoadTempScreen(layer)`, and `Game->LoadScrollingScreen(layer)`. These all return a `mapdata`:
 
 * `Game->LoadMapData(map, screen)`: Returns a handle that accesses canonical screens. If the player is currently on this screen, no changes will be observed until the screen is reloaded. Modifications will not persist after saving/continue.
-* `Game->LoadTempScreen(layer)`: Returns a handle that accesses the currently loaded screen at the given layer. When the player enters a screen, the canonical screen is copied to a temporary screen, such that any modifications to the temporary screen will not persist when the player leaves the screen.
-* `Game->LoadScrollingScreen(layer)`: Returns a handle that accesses the temporary screens that the player is scrolling away from, at the given layer. This is only valid during screen scrolling.
+* `Game->LoadTempScreen(layer)`, `Game->LoadTempScreen(layer, screen)`: Returns a handle that accesses a currently loaded screen at the given layer. Modifications to the temporary screen will not persist when the player leaves the region.
+* `Game->LoadScrollingScreen(layer)`, `Game->LoadScrollingScreen(layer, screen)`: Returns a handle that accesses a temporary screen from the region that the player is scrolling away from, at the given layer. This is only valid during screen scrolling.
 
 `mapdata` only ever refers to a single screen.
 

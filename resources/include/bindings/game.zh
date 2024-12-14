@@ -910,7 +910,7 @@ class Game {
 	// layers of the screen. Modifications to these pointers are reset when the
 	// screen changes.
 	//
-	// This is the same as `Game->LoadTempScreen(Game->CurScreen, layer)`.
+	// This is the same as `Game->LoadTempScreen(layer, Game->CurScreen)`.
 	//
 	// @zasm
 	//   POP D2
@@ -921,10 +921,10 @@ class Game {
 	// within the current [Region].
 	//
 	// @zasm
-	//   POP D2
 	//   POP D3
+	//   POP D2
 	//   LOADTMPSCR2 D2 D3
-	internal mapdata LoadTempScreen(int screen, int layer);
+	internal mapdata LoadTempScreen(int layer, int screen);
 
 	// Loads the temp mapdata pointer for the specified layer's *scrolling
 	// screen*. This is only used during scrolling, for drawing the screen you
@@ -942,7 +942,7 @@ class Game {
 	//   POP D2
 	//   POP D3
 	//   LOADSCROLLSCR2 D2 D3
-	internal mapdata LoadScrollingScreen(int screen, int layer);
+	internal mapdata LoadScrollingScreen(int layer, int screen);
 
 	// Loads an Weapon Sprite Editor table data ref for sprite 'id', to a
 	// 'spritedata' typed pointer.

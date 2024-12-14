@@ -2,11 +2,14 @@
 //
 // Depending on how the `mapdata` was loaded, it may represent:
 //
-// - a temporary screen from the active region, aka a live reference to the current screen ([Game->LoadTempScreen], [Region->LoadTempScreenForComboPos])
+// - a temporary screen from the active region, aka a live reference to the current
+//   screen ([Game->LoadTempScreen], [Region->LoadTempScreenForComboPos]).
 //   Modifications are reset when the screen changes.
-// - a temporary screen from the previous region during scrolling, aka a live reference to the current scrolling screen ([Game->LoadScrollingScreen])
-// - the canonical copy of a screen ([Game->LoadMapData]). If made to the current screen, modifications do not appear until next load.
-//   Also, modifications do not persist to future game reloads.
+// - a temporary screen from the previous region during scrolling, aka a live reference to
+//   the current scrolling screen ([Game->LoadScrollingScreen])
+// - the canonical copy of a screen ([Game->LoadMapData]).
+//   If the screen is currently loaded, no changes will be observed until the screen is reloaded.
+//   Modifications do not persist to future game reloads.
 //
 // @zasm_ref REFMAPDATA
 class mapdata {
