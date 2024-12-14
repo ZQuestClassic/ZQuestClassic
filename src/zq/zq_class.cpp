@@ -554,50 +554,16 @@ void zmap::regions_refresh()
 
 	regions_dirty = false;
 
-	int map = cursor.map;
-	current_region_ids = Regions[map].get_all_region_ids(map);
+	current_region_ids = Regions[cursor.map].get_all_region_ids();
+	int origin_scr_x, origin_scr_y, end_scr_x, end_scr_y;
+	determine_region_size(current_region_ids, cursor.screen, origin_scr_x, origin_scr_y, end_scr_x, end_scr_y);
 
 	for (int i = 0; i < 128; i++)
 		screen_is_in_current_region[i] = false;
 
-	// yoink'd the following from zc/maps.cpp z3_calculate_region
-
-	int input_screen = cursor.screen;
-	int id = current_region_ids[input_screen];
-	int input_scr_x = input_screen % 16;
-	int input_scr_y = input_screen / 16;
-
-	// For the currently selected screen, find the top-left corner of its region.
-	int origin_scr_x = input_scr_x;
-	int origin_scr_y = input_scr_y;
-	while (origin_scr_x > 0)
+	for (int x = origin_scr_x; x <= end_scr_x; x++)
 	{
-		if (id != current_region_ids[map_scr_xy_to_index(origin_scr_x - 1, origin_scr_y)]) break;
-		origin_scr_x--;
-	}
-	while (origin_scr_y > 0)
-	{
-		if (id != current_region_ids[map_scr_xy_to_index(origin_scr_x, origin_scr_y - 1)]) break;
-		origin_scr_y--;
-	}
-
-	// Now find the bottom-right corner.
-	int region_scr_right = origin_scr_x;
-	while (region_scr_right < 15)
-	{
-		if (id != current_region_ids[map_scr_xy_to_index(region_scr_right + 1, origin_scr_y)]) break;
-		region_scr_right++;
-	}
-	int region_scr_bottom = origin_scr_y;
-	while (region_scr_bottom < 7)
-	{
-		if (id != current_region_ids[map_scr_xy_to_index(origin_scr_x, region_scr_bottom + 1)]) break;
-		region_scr_bottom++;
-	}
-
-	for (int x = origin_scr_x; x <= region_scr_right; x++)
-	{
-		for (int y = origin_scr_y; y <= region_scr_bottom; y++)
+		for (int y = origin_scr_y; y <= end_scr_y; y++)
 		{
 			screen_is_in_current_region[map_scr_xy_to_index(x, y)] = true;
 		}

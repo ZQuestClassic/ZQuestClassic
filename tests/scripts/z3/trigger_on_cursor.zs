@@ -2,16 +2,16 @@
 
 ffc script TriggerOnCursor
 {
-    void run(int combo, int screen_index)
-    {
+	void run(int combo, int screen_index)
+	{
 		Trace(Region->Width);
 		Trace(Region->Height);
 		Trace(Region->ScreenWidth);
 		Trace(Region->ScreenHeight);
 		Trace(Region->NumCombos);
 
-        while (true)
-        {
+		while (true)
+		{
 			int x = Input->Mouse[MOUSE_X];
 			int y = Input->Mouse[MOUSE_Y];
 			Screen->DrawCombo(3, x, y,
@@ -28,7 +28,7 @@ ffc script TriggerOnCursor
 				Region->TriggerSecrets(screen_index);
 			}
 
-            Waitframe();
-        }
-    }
+			Waitframe();
+		}
+	}
 }

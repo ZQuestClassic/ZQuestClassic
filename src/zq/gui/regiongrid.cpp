@@ -58,6 +58,20 @@ int32_t d_region_grid_proc(int32_t msg, DIALOG* d, int32_t c)
 	switch (msg)
 	{
 	case MSG_START:
+	{
+		for (int j = 0; j < 8; ++j)
+		{
+			for (int k = 0; k < rg_cols; ++k)
+			{
+				int screen = map_scr_xy_to_index(k, j);
+				int region_id = local_regions_data->get_region_id(screen);
+				if (region_id && !Map.isValid(map, screen))
+					local_regions_data->set_region_id(screen, 0);
+			}
+		}
+		return D_WANTFOCUS;
+	}
+
 	case MSG_WANTFOCUS:
 		return D_WANTFOCUS;
 
@@ -68,11 +82,12 @@ int32_t d_region_grid_proc(int32_t msg, DIALOG* d, int32_t c)
 		int32_t x = d->x;
 		int32_t y = d->y;
 		int32_t j = 0, k = 0;
+		int txtheight = text_height(nf);
 		rectfill(tempbmp, x, y, x + d->w - 18, y + rg_header_height - 1, jwin_pal[jcBOX]);
 
 		for (j = 0; j < 8; ++j)
 		{
-			textprintf_ex(tempbmp, nf, x, y + rg_header_height + rg_frame_thickness + 1 + (j * rg_l), jwin_pal[jcBOXFG], jwin_pal[jcBOX], "%d", j);
+			textprintf_ex(tempbmp, nf, x, y + rg_header_height + rg_frame_thickness + 1 + (j * rg_l) + (rg_l-txtheight)/2, jwin_pal[jcBOXFG], jwin_pal[jcBOX], "%d", j);
 		}
 
 		for (j = 0; j < rg_cols; ++j)
@@ -83,17 +98,15 @@ int32_t d_region_grid_proc(int32_t msg, DIALOG* d, int32_t c)
 		// why this not look good
 		// jwin_draw_frame(tempbmp, x+header_width+is_large, y+rg_header_height+is_large, (is_large?180:116)*2, (is_large?84:60)*2, FR_DEEP);
 
-		int txtheight = text_height(nf);
 		for (j = 0; j < 8; ++j)
 		{
 			for (k = 0; k < rg_cols; ++k)
 			{
-				int screen = j * 16 + k;
+				int screen = map_scr_xy_to_index(k, j);
 				if (!Map.isValid(map, screen))
 					continue;
 
 				byte region_id = local_regions_data->get_region_id(k, j);
-
 				int frame = Map.getCurrScr() == screen ? FR_GREEN : FR_MEDDARK;
 				int x2 = x + rg_header_width + (k * rg_col_width) + rg_frame_thickness;
 				int y2 = y + rg_header_height + (j * rg_l) + rg_frame_thickness;

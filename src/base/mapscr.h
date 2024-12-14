@@ -328,11 +328,13 @@ struct regions_data
 	// IDs can be repeated - they currently don't hold any special meaning.
 	byte region_ids[8][8];
 
-	byte get_region_id(int screen_x, int screen_y);
-	byte get_region_id(int screen);
+	byte get_region_id(int screen_x, int screen_y) const;
+	byte get_region_id(int screen) const;
 	void set_region_id(int screen, byte value);
-	std::array<int, MAPSCRSNORMAL> get_all_region_ids(int map);
+	std::array<int, MAPSCRSNORMAL> get_all_region_ids() const;
 };
+
+void determine_region_size(const std::array<int, MAPSCRSNORMAL>& region_ids, int input_screen, int& origin_scr_x, int& origin_scr_y, int& end_scr_x, int& end_scr_y);
 
 extern std::array<regions_data, MAXMAPS> Regions;
 // Every map screen (136 per map).

@@ -116,7 +116,7 @@ class TestZScript(ZCTestCase):
         script_paths = list(test_scripts_dir.rglob('*.zs'))
         script_paths += list((test_scripts_dir / 'newbie_boss').rglob('*.z'))
         for script_path in script_paths:
-            if script_path.name in ['auto.zs', 'playground.zs']:
+            if script_path.name in ['auto.zs', 'playground.zs', 'z3.zs']:
                 continue
 
             with self.subTest(msg=f'compile {script_path.name}'):

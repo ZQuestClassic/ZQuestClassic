@@ -159,6 +159,65 @@ void call_edit_region_dialog(int32_t slot)
 	EditRegionDialog(slot).show();
 }
 
+static bool validate_regions(const regions_data& data)
+{
+	auto region_ids = data.get_all_region_ids();
+
+	std::array<bool, MAPSCRSNORMAL> seen{};
+	for (int i = 0; i < MAPSCRSNORMAL; i++)
+	{
+		if (seen[i])
+			continue;
+
+		int origin_scr_x, origin_scr_y, end_scr_x, end_scr_y;
+		determine_region_size(region_ids, i, origin_scr_x, origin_scr_y, end_scr_x, end_scr_y);
+
+		int region_id = region_ids[map_scr_xy_to_index(origin_scr_x, origin_scr_y)];
+		if (region_id == 0)
+		{
+			seen[i] = true;
+			continue;
+		}
+
+		// Confirm everything within rectangle is the same region id, and has not been seen yet.
+		for (int x = origin_scr_x; x <= end_scr_x; x++)
+		{
+			for (int y = origin_scr_y; y <= end_scr_y; y++)
+			{
+				int screen = map_scr_xy_to_index(x, y);
+				if (seen[screen])
+					return false;
+				if (region_ids[screen] != region_id)
+					return false;
+
+				seen[screen] = true;
+			}
+		}
+
+		// Confirm not bordering (in cardinal directions) anything of same region id.
+		for (int x = origin_scr_x - 1; x <= end_scr_x + 1; x++)
+		{
+			for (int y = origin_scr_y - 1; y <= end_scr_y + 1; y++)
+			{
+				if (x < 0 || y < 0 || x >= 16 || y >= 8)
+					continue;
+
+				int count = 0;
+				if (x == origin_scr_x - 1 || x == end_scr_x + 1) count++;
+				if (y == origin_scr_y - 1 || y == end_scr_y + 1) count++;
+				if (count != 1)
+					continue;
+
+				int screen = map_scr_xy_to_index(x, y);
+				if (region_ids[screen] == region_id)
+					return false;
+			}
+		}
+	}
+
+	return true;
+}
+
 EditRegionDialog::EditRegionDialog(int32_t slot) :
 	mapslot(slot), the_regions_data(&Regions[slot]), local_regions_data(Regions[slot])
 {
@@ -268,6 +327,12 @@ bool EditRegionDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		break;
 	}
 	case message::OK:
+		if (!validate_regions(local_regions_data))
+		{
+			InfoDialog("Bad regions", "Scrolling regions must be rectangular").show();
+			return false;
+		}
+
 		*the_regions_data = local_regions_data;
 		saved = false;
 		[[fallthrough]];

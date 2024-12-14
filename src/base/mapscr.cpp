@@ -10,12 +10,12 @@ std::vector<mapscr> TheMaps;
 std::vector<word> map_autolayers;
 word map_count = 0;
 
-byte regions_data::get_region_id(int screen_x, int screen_y)
+byte regions_data::get_region_id(int screen_x, int screen_y) const
 {
 	return util::nibble(region_ids[screen_y][screen_x/2], screen_x % 2 == 0);
 }
 
-byte regions_data::get_region_id(int screen)
+byte regions_data::get_region_id(int screen) const
 {
 	return get_region_id(screen % 16, screen / 16);
 }
@@ -31,7 +31,8 @@ void regions_data::set_region_id(int screen, byte value)
 		datum = util::nibble_set_lower_byte(datum, value);
 }
 
-std::array<int, MAPSCRSNORMAL> regions_data::get_all_region_ids(int map)
+// TODO z3 ! typedef, byte.
+std::array<int, MAPSCRSNORMAL> regions_data::get_all_region_ids() const
 {
 	std::array<int, MAPSCRSNORMAL> screen_region_id = {};
 
@@ -40,14 +41,52 @@ std::array<int, MAPSCRSNORMAL> regions_data::get_all_region_ids(int map)
 		for (int sx = 0; sx < 16; sx++)
 		{
 			int screen = map_scr_xy_to_index(sx, sy);
-			if (!get_canonical_scr(map, screen)->is_valid())
-				continue;
-
 			screen_region_id[screen] = get_region_id(sx, sy);
 		}
 	}
 
 	return screen_region_id;
+}
+
+void determine_region_size(const std::array<int, MAPSCRSNORMAL>& region_ids, int input_screen, int& origin_scr_x, int& origin_scr_y, int& end_scr_x, int& end_scr_y)
+{
+	// yoink'd the following from zc/maps.cpp z3_calculate_region
+
+	int id = region_ids[input_screen];
+	origin_scr_x = input_screen % 16;
+	origin_scr_y = input_screen / 16;
+	if (id == 0)
+	{
+		end_scr_x = origin_scr_x;
+		end_scr_y = origin_scr_y;
+		return;
+	}
+
+	// For the currently selected screen, find the top-left corner of its region.
+	while (origin_scr_x > 0)
+	{
+		if (id != region_ids[map_scr_xy_to_index(origin_scr_x - 1, origin_scr_y)]) break;
+		origin_scr_x--;
+	}
+	while (origin_scr_y > 0)
+	{
+		if (id != region_ids[map_scr_xy_to_index(origin_scr_x, origin_scr_y - 1)]) break;
+		origin_scr_y--;
+	}
+
+	// Now find the bottom-right corner.
+	end_scr_x = origin_scr_x;
+	while (end_scr_x < 15)
+	{
+		if (id != region_ids[map_scr_xy_to_index(end_scr_x + 1, origin_scr_y)]) break;
+		end_scr_x++;
+	}
+	end_scr_y = origin_scr_y;
+	while (end_scr_y < 7)
+	{
+		if (id != region_ids[map_scr_xy_to_index(origin_scr_x, end_scr_y + 1)]) break;
+		end_scr_y++;
+	}
 }
 
 byte mapscr::ffEffectWidth(size_t ind) const

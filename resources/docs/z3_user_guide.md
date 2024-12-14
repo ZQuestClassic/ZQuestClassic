@@ -32,7 +32,7 @@ Note: all this is ignoring the fact that the bottom 8 pixels has always and cont
 
 When in a scrolling region, enemies and their weapons are paused if they are outside the current viewport, with some buffer (48px). However, any associated weapon/npc script still run.
 
-Player weapons are deleted when they venture outside the viewport (unless `CollDetection` is false).
+Player weapons are considered "out of bounds" when they leave the viewport. Most player weapons are deleted when they go out of bounds (unless `CollDetection` is false), such as arrows. But some weapon types have special behavior: for example, boomerangs just begin returning to the hero.
 
 ## ZScript
 

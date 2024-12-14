@@ -1,6 +1,6 @@
 stderr:
 
-Compiling 'z3.zs'
+Compiling 'trigger_on_cursor.zs'
 Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration

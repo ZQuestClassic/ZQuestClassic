@@ -213,7 +213,7 @@ void z3_load_region(int dmap, int screen)
 	z3_clear_temporary_screens();
 
 	int map = DMaps[dmap].map;
-	current_region_ids = Regions[map].get_all_region_ids(map);
+	current_region_ids = Regions[map].get_all_region_ids();
 
 	if ((DMaps[dmap].type&dmfTYPE) == dmDNGN)
 	{
