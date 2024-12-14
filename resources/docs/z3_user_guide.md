@@ -4,29 +4,35 @@
 
 ## Regions
 
-Regions consist of a subset of the screens of a Map. Regions are associated with a DMap, and a DMap can have multiple regions within. You can define regions in the DMap Editor. The numbers in the grid denote a region ID - screens with the same region ID are considered to be the same Region. Region IDs have no particular meaning within the engine, and can be re-used within the same DMap (as long as they are not touching a region of the same ID, they will be considered distinct).
+Regions consist of a subset of the screens of a map (not a DMap). A map can contain multiple regions. They are defined in the `Quest > Regions` editor. The positive numbers in the grid denote a region ID - neighboring screens with the same region ID are considered to be the same Region. Region IDs have no particular meaning, and can be re-used within the same map (as long as they are not touching a region of the same ID, they make up distinct regions).
 
-Note: current limitations require that regions 1) must be rectangular with no holes and 2) can only span a single map.
+Note: current limitations require that regions must be rectangular with no holes.
+
+Even non-scrolling areas of 1x1 screens are technically considered to be a region. When documentation refers to a "scrolling region", it means a region larger than one screen. A "non-scrolling region" is a traditional 1x1 screen area.
 
 There are some specific terms used for the screens within a region:
 
-* `origin screen`: The top-left screen of the region
+* `origin screen`: The top-left screen of the region. This is equal to `Game->CurScreen`
 * `hero screen`: The screen that the player is currently in
 
-The specific screen that is loaded into (via scrolling or warping or whatever) has no special behavior, other than determining what
+The specific screen that is loaded into (via scrolling or warping or whatever) has no special behavior, other than determining which
 region is loaded.
 
 ## Viewport
 
-The traditional viewport for ZQuest has been 256 pixels wide by 176 pixels tall - or 16x11 combos.
+The traditional viewport for ZC has been 256 pixels wide by 176 pixels tall - or 16x11 combos. This continues to be the viewport when in a non-scrolling region.
 
-In a region, the viewport pans across the region. By default the viewport centers the player in the middle, but this is bounded by the edges of the border. This behavior can be customized via scripting.
+In a scrolling region, the viewport pans as the player moves across the region. By default the viewport is centered to draw the player in the middle of the screen, but this is bounded by the edges of the region to prevent showing beyond the current region. This behavior can be customized via scripting.
 
-For a region taller than one screen, there is the option to have an extended height viewport. This makes the viewport 232 pixels (or 3.5 combos) taller - the same height as the passive subscreen. This effectively centers the player as if the passive subscreen did not exist. This is controlled by a DMap flag. When using an extended height viewport, the passive subscreen should be configured to have no background color. Without a transparent passive subscreen, it will look very odd. Similarly, if not using an extended height viewport, the passive subscreen should be opaque.
+There is a new option to have an extended height viewport (applicable when in a region taller than 1 screen). This makes the viewport 232 pixels (or 3.5 combos taller) - the same height as the passive subscreen. This effectively centers the player as if the passive subscreen did not exist. This is controlled by a DMap flag. When using an extended height viewport, the passive subscreen should be configured to have no background color. Without a transparent passive subscreen, it will look very odd. Similarly, if not using an extended height viewport, the passive subscreen should be opaque.
 
 The viewport height will only be extended if the DMap flag is on, and if the current region is taller than one screen.
 
-Note: all this is ignoring the fact that the bottom 8 pixels has always and continues to be not shown.
+Note: all this is ignoring the fact that the bottom 8 pixels has always and continues to be not shown (so minus 8 pixels in the height for the true visual viewport height).
+
+When in a scrolling region, enemies and their weapons are paused if they are outside the current viewport, with some buffer (48px). However, any associated weapon/npc script still run.
+
+Player weapons are deleted when they venture outside the viewport (unless `CollDetection` is false).
 
 ## ZScript
 

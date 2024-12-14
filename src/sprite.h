@@ -71,7 +71,10 @@ public:
     int32_t id;
     zfix slopeid;
     byte onplatid = 0;
-    bool angular,canfreeze;
+    bool angular;
+    // True if sprite is an enemy or an enemy weapon. Only used to freeze these sprites when `freeze_guys`
+    // is true (which is when the player is holding up an item); or when they are out of the viewport.
+    bool canfreeze;
     double angle; // TODO: bad for replays
     int32_t lasthit, lasthitclk;
     int32_t dummy_int[10];

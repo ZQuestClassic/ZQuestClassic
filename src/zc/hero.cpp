@@ -12085,7 +12085,7 @@ bool HeroClass::startwpn(int32_t itemid)
 				temppower = game->get_hero_dmgmult()*itm.misc2;
 			}
 
-			Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wBeam,itm.fam_type,int32_t(temppower),dir,itemid,getUID(),false,false,true));
+			Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wBeam,itm.fam_type,temppower,dir,itemid,getUID(),false,false,true));
 			sfx(WAV_BEAM,pan(wx));
 		}
 		break;

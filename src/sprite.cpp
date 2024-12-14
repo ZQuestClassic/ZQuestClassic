@@ -2313,7 +2313,7 @@ void sprite_list::animate()
 	active_iterator = 0;
 
 	viewport_t freeze_rect = viewport;
-	int tile_buffer = 2;
+	int tile_buffer = 3;
 	freeze_rect.w += 16 * tile_buffer * 2;
 	freeze_rect.h += 16 * tile_buffer * 2;
 	freeze_rect.x -= 16 * tile_buffer;
@@ -2323,21 +2323,13 @@ void sprite_list::animate()
 	{
 		sprite* spr = sprites[active_iterator];
 
-		// TODO: add a higher debug mode for this. For now, just comment out as-needed for debugging.
-		// if (replay_is_active() && replay_is_debug() && dynamic_cast<enemy*>(spr) != nullptr)
-		// {
-		// 	enemy* as_enemy = dynamic_cast<enemy*>(spr);
-		// 	replay_step_comment(fmt::format("enemy {} id: {} x: {} y: {} clk: {} {} {}",
-		// 		guy_string[as_enemy->id&0xFFF], as_enemy->id, as_enemy->x.getInt(), as_enemy->y.getInt(),
-		// 		as_enemy->clk, as_enemy->clk2, as_enemy->clk3)
-		// 	);
-		// }
-
 		bool freeze_sprite = false;
 		if (spr->canfreeze)
 		{
 			freeze_sprite = freeze_guys;
 #ifndef IS_EDITOR
+			// TODO: maybe someday make this "freeze" rect size configurable:
+			//       `->ViewportFreezeBuffer` pixels (set to -1 to disable; enemies/eweapons default to 48px)
 			if (is_z3_scrolling_mode())
 				freeze_sprite |= !freeze_rect.intersects_with(spr->x.getInt(), spr->y.getInt(), spr->txsz*16, spr->tysz*16);
 #endif
@@ -2384,20 +2376,24 @@ void sprite_list::solid_push(solid_object* pusher)
         sprites[i]->solid_push(pusher);
 }
 
-// TODO z3 ! freeze if out of viewport ?
 void sprite_list::run_script(int32_t mode)
 {
 	active_iterator = 0;
 	
 	while(active_iterator<count)
 	{
-		sprite* cur_sprite = sprites[active_iterator];
-		if(!(freeze_guys && cur_sprite->canfreeze))
+		sprite* spr = sprites[active_iterator];
+
+		bool freeze_sprite = false;
+		if (spr->canfreeze)
+			freeze_sprite = freeze_guys;
+
+		if (!freeze_sprite)
 		{
-			cur_sprite->run_script(mode);
+			spr->run_script(mode);
 			if (delete_active_iterator)
 			{
-				delete cur_sprite;
+				delete spr;
 				delete_active_iterator = false;
 			}
 		}

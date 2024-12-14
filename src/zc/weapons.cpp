@@ -3254,13 +3254,22 @@ bool weapon::isScriptGenerated()
 	return (ScriptGenerated != 0);
 }
 
+// Returns true if the weapon is outside the world bounds, give or a
+// take a few pixels depending on the weapon/if in a dungeon.
+// Also, does a viewport bounds check for player weapons.
 bool weapon::clip()
 {
     int32_t c[4];
     int32_t d2=isdungeon();
     int32_t nb1 = get_qr(qr_NOBORDER) ? 16 : 0;
     int32_t nb2 = get_qr(qr_NOBORDER) ? 8 : 0;
-    
+
+    if (id<wEnemyWeapons)
+    {
+        if (x+txsz*16<viewport.left()||y+tysz*16<viewport.top()||x>viewport.right()||y>viewport.bottom())
+            return true;
+    }
+
     if(id>wEnemyWeapons && id!=ewBrang)
     {
         c[0] = d2?32:(16-nb1);

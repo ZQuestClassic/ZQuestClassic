@@ -114,9 +114,10 @@ bool is_valid_rpos(rpos_t rpos)
 	return (int)rpos >= 0 && rpos <= region_max_rpos;
 }
 
+// TODO z3 rename? is_in_scrolling_region ?
 bool is_z3_scrolling_mode()
 {
-	return current_region.region_id && is_in_current_region(cur_screen);
+	return current_region.region_id && current_region.screen_count > 1 && is_in_current_region(cur_screen);
 }
 
 bool is_extended_height_mode()
