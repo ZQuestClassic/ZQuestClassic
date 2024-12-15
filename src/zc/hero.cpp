@@ -2325,11 +2325,6 @@ weapon* find_first_wtype(int wtype)
 }
 void HeroClass::draw(BITMAP* dest)
 {
-	/*{
-		char buf[36];
-		//sprintf(buf,"%d %d %d %d %d %d %d",dir, action, attack, attackclk, charging, spins, tapping);
-		textout_shadowed_ex(framebuf,font, buf, 2,72,WHITE,BLACK,-1);
-	}*/
 	int32_t oxofs = xofs, oyofs = yofs;
 	bool invisible=(dontdraw>0) || (hero_scr->flags3&fINVISHERO);
 	
