@@ -27146,7 +27146,7 @@ void paymagiccost(int32_t itemid, bool ignoreTimer, bool onlyTimer)
 {
 	return;
 }
-bool is_z3_scrolling_mode()
+bool is_in_scrolling_region()
 {
 	return false;
 }

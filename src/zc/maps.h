@@ -159,7 +159,7 @@ int z3_get_region_relative_dy(int screen, int origin_screen);
 int get_region_screen_index_offset(int screen);
 int get_screen_index_for_region_index_offset(int offset);
 mapscr* get_scr_for_region_index_offset(int offset);
-bool is_z3_scrolling_mode();
+bool is_in_scrolling_region();
 bool is_extended_height_mode();
 mapscr* get_scr(int map, int screen);
 mapscr* get_scr(int screen);

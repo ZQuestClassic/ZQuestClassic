@@ -19,7 +19,7 @@ template<typename T>
 requires std::is_invocable_v<T, mapscr*, unsigned int, unsigned int>
 ZC_FORCE_INLINE void for_every_screen_in_region(T&& fn)
 {
-	if (!is_z3_scrolling_mode())
+	if (!is_in_scrolling_region())
 	{
 		fn(origin_scr, 0, 0);
 		return;
@@ -91,7 +91,7 @@ template<typename T>
 requires std::is_invocable_v<T, const rpos_handle_t&>
 ZC_FORCE_INLINE void for_every_visible_rpos_layer0(T&& fn)
 {
-	if (!is_z3_scrolling_mode())
+	if (!is_in_scrolling_region())
 	{
 		for_every_rpos_layer0(fn);
 		return;

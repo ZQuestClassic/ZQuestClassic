@@ -22502,7 +22502,7 @@ void HeroClass::checkswordtap()
 		}
 		if(tap_sfx < 0 && get_qr(qr_SEPARATE_BOMBABLE_TAPPING_SFX))
 		{
-			if(hollow || (!is_z3_scrolling_mode() && origin_scr->door[dir]==dBOMB && ((dir==up||dir==down)
+			if(hollow || (!is_in_scrolling_region() && origin_scr->door[dir]==dBOMB && ((dir==up||dir==down)
 					? (bx>=112 && bx<144 && (by>=144 || by<=32))
 					: by>=72 && by<104 && (bx>=224 || bx<=32))))
 				tap_sfx = QMisc.miscsfx[sfxTAP_HOLLOW];
@@ -23385,7 +23385,7 @@ void HeroClass::handleSpotlights()
 	// so abandon in z3 for now.
 	// Previous working z3 impl:
 	// https://github.com/connorjclark/ZeldaClassic/blob/f627ea96a1bd87066ac282110e09c2ddf338b8c8/src/zc/hero.cpp#L22769
-	if (is_z3_scrolling_mode())
+	if (is_in_scrolling_region())
 	{
 		lightbeam_present = false;
 		return;
@@ -25291,7 +25291,7 @@ RaftingStuff:
 	
 	if (DMaps[currdmap].flags&dmf3STAIR && (cur_screen==129 || !(DMaps[currdmap].flags&dmfGUYCAVES))
 			&& (specialcave > 0 && DMaps[currdmap].flags & dmfGUYCAVES ? special_warp_return_screen : *tmpscr).room==rWARP && type==cSTAIR
-		    && !is_z3_scrolling_mode())
+		    && !is_in_scrolling_region())
 	{
 		if(!skippedaframe)
 		{
@@ -27638,7 +27638,7 @@ void HeroClass::checkscroll()
 
 	// This maze logic is enabled for only scrolling mode. It's a bit simpler, but hasn't
 	// been tested for non-scrolling mode.
-	if (!scrolling_maze_state && is_z3_scrolling_mode() && hero_scr->flags&fMAZE)
+	if (!scrolling_maze_state && is_in_scrolling_region() && hero_scr->flags&fMAZE)
 	{
 		scrolling_maze_scr = cur_screen;
 		scrolling_maze_state = 1;
@@ -28501,7 +28501,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	bool updatemusic = FFCore.can_dmap_change_music(destdmap);
 	bool musicrevert = FFCore.music_update_flags & MUSIC_UPDATE_FLAG_REVERT;
 
-	if (!is_z3_scrolling_mode() && maze_enabled_sizewarp(scrolldir))  // dowarp() was called
+	if (!is_in_scrolling_region() && maze_enabled_sizewarp(scrolldir))  // dowarp() was called
 		return;
 
 	int original_destscr = destscr;
@@ -28575,7 +28575,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 
 		// python tests/run_replay_tests.py --filter nargads_trail_crystal_crusades/nargads_trail_crystal_crusades_18_of_24.zplay --frame 2000
 		// TODO z3 ! replay check?
-		if (HeroInOutgoingWhistleWarp() && is_z3_scrolling_mode())
+		if (HeroInOutgoingWhistleWarp() && is_in_scrolling_region())
 		{
 			mapscr* newscr = get_scr(new_map, destscr);
 

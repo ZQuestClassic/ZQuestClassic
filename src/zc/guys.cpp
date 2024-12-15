@@ -18946,7 +18946,7 @@ static void side_load_enemies(mapscr* scr)
 			if(visited[i]==s)
 				beenhere=true;
 				
-		if (is_z3_scrolling_mode())
+		if (is_in_scrolling_region())
 		{
 			reload = true;
 		}
@@ -19053,7 +19053,7 @@ static void side_load_enemies(mapscr* scr)
 
 bool is_starting_pos(mapscr* scr, int32_t i, int32_t x, int32_t y, int32_t t)
 { 
-	if (!is_z3_scrolling_mode())
+	if (!is_in_scrolling_region())
 	if(scr->enemy[i]<1||scr->enemy[i]>=MAXGUYS) //Hackish fix for crash in Waterford.st on screen 0x65 of dmap 0 (map 1).
 	{
 		return false; //never 0, never OoB.
@@ -19476,7 +19476,7 @@ void loadenemies()
 		int32_t loadcnt = 10;
 		int16_t s = (currmap<<7)+screen;
 		
-		if (is_z3_scrolling_mode())
+		if (is_in_scrolling_region())
 		{
 			reload = true;
 		}

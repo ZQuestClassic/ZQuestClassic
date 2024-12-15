@@ -114,8 +114,7 @@ bool is_valid_rpos(rpos_t rpos)
 	return (int)rpos >= 0 && rpos <= region_max_rpos;
 }
 
-// TODO z3 rename? is_in_scrolling_region ?
-bool is_z3_scrolling_mode()
+bool is_in_scrolling_region()
 {
 	return current_region.region_id && current_region.screen_count > 1 && is_in_current_region(cur_screen);
 }
@@ -414,7 +413,7 @@ void z3_update_heroscr()
 
 bool edge_of_region(direction dir)
 {
-	if (!is_z3_scrolling_mode()) return true;
+	if (!is_in_scrolling_region()) return true;
 
 	int screen_x = hero_screen % 16;
 	int screen_y = hero_screen / 16;
@@ -429,7 +428,7 @@ bool edge_of_region(direction dir)
 // x, y are world coordinates (aka, in relation to origin screen at the top-left)
 int get_screen_index_for_world_xy(int x, int y)
 {
-	if (!is_z3_scrolling_mode())
+	if (!is_in_scrolling_region())
 		return cur_screen;
 
 	int dx = vbound(x, 0, world_w - 1) / 256;
@@ -454,7 +453,7 @@ int get_screen_index_for_rpos(rpos_t rpos)
 rpos_handle_t get_rpos_handle(rpos_t rpos, int layer)
 {
 	DCHECK_LAYER_ZERO_INDEX(layer);
-	if (!is_z3_scrolling_mode())
+	if (!is_in_scrolling_region())
 		return {get_layer_scr(cur_screen, layer - 1), cur_screen, layer, rpos, RPOS_TO_POS(rpos)};
 	int screen = get_screen_index_for_rpos(rpos);
 	mapscr* scr = get_layer_scr(screen, layer - 1);
@@ -464,7 +463,7 @@ rpos_handle_t get_rpos_handle(rpos_t rpos, int layer)
 rpos_handle_t get_rpos_handle_for_world_xy(int x, int y, int layer)
 {
 	DCHECK_LAYER_ZERO_INDEX(layer);
-	if (!is_z3_scrolling_mode())
+	if (!is_in_scrolling_region())
 	{
 		int pos = COMBOPOS(x, y);
 		return {get_layer_scr(cur_screen, layer - 1), cur_screen, layer, (rpos_t)pos, pos};
@@ -515,14 +514,14 @@ combined_handle_t get_combined_handle_for_world_xy(int x, int y, int layer)
 mapscr* get_screen_for_world_xy(int x, int y)
 {
 	// Quick path, but should work the same without.
-	if (!is_z3_scrolling_mode()) return origin_scr;
+	if (!is_in_scrolling_region()) return origin_scr;
 	return get_scr(get_screen_index_for_world_xy(x, y));
 }
 
 mapscr* get_scr_for_rpos(rpos_t rpos)
 {
 	// Quick path, but should work the same without.
-	if (!is_z3_scrolling_mode()) return origin_scr;
+	if (!is_in_scrolling_region()) return origin_scr;
 	return get_scr(get_screen_index_for_rpos(rpos));
 }
 
@@ -535,7 +534,7 @@ mapscr* get_scr_layer_for_rpos(rpos_t rpos, int layer)
 mapscr* get_screen_layer_for_world_xy(int x, int y, int layer)
 {
 	DCHECK_LAYER_ZERO_INDEX(layer);
-	if (!is_z3_scrolling_mode()) return FFCore.tempScreens[layer];
+	if (!is_in_scrolling_region()) return FFCore.tempScreens[layer];
 	return layer == 0 ?
 		get_screen_for_world_xy(x, y) :
 		get_layer_scr(get_screen_index_for_world_xy(x, y), layer - 1);
@@ -756,7 +755,7 @@ int32_t COMBOY(int32_t pos)
 rpos_t COMBOPOS_REGION(int32_t x, int32_t y)
 {
 	DCHECK(x >= 0 && x < world_w && y >= 0 && y < world_h);
-	if (!is_z3_scrolling_mode())
+	if (!is_in_scrolling_region())
 		return (rpos_t) COMBOPOS(x, y);
 
 	int scr_dx = x / (16*16);
@@ -4382,7 +4381,7 @@ static nearby_screens_t get_nearby_screens()
 {
 	nearby_screens_t nearby_screens;
 
-	if (!is_z3_scrolling_mode())
+	if (!is_in_scrolling_region())
 	{
 		int screen = cur_screen;
 		mapscr* base_scr = get_scr(screen);
@@ -4903,7 +4902,7 @@ void draw_screen(bool showhero, bool runGeneric)
 		}
 	});
 
-	if (!is_extended_height_mode() && is_z3_scrolling_mode() && !get_qr(qr_SUBSCREENOVERSPRITES))
+	if (!is_extended_height_mode() && is_in_scrolling_region() && !get_qr(qr_SUBSCREENOVERSPRITES))
 	{
 		rectfill(framebuf, 0, 0, 256, playing_field_offset - 1, 0);
 	}
@@ -5976,7 +5975,7 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool overlay, bool 
 	if (screen >= 0x80)
 		loadscr_old(1, orig_destdmap, home_screen, no_x80_dir ? -1 : ldir, overlay, ffc_script_indices_to_remove);
 
-	if (is_z3_scrolling_mode())
+	if (is_in_scrolling_region())
 	{
 		for (int screen = 0; screen < 128; screen++)
 		{

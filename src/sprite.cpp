@@ -2330,7 +2330,7 @@ void sprite_list::animate()
 #ifndef IS_EDITOR
 			// TODO: maybe someday make this "freeze" rect size configurable:
 			//       `->ViewportFreezeBuffer` pixels (set to -1 to disable; enemies/eweapons default to 48px)
-			if (is_z3_scrolling_mode())
+			if (is_in_scrolling_region())
 				freeze_sprite |= !freeze_rect.intersects_with(spr->x.getInt(), spr->y.getInt(), spr->txsz*16, spr->tysz*16);
 #endif
 		}

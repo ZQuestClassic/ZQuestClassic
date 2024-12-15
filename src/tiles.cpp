@@ -30,7 +30,7 @@ bool unused_tile_table[NEWMAXTILES];                  //keeps track of unused ti
 
 byte unpackbuf[256];
 
-extern bool is_z3_scrolling_mode();
+extern bool is_in_scrolling_region();
 
 bool isblanktile(tiledata *buf, int32_t i)
 {
