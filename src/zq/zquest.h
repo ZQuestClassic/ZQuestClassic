@@ -610,6 +610,7 @@ int32_t onToggleGrid(bool color);
 int32_t onToggleGrid();
 int32_t onToggleShowScripts();
 int32_t onToggleScreenGrid();
+int32_t onToggleRegionGrid();
 int32_t onToggleCurrentScreenOutline();
 int32_t onToggleShowSquares();
 int32_t onToggleShowFFCs();

@@ -262,8 +262,8 @@ class zmap
     int32_t layer_target_map, layer_target_scr, layer_target_multiple;
 
 	bool regions_dirty = true;
-	region_ids_t current_region_ids;
-	int screen_is_in_current_region[128];
+	region_ids_t current_map_region_ids;
+	std::vector<region_description> region_descriptions;
 
 public:
 
@@ -373,9 +373,8 @@ public:
     int32_t  getCurrMap();
 	void regions_mark_dirty();
 	void regions_refresh();
-	int get_region_id(int screen);
+	const std::vector<region_description>& get_region_descriptions();
 	bool is_region(int screen);
-	bool is_screen_in_current_region(int screen);
     bool isDark(int scr);
 	bool isValid(int32_t scr);
 	bool isValid(int32_t map, int32_t scr);

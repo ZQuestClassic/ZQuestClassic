@@ -426,7 +426,6 @@ int32_t mouse_scroll_h;
 int32_t mapscreen_x, mapscreen_y, showedges, showallpanels;
 // The scale of the entire mapscreen area. This varies based on compact/extended mode.
 static int mapscreen_screenunit_scale;
-// Would love to have no limit, but our screen bitmap has too low a resolution at the moment.
 // The scale of an individual screen being drawn. This is `mapscreen_screenunit_scale / Map.getViewSize()`.
 static double mapscreen_single_scale;
 // 4 is roughly the largest value where things render okay. Beyond that, our low bitmap resolution results in tons
@@ -656,7 +655,7 @@ extern int CheckerCol1, CheckerCol2;
 int32_t alignment_arrow_timer=0;
 int32_t  Flip=0,Combo=0,CSet=2,current_combolist=0,current_comboalist=0,current_cpoollist=0,current_cautolist=0,current_mappage=0;
 int32_t  Flags=0,Flag=0,menutype=(m_block);
-int MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, ShowScreenGrid = 0, GridColor = 15, ShowCurScreenOutline = 1,
+int MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, ShowScreenGrid = 0, ShowRegionGrid = 0, GridColor = 15, ShowCurScreenOutline = 1,
 	CmbCursorCol = 15, TilePgCursorCol = 15, CmbPgCursorCol = 15, TTipHLCol = 13,
 	TileProtection = 0, ComboProtection = 0, NoScreenPreview = 0, MMapCursorStyle = 0,
 	LayerDitherBG = -1, LayerDitherSz = 2, RulesetDialog = 0,
@@ -1479,6 +1478,7 @@ enum
 	MENUID_VIEW_SCRIPTNAMES,
 	MENUID_VIEW_GRID,
 	MENUID_VIEW_SCREENGRID,
+	MENUID_VIEW_REGIONGRID,
 	MENUID_VIEW_CURSCROUTLINE,
 	MENUID_VIEW_DARKNESS,
 	MENUID_VIEW_L2BG,
@@ -1501,6 +1501,7 @@ NewMenu view_menu
 	{ "Show Script &Names", onToggleShowScripts, MENUID_VIEW_SCRIPTNAMES },
 	{ "Show &Grid", onGridToggle, MENUID_VIEW_GRID },
 	{ "Show Screen G&rid", onToggleScreenGrid, MENUID_VIEW_SCREENGRID },
+	{ "Show Region Grid", onToggleRegionGrid, MENUID_VIEW_REGIONGRID },
 	{ "Show Current Screen Outline", onToggleCurrentScreenOutline, MENUID_VIEW_CURSCROUTLINE },
 	{ "Show &Darkness", onShowDarkness, MENUID_VIEW_DARKNESS },
 	{ "Layer 2 is Background", onLayer2BG, MENUID_VIEW_L2BG },
@@ -1726,6 +1727,13 @@ int32_t onToggleScreenGrid()
 {
 	ShowScreenGrid=!ShowScreenGrid;
 	zc_set_config("zquest","show_screen_grid",ShowScreenGrid);
+	return D_O_K;
+}
+
+int32_t onToggleRegionGrid()
+{
+	ShowRegionGrid=!ShowRegionGrid;
+	zc_set_config("zquest","show_region_grid",ShowRegionGrid);
 	return D_O_K;
 }
 
@@ -5522,17 +5530,6 @@ void draw_screenunit_map_screen(VisibleScreen visible_screen)
 		}
 	}
 
-	bool should_dither;
-	if (!Map.isValid(Map.getCurrScr()))
-		should_dither = false;
-	else if (Map.is_region(Map.getCurrScr()))
-		should_dither = !Map.is_screen_in_current_region(screen);
-	else
-		should_dither = Map.is_region(screen);
-
-	if (should_dither)
-		ditherblit(mapscreenbmp, nullptr, vc(0), dithCrissCross, 8);
-
 	int w = mapscreenbmp->w * mapscreen_single_scale;
 	int h = mapscreenbmp->h * mapscreen_single_scale;
 	stretch_blit(mapscreenbmp, menu1, 0, 0, mapscreenbmp->w, mapscreenbmp->h, mapscreen_x + xoff, mapscreen_y + yoff, w, h);
@@ -5954,6 +5951,12 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				}
 			}
 
+			int startxint = mapscreen_x+(showedges?int(16*mapscreen_single_scale):0);
+			int startyint = mapscreen_y+(showedges?int(16*mapscreen_single_scale):0);
+			int endxint = startx + 256*mapscreen_screenunit_scale - 1;
+			int endyint = starty + 176*mapscreen_screenunit_scale - 1;
+			set_clip_rect(menu1,startxint,startyint,endxint,endyint);
+
 			if(ShowGrid)
 			{
 				int w = num_combos_width;
@@ -6004,6 +6007,28 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				}
 			}
 
+			// Draw a rect around regions.
+			if (ShowRegionGrid && Map.getViewSize() > 1)
+			{
+				for (const auto& region_description : Map.get_region_descriptions())
+				{
+					int sx = region_description.screen % 16;
+					int sy = region_description.screen / 16;
+					int sw = region_description.w;
+					int sh = region_description.h;
+
+					int mw = 256 * mapscreen_single_scale;
+					int mh = 176 * mapscreen_single_scale;
+					int mx = sx - (Map.getViewScr() % 16);
+					int my = sy - (Map.getViewScr() / 16);
+					int x0 = mapscreen_x + (showedges ? (16 * mapscreen_single_scale) : 0) + mx * mw;
+					int y0 = mapscreen_y + (showedges ? (16 * mapscreen_single_scale) : 0) + my * mh;
+					rect(menu1, x0+2, y0+2, x0 + mw*sw - 2, y0 + mh*sh - 2, vc(1));
+					rect(menu1, x0+1, y0+1, x0 + mw*sw - 1, y0 + mh*sh - 1, vc(15));
+					rect(menu1, x0, y0, x0 + mw*sw, y0 + mh*sh, vc(1));
+				}
+			}
+
 			// Draw a black-yellow-black rect around the currently selected screen.
 			if (ShowCurScreenOutline && Map.getViewSize() > 1)
 			{
@@ -6013,11 +6038,13 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				int my = (Map.getCurrScr() / 16) - (Map.getViewScr() / 16);
 				int x0 = mapscreen_x + (showedges ? (16 * mapscreen_single_scale) : 0) + mx * mw;
 				int y0 = mapscreen_y + (showedges ? (16 * mapscreen_single_scale) : 0) + my * mh;
-				dotted_rect(menu1, x0+1, y0+1, x0 + mw - 1, y0 + mh - 1, vc(1), vc(0));
-				rect(menu1, x0, y0, x0 + mw, y0 + mh, vc(14));
-				dotted_rect(menu1, x0-1, y0-1, x0 + mw + 1, y0 + mh + 1, vc(1), vc(0));
+				dotted_rect(menu1, x0+2, y0+2, x0 + mw - 2, y0 + mh - 2, vc(1), vc(0));
+				rect(menu1, x0+1, y0+1, x0 + mw - 1, y0 + mh - 1, vc(14));
+				dotted_rect(menu1, x0, y0, x0 + mw, y0 + mh, vc(1), vc(0));
 			}
-			
+
+			clear_clip_rect(menu1);
+
 			// Map tabs
 			font = get_custom_font(CFONT_GUI);
 			
@@ -24353,6 +24380,7 @@ int32_t main(int32_t argc,char **argv)
 	ShowGrid					   = zc_get_config("zquest","show_grid",0);
 	ShowCurScreenOutline			= zc_get_config("zquest","show_current_screen_outline",1);
 	ShowScreenGrid				   = zc_get_config("zquest","show_screen_grid",0);
+	ShowRegionGrid				   = zc_get_config("zquest","show_region_grid",1);
 	GridColor					  = zc_get_config("zquest","grid_color",15);
 	CmbCursorCol					  = zc_get_config("zquest","combo_cursor_color",15);
 	TilePgCursorCol					  = zc_get_config("zquest","tpage_cursor_color",15);
@@ -24933,6 +24961,7 @@ int32_t main(int32_t argc,char **argv)
 		view_menu.select_uid(MENUID_VIEW_SCRIPTNAMES, ShowFFScripts);
 		view_menu.select_uid(MENUID_VIEW_GRID, ShowGrid);
 		view_menu.select_uid(MENUID_VIEW_SCREENGRID, ShowScreenGrid);
+		view_menu.select_uid(MENUID_VIEW_REGIONGRID, ShowRegionGrid);
 		view_menu.select_uid(MENUID_VIEW_CURSCROUTLINE, ShowCurScreenOutline);
 		view_menu.select_uid(MENUID_VIEW_DARKNESS, get_qr(qr_NEW_DARKROOM) && (Flags&cNEWDARK));
 		view_menu.select_uid(MENUID_VIEW_L2BG, ViewLayer2BG);

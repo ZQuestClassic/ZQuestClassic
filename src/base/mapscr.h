@@ -338,6 +338,13 @@ struct regions_data
 
 void determine_region_size(const region_ids_t& region_ids, int input_screen, int& origin_scr_x, int& origin_scr_y, int& end_scr_x, int& end_scr_y);
 
+struct region_description {
+	int region_id;
+	int screen;
+	int w, h;
+};
+bool get_all_region_descriptions(std::vector<region_description>& result, const region_ids_t& region_ids);
+
 extern std::array<regions_data, MAXMAPS> Regions;
 // Every map screen (136 per map).
 extern std::vector<mapscr> TheMaps;

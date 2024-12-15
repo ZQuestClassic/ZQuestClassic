@@ -88,6 +88,67 @@ void determine_region_size(const region_ids_t& region_ids, int input_screen, int
 	}
 }
 
+bool get_all_region_descriptions(std::vector<region_description>& result, const region_ids_t& region_ids)
+{
+	std::array<bool, MAPSCRSNORMAL> seen{};
+	for (int i = 0; i < MAPSCRSNORMAL; i++)
+	{
+		if (seen[i])
+			continue;
+
+		int origin_scr_x, origin_scr_y, end_scr_x, end_scr_y;
+		determine_region_size(region_ids, i, origin_scr_x, origin_scr_y, end_scr_x, end_scr_y);
+
+		int region_id = region_ids[map_scr_xy_to_index(origin_scr_x, origin_scr_y)];
+		if (region_id == 0)
+		{
+			seen[i] = true;
+			continue;
+		}
+
+		int w = end_scr_x - origin_scr_x + 1;
+		int h = end_scr_y - origin_scr_y + 1;
+		result.emplace_back(region_description{region_id, i, w, h});
+
+		// Confirm everything within rectangle is the same region id, and has not been seen yet.
+		for (int x = origin_scr_x; x <= end_scr_x; x++)
+		{
+			for (int y = origin_scr_y; y <= end_scr_y; y++)
+			{
+				int screen = map_scr_xy_to_index(x, y);
+				if (seen[screen])
+					return false;
+				if (region_ids[screen] != region_id)
+					return false;
+
+				seen[screen] = true;
+			}
+		}
+
+		// Confirm not bordering (in cardinal directions) anything of same region id.
+		for (int x = origin_scr_x - 1; x <= end_scr_x + 1; x++)
+		{
+			for (int y = origin_scr_y - 1; y <= end_scr_y + 1; y++)
+			{
+				if (x < 0 || y < 0 || x >= 16 || y >= 8)
+					continue;
+
+				int count = 0;
+				if (x == origin_scr_x - 1 || x == end_scr_x + 1) count++;
+				if (y == origin_scr_y - 1 || y == end_scr_y + 1) count++;
+				if (count != 1)
+					continue;
+
+				int screen = map_scr_xy_to_index(x, y);
+				if (region_ids[screen] == region_id)
+					return false;
+			}
+		}
+	}
+
+	return true;
+}
+
 byte mapscr::ffEffectWidth(size_t ind) const
 {
 	return (byte)ffcs[ind].hit_width;

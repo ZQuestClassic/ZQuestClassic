@@ -553,29 +553,16 @@ void zmap::regions_refresh()
 		return;
 
 	regions_dirty = false;
+	region_descriptions.clear();
 
-	current_region_ids = Regions[cursor.map].get_all_region_ids();
-	int origin_scr_x, origin_scr_y, end_scr_x, end_scr_y;
-	determine_region_size(current_region_ids, cursor.screen, origin_scr_x, origin_scr_y, end_scr_x, end_scr_y);
-
-	for (int i = 0; i < 128; i++)
-		screen_is_in_current_region[i] = false;
-
-	for (int x = origin_scr_x; x <= end_scr_x; x++)
-	{
-		for (int y = origin_scr_y; y <= end_scr_y; y++)
-		{
-			screen_is_in_current_region[map_scr_xy_to_index(x, y)] = true;
-		}
-	}
+	current_map_region_ids = Regions[cursor.map].get_all_region_ids();
+	if (!get_all_region_descriptions(region_descriptions, current_map_region_ids))
+		region_descriptions.clear();
 }
-int zmap::get_region_id(int screen)
+const std::vector<region_description>& zmap::get_region_descriptions()
 {
-	if (screen < 0 || screen >= 128)
-		return 0;
-
 	regions_refresh();
-	return current_region_ids[screen];
+	return region_descriptions;
 }
 bool zmap::is_region(int screen)
 {
@@ -583,15 +570,7 @@ bool zmap::is_region(int screen)
 		return false;
 
 	regions_refresh();
-	return current_region_ids[screen];
-}
-bool zmap::is_screen_in_current_region(int screen)
-{
-	if (screen < 0 || screen >= 128)
-		return false;
-
-	regions_refresh();
-	return screen_is_in_current_region[screen];
+	return current_map_region_ids[screen];
 }
 bool zmap::isDark(int scr)
 {
