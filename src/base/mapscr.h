@@ -316,6 +316,8 @@ struct region_data
 	int height;
 };
 
+typedef std::array<byte, MAPSCRSNORMAL> region_ids_t;
+
 // Region data for an entire map.
 struct regions_data
 {
@@ -331,10 +333,10 @@ struct regions_data
 	byte get_region_id(int screen_x, int screen_y) const;
 	byte get_region_id(int screen) const;
 	void set_region_id(int screen, byte value);
-	std::array<int, MAPSCRSNORMAL> get_all_region_ids() const;
+	region_ids_t get_all_region_ids() const;
 };
 
-void determine_region_size(const std::array<int, MAPSCRSNORMAL>& region_ids, int input_screen, int& origin_scr_x, int& origin_scr_y, int& end_scr_x, int& end_scr_y);
+void determine_region_size(const region_ids_t& region_ids, int input_screen, int& origin_scr_x, int& origin_scr_y, int& end_scr_x, int& end_scr_y);
 
 extern std::array<regions_data, MAXMAPS> Regions;
 // Every map screen (136 per map).

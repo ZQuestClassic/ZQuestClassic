@@ -262,7 +262,7 @@ class zmap
     int32_t layer_target_map, layer_target_scr, layer_target_multiple;
 
 	bool regions_dirty = true;
-	std::array<int, MAPSCRSNORMAL> current_region_ids;
+	region_ids_t current_region_ids;
 	int screen_is_in_current_region[128];
 
 public:

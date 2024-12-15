@@ -80,7 +80,7 @@ void maps_init_game_vars()
 	freeze_viewport_update = false;
 }
 
-static std::array<int, MAPSCRSNORMAL> current_region_ids;
+static region_ids_t current_region_ids;
 
 static bool is_a_region(int map, int scr)
 {

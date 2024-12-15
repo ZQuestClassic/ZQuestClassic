@@ -31,24 +31,23 @@ void regions_data::set_region_id(int screen, byte value)
 		datum = util::nibble_set_lower_byte(datum, value);
 }
 
-// TODO z3 ! typedef, byte.
-std::array<int, MAPSCRSNORMAL> regions_data::get_all_region_ids() const
+region_ids_t regions_data::get_all_region_ids() const
 {
-	std::array<int, MAPSCRSNORMAL> screen_region_id = {};
+	region_ids_t region_ids{};
 
 	for (int sy = 0; sy < 8; sy++)
 	{
 		for (int sx = 0; sx < 16; sx++)
 		{
 			int screen = map_scr_xy_to_index(sx, sy);
-			screen_region_id[screen] = get_region_id(sx, sy);
+			region_ids[screen] = get_region_id(sx, sy);
 		}
 	}
 
-	return screen_region_id;
+	return region_ids;
 }
 
-void determine_region_size(const std::array<int, MAPSCRSNORMAL>& region_ids, int input_screen, int& origin_scr_x, int& origin_scr_y, int& end_scr_x, int& end_scr_y)
+void determine_region_size(const region_ids_t& region_ids, int input_screen, int& origin_scr_x, int& origin_scr_y, int& end_scr_x, int& end_scr_y)
 {
 	// yoink'd the following from zc/maps.cpp z3_calculate_region
 
@@ -62,7 +61,7 @@ void determine_region_size(const std::array<int, MAPSCRSNORMAL>& region_ids, int
 		return;
 	}
 
-	// For the currently selected screen, find the top-left corner of its region.
+	// For the given screen, find the top-left corner of its region.
 	while (origin_scr_x > 0)
 	{
 		if (id != region_ids[map_scr_xy_to_index(origin_scr_x - 1, origin_scr_y)]) break;
