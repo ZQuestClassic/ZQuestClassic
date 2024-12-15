@@ -4611,13 +4611,13 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
 	{
 		int sw = rti_map_view.width / 16;
 		int sh = rti_map_view.height / 8;
-		int scr = Map.getCurrScr();
-		if (scr >= 0x00 && scr <= 0x7F)
+		int screen = Map.getCurrScr();
+		if (screen >= 0x00 && screen <= 0x7F)
 		{
 			int dw = al_get_display_width(all_get_display()) / get_root_rti()->get_transform().xscale;
 			int dh = al_get_display_height(all_get_display()) / get_root_rti()->get_transform().yscale;
-			mapx = (-(scr % 16) * sw - sw/2 + dw/2);
-			mapy = (-(scr / 16) * sh - sh/2 + dh/2);
+			mapx = (-(screen % 16) * sw - sw/2 + dw/2);
+			mapy = (-(screen / 16) * sh - sh/2 + dh/2);
 		}
 	}
 
@@ -7692,7 +7692,7 @@ byte relational_source_grid[256]=
 static void draw_autocombo(ComboPosition combo_pos, bool rclick, bool pressframe = false)
 {
 	combo_auto &ca = combo_autos[combo_auto_pos];
-	int scr = Map.getScreenForPosition(combo_pos);
+	int screen = Map.getScreenForPosition(combo_pos);
 	int pos = combo_pos.truncate();
 
 	if (ca.valid())
@@ -7701,117 +7701,117 @@ static void draw_autocombo(ComboPosition combo_pos, bool rclick, bool pressframe
 		{
 			case AUTOCOMBO_BASIC:
 			{
-				AutoPattern::autopattern_basic ap(ca.getType(), CurrentLayer, scr, pos, &ca);
+				AutoPattern::autopattern_basic ap(ca.getType(), CurrentLayer, screen, pos, &ca);
 				if (rclick)
-					ap.erase(scr, pos);
+					ap.erase(screen, pos);
 				else
-					ap.execute(scr, pos);
+					ap.execute(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_Z1:
 			{
-				AutoPattern::autopattern_flatmtn ap(ca.getType(), CurrentLayer, scr, pos, &ca);
+				AutoPattern::autopattern_flatmtn ap(ca.getType(), CurrentLayer, screen, pos, &ca);
 				if (rclick)
-					ap.erase(scr, pos);
+					ap.erase(screen, pos);
 				else
-					ap.execute(scr, pos);
+					ap.execute(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_FENCE:
 			{
-				AutoPattern::autopattern_fence ap(ca.getType(), CurrentLayer, scr, pos, &ca);
+				AutoPattern::autopattern_fence ap(ca.getType(), CurrentLayer, screen, pos, &ca);
 				if (rclick)
-					ap.erase(scr, pos);
+					ap.erase(screen, pos);
 				else
-					ap.execute(scr, pos);
+					ap.execute(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_Z4:
 			{
-				AutoPattern::autopattern_cakemtn ap(ca.getType(), CurrentLayer, scr, pos, &ca, cauto_height);
+				AutoPattern::autopattern_cakemtn ap(ca.getType(), CurrentLayer, screen, pos, &ca, cauto_height);
 				if (rclick)
-					ap.erase(scr, pos);
+					ap.erase(screen, pos);
 				else
-					ap.execute(scr, pos);
+					ap.execute(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_RELATIONAL:
 			{
-				AutoPattern::autopattern_relational ap(ca.getType(), CurrentLayer, scr, pos, &ca);
+				AutoPattern::autopattern_relational ap(ca.getType(), CurrentLayer, screen, pos, &ca);
 				if (rclick)
-					ap.erase(scr, pos);
+					ap.erase(screen, pos);
 				else
-					ap.execute(scr, pos);
+					ap.execute(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_DGNCARVE:
 			{
-				AutoPattern::autopattern_dungeoncarve ap(ca.getType(), CurrentLayer, scr, pos, &ca);
+				AutoPattern::autopattern_dungeoncarve ap(ca.getType(), CurrentLayer, screen, pos, &ca);
 				if (rclick)
-					ap.erase(scr, pos);
+					ap.erase(screen, pos);
 				else
-					ap.execute(scr, pos);
+					ap.execute(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_DOR:
 			{
-				AutoPattern::autopattern_dormtn ap(ca.getType(), CurrentLayer, scr, pos, &ca, cauto_height);
+				AutoPattern::autopattern_dormtn ap(ca.getType(), CurrentLayer, screen, pos, &ca, cauto_height);
 				if (rclick)
-					ap.erase(scr, pos);
+					ap.erase(screen, pos);
 				else
-					ap.execute(scr, pos);
+					ap.execute(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_TILING:
 			{
 				if (pressframe && (key[KEY_LSHIFT] || key[KEY_RSHIFT]))
 				{
-					int32_t x = (scr % 16) * 16 + (pos % 16);
-					int32_t y = (scr / 16) * 11 + (pos / 16);
+					int32_t x = (screen % 16) * 16 + (pos % 16);
+					int32_t y = (screen / 16) * 11 + (pos / 16);
 					byte w = (ca.getArg() & 0xF) + 1;
 					byte h = ((ca.getArg() >> 4) & 0xF) + 1;
 					ca.setOffsets(x % w, y % h);
 				}
-				AutoPattern::autopattern_tiling ap(ca.getType(), CurrentLayer, scr, pos, &ca);
+				AutoPattern::autopattern_tiling ap(ca.getType(), CurrentLayer, screen, pos, &ca);
 				if (rclick)
-					ap.erase(scr, pos);
+					ap.erase(screen, pos);
 				else
-					ap.execute(scr, pos);
+					ap.execute(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_REPLACE:
 			{
-				AutoPattern::autopattern_replace ap(ca.getType(), CurrentLayer, scr, pos, &ca);
+				AutoPattern::autopattern_replace ap(ca.getType(), CurrentLayer, screen, pos, &ca);
 				if (rclick)
-					ap.erase(scr, pos);
+					ap.erase(screen, pos);
 				else
-					ap.execute(scr, pos);
+					ap.execute(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_DENSEFOREST:
 			{
 				if (pressframe && (key[KEY_LSHIFT] || key[KEY_RSHIFT]))
 				{
-					int32_t x = (scr % 16) * 16 + (pos % 16);
-					int32_t y = (scr / 16) * 11 + (pos / 16);
+					int32_t x = (screen % 16) * 16 + (pos % 16);
+					int32_t y = (screen / 16) * 11 + (pos / 16);
 					ca.setOffsets(x % 2, y % 2);
 				}
-				AutoPattern::autopattern_denseforest ap(ca.getType(), CurrentLayer, scr, pos, &ca);
+				AutoPattern::autopattern_denseforest ap(ca.getType(), CurrentLayer, screen, pos, &ca);
 				if (rclick)
-					ap.erase(scr, pos);
+					ap.erase(screen, pos);
 				else
-					ap.execute(scr, pos);
+					ap.execute(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_EXTEND:
 			{
 				if (CHECK_CTRL_CMD)
 					break;
-				AutoPattern::autopattern_extend ap(ca.getType(), CurrentLayer, scr, pos, &ca);
+				AutoPattern::autopattern_extend ap(ca.getType(), CurrentLayer, screen, pos, &ca);
 				if (rclick)
-					ap.erase(scr, pos);
+					ap.erase(screen, pos);
 				else
-					ap.execute(scr, pos);
+					ap.execute(screen, pos);
 				break;
 			}
 		}
@@ -7828,7 +7828,7 @@ static void draw_autocombo(ComboPosition combo_pos, bool rclick, bool pressframe
 static void draw_autocombo_command(ComboPosition combo_pos, int32_t cmd = 0, int32_t arg = 0)
 {
 	combo_auto ca = combo_autos[combo_auto_pos];
-	int scr = Map.getScreenForPosition(combo_pos);
+	int screen = Map.getScreenForPosition(combo_pos);
 	int pos = combo_pos.truncate();
 
 	if (ca.valid())
@@ -7837,20 +7837,20 @@ static void draw_autocombo_command(ComboPosition combo_pos, int32_t cmd = 0, int
 		{
 			case AUTOCOMBO_FENCE:
 			{
-				AutoPattern::autopattern_fence ap(ca.getType(), CurrentLayer, scr, pos, &ca);
-				ap.flip_all_connected(scr, pos, 2048);
+				AutoPattern::autopattern_fence ap(ca.getType(), CurrentLayer, screen, pos, &ca);
+				ap.flip_all_connected(screen, pos, 2048);
 				break;
 			}
 			case AUTOCOMBO_Z4:
 			{
-				AutoPattern::autopattern_cakemtn ap(ca.getType(), CurrentLayer, scr, pos, &ca, cauto_height);
+				AutoPattern::autopattern_cakemtn ap(ca.getType(), CurrentLayer, screen, pos, &ca, cauto_height);
 				switch (cmd)
 				{
 					case 0: // Flip
-						ap.flip_all_connected(scr, pos, 2048);
+						ap.flip_all_connected(screen, pos, 2048);
 						break;
 					case 1: // Grow
-						ap.resize_connected(scr, pos, 2048, vbound(arg, 1, 9));
+						ap.resize_connected(screen, pos, 2048, vbound(arg, 1, 9));
 						break;
 				}
 			}
@@ -7861,7 +7861,7 @@ static void draw_autocombo_command(ComboPosition combo_pos, int32_t cmd = 0, int
 static int32_t get_autocombo_floating_cid(ComboPosition combo_pos, bool clicked)
 {
 	combo_auto& ca = combo_autos[combo_auto_pos];
-	int scr = Map.getScreenForPosition(combo_pos);
+	int screen = Map.getScreenForPosition(combo_pos);
 	int pos = combo_pos.truncate();
 	int cid = 0;
 
@@ -7871,45 +7871,45 @@ static int32_t get_autocombo_floating_cid(ComboPosition combo_pos, bool clicked)
 		{
 			case AUTOCOMBO_BASIC:
 			{
-				AutoPattern::autopattern_basic ap(ca.getType(), CurrentLayer, scr, pos, &ca);
-				cid = ap.get_floating_cid(scr, pos);
+				AutoPattern::autopattern_basic ap(ca.getType(), CurrentLayer, screen, pos, &ca);
+				cid = ap.get_floating_cid(screen, pos);
 				break;
 			}
 
 			case AUTOCOMBO_Z1:
 			{
-				AutoPattern::autopattern_flatmtn ap(ca.getType(), CurrentLayer, scr, pos, &ca);
-				cid = ap.get_floating_cid(scr, pos);
+				AutoPattern::autopattern_flatmtn ap(ca.getType(), CurrentLayer, screen, pos, &ca);
+				cid = ap.get_floating_cid(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_FENCE:
 			{
-				AutoPattern::autopattern_fence ap(ca.getType(), CurrentLayer, scr, pos, &ca);
-				cid = ap.get_floating_cid(scr, pos);
+				AutoPattern::autopattern_fence ap(ca.getType(), CurrentLayer, screen, pos, &ca);
+				cid = ap.get_floating_cid(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_Z4:
 			{
-				AutoPattern::autopattern_cakemtn ap(ca.getType(), CurrentLayer, scr, pos, &ca, cauto_height);
-				cid = ap.get_floating_cid(scr, pos);
+				AutoPattern::autopattern_cakemtn ap(ca.getType(), CurrentLayer, screen, pos, &ca, cauto_height);
+				cid = ap.get_floating_cid(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_RELATIONAL:
 			{
-				AutoPattern::autopattern_relational ap(ca.getType(), CurrentLayer, scr, pos, &ca);
-				cid = ap.get_floating_cid(scr, pos);
+				AutoPattern::autopattern_relational ap(ca.getType(), CurrentLayer, screen, pos, &ca);
+				cid = ap.get_floating_cid(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_DGNCARVE:
 			{
-				AutoPattern::autopattern_dungeoncarve ap(ca.getType(), CurrentLayer, scr, pos, &ca);
-				cid = ap.get_floating_cid(scr, pos);
+				AutoPattern::autopattern_dungeoncarve ap(ca.getType(), CurrentLayer, screen, pos, &ca);
+				cid = ap.get_floating_cid(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_DOR:
 			{
-				AutoPattern::autopattern_dormtn ap(ca.getType(), CurrentLayer, scr, pos, &ca, cauto_height);
-				cid = ap.get_floating_cid(scr, pos);
+				AutoPattern::autopattern_dormtn ap(ca.getType(), CurrentLayer, screen, pos, &ca, cauto_height);
+				cid = ap.get_floating_cid(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_TILING:
@@ -7917,33 +7917,33 @@ static int32_t get_autocombo_floating_cid(ComboPosition combo_pos, bool clicked)
 				std::pair<byte, byte> offs = ca.getOffsets();
 				if (!clicked && (key[KEY_LSHIFT] || key[KEY_RSHIFT]))
 				{
-					int32_t x = (scr % 16) * 16 + (pos % 16);
-					int32_t y = (scr / 16) * 11 + (pos / 16);
+					int32_t x = (screen % 16) * 16 + (pos % 16);
+					int32_t y = (screen / 16) * 11 + (pos / 16);
 					byte w = (ca.getArg() & 0xF) + 1;
 					byte h = ((ca.getArg() >> 4) & 0xF) + 1;
 					offs.first = (x % w);
 					offs.second = (y % h);
 				}
-				AutoPattern::autopattern_tiling ap(ca.getType(), CurrentLayer, scr, pos, &ca);
-				cid = ap.get_floating_cid(scr, pos);
+				AutoPattern::autopattern_tiling ap(ca.getType(), CurrentLayer, screen, pos, &ca);
+				cid = ap.get_floating_cid(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_REPLACE:
 			{
-				AutoPattern::autopattern_replace ap(ca.getType(), CurrentLayer, scr, pos, &ca);
-				cid = ap.get_floating_cid(scr, pos);
+				AutoPattern::autopattern_replace ap(ca.getType(), CurrentLayer, screen, pos, &ca);
+				cid = ap.get_floating_cid(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_DENSEFOREST:
 			{
-				AutoPattern::autopattern_denseforest ap(ca.getType(), CurrentLayer, scr, pos, &ca);
-				cid = ap.get_floating_cid(scr, pos);
+				AutoPattern::autopattern_denseforest ap(ca.getType(), CurrentLayer, screen, pos, &ca);
+				cid = ap.get_floating_cid(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_EXTEND:
 			{
-				AutoPattern::autopattern_extend ap(ca.getType(), CurrentLayer, scr, pos, &ca);
-				cid = ap.get_floating_cid(scr, pos);
+				AutoPattern::autopattern_extend ap(ca.getType(), CurrentLayer, screen, pos, &ca);
+				cid = ap.get_floating_cid(screen, pos);
 				break;
 			}
 		}
@@ -15862,11 +15862,11 @@ int32_t d_warpdestscrsel_proc(int32_t msg,DIALOG *d,int32_t c)
 				auto gr = (yind < 8 ? dm.grid[yind] : 0);
 				for(int xind = (yind == 8 ? 0 : val_offset); xind < scrw; ++xind)
 				{
-					int scr = xind+(yind*16);
-					if(scr > max)
+					int screen_index = map_scr_xy_to_index(xind, yind);
+					if(screen_index > max)
 						continue;
 					int fr = FR_MENU;
-					if(scr == d->d1)
+					if(screen_index == d->d1)
 						fr = FR_GREEN;
 					else if(!is_overworld && xind < 8 && (gr&(1<<(8-xind-1))))
 						fr = FR_MENU_INV;

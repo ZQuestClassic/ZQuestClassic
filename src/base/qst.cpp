@@ -16615,7 +16615,7 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 		if(!(temp_mapscr->valid & mVALID))
 		{
 			int map = scrind/MAPSCRS;
-			int scr = scrind%MAPSCRS;
+			int screen = scrind%MAPSCRS;
 			if(version > 25 && scrind > -1 && (map*6+5) < map_autolayers.size())
 			{
 				//Empty screen, apply autolayers
@@ -16624,7 +16624,7 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 					auto layermap = map_autolayers[map*6+q];
 					temp_mapscr->layermap[q] = layermap;
 					if(layermap)
-						temp_mapscr->layerscreen[q] = scr;
+						temp_mapscr->layerscreen[q] = screen;
 				}
 			}
 			return 0;
@@ -17033,7 +17033,7 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 int32_t readmaps(PACKFILE *f, zquestheader *Header)
 {
 	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_maps);
-	int32_t scr=0;
+	int32_t screen=0;
 	
 	word version=0;
 	dword dummy;
@@ -17139,14 +17139,14 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header)
 		}
 		for(int32_t j=0; j<screens_to_read; j++)
 		{
-			scr=i*MAPSCRS+j;
-			mapscr* screen = should_skip ? &temp_mapscr : &TheMaps[scr];
-			screen->map = i;
-			screen->screen = j;
+			screen=i*MAPSCRS+j;
+			mapscr* scr = should_skip ? &temp_mapscr : &TheMaps[screen];
+			scr->map = i;
+			scr->screen = j;
 			if(valid)
-				readmapscreen(f, Header, screen, version, scr);
+				readmapscreen(f, Header, scr, version, screen);
 			else if (!should_skip)
-				clear_screen(screen);
+				clear_screen(scr);
 		}
 
 		if (should_skip)
@@ -17164,12 +17164,12 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header)
 			
 			for(int32_t j=133; j<MAPSCRS; j++)
 			{
-				scr=i*MAPSCRS+j;
+				screen=i*MAPSCRS+j;
 				
-				TheMaps[scr].zero_memory();
-				TheMaps[scr].valid = mVERSION;
-				TheMaps[scr].screen_midi = -1;
-				TheMaps[scr].csensitive = 1;
+				TheMaps[screen].zero_memory();
+				TheMaps[screen].valid = mVERSION;
+				TheMaps[screen].screen_midi = -1;
+				TheMaps[screen].csensitive = 1;
 			}
 		}
 		
@@ -17177,14 +17177,14 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header)
 		{
 			for(int32_t j=0; j<MAPSCRS; j++)
 			{
-				scr=i*MAPSCRS+j;
-				TheMaps[scr].door_combo_set=MakeDoors(i, j);
+				screen=i*MAPSCRS+j;
+				TheMaps[screen].door_combo_set=MakeDoors(i, j);
 				
 				for(int32_t k=0; k<128; k++)
 				{
-					TheMaps[scr].secretcset[k]=tcmbcset2(i, TheMaps[scr].secretcombo[k]);
-					TheMaps[scr].secretflag[k]=tcmbflag2(i, TheMaps[scr].secretcombo[k]);
-					TheMaps[scr].secretcombo[k]=tcmbdat2(i, j, TheMaps[scr].secretcombo[k]);
+					TheMaps[screen].secretcset[k]=tcmbcset2(i, TheMaps[screen].secretcombo[k]);
+					TheMaps[screen].secretflag[k]=tcmbflag2(i, TheMaps[screen].secretcombo[k]);
+					TheMaps[screen].secretcombo[k]=tcmbdat2(i, j, TheMaps[screen].secretcombo[k]);
 				}
 			}
 		}

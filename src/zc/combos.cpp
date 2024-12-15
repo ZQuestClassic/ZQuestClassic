@@ -1212,7 +1212,6 @@ bool trigger_chest_ffc(const ffc_handle_t& ffc_handle)
 
 bool trigger_lockblock(const rpos_handle_t& rpos_handle)
 {
-	DCHECK(rpos_handle.rpos <= region_max_rpos);
 	mapscr* base_scr = rpos_handle.base_scr();
 	int screen = rpos_handle.screen;
 	

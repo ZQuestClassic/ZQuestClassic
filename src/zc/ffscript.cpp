@@ -250,9 +250,9 @@ enum class mapdata_type
 //
 // The canonical maprefs are >=0, and temporary ones are all negative.
 //
-// If temporary, and we are in a region, we allow some functions (like `mapref->ComboX[pos]`) to
+// If temporary, and we are in a scrolling region, we allow some functions (like `ComboX[pos]`) to
 // address any rpos in the current region. Otherwise, only positions in the exact screen referenced
-// by `mapref` can be used (0-175).
+// by `mapref` can be used (0-175). See ResolveMapdataPos.
 static auto decode_mapdata_ref(int ref)
 {
 	struct decode_result {
@@ -321,8 +321,8 @@ mapscr* GetScrollingMapscr(int layer, int x, int y)
 	if (!screenscrolling)
 		return nullptr;
 
-	int scr = scrolling_cur_screen + (x / 256) + (y / 176) * 16;
-	mapscr* m = FFCore.ScrollingScreensAll[scr * 7 + layer];
+	int screen = scrolling_cur_screen + (x / 256) + (y / 176) * 16;
+	mapscr* m = FFCore.ScrollingScreensAll[screen * 7 + layer];
 	if (m->valid == 0)
 		return nullptr;
 
@@ -1606,7 +1606,7 @@ static rpos_handle_t ResolveMapdataPos(int32_t mapref, int pos, const char* cont
 		return rpos_handle_t{};
 	}
 
-	// mapdata loaded via `Game->LoadTempScreen(Game->CurScreen, layer)` or `Game->LoadTempScreen(layer)` have
+	// mapdata loaded via `Game->LoadTempScreen(layer, Game->CurScreen)` or `Game->LoadTempScreen(layer)` have
 	// access to the entire region.
 	if (result.type == mapdata_type::Temporary_Cur && result.screen == cur_screen)
 	{

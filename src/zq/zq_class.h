@@ -297,7 +297,7 @@ public:
     void DoPutDoorCommand(int side, int door, bool force = false);
     void DoSetDoorCommand(int scr, int side, int door);
     void DoSetDCSCommand(int dcs);
-    void DoPasteScreenCommand(PasteCommandType type, int scr = -1);
+    void DoPasteScreenCommand(PasteCommandType type, int screen = -1);
     void DoClearScreenCommand(int scr);
     void DoTemplateCommand(int floorcombo, int floorcset, int scr);
 

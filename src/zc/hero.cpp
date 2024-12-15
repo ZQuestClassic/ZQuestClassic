@@ -1894,14 +1894,14 @@ int32_t HeroClass::weaponattackpower(int32_t itid)
 	// Multiply it by the power of the spin attack/quake hammer, if applicable.
 	if(spins > 0)
 	{
-		int scr = currentscroll;
-		if(scr < 0)
+		int screen = currentscroll;
+		if(screen < 0)
 		{
-			scr = current_item_id(attack==wHammer ? (spins>1?itype_quakescroll2:itype_quakescroll)
+			screen = current_item_id(attack==wHammer ? (spins>1?itype_quakescroll2:itype_quakescroll)
 				: (spins>5 || current_item_id(itype_spinscroll) < 0)
 					? itype_spinscroll2 : itype_spinscroll);
 		}
-		power *= itemsbuf[scr].power;
+		power *= itemsbuf[screen].power;
 	}
 	else currentscroll = -1;
 	return power;
@@ -22621,11 +22621,11 @@ static int32_t grabComboFromPos(int32_t epos, int32_t type)
 	int x = COMBOX_REGION_EXTENDED(epos);
 	int y = COMBOY_REGION_EXTENDED(epos);
 	int pos = COMBOPOS(x%256, y%176);
-	int scr = get_screen_index_for_world_xy(x, y);
+	int screen = get_screen_index_for_world_xy(x, y);
 
 	for(int32_t lyr = 6; lyr >= 0; --lyr)
 	{
-		int32_t id = get_layer_scr(scr, lyr - 1)->data[pos];
+		int32_t id = get_layer_scr(screen, lyr - 1)->data[pos];
 		if(combobuf[id].type == type)
 			return id;
 	}
