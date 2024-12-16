@@ -332,7 +332,7 @@ class TestReplays(unittest.TestCase):
         meta = read_replay_meta(replay_path)
         self.assertEqual(meta['debug'], 'true')
         self.assertEqual(meta['test_mode'], 'true')
-        self.assertEqual(meta['frames'], '100')
+        self.assertEqual(meta['frames'], 100)
         self.assertEqual(meta['qst_title'], 'Original NES 1st Quest')
         self.assertEqual(meta['qst_hash'], '5833FF169985B186D58058417E918408')
 

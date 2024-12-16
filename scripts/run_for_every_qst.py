@@ -5,12 +5,13 @@
 #   python scripts/run_for_every_qst.py ./build/Debug/zplayer -extract-zasm %s
 
 import argparse
-import json
 import os
 import subprocess
 
 from pathlib import Path
 from typing import List
+
+import db_helpers
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
@@ -24,27 +25,11 @@ parser.add_argument(
 parser.add_argument('command', nargs=argparse.REMAINDER)
 args = parser.parse_args()
 
-db = json.loads(args.quest_database.read_text())
-quests: List[Path] = []
-for entry in db.values():
-    if not entry['id'].startswith('quests/'):
-        continue
-    # This quest is from 1.92b182, which usually we can load by not this one. There's unexpected bytes
-    # prior to the "Zelda Classic Quest File" string.
-    if entry['id'] == 'quests/purezc/73':
-        continue
+db = db_helpers.Database(args.quest_database)
+quests = db.get_quests()
+quest_paths = [db.get_quest_path(quest) for quest in quests]
 
-    qst_path = args.quest_database.parent / entry['defaultPath']
-    if not qst_path.exists():
-        print(f'does not exist: {qst_path}')
-        print('make sure you\'ve cloned the database:')
-        print('  cd scripts/database')
-        print('  OFFICIAL_SYNC=1 npm run collect')
-        # TODO: would be better if we just downloaded things as we go.
-        exit(1)
-    quests.append(qst_path)
-
-for index, path in enumerate(quests):
+for index, path in enumerate(quest_paths):
     if index < args.starting_index:
         continue
 

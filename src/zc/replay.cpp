@@ -71,6 +71,7 @@ static size_t replay_log_current_state_index;
 static size_t assert_current_index;
 static size_t manual_takeover_start_index;
 static bool has_assert_failed;
+static bool has_aborted;
 static int failing_frame;
 static int last_failing_gfx_frame;
 static int current_failing_gfx_segment_start_frame;
@@ -966,7 +967,7 @@ static void save_result(bool stopped = false, bool changed = false)
 	out << fmt::format("fps: {}", fps) << '\n';
 	if (stopped || has_assert_failed)
 	{
-		bool success = stopped && !has_assert_failed && !has_rng_desynced && failed_loadscr_count_frame == -1;
+		bool success = stopped && !has_aborted && !has_assert_failed && !has_rng_desynced && failed_loadscr_count_frame == -1;
 		out << fmt::format("success: {}", success) << '\n';
 	}
 	if (has_rng_desynced)
@@ -1224,6 +1225,7 @@ void replay_start(ReplayMode mode_, std::filesystem::path path, int frame)
     sync_rng = false;
     did_attempt_input_during_replay = false;
     has_assert_failed = false;
+    has_aborted = false;
     failing_frame = -1;
     last_failing_gfx_frame = -1;
     current_failing_gfx_segment_start_frame = -1;
@@ -1300,6 +1302,7 @@ void replay_continue(std::filesystem::path path)
     ASSERT(mode == ReplayMode::Off);
     mode = ReplayMode::Record;
     frame_arg = -1;
+    has_aborted = false;
     prev_mouse_state = {0, 0, 0, 0};
     current_mouse_state = {0, 0, 0, 0};
     replay_forget_input();
@@ -1624,6 +1627,8 @@ void replay_stop(bool aborted)
 {
     if (mode == ReplayMode::Off)
         return;
+
+	has_aborted = aborted;
 
     if (replay_is_replaying())
     {

@@ -37,7 +37,11 @@ python tests/run_replay_tests.py --filter tests/replays/classic_1st.zplay
 * limit how many frames of the replay runs like: `--frame 100`
 * use `--help` to see more options
 
-We have a local webserver for running these replays from a brower, and for visualizing how a replay fails with a compare report. See [./tests/replay_runner](./tests/replay_runner/README.md) for more.
+We have a local webserver for running these replays from a browser, and for visualizing how a replay fails with a compare report. See [./tests/replay_runner](./tests/replay_runner/README.md) for more.
+
+### User uploaded replays
+
+Users can opt into uploading replays of the quests they play. Only replays for known quests in the database are uploaded. To download them for local use, run `python scripts/replay_uploads.py` (requires an auth key, ask Connor for one).
 
 ### Python test suite
 

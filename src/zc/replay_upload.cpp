@@ -1,3 +1,5 @@
+// Can download and run uploded replays locally via `scripts/replay_uploads.py`.
+
 #include "zc/replay_upload.h"
 #include "base/http.h"
 #include "zc/replay.h"

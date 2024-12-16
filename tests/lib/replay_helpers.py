@@ -51,6 +51,8 @@ def read_replay_meta(path: Path):
             )
         frames = int(last_step.split(' ')[1])
         meta['frames'] = frames
+    else:
+        meta['frames'] = int(meta['frames'])
 
     return meta
 
