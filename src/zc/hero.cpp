@@ -29263,9 +29263,14 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			// This is the only thing that moves the hero.
 			if (!sideview_scrolling_slope)
 			{
-				x.doClamp(viewport.x, viewport.x + viewport.w - 16);
-				int bounds_y = viewport.y;
-				y.doClamp(bounds_y, bounds_y + viewport.h - 16);
+				if (scrolling_dir == left || scrolling_dir == right)
+				{
+					x.doClamp(viewport.x, viewport.right() - 16);
+				}
+				else
+				{
+					y.doClamp(viewport.y, viewport.bottom() - 16);
+				}
 			}
 
 			if (is_unsmooth_vertical_scrolling) viewport.y += 3;
@@ -29514,9 +29519,14 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	// Might not be needed, but just in case.
 	if (sideview_scrolling_slope)
 	{
-		x.doClamp(viewport.x, viewport.x + viewport.w - 16);
-		int bounds_y = viewport.y;
-		y.doClamp(bounds_y, bounds_y + viewport.h - 16);
+		if (scrolling_dir == left || scrolling_dir == right)
+		{
+			x.doClamp(viewport.x, viewport.right() - 16);
+		}
+		else
+		{
+			y.doClamp(viewport.y, viewport.bottom() - 16);
+		}
 	}
 
 	// TODO z3 old scrolling code didn't clear the darkroom bitmaps at end of scroll, so first frame will have some lighting from
