@@ -29406,7 +29406,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			// Must draw with old-region coordinates.
 			auto prev_y = y;
 			auto prev_yofs = yofs;
-			auto prev_pfos = playing_field_offset;
 
 			if (is_unsmooth_vertical_scrolling) y += 3;
 			yofs = playing_field_offset;
@@ -29420,25 +29419,24 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			{
 				for (int i = 0; i < decorations.Count(); i++)
 				{
-					auto sprite = (decoration*)decorations.spr(i);
-					if (!sprite->is_drawn_with_offset())
-					{
-						// NOTE: if decoration sprites are ever exposed to zscript, this modification
-						// needs to tack on to existing values for x/yofs.
-						sprite->xofs = ox;
-						sprite->yofs = oy + playing_field_offset;
-					}
+					auto sprite = decorations.spr(i);
+					sprite->yofs += playing_field_offset - old_original_playing_field_offset;
 				}
 
 				draw_under(framebuf); //draw the ladder or raft
 				decorations.draw2(framebuf, true);
 				draw(framebuf); //Hero
 				decorations.draw(framebuf,  true);
+
+				for (int i = 0; i < decorations.Count(); i++)
+				{
+					auto sprite = decorations.spr(i);
+					sprite->yofs -= playing_field_offset - old_original_playing_field_offset;
+				}
 			}
 
 			y = prev_y;
 			yofs = prev_yofs;
-			playing_field_offset = prev_pfos;
 		}
 		
 		for_every_nearby_screen_during_scroll(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int offx, int offy, bool is_new_screen) {
