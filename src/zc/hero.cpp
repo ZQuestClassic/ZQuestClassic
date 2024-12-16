@@ -29255,9 +29255,9 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			}
 			
 			//bound Hero when me move him off the screen in the last couple of frames of scrolling
-			if(script_hero_y > old_viewport.y + old_viewport.h - 16) script_hero_y = old_viewport.y + old_viewport.h - 16;
+			if(script_hero_y > old_viewport.bottom() - 16) script_hero_y = old_viewport.bottom() - 16;
 			if(script_hero_y < 0)   script_hero_y = 0;
-			if(script_hero_x > old_viewport.x + old_viewport.w - 16) script_hero_x = old_viewport.x + old_viewport.w - 16;
+			if(script_hero_x > old_viewport.right() - 16) script_hero_x = old_viewport.right() - 16;
 			if(script_hero_x < 0)   script_hero_x = 0;
 
 			// This is the only thing that moves the hero.
