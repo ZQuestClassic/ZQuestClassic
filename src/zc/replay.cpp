@@ -68,6 +68,7 @@ static size_t replay_log_current_state_index;
 static size_t assert_current_index;
 static size_t manual_takeover_start_index;
 static bool has_assert_failed;
+static bool has_aborted;
 static int failing_frame;
 static int last_failing_gfx_frame;
 static int current_failing_gfx_segment_start_frame;
@@ -849,7 +850,7 @@ static void load_replay(std::map<std::string, std::string>& meta_map, std::files
     debug = replay_get_meta_bool("debug");
     sync_rng = replay_get_meta_bool("sync_rng");
 
-    if (mode == ReplayMode::Assert)
+    if (mode == ReplayMode::Assert || mode == ReplayMode::Update)
     {
         expected_loadscr_frame_count.clear();
         for (auto step : replay_log)
@@ -962,7 +963,10 @@ static void save_result(bool stopped = false, bool changed = false)
 	out << fmt::format("frame: {}", frame_count) << '\n';
 	out << fmt::format("fps: {}", fps) << '\n';
 	if (stopped || has_assert_failed)
-		out << fmt::format("success: {}", stopped && !has_assert_failed && !has_rng_desynced) << '\n';
+	{
+		bool success = stopped && !has_aborted && !has_assert_failed && !has_rng_desynced && failed_loadscr_count_frame == -1;
+		out << fmt::format("success: {}", success) << '\n';
+	}
 	if (has_rng_desynced)
 		out << fmt::format("rng_desync: {}", has_rng_desynced) << '\n';
 	if (has_assert_failed)
@@ -1218,6 +1222,7 @@ void replay_start(ReplayMode mode_, std::filesystem::path path, int frame)
     sync_rng = false;
     did_attempt_input_during_replay = false;
     has_assert_failed = false;
+    has_aborted = false;
     failing_frame = -1;
     last_failing_gfx_frame = -1;
     current_failing_gfx_segment_start_frame = -1;
@@ -1294,6 +1299,7 @@ void replay_continue(std::filesystem::path path)
     ASSERT(mode == ReplayMode::Off);
     mode = ReplayMode::Record;
     frame_arg = -1;
+    has_aborted = false;
     prev_mouse_state = {0, 0, 0, 0};
     current_mouse_state = {0, 0, 0, 0};
     replay_forget_input();
@@ -1456,6 +1462,20 @@ void replay_poll()
         }
     }
 
+    // Updating should never modify when screens are loaded.
+    if (mode == ReplayMode::Update)
+    {
+        int expected_frame = loadscr_count + 1 >= expected_loadscr_frame_count.size() ?
+            replay_log.back()->frame :
+            expected_loadscr_frame_count[loadscr_count + 1];
+        if (frame_count > expected_frame)
+        {
+            failed_loadscr_count_frame = frame_count;
+            replay_stop();
+            return;
+        }
+    }
+
     rng_seed_count_this_frame.clear();
     frame_count++;
 }
@@ -1600,10 +1620,12 @@ void replay_forget_input()
         previous_keys[i] = false;
 }
 
-void replay_stop()
+void replay_stop(bool aborted)
 {
     if (mode == ReplayMode::Off)
         return;
+
+	has_aborted = aborted;
 
     if (replay_is_replaying())
     {
@@ -1612,7 +1634,7 @@ void replay_stop()
         KeyMapReplayStep::stored.run();
     }
 
-    if (mode == ReplayMode::Assert)
+    if (mode == ReplayMode::Assert && !aborted)
     {
         check_assert();
         bool log_size_mismatch = replay_log.size() != record_log.size();
@@ -1625,14 +1647,11 @@ void replay_stop()
         {
             fprintf(stderr, "replay_log size is %zu but record_log size is %zu\n", replay_log.size(), record_log.size());
         }
-    }
 
-    if (mode == ReplayMode::Assert)
-    {
         save_result(true);
         if (exit_when_done)
         {
-			replay_quit();
+			mode = ReplayMode::Off;
 			zc_exit(has_assert_failed ? ASSERT_FAILED_EXIT_CODE : 0);
         }
         else if (has_assert_failed)
@@ -1644,10 +1663,27 @@ void replay_stop()
         }
     }
 
-    if (mode == ReplayMode::Update)
+    if (mode == ReplayMode::Update && !aborted)
     {
         bool should_save;
-        if (replay_log.size() != record_log.size())
+        if (failed_loadscr_count_frame != -1)
+        {
+            should_save = false;
+
+            if (exit_when_done)
+            {
+                save_result(true);
+                mode = ReplayMode::Off;
+                zc_exit(ASSERT_FAILED_EXIT_CODE);
+            }
+            else
+            {
+                enter_sys_pal();
+                jwin_alert("Update", "Failed to update replay as there was a non-graphical change.", NULL, NULL, "OK", NULL, 13, 27, get_zc_font(font_lfont));
+                exit_sys_pal();
+            }
+        }
+        else if (replay_log.size() != record_log.size())
         {
             should_save = true;
         }
@@ -1702,9 +1738,8 @@ void replay_stop()
 
 void replay_quit()
 {
-    if (mode == ReplayMode::Assert || mode == ReplayMode::Update)
-        mode = ReplayMode::Replay;
-    replay_stop();
+    bool aborted = true;
+    replay_stop(aborted);
 }
 
 void replay_save()

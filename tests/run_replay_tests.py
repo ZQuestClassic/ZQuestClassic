@@ -200,7 +200,7 @@ exclgroup.add_argument(
     help='Play back the replay, without updating or asserting.',
 )
 exclgroup.add_argument(
-    '--update', action='store_true', help='Update the replays, accepting any changes.'
+    '--update', action='store_true', help='Update the replays, accepting any graphical changes (unless --frame is also set, see comment at top of run_replay_tests.py).'
 )
 exclgroup.add_argument(
     '--assert',

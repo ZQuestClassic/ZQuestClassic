@@ -310,7 +310,7 @@ def load_replays(replay_paths: List[Path], relative_to: Path) -> List[Replay]:
 
         name = get_replay_name(path, relative_to)
         meta = read_replay_meta(path)
-        frames = int(meta['frames'])
+        frames = meta['frames']
 
         if meta['qst'] == 'playground.qst' and meta['version'] != 'latest':
             raise Exception(

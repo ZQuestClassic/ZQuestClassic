@@ -21,6 +21,7 @@ from typing import List, Literal, Union
 import common
 import git_helpers
 import requests
+import s3_helpers
 
 from github import Github
 from joblib import Memory
@@ -124,31 +125,14 @@ def revision_count_supports_platform(revision_count: int, platform_str: str):
 
 @functools.cache
 def get_download_urls(channel: str):
+    keys = s3_helpers.list_bucket(bucket_url)
+
     keys_by_commitish = {}
-
-    def get_download_urls_impl(marker: str):
-        url = f'{bucket_url}?max-keys=1000'
-        if marker:
-            url += f'&marker={marker}'
-        archives_xml = requests.get(url).text
-
-        keys = re.compile(r'<Key>(.*?)</Key>').findall(archives_xml)
-        for key in keys:
-            commitish, filename = key.split('/', 2)
-            if commitish not in keys_by_commitish:
-                keys_by_commitish[commitish] = []
-            keys_by_commitish[commitish].append(key)
-
-        match = re.compile(r'<NextMarker>(.*?)</NextMarker>').search(archives_xml)
-        if match:
-            return match.group(1)
-        return None
-
-    marker = ''
-    while True:
-        marker = get_download_urls_impl(marker)
-        if not marker:
-            break
+    for key in keys:
+        commitish, filename = key.split('/', 2)
+        if commitish not in keys_by_commitish:
+            keys_by_commitish[commitish] = []
+        keys_by_commitish[commitish].append(key)
 
     urls_by_commitish = {}
     for commitish, keys in keys_by_commitish.items():

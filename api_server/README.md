@@ -2,7 +2,7 @@
 
 Provides the following services for ZC:
 
-* Uploading replays
+* Uploading replays (download and run locally via `scripts/replay_uploads.py`)
 
 ## Run locally
 
