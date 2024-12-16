@@ -27,7 +27,7 @@ import sys
 from pathlib import Path
 
 import boto3
-import db_helpers
+import database
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
@@ -46,9 +46,9 @@ s3 = boto3.resource(
 )
 bucket = s3.Bucket(bucket_name)
 
-db = db_helpers.Database()
-qst_path_by_hash = db.get_qst_paths_by_hash()
-all_keys = list(_.key for _ in bucket.objects.filter(Prefix=''))
+db = database.Database()
+get_qst_keys_by_hash = db.get_qst_keys_by_hash()
+all_keys = list(_.key for _ in bucket.objects.all())
 original_keys = [key for key in all_keys if '-updated.zplay' not in key]
 
 
@@ -100,8 +100,11 @@ for key in original_keys:
 
 # Copy qst files.
 for qst_hash in keys_by_qst_hash.keys():
+    qst_key, qst_release = get_qst_keys_by_hash[qst_hash]
+    db.download_release(qst_release)
+    qst_path = db.download(qst_key)
+
     qst_replays_dir = replays_dir / qst_hash
-    qst_path = qst_path_by_hash[qst_hash]
     copied_qst_path = qst_replays_dir / f'{qst_hash}.qst'
     if not copied_qst_path.exists():
         shutil.copyfile(qst_path, copied_qst_path)
