@@ -2420,7 +2420,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						TRIGFLAG(46,"Custom Weapon 10")
 					)
 				),
-				Column(framed = true, frameText = "Fire Levels",
+				Column(framed = true, frameText = "Burning",
 					TRIGFLAG(92, "Any Fire"),
 					TRIGFLAG(93, "Strong Fire"),
 					TRIGFLAG(94, "Magic Fire"),
