@@ -232,7 +232,7 @@ exclgroup = mode_group.add_mutually_exclusive_group()
 exclgroup.add_argument('--replay', action='store_true',
     help='Play back the replay, without updating or asserting.')
 exclgroup.add_argument('--update', action='store_true',
-    help='Update the replays, accepting any changes.')
+    help='Update the replays, accepting any graphical changes (unless --frame is also set, see comment at top of run_replay_tests.py).')
 exclgroup.add_argument('--assert', dest='assertmode', action='store_true',
     help='Play back the replays in assert mode. This is the default behavior if no mode is specified.')
 

@@ -37,7 +37,7 @@ void replay_peek_input();
 void replay_do_cheats();
 bool replay_is_assert_done();
 void replay_forget_input();
-void replay_stop();
+void replay_stop(bool aborted = false);
 void replay_quit();
 void replay_save();
 void replay_save(std::filesystem::path path);
