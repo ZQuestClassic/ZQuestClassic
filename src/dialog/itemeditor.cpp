@@ -808,7 +808,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 		case itype_brang: //!TODO Help Text
 		{
 			inf->power = "Damage:";
-			inf->misc[0] = "Range (0 = Infinite):";
+			_SET(misc[0], "Duration:", "The amount of frames the boomerang flys before returning.\n0 = Infinite");
 			inf->misc[2] = "Block Flags:";
 			inf->misc[3] = "Reflect Flags:";
 			inf->flag[0] = "Corrected Animation";
