@@ -5370,24 +5370,24 @@ void draw_screenunit_map_screen(VisibleScreen visible_screen)
 		{
 			if(screen>15 && !NoScreenPreview)
 			{
-				Map.drawrow(mapscreenbmp, 16, 0, Flags, 160, -1, screen-16);
+				Map.drawrow(mapscreenbmp, edge_xoff, 0, Flags, 160, -1, screen-16);
 			}
 			else
 			{
-				Map.drawstaticrow(mapscreenbmp, 16, 0);
+				Map.drawstaticrow(mapscreenbmp, edge_xoff, 0);
 			}
 		}
 		
 		//not the last row of screens
 		if (peek_below)
 		{
-			if(screen + 16*num_screens_to_draw < 128 && !NoScreenPreview)
+			if(screen + 16 < 0x80 && !NoScreenPreview)
 			{
-				Map.drawrow(mapscreenbmp, 16, bottom_row, Flags, 0, -1, screen+16);
+				Map.drawrow(mapscreenbmp, edge_xoff, bottom_row, Flags, 0, -1, screen+16);
 			}
 			else
 			{
-				Map.drawstaticrow(mapscreenbmp, 16, bottom_row);
+				Map.drawstaticrow(mapscreenbmp, edge_xoff, bottom_row);
 			}
 		}
 		
@@ -5396,11 +5396,11 @@ void draw_screenunit_map_screen(VisibleScreen visible_screen)
 		{
 			if(screen&0x0F && !NoScreenPreview)
 			{
-				Map.drawcolumn(mapscreenbmp, 0, 16, Flags, 15, -1, screen-1);
+				Map.drawcolumn(mapscreenbmp, 0, edge_yoff, Flags, 15, -1, screen-1);
 			}
 			else
 			{
-				Map.drawstaticcolumn(mapscreenbmp, 0, 16);
+				Map.drawstaticcolumn(mapscreenbmp, 0, edge_yoff);
 			}
 		}
 		
@@ -5409,16 +5409,16 @@ void draw_screenunit_map_screen(VisibleScreen visible_screen)
 		{
 			if((screen&0x0F)<15 && !NoScreenPreview)
 			{
-				Map.drawcolumn(mapscreenbmp, right_col, 16, Flags, 0, -1, screen+1);
+				Map.drawcolumn(mapscreenbmp, right_col, edge_yoff, Flags, 0, -1, screen+1);
 			}
 			else
 			{
-				Map.drawstaticcolumn(mapscreenbmp, right_col, 16);
+				Map.drawstaticcolumn(mapscreenbmp, right_col, edge_yoff);
 			}
 		}
 		
 		//not the first row or first column of screens
-		if (peek_above || peek_left)
+		if (peek_above && peek_left)
 		{
 			if((screen>15)&&(screen&0x0F) && !NoScreenPreview)
 			{
@@ -5431,7 +5431,7 @@ void draw_screenunit_map_screen(VisibleScreen visible_screen)
 		}
 		
 		//not the first row or last column of screens
-		if (peek_above || peek_right)
+		if (peek_above && peek_right)
 		{
 			if((screen>15)&&((screen&0x0F)<15) && !NoScreenPreview)
 			{
@@ -5444,7 +5444,7 @@ void draw_screenunit_map_screen(VisibleScreen visible_screen)
 		}
 		
 		//not the last row or first column of screens
-		if (peek_below || peek_left)
+		if (peek_below && peek_left)
 		{
 			if((screen<112)&&(screen&0x0F) && !NoScreenPreview)
 			{
@@ -5457,7 +5457,7 @@ void draw_screenunit_map_screen(VisibleScreen visible_screen)
 		}
 		
 		//not the last row or last column of screens
-		if (peek_below || peek_right)
+		if (peek_below && peek_right)
 		{
 			if((screen<112)&&((screen&0x0F)<15) && !NoScreenPreview)
 			{
