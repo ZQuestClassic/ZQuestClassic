@@ -144,11 +144,20 @@ void DropDownList::realize(DialogRunner& runner)
 
 int32_t DropDownList::onEvent(int32_t event, MessageDispatcher& sendMessage)
 {
-	assert(event == geCHANGE_SELECTION);
-	if(onSelectFunc)
-		onSelectFunc(listData->getValue(alDialog->d1));
-	if(message >= 0)
-		sendMessage(message, listData->getValue(alDialog->d1));
+	switch(event)
+	{
+		case geRCLICK:
+		case geDCLICK:
+			break; // Explicitly ignored
+		case geCHANGE_SELECTION:
+			if(onSelectFunc)
+				onSelectFunc(listData->getValue(alDialog->d1));
+			if(message >= 0)
+				sendMessage(message, listData->getValue(alDialog->d1));
+			break;
+		default:
+			assert(false);
+	}
 	return -1;
 }
 
