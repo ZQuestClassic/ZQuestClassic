@@ -542,7 +542,7 @@ newcombo curr_combo;
 PALETTE RAMpal;
 midi_info Midi_Info;
 bool zq_showpal=false;
-bool combo_cols=true;
+bool combo_cols = true;
 bool is_compact = false;
 
 int pixeldb = 1;
@@ -692,6 +692,8 @@ int32_t UncompressedAutoSaves = 0;                                  //should tim
 int32_t KeyboardRepeatDelay = 0;                                    //the time in milliseconds after holding down a key that the key starts to repeat
 int32_t KeyboardRepeatRate = 0;                                     //the time in milliseconds between each repetition of a repeated key
 
+bool AllowNonColumnComboView = false;
+
 time_t auto_save_time_start, auto_save_time_current;
 double auto_save_time_diff = 0;
 int32_t AutoSaveRetention = 0;                                      //how many autosaves of a quest to keep
@@ -752,6 +754,13 @@ int32_t ff_combo = 0;
 int32_t Frameskip = 0, RequestedFPS = 60, zqUseWin32Proc = 1;
 int32_t zqColorDepth = 8;
 int32_t joystick_index=0;
+
+void toggle_combo_cols_mode()
+{
+	if(AllowNonColumnComboView)
+		combo_cols = !combo_cols;
+	else combo_cols = true;
+}
 
 void set_last_timed_save(char const* buf)
 {
@@ -7602,7 +7611,7 @@ void update_combobrush()
     else if(draw_mode != dm_cpool)
     {
 		int32_t cid = combobrushoverride > -1 ? combobrushoverride : Combo;
-        if(combo_cols==false)
+        if(!combo_cols)
         {
             for(int32_t i=0; i<256; i++)
             {
@@ -24322,6 +24331,7 @@ int32_t main(int32_t argc,char **argv)
 	ComboBrush					 = zc_get_config("zquest","combo_brush",0);
 	FloatBrush					 = zc_get_config("zquest","float_brush",0);
 	AutoBrush = zc_get_config("zquest","autobrush",1);
+	AllowNonColumnComboView = zc_get_config("zquest","allow_combo_non_column_view",0);
 	LinkedScroll = zc_get_config("zquest","linked_comboscroll",0);
 	allowHideMouse = zc_get_config("ZQ_GUI","allowHideMouse",0);
 	ShowFavoriteComboModes = zc_get_config("ZQ_GUI","show_fav_combo_modes",1);

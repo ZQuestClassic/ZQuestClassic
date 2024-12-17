@@ -245,6 +245,8 @@ zfix HeroModifiedY();
 
 extern NewMenu colors_menu;
 
+void toggle_combo_cols_mode();
+
 void rebuild_trans_table();
 void rebuild_string_list();
 

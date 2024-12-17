@@ -10854,7 +10854,7 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 				break;
 				
 			case KEY_SPACE:
-				combo_cols=!combo_cols;
+				toggle_combo_cols_mode();
 				redraw=true;
 				break;
 				
@@ -11288,7 +11288,7 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 				break;
 				
 			case KEY_SPACE:
-				combo_cols=!combo_cols;
+				toggle_combo_cols_mode();
 				redraw=true;
 				break;
 				
