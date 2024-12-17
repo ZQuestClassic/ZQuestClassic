@@ -2997,13 +2997,6 @@ static ListData color_list(colorlist, &font);
 static ListData snapshotformat_list(snapshotformatlist, &font);
 void init_ffpos();
 
-void call_options_dlg();
-int32_t onOptions()
-{
-	call_options_dlg();
-    return D_O_K;
-}
-
 const char *dm_names[dm_max]=
 {
     "Normal",
@@ -9503,6 +9496,18 @@ static NewMenu rc_menu_screen
 	{ "...Advanced Paste", &paste_menu, MENUID_RCSCREEN_ADVPASTE },
 	{ "...Special Paste", &paste_item_menu, MENUID_RCSCREEN_SPECPASTE },
 };
+
+void call_options_dlg();
+int32_t onOptions()
+{
+	call_options_dlg();
+	brush_menu.select_uid(MENUID_BRUSH_AUTOBRUSH, AutoBrush);
+	brush_menu.disable_uid(MENUID_BRUSH_WIDTH, AutoBrush);
+	brush_menu.disable_uid(MENUID_BRUSH_HEIGHT, AutoBrush);
+	brush_menu.select_uid(MENUID_BRUSH_FLOATBRUSH, FloatBrush);
+	brush_menu.select_uid(MENUID_BRUSH_COMBOBRUSH, ComboBrush);
+	return D_O_K;
+}
 
 void follow_twarp(int warpindex)
 {
