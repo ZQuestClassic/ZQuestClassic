@@ -2639,78 +2639,86 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 				TabRef(name = "Triggers", TabPanel(
 					ptr = &cmb_tab3,
 					TabRef(name = "Weapons", Row(
-						Column(framed = true, frameText = "LW Types",
-							Row(
-								l_minmax_trig = Label(text = "Min Level (Applies to all):"),
-								TextField(
-									fitParent = true,
-									vPadding = 0_px,
-									type = GUI::TextField::type::INT_DECIMAL,
-									low = 0, high = 214748, val = local_comboref.triggerlevel,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_comboref.triggerlevel = val;
-									}),
-								Checkbox(
-									text = "Max level instead", hAlign = 0.0,
-									checked = (local_comboref.triggerflags[0] & (combotriggerINVERTMINMAX)),
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_comboref.triggerflags[0],(combotriggerINVERTMINMAX),state);
-										l_minmax_trig->setText(state ? maxstr : minstr);
-									})
-							),
-							Rows<4>(
-								TRIGFLAG(0,"Sword"),
-								TRIGFLAG(1,"Sword Beam"),
-								TRIGFLAG(2,"Boomerang"),
-								TRIGFLAG(3,"Bomb Boom"),
-								TRIGFLAG(4,"Super Bomb Boom"),
-								TRIGFLAG(5,"Placed Bomb"),
-								TRIGFLAG(6,"Placed Super Bomb"),
-								TRIGFLAG(7,"Arrow"),
-								TRIGFLAG(8,"Fire"),
-								TRIGFLAG(9,"Whistle"),
-								TRIGFLAG(10,"Bait"),
-								TRIGFLAG(11,"Wand"),
-								TRIGFLAG(12,"Magic"),
-								TRIGFLAG(13,"Wind"),
-								TRIGFLAG(14,"Refl. Magic"),
-								TRIGFLAG(15,"Refl. Fireball"),
-								TRIGFLAG(16,"Refl. Rock"),
-								TRIGFLAG(115,"Refl. Arrow"),
-								TRIGFLAG(116,"Refl. Fire"),
-								TRIGFLAG(117,"Refl. Fire 2"),
-								TRIGFLAG(17,"Hammer"),
-								TRIGFLAG(32,"Hookshot"),
-								TRIGFLAG(33,"Sparkle"),
-								TRIGFLAG(34,"Byrna"),
-								TRIGFLAG(35,"Refl. Beam"),
-								TRIGFLAG(36,"Stomp"),
-								TRIGFLAG(89, "Thrown"),
-								TRIGFLAG(90, "Quake Hammer"),
-								TRIGFLAG(91, "S. Quake Hammer"),
-								TRIGFLAG(37,"Custom Weapon 1"),
-								TRIGFLAG(38,"Custom Weapon 2"),
-								TRIGFLAG(39,"Custom Weapon 3"),
-								TRIGFLAG(40,"Custom Weapon 4"),
-								TRIGFLAG(41,"Custom Weapon 5"),
-								TRIGFLAG(42,"Custom Weapon 6"),
-								TRIGFLAG(43,"Custom Weapon 7"),
-								TRIGFLAG(44,"Custom Weapon 8"),
-								TRIGFLAG(45,"Custom Weapon 9"),
-								TRIGFLAG(46,"Custom Weapon 10")
+						Frame(title = "LW Types", info = "Triggered by any lweapon matching these types and this level requirement",
+							Column(
+								Row(
+									l_minmax_trig = Label(text = "Min Level (Applies to all):"),
+									TextField(
+										fitParent = true,
+										vPadding = 0_px,
+										type = GUI::TextField::type::INT_DECIMAL,
+										low = 0, high = 214748, val = local_comboref.triggerlevel,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_comboref.triggerlevel = val;
+										}),
+									Checkbox(
+										text = "Max level instead", hAlign = 0.0,
+										checked = (local_comboref.triggerflags[0] & (combotriggerINVERTMINMAX)),
+										onToggleFunc = [&](bool state)
+										{
+											SETFLAG(local_comboref.triggerflags[0],(combotriggerINVERTMINMAX),state);
+											l_minmax_trig->setText(state ? maxstr : minstr);
+										})
+								),
+								Rows<4>(
+									TRIGFLAG(0,"Sword"),
+									TRIGFLAG(1,"Sword Beam"),
+									TRIGFLAG(2,"Boomerang"),
+									TRIGFLAG(3,"Bomb Boom"),
+									TRIGFLAG(4,"Super Bomb Boom"),
+									TRIGFLAG(5,"Placed Bomb"),
+									TRIGFLAG(6,"Placed Super Bomb"),
+									TRIGFLAG(7,"Arrow"),
+									TRIGFLAG(8,"Fire"),
+									TRIGFLAG(9,"Whistle"),
+									TRIGFLAG(10,"Bait"),
+									TRIGFLAG(11,"Wand"),
+									TRIGFLAG(12,"Magic"),
+									TRIGFLAG(13,"Wind"),
+									TRIGFLAG(14,"Refl. Magic"),
+									TRIGFLAG(15,"Refl. Fireball"),
+									TRIGFLAG(16,"Refl. Rock"),
+									TRIGFLAG(115,"Refl. Arrow"),
+									TRIGFLAG(116,"Refl. Fire"),
+									TRIGFLAG(117,"Refl. Fire 2"),
+									TRIGFLAG(17,"Hammer"),
+									TRIGFLAG(32,"Hookshot"),
+									TRIGFLAG(33,"Sparkle"),
+									TRIGFLAG(34,"Byrna"),
+									TRIGFLAG(35,"Refl. Beam"),
+									TRIGFLAG(36,"Stomp"),
+									TRIGFLAG(89, "Thrown"),
+									TRIGFLAG(90, "Quake Hammer"),
+									TRIGFLAG(91, "S. Quake Hammer"),
+									TRIGFLAG(37,"Custom Weapon 1"),
+									TRIGFLAG(38,"Custom Weapon 2"),
+									TRIGFLAG(39,"Custom Weapon 3"),
+									TRIGFLAG(40,"Custom Weapon 4"),
+									TRIGFLAG(41,"Custom Weapon 5"),
+									TRIGFLAG(42,"Custom Weapon 6"),
+									TRIGFLAG(43,"Custom Weapon 7"),
+									TRIGFLAG(44,"Custom Weapon 8"),
+									TRIGFLAG(45,"Custom Weapon 9"),
+									TRIGFLAG(46,"Custom Weapon 10")
+								)
 							)
 						),
-						Column(framed = true, frameText = "Fire Levels",
-							TRIGFLAG(92, "Any Fire"),
-							TRIGFLAG(93, "Strong Fire"),
-							TRIGFLAG(94, "Magic Fire"),
-							TRIGFLAG(95, "Divine Fire")
+						Frame(title = "Burning", info = "Triggered by weapons burning with particular levels of fire",
+							Rows<2>(
+								INFOBTN("Triggered by weapons burning with 'Normal' type fire.\nNote: Many engine fire sources will *always* count as 'Normal Fire', regardless of other settings."),
+								TRIGFLAG(92, "Normal Fire"),
+								INFOBTN("Triggered by weapons burning with 'Strong' type fire"),
+								TRIGFLAG(93, "Strong Fire"),
+								INFOBTN("Triggered by weapons burning with 'Magic' type fire"),
+								TRIGFLAG(94, "Magic Fire"),
+								INFOBTN("Triggered by weapons burning with 'Divine' type fire"),
+								TRIGFLAG(95, "Divine Fire")
+							)
 						)
 					)),
 					TabRef(name = "EWeapons", Row(
-						Column(framed = true,
+						Frame(title = "EW Types", info = "Triggered by any eweapon matching these types",
 							Rows<4>(
 								TRIGFLAG(31,"Fireball"),
 								TRIGFLAG(60,"Arrow"),
@@ -2993,8 +3001,8 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								Rows<2>(
 									INFOBTN("Destroy the triggering weapon"),
 									TRIGFLAG(30, "Kill Triggering Weapon"),
-									INFOBTN("Light the triggering weapon on fire, making it trigger 'Any Fire' triggers."),
-									TRIGFLAG(104, "Ignite Weapon (Any)"),
+									INFOBTN("Light the triggering weapon on fire, making it trigger 'Normal Fire' triggers."),
+									TRIGFLAG(104, "Ignite Weapon (Normal)"),
 									INFOBTN("Light the triggering weapon on fire, making it trigger 'Strong Fire' triggers."),
 									TRIGFLAG(105, "Ignite Weapon (Strong)"),
 									INFOBTN("Light the triggering weapon on fire, making it trigger 'Magic Fire' triggers."),
