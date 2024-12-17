@@ -1662,10 +1662,10 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 						DropDownField(&local_guyref.spr_shadow, list_sprites),
 						//
 						Label(text = "Spawn Sprite:", hAlign = 1.0, rightPadding = 0_px),
-						DropDownField(&local_guyref.spr_death, list_sprites),
+						DropDownField(&local_guyref.spr_spawn, list_sprites),
 						//
 						Label(text = "Death Sprite:", hAlign = 1.0, rightPadding = 0_px),
-						DropDownField(&local_guyref.spr_spawn, list_sprites)
+						DropDownField(&local_guyref.spr_death, list_sprites)
 					)
 				),
 				Frame(title = "SFX", hAlign = 1.0, fitParent = true,
