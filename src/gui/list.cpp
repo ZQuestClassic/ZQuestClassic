@@ -10,7 +10,7 @@ namespace GUI
 {
 
 List::List():
-	listData(nullptr), selectedIndex(0), selectedValue(0), message(-1), isABC(false)
+	listData(nullptr), selectedIndex(0), selectedValue(0), message(-1), msg_r(-1), msg_d(-1), isABC(false)
 {
 	setPreferredWidth(20_em);
 	setPreferredHeight(12_em);
