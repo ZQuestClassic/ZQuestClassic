@@ -5330,10 +5330,19 @@ void draw_screenunit_map_screen(VisibleScreen visible_screen)
 	int view_scr_y = Map.getViewScr() / 16;
 	int scr_x = screen % 16;
 	int scr_y = screen / 16;
-	if (scr_x != view_scr_x && showedges)
-		xoff -= 16;
-	if (scr_y != view_scr_y && showedges)
-		yoff -= 16;
+	int edge_xoff = 0, edge_yoff = 0;
+	if(showedges)
+	{
+		if (scr_x == view_scr_x)
+			edge_xoff = 16;
+		else
+			xoff -= 16;
+		
+		if (scr_y == view_scr_y)
+			edge_yoff = 16;
+		else
+			yoff -= 16;
+	}
 
 	combotile_add_x = mapscreen_x + xoff;
 	combotile_add_y = mapscreen_y + yoff;
@@ -5465,22 +5474,22 @@ void draw_screenunit_map_screen(VisibleScreen visible_screen)
 	{
 		if(scr->stairx || scr->stairy)
 		{
-			int32_t x1 = scr->stairx+(showedges?16:0);
-			int32_t y1 = scr->stairy+(showedges?16:0);
+			int32_t x1 = scr->stairx+edge_xoff;
+			int32_t y1 = scr->stairy+edge_yoff;
 			safe_rect(mapscreenbmp,x1,y1,x1+15,y1+15,vc(14));
 		}
 		
 		if(scr->warparrivalx || scr->warparrivaly)
 		{
-			int32_t x1 = scr->warparrivalx +(showedges?16:0);
-			int32_t y1 = scr->warparrivaly +(showedges?16:0);
+			int32_t x1 = scr->warparrivalx +edge_xoff;
+			int32_t y1 = scr->warparrivaly +edge_yoff;
 			safe_rect(mapscreenbmp,x1,y1,x1+15,y1+15,vc(10));
 		}
 		
 		for(int32_t i=0; i<4; i++) if(scr->warpreturnx[i] || scr->warpreturny[i])
 			{
-				int32_t x1 = scr->warpreturnx[i]+(showedges?16:0);
-				int32_t y1 = scr->warpreturny[i]+(showedges?16:0);
+				int32_t x1 = scr->warpreturnx[i]+edge_xoff;
+				int32_t y1 = scr->warpreturny[i]+edge_yoff;
 				int32_t clr = vc(9);
 				
 				if(FlashWarpSquare==i)
@@ -5504,8 +5513,8 @@ void draw_screenunit_map_screen(VisibleScreen visible_screen)
 			ffcdata& ff = ffscr->ffcs[i];
 			if(ff.data !=0 && (CurrentLayer<2 || (ff.flags&ffc_overlay)))
 			{
-				auto x = ff.x+(showedges?16:0);
-				auto y = ff.y+(showedges?16:0);
+				auto x = ff.x+edge_xoff;
+				auto y = ff.y+edge_yoff;
 				safe_rect(mapscreenbmp, x+0, y+0, x+ff.txsz*16-1, y+ff.tysz*16-1, vc(12));
 			}
 		}
@@ -5519,8 +5528,8 @@ void draw_screenunit_map_screen(VisibleScreen visible_screen)
 			{
 				if(((i^j)&1)==0)
 				{
-					putpixel(mapscreenbmp,(showedges?16:0)+i,
-						(showedges?16:0)+j,vc(blackout_color));
+					putpixel(mapscreenbmp,edge_xoff+i,
+						edge_yoff+j,vc(blackout_color));
 				}
 			}
 		}
