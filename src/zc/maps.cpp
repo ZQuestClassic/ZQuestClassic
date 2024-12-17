@@ -69,8 +69,8 @@ int region_scr_count;
 rpos_t region_max_rpos;
 int region_num_rpos;
 int scrolling_maze_screen;
+int scrolling_maze_last_solved_screen;
 int scrolling_maze_state;
-int scrolling_maze_mode = 0;
 region current_region, scrolling_region;
 
 void maps_init_game_vars()
@@ -231,6 +231,7 @@ void z3_load_region(int dmap, int screen)
 	region_num_rpos = current_region.screen_width*current_region.screen_height*176;
 	scrolling_maze_state = 0;
 	scrolling_maze_screen = 0;
+	scrolling_maze_last_solved_screen = 0;
 
 	memset(screen_in_current_region, false, sizeof(screen_in_current_region));
 	for (int x = 0; x < current_region.screen_width; x++)
@@ -4418,7 +4419,7 @@ static nearby_screens_t get_nearby_screens()
 			int heroscr_dx = scr_x - heroscr_x;
 			int heroscr_dy = scr_y - heroscr_y;
 
-			if (tmpscr->flags&fMAZE && !(XY_DELTA_TO_DIR(heroscr_dx, 0) == tmpscr->exitdir || XY_DELTA_TO_DIR(0, heroscr_dy) == tmpscr->exitdir))
+			if (hero_scr->flags&fMAZE && !(XY_DELTA_TO_DIR(heroscr_dx, 0) == hero_scr->exitdir || XY_DELTA_TO_DIR(0, heroscr_dy) == hero_scr->exitdir))
 			{
 				scr_x = heroscr_x;
 				scr_y = heroscr_y;

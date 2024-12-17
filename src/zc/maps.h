@@ -90,12 +90,10 @@ extern rpos_t region_max_rpos;
 // Number of unique values for 'rpos' in the current region. This is the number of possible combo positions.
 // If not currently in a scrolling region, this is just 176.
 extern int region_num_rpos;
-// TODO z3
 extern int scrolling_maze_screen, scrolling_maze_state;
-// TODO z3 ! this only works in mode '0' and if the scrolling region is 1x1...
-// 0 to keep viewport frozen on maze screen and have hero appear to wrap around.
-// 1 to keep hero in the center.
-extern int scrolling_maze_mode;
+// Holds the last solved screen maze, only used within a scrolling region to remember
+// that a maze was solved.
+extern int scrolling_maze_last_solved_screen;
 
 struct region
 {

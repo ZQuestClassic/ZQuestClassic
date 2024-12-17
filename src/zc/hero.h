@@ -420,8 +420,8 @@ public:
 	WalkflagInfo walkflag(int32_t wx,int32_t wy,int32_t cnt,byte d);
 	WalkflagInfo walkflagMBlock(int32_t wx,int32_t wy);
 	bool edge_of_dmap(int32_t side);
-	bool checkmaze(mapscr *scr, bool sound);
-	bool maze_enabled_sizewarp(int32_t scrolldir);
+	bool checkmaze(const mapscr *scr, bool sound);
+	bool maze_enabled_sizewarp(const mapscr *scr, int32_t scrolldir);
 	bool HasHeavyBoots();
 	int32_t get_scroll_step(int32_t scrolldir);
 	int32_t get_scroll_delay(int32_t scrolldir);
@@ -492,7 +492,7 @@ public:
 	int32_t push_move(zfix dx, zfix dy);
 	virtual bool setSolid(bool set);
 	virtual void solid_push(solid_object* pusher);
-	bool dowarp(mapscr* scr, int32_t type, int32_t index, int32_t warpsfx=0);
+	bool dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t warpsfx=0);
 	
 	void herostep();
 	void stepforward(int32_t steps, bool adjust);

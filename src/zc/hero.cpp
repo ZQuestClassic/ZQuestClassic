@@ -1,5 +1,6 @@
 #include "base/general.h"
 #include "base/handles.h"
+#include "base/mapscr.h"
 #include "base/util.h"
 #include "base/zdefs.h"
 #include "zc/maps.h"
@@ -1790,6 +1791,9 @@ void HeroClass::init()
 						//are properly set by the engine.
 	}
 	FFCore.nostepforward = 0;
+
+	for (int i = 0; i < 4; i++)
+		lastdir[i] = 0xFF;
 
 	if (replay_version_check(12))
 		z3step = 2;
@@ -25437,7 +25441,7 @@ bool HeroClass::HasHeavyBoots()
 	return false;
 }
 
-bool HeroClass::dowarp(mapscr* scr, int32_t type, int32_t index, int32_t warpsfx)
+bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t warpsfx)
 {
 	byte reposition_sword_postwarp = 0;
 	if (index < 0)
@@ -25466,9 +25470,9 @@ bool HeroClass::dowarp(mapscr* scr, int32_t type, int32_t index, int32_t warpsfx
 	int32_t wrindex = 0;
 	bool wasSideview = isSideViewGravity(t);
 
-	mapscr* cur_scr = scr ? scr : hero_scr;
+	const mapscr* cur_scr = scr ? scr : hero_scr;
 	// Either the current screen, or if in a 0x80 room the screen player came from.
-	mapscr* base_scr = cur_screen >= 128 ? &special_warp_return_screen : cur_scr;
+	const mapscr* base_scr = cur_screen >= 128 ? &special_warp_return_screen : cur_scr;
 
 	// Drawing commands probably shouldn't carry over...
 	if (!get_qr(qr_SCRIPTDRAWSINWARPS))
@@ -27632,75 +27636,72 @@ void HeroClass::checkscroll()
 		return;
 
 	// This maze logic is enabled for only scrolling regions. It's a bit simpler, but hasn't
-	// been tested for non-scrolling regions.
-	if (!scrolling_maze_state && is_in_scrolling_region() && hero_scr->flags&fMAZE)
+	// been tested for non-scrolling regions. TODO z3 ! maybe change?
+	if (!scrolling_maze_state && hero_screen != scrolling_maze_last_solved_screen && get_region_id(currmap, cur_screen) && hero_scr->flags&fMAZE)
 	{
-		scrolling_maze_screen = cur_screen;
+		scrolling_maze_screen = hero_screen;
 		scrolling_maze_state = 1;
 	}
-	int x0 = x.getInt();
-	int y0 = y.getInt();
 
-	if (action != inwind && scrolling_maze_state && (scrolling_maze_mode == 0 || get_screen_for_world_xy(x0, y0) != scrolling_maze_screen))
+	if (action != inwind && scrolling_maze_state)
 	{
-		mapscr* scr = &TheMaps[(currmap*MAPSCRS)+scrolling_maze_screen];
 		int x0 = x.getInt();
 		int y0 = y.getInt();
 
 		direction advance_dir = dir_invalid;
-		if (scrolling_maze_mode == 0)
-		{
-			if (x0%256 > 256-16) advance_dir = right;
-			if (x0 < 0)          advance_dir = left;
-			if (y0%176 > 176-16) advance_dir = down;
-			if (y0 < 0)          advance_dir = up;
-		}
-		else if (scrolling_maze_mode == 1)
-		{
-			if (dir == right) advance_dir = right;
-			if (dir == left)  advance_dir = left;
-			if (dir == down)  advance_dir = down;
-			if (dir == up)    advance_dir = up;
-		}
+		auto [sx, sy] = translate_screen_coordinates_to_world(scrolling_maze_screen);
+		if (x0 > (sx+256)-16) advance_dir = right;
+		if (x0 < sx)          advance_dir = left;
+		if (y0 > (sy+176)-16) advance_dir = down;
+		if (y0 < sy)          advance_dir = up;
 
 		if (advance_dir != dir_invalid)
 		{
-			if (maze_enabled_sizewarp(advance_dir))
+			mapscr* maze_scr = get_scr(scrolling_maze_screen);
+			if (maze_enabled_sizewarp(maze_scr, advance_dir))
 			{
 				scrolling_maze_state = 0;
 				return;
 			}
 
-			if (checkmaze(scr, true))
+			if (checkmaze(maze_scr, true))
 			{
-				if (scrolling_maze_mode == 0)
+				if (lastdir[3] == maze_scr->exitdir)
 				{
-					int destscr = hero_screen;
-					if (advance_dir == left)  destscr--;
-					if (advance_dir == right) destscr++;
-					if (advance_dir == up)    destscr -= 16;
-					if (advance_dir == down)  destscr += 16;
-					scrollscr(advance_dir, destscr);
+					// Do nothing, the hero left the maze :)
+					goto l_checkscroll;
+				}
+				else
+				{
+					int dest_screen = scrolling_maze_screen;
+					if (advance_dir == left)  dest_screen--;
+					if (advance_dir == right) dest_screen++;
+					if (advance_dir == up)    dest_screen -= 16;
+					if (advance_dir == down)  dest_screen += 16;
+
+					if (is_in_current_region(dest_screen))
+						scrolling_maze_last_solved_screen = scrolling_maze_screen;
+					else
+						scrollscr(advance_dir, dest_screen);
 				}
 
 				scrolling_maze_state = 0;
 				scrolling_maze_screen = 0;
 			}
-			else if (scrolling_maze_state == 2 || 1)
+			else
 			{
-				// Only adjust hero position if they didn't just enter the maze.
-				if (advance_dir == left)  x += 256;
-				if (advance_dir == right) x -= 256;
-				if (advance_dir == up)    y += 176;
-				if (advance_dir == down)  y -= 176;
+				if (advance_dir == left)  x = (z3_get_region_relative_dx(scrolling_maze_screen) + 1) * 256 - 16;
+				if (advance_dir == right) x = (z3_get_region_relative_dx(scrolling_maze_screen)) * 256;
+				if (advance_dir == up)    y = (z3_get_region_relative_dy(scrolling_maze_screen) + 1) * 176 - 16;
+				if (advance_dir == down)  y = (z3_get_region_relative_dy(scrolling_maze_screen)) * 176;
 			}
-
-			//scrolling_maze_state = 2;
 		}
 
 		return;
 	}
 	scrolling_maze_state = 0;
+
+l_checkscroll:
 
 	if (action == inwind && whirlwind == 0)
 	{
@@ -27752,7 +27753,7 @@ void HeroClass::checkscroll()
 
 // assumes current direction is in lastdir[3]
 // compares directions with scr->path and scr->exitdir
-bool HeroClass::checkmaze(mapscr *scr, bool sound)
+bool HeroClass::checkmaze(const mapscr *scr, bool sound)
 {
     if(!(scr->flags&fMAZE))
         return true;
@@ -27992,10 +27993,8 @@ void HeroClass::run_scrolling_script(int32_t scrolldir, int32_t cx, int32_t sx, 
 //Only used just before scrolling screens
 // Note: since scrollscr() calls this, and dowarp() calls scrollscr(),
 // return true to abort the topmost scrollscr() call. -L
-bool HeroClass::maze_enabled_sizewarp(int32_t scrolldir)
+bool HeroClass::maze_enabled_sizewarp(const mapscr *scr, int32_t scrolldir)
 {
-	mapscr* scr = tmpscr;
-
     for(int32_t i = 0; i < 3; i++) lastdir[i] = lastdir[i+1];
     
     lastdir[3] = scr->flags&fMAZE ? scrolldir : 0xFF;
@@ -28496,7 +28495,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	bool updatemusic = FFCore.can_dmap_change_music(destdmap);
 	bool musicrevert = FFCore.music_update_flags & MUSIC_UPDATE_FLAG_REVERT;
 
-	if (!is_in_scrolling_region() && maze_enabled_sizewarp(scrolldir))  // dowarp() was called
+	if (get_region_id(currmap, cur_screen) == 0 && maze_enabled_sizewarp(tmpscr, scrolldir))  // dowarp() was called
 		return;
 
 	int original_destscr = destscr;
