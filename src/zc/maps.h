@@ -44,57 +44,54 @@ extern bool triggered_screen_secrets;
 extern int32_t view_map_show_mode;
 
 /*
-    Z3-style scrolling is implemented via "Regions".
-    
-    Regions:
+    z3-style scrolling is implemented via "Regions".
+
+	Regions:
 
         - are a NxM set of screens within a single map
         - must be a rectangle (for now, at least)
-		- are defined in the DMap Editor by setting an id, but other than grouping screens into the same region
+		- are defined in the Region Editor by assigning each screen an id, but other than
+		  grouping screens into the same region
 		  this id currently has no purpose in-engine
-		- the top-left screen is denoted at the `current_region_origin_screen_index`
-		- can be uniquely identified as (dmap, current_region_origin_screen_index)
-        - can border other regions or single screens, and supports scrolling
-          between them (including side warps)
-        - can be 1x1, but this only has significance for maze screens which
-          will wrap the player around the screen
-		- cannot overlap within the same dmap, though nothing prevents multiple dmaps from grouping
-		  screens into regions in overlapping ways
+        - can border other regions or single screens, and supports scrolling between them
+		  (including side warps)
+        - can be 1x1, but this only has significance for maze screens which will wrap the
+		  player around the screen TODO z3 is this still true?
         - when moving around a region with >1 screen width or height, by default the viewport
           will keep the player centered in the screen. When moving close to the region
           edge the camera bounds to the edges. This behavior is modified by `viewport_mode`,
 		  which can be modified by scripts via `Viewport->`
-        - `tmpscr` points to the entrance screen
-        - `heroscr` is the screen index where the hero currently is, and updates as the player moves around. `hero_scr` is that screen object
-		- `heroscr` is always a valid screen in the region
+		- the top-left screen is loaded as `cur_screen` / `origin_scr` / `tmpscr`
+        - `hero_screen` is the screen index where the hero currently is, and updates as the
+		  player moves around. `hero_scr` is the mapscr
 */
 
 // How large the current region is in pixels.
-// If not currently in z3 scrolling mode, this is just the size of a single screen (256, 176).
+// If not currently in a scrolling region, this is just the size of a single screen (256, 176).
 extern int world_w, world_h;
 // The "camera" in the above world-space coordinates.
 // (viewport.x, viewport.y) is the point in world-space to draw as the top-left corner of the visible screen.
 // In region mode, by default x and y are set such that the hero in the middle of the screen when possible, snapping
 // to the region edges when not. This behavior is modified by `viewport_mode`.
 //
-// If not currently in z3 scrolling mode:
+// If not currently in a scrolling region:
 //  - x, y is 0
 //  - w, h is 256, 176
 extern viewport_t viewport;
 extern ViewportMode viewport_mode;
 // The screen offset from the region origin that the hero is currently standing in. If not currently
-// in z3 scrolling mode, this is just 0.
+// in a scrolling region, this is just 0.
 extern int region_scr_dx, region_scr_dy;
 // Number of screens in the current region.
 extern int region_scr_count;
 // Maximum value for 'rpos' in the current region. This is the number of possible combo positions, minus 1.
-// If not currently in z3 scrolling mode, this is just 175.
+// If not currently in a scrolling region, this is just 175.
 extern rpos_t region_max_rpos;
 // Number of unique values for 'rpos' in the current region. This is the number of possible combo positions.
-// If not currently in z3 scrolling mode, this is just 176.
+// If not currently in a scrolling region, this is just 176.
 extern int region_num_rpos;
 // TODO z3
-extern int scrolling_maze_scr, scrolling_maze_state;
+extern int scrolling_maze_screen, scrolling_maze_state;
 // TODO z3 ! this only works in mode '0' and if the scrolling region is 1x1...
 // 0 to keep viewport frozen on maze screen and have hero appear to wrap around.
 // 1 to keep hero in the center.
@@ -108,7 +105,7 @@ struct region
 	int origin_screen_x;
 	int origin_screen_y;
 	// The screens size of the region that the hero is currently standing in. If not currently
-	// in z3 scrolling mode, this is just 1.
+	// in a non-scrolling region, this is just 1.
 	int screen_width, screen_height;
 	int screen_count;
 	// World coordinates.
@@ -140,34 +137,34 @@ void z3_set_viewport_sprite(sprite* spr);
 void z3_update_viewport();
 void z3_update_heroscr();
 bool edge_of_region(direction dir);
-int get_screen_index_for_world_xy(int x, int y);
-int get_screen_index_for_rpos(rpos_t rpos);
+int get_screen_for_world_xy(int x, int y);
+int get_screen_for_rpos(rpos_t rpos);
 mapscr* get_scr_for_rpos(rpos_t rpos);
-mapscr* get_scr_layer_for_rpos(rpos_t rpos, int layer);
+mapscr* get_scr_for_rpos_layer(rpos_t rpos, int layer);
 rpos_handle_t get_rpos_handle(rpos_t rpos, int layer);
 rpos_handle_t get_rpos_handle_for_world_xy(int x, int y, int layer);
 rpos_handle_t get_rpos_handle_for_screen(int screen, int layer, int pos);
 rpos_handle_t get_rpos_handle_for_scr(mapscr* scr, int layer, int pos);
 void change_rpos_handle_layer(rpos_handle_t& rpos_handle, int layer);
 combined_handle_t get_combined_handle_for_world_xy(int x, int y, int layer);
-mapscr* get_screen_for_world_xy(int x, int y);
-mapscr* get_screen_layer_for_world_xy(int x, int y, int layer);
+mapscr* get_scr_for_world_xy(int x, int y);
+mapscr* get_scr_for_world_xy_layer(int x, int y, int layer);
 int z3_get_region_relative_dx(int screen);
 int z3_get_region_relative_dx(int screen, int origin_screen);
 int z3_get_region_relative_dy(int screen);
 int z3_get_region_relative_dy(int screen, int origin_screen);
-int get_region_screen_index_offset(int screen);
-int get_screen_index_for_region_index_offset(int offset);
+int get_region_screen_offset(int screen);
+int get_screen_for_region_index_offset(int offset);
 mapscr* get_scr_for_region_index_offset(int offset);
 bool is_in_scrolling_region();
 bool is_extended_height_mode();
 mapscr* get_scr(int map, int screen);
 mapscr* get_scr(int screen);
 mapscr* get_scr_no_load(int map, int screen);
-mapscr* get_layer_scr(int map, int screen, int layer);
-mapscr* get_layer_scr(int screen, int layer);
-mapscr* get_layer_scr_valid(int screen, int layer);
-mapscr* get_layer_scr_allow_scrolling(int map, int screen, int layer);
+mapscr* get_scr_layer(int map, int screen, int layer);
+mapscr* get_scr_layer(int screen, int layer);
+mapscr* get_scr_layer_valid(int screen, int layer);
+mapscr* get_scr_layer_allow_scrolling(int map, int screen, int layer);
 
 ffc_handle_t get_ffc_handle(ffc_id_t id);
 

@@ -17,7 +17,7 @@ void sprite::handle_sprlighting()
 
 	int x0 = x.getInt()+(hit_width/2);
 	int y0 = y.getInt()+(hit_height/2);
-	if(!(get_screen_for_world_xy(x0, y0)->flags & fDARK)) return;
+	if(!(get_scr_for_world_xy(x0, y0)->flags & fDARK)) return;
 
 	handle_lighting(x0, y0 + playing_field_offset,glowShape,glowRad,dir, darkscr_bmp_z3);
 }
@@ -45,7 +45,7 @@ int32_t get_conveyor(int32_t x, int32_t y)
 	}
 	else for(int q = maxlayer; q >= 0; --q)
 	{
-		mapscr* layer_scr = get_screen_layer_for_world_xy(x, y, q);
+		mapscr* layer_scr = get_scr_for_world_xy_layer(x, y, q);
 		if (!layer_scr->valid) continue;
 
 		int cid = layer_scr->data[pos];
@@ -336,7 +336,7 @@ bool movingblock::animate(int32_t)
 	auto end_rpos_handle = get_rpos_handle_for_world_xy(endx, endy, blockLayer);
 	int combopos = end_rpos_handle.pos;
 	mapscr* m = end_rpos_handle.scr;
-	mapscr* m0 = get_screen_for_world_xy(endx, endy);
+	mapscr* m0 = get_scr_for_world_xy(endx, endy);
 	if(get_qr(qr_MOVINGBLOCK_FAKE_SOLID))
 		setSolid(false);
 	else setSolid(clk > 0 && !(fallclk || drownclk));
@@ -493,7 +493,7 @@ bool movingblock::animate(int32_t)
 					end_rpos_handle = get_rpos_handle_for_world_xy(endx, endy, blockLayer);
 					combopos = end_rpos_handle.pos;
 					m = end_rpos_handle.scr;
-					m0 = get_screen_for_world_xy(endx, endy);
+					m0 = get_scr_for_world_xy(endx, endy);
 				}
 			}
 		}
@@ -563,7 +563,7 @@ bool movingblock::animate(int32_t)
 				end_rpos_handle = get_rpos_handle_for_world_xy(endx, endy, blockLayer);
 				combopos = end_rpos_handle.pos;
 				m = end_rpos_handle.scr;
-				m0 = get_screen_for_world_xy(endx, endy);
+				m0 = get_scr_for_world_xy(endx, endy);
 			}
 		}
 	}
@@ -611,7 +611,7 @@ bool movingblock::animate(int32_t)
 					{
 						if(lyr==blockLayer) continue;
 
-						mapscr* m0 = get_screen_layer_for_world_xy(x, y, lyr);
+						mapscr* m0 = get_scr_for_world_xy_layer(x, y, lyr);
 						if(m0->sflag[combopos] == mfBLOCKTRIGGER
 							|| MAPCOMBOFLAG2(lyr-1,x,y) == mfBLOCKTRIGGER)
 						{
@@ -644,7 +644,7 @@ bool movingblock::animate(int32_t)
 				for(auto lyr = 0; lyr <= maxLayer; ++lyr)
 				{
 					if(lyr==blockLayer) continue;
-					mapscr* m0 = get_screen_layer_for_world_xy(x, y, lyr);
+					mapscr* m0 = get_scr_for_world_xy_layer(x, y, lyr);
 					if((m0->sflag[combopos]==mfBLOCKHOLE)
 						|| MAPCOMBOFLAG2(lyr-1,x,y)==mfBLOCKHOLE)
 					{
@@ -690,7 +690,7 @@ bool movingblock::animate(int32_t)
 						if (no_trig_replace)
 							for (auto lyr2 = 0; lyr2 <= maxLayer; ++lyr2)
 							{
-								mapscr* tmp2 = get_screen_layer_for_world_xy(x, y, lyr2);
+								mapscr* tmp2 = get_scr_for_world_xy_layer(x, y, lyr2);
 								if (is_push(tmp2, rpos_handle.pos))
 								{
 									found = true;
@@ -807,7 +807,7 @@ bool movingblock::animate(int32_t)
 					{
 						if(lyr==blockLayer) continue;
 
-						mapscr* scr = get_screen_layer_for_world_xy(x, y, lyr);
+						mapscr* scr = get_scr_for_world_xy_layer(x, y, lyr);
 						if (scr->sflag[combopos] == mfBLOCKTRIGGER
 							|| MAPCOMBOFLAG2(lyr-1,x,y) == mfBLOCKTRIGGER)
 						{
@@ -841,7 +841,7 @@ bool movingblock::animate(int32_t)
 				{
 					if(lyr==blockLayer) continue;
 
-					mapscr* scr = get_screen_layer_for_world_xy(x, y, lyr);
+					mapscr* scr = get_scr_for_world_xy_layer(x, y, lyr);
 					if ((scr->sflag[combopos]==mfBLOCKHOLE)
 						|| MAPCOMBOFLAG2(lyr-1,x,y)==mfBLOCKHOLE)
 					{
@@ -888,7 +888,7 @@ bool movingblock::animate(int32_t)
 			{
 				for(auto lyr = 0; lyr <= maxLayer; ++lyr)
 				{
-					mapscr* tmp = get_screen_layer_for_world_xy(x, y, lyr);
+					mapscr* tmp = get_scr_for_world_xy_layer(x, y, lyr);
 					for(int32_t pos=0; pos<176; pos++)
 					{
 						if((!trig_hole_same_only || lyr == blockLayer) && pos == combopos)
@@ -900,7 +900,7 @@ bool movingblock::animate(int32_t)
 							if(no_trig_replace)
 								for(auto lyr2 = 0; lyr2 <= maxLayer; ++lyr2)
 								{
-									mapscr* m0 = get_screen_layer_for_world_xy(x, y, lyr2);
+									mapscr* m0 = get_scr_for_world_xy_layer(x, y, lyr2);
 									if(is_push(m0, pos))
 									{
 										found = true;
@@ -952,7 +952,7 @@ bool movingblock::animate(int32_t)
 					// happening as each combo is placed.
 					for(auto lyr = 0; lyr <= maxLayer; ++lyr)
 					{
-						mapscr* tmp = get_screen_layer_for_world_xy(x, y, lyr);
+						mapscr* tmp = get_scr_for_world_xy_layer(x, y, lyr);
 						for(int32_t pos=0; pos<176; pos++)
 						{
 							if(tmp->sflag[pos]==mfBLOCKTRIGGER

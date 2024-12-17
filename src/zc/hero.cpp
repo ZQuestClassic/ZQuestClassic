@@ -121,7 +121,7 @@ static inline bool on_sideview_solid(zfix x, zfix y, bool ignoreFallthrough = fa
 	if(slopesmisc != 1 && check_slope(x, y + 0.0001_zf, 16, 16, (slopesmisc == 3), true) < 0) return true;
 	if(slopesmisc == 2) return false;
 	if (_walkflag(x+4,y+16,1) || _walkflag(x+12,y+16,1)) return true;
-	mapscr* s = get_screen_for_world_xy(x, y);
+	mapscr* s = get_scr_for_world_xy(x, y);
 	if (y>=world_h-16 && cur_screen>=0x70 && !(s->flags2&wfDOWN)) return true;
 	if (platform_fallthrough() && !ignoreFallthrough) return false;
 	if(slopesmisc != 1 && check_slope(x, y + 0.0001_zf, 16, 16, false, true) < 0) return true;
@@ -3580,8 +3580,8 @@ bool HeroClass::checkstab()
 					if(ptr->hit(wx,wy,z,wxsz,wysz,1) || (attack==wWand && ptr->hit(x,y-8-fakez,z,wxsz,wysz,1))
 							|| (attack==wHammer && ptr->hit(x,y-8-fakez,z,wxsz,wysz,1)))
 					{
-						int screen = get_screen_index_for_world_xy(wx, wy);
-						mapscr* scr = get_screen_for_world_xy(wx, wy);
+						int screen = get_screen_for_world_xy(wx, wy);
+						mapscr* scr = get_scr_for_world_xy(wx, wy);
 						int32_t pickup = ptr->pickup;
 						int32_t id2 = ptr->id;
 						int32_t pstr = ptr->pstring;
@@ -5351,7 +5351,7 @@ void HeroClass::check_pound_block(int bx, int by, weapon* w)
     if(ignorescreen && ignoreffc)  // Nothing to do.
         return;
         
-    mapscr *s = cur_screen >= 128 ? &special_warp_return_screen : get_screen_for_world_xy(bx, by);
+    mapscr *s = cur_screen >= 128 ? &special_warp_return_screen : get_scr_for_world_xy(bx, by);
     
     if(!ignorescreen)
     {
@@ -8390,7 +8390,7 @@ heroanimate_skip_liftwpn:;
 			inair = false;
 			hoverflags = 0;
 			
-			if(y>=world_h-16 && cur_screen>=0x70 && !(get_screen_for_world_xy(x, y)->flags2&wfDOWN))  // Landed on the bottommost screen.
+			if(y>=world_h-16 && cur_screen>=0x70 && !(get_scr_for_world_xy(x, y)->flags2&wfDOWN))  // Landed on the bottommost screen.
 				y = world_h-16;
 		}
 		// Stop hovering if you press down.
@@ -14260,7 +14260,7 @@ void HeroClass::mod_steps(std::vector<zfix*>& v)
 			 //!DIMITODO: add QR for slow combos under hero
 	if(slowcombo) for (int32_t i = 0; i <= 1; ++i)
 	{
-		if (get_layer_scr_valid(hero_screen, i))
+		if (get_scr_layer_valid(hero_screen, i))
 		{
 			if (get_qr(qr_OLD_BRIDGE_COMBOS))
 			{
@@ -17932,7 +17932,7 @@ bool HeroClass::scr_walkflag(zfix_round zdx,zfix_round zdy,int d2,bool kb, int* 
 			
 			for (int32_t i = 0; i <= 1; ++i)
 			{
-				if (get_layer_scr_valid(hero_screen, i))
+				if (get_scr_layer_valid(hero_screen, i))
 				{
 					if (get_qr(qr_OLD_BRIDGE_COMBOS))
 					{
@@ -19965,7 +19965,7 @@ void HeroClass::moveOld2(int32_t d2, int32_t forceRate)
 		     //!DIMITODO: add QR for slow combos under hero
 	if(slowcombo) for (int32_t i = 0; i <= 1; ++i)
 	{
-		if (get_layer_scr_valid(hero_screen, i))
+		if (get_scr_layer_valid(hero_screen, i))
 		{
 			if (get_qr(qr_OLD_BRIDGE_COMBOS))
 			{
@@ -21544,7 +21544,7 @@ void HeroClass::oldcheckbosslockblock()
 		{
 			found1=true;
 			foundlayer = 0;
-			cmb_screen_index = get_screen_index_for_world_xy(bx, by);
+			cmb_screen_index = get_screen_for_world_xy(bx, by);
 		}
 	}
 	else if (cmb2.type==cBOSSLOCKBLOCK && !(cmb2.triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx2,by,1, -1))
@@ -21554,7 +21554,7 @@ void HeroClass::oldcheckbosslockblock()
 		{
 			found2=true;
 			foundlayer = 0;
-			cmb_screen_index = get_screen_index_for_world_xy(bx2, by);
+			cmb_screen_index = get_screen_for_world_xy(bx2, by);
 		}
 	}
 
@@ -21585,7 +21585,7 @@ void HeroClass::oldcheckbosslockblock()
 			newcombo const& cmb2 = combobuf[cid2];
 			if (i == 0)
 			{
-				if (get_layer_scr_valid(hero_screen, 1))
+				if (get_scr_layer_valid(hero_screen, 1))
 				{
 					if (get_qr(qr_OLD_BRIDGE_COMBOS))
 					{
@@ -21689,12 +21689,12 @@ void HeroClass::oldcheckchest(int32_t type)
 	if (combobuf[MAPCOMBO(bx,by)].type==type && _effectflag(bx,by,1, -1))
 	{
 		found=true;
-		found_screen_index=get_screen_index_for_world_xy(bx, by);
+		found_screen_index=get_screen_for_world_xy(bx, by);
 	}
 	else if (combobuf[MAPCOMBO(bx2,by)].type==type && _effectflag(bx2,by,1, -1))
 	{
 		found=true;
-		found_screen_index=get_screen_index_for_world_xy(bx2, by);
+		found_screen_index=get_screen_for_world_xy(bx2, by);
 	}
 	for (int32_t i = 0; i <= 1; ++i)
 	{
@@ -21730,13 +21730,13 @@ void HeroClass::oldcheckchest(int32_t type)
 			if (combobuf[MAPCOMBO2(i,bx,by)].type==type && _effectflag(bx,by,1, i))
 			{
 				found=true;
-				found_screen_index=get_screen_index_for_world_xy(bx, by);
+				found_screen_index=get_screen_for_world_xy(bx, by);
 				break;
 			}
 			else if (combobuf[MAPCOMBO2(i,bx2,by)].type==type && _effectflag(bx2,by,1, i))
 			{
 				found=true;
-				found_screen_index=get_screen_index_for_world_xy(bx2, by);
+				found_screen_index=get_screen_for_world_xy(bx2, by);
 				break;
 			}
 		}
@@ -22152,7 +22152,7 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 	int32_t found_lyr = 0;
 	bool found_sign = false;
 	int32_t tmp_cid = MAPCOMBO(bx, by);
-	int32_t scr = get_screen_index_for_world_xy(bx, by);
+	int32_t scr = get_screen_for_world_xy(bx, by);
 	newcombo const* tmp_cmb = &combobuf[tmp_cid];
 	if(((tmp_cmb->type==cSIGNPOST && !(tmp_cmb->triggerflags[0] & combotriggerONLYGENTRIG))
 		|| tmp_cmb->triggerbtn) && _effectflag(bx,by,1, -1))
@@ -22173,7 +22173,7 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 		}
 	}
 	tmp_cid = MAPCOMBO(bx2,by2);
-	scr = get_screen_index_for_world_xy(bx2, by2);
+	scr = get_screen_for_world_xy(bx2, by2);
 	tmp_cmb = &combobuf[tmp_cid];
 	if(((tmp_cmb->type==cSIGNPOST && !(tmp_cmb->triggerflags[0] & combotriggerONLYGENTRIG))
 		|| tmp_cmb->triggerbtn) && _effectflag(bx2,by2,1, -1))
@@ -22213,7 +22213,7 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 	
 	if(found<0 && !foundffc)
 	{
-		scr = get_screen_index_for_world_xy(bx, by);
+		scr = get_screen_for_world_xy(bx, by);
 		for(int32_t i=0; i<6; i++)
 		{
 			tmp_cid = MAPCOMBO2(i,bx,by);
@@ -22237,7 +22237,7 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 					}
 				}
 			}
-			scr = get_screen_index_for_world_xy(bx2, by2);
+			scr = get_screen_for_world_xy(bx2, by2);
 			tmp_cid = MAPCOMBO2(i,bx2,by2);
 			tmp_cmb = &combobuf[tmp_cid];
 			if(((tmp_cmb->type==cSIGNPOST && !(tmp_cmb->triggerflags[0] & combotriggerONLYGENTRIG))
@@ -22616,11 +22616,11 @@ static int32_t grabComboFromPos(int32_t epos, int32_t type)
 	int x = COMBOX_REGION_EXTENDED(epos);
 	int y = COMBOY_REGION_EXTENDED(epos);
 	int pos = COMBOPOS(x%256, y%176);
-	int screen = get_screen_index_for_world_xy(x, y);
+	int screen = get_screen_for_world_xy(x, y);
 
 	for(int32_t lyr = 6; lyr >= 0; --lyr)
 	{
-		int32_t id = get_layer_scr(screen, lyr - 1)->data[pos];
+		int32_t id = get_scr_layer(screen, lyr - 1)->data[pos];
 		if(combobuf[id].type == type)
 			return id;
 	}
@@ -25015,7 +25015,7 @@ RaftingStuff:
 							action=rafting; FFCore.setHeroAction(rafting);
 							raftclk=0;
 							if (get_qr(qr_RAFT_SOUND)) sfx(itemsbuf[current_item_id(itype_raft)].usesound,pan(x.getInt()));
-							else sfx(get_screen_for_world_xy(tx,ty+11)->secretsfx);
+							else sfx(get_scr_for_world_xy(tx,ty+11)->secretsfx);
 						}
 						else if (get_qr(qr_BETTER_RAFT) && doraft)
 						{
@@ -25027,7 +25027,7 @@ RaftingStuff:
 									action=rafting; FFCore.setHeroAction(rafting);
 									raftclk=0;
 									if (get_qr(qr_RAFT_SOUND)) sfx(itemsbuf[current_item_id(itype_raft)].usesound,pan(x.getInt()));
-									else sfx(get_screen_for_world_xy(tx+8,ty+11)->secretsfx);
+									else sfx(get_scr_for_world_xy(tx+8,ty+11)->secretsfx);
 									dir = i;
 									break;
 								}
@@ -25072,7 +25072,7 @@ RaftingStuff:
 						action=rafting; FFCore.setHeroAction(rafting);
 						raftclk=0;
 						if (get_qr(qr_RAFT_SOUND)) sfx(itemsbuf[current_item_id(itype_raft)].usesound,pan(x.getInt()));
-						else sfx(get_screen_for_world_xy(tx,ty)->secretsfx);
+						else sfx(get_scr_for_world_xy(tx,ty)->secretsfx);
 					}
 					else if (get_qr(qr_BETTER_RAFT) && doraft)
 					{
@@ -25084,7 +25084,7 @@ RaftingStuff:
 								action=rafting; FFCore.setHeroAction(rafting);
 								raftclk=0;
 								if (get_qr(qr_RAFT_SOUND)) sfx(itemsbuf[current_item_id(itype_raft)].usesound,pan(x.getInt()));
-								else sfx(get_screen_for_world_xy(tx+8,ty+8)->secretsfx);
+								else sfx(get_scr_for_world_xy(tx+8,ty+8)->secretsfx);
 								dir = i;
 								break;
 							}
@@ -25134,7 +25134,7 @@ RaftingStuff:
 						action=rafting; FFCore.setHeroAction(rafting);
 						raftclk=0;
 						if (get_qr(qr_RAFT_SOUND)) sfx(itemsbuf[current_item_id(itype_raft)].usesound,pan(x.getInt()));
-						else sfx(get_screen_for_world_xy(tx,ty)->secretsfx);
+						else sfx(get_scr_for_world_xy(tx,ty)->secretsfx);
 					}
 					else if (get_qr(qr_BETTER_RAFT) && doraft)
 					{
@@ -25146,7 +25146,7 @@ RaftingStuff:
 								action=rafting; FFCore.setHeroAction(rafting);
 								raftclk=0;
 								if (get_qr(qr_RAFT_SOUND)) sfx(itemsbuf[current_item_id(itype_raft)].usesound,pan(x.getInt()));
-								else sfx(get_screen_for_world_xy(tx+8,ty+8)->secretsfx);
+								else sfx(get_scr_for_world_xy(tx+8,ty+8)->secretsfx);
 								dir = i;
 								break;
 							}
@@ -25196,7 +25196,7 @@ RaftingStuff:
 						action=rafting; FFCore.setHeroAction(rafting);
 						raftclk=0;
 						if (get_qr(qr_RAFT_SOUND)) sfx(itemsbuf[current_item_id(itype_raft)].usesound,pan(x.getInt()));
-						else sfx(get_screen_for_world_xy(tx,ty)->secretsfx);
+						else sfx(get_scr_for_world_xy(tx,ty)->secretsfx);
 					}
 					else if (get_qr(qr_BETTER_RAFT) && doraft)
 					{
@@ -25208,7 +25208,7 @@ RaftingStuff:
 								action=rafting; FFCore.setHeroAction(rafting);
 								raftclk=0;
 								if (get_qr(qr_RAFT_SOUND)) sfx(itemsbuf[current_item_id(itype_raft)].usesound,pan(x.getInt()));
-								else sfx(get_screen_for_world_xy(tx+8,ty+8)->secretsfx);
+								else sfx(get_scr_for_world_xy(tx+8,ty+8)->secretsfx);
 								dir = i;
 								break;
 							}
@@ -27631,19 +27631,19 @@ void HeroClass::checkscroll()
 	if(action == casting||action==sideswimcasting)
 		return;
 
-	// This maze logic is enabled for only scrolling mode. It's a bit simpler, but hasn't
-	// been tested for non-scrolling mode.
+	// This maze logic is enabled for only scrolling regions. It's a bit simpler, but hasn't
+	// been tested for non-scrolling regions.
 	if (!scrolling_maze_state && is_in_scrolling_region() && hero_scr->flags&fMAZE)
 	{
-		scrolling_maze_scr = cur_screen;
+		scrolling_maze_screen = cur_screen;
 		scrolling_maze_state = 1;
 	}
 	int x0 = x.getInt();
 	int y0 = y.getInt();
 
-	if (action != inwind && scrolling_maze_state && (scrolling_maze_mode == 0 || get_screen_index_for_world_xy(x0, y0) != scrolling_maze_scr))
+	if (action != inwind && scrolling_maze_state && (scrolling_maze_mode == 0 || get_screen_for_world_xy(x0, y0) != scrolling_maze_screen))
 	{
-		mapscr* scr = &TheMaps[(currmap*MAPSCRS)+scrolling_maze_scr];
+		mapscr* scr = &TheMaps[(currmap*MAPSCRS)+scrolling_maze_screen];
 		int x0 = x.getInt();
 		int y0 = y.getInt();
 
@@ -27684,7 +27684,7 @@ void HeroClass::checkscroll()
 				}
 
 				scrolling_maze_state = 0;
-				scrolling_maze_scr = 0;
+				scrolling_maze_screen = 0;
 			}
 			else if (scrolling_maze_state == 2 || 1)
 			{
@@ -28270,7 +28270,7 @@ static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector
 		for (int i = 1; i < 7; i++)
 		{
 			mapscr* scr = use_new_screens ?
-				get_layer_scr(map, screen, i - 1) :
+				get_scr_layer(map, screen, i - 1) :
 				old_temporary_screens[screen*7 + i];
 			nearby_screen.screen_handles[i] = {base_scr, scr, screen, i};
 		}
@@ -32029,7 +32029,7 @@ void HeroClass::heroDeathAnimation()
 						for(int32_t j=0; j<6; j++)
 							if(scr->layermap[j]>0)
 							{
-								mapscr* lyr_scr = get_layer_scr(scr->screen, j);
+								mapscr* lyr_scr = get_scr_layer(scr->screen, j);
 								for(int32_t i=0; i<96; i++)
 									lyr_scr->cset[i] = 3;
 							}
@@ -32043,7 +32043,7 @@ void HeroClass::heroDeathAnimation()
 						for(int32_t j=0; j<6; j++)
 							if(scr->layermap[j]>0)
 							{
-								mapscr* lyr_scr = get_layer_scr(scr->screen, j);
+								mapscr* lyr_scr = get_scr_layer(scr->screen, j);
 								for(int32_t i=96; i<176; i++)
 									lyr_scr->cset[i] = 3;
 							}
@@ -32059,7 +32059,7 @@ void HeroClass::heroDeathAnimation()
 						for(int32_t j=0; j<6; j++)
 							if(scr->layermap[j]>0)
 							{
-								mapscr* lyr_scr = get_layer_scr(scr->screen, j);
+								mapscr* lyr_scr = get_scr_layer(scr->screen, j);
 								for(int32_t i=0; i<176; i++)
 									lyr_scr->cset[i] = 2;
 							}

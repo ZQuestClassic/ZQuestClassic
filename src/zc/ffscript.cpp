@@ -288,7 +288,7 @@ static auto decode_mapdata_ref(int ref)
 	else
 	{
 		if (layer >= 0 && layer <= 6)
-			scr = get_layer_scr(screen, layer - 1);
+			scr = get_scr_layer(screen, layer - 1);
 	}
 
 	auto type = is_scrolling ? mapdata_type::Temporary_Scrolling : mapdata_type::Temporary_Cur;
@@ -1665,7 +1665,7 @@ static ffc_handle_t ResolveMapdataFFC(int32_t mapref, int index, const char* con
 
 	int screen_index_offset = 0;
 	if (result.type == mapdata_type::Temporary_Cur && result.layer == 0)
-		screen_index_offset = get_region_screen_index_offset(result.screen);
+		screen_index_offset = get_region_screen_offset(result.screen);
 
 	return result.scr->getFFCHandle(index, screen_index_offset);
 }
@@ -2844,7 +2844,7 @@ int32_t get_register(int32_t arg)
 			break;
 		case FFCID:
 			if (auto ffc = ResolveFFC(ri->ffcref, "ffc->ID"))
-				ret = (get_region_screen_index_offset(ffc->screen_spawned) * MAXFFCS + ffc->index + 1) * 10000;
+				ret = (get_region_screen_offset(ffc->screen_spawned) * MAXFFCS + ffc->index + 1) * 10000;
 			break;
 			
 		case XD2:
@@ -25046,7 +25046,7 @@ static void do_getscreenindexforcombopos(const bool v)
 		return;
 	}
 
-	set_register(sarg1, get_screen_index_for_rpos(rpos));
+	set_register(sarg1, get_screen_for_rpos(rpos));
 }
 
 static void do_loadtmpscrforcombopos(const bool v)
@@ -25058,7 +25058,7 @@ static void do_loadtmpscrforcombopos(const bool v)
 		return;
 	}
 
-	set_register(sarg1, create_mapdata_temp_ref(get_screen_index_for_rpos(rpos), 0, false));
+	set_register(sarg1, create_mapdata_temp_ref(get_screen_for_rpos(rpos), 0, false));
 }
 
 void FFScript::do_graphics_getpixel()

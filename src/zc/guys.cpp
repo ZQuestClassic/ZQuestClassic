@@ -346,7 +346,7 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 {
 	x=X;
 	y=Y;
-	screen_spawned=get_screen_index_for_world_xy(x.getInt(), y.getInt());
+	screen_spawned=get_screen_for_world_xy(x.getInt(), y.getInt());
 	id=Id;
 	clk=Clk;
 	floor_y=y;
@@ -656,9 +656,9 @@ bool enemy::scr_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int
 	// TODO: could this reuse _walkflag?
 
 	//_walkflag code
-	mapscr* s0 = get_screen_layer_for_world_xy(dx, dy, 0);
-	mapscr* s1 = s0->layermap[0]-1 >= 0 ? get_screen_layer_for_world_xy(dx, dy, 1) : nullptr;
-	mapscr* s2 = s0->layermap[1]-1 >= 0 ? get_screen_layer_for_world_xy(dx, dy, 2) : nullptr;
+	mapscr* s0 = get_scr_for_world_xy_layer(dx, dy, 0);
+	mapscr* s1 = s0->layermap[0]-1 >= 0 ? get_scr_for_world_xy_layer(dx, dy, 1) : nullptr;
+	mapscr* s2 = s0->layermap[1]-1 >= 0 ? get_scr_for_world_xy_layer(dx, dy, 2) : nullptr;
 	if (!s1 || !s1->valid) s1 = s0;
 	if (!s2 || !s2->valid) s2 = s0;
 	
@@ -1652,7 +1652,7 @@ bool enemy::isOnSideviewPlatform()
 	int32_t usehei = (SIZEflags&OVERRIDE_HIT_HEIGHT) ? hit_height : 16;
 	if(!get_qr(qr_BROKEN_SIDEVIEW_SPRITE_JUMP)&&fall<0)
 		return false;
-	if(y + usehei >= world_h && cur_screen>=0x70 && !(get_screen_for_world_xy(x, y)->flags2&wfDOWN)) return true; //Bottom of the map
+	if(y + usehei >= world_h && cur_screen>=0x70 && !(get_scr_for_world_xy(x, y)->flags2&wfDOWN)) return true; //Bottom of the map
 	if(check_slope(x, y+1, usewid, usehei)) return true;
 	for(int32_t nx = x + 4; nx <= x + usewid - 4; nx+=16)
 	{

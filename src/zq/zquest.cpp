@@ -23770,7 +23770,7 @@ int32_t get_homescr()
     return DMaps[zinit.start_dmap].cont;
 }
 
-int get_screen_index_for_world_xy(int x, int y)
+int get_screen_for_world_xy(int x, int y)
 {
 	return -1;
 }
