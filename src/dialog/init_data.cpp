@@ -519,33 +519,26 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 				)),
 				TabRef(name = "Vars", TabPanel(ptr = &vartab,
 					TabRef(name = "Misc 1", Row(
-						Column(vAlign = 0.0,
-							Rows<3>(
-								margins = 0_px,
-								padding = 0_px,
-								Label(text = "Start DMap:"),
-								DropDownList(disabled = isZC, data = list_dmaps,
-									selectedValue = local_zinit.start_dmap,
-									onSelectFunc = [&](int32_t val)
-									{
-										local_zinit.start_dmap = val;
-									}
-								),
-								INFOBTN("You will spawn on the 'Continue' screen for the specified dmap when starting a new game")
+						Rows<3>(
+							Label(text = "Start DMap:"),
+							DropDownList(disabled = isZC, data = list_dmaps,
+								selectedValue = local_zinit.start_dmap,
+								onSelectFunc = [&](int32_t val)
+								{
+									local_zinit.start_dmap = val;
+								}
 							),
-							Rows<2>(
-								margins = 0_px,
-								padding = 0_px,
-								INFOBTN("Required to slash with swords. The 'Learn Slash' room type can grant this ability."),
-								Checkbox(
-									checked = local_zinit.flags.get(INIT_FL_CANSLASH),
-									text = "Can Sword Slash",
-									onToggleFunc = [&](bool state)
-									{
-										local_zinit.flags.set(INIT_FL_CANSLASH,state);
-									}
-								)
-							)
+							INFOBTN("You will spawn on the 'Continue' screen for the specified dmap when starting a new game"),
+							Checkbox(
+								checked = local_zinit.flags.get(INIT_FL_CANSLASH), fitParent = true,
+								colSpan = 2, boxPlacement = GUI::Checkbox::boxPlacement::RIGHT,
+								text = "Can Sword Slash",
+								onToggleFunc = [&](bool state)
+								{
+									local_zinit.flags.set(INIT_FL_CANSLASH,state);
+								}
+							),
+							INFOBTN("Required to slash with swords. The 'Learn Slash' room type can grant this ability.")
 						)
 					)),
 					TabRef(name = "Misc 2", Row(
