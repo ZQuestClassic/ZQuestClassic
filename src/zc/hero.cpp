@@ -8288,7 +8288,6 @@ heroanimate_skip_liftwpn:;
 			hoverflags &= ~HOV_OUT;
 		}
 	}
-	bool was_airborne = isStanding(false) && (z > 0 || isSideViewHero());
 	bool platformfell2 = false;
 	int32_t gravity3 = (zinit.gravity/100);
 	int32_t termv = (zinit.terminalv);
@@ -8424,10 +8423,14 @@ heroanimate_skip_liftwpn:;
 					y.doFloor();
 					y-=(int32_t)y%8; //fix position
 				}
+				if(fall > 0)
+					land_on_ground();
 			}
 			else
 			{
 				snap_platform();
+				if(fall > 0)
+					land_on_ground();
 			}
 			fall = hoverclk = jumping = 0;
 			inair = false;
@@ -8645,9 +8648,8 @@ heroanimate_skip_liftwpn:;
 			{
 				if(fall > 0)
 				{
-					if((iswaterex(MAPCOMBO(x,y+8), currmap, currscr, -1, x, y+8, true, false) && ladderx<=0 && laddery<=0) || COMBOTYPE(x,y+8)==cSHALLOWWATER)
-						sfx(WAV_ZN1SPLASH,x.getInt());
-						
+					land_on_ground();
+					
 					stomping = true;
 				}
 			}
@@ -8675,8 +8677,7 @@ heroanimate_skip_liftwpn:;
 			{
 				if(fakefall > 0)
 				{
-					if((iswaterex(MAPCOMBO(x,y+8), currmap, currscr, -1, x, y+8, true, false) && ladderx<=0 && laddery<=0) || COMBOTYPE(x,y+8)==cSHALLOWWATER)
-						sfx(WAV_ZN1SPLASH,x.getInt());
+					land_on_ground();
 						
 					stomping = true;
 				}
@@ -10063,22 +10064,6 @@ heroanimate_skip_liftwpn:;
 		}
 	}
 	
-	if(was_airborne && isStanding(false)) // Just landed from air
-	{
-		// This block is late enough that if you land in water, you will already be swimming/drowning before this runs
-		int land_sfx = 0;
-		//TODO: per-combo landing SFX? If the combo you're landing on has one, set that, ELSE switch(action)... -Em
-		switch(action)
-		{
-			case none: case walking: case attacking: case gothit: case landhold1: case landhold2:
-				// standard landing on ground actions
-				land_sfx = QMisc.miscsfx[sfxHERO_LANDS];  // Generic landing on ground SFX
-				break;
-		}
-		if(land_sfx)
-			sfx(land_sfx, pan(x.getInt()));
-	}
-	
 	// Somehow Hero was displaced from the fairy flag...
 	if(fairyclk && action != freeze && action != sideswimfreeze)
 	{
@@ -10855,6 +10840,34 @@ void HeroClass::handle_passive_buttons()
 {
 	do_liftglove(-1,true);
 	do_jump(-1,true);
+}
+
+void HeroClass::land_on_ground()
+{
+	if(get_qr(qr_OLD_LANDING_SFX))
+	{
+		if(!sideview_mode() && ((iswaterex(MAPCOMBO(x,y+8), currmap, currscr, -1, x, y+8, true, false) && ladderx<=0 && laddery<=0) || COMBOTYPE(x,y+8)==cSHALLOWWATER))
+			sfx(WAV_ZN1SPLASH,x.getInt());
+	}
+	else
+	{
+		auto cpos = COMBOPOS(x+8,y+(sideview_mode()?16:12));
+		bool played_land_sfx = false;
+		for(int q = 0; q < 7; ++q)
+		{
+			mapscr* lyr = FFCore.tempScreens[q];
+			auto cid = lyr->data[cpos];
+			newcombo const& cmb = combobuf[cid];
+			byte csfx = cmb.sfx_landing;
+			if(csfx)
+			{
+				sfx(csfx, x.getInt());
+				played_land_sfx = true;
+			}
+		}
+		if(!played_land_sfx && QMisc.miscsfx[sfxHERO_LANDS])
+			sfx(QMisc.miscsfx[sfxHERO_LANDS], x.getInt());
+	}
 }
 
 static bool did_passive_jump = false;

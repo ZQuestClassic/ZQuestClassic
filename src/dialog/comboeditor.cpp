@@ -3932,7 +3932,17 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									{
 										local_comboref.sfx_tap = val;
 									}),
-								IBTN("Plays when the Hero taps their sword against this combo. Only the highest-layer combo with custom tap SFX will take effect.")
+								IBTN("Plays when the Hero taps their sword against this combo. Only the highest-layer combo with custom tap SFX will take effect."),
+								//
+								Label(text = "Landing:"),
+								DropDownList(data = list_sfx,
+									vPadding = 0_px,
+									fitParent = true, selectedValue = local_comboref.sfx_landing,
+									onSelectFunc = [&](int32_t val)
+									{
+										local_comboref.sfx_landing = val;
+									}),
+								IBTN("Plays when the Hero lands on the combo. Doesn't play if 'Old Landing SFX' is enabled." + QRHINT({qr_OLD_LANDING_SFX}))
 							)
 						),
 						Frame(title = "Sprites", hAlign = 1.0, fitParent = true,
