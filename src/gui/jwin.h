@@ -231,7 +231,6 @@ int32_t jwin_droplist_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_abclist_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_check_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_checkfont_proc(int32_t msg, DIALOG *d, int32_t c);
-int32_t new_check_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_radio_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_radiofont_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_tab_proc(int32_t msg, DIALOG *d, int32_t c);
