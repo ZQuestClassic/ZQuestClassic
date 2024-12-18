@@ -656,11 +656,7 @@ void EnemyEditorDialog::loadEnemyType()
 		ib_attributes[q]->setDisabled(h_attribute[q].empty());
 		tf_attributes[q]->setLowBound(-999999);
 		tf_attributes[q]->setHighBound(999999);
-		if (sw_attributes[q]->getCurrentIndex() != 0)
-		{
-			sw_attributes[q]->switchTo(SW_TEXTFIELD);
-			tf_attributes[q]->setVal(local_guyref.attributes[q]); //update the value
-		}
+		sw_attributes[q]->switchTo(SW_TEXTFIELD);
 
 		if (q > 15)
 			continue;
@@ -672,149 +668,112 @@ void EnemyEditorDialog::loadEnemyType()
 	switch (local_guyref.family)
 	{
 	case eeWALK:
-		ddl_attributes[0]->setSelectedValue(local_guyref.attributes[0]);
 		ddl_attributes[0]->setListData(list_walkmisc1);
 		sw_attributes[0]->switchTo(SW_DROPDOWN);
-		ddl_attributes[1]->setSelectedValue(local_guyref.attributes[1]);
 		ddl_attributes[1]->setListData(list_walkmisc2);
 		sw_attributes[1]->switchTo(SW_DROPDOWN);
-		ddl_attributes[6]->setSelectedValue(local_guyref.attributes[6]);
 		ddl_attributes[6]->setListData(list_walkmisc7);
 		sw_attributes[6]->switchTo(SW_DROPDOWN);
-		ddl_attributes[8]->setSelectedValue(local_guyref.attributes[8]);
 		ddl_attributes[8]->setListData(list_walkmisc9);
 		sw_attributes[8]->switchTo(SW_DROPDOWN);
 		break;
 	case eeGLEEOK:
-		ddl_attributes[2]->setSelectedValue(local_guyref.attributes[3]);
 		ddl_attributes[2]->setListData(list_gleeokmisc3);
 		sw_attributes[2]->switchTo(SW_DROPDOWN);
 		break;
 	case eeDIG:
-		ddl_attributes[0]->setSelectedValue(local_guyref.attributes[0]);
 		ddl_attributes[0]->setListData(list_enemies);
 		sw_attributes[0]->switchTo(SW_DROPDOWN);
-		ddl_attributes[1]->setSelectedValue(local_guyref.attributes[1]);
 		ddl_attributes[1]->setListData(list_enemies);
 		sw_attributes[1]->switchTo(SW_DROPDOWN);
-		ddl_attributes[2]->setSelectedValue(local_guyref.attributes[2]);
 		ddl_attributes[2]->setListData(list_enemies);
 		sw_attributes[2]->switchTo(SW_DROPDOWN);
-		ddl_attributes[3]->setSelectedValue(local_guyref.attributes[3]);
 		ddl_attributes[3]->setListData(list_enemies);
 		sw_attributes[3]->switchTo(SW_DROPDOWN);
-		ddl_attributes[9]->setSelectedValue(local_guyref.attributes[9]);
 		ddl_attributes[9]->setListData(list_digdoggermisc10);
 		sw_attributes[9]->switchTo(SW_DROPDOWN);
 		break;
 	case eePATRA:
-		ddl_attributes[3]->setSelectedValue(local_guyref.attributes[3]);
 		ddl_attributes[3]->setListData(list_patramisc4);
 		sw_attributes[3]->switchTo(SW_DROPDOWN);
-		ddl_attributes[4]->setSelectedValue(local_guyref.attributes[4]);
 		ddl_attributes[4]->setListData(list_patramisc5);
 		sw_attributes[4]->switchTo(SW_DROPDOWN);
-		ddl_attributes[9]->setSelectedValue(local_guyref.attributes[9]);
 		ddl_attributes[9]->setListData(list_patramisc10);
 		sw_attributes[9]->switchTo(SW_DROPDOWN);
-		ddl_attributes[19]->setSelectedValue(local_guyref.attributes[19]);
 		ddl_attributes[19]->setListData(list_patramisc20);
 		sw_attributes[19]->switchTo(SW_DROPDOWN);
-		ddl_attributes[21]->setSelectedValue(local_guyref.attributes[21]);
 		ddl_attributes[21]->setListData(list_patramisc22);
 		sw_attributes[21]->switchTo(SW_DROPDOWN);
-		ddl_attributes[24]->setSelectedValue(local_guyref.attributes[24]);
 		ddl_attributes[24]->setListData(list_patramisc25);
 		sw_attributes[24]->switchTo(SW_DROPDOWN);
-		ddl_attributes[25]->setSelectedValue(local_guyref.attributes[25]);
 		ddl_attributes[25]->setListData(list_patramisc26);
 		sw_attributes[25]->switchTo(SW_DROPDOWN);
-		ddl_attributes[27]->setSelectedValue(local_guyref.attributes[27]);
 		ddl_attributes[27]->setListData(list_patramisc28);
 		sw_attributes[27]->switchTo(SW_DROPDOWN);
 		break;
 	case eePROJECTILE:
-		ddl_attributes[0]->setSelectedValue(local_guyref.attributes[0]);
 		ddl_attributes[0]->setListData(list_walkmisc1);
 		sw_attributes[0]->switchTo(SW_DROPDOWN);
 		break;
 	case eeGHOMA:
-		ddl_attributes[0]->setSelectedValue(local_guyref.attributes[0]);
 		ddl_attributes[0]->setListData(list_gohmamisc1);
 		sw_attributes[0]->switchTo(SW_DROPDOWN);
 		break;
 	case eeAQUA:
-		ddl_attributes[0]->setSelectedValue(local_guyref.attributes[0]);
 		ddl_attributes[0]->setListData(list_aquamisc1);
 		sw_attributes[0]->switchTo(SW_DROPDOWN);
 		break;
 	case eeMANHAN:
-		ddl_attributes[1]->setSelectedValue(local_guyref.attributes[1]);
 		ddl_attributes[1]->setListData(list_manhandlamisc2);
 		sw_attributes[1]->switchTo(SW_DROPDOWN);
 		break;
 	case eeLANM:
-		ddl_attributes[2]->setSelectedValue(local_guyref.attributes[2]);
 		ddl_attributes[2]->setListData(list_yesnomisc);
 		sw_attributes[2]->switchTo(SW_DROPDOWN);
 		break;
 	case eeMOLD:
-		ddl_attributes[1]->setSelectedValue(local_guyref.attributes[1]);
 		ddl_attributes[1]->setListData(list_yesnomisc);
 		sw_attributes[1]->switchTo(SW_DROPDOWN);
 		break;
 	case eeWIZZ:
-		ddl_attributes[0]->setSelectedValue(local_guyref.attributes[0]);
 		ddl_attributes[0]->setListData(list_wizzrobemisc1);
 		sw_attributes[0]->switchTo(SW_DROPDOWN);
-		ddl_attributes[1]->setSelectedValue(local_guyref.attributes[1]);
 		ddl_attributes[1]->setListData(list_wizzrobemisc2);
 		sw_attributes[1]->switchTo(SW_DROPDOWN);
-		ddl_attributes[3]->setSelectedValue(local_guyref.attributes[3]);
 		ddl_attributes[3]->setListData(list_yesnomisc);
 		sw_attributes[3]->switchTo(SW_DROPDOWN);
 		break;
 	case eeDONGO:
-		ddl_attributes[9]->setSelectedValue(local_guyref.attributes[9]);
 		ddl_attributes[9]->setListData(list_dodongomisc10);
 		sw_attributes[9]->switchTo(SW_DROPDOWN);
 		break;
 	case eeKEESE: //FLOATER
-		ddl_attributes[0]->setSelectedValue(local_guyref.attributes[0]);
 		ddl_attributes[0]->setListData(list_keesemisc1);
 		sw_attributes[0]->switchTo(SW_DROPDOWN);
-		ddl_attributes[1]->setSelectedValue(local_guyref.attributes[1]);
 		ddl_attributes[1]->setListData(list_keesemisc2);
 		sw_attributes[1]->switchTo(SW_DROPDOWN);
-		ddl_attributes[2]->setSelectedValue(local_guyref.attributes[2]);
 		ddl_attributes[2]->setListData(list_enemies);
 		sw_attributes[2]->switchTo(SW_DROPDOWN);
 		break;
 	case eeLEV:
-		ddl_attributes[0]->setSelectedValue(local_guyref.attributes[0]);
 		ddl_attributes[0]->setListData(list_leevermisc1);
 		sw_attributes[0]->switchTo(SW_DROPDOWN);
 		break;
 	case eeWALLM:
-		ddl_attributes[0]->setSelectedValue(local_guyref.attributes[0]);
 		ddl_attributes[0]->setListData(list_noyesmisc);
 		sw_attributes[0]->switchTo(SW_DROPDOWN);
 		break;
 	case eeTRAP:
-		ddl_attributes[0]->setSelectedValue(local_guyref.attributes[0]);
 		ddl_attributes[0]->setListData(list_trapmisc1);
 		sw_attributes[0]->switchTo(SW_DROPDOWN);
-		ddl_attributes[1]->setSelectedValue(local_guyref.attributes[1]);
 		ddl_attributes[1]->setListData(list_trapmisc2);
 		sw_attributes[1]->switchTo(SW_DROPDOWN);
 		break;
 	case eeROCK:
-		ddl_attributes[9]->setSelectedValue(local_guyref.attributes[9]);
 		ddl_attributes[9]->setListData(list_rockmisc10);
 		sw_attributes[9]->switchTo(SW_DROPDOWN);
 		break;
 	case eeNONE: //(Boss Death Triggers)
-		ddl_attributes[9]->setSelectedValue(local_guyref.attributes[9]);
 		ddl_attributes[9]->setListData(list_yesnomisc);
 		sw_attributes[9]->switchTo(SW_DROPDOWN);
 		break;
@@ -1371,7 +1330,7 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 			TabRef(name = "3", Column(
 				DefenseField(defensearray3)
 			)),
-			TabRef(name = "Script", Column(
+			TabRef(name = "Custom", Column(
 				DefenseField(defensearray4)
 			))
 		))
@@ -1824,11 +1783,10 @@ bool EnemyEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		for (int q = 0; q < edefLAST255; ++q)
 		{
 			//unimplemented defense protection
-			if ((q >= edefSCRIPT && q <= edefQUAKE) || (q >= edefICE && q <= edefSONIC))
+			if ((q >= edefSCRIPT && q <= edefQUAKE) || (q >= edefICE && q <= edefSONIC) || !ddl_defenses[q])
 				continue;
 			local_guyref.defense[q] = local_guyref.defense[0];
-			if(ddl_defenses[q]!=nullptr)
-				ddl_defenses[q]->setSelectedValue(local_guyref.defense[0]);
+			ddl_defenses[q]->setSelectedValue(local_guyref.defense[0]);
 		}
 		return false;
 	}
