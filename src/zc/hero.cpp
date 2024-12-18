@@ -14627,6 +14627,7 @@ void HeroClass::moveheroOld()
 			no_jinx = checkitem_jinx(itmid);
 			if(no_jinx)
 				startwpn(itmid);
+			directWpn = olddirectwpn;
 		}
 	}
 	else if(can_attack() && btnwpn>itype_sword && charging==0 && btnwpn!=itype_rupee) // This depends on item 0 being a rupee...
@@ -19031,6 +19032,7 @@ bool HeroClass::premove()
 			no_jinx = checkitem_jinx(itmid);
 			if(no_jinx)
 				startwpn(itmid);
+			directWpn = olddirectwpn;
 		}
 	}
 	else if(can_attack() && btnwpn>itype_sword && charging==0 && btnwpn!=itype_rupee) // This depends on item 0 being a rupee...
