@@ -8000,16 +8000,7 @@ void draw(bool justcset)
 					int32_t cid = Combo;
                     int8_t cs = CSet;
 					pool.pick(cid,cs);
-					
-					for(int32_t cy=0; cy+cystart<num_combos_height&&cy<BrushHeight; cy++)
-					{
-						for(int32_t cx=0; cx+cxstart<num_combos_width&&cx<BrushWidth; cx++)
-						{
-							auto pos = combo_start + ComboPosition{cx, cy};
-							auto cid2=cid + cx + cy*4;
-							Map.DoSetComboCommand(pos, justcset ? -1 : cid2, cs);
-						}
-					}
+					Map.DoSetComboCommand(combo_start, justcset ? -1 : cid, cs);
 					
 					update_combobrush();
 				}
