@@ -7899,32 +7899,7 @@ void draw(bool justcset)
                     int8_t cs = CSet;
 					pool.pick(cid,cs);
 					
-					if(!combo_cols)
-					{
-						auto cid2 = cid;
-						for(int32_t cy=0; cy+cystart<11&&cy<BrushHeight; cy++)
-						{
-							for(int32_t cx=0; cx+cxstart<16&&cx<BrushWidth; cx++)
-							{
-								int32_t c=cstart+(cy*16)+cx;
-								Map.DoSetComboCommand(drawmap, drawscr, c, justcset ? -1 : (cid2 + cx), cs);
-							}
-							
-							cid2+=20;
-						}
-					}
-					else
-					{
-						for(int32_t cy=0; cy+cystart<11&&cy<BrushHeight; cy++)
-						{
-							for(int32_t cx=0; cx+cxstart<16&&cx<BrushWidth; cx++)
-							{
-								int32_t c=cstart+(cy*16)+cx;
-								auto cid2=cid + cx + cy*4;
-								Map.DoSetComboCommand(drawmap, drawscr, c, justcset ? -1 : cid2, cs);
-							}
-						}
-					}
+					Map.DoSetComboCommand(drawmap, drawscr, cstart, justcset ? -1 : cid, cs);
 					
 					update_combobrush();
 				}
