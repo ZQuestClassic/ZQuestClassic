@@ -14618,11 +14618,21 @@ void HeroClass::moveheroOld()
 	WalkflagInfo info;
 	
 	bool no_jinx = true;
-	if(can_attack() && btnwpn>itype_sword && charging==0 && btnwpn!=itype_rupee) // This depends on item 0 being a rupee...
+	bool liftonly = lift_wpn && (liftflags & LIFTFL_DIS_ITEMS);
+	if(liftonly)
+	{
+		if(replay_version_check(38))
+		{
+			auto itmid = directWpn>-1 ? directWpn : current_item_id(btnwpn);
+			no_jinx = checkitem_jinx(itmid);
+			if(no_jinx)
+				startwpn(itmid);
+		}
+	}
+	else if(can_attack() && btnwpn>itype_sword && charging==0 && btnwpn!=itype_rupee) // This depends on item 0 being a rupee...
 	{
 		bool paidmagic = false;
-		bool liftonly = lift_wpn && (liftflags & LIFTFL_DIS_ITEMS);
-		if(!liftonly && btnwpn==itype_wand && (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_wand : false) : current_item(itype_wand)))
+		if(btnwpn==itype_wand && (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_wand : false) : current_item(itype_wand)))
 		{
 			attackid=directWpn>-1 ? directWpn : current_item_id(itype_wand);
 			no_jinx = checkitem_jinx(attackid);
@@ -14641,7 +14651,7 @@ void HeroClass::moveheroOld()
 				item_error();
 			}
 		}
-		else if(!liftonly && (btnwpn==itype_hammer)&&!((action==attacking||action==sideswimattacking) && attack==wHammer)
+		else if((btnwpn==itype_hammer)&&!((action==attacking||action==sideswimattacking) && attack==wHammer)
 				&& (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_hammer : false) : current_item(itype_hammer)))
 		{
 			no_jinx = checkitem_jinx(dowpn);
@@ -14659,7 +14669,7 @@ void HeroClass::moveheroOld()
 				attackclk=0;
 			}
 		}
-		else if(!liftonly && (btnwpn==itype_candle)&&!((action==attacking||action==sideswimattacking) && attack==wFire)
+		else if((btnwpn==itype_candle)&&!((action==attacking||action==sideswimattacking) && attack==wFire)
 				&& (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_candle : false) : current_item(itype_candle)))
 		{
 			//checkbunny handled where magic cost is paid
@@ -14672,7 +14682,7 @@ void HeroClass::moveheroOld()
 				attackclk=0;
 			}
 		}
-		else if(!liftonly && (btnwpn==itype_cbyrna)&&!((action==attacking||action==sideswimattacking) && attack==wCByrna)
+		else if((btnwpn==itype_cbyrna)&&!((action==attacking||action==sideswimattacking) && attack==wCByrna)
 				&& (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_cbyrna : false) : current_item(itype_cbyrna)))
 		{
 			attackid=directWpn>-1 ? directWpn : current_item_id(itype_cbyrna);
@@ -14692,7 +14702,7 @@ void HeroClass::moveheroOld()
 				item_error();
 			}
 		}
-		else if(!liftonly && (btnwpn==itype_bugnet)&&!((action==attacking||action==sideswimattacking) && attack==wBugNet)
+		else if((btnwpn==itype_bugnet)&&!((action==attacking||action==sideswimattacking) && attack==wBugNet)
 				&& (directWpn>-1 ? (!item_disabled(directWpn) && itemsbuf[directWpn].family==itype_bugnet) : current_item(itype_bugnet)))
 		{
 			attackid = directWpn>-1 ? directWpn : current_item_id(itype_bugnet);
@@ -19012,11 +19022,21 @@ bool HeroClass::premove()
 	do_lens();
 	
 	bool no_jinx = true;
-	if(can_attack() && btnwpn>itype_sword && charging==0 && btnwpn!=itype_rupee) // This depends on item 0 being a rupee...
+	bool liftonly = lift_wpn && (liftflags & LIFTFL_DIS_ITEMS);
+	if(liftonly)
+	{
+		if(replay_version_check(38))
+		{
+			auto itmid = directWpn>-1 ? directWpn : current_item_id(btnwpn);
+			no_jinx = checkitem_jinx(itmid);
+			if(no_jinx)
+				startwpn(itmid);
+		}
+	}
+	else if(can_attack() && btnwpn>itype_sword && charging==0 && btnwpn!=itype_rupee) // This depends on item 0 being a rupee...
 	{
 		bool paidmagic = false;
-		bool liftonly = lift_wpn && (liftflags & LIFTFL_DIS_ITEMS);
-		if(!liftonly && btnwpn==itype_wand && (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_wand : false) : current_item(itype_wand)))
+		if(btnwpn==itype_wand && (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_wand : false) : current_item(itype_wand)))
 		{
 			attackid=directWpn>-1 ? directWpn : current_item_id(itype_wand);
 			no_jinx = checkitem_jinx(attackid);
@@ -19035,7 +19055,7 @@ bool HeroClass::premove()
 				item_error();
 			}
 		}
-		else if(!liftonly && (btnwpn==itype_hammer)&&!((action==attacking||action==sideswimattacking) && attack==wHammer)
+		else if((btnwpn==itype_hammer)&&!((action==attacking||action==sideswimattacking) && attack==wHammer)
 				&& (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_hammer : false) : current_item(itype_hammer)))
 		{
 			no_jinx = checkitem_jinx(dowpn);
@@ -19053,7 +19073,7 @@ bool HeroClass::premove()
 				attackclk=0;
 			}
 		}
-		else if(!liftonly && (btnwpn==itype_candle)&&!((action==attacking||action==sideswimattacking) && attack==wFire)
+		else if((btnwpn==itype_candle)&&!((action==attacking||action==sideswimattacking) && attack==wFire)
 				&& (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_candle : false) : current_item(itype_candle)))
 		{
 			//checkbunny handled where magic cost is paid
@@ -19066,7 +19086,7 @@ bool HeroClass::premove()
 				attackclk=0;
 			}
 		}
-		else if(!liftonly && (btnwpn==itype_cbyrna)&&!((action==attacking||action==sideswimattacking) && attack==wCByrna)
+		else if((btnwpn==itype_cbyrna)&&!((action==attacking||action==sideswimattacking) && attack==wCByrna)
 				&& (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_cbyrna : false) : current_item(itype_cbyrna)))
 		{
 			attackid=directWpn>-1 ? directWpn : current_item_id(itype_cbyrna);
@@ -19086,7 +19106,7 @@ bool HeroClass::premove()
 				item_error();
 			}
 		}
-		else if(!liftonly && (btnwpn==itype_bugnet)&&!((action==attacking||action==sideswimattacking) && attack==wBugNet)
+		else if((btnwpn==itype_bugnet)&&!((action==attacking||action==sideswimattacking) && attack==wBugNet)
 				&& (directWpn>-1 ? (!item_disabled(directWpn) && itemsbuf[directWpn].family==itype_bugnet) : current_item(itype_bugnet)))
 		{
 			attackid = directWpn>-1 ? directWpn : current_item_id(itype_bugnet);
