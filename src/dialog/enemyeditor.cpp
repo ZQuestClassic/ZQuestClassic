@@ -388,9 +388,12 @@ void EnemyEditorDialog::loadEnemyType()
 	//2: overrride those labels base off the enemy type
 	//3: initialize the attribute labels and switchers (do note the switchers are initialized at the position storing the textfields)
 	//4: override the switchers base off the enemy type that use DDLs and set those up.
-	//5: update the warnings (unimplemented as of now)
-	//6: Penddraw
+	//5: call attribute update function, since attributes updated
 	// all of this must be done in this order... -Jambu
+	for (size_t q = 0; q < 32; ++q)
+	{
+		plist_attributes[q] = nullptr;
+	}
 	for (int q = 0; q < 32; ++q)
 		l_attribute[q] = fmt::format("Misc Attr. {}:", q + 1);
 	l_bflag[0] = "Enemy is Completely Invisible";
@@ -649,11 +652,12 @@ void EnemyEditorDialog::loadEnemyType()
 
 #define SW_TEXTFIELD 0
 #define SW_DROPDOWN 1
-
+	
 	for (size_t q = 0; q < 32; ++q)
 	{
 		l_attributes[q]->setText(l_attribute[q]);
 		ib_attributes[q]->setDisabled(h_attribute[q].empty());
+		pbtn_attributes[q]->setDisabled(!plist_attributes[q]);
 		tf_attributes[q]->setLowBound(-999999);
 		tf_attributes[q]->setHighBound(999999);
 		sw_attributes[q]->switchTo(SW_TEXTFIELD);
@@ -780,7 +784,141 @@ void EnemyEditorDialog::loadEnemyType()
 	default:
 		break;
 	}
+	
+	loadAttributes();
+}
 
+void EnemyEditorDialog::loadAttributes()
+{
+	switch(local_guyref.family)
+	{
+		case eeWALK:
+		{
+			static const int dependent_attribs[] = {2,3,4,7,9};
+			for(auto q : dependent_attribs)
+			{
+				l_attribute[q] = "Unused:";
+				h_attribute[q] = "";
+				plist_attributes[q] = nullptr;
+			}
+			GUI::ListData const* lists[12] = { nullptr };
+			
+			if(local_guyref.attributes[0] == e1tSUMMON)
+			{
+				l_attribute[2] = "Enemy ID:";
+				h_attribute[2] = "Enemy to Summon";
+				l_attribute[3] = "Enemy Count:";
+				h_attribute[3] = "Max number of the specified enemy that can be on-screen before summoner stops";
+				lists[2] = &list_enemies;
+			}
+			else
+			{
+				switch(local_guyref.attributes[1])
+				{
+					case e2tTRIBBLE:
+						lists[2] = &list_enemies;
+						l_attribute[2] = "Enemy ID:";
+						h_attribute[2] = "Enemy to Tribble into (transforming if not killed within a set time).";
+						l_attribute[3] = "Enemy Count:";
+						h_attribute[3] = "Tribble into this many copies of the specified enemy.";
+						l_attribute[4] = "Tribble Time:";
+						h_attribute[4] = "Tribbles into specified enemy after this many frames. If 0, defaults to 256 frames.";
+						break;
+					case e2tSPLITHIT:
+					case e2tSPLIT:
+						lists[2] = &list_enemies;
+						l_attribute[2] = "Enemy ID:";
+						h_attribute[2] = "Enemy to Split into.";
+						l_attribute[3] = "Enemy Count:";
+						h_attribute[3] = "Split into this many copies of the specified enemy.";
+						break;
+					case e2tFIREOCTO:
+					case e2tBOMBCHU:
+						l_attribute[2] = "Weapon Offset:";
+						h_attribute[2] = "This number is added to the enemy's 'Weapon' dropdown value to get the weapon used for the death effect. Yes this is confusing.";
+						l_attribute[3] = "Weapon Dmg:";
+						h_attribute[3] = "Damage of the weapon(s) spawned by the death effect";
+						break;
+				}
+			}
+			
+			switch(local_guyref.attributes[6])
+			{
+				case e7tTEMPJINX:
+				case e7tPERMJINX:
+				case e7tUNJINX:
+				{
+					l_attribute[7] = "Jinx Type(s):";
+					static const vector<CheckListInfo> jinxtype_checklist =
+					{
+						{ "Sword Jinx" }, { "Item Jinx" }, { "Shield Jinx" }
+					};
+					plist_attributes[7] = &jinxtype_checklist;
+					break;
+				}
+				case e7tTAKEMAGIC:
+				case e7tTAKERUPEES:
+				{
+					l_attribute[7] = "Amount:";
+					break;
+				}
+				case e7tDRUNK:
+				{
+					l_attribute[7] = "Drunk Time:";
+					h_attribute[7] = "Time, in frames, the effect lasts";
+					break;
+				}
+				case e7tEATITEMS:
+				case e7tEATMAGIC:
+				case e7tEATRUPEES:
+				{
+					l_attribute[7] = "Delay:";
+					h_attribute[7] = "Time, in frames, between each eating";
+					break;
+				}
+				case e7tEATHURT:
+				{
+					l_attribute[7] = "Reserved:";
+					break;
+				}
+			}
+			
+			switch(local_guyref.attributes[8])
+			{
+				case e9tROPE:
+					l_attribute[9] = "Charge Step:";
+					h_attribute[9] = "Step speed used when the enemy charges forward.";
+					break;
+				case e9tVIRE:
+				case e9tPOLSVOICE:
+					l_attribute[9] = "Reserved:";
+					break;
+				case e9tARMOS:
+					l_attribute[9] = "Other Step:";
+					h_attribute[9] = fmt::format("Has a 50% chance to use this step speed instead of the enemy's normal step speed."
+						" If the animation style is set to '{}', adds 20 to the tile of the enemy when this step is used.",
+						list_animations.findText(aARMOS));
+					break;
+			}
+			
+			for(auto q : dependent_attribs)
+			{
+				if(lists[q])
+				{
+					ddl_attributes[q]->setListData(*lists[q]);
+					ddl_attributes[q]->setSelectedValue(local_guyref.attributes[q]);
+					sw_attributes[q]->switchTo(SW_DROPDOWN);
+				}
+				else sw_attributes[q]->switchTo(SW_TEXTFIELD);
+				
+				l_attributes[q]->setText(l_attribute[q]);
+				ib_attributes[q]->setDisabled(h_attribute[q].empty());
+				
+				pbtn_attributes[q]->setDisabled(!plist_attributes[q]);
+			}
+			break;
+		}
+	}
 	updateWarnings();
 	pendDraw();
 }
@@ -788,6 +926,25 @@ void EnemyEditorDialog::loadEnemyType()
 void EnemyEditorDialog::updateWarnings()
 {
 	warnings.clear();
+	switch(local_guyref.family)
+	{
+		case eeWALK:
+			if(local_guyref.attributes[0] == e1tSUMMON)
+			{
+				switch(local_guyref.attributes[1])
+				{
+					case e2tTRIBBLE:
+					case e2tSPLITHIT:
+					case e2tSPLIT:
+					case e2tFIREOCTO:
+					case e2tBOMBCHU:
+						warnings.emplace_back("'Shot Type: Summon' is incompatible with selected 'Death Type'!");
+						break;
+				}
+			}
+			break;
+	}
+	
 	warnbtn->setDisabled(warnings.empty());
 }
 
@@ -1096,21 +1253,15 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 	sprintf(titlebuf, "Enemy %d: %s", index, guy_string[index]);
 
 	// ATTRIBUTE SWITCHERS
-	std::shared_ptr<GUI::Grid> attributes1_tab = Rows<3>();
-	std::shared_ptr<GUI::Grid> attributes2_tab = Rows<3>();
-	std::shared_ptr<GUI::Grid> attributes3_tab = Rows<3>();
+	std::shared_ptr<GUI::Grid> attributes1_tab = Rows<4>();
+	std::shared_ptr<GUI::Grid> attributes2_tab = Rows<4>();
+	std::shared_ptr<GUI::Grid> attributes3_tab = Rows<4>();
 
 	for (int q = 0; q < 32; ++q)
 	{
 		auto& tab = q < 12 ? attributes1_tab : q < 22 ? attributes2_tab : attributes3_tab;
 
 		tab->add(l_attributes[q] = Label(minwidth = ATTR_LAB_WID, textAlign = 2));
-		tab->add(ib_attributes[q] = Button(forceFitH = true, text = "?",
-			disabled = true,
-			onPressFunc = [&, q]()
-			{
-				InfoDialog("Attribute Info", h_attribute[q]).show();
-			}));
 		tab->add(sw_attributes[q] = Switcher(
 			tf_attributes[q] = TextField(
 				width = 300_px,
@@ -1125,6 +1276,7 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 				{
 					local_guyref.attributes[q] = val;
 					ddl_attributes[q]->setSelectedValue(val);
+					loadAttributes();
 				}),
 			ddl_attributes[q] = DropDownList(
 				width = 300_px,
@@ -1136,8 +1288,26 @@ std::shared_ptr<GUI::Widget> EnemyEditorDialog::view()
 				{
 					local_guyref.attributes[q] = val;
 					tf_attributes[q]->setVal(val);
+					loadAttributes();
 				})
 		));
+		tab->add(pbtn_attributes[q] = Button(forceFitH = true, text = "P",
+			disabled = true,
+			onPressFunc = [&, q]()
+			{
+				if(plist_attributes[q] && call_checklist_dialog(fmt::format("Select '{}'", l_attribute[q]), *plist_attributes[q], local_guyref.attributes[q]))
+				{
+					tf_attributes[q]->setVal(local_guyref.attributes[q]);
+					ddl_attributes[q]->setSelectedValue(local_guyref.attributes[q]);
+					loadAttributes();
+				}
+			}));
+		tab->add(ib_attributes[q] = Button(forceFitH = true, text = "?",
+			disabled = true,
+			onPressFunc = [&, q]()
+			{
+				InfoDialog("Attribute Info", h_attribute[q]).show();
+			}));
 	}
 
 	auto basics_tab = TabPanel(
