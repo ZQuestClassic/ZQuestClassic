@@ -8066,7 +8066,13 @@ void playLevelMusic()
 	if (is_headless())
 		return;
 
-	int32_t m=get_scr(cur_screen)->screen_midi;
+	static int last;
+	// TODO z3 !!
+	if (last == hero_scr->screen_midi)
+		return;
+
+	int32_t m=hero_scr->screen_midi;
+	last = m;
 	
 	switch(m)
 	{

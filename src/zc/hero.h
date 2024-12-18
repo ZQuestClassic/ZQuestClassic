@@ -421,6 +421,7 @@ public:
 	WalkflagInfo walkflagMBlock(int32_t wx,int32_t wy);
 	bool edge_of_dmap(int32_t side);
 	bool checkmaze(const mapscr *scr, bool sound);
+	bool checkmaze_ignore_exit(const mapscr *scr, bool sound);
 	bool maze_enabled_sizewarp(const mapscr *scr, int32_t scrolldir);
 	bool HasHeavyBoots();
 	int32_t get_scroll_step(int32_t scrolldir);

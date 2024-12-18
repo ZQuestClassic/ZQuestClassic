@@ -27641,6 +27641,9 @@ void HeroClass::checkscroll()
 	{
 		scrolling_maze_screen = hero_screen;
 		scrolling_maze_state = 1;
+		scrolling_maze_last_herox = -100000;
+		scrolling_maze_last_heroy = -100000;
+		scrolling_maze_lost = false;
 	}
 
 	if (action != inwind && scrolling_maze_state)
@@ -27657,6 +27660,16 @@ void HeroClass::checkscroll()
 
 		if (advance_dir != dir_invalid)
 		{
+			bool can_check_again = std::abs(scrolling_maze_last_herox - x0) >= 16 || std::abs(scrolling_maze_last_heroy - y0) >= 16;
+			if (!scrolling_maze_smooth)
+				can_check_again = true;
+
+			if (!can_check_again)
+				return;
+
+			scrolling_maze_last_herox = x;
+			scrolling_maze_last_heroy = y;
+
 			mapscr* maze_scr = get_scr(scrolling_maze_screen);
 			if (maze_enabled_sizewarp(maze_scr, advance_dir))
 			{
@@ -27664,31 +27677,47 @@ void HeroClass::checkscroll()
 				return;
 			}
 
-			if (checkmaze(maze_scr, true))
+			bool found_exit = !scrolling_maze_lost && lastdir[3] == maze_scr->exitdir;
+			if (can_check_again && found_exit)
 			{
-				if (lastdir[3] == maze_scr->exitdir)
-				{
-					// Do nothing, the hero left the maze :)
-					goto l_checkscroll;
-				}
-				else
-				{
-					int dest_screen = scrolling_maze_screen;
-					if (advance_dir == left)  dest_screen--;
-					if (advance_dir == right) dest_screen++;
-					if (advance_dir == up)    dest_screen -= 16;
-					if (advance_dir == down)  dest_screen += 16;
+				// Do nothing, the hero left the maze :)
+				goto l_checkscroll_left_maze;
+			}
+			if (can_check_again && checkmaze_ignore_exit(maze_scr, true))
+			{
+				scrolling_maze_last_herox = x;
+				scrolling_maze_last_heroy = y;
 
-					if (is_in_current_region(dest_screen))
-						scrolling_maze_last_solved_screen = scrolling_maze_screen;
-					else
-						scrollscr(advance_dir, dest_screen);
-				}
+				int dest_screen = scrolling_maze_screen;
+				if (advance_dir == left)  dest_screen--;
+				if (advance_dir == right) dest_screen++;
+				if (advance_dir == up)    dest_screen -= 16;
+				if (advance_dir == down)  dest_screen += 16;
+
+				if (is_in_current_region(dest_screen))
+					scrolling_maze_last_solved_screen = scrolling_maze_screen;
+				else
+					scrollscr(advance_dir, dest_screen);
 
 				scrolling_maze_state = 0;
 				scrolling_maze_screen = 0;
 			}
-			else
+			else if (can_check_again && scrolling_maze_smooth)
+			{
+				if (advance_dir == left)  x += 256;
+				if (advance_dir == right) x -= 256;
+				if (advance_dir == up)    y += 176;
+				if (advance_dir == down)  y -= 176;
+
+				scrolling_maze_last_herox = x;
+				scrolling_maze_last_heroy = y;
+
+				if (advance_dir == maze_scr->exitdir)
+					scrolling_maze_lost = false;
+				else if (oppositeDir[advance_dir] == maze_scr->exitdir)
+					scrolling_maze_lost = true;
+			}
+			else if (!scrolling_maze_smooth)
 			{
 				if (advance_dir == left)  x = (z3_get_region_relative_dx(scrolling_maze_screen) + 1) * 256 - 16;
 				if (advance_dir == right) x = (z3_get_region_relative_dx(scrolling_maze_screen)) * 256;
@@ -27699,9 +27728,9 @@ void HeroClass::checkscroll()
 
 		return;
 	}
-	scrolling_maze_state = 0;
 
-l_checkscroll:
+l_checkscroll_left_maze:
+	scrolling_maze_state = 0;
 
 	if (action == inwind && whirlwind == 0)
 	{
@@ -27759,6 +27788,23 @@ bool HeroClass::checkmaze(const mapscr *scr, bool sound)
         return true;
         
     if(lastdir[3]==scr->exitdir)
+        return true;
+        
+    for(int32_t i=0; i<4; i++)
+        if(lastdir[i]!=scr->path[i])
+            return false;
+            
+    if(sound)
+        sfx(scr->secretsfx);
+        
+    return true;
+}
+
+// assumes current direction is in lastdir[3]
+// compares directions with scr->path and scr->exitdir
+bool HeroClass::checkmaze_ignore_exit(const mapscr *scr, bool sound)
+{
+    if(!(scr->flags&fMAZE))
         return true;
         
     for(int32_t i=0; i<4; i++)
