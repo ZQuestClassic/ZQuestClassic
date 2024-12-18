@@ -806,22 +806,6 @@ void draw_checkbox(BITMAP *dest,int x,int y,bool value);
 void draw_layerradio(BITMAP *dest,int32_t x,int32_t y,int32_t bg,int32_t fg,int32_t value);
 void KeyFileName(char *kfname);
 
-
-extern int32_t draw_mode;
-extern int32_t alias_origin;
-
-int32_t onSpacebar()
-{
-    if(draw_mode==3)
-    {
-        alias_origin=(alias_origin+1)%4;
-        return D_O_K;
-    }
-
-    combo_cols=!combo_cols;
-    return D_O_K;
-}
-
 int32_t onClearQuestFilepath()
 {
 	if(jwin_alert3(

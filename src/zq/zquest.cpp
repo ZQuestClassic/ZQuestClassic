@@ -452,7 +452,6 @@ newcombo curr_combo;
 PALETTE RAMpal;
 midi_info Midi_Info;
 bool zq_showpal=false;
-bool combo_cols=true;
 bool is_compact = false;
 
 int pixeldb = 1;
@@ -7400,38 +7399,24 @@ void update_combobrush()
     else if(draw_mode != dm_cpool)
     {
 		int32_t cid = combobrushoverride > -1 ? combobrushoverride : Combo;
-        if(combo_cols==false)
-        {
-            for(int32_t i=0; i<256; i++)
-            {
-				if(unsigned(cid+i) >= MAXCOMBOS) break;
-                if(((i%COMBOS_PER_ROW)<BrushWidth)&&((i/COMBOS_PER_ROW)<BrushHeight))
-                {
-                    put_combo(brushbmp,(i%COMBOS_PER_ROW)<<4,(i/COMBOS_PER_ROW)<<4,cid+i,CSet,Flags&(cFLAGS|cWALK),0);
-                }
-            }
-        }
-        else
-        {
-            int32_t c = 0;
-            
-            for(int32_t i=0; i<256; i++)
-            {
-				if(unsigned(cid+c) >= MAXCOMBOS) break;
-                if(((i%COMBOS_PER_ROW)<BrushWidth)&&((i/COMBOS_PER_ROW)<BrushHeight))
-                {
-                    put_combo(brushbmp,(i%COMBOS_PER_ROW)<<4,(i/COMBOS_PER_ROW)<<4,cid+c,CSet,Flags&(cFLAGS|cWALK),0);
-                }
-                
-                if(((cid+c)&3)==3)
-                    c+=48;
+		int32_t c = 0;
+		
+		for(int32_t i=0; i<256; i++)
+		{
+			if(unsigned(cid+c) >= MAXCOMBOS) break;
+			if(((i%COMBOS_PER_ROW)<BrushWidth)&&((i/COMBOS_PER_ROW)<BrushHeight))
+			{
+				put_combo(brushbmp,(i%COMBOS_PER_ROW)<<4,(i/COMBOS_PER_ROW)<<4,cid+c,CSet,Flags&(cFLAGS|cWALK),0);
+			}
+			
+			if(((cid+c)&3)==3)
+				c+=48;
+			
+			++c;
 				
-                ++c;
-                    
-                if((i%COMBOS_PER_ROW)==(COMBOS_PER_ROW-1))
-                    c-=256;
-            }
-        }
+			if((i%COMBOS_PER_ROW)==(COMBOS_PER_ROW-1))
+				c-=256;
+		}
     }
 }
 
@@ -7864,29 +7849,13 @@ void draw(bool justcset)
 				{
 					int32_t cc=Combo;
 					
-					if(!combo_cols)
+					for(int32_t cy=0; cy+cystart<11&&cy<BrushHeight; cy++)
 					{
-						for(int32_t cy=0; cy+cystart<11&&cy<BrushHeight; cy++)
+						for(int32_t cx=0; cx+cxstart<16&&cx<BrushWidth; cx++)
 						{
-							for(int32_t cx=0; cx+cxstart<16&&cx<BrushWidth; cx++)
-							{
-								int32_t c=cstart+(cy*16)+cx;
-								Map.DoSetComboCommand(drawmap, drawscr, c, justcset ? -1 : (cc + cx), CSet);
-							}
-							
-							cc+=20;
-						}
-					}
-					else
-					{
-						for(int32_t cy=0; cy+cystart<11&&cy<BrushHeight; cy++)
-						{
-							for(int32_t cx=0; cx+cxstart<16&&cx<BrushWidth; cx++)
-							{
-								int32_t c=cstart+(cy*16)+cx;
-								cc=Combo + cx + cy*4;
-								Map.DoSetComboCommand(drawmap, drawscr, c, justcset ? -1 : cc, CSet);
-							}
+							int32_t c=cstart+(cy*16)+cx;
+							cc=Combo + cx + cy*4;
+							Map.DoSetComboCommand(drawmap, drawscr, c, justcset ? -1 : cc, CSet);
 						}
 					}
 					
@@ -7899,61 +7868,13 @@ void draw(bool justcset)
                     int8_t cs = CSet;
 					pool.pick(cid,cs);
 					
-					Map.DoSetComboCommand(drawmap, drawscr, cstart, justcset ? -1 : cid, cs);
-					
-					update_combobrush();
-				}
-				break;
-				
-				case dm_relational:
-				{
-					int32_t c2,c3;
-					int32_t cx, cy, cx2, cy2;
-					cy=cstart>>4;
-					cx=cstart&15;
-					
-					if(key[KEY_LSHIFT]||key[KEY_RSHIFT])
+					for(int32_t cy=0; cy+cystart<11&&cy<BrushHeight; cy++)
 					{
-						relational_tile_grid[(cy+rtgyo)][cx+rtgxo]=1;
-						Map.DoSetComboCommand(drawmap, drawscr, cstart, Combo+47, CSet);
-					}
-					else
-					{
-						relational_tile_grid[(cy+rtgyo)][cx+rtgxo]=0;
-					}
-					
-					for(int32_t y2=-1; y2<2; ++y2)
-					{
-						cy2=cy+y2;
-						
-						if((cy2>11)||(cy2<0))
+						for(int32_t cx=0; cx+cxstart<16&&cx<BrushWidth; cx++)
 						{
-							continue;
-						}
-						
-						for(int32_t x2=-1; x2<2; ++x2)
-						{
-							cx2=cx+x2;
-							
-							if((cx2>15)||(cx2<0))
-							{
-								continue;
-							}
-							
-							c2=cstart+(y2*16)+x2;
-							c3=((relational_tile_grid[((cy2-1)+rtgyo)][(cx2+1)+rtgxo]?1:0)<<0)+
-							   ((relational_tile_grid[((cy2-1)+rtgyo)][(cx2-1)+rtgxo]?1:0)<<1)+
-							   ((relational_tile_grid[((cy2+1)+rtgyo)][(cx2-1)+rtgxo]?1:0)<<2)+
-							   ((relational_tile_grid[((cy2+1)+rtgyo)][(cx2+1)+rtgxo]?1:0)<<3)+
-							   ((relational_tile_grid[((cy2)+rtgyo)][(cx2+1)+rtgxo]?1:0)<<4)+
-							   ((relational_tile_grid[((cy2-1)+rtgyo)][(cx2)+rtgxo]?1:0)<<5)+
-							   ((relational_tile_grid[((cy2)+rtgyo)][(cx2-1)+rtgxo]?1:0)<<6)+
-							   ((relational_tile_grid[((cy2+1)+rtgyo)][(cx2)+rtgxo]?1:0)<<7);
-							   
-							if(relational_tile_grid[((c2>>4)+rtgyo)][(c2&15)+rtgxo]==0)
-							{
-								Map.DoSetComboCommand(drawmap, drawscr, c2, Combo+relational_source_grid[c3], CSet);
-							}
+							int32_t c=cstart+(cy*16)+cx;
+							auto cid2=cid + cx + cy*4;
+							Map.DoSetComboCommand(drawmap, drawscr, c, justcset ? -1 : cid2, cs);
 						}
 					}
 				}

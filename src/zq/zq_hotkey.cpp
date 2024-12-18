@@ -13,6 +13,7 @@
 
 extern int32_t prv_mode;
 extern bool placing_flags;
+extern int32_t alias_origin;
 
 int onSetNewLayer(int newlayer);
 int onScreenLPal(int lpal);
@@ -106,7 +107,7 @@ char const* get_hotkey_name(uint hkey)
 		case ZQKEY_PLUS_16_SCR_PAL: return "Screen Palette +16 (Preview)";
 		case ZQKEY_GRID: return "Show Grid";
 		case ZQKEY_GRID_COLOR: return "Cycle Grid Color";
-		case ZQKEY_COMBO_COL_MODE: return "Toggle Combo Column Mode";
+		case ZQKEY_CHANGE_ALIAS_ORIGIN: return "Change Combo Alias Origin";
 		case ZQKEY_DELETE: return "Delete Screen";
 		case ZQKEY_FULLSCREEN: return "Toggle Fullscreen";
 		case ZQKEY_LYR_0: return "Edit Layer 0";
@@ -329,7 +330,7 @@ char const* get_hotkey_cfg_name(uint hkey)
 		case ZQKEY_PLUS_16_SCR_PAL: return "ZQKEY_PLUS_16_SCR_PAL";
 		case ZQKEY_GRID: return "ZQKEY_GRID";
 		case ZQKEY_GRID_COLOR: return "ZQKEY_GRID_COLOR";
-		case ZQKEY_COMBO_COL_MODE: return "ZQKEY_COMBO_COL_MODE";
+		case ZQKEY_CHANGE_ALIAS_ORIGIN: return "ZQKEY_CHANGE_ALIAS_ORIGIN";
 		case ZQKEY_DELETE: return "ZQKEY_DELETE";
 		case ZQKEY_FULLSCREEN: return "ZQKEY_FULLSCREEN";
 		case ZQKEY_LYR_0: return "ZQKEY_LYR_0";
@@ -603,7 +604,7 @@ char const* get_hotkey_helptext(uint hkey)
 			return "Toggle the Grid Lines over the screen area";
 		case ZQKEY_GRID_COLOR:
 			break;
-		case ZQKEY_COMBO_COL_MODE:
+		case ZQKEY_CHANGE_ALIAS_ORIGIN:
 			break;
 		case ZQKEY_DELETE:
 			return "Clear the current Screen";
@@ -1002,7 +1003,7 @@ void default_hotkeys()
 	zq_hotkeys[ZQKEY_PLUS_16_SCR_PAL].setval(KEY_EQUALS,KB_CTRL_CMD_FLAG|KB_SHIFT_FLAG,KEY_PLUS_PAD,KB_CTRL_CMD_FLAG|KB_SHIFT_FLAG);
 	zq_hotkeys[ZQKEY_GRID].setval(KEY_TILDE,0,0,0);
 	zq_hotkeys[ZQKEY_GRID_COLOR].setval(KEY_TILDE,KB_CTRL_CMD_FLAG,0,0);
-	zq_hotkeys[ZQKEY_COMBO_COL_MODE].setval(KEY_SPACE,0,0,0);
+	zq_hotkeys[ZQKEY_CHANGE_ALIAS_ORIGIN].setval(KEY_SPACE,0,0,0);
 	zq_hotkeys[ZQKEY_DELETE].setval(KEY_DEL,0,KEY_DEL_PAD,0);
 	zq_hotkeys[ZQKEY_FULLSCREEN].setval(KEY_ENTER,KB_ALT_FLAG,KEY_ENTER_PAD,KB_ALT_FLAG);
 	for(int q = 0; q <= 6; ++q) //0-6, +pad
@@ -1370,8 +1371,9 @@ int run_hotkey(uint hkey)
 		case ZQKEY_GRID_COLOR:
 			return onToggleGrid(true);
 			
-		case ZQKEY_COMBO_COL_MODE:
-			return onSpacebar();
+		case ZQKEY_CHANGE_ALIAS_ORIGIN:
+			alias_origin = (alias_origin+1)%4;;
+			break;
 		case ZQKEY_DELETE:
 			return onDelete();
 		case ZQKEY_FULLSCREEN:

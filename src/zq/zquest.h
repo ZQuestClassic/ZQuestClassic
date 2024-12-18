@@ -147,7 +147,6 @@ extern newcombo curr_combo;
 extern PALETTE RAMpal;
 extern midi_info Midi_Info;
 extern bool zq_showpal;
-extern bool combo_cols;
 extern bool zoomed_minimap;
 
 
@@ -247,6 +246,8 @@ zfix HeroModifiedX();
 zfix HeroModifiedY();
 
 extern NewMenu colors_menu;
+
+void toggle_combo_cols_mode();
 
 void rebuild_trans_table();
 void rebuild_string_list();
