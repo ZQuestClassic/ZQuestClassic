@@ -542,7 +542,6 @@ newcombo curr_combo;
 PALETTE RAMpal;
 midi_info Midi_Info;
 bool zq_showpal=false;
-bool combo_cols = true;
 bool is_compact = false;
 
 int pixeldb = 1;
@@ -692,8 +691,6 @@ int32_t UncompressedAutoSaves = 0;                                  //should tim
 int32_t KeyboardRepeatDelay = 0;                                    //the time in milliseconds after holding down a key that the key starts to repeat
 int32_t KeyboardRepeatRate = 0;                                     //the time in milliseconds between each repetition of a repeated key
 
-bool AllowNonColumnComboView = false;
-
 time_t auto_save_time_start, auto_save_time_current;
 double auto_save_time_diff = 0;
 int32_t AutoSaveRetention = 0;                                      //how many autosaves of a quest to keep
@@ -754,13 +751,6 @@ int32_t ff_combo = 0;
 int32_t Frameskip = 0, RequestedFPS = 60, zqUseWin32Proc = 1;
 int32_t zqColorDepth = 8;
 int32_t joystick_index=0;
-
-void toggle_combo_cols_mode()
-{
-	if(AllowNonColumnComboView)
-		combo_cols = !combo_cols;
-	else combo_cols = true;
-}
 
 void set_last_timed_save(char const* buf)
 {
@@ -7611,38 +7601,24 @@ void update_combobrush()
     else if(draw_mode != dm_cpool)
     {
 		int32_t cid = combobrushoverride > -1 ? combobrushoverride : Combo;
-        if(!combo_cols)
-        {
-            for(int32_t i=0; i<256; i++)
-            {
-				if(unsigned(cid+i) >= MAXCOMBOS) break;
-                if(((i%COMBOS_PER_ROW)<BrushWidth)&&((i/COMBOS_PER_ROW)<BrushHeight))
-                {
-                    put_combo(brushbmp,(i%COMBOS_PER_ROW)<<4,(i/COMBOS_PER_ROW)<<4,cid+i,CSet,Flags&(cFLAGS|cWALK),0);
-                }
-            }
-        }
-        else
-        {
-            int32_t c = 0;
-            
-            for(int32_t i=0; i<256; i++)
-            {
-				if(unsigned(cid+c) >= MAXCOMBOS) break;
-                if(((i%COMBOS_PER_ROW)<BrushWidth)&&((i/COMBOS_PER_ROW)<BrushHeight))
-                {
-                    put_combo(brushbmp,(i%COMBOS_PER_ROW)<<4,(i/COMBOS_PER_ROW)<<4,cid+c,CSet,Flags&(cFLAGS|cWALK),0);
-                }
-                
-                if(((cid+c)&3)==3)
-                    c+=48;
+		int32_t c = 0;
+		
+		for(int32_t i=0; i<256; i++)
+		{
+			if(unsigned(cid+c) >= MAXCOMBOS) break;
+			if(((i%COMBOS_PER_ROW)<BrushWidth)&&((i/COMBOS_PER_ROW)<BrushHeight))
+			{
+				put_combo(brushbmp,(i%COMBOS_PER_ROW)<<4,(i/COMBOS_PER_ROW)<<4,cid+c,CSet,Flags&(cFLAGS|cWALK),0);
+			}
+			
+			if(((cid+c)&3)==3)
+				c+=48;
+			
+			++c;
 				
-                ++c;
-                    
-                if((i%COMBOS_PER_ROW)==(COMBOS_PER_ROW-1))
-                    c-=256;
-            }
-        }
+			if((i%COMBOS_PER_ROW)==(COMBOS_PER_ROW-1))
+				c-=256;
+		}
     }
 }
 
@@ -8039,29 +8015,13 @@ void draw(bool justcset)
 				{
 					int32_t cc=Combo;
 					
-					if(!combo_cols)
+					for(int32_t cy=0; cy+cystart<num_combos_height&&cy<BrushHeight; cy++)
 					{
-						for(int32_t cy=0; cy+cystart<num_combos_height&&cy<BrushHeight; cy++)
+						for(int32_t cx=0; cx+cxstart<num_combos_width&&cx<BrushWidth; cx++)
 						{
-							for(int32_t cx=0; cx+cxstart<num_combos_width&&cx<BrushWidth; cx++)
-							{
-								auto pos = combo_start + ComboPosition{cx, cy};
-								Map.DoSetComboCommand(pos, justcset ? -1 : (cc + cx), CSet);
-							}
-							
-							cc+=20;
-						}
-					}
-					else
-					{
-						for(int32_t cy=0; cy+cystart<num_combos_height&&cy<BrushHeight; cy++)
-						{
-							for(int32_t cx=0; cx+cxstart<num_combos_width&&cx<BrushWidth; cx++)
-							{
-								auto pos = combo_start + ComboPosition{cx, cy};
-								cc=Combo + cx + cy*4;
-								Map.DoSetComboCommand(pos, justcset ? -1 : cc, CSet);
-							}
+							auto pos = combo_start + ComboPosition{cx, cy};
+							cc=Combo + cx + cy*4;
+							Map.DoSetComboCommand(pos, justcset ? -1 : cc, CSet);
 						}
 					}
 					
@@ -8074,30 +8034,13 @@ void draw(bool justcset)
                     int8_t cs = CSet;
 					pool.pick(cid,cs);
 					
-					if(!combo_cols)
+					for(int32_t cy=0; cy+cystart<num_combos_height&&cy<BrushHeight; cy++)
 					{
-						auto cid2 = cid;
-						for(int32_t cy=0; cy+cystart<num_combos_height&&cy<BrushHeight; cy++)
+						for(int32_t cx=0; cx+cxstart<num_combos_width&&cx<BrushWidth; cx++)
 						{
-							for(int32_t cx=0; cx+cxstart<num_combos_width&&cx<BrushWidth; cx++)
-							{
-								auto pos = combo_start + ComboPosition{cx, cy};
-								Map.DoSetComboCommand(pos, justcset ? -1 : (cid2 + cx), cs);
-							}
-							
-							cid2+=20;
-						}
-					}
-					else
-					{
-						for(int32_t cy=0; cy+cystart<num_combos_height&&cy<BrushHeight; cy++)
-						{
-							for(int32_t cx=0; cx+cxstart<num_combos_width&&cx<BrushWidth; cx++)
-							{
-								auto pos = combo_start + ComboPosition{cx, cy};
-								auto cid2=cid + cx + cy*4;
-								Map.DoSetComboCommand(pos, justcset ? -1 : cid2, cs);
-							}
+							auto pos = combo_start + ComboPosition{cx, cy};
+							auto cid2=cid + cx + cy*4;
+							Map.DoSetComboCommand(pos, justcset ? -1 : cid2, cs);
 						}
 					}
 					
@@ -24331,7 +24274,6 @@ int32_t main(int32_t argc,char **argv)
 	ComboBrush					 = zc_get_config("zquest","combo_brush",0);
 	FloatBrush					 = zc_get_config("zquest","float_brush",0);
 	AutoBrush = zc_get_config("zquest","autobrush",1);
-	AllowNonColumnComboView = zc_get_config("zquest","allow_combo_non_column_view",0);
 	LinkedScroll = zc_get_config("zquest","linked_comboscroll",0);
 	allowHideMouse = zc_get_config("ZQ_GUI","allowHideMouse",0);
 	ShowFavoriteComboModes = zc_get_config("ZQ_GUI","show_fav_combo_modes",1);
