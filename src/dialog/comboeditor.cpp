@@ -2441,18 +2441,6 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							TRIGFLAG(46,"Custom Weapon 10")
 						)
 					)
-				),
-				Frame(title = "Burning", info = "Triggered by weapons burning with particular levels of fire",
-					Rows<2>(
-						IBTN("Triggered by weapons burning with 'Normal' type fire.\nNote: Many engine fire sources will *always* count as 'Normal Fire', regardless of other settings."),
-						TRIGFLAG(92, "Normal Fire"),
-						IBTN("Triggered by weapons burning with 'Strong' type fire"),
-						TRIGFLAG(93, "Strong Fire"),
-						IBTN("Triggered by weapons burning with 'Magic' type fire"),
-						TRIGFLAG(94, "Magic Fire"),
-						IBTN("Triggered by weapons burning with 'Divine' type fire"),
-						TRIGFLAG(95, "Divine Fire")
-					)
 				)
 			)),
 			TabRef(name = "EWeapons", Row(
@@ -2484,6 +2472,26 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							TRIGFLAG(72,"Custom Weapon 9"),
 							TRIGFLAG(73,"Custom Weapon 10")
 						)
+					)
+				)
+			)),
+			TabRef(name = "Other", Row(
+				Frame(title = "Burning", info = "Triggered by weapons (lweapon or eweapon) burning with particular levels of fire",
+					Rows<2>(
+						IBTN("Triggered by weapons burning with 'Normal' type fire.\nNote: Many engine fire sources will *always* count as 'Normal Fire', regardless of other settings."),
+						TRIGFLAG(92, "Normal Fire"),
+						IBTN("Triggered by weapons burning with 'Strong' type fire"),
+						TRIGFLAG(93, "Strong Fire"),
+						IBTN("Triggered by weapons burning with 'Magic' type fire"),
+						TRIGFLAG(94, "Magic Fire"),
+						IBTN("Triggered by weapons burning with 'Divine' type fire"),
+						TRIGFLAG(95, "Divine Fire")
+					)
+				),
+				Frame(
+					Rows<2>(
+						IBTN("Only weapons with Z=0 will count for this combo's triggers. (No effect in sideview)"),
+						TRIGFLAG(126,"Only Grounded Weapons")
 					)
 				)
 			)),

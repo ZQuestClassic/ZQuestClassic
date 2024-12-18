@@ -2705,10 +2705,10 @@ enum ComboTrigFlag
 	TRIGFLAG_THROWN, //Weapons->LWeapons->Thrown - Triggered by Thrown Object weapons
 	TRIGFLAG_QUAKESTUN, //Weapons->LWeapons->Quake Hammer - Triggered by a Quake Stun
 	TRIGFLAG_SQUAKESTUN, //Weapons->LWeapons->S. Quake Hammer - Triggered by a Super Quake Stun
-	TRIGFLAG_ANYFIRE, //Weapons->LWeapons->Any Fire - Triggered by Any Fire
-	TRIGFLAG_STRONGFIRE, //Weapons->LWeapons->Strong Fire - Triggered by Strong Fire
-	TRIGFLAG_MAGICFIRE, //Weapons->LWeapons->Magic Fire - Triggered by Magic Fire
-	TRIGFLAG_DIVINEFIRE, //Weapons->LWeapons->Divine Fire - Triggered by Divine Fire
+	TRIGFLAG_ANYFIRE, //Weapons->Other->Any Fire - Triggered by Any Fire
+	TRIGFLAG_STRONGFIRE, //Weapons->Other->Strong Fire - Triggered by Strong Fire
+	TRIGFLAG_MAGICFIRE, //Weapons->Other->Magic Fire - Triggered by Magic Fire
+	TRIGFLAG_DIVINEFIRE, //Weapons->Other->Divine Fire - Triggered by Divine Fire
 	//96
 	TRIGFLAG_TRIGLEVELSTATE, //States/Spawning->'LevelState->' - Triggered by Level State
 	TRIGFLAG_LEVELSTATE, //States/Spawning->'->LevelState' - Triggers Level State
@@ -2740,6 +2740,7 @@ enum ComboTrigFlag
 	TRIGFLAG_LITEM_SET, //Counters/Items->'->Set' - Grants the specified LItems. If 'TRIGFLAG_LITEM_UNSET' is also on, toggles them instead.
 	TRIGFLAG_LITEM_UNSET, //Counters/Items->'->Unset' - Removes the specified LItems. If 'TRIGFLAG_LITEM_SET' is also on, toggles them instead.
 	TRIGFLAG_TINT_CLEAR, //Graphics->'->Clear Tint' - Clears the palette tint.
+	TRIGFLAG_ONLY_GROUNDED_WEAPONS, //Weapons->Other->'Only Grounded Weapons' - weapons with Z > 0 won't trigger the combo
 	
 	TRIGFLAG_MAX_IN_USE,
 	TRIGFLAG_MAX = 32*6
