@@ -42750,6 +42750,12 @@ bool FFScript::runGenericFrozenEngine(const word script, const int32_t *init_dat
 		}
 	}
 	if(!genericscripts[script]->valid()) return false; //No script to run
+	
+	if(gen_frozen_index >= 400) // Experimentally tested to crash (stack overflow) at 500 for me -Em
+	{
+		Z_scripterrlog("Failed to run frozen generic script; too many (%d) frozen scripts running already! Possible infinite recursion?\n", gen_frozen_index);
+		return false;
+	}
 	//Store script refinfo
 	push_ri();
 	int local_i = int(gen_frozen_index++);
