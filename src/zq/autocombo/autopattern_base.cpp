@@ -359,6 +359,7 @@ namespace AutoPattern
 				drawscreen = mapscr_ptr->layerscreen[layer - 1];
 				mapscr_ptr = Map.AbsoluteScr(drawmap, drawscreen);
 			}
+			else return; // don't draw on layer 0 when it isn't what's selected
 		}
 		if (!(mapscr_ptr->valid & mVALID))
 		{
