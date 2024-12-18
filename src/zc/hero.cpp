@@ -14621,13 +14621,11 @@ void HeroClass::moveheroOld()
 	bool liftonly = lift_wpn && (liftflags & LIFTFL_DIS_ITEMS);
 	if(liftonly)
 	{
-		if(replay_version_check(38))
-		{
-			auto itmid = directWpn>-1 ? directWpn : current_item_id(btnwpn);
-			no_jinx = checkitem_jinx(itmid);
-			if(no_jinx)
-				startwpn(itmid);
-		}
+		auto itmid = directWpn>-1 ? directWpn : current_item_id(btnwpn);
+		no_jinx = checkitem_jinx(itmid);
+		if(no_jinx)
+			startwpn(itmid);
+		directWpn = olddirectwpn;
 	}
 	else if(can_attack() && btnwpn>itype_sword && charging==0 && btnwpn!=itype_rupee) // This depends on item 0 being a rupee...
 	{
@@ -19025,13 +19023,11 @@ bool HeroClass::premove()
 	bool liftonly = lift_wpn && (liftflags & LIFTFL_DIS_ITEMS);
 	if(liftonly)
 	{
-		if(replay_version_check(38))
-		{
-			auto itmid = directWpn>-1 ? directWpn : current_item_id(btnwpn);
-			no_jinx = checkitem_jinx(itmid);
-			if(no_jinx)
-				startwpn(itmid);
-		}
+		auto itmid = directWpn>-1 ? directWpn : current_item_id(btnwpn);
+		no_jinx = checkitem_jinx(itmid);
+		if(no_jinx)
+			startwpn(itmid);
+		directWpn = olddirectwpn;
 	}
 	else if(can_attack() && btnwpn>itype_sword && charging==0 && btnwpn!=itype_rupee) // This depends on item 0 being a rupee...
 	{
