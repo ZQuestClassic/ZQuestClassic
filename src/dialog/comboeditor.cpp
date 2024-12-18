@@ -2476,7 +2476,8 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 				)
 			)),
 			TabRef(name = "Other", Row(
-				Frame(title = "Burning", info = "Triggered by weapons (lweapon or eweapon) burning with particular levels of fire",
+				Frame(title = "Burning", info = "Triggered by weapons (lweapon or eweapon) burning with particular levels of fire"
+					+ QRHINT({qr_FIRE_LEVEL_TRIGGERS_ARENT_WEAPONS}),
 					Rows<2>(
 						IBTN("Triggered by weapons burning with 'Normal' type fire.\nNote: Many engine fire sources will *always* count as 'Normal Fire', regardless of other settings."),
 						TRIGFLAG(92, "Normal Fire"),

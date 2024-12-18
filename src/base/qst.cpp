@@ -3488,7 +3488,10 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 	if (compatrule_version < 72)
 		set_qr(qr_BROKEN_PUSHBLOCK_FLAG_CLONING, 1);
 	if (compatrule_version < 73)
+	{
 		set_qr(qr_OLD_LANDING_SFX, 1);
+		set_qr(qr_FIRE_LEVEL_TRIGGERS_ARENT_WEAPONS, 1);
+	}
 	
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)

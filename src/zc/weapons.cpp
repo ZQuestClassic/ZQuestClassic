@@ -620,6 +620,7 @@ bool triggerfire(int x, int y, weapon* w, bool setflag, bool any, bool strong, b
 		| (magic?combotriggerMAGICFIRE:0)
 		| (divine?combotriggerDIVINEFIRE:0);
 	if(!trigflags) return false;
+	weapon* wptr = get_qr(qr_FIRE_LEVEL_TRIGGERS_ARENT_WEAPONS) ? nullptr : w;
 	bool ret = false;
 	if(any)
 		ret = ret||findentrance(x,y,mfANYFIRE,setflag);
@@ -641,7 +642,7 @@ bool triggerfire(int x, int y, weapon* w, bool setflag, bool any, bool strong, b
 				continue; // Air based weapon shouldn't trigger ground-only combo
 			if(pos != -1 && cmb.triggerflags[2] & trigflags)
 			{
-				do_trigger_combo(q,pos);
+				do_trigger_combo(q,pos,0,wptr);
 				ret = true;
 			}
 		}
@@ -655,7 +656,7 @@ bool triggerfire(int x, int y, weapon* w, bool setflag, bool any, bool strong, b
 			continue; // Air based weapon shouldn't trigger ground-only combo
 		if((cmb.triggerflags[2] & trigflags) && ffc.collide(x,y,16,16))
 		{
-			do_trigger_combo_ffc(i);
+			do_trigger_combo_ffc(i,0,wptr);
 			ret = true;
 		}
 	}

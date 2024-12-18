@@ -966,7 +966,10 @@ static GUI::ListData compatRulesList
 	{ "Pushblock Flag Cloning", qr_BROKEN_PUSHBLOCK_FLAG_CLONING,
 		"If enabled, pushblocks will clone any non-'Push' placed flag (only numbered 59 or higher, except `Push (Generic)` which does all) on them to every square they stop in." },
 	{ "Old Landing SFX", qr_OLD_LANDING_SFX,
-		"If enabled, water will use the old hardcoded splash sound when landing in it. Otherwise, the landing sound set for each combo will be used instead." }
+		"If enabled, water will use the old hardcoded splash sound when landing in it. Otherwise, the landing sound set for each combo will be used instead." },
+	{ "'Burning' triggers don't count as 'weapon triggers'", qr_FIRE_LEVEL_TRIGGERS_ARENT_WEAPONS,
+		"If enabled, weapons triggering the 'Burning' trigger causes will not count as 'weapon triggers' for"
+		" purposes of other trigger flags such as 'Kill Triggering Weapon' and 'Weapon Separate Triggers'" }
 };
 
 static GUI::ListData enemiesRulesList
