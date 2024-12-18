@@ -5871,66 +5871,40 @@ void draw_screenunit(int32_t unit, int32_t flags)
 					BrushWidth = BrushHeight = 1;
 				}
 
+				stretch_blit(brushbmp, brushscreen, 0, 0, BrushWidth*16, BrushHeight*16, 0, 0, BrushWidth*mgridscale, BrushHeight*mgridscale);
 				int float_offx = 0;
 				int float_offy = 0;
-				if((FloatBrush)&&(draw_mode!=dm_alias))
+				
+				if(FloatBrush)
 				{
 					float_offx = -SHADOW_DEPTH*mapscreen_single_scale;
 					float_offy = -SHADOW_DEPTH*mapscreen_single_scale;
-					stretch_blit(brushbmp, brushscreen, 0, 0, BrushWidth*16, BrushHeight*16, 0, 0, BrushWidth*mgridscale, BrushHeight*mgridscale);
 					
 					//shadow
-					for(int32_t i=0; i<SHADOW_DEPTH*mapscreen_single_scale; i++)
-					{
-						for(int32_t j=0; j<BrushHeight*mgridscale; j++)
+					for(int x = 0; x < SHADOW_DEPTH*mapscreen_single_scale; ++x)
+						for(int y = 0; y < (BrushHeight*mgridscale) + (SHADOW_DEPTH*mapscreen_single_scale); ++y)
 						{
-							if((((i^j)&1)==1) && (0+j)<12*mgridscale)
-							{
-								putpixel(brushscreen,0+i+(BrushWidth*mgridscale),0+j,vc(0));
-							}
+							if((((x^y)&1)==1) && y < 12*mgridscale)
+								putpixel(brushscreen,x+(BrushWidth*mgridscale),y,vc(0));
 						}
-					}
 					
-					for(int32_t i=0; i<BrushWidth*mgridscale; i++)
-					{
-						for(int32_t j=0; j<SHADOW_DEPTH*mapscreen_single_scale; j++)
+					for(int x = 0; x < BrushWidth*mgridscale; ++x)
+						for(int y = 0; y < SHADOW_DEPTH*mapscreen_single_scale; ++y)
 						{
-							if((((i^j)&1)==1) && (0+i)<16*mgridscale)
-							{
-								putpixel(brushscreen,0+i,0+j+(BrushHeight*mgridscale),vc(0));
-							}
+							if((((x^y)&1)==1) && x<16*mgridscale)
+								putpixel(brushscreen,x,y+(BrushHeight*mgridscale),vc(0));
 						}
-					}
 				}
-				else
+				
+				if(draw_mode==dm_alias)
 				{
-					if(draw_mode!=dm_alias)
-					{
-						stretch_blit(brushbmp, brushscreen, 0, 0, BrushWidth*16, BrushHeight*16, 0, 0, BrushWidth*mgridscale, BrushHeight*mgridscale);
-					}
-					else
-					{
-						combo_alias *combo = &combo_aliases[combo_apos];
-						
-						switch(alias_origin)
-						{
-							case 0:
-								stretch_blit(brushbmp, brushscreen, 0, 0, BrushWidth*16, BrushHeight*16, 0, 0, BrushWidth*mgridscale, BrushHeight*mgridscale);
-								break;
-								
-							case 1:
-								stretch_blit(brushbmp, brushscreen, (0<combo->width*mgridscale)?((combo->width)*16)-0/mapscreen_single_scale:0, 0, BrushWidth*16, BrushHeight*16, zc_max((0-(combo->width)*mgridscale),0), 0, BrushWidth*mgridscale, BrushHeight*mgridscale);
-								break;
-								
-							case 2:
-								stretch_blit(brushbmp, brushscreen, 0, (0<combo->height*mgridscale)?((combo->height)*16)-0/mapscreen_single_scale:0, BrushWidth*16, BrushHeight*16, 0, zc_max((0-(combo->height)*mgridscale),0), BrushWidth*mgridscale, BrushHeight*mgridscale);
-								break;
-								
-							case 3:
-								stretch_blit(brushbmp, brushscreen, (0<combo->width*mgridscale)?((combo->width)*16)-0/mapscreen_single_scale:0, (0<combo->height*mgridscale)?((combo->height)*16)-0/mapscreen_single_scale:0, BrushWidth*16, BrushHeight*16, zc_max((0-(combo->width)*mgridscale),0), zc_max((my-(combo->height)*mgridscale),0), BrushWidth*mgridscale, BrushHeight*mgridscale);
-								break;
-						}
-					}
+					combo_alias *combo = &combo_aliases[combo_apos];
+					
+					if(BrushWidth > 1 && (alias_origin & 1)) //right-align
+						float_offx -= (BrushWidth - 1) * mgridscale;
+					
+					if(BrushHeight > 1 && (alias_origin & 2)) //bottom-align
+						float_offy -= (BrushHeight - 1) * mgridscale;
 				}
 
 				int bx = mapscreen_x + mx + float_offx + (showedges?(16*mapscreen_single_scale):0);
@@ -7575,28 +7549,18 @@ void update_combobrush()
             }
         }
         
-        switch(alias_origin)
-        {
-        case 0:
-            //if(!(combo_aliases[combo_apos].combos[0]))
-            textprintf_shadowed_ex(brushbmp, get_zc_font(font_sfont), 6, 6, vc(15), vc(0), -1, "x");
-            break;
-            
-        case 1:
-            //if(!(combo_aliases[combo_apos].combos[combo_aliases[combo_apos].width]))
-            textprintf_shadowed_ex(brushbmp, get_zc_font(font_sfont), 6+(combo_aliases[combo_apos].width*16), 6, vc(15), vc(0), -1, "x");
-            break;
-            
-        case 2:
-            //if(!(combo_aliases[combo_apos].combos[(combo_aliases[combo_apos].width+1)*combo_aliases[combo_apos].height]))
-            textprintf_shadowed_ex(brushbmp, get_zc_font(font_sfont), 6, 6+(combo_aliases[combo_apos].height*16), vc(15), vc(0), -1, "x");
-            break;
-            
-        case 3:
-            //if(!(combo_aliases[combo_apos].combos[(combo_aliases[combo_apos].width+1)*(combo_aliases[combo_apos].height)-1]))
-            textprintf_shadowed_ex(brushbmp, get_zc_font(font_sfont), 6+(combo_aliases[combo_apos].width*16), 6+(combo_aliases[combo_apos].height*16), vc(15), vc(0), -1, "x");
-            break;
-        }
+		int xoff = 6, yoff = 6;
+		if(FloatBrush) // Offset the floating pixels, so the 'x' appears centered on the combo still -Em
+		{
+			xoff += 2;
+			yoff += 2;
+		}
+		if(alias_origin & 1) // Right-align
+			xoff += combo_aliases[combo_apos].width*16;
+		if(alias_origin & 2) // Bottom-align
+			yoff += combo_aliases[combo_apos].height*16;
+		
+		textprintf_shadowed_ex(brushbmp, get_zc_font(font_sfont), xoff, yoff, vc(15), vc(0), -1, "x");
     }
     else if(draw_mode != dm_cpool)
     {
