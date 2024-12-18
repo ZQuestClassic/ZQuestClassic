@@ -34,6 +34,7 @@ private:
 
 	void refreshScript();
 	void loadEnemyType();
+	void loadAttributes();
 	void updateWarnings();
 	void apply_enemy();
 
@@ -49,11 +50,14 @@ private:
 	std::shared_ptr<GUI::TextField> tf_attributes[32];
 	std::shared_ptr<GUI::DropDownList> ddl_attributes[32];
 	std::shared_ptr<GUI::Button> ib_attributes[32];
+	std::shared_ptr<GUI::Button> pbtn_attributes[32];
+	vector<CheckListInfo> const* plist_attributes[32];
+	//Defenses
+	std::shared_ptr<GUI::DropDownList> ddl_defenses[41];
 	//Behavior Flags
-	//std::shared_ptr<GUI::Label> l_bflags[16];
 	std::shared_ptr<GUI::Checkbox> l_bflags[16];
 	std::shared_ptr<GUI::Button> ib_bflags[16];
-
+	
 	string h_initd[8], h_wpninitd[8], h_attribute[32], h_bflag[16];
 	string l_initd[8], l_wpninitd[8], l_attribute[32], l_bflag[16];
 
