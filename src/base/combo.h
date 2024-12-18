@@ -277,6 +277,8 @@ struct newcombo
 #define combotriggerLWREFFIRE           0x00100000
 #define combotriggerLWREFFIRE2          0x00200000
 
+#define combotriggerONLY_GROUND_WPN     0x40000000
+
 #define ctrigNONE                       0x00
 #define ctrigIGNORE_SIGN                0x01
 #define ctrigSECRETS                    0x02

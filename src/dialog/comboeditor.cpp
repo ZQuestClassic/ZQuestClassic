@@ -24,7 +24,7 @@ char *ordinal(int32_t num);
 using std::string;
 using std::to_string;
 
-static size_t cmb_tab1 = 0, cmb_tab2 = 0, cmb_tab3 = 0;
+static size_t cmb_tab1 = 0, cmb_tab2 = 0, cmb_tab3 = 0, cmb_tab4;
 static bool combo_use_script_data = true;
 
 bool hasCTypeEffects(int32_t type)
@@ -2321,6 +2321,24 @@ Checkbox( \
 		SETFLAG(local_comboref.member, bit, state); \
 	} \
 )
+
+#define IBTN(info) \
+Button( \
+	width = 1.5_em, padding = 0_px, forceFitH = true, \
+	text = "?", hAlign = 1.0, onPressFunc = [&]() \
+	{ \
+		InfoDialog("Info", info).show(); \
+	} \
+)
+
+#define IBTN_T(title, info) \
+Button( \
+	width = 1.5_em, padding = 0_px, forceFitH = true, \
+	text = "?", hAlign = 1.0, onPressFunc = [&]() \
+	{ \
+		InfoDialog(title, info).show(); \
+	} \
+)
 //}
 
 int32_t solidity_to_flag(int32_t val)
@@ -2638,114 +2656,152 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 				)),
 				TabRef(name = "Triggers", TabPanel(
 					ptr = &cmb_tab3,
-					TabRef(name = "Weapons", Row(
-						Frame(title = "LW Types", info = "Triggered by any lweapon matching these types and this level requirement",
-							Column(
-								Row(
-									l_minmax_trig = Label(text = "Min Level (Applies to all):"),
-									TextField(
-										fitParent = true,
-										vPadding = 0_px,
-										type = GUI::TextField::type::INT_DECIMAL,
-										low = 0, high = 214748, val = local_comboref.triggerlevel,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_comboref.triggerlevel = val;
-										}),
-									Checkbox(
-										text = "Max level instead", hAlign = 0.0,
-										checked = (local_comboref.triggerflags[0] & (combotriggerINVERTMINMAX)),
-										onToggleFunc = [&](bool state)
-										{
-											SETFLAG(local_comboref.triggerflags[0],(combotriggerINVERTMINMAX),state);
-											l_minmax_trig->setText(state ? maxstr : minstr);
-										})
-								),
-								Rows<4>(
-									TRIGFLAG(0,"Sword"),
-									TRIGFLAG(1,"Sword Beam"),
-									TRIGFLAG(2,"Boomerang"),
-									TRIGFLAG(3,"Bomb Boom"),
-									TRIGFLAG(4,"Super Bomb Boom"),
-									TRIGFLAG(5,"Placed Bomb"),
-									TRIGFLAG(6,"Placed Super Bomb"),
-									TRIGFLAG(7,"Arrow"),
-									TRIGFLAG(8,"Fire"),
-									TRIGFLAG(9,"Whistle"),
-									TRIGFLAG(10,"Bait"),
-									TRIGFLAG(11,"Wand"),
-									TRIGFLAG(12,"Magic"),
-									TRIGFLAG(13,"Wind"),
-									TRIGFLAG(14,"Refl. Magic"),
-									TRIGFLAG(15,"Refl. Fireball"),
-									TRIGFLAG(16,"Refl. Rock"),
-									TRIGFLAG(115,"Refl. Arrow"),
-									TRIGFLAG(116,"Refl. Fire"),
-									TRIGFLAG(117,"Refl. Fire 2"),
-									TRIGFLAG(17,"Hammer"),
-									TRIGFLAG(32,"Hookshot"),
-									TRIGFLAG(33,"Sparkle"),
-									TRIGFLAG(34,"Byrna"),
-									TRIGFLAG(35,"Refl. Beam"),
-									TRIGFLAG(36,"Stomp"),
-									TRIGFLAG(89, "Thrown"),
-									TRIGFLAG(90, "Quake Hammer"),
-									TRIGFLAG(91, "S. Quake Hammer"),
-									TRIGFLAG(37,"Custom Weapon 1"),
-									TRIGFLAG(38,"Custom Weapon 2"),
-									TRIGFLAG(39,"Custom Weapon 3"),
-									TRIGFLAG(40,"Custom Weapon 4"),
-									TRIGFLAG(41,"Custom Weapon 5"),
-									TRIGFLAG(42,"Custom Weapon 6"),
-									TRIGFLAG(43,"Custom Weapon 7"),
-									TRIGFLAG(44,"Custom Weapon 8"),
-									TRIGFLAG(45,"Custom Weapon 9"),
-									TRIGFLAG(46,"Custom Weapon 10")
+					TabRef(name = "Weapons", TabPanel(
+						ptr = &cmb_tab4,
+						TabRef(name = "LWeapons", Row(
+							Frame(title = "LW Types", info = "Triggered by any lweapon matching these types and this level requirement",
+								Column(
+									Row(
+										l_minmax_trig = Label(text = "Min Level (Applies to all):"),
+										TextField(
+											fitParent = true,
+											vPadding = 0_px,
+											type = GUI::TextField::type::INT_DECIMAL,
+											low = 0, high = 214748, val = local_comboref.triggerlevel,
+											onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+											{
+												local_comboref.triggerlevel = val;
+											}),
+										Checkbox(
+											text = "Max level instead", hAlign = 0.0,
+											checked = (local_comboref.triggerflags[0] & (combotriggerINVERTMINMAX)),
+											onToggleFunc = [&](bool state)
+											{
+												SETFLAG(local_comboref.triggerflags[0],(combotriggerINVERTMINMAX),state);
+												l_minmax_trig->setText(state ? maxstr : minstr);
+											})
+									),
+									Rows<4>(
+										TRIGFLAG(0,"Sword"),
+										TRIGFLAG(1,"Sword Beam"),
+										TRIGFLAG(2,"Boomerang"),
+										TRIGFLAG(3,"Bomb Boom"),
+										TRIGFLAG(4,"Super Bomb Boom"),
+										TRIGFLAG(5,"Placed Bomb"),
+										TRIGFLAG(6,"Placed Super Bomb"),
+										TRIGFLAG(7,"Arrow"),
+										TRIGFLAG(8,"Fire"),
+										TRIGFLAG(9,"Whistle"),
+										TRIGFLAG(10,"Bait"),
+										TRIGFLAG(11,"Wand"),
+										TRIGFLAG(12,"Magic"),
+										TRIGFLAG(13,"Wind"),
+										TRIGFLAG(14,"Refl. Magic"),
+										TRIGFLAG(15,"Refl. Fireball"),
+										TRIGFLAG(16,"Refl. Rock"),
+										TRIGFLAG(115,"Refl. Arrow"),
+										TRIGFLAG(116,"Refl. Fire"),
+										TRIGFLAG(117,"Refl. Fire 2"),
+										TRIGFLAG(17,"Hammer"),
+										TRIGFLAG(32,"Hookshot"),
+										TRIGFLAG(33,"Sparkle"),
+										TRIGFLAG(34,"Byrna"),
+										TRIGFLAG(35,"Refl. Beam"),
+										TRIGFLAG(36,"Stomp"),
+										TRIGFLAG(89, "Thrown"),
+										TRIGFLAG(90, "Quake Hammer"),
+										TRIGFLAG(91, "S. Quake Hammer"),
+										TRIGFLAG(37,"Custom Weapon 1"),
+										TRIGFLAG(38,"Custom Weapon 2"),
+										TRIGFLAG(39,"Custom Weapon 3"),
+										TRIGFLAG(40,"Custom Weapon 4"),
+										TRIGFLAG(41,"Custom Weapon 5"),
+										TRIGFLAG(42,"Custom Weapon 6"),
+										TRIGFLAG(43,"Custom Weapon 7"),
+										TRIGFLAG(44,"Custom Weapon 8"),
+										TRIGFLAG(45,"Custom Weapon 9"),
+										TRIGFLAG(46,"Custom Weapon 10")
+									)
 								)
 							)
-						),
-						Frame(title = "Burning", info = "Triggered by weapons burning with particular levels of fire",
-							Rows<2>(
-								INFOBTN("Triggered by weapons burning with 'Normal' type fire.\nNote: Many engine fire sources will *always* count as 'Normal Fire', regardless of other settings."),
-								TRIGFLAG(92, "Normal Fire"),
-								INFOBTN("Triggered by weapons burning with 'Strong' type fire"),
-								TRIGFLAG(93, "Strong Fire"),
-								INFOBTN("Triggered by weapons burning with 'Magic' type fire"),
-								TRIGFLAG(94, "Magic Fire"),
-								INFOBTN("Triggered by weapons burning with 'Divine' type fire"),
-								TRIGFLAG(95, "Divine Fire")
+						)),
+						TabRef(name = "EWeapons", Row(
+							Frame(title = "EW Types", info = "Triggered by any eweapon matching these types",
+								Column(
+									Rows<4>(
+										TRIGFLAG(31,"Fireball"),
+										TRIGFLAG(60,"Arrow"),
+										TRIGFLAG(61,"Boomerang"),
+										TRIGFLAG(62,"Sword"),
+										TRIGFLAG(63,"Rock"),
+										TRIGFLAG(74,"Magic"),
+										TRIGFLAG(75,"Bomb Blast"),
+										TRIGFLAG(76,"SBomb Blast"),
+										TRIGFLAG(77,"Lit Bomb"),
+										TRIGFLAG(78,"Lit SBomb"),
+										TRIGFLAG(79,"Fire Trail"),
+										TRIGFLAG(80,"Flame"),
+										TRIGFLAG(81,"Wind"),
+										TRIGFLAG(82,"Flame 2"),
+										TRIGFLAG(64,"Custom Weapon 1"),
+										TRIGFLAG(65,"Custom Weapon 2"),
+										TRIGFLAG(66,"Custom Weapon 3"),
+										TRIGFLAG(67,"Custom Weapon 4"),
+										TRIGFLAG(68,"Custom Weapon 5"),
+										TRIGFLAG(69,"Custom Weapon 6"),
+										TRIGFLAG(70,"Custom Weapon 7"),
+										TRIGFLAG(71,"Custom Weapon 8"),
+										TRIGFLAG(72,"Custom Weapon 9"),
+										TRIGFLAG(73,"Custom Weapon 10")
+									)
+								)
 							)
-						)
-					)),
-					TabRef(name = "EWeapons", Row(
-						Frame(title = "EW Types", info = "Triggered by any eweapon matching these types",
-							Rows<4>(
-								TRIGFLAG(31,"Fireball"),
-								TRIGFLAG(60,"Arrow"),
-								TRIGFLAG(61,"Boomerang"),
-								TRIGFLAG(62,"Sword"),
-								TRIGFLAG(63,"Rock"),
-								TRIGFLAG(74,"Magic"),
-								TRIGFLAG(75,"Bomb Blast"),
-								TRIGFLAG(76,"SBomb Blast"),
-								TRIGFLAG(77,"Lit Bomb"),
-								TRIGFLAG(78,"Lit SBomb"),
-								TRIGFLAG(79,"Fire Trail"),
-								TRIGFLAG(80,"Flame"),
-								TRIGFLAG(81,"Wind"),
-								TRIGFLAG(82,"Flame 2"),
-								TRIGFLAG(64,"Custom Weapon 1"),
-								TRIGFLAG(65,"Custom Weapon 2"),
-								TRIGFLAG(66,"Custom Weapon 3"),
-								TRIGFLAG(67,"Custom Weapon 4"),
-								TRIGFLAG(68,"Custom Weapon 5"),
-								TRIGFLAG(69,"Custom Weapon 6"),
-								TRIGFLAG(70,"Custom Weapon 7"),
-								TRIGFLAG(71,"Custom Weapon 8"),
-								TRIGFLAG(72,"Custom Weapon 9"),
-								TRIGFLAG(73,"Custom Weapon 10")
+						)),
+						TabRef(name = "Other", Row(
+							Frame(title = "Burning", info = "Triggered by weapons (lweapon or eweapon) burning with particular levels of fire",
+								Rows<2>(
+									IBTN("Triggered by weapons burning with 'Normal' type fire.\nNote: Many engine fire sources will *always* count as 'Normal Fire', regardless of other settings."),
+									TRIGFLAG(92, "Normal Fire"),
+									IBTN("Triggered by weapons burning with 'Strong' type fire"),
+									TRIGFLAG(93, "Strong Fire"),
+									IBTN("Triggered by weapons burning with 'Magic' type fire"),
+									TRIGFLAG(94, "Magic Fire"),
+									IBTN("Triggered by weapons burning with 'Divine' type fire"),
+									TRIGFLAG(95, "Divine Fire")
+								)
+							),
+							Frame(
+								Rows<2>(
+									IBTN("Only weapons with Z=0 will count for this combo's triggers. (No effect in sideview)"),
+									TRIGFLAG(126,"Only Grounded Weapons")
+								)
 							)
-						)
+						)),
+						TabRef(name = "Weapon Effects", Column(
+							Frame(fitParent = true, title = "Weapon Effects",
+								info = "Trigger effects related to the weapon that triggered this combo. These"
+									" effects will not occur if the combo is triggered by a non-weapon trigger.",
+								Rows<2>(hAlign = 0.0,
+									IBTN("Destroy the triggering weapon"),
+									TRIGFLAG(30, "Kill Triggering Weapon"),
+									IBTN("Light the triggering weapon on fire, making it trigger 'Normal Fire' triggers."),
+									TRIGFLAG(104, "Ignite Weapon (Normal)"),
+									IBTN("Light the triggering weapon on fire, making it trigger 'Strong Fire' triggers."),
+									TRIGFLAG(105, "Ignite Weapon (Strong)"),
+									IBTN("Light the triggering weapon on fire, making it trigger 'Magic Fire' triggers."),
+									TRIGFLAG(106, "Ignite Weapon (Magic)"),
+									IBTN("Light the triggering weapon on fire, making it trigger 'Divine Fire' triggers."),
+									TRIGFLAG(107, "Ignite Weapon (Divine)")
+								)
+							),
+							Frame(vPadding = 0_px, fitParent = true,
+								Rows<2>(hAlign = 0.0,
+									IBTN("If triggered by a weapon, only the effects from the 'Weapon Effects'"
+										" section will occur- all other flags will only apply to non-weapon triggers."),
+									TRIGFLAG(108,"Weapon Separate Triggers")
+								)
+							)
+						))
 					)),
 					TabRef(name = "Other", Column(
 						Row(padding = 0_px,
@@ -2931,10 +2987,10 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							)
 						)
 					)),
-					TabRef(name = "Effects", Rows<2>(
-						Column(padding = 0_px, vAlign = 1.0,
-							Frame(hAlign = 1.0, title = "Misc Effects",
-								Column(padding = 0_px,
+					TabRef(name = "Effects", Column(
+						Frame(
+							Column(padding = 0_px,
+								Row(padding = 0_px,
 									Rows<2>(hAlign = 0.0,
 										INFOBTN("Triggering the combo will trigger screen secrets. Will be permanent,"
 											" unless 'Temporary Secrets' screen data flag is checked."),
@@ -2942,6 +2998,16 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 										INFOBTN("After triggering, the combo animation is reset. If the combo has changed"
 											" (by any trigger effect), the new combo is the one that resets."),
 										TRIGFLAG(18,"Reset Anim"),
+										INFOBTN("Triggering the combo will cause its inherent type-based effects to occur."
+											" Ex. Triggering a 'Signpost' displays its' string, triggering a chest opens it."
+											" Not available for all combo types; will be greyed out when unavailable."),
+										cteff_tflag = TRIGFLAG(28,"->ComboType Effects"),
+										INFOBTN("The combo will ignore methods of triggering its standard effects that"
+											" are not from the 'Triggers' tab; Ex. a bush will no longer react to swords,"
+											" unless the 'Sword' weapon trigger is checked."),
+										TRIGFLAG(29,"Only Gen Triggers")
+									),
+									Rows<2>(hAlign = 0.0,
 										INFOBTN("Kill all enemies on screen (same as 'kill all enemies' item)"),
 										TRIGFLAG(100, "Kill Enemies"),
 										INFOBTN("Delete all enemies on screen."),
@@ -2950,87 +3016,51 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 										TRIGFLAG(102, "Clear LWeapons"),
 										INFOBTN("Delete all EWeapons on screen."),
 										TRIGFLAG(103, "Clear EWeapons")
+									)
+								),
+								Rows<3>(
+									Label(text = "Combo Change:", fitParent = true),
+									TextField(
+										fitParent = true,
+										vPadding = 0_px,
+										type = GUI::TextField::type::INT_DECIMAL,
+										low = -65535, high = 65535, val = local_comboref.trigchange,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_comboref.trigchange = val;
+										}),
+									Button(
+										width = 1.5_em, padding = 0_px, forceFitH = true,
+										text = "?", hAlign = 1.0, onPressFunc = [&]()
+										{
+											InfoDialog("Combo Change","If the value is not 0, the combo will"
+												" change by that much when triggered."
+												"\nEx. '1' causes '->Next', '-1' causes '->Prev'.").show();
+										}
 									),
-									Rows<3>(hAlign = 0.0,
-										Label(text = "Combo Change:", fitParent = true),
-										TextField(
-											fitParent = true,
-											vPadding = 0_px,
-											type = GUI::TextField::type::INT_DECIMAL,
-											low = -65535, high = 65535, val = local_comboref.trigchange,
-											onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-											{
-												local_comboref.trigchange = val;
-											}),
-										Button(
-											width = 1.5_em, padding = 0_px, forceFitH = true,
-											text = "?", hAlign = 1.0, onPressFunc = [&]()
-											{
-												InfoDialog("Combo Change","If the value is not 0, the combo will"
-													" change by that much when triggered."
-													"\nEx. '1' causes '->Next', '-1' causes '->Prev'.").show();
-											}
-										),
-										Label(text = "CSet Change:", fitParent = true),
-										TextField(
-											fitParent = true,
-											vPadding = 0_px,
-											type = GUI::TextField::type::INT_DECIMAL,
-											low = -15, high = 15, val = local_comboref.trigcschange,
-											onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-											{
-												local_comboref.trigcschange = val;
-											}),
-										Button(
-											width = 1.5_em, padding = 0_px, forceFitH = true,
-											text = "?", hAlign = 1.0, onPressFunc = [&]()
-											{
-												InfoDialog("CSet Change","If the value is not 0, the cset will"
-													" change by that much when triggered."
-													"\nEx. '1' causes '->Next CSet', '-1' causes '->Prev CSet'.").show();
-											}
-										)
+									Label(text = "CSet Change:", fitParent = true),
+									TextField(
+										fitParent = true,
+										vPadding = 0_px,
+										type = GUI::TextField::type::INT_DECIMAL,
+										low = -15, high = 15, val = local_comboref.trigcschange,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_comboref.trigcschange = val;
+										}),
+									Button(
+										width = 1.5_em, padding = 0_px, forceFitH = true,
+										text = "?", hAlign = 1.0, onPressFunc = [&]()
+										{
+											InfoDialog("CSet Change","If the value is not 0, the cset will"
+												" change by that much when triggered."
+												"\nEx. '1' causes '->Next CSet', '-1' causes '->Prev CSet'.").show();
+										}
 									)
 								)
 							)
 						),
-						Column(padding = 0_px,
-							Frame(hAlign = 0.0, title = "Weapon",
-								info = "Trigger effects related to the weapon that triggered this combo. These"
-									" effects will not occur if the combo is triggered by a non-weapon trigger.",
-								Rows<2>(
-									INFOBTN("Destroy the triggering weapon"),
-									TRIGFLAG(30, "Kill Triggering Weapon"),
-									INFOBTN("Light the triggering weapon on fire, making it trigger 'Normal Fire' triggers."),
-									TRIGFLAG(104, "Ignite Weapon (Normal)"),
-									INFOBTN("Light the triggering weapon on fire, making it trigger 'Strong Fire' triggers."),
-									TRIGFLAG(105, "Ignite Weapon (Strong)"),
-									INFOBTN("Light the triggering weapon on fire, making it trigger 'Magic Fire' triggers."),
-									TRIGFLAG(106, "Ignite Weapon (Magic)"),
-									INFOBTN("Light the triggering weapon on fire, making it trigger 'Divine Fire' triggers."),
-									TRIGFLAG(107, "Ignite Weapon (Divine)")
-								)
-							),
-							Frame(hAlign = 0.0, title = "Trigger Handling",
-								info = "These flags have important / notable effects which change how the trigger is handled.",
-								Rows<2>(
-									INFOBTN("TODO @Emily"),
-									TRIGFLAG(-1,"ComboType Trigger->"),
-									INFOBTN("Triggering the combo will cause its inherent type-based effects to occur."
-										" Ex. Triggering a 'Signpost' displays its' string, triggering a chest opens it."
-										" Not available for all combo types; will be greyed out when unavailable."),
-									cteff_tflag = TRIGFLAG(28,"->ComboType Effects"),
-									INFOBTN("The combo will ignore methods of triggering its standard effects that"
-										" are not from the 'Triggers' tab; Ex. a bush will no longer react to swords,"
-										" unless the 'Sword' weapon trigger is checked."),
-									TRIGFLAG(29,"Only Gen Triggers"),
-									INFOBTN("If triggered by a weapon, only the effects from the 'Weapon'"
-										" section will occur- all other flags will only apply to non-weapon triggers."),
-									TRIGFLAG(108,"Weapon Separate Triggers")
-								)
-							)
-						),
-						Frame(colSpan = 2,
+						Frame(
 							Rows<3>(
 								Label(text = "SFX:", hAlign = 1.0),
 								DropDownList(data = list_sfx,
