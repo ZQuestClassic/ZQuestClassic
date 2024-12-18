@@ -2704,12 +2704,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 	if(CurrentLayer < 1)
 		layermap = -1;
 	else
-	{
 		layermap=basescr->layermap[CurrentLayer-1]-1;
-		
-		if(layermap<0)
-			CurrentLayer=0;
-	}
 	
 	if(!(basescr->valid&mVALID))
 	{
@@ -3028,7 +3023,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 					{
 						put_flags(dest,((i&15)<<4)+x,(i&0xF0)+y,prvlayers[CurrentLayer-1].data[i],prvlayers[CurrentLayer-1].cset[i],flags,prvlayers[CurrentLayer-1].sflag[i]);
 					}
-					else
+					else if(basescr->layermap[CurrentLayer-1] > 0)
 					{
 						int32_t _lscr=(basescr->layermap[CurrentLayer-1]-1)*MAPSCRS+basescr->layerscreen[CurrentLayer-1];
 						
@@ -4584,7 +4579,7 @@ void zmap::DoSetComboCommand(ComboPosition pos, int combo, int cset)
 
 void zmap::DoSetComboCommand(int map, int scr, int pos, int combo, int cset)
 {
-	mapscr* mapscr_ptr = Map.AbsoluteScr(map, scr);
+	mapscr* mapscr_ptr = AbsoluteScrMakeValid(map, scr);
 	if (!mapscr_ptr) return;
 
     std::shared_ptr<set_combo_command> command(new set_combo_command);

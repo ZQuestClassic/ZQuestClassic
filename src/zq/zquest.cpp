@@ -5618,7 +5618,10 @@ void draw_screenunit(int32_t unit, int32_t flags)
 
 			int num_combos_width = 16 * Map.getViewSize();
 			int num_combos_height = 11 * Map.getViewSize();
-
+			
+			if(CurrentLayer > 0 && !mapscreen_valid_layers[CurrentLayer-1])
+				CurrentLayer = 0;
+			
 			for (auto& vis_screen : visible_screens)
 			{
 				draw_screenunit_map_screen(vis_screen);
