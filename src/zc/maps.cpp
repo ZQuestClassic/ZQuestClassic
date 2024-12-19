@@ -68,16 +68,10 @@ int region_scr_dx, region_scr_dy;
 int region_scr_count;
 rpos_t region_max_rpos;
 int region_num_rpos;
-int scrolling_maze_screen;
-int scrolling_maze_last_solved_screen;
-int scrolling_maze_last_herox;
-int scrolling_maze_last_heroy;
-int scrolling_maze_state;
-// bool scrolling_maze_smooth = true;
-bool scrolling_maze_smooth = false;
-bool scrolling_maze_lost;
-direction scrolling_maze_enter_dir;
 region current_region, scrolling_region;
+
+maze_state_t maze_state;
+int scrolling_maze_last_solved_screen;
 
 void maps_init_game_vars()
 {
@@ -235,8 +229,7 @@ void z3_load_region(int dmap, int screen)
 	region_scr_count = current_region.screen_count;
 	region_max_rpos = (rpos_t)(current_region.screen_width*current_region.screen_height*176 - 1);
 	region_num_rpos = current_region.screen_width*current_region.screen_height*176;
-	scrolling_maze_state = 0;
-	scrolling_maze_screen = 0;
+	maze_state = {};
 	scrolling_maze_last_solved_screen = 0;
 
 	memset(screen_in_current_region, false, sizeof(screen_in_current_region));
@@ -408,8 +401,8 @@ void z3_update_heroscr()
 	int dx = x / 256;
 	int dy = y / 176;
 	int new_screen = cur_screen + dx + dy * 16;
-	if (scrolling_maze_state == 1)
-		new_screen = scrolling_maze_screen;
+	if (maze_state.active == 1)
+		new_screen = maze_state.screen;
 	if (hero_screen != new_screen && dx >= 0 && dy >= 0 && dx < 16 && dy < 8 && is_in_current_region(new_screen))
 	{
 		region_scr_dx = dx;
@@ -4420,30 +4413,30 @@ static nearby_screens_t get_nearby_screens()
 			mapscr* base_scr;
 			int offx, offy;
 
-			if (scrolling_maze_smooth && scrolling_maze_state == 1)
+			if (maze_state.active == 1 && maze_state.smooth)
 			{
-				int maze_screen_x = z3_get_region_relative_dx(scrolling_maze_screen);
-				int maze_screen_y = z3_get_region_relative_dy(scrolling_maze_screen);
+				int maze_screen_x = z3_get_region_relative_dx(maze_state.screen);
+				int maze_screen_y = z3_get_region_relative_dy(maze_state.screen);
 				int maze_screen_dx = x - maze_screen_x;
 				int maze_screen_dy = y - maze_screen_y;
-				mapscr* scrolling_maze_scr = get_scr(scrolling_maze_screen);
+				mapscr* scrolling_maze_scr = get_scr(maze_state.screen);
 				int exitdir = scrolling_maze_scr->exitdir;
 
 				bool should_draw_maze_screen;
-				if (scrolling_maze_lost)
+				if (maze_state.lost)
 				{
 					should_draw_maze_screen = true;
 				}
 				else
 				{
 					should_draw_maze_screen = XY_DELTA_TO_DIR(maze_screen_dx, 0) != exitdir && XY_DELTA_TO_DIR(0, maze_screen_dy) != exitdir;
-					if (scrolling_maze_enter_dir != dir_invalid)
-						should_draw_maze_screen &= XY_DELTA_TO_DIR(maze_screen_dx, 0) != scrolling_maze_enter_dir && XY_DELTA_TO_DIR(0, maze_screen_dy) != scrolling_maze_enter_dir;
+					if (maze_state.enter_dir != dir_invalid)
+						should_draw_maze_screen &= XY_DELTA_TO_DIR(maze_screen_dx, 0) != maze_state.enter_dir && XY_DELTA_TO_DIR(0, maze_screen_dy) != maze_state.enter_dir;
 				}
 
 				if (should_draw_maze_screen)
 				{
-					screen = scrolling_maze_screen;
+					screen = maze_state.screen;
 					base_scr = get_scr(screen);
 					std::tie(offx, offy) = translate_screen_coordinates_to_world(cur_screen + x + y*16);
 				}
@@ -4460,24 +4453,7 @@ static nearby_screens_t get_nearby_screens()
 				std::tie(offx, offy) = translate_screen_coordinates_to_world(screen);
 			}
 
-			// int scr_x = z3_get_region_relative_dx(screen);
-			// int scr_y = z3_get_region_relative_dy(screen);
-
-			// if (scrolling_maze_state == 1)
-			// {
-			// 	int maze_screen_x = z3_get_region_relative_dx(scrolling_maze_screen);
-			// 	int maze_screen_y = z3_get_region_relative_dy(scrolling_maze_screen);
-			// 	int maze_screen_dx = scr_x - maze_screen_x;
-			// 	int maze_screen_dy = scr_y - maze_screen_y;
-			// 	mapscr* scrolling_maze_scr = get_scr(scrolling_maze_screen);
-			// 	int exitdir = scrolling_maze_scr->exitdir;
-			// 	if (!(XY_DELTA_TO_DIR(maze_screen_dx, 0) == exitdir || XY_DELTA_TO_DIR(0, maze_screen_dy) == exitdir))
-			// 	{
-			// 		scr_x = maze_screen_x;
-			// 		scr_y = maze_screen_y;
-			// 	}
-			// }
-
+			// TODO z3 ! delme
 			// mapscr* base_scr = get_scr(screen);
 			// if (!(base_scr->valid & mVALID)) continue;
 

@@ -1529,6 +1529,7 @@ qword triangles[4][16][8]= //[direction][value][line]
 	}
 };
 
+static bool is_opening_screen;
 int32_t black_opening_count=0;
 int32_t black_opening_x,black_opening_y;
 int32_t black_opening_shape;
@@ -4777,6 +4778,7 @@ void blackscr(int32_t fcnt,bool showsubscr)
 
 void openscreen(int32_t shape)
 {
+	is_opening_screen = true;
 	reset_pal_cycling();
 	black_opening_count=0;
 	
@@ -4803,8 +4805,8 @@ void openscreen(int32_t shape)
 		
 		if(x>0)
 		{
-			rectfill(framebuf,0,playing_field_offset,x,167+playing_field_offset,0);
-			rectfill(framebuf,256-x,playing_field_offset,255,167+playing_field_offset,0);
+			rectfill(framebuf,0,playing_field_offset,x,(viewport.h - 8 - 1)+playing_field_offset,0);
+			rectfill(framebuf,viewport.w-x,playing_field_offset,255,(viewport.h - 8 - 1)+playing_field_offset,0);
 		}
 		
 		advanceframe(true);
@@ -4824,6 +4826,7 @@ void openscreen(int32_t shape)
 
 void closescreen(int32_t shape)
 {
+	is_opening_screen = false;
 	reset_pal_cycling();
 	black_opening_count=0;
 	
@@ -4851,8 +4854,8 @@ void closescreen(int32_t shape)
 		
 		if(x>0)
 		{
-			rectfill(framebuf,0,playing_field_offset,x,167+playing_field_offset,0);
-			rectfill(framebuf,256-x,playing_field_offset,255,167+playing_field_offset,0);
+			rectfill(framebuf,0,playing_field_offset,x,(viewport.h - 8 - 1)+playing_field_offset,0);
+			rectfill(framebuf,viewport.w-x,playing_field_offset,255,(viewport.h - 8 - 1)+playing_field_offset,0);
 		}
 		
 		advanceframe(true);

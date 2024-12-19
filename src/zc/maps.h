@@ -90,15 +90,6 @@ extern rpos_t region_max_rpos;
 // Number of unique values for 'rpos' in the current region. This is the number of possible combo positions.
 // If not currently in a scrolling region, this is just 176.
 extern int region_num_rpos;
-extern int scrolling_maze_screen, scrolling_maze_state;
-extern bool scrolling_maze_smooth;
-extern bool scrolling_maze_lost;
-extern direction scrolling_maze_enter_dir;
-// Holds the last solved screen maze, only used within a scrolling region to remember
-// that a maze was solved.
-extern int scrolling_maze_last_solved_screen;
-extern int scrolling_maze_last_herox;
-extern int scrolling_maze_last_heroy;
 
 struct region
 {
@@ -115,6 +106,23 @@ struct region
 	int width, height;
 };
 extern region current_region, scrolling_region;
+
+struct maze_state_t {
+	bool active;
+	bool lost;
+	bool smooth = false;
+	int screen;
+	int transition_wipe;
+	int last_check_herox;
+	int last_check_heroy;
+	direction enter_dir;
+};
+
+extern maze_state_t maze_state;
+
+// Holds the last solved screen maze, only used within a scrolling region to remember
+// that a maze was solved.
+extern int scrolling_maze_last_solved_screen;
 
 int get_region_id(int map, int screen);
 int get_current_region_id();
