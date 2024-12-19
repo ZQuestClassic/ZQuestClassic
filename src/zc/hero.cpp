@@ -27627,7 +27627,6 @@ void HeroClass::do_scroll_direction(direction dir)
 	}
 }
 
-static bool maze_is_exiting;
 static int maze_exit_screen;
 
 void HeroClass::check_advanced_maze_begin()
@@ -27686,39 +27685,21 @@ void HeroClass::checkscroll()
 		check_advanced_maze_begin();
 	if (action != inwind && maze_state.active)
 	{
-		mapscr* maze_scr = get_scr(maze_state.screen);
-
-		maze_is_exiting=true;
-		if (maze_is_exiting && !maze_state.lost)
+		if (!maze_state.lost)
 		{
 			if (z3_determine_hero_screen_from_coords()->screen == maze_exit_screen)
 			{
-				maze_is_exiting = false;
 				maze_state.active = false;
 				z3_update_heroscr();
 				return;
 			}
 		}
 
-		// int x0 = x.getInt();
-		// int y0 = y.getInt();
+		// TODO z3 ! move to maze_state
+		mapscr* maze_scr = get_scr(maze_state.screen);
 		auto [sx, sy] = translate_screen_coordinates_to_world(maze_state.screen);
 
 		direction advance_dir = dir_invalid;
-		// if (x0 > world_w - 16) advance_dir = right;
-		// if (x0 < 0)                     advance_dir = left;
-		// if (y0 > world_h - 16) advance_dir = down;
-		// if (y0 < 0)                     advance_dir = up;
-
-		// bool can_check_again = std::abs(maze_state.last_check_herox - x0) >= 16 || std::abs(maze_state.last_check_heroy - y0) >= 16;
-		// if (can_check_again)
-		// {
-		// 	if (x0 > (sx+256)-16) advance_dir = right;
-		// 	if (x0 < sx)                     advance_dir = left;
-		// 	if (y0 > (sy+176)-16) advance_dir = down;
-		// 	if (y0 < sy)                     advance_dir = up;
-		// }
-
 		if (x0 > (sx+256)-16 || x0 > world_w - 16) advance_dir = right;
 		if (x0 < sx || x0 < 0)                     advance_dir = left;
 		if (y0 > (sy+176)-16 || y0 > world_h - 16) advance_dir = down;
@@ -27729,25 +27710,13 @@ void HeroClass::checkscroll()
 			maze_state.last_check_herox = -10000;
 			maze_state.last_check_heroy = -10000;
 		}
-
-		if (advance_dir != dir_invalid)
+		else
 		{
 			// TODO z3 ! use 8?
 			bool can_check_again = std::abs(maze_state.last_check_herox - x0) >= 16 || std::abs(maze_state.last_check_heroy - y0) >= 16;
-			// if (!maze_state.smooth)
-			// 	can_check_again = true;
-			// can_check_again=true;
-
-			// if (!can_check_again)
-			// 	return;
-
-			// maze_state.last_check_herox = x;
-			// maze_state.last_check_heroy = y;
 
 			if (can_check_again && maze_enabled_sizewarp(maze_scr, advance_dir))
 			{
-				// maze_state.last_check_herox = x;
-				// maze_state.last_check_heroy = y;
 				maze_state.active = false;
 				return;
 			}
@@ -27755,12 +27724,7 @@ void HeroClass::checkscroll()
 			bool found_exit = !maze_state.lost && lastdir[3] == maze_scr->exitdir;
 			if (found_exit)
 			{
-				// TODO z3 !! need to make sure wont just go back into maze on next frame...how?
-
-				
-				// maze_state.active = false;
-				maze_is_exiting = true;
-				// goto l_checkscroll_left_maze;
+				// Do nothing.
 			}
 			else if (can_check_again && checkmaze_ignore_exit(maze_scr, true))
 			{
@@ -27820,15 +27784,9 @@ void HeroClass::checkscroll()
 			}
 		}
 
-		// if (!maze_is_exiting)
-		// 	return;
 		if (maze_state.lost || advance_dir != maze_scr->exitdir)
 			return;
-
-		// return;
 	}
-
-l_checkscroll_left_maze:
 
 	if (action == inwind && whirlwind == 0)
 	{

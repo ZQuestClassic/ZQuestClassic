@@ -4390,99 +4390,50 @@ struct nearby_screen_t
 };
 typedef std::vector<nearby_screen_t> nearby_screens_t;
 
-static nearby_screens_t get_nearby_screens()
+static nearby_screens_t get_nearby_screens_non_scrolling_region()
 {
 	nearby_screens_t nearby_screens;
 
-	// if (!is_in_scrolling_region())
-	// {
-	// 	int screen = cur_screen;
-	// 	mapscr* base_scr = get_scr(screen);
-	// 	auto& nearby_screen = nearby_screens.emplace_back();
-	// 	nearby_screen.screen = cur_screen;
-	// 	nearby_screen.screen_handles[0] = {base_scr, base_scr, screen, 0};
-	// 	for (int i = 1; i < 7; i++)
-	// 	{
-	// 		mapscr* scr = get_scr_layer_valid(screen, i - 1);
-	// 		nearby_screen.screen_handles[i] = {base_scr, scr, screen, i};
-	// 	}
+	int screen = cur_screen;
+	mapscr* base_scr = get_scr(screen);
+	auto& nearby_screen = nearby_screens.emplace_back();
+	nearby_screen.screen = cur_screen;
+	nearby_screen.screen_handles[0] = {base_scr, base_scr, screen, 0};
+	for (int i = 1; i < 7; i++)
+	{
+		mapscr* scr = get_scr_layer_valid(screen, i - 1);
+		nearby_screen.screen_handles[i] = {base_scr, scr, screen, i};
+	}
 
-	// 	return nearby_screens;
-	// }
+	return nearby_screens;
+}
+
+static nearby_screens_t get_nearby_screens_scrolling_region()
+{
+	nearby_screens_t nearby_screens;
 
 	int screens_x0 = viewport.left() / 256;
 	int screens_x1 = (viewport.right() - 1) / 256;
 	int screens_y0 = viewport.top() / 176;
 	int screens_y1 = (viewport.bottom() - 1) / 176;
 
-	if (maze_state.active == 1 && maze_state.smooth)
-	{
-		if (viewport.left() < 0) screens_x0--;
-		if (viewport.top() < 0) screens_y0--;
-	}
-	else
-	{
-		screens_x0 = std::clamp(screens_x0, 0, 15);
-		screens_x1 = std::clamp(screens_x1, 0, 15);
-		screens_y0 = std::clamp(screens_y0, 0, 8);
-		screens_y1 = std::clamp(screens_y1, 0, 8);
-	}
+	screens_x0 = std::clamp(screens_x0, 0, 15);
+	screens_x1 = std::clamp(screens_x1, 0, 15);
+	screens_y0 = std::clamp(screens_y0, 0, 8);
+	screens_y1 = std::clamp(screens_y1, 0, 8);
 
 	for (int x = screens_x0; x <= screens_x1; x++)
 	{
 		for (int y = screens_y0; y <= screens_y1; y++)
 		{
-			int screen = -1;
-			mapscr* base_scr;
-			int offx, offy;
+			int screen = cur_screen + x + y*16;
+			if (!is_in_current_region(screen)) continue;
 
-			if (maze_state.active == 1 && maze_state.smooth)
-			{
-				int maze_screen_x = z3_get_region_relative_dx(maze_state.screen);
-				int maze_screen_y = z3_get_region_relative_dy(maze_state.screen);
-				int maze_screen_dx = x - maze_screen_x;
-				int maze_screen_dy = y - maze_screen_y;
-				mapscr* scrolling_maze_scr = get_scr(maze_state.screen);
-				int exitdir = scrolling_maze_scr->exitdir;
+			mapscr* base_scr = get_scr(screen);
+			if (!(base_scr->valid & mVALID)) continue;
 
-				bool should_draw_maze_screen;
-				if (maze_state.lost)
-				{
-					should_draw_maze_screen = true;
-				}
-				else
-				{
-					should_draw_maze_screen = true;
-					// if (is_in_current_region(cur_screen + x + y*16))
-						should_draw_maze_screen &= XY_DELTA_TO_DIR(maze_screen_dx, 0) != exitdir && XY_DELTA_TO_DIR(0, maze_screen_dy) != exitdir;
-					if (maze_state.enter_dir != dir_invalid)
-						should_draw_maze_screen &= XY_DELTA_TO_DIR(maze_screen_dx, 0) != maze_state.enter_dir && XY_DELTA_TO_DIR(0, maze_screen_dy) != maze_state.enter_dir;
-				}
+			auto [offx, offy] = translate_screen_coordinates_to_world(screen);
 
-				if (should_draw_maze_screen)
-				{
-					screen = maze_state.screen;
-					base_scr = get_scr(screen);
-					std::tie(offx, offy) = translate_screen_coordinates_to_world(cur_screen + x + y*16);
-				}
-			}
-
-			if (screen == -1)
-			{
-				screen = cur_screen + x + y*16;
-				if (!is_in_current_region(screen)) continue;
-
-				base_scr = get_scr(screen);
-				if (!(base_scr->valid & mVALID)) continue;
-
-				std::tie(offx, offy) = translate_screen_coordinates_to_world(screen);
-			}
-
-			// TODO z3 ! delme
-			// mapscr* base_scr = get_scr(screen);
-			// if (!(base_scr->valid & mVALID)) continue;
-
-			// auto [offx, offy] = translate_screen_coordinates_to_world(screen);
 			auto& nearby_screen = nearby_screens.emplace_back();
 			nearby_screen.screen = screen;
 			nearby_screen.offx = offx;
@@ -4497,6 +4448,91 @@ static nearby_screens_t get_nearby_screens()
 	}
 
 	return nearby_screens;
+}
+
+static nearby_screens_t get_nearby_screens_smooth_maze()
+{
+	nearby_screens_t nearby_screens;
+
+	int screens_x0 = viewport.left() / 256;
+	int screens_x1 = (viewport.right() - 1) / 256;
+	int screens_y0 = viewport.top() / 176;
+	int screens_y1 = (viewport.bottom() - 1) / 176;
+
+	if (viewport.left() < 0) screens_x0--;
+	if (viewport.top() < 0) screens_y0--;
+
+	for (int x = screens_x0; x <= screens_x1; x++)
+	{
+		for (int y = screens_y0; y <= screens_y1; y++)
+		{
+			int screen = -1;
+			mapscr* base_scr;
+			int offx, offy;
+
+			int maze_screen_x = z3_get_region_relative_dx(maze_state.screen);
+			int maze_screen_y = z3_get_region_relative_dy(maze_state.screen);
+			int maze_screen_dx = x - maze_screen_x;
+			int maze_screen_dy = y - maze_screen_y;
+			mapscr* scrolling_maze_scr = get_scr(maze_state.screen);
+			int exitdir = scrolling_maze_scr->exitdir;
+
+			bool should_draw_maze_screen;
+			if (maze_state.lost)
+			{
+				should_draw_maze_screen = true;
+			}
+			else
+			{
+				should_draw_maze_screen = true;
+				should_draw_maze_screen &= XY_DELTA_TO_DIR(maze_screen_dx, 0) != exitdir && XY_DELTA_TO_DIR(0, maze_screen_dy) != exitdir;
+				if (maze_state.enter_dir != dir_invalid)
+					should_draw_maze_screen &= XY_DELTA_TO_DIR(maze_screen_dx, 0) != maze_state.enter_dir && XY_DELTA_TO_DIR(0, maze_screen_dy) != maze_state.enter_dir;
+			}
+
+			if (should_draw_maze_screen)
+			{
+				screen = maze_state.screen;
+				base_scr = get_scr(screen);
+				std::tie(offx, offy) = translate_screen_coordinates_to_world(cur_screen + x + y*16);
+			}
+
+			if (screen == -1)
+			{
+				screen = cur_screen + x + y*16;
+				if (!is_in_current_region(screen)) continue;
+
+				base_scr = get_scr(screen);
+				if (!(base_scr->valid & mVALID)) continue;
+
+				std::tie(offx, offy) = translate_screen_coordinates_to_world(screen);
+			}
+
+			auto& nearby_screen = nearby_screens.emplace_back();
+			nearby_screen.screen = screen;
+			nearby_screen.offx = offx;
+			nearby_screen.offy = offy;
+			nearby_screen.screen_handles[0] = {base_scr, base_scr, screen, 0};
+			for (int i = 1; i < 7; i++)
+			{
+				mapscr* scr = get_scr_layer_valid(screen, i - 1);
+				nearby_screen.screen_handles[i] = {base_scr, scr, screen, i};
+			}
+		}
+	}
+
+	return nearby_screens;
+}
+
+static nearby_screens_t get_nearby_screens()
+{
+	if (maze_state.active && maze_state.smooth)
+		return get_nearby_screens_smooth_maze();
+
+	if (is_in_scrolling_region())
+		return get_nearby_screens_scrolling_region();
+
+	return get_nearby_screens_non_scrolling_region();
 }
 
 static void for_every_nearby_screen(const nearby_screens_t& nearby_screens, const std::function <void (std::array<screen_handle_t, 7>, int, int, int)>& fn)
