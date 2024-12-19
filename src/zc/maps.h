@@ -147,6 +147,7 @@ sprite* z3_get_viewport_sprite();
 void z3_set_viewport_sprite(sprite* spr);
 void z3_update_viewport();
 void z3_update_heroscr();
+mapscr* z3_determine_hero_screen_from_coords();
 bool edge_of_region(direction dir);
 int get_screen_for_world_xy(int x, int y);
 int get_screen_for_rpos(rpos_t rpos);

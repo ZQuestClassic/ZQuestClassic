@@ -27627,14 +27627,11 @@ void HeroClass::do_scroll_direction(direction dir)
 	}
 }
 
-// Checks if hero is beyond the bounds of the screen, and if so begins scrolling.
-// Returns after scrolling is finished.
-void HeroClass::checkscroll()
-{
-	//DO NOT scroll if Hero is vibrating due to Farore's Wind effect -DD
-	if(action == casting||action==sideswimcasting)
-		return;
+static bool maze_is_exiting;
+static int maze_exit_screen;
 
+void HeroClass::check_advanced_maze_begin()
+{
 	// This maze logic is enabled for only scrolling regions. It's a bit simpler, but hasn't
 	// been tested for non-scrolling regions. TODO z3 ! maybe change?
 	if (!maze_state.active && hero_screen != scrolling_maze_last_solved_screen && get_region_id(currmap, cur_screen) && hero_scr->flags&fMAZE)
@@ -27643,6 +27640,7 @@ void HeroClass::checkscroll()
 		maze_state.active = true;
 		maze_state.lost = false;
 		maze_state.smooth = false;
+		// maze_state.smooth = true;
 		maze_state.transition_wipe = -1;
 		maze_state.screen = hero_screen;
 		maze_state.last_check_herox = x;
@@ -27651,46 +27649,120 @@ void HeroClass::checkscroll()
 		int dx = z3_get_region_relative_dx(prev_hero_scr->screen) - z3_get_region_relative_dx(maze_state.screen);
 		int dy = z3_get_region_relative_dy(prev_hero_scr->screen) - z3_get_region_relative_dy(maze_state.screen);
 		maze_state.enter_dir = XY_DELTA_TO_DIR(sign2(dx), sign2(dy));
-	}
 
+		maze_exit_screen = maze_state.screen;
+		switch(hero_scr->exitdir)
+		{
+		case up:
+			maze_exit_screen-=16;
+			break;
+			
+		case down:
+			maze_exit_screen+=16;
+			break;
+			
+		case left:
+			maze_exit_screen-=1;
+			break;
+			
+		case right:
+			maze_exit_screen+=1;
+			break;
+		}
+	}
+}
+
+// Checks if hero is beyond the bounds of the screen, and if so begins scrolling.
+// Returns after scrolling is finished.
+void HeroClass::checkscroll()
+{
+	//DO NOT scroll if Hero is vibrating due to Farore's Wind effect -DD
+	if(action == casting||action==sideswimcasting)
+		return;
+
+	int x0 = x.getInt();
+	int y0 = y.getInt();
+	// if (std::abs(maze_state.last_check_herox - x0) >= 16 || std::abs(maze_state.last_check_heroy - y0) >= 16)
+		check_advanced_maze_begin();
 	if (action != inwind && maze_state.active)
 	{
-		int x0 = x.getInt();
-		int y0 = y.getInt();
+		mapscr* maze_scr = get_scr(maze_state.screen);
+
+		maze_is_exiting=true;
+		if (maze_is_exiting && !maze_state.lost)
+		{
+			if (z3_determine_hero_screen_from_coords()->screen == maze_exit_screen)
+			{
+				maze_is_exiting = false;
+				maze_state.active = false;
+				z3_update_heroscr();
+				return;
+			}
+		}
+
+		// int x0 = x.getInt();
+		// int y0 = y.getInt();
+		auto [sx, sy] = translate_screen_coordinates_to_world(maze_state.screen);
 
 		direction advance_dir = dir_invalid;
-		auto [sx, sy] = translate_screen_coordinates_to_world(maze_state.screen);
-		if (x0 > (sx+256)-16) advance_dir = right;
-		if (x0 < sx)          advance_dir = left;
-		if (y0 > (sy+176)-16) advance_dir = down;
-		if (y0 < sy)          advance_dir = up;
+		// if (x0 > world_w - 16) advance_dir = right;
+		// if (x0 < 0)                     advance_dir = left;
+		// if (y0 > world_h - 16) advance_dir = down;
+		// if (y0 < 0)                     advance_dir = up;
+
+		// bool can_check_again = std::abs(maze_state.last_check_herox - x0) >= 16 || std::abs(maze_state.last_check_heroy - y0) >= 16;
+		// if (can_check_again)
+		// {
+		// 	if (x0 > (sx+256)-16) advance_dir = right;
+		// 	if (x0 < sx)                     advance_dir = left;
+		// 	if (y0 > (sy+176)-16) advance_dir = down;
+		// 	if (y0 < sy)                     advance_dir = up;
+		// }
+
+		if (x0 > (sx+256)-16 || x0 > world_w - 16) advance_dir = right;
+		if (x0 < sx || x0 < 0)                     advance_dir = left;
+		if (y0 > (sy+176)-16 || y0 > world_h - 16) advance_dir = down;
+		if (y0 < sy || y0 < 0)                     advance_dir = up;
+
+		if (advance_dir == dir_invalid)
+		{
+			maze_state.last_check_herox = -10000;
+			maze_state.last_check_heroy = -10000;
+		}
 
 		if (advance_dir != dir_invalid)
 		{
+			// TODO z3 ! use 8?
 			bool can_check_again = std::abs(maze_state.last_check_herox - x0) >= 16 || std::abs(maze_state.last_check_heroy - y0) >= 16;
-			if (!maze_state.smooth)
-				can_check_again = true;
+			// if (!maze_state.smooth)
+			// 	can_check_again = true;
+			// can_check_again=true;
 
-			if (!can_check_again)
-				return;
+			// if (!can_check_again)
+			// 	return;
 
-			maze_state.last_check_herox = x;
-			maze_state.last_check_heroy = y;
+			// maze_state.last_check_herox = x;
+			// maze_state.last_check_heroy = y;
 
-			mapscr* maze_scr = get_scr(maze_state.screen);
-			if (maze_enabled_sizewarp(maze_scr, advance_dir))
+			if (can_check_again && maze_enabled_sizewarp(maze_scr, advance_dir))
 			{
+				// maze_state.last_check_herox = x;
+				// maze_state.last_check_heroy = y;
 				maze_state.active = false;
 				return;
 			}
 
 			bool found_exit = !maze_state.lost && lastdir[3] == maze_scr->exitdir;
-			if (can_check_again && found_exit)
+			if (found_exit)
 			{
-				// Do nothing, the hero left the maze :)
-				goto l_checkscroll_left_maze;
+				// TODO z3 !! need to make sure wont just go back into maze on next frame...how?
+
+				
+				// maze_state.active = false;
+				maze_is_exiting = true;
+				// goto l_checkscroll_left_maze;
 			}
-			if (can_check_again && checkmaze_ignore_exit(maze_scr, true))
+			else if (can_check_again && checkmaze_ignore_exit(maze_scr, true))
 			{
 				maze_state.last_check_herox = x;
 				maze_state.last_check_heroy = y;
@@ -27710,10 +27782,17 @@ void HeroClass::checkscroll()
 			}
 			else if (can_check_again && maze_state.smooth)
 			{
+				if (maze_state.transition_wipe >= 0)
+					closescreen(maze_state.transition_wipe);
+
 				if (advance_dir == left)  x += 256;
 				if (advance_dir == right) x -= 256;
 				if (advance_dir == up)    y += 176;
 				if (advance_dir == down)  y -= 176;
+				if (advance_dir == left || advance_dir == right)
+					x.doClamp(0, world_w - 16);
+				if (advance_dir == up || advance_dir == down)
+					y.doClamp(0, world_h - 16);
 
 				maze_state.last_check_herox = x;
 				maze_state.last_check_heroy = y;
@@ -27722,6 +27801,9 @@ void HeroClass::checkscroll()
 					maze_state.lost = false;
 				else if (advance_dir != maze_state.enter_dir)
 					maze_state.lost = true;
+
+				if (maze_state.transition_wipe >= 0)
+					openscreen(maze_state.transition_wipe);
 			}
 			else if (!maze_state.smooth)
 			{
@@ -27738,11 +27820,15 @@ void HeroClass::checkscroll()
 			}
 		}
 
-		return;
+		// if (!maze_is_exiting)
+		// 	return;
+		if (maze_state.lost || advance_dir != maze_scr->exitdir)
+			return;
+
+		// return;
 	}
 
 l_checkscroll_left_maze:
-	maze_state.active = false;
 
 	if (action == inwind && whirlwind == 0)
 	{
@@ -28053,6 +28139,9 @@ void HeroClass::run_scrolling_script(int32_t scrolldir, int32_t cx, int32_t sx, 
 // return true to abort the topmost scrollscr() call. -L
 bool HeroClass::maze_enabled_sizewarp(const mapscr *scr, int32_t scrolldir)
 {
+	maze_state.last_check_herox = x;
+	maze_state.last_check_heroy = y;
+
     for(int32_t i = 0; i < 3; i++) lastdir[i] = lastdir[i+1];
     
     lastdir[3] = scr->flags&fMAZE ? scrolldir : 0xFF;
@@ -29096,12 +29185,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	if (dx && old_region_scr_dy == 0 && sign(new_playing_field_offset - old_original_playing_field_offset) == -1)
 		pfo_mode = 1;
 	int pfo_counter = abs(new_playing_field_offset - old_original_playing_field_offset);
-	
-	if (get_qr(qr_NOSCROLL))
-	{
-		secondary_axis_alignment_amount = 0;
-		pfo_counter = 0;
-	}
 
 	// 0 for align, then scroll.
 	// 1 for scroll, then align.
@@ -29125,6 +29208,14 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			align_mode = 0;
 		else
 			align_mode = 1;
+	}
+
+	if (get_qr(qr_NOSCROLL))
+	{
+		delay = 0;
+		secondary_axis_alignment_amount = 0;
+		pfo_counter = 0;
+		align_counter = 0;
 	}
 
 	viewport_t initial_viewport = old_viewport;
@@ -29626,6 +29717,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		playing_field_offset = old_original_playing_field_offset;
 
 	//Move hero to the other side of the screen if scrolling's not turned on
+	// TODO z3 ! pretty sure can remove this.
 	if(get_qr(qr_NOSCROLL))
 	{
 		switch(scrolldir)
