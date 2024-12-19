@@ -93,6 +93,7 @@ extern int region_num_rpos;
 extern int scrolling_maze_screen, scrolling_maze_state;
 extern bool scrolling_maze_smooth;
 extern bool scrolling_maze_lost;
+extern direction scrolling_maze_enter_dir;
 // Holds the last solved screen maze, only used within a scrolling region to remember
 // that a maze was solved.
 extern int scrolling_maze_last_solved_screen;

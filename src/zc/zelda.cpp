@@ -400,6 +400,7 @@ mapscr special_warp_return_screen;
 mapscr tmpscr2[6];
 mapscr tmpscr3[6];
 mapscr* hero_scr;
+mapscr* prev_hero_scr;
 std::vector<std::shared_ptr<zasm_script>> zasm_scripts;
 script_data *ffscripts[NUMSCRIPTFFC];
 script_data *itemscripts[NUMSCRIPTITEM];
@@ -1617,6 +1618,7 @@ void init_game_vars(bool is_cont_game = false)
     frame = 0;
 
 	hero_scr = nullptr;
+	prev_hero_scr = nullptr;
 	viewport_mode = ViewportMode::CenterAndBound;
 	new_sub_indexes[sstACTIVE] = -1;
 	loadside = 0;

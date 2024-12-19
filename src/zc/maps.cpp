@@ -76,6 +76,7 @@ int scrolling_maze_state;
 // bool scrolling_maze_smooth = true;
 bool scrolling_maze_smooth = false;
 bool scrolling_maze_lost;
+direction scrolling_maze_enter_dir;
 region current_region, scrolling_region;
 
 void maps_init_game_vars()
@@ -414,6 +415,7 @@ void z3_update_heroscr()
 		region_scr_dx = dx;
 		region_scr_dy = dy;
 		hero_screen = new_screen;
+		prev_hero_scr = hero_scr;
 		hero_scr = get_scr(hero_screen);
 		playLevelMusic();
 		mark_visited(hero_screen);
@@ -4426,10 +4428,21 @@ static nearby_screens_t get_nearby_screens()
 				int maze_screen_dy = y - maze_screen_y;
 				mapscr* scrolling_maze_scr = get_scr(scrolling_maze_screen);
 				int exitdir = scrolling_maze_scr->exitdir;
-				if (scrolling_maze_lost || (XY_DELTA_TO_DIR(maze_screen_dx, 0) != exitdir && XY_DELTA_TO_DIR(0, maze_screen_dy) != exitdir))
+
+				bool should_draw_maze_screen;
+				if (scrolling_maze_lost)
 				{
-					// scr_x = maze_screen_x;
-					// scr_y = maze_screen_y;
+					should_draw_maze_screen = true;
+				}
+				else
+				{
+					should_draw_maze_screen = XY_DELTA_TO_DIR(maze_screen_dx, 0) != exitdir && XY_DELTA_TO_DIR(0, maze_screen_dy) != exitdir;
+					if (scrolling_maze_enter_dir != dir_invalid)
+						should_draw_maze_screen &= XY_DELTA_TO_DIR(maze_screen_dx, 0) != scrolling_maze_enter_dir && XY_DELTA_TO_DIR(0, maze_screen_dy) != scrolling_maze_enter_dir;
+				}
+
+				if (should_draw_maze_screen)
+				{
 					screen = scrolling_maze_screen;
 					base_scr = get_scr(screen);
 					std::tie(offx, offy) = translate_screen_coordinates_to_world(cur_screen + x + y*16);
@@ -6037,7 +6050,7 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool overlay, bool 
 	update_slope_comboposes();
 	currdmap = o_currdmap;
 	hero_screen = screen;
-	hero_scr = get_scr_no_load(currmap, screen);
+	hero_scr = prev_hero_scr = get_scr_no_load(currmap, screen);
 	CHECK(hero_scr);
 
 	cpos_force_update();
@@ -6120,7 +6133,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 	const mapscr* source = get_canonical_scr(currmap, screen);
 	*scr = *source;
 	if (tmp == 0)
-		hero_scr = scr;
+		hero_scr = prev_hero_scr = scr;
 	if (!tmp)
 	{
 		int c = scr->numFFC();

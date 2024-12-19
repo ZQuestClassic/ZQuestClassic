@@ -27641,9 +27641,13 @@ void HeroClass::checkscroll()
 	{
 		scrolling_maze_screen = hero_screen;
 		scrolling_maze_state = 1;
-		scrolling_maze_last_herox = -100000;
-		scrolling_maze_last_heroy = -100000;
+		scrolling_maze_last_herox = x;
+		scrolling_maze_last_heroy = y;
 		scrolling_maze_lost = false;
+
+		int dx = z3_get_region_relative_dx(prev_hero_scr->screen) - z3_get_region_relative_dx(scrolling_maze_screen);
+		int dy = z3_get_region_relative_dy(prev_hero_scr->screen) - z3_get_region_relative_dy(scrolling_maze_screen);
+		scrolling_maze_enter_dir = XY_DELTA_TO_DIR(sign2(dx), sign2(dy));
 	}
 
 	if (action != inwind && scrolling_maze_state)
@@ -27714,7 +27718,7 @@ void HeroClass::checkscroll()
 
 				if (advance_dir == maze_scr->exitdir)
 					scrolling_maze_lost = false;
-				else if (oppositeDir[advance_dir] == maze_scr->exitdir)
+				else if (advance_dir != scrolling_maze_enter_dir)
 					scrolling_maze_lost = true;
 			}
 			else if (!scrolling_maze_smooth)

@@ -308,6 +308,8 @@ extern int32_t cur_screen;
 extern int32_t hero_screen;
 // Screen the player is currently on. If in a scrolling region, this updates as the player moves around. Otherwise this is equal to tmpscr.
 extern mapscr* hero_scr;
+// Screen the player was last on. If in a scrolling region, this updates as the player moves around. Otherwise this is equal to tmpscr.
+extern mapscr* prev_hero_scr;
 // If currently on an 0x80+ screen, this is where the player came from. Corresponds to special_warp_return_screen.
 // Otherwise, is equal to cur_screen.
 extern int32_t home_screen;
