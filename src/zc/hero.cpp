@@ -27639,18 +27639,20 @@ void HeroClass::maybe_begin_advanced_maze()
 
 	maze_state = {};
 	maze_state.active = true;
-	maze_state.lost = false; // TODO: maze_state.can_get_lost ?
-	maze_state.smooth = false;
 	// maze_state.smooth = true;
 	maze_state.transition_wipe = -1;
 	// maze_state.transition_wipe = bosSMAS; // TODO z3 ! make configurable?
+	maze_state.can_get_lost = true;
 	maze_state.scr = hero_scr;
 	maze_state.last_check_herox = x;
 	maze_state.last_check_heroy = y;
 
-	int dx = z3_get_region_relative_dx(prev_hero_scr->screen) - z3_get_region_relative_dx(hero_screen);
-	int dy = z3_get_region_relative_dy(prev_hero_scr->screen) - z3_get_region_relative_dy(hero_screen);
-	maze_state.enter_dir = XY_DELTA_TO_DIR(sign2(dx), sign2(dy));
+	if (maze_state.smooth)
+	{
+		int dx = z3_get_region_relative_dx(prev_hero_scr->screen) - z3_get_region_relative_dx(hero_screen);
+		int dy = z3_get_region_relative_dy(prev_hero_scr->screen) - z3_get_region_relative_dy(hero_screen);
+		maze_state.enter_dir = XY_DELTA_TO_DIR(sign2(dx), sign2(dy));
+	}
 
 	// TODO z3 ! make fn for this
 	maze_state.exit_screen = hero_screen;
@@ -27727,6 +27729,13 @@ void HeroClass::checkscroll()
 				z3_update_heroscr();
 				return;
 			}
+
+			if (maze_state.enter_dir != dir_invalid && z3_determine_hero_screen_from_coords() == prev_hero_scr)
+			{
+				maze_state.active = false;
+				z3_update_heroscr();
+				return;
+			}
 		}
 
 		int maze_screen = maze_state.scr->screen;
@@ -27757,7 +27766,7 @@ void HeroClass::checkscroll()
 				return;
 			}
 
-			bool found_exit = !maze_state.lost && lastdir[3] == maze_scr->exitdir;
+			bool found_exit = !maze_state.lost && (lastdir[3] == maze_scr->exitdir || lastdir[3] == maze_state.enter_dir);
 			if (found_exit)
 			{
 				// Do nothing.
@@ -27766,6 +27775,7 @@ void HeroClass::checkscroll()
 			{
 				maze_state.last_check_herox = x;
 				maze_state.last_check_heroy = y;
+				maze_state.enter_dir = dir_invalid;
 
 				int dest_screen = maze_screen;
 				if (advance_dir == left)  dest_screen--;
@@ -27796,11 +27806,15 @@ void HeroClass::checkscroll()
 
 				maze_state.last_check_herox = x;
 				maze_state.last_check_heroy = y;
+				maze_state.enter_dir = dir_invalid;
 
-				if (advance_dir == maze_scr->exitdir)
-					maze_state.lost = false;
-				else if (advance_dir != maze_state.enter_dir)
-					maze_state.lost = true;
+				if (maze_state.can_get_lost)
+				{
+					if (advance_dir == maze_scr->exitdir)
+						maze_state.lost = false;
+					else if (advance_dir != maze_state.enter_dir)
+						maze_state.lost = true;
+				}
 
 				if (maze_state.transition_wipe >= 0)
 				{

@@ -110,13 +110,14 @@ extern region current_region, scrolling_region;
 struct maze_state_t {
 	bool active;
 	bool lost;
-	bool smooth = false;
+	bool can_get_lost;
+	bool smooth;
 	mapscr* scr;
 	int exit_screen;
 	int transition_wipe;
 	int last_check_herox;
 	int last_check_heroy;
-	direction enter_dir;
+	direction enter_dir = dir_invalid;
 };
 
 extern maze_state_t maze_state;
