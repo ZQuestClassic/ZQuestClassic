@@ -112,6 +112,7 @@ struct maze_state_t {
 	bool lost;
 	bool smooth = false;
 	mapscr* scr;
+	int exit_screen;
 	int transition_wipe;
 	int last_check_herox;
 	int last_check_heroy;

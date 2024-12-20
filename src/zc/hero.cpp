@@ -27627,8 +27627,6 @@ void HeroClass::do_scroll_direction(direction dir)
 	}
 }
 
-static int maze_exit_screen;
-
 void HeroClass::maybe_begin_advanced_maze()
 {
 	if (!(hero_scr->flags&fMAZE) || hero_screen == scrolling_maze_last_solved_screen)
@@ -27641,11 +27639,11 @@ void HeroClass::maybe_begin_advanced_maze()
 
 	maze_state = {};
 	maze_state.active = true;
-	maze_state.lost = false;
+	maze_state.lost = false; // TODO: maze_state.can_get_lost ?
 	maze_state.smooth = false;
 	// maze_state.smooth = true;
-	// maze_state.transition_wipe = bosSMAS;
 	maze_state.transition_wipe = -1;
+	// maze_state.transition_wipe = bosSMAS; // TODO z3 ! make configurable?
 	maze_state.scr = hero_scr;
 	maze_state.last_check_herox = x;
 	maze_state.last_check_heroy = y;
@@ -27654,24 +27652,24 @@ void HeroClass::maybe_begin_advanced_maze()
 	int dy = z3_get_region_relative_dy(prev_hero_scr->screen) - z3_get_region_relative_dy(hero_screen);
 	maze_state.enter_dir = XY_DELTA_TO_DIR(sign2(dx), sign2(dy));
 
-	maze_exit_screen = hero_screen;
 	// TODO z3 ! make fn for this
+	maze_state.exit_screen = hero_screen;
 	switch(hero_scr->exitdir)
 	{
 	case up:
-		maze_exit_screen-=16;
+		maze_state.exit_screen-=16;
 		break;
 		
 	case down:
-		maze_exit_screen+=16;
+		maze_state.exit_screen+=16;
 		break;
 		
 	case left:
-		maze_exit_screen-=1;
+		maze_state.exit_screen-=1;
 		break;
 		
 	case right:
-		maze_exit_screen+=1;
+		maze_state.exit_screen+=1;
 		break;
 	}
 }
@@ -27723,7 +27721,7 @@ void HeroClass::checkscroll()
 
 		if (!maze_state.lost)
 		{
-			if (z3_determine_hero_screen_from_coords()->screen == maze_exit_screen)
+			if (z3_determine_hero_screen_from_coords()->screen == maze_state.exit_screen)
 			{
 				maze_state.active = false;
 				z3_update_heroscr();
