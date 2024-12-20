@@ -3489,6 +3489,11 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_BROKEN_PUSHBLOCK_TOP_HALF_SOLIDS, 1);
 	if (compatrule_version < 72)
 		set_qr(qr_BROKEN_PUSHBLOCK_FLAG_CLONING, 1);
+	if (compatrule_version < 73)
+	{
+		set_qr(qr_OLD_LANDING_SFX, 1);
+		set_qr(qr_FIRE_LEVEL_TRIGGERS_ARENT_WEAPONS, 1);
+	}
 	
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
@@ -17208,6 +17213,11 @@ void update_combo(newcombo& cmb, word section_version)
 				break;
 		}
 	}
+	if(section_version < 49)
+	{
+		if(cmb.type == cWATER || cmb.type == cSHALLOWWATER)
+			cmb.sfx_landing = WAV_ZN1SPLASH;
+	}
 }
 int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word version, word build, word start_combo, word max_combos)
 {
@@ -18028,6 +18038,11 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 			if(s_version >= 44)
 			{
 				if(!p_getc(&temp_combo.sfx_tap,f))
+					return qe_invalid;
+			}
+			if(s_version >= 49)
+			{
+				if(!p_getc(&temp_combo.sfx_landing,f))
 					return qe_invalid;
 			}
 		}

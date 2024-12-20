@@ -335,7 +335,6 @@ void trigger_secrets_for_screen_internal(int32_t screen, mapscr *scr, bool do_co
 void update_freeform_combos();
 void update_slopes();
 bool trigger_secrets_if_flag(int32_t x, int32_t y, int32_t flag, bool setflag);
-bool triggerfire(int x, int y, bool setflag, bool any, bool strong, bool magic, bool divine);
 bool hitcombo(int32_t x, int32_t y, int32_t combotype, byte layers = 0b0000001);
 int gethitcombo(int32_t x, int32_t y, int32_t combotype, byte layers = 0b0000001);
 bool hitflag(int32_t x, int32_t y, int32_t flagtype, byte layers = 0b0000001);

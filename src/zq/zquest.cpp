@@ -540,7 +540,6 @@ newcombo curr_combo;
 PALETTE RAMpal;
 midi_info Midi_Info;
 bool zq_showpal=false;
-bool combo_cols=true;
 bool is_compact = false;
 
 int pixeldb = 1;
@@ -3004,13 +3003,6 @@ static ListData autosave_list2(autosavelist2, &font);
 static ListData color_list(colorlist, &font);
 static ListData snapshotformat_list(snapshotformatlist, &font);
 
-void call_options_dlg();
-int32_t onOptions()
-{
-	call_options_dlg();
-    return D_O_K;
-}
-
 const char *dm_names[dm_max]=
 {
     "Normal",
@@ -5334,10 +5326,19 @@ void draw_screenunit_map_screen(VisibleScreen visible_screen)
 	int view_scr_y = Map.getViewScr() / 16;
 	int scr_x = screen % 16;
 	int scr_y = screen / 16;
-	if (scr_x != view_scr_x && showedges)
-		xoff -= 16;
-	if (scr_y != view_scr_y && showedges)
-		yoff -= 16;
+	int edge_xoff = 0, edge_yoff = 0;
+	if(showedges)
+	{
+		if (scr_x == view_scr_x)
+			edge_xoff = 16;
+		else
+			xoff -= 16;
+		
+		if (scr_y == view_scr_y)
+			edge_yoff = 16;
+		else
+			yoff -= 16;
+	}
 
 	combotile_add_x = mapscreen_x + xoff;
 	combotile_add_y = mapscreen_y + yoff;
@@ -5365,24 +5366,24 @@ void draw_screenunit_map_screen(VisibleScreen visible_screen)
 		{
 			if(screen>15 && !NoScreenPreview)
 			{
-				Map.drawrow(mapscreenbmp, 16, 0, Flags, 160, -1, screen-16);
+				Map.drawrow(mapscreenbmp, edge_xoff, 0, Flags, 160, -1, screen-16);
 			}
 			else
 			{
-				Map.drawstaticrow(mapscreenbmp, 16, 0);
+				Map.drawstaticrow(mapscreenbmp, edge_xoff, 0);
 			}
 		}
 		
 		//not the last row of screens
 		if (peek_below)
 		{
-			if(screen + 16*num_screens_to_draw < 128 && !NoScreenPreview)
+			if(screen + 16 < 0x80 && !NoScreenPreview)
 			{
-				Map.drawrow(mapscreenbmp, 16, bottom_row, Flags, 0, -1, screen+16);
+				Map.drawrow(mapscreenbmp, edge_xoff, bottom_row, Flags, 0, -1, screen+16);
 			}
 			else
 			{
-				Map.drawstaticrow(mapscreenbmp, 16, bottom_row);
+				Map.drawstaticrow(mapscreenbmp, edge_xoff, bottom_row);
 			}
 		}
 		
@@ -5391,11 +5392,11 @@ void draw_screenunit_map_screen(VisibleScreen visible_screen)
 		{
 			if(screen&0x0F && !NoScreenPreview)
 			{
-				Map.drawcolumn(mapscreenbmp, 0, 16, Flags, 15, -1, screen-1);
+				Map.drawcolumn(mapscreenbmp, 0, edge_yoff, Flags, 15, -1, screen-1);
 			}
 			else
 			{
-				Map.drawstaticcolumn(mapscreenbmp, 0, 16);
+				Map.drawstaticcolumn(mapscreenbmp, 0, edge_yoff);
 			}
 		}
 		
@@ -5404,16 +5405,16 @@ void draw_screenunit_map_screen(VisibleScreen visible_screen)
 		{
 			if((screen&0x0F)<15 && !NoScreenPreview)
 			{
-				Map.drawcolumn(mapscreenbmp, right_col, 16, Flags, 0, -1, screen+1);
+				Map.drawcolumn(mapscreenbmp, right_col, edge_yoff, Flags, 0, -1, screen+1);
 			}
 			else
 			{
-				Map.drawstaticcolumn(mapscreenbmp, right_col, 16);
+				Map.drawstaticcolumn(mapscreenbmp, right_col, edge_yoff);
 			}
 		}
 		
 		//not the first row or first column of screens
-		if (peek_above || peek_left)
+		if (peek_above && peek_left)
 		{
 			if((screen>15)&&(screen&0x0F) && !NoScreenPreview)
 			{
@@ -5426,7 +5427,7 @@ void draw_screenunit_map_screen(VisibleScreen visible_screen)
 		}
 		
 		//not the first row or last column of screens
-		if (peek_above || peek_right)
+		if (peek_above && peek_right)
 		{
 			if((screen>15)&&((screen&0x0F)<15) && !NoScreenPreview)
 			{
@@ -5439,7 +5440,7 @@ void draw_screenunit_map_screen(VisibleScreen visible_screen)
 		}
 		
 		//not the last row or first column of screens
-		if (peek_below || peek_left)
+		if (peek_below && peek_left)
 		{
 			if((screen<112)&&(screen&0x0F) && !NoScreenPreview)
 			{
@@ -5452,7 +5453,7 @@ void draw_screenunit_map_screen(VisibleScreen visible_screen)
 		}
 		
 		//not the last row or last column of screens
-		if (peek_below || peek_right)
+		if (peek_below && peek_right)
 		{
 			if((screen<112)&&((screen&0x0F)<15) && !NoScreenPreview)
 			{
@@ -5469,22 +5470,22 @@ void draw_screenunit_map_screen(VisibleScreen visible_screen)
 	{
 		if(scr->stairx || scr->stairy)
 		{
-			int32_t x1 = scr->stairx+(showedges?16:0);
-			int32_t y1 = scr->stairy+(showedges?16:0);
+			int32_t x1 = scr->stairx+edge_xoff;
+			int32_t y1 = scr->stairy+edge_yoff;
 			safe_rect(mapscreenbmp,x1,y1,x1+15,y1+15,vc(14));
 		}
 		
 		if(scr->warparrivalx || scr->warparrivaly)
 		{
-			int32_t x1 = scr->warparrivalx +(showedges?16:0);
-			int32_t y1 = scr->warparrivaly +(showedges?16:0);
+			int32_t x1 = scr->warparrivalx +edge_xoff;
+			int32_t y1 = scr->warparrivaly +edge_yoff;
 			safe_rect(mapscreenbmp,x1,y1,x1+15,y1+15,vc(10));
 		}
 		
 		for(int32_t i=0; i<4; i++) if(scr->warpreturnx[i] || scr->warpreturny[i])
 			{
-				int32_t x1 = scr->warpreturnx[i]+(showedges?16:0);
-				int32_t y1 = scr->warpreturny[i]+(showedges?16:0);
+				int32_t x1 = scr->warpreturnx[i]+edge_xoff;
+				int32_t y1 = scr->warpreturny[i]+edge_yoff;
 				int32_t clr = vc(9);
 				
 				if(FlashWarpSquare==i)
@@ -5508,8 +5509,8 @@ void draw_screenunit_map_screen(VisibleScreen visible_screen)
 			ffcdata& ff = ffscr->ffcs[i];
 			if(ff.data !=0 && (CurrentLayer<2 || (ff.flags&ffc_overlay)))
 			{
-				auto x = ff.x+(showedges?16:0);
-				auto y = ff.y+(showedges?16:0);
+				auto x = ff.x+edge_xoff;
+				auto y = ff.y+edge_yoff;
 				safe_rect(mapscreenbmp, x+0, y+0, x+ff.txsz*16-1, y+ff.tysz*16-1, vc(12));
 			}
 		}
@@ -5523,8 +5524,8 @@ void draw_screenunit_map_screen(VisibleScreen visible_screen)
 			{
 				if(((i^j)&1)==0)
 				{
-					putpixel(mapscreenbmp,(showedges?16:0)+i,
-						(showedges?16:0)+j,vc(blackout_color));
+					putpixel(mapscreenbmp,edge_xoff+i,
+						edge_yoff+j,vc(blackout_color));
 				}
 			}
 		}
@@ -5621,7 +5622,10 @@ void draw_screenunit(int32_t unit, int32_t flags)
 
 			int num_combos_width = 16 * Map.getViewSize();
 			int num_combos_height = 11 * Map.getViewSize();
-
+			
+			if(CurrentLayer > 0 && !mapscreen_valid_layers[CurrentLayer-1])
+				CurrentLayer = 0;
+			
 			for (auto& vis_screen : visible_screens)
 			{
 				draw_screenunit_map_screen(vis_screen);
@@ -5874,66 +5878,40 @@ void draw_screenunit(int32_t unit, int32_t flags)
 					BrushWidth = BrushHeight = 1;
 				}
 
+				stretch_blit(brushbmp, brushscreen, 0, 0, BrushWidth*16, BrushHeight*16, 0, 0, BrushWidth*mgridscale, BrushHeight*mgridscale);
 				int float_offx = 0;
 				int float_offy = 0;
-				if((FloatBrush)&&(draw_mode!=dm_alias))
+				
+				if(FloatBrush)
 				{
 					float_offx = -SHADOW_DEPTH*mapscreen_single_scale;
 					float_offy = -SHADOW_DEPTH*mapscreen_single_scale;
-					stretch_blit(brushbmp, brushscreen, 0, 0, BrushWidth*16, BrushHeight*16, 0, 0, BrushWidth*mgridscale, BrushHeight*mgridscale);
 					
 					//shadow
-					for(int32_t i=0; i<SHADOW_DEPTH*mapscreen_single_scale; i++)
-					{
-						for(int32_t j=0; j<BrushHeight*mgridscale; j++)
+					for(int x = 0; x < SHADOW_DEPTH*mapscreen_single_scale; ++x)
+						for(int y = 0; y < (BrushHeight*mgridscale) + (SHADOW_DEPTH*mapscreen_single_scale); ++y)
 						{
-							if((((i^j)&1)==1) && (0+j)<12*mgridscale)
-							{
-								putpixel(brushscreen,0+i+(BrushWidth*mgridscale),0+j,vc(0));
-							}
+							if((((x^y)&1)==1) && y < 12*mgridscale)
+								putpixel(brushscreen,x+(BrushWidth*mgridscale),y,vc(0));
 						}
-					}
 					
-					for(int32_t i=0; i<BrushWidth*mgridscale; i++)
-					{
-						for(int32_t j=0; j<SHADOW_DEPTH*mapscreen_single_scale; j++)
+					for(int x = 0; x < BrushWidth*mgridscale; ++x)
+						for(int y = 0; y < SHADOW_DEPTH*mapscreen_single_scale; ++y)
 						{
-							if((((i^j)&1)==1) && (0+i)<16*mgridscale)
-							{
-								putpixel(brushscreen,0+i,0+j+(BrushHeight*mgridscale),vc(0));
-							}
+							if((((x^y)&1)==1) && x<16*mgridscale)
+								putpixel(brushscreen,x,y+(BrushHeight*mgridscale),vc(0));
 						}
-					}
 				}
-				else
+				
+				if(draw_mode==dm_alias)
 				{
-					if(draw_mode!=dm_alias)
-					{
-						stretch_blit(brushbmp, brushscreen, 0, 0, BrushWidth*16, BrushHeight*16, 0, 0, BrushWidth*mgridscale, BrushHeight*mgridscale);
-					}
-					else
-					{
-						combo_alias *combo = &combo_aliases[combo_apos];
-						
-						switch(alias_origin)
-						{
-							case 0:
-								stretch_blit(brushbmp, brushscreen, 0, 0, BrushWidth*16, BrushHeight*16, 0, 0, BrushWidth*mgridscale, BrushHeight*mgridscale);
-								break;
-								
-							case 1:
-								stretch_blit(brushbmp, brushscreen, (0<combo->width*mgridscale)?((combo->width)*16)-0/mapscreen_single_scale:0, 0, BrushWidth*16, BrushHeight*16, zc_max((0-(combo->width)*mgridscale),0), 0, BrushWidth*mgridscale, BrushHeight*mgridscale);
-								break;
-								
-							case 2:
-								stretch_blit(brushbmp, brushscreen, 0, (0<combo->height*mgridscale)?((combo->height)*16)-0/mapscreen_single_scale:0, BrushWidth*16, BrushHeight*16, 0, zc_max((0-(combo->height)*mgridscale),0), BrushWidth*mgridscale, BrushHeight*mgridscale);
-								break;
-								
-							case 3:
-								stretch_blit(brushbmp, brushscreen, (0<combo->width*mgridscale)?((combo->width)*16)-0/mapscreen_single_scale:0, (0<combo->height*mgridscale)?((combo->height)*16)-0/mapscreen_single_scale:0, BrushWidth*16, BrushHeight*16, zc_max((0-(combo->width)*mgridscale),0), zc_max((my-(combo->height)*mgridscale),0), BrushWidth*mgridscale, BrushHeight*mgridscale);
-								break;
-						}
-					}
+					combo_alias *combo = &combo_aliases[combo_apos];
+					
+					if(BrushWidth > 1 && (alias_origin & 1)) //right-align
+						float_offx -= (BrushWidth - 1) * mgridscale;
+					
+					if(BrushHeight > 1 && (alias_origin & 2)) //bottom-align
+						float_offy -= (BrushHeight - 1) * mgridscale;
 				}
 
 				int bx = mapscreen_x + mx + float_offx + (showedges?(16*mapscreen_single_scale):0);
@@ -7608,64 +7586,40 @@ void update_combobrush()
             }
         }
         
-        switch(alias_origin)
-        {
-        case 0:
-            //if(!(combo_aliases[combo_apos].combos[0]))
-            textprintf_shadowed_ex(brushbmp, get_zc_font(font_sfont), 6, 6, vc(15), vc(0), -1, "x");
-            break;
-            
-        case 1:
-            //if(!(combo_aliases[combo_apos].combos[combo_aliases[combo_apos].width]))
-            textprintf_shadowed_ex(brushbmp, get_zc_font(font_sfont), 6+(combo_aliases[combo_apos].width*16), 6, vc(15), vc(0), -1, "x");
-            break;
-            
-        case 2:
-            //if(!(combo_aliases[combo_apos].combos[(combo_aliases[combo_apos].width+1)*combo_aliases[combo_apos].height]))
-            textprintf_shadowed_ex(brushbmp, get_zc_font(font_sfont), 6, 6+(combo_aliases[combo_apos].height*16), vc(15), vc(0), -1, "x");
-            break;
-            
-        case 3:
-            //if(!(combo_aliases[combo_apos].combos[(combo_aliases[combo_apos].width+1)*(combo_aliases[combo_apos].height)-1]))
-            textprintf_shadowed_ex(brushbmp, get_zc_font(font_sfont), 6+(combo_aliases[combo_apos].width*16), 6+(combo_aliases[combo_apos].height*16), vc(15), vc(0), -1, "x");
-            break;
-        }
+		int xoff = 6, yoff = 6;
+		if(FloatBrush) // Offset the floating pixels, so the 'x' appears centered on the combo still -Em
+		{
+			xoff += 2;
+			yoff += 2;
+		}
+		if(alias_origin & 1) // Right-align
+			xoff += combo_aliases[combo_apos].width*16;
+		if(alias_origin & 2) // Bottom-align
+			yoff += combo_aliases[combo_apos].height*16;
+		
+		textprintf_shadowed_ex(brushbmp, get_zc_font(font_sfont), xoff, yoff, vc(15), vc(0), -1, "x");
     }
     else if(draw_mode != dm_cpool)
     {
 		int32_t cid = combobrushoverride > -1 ? combobrushoverride : Combo;
-        if(combo_cols==false)
-        {
-            for(int32_t i=0; i<256; i++)
-            {
-				if(unsigned(cid+i) >= MAXCOMBOS) break;
-                if(((i%COMBOS_PER_ROW)<BrushWidth)&&((i/COMBOS_PER_ROW)<BrushHeight))
-                {
-                    put_combo(brushbmp,(i%COMBOS_PER_ROW)<<4,(i/COMBOS_PER_ROW)<<4,cid+i,CSet,Flags&(cFLAGS|cWALK),0);
-                }
-            }
-        }
-        else
-        {
-            int32_t c = 0;
-            
-            for(int32_t i=0; i<256; i++)
-            {
-				if(unsigned(cid+c) >= MAXCOMBOS) break;
-                if(((i%COMBOS_PER_ROW)<BrushWidth)&&((i/COMBOS_PER_ROW)<BrushHeight))
-                {
-                    put_combo(brushbmp,(i%COMBOS_PER_ROW)<<4,(i/COMBOS_PER_ROW)<<4,cid+c,CSet,Flags&(cFLAGS|cWALK),0);
-                }
-                
-                if(((cid+c)&3)==3)
-                    c+=48;
+		int32_t c = 0;
+		
+		for(int32_t i=0; i<256; i++)
+		{
+			if(unsigned(cid+c) >= MAXCOMBOS) break;
+			if(((i%COMBOS_PER_ROW)<BrushWidth)&&((i/COMBOS_PER_ROW)<BrushHeight))
+			{
+				put_combo(brushbmp,(i%COMBOS_PER_ROW)<<4,(i/COMBOS_PER_ROW)<<4,cid+c,CSet,Flags&(cFLAGS|cWALK),0);
+			}
+			
+			if(((cid+c)&3)==3)
+				c+=48;
+			
+			++c;
 				
-                ++c;
-                    
-                if((i%COMBOS_PER_ROW)==(COMBOS_PER_ROW-1))
-                    c-=256;
-            }
-        }
+			if((i%COMBOS_PER_ROW)==(COMBOS_PER_ROW-1))
+				c-=256;
+		}
     }
 }
 
@@ -8062,29 +8016,13 @@ void draw(bool justcset)
 				{
 					int32_t cc=Combo;
 					
-					if(!combo_cols)
+					for(int32_t cy=0; cy+cystart<num_combos_height&&cy<BrushHeight; cy++)
 					{
-						for(int32_t cy=0; cy+cystart<num_combos_height&&cy<BrushHeight; cy++)
+						for(int32_t cx=0; cx+cxstart<num_combos_width&&cx<BrushWidth; cx++)
 						{
-							for(int32_t cx=0; cx+cxstart<num_combos_width&&cx<BrushWidth; cx++)
-							{
-								auto pos = combo_start + ComboPosition{cx, cy};
-								Map.DoSetComboCommand(pos, justcset ? -1 : (cc + cx), CSet);
-							}
-							
-							cc+=20;
-						}
-					}
-					else
-					{
-						for(int32_t cy=0; cy+cystart<num_combos_height&&cy<BrushHeight; cy++)
-						{
-							for(int32_t cx=0; cx+cxstart<num_combos_width&&cx<BrushWidth; cx++)
-							{
-								auto pos = combo_start + ComboPosition{cx, cy};
-								cc=Combo + cx + cy*4;
-								Map.DoSetComboCommand(pos, justcset ? -1 : cc, CSet);
-							}
+							auto pos = combo_start + ComboPosition{cx, cy};
+							cc=Combo + cx + cy*4;
+							Map.DoSetComboCommand(pos, justcset ? -1 : cc, CSet);
 						}
 					}
 					
@@ -8096,33 +8034,7 @@ void draw(bool justcset)
 					int32_t cid = Combo;
                     int8_t cs = CSet;
 					pool.pick(cid,cs);
-					
-					if(!combo_cols)
-					{
-						auto cid2 = cid;
-						for(int32_t cy=0; cy+cystart<num_combos_height&&cy<BrushHeight; cy++)
-						{
-							for(int32_t cx=0; cx+cxstart<num_combos_width&&cx<BrushWidth; cx++)
-							{
-								auto pos = combo_start + ComboPosition{cx, cy};
-								Map.DoSetComboCommand(pos, justcset ? -1 : (cid2 + cx), cs);
-							}
-							
-							cid2+=20;
-						}
-					}
-					else
-					{
-						for(int32_t cy=0; cy+cystart<num_combos_height&&cy<BrushHeight; cy++)
-						{
-							for(int32_t cx=0; cx+cxstart<num_combos_width&&cx<BrushWidth; cx++)
-							{
-								auto pos = combo_start + ComboPosition{cx, cy};
-								auto cid2=cid + cx + cy*4;
-								Map.DoSetComboCommand(pos, justcset ? -1 : cid2, cs);
-							}
-						}
-					}
+					Map.DoSetComboCommand(combo_start, justcset ? -1 : cid, cs);
 					
 					update_combobrush();
 				}
@@ -9528,6 +9440,18 @@ static NewMenu rc_menu_screen
 	{ "...Advanced Paste", &paste_menu, MENUID_RCSCREEN_ADVPASTE },
 	{ "...Special Paste", &paste_item_menu, MENUID_RCSCREEN_SPECPASTE },
 };
+
+void call_options_dlg();
+int32_t onOptions()
+{
+	call_options_dlg();
+	brush_menu.select_uid(MENUID_BRUSH_AUTOBRUSH, AutoBrush);
+	brush_menu.disable_uid(MENUID_BRUSH_WIDTH, AutoBrush);
+	brush_menu.disable_uid(MENUID_BRUSH_HEIGHT, AutoBrush);
+	brush_menu.select_uid(MENUID_BRUSH_FLOATBRUSH, FloatBrush);
+	brush_menu.select_uid(MENUID_BRUSH_COMBOBRUSH, ComboBrush);
+	return D_O_K;
+}
 
 void follow_twarp(int warpindex)
 {

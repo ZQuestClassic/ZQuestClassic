@@ -22,7 +22,8 @@ static const GUI::ListData miscSFXList
 	{ "Rupee Drain:", sfxDRAIN, "Plays when rupees are being drained." },
 	{ "Sword Tap:", sfxTAP, "Plays when the sword is tapped against a combo." },
 	{ "Sword Tap (Hollow):", sfxTAP_HOLLOW, "Plays when the sword is tapped against a bombable door/flag. Requires QR:"+QRHINT({qr_SEPARATE_BOMBABLE_TAPPING_SFX}) },
-	{ "Hero Lands:", sfxHERO_LANDS, "Plays when the Hero lands on the ground from the air." },
+	{ "Hero Lands:", sfxHERO_LANDS, "Plays when the Hero lands from the air, if the combo they land on doesn't set its own sound."
+		"\nAlso doesn't play if 'Old Landing SFX' is enabled."+QRHINT({qr_OLD_LANDING_SFX}) },
 };
 
 MiscSFXDialog::MiscSFXDialog(byte* vals, size_t vals_per_tab, std::function<void(int32_t*)> setVals):

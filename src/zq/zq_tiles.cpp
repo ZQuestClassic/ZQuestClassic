@@ -10788,7 +10788,7 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 	FONT *tfont = get_zc_font(font_lfont_l);
 	
 	draw_combo_list_window();
-	draw_combos(page,cs,combo_cols);
+	draw_combos(page,cs,true);
 	combo_info(cmb,tile2,cs,copy,copycnt,page,4);
 	
 	while(gui_mouse_b())
@@ -10852,12 +10852,7 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 			case KEY_F1:
 				onHelp();
 				break;
-				
-			case KEY_SPACE:
-				combo_cols=!combo_cols;
-				redraw=true;
-				break;
-				
+			
 			case KEY_EQUALS:
 			case KEY_PLUS_PAD:
 				cs = (cs<13) ? cs+1:0;
@@ -10871,22 +10866,22 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 				break;
 				
 			case KEY_UP:
-				sel_combo(cmb,tile2,-COMBOS_PER_ROW,combo_cols);
+				sel_combo(cmb,tile2,-COMBOS_PER_ROW,true);
 				redraw=true;
 				break;
 				
 			case KEY_DOWN:
-				sel_combo(cmb,tile2,COMBOS_PER_ROW,combo_cols);
+				sel_combo(cmb,tile2,COMBOS_PER_ROW,true);
 				redraw=true;
 				break;
 				
 			case KEY_LEFT:
-				sel_combo(cmb,tile2,-1,combo_cols);
+				sel_combo(cmb,tile2,-1,true);
 				redraw=true;
 				break;
 				
 			case KEY_RIGHT:
-				sel_combo(cmb,tile2,1,combo_cols);
+				sel_combo(cmb,tile2,1,true);
 				redraw=true;
 				break;
 				
@@ -10944,14 +10939,7 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 				x=zc_min(zc_max(x,0),(320*mul)-1);
 				int32_t t;
 				
-				if(!combo_cols)
-				{
-					t = (y>>5)*COMBOS_PER_ROW + (x>>5);
-				}
-				else
-				{
-					t = ((x>>7)*52) + ((x>>5)&3) + ((y>>5)<<2);
-				}
+				t = ((x>>7)*52) + ((x>>5)&3) + ((y>>5)<<2);
 				
 				bound(t,0,255);
 				t+=page<<8;
@@ -10968,14 +10956,7 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 						/* do nothing */
 					}
 					
-					if(!combo_cols)
-					{
-						t2 = (y>>5)*COMBOS_PER_ROW + (x>>5);
-					}
-					else
-					{
-						t2 = ((x>>7)*52) + ((x>>5)&3) + ((y>>5)<<2);
-					}
+					t2 = ((x>>7)*52) + ((x>>5)&3) + ((y>>5)<<2);
 					
 					if(t2!=t)
 					{
@@ -11046,10 +11027,7 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 				x=zc_min(zc_max(x,0),(320*mul)-1);
 				int32_t t;
 				
-				if(!combo_cols)
-					t = (y>>5)*COMBOS_PER_ROW + (x>>5);
-				else
-					t = ((x>>7)*52) + ((x>>5)&3) + ((y>>5)<<2);
+				t = ((x>>7)*52) + ((x>>5)&3) + ((y>>5)<<2);
 					
 				bound(t,0,255);
 				t+=page<<8;
@@ -11075,7 +11053,7 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 		}
 		
 		if(redraw || combopage_animate)
-			draw_combos(page,cs,combo_cols);
+			draw_combos(page,cs,true);
 			
 		combo_info(cmb,tile2,cs,copy,copycnt,page,4);
 		
@@ -11089,16 +11067,8 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 				{
 					int32_t t=i&255;
 					
-					if(!combo_cols)
-					{
-						x=(t%COMBOS_PER_ROW)<<5;
-						y=(t/COMBOS_PER_ROW)<<5;
-					}
-					else
-					{
-						x=((t&3) + ((t/52)<<2)) << 5;
-						y=((t%52)>>2) << 5;
-					}
+					x=((t&3) + ((t/52)<<2)) << 5;
+					y=((t%52)>>2) << 5;
 					
 					safe_rect(screen,x+screen_xofs,y+screen_yofs,x+screen_xofs+(16*mul)-1,y+screen_yofs+(16*mul)-1,vc(CmbPgCursorCol),2);
 				}
@@ -11226,7 +11196,7 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 	FONT *tfont = get_zc_font(font_lfont_l);
 	
 	draw_combo_list_window();
-	draw_combos(page,cs,combo_cols);
+	draw_combos(page,cs,true);
 	combo_info(tile,tile2,cs,copy,copycnt,page,6);
 	go_combos();
 	position_mouse_z(0);
@@ -11286,12 +11256,7 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 			case KEY_F1:
 				onHelp();
 				break;
-				
-			case KEY_SPACE:
-				combo_cols=!combo_cols;
-				redraw=true;
-				break;
-				
+			
 			case KEY_EQUALS:
 			case KEY_PLUS_PAD:
 				if(CHECK_CTRL_CMD)
@@ -11343,22 +11308,22 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 				break;
 				
 			case KEY_UP:
-				sel_combo(tile,tile2,-COMBOS_PER_ROW,combo_cols);
+				sel_combo(tile,tile2,-COMBOS_PER_ROW,true);
 				redraw=true;
 				break;
 				
 			case KEY_DOWN:
-				sel_combo(tile,tile2,COMBOS_PER_ROW,combo_cols);
+				sel_combo(tile,tile2,COMBOS_PER_ROW,true);
 				redraw=true;
 				break;
 				
 			case KEY_LEFT:
-				sel_combo(tile,tile2,-1,combo_cols);
+				sel_combo(tile,tile2,-1,true);
 				redraw=true;
 				break;
 				
 			case KEY_RIGHT:
-				sel_combo(tile,tile2,1,combo_cols);
+				sel_combo(tile,tile2,1,true);
 				redraw=true;
 				break;
 				
@@ -11625,14 +11590,7 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 				x=zc_min(zc_max(x,0),(320*mul)-1);
 				int32_t t;
 				
-				if(!combo_cols)
-				{
-					t = (y>>5)*COMBOS_PER_ROW + (x>>5);
-				}
-				else
-				{
-					t = ((x>>7)*52) + ((x>>5)&3) + ((y>>5)<<2);
-				}
+				t = ((x>>7)*52) + ((x>>5)&3) + ((y>>5)<<2);
 				
 				bound(t,0,255);
 				t+=page<<8;
@@ -11658,14 +11616,7 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 						rest(1);
 					}
 					
-					if(!combo_cols)
-					{
-						t2 = (y>>4)*COMBOS_PER_ROW + (x>>4);
-					}
-					else
-					{
-						t2 = ((x>>6)*52) + ((x>>4)&3) + ((y>>4)<<2);
-					}
+					t2 = ((x>>6)*52) + ((x>>4)&3) + ((y>>4)<<2);
 					
 					bound(t2,0,255);
 					t2+=page<<8;
@@ -11757,14 +11708,7 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 				x=zc_min(zc_max(x,0),(320*mul)-1);
 				int32_t t;
 				
-				if(!combo_cols)
-				{
-					t = (y>>5)*COMBOS_PER_ROW + (x>>5);
-				}
-				else
-				{
-					t = ((x>>7)*52) + ((x>>5)&3) + ((y>>5)<<2);
-				}
+				t = ((x>>7)*52) + ((x>>5)&3) + ((y>>5)<<2);
 				
 				bound(t,0,255);
 				t+=page<<8;
@@ -11794,7 +11738,7 @@ REDRAW:
 		}
 		
 		if(redraw || combopage_animate)
-			draw_combos(page,cs,combo_cols);
+			draw_combos(page,cs,true);
 		
 		combo_info(tile,tile2,cs,copy,copycnt,page,6);
 		
@@ -11808,16 +11752,8 @@ REDRAW:
 				{
 					int32_t t=i&255;
 					
-					if(!combo_cols)
-					{
-						x=(t%COMBOS_PER_ROW)<<5;
-						y=(t/COMBOS_PER_ROW)<<5;
-					}
-					else
-					{
-						x=((t&3) + ((t/52)<<2)) << 5;
-						y=((t%52)>>2) << 5;
-					}
+					x=((t&3) + ((t/52)<<2)) << 5;
+					y=((t%52)>>2) << 5;
 					
 					safe_rect(screen,x+screen_xofs,y+screen_yofs,x+screen_xofs+(16*mul)-1,y+screen_yofs+(16*mul)-1,vc(CmbPgCursorCol),2);
 				}

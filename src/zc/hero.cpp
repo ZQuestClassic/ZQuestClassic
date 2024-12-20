@@ -4579,14 +4579,14 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
     byte dontignore = 0;
     byte dontignoreffc = 0;
     
-	    if (isCuttableType(type) && MatchComboTrigger(w, combobuf.data(), cid))
+	    if (isCuttableType(type) && MatchComboTrigger(w, cid))
 	    {
 		al_trace("This weapon (%d) can slash the combo: combobuf[%d].\n", w->id, cid);
 		dontignore = 1;
 	    }
     
 	    /*to-do, ffcs
-	    if (isCuttableType(type2) && MatchComboTrigger(w, combobuf, cid))
+	    if (isCuttableType(type2) && MatchComboTrigger(w, cid))
 	    {
 		al_trace("This weapon (%d) can slash the combo: combobuf[%d].\n", w->id, cid);
 		dontignoreffc = 1;
@@ -4903,8 +4903,8 @@ void HeroClass::check_wand_block2(int32_t bx, int32_t by, weapon *w)
     int32_t cid = MAPCOMBO(bx,by);
    
     //Z_scripterrlog("check_wand_block2 MatchComboTrigger() returned: %d\n", );
-    if(w->useweapon != wWand && !MatchComboTrigger (w, combobuf.data(), cid)) return;
-    if ( MatchComboTrigger (w, combobuf.data(), cid) ) dontignore = 1;
+    if(w->useweapon != wWand && !MatchComboTrigger (w, cid)) return;
+    if ( MatchComboTrigger (w, cid) ) dontignore = 1;
     
     //first things first
     if(z>8||fakez>8) return;
@@ -8244,7 +8244,6 @@ heroanimate_skip_liftwpn:;
 			hoverflags &= ~HOV_OUT;
 		}
 	}
-	bool was_airborne = isStanding(false) && (z > 0 || isSideViewHero());
 	bool platformfell2 = false;
 	int32_t gravity3 = (zinit.gravity/100);
 	int32_t termv = (zinit.terminalv);
@@ -8385,10 +8384,14 @@ heroanimate_skip_liftwpn:;
 					y.doFloor();
 					y-=(int32_t)y%8; //fix position
 				}
+				if(fall > 0)
+					land_on_ground();
 			}
 			else
 			{
 				snap_platform();
+				if(fall > 0)
+					land_on_ground();
 			}
 			fall = hoverclk = jumping = 0;
 			inair = false;
@@ -8606,9 +8609,8 @@ heroanimate_skip_liftwpn:;
 			{
 				if(fall > 0)
 				{
-					if((iswaterex_z3(MAPCOMBO(x,y+8), -1, x, y+8, true, false) && ladderx<=0 && laddery<=0) || COMBOTYPE(x,y+8)==cSHALLOWWATER)
-						sfx(WAV_ZN1SPLASH,x.getInt());
-						
+					land_on_ground();
+					
 					stomping = true;
 				}
 			}
@@ -8636,8 +8638,7 @@ heroanimate_skip_liftwpn:;
 			{
 				if(fakefall > 0)
 				{
-					if((iswaterex_z3(MAPCOMBO(x,y+8), -1, x, y+8, true, false) && ladderx<=0 && laddery<=0) || COMBOTYPE(x,y+8)==cSHALLOWWATER)
-						sfx(WAV_ZN1SPLASH,x.getInt());
+					land_on_ground();
 						
 					stomping = true;
 				}
@@ -10031,22 +10032,6 @@ heroanimate_skip_liftwpn:;
 		}
 	}
 	
-	if(was_airborne && isStanding(false)) // Just landed from air
-	{
-		// This block is late enough that if you land in water, you will already be swimming/drowning before this runs
-		int land_sfx = 0;
-		//TODO: per-combo landing SFX? If the combo you're landing on has one, set that, ELSE switch(action)... -Em
-		switch(action)
-		{
-			case none: case walking: case attacking: case gothit: case landhold1: case landhold2:
-				// standard landing on ground actions
-				land_sfx = QMisc.miscsfx[sfxHERO_LANDS];  // Generic landing on ground SFX
-				break;
-		}
-		if(land_sfx)
-			sfx(land_sfx, pan(x.getInt()));
-	}
-	
 	// Somehow Hero was displaced from the fairy flag...
 	if(fairyclk && action != freeze && action != sideswimfreeze)
 	{
@@ -10808,6 +10793,34 @@ void HeroClass::handle_passive_buttons()
 {
 	do_liftglove(-1,true);
 	do_jump(-1,true);
+}
+
+void HeroClass::land_on_ground()
+{
+	if(get_qr(qr_OLD_LANDING_SFX))
+	{
+		if(!sideview_mode() && ((iswaterex_z3(MAPCOMBO(x,y+8), -1, x, y+8, true, false) && ladderx<=0 && laddery<=0) || COMBOTYPE(x,y+8)==cSHALLOWWATER))
+			sfx(WAV_ZN1SPLASH,x.getInt());
+		return;
+	}
+
+	// TODO z3 ! z3-ify
+	auto cpos = COMBOPOS(x+8,y+(sideview_mode()?16:12));
+	bool played_land_sfx = false;
+	for(int q = 0; q < 7; ++q)
+	{
+		mapscr* lyr = FFCore.tempScreens[q];
+		auto cid = lyr->data[cpos];
+		newcombo const& cmb = combobuf[cid];
+		byte csfx = cmb.sfx_landing;
+		if(csfx)
+		{
+			sfx(csfx, x.getInt());
+			played_land_sfx = true;
+		}
+	}
+	if(!played_land_sfx && QMisc.miscsfx[sfxHERO_LANDS])
+		sfx(QMisc.miscsfx[sfxHERO_LANDS], x.getInt());
 }
 
 static bool did_passive_jump = false;
@@ -14561,11 +14574,22 @@ void HeroClass::moveheroOld()
 	WalkflagInfo info;
 	
 	bool no_jinx = true;
-	if(can_attack() && btnwpn>itype_sword && charging==0 && btnwpn!=itype_rupee) // This depends on item 0 being a rupee...
+	bool liftonly = lift_wpn && (liftflags & LIFTFL_DIS_ITEMS);
+	if(liftonly)
+	{
+		if(replay_version_check(38))
+		{
+			auto itmid = directWpn>-1 ? directWpn : current_item_id(btnwpn);
+			no_jinx = checkitem_jinx(itmid);
+			if(no_jinx)
+				startwpn(itmid);
+			directWpn = olddirectwpn;
+		}
+	}
+	else if(can_attack() && btnwpn>itype_sword && charging==0 && btnwpn!=itype_rupee) // This depends on item 0 being a rupee...
 	{
 		bool paidmagic = false;
-		bool liftonly = lift_wpn && (liftflags & LIFTFL_DIS_ITEMS);
-		if(!liftonly && btnwpn==itype_wand && (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_wand : false) : current_item(itype_wand)))
+		if(btnwpn==itype_wand && (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_wand : false) : current_item(itype_wand)))
 		{
 			attackid=directWpn>-1 ? directWpn : current_item_id(itype_wand);
 			no_jinx = checkitem_jinx(attackid);
@@ -14584,7 +14608,7 @@ void HeroClass::moveheroOld()
 				item_error();
 			}
 		}
-		else if(!liftonly && (btnwpn==itype_hammer)&&!((action==attacking||action==sideswimattacking) && attack==wHammer)
+		else if((btnwpn==itype_hammer)&&!((action==attacking||action==sideswimattacking) && attack==wHammer)
 				&& (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_hammer : false) : current_item(itype_hammer)))
 		{
 			no_jinx = checkitem_jinx(dowpn);
@@ -14602,7 +14626,7 @@ void HeroClass::moveheroOld()
 				attackclk=0;
 			}
 		}
-		else if(!liftonly && (btnwpn==itype_candle)&&!((action==attacking||action==sideswimattacking) && attack==wFire)
+		else if((btnwpn==itype_candle)&&!((action==attacking||action==sideswimattacking) && attack==wFire)
 				&& (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_candle : false) : current_item(itype_candle)))
 		{
 			//checkbunny handled where magic cost is paid
@@ -14615,7 +14639,7 @@ void HeroClass::moveheroOld()
 				attackclk=0;
 			}
 		}
-		else if(!liftonly && (btnwpn==itype_cbyrna)&&!((action==attacking||action==sideswimattacking) && attack==wCByrna)
+		else if((btnwpn==itype_cbyrna)&&!((action==attacking||action==sideswimattacking) && attack==wCByrna)
 				&& (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_cbyrna : false) : current_item(itype_cbyrna)))
 		{
 			attackid=directWpn>-1 ? directWpn : current_item_id(itype_cbyrna);
@@ -14635,7 +14659,7 @@ void HeroClass::moveheroOld()
 				item_error();
 			}
 		}
-		else if(!liftonly && (btnwpn==itype_bugnet)&&!((action==attacking||action==sideswimattacking) && attack==wBugNet)
+		else if((btnwpn==itype_bugnet)&&!((action==attacking||action==sideswimattacking) && attack==wBugNet)
 				&& (directWpn>-1 ? (!item_disabled(directWpn) && itemsbuf[directWpn].family==itype_bugnet) : current_item(itype_bugnet)))
 		{
 			attackid = directWpn>-1 ? directWpn : current_item_id(itype_bugnet);
@@ -18955,11 +18979,22 @@ bool HeroClass::premove()
 	do_lens();
 	
 	bool no_jinx = true;
-	if(can_attack() && btnwpn>itype_sword && charging==0 && btnwpn!=itype_rupee) // This depends on item 0 being a rupee...
+	bool liftonly = lift_wpn && (liftflags & LIFTFL_DIS_ITEMS);
+	if(liftonly)
+	{
+		if(replay_version_check(38))
+		{
+			auto itmid = directWpn>-1 ? directWpn : current_item_id(btnwpn);
+			no_jinx = checkitem_jinx(itmid);
+			if(no_jinx)
+				startwpn(itmid);
+			directWpn = olddirectwpn;
+		}
+	}
+	else if(can_attack() && btnwpn>itype_sword && charging==0 && btnwpn!=itype_rupee) // This depends on item 0 being a rupee...
 	{
 		bool paidmagic = false;
-		bool liftonly = lift_wpn && (liftflags & LIFTFL_DIS_ITEMS);
-		if(!liftonly && btnwpn==itype_wand && (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_wand : false) : current_item(itype_wand)))
+		if(btnwpn==itype_wand && (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_wand : false) : current_item(itype_wand)))
 		{
 			attackid=directWpn>-1 ? directWpn : current_item_id(itype_wand);
 			no_jinx = checkitem_jinx(attackid);
@@ -18978,7 +19013,7 @@ bool HeroClass::premove()
 				item_error();
 			}
 		}
-		else if(!liftonly && (btnwpn==itype_hammer)&&!((action==attacking||action==sideswimattacking) && attack==wHammer)
+		else if((btnwpn==itype_hammer)&&!((action==attacking||action==sideswimattacking) && attack==wHammer)
 				&& (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_hammer : false) : current_item(itype_hammer)))
 		{
 			no_jinx = checkitem_jinx(dowpn);
@@ -18996,7 +19031,7 @@ bool HeroClass::premove()
 				attackclk=0;
 			}
 		}
-		else if(!liftonly && (btnwpn==itype_candle)&&!((action==attacking||action==sideswimattacking) && attack==wFire)
+		else if((btnwpn==itype_candle)&&!((action==attacking||action==sideswimattacking) && attack==wFire)
 				&& (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_candle : false) : current_item(itype_candle)))
 		{
 			//checkbunny handled where magic cost is paid
@@ -19009,7 +19044,7 @@ bool HeroClass::premove()
 				attackclk=0;
 			}
 		}
-		else if(!liftonly && (btnwpn==itype_cbyrna)&&!((action==attacking||action==sideswimattacking) && attack==wCByrna)
+		else if((btnwpn==itype_cbyrna)&&!((action==attacking||action==sideswimattacking) && attack==wCByrna)
 				&& (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_cbyrna : false) : current_item(itype_cbyrna)))
 		{
 			attackid=directWpn>-1 ? directWpn : current_item_id(itype_cbyrna);
@@ -19029,7 +19064,7 @@ bool HeroClass::premove()
 				item_error();
 			}
 		}
-		else if(!liftonly && (btnwpn==itype_bugnet)&&!((action==attacking||action==sideswimattacking) && attack==wBugNet)
+		else if((btnwpn==itype_bugnet)&&!((action==attacking||action==sideswimattacking) && attack==wBugNet)
 				&& (directWpn>-1 ? (!item_disabled(directWpn) && itemsbuf[directWpn].family==itype_bugnet) : current_item(itype_bugnet)))
 		{
 			attackid = directWpn>-1 ? directWpn : current_item_id(itype_bugnet);

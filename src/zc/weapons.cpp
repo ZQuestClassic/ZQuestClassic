@@ -70,13 +70,24 @@ bool weapon::no_triggers() const
 	return false;
 }
 
-int32_t MatchComboTrigger(weapon *w, newcombo *c, int32_t comboid)
+bool MatchComboTrigger(weapon *w, int32_t comboid)
 {
-	if(screenIsScrolling()) return 0;
+	if(screenIsScrolling()) return false;
+	if(w->no_triggers()) return false;
 	int32_t wid = (w->useweapon > 0) ? w->useweapon : w->id;
-	newcombo const& cmb = c[comboid];
+	newcombo const& cmb = combobuf[comboid];
+	if(w->z > 0 && (cmb.triggerflags[3] & combotriggerONLY_GROUND_WPN))
+		return false; // Air based weapon shouldn't trigger ground-only combo
+	if(w->isLWeapon) //min/max level check
+	{
+		//Nothing should ever count as 'level 0'
+		int lv = w->type, tlv = cmb.triggerlevel;
+		if(lv<1) lv=1;
+		if(tlv<1) tlv=1;
+		if(!((cmb.triggerflags[0]&combotriggerINVERTMINMAX) ? lv <= tlv : lv >= tlv))
+			return false;
+	}
 	bool trig = false;
-	if(w->no_triggers()) return 0;
 	switch(wid)
 	{
 		case wSword: trig = (cmb.triggerflags[0]&combotriggerSWORD); break;
@@ -132,19 +143,7 @@ int32_t MatchComboTrigger(weapon *w, newcombo *c, int32_t comboid)
 		case wRefFire: trig = (cmb.triggerflags[3]&combotriggerLWREFFIRE); break;
 		case wRefFire2: trig = (cmb.triggerflags[3]&combotriggerLWREFFIRE2); break;
 	}
-	if(!trig) return 0;
-	if(w->isLWeapon) //min/max level check
-	{
-		//Nothing should ever count as 'level 0'
-		int lv = w->type, tlv = c[comboid].triggerlevel;
-		if(lv<1) lv=1;
-		if(tlv<1) tlv=1;
-		if((c[comboid].triggerflags[0]&combotriggerINVERTMINMAX)
-			? lv <= tlv : lv >= tlv)
-			return 1;
-		else return 0;
-	}
-	else return 1;
+	return trig;
 }
 
 static int32_t COMBOAT(int32_t x, int32_t y) 
@@ -412,7 +411,7 @@ void do_generic_combo_ffc(weapon *w, const ffc_handle_t& ffc_handle, int32_t cid
 }
 
 //Checks if a weapon triggers a combo at a given bx/by
-static void MatchComboTrigger2(weapon *w, int32_t bx, int32_t by, newcombo *cbuf, int32_t layer = 0/*, int32_t comboid, int32_t flag*/)
+static void MatchComboTrigger2(weapon *w, int32_t bx, int32_t by, int32_t layer = 0/*, int32_t comboid, int32_t flag*/)
 {
 	if (screenIsScrolling()) return;
 	if(w->weapon_dying_frame) return;
@@ -424,7 +423,7 @@ static void MatchComboTrigger2(weapon *w, int32_t bx, int32_t by, newcombo *cbuf
 			for_every_ffc([&](const ffc_handle_t& ffc_handle) {
 				if (ffcIsAt(ffc_handle, bx, by))
 				{
-					if (MatchComboTrigger(w, cbuf, ffc_handle.data()))
+					if (MatchComboTrigger(w, ffc_handle.data()))
 					{
 						do_trigger_combo_ffc(ffc_handle, 0, w);
 					}
@@ -440,9 +439,66 @@ static void MatchComboTrigger2(weapon *w, int32_t bx, int32_t by, newcombo *cbuf
 	by=TRUNCATE_TILE(by);
 	auto rpos_handle = get_rpos_handle_for_world_xy(bx, by, layer);
 	int32_t cid = rpos_handle.data();
-	if(!MatchComboTrigger(w, cbuf, cid)) return;
+	if(!MatchComboTrigger(w, cid)) return;
 
 	do_trigger_combo(rpos_handle, 0, w);
+}
+
+static bool triggerfire(int x, int y, weapon* w, bool setflag, bool any, bool strong, bool magic, bool divine)
+{
+	if(w->no_triggers()) return false;
+	int trigflags = (any?combotriggerANYFIRE:0)
+		| (strong?combotriggerSTRONGFIRE:0)
+		| (magic?combotriggerMAGICFIRE:0)
+		| (divine?combotriggerDIVINEFIRE:0);
+	if(!trigflags) return false;
+	weapon* wptr = get_qr(qr_FIRE_LEVEL_TRIGGERS_ARENT_WEAPONS) ? nullptr : w;
+	bool ret = false;
+	if(any)
+		ret = ret||trigger_secrets_if_flag(x,y,mfANYFIRE,setflag);
+	if(strong)
+		ret = ret||trigger_secrets_if_flag(x,y,mfSTRONGFIRE,setflag);
+	if(magic)
+		ret = ret||trigger_secrets_if_flag(x,y,mfMAGICFIRE,setflag);
+	if(divine)
+		ret = ret||trigger_secrets_if_flag(x,y,mfDIVINEFIRE,setflag);
+
+	std::set<rpos_t> rposes({COMBOPOS_REGION_CHECK_BOUNDS(x,y),COMBOPOS_REGION_CHECK_BOUNDS(x,y+15),COMBOPOS_REGION_CHECK_BOUNDS(x+15,y),COMBOPOS_REGION_CHECK_BOUNDS(x+15,y+15)});
+	for(int q = 0; q < 7; ++q)
+	{
+		for (rpos_t rpos : rposes)
+		{
+			if (rpos == rpos_t::None)
+				continue;
+
+			auto rpos_handle = get_rpos_handle(rpos, q);
+			auto& cmb = rpos_handle.combo();
+
+			if (w->z > 0 && (cmb.triggerflags[3] & combotriggerONLY_GROUND_WPN))
+				continue; // Air based weapon shouldn't trigger ground-only combo
+
+			if (cmb.triggerflags[2] & trigflags)
+			{
+				do_trigger_combo(rpos_handle);
+				ret = true;
+			}
+		}
+	}
+
+	for_every_ffc([&](const ffc_handle_t& ffc_handle) {
+		ffcdata& ffc = *ffc_handle.ffc;
+		auto& cmb = ffc_handle.combo();
+		if (w->z > 0 && (cmb.triggerflags[3] & combotriggerONLY_GROUND_WPN))
+			return; // Air based weapon shouldn't trigger ground-only combo
+
+		if((cmb.triggerflags[2] & trigflags) && ffc.collide(x,y,16,16))
+		{
+			do_trigger_combo_ffc(ffc_handle, 0, wptr);
+			ret = true;
+		}
+	});
+
+	return ret;
 }
 
 byte boomframe[16] = {0,0,1,0,2,0,1,1,0,1,1,3,2,2,1,2};
@@ -3853,7 +3909,7 @@ bool weapon::animate(int32_t index)
 		}
 	}
 	if(misc_wflags & WFLAG_BURNFLAGS)
-		triggerfire(x,y,true,
+		triggerfire(x,y,this,true,
 			misc_wflags&WFLAG_BURN_ANYFIRE,
 			misc_wflags&WFLAG_BURN_STRONGFIRE,
 			misc_wflags&WFLAG_BURN_MAGICFIRE,
@@ -4649,7 +4705,7 @@ bool weapon::animate(int32_t index)
 				
 				if(clk==94 || get_qr(qr_INSTABURNFLAGS))
 				{
-					triggerfire(x,y,true,true,false,false,false);
+					triggerfire(x,y,this,true,true,false,false,false);
 				}
 			}
 			else if(parentitem<0 || (parentitem>-1 && parent.family!=itype_book))
@@ -4688,7 +4744,7 @@ bool weapon::animate(int32_t index)
 				
 				if(clk==94 || get_qr(qr_INSTABURNFLAGS))
 				{
-					triggerfire(x,y,true,
+					triggerfire(x,y,this,true,
 						true,parentitem < 0 ? type > 1 : (parent.flags & item_flag9),
 						parent.flags & item_flag10,parent.flags & item_flag11);
 				}
@@ -4711,7 +4767,7 @@ bool weapon::animate(int32_t index)
 				if(clk==80)
 				{
 					dead=1;
-					triggerfire(x,y,true,
+					triggerfire(x,y,this,true,
 						true,parent.flags & item_flag9,
 						parent.flags & item_flag10,parent.flags & item_flag11);
 					
@@ -4982,7 +5038,7 @@ bool weapon::animate(int32_t index)
 			
 			if(trigger_secrets_if_flag(x,y,mfSTRIKE,true)) dead=deadval;
 			itemdata const& brangitm = itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)];
-			if(triggerfire(x,y,true,
+			if(triggerfire(x,y,this,true,
 				brangitm.flags & item_flag8,brangitm.flags & item_flag9,
 				brangitm.flags & item_flag10,brangitm.flags & item_flag11))
 				dead=deadval;
@@ -5749,7 +5805,7 @@ bool weapon::animate(int32_t index)
 			if((id==wMagic && (brokebook ? current_item(itype_book) : (linkedItem && book.family == itype_book)) &&
 				book.flags&item_flag1) && get_qr(qr_INSTABURNFLAGS))
 			{
-				triggerfire(x,y,true,
+				triggerfire(x,y,this,true,
 					true,book.flags & item_flag9,
 					book.flags & item_flag10,book.flags & item_flag11);
 			}
@@ -6973,6 +7029,7 @@ void weapon::do_death_fx()
 
 void weapon::collision_check()
 {
+	findcombotriggers();
 	if(isLWeapon)
 	{
 		check_enemy_lweapon_collision(this);
@@ -7981,16 +8038,15 @@ void weapon::findcombotriggers()
 		7 : ((get_qr(qr_CUSTOMCOMBOSLAYERS1AND2)) ? 3 : 1);
 	if(!get_qr(qr_OLD_BOMB_HITBOXES) && (id == wBomb || id == wSBomb || id == ewBomb || id == ewSBomb))
 	{
-		bool sbomb = id == wSBomb || id == ewSBomb;
 		std::set<rpos_t> rposes = getBombPositions();
 		for (rpos_t rpos : rposes)
 		{
 			auto [x, y] = COMBOXY_REGION(rpos);
 
 			for (int32_t ly = 0; ly < layercount; ++ly )
-				MatchComboTrigger2(this, x, y, combobuf.data(), ly);
+				MatchComboTrigger2(this, x, y, ly);
 			if(misc_wflags & WFLAG_BURNFLAGS)
-				triggerfire(x, y, true,
+				triggerfire(x, y, this, true,
 					misc_wflags&WFLAG_BURN_ANYFIRE,
 					misc_wflags&WFLAG_BURN_STRONGFIRE,
 					misc_wflags&WFLAG_BURN_MAGICFIRE,
@@ -8004,24 +8060,24 @@ void weapon::findcombotriggers()
 		{
 			for (int32_t ly = 0; ly < layercount; ++ly )
 			{
-				MatchComboTrigger2(this, (int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs-fakez, combobuf.data(), ly);
+				MatchComboTrigger2(this, (int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs-fakez, ly);
 			}
 		}
 		for (int32_t ly = 0; ly < layercount; ++ly )
 		{
-			MatchComboTrigger2(this, (int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hit_height-1)-fakez, combobuf.data(), ly);
+			MatchComboTrigger2(this, (int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hit_height-1)-fakez, ly);
 		}
 	}
 	for(int32_t dy = 0; dy < hit_height; dy += 16)
 	{
 		for (int32_t ly = 0; ly < layercount; ++ly )
 		{
-			MatchComboTrigger2(this, (int32_t)x+hxofs+(hit_width-1), (int32_t)y+dy+hyofs-fakez, combobuf.data(), ly);
+			MatchComboTrigger2(this, (int32_t)x+hxofs+(hit_width-1), (int32_t)y+dy+hyofs-fakez, ly);
 		}
 	}
 	for (int32_t ly = 0; ly < layercount; ++ly )
 	{
-		MatchComboTrigger2(this, (int32_t)x+hxofs+(hit_width-1), (int32_t)y+hyofs+(hit_height-1)-fakez, combobuf.data(), ly);
+		MatchComboTrigger2(this, (int32_t)x+hxofs+(hit_width-1), (int32_t)y+hyofs+(hit_height-1)-fakez, ly);
 	}
 }
 

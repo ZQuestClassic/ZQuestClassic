@@ -142,7 +142,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_STRINGS         10
 #define V_MISC            16
 #define V_TILES            3 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
-#define V_COMBOS          48
+#define V_COMBOS          49
 #define V_CSETS            6 //palette data
 #define V_MAPS            31
 #define V_DMAPS           22
@@ -165,7 +165,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_SFX              8
 #define V_FAVORITES        4
 
-#define V_COMPATRULE       72
+#define V_COMPATRULE       73
 #define V_ZINFO            4
 
 //= V_SHOPS is under V_MISC

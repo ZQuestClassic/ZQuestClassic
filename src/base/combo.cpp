@@ -121,6 +121,8 @@ bool newcombo::is_blank(bool ignoreEff) const
 	if(sfx_walking) return false;
 	if(sfx_standing) return false;
 	if(sfx_tap) return false;
+	if(sfx_landing) return false;
+	
 	if(spr_appear) return false;
 	if(spr_disappear) return false;
 	if(spr_walking) return false;
@@ -286,6 +288,7 @@ void newcombo::advpaste(newcombo const& other, bitstring const& flags)
 		sfx_walking = other.sfx_walking;
 		sfx_standing = other.sfx_standing;
 		sfx_tap = other.sfx_tap;
+		sfx_landing = other.sfx_landing;
 	}
 	if(flags.get(CMB_ADVP_GEN_SPRITES))
 	{

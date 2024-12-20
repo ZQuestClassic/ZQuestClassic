@@ -3228,52 +3228,6 @@ bool trigger_secrets_if_flag(int32_t x, int32_t y, int32_t flag, bool setflag)
 	return true;
 }
 
-bool triggerfire(int x, int y, bool setflag, bool any, bool strong, bool magic, bool divine)
-{
-	int trigflags = (any?combotriggerANYFIRE:0)
-		| (strong?combotriggerSTRONGFIRE:0)
-		| (magic?combotriggerMAGICFIRE:0)
-		| (divine?combotriggerDIVINEFIRE:0);
-	if(!trigflags) return false;
-	bool ret = false;
-	if(any)
-		ret = ret||trigger_secrets_if_flag(x,y,mfANYFIRE,setflag);
-	if(strong)
-		ret = ret||trigger_secrets_if_flag(x,y,mfSTRONGFIRE,setflag);
-	if(magic)
-		ret = ret||trigger_secrets_if_flag(x,y,mfMAGICFIRE,setflag);
-	if(divine)
-		ret = ret||trigger_secrets_if_flag(x,y,mfDIVINEFIRE,setflag);
-	
-	std::set<rpos_t> rposes({COMBOPOS_REGION_CHECK_BOUNDS(x,y),COMBOPOS_REGION_CHECK_BOUNDS(x,y+15),COMBOPOS_REGION_CHECK_BOUNDS(x+15,y),COMBOPOS_REGION_CHECK_BOUNDS(x+15,y+15)});
-	for(int q = 0; q < 7; ++q)
-	{
-		mapscr* m = FFCore.tempScreens[q];
-		for (rpos_t rpos : rposes)
-		{
-			if (rpos == rpos_t::None)
-				continue;
-
-			auto rpos_handle = get_rpos_handle(rpos, q);
-			if (rpos_handle.combo().triggerflags[2] & trigflags)
-			{
-				do_trigger_combo(rpos_handle);
-				ret = true;
-			}
-		}
-	}
-
-	for_every_ffc([&](const ffc_handle_t& ffc_handle) {
-		if ((ffc_handle.combo().triggerflags[2] & trigflags) && ffc_handle.ffc->collide(x,y,16,16))
-		{
-			do_trigger_combo_ffc(ffc_handle);
-			ret = true;
-		}
-	});
-
-	return ret;
-}
-
 void update_slopes()
 {
 	for (auto& p : slopes)

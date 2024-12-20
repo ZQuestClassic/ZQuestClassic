@@ -7,6 +7,104 @@
 #include <cassert>
 #include <utility>
 
+int32_t new_check_proc(int32_t msg, DIALOG *d, int32_t)
+{
+	using GUI::Checkbox;
+	
+	Checkbox::boxPlacement box_align = static_cast<Checkbox::boxPlacement>(d->d1);
+	int32_t box_xoff=0, txt_wid=0;
+	ASSERT(d);
+	
+	FONT *oldfont = font;
+	unsigned char const* str = (unsigned char const*)d->dp;
+	bool has_text = str && str[0];
+	if(d->dp2)
+	{
+		font = (FONT *)d->dp2;
+	}
+	switch(msg)
+	{
+		case MSG_DRAW:
+		{
+			const int box_spacing = 4;
+			int32_t tx = 2, ty = 2, txt_x = 2;
+			int box_sz = d->h;
+			int fh = text_height(font);
+			auto txt_y = ty+(d->h-fh)/2;
+			BITMAP* tmp = create_bitmap_ex(8, d->w+4, d->h+4);
+			clear_bitmap(tmp);
+			set_clip_rect(tmp, 2, 2, tmp->w-2, tmp->h-2);
+			if(box_align == Checkbox::boxPlacement::RIGHT)
+			{
+				txt_x = tmp->w - (box_sz + box_spacing); //right-alignment
+				if(has_text)
+				{
+					txt_wid = gui_text_width(font, (const char*)str);
+					txt_x -= txt_wid + box_spacing; //handle right-alignment for text
+					if(d->flags & D_DISABLED)
+					{
+						gui_textout_ln(tmp, font, str, txt_x+1, txt_y+1, scheme[jcLIGHT], scheme[jcBOX], 0);
+						txt_wid=gui_textout_ln(tmp, font, str, txt_x, txt_y, scheme[jcDISABLED_FG], -1, 0);
+						box_xoff=txt_wid+box_spacing;
+					}
+					else
+					{
+						txt_wid=gui_textout_ln(tmp, font, str, txt_x, txt_y, scheme[jcBOXFG], scheme[jcBOX], 0);
+						box_xoff=txt_wid+box_spacing;
+					}
+				}
+				tx = txt_x; // ensure box is drawn properly for right-alignment
+			}
+			
+			jwin_draw_frame(tmp, tx+box_xoff, ty, box_sz, box_sz, FR_DEEP);
+			
+			if(!(d->flags & D_DISABLED))
+			{
+				rectfill(tmp, tx+box_xoff+2, ty+2, tx+box_xoff+box_sz-3, ty+box_sz-3, scheme[jcTEXTBG]);
+			}
+			
+			if(box_align == Checkbox::boxPlacement::LEFT)
+			{
+				txt_x=tx+box_xoff+box_sz-1+box_spacing;
+				
+				if(has_text)
+				{
+					if(d->flags & D_DISABLED)
+					{
+						gui_textout_ln(tmp, font, str, txt_x+1, txt_y+1, scheme[jcLIGHT], scheme[jcBOX], 0);
+						txt_wid=gui_textout_ln(tmp, font, str, txt_x, txt_y, scheme[jcDISABLED_FG], -1, 0);
+					}
+					else
+					{
+						txt_wid=gui_textout_ln(tmp, font, str, txt_x, txt_y, scheme[jcBOXFG], scheme[jcBOX], 0);
+					}
+				}
+			}
+
+			if(d->flags & D_SELECTED)
+			{
+				line(tmp, tx+box_xoff+2, ty+2, tx+box_xoff+box_sz-3, ty+box_sz-3, scheme[jcTEXTFG]);
+				line(tmp, tx+box_xoff+2, ty+box_sz-3, tx+box_xoff+box_sz-3, ty+2, scheme[jcTEXTFG]);
+			}
+			
+			set_clip_rect(tmp, 0, 0, tmp->w, tmp->h);
+			if(has_text)
+			{
+				dotted_rect(tmp, txt_x-1, txt_y-1, txt_x+txt_wid, txt_y+fh, (d->flags & D_GOTFOCUS)?scheme[jcDARK]:scheme[jcBOX], scheme[jcBOX]);
+			}
+			
+			masked_blit(tmp, screen, 0, 0, d->x-2, d->y-2, d->w+4, d->h+4);
+			break;
+		}
+	}
+	
+	int32_t rval = D_O_K;
+	if(msg != MSG_DRAW)
+		rval = d_jwinbutton_proc(msg, d, 0);
+	font = oldfont;
+	return rval;
+}
+
 namespace GUI
 {
 

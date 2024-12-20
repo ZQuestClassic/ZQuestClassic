@@ -406,6 +406,7 @@ public:
 	bool mirrorBonk();
 	void doMirror(int32_t mirrorid);
 	void handle_passive_buttons();
+	void land_on_ground();
 	bool do_jump(int32_t jumpid, bool passive);
 	void drop_liftwpn();
 	void do_liftglove(int32_t liftid, bool passive);

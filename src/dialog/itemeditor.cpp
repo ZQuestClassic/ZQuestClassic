@@ -2138,7 +2138,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								NUM_FIELD(light_rads[WPNSPR_BASE], 0, 255),
 								INFOBTN("Settings used for the weapon when not on fire"),
 								//
-								Label(text = "Any Fire:", hAlign = 1.0),
+								Label(text = "Normal Fire:", hAlign = 1.0),
 								DropDownList(
 									data = list_sprites,
 									selectedValue = local_itemref.burnsprs[WPNSPR_IGNITE_ANY],
@@ -2147,7 +2147,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										local_itemref.burnsprs[WPNSPR_IGNITE_ANY] = val;
 									}),
 								NUM_FIELD(light_rads[WPNSPR_IGNITE_ANY], 0, 255),
-								INFOBTN("Settings used for the weapon when on 'Any' fire"),
+								INFOBTN("Settings used for the weapon when on 'Normal' fire"),
 								//
 								Label(text = "Strong Fire:", hAlign = 1.0),
 								DropDownList(

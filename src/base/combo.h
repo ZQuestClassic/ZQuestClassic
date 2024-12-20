@@ -146,7 +146,7 @@ struct newcombo
 	byte speed_mult = 1;
 	byte speed_div = 1;
 	zfix speed_add;
-	byte sfx_appear, sfx_disappear, sfx_loop, sfx_walking, sfx_standing, sfx_tap;
+	byte sfx_appear, sfx_disappear, sfx_loop, sfx_walking, sfx_standing, sfx_tap, sfx_landing;
 	byte spr_appear, spr_disappear, spr_walking, spr_standing;
 	
 	void set_tile(int32_t newtile);
@@ -298,7 +298,7 @@ struct newcombo
 #define combotriggerLITEM_SET           0x08000000
 #define combotriggerLITEM_UNSET         0x10000000
 #define combotriggerTINT_CLEAR          0x20000000
-//#define combotrigger                    0x40000000
+#define combotriggerONLY_GROUND_WPN     0x40000000
 //#define combotrigger                    0x80000000
 
 #define ctrigNONE                       0x00
