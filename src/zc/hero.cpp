@@ -27639,15 +27639,17 @@ void HeroClass::maybe_begin_advanced_maze()
 
 	maze_state = {};
 	maze_state.active = true;
-	// maze_state.smooth = true;
+	// maze_state.loopy = true;
 	maze_state.transition_wipe = -1;
-	// maze_state.transition_wipe = bosSMAS; // TODO z3 ! make configurable?
+	// maze_state.transition_wipe = bosSMAS;
 	maze_state.can_get_lost = true;
 	maze_state.scr = hero_scr;
 	maze_state.last_check_herox = x;
 	maze_state.last_check_heroy = y;
 
-	if (maze_state.smooth)
+	// TODO z3 ! make configurable: loopy, transition_wipe, can_get_lost
+
+	if (maze_state.loopy)
 	{
 		int dx = z3_get_region_relative_dx(prev_hero_scr->screen) - z3_get_region_relative_dx(hero_screen);
 		int dy = z3_get_region_relative_dy(prev_hero_scr->screen) - z3_get_region_relative_dy(hero_screen);
@@ -27790,7 +27792,7 @@ void HeroClass::checkscroll()
 
 				maze_state.active = false;
 			}
-			else if (can_check_again && maze_state.smooth)
+			else if (can_check_again && maze_state.loopy)
 			{
 				if (maze_state.transition_wipe >= 0)
 					closescreen(maze_state.transition_wipe);
@@ -27822,7 +27824,7 @@ void HeroClass::checkscroll()
 					openscreen(maze_state.transition_wipe);
 				}
 			}
-			else if (!maze_state.smooth)
+			else if (!maze_state.loopy)
 			{
 				if (maze_state.transition_wipe >= 0)
 					closescreen(maze_state.transition_wipe);

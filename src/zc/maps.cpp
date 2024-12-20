@@ -4528,7 +4528,7 @@ static nearby_screens_t get_nearby_screens_smooth_maze()
 
 static nearby_screens_t get_nearby_screens()
 {
-	if (maze_state.active && maze_state.smooth)
+	if (maze_state.active && maze_state.loopy)
 		return get_nearby_screens_smooth_maze();
 
 	if (is_in_scrolling_region())
@@ -4823,7 +4823,7 @@ void draw_screen(bool showhero, bool runGeneric)
 		if(get_qr(qr_NOFLICKER) || (frame&1))
 		{
 			// Just clips items if in a repeating, smooth maze.
-			bool do_clip = maze_state.active && maze_state.smooth;
+			bool do_clip = maze_state.active && maze_state.loopy;
 
 			for(int32_t i=0; i<Ewpns.Count(); i++)
 			{
