@@ -1572,6 +1572,8 @@ int32_t choose_opening_shape()
 
 void close_black_opening(int32_t x, int32_t y, bool wait, int32_t shape)
 {
+	x -= viewport.x;
+	y -= viewport.y;
 	black_opening_shape= (shape>-1 ? shape : choose_opening_shape());
 	
 	int32_t w=256, h=224;
@@ -1587,8 +1589,8 @@ void close_black_opening(int32_t x, int32_t y, bool wait, int32_t shape)
 	}
 	
 	black_opening_count = 66;
-	black_opening_x = x - viewport.x;
-    black_opening_y = y - viewport.y;
+	black_opening_x = x;
+    black_opening_y = y;
 	lensclk = 0;
 	//black_opening_shape=(black_opening_shape+1)%bosMAX;
 	
@@ -1617,6 +1619,8 @@ void close_black_opening(int32_t x, int32_t y, bool wait, int32_t shape)
 
 void open_black_opening(int32_t x, int32_t y, bool wait, int32_t shape)
 {
+	x -= viewport.x;
+	y -= viewport.y;
 	black_opening_shape= (shape>-1 ? shape : choose_opening_shape());
 	
 	int32_t w=256, h=224;
@@ -1632,8 +1636,8 @@ void open_black_opening(int32_t x, int32_t y, bool wait, int32_t shape)
 	}
 	
 	black_opening_count = -66;
-	black_opening_x = x - viewport.x;
-    black_opening_y = y - viewport.y;
+	black_opening_x = x;
+    black_opening_y = y;
 	lensclk = 0;
 	if(black_opening_shape == bosFADEBLACK)
 	{

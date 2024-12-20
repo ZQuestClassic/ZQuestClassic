@@ -1,3 +1,4 @@
+#include "base/util.h"
 #include "base/zdefs.h"
 #include "base/zsys.h"
 #include "base/qrs.h"
@@ -2264,6 +2265,23 @@ void sprite_list::draw(BITMAP* dest,bool lowfirst)
 		}
 }
 
+void sprite_list::draw_smooth_maze(BITMAP* dest)
+{
+#ifdef IS_PLAYER
+	int maze_screen = maze_state.scr->screen;
+	auto [sx, sy] = translate_screen_coordinates_to_world(maze_screen);
+
+	for (int32_t i=0; i<count; i++)
+	{
+		if (sprites[i]->screen_spawned != maze_state.scr->screen)
+			set_clip_rect(dest, sx - viewport.x, sy - viewport.y, sx + 256 - viewport.x, sy + 176 - viewport.y);
+		sprites[i]->draw(dest);
+	}
+
+	clear_clip_rect(dest);
+#endif
+}
+
 void sprite_list::drawshadow(BITMAP* dest,bool translucent, bool lowfirst)
 {
 	if(lowfirst)
@@ -2276,6 +2294,23 @@ void sprite_list::drawshadow(BITMAP* dest,bool translucent, bool lowfirst)
 		{
 			sprites[i]->drawshadow(dest,translucent);
 		}
+}
+
+void sprite_list::drawshadow_smooth_maze(BITMAP* dest, bool translucent)
+{
+#ifdef IS_PLAYER
+	int maze_screen = maze_state.scr->screen;
+	auto [sx, sy] = translate_screen_coordinates_to_world(maze_screen);
+
+	for (int32_t i=0; i<count; i++)
+	{
+		if (sprites[i]->screen_spawned != maze_state.scr->screen)
+			set_clip_rect(dest, sx - viewport.x, sy - viewport.y, sx + 256 - viewport.x, sy + 176 - viewport.y);
+		sprites[i]->drawshadow(dest, translucent);
+	}
+
+	clear_clip_rect(dest);
+#endif
 }
 
 void sprite_list::draw2(BITMAP* dest,bool lowfirst)

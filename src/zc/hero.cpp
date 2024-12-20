@@ -27644,6 +27644,7 @@ void HeroClass::maybe_begin_advanced_maze()
 	maze_state.lost = false;
 	maze_state.smooth = false;
 	// maze_state.smooth = true;
+	// maze_state.transition_wipe = bosSMAS;
 	maze_state.transition_wipe = -1;
 	maze_state.scr = hero_scr;
 	maze_state.last_check_herox = x;
@@ -27804,7 +27805,10 @@ void HeroClass::checkscroll()
 					maze_state.lost = true;
 
 				if (maze_state.transition_wipe >= 0)
+				{
+					z3_update_viewport();
 					openscreen(maze_state.transition_wipe);
+				}
 			}
 			else if (!maze_state.smooth)
 			{
@@ -27817,7 +27821,10 @@ void HeroClass::checkscroll()
 				if (advance_dir == down)  y = (z3_get_region_relative_dy(maze_screen)) * 176;
 
 				if (maze_state.transition_wipe >= 0)
+				{
+					z3_update_viewport();
 					openscreen(maze_state.transition_wipe);
+				}
 			}
 		}
 

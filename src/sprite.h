@@ -217,6 +217,8 @@ public:
     bool del(int32_t j, bool force = false, bool may_defer = true);
     void draw(BITMAP* dest,bool lowfirst);
     void drawshadow(BITMAP* dest,bool translucent, bool lowfirst);
+	void draw_smooth_maze(BITMAP* dest);
+	void drawshadow_smooth_maze(BITMAP* dest, bool translucent);
     void draw2(BITMAP* dest,bool lowfirst);
     void drawcloaked2(BITMAP* dest,bool lowfirst);
     void animate();

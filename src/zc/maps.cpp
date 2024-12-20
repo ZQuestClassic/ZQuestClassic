@@ -1,4 +1,5 @@
 #include "base/handles.h"
+#include "base/util.h"
 #include "base/zdefs.h"
 #include "base/general.h"
 #include <cstring>
@@ -4821,6 +4822,9 @@ void draw_screen(bool showhero, bool runGeneric)
 	{
 		if(get_qr(qr_NOFLICKER) || (frame&1))
 		{
+			// Just clips items if in a repeating, smooth maze.
+			bool do_clip = maze_state.active && maze_state.smooth;
+
 			for(int32_t i=0; i<Ewpns.Count(); i++)
 			{
 				if(((weapon *)Ewpns.spr(i))->behind)
@@ -4834,14 +4838,28 @@ void draw_screen(bool showhero, bool runGeneric)
 					Lwpns.spr(i)->draw(framebuf);
 			}
 			do_primitives(framebuf, SPLAYER_LWEAP_BEHIND_DRAW, 0, playing_field_offset);
-			
+
 			if(get_qr(qr_SHADOWS)&&(!get_qr(qr_SHADOWSFLICKER)||frame&1))
 			{
-				guys.drawshadow(framebuf,get_qr(qr_TRANSSHADOWS)!=0,true);
+				if (do_clip)
+					guys.drawshadow_smooth_maze(framebuf,get_qr(qr_TRANSSHADOWS)!=0);
+				else
+					guys.drawshadow(framebuf,get_qr(qr_TRANSSHADOWS)!=0,true);
 			}
-			
-			guys.draw(framebuf,true);
+			if (do_clip)
+				guys.draw_smooth_maze(framebuf);
+			else
+				guys.draw(framebuf,true);
+			if (do_clip)
+			{
+				int maze_screen = maze_state.scr->screen;
+				auto [sx, sy] = translate_screen_coordinates_to_world(maze_screen);
+				set_clip_rect(framebuf, sx - viewport.x, sy - viewport.y, sx + 256 - viewport.x, sy + 176 - viewport.y);
+			}
 			do_primitives(framebuf, SPLAYER_NPC_DRAW, 0, playing_field_offset);
+			if (do_clip)
+				clear_clip_rect(framebuf);
+
 			chainlinks.draw(framebuf,true);
 			do_primitives(framebuf, SPLAYER_CHAINLINK_DRAW, 0, playing_field_offset);
 			//Lwpns.draw(framebuf,true);
@@ -4859,10 +4877,20 @@ void draw_screen(bool showhero, bool runGeneric)
 					Lwpns.spr(i)->draw(framebuf);
 			}
 			do_primitives(framebuf, SPLAYER_LWEAP_FRONT_DRAW, 0, playing_field_offset);
-			
-			
-			items.draw(framebuf,true);
+
+			if (do_clip)
+				items.draw_smooth_maze(framebuf);
+			else
+				items.draw(framebuf,true);
+			if (do_clip)
+			{
+				int maze_screen = maze_state.scr->screen;
+				auto [sx, sy] = translate_screen_coordinates_to_world(maze_screen);
+				set_clip_rect(framebuf, sx - viewport.x, sy - viewport.y, sx + 256 - viewport.x, sy + 176 - viewport.y);
+			}
 			do_primitives(framebuf, SPLAYER_ITEMSPRITE_DRAW, 0, playing_field_offset);
+			if (do_clip)
+				clear_clip_rect(framebuf);
 		}
 		else
 		{
