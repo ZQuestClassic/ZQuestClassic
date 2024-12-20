@@ -29705,30 +29705,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		playing_field_offset = is_extended_height_mode() ? 0 : 56;
 	else
 		playing_field_offset = old_original_playing_field_offset;
-
-	//Move hero to the other side of the screen if scrolling's not turned on
-	// TODO z3 ! pretty sure can remove this.
-	if(get_qr(qr_NOSCROLL))
-	{
-		switch(scrolldir)
-		{
-		case up:
-			y = world_h - 16;
-			break;
-			
-		case down:
-			y = 0;
-			break;
-			
-		case left:
-			x = world_w - 16;
-			break;
-			
-		case right:
-			x = 0;
-			break;
-		}
-	}
 	
 	if((z > 0 || fakez > 0) && isSideViewHero())
 	{
