@@ -43,29 +43,6 @@ bool ffcIsAt(const ffc_handle_t& ffc_handle, int32_t x, int32_t y);
 extern bool triggered_screen_secrets;
 extern int32_t view_map_show_mode;
 
-/*
-    z3-style scrolling is implemented via "Regions".
-
-	Regions:
-
-        - are a NxM set of screens within a single map
-        - must be a rectangle (for now, at least)
-		- are defined in the Region Editor by assigning each screen an id, but other than
-		  grouping screens into the same region
-		  this id currently has no purpose in-engine
-        - can border other regions or single screens, and supports scrolling between them
-		  (including side warps)
-        - can be 1x1, but this only has significance for maze screens which will wrap the
-		  player around the screen TODO z3 is this still true?
-        - when moving around a region with >1 screen width or height, by default the viewport
-          will keep the player centered in the screen. When moving close to the region
-          edge the camera bounds to the edges. This behavior is modified by `viewport_mode`,
-		  which can be modified by scripts via `Viewport->`
-		- the top-left screen is loaded as `cur_screen` / `origin_scr` / `tmpscr`
-        - `hero_screen` is the screen index where the hero currently is, and updates as the
-		  player moves around. `hero_scr` is the mapscr
-*/
-
 // How large the current region is in pixels.
 // If not currently in a scrolling region, this is just the size of a single screen (256, 176).
 extern int world_w, world_h;
@@ -91,6 +68,28 @@ extern rpos_t region_max_rpos;
 // If not currently in a scrolling region, this is just 176.
 extern int region_num_rpos;
 
+/*
+    z3-style scrolling is implemented via "Regions".
+
+	Regions:
+
+        - are a NxM set of screens within a single map
+        - even 1x1 (one screen) areas are regions. A region containing a single screen is called
+		  a "non-scrolling region", otherwise it is a "scrolling region"
+        - must be a rectangle
+		- are defined in the Region Editor by assigning each screen an id, but other than
+		  grouping screens into the same region
+		  this id currently has no purpose in-engine
+        - can border other regions or single screens, and supports scrolling between them
+		  (including side warps)
+        - when moving around a scrolling region, by default the viewport is updated to keep
+		  the player drawn in the center of the screen. When moving close to the region edge,
+		  the viewport bounds to the edges. This behavior is modified by `viewport_mode`, which
+		  can be modified by scripts via `Viewport->`
+		- the top-left screen is loaded as `cur_screen` / `origin_scr` / `tmpscr` (all equivalent)
+        - `hero_screen` is the screen index where the hero currently is, and updates as the
+		  player moves around. `hero_scr` is the mapscr
+*/
 struct region
 {
 	int region_id;
