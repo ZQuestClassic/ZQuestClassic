@@ -383,7 +383,7 @@ public:
 	bool checkdamagecombos(int32_t dx, int32_t dy);
 	bool checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t dy2, int32_t layer = -1, bool solid = false, bool do_health_check = true);
 	void do_scroll_direction(direction dir);
-	void check_advanced_maze_begin();
+	void maybe_begin_advanced_maze();
 	void checkscroll();
 	void checkspecial();
 	void checkspecial2(int32_t *ls);

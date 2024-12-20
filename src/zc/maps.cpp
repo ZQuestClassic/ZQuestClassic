@@ -402,7 +402,7 @@ void z3_update_heroscr()
 	int dy = y / 176;
 	int new_screen = cur_screen + dx + dy * 16;
 	if (maze_state.active == 1)
-		new_screen = maze_state.screen;
+		new_screen = maze_state.scr->screen;
 	if (hero_screen != new_screen && dx >= 0 && dy >= 0 && dx < 16 && dy < 8 && is_in_current_region(new_screen))
 	{
 		region_scr_dx = dx;
@@ -4470,12 +4470,13 @@ static nearby_screens_t get_nearby_screens_smooth_maze()
 			mapscr* base_scr;
 			int offx, offy;
 
-			int maze_screen_x = z3_get_region_relative_dx(maze_state.screen);
-			int maze_screen_y = z3_get_region_relative_dy(maze_state.screen);
+			mapscr* maze_scr = maze_state.scr;
+			int maze_screen = maze_scr->screen;
+			int maze_screen_x = z3_get_region_relative_dx(maze_screen);
+			int maze_screen_y = z3_get_region_relative_dy(maze_screen);
 			int maze_screen_dx = x - maze_screen_x;
 			int maze_screen_dy = y - maze_screen_y;
-			mapscr* scrolling_maze_scr = get_scr(maze_state.screen);
-			int exitdir = scrolling_maze_scr->exitdir;
+			int exitdir = maze_scr->exitdir;
 
 			bool should_draw_maze_screen;
 			if (maze_state.lost)
@@ -4492,8 +4493,8 @@ static nearby_screens_t get_nearby_screens_smooth_maze()
 
 			if (should_draw_maze_screen)
 			{
-				screen = maze_state.screen;
-				base_scr = get_scr(screen);
+				screen = maze_state.scr->screen;
+				base_scr = maze_state.scr;
 				std::tie(offx, offy) = translate_screen_coordinates_to_world(cur_screen + x + y*16);
 			}
 
@@ -6151,7 +6152,7 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool overlay, bool 
 		Hero.lift_wpn = nullptr;
 	}
 
-	Hero.check_advanced_maze_begin();
+	Hero.maybe_begin_advanced_maze();
 }
 
 // Don't use this directly!
