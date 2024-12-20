@@ -274,6 +274,15 @@ int map_screen_index(int map, int screen)
 	return map*MAPSCRS + screen;
 }
 
+int screen_index_direction(int screen, direction dir)
+{
+	if (dir == left)  screen--;
+	if (dir == right) screen++;
+	if (dir == up)    screen -= 16;
+	if (dir == down)  screen += 16;
+	return screen;
+}
+
 const mapscr* get_canonical_scr(int map, int screen)
 {
 	return &TheMaps[map_screen_index(map, screen)];

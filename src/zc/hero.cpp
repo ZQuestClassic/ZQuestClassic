@@ -27644,6 +27644,7 @@ void HeroClass::maybe_begin_advanced_maze()
 	// maze_state.transition_wipe = bosSMAS;
 	maze_state.can_get_lost = true;
 	maze_state.scr = hero_scr;
+	maze_state.exit_screen = screen_index_direction(hero_screen, (direction)hero_scr->exitdir);
 	maze_state.last_check_herox = x;
 	maze_state.last_check_heroy = y;
 
@@ -27654,27 +27655,6 @@ void HeroClass::maybe_begin_advanced_maze()
 		int dx = z3_get_region_relative_dx(prev_hero_scr->screen) - z3_get_region_relative_dx(hero_screen);
 		int dy = z3_get_region_relative_dy(prev_hero_scr->screen) - z3_get_region_relative_dy(hero_screen);
 		maze_state.enter_dir = XY_DELTA_TO_DIR(sign2(dx), sign2(dy));
-	}
-
-	// TODO z3 ! make fn for this
-	maze_state.exit_screen = hero_screen;
-	switch(hero_scr->exitdir)
-	{
-	case up:
-		maze_state.exit_screen-=16;
-		break;
-		
-	case down:
-		maze_state.exit_screen+=16;
-		break;
-		
-	case left:
-		maze_state.exit_screen-=1;
-		break;
-		
-	case right:
-		maze_state.exit_screen+=1;
-		break;
 	}
 }
 
@@ -27759,7 +27739,6 @@ void HeroClass::checkscroll()
 		}
 		else
 		{
-			// TODO z3 ! use 8?
 			bool can_check_again = std::abs(maze_state.last_check_herox - x0) >= 16 || std::abs(maze_state.last_check_heroy - y0) >= 16;
 
 			if (can_check_again && maze_enabled_sizewarp(maze_scr, advance_dir))
@@ -27779,12 +27758,7 @@ void HeroClass::checkscroll()
 				maze_state.last_check_heroy = y;
 				maze_state.enter_dir = dir_invalid;
 
-				int dest_screen = maze_screen;
-				if (advance_dir == left)  dest_screen--;
-				if (advance_dir == right) dest_screen++;
-				if (advance_dir == up)    dest_screen -= 16;
-				if (advance_dir == down)  dest_screen += 16;
-
+				int dest_screen = screen_index_direction(maze_screen, advance_dir);
 				if (is_in_current_region(dest_screen))
 					scrolling_maze_last_solved_screen = maze_screen;
 				else

@@ -3513,25 +3513,8 @@ std::pair<int32_t, int32_t> nextscr2(int32_t dir)
 
 std::pair<int32_t, int32_t> nextscr2(int map, int screen, int32_t dir)
 {
-    switch(dir)
-    {
-    case up:
-        screen-=16;
-        break;
-        
-    case down:
-        screen+=16;
-        break;
-        
-    case left:
-        screen-=1;
-        break;
-        
-    case right:
-        screen+=1;
-        break;
-    }
-    
+	screen = screen_index_direction(screen, (direction)dir);
+
     // need to check for screens on other maps, 's' not valid, etc.
     int32_t index = (hero_scr->sidewarpindex >> (dir*2))&3;
     
