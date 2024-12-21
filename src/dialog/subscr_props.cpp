@@ -861,7 +861,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 										w->unit_per_frame = val-1;
 										refr_info();
 									}),
-								INFOBTN("How many points should be allocated to each tile. Ex. If you have 32"
+								INFOBTN("How many points should be allocated to each tile. Ex. If you have 16"
 									" HP per container, but only want to show 1/8 hearts, you can use"
 									" 2 units per frame (2 = 16/8) and only set up 1/8 heart tiles."),
 								Label(text = "Container:", hAlign = 1.0),
