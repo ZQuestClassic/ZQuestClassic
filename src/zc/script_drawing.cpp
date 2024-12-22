@@ -11813,47 +11813,36 @@ void do_primitives(BITMAP *targetBitmap, int32_t type, mapscr* theScreen, int32_
 	//...
 	//[][DRAWCMD_BMP_TARGET]: bitmap pointer
 	//[][DRAWCMD_CURRENT_TARGET]: current render target at time command is queued? unused?
-	
-	// Trying to match the old behavior exactly...
-	const bool brokenOffset= ( (get_er(er_BITMAPOFFSET)!=0) || (get_qr(qr_BITMAPOFFSETFIX)!=0) );
-	
+
 	bool isTargetOffScreenBmp = false;
 	const int32_t type_mul_10000 = type * 10000;
 	const int32_t numDrawCommandsToProcess = script_drawing_commands.Count();
 	FFCore.numscriptdraws = numDrawCommandsToProcess;
-	int32_t xoffset=xoff, yoffset=yoff;
+	
 	for(int32_t i(0); i < numDrawCommandsToProcess; ++i)
 	{
-		if(!brokenOffset)
-		{
-			xoffset = 0;
-			yoffset = 0;
-		}
 		int32_t *sdci = &script_drawing_commands[i][0];
 		
 		if(sdci[1] != type_mul_10000)
 			continue;
+
 		// get the correct render target, if set.
 		BITMAP *bmp = zscriptDrawingRenderTarget->GetTargetBitmap(sdci[DRAWCMD_CURRENT_TARGET]);
-		
+		int32_t xoffset;
+		int32_t yoffset;
+
 		if(!bmp)
 		{
 			// draw to screen with subscreen offset
-			if(!brokenOffset)
-			{
-				xoffset = xoff;
-				yoffset = yoff;
-			}
+			xoffset = xoff;
+			yoffset = yoff;
 			bmp = targetBitmap;
 		}
 		else
 		{
 			//not drawing to screen, so no subscreen offset
-			if(brokenOffset)
-			{
-				xoffset = 0;
-				yoffset = 0;
-			}
+			xoffset = 0;
+			yoffset = 0;
 			isTargetOffScreenBmp = true;
 		}
 		
