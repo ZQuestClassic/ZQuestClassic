@@ -10,25 +10,42 @@ enum GravityIndex
 };
 
 // Use as index for [Game->Scrolling].
+//
+// If not scrolling, all values are 0 unless otherwise stated.
 enum ScrollingIndex
 {
 	// The scrolling [Direction]. -1 if not scrolling.
 	SCROLL_DIR,
-	// The offset for the new screen, relative to the current viewport. 0 if not scrolling.
+	// The offset for the new screen, relative to the current viewport. 
 	SCROLL_NX, SCROLL_NY,
-	// The offset for the old screen, relative to the current viewport. 0 if not scrolling.
+	// The offset for the old screen, relative to the current viewport.
 	SCROLL_OX, SCROLL_OY,
-	SCROLL_NPX, SCROLL_NPY,
-	SCROLL_OPX, SCROLL_OPY,
-	SCROLL_NEW_REGION_WIDTH, SCROLL_NEW_REGION_HEIGHT,
-	SCROLL_OLD_REGION_WIDTH, SCROLL_OLD_REGION_HEIGHT,
-	SCROLL_NEW_VIEWPORT_WIDTH, SCROLL_NEW_VIEWPORT_HEIGHT,
-	SCROLL_OLD_VIEWPORT_WIDTH, SCROLL_OLD_VIEWPORT_HEIGHT,
-	SCROLL_NEW_VIEWPORT_X, SCROLL_NEW_VIEWPORT_Y,
-	SCROLL_OLD_VIEWPORT_X, SCROLL_OLD_VIEWPORT_Y,
+	// The offset for the new region's origin screen, relative to the current viewport. 
 	SCROLL_NRX, SCROLL_NRY,
+	// The offset for the old region's origin screen, relative to the current viewport. 
 	SCROLL_ORX, SCROLL_ORY,
-	SCROLL_NEW_REGION_OFFSET_X, SCROLL_NEW_REGION_OFFSET_Y
+	// The delta between the new and old regions.
+	SCROLL_NEW_REGION_DELTA_X, SCROLL_NEW_REGION_DELTA_Y,
+	// The top-left coordinate of the destination screen, in the new region.
+	SCROLL_NEW_SCREEN_X, SCROLL_NEW_SCREEN_Y,
+	// The top-left coordinate of the old screen, in the old region.
+	SCROLL_OLD_SCREEN_X, SCROLL_OLD_SCREEN_Y,
+	// The final hero position, in the new region.
+	SCROLL_NEW_HERO_X, SCROLL_NEW_HERO_Y,
+	// The initial hero position at the start of scrolling, in the old region.
+	SCROLL_OLD_HERO_X, SCROLL_OLD_HERO_Y,
+	// The number of screens in the new region (width and height).
+	SCROLL_NEW_REGION_SCREEN_WIDTH, SCROLL_NEW_REGION_SCREEN_HEIGHT,
+	// The number of screens in the old region (width and height).
+	SCROLL_OLD_REGION_SCREEN_WIDTH, SCROLL_OLD_REGION_SCREEN_HEIGHT,
+	// The final viewport size.
+	SCROLL_NEW_VIEWPORT_WIDTH, SCROLL_NEW_VIEWPORT_HEIGHT,
+	// The initial viewport size.
+	SCROLL_OLD_VIEWPORT_WIDTH, SCROLL_OLD_VIEWPORT_HEIGHT,
+	// The final viewport position, in the new region.
+	SCROLL_NEW_VIEWPORT_X, SCROLL_NEW_VIEWPORT_Y,
+	// The initial viewport position, in the old region.
+	SCROLL_OLD_VIEWPORT_X, SCROLL_OLD_VIEWPORT_Y
 };
 
 // Use as index for [Game->MiscSprites].

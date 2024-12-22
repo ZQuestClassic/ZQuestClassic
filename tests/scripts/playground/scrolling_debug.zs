@@ -111,10 +111,9 @@ dmapdata script ScrollingDebug
 				-1, -1, 0, 0, 0, 0, 0, true, OP_OPAQUE);
 
 			// This draws in the middle of the old screen.
-			// TODO z3 ! audit/document the new Game->Scrolling variables I added; and maybe add one to make this easier.
 			Screen->DrawOrigin = DRAW_ORIGIN_WORLD_SCROLLING_OLD;
-			x = 256/2 + Game->Scrolling[SCROLL_OX] - Game->Scrolling[SCROLL_ORX];
-			y = 176/2 + Game->Scrolling[SCROLL_OY] - Game->Scrolling[SCROLL_ORY];
+			x = 256/2 + Game->Scrolling[SCROLL_OLD_SCREEN_X];
+			y = 176/2 + Game->Scrolling[SCROLL_OLD_SCREEN_Y];
 			Screen->DrawCombo(3, x, y,
 				21,
 				1,
@@ -123,8 +122,9 @@ dmapdata script ScrollingDebug
 				-1, -1, 0, 0, 0, 0, 0, true, OP_OPAQUE);
 			
 			// This draws in the middle of the new screen.
-			x = 256/2 + Game->Scrolling[SCROLL_NX] - Game->Scrolling[SCROLL_ORX];
-			y = 176/2 + Game->Scrolling[SCROLL_NY] - Game->Scrolling[SCROLL_ORY];
+			Screen->DrawOrigin = DRAW_ORIGIN_WORLD_SCROLLING_NEW;
+			x = 256/2 + Game->Scrolling[SCROLL_NEW_SCREEN_X];
+			y = 176/2 + Game->Scrolling[SCROLL_NEW_SCREEN_Y];
 			Screen->DrawCombo(3, x, y,
 				44,
 				1,

@@ -28658,11 +28658,11 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	// and what the new viewport will be.
 	viewport_t new_viewport;
 	region new_region;
+	int new_scr_dx, new_scr_dy;
 	auto calc_new_viewport_and_pos = [&](){
-		int scr_dx, scr_dy;
-		z3_calculate_region(new_map, destscr, new_region, scr_dx, scr_dy);
+		z3_calculate_region(new_map, destscr, new_region, new_scr_dx, new_scr_dy);
 
-		// These mark the top-left coordinate of the new region and the old region, relative to the old region world coordinates.
+		// These mark the top-left coordinate of the new region, in the old region's world coordinates.
 		new_region_offset_x = (new_region.origin_screen_x - old_region.origin_screen_x)*256;
 		new_region_offset_y = (new_region.origin_screen_y - old_region.origin_screen_y)*176;
 
@@ -28672,14 +28672,14 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		{
 			case up:
 			{
-				new_hero_x.val = (scr_dx - old_region_scr_dx) * 256 * 10000L + x.val;
+				new_hero_x.val = (new_scr_dx - old_region_scr_dx) * 256 * 10000L + x.val;
 				new_hero_y = new_region.height - 16;
 			}
 			break;
 
 			case down:
 			{
-				new_hero_x.val = (scr_dx - old_region_scr_dx) * 256 * 10000L + x.val;
+				new_hero_x.val = (new_scr_dx - old_region_scr_dx) * 256 * 10000L + x.val;
 				new_hero_y = 0;
 			}
 			break;
@@ -28687,14 +28687,14 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			case left:
 			{
 				new_hero_x = new_region.width - 16;
-				new_hero_y.val = (scr_dy - old_region_scr_dy) * 176 * 10000L + y.val;
+				new_hero_y.val = (new_scr_dy - old_region_scr_dy) * 176 * 10000L + y.val;
 			}
 			break;
 
 			case right:
 			{
 				new_hero_x = 0;
-				new_hero_y.val = (scr_dy - old_region_scr_dy) * 176 * 10000L + y.val;
+				new_hero_y.val = (new_scr_dy - old_region_scr_dy) * 176 * 10000L + y.val;
 			}
 			break;
 
@@ -28714,12 +28714,12 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			if(get_qr(qr_NOARRIVALPOINT))
 				new_hero_x=newscr->warpreturnx[0];
 			else new_hero_x=newscr->warparrivalx;
-			new_hero_x += scr_dx*256;
+			new_hero_x += new_scr_dx*256;
 
 			if(get_qr(qr_NOARRIVALPOINT))
 				new_hero_y=newscr->warpreturny[0];
 			else new_hero_y=newscr->warparrivaly;
-			new_hero_y += scr_dy*176;
+			new_hero_y += new_scr_dy*176;
 		}
 
 		new_viewport = {};
@@ -28790,30 +28790,35 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			FFCore.ScrollingData[SCROLLDATA_NY] = 0;
 			break;
 	}
-	FFCore.ScrollingData[SCROLLDATA_NEW_REGION_OFFSET_X] = new_region_offset_x;
-	FFCore.ScrollingData[SCROLLDATA_NEW_REGION_OFFSET_Y] = new_region_offset_y;
+	FFCore.ScrollingData[SCROLLDATA_NEW_REGION_DELTA_X] = new_region_offset_x;
+	FFCore.ScrollingData[SCROLLDATA_NEW_REGION_DELTA_Y] = new_region_offset_y;
 	FFCore.ScrollingData[SCROLLDATA_NRX] = new_region_offset_x - viewport.x;
 	FFCore.ScrollingData[SCROLLDATA_NRY] = new_region_offset_y - viewport.y;
 	FFCore.ScrollingData[SCROLLDATA_ORX] = -viewport.x;
 	FFCore.ScrollingData[SCROLLDATA_ORY] = -viewport.y;
 
 	// Get the screen coords of the top-left of the screen we are scrolling away from.
-	std::tie(FFCore.ScrollingData[SCROLLDATA_OX], FFCore.ScrollingData[SCROLLDATA_OY]) =
-		translate_screen_coordinates_to_world(hero_screen);
-	FFCore.ScrollingData[SCROLLDATA_OX] -= viewport.x;
-	FFCore.ScrollingData[SCROLLDATA_OY] -= viewport.y;
+	auto [old_sx, old_sy] = translate_screen_coordinates_to_world(hero_screen);
+	FFCore.ScrollingData[SCROLLDATA_OX] = old_sx - viewport.x;
+	FFCore.ScrollingData[SCROLLDATA_OY] = old_sy - viewport.y;
 
-	FFCore.ScrollingData[SCROLLDATA_NPX] = new_hero_x.getInt();
-	FFCore.ScrollingData[SCROLLDATA_NPY] = new_hero_y.getInt();
+	FFCore.ScrollingData[SCROLLDATA_NEW_SCREEN_X] = new_scr_dx * 256;
+	FFCore.ScrollingData[SCROLLDATA_NEW_SCREEN_Y] = new_scr_dy * 176;
 
-	FFCore.ScrollingData[SCROLLDATA_OPX] = x.getInt();
-	FFCore.ScrollingData[SCROLLDATA_OPY] = y.getInt();
+	FFCore.ScrollingData[SCROLLDATA_OLD_SCREEN_X] = old_sx;
+	FFCore.ScrollingData[SCROLLDATA_OLD_SCREEN_Y] = old_sy;
 
-	FFCore.ScrollingData[SCROLLDATA_NEW_REGION_WIDTH] = new_region.screen_width;
-	FFCore.ScrollingData[SCROLLDATA_NEW_REGION_HEIGHT] = new_region.screen_height;
+	FFCore.ScrollingData[SCROLLDATA_NEW_HERO_X] = new_hero_x.getInt();
+	FFCore.ScrollingData[SCROLLDATA_NEW_HERO_Y] = new_hero_y.getInt();
 
-	FFCore.ScrollingData[SCROLLDATA_OLD_REGION_WIDTH] = current_region.screen_width;
-	FFCore.ScrollingData[SCROLLDATA_OLD_REGION_HEIGHT] = current_region.screen_height;
+	FFCore.ScrollingData[SCROLLDATA_OLD_HERO_X] = x.getInt();
+	FFCore.ScrollingData[SCROLLDATA_OLD_HERO_Y] = y.getInt();
+
+	FFCore.ScrollingData[SCROLLDATA_NEW_REGION_SCREEN_WIDTH] = new_region.screen_width;
+	FFCore.ScrollingData[SCROLLDATA_NEW_REGION_SCREEN_HEIGHT] = new_region.screen_height;
+
+	FFCore.ScrollingData[SCROLLDATA_OLD_REGION_SCREEN_WIDTH] = current_region.screen_width;
+	FFCore.ScrollingData[SCROLLDATA_OLD_REGION_SCREEN_HEIGHT] = current_region.screen_height;
 
 	FFCore.ScrollingData[SCROLLDATA_NEW_VIEWPORT_WIDTH] = new_viewport.w;
 	FFCore.ScrollingData[SCROLLDATA_NEW_VIEWPORT_HEIGHT] = new_viewport.h;
@@ -29057,8 +29062,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		FFCore.ScrollingData[SCROLLDATA_OLD_VIEWPORT_X] = viewport.x;
 		FFCore.ScrollingData[SCROLLDATA_OLD_VIEWPORT_Y] = viewport.y;
 
-		FFCore.ScrollingData[SCROLLDATA_NPX] = new_hero_x.getInt();
-		FFCore.ScrollingData[SCROLLDATA_NPY] = new_hero_y.getInt();
+		FFCore.ScrollingData[SCROLLDATA_NEW_HERO_X] = new_hero_x.getInt();
+		FFCore.ScrollingData[SCROLLDATA_NEW_HERO_Y] = new_hero_y.getInt();
 	}
 
 	int sx = viewport.x + (scrolldir == left ? viewport.w : 0);
@@ -29726,10 +29731,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	scrolling_destdmap = -1;
 	memset(FFCore.ScrollingData, 0, sizeof(int32_t) * SZ_SCROLLDATA);
 	FFCore.ScrollingData[SCROLLDATA_DIR] = -1;
-	FFCore.ScrollingData[SCROLLDATA_NX] = 0;
-	FFCore.ScrollingData[SCROLLDATA_NY] = 0;
-	FFCore.ScrollingData[SCROLLDATA_OX] = 0;
-	FFCore.ScrollingData[SCROLLDATA_OY] = 0;
 
 	if (destdmap != -1)
 	{
