@@ -28640,7 +28640,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	int old_world_w = world_w;
 	int old_world_h = world_h;
 	int old_original_playing_field_offset = original_playing_field_offset;
-	bool old_extended_height_mode = is_extended_height_mode();
 	viewport_t old_viewport = viewport;
 	region old_region = current_region;
 
@@ -29034,8 +29033,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	auto nearby_screens = get_nearby_scrolling_screens(old_temporary_screens, old_viewport, new_viewport);
 
 	mapscr* newscr = get_scr(destmap, destscr);
-	// TODO z3 !! remove
-	bool scrolling_extended_height = old_extended_height_mode || is_extended_height_mode();
 	// TODO z3
 	int new_playing_field_offset = playing_field_offset;
 	playing_field_offset = old_original_playing_field_offset;
@@ -29699,10 +29696,13 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		lift_wpn->yofs = playing_field_offset - 2;
 
 	// TODO z3 ! rm. really should separate quake draw offset from playing field offset.
-	if (scrolling_extended_height)
-		playing_field_offset = is_extended_height_mode() ? 0 : 56;
-	else
-		playing_field_offset = old_original_playing_field_offset;
+	// if (scrolling_extended_height)
+	// 	playing_field_offset = is_extended_height_mode() ? 0 : 56;
+	// else
+	// 	playing_field_offset = old_original_playing_field_offset;
+	// playing_field_offset += old_playing_field_quake_offset;
+	// if (!scrolling_extended_height)
+	// 	playing_field_offset = old_original_playing_field_offset;
 	
 	if((z > 0 || fakez > 0) && isSideViewHero())
 	{
