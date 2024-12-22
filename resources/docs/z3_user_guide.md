@@ -137,6 +137,26 @@ class Viewport {
 
 	// @zasm_var VIEWPORT_HEIGHT
 	internal const int Height;
+
+	// Returns true if the given sprite is visible within the viewport.
+	//
+	// Note: this function ignores the fact that the bottom 8 pixels are never visible.
+	bool Contains(sprite s)
+	{
+		int t = s->Y;
+		int b = s->Y + s->TileHeight*16;
+		int l = s->X;
+		int r = s->X + s->TileWidth*16;
+		return this->X <= r && this->X + this->Width > l && this->Y <= b && this->Y + this->Height > t;
+	}
+
+	// Returns true if the given point is visible within the viewport.
+	//
+	// Note: this function ignores the fact that the bottom 8 pixels are never visible.
+	bool Contains(int x, int y)
+	{
+		return x >= this->X && x < this->X + this->Width && y >= this->Y && y < this->Y + this->Height;
+	}
 }
 
 internal const Viewport Viewport;
