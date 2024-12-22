@@ -1737,7 +1737,7 @@ void HeroClass::init()
     convey_forcex=convey_forcey=0;
     drawstyle=3;
     ffwarp = false;
-    stepoutindex=stepoutwr=stepoutdmap=stepoutscr=0;
+    stepoutindex=stepoutwr=stepoutdmap=stepoutscreen=0;
     stepnext=stepsecret=rpos_t::None;
     ffpit = false;
     respawn_x=x;
@@ -25593,9 +25593,9 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 		// This might be better, but for now this code keeps the rendering
 		// equivalent to before z3 draw_screen refactor.
 		// demosp253.zplay and first_quest_layered.zplay showcases this behavior.
-		// TODO z3: remove this, but when we have more replay coverage.
+		// TODO(replays): remove in future bulk replay update.
 		currscr_for_passive_subscr = 0x80;
-		
+
 		if(DMaps[currdmap].flags&dmfCAVES)                                         // cave
 		{
 			if (updatemusic || !musicnocut || !get_qr(qr_SCREEN80_OWN_MUSIC))
@@ -25730,7 +25730,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 		//play sound
 		if(warpsfx > 0) sfx(warpsfx,pan(x.getInt()));
 		specialcave = PASSAGEWAY;
-		byte warpscr2 = wscr + DMaps[wdmap].xoff;
+		byte warp_screen_2 = wscr + DMaps[wdmap].xoff;
 		draw_screen(false);
 		
 		if(!get_qr(qr_NEW_DARKROOM))
@@ -25755,14 +25755,14 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 		dir=down;
 		x=48;
 		
-		if((home_screen&15) > (warpscr2&15))
+		if((home_screen&15) > (warp_screen_2&15))
 		{
 			x=192;
 		}
 		
-		if((home_screen&15) == (warpscr2&15))
+		if((home_screen&15) == (warp_screen_2&15))
 		{
-			if((cur_screen>>4) > (warpscr2>>4))
+			if((cur_screen>>4) > (warp_screen_2>>4))
 			{
 				x=192;
 			}
@@ -25801,7 +25801,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 		newscr_clk=frame;
 		activated_timed_warp=false;
 		stepoutindex=index;
-		stepoutscr = warpscr2;
+		stepoutscreen = warp_screen_2;
 		stepoutdmap = wdmap;
 		stepoutwr=wrindex;
 		if (get_qr(qr_SCREEN80_OWN_MUSIC) && (updatemusic || !musicnocut))
@@ -27333,7 +27333,7 @@ void HeroClass::stepout() // Step out of item cellars and passageways
         currcset=DMaps[currdmap].color;
         
         init_dmap();
-        home_screen=stepoutscr;
+        home_screen=stepoutscreen;
     }
     
     loadscr(currdmap, home_screen, 255, false);                                   // bogus direction

@@ -218,7 +218,7 @@ public:
 		stepoutindex, // where to step out when in a passageway
 		stepoutwr, // which warp return to use for a passageway
 		stepoutdmap, // which dmap the passageway exits to
-		stepoutscr, // which screen the passageway exits to
+		stepoutscreen, // which screen the passageway exits to
 		slashxofs, slashyofs; // used by positionSword() and draw()
 	//spacing so no confusion between byte and int32_t
 	byte skipstep,lstep, 

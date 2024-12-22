@@ -594,12 +594,11 @@ void put_passive_subscr(BITMAP *dest,int32_t x,int32_t y,bool showtime,int32_t p
 		return;
 	}
 
-	// Since z3 was added, all passive subscreens get a black background underneath (unless
+	// Since regions were added, all passive subscreens get a black background underneath (unless
 	// using an extended height viewport).
 	if (QHeader.is_z3 && playing_field_offset)
 		rectfill(subscr, 0, 0, subscr->w, playing_field_offset - 1, 0);
 
-	// TODO z3 would be simpler to just set a `subscr_compass_x` ?
 	int32_t prev_homescr;
 	int32_t prev_currscr;
 	if (currscr_for_passive_subscr != -1)
