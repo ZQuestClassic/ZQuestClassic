@@ -28068,7 +28068,7 @@ void HeroClass::run_scrolling_script_int(bool waitdraw)
 static zfix new_hero_x, new_hero_y;
 static int new_region_offset_x, new_region_offset_y;
 
-// Scripts expect coordinates to be relative to the new screen coordinate system, so we must convert them.
+// Scripts expect Hero coordinates to be relative to the new screen coordinate system, so we must convert them.
 void HeroClass::run_scrolling_script(int32_t scrolldir, int32_t cx, int32_t sx, int32_t sy, bool end_frames, bool waitdraw)
 {
 	// For rafting (and possibly other esoteric things)
@@ -28085,7 +28085,6 @@ void HeroClass::run_scrolling_script(int32_t scrolldir, int32_t cx, int32_t sx, 
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_FFCS-1);
 	}
 	zfix storex = x, storey = y;
-	auto store_viewport = viewport;
 	switch(scrolldir)
 	{
 	case up:
@@ -28121,14 +28120,9 @@ void HeroClass::run_scrolling_script(int32_t scrolldir, int32_t cx, int32_t sx, 
 		break;
 	}
 
-	viewport.x -= new_region_offset_x;
-	viewport.y -= new_region_offset_y;
-
 	run_scrolling_script_int(waitdraw);
 	
 	x = storex, y = storey;
-	viewport = store_viewport;
-	
 	action=lastaction; FFCore.setHeroAction(lastaction);
 }
 
@@ -29041,7 +29035,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 
 	loadscr(destdmap, destscr, scrolldir, overlay);
 
-	// For the duration of the scrolling, the old screen/region viewport is used for all drawing operations.
+	// For the duration of the scrolling, the old region coordinate system is used for all drawing operations.
 	// This means that the new screens are drawn with offsets relative to the old coordinate system.
 	// This is handled in get_nearby_scrolling_screens.
 	auto nearby_screens = get_nearby_scrolling_screens(old_temporary_screens, old_viewport, new_viewport);
@@ -29218,7 +29212,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	}
 
 	viewport_t initial_viewport = old_viewport;
-	// initial_viewport.h = std::max(old_viewport.h, new_viewport.h);
 	viewport = initial_viewport;
 	if (is_unsmooth_vertical_scrolling) viewport.y += 3;
 
@@ -29227,9 +29220,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 
 	// FFCs coordinates are world positions, and so don't need an offset
 	// like when drawing a specific screen's combos in do_scrolling_layer.
-	// But since their coordinates are in the new coordinate system, we must
-	// apply an offset based on the difference between the two coordinate
-	// systems.
+	// But since their coordinates are in the new region's coordinate system,
+	// an offset of the difference between the two coordinate systems is needed.
 	int new_ffc_offset_x = new_region_offset_x;
 	int new_ffc_offset_y = new_region_offset_y;
 	if (is_warping)
@@ -29281,6 +29273,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		}
 
 		{
+			// TODO z3 ! should we just modify things to draw in "new" coordinate system?
 			auto prev_x = x;
 			auto prev_y = y;
 			x = script_hero_x;
@@ -29495,7 +29488,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 
 		if (get_qr(qr_FFCSCROLL))
 		{
-			// Draw all FFCs from the previous screen, even if their spawn screen is out of view.
+			// Draw all FFCs from the previous region.
 			for (int i = 0; i < FFCore.ScrollingScreensAll.size(); i += 7)
 			{
 				mapscr* scr = FFCore.ScrollingScreensAll[i];
@@ -29536,6 +29529,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 					do_layer(framebuf, -2, screen_handles[1], offx, offy);
 					do_layer(framebuf, -2, screen_handles[2], offx, offy);
 				}
+				// TODO z3 ??
 				if (is_new_screen)
 					do_primitives(framebuf, SPLAYER_PUSHBLOCK, 0, playing_field_offset);
 			}
@@ -29555,7 +29549,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		if (!align_counter || scroll_counter) herostep();
 
 		{
-			// Must draw with old-region coordinates.
 			auto prev_y = y;
 			auto prev_yofs = yofs;
 

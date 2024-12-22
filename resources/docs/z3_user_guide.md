@@ -44,8 +44,103 @@ Most scripts can be migrated by simply making the following changes:
 * for the max FFC id, use `MAX_FFC` (instead of 32 or 128 or whatever)
 * to translate x/y to a combo position, only use `ComboAt`
 * to check if something is out-of-bounds, change 256 / 176 to `Region->Width` / `Region->Height`
+* set `Screen->DrawOrigin` to adjust the origin used by `Screen` drawing functions
 
 Read on for more detail.
+
+### Drawing
+
+Screen drawing functions (e.g. `Screen->DrawTile`) used to always be relative to the playing field (where the origin `(0, 0)` is the pixel below the passive subscreen, on the left). To account for this during scroll transitions, scripts had to use `Game->Scrolling[]` to adjust the coordinates accordingly.
+
+Now, a new variable `Screen->DrawOrigin` determines how coordinates given to these drawing functions are interpreted. See the documentation for more.
+
+```c
+// Determines how to interpret coordinates given to [Screen] draw functions.
+enum DrawOrigin
+{
+	// Equal to [DRAW_ORIGIN_WORLD], unless in a scrolling region (or scrolling to/from one), in which
+	// case this is equal to [DRAW_ORIGIN_PLAYING_FIELD].
+	DRAW_ORIGIN_DEFAULT = 0L,
+	// The origin `(0, 0)` is the top-left pixel of the playing field (where screen combos are drawn).
+	// Normally, this is just below the passive subscreen. But in extended height mode,
+	// this is the top-left pixel of the screen and so is equivalent to [DRAW_ORIGIN_SCREEN].
+	//
+	// Use this to draw overlay effects across the playing field.
+	DRAW_ORIGIN_PLAYING_FIELD = 1L,
+	// The origin `(0, 0)` is the top-left pixel of the screen.
+	// Use this to draw overlay effects across the entire screen.
+	DRAW_ORIGIN_SCREEN = 2L,
+	// The origin `(0, 0)` is the top-left pixel of the current region. Use this to draw with a
+	// sprite's coordinates.
+	//
+	// When scrolling to a new region, this is treated as [DRAW_ORIGIN_WORLD_SCROLLING_NEW] for
+	// new screens and [DRAW_ORIGIN_WORLD_SCROLLING_OLD] for old screens.
+	DRAW_ORIGIN_WORLD = 3L,
+	// The origin `(0, 0)` is the top-left pixel of the new region being scrolled to.
+	//
+	// Equivalent to [DRAW_ORIGIN_WORLD] when not scrolling.
+	DRAW_ORIGIN_WORLD_SCROLLING_NEW = 4L,
+	// The origin `(0, 0)` is the top-left pixel of the old region being scrolled away from.
+	//
+	// Equivalent to [DRAW_ORIGIN_WORLD] when not scrolling.
+	DRAW_ORIGIN_WORLD_SCROLLING_OLD = 5L
+};
+
+TODO ~z3 remove, just link to doc website
+```
+
+### `Viewport`
+
+The `Viewport` defines the the visible portion of the current region - what the player currently sees. Via scripting, the viewport can be modified to show any part of the region. See the documentation more.
+
+```c
+enum ViewportMode
+{
+	// Position the viewport such that the [Viewport::Target] is in the middle of it (but bounded by the edges of the current region).
+	VIEW_MODE_CENTER_AND_BOUND = 0L,
+	// Position the viewport such that the [Viewport::Target] is in the middle of it, always. Screens outside the current region are rendered as black.
+	VIEW_MODE_CENTER = 1L,
+	// Disable the engine's updating of the viewport on every frame, and instead defer to values set by scripts.
+	VIEW_MODE_SCRIPT = 2L
+};
+
+// Defines the visible portion of the current region - what the player currently sees.
+class Viewport {
+	// @delete
+	internal Viewport();
+
+	// Defaults to [VIEW_MODE_CENTER_AND_BOUND], and is reset when the screen changes.
+	//
+	// @zasm_var VIEWPORT_MODE
+	internal ViewportMode Mode;
+
+	// The sprite that the viewport is centered around. If this sprite no longer exists,
+	// this will be reset to the [Hero] sprite.
+	//
+	// Defaults to [Hero], and is reset when the screen changes.
+	//
+	// @zasm_var VIEWPORT_TARGET
+	internal sprite Target;
+
+	// Unless [Mode] is [VIEW_MODE_SCRIPT], this is updated every frame by the engine.
+	//
+	// @zasm_var VIEWPORT_X
+	internal int X;
+
+	// Unless [Mode] is [VIEW_MODE_SCRIPT], this is updated every frame by the engine.
+	//
+	// @zasm_var VIEWPORT_Y
+	internal int Y;
+
+	// @zasm_var VIEWPORT_WIDTH
+	internal const int Width;
+
+	// @zasm_var VIEWPORT_HEIGHT
+	internal const int Height;
+}
+
+internal const Viewport Viewport;
+```
 
 ### `sprite::ScreenIndex`
 

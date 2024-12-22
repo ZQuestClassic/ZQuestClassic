@@ -14,9 +14,10 @@ enum ScrollingIndex
 {
 	SCROLL_DIR,
 	SCROLL_NX, SCROLL_NY,
+	// TODO z3 ! document
 	SCROLL_OX, SCROLL_OY,
-	SCROLLDATA_NPX, SCROLLDATA_NPY,
-	SCROLLDATA_OPX, SCROLLDATA_OPY,
+	SCROLL_NPX, SCROLL_NPY,
+	SCROLL_OPX, SCROLL_OPY,
 	SCROLL_NEW_REGION_WIDTH, SCROLL_NEW_REGION_HEIGHT,
 	SCROLL_OLD_REGION_WIDTH, SCROLL_OLD_REGION_HEIGHT,
 	SCROLL_NEW_VIEWPORT_WIDTH, SCROLL_NEW_VIEWPORT_HEIGHT,
@@ -25,7 +26,7 @@ enum ScrollingIndex
 	SCROLL_OLD_VIEWPORT_X, SCROLL_OLD_VIEWPORT_Y,
 	SCROLL_NRX, SCROLL_NRY,
 	SCROLL_ORX, SCROLL_ORY,
-	SCROLLDATA_NEW_REGION_OFFSET_X, SCROLLDATA_NEW_REGION_OFFSET_Y
+	SCROLL_NEW_REGION_OFFSET_X, SCROLL_NEW_REGION_OFFSET_Y
 };
 
 // Use as index for [Game->MiscSprites].
@@ -112,6 +113,8 @@ class Game {
 	internal Game();
 
 	// The top-left screen of the current [Region] that the player is in.
+	//
+	// When scrolling, this is the new screen.
 	//
 	// @zasm_var CURSCR
 	internal const int CurScreen;

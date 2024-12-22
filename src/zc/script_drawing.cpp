@@ -1010,14 +1010,9 @@ void do_putpixelsr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32
     
     if(v.empty())
         return;
-        //Z_scripterrlog("PutPixels reached line %d\n", 983);
     
     int32_t* pos = &v[0];
     int32_t sz = v.size();
-    //Z_scripterrlog("Vector size is: %d\n", sz);
-    //for ( int32_t m = 0; m < 256; ++m ) Z_scripterrlog("Vector contents at pos[%d]: %d\n", m, pos[m]);
-  
-    //FFCore.getValues(sdci[2]/10000, points, sz);
     
     
 	int32_t x1 = 0;
@@ -1025,12 +1020,8 @@ void do_putpixelsr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32
     
     for ( int32_t q = 0; q < sz; q+=4 )
     {
-	    //Z_scripterrlog("Vector q: %d\n", q);
-	    //if ( q > sz-1 ) break;
 	    x1 = v.at(q); //pos[q];
 	    y1 = v.at(q+1); //pos[q+1];
-	    //Z_scripterrlog("x1 is: %d\n", x1);
-	    //Z_scripterrlog("y1 is: %d\n", 1);
 	    if(sdci[5]!=0) //rotation
 	    {
 		int32_t xy[2];
@@ -1045,15 +1036,9 @@ void do_putpixelsr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32
 		x1=xy[0];
 		y1=xy[1];
 	    }
-	    //Z_scripterrlog("PutPixels()%s value is %d\n","x",x1);
-	    //Z_scripterrlog("PutPixels()%s value is %d\n","y",y1);
-	    //Z_scripterrlog("PutPixels()%s value is %d\n","colour",points[q+2]);
 	    if ( v.at(q+3) /*pos[q+3]*/ < 128 ) drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
 	    else drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 	    putpixel(bmp, x1+xoffset, y1+yoffset, v.at(q+2) /*pos[q+2]*/);
-	    //if ( points[q+3] < 128 ) 
-		
-	    //else drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
     }
     drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 }
@@ -11794,17 +11779,16 @@ void do_bmpdrawlayerciflagr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t
 // do primitives
 ////////////////////////////////////////////////////////
 
-// Draw commands are in viewport space. In other words, a draw command at (0, 0) will be drawn at the
-// top-left corner of the combo-area of the screen (right below the subscreen; or if in extended height mode,
-// the top-left pixel of the screen).
-// Users are expected to translate to screen space manually, by using `Viewport->X,Y` and `Game->Scrolling[]`.
+// Draw commands can vary in terms of the origin/coordinate system to draw as. This
+// is controlled via `DrawOrigin`. Previous to `DrawOrigin`, this always drew
+// relative to the playing field (except for offscreen bitmaps).
 void do_primitives(BITMAP *targetBitmap, int32_t type, int32_t xoff, int32_t yoff)
 {
 	color_map = &trans_table2;
 	
 	if(type > 7)
 		return;
-	if(type >= 0 && get_scr(cur_screen)->hidescriptlayers & (1<<type))
+	if(type >= 0 && get_scr(cur_screen)->hidescriptlayers & (1<<type)) // TODO z3 !
 		return; //Script draws hidden for this layer
 	if(!script_drawing_commands.is_dirty(type))
 		return; //No draws to this layer
@@ -11814,51 +11798,73 @@ void do_primitives(BITMAP *targetBitmap, int32_t type, int32_t xoff, int32_t yof
 	//...
 	//[][DRAWCMD_BMP_TARGET]: bitmap pointer
 	//[][DRAWCMD_CURRENT_TARGET]: current render target at time command is queued? unused?
-	
-	// Trying to match the old behavior exactly...
-	const bool brokenOffset= ( (get_er(er_BITMAPOFFSET)!=0) || (get_qr(qr_BITMAPOFFSETFIX)!=0) );
-	
+
 	bool isTargetOffScreenBmp = false;
 	const int32_t type_mul_10000 = type * 10000;
 	const int32_t numDrawCommandsToProcess = script_drawing_commands.Count();
-	FFCore.numscriptdraws = numDrawCommandsToProcess;
-	int32_t xoffset=xoff, yoffset=yoff;
+	FFCore.numscriptdraws =numDrawCommandsToProcess;
 
 	for(int32_t i(0); i < numDrawCommandsToProcess; ++i)
 	{
-		if(!brokenOffset)
-		{
-			xoffset = 0;
-			yoffset = 0;
-		}
+		auto& command = script_drawing_commands[i];
 		int32_t *sdci = &script_drawing_commands[i][0];
-		
-		if(sdci[1] != type_mul_10000)
+
+		if (sdci[1] != type_mul_10000)
 			continue;
+
+		int32_t xoffset = xoff;
+		int32_t yoffset = yoff;
+		DrawOrigin draw_origin = command.draw_origin;
+
 		// get the correct render target, if set.
 		BITMAP *bmp = zscriptDrawingRenderTarget->GetTargetBitmap(sdci[DRAWCMD_CURRENT_TARGET]);
 		
 		if(!bmp)
 		{
-			// draw to screen with subscreen offset
-			if(!brokenOffset)
-			{
-				xoffset = xoff;
-				yoffset = yoff;
-			}
 			bmp = targetBitmap;
+			isTargetOffScreenBmp = false; // TODO z3 ! cherry-pick
 		}
 		else
 		{
-			//not drawing to screen, so no subscreen offset
-			if(brokenOffset)
-			{
-				xoffset = 0;
-				yoffset = 0;
-			}
+			draw_origin = DrawOrigin::Screen;
 			isTargetOffScreenBmp = true;
 		}
-		
+
+		if (draw_origin == DrawOrigin::World)
+		{
+			xoffset = xoff - viewport.x;
+			yoffset = yoff - viewport.y;
+		}
+		else if (draw_origin == DrawOrigin::WorldScrollingNew)
+		{
+			// TODO z3 ! delme
+			// xoffset = xoff - viewport.x;
+			// yoffset = yoff - viewport.y;
+			// if (screenscrolling)
+			// {
+			// 	xoffset += FFCore.ScrollingData[SCROLLDATA_NEW_REGION_OFFSET_X];
+			// 	yoffset += FFCore.ScrollingData[SCROLLDATA_NEW_REGION_OFFSET_Y];
+			// }
+			xoffset = xoff + FFCore.ScrollingData[SCROLLDATA_NRX];
+			yoffset = yoff + FFCore.ScrollingData[SCROLLDATA_NRY];
+		}
+		else if (draw_origin == DrawOrigin::PlayingField)
+		{
+			xoffset = xoff;
+			yoffset = yoff;
+		}
+		else if (draw_origin == DrawOrigin::Screen)
+		{
+			xoffset = 0;
+			yoffset = 0;
+		}
+		else
+		{
+			// Unexpected.
+			xoffset = 0;
+			yoffset = 0;
+		}
+
 		switch(sdci[0])
 		{
 			case RECTR:
@@ -11910,28 +11916,24 @@ void do_primitives(BITMAP *targetBitmap, int32_t type, int32_t xoff, int32_t yof
 			break;
 			case PIXELARRAYR:
 			{
-			 //Z_scripterrlog("Reached case PIXELARRAYR\n");
 				do_putpixelsr(bmp, i, sdci, xoffset, yoffset);
 			}
 			break;
 			
 			case TILEARRAYR:
 			{
-			 //Z_scripterrlog("Reached case PIXELARRAYR\n");
 				do_fasttilesr(bmp, i, sdci, xoffset, yoffset);
 			}
 			break;
 			
 			case LINESARRAY:
 			{
-			 //Z_scripterrlog("Reached case PIXELARRAYR\n");
 				do_linesr(bmp, i, sdci, xoffset, yoffset);
 			}
 			break;
 			
 			case COMBOARRAYR:
 			{
-			 //Z_scripterrlog("Reached case PIXELARRAYR\n");
 				do_fastcombosr(bmp, i, sdci, xoffset, yoffset);
 			}
 			break;

@@ -7017,6 +7017,10 @@ int32_t get_register(int32_t arg)
 			ret = ri->screenref*10000;
 			break;
 
+		case SCREEN_DRAW_MODE:
+			ret = (int)ri->screen_draw_mode;
+			break;
+
 		//Creates an lweapon using an iemdata struct values to generate its properties.
 		//Useful in conjunction with the new weapon editor. 
 		case CREATELWPNDX:
@@ -17680,7 +17684,13 @@ void set_register(int32_t arg, int32_t value)
 			get_scr(ri->screenref)->undercset=value/10000;
 			break;
 		
-		
+		case SCREEN_DRAW_MODE:
+			if (BC::checkBounds(value, (int)DrawOrigin::First, (int)DrawOrigin::Last, "Screen-DrawMode") != SH::_NoError)
+				return;
+
+			ri->screen_draw_mode = (DrawOrigin)value;
+			break;
+
 		case DEBUGGDR:
 		{
 			int32_t a = vbound(ri->d[rINDEX]/10000,0,15);
@@ -27639,10 +27649,28 @@ void do_drawing_command(const int32_t script_command)
 		Z_scripterrlog("Max draw primitive limit reached\n");
 		return;
 	}
-	
+
 	script_drawing_commands[j][0] = script_command;
 	script_drawing_commands[j][DRAWCMD_CURRENT_TARGET] = zscriptDrawingRenderTarget->GetCurrentRenderTarget();
-	
+
+	DrawOrigin draw_origin = ri->screen_draw_mode;
+	if (draw_origin == DrawOrigin::Default)
+	{
+		// TODO z3 ! cache this.
+		bool in_region = is_in_scrolling_region() || (screenscrolling && (scrolling_region.screen_width > 1 || scrolling_region.screen_height > 1));
+		draw_origin = in_region ? DrawOrigin::World : DrawOrigin::PlayingField;
+	}
+	if (draw_origin == DrawOrigin::World && screenscrolling)
+	{
+		if (!(current_region.map == scrolling_region.map && current_region.origin_screen == scrolling_region.origin_screen))
+			draw_origin = DrawOrigin::WorldScrollingNew;
+	}
+	else if (draw_origin == DrawOrigin::WorldScrollingOld)
+		draw_origin = DrawOrigin::World;
+	else if (draw_origin == DrawOrigin::WorldScrollingNew && !screenscrolling)
+		draw_origin = DrawOrigin::World;
+	script_drawing_commands[j].draw_origin = draw_origin;
+
 	switch(script_command)
 	{
 		case RECTR:

@@ -10,6 +10,7 @@ enum ViewportMode
 	VIEW_MODE_SCRIPT = 2L
 };
 
+// Defines the visible portion of the current region - what the player currently sees.
 class Viewport {
 	// @delete
 	internal Viewport();

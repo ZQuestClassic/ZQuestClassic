@@ -1375,6 +1375,39 @@ struct guydata
 #define LIFTFL_DROP_ON_HIT            0x00000008
 #define NUM_LIFTFL 4
 
+// Determines how to interpret coordinates given to `Screen->` draw functions.
+//
+// For discussion: https://discord.com/channels/876899628556091432/1120883971950125147/1319734005871939615
+enum class DrawOrigin
+{
+	// Equal to `World`, unless in a scrolling region (or scrolling to/from one), in which
+	// case this is equal to `PlayingField`.
+	Default,
+	// The origin `(0, 0)` is the top-left pixel of the playing field (where screen combos are drawn).
+	// Normally, this is just below the passive subscreen. But in extended height mode,
+	// this is the top-left pixel of the screen and so is equivalent to `Screen`.
+	//
+	// Use this to draw overlay effects across the playing field.
+	PlayingField,
+	// The origin `(0, 0)` is the top-left pixel of the screen.
+	//
+	// Use this to draw overlay effects across the entire screen.
+	Screen,
+	// The origin `(0, 0)` is the top-left pixel of the current region. Use this to draw with a
+	// sprite's coordinates.
+	//
+	// When scrolling, this is treated as `WorldScrollingNew` for new screens and `WorldScrollingOld`
+	// for old screens.
+	World,
+	// The origin `(0, 0)` is the top-left pixel of the new region being scrolled to.
+	WorldScrollingNew,
+	// The origin `(0, 0)` is the top-left pixel of the old region being scrolled away from.
+	WorldScrollingOld,
+
+	First = Default,
+	Last = WorldScrollingOld,
+};
+
 class refInfo
 {
 public:
@@ -1390,6 +1423,7 @@ public:
 	int32_t idata;
 	dword itemref, guyref, lwpn, ewpn;
 	dword screenref, npcdataref, bitmapref, spriteref, spritedataref, dmapsref, zmsgref, shopsref, untypedref;
+	DrawOrigin screen_draw_mode;
 	int32_t mapsref;
 	//to implement
 	dword dropsetref, pondref, warpringref, doorsref, zcoloursref, rgbref, paletteref, palcycleref, tunesref;

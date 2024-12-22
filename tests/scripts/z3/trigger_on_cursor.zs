@@ -14,6 +14,7 @@ ffc script TriggerOnCursor
 		{
 			int x = Input->Mouse[MOUSE_X];
 			int y = Input->Mouse[MOUSE_Y];
+			Screen->DrawOrigin = DRAW_ORIGIN_PLAYING_FIELD;
 			Screen->DrawCombo(3, x, y,
 				combo,
 				1,

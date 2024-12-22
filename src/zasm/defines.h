@@ -3135,8 +3135,9 @@ enum ASM_DEFINE
 #define SPRITE_MISCD            0x15E9
 
 #define VIEWPORT_TARGET         0x15EA
+#define SCREEN_DRAW_MODE        0x15EB
 
-#define NUMVARIABLES            0x15EB
+#define NUMVARIABLES            0x15EC
 
 //} End variables
 
