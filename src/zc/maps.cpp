@@ -118,12 +118,12 @@ bool is_valid_rpos(rpos_t rpos)
 
 bool is_in_scrolling_region()
 {
-	return current_region.region_id && current_region.screen_count > 1 && is_in_current_region(cur_screen);
+	return current_region.screen_count > 1;
 }
 
 bool is_extended_height_mode()
 {
-	return (DMaps[currdmap].flags & dmfEXTENDEDVIEWPORT) && current_region.screen_height > 1;
+	return current_region.screen_height > 1 && (DMaps[currdmap].flags & dmfEXTENDEDVIEWPORT);
 }
 
 // Returns 0 if this is not a region.

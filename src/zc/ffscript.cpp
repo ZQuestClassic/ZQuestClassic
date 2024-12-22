@@ -27656,9 +27656,9 @@ void do_drawing_command(const int32_t script_command)
 	DrawOrigin draw_origin = ri->screen_draw_mode;
 	if (draw_origin == DrawOrigin::Default)
 	{
-		// TODO z3 ! cache this.
-		bool in_region = is_in_scrolling_region() || (screenscrolling && (scrolling_region.screen_width > 1 || scrolling_region.screen_height > 1));
-		draw_origin = in_region ? DrawOrigin::World : DrawOrigin::PlayingField;
+		// TODO z3 sure about this? :)
+		bool in_scrolling_region = is_in_scrolling_region() || (screenscrolling && scrolling_region.screen_count > 1);
+		draw_origin = in_scrolling_region ? DrawOrigin::World : DrawOrigin::PlayingField;
 	}
 	if (draw_origin == DrawOrigin::World && screenscrolling)
 	{
@@ -27669,6 +27669,7 @@ void do_drawing_command(const int32_t script_command)
 		draw_origin = DrawOrigin::World;
 	else if (draw_origin == DrawOrigin::WorldScrollingNew && !screenscrolling)
 		draw_origin = DrawOrigin::World;
+
 	script_drawing_commands[j].draw_origin = draw_origin;
 
 	switch(script_command)

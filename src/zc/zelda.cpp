@@ -1620,6 +1620,7 @@ void init_game_vars(bool is_cont_game = false)
 	hero_scr = nullptr;
 	prev_hero_scr = nullptr;
 	viewport_mode = ViewportMode::CenterAndBound;
+	screenscrolling = false;
 	new_sub_indexes[sstACTIVE] = -1;
 	loadside = 0;
 	view_map_show_mode = 3;
