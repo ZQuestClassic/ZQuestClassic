@@ -28488,15 +28488,6 @@ static void for_every_nearby_screen_during_scroll(
 	set_clip_rect(framebuf, cl, ct, cr, cb);
 }
 
-static int dir_to_scr_offset(direction dir)
-{
-	if (dir == up) return -16;
-	if (dir == down) return 16;
-	if (dir == left) return -1;
-	if (dir == right) return 1;
-	return 0;
-}
-
 static void scrollscr_handle_dark(mapscr* newscr, mapscr* oldscr, const nearby_scrolling_screens_t& nearby_screens)
 {
 	clear_darkroom_bitmaps();
@@ -28641,7 +28632,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	{
 		destscr = hero_screen;
 		if (checkmaze(tmpscr, false) && !edge_of_dmap(scrolldir)) {
-			destscr += dir_to_scr_offset((direction)scrolldir);
+			destscr = screen_index_direction(destscr, (direction)scrolldir);
 		}
 	}
 
@@ -29689,8 +29680,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	clear_bitmap(msg_portrait_display_buf);
 	set_clip_state(msg_portrait_display_buf, 1);
 
-	new_region_offset_x = 0;
-	new_region_offset_y = 0;
 	viewport = new_viewport;
 	playing_field_offset = new_playing_field_offset;
 	x = new_hero_x;
