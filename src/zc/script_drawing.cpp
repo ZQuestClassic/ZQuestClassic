@@ -11814,7 +11814,6 @@ void do_primitives(BITMAP *targetBitmap, int32_t type, mapscr* theScreen, int32_
 	//[][DRAWCMD_BMP_TARGET]: bitmap pointer
 	//[][DRAWCMD_CURRENT_TARGET]: current render target at time command is queued? unused?
 
-	bool isTargetOffScreenBmp = false;
 	const int32_t type_mul_10000 = type * 10000;
 	const int32_t numDrawCommandsToProcess = script_drawing_commands.Count();
 	FFCore.numscriptdraws = numDrawCommandsToProcess;
@@ -11830,6 +11829,9 @@ void do_primitives(BITMAP *targetBitmap, int32_t type, mapscr* theScreen, int32_
 		BITMAP *bmp = zscriptDrawingRenderTarget->GetTargetBitmap(sdci[DRAWCMD_CURRENT_TARGET]);
 		int32_t xoffset;
 		int32_t yoffset;
+		// TODO: the way this is used is unusual. bitmaps can be of any size, yet this clips based on a fixed size.
+		// Should just remove all clipping at this layer, the underlying draw functions clip anyway.
+		bool isTargetOffScreenBmp;
 
 		if(!bmp)
 		{
@@ -11837,6 +11839,7 @@ void do_primitives(BITMAP *targetBitmap, int32_t type, mapscr* theScreen, int32_
 			xoffset = xoff;
 			yoffset = yoff;
 			bmp = targetBitmap;
+			isTargetOffScreenBmp = false;
 		}
 		else
 		{
