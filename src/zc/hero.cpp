@@ -28286,6 +28286,7 @@ struct rect_t
 struct nearby_scrolling_screens_t
 {
 	std::vector<nearby_scrolling_screen_t> screens;
+	// Only ever true during whistle warp scrolling.
 	bool has_overlapping_screens;
 	rect_t old_screens_rect;
 	rect_t new_screens_rect;
@@ -28473,8 +28474,6 @@ static void for_every_nearby_screen_during_scroll(
 
 	for (const auto& nearby_screen : nearby_screens.screens)
 	{
-		set_clip_rect(framebuf, cl, ct, cr, cb);
-
 		auto& rect = nearby_screen.is_new ? nearby_screens.new_screens_rect : nearby_screens.old_screens_rect;
 		int l = rect.l - viewport.x;
 		int t = rect.t - viewport.y + playing_field_offset;
@@ -28483,9 +28482,9 @@ static void for_every_nearby_screen_during_scroll(
 		add_clip_rect(framebuf, l, t, r, b);
 
 		fn(nearby_screen.screen_handles, nearby_screen.screen, nearby_screen.offx, nearby_screen.offy, nearby_screen.is_new);
-	}
 
-	set_clip_rect(framebuf, cl, ct, cr, cb);
+		set_clip_rect(framebuf, cl, ct, cr, cb);
+	}
 }
 
 static void scrollscr_handle_dark(mapscr* newscr, mapscr* oldscr, const nearby_scrolling_screens_t& nearby_screens)

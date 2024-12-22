@@ -47,9 +47,6 @@ extern HeroClass Hero;
 //    - trigger all secrets in region
 //    - multiple triggers across many screens in a region (multi-block puzzle)
 //    - perm secrets
-// sword beams / ewpns should only despawn when leaving viewport
-// ffc carryovers
-// zscript docs
 
 static std::map<int, std::vector<mapscr*>> temporary_screens;
 static mapscr* temporary_screens_currmap[136*7];
