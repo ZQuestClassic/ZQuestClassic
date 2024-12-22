@@ -6121,15 +6121,7 @@ int32_t get_register(int32_t arg)
 		case GAMEGUYCOUNTD:
 			ret=game->guys[(currmap * MAPSCRSNORMAL) + (ri->d[rINDEX] / 10000)]*10000;
 			break;
-			
-		case CURMAP:
-			ret=(1+currmap)*10000;
-			break;
-			
-		case CURSCR:
-			ret=cur_screen*10000;
-			break;
-			
+
 		case ALLOCATEBITMAPR:
 			ret=FFCore.get_free_bitmap();
 			break;

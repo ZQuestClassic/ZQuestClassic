@@ -585,7 +585,11 @@ std::optional<int32_t> game_get_register(int32_t reg)
 		case CURSCR:
 			ret=cur_screen*10000;
 			break;
-			
+
+		case HERO_SCREEN:
+			ret=hero_screen*10000;
+			break;
+
 		case ALLOCATEBITMAPR:
 			ret=FFCore.get_free_bitmap();
 			break;

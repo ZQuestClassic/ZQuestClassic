@@ -146,6 +146,10 @@ internal const Viewport Viewport;
 
 All sprites (such as `ffc`, `npc`, `lweapon`, etc.) have a `ScreenIndex` variable, which is the screen the sprite was created on. This variable does not update as the sprite moves around a region.
 
+### `Game->HeroScreen`
+
+This variable updates as the player moves around within a region.
+
 ### `mapdata` and `Screen`
 
 By default, the `Screen->` methods operate on the origin screen. Some script types (screen, ffc, weapon) operate on the screen that spawned the script. Player scripts operate on the screen the player is currently in.

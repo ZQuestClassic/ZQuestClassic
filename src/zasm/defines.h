@@ -3136,8 +3136,9 @@ enum ASM_DEFINE
 
 #define VIEWPORT_TARGET         0x15EA
 #define SCREEN_DRAW_MODE        0x15EB
+#define HERO_SCREEN             0x15EC
 
-#define NUMVARIABLES            0x15EC
+#define NUMVARIABLES            0x15ED
 
 //} End variables
 
