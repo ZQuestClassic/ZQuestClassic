@@ -111,7 +111,7 @@ dmapdata script ScrollingDebug
 				-1, -1, 0, 0, 0, 0, 0, true, OP_OPAQUE);
 
 			// This draws in the middle of the old screen.
-			// TODO z3 ! audit the new Game->Scrolling variables I added; and maybe add one to make this easier.
+			// TODO z3 ! audit/document the new Game->Scrolling variables I added; and maybe add one to make this easier.
 			Screen->DrawOrigin = DRAW_ORIGIN_WORLD_SCROLLING_OLD;
 			x = 256/2 + Game->Scrolling[SCROLL_OX] - Game->Scrolling[SCROLL_ORX];
 			y = 176/2 + Game->Scrolling[SCROLL_OY] - Game->Scrolling[SCROLL_ORY];

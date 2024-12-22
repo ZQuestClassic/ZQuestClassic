@@ -12,9 +12,11 @@ enum GravityIndex
 // Use as index for [Game->Scrolling].
 enum ScrollingIndex
 {
+	// The scrolling [Direction]. -1 if not scrolling.
 	SCROLL_DIR,
+	// The offset for the new screen, relative to the current viewport. 0 if not scrolling.
 	SCROLL_NX, SCROLL_NY,
-	// TODO z3 ! document
+	// The offset for the old screen, relative to the current viewport. 0 if not scrolling.
 	SCROLL_OX, SCROLL_OY,
 	SCROLL_NPX, SCROLL_NPY,
 	SCROLL_OPX, SCROLL_OPY,
@@ -367,7 +369,20 @@ class Game {
 	// @zasm_var GAMEGRAVITY
 	internal int Gravity[];
 
-	// values related to scrolling.
+	// An array of values related to scrolling. See [ScrollingIndex] for specifics.
+	//
+	// Drawing during scrolling requires taking into account that the viewport and coordinate
+	// systems are shifting. To anchor draw calls to a particular point, such as the screen
+	// being scrolled to, the old way looks like this:
+	//
+	//    Screen->DrawTile(x + Game->Scrolling[SCROLL_NX], y + Game->Scrolling[SCROLL_NY], ...)
+	//
+	// The above draws a tile at (`x, y`) relative to the new screen.
+	//
+	// This is deprecated by [Screen->DrawOrigin]. The new way to do the same is:
+	//
+	//    Screen->DrawMode = DRAW_MODE_WORLD; // This is the default in a scrolling region.
+	//    Screen->DrawTile(x, y, ...)
 	//
 	// Valid indices: [ScrollingIndex] (`SCROLL_`).
 	//
