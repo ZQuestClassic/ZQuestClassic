@@ -11799,12 +11799,11 @@ void do_primitives(BITMAP *targetBitmap, int32_t type, int32_t xoff, int32_t yof
 	//[][DRAWCMD_BMP_TARGET]: bitmap pointer
 	//[][DRAWCMD_CURRENT_TARGET]: current render target at time command is queued? unused?
 
-	bool isTargetOffScreenBmp = false;
 	const int32_t type_mul_10000 = type * 10000;
 	const int32_t numDrawCommandsToProcess = script_drawing_commands.Count();
 	FFCore.numscriptdraws =numDrawCommandsToProcess;
 
-	for(int32_t i(0); i < numDrawCommandsToProcess; ++i)
+	for (int i = 0; i < numDrawCommandsToProcess; i++)
 	{
 		auto& command = script_drawing_commands[i];
 		int32_t *sdci = &script_drawing_commands[i][0];
@@ -11812,17 +11811,18 @@ void do_primitives(BITMAP *targetBitmap, int32_t type, int32_t xoff, int32_t yof
 		if (sdci[1] != type_mul_10000)
 			continue;
 
-		int32_t xoffset = xoff;
-		int32_t yoffset = yoff;
 		DrawOrigin draw_origin = command.draw_origin;
 
 		// get the correct render target, if set.
 		BITMAP *bmp = zscriptDrawingRenderTarget->GetTargetBitmap(sdci[DRAWCMD_CURRENT_TARGET]);
-		
+		// TODO: the way this is used is unusual. bitmaps can be of any size, yet this clips based on a fixed size.
+		// Should just remove all clipping at this layer, the underlying draw functions clip anyway.
+		bool isTargetOffScreenBmp;
+
 		if(!bmp)
 		{
 			bmp = targetBitmap;
-			isTargetOffScreenBmp = false; // TODO z3 ! cherry-pick
+			isTargetOffScreenBmp = false;
 		}
 		else
 		{
@@ -11830,6 +11830,8 @@ void do_primitives(BITMAP *targetBitmap, int32_t type, int32_t xoff, int32_t yof
 			isTargetOffScreenBmp = true;
 		}
 
+		int32_t xoffset;
+		int32_t yoffset;
 		if (draw_origin == DrawOrigin::World)
 		{
 			xoffset = xoff - viewport.x;
