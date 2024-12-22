@@ -1,3 +1,13 @@
+// A region is a set of map screens that the player can freely move within.
+//
+// The top-left screen of a region is called the "origin screen". [Game->CurScreen] is
+// always equal to the current region's origin screen.
+//
+// A region with just a single screen is technically still a region, but is referred to
+// as a "non-scrolling region". Regions larger than one screen are "scrolling regions".
+//
+// The visible porition of the region currently visible is defined by the [Viewport].
+//
 // Access with `Region->`.
 class Region {
 	// @delete
@@ -58,10 +68,4 @@ class Region {
 }
 
 // The region the [Hero] is currently in.
-//
-// A region is a set of map screens that can be freely scrolled between.
-// An region of 1 screen is technically still a region, but is referred to
-// as a "non-scrolling region".
-//
-// The visible porition of the region currently visible is defined by the [Viewport].
 internal const Region Region;

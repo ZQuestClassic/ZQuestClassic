@@ -266,8 +266,8 @@ class mapdata {
 	// @zasm_var MAPDATALAYERINVIS
 	internal bool LayerInvisible[];
 
-	// If false, the given layer of script draws will be disabled on this
-	// screen.
+	// If false, the given layer of script draws will be disabled. Only applies
+	// if this screen is the origin screen of the current [Region].
 	//
 	// @zasm_var MAPDATASCRIPTDRAWS
 	internal bool ScriptDraws[];
