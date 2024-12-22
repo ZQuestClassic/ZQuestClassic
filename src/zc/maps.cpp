@@ -4680,28 +4680,32 @@ void draw_screen(bool showhero, bool runGeneric)
 			}
 		}
 	}
-	
-	for_every_nearby_screen(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy) {
-		mapscr* base_scr = screen_handles[0].base_scr;
 
-		if (get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
-		{
+	if (get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
+	{
+		for_every_nearby_screen(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy) {
 			do_layer(scrollbuf, -2, screen_handles[0], offx, offy); // push blocks!
 			if(get_qr(qr_PUSHBLOCK_LAYER_1_2))
 			{
 				do_layer(scrollbuf, -2, screen_handles[1], offx, offy); // push blocks!
 				do_layer(scrollbuf, -2, screen_handles[2], offx, offy); // push blocks!
 			}
-			// TODO z3 ?
-			do_primitives(scrollbuf, SPLAYER_PUSHBLOCK, offx, offy + playing_field_offset);
-		}
+		});
 
-		// Show walkflags cheat
-		do_walkflags(base_scr, offx, offy, 2);
-		do_effectflags(base_scr, offx, offy, 2);
-	});
+		do_primitives(scrollbuf, SPLAYER_PUSHBLOCK, 0, playing_field_offset);
+	}
 
-	do_walkflags(0, 0);
+	// Show walkflags cheat
+	if (show_walkflags || show_effectflags)
+	{
+		for_every_nearby_screen(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy) {
+			mapscr* base_scr = screen_handles[0].base_scr;
+			do_walkflags(base_scr, offx, offy, 2);
+			do_effectflags(base_scr, offx, offy, 2);
+		});
+
+		do_walkflags(0, 0);
+	}
 
 	putscrdoors(nearby_screens, scrollbuf, 0, playing_field_offset);
 	

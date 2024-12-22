@@ -29516,28 +29516,31 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			}
 		});
 
-		for_every_nearby_screen_during_scroll(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int offx, int offy, bool is_new_screen) {
-			mapscr* base_scr = screen_handles[0].base_scr;
-
-			if (get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
-			{
+		if (get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
+		{
+			for_every_nearby_screen_during_scroll(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int offx, int offy, bool is_new_screen) {
 				do_layer(framebuf, -2, screen_handles[0], offx, offy);
 				if (get_qr(qr_PUSHBLOCK_LAYER_1_2))
 				{
 					do_layer(framebuf, -2, screen_handles[1], offx, offy);
 					do_layer(framebuf, -2, screen_handles[2], offx, offy);
 				}
-				// TODO z3 ??
-				if (is_new_screen)
-					do_primitives(framebuf, SPLAYER_PUSHBLOCK, 0, playing_field_offset);
-			}
+			});
 
-			int tempscreen = is_new_screen ? 2 : 3;
-			do_walkflags(base_scr, offx, offy, tempscreen); // show walkflags if the cheat is on
-			do_effectflags(base_scr, offx, offy, tempscreen); // show effectflags if the cheat is on
-		});
+			do_primitives(framebuf, SPLAYER_PUSHBLOCK, 0, playing_field_offset);
+		}
 
-		do_walkflags(nx, ny);
+		if (show_walkflags || show_effectflags)
+		{
+			for_every_nearby_screen_during_scroll(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int offx, int offy, bool is_new_screen) {
+				mapscr* base_scr = screen_handles[0].base_scr;
+				int tempscreen = is_new_screen ? 2 : 3;
+				do_walkflags(base_scr, offx, offy, tempscreen); // show walkflags if the cheat is on
+				do_effectflags(base_scr, offx, offy, tempscreen); // show effectflags if the cheat is on
+			});
+
+			do_walkflags(nx, ny);
+		}
 
 		for_every_nearby_screen_during_scroll(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int offx, int offy, bool is_new_screen) {
 			offy += playing_field_offset;
