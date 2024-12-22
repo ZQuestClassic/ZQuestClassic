@@ -29067,7 +29067,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 
 	// change Hero's state if entering water
 	int32_t ahead = lookahead(scrolldir, new_hero_x, new_hero_y + 8);
-	auto [lookaheadx, lookaheady] = lookahead_coords(scrolldir, new_hero_x + 8, new_hero_y + bigHitbox?8:12);
+	auto [lookaheadx, lookaheady] = lookahead_coords(scrolldir, new_hero_x + 8, new_hero_y + (bigHitbox?8:12));
 	auto [wateraheadx1, wateraheady1] = lookahead_coords(scrolldir, new_hero_x + 4, new_hero_y + 9);
 	auto [wateraheadx2, wateraheady2] = lookahead_coords(scrolldir, new_hero_x + 11, new_hero_y + 15);
 	
