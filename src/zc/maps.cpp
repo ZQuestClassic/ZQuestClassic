@@ -4300,7 +4300,7 @@ void calc_darkroom_combos(int screen, int offx, int offy)
 			newcombo const& cmb = combobuf[scr->data[q]];
 			if(cmb.type == cTORCH)
 			{
-				do_torch_combo(cmb, COMBOX(q)+8+offx, COMBOY(q)+8+offy, darkscr_bmp_z3);
+				do_torch_combo(cmb, COMBOX(q)+8+offx, COMBOY(q)+8+offy, darkscr_bmp);
 			}
 		}
 	}
@@ -4314,7 +4314,7 @@ void calc_darkroom_combos(int screen, int offx, int offy)
 		{
 			int cx = scr->ffcs[q].x.getInt()+(scr->ffEffectWidth(q)/2)+offx;
 			int cy = (scr->ffcs[q].y.getInt())+(scr->ffEffectHeight(q)/2)+offy;
-			do_torch_combo(cmb, cx, cy, darkscr_bmp_z3);
+			do_torch_combo(cmb, cx, cy, darkscr_bmp);
 		}
 	}
 }
@@ -5083,8 +5083,8 @@ void draw_screen(bool showhero, bool runGeneric)
 				if (!should_be_dark)
 				{
 					offy += playing_field_offset;
-					rectfill(darkscr_bmp_z3, offx - viewport.x, offy - viewport.y, offx - viewport.x + 256 - 1, offy - viewport.y + 176 - 1, 0);
-					rectfill(darkscr_bmp_z3_trans, offx - viewport.x, offy - viewport.y, offx - viewport.x + 256 - 1, offy - viewport.y + 176 - 1, 0);
+					rectfill(darkscr_bmp, offx - viewport.x, offy - viewport.y, offx - viewport.x + 256 - 1, offy - viewport.y + 176 - 1, 0);
+					rectfill(darkscr_bmp_trans, offx - viewport.x, offy - viewport.y, offx - viewport.x + 256 - 1, offy - viewport.y + 176 - 1, 0);
 				}
 			});
 		}
@@ -5097,21 +5097,21 @@ void draw_screen(bool showhero, bool runGeneric)
 		set_clip_rect(framebuf, 0, playing_field_offset, framebuf->w, framebuf->h);
 		if(this_screen->flags9 & fDARK_DITHER) //dither the entire bitmap
 		{
-			ditherblit(darkscr_bmp_z3,darkscr_bmp_z3,0,game->get_dither_type(),game->get_dither_arg());
-			ditherblit(darkscr_bmp_z3_trans,darkscr_bmp_z3_trans,0,game->get_dither_type(),game->get_dither_arg());
+			ditherblit(darkscr_bmp,darkscr_bmp,0,game->get_dither_type(),game->get_dither_arg());
+			ditherblit(darkscr_bmp_trans,darkscr_bmp_trans,0,game->get_dither_type(),game->get_dither_arg());
 		}
 		
 		color_map = &trans_table2;
 		if(this_screen->flags9 & fDARK_TRANS) //draw the dark as transparent
 		{
-			draw_trans_sprite(framebuf, darkscr_bmp_z3, 0, 0);
+			draw_trans_sprite(framebuf, darkscr_bmp, 0, 0);
 			if(get_qr(qr_NEWDARK_TRANS_STACKING))
-				draw_trans_sprite(framebuf, darkscr_bmp_z3_trans, 0, 0);
+				draw_trans_sprite(framebuf, darkscr_bmp_trans, 0, 0);
 		}
 		else
 		{
-			masked_blit(darkscr_bmp_z3, framebuf, 0, 0, 0, 0, framebuf->w, framebuf->h);
-			draw_trans_sprite(framebuf, darkscr_bmp_z3_trans, 0, 0);
+			masked_blit(darkscr_bmp, framebuf, 0, 0, 0, 0, framebuf->w, framebuf->h);
+			draw_trans_sprite(framebuf, darkscr_bmp_trans, 0, 0);
 		}
 		color_map = &trans_table;
 		
@@ -5147,21 +5147,21 @@ void draw_screen(bool showhero, bool runGeneric)
 		set_clip_rect(framebuf, 0, playing_field_offset, framebuf->w, framebuf->h);
 		if(this_screen->flags9 & fDARK_DITHER) //dither the entire bitmap
 		{
-			ditherblit(darkscr_bmp_z3,darkscr_bmp_z3,0,game->get_dither_type(),game->get_dither_arg());
-			ditherblit(darkscr_bmp_z3_trans,darkscr_bmp_z3_trans,0,game->get_dither_type(),game->get_dither_arg());
+			ditherblit(darkscr_bmp,darkscr_bmp,0,game->get_dither_type(),game->get_dither_arg());
+			ditherblit(darkscr_bmp_trans,darkscr_bmp_trans,0,game->get_dither_type(),game->get_dither_arg());
 		}
 		
 		color_map = &trans_table2;
 		if(this_screen->flags9 & fDARK_TRANS) //draw the dark as transparent
 		{
-			draw_trans_sprite(framebuf, darkscr_bmp_z3, 0, 0);
+			draw_trans_sprite(framebuf, darkscr_bmp, 0, 0);
 			if(get_qr(qr_NEWDARK_TRANS_STACKING))
-				draw_trans_sprite(framebuf, darkscr_bmp_z3_trans, 0, 0);
+				draw_trans_sprite(framebuf, darkscr_bmp_trans, 0, 0);
 		}
 		else
 		{
-			masked_blit(darkscr_bmp_z3, framebuf, 0, 0, 0, 0, framebuf->w, framebuf->h);
-			draw_trans_sprite(framebuf, darkscr_bmp_z3_trans, 0, 0);
+			masked_blit(darkscr_bmp, framebuf, 0, 0, 0, 0, framebuf->w, framebuf->h);
+			draw_trans_sprite(framebuf, darkscr_bmp_trans, 0, 0);
 		}
 		color_map = &trans_table;
 		
@@ -5776,8 +5776,8 @@ void openshutters(mapscr* scr)
 
 void clear_darkroom_bitmaps()
 {
-	clear_to_color(darkscr_bmp_z3, game->get_darkscr_color());
-	clear_to_color(darkscr_bmp_z3_trans, game->get_darkscr_color());
+	clear_to_color(darkscr_bmp, game->get_darkscr_color());
+	clear_to_color(darkscr_bmp_trans, game->get_darkscr_color());
 }
 
 void load_a_screen_and_layers(int dmap, int map, int screen, int ldir)

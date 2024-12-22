@@ -28253,7 +28253,7 @@ void HeroClass::calc_darkroom_hero(int32_t x1, int32_t y1)
 	int32_t hy = y.getInt() - y1 + 8;
 	
 	itemdata& lamp = itemsbuf[lampid];
-	handle_lighting(hx, hy, lamp.misc1, lamp.misc2, dir, darkscr_bmp_z3);
+	handle_lighting(hx, hy, lamp.misc1, lamp.misc2, dir, darkscr_bmp);
 }
 
 struct nearby_scrolling_screen_t
@@ -28499,8 +28499,8 @@ static void scrollscr_handle_dark(mapscr* newscr, mapscr* oldscr, const nearby_s
 		if (!should_be_dark)
 		{
 			offy += playing_field_offset;
-			rectfill(darkscr_bmp_z3, offx - viewport.x, offy - viewport.y, offx - viewport.x + 256 - 1, offy - viewport.y + 176 - 1, 0);
-			rectfill(darkscr_bmp_z3_trans, offx - viewport.x, offy - viewport.y, offx - viewport.x + 256 - 1, offy - viewport.y + 176 - 1, 0);
+			rectfill(darkscr_bmp, offx - viewport.x, offy - viewport.y, offx - viewport.x + 256 - 1, offy - viewport.y + 176 - 1, 0);
+			rectfill(darkscr_bmp_trans, offx - viewport.x, offy - viewport.y, offx - viewport.x + 256 - 1, offy - viewport.y + 176 - 1, 0);
 		}
 	});
 
@@ -28527,20 +28527,20 @@ static void scrollscr_handle_dark(mapscr* newscr, mapscr* oldscr, const nearby_s
 
 		if (base_scr->flags9 & fDARK_DITHER)
 		{
-			set_clip_rect(darkscr_bmp_z3, left, top, left + 256, top + 176);
-			set_clip_rect(darkscr_bmp_z3_trans, left, top, left + 256, top + 176);
-			ditherblit_clipped(darkscr_bmp_z3,darkscr_bmp_z3,0,game->get_dither_type(),game->get_dither_arg());
-			ditherblit_clipped(darkscr_bmp_z3_trans,darkscr_bmp_z3_trans,0,game->get_dither_type(),game->get_dither_arg());
-			set_clip_rect(darkscr_bmp_z3, 0, 0, darkscr_bmp_z3->w, darkscr_bmp_z3->h);
-			set_clip_rect(darkscr_bmp_z3_trans, 0, 0, darkscr_bmp_z3_trans->w, darkscr_bmp_z3_trans->h);
+			set_clip_rect(darkscr_bmp, left, top, left + 256, top + 176);
+			set_clip_rect(darkscr_bmp_trans, left, top, left + 256, top + 176);
+			ditherblit_clipped(darkscr_bmp,darkscr_bmp,0,game->get_dither_type(),game->get_dither_arg());
+			ditherblit_clipped(darkscr_bmp_trans,darkscr_bmp_trans,0,game->get_dither_type(),game->get_dither_arg());
+			set_clip_rect(darkscr_bmp, 0, 0, darkscr_bmp->w, darkscr_bmp->h);
+			set_clip_rect(darkscr_bmp_trans, 0, 0, darkscr_bmp_trans->w, darkscr_bmp_trans->h);
 		}
 
 		if (base_scr->flags9 & fDARK_TRANS) //draw the dark as transparent
-			draw_trans_sprite(framebuf, darkscr_bmp_z3, 0, 0);
+			draw_trans_sprite(framebuf, darkscr_bmp, 0, 0);
 		else
-			masked_blit(darkscr_bmp_z3, framebuf, 0, 0, 0, 0, framebuf->w, framebuf->h);
+			masked_blit(darkscr_bmp, framebuf, 0, 0, 0, 0, framebuf->w, framebuf->h);
 	});
-	draw_trans_sprite(framebuf, darkscr_bmp_z3_trans, 0, 0);
+	draw_trans_sprite(framebuf, darkscr_bmp_trans, 0, 0);
 	color_map = &trans_table;
 
 	set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
@@ -29666,8 +29666,10 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		}
 	}
 
-	// TODO z3 old scrolling code didn't clear the darkroom bitmaps at end of scroll, so first frame will have some lighting from
-	// previous screen... game_loop clears these bitmaps but that should be moved to draw_screen.
+	// TODO(replays): Prior to z3 refactor, old scrolling code didn't clear the darkroom bitmaps at end of scroll,
+	// so the first frame drawn had some lighting from previous screen... 
+	// game_loop clears these bitmaps but that should be moved to advanceframe, and these other calls to `clear_darkroom_bitmaps`
+	// deleted.
 	if (draw_dark && !replay_is_active())
 	{
 		clear_darkroom_bitmaps();

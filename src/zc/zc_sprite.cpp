@@ -19,7 +19,7 @@ void sprite::handle_sprlighting()
 	int y0 = y.getInt()+(hit_height/2);
 	if(!(get_scr_for_world_xy(x0, y0)->flags & fDARK)) return;
 
-	handle_lighting(x0, y0 + playing_field_offset,glowShape,glowRad,dir, darkscr_bmp_z3);
+	handle_lighting(x0, y0 + playing_field_offset,glowShape,glowRad,dir, darkscr_bmp);
 }
 
 bool is_conveyor(int32_t type)

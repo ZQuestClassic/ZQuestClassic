@@ -224,7 +224,7 @@ extern BITMAP   *framebuf, *menu_bmp, *gui_bmp, *scrollbuf, *scrollbuf_old, *tmp
 				*msg_menu_bmp_buf, *msg_portrait_bmp_buf, *pricesdisplaybuf, *tb_page[3],
 				*temp_buf2, *prim_bmp,
 				*script_menu_buf, *f6_menu_buf;
-extern BITMAP   *darkscr_bmp_z3, *darkscr_bmp_z3_trans;
+extern BITMAP   *darkscr_bmp, *darkscr_bmp_trans;
 extern BITMAP *lightbeam_bmp;
 extern bool lightbeam_present;
 #define NUM_ZCMOUSE 1

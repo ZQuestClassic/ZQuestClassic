@@ -31761,7 +31761,7 @@ int32_t run_script_int(bool is_jitted)
 				if(dith_type >= 0) dith_type /= 10000;
 				if(dith_arg >= 0) dith_arg /= 10000;
 				
-				doDarkroomCircle(cx,cy,radius,darkscr_bmp_z3,nullptr,dith_rad,transp_rad,dith_type,dith_arg);
+				doDarkroomCircle(cx,cy,radius,darkscr_bmp,nullptr,dith_rad,transp_rad,dith_type,dith_arg);
 				break;
 			}
 			case DRAWLIGHT_SQUARE:
@@ -31782,7 +31782,7 @@ int32_t run_script_int(bool is_jitted)
 				if(dith_type >= 0) dith_type /= 10000;
 				if(dith_arg >= 0) dith_arg /= 10000;
 				
-				doDarkroomSquare(cx,cy,radius,darkscr_bmp_z3,nullptr,dith_rad,transp_rad,dith_type,dith_arg);
+				doDarkroomSquare(cx,cy,radius,darkscr_bmp,nullptr,dith_rad,transp_rad,dith_type,dith_arg);
 				break;
 			}
 			case DRAWLIGHT_CONE:
@@ -31806,7 +31806,7 @@ int32_t run_script_int(bool is_jitted)
 				if(dith_type >= 0) dith_type /= 10000;
 				if(dith_arg >= 0) dith_arg /= 10000;
 
-				doDarkroomCone(cx,cy,radius,dir,darkscr_bmp_z3,nullptr,dith_rad,transp_rad,dith_type,dith_arg);
+				doDarkroomCone(cx,cy,radius,dir,darkscr_bmp,nullptr,dith_rad,transp_rad,dith_type,dith_arg);
 				break;
 			}
 			
