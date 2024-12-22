@@ -29329,11 +29329,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		if (pfo_mode == 0)
 		{
 			if (pfo_counter > 0)
-			{
 				do_pfo_adjust = true;
-				if (pfo_counter)
-					scroll_counter++;
-			}
 		}
 		else
 		{
@@ -29349,9 +29345,13 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			int dpfo = sign(new_playing_field_offset - old_original_playing_field_offset);
 			pfo_counter = MAX(0, pfo_counter - 4);
 			playing_field_offset = new_playing_field_offset - pfo_counter * dpfo;
-			if (pfo_mode == 0)
-				viewport.y = initial_viewport.y + step * move_counter * dy + (playing_field_offset - old_original_playing_field_offset);
 			viewport.h = 232 - playing_field_offset;
+			if (pfo_mode == 0)
+			{
+				viewport.y = initial_viewport.y + step * move_counter * dy + (playing_field_offset - old_original_playing_field_offset);
+				if (pfo_counter)
+					scroll_counter++;
+			}
 		}
 
 		if (lift_wpn)
