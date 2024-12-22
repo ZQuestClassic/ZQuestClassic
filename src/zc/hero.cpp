@@ -10804,21 +10804,19 @@ void HeroClass::land_on_ground()
 		return;
 	}
 
-	// TODO z3 ! z3-ify
-	auto cpos = COMBOPOS(x+8,y+(sideview_mode()?16:12));
+	auto rpos = COMBOPOS_REGION(x+8, y+(sideview_mode()?16:12));
 	bool played_land_sfx = false;
-	for(int q = 0; q < 7; ++q)
+	for (int q = 0; q < 7; ++q)
 	{
-		mapscr* lyr = FFCore.tempScreens[q];
-		auto cid = lyr->data[cpos];
-		newcombo const& cmb = combobuf[cid];
-		byte csfx = cmb.sfx_landing;
-		if(csfx)
+		auto rpos_handle = get_rpos_handle(rpos, q);
+		byte csfx = rpos_handle.combo().sfx_landing;
+		if (csfx)
 		{
 			sfx(csfx, x.getInt());
 			played_land_sfx = true;
 		}
 	}
+
 	if(!played_land_sfx && QMisc.miscsfx[sfxHERO_LANDS])
 		sfx(QMisc.miscsfx[sfxHERO_LANDS], x.getInt());
 }
