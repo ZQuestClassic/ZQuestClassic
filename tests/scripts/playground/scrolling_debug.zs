@@ -96,6 +96,13 @@ dmapdata script ScrollingDebug
 		int h = Viewport->Height - 9;
 		Screen->Rectangle(7, x+4, y+4, x+w-4, y+h-4, 0x72, 1, 0, 0, 0, false, 128);
 
+		// TODO z3 ! equivalent?
+		// Screen->DrawOrigin = DRAW_ORIGIN_WORLD;
+		// Waitdraw();
+		// x = Viewport->X;
+		// y = Viewport->Y;
+		// Screen->Rectangle(7, x+4, y+4, x+w-4, y+h-4, 0x72, 1, 0, 0, 0, false, 128);
+
 		if (Game->Scrolling[SCROLL_DIR] != -1)
 		{
 			// This draws where the hero is.

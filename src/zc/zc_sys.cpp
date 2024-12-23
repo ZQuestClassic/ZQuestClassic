@@ -4782,6 +4782,7 @@ void blackscr(int32_t fcnt,bool showsubscr)
 
 void openscreen(int32_t shape)
 {
+	z3_update_viewport();
 	is_opening_screen = true;
 	reset_pal_cycling();
 	black_opening_count=0;

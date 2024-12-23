@@ -2226,7 +2226,6 @@ int32_t init_game()
 	
 	
 	if ( Hero.getDontDraw() < 2 ) { Hero.setDontDraw(0); }
-	z3_update_viewport();
 	initZScriptGlobalScript(GLOBAL_SCRIPT_GAME); // before 'openscreen' incase FFCore.warpScriptCheck()
 	openscreen();
 	dointro();
@@ -2412,7 +2411,6 @@ int32_t cont_game()
 	update_subscreens();
 	Playing=true;
 	map_bkgsfx(true);
-	z3_update_viewport();
 	openscreen();
 	show_subscreen_numbers=true;
 	show_subscreen_life=true;
@@ -2517,7 +2515,6 @@ void restart_level()
 	}
 	
 	currcset=DMaps[currdmap].color;
-	z3_update_viewport();
 	openscreen();
 	map_bkgsfx(true);
 	Hero.set_respawn_point();
@@ -3183,8 +3180,6 @@ void game_loop()
 		runDrunkRNG();
 		clear_darkroom_bitmaps();
 		Hero.check_platform_ffc();
-		if (!freeze_viewport_update && !HeroInWhistleWarp())
-			z3_update_viewport();
 		
 		// Three kinds of freezes: freeze, freezemsg, freezeff
 		
@@ -3324,6 +3319,10 @@ void game_loop()
 					else Hero.post_animate();
 					if(GameFlags & GAMEFLAG_RESET_GAME_LOOP) break; //break the for()
 				}
+
+				if (!screenscrolling && !HeroInWhistleWarp())
+					z3_update_viewport();
+
 				if(GameFlags & GAMEFLAG_RESET_GAME_LOOP) continue; //continue the game_loop while(true)
 			}
 			FFCore.runGenericPassiveEngine(SCR_TIMING_POST_PLAYER_ANIMATE);

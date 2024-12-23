@@ -25933,6 +25933,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 
 		x += region_scr_dx * 256;
 		y += region_scr_dy * 176;
+		z3_update_viewport();
 		
 		if(dlevel)
 		{
@@ -26299,7 +26300,6 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 
 		x += region_scr_dx * 256;
 		y += region_scr_dy * 176;
-
 		z3_update_viewport();
 		
 		markBmap(dir^1);
@@ -26490,6 +26490,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 
 			x += region_scr_dx * 256;
 			y += region_scr_dy * 176;
+			z3_update_viewport();
 			
 			markBmap(dir^1);
 			
@@ -27115,8 +27116,7 @@ void HeroClass::walkdown(bool opening) //entering cave
     Lwpns.clear();
     Ewpns.clear();
     items.clear();
-    
-	freeze_viewport_update = true;
+
     for(int32_t i=0; i<64; i++)
     {
         herostep();
@@ -27127,6 +27127,7 @@ void HeroClass::walkdown(bool opening) //entering cave
         if((i&3)==3)
 		{
             ++y;
+			z3_update_viewport();
 		}
 
         draw_screen();
@@ -27135,8 +27136,7 @@ void HeroClass::walkdown(bool opening) //entering cave
         if(Quit)
             break;
     }
-	freeze_viewport_update = false;
-    
+
     action=none; FFCore.setHeroAction(none);
 }
 
@@ -27177,7 +27177,6 @@ void HeroClass::walkdown2(bool opening) //exiting cave 2
     Ewpns.clear();
     items.clear();
     
-	freeze_viewport_update = true;
     for(int32_t i=0; i<64; i++)
     {
         herostep();
@@ -27186,9 +27185,10 @@ void HeroClass::walkdown2(bool opening) //exiting cave 2
             hero_count=(hero_count+1)%16;
             
         if((i&3)==3)
-		{
+        {
             ++y;
-		}
+            z3_update_viewport();
+        }
             
         draw_screen();
         advanceframe(true);
@@ -27196,7 +27196,6 @@ void HeroClass::walkdown2(bool opening) //exiting cave 2
         if(Quit)
             break;
     }
-	freeze_viewport_update = false;
     
 	
     action=none; FFCore.setHeroAction(none);
@@ -27236,7 +27235,6 @@ void HeroClass::walkup(bool opening) //exiting cave
     Ewpns.clear();
     items.clear();
 
-	freeze_viewport_update = true;
     for(int32_t i=0; i<64; i++)
     {
         herostep();
@@ -27245,9 +27243,10 @@ void HeroClass::walkup(bool opening) //exiting cave
             hero_count=(hero_count+1)%16;
             
         if((i&3)==0)
-		{
+        {
             --y;
-		}
+            z3_update_viewport();
+        }
             
         draw_screen();
         advanceframe(true);
@@ -27256,7 +27255,6 @@ void HeroClass::walkup(bool opening) //exiting cave
             break;
     }
 
-	freeze_viewport_update = false;
     map_bkgsfx(true);
     loadside=dir^1;
     action=none; FFCore.setHeroAction(none);
@@ -27296,7 +27294,10 @@ void HeroClass::walkup2(bool opening) //entering cave2
             hero_count=(hero_count+1)%16;
             
         if((i&3)==0)
+        {
             --y;
+            z3_update_viewport();
+        }
             
         draw_screen();
         advanceframe(true);
@@ -27381,6 +27382,7 @@ void HeroClass::stepout() // Step out of item cellars and passageways
 
 	x += region_scr_dx * 256;
 	y += region_scr_dy * 176;
+	z3_update_viewport();
     
     if(x+y == 0)
         x = y = 80;
@@ -27826,10 +27828,7 @@ void HeroClass::checkscroll()
 				}
 
 				if (maze_state.transition_wipe >= 0)
-				{
-					z3_update_viewport();
 					openscreen(maze_state.transition_wipe);
-				}
 			}
 			else if (!maze_state.loopy)
 			{
@@ -27842,10 +27841,7 @@ void HeroClass::checkscroll()
 				if (advance_dir == down)  y = (z3_get_region_relative_dy(maze_screen)) * 176;
 
 				if (maze_state.transition_wipe >= 0)
-				{
-					z3_update_viewport();
 					openscreen(maze_state.transition_wipe);
-				}
 			}
 		}
 
@@ -28118,7 +28114,13 @@ void HeroClass::run_scrolling_script(int32_t scrolldir, int32_t cx, int32_t sx, 
 		break;
 	}
 
+	// viewport.x -= new_region_offset_x;
+	// viewport.y -= new_region_offset_y;
+
 	run_scrolling_script_int(waitdraw);
+
+	// viewport.x += new_region_offset_x;
+	// viewport.y += new_region_offset_y;
 	
 	x = storex, y = storey;
 	action=lastaction; FFCore.setHeroAction(lastaction);

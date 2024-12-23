@@ -58,7 +58,6 @@ static int current_region_screen_count;
 static std::pair<const rpos_handle_t*, int> current_region_rpos_handles_scr[136];
 
 viewport_t viewport;
-bool freeze_viewport_update;
 static int viewport_sprite_uid;
 ViewportMode viewport_mode;
 int world_w, world_h;
@@ -76,7 +75,6 @@ void maps_init_game_vars()
 	viewport = {};
 	viewport_mode = ViewportMode::CenterAndBound;
 	viewport_sprite_uid = 1;
-	freeze_viewport_update = false;
 }
 
 static region_ids_t current_region_ids;
@@ -4520,9 +4518,6 @@ static void putscrdoors(const nearby_screens_t& nearby_screens, BITMAP *dest, in
 
 void draw_screen(bool showhero, bool runGeneric)
 {
-	if (!freeze_viewport_update && !screenscrolling && !HeroInWhistleWarp())
-		z3_update_viewport();
-
 	mapscr* this_screen = tmpscr;
 	clear_info_bmp();
 	if((GameFlags & (GAMEFLAG_SCRIPTMENU_ACTIVE|GAMEFLAG_F6SCRIPT_ACTIVE))!=0)
