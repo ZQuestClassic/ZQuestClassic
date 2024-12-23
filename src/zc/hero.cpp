@@ -29695,15 +29695,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	if (lift_wpn)
 		lift_wpn->yofs = playing_field_offset - 2;
 
-	// TODO z3 ! rm. really should separate quake draw offset from playing field offset.
-	// if (scrolling_extended_height)
-	// 	playing_field_offset = is_extended_height_mode() ? 0 : 56;
-	// else
-	// 	playing_field_offset = old_original_playing_field_offset;
-	// playing_field_offset += old_playing_field_quake_offset;
-	// if (!scrolling_extended_height)
-	// 	playing_field_offset = old_original_playing_field_offset;
-	
 	if((z > 0 || fakez > 0) && isSideViewHero())
 	{
 		y -= z;
