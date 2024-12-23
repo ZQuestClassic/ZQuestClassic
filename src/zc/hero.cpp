@@ -29026,14 +29026,14 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	currmap = destmap;
 
 	loadscr(destdmap, destscr, scrolldir, overlay);
+	mapscr* newscr = get_scr(destmap, destscr);
 
 	// For the duration of the scrolling, the old region coordinate system is used for all drawing operations.
 	// This means that the new screens are drawn with offsets relative to the old coordinate system.
 	// This is handled in get_nearby_scrolling_screens.
 	auto nearby_screens = get_nearby_scrolling_screens(old_temporary_screens, old_viewport, new_viewport);
 
-	mapscr* newscr = get_scr(destmap, destscr);
-	// TODO z3
+	// Start scrolling with the previous pfo, and adjust during scrolling if necessary.
 	int new_playing_field_offset = playing_field_offset;
 	playing_field_offset = old_original_playing_field_offset;
 
