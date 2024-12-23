@@ -28114,13 +28114,19 @@ void HeroClass::run_scrolling_script(int32_t scrolldir, int32_t cx, int32_t sx, 
 		break;
 	}
 
-	// viewport.x -= new_region_offset_x;
-	// viewport.y -= new_region_offset_y;
+	if (scrolling_using_new_region_coords)
+	{
+		viewport.x -= new_region_offset_x;
+		viewport.y -= new_region_offset_y;
+	}
 
 	run_scrolling_script_int(waitdraw);
 
-	// viewport.x += new_region_offset_x;
-	// viewport.y += new_region_offset_y;
+	if (scrolling_using_new_region_coords)
+	{
+		viewport.x += new_region_offset_x;
+		viewport.y += new_region_offset_y;
+	}
 	
 	x = storex, y = storey;
 	action=lastaction; FFCore.setHeroAction(lastaction);
@@ -28859,6 +28865,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	auto hero_x_before_scripts = x;
 	auto hero_y_before_scripts = y;
 
+	// Wait one frame. This still uses the old region's coordinates.
 	int32_t lastattackclk = attackclk, lastspins = spins, lastcharging = charging; bool lasttapping = tapping;
 	actiontype lastaction = action;
 	{
@@ -28959,7 +28966,10 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	int destmap = currmap;
 	currmap = scrolling_map;
 
-	// Wait
+	// Wait at least one frame, possibly 32.
+	// These frames will use the old region's coordinates (since scrolling_using_new_region_coords is false),
+	// but the hero position will be in the new region's coordinates (see HeroClass::run_scrolling_script).
+	scrolling_using_new_region_coords = false;
 	{
 		int wait_counter = scx + 1;
 		while (wait_counter < 32)
@@ -28991,6 +29001,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		}
 	}
 
+	scrolling_using_new_region_coords = true;
 	script_drawing_commands.Clear();
 	FFCore.runGenericPassiveEngine(SCR_TIMING_START_FRAME);
 
@@ -29711,6 +29722,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	warpy   = -1;
 	
 	screenscrolling = false;
+	scrolling_using_new_region_coords = false;
 	scrolling_destdmap = -1;
 	memset(FFCore.ScrollingData, 0, sizeof(int32_t) * SZ_SCROLLDATA);
 	FFCore.ScrollingData[SCROLLDATA_DIR] = -1;

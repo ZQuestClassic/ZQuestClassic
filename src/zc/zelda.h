@@ -314,6 +314,7 @@ extern mapscr* prev_hero_scr;
 // Otherwise, is equal to cur_screen.
 extern int32_t home_screen;
 extern int32_t frame,currmap,dlevel,warpscr,worldscr,scrolling_hero_screen,scrolling_map,scrolling_dmap,scrolling_destdmap;
+extern bool scrolling_using_new_region_coords;
 extern direction scrolling_dir;
 extern int32_t scrolling_cur_screen;
 // See dowarp.

@@ -27,7 +27,7 @@ ffc script HelloWorld
             // DRAW_ORIGIN_WORLD is the default in a scrolling region.
             // But swap between so we can visually confirm that.
             Screen->DrawOrigin = (Game->Time & 2L) == 0 ? DRAW_ORIGIN_WORLD : DRAW_ORIGIN_DEFAULT;
-            Screen->Rectangle(7, x, y, x+w, y+h, BLUE, 1, 0, 0, 0, false, 128);
+            Screen->Rectangle(6, x, y, x+w, y+h, BLUE, 1, 0, 0, 0, false, 128);
 
             Waitframe();
         }
@@ -40,6 +40,8 @@ screendata script DotFFCs
 {
     void run()
     {
+        Screen->DrawOrigin = DRAW_ORIGIN_WORLD;
+
         while (true)
         {
             Waitdraw();
@@ -54,8 +56,7 @@ screendata script DotFFCs
                 int x = f->X + 8;
                 int y = f->Y - r;
 
-                Screen->DrawOrigin = DRAW_ORIGIN_WORLD;
-                Screen->Circle(7, x, y, r, PINK, 1, 0, 0, 0, true, 128);
+                Screen->Circle(6, x, y, r, PINK, 1, 0, 0, 0, true, 128);
             }
 
             Waitframe();
@@ -67,6 +68,8 @@ dmapdata script DotFFCs2
 {
     void run()
     {
+        Screen->DrawOrigin = DRAW_ORIGIN_WORLD;
+
         while (true)
         {
             Waitdraw();
@@ -81,8 +84,7 @@ dmapdata script DotFFCs2
                 int x = f->X + 8;
                 int y = f->Y + 18;
 
-                Screen->DrawOrigin = DRAW_ORIGIN_WORLD;
-                Screen->Circle(7, x, y, r, PINK, 1, 0, 0, 0, true, 128);
+                Screen->Circle(6, x, y, r, PINK, 1, 0, 0, 0, true, 128);
             }
 
             Waitframe();

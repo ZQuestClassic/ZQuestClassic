@@ -27652,15 +27652,20 @@ void do_drawing_command(const int32_t script_command)
 		bool in_scrolling_region = is_in_scrolling_region() || (screenscrolling && scrolling_region.screen_count > 1);
 		draw_origin = in_scrolling_region ? DrawOrigin::World : DrawOrigin::PlayingField;
 	}
-	if (draw_origin == DrawOrigin::World && screenscrolling)
+	if (draw_origin == DrawOrigin::World)
 	{
-		if (!(current_region.map == scrolling_region.map && current_region.origin_screen == scrolling_region.origin_screen))
+		if (screenscrolling && scrolling_using_new_region_coords)
 			draw_origin = DrawOrigin::WorldScrollingNew;
 	}
 	else if (draw_origin == DrawOrigin::WorldScrollingOld)
+	{
 		draw_origin = DrawOrigin::World;
-	else if (draw_origin == DrawOrigin::WorldScrollingNew && !screenscrolling)
-		draw_origin = DrawOrigin::World;
+	}
+	else if (draw_origin == DrawOrigin::WorldScrollingNew)
+	{
+		if (!screenscrolling)
+			draw_origin = DrawOrigin::World;
+	}
 
 	script_drawing_commands[j].draw_origin = draw_origin;
 

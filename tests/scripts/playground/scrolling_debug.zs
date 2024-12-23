@@ -6,6 +6,9 @@ dmapdata script ScrollingDebug
 
 	void jankyOldScrollingVars()
 	{
+		// Game->Scrolling values are only accurate after `Waitdraw`.
+		Waitdraw();
+
 		int subscreenY = 232 - Viewport->Height;
 		Screen->DrawString(7, 150, -subscreenY, FONT_Z3SMALL, 0x01, 0x0F, TF_NORMAL, "Janky", 128);
 
@@ -32,7 +35,6 @@ dmapdata script ScrollingDebug
 		if (Game->Scrolling[SCROLL_DIR] != -1)
 		{
 			// This draws where the hero is.
-			Waitdraw(); // Without this, the Hero->X/Y variables are behind by a frame.
 			x = Hero->X + Game->Scrolling[SCROLL_NRX];
 			y = Hero->Y + Game->Scrolling[SCROLL_NRY];
 			Screen->DrawCombo(3, x, y,
@@ -90,26 +92,13 @@ dmapdata script ScrollingDebug
 		Screen->DrawInteger(7, 40, 8, FONT_Z3SMALL, 0x01, 0x0F, -1, -1, Game->Scrolling[SCROLL_NX], 0, 128);
 		Screen->DrawInteger(7, 120, 8, FONT_Z3SMALL, 0x01, 0x0F, -1, -1, Game->Scrolling[SCROLL_NY], 0, 128);
 
-		int x = 0;
-		int y = 0;
-		int w = Viewport->Width - 1;
-		int h = Viewport->Height - 9;
-		Screen->Rectangle(7, x+4, y+4, x+w-4, y+h-4, 0x72, 1, 0, 0, 0, false, 128);
-
-		// TODO z3 ! equivalent?
-		// Screen->DrawOrigin = DRAW_ORIGIN_WORLD;
-		// Waitdraw();
-		// x = Viewport->X;
-		// y = Viewport->Y;
-		// Screen->Rectangle(7, x+4, y+4, x+w-4, y+h-4, 0x72, 1, 0, 0, 0, false, 128);
-
 		if (Game->Scrolling[SCROLL_DIR] != -1)
 		{
 			// This draws where the hero is.
 			// During scrolling, the hero coordinates are (unfortunately) relative to the new region.
 			Screen->DrawOrigin = DRAW_ORIGIN_WORLD_SCROLLING_NEW;
-			x = Hero->X;
-			y = Hero->Y;
+			int x = Hero->X;
+			int y = Hero->Y;
 			Screen->DrawCombo(3, x, y,
 				20,
 				1,
@@ -138,6 +127,29 @@ dmapdata script ScrollingDebug
 				1,
 				3,
 				-1, -1, 0, 0, 0, 0, 0, true, OP_OPAQUE);
+		}
+
+		// Draw a blue square around the edge of the playing field, using the Viewport.
+		// These two branches should be equivalent.
+		if ((Game->Time % 3L) == 0)
+		{
+			Waitdraw(); // During scrolling, the viewport height may animate, requiring this Waitdraw().
+			Screen->DrawOrigin = DRAW_ORIGIN_PLAYING_FIELD;
+			int x = 0;
+			int y = 0;
+			int w = Viewport->Width - 1;
+			int h = Viewport->Height - 9;
+			Screen->Rectangle(7, x+4, y+4, x+w-4, y+h-4, 0x72, 1, 0, 0, 0, false, 128);
+		}
+		else
+		{
+			Waitdraw(); // During scrolling, the viewport animates, requiring this Waitdraw().
+			Screen->DrawOrigin = DRAW_ORIGIN_WORLD;
+			int x = Viewport->X;
+			int y = Viewport->Y;
+			int w = Viewport->Width - 1;
+			int h = Viewport->Height - 9;
+			Screen->Rectangle(7, x+4, y+4, x+w-4, y+h-4, 0x72, 1, 0, 0, 0, false, 128);
 		}
 	}
 

@@ -315,6 +315,7 @@ int32_t fullscreen = 0;
 byte zc_vsync=0;
 byte use_win32_proc=1, console_enabled = 0;
 int32_t home_screen,frame=0,currmap=0,dlevel,warpscr,worldscr,scrolling_hero_screen=0,scrolling_map=0,scrolling_dmap=0,scrolling_destdmap=-1;
+bool scrolling_using_new_region_coords;
 int32_t hero_screen=0;
 int32_t cur_screen=0;
 int32_t scrolling_cur_screen=0;
@@ -1621,6 +1622,7 @@ void init_game_vars(bool is_cont_game = false)
 	prev_hero_scr = nullptr;
 	viewport_mode = ViewportMode::CenterAndBound;
 	screenscrolling = false;
+	scrolling_using_new_region_coords = false;
 	new_sub_indexes[sstACTIVE] = -1;
 	loadside = 0;
 	view_map_show_mode = 3;

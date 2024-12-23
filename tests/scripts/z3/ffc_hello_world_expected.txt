@@ -28,6 +28,10 @@ zasm:
 
 PUSHARGSV 0 0.0006; void run() Body Start
 SETR D4 SP2
+SETV D2 0.0003
+PUSHR D2
+POP D2
+SETR SCREEN_DRAW_MODE D2
 WAITDRAW; InlineFunc[void Waitdraw()] Body AND while(true) #2 Body [Opt:AlwaysOn] Start
 STOREV 1 0.0004; for() #150 setup
 LOAD D2 0.0004; for() #150 LoopTest
@@ -64,11 +68,7 @@ POP D3
 SUBR D3 D2
 SETR D2 D3
 STORE D2 0
-SETV D2 0.0003
-PUSHR D2
-POP D2
-SETR SCREEN_DRAW_MODE D2
-PUSHV 7; InlineFunc[void screendata::Circle(int, int, int, int, int, int, int, int, int, bool, int)] Params Start
+PUSHV 6; InlineFunc[void screendata::Circle(int, int, int, int, int, int, int, int, int, bool, int)] Params Start
 LOAD D2 0.0001
 PUSHR D2
 LOAD D2 0
@@ -85,14 +85,18 @@ POPARGS D5 0.0011; InlineFunc[void screendata::Circle(int, int, int, int, int, i
 LOAD D2 0.0004; for() #150 LoopIncrement
 ADDV D2 1
 STORE D2 0.0004
-GOTO 5; for() #150 End
+GOTO 9; for() #150 End
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #2 Body [Opt:AlwaysOn] End
-GOTO 3; while() #2 End AND [Opt:NeverRet] AND void run() Body End
+GOTO 7; while() #2 End AND [Opt:NeverRet] AND void run() Body End
 
 
 PUSHR REFDMAPDATA; void run() Body Start
 PUSHARGSV 0 0.0005
 SETR D4 SP2
+SETV D2 0.0003
+PUSHR D2
+POP D2
+SETR SCREEN_DRAW_MODE D2
 WAITDRAW; InlineFunc[void Waitdraw()] Body AND while(true) #3 Body [Opt:AlwaysOn] Start
 STOREV 1 0.0004; for() #151 setup
 LOAD D2 0.0004; for() #151 LoopTest
@@ -125,11 +129,7 @@ POP REFSPRITE
 SETR D2 SPRITE_Y
 ADDV D2 18
 STORE D2 0
-SETV D2 0.0003
-PUSHR D2
-POP D2
-SETR SCREEN_DRAW_MODE D2
-PUSHV 7; InlineFunc[void screendata::Circle(int, int, int, int, int, int, int, int, int, bool, int)] Params Start
+PUSHV 6; InlineFunc[void screendata::Circle(int, int, int, int, int, int, int, int, int, bool, int)] Params Start
 LOAD D2 0.0001
 PUSHR D2
 LOAD D2 0
@@ -146,9 +146,9 @@ POPARGS D5 0.0011; InlineFunc[void screendata::Circle(int, int, int, int, int, i
 LOAD D2 0.0004; for() #151 LoopIncrement
 ADDV D2 1
 STORE D2 0.0004
-GOTO 6; for() #151 End
+GOTO 10; for() #151 End
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #3 Body [Opt:AlwaysOn] End
-GOTO 4; while() #3 End AND [Opt:NeverRet] AND void run() Body End
+GOTO 8; while() #3 End AND [Opt:NeverRet] AND void run() Body End
 
 
 PUSHR D0; void run(int) Params
@@ -245,7 +245,7 @@ SETV D2 0
 PUSHR D2
 POP D2
 SETR SCREEN_DRAW_MODE D2
-PUSHV 7; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start
+PUSHV 6; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start
 LOAD D2 0.0003
 PUSHR D2
 LOAD D2 0.0002
