@@ -44,16 +44,16 @@ enum DrawOrigin
 	DRAW_ORIGIN_WORLD_SCROLLING_OLD = 5L
 };
 
-// Contains functions and variables related to the current map screen,
-// including functions for drawing and creating/loading objects belonging
-// to the screen.
+// Contains functions and variables related to the currently loaded [mapdata] screen,
+// including functions for drawing and creating/loading objects belonging to the
+// screen.
 //
-// Many variables in `Screen` refer to a single mapdata screen (such as [UnderCombo]).
-// For a large [Region] with multiple screens, which screen these variables refer to
-// depends. See [Screen->Index] for more.
+// Many variables in `Screen` refer to a single [mapdata] screen (such as [Screen->UnderCombo]).
+// For a scrolling [Region] with multiple screens, which screen these variables refer to
+// depends on the context of the running script. See [Screen->Index] for more.
 //
 // The combo array variables (such as [Screen->ComboD]) may access any combo position
-// in the current region. Use [ComboAt] to translate (x, y) pixel coordinates into a
+// in the current region. Use [ComboAt] to translate `(x, y)` world coordinates to a
 // combo position. The size of these arrays is [NUM_COMBO_POS].
 //
 // For accessing specific screens, see [mapdata].
@@ -68,9 +68,11 @@ class screendata {
 	// The index for the underlying screen. This determines which screen some variables refer to
 	// (such as [UnderCombo], [Valid], or [Guy], just to name a few).
 	//
-	// For a large [Region], the default is for this to equal [Game->CurScreen] (the top-left
-	// screen). However, script types that relate to a specific screen will use that screen instead.
-	// Those include: screen, ffc, npc, eweapon, lweapon, itemsprite, combo.
+	// In a non-scrolling [Region], this is equal to [Game->CurScreen].
+	//
+	// In a scrolling [Region], the default is equal to [Game->CurScreen] (the top-left screen).
+	// However, script types that relate to a specific screen will use that screen instead.
+	// Those include: screendata, ffc, npc, eweapon, lweapon, itemsprite, combo.
 	//
 	// @zasm_var SCREEN_INDEX
 	internal const int Index;
