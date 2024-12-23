@@ -1949,6 +1949,7 @@ int32_t init_game()
 	
 	tmpscr->zero_memory();
 	special_warp_return_screen.zero_memory();
+	z3_clear_temporary_screens();
 	//clear initialise dmap script 
 	FFCore.reset_script_engine_data(ScriptType::DMap);
 	//Script-related nonsense
@@ -2341,6 +2342,7 @@ int32_t cont_game()
 	room_is_dark=darkroom=naturaldark=false;
 	tmpscr->zero_memory();
 	special_warp_return_screen.zero_memory();
+	z3_clear_temporary_screens();
 	
 	loadscr(currdmap, lastentrance, -1, false);
 	script_drawing_commands.Clear();
@@ -2494,6 +2496,7 @@ void restart_level()
 	room_is_dark=darkroom=naturaldark=false;
 	tmpscr->zero_memory();
 	special_warp_return_screen.zero_memory();
+	z3_clear_temporary_screens();
 	
 	loadscr(currdmap, cur_screen, -1, false);
 	//preloaded freeform combos
