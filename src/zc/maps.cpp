@@ -6104,7 +6104,7 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool overlay, bool 
 
 	room_is_dark = false;
 	for_every_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
-		room_is_dark |= scr->flags & fDARK;
+		room_is_dark |= (bool)(scr->flags & fDARK);
 	});
 
 	game->load_portal();
