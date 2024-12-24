@@ -133,7 +133,7 @@ class screendata {
 	// @zasm_var SCREENEXSTATED
 	internal bool ExState[];
 
-	// Whether or not the screen is 'lit'. Applies to Classic Darkrooms.
+	// Whether or not the current [Region] is 'lit'. Applies to Classic Darkrooms.
 	//
 	// @zasm_var LIT
 	internal bool Lit;

@@ -6102,8 +6102,10 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool overlay, bool 
 		original_playing_field_offset = 56;
 	}
 
-	// TODO z3 !!!! per-screen?
-	room_is_dark = (tmpscr->flags & fDARK);
+	room_is_dark = false;
+	for_every_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
+		room_is_dark |= scr->flags & fDARK;
+	});
 
 	game->load_portal();
 	throwGenScriptEvent(GENSCR_EVENT_CHANGE_SCREEN);
