@@ -87,10 +87,10 @@ extern int region_num_rpos;
 		  the viewport bounds to the edges. This behavior is modified by `viewport_mode`, which
 		  can be modified by scripts via `Viewport->`
 		- the top-left screen is loaded as `cur_screen` / `origin_scr` / `tmpscr` (all equivalent)
-        - `hero_screen` is the screen index where the hero currently is, and updates as the
-		  player moves around. `hero_scr` is the mapscr
+        - `hero_screen` / `hero_scr` is the screen where the hero currently is, and updates as the
+		  player moves around.
 */
-struct region
+struct region_t
 {
 	int region_id;
 	int map;
@@ -104,7 +104,7 @@ struct region
 	// World coordinates.
 	int width, height;
 };
-extern region current_region, scrolling_region;
+extern region_t current_region, scrolling_region;
 
 struct maze_state_t {
 	bool active;
@@ -131,7 +131,7 @@ bool is_in_current_region(int map, int screen);
 bool is_in_current_region(int screen);
 bool is_in_current_region(mapscr* scr);
 bool is_valid_rpos(rpos_t rpos);
-void z3_calculate_region(int map, int screen, region& region, int& region_scr_dx, int& region_scr_dy);
+void z3_calculate_region(int map, int screen, region_t& region, int& region_scr_dx, int& region_scr_dy);
 void z3_load_region(int dmap, int screen);
 void z3_prepare_current_region_handles();
 // Returns a rpos_handle of the top-left position for every valid

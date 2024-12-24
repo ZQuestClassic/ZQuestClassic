@@ -28649,12 +28649,12 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	int old_world_h = world_h;
 	int old_original_playing_field_offset = original_playing_field_offset;
 	viewport_t old_viewport = viewport;
-	region old_region = current_region;
+	region_t old_region = current_region;
 
 	// Determine what the player position will be after scrolling (within the new screen's coordinate system),
 	// and what the new viewport will be.
 	viewport_t new_viewport;
-	region new_region;
+	region_t new_region;
 	int new_scr_dx, new_scr_dy;
 	auto calc_new_viewport_and_pos = [&](){
 		z3_calculate_region(new_map, destscr, new_region, new_scr_dx, new_scr_dy);

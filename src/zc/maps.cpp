@@ -65,7 +65,7 @@ int region_scr_dx, region_scr_dy;
 int region_scr_count;
 rpos_t region_max_rpos;
 int region_num_rpos;
-region current_region, scrolling_region;
+region_t current_region, scrolling_region;
 
 maze_state_t maze_state;
 int scrolling_maze_last_solved_screen;
@@ -135,7 +135,7 @@ int get_current_region_id()
 	return get_region_id(currmap, cur_screen);
 }
 
-void z3_calculate_region(int map, int screen, region& region, int& region_scr_dx, int& region_scr_dy)
+void z3_calculate_region(int map, int screen, region_t& region, int& region_scr_dx, int& region_scr_dy)
 {
 	region.map = map;
 
