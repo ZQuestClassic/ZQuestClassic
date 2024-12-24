@@ -762,6 +762,8 @@ int32_t get_screenflags(mapscr *m, int32_t flagset)
 			ornextflag(m->flags8&64);
 			ornextflag(m->flags3&32);
 			ornextflag(m->flags9&fDISABLE_MIRROR);
+			ornextflag(m->flags10&fMAZE_CAN_GET_LOST);
+			ornextflag(m->flags10&fMAZE_LOOPY);
 			break;
 			
 		case 4: // Item

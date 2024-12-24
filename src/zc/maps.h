@@ -113,7 +113,7 @@ struct maze_state_t {
 	bool loopy;
 	mapscr* scr;
 	int exit_screen;
-	int transition_wipe;
+	byte transition_wipe;
 	int last_check_herox;
 	int last_check_heroy;
 	direction enter_dir = dir_invalid;

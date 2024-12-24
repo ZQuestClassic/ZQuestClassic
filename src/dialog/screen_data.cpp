@@ -1,5 +1,6 @@
 #include "screen_data.h"
 #include <gui/builder.h>
+#include "base/mapscr.h"
 #include "gui/jwin.h"
 #include "zq/zquest.h"
 #include "zq/zq_class.h"
@@ -276,10 +277,15 @@ std::shared_ptr<GUI::Widget> ScreenDataDialog::view()
 							Label(text = "Warp", hAlign = 0.0, colSpan = 2),
 							SCR_CB(flags5,fDIRECTAWARP,1,"Auto-Warps are Direct","Auto typed warps on this screen will not alter the Hero's position."),
 							SCR_CB(flags5,fDIRECTSWARP,1,"Sensitive Warps are Direct","Sensitive typed warps on this screen will not alter the Hero's position."),
-							SCR_CB(flags,fMAZE,1,"Use Maze Path","This screen will act as a mystical maze requiring a specific path to be followed to escape."),
-							SCR_CB(flags8,fMAZEvSIDEWARP,1,"Maze Overrides Side Warps","The Maze Path's mystical looping is prioritized over sidewarps if this is checked."),
 							SCR_CB(flags3,fIWARPFULLSCREEN,1,"Sprites Carry Over In Warps","Sprite objects, such as enemies, items, and weapons, will follow through warps from this screen."),
 							SCR_CB(flags9,fDISABLE_MIRROR,1,"Disable Magic Mirror","Magic Mirror type items don't work on this screen.")
+						),
+						Rows<2>(hAlign = 0.0,
+							Label(text = "Maze", hAlign = 0.0, colSpan = 2),
+							SCR_CB(flags,fMAZE,1,"Use Maze Path","This screen will act as a mystical maze requiring a specific path to be followed to escape."),
+							SCR_CB(flags8,fMAZEvSIDEWARP,1,"Maze Overrides Side Warps","The Maze Path's mystical looping is prioritized over sidewarps if this is checked."),
+							SCR_CB(flags10,fMAZE_CAN_GET_LOST,1,"Can Get Lost In Maze","Going any direction other than the exit gets the hero \"lost\" - in this state, leaving in the direction of the exit does not leave the maze, but does get the hero \"unlost\" (so using the exit direction once more will actually leave the maze)."),
+							SCR_CB(flags10,fMAZE_LOOPY,1,"Loopy Maze","Instead of scrolling, taking any non-exit direction in a maze will insta-warp the player to the opposite side (not reloading the screen at all), with an optional wipe effect (see Maze Path dialog)")
 						)
 					)
 				)),

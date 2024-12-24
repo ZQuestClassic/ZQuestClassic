@@ -8993,6 +8993,8 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 	
 	if(screen.exitdir)
 		scr_has_flags |= SCRHAS_MAZE;
+	else if(screen.maze_transition_wipe)
+		scr_has_flags |= SCRHAS_MAZE;
 	else for(auto q = 0; q < 4; ++q)
 	{
 		if(screen.path[q])
@@ -9207,6 +9209,8 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 				return qe_invalid;
 		}
 		if(!p_putc(screen.exitdir,f))
+			return qe_invalid;
+		if(!p_putc(screen.maze_transition_wipe,f))
 			return qe_invalid;
 	}
 	if(scr_has_flags & SCRHAS_D_S_U)

@@ -27662,22 +27662,29 @@ void HeroClass::do_scroll_direction(direction dir)
 	}
 }
 
+static bool has_advanced_maze(mapscr* scr)
+{
+	bool loopy = hero_scr->flags10&fMAZE_LOOPY;
+	bool can_get_lost = hero_scr->flags10&fMAZE_CAN_GET_LOST;
+	int maze_transition_wipe = hero_scr->maze_transition_wipe;
+	return loopy || can_get_lost || maze_transition_wipe || current_region.region_id > 0;
+}
+
 void HeroClass::maybe_begin_advanced_maze()
 {
 	if (!(hero_scr->flags&fMAZE) || hero_screen == scrolling_maze_last_solved_screen)
 		return;
 
 	// This maze logic is enabled for only regions.
-	// For basic mazes in non-regions, see scrollscr.
-	if (!get_region_id(currmap, cur_screen))
+	// For basic mazes, see scrollscr.
+	if (!has_advanced_maze(hero_scr))
 		return;
 
 	maze_state = {};
 	maze_state.active = true;
-	// maze_state.loopy = true;
-	maze_state.transition_wipe = -1;
-	// maze_state.transition_wipe = bosSMAS;
-	maze_state.can_get_lost = true;
+	maze_state.loopy = hero_scr->flags10&fMAZE_LOOPY;
+	maze_state.transition_wipe = hero_scr->maze_transition_wipe;
+	maze_state.can_get_lost = hero_scr->flags10&fMAZE_CAN_GET_LOST;
 	maze_state.scr = hero_scr;
 	maze_state.exit_screen = screen_index_direction(hero_screen, (direction)hero_scr->exitdir);
 	maze_state.last_check_herox = x;
@@ -27803,8 +27810,8 @@ void HeroClass::checkscroll()
 			}
 			else if (can_check_again && maze_state.loopy)
 			{
-				if (maze_state.transition_wipe >= 0)
-					closescreen(maze_state.transition_wipe);
+				if (maze_state.transition_wipe)
+					closescreen(maze_state.transition_wipe - 1);
 
 				if (advance_dir == left)  x += 256;
 				if (advance_dir == right) x -= 256;
@@ -27827,21 +27834,21 @@ void HeroClass::checkscroll()
 						maze_state.lost = true;
 				}
 
-				if (maze_state.transition_wipe >= 0)
-					openscreen(maze_state.transition_wipe);
+				if (maze_state.transition_wipe)
+					openscreen(maze_state.transition_wipe - 1);
 			}
 			else if (!maze_state.loopy)
 			{
-				if (maze_state.transition_wipe >= 0)
-					closescreen(maze_state.transition_wipe);
+				if (maze_state.transition_wipe)
+					closescreen(maze_state.transition_wipe - 1);
 
 				if (advance_dir == left)  x = (z3_get_region_relative_dx(maze_screen) + 1) * 256 - 16;
 				if (advance_dir == right) x = (z3_get_region_relative_dx(maze_screen)) * 256;
 				if (advance_dir == up)    y = (z3_get_region_relative_dy(maze_screen) + 1) * 176 - 16;
 				if (advance_dir == down)  y = (z3_get_region_relative_dy(maze_screen)) * 176;
 
-				if (maze_state.transition_wipe >= 0)
-					openscreen(maze_state.transition_wipe);
+				if (maze_state.transition_wipe)
+					openscreen(maze_state.transition_wipe - 1);
 			}
 		}
 
@@ -28631,7 +28638,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	bool updatemusic = FFCore.can_dmap_change_music(destdmap);
 	bool musicrevert = FFCore.music_update_flags & MUSIC_UPDATE_FLAG_REVERT;
 
-	if (get_region_id(currmap, cur_screen) == 0 && maze_enabled_sizewarp(tmpscr, scrolldir))
+	if (!has_advanced_maze(hero_scr) && maze_enabled_sizewarp(tmpscr, scrolldir))
 		return; // dowarp() was called
 
 	int original_destscr = destscr;

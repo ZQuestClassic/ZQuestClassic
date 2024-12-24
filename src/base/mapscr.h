@@ -71,6 +71,7 @@ struct mapscr
 	byte warparrivalx;
 	byte warparrivaly;
 	byte path[4];
+	byte maze_transition_wipe;
 	byte sidewarpscr[4];
 	word sidewarpdmap[4];
 	byte sidewarpindex;
@@ -255,7 +256,8 @@ private:
 #define fENEMY_WAVES        0x40
 
 //flags10 - ENTIRE FLAGS10 RESERVED FOR Z3 SCROLLING! Please don't use :)
-#define fZ3_SCROLLING_WHEN  0x01
+#define fMAZE_CAN_GET_LOST  0x01
+#define fMAZE_LOOPY         0x02
 // ----
 
 // enemy flags

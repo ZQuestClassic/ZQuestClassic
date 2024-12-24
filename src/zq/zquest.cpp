@@ -16476,23 +16476,43 @@ const char *dirlist(int32_t index, int32_t *list_size)
 
 static ListData path_dlg_list(dirlist, &font);
 
+static const char *wipestr[] = {"None", "Circle", "Oval", "Triangle", "SMAS", "Fade Black"};
+// enum {bosCIRCLE=0, bosOVAL, bosTRIANGLE, bosSMAS, bosFADEBLACK, bosMAX};
+const char *wipelist(int32_t index, int32_t *list_size)
+{
+    if(index>=0)
+    {
+        if(index>5)
+            index=5;
+
+        return wipestr[index];
+    }
+    
+    *list_size=6;
+    return NULL;
+}
+
+static ListData wipe_effect_dlg_list(wipelist, &font);
+
 static DIALOG path_dlg[] =
 {
     /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
-    { jwin_win_proc,      80,   57,   161,  164,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Maze Path", NULL, NULL },
+    { jwin_win_proc,      80,   57,   161,  182,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Maze Path", NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
     { jwin_text_proc,       94,   106,   192,  8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "1st", NULL, NULL },
     { jwin_text_proc,       94,   124,  192,  8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "2nd", NULL, NULL },
     { jwin_text_proc,       94,   142,  192,  8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "3rd", NULL, NULL },
     { jwin_text_proc,       94,   160,  192,  8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "4th", NULL, NULL },
     { jwin_text_proc,       94,   178,  192,  8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Exit", NULL, NULL },
+	{ jwin_text_proc,       94,   196,  192,  8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Wipe effect", NULL, NULL },
     { jwin_droplist_proc,   140,  102,   80+1,   16,   jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG],  0,       0,          0,             0, (void *) &path_dlg_list, NULL, NULL },
     { jwin_droplist_proc,   140,  120,   80+1,   16,   jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG],  0,       0,          0,             0, (void *) &path_dlg_list, NULL, NULL },
     { jwin_droplist_proc,   140,  138,  80+1,   16,   jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG],  0,       0,          0,             0, (void *) &path_dlg_list, NULL, NULL },
     { jwin_droplist_proc,   140,  156,  80+1,   16,   jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG],  0,       0,          0,             0, (void *) &path_dlg_list, NULL, NULL },
     { jwin_droplist_proc,   140,  174,  80+1,   16,   jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG],  0,       0,          0,             0, (void *) &path_dlg_list, NULL, NULL },
-    { jwin_button_proc,     90,   194,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-    { jwin_button_proc,     170,  194,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+	{ jwin_droplist_proc,   140,  192,  80+1,   16,   jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG],  0,       0,          0,             0, (void *) &wipe_effect_dlg_list, NULL, NULL },
+    { jwin_button_proc,     90,   212,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+    { jwin_button_proc,     170,  212,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F1,   0, (void *) onHelp, NULL, NULL },
     { jwin_text_proc,       87,   82,   192,  8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "A Lost Woods-style maze screen", NULL, NULL },
     { jwin_text_proc,       87,   92,   192,  8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "with a normal and secret exit.", NULL, NULL },
@@ -16505,9 +16525,10 @@ int32_t onPath()
     path_dlg[0].dp2=get_zc_font(font_lfont);
     
     for(int32_t i=0; i<4; i++)
-        path_dlg[i+7].d1 = Map.CurrScr()->path[i];
+        path_dlg[i+8].d1 = Map.CurrScr()->path[i];
         
-    path_dlg[11].d1 = Map.CurrScr()->exitdir;
+    path_dlg[12].d1 = Map.CurrScr()->exitdir;
+	path_dlg[13].d1 = Map.CurrScr()->maze_transition_wipe;
     
     large_dialog(path_dlg);
         
@@ -16515,11 +16536,13 @@ int32_t onPath()
     
     do
     {
-        ret=do_zqdialog(path_dlg,7);
-        
-        if(ret==12) for(int32_t i=0; i<4; i++)
+        ret=do_zqdialog(path_dlg,8);
+
+        if(ret==14)
+        {
+            for(int32_t i=0; i<4; i++)
             {
-                if(path_dlg[i+7].d1 == path_dlg[11].d1)
+                if(path_dlg[i+8].d1 == path_dlg[12].d1)
                 {
                     if(jwin_alert("Exit Problem","One of the path's directions is","also the normal Exit direction! Continue?",NULL,"Yes","No",'y','n',get_zc_font(font_lfont))==2)
                         ret = -1;
@@ -16527,17 +16550,19 @@ int32_t onPath()
                     break;
                 }
             }
+        }
     }
     while(ret == -1);
     
-    if(ret==12)
+    if(ret==14)
     {
         saved=false;
         
         for(int32_t i=0; i<4; i++)
-            Map.CurrScr()->path[i] = path_dlg[i+7].d1;
+            Map.CurrScr()->path[i] = path_dlg[i+8].d1;
             
-        Map.CurrScr()->exitdir = path_dlg[11].d1;
+        Map.CurrScr()->exitdir = path_dlg[12].d1;
+		Map.CurrScr()->maze_transition_wipe = path_dlg[13].d1;
         
         if(!(Map.CurrScr()->flags&fMAZE))
             if(jwin_alert("Screen Flag","Turn on the 'Use Maze Path' Screen Flag?","(Go to 'Screen Data' to turn it off.)",NULL,"Yes","No",'y','n',get_zc_font(font_lfont))==1)

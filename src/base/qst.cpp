@@ -16770,6 +16770,11 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 			}
 			if(!p_getc(&(temp_mapscr->exitdir),f))
 				return qe_invalid;
+			if (version >= 32)
+			{
+				if (!p_getc(&temp_mapscr->maze_transition_wipe, f))
+					return qe_invalid;
+			}
 		}
 		if(scr_has_flags & SCRHAS_D_S_U)
 		{

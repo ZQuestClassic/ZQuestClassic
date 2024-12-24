@@ -1344,6 +1344,8 @@ enum
 	SFW_MAZEOVERRIDE,  //maze Overrides Sidewarps
 	SFW_SPRITECARRY, //Sprites carry over. 
 	SFW_DISABLE_MIRROR, //Disable Magic Mirror
+	SFW_MAZE_CAN_GET_LOST, //Maze Can Get Lost
+	SFW_MAZE_LOOPY, //Maze Loopy
 	
 	SFW_LAST
 };
