@@ -27664,19 +27664,18 @@ void HeroClass::do_scroll_direction(direction dir)
 
 static bool has_advanced_maze(mapscr* scr)
 {
-	bool loopy = hero_scr->flags10&fMAZE_LOOPY;
-	bool can_get_lost = hero_scr->flags10&fMAZE_CAN_GET_LOST;
-	int maze_transition_wipe = hero_scr->maze_transition_wipe;
-	return loopy || can_get_lost || maze_transition_wipe || current_region.region_id > 0;
+	bool loopy = scr->flags10&fMAZE_LOOPY;
+	bool can_get_lost = scr->flags10&fMAZE_CAN_GET_LOST;
+	int maze_transition_wipe = scr->maze_transition_wipe;
+	return loopy || can_get_lost || maze_transition_wipe || is_in_scrolling_region();
 }
 
 void HeroClass::maybe_begin_advanced_maze()
 {
-	if (!(hero_scr->flags&fMAZE) || hero_screen == scrolling_maze_last_solved_screen)
+	if (!(hero_scr->flags&fMAZE) || hero_screen == scrolling_maze_last_solved_screen || maze_state.active)
 		return;
 
-	// This maze logic is enabled for only regions.
-	// For basic mazes, see scrollscr.
+	// Basic mazes are handled in scrollscr.
 	if (!has_advanced_maze(hero_scr))
 		return;
 
@@ -27689,8 +27688,6 @@ void HeroClass::maybe_begin_advanced_maze()
 	maze_state.exit_screen = screen_index_direction(hero_screen, (direction)hero_scr->exitdir);
 	maze_state.last_check_herox = x;
 	maze_state.last_check_heroy = y;
-
-	// TODO z3 ! make configurable: loopy, transition_wipe, can_get_lost
 
 	if (maze_state.loopy)
 	{
@@ -27842,10 +27839,25 @@ void HeroClass::checkscroll()
 				if (maze_state.transition_wipe)
 					closescreen(maze_state.transition_wipe - 1);
 
+				loadscr(currdmap, hero_screen, -1, false);
+				maze_state.scr = maze_scr = get_scr(maze_screen); // TODO z3 bit jank ...
+
+				auto prev_maze_state = maze_state; // TODO z3 handle better?
+				ALLOFF();
+				maze_state = prev_maze_state;
+
 				if (advance_dir == left)  x = (z3_get_region_relative_dx(maze_screen) + 1) * 256 - 16;
 				if (advance_dir == right) x = (z3_get_region_relative_dx(maze_screen)) * 256;
 				if (advance_dir == up)    y = (z3_get_region_relative_dy(maze_screen) + 1) * 176 - 16;
 				if (advance_dir == down)  y = (z3_get_region_relative_dy(maze_screen)) * 176;
+
+				if (maze_state.can_get_lost)
+				{
+					if (advance_dir == maze_scr->exitdir)
+						maze_state.lost = false;
+					else
+						maze_state.lost = true;
+				}
 
 				if (maze_state.transition_wipe)
 					openscreen(maze_state.transition_wipe - 1);

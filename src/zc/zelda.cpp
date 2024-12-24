@@ -1107,6 +1107,7 @@ void ALLOFF(bool messagesToo, bool decorationsToo, bool force)
     //    Hero.setClock(false);
     watch=freeze_guys=loaded_guys=blockpath=false;
     loaded_enemies_for_screen.clear();
+    maze_state = {};
     stop_sfx(WAV_BRANG);
     
 	activation_counters.clear();

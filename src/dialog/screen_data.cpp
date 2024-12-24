@@ -285,7 +285,7 @@ std::shared_ptr<GUI::Widget> ScreenDataDialog::view()
 							SCR_CB(flags,fMAZE,1,"Use Maze Path","This screen will act as a mystical maze requiring a specific path to be followed to escape."),
 							SCR_CB(flags8,fMAZEvSIDEWARP,1,"Maze Overrides Side Warps","The Maze Path's mystical looping is prioritized over sidewarps if this is checked."),
 							SCR_CB(flags10,fMAZE_CAN_GET_LOST,1,"Can Get Lost In Maze","Going any direction other than the exit gets the hero \"lost\" - in this state, leaving in the direction of the exit does not leave the maze, but does get the hero \"unlost\" (so using the exit direction once more will actually leave the maze)."),
-							SCR_CB(flags10,fMAZE_LOOPY,1,"Loopy Maze","Instead of scrolling, taking any non-exit direction in a maze will insta-warp the player to the opposite side (not reloading the screen at all), with an optional wipe effect (see Maze Path dialog)")
+							SCR_CB(flags10,fMAZE_LOOPY,1,"Loopy Maze","Instead of scrolling, taking any non-exit direction in a maze will move the player to the opposite side (without reloading the screen), with an optional wipe effect (see Maze Path dialog).\nIf the maze is within a scrolling region, this presents a neat illusion of an endless maze")
 						)
 					)
 				)),

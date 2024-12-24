@@ -225,7 +225,6 @@ void z3_load_region(int dmap, int screen)
 	region_scr_count = current_region.screen_count;
 	region_max_rpos = (rpos_t)(current_region.screen_width*current_region.screen_height*176 - 1);
 	region_num_rpos = current_region.screen_width*current_region.screen_height*176;
-	maze_state = {};
 	scrolling_maze_last_solved_screen = 0;
 
 	memset(screen_in_current_region, false, sizeof(screen_in_current_region));
