@@ -27760,7 +27760,6 @@ void HeroClass::checkscroll()
 		}
 
 		int maze_screen = maze_state.scr->screen;
-		mapscr* maze_scr = maze_state.scr;
 		auto [sx, sy] = translate_screen_coordinates_to_world(maze_screen);
 
 		int x0 = x.getInt();
@@ -27780,18 +27779,18 @@ void HeroClass::checkscroll()
 		{
 			bool can_check_again = std::abs(maze_state.last_check_herox - x0) >= 16 || std::abs(maze_state.last_check_heroy - y0) >= 16;
 
-			if (can_check_again && maze_enabled_sizewarp(maze_scr, advance_dir))
+			if (can_check_again && maze_enabled_sizewarp(maze_state.scr, advance_dir))
 			{
 				maze_state.active = false;
 				return;
 			}
 
-			bool found_exit = !maze_state.lost && (lastdir[3] == maze_scr->exitdir || lastdir[3] == maze_state.enter_dir);
+			bool found_exit = !maze_state.lost && (lastdir[3] == maze_state.scr->exitdir || lastdir[3] == maze_state.enter_dir);
 			if (found_exit)
 			{
 				// Do nothing.
 			}
-			else if (can_check_again && checkmaze_ignore_exit(maze_scr, true))
+			else if (can_check_again && checkmaze_ignore_exit(maze_state.scr, true))
 			{
 				maze_state.last_check_herox = x;
 				maze_state.last_check_heroy = y;
@@ -27825,7 +27824,7 @@ void HeroClass::checkscroll()
 
 				if (maze_state.can_get_lost)
 				{
-					if (advance_dir == maze_scr->exitdir)
+					if (advance_dir == maze_state.scr->exitdir)
 						maze_state.lost = false;
 					else if (advance_dir != maze_state.enter_dir)
 						maze_state.lost = true;
@@ -27840,9 +27839,11 @@ void HeroClass::checkscroll()
 					closescreen(maze_state.transition_wipe - 1);
 
 				loadscr(currdmap, hero_screen, -1, false);
-				maze_state.scr = maze_scr = get_scr(maze_screen); // TODO z3 bit jank ...
+				maze_state.scr = get_scr(maze_screen);
 
-				auto prev_maze_state = maze_state; // TODO z3 handle better?
+				// A bit janky, but works: clear all state (as usual during a screen change), but keep
+				// the maze state.
+				auto prev_maze_state = maze_state;
 				ALLOFF();
 				maze_state = prev_maze_state;
 
@@ -27853,7 +27854,7 @@ void HeroClass::checkscroll()
 
 				if (maze_state.can_get_lost)
 				{
-					if (advance_dir == maze_scr->exitdir)
+					if (advance_dir == maze_state.scr->exitdir)
 						maze_state.lost = false;
 					else
 						maze_state.lost = true;
@@ -27864,7 +27865,7 @@ void HeroClass::checkscroll()
 			}
 		}
 
-		if (maze_state.lost || advance_dir != maze_scr->exitdir)
+		if (maze_state.active && (maze_state.lost || advance_dir != maze_state.scr->exitdir))
 			return;
 	}
 
