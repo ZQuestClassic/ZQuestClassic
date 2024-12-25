@@ -2,15 +2,16 @@
 
 dmapdata script ScrollingDebug
 {
+	int ORANGE = 0x0C;
 	int BLUE = 0x72;
 	int PINK = 0x74;
 	bool startedInRegion;
 
-	void drawPinkSquare(int x, int y)
+	void drawSquare(int color, int x, int y)
 	{
 		int w = 6;
 		int h = 6;
-		Screen->Rectangle(6, x, y, x+w, y+h, PINK, 1, 0, 0, 0, true, 128);
+		Screen->Rectangle(6, x, y, x+w, y+h, color, 1, 0, 0, 0, true, 128);
 	}
 
 	// The engine does `zfix::getInt()` when drawing sprites - but this method does rounding
@@ -25,6 +26,7 @@ dmapdata script ScrollingDebug
 	{
 		Waitdraw();
 
+		// Draw some text over the top of the screen (where the passive subscreen usually is).
 		int subscreenY = 232 - Viewport->Height;
 		Screen->DrawString(7, 150, -subscreenY, FONT_Z3SMALL, 0x01, 0x0F, TF_NORMAL, "Janky", 128);
 
@@ -35,6 +37,7 @@ dmapdata script ScrollingDebug
 		int h = Viewport->Height - 9;
 		Screen->Rectangle(7, x+4, y+4, x+w-4, y+h-4, BLUE, 1, 0, 0, 0, false, 128);
 
+		// Draw some text over the top of the playing field.
 		Screen->DrawString(7, 0, 0, FONT_Z3SMALL, 0x01, 0x0F, TF_NORMAL, "OX/OY", 128);
 		Screen->DrawInteger(7, 40, 0, FONT_Z3SMALL, 0x01, 0x0F, -1, -1, Game->Scrolling[SCROLL_OX], 0, 128);
 		Screen->DrawInteger(7, 120, 0, FONT_Z3SMALL, 0x01, 0x0F, -1, -1, Game->Scrolling[SCROLL_OY], 0, 128);
@@ -44,11 +47,21 @@ dmapdata script ScrollingDebug
 		Screen->DrawInteger(7, 120, 8, FONT_Z3SMALL, 0x01, 0x0F, -1, -1, Game->Scrolling[SCROLL_NY], 0, 128);
 
 		// Draw pink square over the middle of the hero.
-		drawPinkSquare(engineRound(Hero->X) + 5 - Viewport->X, engineRound(Hero->Y) + 5 - Viewport->Y);
+		drawSquare(PINK, engineRound(Hero->X) + 5 - Viewport->X, engineRound(Hero->Y) + 5 - Viewport->Y);
+
+		// Draw blue square over a combo near the top-left of the region.
+		drawSquare(BLUE, 5*16 - Viewport->X, 5*16 - Viewport->Y);
+
+		// Draw an orange line across the top part of the region.
+		x = 0 - Viewport->X;
+		y = 32 - Viewport->Y;
+		w = Region->Width - 1;
+		h = 4;
+		Screen->Rectangle(6, x, y, x+w, y+h, ORANGE, 1, 0, 0, 0, true, 128);
 
 		if (Game->Scrolling[SCROLL_DIR] != -1)
 		{
-			// This draws where the hero is.
+			// Draw over where the hero is.
 			x = engineRound(Hero->X) + Game->Scrolling[SCROLL_NRX];
 			y = engineRound(Hero->Y) + Game->Scrolling[SCROLL_NRY];
 			Screen->DrawCombo(3, x, y,
@@ -58,7 +71,7 @@ dmapdata script ScrollingDebug
 				3,
 				-1, -1, 0, 0, 0, 0, 0, true, OP_OPAQUE);
 
-			// This draws in the middle of the old screen.
+			// Draw in the middle of the old screen.
 			x = 256/2 + Game->Scrolling[SCROLL_OX];
 			y = 176/2 + Game->Scrolling[SCROLL_OY];
 			Screen->DrawCombo(3, x, y,
@@ -68,7 +81,7 @@ dmapdata script ScrollingDebug
 				3,
 				-1, -1, 0, 0, 0, 0, 0, true, OP_OPAQUE);
 			
-			// This draws in the middle of the new screen.
+			// Draw in the middle of the new screen.
 			x = 256/2 + Game->Scrolling[SCROLL_NX];
 			y = 176/2 + Game->Scrolling[SCROLL_NY];
 			Screen->DrawCombo(3, x, y,
@@ -82,20 +95,33 @@ dmapdata script ScrollingDebug
 
 	void freshNewDrawOrigin()
 	{
+		// Draw some text over the top of the screen (where the passive subscreen usually is).
 		Screen->DrawOrigin = DRAW_ORIGIN_SCREEN;
 		Screen->DrawString(7, 150, 0, FONT_Z3SMALL, 0x01, 0x0F, TF_NORMAL, "DrawOrigin", 128);
 
 		// Draw pink square over the middle of the hero.
 		Screen->DrawOrigin = DRAW_ORIGIN_SPRITE;
 		Screen->DrawOriginTarget = Hero;
-		drawPinkSquare(5, 5);
+		drawSquare(PINK, 5, 5);
+
+		// Draw blue square over a combo near the top-left corner of the region.
+		Screen->DrawOrigin = DRAW_ORIGIN_WORLD;
+		drawSquare(BLUE, 5*16, 5*16);
+
+		// Draw an orange line across the top part of the region.
+		int x = 0;
+		int y = 32;
+		int w = Region->Width - 1;
+		int h = 4;
+		Screen->Rectangle(6, x, y, x+w, y+h, ORANGE, 1, 0, 0, 0, true, 128);
 
 		if (Game->Scrolling[SCROLL_DIR] != -1)
 		{
-			// This draws where the hero is.
+			// Draw over where the hero is.
 			Screen->DrawOrigin = DRAW_ORIGIN_SPRITE;
-			int x = 0;
-			int y = 0;
+			Screen->DrawOriginTarget = Hero;
+			x = 0;
+			y = 0;
 			Screen->DrawCombo(3, x, y,
 				20,
 				1,
@@ -103,7 +129,7 @@ dmapdata script ScrollingDebug
 				3,
 				-1, -1, 0, 0, 0, 0, 0, true, OP_OPAQUE);
 
-			// This draws in the middle of the old screen.
+			// Draw in the middle of the old screen.
 			Screen->DrawOrigin = DRAW_ORIGIN_WORLD_SCROLLING_OLD;
 			x = 256/2 + Game->Scrolling[SCROLL_OLD_SCREEN_X];
 			y = 176/2 + Game->Scrolling[SCROLL_OLD_SCREEN_Y];
@@ -114,7 +140,7 @@ dmapdata script ScrollingDebug
 				3,
 				-1, -1, 0, 0, 0, 0, 0, true, OP_OPAQUE);
 
-			// This draws in the middle of the new screen.
+			// Draw in the middle of the new screen.
 			// Either DrawOrigin works here.
 			Screen->DrawOrigin = (Game->Time % 3L) == 0 ? DRAW_ORIGIN_WORLD : DRAW_ORIGIN_WORLD_SCROLLING_NEW;
 			x = 256/2 + Game->Scrolling[SCROLL_NEW_SCREEN_X];
@@ -133,24 +159,26 @@ dmapdata script ScrollingDebug
 		{
 			Waitdraw(); // During scrolling, the viewport height may animate, requiring this Waitdraw().
 			Screen->DrawOrigin = DRAW_ORIGIN_PLAYING_FIELD;
-			int x = 0;
-			int y = 0;
-			int w = Viewport->Width - 1;
-			int h = Viewport->Height - 9;
+			x = 0;
+			y = 0;
+			w = Viewport->Width - 1;
+			h = Viewport->Height - 9;
 			Screen->Rectangle(7, x+4, y+4, x+w-4, y+h-4, BLUE, 1, 0, 0, 0, false, 128);
 		}
 		else
 		{
 			Waitdraw(); // During scrolling, the viewport animates, requiring this Waitdraw().
 			Screen->DrawOrigin = DRAW_ORIGIN_WORLD;
-			int x = Viewport->X;
-			int y = Viewport->Y;
-			int w = Viewport->Width - 1;
-			int h = Viewport->Height - 9;
+			x = Viewport->X;
+			y = Viewport->Y;
+			w = Viewport->Width - 1;
+			h = Viewport->Height - 9;
 			Screen->Rectangle(7, x+4, y+4, x+w-4, y+h-4, BLUE, 1, 0, 0, 0, false, 128);
 		}
 
-		// Game->Scrolling values are only accurate after Waitdraw.
+		// Note: Game->Scrolling values are only accurate after Waitdraw.
+
+		// Draw some text over the top of the playing field.
 		Screen->DrawOrigin = DRAW_ORIGIN_PLAYING_FIELD;
 
 		Screen->DrawString(7, 0, 0, FONT_Z3SMALL, 0x01, 0x0F, TF_NORMAL, "OX/OY", 128);
@@ -162,11 +190,11 @@ dmapdata script ScrollingDebug
 		Screen->DrawInteger(7, 120, 8, FONT_Z3SMALL, 0x01, 0x0F, -1, -1, Game->Scrolling[SCROLL_NY], 0, 128);
 	}
 
-    void run()
-    {
+	void run()
+	{
 		startedInRegion = Region->ID != 0;
 
-        while (true)
+		while (true)
 		{
 			printf("OX/OY %d %d\n", Game->Scrolling[SCROLL_OX], Game->Scrolling[SCROLL_OY]);
 			printf("NX/NY %d %d\n", Game->Scrolling[SCROLL_NX], Game->Scrolling[SCROLL_NY]);

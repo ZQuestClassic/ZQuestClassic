@@ -47,6 +47,8 @@ screendata script DotFFCs
             Waitdraw();
 
             // Draw a pink circle above every FFC.
+            // During scrolling, the old FFCs are removed (they aren't carryovers), so this
+            // dot won't render then.
             for (int i = 1; i < MAX_FFC; i++)
             {
                 ffc f = Screen->LoadFFC(i);
@@ -75,6 +77,8 @@ dmapdata script DotFFCs2
             Waitdraw();
 
             // Draw a pink circle below every FFC.
+            // During scrolling, the old FFCs are removed (they aren't carryovers), so this
+            // dot won't render then.
             for (int i = 1; i < MAX_FFC; i++)
             {
                 ffc f = Screen->LoadFFC(i);

@@ -28184,7 +28184,6 @@ void HeroClass::run_scrolling_script(int32_t scrolldir, int32_t cx, int32_t sx, 
 	{
 	case up:
 		if(y <= scrolling_new_region.height - 16) y = scrolling_new_region.height;
-		else if(cx > 0 && !end_frames) y = sy + scrolling_new_region.height - 20;
 		else y = scrolling_new_region.height - 16;
 
 		x = new_hero_x;
@@ -28192,7 +28191,6 @@ void HeroClass::run_scrolling_script(int32_t scrolldir, int32_t cx, int32_t sx, 
 		
 	case down:
 		if(y >= 0) y = -16;
-		else if(cx > 0 && !end_frames) y = sy - 172;
 		else y = 0;
 
 		x = new_hero_x;
@@ -28200,7 +28198,6 @@ void HeroClass::run_scrolling_script(int32_t scrolldir, int32_t cx, int32_t sx, 
 		
 	case left:
 		if(x <= scrolling_new_region.width - 16) x = scrolling_new_region.width;
-		else if(cx > 0) x = sx + scrolling_new_region.width - 20;
 		else x = scrolling_new_region.width - 16;
 
 		y = new_hero_y;
@@ -28208,7 +28205,6 @@ void HeroClass::run_scrolling_script(int32_t scrolldir, int32_t cx, int32_t sx, 
 		
 	case right:
 		if(x >= 0) x = -16;
-		else if(cx > 0)	x = sx - 252;
 		else x = 0;
 
 		y = new_hero_y;
@@ -29084,15 +29080,22 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	// currdmap won't change until the end of the scroll. Store new dmap in this global variable.
 	scrolling_destdmap = new_dmap;
 
-	// Calling functions are responsible for setting currmap (but not cur_screen...), but before we _actually_
-	// start to scroll we draw a few frames of the current screen (draw_screen). So we need currmap to be the
-	// old value initially. Callers also set the old map value to `scrolling_map`, so we can use that.
+	// Calling functions are responsible for setting currmap (but not cur_screen...), but before we
+	// _actually_ start to scroll we draw a few frames of the current screen (draw_screen). So we
+	// need currmap to be the old value initially. Callers also set the old map value to
+	// `scrolling_map`, so we can use that.
 	int destmap = currmap;
 	currmap = scrolling_map;
 
+	// This adjusts how drawing commands are interpreted in `do_drawing_command`.
+	// Currently, since only one set of screen scripts/item scripts/etc. can run at a time during
+	// scrolling (either the old screens, which was above and this next "waiting" phase, or the new
+	// screens, which comes after this next part) - a boolean is enough to capture this. If this
+	// changes, we need to vary this behavior based on "is this from the new or old set of screens?"
+	scrolling_using_new_region_coords = true;
+
 	// Wait at least one frame, possibly 32.
 	// These frames will use the new region's coordinates.
-	scrolling_using_new_region_coords = true; // This adjusts how drawing commands are interpreted in `do_drawing_command`.
 	{
 		int wait_counter = scx + 1;
 		while (wait_counter < 32)
@@ -29163,16 +29166,18 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	loadscr(destdmap, destscr, scrolldir, overlay);
 	mapscr* newscr = get_scr(destmap, destscr);
 
-	// For the duration of the scrolling, the old region coordinate system is used for all drawing operations.
-	// This means that the new screens are drawn with offsets relative to the old coordinate system.
-	// This is handled in get_nearby_scrolling_screens.
+	// For the duration of the scrolling, the old region coordinate system is used for all drawing
+	// operations (internally - scripts see the new region coordinate system). This means that the
+	// new screens are drawn with offsets relative to the old coordinate system. These offsets are
+	// determined in get_nearby_scrolling_screens.
 	auto nearby_screens = get_nearby_scrolling_screens(old_temporary_screens, old_viewport, new_viewport);
 
 	// Start scrolling with the previous pfo, and adjust during scrolling if necessary.
 	int new_playing_field_offset = playing_field_offset;
 	playing_field_offset = old_original_playing_field_offset;
 
-	// We must recalculate the new hero position and viewport, if a script run above just change the hero position.
+	// We must recalculate the new hero position and viewport, if a script run above just change the
+	// hero position.
 	if (hero_x_before_scripts != x || hero_y_before_scripts != y)
 	{
 		calc_new_viewport_and_pos();
@@ -29292,8 +29297,9 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	// 1 for scroll, then change playing field offset.
 	// Prefer changing the playing field offset first then scrolling...
 	int pfo_mode = 0;
-	// ... except for when the new region has a larger viewport than the old one AND moving down. That scenario can't change the
-	// playing field offset first because it would have to show portions of the screen above the old one, which is bad.
+	// ... except for when the new region has a larger viewport than the old one AND moving down.
+	// That scenario can't change the playing field offset first because it would have to show
+	// portions of the screen above the old one, which is bad.
 	if (dy == 1 && sign(new_playing_field_offset - old_original_playing_field_offset) == -1)
 		pfo_mode = 1;
 	// ... or for the inverse.
@@ -29343,10 +29349,10 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	auto script_hero_x = x;
 	auto script_hero_y = y;
 
-	// FFCs coordinates are world positions, and so don't need an offset
-	// like when drawing a specific screen's combos in do_scrolling_layer.
-	// But since their coordinates are in the new region's coordinate system,
-	// an offset of the difference between the two coordinate systems is needed.
+	// FFCs coordinates are world positions, and so don't need an offset like when drawing a
+	// specific screen's combos in do_scrolling_layer. But since their coordinates are in the new
+	// region's coordinate system, an offset of the difference between the two coordinate systems is
+	// needed.
 	int new_ffc_offset_x = new_region_offset_x;
 	int new_ffc_offset_y = new_region_offset_y;
 	if (is_warping)
@@ -29359,7 +29365,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		if (scrolling_dir == down) new_ffc_offset_y = 176;
 	}
 
-	// These mark the top-left coordinate of the new screen and the old screen, relative to the old region world coordinates.
+	// These mark the top-left coordinate of the new screen and the old screen, in the old region
+	// coordinates.
 	int nx = 0;
 	int ny = 0;
 	int ox = 0;

@@ -27679,7 +27679,7 @@ void do_drawing_command(const int32_t script_command)
 	}
 	else if (draw_origin == DrawOrigin::WorldScrollingOld)
 	{
-		draw_origin = DrawOrigin::World;
+		draw_origin = DrawOrigin::World; // TODO z3 ! rm?
 	}
 	else if (draw_origin == DrawOrigin::WorldScrollingNew)
 	{
