@@ -341,6 +341,10 @@ Global_Statement :
 		$$ = declaration;}
 	;
 
+Trail_Comma_RBrace:
+	COMMA RBRACE {$$ = $1;}
+	| RBRACE {$$ = $1;}
+
 ////////////////////////////////////////////////////////////////
 // Namespace Declaration
 
@@ -1820,15 +1824,15 @@ Annotated_Enum:
 	| DataEnum {$$ = $1;}
 
 DataEnum:
-	ENUM LBRACE Enum_Block RBRACE {$$ = $3;}
-	| ENUM ASSIGN DataType LBRACE Enum_Block RBRACE {
+	ENUM LBRACE Enum_Block Trail_Comma_RBrace {$$ = $3;}
+	| ENUM ASSIGN DataType LBRACE Enum_Block Trail_Comma_RBrace {
 		ASTDataEnum* list = (ASTDataEnum*)$5;
 		ASTDataType* type = (ASTDataType*)$3;
 		type->constant_ = 1; //force to be constant, skip `const const` errors
 		list->baseType = type;
 		list->location = @$;
 		$$ = list;}
-	| ENUM IDENTIFIER LBRACE Enum_Block RBRACE {
+	| ENUM IDENTIFIER LBRACE Enum_Block Trail_Comma_RBrace {
 		ASTDataEnum* en = (ASTDataEnum*)$4;
 		en->location = @$;
 		ASTString* identifier = (ASTString*)$2;
@@ -2406,7 +2410,7 @@ Literal_Bool :
 Literal_Array :
 	// (int32_t[5]){1, 2, 3}
 	LT DataType LBRACKET Expression_Constant RBRACKET GT
-		  LBRACE Literal_Array_Body RBRACE
+		  LBRACE Literal_Array_Body Trail_Comma_RBrace
 	{
 		ASTDataType* type = (ASTDataType*)$2;
 		ASTExpr* size = (ASTExpr*)$4;
@@ -2428,7 +2432,7 @@ Literal_Array :
 		$$ = al;
 	}
 	// {1, 2, 3}
-	| LBRACE Literal_Array_Body RBRACE {
+	| LBRACE Literal_Array_Body Trail_Comma_RBrace {
 		ASTArrayLiteral* al = (ASTArrayLiteral*)$2;
 		al->location = @$;
 		$$ = al;}
