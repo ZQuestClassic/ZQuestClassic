@@ -28081,9 +28081,85 @@ void HeroClass::run_scrolling_script_int(bool waitdraw)
 
 static zfix new_hero_x, new_hero_y;
 static int new_region_offset_x, new_region_offset_y;
+static region_t scrolling_new_region;
+
+void HeroClass::run_scrolling_script_old(int32_t scrolldir, int32_t cx, int32_t sx, int32_t sy, bool end_frames, bool waitdraw)
+{
+	// For rafting (and possibly other esoteric things)
+	// Hero's action should remain unchanged while scrolling,
+	// but for the sake of scripts, here's an eye-watering kludge.
+	actiontype lastaction = action;
+	action=scrolling; FFCore.setHeroAction(scrolling);
+	if(waitdraw)
+	{
+		FFCore.runGenericPassiveEngine(SCR_TIMING_WAITDRAW);
+	}
+	else
+	{
+		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_FFCS-1);
+	}
+
+	// Also, hero coordinates should remain unchanged.
+	zfix storex = x, storey = y;
+
+	switch(scrolldir)
+	{
+	case up:
+		if(y < scrolling_new_region.height - 16) y = scrolling_new_region.height;
+		else if(cx > 0 && !end_frames) y = sy + scrolling_new_region.height - 20;
+		else y = scrolling_new_region.height - 16;
+
+		x = new_hero_x;
+		break;
+		
+	case down:
+		if(y > 0) y = -16;
+		else if(cx > 0 && !end_frames) y = sy - 172;
+		else y = 0;
+
+		x = new_hero_x;
+		break;
+		
+	case left:
+		if(x < scrolling_new_region.width - 16) x = scrolling_new_region.width;
+		else if(cx > 0) x = sx + scrolling_new_region.width - 20;
+		else x = scrolling_new_region.width - 16;
+
+		y = new_hero_y;
+		break;
+		
+	case right:
+		if(x > 0) x = -16;
+		else if(cx > 0)	x = sx - 252;
+		else x = 0;
+
+		y = new_hero_y;
+		break;
+	}
+
+	viewport.x -= new_region_offset_x;
+	viewport.y -= new_region_offset_y;
+
+	run_scrolling_script_int(waitdraw);
+
+	viewport.x += new_region_offset_x;
+	viewport.y += new_region_offset_y;
+
+	x = storex, y = storey;
+	action=lastaction; FFCore.setHeroAction(lastaction);
+}
 
 void HeroClass::run_scrolling_script(int32_t scrolldir, int32_t cx, int32_t sx, int32_t sy, bool end_frames, bool waitdraw)
 {
+	// TODO(replays): these are the only replays that have graphical changes when not using the old
+	// code, but iirc they are all minor visual bugs so removing this is a positive (confirm before
+	// removal, else apply compat QR).
+	if (replay_is_debug() && (replay_get_meta_str("qst") == "crucible_quest.qst" || replay_get_meta_str("qst") == "freedom_in_chains.qst"))
+	{
+		run_scrolling_script_old(scrolldir, cx, sx, sy, end_frames, waitdraw);
+		return;
+	}
+
 	// For rafting (and possibly other esoteric things)
 	// Hero's action should remain unchanged while scrolling,
 	// but for the sake of scripts, here's an eye-watering kludge.
@@ -28103,28 +28179,19 @@ void HeroClass::run_scrolling_script(int32_t scrolldir, int32_t cx, int32_t sx, 
 
 	// During scrolling, `ZScriptVersion::RunScrollingScript` (which calls this function) runs even
 	// during the "waiting" phase of the scroll. Adjusting the hero position during this time is
-	// unexpected and results in visual bugs. For now, only do this for the waiting phase for
-	// replays.
-	bool should_modify_hero_xy = scrolling_using_new_region_coords; // true only after the waiting phase.
-
-	// TODO(replays): crucible_quest.qst is the (only?) replay test that has graphical changes when
-	// this is skipped, but iirc they are all minor visual bugs so removing this is a positive
-	// (confirm before removal, else apply compat QR).
-	if (replay_is_debug())
-		should_modify_hero_xy |= replay_get_meta_str("qst") == "crucible_quest.qst";
-
-	if (should_modify_hero_xy) switch(scrolldir)
+	// unexpected and results in visual bugs.
+	switch(scrolldir)
 	{
 	case up:
-		if(y < world_h - 16) y = world_h;
-		else if(cx > 0 && !end_frames) y = sy + world_h - 20;
-		else y = world_h - 16;
+		if(y <= scrolling_new_region.height - 16) y = scrolling_new_region.height;
+		else if(cx > 0 && !end_frames) y = sy + scrolling_new_region.height - 20;
+		else y = scrolling_new_region.height - 16;
 
 		x = new_hero_x;
 		break;
 		
 	case down:
-		if(y > 0) y = -16;
+		if(y >= 0) y = -16;
 		else if(cx > 0 && !end_frames) y = sy - 172;
 		else y = 0;
 
@@ -28132,15 +28199,15 @@ void HeroClass::run_scrolling_script(int32_t scrolldir, int32_t cx, int32_t sx, 
 		break;
 		
 	case left:
-		if(x < world_w - 16) x = world_w;
-		else if(cx > 0) x = sx + world_w - 20;
-		else x = world_w - 16;
+		if(x <= scrolling_new_region.width - 16) x = scrolling_new_region.width;
+		else if(cx > 0) x = sx + scrolling_new_region.width - 20;
+		else x = scrolling_new_region.width - 16;
 
 		y = new_hero_y;
 		break;
 		
 	case right:
-		if(x > 0) x = -16;
+		if(x >= 0) x = -16;
 		else if(cx > 0)	x = sx - 252;
 		else x = 0;
 
@@ -28148,27 +28215,21 @@ void HeroClass::run_scrolling_script(int32_t scrolldir, int32_t cx, int32_t sx, 
 		break;
 	}
 
-	if (scrolling_using_new_region_coords)
-	{
-		viewport.x -= new_region_offset_x;
-		viewport.y -= new_region_offset_y;
+	viewport.x -= new_region_offset_x;
+	viewport.y -= new_region_offset_y;
 
-		if (QHeader.is_z3) // TODO z3 ! compat QR
-		{
-			if (scrolldir == left || scrolldir == right)
-				x.doClamp(viewport.left(), viewport.right() - 16);
-			if (scrolldir == up || scrolldir == down)
-				y.doClamp(viewport.top(), viewport.bottom() - 16);
-		}
+	if (QHeader.is_z3) // TODO z3 ! compat QR?
+	{
+		if (scrolldir == left || scrolldir == right)
+			x.doClamp(viewport.left(), viewport.right() - 16);
+		if (scrolldir == up || scrolldir == down)
+			y.doClamp(viewport.top(), viewport.bottom() - 16);
 	}
 
 	run_scrolling_script_int(waitdraw);
 
-	if (scrolling_using_new_region_coords)
-	{
-		viewport.x += new_region_offset_x;
-		viewport.y += new_region_offset_y;
-	}
+	viewport.x += new_region_offset_x;
+	viewport.y += new_region_offset_y;
 	
 	x = storex, y = storey;
 	action=lastaction; FFCore.setHeroAction(lastaction);
@@ -28763,6 +28824,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 
 		new_viewport = {};
 		z3_calculate_viewport(new_viewport, new_dmap, destscr, new_region.width, new_region.height, new_hero_x + Hero.txsz*16/2, new_hero_y + Hero.tysz*16/2);
+
+		scrolling_new_region = new_region;
 	};
 	calc_new_viewport_and_pos();
 
@@ -29028,9 +29091,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	currmap = scrolling_map;
 
 	// Wait at least one frame, possibly 32.
-	// These frames will use the old region's coordinates (since scrolling_using_new_region_coords is false),
-	// but the hero position will be in the new region's coordinates (see HeroClass::run_scrolling_script).
-	scrolling_using_new_region_coords = false;
+	// These frames will use the new region's coordinates.
+	scrolling_using_new_region_coords = true; // This adjusts how drawing commands are interpreted in `do_drawing_command`.
 	{
 		int wait_counter = scx + 1;
 		while (wait_counter < 32)
@@ -29062,7 +29124,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		}
 	}
 
-	scrolling_using_new_region_coords = true;
 	script_drawing_commands.Clear();
 	FFCore.runGenericPassiveEngine(SCR_TIMING_START_FRAME);
 

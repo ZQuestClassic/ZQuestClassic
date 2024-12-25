@@ -27674,7 +27674,7 @@ void do_drawing_command(const int32_t script_command)
 	}
 	if (draw_origin == DrawOrigin::World)
 	{
-		if (screenscrolling && scrolling_using_new_region_coords)
+		if (scrolling_using_new_region_coords)
 			draw_origin = DrawOrigin::WorldScrollingNew;
 	}
 	else if (draw_origin == DrawOrigin::WorldScrollingOld)
