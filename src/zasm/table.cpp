@@ -19,6 +19,7 @@ static script_command null_command = {"0xFFFF", (ASM_DEFINE)0xFFFF, 0, {ARGTY::U
 
 static constexpr script_command command_list[]=
 {
+	// Order doesn't matter - sort_script_commands will sort at compile time.
 	//name command args arg1 arg2 more
 	{ "SETV", SETV, 2, { REG_W, NUM }, 0, 0 },
 	{ "SETR", SETR, 2, { REG_W, REG_R }, 0, 0 },
@@ -1177,6 +1178,7 @@ static constexpr script_command command_list[]=
 
 static constexpr script_variable variable_list[]=
 {
+	// Order doesn't matter.
 	//name id maxcount
 	{ "D", D(0), INITIAL_D},
 	{ "DATA", DATA, 0},
@@ -2659,7 +2661,8 @@ static constexpr script_variable variable_list[]=
 	{ "REGION_SCREEN_HEIGHT", REGION_SCREEN_HEIGHT, 0},
 	{ "SPRITE_SCREEN_INDEX", SPRITE_SCREEN_INDEX, 0},
 	{ "SCREEN_INDEX", SCREEN_INDEX, 0},
-	{ "SCREEN_DRAW_MODE", SCREEN_DRAW_MODE, 0},
+	{ "SCREEN_DRAW_ORIGIN", SCREEN_DRAW_ORIGIN, 0},
+	{ "SCREEN_DRAW_ORIGIN_TARGET", SCREEN_DRAW_ORIGIN_TARGET, 0},
 	{ "REGION_NUM_COMBOS", REGION_NUM_COMBOS, 0},
 	{ "REGION_ID", REGION_ID, 0},
 	{ "REGION_ORIGIN_SCREEN", REGION_ORIGIN_SCREEN, 0},

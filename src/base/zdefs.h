@@ -1403,9 +1403,11 @@ enum class DrawOrigin
 	WorldScrollingNew,
 	// The origin `(0, 0)` is the top-left pixel of the old region being scrolled away from.
 	WorldScrollingOld,
+	// The origin `(0, 0)` is the top-left pixel of the sprite `Screen->DrawOriginTarget`.
+	Sprite,
 
 	First = Default,
-	Last = WorldScrollingOld,
+	Last = Sprite,
 };
 
 class refInfo
@@ -1423,7 +1425,8 @@ public:
 	int32_t idata;
 	dword itemref, guyref, lwpn, ewpn;
 	dword screenref, npcdataref, bitmapref, spriteref, spritedataref, dmapsref, zmsgref, shopsref, untypedref;
-	DrawOrigin screen_draw_mode;
+	DrawOrigin screen_draw_origin;
+	int32_t screen_draw_origin_target;
 	int32_t mapsref;
 	//to implement
 	dword dropsetref, pondref, warpringref, doorsref, zcoloursref, rgbref, paletteref, palcycleref, tunesref;

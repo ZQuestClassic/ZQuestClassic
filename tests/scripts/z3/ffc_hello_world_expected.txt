@@ -31,7 +31,7 @@ SETR D4 SP2
 SETV D2 0.0003
 PUSHR D2
 POP D2
-SETR SCREEN_DRAW_MODE D2
+SETR SCREEN_DRAW_ORIGIN D2
 WAITDRAW; InlineFunc[void Waitdraw()] Body AND while(true) #2 Body [Opt:AlwaysOn] Start
 STOREV 1 0.0004; for() #150 setup
 LOAD D2 0.0004; for() #150 LoopTest
@@ -96,7 +96,7 @@ SETR D4 SP2
 SETV D2 0.0003
 PUSHR D2
 POP D2
-SETR SCREEN_DRAW_MODE D2
+SETR SCREEN_DRAW_ORIGIN D2
 WAITDRAW; InlineFunc[void Waitdraw()] Body AND while(true) #3 Body [Opt:AlwaysOn] Start
 STOREV 1 0.0004; for() #151 setup
 LOAD D2 0.0004; for() #151 LoopTest
@@ -244,7 +244,7 @@ GOTO 92
 SETV D2 0
 PUSHR D2
 POP D2
-SETR SCREEN_DRAW_MODE D2
+SETR SCREEN_DRAW_ORIGIN D2
 PUSHV 6; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start
 LOAD D2 0.0003
 PUSHR D2

@@ -7,6 +7,7 @@
 
 #include "base/qrs.h"
 #include "base/dmap.h"
+#include "base/zdefs.h"
 #include "base/zc_alleg.h"
 #include "zc/script_drawing.h"
 #include "zc/rendertarget.h"
@@ -11859,6 +11860,18 @@ void do_primitives(BITMAP *targetBitmap, int32_t type, int32_t xoff, int32_t yof
 		{
 			xoffset = 0;
 			yoffset = 0;
+		}
+		else if (draw_origin == DrawOrigin::Sprite)
+		{
+			sprite* spr = sprite::getByUID(command.draw_origin_target);
+			if (!spr)
+			{
+				Z_scripterrlog("Warning: Ignoring draw command using DRAW_ORIGIN_SPRITE with non-existent sprite uid: %d.\n", command.draw_origin_target);
+				continue;
+			}
+
+			xoffset = xoff - viewport.x + spr->x.getInt();
+			yoffset = yoff - viewport.y + spr->y.getInt();
 		}
 		else
 		{

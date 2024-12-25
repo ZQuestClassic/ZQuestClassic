@@ -278,6 +278,7 @@ protected:
 
 public:
 	DrawOrigin draw_origin;
+	int32_t draw_origin_target;
 };
 
 

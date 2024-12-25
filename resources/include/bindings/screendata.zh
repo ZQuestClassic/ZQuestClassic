@@ -1,3 +1,5 @@
+#include "bindings/sprite.zh"
+
 // 176 per screen in the current region. Same as [Region->NumCombos].
 //
 // @zasm_var REGION_NUM_COMBOS
@@ -41,7 +43,11 @@ enum DrawOrigin
 	// The origin `(0, 0)` is the top-left pixel of the old region being scrolled away from.
 	//
 	// Equivalent to [DRAW_ORIGIN_WORLD] when not scrolling.
-	DRAW_ORIGIN_WORLD_SCROLLING_OLD = 5L
+	DRAW_ORIGIN_WORLD_SCROLLING_OLD = 5L,
+	// The origin `(0, 0)` is the top-left pixel of the sprite [Screen->DrawOriginTarget].
+	//
+	// If the sprite no longer exists at time of drawing, then the draw command will be ignored.
+	DRAW_ORIGIN_SPRITE = 6L
 };
 
 // Contains functions and variables related to the currently loaded [mapdata] screen,
@@ -781,8 +787,16 @@ class screendata {
 	//
 	// Defaults to [DRAW_ORIGIN_DEFAULT].
 	//
-	// @zasm_var SCREEN_DRAW_MODE
+	// @zasm_var SCREEN_DRAW_ORIGIN
 	internal DrawOrigin DrawOrigin;
+
+	// When [Screen->DrawOrigin] is [DRAW_ORIGIN_SPRITE], this sprite is used as the origin
+	// for [Screen] drawing functions.
+	//
+	// Each script has its own copy of this variable.
+	//
+	// @zasm_var SCREEN_DRAW_ORIGIN_TARGET
+	internal sprite DrawOriginTarget;
 
 	// @zasm
 	//   RECTR

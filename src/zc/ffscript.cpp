@@ -2659,6 +2659,7 @@ void bad_subwidg_type(string const& name, bool func, byte type)
 		func ? "function" : "value");
 }
 
+// TODO: Remove this.
 sprite *s;
 
 int32_t item_flag(item_flags flag)
@@ -7011,8 +7012,12 @@ int32_t get_register(int32_t arg)
 			ret = ri->screenref*10000;
 			break;
 
-		case SCREEN_DRAW_MODE:
-			ret = (int)ri->screen_draw_mode;
+		case SCREEN_DRAW_ORIGIN:
+			ret = (int)ri->screen_draw_origin;
+			break;
+		
+		case SCREEN_DRAW_ORIGIN_TARGET:
+			ret = ri->screen_draw_origin_target;
 			break;
 
 		//Creates an lweapon using an iemdata struct values to generate its properties.
@@ -17091,7 +17096,7 @@ void set_register(int32_t arg, int32_t value)
 		sprite* s = sprite::getByUID(value);
 		if (!s)
 		{
-			Z_scripterrlog("Invalid pointer for UID %ld (setting '%s').\n", value, "Viewport->Target");
+			Z_scripterrlog("Invalid pointer for UID %d (setting '%s').\n", value, "Viewport->Target");
 			return;
 		}
 
@@ -17102,6 +17107,7 @@ void set_register(int32_t arg, int32_t value)
 	case VIEWPORT_MODE:
 	{
 		int val = value;
+		// TODO z3 ! ::First, ::Last like DrawOrigin enum
 		if (BC::checkBounds(val, 0, (int)ViewportMode::Max, "Viewport->Mode") != SH::_NoError)
 		{
 			Z_scripterrlog("invalid value for Viewport->Mode: %d\n", val);
@@ -17678,12 +17684,24 @@ void set_register(int32_t arg, int32_t value)
 			get_scr(ri->screenref)->undercset=value/10000;
 			break;
 		
-		case SCREEN_DRAW_MODE:
-			if (BC::checkBounds(value, (int)DrawOrigin::First, (int)DrawOrigin::Last, "Screen-DrawMode") != SH::_NoError)
+		case SCREEN_DRAW_ORIGIN:
+			if (BC::checkBounds(value, (int)DrawOrigin::First, (int)DrawOrigin::Last, "Screen-DrawOrigin") != SH::_NoError)
 				return;
 
-			ri->screen_draw_mode = (DrawOrigin)value;
+			ri->screen_draw_origin = (DrawOrigin)value;
 			break;
+
+		case SCREEN_DRAW_ORIGIN_TARGET:
+		{
+			if (!sprite::getByUID(value))
+			{
+				Z_scripterrlog("Invalid pointer for UID %d (setting '%s').\n", value, "Screen->DrawOriginTarget");
+				return;
+			}
+
+			ri->screen_draw_origin_target = value;
+			break;
+		}
 
 		case DEBUGGDR:
 		{
@@ -27647,7 +27665,7 @@ void do_drawing_command(const int32_t script_command)
 	script_drawing_commands[j][0] = script_command;
 	script_drawing_commands[j][DRAWCMD_CURRENT_TARGET] = zscriptDrawingRenderTarget->GetCurrentRenderTarget();
 
-	DrawOrigin draw_origin = ri->screen_draw_mode;
+	DrawOrigin draw_origin = ri->screen_draw_origin;
 	if (draw_origin == DrawOrigin::Default)
 	{
 		// TODO z3 sure about this? :)
@@ -27670,6 +27688,7 @@ void do_drawing_command(const int32_t script_command)
 	}
 
 	script_drawing_commands[j].draw_origin = draw_origin;
+	script_drawing_commands[j].draw_origin_target = ri->screen_draw_origin_target;
 
 	switch(script_command)
 	{

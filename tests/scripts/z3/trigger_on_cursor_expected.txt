@@ -54,7 +54,7 @@ STORE D2 0
 SETV D2 0.0001
 PUSHR D2
 POP D2
-SETR SCREEN_DRAW_MODE D2
+SETR SCREEN_DRAW_ORIGIN D2
 PUSHV 3; InlineFunc[void screendata::DrawCombo(int, int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start
 LOAD D2 0.0001
 PUSHR D2
