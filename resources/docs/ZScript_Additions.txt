@@ -939,6 +939,17 @@ If the type of an enum is set to `long`, it will auto-increment by `1L` instead 
 		C  //2L
 	};
 	--end example]
+The `@Increment` annotation can be used to manually set the increment value
+	[example--
+	@Increment(0.5)
+	enum
+	{
+		A, //0
+		B, //0.5
+		C, //1
+		D //1.5
+	};
+	--end example]
 		
 You can also define a C style enumerated list with an identifier. 
 This act defines a pseudo-datatype, with assignable values limited to
