@@ -45,13 +45,6 @@ Checkbox( \
 	} \
 )
 
-#define INFOCBOX(var, bit, txt, info, cspan) \
-Row(colSpan = cspan, \
-	INFOBTN(info), \
-	CBOX(var,bit,txt,1) \
-)
-
-
 #define DDL(var, lister) \
 DropDownList(data = lister, \
 	fitParent = true, \

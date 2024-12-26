@@ -68,7 +68,7 @@ struct AnnotData
 {
 	string key, strval;
 	string val, unescaped_val;
-	int intval;
+	zfix intval;
 	uint type;
 };
 void annot_errstr(string const& str)
@@ -109,7 +109,7 @@ void handle_annotations(ASTAnnotationList* list, std::function<bool(AnnotData&)>
 		else if(a->intval)
 		{
 			data.type = ANNTY_INT;
-			data.intval = a->intval->getValue(nullptr);
+			data.intval = zslongToFix(a->intval->getValue(nullptr));
 		}
 		
 		data.val = "";
@@ -121,7 +121,7 @@ void handle_annotations(ASTAnnotationList* list, std::function<bool(AnnotData&)>
 				data.unescaped_val = util::disallow_escapes(util::escape_characters(data.strval));
 				break;
 			case ANNTY_INT:
-				data.val = data.unescaped_val = to_string(data.intval);
+				data.val = data.unescaped_val = data.intval.str();
 				break;
 		}
 		annot_err_txt = "@" + data.key + "(" + data.val + ")";
@@ -330,7 +330,7 @@ Global_Statement :
 	| Script {$$ = $1;}
 	| Annotated_Script {$$ = $1;}
 	| Class {$$ = $1;}
-	| DataEnum SEMICOLON {$$ = $1;}
+	| Annotated_Enum SEMICOLON {$$ = $1;}
 	| Using SEMICOLON {$$ = $1;}
 	| AlwaysUsing SEMICOLON {$$ = $1;}
 	| Statement_Assert SEMICOLON {$$ = $1;}
@@ -340,6 +340,10 @@ Global_Statement :
 		declaration->compileErrorCatches.push_back(errorId);
 		$$ = declaration;}
 	;
+
+Trail_Comma_RBrace:
+	COMMA RBRACE {$$ = $1;}
+	| RBRACE {$$ = $1;}
 
 ////////////////////////////////////////////////////////////////
 // Namespace Declaration
@@ -456,7 +460,7 @@ Namespace_Statement :
 	| Script {$$ = $1;}
 	| Annotated_Script {$$ = $1;}
 	| Class {$$ = $1;}
-	| DataEnum SEMICOLON {$$ = $1;}
+	| Annotated_Enum SEMICOLON {$$ = $1;}
 	| Using SEMICOLON {$$ = $1;}
 	| Statement_Assert SEMICOLON {$$ = $1;}
 	| EXPECTERROR LPAREN Expression_Constant RPAREN Namespace_Statement {
@@ -554,7 +558,6 @@ Statement_Assert :
 // Type Declaration
 
 DataTypeDef : StandardDataTypedef {$$ = $1;}
-	| EnumDataTypedef {$$ = $1;}
 	;
 
 StandardDataTypedef : TYPEDEF DataType IDENTIFIER {
@@ -563,15 +566,6 @@ StandardDataTypedef : TYPEDEF DataType IDENTIFIER {
 	$$ = new ASTDataTypeDef(type, name->getValue(), @1);
 	delete name;}
 	;
-
-EnumDataTypedef : ENUM IDENTIFIER LBRACE Enum_Block RBRACE {
-	ASTDataEnum* en = (ASTDataEnum*)$4;
-	en->location = @$;
-	ASTString* identifier = (ASTString*)$2;
-	auto custom_typedef = new ASTCustomDataTypeDef(NULL, identifier, en, @$);
-	custom_typedef->doc_comment = std::move(identifier->doc_comment);
-	$$ = custom_typedef;
-	}
 
 DataType :
 	DataType EMPTYBRACKETS {
@@ -1020,7 +1014,7 @@ Class_Block_Element :
 		func->setFlag(FUNCFLAG_CLASSFUNC);
 		$$ = func;}
 	| DataTypeDef SEMICOLON {$$ = $1;}
-	| DataEnum SEMICOLON {$$ = $1;}
+	| Annotated_Enum SEMICOLON {$$ = $1;}
 	| Using SEMICOLON {$$ = $1;}
 	| Statement_Assert SEMICOLON {$$ = $1;}
 	| EXPECTERROR LPAREN Expression_Constant RPAREN Class_Block_Element {
@@ -1052,7 +1046,7 @@ Annotated_Script :
 			else if(key == "InitScript")
 			{
 				if(annot_type_check(ANNTY_INT, data))
-					script->init_weight = data.intval;
+					script->init_weight = data.intval.getZLong();
 				return true;
 			}
 			else if((key.size() == 5 || key.size() == 6) && !key.compare(0,4,"Flag"))
@@ -1291,7 +1285,7 @@ Script_Block_Element :
 	Data SEMICOLON {$$ = $1;}
 	| Function {$$ = $1;}
 	| DataTypeDef SEMICOLON {$$ = $1;}
-	| DataEnum SEMICOLON {$$ = $1;}
+	| Annotated_Enum SEMICOLON {$$ = $1;}
 	| Using SEMICOLON {$$ = $1;}
 	| Statement_Assert SEMICOLON {$$ = $1;}
 	| EXPECTERROR LPAREN Expression_Constant RPAREN Script_Block_Element {
@@ -1369,7 +1363,7 @@ Statement :
 	// Declarations
 	Data SEMICOLON {$$ = $1;}
 	| DataTypeDef SEMICOLON {$$ = $1;}
-	| DataEnum SEMICOLON {$$ = $1;}
+	| Annotated_Enum SEMICOLON {$$ = $1;}
 	| Using SEMICOLON {$$ = $1;}
 	// Normal Statements
 	| Statement_Expression SEMICOLON {$$ = $1;}
@@ -1403,7 +1397,7 @@ Statement_NoSemicolon:
 	// Declarations
 	Data {$$ = $1;}
 	| DataTypeDef {$$ = $1;}
-	| DataEnum {$$ = $1;}
+	| Annotated_Enum {$$ = $1;}
 	// Normal Statements
 	| Statement_Expression {$$ = $1;}
 	| Statement_Block {$$ = $1;}
@@ -1811,15 +1805,42 @@ Statement_CompileError :
 		$$ = statement;}
 	;
 
+Annotated_Enum:
+	Annotation_List DataEnum {
+		ASTAnnotationList* list = (ASTAnnotationList*)$1;
+		ASTDataEnum* en = dynamic_cast<ASTDataEnum*>($2);
+		ASTCustomDataTypeDef* tdef = dynamic_cast<ASTCustomDataTypeDef*>($2);
+		if(tdef) en = tdef->definition.get();
+		handle_annotations(list, [&](AnnotData& data)
+		{
+			auto& key = data.key;
+			if(key == "Increment")
+			{
+				if(annot_type_check(ANNTY_INT, data))
+					en->increment_val = data.intval;
+				return true;
+			}
+			return false;
+		});
+		$$ = $2;}
+	| DataEnum {$$ = $1;}
+
 DataEnum:
-	ENUM LBRACE Enum_Block RBRACE {$$ = $3;}
-	| ENUM ASSIGN DataType LBRACE Enum_Block RBRACE {
+	ENUM LBRACE Enum_Block Trail_Comma_RBrace {$$ = $3;}
+	| ENUM ASSIGN DataType LBRACE Enum_Block Trail_Comma_RBrace {
 		ASTDataEnum* list = (ASTDataEnum*)$5;
 		ASTDataType* type = (ASTDataType*)$3;
 		type->constant_ = 1; //force to be constant, skip `const const` errors
 		list->baseType = type;
 		list->location = @$;
-		$$ = list;};
+		$$ = list;}
+	| ENUM IDENTIFIER LBRACE Enum_Block Trail_Comma_RBrace {
+		ASTDataEnum* en = (ASTDataEnum*)$4;
+		en->location = @$;
+		ASTString* identifier = (ASTString*)$2;
+		auto custom_typedef = new ASTCustomDataTypeDef(NULL, identifier, en, @$);
+		custom_typedef->doc_comment = std::move(identifier->doc_comment);
+		$$ = custom_typedef;};
 
 Enum_Block:
 	Enum_Block COMMA Data_Element {
@@ -2391,7 +2412,7 @@ Literal_Bool :
 Literal_Array :
 	// (int32_t[5]){1, 2, 3}
 	LT DataType LBRACKET Expression_Constant RBRACKET GT
-		  LBRACE Literal_Array_Body RBRACE
+		  LBRACE Literal_Array_Body Trail_Comma_RBrace
 	{
 		ASTDataType* type = (ASTDataType*)$2;
 		ASTExpr* size = (ASTExpr*)$4;
@@ -2413,7 +2434,7 @@ Literal_Array :
 		$$ = al;
 	}
 	// {1, 2, 3}
-	| LBRACE Literal_Array_Body RBRACE {
+	| LBRACE Literal_Array_Body Trail_Comma_RBrace {
 		ASTArrayLiteral* al = (ASTArrayLiteral*)$2;
 		al->location = @$;
 		$$ = al;}

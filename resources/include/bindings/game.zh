@@ -267,19 +267,27 @@ class Game {
 	//
 	// @zasm_var GAMELKEYSD
 	internal int LKeys[];
+	
+	// @deprecated Use [Game->LevelStates] instead!
+	// @zasm_var GAMELSWITCH
+	internal long LSwitches[];
 
+	// @deprecated Use [Game->GlobalStates] instead!
+	// @zasm_var GAMEGSWITCH
+	internal int GSwitch[];
+	
 	// The level-specific switch states for each level. Each level has a single
 	// `long`, representing 32 bitwise states. Ex:
-	// `(Game->LSwitches[Game->CurLevel] & (1Lb << (5)))` will get the switch
+	// `(Game->LevelStates[Game->CurLevel] & (1Lb << (5)))` will get the switch
 	// state indexed `5`.
 	//
 	// @zasm_var GAMELSWITCH
-	internal long LSwitches[];
+	internal long LevelStates[];
 
 	// The 256 global switch timers.
 	//
 	// @zasm_var GAMEGSWITCH
-	internal int GSwitch[];
+	internal int GlobalStates[];
 
 	// The contents of the [Hero]'s fillable bottles. Use bottle type IDs for
 	// the values, and slots (set in the bottle item's attributes) as the

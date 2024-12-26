@@ -1,0 +1,87 @@
+stderr:
+
+Compiling 'enum.zs'
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+Pass 5: Checking code paths
+Pass 6: Generating object code
+Pass 7: Assembling
+Success!
+Compile finished with exit code '0' (success)
+
+stdout:
+
+{
+  "success": true,
+  "diagnostics": [],
+  "metadata": {
+    "currentFileSymbols": 30,
+    "symbols": 23,
+    "identifiers": 23,
+    "elided": true
+  }
+}
+
+zasm:
+
+PUSHARGSV 0 0.0007; void run() Body Start
+SETR D4 SP2
+ALLOCATEMEMV D2 6 0
+STORE D2 0.0005
+WRITEPODSTRING D2 "%aad\n"
+ALLOCATEMEMV D2 4 0
+STORE D2 0
+SETR D0 D2
+PUSHR D0
+ALLOCATEMEMV D2 5 0
+STORE D2 0.0004
+WRITEPODARRAY D2 {0,1,2,3,4}
+LOAD D2 0.0004
+POP D0
+WRITEPODARRAYVR 0 D2
+PUSHR D0
+ALLOCATEMEMV D2 5 0
+STORE D2 0.0003
+WRITEPODARRAY D2 {0,2,4,6,8}
+LOAD D2 0.0003
+POP D0
+WRITEPODARRAYVR 1 D2
+PUSHR D0
+ALLOCATEMEMV D2 5 0
+STORE D2 0.0002
+WRITEPODARRAY D2 {0,0.0001,0.0002,0.0003,0.0004}
+LOAD D2 0.0002
+POP D0
+WRITEPODARRAYVR 2 D2
+PUSHR D0
+ALLOCATEMEMV D2 5 0
+STORE D2 0.0001
+WRITEPODARRAY D2 {0,0.5,1,1.5,2}
+LOAD D2 0.0001
+POP D0
+WRITEPODARRAYVR 3 D2
+LOAD D2 0.0005; InlineFunc[void printf(char32[])] Params Start
+PUSHR D2
+LOAD D2 0
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
+LOAD D3 0.0005
+DEALLOCATEMEMR D3
+LOAD D3 0.0004
+DEALLOCATEMEMR D3
+LOAD D3 0.0003
+DEALLOCATEMEMR D3
+LOAD D3 0.0002
+DEALLOCATEMEMR D3
+LOAD D3 0.0001
+DEALLOCATEMEMR D3
+LOAD D3 0
+DEALLOCATEMEMR D3
+POPARGS D5 0.0007
+QUIT; void run() Body End
+
+
+QUIT; void run() Body

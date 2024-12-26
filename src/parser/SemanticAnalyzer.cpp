@@ -606,7 +606,7 @@ void SemanticAnalyzer::caseDataEnum(ASTDataEnum& host, void* param)
 	}
 
 	//Handle initializer assignment
-	int32_t ipart = 0, dpart = 0;
+	zfix value = 0;
 	bool is_first = true;
 	std::vector<ASTDataDecl*> decls = host.getDeclarations();
 	for(vector<ASTDataDecl*>::iterator it = decls.begin();
@@ -618,12 +618,14 @@ void SemanticAnalyzer::caseDataEnum(ASTDataEnum& host, void* param)
 		{
 			if(!is_first)
 			{
-				if(baseType->isLong())
-					++dpart;
-				else ++ipart;
+				if(host.increment_val)
+					value += *host.increment_val;
+				else if(baseType->isLong())
+					value += 0.0001_zf;
+				else value += 1;
 			}
-			ASTNumberLiteral* value = new ASTNumberLiteral(new ASTFloat(ipart, dpart, host.location), host.location);
-			declaration->setInitializer(value);
+			ASTNumberLiteral* lit = new ASTNumberLiteral(new ASTFloat(value.getTrunc(), value.getZLongDPart(), host.location), host.location);
+			declaration->setInitializer(lit);
 		}
 		is_first = false;
 		visit(declaration, param);
@@ -631,11 +633,7 @@ void SemanticAnalyzer::caseDataEnum(ASTDataEnum& host, void* param)
 		if(init) //Set spot for next auto-fill, enforce const-ness
 		{
 			if(std::optional<int32_t> v = init->getCompileTimeValue(this, scope))
-			{
-				int32_t val = *v;
-				ipart = val/10000;
-				dpart = val%10000;
-			}
+				value = zslongToFix(*v);
 			else
 			{
 				handleError(CompileError::ExprNotConstant(declaration));

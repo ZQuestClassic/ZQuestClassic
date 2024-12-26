@@ -1066,6 +1066,8 @@ namespace ZScript
 		std::string getName() const;
 		void execute(ASTVisitor& visitor, void* param = NULL);
 		virtual bool isEnum() const {return true;}
+		
+		optional<zfix> increment_val;
 	private:
 		int32_t nextVal;
 	};
