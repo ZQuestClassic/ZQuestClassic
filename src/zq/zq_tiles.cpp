@@ -13160,11 +13160,10 @@ int32_t readcomboaliasfile(PACKFILE *f)
 	al_trace("Reading combo: count(%d)\n", count);
 	
 	combo_alias temp_alias;
-	memset(&temp_alias, 0, sizeof(temp_alias));
 
 	for ( int32_t tilect = 0; tilect < count; tilect++ )
 	{
-		memset(&temp_alias, 0, sizeof(temp_alias));
+		temp_alias.clear();
 		if(!p_igetw(&temp_alias.combo,f))
 			{
 				return 0;
@@ -13234,9 +13233,7 @@ int32_t readcomboaliasfile(PACKFILE *f)
 			//al_trace("Combo Alias CSet [%d] is: %d\n", k, temp_alias.csets[k]);
 		}
 			}
-		//al_trace("Read alias csets.\n");
-		//al_trace("About to memcpy a combo alias\n");
-		memcpy(&combo_aliases[index+(tilect)],&temp_alias,sizeof(combo_alias));
+		combo_aliases[index+(tilect)] = temp_alias;
 	}
 	
 	//::memcpy(&(newtilebuf[tile_index]),&temptile,sizeof(tiledata));
@@ -13311,11 +13308,10 @@ int32_t readcomboaliasfile_to_location(PACKFILE *f, int32_t start)
 	
 	
 	combo_alias temp_alias;
-	memset(&temp_alias, 0, sizeof(temp_alias)); 
 
 	for ( int32_t tilect = 0; tilect < count; tilect++ )
 	{
-		memset(&temp_alias, 0, sizeof(temp_alias));
+		temp_alias.clear();
 		if(!p_igetw(&temp_alias.combo,f))
 		{
 			return 0;
@@ -13378,7 +13374,7 @@ int32_t readcomboaliasfile_to_location(PACKFILE *f, int32_t start)
 		
 		if ( start+(tilect) < MAXCOMBOALIASES )
 		{
-			memcpy(&combo_aliases[start+(tilect)],&temp_alias,sizeof(temp_alias));
+			combo_aliases[start + (tilect)] = temp_alias;
 		}
 	}
 	return 1;
