@@ -381,14 +381,14 @@ POPARGS D5 0.0021
 QUIT; void run() Body End
 PUSHV 0; Func[void Fail(char32[])] Body Start
 SETR D4 SP2
-LOAD D2 0.0001; InlineFunc[int strlen(char32[])] Params Start AND if() #104 Test
+LOAD D2 0.0001; InlineFunc[int strlen(char32[])] Params Start AND if() #103 Test
 SETR D3 D2; InlineFunc[int strlen(char32[])] Params End
 STRINGLENGTH D2 D3; InlineFunc[int strlen(char32[])] Body
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 301 ==; Test 'if'
-ALLOCATEMEMV D2 24 0; if() #104 Body Start
+ALLOCATEMEMV D2 24 0; if() #103 Body Start
 STORE D2 0
 WRITEPODSTRING D2 "[Test] failed test: %s\n"
 LOAD D2 0; InlineFunc[void printf(char32[])] Params Start
@@ -399,8 +399,8 @@ PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0
 DEALLOCATEMEMR D3
-GOTO 310; if() #104 Body End
-ALLOCATEMEMV D2 20 0; if() #104 Else Start
+GOTO 310; if() #103 Body End
+ALLOCATEMEMV D2 20 0; if() #103 Else Start
 STORE D2 0
 WRITEPODSTRING D2 "[Test] failed test\n"
 LOAD D2 0; InlineFunc[void printf(char32[])] Params Start
@@ -408,7 +408,7 @@ PUSHR D2; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0
-DEALLOCATEMEMR D3; if() #104 Else End
+DEALLOCATEMEMR D3; if() #103 Else End
 GAMEEXIT; InlineFunc[void Game::Exit()] Body AND [Opt:NeverRet] AND Func[void Fail(char32[])] Body End
 PUSHV 0; Func[void Init(int, int)] Body Start
 SETR D4 SP2

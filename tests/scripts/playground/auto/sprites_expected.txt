@@ -1043,14 +1043,14 @@ POPARGS D5 0.0022
 QUIT; void run() Body End
 PUSHV 0; Func[void Fail(char32[])] Body Start
 SETR D4 SP2
-LOAD D2 0.0001; InlineFunc[int strlen(char32[])] Params Start AND if() #104 Test
+LOAD D2 0.0001; InlineFunc[int strlen(char32[])] Params Start AND if() #103 Test
 SETR D3 D2; InlineFunc[int strlen(char32[])] Params End
 STRINGLENGTH D2 D3; InlineFunc[int strlen(char32[])] Body
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 961 ==; Test 'if'
-ALLOCATEMEMV D2 24 0; if() #104 Body Start
+ALLOCATEMEMV D2 24 0; if() #103 Body Start
 STORE D2 0
 WRITEPODSTRING D2 "[Test] failed test: %s\n"
 LOAD D2 0; InlineFunc[void printf(char32[])] Params Start
@@ -1061,8 +1061,8 @@ PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0
 DEALLOCATEMEMR D3
-GOTO 970; if() #104 Body End
-ALLOCATEMEMV D2 20 0; if() #104 Else Start
+GOTO 970; if() #103 Body End
+ALLOCATEMEMV D2 20 0; if() #103 Else Start
 STORE D2 0
 WRITEPODSTRING D2 "[Test] failed test\n"
 LOAD D2 0; InlineFunc[void printf(char32[])] Params Start
@@ -1070,7 +1070,7 @@ PUSHR D2; InlineFunc[void printf(char32[])] Params End
 PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0
-DEALLOCATEMEMR D3; if() #104 Else End
+DEALLOCATEMEMR D3; if() #103 Else End
 GAMEEXIT; InlineFunc[void Game::Exit()] Body AND [Opt:NeverRet] AND Func[void Fail(char32[])] Body End
 PUSHV 0; Func[void Init(int, int)] Body Start
 SETR D4 SP2
@@ -1106,12 +1106,12 @@ WARPR D3 D2; InlineFunc[void hero::Warp(int, int)] Body End AND if() #418 Body E
 POPARGS D5 0.0003
 RETURNFUNC; Func[void Init(int, int)] Body End
 SETR D4 SP2; Func[void drawText(int, sprite)] Body Start
-LOAD D2 0.0001; if() #105 Test
+LOAD D2 0.0001; if() #104 Test
 COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 1030 ==; Test 'if'
-PUSHV 0; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params Start AND if() #105 Body Start
+PUSHV 0; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params Start AND if() #104 Body Start
 LOAD D2 0
 PUSHR D2
 POP REFSPRITE
@@ -1130,13 +1130,13 @@ PUSHR GD1
 PUSHV 128; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params End
 DRAWSTRINGR; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body Start
 POPARGS D5 0.0009; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body End
-GOTO 1154; if() #105 Body End
-LOAD D2 0.0001; if() #106 Test AND if() #105 Else Start
+GOTO 1154; if() #104 Body End
+LOAD D2 0.0001; if() #105 Test AND if() #104 Else Start
 COMPAREV D2 1
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 1055 ==; Test 'if'
-PUSHV 0; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params Start AND if() #106 Body Start
+PUSHV 0; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params Start AND if() #105 Body Start
 LOAD D2 0
 PUSHR D2
 POP REFSPRITE
@@ -1155,13 +1155,13 @@ PUSHR GD2
 PUSHV 128; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params End
 DRAWSTRINGR; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body Start
 POPARGS D5 0.0009; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body End
-GOTO 1154; if() #106 Body End
-LOAD D2 0.0001; if() #107 Test AND if() #106 Else Start
+GOTO 1154; if() #105 Body End
+LOAD D2 0.0001; if() #106 Test AND if() #105 Else Start
 COMPAREV D2 2
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 1080 ==; Test 'if'
-PUSHV 0; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params Start AND if() #107 Body Start
+PUSHV 0; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params Start AND if() #106 Body Start
 LOAD D2 0
 PUSHR D2
 POP REFSPRITE
@@ -1180,13 +1180,13 @@ PUSHR GD3
 PUSHV 128; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params End
 DRAWSTRINGR; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body Start
 POPARGS D5 0.0009; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body End
-GOTO 1154; if() #107 Body End
-LOAD D2 0.0001; if() #108 Test AND if() #107 Else Start
+GOTO 1154; if() #106 Body End
+LOAD D2 0.0001; if() #107 Test AND if() #106 Else Start
 COMPAREV D2 3
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 1105 ==; Test 'if'
-PUSHV 0; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params Start AND if() #108 Body Start
+PUSHV 0; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params Start AND if() #107 Body Start
 LOAD D2 0
 PUSHR D2
 POP REFSPRITE
@@ -1205,13 +1205,13 @@ PUSHR GD4
 PUSHV 128; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params End
 DRAWSTRINGR; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body Start
 POPARGS D5 0.0009; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body End
-GOTO 1154; if() #108 Body End
-LOAD D2 0.0001; if() #109 Test AND if() #108 Else Start
+GOTO 1154; if() #107 Body End
+LOAD D2 0.0001; if() #108 Test AND if() #107 Else Start
 COMPAREV D2 4
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 1130 ==; Test 'if'
-PUSHV 0; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params Start AND if() #109 Body Start
+PUSHV 0; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params Start AND if() #108 Body Start
 LOAD D2 0
 PUSHR D2
 POP REFSPRITE
@@ -1230,8 +1230,8 @@ PUSHR GD5
 PUSHV 128; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params End
 DRAWSTRINGR; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body Start
 POPARGS D5 0.0009; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body End
-GOTO 1154; if() #109 Body End
-LOAD D2 0.0001; if() #420 Test AND if() #109 Else Start
+GOTO 1154; if() #108 Body End
+LOAD D2 0.0001; if() #420 Test AND if() #108 Else Start
 COMPAREV D2 5
 SETCMP D2 I==
 COMPAREV D2 0
@@ -1255,7 +1255,7 @@ PUSHR GD6
 PUSHV 128; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Params End
 DRAWSTRINGR; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body Start
 POPARGS D5 0.0009; InlineFunc[void screendata::DrawString(int, int, int, int, int, int, int, char32[], int)] Body End AND if() #420 Body End
-POPARGS D5 0.0002; if() #109 Else End AND if() #108 Else End AND if() #107 Else End AND if() #106 Else End AND if() #105 Else End
+POPARGS D5 0.0002; if() #108 Else End AND if() #107 Else End AND if() #106 Else End AND if() #105 Else End AND if() #104 Else End
 RETURNFUNC; Func[void drawText(int, sprite)] Body End
 PUSHV 0; Func[void modify_sprite(sprite, int, int)] Body Start
 SETR D4 SP2

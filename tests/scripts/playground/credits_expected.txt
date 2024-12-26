@@ -269,27 +269,27 @@ GOTO 218; while() #2 End
 POP D5
 RETURNFUNC; Func[void blackDelay(int)] Body End
 SETR D4 SP2; Func[bitmap create(int, int)] Body Start
-SETV D2 652; if() #104 Test
+SETV D2 652; if() #103 Test
 PUSHR D2
 POP D0
 SETR D2 FFRULE
 COMPAREV D2 0
 GOTOCMP 258 ==; Test 'if'
-LOAD D2 0; InlineFunc[bitmap Game::CreateBitmap(int, int)] Params Start AND return Start AND if() #104 Body Start
+LOAD D2 0; InlineFunc[bitmap Game::CreateBitmap(int, int)] Params Start AND return Start AND if() #103 Body Start
 PUSHR D2
 LOAD D2 0.0001
 SETR D1 D2; InlineFunc[bitmap Game::CreateBitmap(int, int)] Params End
 POP D0; InlineFunc[bitmap Game::CreateBitmap(int, int)] Body Start
 SETR D2 CREATEBITMAP; InlineFunc[bitmap Game::CreateBitmap(int, int)] Body End
 GOTO 266; return End
-GOTO 265; if() #104 Body End
-LOAD D2 0.0001; InlineFunc[bitmap Game::CreateBitmap(int, int)] Params Start AND return Start AND if() #104 Else Start
+GOTO 265; if() #103 Body End
+LOAD D2 0.0001; InlineFunc[bitmap Game::CreateBitmap(int, int)] Params Start AND return Start AND if() #103 Else Start
 PUSHR D2
 LOAD D2 0
 SETR D1 D2; InlineFunc[bitmap Game::CreateBitmap(int, int)] Params End
 POP D0; InlineFunc[bitmap Game::CreateBitmap(int, int)] Body Start
 SETR D2 CREATEBITMAP; InlineFunc[bitmap Game::CreateBitmap(int, int)] Body End
-GOTO 266; return End AND if() #104 Else End
+GOTO 266; return End AND if() #103 Else End
 REF_AUTORELEASE D2
 POPARGS D5 0.0002
 RETURNFUNC; Func[bitmap create(int, int)] Body End

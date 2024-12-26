@@ -35,8 +35,7 @@ DIVV D2 2
 PUSHR D2
 POP D2
 SETR LINKHP D2
-PUSHR D4; while(true) #2 Body [Opt:AlwaysOn] Start
-SETV D2 0.0001; UsrFunc[int ComboAt(int, int)] Params Start
+SETV D2 0.0001; InlineFunc[int ComboAt(int, int)] Params Start AND while(true) #2 Body [Opt:AlwaysOn] Start
 PUSHR D2
 POP REFSPRITE
 SETR D2 SPRITE_X
@@ -47,9 +46,9 @@ PUSHR D2
 POP REFSPRITE
 SETR D2 SPRITE_Y
 ADDV D2 8
-PUSHR D2; UsrFunc[int ComboAt(int, int)] Params End
-CALLFUNC 0.0106; UsrFunc[int ComboAt(int, int)] Call
-POP D4
+SETR D3 D2; InlineFunc[int ComboAt(int, int)] Params End
+POP D2; InlineFunc[int ComboAt(int, int)] Body Start
+COMBO_AT D2 D3; InlineFunc[int ComboAt(int, int)] Body End
 STORE D2 0
 LOAD D2 0; if() #418 Test
 PUSHR D2
@@ -61,7 +60,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 50 ==; Test 'if'
+GOTOCMP 49 ==; Test 'if'
 LOAD D2 0; if() #418 Body Start
 PUSHR D2
 POP D0
@@ -131,116 +130,6 @@ DRAWTILER; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, in
 POPARGS D5 0.0015; InlineFunc[void screendata::DrawTile(int, int, int, int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #2 Body [Opt:AlwaysOn] End
 GOTO 10; while() #2 End AND [Opt:NeverRet] AND void run(int, int) Body End
-PUSHARGSV 0 0.0004; Func[int ComboAt(int, int)] Body Start
-SETR D4 SP2
-SETR D2 REGION_ID; if() #23 Test
-COMPAREV D2 0
-GOTOCMP 166 ==; Test 'if'
-PUSHR D4; if() #23 Body Start
-LOAD D2 0.0005; UsrFunc[int VBound(int, int, int)] Params Start
-PUSHR D2
-SETR D2 REGION_WIDTH
-SUBV D2 1
-PUSHR D2
-PUSHV 0; UsrFunc[int VBound(int, int, int)] Params End
-CALLFUNC 0.0191; UsrFunc[int VBound(int, int, int)] Call
-POP D4
-STORE D2 0.0005
-PUSHR D4
-LOAD D2 0.0004; UsrFunc[int VBound(int, int, int)] Params Start
-PUSHR D2
-SETR D2 REGION_HEIGHT
-SUBV D2 1
-PUSHR D2
-PUSHV 0; UsrFunc[int VBound(int, int, int)] Params End
-CALLFUNC 0.0191; UsrFunc[int VBound(int, int, int)] Call
-POP D4
-STORE D2 0.0004
-LOAD D2 0.0005; InlineFunc[int Floor(int)] Params Start
-DIVV D2 256; InlineFunc[int Floor(int)] Params End
-FLOOR D2; InlineFunc[int Floor(int)] Body
-STORE D2 0.0003
-LOAD D2 0.0004; InlineFunc[int Floor(int)] Params Start
-DIVV D2 176; InlineFunc[int Floor(int)] Params End
-FLOOR D2; InlineFunc[int Floor(int)] Body
-STORE D2 0.0002
-LOAD D2 0.0003
-PUSHR D2
-LOAD D2 0.0002
-PUSHR D2
-SETR D2 REGION_SCREEN_WIDTH
-POP D3
-MULTR D2 D3
-POP D3
-ADDR D2 D3
-MULTV D2 176
-STORE D2 0.0001
-LOAD D2 0.0004
-MODV D2 176
-ANDV D2 240
-PUSHR D2
-LOAD D2 0.0005
-MODV D2 256
-RSHIFTV D2 4
-POP D3
-ADDR D2 D3
-STORE D2 0
-LOAD D2 0.0001; return Start
-PUSHR D2
-LOAD D2 0
-POP D3
-ADDR D2 D3
-GOTO 189; return End AND if() #23 Body End
-PUSHR D4; if() #23 Else Start
-LOAD D2 0.0005; UsrFunc[int VBound(int, int, int)] Params Start
-PUSHR D2
-PUSHV 255
-PUSHV 0; UsrFunc[int VBound(int, int, int)] Params End
-CALLFUNC 0.0191; UsrFunc[int VBound(int, int, int)] Call
-POP D4
-STORE D2 0.0005
-PUSHR D4
-LOAD D2 0.0004; UsrFunc[int VBound(int, int, int)] Params Start
-PUSHR D2
-PUSHV 175
-PUSHV 0; UsrFunc[int VBound(int, int, int)] Params End
-CALLFUNC 0.0191; UsrFunc[int VBound(int, int, int)] Call
-POP D4
-STORE D2 0.0004
-LOAD D2 0.0004; return Start
-ANDV D2 240
-PUSHR D2
-LOAD D2 0.0005
-RSHIFTV D2 4
-POP D3
-ADDR D2 D3
-POPARGS D5 0.0006; return End AND if() #23 Else End
-RETURNFUNC; Func[int ComboAt(int, int)] Body End
-SETR D4 SP2; Func[int VBound(int, int, int)] Body Start
-LOAD D2 0.0002; if() #77 Test
-PUSHR D2
-LOAD D2 0
-POP D3
-COMPARER D3 D2
-SETCMP D2 I<
-COMPAREV D2 0
-GOTOCMP 203 ==; Test 'if'
-LOAD D2 0; if() #77 Body Start
-STORE D2 0.0002
-GOTO 213; if() #77 Body End
-LOAD D2 0.0002; if() #328 Test AND if() #77 Else Start
-PUSHR D2
-LOAD D2 0.0001
-POP D3
-COMPARER D3 D2
-SETCMP D2 I>
-COMPAREV D2 0
-GOTOCMP 213 ==; Test 'if'
-LOAD D2 0.0001; if() #328 Body Start
-STORE D2 0.0002; if() #328 Body End
-LOAD D2 0.0002; if() #77 Else End AND return Start
-POPARGS D5 0.0003; return End
-RETURNFUNC; Func[int VBound(int, int, int)] Body End
 
 
 QUIT; void run() Body

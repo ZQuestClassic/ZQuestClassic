@@ -188,7 +188,7 @@ GOTO 160
 SETV D2 0
 COMPAREV D2 0
 GOTOCMP 223 ==; for() #150 TestFail?
-PUSHR D4; if() #104 Test AND for() #150 Body Start
+PUSHR D4; if() #103 Test AND for() #150 Body Start
 SETV D2 0.0001; UsrFunc[bool CanWalk(int, int, int, int, bool)] Params Start
 PUSHR D2
 POP REFSPRITE
@@ -204,7 +204,7 @@ CALLFUNC 0.0530; UsrFunc[bool CanWalk(int, int, int, int, bool)] Call
 POP D4
 COMPAREV D2 0
 GOTOCMP 195 ==; Test 'if'
-SETV D2 0.0001; if() #104 Body Start
+SETV D2 0.0001; if() #103 Body Start
 PUSHR D2
 POP REFSPRITE
 SETR D2 SPRITE_X
@@ -220,8 +220,8 @@ SETR SPRITE_X D2
 LOAD D2 0.0002
 ADDV D2 1
 STORE D2 0.0002
-GOTO 219; if() #104 Body End
-LOAD D2 0.0001; InlineFunc[int Abs(int)] Params AND if() #422 Test AND if() #104 Else Start
+GOTO 219; if() #103 Body End
+LOAD D2 0.0001; InlineFunc[int Abs(int)] Params AND if() #422 Test AND if() #103 Else Start
 ABS D2; InlineFunc[int Abs(int)] Body
 COMPAREV D2 0
 SETCMP D2 I>
@@ -244,7 +244,7 @@ POP D3
 ADDR D2 D3
 STORE D2 0.0001; if() #422 Body End
 SETV D2 0
-STORE D2 0.0002; if() #104 Else End
+STORE D2 0.0002; if() #103 Else End
 LOAD D2 0; for() #150 Body End AND for() #150 LoopIncrement
 ADDV D2 1
 STORE D2 0
@@ -261,7 +261,7 @@ GOTO 233
 SETV D2 0
 COMPAREV D2 0
 GOTOCMP 296 ==; for() #151 TestFail?
-PUSHR D4; if() #105 Test AND for() #151 Body Start
+PUSHR D4; if() #104 Test AND for() #151 Body Start
 SETV D2 0.0001; UsrFunc[bool CanWalk(int, int, int, int, bool)] Params Start
 PUSHR D2
 POP REFSPRITE
@@ -277,7 +277,7 @@ CALLFUNC 0.0530; UsrFunc[bool CanWalk(int, int, int, int, bool)] Call
 POP D4
 COMPAREV D2 0
 GOTOCMP 268 ==; Test 'if'
-SETV D2 0.0001; if() #105 Body Start
+SETV D2 0.0001; if() #104 Body Start
 PUSHR D2
 POP REFSPRITE
 SETR D2 SPRITE_X
@@ -293,8 +293,8 @@ SETR SPRITE_X D2
 LOAD D2 0.0002
 SUBV D2 1
 STORE D2 0.0002
-GOTO 292; if() #105 Body End
-LOAD D2 0.0001; InlineFunc[int Abs(int)] Params AND if() #423 Test AND if() #105 Else Start
+GOTO 292; if() #104 Body End
+LOAD D2 0.0001; InlineFunc[int Abs(int)] Params AND if() #423 Test AND if() #104 Else Start
 ABS D2; InlineFunc[int Abs(int)] Body
 COMPAREV D2 0
 SETCMP D2 I>
@@ -317,7 +317,7 @@ POP D3
 ADDR D2 D3
 STORE D2 0.0001; if() #423 Body End
 SETV D2 0
-STORE D2 0.0002; if() #105 Else End
+STORE D2 0.0002; if() #104 Else End
 LOAD D2 0; for() #151 Body End AND for() #151 LoopIncrement
 ADDV D2 1
 STORE D2 0
@@ -340,7 +340,7 @@ GOTO 312
 SETV D2 0
 COMPAREV D2 0
 GOTOCMP 375 ==; for() #152 TestFail?
-PUSHR D4; if() #106 Test AND for() #152 Body Start
+PUSHR D4; if() #105 Test AND for() #152 Body Start
 SETV D2 0.0001; UsrFunc[bool CanWalk(int, int, int, int, bool)] Params Start
 PUSHR D2
 POP REFSPRITE
@@ -356,7 +356,7 @@ CALLFUNC 0.0530; UsrFunc[bool CanWalk(int, int, int, int, bool)] Call
 POP D4
 COMPAREV D2 0
 GOTOCMP 347 ==; Test 'if'
-SETV D2 0.0001; if() #106 Body Start
+SETV D2 0.0001; if() #105 Body Start
 PUSHR D2
 POP REFSPRITE
 SETR D2 SPRITE_Y
@@ -372,8 +372,8 @@ SETR SPRITE_Y D2
 LOAD D2 0.0001
 ADDV D2 1
 STORE D2 0.0001
-GOTO 371; if() #106 Body End
-LOAD D2 0.0002; InlineFunc[int Abs(int)] Params AND if() #425 Test AND if() #106 Else Start
+GOTO 371; if() #105 Body End
+LOAD D2 0.0002; InlineFunc[int Abs(int)] Params AND if() #425 Test AND if() #105 Else Start
 ABS D2; InlineFunc[int Abs(int)] Body
 COMPAREV D2 0
 SETCMP D2 I>
@@ -396,7 +396,7 @@ POP D3
 ADDR D2 D3
 STORE D2 0.0002; if() #425 Body End
 SETV D2 0
-STORE D2 0.0001; if() #106 Else End
+STORE D2 0.0001; if() #105 Else End
 LOAD D2 0; for() #152 Body End AND for() #152 LoopIncrement
 ADDV D2 1
 STORE D2 0
@@ -413,7 +413,7 @@ GOTO 385
 SETV D2 0
 COMPAREV D2 0
 GOTOCMP 447 ==; for() #153 TestFail?
-PUSHR D4; if() #107 Test AND for() #153 Body Start
+PUSHR D4; if() #106 Test AND for() #153 Body Start
 SETV D2 0.0001; UsrFunc[bool CanWalk(int, int, int, int, bool)] Params Start
 PUSHR D2
 POP REFSPRITE
@@ -428,7 +428,7 @@ CALLFUNC 0.0530; UsrFunc[bool CanWalk(int, int, int, int, bool)] Call
 POP D4
 COMPAREV D2 0
 GOTOCMP 419 ==; Test 'if'
-SETV D2 0.0001; if() #107 Body Start
+SETV D2 0.0001; if() #106 Body Start
 PUSHR D2
 POP REFSPRITE
 SETR D2 SPRITE_Y
@@ -444,8 +444,8 @@ SETR SPRITE_Y D2
 LOAD D2 0.0001
 SUBV D2 1
 STORE D2 0.0001
-GOTO 443; if() #107 Body End
-LOAD D2 0.0002; InlineFunc[int Abs(int)] Params AND if() #426 Test AND if() #107 Else Start
+GOTO 443; if() #106 Body End
+LOAD D2 0.0002; InlineFunc[int Abs(int)] Params AND if() #426 Test AND if() #106 Else Start
 ABS D2; InlineFunc[int Abs(int)] Body
 COMPAREV D2 0
 SETCMP D2 I>
@@ -468,7 +468,7 @@ POP D3
 ADDR D2 D3
 STORE D2 0.0002; if() #426 Body End
 SETV D2 0
-STORE D2 0.0001; if() #107 Else End
+STORE D2 0.0001; if() #106 Else End
 LOAD D2 0; for() #153 Body End AND for() #153 LoopIncrement
 ADDV D2 1
 STORE D2 0
@@ -962,22 +962,22 @@ MULTR D2 D3
 POPARGS D5 0.0002; return End
 RETURNFUNC; Func[int VectorY(int, int)] Body End
 SETR D4 SP2; Func[int Sign(int)] Body Start
-LOAD D2 0; if() #67 Test
+LOAD D2 0; if() #66 Test
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 943 ==; Test 'if'
-SETV D2 1; return Start AND if() #67 Body Start
-GOTO 951; return End AND if() #67 Body End
-LOAD D2 0; if() #68 Test AND if() #67 Else Start
+SETV D2 1; return Start AND if() #66 Body Start
+GOTO 951; return End AND if() #66 Body End
+LOAD D2 0; if() #67 Test AND if() #66 Else Start
 COMPAREV D2 0
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 950 ==; Test 'if'
-SETV D2 -1; return Start AND if() #68 Body Start
-GOTO 951; return End AND if() #68 Body End
-SETV D2 0; return Start AND if() #68 Else Start
-POP D5; return End AND if() #68 Else End AND if() #67 Else End
+SETV D2 -1; return Start AND if() #67 Body Start
+GOTO 951; return End AND if() #67 Body End
+SETV D2 0; return Start AND if() #67 Else Start
+POP D5; return End AND if() #67 Else End AND if() #66 Else End
 RETURNFUNC; Func[int Sign(int)] Body End
 
 
