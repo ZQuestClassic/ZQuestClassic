@@ -391,6 +391,14 @@ class subscreenwidget {
 	//
 	// @zasm_var SUBWIDGTY_COLOR_TXT
 	internal int ColorText;
+	
+	// The widget's color index used for Text when the counter is full
+	//
+	// - [SUBWIDG_COUNTER]
+	// - [SUBWIDG_BTNCOUNTER]
+	//
+	// @zasm_var SUBWIDGTY_COLOR_TXT2
+	internal int ColorFullText;
 
 	// The widget's color index used for Shadows
 	//
@@ -405,6 +413,14 @@ class subscreenwidget {
 	//
 	// @zasm_var SUBWIDGTY_COLOR_SHD
 	internal int ColorShadow;
+	
+	// The widget's color index used for Shadows when the counter is full
+	//
+	// - [SUBWIDG_COUNTER]
+	// - [SUBWIDG_BTNCOUNTER]
+	//
+	// @zasm_var SUBWIDGTY_COLOR_SHD2
+	internal int ColorFullShadow;
 
 	// The widget's color index used for background
 	//
@@ -420,6 +436,14 @@ class subscreenwidget {
 	//
 	// @zasm_var SUBWIDGTY_COLOR_BG
 	internal int ColorBG;
+	
+	// The widget's color index used for background when the counter is full
+	//
+	// - [SUBWIDG_COUNTER]
+	// - [SUBWIDG_BTNCOUNTER]
+	//
+	// @zasm_var SUBWIDGTY_COLOR_BG2
+	internal int ColorFullBG;
 
 	// The widget's color index used for outline
 	//

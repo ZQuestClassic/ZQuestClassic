@@ -3136,7 +3136,11 @@ enum ASM_DEFINE
 #define SPRITE_SHADOW_YOFS      0x15E8
 #define SPRITE_MISCD            0x15E9
 
-#define NUMVARIABLES            0x15EA
+#define SUBWIDGTY_COLOR_TXT2    0x15EA
+#define SUBWIDGTY_COLOR_SHD2    0x15EB
+#define SUBWIDGTY_COLOR_BG2     0x15EC
+
+#define NUMVARIABLES            0x15ED
 
 //} End variables
 
