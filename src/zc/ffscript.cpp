@@ -27667,7 +27667,6 @@ void do_drawing_command(const int32_t script_command)
 	DrawOrigin draw_origin = ri->screen_draw_origin;
 	if (draw_origin == DrawOrigin::Default)
 	{
-		// TODO z3 sure about this? :)
 		bool in_scrolling_region = is_in_scrolling_region() || (screenscrolling && scrolling_region.screen_count > 1);
 		draw_origin = in_scrolling_region ? DrawOrigin::World : DrawOrigin::PlayingField;
 	}

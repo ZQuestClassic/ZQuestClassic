@@ -28796,25 +28796,27 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			}
 		}
 
-		// python tests/run_replay_tests.py --filter nargads_trail_crystal_crusades/nargads_trail_crystal_crusades_18_of_24.zplay --frame 2000
-		// TODO z3 ! replay check?
-		if (HeroInOutgoingWhistleWarp() && is_in_scrolling_region())
+		int new_hero_x_for_viewport = new_hero_x;
+		int new_hero_y_for_viewport = new_hero_y;
+
+		// If arriving in a whistle warp, the new viewport will be based on the warp destination instead.
+		if (HeroInOutgoingWhistleWarp())
 		{
-			mapscr* newscr = get_scr(new_map, destscr);
+			const mapscr* newscr = get_canonical_scr(new_map, destscr);
 
 			if(get_qr(qr_NOARRIVALPOINT))
-				new_hero_x=newscr->warpreturnx[0];
-			else new_hero_x=newscr->warparrivalx;
-			new_hero_x += new_scr_dx*256;
+				new_hero_x_for_viewport=newscr->warpreturnx[0];
+			else new_hero_x_for_viewport=newscr->warparrivalx;
+			new_hero_x_for_viewport += new_scr_dx*256;
 
 			if(get_qr(qr_NOARRIVALPOINT))
-				new_hero_y=newscr->warpreturny[0];
-			else new_hero_y=newscr->warparrivaly;
-			new_hero_y += new_scr_dy*176;
+				new_hero_y_for_viewport=newscr->warpreturny[0];
+			else new_hero_y_for_viewport=newscr->warparrivaly;
+			new_hero_y_for_viewport += new_scr_dy*176;
 		}
 
 		new_viewport = {};
-		z3_calculate_viewport(new_viewport, new_dmap, destscr, new_region.width, new_region.height, new_hero_x + Hero.txsz*16/2, new_hero_y + Hero.tysz*16/2);
+		z3_calculate_viewport(new_viewport, new_dmap, destscr, new_region.width, new_region.height, new_hero_x_for_viewport + Hero.txsz*16/2, new_hero_y_for_viewport + Hero.tysz*16/2);
 
 		scrolling_new_region = new_region;
 	};
