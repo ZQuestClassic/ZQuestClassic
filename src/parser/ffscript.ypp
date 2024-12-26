@@ -1808,7 +1808,9 @@ Statement_CompileError :
 Annotated_Enum:
 	Annotation_List DataEnum {
 		ASTAnnotationList* list = (ASTAnnotationList*)$1;
-		ASTDataEnum* en = (ASTDataEnum*)$2;
+		ASTDataEnum* en = dynamic_cast<ASTDataEnum*>($2);
+		ASTCustomDataTypeDef* tdef = dynamic_cast<ASTCustomDataTypeDef*>($2);
+		if(tdef) en = tdef->definition.get();
 		handle_annotations(list, [&](AnnotData& data)
 		{
 			auto& key = data.key;
@@ -1820,7 +1822,7 @@ Annotated_Enum:
 			}
 			return false;
 		});
-		$$ = en;}
+		$$ = $2;}
 	| DataEnum {$$ = $1;}
 
 DataEnum:
