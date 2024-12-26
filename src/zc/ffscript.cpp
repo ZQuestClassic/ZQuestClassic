@@ -25182,31 +25182,6 @@ void do_triggersecrets(int screen)
 	trigger_secrets_for_screen(TriggerSource::Script, screen, false);
 }
 
-
-static void do_getscreenindexforcombopos(const bool v)
-{
-	rpos_t rpos = (rpos_t)(SH::get_arg(sarg1, v) / 10000);
-	if (BC::checkBoundsRpos(rpos, (rpos_t)0, region_max_rpos, "Region->GetScreenIndexForComboPos") != SH::_NoError)
-	{
-		set_register(sarg1, -1);
-		return;
-	}
-
-	set_register(sarg1, get_screen_for_rpos(rpos));
-}
-
-static void do_loadtmpscrforcombopos(const bool v)
-{
-	rpos_t rpos = (rpos_t)(SH::get_arg(sarg1, v) / 10000);
-	if (BC::checkBoundsRpos(rpos, (rpos_t)0, region_max_rpos, "Region->LoadTempScreenForComboPos") != SH::_NoError)
-	{
-		set_register(sarg1, 0);
-		return;
-	}
-
-	set_register(sarg1, create_mapdata_temp_ref(get_screen_for_rpos(rpos), 0, false));
-}
-
 void FFScript::do_graphics_getpixel()
 {
 	int32_t yoffset = 0;
@@ -27524,6 +27499,36 @@ void FFScript::do_loadmapdata_tempscr2(const bool v)
 
 	ri->mapsref = create_mapdata_temp_ref(screen, layer, false);
 	set_register(sarg1, ri->mapsref);
+}
+
+static void do_loadtmpscrforcombopos(const bool v)
+{
+	rpos_t rpos = (rpos_t)(SH::get_arg(sarg1, v) / 10000);
+	if (BC::checkBoundsRpos(rpos, (rpos_t)0, region_max_rpos, "Game->LoadTempScreenForComboPos()") != SH::_NoError)
+	{
+		set_register(sarg1, 0);
+		return;
+	}
+
+	set_register(sarg1, create_mapdata_temp_ref(get_screen_for_rpos(rpos), 0, false));
+}
+
+static void do_loadtmpscrforcombopos2(const bool v)
+{
+	rpos_t rpos = (rpos_t)(SH::get_arg(sarg1, v) / 10000);
+	int32_t layer = SH::get_arg(sarg2, v) / 10000;
+	if (BC::checkBoundsRpos(rpos, (rpos_t)0, region_max_rpos, "Game->LoadTempScreenForComboPos()") != SH::_NoError)
+	{
+		set_register(sarg1, 0);
+		return;
+	}
+	if(BC::checkBounds(layer, 0, 6, "Game->LoadTempScreenForComboPos()") != SH::_NoError)
+	{
+		ri->mapsref = 0;
+		return;
+	}
+
+	set_register(sarg1, create_mapdata_temp_ref(get_screen_for_rpos(rpos), layer, false));
 }
 
 void FFScript::do_loadmapdata_scrollscr(const bool v)
@@ -31529,6 +31534,12 @@ int32_t run_script_int(bool is_jitted)
 			case LOADTMPSCR2:
 				FFScript::do_loadmapdata_tempscr2(false);
 				break;
+			case REGION_LOAD_TMPSCR_FOR_COMBO_POS:
+				do_loadtmpscrforcombopos(false);
+				break;
+			case REGION_LOAD_TMPSCR_FOR_LAYER_COMBO_POS:
+				do_loadtmpscrforcombopos2(false);
+				break;
 			case LOADSCROLLSCR:
 				FFScript::do_loadmapdata_scrollscr(false);
 				break;
@@ -33705,14 +33716,6 @@ int32_t run_script_int(bool is_jitted)
 				set_register(sarg1, r ? 10000L : 0L);
 				break;
 			}
-
-			case REGION_LOAD_TMPSCR_FOR_COMBO_POS:
-				do_loadtmpscrforcombopos(false);
-				break;
-
-			case REGION_SCREEN_FOR_COMBO_POS:
-				do_getscreenindexforcombopos(false);
-				break;
 
 			case REGION_TRIGGER_SECRETS:
 			{

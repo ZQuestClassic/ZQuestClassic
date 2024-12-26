@@ -977,6 +977,23 @@ class Game {
 	//   LOADTMPSCR2 D2 D3
 	internal mapdata LoadTempScreen(int layer, int screen);
 
+	// Same as [LoadTempScreen], but for the specific combo [pos]. Convert
+	// an `x, y` pixel coordinate to a combo pos with [ComboAt].
+	//
+	// @zasm
+	//   POP D2
+	//   REGION_LOAD_TMPSCR_FOR_COMBO_POS D2
+	internal mapdata LoadTempScreenForComboPos(int pos);
+
+	// Same as [LoadTempScreenForComboPos], but for the specific combo [pos]. Convert
+	// an `x, y` pixel coordinate to a combo pos with [ComboAt].
+	//
+	// @zasm
+	//   POP D3
+	//   POP D2
+	//   REGION_LOAD_TMPSCR_FOR_LAYER_COMBO_POS D2 D3
+	internal mapdata LoadTempScreenForComboPos(int layer, int pos);
+
 	// Loads the temp mapdata pointer for the specified layer's *scrolling
 	// screen*. This is only used during scrolling, for drawing the screen you
 	// just came from during the scrolling animation.

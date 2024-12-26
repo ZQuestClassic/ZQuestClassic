@@ -125,8 +125,8 @@ GOTO 98
 SETV D2 0
 COMPAREV D2 0
 GOTOCMP 102 ==; Test 'if'
-LOAD D2 0.0003; InlineFunc[void Region::TriggerSecrets(int)] Params AND if() #418 Body Start
-REGION_TRIGGER_SECRETS D2; InlineFunc[void Region::TriggerSecrets(int)] Body AND if() #418 Body End
+LOAD D2 0.0003; InlineFunc[void screendata::TriggerSecrets(int)] Params AND if() #418 Body Start
+REGION_TRIGGER_SECRETS D2; InlineFunc[void screendata::TriggerSecrets(int)] Body AND if() #418 Body End
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while(true) #2 Body [Opt:AlwaysOn] End
 GOTO 16; while() #2 End AND [Opt:NeverRet] AND void run(int, int) Body End
 

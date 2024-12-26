@@ -193,6 +193,7 @@ To access other screens of the current region, use `mapdata`. There is `Game->Lo
 
 * `Game->LoadMapData(map, screen)`: Returns a handle that accesses canonical screens. If the player is currently on this screen, no changes will be observed until the screen is reloaded. Modifications will not persist after saving/continue.
 * `Game->LoadTempScreen(layer)`, `Game->LoadTempScreen(layer, screen)`: Returns a handle that accesses a currently loaded screen at the given layer. Modifications to the temporary screen will not persist when the player leaves the region.
+* `Game->LoadTempScreenForComboPos(layer)`, `Game->LoadTempScreenForComboPos(layer, pos)`: Similar to above, but returns the temp screen for the given given combo position (the result of `ComboAt(x, y)`).
 * `Game->LoadScrollingScreen(layer)`, `Game->LoadScrollingScreen(layer, screen)`: Returns a handle that accesses a temporary screen from the region that the player is scrolling away from, at the given layer. This is only valid during screen scrolling.
 
 `mapdata` only ever refers to a single screen.
