@@ -137,7 +137,7 @@ class sprite {
 	// @zasm_var SPRITE_SCALE
 	internal int Scale;
 
-	// The drawing mode to use.
+	// The drawing style to use.
 	//
 	// Valid values: [DrawStyle] (`DS_`).
 	//

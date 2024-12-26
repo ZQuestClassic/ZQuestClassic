@@ -400,7 +400,9 @@ enum class ViewportMode
 	CenterAndBound = 0,
 	Center = 1,
 	Script = 2,
-	Max = Script,
+
+	First = CenterAndBound,
+	Last = Script,
 };
 
 struct CheckListInfo

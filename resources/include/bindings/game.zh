@@ -406,7 +406,7 @@ class Game {
 	//
 	// This is deprecated by [Screen->DrawOrigin]. The new way to do the same is:
 	//
-	//    Screen->DrawMode = DRAW_MODE_WORLD; // This is the default in a scrolling region.
+	//    Screen->DrawOrigin = DRAW_ORIGIN_WORLD; // This is the default in a scrolling region.
 	//    Screen->DrawTile(x, y, ...)
 	//
 	// Valid indices: [ScrollingIndex] (`SCROLL_`).

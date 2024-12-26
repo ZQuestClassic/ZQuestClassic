@@ -17107,8 +17107,7 @@ void set_register(int32_t arg, int32_t value)
 	case VIEWPORT_MODE:
 	{
 		int val = value;
-		// TODO z3 ! ::First, ::Last like DrawOrigin enum
-		if (BC::checkBounds(val, 0, (int)ViewportMode::Max, "Viewport->Mode") != SH::_NoError)
+		if (BC::checkBounds(val, (int)ViewportMode::First, (int)ViewportMode::Last, "Viewport->Mode") != SH::_NoError)
 		{
 			Z_scripterrlog("invalid value for Viewport->Mode: %d\n", val);
 			return;
