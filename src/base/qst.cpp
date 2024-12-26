@@ -3494,7 +3494,10 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_OLD_LANDING_SFX, 1);
 		set_qr(qr_FIRE_LEVEL_TRIGGERS_ARENT_WEAPONS, 1);
 	}
-	
+	// TODO ~z3 bump compat rule
+	// if (compatrule_version < 74)
+	// 	set_qr(qr_SCRIPTS_SCROLLING_BROKEN_HERO_POSITION, 1);
+
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
 		set_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM,1);
@@ -4451,7 +4454,7 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 		{
 			return qe_invalid;
 		}
-		Header->is_z3 = s_version >= 21;
+		Header->is_z3 = s_version >= 22;
 
 		// TODO ~z3 final rm
 		if (global_z3_hacky_load)
@@ -22089,6 +22092,7 @@ static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Mi
     if(!get_bit(skip_flags, skip_header))
     {
         memcpy(Header, &tempheader, sizeof(tempheader));
+		set_qr(qr_BROKEN_SCRIPTS_SCROLLING_HERO_POSITION, !Header->is_z3); // TODO ~z3 rm
     }
     if(!get_bit(skip_flags, skip_zinfo))
     {

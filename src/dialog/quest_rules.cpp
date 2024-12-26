@@ -969,7 +969,10 @@ static GUI::ListData compatRulesList
 		"If enabled, water will use the old hardcoded splash sound when landing in it. Otherwise, the landing sound set for each combo will be used instead." },
 	{ "'Burning' triggers don't count as 'weapon triggers'", qr_FIRE_LEVEL_TRIGGERS_ARENT_WEAPONS,
 		"If enabled, weapons triggering the 'Burning' trigger causes will not count as 'weapon triggers' for"
-		" purposes of other trigger flags such as 'Kill Triggering Weapon' and 'Weapon Separate Triggers'" }
+		" purposes of other trigger flags such as 'Kill Triggering Weapon' and 'Weapon Separate Triggers'" },
+	{ "Fix Hero Position Exposed To Scripts When Scrolling", qr_BROKEN_SCRIPTS_SCROLLING_HERO_POSITION,
+		"If enabled, the hero position will be accurately updated and clamped to the visible viewport during"
+		" each frame of a scroll. Otherwise, it will be off by a few pixels towards the end of a scroll."},
 };
 
 static GUI::ListData enemiesRulesList
@@ -1681,7 +1684,10 @@ GUI::ListData drawingRulesList
 
 GUI::ListData bugfixRulesList
 {
-	{ "Fix Scripts Running During Scrolling", qr_FIXSCRIPTSDURINGSCROLLING },
+	{ "Fix Scripts Running During Scrolling", qr_FIXSCRIPTSDURINGSCROLLING,
+		"If disabled, the waiting phase of scrolling transitions (1-32 frames) will not"
+		" run all scripts, and will not clear draw commands during each frame of scrolling."
+		" It also will not run prewaitdraw scripts at the end of scrolling (for when dmap did not change)."},
 	{ "GetPixel returns color / 10000", qr_BROKEN_GETPIXEL_VALUE },
 	{ "Always Deallocate Arrays", qr_ALWAYS_DEALLOCATE_ARRAYS },
 	{ "Don't Deallocate Init/SaveLoad Local Arrays", qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS },

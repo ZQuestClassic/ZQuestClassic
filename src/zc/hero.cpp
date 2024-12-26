@@ -28151,11 +28151,9 @@ void HeroClass::run_scrolling_script_old(int32_t scrolldir, int32_t cx, int32_t 
 
 void HeroClass::run_scrolling_script(int32_t scrolldir, int32_t cx, int32_t sx, int32_t sy, bool end_frames, bool waitdraw)
 {
-	// TODO(replays): these are the only replays that have graphical changes when not using the old
-	// code, but iirc they are all minor visual bugs so removing this is a positive (confirm before
-	// removal, else apply compat QR).
-	if (replay_is_debug() && (replay_get_meta_str("qst") == "crucible_quest.qst" || replay_get_meta_str("qst") == "freedom_in_chains.qst"))
+	if (get_qr(qr_BROKEN_SCRIPTS_SCROLLING_HERO_POSITION))
 	{
+		// Old code has an off-by-one error, and doesn't clamp the hero position to the viewport.
 		run_scrolling_script_old(scrolldir, cx, sx, sy, end_frames, waitdraw);
 		return;
 	}
@@ -28214,13 +28212,10 @@ void HeroClass::run_scrolling_script(int32_t scrolldir, int32_t cx, int32_t sx, 
 	viewport.x -= new_region_offset_x;
 	viewport.y -= new_region_offset_y;
 
-	if (QHeader.is_z3) // TODO z3 ! compat QR?
-	{
-		if (scrolldir == left || scrolldir == right)
-			x.doClamp(viewport.left(), viewport.right() - 16);
-		if (scrolldir == up || scrolldir == down)
-			y.doClamp(viewport.top(), viewport.bottom() - 16);
-	}
+	if (scrolldir == left || scrolldir == right)
+		x.doClamp(viewport.left(), viewport.right() - 16);
+	if (scrolldir == up || scrolldir == down)
+		y.doClamp(viewport.top(), viewport.bottom() - 16);
 
 	run_scrolling_script_int(waitdraw);
 

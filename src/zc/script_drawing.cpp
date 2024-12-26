@@ -11840,14 +11840,6 @@ void do_primitives(BITMAP *targetBitmap, int32_t type, int32_t xoff, int32_t yof
 		}
 		else if (draw_origin == DrawOrigin::WorldScrollingNew)
 		{
-			// TODO z3 ! delme
-			// xoffset = xoff - viewport.x;
-			// yoffset = yoff - viewport.y;
-			// if (screenscrolling)
-			// {
-			// 	xoffset += FFCore.ScrollingData[SCROLLDATA_NEW_REGION_OFFSET_X];
-			// 	yoffset += FFCore.ScrollingData[SCROLLDATA_NEW_REGION_OFFSET_Y];
-			// }
 			xoffset = xoff + FFCore.ScrollingData[SCROLLDATA_NRX];
 			yoffset = yoff + FFCore.ScrollingData[SCROLLDATA_NRY];
 		}
