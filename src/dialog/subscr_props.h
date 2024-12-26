@@ -35,7 +35,7 @@ public:
 
 protected:
 	std::shared_ptr<GUI::Window> window;
-	std::shared_ptr<GUI::MiscColorSel> col_sel[3];
+	std::shared_ptr<GUI::MiscColorSel> col_sel[6];
 	std::shared_ptr<GUI::MiscCSetSel> cs_sel[3];
 	std::shared_ptr<GUI::SelTileSwatch> tswatches[2];
 	std::shared_ptr<GUI::DropDownList> ddl;

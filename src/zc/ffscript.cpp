@@ -14853,6 +14853,67 @@ int32_t get_register(const int32_t arg)
 			}
 			break;
 		}
+		
+		case SUBWIDGTY_COLOR_TXT2:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorText2"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgCOUNTER:
+						ret = 10000*((SW_Counter*)widg)->c_text2.get_int_color();
+						break;
+					case widgBTNCOUNTER:
+						ret = 10000*((SW_BtnCounter*)widg)->c_text2.get_int_color();
+						break;
+					default:
+						bad_subwidg_type("ColorText2", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_COLOR_SHD2:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorShadow2"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgCOUNTER:
+						ret = 10000*((SW_Counter*)widg)->c_shadow2.get_int_color();
+						break;
+					case widgBTNCOUNTER:
+						ret = 10000*((SW_BtnCounter*)widg)->c_shadow2.get_int_color();
+						break;
+					default:
+						bad_subwidg_type("ColorShadow2", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_COLOR_BG2:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorBG2"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgCOUNTER:
+						ret = 10000*((SW_Counter*)widg)->c_bg2.get_int_color();
+						break;
+					case widgBTNCOUNTER:
+						ret = 10000*((SW_BtnCounter*)widg)->c_bg2.get_int_color();
+						break;
+					default:
+						bad_subwidg_type("ColorBG2", false, ty);
+						break;
+				}
+			}
+			break;
+		}
 		case SUBWIDGTY_COLOR_OLINE:
 		{
 			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorOutline"))
@@ -27534,6 +27595,70 @@ void set_register(int32_t arg, int32_t value)
 						break;
 					default:
 						bad_subwidg_type("ColorBG", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		
+		case SUBWIDGTY_COLOR_TXT2:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorText2"))
+			{
+				auto val = vbound(value/10000,MIN_SUBSCR_COLOR,MAX_SUBSCR_COLOR);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgCOUNTER:
+						((SW_Counter*)widg)->c_text2.set_int_color(val);
+						break;
+					case widgBTNCOUNTER:
+						((SW_BtnCounter*)widg)->c_text2.set_int_color(val);
+						break;
+					default:
+						bad_subwidg_type("ColorText2", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_COLOR_SHD2:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorShadow2"))
+			{
+				auto val = vbound(value/10000,MIN_SUBSCR_COLOR,MAX_SUBSCR_COLOR);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgCOUNTER:
+						((SW_Counter*)widg)->c_shadow2.set_int_color(val);
+						break;
+					case widgBTNCOUNTER:
+						((SW_BtnCounter*)widg)->c_shadow2.set_int_color(val);
+						break;
+					default:
+						bad_subwidg_type("ColorShadow2", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_COLOR_BG2:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorBG2"))
+			{
+				auto val = vbound(value/10000,MIN_SUBSCR_COLOR,MAX_SUBSCR_COLOR);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgCOUNTER:
+						((SW_Counter*)widg)->c_bg2.set_int_color(val);
+						break;
+					case widgBTNCOUNTER:
+						((SW_BtnCounter*)widg)->c_bg2.set_int_color(val);
+						break;
+					default:
+						bad_subwidg_type("ColorBG2", false, ty);
 						break;
 				}
 			}
@@ -46036,6 +46161,7 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 };
 
 
+// Order doesn't matter.
 script_variable ZASMVars[]=
 {
 	//name                id                maxcount       multiple
@@ -47622,6 +47748,9 @@ script_variable ZASMVars[]=
 	{ "SUBWIDGTY_COLOR_TXT", SUBWIDGTY_COLOR_TXT, 0, 0 },
 	{ "SUBWIDGTY_COLOR_SHD", SUBWIDGTY_COLOR_SHD, 0, 0 },
 	{ "SUBWIDGTY_COLOR_BG", SUBWIDGTY_COLOR_BG, 0, 0 },
+	{ "SUBWIDGTY_COLOR_TXT2", SUBWIDGTY_COLOR_TXT2, 0, 0 },
+	{ "SUBWIDGTY_COLOR_SHD2", SUBWIDGTY_COLOR_SHD2, 0, 0 },
+	{ "SUBWIDGTY_COLOR_BG2", SUBWIDGTY_COLOR_BG2, 0, 0 },
 
 	{ "SUBWIDGTY_COLOR_OLINE", SUBWIDGTY_COLOR_OLINE, 0, 0 },
 	{ "SUBWIDGTY_COLOR_FILL", SUBWIDGTY_COLOR_FILL, 0, 0 },

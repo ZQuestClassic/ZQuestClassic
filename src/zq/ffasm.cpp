@@ -1240,6 +1240,7 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "", 0, 0, 0, 0 }
 };
 
+// Order doesn't matter.
 script_variable variable_list[]=
 {
 	//name                id                maxcount       multiple
@@ -2835,6 +2836,9 @@ script_variable variable_list[]=
 	{ "SUBWIDGTY_COLOR_TXT", SUBWIDGTY_COLOR_TXT, 0, 0 },
 	{ "SUBWIDGTY_COLOR_SHD", SUBWIDGTY_COLOR_SHD, 0, 0 },
 	{ "SUBWIDGTY_COLOR_BG", SUBWIDGTY_COLOR_BG, 0, 0 },
+	{ "SUBWIDGTY_COLOR_TXT2", SUBWIDGTY_COLOR_TXT2, 0, 0 },
+	{ "SUBWIDGTY_COLOR_SHD2", SUBWIDGTY_COLOR_SHD2, 0, 0 },
+	{ "SUBWIDGTY_COLOR_BG2", SUBWIDGTY_COLOR_BG2, 0, 0 },
 
 	{ "SUBWIDGTY_COLOR_OLINE", SUBWIDGTY_COLOR_OLINE, 0, 0 },
 	{ "SUBWIDGTY_COLOR_FILL", SUBWIDGTY_COLOR_FILL, 0, 0 },

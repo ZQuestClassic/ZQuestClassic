@@ -306,6 +306,10 @@ void add_ssc_ctr(int ctr, bool& infinite, int32_t& value)
 	value += get_ssc_ctr(ctr, &inf);
 	if(inf) infinite = true;
 }
+bool is_full_ssc_ctr(int ctr)
+{
+	return get_ssc_ctr(ctr) >= get_ssc_ctrmax(ctr);
+}
 bool can_inf(int ctr, int infitm = -1)
 {
 	switch(ctr)
@@ -2002,6 +2006,9 @@ bool SW_Counter::load_old(subscreen_object const& old)
 	c_text.load_old(old,1);
 	c_shadow.load_old(old,2);
 	c_bg.load_old(old,3);
+	c_text2 = c_text;
+	c_shadow2 = c_shadow;
+	c_bg2 = c_bg;
 	return true;
 }
 int16_t SW_Counter::getX() const
@@ -2075,6 +2082,7 @@ void SW_Counter::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page
 					|| ( FFCore.getQuestHeaderInfo(vZelda) > 0x250  ) )
 				maxty = 3;
 			
+			bool is_full = true;
 			for(int q = 0; q < maxty; ++q)
 			{
 				int ty = ctrs[q];
@@ -2091,6 +2099,8 @@ void SW_Counter::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page
 							continue;
 					}
 				add_ssc_ctr(ctrs[q],infinite,value);
+				if(!is_full_ssc_ctr(ctrs[q]))
+					is_full = false;
 			}
 			
 			if(zq_view_noinf)
@@ -2114,7 +2124,15 @@ void SW_Counter::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page
 				}
 				sprintf(valstring, formatstring, value);
 			}
-			textout_styled_aligned_ex(dest,tempfont,valstring,x+xofs,y+yofs,shadtype,align,c_text.get_color(),c_shadow.get_color(),c_bg.get_color());
+			int col_text = c_text.get_color(), col_shadow = c_shadow.get_color(), col_bg = c_bg.get_color();
+			if(is_full)
+			{
+				col_text = c_text2.get_color();
+				col_shadow = c_shadow2.get_color();
+				col_bg = c_bg2.get_color();
+			}
+			
+			textout_styled_aligned_ex(dest, tempfont, valstring, x+xofs, y+yofs, shadtype, align, col_text, col_shadow, col_bg);
 		}
 	}
 	
@@ -2137,6 +2155,9 @@ bool SW_Counter::copy_prop(SubscrWidget const* src, bool all)
 	c_text = other->c_text;
 	c_shadow = other->c_shadow;
 	c_bg = other->c_bg;
+	c_text2 = other->c_text2;
+	c_shadow2 = other->c_shadow2;
+	c_bg2 = other->c_bg2;
 	mindigits = other->mindigits;
 	maxdigits = other->maxdigits;
 	infchar = other->infchar;
@@ -2183,6 +2204,21 @@ int32_t SW_Counter::read(PACKFILE *f, word s_version)
 		return qe_invalid;
 	if(!p_getc(&infchar,f))
 		return qe_invalid;
+	if(s_version >= 12)
+	{
+		if(auto ret = c_text2.read(f,s_version))
+			return ret;
+		if(auto ret = c_shadow2.read(f,s_version))
+			return ret;
+		if(auto ret = c_bg2.read(f,s_version))
+			return ret;
+	}
+	else
+	{
+		c_text2 = c_text;
+		c_shadow2 = c_shadow;
+		c_bg2 = c_bg;
+	}
 	return 0;
 }
 int32_t SW_Counter::write(PACKFILE *f) const
@@ -2215,6 +2251,12 @@ int32_t SW_Counter::write(PACKFILE *f) const
 		new_return(1);
 	if(!p_putc(infchar,f))
 		new_return(1);
+	if(auto ret = c_text2.write(f))
+		return ret;
+	if(auto ret = c_shadow2.write(f))
+		return ret;
+	if(auto ret = c_bg2.write(f))
+		return ret;
 	return 0;
 }
 
@@ -2399,6 +2441,7 @@ void SW_BtnCounter::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& p
 		sprintf(formatstring, "%%0%dd", mindigits);
 		
 		add_ssc_ctr(counter,infinite,value);
+		bool is_full = is_full_ssc_ctr(counter);
 		
 		if(zq_view_noinf)
 			infinite = false;
@@ -2421,7 +2464,15 @@ void SW_BtnCounter::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& p
 			}
 			sprintf(valstring, formatstring, value);
 		}
-		textout_styled_aligned_ex(dest,tempfont,valstring,x+xofs,y+yofs,shadtype,align,c_text.get_color(),c_shadow.get_color(),c_bg.get_color());
+		int col_text = c_text.get_color(), col_shadow = c_shadow.get_color(), col_bg = c_bg.get_color();
+		if(is_full)
+		{
+			col_text = c_text2.get_color();
+			col_shadow = c_shadow2.get_color();
+			col_bg = c_bg2.get_color();
+		}
+		
+		textout_styled_aligned_ex(dest, tempfont, valstring, x+xofs, y+yofs, shadtype, align, col_text, col_shadow, col_bg);
 	}
 	
 	zq_ignore_item_ownership = b;
@@ -2443,6 +2494,9 @@ bool SW_BtnCounter::copy_prop(SubscrWidget const* src, bool all)
 	c_text = other->c_text;
 	c_shadow = other->c_shadow;
 	c_bg = other->c_bg;
+	c_text2 = other->c_text2;
+	c_shadow2 = other->c_shadow2;
+	c_bg2 = other->c_bg2;
 	mindigits = other->mindigits;
 	maxdigits = other->maxdigits;
 	infchar = other->infchar;
@@ -2479,6 +2533,21 @@ int32_t SW_BtnCounter::read(PACKFILE *f, word s_version)
 		return qe_invalid;
 	if(!p_getc(&costind,f))
 		return qe_invalid;
+	if(s_version >= 12)
+	{
+		if(auto ret = c_text2.read(f,s_version))
+			return ret;
+		if(auto ret = c_shadow2.read(f,s_version))
+			return ret;
+		if(auto ret = c_bg2.read(f,s_version))
+			return ret;
+	}
+	else
+	{
+		c_text2 = c_text;
+		c_shadow2 = c_shadow;
+		c_bg2 = c_bg;
+	}
 	return 0;
 }
 int32_t SW_BtnCounter::write(PACKFILE *f) const
@@ -2507,6 +2576,12 @@ int32_t SW_BtnCounter::write(PACKFILE *f) const
 		new_return(1);
 	if(!p_putc(costind,f))
 		new_return(1);
+	if(auto ret = c_text2.write(f))
+		return ret;
+	if(auto ret = c_shadow2.write(f))
+		return ret;
+	if(auto ret = c_bg2.write(f))
+		return ret;
 	return 0;
 }
 

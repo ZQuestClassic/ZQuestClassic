@@ -5020,7 +5020,13 @@ enum ASM_DEFINE
 
 #define IDATAATTRIB_L           0x15A4
 
-#define NUMVARIABLES            0x15A5
+/* skip a bunch of stuff not in 2.55 */
+
+#define SUBWIDGTY_COLOR_TXT2    0x15EA
+#define SUBWIDGTY_COLOR_SHD2    0x15EB
+#define SUBWIDGTY_COLOR_BG2     0x15EC
+
+#define NUMVARIABLES            0x15ED
 
 //} End variables
 

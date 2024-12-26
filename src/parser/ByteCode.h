@@ -1752,7 +1752,11 @@
 
 #define IDATAATTRIB_L           1646
 
-#define LAST_BYTECODE           1647
+#define SUBWIDGTY_COLOR_TXT2     1647
+#define SUBWIDGTY_COLOR_SHD2     1648
+#define SUBWIDGTY_COLOR_BG2      1649
+
+#define LAST_BYTECODE           1650
 
 //} END OF BYTECODE
 

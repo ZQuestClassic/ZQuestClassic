@@ -557,7 +557,7 @@ struct SW_Counter : public SubscrWidget
 {
 	int32_t fontid;
 	byte align, shadtype;
-	SubscrColorInfo c_text = {ssctMISC,ssctTEXT}, c_shadow, c_bg;
+	SubscrColorInfo c_text = {ssctMISC,ssctTEXT}, c_shadow, c_bg, c_text2 = {ssctMISC,ssctTEXT}, c_shadow2, c_bg2;
 	int32_t ctrs[3] = {crNONE,crNONE,crNONE};
 	byte mindigits, maxdigits = 3;
 	int32_t infitm = -1;
@@ -615,7 +615,7 @@ struct SW_BtnCounter : public SubscrWidget
 {
 	int32_t fontid;
 	byte align, shadtype;
-	SubscrColorInfo c_text = {ssctMISC,ssctTEXT}, c_shadow, c_bg;
+	SubscrColorInfo c_text = {ssctMISC,ssctTEXT}, c_shadow, c_bg, c_text2 = {ssctMISC,ssctTEXT}, c_shadow2, c_bg2;
 	byte mindigits, maxdigits = 3;
 	char infchar = 'A';
 	byte btn, costind;

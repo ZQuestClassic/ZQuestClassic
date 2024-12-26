@@ -89,6 +89,20 @@ Frame( \
 			updateColors(); \
 		}) \
 )
+#define MISC_COLOR_SEL_EX(var, txt, num, ...) \
+Frame( \
+	__VA_ARGS__, \
+	title = txt, \
+	col_sel[num-1] = MiscColorSel( \
+		c1 = var.type, \
+		c2 = var.color, \
+		onUpdate = [=](int32_t c1, int32_t c2) \
+		{ \
+			var.type = c1; \
+			var.color = c2; \
+			updateColors(); \
+		}) \
+)
 
 #define MISC_CSET_SEL(var, txt, num) \
 Frame( \
@@ -414,10 +428,13 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			case widgCOUNTER:
 			{
 				SW_Counter* w = dynamic_cast<SW_Counter*>(local_subref);
-				col_grid = Column(
+				col_grid = Columns<3>(
 					MISC_COLOR_SEL(w->c_text, "Text Color", 1),
 					MISC_COLOR_SEL(w->c_shadow, "Shadow Color", 2),
-					MISC_COLOR_SEL(w->c_bg, "Background Color", 3));
+					MISC_COLOR_SEL(w->c_bg, "Background Color", 3),
+					MISC_COLOR_SEL_EX(w->c_text2, "'Full' Text Color", 4, info = "Color used when counter is full"),
+					MISC_COLOR_SEL_EX(w->c_shadow2, "'Full' Shadow Color", 5, info = "Color used when counter is full"),
+					MISC_COLOR_SEL_EX(w->c_bg2, "'Full' Background Color", 6, info = "Color used when counter is full"));
 				break;
 			}
 			case widgBTNCOUNTER:
@@ -426,7 +443,10 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				col_grid = Column(
 					MISC_COLOR_SEL(w->c_text, "Text Color", 1),
 					MISC_COLOR_SEL(w->c_shadow, "Shadow Color", 2),
-					MISC_COLOR_SEL(w->c_bg, "Background Color", 3));
+					MISC_COLOR_SEL(w->c_bg, "Background Color", 3),
+					MISC_COLOR_SEL_EX(w->c_text2, "'Full' Text Color", 4, info = "Color used when counter is full"),
+					MISC_COLOR_SEL_EX(w->c_shadow2, "'Full' Shadow Color", 5, info = "Color used when counter is full"),
+					MISC_COLOR_SEL_EX(w->c_bg2, "'Full' Background Color", 6, info = "Color used when counter is full"));
 				break;
 			}
 			case widgOLDCTR:
@@ -618,38 +638,48 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			{
 				SW_Counter* w = dynamic_cast<SW_Counter*>(local_subref);
 				mergetype = mtFORCE_TAB; //too wide to fit!
-				attrib_grid = Columns<6>(
-					Label(text = "Font:", hAlign = 1.0),
-					Label(text = "Style:", hAlign = 1.0),
-					Label(text = "Alignment:", hAlign = 1.0),
-					Label(text = "Item 1:", hAlign = 1.0),
-					Label(text = "Item 2:", hAlign = 1.0),
-					Label(text = "Item 3:", hAlign = 1.0),
-					DDL_FONT(w->fontid),
-					DDL(w->shadtype, list_shadtype),
-					DDL(w->align, list_aligns),
-					DDL(w->ctrs[0], list_counters),
-					DDL(w->ctrs[1], list_counters),
-					DDL(w->ctrs[2], list_counters),
-					Label(text = "Min Digits:", hAlign = 1.0),
-					Label(text = "Max Digits:", hAlign = 1.0),
-					Label(text = "Infinite:", hAlign = 1.0),
-					Label(text = "Inf Character:", hAlign = 1.0),
-					CBOX(w->flags,SUBSCR_COUNTER_SHOW0,"Show Zero",2),
-					CBOX(w->flags,SUBSCR_COUNTER_ONLYSEL,"Only Selected",2),
-					NUM_FIELD(w->mindigits,0,5),
-					NUM_FIELD(w->maxdigits,0,5),
-					DDL_EX(w->infitm,list_items,maxwidth=100_px),
-					TextField(maxLength = 1,
-						fitParent = true,
-						text = std::string(1,(char)w->infchar),
-						onValChangedFunc = [=](GUI::TextField::type,std::string_view str,int32_t)
-						{
-							std::string txt(str);
-							if(txt.size())
-								w->infchar = txt[0];
-							else w->infchar = 0;
-						})
+				attrib_grid = Row(
+					Rows<2>(
+						Label(text = "Font:", hAlign = 1.0),
+						DDL_FONT(w->fontid),
+						Label(text = "Style:", hAlign = 1.0),
+						DDL(w->shadtype, list_shadtype),
+						Label(text = "Alignment:", hAlign = 1.0),
+						DDL(w->align, list_aligns),
+						Label(text = "Item 1:", hAlign = 1.0),
+						DDL(w->ctrs[0], list_counters),
+						Label(text = "Item 2:", hAlign = 1.0),
+						DDL(w->ctrs[1], list_counters),
+						Label(text = "Item 3:", hAlign = 1.0),
+						DDL(w->ctrs[2], list_counters)
+					),
+					Column(
+						Rows<2>(
+							Label(text = "Min Digits:", hAlign = 1.0),
+							NUM_FIELD(w->mindigits,0,5),
+							Label(text = "Max Digits:", hAlign = 1.0),
+							NUM_FIELD(w->maxdigits,0,5),
+							Label(text = "Infinite:", hAlign = 1.0),
+							DDL_EX(w->infitm,list_items,maxwidth=100_px),
+							Label(text = "Inf Character:", hAlign = 1.0),
+							TextField(maxLength = 1,
+								fitParent = true,
+								text = std::string(1,(char)w->infchar),
+								onValChangedFunc = [=](GUI::TextField::type,std::string_view str,int32_t)
+								{
+									std::string txt(str);
+									if(txt.size())
+										w->infchar = txt[0];
+									else w->infchar = 0;
+								})
+						),
+						Rows<2>(
+							INFOBTN("If the counter should show while empty"),
+							CBOX(w->flags,SUBSCR_COUNTER_SHOW0,"Show Zero",1),
+							INFOBTN("If the counter should only show when an item that uses it is equipped to any button"),
+							CBOX(w->flags,SUBSCR_COUNTER_ONLYSEL,"Only Selected",1)
+						)
+					)
 				);
 				break;
 			}
@@ -657,46 +687,51 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			{
 				SW_BtnCounter* w = dynamic_cast<SW_BtnCounter*>(local_subref);
 				mergetype = mtFORCE_TAB; //too wide to fit!
-				attrib_grid = Columns<5>(
-					Label(text = "Font:", hAlign = 1.0),
-					Label(text = "Style:", hAlign = 1.0),
-					Label(text = "Alignment:", hAlign = 1.0),
-					Label(text = "Button:", hAlign = 1.0),
-					Label(text = "Cost:", hAlign = 1.0),
-					//
-					DDL_FONT(w->fontid),
-					DDL(w->shadtype, list_shadtype),
-					DDL(w->align, list_aligns),
-					DDL(w->btn, list_buttons),
-					DDL(w->costind, list_costinds),
-					//
-					DummyWidget(),
-					DummyWidget(),
-					DummyWidget(),
-					DummyWidget(),
-					INFOBTN("Which cost to use from the button item"),
-					//
-					Label(text = "Min Digits:", hAlign = 1.0),
-					Label(text = "Max Digits:", hAlign = 1.0),
-					Label(text = "Inf Character:", hAlign = 1.0),
-					INFOCBOX(w->flags,SUBSCR_BTNCOUNTER_SHOW0,"Show Zero","If the counter should show while empty",2),
-					INFOCBOX(w->flags,SUBSCR_BTNCOUNTER_NOCOLLAPSE,"No Collapse","If checked,"
-						" 'Cost: 0' will always check the item's 'Use Cost', and 'Cost: 1' to 'Use Cost 2'.\n"
-						"If unchecked, 'Cost: 0' checks the first cost that is not None on an item, whichever that is,"
-						" and 'Cost: 2' the second.",2),
-					//
-					NUM_FIELD(w->mindigits,0,5),
-					NUM_FIELD(w->maxdigits,0,5),
-					TextField(maxLength = 1,
-						fitParent = true,
-						text = std::string(1,(char)w->infchar),
-						onValChangedFunc = [=](GUI::TextField::type,std::string_view str,int32_t)
-						{
-							std::string txt(str);
-							if(txt.size())
-								w->infchar = txt[0];
-							else w->infchar = 0;
-						})
+				attrib_grid = Row(
+					Rows<3>(
+						Label(text = "Font:", hAlign = 1.0),
+						DDL_FONT(w->fontid),
+						_d,
+						Label(text = "Style:", hAlign = 1.0),
+						DDL(w->shadtype, list_shadtype),
+						_d,
+						Label(text = "Alignment:", hAlign = 1.0),
+						DDL(w->align, list_aligns),
+						_d,
+						Label(text = "Button:", hAlign = 1.0),
+						DDL(w->btn, list_buttons),
+						_d,
+						Label(text = "Cost:", hAlign = 1.0),
+						DDL(w->costind, list_costinds),
+						INFOBTN("Which cost to use from the button item")
+					),
+					Column(
+						Rows<2>(
+							Label(text = "Min Digits:", hAlign = 1.0),
+							NUM_FIELD(w->mindigits,0,5),
+							Label(text = "Max Digits:", hAlign = 1.0),
+							NUM_FIELD(w->maxdigits,0,5),
+							Label(text = "Inf Character:", hAlign = 1.0),
+							TextField(maxLength = 1,
+								fitParent = true,
+								text = std::string(1,(char)w->infchar),
+								onValChangedFunc = [=](GUI::TextField::type,std::string_view str,int32_t)
+								{
+									std::string txt(str);
+									if(txt.size())
+										w->infchar = txt[0];
+									else w->infchar = 0;
+								})
+						),
+						Rows<2>(
+							INFOBTN("If the counter should show while empty"),
+							CBOX(w->flags,SUBSCR_BTNCOUNTER_SHOW0,"Show Zero",1),
+							INFOBTN("If checked, 'Cost: 0' will always check the item's 'Use Cost', and 'Cost: 1' to 'Use Cost 2'.\n"
+								"If unchecked, 'Cost: 0' checks the first cost that is not None on an item, whichever that is,"
+								" and 'Cost: 2' the second."),
+							CBOX(w->flags,SUBSCR_BTNCOUNTER_NOCOLLAPSE,"No Collapse",1)
+						)
+					)
 				);
 				break;
 			}
