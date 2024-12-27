@@ -292,7 +292,7 @@ void ItemListerDialog::update()
 			"\nType: {}\nCSet: {}\nScripts:\nAction: {}\nPickup: {}\nSprite: {}\nWeapon: {}"
 			"\n\nCopied:\n{}",
 			item_string[selected_val], display_name, selected_val, itm.power, itm.fam_type,
-			itm.family, itm.csets, itm.script, itm.collect_script, itm.sprite_script, itm.weaponscript,
+			itm.family, itm.csets&0xF, itm.script, itm.collect_script, itm.sprite_script, itm.weaponscript,
 			copied_name));
 		widgPrev->setDisabled(false);
 		widgPrev->setTile(itm.tile);
