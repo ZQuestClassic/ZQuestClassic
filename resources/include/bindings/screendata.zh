@@ -740,8 +740,8 @@ class screendata {
 	// [screen] must be a valid screen within the current [Region].
 	//
 	// @zasm
-	//   POP D2
 	//   POP D3
+	//   POP D2
 	//   LOAD_FFC_2 D2 D3
 	internal ffc LoadFFC(int screen, int index);
 

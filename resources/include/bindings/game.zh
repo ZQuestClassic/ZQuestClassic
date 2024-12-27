@@ -977,16 +977,9 @@ class Game {
 	//   LOADTMPSCR2 D2 D3
 	internal mapdata LoadTempScreen(int layer, int screen);
 
-	// Same as [LoadTempScreen], but for the specific combo [pos]. Convert
-	// an `x, y` pixel coordinate to a combo pos with [ComboAt].
+	// Same as [LoadTempScreen], but loads the screen that contains the given combo [pos].
 	//
-	// @zasm
-	//   POP D2
-	//   REGION_LOAD_TMPSCR_FOR_COMBO_POS D2
-	internal mapdata LoadTempScreenForComboPos(int pos);
-
-	// Same as [LoadTempScreenForComboPos], but for the specific combo [pos]. Convert
-	// an `x, y` pixel coordinate to a combo pos with [ComboAt].
+	// To convert undefined an `x, y` pixel coordinate to a combo pos with [ComboAt]. undefined
 	//
 	// @zasm
 	//   POP D3
@@ -1007,8 +1000,8 @@ class Game {
 	// within the [Region] being scrolled away from.
 	//
 	// @zasm
-	//   POP D2
 	//   POP D3
+	//   POP D2
 	//   LOADSCROLLSCR2 D2 D3
 	internal mapdata LoadScrollingScreen(int layer, int screen);
 

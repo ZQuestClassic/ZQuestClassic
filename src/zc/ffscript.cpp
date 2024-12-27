@@ -27489,8 +27489,8 @@ void FFScript::do_loadmapdata_tempscr(const bool v)
 
 void FFScript::do_loadmapdata_tempscr2(const bool v)
 {
-	int32_t screen = SH::get_arg(sarg1, v) / 10000;
-	int32_t layer = SH::get_arg(sarg2, v) / 10000;
+	int32_t layer = SH::get_arg(sarg1, v) / 10000;
+	int32_t screen = SH::get_arg(sarg2, v) / 10000; // TODO z3 ! bounds check?
 	if(BC::checkBounds(layer, 0, 6, "Game->LoadTempScreen()") != SH::_NoError)
 	{
 		ri->mapsref = 0;
@@ -27503,20 +27503,8 @@ void FFScript::do_loadmapdata_tempscr2(const bool v)
 
 static void do_loadtmpscrforcombopos(const bool v)
 {
-	rpos_t rpos = (rpos_t)(SH::get_arg(sarg1, v) / 10000);
-	if (BC::checkBoundsRpos(rpos, (rpos_t)0, region_max_rpos, "Game->LoadTempScreenForComboPos()") != SH::_NoError)
-	{
-		set_register(sarg1, 0);
-		return;
-	}
-
-	set_register(sarg1, create_mapdata_temp_ref(get_screen_for_rpos(rpos), 0, false));
-}
-
-static void do_loadtmpscrforcombopos2(const bool v)
-{
-	rpos_t rpos = (rpos_t)(SH::get_arg(sarg1, v) / 10000);
-	int32_t layer = SH::get_arg(sarg2, v) / 10000;
+	int32_t layer = SH::get_arg(sarg1, v) / 10000;
+	rpos_t rpos = (rpos_t)(SH::get_arg(sarg2, v) / 10000);
 	if (BC::checkBoundsRpos(rpos, (rpos_t)0, region_max_rpos, "Game->LoadTempScreenForComboPos()") != SH::_NoError)
 	{
 		set_register(sarg1, 0);
@@ -27546,8 +27534,8 @@ void FFScript::do_loadmapdata_scrollscr(const bool v)
 
 void FFScript::do_loadmapdata_scrollscr2(const bool v)
 {
-	int32_t screen = SH::get_arg(sarg1, v) / 10000;
-	int32_t layer = SH::get_arg(sarg2, v) / 10000;
+	int32_t layer = SH::get_arg(sarg1, v) / 10000;
+	int32_t screen = SH::get_arg(sarg2, v) / 10000; // TODO z3 ! bounds check?
 	if(BC::checkBounds(layer, 0, 6, "Game->LoadScrollingScreen()") != SH::_NoError)
 	{
 		ri->mapsref = 0;
@@ -30762,6 +30750,30 @@ int32_t run_script_int(bool is_jitted)
 				break;
 			}
 
+			case LOAD_FFC_2:
+			{
+				assert(ZScriptVersion::ffcRefIsSpriteId());
+
+				int screen = get_register(sarg1) / 10000;
+				int index = get_register(sarg2) / 10000;
+
+				if (!is_in_current_region(screen))
+				{
+					Z_scripterrlog("Screen->LoadFFC must be given a screen in the current region. got: %d\n", screen);
+					break;
+				}
+				if (BC::checkMapdataFFC(index, "Screen->LoadFFC") != SH::_NoError)
+					break;
+
+				ffc_id_t ffc_id = get_region_screen_offset(screen)*MAXFFCS + index;
+				if (auto ffc = ResolveFFCWithID(ffc_id, "Screen->LoadFFC"))
+					set_register(sarg1, ffc->getUID());
+				else
+					set_register(sarg1, 0);
+
+				break;
+			}
+
 			case CASTBOOLI:
 				do_boolcast(false);
 				break;
@@ -31544,14 +31556,14 @@ int32_t run_script_int(bool is_jitted)
 			case LOADTMPSCR2:
 				FFScript::do_loadmapdata_tempscr2(false);
 				break;
-			case REGION_LOAD_TMPSCR_FOR_COMBO_POS:
-				do_loadtmpscrforcombopos(false);
-				break;
 			case REGION_LOAD_TMPSCR_FOR_LAYER_COMBO_POS:
-				do_loadtmpscrforcombopos2(false);
+				do_loadtmpscrforcombopos(false);
 				break;
 			case LOADSCROLLSCR:
 				FFScript::do_loadmapdata_scrollscr(false);
+				break;
+			case LOADSCROLLSCR2:
+				FFScript::do_loadmapdata_scrollscr2(false);
 				break;
 			
 			case LOADSPRITEDATAR:
@@ -33732,7 +33744,7 @@ int32_t run_script_int(bool is_jitted)
 				int screen = get_register(sarg1) / 10000;
 				if (!is_in_current_region(screen))
 				{
-					Z_scripterrlog("Region->TriggerSecrets must be given a screen in the current region. got: %d\n", screen);
+					Z_scripterrlog("Screen->TriggerSecrets must be given a screen in the current region. got: %d\n", screen);
 					break;
 				}
 
