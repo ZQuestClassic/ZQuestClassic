@@ -44,6 +44,8 @@ std::shared_ptr<GUI::Widget> BasicListerDialog::view()
 	
 	lister_sel_val = start_val;
 	
+	widgList.reset(); // make sure calling `resort` from `preinit` is safe
+	
 	preinit();
 	
 	std::shared_ptr<GUI::Grid> g;
@@ -150,7 +152,8 @@ void BasicListerDialog::resort()
 		lister.alphabetize(frozen_inds);
 	else
 		lister.valsort(frozen_inds);
-	widgList->setSelectedValue(selected_val);
+	if(widgList)
+		widgList->setSelectedValue(selected_val);
 }
 
 bool BasicListerDialog::get_config(string const& name, bool default_val)
@@ -247,6 +250,7 @@ void ItemListerDialog::preinit()
 	else
 	{
 		lister.removeInd(0); // remove '(None)'
+		resort();
 		if(selected_val < 0)
 			selected_val = lister.getValue(0);
 	}
