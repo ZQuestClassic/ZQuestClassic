@@ -1024,41 +1024,7 @@ void integrityCheckSaveCombo()
 
 bool integrityBoolStringNoGuy(mapscr *ts)
 {
-    return (ts->str!=0&&ts->guy==0&&ts->room==0);
-}
-
-void integrityCheckStringNoGuy()
-{
-    mapscr *ts=NULL;
-    char buf[255];
-    
-    bool type_found=false;
-    
-    for(int32_t m=0; m<Map.getMapCount(); ++m)
-    {
-        for(int32_t s=0; s<MAPSCRS; ++s)
-        {
-            ts=&TheMaps[m*MAPSCRS+s];
-            
-            if(integrityBoolStringNoGuy(ts))
-            {
-                if(!type_found)
-                {
-                    quest_report_str+="The following screens have a string set, but no guy:\n";
-                    type_found=true;
-                }
-                
-                buf[0]=0;
-                sprintf(buf, "%s %3d:%02X\n", palname_spaced(ts->color), m+1, s);
-                quest_report_str+=buf;
-            }
-        }
-    }
-    
-    if(type_found)
-    {
-        quest_report_str += '\n';
-    }
+    return false;//(ts->str!=0&&ts->guy==0&&ts->room==0);
 }
 
 bool integrityBoolGuyNoString(mapscr *ts)
@@ -1525,15 +1491,6 @@ int32_t onIntegrityCheckTileWarpDestSquare()
     return D_O_K;
 }
 
-int32_t onIntegrityCheckStringNoGuy()
-{
-    quest_report_str="";
-    integrityCheckStringNoGuy();
-    restore_mouse();
-    showQuestReport();
-    return D_O_K;
-}
-
 int32_t onIntegrityCheckGuyNoString()
 {
     quest_report_str="";
@@ -1611,7 +1568,6 @@ void integrityCheckAllRooms()
     integrityCheckSpecialItem();
     integrityCheckEnemiesItem();
     integrityCheckEnemiesSecret();
-    integrityCheckStringNoGuy();
     integrityCheckGuyNoString();
     integrityCheckRoomNoGuy();
     integrityCheckRoomNoString();
