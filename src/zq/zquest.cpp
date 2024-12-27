@@ -12265,18 +12265,6 @@ static DIALOG list_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-static DIALOG wlist_dlg[] =
-{
-    // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
-    { jwin_win_proc,     60-12,   40,   200+24+24,  156,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,       NULL, NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { d_wlist_proc,       72-12-4,   60+4,   176+24+8,  92+3,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       D_EXIT,     0,             0,       NULL, NULL, NULL },
-    { jwin_button_proc,     90,   171,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Edit", NULL, NULL },
-    { jwin_button_proc,     170,  171,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Done", NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
-
 /*
   typedef struct item_struct {
   char *s;
@@ -12626,122 +12614,6 @@ int32_t readoneweapon(PACKFILE *f, int32_t index)
 	::memcpy(weapon_string[biw[index].i], tmp_wpn_name, 64);
        
 	return 1;
-}
-
-
-static wpndata copiedSprite;
-static byte spritecopied = 0;
-char temp_weapon_string[64] = {0};
-
-void paste_wsprite(int32_t index = -1)
-{
-	if(index < 0) index = wlist_dlg[2].d1;
-	if(unsigned(index)>255)
-		return;
-	if(!spritecopied)
-		return;
-	::memcpy( &(wpnsbuf[biw[index].i]),&copiedSprite, sizeof(wpndata));
-	::memcpy(weapon_string[biw[index].i], temp_weapon_string, 64);
-	wlist_dlg[2].flags|=D_DIRTY;
-	saved=false;
-}
-void copy_wsprite(int32_t index = -1)
-{
-	if(index < 0) index = wlist_dlg[2].d1;
-	if(unsigned(index)>255)
-		return;
-	::memcpy(&copiedSprite, &(wpnsbuf[biw[index].i]), sizeof(wpndata));
-	memset(temp_weapon_string,0,64);
-	::memcpy(temp_weapon_string, weapon_string[biw[index].i], 64);
-	spritecopied = 1;
-}
-void save_wsprite(int32_t index = -1)
-{
-	if(index < 0) index = wlist_dlg[2].d1;
-	if(unsigned(index)>255)
-		return;
-	if(!prompt_for_new_file_compat("Save ZWPNSPR(.zwpnspr)", "zwpnspr", NULL,datapath,false))
-		return;
-	
-	PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
-	if(!f) return;
-	if (!writeoneweapon(f,index))
-	{
-		Z_error("Could not write to .zwpnspr packfile %s\n", temppath);
-		InfoDialog("ZWpnSpr Error", "Could not save the specified sprite.").show();
-	}
-	pack_fclose(f);
-}
-void load_wsprite(int32_t index = -1)
-{
-	if(index < 0) index = wlist_dlg[2].d1;
-	if(unsigned(index)>255)
-		return;
-	if(!prompt_for_existing_file_compat("Load ZWPNSPR(.zwpnspr)", "zwpnspr", NULL,datapath,false))
-		return;
-	PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
-	if(!f) return;
-	
-	if (!readoneweapon(f,index))
-	{
-		Z_error("Could not read from .zwpnspr packfile %s\n", temppath);
-		InfoDialog("ZWpnSpr Error", "Could not load the specified sprite.").show();
-	}
-	
-	pack_fclose(f);
-	wlist_dlg[2].flags|=D_DIRTY;
-	saved=false;
-}
-void wpnsprite_rclick_func(int32_t index, int32_t x, int32_t y)
-{
-	if(((unsigned)index)>255)
-		return;
-	NewMenu rcmenu {
-		{ "&Copy", [&](){copy_wsprite(index);} },
-		{ "Paste", "&v", [&](){paste_wsprite(index);}, 0, !spritecopied },
-		{ "&Save", [&](){save_wsprite(index);} },
-		{ "&Load", [&](){load_wsprite(index);} },
-	};
-	rcmenu.pop(x, y);
-}
-
-
-int32_t select_weapon(const char *prompt,int32_t weapon)
-{
-    if(biw_cnt==-1)
-        build_biw_list();
-        
-    int32_t index=0;
-    
-    for(int32_t j=0; j<biw_cnt; j++)
-    {
-        if(biw[j].i == weapon)
-        {
-            index=j;
-        }
-    }
-    
-    wlist_dlg[0].dp=(void *)prompt;
-    wlist_dlg[0].dp2=get_zc_font(font_lfont);
-    wlist_dlg[2].d1=index;
-    ListData weapon_list(weaponlist_num, &font);
-    wlist_dlg[2].dp=(void *) &weapon_list;
-    wlist_dlg[2].dp3 = (void *)&wpnsprite_rclick_func;
-    wlist_dlg[2].flags|=(D_USER<<1);
-    
-    large_dialog(wlist_dlg);
-        
-    int32_t ret=do_zqdialog(wlist_dlg,2);
-    
-    if(ret==0||ret==4)
-    {
-        position_mouse_z(0);
-        return -1;
-    }
-    
-    index = wlist_dlg[2].d1;
-    position_mouse_z(0);
-    return biw[index].i;
 }
 
 static int32_t seldata_copy;
@@ -13555,78 +13427,6 @@ int32_t d_nidroplist_proc(int32_t msg,DIALOG *d,int32_t c)
     }
     
     return ret;
-}
-
-int32_t d_wlist_proc(int32_t msg,DIALOG *d,int32_t c)
-{
-	if(msg == MSG_XCHAR)
-	{
-		if(key_shifts & KB_CTRL_CMD_FLAG) //CTRL overrides the lister search function
-		{
-			int32_t ret = D_USED_CHAR;
-			switch(c>>8)
-			{
-				case KEY_V:
-					paste_wsprite();
-					break;
-				case KEY_C:
-					copy_wsprite();
-					break;
-				case KEY_S:
-					save_wsprite();
-					break;
-				case KEY_L:
-					load_wsprite();
-					break;
-				default: ret = 0;
-			}
-			if(ret) return ret;
-		}
-	}
-	int32_t ret = jwin_abclist_proc(msg,d,c);
-	
-	switch(msg)
-	{
-	case MSG_DRAW:
-	case MSG_CHAR:
-	case MSG_CLICK:
-		
-		int32_t tile = 0;
-		int32_t cset = 0;
-		tile= wpnsbuf[biw[d->d1].i].tile;
-		cset= wpnsbuf[biw[d->d1].i].csets&15;
-		int32_t x = d->x + d->w + 4;
-		int32_t y = d->y;
-		int32_t w = 32;
-		int32_t h = 32;
-		float temp_scale = 2;
-		
-		BITMAP *buf = create_bitmap_ex(8,16,16);
-		BITMAP *bigbmp = create_bitmap_ex(8,w,h);
-		
-		if(buf && bigbmp)
-		{
-			clear_bitmap(buf);
-			
-			if(tile)
-				overtile16(buf, tile,0,0,cset,0);
-				
-			stretch_blit(buf, bigbmp, 0,0, 16, 16, 0, 0, w, h);
-			destroy_bitmap(buf);
-			jwin_draw_frame(screen,x,y,w+4,h+4,FR_DEEP);
-			blit(bigbmp,screen,0,0,x+2,y+2,w,h);
-			destroy_bitmap(bigbmp);
-		}
-	
-	//Display the sprite ID. 
-	if (biw[d->d1].i >= 0)
-	{
-		textprintf_ex(screen, font, x, y + (20 * temp_scale), jwin_pal[jcTEXTFG], jwin_pal[jcBOX], "#%d   ", biw[d->d1].i);
-	}
-		
-	}
-	
-	return ret;
 }
 
 // Triforce pieces
@@ -25857,7 +25657,6 @@ void center_zquest_dialogs()
     jwin_center_dialog(tilewarp_dlg);
     jwin_center_dialog(sidewarp_dlg);
     jwin_center_dialog(warpring_dlg);
-    jwin_center_dialog(wlist_dlg);
     center_zscript_dialogs();
 }
 

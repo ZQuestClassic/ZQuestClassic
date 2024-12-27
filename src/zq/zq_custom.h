@@ -22,7 +22,6 @@ int32_t onCustomItems();
 
 enum { ws_2_frame, ws_3_frame, ws_max };
 
-void edit_weapondata(int32_t index);
 int32_t onCustomWpns();
 int32_t onCustomEnemies();
 void edit_enemydata(int32_t index);
