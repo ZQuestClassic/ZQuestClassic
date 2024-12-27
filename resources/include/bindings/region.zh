@@ -1,66 +1,55 @@
+// Note: this feature is not yet released. See the #z3 channel: https://discord.com/channels/876899628556091432/1120883971950125147
+//
+// A region is a set of map screens that the player can freely move within.
+//
+// The top-left screen of a region is called the "origin screen". [Game->CurScreen] is
+// always equal to the current region's origin screen.
+//
+// A region with just a single screen is technically still a region, but is referred to
+// as a "non-scrolling region". Regions larger than one screen are "scrolling regions".
+//
+// The visible porition of the region currently visible is defined by the [Viewport].
+//
 // Access with `Region->`.
 class Region {
 	// @delete
 	internal Region();
 
 	// @zasm_var REGION_ID
-	internal const long ID;
+	internal const int ID;
 
 	// The number of pixels horizontally. 256 per screen.
 	//
 	// @zasm_var REGION_WIDTH
-	internal const long Width;
+	internal const int Width;
 
 	// The number of pixels vertically. 176 per screen.
 	//
 	// @zasm_var REGION_HEIGHT
-	internal const long Height;
+	internal const int Height;
 
 	// The number of screens horizontally.
 	//
 	// @zasm_var REGION_SCREEN_WIDTH
-	internal const long ScreenWidth;
+	internal const int ScreenWidth;
 
 	// The number of screens vertically.
 	//
 	// @zasm_var REGION_SCREEN_HEIGHT
-	internal const long ScreenHeight;
+	internal const int ScreenHeight;
 
 	// The number of combo positions. 176 per screen.
+	// This is the same as [NUM_COMBO_POS].
 	//
 	// @zasm_var REGION_NUM_COMBOS
-	internal const long NumCombos;
-
-	// The top-left screen in the current region.
-	// If not in a large region, this is the same as [Screen].
-	//
-	// @zasm_var REGION_ORIGIN_SCREEN
-	internal const screendata OriginScreen;
+	internal const int NumCombos;
 
 	// The index of the top-left screen in the current region.
-	// If not in a large region, this is the same as [Game->CurScreen].
+	// This is the same as [Game->CurScreen].
 	//
 	// @zasm_var REGION_ORIGIN_SCREEN
 	internal const long OriginScreenIndex;
-
-	// @zasm
-	//   POP D2
-	//   REGION_SCREEN_FOR_COMBO_POS D2
-	internal screendata GetScreenForComboPos(int pos);
-
-	// @zasm
-	//   POP D2
-	//   REGION_SCREEN_FOR_COMBO_POS D2
-	internal int GetScreenIndexForComboPos(int pos);
-
-	// @zasm
-	//   POP D2
-	//   REGION_TRIGGER_SECRETS D2
-	internal void TriggerSecrets(int arg1);
 }
 
-// The Region the [Hero] is currently in.
-// A Region is a collection of screens that can be freely scrolled between.
-// An area without any scrolling is technically still a Region of 1x1 screen size.
-// The position of the region currently visible is defined by the [Viewport].
+// The region the [Hero] is currently in.
 internal const Region Region;

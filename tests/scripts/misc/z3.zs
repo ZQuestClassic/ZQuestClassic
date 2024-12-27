@@ -26,7 +26,7 @@ ffc script TriggerOnCursor
 			// y += Viewport->Y;
 			if (this->X < x && this->Y < y && this->X + 32 >= x && this->Y + 32 >= y)
 			{
-				Region->TriggerSecrets(screen_index);
+				Screen->TriggerSecrets(screen_index);
 			}
 
             Waitframe();

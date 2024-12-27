@@ -645,13 +645,24 @@ class screendata {
 	//   SETR D2 REFITEM
 	internal itemsprite CreateItem(int id);
 
-	// Returns a pointer to the nth [ffc] on the screen, where `1 <= n <=
-	// MAX_FFC`.
+	// Returns the [ffc] for the given [id], where 1 <= id <= [MAX_FFC].
+	//
+	// See [ffc::ID].
 	//
 	// @zasm
 	//   POP D2
 	//   LOAD_FFC D2
-	internal ffc LoadFFC(int n);
+	internal ffc LoadFFC(int id);
+
+	// Returns the [ffc] from [screen] of the specified [index], where `0 <= index < 128`.
+	//
+	// [screen] must be a valid screen within the current [Region].
+	//
+	// @zasm
+	//   POP D3
+	//   POP D2
+	//   LOAD_FFC_2 D2 D3
+	internal ffc LoadFFC(int screen, int index);
 
 	// Returns the number of the given object type that are present on the
 	// current screen.
@@ -1071,12 +1082,22 @@ class screendata {
 	//   ISSOLIDLAYER D2
 	internal bool isSolidLayer(int x, int y, int layer);
 
-	// Triggers secrets on this screen (temp only, write [State] to set the perm
-	// secret state)
+	// Triggers secrets on this screen ([Screen->Index]).
+	//
+	// Temporary only, for permanent use [Screen->State].
 	//
 	// @zasm
 	//   SECRETS
 	internal void TriggerSecrets();
+
+	// Triggers secrets on the provided screen, which must be within the current [Region].
+	//
+	// Temporary only, for permanent use [Game->LoadTempScreen] and [mapdata::State].
+	//
+	// @zasm
+	//   POP D2
+	//   REGION_TRIGGER_SECRETS D2
+	internal void TriggerSecrets(int screen);
 
 	// Plays the warping screen 'zap' effect.
 	//
