@@ -2920,7 +2920,6 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 	
 	if((basescr->hasitem != 0) && !(flags&cNOITEM))
 	{
-		frame=0;
 		putitem2(dest,basescr->itemx+x,basescr->itemy+y+1-(get_qr(qr_NOITEMOFFSET)),basescr->item,lens_hint_item[basescr->item][0],lens_hint_item[basescr->item][1], 0);
 	}
 	
