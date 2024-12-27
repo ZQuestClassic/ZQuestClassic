@@ -23,12 +23,17 @@ public:
 	void setSkipX(int32_t value);
 	void setSkipY(int32_t value);
 	void setFlip(int32_t value);
+	void setFlashCS(int32_t value);
 	void setDoSized(bool value);
 	
 	void resetAnim();
 	
 private:
-	enum { tfr_tile, tfr_cset, tfr_frames, tfr_speed, tfr_delay, tfr_aclk, tfr_aframe, tfr_skipx, tfr_skipy, tfr_flip, tfr_cset2, tfr_dosized, tfr_MAX };
+	enum {
+		tfr_tile, tfr_cset, tfr_frames, tfr_speed, tfr_delay,
+		tfr_aclk, tfr_aframe, tfr_skipx, tfr_skipy, tfr_flip,
+		tfr_cset2, tfr_dosized, tfr_flash_cs, tfr_flash_clk, tfr_MAX
+	};
 	int32_t data[tfr_MAX];
 	DialogRef alDialog;
 	

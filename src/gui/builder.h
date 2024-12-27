@@ -573,6 +573,7 @@ ZCGUI_BUILDER_START(TileFrame)
 	ZCGUI_ACCEPT_PROP(skipy, setSkipY, int32_t)
 	ZCGUI_ACCEPT_PROP(do_sized, setDoSized, bool)
 	ZCGUI_ACCEPT_PROP(flip, setFlip, int32_t)
+	ZCGUI_ACCEPT_PROP(flashcs, setFlashCS, int32_t)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(TileFrame, TileFrame, makeTileFrame)
 

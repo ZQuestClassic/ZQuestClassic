@@ -300,6 +300,7 @@ void ItemListerDialog::update()
 			? itm.tilew-1 : 0);
 		widgPrev->setSkipY((itm.overrideFLAGS & OVERRIDE_TILE_HEIGHT)
 			? itm.tileh-1 : 0);
+		widgPrev->setFlashCS((itm.misc_flags & 1) ? itm.csets >> 4 : -1);
 	}
 	else
 	{
@@ -316,6 +317,7 @@ void ItemListerDialog::update()
 		widgPrev->setDelay(0);
 		widgPrev->setSkipX(0);
 		widgPrev->setSkipY(0);
+		widgPrev->setFlashCS(-1);
 	}
 	widgPrev->setVisible(true);
 	widgPrev->setDoSized(true);
@@ -441,6 +443,7 @@ void SpriteListerDialog::preinit()
 		frozen_inds = 1; // lock '(None)'
 	else
 	{
+		resort();
 		if(selected_val < 0)
 			selected_val = lister.getValue(0);
 	}
@@ -478,6 +481,7 @@ void SpriteListerDialog::update()
 		widgPrev->setCSet(spr.cs());
 		widgPrev->setFrames(spr.frames);
 		widgPrev->setSpeed(spr.speed);
+		widgPrev->setFlashCS(-1);
 	}
 	else
 	{
@@ -490,6 +494,7 @@ void SpriteListerDialog::update()
 		widgPrev->setCSet(0);
 		widgPrev->setFrames(0);
 		widgPrev->setSpeed(0);
+		widgPrev->setFlashCS(-1);
 	}
 	widgPrev->setVisible(true);
 	widgPrev->overrideWidth(Size::pixels(48+4));
