@@ -222,6 +222,7 @@ void ItemListerDialog::update()
 			? itm.tilew-1 : 0);
 		widgPrev->setSkipY((itm.overrideFLAGS & itemdataOVERRIDE_TILEHEIGHT)
 			? itm.tileh-1 : 0);
+		widgPrev->setFlashCS((itm.misc_flags & 1) ? itm.csets >> 4 : -1);
 	}
 	else
 	{
@@ -238,6 +239,7 @@ void ItemListerDialog::update()
 		widgPrev->setDelay(0);
 		widgPrev->setSkipX(0);
 		widgPrev->setSkipY(0);
+		widgPrev->setFlashCS(-1);
 	}
 	widgPrev->setVisible(true);
 	widgPrev->setDoSized(true);
