@@ -18,11 +18,12 @@ int32_t tile_anim_proc(int32_t msg,DIALOG *d,int32_t c)
 	int32_t *data = ((int32_t*)d->dp);
 	int32_t &clk = data[TileFrame::tfr_aclk];
 	int32_t &frm = data[TileFrame::tfr_aframe];
+	int32_t delay = -data[TileFrame::tfr_delay] * data[TileFrame::tfr_speed];
 	switch(msg)
 	{
 		case MSG_START:
 		{
-			clk = 0;
+			clk = delay;
 			break;
 		}
 		case MSG_VSYNC:
@@ -33,22 +34,22 @@ int32_t tile_anim_proc(int32_t msg,DIALOG *d,int32_t c)
 				break; //nothing to animate
 			if(++clk > data[TileFrame::tfr_speed])
 				d->flags |= D_DIRTY; //mark for redraw
-			else if(clk < -data[TileFrame::tfr_delay])
-				clk = -data[TileFrame::tfr_delay]; //Handle delay modification
+			else if(clk < delay)
+				clk = delay; //Handle delay modification
 			if(clk >= data[TileFrame::tfr_speed])
 			{
 				clk %= data[TileFrame::tfr_speed];
 				if(++frm >= data[TileFrame::tfr_frames])
 				{
 					frm %= data[TileFrame::tfr_frames];
-					clk = -data[TileFrame::tfr_delay];
+					clk = delay;
 				}
 				d->flags |= D_DIRTY;
 			}
 			else if(frm >= data[TileFrame::tfr_frames])
 			{ //Incase frames was changed
 				frm %= data[TileFrame::tfr_frames];
-				clk = -data[TileFrame::tfr_delay];
+				clk = delay;
 				d->flags |= D_DIRTY;
 			}
 			break;
