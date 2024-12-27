@@ -4882,6 +4882,28 @@ namespace ZScript
 		}
 	};
 
+	class OLoadFFC : public UnaryOpcode
+	{
+	public:
+		OLoadFFC(Argument *A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OLoadFFC(a->clone());
+		}
+	};
+
+	class OLoadFFC2 : public BinaryOpcode
+	{
+	public:
+		OLoadFFC2(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OLoadFFC2(a->clone(), b->clone());
+		}
+	};
+
 	class OLoadLWpnRegister : public UnaryOpcode
 	{
 	public:
@@ -5420,6 +5442,28 @@ namespace ZScript
 		}
 	};
 
+	class OLoadTmpScr2 : public BinaryOpcode
+	{
+	public:
+		OLoadTmpScr2(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OLoadTmpScr2(a->clone(), b->clone());
+		}
+	};
+
+	class OLoadTmpScrComboPos : public BinaryOpcode
+	{
+	public:
+		OLoadTmpScrComboPos(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OLoadTmpScrComboPos(a->clone(), b->clone());
+		}
+	};
+
 	class OLoadScrollScr : public UnaryOpcode
 	{
 	public:
@@ -5428,6 +5472,17 @@ namespace ZScript
 		Opcode* clone() const
 		{
 			return new OLoadScrollScr(a->clone());
+		}
+	};
+
+	class OLoadScrollScr2 : public BinaryOpcode
+	{
+	public:
+		OLoadScrollScr2(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OLoadScrollScr2(a->clone(), b->clone());
 		}
 	};
 
@@ -11753,16 +11808,6 @@ namespace ZScript
 		Opcode* clone() const
 		{
 			return new OModuleGetIC(a->clone(), b->clone());
-		}
-	};
-	class OGetScreenForComboPos : public UnaryOpcode
-	{
-	public:
-		OGetScreenForComboPos(Argument *A) : UnaryOpcode(A) {}
-		std::string toString() const;
-		Opcode *clone() const
-		{
-			return new OGetScreenForComboPos(a->clone());
 		}
 	};
 	class ORunGenericFrozenScript : public UnaryOpcode

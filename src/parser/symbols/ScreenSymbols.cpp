@@ -40,6 +40,7 @@ static AccessorTable ScreenTable[] =
 	{ "LoadItem",                   0,          ZTID_ITEM,   -1,                                0,  { ZTID_SCREEN, ZTID_FLOAT },{} },
 	{ "CreateItem",                 0,          ZTID_ITEM,   -1,                           FL_INL,  { ZTID_SCREEN, ZTID_FLOAT },{} },
 	{ "LoadFFC",                    0,           ZTID_FFC,   -1,                           FL_INL,  { ZTID_SCREEN, ZTID_FLOAT },{} },
+	{ "LoadFFC",                    1,           ZTID_FFC,   -1,                           FL_INL,  { ZTID_SCREEN, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "_getNumNPCs",                0,         ZTID_FLOAT,   NPCCOUNT,                   FL_DEPR,  { ZTID_SCREEN },{},0,"Use '->NumNPCs' instead!" },
 	{ "getNumNPCs",                 0,         ZTID_FLOAT,   NPCCOUNT,                         0,  { ZTID_SCREEN },{} },
 	{ "setNumNPCs",                 0,         ZTID_VOID,    NPCCOUNT,                 FL_RDONLY,  { ZTID_SCREEN, ZTID_FLOAT },{} },
@@ -101,6 +102,7 @@ static AccessorTable ScreenTable[] =
 	{ "getEFlags[]",                0,         ZTID_FLOAT,   SCREENEFLAGSD,                     0,  { ZTID_SCREEN, ZTID_FLOAT },{} },
 	{ "setEFlags[]",                0,          ZTID_VOID,   SCREENEFLAGSD,                     0,  { ZTID_SCREEN, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "TriggerSecrets",             0,          ZTID_VOID,   -1,                           FL_INL,  { ZTID_SCREEN },{} },
+	{ "TriggerSecrets",             1,          ZTID_VOID,   -1,                           FL_INL,  { ZTID_SCREEN, ZTID_FLOAT },{} },
 	{ "getRoomType",                0,         ZTID_FLOAT,   ROOMTYPE,                          0,  { ZTID_SCREEN },{} },
 	{ "setRoomType",                0,          ZTID_VOID,   ROOMTYPE,                          0,  { ZTID_SCREEN, ZTID_FLOAT },{} },
 	{ "getMovingBlockX",            0,         ZTID_FLOAT,   PUSHBLOCKX,                        0,  { ZTID_SCREEN },{} },
@@ -422,7 +424,7 @@ void ScreenSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-	//ffc LoadFFC(screen, int32_t)
+	//ffc LoadFFC(screen, int32_t id)
 	{
 		Function* function = getFunction("LoadFFC");
 		
@@ -433,8 +435,23 @@ void ScreenSymbols::generateCode()
 		LABELBACK(label);
 		//pop pointer, and ignore it
 		POPREF();
-		//addOpcode2 (code, new OSetRegister(new VarArgument(REFFFC), new VarArgument(EXP1)));
-		addOpcode2 (code, new OSubImmediate(new VarArgument(EXP1), new LiteralArgument(10000)));
+		addOpcode2 (code, new OLoadFFC(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//ffc LoadFFC(screen, int32_t screen, int32_t index)
+	{
+		Function* function = getFunction("LoadFFC", 1);
+		
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OLoadFFC2(new VarArgument(EXP1), new VarArgument(EXP2)));
 		RETURN();
 		function->giveCode(code);
 	}
@@ -1184,6 +1201,19 @@ void ScreenSymbols::generateCode()
 		ASSERT_NUL();
 		addOpcode2 (code, new OTriggerSecrets());
 		LABELBACK(label);
+		RETURN();
+		function->giveCode(code);
+	}
+	//void TriggerSecrets(screen, int32_t screenindex)
+	{
+		Function* function = getFunction("TriggerSecrets", 1);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OTriggerSecretsFor(new VarArgument(EXP1)));
 		RETURN();
 		function->giveCode(code);
 	}

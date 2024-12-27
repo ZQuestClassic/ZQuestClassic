@@ -156,7 +156,10 @@ static AccessorTable gameTable[] =
 	{ "LoadComboData",              0,        ZTID_COMBOS,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
 	{ "LoadMapData",                0,       ZTID_MAPDATA,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "LoadTempScreen",             0,       ZTID_MAPDATA,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "LoadTempScreen",             1,       ZTID_MAPDATA,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "LoadTempScreenForComboPos",  0,       ZTID_MAPDATA,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
 	{ "LoadScrollingScreen",        0,       ZTID_MAPDATA,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "LoadScrollingScreen",        1,       ZTID_MAPDATA,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "LoadSpriteData",             0,    ZTID_SPRITEDATA,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
 	{ "LoadShopData",               0,      ZTID_SHOPDATA,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
 	{ "LoadInfoShopData",           0,      ZTID_SHOPDATA,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
@@ -631,6 +634,38 @@ void GameSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
+
+	//int32_t LoadTempScreen(game, int32_t layer, int32_t screen)
+	{
+		Function* function = getFunction("LoadTempScreen", 1);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OLoadTmpScr2(new VarArgument(EXP1), new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
+	}
+
+	//mapdata LoadTempScreenForComboPos(game, int32_t layer, int32_t pos)
+	{
+		Function* function = getFunction("LoadTempScreenForComboPos");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OLoadTmpScrComboPos(new VarArgument(EXP1), new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
+	}
 	
 	//int32_t LoadScrollingScreen(game, int32_t layer)
 	{
@@ -643,6 +678,22 @@ void GameSymbols::generateCode()
 		//pop pointer, and ignore it
 		POPREF();
 		addOpcode2 (code, new OLoadScrollScr(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+
+	//int32_t LoadScrollingScreen(game, int32_t layer, int32_t screen)
+	{
+		Function* function = getFunction("LoadScrollingScreen", 1);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OLoadScrollScr2(new VarArgument(EXP1), new VarArgument(EXP2)));
 		RETURN();
 		function->giveCode(code);
 	}

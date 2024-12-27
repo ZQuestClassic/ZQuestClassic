@@ -32563,11 +32563,77 @@ void FFScript::do_loadmapdata(const bool v)
 void FFScript::do_loadmapdata_tempscr(const bool v)
 {
 	int32_t layer = SH::get_arg(sarg1, v) / 10000;
+
 	if(BC::checkBounds(layer, 0, 6, "Game->LoadTempScreen()") != SH::_NoError)
 	{
 		ri->mapsref = 0;
+		set_register(sarg1, ri->mapsref);
 		return;
 	}
+
+	switch(layer)
+	{
+		case 0: ri->mapsref = MAPSCR_TEMP0; break;
+		case 1: ri->mapsref = MAPSCR_TEMP1; break;
+		case 2: ri->mapsref = MAPSCR_TEMP2; break;
+		case 3: ri->mapsref = MAPSCR_TEMP3; break;
+		case 4: ri->mapsref = MAPSCR_TEMP4; break;
+		case 5: ri->mapsref = MAPSCR_TEMP5; break;
+		case 6: ri->mapsref = MAPSCR_TEMP6; break;
+	}
+	set_register(sarg1, ri->mapsref);
+}
+
+void FFScript::do_loadmapdata_tempscr2(const bool v)
+{
+	int32_t layer = SH::get_arg(sarg1, v) / 10000;
+	int32_t screen = SH::get_arg(sarg2, v) / 10000;
+
+	if (screen != currscr)
+	{
+		Z_scripterrlog("Game->LoadTempScreen() must be given a screen in the current region. got: %d\n", screen);
+		ri->mapsref = 0;
+		set_register(sarg1, ri->mapsref);
+		return;
+	}
+	if (BC::checkBounds(layer, 0, 6, "Game->LoadTempScreen()") != SH::_NoError)
+	{
+		ri->mapsref = 0;
+		set_register(sarg1, ri->mapsref);
+		return;
+	}
+
+	switch(layer)
+	{
+		case 0: ri->mapsref = MAPSCR_TEMP0; break;
+		case 1: ri->mapsref = MAPSCR_TEMP1; break;
+		case 2: ri->mapsref = MAPSCR_TEMP2; break;
+		case 3: ri->mapsref = MAPSCR_TEMP3; break;
+		case 4: ri->mapsref = MAPSCR_TEMP4; break;
+		case 5: ri->mapsref = MAPSCR_TEMP5; break;
+		case 6: ri->mapsref = MAPSCR_TEMP6; break;
+	}
+	set_register(sarg1, ri->mapsref);
+}
+
+static void do_loadtmpscrforcombopos(const bool v)
+{
+	int rpos = SH::get_arg(sarg1, v) / 10000;
+	int layer = SH::get_arg(sarg2, v) / 10000;
+
+	if (BC::checkBoundsPos(rpos, 0, 175, "Game->LoadTempScreenForComboPos()") != SH::_NoError)
+	{
+		ri->mapsref = 0;
+		set_register(sarg1, ri->mapsref);
+		return;
+	}
+	if (BC::checkBounds(layer, 0, 6, "Game->LoadTempScreenForComboPos()") != SH::_NoError)
+	{
+		ri->mapsref = 0;
+		set_register(sarg1, ri->mapsref);
+		return;
+	}
+
 	switch(layer)
 	{
 		case 0: ri->mapsref = MAPSCR_TEMP0; break;
@@ -32587,8 +32653,40 @@ void FFScript::do_loadmapdata_scrollscr(const bool v)
 	if(BC::checkBounds(layer, 0, 6, "Game->LoadScrollingScreen()") != SH::_NoError)
 	{
 		ri->mapsref = 0;
+		set_register(sarg1, ri->mapsref);
 		return;
 	}
+	switch(layer)
+	{
+		case 0: ri->mapsref = MAPSCR_SCROLL0; break;
+		case 1: ri->mapsref = MAPSCR_SCROLL1; break;
+		case 2: ri->mapsref = MAPSCR_SCROLL2; break;
+		case 3: ri->mapsref = MAPSCR_SCROLL3; break;
+		case 4: ri->mapsref = MAPSCR_SCROLL4; break;
+		case 5: ri->mapsref = MAPSCR_SCROLL5; break;
+		case 6: ri->mapsref = MAPSCR_SCROLL6; break;
+	}
+	set_register(sarg1, ri->mapsref);
+}
+
+void FFScript::do_loadmapdata_scrollscr2(const bool v)
+{
+	int32_t layer = SH::get_arg(sarg1, v) / 10000;
+	int32_t screen = SH::get_arg(sarg2, v) / 10000;
+
+	if (screen != scrolling_scr)
+	{
+		ri->mapsref = 0;
+		set_register(sarg1, ri->mapsref);
+		return;
+	}
+	if (BC::checkBounds(layer, 0, 6, "Game->LoadScrollingScreen()") != SH::_NoError)
+	{
+		ri->mapsref = 0;
+		set_register(sarg1, ri->mapsref);
+		return;
+	}
+
 	switch(layer)
 	{
 		case 0: ri->mapsref = MAPSCR_SCROLL0; break;
@@ -36051,7 +36149,36 @@ j_command:
 			case GETITEMSCRIPT:
 				do_getitemscript();
 				break;
-				
+
+			case LOAD_FFC:
+			{
+				int index = get_register(sarg1) / 10000 - 1;
+				if (BC::checkFFC(index, "Screen->LoadFFC") == SH::_NoError)
+					set_register(sarg1, index * 10000);
+				else
+					set_register(sarg1, 0);
+				break;
+			}
+
+			// compat for future region support.
+			case LOAD_FFC_2:
+			{
+				int screen = get_register(sarg1) / 10000;
+				int index = get_register(sarg2) / 10000;
+
+				if (screen != currscr)
+				{
+					Z_scripterrlog("Screen->LoadFFC must be given a screen in the current region. got: %d\n", screen);
+					break;
+				}
+
+				if (BC::checkFFC(index, "Screen->LoadFFC") == SH::_NoError)
+					set_register(sarg1, index * 10000);
+				else
+					set_register(sarg1, 0);
+				break;
+			}
+
 			case CASTBOOLI:
 				do_boolcast(false);
 				break;
@@ -36884,8 +37011,17 @@ j_command:
 			case LOADTMPSCR:
 				FFScript::do_loadmapdata_tempscr(false);
 				break;
+			case LOADTMPSCR2:
+				FFScript::do_loadmapdata_tempscr2(false);
+				break;
+			case REGION_LOAD_TMPSCR_FOR_LAYER_COMBO_POS:
+				do_loadtmpscrforcombopos(false);
+				break;
 			case LOADSCROLLSCR:
 				FFScript::do_loadmapdata_scrollscr(false);
+				break;
+			case LOADSCROLLSCR2:
+				FFScript::do_loadmapdata_scrollscr2(false);
 				break;
 			
 			case LOADSPRITEDATAR:
@@ -37281,7 +37417,21 @@ j_command:
 			case SECRETS:
 				do_triggersecrets();
 				break;
-				
+
+			// compat for future region support.
+			case REGION_TRIGGER_SECRETS:
+			{
+				int screen = get_register(sarg1) / 10000;
+				if (screen != currscr)
+				{
+					Z_scripterrlog("Screen->TriggerSecrets must be given a screen in the current region. got: %d\n", screen);
+					break;
+				}
+
+				do_triggersecrets();
+				break;
+			}
+
 			case GETSCREENFLAGS:
 				do_getscreenflags();
 				break;
@@ -37289,7 +37439,7 @@ j_command:
 			case GETSCREENEFLAGS:
 				do_getscreeneflags();
 				break;
-			
+
 			case GRAPHICSGETPIXEL:
 				FFCore.do_graphics_getpixel();
 				break;
@@ -39473,23 +39623,6 @@ j_command:
 			{
 				bool r = FFCore.runGenericFrozenEngine(word(ri->genericdataref));
 				set_register(sarg1, r ? 10000L : 0L);
-				break;
-			}
-
-			case REGION_SCREEN_FOR_COMBO_POS:
-				do_getscreenforcombopos(false);
-				break;
-
-			case REGION_TRIGGER_SECRETS:
-			{
-				int screen_index = get_register(sarg1) / 10000;
-				if (screen_index != currscr)
-				{
-					Z_scripterrlog("Screen->TriggerSecrets must be given a screen in the current region. got: %d\n", screen_index);
-					break;
-				}
-
-				do_triggersecrets();
 				break;
 			}
 			
@@ -45851,6 +45984,53 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 
 	{ "SUBWIDG_GET_LABEL", 1, 0, 0, 0 },
 	{ "SUBWIDG_SET_LABEL", 1, 0, 0, 0 },
+
+	{ "NOT_IN_255_PUSHARGSR" },
+	{ "NOT_IN_255_PUSHARGSV" },
+	{ "NOT_IN_255_PUSHVARGSR" },
+	{ "NOT_IN_255_PUSHVARGSV" },
+	{ "NOT_IN_255_WRAPRADIANS" },
+	{ "NOT_IN_255_WRAPDEGREES" },
+	{ "NOT_IN_255_CALLFUNC" },
+	{ "NOT_IN_255_RETURNFUNC" },
+	{ "NOT_IN_255_SETCMP" },
+	{ "NOT_IN_255_GOTOCMP" },
+	{ "NOT_IN_255_STACKWRITEATRV" },
+	{ "NOT_IN_255_STACKWRITEATVV" },
+	{ "NOT_IN_255_TRUNCATE" },
+	{ "NOT_IN_255_ROUND" },
+	{ "NOT_IN_255_ROUNDAWAY" },
+	{ "NOT_IN_255_STOREDV" },
+	{ "NOT_IN_255_STACKWRITEATVV_IF" },
+	{ "NOT_IN_255_LOAD" },
+	{ "NOT_IN_255_STORE" },
+	{ "NOT_IN_255_STOREV" },
+	{ "NOT_IN_255_WEBSOCKET_SEND" },
+	{ "NOT_IN_255_WEBSOCKET_LOAD" },
+	{ "NOT_IN_255_WEBSOCKET_FREE" },
+	{ "NOT_IN_255_WEBSOCKET_OWN" },
+	{ "NOT_IN_255_WEBSOCKET_ERROR" },
+	{ "NOT_IN_255_WEBSOCKET_RECEIVE" },
+	{ "NOT_IN_255_ATOL" },
+	{ "NOT_IN_255_REF_INC" },
+	{ "NOT_IN_255_REF_DEC" },
+	{ "NOT_IN_255_REF_AUTORELEASE" },
+	{ "NOT_IN_255_REF_REMOVE" },
+	{ "NOT_IN_255_REF_COUNT" },
+	{ "NOT_IN_255_MARK_TYPE_STACK" },
+	{ "NOT_IN_255_MARK_TYPE_REG" },
+	{ "NOT_IN_255_ZCLASS_MARK_TYPE" },
+	{ "NOT_IN_255_STORE_OBJECT" },
+	{ "NOT_IN_255_GC" },
+	{ "NOT_IN_255_SET_OBJECT" },
+	{ "NOT_IN_255_TILEBLIT" },
+	{ "NOT_IN_255_COMBOBLIT" },
+	{ "NOT_IN_255_BMPTILEBLIT" },
+	{ "NOT_IN_255_BMPCOMBOBLIT" },
+	{ "NOT_IN_255_GETNPCDATAFIRESFX" },
+	{ "NOT_IN_255_SETNPCDATAFIRESFX" },
+
+	{"LOAD_FFC", 1, 0, 0, 0},
 
 	{ "", 0, 0, 0, 0 }
 };

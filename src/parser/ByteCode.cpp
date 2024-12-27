@@ -3831,6 +3831,15 @@ string OLoadNPCRegister::toString() const
     return "LOADNPCR " + getArgument()->toString();
 }
 
+string OLoadFFC::toString() const
+{
+    return "LOAD_FFC " + getArgument()->toString();
+}
+
+string OLoadFFC2::toString() const
+{
+    return "LOAD_FFC_2 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
 
 string OLoadLWpnRegister::toString() const
 {
@@ -4237,9 +4246,24 @@ string OLoadTmpScr::toString() const
     return "LOADTMPSCR " + getArgument()->toString();
 }
 
+string OLoadTmpScr2::toString() const
+{
+    return "LOADTMPSCR2 " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+}
+
+string OLoadTmpScrComboPos::toString() const
+{
+    return "REGION_LOAD_TMPSCR_FOR_LAYER_COMBO_POS " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
+}
+
 string OLoadScrollScr::toString() const
 {
     return "LOADSCROLLSCR " + getArgument()->toString();
+}
+
+string OLoadScrollScr2::toString() const
+{
+    return "LOADSCROLLSCR2 " + getFirstArgument()->toString() + "," +  getSecondArgument()->toString();
 }
 
 string OSetSideWarpRegister::toString() const
@@ -6819,12 +6843,6 @@ string OModuleGetIC::toString() const
 {
     return "MODULEGETIC " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
-
-string OGetScreenForComboPos::toString() const
-{
-    return "REGION_SCREEN_FOR_COMBO_POS " + getArgument()->toString();
-}
-
 
 //////////////////////////////////////////////////////////////////////////////////////
 
