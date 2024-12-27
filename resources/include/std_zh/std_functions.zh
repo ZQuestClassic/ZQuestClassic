@@ -515,30 +515,6 @@ bool Collision(combodata f)
 	return RectCollision(f->X, f->Y, f->X+15, f->Y+15, ax, ay, ax+Link->HitWidth-1, ay+Link->HitHeight-1);
 }
 
-//Finds the location of a combo, given its (x,y) coordinates on the screen
-int ComboAt(int x, int y)
-{
-	// Don't actually need this yet.
-	// if (Region->ID)
-	// {
-	// 	x = VBound(x, Region->Width - 1, 0);
-	// 	y = VBound(y, Region->Height - 1, 0);
-	// 	// Floor'd because in ZScript, ints aren't ints?!
-	// 	int scr_dx = Floor(x / 256);
-	// 	int scr_dy = Floor(y / 176);
-	// 	int offset_pos = (scr_dx + scr_dy * Region->ScreenWidth)*176;
-	// 	int pos = ((y%176) & 240)+((x%256)>>4);
-	// 	return offset_pos + pos;
-	// }
-	// else
-	{
-		// Fast path.
-		x = VBound(x,255,0);
-		y = VBound(y,175,0);
-		return (y & 240)+(x>>4);
-	}
-}
-
 //Returns true if the combo at '(x, y)' has either an inherent or place flag of type 'flag'
 bool ComboFI(int x, int y, int flag)
 {

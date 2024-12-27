@@ -30900,7 +30900,17 @@ int32_t run_script_int(bool is_jitted)
 				ri->d[rEXP1] = 10000* do_msgheight(get_register(sarg1)/10000, "Text->MessageHeight()");
 				break;
 			//
-			
+
+			case COMBO_AT:
+			{
+				int32_t x = get_register(sarg1) / 10000;
+				int32_t y = get_register(sarg2) / 10000;
+				x = std::clamp(x, 0, 256 - 1);
+				y = std::clamp(y, 0, 176 - 1);
+				set_register(sarg1, COMBOPOS(x, y) * 10000);
+				break;
+			}
+
 			//String.h functions 2.55 Alpha 23
 			case STRINGCOMPARE: FFCore.do_strcmp(); break;
 			case STRINGICOMPARE: FFCore.do_stricmp(); break;
