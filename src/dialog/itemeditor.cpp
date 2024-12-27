@@ -1970,6 +1970,8 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								{
 									local_itemref.csets &= 0x0F;
 									local_itemref.csets |= val<<4;
+									if(local_itemref.misc_flags & 1)
+										animFrame->setFlashCS(val);
 								}
 							),
 							DummyWidget(),
@@ -2053,6 +2055,10 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								onToggleFunc = [&](bool state)
 								{
 									SETFLAG(local_itemref.misc_flags,1,state);
+									if(state)
+										animFrame->setFlashCS(local_itemref.csets >> 4);
+									else
+										animFrame->setFlashCS(-1);
 								}
 							),
 							Checkbox(
@@ -2090,7 +2096,8 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									? local_itemref.tilew-1 : 0,
 								skipy = (local_itemref.overrideFLAGS & OVERRIDE_TILE_HEIGHT)
 									? local_itemref.tileh-1 : 0,
-								do_sized = true
+								do_sized = true,
+								flashcs = (local_itemref.misc_flags&1) ? local_itemref.csets>>4 : -1
 							),
 							Button(text = "Refresh Preview", onClick = message::RELOAD)
 						)
