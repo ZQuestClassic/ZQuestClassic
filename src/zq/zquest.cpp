@@ -5061,7 +5061,7 @@ void drawpanel()
 		if(itemsqr_pos.x > -1)
 		{
 			draw_sqr_frame(itemsqr_pos);
-			if(scr->hasitem && scr->item > 0)
+			if(scr->hasitem)
 			{
 				rectfill(menu1,itemsqr_pos.x+2,itemsqr_pos.y+2,itemsqr_pos.x+itemsqr_pos.tw()-3,itemsqr_pos.y+itemsqr_pos.th()-3,0);
 				overtile16_scale(menu1, itemsbuf[scr->item].tile,itemsqr_pos.x+2,itemsqr_pos.y+2,itemsbuf[scr->item].csets&15,0,itemsqr_pos.tw()-4,itemsqr_pos.th()-4);
