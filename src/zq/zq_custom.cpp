@@ -197,7 +197,7 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 			continue;
 			
 		// Bigger font
-		bool bigfontproc = (d[i].proc != jwin_droplist_proc && d[i].proc != jwin_abclist_proc && d[i].proc != d_wlist_proc && d[i].proc != jwin_list_proc && d[i].proc != d_dmaplist_proc
+		bool bigfontproc = (d[i].proc != jwin_droplist_proc && d[i].proc != jwin_abclist_proc && d[i].proc != jwin_list_proc && d[i].proc != d_dmaplist_proc
 							&& d[i].proc != d_dropdmaplist_proc && d[i].proc != d_warplist_proc && d[i].proc != d_warplist_proc && d[i].proc != d_wclist_proc && d[i].proc != d_ndroplist_proc
 							&& d[i].proc != d_idroplist_proc && d[i].proc != d_nidroplist_proc && d[i].proc != jwin_as_droplist_proc && d[i].proc != d_ffcombolist_proc && d[i].proc != sstype_drop_proc
 							&& d[i].proc != d_comboalist_proc);
@@ -1389,122 +1389,9 @@ int32_t onCustomItems()
 	return D_O_K;
 }
 
-static DIALOG wpndata_dlg[] =
-{
-	// (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
-	{ jwin_win_proc,     55,   40,   210,  163,  vc(14),  vc(1),  0,       D_EXIT,     0,             0,       NULL, NULL, NULL },
-	{ d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-	{ d_cstile_proc,     198,  84,   20,   20,   vc(11),  vc(1),  0,       0,          0,             6,       NULL, NULL, NULL },
-	{ jwin_button_proc,  90,   176,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-	{ jwin_button_proc,  170,  176,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-	{ jwin_check_proc,   198,  109,   65,   9,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Auto-flash", NULL, NULL },
-	{ jwin_check_proc,   198,  120,  65,   9,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "2P Flash", NULL, NULL },
-	{ jwin_check_proc,   198,  131,  65,   9,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "H-Flip", NULL, NULL },
-	{ jwin_check_proc,   198,  142,  65,   9,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "V-Flip", NULL, NULL },
-	{ jwin_text_proc,    61,   88,   96,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Flash CSet:", NULL, NULL },
-	//10
-	{ jwin_text_proc,    61,   106,  96,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Animation Frames:", NULL, NULL },
-	{ jwin_text_proc,    61,   124,  96,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Animation Speed:", NULL, NULL },
-	{ jwin_text_proc,    61,   142,  96,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Miscellaneous Type:", NULL, NULL },
-	{ jwin_edit_proc,    160,   88,   35,   16,   vc(12),  vc(1),  0,       0,          2,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,    160,  106,  35,   16,   vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,    160,  124,  35,   16,   vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
-	{ jwin_edit_proc,    160,  142,  35,   16,   vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
-	{ jwin_check_proc,   198,  153,  65,   9,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Behind", NULL, NULL },
-	{ jwin_edit_proc,     92,  65,   155,  16,   vc(12),  vc(1),  0,       0,          64,             0,       NULL, NULL, NULL },
-	{ jwin_text_proc,     61,  69,   35,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Name:", NULL, NULL },
-	{ d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F12,          0, (void *) onSnapshot, NULL, NULL },
-	{ NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
-
-
-void edit_weapondata(int32_t index)
-{
-	call_sprite_dlg(index); return;
-	//OLD CODE
-	/*
-	char frm[8], spd[8], fcs[8], typ[8];
-	char name[64];
-	char wpnnumstr[75];
-	
-	sprintf(wpnnumstr, "Sprite %d: %s", index, weapon_string[index]);
-	wpndata_dlg[0].dp  = wpnnumstr;
-	wpndata_dlg[0].dp2 = get_zc_font(font_lfont);
-	wpndata_dlg[2].d1  = wpnsbuf[index].tile;
-	wpndata_dlg[2].d2  = wpnsbuf[index].csets&15;
-	
-	for(int32_t i=0; i<4; i++)
-		wpndata_dlg[i+5].flags = (wpnsbuf[index].misc&(1<<i)) ? D_SELECTED : 0;
-		
-	wpndata_dlg[17].flags = (wpnsbuf[index].misc & WF_BEHIND) ? D_SELECTED : 0;
-	
-	sprintf(fcs,"%d",wpnsbuf[index].csets>>4);
-	sprintf(frm,"%d",wpnsbuf[index].frames);
-	sprintf(spd,"%d",wpnsbuf[index].speed);
-	sprintf(typ,"%d",wpnsbuf[index].type);
-	wpndata_dlg[13].dp = fcs;
-	wpndata_dlg[14].dp = frm;
-	wpndata_dlg[15].dp = spd;
-	wpndata_dlg[16].dp = typ;
-	sprintf(name,"%s",weapon_string[index]);
-	wpndata_dlg[18].dp = name;
-	
-	large_dialog(wpndata_dlg);
-	
-	int32_t ret;
-	wpndata test;
-	
-	do
-	{
-		ret = do_zqdialog(wpndata_dlg,3);
-		
-		test.tile  = wpndata_dlg[2].d1;
-		test.csets = wpndata_dlg[2].d2;
-		
-		test.misc  = 0;
-		
-		for(int32_t i=0; i<4; i++)
-			if(wpndata_dlg[i+5].flags & D_SELECTED)
-				test.misc |= 1<<i;
-				
-		test.misc |= (wpndata_dlg[17].flags & D_SELECTED) ? WF_BEHIND : 0;
-		
-		test.csets  |= (atoi(fcs)&15)<<4;
-		test.frames = atoi(frm);
-		test.speed  = atoi(spd);
-		test.type   = atoi(typ);
-		test.script = 0; // Not used yet
-	}
-	while(ret==17);
-	
-	if(ret==3)
-	{
-		strcpy(weapon_string[index],name);
-		wpnsbuf[index] = test;
-		saved = false;
-	}*/
-	
-}
-
 int32_t onCustomWpns()
 {
-	/*
-	  char *hold = item_string[0];
-	  item_string[0] = "rupee (1)";
-	  */
-	
-	build_biw_list();
-	
-	int32_t index = select_weapon("Select Weapon",biw[0].i);
-	
-	while(index >= 0)
-	{
-		edit_weapondata(index);
-		index = select_weapon("Select Weapon",index);
-	}
-	
-	refresh(rMAP+rCOMBOS);
+	SpriteListerDialog().show();
 	return D_O_K;
 }
 
@@ -4906,5 +4793,4 @@ int32_t onCustomHero()
 void center_zq_custom_dialogs()
 {
 	jwin_center_dialog(herotile_dlg);
-	jwin_center_dialog(wpndata_dlg);
 }

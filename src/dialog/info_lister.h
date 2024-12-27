@@ -84,6 +84,23 @@ protected:
 	bool load() override;
 };
 
+class SpriteListerDialog: public BasicListerDialog
+{
+public:
+	SpriteListerDialog(int spriteid = -1, bool selecting = false);
+	
+protected:
+	void preinit() override;
+	void postinit() override;
+	void update() override;
+	void edit() override;
+	void rclick(int x, int y) override;
+	void copy() override;
+	bool paste() override;
+	void save() override;
+	bool load() override;
+};
+
 class SubscrWidgListerDialog: public BasicListerDialog
 {
 public:
