@@ -130,6 +130,7 @@ int get_current_region_id();
 bool is_in_current_region(int map, int screen);
 bool is_in_current_region(int screen);
 bool is_in_current_region(mapscr* scr);
+bool is_in_scrolling_region(int screen);
 bool is_valid_rpos(rpos_t rpos);
 void z3_calculate_region(int map, int screen, region_t& region, int& region_scr_dx, int& region_scr_dy);
 void z3_load_region(int dmap, int screen);

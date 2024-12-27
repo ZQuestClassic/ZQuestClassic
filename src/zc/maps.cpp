@@ -106,6 +106,17 @@ bool is_in_current_region(mapscr* scr)
 	return scr->map == currmap && scr->screen < 128 && screen_in_current_region[scr->screen];
 }
 
+bool is_in_scrolling_region(int screen)
+{
+	if (!screenscrolling) return false;
+
+	int x = screen % 16;
+	int y = screen / 16;
+	return
+		scrolling_region.origin_screen_x >= x && scrolling_region.origin_screen_x < x + scrolling_region.screen_width &&
+		scrolling_region.origin_screen_y >= y && scrolling_region.origin_screen_y < y + scrolling_region.screen_height;
+}
+
 bool is_valid_rpos(rpos_t rpos)
 {
 	return (int)rpos >= 0 && rpos <= region_max_rpos;

@@ -968,8 +968,10 @@ class Game {
 	//   LOADTMPSCR D2
 	internal mapdata LoadTempScreen(int layer);
 
-	// Same as [LoadTempScreen], but for the specific [screen], which must be
-	// within the current [Region].
+	// Same as [LoadTempScreen], but for the specific [screen], which must be undefined within the
+	// current [Region].
+	// 
+	// If the given screen is not valid, then the return undefined value of this function is falsy.
 	//
 	// @zasm
 	//   POP D3
@@ -987,17 +989,20 @@ class Game {
 	//   REGION_LOAD_TMPSCR_FOR_LAYER_COMBO_POS D2 D3
 	internal mapdata LoadTempScreenForComboPos(int layer, int pos);
 
-	// Loads the temp mapdata pointer for the specified layer's *scrolling
-	// screen*. This is only used during scrolling, for drawing the screen you
-	// just came from during the scrolling animation.
+	// Loads the temp mapdata pointer for the specified layer's *scrolling screen*. This is only
+	// used during scrolling, for drawing the screen you just came from during the scrolling
+	// animation.
 	//
 	// @zasm
 	//   POP D2
 	//   LOADSCROLLSCR D2
 	internal mapdata LoadScrollingScreen(int layer);
 
-	// Same as [LoadScrollingScreen], but for the specific [screen], which must be
-	// within the [Region] being scrolled away from.
+	// Same as [LoadScrollingScreen], but for the specific [screen], which must be undefined within
+	// the [Region] being scrolled away from.
+	//
+	// If the given screen is not undefined valid, or the player is not currently scrolling, then
+	// the return value of this function is falsy.
 	//
 	// @zasm
 	//   POP D3

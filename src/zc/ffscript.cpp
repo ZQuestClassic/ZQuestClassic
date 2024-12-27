@@ -240,7 +240,7 @@ enum class mapdata_type
 	Temporary_Scrolling,
 };
 
-// Creates a `mapref` (reference number) for a temporary screen.
+// Decodes a `mapref` (reference number) for a temporary screen.
 //
 // A mapref can refer to:
 //
@@ -287,6 +287,7 @@ static auto decode_mapdata_ref(int ref)
 	}
 	else
 	{
+		// TODO z3 ! check bounds.
 		if (layer >= 0 && layer <= 6)
 			scr = get_scr_layer(screen, layer - 1);
 	}
@@ -1623,7 +1624,7 @@ static rpos_handle_t ResolveMapdataPos(int32_t mapref, int pos, const char* cont
 	if (result.type == mapdata_type::Temporary_Scrolling && result.screen == scrolling_hero_screen)
 	{
 		rpos_t rpos = (rpos_t)pos;
-		rpos_t max = (rpos_t)(scrolling_region.width * scrolling_region.height - 1);
+		rpos_t max = (rpos_t)(scrolling_region.width * scrolling_region.height - 1); // TODO z3 ???
 		if (BC::checkBoundsRpos(rpos, (rpos_t)0, max, context) != SH::_NoError)
 			return rpos_handle_t{};
 
@@ -27477,9 +27478,11 @@ void FFScript::do_loadcombodata(const bool v)
 void FFScript::do_loadmapdata_tempscr(const bool v)
 {
 	int32_t layer = SH::get_arg(sarg1, v) / 10000;
-	if(BC::checkBounds(layer, 0, 6, "Game->LoadTempScreen()") != SH::_NoError)
+
+	if (BC::checkBounds(layer, 0, 6, "Game->LoadTempScreen()") != SH::_NoError)
 	{
 		ri->mapsref = 0;
+		set_register(sarg1, ri->mapsref);
 		return;
 	}
 
@@ -27490,10 +27493,20 @@ void FFScript::do_loadmapdata_tempscr(const bool v)
 void FFScript::do_loadmapdata_tempscr2(const bool v)
 {
 	int32_t layer = SH::get_arg(sarg1, v) / 10000;
-	int32_t screen = SH::get_arg(sarg2, v) / 10000; // TODO z3 ! bounds check?
-	if(BC::checkBounds(layer, 0, 6, "Game->LoadTempScreen()") != SH::_NoError)
+	int32_t screen = SH::get_arg(sarg2, v) / 10000;
+
+	if (BC::checkBounds(layer, 0, 6, "Game->LoadTempScreen()") != SH::_NoError)
 	{
 		ri->mapsref = 0;
+		set_register(sarg1, ri->mapsref);
+		return;
+	}
+
+	if (!is_in_current_region(screen))
+	{
+		Z_scripterrlog("Game->LoadTempScreen() must be given a screen in the current region. got: %d\n", screen);
+		ri->mapsref = 0;
+		set_register(sarg1, ri->mapsref);
 		return;
 	}
 
@@ -27505,14 +27518,17 @@ static void do_loadtmpscrforcombopos(const bool v)
 {
 	int32_t layer = SH::get_arg(sarg1, v) / 10000;
 	rpos_t rpos = (rpos_t)(SH::get_arg(sarg2, v) / 10000);
+
 	if (BC::checkBoundsRpos(rpos, (rpos_t)0, region_max_rpos, "Game->LoadTempScreenForComboPos()") != SH::_NoError)
 	{
-		set_register(sarg1, 0);
+		ri->mapsref = 0;
+		set_register(sarg1, ri->mapsref);
 		return;
 	}
-	if(BC::checkBounds(layer, 0, 6, "Game->LoadTempScreenForComboPos()") != SH::_NoError)
+	if (BC::checkBounds(layer, 0, 6, "Game->LoadTempScreenForComboPos()") != SH::_NoError)
 	{
 		ri->mapsref = 0;
+		set_register(sarg1, ri->mapsref);
 		return;
 	}
 
@@ -27522,9 +27538,11 @@ static void do_loadtmpscrforcombopos(const bool v)
 void FFScript::do_loadmapdata_scrollscr(const bool v)
 {
 	int32_t layer = SH::get_arg(sarg1, v) / 10000;
-	if(BC::checkBounds(layer, 0, 6, "Game->LoadScrollingScreen()") != SH::_NoError)
+
+	if (BC::checkBounds(layer, 0, 6, "Game->LoadScrollingScreen()") != SH::_NoError)
 	{
 		ri->mapsref = 0;
+		set_register(sarg1, ri->mapsref);
 		return;
 	}
 
@@ -27535,10 +27553,20 @@ void FFScript::do_loadmapdata_scrollscr(const bool v)
 void FFScript::do_loadmapdata_scrollscr2(const bool v)
 {
 	int32_t layer = SH::get_arg(sarg1, v) / 10000;
-	int32_t screen = SH::get_arg(sarg2, v) / 10000; // TODO z3 ! bounds check?
-	if(BC::checkBounds(layer, 0, 6, "Game->LoadScrollingScreen()") != SH::_NoError)
+	int32_t screen = SH::get_arg(sarg2, v) / 10000;
+
+	if (BC::checkBounds(layer, 0, 6, "Game->LoadScrollingScreen()") != SH::_NoError)
 	{
 		ri->mapsref = 0;
+		set_register(sarg1, ri->mapsref);
+		return;
+	}
+
+	if (!is_in_scrolling_region(screen))
+	{
+		Z_scripterrlog("Game->LoadTempScreen() must be given a screen in the current scrolling region. got: %d\n", screen);
+		ri->mapsref = 0;
+		set_register(sarg1, ri->mapsref);
 		return;
 	}
 
