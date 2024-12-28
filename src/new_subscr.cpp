@@ -2911,7 +2911,13 @@ void SW_MMap::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) c
             }
         }
     }
-    
+
+#ifdef IS_PLAYER
+	extern HeroClass Hero;
+	if (get_currscr() == 0x81 && Hero.specialcave == PASSAGEWAY)
+		showplr = false;
+#endif
+
     if(showplr)
     {
         if(show_subscreen_dmap_dots && c_plr.get_color() != 255)
@@ -2920,7 +2926,7 @@ void SW_MMap::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) c
             {
                 putdot(dest,((get_homescr()&15)<<2)+tx+9,((get_homescr()&0xF0)>>2)+ty+8,c_plr.get_color());
             }
-            else if(type==dmBSOVERW || ((type==dmDNGN || type==dmCAVE) && get_currscr()<128))
+            else if(type==dmBSOVERW || (type==dmDNGN || type==dmCAVE))
             {
                 putdot(dest,(((get_homescr()&15)-thedmap.xoff)<<3)+tx+10,((get_homescr()&0xF0)>>2)+ty+8,c_plr.get_color());
             }
