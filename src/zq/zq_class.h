@@ -378,8 +378,10 @@ void delete_mapscr(mapscr *dest);
 //word msg_count=0;
 //const char zqsheader[30];
 
+#define DEFAULT_TILESET "tilesets/cambria.qst"
+
 bool setMapCount2(int32_t c);
-int32_t init_quest();
+int32_t init_quest(std::string tileset_path);
 void set_questpwd(std::string_view pwd, bool use_keyfile);
 int32_t quest_access(const char *filename, zquestheader *hdr);
 bool write_midi(MIDI *m,PACKFILE *f);
