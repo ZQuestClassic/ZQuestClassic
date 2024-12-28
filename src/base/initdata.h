@@ -13,8 +13,10 @@ enum
 };
 enum
 {
-	REGION_MAPPING_PHYSICAL,
+	// Mark all screens as visited when loading a region.
 	REGION_MAPPING_FULL,
+	// Mark only screens as visited when the player steps into it (see z3_update_heroscr).
+	REGION_MAPPING_PHYSICAL,
 	REGION_MAPPING_MAX
 };
 struct zinitdata

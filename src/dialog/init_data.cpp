@@ -65,8 +65,8 @@ void InitDataDialog::setOfs(size_t ofs)
 
 static const GUI::ListData list_region_mapping
 {
-	{ "Physical", REGION_MAPPING_PHYSICAL },
 	{ "Full", REGION_MAPPING_FULL },
+	{ "Physical", REGION_MAPPING_PHYSICAL },
 };
 
 //{ Macros
@@ -649,9 +649,9 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 										local_zinit.region_mapping = val;
 									}
 								),
-								INFOBTN("In what way screens in regions should be 'mapped' when visiting them."
-									"\nFull: The entire region is mapped on entry"
-									"\nPhysical: Screens that the Hero physically steps into are mapped")
+								INFOBTN("In what way screens should be marked as visited."
+									"\nFull: Every screen in a region is mapped upon entry"
+									"\nPhysical: Only screens the Hero steps into are mapped")
 							)
 						)
 					))

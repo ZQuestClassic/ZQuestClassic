@@ -247,8 +247,6 @@ void z3_load_region(int dmap, int screen)
 			if (screen < 136)
 			{
 				screen_in_current_region[screen] = true;
-				if (screen < 0x80 && game->get_regionmapping() == REGION_MAPPING_FULL)
-					mark_visited(screen); // Mark each screen in the region immediately visited
 			}
 		}
 	}

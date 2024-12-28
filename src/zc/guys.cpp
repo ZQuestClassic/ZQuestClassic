@@ -18084,6 +18084,8 @@ void addfires()
 	}
 }
 
+// This function runs one time for every screen on the first frame of a region being loaded.
+// It handles spawning screen guys (not the enemies), item, and room-specific sprites.
 static void loadguys(mapscr* scr)
 {
 	int screen = scr->screen;
@@ -18105,8 +18107,10 @@ static void loadguys(mapscr* scr)
 	else
 	{
 		Guy=scr->guy;
+		if (game->get_regionmapping() == REGION_MAPPING_FULL)
+			mark_visited(screen);
 	}
-	
+
 	auto [dx, dy] = translate_screen_coordinates_to_world(screen);
 
 	bool oldguy = get_qr(qr_OLD_GUY_HANDLING);
