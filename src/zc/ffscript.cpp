@@ -258,14 +258,14 @@ static auto decode_mapdata_ref(int ref)
 	struct decode_result {
 		mapdata_type type;
 		mapscr* scr;
-		int screen;
-		int layer;
+		int screen = -1;
+		int layer = -1;
 	};
 
 	if (ref >= 0)
 	{
 		if (ref >= TheMaps.size())
-			return decode_result{mapdata_type::None, nullptr, -1, -1};
+			return decode_result{};
 
 		int screen = ref % MAPSCRS;
 		return decode_result{mapdata_type::Canonical, &TheMaps[ref], screen, 0};
@@ -291,14 +291,10 @@ static auto decode_mapdata_ref(int ref)
 			scr = get_scr_layer(screen, layer - 1);
 	}
 
-	auto type = is_scrolling ? mapdata_type::Temporary_Scrolling : mapdata_type::Temporary_Cur;
 	if (!scr)
-	{
-		type = mapdata_type::None;
-		screen = -1;
-		layer = -1;
-	}
+		return decode_result{};
 
+	auto type = is_scrolling ? mapdata_type::Temporary_Scrolling : mapdata_type::Temporary_Cur;
 	return decode_result{type, scr, screen, layer};
 }
 
