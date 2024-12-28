@@ -245,7 +245,10 @@ void z3_load_region(int dmap, int screen)
 		{
 			int screen = cur_screen + x + y*16;
 			if (screen < 136)
+			{
 				screen_in_current_region[screen] = true;
+				//mark_visited(screen); // TODO z3 Mark each screen in the region immediately visited (https://discord.com/channels/876899628556091432/1120883971950125147/1322369248500256779)
+			}
 		}
 	}
 }
@@ -417,7 +420,7 @@ void z3_update_heroscr()
 		prev_hero_scr = hero_scr;
 		hero_scr = get_scr(hero_screen);
 		playLevelMusic();
-		mark_visited(hero_screen);
+		mark_visited(hero_screen); // Mark each screen the hero steps foot in as visited
 	}
 }
 
@@ -7992,6 +7995,11 @@ void screen_item_clear_state()
 
 void mark_visited(int screen)
 {
-	if (screen < 0x80 && (DMaps[currdmap].flags&dmfVIEWMAP))
-		game->maps[(currmap*MAPSCRSNORMAL)+screen] |= mVISITED;
+	if (screen < 0x80)
+	{
+		if(DMaps[currdmap].flags&dmfVIEWMAP)
+			game->maps[(currmap*MAPSCRSNORMAL)+screen] |= mVISITED;
+		
+		markBmap(-1, screen);
+	}
 }

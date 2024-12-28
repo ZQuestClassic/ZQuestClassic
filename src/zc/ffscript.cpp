@@ -28886,7 +28886,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 					}
 			}
 			
-			markBmap(Hero.dir^1);
+			markBmap(Hero.dir^1, hero_screen);
 
 			Hero.x += region_scr_dx * 256;
 			Hero.y += region_scr_dy * 176;
@@ -29028,7 +29028,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 				}
 			}
 			
-			markBmap(Hero.dir^1);
+			markBmap(Hero.dir^1, hero_screen);
 			//preloaded freeform combos
 			ffscript_engine(true);
 			Hero.reset_hookshot();

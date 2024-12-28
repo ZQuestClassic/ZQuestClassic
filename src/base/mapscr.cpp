@@ -31,6 +31,21 @@ void regions_data::set_region_id(int screen, byte value)
 		datum = util::nibble_set_lower_byte(datum, value);
 }
 
+bool regions_data::is_same_region(int screen_1, int screen_2) const
+{
+	auto rid = get_region_id(screen_1);
+	return rid && rid == get_region_id(screen_2);
+}
+
+void regions_data::for_each_screen(int screen, std::function<void(int)>&& proc) const
+{
+	int ox, oy, ex, ey;
+	determine_region_size(get_all_region_ids(), screen, ox, oy, ex, ey);
+	for(int y = oy; y <= ey; ++y)
+		for(int x = ox; x <= ex; ++x)
+			proc(x + y*0x10);
+}
+
 region_ids_t regions_data::get_all_region_ids() const
 {
 	region_ids_t region_ids{};

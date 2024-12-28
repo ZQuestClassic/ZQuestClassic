@@ -2825,108 +2825,113 @@ void SW_MMap::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) c
 	auto const& thedmap = DMaps[get_sub_dmap()];
 	bool showplr = (flags&SUBSCR_MMAP_SHOWPLR) && !(TheMaps[(thedmap.map*MAPSCRS)+get_homescr()].flags7&fNOHEROMARK);
 	bool showcmp = (flags&SUBSCR_MMAP_SHOWCMP) && !(thedmap.flags&dmfNOCOMPASS);
-    zcolors const& c = QMisc.colors;
-    int32_t type = (thedmap.type&dmfTYPE);
-    
+	zcolors const& c = QMisc.colors;
+	int32_t type = (thedmap.type&dmfTYPE);
+	
 	auto tx = x+xofs, ty = y+yofs;
-    if(flags&SUBSCR_MMAP_SHOWMAP)
-    {
-        switch(type)
-        {
-        case dmOVERW:
-        case dmBSOVERW:
+	if(flags&SUBSCR_MMAP_SHOWMAP)
+	{
+		switch(type)
 		{
-            int32_t maptile=(!get_qr(qr_BROKEN_OVERWORLD_MINIMAP) && has_item(itype_map, -1))?thedmap.minimap_2_tile:thedmap.minimap_1_tile;
-            int32_t mapcset=(!get_qr(qr_BROKEN_OVERWORLD_MINIMAP) && has_item(itype_map, -1))?thedmap.minimap_2_cset:thedmap.minimap_1_cset;
-            //What a mess. The map drawing is based on a variable that can change states during a scrolling transition when warping. -Z
-            if(maptile)
-            {
-                draw_block(dest,tx,ty,maptile,mapcset,5,3);
-            }
-            else if(c.overworld_map_tile || c.overworld_map_tile)
-            {
-                draw_block(dest,tx,ty,(c.overworld_map_tile!=0?c.overworld_map_tile:c.overworld_map_tile),c.overworld_map_cset,5,3);
-            }
-            else
-            {
-                rectfill(dest,tx+8,ty+8,tx+71,ty+39,c.overw_bg);
-            }
-            
-            if(!thedmap.minimap_1_tile && ((thedmap.type&dmfTYPE) == dmBSOVERW))
-            {
-                drawgrid(dest,tx+8,ty+8,c.bs_goal,c.bs_dk);
-            }
-            
-            break;
-        }
-        case dmDNGN:
-        case dmCAVE:
+		case dmOVERW:
+		case dmBSOVERW:
 		{
-            int32_t maptile=has_item(itype_map, -1)?thedmap.minimap_2_tile:thedmap.minimap_1_tile;
-            int32_t mapcset=has_item(itype_map, -1)?thedmap.minimap_2_cset:thedmap.minimap_1_cset;
-            //What a mess. The map drawing is based on a variable that can change states during a scrolling transition when warping. -Z
-            if(maptile)
-            {
-                draw_block(dest,tx,ty,maptile,mapcset,5,3);
-            }
-            else if(c.dungeon_map_tile||c.dungeon_map_tile)
-            {
-                draw_block(dest,tx,ty,(c.dungeon_map_tile!=0?c.dungeon_map_tile:c.dungeon_map_tile),c.dungeon_map_cset,5,3);
-            }
-            else
-            {
-                rectfill(dest,tx+8,ty+8,tx+71,ty+39,c.dngn_bg);
-            }
-            //Marking this as a possible area for the scrolling warp map bug reported by Lut. -Z
-            if(!thedmap.minimap_2_tile && has_item(itype_map, -1))
-            {
-                if((thedmap.flags&dmfMINIMAPCOLORFIX) != 0)
-                {
-                    drawgrid(dest,tx+8,ty+8,c.cave_fg,-1);
-                }
-                else
-                {
-                    drawgrid(dest,tx+8,ty+8,c.dngn_fg,-1);
-                }
-            }
-            
-            break;
+			int32_t maptile=(!get_qr(qr_BROKEN_OVERWORLD_MINIMAP) && has_item(itype_map, -1))?thedmap.minimap_2_tile:thedmap.minimap_1_tile;
+			int32_t mapcset=(!get_qr(qr_BROKEN_OVERWORLD_MINIMAP) && has_item(itype_map, -1))?thedmap.minimap_2_cset:thedmap.minimap_1_cset;
+			//What a mess. The map drawing is based on a variable that can change states during a scrolling transition when warping. -Z
+			if(maptile)
+			{
+				draw_block(dest,tx,ty,maptile,mapcset,5,3);
+			}
+			else if(c.overworld_map_tile || c.overworld_map_tile)
+			{
+				draw_block(dest,tx,ty,(c.overworld_map_tile!=0?c.overworld_map_tile:c.overworld_map_tile),c.overworld_map_cset,5,3);
+			}
+			else
+			{
+				rectfill(dest,tx+8,ty+8,tx+71,ty+39,c.overw_bg);
+			}
+			
+			if(!thedmap.minimap_1_tile && ((thedmap.type&dmfTYPE) == dmBSOVERW))
+			{
+				drawgrid(dest,tx+8,ty+8,c.bs_goal,c.bs_dk);
+			}
+			
+			break;
 		}
-        }
-    }
-    
-    if(showcmp)
-    {
-        if(type==dmDNGN || type==dmCAVE)
-        {
-            if(show_subscreen_dmap_dots&&has_item(itype_compass, -1))
-            {
-                int32_t c2 = c_cmp_off.get_color();
-                
-                if(!has_item(itype_triforcepiece, -1) && (frame&16))
-                    c2 = c_cmp_blink.get_color();
-                    
-                int32_t cx = ((thedmap.compass&15)<<3)+tx+10;
-                int32_t cy = ((thedmap.compass&0xF0)>>2)+ty+8;
-                putdot(dest,cx,cy,c2);
-            }
-        }
-    }
-    
-    if(showplr)
-    {
-        if(show_subscreen_dmap_dots && c_plr.get_color() != 255)
-        {
-            if(type==dmOVERW)
-            {
-                putdot(dest,((get_homescr()&15)<<2)+tx+9,((get_homescr()&0xF0)>>2)+ty+8,c_plr.get_color());
-            }
-            else if(type==dmBSOVERW || ((type==dmDNGN || type==dmCAVE) && get_currscr()<128))
-            {
-                putdot(dest,(((get_homescr()&15)-thedmap.xoff)<<3)+tx+10,((get_homescr()&0xF0)>>2)+ty+8,c_plr.get_color());
-            }
-        }
-    }
+		case dmDNGN:
+		case dmCAVE:
+		{
+			int32_t maptile=has_item(itype_map, -1)?thedmap.minimap_2_tile:thedmap.minimap_1_tile;
+			int32_t mapcset=has_item(itype_map, -1)?thedmap.minimap_2_cset:thedmap.minimap_1_cset;
+			//What a mess. The map drawing is based on a variable that can change states during a scrolling transition when warping. -Z
+			if(maptile)
+			{
+				draw_block(dest,tx,ty,maptile,mapcset,5,3);
+			}
+			else if(c.dungeon_map_tile||c.dungeon_map_tile)
+			{
+				draw_block(dest,tx,ty,(c.dungeon_map_tile!=0?c.dungeon_map_tile:c.dungeon_map_tile),c.dungeon_map_cset,5,3);
+			}
+			else
+			{
+				rectfill(dest,tx+8,ty+8,tx+71,ty+39,c.dngn_bg);
+			}
+			//Marking this as a possible area for the scrolling warp map bug reported by Lut. -Z
+			if(!thedmap.minimap_2_tile && has_item(itype_map, -1))
+			{
+				if((thedmap.flags&dmfMINIMAPCOLORFIX) != 0)
+				{
+					drawgrid(dest,tx+8,ty+8,c.cave_fg,-1);
+				}
+				else
+				{
+					drawgrid(dest,tx+8,ty+8,c.dngn_fg,-1);
+				}
+			}
+			
+			break;
+		}
+		}
+	}
+	
+	if(showcmp)
+	{
+		if(type==dmDNGN || type==dmCAVE)
+		{
+			if(show_subscreen_dmap_dots&&has_item(itype_compass, -1))
+			{
+				int32_t c2 = c_cmp_off.get_color();
+				
+				if(!has_item(itype_triforcepiece, -1) && (frame&16))
+					c2 = c_cmp_blink.get_color();
+					
+				int32_t cx = ((thedmap.compass&15)<<3)+tx+10;
+				int32_t cy = ((thedmap.compass&0xF0)>>2)+ty+8;
+				putdot(dest,cx,cy,c2);
+			}
+		}
+	}
+	
+	if(showplr)
+	{
+		if(show_subscreen_dmap_dots && c_plr.get_color() != 255)
+		{
+			int scr = get_homescr();
+#ifdef IS_PLAYER
+			if(hero_screen < 0x80)
+				scr = hero_screen;
+#endif
+			if(type==dmOVERW)
+			{
+				putdot(dest,((scr&15)<<2)+tx+9,((scr&0xF0)>>2)+ty+8,c_plr.get_color());
+			}
+			else if(type==dmBSOVERW || ((type==dmDNGN || type==dmCAVE) && get_currscr()<128))
+			{
+				putdot(dest,(((scr&15)-thedmap.xoff)<<3)+tx+10,((scr&0xF0)>>2)+ty+8,c_plr.get_color());
+			}
+		}
+	}
 }
 SubscrWidget* SW_MMap::clone() const
 {

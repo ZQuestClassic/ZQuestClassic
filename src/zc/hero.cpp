@@ -22438,7 +22438,7 @@ void HeroClass::checklocked()
 				origin_scr->door[d]=dUNLOCKED;
 				set_doorstate(d);
 				sfx(WAV_DOOR);
-				markBmap(-1);
+				markBmap();
 			}
 			else return;
 		}
@@ -22450,7 +22450,7 @@ void HeroClass::checklocked()
 				origin_scr->door[d]=dOPENBOSS;
 				set_doorstate(d);
 				sfx(WAV_DOOR);
-				markBmap(-1);
+				markBmap();
 				// Run Boss Key Script
 				for ( int32_t q = 0; q < MAXITEMS; ++q )
 					if ( itemsbuf[q].family == itype_bosskey )
@@ -25945,7 +25945,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			}
 		}
 		
-		markBmap(dir^1);
+		markBmap(dir^1, hero_screen);
 		//preloaded freeform combos
 		ffscript_engine(true);
 	
@@ -26302,7 +26302,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 		y += region_scr_dy * 176;
 		z3_update_viewport();
 		
-		markBmap(dir^1);
+		markBmap(dir^1, hero_screen);
 		
 		int32_t checkwater = iswaterex_z3(MAPCOMBO(x,y+8), -1, x,y+(bigHitbox?8:12)); //iswaterex can be intensive, so let's avoid as many calls as we can.
 		
@@ -26492,7 +26492,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			y += region_scr_dy * 176;
 			z3_update_viewport();
 			
-			markBmap(dir^1);
+			markBmap(dir^1, hero_screen);
 			
 			if(iswaterex_z3(MAPCOMBO(x,y+8), -1, x,y+8) && _walkflag(x,y+8,0,SWITCHBLOCK_STATE) && current_item(itype_flippers))
 			{
@@ -27408,7 +27408,7 @@ void HeroClass::stepout() // Step out of item cellars and passageways
     didstuff=0;
 	usecounts.clear();
     eat_buttons();
-    markBmap(-1);
+    markBmap();
     map_bkgsfx(true);
     
     if(!get_qr(qr_CAVEEXITNOSTOPMUSIC))
@@ -29136,7 +29136,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		case dmDNGN:
 			if(!get_qr(qr_DUNGEONS_USE_CLASSIC_CHARTING))
 			{
-				markBmap(scrolldir);
+				markBmap(scrolldir, hero_screen);
 			}
 			break;
 		case dmOVERW: case dmBSOVERW:
@@ -29144,7 +29144,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 				break;
 			[[fallthrough]];
 		case dmCAVE:
-			markBmap(scrolldir);
+			markBmap(scrolldir, hero_screen);
 			break;
 	}
 
@@ -29916,7 +29916,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	}
 	
 	opendoors=0;
-	markBmap(-1);
+	markBmap();
 	
 	if(isdungeon())
 	{

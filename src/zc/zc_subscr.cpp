@@ -552,7 +552,7 @@ void markBmap(int32_t dir, int32_t sc)
 			for(int32_t i=3; i>=0; i--)
 			{
 				code <<= 1;
-				code += origin_scr->door[i]&1; //Mark directions only for sides that have the door state set
+				code += get_scr(sc)->door[i]&1; //Mark directions only for sides that have the door state set
 			}
 			
 			// mark the map
@@ -575,10 +575,9 @@ void markBmap(int32_t dir, int32_t sc)
         break;
     }
 }
-
-void markBmap(int32_t dir)
+void markBmap()
 {
-    markBmap(dir, get_currscr());
+	markBmap(-1, hero_screen);
 }
 
 void put_passive_subscr(BITMAP *dest,int32_t x,int32_t y,bool showtime,int32_t pos2)
