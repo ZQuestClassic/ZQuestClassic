@@ -2912,6 +2912,12 @@ void SW_MMap::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) c
 			}
 		}
 	}
+
+#ifdef IS_PLAYER
+	extern HeroClass Hero;
+	if (get_currscr() == 0x81 && Hero.specialcave == PASSAGEWAY)
+		showplr = false;
+#endif
 	
 	if(showplr)
 	{
@@ -2919,20 +2925,17 @@ void SW_MMap::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) c
 		{
 			int scr = get_currscr();
 #ifdef IS_PLAYER
-			if(hero_screen < 0x80)
+			if (hero_screen < 0x80)
 				scr = hero_screen;
 #endif
-			// TODO z3 ! upstream
-			if (scr < MAPSCRSNORMAL)
+
+			if(type==dmOVERW)
 			{
-				if(type==dmOVERW)
-				{
-					putdot(dest,((scr&15)<<2)+tx+9,((scr&0xF0)>>2)+ty+8,c_plr.get_color());
-				}
-				else if(type==dmBSOVERW || ((type==dmDNGN || type==dmCAVE) && get_currscr()<128))
-				{
-					putdot(dest,(((scr&15)-thedmap.xoff)<<3)+tx+10,((scr&0xF0)>>2)+ty+8,c_plr.get_color());
-				}
+				putdot(dest,((scr&15)<<2)+tx+9,((scr&0xF0)>>2)+ty+8,c_plr.get_color());
+			}
+			else if(type==dmBSOVERW || ((type==dmDNGN || type==dmCAVE) && get_currscr()<128))
+			{
+				putdot(dest,(((scr&15)-thedmap.xoff)<<3)+tx+10,((scr&0xF0)>>2)+ty+8,c_plr.get_color());
 			}
 		}
 	}

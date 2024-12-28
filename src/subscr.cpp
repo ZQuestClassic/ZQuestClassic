@@ -3367,25 +3367,28 @@ void putBmap(BITMAP *dest, int32_t x, int32_t y,bool showmap, bool showrooms, bo
 			}
 		}
 	}
+
+#ifdef IS_PLAYER
+	if (get_currscr() == 0x81 && Hero.specialcave == PASSAGEWAY)
+		showhero = false;
+#endif
 	
 	if(showhero)
 	{
 		// TODO z3 ! upstream
-		int scr = get_currscr();
+		int scr = get_homescr();
 #ifdef IS_PLAYER
-		if(hero_screen < 0x80)
+		if (hero_screen < 0x80)
 			scr = hero_screen;
 #endif
-		if(scr<MAPSCRSNORMAL)
+
+		if(herocolor==-1)
 		{
-			if(herocolor==-1)
-			{
-				herocolor=QMisc.colors.hero_dot;
-			}
-			
-			int32_t xoff = (((thedmap.type&dmfTYPE)==dmOVERW) ? 0 : thedmap.xoff);
-			putdot(dest,(((scr&15)-xoff)<<3)+x+(large?34:18)+(maptile?8:0),((scr&0xF0)>>1)+y+11,herocolor);
+			herocolor=QMisc.colors.hero_dot;
 		}
+		
+		int32_t xoff = (((thedmap.type&dmfTYPE)==dmOVERW) ? 0 : thedmap.xoff);
+		putdot(dest,(((scr&15)-xoff)<<3)+x+(large?34:18)+(maptile?8:0),((scr&0xF0)>>1)+y+11,herocolor);
 	}
 }
 
