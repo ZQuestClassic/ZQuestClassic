@@ -287,8 +287,7 @@ static auto decode_mapdata_ref(int ref)
 	}
 	else
 	{
-		// TODO z3 ! check bounds.
-		if (layer >= 0 && layer <= 6)
+		if (layer >= 0 && layer <= 6 && is_in_current_region(screen))
 			scr = get_scr_layer(screen, layer - 1);
 	}
 
