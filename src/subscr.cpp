@@ -3370,7 +3370,8 @@ void putBmap(BITMAP *dest, int32_t x, int32_t y,bool showmap, bool showrooms, bo
 	
 	if(showhero)
 	{
-		int scr = get_homescr();
+		// TODO z3 ! upstream
+		int scr = get_currscr();
 #ifdef IS_PLAYER
 		if(hero_screen < 0x80)
 			scr = hero_screen;

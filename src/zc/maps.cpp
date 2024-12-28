@@ -7999,7 +7999,11 @@ void mark_visited(int screen)
 	{
 		if(DMaps[currdmap].flags&dmfVIEWMAP)
 			game->maps[(currmap*MAPSCRSNORMAL)+screen] |= mVISITED;
-		
-		markBmap(-1, screen);
+
+		// TODO z3 ?
+		// ganon.zplay is a short and simple replay that shows the delta. i think before...initial
+		// screens on init_game weren't ever calling markBmap? idk...
+		// if (QHeader.is_z3)
+		// 	markBmap(-1, screen);
 	}
 }
