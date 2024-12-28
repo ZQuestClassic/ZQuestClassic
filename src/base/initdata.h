@@ -72,7 +72,7 @@ struct zinitdata
 	zfix shove_offset = 6.5_zf;
 	zfix air_drag = 0.0100_zf;
 	
-	byte region_mapping = REGION_MAPPING_FULL;
+	byte region_mapping;
 	
 	bitstring gen_doscript;
 	bounded_map<word,word> gen_exitState {NUMSCRIPTSGENERIC};

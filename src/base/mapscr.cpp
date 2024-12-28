@@ -37,13 +37,13 @@ bool regions_data::is_same_region(int screen_1, int screen_2) const
 	return rid && rid == get_region_id(screen_2);
 }
 
-void regions_data::for_each_screen(int screen, std::function<void(int)>&& proc) const
+void regions_data::for_each_screen(int screen, const std::function<void(int)>& fn) const
 {
 	int ox, oy, ex, ey;
 	determine_region_size(get_all_region_ids(), screen, ox, oy, ex, ey);
 	for(int y = oy; y <= ey; ++y)
 		for(int x = ox; x <= ex; ++x)
-			proc(x + y*0x10);
+			fn(x + y*0x10);
 }
 
 region_ids_t regions_data::get_all_region_ids() const

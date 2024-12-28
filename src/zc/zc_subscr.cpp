@@ -534,10 +534,6 @@ void markBmap(int32_t dir, int32_t sc)
     byte mask = 1 << (7-((sc&15)-DMaps[get_currdmap()].xoff));
     int32_t di = (get_currdmap() << 7) + (sc & 0x7F); //+ ((sc&0xF)-(DMaps[get_currdmap()].type==dmOVERW ? 0 : DMaps[get_currdmap()].xoff));
     int32_t code = 0;
-
-	if (di == 3515)
-		printf("?");
-    
     
     switch((DMaps[get_currdmap()].type&dmfTYPE))
     {
@@ -552,7 +548,7 @@ void markBmap(int32_t dir, int32_t sc)
 			for(int32_t i=3; i>=0; i--)
 			{
 				code <<= 1;
-				code += get_scr(sc)->door[i]&1; //Mark directions only for sides that have the door state set
+				code += origin_scr->door[i]&1; //Mark directions only for sides that have the door state set
 			}
 			
 			// mark the map

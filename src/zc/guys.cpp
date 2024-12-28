@@ -18105,7 +18105,6 @@ static void loadguys(mapscr* scr)
 	else
 	{
 		Guy=scr->guy;
-		//mark_visited(screen); // This marks every screen in the region visited instantly?
 	}
 	
 	auto [dx, dy] = translate_screen_coordinates_to_world(screen);

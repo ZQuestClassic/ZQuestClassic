@@ -336,7 +336,7 @@ struct regions_data
 	byte get_region_id(int screen) const;
 	void set_region_id(int screen, byte value);
 	bool is_same_region(int screen_1, int screen_2) const;
-	void for_each_screen(int screen, std::function<void(int)>&& proc) const;
+	void for_each_screen(int screen, const std::function<void(int)>& fn) const;
 	region_ids_t get_all_region_ids() const;
 };
 
