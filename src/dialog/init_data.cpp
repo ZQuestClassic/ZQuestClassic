@@ -63,6 +63,12 @@ void InitDataDialog::setOfs(size_t ofs)
 	}
 }
 
+static const GUI::ListData list_region_mapping
+{
+	{ "Physical", REGION_MAPPING_PHYSICAL },
+	{ "Full", REGION_MAPPING_FULL },
+};
+
 //{ Macros
 #define SBOMB_RATIO (local_zinit.bomb_ratio > 0 ? (local_zinit.mcounter[crBOMBS] / local_zinit.bomb_ratio) : local_zinit.mcounter[crSBOMBS])
 
@@ -629,6 +635,23 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 								VAL_FIELD(byte,"Light Radius:",0,255,def_lightrad,false), INFOBTN("Default light radius, ex. for fire weapons. QR determines if enemy fire is lit." + QRHINT({qr_NEW_DARKROOM, qr_EW_FIRE_EMITS_LIGHT})),
 								VAL_FIELD(byte,"Light Transp. Percentage:",0,255,transdark_percent,false), INFOBTN("This percentage of each light in dark rooms is added as 'transparent'" + QRHINT({qr_NEW_DARKROOM})),
 								COLOR_FIELD("Darkness Color:", darkcol,false), INFOBTN("The color of darkness" + QRHINT({qr_NEW_DARKROOM}))
+							)
+						)
+					)),
+					TabRef(name = "Regions", Row(
+						Column(vAlign = 0.0,
+							Rows<3>(
+								Label(text = "Region Mapping:"),
+								DropDownList(data = list_region_mapping,
+									selectedValue = local_zinit.region_mapping,
+									onSelectFunc = [&](int32_t val)
+									{
+										local_zinit.region_mapping = val;
+									}
+								),
+								INFOBTN("In what way screens in regions should be 'mapped' when visiting them."
+									"\nFull: The entire region is mapped on entry"
+									"\nPhysical: Screens that the Hero physically steps into are mapped")
 							)
 						)
 					))

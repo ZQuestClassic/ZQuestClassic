@@ -93,7 +93,7 @@ enum GenericIndex
 	GEN_MP_PER_BLOCK       = 8, //How much MP makes a 'block'
 	GEN_HERO_DMG_MULT      = 9, //Damage multiplier for damage by Link
 	GEN_ENEM_DMG_MULT      = 10, //Damage multiplier for damage by enemies
-	GEN_DITHER_TYPE        = 11, //Type of dithering used with dark rooms
+	GEN_DITHER_TYPE        = 11, //Type of dithering used with dark rooms ([ditherType] (`DITH_`) constants)
 	GEN_DITHER_ARG         = 12, //Dithering argument used with dark rooms
 	GEN_DITHER_PERCENT     = 13, //Percent of light circles taken up by dithering
 	GEN_DEFAULT_LIGHT_RAD  = 14, //Default light radius initialized to enemies
@@ -112,7 +112,15 @@ enum GenericIndex
 	GEN_FLICKER_FRAMES     = 24, //How many frames Link / enemies flicker for with the flicker damage effect
 	GEN_FLICKER_COLOR      = 25, //Color used for the flicker effect
 	GEN_FLICKER_TRANSP     = 26, //Number of transparency passes for the flicker effect
-	GEN_MAX                = 27
+	GEN_REGION_MAPPING     = 27, //Which [RegionMapping](method of mapping) is used for regions
+	GEN_MAX                = 28
+};
+
+enum RegionMapping
+{
+	REGION_MAPPING_PHYSICAL,
+	REGION_MAPPING_FULL,
+	REGION_MAPPING_MAX
 };
 
 // Values for [Game->MouseCursor].

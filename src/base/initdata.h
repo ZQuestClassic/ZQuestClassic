@@ -11,6 +11,12 @@ enum
 	INIT_FL_CANSLASH,
 	INIT_FL_MAX
 };
+enum
+{
+	REGION_MAPPING_PHYSICAL,
+	REGION_MAPPING_FULL,
+	REGION_MAPPING_MAX
+};
 struct zinitdata
 {
 	byte items[MAXITEMS/8];
@@ -65,6 +71,8 @@ struct zinitdata
 	
 	zfix shove_offset = 6.5_zf;
 	zfix air_drag = 0.0100_zf;
+	
+	byte region_mapping = REGION_MAPPING_FULL;
 	
 	bitstring gen_doscript;
 	bounded_map<word,word> gen_exitState {NUMSCRIPTSGENERIC};

@@ -20793,6 +20793,9 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 		if(s_version >= 39)
 			if(!p_igetzf(&temp_zinit.air_drag, f))
 				return qe_invalid;
+		if(s_version >= 40)
+			if(!p_getc(&temp_zinit.region_mapping, f))
+				return qe_invalid;
 	}
 	if (should_skip)
 		return 0;

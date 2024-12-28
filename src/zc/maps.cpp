@@ -247,7 +247,8 @@ void z3_load_region(int dmap, int screen)
 			if (screen < 136)
 			{
 				screen_in_current_region[screen] = true;
-				//mark_visited(screen); // TODO z3 Mark each screen in the region immediately visited (https://discord.com/channels/876899628556091432/1120883971950125147/1322369248500256779)
+				if(screen < 0x80 && game->get_regionmapping() == REGION_MAPPING_FULL)
+					mark_visited(screen); // Mark each screen in the region immediately visited
 			}
 		}
 	}
@@ -420,7 +421,8 @@ void z3_update_heroscr()
 		prev_hero_scr = hero_scr;
 		hero_scr = get_scr(hero_screen);
 		playLevelMusic();
-		mark_visited(hero_screen); // Mark each screen the hero steps foot in as visited
+		if(game->get_regionmapping() == REGION_MAPPING_PHYSICAL)
+			mark_visited(hero_screen); // Mark each screen the hero steps foot in as visited
 	}
 }
 
@@ -6064,6 +6066,9 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool overlay, bool 
 	hero_screen = screen;
 	hero_scr = prev_hero_scr = get_scr_no_load(currmap, screen);
 	CHECK(hero_scr);
+	
+	if(game->get_regionmapping() == REGION_MAPPING_PHYSICAL)
+		mark_visited(hero_screen); // Mark each screen the hero steps foot in as visited
 
 	cpos_force_update();
 	trig_trigger_groups();
