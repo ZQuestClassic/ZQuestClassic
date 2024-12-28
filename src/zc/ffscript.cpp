@@ -1604,6 +1604,12 @@ static rpos_handle_t ResolveMapdataPos(int32_t mapref, int pos, const char* cont
 		return rpos_handle_t{};
 	}
 
+	if (result.type == mapdata_type::Temporary_Scrolling && !screenscrolling)
+	{
+		Z_scripterrlog("mapdata id (%d) is invalid (%s), screen is not scrolling right now\n", mapref, context);
+		return rpos_handle_t{};
+	}
+
 	// mapdata loaded via `Game->LoadTempScreen(layer, Game->CurScreen)` or `Game->LoadTempScreen(layer)` have
 	// access to the entire region.
 	if (result.type == mapdata_type::Temporary_Cur && result.screen == cur_screen)
@@ -1619,11 +1625,20 @@ static rpos_handle_t ResolveMapdataPos(int32_t mapref, int pos, const char* cont
 	if (result.type == mapdata_type::Temporary_Scrolling && result.screen == scrolling_hero_screen)
 	{
 		rpos_t rpos = (rpos_t)pos;
-		rpos_t max = (rpos_t)(scrolling_region.width * scrolling_region.height - 1); // TODO z3 ???
+		rpos_t max = (rpos_t)(scrolling_region.screen_count * 176 - 1);
 		if (BC::checkBoundsRpos(rpos, (rpos_t)0, max, context) != SH::_NoError)
 			return rpos_handle_t{};
 
-		return {result.scr, result.screen, result.layer, rpos, RPOS_TO_POS(rpos)};
+		int origin_screen = scrolling_region.origin_screen;
+		int origin_screen_x = origin_screen % 16;
+		int origin_screen_y = origin_screen / 16;
+		int scr_index = static_cast<int32_t>(rpos) / 176;
+		int scr_x = origin_screen_x + scr_index%current_region.screen_width;
+		int scr_y = origin_screen_y + scr_index/current_region.screen_width;
+		int screen = map_scr_xy_to_index(scr_x, scr_y);
+		mapscr* scr = FFCore.ScrollingScreensAll[screen * 7 + result.layer];
+
+		return {scr, screen, result.layer, rpos, RPOS_TO_POS(rpos)};
 	}
 
 	// Otherwise, access is limited to just one screen.

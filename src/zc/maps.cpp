@@ -234,8 +234,8 @@ void z3_load_region(int dmap, int screen)
 	world_w = current_region.width;
 	world_h = current_region.height;
 	region_scr_count = current_region.screen_count;
-	region_max_rpos = (rpos_t)(current_region.screen_width*current_region.screen_height*176 - 1);
-	region_num_rpos = current_region.screen_width*current_region.screen_height*176;
+	region_max_rpos = (rpos_t)(current_region.screen_count*176 - 1);
+	region_num_rpos = current_region.screen_count*176;
 	scrolling_maze_last_solved_screen = 0;
 
 	memset(screen_in_current_region, false, sizeof(screen_in_current_region));
@@ -455,20 +455,20 @@ int get_screen_for_world_xy(int x, int y)
 
 	int dx = vbound(x, 0, world_w - 1) / 256;
 	int dy = vbound(y, 0, world_h - 1) / 176;
-	int origin_scr_x = cur_screen % 16;
-	int origin_scr_y = cur_screen / 16;
-	int scr_x = origin_scr_x + dx;
-	int scr_y = origin_scr_y + dy;
+	int origin_screen_x = cur_screen % 16;
+	int origin_screen_y = cur_screen / 16;
+	int scr_x = origin_screen_x + dx;
+	int scr_y = origin_screen_y + dy;
 	return map_scr_xy_to_index(scr_x, scr_y);
 }
 
 int get_screen_for_rpos(rpos_t rpos)
 {
-	int origin_scr_x = cur_screen % 16;
-	int origin_scr_y = cur_screen / 16;
-	int scr_index = static_cast<int32_t>(rpos) / 176;
-	int scr_x = origin_scr_x + scr_index%current_region.screen_width;
-	int scr_y = origin_scr_y + scr_index/current_region.screen_width;
+	int origin_screen_x = cur_screen % 16;
+	int origin_screen_y = cur_screen / 16;
+	int screen = static_cast<int32_t>(rpos) / 176;
+	int scr_x = origin_screen_x + screen%current_region.screen_width;
+	int scr_y = origin_screen_y + screen/current_region.screen_width;
 	return map_scr_xy_to_index(scr_x, scr_y);
 }
 
