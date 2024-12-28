@@ -24427,14 +24427,9 @@ int32_t main(int32_t argc,char **argv)
 		}
 		else
 		{
-			init_quest();
-			
-			if(RulesetDialog)
-			{
-				PickRuleset();
-				PickRuleTemplate();
-			}
-				
+			if (onNew() == D_CLOSE)
+				exit(0);
+
 			//otherwise the blank quest gets the name of the last loaded quest... not good! -DD
 			filepath[0]=temppath[0]=0;
 			first_save=false;

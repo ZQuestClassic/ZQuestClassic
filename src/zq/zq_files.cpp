@@ -1,4 +1,5 @@
 #include <cstring>
+#include <filesystem>
 #include <stdio.h>
 
 #include "base/files.h"
@@ -10,6 +11,7 @@
 #include "base/util.h"
 #include "zq/zq_files.h"
 #include "base/zdefs.h"
+#include "dialog/alertfunc.h"
 #include "zq/zq_misc.h"
 #include "zq/zquest.h"
 #include "base/qst.h"
@@ -31,7 +33,7 @@
 #define strupr _strupr
 #endif
 
-int32_t NewQuestFile(int32_t template_slot)
+int32_t NewQuestFile(std::string tileset_path)
 {
     memset(filepath,0,255);
     memset(temppath,0,255);
@@ -41,8 +43,7 @@ int32_t NewQuestFile(int32_t template_slot)
     box_eol();
     box_out("This may take a few moments.");
     box_eol();
-    
-    init_quest();
+    init_quest(tileset_path);
     saved=true;
     box_end(false);
     refresh(rALL);
@@ -353,16 +354,32 @@ int32_t onNew()
 {
 	if(checksave()==0)
 		return D_O_K;
-		
-	/*
-	int32_t ret=ListQTs(false);
-	if (ret==-2)
+
+	std::string tileset_path;
+	while (tileset_path.empty())
 	{
-		return D_O_K;
+		int ret = 0;
+		AlertFuncDialog("Choose a tileset",
+			"Cambria is a modern tileset with retro aesthetics.\n\nClassic is a minimalist tileset.",
+			"",
+			3, 0, //2 buttons, where buttons[0] is focused
+			{ "Cambria (recommended)", "Classic", "Choose from disk" },
+			{ [&](){ret = 1; return true;}, [&](){ret = 2; return true;}, [&](){ret = 3; return true;} }
+		).show();
+		if (ret == 0)
+			return D_CLOSE;
+		if (ret == 1)
+			tileset_path = "tilesets/cambria.qst";
+		else if (ret == 2)
+			tileset_path = "modules/classic/default.qst";
+		else if (ret == 3)
+		{
+			if (get_qst_name("./tilesets") && fs::is_regular_file(temppath))
+				tileset_path = temppath;
+		}
 	}
-	*/
-	int32_t ret=0;
-	NewQuestFile(ret);
+
+	NewQuestFile(tileset_path);
 	set_qr(qr_PARSER_SHORT_CIRCUIT, 1);
 	set_qr(qr_PARSER_TRUE_INT_SIZE, 1);
 	set_qr(qr_ANIMATECUSTOMWEAPONS, 0); //always OFF
@@ -520,6 +537,14 @@ int32_t onSaveAs()
 
 int32_t open_quest(char const* path)
 {
+	if (fs::equivalent("./tilesets", fs::path(path).parent_path()))
+	{
+		jwin_alert("Warning",
+			"You've opened a qst in the tilesets folder - instead, you should probably use File>New so that a new file is made.",
+			"Files in this folder may be overwritten by the software updater.",
+			NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+	}
+
 	int32_t ret = load_quest(path);
 	
 	if(ret == qe_OK)
@@ -644,7 +669,7 @@ int32_t onRevert()
     }
     else
     {
-        NewQuestFile(0);
+        NewQuestFile(DEFAULT_TILESET);
         
         if(RulesetDialog > 0)
 		{

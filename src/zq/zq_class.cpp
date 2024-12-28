@@ -6373,22 +6373,19 @@ bool setMapCount2(int32_t c)
 extern BITMAP *bmap;
 
 static bool loading_file_new = false;
-int32_t init_quest()
+int32_t init_quest(std::string tileset_path)
 {
-	char qstdat_string[2048];
-	strcpy(qstdat_string, "modules/classic/default.qst");
+	if (tileset_path.empty())
+		tileset_path = DEFAULT_TILESET;
 
-    char buf[2048];
-    
 	loading_file_new = true;
-    load_quest(qstdat_string);
+    load_quest(tileset_path.c_str());
     loading_file_new = false;
-	
-	sprintf(buf,"ZC Editor - Untitled Quest");
-    set_window_title(buf);
+
+    set_window_title("ZC Editor - Untitled Quest");
     zinit.last_map = 0;
     zinit.last_screen = 0;
-    
+
     if(bmap != NULL)
     {
         destroy_bitmap(bmap);
@@ -6619,7 +6616,7 @@ int32_t load_quest(const char *filename, bool show_progress)
 
 	if(ret!=qe_OK)
 	{
-		init_quest();
+		init_quest(DEFAULT_TILESET);
 	}
 	else
 	{
@@ -6627,7 +6624,7 @@ int32_t load_quest(const char *filename, bool show_progress)
 		
 		if(accessret != 1)
 		{
-			init_quest();
+			init_quest(DEFAULT_TILESET);
 			
 			if(accessret == 0)
 				ret=qe_pwd;
@@ -6706,14 +6703,14 @@ int32_t load_tileset(const char *filename, dword tsetflags)
 	int32_t ret=loadquest(filename,&header,&QMisc,customtunes,true,skip_flags,1,true,0,tsetflags);
 
 	if(ret!=qe_OK)
-		init_quest();
+		init_quest(DEFAULT_TILESET);
 	else
 	{
 		int32_t accessret = quest_access(filename, &header);
 		
 		if(accessret != 1)
 		{
-			init_quest();
+			init_quest(DEFAULT_TILESET);
 			
 			if(accessret == 0)
 				ret=qe_pwd;
