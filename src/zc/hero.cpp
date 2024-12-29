@@ -24748,8 +24748,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 		}
 	}
 	
-	
-	// Pits have a bigger 'hitbox' than stairs...
+	// Pits (aka direct warps) have a bigger 'hitbox' than stairs...
 	x1 = tx+7;
 	x2 = tx+8;
 	y1 = ty+7+(bigHitbox?0:4);
@@ -27085,8 +27084,8 @@ void HeroClass::stepforward(int32_t steps, bool adjust)
 void HeroClass::setpit()
 {
 	didpit = true;
-	pitx = x.getInt() % world_w;
-	pity = y.getInt() % world_h;
+	pitx = x.getInt() % 256;
+	pity = y.getInt() % 176;
 }
 
 void HeroClass::walkdown(bool opening) //entering cave
