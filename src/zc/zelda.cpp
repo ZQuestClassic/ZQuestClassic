@@ -4525,7 +4525,7 @@ int main(int argc, char **argv)
 		bool error = false;
 		testingqst_name = argv[test_arg+1];
 		int32_t dm = atoi(argv[test_arg+2]);
-		int32_t scr = atoi(argv[test_arg+3]);
+		int32_t screen = atoi(argv[test_arg+3]);
 		int32_t retsqr = (test_arg+4 >= argc) ? 0 : atoi(argv[test_arg+4]);
 		if(!fileexists(testingqst_name.c_str()))
 		{
@@ -4537,20 +4537,20 @@ int main(int argc, char **argv)
 			Z_error_fatal( "-test invalid parameter: 'test_dmap' was '%d'."
 				" Must be '0 <= test_dmap < %d'\n", dm, MAXDMAPS);
 		}
-		if(unsigned(scr) >= 0x80)
+		if(unsigned(screen) >= 0x80)
 		{
 			Z_error_fatal( "-test invalid parameter: 'test_screen' was '%d'."
-				" Must be '0 <= test_screen < 128'\n", scr);
+				" Must be '0 <= test_screen < 128'\n", screen);
 		}
 		if(unsigned(retsqr) > 3) retsqr = 0;
 		
 		if(error)
 		{
-			Z_error_fatal("Failed '-test \"%s\" %d %d'\n", testingqst_name.c_str(), dm, scr);
+			Z_error_fatal("Failed '-test \"%s\" %d %d'\n", testingqst_name.c_str(), dm, screen);
 		}
 		use_testingst_start = true;
 		testingqst_dmap = (uint16_t)dm;
-		testingqst_screen = (uint8_t)scr;
+		testingqst_screen = (uint8_t)screen;
 		testingqst_retsqr = (uint8_t)retsqr;
 	}
 

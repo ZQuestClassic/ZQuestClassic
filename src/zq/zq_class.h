@@ -335,18 +335,18 @@ public:
     int32_t  save(const char *path);
     int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, int32_t x,int32_t y);
     int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, int32_t pos);
-    int32_t MAPCOMBO2(int32_t lyr,int32_t x,int32_t y, int32_t map = -1, int32_t scr = -1);
-    int32_t MAPCOMBO(int32_t x,int32_t y, int32_t map = -1, int32_t scr = -1);
+    int32_t MAPCOMBO2(int32_t lyr,int32_t x,int32_t y, int32_t map = -1, int32_t screen = -1);
+    int32_t MAPCOMBO(int32_t x,int32_t y, int32_t map = -1, int32_t screen = -1);
     int32_t MAPFLAG3(int32_t map, int32_t screen, int32_t layer, int32_t x,int32_t y);
     int32_t MAPFLAG3(int32_t map, int32_t screen, int32_t layer, int32_t pos);
-    int32_t MAPFLAG2(int32_t lyr,int32_t x,int32_t y, int32_t map = -1, int32_t scr = -1);
-    int32_t MAPFLAG(int32_t x,int32_t y, int32_t map = -1, int32_t scr = -1);
+    int32_t MAPFLAG2(int32_t lyr,int32_t x,int32_t y, int32_t map = -1, int32_t screen = -1);
+    int32_t MAPFLAG(int32_t x,int32_t y, int32_t map = -1, int32_t screen = -1);
     void put_walkflags_layered(BITMAP *dest,int32_t x,int32_t y,int32_t pos,int32_t layer);
     void put_walkflags_layered_external(BITMAP *dest,int32_t x,int32_t y,int32_t pos,int32_t layer, int32_t map, int32_t screen);
-    bool misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir);
+    bool misaligned(int32_t map, int32_t screen, int32_t i, int32_t dir);
     void check_alignments(BITMAP* dest,int32_t x,int32_t y,int32_t scr=-1);
 	void draw_darkness(BITMAP* dest, BITMAP* transdest);
-    void draw(BITMAP *dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32_t scr,int32_t hl_layer);
+    void draw(BITMAP *dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32_t screen,int32_t hl_layer);
     void drawrow(BITMAP *dest,int32_t x,int32_t y,int32_t flags,int32_t c,int32_t map,int32_t scr);
     void drawcolumn(BITMAP *dest,int32_t x,int32_t y,int32_t flags,int32_t c,int32_t map,int32_t scr);
     void drawblock(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,int32_t map,int32_t scr);
@@ -398,7 +398,7 @@ public:
     void over_door(BITMAP *dest,int32_t pos,int32_t side,int32_t xofs,int32_t yofs,bool ignorepos, int32_t scr);
     void TemplateAll();
     void Template(int32_t floorcombo, int32_t floorcset, int32_t scr);
-    void putdoor(int32_t scr,int32_t side,int32_t door);
+    void putdoor(int32_t screen,int32_t side,int32_t door);
     
 	void goto_dmapscr(int dmap, int scr);
 	void goto_mapscr(int map, int scr);

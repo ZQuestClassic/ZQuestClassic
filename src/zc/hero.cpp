@@ -22189,13 +22189,13 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 	int32_t found_lyr = 0;
 	bool found_sign = false;
 	int32_t tmp_cid = MAPCOMBO(bx, by);
-	int32_t scr = get_screen_for_world_xy(bx, by);
+	int32_t screen = get_screen_for_world_xy(bx, by);
 	newcombo const* tmp_cmb = &combobuf[tmp_cid];
 	if(((tmp_cmb->type==cSIGNPOST && !(tmp_cmb->triggerflags[0] & combotriggerONLYGENTRIG))
 		|| tmp_cmb->triggerbtn) && _effectflag(bx,by,1, -1))
 	{
 		found = tmp_cid;
-		found_screen = scr;
+		found_screen = screen;
 		fx = bx; fy = by;
 		for (int32_t i = 0; i <= 1; ++i)
 		{
@@ -22210,13 +22210,13 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 		}
 	}
 	tmp_cid = MAPCOMBO(bx2,by2);
-	scr = get_screen_for_world_xy(bx2, by2);
+	screen = get_screen_for_world_xy(bx2, by2);
 	tmp_cmb = &combobuf[tmp_cid];
 	if(((tmp_cmb->type==cSIGNPOST && !(tmp_cmb->triggerflags[0] & combotriggerONLYGENTRIG))
 		|| tmp_cmb->triggerbtn) && _effectflag(bx2,by2,1, -1))
 	{
 		found = tmp_cid;
-		found_screen = scr;
+		found_screen = screen;
 		fx = bx2; fy = by2;
 		for (int32_t i = 0; i <= 1; ++i)
 		{
@@ -22250,7 +22250,7 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 	
 	if(found<0 && !foundffc)
 	{
-		scr = get_screen_for_world_xy(bx, by);
+		screen = get_screen_for_world_xy(bx, by);
 		for(int32_t i=0; i<6; i++)
 		{
 			tmp_cid = MAPCOMBO2(i,bx,by);
@@ -22259,7 +22259,7 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 				|| tmp_cmb->triggerbtn) && _effectflag(bx,by,1, i))
 			{
 				found = tmp_cid;
-				found_screen = scr;
+				found_screen = screen;
 				found_lyr = i+1;
 				fx = bx; fy = by;
 				if (i == 0)
@@ -22274,14 +22274,14 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 					}
 				}
 			}
-			scr = get_screen_for_world_xy(bx2, by2);
+			screen = get_screen_for_world_xy(bx2, by2);
 			tmp_cid = MAPCOMBO2(i,bx2,by2);
 			tmp_cmb = &combobuf[tmp_cid];
 			if(((tmp_cmb->type==cSIGNPOST && !(tmp_cmb->triggerflags[0] & combotriggerONLYGENTRIG))
 				|| tmp_cmb->triggerbtn) && _effectflag(bx2,by2,1, i))
 			{
 				found = tmp_cid;
-				found_screen = scr;
+				found_screen = screen;
 				found_lyr = i+1;
 				fx = bx2; fy = by2;
 				if (i == 0)

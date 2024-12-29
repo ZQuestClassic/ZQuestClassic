@@ -903,22 +903,22 @@ void clear_dmaps()
     }
 }
 
-int32_t isdungeon(int32_t dmap, int32_t scr) // The arg is only used by loadscr2 and loadscr
+int32_t isdungeon(int32_t dmap, int32_t screen)
 {
-    if (scr < 0) scr = cur_screen;
+    if (screen < 0) screen = cur_screen;
     if (dmap < 0) dmap = currdmap;
     
     // dungeons can have any dlevel above 0
     if((DMaps[dmap].type&dmfTYPE) == dmDNGN)
     {
-        if(TheMaps[(currmap*MAPSCRS)+scr].flags6&fCAVEROOM)
+        if(TheMaps[(currmap*MAPSCRS)+screen].flags6&fCAVEROOM)
             return 0;
             
         return 1;
     }
     
     // dlevels that aren't dungeons are caves
-    if(TheMaps[(currmap*MAPSCRS)+scr].flags6&fDUNGEONROOM)
+    if(TheMaps[(currmap*MAPSCRS)+screen].flags6&fDUNGEONROOM)
         return 1;
         
     return 0;

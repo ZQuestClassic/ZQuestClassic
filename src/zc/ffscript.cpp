@@ -8583,7 +8583,7 @@ int32_t get_register(int32_t arg)
 		
 		case DMAPDATACHARTED:
 		{
-			int32_t scr = ri->d[rINDEX] / 10000;
+			int32_t screen = ri->d[rINDEX] / 10000;
 			ret = -10000;
 			if(ri->dmapsref >= MAXDMAPS)
 			{
@@ -8593,16 +8593,16 @@ int32_t get_register(int32_t arg)
 			// {
 				// Z_scripterrlog("dmapdata->Charted[] cannot presently be used on Overworld-type dmaps\n");
 			// }
-			else if(((unsigned)(scr)) > 127)
+			else if(((unsigned)(screen)) > 127)
 			{
-				Z_scripterrlog("Invalid index supplied to dmapdata->Charted[]: %d\n", scr);
+				Z_scripterrlog("Invalid index supplied to dmapdata->Charted[]: %d\n", screen);
 			}
 			else 
 			{
-				int32_t col = (scr&15)-(DMaps[ri->dmapsref].type==dmOVERW ? 0 : DMaps[ri->dmapsref].xoff);
+				int32_t col = (screen&15)-(DMaps[ri->dmapsref].type==dmOVERW ? 0 : DMaps[ri->dmapsref].xoff);
 				if((DMaps[ri->dmapsref].type&dmfTYPE)!=dmOVERW ? (((unsigned)col) > 7) : (((unsigned)col) > 15))
 					break; //Out-of-bounds; don't attempt read!
-				int32_t di = (ri->dmapsref << 7) + (scr & 0x7F);
+				int32_t di = (ri->dmapsref << 7) + (screen & 0x7F);
 				ret = 10000 * game->bmaps[di];
 			}
 			break;
@@ -19376,7 +19376,7 @@ void set_register(int32_t arg, int32_t value)
 		
 		case DMAPDATACHARTED:
 		{
-			int32_t scr = ri->d[rINDEX] / 10000;
+			int32_t screen = ri->d[rINDEX] / 10000;
 			if(ri->dmapsref >= MAXDMAPS)
 			{
 				Z_scripterrlog("Invalid DMap reference used for dmapdata->Charted[]: %d\n", ri->dmapsref);
@@ -19385,16 +19385,16 @@ void set_register(int32_t arg, int32_t value)
 			// {
 				// Z_scripterrlog("dmapdata->Charted[] cannot presently be used on Overworld-type dmaps\n");
 			// }
-			else if(((unsigned)(scr)) > 127)
+			else if(((unsigned)(screen)) > 127)
 			{
-				Z_scripterrlog("Invalid index supplied to dmapdata->Charted[]: %d\n", scr);
+				Z_scripterrlog("Invalid index supplied to dmapdata->Charted[]: %d\n", screen);
 			}
 			else 
 			{
-				int32_t col = (scr&15)-(DMaps[ri->dmapsref].type==dmOVERW ? 0 : DMaps[ri->dmapsref].xoff);
+				int32_t col = (screen&15)-(DMaps[ri->dmapsref].type==dmOVERW ? 0 : DMaps[ri->dmapsref].xoff);
 				if((DMaps[ri->dmapsref].type&dmfTYPE)!=dmOVERW ? (((unsigned)col) > 7) : (((unsigned)col) > 15))
 					break; //Out-of-bounds; don't attempt write!
-				int32_t di = (ri->dmapsref << 7) + (scr & 0x7F);
+				int32_t di = (ri->dmapsref << 7) + (screen & 0x7F);
 				game->bmaps[di] = (value/10000)&0x8F;
 			}
 			break;

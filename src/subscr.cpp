@@ -3375,10 +3375,10 @@ void putBmap(BITMAP *dest, int32_t x, int32_t y,bool showmap, bool showrooms, bo
 	
 	if(showhero)
 	{
-		int scr = get_homescr();
+		int screen = get_homescr();
 #ifdef IS_PLAYER
 		if (hero_screen < 0x80)
-			scr = hero_screen;
+			screen = hero_screen;
 #endif
 
 		if(herocolor==-1)
@@ -3387,7 +3387,7 @@ void putBmap(BITMAP *dest, int32_t x, int32_t y,bool showmap, bool showrooms, bo
 		}
 		
 		int32_t xoff = (((thedmap.type&dmfTYPE)==dmOVERW) ? 0 : thedmap.xoff);
-		putdot(dest,(((scr&15)-xoff)<<3)+x+(large?34:18)+(maptile?8:0),((scr&0xF0)>>1)+y+11,herocolor);
+		putdot(dest,(((screen&15)-xoff)<<3)+x+(large?34:18)+(maptile?8:0),((screen&0xF0)>>1)+y+11,herocolor);
 	}
 }
 
