@@ -319,7 +319,6 @@ int32_t home_screen,frame=0,currmap=0,dlevel,warpscr,worldscr,scrolling_hero_scr
 bool scrolling_using_new_region_coords;
 int32_t hero_screen=0;
 int32_t cur_screen=0;
-int32_t scrolling_cur_screen=0;
 int32_t currscr_for_passive_subscr;
 direction scrolling_dir;
 int32_t newscr_clk=0,opendoors=0,currdmap=0,fadeclk=-1,listpos=0;

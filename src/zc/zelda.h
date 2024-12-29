@@ -316,7 +316,6 @@ extern int32_t home_screen;
 extern int32_t frame,currmap,dlevel,warpscr,worldscr,scrolling_hero_screen,scrolling_map,scrolling_dmap,scrolling_destdmap;
 extern bool scrolling_using_new_region_coords;
 extern direction scrolling_dir;
-extern int32_t scrolling_cur_screen;
 // See dowarp.
 extern int32_t currscr_for_passive_subscr;
 extern int32_t newscr_clk,opendoors,currdmap,fadeclk,listpos;

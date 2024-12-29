@@ -28413,14 +28413,14 @@ static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector
 	{
 		for (int y = old_screens_y0; y <= old_screens_y1; y++)
 		{
-			int screen = scrolling_cur_screen + x + y*16;
+			int screen = scrolling_region.origin_screen + x + y*16;
 			if (get_region_id(scrolling_map, screen) != old_region)
 				continue;
 
 			mapscr* base_scr = old_temporary_screens[screen*7];
 			bool use_new_screens = false;
-			int offx = z3_get_region_relative_dx(screen, scrolling_cur_screen) * 256;
-			int offy = z3_get_region_relative_dy(screen, scrolling_cur_screen) * 176;
+			int offx = z3_get_region_relative_dx(screen, scrolling_region.origin_screen) * 256;
+			int offy = z3_get_region_relative_dy(screen, scrolling_region.origin_screen) * 176;
 			old_screen_deltas.push_back({base_scr, use_new_screens, offx, offy});
 		}
 	}
@@ -28448,10 +28448,10 @@ static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector
 	else
 	{
 		// ... anchored at the point where the screen scrolling starts.
-		dx = z3_get_region_relative_dx(cur_screen, scrolling_cur_screen) -
-			(z3_get_region_relative_dx(hero_screen, scrolling_cur_screen) - z3_get_region_relative_dx(scrolling_hero_screen, scrolling_cur_screen));
-		dy = z3_get_region_relative_dy(cur_screen, scrolling_cur_screen) -
-			(z3_get_region_relative_dy(hero_screen, scrolling_cur_screen) - z3_get_region_relative_dy(scrolling_hero_screen, scrolling_cur_screen));
+		dx = z3_get_region_relative_dx(cur_screen, scrolling_region.origin_screen) -
+			(z3_get_region_relative_dx(hero_screen, scrolling_region.origin_screen) - z3_get_region_relative_dx(scrolling_hero_screen, scrolling_region.origin_screen));
+		dy = z3_get_region_relative_dy(cur_screen, scrolling_region.origin_screen) -
+			(z3_get_region_relative_dy(hero_screen, scrolling_region.origin_screen) - z3_get_region_relative_dy(scrolling_hero_screen, scrolling_region.origin_screen));
 		if      (scrolling_dir == up) dy -= 1;
 		else if (scrolling_dir == down) dy += 1;
 		else if (scrolling_dir == left) dx -= 1;
@@ -28952,7 +28952,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	screenscrolling = true;
 	scrolling_dir = (direction) scrolldir;
 	scrolling_hero_screen = hero_screen;
-	scrolling_cur_screen = cur_screen;
 	scrolling_region = current_region;
 
 	int32_t scx = get_qr(qr_FASTDNGN) ? 30 : 0;

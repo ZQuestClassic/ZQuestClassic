@@ -317,7 +317,7 @@ mapscr* GetScrollingMapscr(int layer, int x, int y)
 	if (!screenscrolling)
 		return nullptr;
 
-	int screen = scrolling_cur_screen + (x / 256) + (y / 176) * 16;
+	int screen = scrolling_region.origin_screen + map_scr_xy_to_index(x / 256, y / 176);
 	mapscr* m = FFCore.ScrollingScreensAll[screen * 7 + layer];
 	if (m->valid == 0)
 		return nullptr;
