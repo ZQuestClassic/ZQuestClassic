@@ -75,6 +75,7 @@ void maps_init_game_vars()
 	viewport = {};
 	viewport_mode = ViewportMode::CenterAndBound;
 	viewport_sprite_uid = 1;
+	currscr_for_passive_subscr = -1;
 }
 
 static region_ids_t current_region_ids;
@@ -6016,7 +6017,6 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool overlay, bool 
 	}
 	reset_combo_animations2();
 
-	currscr_for_passive_subscr = -1;
 	z3_load_region(destdmap, screen);
 	z3_mark_current_region_handles_dirty();
 	home_screen = screen >= 0x80 ? hero_screen : cur_screen;

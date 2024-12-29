@@ -594,16 +594,13 @@ void put_passive_subscr(BITMAP *dest,int32_t x,int32_t y,bool showtime,int32_t p
 	if (QHeader.is_z3 && playing_field_offset)
 		rectfill(subscr, 0, 0, subscr->w, playing_field_offset - 1, 0);
 
-	int32_t prev_homescr;
 	int32_t prev_currscr;
 	if (currscr_for_passive_subscr != -1)
 	{
-		prev_homescr = home_screen;
 		prev_currscr = cur_screen;
 		cur_screen = currscr_for_passive_subscr;
-		home_screen = prev_currscr;
 	}
-	
+
 	show_custom_subscreen(subscr, new_subscreen_passive, 0, 0, showtime, pos2);
 	destroy_bitmap(subscr);
 	if(new_subscreen_overlay)
@@ -614,8 +611,5 @@ void put_passive_subscr(BITMAP *dest,int32_t x,int32_t y,bool showtime,int32_t p
 	}
 
 	if (currscr_for_passive_subscr != -1)
-	{
 		cur_screen = prev_currscr;
-		home_screen = prev_homescr;
-	}
 }

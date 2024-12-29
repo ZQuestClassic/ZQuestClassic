@@ -25587,15 +25587,6 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 		// cave/item room
 		ALLOFF();
 
-		// some draw_screen code (the passive subscreen compass dot) depends
-		// on cur_screen and home_screen being set first when drawing the screen during a warp.
-		// Without this the compass dot would remain drawn while warping.
-		// This might be better, but for now this code keeps the rendering
-		// equivalent to before z3 draw_screen refactor.
-		// demosp253.zplay and first_quest_layered.zplay showcases this behavior.
-		// TODO(replays): remove in future bulk replay update.
-		currscr_for_passive_subscr = 0x80;
-
 		if(DMaps[currdmap].flags&dmfCAVES)                                         // cave
 		{
 			if (updatemusic || !musicnocut || !get_qr(qr_SCREEN80_OWN_MUSIC))
@@ -25723,6 +25714,13 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 	
 	case wtPASS:                                            // passageway
 	{
+		// some draw_screen code (the passive subscreen compass dot) depends
+		// on cur_screen being set before initiating the screen wipes for a warp.
+		// Without this the compass dot would remain drawn while warping.
+		// This is better, but for now this code keeps the rendering equivalent to before
+		// z3 refactor.
+		// demosp253.zplay and first_quest_layered.zplay showcases this behavior.
+		// TODO(replays): remove in future bulk replay update.
 		currscr_for_passive_subscr = 0x81;
 
 		kill_sfx();
