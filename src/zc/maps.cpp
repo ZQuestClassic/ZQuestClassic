@@ -6128,6 +6128,7 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool overlay, bool 
 		Hero.lift_wpn = nullptr;
 	}
 
+	markBmap(-1, hero_screen);
 	Hero.maybe_begin_advanced_maze();
 }
 
