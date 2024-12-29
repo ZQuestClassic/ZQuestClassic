@@ -1,15 +1,32 @@
-// Represents a single map screen.
+// Represents a map screen.
 //
 // Depending on how the `mapdata` was loaded, it may represent:
 //
-// - a temporary screen from the active region, aka a live reference to the current
-//   screen ([Game->LoadTempScreen], [Game->LoadTempScreenForComboPos]).
-//   Modifications are reset when the screen changes.
-// - a temporary screen from the previous region during scrolling, aka a live reference to
-//   the current scrolling screen ([Game->LoadScrollingScreen])
-// - the canonical copy of a screen ([Game->LoadMapData]).
-//   If the screen is currently loaded, no changes will be observed until the screen is reloaded.
-//   Modifications do not persist to future game reloads.
+// ... a single temporary screen (aka a live reference to a currently loaded screen):
+//
+//   - a single temporary screen from the active region ([Game->LoadTempScreen] - the one that
+//     takes a layer and a screen, [Game->LoadTempScreenForComboPos])
+//   - a single temporary screen from the previous region during
+//     scrolling ([Game->LoadScrollingScreen] - the one that takes a layer and a screen)
+//
+// ... a single canonical screen:
+//
+//   - the canonical copy of a screen ([Game->LoadMapData]). If the screen is currently loaded,
+//     no modifications will be observed until the screen is reloaded
+//
+// ... or it may represent every temporary screen in a [Region]:
+//
+//   - [Game->LoadTempScreen] - the one that takes just a layer
+//   - [Game->LoadScrollingScreen] - the one that takes just a layer
+//
+// Note:
+//
+//   - Modifications to temporary screens are lost when the screen changes.
+//   - When representing every temporary screen in a region, the combo array
+//     variables can access every position in a region, but variables representing
+//     values from a singular screen read from the top-left origin screen of the [Region];
+//     this is exactly like how [Screen] works
+//   - Modifications to canonical screens do not persist across game reloads
 //
 // @zasm_ref REFMAPDATA
 class mapdata {

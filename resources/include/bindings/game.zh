@@ -952,7 +952,7 @@ class Game {
 	//   SETR D2 REFCOMBODATA
 	internal combodata LoadComboData(int id);
 
-	// Loads the mapdata pointer for the screen at `(map,screen)`. Edits to
+	// Loads a canonical [mapdata] pointer for the screen at `(map,screen)`. Edits to
 	// these pointers do not persist through quest exit. Edits to these pointers
 	// will NOT affect the "current screen", even if the current map/screen is
 	// supplied; see [LoadTempScreen] below for that.
@@ -963,13 +963,16 @@ class Game {
 	//   SETR D2 LOADMAPDATA
 	internal mapdata LoadMapData(int map, int screen);
 
-	// Loads the temp mapdata pointer for the specified layer.
+	// Loads the temp [mapdata] pointer for the specified layer.
+	//
 	// `LoadTempScreen(0)` gives a pointer that works mostly the same as
 	// `Screen->`, while passing 1 through 6 will give equal access to the other
 	// layers of the screen. Modifications to these pointers are reset when the
 	// screen changes.
 	//
-	// This is the same as `Game->LoadTempScreen(layer, Game->CurScreen)`.
+	// The entire [Region] at the specificed layer may be accessed by the combo array
+	// variables of this [mapdata], but other variables read from just the top-left origin
+	// screen.
 	//
 	// @zasm
 	//   POP D2
@@ -1000,6 +1003,10 @@ class Game {
 	// Loads the temp mapdata pointer for the specified layer's *scrolling screen*. This is only
 	// used during scrolling, for drawing the screen you just came from during the scrolling
 	// animation.
+	//
+	// The entire scrolling [Region] at the specificed layer may be accessed by the combo array
+	// variables of this [mapdata], but other variables read from just the top-left origin
+	// screen.
 	//
 	// @zasm
 	//   POP D2
