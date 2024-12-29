@@ -18811,10 +18811,11 @@ void set_register(int32_t arg, int32_t value)
 			if (auto rpos_handle = ResolveMapdataPos(ri->mapsref, pos, "mapdata->ComboT[]"))
 			{
 				auto cid = rpos_handle.data();
-				// TODO z3 ! if (result.current()) ?
-				screen_combo_modify_pre(cid);
+				if (result.current())
+					screen_combo_modify_pre(cid);
 				combobuf[cid].type=val;
-				screen_combo_modify_post(cid);
+				if (result.current())
+					screen_combo_modify_post(cid);
 			}
 		}
 		break;
@@ -25031,11 +25032,11 @@ void do_mapdataissolid_layer()
 		{
 			if (result.type == mapdata_type::TemporaryCurrentRegion && result.layer == 0)
 			{
-				set_register(sarg1, (_walkflag_layer(x, y, 1, GetMapscr(ri->mapsref))) ? 10000 : 0);
+				set_register(sarg1, (_walkflag_layer(x, y, 1, result.scr)) ? 10000 : 0);
 			}
 			else if (result.type == mapdata_type::TemporaryScrollingRegion && result.layer == 0)
 			{
-				set_register(sarg1, (_walkflag_layer_scrolling(x, y, 1, GetMapscr(ri->mapsref))) ? 10000 : 0);
+				set_register(sarg1, (_walkflag_layer_scrolling(x, y, 1, result.scr)) ? 10000 : 0);
 			}
 			else
 			{
