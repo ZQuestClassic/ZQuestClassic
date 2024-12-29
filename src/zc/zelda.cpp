@@ -28,6 +28,7 @@
 #include "zc/replay_upload.h"
 #include "zc/zasm_optimize.h"
 #include "zc/zasm_utils.h"
+#include "zc/zc_subscr.h"
 #include "zscriptversion.h"
 #include "sound/zcmusic.h"
 #include "base/zdefs.h"

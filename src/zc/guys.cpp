@@ -6,6 +6,7 @@
 #include "zc/guys.h"
 #include "zc/replay.h"
 #include "zc/zc_ffc.h"
+#include "zc/zc_subscr.h"
 #include "zc/zelda.h"
 #include "base/zsys.h"
 #include "base/msgstr.h"

@@ -5414,6 +5414,8 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 		}
 	}
 	homescr = oscr;
+
+	markBmap(-1);
 }
 
 // Screen is being viewed by the Overworld Map viewer.
