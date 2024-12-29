@@ -556,7 +556,6 @@ const char *itemlist_num(int32_t index, int32_t *list_size);
 void build_biw_list();
 const char *weaponlist(int32_t index, int32_t *list_size);
 const char *weaponlist_num(int32_t index, int32_t *list_size);
-int32_t select_weapon(const char *prompt,int32_t weapon);
 
 //char *doors_string[8]={"wall","passage","locked","shutter","bombable","walk thru","1-way shutter","boss"};
 const char *doorslist(int32_t index, int32_t *list_size);
@@ -623,7 +622,6 @@ int32_t onToggleHighlightLayer();
 int32_t d_ndroplist_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t d_idroplist_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t d_nidroplist_proc(int32_t msg,DIALOG *d,int32_t c);
-int32_t d_wlist_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t enelist_proc(int32_t msg,DIALOG *d,int32_t c,bool use_abc_list);
 INLINE int32_t d_enelist_proc(int32_t msg,DIALOG *d,int32_t c)
 {

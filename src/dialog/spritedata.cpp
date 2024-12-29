@@ -40,10 +40,9 @@ TextField( \
 		updateAnimation(); \
 	})
 
-#define TEMPSPR_FLIP (((tempSprite.misc&WF_HFLIP)?1:0)|((tempSprite.misc&WF_VFLIP)?2:0))
 void SpriteDataDialog::updateAnimation()
 {
-	auto flip = TEMPSPR_FLIP;
+	auto flip = tempSprite.flip();
 	auto cs = tempSprite.csets&0xF;
 	tswatch->setCSet(cs);
 	tswatch->setFlip(flip);
@@ -103,7 +102,7 @@ std::shared_ptr<GUI::Widget> SpriteDataDialog::view()
 					tswatch = SelTileSwatch(
 						tile = tempSprite.tile,
 						cset = tempSprite.csets&0x0F,
-						flip = TEMPSPR_FLIP,
+						flip = tempSprite.flip(),
 						showFlip = true,
 						showvals = false,
 						onSelectFunc = [&](int32_t t, int32_t c, int32_t f,int32_t)
@@ -172,7 +171,7 @@ std::shared_ptr<GUI::Widget> SpriteDataDialog::view()
 						cset = tempSprite.csets&0xF,
 						frames = tempSprite.frames,
 						speed = tempSprite.speed,
-						flip = TEMPSPR_FLIP
+						flip = tempSprite.flip()
 					)
 				),
 				//

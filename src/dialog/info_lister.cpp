@@ -3,6 +3,7 @@
 #include <base/new_menu.h>
 #include "base/files.h"
 #include "itemeditor.h"
+#include "spritedata.h"
 #include "enemyeditor.h"
 #include "midieditor.h"
 #include "sfxdata.h"
@@ -18,6 +19,7 @@
 #include <sstream>
 
 extern char *item_string[];
+extern char *weapon_string[];
 
 static string get_info(bool sel, bool advpaste, bool saveload = true, bool copypaste = true)
 {
@@ -41,6 +43,8 @@ std::shared_ptr<GUI::Widget> BasicListerDialog::view()
 	using namespace GUI::Key;
 	
 	lister_sel_val = start_val;
+	
+	widgList.reset(); // make sure calling `resort` from `preinit` is safe
 	
 	preinit();
 	
@@ -148,7 +152,8 @@ void BasicListerDialog::resort()
 		lister.alphabetize(frozen_inds);
 	else
 		lister.valsort(frozen_inds);
-	widgList->setSelectedValue(selected_val);
+	if(widgList)
+		widgList->setSelectedValue(selected_val);
 }
 
 bool BasicListerDialog::get_config(string const& name, bool default_val)
@@ -245,6 +250,7 @@ void ItemListerDialog::preinit()
 	else
 	{
 		lister.removeInd(0); // remove '(None)'
+		resort();
 		if(selected_val < 0)
 			selected_val = lister.getValue(0);
 	}
@@ -286,7 +292,7 @@ void ItemListerDialog::update()
 			"\nType: {}\nCSet: {}\nScripts:\nAction: {}\nPickup: {}\nSprite: {}\nWeapon: {}"
 			"\n\nCopied:\n{}",
 			item_string[selected_val], display_name, selected_val, itm.power, itm.fam_type,
-			itm.family, itm.csets, itm.script, itm.collect_script, itm.sprite_script, itm.weaponscript,
+			itm.family, itm.csets&0xF, itm.script, itm.collect_script, itm.sprite_script, itm.weaponscript,
 			copied_name));
 		widgPrev->setDisabled(false);
 		widgPrev->setTile(itm.tile);
@@ -298,6 +304,7 @@ void ItemListerDialog::update()
 			? itm.tilew-1 : 0);
 		widgPrev->setSkipY((itm.overrideFLAGS & OVERRIDE_TILE_HEIGHT)
 			? itm.tileh-1 : 0);
+		widgPrev->setFlashCS((itm.misc_flags & 1) ? itm.csets >> 4 : -1);
 	}
 	else
 	{
@@ -314,6 +321,7 @@ void ItemListerDialog::update()
 		widgPrev->setDelay(0);
 		widgPrev->setSkipX(0);
 		widgPrev->setSkipY(0);
+		widgPrev->setFlashCS(-1);
 	}
 	widgPrev->setVisible(true);
 	widgPrev->setDoSized(true);
@@ -420,6 +428,143 @@ bool ItemListerDialog::load()
 	{
 		Z_error("Could not read from .zitem packfile %s\n", temppath);
 		InfoDialog("ZItem Error", "Could not load the specified item.").show();
+	}
+	pack_fclose(f);
+	saved = false;
+	return true;
+}
+
+SpriteListerDialog::SpriteListerDialog(int spriteid, bool selecting):
+	BasicListerDialog("Select Sprite","spritedata",spriteid,selecting)
+{
+	use_preview = true;
+	alphabetized = get_config("alphabetized", true);
+}
+void SpriteListerDialog::preinit()
+{
+	lister = GUI::ZCListData::miscsprites(!selecting, false, true);
+	if(selecting)
+		frozen_inds = 1; // lock '(None)'
+	else
+	{
+		resort();
+		if(selected_val < 0)
+			selected_val = lister.getValue(0);
+	}
+	selected_val = vbound(selected_val, (selecting?-1:0), MAXWPNS-1);
+}
+void SpriteListerDialog::postinit()
+{
+	size_t len = 16;
+	for(int q = 0; q < MAXWPNS; ++q)
+	{
+		size_t tlen = text_length(GUI_DEF_FONT,weapon_string[q]);
+		if(tlen > len)
+			len = tlen;
+	}
+	widgInfo->minWidth(Size::pixels(len+8));
+	widgList->minHeight(Size::pixels(320));
+	window->setHelp(get_info(selecting, true));
+}
+static int copied_sprite_id = -1;
+void SpriteListerDialog::update()
+{
+	std::string copied_name = "(None)\n";
+	if(unsigned(copied_sprite_id) < MAXWPNS)
+		copied_name = weapon_string[copied_sprite_id];
+	if(unsigned(selected_val) < MAXWPNS)
+	{
+		wpndata const& spr = wpnsbuf[selected_val];
+		widgInfo->setText(fmt::format(
+			"{}\nCSet: {}\nFlip: {}\nFrames: {}\nSpeed: {}"
+			"\n\nCopied:\n{}",
+			weapon_string[selected_val], spr.cs(), spr.flip(), spr.frames, spr.speed,
+			copied_name));
+		widgPrev->setDisabled(false);
+		widgPrev->setTile(spr.tile);
+		widgPrev->setCSet(spr.cs());
+		widgPrev->setFrames(spr.frames);
+		widgPrev->setSpeed(spr.speed);
+		widgPrev->setFlashCS(-1);
+	}
+	else
+	{
+		widgInfo->setText(fmt::format(
+			"\n\n\n\n"
+			"\n\nCopied:\n{}",
+			copied_name));
+		widgPrev->setDisabled(true);
+		widgPrev->setTile(0);
+		widgPrev->setCSet(0);
+		widgPrev->setFrames(0);
+		widgPrev->setSpeed(0);
+		widgPrev->setFlashCS(-1);
+	}
+	widgPrev->setVisible(true);
+	widgPrev->overrideWidth(Size::pixels(48+4));
+	widgPrev->overrideHeight(Size::pixels(48+4));
+	widgPrev->resetAnim();
+}
+void SpriteListerDialog::edit()
+{
+	call_sprite_dlg(selected_val);
+}
+void SpriteListerDialog::rclick(int x, int y)
+{
+	NewMenu rcmenu {
+		{ "&Copy", [&](){copy(); update();} },
+		{ "Paste", "&v", [&](){paste(); update();}, 0, copied_sprite_id < 0 },
+		{ "&Save", [&](){save(); update();} },
+		{ "&Load", [&](){load(); update();} },
+	};
+	rcmenu.pop(x, y);
+}
+void SpriteListerDialog::copy()
+{
+	copied_sprite_id = selected_val;
+	update();
+}
+bool SpriteListerDialog::paste()
+{
+	if(copied_sprite_id < 0 || selected_val < 0)
+		return false;
+	if(copied_sprite_id == selected_val)
+		return false;
+	wpnsbuf[selected_val] = wpnsbuf[copied_sprite_id];
+	saved = false;
+	return true;
+}
+int32_t readoneweapon(PACKFILE *f, int32_t id);
+int32_t writeoneweapon(PACKFILE *f, int32_t id);
+void SpriteListerDialog::save()
+{
+	if(selected_val < 0)
+		return;
+	if(!prompt_for_new_file_compat(fmt::format("Save Sprite '{}' #{} (.zwpnspr)",weapon_string[selected_val],selected_val).c_str(),"zwpnspr",NULL,datapath,false))
+		return;
+	
+	PACKFILE *f=pack_fopen_password(temppath,F_WRITE,"");
+	if(!f) return;
+	if (!writeoneweapon(f,selected_val))
+	{
+		Z_error("Could not write to .zwpnspr packfile %s\n", temppath);
+		InfoDialog("ZWpnSpr Error", "Could not save the specified sprite.").show();
+	}
+	pack_fclose(f);
+}
+bool SpriteListerDialog::load()
+{
+	if(selected_val < 0)
+		return false;
+	if(!prompt_for_existing_file_compat(fmt::format("Load Sprite (replacing '{}' #{}) (.zwpnspr)",weapon_string[selected_val],selected_val).c_str(),"zwpnspr",NULL,datapath,false))
+		return false;
+	
+	PACKFILE *f=pack_fopen_password(temppath,F_READ,"");
+	if(!f) return false;
+	if (!readoneweapon(f,selected_val))
+	{
+		Z_error("Could not read from .zwpnspr packfile %s\n", temppath);
+		InfoDialog("ZWpnSpr Error", "Could not load the specified sprite.").show();
 	}
 	pack_fclose(f);
 	saved = false;

@@ -27574,7 +27574,7 @@ void FFScript::do_loadmapdata_scrollscr2(const bool v)
 
 	if (!is_in_scrolling_region(screen))
 	{
-		Z_scripterrlog("Game->LoadTempScreen() must be given a screen in the current scrolling region. got: %d\n", screen);
+		Z_scripterrlog("Game->LoadScrollingScreen() must be given a screen in the current scrolling region. got: %d\n", screen);
 		ri->mapsref = 0;
 		set_register(sarg1, ri->mapsref);
 		return;
@@ -31944,7 +31944,20 @@ int32_t run_script_int(bool is_jitted)
 			case SECRETS:
 				do_triggersecrets(ri->screenref);
 				break;
-			
+
+			case REGION_TRIGGER_SECRETS:
+			{
+				int screen = get_register(sarg1) / 10000;
+				if (!is_in_current_region(screen))
+				{
+					Z_scripterrlog("Screen->TriggerSecrets must be given a screen in the current region. got: %d\n", screen);
+					break;
+				}
+
+				do_triggersecrets(screen);
+				break;
+			}
+
 			case GRAPHICSGETPIXEL:
 				FFCore.do_graphics_getpixel();
 				break;
@@ -33774,19 +33787,6 @@ int32_t run_script_int(bool is_jitted)
 			{
 				bool r = FFCore.runGenericFrozenEngine(word(ri->genericdataref));
 				set_register(sarg1, r ? 10000L : 0L);
-				break;
-			}
-
-			case REGION_TRIGGER_SECRETS:
-			{
-				int screen = get_register(sarg1) / 10000;
-				if (!is_in_current_region(screen))
-				{
-					Z_scripterrlog("Screen->TriggerSecrets must be given a screen in the current region. got: %d\n", screen);
-					break;
-				}
-
-				do_triggersecrets(screen);
 				break;
 			}
 			

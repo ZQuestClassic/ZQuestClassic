@@ -17,38 +17,44 @@ int32_t tile_anim_proc(int32_t msg,DIALOG *d,int32_t c)
 	assert(d->dp);
 	int32_t *data = ((int32_t*)d->dp);
 	int32_t &clk = data[TileFrame::tfr_aclk];
+	int32_t &flashclk = data[TileFrame::tfr_flash_clk];
 	int32_t &frm = data[TileFrame::tfr_aframe];
+	int32_t delay = -data[TileFrame::tfr_delay] * data[TileFrame::tfr_speed];
 	switch(msg)
 	{
 		case MSG_START:
 		{
-			clk = 0;
+			clk = delay;
+			flashclk = 0;
 			break;
 		}
 		case MSG_VSYNC:
 		{
 			if(d->flags & D_DISABLED)
 				break; //Disable animation
+			flashclk = (flashclk+1)&0xF; //checking (flashclk&8) is on half the time
+			if(data[TileFrame::tfr_flash_cs] > -1 && !(flashclk%8))
+				d->flags |= D_DIRTY; //mark for redraw
 			if(data[TileFrame::tfr_frames] < 2)
 				break; //nothing to animate
 			if(++clk > data[TileFrame::tfr_speed])
 				d->flags |= D_DIRTY; //mark for redraw
-			else if(clk < -data[TileFrame::tfr_delay])
-				clk = -data[TileFrame::tfr_delay]; //Handle delay modification
+			else if(clk < delay)
+				clk = delay; //Handle delay modification
 			if(clk >= data[TileFrame::tfr_speed])
 			{
 				clk %= data[TileFrame::tfr_speed];
 				if(++frm >= data[TileFrame::tfr_frames])
 				{
 					frm %= data[TileFrame::tfr_frames];
-					clk = -data[TileFrame::tfr_delay];
+					clk = delay;
 				}
 				d->flags |= D_DIRTY;
 			}
 			else if(frm >= data[TileFrame::tfr_frames])
 			{ //Incase frames was changed
 				frm %= data[TileFrame::tfr_frames];
-				clk = -data[TileFrame::tfr_delay];
+				clk = delay;
 				d->flags |= D_DIRTY;
 			}
 			break;
@@ -74,6 +80,9 @@ int32_t tile_anim_proc(int32_t msg,DIALOG *d,int32_t c)
 				clear_to_color(buf, d->bg);
 				//
 				int32_t cset = data[TileFrame::tfr_cset];
+				int32_t flashcs = data[TileFrame::tfr_flash_cs];
+				if(flashcs > -1 && (flashclk&8))
+					cset = flashcs;
 				int32_t cs2 = data[TileFrame::tfr_cset2];
 				for(auto tx = 0; tx < tw; ++tx)
 				{
@@ -121,7 +130,17 @@ TileFrame::TileFrame(): alDialog()
 	bgColor = scheme[jcBOX];
 	for(int32_t q = 0; q < tfr_MAX; ++q)
 	{
-		data[q] = (q == tfr_frames || q == tfr_speed) ? 1 : 0;
+		switch(q)
+		{
+			case tfr_flash_cs:
+				data[q] = -1;
+				break;
+			case tfr_frames: case tfr_speed:
+				data[q] = 1;
+				break;
+			default:
+				data[q] = 0;
+		}
 	}
 }
 
@@ -176,6 +195,12 @@ void TileFrame::setSkipY(int32_t value)
 void TileFrame::setFlip(int32_t value)
 {
 	data[tfr_flip] = value&0x7;
+	pendDraw();
+}
+
+void TileFrame::setFlashCS(int32_t value)
+{
+	data[tfr_flash_cs] = value;
 	pendDraw();
 }
 

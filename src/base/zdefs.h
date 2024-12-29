@@ -1254,6 +1254,15 @@ struct wpndata
 	byte speed;                                               // animation speed
 	byte type;                                                // used by certain weapons
 	word script;
+	
+	byte flip() const
+	{
+		return (misc >> 2) & 0b11;
+	}
+	byte cs() const
+	{
+		return csets & 0xF;
+	}
 };
 
 #define WF_AUTOFLASH  0x01

@@ -819,7 +819,10 @@ internal void SRand(long seed);
 //   SRNDRND D2
 internal long SRand();
 
-// Returns the combo position (`pos`) for the given `(x, y)` coordinates.
+// Returns the combo position (`pos`) for the given `(x, y)` coordinates
+// in the current [Region].
+//
+// Coordinates outside the bounds of the current [Region] are clamped.
 //
 // @zasm
 //   POP D3
