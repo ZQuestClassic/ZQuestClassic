@@ -224,7 +224,7 @@ void z3_load_region(int dmap, int screen)
 
 	if ((DMaps[dmap].type&dmfTYPE) == dmDNGN)
 	{
-		if (current_region_ids[screen])
+		if (screen < 0x80 && current_region_ids[screen])
 			Z_message("Region error: Scrolling is not supported for NES Dungeon dmaps.\n");
 		current_region_ids = {};
 	}
@@ -8001,10 +8001,6 @@ void mark_visited(int screen)
 		if(DMaps[currdmap].flags&dmfVIEWMAP)
 			game->maps[(currmap*MAPSCRSNORMAL)+screen] |= mVISITED;
 
-		// TODO z3 ?
-		// ganon.zplay is a short and simple replay that shows the delta. i think before...initial
-		// screens on init_game weren't ever calling markBmap? idk...
-		// if (QHeader.is_z3)
-		// 	markBmap(-1, screen);
+		markBmap(-1, screen);
 	}
 }

@@ -2923,7 +2923,7 @@ void SW_MMap::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) c
 	{
 		if(show_subscreen_dmap_dots && c_plr.get_color() != 255)
 		{
-			int scr = get_currscr();
+			int scr = get_homescr();
 #ifdef IS_PLAYER
 			if (hero_screen < 0x80)
 				scr = hero_screen;
@@ -2933,7 +2933,7 @@ void SW_MMap::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) c
 			{
 				putdot(dest,((scr&15)<<2)+tx+9,((scr&0xF0)>>2)+ty+8,c_plr.get_color());
 			}
-			else if(type==dmBSOVERW || ((type==dmDNGN || type==dmCAVE) && get_currscr()<128))
+			else if(type==dmBSOVERW || ((type==dmDNGN || type==dmCAVE) && scr<128))
 			{
 				putdot(dest,(((scr&15)-thedmap.xoff)<<3)+tx+10,((scr&0xF0)>>2)+ty+8,c_plr.get_color());
 			}

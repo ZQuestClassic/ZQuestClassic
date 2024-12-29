@@ -25601,7 +25601,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			if (updatemusic || !musicnocut || !get_qr(qr_SCREEN80_OWN_MUSIC))
 				music_stop();
 			kill_sfx();
-			
+
 			int destscr = 0x80;
 			if(cur_scr->room==rWARP)
 			{
@@ -27314,7 +27314,7 @@ void HeroClass::stepout() // Step out of item cellars and passageways
 {
 	bool updatemusic = FFCore.can_dmap_change_music(currdmap);
 	bool musicnocut = FFCore.music_update_flags & MUSIC_UPDATE_FLAG_NOCUT;
-	
+
 	int32_t sc = specialcave; // This gets erased by ALLOFF()
     ALLOFF();
     stop_sfx(QMisc.miscsfx[sfxLOWHEART]);
