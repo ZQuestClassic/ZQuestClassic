@@ -24989,7 +24989,6 @@ void do_mapdataissolid()
 			return;
 		}
 
-		// TODO z3 ??
 		if (result.type == mapdata_type::TemporaryCurrentRegion && result.layer == 0)
 		{
 			set_register(sarg1, (_walkflag(x, y, 1)) ? 10000 : 0);
