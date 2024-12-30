@@ -4314,7 +4314,7 @@ void calc_darkroom_combos(int screen, int offx, int offy)
 		}
 	}
 
-	mapscr* scr = get_scr_layer_allow_scrolling(currmap, screen, -1);
+	mapscr* scr = get_scr_layer_allow_scrolling(currmap, screen, -1); // TODO z3 ! map
 	word c = scr->numFFC();
 	for(int q = 0; q < c; ++q)
 	{

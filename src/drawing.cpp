@@ -224,11 +224,6 @@ static inline bool dithercheck(byte type, byte arg, int32_t x, int32_t y, int32_
 			arg = zc_max(1,arg); //don't div by 0!
 			break;
 	}
-
-#ifdef IS_PLAYER
-	// This can be negative because of the workaround in `ditherblit` for replay compat.
-	if (replay_is_active()) y = std::abs(y);
-#endif
 	
 	switch(type) //calculate
 	{
@@ -386,41 +381,18 @@ void mask_blit(BITMAP* dest, BITMAP* mask, BITMAP* pattern, bool repeats, int32_
 	bmp_unwrite_line(dest);
 }
 
+int dither_offx;
+int dither_offy;
+
 void ditherblit(BITMAP* dest, BITMAP* src, int32_t color, byte dType, byte dArg, int32_t xoffs, int32_t yoffs)
 {
 	int32_t wid = src ? zc_min(dest->w, src->w) : dest->w;
 	int32_t hei = src ? zc_min(dest->h, src->h) : dest->h;
 
 #ifdef IS_PLAYER
-	if (replay_is_active())
-	{
-		// z3 changed how dark bitmap drawing works, so to get the same results as before we must remove the delta
-		// of the old/new dark bitmaps...
-		yoffs -= 48;
-		// ...and the playing field offset.
-		yoffs -= playing_field_offset;
-
-		extern bool screenscrolling;
-		extern direction scrolling_dir;
-		if (screenscrolling)
-		{
-			switch(scrolling_dir)
-			{
-				case up:
-					yoffs += 176;
-					break;
-				case down:
-					yoffs -= 176;
-					break;
-				case left:
-					xoffs += 256;
-					break;
-				case right:
-					xoffs -= 256;
-					break;
-			}
-		}
-	}
+	xoffs += dither_offx;
+	yoffs += dither_offy;
+	yoffs -= playing_field_offset;
 #endif
 
 	for(int32_t ty = 0; ty < hei; ++ty)

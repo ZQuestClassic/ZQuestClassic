@@ -4824,11 +4824,6 @@ reload_for_replay_file:
 			game_loop();
 			advanceframe(true);
 			FFCore.runF6Engine();
-		
-			//clear Hero's last hits 
-			//for ( int32_t q = 0; q < 4; q++ ) Hero.sethitHeroUID(q, 0);
-			//clearing this here makes it impossible 
-			//to read before or after waitdraw in scripts. 
 		}
 		clear_info_bmp();
 

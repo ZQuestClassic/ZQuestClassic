@@ -28591,15 +28591,18 @@ static void scrollscr_handle_dark(mapscr* newscr, mapscr* oldscr, const nearby_s
 	clear_darkroom_bitmaps();
 	set_clip_rect(framebuf, 0, playing_field_offset, 256, framebuf->h);
 
+	extern int dither_offx;
+	extern int dither_offy;
+
 	for_every_nearby_screen_during_scroll(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int offx, int offy, bool is_new_screen) {
 		mapscr* base_scr = screen_handles[0].base_scr;
 		bool should_be_dark = (base_scr->flags & fDARK) && (scr == cur_screen || get_qr(qr_NEWDARK_SCROLLEDGE));
-		if (!should_be_dark)
-		{
-			offy += playing_field_offset;
-			rectfill(darkscr_bmp, offx - viewport.x, offy - viewport.y, offx - viewport.x + 256 - 1, offy - viewport.y + 176 - 1, 0);
-			rectfill(darkscr_bmp_trans, offx - viewport.x, offy - viewport.y, offx - viewport.x + 256 - 1, offy - viewport.y + 176 - 1, 0);
-		}
+		if (should_be_dark)
+			return;
+
+		offy += playing_field_offset;
+		rectfill(darkscr_bmp, offx - viewport.x, offy - viewport.y, offx - viewport.x + 256 - 1, offy - viewport.y + 176 - 1, 0);
+		rectfill(darkscr_bmp_trans, offx - viewport.x, offy - viewport.y, offx - viewport.x + 256 - 1, offy - viewport.y + 176 - 1, 0);
 	});
 
 	for_every_nearby_screen_during_scroll(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int offx, int offy, bool is_new_screen) {
@@ -28608,10 +28611,18 @@ static void scrollscr_handle_dark(mapscr* newscr, mapscr* oldscr, const nearby_s
 		if (!should_be_dark)
 			return;
 
+		dither_offx = is_new_screen ? -new_region_offset_x : 0;
+		dither_offy = is_new_screen ? -new_region_offset_y : 0;
+
 		offy += playing_field_offset;
 		calc_darkroom_combos(scr, offx, offy);
 	});
+
+	dither_offx = -new_region_offset_x;
+	dither_offy = -new_region_offset_y;
 	Hero.calc_darkroom_hero(0, -playing_field_offset);
+	dither_offx = 0;
+	dither_offy = 0;
 
 	color_map = &trans_table2;
 	for_every_nearby_screen_during_scroll(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int offx, int offy, bool is_new_screen) {
@@ -29802,9 +29813,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	// game_loop clears these bitmaps but that should be moved to advanceframe, and these other calls to `clear_darkroom_bitmaps`
 	// deleted.
 	if (draw_dark && !replay_is_active())
-	{
 		clear_darkroom_bitmaps();
-	}
 
 	clear_bitmap(msg_txt_display_buf);
 	set_clip_state(msg_txt_display_buf, 1);
