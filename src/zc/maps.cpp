@@ -1768,10 +1768,14 @@ void update_combo_cycling()
 		for(int32_t i=0; i<176; i++)
 		{
 			x=scr->data[i];
+			auto& mini_cmb = get_can_cycle_combo_cache().minis[x];
+			if (!mini_cmb.can_cycle)
+				continue;
+
 			newcombo const& cmb = combobuf[x];
 			
 			//time to restart
-			if ((cmb.aclk>=cmb.speed) && cmb.can_cycle() && combocheck(cmb))
+			if ((cmb.aclk>=cmb.speed) && combocheck(cmb))
 			{
 				bool cycle_under = (cmb.animflags & AF_CYCLEUNDERCOMBO);
 				auto c = cycle_under ? scr->undercombo : cmb.nextcombo;
@@ -1808,12 +1812,14 @@ void update_combo_cycling()
 		for(word i=0; i<c; i++)
 		{
 			ffcdata& ffc = scr->ffcs[i];
+			auto& mini_cmb = get_can_cycle_combo_cache().minis[ffc.data];
+			if (!mini_cmb.can_cycle)
+				continue;
+
 			newcombo const& cmb = combobuf[ffc.data];
 			
-			bool fresh = cmb.animflags & AF_FRESH;
-			
 			//time to restart
-			if ((cmb.aclk>=cmb.speed) && cmb.can_cycle() && combocheck(cmb))
+			if ((cmb.aclk>=cmb.speed) && combocheck(cmb))
 			{
 				bool cycle_under = (cmb.animflags & AF_CYCLEUNDERCOMBO);
 				auto c = cycle_under ? tmpscr->undercombo : cmb.nextcombo;
@@ -1839,10 +1845,14 @@ void update_combo_cycling()
 				for(int32_t i=0; i<176; i++)
 				{
 					x=layer_scr->data[i];
+					auto& mini_cmb = get_can_cycle_combo_cache().minis[x];
+					if (!mini_cmb.can_cycle)
+						continue;
+
 					newcombo const& cmb = combobuf[x];
 					
 					//time to restart
-					if ((cmb.aclk>=cmb.speed) && cmb.can_cycle() && combocheck(cmb))
+					if ((cmb.aclk>=cmb.speed) && combocheck(cmb))
 					{
 						bool cycle_under = (cmb.animflags & AF_CYCLEUNDERCOMBO);
 						auto c = cycle_under ? layer_scr->undercombo : cmb.nextcombo;
