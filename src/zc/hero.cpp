@@ -20397,8 +20397,6 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
             {
                 if((!(get_qr(qr_NO_HOPPING) || CanSideSwim()) || isthissolid) && (dir==d2 || shiftdir==d2))
                 {
-                    //int32_t vx=((int32_t)x+4)&0xFFF8;
-                    //int32_t vy=((int32_t)y+4)&0xFFF8;
                     if(d2==left)
                     {
                         if(!iswaterex_z3(MAPCOMBO(x-1,y+(bigHitbox?6:11)), -1, x-1,y+(bigHitbox?6:11)) &&

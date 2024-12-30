@@ -2016,8 +2016,8 @@ int32_t iswaterex_z3(int32_t combo, int32_t layer, int32_t x, int32_t y, bool se
 {
 	if (x<0 || x>=world_w || y<0 || y>=world_h)
 		return false;
-	int screen = get_screen_for_world_xy(x, y);
-	return iswaterex(combo, currmap, screen, layer, x, y, secrets, fullcheck, LayerCheck, ShallowCheck, hero);
+
+	return iswaterex(combo, currmap, cur_screen, layer, x, y, secrets, fullcheck, LayerCheck, ShallowCheck, hero);
 }
 
 int32_t iswaterex(int32_t combo, int32_t map, int32_t screen, int32_t layer, int32_t x, int32_t y, bool secrets, bool fullcheck, bool LayerCheck, bool ShallowCheck, bool hero)
