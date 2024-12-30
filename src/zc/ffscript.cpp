@@ -19719,7 +19719,10 @@ void set_register(int32_t arg, int32_t value)
 			} \
 			else \
 			{ \
+				screen_combo_modify_pre(ri->combosref); \
 				combobuf[ri->combosref].member = vbound((value / 10000),0,214747); \
+				screen_combo_modify_post(ri->combosref); \
+				\
 			} \
 		} \
 		
@@ -19731,7 +19734,9 @@ void set_register(int32_t arg, int32_t value)
 			} \
 			else \
 			{ \
+				screen_combo_modify_pre(ri->combosref); \
 				combobuf[ri->combosref].member = vbound((value / 10000),0,32767); \
+				screen_combo_modify_post(ri->combosref); \
 			} \
 		} \
 
@@ -19743,7 +19748,9 @@ void set_register(int32_t arg, int32_t value)
 			} \
 			else \
 			{ \
+			    screen_combo_modify_pre(ri->combosref); \
 				combobuf[ri->combosref].member = vbound((value / 10000),0,255); \
+				screen_combo_modify_post(ri->combosref); \
 			} \
 		} \
 		
@@ -19760,7 +19767,9 @@ void set_register(int32_t arg, int32_t value)
 				} \
 				else \
 				{ \
+					screen_combo_modify_pre(ri->combosref); \
 					combobuf[ri->combosref].member[indx] = vbound((value / 10000),0,214747); \
+					screen_combo_modify_post(ri->combosref); \
 				} \
 		}
 		
@@ -20131,7 +20140,12 @@ void set_register(int32_t arg, int32_t value)
 			{
 				Z_scripterrlog("Invalueid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerTimer");
 			}
-			else combobuf[ri->combosref].trigtimer = vbound(value/10000,0,255);
+			else
+			{
+				screen_combo_modify_pre(ri->combosref);
+				combobuf[ri->combosref].trigtimer = vbound(value/10000,0,255);
+				screen_combo_modify_post(ri->combosref);
+			}
 			break;
 		}
 		case COMBODTRIGGERSFX:
@@ -36086,7 +36100,9 @@ void FFScript::setNPCData_misc(int32_t val)
 { \
 	int32_t ID = vbound( (get_register(sarg1) / 10000), 0, MAXCOMBOS); \
 	int32_t val = vbound((get_register(sarg2) / 10000),0,bound); \
+	screen_combo_modify_pre(ID); \
 	combobuf[ID].member = val; \
+	screen_combo_modify_post(ID); \
 }
 
 //SET_NPC_VAR_INDEX(member,value)
@@ -39655,6 +39671,8 @@ void FFScript::read_combos(PACKFILE *f, int32_t version_id)
 		if(!p_getc(&combobuf[i].aclk,f))
 			Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",30);
 		}
+
+	refresh_combo_caches();
 }
 
 void FFScript::write_combos(PACKFILE *f, int32_t version_id)
