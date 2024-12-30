@@ -981,14 +981,10 @@ int32_t WARPCODE(int32_t dmap,int32_t scr,int32_t dw)
 
 void update_combo_cycling()
 {
-    int32_t x,y;
-    y = 0;
+    int32_t x;
     static int32_t newdata[176];
     static int32_t newcset[176];
-    static int32_t newdata2[176];
-    static int32_t newcset2[176];
     std::set<uint16_t> restartanim;
-    std::set<uint16_t> restartanim2;
     static bool initialized=false;
     
     // Just a simple bit of optimization
@@ -998,8 +994,6 @@ void update_combo_cycling()
         {
             newdata[i]=-1;
             newcset[i]=-1;
-            newdata2[i]=-1;
-            newcset2[i]=-1;
         }
         
         initialized=true;
@@ -1009,10 +1003,6 @@ void update_combo_cycling()
     {
         x=tmpscr->data[i];
         newcombo const& cmb = combobuf[x];
-        
-        if(combobuf[x].animflags & AF_FRESH) continue;
-        
-        //time to restart
 		
         //time to restart
         if ((cmb.aclk>=cmb.speed) && cmb.can_cycle() && combocheck(cmb))
@@ -1026,29 +1016,6 @@ void update_combo_cycling()
             if(combobuf[c].animflags & AF_CYCLE)
             {
                 restartanim.insert(c);
-            }
-        }
-    }
-    
-    for(int32_t i=0; i<176; i++)
-    {
-        x=tmpscr->data[i];
-        newcombo const& cmb = combobuf[x];
-		
-        if(!(cmb.animflags & AF_FRESH)) continue;
-        
-        //time to restart
-        if ((cmb.aclk>=cmb.speed) && cmb.can_cycle() && combocheck(cmb))
-        {
-			bool cycle_under = (cmb.animflags & AF_CYCLEUNDERCOMBO);
-			auto c = cycle_under ? tmpscr->undercombo : cmb.nextcombo;
-            newdata[i] = c;
-			if(!(cmb.animflags & AF_CYCLENOCSET))
-				newcset[i] = cycle_under ? tmpscr->undercset : cmb.nextcset;
-            
-            if(combobuf[c].animflags & AF_CYCLE)
-            {
-                restartanim2.insert(c);
             }
         }
     }
@@ -1073,9 +1040,7 @@ void update_combo_cycling()
     {
 		ffcdata& ffc = tmpscr->ffcs[i];
 		newcombo const& cmb = combobuf[ffc.data];
-        
-		bool fresh = cmb.animflags & AF_FRESH;
-        
+
         //time to restart
         if ((cmb.aclk>=cmb.speed) && cmb.can_cycle() && combocheck(cmb))
         {
@@ -1087,8 +1052,7 @@ void update_combo_cycling()
             
             if(combobuf[ffc.data].animflags & AF_CYCLE)
             {
-                auto& animset = fresh ? restartanim2 : restartanim;
-                animset.insert(ffc.data);
+                restartanim.insert(ffc.data);
             }
         }
     }
@@ -1103,17 +1067,15 @@ void update_combo_cycling()
 				newcombo const& cmb = combobuf[x];
 				mapscr* scr = tmpscr2+j;
                 
-                if(cmb.animflags & AF_FRESH) continue;
-                
                 //time to restart
                 if ((cmb.aclk>=cmb.speed) && cmb.can_cycle() && combocheck(cmb))
                 {
 					bool cycle_under = (cmb.animflags & AF_CYCLEUNDERCOMBO);
 					auto c = cycle_under ? scr->undercombo : cmb.nextcombo;
-					newdata2[i] = c;
+					newdata[i] = c;
 					if(!(cmb.animflags & AF_CYCLENOCSET))
-						newcset2[i] = cycle_under ? scr->undercset : cmb.nextcset;
-					else newcset2[i] = scr->cset[i];
+						newcset[i] = cycle_under ? scr->undercset : cmb.nextcset;
+					else newcset[i] = scr->cset[i];
 					if(combobuf[c].animflags & AF_CYCLE)
 					{
 						restartanim.insert(c);
@@ -1127,22 +1089,20 @@ void update_combo_cycling()
 				newcombo const& cmb = combobuf[x];
 				mapscr* scr = tmpscr2+j;
                 
-                if(!(cmb.animflags & AF_FRESH)) continue;
-                
                 //time to restart
                 if ((cmb.aclk>=cmb.speed) && cmb.can_cycle() && combocheck(cmb))
                 {
 					bool cycle_under = (cmb.animflags & AF_CYCLEUNDERCOMBO);
 					auto c = cycle_under ? scr->undercombo : cmb.nextcombo;
-					newdata2[i] = c;
+					newdata[i] = c;
 					if(!(cmb.animflags & AF_CYCLENOCSET))
-						newcset2[i] = cycle_under ? scr->undercset : cmb.nextcset;
-					else newcset2[i] = scr->cset[i];
-					int32_t cs=newcset2[i];
+						newcset[i] = cycle_under ? scr->undercset : cmb.nextcset;
+					else newcset[i] = scr->cset[i];
+					int32_t cs=newcset[i];
 					
 					if(combobuf[c].animflags & AF_CYCLE)
 					{
-						restartanim2.insert(c);
+						restartanim.insert(c);
 					}
 					
 					if(combobuf[c].type==cSPINTILE1)
@@ -1167,26 +1127,19 @@ void update_combo_cycling()
                     newcset[i]=-1;
                 }
                 
-                if(newdata2[i]!=-1)
+                if(newdata[i]!=-1)
                 {
-                    (tmpscr2+j)->data[i]=newdata2[i];
-                    if(newcset2[i]>-1)
-						(tmpscr2+j)->cset[i]=newcset2[i];
-                    newdata2[i]=-1;
-                    newcset2[i]=-1;
+                    (tmpscr2+j)->data[i]=newdata[i];
+                    if(newcset[i]>-1)
+						(tmpscr2+j)->cset[i]=newcset[i];
+                    newdata[i]=-1;
+                    newcset[i]=-1;
                 }
             }
         }
     }
 
     for (auto i : restartanim)
-    {
-        combobuf[i].tile = combobuf[i].o_tile;
-        combobuf[i].cur_frame=0;
-        combobuf[i].aclk = 0;
-    }
-
-    for (auto i : restartanim2)
     {
         combobuf[i].tile = combobuf[i].o_tile;
         combobuf[i].cur_frame=0;
