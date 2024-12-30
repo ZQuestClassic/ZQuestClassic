@@ -2480,7 +2480,7 @@ bool remove_xstatecombos_mi(mapscr *s, int32_t screen, int32_t mi, byte xflag, b
 		int screen_index_offset = get_region_screen_offset(screen);
 		for (uint8_t i = 0; i < c; i++)
 		{
-			auto ffc_handle = s->getFFCHandle(i, screen_index_offset);
+			auto ffc_handle = *s->getFFCHandle(i, screen_index_offset);
 			auto& cmb = ffc_handle.combo();
 			if(triggers && force_ex_trigger_ffc(ffc_handle, xflag))
 				didit = true;
@@ -2563,7 +2563,7 @@ bool remove_xdoors_mi(mapscr *scr, int32_t mi, uint dir, uint ind, bool triggers
 		int screen_index_offset = get_region_screen_offset(screen);
 		for (uint8_t i = 0; i < c; i++)
 		{
-			auto ffc_handle = scr->getFFCHandle(i, screen_index_offset);
+			auto ffc_handle = *scr->getFFCHandle(i, screen_index_offset);
 			if (triggers && force_ex_door_trigger_ffc(ffc_handle, dir, ind))
 				didit = true;
 			else; //future door combo types?
@@ -6284,12 +6284,6 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 	clear_xdoors(scr, true);
 	clear_xstatecombos(scr, screen, true);
 
-	if (!tmp)
-	{
-		// cpos_force_update();
-		// trig_trigger_groups();
-	}
-
 	// check doors
 	if(isdungeon(destdmap,screen))
 	{
@@ -7220,7 +7214,7 @@ void toggle_switches(dword flags, bool entry, mapscr* m)
 		word c = m->numFFC();
 		for (uint8_t q = 0; q < c; ++q)
 		{
-			auto ffc_handle = m->getFFCHandle(q, screen_index_offset);
+			auto ffc_handle = *m->getFFCHandle(q, screen_index_offset);
 			auto& cmb = ffc_handle.combo();
 			if((cmb.triggerflags[3] & combotriggerTRIGLEVELSTATE) && cmb.trig_lstate < 32)
 				if(flags&(1<<cmb.trig_lstate))
@@ -7375,7 +7369,7 @@ void toggle_gswitches(bool* states, bool entry, mapscr* base_scr)
 		int screen_index_offset = get_region_screen_offset(screen);
 		for (uint8_t q = 0; q < c; ++q)
 		{
-			auto ffc_handle = base_scr->getFFCHandle(q, screen_index_offset);
+			auto ffc_handle = *base_scr->getFFCHandle(q, screen_index_offset);
 			auto& cmb = ffc_handle.combo();
 			if(cmb.triggerflags[3] & combotriggerTRIGGLOBALSTATE)
 				if(states[cmb.trig_gstate])

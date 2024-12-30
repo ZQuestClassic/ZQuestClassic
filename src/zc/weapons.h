@@ -2,6 +2,7 @@
 #define WEAPONS_H_
 
 #include "base/combo.h"
+#include "base/handles.h"
 #include "base/zdefs.h"
 #include "base/zfix.h"
 #include "base/flags.h"

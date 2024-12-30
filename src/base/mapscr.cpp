@@ -1,9 +1,11 @@
 #include "base/mapscr.h"
 
 #include "base/general.h"
+#include "base/handles.h"
 #include "base/qrs.h"
 #include "base/util.h"
 #include "base/zsys.h"
+#include <memory>
 
 std::array<regions_data, MAXMAPS> Regions;
 std::vector<mapscr> TheMaps;
@@ -249,10 +251,11 @@ ffcdata& mapscr::getFFC(size_t ind)
 	return ffcs[ind];
 }
 
-ffc_handle_t mapscr::getFFCHandle(int index, int screen_index_offset)
+std::unique_ptr<ffc_handle_t> mapscr::getFFCHandle(int index, int screen_index_offset)
 {
 	ffc_id_t ffc_id = screen_index_offset * MAXFFCS + index;
-	return {this, (uint8_t)screen, ffc_id, (uint8_t)index, &getFFC(index)};
+	ffc_handle_t handle = {this, (uint8_t)screen, ffc_id, (uint8_t)index, &getFFC(index)};
+	return std::make_unique<ffc_handle_t>(handle);
 }
 
 word mapscr::numFFC()

@@ -1719,7 +1719,7 @@ static ffc_handle_t ResolveMapdataFFC(int32_t mapref, int index, const char* con
 	if (result.current() && result.layer == 0)
 		screen_index_offset = get_region_screen_offset(result.screen);
 
-	return result.scr->getFFCHandle(index, screen_index_offset);
+	return *result.scr->getFFCHandle(index, screen_index_offset);
 }
 
 int32_t genscript_timing = SCR_TIMING_START_FRAME;

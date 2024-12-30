@@ -2,15 +2,12 @@
 #define BASE_HANDLES_H_
 
 #include "base/combo.h"
+#include "base/compiler.h"
 #include "base/cpos_info.h"
+#include "base/mapscr.h"
 #include <stdint.h>
 #include <variant>
 
-enum class rpos_t : int32_t {
-	None = -1,
-};
-
-struct mapscr;
 class ffcdata;
 
 struct screen_handle_t
@@ -42,7 +39,11 @@ struct rpos_handle_t
 	newcombo& combo() const;
 	cpos_info& info() const;
 
-	int32_t data() const;
+	ZC_FORCE_INLINE int32_t data() const
+	{
+		return scr->data[pos];
+	}
+
 	void set_data(int32_t value) const;
 	void increment_data() const;
 
@@ -55,11 +56,6 @@ struct rpos_handle_t
 	uint8_t cflag() const;
 	uint8_t ctype() const;
 };
-
-// A unique identifier for an ffc in the current region.
-// Equal to: (region screen index offset) * 128 + (index in mapscr ffcs)
-// For non-regions, or for the top-left screen in a region, this is equal to the index.
-typedef uint16_t ffc_id_t;
 
 struct ffc_handle_t
 {

@@ -45,7 +45,6 @@
 #include "base/render.h"
 #include "fontsdat.h"
 #include "zconfig.h"
-#include "base/handles.h"
 #include "base/check.h"
 #include "flags.h"
 
@@ -53,6 +52,10 @@ struct mapscr;
 class solid_object;
 class ffcdata;
 struct cpos_info;
+
+enum class rpos_t : int32_t {
+	None = -1,
+};
 
 // These version fields are deprecated, and no longer update. Replaced by base/version.h
 #define ZELDA_VERSION       0x0255                         //version of the program

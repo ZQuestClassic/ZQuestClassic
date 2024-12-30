@@ -22,11 +22,6 @@ cpos_info& rpos_handle_t::info() const
 	return cpos_get(*this);
 }
 
-int32_t rpos_handle_t::data() const
-{
-	return scr->data[pos];
-}
-
 void rpos_handle_t::set_data(int32_t value) const
 {
 	scr->data[pos] = value;
