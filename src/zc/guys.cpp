@@ -18734,6 +18734,8 @@ void screen_combo_modify_pre(int32_t cid)
 }
 void screen_combo_modify_post(int32_t cid)
 {
+	refresh_combo_caches(cid);
+
 	for_every_rpos([&](const rpos_handle_t& rpos_handle) {
 		if (rpos_handle.data() == cid)
 		{

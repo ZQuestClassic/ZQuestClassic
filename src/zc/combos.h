@@ -1,6 +1,7 @@
 #ifndef COMBOS_H_
 #define COMBOS_H_
 
+#include "base/compiler.h"
 #include "base/zdefs.h"
 #include "base/cpos_info.h"
 #include "base/combo.h"
@@ -70,7 +71,7 @@ bool do_trigger_combo_ffc(const ffc_handle_t& ffc_handle, int32_t special = 0, w
 
 bool do_lift_combo(const rpos_handle_t&, int32_t gloveid);
 
-void handle_cpos_type(newcombo const& cmb, cpos_info& timer, int lyr, int pos);
+void handle_cpos_type(byte combo_type, cpos_info& timer, int lyr, int pos);
 void handle_ffcpos_type(newcombo const& cmb, cpos_info& timer, ffcdata& f);
 void trig_trigger_groups();
 
@@ -84,6 +85,91 @@ void cpos_clear_all();
 void cpos_force_update();
 void cpos_update();
 
+// These combo caches improve cache locality for hot functions.
+
+ZC_FORCE_INLINE auto& get_cpos_update_combo_cache()
+{
+	struct minicombo
+	{
+		byte type;
+		byte sfx_loop;
+		byte trigtimer;
+	};
+	struct minicombo_cache
+	{
+		std::vector<minicombo> minis;
+
+		minicombo convert(const newcombo& combo)
+		{
+			return {combo.type, combo.sfx_loop, combo.trigtimer};
+		}
+
+		void refresh_all()
+		{
+			minis.clear();
+			for (auto& combo : combobuf)
+				minis.push_back(convert(combo));
+		}
+
+		void refresh(int cid)
+		{
+			auto& combo = combobuf[cid];
+			minis[cid] = convert(combo);
+		}
+	};
+
+	static minicombo_cache cache;
+	return cache;
+}
+
+ZC_FORCE_INLINE auto& get_trigger_group_combo_cache()
+{
+	struct minicombo
+	{
+		byte flags;
+		bool less() const { return flags&1; }
+		bool greater() const { return flags&2; }
+	};
+	struct minicombo_cache
+	{
+		std::vector<minicombo> minis;
+
+		minicombo convert(const newcombo& combo)
+		{
+			bool less = combo.triggerflags[3] & combotriggerTGROUP_LESS;
+			bool greater = combo.triggerflags[3] & combotriggerTGROUP_GREATER;
+			byte flags = (less ? 1 : 0) + (greater ? 2 : 0);
+			return {flags};
+		}
+
+		void refresh_all()
+		{
+			minis.clear();
+			for (auto& combo : combobuf)
+				minis.push_back(convert(combo));
+		}
+
+		void refresh(int cid)
+		{
+			auto& combo = combobuf[cid];
+			minis[cid] = convert(combo);
+		}
+	};
+
+	static minicombo_cache cache;
+	return cache;
+}
+
+ZC_FORCE_INLINE void refresh_combo_caches()
+{
+	get_cpos_update_combo_cache().refresh_all();
+	get_trigger_group_combo_cache().refresh_all();
+}
+
+ZC_FORCE_INLINE void refresh_combo_caches(int cid)
+{
+	get_cpos_update_combo_cache().refresh(cid);
+	get_trigger_group_combo_cache().refresh(cid);
+}
 
 #endif
-

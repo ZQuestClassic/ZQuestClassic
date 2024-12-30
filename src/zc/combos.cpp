@@ -3410,17 +3410,27 @@ static bool handle_crumble(newcombo const& cmb, cpos_info& timer, word& cid, zfi
 
 void trig_trigger_groups()
 {
+	auto& combo_cache = get_trigger_group_combo_cache();
+
 	for_every_rpos([&](const rpos_handle_t& rpos_handle) {
 		int cid = rpos_handle.data();
-		const newcombo* cmb = &combobuf[cid];
+		auto* mini_cmb = &combo_cache.minis[cid];
 
-		while (
-			((cmb->triggerflags[3] & combotriggerTGROUP_LESS)
-				&& cpos_trig_group_count(cmb->trig_group) < cmb->trig_group_val)
-			|| ((cmb->triggerflags[3] & combotriggerTGROUP_GREATER)
-				&& cpos_trig_group_count(cmb->trig_group) > cmb->trig_group_val)
-			)
+		while (true)
 		{
+			bool ok = false;
+			if (mini_cmb->less())
+			{
+				auto& cmb = combobuf[cid];
+				ok = cpos_trig_group_count(cmb.trig_group) < cmb.trig_group_val;
+			}
+			if (!ok && mini_cmb->greater())
+			{
+				auto& cmb = combobuf[cid];
+				ok = cpos_trig_group_count(cmb.trig_group) > cmb.trig_group_val;
+			}
+			if (!ok) break;
+
 			do_trigger_combo(rpos_handle);
 			int cid2 = rpos_handle.data();
 			cpos_info& timer = cpos_get(rpos_handle);
@@ -3430,7 +3440,7 @@ void trig_trigger_groups()
 			if (!recheck)
 				break;
 
-			cmb = &combobuf[cid2];
+			mini_cmb = &combo_cache.minis[cid2];
 			cid = cid2;
 		}
 	});
@@ -3440,15 +3450,23 @@ void trig_trigger_groups()
 			return; //changers don't contribute
 
 		int cid = ffc_handle.data();
-		const newcombo* cmb = &combobuf[cid];
+		auto* mini_cmb = &combo_cache.minis[cid];
 
-		while(
-			((cmb->triggerflags[3] & combotriggerTGROUP_LESS)
-				&& cpos_trig_group_count(cmb->trig_group) < cmb->trig_group_val)
-			|| ((cmb->triggerflags[3] & combotriggerTGROUP_GREATER)
-				&& cpos_trig_group_count(cmb->trig_group) > cmb->trig_group_val)
-			)
+		while (true)
 		{
+			bool ok = false;
+			if (mini_cmb->less())
+			{
+				auto& cmb = combobuf[cid];
+				ok = cpos_trig_group_count(cmb.trig_group) < cmb.trig_group_val;
+			}
+			if (!ok && mini_cmb->greater())
+			{
+				auto& cmb = combobuf[cid];
+				ok = cpos_trig_group_count(cmb.trig_group) > cmb.trig_group_val;
+			}
+			if (!ok) break;
+
 			do_trigger_combo_ffc(ffc_handle);
 			int cid2 = ffc_handle.data();
 			cpos_info& timer = ffc_handle.ffc->info;
@@ -3460,7 +3478,7 @@ void trig_trigger_groups()
 			if (!recheck)
 				break;
 
-			cmb = &combobuf[cid2];
+			mini_cmb = &combo_cache.minis[cid2];
 			cid = cid2;
 		}
 	});
@@ -3468,18 +3486,18 @@ void trig_trigger_groups()
 
 //COMBOTYPE POS STUFF
 
-void handle_cpos_type(newcombo const& cmb, cpos_info& timer, const rpos_handle_t& rpos_handle)
+void handle_cpos_type(byte combo_type, cpos_info& timer, const rpos_handle_t& rpos_handle)
 {
-	switch(cmb.type)
+	switch(combo_type)
 	{
 		case cSHOOTER:
-			handle_shooter(cmb, timer, rpos_handle.rpos);
+			handle_shooter(rpos_handle.combo(), timer, rpos_handle.rpos);
 			break;
 		case cCRUMBLE:
 		{
 			word cid = rpos_handle.data();
 			auto [x, y] = COMBOXY_REGION(rpos_handle.rpos);
-			handle_crumble(cmb, timer, cid, x, y, 16, 16);
+			handle_crumble(rpos_handle.combo(), timer, cid, x, y, 16, 16);
 			rpos_handle.set_data(cid);
 			break;
 		}
@@ -3578,6 +3596,8 @@ void cpos_force_update() //updates without side-effects
 
 void cpos_update() //updates with side-effects
 {
+	auto& combo_cache = get_cpos_update_combo_cache();
+
 	for_every_rpos([&](const rpos_handle_t& rpos_handle) {
 		cpos_info& timer = cpos_get(rpos_handle);
 		int cid = rpos_handle.data();
@@ -3587,9 +3607,9 @@ void cpos_update() //updates with side-effects
 		if (cid != timer.data)
 			timer.updateData(cid);
 
-		auto& cmb = combobuf[cid];
 		if(!timer.flags.get(CPOS_FL_APPEARED))
 		{
+			auto& cmb = combobuf[cid];
 			auto [x, y] = COMBOXY_REGION(rpos_handle.rpos);
 			timer.flags.set(CPOS_FL_APPEARED,true);
 			if(cmb.sfx_appear)
@@ -3603,12 +3623,14 @@ void cpos_update() //updates with side-effects
 			timer.sfx_onchange = 0;
 			timer.spr_onchange = 0;
 		}
-		if(cmb.sfx_loop)
-			sfx_no_repeat(cmb.sfx_loop);
+
+		auto& mini_cmb = combo_cache.minis[cid];
+		if (mini_cmb.sfx_loop)
+			sfx_no_repeat(mini_cmb.sfx_loop);
 		
-		if(cmb.trigtimer)
+		if (mini_cmb.trigtimer)
 		{
-			if(++timer.clk >= cmb.trigtimer)
+			if(++timer.clk >= mini_cmb.trigtimer)
 			{
 				timer.clk = 0;
 				do_trigger_combo(rpos_handle);
@@ -3616,7 +3638,7 @@ void cpos_update() //updates with side-effects
 			}
 		}
 		if(timer.trig_cd) --timer.trig_cd;
-		handle_cpos_type(cmb,timer,rpos_handle);
+		handle_cpos_type(mini_cmb.type,timer,rpos_handle);
 	});
 
 	for_every_ffc([&](const ffc_handle_t& ffc_handle) {
@@ -3636,9 +3658,9 @@ void cpos_update() //updates with side-effects
 		zfix wx = f.x + (f.txsz-1)*8;
 		zfix wy = f.y + (f.tysz-1)*8;
 		
-		newcombo const& cmb = combobuf[cid];
 		if(!timer.flags.get(CPOS_FL_APPEARED))
 		{
+			newcombo const& cmb = combobuf[cid];
 			zfix wx = ffc_handle.ffc->x;
 			zfix wy = ffc_handle.ffc->y;
 			wx += (ffc_handle.scr->ffTileWidth(ffc_handle.i)-1)*8;
@@ -3655,12 +3677,14 @@ void cpos_update() //updates with side-effects
 			timer.sfx_onchange = 0;
 			timer.spr_onchange = 0;
 		}
-		if(cmb.sfx_loop)
-			sfx_no_repeat(cmb.sfx_loop);
+
+		auto& mini_cmb = combo_cache.minis[cid];
+		if (mini_cmb.sfx_loop)
+			sfx_no_repeat(mini_cmb.sfx_loop);
 		
-		if(cmb.trigtimer)
+		if (mini_cmb.trigtimer)
 		{
-			if(++timer.clk >= cmb.trigtimer)
+			if(++timer.clk >= mini_cmb.trigtimer)
 			{
 				timer.clk = 0;
 				do_trigger_combo_ffc(ffc_handle);
@@ -3669,8 +3693,8 @@ void cpos_update() //updates with side-effects
 			}
 		}
 		if(timer.trig_cd) --timer.trig_cd;
-		if(cmb.type == cSHOOTER)
-			handle_shooter(cmb, timer, wx, wy);
+		if(mini_cmb.type == cSHOOTER)
+			handle_shooter(combobuf[cid], timer, wx, wy);
 	});
 
 	trig_trigger_groups();
