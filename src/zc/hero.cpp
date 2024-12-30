@@ -28594,9 +28594,9 @@ static void scrollscr_handle_dark(mapscr* newscr, mapscr* oldscr, const nearby_s
 	extern int dither_offx;
 	extern int dither_offy;
 
-	for_every_nearby_screen_during_scroll(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int offx, int offy, bool is_new_screen) {
+	for_every_nearby_screen_during_scroll(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy, bool is_new_screen) {
 		mapscr* base_scr = screen_handles[0].base_scr;
-		bool should_be_dark = (base_scr->flags & fDARK) && (scr == cur_screen || get_qr(qr_NEWDARK_SCROLLEDGE));
+		bool should_be_dark = (base_scr->flags & fDARK) && (screen == cur_screen || get_qr(qr_NEWDARK_SCROLLEDGE));
 		if (should_be_dark)
 			return;
 
@@ -28605,9 +28605,9 @@ static void scrollscr_handle_dark(mapscr* newscr, mapscr* oldscr, const nearby_s
 		rectfill(darkscr_bmp_trans, offx - viewport.x, offy - viewport.y, offx - viewport.x + 256 - 1, offy - viewport.y + 176 - 1, 0);
 	});
 
-	for_every_nearby_screen_during_scroll(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int offx, int offy, bool is_new_screen) {
+	for_every_nearby_screen_during_scroll(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy, bool is_new_screen) {
 		mapscr* base_scr = screen_handles[0].base_scr;
-		bool should_be_dark = (base_scr->flags & fDARK) && (scr == cur_screen || get_qr(qr_NEWDARK_SCROLLEDGE));
+		bool should_be_dark = (base_scr->flags & fDARK) && (screen == cur_screen || get_qr(qr_NEWDARK_SCROLLEDGE));
 		if (!should_be_dark)
 			return;
 
@@ -28615,7 +28615,7 @@ static void scrollscr_handle_dark(mapscr* newscr, mapscr* oldscr, const nearby_s
 		dither_offy = is_new_screen ? -new_region_offset_y : 0;
 
 		offy += playing_field_offset;
-		calc_darkroom_combos(base_scr->map, scr, offx, offy);
+		calc_darkroom_combos(base_scr->map, screen, offx, offy);
 	});
 
 	dither_offx = -new_region_offset_x;
@@ -28625,7 +28625,7 @@ static void scrollscr_handle_dark(mapscr* newscr, mapscr* oldscr, const nearby_s
 	dither_offy = 0;
 
 	color_map = &trans_table2;
-	for_every_nearby_screen_during_scroll(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int offx, int offy, bool is_new_screen) {
+	for_every_nearby_screen_during_scroll(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy, bool is_new_screen) {
 		mapscr* base_scr = screen_handles[0].base_scr;
 
 		offy += playing_field_offset;
@@ -28655,7 +28655,7 @@ static void scrollscr_handle_dark(mapscr* newscr, mapscr* oldscr, const nearby_s
 	set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
 }
 
-void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
+void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdmap)
 {
 	if(action==freeze||action==sideswimfreeze)
 	{
@@ -28736,12 +28736,12 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	if (!has_advanced_maze(hero_scr) && maze_enabled_sizewarp(tmpscr, scrolldir))
 		return; // dowarp() was called
 
-	int original_destscr = destscr;
-	if (destscr == -1)
+	int original_destscr = dest_screen;
+	if (dest_screen == -1)
 	{
-		destscr = hero_screen;
+		dest_screen = hero_screen;
 		if (checkmaze(tmpscr, false) && !edge_of_dmap(scrolldir)) {
-			destscr = screen_index_direction(destscr, (direction)scrolldir);
+			dest_screen = screen_index_direction(dest_screen, (direction)scrolldir);
 		}
 	}
 
@@ -28759,7 +28759,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	region_t new_region;
 	int new_scr_dx, new_scr_dy;
 	auto calc_new_viewport_and_pos = [&](){
-		z3_calculate_region(new_map, destscr, new_region, new_scr_dx, new_scr_dy);
+		z3_calculate_region(new_map, dest_screen, new_region, new_scr_dx, new_scr_dy);
 
 		// These mark the top-left coordinate of the new region, in the old region's world coordinates.
 		new_region_offset_x = (new_region.origin_screen_x - old_region.origin_screen_x)*256;
@@ -28810,7 +28810,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		// If arriving in a whistle warp, the new viewport will be based on the warp destination instead.
 		if (HeroInOutgoingWhistleWarp())
 		{
-			const mapscr* newscr = get_canonical_scr(new_map, destscr);
+			const mapscr* newscr = get_canonical_scr(new_map, dest_screen);
 
 			if(get_qr(qr_NOARRIVALPOINT))
 				new_hero_x_for_viewport=newscr->warpreturnx[0];
@@ -28824,7 +28824,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		}
 
 		new_viewport = {};
-		z3_calculate_viewport(new_viewport, new_dmap, destscr, new_region.width, new_region.height, new_hero_x_for_viewport + Hero.txsz*16/2, new_hero_y_for_viewport + Hero.tysz*16/2);
+		z3_calculate_viewport(new_viewport, new_dmap, dest_screen, new_region.width, new_region.height, new_hero_x_for_viewport + Hero.txsz*16/2, new_hero_y_for_viewport + Hero.tysz*16/2);
 
 		scrolling_new_region = new_region;
 	};
@@ -29167,8 +29167,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	FFCore.ScrollingScreensAll = old_temporary_screens;
 	currmap = destmap;
 
-	loadscr(destdmap, destscr, scrolldir, overlay);
-	mapscr* newscr = get_scr(destmap, destscr);
+	loadscr(destdmap, dest_screen, scrolldir, overlay);
+	mapscr* newscr = get_scr(destmap, dest_screen);
 
 	// For the duration of the scrolling, the old region coordinate system is used for all drawing
 	// operations (internally - scripts see the new region coordinate system). This means that the
@@ -29286,7 +29286,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	}
 
 	bool draw_dark = false;
-	for_every_nearby_screen_during_scroll(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int offx, int offy, bool is_new_screen) {
+	for_every_nearby_screen_during_scroll(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy, bool is_new_screen) {
 		mapscr* base_scr = screen_handles[0].scr;
 		draw_dark = draw_dark || (base_scr->flags&fDARK);
 	});
@@ -29375,13 +29375,13 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	int ny = 0;
 	int ox = 0;
 	int oy = 0;
-	for_every_nearby_screen_during_scroll(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int offx, int offy, bool is_new_screen) {
-		if (scr == destscr && is_new_screen)
+	for_every_nearby_screen_during_scroll(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy, bool is_new_screen) {
+		if (screen == dest_screen && is_new_screen)
 		{
 			nx = offx;
 			ny = offy;
 		}
-		else if (scr == scrolling_hero_screen && !is_new_screen)
+		else if (screen == scrolling_hero_screen && !is_new_screen)
 		{
 			ox = offx;
 			oy = offy;
@@ -29594,7 +29594,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		clear_bitmap(framebuf);
 		clear_info_bmp();
 
-		for_every_nearby_screen_during_scroll(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int offx, int offy, bool is_new_screen) {
+		for_every_nearby_screen_during_scroll(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy, bool is_new_screen) {
 			mapscr* base_scr = screen_handles[0].base_scr;
 			if(XOR(base_scr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(framebuf, 0, screen_handles[2], offx, offy);
 			if(XOR(base_scr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(framebuf, 0, screen_handles[3], offx, offy);
@@ -29607,7 +29607,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(framebuf, 3, 0, playing_field_offset);
 
 		combotile_add_y = is_unsmooth_vertical_scrolling ? -3 : 0;
-		for_every_nearby_screen_during_scroll(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int offx, int offy, bool is_new_screen) {
+		for_every_nearby_screen_during_scroll(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy, bool is_new_screen) {
 			offy += playing_field_offset;
 			if (lenscheck(screen_handles[0].scr, 0))
 				putscr(framebuf, offx, offy, screen_handles[0].scr);
@@ -29617,7 +29617,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		if (lenscheck(newscr, 0))
 			do_primitives(framebuf, 0, 0, playing_field_offset);
 
-		for_every_nearby_screen_during_scroll(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int offx, int offy, bool is_new_screen) {
+		for_every_nearby_screen_during_scroll(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy, bool is_new_screen) {
 			bool primitives = is_new_screen;
 			do_layer(framebuf, 0, screen_handles[1], offx, offy, primitives);
 		});
@@ -29635,7 +29635,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 				do_layer(framebuf, -3, screen_handle, 0, 0); // ffcs
 			}
 
-			for_every_nearby_screen_during_scroll(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int offx, int offy, bool is_new_screen) {
+			for_every_nearby_screen_during_scroll(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy, bool is_new_screen) {
 				if (!is_new_screen)
 					return;
 
@@ -29643,7 +29643,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			});
 		}
 
-		for_every_nearby_screen_during_scroll(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int offx, int offy, bool is_new_screen) {
+		for_every_nearby_screen_during_scroll(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy, bool is_new_screen) {
 			mapscr* base_scr = screen_handles[0].base_scr;
 			bool primitives = is_new_screen;
 
@@ -29656,7 +29656,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 
 		if (get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
 		{
-			for_every_nearby_screen_during_scroll(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int offx, int offy, bool is_new_screen) {
+			for_every_nearby_screen_during_scroll(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy, bool is_new_screen) {
 				do_layer(framebuf, -2, screen_handles[0], offx, offy);
 				if (get_qr(qr_PUSHBLOCK_LAYER_1_2))
 				{
@@ -29670,7 +29670,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 
 		if (show_walkflags || show_effectflags)
 		{
-			for_every_nearby_screen_during_scroll(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int offx, int offy, bool is_new_screen) {
+			for_every_nearby_screen_during_scroll(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy, bool is_new_screen) {
 				mapscr* base_scr = screen_handles[0].base_scr;
 				int tempscreen = is_new_screen ? 2 : 3;
 				do_walkflags(base_scr, offx, offy, tempscreen); // show walkflags if the cheat is on
@@ -29680,7 +29680,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			do_walkflags(nx, ny);
 		}
 
-		for_every_nearby_screen_during_scroll(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int offx, int offy, bool is_new_screen) {
+		for_every_nearby_screen_during_scroll(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy, bool is_new_screen) {
 			offy += playing_field_offset;
 			putscrdoors(framebuf, offx, offy, screen_handles[0].scr);
 		});
@@ -29723,13 +29723,13 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			yofs = prev_yofs;
 		}
 		
-		for_every_nearby_screen_during_scroll(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int offx, int offy, bool is_new_screen) {
-			bool is_dest_scr = scr == destscr;
+		for_every_nearby_screen_during_scroll(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy, bool is_new_screen) {
+			bool is_destination = screen == dest_screen;
 
 			mapscr* base_scr = screen_handles[0].base_scr;
 			if(!(XOR(base_scr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)))
 			{
-				bool primitives = is_dest_scr && !(XOR(base_scr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG));
+				bool primitives = is_destination && !(XOR(base_scr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG));
 				do_layer(framebuf, 0, screen_handles[3], offx, offy, primitives);
 			}
 			
@@ -29741,13 +29741,13 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 				do_layer(framebuf, -1, screen_handles[2], offx, offy); //overhead combos
 			}
 
-			do_layer(framebuf, 0, screen_handles[5], offx, offy, is_dest_scr); //layer 5
+			do_layer(framebuf, 0, screen_handles[5], offx, offy, is_destination); //layer 5
 			{
 				int draw_ffc_x = is_new_screen ? new_ffc_offset_x : 0;
 				int draw_ffc_y = is_new_screen ? new_ffc_offset_y : 0;
 				do_layer(framebuf, -4, screen_handles[0], draw_ffc_x, draw_ffc_y); //overhead FFCs
 			}
-			do_layer(framebuf, 0, screen_handles[6], offx, offy, is_dest_scr); //layer 6
+			do_layer(framebuf, 0, screen_handles[6], offx, offy, is_destination); //layer 6
 		});
 
 		if (draw_dark && get_qr(qr_NEW_DARKROOM) && get_qr(qr_NEWDARK_L6))

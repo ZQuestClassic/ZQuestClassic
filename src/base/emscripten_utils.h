@@ -12,7 +12,7 @@ std::string get_initial_file_dialog_folder();
 void em_mark_initializing_status();
 void em_mark_ready_status();
 bool em_is_mobile();
-void em_open_test_mode(const char* qstpath, int dmap, int scr, int retsquare);
+void em_open_test_mode(const char* qstpath, int dmap, int screen, int retsquare);
 int em_compile_zscript(const char* script_path, const char* console_path, const char* qr);
 
 #endif
