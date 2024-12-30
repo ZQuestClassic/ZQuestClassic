@@ -54,12 +54,12 @@ void rpos_handle_t::set_sflag(uint8_t value) const
 
 uint8_t rpos_handle_t::cflag() const
 {
-	return combobuf[scr->data[pos]].flag;
+	return get_combo_flag_cache().minis[scr->data[pos]].flag;
 }
 
 uint8_t rpos_handle_t::ctype() const
 {
-	return combobuf[scr->data[pos]].type;
+	return get_combo_type_cache().minis[scr->data[pos]].type;
 }
 
 const newcombo& ffc_handle_t::combo() const
@@ -99,12 +99,12 @@ void ffc_handle_t::decrement_data() const
 
 uint8_t ffc_handle_t::cflag() const
 {
-	return combobuf[ffc->data].flag;
+	return get_combo_flag_cache().minis[ffc->data].flag;
 }
 
 uint8_t ffc_handle_t::ctype() const
 {
-	return combobuf[ffc->data].type;
+	return get_combo_type_cache().minis[ffc->data].type;
 }
 
 bool combined_handle_t::is_rpos() const

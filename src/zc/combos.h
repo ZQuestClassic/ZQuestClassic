@@ -87,6 +87,72 @@ void cpos_update();
 
 // These combo caches improve cache locality for hot functions.
 
+ZC_FORCE_INLINE auto& get_combo_type_cache()
+{
+	struct minicombo
+	{
+		byte type;
+	};
+	struct minicombo_cache
+	{
+		std::vector<minicombo> minis;
+
+		minicombo convert(const newcombo& combo)
+		{
+			return {combo.type};
+		}
+
+		void refresh_all()
+		{
+			minis.clear();
+			for (auto& combo : combobuf)
+				minis.push_back(convert(combo));
+		}
+
+		void refresh(int cid)
+		{
+			auto& combo = combobuf[cid];
+			minis[cid] = convert(combo);
+		}
+	};
+
+	static minicombo_cache cache;
+	return cache;
+}
+
+ZC_FORCE_INLINE auto& get_combo_flag_cache()
+{
+	struct minicombo
+	{
+		byte flag;
+	};
+	struct minicombo_cache
+	{
+		std::vector<minicombo> minis;
+
+		minicombo convert(const newcombo& combo)
+		{
+			return {combo.flag};
+		}
+
+		void refresh_all()
+		{
+			minis.clear();
+			for (auto& combo : combobuf)
+				minis.push_back(convert(combo));
+		}
+
+		void refresh(int cid)
+		{
+			auto& combo = combobuf[cid];
+			minis[cid] = convert(combo);
+		}
+	};
+
+	static minicombo_cache cache;
+	return cache;
+}
+
 ZC_FORCE_INLINE auto& get_cpos_update_combo_cache()
 {
 	struct minicombo
@@ -162,12 +228,16 @@ ZC_FORCE_INLINE auto& get_trigger_group_combo_cache()
 
 ZC_FORCE_INLINE void refresh_combo_caches()
 {
+	get_combo_type_cache().refresh_all();
+	get_combo_flag_cache().refresh_all();
 	get_cpos_update_combo_cache().refresh_all();
 	get_trigger_group_combo_cache().refresh_all();
 }
 
 ZC_FORCE_INLINE void refresh_combo_caches(int cid)
 {
+	get_combo_type_cache().refresh(cid);
+	get_combo_flag_cache().refresh(cid);
 	get_cpos_update_combo_cache().refresh(cid);
 	get_trigger_group_combo_cache().refresh(cid);
 }

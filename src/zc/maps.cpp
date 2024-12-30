@@ -2417,11 +2417,9 @@ bool remove_xstatecombos_mi(mapscr *s, int32_t screen, int32_t mi, byte xflag, b
 		{
 			rpos_handle.rpos = POS_TO_RPOS(i, screen);
 			rpos_handle.pos = i;
-			// TODO z3 ! mini combo
-			newcombo const& cmb = rpos_handle.combo();
 			if(triggers && force_ex_trigger(rpos_handle, xflag))
 				didit = true;
-			else switch(cmb.type)
+			else switch (rpos_handle.ctype())
 			{
 				case cLOCKBLOCK: case cLOCKBLOCK2:
 				case cBOSSLOCKBLOCK: case cBOSSLOCKBLOCK2:
@@ -2429,6 +2427,7 @@ bool remove_xstatecombos_mi(mapscr *s, int32_t screen, int32_t mi, byte xflag, b
 				case cLOCKEDCHEST: case cLOCKEDCHEST2:
 				case cBOSSCHEST: case cBOSSCHEST2:
 				{
+					auto& cmb = rpos_handle.combo();
 					if(!(cmb.usrflags&cflag16)) continue; //custom state instead of normal state
 					if(cmb.attribytes[5] == xflag)
 					{
