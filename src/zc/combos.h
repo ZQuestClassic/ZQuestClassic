@@ -179,6 +179,18 @@ namespace combo_caches
 	};
 	extern combo_cache<minicombo_can_cycle> can_cycle;
 
+	struct minicombo_script
+	{
+		word script;
+
+		minicombo_script() = default;
+		minicombo_script(const newcombo& combo)
+		{
+			script = combo.script;
+		}
+	};
+	extern combo_cache<minicombo_script> script;
+
 	ZC_FORCE_INLINE void refresh()
 	{
 		type.init();
@@ -186,6 +198,7 @@ namespace combo_caches
 		cpos_update.init();
 		trigger_group.init();
 		can_cycle.init();
+		script.init();
 
 		for (int i = 0; i < combobuf.size(); i++)
 		{
@@ -194,6 +207,7 @@ namespace combo_caches
 			cpos_update.refresh(i);
 			trigger_group.refresh(i);
 			can_cycle.refresh(i);
+			script.refresh(i);
 		}
 	}
 
@@ -204,6 +218,7 @@ namespace combo_caches
 		cpos_update.refresh(cid);
 		trigger_group.refresh(cid);
 		can_cycle.refresh(cid);
+		script.refresh(cid);
 	}
 }
 

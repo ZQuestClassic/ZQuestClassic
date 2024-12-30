@@ -3707,4 +3707,5 @@ namespace combo_caches
 	combo_cache<minicombo_cpos_update> cpos_update;
 	combo_cache<minicombo_trigger_group> trigger_group;
 	combo_cache<minicombo_can_cycle> can_cycle;
+	combo_cache<minicombo_script> script;
 }
