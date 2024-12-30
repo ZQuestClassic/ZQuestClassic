@@ -23986,7 +23986,7 @@ void HeroClass::checkspecial()
 		clear_xdoors(scr, true);
 		clear_xstatecombos(scr, screen, true);
 
-		if (screen_item_get_state(screen) == ScreenItemState::WhenTriggerSecrets && triggered_screen_secrets)
+		if (triggered_screen_secrets && screen_item_get_state(screen) == ScreenItemState::WhenTriggerSecrets)
 		{
 			int32_t Item=scr->item;
 			

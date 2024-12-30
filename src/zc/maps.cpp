@@ -563,6 +563,7 @@ mapscr* get_scr_for_world_xy_layer(int x, int y, int layer)
 		get_scr_layer(get_screen_for_world_xy(x, y), layer - 1);
 }
 
+// TODO z3 ! inline
 int z3_get_region_relative_dx(int screen)
 {
 	return z3_get_region_relative_dx(screen, cur_screen);
@@ -2451,6 +2452,7 @@ bool remove_xstatecombos_mi(mapscr *s, int32_t screen, int32_t mi, byte xflag, b
 		{
 			rpos_handle.rpos = POS_TO_RPOS(i, screen);
 			rpos_handle.pos = i;
+			// TODO z3 ! mini combo
 			newcombo const& cmb = rpos_handle.combo();
 			if(triggers && force_ex_trigger(rpos_handle, xflag))
 				didit = true;
