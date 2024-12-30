@@ -3339,7 +3339,7 @@ static void trigger_crumble(newcombo const& cmb, cpos_info& timer, word& cid)
 	newcombo const& ncmb = combobuf[cid];
 	if(ncmb.type == cCRUMBLE && (cmb.usrflags&cflag1)
 		&& (ncmb.attribytes[0] == CMBTY_CRUMBLE_INEVITABLE))
-		timer.flags.set(CPOS_CRUMBLE_BREAKING,true);
+		timer.crumbling = true;
 }
 
 static bool handle_crumble(newcombo const& cmb, cpos_info& timer, word& cid, zfix x, zfix y, zfix w, zfix h)
@@ -3347,7 +3347,7 @@ static bool handle_crumble(newcombo const& cmb, cpos_info& timer, word& cid, zfi
 	bool breaking = false;
 	byte ty = cmb.attribytes[0];
 	if(ty == CMBTY_CRUMBLE_INEVITABLE)
-		if(timer.flags.get(CPOS_CRUMBLE_BREAKING))
+		if(timer.crumbling)
 			breaking = true;
 	if(!breaking)
 	{
@@ -3395,7 +3395,7 @@ static bool handle_crumble(newcombo const& cmb, cpos_info& timer, word& cid, zfi
 		}
 		else timer.type_clk = cmb.attrishorts[0];
 	}
-	else if(ty == CMBTY_CRUMBLE_RESET && timer.flags.get(CPOS_CRUMBLE_BREAKING))
+	else if(ty == CMBTY_CRUMBLE_RESET && timer.crumbling)
 	{
 		timer.type_clk = 0;
 		if(int16_t diff = cmb.attrishorts[1])
@@ -3404,7 +3404,7 @@ static bool handle_crumble(newcombo const& cmb, cpos_info& timer, word& cid, zfi
 			timer.updateData(cid);
 		}
 	}
-	timer.flags.set(CPOS_CRUMBLE_BREAKING, breaking);
+	timer.crumbling = breaking;
 	return false;
 }
 
@@ -3607,11 +3607,11 @@ void cpos_update() //updates with side-effects
 		if (cid != timer.data)
 			timer.updateData(cid);
 
-		if(!timer.flags.get(CPOS_FL_APPEARED))
+		if(!timer.appeared)
 		{
 			auto& cmb = combobuf[cid];
 			auto [x, y] = COMBOXY_REGION(rpos_handle.rpos);
-			timer.flags.set(CPOS_FL_APPEARED,true);
+			timer.appeared = true;
 			if(cmb.sfx_appear)
 				sfx(cmb.sfx_appear);
 			if(cmb.spr_appear)
@@ -3658,14 +3658,14 @@ void cpos_update() //updates with side-effects
 		zfix wx = f.x + (f.txsz-1)*8;
 		zfix wy = f.y + (f.tysz-1)*8;
 		
-		if(!timer.flags.get(CPOS_FL_APPEARED))
+		if(!timer.appeared)
 		{
 			newcombo const& cmb = combobuf[cid];
 			zfix wx = ffc_handle.ffc->x;
 			zfix wy = ffc_handle.ffc->y;
 			wx += (ffc_handle.scr->ffTileWidth(ffc_handle.i)-1)*8;
 			wy += (ffc_handle.scr->ffTileHeight(ffc_handle.i)-1)*8;
-			timer.flags.set(CPOS_FL_APPEARED,true);
+			timer.appeared = true;
 			if(cmb.sfx_appear)
 				sfx(cmb.sfx_appear);
 			if(cmb.spr_appear)

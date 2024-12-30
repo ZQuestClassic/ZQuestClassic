@@ -2,7 +2,6 @@
 #define CPOS_INFO_H_
 
 #include "base/ints.h"
-#include "base/containers.h"
 
 enum
 {
@@ -18,7 +17,7 @@ struct cpos_info
 	word type_clk;
 	byte trig_cd;
 	byte pushes[4];
-	bitstring flags;
+	bool crumbling, appeared;
 	
 	byte sfx_onchange, spr_onchange;
 	
