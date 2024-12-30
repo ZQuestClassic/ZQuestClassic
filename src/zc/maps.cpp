@@ -4297,11 +4297,11 @@ void do_effectflags(mapscr* layer,int32_t x, int32_t y, int32_t tempscreen)
 	}
 }
 
-void calc_darkroom_combos(int screen, int offx, int offy)
+void calc_darkroom_combos(int map, int screen, int offx, int offy)
 {
 	for(int32_t lyr = 0; lyr < 7; ++lyr)
 	{
-		mapscr* scr = get_scr_layer_allow_scrolling(currmap, screen, lyr-1);
+		mapscr* scr = get_scr_layer_allow_scrolling(map, screen, lyr-1);
 		if (!scr->valid) continue;
 
 		for(int32_t q = 0; q < 176; ++q)
@@ -4314,7 +4314,7 @@ void calc_darkroom_combos(int screen, int offx, int offy)
 		}
 	}
 
-	mapscr* scr = get_scr_layer_allow_scrolling(currmap, screen, -1); // TODO z3 ! map
+	mapscr* scr = get_scr_layer_allow_scrolling(map, screen, -1);
 	word c = scr->numFFC();
 	for(int q = 0; q < c; ++q)
 	{
@@ -5075,7 +5075,7 @@ void draw_screen(bool showhero, bool runGeneric)
 			mapscr* base_scr = screen_handles[0].scr;
 			if (base_scr->flags&fDARK)
 			{
-				calc_darkroom_combos(screen, offx, offy + playing_field_offset);
+				calc_darkroom_combos(currmap, screen, offx, offy + playing_field_offset);
 				draw_dark = true;
 			}
 		});

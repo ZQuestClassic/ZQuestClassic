@@ -28615,7 +28615,7 @@ static void scrollscr_handle_dark(mapscr* newscr, mapscr* oldscr, const nearby_s
 		dither_offy = is_new_screen ? -new_region_offset_y : 0;
 
 		offy += playing_field_offset;
-		calc_darkroom_combos(scr, offx, offy);
+		calc_darkroom_combos(base_scr->map, scr, offx, offy);
 	});
 
 	dither_offx = -new_region_offset_x;
