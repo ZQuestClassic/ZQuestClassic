@@ -32,7 +32,7 @@ rpos_t COMBOPOS_REGION_CHECK_BOUNDS(int32_t x, int32_t y);
 // `rpos` must be a valid rpos for the current region.
 int32_t RPOS_TO_POS(rpos_t rpos);
 rpos_t POS_TO_RPOS(int32_t pos, int32_t scr_dx, int32_t scr_dy);
-rpos_t POS_TO_RPOS(int32_t pos, int32_t scr);
+rpos_t POS_TO_RPOS(int32_t pos, int32_t screen);
 std::pair<int32_t, int32_t> COMBOXY_REGION(rpos_t rpos);
 int32_t COMBOX_REGION(rpos_t rpos);
 int32_t COMBOY_REGION(rpos_t rpos);

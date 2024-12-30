@@ -807,10 +807,10 @@ rpos_t POS_TO_RPOS(int32_t pos, int32_t scr_dx, int32_t scr_dy)
 	DCHECK_RANGE_EXCLUSIVE(pos, 0, 176);
 	return static_cast<rpos_t>((scr_dx + scr_dy * current_region.screen_width)*176 + pos);
 }
-rpos_t POS_TO_RPOS(int32_t pos, int32_t scr)
+rpos_t POS_TO_RPOS(int32_t pos, int32_t screen)
 {
 	DCHECK_RANGE_EXCLUSIVE(pos, 0, 176);
-	return POS_TO_RPOS(pos, z3_get_region_relative_dx(scr), z3_get_region_relative_dy(scr));
+	return POS_TO_RPOS(pos, z3_get_region_relative_dx(screen), z3_get_region_relative_dy(screen));
 }
 std::pair<int32_t, int32_t> COMBOXY_REGION(rpos_t rpos)
 {
@@ -1793,18 +1793,16 @@ void update_combo_cycling()
 		initialized=true;
 	}
 
+	std::set<uint16_t> restartanim;
+
 	for_every_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
 		int screen = scr->screen;
 		int32_t x;
-		std::set<uint16_t> restartanim;
-		std::set<uint16_t> restartanim2;
-		
+
 		for(int32_t i=0; i<176; i++)
 		{
 			x=scr->data[i];
 			newcombo const& cmb = combobuf[x];
-			
-			if(cmb.animflags & AF_FRESH) continue;
 			
 			//time to restart
 			if ((cmb.aclk>=cmb.speed) && cmb.can_cycle() && combocheck(cmb))
@@ -1818,29 +1816,6 @@ void update_combo_cycling()
 				if(combobuf[c].animflags & AF_CYCLE)
 				{
 					restartanim.insert(c);
-				}
-			}
-		}
-		
-		for(int32_t i=0; i<176; i++)
-		{
-			x=scr->data[i];
-			newcombo const& cmb = combobuf[x];
-			
-			if(!(cmb.animflags & AF_FRESH)) continue;
-			
-			//time to restart
-			if ((cmb.aclk>=cmb.speed) && cmb.can_cycle() && combocheck(cmb))
-			{
-				bool cycle_under = (cmb.animflags & AF_CYCLEUNDERCOMBO);
-				auto c = cycle_under ? scr->undercombo : cmb.nextcombo;
-				newdata[i] = c;
-				if(!(cmb.animflags & AF_CYCLENOCSET))
-					newcset[i] = cycle_under ? scr->undercset : cmb.nextcset;
-				
-				if(combobuf[c].animflags & AF_CYCLE)
-				{
-					restartanim2.insert(c);
 				}
 			}
 		}
@@ -1882,8 +1857,7 @@ void update_combo_cycling()
 
 				if(combobuf[ffc.data].animflags & AF_CYCLE)
 				{
-					auto& animset = fresh ? restartanim2 : restartanim;
-					animset.insert(ffc.data);
+					restartanim.insert(ffc.data);
 				}
 			}
 		}
@@ -1901,8 +1875,6 @@ void update_combo_cycling()
 					x=layer_scr->data[i];
 					newcombo const& cmb = combobuf[x];
 					
-					if(cmb.animflags & AF_FRESH) continue;
-					
 					//time to restart
 					if ((cmb.aclk>=cmb.speed) && cmb.can_cycle() && combocheck(cmb))
 					{
@@ -1916,38 +1888,6 @@ void update_combo_cycling()
 						if(combobuf[c].animflags & AF_CYCLE)
 						{
 							restartanim.insert(c);
-						}
-					}
-				}
-				
-				for(int32_t i=0; i<176; i++)
-				{
-					x=layer_scr->data[i];
-					newcombo const& cmb = combobuf[x];
-					
-					if(!(cmb.animflags & AF_FRESH)) continue;
-					
-					//time to restart
-					if ((cmb.aclk>=cmb.speed) && cmb.nextcombo!=0 && combocheck(cmb))
-					{
-						bool cycle_under = (cmb.animflags & AF_CYCLEUNDERCOMBO);
-						auto c = cycle_under ? layer_scr->undercombo : cmb.nextcombo;
-						newdata2[i] = c;
-						if(!(cmb.animflags & AF_CYCLENOCSET))
-							newcset2[i] = cycle_under ? layer_scr->undercset : cmb.nextcset;
-						else newcset2[i] = layer_scr->cset[i];
-						int32_t cs=newcset2[i];
-						
-						if(combobuf[c].animflags & AF_CYCLE)
-						{
-							restartanim2.insert(c);
-						}
-						
-						if(combobuf[c].type==cSPINTILE1)
-						{
-							// Uses animated_combo_table2
-							rpos_t rpos = (rpos_t)(rpos_base+i);
-							addenemy(screen, COMBOX_REGION(rpos),COMBOY_REGION(rpos),(cs<<12)+eSPINTILE1,combobuf[c].o_tile+zc_max(1,combobuf[c].frames));
 						}
 					}
 				}
@@ -1979,21 +1919,14 @@ void update_combo_cycling()
 				}
 			}
 		}
-
-		for (auto i : restartanim)
-		{
-			combobuf[i].tile = combobuf[i].o_tile;
-			combobuf[i].cur_frame=0;
-			combobuf[i].aclk = 0;
-		}
-
-		for (auto i : restartanim2)
-		{
-			combobuf[i].tile = combobuf[i].o_tile;
-			combobuf[i].cur_frame=0;
-			combobuf[i].aclk = 0;
-		}
 	});
+
+	for (auto i : restartanim)
+	{
+		combobuf[i].tile = combobuf[i].o_tile;
+		combobuf[i].cur_frame=0;
+		combobuf[i].aclk = 0;
+	}
 }
 
 bool iswater_type(int32_t type)
