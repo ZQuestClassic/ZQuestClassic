@@ -3412,7 +3412,6 @@ void trig_trigger_groups()
 {
 	for_every_rpos([&](const rpos_handle_t& rpos_handle) {
 		int cid = rpos_handle.data();
-		cpos_info& timer = cpos_get(rpos_handle);
 		const newcombo* cmb = &combobuf[cid];
 
 		while (
@@ -3424,6 +3423,7 @@ void trig_trigger_groups()
 		{
 			do_trigger_combo(rpos_handle);
 			int cid2 = rpos_handle.data();
+			cpos_info& timer = cpos_get(rpos_handle);
 			bool recheck = timer.data != cid2;
 			timer.updateData(cid2);
 
@@ -3440,9 +3440,8 @@ void trig_trigger_groups()
 			return; //changers don't contribute
 
 		int cid = ffc_handle.data();
-		cpos_info& timer = ffc_handle.ffc->info;
 		const newcombo* cmb = &combobuf[cid];
-		
+
 		while(
 			((cmb->triggerflags[3] & combotriggerTGROUP_LESS)
 				&& cpos_trig_group_count(cmb->trig_group) < cmb->trig_group_val)
@@ -3452,6 +3451,7 @@ void trig_trigger_groups()
 		{
 			do_trigger_combo_ffc(ffc_handle);
 			int cid2 = ffc_handle.data();
+			cpos_info& timer = ffc_handle.ffc->info;
 			bool recheck = timer.data != cid2;
 			if (ffc_handle.ffc->flags & ffc_changer)
 				timer.updateData(-1);
@@ -3575,13 +3575,19 @@ void cpos_force_update() //updates without side-effects
 		else ffc_handle.ffc->info.updateData(ffc_handle.data());
 	});
 }
+
 void cpos_update() //updates with side-effects
 {
 	for_every_rpos([&](const rpos_handle_t& rpos_handle) {
 		cpos_info& timer = cpos_get(rpos_handle);
-		timer.updateData(rpos_handle.data());
-		
-		auto& cmb = rpos_handle.combo();
+		int cid = rpos_handle.data();
+
+		// Even though `updateData` already does this check, avoiding a function call
+		// has been observed to be a performance boost.
+		if (cid != timer.data)
+			timer.updateData(cid);
+
+		auto& cmb = combobuf[cid];
 		if(!timer.flags.get(CPOS_FL_APPEARED))
 		{
 			auto [x, y] = COMBOXY_REGION(rpos_handle.rpos);
