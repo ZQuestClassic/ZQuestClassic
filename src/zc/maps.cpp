@@ -1810,10 +1810,10 @@ void update_combo_cycling()
 			if ((cmb.aclk>=cmb.speed) && cmb.can_cycle() && combocheck(cmb))
 			{
 				bool cycle_under = (cmb.animflags & AF_CYCLEUNDERCOMBO);
-				auto c = cycle_under ? tmpscr->undercombo : cmb.nextcombo;
+				auto c = cycle_under ? scr->undercombo : cmb.nextcombo;
 				newdata[i] = c;
 				if(!(cmb.animflags & AF_CYCLENOCSET))
-					newcset[i] = cycle_under ? tmpscr->undercset : cmb.nextcset;
+					newcset[i] = cycle_under ? scr->undercset : cmb.nextcset;
 				
 				if(combobuf[c].animflags & AF_CYCLE)
 				{
@@ -1833,10 +1833,10 @@ void update_combo_cycling()
 			if ((cmb.aclk>=cmb.speed) && cmb.can_cycle() && combocheck(cmb))
 			{
 				bool cycle_under = (cmb.animflags & AF_CYCLEUNDERCOMBO);
-				auto c = cycle_under ? tmpscr->undercombo : cmb.nextcombo;
+				auto c = cycle_under ? scr->undercombo : cmb.nextcombo;
 				newdata[i] = c;
 				if(!(cmb.animflags & AF_CYCLENOCSET))
-					newcset[i] = cycle_under ? tmpscr->undercset : cmb.nextcset;
+					newcset[i] = cycle_under ? scr->undercset : cmb.nextcset;
 				
 				if(combobuf[c].animflags & AF_CYCLE)
 				{
