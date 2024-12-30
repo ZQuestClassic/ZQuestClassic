@@ -3,45 +3,15 @@
 
 #include <optional>
 #include <utility>
+#include "base/compiler.h"
 #include "base/general.h"
 #include "base/handles.h"
 #include "sprite.h"
+#include "zc/zelda.h"
 
 struct newcombo;
 struct BITMAP;
 class solid_object;
-
-void maps_init_game_vars();
-
-#define DRIEDLAKE ((hero_scr->flags7 & fWHISTLEWATER) && (whistleclk>=88))
-
-int32_t COMBOPOS_REGION_EXTENDED(int32_t pos, int32_t scr_dx, int32_t scr_dy);
-int32_t COMBOPOS_REGION_EXTENDED(int32_t x, int32_t y);
-int32_t COMBOPOS_REGION_EXTENDED_B(int32_t x, int32_t y);
-int32_t COMBOX_REGION_EXTENDED(int32_t pos);
-int32_t COMBOY_REGION_EXTENDED(int32_t pos);
-int32_t COMBOPOS(int32_t x, int32_t y);
-int32_t COMBOPOS_B(int32_t x, int32_t y);
-int32_t COMBOX(int32_t pos);
-int32_t COMBOY(int32_t pos);
-
-// Input must be a valid world coordinate for the current region.
-rpos_t COMBOPOS_REGION(int32_t x, int32_t y);
-// If input not within the current region, returns rpos_t::None
-rpos_t COMBOPOS_REGION_CHECK_BOUNDS(int32_t x, int32_t y);
-// `rpos` must be a valid rpos for the current region.
-int32_t RPOS_TO_POS(rpos_t rpos);
-rpos_t POS_TO_RPOS(int32_t pos, int32_t scr_dx, int32_t scr_dy);
-rpos_t POS_TO_RPOS(int32_t pos, int32_t screen);
-std::pair<int32_t, int32_t> COMBOXY_REGION(rpos_t rpos);
-int32_t COMBOX_REGION(rpos_t rpos);
-int32_t COMBOY_REGION(rpos_t rpos);
-
-int32_t mapind(int32_t map, int32_t scr);
-bool ffcIsAt(const ffc_handle_t& ffc_handle, int32_t x, int32_t y);
-
-extern bool triggered_screen_secrets;
-extern int32_t view_map_show_mode;
 
 // How large the current region is in pixels.
 // If not currently in a scrolling region, this is just the size of a single screen (256, 176).
@@ -106,6 +76,69 @@ struct region_t
 };
 extern region_t current_region, scrolling_region;
 
+void maps_init_game_vars();
+
+#define DRIEDLAKE ((hero_scr->flags7 & fWHISTLEWATER) && (whistleclk>=88))
+
+ZC_FORCE_INLINE int z3_get_region_relative_dx(int screen, int origin_screen)
+{
+	return screen % 16 - origin_screen % 16;
+}
+ZC_FORCE_INLINE int z3_get_region_relative_dx(int screen)
+{
+	return z3_get_region_relative_dx(screen, cur_screen);
+}
+ZC_FORCE_INLINE int z3_get_region_relative_dy(int screen, int origin_screen)
+{
+	return screen / 16 - origin_screen / 16;
+}
+ZC_FORCE_INLINE int z3_get_region_relative_dy(int screen)
+{
+	return z3_get_region_relative_dy(screen, cur_screen);
+}
+
+// `rpos` must be valid for the current region.
+ZC_FORCE_INLINE int32_t RPOS_TO_POS(rpos_t rpos)
+{
+	DCHECK(is_valid_rpos(rpos));
+	return static_cast<int32_t>(rpos)%176;
+}
+ZC_FORCE_INLINE rpos_t POS_TO_RPOS(int32_t pos, int32_t scr_dx, int32_t scr_dy)
+{
+	DCHECK(scr_dx >= 0 && scr_dy >= 0);
+	DCHECK_RANGE_EXCLUSIVE(pos, 0, 176);
+	return static_cast<rpos_t>((scr_dx + scr_dy * current_region.screen_width)*176 + pos);
+}
+ZC_FORCE_INLINE rpos_t POS_TO_RPOS(int32_t pos, int32_t screen)
+{
+	DCHECK_RANGE_EXCLUSIVE(pos, 0, 176);
+	return POS_TO_RPOS(pos, z3_get_region_relative_dx(screen), z3_get_region_relative_dy(screen));
+}
+
+int32_t COMBOPOS_REGION_EXTENDED(int32_t pos, int32_t scr_dx, int32_t scr_dy);
+int32_t COMBOPOS_REGION_EXTENDED(int32_t x, int32_t y);
+int32_t COMBOPOS_REGION_EXTENDED_B(int32_t x, int32_t y);
+int32_t COMBOX_REGION_EXTENDED(int32_t pos);
+int32_t COMBOY_REGION_EXTENDED(int32_t pos);
+int32_t COMBOPOS(int32_t x, int32_t y);
+int32_t COMBOPOS_B(int32_t x, int32_t y);
+int32_t COMBOX(int32_t pos);
+int32_t COMBOY(int32_t pos);
+
+// Input must be a valid world coordinate for the current region.
+rpos_t COMBOPOS_REGION(int32_t x, int32_t y);
+// If input not within the current region, returns rpos_t::None
+rpos_t COMBOPOS_REGION_CHECK_BOUNDS(int32_t x, int32_t y);
+std::pair<int32_t, int32_t> COMBOXY_REGION(rpos_t rpos);
+int32_t COMBOX_REGION(rpos_t rpos);
+int32_t COMBOY_REGION(rpos_t rpos);
+
+int32_t mapind(int32_t map, int32_t scr);
+bool ffcIsAt(const ffc_handle_t& ffc_handle, int32_t x, int32_t y);
+
+extern bool triggered_screen_secrets;
+extern int32_t view_map_show_mode;
+
 struct maze_state_t {
 	bool active;
 	bool lost;
@@ -163,10 +196,8 @@ void change_rpos_handle_layer(rpos_handle_t& rpos_handle, int layer);
 combined_handle_t get_combined_handle_for_world_xy(int x, int y, int layer);
 mapscr* get_scr_for_world_xy(int x, int y);
 mapscr* get_scr_for_world_xy_layer(int x, int y, int layer);
-int z3_get_region_relative_dx(int screen);
-int z3_get_region_relative_dx(int screen, int origin_screen);
-int z3_get_region_relative_dy(int screen);
-int z3_get_region_relative_dy(int screen, int origin_screen);
+
+
 int get_region_screen_offset(int screen);
 int get_screen_for_region_index_offset(int offset);
 mapscr* get_scr_for_region_index_offset(int offset);

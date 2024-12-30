@@ -563,25 +563,6 @@ mapscr* get_scr_for_world_xy_layer(int x, int y, int layer)
 		get_scr_layer(get_screen_for_world_xy(x, y), layer - 1);
 }
 
-// TODO z3 ! inline
-int z3_get_region_relative_dx(int screen)
-{
-	return z3_get_region_relative_dx(screen, cur_screen);
-}
-int z3_get_region_relative_dx(int screen, int origin_screen)
-{
-	return screen % 16 - origin_screen % 16;
-}
-
-int z3_get_region_relative_dy(int screen)
-{
-	return z3_get_region_relative_dy(screen, cur_screen);
-}
-int z3_get_region_relative_dy(int screen, int origin_screen)
-{
-	return screen / 16 - origin_screen / 16;
-}
-
 int get_region_screen_offset(int screen)
 {
 	return z3_get_region_relative_dx(screen) + z3_get_region_relative_dy(screen) * current_region.screen_width;
@@ -796,22 +777,6 @@ rpos_t COMBOPOS_REGION_CHECK_BOUNDS(int32_t x, int32_t y)
 	int scr_dy = y / (11*16);
 	int pos = COMBOPOS(x%256, y%176);
 	return static_cast<rpos_t>((scr_dx + scr_dy * current_region.screen_width)*176 + pos);
-}
-int32_t RPOS_TO_POS(rpos_t rpos)
-{
-	DCHECK(is_valid_rpos(rpos));
-	return static_cast<int32_t>(rpos)%176;
-}
-rpos_t POS_TO_RPOS(int32_t pos, int32_t scr_dx, int32_t scr_dy)
-{
-	DCHECK(scr_dx >= 0 && scr_dy >= 0);
-	DCHECK_RANGE_EXCLUSIVE(pos, 0, 176);
-	return static_cast<rpos_t>((scr_dx + scr_dy * current_region.screen_width)*176 + pos);
-}
-rpos_t POS_TO_RPOS(int32_t pos, int32_t screen)
-{
-	DCHECK_RANGE_EXCLUSIVE(pos, 0, 176);
-	return POS_TO_RPOS(pos, z3_get_region_relative_dx(screen), z3_get_region_relative_dy(screen));
 }
 std::pair<int32_t, int32_t> COMBOXY_REGION(rpos_t rpos)
 {
