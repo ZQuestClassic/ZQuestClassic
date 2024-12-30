@@ -2760,7 +2760,7 @@ void trigger_secrets_for_screen(TriggerSource source, int32_t screen, mapscr *s,
 
 void trigger_secrets_for_screen_internal(int32_t screen, mapscr *scr, bool do_combo_triggers, bool high16only, int32_t single, bool do_replay_comment)
 {
-	DCHECK(screen != -1 || s);
+	DCHECK(screen != -1 || scr);
 	if (!scr) scr = get_scr(screen);
 	if (screen == -1) screen = cur_screen;
 
