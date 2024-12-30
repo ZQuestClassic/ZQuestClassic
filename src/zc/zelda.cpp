@@ -1813,7 +1813,7 @@ int32_t init_game()
 	if (zasm_optimize_enabled() && (get_flag_bool("-test-bisect").has_value() || is_ci()))
 		zasm_optimize();
 
-	refresh_combo_caches();
+	combo_caches::refresh();
 	FFCore.init();
 	FFCore.user_bitmaps_init();
 	FFCore.user_files_init();

@@ -3410,7 +3410,7 @@ static bool handle_crumble(newcombo const& cmb, cpos_info& timer, word& cid, zfi
 
 void trig_trigger_groups()
 {
-	auto& combo_cache = get_trigger_group_combo_cache();
+	auto& combo_cache = combo_caches::trigger_group;
 
 	for_every_rpos([&](const rpos_handle_t& rpos_handle) {
 		int cid = rpos_handle.data();
@@ -3596,7 +3596,7 @@ void cpos_force_update() //updates without side-effects
 
 void cpos_update() //updates with side-effects
 {
-	auto& combo_cache = get_cpos_update_combo_cache();
+	auto& combo_cache = combo_caches::cpos_update;
 
 	for_every_rpos([&](const rpos_handle_t& rpos_handle) {
 		cpos_info& timer = cpos_get(rpos_handle);
@@ -3698,4 +3698,13 @@ void cpos_update() //updates with side-effects
 	});
 
 	trig_trigger_groups();
+}
+
+namespace combo_caches
+{
+	combo_cache<minicombo_type> type;
+	combo_cache<minicombo_flag> flag;
+	combo_cache<minicombo_cpos_update> cpos_update;
+	combo_cache<minicombo_trigger_group> trigger_group;
+	combo_cache<minicombo_can_cycle> can_cycle;
 }

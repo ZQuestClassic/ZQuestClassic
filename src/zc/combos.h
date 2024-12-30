@@ -86,196 +86,125 @@ void cpos_force_update();
 void cpos_update();
 
 // These combo caches improve cache locality for hot functions.
-// Verify that any properties uses here call `screen_combo_modify_post` if modified
-// in ffscript.cpp.
+// Verify that any properties used here call `screen_combo_modify_post` when modified in
+// ffscript.cpp.
 
-ZC_FORCE_INLINE auto& get_combo_type_cache()
+template <typename T>
+struct combo_cache
 {
-	struct minicombo
+	using value_type = T;
+
+	std::vector<value_type> minis;
+
+	void init()
+	{
+		minis.resize(combobuf.size());
+	}
+
+	void refresh(int cid)
+	{
+		minis[cid] = combobuf[cid];
+	}
+};
+
+
+namespace combo_caches
+{
+	struct minicombo_type
 	{
 		byte type;
-	};
-	struct minicombo_cache
-	{
-		std::vector<minicombo> minis;
 
-		void init()
+		minicombo_type() = default;
+		minicombo_type(const newcombo& combo)
 		{
-			minis.resize(combobuf.size());
-		}
-
-		minicombo convert(const newcombo& combo)
-		{
-			return {combo.type};
-		}
-
-		void refresh(int cid)
-		{
-			auto& combo = combobuf[cid];
-			minis[cid] = convert(combo);
+			type = combo.type;
 		}
 	};
+	extern combo_cache<minicombo_type> type;
 
-	static minicombo_cache cache;
-	return cache;
-}
-
-ZC_FORCE_INLINE auto& get_combo_flag_cache()
-{
-	struct minicombo
+	struct minicombo_flag
 	{
 		byte flag;
-	};
-	struct minicombo_cache
-	{
-		std::vector<minicombo> minis;
 
-		void init()
+		minicombo_flag() = default;
+		minicombo_flag(const newcombo& combo)
 		{
-			minis.resize(combobuf.size());
-		}
-
-		minicombo convert(const newcombo& combo)
-		{
-			return {combo.flag};
-		}
-
-		void refresh(int cid)
-		{
-			auto& combo = combobuf[cid];
-			minis[cid] = convert(combo);
+			flag = combo.flag;
 		}
 	};
+	extern combo_cache<minicombo_flag> flag;
 
-	static minicombo_cache cache;
-	return cache;
-}
-
-ZC_FORCE_INLINE auto& get_cpos_update_combo_cache()
-{
-	struct minicombo
+	struct minicombo_cpos_update
 	{
 		byte type;
 		byte sfx_loop;
 		byte trigtimer;
-	};
-	struct minicombo_cache
-	{
-		std::vector<minicombo> minis;
 
-		void init()
+		minicombo_cpos_update() = default;
+		minicombo_cpos_update(const newcombo& combo)
 		{
-			minis.resize(combobuf.size());
-		}
-
-		minicombo convert(const newcombo& combo)
-		{
-			return {combo.type, combo.sfx_loop, combo.trigtimer};
-		}
-
-		void refresh(int cid)
-		{
-			auto& combo = combobuf[cid];
-			minis[cid] = convert(combo);
+			type = combo.type;
+			sfx_loop = combo.sfx_loop;
+			trigtimer = combo.trigtimer;
 		}
 	};
+	extern combo_cache<minicombo_cpos_update> cpos_update;
 
-	static minicombo_cache cache;
-	return cache;
-}
-
-ZC_FORCE_INLINE auto& get_trigger_group_combo_cache()
-{
-	struct minicombo
+	struct minicombo_trigger_group
 	{
 		byte flags;
-		bool less() const { return flags&1; }
-		bool greater() const { return flags&2; }
-	};
-	struct minicombo_cache
-	{
-		std::vector<minicombo> minis;
 
-		minicombo convert(const newcombo& combo)
+		minicombo_trigger_group() = default;
+		minicombo_trigger_group(const newcombo& combo)
 		{
 			bool less = combo.triggerflags[3] & combotriggerTGROUP_LESS;
 			bool greater = combo.triggerflags[3] & combotriggerTGROUP_GREATER;
-			byte flags = (less ? 1 : 0) + (greater ? 2 : 0);
-			return {flags};
+			flags = (less ? 1 : 0) + (greater ? 2 : 0);
 		}
 
-		void init()
-		{
-			minis.resize(combobuf.size());
-		}
-
-		void refresh(int cid)
-		{
-			auto& combo = combobuf[cid];
-			minis[cid] = convert(combo);
-		}
+		bool less() const { return flags&1; }
+		bool greater() const { return flags&2; }
 	};
+	extern combo_cache<minicombo_trigger_group> trigger_group;
 
-	static minicombo_cache cache;
-	return cache;
-}
-
-ZC_FORCE_INLINE auto& get_can_cycle_combo_cache()
-{
-	struct minicombo
+	struct minicombo_can_cycle
 	{
 		bool can_cycle;
-	};
-	struct minicombo_cache
-	{
-		std::vector<minicombo> minis;
 
-		minicombo convert(const newcombo& combo)
+		minicombo_can_cycle() = default;
+		minicombo_can_cycle(const newcombo& combo)
 		{
-			return {combo.can_cycle()};
-		}
-
-		void init()
-		{
-			minis.resize(combobuf.size());
-		}
-
-		void refresh(int cid)
-		{
-			auto& combo = combobuf[cid];
-			minis[cid] = convert(combo);
+			can_cycle = combo.can_cycle();
 		}
 	};
+	extern combo_cache<minicombo_can_cycle> can_cycle;
 
-	static minicombo_cache cache;
-	return cache;
-}
-
-ZC_FORCE_INLINE void refresh_combo_caches()
-{
-	get_combo_type_cache().init();
-	get_combo_flag_cache().init();
-	get_cpos_update_combo_cache().init();
-	get_trigger_group_combo_cache().init();
-	get_can_cycle_combo_cache().init();
-
-	for (int i = 0; i < combobuf.size(); i++)
+	ZC_FORCE_INLINE void refresh()
 	{
-		get_combo_type_cache().refresh(i);
-		get_combo_flag_cache().refresh(i);
-		get_cpos_update_combo_cache().refresh(i);
-		get_trigger_group_combo_cache().refresh(i);
-		get_can_cycle_combo_cache().refresh(i);
+		type.init();
+		flag.init();
+		cpos_update.init();
+		trigger_group.init();
+		can_cycle.init();
+
+		for (int i = 0; i < combobuf.size(); i++)
+		{
+			type.refresh(i);
+			flag.refresh(i);
+			cpos_update.refresh(i);
+			trigger_group.refresh(i);
+			can_cycle.refresh(i);
+		}
 	}
-}
 
-ZC_FORCE_INLINE void refresh_combo_caches(int cid)
-{
-	get_combo_type_cache().refresh(cid);
-	get_combo_flag_cache().refresh(cid);
-	get_cpos_update_combo_cache().refresh(cid);
-	get_trigger_group_combo_cache().refresh(cid);
-	get_can_cycle_combo_cache().refresh(cid);
+	ZC_FORCE_INLINE void refresh(int cid)
+	{
+		type.refresh(cid);
+		flag.refresh(cid);
+		cpos_update.refresh(cid);
+		trigger_group.refresh(cid);
+		can_cycle.refresh(cid);
+	}
 }
 
 #endif

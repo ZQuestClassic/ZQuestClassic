@@ -1739,6 +1739,8 @@ int32_t WARPCODE(int32_t dmap,int32_t screen,int32_t dw)
 
 void update_combo_cycling()
 {
+	auto& combo_cache = combo_caches::can_cycle;
+
 	static int32_t newdata[176];
 	static int32_t newcset[176];
 	static int32_t newdata2[176];
@@ -1768,7 +1770,7 @@ void update_combo_cycling()
 		for(int32_t i=0; i<176; i++)
 		{
 			x=scr->data[i];
-			auto& mini_cmb = get_can_cycle_combo_cache().minis[x];
+			auto& mini_cmb = combo_cache.minis[x];
 			if (!mini_cmb.can_cycle)
 				continue;
 
@@ -1812,7 +1814,7 @@ void update_combo_cycling()
 		for(word i=0; i<c; i++)
 		{
 			ffcdata& ffc = scr->ffcs[i];
-			auto& mini_cmb = get_can_cycle_combo_cache().minis[ffc.data];
+			auto& mini_cmb = combo_cache.minis[ffc.data];
 			if (!mini_cmb.can_cycle)
 				continue;
 
@@ -1845,7 +1847,7 @@ void update_combo_cycling()
 				for(int32_t i=0; i<176; i++)
 				{
 					x=layer_scr->data[i];
-					auto& mini_cmb = get_can_cycle_combo_cache().minis[x];
+					auto& mini_cmb = combo_cache.minis[x];
 					if (!mini_cmb.can_cycle)
 						continue;
 

@@ -39672,7 +39672,7 @@ void FFScript::read_combos(PACKFILE *f, int32_t version_id)
 			Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",30);
 		}
 
-	refresh_combo_caches();
+	combo_caches::refresh();
 }
 
 void FFScript::write_combos(PACKFILE *f, int32_t version_id)
