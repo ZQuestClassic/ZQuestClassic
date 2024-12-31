@@ -3669,7 +3669,7 @@ void cpos_update() //updates with side-effects
 		
 		if(!timer.appeared)
 		{
-			newcombo const& cmb = combobuf[cid];
+			auto& cmb = combobuf[cid];
 			zfix wx = ffc_handle.ffc->x;
 			zfix wy = ffc_handle.ffc->y;
 			wx += (ffc_handle.scr->ffTileWidth(ffc_handle.i)-1)*8;

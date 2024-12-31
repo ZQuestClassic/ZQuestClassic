@@ -5,7 +5,7 @@
 
 extern char qtbuf[31];
 
-int32_t NewQuestFile(int32_t template_slot);
+int32_t NewQuestFile(std::string tileset_path);
 int32_t onNew();
 void applyRuleset(int32_t ruleset, byte* qrptr = nullptr);
 void applyRuleTemplate(int32_t ruleTemplate, byte* qrptr = nullptr);
