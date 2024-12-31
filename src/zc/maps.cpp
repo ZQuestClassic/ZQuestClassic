@@ -1743,8 +1743,6 @@ void update_combo_cycling()
 
 	static int32_t newdata[176];
 	static int32_t newcset[176];
-	static int32_t newdata2[176];
-	static int32_t newcset2[176];
 	static bool initialized=false;
 
 	// Just a simple bit of optimization
@@ -1754,8 +1752,6 @@ void update_combo_cycling()
 		{
 			newdata[i]=-1;
 			newcset[i]=-1;
-			newdata2[i]=-1;
-			newcset2[i]=-1;
 		}
 		
 		initialized=true;
@@ -1858,10 +1854,10 @@ void update_combo_cycling()
 					{
 						bool cycle_under = (cmb.animflags & AF_CYCLEUNDERCOMBO);
 						auto c = cycle_under ? layer_scr->undercombo : cmb.nextcombo;
-						newdata2[i] = c;
+						newdata[i] = c;
 						if(!(cmb.animflags & AF_CYCLENOCSET))
-							newcset2[i] = cycle_under ? layer_scr->undercset : cmb.nextcset;
-						else newcset2[i] = layer_scr->cset[i];
+							newcset[i] = cycle_under ? layer_scr->undercset : cmb.nextcset;
+						else newcset[i] = layer_scr->cset[i];
 						
 						if(combobuf[c].animflags & AF_CYCLE)
 						{
@@ -1870,29 +1866,15 @@ void update_combo_cycling()
 					}
 				}
 				
-				for(int32_t i=0; i<176; i++)
+				for (int32_t i=0; i<176; i++)
 				{
 					if(newdata[i]!=-1)
 					{
-						rpos_t rpos = (rpos_t)(rpos_base + i);
-						rpos_handle_t rpos_handle = {layer_scr, screen, j, rpos, i};
-						screen_combo_modify_preroutine(rpos_handle);
 						layer_scr->data[i]=newdata[i];
 						if(newcset[i]>-1)
 							layer_scr->cset[i]=newcset[i];
-						screen_combo_modify_postroutine(rpos_handle);
-						
 						newdata[i]=-1;
 						newcset[i]=-1;
-					}
-					
-					if(newdata2[i]!=-1)
-					{
-						layer_scr->data[i]=newdata2[i];
-						if(newcset2[i]>-1)
-							layer_scr->cset[i]=newcset2[i];
-						newdata2[i]=-1;
-						newcset2[i]=-1;
 					}
 				}
 			}
