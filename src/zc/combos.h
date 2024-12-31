@@ -214,6 +214,23 @@ namespace combo_caches
 	};
 	extern combo_cache<minicombo_drawing> drawing;
 
+	struct minicombo_lens
+	{
+		byte flags;
+
+		minicombo_lens() = default;
+		minicombo_lens(const newcombo& combo)
+		{
+			bool on = combo.triggerflags[1] & combotriggerLENSON;
+			bool off = combo.triggerflags[1] & combotriggerLENSOFF;
+			flags = (on ? 1 : 0) + (off ? 2 : 0);
+		}
+
+		bool on() const { return flags&1; }
+		bool off() const { return flags&2; }
+	};
+	extern combo_cache<minicombo_lens> lens;
+
 	ZC_FORCE_INLINE void refresh()
 	{
 		type.init();
@@ -223,6 +240,7 @@ namespace combo_caches
 		can_cycle.init();
 		script.init();
 		drawing.init();
+		lens.init();
 
 		for (int i = 0; i < combobuf.size(); i++)
 		{
@@ -233,6 +251,7 @@ namespace combo_caches
 			can_cycle.refresh(i);
 			script.refresh(i);
 			drawing.refresh(i);
+			lens.refresh(i);
 		}
 	}
 
@@ -245,6 +264,7 @@ namespace combo_caches
 		can_cycle.refresh(cid);
 		script.refresh(cid);
 		drawing.refresh(cid);
+		lens.refresh(cid);
 	}
 }
 

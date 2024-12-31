@@ -13099,10 +13099,11 @@ void handle_lens_triggers(int32_t l_id)
 {
 	bool enabled = l_id >= 0 && (itemsbuf[l_id].flags & item_flag6);
 
+	auto& combo_cache = combo_caches::lens;
+
 	for_every_rpos([&](const rpos_handle_t& rpos_handle) {
-		auto& cmb = rpos_handle.combo();	
-		if (enabled ? (cmb.triggerflags[1] & combotriggerLENSON)
-			: (cmb.triggerflags[1] & combotriggerLENSOFF))
+		auto& cmb = combo_cache.minis[rpos_handle.data()];
+		if (enabled ? cmb.on() : cmb.off())
 		{
 			do_trigger_combo(rpos_handle);
 		}
@@ -13111,9 +13112,8 @@ void handle_lens_triggers(int32_t l_id)
 	if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
 	{
 		for_every_ffc([&](const ffc_handle_t& ffc_handle) {
-			auto& cmb = ffc_handle.combo();
-			if (enabled ? (cmb.triggerflags[1] & combotriggerLENSON)
-				: (cmb.triggerflags[1] & combotriggerLENSOFF))
+			auto& cmb = combo_cache.minis[ffc_handle.data()];
+			if (enabled ? cmb.on() : cmb.off())
 			{
 				do_trigger_combo_ffc(ffc_handle);
 			}
