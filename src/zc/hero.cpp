@@ -23587,7 +23587,7 @@ void HeroClass::handleSpotlights()
 				if(trigged ? (cmb->triggerflags[1] & combotriggerLIGHTON)
 					: (cmb->triggerflags[1] & combotriggerLIGHTOFF))
 				{
-					do_trigger_combo(layer, pos);
+					do_trigger_combo(get_rpos_handle((rpos_t)pos, layer));
 				}
 			}
 		}

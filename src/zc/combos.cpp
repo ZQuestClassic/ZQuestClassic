@@ -2790,13 +2790,6 @@ void handle_trigger_results(mapscr* scr, newcombo const& cmb, int32_t cx, int32_
 	}
 }
 
-// TODO z3 remove
-bool do_trigger_combo(int layer, int pos, int32_t special, weapon* w)
-{
-	if (unsigned(pos) > 175) return false;
-	return do_trigger_combo(get_rpos_handle((rpos_t)pos, layer), special, w);
-}
-
 // Triggers a combo at a given position.
 bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special, weapon* w)
 {

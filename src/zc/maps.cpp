@@ -7209,7 +7209,7 @@ void toggle_gswitches(bool* states, bool entry, mapscr* base_scr)
 			if(iscurscr)
 				if(cmb.triggerflags[3] & combotriggerTRIGGLOBALSTATE)
 					if(states[cmb.trig_gstate])
-						do_trigger_combo(lyr,pos,ctrigSWITCHSTATE);
+						do_trigger_combo(get_rpos_handle_for_screen(screen, lyr, pos), ctrigSWITCHSTATE);
 			if(!(cmb.usrflags & cflag11)) //not global state
 				continue;
 			if(cmb.type == cCSWITCH || cmb.type == cCSWITCHBLOCK)
