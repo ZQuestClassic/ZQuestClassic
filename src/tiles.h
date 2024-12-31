@@ -4,6 +4,16 @@
 #include "base/zc_alleg.h"
 #include "base/zdefs.h"
 #include "base/combo.h"
+#include <utility>
+
+#ifdef IS_PLAYER
+#include "zc/combos.h"
+typedef combo_caches::minicombo_drawing minicombo_drawing;
+#define GET_DRAWING_COMBO(cid) (std::as_const(combo_caches::drawing.minis[cid]))
+#else
+typedef newcombo minicombo_drawing;
+#define GET_DRAWING_COMBO(cid) (std::as_const(combobuf[cid]))
+#endif
 
 extern tiledata *newtilebuf, *grabtilebuf;
 extern int32_t animated_combo_table[MAXCOMBOS][2];             //[0]=position in act2, [1]=original tile
@@ -31,10 +41,10 @@ void reset_combo_animation(newcombo &cmb);
 void reset_combo_animation(int32_t c);
 void reset_combo_animations();
 void setup_combo_animations2();
-void reset_combo_animation2(int32_t c);
+void reset_all_combo_animations();
 void reset_combo_animations2();
 bool combocheck(const newcombo& cdata);
-void animate(newcombo& cdata, bool forceNextFrame = false);
+void animate(newcombo& cdata, bool forceNextFrame = false, word cid = 0);
 void animate_combos();
 bool isonline(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3);
 void reset_tile(tiledata *buf, int32_t t, int32_t format);
@@ -65,13 +75,13 @@ void overtileblock16(BITMAP* _Dest, int32_t tile, int32_t x, int32_t y, int32_t 
 extern int combotile_override_x, combotile_override_y;
 extern int combotile_add_x, combotile_add_y;
 extern double combotile_mul_x, combotile_mul_y;
-int32_t combo_tile(const newcombo &c, int32_t x, int32_t y);
-int32_t combo_tile(int32_t cmbdat, int32_t x, int32_t y);
+int32_t combo_tile(const minicombo_drawing &c, int32_t x, int32_t y);
+int32_t combo_tile(int32_t cid, int32_t x, int32_t y);
 
-void putcombo(BITMAP* dest,int32_t x,int32_t y,int32_t cmbdat,int32_t cset);
-void overcombo(BITMAP* dest,int32_t x,int32_t y,int32_t cmbdat,int32_t cset);
-void overcomboblock(BITMAP *dest, int32_t x, int32_t y, int32_t cmbdat, int32_t cset, int32_t w, int32_t h);
-void overcombo2(BITMAP* dest,int32_t x,int32_t y,int32_t cmbdat,int32_t cset);
+void putcombo(BITMAP* dest,int32_t x,int32_t y,int32_t cid,int32_t cset);
+void overcombo(BITMAP* dest,int32_t x,int32_t y,int32_t cid,int32_t cset);
+void overcomboblock(BITMAP *dest, int32_t x, int32_t y, int32_t cid, int32_t cset, int32_t w, int32_t h);
+void overcombo2(BITMAP* dest,int32_t x,int32_t y,int32_t cid,int32_t cset);
 
 void puttiletranslucent8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip,int32_t opacity);
 void overtiletranslucent8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip,int32_t opacity);
@@ -83,9 +93,9 @@ void draw_cloaked_sprite(BITMAP* dest,BITMAP* src,int32_t x,int32_t y);
 void putblocktranslucent8(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t csets[],int32_t flip,int32_t mask,int32_t opacity);
 void overblocktranslucent8(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t csets[],int32_t flip,int32_t mask,int32_t opacity);
 
-void putcombotranslucent(BITMAP* dest,int32_t x,int32_t y,int32_t cmbdat,int32_t cset,int32_t opacity);
-void overcombotranslucent(BITMAP* dest,int32_t x,int32_t y,int32_t cmbdat,int32_t cset,int32_t opacity);
-void overcomboblocktranslucent(BITMAP *dest, int32_t x, int32_t y, int32_t cmbdat, int32_t cset, int32_t w, int32_t h, int32_t opacity);
+void putcombotranslucent(BITMAP* dest,int32_t x,int32_t y,int32_t cid,int32_t cset,int32_t opacity);
+void overcombotranslucent(BITMAP* dest,int32_t x,int32_t y,int32_t cid,int32_t cset,int32_t opacity);
+void overcomboblocktranslucent(BITMAP *dest, int32_t x, int32_t y, int32_t cid, int32_t cset, int32_t w, int32_t h, int32_t opacity);
 
 bool is_valid_format(byte format);
 int32_t tilesize(byte format);

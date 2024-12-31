@@ -11965,9 +11965,7 @@ REDRAW:
 
 int32_t onCombos()
 {
-	// reset_combo_animations();
 	combo_screen(-1,-1);
-	// setup_combo_animations();
 	refresh(rALL);
 	return D_O_K;
 }

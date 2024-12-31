@@ -19931,6 +19931,7 @@ void set_register(int32_t arg, int32_t value)
 					{
 						cdata.tile += cdata.skipanimy * rowoffset * TILES_PER_ROW;
 					}
+					combo_caches::drawing.refresh(ri->combosref);
 				}
 			}
 			break;
@@ -19988,9 +19989,11 @@ void set_register(int32_t arg, int32_t value)
 			}
 			else
 			{
+				screen_combo_modify_pre(ri->combosref);
 				int8_t v = vbound(value, -8, 7);
 				combobuf[ri->combosref].csets &= ~0xF;
 				combobuf[ri->combosref].csets |= v;
+				screen_combo_modify_post(ri->combosref);
 			}
 			break;
 		}
@@ -20002,8 +20005,10 @@ void set_register(int32_t arg, int32_t value)
 			}
 			else
 			{
+				screen_combo_modify_pre(ri->combosref);
 				combobuf[ri->combosref].csets &= 0xF;
 				combobuf[ri->combosref].csets |= (value&0xF)<<4;
+				screen_combo_modify_post(ri->combosref);
 			}
 			break;
 		}
@@ -32462,8 +32467,7 @@ int32_t run_script_int(bool is_jitted)
 					Z_scripterrlog("Cannot Continue Game while reading or writing to SRAM. Aborting Continue. /n");
 					break;
 				}
-				reset_combo_animations();
-				reset_combo_animations2();
+				reset_all_combo_animations();
 			
 				Quit = qCONT;
 				skipcont = 1;
@@ -37579,8 +37583,7 @@ void FFScript::do_loadgamestructs(const bool v, const bool v2)
 			if ( !section_id || section_id&svWEAPONS ) FFCore.read_weaponsprtites(f,sram_version);
 			if ( !section_id || section_id&svCOMBOS ) 
 			{
-				reset_combo_animations();
-				reset_combo_animations2();
+				reset_all_combo_animations();
 				FFCore.read_combos(f,sram_version);
 			}
 			if ( !section_id || section_id&svDMAPS ) FFCore.read_dmaps(f,sram_version);
@@ -37625,8 +37628,7 @@ void FFScript::do_savegamestructs(const bool v, const bool v2)
 			if ( !section_id || section_id&svWEAPONS ) FFCore.write_weaponsprtites(f,SRAM_VERSION);
 			if ( !section_id || section_id&svCOMBOS ) 
 			{
-				reset_combo_animations();
-				reset_combo_animations2();
+				reset_all_combo_animations();
 				FFCore.write_combos(f,SRAM_VERSION);
 			}
 			if ( !section_id || section_id&svDMAPS ) FFCore.write_dmaps(f,SRAM_VERSION);

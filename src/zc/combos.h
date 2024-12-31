@@ -2,6 +2,7 @@
 #define COMBOS_H_
 
 #include "base/compiler.h"
+#include "base/handles.h"
 #include "base/zdefs.h"
 #include "base/cpos_info.h"
 #include "base/combo.h"
@@ -191,6 +192,28 @@ namespace combo_caches
 	};
 	extern combo_cache<minicombo_script> script;
 
+	struct minicombo_drawing
+	{
+		int32_t tile;
+		byte csets;
+		byte flip;
+		byte type;
+		byte frames;
+		byte skipanimy;
+
+		minicombo_drawing() = default;
+		minicombo_drawing(const newcombo& combo)
+		{
+			tile = combo.tile;
+			csets = combo.csets;
+			flip = combo.flip;
+			type = combo.type;
+			frames = combo.frames;
+			skipanimy = combo.skipanimy;
+		}
+	};
+	extern combo_cache<minicombo_drawing> drawing;
+
 	ZC_FORCE_INLINE void refresh()
 	{
 		type.init();
@@ -199,6 +222,7 @@ namespace combo_caches
 		trigger_group.init();
 		can_cycle.init();
 		script.init();
+		drawing.init();
 
 		for (int i = 0; i < combobuf.size(); i++)
 		{
@@ -208,6 +232,7 @@ namespace combo_caches
 			trigger_group.refresh(i);
 			can_cycle.refresh(i);
 			script.refresh(i);
+			drawing.refresh(i);
 		}
 	}
 
@@ -219,6 +244,7 @@ namespace combo_caches
 		trigger_group.refresh(cid);
 		can_cycle.refresh(cid);
 		script.refresh(cid);
+		drawing.refresh(cid);
 	}
 }
 

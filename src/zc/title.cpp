@@ -183,13 +183,7 @@ static void list_save(gamedata_header* header, int32_t save_num, int32_t ypos)
 	game->set_maxlife(header->maxlife);
 	game->set_life(header->maxlife);
 	game->set_hp_per_heart(header->hp_per_heart_container);
-	
-	//wpnsbuf[iwQuarterHearts].tile = moduledata.select_screen_tiles[sels_heart_tile];
-	//Setting the cset does nothing, because it lifemeter() uses overtile8()
-	//Modules should set the cset manually. 
-	//wpnsbuf[iwQuarterHearts].csets = moduledata.select_screen_tile_csets[sels_heart_tilettile_cset];
-	
-	//boogie!
+
 	lifemeter(framebuf,144,ypos+((game->get_maxlife()>16*(header->hp_per_heart_container))?8:0),8,0);
 	textout_ex(framebuf,get_zc_font(font_zfont),header->name.c_str(),72,ypos+16,1,0);
 	
@@ -1756,8 +1750,7 @@ void game_over(int32_t type)
 	if (replay_is_debug())
 		replay_step_comment("game_over selection made");
 	
-	reset_combo_animations();
-	reset_combo_animations2();
+	reset_all_combo_animations();
 	clear_bitmap(framebuf);
 	advanceframe(true);
 	
@@ -1921,10 +1914,8 @@ bool save_game(bool savepoint, int32_t type)
 			advanceframe(true);
 		}
 		while(!Quit && !done2);
-		
-		//reset_combo_animations();
+
 		clear_bitmap(framebuf);
-		//advanceframe();
 		
 		if(done2)
 		{

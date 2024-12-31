@@ -17233,8 +17233,7 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 
 	if (!should_skip)
 	{
-		reset_combo_animations();
-		reset_combo_animations2();
+		reset_all_combo_animations();
 		init_combo_classes();
 	}
 
@@ -18071,8 +18070,7 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 	
 	if (!should_skip)
 	{
-		reset_combo_animations();
-		reset_combo_animations2();
+		reset_all_combo_animations();
 		init_combo_classes();
 
 		for(int32_t q = start_combo; q < start_combo+max_combos; ++q)

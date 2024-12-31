@@ -358,6 +358,7 @@ static void trigger_cswitch_block(const rpos_handle_t& rpos_handle)
 		combobuf[newcid].tile = combobuf[newcid].o_tile;
 		combobuf[newcid].cur_frame=0;
 		combobuf[newcid].aclk = 0;
+		combo_caches::drawing.refresh(newcid);
 	}
 	for(auto lyr = 0; lyr < 7; ++lyr)
 	{
@@ -378,6 +379,7 @@ static void trigger_cswitch_block(const rpos_handle_t& rpos_handle)
 			combobuf[newcid2].tile = combobuf[newcid2].o_tile;
 			combobuf[newcid2].cur_frame=0;
 			combobuf[newcid2].aclk = 0;
+			combo_caches::drawing.refresh(newcid2);
 		}
 	}
 	if (cmb.usrflags&cflag11)
@@ -395,6 +397,7 @@ static void trigger_cswitch_block(const rpos_handle_t& rpos_handle)
 					combobuf[newcid2].tile = combobuf[newcid2].o_tile;
 					combobuf[newcid2].cur_frame=0;
 					combobuf[newcid2].aclk = 0;
+					combo_caches::drawing.refresh(newcid2);
 				}
 			}
 		});
@@ -418,6 +421,7 @@ static void trigger_cswitch_block_ffc(const ffc_handle_t& ffc_handle)
 		combobuf[newcid].tile = combobuf[newcid].o_tile;
 		combobuf[newcid].cur_frame=0;
 		combobuf[newcid].aclk = 0;
+		combo_caches::drawing.refresh(newcid);
 	}
 
 	rpos_t rpos = COMBOPOS_REGION(ffc->x+8, ffc->y+8);
@@ -439,6 +443,7 @@ static void trigger_cswitch_block_ffc(const ffc_handle_t& ffc_handle)
 			combobuf[newcid2].tile = combobuf[newcid2].o_tile;
 			combobuf[newcid2].cur_frame=0;
 			combobuf[newcid2].aclk = 0;
+			combo_caches::drawing.refresh(newcid2);
 		}
 	}
 	if (cmb.usrflags&cflag11)
@@ -457,6 +462,7 @@ static void trigger_cswitch_block_ffc(const ffc_handle_t& ffc_handle)
 					combobuf[newcid2].tile = combobuf[newcid2].o_tile;
 					combobuf[newcid2].cur_frame=0;
 					combobuf[newcid2].aclk = 0;
+					combo_caches::drawing.refresh(newcid2);
 				}
 			}
 		});
@@ -2419,6 +2425,7 @@ void do_ex_trigger(const rpos_handle_t& rpos_handle)
 		rcmb.tile = rcmb.o_tile;
 		rcmb.cur_frame=0;
 		rcmb.aclk = 0;
+		combo_caches::drawing.refresh(rpos_handle.data());
 	}
 	
 	if(cmb.trigcopycat) //has a copycat set
@@ -2445,6 +2452,7 @@ void do_ex_trigger_ffc(const ffc_handle_t& ffc_handle)
 		rcmb.tile = rcmb.o_tile;
 		rcmb.cur_frame=0;
 		rcmb.aclk = 0;
+		combo_caches::drawing.refresh(ffc_handle.data());
 	}
 	
 	if(cmb.trigcopycat) //has a copycat set
@@ -2792,7 +2800,6 @@ bool do_trigger_combo(int layer, int pos, int32_t special, weapon* w)
 // Triggers a combo at a given position.
 bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special, weapon* w)
 {
-	int32_t pos = rpos_handle.pos;
 	cpos_info& timer = cpos_get(rpos_handle);
 	int32_t cid = rpos_handle.data();
 	auto [cx, cy] = COMBOXY_REGION(rpos_handle.rpos);
@@ -2960,6 +2967,7 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special, weapon*
 				rcmb.tile = rcmb.o_tile;
 				rcmb.cur_frame=0;
 				rcmb.aclk = 0;
+				combo_caches::drawing.refresh(rpos_handle.data());
 			}
 			
 			if(cmb.trigcopycat) //has a copycat set
@@ -3156,6 +3164,7 @@ bool do_trigger_combo_ffc(const ffc_handle_t& ffc_handle, int32_t special, weapo
 				rcmb.tile = rcmb.o_tile;
 				rcmb.cur_frame=0;
 				rcmb.aclk = 0;
+				combo_caches::drawing.refresh(ffc_handle.data());
 			}
 			
 			if(cmb.trigcopycat) //has a copycat set
@@ -3708,4 +3717,5 @@ namespace combo_caches
 	combo_cache<minicombo_trigger_group> trigger_group;
 	combo_cache<minicombo_can_cycle> can_cycle;
 	combo_cache<minicombo_script> script;
+	combo_cache<minicombo_drawing> drawing;
 }

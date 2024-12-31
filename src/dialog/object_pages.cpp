@@ -266,8 +266,7 @@ void ObjectTemplate::gui_redraw(bool force_cursor)
 }
 void ObjectTemplate::call_dlg(optional<int> start_val)
 {
-	reset_combo_animations();
-	reset_combo_animations2();
+	reset_all_combo_animations();
 	position_mouse_z(0);
 	clear_backup(); //undo stack, only a single undo deep, no redo
 	int cache_cs = CSet;

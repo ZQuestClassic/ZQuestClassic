@@ -1904,6 +1904,7 @@ void update_combo_cycling()
 		combobuf[i].tile = combobuf[i].o_tile;
 		combobuf[i].cur_frame=0;
 		combobuf[i].aclk = 0;
+		combo_caches::drawing.refresh(i);
 	}
 }
 
@@ -5919,7 +5920,7 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool overlay, bool 
 			combobuf[animated_combo_table4[x][0]].aclk = 0;
 		}
 	}
-	for (word x=0; x<animated_combos2; x++)
+	for (word x=0; x<animated_combos2; x++) // TODO z3 rm?
 	{
 		if(combobuf[animated_combo_table24[x][0]].nextcombo!=0)
 		{
@@ -7113,6 +7114,7 @@ void toggle_switches(dword flags, bool entry, mapscr* m)
 					combobuf[cmbid].tile = combobuf[cmbid].o_tile;
 					combobuf[cmbid].cur_frame=0;
 					combobuf[cmbid].aclk = 0;
+					combo_caches::drawing.refresh(cmbid);
 				}
 				togglegrid[pos] |= (1<<lyr); //Mark this pos toggled for this layer
 				if(cmb.type == cCSWITCH) return; //Switches don't toggle other layers
@@ -7156,6 +7158,7 @@ void toggle_switches(dword flags, bool entry, mapscr* m)
 						combobuf[cmbid2].tile = combobuf[cmbid2].o_tile;
 						combobuf[cmbid2].cur_frame=0;
 						combobuf[cmbid2].aclk = 0;
+						combo_caches::drawing.refresh(cmbid2);
 					}
 					togglegrid[pos] |= (1<<lyr2); //Mark this pos toggled for this layer
 				}
@@ -7181,6 +7184,7 @@ void toggle_switches(dword flags, bool entry, mapscr* m)
 					combobuf[cmbid].tile = combobuf[cmbid].o_tile;
 					combobuf[cmbid].cur_frame=0;
 					combobuf[cmbid].aclk = 0;
+					combo_caches::drawing.refresh(cmbid);
 				}
 			}
 		}
@@ -7268,6 +7272,7 @@ void toggle_gswitches(bool* states, bool entry, mapscr* base_scr)
 						combobuf[cmbid].tile = combobuf[cmbid].o_tile;
 						combobuf[cmbid].cur_frame=0;
 						combobuf[cmbid].aclk = 0;
+						combo_caches::drawing.refresh(cmbid);
 					}
 					togglegrid[pos] |= (1<<lyr); //Mark this pos toggled for this layer
 					if(cmb.type == cCSWITCH) continue; //Switches don't toggle other layers
@@ -7310,6 +7315,7 @@ void toggle_gswitches(bool* states, bool entry, mapscr* base_scr)
 							combobuf[cmbid2].tile = combobuf[cmbid2].o_tile;
 							combobuf[cmbid2].cur_frame=0;
 							combobuf[cmbid2].aclk = 0;
+							combo_caches::drawing.refresh(cmbid2);
 						}
 						togglegrid[pos] |= (1<<lyr2); //Mark this pos toggled for this layer
 					}
@@ -7336,6 +7342,7 @@ void toggle_gswitches(bool* states, bool entry, mapscr* base_scr)
 					combobuf[cmbid].tile = combobuf[cmbid].o_tile;
 					combobuf[cmbid].cur_frame=0;
 					combobuf[cmbid].aclk = 0;
+					combo_caches::drawing.refresh(cmbid);
 				}
 			}
 		}

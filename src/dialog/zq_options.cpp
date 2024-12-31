@@ -95,8 +95,7 @@ void OptionsDialog::loadOptions()
 	}
 	
 	//cleanup
-    reset_combo_animations();
-    reset_combo_animations2();
+    reset_all_combo_animations();
     go();
 }
 

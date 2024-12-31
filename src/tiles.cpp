@@ -6,6 +6,7 @@
 #include "base/qrs.h"
 #include "base/combo.h"
 #include "tiles.h"
+#include "zc/combos.h"
 #include "zc/maps.h"
 #include "items.h"
 
@@ -183,6 +184,12 @@ void reset_combo_animation(newcombo &cmb)
 	cmb.tile = cmb.o_tile;
 	cmb.cur_frame = 0;
 	cmb.aclk = 0;
+
+	// this fn is only used in editor ...
+#ifdef IS_PLAYER
+	assert(false);
+	// combo_caches::drawing.refresh(y);
+#endif
 }
 
 void reset_combo_animation(int32_t c)
@@ -196,22 +203,9 @@ void reset_combo_animation(int32_t c)
             combobuf[y].tile=combobuf[y].o_tile;        //reset tile
 			combobuf[y].cur_frame=0;
             combobuf[y].aclk=0;                        //reset clock
-            return;
-        }
-    }
-}
-
-void reset_combo_animation2(int32_t c)
-{
-    for(word x=0; x<animated_combos2; ++x)
-    {
-        int32_t y=animated_combo_table24[x][0];                      //combo number
-        
-        if(y==c)
-        {
-            combobuf[y].tile=combobuf[y].o_tile;        //reset tile
-            combobuf[y].cur_frame=0;
-            combobuf[y].aclk=0;                        //reset clock
+#ifdef IS_PLAYER
+			combo_caches::drawing.refresh(y);
+#endif
             return;
         }
     }
@@ -225,6 +219,9 @@ void reset_combo_animations()
 		combobuf[y].tile = combobuf[y].o_tile;
 		combobuf[y].aclk = 0;
 		combobuf[y].cur_frame = 0;
+#ifdef IS_PLAYER
+		combo_caches::drawing.refresh(y);
+#endif
     }
 }
 
@@ -236,7 +233,16 @@ void reset_combo_animations2()
 		combobuf[y].tile = combobuf[y].o_tile;
 		combobuf[y].aclk = 0;
 		combobuf[y].cur_frame = 0;
+#ifdef IS_PLAYER
+		combo_caches::drawing.refresh(y);
+#endif
     }
+}
+
+void reset_all_combo_animations()
+{
+	reset_combo_animations();
+	reset_combo_animations2();
 }
 
 //Returns true if 'tile' is the LAST tile in the animation defined by the other parameters.
@@ -261,7 +267,7 @@ bool combocheck(const newcombo& cdata)
     return true;
 }
 
-void animate(newcombo& cdata, bool forceNextFrame)
+void animate(newcombo& cdata, bool forceNextFrame, word cid)
 {
 	if(cdata.aclk>=cdata.speed || forceNextFrame)      //time to animate
 	{
@@ -298,6 +304,10 @@ void animate(newcombo& cdata, bool forceNextFrame)
 			}
 		}
 		cdata.aclk=0;                        //reset clock
+
+#ifdef IS_PLAYER
+		combo_caches::drawing.refresh(cid);
+#endif
 	}
 	else
 	{
@@ -308,6 +318,9 @@ void animate(newcombo& cdata, bool forceNextFrame)
 			{
 				cdata.tile += cdata.skipanimy * rowoffset * TILES_PER_ROW;
 			}
+#ifdef IS_PLAYER
+			combo_caches::drawing.refresh(cid);
+#endif
 		}
 		++cdata.aclk;                        //increment clock
 	}
@@ -321,14 +334,14 @@ void animate_combos()
     {
         int32_t y=animated_combo_table4[x][0];                      //combo number
         
-		animate(combobuf[y]);
+		animate(combobuf[y], false, y);
     }
     
     for(word x=0; x<animated_combos2; ++x)
     {
         int32_t y=animated_combo_table24[x][0];                      //combo number
         
-        animate(combobuf[y]);
+        animate(combobuf[y], false, y);
     }
 }
 
@@ -1694,13 +1707,13 @@ void overblocktranslucent8(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t
     }
 }
 
-//  cmbdat: fffffsss cccccccc
+//  cid: fffffsss cccccccc
 //          (f:flags, s:cset, c:combo)
 
 int combotile_override_x = -1, combotile_override_y = -1;
 int combotile_add_x = 0, combotile_add_y = 0;
 double combotile_mul_x = 1, combotile_mul_y = 1;
-int32_t combo_tile(const newcombo &c, int32_t x, int32_t y)
+int32_t combo_tile(const minicombo_drawing &c, int32_t x, int32_t y)
 {
 	int directional_change_type = combo_class_buf[c.type].directional_change_type;
 	int drawtile = c.tile;
@@ -1836,15 +1849,14 @@ int32_t combo_tile(const newcombo &c, int32_t x, int32_t y)
     return drawtile;
 }
 
-int32_t combo_tile(int32_t cmbdat, int32_t x, int32_t y)
+int32_t combo_tile(int32_t cid, int32_t x, int32_t y)
 {
-    const newcombo & c = combobuf[cmbdat];
-    return combo_tile(c, x, y);
+    return combo_tile(GET_DRAWING_COMBO(cid), x, y);
 }
 
-void putcombotranslucent(BITMAP* dest,int32_t x,int32_t y,int32_t cmbdat,int32_t cset,int32_t opacity)
+void putcombotranslucent(BITMAP* dest,int32_t x,int32_t y,int32_t cid,int32_t cset,int32_t opacity)
 {
-    const newcombo& c = combobuf[cmbdat];
+	auto& c = GET_DRAWING_COMBO(cid);
     int32_t drawtile=combo_tile(c, x, y);
     
     if(!(c.csets&0xF0) || !(c.csets&0x0F) || (newtilebuf[drawtile].format>tf4Bit))
@@ -1863,15 +1875,16 @@ void putcombotranslucent(BITMAP* dest,int32_t x,int32_t y,int32_t cmbdat,int32_t
     }
 }
 
-void overcombotranslucent(BITMAP* dest,int32_t x,int32_t y,int32_t cmbdat,int32_t cset,int32_t opacity)
+void overcombotranslucent(BITMAP* dest,int32_t x,int32_t y,int32_t cid,int32_t cset,int32_t opacity)
 {
-    overcomboblocktranslucent(dest, x, y, cmbdat, cset, 1, 1, opacity);
+    overcomboblocktranslucent(dest, x, y, cid, cset, 1, 1, opacity);
 }
 
-void overcomboblocktranslucent(BITMAP *dest, int32_t x, int32_t y, int32_t cmbdat, int32_t cset, int32_t w, int32_t h, int32_t opacity)
+void overcomboblocktranslucent(BITMAP *dest, int32_t x, int32_t y, int32_t cid, int32_t cset, int32_t w, int32_t h, int32_t opacity)
 {
-    if ((unsigned)cmbdat >= MAXCOMBOS) return;
-    const newcombo& c = combobuf[cmbdat];
+    if ((unsigned)cid >= MAXCOMBOS) return;
+
+    auto& c = GET_DRAWING_COMBO(cid);
     int32_t drawtile=combo_tile(c, x, y);
     
     for(int32_t woff=0; woff<w; woff++)
@@ -1883,7 +1896,7 @@ void overcomboblocktranslucent(BITMAP *dest, int32_t x, int32_t y, int32_t cmbda
             // If this block goes past the edge of the tile page and
             // animation skip Y is used, skip rows accordingly
             if(tiletodraw%TILES_PER_ROW<woff) // Past the end?
-                tiletodraw+=TILES_PER_ROW*combobuf[cmbdat].skipanimy;
+                tiletodraw+=TILES_PER_ROW*c.skipanimy;
                 
             if(!(c.csets&0xF0) || !(c.csets&0x0F) || (newtilebuf[tiletodraw].format>tf4Bit))
                 overtiletranslucent16(dest,tiletodraw,x+16*woff,y+16*hoff,cset,c.flip,opacity);
@@ -2701,17 +2714,16 @@ void drawtile16_cs2(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t cset[]
 // 		}
 // }
 
-//  cmbdat: fffffsss cccccccc
+//  cid: fffffsss cccccccc
 //          (f:flags, s:cset, c:combo)
 
-void putcombo(BITMAP* dest,int32_t x,int32_t y,int32_t cmbdat,int32_t cset)
+void putcombo(BITMAP* dest,int32_t x,int32_t y,int32_t cid,int32_t cset)
 {
-    newcombo const& c = combobuf[cmbdat];
+    auto& c = GET_DRAWING_COMBO(cid);
     int32_t drawtile=combo_tile(c, x, y);
     
     if(!(c.csets&0xF0) || !(c.csets&0x0F) || (newtilebuf[drawtile].format>tf4Bit))
         puttile16(dest,drawtile,x,y,cset,c.flip);
-    //    puttile16(dest,c.drawtile,x,y,cset,c.flip);
     else
     {
         int32_t csets[4];
@@ -2728,15 +2740,16 @@ void putcombo(BITMAP* dest,int32_t x,int32_t y,int32_t cmbdat,int32_t cset)
     }
 }
 
-void overcombo(BITMAP* dest,int32_t x,int32_t y,int32_t cmbdat,int32_t cset)
+void overcombo(BITMAP* dest,int32_t x,int32_t y,int32_t cid,int32_t cset)
 {
-    overcomboblock(dest, x, y, cmbdat, cset, 1, 1);
+    overcomboblock(dest, x, y, cid, cset, 1, 1);
 }
 
-void overcomboblock(BITMAP *dest, int32_t x, int32_t y, int32_t cmbdat, int32_t cset, int32_t w, int32_t h)
+void overcomboblock(BITMAP *dest, int32_t x, int32_t y, int32_t cid, int32_t cset, int32_t w, int32_t h)
 {
-    if ((unsigned)cmbdat >= MAXCOMBOS) return;
-    const newcombo& c = combobuf[cmbdat];
+    if ((unsigned)cid >= MAXCOMBOS) return;
+
+    auto& c = GET_DRAWING_COMBO(cid);
     int32_t drawtile=combo_tile(c, x, y);
     
     for(int32_t woff = 0; woff < w; woff++)
@@ -2748,7 +2761,7 @@ void overcomboblock(BITMAP *dest, int32_t x, int32_t y, int32_t cmbdat, int32_t 
             // If this block goes past the edge of the tile page and
             // animation skip Y is used, skip rows accordingly
             if(tiletodraw%TILES_PER_ROW<woff) // Past the end?
-                tiletodraw+=TILES_PER_ROW*combobuf[cmbdat].skipanimy;
+                tiletodraw+=TILES_PER_ROW*c.skipanimy;
                 
             if(!(c.csets&0xF0) || !(c.csets&0x0F) || (newtilebuf[tiletodraw].format>tf4Bit))
                 overtile16(dest,tiletodraw,x+16*woff,y+16*hoff,cset,c.flip);
@@ -2768,11 +2781,11 @@ void overcomboblock(BITMAP *dest, int32_t x, int32_t y, int32_t cmbdat, int32_t 
     }
 }
 
-void overcombo2(BITMAP* dest,int32_t x,int32_t y,int32_t cmbdat,int32_t cset)
+void overcombo2(BITMAP* dest,int32_t x,int32_t y,int32_t cid,int32_t cset)
 {
-    if(cmbdat!=0)
+    if(cid!=0)
     {
-        overcombo(dest,x,y,cmbdat,cset);
+        overcombo(dest,x,y,cid,cset);
     }
 }
 
