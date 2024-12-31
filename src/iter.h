@@ -25,17 +25,13 @@ ZC_FORCE_INLINE void for_every_screen_in_region(T&& fn)
 		return;
 	}
 
-	auto [handles, count] = z3_get_current_region_handles();
-
-	for (int i = 0; i < count; i++)
+	for (int y = 0; y < current_region.screen_height; y++)
 	{
-		if (handles[i].layer == 0)
+		for (int x = 0; x < current_region.screen_width; x++)
 		{
-			mapscr* scr = handles[i].scr;
-			unsigned int screen = handles[i].screen;
-			unsigned int region_scr_x = z3_get_region_relative_dx(screen);
-			unsigned int region_scr_y = z3_get_region_relative_dy(screen);
-			fn(scr, region_scr_x, region_scr_y);
+			int screen = current_region.origin_screen + map_scr_xy_to_index(x, y);
+			mapscr* scr = get_scr(screen);
+			fn(scr, x, y);
 		}
 	}
 }
