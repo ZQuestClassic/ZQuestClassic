@@ -425,7 +425,7 @@ static void MatchComboTrigger2(weapon *w, int32_t bx, int32_t by, int32_t layer 
 				{
 					if (MatchComboTrigger(w, ffc_handle.data()))
 					{
-						do_trigger_combo_ffc(ffc_handle, 0, w);
+						do_trigger_combo(ffc_handle, 0, w);
 					}
 				}
 			});
@@ -493,7 +493,7 @@ static bool triggerfire(int x, int y, weapon* w, bool setflag, bool any, bool st
 
 		if((cmb.triggerflags[2] & trigflags) && ffc.collide(x,y,16,16))
 		{
-			do_trigger_combo_ffc(ffc_handle, 0, wptr);
+			do_trigger_combo(ffc_handle, 0, wptr);
 			ret = true;
 		}
 	});

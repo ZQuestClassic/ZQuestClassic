@@ -10132,7 +10132,7 @@ heroanimate_skip_liftwpn:;
 		
 		if (cmb.triggerflags[1]&combotriggerAUTOMATIC)
 		{
-			do_trigger_combo_ffc(ffc_handle);
+			do_trigger_combo(ffc_handle);
 		}
 		
 		if(!(cmb.triggerflags[0] & combotriggerONLYGENTRIG))
@@ -12978,7 +12978,7 @@ bool HeroClass::doattack()
 							if((cmb.triggerflags[0]&combotriggerINVERTMINMAX)
 								? hmrlvl <= cmb.triggerlevel
 								: hmrlvl >= cmb.triggerlevel)
-								do_trigger_combo_ffc(ffc_handle);
+								do_trigger_combo(ffc_handle);
 						}
 					});
 				}
@@ -13115,7 +13115,7 @@ void handle_lens_triggers(int32_t l_id)
 			auto& cmb = combo_cache.minis[ffc_handle.data()];
 			if (enabled ? cmb.on() : cmb.off())
 			{
-				do_trigger_combo_ffc(ffc_handle);
+				do_trigger_combo(ffc_handle);
 			}
 		});
 	}
@@ -22135,7 +22135,7 @@ void HeroClass::checkgenpush()
 				{
 					if(pushing && !(pushing % zc_max(1,cmb3.trig_pushtime)))
 					{
-						do_trigger_combo_ffc(ffc_handle);
+						do_trigger_combo(ffc_handle);
 						return false;
 					}
 				}
@@ -22372,7 +22372,7 @@ endsigns:
 	if(cmb.triggerbtn && (getIntBtnInput(cmb.triggerbtn, true, true, false, false) || checkIntBtnVal(cmb.triggerbtn, signInput)))
 	{
 		if (foundffc)
-			do_trigger_combo_ffc(foundffc.value(), didsign ? ctrigIGNORE_SIGN : 0);
+			do_trigger_combo(foundffc.value(), didsign ? ctrigIGNORE_SIGN : 0);
 		else 
 			do_trigger_combo(get_rpos_handle_for_world_xy(fx, fy, found_lyr), didsign ? ctrigIGNORE_SIGN : 0);
 	}
@@ -23631,7 +23631,7 @@ void HeroClass::handleSpotlights()
 				: (cmb->triggerflags[1] & combotriggerLIGHTOFF))
 			{
 				ffc_handle_t ffc_handle = {origin_scr, (uint8_t)cur_screen, i, (uint8_t)i, &ffc};
-				do_trigger_combo_ffc(ffc_handle);
+				do_trigger_combo(ffc_handle);
 			}
 		}
 	}
@@ -23883,7 +23883,7 @@ void HeroClass::checkspecial()
 				auto& cmb = ffc_handle.combo();
 				if(cmb.triggerflags[2] & combotriggerENEMIESKILLED)
 				{
-					do_trigger_combo_ffc(ffc_handle);
+					do_trigger_combo(ffc_handle);
 				}
 			});
 
@@ -24581,7 +24581,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 			{
 				if (ffc_handle.combo().triggerflags[0] & (combotriggerSTEP|combotriggerSTEPSENS))
 				{
-					do_trigger_combo_ffc(ffc_handle);
+					do_trigger_combo(ffc_handle);
 				}
 			}
 		});
@@ -24618,7 +24618,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 			auto& cmb = ffc_handle.combo();
 			if ((cmb.triggerflags[3] & combotriggerDIVETRIG) && ffcIsAt(ffc_handle, x+8, y+8))
 			{
-				do_trigger_combo_ffc(ffc_handle);
+				do_trigger_combo(ffc_handle);
 			}
 			else if(cmb.triggerflags[3] & combotriggerDIVESENSTRIG)
 			{
@@ -24626,7 +24626,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 				{
 					if(ffcIsAt(ffc_handle, xposes[q], yposes[q]))
 					{
-						do_trigger_combo_ffc(ffc_handle);
+						do_trigger_combo(ffc_handle);
 						break;
 					}
 				}

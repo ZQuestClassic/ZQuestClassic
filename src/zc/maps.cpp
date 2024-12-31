@@ -2740,7 +2740,7 @@ void trigger_secrets_for_screen_internal(int32_t screen, mapscr *scr, bool do_co
 		{
 			for_every_ffc_in_screen(scr, [&](const ffc_handle_t& ffc_handle) {
 				if (ffc_handle.combo().triggerflags[2] & combotriggerSECRETSTR)
-					do_trigger_combo_ffc(ffc_handle);
+					do_trigger_combo(ffc_handle);
 			});
 		}
 	}
@@ -5655,28 +5655,11 @@ void openshutters(mapscr* scr)
 		}
 	
 	auto& combo_cache = combo_caches::shutter;
-
-	// TODO z3 ! combine?
-	// for_every_combo([&](const auto& handle) {
-	// 	auto& cmb = combo_cache.minis[handle.data()];
-	// 	if (cmb.shutter)
-	// 		do_trigger_combo(handle);
-	// });
-	for_every_rpos_in_screen(scr, [&](const rpos_handle_t& rpos_handle) {
-		auto& cmb = combo_cache.minis[rpos_handle.data()];
+	for_every_combo([&](const auto& handle) {
+		auto& cmb = combo_cache.minis[handle.data()];
 		if (cmb.shutter)
-		{
-			do_trigger_combo(rpos_handle);
-		}
+			do_trigger_combo(handle);
 	});
-	if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
-	{
-		for_every_ffc_in_screen(scr, [&](const ffc_handle_t& ffc_handle) {
-			auto& cmb = combo_cache.minis[ffc_handle.data()];
-			if(cmb.shutter)
-				do_trigger_combo_ffc(ffc_handle);
-		});
-	}
 
 	if(opened_door)
 		sfx(WAV_DOOR,128);
@@ -7190,7 +7173,7 @@ void toggle_switches(dword flags, bool entry, mapscr* m)
 			auto& cmb = ffc_handle.combo();
 			if((cmb.triggerflags[3] & combotriggerTRIGLEVELSTATE) && cmb.trig_lstate < 32)
 				if(flags&(1<<cmb.trig_lstate))
-					do_trigger_combo_ffc(ffc_handle, ctrigSWITCHSTATE);
+					do_trigger_combo(ffc_handle, ctrigSWITCHSTATE);
 		}
 	}
 }
@@ -7348,7 +7331,7 @@ void toggle_gswitches(bool* states, bool entry, mapscr* base_scr)
 			auto& cmb = ffc_handle.combo();
 			if(cmb.triggerflags[3] & combotriggerTRIGGLOBALSTATE)
 				if(states[cmb.trig_gstate])
-					do_trigger_combo_ffc(ffc_handle, ctrigSWITCHSTATE);
+					do_trigger_combo(ffc_handle, ctrigSWITCHSTATE);
 		}
 	}
 }

@@ -2350,7 +2350,7 @@ static bool do_copycat_trigger_ffc(const ffc_handle_t& ffc_handle)
 	auto& cmb = ffc_handle.combo();
 	if(cmb.trigcopycat == copycat_id)
 	{
-		do_trigger_combo_ffc(ffc_handle);
+		do_trigger_combo(ffc_handle);
 		return true;
 	}
 	return false;
@@ -2790,7 +2790,7 @@ void handle_trigger_results(mapscr* scr, newcombo const& cmb, int32_t cx, int32_
 	}
 }
 
-// TODO remove
+// TODO z3 remove
 bool do_trigger_combo(int layer, int pos, int32_t special, weapon* w)
 {
 	if (unsigned(pos) > 175) return false;
@@ -2991,7 +2991,7 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special, weapon*
 	return true;
 }
 
-bool do_trigger_combo_ffc(const ffc_handle_t& ffc_handle, int32_t special, weapon* w)
+bool do_trigger_combo(const ffc_handle_t& ffc_handle, int32_t special, weapon* w)
 {
 	if (get_qr(qr_OLD_FFC_FUNCTIONALITY)) return false;
 
@@ -3476,7 +3476,7 @@ void trig_trigger_groups()
 			}
 			if (!ok) break;
 
-			do_trigger_combo_ffc(ffc_handle);
+			do_trigger_combo(ffc_handle);
 			int cid2 = ffc_handle.data();
 			cpos_info& timer = ffc_handle.ffc->info;
 			bool recheck = timer.data != cid2;
@@ -3696,7 +3696,7 @@ void cpos_update() //updates with side-effects
 			if(++timer.clk >= mini_cmb.trigtimer)
 			{
 				timer.clk = 0;
-				do_trigger_combo_ffc(ffc_handle);
+				do_trigger_combo(ffc_handle);
 				cid = f.data;
 				timer.updateData(cid);
 			}
