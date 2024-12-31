@@ -1057,28 +1057,29 @@ void sprite::draw(BITMAP* dest)
 		yofs = tyoffs;
 		return;
 	}
-	BITMAP* sprBMP2 = create_bitmap_ex(8,256,256); //run after above failsafe, so that we always destroy it
 	int32_t e = extend>=3 ? 3 : extend;
 	int32_t flip_type = ((scriptflip > -1) ? scriptflip : flip);
 	isspawning = false;
 	#define TILEBOUND(t) vbound(t,0,NEWMAXTILES)
 	if(clk>=0)
 	{
+		static BITMAP* sprBMP2 = create_bitmap_ex(8, 256, 256);
+		clear_bitmap(sprBMP2);
+
 		switch(e)
 		{
 			case 1:
 			{
-				BITMAP *temp = create_bitmap_ex(8,16,32);
+				static BITMAP *temp = create_bitmap_ex(8, 16, 32);
 				blit(dest, temp, sx, sy-16, 0, 0, 16, 32);
-				//clear_bitmap(temp);
-				if ( sprBMP2 ) clear_bitmap(sprBMP2);
-            
-				BITMAP *temp2 = create_bitmap_ex(8, 16, 32);
+
+				static BITMAP *temp2 = create_bitmap_ex(8, 16, 32);
 				clear_bitmap(temp2);
+
 				//Draw sprite tiles to the temp (scratch) bitmap.
 				overtile16(temp2,TILEBOUND(((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW),0,0,cs,((scriptflip > -1) ? scriptflip : flip));
 				overtile16(temp2,TILEBOUND((scripttile > -1) ? scripttile : tile),0,16,cs,((scriptflip > -1) ? scriptflip : flip));
-				
+
 				//Recolor for flicker animations
 				if (sprite_flicker_color)
 					SPRITE_MONOCOLOR(temp2);
@@ -1107,22 +1108,17 @@ void sprite::draw(BITMAP* dest)
 					}
 					else doSpriteDraw(drawstyle, dest, temp, sx, sy-16);
 				}
-				//clean-up
-				destroy_bitmap(temp);
-				destroy_bitmap(temp2);
 				break;
 			}
 			case 2:
 			{
-				BITMAP *temp = create_bitmap_ex(8,48,32);
-				BITMAP *temp2 = create_bitmap_ex(8, 32, 32);
+				static BITMAP *temp = create_bitmap_ex(8, 48, 32);
 				blit(dest, temp, sx-16, sy-16, 0, 0, 48, 32);
-				//clear_bitmap(temp);
-				clear_bitmap(sprBMP2);
 
-				BITMAP* temp3 = create_bitmap_ex(8, 32, 32);
+				static BITMAP *temp2 = create_bitmap_ex(8, 32, 32);
+				static BITMAP* temp3 = create_bitmap_ex(8, 32, 32);
+
 				clear_bitmap(temp3);
-            
 				overtile16(temp3,TILEBOUND(((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW),16,0,cs,((scriptflip > -1) ? scriptflip : flip));
 				overtile16(temp3,TILEBOUND(((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW-( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) )),0,0,cs,((scriptflip > -1) ? scriptflip : flip));
 				overtile16(temp3,TILEBOUND(((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW+( ( scriptflip > -1 ) ? ( scriptflip ? -1 : 1 ) : ( flip?-1:1 ) )),32,0,cs,((scriptflip > -1) ? scriptflip : flip));
@@ -1162,11 +1158,6 @@ void sprite::draw(BITMAP* dest)
 						doSpriteDraw(drawstyle, dest, temp2, sx-8, sy-16);
 					}
 				}
-					
-				
-				destroy_bitmap(temp);
-				destroy_bitmap(temp2);
-				destroy_bitmap(temp3);
 				break;
 			}
 			case 3:
@@ -1178,9 +1169,7 @@ void sprite::draw(BITMAP* dest)
 					case 1:
 					{
 						BITMAP* sprBMP = create_bitmap_ex(8,txsz*16,tysz*16);
-						//BITMAP* sprBMP2 = create_bitmap_ex(8,256,256);
 						clear_bitmap(sprBMP);
-						clear_bitmap(sprBMP2);
 						for(int32_t i=0; i<tysz; i++)
 						{
 							for(int32_t j=txsz-1; j>=0; j--)
@@ -1227,9 +1216,7 @@ void sprite::draw(BITMAP* dest)
 					case 2:
 					{
 						BITMAP* sprBMP = create_bitmap_ex(8,txsz*16,tysz*16);
-						//BITMAP* sprBMP2 = create_bitmap_ex(8,256,256);
 						clear_bitmap(sprBMP);
-						clear_bitmap(sprBMP2);
 						for(int32_t i=tysz-1; i>=0; i--)
 						{
 							for(int32_t j=0; j<txsz; j++)
@@ -1275,9 +1262,7 @@ void sprite::draw(BITMAP* dest)
 					case 3:
 					{
 						BITMAP* sprBMP = create_bitmap_ex(8,txsz*16,tysz*16);
-						//BITMAP* sprBMP2 = create_bitmap_ex(8,256,256);
 						clear_bitmap(sprBMP);
-						clear_bitmap(sprBMP2);
 						for(int32_t i=tysz-1; i>=0; i--)
 						{
 							for(int32_t j=txsz-1; j>=0; j--)
@@ -1323,9 +1308,7 @@ void sprite::draw(BITMAP* dest)
 					case 0:
 					{
 						BITMAP* sprBMP = create_bitmap_ex(8,txsz*16,tysz*16);
-						//BITMAP* sprBMP2 = create_bitmap_ex(8,256,256);
 						clear_bitmap(sprBMP);
-						clear_bitmap(sprBMP2);
 						
 						for(int32_t i=0; i<tysz; i++)
 						{
@@ -1376,9 +1359,7 @@ void sprite::draw(BITMAP* dest)
 			case 0:
 			{
 				BITMAP* sprBMP = create_bitmap_ex(8,txsz*16,tysz*16);
-				//BITMAP* sprBMP2 = create_bitmap_ex(8,256,256);
 				clear_bitmap(sprBMP);
-				clear_bitmap(sprBMP2);
 				overtile16(sprBMP,TILEBOUND(scripttile > -1 ? scripttile : tile),0,0,cs,((scriptflip > -1) ? scriptflip : flip));
 				
 				//Recolor for flicker animations
@@ -1509,12 +1490,6 @@ void sprite::draw(BITMAP* dest)
     
 	if(show_hitboxes)
 		draw_hitbox();
-	
-	if ( sprBMP2 ) 
-	{
-		//if there is still somehow data in the scaling bitmap
-		destroy_bitmap(sprBMP2);
-	}
 	
 	yofs = tyoffs;
 
