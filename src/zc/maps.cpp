@@ -5653,10 +5653,18 @@ void openshutters(mapscr* scr)
 			scr->door[i]=dOPENSHUTTER;
 			opened_door = true;
 		}
+	
+	auto& combo_cache = combo_caches::shutter;
 
+	// TODO z3 ! combine?
+	// for_every_combo([&](const auto& handle) {
+	// 	auto& cmb = combo_cache.minis[handle.data()];
+	// 	if (cmb.shutter)
+	// 		do_trigger_combo(handle);
+	// });
 	for_every_rpos_in_screen(scr, [&](const rpos_handle_t& rpos_handle) {
-		auto& cmb = rpos_handle.combo();	
-		if (cmb.triggerflags[0] & combotriggerSHUTTER)
+		auto& cmb = combo_cache.minis[rpos_handle.data()];
+		if (cmb.shutter)
 		{
 			do_trigger_combo(rpos_handle);
 		}
@@ -5664,8 +5672,8 @@ void openshutters(mapscr* scr)
 	if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
 	{
 		for_every_ffc_in_screen(scr, [&](const ffc_handle_t& ffc_handle) {
-			auto& cmb = ffc_handle.combo();
-			if(cmb.triggerflags[0] & combotriggerSHUTTER)
+			auto& cmb = combo_cache.minis[ffc_handle.data()];
+			if(cmb.shutter)
 				do_trigger_combo_ffc(ffc_handle);
 		});
 	}

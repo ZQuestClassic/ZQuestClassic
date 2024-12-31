@@ -5102,7 +5102,7 @@ void HeroClass::check_slash_block(weapon *w)
         else
         {
             current_ffc_handle->set_data(s->undercombo);
-            current_ffc_handle->ffc->cset = s->undercset;
+            current_ffc_handle->set_cset(s->undercset);
         }
     }
     

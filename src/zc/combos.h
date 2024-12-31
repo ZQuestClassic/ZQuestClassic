@@ -180,6 +180,18 @@ namespace combo_caches
 	};
 	extern combo_cache<minicombo_can_cycle> can_cycle;
 
+	struct minicombo_shutter
+	{
+		bool shutter;
+
+		minicombo_shutter() = default;
+		minicombo_shutter(const newcombo& combo)
+		{
+			shutter = combo.triggerflags[0] & combotriggerSHUTTER;
+		}
+	};
+	extern combo_cache<minicombo_shutter> shutter;
+
 	struct minicombo_script
 	{
 		word script;
@@ -238,6 +250,7 @@ namespace combo_caches
 		cpos_update.init();
 		trigger_group.init();
 		can_cycle.init();
+		shutter.init();
 		script.init();
 		drawing.init();
 		lens.init();
@@ -249,6 +262,7 @@ namespace combo_caches
 			cpos_update.refresh(i);
 			trigger_group.refresh(i);
 			can_cycle.refresh(i);
+			shutter.refresh(i);
 			script.refresh(i);
 			drawing.refresh(i);
 			lens.refresh(i);
@@ -262,6 +276,7 @@ namespace combo_caches
 		cpos_update.refresh(cid);
 		trigger_group.refresh(cid);
 		can_cycle.refresh(cid);
+		shutter.refresh(cid);
 		script.refresh(cid);
 		drawing.refresh(cid);
 		lens.refresh(cid);
