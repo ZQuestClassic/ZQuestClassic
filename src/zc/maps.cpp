@@ -7167,7 +7167,7 @@ void toggle_switches(dword flags, bool entry, mapscr* m)
 	{
 		int screen_index_offset = get_region_screen_offset(m->screen);
 		word c = m->numFFC();
-		for (uint8_t q = 0; q < c; ++q)
+		for (int q = 0; q < c; ++q)
 		{
 			auto ffc_handle = *m->getFFCHandle(q, screen_index_offset);
 			auto& cmb = ffc_handle.combo();
@@ -7331,9 +7331,9 @@ void toggle_gswitches(bool* states, bool entry, mapscr* base_scr)
 	
 	if(iscurscr)
 	{
-		word c = base_scr->numFFC();
 		int screen_index_offset = get_region_screen_offset(screen);
-		for (uint8_t q = 0; q < c; ++q)
+		word c = base_scr->numFFC();
+		for (int q = 0; q < c; ++q)
 		{
 			auto ffc_handle = *base_scr->getFFCHandle(q, screen_index_offset);
 			int cid = ffc_handle.data();
