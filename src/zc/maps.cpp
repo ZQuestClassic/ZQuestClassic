@@ -7040,7 +7040,7 @@ void toggle_switches(dword flags, bool entry, mapscr* m)
 	if(!flags) return; //No flags to toggle
 
 	int screen = m->screen;
-	bool iscurscr = m==origin_scr;
+	bool iscurscr = is_in_current_region(m);
 
 	for_every_rpos_in_screen(m, [&](const rpos_handle_t& rpos_handle) {
 		byte togglegrid[176] = {0};
@@ -7196,7 +7196,7 @@ void toggle_gswitches(bool* states, bool entry, mapscr* base_scr)
 
 	auto& combo_cache = combo_caches::gswitch;
 	int screen = base_scr->screen;
-	bool iscurscr = base_scr==tmpscr;
+	bool iscurscr = is_in_current_region(base_scr);
 	byte togglegrid[176] = {0};
 	for(int32_t lyr = 0; lyr < 7; ++lyr)
 	{
@@ -7209,7 +7209,6 @@ void toggle_gswitches(bool* states, bool entry, mapscr* base_scr)
 			int cid = scr->data[pos];
 			auto& mini_cmb = combo_cache.minis[cid];
 
-			// TODO z3 ! in current region
 			if (iscurscr)
 			{
 				if (mini_cmb.trigger_global_state)
