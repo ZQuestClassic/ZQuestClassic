@@ -272,6 +272,7 @@ void do_generic_combo_ffc2(const ffc_handle_t& ffc_handle, int32_t cid, int32_t 
 				}
 				else
 				{
+					// TODO z3 ! do this in increment data ...
 					ffc_handle.set_data(vbound(ffc_handle.data()+1,0,MAXCOMBOS));
 				}
 				screen_ffc_modify_postroutine(ffc_handle);

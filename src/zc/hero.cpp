@@ -23434,7 +23434,7 @@ void HeroClass::handleSpotlights()
 			{
 				if(!(alltrig || trigged)) //Revert
 				{
-					rpos_handle.set_data(rpos_handle.data() - 1); // TODO z3 !
+					rpos_handle.decrement_data();
 					istrigged = false;
 				}
 			}

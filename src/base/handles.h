@@ -45,7 +45,9 @@ struct rpos_handle_t
 	}
 
 	void set_data(int32_t value) const;
+	void modify_data(int32_t delta) const;
 	void increment_data() const;
+	void decrement_data() const;
 
 	int32_t cset() const;
 	void set_cset(int32_t value) const;
@@ -76,9 +78,11 @@ struct ffc_handle_t
 
 	int32_t data() const;
 	void set_data(int32_t value) const;
+	void modify_data(int32_t delta) const;
 	void increment_data() const;
 	void decrement_data() const;
 
+	int32_t cset() const;
 	void set_cset(int32_t cset) const;
 
 	uint8_t cflag() const;

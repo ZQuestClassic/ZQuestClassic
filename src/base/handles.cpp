@@ -27,9 +27,19 @@ void rpos_handle_t::set_data(int32_t value) const
 	scr->data[pos] = value;
 }
 
+void rpos_handle_t::modify_data(int32_t delta) const
+{
+	scr->data[pos] += delta;
+}
+
 void rpos_handle_t::increment_data() const
 {
 	scr->data[pos] += 1;
+}
+
+void rpos_handle_t::decrement_data() const
+{
+	scr->data[pos] -= 1;
 }
 
 int32_t rpos_handle_t::cset() const
@@ -82,9 +92,9 @@ void ffc_handle_t::set_data(int32_t value) const
 	zc_ffc_set(*ffc, value);
 }
 
-void ffc_handle_t::set_cset(int32_t cset) const
+void ffc_handle_t::modify_data(int32_t delta) const
 {
-	ffc->cset = cset;
+	zc_ffc_set(*ffc, ffc->data + delta);
 }
 
 void ffc_handle_t::increment_data() const
@@ -95,6 +105,16 @@ void ffc_handle_t::increment_data() const
 void ffc_handle_t::decrement_data() const
 {
 	zc_ffc_modify(*ffc, -1);
+}
+
+int32_t ffc_handle_t::cset() const
+{
+	return ffc->cset;
+}
+
+void ffc_handle_t::set_cset(int32_t cset) const
+{
+	ffc->cset = cset;
 }
 
 uint8_t ffc_handle_t::cflag() const
