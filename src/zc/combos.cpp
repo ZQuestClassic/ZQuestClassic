@@ -272,8 +272,7 @@ void do_generic_combo_ffc2(const ffc_handle_t& ffc_handle, int32_t cid, int32_t 
 				}
 				else
 				{
-					// TODO z3 ! do this in increment data ...
-					ffc_handle.set_data(vbound(ffc_handle.data()+1,0,MAXCOMBOS));
+					ffc_handle.increment_data();
 				}
 				screen_ffc_modify_postroutine(ffc_handle);
 				
@@ -350,10 +349,10 @@ static void trigger_cswitch_block(const rpos_handle_t& rpos_handle)
 	
 	int32_t cmbofs = (cmb.attributes[0]/10000L);
 	int32_t csofs = (cmb.attributes[1]/10000L);
-	int cid = rpos_handle.data();
-	auto newcid = BOUND_COMBO(cid + cmbofs);
-	rpos_handle.set_data(newcid);
+	rpos_handle.modify_data(cmbofs);
 	rpos_handle.set_cset((rpos_handle.cset() + csofs) & 15);
+
+	int newcid = rpos_handle.data();
 	if(combobuf[newcid].animflags & AF_CYCLE)
 	{
 		combobuf[newcid].tile = combobuf[newcid].o_tile;
@@ -372,8 +371,8 @@ static void trigger_cswitch_block(const rpos_handle_t& rpos_handle)
 		if (!cid) //Don't increment empty space
 			continue;
 		
-		int32_t newcid2 = BOUND_COMBO(rpos_handle_2.data() + cmbofs);
-		rpos_handle_2.set_data(newcid2);
+		rpos_handle_2.modify_data(cmbofs);
+		int newcid2 = rpos_handle_2.data();
 		scr_2->cset[pos] = (scr_2->cset[pos] + csofs) & 15;
 		if(combobuf[newcid2].animflags & AF_CYCLE)
 		{
@@ -385,12 +384,15 @@ static void trigger_cswitch_block(const rpos_handle_t& rpos_handle)
 	}
 	if (cmb.usrflags&cflag11)
 	{
-		int bx = COMBOX_REGION(rpos_handle.rpos)+8, by = COMBOY_REGION(rpos_handle.rpos)+8;
+		auto [bx, by] = COMBOXY_REGION(rpos_handle.rpos);
+		bx += 8;
+		by += 8;
+
 		for_every_ffc([&](const ffc_handle_t& ffc_handle) {
 			if (ffcIsAt(ffc_handle, bx, by))
 			{
 				ffcdata* ffc = ffc_handle.ffc;
-				ffc_handle.set_data(BOUND_COMBO(ffc_handle.data() + cmbofs));
+				ffc_handle.modify_data(cmbofs);
 				ffc->cset = (ffc->cset + csofs) & 15;
 				int32_t newcid2 = ffc_handle.data();
 				if(combobuf[newcid2].animflags & AF_CYCLE)
@@ -413,8 +415,7 @@ static void trigger_cswitch_block_ffc(const ffc_handle_t& ffc_handle)
 	
 	int32_t cmbofs = (cmb.attributes[0]/10000L);
 	int32_t csofs = (cmb.attributes[1]/10000L);
-	auto cid = ffc_handle.data();
-	ffc_handle.set_data(BOUND_COMBO(cid + cmbofs));
+	ffc_handle.modify_data(cmbofs);
 	ffc->cset = (ffc->cset + csofs) & 15;
 	auto newcid = ffc_handle.data();
 	if(combobuf[newcid].animflags & AF_CYCLE)
@@ -436,7 +437,7 @@ static void trigger_cswitch_block_ffc(const ffc_handle_t& ffc_handle)
 		if(!rpos_handle.data()) //Don't increment empty space
 			continue;
 
-		rpos_handle.set_data(BOUND_COMBO(rpos_handle.data() + cmbofs));
+		rpos_handle.modify_data(cmbofs);
 		rpos_handle.set_cset((rpos_handle.cset() + csofs) & 15);
 		int32_t newcid2 = rpos_handle.data();
 		if(combobuf[newcid2].animflags & AF_CYCLE)
@@ -455,7 +456,7 @@ static void trigger_cswitch_block_ffc(const ffc_handle_t& ffc_handle)
 			if (ffcIsAt(ffc_handle_2, ffc->x+8, ffc->y+8))
 			{
 				ffcdata* ffc2 = ffc_handle_2.ffc;
-				ffc_handle_2.set_data(BOUND_COMBO(ffc_handle_2.data() + cmbofs));
+				ffc_handle_2.modify_data(cmbofs);
 				ffc2->cset = (ffc2->cset + csofs) & 15;
 				int32_t newcid2 = ffc_handle_2.data();
 				if(combobuf[newcid2].animflags & AF_CYCLE)

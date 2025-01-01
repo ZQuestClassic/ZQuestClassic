@@ -387,7 +387,7 @@ void do_generic_combo_ffc(weapon *w, const ffc_handle_t& ffc_handle, int32_t cid
 					ffc->cset = ffc_handle.scr->undercset;	
 				}
 				else
-					ffc_handle.set_data(vbound(ffc_handle.data()+1,0,MAXCOMBOS));
+					ffc_handle.increment_data();
 				
 				screen_ffc_modify_postroutine(ffc_handle);
 				

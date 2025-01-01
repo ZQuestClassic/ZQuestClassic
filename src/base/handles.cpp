@@ -1,5 +1,6 @@
 #include "base/handles.h"
 #include "base/combo.h"
+#include "base/general.h"
 #include "base/mapscr.h"
 #include "zc/combos.h"
 #include "zc/maps.h"
@@ -29,17 +30,19 @@ void rpos_handle_t::set_data(int32_t value) const
 
 void rpos_handle_t::modify_data(int32_t delta) const
 {
-	scr->data[pos] += delta;
+	scr->data[pos] = BOUND_COMBO(scr->data[pos] + delta);
 }
 
 void rpos_handle_t::increment_data() const
 {
-	scr->data[pos] += 1;
+	if (scr->data[pos] + 1 <= MAXCOMBOS)
+		scr->data[pos] += 1;
 }
 
 void rpos_handle_t::decrement_data() const
 {
-	scr->data[pos] -= 1;
+	if (scr->data[pos] > 0)
+		scr->data[pos] -= 1;
 }
 
 int32_t rpos_handle_t::cset() const
@@ -94,17 +97,19 @@ void ffc_handle_t::set_data(int32_t value) const
 
 void ffc_handle_t::modify_data(int32_t delta) const
 {
-	zc_ffc_set(*ffc, ffc->data + delta);
+	zc_ffc_set(*ffc, BOUND_COMBO(ffc->data + delta));
 }
 
 void ffc_handle_t::increment_data() const
 {
-	zc_ffc_modify(*ffc, 1);
+	if (ffc->data + 1 <= MAXCOMBOS)
+		zc_ffc_set(*ffc, ffc->data + 1);
 }
 
 void ffc_handle_t::decrement_data() const
 {
-	zc_ffc_modify(*ffc, -1);
+	if (ffc->data > 0)
+		zc_ffc_set(*ffc, ffc->data - 1);
 }
 
 int32_t ffc_handle_t::cset() const
