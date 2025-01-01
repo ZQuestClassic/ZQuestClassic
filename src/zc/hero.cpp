@@ -23284,14 +23284,15 @@ void HeroClass::handleSpotlights()
 
 		for_every_base_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
 			bool pos_has_seen_cmb[176] = {0};
-			
+
 			for(int32_t lyr = 6; lyr >= 0; --lyr)
 			{
 				mapscr* layer_scr = get_scr_layer(scr->screen, lyr - 1);
 				for(size_t pos = 0; pos < 176; ++pos)
 				{
-					if (pos_has_seen_cmb[pos]) continue;
-					
+					if (pos_has_seen_cmb[pos])
+						continue;
+
 					rpos_t rpos = POS_TO_RPOS(pos, region_scr_x, region_scr_y);
 					auto& cmb = combobuf[layer_scr->data[pos]];
 					switch(cmb.type)
@@ -23320,6 +23321,7 @@ void HeroClass::handleSpotlights()
 							continue; // may update on the next layer
 						}
 					}
+
 					pos_has_seen_cmb[pos] = true;
 				}
 			}
@@ -23329,7 +23331,8 @@ void HeroClass::handleSpotlights()
 				rpos_t rpos = POS_TO_RPOS(pos, region_scr_x, region_scr_y);
 				if (!get_qr(qr_SPOTLIGHT_IGNR_SOLIDOBJ) && !typeMap[(int)rpos])
 				{
-					if (collide_object(COMBOX_REGION(rpos), COMBOY_REGION(rpos), 16, 16, this))
+					auto [x, y] = COMBOXY_REGION(rpos);
+					if (collide_object(x, y, 16, 16, this))
 						typeMap[(int)rpos] = SPTYPE_SOLID;
 				}
 			}
@@ -23344,21 +23347,9 @@ void HeroClass::handleSpotlights()
 				beam_hero_rpos = rpos_t::None; //Blocked from hitting player
 		}
 
-		// For each spotlight combo on each layer... TODO z3 ! for_every_rpos
-		for_every_base_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
-			for(size_t layer = 0; layer < 7; ++layer)
-			{
-				mapscr* curlayer = get_scr_layer(scr->screen, layer - 1);
-				for(size_t pos = 0; pos < 176; ++pos)
-				{
-					auto& cmb = combobuf[curlayer->data[pos]];
-					if(cmb.type == cSPOTLIGHT)
-					{
-						rpos_t rpos = POS_TO_RPOS(pos, region_scr_x, region_scr_y);
-						launch_lightbeam(get_rpos_handle(rpos, layer), maps, refl, block);
-					}
-				}
-			}
+		for_every_rpos([&](const rpos_handle_t& rpos_handle) {
+			if (rpos_handle.ctype() == cSPOTLIGHT)
+				launch_lightbeam(rpos_handle, maps, refl, block);
 		});
 
 		for_every_ffc([&](const ffc_handle_t& ffc_handle) {
@@ -23383,7 +23374,10 @@ void HeroClass::handleSpotlights()
 			{
 				int32_t offs = get_beamoffs(grid[(int)rpos]);
 				if(offs > -1)
-					masked_blit(cbmp, lightbeam_bmp, offs*16, 0, COMBOX_REGION(rpos)-viewport.x, COMBOY_REGION(rpos)-viewport.y, 16, 16);
+				{
+					auto [x, y] = COMBOXY_REGION(rpos);
+					masked_blit(cbmp, lightbeam_bmp, offs*16, 0, x-viewport.x, y-viewport.y, 16, 16);
+				}
 			}
 			destroy_bitmap(cbmp);
 			delete[] it->second;

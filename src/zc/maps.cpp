@@ -774,8 +774,9 @@ rpos_t COMBOPOS_REGION_INDEX(int32_t x, int32_t y)
 
 	int scr_dx = x / 16;
 	int scr_dy = y / 11;
-	int pos = COMBOPOS(x%16, y%11);
-	return static_cast<rpos_t>((scr_dx + scr_dy * current_region.screen_width)*176 + pos);
+	x %= 16;
+	y %= 11;
+	return static_cast<rpos_t>((scr_dx + scr_dy * current_region.screen_width)*176 + x + y * 16);
 }
 std::pair<int32_t, int32_t> COMBOXY_REGION_INDEX(rpos_t rpos)
 {
