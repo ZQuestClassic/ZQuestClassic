@@ -23833,15 +23833,15 @@ int32_t HeroClass::nextflag(int32_t cx, int32_t cy, int32_t cdir, bool comboflag
             break;
         }
 		
-		int32_t cmb = COMBOPOS(cx%256, cy%176);
-		const mapscr* scr = get_canonical_scr(map, screen);
-		if (!comboflag)
+        int32_t pos = COMBOPOS(cx%256, cy%176);
+        const mapscr* scr = get_canonical_scr(map, screen);
+        if (!comboflag)
         {
-			return scr->sflag[cmb];
+            return scr->sflag[pos];
         }
         else
         {
-            return combobuf[scr->data[cmb]].flag; // TODO z3 ! cached
+            return combo_caches::flag.minis[scr->data[pos]].flag;
         }
     }
     
