@@ -115,11 +115,6 @@ ZC_FORCE_INLINE rpos_t POS_TO_RPOS(int32_t pos, int32_t screen)
 	return POS_TO_RPOS(pos, z3_get_region_relative_dx(screen), z3_get_region_relative_dy(screen));
 }
 
-int32_t COMBOPOS_REGION_EXTENDED(int32_t pos, int32_t scr_dx, int32_t scr_dy);
-int32_t COMBOPOS_REGION_EXTENDED(int32_t x, int32_t y);
-int32_t COMBOPOS_REGION_EXTENDED_B(int32_t x, int32_t y);
-int32_t COMBOX_REGION_EXTENDED(int32_t pos);
-int32_t COMBOY_REGION_EXTENDED(int32_t pos);
 int32_t COMBOPOS(int32_t x, int32_t y);
 int32_t COMBOPOS_B(int32_t x, int32_t y);
 int32_t COMBOX(int32_t pos);
@@ -132,6 +127,9 @@ rpos_t COMBOPOS_REGION_CHECK_BOUNDS(int32_t x, int32_t y);
 std::pair<int32_t, int32_t> COMBOXY_REGION(rpos_t rpos);
 int32_t COMBOX_REGION(rpos_t rpos);
 int32_t COMBOY_REGION(rpos_t rpos);
+// Same as COMBOXY_REGION, but not multiplied by 16.
+rpos_t COMBOPOS_REGION_INDEX(int32_t x, int32_t y);
+std::pair<int32_t, int32_t> COMBOXY_REGION_INDEX(rpos_t rpos);
 
 int32_t mapind(int32_t map, int32_t scr);
 bool ffcIsAt(const ffc_handle_t& ffc_handle, int32_t x, int32_t y);
