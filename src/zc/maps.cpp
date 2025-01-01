@@ -868,14 +868,14 @@ int32_t isdungeon(int32_t dmap, int32_t screen)
     // dungeons can have any dlevel above 0
     if((DMaps[dmap].type&dmfTYPE) == dmDNGN)
     {
-        if(TheMaps[(currmap*MAPSCRS)+screen].flags6&fCAVEROOM)
+        if (get_canonical_scr(currmap, screen)->flags6&fCAVEROOM)
             return 0;
             
         return 1;
     }
     
     // dlevels that aren't dungeons are caves
-    if(TheMaps[(currmap*MAPSCRS)+screen].flags6&fDUNGEONROOM)
+    if (get_canonical_scr(currmap, screen)->flags6&fDUNGEONROOM)
         return 1;
         
     return 0;
@@ -3427,7 +3427,7 @@ void bombdoor(int32_t x,int32_t y)
     if(scr->door[0]==dBOMB && CHECK_RECT(x,y,100,0,139,48))
     {
         scr->door[0]=dBOMBED;
-        putdoor(scrollbuf,0,0,dBOMBED);
+        putdoor(scr, scrollbuf, 0, dBOMBED);
         setmapflag(scr, mDOOR_UP);
         markBmap(-1, screen);
         
@@ -3441,7 +3441,7 @@ void bombdoor(int32_t x,int32_t y)
     if(scr->door[1]==dBOMB && CHECK_RECT(x,y,100,112,139,176))
     {
         scr->door[1]=dBOMBED;
-        putdoor(scrollbuf,0,1,dBOMBED);
+        putdoor(scr, scrollbuf, 1, dBOMBED);
         setmapflag(scr, mDOOR_DOWN);
         markBmap(-1, rpos_handle.screen);
         
@@ -3455,7 +3455,7 @@ void bombdoor(int32_t x,int32_t y)
     if(scr->door[2]==dBOMB && CHECK_RECT(x,y,0,60,48,98))
     {
         scr->door[2]=dBOMBED;
-        putdoor(scrollbuf,0,2,dBOMBED);
+        putdoor(scr, scrollbuf, 2, dBOMBED);
         setmapflag(scr, mDOOR_LEFT);
         markBmap(-1, rpos_handle.screen);
         
@@ -3469,7 +3469,7 @@ void bombdoor(int32_t x,int32_t y)
     if(scr->door[3]==dBOMB && CHECK_RECT(x,y,192,60,240,98))
     {
         scr->door[3]=dBOMBED;
-        putdoor(scrollbuf,0,3,dBOMBED);
+        putdoor(scr, scrollbuf, 3, dBOMBED);
         setmapflag(scr, mDOOR_RIGHT);
         markBmap(-1, rpos_handle.screen);
         
@@ -4458,7 +4458,7 @@ void draw_screen(bool showhero, bool runGeneric)
 		mapscr* base_scr = screen_handles[0].base_scr;
 		if (lenscheck(base_scr, 0))
 		{
-			putscr(scrollbuf, offx, offy + playing_field_offset, base_scr);
+			putscr(base_scr, scrollbuf, offx, offy + playing_field_offset);
 		}
 	});
 
@@ -5066,14 +5066,8 @@ void draw_screen(bool showhero, bool runGeneric)
 	if(runGeneric) FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DRAW);
 }
 
-void put_door(BITMAP *dest,int32_t t,int32_t pos,int32_t side,int32_t type,bool redraw,bool even_walls)
-{
-	mapscr* m = t == 0 ? tmpscr : &special_warp_return_screen;
-	put_door(dest, m, pos, side, type, redraw, even_walls);
-}
-
 // TODO: separate setting door data and drawing door
-void put_door(BITMAP *dest,mapscr* scr,int32_t pos,int32_t side,int32_t type,bool redraw,bool even_walls)
+void put_door(mapscr* scr, BITMAP *dest, int32_t pos, int32_t side, int32_t type, bool redraw, bool even_walls)
 {
 	if (type > 8) return;
 
@@ -5229,8 +5223,13 @@ void put_door(BITMAP *dest,mapscr* scr,int32_t pos,int32_t side,int32_t type,boo
 	}
 }
 
-void over_door_new(BITMAP *dest, int32_t pos, int32_t side, int32_t door_combo_set, int32_t offx, int32_t offy)
+static void over_door(mapscr* scr, BITMAP *dest, int32_t pos, int32_t side, int32_t offx, int32_t offy)
 {
+	// TODO(replays): this was a bug :)
+	if (replay_is_active() && !is_in_scrolling_region())
+		scr = tmpscr;
+
+	int32_t door_combo_set = scr->door_combo_set;
 	int32_t x = (pos&15)<<4;
 	int32_t y = (pos&0xF0);
 	int32_t d = door_combo_set;
@@ -5283,13 +5282,7 @@ void over_door_new(BITMAP *dest, int32_t pos, int32_t side, int32_t door_combo_s
 	}
 }
 
-void over_door(BITMAP *dest,int32_t t, int32_t pos,int32_t side, int32_t xoff, int32_t yoff)
-{
-	mapscr& screen = t == 0 ? *tmpscr : special_warp_return_screen;
-	over_door_new(dest, pos, side, screen.door_combo_set, xoff, yoff);
-}
-
-void update_door(mapscr* m,int32_t side,int32_t door,bool even_walls)
+void update_door(mapscr* scr, int32_t side, int32_t door, bool even_walls)
 {
 	if(door == dNONE || (!even_walls&&(door==dWALL||door==dWALK)))
 		return;
@@ -5322,7 +5315,7 @@ void update_door(mapscr* m,int32_t side,int32_t door,bool even_walls)
 		if(screenscrolling && ((HeroDir()^1)==side))
 		{
 			doortype=dt_osht;
-			opendoors=-4;
+			open_doors_for_screen[scr->screen] = -4;
 			break;
 		}
 
@@ -5354,24 +5347,24 @@ void update_door(mapscr* m,int32_t side,int32_t door,bool even_walls)
 	switch(side)
 	{
 	case up:
-		put_door(nullptr,m,7,side,doortype,false,even_walls);
+		put_door(scr,nullptr,7,side,doortype,false,even_walls);
 		break;
 		
 	case down:
-		put_door(nullptr,m,151,side,doortype,false,even_walls);
+		put_door(scr,nullptr,151,side,doortype,false,even_walls);
 		break;
 		
 	case left:
-		put_door(nullptr,m,64,side,doortype,false,even_walls);
+		put_door(scr,nullptr,64,side,doortype,false,even_walls);
 		break;
 		
 	case right:
-		put_door(nullptr,m,78,side,doortype,false,even_walls);
+		put_door(scr,nullptr,78,side,doortype,false,even_walls);
 		break;
 	}
 }
 
-void putdoor(BITMAP *dest,int32_t t,int32_t side,int32_t door,bool redraw,bool even_walls)
+void putdoor(mapscr* scr, BITMAP *dest, int32_t side, int32_t door, bool redraw, bool even_walls)
 {
 	/*
 	  #define dWALL		   0  //  000	0
@@ -5411,7 +5404,7 @@ void putdoor(BITMAP *dest,int32_t t,int32_t side,int32_t door,bool redraw,bool e
 		if(screenscrolling && ((HeroDir()^1)==side))
 		{
 			doortype=dt_osht;
-			opendoors=-4;
+			open_doors_for_screen[cur_screen] = -4;
 			break;
 		}
 
@@ -5448,11 +5441,11 @@ void putdoor(BITMAP *dest,int32_t t,int32_t side,int32_t door,bool redraw,bool e
 		case dBOMBED:
 			if(redraw)
 			{
-				over_door(dest,t,39,side,0,0);
+				over_door(scr,dest,39,side,0,0);
 			}
 			[[fallthrough]];
 		default:
-			put_door(dest,t,7,side,doortype,redraw, even_walls);
+			put_door(scr,dest,7,side,doortype,redraw, even_walls);
 			break;
 		}
 		
@@ -5464,11 +5457,11 @@ void putdoor(BITMAP *dest,int32_t t,int32_t side,int32_t door,bool redraw,bool e
 		case dBOMBED:
 			if(redraw)
 			{
-				over_door(dest,t,135,side,0,0);
+				over_door(scr,dest,135,side,0,0);
 			}
 			[[fallthrough]];
 		default:
-			put_door(dest,t,151,side,doortype,redraw, even_walls);
+			put_door(scr,dest,151,side,doortype,redraw, even_walls);
 			break;
 		}
 		
@@ -5480,11 +5473,11 @@ void putdoor(BITMAP *dest,int32_t t,int32_t side,int32_t door,bool redraw,bool e
 		case dBOMBED:
 			if(redraw)
 			{
-				over_door(dest,t,66,side,0,0);
+				over_door(scr,dest,66,side,0,0);
 			}
 			[[fallthrough]];
 		default:
-			put_door(dest,t,64,side,doortype,redraw, even_walls);
+			put_door(scr,dest,64,side,doortype,redraw, even_walls);
 			break;
 		}
 		
@@ -5496,11 +5489,11 @@ void putdoor(BITMAP *dest,int32_t t,int32_t side,int32_t door,bool redraw,bool e
 		case dBOMBED:
 			if(redraw)
 			{
-				over_door(dest,t,77,side,0,0);
+				over_door(scr,dest,77,side,0,0);
 			}
 			[[fallthrough]];
 		default:
-			put_door(dest,t,78,side,doortype,redraw, even_walls);
+			put_door(scr,dest,78,side,doortype,redraw, even_walls);
 			break;
 		}
 		
@@ -5640,7 +5633,7 @@ void openshutters(mapscr* scr)
 	for(int32_t i=0; i<4; i++)
 		if(scr->door[i]==dSHUTTER)
 		{
-			putdoor(scrollbuf,0,i,dOPENSHUTTER);
+			putdoor(scr, scrollbuf, i, dOPENSHUTTER);
 			scr->door[i]=dOPENSHUTTER;
 			opened_door = true;
 		}
@@ -5780,7 +5773,7 @@ void load_a_screen_and_layers(int dmap, int map, int screen, int ldir)
 					base_scr->door[i]=dOPENSHUTTER;
 				}
 				
-				opendoors = -4;
+				open_doors_for_screen[screen] = -4;
 				break;
 				
 			case dLOCKED:
@@ -6236,7 +6229,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 					scr->door[i]=dOPENSHUTTER;
 				}
 				
-				opendoors = -4;
+				open_doors_for_screen[screen] = -4;
 				break;
 				
 			case dLOCKED:
@@ -6448,7 +6441,7 @@ void loadscr2(int32_t tmp,int32_t screen,int32_t)
 			
 			if(putit)
 			{
-				putdoor(scrollbuf,tmp,i,scr.door[i],false);
+				putdoor(&scr, scrollbuf, i, scr.door[i], false);
 			}
 			
 			if(door==dSHUTTER||door==d1WAYSHUTTER)
@@ -6494,7 +6487,7 @@ void loadscr2(int32_t tmp,int32_t screen,int32_t)
 	home_screen = oscr;
 }
 
-void putscr(BITMAP* dest,int32_t x,int32_t y, mapscr* scr)
+void putscr(mapscr* scr, BITMAP* dest, int32_t x, int32_t y)
 {
 	// This is a bogus value while screenscrolling == true, but that's ok
 	// because it is only used to calculate the rpos, and during screenscrolling
@@ -6544,29 +6537,29 @@ static void putscrdoors(const nearby_screens_t& nearby_screens, BITMAP *dest, in
 
 		if(scr->door[0]==dBOMBED)
 		{
-			over_door_new(dest, 39, up, scr->door_combo_set, offx+x, offy+y);
+			over_door(scr, dest, 39, up, offx+x, offy+y);
 		}
 		
 		if(scr->door[1]==dBOMBED)
 		{
-			over_door_new(dest, 135, down, scr->door_combo_set, offx+x, offy+y);
+			over_door(scr, dest, 135, down, offx+x, offy+y);
 		}
 		
 		if(scr->door[2]==dBOMBED)
 		{
-			over_door_new(dest, 66, left, scr->door_combo_set, offx+x, offy+y);
+			over_door(scr, dest, 66, left, offx+x, offy+y);
 		}
 		
 		if(scr->door[3]==dBOMBED)
 		{
-			over_door_new(dest, 77, right, scr->door_combo_set, offx+x, offy+y);
+			over_door(scr, dest, 77, right, offx+x, offy+y);
 		}
 	});
 }
 
-void putscrdoors(BITMAP *dest,int32_t x,int32_t y, mapscr* scrn)
+void putscrdoors(mapscr* scr, BITMAP *dest, int32_t x, int32_t y)
 {
-	if(scrn->valid==0||!show_layer_0)
+	if(scr->valid==0||!show_layer_0)
 	{
 		return;
 	}
@@ -6574,24 +6567,24 @@ void putscrdoors(BITMAP *dest,int32_t x,int32_t y, mapscr* scrn)
 	x -= viewport.x;
 	y -= viewport.y;
 	
-	if(scrn->door[0]==dBOMBED)
+	if(scr->door[0]==dBOMBED)
 	{
-		over_door(dest,0,39,up,x,y);
+		over_door(scr,dest,39,up,x,y);
 	}
 	
-	if(scrn->door[1]==dBOMBED)
+	if(scr->door[1]==dBOMBED)
 	{
-		over_door(dest,0,135,down,x,y);
+		over_door(scr,dest,135,down,x,y);
 	}
 	
-	if(scrn->door[2]==dBOMBED)
+	if(scr->door[2]==dBOMBED)
 	{
-		over_door(dest,0,66,left,x,y);
+		over_door(scr,dest,66,left,x,y);
 	}
 	
-	if(scrn->door[3]==dBOMBED)
+	if(scr->door[3]==dBOMBED)
 	{
-		over_door(dest,0,77,right,x,y);
+		over_door(scr,dest,77,right,x,y);
 	}
 }
 static inline bool onSwitch(newcombo const& cmb, zfix const& switchblockstate)
@@ -7469,12 +7462,12 @@ void ViewMap()
 					
 					if(XOR(tmpscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer_old(screen_bmp, 0, 3, tmpscr, xx, yy, 2);
 					
-					if(lenscheck(tmpscr,0)) putscr(screen_bmp,0,0,tmpscr);
+					if(lenscheck(tmpscr,0)) putscr(tmpscr, screen_bmp, 0, 0);
 					do_layer_old(screen_bmp, 0, 1, tmpscr, xx, yy, 2);
 					
 					if(!XOR((tmpscr->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_layer_old(screen_bmp, 0, 2, tmpscr, xx, yy, 2);
 					
-					putscrdoors(screen_bmp,0,0,tmpscr);
+					putscrdoors(tmpscr, screen_bmp, 0, 0);
 					if (get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
 					{
 						do_layer_old(screen_bmp,-2, 0, tmpscr, xx, yy, 2);

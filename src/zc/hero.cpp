@@ -22432,7 +22432,8 @@ void HeroClass::checklocked()
 		{
 			if(usekey())
 			{
-				putdoor(scrollbuf,0,d,dUNLOCKED);
+				// TODO z3 ?
+				putdoor(origin_scr, scrollbuf, d, dUNLOCKED);
 				origin_scr->door[d]=dUNLOCKED;
 				set_doorstate(d);
 				sfx(WAV_DOOR);
@@ -22444,7 +22445,7 @@ void HeroClass::checklocked()
 		{
 			if(game->lvlitems[dlevel]&liBOSSKEY)
 			{
-				putdoor(scrollbuf,0,d,dOPENBOSS);
+				putdoor(origin_scr, scrollbuf, d, dOPENBOSS);
 				origin_scr->door[d]=dOPENBOSS;
 				set_doorstate(d);
 				sfx(WAV_DOOR);
@@ -23808,6 +23809,10 @@ void HeroClass::checkspecial()
 
 		// doors
 		bool has_shutter = false;
+		int opendoors = 0;
+		if (auto it = open_doors_for_screen.find(screen); it != open_doors_for_screen.end())
+			opendoors = it->second;
+
 		for(int32_t i=0; i<4; i++)
 			if(scr->door[i]==dSHUTTER)
 			{
@@ -23824,6 +23829,8 @@ void HeroClass::checkspecial()
 					
 				break;
 			}
+
+		open_doors_for_screen[screen] = opendoors;
 		if(!has_shutter && !opendoors && loaded_enemies && !(scr->flags&fSHUTTERS) && !hasmainguy)
 		{
 			openshutters(scr);
@@ -25478,8 +25485,8 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			loadscr(wdmap, destscr, up, false);
 			//preloaded freeform combos
 			ffscript_engine(true);
-			putscr(scrollbuf,0,0,tmpscr);
-			putscrdoors(scrollbuf,0,0,tmpscr);
+			putscr(tmpscr, scrollbuf, 0, 0);
+			putscrdoors(tmpscr, scrollbuf, 0, 0);
 			dir=up;
 			x=112;
 			y=160;
@@ -25851,15 +25858,15 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			if((type1==cCAVE)||(type1>=cCAVEB && type1<=cCAVED) || (type2==cCAVE)||(type2>=cCAVEB && type2<=cCAVED))
 			{
 				reset_pal_cycling();
-				putscr(scrollbuf,0,0,tmpscr);
-				putscrdoors(scrollbuf,0,0,tmpscr);
+				putscr(tmpscr, scrollbuf, 0, 0);
+				putscrdoors(tmpscr, scrollbuf, 0, 0);
 				walkup(COOLSCROLL);
 			}
 			else if((type3==cCAVE2)||(type3>=cCAVE2B && type3<=cCAVE2D) || (type2==cCAVE2)||(type2>=cCAVE2B && type2<=cCAVE2D))
 			{
 				reset_pal_cycling();
-				putscr(scrollbuf,0,0,tmpscr);
-				putscrdoors(scrollbuf,0,0,tmpscr);
+				putscr(tmpscr, scrollbuf, 0, 0);
+				putscrdoors(tmpscr, scrollbuf, 0, 0);
 				walkdown2(COOLSCROLL);
 			}
 			else if(COOLSCROLL)
@@ -26182,21 +26189,21 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 		//preloaded freeform combos
 		ffscript_engine(true);
 		
-		putscr(scrollbuf,0,0,hero_scr);
-		putscrdoors(scrollbuf,0,0,hero_scr);
+		putscr(hero_scr, scrollbuf, 0, 0);
+		putscrdoors(hero_scr, scrollbuf, 0, 0);
 		
 		if((type1==cCAVE)||(type1>=cCAVEB && type1<=cCAVED) || (type2==cCAVE)||(type2>=cCAVEB && type2<=cCAVED))
 		{
 			reset_pal_cycling();
-			putscr(scrollbuf,0,0,hero_scr);
-			putscrdoors(scrollbuf,0,0,hero_scr);
+			putscr(hero_scr, scrollbuf, 0, 0);
+			putscrdoors(hero_scr, scrollbuf, 0, 0);
 			walkup(COOLSCROLL);
 		}
 		else if((type3==cCAVE2)||(type3>=cCAVE2B && type3<=cCAVE2D) || (type2==cCAVE2)||(type2>=cCAVE2B && type2<=cCAVE2D))
 		{
 			reset_pal_cycling();
-			putscr(scrollbuf,0,0,hero_scr);
-			putscrdoors(scrollbuf,0,0,hero_scr);
+			putscr(hero_scr, scrollbuf, 0, 0);
+			putscrdoors(hero_scr, scrollbuf, 0, 0);
 			walkdown2(COOLSCROLL);
 		}
 		else if(wtype==wtIWARPZAP)
@@ -26371,21 +26378,21 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			//preloaded freeform combos
 			ffscript_engine(true);
 			
-			putscr(scrollbuf,0,0,hero_scr);
-			putscrdoors(scrollbuf,0,0,hero_scr);
-			
+			putscr(hero_scr, scrollbuf, 0, 0);
+			putscrdoors(hero_scr, scrollbuf, 0, 0);
+
 			if((type1==cCAVE)||(type1>=cCAVEB && type1<=cCAVED) || (type2==cCAVE)||(type2>=cCAVEB && type2<=cCAVED))
 			{
 				reset_pal_cycling();
-				putscr(scrollbuf,0,0,hero_scr);
-				putscrdoors(scrollbuf,0,0,hero_scr);
+				putscr(hero_scr, scrollbuf, 0, 0);
+				putscrdoors(hero_scr, scrollbuf, 0, 0);
 				walkup(COOLSCROLL);
 			}
 			else if((type3==cCAVE2)||(type3>=cCAVE2B && type3<=cCAVE2D) || (type2==cCAVE2)||(type2>=cCAVE2B && type2<=cCAVE2D))
 			{
 				reset_pal_cycling();
-				putscr(scrollbuf,0,0,hero_scr);
-				putscrdoors(scrollbuf,0,0,hero_scr);
+				putscr(hero_scr, scrollbuf, 0, 0);
+				putscrdoors(hero_scr, scrollbuf, 0, 0);
 				walkdown2(COOLSCROLL);
 			}
 			else if(wtype==wtIWARPZAP)
@@ -26695,8 +26702,8 @@ void HeroClass::exitcave()
 	if (updatemusic || !musicnocut)
 		music_stop();
     kill_sfx();
-    putscr(scrollbuf,0,0,hero_scr);
-    putscrdoors(scrollbuf,0,0,hero_scr);
+    putscr(hero_scr, scrollbuf, 0, 0);
+    putscrdoors(hero_scr, scrollbuf, 0, 0);
     
     if((type1==cCAVE)||(type1>=cCAVEB && type1<=cCAVED) || (type2==cCAVE)||(type2>=cCAVEB && type2<=cCAVED))
     {
@@ -29476,7 +29483,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 		for_every_nearby_screen_during_scroll(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy, bool is_new_screen) {
 			offy += playing_field_offset;
 			if (lenscheck(screen_handles[0].scr, 0))
-				putscr(framebuf, offx, offy, screen_handles[0].scr);
+				putscr(screen_handles[0].scr, framebuf, offx, offy);
 		});
 		combotile_add_y = 0;
 
@@ -29548,7 +29555,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 
 		for_every_nearby_screen_during_scroll(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy, bool is_new_screen) {
 			offy += playing_field_offset;
-			putscrdoors(framebuf, offx, offy, screen_handles[0].scr);
+			putscrdoors(screen_handles[0].scr, framebuf, offx, offy);
 		});
 
 		if (!align_counter || scroll_counter) herostep();
@@ -29785,11 +29792,11 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 			raftclk=0;
 		}
 	}
-	
-	opendoors=0;
+
+	open_doors_for_screen.clear();
 	markBmap();
-	
-	if(isdungeon())
+
+	if (isdungeon(currdmap, hero_scr->screen))
 	{
 		switch(hero_scr->door[scrolldir^1])
 		{
@@ -29813,8 +29820,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 			if(action!=rafting)
 				stepforward(diagonalMovement?21:24, false);
 				
-			putdoor(scrollbuf,0,scrolldir^1,hero_scr->door[scrolldir^1]);
-			opendoors=-4;
+			putdoor(hero_scr, scrollbuf, scrolldir^1, hero_scr->door[scrolldir^1]);
+			open_doors_for_screen[hero_scr->screen] = -4;
 			sfx(WAV_DOOR);
 			break;
 			

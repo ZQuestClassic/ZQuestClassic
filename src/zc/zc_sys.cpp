@@ -3915,12 +3915,12 @@ int32_t onSaveMapPic()
 				
 				if(XOR(scr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer_old(_screen_draw_buffer, 0, 3, &special_warp_return_screen, 256, -playing_field_offset, 2);
 				
-				if(lenscheck(&special_warp_return_screen,0)) putscr(_screen_draw_buffer,256,0,&special_warp_return_screen);
+				if(lenscheck(&special_warp_return_screen,0)) putscr(&special_warp_return_screen, _screen_draw_buffer, 256, 0);
 				do_layer_old(_screen_draw_buffer, 0, 1, &special_warp_return_screen, 256, -playing_field_offset, 2);
 				
 				if(!XOR(scr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer_old(_screen_draw_buffer, 0, 2, &special_warp_return_screen, 256, -playing_field_offset, 2);
 				
-				putscrdoors(_screen_draw_buffer,256,0,&special_warp_return_screen);
+				putscrdoors(&special_warp_return_screen, _screen_draw_buffer, 256, 0);
 				if(get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
 				{
 					do_layer_old(_screen_draw_buffer, -2, 0, &special_warp_return_screen, 256, -playing_field_offset, 2);

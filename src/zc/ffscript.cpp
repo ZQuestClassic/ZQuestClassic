@@ -17748,12 +17748,15 @@ void set_register(int32_t arg, int32_t value)
 			if (auto scr = GetMapscr(ri->mapsref))
 				scr->screeninitd[ri->d[rINDEX]/10000] = value;
 			break;
-		
+
 		case SCRDOORD:
-			get_scr(ri->screenref)->door[ri->d[rINDEX]/10000]=value/10000;
-			putdoor(scrollbuf,0,ri->d[rINDEX]/10000,value/10000,true,true);
+		{
+			mapscr* scr = get_scr(ri->screenref);
+			scr->door[ri->d[rINDEX]/10000]=value/10000;
+			putdoor(scr, scrollbuf, ri->d[rINDEX]/10000, value/10000, true, true);
 			break;
-			
+		}
+
 		case LIT:
 			set_lights(value);
 			break;
@@ -28977,8 +28980,8 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 			//preloaded freeform combos
 			ffscript_engine(true);
 			
-			putscr(scrollbuf,0,0,hero_scr);
-			putscrdoors(scrollbuf,0,0,hero_scr);
+			putscr(hero_scr, scrollbuf, 0, 0);
+			putscrdoors(hero_scr, scrollbuf, 0, 0);
 			
 			doWarpEffect(warpEffect, false);
 			show_subscreen_life=true;

@@ -38,6 +38,9 @@ enum
 struct mapscr
 {
 	byte map;
+	// The screen index of the mapscr.
+	// If this mapscr is acting as a layer for an active screen, then this is the index of the base
+	// screen.
 	byte screen;
 	byte valid;
 	bool is_valid() const { return valid&mVALID; }

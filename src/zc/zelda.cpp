@@ -321,7 +321,7 @@ int32_t hero_screen=0;
 int32_t cur_screen=0;
 int32_t currscr_for_passive_subscr;
 direction scrolling_dir;
-int32_t newscr_clk=0,opendoors=0,currdmap=0,fadeclk=-1,listpos=0;
+int32_t newscr_clk=0,currdmap=0,fadeclk=-1,listpos=0;
 int32_t lastentrance=0,lastentrance_dmap=0,prices[3]= {0},loadside = 0, Bwpn = -1, Awpn = -1, Xwpn = -1, Ywpn = -1;
 int32_t digi_volume = 0,midi_volume = 0,sfx_volume = 0,emusic_volume = 0,currmidi = -1,whistleclk = 0,pan_style = 0;
 bool analog_movement=true;
@@ -366,6 +366,7 @@ bool refreshpal,blockpath = false,loaded_guys= false,freeze_guys= false,
      loaded_enemies= false,drawguys= false,watch= false;
 bool room_is_dark=false, darkroom=false,naturaldark=false,BSZ= false;                         //,NEWSUBSCR;
 std::set<int> loaded_enemies_for_screen;
+std::map<int, int> open_doors_for_screen; // TODO z3 ! better state management? screen item state too..
 
 bool down_control_states[controls::btnLast] = {false};
 bool F12= false,F11= false, F5= false,keyI= false, keyQ= false,
@@ -1638,6 +1639,7 @@ void init_game_vars(bool is_cont_game = false)
 	Hero.reset_ladder();
 	linkedmsgclk=0;
 	mblock2.clear();
+	open_doors_for_screen.clear();
 	add_asparkle=0;
 	add_bsparkle=0;
 	add_df1asparkle=false;
@@ -1654,7 +1656,7 @@ void init_game_vars(bool is_cont_game = false)
 	script_hero_flip = -1; 
 	script_hero_cset = -1;
 	room_is_dark=darkroom=naturaldark=false;
-	sle_x=sle_y=newscr_clk=opendoors=0;
+	sle_x=sle_y=newscr_clk=0;
 	Bwpn=Awpn=Xwpn=Ywpn=-1;
 	FFCore.kb_typing_mode = false;
 	activated_timed_warp=false;

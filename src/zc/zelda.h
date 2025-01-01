@@ -318,7 +318,7 @@ extern bool scrolling_using_new_region_coords;
 extern direction scrolling_dir;
 // See dowarp.
 extern int32_t currscr_for_passive_subscr;
-extern int32_t newscr_clk,opendoors,currdmap,fadeclk,listpos;
+extern int32_t newscr_clk,currdmap,fadeclk,listpos;
 extern int32_t lastentrance,lastentrance_dmap, prices[3],loadside, Bwpn, Awpn, Xwpn, Ywpn;
 extern int32_t digi_volume,midi_volume,sfx_volume,emusic_volume,currmidi,whistleclk,pan_style;
 extern bool analog_movement;
@@ -350,6 +350,7 @@ extern int32_t LastWidth, LastHeight;
 extern bool refreshpal,blockpath,__debug,loaded_guys,freeze_guys;
 extern bool loaded_enemies,drawguys,debug_enabled,watch;
 extern std::set<int> loaded_enemies_for_screen;
+extern std::map<int, int> open_doors_for_screen;
 extern bool down_control_states[controls::btnLast];
 extern bool F12,F11,F5,keyI, keyQ;
 extern bool SystemKeys,NESquit,volkeys,useCD,boughtsomething;
