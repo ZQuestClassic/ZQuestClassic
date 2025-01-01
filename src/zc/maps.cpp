@@ -7194,6 +7194,7 @@ void toggle_gswitches(bool* states, bool entry, mapscr* base_scr)
 {
 	if(!states) return;
 
+	auto& combo_cache = combo_caches::gswitch;
 	int screen = base_scr->screen;
 	bool iscurscr = base_scr==tmpscr;
 	byte togglegrid[176] = {0};
@@ -7205,13 +7206,21 @@ void toggle_gswitches(bool* states, bool entry, mapscr* base_scr)
 
 		for(int32_t pos = 0; pos < 176; ++pos)
 		{
-			newcombo const& cmb = combobuf[scr->data[pos]];
-			if(iscurscr)
-				if(cmb.triggerflags[3] & combotriggerTRIGGLOBALSTATE)
-					if(states[cmb.trig_gstate])
+			int cid = scr->data[pos];
+			auto& mini_cmb = combo_cache.minis[cid];
+
+			// TODO z3 ! in current region
+			if (iscurscr)
+			{
+				if (mini_cmb.trigger_global_state)
+					if (states[combobuf[cid].trig_gstate])
 						do_trigger_combo(get_rpos_handle_for_screen(screen, lyr, pos), ctrigSWITCHSTATE);
-			if(!(cmb.usrflags & cflag11)) //not global state
+			}
+
+			if (!mini_cmb.has_global_state)
 				continue;
+
+			newcombo const& cmb = combobuf[cid];
 			if(cmb.type == cCSWITCH || cmb.type == cCSWITCHBLOCK)
 			{
 				if(states[cmb.attribytes[0]])
@@ -7328,9 +7337,10 @@ void toggle_gswitches(bool* states, bool entry, mapscr* base_scr)
 		for (uint8_t q = 0; q < c; ++q)
 		{
 			auto ffc_handle = *base_scr->getFFCHandle(q, screen_index_offset);
-			auto& cmb = ffc_handle.combo();
-			if(cmb.triggerflags[3] & combotriggerTRIGGLOBALSTATE)
-				if(states[cmb.trig_gstate])
+			int cid = ffc_handle.data();
+			auto& mini_cmb = combo_cache.minis[cid];
+			if (mini_cmb.trigger_global_state)
+				if (states[combobuf[cid].trig_gstate])
 					do_trigger_combo(ffc_handle, ctrigSWITCHSTATE);
 		}
 	}

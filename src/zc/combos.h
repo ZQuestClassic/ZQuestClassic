@@ -191,6 +191,20 @@ namespace combo_caches
 	};
 	extern combo_cache<minicombo_shutter> shutter;
 
+	struct minicombo_gswitch
+	{
+		bool trigger_global_state : 1;
+		bool has_global_state : 1;
+
+		minicombo_gswitch() = default;
+		minicombo_gswitch(const newcombo& combo)
+		{
+			trigger_global_state = combo.triggerflags[3] & combotriggerTRIGGLOBALSTATE;
+			has_global_state = combo.usrflags & cflag11;
+		}
+	};
+	extern combo_cache<minicombo_gswitch> gswitch;
+
 	struct minicombo_script
 	{
 		word script;
@@ -250,6 +264,7 @@ namespace combo_caches
 		trigger_group.init();
 		can_cycle.init();
 		shutter.init();
+		gswitch.init();
 		script.init();
 		drawing.init();
 		lens.init();
@@ -262,6 +277,7 @@ namespace combo_caches
 			trigger_group.refresh(i);
 			can_cycle.refresh(i);
 			shutter.refresh(i);
+			gswitch.refresh(i);
 			script.refresh(i);
 			drawing.refresh(i);
 			lens.refresh(i);
@@ -276,6 +292,7 @@ namespace combo_caches
 		trigger_group.refresh(cid);
 		can_cycle.refresh(cid);
 		shutter.refresh(cid);
+		gswitch.refresh(cid);
 		script.refresh(cid);
 		drawing.refresh(cid);
 		lens.refresh(cid);
