@@ -17,7 +17,7 @@
 // region.
 template<typename T>
 requires std::is_invocable_v<T, mapscr*, unsigned int, unsigned int>
-ZC_FORCE_INLINE void for_every_screen_in_region(T&& fn)
+ZC_FORCE_INLINE void for_every_base_screen_in_region(T&& fn)
 {
 	if (!is_in_scrolling_region())
 	{

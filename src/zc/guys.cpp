@@ -18235,7 +18235,7 @@ void loadguys()
 	}
 	screen_item_clear_state();
 
-	for_every_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
+	for_every_base_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
 		loadguys(scr);
 	});
 }
@@ -18666,7 +18666,7 @@ void update_slope_comboposes()
 
 	if (Hero.sideview_mode())
 	{
-		for_every_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
+		for_every_base_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
 			for (int dir = up; dir <= right; dir++)
 				handle_slope_combopos_bordering_screen(scr->screen, dir);
 		});
@@ -19404,7 +19404,7 @@ void loadenemies()
 		if(visited[i]==s)
 			beenhere = true;
 	
-	for_every_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
+	for_every_base_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
 		int screen = scr->screen;
 		if (loaded_enemies_for_screen.contains(screen))
 			return;
@@ -21426,7 +21426,7 @@ static void roaming_item(mapscr* scr)
 
 void roaming_item()
 {
-	for_every_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
+	for_every_base_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
 		roaming_item(scr);
 	});
 }

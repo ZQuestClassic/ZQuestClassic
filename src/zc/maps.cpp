@@ -1759,7 +1759,7 @@ void update_combo_cycling()
 
 	std::set<uint16_t> restartanim;
 
-	for_every_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
+	for_every_base_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
 		int screen = scr->screen;
 		int32_t x;
 
@@ -4385,7 +4385,7 @@ static void for_every_nearby_screen(const nearby_screens_t& nearby_screens, cons
 
 static void for_every_screen_in_region_some_layers(std::vector<int> layers, const std::function <void (std::array<screen_handle_t, 7>, int, int, bool)>& fn)
 {
-	for_every_screen_in_region([&](mapscr* base_scr, unsigned int region_scr_x, unsigned int region_scr_y) {
+	for_every_base_screen_in_region([&](mapscr* base_scr, unsigned int region_scr_x, unsigned int region_scr_y) {
 		int screen = base_scr->screen;
 		std::array<screen_handle_t, 7> screen_handles;
 		for (int i : layers)
@@ -6001,7 +6001,7 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool overlay, bool 
 	}
 
 	room_is_dark = false;
-	for_every_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
+	for_every_base_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
 		room_is_dark |= (bool)(scr->flags & fDARK);
 	});
 
@@ -7031,7 +7031,7 @@ void toggle_switches(dword flags, bool entry)
 {
 	if(!flags) return; //No flags to toggle
 
-	for_every_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
+	for_every_base_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
 		toggle_switches(flags, entry, scr);
 	});
 }
@@ -7180,7 +7180,7 @@ void toggle_switches(dword flags, bool entry, mapscr* m)
 
 void toggle_gswitches(int32_t state, bool entry)
 {
-	for_every_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
+	for_every_base_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
 		toggle_gswitches(state, entry, scr);
 	});
 }
@@ -7369,7 +7369,7 @@ void run_gswitch_timers()
 			}
 		++it;
 	}
-	for_every_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
+	for_every_base_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
 		toggle_gswitches(states, false, scr);
 	});
 }

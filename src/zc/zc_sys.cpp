@@ -3451,7 +3451,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 			}
 		});
 
-		for_every_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
+		for_every_base_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
 			if (layer)
 			{
 				if(scr->door[0]==dWALK)
