@@ -5893,13 +5893,6 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool overlay, bool 
 			combobuf[animated_combo_table4[x][0]].aclk = 0;
 		}
 	}
-	for (word x=0; x<animated_combos2; x++) // TODO z3 rm?
-	{
-		if(combobuf[animated_combo_table24[x][0]].nextcombo!=0)
-		{
-			combobuf[animated_combo_table24[x][0]].aclk = 0;
-		}
-	}
 	reset_combo_animations2();
 
 	z3_load_region(destdmap, screen);
