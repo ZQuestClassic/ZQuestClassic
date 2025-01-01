@@ -23841,7 +23841,7 @@ int32_t HeroClass::nextflag(int32_t cx, int32_t cy, int32_t cdir, bool comboflag
         }
         else
         {
-            return combobuf[scr->data[cmb]].flag;
+            return combobuf[scr->data[cmb]].flag; // TODO z3 ! cached
         }
     }
     
@@ -23879,7 +23879,7 @@ void HeroClass::checkspecial()
 					do_trigger_combo(rpos_handle);
 				}
 			});
-			for_every_ffc([&](const ffc_handle_t& ffc_handle) {
+			for_every_ffc_in_screen(scr, [&](const ffc_handle_t& ffc_handle) {
 				auto& cmb = ffc_handle.combo();
 				if(cmb.triggerflags[2] & combotriggerENEMIESKILLED)
 				{

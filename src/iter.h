@@ -191,6 +191,15 @@ ZC_FORCE_INLINE void for_every_combo(T&& fn, bool include_ffcs = !get_qr(qr_OLD_
 		for_every_ffc(fn);
 }
 
+template<typename T>
+requires std::is_invocable_v<T, const rpos_handle_t&> && std::is_invocable_v<T, const ffc_handle_t&>
+ZC_FORCE_INLINE void for_every_combo_in_screen(mapscr* scr, T&& fn, bool include_ffcs = !get_qr(qr_OLD_FFC_FUNCTIONALITY))
+{
+	for_every_rpos_in_screen(scr, fn);
+	if (include_ffcs)
+		for_every_ffc_in_screen(scr, fn);
+}
+
 // Iterates over every ffc in the current region, until execution is requested to stop.
 // Callback function: bool fn(const ffc_handle_t& ffc_handle)
 // If the callback returns false, the exeuction stops early.
@@ -274,7 +283,7 @@ ZC_FORCE_INLINE void for_every_rpos_in_screen(mapscr* scr, T&& fn)
 		return;
 	}
 
-	// Not in this region.
+	// Not in current region.
 
 	rpos_handle_t rpos_handle;
 	int map = scr->map;
