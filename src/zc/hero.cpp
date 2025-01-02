@@ -22394,14 +22394,20 @@ endsigns:
 	}
 }
 
+// Checks for locked doors, and potentially unlocks them.
+// Only looks at `hero_screen`.
 void HeroClass::checklocked()
 {
 	if(toogam) return; //Walk through walls. 
-	if(!isdungeon()) return;
+	if(!isdungeon(currdmap, hero_screen)) return;
 	if( !diagonalMovement && pushing!=8) return;
 	//This is required to allow the player to open a door, while sliding along a wall (pressing in the direction of the door, and sliding left or right)
 	if ( diagonalMovement && pushing < 8 ) return; //Allow wall walking Should I add a quest rule for this? -Z
-	
+
+	auto [offx, offy] = translate_screen_coordinates_to_world(hero_screen);
+	int x = this->x - offx;
+	int y = this->y - offy;
+
 	optional<int> openDir;
 	if ( diagonalMovement || get_qr(qr_DISABLE_4WAY_GRIDLOCK)) 
 	{
@@ -22428,26 +22434,25 @@ void HeroClass::checklocked()
 	if(openDir)
 	{
 		int d = *openDir;
-		if(origin_scr->door[d]==dLOCKED)
+		if(hero_scr->door[d]==dLOCKED)
 		{
 			if(usekey())
 			{
-				// TODO z3 ?
-				putdoor(origin_scr, scrollbuf, d, dUNLOCKED);
-				origin_scr->door[d]=dUNLOCKED;
-				set_doorstate(d);
+				putdoor(hero_scr, scrollbuf, d, dUNLOCKED);
+				hero_scr->door[d]=dUNLOCKED;
+				set_doorstate(hero_screen, d);
 				sfx(WAV_DOOR);
 				markBmap();
 			}
 			else return;
 		}
-		else if(origin_scr->door[d]==dBOSS)
+		else if(hero_scr->door[d]==dBOSS)
 		{
 			if(game->lvlitems[dlevel]&liBOSSKEY)
 			{
-				putdoor(origin_scr, scrollbuf, d, dOPENBOSS);
-				origin_scr->door[d]=dOPENBOSS;
-				set_doorstate(d);
+				putdoor(hero_scr, scrollbuf, d, dOPENBOSS);
+				hero_scr->door[d]=dOPENBOSS;
+				set_doorstate(hero_screen, d);
 				sfx(WAV_DOOR);
 				markBmap();
 				// Run Boss Key Script
