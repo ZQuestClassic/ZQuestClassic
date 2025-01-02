@@ -882,6 +882,7 @@ int32_t get_mi(int32_t ref)
 	if (ref >= 0)
 	{
 		if(ref%MAPSCRS >= MAPSCRSNORMAL) return -1;
+		// TODO z3 mapind...
 		return ref - (8*(ref / MAPSCRS));
 	}
 
@@ -889,12 +890,12 @@ int32_t get_mi(int32_t ref)
 	if (result.current())
 	{
 		if (result.screen >= MAPSCRSNORMAL) return -1;
-		return (currmap * MAPSCRSNORMAL) + result.screen;
+		return mapind(currmap, result.screen);
 	}
 	else if (result.scrolling())
 	{
 		if (result.screen >= MAPSCRSNORMAL) return -1;
-		return (scrolling_map * MAPSCRSNORMAL) + result.screen;
+		return mapind(scrolling_map, result.screen);
 	}
 
 	return -1;
@@ -6046,14 +6047,14 @@ int32_t get_register(int32_t arg)
 		
 		case SCREENSTATED:
 		{
-			int mi = (currmap*MAPSCRSNORMAL) + ri->screenref;
+			int mi = mapind(currmap, ri->screenref);
 			if(mi<0) {ret = 0;break;}
 			ret=((game->maps[mi]>>((ri->d[rINDEX]/10000)))&1)?10000:0;
 		}
 		break;
 		case SCREENEXSTATED:
 		{
-			int mi = (currmap*MAPSCRSNORMAL) + ri->screenref;
+			int mi = mapind(currmap, ri->screenref);
 			if(mi<0) {ret = 0;break;}
 			ret=((game->xstates[mi]>>((ri->d[rINDEX]/10000)))&1)?10000:0;
 		}
@@ -6172,8 +6173,11 @@ int32_t get_register(int32_t arg)
 		}
 		
 		case GAMEGUYCOUNTD:
-			ret=game->guys[(currmap * MAPSCRSNORMAL) + (ri->d[rINDEX] / 10000)]*10000;
+		{
+			int mi = mapind(currmap, ri->d[rINDEX] / 10000);
+			ret = game->guys[mi] * 10000;
 			break;
+		}
 
 		case ALLOCATEBITMAPR:
 			ret=FFCore.get_free_bitmap();
@@ -6865,7 +6869,7 @@ int32_t get_register(int32_t arg)
 		
 		case SCREENDATAGUYCOUNT:
 		{
-			int mi = (currmap*MAPSCRSNORMAL) + ri->screenref;
+			int mi = mapind(currmap, ri->screenref);
 			if(mi < 0)
 				ret = -10000;
 			else ret = game->guys[mi] * 10000;
@@ -6874,7 +6878,7 @@ int32_t get_register(int32_t arg)
 		case SCREENDATAEXDOOR:
 		{
 			ret = 0;
-			int mi = (currmap*MAPSCRSNORMAL) + ri->screenref;
+			int mi = mapind(currmap, ri->screenref);
 			if(mi < 0) break;
 			int dir = SH::read_stack(ri->sp+1) / 10000;
 			int ind = SH::read_stack(ri->sp+0) / 10000;
@@ -16834,13 +16838,13 @@ void set_register(int32_t arg, int32_t value)
 			
 		case SCREENSTATED:
 		{
-			int32_t mi2 = (currmap*MAPSCRSNORMAL)+ri->screenref;
+			int mi2 = mapind(currmap, ri->screenref);
 			(value)?setmapflag_mi(mi2, 1<<((ri->d[rINDEX])/10000)) : unsetmapflag_mi(mi2, 1 << ((ri->d[rINDEX]) / 10000));
 		}
 		break;
 		case SCREENEXSTATED:
 		{
-			int32_t mi2 = (currmap*MAPSCRSNORMAL)+ri->screenref;
+			int mi2 = mapind(currmap, ri->screenref);
 			(value)?setxmapflag_mi(mi2, 1<<((ri->d[rINDEX])/10000)) : unsetxmapflag_mi(mi2, 1 << ((ri->d[rINDEX]) / 10000));
 		}
 		break;
@@ -16890,8 +16894,11 @@ void set_register(int32_t arg, int32_t value)
 		}
 
 		case GAMEGUYCOUNTD:
-			game->guys[(currmap*MAPSCRSNORMAL)+(ri->d[rINDEX]/10000)] = value / 10000;
+		{
+			int mi = mapind(currmap, ri->d[rINDEX]/10000);
+			game->guys[mi] = value / 10000;
 			break;
+		}
 			
 	///----------------------------------------------------------------------------------------------------//
 	//BottleTypes
@@ -17664,14 +17671,14 @@ void set_register(int32_t arg, int32_t value)
 		
 		case SCREENDATAGUYCOUNT:
 		{
-			int mi = (currmap*MAPSCRSNORMAL) + ri->screenref;
+			int mi = mapind(currmap, ri->screenref);
 			if(mi > -1)
 				game->guys[mi] = vbound(value/10000,10,0);
 			break;
 		}
 		case SCREENDATAEXDOOR:
 		{
-			int mi = (currmap*MAPSCRSNORMAL) + ri->screenref;
+			int mi = mapind(currmap, ri->screenref);
 			if(mi < 0) break;
 			int dir = SH::read_stack(ri->sp+1) / 10000;
 			int ind = SH::read_stack(ri->sp+0) / 10000;
@@ -29096,8 +29103,9 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 				// reset enemy kill counts
 				for(int32_t i=0; i<128; i++)
 				{
-					game->guys[(currmap*MAPSCRSNORMAL)+i] = 0;
-					game->maps[(currmap*MAPSCRSNORMAL)+i] &= ~mTMPNORET;
+					int mi = mapind(currmap, i);
+					game->guys[mi] = 0;
+					game->maps[mi] &= ~mTMPNORET;
 				}
 			}
 			

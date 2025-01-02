@@ -25810,8 +25810,9 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			// reset enemy kill counts
 			for(int32_t i=0; i<128; i++)
 			{
-				game->guys[(currmap*MAPSCRSNORMAL)+i] = 0;
-				game->maps[(currmap*MAPSCRSNORMAL)+i] &= ~mTMPNORET;
+				int mi = mapind(currmap, i);
+				game->guys[mi] = 0;
+				game->maps[mi] &= ~mTMPNORET;
 			}
 		}
 		

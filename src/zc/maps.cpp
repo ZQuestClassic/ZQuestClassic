@@ -1187,7 +1187,7 @@ static void apply_state_changes_to_screen(mapscr& scr, int32_t map, int32_t scre
 	    remove_screenstatecombos2(&scr, false, cBOSSCHEST, cBOSSCHEST2);
 	}
 
-	int32_t mi = (map*MAPSCRSNORMAL)+screen;
+	int mi = mapind(map, screen);
 	clear_xdoors_mi(&scr, mi);
 	clear_xstatecombos_mi(&scr, screen, mi);
 }
@@ -1200,7 +1200,7 @@ std::optional<mapscr> load_temp_mapscr_and_apply_secrets(int32_t map, int32_t sc
     
 	if(m->valid==0) return std::nullopt;
 	
-	int32_t mi = (map*MAPSCRSNORMAL)+screen;
+	int mi = mapind(map, screen);
 	int32_t flags = 0;
 	
 	if(secrets)
@@ -1359,7 +1359,7 @@ void eventlog_mapflags()
 {
 	std::ostringstream oss;
 	
-	int32_t mi = (currmap*MAPSCRSNORMAL)+home_screen;
+	int mi = mapind(currmap, home_screen);
     word g = game->maps[mi] &0x3FFF;
     
 	oss << fmt::format("Screen ({}, {:02X})", currmap+1, home_screen);
@@ -1428,12 +1428,13 @@ void eventlog_mapflags()
 void setmapflag(mapscr* scr, int32_t flag)
 {
 	if (scr->screen >= 0x80) scr = &special_warp_return_screen;
-	int mi = (currmap * MAPSCRSNORMAL) + scr->screen;
+	int mi = mapind(currmap, scr->screen);
 	setmapflag_mi(scr, mi, flag);
 }
 void setmapflag_homescr(int32_t flag)
 {
-    setmapflag_mi(origin_scr, (currmap*MAPSCRSNORMAL)+home_screen, flag);
+	int mi = mapind(currmap, home_screen);
+    setmapflag_mi(origin_scr, mi, flag);
 }
 void setmapflag_mi(int32_t mi2, int32_t flag)
 {
@@ -1457,7 +1458,7 @@ void setmapflag_mi(mapscr* scr, int32_t mi2, int32_t flag)
         replay_step_comment(fmt::format("map {} scr {} flag {}", cmap, cscr, flag > 0 ? screenstate_string[(int32_t)temp] : "<Unknown>"));
     game->maps[mi2] |= flag;
     Z_eventlog("%s's State was set: %s\n",
-               mi2 != (currmap*MAPSCRSNORMAL)+home_screen ? buf : "Current screen",
+               mi2 != mapind(currmap, home_screen) ? buf : "Current screen", // TODO z3 ?
                flag>0 ? screenstate_string[(int32_t)temp] : "<Unknown>");
                
     if(flag==mSECRET||flag==mITEM||flag==mSPECIALITEM||flag==mLOCKBLOCK||
@@ -1501,13 +1502,14 @@ void setmapflag_mi(mapscr* scr, int32_t mi2, int32_t flag)
 
 void unsetmapflag_home(int32_t flag, bool anyflag)
 {
-    unsetmapflag_mi(origin_scr, (currmap*MAPSCRSNORMAL)+home_screen,flag,anyflag);
+	int mi = mapind(currmap, home_screen);
+    unsetmapflag_mi(origin_scr, mi, flag, anyflag);
 }
 
 void unsetmapflag(mapscr* scr, int32_t flag, bool anyflag)
 {
 	if (scr->screen >= 0x80) scr = &special_warp_return_screen;
-	int mi = (currmap * MAPSCRSNORMAL) + scr->screen;
+	int mi = mapind(currmap, scr->screen);
 	unsetmapflag_mi(scr, mi, flag, anyflag);
 }
 
@@ -1541,7 +1543,7 @@ void unsetmapflag_mi(mapscr* scr, int32_t mi2, int32_t flag, bool anyflag)
     
     float temp=log2((float)flag);
     Z_eventlog("%s's State was unset: %s\n",
-               mi2 != (currmap*MAPSCRSNORMAL)+home_screen ? buf : "Current screen",
+               mi2 != mapind(currmap, home_screen) ? buf : "Current screen", // TODO z3?
                flag>0 ? screenstate_string[(int32_t)temp] : "<Unknown>");
                
     if(flag==mSECRET||flag==mITEM||flag==mSPECIALITEM||flag==mLOCKBLOCK||
@@ -1579,11 +1581,12 @@ void unsetmapflag_mi(mapscr* scr, int32_t mi2, int32_t flag, bool anyflag)
 
 bool getmapflag(int32_t flag)
 {
-    return (game->maps[(currmap*MAPSCRSNORMAL)+home_screen] & flag) != 0;
+	int mi = mapind(currmap, home_screen);
+    return (game->maps[mi] & flag) != 0;
 }
 bool getmapflag(int32_t screen, int32_t flag)
 {
-	int mi = (currmap * MAPSCRSNORMAL) + (screen >= 0x80 ? home_screen : screen);
+	int mi = mapind(currmap, screen >= 0x80 ? home_screen : screen);
     return (game->maps[mi] & flag) != 0;
 }
 bool getmapflag(mapscr* scr, int32_t flag)
@@ -1593,7 +1596,7 @@ bool getmapflag(mapscr* scr, int32_t flag)
 
 void setxmapflag(int32_t screen, uint32_t flag)
 {
-	int mi = (currmap * MAPSCRSNORMAL) + (screen >= 0x80 ? home_screen : screen);
+	int mi = mapind(currmap, screen >= 0x80 ? home_screen : screen);
 	setxmapflag_mi(mi, flag);
 }
 void setxmapflag_mi(int32_t mi2, uint32_t flag)
@@ -1606,13 +1609,13 @@ void setxmapflag_mi(int32_t mi2, uint32_t flag)
     
     byte temp=(byte)log2((double)flag);
 	Z_eventlog("%s's ExtraState was set: %d\n",
-		mi2 != (currmap*MAPSCRSNORMAL)+home_screen ? buf : "Current screen", temp);
+		mi2 != mapind(currmap, home_screen) ? buf : "Current screen", temp); // TODO z3 ?
 	
 	game->xstates[mi2] |= flag;
 }
 void unsetxmapflag(int32_t screen, uint32_t flag)
 {
-	int mi = (currmap * MAPSCRSNORMAL) + (screen >= 0x80 ? home_screen : screen);
+	int mi = mapind(currmap, screen >= 0x80 ? home_screen : screen);
 	unsetxmapflag_mi(mi, flag);
 }
 void unsetxmapflag_mi(int32_t mi2, uint32_t flag)
@@ -1625,13 +1628,13 @@ void unsetxmapflag_mi(int32_t mi2, uint32_t flag)
     
     byte temp=(byte)log2((double)flag);
 	Z_eventlog("%s's ExtraState was unset: %d\n",
-		mi2 != (currmap*MAPSCRSNORMAL)+home_screen ? buf : "Current screen", temp);
+		mi2 != mapind(currmap, home_screen) ? buf : "Current screen", temp); // TODO z3?
 	
 	game->xstates[mi2] &= ~flag;
 }
 bool getxmapflag(int32_t screen, uint32_t flag)
 {
-	int mi = (currmap * MAPSCRSNORMAL) + (screen >= 0x80 ? home_screen : screen);
+	int mi = mapind(currmap, screen >= 0x80 ? home_screen : screen);
 	return getxmapflag_mi(mi, flag);
 }
 bool getxmapflag_mi(int32_t mi2, uint32_t flag)
@@ -1648,14 +1651,15 @@ void setxdoor(uint mi, uint dir, uint ind, bool state)
 	SETFLAG(game->xdoors[mi][dir], 1<<ind, state);
     int cscr = mi % MAPSCRSNORMAL;
     int cmap = mi / MAPSCRSNORMAL;
-	bool iscurrscr = mi == ((currmap*MAPSCRSNORMAL)+home_screen);
+	bool iscurrscr = mi == mapind(currmap, home_screen); // TODO z3 ?
 	Z_eventlog("%s's ExDoor[%s][%d] was %sset\n",
 		iscurrscr ? "Current screen" : fmt::format("Screen ({}, {:02X})",cmap+1,cscr).c_str(),
 		dirstr[dir], ind, state ? "" : "un");
 }
 void setxdoor(uint dir, uint ind, bool state)
 {
-	setxdoor((currmap*MAPSCRSNORMAL)+home_screen,dir,ind,state);
+	int mi = mapind(currmap, home_screen);
+	setxdoor(mi, dir, ind, state);
 }
 bool getxdoor(uint mi, uint dir, uint ind)
 {
@@ -1665,7 +1669,8 @@ bool getxdoor(uint mi, uint dir, uint ind)
 }
 bool getxdoor(uint dir, uint ind)
 {
-	return getxdoor((currmap*MAPSCRSNORMAL)+home_screen,dir,ind);
+	int mi = mapind(currmap, home_screen);
+	return getxdoor(mi,dir,ind);
 }
 
 void set_doorstate_mi(uint mi, uint dir)
@@ -1678,12 +1683,13 @@ void set_doorstate_mi(uint mi, uint dir)
 }
 void set_doorstate(uint screen, uint dir)
 {
-	int mi = (currmap*MAPSCRSNORMAL) + screen;
+	int mi = mapind(currmap, screen);
 	set_doorstate_mi(mi, dir);
 }
 void set_doorstate(uint dir)
 {
-	set_doorstate_mi((currmap*MAPSCRSNORMAL) + cur_screen, dir);
+	int mi = mapind(currmap, cur_screen);
+	set_doorstate_mi(mi, dir);
 }
 
 void set_xdoorstate(uint mi, uint dir, uint ind)
@@ -1696,7 +1702,8 @@ void set_xdoorstate(uint mi, uint dir, uint ind)
 }
 void set_xdoorstate(uint dir, uint ind)
 {
-	set_xdoorstate((currmap*MAPSCRSNORMAL) + cur_screen, dir, ind);
+	int mi = mapind(currmap, cur_screen);
+	set_xdoorstate(mi, dir, ind);
 }
 
 int32_t WARPCODE(int32_t dmap,int32_t screen,int32_t dw)
@@ -2376,7 +2383,7 @@ bool remove_screenstatecombos2(mapscr *s, bool do_layers, int32_t what1, int32_t
 
 bool remove_xstatecombos(mapscr *s, byte xflag, bool triggers)
 {
-	int mi = (currmap * MAPSCRSNORMAL) + (s->screen >= 0x80 ? home_screen : s->screen);
+	int mi = mapind(currmap, s->screen >= 0x80 ? home_screen : s->screen);
 	return remove_xstatecombos_mi(s, s->screen, mi, xflag, triggers);
 }
 bool remove_xstatecombos_mi(mapscr *s, int32_t screen, int32_t mi, byte xflag, bool triggers)
@@ -2461,7 +2468,7 @@ bool remove_xstatecombos_mi(mapscr *s, int32_t screen, int32_t mi, byte xflag, b
 
 void clear_xstatecombos(mapscr *s, int32_t screen, bool triggers)
 {
-	int mi = (currmap*MAPSCRSNORMAL) + (screen >= 0x80 ? home_screen : screen);
+	int mi = mapind(currmap, screen >= 0x80 ? home_screen : screen);
 	clear_xstatecombos_mi(s, screen, mi, triggers);
 }
 
@@ -2475,7 +2482,7 @@ void clear_xstatecombos_mi(mapscr *s, int32_t screen, int32_t mi, bool triggers)
 
 bool remove_xdoors(mapscr *scr, uint dir, uint ind, bool triggers)
 {
-	int mi = (currmap * MAPSCRSNORMAL) + (scr->screen >= 0x80 ? home_screen : scr->screen);
+	int mi = mapind(currmap, scr->screen >= 0x80 ? home_screen : scr->screen);
 	return remove_xdoors_mi(scr, mi, dir, ind, triggers);
 }
 bool remove_xdoors_mi(mapscr *scr, int32_t mi, uint dir, uint ind, bool triggers)
@@ -2527,7 +2534,7 @@ bool remove_xdoors_mi(mapscr *scr, int32_t mi, uint dir, uint ind, bool triggers
 
 void clear_xdoors(mapscr *scr, bool triggers)
 {
-	int mi = (currmap*MAPSCRSNORMAL) + (scr->screen >= 0x80 ? home_screen : scr->screen);
+	int mi = mapind(currmap, scr->screen >= 0x80 ? home_screen : scr->screen);
 	clear_xdoors_mi(scr, mi, triggers);
 }
 
@@ -5695,12 +5702,13 @@ void load_a_screen_and_layers(int dmap, int map, int screen, int ldir)
 	// Apply perm secrets, if applicable.
 	if (canPermSecret(dmap, screen))
 	{
-		if(game->maps[map*MAPSCRSNORMAL + screen] & mSECRET)    // if special stuff done before
+		int mi = mapind(map, screen);
+		if(game->maps[mi] & mSECRET)    // if special stuff done before
 		{
 			reveal_hidden_stairs(base_scr, screen, false);
 			trigger_secrets_for_screen(TriggerSource::SecretsScreenState, screen, base_scr, false);
 		}
-		if(game->maps[map*MAPSCRSNORMAL + screen] & mLIGHTBEAM) // if special stuff done before
+		if(game->maps[mi] & mLIGHTBEAM) // if special stuff done before
 		{
 			for(size_t layer = 0; layer < 7; ++layer)
 			{
@@ -5724,7 +5732,7 @@ void load_a_screen_and_layers(int dmap, int map, int screen, int ldir)
 	toggle_switches(game->lvlswitches[destlvl], true, base_scr);
 	toggle_gswitches_load(base_scr);
 
-	int mi = currmap*MAPSCRSNORMAL + screen;
+	int mi = mapind(currmap, screen); // TODO z3 ???? map???
 	bool should_check_for_state_things = (screen < 0x80) && mi < MAXMAPS*MAPSCRSNORMAL;
 	if (should_check_for_state_things)
 	{
@@ -6154,15 +6162,17 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 		scr->ffcs[i].y += offy;
 	}
 
+	int mi = mapind(currmap, screen);
+
 	// Apply perm secrets, if applicable.
 	if(canPermSecret(destdmap,screen)/*||TheMaps[(currmap*MAPSCRS)+cur_screen].flags6&fTRIGGERFPERM*/)
 	{
-		if(game->maps[(currmap*MAPSCRSNORMAL)+screen]&mSECRET)			   // if special stuff done before
+		if(game->maps[mi]&mSECRET)			   // if special stuff done before
 		{
 			reveal_hidden_stairs(scr, screen, false);
 			trigger_secrets_for_screen(TriggerSource::SecretsScreenState, cur_screen, tmp == 0 ? tmpscr : &special_warp_return_screen, false, -1);
 		}
-		if(game->maps[(currmap*MAPSCRSNORMAL)+screen]&mLIGHTBEAM) // if special stuff done before
+		if(game->maps[mi]&mLIGHTBEAM) // if special stuff done before
 		{
 			for(size_t layer = 0; layer < 7; ++layer)
 			{
@@ -6185,27 +6195,27 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 	toggle_switches(game->lvlswitches[destlvl], true, tmp == 0 ? tmpscr : &special_warp_return_screen);
 	toggle_gswitches_load(tmp == 0 ? tmpscr : &special_warp_return_screen);
 	
-	if(game->maps[(currmap*MAPSCRSNORMAL)+screen]&mLOCKBLOCK)			  // if special stuff done before
+	if(game->maps[mi]&mLOCKBLOCK)			  // if special stuff done before
 	{
 		remove_lockblocks(scr);
 	}
 	
-	if(game->maps[(currmap*MAPSCRSNORMAL)+screen]&mBOSSLOCKBLOCK)		  // if special stuff done before
+	if(game->maps[mi]&mBOSSLOCKBLOCK)		  // if special stuff done before
 	{
 		remove_bosslockblocks(scr);
 	}
 	
-	if(game->maps[(currmap*MAPSCRSNORMAL)+screen]&mCHEST)			  // if special stuff done before
+	if(game->maps[mi]&mCHEST)			  // if special stuff done before
 	{
 		remove_chests(scr);
 	}
 	
-	if(game->maps[(currmap*MAPSCRSNORMAL)+screen]&mLOCKEDCHEST)			  // if special stuff done before
+	if(game->maps[mi]&mLOCKEDCHEST)			  // if special stuff done before
 	{
 		remove_lockedchests(scr);
 	}
 	
-	if(game->maps[(currmap*MAPSCRSNORMAL)+screen]&mBOSSCHEST)			  // if special stuff done before
+	if(game->maps[mi]&mBOSSCHEST)			  // if special stuff done before
 	{
 		remove_bosschests(scr);
 	}
@@ -6233,7 +6243,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 				break;
 				
 			case dLOCKED:
-				if(game->maps[(currmap*MAPSCRSNORMAL)+screen]&(1<<i))
+				if(game->maps[mi]&(1<<i))
 				{
 					scr->door[i]=dUNLOCKED;
 				}
@@ -6241,7 +6251,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 				break;
 				
 			case dBOSS:
-				if(game->maps[(currmap*MAPSCRSNORMAL)+screen]&(1<<i))
+				if(game->maps[mi]&(1<<i))
 				{
 					scr->door[i]=dOPENBOSS;
 				}
@@ -6249,7 +6259,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 				break;
 				
 			case dBOMB:
-				if(game->maps[(currmap*MAPSCRSNORMAL)+screen]&(1<<i))
+				if(game->maps[mi]&(1<<i))
 				{
 					scr->door[i]=dBOMBED;
 				}
@@ -6335,15 +6345,17 @@ void loadscr2(int32_t tmp,int32_t screen,int32_t)
 			}
 		}
 	}
+
+	int mi = mapind(currmap, screen);
 	
 	if(canPermSecret(-1,screen))
 	{
-		if(game->maps[(currmap*MAPSCRSNORMAL)+screen]&mSECRET)			   // if special stuff done before
+		if(game->maps[mi]&mSECRET)			   // if special stuff done before
 		{
 			reveal_hidden_stairs(&scr, screen, false);
 			trigger_secrets_for_screen_internal(-1, tmp == 0 ? tmpscr2 : &special_warp_return_screen, false, false, -1);
 		}
-		if(game->maps[(currmap*MAPSCRSNORMAL)+screen]&mLIGHTBEAM) // if special stuff done before
+		if(game->maps[mi]&mLIGHTBEAM) // if special stuff done before
 		{
 			for(size_t layer = 0; layer < 7; ++layer)
 			{
@@ -6363,27 +6375,27 @@ void loadscr2(int32_t tmp,int32_t screen,int32_t)
 		}
 	}
 	
-	if(game->maps[(currmap*MAPSCRSNORMAL)+screen]&mLOCKBLOCK)			  // if special stuff done before
+	if(game->maps[mi]&mLOCKBLOCK)			  // if special stuff done before
 	{
 		remove_lockblocks(&scr);
 	}
 	
-	if(game->maps[(currmap*MAPSCRSNORMAL)+screen]&mBOSSLOCKBLOCK)		  // if special stuff done before
+	if(game->maps[mi]&mBOSSLOCKBLOCK)		  // if special stuff done before
 	{
 		remove_bosslockblocks(&scr);
 	}
 	
-	if(game->maps[(currmap*MAPSCRSNORMAL)+screen]&mCHEST)			  // if special stuff done before
+	if(game->maps[mi]&mCHEST)			  // if special stuff done before
 	{
 		remove_chests(&scr);
 	}
 	
-	if(game->maps[(currmap*MAPSCRSNORMAL)+screen]&mLOCKEDCHEST)			  // if special stuff done before
+	if(game->maps[mi]&mLOCKEDCHEST)			  // if special stuff done before
 	{
 		remove_lockedchests(&scr);
 	}
 	
-	if(game->maps[(currmap*MAPSCRSNORMAL)+screen]&mBOSSCHEST)			  // if special stuff done before
+	if(game->maps[mi]&mBOSSCHEST)			  // if special stuff done before
 	{
 		remove_bosschests(&scr);
 	}
@@ -6413,7 +6425,7 @@ void loadscr2(int32_t tmp,int32_t screen,int32_t)
 				break;
 				
 			case dLOCKED:
-				if(game->maps[(currmap*MAPSCRSNORMAL)+screen]&(1<<i))
+				if(game->maps[mi]&(1<<i))
 				{
 					scr.door[i]=dUNLOCKED;
 					//		  putit=false;
@@ -6422,7 +6434,7 @@ void loadscr2(int32_t tmp,int32_t screen,int32_t)
 				break;
 				
 			case dBOSS:
-				if(game->maps[(currmap*MAPSCRSNORMAL)+screen]&(1<<i))
+				if(game->maps[mi]&(1<<i))
 				{
 					scr.door[i]=dOPENBOSS;
 					//		  putit=false;
@@ -6431,7 +6443,7 @@ void loadscr2(int32_t tmp,int32_t screen,int32_t)
 				break;
 				
 			case dBOMB:
-				if(game->maps[(currmap*MAPSCRSNORMAL)+screen]&(1<<i))
+				if(game->maps[mi]&(1<<i))
 				{
 					scr.door[i]=dBOMBED;
 				}
@@ -7360,14 +7372,14 @@ void onload_gswitch_timers() //Reset all timers that were counting down, no trig
 
 /****  View Map  ****/
 
-//BITMAP *mappic = NULL;
 int32_t mapres = 0;
 int32_t view_map_show_mode = 3;
 
 bool displayOnMap(int32_t x, int32_t y)
 {
     int32_t s = (y<<4) + x;
-    if(!(game->maps[(currmap*MAPSCRSNORMAL)+s]&mVISITED))
+	int mi = mapind(currmap, s);
+    if (!(game->maps[mi]&mVISITED))
         return false;
 
     // Don't display if not part of DMap
@@ -7870,7 +7882,7 @@ void mark_visited(int screen)
 	if (screen < 0x80)
 	{
 		if(DMaps[currdmap].flags&dmfVIEWMAP)
-			game->maps[(currmap*MAPSCRSNORMAL)+screen] |= mVISITED;
+			game->maps[mapind(currmap, screen)] |= mVISITED;
 
 		markBmap(-1, screen);
 	}

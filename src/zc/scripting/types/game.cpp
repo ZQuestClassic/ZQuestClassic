@@ -351,7 +351,7 @@ std::optional<int32_t> game_get_register(int32_t reg)
 			
 		case GAMEGUYCOUNT:
 		{
-			int32_t mi = (currmap*MAPSCRSNORMAL)+(ri->d[rINDEX]/10000);
+			int mi = mapind(currmap, ri->d[rINDEX]/10000);
 			ret=game->guys[mi]*10000;
 		}
 		break;
@@ -833,8 +833,8 @@ bool game_set_register(int32_t reg, int32_t value)
 			
 		case GAMEGUYCOUNT:
 		{
-			int32_t mi2 = (currmap*MAPSCRSNORMAL)+(ri->d[rINDEX]/10000);
-			game->guys[mi2]=value/10000;
+			int mi = mapind(currmap, ri->d[rINDEX]/10000);
+			game->guys[mi]=value/10000;
 		}
 		break;
 		
