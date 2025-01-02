@@ -19075,10 +19075,14 @@ bool is_starting_pos(mapscr* scr, int32_t i, int32_t x, int32_t y, int32_t t)
 		return false;
 		
 	// No enemies in dungeon walls
-	if(isdungeon() && (x<32 || x>=224 || y<32 || y>=144))
-		return false;
+	if (isdungeon(currdmap, scr->screen))
+	{
+		auto [offx, offy] = translate_screen_coordinates_to_world(scr->screen);
+		if(isdungeon(currdmap, scr->screen) && (x<32+offx || x>=224+offx || y<32+offy || y>=144+offy))
+			return false;
+	}
 		
-	// Too close
+	// Too close to hero
 	if(tooclose(x,y,40) && t<11)
 		return false;
 		
