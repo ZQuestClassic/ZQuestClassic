@@ -7733,7 +7733,7 @@ void HeroClass::PhantomsCleanup()
 //Waitframe handler for refilling operations
 static void do_refill_waitframe()
 {
-	put_passive_subscr(framebuf,0,passive_subscreen_offset,game->should_show_time(),sspUP);
+	put_passive_subscr(framebuf,0,0,game->should_show_time(),sspUP);
 	if(get_qr(qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN))
 	{
 		script_drawing_commands.Clear();
@@ -29658,7 +29658,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 			scrollscr_handle_dark(newscr, oldscr, nearby_screens);
 		}
 
-		put_passive_subscr(framebuf, 0, passive_subscreen_offset, game->should_show_time(), sspUP);
+		put_passive_subscr(framebuf, 0, 0, game->should_show_time(), sspUP);
 
 		if(get_qr(qr_SUBSCREENOVERSPRITES))
 			do_primitives(framebuf, 7, 0, playing_field_offset);
@@ -31838,10 +31838,6 @@ void HeroClass::getTriforce(int32_t id2)
 		}
 	
 		draw_screen();
-		//this causes bugs
-		//the subscreen appearing over the curtain effect should now be fixed in draw_screen
-		//so this is not necessary -DD
-		//put_passive_subscr(framebuf,0,passive_subscreen_offset,false,false);
 		
 		//Run Triforce Script
 		advanceframe(true);
@@ -31935,36 +31931,7 @@ void HeroClass::heroDeathAnimation()
 	{
 		Paused=false;
 	}
-    
-    /*
-	game->set_deaths(zc_min(game->get_deaths()+1,999));
-	dir=down;
-	music_stop();
-	
-	attackclk=hclk=superman=0;
-	scriptcoldet = true;
-    
-	for(int32_t i=0; i<32; i++) miscellaneous[i] = 0;
-    
-	
-    
-	playing_field_offset=56; // otherwise, red_shift() may go past the bottom of the screen
-	quakeclk=wavy=0;
-    
-	//in original Z1, Hero marker vanishes at death.
-	//code in subscr.cpp, put_passive_subscr checks the following value.
-	//color 255 is a GUI color, so quest makers shouldn't be using this value.
-	//Also, subscreen is static after death in Z1.
-	int32_t tmp_hero_dot = QMisc.colors.hero_dot;
-	QMisc.colors.hero_dot = 255;
-	//doesn't work
-	//scrollbuf is tampered with by draw_screen()
-	//put_passive_subscr(scrollbuf, 256, passive_subscreen_offset, false, false);//save this and reuse it.
-	BITMAP *subscrbmp = create_bitmap_ex(8, framebuf->w, framebuf->h);
-	clear_bitmap(subscrbmp);
-	put_passive_subscr(subscrbmp, 0, passive_subscreen_offset, false, sspUP);
-	QMisc.colors.hero_dot = tmp_hero_dot;
-    */
+
 	BITMAP *subscrbmp = create_bitmap_ex(8, framebuf->w, framebuf->h);
 				clear_bitmap(subscrbmp);
 				//get rid off all sprites but Hero
@@ -31998,11 +31965,8 @@ void HeroClass::heroDeathAnimation()
 				//Also, subscreen is static after death in Z1.
 				int32_t tmp_hero_dot = QMisc.colors.hero_dot;
 				QMisc.colors.hero_dot = 255;
-				//doesn't work
-				//scrollbuf is tampered with by draw_screen()
-				//put_passive_subscr(scrollbuf, 256, passive_subscreen_offset, false, false);//save this and reuse it.
 				
-				put_passive_subscr(subscrbmp, 0, passive_subscreen_offset, game->should_show_time(), sspUP);
+				put_passive_subscr(subscrbmp, 0, 0, game->should_show_time(), sspUP);
 				//Don't forget passive subscreen scripts!
 				if(get_qr(qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN))
 				{

@@ -4645,7 +4645,7 @@ void draw_screen(bool showhero, bool runGeneric)
 	{
 		bool dotime = false;
 		if (replay_version_check(22)) dotime = game->should_show_time();
-		put_passive_subscr(framebuf, 0, passive_subscreen_offset, dotime, sspUP);
+		put_passive_subscr(framebuf, 0, 0, dotime, sspUP);
 	}
 	
 	// Draw some sprites onto framebuf
@@ -5047,7 +5047,7 @@ void draw_screen(bool showhero, bool runGeneric)
 	// Draw the subscreen, without clipping
 	if(get_qr(qr_SUBSCREENOVERSPRITES))
 	{
-		put_passive_subscr(framebuf, 0, passive_subscreen_offset, game->should_show_time(), sspUP);
+		put_passive_subscr(framebuf, 0, 0, game->should_show_time(), sspUP);
 		
 		// Draw primitives over subscren
 		do_primitives(framebuf, 7, 0, playing_field_offset); //Layer '7' appears above subscreen if quest rule is set

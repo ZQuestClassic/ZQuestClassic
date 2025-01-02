@@ -225,7 +225,6 @@ ComboPosition mouse_combo_pos;
 int32_t original_playing_field_offset=0;
 int32_t playing_field_offset=original_playing_field_offset;
 int32_t passive_subscreen_height=56;
-int32_t passive_subscreen_offset=0;
 
 bool disable_saving=false, OverwriteProtection;
 bool halt=false;

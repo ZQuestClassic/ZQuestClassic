@@ -334,8 +334,7 @@ void fade(int32_t level,bool blackall,bool fromblack)
 		
 		if(!get_qr(qr_NOLEVEL3FIX) && level==3)
 			RAMpal[CSET(6)+2] = NESpal(0x37);
-			
-		//put_passive_subscr(framebuf,0,passive_subscreen_offset,false,false);
+
 		advanceframe(true);
 		
 		if(Quit)

@@ -1606,7 +1606,6 @@ void close_black_opening(int32_t x, int32_t y, bool wait, int32_t shape)
 		for(int32_t i=0; i<66; i++)
 		{
 			draw_screen();
-			//put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
 			advanceframe(true);
 			
 			if(Quit)
@@ -4770,7 +4769,7 @@ void blackscr(int32_t fcnt,bool showsubscr)
 		
 		if(showsubscr)
 		{
-			put_passive_subscr(framebuf,0,passive_subscreen_offset,showtime,sspUP);
+			put_passive_subscr(framebuf,0,0,showtime,sspUP);
 			if(get_qr(qr_SCRIPTDRAWSINWARPS) || (get_qr(qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN)))
 			{
 				do_script_draws(framebuf, tmpscr, 0, playing_field_offset);
