@@ -26959,10 +26959,10 @@ void HeroClass::stepforward(int32_t steps, bool adjust)
             }
         }
         
-
-		clear_darkroom_bitmaps();
+        clear_darkroom_bitmaps();
+        z3_update_viewport();
         draw_screen();
-		if (canSideviewLadder()) setOnSideviewLadder(true);
+        if (canSideviewLadder()) setOnSideviewLadder(true);
         advanceframe(true);
         
         if(Quit)
