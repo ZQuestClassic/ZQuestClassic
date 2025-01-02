@@ -789,7 +789,6 @@ std::pair<int32_t, int32_t> COMBOXY_REGION_INDEX(rpos_t rpos)
 	return {x, y};
 }
 
-// TODO z3 ???
 int32_t mapind(int32_t map, int32_t scr)
 {
 	return (map<<7)+scr;
@@ -1446,20 +1445,27 @@ void setmapflag_mi(int32_t mi2, int32_t flag)
 
 	setmapflag_mi(scr, mi2, flag);
 }
+
+static void log_state_change(int map, int screen, std::string action)
+{
+	if (is_in_current_region(map, screen) || (map == currmap && screen == home_screen))
+		Z_eventlog("[Map %d, Screen %02X (current)] %s\n", map + 1, screen, action.c_str());
+	else
+		Z_eventlog("[Map %d, Screen %02X] %s\n", map + 1, screen, action.c_str());
+}
+
 void setmapflag_mi(mapscr* scr, int32_t mi2, int32_t flag)
 {
     byte cscr = mi2&((1<<7)-1);
     byte cmap = (mi2>>7);
-    char buf[20];
-    sprintf(buf,"Screen (%d, %02X)",cmap+1,cscr);
-    
+
     float temp=log2((float)flag);
+    const char* state_string = flag>0 ? screenstate_string[(int32_t)temp] : "<Unknown>";
+
     if (replay_is_active() && !(game->maps[mi2] & flag))
-        replay_step_comment(fmt::format("map {} scr {} flag {}", cmap, cscr, flag > 0 ? screenstate_string[(int32_t)temp] : "<Unknown>"));
+        replay_step_comment(fmt::format("map {} scr {} flag {}", cmap, cscr, state_string));
     game->maps[mi2] |= flag;
-    Z_eventlog("%s's State was set: %s\n",
-               mi2 != mapind(currmap, home_screen) ? buf : "Current screen", // TODO z3 ?
-               flag>0 ? screenstate_string[(int32_t)temp] : "<Unknown>");
+    log_state_change(cmap, cscr, fmt::format("State set: {}", state_string));
                
     if(flag==mSECRET||flag==mITEM||flag==mSPECIALITEM||flag==mLOCKBLOCK||
             flag==mBOSSLOCKBLOCK||flag==mCHEST||flag==mBOSSCHEST||flag==mLOCKEDCHEST)
@@ -1474,14 +1480,14 @@ void setmapflag_mi(mapscr* scr, int32_t mi2, int32_t flag)
         {
             if((scr->nocarry&flag)!=flag && !(game->maps[((nmap-1)<<7)+nscr] & flag))
             {
-                Z_eventlog("State change carried over to (%d, %02X)\n",nmap+1,nscr);
+                log_state_change(nmap, nscr, "State change carried over");
                 if (replay_is_active())
-                    replay_step_comment(fmt::format("map {} scr {} flag {} carry", nmap, nscr, flag > 0 ? screenstate_string[(int32_t)temp] : "<Unknown>"));
+                    replay_step_comment(fmt::format("map {} scr {} flag {} carry", nmap, nscr, state_string));
                 game->maps[((nmap-1)<<7)+nscr] |= flag;
-				if (flag == mSECRET && is_in_current_region(nmap - 1, nscr))
-				{
-					trigger_secrets_for_screen(TriggerSource::SecretsScreenState, nscr);
-				}
+                if (flag == mSECRET && is_in_current_region(nmap - 1, nscr))
+                {
+                    trigger_secrets_for_screen(TriggerSource::SecretsScreenState, nscr);
+                }
             }
             
             cmap=nmap;
@@ -1538,13 +1544,9 @@ void unsetmapflag_mi(mapscr* scr, int32_t mi2, int32_t flag, bool anyflag)
     }
     else game->maps[mi2] &= ~flag;
     
-    char buf[20];
-    sprintf(buf,"Screen (%d, %02X)",cmap+1,cscr);
-    
     float temp=log2((float)flag);
-    Z_eventlog("%s's State was unset: %s\n",
-               mi2 != mapind(currmap, home_screen) ? buf : "Current screen", // TODO z3?
-               flag>0 ? screenstate_string[(int32_t)temp] : "<Unknown>");
+    const char* state_string = flag>0 ? screenstate_string[(int32_t)temp] : "<Unknown>";
+    log_state_change(cmap, cscr, fmt::format("State unset: {}", state_string));
                
     if(flag==mSECRET||flag==mITEM||flag==mSPECIALITEM||flag==mLOCKBLOCK||
             flag==mBOSSLOCKBLOCK||flag==mCHEST||flag==mBOSSCHEST||flag==mLOCKEDCHEST)
@@ -1559,7 +1561,7 @@ void unsetmapflag_mi(mapscr* scr, int32_t mi2, int32_t flag, bool anyflag)
         {
             if((scr->nocarry&flag)!=flag && (game->maps[((nmap-1)<<7)+nscr] & flag))
             {
-                Z_eventlog("State change carried over to (%d, %02X)\n",nmap,nscr);
+                log_state_change(nmap, nscr, "State change carried over");
                 game->maps[((nmap-1)<<7)+nscr] &= ~flag;
             }
             
@@ -1602,15 +1604,12 @@ void setxmapflag(int32_t screen, uint32_t flag)
 void setxmapflag_mi(int32_t mi2, uint32_t flag)
 {
 	if(game->xstates[mi2] & flag) return;
-    byte cscr = mi2&((1<<7)-1);
-    byte cmap = (mi2>>7);
-    char buf[20];
-    sprintf(buf,"Screen (%d, %02X)",cmap+1,cscr);
-    
-    byte temp=(byte)log2((double)flag);
-	Z_eventlog("%s's ExtraState was set: %d\n",
-		mi2 != mapind(currmap, home_screen) ? buf : "Current screen", temp); // TODO z3 ?
-	
+	byte cscr = mi2&((1<<7)-1);
+	byte cmap = (mi2>>7);
+
+	byte temp=(byte)log2((double)flag);
+	log_state_change(cmap, cscr, fmt::format("ExtraState set: {}", temp));
+
 	game->xstates[mi2] |= flag;
 }
 void unsetxmapflag(int32_t screen, uint32_t flag)
@@ -1621,15 +1620,10 @@ void unsetxmapflag(int32_t screen, uint32_t flag)
 void unsetxmapflag_mi(int32_t mi2, uint32_t flag)
 {
 	if(!(game->xstates[mi2] & flag)) return;
-    byte cscr = mi2&((1<<7)-1);
-    byte cmap = (mi2>>7);
-    char buf[20];
-    sprintf(buf,"Screen (%d, %02X)",cmap+1,cscr);
-    
-    byte temp=(byte)log2((double)flag);
-	Z_eventlog("%s's ExtraState was unset: %d\n",
-		mi2 != mapind(currmap, home_screen) ? buf : "Current screen", temp); // TODO z3?
-	
+	byte cscr = mi2&((1<<7)-1);
+	byte cmap = (mi2>>7);
+	byte temp=(byte)log2((double)flag);
+	log_state_change(cmap, cscr, fmt::format("ExtraState unset: {}", temp));
 	game->xstates[mi2] &= ~flag;
 }
 bool getxmapflag(int32_t screen, uint32_t flag)
@@ -1648,13 +1642,15 @@ void setxdoor(uint mi, uint dir, uint ind, bool state)
 		return;
 	if(!(game->xdoors[mi][dir] & (1<<ind)) == !state)
 		return;
+
 	SETFLAG(game->xdoors[mi][dir], 1<<ind, state);
-    int cscr = mi % MAPSCRSNORMAL;
-    int cmap = mi / MAPSCRSNORMAL;
-	bool iscurrscr = mi == mapind(currmap, home_screen); // TODO z3 ?
-	Z_eventlog("%s's ExDoor[%s][%d] was %sset\n",
-		iscurrscr ? "Current screen" : fmt::format("Screen ({}, {:02X})",cmap+1,cscr).c_str(),
-		dirstr[dir], ind, state ? "" : "un");
+
+	int cscr = mi % MAPSCRSNORMAL;
+	int cmap = mi / MAPSCRSNORMAL;
+	if (state)
+		log_state_change(cmap, cscr, fmt::format("ExDoor[{}][{}] set", dirstr[dir], ind));
+	else
+		log_state_change(cmap, cscr, fmt::format("ExDoor[{}][{}] unset", dirstr[dir], ind));
 }
 void setxdoor(uint dir, uint ind, bool state)
 {
