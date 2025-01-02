@@ -5520,110 +5520,110 @@ void overcombo_not_zero(BITMAP *dest, int32_t x, int32_t y, int32_t combo, int32
     }
 }
 
-void showbombeddoor(BITMAP *dest, int32_t side)
+void showbombeddoor(mapscr* scr, BITMAP *dest, int32_t side, int32_t offx, int32_t offy)
 {
-    int32_t d=tmpscr->door_combo_set;
+    int32_t d = scr->door_combo_set;
     
     switch(side)
     {
     case up:
-        putcombo_not_zero(dest,(7&15)<<4,(7&0xF0)+playing_field_offset,
+        putcombo_not_zero(dest,((7&15)<<4) + offx,(7&0xF0) + offy,
                           DoorComboSets[d].doorcombo_u[dt_bomb][0],
                           DoorComboSets[d].doorcset_u[dt_bomb][0]);
-        putcombo_not_zero(dest,(8&15)<<4,(8&0xF0)+playing_field_offset,
+        putcombo_not_zero(dest,((8&15)<<4) + offx,(8&0xF0) + offy,
                           DoorComboSets[d].doorcombo_u[dt_bomb][1],
                           DoorComboSets[d].doorcset_u[dt_bomb][1]);
-        putcombo_not_zero(dest,(23&15)<<4,(23&0xF0)+playing_field_offset,
+        putcombo_not_zero(dest,((23&15)<<4) + offx,(23&0xF0) + offy,
                           DoorComboSets[d].doorcombo_u[dt_bomb][2],
                           DoorComboSets[d].doorcset_u[dt_bomb][2]);
-        putcombo_not_zero(dest,(24&15)<<4,(24&0xF0)+playing_field_offset,
+        putcombo_not_zero(dest,((24&15)<<4) + offx,(24&0xF0) + offy,
                           DoorComboSets[d].doorcombo_u[dt_bomb][3],
                           DoorComboSets[d].doorcset_u[dt_bomb][3]);
-        overcombo_not_zero(dest,(39&15)<<4,(39&0xF0)+playing_field_offset,
+        overcombo_not_zero(dest,((39&15)<<4) + offx,(39&0xF0) + offy,
                            DoorComboSets[d].bombdoorcombo_u[0],
                            DoorComboSets[d].bombdoorcset_u[0]);
-        overcombo_not_zero(dest,(40&15)<<4,(40&0xF0)+playing_field_offset,
+        overcombo_not_zero(dest,((40&15)<<4) + offx,(40&0xF0) + offy,
                            DoorComboSets[d].bombdoorcombo_u[1],
                            DoorComboSets[d].bombdoorcset_u[1]);
         break;
         
     case down:
-        putcombo_not_zero(dest,(151&15)<<4,(151&0xF0)+playing_field_offset,
+        putcombo_not_zero(dest,((151&15)<<4) + offx,(151&0xF0) + offy,
                           DoorComboSets[d].doorcombo_d[dt_bomb][0],
                           DoorComboSets[d].doorcset_d[dt_bomb][0]);
-        putcombo_not_zero(dest,(152&15)<<4,(152&0xF0)+playing_field_offset,
+        putcombo_not_zero(dest,((152&15)<<4) + offx,(152&0xF0) + offy,
                           DoorComboSets[d].doorcombo_d[dt_bomb][1],
                           DoorComboSets[d].doorcset_d[dt_bomb][1]);
-        putcombo_not_zero(dest,(167&15)<<4,(167&0xF0)+playing_field_offset,
+        putcombo_not_zero(dest,((167&15)<<4) + offx,(167&0xF0) + offy,
                           DoorComboSets[d].doorcombo_d[dt_bomb][2],
                           DoorComboSets[d].doorcset_d[dt_bomb][2]);
-        putcombo_not_zero(dest,(168&15)<<4,(168&0xF0)+playing_field_offset,
+        putcombo_not_zero(dest,((168&15)<<4) + offx,(168&0xF0) + offy,
                           DoorComboSets[d].doorcombo_d[dt_bomb][3],
                           DoorComboSets[d].doorcset_d[dt_bomb][3]);
-        overcombo_not_zero(dest,(135&15)<<4,(135&0xF0)+playing_field_offset,
+        overcombo_not_zero(dest,((135&15)<<4) + offx,(135&0xF0) + offy,
                            DoorComboSets[d].bombdoorcombo_d[0],
                            DoorComboSets[d].bombdoorcset_d[0]);
-        overcombo_not_zero(dest,(136&15)<<4,(136&0xF0)+playing_field_offset,
+        overcombo_not_zero(dest,((136&15)<<4) + offx,(136&0xF0) + offy,
                            DoorComboSets[d].bombdoorcombo_d[1],
                            DoorComboSets[d].bombdoorcset_d[1]);
         break;
         
     case left:
-        putcombo_not_zero(dest,(64&15)<<4,(64&0xF0)+playing_field_offset,
+        putcombo_not_zero(dest,((64&15)<<4) + offx,(64&0xF0) + offy,
                           DoorComboSets[d].doorcombo_l[dt_bomb][0],
                           DoorComboSets[d].doorcset_l[dt_bomb][0]);
-        putcombo_not_zero(dest,(65&15)<<4,(65&0xF0)+playing_field_offset,
+        putcombo_not_zero(dest,((65&15)<<4) + offx,(65&0xF0) + offy,
                           DoorComboSets[d].doorcombo_l[dt_bomb][1],
                           DoorComboSets[d].doorcset_l[dt_bomb][1]);
-        putcombo_not_zero(dest,(80&15)<<4,(80&0xF0)+playing_field_offset,
+        putcombo_not_zero(dest,((80&15)<<4) + offx,(80&0xF0) + offy,
                           DoorComboSets[d].doorcombo_l[dt_bomb][2],
                           DoorComboSets[d].doorcset_l[dt_bomb][2]);
-        putcombo_not_zero(dest,(81&15)<<4,(81&0xF0)+playing_field_offset,
+        putcombo_not_zero(dest,((81&15)<<4) + offx,(81&0xF0) + offy,
                           DoorComboSets[d].doorcombo_l[dt_bomb][3],
                           DoorComboSets[d].doorcset_l[dt_bomb][3]);
-        putcombo_not_zero(dest,(96&15)<<4,(96&0xF0)+playing_field_offset,
+        putcombo_not_zero(dest,((96&15)<<4) + offx,(96&0xF0) + offy,
                           DoorComboSets[d].doorcombo_l[dt_bomb][4],
                           DoorComboSets[d].doorcset_l[dt_bomb][4]);
-        putcombo_not_zero(dest,(97&15)<<4,(97&0xF0)+playing_field_offset,
+        putcombo_not_zero(dest,((97&15)<<4) + offx,(97&0xF0) + offy,
                           DoorComboSets[d].doorcombo_l[dt_bomb][5],
                           DoorComboSets[d].doorcset_l[dt_bomb][5]);
-        overcombo_not_zero(dest,(66&15)<<4,(66&0xF0)+playing_field_offset,
+        overcombo_not_zero(dest,((66&15)<<4) + offx,(66&0xF0) + offy,
                            DoorComboSets[d].bombdoorcombo_l[0],
                            DoorComboSets[d].bombdoorcset_l[0]);
-        overcombo_not_zero(dest,(82&15)<<4,(82&0xF0)+playing_field_offset,
+        overcombo_not_zero(dest,((82&15)<<4) + offx,(82&0xF0) + offy,
                            DoorComboSets[d].bombdoorcombo_l[1],
                            DoorComboSets[d].bombdoorcset_l[1]);
-        overcombo_not_zero(dest,(98&15)<<4,(98&0xF0)+playing_field_offset,
+        overcombo_not_zero(dest,((98&15)<<4) + offx,(98&0xF0) + offy,
                            DoorComboSets[d].bombdoorcombo_l[2],
                            DoorComboSets[d].bombdoorcset_l[2]);
         break;
         
     case right:
-        putcombo_not_zero(dest,(78&15)<<4,(78&0xF0)+playing_field_offset,
+        putcombo_not_zero(dest,((78&15)<<4) + offx,(78&0xF0) + offy,
                           DoorComboSets[d].doorcombo_r[dt_bomb][0],
                           DoorComboSets[d].doorcset_r[dt_bomb][0]);
-        putcombo_not_zero(dest,(79&15)<<4,(79&0xF0)+playing_field_offset,
+        putcombo_not_zero(dest,((79&15)<<4) + offx,(79&0xF0) + offy,
                           DoorComboSets[d].doorcombo_r[dt_bomb][1],
                           DoorComboSets[d].doorcset_r[dt_bomb][1]);
-        putcombo_not_zero(dest,(94&15)<<4,(94&0xF0)+playing_field_offset,
+        putcombo_not_zero(dest,((94&15)<<4) + offx,(94&0xF0) + offy,
                           DoorComboSets[d].doorcombo_r[dt_bomb][2],
                           DoorComboSets[d].doorcset_r[dt_bomb][2]);
-        putcombo_not_zero(dest,(95&15)<<4,(95&0xF0)+playing_field_offset,
+        putcombo_not_zero(dest,((95&15)<<4) + offx,(95&0xF0) + offy,
                           DoorComboSets[d].doorcombo_r[dt_bomb][3],
                           DoorComboSets[d].doorcset_r[dt_bomb][3]);
-        putcombo_not_zero(dest,(110&15)<<4,(110&0xF0)+playing_field_offset,
+        putcombo_not_zero(dest,((110&15)<<4) + offx,(110&0xF0) + offy,
                           DoorComboSets[d].doorcombo_r[dt_bomb][4],
                           DoorComboSets[d].doorcset_r[dt_bomb][4]);
-        putcombo_not_zero(dest,(111&15)<<4,(111&0xF0)+playing_field_offset,
+        putcombo_not_zero(dest,((111&15)<<4) + offx,(111&0xF0) + offy,
                           DoorComboSets[d].doorcombo_r[dt_bomb][5],
                           DoorComboSets[d].doorcset_r[dt_bomb][5]);
-        overcombo_not_zero(dest,(77&15)<<4,(77&0xF0)+playing_field_offset,
+        overcombo_not_zero(dest,((77&15)<<4) + offx,(77&0xF0) + offy,
                            DoorComboSets[d].bombdoorcombo_r[0],
                            DoorComboSets[d].bombdoorcset_r[0]);
-        overcombo_not_zero(dest,(93&15)<<4,(93&0xF0)+playing_field_offset,
+        overcombo_not_zero(dest,((93&15)<<4) + offx,(93&0xF0) + offy,
                            DoorComboSets[d].bombdoorcombo_r[1],
                            DoorComboSets[d].bombdoorcset_r[1]);
-        overcombo_not_zero(dest,(109&15)<<4,(109&0xF0)+playing_field_offset,
+        overcombo_not_zero(dest,((109&15)<<4) + offx,(109&0xF0) + offy,
                            DoorComboSets[d].bombdoorcombo_r[2],
                            DoorComboSets[d].bombdoorcset_r[2]);
         break;

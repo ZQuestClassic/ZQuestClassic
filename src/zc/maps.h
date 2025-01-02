@@ -388,7 +388,7 @@ void draw_screen(bool showhero=true, bool runGeneric = false);
 void put_door(mapscr* scr, BITMAP *dest, int32_t pos, int32_t side, int32_t type, bool redraw, bool even_walls=false);
 void update_door(mapscr* scr, int32_t side, int32_t door, bool even_walls=false);
 void putdoor(mapscr* scr, BITMAP *dest, int32_t side, int32_t door, bool redraw=true, bool even_walls=false);
-void showbombeddoor(BITMAP *dest, int32_t side);
+void showbombeddoor(mapscr* scr, BITMAP *dest, int32_t side, int32_t offx, int32_t offy);
 void openshutters(mapscr* scr);
 void load_a_screen_and_layers(int dmap, int map, int screen, int ldir);
 void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool overlay=false, bool no_x80_dir=false);

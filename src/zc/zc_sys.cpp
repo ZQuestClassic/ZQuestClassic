@@ -3452,64 +3452,70 @@ void draw_lens_under(BITMAP *dest, bool layer)
 		});
 
 		for_every_base_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
+			auto [offx, offy] = translate_screen_coordinates_to_world(scr->screen);
+
+			offx -= viewport.x;
+			offy -= viewport.y;
+			offy += playing_field_offset;
+
 			if (layer)
 			{
-				if(scr->door[0]==dWALK)
-					rectfill(dest, 120, 16+playing_field_offset, 135, 31+playing_field_offset, WHITE);
+				if (scr->door[0]==dWALK)
+					rectfill(dest, 120+offx, 16+offy, 135+offx, 31+offy, WHITE);
 					
-				if(scr->door[1]==dWALK)
-					rectfill(dest, 120, 144+playing_field_offset, 135, 159+playing_field_offset, WHITE);
+				if (scr->door[1]==dWALK)
+					rectfill(dest, 120+offx, 144+offy, 135+offx, 159+offy, WHITE);
 					
-				if(scr->door[2]==dWALK)
-					rectfill(dest, 16, 80+playing_field_offset, 31, 95+playing_field_offset, WHITE);
+				if (scr->door[2]==dWALK)
+					rectfill(dest, 16+offx, 80+offy, 31+offx, 95+offy, WHITE);
 					
-				if(scr->door[3]==dWALK)
-					rectfill(dest, 224, 80+playing_field_offset, 239, 95+playing_field_offset, WHITE);
+				if (scr->door[3]==dWALK)
+					rectfill(dest, 224+offx, 80+offy, 239+offx, 95+offy, WHITE);
 					
-				if(scr->door[0]==dBOMB)
+				if (scr->door[0]==dBOMB)
 				{
-					showbombeddoor(dest, 0);
+					showbombeddoor(scr, dest, 0, offx, offy);
 				}
 				
-				if(scr->door[1]==dBOMB)
+				if (scr->door[1]==dBOMB)
 				{
-					showbombeddoor(dest, 1);
+					showbombeddoor(scr, dest, 1, offx, offy);
 				}
 				
-				if(scr->door[2]==dBOMB)
+				if (scr->door[2]==dBOMB)
 				{
-					showbombeddoor(dest, 2);
+					showbombeddoor(scr, dest, 2, offx, offy);
 				}
 				
-				if(scr->door[3]==dBOMB)
+				if (scr->door[3]==dBOMB)
 				{
-					showbombeddoor(dest, 3);
+					showbombeddoor(scr, dest, 3, offx, offy);
 				}
 			}
 
-			if (scr->stairx + scr->stairy)
+			if (scr->stairx || scr->stairy)
 			{
-				if(!hints)
+				if (!hints)
 				{
-					if(!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))
-						putcombo(dest,scr->stairx,scr->stairy+playing_field_offset,scr->secretcombo[sSTAIRS],scr->secretcset[sSTAIRS]);
+					if (!(itemsbuf[Hero.getLastLensID()].flags & item_flag2))
+						putcombo(dest,scr->stairx+offx,scr->stairy+offy,scr->secretcombo[sSTAIRS],scr->secretcset[sSTAIRS]);
 				}
 				else
 				{
 					if(scr->flags&fWHISTLE)
 					{
 						tempitem=getItemID(itemsbuf,itype_whistle,1);
-						int32_t tempitemx=-16;
-						int32_t tempitemy=-16;
+						int32_t tempitemx=-16+offx;
+						int32_t tempitemy=-16+offy-playing_field_offset;
 						
-						if((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&(blink_rate/4)))
+						if ((!(get_debug() && zc_getkey(KEY_N)) && (lensclk&(blink_rate/4)))
 								|| ((get_debug() && zc_getkey(KEY_N)) && (frame&(blink_rate/4))))
 						{
-							tempitemx=scr->stairx;
-							tempitemy=scr->stairy+playing_field_offset;
+							tempitemx=scr->stairx+offx;
+							tempitemy=scr->stairy+offy;
 						}
 						
-						putitem2(dest,tempitemx,tempitemy,tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
+						putitem2(dest, tempitemx, tempitemy, tempitem, lens_hint_item[tempitem][0], lens_hint_item[tempitem][1], 0);
 					}
 				}
 			}
