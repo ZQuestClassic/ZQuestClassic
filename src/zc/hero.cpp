@@ -22431,10 +22431,11 @@ void HeroClass::checklocked()
 		else if(y == 80 && x >= 208 && X_DIR(dir) == right)
 			openDir = right;
 	}
+
 	if(openDir)
 	{
 		int d = *openDir;
-		if(hero_scr->door[d]==dLOCKED)
+		if (hero_scr->door[d]==dLOCKED)
 		{
 			if(usekey())
 			{
@@ -22443,6 +22444,17 @@ void HeroClass::checklocked()
 				set_doorstate(hero_screen, d);
 				sfx(WAV_DOOR);
 				markBmap();
+
+				// set_doorstate updates the door state of the opposite screen too, but it doesn't
+				// update anything for the current region. Do that here.
+				if (mapscr* opp_scr = get_scr_current_region_dir(hero_screen, (direction)d))
+				{
+					if (opp_scr->door[d^1] == dLOCKED)
+					{
+						opp_scr->door[d^1] = dUNLOCKED;
+						putdoor(opp_scr, scrollbuf, d^1, dUNLOCKED);
+					}
+				}
 			}
 			else return;
 		}
@@ -22455,6 +22467,18 @@ void HeroClass::checklocked()
 				set_doorstate(hero_screen, d);
 				sfx(WAV_DOOR);
 				markBmap();
+
+				// set_doorstate updates the door state of the opposite screen too, but it doesn't
+				// update anything for the current region. Do that here.
+				if (mapscr* opp_scr = get_scr_current_region_dir(hero_screen, (direction)d))
+				{
+					if (opp_scr->door[d^1] == dBOSS)
+					{
+						opp_scr->door[d^1] = dOPENBOSS;
+						putdoor(opp_scr, scrollbuf, d^1, dOPENBOSS);
+					}
+				}
+
 				// Run Boss Key Script
 				for ( int32_t q = 0; q < MAXITEMS; ++q )
 					if ( itemsbuf[q].family == itype_bosskey )

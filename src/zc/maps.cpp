@@ -225,9 +225,10 @@ void z3_load_region(int dmap, int screen)
 
 	if ((DMaps[dmap].type&dmfTYPE) == dmDNGN)
 	{
-		if (screen < 0x80 && current_region_ids[screen])
-			Z_message("Region error: Scrolling is not supported for NES Dungeon dmaps.\n");
-		current_region_ids = {};
+		// TODO z3 rm?
+		// if (screen < 0x80 && current_region_ids[screen])
+		// 	Z_message("Region error: Scrolling is not supported for NES Dungeon dmaps.\n");
+		// current_region_ids = {};
 	}
 
 	z3_calculate_region(map, screen, current_region, region_scr_dx, region_scr_dy);
@@ -679,6 +680,15 @@ mapscr* get_scr_layer_allow_scrolling(int map, int screen, int layer)
 		return get_scr_layer(map, screen, layer);
 
 	return FFCore.ScrollingScreensAll[screen * 7 + layer + 1];
+}
+
+mapscr* get_scr_current_region_dir(int screen, direction dir)
+{
+	screen = screen_index_direction(screen, dir);
+	if (is_in_current_region(screen))
+		return get_scr(screen);
+
+	return nullptr;
 }
 
 ffc_handle_t get_ffc_handle(ffc_id_t id)
@@ -6220,7 +6230,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 	clear_xstatecombos(scr, screen, true);
 
 	// check doors
-	if(isdungeon(destdmap,screen))
+	if (isdungeon(destdmap, screen))
 	{
 		for(int32_t i=0; i<4; i++)
 		{
