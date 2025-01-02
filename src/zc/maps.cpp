@@ -4428,6 +4428,11 @@ void draw_msgstr(byte layer)
 
 static void putscrdoors(const nearby_screens_t& nearby_screens, BITMAP *dest, int32_t x, int32_t y);
 
+static void set_draw_screen_clip(BITMAP* bmp)
+{
+	set_clip_rect(bmp, draw_screen_clip_rect_x1, draw_screen_clip_rect_y1, draw_screen_clip_rect_x2, draw_screen_clip_rect_y2);
+}
+
 void draw_screen(bool showhero, bool runGeneric)
 {
 	mapscr* this_screen = tmpscr;
@@ -4494,9 +4499,9 @@ void draw_screen(bool showhero, bool runGeneric)
 		
 	particles.draw(framebuf, true, -3);
 	draw_msgstr(0);
-	
-	set_clip_rect(scrollbuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
-	
+
+	set_draw_screen_clip(scrollbuf);
+
 	if(!(get_qr(qr_LAYER12UNDERCAVE)))
 	{
 		if(showhero &&
@@ -4627,9 +4632,8 @@ void draw_screen(bool showhero, bool runGeneric)
 	}
 	
 	// Blit those layers onto framebuf
-	
-	// TODO z3 clear clip?
-	set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
+
+	set_draw_screen_clip(framebuf);
 
 	blit(scrollbuf, framebuf, 0, 0, 0, 0, 256, 224);
 
@@ -4653,7 +4657,7 @@ void draw_screen(bool showhero, bool runGeneric)
 	}
 
 	if (!is_extended_height_mode() && is_in_scrolling_region() && !get_qr(qr_SUBSCREENOVERSPRITES))
-		set_clip_rect(framebuf, 0, playing_field_offset, framebuf->w, framebuf->h);
+		add_clip_rect(framebuf, 0, playing_field_offset, framebuf->w, framebuf->h);
 
 	if(showhero && ((Hero.getAction()!=climbcovertop)&&(Hero.getAction()!=climbcoverbottom)))
 	{
@@ -4846,10 +4850,10 @@ void draw_screen(bool showhero, bool runGeneric)
 	}
 	
 	// Draw some layers onto framebuf
-	set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
+	set_draw_screen_clip(framebuf);
 	if (!is_extended_height_mode() && is_in_scrolling_region() && !get_qr(qr_SUBSCREENOVERSPRITES))
-		set_clip_rect(framebuf, 0, playing_field_offset, framebuf->w, framebuf->h);
-	
+		add_clip_rect(framebuf, 0, playing_field_offset, framebuf->w, framebuf->h);
+
 	for_every_nearby_screen(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy) {
 		mapscr* base_scr = screen_handles[0].base_scr;
 
@@ -4885,7 +4889,7 @@ void draw_screen(bool showhero, bool runGeneric)
 	// Draw some flying sprites onto framebuf
 	clear_clip_rect(framebuf);
 	if (!is_extended_height_mode() && is_in_scrolling_region() && !get_qr(qr_SUBSCREENOVERSPRITES))
-		set_clip_rect(framebuf, 0, playing_field_offset, framebuf->w, framebuf->h);
+		add_clip_rect(framebuf, 0, playing_field_offset, framebuf->w, framebuf->h);
 
 	//Jumping Hero and jumping enemies are drawn on this layer.
 	if(Hero.getZ() > (zfix)zinit.jump_hero_layer_threshold)
@@ -4934,8 +4938,8 @@ void draw_screen(bool showhero, bool runGeneric)
 	
 	// Draw some layers onto framebuf
 
-	set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
-	
+	set_draw_screen_clip(framebuf);
+
 	if (lightbeam_present)
 	{
 		color_map = &trans_table2;
