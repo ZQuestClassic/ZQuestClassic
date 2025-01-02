@@ -160,7 +160,7 @@ int32_t zq_screen_w = 0, zq_screen_h = 0;
 int32_t passive_subscreen_height=56;
 int32_t original_playing_field_offset=56;
 int32_t playing_field_offset=original_playing_field_offset;
-int32_t passive_subscreen_offset=0;
+int32_t passive_subscreen_offset=0; // TODO z3 rm?
 extern int32_t directItemA;
 extern int32_t directItemB;
 extern int32_t directItemY;

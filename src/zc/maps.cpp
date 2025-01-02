@@ -4628,11 +4628,12 @@ void draw_screen(bool showhero, bool runGeneric)
 	
 	// Blit those layers onto framebuf
 	
+	// TODO z3 clear clip?
 	set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
 
 	blit(scrollbuf, framebuf, 0, 0, 0, 0, 256, 224);
 
-	// After this point, we no longer draw to the scrollbuf - so things like dosubscr have access to a "partially rendered" frame.
+	// After this point, scrollbuf is no longer drawn to - so things like dosubscr have access to a "partially rendered" frame.
 	// I think only used for COOLSCROLL==0? Seems like a silly feature...
 
 	// Draw the subscreen, without clipping
@@ -4650,7 +4651,10 @@ void draw_screen(bool showhero, bool runGeneric)
 	{
 		masked_blit(pricesdisplaybuf,framebuf,0,0,0,playing_field_offset,256,168);
 	}
-	
+
+	if (!is_extended_height_mode() && is_in_scrolling_region() && !get_qr(qr_SUBSCREENOVERSPRITES))
+		set_clip_rect(framebuf, 0, playing_field_offset, framebuf->w, framebuf->h);
+
 	if(showhero && ((Hero.getAction()!=climbcovertop)&&(Hero.getAction()!=climbcoverbottom)))
 	{
 		Hero.draw_under(framebuf);
@@ -4843,6 +4847,8 @@ void draw_screen(bool showhero, bool runGeneric)
 	
 	// Draw some layers onto framebuf
 	set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
+	if (!is_extended_height_mode() && is_in_scrolling_region() && !get_qr(qr_SUBSCREENOVERSPRITES))
+		set_clip_rect(framebuf, 0, playing_field_offset, framebuf->w, framebuf->h);
 	
 	for_every_nearby_screen(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy) {
 		mapscr* base_scr = screen_handles[0].base_scr;
@@ -4868,18 +4874,19 @@ void draw_screen(bool showhero, bool runGeneric)
 		}
 	});
 
-	if (!is_extended_height_mode() && is_in_scrolling_region() && !get_qr(qr_SUBSCREENOVERSPRITES))
-	{
-		rectfill(framebuf, 0, 0, 256, playing_field_offset - 1, 0);
-	}
+	// if (!is_extended_height_mode() && is_in_scrolling_region() && get_qr(qr_SUBSCREENOVERSPRITES))
+	// {
+	// 	rectfill(framebuf, 0, 0, 256, playing_field_offset - 1, 0);
+	// }
 	do_primitives(framebuf, SPLAYER_OVERHEAD_CMB, 0, playing_field_offset);
 	
 	particles.draw(framebuf, true, -1);
 	
 	// Draw some flying sprites onto framebuf
 	clear_clip_rect(framebuf);
-	// set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
-	
+	if (!is_extended_height_mode() && is_in_scrolling_region() && !get_qr(qr_SUBSCREENOVERSPRITES))
+		set_clip_rect(framebuf, 0, playing_field_offset, framebuf->w, framebuf->h);
+
 	//Jumping Hero and jumping enemies are drawn on this layer.
 	if(Hero.getZ() > (zfix)zinit.jump_hero_layer_threshold)
 	{
