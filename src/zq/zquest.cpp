@@ -1,5 +1,6 @@
 #include "allegro/gui.h"
 #include "base/files.h"
+#include "base/mapscr.h"
 #include "dialog/edit_region.h"
 
 #include <memory>
@@ -13857,11 +13858,12 @@ void drawxmap(ALLEGRO_BITMAP* dest, int32_t themap, int32_t xoff, bool large, in
 		{
 			if (x + xoff < 0 || x + xoff > 15)
 				continue;
-			mapscr* scr = &TheMaps[themap * MAPSCRS + y * 16 + x + (large ? xoff : 0)];
+
+			const mapscr* scr = get_canonical_scr(themap, y * 16 + x + (large ? xoff : 0));
 			if (!(scr->valid & mVALID))
 				continue;
-			al_draw_filled_rectangle(dx + (x * col_width), dy + (y * l), dx + (x * col_width + col_width), dy + ((y * l) + l), real_lc1(scr->color));
 
+			al_draw_filled_rectangle(dx + (x * col_width), dy + (y * l), dx + (x * col_width + col_width), dy + ((y * l) + l), real_lc1(scr->color));
 			al_draw_filled_rectangle(dx + (x * col_width + dot_offset), dy + (y * l + 3), dx + (x * col_width + dot_offset + dot_width), dy + (y * l + l - 3), real_lc2(scr->color));
 		}
 	}

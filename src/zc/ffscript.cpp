@@ -912,11 +912,11 @@ int32_t get_total_mi(int32_t ref)
 	auto result = decode_mapdata_ref(ref);
 	if (result.current())
 	{
-		return (currmap * MAPSCRS) + result.screen;
+		return map_screen_index(currmap, result.screen);
 	}
 	else if (result.scrolling())
 	{
-		return (scrolling_map * MAPSCRS) + result.screen;
+		return map_screen_index(scrolling_map, result.screen);
 	}
 
 	return -1;
@@ -16841,14 +16841,14 @@ void set_register(int32_t arg, int32_t value)
 			
 		case SCREENSTATED:
 		{
-			int mi2 = mapind(currmap, ri->screenref);
-			(value)?setmapflag_mi(mi2, 1<<((ri->d[rINDEX])/10000)) : unsetmapflag_mi(mi2, 1 << ((ri->d[rINDEX]) / 10000));
+			int mi = mapind(currmap, ri->screenref);
+			(value)?setmapflag_mi(mi, 1<<((ri->d[rINDEX])/10000)) : unsetmapflag_mi(mi, 1 << ((ri->d[rINDEX]) / 10000));
 		}
 		break;
 		case SCREENEXSTATED:
 		{
-			int mi2 = mapind(currmap, ri->screenref);
-			(value)?setxmapflag_mi(mi2, 1<<((ri->d[rINDEX])/10000)) : unsetxmapflag_mi(mi2, 1 << ((ri->d[rINDEX]) / 10000));
+			int mi = mapind(currmap, ri->screenref);
+			(value)?setxmapflag_mi(mi, 1<<((ri->d[rINDEX])/10000)) : unsetxmapflag_mi(mi, 1 << ((ri->d[rINDEX]) / 10000));
 		}
 		break;
 		case SCREENLENSSHOWS:

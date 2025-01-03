@@ -25191,7 +25191,7 @@ RaftingStuff:
 						music_stop();
 				}
 				else if (DMaps[hero_scr->tilewarpdmap[index]].midi != (currmidi - ZC_MIDI_COUNT + 4) &&
-					TheMaps[(DMaps[tdm].map * MAPSCRS + (base_scr->tilewarpscr[index] + DMaps[tdm].xoff))].screen_midi != (currmidi - ZC_MIDI_COUNT + 4))
+					get_canonical_scr(DMaps[tdm].map, base_scr->tilewarpscr[index] + DMaps[tdm].xoff)->screen_midi != (currmidi - ZC_MIDI_COUNT + 4))
 					music_stop();
 			}
 		}

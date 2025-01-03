@@ -261,10 +261,10 @@ void eventlog_mapflags();
 
 void setmapflag(mapscr* scr, int32_t flag);
 void setmapflag_homescr(int32_t flag);
-void setmapflag_mi(int32_t mi2, int32_t flag);
-void setmapflag_mi(mapscr* scr, int32_t mi2, int32_t flag);
-void unsetmapflag_mi(mapscr* scr, int32_t mi2, int32_t flag, bool anyflag=false);
-void unsetmapflag_mi(int32_t mi2, int32_t flag, bool anyflag=false);
+void setmapflag_mi(int32_t mi, int32_t flag);
+void setmapflag_mi(mapscr* scr, int32_t mi, int32_t flag);
+void unsetmapflag_mi(mapscr* scr, int32_t mi, int32_t flag, bool anyflag=false);
+void unsetmapflag_mi(int32_t mi, int32_t flag, bool anyflag=false);
 void unsetmapflag_home(int32_t flag = 32,bool anyflag = false);
 void unsetmapflag(mapscr* scr, int32_t flag = 32, bool anyflag = false);
 bool getmapflag(int32_t flag = 32); // 32 = mSPECIALITEM
@@ -272,15 +272,15 @@ bool getmapflag(int32_t screen, int32_t flag);
 bool getmapflag(mapscr* scr, int32_t flag);
 
 void setxmapflag(int32_t screen, uint32_t flag);
-void setxmapflag_mi(int32_t mi2, uint32_t flag);
+void setxmapflag_mi(int32_t mi, uint32_t flag);
 void unsetxmapflag(int32_t screen, uint32_t flag);
-void unsetxmapflag_mi(int32_t mi2, uint32_t flag);
+void unsetxmapflag_mi(int32_t mi, uint32_t flag);
 bool getxmapflag(int32_t screen, uint32_t flag);
-bool getxmapflag_mi(int32_t mi2, uint32_t flag);
+bool getxmapflag_mi(int32_t mi, uint32_t flag);
 
-void setxdoor(uint mi2, uint dir, uint ind, bool state = true);
+void setxdoor(uint mi, uint dir, uint ind, bool state = true);
 void setxdoor(uint dir, uint ind, bool state = true);
-bool getxdoor(uint mi2, uint dir, uint ind);
+bool getxdoor(uint mi, uint dir, uint ind);
 bool getxdoor(uint dir, uint ind);
 
 void set_doorstate_mi(uint mi,uint dir);

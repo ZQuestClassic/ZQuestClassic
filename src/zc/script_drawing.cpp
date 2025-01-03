@@ -10692,15 +10692,14 @@ void do_bmpdrawscreen_solidmaskr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, in
 	if ( (sdci[DRAWCMD_BMP_TARGET]-10) != -2 && (sdci[DRAWCMD_BMP_TARGET]-10) != -1 ) yoffset = 0; //Don't crop. 
 	
 	int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
-	int32_t scrn = sdci[3]/10000;
+	int32_t screen = sdci[3]/10000;
 	int32_t x = sdci[4]/10000;
 	int32_t y = sdci[5]/10000;
 	int32_t x1 = x + xoffset;
 	int32_t y1 = y + yoffset;
 	int32_t rotation = sdci[6]/10000;
-	
-	const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
-	
+	uint32_t index = (uint32_t)map_screen_index(map, screen);
+
 	if(index >= TheMaps.size())
 	{
 		al_trace("DrawScreen: invalid map or screen index. \n");
@@ -10793,14 +10792,14 @@ void do_bmpdrawscreen_solidr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_
 	if ( (sdci[DRAWCMD_BMP_TARGET]-10) != -2 && (sdci[DRAWCMD_BMP_TARGET]-10) != -1 ) yoffset = 0; //Don't crop. 
 	
 	int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
-	int32_t scrn = sdci[3]/10000;
+	int32_t screen = sdci[3]/10000;
 	int32_t x = sdci[4]/10000;
 	int32_t y = sdci[5]/10000;
 	int32_t x1 = x + xoffset;
 	int32_t y1 = y + yoffset;
 	int32_t rotation = sdci[6]/10000;
 	
-	const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
+	uint32_t index = (uint32_t)map_screen_index(map, screen);
 	
 	if(index >= TheMaps.size())
 	{
@@ -10872,14 +10871,14 @@ void do_bmpdrawscreen_cflagr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_
 	if ( (sdci[DRAWCMD_BMP_TARGET]-10) != -2 && (sdci[DRAWCMD_BMP_TARGET]-10) != -1 ) yoffset = 0; //Don't crop. 
 	
 	int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
-	int32_t scrn = sdci[3]/10000;
+	int32_t screen = sdci[3]/10000;
 	int32_t x = sdci[4]/10000;
 	int32_t y = sdci[5]/10000;
 	int32_t x1 = x + xoffset;
 	int32_t y1 = y + yoffset;
 	int32_t rotation = sdci[6]/10000;
 	
-	const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
+	uint32_t index = (uint32_t)map_screen_index(map, screen);
 	
 	if(index >= TheMaps.size())
 	{
@@ -10954,14 +10953,14 @@ void do_bmpdrawscreen_ctyper(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_
 	if ( (sdci[DRAWCMD_BMP_TARGET]-10) != -2 && (sdci[DRAWCMD_BMP_TARGET]-10) != -1 ) yoffset = 0; //Don't crop. 
 	
 	int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
-	int32_t scrn = sdci[3]/10000;
+	int32_t screen = sdci[3]/10000;
 	int32_t x = sdci[4]/10000;
 	int32_t y = sdci[5]/10000;
 	int32_t x1 = x + xoffset;
 	int32_t y1 = y + yoffset;
 	int32_t rotation = sdci[6]/10000;
 	
-	const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
+	uint32_t index = (uint32_t)map_screen_index(map, screen);
 	
 	if(index >= TheMaps.size())
 	{
@@ -11037,14 +11036,14 @@ void do_bmpdrawscreen_ciflagr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32
 	if ( (sdci[DRAWCMD_BMP_TARGET]-10) != -2 && (sdci[DRAWCMD_BMP_TARGET]-10) != -1 ) yoffset = 0; //Don't crop. 
 	
 	int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
-	int32_t scrn = sdci[3]/10000;
+	int32_t screen = sdci[3]/10000;
 	int32_t x = sdci[4]/10000;
 	int32_t y = sdci[5]/10000;
 	int32_t x1 = x + xoffset;
 	int32_t y1 = y + yoffset;
 	int32_t rotation = sdci[6]/10000;
 	
-	const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
+	uint32_t index = (uint32_t)map_screen_index(map, screen);
 	
 	if(index >= TheMaps.size())
 	{
@@ -11099,7 +11098,7 @@ void do_drawlayerr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset,
     //sdci[8]=opacity
     
     int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
-    int32_t scrn = sdci[3]/10000;
+    int32_t screen = sdci[3]/10000;
     int32_t sourceLayer = vbound(sdci[4]/10000, 0, 6);
     int32_t x = sdci[5]/10000;
     int32_t y = sdci[6]/10000;
@@ -11108,8 +11107,8 @@ void do_drawlayerr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset,
     int32_t rotation = sdci[7]/10000;
     int32_t opacity = sdci[8]/10000;
     
-    const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
-    const mapscr* m = getmapscreen(map, scrn, sourceLayer);
+    uint32_t index = (uint32_t)map_screen_index(map, screen);
+    const mapscr* m = getmapscreen(map, screen, sourceLayer);
     
     if(!m) //no need to log it.
         return;
@@ -11180,14 +11179,14 @@ void do_drawscreenr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset
     //sdci[6]=rotation
     
     int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
-    int32_t scrn = sdci[3]/10000;
+    int32_t screen = sdci[3]/10000;
     int32_t x = sdci[4]/10000;
     int32_t y = sdci[5]/10000;
     int32_t x1 = x + xoffset;
     int32_t y1 = y + yoffset;
     int32_t rotation = sdci[6]/10000;
     
-    const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
+    uint32_t index = (uint32_t)map_screen_index(map, screen);
     
     if(index >= TheMaps.size())
     {
@@ -11246,7 +11245,7 @@ void do_bmpdrawlayerr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
 	if ( refbmp == NULL ) return;
     
     int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
-    int32_t scrn = sdci[3]/10000;
+    int32_t screen = sdci[3]/10000;
     int32_t sourceLayer = vbound(sdci[4]/10000, 0, 6);
     int32_t x = sdci[5]/10000;
     int32_t y = sdci[6]/10000;
@@ -11254,8 +11253,8 @@ void do_bmpdrawlayerr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
 
 	byte noclip = 0;//(sdci[8]!=0);
     int32_t opacity = sdci[8]/10000;
-    const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
-    const mapscr* m = getmapscreen(map, scrn, sourceLayer);
+    uint32_t index = (uint32_t)map_screen_index(map, screen);
+    const mapscr* m = getmapscreen(map, screen, sourceLayer);
     
     if(!m) //no need to log it.
         return;
@@ -11329,14 +11328,14 @@ void do_bmpdrawscreenr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoff
     if ( (sdci[DRAWCMD_BMP_TARGET]-10) != -2 && (sdci[DRAWCMD_BMP_TARGET]-10) != -1 ) yoffset = 0; //Don't crop. 
 	
     int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
-    int32_t scrn = sdci[3]/10000;
+    int32_t screen = sdci[3]/10000;
     int32_t x = sdci[4]/10000;
     int32_t y = sdci[5]/10000;
     int32_t x1 = x + xoffset;
     int32_t y1 = y + yoffset;
     int32_t rotation = sdci[6]/10000;
     
-    const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
+    uint32_t index = (uint32_t)map_screen_index(map, screen);
     
     if(index >= TheMaps.size())
     {
@@ -11391,7 +11390,7 @@ void do_bmpdrawlayersolidmaskr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int3
 	//sdci[9] == opacity
     
     int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
-    int32_t scrn = sdci[3]/10000;
+    int32_t screen = sdci[3]/10000;
     int32_t sourceLayer = vbound(sdci[4]/10000, 0, 6);
     int32_t x = sdci[5]/10000;
     int32_t y = sdci[6]/10000;
@@ -11401,8 +11400,8 @@ void do_bmpdrawlayersolidmaskr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int3
     byte noclip = (sdci[8]!=0);
     int32_t opacity = sdci[9]/10000;
     
-    const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
-    const mapscr* m = getmapscreen(map, scrn, sourceLayer);
+    uint32_t index = (uint32_t)map_screen_index(map, screen);
+    const mapscr* m = getmapscreen(map, screen, sourceLayer);
     
     if(!m) //no need to log it.
         return;
@@ -11486,7 +11485,7 @@ void do_bmpdrawlayersolidityr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32
 	
     
     int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
-    int32_t scrn = sdci[3]/10000;
+    int32_t screen = sdci[3]/10000;
     int32_t sourceLayer = vbound(sdci[4]/10000, 0, 6);
     int32_t x = sdci[5]/10000;
     int32_t y = sdci[6]/10000;
@@ -11496,8 +11495,8 @@ void do_bmpdrawlayersolidityr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32
 	byte noclip = (sdci[8]!=0);
     int32_t opacity = sdci[9]/10000;
     
-    const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
-    const mapscr* m = getmapscreen(map, scrn, sourceLayer);
+    uint32_t index = (uint32_t)map_screen_index(map, screen);
+    const mapscr* m = getmapscreen(map, screen, sourceLayer);
     
     if(!m) //no need to log it.
         return;
@@ -11561,7 +11560,7 @@ void do_bmpdrawlayercflagr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t 
 	
     
     int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
-    int32_t scrn = sdci[3]/10000;
+    int32_t screen = sdci[3]/10000;
     int32_t sourceLayer = vbound(sdci[4]/10000, 0, 6);
     int32_t x = sdci[5]/10000;
     int32_t y = sdci[6]/10000;
@@ -11572,8 +11571,8 @@ void do_bmpdrawlayercflagr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t 
 	byte noclip = (sdci[8]!=0);
     int32_t opacity = sdci[9]/10000;
     
-    const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
-    const mapscr* m = getmapscreen(map, scrn, sourceLayer);
+    uint32_t index = (uint32_t)map_screen_index(map, screen);
+    const mapscr* m = getmapscreen(map, screen, sourceLayer);
     
     if(!m) //no need to log it.
         return;
@@ -11636,7 +11635,7 @@ void do_bmpdrawlayerctyper(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t 
     //sdci[9]=opacity
     
     int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
-    int32_t scrn = sdci[3]/10000;
+    int32_t screen = sdci[3]/10000;
     int32_t sourceLayer = vbound(sdci[4]/10000, 0, 6);
     int32_t x = sdci[5]/10000;
     int32_t y = sdci[6]/10000;
@@ -11646,8 +11645,8 @@ void do_bmpdrawlayerctyper(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t 
 
     byte noclip = (sdci[8]!=0);
     int32_t opacity = sdci[9]/10000;
-    const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
-    const mapscr* m = getmapscreen(map, scrn, sourceLayer);
+    uint32_t index = (uint32_t)map_screen_index(map, screen);
+    const mapscr* m = getmapscreen(map, screen, sourceLayer);
     
     if(!m) //no need to log it.
         return;
@@ -11710,7 +11709,7 @@ void do_bmpdrawlayerciflagr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t
     //sdci[9]=opacity
     
     int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
-    int32_t scrn = sdci[3]/10000;
+    int32_t screen = sdci[3]/10000;
     int32_t sourceLayer = vbound(sdci[4]/10000, 0, 6);
     int32_t x = sdci[5]/10000;
     int32_t y = sdci[6]/10000;
@@ -11720,8 +11719,8 @@ void do_bmpdrawlayerciflagr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t
     byte noclip = (sdci[8]!=0);
     int32_t opacity = sdci[9]/10000;
     
-    const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
-    const mapscr* m = getmapscreen(map, scrn, sourceLayer);
+    uint32_t index = (uint32_t)map_screen_index(map, screen);
+    const mapscr* m = getmapscreen(map, screen, sourceLayer);
     
     if(!m) //no need to log it.
         return;

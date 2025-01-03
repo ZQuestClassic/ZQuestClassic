@@ -793,7 +793,7 @@ std::pair<int32_t, int32_t> COMBOXY_REGION_INDEX(rpos_t rpos)
 
 int32_t mapind(int32_t map, int32_t scr)
 {
-	return (map<<7)+scr;
+	return map * MAPSCRSNORMAL + scr;
 }
 
 FONT *get_zc_font(int index);
@@ -1446,15 +1446,15 @@ void setmapflag_homescr(int32_t flag)
 	int mi = mapind(currmap, home_screen);
     setmapflag_mi(origin_scr, mi, flag);
 }
-void setmapflag_mi(int32_t mi2, int32_t flag)
+void setmapflag_mi(int32_t mi, int32_t flag)
 {
-	byte cscr = mi2&((1<<7)-1);
-	byte cmap = (mi2>>7);
+	byte cscr = mi&((1<<7)-1);
+	byte cmap = (mi>>7);
 	mapscr* scr = origin_scr;
 	if (is_in_current_region(cmap, cscr))
 		scr = get_scr(cmap, cscr);
 
-	setmapflag_mi(scr, mi2, flag);
+	setmapflag_mi(scr, mi, flag);
 }
 
 static void log_state_change(int map, int screen, std::string action)
@@ -1465,17 +1465,17 @@ static void log_state_change(int map, int screen, std::string action)
 		Z_eventlog("[Map %d, Screen %02X] %s\n", map + 1, screen, action.c_str());
 }
 
-void setmapflag_mi(mapscr* scr, int32_t mi2, int32_t flag)
+void setmapflag_mi(mapscr* scr, int32_t mi, int32_t flag)
 {
-    byte cscr = mi2&((1<<7)-1);
-    byte cmap = (mi2>>7);
+    byte cscr = mi&((1<<7)-1);
+    byte cmap = (mi>>7);
 
     float temp=log2((float)flag);
     const char* state_string = flag>0 ? screenstate_string[(int32_t)temp] : "<Unknown>";
 
-    if (replay_is_active() && !(game->maps[mi2] & flag))
+    if (replay_is_active() && !(game->maps[mi] & flag))
         replay_step_comment(fmt::format("map {} scr {} flag {}", cmap, cscr, state_string));
-    game->maps[mi2] |= flag;
+    game->maps[mi] |= flag;
     log_state_change(cmap, cscr, fmt::format("State set: {}", state_string));
                
     if(flag==mSECRET||flag==mITEM||flag==mSPECIALITEM||flag==mLOCKBLOCK||
@@ -1530,30 +1530,30 @@ void unsetmapflag(mapscr* scr, int32_t flag, bool anyflag)
 	unsetmapflag_mi(scr, mi, flag, anyflag);
 }
 
-void unsetmapflag_mi(int32_t mi2, int32_t flag, bool anyflag)
+void unsetmapflag_mi(int32_t mi, int32_t flag, bool anyflag)
 {
-	byte cscr = mi2&((1<<7)-1);
-	byte cmap = (mi2>>7);
+	byte cscr = mi&((1<<7)-1);
+	byte cmap = (mi>>7);
 	mapscr* scr = origin_scr;
 	if (is_in_current_region(cmap, cscr))
 		scr = get_scr(cmap, cscr);
 
-	unsetmapflag_mi(scr, mi2, flag, anyflag);
+	unsetmapflag_mi(scr, mi, flag, anyflag);
 }
 
-void unsetmapflag_mi(mapscr* scr, int32_t mi2, int32_t flag, bool anyflag)
+void unsetmapflag_mi(mapscr* scr, int32_t mi, int32_t flag, bool anyflag)
 {
-    byte cscr = mi2&((1<<7)-1);
-    byte cmap = (mi2>>7);
+    byte cscr = mi&((1<<7)-1);
+    byte cmap = (mi>>7);
 
     if(anyflag)
-        game->maps[mi2] &= ~flag;
+        game->maps[mi] &= ~flag;
     else if(flag==mITEM || flag==mSPECIALITEM)
     {
         if(!(scr->flags4&fNOITEMRESET))
-            game->maps[mi2] &= ~flag;
+            game->maps[mi] &= ~flag;
     }
-    else game->maps[mi2] &= ~flag;
+    else game->maps[mi] &= ~flag;
     
     float temp=log2((float)flag);
     const char* state_string = flag>0 ? screenstate_string[(int32_t)temp] : "<Unknown>";
@@ -1612,39 +1612,39 @@ void setxmapflag(int32_t screen, uint32_t flag)
 	int mi = mapind(currmap, screen >= 0x80 ? home_screen : screen);
 	setxmapflag_mi(mi, flag);
 }
-void setxmapflag_mi(int32_t mi2, uint32_t flag)
+void setxmapflag_mi(int32_t mi, uint32_t flag)
 {
-	if(game->xstates[mi2] & flag) return;
-	byte cscr = mi2&((1<<7)-1);
-	byte cmap = (mi2>>7);
+	if(game->xstates[mi] & flag) return;
+	byte cscr = mi&((1<<7)-1);
+	byte cmap = (mi>>7);
 
 	byte temp=(byte)log2((double)flag);
 	log_state_change(cmap, cscr, fmt::format("ExtraState set: {}", temp));
 
-	game->xstates[mi2] |= flag;
+	game->xstates[mi] |= flag;
 }
 void unsetxmapflag(int32_t screen, uint32_t flag)
 {
 	int mi = mapind(currmap, screen >= 0x80 ? home_screen : screen);
 	unsetxmapflag_mi(mi, flag);
 }
-void unsetxmapflag_mi(int32_t mi2, uint32_t flag)
+void unsetxmapflag_mi(int32_t mi, uint32_t flag)
 {
-	if(!(game->xstates[mi2] & flag)) return;
-	byte cscr = mi2&((1<<7)-1);
-	byte cmap = (mi2>>7);
+	if(!(game->xstates[mi] & flag)) return;
+	byte cscr = mi&((1<<7)-1);
+	byte cmap = (mi>>7);
 	byte temp=(byte)log2((double)flag);
 	log_state_change(cmap, cscr, fmt::format("ExtraState unset: {}", temp));
-	game->xstates[mi2] &= ~flag;
+	game->xstates[mi] &= ~flag;
 }
 bool getxmapflag(int32_t screen, uint32_t flag)
 {
 	int mi = mapind(currmap, screen >= 0x80 ? home_screen : screen);
 	return getxmapflag_mi(mi, flag);
 }
-bool getxmapflag_mi(int32_t mi2, uint32_t flag)
+bool getxmapflag_mi(int32_t mi, uint32_t flag)
 {
-	return (game->xstates[mi2] & flag) != 0;
+	return (game->xstates[mi] & flag) != 0;
 }
 
 void setxdoor(uint mi, uint dir, uint ind, bool state)

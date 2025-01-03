@@ -1259,15 +1259,15 @@ bool game_set_register(int32_t reg, int32_t value)
 
 		case SCREENSTATEDD:
 		{
-			int32_t mi2 = ri->d[rINDEX]/10000;
-			mi2 -= 8*(mi2/MAPSCRS);
+			int32_t mi = ri->d[rINDEX]/10000;
+			mi -= 8*(mi/MAPSCRS);
 			
-			if(BC::checkMapID(mi2>>7, "Game->SetScreenState") == SH::_NoError)
+			if(BC::checkMapID(mi>>7, "Game->SetScreenState") == SH::_NoError)
 			{
 				if (value)
-					setmapflag_mi(mi2, 1<<(ri->d[rINDEX2]/10000));
+					setmapflag_mi(mi, 1<<(ri->d[rINDEX2]/10000));
 				else
-					unsetmapflag_mi(mi2, 1 << (ri->d[rINDEX2] / 10000), true);
+					unsetmapflag_mi(mi, 1 << (ri->d[rINDEX2] / 10000), true);
 			}
 		}
 		break;

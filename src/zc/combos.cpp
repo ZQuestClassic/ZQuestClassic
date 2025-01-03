@@ -961,7 +961,7 @@ bool trigger_warp(const combined_handle_t& handle)
 		wsfx = cmb.attribytes[0];
 		tdm = wscr->sidewarpdmap[index];
 		tscr = wscr->sidewarpscr[index];
-		ws = (DMaps[tdm].map * MAPSCRS + wscr->sidewarpscr[index] + DMaps[tdm].xoff);
+		ws = map_screen_index(DMaps[tdm].map, wscr->sidewarpscr[index] + DMaps[tdm].xoff);
 		wscr2 = &TheMaps[ws];
 		wx = wscr2->warpreturnx[wrindex];
 		wy = wscr2->warpreturny[wrindex];
