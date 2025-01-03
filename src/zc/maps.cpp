@@ -871,23 +871,32 @@ void clear_dmaps()
 
 int32_t isdungeon(int32_t dmap, int32_t screen)
 {
-    if (screen < 0) screen = cur_screen;
-    if (dmap < 0) dmap = currdmap;
-    
-    // dungeons can have any dlevel above 0
-    if((DMaps[dmap].type&dmfTYPE) == dmDNGN)
-    {
-        if (get_canonical_scr(currmap, screen)->flags6&fCAVEROOM)
-            return 0;
-            
-        return 1;
-    }
-    
-    // dlevels that aren't dungeons are caves
-    if (get_canonical_scr(currmap, screen)->flags6&fDUNGEONROOM)
-        return 1;
-        
-    return 0;
+	if (dmap < 0) dmap = currdmap;
+
+	// dungeons can have any dlevel above 0
+	if((DMaps[dmap].type&dmfTYPE) == dmDNGN)
+	{
+		if (get_canonical_scr(currmap, screen)->flags6&fCAVEROOM)
+			return 0;
+			
+		return 1;
+	}
+
+	// dlevels that aren't dungeons are caves
+	if (get_canonical_scr(currmap, screen)->flags6&fDUNGEONROOM)
+		return 1;
+		
+	return 0;
+}
+
+int32_t isdungeon(int32_t screen)
+{
+	return isdungeon(currdmap, screen);
+}
+
+int32_t isdungeon()
+{
+	return isdungeon(currdmap, cur_screen);
 }
 
 bool canPermSecret(int32_t dmap, int32_t screen)
@@ -6421,7 +6430,7 @@ void loadscr2(int32_t tmp,int32_t screen,int32_t)
 	clear_xstatecombos(&scr, screen);
 	
 	// check doors
-	if(isdungeon(screen))
+	if (isdungeon(screen))
 	{
 		for(int32_t i=0; i<4; i++)
 		{

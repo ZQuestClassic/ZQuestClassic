@@ -22399,7 +22399,7 @@ endsigns:
 void HeroClass::checklocked()
 {
 	if(toogam) return; //Walk through walls. 
-	if(!isdungeon(currdmap, hero_screen)) return;
+	if(!isdungeon(hero_screen)) return;
 	if( !diagonalMovement && pushing!=8) return;
 	//This is required to allow the player to open a door, while sliding along a wall (pressing in the direction of the door, and sliding left or right)
 	if ( diagonalMovement && pushing < 8 ) return; //Allow wall walking Should I add a quest rule for this? -Z
@@ -29826,7 +29826,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 	open_doors_for_screen.clear();
 	markBmap();
 
-	if (isdungeon(currdmap, hero_scr->screen))
+	if (isdungeon(hero_screen))
 	{
 		switch(hero_scr->door[scrolldir^1])
 		{

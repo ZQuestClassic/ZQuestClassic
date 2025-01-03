@@ -203,7 +203,7 @@ void movingblock::push(zfix bx,zfix by,int32_t d2,int32_t f)
 	mapscr *m = rpos_handle.scr;
     bcombo =  m->data[combopos];
     oldcset = m->cset[combopos];
-    cs     = (isdungeon(currdmap, m->screen) && !get_qr(qr_PUSHBLOCKCSETFIX)) ? 9 : oldcset;
+    cs     = (isdungeon(m->screen) && !get_qr(qr_PUSHBLOCKCSETFIX)) ? 9 : oldcset;
     tile = combobuf[bcombo].tile;
     flip = combobuf[bcombo].flip;
     //   cs = ((*di)&0x700)>>8;
@@ -262,7 +262,7 @@ void movingblock::push_new(zfix bx,zfix by,int d2,int f,zfix spd)
 	mapscr *m = rpos_handle.scr;
     bcombo =  m->data[combopos];
     oldcset = m->cset[combopos];
-    cs     = (isdungeon(currdmap, m->screen) && !get_qr(qr_PUSHBLOCKCSETFIX)) ? 9 : oldcset;
+    cs     = (isdungeon(m->screen) && !get_qr(qr_PUSHBLOCKCSETFIX)) ? 9 : oldcset;
     tile = combobuf[bcombo].tile;
     flip = combobuf[bcombo].flip;
     //   cs = ((*di)&0x700)>>8;
@@ -757,7 +757,7 @@ bool movingblock::animate(int32_t)
 					}
 				}
 				
-				if (m0->flags&fSHUTTERS && isdungeon(currdmap, m0->screen))
+				if (m0->flags&fSHUTTERS && isdungeon(m0->screen))
 				{
 					open_doors_for_screen[m0->screen] = 8;
 				}
@@ -990,7 +990,7 @@ bool movingblock::animate(int32_t)
 					}
 				}
 				
-				if (m0->flags&fSHUTTERS && isdungeon(currdmap, m0->screen))
+				if (m0->flags&fSHUTTERS && isdungeon(m0->screen))
 				{
 					open_doors_for_screen[m0->screen] = 8;
 				}
