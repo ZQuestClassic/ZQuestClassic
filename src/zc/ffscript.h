@@ -1927,7 +1927,7 @@ extern int32_t flagval;
 void clear_ornextflag();
 void ornextflag(bool flag);
 
-int32_t get_mi(int32_t ref = MAPSCR_TEMP0);
-int32_t get_total_mi(int32_t ref = MAPSCR_TEMP0);
+int32_t get_mi();
+int32_t get_total_mi();
 
 #endif

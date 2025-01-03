@@ -268,6 +268,11 @@ static auto decode_mapdata_ref(int ref)
 			return type != mapdata_type::None && type != mapdata_type::CanonicalScreen;
 		}
 
+		bool canonical() const
+		{
+			return type == mapdata_type::CanonicalScreen;
+		}
+
 		bool current() const
 		{
 			return type == mapdata_type::TemporaryCurrentRegion || type == mapdata_type::TemporaryCurrentScreen;
@@ -879,15 +884,13 @@ int32_t get_screeneflags(mapscr *m, int32_t flagset)
 
 int32_t get_mi(int32_t ref)
 {
-	if (ref >= 0)
-	{
-		if(ref%MAPSCRS >= MAPSCRSNORMAL) return -1;
-		// TODO z3 mapind...
-		return ref - (8*(ref / MAPSCRS));
-	}
-
 	auto result = decode_mapdata_ref(ref);
-	if (result.current())
+	if (result.canonical())
+	{
+		if (result.screen >= MAPSCRSNORMAL) return -1;
+		return mapind(result.scr->map, result.screen);
+	}
+	else if (result.current())
 	{
 		if (result.screen >= MAPSCRSNORMAL) return -1;
 		return mapind(currmap, result.screen);
