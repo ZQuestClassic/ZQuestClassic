@@ -358,21 +358,21 @@ int32_t onNew()
 	std::string tileset_path;
 	while (tileset_path.empty())
 	{
-		int ret = 0;
+		int ret = -1;
 		AlertFuncDialog("Choose a tileset",
 			"Cambria is a modern tileset with retro aesthetics.\n\nClassic is a minimalist tileset.",
-			"",
-			3, 0, //2 buttons, where buttons[0] is focused
+			""
+		).add_buttons(0,
 			{ "Cambria (recommended)", "Classic", "Choose from disk" },
-			{ [&](){ret = 1; return true;}, [&](){ret = 2; return true;}, [&](){ret = 3; return true;} }
+			ret
 		).show();
-		if (ret == 0)
+		if (ret == -1)
 			return D_CLOSE;
-		if (ret == 1)
+		if (ret == 0)
 			tileset_path = "tilesets/cambria.qst";
-		else if (ret == 2)
+		else if (ret == 1)
 			tileset_path = "modules/classic/default.qst";
-		else if (ret == 3)
+		else if (ret == 2)
 		{
 			if (get_qst_name("./tilesets") && fs::is_regular_file(temppath))
 				tileset_path = temppath;

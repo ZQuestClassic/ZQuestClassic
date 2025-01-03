@@ -297,8 +297,8 @@ bool do_compile_and_slots(int assign_mode, bool delay)
 				"\nSmart Assign:"
 				"\nUpdates all already-assigned scripts"
 				"\nAssigns global/hero scripts to empty slots of the same name"
-				"\nAssigns all other unassigned scripts to slots",
-				4, 2, //4 where [2] is focused
+				"\nAssigns all other unassigned scripts to slots"
+			).add_buttons(2,
 				{ "Quick Assign", "Smart Assign", "OK", "Cancel" },
 				{ quickassign, smartassign, nullptr, docancel }
 			).show();
@@ -428,8 +428,8 @@ bool do_compile_and_slots(int assign_mode, bool delay)
 				"Ver\" and \"Min. Ver\" in the Header menu (Quest>>Options>>Header)\n\n"
 				"Ensure that both versions are higher than \"Quest Ver\" was previously, "
 				"and that \"Quest Ver\" is the same or higher than \"Min. Ver\"",
-				"",
-				2, 1, //2 buttons, where buttons[1] is focused
+				""
+			).add_buttons(1,
 				{ "Header", "OK" },
 				{ doCompileOpenHeaderDlg, nullptr }
 			).show();
