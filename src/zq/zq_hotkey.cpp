@@ -78,6 +78,7 @@ char const* get_hotkey_name(uint hkey)
 		case ZQKEY_TOGGLE_DARK: return "Toggle Screen Darkness";
 		case ZQKEY_ENEMIES: return "Screen Enemies";
 		case ZQKEY_SHOW_FLAGS: return "Show Flags";
+		case ZQKEY_SHOW_FFCS: return "Show FFCs";
 		case ZQKEY_ITEMS: return "Screen Item";
 		case ZQKEY_COMBOS: return "Combo Pages";
 		case ZQKEY_DARK_PREVIEW: return "Preview Darkness";
@@ -301,6 +302,7 @@ char const* get_hotkey_cfg_name(uint hkey)
 		case ZQKEY_TOGGLE_DARK: return "ZQKEY_TOGGLE_DARK";
 		case ZQKEY_ENEMIES: return "ZQKEY_ENEMIES";
 		case ZQKEY_SHOW_FLAGS: return "ZQKEY_SHOW_FLAGS";
+		case ZQKEY_SHOW_FFCS: return "ZQKEY_SHOW_FFCS";
 		case ZQKEY_ITEMS: return "ZQKEY_ITEMS";
 		case ZQKEY_COMBOS: return "ZQKEY_COMBOS";
 		case ZQKEY_DARK_PREVIEW: return "ZQKEY_DARK_PREVIEW";
@@ -546,6 +548,8 @@ char const* get_hotkey_helptext(uint hkey)
 			return "Set the screen's Enemies";
 		case ZQKEY_SHOW_FLAGS:
 			return "Show the mapflags placed on screen";
+		case ZQKEY_SHOW_FFCS:
+			return "Outline the FFCs placed on screen";
 		case ZQKEY_ITEMS:
 			return "Set the screen item";
 		case ZQKEY_COMBOS:
@@ -974,6 +978,7 @@ void default_hotkeys()
 	zq_hotkeys[ZQKEY_TOGGLE_DARK].setval(KEY_D,0,0,0);
 	zq_hotkeys[ZQKEY_ENEMIES].setval(KEY_E,0,0,0);
 	zq_hotkeys[ZQKEY_SHOW_FLAGS].setval(KEY_F,0,0,0);
+	zq_hotkeys[ZQKEY_SHOW_FFCS].setval(0,0,0,0);
 	zq_hotkeys[ZQKEY_ITEMS].setval(KEY_I,0,0,0);
 	zq_hotkeys[ZQKEY_COMBOS].setval(KEY_K,0,0,0);
 	zq_hotkeys[ZQKEY_DARK_PREVIEW].setval(KEY_L,0,0,0);
@@ -1312,6 +1317,8 @@ int run_hotkey(uint hkey)
 			return onEnemies();
 		case ZQKEY_SHOW_FLAGS:
 			return onShowFlags();
+		case ZQKEY_SHOW_FFCS:
+			return onToggleShowFFCs();
 		case ZQKEY_ITEMS:
 			return onItem();
 		case ZQKEY_COMBOS:
