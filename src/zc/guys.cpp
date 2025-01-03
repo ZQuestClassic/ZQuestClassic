@@ -4568,9 +4568,8 @@ void enemy::try_death(bool force_kill)
 			screen_item_set_state(screen_spawned, ScreenItemState::None);
 			item_set=0;
 		}
-		
-		if(screen_spawned<128 && count_enemy && !script_spawned)
-			game->guys[(currmap<<7)+screen_spawned]-=1;
+		if (screen_spawned < 128 && count_enemy && !script_spawned)
+			game->guys[mapind(currmap, screen_spawned)] -= 1;
 	}
 }
 
@@ -19393,7 +19392,7 @@ bool scriptloadenemies(int screen)
 void loadenemies()
 {
 	// check if it's been long enough to reload all enemies
-	int16_t s = (currmap<<7)+cur_screen;
+	int16_t s = mapind(currmap, cur_screen);
 	bool beenhere = false;
 	bool reload = true;
 	bool unbeatablereload = true;
@@ -19479,7 +19478,7 @@ void loadenemies()
 			return;
 
 		int32_t loadcnt = 10;
-		int16_t s = (currmap<<7)+screen;
+		int16_t s = mapind(currmap, screen);
 		
 		if (is_in_scrolling_region())
 		{

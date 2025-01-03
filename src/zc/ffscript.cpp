@@ -904,7 +904,7 @@ int32_t get_mi(int32_t ref)
 	return -1;
 }
 
-int32_t get_total_mi(int32_t ref)
+int32_t get_ref_map_index(int32_t ref)
 {
 	if (ref >= 0)
 		return ref;
@@ -6080,22 +6080,22 @@ int32_t get_register(int32_t arg)
 		}
 		case SCREENSCRDATASIZE:
 		{
-			int mi = (currmap*MAPSCRS) + ri->screenref;
-			if(mi < 0) break;
-			ret = 10000*game->scriptDataSize(mi);
+			int index = map_screen_index(currmap, ri->screenref);
+			if (index < 0) break;
+			ret = 10000*game->scriptDataSize(index);
 			break;
 		}
 		case SCREENSCRDATA:
 		{
-			int mi = (currmap*MAPSCRS) + ri->screenref;
-			if(mi < 0) break;
+			int index = map_screen_index(currmap, ri->screenref);
+			if (index < 0) break;
 			size_t indx = ri->d[rINDEX]/10000;
-			if(indx >= game->scriptDataSize(mi))
+			if(indx >= game->scriptDataSize(index))
 			{
 				Z_scripterrlog("Invalid index passed to Screen->Data[]: %d\n", indx);
 				break;
 			}
-			ret = game->screen_data[mi][indx];
+			ret = game->screen_data[index][indx];
 			break;
 		}
 		
@@ -7924,7 +7924,7 @@ int32_t get_register(int32_t arg)
 
 		case MAPDATAFLAGS: 
 		{
-			if(mapscr *m = GetMapscr(ri->mapsref))
+			if (mapscr *m = GetMapscr(ri->mapsref))
 			{
 				if ( get_qr(qr_OLDMAPDATAFLAGS) )
 				{
@@ -8126,7 +8126,7 @@ int32_t get_register(int32_t arg)
 			int ind = ri->d[rINDEX]/10000;
 			if(ind < 0 || ind > 6)
 				Z_scripterrlog("Bad index mapdata->LensShows[%d]\n",ind);
-			else if(mapscr *m = GetMapscr(ri->mapsref))
+			else if (mapscr *m = GetMapscr(ri->mapsref))
 				ret = (m->lens_show & (1<<ind)) ? 10000 : 0;
 			else Z_scripterrlog("mapdata->LensShows[] pointer (%d) is either invalid or uninitialised.\n", ri->mapsref);
 			break;
@@ -8137,7 +8137,7 @@ int32_t get_register(int32_t arg)
 			int ind = ri->d[rINDEX]/10000;
 			if(ind < 0 || ind > 6)
 				Z_scripterrlog("Bad index mapdata->LensHides[%d]\n",ind);
-			else if(mapscr *m = GetMapscr(ri->mapsref))
+			else if (mapscr *m = GetMapscr(ri->mapsref))
 				ret = (m->lens_hide & (1<<ind)) ? 10000 : 0;
 			else Z_scripterrlog("mapdata->LensHides[] pointer (%d) is either invalid or uninitialised.\n", ri->mapsref);
 			break;
@@ -8145,11 +8145,12 @@ int32_t get_register(int32_t arg)
 		case MAPDATASCRDATASIZE:
 		{
 			ret = -10000;
-			if(mapscr *m = GetMapscr(ri->mapsref))
+			if (mapscr *m = GetMapscr(ri->mapsref))
 			{
-				auto mi = get_total_mi(ri->mapsref);
-				if(mi < 0) break;
-				ret = 10000*game->scriptDataSize(mi);
+				int index = get_ref_map_index(ri->mapsref);
+				if (index < 0) break;
+
+				ret = 10000*game->scriptDataSize(index);
 			}
 			else Z_scripterrlog("mapdata->DataSize pointer (%d) is either invalid or uninitialised.\n", ri->mapsref);
 			break;
@@ -8157,21 +8158,22 @@ int32_t get_register(int32_t arg)
 		case MAPDATASCRDATA:
 		{
 			ret = -10000;
-			if(mapscr *m = GetMapscr(ri->mapsref))
+			if (mapscr *m = GetMapscr(ri->mapsref))
 			{
-				auto mi = get_total_mi(ri->mapsref);
-				if(mi < 0) break;
+				int mapindex = get_ref_map_index(ri->mapsref);
+				if (mapindex < 0) break;
+
 				size_t indx = ri->d[rINDEX]/10000;
-				if(indx >= game->scriptDataSize(mi))
+				if(indx >= game->scriptDataSize(mapindex))
 					Z_scripterrlog("Invalid index passed to mapdata->Data[]: %d\n", indx);
-				else ret = game->screen_data[mi][indx];
+				else ret = game->screen_data[mapindex][indx];
 			}
 			else Z_scripterrlog("mapdata->Data[] pointer (%d) is either invalid or uninitialised.\n", ri->mapsref);
 			break;
 		}
 		case MAPDATASCREENFLAGSD:
 		{
-			if(mapscr *m = GetMapscr(ri->mapsref))
+			if (mapscr *m = GetMapscr(ri->mapsref))
 			{
 				ret = get_screenflags(m,vbound(ri->d[rINDEX] / 10000,0,9));
 			}
@@ -8185,7 +8187,7 @@ int32_t get_register(int32_t arg)
 			
 		case MAPDATASCREENEFLAGSD:
 		{
-			if(mapscr *m = GetMapscr(ri->mapsref))
+			if (mapscr *m = GetMapscr(ri->mapsref))
 			{
 				ret = get_screeneflags(m,vbound(ri->d[rINDEX] / 10000,0,2));
 			}
@@ -8198,7 +8200,7 @@ int32_t get_register(int32_t arg)
 		}
 		case MAPDATAGUYCOUNT:
 		{
-			if(mapscr *m = GetMapscr(ri->mapsref))
+			if (mapscr *m = GetMapscr(ri->mapsref))
 			{
 				int mi = get_mi(ri->mapsref);
 				if(mi > -1)
@@ -8214,7 +8216,7 @@ int32_t get_register(int32_t arg)
 		case MAPDATAEXDOOR:
 		{
 			ret = 0;
-			if(mapscr *m = GetMapscr(ri->mapsref))
+			if (mapscr *m = GetMapscr(ri->mapsref))
 			{
 				int mi = get_mi(ri->mapsref);
 				if(mi < 0) break;
@@ -16877,28 +16879,30 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SCREENSCRDATASIZE:
 		{
-			int mi = (currmap*MAPSCRS) + ri->screenref;
-			if(mi < 0) break;
-			game->scriptDataResize(mi, value/10000);
+			int index = map_screen_index(currmap, ri->screenref);
+			if (index < 0) break;
+
+			game->scriptDataResize(index, value/10000);
 			break;
 		}
 		case SCREENSCRDATA:
 		{
-			int mi = (currmap*MAPSCRS) + ri->screenref;
-			if(mi < 0) break;
+			int mapindex = map_screen_index(currmap, ri->screenref);
+			if (mapindex < 0) break;
+
 			size_t indx = ri->d[rINDEX]/10000;
-			if(indx >= game->scriptDataSize(mi))
+			if (indx >= game->scriptDataSize(mapindex))
 			{
 				Z_scripterrlog("Invalid index passed to Screen->Data[]: %d\n", indx);
 				break;
 			}
-			game->screen_data[mi][indx] = value;
+			game->screen_data[mapindex][indx] = value;
 			break;
 		}
 
 		case GAMEGUYCOUNTD:
 		{
-			int mi = mapind(currmap, ri->d[rINDEX]/10000);
+			int mi = mapind(currmap, ri->d[rINDEX] / 10000);
 			game->guys[mi] = value / 10000;
 			break;
 		}
@@ -18694,7 +18698,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			int32_t flagid = (ri->d[rINDEX])/10000;
 			//bool valtrue = ( value ? 10000 : 0);
-			if(mapscr *m = GetMapscr(ri->mapsref))
+			if (mapscr *m = GetMapscr(ri->mapsref))
 			{
 				switch(flagid)
 				{
@@ -18921,7 +18925,7 @@ void set_register(int32_t arg, int32_t value)
 			int ind = ri->d[rINDEX]/10000;
 			if(ind < 0 || ind > 6)
 				Z_scripterrlog("Bad index mapdata->LensShows[%d]\n",ind);
-			else if(mapscr *m = GetMapscr(ri->mapsref))
+			else if (mapscr *m = GetMapscr(ri->mapsref))
 			{
 				SETFLAG(m->lens_show, 1<<ind, value);
 				if(value) m->lens_hide &= ~(1<<ind);
@@ -18934,7 +18938,7 @@ void set_register(int32_t arg, int32_t value)
 			int ind = ri->d[rINDEX]/10000;
 			if(ind < 0 || ind > 6)
 				Z_scripterrlog("Bad index mapdata->LensHides[%d]\n",ind);
-			else if(mapscr *m = GetMapscr(ri->mapsref))
+			else if (mapscr *m = GetMapscr(ri->mapsref))
 			{
 				SETFLAG(m->lens_hide, 1<<ind, value);
 				if(value) m->lens_show &= ~(1<<ind);
@@ -18944,32 +18948,34 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case MAPDATASCRDATASIZE:
 		{
-			if(mapscr *m = GetMapscr(ri->mapsref))
+			if (mapscr *m = GetMapscr(ri->mapsref))
 			{
-				auto mi = get_total_mi(ri->mapsref);
-				if(mi < 0) break;
-				game->scriptDataResize(mi, value/10000);
+				int index = get_ref_map_index(ri->mapsref);
+				if (index < 0) break;
+
+				game->scriptDataResize(index, value/10000);
 			}
 			else Z_scripterrlog("mapdata->DataSize pointer (%d) is either invalid or uninitialised.\n", ri->mapsref);
 			break;
 		}
 		case MAPDATASCRDATA:
 		{
-			if(mapscr *m = GetMapscr(ri->mapsref))
+			if (mapscr *m = GetMapscr(ri->mapsref))
 			{
-				auto mi = get_total_mi(ri->mapsref);
-				if(mi < 0) break;
+				int mapindex = get_ref_map_index(ri->mapsref);
+				if (mapindex < 0) break;
+
 				size_t indx = ri->d[rINDEX]/10000;
-				if(indx >= game->scriptDataSize(mi))
+				if(indx >= game->scriptDataSize(mapindex))
 					Z_scripterrlog("Invalid index passed to mapdata->Data[]: %d\n", indx);
-				else game->screen_data[mi][indx] = value;
+				else game->screen_data[mapindex][indx] = value;
 			}
 			else Z_scripterrlog("mapdata->Data[] pointer (%d) is either invalid or uninitialised.\n", ri->mapsref);
 			break;
 		}
 		case MAPDATAGUYCOUNT:
 		{
-			if(mapscr *m = GetMapscr(ri->mapsref))
+			if (mapscr *m = GetMapscr(ri->mapsref))
 			{
 				int mi = get_mi(ri->mapsref);
 				if(mi > -1)
@@ -18983,7 +18989,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case MAPDATAEXDOOR:
 		{
-			if(mapscr *m = GetMapscr(ri->mapsref))
+			if (mapscr *m = GetMapscr(ri->mapsref))
 			{
 				int mi = get_mi(ri->mapsref);
 				if(mi < 0) break;

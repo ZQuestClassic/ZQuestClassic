@@ -1,5 +1,6 @@
 #include "base/dmap.h"
 #include "base/handles.h"
+#include "base/mapscr.h"
 #include "base/misctypes.h"
 #include "base/msgstr.h"
 #include "base/qrs.h"
@@ -216,7 +217,8 @@ static int HandleGameScreenGetter(std::function<int(mapscr*, int)> cb, const cha
 	else if(m < 0) return 0; //No layer present
 	else
 	{
-		if( screen == currmap*MAPSCRS+cur_screen)
+		// TODO z3 ??? verify ??
+		if( screen == map_screen_index(currmap, cur_screen))
 			return cb(tmpscr, pos);
 		// Since this is deprecated, we only support looking at the origin screen.
 		else if (layr > -1)
@@ -265,7 +267,7 @@ static auto ResolveGameScreens(const char* context)
 
 	result.canonical_rpos_handle = {&TheMaps[screen], sc, 0, (rpos_t)pos, pos};
 	// Since this is deprecated, we only support looking at the origin screen.
-	if (screen == currmap*MAPSCRS + cur_screen)
+	if (screen == map_screen_index(currmap, cur_screen)) // TODO z3 ???
 		result.tmp_rpos_handle = {tmpscr, sc, 0, (rpos_t)pos, pos};
 	if (layr>-1)
 		result.tmp_rpos_handle = {&tmpscr2[layr], sc, 0, (rpos_t)pos, pos};
@@ -688,10 +690,10 @@ std::optional<int32_t> game_get_register(int32_t reg)
 			}
 			else if(m < 0) ret = 0; //No layer present
 			
-			//if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
+			//if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count) // TODO z3 ?
 			else
 			{
-				if(screen==(currmap*MAPSCRS+cur_screen))
+				if (screen == map_screen_index(currmap, cur_screen)) // TODO z3 ???
 					ret=(combobuf[tmpscr->data[pos]].walk&15)*10000;
 				else if(layr>-1)
 					ret=(combobuf[tmpscr2[layr].data[pos]].walk&15)*10000;

@@ -6180,7 +6180,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 	int mi = mapind(currmap, screen);
 
 	// Apply perm secrets, if applicable.
-	if(canPermSecret(destdmap,screen)/*||TheMaps[(currmap*MAPSCRS)+cur_screen].flags6&fTRIGGERFPERM*/)
+	if(canPermSecret(destdmap,screen))
 	{
 		if(game->maps[mi]&mSECRET)			   // if special stuff done before
 		{
