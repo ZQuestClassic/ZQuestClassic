@@ -16842,19 +16842,6 @@ int32_t GuyHit(int32_t index,int32_t tx,int32_t ty,int32_t tz,int32_t txsz,int32
 	return hit ? index : -1;
 }
 
-bool hasMainGuy()
-{
-	for(int32_t i=0; i<guys.Count(); i++)
-	{
-		if(((enemy*)guys.spr(i))->mainguy)
-		{
-			return true;
-		}
-	}
-	
-	return false;
-}
-
 bool hasMainGuy(int screen)
 {
 	for(int32_t i=0; i<guys.Count(); i++)

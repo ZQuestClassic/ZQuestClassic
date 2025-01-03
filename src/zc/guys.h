@@ -860,7 +860,6 @@ int32_t GuyHit(int32_t tx,int32_t ty,int32_t tz,int32_t txsz,int32_t tysz,int32_
 int32_t GuyHitFrom(int32_t index,int32_t tx,int32_t ty,int32_t tz,int32_t txsz,int32_t tysz,int32_t tzsz);
 // For Hero's hit detection. Count them if they are dying.
 int32_t GuyHit(int32_t index,int32_t tx,int32_t ty,int32_t tz,int32_t txsz,int32_t tysz,int32_t tzsz);
-bool hasMainGuy();
 bool hasMainGuy(int screen);
 void EatHero(int32_t index);
 void GrabHero(int32_t index);

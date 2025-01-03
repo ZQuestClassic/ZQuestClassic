@@ -11395,7 +11395,7 @@ void HeroClass::doSwitchHook(byte style)
 			if(hooked_layerbits & (1<<(q+8))) //2-way swap, check for pushblocks
 			{
 				if((cmb.type==cPUSH_WAIT || cmb.type==cPUSH_HW || cmb.type==cPUSH_HW2)
-					&& hasMainGuy())
+					&& hasMainGuy(target_scr->screen))
 				{
 					hooked_layerbits &= ~(0x101<<q); //Can't swap yet
 					continue;
@@ -20984,8 +20984,7 @@ void HeroClass::checkpushblock()
 	
 	if(!(diagonalMovement||NO_GRIDLOCK) || dir==left)
 		if(x.getInt()&15) earlyReturn=true;
-		
-	// if(y<16) return;
+
 	if(isSideViewHero() && !on_sideview_solid_oldpos(this)) return;
 	
 	int32_t bx = TRUNCATE_TILE(x.getInt());
@@ -21093,7 +21092,7 @@ void HeroClass::checkpushblock()
 		else if(t == cPUSHBLOCK)
 			heavy = cmb.attribytes[0];
 		
-		if(waitblock && (pushing<16 || hasMainGuy())) continue;
+		if(waitblock && (pushing<16 || hasMainGuy(m->screen))) continue;
 		
 		if(heavy && (itemid<0 || glove->power < heavy ||
 			(limitedpush && usecounts[itemid] >= zc_max(1, glove->misc3)))) continue;
