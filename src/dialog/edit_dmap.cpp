@@ -56,7 +56,7 @@ EditDMapDialog::EditDMapDialog(int32_t slot) :
 	list_items(GUI::ZCListData::items(false, false)),
 	list_dmapscript(GUI::ZCListData::dmap_script())
 {
-	ZCMUSIC* tempdmapzcmusic = zcmusic_load_for_quest(local_dmap.tmusic, filepath);
+	ZCMUSIC* tempdmapzcmusic = zcmusic_load_for_quest(local_dmap.tmusic, filepath).first;
 
 	int32_t numtracks = 1;
 	if (tempdmapzcmusic != NULL)
@@ -74,7 +74,7 @@ bool EditDMapDialog::disableEnhancedMusic(bool disableontracker)
 	if (local_dmap.tmusic[0] == 0)
 		return true;
 
-	ZCMUSIC* tempdmapzcmusic = zcmusic_load_for_quest(local_dmap.tmusic, filepath);
+	ZCMUSIC* tempdmapzcmusic = zcmusic_load_for_quest(local_dmap.tmusic, filepath).first;
 	bool isTracker = true;
 
 	if (tempdmapzcmusic != NULL)
@@ -678,27 +678,42 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 											}
 											else
 											{
-												ZCMUSIC* tempdmapzcmusic = zcmusic_load_for_quest(tmfname, filepath);
+												auto [music, err] = zcmusic_load_for_quest(tmfname, filepath);
 
 												int32_t numtracks = 1;
-												if (tempdmapzcmusic != NULL)
+												if (music)
 												{
-													numtracks = zcmusic_get_tracks(tempdmapzcmusic);
+													numtracks = zcmusic_get_tracks(music);
 													numtracks = (numtracks < 2) ? 1 : numtracks;
 													list_tracks = GUI::ListData::numbers(false, 1, numtracks);
 													tmusic_track_list->setSelectedValue(1);
 												
 													std::string str;
-													str.assign(tempdmapzcmusic->filename);
+													str.assign(music->filename);
 													strncpy(local_dmap.tmusic, str.c_str(), 56);
 													local_dmap.tmusic[55] = 0;
 													local_dmap.tmusictrack = 0;
 
-													zcmusic_unload_file(tempdmapzcmusic);
+													zcmusic_unload_file(music);
 												}
 												else
 												{
-													jwin_alert("Error", "Could not load file", "Enhanced music files must be saved in the same folder as the quest, the ZC program folder, or in a \"music\" or \"questname.qst_music\" subfolder of the two", NULL, "O&K", NULL, 'k', 0, get_zc_font(font_lfont));
+													string s = "";
+													switch(err)
+													{
+														case ZCM_E_NO_AUDIO:
+															s = "Allegro's audio driver is not initialized.";
+															break;
+														case ZCM_E_NOT_FOUND:
+															s =  "File not found."
+																"\nEnhanced music files must be saved in the same folder as the quest, the ZC program folder,"
+																" or in a \"music\" or \"questname_music\" subfolder of the two.";
+															break;
+														case ZCM_E_ERROR:
+															s =  "Error loading file.";
+															break;
+													}
+													InfoDialog("Error", s).show();
 												}
 
 												tmusic_field->setText(local_dmap.tmusic);

@@ -12,7 +12,7 @@ extern ZCMIXER* zcmixer;
 // Run an NSF, or a MIDI if the NSF is missing somehow.
 bool try_zcmusic(const char* filename, char* path, int32_t track, int32_t midi, int32_t vol, int32_t fadeoutframes)
 {
-	ZCMUSIC* newzcmusic = zcmusic_load_for_quest(filename, path);
+	ZCMUSIC* newzcmusic = zcmusic_load_for_quest(filename, path).first;
 
 	// Found it
 	if (newzcmusic != NULL)
