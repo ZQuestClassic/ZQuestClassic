@@ -169,7 +169,7 @@ void do_script_draws(BITMAP *bmp, mapscr *layer, int32_t x, int32_t y, bool hide
 void calc_darkroom_combos(bool scrolling = false);
 void draw_screen(mapscr* this_screen, bool showhero=true, bool runGeneric = false);
 void put_door(BITMAP *dest,int32_t t,int32_t pos,int32_t side,int32_t type,bool redraw,bool even_walls=false);
-void over_door(BITMAP *dest,int32_t t, int32_t pos,int32_t side);
+void over_door(mapscr* scr,BITMAP *dest, int32_t pos,int32_t side);
 void putdoor(BITMAP *dest,int32_t t,int32_t side,int32_t door,bool redraw=true,bool even_walls=false);
 void showbombeddoor(BITMAP *dest, int32_t side);
 void openshutters();

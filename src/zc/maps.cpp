@@ -4634,9 +4634,9 @@ void put_door(BITMAP *dest,int32_t t,int32_t pos,int32_t side,int32_t type,bool 
 	}
 }
 
-void over_door(BITMAP *dest,int32_t t, int32_t pos,int32_t side, int32_t xoff, int32_t yoff)
+void over_door(mapscr* scr,BITMAP *dest, int32_t pos,int32_t side, int32_t xoff, int32_t yoff)
 {
-	int32_t d=tmpscr[t].door_combo_set;
+	int32_t d=scr->door_combo_set;
 	int32_t x=(pos&15)<<4;
 	int32_t y=(pos&0xF0);
 	
@@ -4763,7 +4763,7 @@ void putdoor(BITMAP *dest,int32_t t,int32_t side,int32_t door,bool redraw,bool e
 		case dBOMBED:
 			if(redraw)
 			{
-				over_door(dest,t,39,side,0,0);
+				over_door(&tmpscr[t],dest,39,side,0,0);
 			}
 			[[fallthrough]];
 		default:
@@ -4779,7 +4779,7 @@ void putdoor(BITMAP *dest,int32_t t,int32_t side,int32_t door,bool redraw,bool e
 		case dBOMBED:
 			if(redraw)
 			{
-				over_door(dest,t,135,side,0,0);
+				over_door(&tmpscr[t],dest,135,side,0,0);
 			}
 			[[fallthrough]];
 		default:
@@ -4795,7 +4795,7 @@ void putdoor(BITMAP *dest,int32_t t,int32_t side,int32_t door,bool redraw,bool e
 		case dBOMBED:
 			if(redraw)
 			{
-				over_door(dest,t,66,side,0,0);
+				over_door(&tmpscr[t],dest,66,side,0,0);
 			}
 			[[fallthrough]];
 		default:
@@ -4811,7 +4811,7 @@ void putdoor(BITMAP *dest,int32_t t,int32_t side,int32_t door,bool redraw,bool e
 		case dBOMBED:
 			if(redraw)
 			{
-				over_door(dest,t,77,side,0,0);
+				over_door(&tmpscr[t],dest,77,side,0,0);
 			}
 			[[fallthrough]];
 		default:
@@ -5577,22 +5577,22 @@ void putscrdoors(BITMAP *dest,int32_t x,int32_t y, mapscr* scrn)
 	
 	if(scrn->door[0]==dBOMBED)
 	{
-		over_door(dest,0,39,up,x,y);
+		over_door(scrn,dest,39,up,x,y);
 	}
 	
 	if(scrn->door[1]==dBOMBED)
 	{
-		over_door(dest,0,135,down,x,y);
+		over_door(scrn,dest,135,down,x,y);
 	}
 	
 	if(scrn->door[2]==dBOMBED)
 	{
-		over_door(dest,0,66,left,x,y);
+		over_door(scrn,dest,66,left,x,y);
 	}
 	
 	if(scrn->door[3]==dBOMBED)
 	{
-		over_door(dest,0,77,right,x,y);
+		over_door(scrn,dest,77,right,x,y);
 	}
 }
 static inline bool onSwitch(newcombo const& cmb, zfix const& switchblockstate)
