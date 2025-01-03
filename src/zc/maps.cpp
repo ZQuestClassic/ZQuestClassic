@@ -5750,7 +5750,7 @@ void load_a_screen_and_layers(int dmap, int map, int screen, int ldir)
 	toggle_switches(game->lvlswitches[destlvl], true, base_scr);
 	toggle_gswitches_load(base_scr);
 
-	int mi = mapind(currmap, screen); // TODO z3 ???? map???
+	int mi = mapind(map, screen);
 	bool should_check_for_state_things = (screen < 0x80) && mi < MAXMAPS*MAPSCRSNORMAL;
 	if (should_check_for_state_things)
 	{
