@@ -1800,8 +1800,8 @@ void save_game(bool savepoint)
 	if(savepoint)
 	{
 		game->set_continue_scrn(home_screen);
-		game->set_continue_dmap(currdmap);
-		lastentrance_dmap = currdmap;
+		game->set_continue_dmap(cur_dmap);
+		lastentrance_dmap = cur_dmap;
 		lastentrance = game->get_continue_scrn();
 	}
 	
@@ -1929,8 +1929,8 @@ bool save_game(bool savepoint, int32_t type)
 				if(savepoint)
 				{
 					game->set_continue_scrn(home_screen);
-					game->set_continue_dmap(currdmap);
-					lastentrance_dmap = currdmap;
+					game->set_continue_dmap(cur_dmap);
+					lastentrance_dmap = cur_dmap;
 					lastentrance = game->get_continue_scrn();
 				}
 				
@@ -2027,7 +2027,7 @@ bool save_game(bool savepoint, int32_t type)
 	while(!Quit && !done);
 	
 	ringcolor(false);
-	loadlvlpal(DMaps[currdmap].color);
+	loadlvlpal(DMaps[cur_dmap].color);
 	
 	if(darkroom)
 	{
@@ -2037,7 +2037,7 @@ bool save_game(bool savepoint, int32_t type)
 		}
 		else
 		{
-			loadfadepal((DMaps[currdmap].color)*pdLEVEL+poFADE3);
+			loadfadepal((DMaps[cur_dmap].color)*pdLEVEL+poFADE3);
 		}
 	}
 	

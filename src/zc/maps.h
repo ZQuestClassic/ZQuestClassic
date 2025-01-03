@@ -74,7 +74,7 @@ struct region_t
 	// World coordinates.
 	int width, height;
 };
-extern region_t current_region, scrolling_region;
+extern region_t cur_region, scrolling_region;
 
 void maps_init_game_vars();
 
@@ -107,7 +107,7 @@ ZC_FORCE_INLINE rpos_t POS_TO_RPOS(int32_t pos, int32_t scr_dx, int32_t scr_dy)
 {
 	DCHECK(scr_dx >= 0 && scr_dy >= 0);
 	DCHECK_RANGE_EXCLUSIVE(pos, 0, 176);
-	return static_cast<rpos_t>((scr_dx + scr_dy * current_region.screen_width)*176 + pos);
+	return static_cast<rpos_t>((scr_dx + scr_dy * cur_region.screen_width)*176 + pos);
 }
 ZC_FORCE_INLINE rpos_t POS_TO_RPOS(int32_t pos, int32_t screen)
 {

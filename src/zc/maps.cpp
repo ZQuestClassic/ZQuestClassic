@@ -65,7 +65,7 @@ int region_scr_dx, region_scr_dy;
 int region_scr_count;
 rpos_t region_max_rpos;
 int region_num_rpos;
-region_t current_region, scrolling_region;
+region_t cur_region, scrolling_region;
 
 maze_state_t maze_state;
 int scrolling_maze_last_solved_screen;
@@ -125,19 +125,19 @@ bool is_valid_rpos(rpos_t rpos)
 
 bool is_in_scrolling_region()
 {
-	return current_region.screen_count > 1;
+	return cur_region.screen_count > 1;
 }
 
 bool is_extended_height_mode()
 {
-	return current_region.screen_height > 1 && (DMaps[currdmap].flags & dmfEXTENDEDVIEWPORT);
+	return cur_region.screen_height > 1 && (DMaps[cur_dmap].flags & dmfEXTENDEDVIEWPORT);
 }
 
 // Returns 0 if this is not a region.
 int get_region_id(int map, int screen)
 {
 	if (screen >= 128) return 0;
-	if (map == current_region.map) return current_region_ids[screen];
+	if (map == cur_region.map) return current_region_ids[screen];
 
 	return Regions[map].get_region_id(screen);
 }
@@ -223,19 +223,19 @@ void load_region(int dmap, int screen)
 	int map = DMaps[dmap].map;
 	current_region_ids = Regions[map].get_all_region_ids();
 
-	calculate_region(map, screen, current_region, region_scr_dx, region_scr_dy);
-	cur_screen = current_region.origin_screen;
-	world_w = current_region.width;
-	world_h = current_region.height;
-	region_scr_count = current_region.screen_count;
-	region_max_rpos = (rpos_t)(current_region.screen_count*176 - 1);
-	region_num_rpos = current_region.screen_count*176;
+	calculate_region(map, screen, cur_region, region_scr_dx, region_scr_dy);
+	cur_screen = cur_region.origin_screen;
+	world_w = cur_region.width;
+	world_h = cur_region.height;
+	region_scr_count = cur_region.screen_count;
+	region_max_rpos = (rpos_t)(cur_region.screen_count*176 - 1);
+	region_num_rpos = cur_region.screen_count*176;
 	scrolling_maze_last_solved_screen = 0;
 
 	memset(screen_in_current_region, false, sizeof(screen_in_current_region));
-	for (int x = 0; x < current_region.screen_width; x++)
+	for (int x = 0; x < cur_region.screen_width; x++)
 	{
-		for (int y = 0; y < current_region.screen_height; y++)
+		for (int y = 0; y < cur_region.screen_height; y++)
 		{
 			int screen = cur_screen + x + y*16;
 			if (screen < 136)
@@ -250,9 +250,9 @@ static void prepare_current_region_handles()
 {
 	current_region_rpos_handles_dirty = false;
 	current_region_screen_count = 0;
-	for (int y = 0; y < current_region.screen_height; y++)
+	for (int y = 0; y < cur_region.screen_height; y++)
 	{
-		for (int x = 0; x < current_region.screen_width; x++)
+		for (int x = 0; x < cur_region.screen_width; x++)
 		{
 			int screen = cur_screen + x + y*16;
 			int index_start = current_region_screen_count;
@@ -391,7 +391,7 @@ void update_viewport()
 	sprite* spr = get_viewport_sprite();
 	int x = spr->x + spr->txsz*16/2;
 	int y = spr->y + spr->tysz*16/2;
-	calculate_viewport(viewport, currdmap, cur_screen, world_w, world_h, x, y);
+	calculate_viewport(viewport, cur_dmap, cur_screen, world_w, world_h, x, y);
 }
 
 void update_heroscr()
@@ -461,8 +461,8 @@ int get_screen_for_rpos(rpos_t rpos)
 	int origin_screen_x = cur_screen % 16;
 	int origin_screen_y = cur_screen / 16;
 	int screen = static_cast<int32_t>(rpos) / 176;
-	int scr_x = origin_screen_x + screen%current_region.screen_width;
-	int scr_y = origin_screen_y + screen/current_region.screen_width;
+	int scr_x = origin_screen_x + screen%cur_region.screen_width;
+	int scr_y = origin_screen_y + screen/cur_region.screen_width;
 	return map_scr_xy_to_index(scr_x, scr_y);
 }
 
@@ -558,13 +558,13 @@ mapscr* get_scr_for_world_xy_layer(int x, int y, int layer)
 
 int get_region_screen_offset(int screen)
 {
-	return get_region_relative_dx(screen) + get_region_relative_dy(screen) * current_region.screen_width;
+	return get_region_relative_dx(screen) + get_region_relative_dy(screen) * cur_region.screen_width;
 }
 
 int get_screen_for_region_index_offset(int offset)
 {
-	int scr_dx = offset % current_region.screen_width;
-	int scr_dy = offset / current_region.screen_width;
+	int scr_dx = offset % cur_region.screen_width;
+	int scr_dy = offset / cur_region.screen_width;
 	int screen = cur_screen + scr_dx + scr_dy*16;
 	return screen;
 }
@@ -587,7 +587,7 @@ mapscr* get_scr(int map, int screen)
 		if (!temporary_screens_currmap[index])
 		{
 			// Only needed during screen scrolling / dowarp
-			load_a_screen_and_layers(currdmap, map, screen, -1);
+			load_a_screen_and_layers(cur_dmap, map, screen, -1);
 		}
 		return temporary_screens_currmap[index];
 	}
@@ -595,7 +595,7 @@ mapscr* get_scr(int map, int screen)
 	int index = map_screen_index(map, screen);
 	auto it = temporary_screens.find(index);
 	if (it != temporary_screens.end()) return it->second[0];
-	load_a_screen_and_layers(currdmap, map, screen, -1);
+	load_a_screen_and_layers(cur_dmap, map, screen, -1);
 	return temporary_screens[index][0];
 }
 
@@ -637,7 +637,7 @@ mapscr* get_scr_layer(int map, int screen, int layer)
 		if (!temporary_screens_currmap[index])
 		{
 			// Only needed during screen scrolling / dowarp
-			load_a_screen_and_layers(currdmap, map, screen, -1);
+			load_a_screen_and_layers(cur_dmap, map, screen, -1);
 		}
 		return temporary_screens_currmap[index+layer+1];
 	}
@@ -645,7 +645,7 @@ mapscr* get_scr_layer(int map, int screen, int layer)
 	int index = map_screen_index(map, screen);
 	auto it = temporary_screens.find(index);
 	if (it != temporary_screens.end()) return it->second[layer + 1];
-	load_a_screen_and_layers(currdmap, map, screen, -1);
+	load_a_screen_and_layers(cur_dmap, map, screen, -1);
 	return temporary_screens[index][layer + 1];
 }
 
@@ -735,7 +735,7 @@ rpos_t COMBOPOS_REGION(int32_t x, int32_t y)
 	int scr_dx = x / (16*16);
 	int scr_dy = y / (11*16);
 	int pos = COMBOPOS(x%256, y%176);
-	return static_cast<rpos_t>((scr_dx + scr_dy * current_region.screen_width)*176 + pos);
+	return static_cast<rpos_t>((scr_dx + scr_dy * cur_region.screen_width)*176 + pos);
 }
 rpos_t COMBOPOS_REGION_CHECK_BOUNDS(int32_t x, int32_t y)
 {
@@ -745,13 +745,13 @@ rpos_t COMBOPOS_REGION_CHECK_BOUNDS(int32_t x, int32_t y)
 	int scr_dx = x / (16*16);
 	int scr_dy = y / (11*16);
 	int pos = COMBOPOS(x%256, y%176);
-	return static_cast<rpos_t>((scr_dx + scr_dy * current_region.screen_width)*176 + pos);
+	return static_cast<rpos_t>((scr_dx + scr_dy * cur_region.screen_width)*176 + pos);
 }
 std::pair<int32_t, int32_t> COMBOXY_REGION(rpos_t rpos)
 {
 	int scr_index = static_cast<int32_t>(rpos) / 176;
-	int scr_dx = scr_index % current_region.screen_width;
-	int scr_dy = scr_index / current_region.screen_width;
+	int scr_dx = scr_index % cur_region.screen_width;
+	int scr_dy = scr_index / cur_region.screen_width;
 	int pos = RPOS_TO_POS(rpos);
 	int x = scr_dx*16*16 + COMBOX(pos);
 	int y = scr_dy*11*16 + COMBOY(pos);
@@ -778,13 +778,13 @@ rpos_t COMBOPOS_REGION_INDEX(int32_t x, int32_t y)
 	int scr_dy = y / 11;
 	x %= 16;
 	y %= 11;
-	return static_cast<rpos_t>((scr_dx + scr_dy * current_region.screen_width)*176 + x + y * 16);
+	return static_cast<rpos_t>((scr_dx + scr_dy * cur_region.screen_width)*176 + x + y * 16);
 }
 std::pair<int32_t, int32_t> COMBOXY_REGION_INDEX(rpos_t rpos)
 {
 	int scr_index = static_cast<int32_t>(rpos) / 176;
-	int scr_dx = scr_index % current_region.screen_width;
-	int scr_dy = scr_index / current_region.screen_width;
+	int scr_dx = scr_index % cur_region.screen_width;
+	int scr_dy = scr_index / cur_region.screen_width;
 	int pos = RPOS_TO_POS(rpos);
 	int x = scr_dx*16 + pos%16;
 	int y = scr_dy*11 + pos/16;
@@ -863,7 +863,7 @@ void clear_dmaps()
 
 int32_t isdungeon(int32_t dmap, int32_t screen)
 {
-	if (dmap < 0) dmap = currdmap;
+	if (dmap < 0) dmap = cur_dmap;
 
 	// dungeons can have any dlevel above 0
 	if((DMaps[dmap].type&dmfTYPE) == dmDNGN)
@@ -883,12 +883,12 @@ int32_t isdungeon(int32_t dmap, int32_t screen)
 
 int32_t isdungeon(int32_t screen)
 {
-	return isdungeon(currdmap, screen);
+	return isdungeon(cur_dmap, screen);
 }
 
 int32_t isdungeon()
 {
-	return isdungeon(currdmap, hero_screen);
+	return isdungeon(cur_dmap, hero_screen);
 }
 
 bool canPermSecret(int32_t dmap, int32_t screen)
@@ -1152,7 +1152,7 @@ int32_t MAPCOMBO2(int32_t layer, int32_t x, int32_t y)
 
 static void apply_state_changes_to_screen(mapscr& scr, int32_t map, int32_t screen, int32_t flags, bool secrets_do_replay_comment)
 {
-	if ((flags & mSECRET) && canPermSecret(currdmap, screen))
+	if ((flags & mSECRET) && canPermSecret(cur_dmap, screen))
 	{
 		reveal_hidden_stairs(&scr, screen, false);
 		bool do_layers = false;
@@ -3129,7 +3129,7 @@ bool trigger_secrets_if_flag(int32_t x, int32_t y, int32_t flag, bool setflag)
 		}
 	}
 	
-	if (setflag && canPermSecret(currdmap, screen))
+	if (setflag && canPermSecret(cur_dmap, screen))
 		if(!(scr->flags5&fTEMPSECRETS))
 			setmapflag(scr, mSECRET);
 
@@ -3671,7 +3671,7 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen
 					if(base_scr->layeropacity[layer-1]!=255)
 						transp = true;
 					
-					if(XOR(base_scr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))
+					if(XOR(base_scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG))
 						over = false;
 					
 					break;
@@ -3687,8 +3687,8 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen
 					if(base_scr->layeropacity[layer-1]!=255)
 						transp = true;
 					
-					if(XOR(base_scr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)
-						&& !XOR(base_scr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))
+					if(XOR(base_scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG)
+						&& !XOR(base_scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG))
 						over = false;
 					
 					break;
@@ -4458,14 +4458,14 @@ void draw_screen(bool showhero, bool runGeneric)
 
 	for_every_nearby_screen(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy) {
 		mapscr* base_scr = screen_handles[0].base_scr;
-		if(XOR(base_scr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))
+		if(XOR(base_scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG))
 		{
 			do_layer(scrollbuf, 0, screen_handles[2], offx, offy, true);
 			if (screen == cur_screen) particles.draw(framebuf, true, 1);
 			if (screen == cur_screen) draw_msgstr(2);
 		}
 		
-		if(XOR(base_scr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG))
+		if(XOR(base_scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG))
 		{
 			do_layer(scrollbuf, 0, screen_handles[3], offx, offy, true);
 			if (screen == cur_screen) particles.draw(framebuf, true, 2);
@@ -4549,7 +4549,7 @@ void draw_screen(bool showhero, bool runGeneric)
 
 		if (in_viewport)
 		{
-			if(!XOR(base_scr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))
+			if(!XOR(base_scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG))
 			{
 				do_layer(scrollbuf, 0, screen_handles[2], offx, offy, true); // LAYER 2
 				if (screen == cur_screen) particles.draw(framebuf, true, 1);
@@ -4858,7 +4858,7 @@ void draw_screen(bool showhero, bool runGeneric)
 	for_every_nearby_screen(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy) {
 		mapscr* base_scr = screen_handles[0].base_scr;
 
-		if(!XOR(base_scr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG))
+		if(!XOR(base_scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG))
 		{
 			do_layer(framebuf, 0, screen_handles[3], offx, offy, true);
 			if (screen == cur_screen) particles.draw(framebuf, true, 2);
@@ -5860,7 +5860,7 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool overlay, bool 
 		zapp_reporting_set_tag("dmap", destdmap);
 
 	int32_t orig_destdmap = destdmap;
-	if (destdmap < 0) destdmap = currdmap;
+	if (destdmap < 0) destdmap = cur_dmap;
 
 	if (replay_is_active())
 	{
@@ -5939,12 +5939,12 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool overlay, bool 
 
 	prepare_current_region_handles();
 
-	// Temp set currdmap so that get_layer_scr -> load_a_screen_and_layers will know if this is a region.
-	int o_currdmap = currdmap;
-	currdmap = destdmap;
+	// Temp set cur_dmap so that get_layer_scr -> load_a_screen_and_layers will know if this is a region.
+	int o_cur_dmap = cur_dmap;
+	cur_dmap = destdmap;
 
 	update_slope_comboposes();
-	currdmap = o_currdmap;
+	cur_dmap = o_cur_dmap;
 	hero_screen = screen;
 	hero_scr = prev_hero_scr = get_scr_no_load(currmap, screen);
 	CHECK(hero_scr);
@@ -6027,7 +6027,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 	bool is_setting_special_warp_return_screen = tmp == 1;
 	if (is_setting_special_warp_return_screen)
 		is_setting_special_warp_return_screen=is_setting_special_warp_return_screen;
-	int32_t destlvl = DMaps[destdmap < 0 ? currdmap : destdmap].level;
+	int32_t destlvl = DMaps[destdmap < 0 ? cur_dmap : destdmap].level;
 
 	mapscr previous_scr = tmp == 0 ? *tmpscr : special_warp_return_screen;
 	mapscr* scr = tmp == 0 ? tmpscr : &special_warp_return_screen;
@@ -6165,7 +6165,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 		}
 	}
 
-	auto [offx, offy] = is_a_region(DMaps[destdmap < 0 ? currdmap : destdmap].map, screen) ?
+	auto [offx, offy] = is_a_region(DMaps[destdmap < 0 ? cur_dmap : destdmap].map, screen) ?
 		translate_screen_coordinates_to_world(screen) :
 		std::make_pair(0, 0);
 	int c = scr->numFFC();
@@ -6530,8 +6530,8 @@ void putscr(mapscr* scr, BITMAP* dest, int32_t x, int32_t y)
 		return;
 	}
 	
-	bool over = XOR(scr->flags7&fLAYER2BG,DMaps[currdmap].flags&dmfLAYER2BG)
-		|| XOR(scr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG);
+	bool over = XOR(scr->flags7&fLAYER2BG,DMaps[cur_dmap].flags&dmfLAYER2BG)
+		|| XOR(scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG);
 
 	int start_x, end_x, start_y, end_y;
 	get_bounds_for_draw_cmb_calls(dest, x, y, start_x, end_x, start_y, end_y);
@@ -7395,11 +7395,11 @@ bool displayOnMap(int32_t x, int32_t y)
         return false;
 
     // Don't display if not part of DMap
-    if(((DMaps[currdmap].flags&dmfDMAPMAP) &&
-       (DMaps[currdmap].type != dmOVERW) &&
-       !(x >= DMaps[currdmap].xoff &&
-         x < DMaps[currdmap].xoff+8 &&
-         DMaps[currdmap].grid[y]&(128>>(x-DMaps[currdmap].xoff)))))
+    if(((DMaps[cur_dmap].flags&dmfDMAPMAP) &&
+       (DMaps[cur_dmap].type != dmOVERW) &&
+       !(x >= DMaps[cur_dmap].xoff &&
+         x < DMaps[cur_dmap].xoff+8 &&
+         DMaps[cur_dmap].grid[y]&(128>>(x-DMaps[cur_dmap].xoff)))))
         return false;
     else
         return true;
@@ -7482,14 +7482,14 @@ void ViewMap()
 					int xx = 0;
 					int yy = -playing_field_offset;
 					
-					if(XOR(tmpscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer_old(screen_bmp, 0, 2, tmpscr, xx, yy, 2);
+					if(XOR(tmpscr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG)) do_layer_old(screen_bmp, 0, 2, tmpscr, xx, yy, 2);
 					
-					if(XOR(tmpscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer_old(screen_bmp, 0, 3, tmpscr, xx, yy, 2);
+					if(XOR(tmpscr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG)) do_layer_old(screen_bmp, 0, 3, tmpscr, xx, yy, 2);
 					
 					if(lenscheck(tmpscr,0)) putscr(tmpscr, screen_bmp, 0, 0);
 					do_layer_old(screen_bmp, 0, 1, tmpscr, xx, yy, 2);
 					
-					if(!XOR((tmpscr->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_layer_old(screen_bmp, 0, 2, tmpscr, xx, yy, 2);
+					if(!XOR((tmpscr->flags7&fLAYER2BG), DMaps[cur_dmap].flags&dmfLAYER2BG)) do_layer_old(screen_bmp, 0, 2, tmpscr, xx, yy, 2);
 					
 					putscrdoors(tmpscr, screen_bmp, 0, 0);
 					if (get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
@@ -7503,7 +7503,7 @@ void ViewMap()
 					}
 					do_layer_old(screen_bmp,-3, 0, tmpscr, xx, yy, 2); // Freeform combos!
 					
-					if(!XOR((tmpscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_layer_old(screen_bmp, 0, 3, tmpscr, xx, yy, 2);
+					if(!XOR((tmpscr->flags7&fLAYER3BG), DMaps[cur_dmap].flags&dmfLAYER3BG)) do_layer_old(screen_bmp, 0, 3, tmpscr, xx, yy, 2);
 					
 					do_layer_old(screen_bmp, 0, 4, tmpscr, xx, yy, 2);
 					do_layer_old(screen_bmp,-1, 0, tmpscr, xx, yy, 2);
@@ -7685,7 +7685,7 @@ void ViewMap()
 
 int32_t onViewMap()
 {
-    if(Playing && cur_screen<128 && DMaps[currdmap].flags&dmfVIEWMAP)
+    if(Playing && cur_screen<128 && DMaps[cur_dmap].flags&dmfVIEWMAP)
     {
         clear_to_color(framebuf,BLACK);
         textout_centre_ex(framebuf,font,"Drawing map...",128,108,WHITE,BLACK);
@@ -7893,7 +7893,7 @@ void mark_visited(int screen)
 {
 	if (screen < 0x80)
 	{
-		if(DMaps[currdmap].flags&dmfVIEWMAP)
+		if(DMaps[cur_dmap].flags&dmfVIEWMAP)
 			game->maps[mapind(currmap, screen)] |= mVISITED;
 
 		markBmap(-1, screen);

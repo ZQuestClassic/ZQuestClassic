@@ -320,7 +320,7 @@ int32_t hero_screen=0;
 int32_t cur_screen=0;
 int32_t currscr_for_passive_subscr;
 direction scrolling_dir;
-int32_t newscr_clk=0,currdmap=0,fadeclk=-1,listpos=0;
+int32_t newscr_clk=0,cur_dmap=0,fadeclk=-1,listpos=0;
 int32_t lastentrance=0,lastentrance_dmap=0,prices[3]= {0},loadside = 0, Bwpn = -1, Awpn = -1, Xwpn = -1, Ywpn = -1;
 int32_t digi_volume = 0,midi_volume = 0,sfx_volume = 0,emusic_volume = 0,currmidi = -1,whistleclk = 0,pan_style = 0;
 bool analog_movement=true;
@@ -903,19 +903,19 @@ void dismissmsg()
 
 void dointro()
 {
-    if(game->visited[currdmap]!=1 || (DMaps[currdmap].flags&dmfALWAYSMSG)!=0)
+    if(game->visited[cur_dmap]!=1 || (DMaps[cur_dmap].flags&dmfALWAYSMSG)!=0)
     {
 		if(get_qr(qr_OLD_DMAP_INTRO_STRINGS))
 		{
 			dmapmsgclk = 0;
-			game->visited[currdmap] = 1;
+			game->visited[cur_dmap] = 1;
 			introclk = intropos = 0;
 		}
 		else
 		{
-			if(DMaps[currdmap].intro_string_id)
-				donewmsg(hero_scr, DMaps[currdmap].intro_string_id);
-			game->visited[currdmap] = 1;
+			if(DMaps[cur_dmap].intro_string_id)
+				donewmsg(hero_scr, DMaps[cur_dmap].intro_string_id);
+			game->visited[cur_dmap] = 1;
 		}
     }
     else
@@ -1055,7 +1055,7 @@ void ALLOFF(bool messagesToo, bool decorationsToo, bool force)
     
     if(items.idCount(iPile))
     {
-        loadlvlpal(DMaps[currdmap].color);
+        loadlvlpal(DMaps[cur_dmap].color);
     }
     
     items.clear(force);
@@ -1584,7 +1584,7 @@ void init_dmap()
     for(int32_t i=0; i<MAXITEMS; i++)
     {
         game->items_off[i] &= (~1); // disable last bit - this one is set by dmap
-        game->items_off[i] |= DMaps[currdmap].disableditems[i]; // and reset if required
+        game->items_off[i] |= DMaps[cur_dmap].disableditems[i]; // and reset if required
     }
     
     flushItemCache();
@@ -1920,18 +1920,18 @@ int32_t init_game()
 	
 	timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
 	timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
-	previous_DMap = currdmap = warpscr = worldscr=game->get_continue_dmap();
+	previous_DMap = cur_dmap = warpscr = worldscr=game->get_continue_dmap();
 	init_dmap();
 	
 	if(game->get_continue_scrn() >= 0x80)
 	{
-		if((DMaps[currdmap].type&dmfTYPE)==dmOVERW)
+		if((DMaps[cur_dmap].type&dmfTYPE)==dmOVERW)
 		{
-			home_screen = cur_screen = hero_screen = DMaps[currdmap].cont;
+			home_screen = cur_screen = hero_screen = DMaps[cur_dmap].cont;
 		}
 		else
 		{
-			home_screen = cur_screen = hero_screen = DMaps[currdmap].cont + DMaps[currdmap].xoff;
+			home_screen = cur_screen = hero_screen = DMaps[cur_dmap].cont + DMaps[cur_dmap].xoff;
 		}
 	}
 	else
@@ -1941,16 +1941,16 @@ int32_t init_game()
 	
 	lastentrance = cur_screen;
 	game->set_continue_scrn(lastentrance);
-	lastentrance_dmap = currdmap;
-	currmap = DMaps[currdmap].map;
-	dlevel = DMaps[currdmap].level;
+	lastentrance_dmap = cur_dmap;
+	currmap = DMaps[cur_dmap].map;
+	dlevel = DMaps[cur_dmap].level;
 	mark_visited(cur_screen);
 	
 	game->lvlitems[9] &= ~liBOSS;
 	
 	ALLOFF(true,true,true);
 	
-	currcset=DMaps[currdmap].color;
+	currcset=DMaps[cur_dmap].color;
 	
 	tmpscr->zero_memory();
 	special_warp_return_screen.zero_memory();
@@ -1984,7 +1984,7 @@ int32_t init_game()
 		FFCore.deallocateAllScriptOwned(ScriptType::Global, GLOBAL_SCRIPT_ONSAVELOAD);
 	}
 	
-	loadscr(currdmap, cur_screen, -1, false);
+	loadscr(cur_dmap, cur_screen, -1, false);
 	
 	//preloaded freeform combos
 	//ffscript_engine(true); Can't do this here! Global arrays haven't been allocated yet... ~Joe
@@ -1992,7 +1992,7 @@ int32_t init_game()
 	Hero.init();
 	if (use_testingst_start
 		&& hero_screen == testingqst_screen
-		&& currdmap == testingqst_dmap)
+		&& cur_dmap == testingqst_dmap)
 	{
 		if (hero_scr->warpreturnx[testingqst_retsqr] != 0 || hero_scr->warpreturny[testingqst_retsqr] != 0)
 		{
@@ -2009,7 +2009,7 @@ int32_t init_game()
 	Hero.x += region_scr_dx*256;
 	Hero.y += region_scr_dy*176;
 
-	if(DMaps[currdmap].flags&dmfBUNNYIFNOPEARL)
+	if(DMaps[cur_dmap].flags&dmfBUNNYIFNOPEARL)
 	{
 		int32_t itemid = current_item_id(itype_pearl);
 		if(itemid < 0)
@@ -2046,7 +2046,7 @@ int32_t init_game()
 
 	loadfullpal();
 	ringcolor(false);
-	loadlvlpal(DMaps[currdmap].color);
+	loadlvlpal(DMaps[cur_dmap].color);
 	lighting(false,true);
 	
 	if(firstplay)
@@ -2241,7 +2241,7 @@ int32_t init_game()
 
 	newscr_clk = frame;
 	
-	if(isdungeon() && currdmap>0) // currdmap>0 is weird, but at least one quest (Mario's Insane Rampage) depends on it
+	if(isdungeon() && cur_dmap>0) // cur_dmap>0 is weird, but at least one quest (Mario's Insane Rampage) depends on it
 	{
 		Hero.stepforward(get_qr(qr_LTTPWALK) ? 11: 12, false);
 	}
@@ -2306,7 +2306,7 @@ int32_t cont_game()
 
 	bool changedlevel = false;
 	bool changeddmap = false;
-	if(currdmap != lastentrance_dmap)
+	if(cur_dmap != lastentrance_dmap)
 	{
 		timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
 		changeddmap = true;
@@ -2317,7 +2317,7 @@ int32_t cont_game()
 		changedlevel = true;
 	}
 	dlevel = DMaps[lastentrance_dmap].level;
-	currdmap = lastentrance_dmap;
+	cur_dmap = lastentrance_dmap;
 	if(changeddmap)
 	{
 		throwGenScriptEvent(GENSCR_EVENT_CHANGE_DMAP);
@@ -2327,7 +2327,7 @@ int32_t cont_game()
 		throwGenScriptEvent(GENSCR_EVENT_CHANGE_LEVEL);
 	}
 
-	currmap = DMaps[currdmap].map;
+	currmap = DMaps[cur_dmap].map;
 	init_dmap();
 	
 	for(int32_t i=0; i<6; i++)
@@ -2342,13 +2342,13 @@ int32_t cont_game()
 	
 	ALLOFF();
 	whistleclk=-1;
-	currcset=DMaps[currdmap].color;
+	currcset=DMaps[cur_dmap].color;
 	room_is_dark=darkroom=naturaldark=false;
 	tmpscr->zero_memory();
 	special_warp_return_screen.zero_memory();
 	clear_temporary_screens();
 	
-	loadscr(currdmap, lastentrance, -1, false);
+	loadscr(cur_dmap, lastentrance, -1, false);
 	script_drawing_commands.Clear();
 	
 	//preloaded freeform combos
@@ -2356,12 +2356,12 @@ int32_t cont_game()
 	
 	loadfullpal();
 	ringcolor(false);
-	loadlvlpal(DMaps[currdmap].color);
+	loadlvlpal(DMaps[cur_dmap].color);
 	lighting(false,true);
 	Hero.init();
 	if (use_testingst_start
 		&& hero_screen == testingqst_screen
-		&& currdmap == testingqst_dmap)
+		&& cur_dmap == testingqst_dmap)
 	{
 		Hero.setX(hero_scr->warpreturnx[testingqst_retsqr]);
 		Hero.setY(hero_scr->warpreturny[testingqst_retsqr]);
@@ -2370,7 +2370,7 @@ int32_t cont_game()
 	Hero.x += region_scr_dx*256;
 	Hero.y += region_scr_dy*176;
 
-	if(DMaps[currdmap].flags&dmfBUNNYIFNOPEARL)
+	if(DMaps[cur_dmap].flags&dmfBUNNYIFNOPEARL)
 	{
 		int32_t itemid = current_item_id(itype_pearl);
 		if(itemid < 0)
@@ -2453,7 +2453,7 @@ void restart_level()
 	{
 		bool changedlevel = false;
 		bool changeddmap = false;
-		if(currdmap != lastentrance_dmap)
+		if(cur_dmap != lastentrance_dmap)
 		{
 			timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
 			changeddmap = true;
@@ -2464,7 +2464,7 @@ void restart_level()
 			changedlevel = true;
 		}
 		dlevel = DMaps[lastentrance_dmap].level;
-		currdmap = lastentrance_dmap;
+		cur_dmap = lastentrance_dmap;
 		if(changeddmap)
 		{
 			throwGenScriptEvent(GENSCR_EVENT_CHANGE_DMAP);
@@ -2478,18 +2478,18 @@ void restart_level()
 	}
 	else
 	{
-		if((DMaps[currdmap].type&dmfTYPE)==dmOVERW)
+		if((DMaps[cur_dmap].type&dmfTYPE)==dmOVERW)
 		{
-			home_screen = cur_screen = hero_screen = DMaps[currdmap].cont;
+			home_screen = cur_screen = hero_screen = DMaps[cur_dmap].cont;
 		}
 		else
 		{
-			home_screen = cur_screen = hero_screen = DMaps[currdmap].cont + DMaps[currdmap].xoff;
+			home_screen = cur_screen = hero_screen = DMaps[cur_dmap].cont + DMaps[cur_dmap].xoff;
 		}
 	}
 	
-	currmap = DMaps[currdmap].map;
-	dlevel = DMaps[currdmap].level;
+	currmap = DMaps[cur_dmap].map;
+	dlevel = DMaps[cur_dmap].level;
 	
 	for(int32_t i=0; i<6; i++)
 		visited[i]=-1;
@@ -2501,16 +2501,16 @@ void restart_level()
 	special_warp_return_screen.zero_memory();
 	clear_temporary_screens();
 	
-	loadscr(currdmap, cur_screen, -1, false);
+	loadscr(cur_dmap, cur_screen, -1, false);
 	//preloaded freeform combos
 	ffscript_engine(true);
 	
 	loadfullpal();
 	ringcolor(false);
-	loadlvlpal(DMaps[currdmap].color);
+	loadlvlpal(DMaps[cur_dmap].color);
 	lighting(false,true);
 	Hero.init();
-	if(DMaps[currdmap].flags&dmfBUNNYIFNOPEARL)
+	if(DMaps[cur_dmap].flags&dmfBUNNYIFNOPEARL)
 	{
 		int32_t itemid = current_item_id(itype_pearl);
 		if(itemid < 0)
@@ -2519,7 +2519,7 @@ void restart_level()
 		}
 	}
 	
-	currcset=DMaps[currdmap].color;
+	currcset=DMaps[cur_dmap].color;
 	openscreen();
 	map_bkgsfx(true);
 	Hero.set_respawn_point();
@@ -2554,7 +2554,7 @@ void putintro()
 	if (!get_qr(qr_OLD_DMAP_INTRO_STRINGS))
 		return;
 
-    if(!stricmp("                                                                        ", DMaps[currdmap].intro))
+    if(!stricmp("                                                                        ", DMaps[cur_dmap].intro))
     {
         introclk=intropos=72;
         return;
@@ -2566,7 +2566,7 @@ void putintro()
         for(; intropos<72; ++intropos)
         {
             textprintf_ex(msg_txt_display_buf,get_zc_font(font_zfont),((intropos%24)<<3)+32,((intropos/24)<<3)+40,QMisc.colors.msgtext,-1,
-                          "%c",DMaps[currdmap].intro[intropos]);
+                          "%c",DMaps[cur_dmap].intro[intropos]);
         }
     }
     
@@ -2585,7 +2585,7 @@ void putintro()
     
     if(intropos == 0)
     {
-        while(DMaps[currdmap].intro[intropos]==' ')
+        while(DMaps[cur_dmap].intro[intropos]==' ')
             ++intropos;
     }
     
@@ -2596,12 +2596,12 @@ void putintro()
     //rather than add yet another global variable
     set_clip_state(msg_txt_display_buf, 0);
     textprintf_ex(msg_txt_display_buf,get_zc_font(font_zfont),((intropos%24)<<3)+32,((intropos/24)<<3)+40,QMisc.colors.msgtext,-1,
-                  "%c",DMaps[currdmap].intro[intropos]);
+                  "%c",DMaps[cur_dmap].intro[intropos]);
                   
     ++intropos;
     
-    if(DMaps[currdmap].intro[intropos]==' ' && DMaps[currdmap].intro[intropos+1]==' ')
-        while(DMaps[currdmap].intro[intropos]==' ')
+    if(DMaps[cur_dmap].intro[intropos]==' ' && DMaps[cur_dmap].intro[intropos+1]==' ')
+        while(DMaps[cur_dmap].intro[intropos]==' ')
             ++intropos;
 }
 
@@ -3266,12 +3266,12 @@ void game_loop()
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_PLAYER_ACTIVE);
 		if(!FFCore.system_suspend[susptDMAPSCRIPT] && !freezemsg && FFCore.doscript(ScriptType::DMap) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
 		{
-			ZScriptVersion::RunScript(ScriptType::DMap, DMaps[currdmap].script,currdmap);
+			ZScriptVersion::RunScript(ScriptType::DMap, DMaps[cur_dmap].script,cur_dmap);
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_ACTIVE);
 		if(!FFCore.system_suspend[susptDMAPSCRIPT] && !freezemsg && FFCore.doscript(ScriptType::ScriptedPassiveSubscreen) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
 		{
-			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[currdmap].passive_sub_script,currdmap);
+			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[cur_dmap].passive_sub_script,cur_dmap);
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_PASSIVESUBSCREEN);
 		if ( !FFCore.system_suspend[susptCOMBOSCRIPTS] && !freezemsg && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
@@ -3390,13 +3390,13 @@ void game_loop()
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_PLAYER_WAITDRAW);
 		if ( !FFCore.system_suspend[susptDMAPSCRIPT] && FFCore.waitdraw(ScriptType::DMap) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-			ZScriptVersion::RunScript(ScriptType::DMap, DMaps[currdmap].script,currdmap);
+			ZScriptVersion::RunScript(ScriptType::DMap, DMaps[cur_dmap].script,cur_dmap);
 			FFCore.waitdraw(ScriptType::DMap) = false;
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_ACTIVE_WAITDRAW);
 		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[currdmap].passive_sub_script,currdmap);
+			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[cur_dmap].passive_sub_script,cur_dmap);
 			FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) = false;
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_PASSIVESUBSCREEN_WAITDRAW);
@@ -3586,11 +3586,11 @@ void game_loop()
 				playing_field_offset += (int32_t)(zc::math::Sin((double)(--quakeclk*2-frame)) * 4);
 			}
 			
-		if ( previous_DMap != currdmap )
+		if ( previous_DMap != cur_dmap )
 		{
 			FFCore.initZScriptDMapScripts();
 			FFCore.initZScriptScriptedActiveSubscreen();
-			previous_DMap = currdmap;
+			previous_DMap = cur_dmap;
 		}
 			// Other effects in zc_sys.cpp
 		}
@@ -3615,7 +3615,7 @@ void runDrunkRNG(){
 
 int32_t get_currdmap()
 {
-	return currdmap;
+	return cur_dmap;
 }
 
 int32_t get_dlevel()
@@ -5176,8 +5176,8 @@ void quit_game()
 
 bool isSideViewGravity(int32_t t)
 {
-	if (t == 1) return (((special_warp_return_screen.flags7 & fSIDEVIEW)!=0) != (DMaps[currdmap].sideview));
-	return (((hero_scr->flags7 & fSIDEVIEW)!=0) != (DMaps[currdmap].sideview));
+	if (t == 1) return (((special_warp_return_screen.flags7 & fSIDEVIEW)!=0) != (DMaps[cur_dmap].sideview));
+	return (((hero_scr->flags7 & fSIDEVIEW)!=0) != (DMaps[cur_dmap].sideview));
 }
 
 bool isSideViewHero(int32_t t)
@@ -5196,7 +5196,7 @@ extern "C" void get_shareable_url()
 {
 	EM_ASM({
 		ZC.setShareableUrl({test: UTF8ToString($0), dmap: $1, screen: $2});
-	}, qstpath, currdmap, cur_screen);
+	}, qstpath, cur_dmap, cur_screen);
 }
 #endif
 

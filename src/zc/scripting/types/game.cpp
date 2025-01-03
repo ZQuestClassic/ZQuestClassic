@@ -613,7 +613,7 @@ std::optional<int32_t> game_get_register(int32_t reg)
 			break;
 		
 		case CURDMAP:
-			ret=currdmap*10000;
+			ret=cur_dmap*10000;
 			break;
 			
 		case CURLEVEL:
@@ -1216,7 +1216,7 @@ bool game_set_register(int32_t reg, int32_t value)
 			if(BC::checkDMapID(ID, "Game->DMapPalette") == SH::_NoError) 
 				DMaps[ID].color = pal;
 
-			if(ID == currdmap)
+			if(ID == cur_dmap)
 			{
 				loadlvlpal(DMaps[ID].color);
 				currcset = DMaps[ID].color;

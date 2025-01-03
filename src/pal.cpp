@@ -146,7 +146,7 @@ void loadpalset(int32_t cset, int32_t dataset, bool update_tint)
     
 	//If writing cset 6 or 14, record which sprite csets are being referenced
     if(cset==6){
-		if (!get_qr(qr_NOLEVEL3FIX) && DMaps[currdmap].color == 3) {
+		if (!get_qr(qr_NOLEVEL3FIX) && DMaps[cur_dmap].color == 3) {
 			RAMpal[CSET(6) + 2] = NESpal(0x37);
 		}
 		if (dataset >= poSPRITE255 && dataset < poSPRITE255 + pdSPRITE) 
@@ -218,8 +218,8 @@ void interpolatedfade()
 		if (!get_qr(qr_CSET5_LEVEL)) loadpalset(5,5);
 	}
 	
-	loadlvlpal(DMaps[currdmap].color);
-	byte *si = colordata + CSET(DMaps[currdmap].color*pdLEVEL+poFADE1)*3;
+	loadlvlpal(DMaps[cur_dmap].color);
+	byte *si = colordata + CSET(DMaps[cur_dmap].color*pdLEVEL+poFADE1)*3;
 	
 	for(int32_t i=0; i<16; i++)
 	{
@@ -380,7 +380,7 @@ void lighting(bool existslight, bool setnaturaldark, int32_t specialstate)
     if(get_qr(qr_NEW_DARKROOM)) newstate = false;
     if(darkroom != newstate)
     {
-		fade((Hero.getSpecialCave()>0) ? (Hero.getSpecialCave()>=GUYCAVE) ? 10 : 11 : DMaps[currdmap].color, false, darkroom);
+		fade((Hero.getSpecialCave()>0) ? (Hero.getSpecialCave()>=GUYCAVE) ? 10 : 11 : DMaps[cur_dmap].color, false, darkroom);
         darkroom = newstate;
     }
     
@@ -396,7 +396,7 @@ void lightingInstant()
 	if(get_qr(qr_NEW_DARKROOM)) newstate = false;
 	if(darkroom != newstate)
 	{
-		int32_t level = (Hero.getSpecialCave()>0) ? (Hero.getSpecialCave()>=GUYCAVE) ? 10 : 11 : DMaps[currdmap].color;
+		int32_t level = (Hero.getSpecialCave()>0) ? (Hero.getSpecialCave()>=GUYCAVE) ? 10 : 11 : DMaps[cur_dmap].color;
 
 		if(darkroom) // Old room dark, new room lit
 		{
@@ -595,7 +595,7 @@ void cycle_palette()
     if(!get_qr(qr_FADE) || darkroom)
         return;
         
-    int32_t level = (Hero.getSpecialCave()==0) ? DMaps[currdmap].color : (Hero.getSpecialCave()<GUYCAVE ? 11 : 10);
+    int32_t level = (Hero.getSpecialCave()==0) ? DMaps[cur_dmap].color : (Hero.getSpecialCave()<GUYCAVE ? 11 : 10);
     palcycle cycle_none[1][3];  //create a null palette cycle here. -Z
 	memset(cycle_none, 0, sizeof(cycle_none)); 
     for(int32_t i=0; i<3; i++)

@@ -148,7 +148,7 @@ extern PALETTE RAMpal;
 extern midi_info Midi_Info;
 extern bool zq_showpal;
 extern bool zoomed_minimap;
-extern int32_t scrolling_destdmap, currdmap;
+extern int32_t scrolling_destdmap, cur_dmap;
 
 
 extern int32_t alignment_arrow_timer;

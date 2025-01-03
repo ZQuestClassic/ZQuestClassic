@@ -905,7 +905,7 @@ bool play_combo_string(int str, int screen)
 			str = scr->catchall;
 			break;
 		case -10: case -11: case -12: case -13: case -14: case -15: case -16: case -17: //Special case: Screen->D[]
-			int32_t di = (currdmap<<7) + screen-(DMaps[currdmap].type==dmOVERW ? 0 : DMaps[currdmap].xoff);
+			int32_t di = (cur_dmap<<7) + screen-(DMaps[cur_dmap].type==dmOVERW ? 0 : DMaps[cur_dmap].xoff);
 			str = game->screen_d[di][abs(str)-10] / 10000L;
 			break;
 	}
@@ -1097,7 +1097,7 @@ bool trigger_chest(const rpos_handle_t& rpos_handle)
 			case -10: case -11: case -12: case -13:
 			case -14: case -15: case -16: case -17:
 			{
-				int32_t di = ((currdmap)<<7) + rpos_handle.screen-(DMaps[currdmap].type==dmOVERW ? 0 : DMaps[currdmap].xoff);
+				int32_t di = ((cur_dmap)<<7) + rpos_handle.screen-(DMaps[cur_dmap].type==dmOVERW ? 0 : DMaps[cur_dmap].xoff);
 				itid = game->screen_d[di][abs(itid)-10] / 10000L;
 				break;
 			}
@@ -2618,7 +2618,7 @@ void handle_trigger_results(mapscr* scr, newcombo const& cmb, int32_t cx, int32_
 			if(scr->secretsfx)
 				sfx(scr->secretsfx);
 		}
-		if(canPermSecret(currdmap, screen) && !(scr->flags5&fTEMPSECRETS) && !getmapflag(screen, mSECRET))
+		if(canPermSecret(cur_dmap, screen) && !(scr->flags5&fTEMPSECRETS) && !getmapflag(screen, mSECRET))
 			setmapflag(scr, mSECRET);
 	}
 	

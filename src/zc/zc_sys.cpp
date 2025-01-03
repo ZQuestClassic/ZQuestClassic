@@ -3740,7 +3740,7 @@ void updatescr(bool allowwavy)
 	if(wavy <= 0)
 	{
 		// So far one thing can alter wavy apart from scripts: Wavy DMaps.
-		wavy = (DMaps[currdmap].flags&dmfWAVY ? 4 : 0);
+		wavy = (DMaps[cur_dmap].flags&dmfWAVY ? 4 : 0);
 	}
 	
 	blit(framebuf, wavybuf, 0, 0, 0, 0, 256, 224);
@@ -3916,14 +3916,14 @@ int32_t onSaveMapPic()
 					tmpscr2[i]=TheMaps[(special_warp_return_screen.layermap[i]-1)*MAPSCRS+special_warp_return_screen.layerscreen[i]];
 				}
 				
-				if(XOR(scr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer_old(_screen_draw_buffer, 0, 2, &special_warp_return_screen, 256, -playing_field_offset, 2);
+				if(XOR(scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG)) do_layer_old(_screen_draw_buffer, 0, 2, &special_warp_return_screen, 256, -playing_field_offset, 2);
 				
-				if(XOR(scr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer_old(_screen_draw_buffer, 0, 3, &special_warp_return_screen, 256, -playing_field_offset, 2);
+				if(XOR(scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG)) do_layer_old(_screen_draw_buffer, 0, 3, &special_warp_return_screen, 256, -playing_field_offset, 2);
 				
 				if(lenscheck(&special_warp_return_screen,0)) putscr(&special_warp_return_screen, _screen_draw_buffer, 256, 0);
 				do_layer_old(_screen_draw_buffer, 0, 1, &special_warp_return_screen, 256, -playing_field_offset, 2);
 				
-				if(!XOR(scr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer_old(_screen_draw_buffer, 0, 2, &special_warp_return_screen, 256, -playing_field_offset, 2);
+				if(!XOR(scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG)) do_layer_old(_screen_draw_buffer, 0, 2, &special_warp_return_screen, 256, -playing_field_offset, 2);
 				
 				putscrdoors(&special_warp_return_screen, _screen_draw_buffer, 256, 0);
 				if(get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
@@ -3937,7 +3937,7 @@ int32_t onSaveMapPic()
 				}
 				do_layer_old(_screen_draw_buffer, -3, 0, &special_warp_return_screen, 256, -playing_field_offset, 2); // Freeform combos!
 				
-				if(!XOR(scr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer_old(_screen_draw_buffer, 0, 3, &special_warp_return_screen, 256, -playing_field_offset, 2);
+				if(!XOR(scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG)) do_layer_old(_screen_draw_buffer, 0, 3, &special_warp_return_screen, 256, -playing_field_offset, 2);
 				
 				do_layer_old(_screen_draw_buffer, 0, 4, &special_warp_return_screen, 256, -playing_field_offset, 2);
 				do_layer_old(_screen_draw_buffer, -1, 0, &special_warp_return_screen, 256, -playing_field_offset, 2);
@@ -4258,7 +4258,7 @@ void syskeys()
 	
 	if(zc_read_system_key(KEY_F8))   f_Quit(qEXIT);
 #endif
-	if(zc_read_system_key(KEY_F5)&&(Playing && cur_screen<128 && DMaps[currdmap].flags&dmfVIEWMAP))	onSaveMapPic();
+	if(zc_read_system_key(KEY_F5)&&(Playing && cur_screen<128 && DMaps[cur_dmap].flags&dmfVIEWMAP))	onSaveMapPic();
 	
 	if (zc_read_system_key(KEY_F12))
 	{
@@ -7985,20 +7985,20 @@ void play_DmapMusic()
 	if (zcmusic != NULL)
 		fadeoutframes = zcmusic->fadeoutframes;
 
-	if(DMaps[currdmap].tmusic[0]!=0)
+	if(DMaps[cur_dmap].tmusic[0]!=0)
 	{
 		if(zcmusic==NULL ||
-		   strcmp(zcmusic->filename,DMaps[currdmap].tmusic)!=0 ||
-		   (zcmusic->type==ZCMF_GME && zcmusic->track != DMaps[currdmap].tmusictrack))
+		   strcmp(zcmusic->filename,DMaps[cur_dmap].tmusic)!=0 ||
+		   (zcmusic->type==ZCMF_GME && zcmusic->track != DMaps[cur_dmap].tmusictrack))
 		{
-			if (DMaps[currdmap].tmusic_xfade_in > 0 || fadeoutframes > 0)
+			if (DMaps[cur_dmap].tmusic_xfade_in > 0 || fadeoutframes > 0)
 			{
-				if (play_enh_music_crossfade(DMaps[currdmap].tmusic, qstpath, DMaps[currdmap].tmusictrack, get_emusic_volume(), DMaps[currdmap].tmusic_xfade_in, fadeoutframes))
+				if (play_enh_music_crossfade(DMaps[cur_dmap].tmusic, qstpath, DMaps[cur_dmap].tmusictrack, get_emusic_volume(), DMaps[cur_dmap].tmusic_xfade_in, fadeoutframes))
 				{
 					if (zcmusic != NULL)
 					{
-						zcmusic->fadeoutframes = DMaps[currdmap].tmusic_xfade_out;
-						zcmusic_set_loop(zcmusic, double(DMaps[currdmap].tmusic_loop_start / 10000.0), double(DMaps[currdmap].tmusic_loop_end / 10000.0));
+						zcmusic->fadeoutframes = DMaps[cur_dmap].tmusic_xfade_out;
+						zcmusic_set_loop(zcmusic, double(DMaps[cur_dmap].tmusic_loop_start / 10000.0), double(DMaps[cur_dmap].tmusic_loop_end / 10000.0));
 					}
 				}
 			}
@@ -8012,20 +8012,20 @@ void play_DmapMusic()
 					zcmixer->newtrack = NULL;
 				}
 
-				zcmusic = zcmusic_load_for_quest(DMaps[currdmap].tmusic, qstpath);
+				zcmusic = zcmusic_load_for_quest(DMaps[cur_dmap].tmusic, qstpath);
 				zcmixer->newtrack = zcmusic;
 
 				if (zcmusic != NULL)
 				{
 					zc_stop_midi();
-					strcpy(tfile, DMaps[currdmap].tmusic);
+					strcpy(tfile, DMaps[cur_dmap].tmusic);
 					zcmusic_play(zcmusic, emusic_volume);
 					int32_t temptracks = 0;
 					temptracks = zcmusic_get_tracks(zcmusic);
 					temptracks = (temptracks < 2) ? 1 : temptracks;
-					ttrack = vbound(DMaps[currdmap].tmusictrack, 0, temptracks - 1);
+					ttrack = vbound(DMaps[cur_dmap].tmusictrack, 0, temptracks - 1);
 					zcmusic_change_track(zcmusic, ttrack);
-					zcmusic_set_loop(zcmusic, double(DMaps[currdmap].tmusic_loop_start / 10000.0), double(DMaps[currdmap].tmusic_loop_end / 10000.0));
+					zcmusic_set_loop(zcmusic, double(DMaps[cur_dmap].tmusic_loop_start / 10000.0), double(DMaps[cur_dmap].tmusic_loop_end / 10000.0));
 				}
 				else
 				{
@@ -8037,9 +8037,9 @@ void play_DmapMusic()
 	}
 	else
 	{
-		if (DMaps[currdmap].midi == 0 && fadeoutframes > 0 && zcmusic != NULL && strcmp(zcmusic->filename, DMaps[currdmap].tmusic) != 0)
+		if (DMaps[cur_dmap].midi == 0 && fadeoutframes > 0 && zcmusic != NULL && strcmp(zcmusic->filename, DMaps[cur_dmap].tmusic) != 0)
 		{
-			play_enh_music_crossfade(NULL, qstpath, DMaps[currdmap].tmusictrack, get_emusic_volume(), DMaps[currdmap].tmusic_xfade_in, fadeoutframes);
+			play_enh_music_crossfade(NULL, qstpath, DMaps[cur_dmap].tmusictrack, get_emusic_volume(), DMaps[cur_dmap].tmusic_xfade_in, fadeoutframes);
 		}
 		else
 		{
@@ -8049,7 +8049,7 @@ void play_DmapMusic()
 	
 	if(domidi)
 	{
-		int32_t m=DMaps[currdmap].midi;
+		int32_t m=DMaps[cur_dmap].midi;
 		
 		switch(m)
 		{

@@ -1676,8 +1676,8 @@ static rpos_handle_t ResolveMapdataPos(int32_t mapref, int pos, const char* cont
 		int origin_screen_x = origin_screen % 16;
 		int origin_screen_y = origin_screen / 16;
 		int scr_index = static_cast<int32_t>(rpos) / 176;
-		int scr_x = origin_screen_x + scr_index%current_region.screen_width;
-		int scr_y = origin_screen_y + scr_index/current_region.screen_width;
+		int scr_x = origin_screen_x + scr_index%cur_region.screen_width;
+		int scr_y = origin_screen_y + scr_index/cur_region.screen_width;
 		int screen = map_scr_xy_to_index(scr_x, scr_y);
 		mapscr* scr = FFCore.ScrollingScreensAll[screen * 7 + result.layer];
 
@@ -6205,7 +6205,7 @@ int32_t get_register(int32_t arg)
 			break;
 		
 		case CURDMAP:
-			ret=currdmap*10000;
+			ret=cur_dmap*10000;
 			break;
 			
 		case CURLEVEL:
@@ -6476,13 +6476,13 @@ int32_t get_register(int32_t arg)
 
 		case REGION_SCREEN_WIDTH:
 		{
-			ret = current_region.screen_width * 10000;
+			ret = cur_region.screen_width * 10000;
 		}
 		break;
 
 		case REGION_SCREEN_HEIGHT:
 		{
-			ret = current_region.screen_height * 10000;
+			ret = cur_region.screen_height * 10000;
 		}
 		break;
 
@@ -19144,7 +19144,7 @@ void set_register(int32_t arg, int32_t value)
 		case DMAPDATAPALETTE:	//word
 		{
 			DMaps[ri->dmapsref].color= ((word)(value / 10000));
-			if(ri->dmapsref == currdmap)
+			if(ri->dmapsref == cur_dmap)
 			{
 				loadlvlpal(DMaps[ri->dmapsref].color);
 				currcset = DMaps[ri->dmapsref].color;
@@ -19265,7 +19265,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			bool changed = DMaps[ri->dmapsref].active_subscreen != ((byte)(value / 10000));
 			DMaps[ri->dmapsref].active_subscreen= ((byte)(value / 10000));
-			if(changed&&ri->dmapsref==currdmap)
+			if(changed&&ri->dmapsref==cur_dmap)
 				update_subscreens();
 			break;
 		}
@@ -19273,7 +19273,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			bool changed = DMaps[ri->dmapsref].passive_subscreen != ((byte)(value / 10000));
 			DMaps[ri->dmapsref].passive_subscreen= ((byte)(value / 10000));
-			if(changed&&ri->dmapsref==currdmap)
+			if(changed&&ri->dmapsref==cur_dmap)
 				update_subscreens();
 			break;
 		}
@@ -19281,7 +19281,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			bool changed = DMaps[ri->dmapsref].overlay_subscreen != ((byte)(value / 10000));
 			DMaps[ri->dmapsref].overlay_subscreen = ((byte)(value / 10000));
-			if(changed&&ri->dmapsref==currdmap)
+			if(changed&&ri->dmapsref==cur_dmap)
 				update_subscreens();
 			break;
 		}
@@ -19321,11 +19321,11 @@ void set_register(int32_t arg, int32_t value)
 		case DMAPDATALOOPSTART:
 		{
 			DMaps[ri->dmapsref].tmusic_loop_start = value; 
-			if (ri->dmapsref == currdmap)
+			if (ri->dmapsref == cur_dmap)
 			{
-				if (FFCore.doing_dmap_enh_music(currdmap))
+				if (FFCore.doing_dmap_enh_music(cur_dmap))
 				{
-					zcmusic_set_loop(zcmusic, double(DMaps[currdmap].tmusic_loop_start / 10000.0), double(DMaps[currdmap].tmusic_loop_end / 10000.0));
+					zcmusic_set_loop(zcmusic, double(DMaps[cur_dmap].tmusic_loop_start / 10000.0), double(DMaps[cur_dmap].tmusic_loop_end / 10000.0));
 				}
 			}
 			break;
@@ -19333,11 +19333,11 @@ void set_register(int32_t arg, int32_t value)
 		case DMAPDATALOOPEND:
 		{
 			DMaps[ri->dmapsref].tmusic_loop_end = value;
-			if (ri->dmapsref == currdmap)
+			if (ri->dmapsref == cur_dmap)
 			{
-				if (FFCore.doing_dmap_enh_music(currdmap))
+				if (FFCore.doing_dmap_enh_music(cur_dmap))
 				{
-					zcmusic_set_loop(zcmusic, double(DMaps[currdmap].tmusic_loop_start / 10000.0), double(DMaps[currdmap].tmusic_loop_end / 10000.0));
+					zcmusic_set_loop(zcmusic, double(DMaps[cur_dmap].tmusic_loop_start / 10000.0), double(DMaps[cur_dmap].tmusic_loop_end / 10000.0));
 				}
 			}
 			break;
@@ -19350,7 +19350,7 @@ void set_register(int32_t arg, int32_t value)
 		case DMAPDATAXFADEOUT:
 		{
 			DMaps[ri->dmapsref].tmusic_xfade_out = (value / 10000);
-			if (DMaps[currdmap].tmusic[0]!=0 && strcmp(DMaps[ri->dmapsref].tmusic, zcmusic->filename) == 0)
+			if (DMaps[cur_dmap].tmusic[0]!=0 && strcmp(DMaps[ri->dmapsref].tmusic, zcmusic->filename) == 0)
 			{
 				zcmusic->fadeoutframes = (value / 10000);
 			}
@@ -19393,10 +19393,10 @@ void set_register(int32_t arg, int32_t value)
 		{
 			FFScript::deallocateAllScriptOwned(ScriptType::ScriptedPassiveSubscreen, ri->dmapsref);
 			word val = vbound((value / 10000),0,NUMSCRIPTSDMAP-1);
-			if (FFCore.doscript(ScriptType::ScriptedPassiveSubscreen) && ri->dmapsref == currdmap && val == DMaps[ri->dmapsref].passive_sub_script)
+			if (FFCore.doscript(ScriptType::ScriptedPassiveSubscreen) && ri->dmapsref == cur_dmap && val == DMaps[ri->dmapsref].passive_sub_script)
 				break;
 			DMaps[ri->dmapsref].passive_sub_script = val;
-			if(ri->dmapsref == currdmap)
+			if(ri->dmapsref == cur_dmap)
 			{
 				FFCore.doscript(ScriptType::ScriptedPassiveSubscreen) = val != 0;
 			};
@@ -26175,7 +26175,7 @@ void FFScript::do_paldata_write_level()
 			changed = true;
 		}
 
-		if (changed && DMaps[currdmap].color == lvl)
+		if (changed && DMaps[cur_dmap].color == lvl)
 		{
 			loadlvlpal(lvl);
 			currcset = lvl;
@@ -26187,7 +26187,7 @@ void FFScript::do_paldata_write_level()
 				}
 				else
 				{
-					loadfadepal((DMaps[currdmap].color) * pdLEVEL + poFADE3);
+					loadfadepal((DMaps[cur_dmap].color) * pdLEVEL + poFADE3);
 				}
 			}
 		}
@@ -26267,7 +26267,7 @@ void FFScript::do_paldata_write_levelcset()
 			return;
 		}
 	
-		if (changed && DMaps[currdmap].color == lvl)
+		if (changed && DMaps[cur_dmap].color == lvl)
 		{
 			loadlvlpal(lvl);
 			if (darkroom && !get_qr(qr_NEW_DARKROOM))
@@ -26278,7 +26278,7 @@ void FFScript::do_paldata_write_levelcset()
 				}
 				else
 				{
-					loadfadepal((DMaps[currdmap].color) * pdLEVEL + poFADE3);
+					loadfadepal((DMaps[cur_dmap].color) * pdLEVEL + poFADE3);
 				}
 			}
 			currcset = lvl;
@@ -26493,7 +26493,7 @@ void FFScript::do_paldata_write_cyclecset()
 			return;
 		}
 
-		if (changed && DMaps[currdmap].color == lvl)
+		if (changed && DMaps[cur_dmap].color == lvl)
 		{
 			loadlvlpal(lvl);
 			currcset = lvl;
@@ -28655,7 +28655,7 @@ void FFScript::AlloffLimited(int32_t flagset)
 	
 	if(items.idCount(iPile))
 	{
-		loadlvlpal(DMaps[currdmap].color);
+		loadlvlpal(DMaps[cur_dmap].color);
 	}
 	
 	/*
@@ -28796,14 +28796,14 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 	byte t = 0;
 	t=(cur_screen<128)?0:1;
 	bool overlay=false;
-	bool intradmap = (dmap == currdmap);
-	int32_t olddmap = currdmap;
+	bool intradmap = (dmap == cur_dmap);
+	int32_t olddmap = cur_dmap;
 	//if ( intradmap ) 
 	//{
 	//	initZScriptDMapScripts();    //Not needed.
 	//}
 
-	if ( warpType == wtNOWARP ) { Z_eventlog("Used a Cancel Warped to DMap %d: %s, screen %d", currdmap, DMaps[currdmap].name,cur_screen); return false; }
+	if ( warpType == wtNOWARP ) { Z_eventlog("Used a Cancel Warped to DMap %d: %s, screen %d", cur_dmap, DMaps[cur_dmap].name,cur_screen); return false; }
 	int32_t mapID = (DMaps[dmap].map+1);
 	int32_t dest_dmap_xoff = DMaps[dmap].xoff;	
 	//mapscr *m = &TheMaps[mapID * MAPSCRS + scrID]; 
@@ -28856,7 +28856,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 	if ( !(warpFlags&warpFlagDONTKILLSCRIPTDRAWS) ) script_drawing_commands.Clear();
 	//we also need to check if dmaps are sideview here! -Z
 	//Likewise, we need to add that check to the normal Hero:;dowarp(0
-	bool wasSideview = isSideViewGravity(t); //((tmpscr[t].flags7 & fSIDEVIEW)!=0 || DMaps[currdmap].sideview) && !ignoreSideview;
+	bool wasSideview = isSideViewGravity(t);
 	
 	//int32_t last_entr_scr = -1;
 	//int32_t last_entr_dmap = -1;
@@ -28893,10 +28893,10 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 				Hero.diveclk = 0;
 			}
 			doWarpEffect(warpEffect, true);
-			int32_t c = DMaps[currdmap].color;
+			int32_t c = DMaps[cur_dmap].color;
 			bool changedlevel = false;
 			bool changeddmap = false;
-			if(currdmap != dmap)
+			if(cur_dmap != dmap)
 			{
 				timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
 				changeddmap = true;
@@ -28907,7 +28907,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 				changedlevel = true;
 			}
 			dlevel = DMaps[dmap].level;
-			currdmap = dmap;
+			cur_dmap = dmap;
 			if(changeddmap)
 			{
 				throwGenScriptEvent(GENSCR_EVENT_CHANGE_DMAP);
@@ -28916,18 +28916,18 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 			{
 				throwGenScriptEvent(GENSCR_EVENT_CHANGE_LEVEL);
 			}
-			currmap = DMaps[currdmap].map;
+			currmap = DMaps[cur_dmap].map;
 			init_dmap();
 			update_subscreens(dmap);
 			
 			ringcolor(false);
 			
-			if(DMaps[currdmap].color != c)
-				loadlvlpal(DMaps[currdmap].color);
+			if(DMaps[cur_dmap].color != c)
+				loadlvlpal(DMaps[cur_dmap].color);
 			
 			lightingInstant(); // Also sets naturaldark
 			int prev_screen = hero_screen;
-			loadscr(currdmap, screen + DMaps[currdmap].xoff, -1, overlay);
+			loadscr(cur_dmap, screen + DMaps[cur_dmap].xoff, -1, overlay);
 
 			// In the case where we did not call ALLOFF, preserve the "enemies have spawned"
 			// state for the new screen.
@@ -28997,7 +28997,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 			show_subscreen_life=true;
 			show_subscreen_numbers=true;
 			if (!(warpFlags&warpFlagFORCECONTINUEMUSIC)) Play_Level_Music();
-			currcset=DMaps[currdmap].color;
+			currcset=DMaps[cur_dmap].color;
 			dointro();
 			Hero.set_respawn_point();
 			Hero.trySideviewLadder();
@@ -29016,7 +29016,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 			blackscr(30,false);
 			bool changedlevel = false;
 			bool changeddmap = false;
-			if(currdmap != dmap)
+			if(cur_dmap != dmap)
 			{
 				timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
 				changeddmap = true;
@@ -29027,7 +29027,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 				changedlevel = true;
 			}
 			dlevel = DMaps[dmap].level;
-			currdmap = dmap;
+			cur_dmap = dmap;
 			if(changeddmap)
 			{
 				throwGenScriptEvent(GENSCR_EVENT_CHANGE_DMAP);
@@ -29036,14 +29036,13 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 			{
 				throwGenScriptEvent(GENSCR_EVENT_CHANGE_LEVEL);
 			}
-			currmap=DMaps[currdmap].map;
+			currmap=DMaps[cur_dmap].map;
 			init_dmap();
 			update_subscreens(dmap);
 			loadfullpal();
 			ringcolor(false);
-			loadlvlpal(DMaps[currdmap].color);
-			//lastentrance_dmap = currdmap;
-			loadscr(currdmap, screen + DMaps[currdmap].xoff, -1, overlay);
+			loadlvlpal(DMaps[cur_dmap].color);
+			loadscr(cur_dmap, screen + DMaps[cur_dmap].xoff, -1, overlay);
 			
 			if((hero_scr->flags&fDARK) && !get_qr(qr_NEW_DARKROOM))
 			{
@@ -29053,7 +29052,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 				}
 				else
 				{
-				loadfadepal((DMaps[currdmap].color)*pdLEVEL+poFADE3);
+				loadfadepal((DMaps[cur_dmap].color)*pdLEVEL+poFADE3);
 				}
 				
 				darkroom=naturaldark=true;
@@ -29134,7 +29133,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 			show_subscreen_life=true;
 			show_subscreen_numbers=true;
 			if (!(warpFlags&warpFlagFORCECONTINUEMUSIC))Play_Level_Music();
-			currcset=DMaps[currdmap].color;
+			currcset=DMaps[cur_dmap].color;
 			dointro();
 			Hero.set_respawn_point();
 			Hero.trySideviewLadder();
@@ -29150,8 +29149,8 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 		}
 		case wtSCROLL:                                          // scrolling warp
 		{
-			int32_t c = DMaps[currdmap].color;
-			scrolling_dmap = currdmap;
+			int32_t c = DMaps[cur_dmap].color;
+			scrolling_dmap = cur_dmap;
 			scrolling_map = currmap;
 			currmap = DMaps[dmap].map;
 			update_subscreens(dmap);
@@ -29175,7 +29174,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 			Hero.scrollscr(Hero.sdir, screen+DMaps[dmap].xoff, dmap);
 			bool changedlevel = false;
 			bool changeddmap = false;
-			if(currdmap != dmap)
+			if(cur_dmap != dmap)
 			{
 				timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
 				changeddmap = true;
@@ -29186,7 +29185,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 				changedlevel = true;
 			}
 			dlevel = DMaps[dmap].level;
-			currdmap = dmap;
+			cur_dmap = dmap;
 			if(changeddmap)
 			{
 				throwGenScriptEvent(GENSCR_EVENT_CHANGE_DMAP);
@@ -29208,20 +29207,20 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 					}
 					else
 					{
-						lastentrance = DMaps[currdmap].cont + DMaps[currdmap].xoff;
+						lastentrance = DMaps[cur_dmap].cont + DMaps[cur_dmap].xoff;
 					}
 					
 					lastentrance_dmap = dmap;
 				}
 			}
 			
-			if(DMaps[currdmap].color != c)
+			if(DMaps[cur_dmap].color != c)
 			{
 				lighting(false, true);
 			}
 			
 			if (!(warpFlags&warpFlagFORCECONTINUEMUSIC)) Play_Level_Music();
-			currcset=DMaps[currdmap].color;
+			currcset=DMaps[cur_dmap].color;
 			dointro();
 			break;
 		}
@@ -29324,20 +29323,20 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 		
 	if(hero_scr->flags6&fCONTINUEHERE)
 	{
-		lastentrance_dmap = currdmap;
+		lastentrance_dmap = cur_dmap;
 		lastentrance = home_screen;
 	}
 		
 	update_subscreens();
 	verifyBothWeapons();
-	Z_eventlog("Warped to DMap %d: %s, screen %d, via %s.\n", currdmap, DMaps[currdmap].name,cur_screen,
+	Z_eventlog("Warped to DMap %d: %s, screen %d, via %s.\n", cur_dmap, DMaps[cur_dmap].name,cur_screen,
 						warpType==wtEXIT ? "Entrance/Exit" :
 						warpType==wtSCROLL ? "Scrolling Warp" :
 						warpType==wtNOWARP ? "Cancel Warp" :
 						"Insta-Warp");
 						
 	eventlog_mapflags();
-	if (((warpFlags&warpFlagDONTRESTARTDMAPSCRIPT) != 0) == (get_qr(qr_SCRIPT_WARPS_DMAP_SCRIPT_TOGGLE) != 0)|| olddmap != currdmap) //Changed DMaps, or needs to reset the script
+	if (((warpFlags&warpFlagDONTRESTARTDMAPSCRIPT) != 0) == (get_qr(qr_SCRIPT_WARPS_DMAP_SCRIPT_TOGGLE) != 0)|| olddmap != cur_dmap) //Changed DMaps, or needs to reset the script
 	{
 		FFScript::deallocateAllScriptOwned(ScriptType::DMap, olddmap);
 		initZScriptDMapScripts();
@@ -29567,9 +29566,9 @@ bool FFScript::can_dmap_change_music(int32_t dm)
 	case MUSIC_UPDATE_SCREEN:
 		return true;
 	case MUSIC_UPDATE_DMAP:
-		return dm != -1 && dm != currdmap;
+		return dm != -1 && dm != cur_dmap;
 	case MUSIC_UPDATE_LEVEL:
-		return dm != -1 && DMaps[dm].level != DMaps[currdmap].level;
+		return dm != -1 && DMaps[dm].level != DMaps[cur_dmap].level;
 	}
 	return false;
 }
@@ -36796,11 +36795,11 @@ void FFScript::warpScriptCheck()
 	}
 	else if(get_qr(qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN) && doscript(ScriptType::ScriptedPassiveSubscreen))
 	{
-		if(DMaps[currdmap].passive_sub_script != 0)
-			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[currdmap].passive_sub_script, currdmap);
-		if (waitdraw(ScriptType::ScriptedPassiveSubscreen) && DMaps[currdmap].passive_sub_script != 0 && doscript(ScriptType::ScriptedPassiveSubscreen))
+		if(DMaps[cur_dmap].passive_sub_script != 0)
+			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[cur_dmap].passive_sub_script, cur_dmap);
+		if (waitdraw(ScriptType::ScriptedPassiveSubscreen) && DMaps[cur_dmap].passive_sub_script != 0 && doscript(ScriptType::ScriptedPassiveSubscreen))
 		{
-			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[currdmap].passive_sub_script, currdmap);
+			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[cur_dmap].passive_sub_script, cur_dmap);
 			waitdraw(ScriptType::ScriptedPassiveSubscreen) = false;
 		}	
 	}
@@ -36826,12 +36825,12 @@ void FFScript::runWarpScripts(bool waitdraw)
 		}
 		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(ScriptType::DMap) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-			ZScriptVersion::RunScript(ScriptType::DMap, DMaps[currdmap].script,currdmap);
+			ZScriptVersion::RunScript(ScriptType::DMap, DMaps[cur_dmap].script,cur_dmap);
 			FFCore.waitdraw(ScriptType::DMap) = false;
 		}
 		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[currdmap].passive_sub_script,currdmap);
+			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[cur_dmap].passive_sub_script,cur_dmap);
 			FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) = false;
 		}
 		//no doscript check here, becauseb of preload? Do we want to write doscript here? -Z 13th July, 2019
@@ -36862,11 +36861,11 @@ void FFScript::runWarpScripts(bool waitdraw)
 		}
 		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && doscript(ScriptType::DMap) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
 		{
-			ZScriptVersion::RunScript(ScriptType::DMap, DMaps[currdmap].script,currdmap);
+			ZScriptVersion::RunScript(ScriptType::DMap, DMaps[cur_dmap].script,cur_dmap);
 		}
 		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.doscript(ScriptType::ScriptedPassiveSubscreen) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
 		{
-			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[currdmap].passive_sub_script,currdmap);
+			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[cur_dmap].passive_sub_script,cur_dmap);
 		}
 		if (FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && !FFCore.system_suspend[susptSCREENSCRIPTS])
 		{
@@ -37071,15 +37070,15 @@ bool FFScript::runGenericFrozenEngine(const word script, const int32_t *init_dat
 
 bool FFScript::runScriptedActiveSusbcreen()
 {
-	word activesubscript = DMaps[currdmap].active_sub_script;
+	word activesubscript = DMaps[cur_dmap].active_sub_script;
 	if(!activesubscript || !dmapscripts[activesubscript]->valid()) return false; //No script to run
-	word passivesubscript = DMaps[currdmap].passive_sub_script;
-	word dmapactivescript = DMaps[currdmap].script;
+	word passivesubscript = DMaps[cur_dmap].passive_sub_script;
+	word dmapactivescript = DMaps[cur_dmap].script;
 	clear_bitmap(script_menu_buf);
 	blit(framebuf, script_menu_buf, 0, 0, 0, 0, 256, 224);
 	initZScriptScriptedActiveSubscreen();
 	GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
-	word script_dmap = currdmap;
+	word script_dmap = cur_dmap;
 	//auto tmpDrawCommands = script_drawing_commands.pop_commands();
 	pause_all_sfx();
 	auto& data = get_script_engine_data(ScriptType::ScriptedActiveSubscreen);
@@ -37113,18 +37112,18 @@ bool FFScript::runScriptedActiveSusbcreen()
 		}
 		//Draw
 		clear_bitmap(framebuf);
-		if(currdmap == script_dmap && ( !FFCore.system_suspend[susptCOMBOANIM] ) ) animate_combos();
+		if(cur_dmap == script_dmap && ( !FFCore.system_suspend[susptCOMBOANIM] ) ) animate_combos();
 		doScriptMenuDraws();
 		//
 		advanceframe(true);
 		//Handle warps; run game_loop once!
-		if(currdmap != script_dmap)
+		if(cur_dmap != script_dmap)
 		{
-			activesubscript = DMaps[currdmap].active_sub_script;
+			activesubscript = DMaps[cur_dmap].active_sub_script;
 			if(!activesubscript || !dmapscripts[activesubscript]->valid()) return true; //No script to run
-			passivesubscript = DMaps[currdmap].passive_sub_script;
-			dmapactivescript = DMaps[currdmap].script;
-			script_dmap = currdmap;
+			passivesubscript = DMaps[cur_dmap].passive_sub_script;
+			dmapactivescript = DMaps[cur_dmap].script;
+			script_dmap = cur_dmap;
 			//Reset the background image
 			game_loop();
 			clear_bitmap(script_menu_buf);
@@ -37141,13 +37140,13 @@ bool FFScript::runScriptedActiveSusbcreen()
 }
 bool FFScript::runOnMapScriptEngine()
 {
-	word onmap_script = DMaps[currdmap].onmap_script;
+	word onmap_script = DMaps[cur_dmap].onmap_script;
 	if(!onmap_script || !dmapscripts[onmap_script]->valid()) return false; //No script to run
 	clear_bitmap(script_menu_buf);
 	blit(framebuf, script_menu_buf, 0, 0, 0, 0, 256, 224);
 	initZScriptOnMapScript();
 	GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
-	word script_dmap = currdmap;
+	word script_dmap = cur_dmap;
 	//auto tmpDrawCommands = script_drawing_commands.pop_commands();
 	pause_all_sfx();
 
@@ -37164,16 +37163,16 @@ bool FFScript::runOnMapScriptEngine()
 		}
 		//Draw
 		clear_bitmap(framebuf);
-		if(currdmap == script_dmap && ( !FFCore.system_suspend[susptCOMBOANIM] ) ) animate_combos();
+		if(cur_dmap == script_dmap && ( !FFCore.system_suspend[susptCOMBOANIM] ) ) animate_combos();
 		doScriptMenuDraws();
 		//
 		advanceframe(true);
 		//Handle warps; run game_loop once!
-		if(currdmap != script_dmap)
+		if(cur_dmap != script_dmap)
 		{
-			onmap_script = DMaps[currdmap].onmap_script;
+			onmap_script = DMaps[cur_dmap].onmap_script;
 			if(!onmap_script || !dmapscripts[onmap_script]->valid()) return true; //No script to run
-			script_dmap = currdmap;
+			script_dmap = cur_dmap;
 			//Reset the background image
 			game_loop();
 			clear_bitmap(script_menu_buf);

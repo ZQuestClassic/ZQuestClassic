@@ -13643,7 +13643,7 @@ void getBigTri(mapscr* scr, int32_t id2)
 		
 		if((f&7)==4)
 		{
-			if(cur_screen<128) loadlvlpal(DMaps[currdmap].color);
+			if(cur_screen<128) loadlvlpal(DMaps[cur_dmap].color);
 			else loadlvlpal(0xB);
 		}
 		
@@ -18091,9 +18091,9 @@ static void loadguys(mapscr* scr)
 	int32_t onetime = (screen>=128) ? ipONETIME2 : ipONETIME;
 
 	mapscr* guyscr = scr;
-	if(screen>=128 && DMaps[currdmap].flags&dmfGUYCAVES)
+	if(screen>=128 && DMaps[cur_dmap].flags&dmfGUYCAVES)
 	{
-		if(DMaps[currdmap].flags&dmfCAVES)
+		if(DMaps[cur_dmap].flags&dmfCAVES)
 		{
 			Guy=special_warp_return_screen.guy;
 			guyscr = &special_warp_return_screen;
@@ -18110,7 +18110,7 @@ static void loadguys(mapscr* scr)
 
 	bool oldguy = get_qr(qr_OLD_GUY_HANDLING);
 	// The Guy appears if 'Hero is in cave' equals 'Guy is in cave'.
-	if(Guy && ((screen>=128) == !!(DMaps[currdmap].flags&dmfGUYCAVES)))
+	if(Guy && ((screen>=128) == !!(DMaps[cur_dmap].flags&dmfGUYCAVES)))
 	{
 		if(scr->room==rZELDA)
 		{
@@ -18264,7 +18264,7 @@ void loaditem(mapscr* scr, int offx, int offy)
 			}
 		}
 	}
-	else if(!(DMaps[currdmap].flags&dmfCAVES))
+	else if(!(DMaps[cur_dmap].flags&dmfCAVES))
 	{
 		if((!getmapflag(screen, (screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (special_warp_return_screen.flags9&fBELOWRETURN)) && special_warp_return_screen.room==rSP_ITEM
 				&& (screen==128 || !get_qr(qr_ITEMSINPASSAGEWAYS)))
@@ -18589,7 +18589,7 @@ static void update_slope_combopos_bordering_screen(int dir, int slope_count, int
 	if(isSlope && !wasSlope)
 	{
 		static std::vector<word> TMP;
-		int num_border_combos = current_region.screen_width*16 * 2 + current_region.screen_height*11 * 2;
+		int num_border_combos = cur_region.screen_width*16 * 2 + cur_region.screen_height*11 * 2;
 		TMP.resize(num_border_combos * 7 * 4);
 
 		int tmp_index = id-create_slope_id(SLOPE_STAGE_COMBOS_BORDERING_SCREENS,0,0);
@@ -19415,8 +19415,8 @@ void loadenemies()
 		static byte dngn_enemy_x[4] = {32,96,144,208};
 		if (cur_screen>=128)
 		{
-			if(DMaps[currdmap].flags&dmfCAVES) return;
-			if ( DMaps[currdmap].flags&dmfNEWCELLARENEMIES )
+			if(DMaps[cur_dmap].flags&dmfCAVES) return;
+			if ( DMaps[cur_dmap].flags&dmfNEWCELLARENEMIES )
 			{
 				for(int32_t i=0; i<10; i++)
 				{

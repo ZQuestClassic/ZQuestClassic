@@ -762,7 +762,7 @@ bool movingblock::animate(int32_t)
 					open_doors_for_screen[m0->screen] = 8;
 				}
 				
-				if(canPermSecret(currdmap, end_rpos_handle.screen))
+				if(canPermSecret(cur_dmap, end_rpos_handle.screen))
 				{
 					if(get_qr(qr_NONHEAVY_BLOCKTRIGGER_PERM) ||
 						(combobuf[bcombo].type==cPUSH_HEAVY || combobuf[bcombo].type==cPUSH_HW
@@ -995,7 +995,7 @@ bool movingblock::animate(int32_t)
 					open_doors_for_screen[m0->screen] = 8;
 				}
 				
-				if(canPermSecret(currdmap, end_rpos_handle.screen))
+				if(canPermSecret(cur_dmap, end_rpos_handle.screen))
 				{
 					if(get_qr(qr_NONHEAVY_BLOCKTRIGGER_PERM) ||
 						(combobuf[bcombo].type==cPUSH_HEAVY || combobuf[bcombo].type==cPUSH_HW

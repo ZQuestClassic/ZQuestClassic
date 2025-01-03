@@ -499,7 +499,7 @@ void HeroClass::set_respawn_point(bool setwarp)
 		respawn_x = x;
 		respawn_y = y;
 		respawn_scr = cur_screen;
-		respawn_dmap = currdmap;
+		respawn_dmap = cur_dmap;
 	}
 	while(false); //run once, but 'break' works
 	
@@ -535,9 +535,9 @@ void HeroClass::go_respawn_point()
 	if(get_qr(qr_OLD_RESPAWN_POINTS))
 		return; //No cross-screen return
 	
-	if(currdmap != respawn_dmap || cur_screen != respawn_scr)
+	if(cur_dmap != respawn_dmap || cur_screen != respawn_scr)
 	{
-		FFCore.warp_player(wtIWARP, respawn_dmap, respawn_scr-DMaps[currdmap].xoff,
+		FFCore.warp_player(wtIWARP, respawn_dmap, respawn_scr-DMaps[cur_dmap].xoff,
 			-1, -1, 0, 0, warpFlagNOSTEPFORWARD, -1);
 	}
 }
@@ -1742,7 +1742,7 @@ void HeroClass::init()
     ffpit = false;
     respawn_x=x;
     respawn_y=y;
-	respawn_dmap=currdmap;
+	respawn_dmap=cur_dmap;
 	respawn_scr=cur_screen;
     falling_oldy = y;
     magiccastclk=0;
@@ -7733,12 +7733,12 @@ static void do_refill_waitframe()
 	if(get_qr(qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN))
 	{
 		script_drawing_commands.Clear();
-		if(DMaps[currdmap].passive_sub_script != 0)
-			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[currdmap].passive_sub_script, currdmap);
+		if(DMaps[cur_dmap].passive_sub_script != 0)
+			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[cur_dmap].passive_sub_script, cur_dmap);
 		
-		if (FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) && DMaps[currdmap].passive_sub_script != 0 && FFCore.doscript(ScriptType::ScriptedPassiveSubscreen))
+		if (FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) && DMaps[cur_dmap].passive_sub_script != 0 && FFCore.doscript(ScriptType::ScriptedPassiveSubscreen))
 		{
-			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[currdmap].passive_sub_script, currdmap);
+			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[cur_dmap].passive_sub_script, cur_dmap);
 			FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) = false;
 		}	
 		do_script_draws(framebuf, tmpscr, 0, playing_field_offset);
@@ -7806,7 +7806,7 @@ bool HeroClass::handle_portal_collide(portal* p)
 					tLastEntranceDMap = lastentrance_dmap,
 					tContScr = game->get_continue_scrn(),
 					tContDMap = game->get_continue_dmap();
-			int32_t sourcescr = cur_screen, sourcedmap = currdmap;
+			int32_t sourcescr = cur_screen, sourcedmap = cur_dmap;
 			zfix tx = x, ty = y, tz = z;
 			x = p->x;
 			y = p->y;
@@ -8735,7 +8735,7 @@ heroanimate_skip_liftwpn:;
 	{
 		--lbunnyclock;
 	}
-	if(DMaps[currdmap].flags&dmfBUNNYIFNOPEARL)
+	if(DMaps[cur_dmap].flags&dmfBUNNYIFNOPEARL)
 	{
 		int32_t itemid = current_item_id(itype_pearl);
 		if(itemid > -1)
@@ -10702,7 +10702,7 @@ void HeroClass::doMirror(int32_t mirrorid)
 	}
 	
 	itemdata const& mirror = itemsbuf[mirrorid];
-	if(DMaps[currdmap].flags & dmfMIRRORCONTINUE)
+	if(DMaps[cur_dmap].flags & dmfMIRRORCONTINUE)
 	{
 		paymagiccost(mirrorid);
 		if(mirror.usesound2) sfx(mirror.usesound2);
@@ -10725,8 +10725,8 @@ void HeroClass::doMirror(int32_t mirrorid)
 	}
 	else
 	{
-		int32_t destdmap = DMaps[currdmap].mirrorDMap;
-		int32_t offscr = cur_screen - DMaps[currdmap].xoff;
+		int32_t destdmap = DMaps[cur_dmap].mirrorDMap;
+		int32_t offscr = cur_screen - DMaps[cur_dmap].xoff;
 		if(destdmap < 0)
 			return;
 		int32_t destscr = DMaps[destdmap].xoff + offscr;
@@ -10740,7 +10740,7 @@ void HeroClass::doMirror(int32_t mirrorid)
 				tContScr = game->get_continue_scrn(),
 				tContDMap = game->get_continue_dmap(),
 				tPortalDMap = game->saved_mirror_portal.srcdmap;
-		int32_t sourcescr = cur_screen, sourcedmap = currdmap;
+		int32_t sourcescr = cur_screen, sourcedmap = cur_dmap;
 		zfix tx = x, ty = y, tz = z;
 		game->saved_mirror_portal.srcdmap = -1;
 		action = none; FFCore.setHeroAction(none);
@@ -10774,12 +10774,12 @@ void HeroClass::doMirror(int32_t mirrorid)
 			mirror_portal.prox_active = false;
 			
 			//Set continue point
-			if(currdmap != game->get_continue_dmap())
+			if(cur_dmap != game->get_continue_dmap())
 			{
-				game->set_continue_scrn(DMaps[currdmap].cont + DMaps[currdmap].xoff);
+				game->set_continue_scrn(DMaps[cur_dmap].cont + DMaps[cur_dmap].xoff);
 			}
-			game->set_continue_dmap(currdmap);
-			lastentrance_dmap = currdmap;
+			game->set_continue_dmap(cur_dmap);
+			lastentrance_dmap = cur_dmap;
 			lastentrance = game->get_continue_scrn();
 		}
 	}
@@ -11733,8 +11733,8 @@ bool HeroClass::startwpn(int32_t itemid)
 			if(current_item(itype_letter)==i_letter &&
 					(cur_screen >= 128 ? special_warp_return_screen : *hero_scr).room==rP_SHOP &&
 					(cur_screen >= 128 ? special_warp_return_screen : *hero_scr).guy &&
-					((cur_screen<128&&!(DMaps[currdmap].flags&dmfGUYCAVES))
-						||(cur_screen>=128&&DMaps[currdmap].flags&dmfGUYCAVES)) &&
+					((cur_screen<128&&!(DMaps[cur_dmap].flags&dmfGUYCAVES))
+						||(cur_screen>=128&&DMaps[cur_dmap].flags&dmfGUYCAVES)) &&
 					checkbunny(itemid)
 				)
 			{
@@ -11823,7 +11823,7 @@ bool HeroClass::startwpn(int32_t itemid)
 				
 				if(where>right) where=dir^1;
 				
-				if(((DMaps[currdmap].flags&dmfWHIRLWIND && TriforceCount()) || DMaps[currdmap].flags&dmfWHIRLWINDRET) &&
+				if(((DMaps[cur_dmap].flags&dmfWHIRLWIND && TriforceCount()) || DMaps[cur_dmap].flags&dmfWHIRLWINDRET) &&
 						itm.misc2 >= 0 && itm.misc2 <= 8 && !whistleflag)
 				{
 					zfix windx = where == left ? (zfix)(viewport.right()-16) : where == right ? (zfix)viewport.left() : x;
@@ -22752,8 +22752,8 @@ static void handleBeam(spot_t* grid, size_t age, byte spotdir, rpos_t rpos, byte
 {
 	if(spotdir > 3) return; //invalid dir
 
-	int combos_wide = current_region.screen_width * 16;
-	int combos_tall = current_region.screen_height * 11;
+	int combos_wide = cur_region.screen_width * 16;
+	int combos_tall = cur_region.screen_height * 11;
 	int32_t trigflag = set ? (1 << (set-1)) : ~0;
 	bool doAge = true;
 	spot_t f = 0;
@@ -23820,7 +23820,7 @@ void HeroClass::checkspecial()
 					bool only16_31 = get_qr(qr_ENEMIES_SECRET_ONLY_16_31)?true:false;
 					trigger_secrets_for_screen(TriggerSource::EnemiesScreenFlag, screen, only16_31);
 					
-					if (scr->flags4&fENEMYSCRTPERM && canPermSecret(currdmap, screen))
+					if (scr->flags4&fENEMYSCRTPERM && canPermSecret(cur_dmap, screen))
 					{
 						if (!(scr->flags5&fTEMPSECRETS)) setmapflag(scr, mSECRET);
 					}
@@ -24040,7 +24040,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 			{
 				auto rpos_handle = get_rpos_handle(rpos, 0);
 				
-				if(stype==cSTRIGFLAG && canPermSecret(currdmap, rpos_handle.screen))
+				if(stype==cSTRIGFLAG && canPermSecret(cur_dmap, rpos_handle.screen))
 				{ 
 					if(!didstrig)
 					{
@@ -24778,7 +24778,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 			auto rpos_handle = get_rpos_handle(stepsecret, 0);
 			sfx(combobuf[MAPCOMBO(rpos_handle)].attribytes[0],pan((int32_t)x));
 			
-			if(type==cTRIGFLAG && canPermSecret(currdmap, rpos_handle.screen))
+			if(type==cTRIGFLAG && canPermSecret(cur_dmap, rpos_handle.screen))
 			{ 
 				if(!(rpos_handle.scr->flags5&fTEMPSECRETS)) setmapflag(rpos_handle.scr, mSECRET);
 				
@@ -25176,7 +25176,7 @@ RaftingStuff:
 		{
 			if (FFCore.can_dmap_change_music(tdm))
 			{
-				if ((DMaps[currdmap].flags & dmfCAVES) && base_scr->tilewarptype[index] == wtCAVE)
+				if ((DMaps[cur_dmap].flags & dmfCAVES) && base_scr->tilewarptype[index] == wtCAVE)
 					music_stop();
 			}
 		}
@@ -25197,7 +25197,7 @@ RaftingStuff:
 		}
 		
 		stop_sfx(QMisc.miscsfx[sfxLOWHEART]);
-		bool opening = (base_scr->tilewarptype[index]<=wtPASS && !(DMaps[currdmap].flags&dmfCAVES && base_scr->tilewarptype[index]==wtCAVE)
+		bool opening = (base_scr->tilewarptype[index]<=wtPASS && !(DMaps[cur_dmap].flags&dmfCAVES && base_scr->tilewarptype[index]==wtCAVE)
 						? false : COOLSCROLL);
 						
 		FFCore.warpScriptCheck();
@@ -25217,8 +25217,8 @@ RaftingStuff:
 	}
 	
 	
-	if (DMaps[currdmap].flags&dmf3STAIR && (cur_screen==129 || !(DMaps[currdmap].flags&dmfGUYCAVES))
-			&& (specialcave > 0 && DMaps[currdmap].flags & dmfGUYCAVES ? special_warp_return_screen : *tmpscr).room==rWARP && type==cSTAIR
+	if (DMaps[cur_dmap].flags&dmf3STAIR && (cur_screen==129 || !(DMaps[cur_dmap].flags&dmfGUYCAVES))
+			&& (specialcave > 0 && DMaps[cur_dmap].flags & dmfGUYCAVES ? special_warp_return_screen : *tmpscr).room==rWARP && type==cSTAIR
 		    && !is_in_scrolling_region())
 	{
 		if(!skippedaframe)
@@ -25230,13 +25230,13 @@ RaftingStuff:
 		
 		// "take any road you want"
 		int32_t dw = x<112 ? 1 : (x>136 ? 3 : 2);
-		int32_t code = WARPCODE(currdmap,home_screen,dw);
+		int32_t code = WARPCODE(cur_dmap,home_screen,dw);
 		
 		if(code>-1)
 		{
 			bool changedlevel = false;
 			bool changeddmap = false;
-			if(currdmap != code>>8)
+			if(cur_dmap != code>>8)
 			{
 				timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
 				changeddmap = true;
@@ -25246,8 +25246,8 @@ RaftingStuff:
 				timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
 				changedlevel = true;
 			}
-			currdmap = code>>8;
-			dlevel = DMaps[currdmap].level;
+			cur_dmap = code>>8;
+			dlevel = DMaps[cur_dmap].level;
 			if(changeddmap)
 			{
 				throwGenScriptEvent(GENSCR_EVENT_CHANGE_DMAP);
@@ -25257,11 +25257,11 @@ RaftingStuff:
 				throwGenScriptEvent(GENSCR_EVENT_CHANGE_LEVEL);
 			}
 			
-			currmap = DMaps[currdmap].map;
-			home_screen = (code&0xFF) + DMaps[currdmap].xoff;
+			currmap = DMaps[cur_dmap].map;
+			home_screen = (code&0xFF) + DMaps[cur_dmap].xoff;
 			init_dmap();
 			
-			if(canPermSecret(currdmap, cur_screen))
+			if(canPermSecret(cur_dmap, cur_screen))
 				setmapflag_homescr(mSECRET);
 		}
 		
@@ -25464,13 +25464,13 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			
 		case 4:
 			wtype = wtIWARP;
-			wdmap = currdmap;
-			wscr = home_screen-DMaps[currdmap].xoff;
+			wdmap = cur_dmap;
+			wscr = home_screen-DMaps[cur_dmap].xoff;
 			break;
 	}
 	
-	bool intradmap = (wdmap == currdmap);
-	int32_t olddmap = currdmap;
+	bool intradmap = (wdmap == cur_dmap);
+	int32_t olddmap = cur_dmap;
 	rehydratelake(type!=wtSCROLL);
 	bool updatemusic = FFCore.can_dmap_change_music(wdmap);
 	bool musicnocut = FFCore.music_update_flags & MUSIC_UPDATE_FLAG_NOCUT;
@@ -25483,7 +25483,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 		// cave/item room
 		ALLOFF();
 
-		if(DMaps[currdmap].flags&dmfCAVES)                                         // cave
+		if(DMaps[cur_dmap].flags&dmfCAVES)                                         // cave
 		{
 			if (updatemusic || !musicnocut || !get_qr(qr_SCREEN80_OWN_MUSIC))
 				music_stop();
@@ -25552,11 +25552,11 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 				if(!darkroom)
 				{
 					darkroom = true;
-					fade(DMaps[currdmap].color,true,false);
+					fade(DMaps[cur_dmap].color,true,false);
 				}
 			}
 			else
-				fade(DMaps[currdmap].color, true, false);
+				fade(DMaps[cur_dmap].color, true, false);
 			
 			blackscr(30,true);
 
@@ -25630,12 +25630,12 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 		if(!get_qr(qr_NEW_DARKROOM))
 		{
 			if(!darkroom)
-				fade(DMaps[currdmap].color,true,false);
+				fade(DMaps[cur_dmap].color,true,false);
 				
 			darkroom=true;
 		}
 		else
-			fade(DMaps[currdmap].color,true,false);
+			fade(DMaps[cur_dmap].color,true,false);
 		blackscr(30,true);
 		bool no_x80_dir = true;
 		loadscr(wdmap, 0x81, down, false, no_x80_dir);
@@ -25717,7 +25717,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 		blackscr(30,false);
 		bool changedlevel = false;
 		bool changeddmap = false;
-		if(currdmap != wdmap)
+		if(cur_dmap != wdmap)
 		{
 			timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
 			changeddmap = true;
@@ -25728,7 +25728,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			changedlevel = true;
 		}
 		dlevel = DMaps[wdmap].level;
-		currdmap = wdmap;
+		cur_dmap = wdmap;
 		if(changeddmap)
 		{
 			throwGenScriptEvent(GENSCR_EVENT_CHANGE_DMAP);
@@ -25738,15 +25738,14 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			throwGenScriptEvent(GENSCR_EVENT_CHANGE_LEVEL);
 		}
 		
-		currmap=DMaps[currdmap].map;
+		currmap=DMaps[cur_dmap].map;
 		init_dmap();
 		update_subscreens(wdmap);
 		loadfullpal();
 		ringcolor(false);
-		loadlvlpal(DMaps[currdmap].color);
-		//lastentrance_dmap = currdmap;
-		int destscr = wscr + DMaps[currdmap].xoff;
-		loadscr(currdmap, destscr, -1, overlay);
+		loadlvlpal(DMaps[cur_dmap].color);
+		int destscr = wscr + DMaps[cur_dmap].xoff;
+		loadscr(cur_dmap, destscr, -1, overlay);
 		
 		if((hero_scr->flags&fDARK) && !get_qr(qr_NEW_DARKROOM))
 		{
@@ -25756,7 +25755,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			}
 			else
 			{
-				loadfadepal((DMaps[currdmap].color)*pdLEVEL+poFADE3);
+				loadfadepal((DMaps[cur_dmap].color)*pdLEVEL+poFADE3);
 			}
 			
 			darkroom=naturaldark=true;
@@ -25787,7 +25786,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			}
 			else
 			{
-				lastentrance = DMaps[currdmap].cont + DMaps[currdmap].xoff;
+				lastentrance = DMaps[cur_dmap].cont + DMaps[cur_dmap].xoff;
 			}
 			
 			lastentrance_dmap = wdmap;
@@ -25908,7 +25907,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			if (musicrevert)
 				FFCore.music_update_cond = MUSIC_UPDATE_SCREEN;
 		}
-		currcset=DMaps[currdmap].color;
+		currcset=DMaps[cur_dmap].color;
 		dointro();
 		set_respawn_point();
 		trySideviewLadder();
@@ -25921,8 +25920,8 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 	
 	case wtSCROLL:                                          // scrolling warp
 	{
-		int32_t c = DMaps[currdmap].color;
-		scrolling_dmap = currdmap;
+		int32_t c = DMaps[cur_dmap].color;
+		scrolling_dmap = cur_dmap;
 		scrolling_map = currmap;
 		currmap = DMaps[wdmap].map;
 		update_subscreens(wdmap);
@@ -25989,13 +25988,13 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 				}
 				else
 				{
-					lastentrance = DMaps[currdmap].cont + DMaps[currdmap].xoff;
+					lastentrance = DMaps[cur_dmap].cont + DMaps[cur_dmap].xoff;
 				}
 				
 				lastentrance_dmap = wdmap;
 			}
 		}
-		if(DMaps[currdmap].color != c)
+		if(DMaps[cur_dmap].color != c)
 		{
 			lighting(false, true);
 		}
@@ -26006,20 +26005,20 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			if (musicrevert)
 				FFCore.music_update_cond = MUSIC_UPDATE_SCREEN;
 		}
-		currcset=DMaps[currdmap].color;
+		currcset=DMaps[cur_dmap].color;
 		dointro();
 	}
 	break;
 	
 	case wtWHISTLE:                                         // whistle warp
 	{
-		scrolling_dmap = currdmap;
+		scrolling_dmap = cur_dmap;
 		scrolling_map = currmap;
 		currmap = DMaps[wdmap].map;
 		scrollscr(index, wscr+DMaps[wdmap].xoff, wdmap);
 		reset_hookshot();
-		currdmap=wdmap;
-		dlevel=DMaps[currdmap].level;
+		cur_dmap=wdmap;
+		dlevel=DMaps[cur_dmap].level;
 		lighting(false, true);
 		init_dmap();
 		
@@ -26029,7 +26028,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			if (musicrevert)
 				FFCore.music_update_cond = MUSIC_UPDATE_SCREEN;
 		}
-		currcset=DMaps[currdmap].color;
+		currcset=DMaps[cur_dmap].color;
 		dointro();
 		action=inwind; FFCore.setHeroAction(inwind);
 		int32_t wry;
@@ -26047,7 +26046,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 		wrx += region_scr_dx * 256;
 		wry += region_scr_dy * 176;
 
-		calculate_viewport(viewport, currdmap, cur_screen, world_w, world_h, wrx + Hero.txsz*16/2, wry + Hero.tysz*16/2);
+		calculate_viewport(viewport, cur_dmap, cur_screen, world_w, world_h, wrx + Hero.txsz*16/2, wry + Hero.tysz*16/2);
 
 		zfix whistle_x = index==left?viewport.right()-16:index==right?viewport.left():wrx;
 		zfix whistle_y = index==down?viewport.top():index==up?viewport.bottom()-16:wry;
@@ -26126,10 +26125,10 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			blackscr(30,b2?false:true);
 		}
 		
-		int32_t c = DMaps[currdmap].color;
+		int32_t c = DMaps[cur_dmap].color;
 		bool changedlevel = false;
 		bool changeddmap = false;
-		if(currdmap != wdmap)
+		if(cur_dmap != wdmap)
 		{
 			timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
 			changeddmap = true;
@@ -26140,7 +26139,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			changedlevel = true;
 		}
 		dlevel = DMaps[wdmap].level;
-		currdmap = wdmap;
+		cur_dmap = wdmap;
 		if(changeddmap)
 		{
 			throwGenScriptEvent(GENSCR_EVENT_CHANGE_DMAP);
@@ -26150,17 +26149,17 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			throwGenScriptEvent(GENSCR_EVENT_CHANGE_LEVEL);
 		}
 
-		currmap = DMaps[currdmap].map;
+		currmap = DMaps[cur_dmap].map;
 		init_dmap();
 		update_subscreens(wdmap);
 		
 		ringcolor(false);
 		
-		if(DMaps[currdmap].color != c)
-			loadlvlpal(DMaps[currdmap].color);
+		if(DMaps[cur_dmap].color != c)
+			loadlvlpal(DMaps[cur_dmap].color);
 		
 		int prevscr = cur_screen;
-		loadscr(currdmap, wscr + DMaps[currdmap].xoff, -1, overlay);
+		loadscr(cur_dmap, wscr + DMaps[cur_dmap].xoff, -1, overlay);
 		lightingInstant(); // Also sets naturaldark
 
 		// In the case where we did not call ALLOFF, preserve the "enemies have spawned"
@@ -26267,7 +26266,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			if (musicrevert)
 				FFCore.music_update_cond = MUSIC_UPDATE_SCREEN;
 		}
-		currcset=DMaps[currdmap].color;
+		currcset=DMaps[cur_dmap].color;
 		dointro();
 		set_respawn_point();
 		trySideviewLadder();
@@ -26326,10 +26325,10 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 				blackscr(30,b2?false:true);
 			}
 			
-			int32_t c = DMaps[currdmap].color;
+			int32_t c = DMaps[cur_dmap].color;
 			bool changedlevel = false;
 			bool changeddmap = false;
-			if(currdmap != wdmap)
+			if(cur_dmap != wdmap)
 			{
 				timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
 				changeddmap = true;
@@ -26340,7 +26339,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 				changedlevel = true;
 			}
 			dlevel = DMaps[wdmap].level;
-			currdmap = wdmap;
+			cur_dmap = wdmap;
 			if(changeddmap)
 			{
 				throwGenScriptEvent(GENSCR_EVENT_CHANGE_DMAP);
@@ -26349,16 +26348,16 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			{
 				throwGenScriptEvent(GENSCR_EVENT_CHANGE_LEVEL);
 			}
-			currmap = DMaps[currdmap].map;
+			currmap = DMaps[cur_dmap].map;
 			init_dmap();
 			update_subscreens(wdmap);
 			
 			ringcolor(false);
 			
-			if(DMaps[currdmap].color != c)
-				loadlvlpal(DMaps[currdmap].color);
+			if(DMaps[cur_dmap].color != c)
+				loadlvlpal(DMaps[cur_dmap].color);
 			
-			loadscr(currdmap, wscr + DMaps[currdmap].xoff, -1, overlay);
+			loadscr(cur_dmap, wscr + DMaps[cur_dmap].xoff, -1, overlay);
 			lightingInstant(); // Also sets naturaldark
 			
 			x = hero_scr->warpreturnx[wrindex];
@@ -26451,7 +26450,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			show_subscreen_life=true;
 			show_subscreen_numbers=true;
 			playLevelMusic();
-			currcset=DMaps[currdmap].color;
+			currcset=DMaps[cur_dmap].color;
 			dointro();
 			set_respawn_point();
 			trySideviewLadder();
@@ -26582,7 +26581,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 		}
 	}
 	
-	if((DMaps[currdmap].type&dmfCONTINUE) || (currdmap==0&&get_qr(qr_DMAP_0_CONTINUE_BUG)))
+	if((DMaps[cur_dmap].type&dmfCONTINUE) || (cur_dmap==0&&get_qr(qr_DMAP_0_CONTINUE_BUG)))
 	{
 		if(dlevel)
 		{
@@ -26606,26 +26605,26 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 				{
 					game->set_continue_scrn(home_screen);
 				}
-				else if(currdmap != game->get_continue_dmap())
+				else if(cur_dmap != game->get_continue_dmap())
 				{
-					game->set_continue_scrn(DMaps[currdmap].cont + DMaps[currdmap].xoff);
+					game->set_continue_scrn(DMaps[cur_dmap].cont + DMaps[cur_dmap].xoff);
 				}
 			}
 			else
 			{
-				if(currdmap != game->get_continue_dmap())
+				if(cur_dmap != game->get_continue_dmap())
 				{
-					game->set_continue_scrn(DMaps[currdmap].cont + DMaps[currdmap].xoff);
+					game->set_continue_scrn(DMaps[cur_dmap].cont + DMaps[cur_dmap].xoff);
 				}
 			}
 		}
 		else
 		{
-			game->set_continue_scrn(DMaps[currdmap].cont + DMaps[currdmap].xoff);
+			game->set_continue_scrn(DMaps[cur_dmap].cont + DMaps[cur_dmap].xoff);
 		}
 		
-		game->set_continue_dmap(currdmap);
-		lastentrance_dmap = currdmap;
+		game->set_continue_dmap(cur_dmap);
+		lastentrance_dmap = cur_dmap;
 		lastentrance = game->get_continue_scrn();
 	}
 	
@@ -26636,7 +26635,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 	
 	if(origin_scr->flags6&fCONTINUEHERE)
 	{
-		lastentrance_dmap = currdmap;
+		lastentrance_dmap = cur_dmap;
 		lastentrance = home_screen;
 	}
 	
@@ -26645,13 +26644,13 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 	
 	if(wtype==wtCAVE)
 	{
-		if(DMaps[currdmap].flags&dmfGUYCAVES)
-			Z_eventlog("Entered %s containing %s.\n",DMaps[currdmap].flags&dmfCAVES ? "Cave" : "Item Cellar",
+		if(DMaps[cur_dmap].flags&dmfGUYCAVES)
+			Z_eventlog("Entered %s containing %s.\n",DMaps[cur_dmap].flags&dmfCAVES ? "Cave" : "Item Cellar",
 					   (char *)moduledata.roomtype_names[special_warp_return_screen.room]);
 		else
-			Z_eventlog("Entered %s.",DMaps[currdmap].flags&dmfCAVES ? "Cave" : "Item Cellar");
+			Z_eventlog("Entered %s.",DMaps[cur_dmap].flags&dmfCAVES ? "Cave" : "Item Cellar");
 	}
-	else Z_eventlog("Warped to DMap %d: %s, screen %d, via %s.\n", currdmap, DMaps[currdmap].name,cur_screen,
+	else Z_eventlog("Warped to DMap %d: %s, screen %d, via %s.\n", cur_dmap, DMaps[cur_dmap].name,cur_screen,
 						wtype==wtPASS ? "Passageway" :
 						wtype==wtEXIT ? "Entrance/Exit" :
 						wtype==wtSCROLL ? "Scrolling Warp" :
@@ -26690,11 +26689,11 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 
 void HeroClass::exitcave()
 {
-	bool updatemusic = FFCore.can_dmap_change_music(currdmap);
+	bool updatemusic = FFCore.can_dmap_change_music(cur_dmap);
 	bool musicnocut = FFCore.music_update_flags & MUSIC_UPDATE_FLAG_NOCUT;
 
     stop_sfx(QMisc.miscsfx[sfxLOWHEART]);
-    loadscr(currdmap, home_screen, 255, false);                                   // bogus direction
+    loadscr(cur_dmap, home_screen, 255, false);                                   // bogus direction
     x = hero_scr->warpreturnx[0];
     y = hero_scr->warpreturny[0];
     
@@ -26722,7 +26721,7 @@ void HeroClass::exitcave()
     ALLOFF();
     blackscr(30,b?false:true);
     ringcolor(false);
-    loadlvlpal(DMaps[currdmap].color);
+    loadlvlpal(DMaps[cur_dmap].color);
     lighting(false, true);
 	if (updatemusic || !musicnocut)
 		music_stop();
@@ -26743,7 +26742,7 @@ void HeroClass::exitcave()
     show_subscreen_numbers=true;
 	if (updatemusic || !musicnocut)
 		playLevelMusic();
-    currcset=DMaps[currdmap].color;
+    currcset=DMaps[cur_dmap].color;
     dointro();
     newscr_clk=frame;
     activated_timed_warp=false;
@@ -27207,7 +27206,7 @@ void HeroClass::walkup2(bool opening) //entering cave2
 
 void HeroClass::stepout() // Step out of item cellars and passageways
 {
-	bool updatemusic = FFCore.can_dmap_change_music(currdmap);
+	bool updatemusic = FFCore.can_dmap_change_music(cur_dmap);
 	bool musicnocut = FFCore.music_update_flags & MUSIC_UPDATE_FLAG_NOCUT;
 
 	int32_t sc = specialcave; // This gets erased by ALLOFF()
@@ -27221,24 +27220,24 @@ void HeroClass::stepout() // Step out of item cellars and passageways
     
     if(sc==PASSAGEWAY && abs(x-warpx)>16) // How did Hero leave the passageway?
     {
-        currdmap=stepoutdmap;
-        currmap=DMaps[currdmap].map;
-        dlevel=DMaps[currdmap].level;
+        cur_dmap=stepoutdmap;
+        currmap=DMaps[cur_dmap].map;
+        dlevel=DMaps[cur_dmap].level;
         
         //we might have just left a passage, so be sure to update the CSet record -DD
-        currcset=DMaps[currdmap].color;
+        currcset=DMaps[cur_dmap].color;
         
         init_dmap();
         home_screen=stepoutscreen;
     }
     
-    loadscr(currdmap, home_screen, 255, false);                                   // bogus direction
+    loadscr(cur_dmap, home_screen, 255, false);                                   // bogus direction
     draw_screen(false);
     
     if(get_qr(qr_NEW_DARKROOM) || !(hero_scr->flags&fDARK))
     {
         darkroom = naturaldark = false;
-        fade(DMaps[currdmap].color,true,true);
+        fade(DMaps[cur_dmap].color,true,true);
     }
     else
     {
@@ -27250,9 +27249,9 @@ void HeroClass::stepout() // Step out of item cellars and passageways
         }
         else
         {
-            loadfadepal((DMaps[currdmap].color)*pdLEVEL+poFADE3);
+            loadfadepal((DMaps[cur_dmap].color)*pdLEVEL+poFADE3);
         }
-		byte *si = colordata + CSET(DMaps[currdmap].color*pdLEVEL+poLEVEL)*3;
+		byte *si = colordata + CSET(DMaps[cur_dmap].color*pdLEVEL+poLEVEL)*3;
 		si+=3*48;
 			
 		for(int32_t i=0; i<16; i++)
@@ -27522,7 +27521,7 @@ void HeroClass::do_scroll_direction(direction dir)
 		}
 		else if(action==inwind)
 		{
-			if(DMaps[currdmap].flags&dmfWHIRLWINDRET)
+			if(DMaps[cur_dmap].flags&dmfWHIRLWINDRET)
 			{
 				action=none; FFCore.setHeroAction(none);
 				restart_level();
@@ -27539,7 +27538,7 @@ void HeroClass::do_scroll_direction(direction dir)
 		}
 		else if(!edge_of_dmap(dir) && edge_of_region(dir))
 		{
-			scrolling_dmap = currdmap;
+			scrolling_dmap = cur_dmap;
 			scrolling_map = currmap;
 			scrollscr(dir);
 			
@@ -27550,7 +27549,7 @@ void HeroClass::do_scroll_direction(direction dir)
 			
 			if(hero_scr->flags6&fCONTINUEHERE)
 			{
-				lastentrance_dmap = currdmap;
+				lastentrance_dmap = cur_dmap;
 				lastentrance = home_screen;
 			}
 		}
@@ -27733,7 +27732,7 @@ void HeroClass::checkscroll()
 				if (maze_state.transition_wipe)
 					closescreen(maze_state.transition_wipe - 1);
 
-				loadscr(currdmap, hero_screen, -1, false);
+				loadscr(cur_dmap, hero_screen, -1, false);
 				maze_state.scr = get_scr(maze_screen);
 
 				// A bit janky, but works: clear all state (as usual during a screen change), but keep
@@ -27842,9 +27841,9 @@ bool HeroClass::edge_of_dmap(int32_t side)
         if((hero_screen&15)==0)
             return true;
             
-        if((DMaps[currdmap].type&dmfTYPE)!=dmOVERW)
+        if((DMaps[cur_dmap].type&dmfTYPE)!=dmOVERW)
             //    if(dlevel)
-            return (((hero_screen&15)-DMaps[currdmap].xoff)<=0);
+            return (((hero_screen&15)-DMaps[cur_dmap].xoff)<=0);
             
         break;
         
@@ -27852,9 +27851,9 @@ bool HeroClass::edge_of_dmap(int32_t side)
         if((hero_screen&15)==15)
             return true;
             
-        if((DMaps[currdmap].type&dmfTYPE)!=dmOVERW)
+        if((DMaps[cur_dmap].type&dmfTYPE)!=dmOVERW)
             //    if(dlevel)
-            return (((hero_screen&15)-DMaps[currdmap].xoff)>=7);
+            return (((hero_screen&15)-DMaps[cur_dmap].xoff)>=7);
             
         break;
     }
@@ -27905,13 +27904,13 @@ void HeroClass::run_scrolling_script_int(bool waitdraw)
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_PLAYER_WAITDRAW);
 		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(ScriptType::DMap) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-			ZScriptVersion::RunScript(ScriptType::DMap, DMaps[currdmap].script,currdmap);
+			ZScriptVersion::RunScript(ScriptType::DMap, DMaps[cur_dmap].script,cur_dmap);
 			FFCore.waitdraw(ScriptType::DMap) = false;
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_ACTIVE_WAITDRAW);
 		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[currdmap].passive_sub_script,currdmap);
+			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[cur_dmap].passive_sub_script,cur_dmap);
 			FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) = false;
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_PASSIVESUBSCREEN_WAITDRAW);
@@ -27957,12 +27956,12 @@ void HeroClass::run_scrolling_script_int(bool waitdraw)
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_PLAYER_ACTIVE);
 		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.doscript(ScriptType::DMap) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
 		{
-			ZScriptVersion::RunScript(ScriptType::DMap, DMaps[currdmap].script,currdmap);
+			ZScriptVersion::RunScript(ScriptType::DMap, DMaps[cur_dmap].script,cur_dmap);
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_ACTIVE);
 		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.doscript(ScriptType::ScriptedPassiveSubscreen) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
 		{
-			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[currdmap].passive_sub_script,currdmap);
+			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[cur_dmap].passive_sub_script,cur_dmap);
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_PASSIVESUBSCREEN);
 		bool old = get_qr(qr_OLD_ITEMDATA_SCRIPT_TIMING);
@@ -28624,8 +28623,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 		overlay = get_bit(&(cur_screen >= 128 ? special_warp_return_screen : *tmpscr).sidewarpoverlayflags, scrolldir) ? true : false;
 	}
 
-	int old_dmap = currdmap;
-	int new_dmap = destdmap >= 0 ? destdmap : currdmap;
+	int old_dmap = cur_dmap;
+	int new_dmap = destdmap >= 0 ? destdmap : cur_dmap;
 	int new_map = DMaps[new_dmap].map;
 
 	bool updatemusic = FFCore.can_dmap_change_music(destdmap);
@@ -28649,7 +28648,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 	int old_world_h = world_h;
 	int old_original_playing_field_offset = original_playing_field_offset;
 	viewport_t old_viewport = viewport;
-	region_t old_region = current_region;
+	region_t old_region = cur_region;
 
 	// Determine what the player position will be after scrolling (within the new screen's coordinate system),
 	// and what the new viewport will be.
@@ -28817,8 +28816,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 	FFCore.ScrollingData[SCROLLDATA_NEW_REGION_SCREEN_WIDTH] = new_region.screen_width;
 	FFCore.ScrollingData[SCROLLDATA_NEW_REGION_SCREEN_HEIGHT] = new_region.screen_height;
 
-	FFCore.ScrollingData[SCROLLDATA_OLD_REGION_SCREEN_WIDTH] = current_region.screen_width;
-	FFCore.ScrollingData[SCROLLDATA_OLD_REGION_SCREEN_HEIGHT] = current_region.screen_height;
+	FFCore.ScrollingData[SCROLLDATA_OLD_REGION_SCREEN_WIDTH] = cur_region.screen_width;
+	FFCore.ScrollingData[SCROLLDATA_OLD_REGION_SCREEN_HEIGHT] = cur_region.screen_height;
 
 	FFCore.ScrollingData[SCROLLDATA_NEW_VIEWPORT_WIDTH] = new_viewport.w;
 	FFCore.ScrollingData[SCROLLDATA_NEW_VIEWPORT_HEIGHT] = new_viewport.h;
@@ -28860,7 +28859,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 	screenscrolling = true;
 	scrolling_dir = (direction) scrolldir;
 	scrolling_hero_screen = hero_screen;
-	scrolling_region = current_region;
+	scrolling_region = cur_region;
 
 	int32_t scx = get_qr(qr_FASTDNGN) ? 30 : 0;
 	if(get_qr(qr_VERYFASTSCROLLING)) //just a minor adjustment.
@@ -28914,13 +28913,13 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_PLAYER_WAITDRAW);
 		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(ScriptType::DMap) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-			ZScriptVersion::RunScript(ScriptType::DMap, DMaps[currdmap].script,currdmap);
+			ZScriptVersion::RunScript(ScriptType::DMap, DMaps[cur_dmap].script,cur_dmap);
 			FFCore.waitdraw(ScriptType::DMap) = false;
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_ACTIVE_WAITDRAW);
 		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[currdmap].passive_sub_script,currdmap);
+			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[cur_dmap].passive_sub_script,cur_dmap);
 			FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) = false;
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_PASSIVESUBSCREEN_WAITDRAW);
@@ -28979,7 +28978,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 			FFCore.ScrollingData[i] = cached_scrolling[i];
 	}
 
-	// currdmap won't change until the end of the scroll. Store new dmap in this global variable.
+	// cur_dmap won't change until the end of the scroll. Store new dmap in this global variable.
 	scrolling_destdmap = new_dmap;
 
 	// Calling functions are responsible for setting currmap (but not cur_screen...), but before we
@@ -29036,7 +29035,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 	if (original_destscr == -1)
 		checkmaze(tmpscr, true);
 
-	switch(DMaps[currdmap].type&dmfTYPE)
+	switch(DMaps[cur_dmap].type&dmfTYPE)
 	{
 		case dmDNGN:
 			if(!get_qr(qr_DUNGEONS_USE_CLASSIC_CHARTING))
@@ -29163,9 +29162,9 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 		//Preloaded ffc scripts
 		{
 			// Kludge
-			currdmap = new_dmap;
+			cur_dmap = new_dmap;
 			ffscript_engine(true);
-			currdmap = old_dmap;
+			cur_dmap = old_dmap;
 		}
 			
 		// There are two occasions when scrolling must be darkened:
@@ -29286,7 +29285,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 		}
 	});
 
-	currdmap = new_dmap;
+	cur_dmap = new_dmap;
 	for(word i = 0; (scroll_counter >= 0 && delay != 0) || align_counter || pfo_counter; i++, scroll_counter--) //Go!
 	{
 		if (replay_version_check(0, 3))
@@ -29494,15 +29493,15 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 
 		for_every_nearby_screen_during_scroll(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy, bool is_new_screen) {
 			mapscr* base_scr = screen_handles[0].base_scr;
-			if(XOR(base_scr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(framebuf, 0, screen_handles[2], offx, offy);
-			if(XOR(base_scr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(framebuf, 0, screen_handles[3], offx, offy);
+			if(XOR(base_scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG)) do_layer(framebuf, 0, screen_handles[2], offx, offy);
+			if(XOR(base_scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG)) do_layer(framebuf, 0, screen_handles[3], offx, offy);
 		});
 
 		// Draw screens' background layer primitives together, after their layers' combos.
 		// Not ideal, but probably good enough for all realistic purposes.
 		// Note: Not drawing for every screen because the old scrolling code only did this for the new screen...
-		if(XOR((newscr->flags7&fLAYER2BG) || (oldscr->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(framebuf, 2, 0, playing_field_offset);
-		if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(framebuf, 3, 0, playing_field_offset);
+		if(XOR((newscr->flags7&fLAYER2BG) || (oldscr->flags7&fLAYER2BG), DMaps[cur_dmap].flags&dmfLAYER2BG)) do_primitives(framebuf, 2, 0, playing_field_offset);
+		if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[cur_dmap].flags&dmfLAYER3BG)) do_primitives(framebuf, 3, 0, playing_field_offset);
 
 		combotile_add_y = is_unsmooth_vertical_scrolling ? -3 : 0;
 		for_every_nearby_screen_during_scroll(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy, bool is_new_screen) {
@@ -29545,7 +29544,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 			mapscr* base_scr = screen_handles[0].base_scr;
 			bool primitives = is_new_screen;
 
-			if(!(XOR(base_scr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)))
+			if(!(XOR(base_scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG)))
 			{
 				primitives &= !(oldscr->flags7&fLAYER2BG);
 				do_layer(framebuf, 0, screen_handles[2], offx, offy, primitives);
@@ -29625,9 +29624,9 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 			bool is_destination = screen == dest_screen;
 
 			mapscr* base_scr = screen_handles[0].base_scr;
-			if(!(XOR(base_scr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)))
+			if(!(XOR(base_scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG)))
 			{
-				bool primitives = is_destination && !(XOR(base_scr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG));
+				bool primitives = is_destination && !(XOR(base_scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG));
 				do_layer(framebuf, 0, screen_handles[3], offx, offy, primitives);
 			}
 			
@@ -29691,7 +29690,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 		x = prev_x;
 		y = prev_y;
 	}
-	currdmap = old_dmap;
+	cur_dmap = old_dmap;
 
 	// Might not be needed, but just in case.
 	if (sideview_scrolling_slope)
@@ -29760,18 +29759,18 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 	{
 		bool changedlevel = false;
 		bool changeddmap = false;
-		if (currdmap != destdmap)
+		if (cur_dmap != destdmap)
 		{
 			timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
 			changeddmap = true;
 		}
-		if (DMaps[currdmap].level != DMaps[destdmap].level)
+		if (DMaps[cur_dmap].level != DMaps[destdmap].level)
 		{
 			timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
 			changedlevel = true;
 		}
 		dlevel = DMaps[destdmap].level;
-		currdmap = destdmap;
+		cur_dmap = destdmap;
 		if (changeddmap)
 		{
 			throwGenScriptEvent(GENSCR_EVENT_CHANGE_DMAP);
@@ -31752,7 +31751,7 @@ void HeroClass::getTriforce(int32_t id2)
 			    loadpalset(1,1);
 			    loadpalset(5,5);
 			    
-			    if(cur_screen<128) loadlvlpal(DMaps[currdmap].color);
+			    if(cur_screen<128) loadlvlpal(DMaps[cur_dmap].color);
 			    else loadlvlpal(0xB); // TODO: Cave/Item Cellar distinction?
 			}
 		    }
@@ -31773,7 +31772,7 @@ void HeroClass::getTriforce(int32_t id2)
 			
 			if((f&7)==4)
 			{
-			    if(cur_screen<128) loadlvlpal(DMaps[currdmap].color);
+			    if(cur_screen<128) loadlvlpal(DMaps[cur_dmap].color);
 			    else loadlvlpal(0xB);
 			    
 			    loadpalset(5,5);
@@ -31966,11 +31965,11 @@ void HeroClass::heroDeathAnimation()
 				if(get_qr(qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN))
 				{
 					script_drawing_commands.Clear(); //We only want draws from this script
-					if(DMaps[currdmap].passive_sub_script != 0)
-						ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[currdmap].passive_sub_script, currdmap);
-					if (FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) && DMaps[currdmap].passive_sub_script != 0 && FFCore.doscript(ScriptType::ScriptedPassiveSubscreen))
+					if(DMaps[cur_dmap].passive_sub_script != 0)
+						ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[cur_dmap].passive_sub_script, cur_dmap);
+					if (FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) && DMaps[cur_dmap].passive_sub_script != 0 && FFCore.doscript(ScriptType::ScriptedPassiveSubscreen))
 					{
-						ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[currdmap].passive_sub_script, currdmap);
+						ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[cur_dmap].passive_sub_script, cur_dmap);
 						FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) = false;
 					}
 					BITMAP* tmp = framebuf;
@@ -32393,7 +32392,7 @@ void HeroClass::ganon_intro()
     else
         playLevelMusic();
         
-    currcset=DMaps[currdmap].color;
+    currcset=DMaps[cur_dmap].color;
     if (get_qr(qr_GANONINTRO) ) 
     {
 	dointro();
@@ -32402,17 +32401,7 @@ void HeroClass::ganon_intro()
 	//I have no idea what was going through the original devs heads and I'm extremely worried I'm missing something, cause at first glance this looks like 
 	//a hack solution to an underlying bug, but no! There's just a fucking dointro() call in older versions and I don't know *why*. -Deedee
     }
-    //dointro(); //This is likely what causes Ganon Rooms to repeat the DMap intro.  
-    //I suppose it is to allow the user to make Gaanon rooms have their own dialogue, if they are
-    //on a different DMap. 
-    //~ Otherwise, why is it here?! -Z
-    
-    
-    //if ( !(DMaps[currdmap].flags&dmfALWAYSMSG) ) { dointro(); } //This is likely what causes Ganon Rooms to repeat the DMap intro.  
-    //If we try it this way: The dmap flag /always display intro string/ is probably why James had this issue. 
-    
-    //The only fix that I can think of, off the top of me head, is either a QR or a Screen Flag to disable the intro text.
-    //Users who use that dmap rule should put ganons room on its own DMap! -Z 
+
     cont_sfx(WAV_ROAR);	
 }
 

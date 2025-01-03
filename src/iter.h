@@ -25,11 +25,11 @@ ZC_FORCE_INLINE void for_every_base_screen_in_region(T&& fn)
 		return;
 	}
 
-	for (int y = 0; y < current_region.screen_height; y++)
+	for (int y = 0; y < cur_region.screen_height; y++)
 	{
-		for (int x = 0; x < current_region.screen_width; x++)
+		for (int x = 0; x < cur_region.screen_width; x++)
 		{
-			int screen = current_region.origin_screen + map_scr_xy_to_index(x, y);
+			int screen = cur_region.origin_screen + map_scr_xy_to_index(x, y);
 			mapscr* scr = get_scr(screen);
 			fn(scr, x, y);
 		}
