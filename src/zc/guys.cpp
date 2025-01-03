@@ -11846,7 +11846,9 @@ bool eWizzrobe::animate(int32_t index)
 								x=((zc_oldrand()%14)+1)*16;
 								y=((zc_oldrand()%9)+1)*16;
 							}
-									
+
+							std::tie(x, y) = translate_screen_coordinates_to_world(screen_spawned, x, y);
+
 							if(!m_walkflag(x,y,spw_door, dir)&&((abs(x-Hero.getX())>=32)||(abs(y-Hero.getY())>=32)))
 							{
 								placed=true;
@@ -11904,6 +11906,8 @@ bool eWizzrobe::animate(int32_t index)
 							x=((zc_oldrand()%14)+1)*16;
 							y=((zc_oldrand()%9)+1)*16;
 						}
+
+						std::tie(x, y) = translate_screen_coordinates_to_world(screen_spawned, x, y);
 						
 						if(!m_walkflag(x,y,spw_door, dir)&&((abs(x-Hero.getX())>=32)||(abs(y-Hero.getY())>=32)))
 						{
@@ -13381,6 +13385,8 @@ bool eGanon::animate(int32_t index) //DO NOT ADD a check for do_animation to thi
 					
 				if(tooclose(x,y,48))
 					x=208-x;
+
+				std::tie(x, y) = translate_screen_coordinates_to_world(screen_spawned, x, y);
 			}
 			
 			loadpalset(csBOSS,pSprite(d->bosspal));
@@ -13560,14 +13566,14 @@ void eGanon::draw_guts(BITMAP *dest)
 {
 	int32_t c = zc_min(clk>>3,8);
 	tile = clk<24 ? 74 : 75;
-	overtile16(dest,tile,x+8,y+c+playing_field_offset,9,0);
-	overtile16(dest,tile,x+8,y+16-c+playing_field_offset,9,0);
-	overtile16(dest,tile,x+c,y+8+playing_field_offset,9,0);
-	overtile16(dest,tile,x+16-c,y+8+playing_field_offset,9,0);
-	overtile16(dest,tile,x+c,y+c+playing_field_offset,9,0);
-	overtile16(dest,tile,x+16-c,y+c+playing_field_offset,9,0);
-	overtile16(dest,tile,x+c,y+16-c+playing_field_offset,9,0);
-	overtile16(dest,tile,x+16-c,y+16-c+playing_field_offset,9,0);
+	overtile16(dest,tile,x+8-viewport.x,y+c+playing_field_offset-viewport.y,9,0);
+	overtile16(dest,tile,x+8-viewport.x,y+16-c+playing_field_offset-viewport.y,9,0);
+	overtile16(dest,tile,x+c-viewport.x,y+8+playing_field_offset-viewport.y,9,0);
+	overtile16(dest,tile,x+16-c-viewport.x,y+8+playing_field_offset-viewport.y,9,0);
+	overtile16(dest,tile,x+c-viewport.x,y+c+playing_field_offset-viewport.y,9,0);
+	overtile16(dest,tile,x+16-c-viewport.x,y+c+playing_field_offset-viewport.y,9,0);
+	overtile16(dest,tile,x+c-viewport.x,y+16-c+playing_field_offset-viewport.y,9,0);
+	overtile16(dest,tile,x+16-c-viewport.x,y+16-c+playing_field_offset-viewport.y,9,0);
 }
 
 void eGanon::draw_flash(BITMAP *dest)
@@ -13575,14 +13581,14 @@ void eGanon::draw_flash(BITMAP *dest)
 
 	int32_t c = clk-(clk>>2);
 	cs = (frame&3)+6;
-	overtile16(dest,194,x+8,y+8-clk+playing_field_offset,cs,0);
-	overtile16(dest,194,x+8,y+8+clk+playing_field_offset,cs,2);
-	overtile16(dest,195,x+8-clk,y+8+playing_field_offset,cs,0);
-	overtile16(dest,195,x+8+clk,y+8+playing_field_offset,cs,1);
-	overtile16(dest,196,x+8-c,y+8-c+playing_field_offset,cs,0);
-	overtile16(dest,196,x+8+c,y+8-c+playing_field_offset,cs,1);
-	overtile16(dest,196,x+8-c,y+8+c+playing_field_offset,cs,2);
-	overtile16(dest,196,x+8+c,y+8+c+playing_field_offset,cs,3);
+	overtile16(dest,194,x+8-viewport.x,y+8-clk+playing_field_offset-viewport.y,cs,0);
+	overtile16(dest,194,x+8-viewport.x,y+8+clk+playing_field_offset-viewport.y,cs,2);
+	overtile16(dest,195,x+8-clk-viewport.x,y+8+playing_field_offset-viewport.y,cs,0);
+	overtile16(dest,195,x+8+clk-viewport.x,y+8+playing_field_offset-viewport.y,cs,1);
+	overtile16(dest,196,x+8-c-viewport.x,y+8-c+playing_field_offset-viewport.y,cs,0);
+	overtile16(dest,196,x+8+c-viewport.x,y+8-c+playing_field_offset-viewport.y,cs,1);
+	overtile16(dest,196,x+8-c-viewport.x,y+8+c+playing_field_offset-viewport.y,cs,2);
+	overtile16(dest,196,x+8+c-viewport.x,y+8+c+playing_field_offset-viewport.y,cs,3);
 }
 
 void getBigTri(mapscr* scr, int32_t id2)
@@ -15027,7 +15033,6 @@ esGleeok::esGleeok(zfix X,zfix Y,int32_t Id,int32_t Clk, sprite * prnt) : enemy(
 	hp=1000;
 	step=1;
 	item_set=0;
-	//x=120; y=70;
 	x = xoffset+parent->x;
 	y = yoffset+parent->y;
 	hxofs=4;
