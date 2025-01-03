@@ -2944,8 +2944,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 				default:
 					hp = -1000; break;
 			}
-			// TODO z3 ? screen_spawned?
-			int mi = mapind(currmap, cur_screen);
+			int mi = mapind(currmap, screen_spawned);
 			++game->guys[mi];
 			return 1;
 			
