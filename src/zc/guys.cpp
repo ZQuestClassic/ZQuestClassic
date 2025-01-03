@@ -14759,8 +14759,7 @@ eGleeok::eGleeok(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk) //ene
 {
 	if ( !(editorflags & ENEMY_FLAG5) )
 	{
-		x = 120;
-		y = 48;
+		std::tie(x, y) = translate_screen_coordinates_to_world(screen_spawned, 120, 48);
 	}
 	else 
 	{ 
@@ -15302,16 +15301,16 @@ void esGleeok::draw(BITMAP *dest)
 				if(get_qr(qr_NEWENEMYTILES))
 				{
 					if((scr->flags3&fINVISROOM)&& !(current_item(itype_amulet)))
-						overtilecloaked16(dest,necktile+(i*dmisc7),nx[i]-4,ny[i]+playing_field_offset,0);
+						overtilecloaked16(dest,necktile+(i*dmisc7),nx[i]-4-viewport.x,ny[i]+playing_field_offset-viewport.y,0);
 					else
-						overtile16(dest,necktile+(i*dmisc7),nx[i]-4,ny[i]+playing_field_offset,cs,0);
+						overtile16(dest,necktile+(i*dmisc7),nx[i]-4-viewport.x,ny[i]+playing_field_offset-viewport.y,cs,0);
 				}
 				else
 				{
 					if((scr->flags3&fINVISROOM)&& !(current_item(itype_amulet)))
-						overtilecloaked16(dest,necktile,nx[i]-4,ny[i]+playing_field_offset,0);
+						overtilecloaked16(dest,necktile,nx[i]-4-viewport.x,ny[i]+playing_field_offset-viewport.y,0);
 					else
-						overtile16(dest,necktile,nx[i]-4,ny[i]+playing_field_offset,cs,0);
+						overtile16(dest,necktile,nx[i]-4-viewport.x,ny[i]+playing_field_offset-viewport.y,cs,0);
 				}
 			}
 		}
