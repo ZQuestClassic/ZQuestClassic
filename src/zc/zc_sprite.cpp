@@ -362,10 +362,16 @@ bool movingblock::animate(int32_t)
 	if(get_qr(qr_MOVINGBLOCK_FAKE_SOLID))
 		setSolid(false);
 	else setSolid(clk > 0 && !(fallclk || drownclk));
+	newcombo const& block_cmb = combobuf[bcombo];
 	if(fallclk)
 	{
 		if(fallclk == PITFALL_FALL_FRAMES)
-			sfx(combobuf[fallCombo].attribytes[0], pan(x.getInt()));
+		{
+			int s = combobuf[fallCombo].attribytes[0];
+			if(block_cmb.sfx_falling)
+				s = block_cmb.sfx_falling;
+			sfx(s, pan(x.getInt()));
+		}
 		clk = 0;
 		solid_update(false);
 		if(!--fallclk)
@@ -375,7 +381,17 @@ bool movingblock::animate(int32_t)
 	if(drownclk)
 	{
 		if(drownclk == WATER_DROWN_FRAMES)
-			sfx(combobuf[drownCombo].attribytes[4], pan(x.getInt()));
+		{
+			int s = combobuf[drownCombo].attribytes[4];
+			if(combobuf[drownCombo].usrflags&cflag1)
+			{
+				if(block_cmb.sfx_lava_drowning)
+					s = block_cmb.sfx_lava_drowning;
+			}
+			else if(block_cmb.sfx_drowning)
+				s = block_cmb.sfx_drowning;
+			sfx(s, pan(x.getInt()));
+		}
 		clk = 0;
 		solid_update(false);
 		if(!--drownclk)
@@ -389,7 +405,6 @@ bool movingblock::animate(int32_t)
 	}
 	
 	bool done = false;
-	newcombo const& block_cmb = combobuf[bcombo];
 	
 	//Move
 	move(step);

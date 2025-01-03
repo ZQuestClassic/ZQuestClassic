@@ -127,6 +127,12 @@ bool newcombo::is_blank(bool ignoreEff) const
 	if(spr_disappear) return false;
 	if(spr_walking) return false;
 	if(spr_standing) return false;
+	if(spr_falling) return false;
+	if(spr_drowning) return false;
+	if(spr_lava_drowning) return false;
+	if(sfx_falling) return false;
+	if(sfx_drowning) return false;
+	if(sfx_lava_drowning) return false;
 	return true;
 }
 
@@ -296,6 +302,12 @@ void newcombo::advpaste(newcombo const& other, bitstring const& flags)
 		spr_disappear = other.spr_disappear;
 		spr_walking = other.spr_walking;
 		spr_standing = other.spr_standing;
+		spr_falling = other.spr_falling;
+		spr_drowning = other.spr_drowning;
+		spr_lava_drowning = other.spr_lava_drowning;
+		sfx_falling = other.sfx_falling;
+		sfx_drowning = other.sfx_drowning;
+		sfx_lava_drowning = other.sfx_lava_drowning;
 	}
 }
 
