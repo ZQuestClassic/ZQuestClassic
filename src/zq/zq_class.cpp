@@ -9587,7 +9587,8 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 	if(tmp_cmb.speed_mult != 1 || tmp_cmb.speed_div != 1 || tmp_cmb.speed_add
 		|| tmp_cmb.sfx_appear || tmp_cmb.sfx_disappear || tmp_cmb.sfx_loop || tmp_cmb.sfx_walking || tmp_cmb.sfx_standing
 		|| tmp_cmb.spr_appear || tmp_cmb.spr_disappear || tmp_cmb.spr_walking || tmp_cmb.spr_standing || tmp_cmb.sfx_tap
-		|| tmp_cmb.sfx_landing)
+		|| tmp_cmb.sfx_landing || tmp_cmb.spr_falling || tmp_cmb.spr_drowning || tmp_cmb.spr_lava_drowning || tmp_cmb.sfx_falling
+		|| tmp_cmb.sfx_drowning || tmp_cmb.sfx_lava_drowning)
 		combo_has_flags |= CHAS_GENERAL;
 	
 	if(!p_putc(combo_has_flags,f))
@@ -9824,6 +9825,18 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 			return 88;
 		if(!p_putc(tmp_cmb.sfx_landing,f))
 			return 89;
+		if(!p_putc(tmp_cmb.spr_falling,f))
+			return 90;
+		if(!p_putc(tmp_cmb.spr_drowning,f))
+			return 91;
+		if(!p_putc(tmp_cmb.spr_lava_drowning,f))
+			return 92;
+		if(!p_putc(tmp_cmb.sfx_falling,f))
+			return 93;
+		if(!p_putc(tmp_cmb.sfx_drowning,f))
+			return 94;
+		if(!p_putc(tmp_cmb.sfx_lava_drowning,f))
+			return 95;
 	}
 	return 0;
 }

@@ -18022,6 +18022,21 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 				if(!p_getc(&temp_combo.sfx_landing,f))
 					return qe_invalid;
 			}
+			if(s_version >= 50)
+			{
+				if(!p_getc(&temp_combo.spr_falling,f))
+					return qe_invalid;
+				if(!p_getc(&temp_combo.spr_drowning,f))
+					return qe_invalid;
+				if(!p_getc(&temp_combo.spr_lava_drowning,f))
+					return qe_invalid;
+				if(!p_getc(&temp_combo.sfx_falling,f))
+					return qe_invalid;
+				if(!p_getc(&temp_combo.sfx_drowning,f))
+					return qe_invalid;
+				if(!p_getc(&temp_combo.sfx_lava_drowning,f))
+					return qe_invalid;
+			}
 		}
 	}
 	update_combo(temp_combo, s_version);
