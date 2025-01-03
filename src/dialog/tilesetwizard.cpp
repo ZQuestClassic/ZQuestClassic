@@ -34,7 +34,7 @@ void call_tileset_wizard_existing()
 	TilesetWizard().show();
 }
 
-TilesetWizard::TilesetWizard() : tsetflags(TILESET_CLEARHEADER)
+TilesetWizard::TilesetWizard() : tsetflags(TILESET_CLEARMAPS|TILESET_CLEARSCRIPTS|TILESET_CLEARHEADER)
 {}
 
 #define TILESET_FLAG(bit, txt, inf) \
