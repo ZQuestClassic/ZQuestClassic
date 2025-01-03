@@ -896,7 +896,7 @@ int32_t isdungeon(int32_t screen)
 
 int32_t isdungeon()
 {
-	return isdungeon(currdmap, cur_screen);
+	return isdungeon(currdmap, hero_screen);
 }
 
 bool canPermSecret(int32_t dmap, int32_t screen)

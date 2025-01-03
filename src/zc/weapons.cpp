@@ -3316,7 +3316,7 @@ bool weapon::isScriptGenerated()
 bool weapon::clip()
 {
     int32_t c[4];
-    int32_t d2=isdungeon();
+    int32_t d2=isdungeon(screen_spawned);
     int32_t nb1 = get_qr(qr_NOBORDER) ? 16 : 0;
     int32_t nb2 = get_qr(qr_NOBORDER) ? 8 : 0;
 

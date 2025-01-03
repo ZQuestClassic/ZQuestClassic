@@ -2290,10 +2290,6 @@ void HeroClass::positionSword(weapon *w, int32_t itemid)
         cs2=(BSZ ? (frame&3)+6 : ((frame>>2)&1)+7);
     }
     
-    /*if(BSZ || ((isdungeon() && cur_screen<128) && !get_qr(qr_HERODUNGEONPOSFIX)))
-    {
-      wy+=2;
-    }*/
     w->x = x+wx;
     w->y = y+wy-(original_playing_field_offset-2-(yofs+slashyofs))-fakez;
     w->z = (z+zofs);

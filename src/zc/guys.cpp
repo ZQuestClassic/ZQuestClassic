@@ -634,7 +634,7 @@ bool enemy::scr_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int
 		case spw_wizzrobe: // fall through
 		case spw_floater: // Special case for fliers and wizzrobes - hack!
 			{
-				if(isdungeon() && !(moveflags & move_ignore_screenedge))
+				if(isdungeon(screen_spawned) && !(moveflags & move_ignore_screenedge))
 				{
 					if(dy < 32-yg || dy >= 144) return true;
 					if(dx < 32 || dx >= 224) return true;
@@ -1451,7 +1451,7 @@ bool enemy::m_walkflag_old(int32_t dx,int32_t dy,int32_t special, int32_t x, int
 	if(dx<16-nb || dy<zc_max(16-yg-nb,0) || dx>=world_w-16+nb || dy>=world_h-16+nb)
 		return true;
 		
-	bool isInDungeon = isdungeon();
+	bool isInDungeon = isdungeon(screen_spawned);
 	if(isInDungeon || special==spw_wizzrobe)
 	{
 		if((x>=32 && dy<32-yg) || (y>-1000 && y<=144 && dy>=144))
@@ -1507,7 +1507,7 @@ bool enemy::m_walkflag_simple(int32_t dx,int32_t dy)
 	if(dx<16-nb || dy<zc_max(16-nb,0) || dx>=world_w-16+nb || dy>=world_h-16+nb)
 		return true;
 		
-	if(isdungeon())
+	if(isdungeon(screen_spawned))
 	{
 		if((dy<32) || (dy>=world_h-32))
 			return true;
@@ -1589,7 +1589,7 @@ bool enemy::m_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int32
 	if(dx<16-nb || dy<zc_max(16-yg-nb,0) || dx>=world_w-16+nb || dy>=world_h-16+nb)
 		return true;
 		
-	bool isInDungeon = isdungeon();
+	bool isInDungeon = isdungeon(screen_spawned);
 	if(isInDungeon || special==spw_wizzrobe)
 	{
 		if((input_x>=32 && dy<32-yg) || (input_y>-1000 && input_y<=world_h-32 && dy>=world_h-32))
@@ -7828,7 +7828,7 @@ guy::guy(zfix X,zfix Y,int32_t Id,int32_t Clk,bool mg) : enemy(X,Y,Id,Clk)
 	hit_width=12;
 	hit_height=17;
 	
-	if(!superman && (!isdungeon() || id==gFAIRY || id==gFIRE || id==gZELDA))
+	if(!superman && (!isdungeon(screen_spawned) || id==gFAIRY || id==gFIRE || id==gZELDA))
 	{
 		superman = 1;
 		hxofs=1000;
@@ -11837,7 +11837,7 @@ bool eWizzrobe::animate(int32_t index)
 								
 						while(!placed && t<160)
 						{
-							if(isdungeon())
+							if(isdungeon(screen_spawned))
 							{
 								x=((zc_oldrand()%12)+2)*16;
 								y=((zc_oldrand()%7)+2)*16;
@@ -11895,7 +11895,7 @@ bool eWizzrobe::animate(int32_t index)
 					
 					while(!placed && t<160)
 					{
-						if(isdungeon())
+						if(isdungeon(screen_spawned))
 						{
 							x=((zc_oldrand()%12)+2)*16;
 							y=((zc_oldrand()%7)+2)*16;
@@ -13695,7 +13695,7 @@ eMoldorm::eMoldorm(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 bool eMoldorm::animate(int32_t index)
 {
 	if(switch_hooked) return enemy::animate(index);
-	int32_t max_y = isdungeon() ? 100 : 100+28; //warning: Ugly hack. -Z
+	int32_t max_y = isdungeon(screen_spawned) ? 100 : 100+28; //warning: Ugly hack. -Z
 	if ( y > (max_y) )
 	{
 		++stickclk; //Keep Moldorm from pacinn the bottom row or leaving the screen via the bottom edge. -Z 8th Sept, 2019
@@ -16727,7 +16727,9 @@ void enemy_scored(int32_t index)
 
 void addguy(int32_t x,int32_t y,int32_t id,int32_t clk,bool mainguy,mapscr* parentscr)
 {
-	guy *g = new guy((zfix)x,(zfix)(y+(isdungeon()?1:0)),id,get_qr(qr_NOGUYPOOF)?0:clk,mainguy);
+	guy *g = new guy((zfix)x,(zfix)y,id,get_qr(qr_NOGUYPOOF)?0:clk,mainguy);
+	if (isdungeon(g->screen_spawned))
+		g->y += 1;
 	if(parentscr && parentscr->guytile > -1 && !get_qr(qr_OLD_GUY_HANDLING))
 	{
 		g->o_tile = parentscr->guytile;
