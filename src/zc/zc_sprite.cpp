@@ -374,9 +374,8 @@ bool movingblock::animate(int32_t)
 	}
 	if(drownclk)
 	{
-		//if(drownclk == WATER_DROWN_FRAMES)
-		//sfx(combobuf[drownCombo].attribytes[0], pan(x.getInt()));
-		//!TODO: Drown SFX
+		if(drownclk == WATER_DROWN_FRAMES)
+			sfx(combobuf[drownCombo].attribytes[4], pan(x.getInt()));
 		clk = 0;
 		solid_update(false);
 		if(!--drownclk)
@@ -433,13 +432,11 @@ bool movingblock::animate(int32_t)
 		{
 			fallclk = PITFALL_FALL_FRAMES;
 		}
-		/*
-		//!TODO: Moving Block Drowning
-		if(drownCombo = iswaterex(MAPCOMBO(x+8,y+8), currmap, currscr, -1, x+8,y+8, false, false, true))
-		{
-			drownclk = WATER_DROWN_FRAMES;
-		}
-		*/
+		if(get_qr(qr_BLOCKS_DROWN))
+			if(drownCombo = iswaterex(MAPCOMBO(x+8,y+8), currmap, currscr, -1, x+8,y+8, false, false, true))
+			{
+				drownclk = WATER_DROWN_FRAMES;
+			}
 	}
 	
 	//Check for icy blocks/floors that might continue the slide
