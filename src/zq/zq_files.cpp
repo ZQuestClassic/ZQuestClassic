@@ -359,13 +359,17 @@ int32_t onNew()
 	while (tileset_path.empty())
 	{
 		int ret = -1;
-		AlertFuncDialog("Choose a tileset",
-			"Cambria is a modern tileset with retro aesthetics.\n\nClassic is a minimalist tileset.",
-			""
-		).add_buttons(0,
-			{ "Cambria (recommended)", "Classic", "Choose from disk" },
-			ret
-		).show();
+		if (is_headless()) ret = 0;
+		else
+		{
+			AlertFuncDialog("Choose a tileset",
+				"Cambria is a modern tileset with retro aesthetics.\n\nClassic is a minimalist tileset.",
+				""
+			).add_buttons(0,
+				{ "Cambria (recommended)", "Classic", "Choose from disk" },
+				ret
+			).show();
+		}
 		if (ret == -1)
 			return D_CLOSE;
 		if (ret == 0)
