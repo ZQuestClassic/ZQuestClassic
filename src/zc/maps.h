@@ -80,21 +80,21 @@ void maps_init_game_vars();
 
 #define DRIEDLAKE ((hero_scr->flags7 & fWHISTLEWATER) && (whistleclk>=88))
 
-ZC_FORCE_INLINE int z3_get_region_relative_dx(int screen, int origin_screen)
+ZC_FORCE_INLINE int get_region_relative_dx(int screen, int origin_screen)
 {
 	return screen % 16 - origin_screen % 16;
 }
-ZC_FORCE_INLINE int z3_get_region_relative_dx(int screen)
+ZC_FORCE_INLINE int get_region_relative_dx(int screen)
 {
-	return z3_get_region_relative_dx(screen, cur_screen);
+	return get_region_relative_dx(screen, cur_screen);
 }
-ZC_FORCE_INLINE int z3_get_region_relative_dy(int screen, int origin_screen)
+ZC_FORCE_INLINE int get_region_relative_dy(int screen, int origin_screen)
 {
 	return screen / 16 - origin_screen / 16;
 }
-ZC_FORCE_INLINE int z3_get_region_relative_dy(int screen)
+ZC_FORCE_INLINE int get_region_relative_dy(int screen)
 {
-	return z3_get_region_relative_dy(screen, cur_screen);
+	return get_region_relative_dy(screen, cur_screen);
 }
 
 // `rpos` must be valid for the current region.
@@ -112,7 +112,7 @@ ZC_FORCE_INLINE rpos_t POS_TO_RPOS(int32_t pos, int32_t scr_dx, int32_t scr_dy)
 ZC_FORCE_INLINE rpos_t POS_TO_RPOS(int32_t pos, int32_t screen)
 {
 	DCHECK_RANGE_EXCLUSIVE(pos, 0, 176);
-	return POS_TO_RPOS(pos, z3_get_region_relative_dx(screen), z3_get_region_relative_dy(screen));
+	return POS_TO_RPOS(pos, get_region_relative_dx(screen), get_region_relative_dy(screen));
 }
 
 int32_t COMBOPOS(int32_t x, int32_t y);
@@ -163,24 +163,23 @@ bool is_in_current_region(int screen);
 bool is_in_current_region(mapscr* scr);
 bool is_in_scrolling_region(int screen);
 bool is_valid_rpos(rpos_t rpos);
-void z3_calculate_region(int map, int screen, region_t& region, int& region_scr_dx, int& region_scr_dy);
-void z3_load_region(int dmap, int screen);
-void z3_prepare_current_region_handles();
+void calculate_region(int map, int screen, region_t& region, int& region_scr_dx, int& region_scr_dy);
+void load_region(int dmap, int screen);
 // Returns a rpos_handle of the top-left position for every valid
 // screen (including each layer) for the current region.
 // The first item is the first element of the array of rpos_handles,
 // and the second item is the number of elements.
-std::tuple<const rpos_handle_t*, int> z3_get_current_region_handles();
-std::tuple<const rpos_handle_t*, int> z3_get_current_region_handles(mapscr* scr);
-void z3_mark_current_region_handles_dirty();
-void z3_clear_temporary_screens();
-std::vector<mapscr*> z3_take_temporary_scrs();
-void z3_calculate_viewport(viewport_t& viewport, int dmap, int screen, int world_w, int world_h, int x, int y);
-sprite* z3_get_viewport_sprite();
-void z3_set_viewport_sprite(sprite* spr);
-void z3_update_viewport();
-void z3_update_heroscr();
-mapscr* z3_determine_hero_screen_from_coords();
+std::tuple<const rpos_handle_t*, int> get_current_region_handles();
+std::tuple<const rpos_handle_t*, int> get_current_region_handles(mapscr* scr);
+void mark_current_region_handles_dirty();
+void clear_temporary_screens();
+std::vector<mapscr*> take_temporary_scrs();
+void calculate_viewport(viewport_t& viewport, int dmap, int screen, int world_w, int world_h, int x, int y);
+sprite* get_viewport_sprite();
+void set_viewport_sprite(sprite* spr);
+void update_viewport();
+void update_heroscr();
+mapscr* determine_hero_screen_from_coords();
 bool edge_of_region(direction dir);
 int get_screen_for_world_xy(int x, int y);
 int get_screen_for_rpos(rpos_t rpos);

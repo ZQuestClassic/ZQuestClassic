@@ -6509,7 +6509,7 @@ int32_t get_register(int32_t arg)
 
 		case VIEWPORT_TARGET:
 		{
-			ret = z3_get_viewport_sprite()->uid;
+			ret = get_viewport_sprite()->uid;
 		}
 		break;
 
@@ -17221,7 +17221,7 @@ void set_register(int32_t arg, int32_t value)
 			return;
 		}
 
-		z3_set_viewport_sprite(s);
+		set_viewport_sprite(s);
 	}
 	break;
 
@@ -17358,7 +17358,7 @@ void set_register(int32_t arg, int32_t value)
 		case SCREENDATAVALID:
 		{
 			SET_SCREENDATA_VAR_BYTE(valid, "Valid"); //b
-			z3_mark_current_region_handles_dirty();
+			mark_current_region_handles_dirty();
 			break;
 		}
 		case SCREENDATAGUY: 		SET_SCREENDATA_VAR_BYTE(guy, "Guy"); break;		//b
@@ -17428,13 +17428,13 @@ void set_register(int32_t arg, int32_t value)
 		case SCREENDATALAYERMAP:
 		{
 			SET_SCREENDATA_LAYER_INDEX(layermap, "LayerMap", 5); //B, 6 OF THESE
-			z3_mark_current_region_handles_dirty();
+			mark_current_region_handles_dirty();
 			break;
 		}
 		case SCREENDATALAYERSCREEN:
 		{
 		 	SET_SCREENDATA_LAYERSCREEN_INDEX(layerscreen, "LayerScreen", 5);	//B, 6 OF THESE
-			z3_mark_current_region_handles_dirty();
+			mark_current_region_handles_dirty();
 			break;
 		}
 		case SCREENDATALAYEROPACITY: 	SET_SCREENDATA_LAYER_INDEX(layeropacity, "LayerOpacity", 5); break;	//B, 6 OF THESE
@@ -28973,7 +28973,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 
 			Hero.x += region_scr_dx * 256;
 			Hero.y += region_scr_dy * 176;
-			z3_update_viewport();
+			update_viewport();
 			
 			if(iswaterex_z3(MAPCOMBO((int32_t)Hero.x,(int32_t)Hero.y+8), -1, Hero.x, Hero.y+8, true) && _walkflag((int32_t)Hero.x,(int32_t)Hero.y+8,0) && current_item(itype_flippers))
 			{

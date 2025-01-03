@@ -66,7 +66,7 @@ region_ids_t regions_data::get_all_region_ids() const
 
 void determine_region_size(const region_ids_t& region_ids, int input_screen, int& origin_scr_x, int& origin_scr_y, int& end_scr_x, int& end_scr_y)
 {
-	// yoink'd the following from zc/maps.cpp z3_calculate_region
+	// yoink'd the following from zc/maps.cpp calculate_region
 
 	int id = region_ids[input_screen];
 	origin_scr_x = input_screen % 16;

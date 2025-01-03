@@ -43,7 +43,7 @@ template<typename T>
 requires std::is_invocable_v<T, const rpos_handle_t&>
 ZC_FORCE_INLINE void for_every_rpos(T&& fn)
 {
-	auto [handles, count] = z3_get_current_region_handles();
+	auto [handles, count] = get_current_region_handles();
 
 	for (int i = 0; i < count; i++)
 	{
@@ -64,7 +64,7 @@ template<typename T>
 requires std::is_invocable_v<T, const rpos_handle_t&>
 ZC_FORCE_INLINE void for_every_rpos_layer0(T&& fn)
 {
-	auto [handles, count] = z3_get_current_region_handles();
+	auto [handles, count] = get_current_region_handles();
 
 	for (int i = 0; i < count; i++)
 	{
@@ -116,7 +116,7 @@ template<typename T>
 requires std::is_invocable_v<T, const rpos_handle_t&>
 ZC_FORCE_INLINE void for_some_rpos(T&& fn)
 {
-	auto [handles, count] = z3_get_current_region_handles();
+	auto [handles, count] = get_current_region_handles();
 
 	for (int i = 0; i < count; i++)
 	{
@@ -138,7 +138,7 @@ template<typename T>
 requires std::is_invocable_v<T, const ffc_handle_t&>
 ZC_FORCE_INLINE void for_every_ffc(T&& fn)
 {
-	auto [handles, count] = z3_get_current_region_handles();
+	auto [handles, count] = get_current_region_handles();
 	
 	for (int i = 0; i < count; i++)
 	{
@@ -207,7 +207,7 @@ template<typename T>
 requires std::is_invocable_v<T, const ffc_handle_t&>
 ZC_FORCE_INLINE void for_some_ffcs(T&& fn)
 {
-	auto [handles, count] = z3_get_current_region_handles();
+	auto [handles, count] = get_current_region_handles();
 	
 	for (int i = 0; i < count; i++)
 	{
@@ -234,7 +234,7 @@ template<typename T>
 requires std::is_invocable_v<T, const ffc_handle_t&>
 ZC_FORCE_INLINE std::optional<ffc_handle_t> find_ffc(T&& fn)
 {
-	auto [handles, count] = z3_get_current_region_handles();
+	auto [handles, count] = get_current_region_handles();
 	
 	for (int i = 0; i < count; i++)
 	{
@@ -265,7 +265,7 @@ template<typename T>
 requires std::is_invocable_v<T, const rpos_handle_t&>
 ZC_FORCE_INLINE void for_every_rpos_in_screen(mapscr* scr, T&& fn)
 {
-	auto [handles, count] = z3_get_current_region_handles(scr);
+	auto [handles, count] = get_current_region_handles(scr);
 
 	if (handles != nullptr)
 	{
@@ -289,7 +289,7 @@ ZC_FORCE_INLINE void for_every_rpos_in_screen(mapscr* scr, T&& fn)
 	int map = scr->map;
 	int screen = scr->screen;
 	rpos_handle.screen = screen;
-	rpos_t base_rpos = POS_TO_RPOS(0, z3_get_region_relative_dx(screen), z3_get_region_relative_dy(screen));
+	rpos_t base_rpos = POS_TO_RPOS(0, get_region_relative_dx(screen), get_region_relative_dy(screen));
 	for (int lyr = 0; lyr <= 6; ++lyr)
 	{
 		rpos_handle.scr = lyr == 0 ? scr : get_scr_layer(map, screen, lyr - 1);

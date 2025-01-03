@@ -15,7 +15,7 @@ enum
 {
 	// Mark all screens as visited when loading a region.
 	REGION_MAPPING_FULL,
-	// Mark only screens as visited when the player steps into it (see z3_update_heroscr).
+	// Mark only screens as visited when the player steps into it (see update_heroscr).
 	REGION_MAPPING_PHYSICAL,
 	REGION_MAPPING_MAX
 };

@@ -50,7 +50,7 @@ extern HeroClass Hero;
 
 static std::map<int, std::vector<mapscr*>> temporary_screens;
 static mapscr* temporary_screens_currmap[136*7];
-// Set by z3_load_region.
+// Set by load_region.
 static bool screen_in_current_region[136];
 static rpos_handle_t current_region_rpos_handles[136*7];
 static bool current_region_rpos_handles_dirty;
@@ -147,7 +147,7 @@ int get_current_region_id()
 	return get_region_id(currmap, cur_screen);
 }
 
-void z3_calculate_region(int map, int screen, region_t& region, int& region_scr_dx, int& region_scr_dy)
+void calculate_region(int map, int screen, region_t& region, int& region_scr_dx, int& region_scr_dy)
 {
 	region.map = map;
 
@@ -216,14 +216,14 @@ void z3_calculate_region(int map, int screen, region_t& region, int& region_scr_
 	DCHECK_RANGE_INCLUSIVE(region.screen_height, 0, 8);
 }
 
-void z3_load_region(int dmap, int screen)
+void load_region(int dmap, int screen)
 {
-	z3_clear_temporary_screens();
+	clear_temporary_screens();
 
 	int map = DMaps[dmap].map;
 	current_region_ids = Regions[map].get_all_region_ids();
 
-	z3_calculate_region(map, screen, current_region, region_scr_dx, region_scr_dy);
+	calculate_region(map, screen, current_region, region_scr_dx, region_scr_dy);
 	cur_screen = current_region.origin_screen;
 	world_w = current_region.width;
 	world_h = current_region.height;
@@ -246,7 +246,7 @@ void z3_load_region(int dmap, int screen)
 	}
 }
 
-void z3_prepare_current_region_handles()
+static void prepare_current_region_handles()
 {
 	current_region_rpos_handles_dirty = false;
 	current_region_screen_count = 0;
@@ -265,7 +265,7 @@ void z3_prepare_current_region_handles()
 					continue;
 				}
 
-				rpos_t base_rpos = POS_TO_RPOS(0, z3_get_region_relative_dx(screen), z3_get_region_relative_dy(screen));
+				rpos_t base_rpos = POS_TO_RPOS(0, get_region_relative_dx(screen), get_region_relative_dy(screen));
 				current_region_rpos_handles[current_region_screen_count] = {scr, screen, layer, base_rpos, 0};
 				current_region_screen_count += 1;
 			}
@@ -276,13 +276,13 @@ void z3_prepare_current_region_handles()
 	}
 }
 
-std::tuple<const rpos_handle_t*, int> z3_get_current_region_handles()
+std::tuple<const rpos_handle_t*, int> get_current_region_handles()
 {
 	DCHECK(!current_region_rpos_handles_dirty);
 	return {current_region_rpos_handles, current_region_screen_count};
 }
 
-std::tuple<const rpos_handle_t*, int> z3_get_current_region_handles(mapscr* scr)
+std::tuple<const rpos_handle_t*, int> get_current_region_handles(mapscr* scr)
 {
 	if (scr == &special_warp_return_screen || current_region_rpos_handles_dirty)
 		return {nullptr, 0};
@@ -291,12 +291,12 @@ std::tuple<const rpos_handle_t*, int> z3_get_current_region_handles(mapscr* scr)
 	return current_region_rpos_handles_scr[scr->screen];
 }
 
-void z3_mark_current_region_handles_dirty()
+void mark_current_region_handles_dirty()
 {
 	current_region_rpos_handles_dirty = true;
 }
 
-void z3_clear_temporary_screens()
+void clear_temporary_screens()
 {
 	for (auto screens : temporary_screens)
 	{
@@ -317,7 +317,7 @@ void z3_clear_temporary_screens()
 	}
 }
 
-std::vector<mapscr*> z3_take_temporary_scrs()
+std::vector<mapscr*> take_temporary_scrs()
 {
 	std::vector<mapscr*> screens(temporary_screens_currmap, temporary_screens_currmap + 136*7);
 	for (int i = 0; i < 136*7; i++)
@@ -338,7 +338,7 @@ std::vector<mapscr*> z3_take_temporary_scrs()
 	return screens;
 }
 
-void z3_calculate_viewport(viewport_t& viewport, int dmap, int screen, int world_w, int world_h, int x, int y)
+void calculate_viewport(viewport_t& viewport, int dmap, int screen, int world_w, int world_h, int x, int y)
 {
 	// TODO: In future, maybe add x/y centering offsets to zscript (Viewport->TargetXOffset/Viewport->TargetYOffset).
 
@@ -369,7 +369,7 @@ void z3_calculate_viewport(viewport_t& viewport, int dmap, int screen, int world
 	}
 }
 
-sprite* z3_get_viewport_sprite()
+sprite* get_viewport_sprite()
 {
 	sprite* spr = sprite::getByUID(viewport_sprite_uid);
 	if (!spr)
@@ -381,20 +381,20 @@ sprite* z3_get_viewport_sprite()
 	return spr;
 }
 
-void z3_set_viewport_sprite(sprite* spr)
+void set_viewport_sprite(sprite* spr)
 {
 	viewport_sprite_uid = spr->uid;
 }
 
-void z3_update_viewport()
+void update_viewport()
 {
-	sprite* spr = z3_get_viewport_sprite();
+	sprite* spr = get_viewport_sprite();
 	int x = spr->x + spr->txsz*16/2;
 	int y = spr->y + spr->tysz*16/2;
-	z3_calculate_viewport(viewport, currdmap, cur_screen, world_w, world_h, x, y);
+	calculate_viewport(viewport, currdmap, cur_screen, world_w, world_h, x, y);
 }
 
-void z3_update_heroscr()
+void update_heroscr()
 {
 	void playLevelMusic();
 
@@ -418,7 +418,7 @@ void z3_update_heroscr()
 	}
 }
 
-mapscr* z3_determine_hero_screen_from_coords()
+mapscr* determine_hero_screen_from_coords()
 {
 	int x = vbound(Hero.getX().getInt(), 0, world_w - 1);
 	int y = vbound(Hero.getY().getInt(), 0, world_h - 1);
@@ -558,7 +558,7 @@ mapscr* get_scr_for_world_xy_layer(int x, int y, int layer)
 
 int get_region_screen_offset(int screen)
 {
-	return z3_get_region_relative_dx(screen) + z3_get_region_relative_dy(screen) * current_region.screen_width;
+	return get_region_relative_dx(screen) + get_region_relative_dy(screen) * current_region.screen_width;
 }
 
 int get_screen_for_region_index_offset(int offset)
@@ -694,15 +694,15 @@ ffc_handle_t get_ffc_handle(ffc_id_t id)
 
 std::pair<int32_t, int32_t> translate_screen_coordinates_to_world(int screen, int x, int y)
 {
-	x += z3_get_region_relative_dx(screen) * 256;
-	y += z3_get_region_relative_dy(screen) * 176;
+	x += get_region_relative_dx(screen) * 256;
+	y += get_region_relative_dy(screen) * 176;
 	return {x, y};
 }
 
 std::pair<int32_t, int32_t> translate_screen_coordinates_to_world(int screen)
 {
-	int x = z3_get_region_relative_dx(screen) * 256;
-	int y = z3_get_region_relative_dy(screen) * 176;
+	int x = get_region_relative_dx(screen) * 256;
+	int y = get_region_relative_dy(screen) * 176;
 	return {x, y};
 }
 
@@ -4318,8 +4318,8 @@ static nearby_screens_t get_nearby_screens_smooth_maze()
 
 			mapscr* maze_scr = maze_state.scr;
 			int maze_screen = maze_scr->screen;
-			int maze_screen_x = z3_get_region_relative_dx(maze_screen);
-			int maze_screen_y = z3_get_region_relative_dy(maze_screen);
+			int maze_screen_x = get_region_relative_dx(maze_screen);
+			int maze_screen_y = get_region_relative_dy(maze_screen);
 			int maze_screen_dx = x - maze_screen_x;
 			int maze_screen_dy = y - maze_screen_y;
 			int exitdir = maze_scr->exitdir;
@@ -5905,8 +5905,8 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool overlay, bool 
 	}
 	reset_combo_animations2();
 
-	z3_load_region(destdmap, screen);
-	z3_mark_current_region_handles_dirty();
+	load_region(destdmap, screen);
+	mark_current_region_handles_dirty();
 	home_screen = screen >= 0x80 ? hero_screen : cur_screen;
 
 	cpos_clear_all();
@@ -5941,7 +5941,7 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool overlay, bool 
 		}
 	}
 
-	z3_prepare_current_region_handles();
+	prepare_current_region_handles();
 
 	// Temp set currdmap so that get_layer_scr -> load_a_screen_and_layers will know if this is a region.
 	int o_currdmap = currdmap;

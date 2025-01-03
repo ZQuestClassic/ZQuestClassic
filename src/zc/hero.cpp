@@ -7853,7 +7853,7 @@ void HeroClass::handle_portal_prox(portal* p)
 // returns true when game over
 bool HeroClass::animate(int32_t)
 {
-	z3_update_heroscr();
+	update_heroscr();
 
 	int32_t lsave=0;
 	if(immortal > 0)
@@ -25828,7 +25828,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 
 		x += region_scr_dx * 256;
 		y += region_scr_dy * 176;
-		z3_update_viewport();
+		update_viewport();
 		
 		if(dlevel)
 		{
@@ -26048,7 +26048,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 		wrx += region_scr_dx * 256;
 		wry += region_scr_dy * 176;
 
-		z3_calculate_viewport(viewport, currdmap, cur_screen, world_w, world_h, wrx + Hero.txsz*16/2, wry + Hero.tysz*16/2);
+		calculate_viewport(viewport, currdmap, cur_screen, world_w, world_h, wrx + Hero.txsz*16/2, wry + Hero.tysz*16/2);
 
 		zfix whistle_x = index==left?viewport.right()-16:index==right?viewport.left():wrx;
 		zfix whistle_y = index==down?viewport.top():index==up?viewport.bottom()-16:wry;
@@ -26196,7 +26196,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 
 		x += region_scr_dx * 256;
 		y += region_scr_dy * 176;
-		z3_update_viewport();
+		update_viewport();
 		
 		markBmap(dir^1, hero_screen);
 		
@@ -26386,7 +26386,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 
 			x += region_scr_dx * 256;
 			y += region_scr_dy * 176;
-			z3_update_viewport();
+			update_viewport();
 			
 			markBmap(dir^1, hero_screen);
 			
@@ -26956,7 +26956,7 @@ void HeroClass::stepforward(int32_t steps, bool adjust)
         }
         
         clear_darkroom_bitmaps();
-        z3_update_viewport();
+        update_viewport();
         draw_screen();
         if (canSideviewLadder()) setOnSideviewLadder(true);
         advanceframe(true);
@@ -27023,7 +27023,7 @@ void HeroClass::walkdown(bool opening) //entering cave
         if((i&3)==3)
 		{
             ++y;
-			z3_update_viewport();
+			update_viewport();
 		}
 
         draw_screen();
@@ -27083,7 +27083,7 @@ void HeroClass::walkdown2(bool opening) //exiting cave 2
         if((i&3)==3)
         {
             ++y;
-            z3_update_viewport();
+            update_viewport();
         }
             
         draw_screen();
@@ -27141,7 +27141,7 @@ void HeroClass::walkup(bool opening) //exiting cave
         if((i&3)==0)
         {
             --y;
-            z3_update_viewport();
+            update_viewport();
         }
             
         draw_screen();
@@ -27192,7 +27192,7 @@ void HeroClass::walkup2(bool opening) //entering cave2
         if((i&3)==0)
         {
             --y;
-            z3_update_viewport();
+            update_viewport();
         }
             
         draw_screen();
@@ -27278,7 +27278,7 @@ void HeroClass::stepout() // Step out of item cellars and passageways
 
 	x += region_scr_dx * 256;
 	y += region_scr_dy * 176;
-	z3_update_viewport();
+	update_viewport();
     
     if(x+y == 0)
         x = y = 80;
@@ -27587,8 +27587,8 @@ void HeroClass::maybe_begin_advanced_maze()
 
 	if (maze_state.loopy)
 	{
-		int dx = z3_get_region_relative_dx(prev_hero_scr->screen) - z3_get_region_relative_dx(hero_screen);
-		int dy = z3_get_region_relative_dy(prev_hero_scr->screen) - z3_get_region_relative_dy(hero_screen);
+		int dx = get_region_relative_dx(prev_hero_scr->screen) - get_region_relative_dx(hero_screen);
+		int dy = get_region_relative_dy(prev_hero_scr->screen) - get_region_relative_dy(hero_screen);
 		maze_state.enter_dir = XY_DELTA_TO_DIR(sign2(dx), sign2(dy));
 	}
 }
@@ -27640,17 +27640,17 @@ void HeroClass::checkscroll()
 
 		if (!maze_state.lost)
 		{
-			if (z3_determine_hero_screen_from_coords()->screen == maze_state.exit_screen)
+			if (determine_hero_screen_from_coords()->screen == maze_state.exit_screen)
 			{
 				maze_state.active = false;
-				z3_update_heroscr();
+				update_heroscr();
 				return;
 			}
 
-			if (maze_state.enter_dir != dir_invalid && z3_determine_hero_screen_from_coords() == prev_hero_scr)
+			if (maze_state.enter_dir != dir_invalid && determine_hero_screen_from_coords() == prev_hero_scr)
 			{
 				maze_state.active = false;
-				z3_update_heroscr();
+				update_heroscr();
 				return;
 			}
 		}
@@ -27743,10 +27743,10 @@ void HeroClass::checkscroll()
 				ALLOFF();
 				maze_state = prev_maze_state;
 
-				if (advance_dir == left)  x = (z3_get_region_relative_dx(maze_screen) + 1) * 256 - 16;
-				if (advance_dir == right) x = (z3_get_region_relative_dx(maze_screen)) * 256;
-				if (advance_dir == up)    y = (z3_get_region_relative_dy(maze_screen) + 1) * 176 - 16;
-				if (advance_dir == down)  y = (z3_get_region_relative_dy(maze_screen)) * 176;
+				if (advance_dir == left)  x = (get_region_relative_dx(maze_screen) + 1) * 256 - 16;
+				if (advance_dir == right) x = (get_region_relative_dx(maze_screen)) * 256;
+				if (advance_dir == up)    y = (get_region_relative_dy(maze_screen) + 1) * 176 - 16;
+				if (advance_dir == down)  y = (get_region_relative_dy(maze_screen)) * 176;
 
 				if (maze_state.can_get_lost)
 				{
@@ -28317,8 +28317,8 @@ static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector
 
 			mapscr* base_scr = old_temporary_screens[screen*7];
 			bool use_new_screens = false;
-			int offx = z3_get_region_relative_dx(screen, scrolling_region.origin_screen) * 256;
-			int offy = z3_get_region_relative_dy(screen, scrolling_region.origin_screen) * 176;
+			int offx = get_region_relative_dx(screen, scrolling_region.origin_screen) * 256;
+			int offy = get_region_relative_dy(screen, scrolling_region.origin_screen) * 176;
 			old_screen_deltas.push_back({base_scr, use_new_screens, offx, offy});
 		}
 	}
@@ -28346,10 +28346,10 @@ static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector
 	else
 	{
 		// ... anchored at the point where the screen scrolling starts.
-		dx = z3_get_region_relative_dx(cur_screen, scrolling_region.origin_screen) -
-			(z3_get_region_relative_dx(hero_screen, scrolling_region.origin_screen) - z3_get_region_relative_dx(scrolling_hero_screen, scrolling_region.origin_screen));
-		dy = z3_get_region_relative_dy(cur_screen, scrolling_region.origin_screen) -
-			(z3_get_region_relative_dy(hero_screen, scrolling_region.origin_screen) - z3_get_region_relative_dy(scrolling_hero_screen, scrolling_region.origin_screen));
+		dx = get_region_relative_dx(cur_screen, scrolling_region.origin_screen) -
+			(get_region_relative_dx(hero_screen, scrolling_region.origin_screen) - get_region_relative_dx(scrolling_hero_screen, scrolling_region.origin_screen));
+		dy = get_region_relative_dy(cur_screen, scrolling_region.origin_screen) -
+			(get_region_relative_dy(hero_screen, scrolling_region.origin_screen) - get_region_relative_dy(scrolling_hero_screen, scrolling_region.origin_screen));
 		if      (scrolling_dir == up) dy -= 1;
 		else if (scrolling_dir == down) dy += 1;
 		else if (scrolling_dir == left) dx -= 1;
@@ -28370,8 +28370,8 @@ static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector
 			if (!is_in_current_region(screen))
 				continue;
 
-			int sx = z3_get_region_relative_dx(screen, cur_screen);
-			int sy = z3_get_region_relative_dy(screen, cur_screen);
+			int sx = get_region_relative_dx(screen, cur_screen);
+			int sy = get_region_relative_dy(screen, cur_screen);
 			int offx = sx * 256 + dx;
 			int offy = sy * 176 + dy;
 
@@ -28612,11 +28612,11 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 		}
 	}
 
-	if (viewport_mode != ViewportMode::CenterAndBound || z3_get_viewport_sprite() != &Hero)
+	if (viewport_mode != ViewportMode::CenterAndBound || get_viewport_sprite() != &Hero)
 	{
-		z3_set_viewport_sprite(&Hero);
+		set_viewport_sprite(&Hero);
 		viewport_mode = ViewportMode::CenterAndBound;
-		z3_update_viewport();
+		update_viewport();
 	}
 
 	bool overlay = false;
@@ -28658,7 +28658,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 	region_t new_region;
 	int new_scr_dx, new_scr_dy;
 	auto calc_new_viewport_and_pos = [&](){
-		z3_calculate_region(new_map, dest_screen, new_region, new_scr_dx, new_scr_dy);
+		calculate_region(new_map, dest_screen, new_region, new_scr_dx, new_scr_dy);
 
 		// These mark the top-left coordinate of the new region, in the old region's world coordinates.
 		new_region_offset_x = (new_region.origin_screen_x - old_region.origin_screen_x)*256;
@@ -28723,7 +28723,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 		}
 
 		new_viewport = {};
-		z3_calculate_viewport(new_viewport, new_dmap, dest_screen, new_region.width, new_region.height, new_hero_x_for_viewport + Hero.txsz*16/2, new_hero_y_for_viewport + Hero.tysz*16/2);
+		calculate_viewport(new_viewport, new_dmap, dest_screen, new_region.width, new_region.height, new_hero_x_for_viewport + Hero.txsz*16/2, new_hero_y_for_viewport + Hero.tysz*16/2);
 
 		scrolling_new_region = new_region;
 	};
@@ -28854,7 +28854,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 	std::vector<mapscr*> old_temporary_screens;
 	bool should_delay_taking_old_screens = !crucible_quest_compat;
 	if (!should_delay_taking_old_screens)
-		old_temporary_screens = z3_take_temporary_scrs();
+		old_temporary_screens = take_temporary_scrs();
 
 	mapscr *oldscr = &special_warp_return_screen;
 	conveyclk = 2;
@@ -29062,7 +29062,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 
 	// Remember everything about the current region, because `loadscr` is about to reset this data.
 	if (should_delay_taking_old_screens)
-		old_temporary_screens = z3_take_temporary_scrs();
+		old_temporary_screens = take_temporary_scrs();
 	FFCore.ScrollingScreensAll = old_temporary_screens;
 	currmap = destmap;
 
