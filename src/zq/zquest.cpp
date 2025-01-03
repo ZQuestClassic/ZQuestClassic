@@ -8087,12 +8087,9 @@ void draw(bool justcset)
 							if (cz > 0)
 								laypos++;
 
-							if (cz > 0 && Map.Scr(combo_start)->layermap[cz - 1] == 0)
-								continue;
-
-							for(int32_t cy=0; cy-oy+cystart<11&&cy<=combo->height; cy++)
+							for(int32_t cy=0; cy-oy+cystart<num_combos_height&&cy<=combo->height; cy++)
 							{
-								for(int32_t cx=0; cx-ox+cxstart<16&&cx<=combo->width; cx++)
+								for(int32_t cx=0; cx-ox+cxstart<num_combos_width&&cx<=combo->width; cx++)
 								{
 									if((cx+cxstart-ox>=0)&&(cy+cystart-oy>=0))
 									{
@@ -8101,6 +8098,8 @@ void draw(bool justcset)
 										if (combo->combos[p])
 										{
 											auto pos = combo_start + ComboPosition{cx - ox, cy - oy};
+											if(cz > 0 && Map.Scr(pos)->layermap[cz - 1] == 0)
+												continue;
 											int prev = CurrentLayer;
 											CurrentLayer = cz;
 											Map.DoSetComboCommand(pos, combo->combos[p], wrap(combo->csets[p]+alias_cset_mod, 0, 13));
