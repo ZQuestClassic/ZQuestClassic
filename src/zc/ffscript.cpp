@@ -159,7 +159,7 @@ void user_dir::setPath(const char* buf)
 {
 	if(!list)
 	{
-		list = (FLIST *) malloc(sizeof(FLIST));
+		list = (FLIST *) calloc(1, sizeof(FLIST));
 	}
 	filepath = std::string(buf) + "/";
 	regulate_path(filepath);
