@@ -26,6 +26,8 @@
 #endif
 
 using namespace util;
+using std::pair;
+using std::make_pair;
 
 #ifndef SOUND_LIBS_BUILT_FROM_SOURCE
 //short of fixing gme, these warnings will always be there...
@@ -58,15 +60,17 @@ char const * zcmusic_types = "it;mod;mp3;ogg;s3m;spc;gym;nsf;gbs;vgm;xm";
 
 ALLEGRO_MUTEX* playlistmutex = NULL;
 
-ZCMUSIC* zcmusic_load_for_quest(const char* filename, const char* quest_path)
+pair<ZCMUSIC*,ZCM_Error> zcmusic_load_for_quest(const char* filename, const char* quest_path)
 {
 	if (!al_is_audio_installed())
-		return nullptr;
+		return make_pair(nullptr, ZCM_E_NO_AUDIO);
     char exe_path[PATH_MAX];
     get_executable_name(exe_path, PATH_MAX);
     auto exe_dir = std::filesystem::path(exe_path).parent_path();
     auto quest_dir = std::filesystem::path(quest_path).parent_path();
-
+	
+	bool any_existed = false;
+	
     for (int i = 0; i <= 5; i++)
     {
         std::filesystem::path dir;
@@ -100,13 +104,15 @@ ZCMUSIC* zcmusic_load_for_quest(const char* filename, const char* quest_path)
         auto path = dir / filename;
         if (!std::filesystem::exists(path))
             continue;
-
+		
+		any_existed = true;
+		
 		ZCMUSIC *newzcmusic = zcmusic_load_file(path.string().c_str());
         if (newzcmusic)
-            return newzcmusic;
+            return make_pair(newzcmusic, ZCM_E_OK);
     }
 
-    return nullptr;
+    return make_pair(nullptr, any_existed ? ZCM_E_ERROR : ZCM_E_NOT_FOUND);
 }
 
 // used for allegro streamed music (ogg, mp3)

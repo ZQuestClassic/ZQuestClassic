@@ -8002,7 +8002,7 @@ void play_DmapMusic()
 					zcmixer->newtrack = NULL;
 				}
 
-				zcmusic = zcmusic_load_for_quest(DMaps[currdmap].tmusic, qstpath);
+				zcmusic = zcmusic_load_for_quest(DMaps[currdmap].tmusic, qstpath).first;
 				zcmixer->newtrack = zcmusic;
 
 				if (zcmusic != NULL)
