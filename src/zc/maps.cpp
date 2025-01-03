@@ -244,6 +244,8 @@ void load_region(int dmap, int screen)
 			}
 		}
 	}
+
+	mark_current_region_handles_dirty();
 }
 
 static void prepare_current_region_handles()
@@ -5336,7 +5338,7 @@ void update_door(mapscr* scr, int32_t side, int32_t door, bool even_walls)
 		if(screenscrolling && ((HeroDir()^1)==side))
 		{
 			doortype=dt_osht;
-			open_doors_for_screen[scr->screen] = -4;
+			get_screen_state(scr->screen).open_doors = -4;
 			break;
 		}
 
@@ -5425,7 +5427,7 @@ void putdoor(mapscr* scr, BITMAP *dest, int32_t side, int32_t door, bool redraw,
 		if(screenscrolling && ((HeroDir()^1)==side))
 		{
 			doortype=dt_osht;
-			open_doors_for_screen[cur_screen] = -4;
+			get_screen_state(cur_screen).open_doors = -4;
 			break;
 		}
 
@@ -5795,7 +5797,7 @@ void load_a_screen_and_layers(int dmap, int map, int screen, int ldir)
 					base_scr->door[i]=dOPENSHUTTER;
 				}
 				
-				open_doors_for_screen[screen] = -4;
+				get_screen_state(screen).open_doors = -4;
 				break;
 				
 			case dLOCKED:
@@ -5902,7 +5904,6 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool overlay, bool 
 	reset_combo_animations2();
 
 	load_region(destdmap, screen);
-	mark_current_region_handles_dirty();
 	home_screen = screen >= 0x80 ? hero_screen : cur_screen;
 
 	cpos_clear_all();
@@ -6253,7 +6254,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 					scr->door[i]=dOPENSHUTTER;
 				}
 				
-				open_doors_for_screen[screen] = -4;
+				get_screen_state(screen).open_doors = -4;
 				break;
 				
 			case dLOCKED:
@@ -7866,27 +7867,25 @@ bool is_push(mapscr* m, int32_t pos)
 	return false;
 }
 
-static std::map<int, ScreenItemState> screen_item_state;
+static std::map<int, screen_state_t> screen_states;
 
-ScreenItemState screen_item_get_state(int screen)
+screen_state_t& get_screen_state(int screen)
 {
-	auto it = screen_item_state.find(screen);
-	return it == screen_item_state.end() ? ScreenItemState::None : it->second;
+	DCHECK(is_in_current_region(screen));
+	return screen_states[screen];
+}
+
+void clear_screen_states()
+{
+	screen_states.clear();
+	for_every_base_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
+		screen_states[scr->screen] = {};
+	});
 }
 
 void screen_item_set_state(int screen, ScreenItemState state)
 {
-	screen_item_state[screen] = state;
-}
-
-void screen_item_clear_state(int screen)
-{
-	screen_item_state[screen] = ScreenItemState::None;
-}
-
-void screen_item_clear_state()
-{
-	screen_item_state.clear();
+	get_screen_state(screen).item_state = state;
 }
 
 void mark_visited(int screen)

@@ -23746,7 +23746,7 @@ int32_t HeroClass::nextflag(int32_t cx, int32_t cy, int32_t cdir, bool comboflag
     return MAPFLAG(cx,cy);
 }
 
-static std::set<int> screen_did_enemy_secret;
+static std::set<int> screen_did_enemy_secret; // TODO z3
 
 void HeroClass::checkspecial()
 {
@@ -23754,11 +23754,11 @@ void HeroClass::checkspecial()
 
 	for_every_base_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
 		int screen = scr->screen;
+		auto& state = get_screen_state(screen);
 		bool hasmainguy = hasMainGuy(screen);
-		bool loaded_enemies = loaded_enemies_for_screen.contains(screen);
-		if (!loaded_enemies || hasmainguy)
+		if (!state.loaded_enemies || hasmainguy)
 		{
-			screen_did_enemy_secret.erase(scr->screen);
+			screen_did_enemy_secret.erase(screen);
 		}
 		else
 		{
@@ -23786,26 +23786,24 @@ void HeroClass::checkspecial()
 			}
 			if(!hasmainguy)
 			{
-				ScreenItemState item_state = screen_item_get_state(screen);
-				
 				// item
-				if (item_state == ScreenItemState::MustGiveToEnemy || item_state == ScreenItemState::CarriedByEnemy || item_state == ScreenItemState::WhenKillEnemies)
+				if (state.item_state == ScreenItemState::MustGiveToEnemy || state.item_state == ScreenItemState::CarriedByEnemy || state.item_state == ScreenItemState::WhenKillEnemies)
 				{
 					int32_t Item=scr->item;
 
 					if((!getmapflag(screen, mITEM) || (scr->flags9&fITEMRETURN)) && (scr->hasitem != 0))
 					{
-						if (item_state == ScreenItemState::WhenKillEnemies)
+						if (state.item_state == ScreenItemState::WhenKillEnemies)
 							sfx(WAV_CLEARED);
-						
+
 						zfix x = region_scr_x*256 + scr->itemx;
 						zfix y = region_scr_y*176 + ((scr->flags7&fITEMFALLS && isSideViewHero()) ? -170 : scr->itemy+1);
 						add_item_for_screen(screen, new item(x, y, (scr->flags7&fITEMFALLS && !isSideViewHero()) ? (zfix)170 : (zfix)0,
 										Item,ipONETIME|ipBIGRANGE|((itemsbuf[Item].family==itype_triforcepiece ||
 												(scr->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((scr->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
 					}
-					
-					screen_item_clear_state(screen);
+
+					state.item_state = ScreenItemState::None;
 				}
 				// if room has traps, guys don't come back
 				for (int32_t i=0; i<eMAXGUYS; i++)
@@ -23833,35 +23831,33 @@ void HeroClass::checkspecial()
 
 		// doors
 		bool has_shutter = false;
-		int opendoors = 0;
-		if (auto it = open_doors_for_screen.find(screen); it != open_doors_for_screen.end())
-			opendoors = it->second;
 
-		for(int32_t i=0; i<4; i++)
-			if(scr->door[i]==dSHUTTER)
+		for (int i = 0; i < 4; i++)
+		{
+			if (scr->door[i]==dSHUTTER)
 			{
 				has_shutter = true;
-				if(opendoors==0 && loaded_enemies)
+				if (state.open_doors == 0 && state.loaded_enemies)
 				{
-					if(!(scr->flags&fSHUTTERS) && !hasmainguy)
-						opendoors=12;
+					if (!(scr->flags&fSHUTTERS) && !hasmainguy)
+						state.open_doors=12;
 				}
-				else if(opendoors<0)
-					++opendoors;
-				else if((--opendoors)==0)
+				else if (state.open_doors < 0)
+					++state.open_doors;
+				else if (--state.open_doors == 0)
 					openshutters(scr);
 					
 				break;
 			}
+		}
 
-		open_doors_for_screen[screen] = opendoors;
-		if(!has_shutter && !opendoors && loaded_enemies && !(scr->flags&fSHUTTERS) && !hasmainguy)
+		if (!has_shutter && !state.open_doors && state.loaded_enemies && !(scr->flags&fSHUTTERS) && !hasmainguy)
 		{
 			openshutters(scr);
 		}
 
     	// set boss flag when boss is gone
-		if (loaded_enemies && scr->enemyflags&efBOSS && !hasmainguy)
+		if (state.loaded_enemies && scr->enemyflags&efBOSS && !hasmainguy)
 		{
 			game->lvlitems[dlevel]|=liBOSS;
 			stop_sfx(scr->bosssfx);
@@ -23885,7 +23881,7 @@ void HeroClass::checkspecial()
 		clear_xdoors(scr, true);
 		clear_xstatecombos(scr, screen, true);
 
-		if (triggered_screen_secrets && screen_item_get_state(screen) == ScreenItemState::WhenTriggerSecrets)
+		if (triggered_screen_secrets && state.item_state == ScreenItemState::WhenTriggerSecrets)
 		{
 			int32_t Item=scr->item;
 			
@@ -23897,8 +23893,8 @@ void HeroClass::checkspecial()
 								Item,ipONETIME|ipBIGRANGE|((itemsbuf[Item].family==itype_triforcepiece ||
 										(scr->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((scr->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
 			}
-			
-			screen_item_clear_state(screen);
+
+			state.item_state = ScreenItemState::None;
 		}
 	});
 }
@@ -26166,8 +26162,8 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 		// state for the new screen.
 		if (!kill_action)
 		{
-			if (loaded_enemies_for_screen.contains(prevscr))
-				loaded_enemies_for_screen.insert(cur_screen);
+			if (get_screen_state(prevscr).loaded_enemies)
+				get_screen_state(cur_screen).loaded_enemies = true;
 		}
 		
 		x = hero_scr->warpreturnx[wrindex];
@@ -29817,7 +29813,9 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 		}
 	}
 
-	open_doors_for_screen.clear();
+	for_every_base_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
+		get_screen_state(scr->screen).open_doors = 0;
+	});
 	markBmap();
 
 	if (isdungeon(hero_screen))
@@ -29845,7 +29843,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 				stepforward(diagonalMovement?21:24, false);
 				
 			putdoor(hero_scr, scrollbuf, scrolldir^1, hero_scr->door[scrolldir^1]);
-			open_doors_for_screen[hero_scr->screen] = -4;
+			get_screen_state(hero_scr->screen).open_doors = -4;
 			sfx(WAV_DOOR);
 			break;
 			
@@ -31069,7 +31067,7 @@ void HeroClass::checkitems(int32_t index)
 				
 		if(pickup&ipENEMY)                                        // item was being carried by enemy
 			if(more_carried_items(item_screen)<=1)  // 1 includes this own item.
-				screen_item_clear_state(item_screen);
+				screen_item_set_state(item_screen, ScreenItemState::None);
 				
 		if(pickup&ipDUMMY)                                        // dummy item (usually a rupee)
 		{

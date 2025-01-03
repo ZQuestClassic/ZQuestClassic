@@ -759,7 +759,7 @@ bool movingblock::animate(int32_t)
 				
 				if (m0->flags&fSHUTTERS && isdungeon(m0->screen))
 				{
-					open_doors_for_screen[m0->screen] = 8;
+					get_screen_state(m0->screen).open_doors = 8;
 				}
 				
 				if(canPermSecret(cur_dmap, end_rpos_handle.screen))
@@ -992,7 +992,7 @@ bool movingblock::animate(int32_t)
 				
 				if (m0->flags&fSHUTTERS && isdungeon(m0->screen))
 				{
-					open_doors_for_screen[m0->screen] = 8;
+					get_screen_state(m0->screen).open_doors = 8;
 				}
 				
 				if(canPermSecret(cur_dmap, end_rpos_handle.screen))

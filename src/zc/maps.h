@@ -435,7 +435,8 @@ int32_t onViewMap();
 
 bool is_push(mapscr* m, int32_t pos);
 
-enum class ScreenItemState {
+enum class ScreenItemState
+{
 	None,
 	WhenKillEnemies,
 	WhenTriggerSecrets,
@@ -443,10 +444,16 @@ enum class ScreenItemState {
 	CarriedByEnemy,
 };
 
-ScreenItemState screen_item_get_state(int screen);
+struct screen_state_t
+{
+	ScreenItemState item_state;
+	bool loaded_enemies;
+	int open_doors;
+};
+
+screen_state_t& get_screen_state(int screen);
+void clear_screen_states();
 void screen_item_set_state(int screen, ScreenItemState state);
-void screen_item_clear_state(int screen);
-void screen_item_clear_state();
 
 void mark_visited(int screen);
 

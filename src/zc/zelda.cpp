@@ -362,10 +362,8 @@ bool Playing, FrameSkip=false, TransLayers = true,clearConsoleOnLoad = true,clea
 bool GameLoaded = false;
 bool __debug=false,debug_enabled = false;
 bool refreshpal,blockpath = false,loaded_guys= false,freeze_guys= false,
-     loaded_enemies= false,drawguys= false,watch= false;
+    drawguys= false,watch= false;
 bool room_is_dark=false, darkroom=false,naturaldark=false,BSZ= false;                         //,NEWSUBSCR;
-std::set<int> loaded_enemies_for_screen;
-std::map<int, int> open_doors_for_screen; // TODO z3 ! better state management? screen item state too..
 
 bool down_control_states[controls::btnLast] = {false};
 bool F12= false,F11= false, F5= false,keyI= false, keyQ= false,
@@ -1088,7 +1086,6 @@ void ALLOFF(bool messagesToo, bool decorationsToo, bool force)
     add_nl1bsparkle=false;
     add_nl2asparkle=false;
     add_nl2bsparkle=false;
-    //  for(int32_t i=0; i<1; i++)
     mblock2.clk=0;
     dismissmsg();
     fadeclk=-1;
@@ -1102,11 +1099,12 @@ void ALLOFF(bool messagesToo, bool decorationsToo, bool force)
     {
         Hero.setClock(false);
     }
-    
-    //  if(watch)
-    //    Hero.setClock(false);
+
+    for_every_base_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
+        get_screen_state(scr->screen).loaded_enemies = false;
+    });
+
     watch=freeze_guys=loaded_guys=blockpath=false;
-    loaded_enemies_for_screen.clear();
     maze_state = {};
     stop_sfx(WAV_BRANG);
     
@@ -1638,7 +1636,7 @@ void init_game_vars(bool is_cont_game = false)
 	Hero.reset_ladder();
 	linkedmsgclk=0;
 	mblock2.clear();
-	open_doors_for_screen.clear();
+	clear_screen_states();
 	add_asparkle=0;
 	add_bsparkle=0;
 	add_df1asparkle=false;

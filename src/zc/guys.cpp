@@ -4513,7 +4513,7 @@ void enemy::try_death(bool force_kill)
 		ev.clear();
 		if(isSaved) return;
 		
-		if(itemguy && screen_item_get_state(screen_spawned) == ScreenItemState::CarriedByEnemy)
+		if (itemguy && get_screen_state(screen_spawned).item_state == ScreenItemState::CarriedByEnemy)
 		{
 			for(int32_t i=0; i<items.Count(); i++)
 			{
@@ -4565,7 +4565,7 @@ void enemy::try_death(bool force_kill)
 		
 		if(itemguy)
 		{
-			screen_item_clear_state(screen_spawned);
+			screen_item_set_state(screen_spawned, ScreenItemState::None);
 			item_set=0;
 		}
 		
@@ -18227,9 +18227,9 @@ void loadguys()
 	{
 		prices[i] = 0;
 	}
-	screen_item_clear_state();
 
 	for_every_base_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
+		get_screen_state(scr->screen).item_state = ScreenItemState::None;
 		loadguys(scr);
 	});
 }
@@ -18935,7 +18935,7 @@ static void side_load_enemies(mapscr* scr)
 		sle_pattern = scr->pattern;
 		sle_cnt = 0;
 		int32_t guycnt = 0;
-		int16_t s = (currmap<<7)+cur_screen;
+		int16_t s = mapind(currmap, cur_screen);
 		bool beenhere=false;
 		bool reload=true;
 		bool unbeatablereload = true;
@@ -19041,11 +19041,11 @@ static void side_load_enemies(mapscr* scr)
 	
 	if(sle_cnt<=0)
 	{
-		if(script_sle[scr->screen])
-			script_sle[scr->screen] = false;
+		if (script_sle[screen])
+			script_sle[screen] = false;
 		else
 		{
-			loaded_enemies_for_screen.insert(screen);
+			get_screen_state(screen).loaded_enemies = true;
 		}
 		sle_clk = 0;
 	}
@@ -19307,7 +19307,7 @@ placed_enemy:
 			}
 		}
 		
-		ScreenItemState item_state = screen_item_get_state(screen);
+		ScreenItemState item_state = get_screen_state(screen).item_state;
 		if (!foundCarrier && (item_state == ScreenItemState::CarriedByEnemy || item_state == ScreenItemState::MustGiveToEnemy))
 		{
 			enemy* e = find_guy_first_for_id(screen, scr->enemy[i], 0xFFF);
@@ -19404,7 +19404,8 @@ void loadenemies()
 	
 	for_every_base_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
 		int screen = scr->screen;
-		if (loaded_enemies_for_screen.contains(screen))
+		auto& state = get_screen_state(screen);
+		if (state.loaded_enemies)
 			return;
 
 		// TODO z3 configure.
@@ -19458,7 +19459,7 @@ void loadenemies()
 				}
 			}
 
-			loaded_enemies_for_screen.insert(screen);
+			state.loaded_enemies = true;
 			return;
 		}
 
@@ -19471,7 +19472,7 @@ void loadenemies()
 			return;
 		}
 
-		loaded_enemies_for_screen.insert(screen);
+		state.loaded_enemies = true;
 
 		// check if it's the dungeon boss and it has been beaten before
 		if (scr->enemyflags&efBOSS && game->lvlitems[dlevel]&liBOSS)
@@ -21329,11 +21330,10 @@ static int count_guys_from_screen(int screen)
 static void roaming_item(mapscr* scr)
 {
 	int screen = scr->screen;
-	ScreenItemState item_state = screen_item_get_state(screen);
-	bool loaded_enemies = loaded_enemies_for_screen.contains(screen);
-	if(!(item_state == ScreenItemState::CarriedByEnemy || item_state == ScreenItemState::MustGiveToEnemy) || !loaded_enemies)
+	auto& state = get_screen_state(screen);
+	if (!(state.item_state == ScreenItemState::CarriedByEnemy || state.item_state == ScreenItemState::MustGiveToEnemy) || !state.loaded_enemies)
 		return;
-	
+
 	// All enemies already dead upon entering a room?
 	if (count_guys_from_screen(screen) == 0)
 	{
@@ -21351,17 +21351,17 @@ static void roaming_item(mapscr* scr)
 		}
 	}
 
-	if (item_state == ScreenItemState::MustGiveToEnemy)
+	if (state.item_state == ScreenItemState::MustGiveToEnemy)
 	{
 		if(guycarryingitem == -1)                                      //This happens when "default enemies" such as
 		{
 			return;                                               //eSHOOTFBALL are alive but enemies from the list
 		}                                                       //are not. Defer to HeroClass::checkspecial().
-		
+
 		int32_t Item=scr->item;
-		
-		screen_item_clear_state(screen);
-		
+
+		state.item_state = ScreenItemState::None;
+
 		if((!getmapflag(screen, mITEM) || (scr->flags9&fITEMRETURN)) && (scr->hasitem != 0))
 		{
 			auto [x, y] = translate_screen_coordinates_to_world(screen);
@@ -21369,7 +21369,7 @@ static void roaming_item(mapscr* scr)
 					+ (((scr->flags3&fHOLDITEM) || (itemsbuf[Item].family==itype_triforcepiece)) ? ipHOLDUP : 0)
 				   );
 			((item*)items.spr(items.Count() - 1))->screen_spawned = screen;
-			screen_item_set_state(screen, ScreenItemState::CarriedByEnemy);
+			state.item_state = ScreenItemState::CarriedByEnemy;
 		}
 		else
 		{

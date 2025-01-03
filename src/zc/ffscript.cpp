@@ -28702,15 +28702,14 @@ void FFScript::AlloffLimited(int32_t flagset)
 		Hero.setClock(false);
 	}
 	
-	//  if(watch)
-	//    Hero.setClock(false);
 	watch=freeze_guys=loaded_guys=blockpath=false;
-	loaded_enemies_for_screen.clear();
-	
+
 	activation_counters.clear();
 	activation_counters_ffc.clear();
-		
-	
+	for_every_base_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
+		get_screen_state(scr->screen).loaded_enemies = false;
+	});
+
 	sle_clk=0;
 	
 	if(usebombpal)
@@ -28933,8 +28932,8 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 			// state for the new screen.
 			if (warpFlags&warpFlagDONTCLEARSPRITES)
 			{
-				if (loaded_enemies_for_screen.contains(prev_screen))
-					loaded_enemies_for_screen.insert(hero_screen);
+				if (get_screen_state(prev_screen).loaded_enemies)
+					get_screen_state(hero_screen).loaded_enemies = true;
 			}
 			
 			Hero.x = (zfix)wx;

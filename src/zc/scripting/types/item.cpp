@@ -1102,7 +1102,7 @@ bool item_set_register(int32_t reg, int32_t value)
 					
 					if(more_carried_items(s->screen_spawned)<=1)  // 1 includes this own item.
 					{
-						screen_item_clear_state(s->screen_spawned);
+						screen_item_set_state(s->screen_spawned, ScreenItemState::None);
 					}
 				}
 				
