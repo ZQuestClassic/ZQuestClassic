@@ -31,7 +31,7 @@ void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag, int32_
 void do_generic_combo_ffc2(int32_t pos, int32_t cid, int32_t ft);
 
 void spawn_decoration(newcombo const& cmb, int32_t pos);
-void spawn_decoration_xy(newcombo const& cmb, zfix x, zfix y);
+void spawn_decoration_xy(newcombo const& cmb, zfix x, zfix y, zfix cx, zfix cy);
 
 bool can_locked_combo(newcombo const& cmb);
 bool try_locked_combo(newcombo const& cmb);
