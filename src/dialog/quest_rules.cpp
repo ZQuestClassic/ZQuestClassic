@@ -227,23 +227,41 @@ static GUI::ListData comboRulesList
 		" layers is now respected, Secret states and the like are now"
 		" obeyed, and it now checks the Hero's entire hitbox instead"
 		" of the upperleft most corner."},
-	{ "Can't Push Blocks Onto Unwalkable Combos", qr_SOLIDBLK, 
+	{ "Can't Push Blocks Onto Unwalkable Combos", qr_SOLIDBLK,
 		"Prevents you from pushing a push block into a solid combo."
 		" The exception is Block Hole flagged combos, which can still"
 		" be pushed into regardless of solidity."},
-	{ "Push Blocks Don't Move When Bumped", qr_HESITANTPUSHBLOCKS, 
+	{ "Push Blocks Don't Move When Bumped", qr_HESITANTPUSHBLOCKS,
 		"Makes it so all push blocks must be pushed against for 4 frames"
 		" before pushing. If this rule is off, simply bumping into the"
 		" push block while facing it will instantly make it be pushed."
 		" Note that this rule does not affect Push (Wait) or similar"
 		" blocks, which both have a hardcoded 16 frame delay and need"
 		" all enemies to be killed."},
-	{ "Moving pushblock switch blocks obey switch toggle", qr_SWITCHES_AFFECT_MOVINGBLOCKS, 
+	{ "Moving pushblock switch blocks obey switch toggle", qr_SWITCHES_AFFECT_MOVINGBLOCKS,
 		"If enabled, when a crystal switch toggles, it will toggle any"
 		" pushblocks that are currently moving, while they are moving."},
 	{ "Pushable Block Sprite Layer", qr_PUSHBLOCK_SPRITE_LAYER,
 		"If enabled, pushable blocks draw to a 'block sprite layer'."
 		" pushblocks that are currently moving, while they are moving."},
+	{ "Block Triggers Are Perm For Non-Heavy Blocks", qr_NONHEAVY_BLOCKTRIGGER_PERM,
+		"If enabled, push blocks will set the secret screen state when"
+		" triggering secrets. If disabled, the secrets will reset when"
+		" you leave and return to the screen. Note that Heavy push"
+		" blocks already set the secret screen state even with this"
+		" disabled."},
+	{ "Pushblocks Work On Layer 1 And 2", qr_PUSHBLOCK_LAYER_1_2,
+		"If enabled, pushblocks can be placed on Layers 1 and 2 and"
+		" function. Note that the push order goes from top to bottom."},
+	{ "Block holes / triggers only trigger on same layer as block", qr_BLOCKHOLE_SAME_ONLY,
+		"If enabled, pushblocks will only trigger block holes and block triggers on the same layer."},
+	{ "Block Triggers improved locking", qr_BLOCKS_DONT_LOCK_OTHER_LAYERS,
+		"Block triggers will not lock blocks in place as they normally do. Blocks"
+		" on the same layer as the trigger will lock normally, but blocks on other layers"
+		" will not lock until all triggers are covered (thus triggering secrets). At this"
+		" time, ALL blocks on triggers will click into place."},
+	{ "Blocks Drown In Liquid", qr_BLOCKS_DROWN,
+		"Pushable blocks can drown in liquid, similarly to the hero."},
 	{ "Burn Flags Are Triggered Instantly", qr_INSTABURNFLAGS, 
 		"Makes it so Fire weapons instantly trigger secrets upon touching"
 		" a burn spot. If this rule is disabled, fire weapons need to linger"
@@ -350,22 +368,6 @@ static GUI::ListData comboRulesList
 	{ "Overhead Combos work on Layers 1 and 2", qr_OVERHEAD_COMBOS_L1_L2, 
 		"If enabled, Overhead Combos placed on Layers 1 and 2 will still"
 		" draw over Layer 4." },
-	{ "Block Triggers Are Perm For Non-Heavy Blocks", qr_NONHEAVY_BLOCKTRIGGER_PERM, 
-		"If enabled, push blocks will set the secret screen state when"
-		" triggering secrets. If disabled, the secrets will reset when"
-		" you leave and return to the screen. Note that Heavy push"
-		" blocks already set the secret screen state even with this"
-		" disabled."},
-	{ "Pushblocks Work On Layer 1 And 2", qr_PUSHBLOCK_LAYER_1_2, 
-		"If enabled, pushblocks can be placed on Layers 1 and 2 and"
-		" function. Note that the push order goes from top to bottom."},
-	{ "Block holes / triggers only trigger on same layer as block", qr_BLOCKHOLE_SAME_ONLY, 
-		"If enabled, pushblocks will only trigger block holes and block triggers on the same layer."},
-	{ "Block Triggers improved locking", qr_BLOCKS_DONT_LOCK_OTHER_LAYERS,
-		"Block triggers will not lock blocks in place as they normally do. Blocks"
-		" on the same layer as the trigger will lock normally, but blocks on other layers"
-		" will not lock until all triggers are covered (thus triggering secrets). At this"
-		" time, ALL blocks on triggers will click into place."},
 	{ "New Combo Animation", qr_NEW_COMBO_ANIMATION, 
 		"Internally changes how Combo Animation is handled. Required"
 		" for combodata->OriginalTile."},
