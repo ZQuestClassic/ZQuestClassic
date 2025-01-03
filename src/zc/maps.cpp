@@ -6430,7 +6430,8 @@ void loadscr2(int32_t tmp,int32_t screen,int32_t)
 	clear_xstatecombos(&scr, screen);
 	
 	// check doors
-	if (isdungeon(screen))
+	// TODO z3 ! bug... upstream
+	if (isdungeon(screen, cur_screen))
 	{
 		for(int32_t i=0; i<4; i++)
 		{
