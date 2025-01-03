@@ -5250,10 +5250,6 @@ void put_door(mapscr* scr, BITMAP *dest, int32_t pos, int32_t side, int32_t type
 
 static void over_door(mapscr* scr, BITMAP *dest, int32_t pos, int32_t side, int32_t offx, int32_t offy)
 {
-	// TODO(replays): this was a bug :)
-	if (replay_is_active() && !is_in_scrolling_region())
-		scr = tmpscr;
-
 	int32_t door_combo_set = scr->door_combo_set;
 	int32_t x = (pos&15)<<4;
 	int32_t y = (pos&0xF0);
@@ -6422,8 +6418,7 @@ void loadscr2(int32_t tmp,int32_t screen,int32_t)
 	clear_xstatecombos(&scr, screen);
 	
 	// check doors
-	// TODO z3 ! bug... upstream
-	if (isdungeon(screen, cur_screen))
+	if (isdungeon(screen))
 	{
 		for(int32_t i=0; i<4; i++)
 		{
@@ -6590,29 +6585,27 @@ static void putscrdoors(const nearby_screens_t& nearby_screens, BITMAP *dest, in
 
 void putscrdoors(mapscr* scr, BITMAP *dest, int32_t x, int32_t y)
 {
-	if(scr->valid==0||!show_layer_0)
-	{
+	if (scr->valid==0 || !show_layer_0)
 		return;
-	}
-	
+
 	x -= viewport.x;
 	y -= viewport.y;
-	
+
 	if(scr->door[0]==dBOMBED)
 	{
 		over_door(scr,dest,39,up,x,y);
 	}
-	
+
 	if(scr->door[1]==dBOMBED)
 	{
 		over_door(scr,dest,135,down,x,y);
 	}
-	
+
 	if(scr->door[2]==dBOMBED)
 	{
 		over_door(scr,dest,66,left,x,y);
 	}
-	
+
 	if(scr->door[3]==dBOMBED)
 	{
 		over_door(scr,dest,77,right,x,y);

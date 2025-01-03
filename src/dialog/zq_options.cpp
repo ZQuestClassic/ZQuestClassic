@@ -82,6 +82,7 @@ void OptionsDialog::loadOptions()
 	opts[OPT_COMPILEONSAVE] = zc_get_config("zquest","quick_compile_on_save",0)?1:0;
 	opts[OPT_SHOW_FAV_COMBO_MODES] = ShowFavoriteComboModes?1:0;
 	opts[OPT_NO_HIGHLIGHT_LAYER0] = NoHighlightLayer0?1:0;
+	opts[OPT_DRAG_CENTER_OF_SQUARES] = DragCenterOfSquares ? 1 : 0;
 	
 	for(int q = 0; q < CFONT_MAX; ++q)
 	{
@@ -360,6 +361,10 @@ void OptionsDialog::saveOption(int ind)
 		case OPT_NO_HIGHLIGHT_LAYER0:
 			NoHighlightLayer0 = v!=0;
 			zc_set_config("zquest","no_highlight_layer0",v);
+			break;
+		case OPT_DRAG_CENTER_OF_SQUARES:
+			DragCenterOfSquares = v!=0;
+			zc_set_config("zquest","drag_squares_from_center",v);
 			break;
 	}
 }
@@ -866,7 +871,8 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 					ROW_CHECK_I(OPT_HIDEMOUSE, "Allow Hiding Mouse", "When displaying the combo or alias brush, allow the normal cursor to be hidden."),
 					ROW_CHECK_I(OPT_COMPILEONSAVE, "Compile ZScript on Save", "Perform a 'quick compile', recompiling existing scripts and assigning to slots, when saving the quest."),
 					ROW_CHECK_I(OPT_SHOW_FAV_COMBO_MODES, "Show Favorite Combo Modes", "Overlays indicators over special entries in the Favorite Combos list for different drawing modes. (Aliases, Pools, Autocombos)"),
-					ROW_CHECK_I(OPT_NO_HIGHLIGHT_LAYER0, "No Highlight on Layer 0", "The View setting \"Highlight Current Layer\" does not hide layers when selecting Layer 0.")
+					ROW_CHECK_I(OPT_NO_HIGHLIGHT_LAYER0, "No Highlight on Layer 0", "The View setting \"Highlight Current Layer\" does not hide layers when selecting Layer 0."),
+					ROW_CHECK_I(OPT_DRAG_CENTER_OF_SQUARES, "Drag Squares From Center", "When dragging 'squares' (FFCs, items, warp squares), drag by their center instead of their top-left.")
 				)
 			))
 		)

@@ -661,7 +661,7 @@ int MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, ShowScreenGrid = 
 	EnableTooltips = 0, TooltipsHighlight = 0, ShowFFScripts = 0, ShowSquares = 0,
 	ShowFFCs = 0, ShowInfo = 0, skipLayerWarning = 0, WarnOnInitChanged = 0,
 	DisableLPalShortcuts = 1, DisableCompileConsole = 0, numericalFlags = 0,
-	ActiveLayerHighlight = 0;
+	ActiveLayerHighlight = 0, DragCenterOfSquares = 0;
 uint8_t InvalidBG = 0;
 bool NoHighlightLayer0 = false;
 int32_t FlashWarpSquare = -1, FlashWarpClk = 0; // flash the destination warp return when ShowSquares is active
@@ -8476,12 +8476,63 @@ static void fill2(int32_t targetcombo, int32_t targetcset, ComboPosition pos, in
 }
 
 
-#define SNAP_NONE  0xFF
-#define SNAP_HALF  0xF8
-#define SNAP_WHOLE 0xF0
+enum SnapMode
+{
+	SNAP_NONE, SNAP_HALF, SNAP_WHOLE
+};
+static void snap_xy(int& x, int& y, SnapMode mode, roundType rounding, optional<int> max_x = nullopt, optional<int> max_y = nullopt)
+{
+	if(mode == SNAP_NONE)
+	{
+		if(max_x) x = vbound(x,*max_x,0);
+		if(max_y) y = vbound(y,*max_y,0);
+		return;
+	}
+	int xoff = 0, yoff = 0;
+	switch(rounding)
+	{
+		case ROUND_TO_0:
+			rounding = ROUND_DOWN;
+			break;
+		case ROUND_AWAY_0:
+			rounding = ROUND_UP;
+			break;
+	}
+	int r = 0;
+	switch(mode)
+	{
+		case SNAP_HALF:
+			r = 8;
+			break;
+		case SNAP_WHOLE:
+			r = 16;
+			break;
+	}
+	assert(r > 0);
+	// r must be a power of 2, for bitwise reasons
+	switch(rounding)
+	{
+		case ROUND_DOWN:
+			break;
+		case ROUND_UP:
+			xoff = ((x & (r-1)) ? r : 0);
+			yoff = ((y & (r-1)) ? r : 0);
+			break;
+		case ROUND_NEAREST:
+			xoff = ((x & (r-1)) >= (r/2) ? r : 0);
+			yoff = ((y & (r-1)) >= (r/2) ? r : 0);
+			break;
+	}
+	x = (x & ~(r-1)) + xoff;
+	y = (y & ~(r-1)) + yoff;
+	if(max_x && x >= *max_x) x = *max_x-r;
+	else if(max_x && x < 0) x = 0;
+	if(max_y && y >= *max_y) y = *max_y-r;
+	else if(max_y && y < 0) y = 0;
+}
 
-static void doxypos(byte &px2, byte &py2, int32_t color, int32_t mask,
-	int32_t shiftmask, bool immediately, int32_t cursoroffx,
+static void doxypos(byte &px2, byte &py2, int32_t color, SnapMode snap_mode,
+	SnapMode shift_mode, bool immediately, int32_t cursoroffx,
 	int32_t cursoroffy, int32_t iconw, int32_t iconh)
 {
     int32_t tempcb=ComboBrush;
@@ -8507,28 +8558,37 @@ static void doxypos(byte &px2, byte &py2, int32_t color, int32_t mask,
     
     while(!done && (!(gui_mouse_b()&2) || immediately))
     {
-        int32_t x=gui_mouse_x();
-        int32_t y=gui_mouse_y();
-        
         if(!gui_mouse_b() || immediately)
         {
             canedit=true;
         }
         
 		// TODO: would be nice if these bounds were based on the individual screen.
-        if(canedit && gui_mouse_b()==1 && isinRect(x,y,startxint,startyint,(startxint+(256*mapscreen_screenunit_scale)-1),(startyint+(176*mapscreen_screenunit_scale)-1)))
+        if(canedit && gui_mouse_b()==1 && isinRect(gui_mouse_x(),gui_mouse_y(),startxint,startyint,(startxint+(256*mapscreen_screenunit_scale)-1),(startyint+(176*mapscreen_screenunit_scale)-1)))
         {
             set_mouse_range(startxint,startyint,int32_t(startxint+(256*mapscreen_screenunit_scale)-1),int32_t(startyint+(176*mapscreen_screenunit_scale)-1));
             
-            while(gui_mouse_b()==1)
+			double offx = 0, offy = 0;
+			roundType rounding = ROUND_DOWN;
+			if(DragCenterOfSquares)
+			{
+				offx -= iconw*mapscreen_single_scale/2;
+				offy -= iconh*mapscreen_single_scale/2;
+				rounding = ROUND_NEAREST;
+			}
+			int32_t x, y;
+            do
             {
-                x=int32_t((gui_mouse_x()-startxint)/mapscreen_single_scale)-cursoroffx;
-                y=int32_t((gui_mouse_y()-startyint)/mapscreen_single_scale)-cursoroffy;
+                x=int32_t((gui_mouse_x()-startxint+offx)/mapscreen_single_scale)-cursoroffx;
+                y=int32_t((gui_mouse_y()-startyint+offy)/mapscreen_single_scale)-cursoroffy;
                 showxypos_cursor_icon=true;
 				showxypos_cursor_color = showxypos_color;
-				auto _mask = (key[KEY_LSHIFT] || key[KEY_RSHIFT]) ? shiftmask : mask;
-                showxypos_cursor_x = (x & ~0xFF) + (x&0xFF&_mask);
-                showxypos_cursor_y = (y & ~0xFF) + (y&0xFF&_mask);
+				auto _mode = (key[KEY_LSHIFT] || key[KEY_RSHIFT]) ? shift_mode : snap_mode;
+                showxypos_cursor_x = x-viz_off_x;
+                showxypos_cursor_y = y-viz_off_y;
+				snap_xy(showxypos_cursor_x, showxypos_cursor_y, _mode, rounding, 256, 176);
+				showxypos_cursor_x += viz_off_x;
+				showxypos_cursor_y += viz_off_y;
                 custom_vsync();
                 refresh(rALL | rNOCURSOR);
                 int32_t xpos[2], ypos[2];
@@ -8584,12 +8644,16 @@ static void doxypos(byte &px2, byte &py2, int32_t color, int32_t mask,
                 textprintf_ex(screen,font,xpos[1],ypos[1],vc(15),vc(0),"%s",b2);
 				update_hw_screen();
             }
-            
+            while(gui_mouse_b()==1);
+			
             if(gui_mouse_b()==0)
             {
-				auto _mask = (key[KEY_LSHIFT] || key[KEY_RSHIFT]) ? shiftmask : mask;
-                px2=byte(vbound(x-viz_off_x,0,255)&_mask);
-                py2=byte(vbound(y-viz_off_y,0,175)&_mask);
+				auto _mode = (key[KEY_LSHIFT] || key[KEY_RSHIFT]) ? shift_mode : snap_mode;
+				int x2 = vbound(x-viz_off_x,0,255);
+				int y2 = vbound(y-viz_off_y,0,175);
+				snap_xy(x2, y2, _mode, rounding, 256, 176);
+                px2=byte(x2);
+                py2=byte(y2);
             }
             
             set_mouse_range(0,0,zq_screen_w-1,zq_screen_h-1);
@@ -8638,9 +8702,9 @@ finished:
     
     ComboBrush=tempcb;
 }
-static void doxypos(byte &px2,byte &py2,int32_t color,int32_t mask,int32_t shiftmask = 0)
+static void doxypos(byte &px2,byte &py2,int32_t color,SnapMode snap_mode, optional<SnapMode> shift_mode = nullopt)
 {
-    doxypos(px2,py2,color,mask,shiftmask ? shiftmask : mask,false,0,0,16,16);
+    doxypos(px2,py2,color,snap_mode,shift_mode ? *shift_mode : snap_mode,false,0,0,16,16);
 }
 
 bool placing_flags = false;
@@ -24164,6 +24228,7 @@ int32_t main(int32_t argc,char **argv)
 	ViewLayer2BG = zc_get_config("zquest","layer2_bg",0);
 	ViewLayer3BG = zc_get_config("zquest","layer3_bg",0);
 	ActiveLayerHighlight = zc_get_config("zquest","hl_active_lyr",0);
+	DragCenterOfSquares = zc_get_config("zquest","drag_squares_from_center",0);
 	
 	OpenLastQuest				  = zc_get_config("zquest","open_last_quest",0);
 	ShowMisalignments			  = zc_get_config("zquest","show_misalignments",0);
