@@ -6598,21 +6598,24 @@ void popup_bugfix_dlg(const char* cfg)
 #pragma GCC diagnostic pop
 #endif
 
-// wrapper to reinitialize everything on an error
 int32_t load_quest(const char *filename, bool show_progress)
 {
 	char buf[2048];
-//  if(encrypted)
-//	  setPackfilePassword(datapwd);
 	byte skip_flags[4];
-	
+
+	// For File>New, don't clear the maps because tilesets (like Cambria) have a more friendly
+	// starter experience that way.
+	dword tileset_flags = 0;
+	if (loading_file_new)
+		tileset_flags = TILESET_CLEARSCRIPTS | TILESET_CLEARHEADER;
+
 	for(int32_t i=0; i<4; ++i)
 	{
 		skip_flags[i]=0;
 	}
 	for(int32_t i=0; i<qr_MAX; i++)
 				set_qr(i,0);
-	int32_t ret=loadquest(filename,&header,&QMisc,customtunes,show_progress,skip_flags);
+	int32_t ret=loadquest(filename,&header,&QMisc,customtunes,show_progress,skip_flags,1,true,0,tileset_flags);
 
 	if(ret!=qe_OK)
 	{
