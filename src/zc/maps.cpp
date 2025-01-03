@@ -5477,7 +5477,7 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t)
 	clear_xstatecombos(tmp, (currmap*MAPSCRSNORMAL)+scr);
 	
 	// check doors
-	if(isdungeon(scr))
+	if (isdungeon(currdmap, scr))
 	{
 		for(int32_t i=0; i<4; i++)
 		{
