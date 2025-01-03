@@ -1425,6 +1425,7 @@ int32_t onStrFix()
 	return D_O_K;
 }
 
+int32_t onRemoveOldArrivalSquare();
 enum
 {
 	MENUID_FIXTOOL_OLDSTRING,
@@ -1437,6 +1438,7 @@ static NewMenu fixtools_menu
 	{ "&Level Palette Fix", onPalFix },
 	{ "&Pit and Liquid Damage Fix", onPitFix },
 	{ "&Old Strings Fix", onStrFix, MENUID_FIXTOOL_OLDSTRING },
+	{ "&Green Arrival Square Fix", onRemoveOldArrivalSquare },
 };
 
 static NewMenu tool_menu
@@ -11419,6 +11421,103 @@ int32_t onEffectFix()
 	).add_buttons(2,
 		{ "All", "Blank Only", "Cancel" },
 		{ doAllEffectSquare, doBlankEffectSquare, nullptr }
+	).show();
+    return D_O_K;
+}
+
+static bool clear_green_arrival_squares()
+{
+	for(mapscr& scr : TheMaps)
+	{
+		if(!scr.valid) continue;
+		scr.warparrivalx = 0;
+		scr.warparrivaly = 0;
+	}
+	set_qr(qr_NOARRIVALPOINT, true);
+	return true;
+}
+
+static bool replace_green_arrival_squares()
+{
+	// Check for conflicts first
+	bool has_conflicts = false;
+	
+	for(mapscr& scr : TheMaps)
+	{
+		if(!scr.valid) continue;
+		if(!(scr.warparrivalx || scr.warparrivaly)) continue;
+		if(scr.warpreturnx[0] || scr.warpreturny[0])
+		{
+			has_conflicts = true;
+			break;
+		}
+	}
+	
+	enum
+	{
+		NOT_ASKED = -1,
+		MODE_FORCE, MODE_IGNORE, MODE_FIND_IGNORE, MODE_FIND_FORCE, MODE_CANCEL
+	};
+	int mode = NOT_ASKED;
+	
+	if(has_conflicts)
+	{
+		AlertFuncDialog("Handle Conflicts",
+			"Warp Square A is not available for all screens that have arrival squares."
+			" How should this be handled? (See '?' for more info)",
+			"Overwrite A: Replace the existing warp return square A with the position of the green arrival square"
+			"\nIgnore: Do nothing if warp return square A exists"
+			"\nFind Space or Ignore: Choose another, unused, square to set to the position of the green arrival square."
+			" If none are unused, 'Ignore' instead."
+			"\nFind Space or Overwrite: Choose another, unused square to set to the position of the green arrival square."
+			" If none are unused, 'Overwrite A' instead."
+			"\nCancel: Don't do anything"
+		).add_buttons(1,
+			{ "Overwrite A", "Ignore", "Find Space or Ignore", "Find Space or Overwrite A", "Cancel" },
+			mode
+		).show();
+		if(mode == NOT_ASKED || mode == MODE_CANCEL)
+			return false;
+	}
+	for(mapscr& scr : TheMaps)
+	{
+		if(!scr.valid) continue;
+		if(!(scr.warparrivalx || scr.warparrivaly)) continue;
+		int indx = 0;
+		if(scr.warpreturnx[0] || scr.warpreturny[0])
+		{
+			if(mode == MODE_IGNORE) continue; // Warp A not free, so ignore
+			if(mode != MODE_FORCE)
+			{
+				for(int q = 1; q < 4; ++q)
+				{
+					if(scr.warpreturnx[q] || scr.warpreturny[q])
+						continue;
+					indx = q; // Use this warp, since it's free
+					break;
+				}
+				if(indx == 0 && mode == MODE_FIND_IGNORE)
+					continue; // Nothing free, so ignore
+			}
+		}
+		scr.warpreturnx[indx] = scr.warparrivalx;
+		scr.warpreturny[indx] = scr.warparrivaly;
+		scr.warparrivalx = 0;
+		scr.warparrivaly = 0;
+	}
+	set_qr(qr_NOARRIVALPOINT, true);
+	return true;
+}
+
+int32_t onRemoveOldArrivalSquare()
+{
+	AlertFuncDialog("Arrival Square Removal",
+		"Clear the old green 'Arrival' squares for the whole quest?"
+		"\n(There will be no further confirmation, and this operation cannot be undone)",
+		""
+	).add_buttons(2,
+		{ "Replace With Blue Return Square", "Clear Completely", "Cancel" },
+		{ replace_green_arrival_squares, clear_green_arrival_squares, nullptr }
 	).show();
     return D_O_K;
 }
