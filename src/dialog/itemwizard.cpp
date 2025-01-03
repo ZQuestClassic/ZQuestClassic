@@ -445,8 +445,8 @@ bool do_item_default(itemdata& ref)
 	_instance = &ref;
 	AlertFuncDialog("Are you sure?",
 		"Reset the item attributes/flags to default?",
-		"",
-		2, 1, //2 buttons, where buttons[1] is focused
+		""
+	).add_buttons(1,
 		{ "Yes", "Cancel" },
 		{ def_some, nullptr }
 	).show();

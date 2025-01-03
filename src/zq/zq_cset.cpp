@@ -1562,8 +1562,8 @@ int32_t onColors_Sprites()
 {
 	AlertFuncDialog("Edit Palette",
 		"Select an extra sprite palette set to edit",
-		"",
-		3, 2, //3 buttons, where buttons[2] is focused
+		""
+	).add_buttons(2,
 		{ "&1", "&2", "Done" },
 		{ edit_spr_colors_1, edit_spr_colors_2, nullptr }
 	).show();

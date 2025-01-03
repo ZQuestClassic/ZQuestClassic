@@ -11383,8 +11383,8 @@ int32_t onWaterSolidity()
 {
 	AlertFuncDialog("Water Conversion",
 		"Forcibly set the solidity of all 'Liquid' combos in the quest?",
-		"",
-		3, 2, //3 buttons, where buttons[2] is focused
+		""
+	).add_buttons(2,
 		{ "Solid", "Non-Solid", "Cancel" },
 		{ doAllSolidWater, doNoSolidWater, nullptr }
 	).show();
@@ -11415,8 +11415,8 @@ int32_t onEffectFix()
 {
 	AlertFuncDialog("Effect Square Conversion",
 		"Forcibly fill the green effect square of all combos in the quest?",
-		"",
-		3, 2, //3 buttons, where buttons[2] is focused
+		""
+	).add_buttons(2,
 		{ "All", "Blank Only", "Cancel" },
 		{ doAllEffectSquare, doBlankEffectSquare, nullptr }
 	).show();
