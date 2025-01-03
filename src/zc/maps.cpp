@@ -223,14 +223,6 @@ void z3_load_region(int dmap, int screen)
 	int map = DMaps[dmap].map;
 	current_region_ids = Regions[map].get_all_region_ids();
 
-	if ((DMaps[dmap].type&dmfTYPE) == dmDNGN)
-	{
-		// TODO z3 rm?
-		// if (screen < 0x80 && current_region_ids[screen])
-		// 	Z_message("Region error: Scrolling is not supported for NES Dungeon dmaps.\n");
-		// current_region_ids = {};
-	}
-
 	z3_calculate_region(map, screen, current_region, region_scr_dx, region_scr_dy);
 	cur_screen = current_region.origin_screen;
 	world_w = current_region.width;

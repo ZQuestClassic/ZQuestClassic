@@ -195,7 +195,6 @@ std::shared_ptr<GUI::Widget> EditRegionDialog::view()
 		info =  "Screens with the same Region ID define a single Region\n"
 				"  of screens connected via free-scrolling\n\n"
 				"Regions must be rectangular\n\n"
-				"Regions do not work with the NES Dungeon DMap type\n\n"
 				"For more on Regions, see the Z3 User Guide",
 		onClose = message::CANCEL,
 		use_vsync = true,
