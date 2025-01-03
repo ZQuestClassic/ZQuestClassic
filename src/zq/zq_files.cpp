@@ -357,14 +357,18 @@ int32_t onNew()
 	std::string tileset_path;
 	while (tileset_path.empty())
 	{
-		int ret = 0;
-		AlertFuncDialog("Choose a tileset",
-			"Cambria is a modern tileset with retro aesthetics.\n\nClassic is a minimalist tileset.",
-			"",
-			3, 0, //2 buttons, where buttons[0] is focused
-			{ "Cambria (recommended)", "Classic", "Choose from disk" },
-			{ [&](){ret = 1; return true;}, [&](){ret = 2; return true;}, [&](){ret = 3; return true;} }
-		).show();
+		int ret = -1;
+		if (is_headless()) ret = 0;
+		else
+		{
+			AlertFuncDialog("Choose a tileset",
+				"Cambria is a modern tileset with retro aesthetics.\n\nClassic is a minimalist tileset.",
+				"",
+				3, 0, //2 buttons, where buttons[0] is focused
+				{ "Cambria (recommended)", "Classic", "Choose from disk" },
+				{ [&](){ret = 1; return true;}, [&](){ret = 2; return true;}, [&](){ret = 3; return true;} }
+			).show();
+		}
 		if (ret == 0)
 			return D_CLOSE;
 		if (ret == 1)
