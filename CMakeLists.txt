@@ -606,7 +606,6 @@ set(zcbase_sources
 	src/base/render.cpp
 	src/base/scc.cpp
 	src/base/sin1.cpp
-	src/base/status_fx.cpp
 	src/base/util.cpp
 	src/base/version.cpp
 	src/base/weapon_data.cpp

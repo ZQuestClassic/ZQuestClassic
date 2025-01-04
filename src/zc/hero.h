@@ -20,6 +20,7 @@
 #include "hero_tiles.h"
 #include "subscr.h"
 #include "base/zfix.h"
+#include "status_fx.h"
 #include <vector>
 
 extern movingblock mblock2;                                 //mblock[4]?
