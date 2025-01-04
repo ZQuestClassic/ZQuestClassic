@@ -23437,12 +23437,14 @@ void HeroClass::handleSpotlights()
 	had_spotlight = lightbeam_present;
 
 	//Check triggers
+	auto& combo_cache = combo_caches::spotlight;
 	std::set<int> screens_triggered;
 	bool istrigged = true;
 	for_every_rpos([&](const rpos_handle_t& rpos_handle) {
-		auto& cmb = rpos_handle.combo();
-		if (rpos_handle.ctype() == cLIGHTTARGET)
+		auto& mini_cmb = combo_cache.minis[rpos_handle.data()];
+		if (mini_cmb.target())
 		{
+			auto& cmb = rpos_handle.combo();
 			bool alltrig = getmapflag(rpos_handle.scr, mLIGHTBEAM);
 			int32_t trigflag = cmb.attribytes[4] ? (1 << (cmb.attribytes[4]-1)) : ~0;
 			screens_triggered.insert(rpos_handle.screen);
@@ -23464,8 +23466,9 @@ void HeroClass::handleSpotlights()
 				else istrigged = false;
 			}
 		}
-		else if(cmb.triggerflags[1] & (combotriggerLIGHTON|combotriggerLIGHTOFF))
+		else if (mini_cmb.flags)
 		{
+			auto& cmb = rpos_handle.combo();
 			int32_t trigflag = cmb.triglbeam ? (1 << (cmb.triglbeam-1)) : ~0;
 			bool trigged = (istrig[(int)rpos_handle.rpos]&trigflag);
 			if(trigged ? (cmb.triggerflags[1] & combotriggerLIGHTON)
@@ -23484,9 +23487,10 @@ void HeroClass::handleSpotlights()
 		if (rpos == rpos_t::None)
 			return;
 
-		auto& cmb = ffc_handle.combo();
-		if (cmb.type == cLIGHTTARGET)
+		auto& mini_cmb = combo_cache.minis[ffc_handle.data()];
+		if (mini_cmb.target())
 		{
+			auto& cmb = ffc_handle.combo();
 			bool alltrig = getmapflag(ffc_handle.scr, mLIGHTBEAM);
 			int32_t trigflag = cmb.attribytes[4] ? (1 << (cmb.attribytes[4]-1)) : ~0;
 			screens_triggered.insert(ffc_handle.screen);
@@ -23508,8 +23512,9 @@ void HeroClass::handleSpotlights()
 				else istrigged = false;
 			}
 		}
-		else if(cmb.triggerflags[1] & (combotriggerLIGHTON|combotriggerLIGHTOFF))
+		else if (mini_cmb.flags)
 		{
+			auto& cmb = ffc_handle.combo();
 			int32_t trigflag = cmb.triglbeam ? (1 << (cmb.triglbeam-1)) : ~0;
 			bool trigged = (istrig[(int)rpos]&trigflag);
 			if(trigged ? (cmb.triggerflags[1] & combotriggerLIGHTON)

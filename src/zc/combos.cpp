@@ -3716,4 +3716,5 @@ namespace combo_caches
 	combo_cache<minicombo_script> script;
 	combo_cache<minicombo_drawing> drawing;
 	combo_cache<minicombo_lens> lens;
+	combo_cache<minicombo_spotlight> spotlight;
 }
