@@ -12951,31 +12951,18 @@ bool HeroClass::doattack()
 					int hmrlvl = hmrid < 0 ? 1 : itemsbuf[hmrid].fam_type;
 					if(hmrlvl < 1) hmrlvl = 1;
 					int rad = quakescroll.misc2;
-					for_every_rpos([&](const rpos_handle_t& rpos_handle) {
-						auto [cx, cy] = COMBOXY_REGION(rpos_handle.rpos);
+					for_every_combo([&](const auto& handle) {
+						auto [cx, cy] = handle.xy();
 						if (distance(x, y, cx, cy) > rad)
 							return;
 
-						int cid = rpos_handle.data();
-						newcombo const& cmb = combobuf[cid];
-						if(cmb.triggerflags[2] & ((super?combotriggerSQUAKESTUN:0)|combotriggerQUAKESTUN))
+						auto& cmb = handle.combo();
+						if (cmb.triggerflags[2] & ((super?combotriggerSQUAKESTUN:0)|combotriggerQUAKESTUN))
 						{
-							if((cmb.triggerflags[0]&combotriggerINVERTMINMAX)
+							if ((cmb.triggerflags[0]&combotriggerINVERTMINMAX)
 								? hmrlvl <= cmb.triggerlevel
 								: hmrlvl >= cmb.triggerlevel)
-								do_trigger_combo(rpos_handle);
-						}
-					});
-					for_every_ffc([&](const ffc_handle_t& ffc_handle) {
-						auto& cmb = ffc_handle.combo();
-						if(distance(x,y,ffc_handle.ffc->x,ffc_handle.ffc->y) > rad) return;
-
-						if(cmb.triggerflags[2] & ((super?combotriggerSQUAKESTUN:0)|combotriggerQUAKESTUN))
-						{
-							if((cmb.triggerflags[0]&combotriggerINVERTMINMAX)
-								? hmrlvl <= cmb.triggerlevel
-								: hmrlvl >= cmb.triggerlevel)
-								do_trigger_combo(ffc_handle);
+								do_trigger_combo(handle);
 						}
 					});
 				}
@@ -13095,28 +13082,14 @@ bool isRaftFlag(int32_t flag)
 void handle_lens_triggers(int32_t l_id)
 {
 	bool enabled = l_id >= 0 && (itemsbuf[l_id].flags & item_flag6);
-
 	auto& combo_cache = combo_caches::lens;
-
-	// TODO z3 combine
-	for_every_rpos([&](const rpos_handle_t& rpos_handle) {
-		auto& cmb = combo_cache.minis[rpos_handle.data()];
+	for_every_combo([&](const auto& handle) {
+		auto& cmb = combo_cache.minis[handle.data()];
 		if (enabled ? cmb.on : cmb.off)
 		{
-			do_trigger_combo(rpos_handle);
+			do_trigger_combo(handle);
 		}
 	});
-
-	if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
-	{
-		for_every_ffc([&](const ffc_handle_t& ffc_handle) {
-			auto& cmb = combo_cache.minis[ffc_handle.data()];
-			if (enabled ? cmb.on : cmb.off)
-			{
-				do_trigger_combo(ffc_handle);
-			}
-		});
-	}
 }
 
 void do_lens()
@@ -23770,18 +23743,11 @@ void HeroClass::checkspecial()
 			// Enemies have been defeated.
 
 			// generic 'Enemies->' trigger
-			for_every_rpos_in_screen(scr, [&](const rpos_handle_t& rpos_handle) {
-				auto& cmb = rpos_handle.combo();	
+			for_every_combo_in_screen(scr, [&](const auto& handle) {
+				auto& cmb = handle.combo();	
 				if (cmb.triggerflags[2] & combotriggerENEMIESKILLED)
 				{
-					do_trigger_combo(rpos_handle);
-				}
-			});
-			for_every_ffc_in_screen(scr, [&](const ffc_handle_t& ffc_handle) {
-				auto& cmb = ffc_handle.combo();
-				if(cmb.triggerflags[2] & combotriggerENEMIESKILLED)
-				{
-					do_trigger_combo(ffc_handle);
+					do_trigger_combo(handle);
 				}
 			});
 

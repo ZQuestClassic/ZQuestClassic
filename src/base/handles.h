@@ -7,6 +7,7 @@
 #include "base/mapscr.h"
 #include <stdint.h>
 #include <variant>
+#include <utility>
 
 class ffcdata;
 
@@ -38,6 +39,7 @@ struct rpos_handle_t
 
 	newcombo& combo() const;
 	cpos_info& info() const;
+	std::pair<int32_t, int32_t> xy() const;
 
 	ZC_FORCE_INLINE int32_t data() const
 	{
@@ -75,6 +77,7 @@ struct ffc_handle_t
 
 	const newcombo& combo() const;
 	cpos_info& info() const;
+	std::pair<int32_t, int32_t> xy() const;
 
 	int32_t data() const;
 	void set_data(int32_t value) const;

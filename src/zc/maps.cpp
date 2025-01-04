@@ -2742,17 +2742,10 @@ void trigger_secrets_for_screen_internal(int32_t screen, mapscr *scr, bool do_co
 
 	if (do_combo_triggers)
 	{
-		for_every_rpos_in_screen(scr, [&](const rpos_handle_t& rpos_handle) {
-			if (rpos_handle.combo().triggerflags[2] & combotriggerSECRETSTR)
-				do_trigger_combo(rpos_handle, ctrigSECRETS);
+		for_every_combo_in_screen(scr, [&](const auto& handle) {
+			if (handle.combo().triggerflags[2] & combotriggerSECRETSTR)
+				do_trigger_combo(handle, ctrigSECRETS);
 		});
-		if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
-		{
-			for_every_ffc_in_screen(scr, [&](const ffc_handle_t& ffc_handle) {
-				if (ffc_handle.combo().triggerflags[2] & combotriggerSECRETSTR)
-					do_trigger_combo(ffc_handle);
-			});
-		}
 	}
 
 	int32_t ft=0; //Flag trigger?

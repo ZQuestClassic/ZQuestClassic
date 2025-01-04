@@ -23,6 +23,11 @@ cpos_info& rpos_handle_t::info() const
 	return cpos_get(*this);
 }
 
+std::pair<int32_t, int32_t> rpos_handle_t::xy() const
+{
+	return COMBOXY_REGION(rpos);
+}
+
 void rpos_handle_t::set_data(int32_t value) const
 {
 	scr->data[pos] = value;
@@ -83,6 +88,11 @@ const newcombo& ffc_handle_t::combo() const
 cpos_info& ffc_handle_t::info() const
 {
 	return ffc->info;
+}
+
+std::pair<int32_t, int32_t> ffc_handle_t::xy() const
+{
+	return {ffc->x, ffc->y};
 }
 
 int32_t ffc_handle_t::data() const
