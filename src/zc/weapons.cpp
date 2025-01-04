@@ -3775,24 +3775,13 @@ bool weapon::animate(int32_t index)
 			return true;
 		}
 		
-		if (combobuf[drownCombo].usrflags&cflag1) 
-		{
-			wpndata &spr = wpnsbuf[QMisc.sprites[sprLAVADROWN]];
-			cs = spr.csets & 0xF;
-			int32_t fr = spr.frames ? spr.frames : 1;
-			int32_t spd = spr.speed ? spr.speed : 1;
-			int32_t animclk = (WATER_DROWN_FRAMES-drownclk);
-			tile = spr.tile + zc_min(animclk / spd, fr-1);
-		}
-		else 
-		{
-			wpndata &spr = wpnsbuf[QMisc.sprites[sprDROWN]];
-			cs = spr.csets & 0xF;
-			int32_t fr = spr.frames ? spr.frames : 1;
-			int32_t spd = spr.speed ? spr.speed : 1;
-			int32_t animclk = (WATER_DROWN_FRAMES-drownclk);
-			tile = spr.tile + zc_min(animclk / spd, fr-1);
-		}
+		bool lava = (drownCombo && combobuf[drownCombo].usrflags&cflag1);
+		wpndata &spr = wpnsbuf[QMisc.sprites[lava ? sprLAVADROWN : sprDROWN]];
+		cs = spr.csets & 0xF;
+		int32_t fr = spr.frames ? spr.frames : 1;
+		int32_t spd = spr.speed ? spr.speed : 1;
+		int32_t animclk = (WATER_DROWN_FRAMES-drownclk);
+		tile = spr.tile + zc_min(animclk / spd, fr-1);
 		
 		if(isLWeapon)
 			run_script(MODE_NORMAL);

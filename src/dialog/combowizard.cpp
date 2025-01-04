@@ -4312,8 +4312,8 @@ bool do_combo_default(newcombo& ref)
 	_instance = &ref;
 	AlertFuncDialog("Are you sure?",
 		"Reset the combo to default?",
-		"",
-		3, 2, //3 buttons, where buttons[2] is focused
+		""
+	).add_buttons(2,
 		{ "Whole Combo", "Only attributes/flags", "Cancel" },
 		{ def_all, def_some, nullptr }
 	).show();

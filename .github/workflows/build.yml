@@ -76,7 +76,7 @@ jobs:
       - name: git clone
         uses: connorjclark/action-cached-lfs-checkout@e9e548e0068e62830582e21febff8da4bd4e8ca5
         with:
-          include: 'resources/quests/**/*'
+          include: 'resources/**/*'
           fetch-depth: 0
 
       - uses: actions/setup-python@v5

@@ -32,7 +32,7 @@ bool do_cswitch_combo(newcombo const& cmb, weapon* w = NULL);
 void do_generic_combo_ffc2(const ffc_handle_t& ffc_handle, int32_t cid, int32_t ft);
 
 void spawn_decoration(newcombo const& cmb, const rpos_handle_t& rpos_handle);
-void spawn_decoration_xy(newcombo const& cmb, zfix x, zfix y);
+void spawn_decoration_xy(newcombo const& cmb, zfix x, zfix y, zfix cx, zfix cy);
 
 bool can_locked_combo(newcombo const& cmb);
 bool try_locked_combo(newcombo const& cmb);

@@ -9,14 +9,14 @@
 class AlertFuncDialog: public InfoDialog
 {
 public:
-	AlertFuncDialog(string const& title, string const& text, string info = "",
-		uint32_t numButtons = 0, uint32_t focused_button = 0,
-		std::initializer_list<string> buttonNames = {},
-		std::initializer_list<std::function<bool()>> buttonProcs = {});
-	AlertFuncDialog(string const& title, vector<string> const& lines,
-		string info = "", uint32_t numButtons = 0, uint32_t focused_button = 0,
-		std::initializer_list<string> buttonNames = {},
-		std::initializer_list<std::function<bool()>> buttonProcs = {});
+	AlertFuncDialog(string const& title, string const& text, string info = "");
+	AlertFuncDialog(string const& title, vector<string> const& lines, string info = "");
+	
+	// Giving a list of procs assigns each proc to a button
+	AlertFuncDialog& add_buttons(uint32_t focused_button, std::initializer_list<string> buttonNames,
+		std::initializer_list<std::function<bool()>> buttonProcs);
+	// Giving an int& sets it to the clicked button, no procs needed
+	AlertFuncDialog& add_buttons(uint32_t focused_button, std::initializer_list<string> buttonNames, int& chosen);
 	
 	std::shared_ptr<GUI::Widget> view() override;
 	bool handleMessage(const GUI::DialogMessage<message>& msg) override;
@@ -26,10 +26,11 @@ private:
 	string helptxt;
 	std::shared_ptr<GUI::Grid> buttonRow;
 	vector<std::shared_ptr<GUI::Button>> buttons;
+	int* chosen_ptr;
 	
 	void initButtons(std::initializer_list<string> buttonNames,
-		std::initializer_list<std::function<bool()>> buttonProcs,
-		uint32_t numButtons, uint32_t focused_button);
+		std::vector<std::function<bool()>> buttonProcs,
+		uint32_t focused_button);
 };
 
 #endif

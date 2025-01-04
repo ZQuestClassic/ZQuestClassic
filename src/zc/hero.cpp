@@ -3996,7 +3996,7 @@ void HeroClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
 		}
 	}
 	
-	spawn_decoration_xy(combobuf[cid], fx, fy);
+	spawn_decoration_xy(combobuf[cid], fx, fy, bx+8, by+8);
 }
 
 void HeroClass::check_slash_block(int32_t bx, int32_t by)
@@ -4235,7 +4235,7 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 			}
 		}
 		
-		spawn_decoration_xy(cmb, fx, fy);
+		spawn_decoration_xy(cmb, fx, fy, bx+8, by+8);
 	}
 	
 	if(!ignoreffc)
@@ -4303,8 +4303,9 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 				else sfx(QMisc.miscsfx[sfxBUSHGRASS],int32_t(bx));
 			}
 		}
-		
-		spawn_decoration_xy(cmb_ff, fx, fy);
+
+		auto& ffc = *current_ffc_handle->ffc;
+		spawn_decoration_xy(cmb_ff, fx, fy, ffc.x+(ffc.hit_width / 2), ffc.y+(ffc.hit_height / 2));
 	}
 }
 

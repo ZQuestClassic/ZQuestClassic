@@ -576,6 +576,12 @@ class Game {
 	// @zasm_var DMAPMAP
 	internal int DMapMap[];
 
+	// @zasm_var SETGAMEOVERELEMENT
+	internal int GameOverScreen[];
+
+	// @zasm_var SETGAMEOVERSTRING
+	internal int GameOverStrings[];
+
 	// Ends the current quest in victory, resetting to the title screen (without
 	// showing the normal end credits), and if this quest is part of a module,
 	// increment to the next quest in the module.

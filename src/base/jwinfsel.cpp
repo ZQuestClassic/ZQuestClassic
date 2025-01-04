@@ -544,7 +544,7 @@ static int32_t fs_flist_proc(int32_t msg, DIALOG *d, int32_t c)
     {
         if(!flist)
         {
-            flist = (FLIST *) malloc(sizeof(FLIST));
+            flist = (FLIST *) calloc(1, sizeof(FLIST));
             
             if(!flist)
             {

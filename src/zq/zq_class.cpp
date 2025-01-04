@@ -6606,21 +6606,24 @@ void popup_bugfix_dlg(const char* cfg)
 #pragma GCC diagnostic pop
 #endif
 
-// wrapper to reinitialize everything on an error
 int32_t load_quest(const char *filename, bool show_progress)
 {
 	char buf[2048];
-//  if(encrypted)
-//	  setPackfilePassword(datapwd);
 	byte skip_flags[4];
-	
+
+	// For File>New, don't clear the maps because tilesets (like Cambria) have a more friendly
+	// starter experience that way.
+	dword tileset_flags = 0;
+	if (loading_file_new)
+		tileset_flags = TILESET_CLEARSCRIPTS | TILESET_CLEARHEADER;
+
 	for(int32_t i=0; i<4; ++i)
 	{
 		skip_flags[i]=0;
 	}
 	for(int32_t i=0; i<qr_MAX; i++)
 				set_qr(i,0);
-	int32_t ret=loadquest(filename,&header,&QMisc,customtunes,show_progress,skip_flags);
+	int32_t ret=loadquest(filename,&header,&QMisc,customtunes,show_progress,skip_flags,1,true,0,tileset_flags);
 
 	if(ret!=qe_OK)
 	{
@@ -9598,7 +9601,8 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 	if(tmp_cmb.speed_mult != 1 || tmp_cmb.speed_div != 1 || tmp_cmb.speed_add
 		|| tmp_cmb.sfx_appear || tmp_cmb.sfx_disappear || tmp_cmb.sfx_loop || tmp_cmb.sfx_walking || tmp_cmb.sfx_standing
 		|| tmp_cmb.spr_appear || tmp_cmb.spr_disappear || tmp_cmb.spr_walking || tmp_cmb.spr_standing || tmp_cmb.sfx_tap
-		|| tmp_cmb.sfx_landing)
+		|| tmp_cmb.sfx_landing || tmp_cmb.spr_falling || tmp_cmb.spr_drowning || tmp_cmb.spr_lava_drowning || tmp_cmb.sfx_falling
+		|| tmp_cmb.sfx_drowning || tmp_cmb.sfx_lava_drowning)
 		combo_has_flags |= CHAS_GENERAL;
 	
 	if(!p_putc(combo_has_flags,f))
@@ -9835,6 +9839,18 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 			return 88;
 		if(!p_putc(tmp_cmb.sfx_landing,f))
 			return 89;
+		if(!p_putc(tmp_cmb.spr_falling,f))
+			return 90;
+		if(!p_putc(tmp_cmb.spr_drowning,f))
+			return 91;
+		if(!p_putc(tmp_cmb.spr_lava_drowning,f))
+			return 92;
+		if(!p_putc(tmp_cmb.sfx_falling,f))
+			return 93;
+		if(!p_putc(tmp_cmb.sfx_drowning,f))
+			return 94;
+		if(!p_putc(tmp_cmb.sfx_lava_drowning,f))
+			return 95;
 	}
 	return 0;
 }

@@ -2751,13 +2751,20 @@ void movingblock::draw(BITMAP *dest)
 		int32_t old_cs = cs;
 		int32_t old_tile = tile;
 		
-		wpndata& spr = wpnsbuf[QMisc.sprites[sprFALL]];
-		cs = spr.csets & 0xF;
-		int32_t fr = spr.frames ? spr.frames : 1;
-		int32_t spd = spr.speed ? spr.speed : 1;
-		int32_t animclk = (PITFALL_FALL_FRAMES-fallclk);
-		tile = spr.tile + zc_min(animclk / spd, fr-1);
-		sprite::draw(dest);
+		int sprid = QMisc.sprites[sprFALL];
+		newcombo const& cmb = combobuf[bcombo];
+		if(cmb.spr_falling)
+			sprid = cmb.spr_falling;
+		if(unsigned(sprid) < MAXWPNS)
+		{
+			wpndata& spr = wpnsbuf[sprid];
+			cs = spr.csets & 0xF;
+			int32_t fr = spr.frames ? spr.frames : 1;
+			int32_t spd = spr.speed ? spr.speed : 1;
+			int32_t animclk = (PITFALL_FALL_FRAMES-fallclk);
+			tile = spr.tile + zc_min(animclk / spd, fr-1);
+			sprite::draw(dest);
+		}
 		
 		cs = old_cs;
 		tile = old_tile;
@@ -2767,19 +2774,14 @@ void movingblock::draw(BITMAP *dest)
 		int32_t old_cs = cs;
 		int32_t old_tile = tile;
 		
-		if (drownCombo && combobuf[drownCombo].usrflags&cflag1) 
+		bool lava = (drownCombo && combobuf[drownCombo].usrflags&cflag1);
+		int sprid = QMisc.sprites[lava ? sprLAVADROWN : sprDROWN];
+		newcombo const& cmb = combobuf[bcombo];
+		if(int cspr = lava ? cmb.spr_lava_drowning : cmb.spr_drowning)
+			sprid = cspr;
+		if(unsigned(sprid) < MAXWPNS)
 		{
-			wpndata &spr = wpnsbuf[QMisc.sprites[sprLAVADROWN]];
-			cs = spr.csets & 0xF;
-			int32_t fr = spr.frames ? spr.frames : 1;
-			int32_t spd = spr.speed ? spr.speed : 1;
-			int32_t animclk = (WATER_DROWN_FRAMES-drownclk);
-			tile = spr.tile + zc_min(animclk / spd, fr-1);
-			sprite::draw(dest);
-		}
-		else 
-		{
-			wpndata &spr = wpnsbuf[QMisc.sprites[sprDROWN]];
+			wpndata &spr = wpnsbuf[sprid];
 			cs = spr.csets & 0xF;
 			int32_t fr = spr.frames ? spr.frames : 1;
 			int32_t spd = spr.speed ? spr.speed : 1;

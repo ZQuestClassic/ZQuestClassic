@@ -926,9 +926,8 @@ int32_t checksave()
 	
 	int ret = 0;
 	AlertFuncDialog("ZQuest",
-		buf,
-		"",
-		3, 0, //3 buttons, where buttons[0] is focused
+		buf, ""
+	).add_buttons(0,
 		{ "&Yes", "&No", "Cancel" },
 		{
 			[&ret](){onSave(); ret = 1; return true;}, 
@@ -968,9 +967,8 @@ int32_t onExit()
 	int ret = D_O_K;
 	
 	AlertFuncDialog("ZQuest",
-		exittxt,
-		"",
-		2, 0, //2 buttons, where buttons[0] is focused
+		exittxt, ""
+	).add_buttons(0,
 		{ "&Yes", "&No" },
 		{
 			[&ret](){ret = D_CLOSE; return true;},

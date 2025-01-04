@@ -146,8 +146,8 @@ struct newcombo
 	byte speed_mult = 1;
 	byte speed_div = 1;
 	zfix speed_add;
-	byte sfx_appear, sfx_disappear, sfx_loop, sfx_walking, sfx_standing, sfx_tap, sfx_landing;
-	byte spr_appear, spr_disappear, spr_walking, spr_standing;
+	byte sfx_appear, sfx_disappear, sfx_loop, sfx_walking, sfx_standing, sfx_tap, sfx_landing, sfx_falling, sfx_drowning, sfx_lava_drowning;
+	byte spr_appear, spr_disappear, spr_walking, spr_standing, spr_falling, spr_drowning, spr_lava_drowning;
 	
 	void set_tile(int32_t newtile);
 	void clear();

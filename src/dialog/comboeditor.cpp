@@ -24,7 +24,7 @@ char *ordinal(int32_t num);
 using std::string;
 using std::to_string;
 
-static size_t cmb_tabs[4] = {0};
+static size_t cmb_tabs[5] = {0};
 static bool combo_use_script_data = true;
 
 bool hasCTypeEffects(int32_t type)
@@ -116,7 +116,10 @@ ComboEditorDialog::ComboEditorDialog(newcombo const& ref, int32_t index):
 			if(itm.value == 0) //Remove item 0
 				return false;
 			if(itm.value == -1) //Change the none value to 0
+			{
 				itm.value = 0;
+				itm.text = "(None) (000)";
+			}
 			return true;
 		}))
 {}
@@ -3879,157 +3882,230 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						)
 					)
 				)),
-				TabRef(name = "General", Row(
-					Column(
-						Frame(title = "SFX", hAlign = 1.0, fitParent = true,
-							Rows<3>(
-								Label(text = "Appears:"),
-								DropDownList(data = list_sfx,
-									vPadding = 0_px,
-									fitParent = true, selectedValue = local_comboref.sfx_appear,
-									onSelectFunc = [&](int32_t val)
-									{
-										local_comboref.sfx_appear = val;
-									}),
-								IBTN("Plays when the combo is on the screen for at least a frame."),
-								//
-								Label(text = "Disappears:"),
-								DropDownList(data = list_sfx,
-									vPadding = 0_px,
-									fitParent = true, selectedValue = local_comboref.sfx_disappear,
-									onSelectFunc = [&](int32_t val)
-									{
-										local_comboref.sfx_disappear = val;
-									}),
-								IBTN("Plays when the combo had appeared, but is now gone"),
-								//
-								Label(text = "Loop:"),
-								DropDownList(data = list_sfx,
-									vPadding = 0_px,
-									fitParent = true, selectedValue = local_comboref.sfx_loop,
-									onSelectFunc = [&](int32_t val)
-									{
-										local_comboref.sfx_loop = val;
-									}),
-								IBTN("Plays repeatedly as long as the combo is on the screen."),
-								//
-								Label(text = "Walking:"),
-								DropDownList(data = list_sfx,
-									vPadding = 0_px,
-									fitParent = true, selectedValue = local_comboref.sfx_walking,
-									onSelectFunc = [&](int32_t val)
-									{
-										local_comboref.sfx_walking = val;
-									}),
-								IBTN("Plays when the Hero walks on the combo. In sideview, this is the combo actually BELOW the Hero."),
-								//
-								Label(text = "Standing:"),
-								DropDownList(data = list_sfx,
-									vPadding = 0_px,
-									fitParent = true, selectedValue = local_comboref.sfx_standing,
-									onSelectFunc = [&](int32_t val)
-									{
-										local_comboref.sfx_standing = val;
-									}),
-								IBTN("Plays when the Hero stands (not walking) on the combo. In sideview, this is the combo actually BELOW the Hero."),
-								//
-								Label(text = "Sword Tap:"),
-								DropDownList(data = list_sfx,
-									vPadding = 0_px,
-									fitParent = true, selectedValue = local_comboref.sfx_tap,
-									onSelectFunc = [&](int32_t val)
-									{
-										local_comboref.sfx_tap = val;
-									}),
-								IBTN("Plays when the Hero taps their sword against this combo. Only the highest-layer combo with custom tap SFX will take effect."),
-								//
-								Label(text = "Landing:"),
-								DropDownList(data = list_sfx,
-									vPadding = 0_px,
-									fitParent = true, selectedValue = local_comboref.sfx_landing,
-									onSelectFunc = [&](int32_t val)
-									{
-										local_comboref.sfx_landing = val;
-									}),
-								IBTN("Plays when the Hero lands on the combo. Doesn't play if 'Old Landing SFX' is enabled." + QRHINT({qr_OLD_LANDING_SFX}))
-							)
-						),
-						Frame(title = "Sprites", hAlign = 1.0, fitParent = true,
-							Rows<3>(
-								Label(text = "Appears:"),
-								DropDownList(data = list_sprites_0none,
-									vPadding = 0_px,
-									fitParent = true, selectedValue = local_comboref.spr_appear,
-									onSelectFunc = [&](int32_t val)
-									{
-										local_comboref.spr_appear = val;
-									}),
-								IBTN("Spawns when the combo is on the screen for at least a frame."),
-								//
-								Label(text = "Disappears:"),
-								DropDownList(data = list_sprites_0none,
-									vPadding = 0_px,
-									fitParent = true, selectedValue = local_comboref.spr_disappear,
-									onSelectFunc = [&](int32_t val)
-									{
-										local_comboref.spr_disappear = val;
-									}),
-								IBTN("Spawns when the combo had appeared, but is now gone"),
-								//
-								Label(text = "Walking:"),
-								DropDownList(data = list_sprites_0none,
-									vPadding = 0_px,
-									fitParent = true, selectedValue = local_comboref.spr_walking,
-									onSelectFunc = [&](int32_t val)
-									{
-										local_comboref.spr_walking = val;
-									}),
-								IBTN("Spawns when the Hero walks on the combo. In sideview, this is the combo actually BELOW the Hero."),
-								//
-								Label(text = "Standing:"),
-								DropDownList(data = list_sprites_0none,
-									vPadding = 0_px,
-									fitParent = true, selectedValue = local_comboref.spr_standing,
-									onSelectFunc = [&](int32_t val)
-									{
-										local_comboref.spr_standing = val;
-									}),
-								IBTN("Spawns when the Hero stands (not walking) on the combo. In sideview, this is the combo actually BELOW the Hero.")
-							)
+				TabRef(name = "General", TabPanel(
+					ptr = &cmb_tabs[4],
+					TabRef(name = "SFX",
+						Rows<3>(
+							Label(text = "Appears:"),
+							DropDownList(data = list_sfx,
+								vPadding = 0_px,
+								fitParent = true, selectedValue = local_comboref.sfx_appear,
+								onSelectFunc = [&](int32_t val)
+								{
+									local_comboref.sfx_appear = val;
+								}),
+							IBTN("Plays when the combo is on the screen for at least a frame."),
+							//
+							Label(text = "Disappears:"),
+							DropDownList(data = list_sfx,
+								vPadding = 0_px,
+								fitParent = true, selectedValue = local_comboref.sfx_disappear,
+								onSelectFunc = [&](int32_t val)
+								{
+									local_comboref.sfx_disappear = val;
+								}),
+							IBTN("Plays when the combo had appeared, but is now gone"),
+							//
+							Label(text = "Loop:"),
+							DropDownList(data = list_sfx,
+								vPadding = 0_px,
+								fitParent = true, selectedValue = local_comboref.sfx_loop,
+								onSelectFunc = [&](int32_t val)
+								{
+									local_comboref.sfx_loop = val;
+								}),
+							IBTN("Plays repeatedly as long as the combo is on the screen."),
+							//
+							Label(text = "Walking:"),
+							DropDownList(data = list_sfx,
+								vPadding = 0_px,
+								fitParent = true, selectedValue = local_comboref.sfx_walking,
+								onSelectFunc = [&](int32_t val)
+								{
+									local_comboref.sfx_walking = val;
+								}),
+							IBTN("Plays when the Hero walks on the combo. In sideview, this is the combo actually BELOW the Hero."),
+							//
+							Label(text = "Standing:"),
+							DropDownList(data = list_sfx,
+								vPadding = 0_px,
+								fitParent = true, selectedValue = local_comboref.sfx_standing,
+								onSelectFunc = [&](int32_t val)
+								{
+									local_comboref.sfx_standing = val;
+								}),
+							IBTN("Plays when the Hero stands (not walking) on the combo. In sideview, this is the combo actually BELOW the Hero."),
+							//
+							Label(text = "Sword Tap:"),
+							DropDownList(data = list_sfx,
+								vPadding = 0_px,
+								fitParent = true, selectedValue = local_comboref.sfx_tap,
+								onSelectFunc = [&](int32_t val)
+								{
+									local_comboref.sfx_tap = val;
+								}),
+							IBTN("Plays when the Hero taps their sword against this combo. Only the highest-layer combo with custom tap SFX will take effect."),
+							//
+							Label(text = "Landing:"),
+							DropDownList(data = list_sfx,
+								vPadding = 0_px,
+								fitParent = true, selectedValue = local_comboref.sfx_landing,
+								onSelectFunc = [&](int32_t val)
+								{
+									local_comboref.sfx_landing = val;
+								}),
+							IBTN("Plays when the Hero lands on the combo. Doesn't play if 'Old Landing SFX' is enabled." + QRHINT({qr_OLD_LANDING_SFX})),
+							//
+							Label(text = "Falling:"),
+							DropDownList(data = list_sfx,
+								vPadding = 0_px,
+								fitParent = true, selectedValue = local_comboref.sfx_falling,
+								onSelectFunc = [&](int32_t val)
+								{
+									local_comboref.sfx_falling = val;
+								}),
+							IBTN("Used when the combo falls into a pit (after being pushed as a pushable block)."
+								"\nIf set to (None), uses the sfx set on the Pitfall combo."),
+							//
+							Label(text = "Drowning:"),
+							DropDownList(data = list_sfx,
+								vPadding = 0_px,
+								fitParent = true, selectedValue = local_comboref.sfx_drowning,
+								onSelectFunc = [&](int32_t val)
+								{
+									local_comboref.sfx_drowning = val;
+								}),
+							IBTN("Used when the combo falls into liquid (after being pushed as a pushable block)."
+								"\nIf set to (None), uses the sfx set on the Liquid combo."),
+							//
+							Label(text = "Lava Drowning:"),
+							DropDownList(data = list_sfx,
+								vPadding = 0_px,
+								fitParent = true, selectedValue = local_comboref.sfx_lava_drowning,
+								onSelectFunc = [&](int32_t val)
+								{
+									local_comboref.sfx_lava_drowning = val;
+								}),
+							IBTN("Used when the combo falls into lava (after being pushed as a pushable block)."
+								"\nIf set to (None), uses the sfx set on the Liquid combo.")
 						)
 					),
-					Frame(title = "Hero Speed Mod",
-						info = "Speed Modification only applies if the Quest Rule 'Newer Hero Movement' is enabled." + QRHINT({qr_NEW_HERO_MOVEMENT2}),
+					TabRef(name = "Sprites",
 						Rows<3>(
-							Label(text = "Multiplier:"),
-							TextField(type = GUI::TextField::type::INT_DECIMAL,
-								hAlign = 1.0, low = 0, high = 255, val = local_comboref.speed_mult,
-								fitParent = true,
-								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+							Label(text = "Appears:"),
+							DropDownList(data = list_sprites_0none,
+								vPadding = 0_px,
+								fitParent = true, selectedValue = local_comboref.spr_appear,
+								onSelectFunc = [&](int32_t val)
 								{
-									local_comboref.speed_mult = val;
+									local_comboref.spr_appear = val;
 								}),
-							IBTN("Multiplies the Hero's speed by this value when walking over this combo."),
-							Label(text = "Divisor:"),
-							TextField(type = GUI::TextField::type::INT_DECIMAL,
-								hAlign = 1.0, low = 0, high = 255, val = local_comboref.speed_div,
-								fitParent = true,
-								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+							IBTN("Spawns when the combo is on the screen for at least a frame."),
+							//
+							Label(text = "Disappears:"),
+							DropDownList(data = list_sprites_0none,
+								vPadding = 0_px,
+								fitParent = true, selectedValue = local_comboref.spr_disappear,
+								onSelectFunc = [&](int32_t val)
 								{
-									local_comboref.speed_div = val;
+									local_comboref.spr_disappear = val;
 								}),
-							IBTN("Divides the Hero's speed by this value when walking over this combo. Applies after mult."
-								"\nIf 0, no division is performed."),
-							Label(text = "Additive:"),
-							TextField(maxLength = 13, type = GUI::TextField::type::NOSWAP_ZSINT,
-								hAlign = 1.0, val = local_comboref.speed_add.getZLong(),
-								swap_type = nswapDEC,
-								fitParent = true,
-								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+							IBTN("Spawns when the combo had appeared, but is now gone"),
+							//
+							Label(text = "Walking:"),
+							DropDownList(data = list_sprites_0none,
+								vPadding = 0_px,
+								fitParent = true, selectedValue = local_comboref.spr_walking,
+								onSelectFunc = [&](int32_t val)
 								{
-									local_comboref.speed_add = zslongToFix(val);
+									local_comboref.spr_walking = val;
 								}),
-							IBTN("Adds this value, in px/frame, to the Hero's speed walking over this combo. Applies after mult and div. Can be negative.")
+							IBTN("Spawns when the Hero walks on the combo. In sideview, this is the combo actually BELOW the Hero."),
+							//
+							Label(text = "Standing:"),
+							DropDownList(data = list_sprites_0none,
+								vPadding = 0_px,
+								fitParent = true, selectedValue = local_comboref.spr_standing,
+								onSelectFunc = [&](int32_t val)
+								{
+									local_comboref.spr_standing = val;
+								}),
+							IBTN("Spawns when the Hero stands (not walking) on the combo. In sideview, this is the combo actually BELOW the Hero."),
+							//
+							Label(text = "Falling:"),
+							DropDownList(data = list_sprites_0none,
+								vPadding = 0_px,
+								fitParent = true, selectedValue = local_comboref.spr_falling,
+								onSelectFunc = [&](int32_t val)
+								{
+									local_comboref.spr_falling = val;
+								}),
+							IBTN("Used when the combo is falling into a pit (after being pushed as a pushable block)."
+								"\nIf set to (None), uses the Falling Sprite set in Misc Sprites as a default."),
+							//
+							Label(text = "Drowning:"),
+							DropDownList(data = list_sprites_0none,
+								vPadding = 0_px,
+								fitParent = true, selectedValue = local_comboref.spr_drowning,
+								onSelectFunc = [&](int32_t val)
+								{
+									local_comboref.spr_drowning = val;
+								}),
+							IBTN("Used when the combo is falling into liquid (after being pushed as a pushable block)."
+								"\nIf set to (None), uses the Drowning Sprite set in Misc Sprites as a default."
+								+ QRHINT({qr_BLOCKS_DROWN})),
+							//
+							Label(text = "Lava Drowning:"),
+							DropDownList(data = list_sprites_0none,
+								vPadding = 0_px,
+								fitParent = true, selectedValue = local_comboref.spr_lava_drowning,
+								onSelectFunc = [&](int32_t val)
+								{
+									local_comboref.spr_lava_drowning = val;
+								}),
+							IBTN("Used when the combo is falling into lava (after being pushed as a pushable block)."
+								"\nIf set to (None), uses the Lava Drowning Sprite set in Misc Sprites as a default."
+								+ QRHINT({qr_BLOCKS_DROWN}))
+						)
+					),
+					TabRef(name = "Misc",
+						Row(
+							Frame(title = "Hero Speed Mod",
+								info = "Speed Modification only applies if the Quest Rule 'Newer Hero Movement' is enabled." + QRHINT({qr_NEW_HERO_MOVEMENT2}),
+								Rows<3>(
+									Label(text = "Multiplier:"),
+									TextField(type = GUI::TextField::type::INT_DECIMAL,
+										hAlign = 1.0, low = 0, high = 255, val = local_comboref.speed_mult,
+										fitParent = true,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_comboref.speed_mult = val;
+										}),
+									IBTN("Multiplies the Hero's speed by this value when walking over this combo."),
+									//
+									Label(text = "Divisor:"),
+									TextField(type = GUI::TextField::type::INT_DECIMAL,
+										hAlign = 1.0, low = 0, high = 255, val = local_comboref.speed_div,
+										fitParent = true,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_comboref.speed_div = val;
+										}),
+									IBTN("Divides the Hero's speed by this value when walking over this combo. Applies after mult."
+										"\nIf 0, no division is performed."),
+									//
+									Label(text = "Additive:"),
+									TextField(maxLength = 13, type = GUI::TextField::type::NOSWAP_ZSINT,
+										hAlign = 1.0, val = local_comboref.speed_add.getZLong(),
+										swap_type = nswapDEC,
+										fitParent = true,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_comboref.speed_add = zslongToFix(val);
+										}),
+									IBTN("Adds this value, in px/frame, to the Hero's speed walking over this combo. Applies after mult and div. Can be negative.")
+								)
+							)
 						)
 					)
 				)),

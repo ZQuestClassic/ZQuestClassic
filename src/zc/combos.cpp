@@ -471,7 +471,7 @@ static void trigger_cswitch_block_ffc(const ffc_handle_t& ffc_handle)
 	}
 }
 
-void spawn_decoration_xy(newcombo const& cmb, zfix x, zfix y)
+void spawn_decoration_xy(newcombo const& cmb, zfix x, zfix y, zfix cx, zfix cy)
 {
 	int16_t decotype = (cmb.usrflags & cflag1) ? ((cmb.usrflags & cflag10) ? (cmb.attribytes[0]) : (-1)) : (0);
 	if(decotype > 3) decotype = 0;
@@ -483,7 +483,7 @@ void spawn_decoration_xy(newcombo const& cmb, zfix x, zfix y)
 	{
 		case -2: break; //nothing
 		case -1:
-			decorations.add(new comboSprite(x, y, dCOMBOSPRITE, 0, cmb.attribytes[0]));
+			decorations.add(new comboSprite(cx-8, cy-8, dCOMBOSPRITE, 0, cmb.attribytes[0]));
 			break;
 		case 1: decorations.add(new dBushLeaves(x, y, dBUSHLEAVES, 0, 0)); break;
 		case 2: decorations.add(new dFlowerClippings(x, y, dFLOWERCLIPPINGS, 0, 0)); break;
@@ -494,7 +494,7 @@ void spawn_decoration_xy(newcombo const& cmb, zfix x, zfix y)
 void spawn_decoration(newcombo const& cmb, const rpos_handle_t& rpos_handle)
 {
 	auto [x, y] = COMBOXY_REGION(rpos_handle.rpos);
-	spawn_decoration_xy(cmb, x, y);
+	spawn_decoration_xy(cmb, x, y, x + 8, y + 8);
 }
 
 void trigger_cuttable(const rpos_handle_t& rpos_handle)
@@ -720,7 +720,7 @@ void trigger_cuttable_ffc(const ffc_handle_t& ffc_handle)
 			sfx(QMisc.miscsfx[sfxBUSHGRASS],int32_t(x));
 		}
 	}
-	spawn_decoration_xy(cmb, x, y);
+	spawn_decoration_xy(cmb, x, y, ffc.x+(ffc.hit_width / 2), ffc.y+(ffc.hit_height / 2));
 }
 
 bool trigger_step(const rpos_handle_t& rpos_handle)
