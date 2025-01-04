@@ -13098,9 +13098,10 @@ void handle_lens_triggers(int32_t l_id)
 
 	auto& combo_cache = combo_caches::lens;
 
+	// TODO z3 combine
 	for_every_rpos([&](const rpos_handle_t& rpos_handle) {
 		auto& cmb = combo_cache.minis[rpos_handle.data()];
-		if (enabled ? cmb.on() : cmb.off())
+		if (enabled ? cmb.on : cmb.off)
 		{
 			do_trigger_combo(rpos_handle);
 		}
@@ -13110,7 +13111,7 @@ void handle_lens_triggers(int32_t l_id)
 	{
 		for_every_ffc([&](const ffc_handle_t& ffc_handle) {
 			auto& cmb = combo_cache.minis[ffc_handle.data()];
-			if (enabled ? cmb.on() : cmb.off())
+			if (enabled ? cmb.on : cmb.off)
 			{
 				do_trigger_combo(ffc_handle);
 			}
@@ -23443,7 +23444,7 @@ void HeroClass::handleSpotlights()
 	bool istrigged = true;
 	for_every_rpos([&](const rpos_handle_t& rpos_handle) {
 		auto& mini_cmb = combo_cache.minis[rpos_handle.data()];
-		if (mini_cmb.target())
+		if (mini_cmb.target)
 		{
 			auto& cmb = rpos_handle.combo();
 			bool alltrig = getmapflag(rpos_handle.scr, mLIGHTBEAM);
@@ -23467,7 +23468,7 @@ void HeroClass::handleSpotlights()
 				else istrigged = false;
 			}
 		}
-		else if (mini_cmb.flags)
+		else if (mini_cmb.trigger)
 		{
 			auto& cmb = rpos_handle.combo();
 			int32_t trigflag = cmb.triglbeam ? (1 << (cmb.triglbeam-1)) : ~0;
@@ -23489,7 +23490,7 @@ void HeroClass::handleSpotlights()
 			return;
 
 		auto& mini_cmb = combo_cache.minis[ffc_handle.data()];
-		if (mini_cmb.target())
+		if (mini_cmb.target)
 		{
 			auto& cmb = ffc_handle.combo();
 			bool alltrig = getmapflag(ffc_handle.scr, mLIGHTBEAM);
@@ -23513,7 +23514,7 @@ void HeroClass::handleSpotlights()
 				else istrigged = false;
 			}
 		}
-		else if (mini_cmb.flags)
+		else if (mini_cmb.trigger)
 		{
 			auto& cmb = ffc_handle.combo();
 			int32_t trigflag = cmb.triglbeam ? (1 << (cmb.triglbeam-1)) : ~0;

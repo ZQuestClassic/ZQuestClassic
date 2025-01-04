@@ -107,7 +107,6 @@ struct combo_cache
 	}
 };
 
-
 namespace combo_caches
 {
 	struct minicombo_type
@@ -152,18 +151,15 @@ namespace combo_caches
 
 	struct minicombo_trigger_group
 	{
-		byte flags;
+		bool less : 1;
+		bool greater : 1;
 
 		minicombo_trigger_group() = default;
 		minicombo_trigger_group(const newcombo& combo)
 		{
-			bool less = combo.triggerflags[3] & combotriggerTGROUP_LESS;
-			bool greater = combo.triggerflags[3] & combotriggerTGROUP_GREATER;
-			flags = (less ? 1 : 0) + (greater ? 2 : 0);
+			less = combo.triggerflags[3] & combotriggerTGROUP_LESS;
+			greater = combo.triggerflags[3] & combotriggerTGROUP_GREATER;
 		}
-
-		bool less() const { return flags&1; }
-		bool greater() const { return flags&2; }
 	};
 	extern combo_cache<minicombo_trigger_group> trigger_group;
 
@@ -241,37 +237,29 @@ namespace combo_caches
 
 	struct minicombo_lens
 	{
-		byte flags;
+		bool on : 1;
+		bool off : 1;
 
 		minicombo_lens() = default;
 		minicombo_lens(const newcombo& combo)
 		{
-			bool on = combo.triggerflags[1] & combotriggerLENSON;
-			bool off = combo.triggerflags[1] & combotriggerLENSOFF;
-			flags = (on ? 1 : 0) + (off ? 2 : 0);
+			on = combo.triggerflags[1] & combotriggerLENSON;
+			off = combo.triggerflags[1] & combotriggerLENSOFF;
 		}
-
-		bool on() const { return flags&1; }
-		bool off() const { return flags&2; }
 	};
 	extern combo_cache<minicombo_lens> lens;
 
 	struct minicombo_spotlight
 	{
-		byte flags;
+		bool trigger : 1;
+		bool target : 1;
 
 		minicombo_spotlight() = default;
 		minicombo_spotlight(const newcombo& combo)
 		{
-			bool on = combo.triggerflags[1] & combotriggerLIGHTON;
-			bool off = combo.triggerflags[1] & combotriggerLIGHTOFF;
-			bool target = combo.type == cLIGHTTARGET;
-			flags = (on ? 1 : 0) + (off ? 2 : 0) + + (target ? 4 : 0);
+			trigger = combo.triggerflags[1] & (combotriggerLIGHTON|combotriggerLIGHTOFF);
+			target = combo.type == cLIGHTTARGET;
 		}
-
-		bool trigger_on() const { return flags&1; }
-		bool trigger_off() const { return flags&2; }
-		bool target() const { return flags&4; }
 	};
 	extern combo_cache<minicombo_spotlight> spotlight;
 

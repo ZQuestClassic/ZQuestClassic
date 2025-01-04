@@ -3423,12 +3423,12 @@ void trig_trigger_groups()
 		while (true)
 		{
 			bool ok = false;
-			if (mini_cmb->less())
+			if (mini_cmb->less)
 			{
 				auto& cmb = combobuf[cid];
 				ok = cpos_trig_group_count(cmb.trig_group) < cmb.trig_group_val;
 			}
-			if (!ok && mini_cmb->greater())
+			if (!ok && mini_cmb->greater)
 			{
 				auto& cmb = combobuf[cid];
 				ok = cpos_trig_group_count(cmb.trig_group) > cmb.trig_group_val;
@@ -3459,12 +3459,12 @@ void trig_trigger_groups()
 		while (true)
 		{
 			bool ok = false;
-			if (mini_cmb->less())
+			if (mini_cmb->less)
 			{
 				auto& cmb = combobuf[cid];
 				ok = cpos_trig_group_count(cmb.trig_group) < cmb.trig_group_val;
 			}
-			if (!ok && mini_cmb->greater())
+			if (!ok && mini_cmb->greater)
 			{
 				auto& cmb = combobuf[cid];
 				ok = cpos_trig_group_count(cmb.trig_group) > cmb.trig_group_val;
