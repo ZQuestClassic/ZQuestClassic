@@ -134,7 +134,6 @@ std::pair<int32_t, int32_t> COMBOXY_REGION_INDEX(rpos_t rpos);
 int32_t mapind(int32_t map, int32_t scr);
 bool ffcIsAt(const ffc_handle_t& ffc_handle, int32_t x, int32_t y);
 
-extern bool triggered_screen_secrets;
 extern int32_t view_map_show_mode;
 
 struct maze_state_t {
@@ -449,6 +448,7 @@ struct screen_state_t
 	ScreenItemState item_state;
 	bool loaded_enemies;
 	bool did_enemy_secret;
+	bool triggered_secrets;
 	int open_doors;
 };
 

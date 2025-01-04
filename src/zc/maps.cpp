@@ -588,7 +588,11 @@ mapscr* get_scr(int map, int screen)
 		int index = screen*7;
 		if (!temporary_screens_currmap[index])
 		{
+			if (screenscrolling && FFCore.ScrollingScreensAll[index])
+				return FFCore.ScrollingScreensAll[index];
+
 			// Only needed during screen scrolling / dowarp
+			// TODO z3 ! verify above ... maybe remove?
 			load_a_screen_and_layers(cur_dmap, map, screen, -1);
 		}
 		return temporary_screens_currmap[index];
@@ -804,7 +808,6 @@ extern sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations;
 extern particle_list particles;
 extern movingblock mblock2;                                 //mblock[4]?
 extern portal mirror_portal;
-bool triggered_screen_secrets=false;
 
 void Z_message_d(const char *format,...)
 {
@@ -2712,7 +2715,7 @@ void trigger_secrets_for_screen(TriggerSource source, int32_t screen, bool high1
 {
 	log_trigger_secret_reason(source);
 	if (single < 0)
-		triggered_screen_secrets = true;
+		get_screen_state(screen).triggered_secrets = true;
 	bool do_combo_triggers = true;
 	trigger_secrets_for_screen_internal(screen, NULL, do_combo_triggers, high16only, single);
 }
@@ -2721,7 +2724,7 @@ void trigger_secrets_for_screen(TriggerSource source, int32_t screen, mapscr *s,
 {
 	log_trigger_secret_reason(source);
 	if (single < 0)
-		triggered_screen_secrets = true;
+		get_screen_state(screen).triggered_secrets = true;
 	bool do_combo_triggers = true;
 	trigger_secrets_for_screen_internal(screen, s, do_combo_triggers, high16only, single);
 }
@@ -5888,7 +5891,9 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool overlay, bool 
 	}
 
 	slopes.clear();
-	triggered_screen_secrets = false;
+	for_every_base_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
+		get_screen_state(scr->screen).triggered_secrets = false;
+	});
 	Hero.clear_platform_ffc();
 	timeExitAllGenscript(GENSCR_ST_CHANGE_SCREEN);
 	clear_darkroom_bitmaps();

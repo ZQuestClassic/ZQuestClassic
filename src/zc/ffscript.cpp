@@ -6866,7 +6866,7 @@ int32_t get_register(int32_t arg)
 
 		case SCREENSECRETSTRIGGERED:
 		{
-			ret = triggered_screen_secrets ? 10000L : 0L;
+			ret = get_screen_state(ri->screenref).triggered_secrets ? 10000L : 0L;
 			break;
 		}
 		
