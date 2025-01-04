@@ -448,6 +448,7 @@ struct screen_state_t
 {
 	ScreenItemState item_state;
 	bool loaded_enemies;
+	bool did_enemy_secret;
 	int open_doors;
 };
 

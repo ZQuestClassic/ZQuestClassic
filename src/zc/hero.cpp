@@ -23746,8 +23746,6 @@ int32_t HeroClass::nextflag(int32_t cx, int32_t cy, int32_t cdir, bool comboflag
     return MAPFLAG(cx,cy);
 }
 
-static std::set<int> screen_did_enemy_secret; // TODO z3
-
 void HeroClass::checkspecial()
 {
     checktouchblk();
@@ -23758,7 +23756,7 @@ void HeroClass::checkspecial()
 		bool hasmainguy = hasMainGuy(screen);
 		if (!state.loaded_enemies || hasmainguy)
 		{
-			screen_did_enemy_secret.erase(screen);
+			state.did_enemy_secret = false;
 		}
 		else
 		{
@@ -23813,7 +23811,7 @@ void HeroClass::checkspecial()
 							setmapflag(scr, mTMPNORET);
 				}
 				// clear enemies and open secret
-				if (!screen_did_enemy_secret.contains(screen) && (scr->flags2&fCLEARSECRET))
+				if (!state.did_enemy_secret && (scr->flags2&fCLEARSECRET))
 				{
 					bool only16_31 = get_qr(qr_ENEMIES_SECRET_ONLY_16_31)?true:false;
 					trigger_secrets_for_screen(TriggerSource::EnemiesScreenFlag, screen, only16_31);
@@ -23824,7 +23822,7 @@ void HeroClass::checkspecial()
 					}
 					
 					sfx(scr->secretsfx);
-					screen_did_enemy_secret.insert(screen);
+					state.did_enemy_secret = true;
 				}
 			}
 		}
