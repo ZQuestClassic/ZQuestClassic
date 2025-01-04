@@ -3941,7 +3941,7 @@ void HeroClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
 		s->cset[i] = s->undercset;
 		s->sflag[i] = 0;
 	}
-	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (s->flags9&fBELOWRETURN)))
+	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag(screen, (screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (s->flags9&fBELOWRETURN)))
 	{
 		items.add(new item((zfix)bx, (zfix)by,(zfix)0, s->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((s->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
 		sfx(s->secretsfx);
@@ -4179,7 +4179,7 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 	{
 		if(!isTouchyType(type) && !get_qr(qr_CONT_SWORD_TRIGGERS)) set_bit(screengrid,i,1);
 		
-		if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (s->flags9&fBELOWRETURN)))
+		if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag(s, (cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (s->flags9&fBELOWRETURN)))
 		{
 			items.add(new item((zfix)bx, (zfix)by,(zfix)0, s->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((s->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
 			sfx(s->secretsfx);
@@ -4464,7 +4464,7 @@ void HeroClass::check_slash_block_layer2(int32_t bx, int32_t by, weapon *w, int3
                 s->cset[i] = s->undercset;
                 s->sflag[i] = 0;
             }
-	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (s->flags9&fBELOWRETURN)))
+	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag(s, (cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (s->flags9&fBELOWRETURN)))
         {
             items.add(new item((zfix)bx, (zfix)by,(zfix)0, s->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((s->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
             sfx(s->secretsfx);
@@ -4737,7 +4737,7 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
     {
         if(!isTouchyType(type) && !get_qr(qr_CONT_SWORD_TRIGGERS)) set_bit(w->wscreengrid,i,1);
         
-        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (s->flags9&fBELOWRETURN)))
+        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag(s, (cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (s->flags9&fBELOWRETURN)))
         {
             items.add(new item((zfix)bx, (zfix)by,(zfix)0, s->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((s->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
             sfx(s->secretsfx);
@@ -5107,7 +5107,7 @@ void HeroClass::check_slash_block(weapon *w)
     {
         if(!isTouchyType(type) && !get_qr(qr_CONT_SWORD_TRIGGERS)) set_bit(screengrid,i,1);
         
-        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (s->flags9&fBELOWRETURN)))
+        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag(s, (cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (s->flags9&fBELOWRETURN)))
         {
             items.add(new item((zfix)bx, (zfix)by,(zfix)0, s->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((s->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
             sfx(s->secretsfx);
@@ -5417,7 +5417,7 @@ void HeroClass::check_pound_block(int bx, int by, weapon* w)
         
         set_bit(screengrid,pos,1);
         
-        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (s->flags9&fBELOWRETURN)))
+        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag(s, (cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (s->flags9&fBELOWRETURN)))
         {
             items.add(new item((zfix)bx, (zfix)by, (zfix)0, s->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((s->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
             sfx(s->secretsfx);
@@ -5516,7 +5516,7 @@ void HeroClass::check_pound_block_layer(int bx, int by, int lyr, weapon* w)
 		
 	set_bit(grid,i,1);
 	
-	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (s->flags9&fBELOWRETURN)))
+	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag(s, (cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (s->flags9&fBELOWRETURN)))
 	{
 		items.add(new item((zfix)bx, (zfix)by, (zfix)0, s->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((s->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
 		sfx(s->secretsfx);
@@ -24080,6 +24080,9 @@ void HeroClass::checkspecial2(int32_t *ls)
 	int32_t flag=0;
 	int32_t flag2=0;
 	int32_t flag3=0;
+	mapscr* flag_scr=nullptr;
+	mapscr* flag2_scr=nullptr;
+	mapscr* flag3_scr=nullptr;
 	int32_t type=0;
 	int32_t water=0;
 	int32_t index = 0;
@@ -24117,6 +24120,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 	types[1] = MAPFLAG(x1,y2);
 	types[2] = MAPFLAG(x2,y1);
 	types[3] = MAPFLAG(x2,y2);
+	flag_scr = get_scr_for_world_xy(x1, y1);
 	
 	
 	//MAPFFCOMBO
@@ -24133,18 +24137,34 @@ void HeroClass::checkspecial2(int32_t *ls)
 	types[1] = MAPCOMBOFLAG(x1,y2);
 	types[2] = MAPCOMBOFLAG(x2,y1);
 	types[3] = MAPCOMBOFLAG(x2,y2);
+	flag2_scr = flag_scr;
 	
 	if(types[0]==types[1]&&types[2]==types[3]&&types[1]==types[2])
 		flag2 = types[0];
 	else if(!get_qr(qr_FAIRY_FLAG_COMPAT) && y.getInt()%16==8 && types[0]==types[2] && (types[0]==mfFAIRY || types[0]==mfMAGICFAIRY || types[0]==mfALLFAIRY))
 		flag2 = types[0];
-		
-	types[0] = MAPFFCOMBOFLAG(x1,y1);
-	types[1] = MAPFFCOMBOFLAG(x1,y2);
-	types[2] = MAPFFCOMBOFLAG(x2,y1);
-	types[3] = MAPFFCOMBOFLAG(x2,y2);
-	
-	
+
+	{
+		auto ffc_handle_1 = getFFCAt(x1, y1);
+		auto ffc_handle_2 = getFFCAt(x1, y2);
+		auto ffc_handle_3 = getFFCAt(x2, y1);
+		auto ffc_handle_4 = getFFCAt(x2, y2);
+
+		types[0] = ffc_handle_1 ? ffc_handle_1->cflag() : 0;
+		types[1] = ffc_handle_2 ? ffc_handle_2->cflag() : 0;
+		types[2] = ffc_handle_3 ? ffc_handle_3->cflag() : 0;
+		types[3] = ffc_handle_4 ? ffc_handle_4->cflag() : 0;
+
+		if (ffc_handle_1)
+			flag3_scr = ffc_handle_1->scr;
+		else if (ffc_handle_2)
+			flag3_scr = ffc_handle_2->scr;
+		else if (ffc_handle_3)
+			flag3_scr = ffc_handle_3->scr;
+		else if (ffc_handle_4)
+			flag3_scr = ffc_handle_4->scr;
+	}
+
 	//
 	
 	if(types[0]==types[1]&&types[2]==types[3]&&types[1]==types[2])
@@ -24941,11 +24961,11 @@ RaftingStuff:
 		switch(flag)
 		{
 		case mfDIVE_ITEM:
-			if(isDiving() && (!getmapflag((cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (hero_scr->flags9&fBELOWRETURN)))
+			if(isDiving() && (!getmapflag(flag_scr, (cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (flag_scr->flags9&fBELOWRETURN)))
 			{
-				additem(x, y, hero_scr->catchall,
-						ipONETIME2 | ipBIGRANGE | ipHOLDUP | ipNODRAW | ((hero_scr->flags8&fITEMSECRET) ? ipSECRETS : 0));
-				sfx(hero_scr->secretsfx);
+				additem(x, y, flag_scr->catchall,
+						ipONETIME2 | ipBIGRANGE | ipHOLDUP | ipNODRAW | ((flag_scr->flags8&fITEMSECRET) ? ipSECRETS : 0));
+				sfx(flag_scr->secretsfx);
 			}
 			
 			return;
@@ -25003,11 +25023,11 @@ RaftingStuff:
 		switch(flag2)
 		{
 		case mfDIVE_ITEM:
-			if(isDiving() && (!getmapflag((cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (hero_scr->flags9&fBELOWRETURN)))
+			if(isDiving() && (!getmapflag(flag2_scr, (cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (flag2_scr->flags9&fBELOWRETURN)))
 			{
-				additem(x, y, hero_scr->catchall,
-						ipONETIME2 | ipBIGRANGE | ipHOLDUP | ipNODRAW | ((hero_scr->flags8&fITEMSECRET) ? ipSECRETS : 0));
-				sfx(hero_scr->secretsfx);
+				additem(x, y, flag2_scr->catchall,
+						ipONETIME2 | ipBIGRANGE | ipHOLDUP | ipNODRAW | ((flag2_scr->flags8&fITEMSECRET) ? ipSECRETS : 0));
+				sfx(flag2_scr->secretsfx);
 			}
 			
 			return;
@@ -25065,11 +25085,11 @@ RaftingStuff:
 		switch(flag3)
 		{
 		case mfDIVE_ITEM:
-			if(isDiving() && (!getmapflag((cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (hero_scr->flags9&fBELOWRETURN)))
+			if(isDiving() && (!getmapflag(flag3_scr, (cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (flag3_scr->flags9&fBELOWRETURN)))
 			{
-				additem(x, y, hero_scr->catchall,
-						ipONETIME2 | ipBIGRANGE | ipHOLDUP | ipNODRAW | ((hero_scr->flags8&fITEMSECRET) ? ipSECRETS : 0));
-				sfx(hero_scr->secretsfx);
+				additem(x, y, flag3_scr->catchall,
+						ipONETIME2 | ipBIGRANGE | ipHOLDUP | ipNODRAW | ((flag3_scr->flags8&fITEMSECRET) ? ipSECRETS : 0));
+				sfx(flag3_scr->secretsfx);
 			}
 			
 			return;
@@ -25246,6 +25266,7 @@ RaftingStuff:
 			advanceframe(true);
 		}
 		
+		// TODO z3 use more proper scr ...
 		if(!(hero_scr->noreset&mSECRET)) unsetmapflag(hero_scr, mSECRET);
 		
 		if(!(hero_scr->noreset&mITEM)) unsetmapflag(hero_scr, mITEM);
@@ -32356,7 +32377,7 @@ void HeroClass::ganon_intro()
     action=none; FFCore.setHeroAction(none);
     dir=up;
 
-    if((!getmapflag() || (tmpscr->flags9&fBELOWRETURN)) && (tunes[MAXMIDIS-1].data))
+    if((!getmapflag(hero_screen, mSPECIALITEM) || (hero_scr->flags9&fBELOWRETURN)) && (tunes[MAXMIDIS-1].data))
         jukebox(MAXMIDIS-1);
     else
         playLevelMusic();

@@ -17694,7 +17694,7 @@ void set_register(int32_t arg, int32_t value)
 			else if(unsigned(ind) > 7)
 				Z_scripterrlog("Invalid index '%d' passed to 'Screen->SetExDoor()'; must be 0-7\n", ind);
 			else
-				set_xdoorstate(mi, dir, ind);
+				set_xdoorstate_mi(mi, dir, ind);
 			break;
 		}
 
@@ -19000,7 +19000,7 @@ void set_register(int32_t arg, int32_t value)
 				else if(unsigned(ind) > 7)
 					Z_scripterrlog("Invalid index '%d' passed to 'mapdata->SetExDoor()'; must be 0-7\n", ind);
 				else
-					set_xdoorstate(mi, dir, ind);
+					set_xdoorstate_mi(mi, dir, ind);
 			}
 			else Z_scripterrlog("mapdata->SetExDoor pointer (%d) is either invalid or uninitialised.\n", ri->mapsref);
 			break;

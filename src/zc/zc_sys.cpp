@@ -2398,7 +2398,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 
 		for_every_visible_rpos_layer0([&](const rpos_handle_t& rpos_handle) {
 			mapscr* scr = tmpscr;
-			auto [x, y] = COMBOXY_REGION(rpos_handle.rpos);
+			auto [x, y] = rpos_handle.xy();
 			y += playing_field_offset;
 
 			int32_t tempitemx=-16, tempitemy=-16;
@@ -3390,7 +3390,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 						
 					case mfARMOS_ITEM:
 					case mfDIVE_ITEM:
-						if((!getmapflag() || (scr->flags9&fBELOWRETURN)) && !(itemsbuf[Hero.getLastLensID()].flags & item_flag3))
+						if((!getmapflag(scr, mSPECIALITEM) || (scr->flags9&fBELOWRETURN)) && !(itemsbuf[Hero.getLastLensID()].flags & item_flag3))
 						{
 							putitem2(dest,x,y,scr->catchall, lens_hint_item[scr->catchall][0], lens_hint_item[scr->catchall][1], 0);
 						}

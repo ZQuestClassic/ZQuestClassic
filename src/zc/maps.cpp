@@ -1571,11 +1571,6 @@ void unsetmapflag_mi(mapscr* scr, int32_t mi, int32_t flag, bool anyflag)
     }
 }
 
-bool getmapflag(int32_t flag)
-{
-	int mi = mapind(cur_map, home_screen);
-    return (game->maps[mi] & flag) != 0;
-}
 bool getmapflag(int32_t screen, int32_t flag)
 {
 	int mi = mapind(cur_map, screen >= 0x80 ? home_screen : screen);
@@ -1626,7 +1621,7 @@ bool getxmapflag_mi(int32_t mi, uint32_t flag)
 	return (game->xstates[mi] & flag) != 0;
 }
 
-void setxdoor(uint mi, uint dir, uint ind, bool state)
+void setxdoor_mi(uint mi, uint dir, uint ind, bool state)
 {
 	if(mi > game->xdoors.size() || dir > 3 || ind > 8)
 		return;
@@ -1642,21 +1637,16 @@ void setxdoor(uint mi, uint dir, uint ind, bool state)
 	else
 		log_state_change(cmap, cscr, fmt::format("ExDoor[{}][{}] unset", dirstr[dir], ind));
 }
-void setxdoor(uint dir, uint ind, bool state)
-{
-	int mi = mapind(cur_map, home_screen);
-	setxdoor(mi, dir, ind, state);
-}
-bool getxdoor(uint mi, uint dir, uint ind)
+bool getxdoor_mi(uint mi, uint dir, uint ind)
 {
 	if(mi >= game->xdoors.size() || dir >= 4 || ind >= 8)
 		return false;
 	return (game->xdoors[mi][dir] & (1<<ind));
 }
-bool getxdoor(uint dir, uint ind)
+bool getxdoor(int32_t screen, uint dir, uint ind)
 {
-	int mi = mapind(cur_map, home_screen);
-	return getxdoor(mi,dir,ind);
+	int mi = mapind(cur_map, screen);
+	return getxdoor_mi(mi,dir,ind);
 }
 
 void set_doorstate_mi(uint mi, uint dir)
@@ -1672,24 +1662,20 @@ void set_doorstate(uint screen, uint dir)
 	int mi = mapind(cur_map, screen);
 	set_doorstate_mi(mi, dir);
 }
-void set_doorstate(uint dir)
-{
-	int mi = mapind(cur_map, cur_screen);
-	set_doorstate_mi(mi, dir);
-}
 
-void set_xdoorstate(uint mi, uint dir, uint ind)
+void set_xdoorstate_mi(uint mi, uint dir, uint ind)
 {
 	if(mi >= game->xdoors.size() || dir >= 4 || ind >= 8)
 		return;
-	setxdoor(mi, dir, ind, true);
+	setxdoor_mi(mi, dir, ind, true);
 	if(auto di = nextscr_mi(mi, dir))
-		setxdoor(*di, oppositeDir[dir], ind);
+		setxdoor_mi(*di, oppositeDir[dir], ind);
 }
-void set_xdoorstate(uint dir, uint ind)
+
+void set_xdoorstate(int32_t screen,uint dir, uint ind)
 {
-	int mi = mapind(cur_map, cur_screen);
-	set_xdoorstate(mi, dir, ind);
+	int mi = mapind(cur_map, screen);
+	set_xdoorstate_mi(mi, dir, ind);
 }
 
 int32_t WARPCODE(int32_t dmap,int32_t screen,int32_t dw)
@@ -2474,7 +2460,7 @@ bool remove_xdoors(mapscr *scr, uint dir, uint ind, bool triggers)
 bool remove_xdoors_mi(mapscr *scr, int32_t mi, uint dir, uint ind, bool triggers)
 {
 	bool didit=false;
-	if(!getxdoor(mi, dir, ind)) return false;
+	if(!getxdoor_mi(mi, dir, ind)) return false;
 
 	if (scr->screen >= 0x80) scr = &special_warp_return_screen;
 	int screen = scr->screen;

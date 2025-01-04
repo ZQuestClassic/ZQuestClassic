@@ -65,7 +65,7 @@ static void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag,
 
 	mapscr* scr = rpos_handle.scr;
 	int pos = rpos_handle.pos;
-	auto [x, y] = COMBOXY_REGION(rpos_handle.rpos);
+	auto [x, y] = rpos_handle.xy();
 
 	ft = vbound(ft, minSECRET_TYPE, maxSECRET_TYPE); //sanity guard to legal secret types. 44 to 127 are unused
 	if (true) // Probably needs a way to only be triggered once...
@@ -114,7 +114,7 @@ static void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag,
 		}
 		
 		//drop special room item
-		if ( (combobuf[cid].usrflags&cflag6) && !getmapflag(mSPECIALITEM))
+		if ( (combobuf[cid].usrflags&cflag6) && !getmapflag(scr, mSPECIALITEM))
 		{
 			items.add(new item(x, y, 0,
 				scr->catchall,ipONETIME2|ipBIGRANGE|((itemsbuf[scr->catchall].family==itype_triforcepiece ||
@@ -240,7 +240,7 @@ void do_generic_combo_ffc2(const ffc_handle_t& ffc_handle, int32_t cid, int32_t 
 		}
 		
 		//drop special room item
-		if ( (combobuf[cid].usrflags&cflag6) && !getmapflag(mSPECIALITEM))
+		if ( (combobuf[cid].usrflags&cflag6) && !getmapflag(scr, mSPECIALITEM))
 		{
 			items.add(new item(ffc->x, ffc->y,(zfix)0,
 				scr->catchall,ipONETIME2|ipBIGRANGE|((itemsbuf[scr->catchall].family==itype_triforcepiece ||
@@ -493,7 +493,7 @@ void spawn_decoration_xy(newcombo const& cmb, zfix x, zfix y, zfix cx, zfix cy)
 
 void spawn_decoration(newcombo const& cmb, const rpos_handle_t& rpos_handle)
 {
-	auto [x, y] = COMBOXY_REGION(rpos_handle.rpos);
+	auto [x, y] = rpos_handle.xy();
 	spawn_decoration_xy(cmb, x, y, x + 8, y + 8);
 }
 
@@ -506,7 +506,7 @@ void trigger_cuttable(const rpos_handle_t& rpos_handle)
 	if(!isCuttableType(type)) return;
 	auto flag = scr->sflag[pos];
 	auto flag2 = cmb.flag;
-	auto [x, y] = COMBOXY_REGION(rpos_handle.rpos);
+	auto [x, y] = rpos_handle.xy();
 	
 	bool skipSecrets = isNextType(type) && !get_qr(qr_OLD_SLASHNEXT_SECRETS);
 	bool done = false;
@@ -573,7 +573,7 @@ void trigger_cuttable(const rpos_handle_t& rpos_handle)
 		}
 	}
 	
-	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((rpos_handle.screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (scr->flags9&fBELOWRETURN)))
+	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag(scr, (rpos_handle.screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (scr->flags9&fBELOWRETURN)))
 	{
 		items.add(new item((zfix)x, (zfix)y,(zfix)0, scr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((scr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
 		sfx(scr->secretsfx);
@@ -674,7 +674,7 @@ void trigger_cuttable_ffc(const ffc_handle_t& ffc_handle)
 		}
 	}
 	
-	if((flag2==mfARMOS_ITEM) && (!getmapflag((cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (scr->flags9&fBELOWRETURN)))
+	if((flag2==mfARMOS_ITEM) && (!getmapflag(scr, (cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (scr->flags9&fBELOWRETURN)))
 	{
 		items.add(new item((zfix)x, (zfix)y,(zfix)0, scr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((scr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
 		sfx(scr->secretsfx);
@@ -1085,7 +1085,7 @@ bool trigger_chest(const rpos_handle_t& rpos_handle)
 	int32_t ipflag = 0;
 	if(cmb.usrflags & cflag7)
 	{
-		itemstate = getmapflag((rpos_handle.screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
+		itemstate = getmapflag(rpos_handle.scr, (rpos_handle.screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
 		ipflag = (rpos_handle.screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? ipONETIME : ipONETIME2;
 	}
 	if(itemflag && !itemstate)
@@ -1190,7 +1190,7 @@ bool trigger_chest_ffc(const ffc_handle_t& ffc_handle)
 	int32_t ipflag = 0;
 	if(cmb.usrflags & cflag7)
 	{
-		itemstate = getmapflag((cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
+		itemstate = getmapflag(screen, (cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
 		ipflag = (cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? ipONETIME : ipONETIME2;
 	}
 	if(itemflag && !itemstate)
@@ -2302,7 +2302,7 @@ bool trigger_shooter(newcombo const& cmb, zfix wx, zfix wy)
 }
 bool trigger_shooter(const rpos_handle_t& rpos_handle)
 {
-	auto [x, y] = COMBOXY_REGION(rpos_handle.rpos);
+	auto [x, y] = rpos_handle.xy();
 	return trigger_shooter(rpos_handle.combo(), x, y);
 }
 
@@ -2496,7 +2496,7 @@ bool force_ex_door_trigger(const rpos_handle_t& rpos_handle, int dir, uint ind)
 	auto& cmb = rpos_handle.combo();	
 	if(cmb.exdoor_dir > -1 && (dir < 0 || (dir == cmb.exdoor_dir && ind == cmb.exdoor_ind)))
 	{
-		if(dir >= 0 || getxdoor(cmb.exdoor_dir, cmb.exdoor_ind))
+		if(dir >= 0 || getxdoor(rpos_handle.screen, cmb.exdoor_dir, cmb.exdoor_ind))
 		{
 			do_ex_trigger(rpos_handle);
 			return true;
@@ -2511,7 +2511,7 @@ bool force_ex_door_trigger_ffc(const ffc_handle_t& ffc_handle, int dir, uint ind
 	auto& cmb = ffc_handle.combo();
 	if(cmb.exdoor_dir > -1 && (dir < 0 || (dir == cmb.exdoor_dir && ind == cmb.exdoor_ind)))
 	{
-		if(dir >= 0 || getxdoor(cmb.exdoor_dir, cmb.exdoor_ind))
+		if(dir >= 0 || getxdoor(ffc_handle.screen, cmb.exdoor_dir, cmb.exdoor_ind))
 		{
 			do_ex_trigger_ffc(ffc_handle);
 			return true;
@@ -2788,7 +2788,7 @@ void handle_trigger_results(mapscr* scr, newcombo const& cmb, int32_t cx, int32_
 	}
 	if(cmb.exdoor_dir > -1)
 	{
-		set_xdoorstate(cmb.exdoor_dir, cmb.exdoor_ind);
+		set_xdoorstate(screen, cmb.exdoor_dir, cmb.exdoor_ind);
 	}
 }
 
@@ -3480,7 +3480,7 @@ void handle_cpos_type(byte combo_type, cpos_info& timer, const rpos_handle_t& rp
 		case cCRUMBLE:
 		{
 			word cid = rpos_handle.data();
-			auto [x, y] = COMBOXY_REGION(rpos_handle.rpos);
+			auto [x, y] = rpos_handle.xy();
 			handle_crumble(rpos_handle.combo(), timer, cid, x, y, 16, 16);
 			rpos_handle.set_data(cid);
 			break;
@@ -3594,7 +3594,7 @@ void cpos_update() //updates with side-effects
 		if(!timer.appeared)
 		{
 			auto& cmb = combobuf[cid];
-			auto [x, y] = COMBOXY_REGION(rpos_handle.rpos);
+			auto [x, y] = rpos_handle.xy();
 			timer.appeared = true;
 			if(cmb.sfx_appear)
 				sfx(cmb.sfx_appear);

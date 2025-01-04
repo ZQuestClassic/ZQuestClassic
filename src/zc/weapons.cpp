@@ -178,7 +178,7 @@ void do_generic_combo(const rpos_handle_t& rpos_handle, weapon *w, int32_t wid,
 	int32_t pos = rpos_handle.pos;
 	int32_t layer = rpos_handle.layer;
 	mapscr* scr = rpos_handle.scr;
-	auto [x, y] = COMBOXY_REGION(rpos_handle.rpos);
+	auto [x, y] = rpos_handle.xy();
 
 	ft = vbound(ft, minSECRET_TYPE, maxSECRET_TYPE); //sanity guard to legal secret types. 44 to 127 are unused
 	bool checked = w->rposes_checked.contains({rpos_handle.layer, rpos_handle.rpos});
@@ -227,7 +227,7 @@ void do_generic_combo(const rpos_handle_t& rpos_handle, weapon *w, int32_t wid,
 		}
 		
 		//drop special room item
-		if ( (combobuf[cid].usrflags&cflag6) && !getmapflag(mSPECIALITEM))
+		if ( (combobuf[cid].usrflags&cflag6) && !getmapflag(scr, mSPECIALITEM))
 		{
 			items.add(new item(x, y, 0,
 				scr->catchall,ipONETIME2|ipBIGRANGE|((itemsbuf[scr->catchall].family==itype_triforcepiece ||
@@ -355,7 +355,7 @@ void do_generic_combo_ffc(weapon *w, const ffc_handle_t& ffc_handle, int32_t cid
 		}
 		
 		//drop special room item
-		if ( (combobuf[cid].usrflags&cflag6) && !getmapflag(mSPECIALITEM))
+		if ( (combobuf[cid].usrflags&cflag6) && !getmapflag(ffc_handle.scr, mSPECIALITEM))
 		{
 			items.add(new item(ffc->x, ffc->y,
 				(zfix)0,

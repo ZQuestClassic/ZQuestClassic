@@ -8346,7 +8346,7 @@ void enemy::removearmos(int32_t ax,int32_t ay, std::optional<ffc_handle_t> ffcac
 	
 	if(f == mfARMOS_ITEM || f2 == mfARMOS_ITEM)
 	{
-		if(!getmapflag((cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (scr->flags9&fBELOWRETURN))
+		if(!getmapflag(scr, (cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (scr->flags9&fBELOWRETURN))
 		{
 			additem(ax,ay,scr->catchall, (ipONETIME2 + ipBIGRANGE) | ((scr->flags3&fHOLDITEM) ? ipHOLDUP : 0) | ((scr->flags8&fITEMSECRET) ? ipSECRETS : 0));
 			sfx(scr->secretsfx);
@@ -8386,7 +8386,7 @@ void enemy::removearmosffc(const ffc_handle_t& ffc_handle)
 	
 	if(f2 == mfARMOS_ITEM)
 	{
-		if(!getmapflag((cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (scr->flags9&fBELOWRETURN))
+		if(!getmapflag(scr, (cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (scr->flags9&fBELOWRETURN))
 		{
 			additem(ffc.x,ffc.y,scr->catchall, (ipONETIME2 + ipBIGRANGE) | ((scr->flags3&fHOLDITEM) ? ipHOLDUP : 0) | ((scr->flags8&fITEMSECRET) ? ipSECRETS : 0));
 			sfx(scr->secretsfx);
@@ -13325,7 +13325,7 @@ eGanon::eGanon(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	clk2=70;
 	misc=-1;
 	mapscr* scr = get_scr(screen_spawned);
-	mainguy=(!getmapflag((cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (scr->flags9&fBELOWRETURN));
+	mainguy=(!getmapflag(scr, (cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (scr->flags9&fBELOWRETURN));
 }
 
 bool eGanon::animate(int32_t index) //DO NOT ADD a check for do_animation to this version of GANON!! -Z
@@ -18313,13 +18313,13 @@ bool slowguy(int32_t id)
 	return false;
 }
 
-bool ok2add(int32_t id)
+static bool ok2add(mapscr* scr, int32_t id)
 {
 	if( ((unsigned)(id&0xFFF)) > MAXGUYS || id <= 0) 
 	{
 		return false;
 	}
-	if(getmapflag(mNEVERRET) && (guysbuf[id].flags & guy_never_return))
+	if(getmapflag(scr, mNEVERRET) && (guysbuf[id].flags & guy_never_return))
 		return false;
 		
 	switch(guysbuf[id].family)
@@ -18337,7 +18337,7 @@ bool ok2add(int32_t id)
 		{
 		case 1:
 			if(!get_qr(qr_NOTMPNORET))
-				return !getmapflag(mTMPNORET);
+				return !getmapflag(scr, mTMPNORET);
 				
 			return true;
 			
@@ -18357,7 +18357,7 @@ bool ok2add(int32_t id)
 	}
 	
 	if(!get_qr(qr_NOTMPNORET))
-		return !getmapflag(mTMPNORET);
+		return !getmapflag(scr, mTMPNORET);
 		
 	return true;
 }
@@ -18372,7 +18372,7 @@ static void activate_fireball_statue(const rpos_handle_t& rpos_handle)
 	int32_t ctype = rpos_handle.ctype();
 	if (ctype != cL_STATUE && ctype != cR_STATUE && ctype != cC_STATUE) return;
 
-	auto [x, y] = COMBOXY_REGION(rpos_handle.rpos);
+	auto [x, y] = rpos_handle.xy();
 
 	int32_t cx=-1000, cy=-1000;
 	if(!isfixedtogrid(statueID))
@@ -18557,7 +18557,7 @@ void update_slope_combopos(const rpos_handle_t& rpos_handle)
 	
 	if(isSlope && !wasSlope)
 	{
-		auto [x, y] = COMBOXY_REGION(rpos_handle.rpos);
+		auto [x, y] = rpos_handle.xy();
 		slopes.try_emplace(id, &(s->data[rpos_handle.pos]), nullptr, -1, x, y);
 	}
 	else if(wasSlope && !isSlope)
@@ -18737,7 +18737,7 @@ void awaken_spinning_tile(const rpos_handle_t& rpos_handle)
 {
 	int cid = rpos_handle.data();
 	int cset = rpos_handle.cset();
-	auto [x, y] = COMBOXY_REGION(rpos_handle.rpos);
+	auto [x, y] = rpos_handle.xy();
 	addenemy(rpos_handle.screen, x, y, (cset<<12)+eSPINTILE1, combobuf[cid].o_tile + zc_max(1,combobuf[cid].frames));
 }
 
@@ -19004,7 +19004,7 @@ static void side_load_enemies(mapscr* scr)
 		
 		int32_t enemy_slot=guys.Count();
 		
-		while(sle_cnt > 0 && !ok2add(scr->enemy[sle_cnt-1]))
+		while(sle_cnt > 0 && !ok2add(scr, scr->enemy[sle_cnt-1]))
 			sle_cnt--;
 			
 		if(sle_cnt > 0)
@@ -19161,7 +19161,7 @@ void spawnEnemy(mapscr* scr, int& pos, int& clk, int offx, int offy, int& fastgu
 			
 			if(((cflag==mfENEMYALL)||(cflag_i==mfENEMYALL)) && (!placed))
 			{
-				if(!ok2add(scr->enemy[i]))
+				if(!ok2add(scr, scr->enemy[i]))
 				{
 					if (loadcnt < 10 && scr->enemy[i] > 0 && scr->enemy[i] < MAXGUYS) ++loadcnt;
 				}
@@ -19180,7 +19180,7 @@ void spawnEnemy(mapscr* scr, int& pos, int& clk, int offx, int offy, int& fastgu
 			
 			else if(((cflag==mfENEMY0+i)||(cflag_i==mfENEMY0+i)) && (!placed))
 			{
-				if(!ok2add(scr->enemy[i]))
+				if(!ok2add(scr, scr->enemy[i]))
 				{
 					if (loadcnt < 10 && scr->enemy[i] > 0 && scr->enemy[i] < MAXGUYS) ++loadcnt;
 				}
@@ -19250,7 +19250,7 @@ void spawnEnemy(mapscr* scr, int& pos, int& clk, int offx, int offy, int& fastgu
 				c=-15;
 		}
 		
-		if(!ok2add(scr->enemy[i]))
+		if(!ok2add(scr, scr->enemy[i]))
 		{
 			if (loadcnt < 10 && scr->enemy[i] > 0 && scr->enemy[i] < MAXGUYS) ++loadcnt;
 		}
