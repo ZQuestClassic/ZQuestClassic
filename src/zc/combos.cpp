@@ -3416,8 +3416,16 @@ void trig_trigger_groups()
 {
 	auto& combo_cache = combo_caches::trigger_group;
 
-	for_every_rpos([&](const rpos_handle_t& rpos_handle) {
-		int cid = rpos_handle.data();
+	bool include_ffcs = true;
+	for_every_combo([&](const auto& handle) {
+		// changers don't contribute
+		if constexpr (requires { handle.ffc; })
+		{
+			if (handle.ffc->flags & ffc_changer)
+				return;
+		}
+
+		int cid = handle.data();
 		auto* mini_cmb = &combo_cache.minis[cid];
 
 		while (true)
@@ -3435,11 +3443,21 @@ void trig_trigger_groups()
 			}
 			if (!ok) break;
 
-			do_trigger_combo(rpos_handle);
-			int cid2 = rpos_handle.data();
-			cpos_info& timer = cpos_get(rpos_handle);
+			do_trigger_combo(handle);
+			int cid2 = handle.data();
+			cpos_info& timer = handle.info();
 			bool recheck = timer.data != cid2;
-			timer.updateData(cid2);
+
+			if constexpr (requires { handle.ffc; })
+			{
+				if (handle.ffc->flags & ffc_changer)
+					timer.updateData(-1);
+				else timer.updateData(cid2);
+			}
+			else
+			{
+				timer.updateData(cid2);
+			}
 
 			if (!recheck)
 				break;
@@ -3447,45 +3465,7 @@ void trig_trigger_groups()
 			mini_cmb = &combo_cache.minis[cid2];
 			cid = cid2;
 		}
-	});
-
-	for_every_ffc([&](const ffc_handle_t& ffc_handle) {
-		if (ffc_handle.ffc->flags & ffc_changer)
-			return; //changers don't contribute
-
-		int cid = ffc_handle.data();
-		auto* mini_cmb = &combo_cache.minis[cid];
-
-		while (true)
-		{
-			bool ok = false;
-			if (mini_cmb->less)
-			{
-				auto& cmb = combobuf[cid];
-				ok = cpos_trig_group_count(cmb.trig_group) < cmb.trig_group_val;
-			}
-			if (!ok && mini_cmb->greater)
-			{
-				auto& cmb = combobuf[cid];
-				ok = cpos_trig_group_count(cmb.trig_group) > cmb.trig_group_val;
-			}
-			if (!ok) break;
-
-			do_trigger_combo(ffc_handle);
-			int cid2 = ffc_handle.data();
-			cpos_info& timer = ffc_handle.ffc->info;
-			bool recheck = timer.data != cid2;
-			if (ffc_handle.ffc->flags & ffc_changer)
-				timer.updateData(-1);
-			else timer.updateData(cid2);
-
-			if (!recheck)
-				break;
-
-			mini_cmb = &combo_cache.minis[cid2];
-			cid = cid2;
-		}
-	});
+	}, include_ffcs);
 }
 
 //COMBOTYPE POS STUFF
