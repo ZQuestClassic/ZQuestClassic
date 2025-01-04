@@ -3211,9 +3211,9 @@ void game_loop()
 		bool freezeff = freezemsg;
 		bool freeze = false;
 		for_every_combo([&](const auto& handle) {
-			if (handle.combo().type == cSCREENFREEZE)
+			if (handle.ctype() == cSCREENFREEZE)
 				freeze = true;
-			if (handle.combo().type == cSCREENFREEZEFF)
+			if (handle.ctype() == cSCREENFREEZEFF)
 				freezeff = true;
 		}, true);
 

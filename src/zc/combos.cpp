@@ -344,9 +344,9 @@ bool do_cswitch_combo(newcombo const& cmb, weapon* w)
 static void trigger_cswitch_block(const rpos_handle_t& rpos_handle)
 {
 	int pos = rpos_handle.pos;
+	if (rpos_handle.ctype() != cCSWITCHBLOCK) return;
+
 	auto& cmb = rpos_handle.combo();
-	if(cmb.type != cCSWITCHBLOCK) return;
-	
 	int32_t cmbofs = (cmb.attributes[0]/10000L);
 	int32_t csofs = (cmb.attributes[1]/10000L);
 	rpos_handle.modify_data(cmbofs);
@@ -758,7 +758,7 @@ bool trigger_step(const rpos_handle_t& rpos_handle)
 			every_combo_opts opts{};
 			opts.include_rposes_base_screen_only = true;
 			for_every_combo([&](const auto& handle) {
-				if (isStepType(handle.combo().type))
+				if (isStepType(handle.ctype()))
 					handle.increment_data();
 			}, opts);
 
@@ -805,7 +805,7 @@ bool trigger_step_ffc(const ffc_handle_t& ffc_handle)
 			every_combo_opts opts{};
 			opts.include_rposes_base_screen_only = true;
 			for_every_combo([&](const auto& handle) {
-				if (isStepType(handle.combo().type))
+				if (isStepType(handle.ctype()))
 					handle.increment_data();
 			}, opts);
 

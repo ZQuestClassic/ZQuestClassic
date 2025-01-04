@@ -1322,7 +1322,7 @@ int32_t COMBOTYPE2(int32_t layer,int32_t x,int32_t y)
 	auto rpos_handle = get_rpos_handle_for_world_xy(x, y, layer + 1);
 	if (!rpos_handle.scr->is_valid()) return 0;
 
-	return rpos_handle.combo().type;
+	return rpos_handle.ctype();
 }
 
 // Returns the flag for the combo at the given position.
@@ -2000,7 +2000,7 @@ int32_t iswaterex(int32_t combo, int32_t map, int32_t screen, int32_t layer, int
 				auto found_ffc_not_water = find_ffc([&](const ffc_handle_t& ffc_handle) {
 					if (ffcIsAt(ffc_handle, tx2, ty2))
 					{
-						auto ty = ffc_handle.combo().type;
+						auto ty = ffc_handle.ctype();
 						if(!combo_class_buf[ty].water && !(ShallowCheck && ty == cSHALLOWWATER))
 							return true;
 					}
@@ -2014,7 +2014,7 @@ int32_t iswaterex(int32_t combo, int32_t map, int32_t screen, int32_t layer, int
 					auto found_ffc_water = find_ffc([&](const ffc_handle_t& ffc_handle) {
 						if (ffcIsAt(ffc_handle, tx2, ty2))
 						{
-							auto ty = ffc_handle.combo().type;
+							auto ty = ffc_handle.ctype();
 							if(combo_class_buf[ty].water || (ShallowCheck && ty == cSHALLOWWATER))
 								return true;
 						}
@@ -2585,7 +2585,7 @@ bool remove_bosschests(mapscr* s)
 
 void delete_fireball_shooter(const rpos_handle_t& rpos_handle)
 {
-    int32_t ct=rpos_handle.combo().type;
+    int32_t ct=rpos_handle.ctype();
     
     if(ct!=cL_STATUE && ct!=cR_STATUE && ct!=cC_STATUE)
         return;

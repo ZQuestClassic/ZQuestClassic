@@ -170,12 +170,8 @@ requires std::is_invocable_v<T, const rpos_handle_t&> && std::is_invocable_v<T, 
 ZC_FORCE_INLINE void for_every_combo(T&& fn, every_combo_opts opts)
 {
 	if (opts.include_rposes_base_screen_only)
-	{
-		for_every_rpos([&](const rpos_handle_t& handle) {
-			if (handle.layer == 0)
-				fn(handle);
-		});
-	} else if (opts.include_rposes)
+		for_every_rpos_layer0(fn);
+	else if (opts.include_rposes)
 		for_every_rpos(fn);
 
 	if (opts.include_ffcs)

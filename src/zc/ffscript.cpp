@@ -8039,7 +8039,7 @@ int32_t get_register(int32_t arg)
 			int pos = ri->d[rINDEX] / 10000;
 			if (auto rpos_handle = ResolveMapdataPos(ri->mapsref, pos, "mapdata->ComboT[pos]"))
 			{
-				ret = rpos_handle.combo().type * 10000;
+				ret = rpos_handle.ctype() * 10000;
 			}
 			else
 			{

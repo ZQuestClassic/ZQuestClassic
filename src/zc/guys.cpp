@@ -18369,7 +18369,7 @@ static void activate_fireball_statue(const rpos_handle_t& rpos_handle)
 		return;
 	}
 
-	int32_t ctype = rpos_handle.combo().type;
+	int32_t ctype = rpos_handle.ctype();
 	if (ctype != cL_STATUE && ctype != cR_STATUE && ctype != cC_STATUE) return;
 
 	auto [x, y] = COMBOXY_REGION(rpos_handle.rpos);
@@ -18675,7 +18675,7 @@ void screen_combo_modify_postroutine(const rpos_handle_t& rpos_handle)
 	rpos_handle.scr->valid |= mVALID;
 	activate_fireball_statue(rpos_handle);
 
-	if(rpos_handle.combo().type==cSPINTILE1)
+	if(rpos_handle.ctype()==cSPINTILE1)
 	{
 		awaken_spinning_tile(rpos_handle);
 	}

@@ -24879,7 +24879,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 				sfx(combobuf[cid].attribytes[0],pan((int32_t)x));
 
 				for_every_rpos([&](const rpos_handle_t& rpos_handle) {
-					if (isStepType(rpos_handle.combo().type))
+					if (isStepType(rpos_handle.ctype()))
 						rpos_handle.increment_data();
 				});			
 			}
