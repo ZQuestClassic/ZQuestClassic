@@ -94,7 +94,7 @@ static bool is_same_region_id(int region_origin_scr, int map, int scr)
 
 bool is_in_current_region(int map, int screen)
 {
-	return map == currmap && screen >= 0 && screen < 128 && screen_in_current_region[screen];
+	return map == cur_map && screen >= 0 && screen < 128 && screen_in_current_region[screen];
 }
 
 bool is_in_current_region(int screen)
@@ -104,7 +104,7 @@ bool is_in_current_region(int screen)
 
 bool is_in_current_region(mapscr* scr)
 {
-	return scr->map == currmap && scr->screen < 128 && screen_in_current_region[scr->screen];
+	return scr->map == cur_map && scr->screen < 128 && screen_in_current_region[scr->screen];
 }
 
 bool is_in_scrolling_region(int screen)
@@ -144,7 +144,7 @@ int get_region_id(int map, int screen)
 
 int get_current_region_id()
 {
-	return get_region_id(currmap, cur_screen);
+	return get_region_id(cur_map, cur_screen);
 }
 
 void calculate_region(int map, int screen, region_t& region, int& region_scr_dx, int& region_scr_dy)
@@ -580,10 +580,10 @@ mapscr* get_scr_for_region_index_offset(int offset)
 mapscr* get_scr(int map, int screen)
 {
 	DCHECK_RANGE_INCLUSIVE(screen, 0, 135);
-	if (screen == cur_screen && map == currmap) return origin_scr;
-	if (screen == home_screen && map == currmap) return &special_warp_return_screen;
+	if (screen == cur_screen && map == cur_map) return origin_scr;
+	if (screen == home_screen && map == cur_map) return &special_warp_return_screen;
 
-	if (map == currmap)
+	if (map == cur_map)
 	{
 		int index = screen*7;
 		if (!temporary_screens_currmap[index])
@@ -603,16 +603,16 @@ mapscr* get_scr(int map, int screen)
 
 mapscr* get_scr(int screen)
 {
-	return get_scr(currmap, screen);
+	return get_scr(cur_map, screen);
 }
 
 mapscr* get_scr_no_load(int map, int screen)
 {
 	DCHECK_RANGE_INCLUSIVE(screen, 0, 135);
-	if (screen == cur_screen && map == currmap) return tmpscr;
-	if (screen == home_screen && map == currmap) return &special_warp_return_screen;
+	if (screen == cur_screen && map == cur_map) return tmpscr;
+	if (screen == home_screen && map == cur_map) return &special_warp_return_screen;
 
-	if (map == currmap)
+	if (map == cur_map)
 	{
 		int index = screen*7;
 		return temporary_screens_currmap[index];
@@ -630,10 +630,10 @@ mapscr* get_scr_layer(int map, int screen, int layer)
 {
 	DCHECK_LAYER_NEG1_INDEX(layer);
 	if (layer == -1) return get_scr(map, screen);
-	if (screen == cur_screen && map == currmap) return &tmpscr2[layer];
-	if (screen == home_screen && map == currmap) return &tmpscr3[layer];
+	if (screen == cur_screen && map == cur_map) return &tmpscr2[layer];
+	if (screen == home_screen && map == cur_map) return &tmpscr3[layer];
 
-	if (map == currmap)
+	if (map == cur_map)
 	{
 		int index = screen*7;
 		if (!temporary_screens_currmap[index])
@@ -654,14 +654,14 @@ mapscr* get_scr_layer(int map, int screen, int layer)
 // Note: layer=-1 returns the base screen, layer=0 returns the first layer.
 mapscr* get_scr_layer(int screen, int layer)
 {
-	return get_scr_layer(currmap, screen, layer);
+	return get_scr_layer(cur_map, screen, layer);
 }
 
 // Note: layer=-1 returns the base screen, layer=0 returns the first layer.
 // Return nullptr if screen is not valid.
 mapscr* get_scr_layer_valid(int screen, int layer)
 {
-	if (mapscr* scr = get_scr_layer(currmap, screen, layer); scr->is_valid())
+	if (mapscr* scr = get_scr_layer(cur_map, screen, layer); scr->is_valid())
 		return scr;
 	return nullptr;
 }
@@ -870,14 +870,14 @@ int32_t isdungeon(int32_t dmap, int32_t screen)
 	// dungeons can have any dlevel above 0
 	if((DMaps[dmap].type&dmfTYPE) == dmDNGN)
 	{
-		if (get_canonical_scr(currmap, screen)->flags6&fCAVEROOM)
+		if (get_canonical_scr(cur_map, screen)->flags6&fCAVEROOM)
 			return 0;
 			
 		return 1;
 	}
 
 	// dlevels that aren't dungeons are caves
-	if (get_canonical_scr(currmap, screen)->flags6&fDUNGEONROOM)
+	if (get_canonical_scr(cur_map, screen)->flags6&fDUNGEONROOM)
 		return 1;
 		
 	return 0;
@@ -1371,10 +1371,10 @@ void eventlog_mapflags()
 {
 	std::ostringstream oss;
 	
-	int mi = mapind(currmap, home_screen);
+	int mi = mapind(cur_map, home_screen);
     word g = game->maps[mi] &0x3FFF;
     
-	oss << fmt::format("Screen ({}, {:02X})", currmap+1, home_screen);
+	oss << fmt::format("Screen ({}, {:02X})", cur_map+1, home_screen);
 	if(g) // Main States
 	{
 		static const int order[] =
@@ -1440,12 +1440,12 @@ void eventlog_mapflags()
 void setmapflag(mapscr* scr, int32_t flag)
 {
 	if (scr->screen >= 0x80) scr = &special_warp_return_screen;
-	int mi = mapind(currmap, scr->screen);
+	int mi = mapind(cur_map, scr->screen);
 	setmapflag_mi(scr, mi, flag);
 }
 void setmapflag_homescr(int32_t flag)
 {
-	int mi = mapind(currmap, home_screen);
+	int mi = mapind(cur_map, home_screen);
     setmapflag_mi(origin_scr, mi, flag);
 }
 void setmapflag_mi(int32_t mi, int32_t flag)
@@ -1461,7 +1461,7 @@ void setmapflag_mi(int32_t mi, int32_t flag)
 
 static void log_state_change(int map, int screen, std::string action)
 {
-	if (is_in_current_region(map, screen) || (map == currmap && screen == home_screen))
+	if (is_in_current_region(map, screen) || (map == cur_map && screen == home_screen))
 		Z_eventlog("[Map %d, Screen %02X (current)] %s\n", map + 1, screen, action.c_str());
 	else
 		Z_eventlog("[Map %d, Screen %02X] %s\n", map + 1, screen, action.c_str());
@@ -1521,14 +1521,14 @@ void setmapflag_mi(mapscr* scr, int32_t mi, int32_t flag)
 
 void unsetmapflag_home(int32_t flag, bool anyflag)
 {
-	int mi = mapind(currmap, home_screen);
+	int mi = mapind(cur_map, home_screen);
     unsetmapflag_mi(origin_scr, mi, flag, anyflag);
 }
 
 void unsetmapflag(mapscr* scr, int32_t flag, bool anyflag)
 {
 	if (scr->screen >= 0x80) scr = &special_warp_return_screen;
-	int mi = mapind(currmap, scr->screen);
+	int mi = mapind(cur_map, scr->screen);
 	unsetmapflag_mi(scr, mi, flag, anyflag);
 }
 
@@ -1596,12 +1596,12 @@ void unsetmapflag_mi(mapscr* scr, int32_t mi, int32_t flag, bool anyflag)
 
 bool getmapflag(int32_t flag)
 {
-	int mi = mapind(currmap, home_screen);
+	int mi = mapind(cur_map, home_screen);
     return (game->maps[mi] & flag) != 0;
 }
 bool getmapflag(int32_t screen, int32_t flag)
 {
-	int mi = mapind(currmap, screen >= 0x80 ? home_screen : screen);
+	int mi = mapind(cur_map, screen >= 0x80 ? home_screen : screen);
     return (game->maps[mi] & flag) != 0;
 }
 bool getmapflag(mapscr* scr, int32_t flag)
@@ -1611,7 +1611,7 @@ bool getmapflag(mapscr* scr, int32_t flag)
 
 void setxmapflag(int32_t screen, uint32_t flag)
 {
-	int mi = mapind(currmap, screen >= 0x80 ? home_screen : screen);
+	int mi = mapind(cur_map, screen >= 0x80 ? home_screen : screen);
 	setxmapflag_mi(mi, flag);
 }
 void setxmapflag_mi(int32_t mi, uint32_t flag)
@@ -1627,7 +1627,7 @@ void setxmapflag_mi(int32_t mi, uint32_t flag)
 }
 void unsetxmapflag(int32_t screen, uint32_t flag)
 {
-	int mi = mapind(currmap, screen >= 0x80 ? home_screen : screen);
+	int mi = mapind(cur_map, screen >= 0x80 ? home_screen : screen);
 	unsetxmapflag_mi(mi, flag);
 }
 void unsetxmapflag_mi(int32_t mi, uint32_t flag)
@@ -1641,7 +1641,7 @@ void unsetxmapflag_mi(int32_t mi, uint32_t flag)
 }
 bool getxmapflag(int32_t screen, uint32_t flag)
 {
-	int mi = mapind(currmap, screen >= 0x80 ? home_screen : screen);
+	int mi = mapind(cur_map, screen >= 0x80 ? home_screen : screen);
 	return getxmapflag_mi(mi, flag);
 }
 bool getxmapflag_mi(int32_t mi, uint32_t flag)
@@ -1667,7 +1667,7 @@ void setxdoor(uint mi, uint dir, uint ind, bool state)
 }
 void setxdoor(uint dir, uint ind, bool state)
 {
-	int mi = mapind(currmap, home_screen);
+	int mi = mapind(cur_map, home_screen);
 	setxdoor(mi, dir, ind, state);
 }
 bool getxdoor(uint mi, uint dir, uint ind)
@@ -1678,7 +1678,7 @@ bool getxdoor(uint mi, uint dir, uint ind)
 }
 bool getxdoor(uint dir, uint ind)
 {
-	int mi = mapind(currmap, home_screen);
+	int mi = mapind(cur_map, home_screen);
 	return getxdoor(mi,dir,ind);
 }
 
@@ -1692,12 +1692,12 @@ void set_doorstate_mi(uint mi, uint dir)
 }
 void set_doorstate(uint screen, uint dir)
 {
-	int mi = mapind(currmap, screen);
+	int mi = mapind(cur_map, screen);
 	set_doorstate_mi(mi, dir);
 }
 void set_doorstate(uint dir)
 {
-	int mi = mapind(currmap, cur_screen);
+	int mi = mapind(cur_map, cur_screen);
 	set_doorstate_mi(mi, dir);
 }
 
@@ -1711,7 +1711,7 @@ void set_xdoorstate(uint mi, uint dir, uint ind)
 }
 void set_xdoorstate(uint dir, uint ind)
 {
-	int mi = mapind(currmap, cur_screen);
+	int mi = mapind(cur_map, cur_screen);
 	set_xdoorstate(mi, dir, ind);
 }
 
@@ -1918,7 +1918,7 @@ int32_t iswaterex_z3(int32_t combo, int32_t layer, int32_t x, int32_t y, bool se
 	if (x<0 || x>=world_w || y<0 || y>=world_h)
 		return false;
 
-	return iswaterex(combo, currmap, cur_screen, layer, x, y, secrets, fullcheck, LayerCheck, ShallowCheck, hero);
+	return iswaterex(combo, cur_map, cur_screen, layer, x, y, secrets, fullcheck, LayerCheck, ShallowCheck, hero);
 }
 
 int32_t iswaterex(int32_t combo, int32_t map, int32_t screen, int32_t layer, int32_t x, int32_t y, bool secrets, bool fullcheck, bool LayerCheck, bool ShallowCheck, bool hero)
@@ -2392,7 +2392,7 @@ bool remove_screenstatecombos2(mapscr *s, bool do_layers, int32_t what1, int32_t
 
 bool remove_xstatecombos(mapscr *s, byte xflag, bool triggers)
 {
-	int mi = mapind(currmap, s->screen >= 0x80 ? home_screen : s->screen);
+	int mi = mapind(cur_map, s->screen >= 0x80 ? home_screen : s->screen);
 	return remove_xstatecombos_mi(s, s->screen, mi, xflag, triggers);
 }
 bool remove_xstatecombos_mi(mapscr *s, int32_t screen, int32_t mi, byte xflag, bool triggers)
@@ -2477,7 +2477,7 @@ bool remove_xstatecombos_mi(mapscr *s, int32_t screen, int32_t mi, byte xflag, b
 
 void clear_xstatecombos(mapscr *s, int32_t screen, bool triggers)
 {
-	int mi = mapind(currmap, screen >= 0x80 ? home_screen : screen);
+	int mi = mapind(cur_map, screen >= 0x80 ? home_screen : screen);
 	clear_xstatecombos_mi(s, screen, mi, triggers);
 }
 
@@ -2491,7 +2491,7 @@ void clear_xstatecombos_mi(mapscr *s, int32_t screen, int32_t mi, bool triggers)
 
 bool remove_xdoors(mapscr *scr, uint dir, uint ind, bool triggers)
 {
-	int mi = mapind(currmap, scr->screen >= 0x80 ? home_screen : scr->screen);
+	int mi = mapind(cur_map, scr->screen >= 0x80 ? home_screen : scr->screen);
 	return remove_xdoors_mi(scr, mi, dir, ind, triggers);
 }
 bool remove_xdoors_mi(mapscr *scr, int32_t mi, uint dir, uint ind, bool triggers)
@@ -2543,7 +2543,7 @@ bool remove_xdoors_mi(mapscr *scr, int32_t mi, uint dir, uint ind, bool triggers
 
 void clear_xdoors(mapscr *scr, bool triggers)
 {
-	int mi = mapind(currmap, scr->screen >= 0x80 ? home_screen : scr->screen);
+	int mi = mapind(cur_map, scr->screen >= 0x80 ? home_screen : scr->screen);
 	clear_xdoors_mi(scr, mi, triggers);
 }
 
@@ -3363,14 +3363,14 @@ bool hitflag(int32_t x, int32_t y, int32_t flagtype, byte layers)
 
 optional<int> nextscr(int screen, int dir)
 {
-	auto [m, s] = nextscr2(currmap, screen, dir);
+	auto [m, s] = nextscr2(cur_map, screen, dir);
 	if (m == -1) return nullopt;
     return (m<<7) + s;
 }
 
 std::pair<int32_t, int32_t> nextscr2(int32_t dir)
 {
-	int32_t map = currmap;
+	int32_t map = cur_map;
     int32_t screen = screenscrolling ? scrolling_hero_screen : hero_screen;
 	return nextscr2(map, screen, dir);
 }
@@ -4987,7 +4987,7 @@ void draw_screen(bool showhero, bool runGeneric)
 			mapscr* base_scr = screen_handles[0].scr;
 			if (base_scr->flags&fDARK)
 			{
-				calc_darkroom_combos(currmap, screen, offx, offy + playing_field_offset);
+				calc_darkroom_combos(cur_map, screen, offx, offy + playing_field_offset);
 				draw_dark = true;
 			}
 		});
@@ -5684,7 +5684,7 @@ void load_a_screen_and_layers(int dmap, int map, int screen, int ldir)
 
 	const mapscr* source = get_canonical_scr(map, screen);
 	mapscr* base_scr = new mapscr(*source);
-	if (map == currmap) temporary_screens_currmap[screen*7] = base_scr;
+	if (map == cur_map) temporary_screens_currmap[screen*7] = base_scr;
 	screens.push_back(base_scr);
 
 	base_scr->valid |= mVALID; // layer 0 is always valid
@@ -5710,10 +5710,10 @@ void load_a_screen_and_layers(int dmap, int map, int screen, int ldir)
 			layer_scr->screen = screen;
 			screens.push_back(layer_scr);
 		}
-		if (map == currmap) temporary_screens_currmap[screen*7+i+1] = screens[i+1];
+		if (map == cur_map) temporary_screens_currmap[screen*7+i+1] = screens[i+1];
 	}
 
-	if (map != currmap) temporary_screens[map_screen_index(map, screen)] = screens;
+	if (map != cur_map) temporary_screens[map_screen_index(map, screen)] = screens;
 
 	// Apply perm secrets, if applicable.
 	if (canPermSecret(dmap, screen))
@@ -5933,7 +5933,7 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool overlay, bool 
 		{
 			if (screen != cur_screen && is_in_current_region(screen))
 			{
-				load_a_screen_and_layers(destdmap, currmap, screen, ldir);
+				load_a_screen_and_layers(destdmap, cur_map, screen, ldir);
 			}
 		}
 	}
@@ -5947,7 +5947,7 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool overlay, bool 
 	update_slope_comboposes();
 	cur_dmap = o_cur_dmap;
 	hero_screen = screen;
-	hero_scr = prev_hero_scr = get_scr_no_load(currmap, screen);
+	hero_scr = prev_hero_scr = get_scr_no_load(cur_map, screen);
 	CHECK(hero_scr);
 
 	cpos_force_update();
@@ -6032,7 +6032,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 
 	mapscr previous_scr = tmp == 0 ? *tmpscr : special_warp_return_screen;
 	mapscr* scr = tmp == 0 ? tmpscr : &special_warp_return_screen;
-	const mapscr* source = get_canonical_scr(currmap, screen);
+	const mapscr* source = get_canonical_scr(cur_map, screen);
 	*scr = *source;
 	if (tmp == 0)
 		hero_scr = prev_hero_scr = scr;
@@ -6136,7 +6136,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 			if(scr->layermap[i]>0)
 			{
 				tmpscr2[i]=TheMaps[(scr->layermap[i]-1)*MAPSCRS+scr->layerscreen[i]];
-				tmpscr2[i].map = currmap;
+				tmpscr2[i].map = cur_map;
 				tmpscr2[i].screen = screen;
 				
 				if(overlay)
@@ -6160,7 +6160,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 			else
 			{
 				(tmpscr2+i)->zero_memory();
-				tmpscr2[i].map = currmap;
+				tmpscr2[i].map = cur_map;
 				tmpscr2[i].screen = screen;
 			}
 		}
@@ -6177,7 +6177,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 		scr->ffcs[i].y += offy;
 	}
 
-	int mi = mapind(currmap, screen);
+	int mi = mapind(cur_map, screen);
 
 	// Apply perm secrets, if applicable.
 	if(canPermSecret(destdmap,screen))
@@ -6340,7 +6340,7 @@ void loadscr2(int32_t tmp,int32_t screen,int32_t)
 	}
 	
 	mapscr& scr = tmp == 0 ? *tmpscr : special_warp_return_screen;
-	scr = *get_canonical_scr(currmap, screen);
+	scr = *get_canonical_scr(cur_map, screen);
 	
 	if(tmp==0)
 	{
@@ -6350,18 +6350,18 @@ void loadscr2(int32_t tmp,int32_t screen,int32_t)
 			{
 				tmpscr2[i]=TheMaps[(scr.layermap[i]-1)*MAPSCRS+scr.layerscreen[i]];
 				tmpscr2[i].screen = screen;
-				tmpscr2[i].map = currmap;
+				tmpscr2[i].map = cur_map;
 			}
 			else
 			{
 				(tmpscr2+i)->zero_memory();
 				tmpscr2[i].screen = screen;
-				tmpscr2[i].map = currmap;
+				tmpscr2[i].map = cur_map;
 			}
 		}
 	}
 
-	int mi = mapind(currmap, screen);
+	int mi = mapind(cur_map, screen);
 	
 	if(canPermSecret(-1,screen))
 	{
@@ -7391,7 +7391,7 @@ int32_t view_map_show_mode = 3;
 bool displayOnMap(int32_t x, int32_t y)
 {
     int32_t s = (y<<4) + x;
-	int mi = mapind(currmap, s);
+	int mi = mapind(cur_map, s);
     if (!(game->maps[mi]&mVISITED))
         return false;
 
@@ -7893,7 +7893,7 @@ void mark_visited(int screen)
 	if (screen < 0x80)
 	{
 		if(DMaps[cur_dmap].flags&dmfVIEWMAP)
-			game->maps[mapind(currmap, screen)] |= mVISITED;
+			game->maps[mapind(cur_map, screen)] |= mVISITED;
 
 		markBmap(-1, screen);
 	}

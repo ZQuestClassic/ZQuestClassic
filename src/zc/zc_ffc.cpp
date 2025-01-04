@@ -10,7 +10,7 @@ void zc_ffc_set(ffcdata& ffc, word data)
 {
 	ffc.data = data;
 
-	mapscr* scr = get_scr_no_load(currmap, ffc.screen_spawned);
+	mapscr* scr = get_scr_no_load(cur_map, ffc.screen_spawned);
 	if (!scr) return;
 
 	uint8_t screen_index_offset = get_region_screen_offset(ffc.screen_spawned);

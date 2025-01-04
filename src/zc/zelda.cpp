@@ -314,7 +314,7 @@ int32_t gui_colorset=99;
 int32_t fullscreen = 0;
 byte zc_vsync=0;
 byte use_win32_proc=1, console_enabled = 0;
-int32_t home_screen,frame=0,currmap=0,dlevel,warpscr,worldscr,scrolling_hero_screen=0,scrolling_map=0,scrolling_dmap=0,scrolling_destdmap=-1;
+int32_t home_screen,frame=0,cur_map=0,dlevel,scrolling_hero_screen=0,scrolling_map=0,scrolling_dmap=0,scrolling_destdmap=-1;
 bool scrolling_using_new_region_coords;
 int32_t hero_screen=0;
 int32_t cur_screen=0;
@@ -1918,7 +1918,7 @@ int32_t init_game()
 	
 	timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
 	timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
-	previous_DMap = cur_dmap = warpscr = worldscr=game->get_continue_dmap();
+	previous_DMap = cur_dmap = game->get_continue_dmap();
 	init_dmap();
 	
 	if(game->get_continue_scrn() >= 0x80)
@@ -1940,7 +1940,7 @@ int32_t init_game()
 	lastentrance = cur_screen;
 	game->set_continue_scrn(lastentrance);
 	lastentrance_dmap = cur_dmap;
-	currmap = DMaps[cur_dmap].map;
+	cur_map = DMaps[cur_dmap].map;
 	dlevel = DMaps[cur_dmap].level;
 	mark_visited(cur_screen);
 	
@@ -2325,7 +2325,7 @@ int32_t cont_game()
 		throwGenScriptEvent(GENSCR_EVENT_CHANGE_LEVEL);
 	}
 
-	currmap = DMaps[cur_dmap].map;
+	cur_map = DMaps[cur_dmap].map;
 	init_dmap();
 	
 	for(int32_t i=0; i<6; i++)
@@ -2486,7 +2486,7 @@ void restart_level()
 		}
 	}
 	
-	currmap = DMaps[cur_dmap].map;
+	cur_map = DMaps[cur_dmap].map;
 	dlevel = DMaps[cur_dmap].level;
 	
 	for(int32_t i=0; i<6; i++)
@@ -3628,7 +3628,7 @@ int32_t get_currscr()
 
 int32_t get_currmap()
 {
-    return currmap;
+    return cur_map;
 }
 
 int32_t get_homescr()

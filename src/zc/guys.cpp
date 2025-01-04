@@ -2944,7 +2944,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 				default:
 					hp = -1000; break;
 			}
-			int mi = mapind(currmap, screen_spawned);
+			int mi = mapind(cur_map, screen_spawned);
 			++game->guys[mi];
 			return 1;
 			
@@ -4569,7 +4569,7 @@ void enemy::try_death(bool force_kill)
 			item_set=0;
 		}
 		if (screen_spawned < 128 && count_enemy && !script_spawned)
-			game->guys[mapind(currmap, screen_spawned)] -= 1;
+			game->guys[mapind(cur_map, screen_spawned)] -= 1;
 	}
 }
 
@@ -18604,7 +18604,7 @@ static void update_slope_combopos_bordering_screen(int dir, int slope_count, int
 // Load a single column or row from a nearby screen, and load its slopes.
 static void handle_slope_combopos_bordering_screen(int initial_screen, int dir)
 {
-	auto [map, screen] = nextscr2(currmap, initial_screen, dir);
+	auto [map, screen] = nextscr2(cur_map, initial_screen, dir);
 	if (map == -1)
 		return;
 
@@ -18934,7 +18934,7 @@ static void side_load_enemies(mapscr* scr)
 		sle_pattern = scr->pattern;
 		sle_cnt = 0;
 		int32_t guycnt = 0;
-		int16_t s = mapind(currmap, cur_screen);
+		int16_t s = mapind(cur_map, cur_screen);
 		bool beenhere=false;
 		bool reload=true;
 		bool unbeatablereload = true;
@@ -19392,7 +19392,7 @@ bool scriptloadenemies(int screen)
 void loadenemies()
 {
 	// check if it's been long enough to reload all enemies
-	int16_t s = mapind(currmap, cur_screen);
+	int16_t s = mapind(cur_map, cur_screen);
 	bool beenhere = false;
 	bool reload = true;
 	bool unbeatablereload = true;
@@ -19478,7 +19478,7 @@ void loadenemies()
 			return;
 
 		int32_t loadcnt = 10;
-		int16_t s = mapind(currmap, screen);
+		int16_t s = mapind(cur_map, screen);
 		
 		if (is_in_scrolling_region())
 		{

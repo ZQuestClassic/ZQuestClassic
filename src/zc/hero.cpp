@@ -9682,7 +9682,7 @@ heroanimate_skip_liftwpn:;
 		if(--drownclk==0)
 		{
 			action=none; FFCore.setHeroAction(none);
-			int32_t water = drownCombo ? drownCombo : iswaterex_z3(MAPCOMBO(x.getInt()+7.5,y.getInt()+12), currmap, cur_screen, -1, x.getInt()+7.5,y.getInt()+12, true, false);
+			int32_t water = drownCombo ? drownCombo : iswaterex_z3(MAPCOMBO(x.getInt()+7.5,y.getInt()+12), cur_map, cur_screen, -1, x.getInt()+7.5,y.getInt()+12, true, false);
 			
 			std::vector<int32_t> &ev = FFCore.eventData;
 			ev.clear();
@@ -25256,7 +25256,7 @@ RaftingStuff:
 				throwGenScriptEvent(GENSCR_EVENT_CHANGE_LEVEL);
 			}
 			
-			currmap = DMaps[cur_dmap].map;
+			cur_map = DMaps[cur_dmap].map;
 			home_screen = (code&0xFF) + DMaps[cur_dmap].xoff;
 			init_dmap();
 			
@@ -25737,7 +25737,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			throwGenScriptEvent(GENSCR_EVENT_CHANGE_LEVEL);
 		}
 		
-		currmap=DMaps[cur_dmap].map;
+		cur_map=DMaps[cur_dmap].map;
 		init_dmap();
 		update_subscreens(wdmap);
 		loadfullpal();
@@ -25832,7 +25832,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			// reset enemy kill counts
 			for(int32_t i=0; i<128; i++)
 			{
-				int mi = mapind(currmap, i);
+				int mi = mapind(cur_map, i);
 				game->guys[mi] = 0;
 				game->maps[mi] &= ~mTMPNORET;
 			}
@@ -25921,8 +25921,8 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 	{
 		int32_t c = DMaps[cur_dmap].color;
 		scrolling_dmap = cur_dmap;
-		scrolling_map = currmap;
-		currmap = DMaps[wdmap].map;
+		scrolling_map = cur_map;
+		cur_map = DMaps[wdmap].map;
 		update_subscreens(wdmap);
 		
 		dlevel = DMaps[wdmap].level;
@@ -26012,8 +26012,8 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 	case wtWHISTLE:                                         // whistle warp
 	{
 		scrolling_dmap = cur_dmap;
-		scrolling_map = currmap;
-		currmap = DMaps[wdmap].map;
+		scrolling_map = cur_map;
+		cur_map = DMaps[wdmap].map;
 		scrollscr(index, wscr+DMaps[wdmap].xoff, wdmap);
 		reset_hookshot();
 		cur_dmap=wdmap;
@@ -26148,7 +26148,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			throwGenScriptEvent(GENSCR_EVENT_CHANGE_LEVEL);
 		}
 
-		currmap = DMaps[cur_dmap].map;
+		cur_map = DMaps[cur_dmap].map;
 		init_dmap();
 		update_subscreens(wdmap);
 		
@@ -26347,7 +26347,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			{
 				throwGenScriptEvent(GENSCR_EVENT_CHANGE_LEVEL);
 			}
-			currmap = DMaps[cur_dmap].map;
+			cur_map = DMaps[cur_dmap].map;
 			init_dmap();
 			update_subscreens(wdmap);
 			
@@ -27220,7 +27220,7 @@ void HeroClass::stepout() // Step out of item cellars and passageways
     if(sc==PASSAGEWAY && abs(x-warpx)>16) // How did Hero leave the passageway?
     {
         cur_dmap=stepoutdmap;
-        currmap=DMaps[cur_dmap].map;
+        cur_map=DMaps[cur_dmap].map;
         dlevel=DMaps[cur_dmap].level;
         
         //we might have just left a passage, so be sure to update the CSet record -DD
@@ -27538,7 +27538,7 @@ void HeroClass::do_scroll_direction(direction dir)
 		else if(!edge_of_dmap(dir) && edge_of_region(dir))
 		{
 			scrolling_dmap = cur_dmap;
-			scrolling_map = currmap;
+			scrolling_map = cur_map;
 			scrollscr(dir);
 			
 			if(hero_scr->flags4&fAUTOSAVE)
@@ -28372,7 +28372,7 @@ static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector
 			int offx = sx * 256 + dx;
 			int offy = sy * 176 + dy;
 
-			mapscr* base_scr = get_scr(currmap, screen);
+			mapscr* base_scr = get_scr(cur_map, screen);
 			bool use_new_screens = true;
 			new_screen_deltas.push_back({base_scr, use_new_screens, offx, offy});
 		}
@@ -28980,12 +28980,12 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 	// cur_dmap won't change until the end of the scroll. Store new dmap in this global variable.
 	scrolling_destdmap = new_dmap;
 
-	// Calling functions are responsible for setting currmap (but not cur_screen...), but before we
+	// Calling functions are responsible for setting cur_map (but not cur_screen...), but before we
 	// _actually_ start to scroll we draw a few frames of the current screen (draw_screen). So we
-	// need currmap to be the old value initially. Callers also set the old map value to
+	// need cur_map to be the old value initially. Callers also set the old map value to
 	// `scrolling_map`, so we can use that.
-	int destmap = currmap;
-	currmap = scrolling_map;
+	int destmap = cur_map;
+	cur_map = scrolling_map;
 
 	// This adjusts how drawing commands are interpreted in `do_drawing_command`.
 	// Currently, since only one set of screen scripts/item scripts/etc. can run at a time during
@@ -29061,7 +29061,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 	if (should_delay_taking_old_screens)
 		old_temporary_screens = take_temporary_scrs();
 	FFCore.ScrollingScreensAll = old_temporary_screens;
-	currmap = destmap;
+	cur_map = destmap;
 
 	loadscr(destdmap, dest_screen, scrolldir, overlay);
 	mapscr* newscr = get_scr(destmap, dest_screen);

@@ -6328,7 +6328,7 @@ bool load_subscreen(const char *path, ZCSubscreen& loadto)
 bool setMapCount2(int32_t c)
 {
     int32_t oldmapcount=map_count;
-    int32_t currmap=Map.getCurrMap();
+    int32_t cur_map=Map.getCurrMap();
     
     bound(c,1,MAXMAPS);
     map_count=c;
@@ -6345,7 +6345,7 @@ bool setMapCount2(int32_t c)
         return false;
     }
     
-    bound(currmap,0,c-1);
+    bound(cur_map,0,c-1);
     if(map_count>oldmapcount)
     {
         for(int32_t mc=oldmapcount; mc<map_count; mc++)
@@ -6357,11 +6357,11 @@ bool setMapCount2(int32_t c)
                 Map.clearscr(ms);
             }
         }
-        Map.setCurrMap(currmap);
+        Map.setCurrMap(cur_map);
     }
     else
     {
-        Map.setCurrMap(currmap);
+        Map.setCurrMap(cur_map);
         if(!layers_valid(Map.CurrScr()))
             fix_layers(Map.CurrScr(), false);
             
