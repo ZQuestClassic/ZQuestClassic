@@ -86,7 +86,10 @@ void Scope::initFunctionBinding(Function* fn, CompileErrorHandler* handler)
 	if (parsed_comment.contains("exit"))
 		fn->setFlag(FUNCFLAG_EXITS|FUNCFLAG_NEVER_RETURN);
 	if (parsed_comment.contains("deprecated"))
+	{
 		fn->setFlag(FUNCFLAG_DEPRECATED);
+		fn->setInfo(parsed_comment["deprecated"]);
+	}
 	if (parsed_comment.contains("reassign_ptr"))
 		fn->setIntFlag(IFUNCFLAG_REASSIGNPTR);
 
