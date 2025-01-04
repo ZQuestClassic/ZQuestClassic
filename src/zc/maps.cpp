@@ -48,8 +48,8 @@ extern HeroClass Hero;
 //    - multiple triggers across many screens in a region (multi-block puzzle)
 //    - perm secrets
 
-static std::map<int, std::vector<mapscr*>> temporary_screens;
-static mapscr* temporary_screens_currmap[136*7];
+// All the temporary screens (and their layers) for the currently loaded map.
+static mapscr* temporary_screens[136*7];
 // Set by load_region.
 static bool screen_in_current_region[136];
 static rpos_handle_t current_region_rpos_handles[136*7];
@@ -300,31 +300,22 @@ void mark_current_region_handles_dirty()
 
 void clear_temporary_screens()
 {
-	for (auto screens : temporary_screens)
-	{
-		for (auto screen : screens.second)
-		{
-			free(screen);
-		}
-	}
-	temporary_screens.clear();
-
 	for (int i = 0; i < 136*7; i++)
 	{
-		if (temporary_screens_currmap[i])
+		if (temporary_screens[i])
 		{
-			free(temporary_screens_currmap[i]);
-			temporary_screens_currmap[i] = NULL;
+			free(temporary_screens[i]);
+			temporary_screens[i] = NULL;
 		}
 	}
 }
 
 std::vector<mapscr*> take_temporary_scrs()
 {
-	std::vector<mapscr*> screens(temporary_screens_currmap, temporary_screens_currmap + 136*7);
+	std::vector<mapscr*> screens(temporary_screens, temporary_screens + 136*7);
 	for (int i = 0; i < 136*7; i++)
 	{
-		temporary_screens_currmap[i] = nullptr;
+		temporary_screens[i] = nullptr;
 	}
 
 	// To make calling code simpler, let's copy the few screens that don't live
@@ -579,30 +570,9 @@ mapscr* get_scr_for_region_index_offset(int offset)
 
 mapscr* get_scr(int map, int screen)
 {
-	DCHECK_RANGE_INCLUSIVE(screen, 0, 135);
-	if (screen == cur_screen && map == cur_map) return origin_scr;
-	if (screen == home_screen && map == cur_map) return &special_warp_return_screen;
-
-	if (map == cur_map)
-	{
-		int index = screen*7;
-		if (!temporary_screens_currmap[index])
-		{
-			if (screenscrolling && FFCore.ScrollingScreensAll[index])
-				return FFCore.ScrollingScreensAll[index];
-
-			// Only needed during screen scrolling / dowarp
-			// TODO z3 ! verify above ... maybe remove?
-			load_a_screen_and_layers(cur_dmap, map, screen, -1);
-		}
-		return temporary_screens_currmap[index];
-	}
-
-	int index = map_screen_index(map, screen);
-	auto it = temporary_screens.find(index);
-	if (it != temporary_screens.end()) return it->second[0];
-	load_a_screen_and_layers(cur_dmap, map, screen, -1);
-	return temporary_screens[index][0];
+	mapscr* scr = get_scr_no_load(map, screen);
+	CHECK(scr);
+	return scr;
 }
 
 mapscr* get_scr(int screen)
@@ -619,12 +589,16 @@ mapscr* get_scr_no_load(int map, int screen)
 	if (map == cur_map)
 	{
 		int index = screen*7;
-		return temporary_screens_currmap[index];
+		if (temporary_screens[index])
+			return temporary_screens[index];
 	}
 
-	int index = map_screen_index(map, screen);
-	auto it = temporary_screens.find(index);
-	if (it != temporary_screens.end()) return it->second[0];
+	if (screenscrolling && map == scrolling_map && !FFCore.ScrollingScreensAll.empty())
+	{
+		int index = screen*7;
+	 	if (FFCore.ScrollingScreensAll[index])
+			return FFCore.ScrollingScreensAll[index];
+	}
 
 	return nullptr;
 }
@@ -639,20 +613,19 @@ mapscr* get_scr_layer(int map, int screen, int layer)
 
 	if (map == cur_map)
 	{
-		int index = screen*7;
-		if (!temporary_screens_currmap[index])
-		{
-			// Only needed during screen scrolling / dowarp
-			load_a_screen_and_layers(cur_dmap, map, screen, -1);
-		}
-		return temporary_screens_currmap[index+layer+1];
+		int index = screen*7 + layer + 1;
+		if (temporary_screens[index])
+			return temporary_screens[index];
 	}
 
-	int index = map_screen_index(map, screen);
-	auto it = temporary_screens.find(index);
-	if (it != temporary_screens.end()) return it->second[layer + 1];
-	load_a_screen_and_layers(cur_dmap, map, screen, -1);
-	return temporary_screens[index][layer + 1];
+	if (screenscrolling && map == scrolling_map && !FFCore.ScrollingScreensAll.empty())
+	{
+		int index = screen*7 + layer + 1;
+	 	if (FFCore.ScrollingScreensAll[index])
+			return FFCore.ScrollingScreensAll[index];
+	}
+
+	NOTREACHED();
 }
 
 // Note: layer=-1 returns the base screen, layer=0 returns the first layer.
@@ -670,18 +643,19 @@ mapscr* get_scr_layer_valid(int screen, int layer)
 	return nullptr;
 }
 
-// Same as get_layer_scr, but if scrolling will pull from the scrolling screens as needed.
-mapscr* get_scr_layer_allow_scrolling(int map, int screen, int layer)
-{
-	DCHECK_LAYER_NEG1_INDEX(layer);
-	if (!screenscrolling || screen != scrolling_hero_screen || FFCore.ScrollingScreensAll.empty())
-		return get_scr_layer(map, screen, layer);
-
-	return FFCore.ScrollingScreensAll[screen * 7 + layer + 1];
-}
-
 mapscr* get_scr_current_region_dir(int screen, direction dir)
 {
+	int x = get_region_relative_dx(screen);
+	int y = get_region_relative_dy(screen);
+	if (dir == left && x == 0)
+		return nullptr;
+	if (dir == right && x == 15)
+		return nullptr;
+	if (dir == down && y == 7)
+		return nullptr;
+	if (dir == up && y == 0)
+		return nullptr;
+
 	screen = screen_index_direction(screen, dir);
 	if (is_in_current_region(screen))
 		return get_scr(screen);
@@ -4198,7 +4172,7 @@ void calc_darkroom_combos(int map, int screen, int offx, int offy)
 {
 	for(int32_t lyr = 0; lyr < 7; ++lyr)
 	{
-		mapscr* scr = get_scr_layer_allow_scrolling(map, screen, lyr-1);
+		mapscr* scr = get_scr_layer(map, screen, lyr-1);
 		if (!scr->valid) continue;
 
 		for(int32_t q = 0; q < 176; ++q)
@@ -4211,7 +4185,7 @@ void calc_darkroom_combos(int map, int screen, int offx, int offy)
 		}
 	}
 
-	mapscr* scr = get_scr_layer_allow_scrolling(map, screen, -1);
+	mapscr* scr = get_scr_layer(map, screen, -1);
 	word c = scr->numFFC();
 	for(int q = 0; q < c; ++q)
 	{
@@ -5674,13 +5648,13 @@ void clear_darkroom_bitmaps()
 	clear_to_color(darkscr_bmp_trans, game->get_darkscr_color());
 }
 
-void load_a_screen_and_layers(int dmap, int map, int screen, int ldir)
+static void load_a_screen_and_layers(int dmap, int screen, int ldir)
 {
 	std::vector<mapscr*> screens;
 
-	const mapscr* source = get_canonical_scr(map, screen);
+	const mapscr* source = get_canonical_scr(cur_map, screen);
 	mapscr* base_scr = new mapscr(*source);
-	if (map == cur_map) temporary_screens_currmap[screen*7] = base_scr;
+	temporary_screens[screen*7] = base_scr;
 	screens.push_back(base_scr);
 
 	base_scr->valid |= mVALID; // layer 0 is always valid
@@ -5695,26 +5669,24 @@ void load_a_screen_and_layers(int dmap, int map, int screen, int ldir)
 		if(source->layermap[i]>0)
 		{
 			mapscr* layer_scr = new mapscr(*get_canonical_scr(source->layermap[i]-1, source->layerscreen[i]));
-			layer_scr->map = map;
+			layer_scr->map = cur_map;
 			layer_scr->screen = screen;
 			screens.push_back(layer_scr);
 		}
 		else
 		{
 			mapscr* layer_scr = new mapscr();
-			layer_scr->map = map;
+			layer_scr->map = cur_map;
 			layer_scr->screen = screen;
 			screens.push_back(layer_scr);
 		}
-		if (map == cur_map) temporary_screens_currmap[screen*7+i+1] = screens[i+1];
+		temporary_screens[screen*7+i+1] = screens[i+1];
 	}
-
-	if (map != cur_map) temporary_screens[map_screen_index(map, screen)] = screens;
 
 	// Apply perm secrets, if applicable.
 	if (canPermSecret(dmap, screen))
 	{
-		int mi = mapind(map, screen);
+		int mi = mapind(cur_map, screen);
 		if(game->maps[mi] & mSECRET)    // if special stuff done before
 		{
 			reveal_hidden_stairs(base_scr, screen, false);
@@ -5744,7 +5716,7 @@ void load_a_screen_and_layers(int dmap, int map, int screen, int ldir)
 	toggle_switches(game->lvlswitches[destlvl], true, base_scr);
 	toggle_gswitches_load(base_scr);
 
-	int mi = mapind(map, screen);
+	int mi = mapind(cur_map, screen);
 	bool should_check_for_state_things = (screen < 0x80) && mi < MAXMAPS*MAPSCRSNORMAL;
 	if (should_check_for_state_things)
 	{
@@ -5830,9 +5802,7 @@ void load_a_screen_and_layers(int dmap, int map, int screen, int ldir)
 		}
 	}
 
-	auto [offx, offy] = is_a_region(map, screen) ?
-		translate_screen_coordinates_to_world(screen) :
-		std::make_pair(0, 0);
+	auto [offx, offy] = translate_screen_coordinates_to_world(screen);
 	int c = base_scr->numFFC();
 	for (word i = 0; i < c; i++)
 	{
@@ -5931,14 +5901,14 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool overlay, bool 
 		{
 			if (screen != cur_screen && is_in_current_region(screen))
 			{
-				load_a_screen_and_layers(destdmap, cur_map, screen, ldir);
+				load_a_screen_and_layers(destdmap, screen, ldir);
 			}
 		}
 	}
 
 	prepare_current_region_handles();
 
-	// Temp set cur_dmap so that get_layer_scr -> load_a_screen_and_layers will know if this is a region.
+	// Temp set cur_dmap so that get_scr_layer -> load_a_screen_and_layers will know if this is a region.
 	int o_cur_dmap = cur_dmap;
 	cur_dmap = destdmap;
 

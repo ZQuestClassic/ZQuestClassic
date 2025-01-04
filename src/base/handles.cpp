@@ -10,7 +10,7 @@
 
 mapscr* rpos_handle_t::base_scr() const
 {
-	return layer == 0 ? scr : get_scr_layer_allow_scrolling(scr->map, scr->screen, -1);
+	return layer == 0 ? scr : get_scr_layer(scr->map, scr->screen, -1);
 }
 
 newcombo& rpos_handle_t::combo() const

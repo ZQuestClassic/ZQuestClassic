@@ -205,7 +205,6 @@ mapscr* get_scr_no_load(int map, int screen);
 mapscr* get_scr_layer(int map, int screen, int layer);
 mapscr* get_scr_layer(int screen, int layer);
 mapscr* get_scr_layer_valid(int screen, int layer);
-mapscr* get_scr_layer_allow_scrolling(int map, int screen, int layer);
 
 mapscr* get_scr_current_region_dir(int screen, direction dir);
 
@@ -392,7 +391,6 @@ void update_door(mapscr* scr, int32_t side, int32_t door, bool even_walls=false)
 void putdoor(mapscr* scr, BITMAP *dest, int32_t side, int32_t door, bool redraw=true, bool even_walls=false);
 void showbombeddoor(mapscr* scr, BITMAP *dest, int32_t side, int32_t offx, int32_t offy);
 void openshutters(mapscr* scr);
-void load_a_screen_and_layers(int dmap, int map, int screen, int ldir);
 void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool overlay=false, bool no_x80_dir=false);
 void clear_darkroom_bitmaps();
 void loadscr2(int32_t tmp,int32_t screen,int32_t);
