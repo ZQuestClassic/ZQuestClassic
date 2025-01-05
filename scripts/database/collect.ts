@@ -119,6 +119,7 @@ async function setReleaseResourceHashes(id: string, release: QuestManifest['rele
     const resourcePath = `${id}/${release.name}/${resource}`;
     const fullPath = `${DB}/${resourcePath}`;
     if (!fs.existsSync(fullPath)) {
+      fs.mkdirSync(path.dirname(fullPath), {recursive: true});
       execFileSync('s3cmd', ['sync', `s3://zc-data/${resourcePath}`, '--no-preserve', fullPath], {stdio: 'inherit'});
     }
     return getMd5Hash(fullPath);
