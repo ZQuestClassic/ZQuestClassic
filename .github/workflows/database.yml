@@ -53,6 +53,8 @@ jobs:
           key: db-cache-2
       - run: npm install
         working-directory: scripts/database
+      # Needed since ubuntu 23.
+      - run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
       - run: npm run collect
         working-directory: scripts/database
         env:
