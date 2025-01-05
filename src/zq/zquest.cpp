@@ -24096,10 +24096,6 @@ static bool application_has_loaded;
 
 int32_t main(int32_t argc,char **argv)
 {
-	int hacky_arg = used_switch(argc, argv, "-z3");
-	if (hacky_arg > 0)
-		global_z3_hacky_load = atoi(argv[hacky_arg + 1]);
-
 	int test_zc_arg = used_switch(argc, argv, "-test-zc");
 	if (test_zc_arg > 0)
 		set_headless_mode();

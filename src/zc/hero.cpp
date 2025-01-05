@@ -24090,9 +24090,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 	bool setsave=false;
 	int32_t warpsfx2 = 0;
 	if (RaftPass) goto RaftingStuff;
-	
-	//bool gotpit=false;
-	
+
 	int32_t x1,x2,y1,y2;
 	x1 = tx;
 	x2 = tx+15;

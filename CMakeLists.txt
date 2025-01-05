@@ -984,8 +984,7 @@ set(zc_clang_errors
 	-Werror=inconsistent-missing-override
 	-Werror=return-type
 	-Werror=type-limits
-	# TODO ~z3
-	# -Werror=unreachable-code
+	-Werror=unreachable-code
 	# -Werror=reorder
 	# -Werror=unused
 	-Wno-write-strings

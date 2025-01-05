@@ -46,8 +46,6 @@
 #include "base/misctypes.h"
 #include "base/initdata.h"
 
-int global_z3_hacky_load;
-
 extern ZModule zcm;
 extern zcmodule moduledata;
 extern uint8_t __isZQuest;
@@ -4455,10 +4453,6 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 			return qe_invalid;
 		}
 		Header->is_z3 = s_version >= 22;
-
-		// TODO ~z3 final rm
-		if (global_z3_hacky_load)
-			s_version = global_z3_hacky_load;
 		
 		FFCore.quest_format[vDMaps] = s_version;
 		
@@ -5024,7 +5018,7 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 		else
 			tempDMap.intro_string_id = 0;
 
-		if(s_version == 21 || global_z3_hacky_load)
+		if(s_version == 21)
 		{
 			static regions_data tmp_rd;
 			regions_data& rd = should_skip ? tmp_rd : Regions[tempDMap.map];
