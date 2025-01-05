@@ -23896,7 +23896,6 @@ static std::array<rpos_t, 4> getRposes(int32_t x1, int32_t y1, int32_t x2, int32
 	return rposes;
 }
 
-// TODO: this function has an ungodly amount of code duplication. Fix it.
 void HeroClass::checkspecial2(int32_t *ls)
 {
 	if(get_qr(qr_OLDSTYLEWARP) && !(diagonalMovement||NO_GRIDLOCK))
@@ -24083,6 +24082,8 @@ void HeroClass::checkspecial2(int32_t *ls)
 	mapscr* flag_scr=nullptr;
 	mapscr* flag2_scr=nullptr;
 	mapscr* flag3_scr=nullptr;
+	mapscr* scrs[4]={};
+	rpos_handle_t rpos_handles[4];
 	int32_t type=0;
 	int32_t water=0;
 	int32_t index = 0;
@@ -24114,15 +24115,20 @@ void HeroClass::checkspecial2(int32_t *ls)
 	//
 	// First, let's find flag1 (combo flag), flag2 (inherent flag) and flag3 (FFC flag)...
 	//
-	types[0] = MAPFLAG(x1,y1);
-	types[1] = MAPFLAG(x1,y2);
-	types[2] = MAPFLAG(x2,y1);
-	types[3] = MAPFLAG(x2,y2);
-	flag_scr = get_scr_for_world_xy(x1, y1);
-	
-	
+
+	rpos_handles[0] = get_rpos_handle_for_world_xy(x1, y1, 0);
+	rpos_handles[1] = get_rpos_handle_for_world_xy(x1, y2, 0);
+	rpos_handles[2] = get_rpos_handle_for_world_xy(x2, y1, 0);
+	rpos_handles[3] = get_rpos_handle_for_world_xy(x2, y2, 0);
+
+	types[0] = rpos_handles[0].sflag();
+	types[1] = rpos_handles[1].sflag();
+	types[2] = rpos_handles[2].sflag();
+	types[3] = rpos_handles[3].sflag();
+
+	flag_scr = rpos_handles[0].scr;
+
 	//MAPFFCOMBO
-	
 	
 	if(types[0]==types[1]&&types[2]==types[3]&&types[1]==types[2])
 		flag = types[0];
@@ -24131,11 +24137,11 @@ void HeroClass::checkspecial2(int32_t *ls)
 		flag = types[0];
 		
 		
-	types[0] = MAPCOMBOFLAG(x1,y1);
-	types[1] = MAPCOMBOFLAG(x1,y2);
-	types[2] = MAPCOMBOFLAG(x2,y1);
-	types[3] = MAPCOMBOFLAG(x2,y2);
-	flag2_scr = flag_scr;
+	types[0] = rpos_handles[0].cflag();
+	types[1] = rpos_handles[1].cflag();
+	types[2] = rpos_handles[2].cflag();
+	types[3] = rpos_handles[3].cflag();
+	flag2_scr = rpos_handles[0].scr;
 	
 	if(types[0]==types[1]&&types[2]==types[3]&&types[1]==types[2])
 		flag2 = types[0];
@@ -24176,41 +24182,39 @@ void HeroClass::checkspecial2(int32_t *ls)
 	
 	//
 	
-	cids[0] = MAPCOMBO(x1,y1);
-	cids[1] = MAPCOMBO(x1,y2);
-	cids[2] = MAPCOMBO(x2,y1);
-	cids[3] = MAPCOMBO(x2,y2);
+	cids[0] = rpos_handles[0].data();
+	cids[1] = rpos_handles[1].data();
+	cids[2] = rpos_handles[2].data();
+	cids[3] = rpos_handles[3].data();
 	
-	types[0] = COMBOTYPE(x1,y1);
-	
-	if(MAPFFCOMBO(x1,y1))
+	types[0] = rpos_handles[0].ctype();
+	if (auto ffc_handle = getFFCAt(x1, y1))
 	{
-		types[0] = FFCOMBOTYPE(x1,y1);
-		cids[0] = MAPFFCOMBO(x1,y1);
+		types[0] = ffc_handle->ctype();
+		cids[0] = ffc_handle->data();
 	}
-		
-	types[1] = COMBOTYPE(x1,y2);
 	
-	if(MAPFFCOMBO(x1,y2))
+	types[1] = rpos_handles[1].ctype();
+	if (auto ffc_handle = getFFCAt(x1, y2))
 	{
-		types[1] = FFCOMBOTYPE(x1,y2);
-		cids[1] = MAPFFCOMBO(x1,y2);
+		types[1] = ffc_handle->ctype();
+		cids[1] = ffc_handle->data();
 	}
-		
-	types[2] = COMBOTYPE(x2,y1);
-	
-	if(MAPFFCOMBO(x2,y1))
+
+	types[2] = rpos_handles[2].ctype();
+	if (auto ffc_handle = getFFCAt(x2, y1))
 	{
-		types[2] = FFCOMBOTYPE(x2,y1);
-		cids[2] = MAPFFCOMBO(x2,y1);
+		types[2] = ffc_handle->ctype();
+		cids[2] = ffc_handle->data();
 	}
-	types[3] = COMBOTYPE(x2,y2);
-	
-	if(MAPFFCOMBO(x2,y2))
+
+	types[3] = rpos_handles[3].ctype();
+	if (auto ffc_handle = getFFCAt(x2, y2))
 	{
-		types[3] = FFCOMBOTYPE(x2,y2);
-		cids[3] = MAPFFCOMBO(x2,y2);
+		types[3] = ffc_handle->ctype();
+		cids[3] = ffc_handle->data();
 	}
+
 	// Change B, C and D warps into A, for the comparison below...
 	for(int32_t i=0; i<4; i++)
 	{
@@ -24525,43 +24529,44 @@ void HeroClass::checkspecial2(int32_t *ls)
 	x2 = tx+11;
 	y1 = ty+4;
 	y2 = ty+11;
-	
-	types[0] = COMBOTYPE(x1,y1);
-	cids[0] = MAPCOMBO(x1,y1);
-	
-	if(MAPFFCOMBO(x1,y1))
+
+	rpos_handles[0] = get_rpos_handle_for_world_xy(x1, y1, 0);
+	rpos_handles[1] = get_rpos_handle_for_world_xy(x1, y2, 0);
+	rpos_handles[2] = get_rpos_handle_for_world_xy(x2, y1, 0);
+	rpos_handles[3] = get_rpos_handle_for_world_xy(x2, y2, 0);
+
+	cids[0] = rpos_handles[0].data();
+	cids[1] = rpos_handles[1].data();
+	cids[2] = rpos_handles[2].data();
+	cids[3] = rpos_handles[3].data();
+
+	types[0] = rpos_handles[0].ctype();
+	if (auto ffc_handle = getFFCAt(x1, y1))
 	{
-		types[0] = FFCOMBOTYPE(x1,y1);
-		cids[0] = MAPFFCOMBO(x1,y1);
+		types[0] = ffc_handle->ctype();
+		cids[0] = ffc_handle->data();
 	}
 	
-	types[1] = COMBOTYPE(x1,y2);
-	cids[1] = MAPCOMBO(x1,y2);
-	
-	if(MAPFFCOMBO(x1,y2))
+	types[1] = rpos_handles[1].ctype();
+	if (auto ffc_handle = getFFCAt(x1, y2))
 	{
-		types[1] = FFCOMBOTYPE(x1,y2);
-		cids[1] = MAPFFCOMBO(x1,y2);
+		types[1] = ffc_handle->ctype();
+		cids[1] = ffc_handle->data();
 	}
-		
-	types[2] = COMBOTYPE(x2,y1);
-	cids[2] = MAPCOMBO(x2,y1);
-	
-	if(MAPFFCOMBO(x2,y1))
+
+	types[2] = rpos_handles[2].ctype();
+	if (auto ffc_handle = getFFCAt(x2, y1))
 	{
-		types[2] = FFCOMBOTYPE(x2,y1);
-		cids[2] = MAPFFCOMBO(x2,y1);
+		types[2] = ffc_handle->ctype();
+		cids[2] = ffc_handle->data();
 	}
-		
-	types[3] = COMBOTYPE(x2,y2);
-	cids[3] = MAPCOMBO(x2,y2);
-	
-	if(MAPFFCOMBO(x2,y2))
+
+	types[3] = rpos_handles[3].ctype();
+	if (auto ffc_handle = getFFCAt(x2, y2))
 	{
-		types[3] = FFCOMBOTYPE(x2,y2);
-		cids[3] = MAPFFCOMBO(x2,y2);
+		types[3] = ffc_handle->ctype();
+		cids[3] = ffc_handle->data();
 	}
-		
 	
 	for(int32_t i=0; i<4; i++)
 	{
@@ -24601,25 +24606,21 @@ void HeroClass::checkspecial2(int32_t *ls)
 		else
 		{
 			types[0] = COMBOTYPE(x1,y1);
+			if (auto ffc_handle = getFFCAt(x1, y1))
+				types[0] = ffc_handle->ctype();
 			
-			if(MAPFFCOMBO(x1,y1))
-				types[0] = FFCOMBOTYPE(x1,y1);
-				
 			types[1] = COMBOTYPE(x1,y2);
-			
-			if(MAPFFCOMBO(x1,y2))
-				types[1] = FFCOMBOTYPE(x1,y2);
-				
+			if (auto ffc_handle = getFFCAt(x1, y2))
+				types[1] = ffc_handle->ctype();
+
 			types[2] = COMBOTYPE(x2,y1);
-			
-			if(MAPFFCOMBO(x2,y1))
-				types[2] = FFCOMBOTYPE(x2,y1);
-				
+			if (auto ffc_handle = getFFCAt(x2, y1))
+				types[2] = ffc_handle->ctype();
+
 			types[3] = COMBOTYPE(x2,y2);
-			
-			if(MAPFFCOMBO(x2,y2))
-				types[3] = FFCOMBOTYPE(x2,y2);
-				
+			if (auto ffc_handle = getFFCAt(x2, y2))
+				types[3] = ffc_handle->ctype();
+
 			int32_t typec = COMBOTYPE((x2+x1)/2,(y2+y1)/2);
 			if(MAPFFCOMBO((x2+x1)/2,(y2+y1)/2))
 				typec = FFCOMBOTYPE((x2+x1)/2,(y2+y1)/2);
@@ -24636,41 +24637,52 @@ void HeroClass::checkspecial2(int32_t *ls)
 	y1 = ty+7+(bigHitbox?0:4);
 	y2 = ty+8+(bigHitbox?0:4);
 	
-	types[0] = COMBOTYPE(x1,y1);
-	cids[0] = MAPCOMBO(x1,y1);
+	rpos_handles[0] = get_rpos_handle_for_world_xy(x1, y1, 0);
+	rpos_handles[1] = get_rpos_handle_for_world_xy(x1, y2, 0);
+	rpos_handles[2] = get_rpos_handle_for_world_xy(x2, y1, 0);
+	rpos_handles[3] = get_rpos_handle_for_world_xy(x2, y2, 0);
+
+	cids[0] = rpos_handles[0].data();
+	cids[1] = rpos_handles[1].data();
+	cids[2] = rpos_handles[2].data();
+	cids[3] = rpos_handles[3].data();
 	
-	if(MAPFFCOMBO(x1,y1))
+	types[0] = rpos_handles[0].ctype();
+	scrs[0] = rpos_handles[0].scr;
+	if (auto ffc_handle = getFFCAt(x1, y1))
 	{
-		types[0] = FFCOMBOTYPE(x1,y1);
-		cids[0] = MAPFFCOMBO(x1,y1);
+		types[0] = ffc_handle->ctype();
+		cids[0] = ffc_handle->data();
+		scrs[0] = ffc_handle->scr;
 	}
-		
-	types[1] = COMBOTYPE(x1,y2);
-	cids[1] = MAPCOMBO(x1,y2);
 	
-	if(MAPFFCOMBO(x1,y2))
+	types[1] = rpos_handles[1].ctype();
+	scrs[1] = rpos_handles[1].scr;
+	if (auto ffc_handle = getFFCAt(x1, y2))
 	{
-		types[1] = FFCOMBOTYPE(x1,y2);
-		cids[1] = MAPFFCOMBO(x1,y2);
+		types[1] = ffc_handle->ctype();
+		cids[1] = ffc_handle->data();
+		scrs[1] = ffc_handle->scr;
 	}
-	types[2] = COMBOTYPE(x2,y1);
-	cids[2] = MAPCOMBO(x2,y1);
-	
-	if(MAPFFCOMBO(x2,y1))
+
+	types[2] = rpos_handles[2].ctype();
+	scrs[2] = rpos_handles[2].scr;
+	if (auto ffc_handle = getFFCAt(x2, y1))
 	{
-		types[2] = FFCOMBOTYPE(x2,y1);
-		cids[2] = MAPFFCOMBO(x2,y1);
+		types[2] = ffc_handle->ctype();
+		cids[2] = ffc_handle->data();
+		scrs[2] = ffc_handle->scr;
 	}
-		
-	types[3] = COMBOTYPE(x2,y2);
-	cids[3] = MAPCOMBO(x2,y2);
-	
-	if(MAPFFCOMBO(x2,y2))
+
+	types[3] = rpos_handles[3].ctype();
+	scrs[3] = rpos_handles[3].scr;
+	if (auto ffc_handle = getFFCAt(x2, y2))
 	{
-		types[3] = FFCOMBOTYPE(x2,y2);
-		cids[3] = MAPFFCOMBO(x2,y2);
+		types[3] = ffc_handle->ctype();
+		cids[3] = ffc_handle->data();
+		scrs[3] = ffc_handle->scr;
 	}
-		
+
 	for(int32_t i=0; i<4; i++)
 	{
 		if(combobuf[cids[i]].triggerflags[0] & combotriggerONLYGENTRIG)
@@ -24705,7 +24717,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 	
 	if(types[0]==cPIT||types[1]==cPIT||types[2]==cPIT||types[3]==cPIT)
 		if(action!=freeze&&action!=sideswimfreeze&& (!msg_active || !get_qr(qr_MSGFREEZE)))
-			type=cPIT;
+			type = cPIT;
 			
 	//
 	// Time to act on our results for type, flag, flag2 and flag3...
@@ -25257,6 +25269,10 @@ RaftingStuff:
 	
 	if(type==cRESET)
 	{
+		mapscr* scr = nullptr;
+		for (int i = 0; i < 4 && !scr; i++) scr = scrs[i];
+		if (!scr) scr = hero_scr;
+
 		if(!skippedaframe)
 		{
 			FFCore.warpScriptCheck();
@@ -25264,39 +25280,38 @@ RaftingStuff:
 			advanceframe(true);
 		}
 		
-		// TODO z3 use more proper scr ...
-		if(!(hero_scr->noreset&mSECRET)) unsetmapflag(hero_scr, mSECRET);
+		if(!(scr->noreset&mSECRET)) unsetmapflag(scr, mSECRET);
 		
-		if(!(hero_scr->noreset&mITEM)) unsetmapflag(hero_scr, mITEM);
+		if(!(scr->noreset&mITEM)) unsetmapflag(scr, mITEM);
 		
-		if(!(hero_scr->noreset&mSPECIALITEM)) unsetmapflag(hero_scr, mSPECIALITEM);
+		if(!(scr->noreset&mSPECIALITEM)) unsetmapflag(scr, mSPECIALITEM);
 		
-		if(!(hero_scr->noreset&mNEVERRET)) unsetmapflag(hero_scr, mNEVERRET);
+		if(!(scr->noreset&mNEVERRET)) unsetmapflag(scr, mNEVERRET);
 		
-		if(!(hero_scr->noreset&mCHEST)) unsetmapflag(hero_scr, mCHEST);
+		if(!(scr->noreset&mCHEST)) unsetmapflag(scr, mCHEST);
 		
-		if(!(hero_scr->noreset&mLOCKEDCHEST)) unsetmapflag(hero_scr, mLOCKEDCHEST);
+		if(!(scr->noreset&mLOCKEDCHEST)) unsetmapflag(scr, mLOCKEDCHEST);
 		
-		if(!(hero_scr->noreset&mBOSSCHEST)) unsetmapflag(hero_scr, mBOSSCHEST);
+		if(!(scr->noreset&mBOSSCHEST)) unsetmapflag(scr, mBOSSCHEST);
 		
-		if(!(hero_scr->noreset&mLOCKBLOCK)) unsetmapflag(hero_scr, mLOCKBLOCK);
+		if(!(scr->noreset&mLOCKBLOCK)) unsetmapflag(scr, mLOCKBLOCK);
 		
-		if(!(hero_scr->noreset&mBOSSLOCKBLOCK)) unsetmapflag(hero_scr, mBOSSLOCKBLOCK);
+		if(!(scr->noreset&mBOSSLOCKBLOCK)) unsetmapflag(scr, mBOSSLOCKBLOCK);
 		
 		if(isdungeon())
 		{
-			if(!(hero_scr->noreset&mDOOR_LEFT)) unsetmapflag(hero_scr, mDOOR_LEFT);
+			if(!(scr->noreset&mDOOR_LEFT)) unsetmapflag(scr, mDOOR_LEFT);
 			
-			if(!(hero_scr->noreset&mDOOR_RIGHT)) unsetmapflag(hero_scr, mDOOR_RIGHT);
+			if(!(scr->noreset&mDOOR_RIGHT)) unsetmapflag(scr, mDOOR_RIGHT);
 			
-			if(!(hero_scr->noreset&mDOOR_DOWN)) unsetmapflag(hero_scr, mDOOR_DOWN);
+			if(!(scr->noreset&mDOOR_DOWN)) unsetmapflag(scr, mDOOR_DOWN);
 			
-			if(!(hero_scr->noreset&mDOOR_UP)) unsetmapflag(hero_scr, mDOOR_UP);
+			if(!(scr->noreset&mDOOR_UP)) unsetmapflag(scr, mDOOR_UP);
 		}
 		
 		setpit();
 		sdir=dir;
-		dowarp(hero_scr, 4, 0, warpsfx2);
+		dowarp(scr, 4, 0, warpsfx2);
 	}
 	else
 	{
