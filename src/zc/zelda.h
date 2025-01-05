@@ -378,7 +378,7 @@ extern bool show_layer_0, show_layer_1, show_layer_2, show_layer_3, show_layer_4
 extern int32_t    cheat_goto_dmap, cheat_goto_screen;
 extern char   cheat_goto_dmap_str[4];
 extern char   cheat_goto_screen_str[3];
-extern int16_t  visited[6];
+extern int32_t  visited[6];
 extern mapscr scrolling_screen;
 // The currently loaded screen. For regions, this is the top-left screen, AKA the origin screen.
 extern mapscr* tmpscr;

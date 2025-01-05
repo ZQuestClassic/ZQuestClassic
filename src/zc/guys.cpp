@@ -18923,27 +18923,25 @@ static void side_load_enemies(mapscr* scr)
 		sle_pattern = scr->pattern;
 		sle_cnt = 0;
 		int32_t guycnt = 0;
-		int16_t s = mapind(cur_map, cur_screen);
+		
+		int mi = mapind(cur_map, screen);
+		int origin_mi = mapind(cur_map, cur_screen);
 		bool beenhere=false;
 		bool reload=true;
 		bool unbeatablereload = true;
 		
 		load_default_enemies(scr);
-		
-		for(int32_t i=0; i<6; i++)
-			if(visited[i]==s)
-				beenhere=true;
-				
-		if (is_in_scrolling_region())
+
+		for (int i = 0; i < 6; i++)
+			if (visited[i] == origin_mi)
+				beenhere = true;
+
+		if (!beenhere)
 		{
-			reload = true;
-		}
-		else if(!beenhere)
-		{
-			visited[vhead]=s;
+			visited[vhead] = origin_mi;
 			vhead = (vhead+1)%6;
 		}
-		else if(game->guys[s]==0)
+		else if (game->guys[mi] == 0)
 		{
 			sle_cnt=0;
 			reload=false;
@@ -18951,7 +18949,7 @@ static void side_load_enemies(mapscr* scr)
 		
 		if(reload)
 		{
-			sle_cnt = game->guys[s];
+			sle_cnt = game->guys[mi];
 			
 			if((get_qr(qr_NO_LEAVE_ONE_ENEMY_ALIVE_TRICK) && !beenhere)
 			|| sle_cnt==0)
@@ -18989,7 +18987,7 @@ static void side_load_enemies(mapscr* scr)
 		for(int32_t i=0; i<sle_cnt; i++)
 			++guycnt;
 		
-		game->guys[s] = guycnt;
+		game->guys[mi] = guycnt;
 	}
 	
 	if((++sle_clk+8)%24 == 0)
@@ -19381,13 +19379,13 @@ bool scriptloadenemies(int screen)
 void loadenemies()
 {
 	// check if it's been long enough to reload all enemies
-	int16_t s = mapind(cur_map, cur_screen);
+	int16_t origin_mi = mapind(cur_map, cur_screen);
 	bool beenhere = false;
 	bool reload = true;
 	bool unbeatablereload = true;
 	
-	for(int32_t i=0; i<6; i++)
-		if(visited[i]==s)
+	for (int i = 0; i < 6; i++)
+		if (visited[i] == origin_mi)
 			beenhere = true;
 	
 	for_every_base_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
@@ -19467,18 +19465,14 @@ void loadenemies()
 			return;
 
 		int32_t loadcnt = 10;
-		int16_t s = mapind(cur_map, screen);
+		int16_t mi = mapind(cur_map, screen);
 		
-		if (is_in_scrolling_region())
+		if (!beenhere) //Okay so this basically checks the last 6 unique screen's you've been in and checks if the current screen is one of them.
 		{
-			reload = true;
-		}
-		else if (!beenhere) //Okay so this basically checks the last 6 unique screen's you've been in and checks if the current screen is one of them.
-		{
-			visited[vhead]=s; //If not, it adds it to the array,
+			visited[vhead] = origin_mi; //If not, it adds it to the array,
 			vhead = (vhead+1)%6; //which overrides one of the others, and then moves onto the next.
 		}
-		else if(game->guys[s]==0) //Then, if you have been here, and the number of enemies left on the screen is 0,
+		else if (game->guys[mi] == 0) //Then, if you have been here, and the number of enemies left on the screen is 0,
 		{
 			loadcnt = 0; //It will tell it not to load any enemies,
 			reload  = false; //both by setting loadcnt to 0 and making the reload if statement not run.
@@ -19486,7 +19480,7 @@ void loadenemies()
 
 		if(reload) //This if statement is only false if this screen is one of the last 6 screens you visited and you left 0 enemies alive.
 		{
-			loadcnt = game->guys[s]; //Otherwise, if this if statement is true, it will try to load the last amount of enemies you left alive.
+			loadcnt = game->guys[mi]; //Otherwise, if this if statement is true, it will try to load the last amount of enemies you left alive.
 			
 			if(loadcnt==0 || //Then, if the number of enemies is 0, that means you left 0 enemies alive on a screen but haven't been there in the past 6 screens.
 				(get_qr(qr_NO_LEAVE_ONE_ENEMY_ALIVE_TRICK) && !beenhere)) //Alternatively, if you have the quest rule enabled that always respawns all enemies after a period of time, and you haven't been here in 6 screens.
@@ -19536,7 +19530,7 @@ void loadenemies()
 			--clk; //Each additional enemy spawns with a slightly longer spawn poof than the previous.
 		}
 
-		game->guys[s] = guycnt;
+		game->guys[mi] = guycnt;
 	});
 }
 

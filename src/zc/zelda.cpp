@@ -390,7 +390,7 @@ char   zeldadat_sig[52]={0};
 char   fontsdat_sig[52]={0};
 char   cheat_goto_dmap_str[4]={0};
 char   cheat_goto_screen_str[3]={0};
-int16_t  visited[6]={0};
+int32_t  visited[6]={0};
 std::map<int, byte> activation_counters;
 std::map<int, byte> activation_counters_ffc;
 mapscr* tmpscr = new mapscr();
