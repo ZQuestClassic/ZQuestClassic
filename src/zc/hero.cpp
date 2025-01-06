@@ -21044,7 +21044,7 @@ void HeroClass::checkpushblock()
 		if(lyr && !get_qr(qr_PUSHBLOCK_LAYER_1_2))
 			continue;
 		auto rpos_handle = get_rpos_handle(rpos, lyr);
-		cpos_info& cpinfo = cpos_get(rpos_handle);
+		cpos_info& cpinfo = rpos_handle.info();
 		mapscr* m = rpos_handle.scr;
 		int cid = lyr == 0 ? MAPCOMBO(bx,by) : MAPCOMBOL(lyr,bx,by);
 		newcombo const& cmb = combobuf[cid];

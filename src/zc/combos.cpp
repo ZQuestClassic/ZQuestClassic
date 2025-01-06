@@ -384,7 +384,7 @@ static void trigger_cswitch_block(const rpos_handle_t& rpos_handle)
 	}
 	if (cmb.usrflags&cflag11)
 	{
-		auto [bx, by] = COMBOXY_REGION(rpos_handle.rpos);
+		auto [bx, by] = rpos_handle.xy();
 		bx += 8;
 		by += 8;
 
@@ -1366,7 +1366,7 @@ bool trigger_armos_grave(const rpos_handle_t& rpos_handle, int32_t trigdir)
 	auto& cmb = rpos_handle.combo();
 	int32_t eclk = -14;
 	int32_t id2 = 0;
-	auto [tx, ty] = COMBOXY_REGION(rpos_handle.rpos);
+	auto [tx, ty] = rpos_handle.xy();
 	bool nextcmb = false;
 	switch(cmb.type)
 	{
@@ -1754,7 +1754,7 @@ bool trigger_damage_combo(mapscr* scr, int32_t cid, int type, int ptrval, int32_
 
 bool trigger_stepfx(const rpos_handle_t& rpos_handle, bool stepped)
 {
-	auto [tx, ty] = COMBOXY_REGION(rpos_handle.rpos);
+	auto [tx, ty] = rpos_handle.xy();
 
 	auto& cmb = rpos_handle.combo();
 
@@ -2795,9 +2795,9 @@ void handle_trigger_results(mapscr* scr, newcombo const& cmb, int32_t cx, int32_
 // Triggers a combo at a given position.
 bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special, weapon* w)
 {
-	cpos_info& timer = cpos_get(rpos_handle);
+	cpos_info& timer = rpos_handle.info();
 	int32_t cid = rpos_handle.data();
-	auto [cx, cy] = COMBOXY_REGION(rpos_handle.rpos);
+	auto [cx, cy] = rpos_handle.xy();
 
 	int32_t ocs = rpos_handle.cset();
 	auto& cmb = rpos_handle.combo();
@@ -2995,10 +2995,9 @@ bool do_trigger_combo(const ffc_handle_t& ffc_handle, int32_t special, weapon* w
 		return false; //Changers can't trigger!
 
 	int32_t cid = ffc_handle.data();
-	cpos_info& timer = ffc->info;
+	cpos_info& timer = ffc_handle.info();
 	int32_t ocs = ffc->cset;
-	int32_t cx = ffc->x;
-	int32_t cy = ffc->y;
+	auto [cx, cy] = ffc_handle.xy();
 	auto& cmb = ffc_handle.combo();
 	bool hasitem = false;
 	if(w && (cmb.triggerflags[3] & combotriggerSEPARATEWEAPON))
@@ -3027,7 +3026,7 @@ bool do_trigger_combo(const ffc_handle_t& ffc_handle, int32_t special, weapon* w
 	
 	if(w)
 	{
-		check_bit = w->ffcs_checked.contains(ffc_handle.ffc);
+		check_bit = w->ffcs_checked.contains(ffc);
 	}
 	bool dorun = !timer.trig_cd;
 	if(dorun)
@@ -3199,7 +3198,7 @@ bool do_lift_combo(const rpos_handle_t& rpos_handle, int32_t gloveid)
 
 	if(cmb.liftlvl > glove.fam_type) return false;
 
-	auto [cx, cy] = COMBOXY_REGION(rpos_handle.rpos);
+	auto [cx, cy] = rpos_handle.xy();
 
 	//Able to lift, run effects
 	if(cmb.liftsfx) sfx(cmb.liftsfx,pan(cx));
@@ -3568,7 +3567,7 @@ void cpos_clear_all()
 void cpos_force_update() //updates without side-effects
 {
 	for_every_rpos([&](const rpos_handle_t& rpos_handle) {
-		cpos_get(rpos_handle).updateData(rpos_handle.data());
+		rpos_handle.info().updateData(rpos_handle.data());
 	});
 
 	for_every_ffc([&](const ffc_handle_t& ffc_handle) {
@@ -3583,7 +3582,7 @@ void cpos_update() //updates with side-effects
 	auto& combo_cache = combo_caches::cpos_update;
 
 	for_every_rpos([&](const rpos_handle_t& rpos_handle) {
-		cpos_info& timer = cpos_get(rpos_handle);
+		cpos_info& timer = rpos_handle.info();
 		int cid = rpos_handle.data();
 
 		// Even though `updateData` already does this check, avoiding a function call

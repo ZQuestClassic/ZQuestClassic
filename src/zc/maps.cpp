@@ -2550,7 +2550,7 @@ void delete_fireball_shooter(const rpos_handle_t& rpos_handle)
     if(ct!=cL_STATUE && ct!=cR_STATUE && ct!=cC_STATUE)
         return;
     
-    auto [cx, cy] = COMBOXY_REGION(rpos_handle.rpos);
+    auto [cx, cy] = rpos_handle.xy();
     switch(ct)
     {
     case cL_STATUE:
