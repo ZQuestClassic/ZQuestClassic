@@ -966,7 +966,7 @@ bool trigger_warp(const combined_handle_t& handle)
 		wx = wscr2->warpreturnx[wrindex];
 		wy = wscr2->warpreturny[wrindex];
 	}
-	if (stype == cPIT || (stype == cAWARPA && (tmpscr->flags5 & fDIRECTAWARP)) || (stype == cSWARPA && (tmpscr->flags5 & fDIRECTSWARP)))
+	if (stype == cPIT || (stype == cAWARPA && (scr->flags5 & fDIRECTAWARP)) || (stype == cSWARPA && (scr->flags5 & fDIRECTSWARP)))
 	{
 		wx = Hero.getX().getInt();
 		wy = Hero.getY().getInt();

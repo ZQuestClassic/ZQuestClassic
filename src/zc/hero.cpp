@@ -5255,7 +5255,6 @@ void HeroClass::check_wand_block(int32_t bx, int32_t by)
     by=vbound(by, 0, world_h);
     int32_t fx=vbound(bx, 0, world_w-1);
     int32_t fy=vbound(by, 0, world_h);
-    int32_t cid = MAPCOMBO(bx,by);
     
     //first things first
     if(z>8||fakez>8) return;
@@ -5280,11 +5279,7 @@ void HeroClass::check_wand_block(int32_t bx, int32_t by)
     
     if(flag!=mfWAND&&flag2!=mfWAND&&flag3!=mfWAND&&flag!=mfSTRIKE&&flag2!=mfSTRIKE&&flag3!=mfSTRIKE)
         return;
-        
-    //mapscr *s = cur_screen >= 128 ? &special_warp_return_screen : *tmpscr;
     
-    //trigger_secrets_if_flag(bx,by,mfWAND,true);
-    //trigger_secrets_if_flag(bx,by,mfSTRIKE,true);
     if((trigger_secrets_if_flag(bx,by,mfWAND,true)==false)&&(trigger_secrets_if_flag(bx,by,mfSTRIKE,true)==false))
     {
         if(flag3==mfWAND||flag3==mfSTRIKE)
@@ -7933,7 +7928,7 @@ heroanimate_skip_liftwpn:;
 	if(cheats_execute_goto)
 	{
 		setpit();
-		dowarp(nullptr, 3, 0);
+		dowarp(hero_scr, 3, 0);
 		cheats_execute_goto=false;
 		solid_update(false);
 		return false;
@@ -10235,7 +10230,7 @@ heroanimate_skip_liftwpn:;
 		}
 		
 		ffwarp=false;
-		dowarp(nullptr,1,0);
+		dowarp(hero_scr,1,0);
 	}
 	
 	//Hero->WarpEx
@@ -10372,7 +10367,7 @@ heroanimate_skip_liftwpn:;
 		case 1:
 			if(last_savepoint_id)
 				trigger_save(combobuf[last_savepoint_id], hero_scr);
-			else save_game((tmpscr->flags4&fSAVEROOM) != 0, save_type); //sanity? 
+			else save_game((hero_scr->flags4&fSAVEROOM) != 0, save_type); //sanity? 
 			break;
 		}
 	}
@@ -13210,7 +13205,7 @@ void HeroClass::do_hopping()
         else if(DrunkrAbtn())
         {
             bool global_diving=(flippers_id > -1 && itemsbuf[flippers_id].flags & item_flag1);
-            bool screen_diving=(tmpscr->flags5&fTOGGLEDIVING) != 0;
+            bool screen_diving=(hero_scr->flags5&fTOGGLEDIVING) != 0;
             
             if(global_diving==screen_diving)
                 diveclk = (flippers_id < 0 ? 80 : (itemsbuf[flippers_id].misc1 + itemsbuf[flippers_id].misc2));
@@ -25212,10 +25207,14 @@ RaftingStuff:
 		setpit();
 		warp_sound = warpsfx2;
 	}
-	
-	
+
+	mapscr* scr = nullptr;
+	for (int i = 0; i < 4 && !scr; i++) scr = scrs[i];
+	if (!scr) scr = hero_scr;
+
+	// TODO z3 ??? is_in_scrolling_region why??
 	if (DMaps[cur_dmap].flags&dmf3STAIR && (cur_screen==129 || !(DMaps[cur_dmap].flags&dmfGUYCAVES))
-			&& (specialcave > 0 && DMaps[cur_dmap].flags & dmfGUYCAVES ? special_warp_return_screen : *tmpscr).room==rWARP && type==cSTAIR
+			&& (specialcave > 0 && DMaps[cur_dmap].flags & dmfGUYCAVES ? special_warp_return_screen : *scr).room==rWARP && type==cSTAIR
 		    && !is_in_scrolling_region())
 	{
 		if(!skippedaframe)
@@ -25269,10 +25268,6 @@ RaftingStuff:
 	
 	if(type==cRESET)
 	{
-		mapscr* scr = nullptr;
-		for (int i = 0; i < 4 && !scr; i++) scr = scrs[i];
-		if (!scr) scr = hero_scr;
-
 		if(!skippedaframe)
 		{
 			FFCore.warpScriptCheck();
@@ -25323,7 +25318,7 @@ RaftingStuff:
 		}
 		
 		sdir = dir;
-		dowarp(hero_scr, 0, index, warpsfx2);
+		dowarp(scr, 0, index, warpsfx2);
 	}
 }
 
@@ -25748,7 +25743,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 		int destscr = wscr + DMaps[cur_dmap].xoff;
 		loadscr(cur_dmap, destscr, -1, overlay);
 		
-		if((hero_scr->flags&fDARK) && !get_qr(qr_NEW_DARKROOM))
+		if((scr->flags&fDARK) && !get_qr(qr_NEW_DARKROOM))
 		{
 			if(get_qr(qr_FADE))
 			{
@@ -25770,16 +25765,16 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 		
 		if(get_qr(qr_NOARRIVALPOINT))
 		{
-			wrx=hero_scr->warpreturnx[0];
-			wry=hero_scr->warpreturny[0];
+			wrx=scr->warpreturnx[0];
+			wry=scr->warpreturny[0];
 		}
 		else
 		{
-			wrx=hero_scr->warparrivalx;
-			wry=hero_scr->warparrivaly;
+			wrx=scr->warparrivalx;
+			wry=scr->warparrivaly;
 		}
 		
-		if(((wrx>0||wry>0)||(get_qr(qr_WARPSIGNOREARRIVALPOINT)))&&(!(hero_scr->flags6&fNOCONTINUEHERE)))
+		if(((wrx>0||wry>0)||(get_qr(qr_WARPSIGNOREARRIVALPOINT)))&&(!(scr->flags6&fNOCONTINUEHERE)))
 		{
 			if(dlevel)
 			{
@@ -25797,19 +25792,19 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 		{
 			if(get_qr(qr_NOARRIVALPOINT))
 			{
-				x=hero_scr->warpreturnx[wrindex];
-				y=hero_scr->warpreturny[wrindex];
+				x=scr->warpreturnx[wrindex];
+				y=scr->warpreturny[wrindex];
 			}
 			else
 			{
-				x=hero_scr->warparrivalx;
-				y=hero_scr->warparrivaly;
+				x=scr->warparrivalx;
+				y=scr->warparrivaly;
 			}
 		}
 		else
 		{
-			x=hero_scr->warpreturnx[wrindex];
-			y=hero_scr->warpreturny[wrindex];
+			x=scr->warpreturnx[wrindex];
+			y=scr->warpreturny[wrindex];
 		}
 		
 		if(didpit)
@@ -25883,7 +25878,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			if((type1==cCAVE)||(type1>=cCAVEB && type1<=cCAVED) || (type2==cCAVE)||(type2>=cCAVEB && type2<=cCAVED))
 			{
 				reset_pal_cycling();
-				putscr(tmpscr, scrollbuf, 0, 0);
+				putscr(tmpscr, scrollbuf, 0, 0); // TODO z3 ?
 				putscrdoors(tmpscr, scrollbuf, 0, 0);
 				walkup(COOLSCROLL);
 			}
@@ -25981,7 +25976,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 				wry=hero_scr->warparrivaly;
 			}
 			
-			if(((wrx>0||wry>0)||(get_qr(qr_WARPSIGNOREARRIVALPOINT)))&&(!get_qr(qr_NOSCROLLCONTINUE))&&(!(tmpscr->flags6&fNOCONTINUEHERE)))
+			if(((wrx>0||wry>0)||(get_qr(qr_WARPSIGNOREARRIVALPOINT)))&&(!get_qr(qr_NOSCROLLCONTINUE))&&(!(scr->flags6&fNOCONTINUEHERE)))
 			{
 				if(dlevel)
 				{
