@@ -6049,8 +6049,8 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 		}
 	}
 	
-	// Carry over FFCs from previous screen to the next. Only for the ones that have the carry over flag set, and if the previous
-	// screen has FF carryover enabled.
+	// Carry over FFCs from previous screen to the next. Only for the ones that have the carry over
+	// flag set, and if the previous screen has FF carryover enabled.
 	if (!is_setting_special_warp_return_screen)
 	{
 		int c = previous_scr.numFFC();
@@ -6115,9 +6115,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 		}
 	}
 
-	auto [offx, offy] = is_a_region(DMaps[destdmap < 0 ? cur_dmap : destdmap].map, screen) ?
-		translate_screen_coordinates_to_world(screen) :
-		std::make_pair(0, 0);
+	auto [offx, offy] = translate_screen_coordinates_to_world(screen);
 	int c = scr->numFFC();
 	for (word i = 0; i < c; i++)
 	{
