@@ -526,7 +526,9 @@ GUI::ListData GUI::ZCListData::weaptypes(bool numbered)
 	{
 		if(!ZI.isUsableWeap(q))
 			continue; //Hidden
-		char const* module_str = ZI.getWeapName(q);
+		string module_str = ZI.getWeapName(q);
+		if(q >= wEnemyWeapons)
+			module_str = fmt::format("E {}", module_str);
 		if(numbered)
 			ls.add(fmt::format("{} ({:03})", module_str, q), q);
 		else ls.add(module_str, q);
