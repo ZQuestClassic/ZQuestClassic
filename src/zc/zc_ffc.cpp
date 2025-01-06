@@ -38,7 +38,6 @@ void zc_ffc_modify(ffcdata& ffc, int32_t amount)
 		zc_ffc_set(ffc, ffc.data + amount);
 }
 
-// TODO z3 rm tmpscr usages
 void zc_ffc_changer(ffcdata& ffc, ffcdata& other, int32_t i, int32_t j)
 {
 	// TODO: could use `ffc = other;` to replace most of this.
@@ -75,7 +74,7 @@ void zc_ffc_changer(ffcdata& ffc, ffcdata& other, int32_t i, int32_t j)
 	ffc.flags&=~ffc_changer;
 	
 	if(combobuf[other.data].flag>15 && combobuf[other.data].flag<32)
-		zc_ffc_set(other, tmpscr->secretcombo[combobuf[other.data].flag-16+4]);
+		zc_ffc_set(other, get_scr(other.screen_spawned)->secretcombo[combobuf[other.data].flag-16+4]);
 	
 	if(i > -1 && j > -1)
 	{
@@ -84,13 +83,12 @@ void zc_ffc_changer(ffcdata& ffc, ffcdata& other, int32_t i, int32_t j)
 		if((other.flags&ffc_swapnext)||(other.flags&ffc_swapprev))
 		{
 			int32_t k=0;
-			
 			if(other.flags&ffc_swapnext)
 				k=j<(MAXFFCS-1)?j+1:0;
-				
 			if(other.flags&ffc_swapprev)
 				k=j>0?j-1:(MAXFFCS-1);
-			ffcdata& ffck = tmpscr->ffcs[k];
+
+			ffcdata& ffck = get_scr(other.screen_spawned)->ffcs[k];
 			auto w = ffck.data;
 			zc_ffc_set(ffck, other.data);
 			zc_ffc_set(other, w);
