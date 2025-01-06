@@ -18083,8 +18083,8 @@ static void loadguys(mapscr* scr)
 	{
 		if(DMaps[cur_dmap].flags&dmfCAVES)
 		{
-			Guy=special_warp_return_screen.guy;
-			guyscr = &special_warp_return_screen;
+			Guy=special_warp_return_scr.guy;
+			guyscr = &special_warp_return_scr;
 		}
 	}
 	else
@@ -18254,10 +18254,10 @@ void loaditem(mapscr* scr, int offx, int offy)
 	}
 	else if(!(DMaps[cur_dmap].flags&dmfCAVES))
 	{
-		if((!getmapflag(screen, (screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (special_warp_return_screen.flags9&fBELOWRETURN)) && special_warp_return_screen.room==rSP_ITEM
+		if((!getmapflag(screen, (screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (special_warp_return_scr.flags9&fBELOWRETURN)) && special_warp_return_scr.room==rSP_ITEM
 				&& (screen==128 || !get_qr(qr_ITEMSINPASSAGEWAYS)))
 		{
-			Item = special_warp_return_screen.catchall;
+			Item = special_warp_return_scr.catchall;
 			
 			if(Item)
 			{
@@ -19586,7 +19586,7 @@ void setupscreen()
 	boughtsomething=false;
 
 	// Either the origin screen, or if in a 0x80 room the screen player came from.
-	mapscr* base_scr = cur_screen >= 128 ? &special_warp_return_screen : origin_scr;
+	mapscr* base_scr = cur_screen >= 128 ? &special_warp_return_scr : origin_scr;
 	mapscr* scr = origin_scr;
 
 	word str=base_scr->str;
@@ -20996,7 +20996,7 @@ disappear:
 				//       if (get_qr(qr_REPAIRFIX)) {
 				//         fixed_door=true;
 				//       }
-				game->change_drupy(-(cur_screen >= 128 ? special_warp_return_screen : *msgscr).catchall);
+				game->change_drupy(-(cur_screen >= 128 ? special_warp_return_scr : *msgscr).catchall);
 				repaircharge = 0;
 			}
 			

@@ -937,7 +937,7 @@ bool trigger_warp(const combined_handle_t& handle)
 	if(!isWarpType(cmb.type)) return false;
 
 	mapscr* scr = handle.base_scr();
-	mapscr* wscr = cur_screen >= 128 ? &special_warp_return_screen : scr;
+	mapscr* wscr = cur_screen >= 128 ? &special_warp_return_scr : scr;
 	auto index = getWarpLetter(cmb.type);
 	if(index == 4) index = zc_oldrand()%4; //Random warp
 	auto wtype = wscr->tilewarptype[index];

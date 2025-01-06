@@ -4063,7 +4063,7 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 		ignoreffc = true;
 	}
 	
-	mapscr *s = cur_screen >= 128 ? &special_warp_return_screen : rpos_handle.scr;
+	mapscr *s = cur_screen >= 128 ? &special_warp_return_scr : rpos_handle.scr;
 	
 	int32_t sworditem = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? itemsbuf[directWpn].fam_type : current_item(itype_sword);
 	byte skipsecrets = 0;
@@ -4623,7 +4623,7 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
         ignoreffc = true;
     }
     
-    mapscr *s = cur_screen >= 128 ? &special_warp_return_screen : rpos_handle.scr;
+    mapscr *s = cur_screen >= 128 ? &special_warp_return_scr : rpos_handle.scr;
     
     int32_t sworditem = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? itemsbuf[directWpn].fam_type : current_item(itype_sword);
     byte skipsecrets = 0;
@@ -5014,7 +5014,7 @@ void HeroClass::check_slash_block(weapon *w)
         ignoreffc = true;
     }
     
-    mapscr *s = cur_screen >= 128 ? &special_warp_return_screen : rpos_handle.scr;
+    mapscr *s = cur_screen >= 128 ? &special_warp_return_scr : rpos_handle.scr;
     
     int32_t sworditem = (par_item >-1 ? itemsbuf[par_item].fam_type : current_item(itype_sword)); //Get the level of the item, else the highest sword level in inventory.
     
@@ -5347,7 +5347,7 @@ void HeroClass::check_pound_block(int bx, int by, weapon* w)
     if(ignorescreen && ignoreffc)  // Nothing to do.
         return;
         
-    mapscr *s = cur_screen >= 128 ? &special_warp_return_screen : get_scr_for_world_xy(bx, by);
+    mapscr *s = cur_screen >= 128 ? &special_warp_return_scr : get_scr_for_world_xy(bx, by);
     
     if(!ignorescreen)
     {
@@ -11727,8 +11727,8 @@ bool HeroClass::startwpn(int32_t itemid)
 		case itype_letter:
 		{
 			if(current_item(itype_letter)==i_letter &&
-					(cur_screen >= 128 ? special_warp_return_screen : *hero_scr).room==rP_SHOP &&
-					(cur_screen >= 128 ? special_warp_return_screen : *hero_scr).guy &&
+					(cur_screen >= 128 ? special_warp_return_scr : *hero_scr).room==rP_SHOP &&
+					(cur_screen >= 128 ? special_warp_return_scr : *hero_scr).guy &&
 					((cur_screen<128&&!(DMaps[cur_dmap].flags&dmfGUYCAVES))
 						||(cur_screen>=128&&DMaps[cur_dmap].flags&dmfGUYCAVES)) &&
 					checkbunny(itemid)
@@ -11739,7 +11739,7 @@ bool HeroClass::startwpn(int32_t itemid)
 				if(usedid != -1)
 					getitem(usedid, true, true);
 					
-				sfx((cur_screen >= 128 ? special_warp_return_screen : *hero_scr).secretsfx);
+				sfx((cur_screen >= 128 ? special_warp_return_scr : *hero_scr).secretsfx);
 				setupscreen();
 				action=none; FFCore.setHeroAction(none);
 			}
@@ -25150,7 +25150,7 @@ RaftingStuff:
 	}
 	
 	// Either the screen the hero is currently in, or if in a 0x80 room the screen player came from.
-	mapscr* base_scr = cur_screen >= 128 ? &special_warp_return_screen : hero_scr;
+	mapscr* base_scr = cur_screen >= 128 ? &special_warp_return_scr : hero_scr;
 	
 	if((type==cCAVE || type==cCAVE2) && (base_scr->tilewarptype[index]==wtNOWARP)) return;
 	
@@ -25215,7 +25215,7 @@ RaftingStuff:
 	if (!is_in_scrolling_region()
 			&& DMaps[cur_dmap].flags&dmf3STAIR
 			&& (cur_screen==129 || !(DMaps[cur_dmap].flags&dmfGUYCAVES))
-			&& (specialcave > 0 && DMaps[cur_dmap].flags & dmfGUYCAVES ? special_warp_return_screen : *scr).room==rWARP && type==cSTAIR)
+			&& (specialcave > 0 && DMaps[cur_dmap].flags & dmfGUYCAVES ? special_warp_return_scr : *scr).room==rWARP && type==cSTAIR)
 	{
 		if(!skippedaframe)
 		{
@@ -25397,7 +25397,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 
 	const mapscr* cur_scr = scr ? scr : hero_scr;
 	// Either the current screen, or if in a 0x80 room the screen player came from.
-	const mapscr* base_scr = cur_screen >= 128 ? &special_warp_return_screen : cur_scr;
+	const mapscr* base_scr = cur_screen >= 128 ? &special_warp_return_scr : cur_scr;
 
 	// Drawing commands probably shouldn't carry over...
 	if (!get_qr(qr_SCRIPTDRAWSINWARPS))
@@ -26636,7 +26636,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 	{
 		if(DMaps[cur_dmap].flags&dmfGUYCAVES)
 			Z_eventlog("Entered %s containing %s.\n",DMaps[cur_dmap].flags&dmfCAVES ? "Cave" : "Item Cellar",
-					   (char *)moduledata.roomtype_names[special_warp_return_screen.room]);
+					   (char *)moduledata.roomtype_names[special_warp_return_scr.room]);
 		else
 			Z_eventlog("Entered %s.",DMaps[cur_dmap].flags&dmfCAVES ? "Cave" : "Item Cellar");
 	}
@@ -28610,7 +28610,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 	bool overlay = false;
 	if(scrolldir >= 0 && scrolldir <= 3)
 	{
-		overlay = get_bit(&(cur_screen >= 128 ? special_warp_return_screen : *tmpscr).sidewarpoverlayflags, scrolldir) ? true : false;
+		overlay = get_bit(&(cur_screen >= 128 ? special_warp_return_scr : *tmpscr).sidewarpoverlayflags, scrolldir) ? true : false;
 	}
 
 	int old_dmap = cur_dmap;
@@ -28824,11 +28824,11 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 	FFCore.clear_combo_scripts();
 	
 	// expose previous screen to scripting.
-	special_warp_return_screen = *tmpscr;
+	special_warp_return_scr = *tmpscr;
 	
 	for(int32_t i = 0; i < 6; i++)
 	{
-		tmpscr3[i] = tmpscr2[i];
+		special_warp_return_scr_layers[i] = tmpscr2[i];
 	}
 
 	// Between here and until calling loadscr to get the new region, some scripts can run and modify
@@ -28844,7 +28844,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 	if (!should_delay_taking_old_screens)
 		old_temporary_screens = take_temporary_scrs();
 
-	mapscr *oldscr = &special_warp_return_screen;
+	mapscr *oldscr = &special_warp_return_scr;
 	conveyclk = 2;
 	screenscrolling = true;
 	scrolling_dir = (direction) scrolldir;
@@ -30367,7 +30367,7 @@ bool canget(int32_t id)
 
 void dospecialmoney(int32_t index)
 {
-	mapscr& scr = cur_screen >= 128 ? special_warp_return_screen : *hero_scr;
+	mapscr& scr = cur_screen >= 128 ? special_warp_return_scr : *hero_scr;
     int32_t priceindex = ((item*)items.spr(index))->PriceIndex;
     
     switch(scr.room)
@@ -30992,7 +30992,7 @@ void HeroClass::checkitems(int32_t index)
 
 	// For items grabbed while in a special screen.
 	if (cur_screen >= 128)
-		item_scr = &special_warp_return_screen;
+		item_scr = &special_warp_return_scr;
 
 	if(ptr->fallclk > 0) return; //Don't pick up a falling item
 	

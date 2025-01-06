@@ -286,7 +286,7 @@ std::tuple<const rpos_handle_t*, int> get_current_region_handles()
 
 std::tuple<const rpos_handle_t*, int> get_current_region_handles(mapscr* scr)
 {
-	if (scr == &special_warp_return_screen || current_region_rpos_handles_dirty)
+	if (scr == &special_warp_return_scr || current_region_rpos_handles_dirty)
 		return {nullptr, 0};
 
 	DCHECK(is_in_current_region(scr));
@@ -584,7 +584,7 @@ mapscr* get_scr_no_load(int map, int screen)
 {
 	DCHECK_RANGE_INCLUSIVE(screen, 0, 135);
 	if (screen == cur_screen && map == cur_map) return origin_scr;
-	if (screen == home_screen && map == cur_map) return &special_warp_return_screen;
+	if (screen == home_screen && map == cur_map) return &special_warp_return_scr;
 
 	if (map == cur_map)
 	{
@@ -609,7 +609,7 @@ mapscr* get_scr_layer(int map, int screen, int layer)
 	DCHECK_LAYER_NEG1_INDEX(layer);
 	if (layer == -1) return get_scr(map, screen);
 	if (screen == cur_screen && map == cur_map) return &tmpscr2[layer];
-	if (screen == home_screen && map == cur_map) return &tmpscr3[layer];
+	if (screen == home_screen && map == cur_map) return &special_warp_return_scr_layers[layer];
 
 	if (map == cur_map)
 	{
@@ -1139,7 +1139,7 @@ static void apply_state_changes_to_screen(mapscr& scr, int32_t map, int32_t scre
 	}
 	if(flags & mLIGHTBEAM)
 	{
-		for(size_t pos = 0; pos < 176; ++pos)
+		for (int pos = 0; pos < 176; pos++)
 		{
 			newcombo const* cmb = &combobuf[scr.data[pos]];
 			if(cmb->type == cLIGHTTARGET)
@@ -1416,7 +1416,7 @@ void eventlog_mapflags()
 // set specific flag
 void setmapflag(mapscr* scr, int32_t flag)
 {
-	if (scr->screen >= 0x80) scr = &special_warp_return_screen;
+	if (scr->screen >= 0x80) scr = &special_warp_return_scr;
 	int mi = mapind(cur_map, scr->screen);
 	setmapflag_mi(scr, mi, flag);
 }
@@ -1504,7 +1504,7 @@ void unsetmapflag_home(int32_t flag, bool anyflag)
 
 void unsetmapflag(mapscr* scr, int32_t flag, bool anyflag)
 {
-	if (scr->screen >= 0x80) scr = &special_warp_return_screen;
+	if (scr->screen >= 0x80) scr = &special_warp_return_scr;
 	int mi = mapind(cur_map, scr->screen);
 	unsetmapflag_mi(scr, mi, flag, anyflag);
 }
@@ -2363,7 +2363,7 @@ bool remove_xstatecombos_mi(mapscr *s, int32_t screen, int32_t mi, byte xflag, b
 	bool didit=false;
 	if(!getxmapflag_mi(mi, 1<<xflag)) return false;
 
-	if (screen >= 0x80) s = &special_warp_return_screen;
+	if (screen >= 0x80) s = &special_warp_return_scr;
 	screen = screen >= 0x80 ? home_screen : screen;
 
 	rpos_handle_t rpos_handle;
@@ -2462,7 +2462,7 @@ bool remove_xdoors_mi(mapscr *scr, int32_t mi, uint dir, uint ind, bool triggers
 	bool didit=false;
 	if(!getxdoor_mi(mi, dir, ind)) return false;
 
-	if (scr->screen >= 0x80) scr = &special_warp_return_screen;
+	if (scr->screen >= 0x80) scr = &special_warp_return_scr;
 	int screen = scr->screen;
 
 	rpos_handle_t rpos_handle;
@@ -5679,10 +5679,10 @@ static void load_a_screen_and_layers(int dmap, int screen, int ldir)
 		}
 		if(game->maps[mi] & mLIGHTBEAM) // if special stuff done before
 		{
-			for(size_t layer = 0; layer < 7; ++layer)
+			for (int layer = 0; layer <= 6; layer++)
 			{
 				mapscr* layer_scr = screens[layer + 1];
-				for(size_t pos = 0; pos < 176; ++pos)
+				for (int pos = 0; pos < 176; pos++)
 				{
 					newcombo const* cmb = &combobuf[layer_scr->data[pos]];
 					if(cmb->type == cLIGHTTARGET)
@@ -5802,7 +5802,7 @@ static void load_a_screen_and_layers(int dmap, int screen, int ldir)
 // starting the game, etc...)
 // Note: for regions, only the initial screen load calls this function. Simply walking between screens
 // in the same region does not use this, because every screen in a region is loaded into temporary memory up front.
-// If scr >= 0x80, `hero_screen` will be saved to `home_screen` and also be loaded into `special_warp_return_screen`.
+// If scr >= 0x80, `hero_screen` will be saved to `home_screen` and also be loaded into `special_warp_return_scr`.
 // If overlay is true, the old tmpscr combos will be copied to the new tmpscr combos on all layers (but only where
 // the new screen has a 0 combo).
 // TODO: loadscr should set curdmap, but currently callers do that.
@@ -5876,7 +5876,7 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool overlay, bool 
 
 	// Load the origin screen (top-left in region) into tmpscr.
 	loadscr_old(0, orig_destdmap, cur_screen, ldir, overlay, ffc_script_indices_to_remove);
-	// If on a special screen, load the screen the player is curretly on (home_screen) into special_warp_return_screen.
+	// If on a special screen, load the screen the player is curretly on (home_screen) into special_warp_return_scr.
 	if (screen >= 0x80)
 		loadscr_old(1, orig_destdmap, home_screen, no_x80_dir ? -1 : ldir, overlay, ffc_script_indices_to_remove);
 
@@ -5979,8 +5979,8 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 	bool is_setting_special_warp_return_screen = tmp == 1;
 	int32_t destlvl = DMaps[destdmap < 0 ? cur_dmap : destdmap].level;
 
-	mapscr previous_scr = tmp == 0 ? *tmpscr : special_warp_return_screen;
-	mapscr* scr = tmp == 0 ? tmpscr : &special_warp_return_screen;
+	mapscr previous_scr = tmp == 0 ? *tmpscr : special_warp_return_scr;
+	mapscr* scr = tmp == 0 ? tmpscr : &special_warp_return_scr;
 	const mapscr* source = get_canonical_scr(cur_map, screen);
 	*scr = *source;
 	if (tmp == 0)
@@ -6132,14 +6132,14 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 		if(game->maps[mi]&mSECRET)			   // if special stuff done before
 		{
 			reveal_hidden_stairs(scr, screen, false);
-			trigger_secrets_for_screen(TriggerSource::SecretsScreenState, cur_screen, tmp == 0 ? tmpscr : &special_warp_return_screen, false, -1);
+			trigger_secrets_for_screen(TriggerSource::SecretsScreenState, cur_screen, tmp == 0 ? tmpscr : &special_warp_return_scr, false, -1);
 		}
 		if(game->maps[mi]&mLIGHTBEAM) // if special stuff done before
 		{
-			for(size_t layer = 0; layer < 7; ++layer)
+			for (int layer = 0; layer <= 6; layer++)
 			{
-				mapscr* tscr = (tmp==0) ? FFCore.tempScreens[layer] : FFCore.ScrollingScreens[layer];
-				for(size_t pos = 0; pos < 176; ++pos)
+				mapscr* tscr = (tmp==0) ? FFCore.tempScreens[layer] : &special_warp_return_scr_layers[layer - 1];
+				for (int pos = 0; pos < 176; pos++)
 				{
 					newcombo const* cmb = &combobuf[tscr->data[pos]];
 					if(cmb->type == cLIGHTTARGET)
@@ -6154,8 +6154,8 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 		}
 	}
 	
-	toggle_switches(game->lvlswitches[destlvl], true, tmp == 0 ? tmpscr : &special_warp_return_screen);
-	toggle_gswitches_load(tmp == 0 ? tmpscr : &special_warp_return_screen);
+	toggle_switches(game->lvlswitches[destlvl], true, tmp == 0 ? tmpscr : &special_warp_return_scr);
+	toggle_gswitches_load(tmp == 0 ? tmpscr : &special_warp_return_scr);
 	
 	if(game->maps[mi]&mLOCKBLOCK)			  // if special stuff done before
 	{
@@ -6286,7 +6286,7 @@ void loadscr2(int32_t tmp,int32_t screen,int32_t)
 		}
 	}
 	
-	mapscr& scr = tmp == 0 ? *tmpscr : special_warp_return_screen;
+	mapscr& scr = tmp == 0 ? *tmpscr : special_warp_return_scr;
 	scr = *get_canonical_scr(cur_map, screen);
 	
 	if(tmp==0)
@@ -6315,14 +6315,14 @@ void loadscr2(int32_t tmp,int32_t screen,int32_t)
 		if(game->maps[mi]&mSECRET)			   // if special stuff done before
 		{
 			reveal_hidden_stairs(&scr, screen, false);
-			trigger_secrets_for_screen_internal(-1, tmp == 0 ? tmpscr2 : &special_warp_return_screen, false, false, -1);
+			trigger_secrets_for_screen_internal(-1, tmp == 0 ? tmpscr2 : &special_warp_return_scr, false, false, -1);
 		}
 		if(game->maps[mi]&mLIGHTBEAM) // if special stuff done before
 		{
-			for(size_t layer = 0; layer < 7; ++layer)
+			for (int layer = 0; layer <= 6; layer++)
 			{
-				mapscr* tscr = (tmp==0) ? FFCore.tempScreens[layer] : FFCore.ScrollingScreens[layer];
-				for(size_t pos = 0; pos < 176; ++pos)
+				mapscr* tscr = (tmp==0) ? FFCore.tempScreens[layer] : &special_warp_return_scr_layers[layer - 1];
+				for (int pos = 0; pos < 176; pos++)
 				{
 					newcombo const* cmb = &combobuf[tscr->data[pos]];
 					if(cmb->type == cLIGHTTARGET)
@@ -6989,7 +6989,7 @@ void toggle_switches(dword flags, bool entry, mapscr* m)
 	if(!flags) return; //No flags to toggle
 
 	int screen = m->screen;
-	bool iscurscr = is_in_current_region(m);
+	bool is_active_screen = is_in_current_region(m);
 
 	for_every_rpos_in_screen(m, [&](const rpos_handle_t& rpos_handle) {
 		byte togglegrid[176] = {0};
@@ -6997,7 +6997,7 @@ void toggle_switches(dword flags, bool entry, mapscr* m)
 		int lyr = rpos_handle.layer;
 		int pos = rpos_handle.pos;
 		newcombo const& cmb = combobuf[scr->data[pos]];
-		if(iscurscr)
+		if(is_active_screen)
 			if((cmb.triggerflags[3] & combotriggerTRIGLEVELSTATE) && cmb.trig_lstate < 32)
 				if(flags&(1<<cmb.trig_lstate))
 					do_trigger_combo(rpos_handle, ctrigSWITCHSTATE);
@@ -7112,7 +7112,7 @@ void toggle_switches(dword flags, bool entry, mapscr* m)
 		}
 	}
 	
-	if(iscurscr)
+	if (is_active_screen)
 	{
 		int screen_index_offset = get_region_screen_offset(m->screen);
 		word c = m->numFFC();
@@ -7356,7 +7356,7 @@ bool displayOnMap(int32_t x, int32_t y)
 void ViewMap()
 {
 	// This function relies on old code (`loadscr2`) taking over the
-	// tmpscr/tmpscr2/special_warp_return_screen variables to draw the map.
+	// tmpscr/tmpscr2/special_warp_return_scr variables to draw the map.
 	// The original values are restored at the end.
 
 	mapscr tmpscr_a[2];
@@ -7364,8 +7364,8 @@ void ViewMap()
 
 	tmpscr_a[0] = *tmpscr;
 	tmpscr->zero_memory();
-	tmpscr_a[1] = special_warp_return_screen;
-	special_warp_return_screen.zero_memory();
+	tmpscr_a[1] = special_warp_return_scr;
+	special_warp_return_scr.zero_memory();
 	
 	for(int32_t i=0; i<6; ++i)
 	{
@@ -7413,9 +7413,9 @@ void ViewMap()
 			{
 				int32_t s = (y<<4) + x;
 				tmpscr->zero_memory();
-				special_warp_return_screen.zero_memory();
+				special_warp_return_scr.zero_memory();
 				loadscr2(1,s,-1);
-				*tmpscr = special_warp_return_screen;
+				*tmpscr = special_warp_return_scr;
 				if(tmpscr->valid&mVALID)
 				{
 					for(int32_t i=0; i<6; i++)
@@ -7470,7 +7470,7 @@ void ViewMap()
 	}
 	
 	*tmpscr = tmpscr_a[0];
-	special_warp_return_screen = tmpscr_a[1];
+	special_warp_return_scr = tmpscr_a[1];
 	for(int32_t i=0; i<6; ++i)
 	{
 		tmpscr2[i]=tmpscr_b[i];

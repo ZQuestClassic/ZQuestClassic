@@ -310,7 +310,7 @@ extern int32_t hero_screen;
 extern mapscr* hero_scr;
 // Screen the player was last on. If in a scrolling region, this updates as the player moves around. Otherwise this is equal to tmpscr.
 extern mapscr* prev_hero_scr;
-// If currently on an 0x80+ screen, this is where the player came from. Corresponds to special_warp_return_screen.
+// If currently on an 0x80+ screen, this is where the player came from. Corresponds to special_warp_return_scr.
 // Otherwise, is equal to cur_screen.
 extern int32_t home_screen;
 extern int32_t frame,cur_map,dlevel,scrolling_hero_screen,scrolling_map,scrolling_dmap,scrolling_destdmap;
@@ -382,15 +382,16 @@ extern int32_t  visited[6];
 extern mapscr scrolling_screen;
 // The currently loaded screen. For regions, this is the top-left screen, AKA the origin screen.
 extern mapscr* tmpscr;
+// The layers of the current origin screen.
+extern mapscr tmpscr2[6];
 // The currently loaded screen. For regions, this is the top-left screen, AKA the origin screen. Alias for tmpscr.
 extern mapscr* origin_scr;
 // This is typically used as the previous screen before doing a warp to a special room,
 // but it is also used (by scripting) to hold the previous screen during scrolling.
-extern mapscr special_warp_return_screen;
+extern mapscr special_warp_return_scr;
+extern mapscr special_warp_return_scr_layers[6];
 extern std::map<int, byte> activation_counters;
 extern std::map<int, byte> activation_counters_ffc;
-extern mapscr tmpscr2[6];
-extern mapscr tmpscr3[6];
 extern char   sig_str[44];
 extern script_data *ffscripts[NUMSCRIPTFFC];
 extern script_data *itemscripts[NUMSCRIPTITEM];

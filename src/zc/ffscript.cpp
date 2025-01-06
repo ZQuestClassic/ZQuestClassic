@@ -36530,11 +36530,11 @@ void FFScript::init()
 	initIncludePaths();
 	//clearRunningItemScripts();
 	tempScreens[0] = tmpscr;
-	ScrollingScreens[0] = &special_warp_return_screen;
+	ScrollingScreens[0] = &special_warp_return_scr;
 	for(int32_t q = 0; q < 6; ++q)
 	{
 		tempScreens[q+1] = tmpscr2+q;
-		ScrollingScreens[q+1] = tmpscr3+q;
+		ScrollingScreens[q+1] = special_warp_return_scr_layers+q;
 	}
 	ScrollingScreensAll.clear();
 	memset(ScrollingData, 0, sizeof(int32_t) * SZ_SCROLLDATA);
