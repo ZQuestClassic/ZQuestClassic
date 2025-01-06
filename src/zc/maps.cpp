@@ -7359,12 +7359,12 @@ bool displayOnMap(int32_t x, int32_t y)
 
 void ViewMap()
 {
-	// The only reason this is static is that the stack is otherwise too large.
-	// It will still compile, but segfaults in this function.
-	// Ex: python tests/run_replay_tests.py --filter link_to_the_zelda_2_of_3.zplay --frame 3000
-	static mapscr tmpscr_a[2];
-	static mapscr tmpscr_b[2];
-	static mapscr tmpscr_c[6];
+	// This function relies on old code (`loadscr2`) taking over the
+	// tmpscr/tmpscr2/special_warp_return_screen variables to draw the map.
+	// The original values are restored at the end.
+
+	mapscr tmpscr_a[2];
+	mapscr tmpscr_b[6];
 
 	tmpscr_a[0] = *tmpscr;
 	tmpscr->zero_memory();
@@ -7373,7 +7373,7 @@ void ViewMap()
 	
 	for(int32_t i=0; i<6; ++i)
 	{
-		tmpscr_c[i] = tmpscr2[i];
+		tmpscr_b[i] = tmpscr2[i];
 		tmpscr2[i].zero_memory();
 	}
 	
@@ -7477,7 +7477,7 @@ void ViewMap()
 	special_warp_return_screen = tmpscr_a[1];
 	for(int32_t i=0; i<6; ++i)
 	{
-		tmpscr2[i]=tmpscr_c[i];
+		tmpscr2[i]=tmpscr_b[i];
 	}
 	
 	destroy_bitmap(screen_bmp);
