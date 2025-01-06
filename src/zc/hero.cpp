@@ -29558,10 +29558,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 		if (show_walkflags || show_effectflags)
 		{
 			for_every_nearby_screen_during_scroll(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy, bool is_new_screen) {
-				mapscr* base_scr = screen_handles[0].base_scr;
-				int tempscreen = is_new_screen ? 2 : 3;
-				do_walkflags(base_scr, offx, offy, tempscreen); // show walkflags if the cheat is on
-				do_effectflags(base_scr, offx, offy, tempscreen); // show effectflags if the cheat is on
+				do_walkflags(screen_handles, offx, offy); // show walkflags if the cheat is on
+				do_effectflags(screen_handles[0].base_scr, offx, offy); // show effectflags if the cheat is on
 			});
 
 			do_walkflags(nx, ny);

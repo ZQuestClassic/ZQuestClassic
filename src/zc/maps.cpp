@@ -4093,32 +4093,32 @@ void draw_ladder_platform_a5(int32_t x, int32_t y, ALLEGRO_COLOR c)
 }
 
 // Walkflags L4 cheat
-// TODO z3 !!
-void do_walkflags(mapscr* layer,int32_t x, int32_t y, int32_t tempscreen)
+void do_walkflags(const std::array<screen_handle_t, 7>& screen_handles, int32_t x, int32_t y)
 {
 	if (!show_walkflags)
 		return;
 
 	start_info_bmp();
-	
+
+	mapscr* scr = screen_handles[0].scr;
 	for(int32_t i=0; i<176; i++)
 	{
-		put_walkflags_a5(((i&15)<<4) + x, (i&0xF0) + y, layer->data[i], 0);
+		put_walkflags_a5(((i&15)<<4) + x, (i&0xF0) + y, scr->data[i], 0);
 	}
-	
+
 	for(int32_t k=0; k<2; k++)
 	{
-		mapscr* lyr = (tempscreen==2 ? tmpscr2+k : tmpscr3+k);
-		
-		if(lyr->valid)
+		scr = screen_handles[k + 1].scr;
+
+		if (scr->valid)
 		{
 			for(int32_t i=0; i<176; i++)
 			{
-				put_walkflags_a5(((i&15)<<4) + x, (i&0xF0) + y, lyr->data[i], k%2+1);
+				put_walkflags_a5(((i&15)<<4) + x, (i&0xF0) + y, scr->data[i], k%2+1);
 			}
 		}
 	}
-	
+
 	end_info_bmp();
 }
 
@@ -4140,7 +4140,7 @@ void do_walkflags(int32_t x, int32_t y)
 }
 
 // Effectflags L4 cheat
-void do_effectflags(mapscr* layer,int32_t x, int32_t y, int32_t tempscreen)
+void do_effectflags(mapscr* scr, int32_t x, int32_t y)
 {
 	if(show_effectflags)
 	{
@@ -4148,7 +4148,7 @@ void do_effectflags(mapscr* layer,int32_t x, int32_t y, int32_t tempscreen)
 		
 		for(int32_t i=0; i<176; i++)
 		{
-			put_effectflags_a5(((i&15)<<4) + x, (i&0xF0) + y, layer->data[i], 0);
+			put_effectflags_a5(((i&15)<<4) + x, (i&0xF0) + y, scr->data[i], 0);
 		}
 		
 		end_info_bmp();
@@ -4569,9 +4569,8 @@ void draw_screen(bool showhero, bool runGeneric)
 	if (show_walkflags || show_effectflags)
 	{
 		for_every_nearby_screen(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy) {
-			mapscr* base_scr = screen_handles[0].base_scr;
-			do_walkflags(base_scr, offx, offy, 2);
-			do_effectflags(base_scr, offx, offy, 2);
+			do_walkflags(screen_handles, offx, offy);
+			do_effectflags(screen_handles[0].base_scr, offx, offy);
 		});
 
 		do_walkflags(0, 0);
