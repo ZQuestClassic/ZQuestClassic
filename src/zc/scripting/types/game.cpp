@@ -24,7 +24,7 @@ extern int32_t sarg3;
 
 namespace {
 
-// If `index` is currently being used as a layer, return that layer no.
+// If `index` is currently being used as a layer for the origin screen, return that layer index.
 int whichlayer(int map, int screen)
 {
 	for (int32_t i = 0; i < 6; i++)
@@ -212,9 +212,9 @@ static int HandleGameScreenGetter(std::function<int(mapscr*, int)> cb, const cha
 	else if (map < 0) return 0; // No layer present. [2025 note: weird...]
 	else
 	{
+		// Since this is deprecated, we only support looking at the temporary for the origin screen.
 		if (map == cur_map && screen == cur_screen)
-			return cb(tmpscr, pos);
-		// Since this is deprecated, we only support looking at the origin screen.
+			return cb(origin_scr, pos);
 		else if (layr > -1)
 			return cb(&tmpscr2[layr], pos);
 		else return cb(&TheMaps[index], pos);
@@ -255,10 +255,11 @@ static auto ResolveGameScreens(const char* context)
 	}
 
 	result.canonical_rpos_handle = {&TheMaps[index], screen, 0, (rpos_t)pos, pos};
-	// Since this is deprecated, we only support looking at the origin screen.
+
+	// Since this is deprecated, we only support looking at the temporary for the origin screen.
 	if (map == cur_map && screen == cur_screen)
-		result.tmp_rpos_handle = {tmpscr, screen, 0, (rpos_t)pos, pos};
-	if (layr>-1)
+		result.tmp_rpos_handle = {origin_scr, screen, 0, (rpos_t)pos, pos};
+	if (layr > -1)
 		result.tmp_layer_rpos_handle = {&tmpscr2[layr], screen, 0, (rpos_t)pos, pos};
 
 	return result;

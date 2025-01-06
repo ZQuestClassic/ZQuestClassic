@@ -27814,9 +27814,9 @@ bool HeroClass::checkmaze_ignore_exit(const mapscr *scr, bool sound)
 
 bool HeroClass::edge_of_dmap(int32_t side)
 {
-    if(checkmaze(tmpscr,false)==false)
+    if (!has_advanced_maze(origin_scr) && checkmaze(origin_scr, false) == false)
         return false;
-        
+
     // needs fixin'
     // should check dmap style
     switch(side)
@@ -28620,14 +28620,14 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 	bool updatemusic = FFCore.can_dmap_change_music(destdmap);
 	bool musicrevert = FFCore.music_update_flags & MUSIC_UPDATE_FLAG_REVERT;
 
-	if (!has_advanced_maze(hero_scr) && maze_enabled_sizewarp(tmpscr, scrolldir))
+	if (!has_advanced_maze(origin_scr) && maze_enabled_sizewarp(origin_scr, scrolldir))
 		return; // dowarp() was called
 
 	int original_destscr = dest_screen;
 	if (dest_screen == -1)
 	{
 		dest_screen = hero_screen;
-		if (checkmaze(tmpscr, false) && !edge_of_dmap(scrolldir)) {
+		if (checkmaze(origin_scr, false) && !edge_of_dmap(scrolldir)) {
 			dest_screen = screen_index_direction(dest_screen, (direction)scrolldir);
 		}
 	}
@@ -29023,7 +29023,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 
 	// Just trying to play the sound.
 	if (original_destscr == -1)
-		checkmaze(tmpscr, true);
+		checkmaze(origin_scr, true);
 
 	switch(DMaps[cur_dmap].type&dmfTYPE)
 	{

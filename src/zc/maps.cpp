@@ -4093,6 +4093,7 @@ void draw_ladder_platform_a5(int32_t x, int32_t y, ALLEGRO_COLOR c)
 }
 
 // Walkflags L4 cheat
+// TODO z3 !!
 void do_walkflags(mapscr* layer,int32_t x, int32_t y, int32_t tempscreen)
 {
 	if (!show_walkflags)
