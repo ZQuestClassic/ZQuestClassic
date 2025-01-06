@@ -12,9 +12,9 @@
 
 // Iterates over every base screen (layer 0) in the current region.
 // Callback function: void fn(mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_x)
-// region_scr_x and region_scr_y are the screen coordinates relative to the origin screen. For example, the relative
-// coordinates for the screen just to the right of the origin screen is (1, 0). This is always (0, 0) when not in a
-// region.
+// region_scr_x and region_scr_y are the screen coordinates relative to the origin screen. For
+// example, the relative coordinates for the screen just to the right of the origin screen is (1, 0).
+// This is always (0, 0) when not in a region.
 template<typename T>
 requires std::is_invocable_v<T, mapscr*, unsigned int, unsigned int>
 ZC_FORCE_INLINE void for_every_base_screen_in_region(T&& fn)
@@ -80,8 +80,8 @@ ZC_FORCE_INLINE void for_every_rpos_layer0(T&& fn)
 	}
 }
 
-// Iterates over every visbile rpos in the current region, but only for screens that are valid,
-// but only for layer 0.
+// Iterates over every visible rpos in the current region, but only for layer 0
+// and only for valid screens.
 // Callback function: void fn(const rpos_handle_t& rpos_handle)
 template<typename T>
 requires std::is_invocable_v<T, const rpos_handle_t&>
