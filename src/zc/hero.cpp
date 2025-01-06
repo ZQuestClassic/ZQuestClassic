@@ -25212,10 +25212,10 @@ RaftingStuff:
 	for (int i = 0; i < 4 && !scr; i++) scr = scrs[i];
 	if (!scr) scr = hero_scr;
 
-	// TODO z3 ??? is_in_scrolling_region why??
-	if (DMaps[cur_dmap].flags&dmf3STAIR && (cur_screen==129 || !(DMaps[cur_dmap].flags&dmfGUYCAVES))
-			&& (specialcave > 0 && DMaps[cur_dmap].flags & dmfGUYCAVES ? special_warp_return_screen : *scr).room==rWARP && type==cSTAIR
-		    && !is_in_scrolling_region())
+	if (!is_in_scrolling_region()
+			&& DMaps[cur_dmap].flags&dmf3STAIR
+			&& (cur_screen==129 || !(DMaps[cur_dmap].flags&dmfGUYCAVES))
+			&& (specialcave > 0 && DMaps[cur_dmap].flags & dmfGUYCAVES ? special_warp_return_screen : *scr).room==rWARP && type==cSTAIR)
 	{
 		if(!skippedaframe)
 		{
