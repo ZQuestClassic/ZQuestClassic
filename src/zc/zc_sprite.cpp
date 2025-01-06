@@ -334,7 +334,7 @@ bool movingblock::animate(int32_t)
 	}
 
 	auto end_rpos_handle = get_rpos_handle_for_world_xy(endx, endy, blockLayer);
-	int combopos = end_rpos_handle.pos;
+	int end_pos = end_rpos_handle.pos;
 	mapscr* m = end_rpos_handle.scr;
 	mapscr* m0 = get_scr_for_world_xy(endx, endy);
 	if(get_qr(qr_MOVINGBLOCK_FAKE_SOLID))
@@ -503,7 +503,7 @@ bool movingblock::animate(int32_t)
 					endy = new_endy;
 
 					end_rpos_handle = get_rpos_handle_for_world_xy(endx, endy, blockLayer);
-					combopos = end_rpos_handle.pos;
+					end_pos = end_rpos_handle.pos;
 					m = end_rpos_handle.scr;
 					m0 = get_scr_for_world_xy(endx, endy);
 				}
@@ -573,7 +573,7 @@ bool movingblock::animate(int32_t)
 				clk = 32;
 
 				end_rpos_handle = get_rpos_handle_for_world_xy(endx, endy, blockLayer);
-				combopos = end_rpos_handle.pos;
+				end_pos = end_rpos_handle.pos;
 				m = end_rpos_handle.scr;
 				m0 = get_scr_for_world_xy(endx, endy);
 			}
@@ -624,7 +624,7 @@ bool movingblock::animate(int32_t)
 						if(lyr==blockLayer) continue;
 
 						mapscr* m0 = get_scr_for_world_xy_layer(x, y, lyr);
-						if(m0->sflag[combopos] == mfBLOCKTRIGGER
+						if(m0->sflag[end_pos] == mfBLOCKTRIGGER
 							|| MAPCOMBOFLAG2(lyr-1,x,y) == mfBLOCKTRIGGER)
 						{
 							trigger = true;
@@ -632,9 +632,9 @@ bool movingblock::animate(int32_t)
 							if(!no_trig_replace)
 							{
 								mapscr* m2 = m0;
-								m2->data[combopos] = m2->undercombo;
-								m2->cset[combopos] = m2->undercset;
-								m2->sflag[combopos] = 0;
+								m2->data[end_pos] = m2->undercombo;
+								m2->cset[end_pos] = m2->undercset;
+								m2->sflag[end_pos] = 0;
 							}
 						}
 					}
@@ -642,13 +642,13 @@ bool movingblock::animate(int32_t)
 				if(trigger)
 				{
 					if(!(no_trig_replace && trig_is_layer))
-						m->sflag[combopos]=mfPUSHED;
+						m->sflag[end_pos]=mfPUSHED;
 				}
 			}
 			
 			if((f1==mfBLOCKHOLE)||f2==mfBLOCKHOLE)
 			{
-				m->data[combopos]+=1;
+				m->data[end_pos]+=1;
 				bhole=true;
 			}
 			else if(!trig_hole_same_only)
@@ -657,15 +657,15 @@ bool movingblock::animate(int32_t)
 				{
 					if(lyr==blockLayer) continue;
 					mapscr* m0 = get_scr_for_world_xy_layer(x, y, lyr);
-					if((m0->sflag[combopos]==mfBLOCKHOLE)
+					if((m0->sflag[end_pos]==mfBLOCKHOLE)
 						|| MAPCOMBOFLAG2(lyr-1,x,y)==mfBLOCKHOLE)
 					{
 						mapscr* m2 = m0;
-						m->data[combopos] = m->undercombo;
-						m->cset[combopos] = m->undercset;
-						m2->data[combopos] = bcombo+1;
-						m2->cset[combopos] = oldcset;
-						m2->sflag[combopos] = mfNONE;
+						m->data[end_pos] = m->undercombo;
+						m->cset[end_pos] = m->undercset;
+						m2->data[end_pos] = bcombo+1;
+						m2->cset[end_pos] = oldcset;
+						m2->sflag[end_pos] = mfNONE;
 						bhole=true;
 						break;
 					}
@@ -673,7 +673,7 @@ bool movingblock::animate(int32_t)
 			}
 			if(bhole)
 			{
-				m->sflag[combopos]=mfNONE;
+				m->sflag[end_pos]=mfNONE;
 				if(fallclk||drownclk)
 				{
 					fallclk = 0;
@@ -718,7 +718,7 @@ bool movingblock::animate(int32_t)
 			}
 			
 			if(get_qr(qr_BROKEN_PUSHBLOCK_FLAG_CLONING) && !(trigger && !(no_trig_replace && trig_is_layer)) && !bhole)
-				m->sflag[combopos]=oldflag;
+				m->sflag[end_pos]=oldflag;
 			
 			//triggers a secret
 			if(didtrigger)
@@ -729,29 +729,28 @@ bool movingblock::animate(int32_t)
 					// and replace triggers with undercombo.
 					// 'no_trig_replace' delays this to now, instead of
 					// happening as each combo is placed.
-					for(auto lyr = 0; lyr <= maxLayer; ++lyr)
-					{
-						// TODO z3 !!
-						mapscr* tmp = FFCore.tempScreens[lyr];
-						for(int32_t pos=0; pos<176; pos++)
+					for_every_rpos([&](const rpos_handle_t& rpos_handle) {
+						if (rpos_handle.layer > maxLayer)
+							return;
+
+						if (rpos_handle.sflag() == mfBLOCKTRIGGER || rpos_handle.cflag() == mfBLOCKTRIGGER)
 						{
-							if(tmp->sflag[pos]==mfBLOCKTRIGGER
-								|| combobuf[tmp->data[pos]].flag==mfBLOCKTRIGGER)
+							for (auto lyr2 = 0; lyr2 <= maxLayer; ++lyr2)
 							{
-								for(auto lyr2 = 0; lyr2 <= maxLayer; ++lyr2)
+								if (lyr2 == rpos_handle.layer) continue;
+
+								mapscr* lyr2_scr = get_scr_for_rpos_layer(rpos_handle.rpos, lyr2 - 1);
+								if (is_push(lyr2_scr, rpos_handle.pos))
 								{
-									if(lyr2 == lyr) continue;
-									if(is_push(FFCore.tempScreens[lyr2], pos))
-									{
-										FFCore.tempScreens[lyr2]->sflag[pos] = mfPUSHED;
-									}
+									lyr2_scr->sflag[rpos_handle.pos] = mfPUSHED;
 								}
-								tmp->data[pos] = tmp->undercombo;
-								tmp->cset[pos] = tmp->undercset;
-								tmp->sflag[pos] = 0;
 							}
+
+							rpos_handle.set_data(rpos_handle.scr->undercombo);
+							rpos_handle.set_cset(rpos_handle.scr->undercset);
+							rpos_handle.set_sflag(0);
 						}
-					}
+					});
 				}
 				
 				if (reveal_hidden_stairs(end_rpos_handle.scr, end_rpos_handle.screen, true))
@@ -787,7 +786,7 @@ bool movingblock::animate(int32_t)
 				}
 			}
 			
-			if(m->data[combopos] == bcombo)
+			if(m->data[end_pos] == bcombo)
 			{
 				cpos_get(end_rpos_handle).updateInfo(blockinfo);
 			}
@@ -821,16 +820,16 @@ bool movingblock::animate(int32_t)
 						if(lyr==blockLayer) continue;
 
 						mapscr* scr = get_scr_for_world_xy_layer(x, y, lyr);
-						if (scr->sflag[combopos] == mfBLOCKTRIGGER
+						if (scr->sflag[end_pos] == mfBLOCKTRIGGER
 							|| MAPCOMBOFLAG2(lyr-1,x,y) == mfBLOCKTRIGGER)
 						{
 							trigger = true;
 							trig_is_layer = true;
 							if(!no_trig_replace)
 							{
-								scr->data[combopos] = scr->undercombo;
-								scr->cset[combopos] = scr->undercset;
-								scr->sflag[combopos] = 0;
+								scr->data[end_pos] = scr->undercombo;
+								scr->cset[end_pos] = scr->undercset;
+								scr->sflag[end_pos] = 0;
 							}
 						}
 					}
@@ -854,15 +853,15 @@ bool movingblock::animate(int32_t)
 					if(lyr==blockLayer) continue;
 
 					mapscr* scr = get_scr_for_world_xy_layer(x, y, lyr);
-					if ((scr->sflag[combopos]==mfBLOCKHOLE)
+					if ((scr->sflag[end_pos]==mfBLOCKHOLE)
 						|| MAPCOMBOFLAG2(lyr-1,x,y)==mfBLOCKHOLE)
 					{
 						mapscr* m2 = scr;
-						m->data[combopos] = m->undercombo;
-						m->cset[combopos] = m->undercset;
-						m2->data[combopos] = bcombo+1;
-						m2->cset[combopos] = oldcset;
-						m2->sflag[combopos] = mfNONE;
+						m->data[end_pos] = m->undercombo;
+						m->cset[end_pos] = m->undercset;
+						m2->data[end_pos] = bcombo+1;
+						m2->cset[end_pos] = oldcset;
+						m2->sflag[end_pos] = mfNONE;
 						bhole=true;
 						break;
 					}
@@ -870,7 +869,7 @@ bool movingblock::animate(int32_t)
 			}
 			if(bhole)
 			{
-				m->sflag[combopos]=mfNONE;
+				m->sflag[end_pos]=mfNONE;
 				if(fallclk||drownclk)
 				{
 					fallclk = 0;
@@ -890,7 +889,7 @@ bool movingblock::animate(int32_t)
 						(f2==mfPUSHRINS && dir==right) ||
 						(f2==mfPUSH4INS)))
 				{
-					m->sflag[combopos]=mfPUSHED;
+					m->sflag[end_pos]=mfPUSHED;
 				}
 			}
 			if(fallclk||drownclk) return false;
@@ -898,43 +897,41 @@ bool movingblock::animate(int32_t)
 			bool didtrigger = trigger;
 			if(didtrigger)
 			{
-				for(auto lyr = 0; lyr <= maxLayer; ++lyr)
-				{
-					mapscr* tmp = get_scr_for_world_xy_layer(x, y, lyr);
-					for(int32_t pos=0; pos<176; pos++)
+				for_every_rpos([&](const rpos_handle_t& rpos_handle) {
+					if (!didtrigger)
+						return;
+
+					if((!trig_hole_same_only || rpos_handle.layer == blockLayer) && rpos_handle.rpos == end_rpos_handle.rpos)
+						return;
+
+					if (rpos_handle.sflag() == mfBLOCKTRIGGER || rpos_handle.cflag() == mfBLOCKTRIGGER)
 					{
-						if((!trig_hole_same_only || lyr == blockLayer) && pos == combopos)
-							continue;
-						if(tmp->sflag[pos]==mfBLOCKTRIGGER
-							|| combobuf[tmp->data[pos]].flag==mfBLOCKTRIGGER)
-						{
-							bool found = false;
-							if(no_trig_replace)
-								for(auto lyr2 = 0; lyr2 <= maxLayer; ++lyr2)
-								{
-									mapscr* m0 = get_scr_for_world_xy_layer(x, y, lyr2);
-									if(is_push(m0, pos))
-									{
-										found = true;
-										break;
-									}
-								}
-							if(!found)
+						bool found = false;
+						if (no_trig_replace)
+							for (auto lyr2 = 0; lyr2 <= maxLayer; ++lyr2)
 							{
-								didtrigger=false;
-								break;
+								mapscr* lyr2_scr = get_scr_for_rpos_layer(rpos_handle.rpos, lyr2 - 1);
+								if (is_push(lyr2_scr, rpos_handle.pos))
+								{
+									found = true;
+									break;
+								}
 							}
+
+						if (!found)
+						{
+							didtrigger = false;
+							return;
 						}
 					}
-					if(!didtrigger) break;
-				}
+				});
 			}
 			
 			if(oldflag>=mfPUSHUDINS && (oldflag < mfPUSHRINS || get_qr(qr_BROKEN_PUSHBLOCK_FLAG_CLONING))
 				&& !(trigger && !(no_trig_replace && trig_is_layer))
 				&& !bhole)
 			{
-				m->sflag[combopos]=oldflag;
+				m->sflag[end_pos]=oldflag;
 			}
 			
 			//triggers a secret
@@ -962,29 +959,28 @@ bool movingblock::animate(int32_t)
 					// and replace triggers with undercombo.
 					// 'no_trig_replace' delays this to now, instead of
 					// happening as each combo is placed.
-					for(auto lyr = 0; lyr <= maxLayer; ++lyr)
-					{
-						mapscr* tmp = get_scr_for_world_xy_layer(x, y, lyr);
-						for(int32_t pos=0; pos<176; pos++)
+					for_every_rpos([&](const rpos_handle_t& rpos_handle) {
+						if (rpos_handle.layer > maxLayer)
+							return;
+
+						if (rpos_handle.sflag() == mfBLOCKTRIGGER || rpos_handle.cflag() == mfBLOCKTRIGGER)
 						{
-							if(tmp->sflag[pos]==mfBLOCKTRIGGER
-								|| combobuf[tmp->data[pos]].flag==mfBLOCKTRIGGER)
+							for (auto lyr2 = 0; lyr2 <= maxLayer; ++lyr2)
 							{
-								for(auto lyr2 = 0; lyr2 <= maxLayer; ++lyr2)
+								if (lyr2 == rpos_handle.layer) continue;
+
+								mapscr* lyr2_scr = get_scr_for_rpos_layer(rpos_handle.rpos, lyr2 - 1);
+								if (is_push(lyr2_scr, rpos_handle.pos))
 								{
-									if(lyr2 == lyr) continue;
-									// TODO z3 !!
-									if(is_push(FFCore.tempScreens[lyr2], pos))
-									{
-										FFCore.tempScreens[lyr2]->sflag[pos] = mfPUSHED;
-									}
+									lyr2_scr->sflag[rpos_handle.pos] = mfPUSHED;
 								}
-								tmp->data[pos] = tmp->undercombo;
-								tmp->cset[pos] = tmp->undercset;
-								tmp->sflag[pos] = 0;
 							}
+
+							rpos_handle.set_data(rpos_handle.scr->undercombo);
+							rpos_handle.set_cset(rpos_handle.scr->undercset);
+							rpos_handle.set_sflag(0);
 						}
-					}
+					});
 				}
 				
 				if (reveal_hidden_stairs(m0, end_rpos_handle.screen, true))
