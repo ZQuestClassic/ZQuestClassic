@@ -3668,18 +3668,18 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen
 	}
 }
 
-bool lenscheck(mapscr* basescr, int layer)
+bool lenscheck(mapscr* scr, int layer)
 {
 	if(layer < 0 || layer > 6) return true;
 	if(get_qr(qr_OLD_LENS_LAYEREFFECT))
 	{
 		if(!layer) return true;
-		if((layer==(int32_t)(basescr->lens_layer&7)+1) && ((basescr->lens_layer&llLENSSHOWS && !lensclk) || (basescr->lens_layer&llLENSHIDES && lensclk)))
+		if((layer==(int32_t)(scr->lens_layer&7)+1) && ((scr->lens_layer&llLENSSHOWS && !lensclk) || (scr->lens_layer&llLENSHIDES && lensclk)))
 			return false;
 	}
 	else
 	{
-		if((lensclk ? basescr->lens_hide : basescr->lens_show) & (1<<layer))
+		if((lensclk ? scr->lens_hide : scr->lens_show) & (1<<layer))
 			return false;
 	}
 	return true;
@@ -4395,8 +4395,6 @@ static void set_draw_screen_clip(BITMAP* bmp)
 
 void draw_screen(bool showhero, bool runGeneric)
 {
-	// TODO z3 hero_scr ?
-	mapscr* this_screen = tmpscr;
 	clear_info_bmp();
 	if((GameFlags & (GAMEFLAG_SCRIPTMENU_ACTIVE|GAMEFLAG_F6SCRIPT_ACTIVE))!=0)
 	{
@@ -4455,7 +4453,7 @@ void draw_screen(bool showhero, bool runGeneric)
 		do_primitives(scrollbuf, SPLAYER_LENS_UNDER_1, 0, playing_field_offset);
 	}
 	
-	if(show_layer_0 && lenscheck(this_screen,0))
+	if(show_layer_0 && lenscheck(hero_scr,0))
 		do_primitives(scrollbuf, 0, 0, playing_field_offset);
 		
 	particles.draw(framebuf, true, -3);
@@ -4970,14 +4968,14 @@ void draw_screen(bool showhero, bool runGeneric)
 	{
 		do_primitives(framebuf, SPLAYER_DARKROOM_UNDER, 0, playing_field_offset);
 		set_clip_rect(framebuf, 0, playing_field_offset, framebuf->w, framebuf->h);
-		if(this_screen->flags9 & fDARK_DITHER) //dither the entire bitmap
+		if(hero_scr->flags9 & fDARK_DITHER) //dither the entire bitmap
 		{
 			ditherblit(darkscr_bmp,darkscr_bmp,0,game->get_dither_type(),game->get_dither_arg());
 			ditherblit(darkscr_bmp_trans,darkscr_bmp_trans,0,game->get_dither_type(),game->get_dither_arg());
 		}
 		
 		color_map = &trans_table2;
-		if(this_screen->flags9 & fDARK_TRANS) //draw the dark as transparent
+		if(hero_scr->flags9 & fDARK_TRANS) //draw the dark as transparent
 		{
 			draw_trans_sprite(framebuf, darkscr_bmp, 0, 0);
 			if(get_qr(qr_NEWDARK_TRANS_STACKING))
@@ -5020,14 +5018,14 @@ void draw_screen(bool showhero, bool runGeneric)
 	{
 		do_primitives(framebuf, SPLAYER_DARKROOM_UNDER, 0, playing_field_offset);
 		set_clip_rect(framebuf, 0, playing_field_offset, framebuf->w, framebuf->h);
-		if(this_screen->flags9 & fDARK_DITHER) //dither the entire bitmap
+		if(hero_scr->flags9 & fDARK_DITHER) //dither the entire bitmap
 		{
 			ditherblit(darkscr_bmp,darkscr_bmp,0,game->get_dither_type(),game->get_dither_arg());
 			ditherblit(darkscr_bmp_trans,darkscr_bmp_trans,0,game->get_dither_type(),game->get_dither_arg());
 		}
 		
 		color_map = &trans_table2;
-		if(this_screen->flags9 & fDARK_TRANS) //draw the dark as transparent
+		if(hero_scr->flags9 & fDARK_TRANS) //draw the dark as transparent
 		{
 			draw_trans_sprite(framebuf, darkscr_bmp, 0, 0);
 			if(get_qr(qr_NEWDARK_TRANS_STACKING))

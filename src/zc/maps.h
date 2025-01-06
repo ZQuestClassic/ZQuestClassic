@@ -371,7 +371,7 @@ optional<int> nextscr_mi(int mi, int dir);
 std::pair<int32_t, int32_t> nextscr2(int32_t dir);
 std::pair<int32_t, int32_t> nextscr2(int m, int s, int32_t dir);
 void bombdoor(int32_t x,int32_t y);
-bool lenscheck(mapscr* basescr, int layer);
+bool lenscheck(mapscr* scr, int layer);
 void do_scrolling_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen_handle, int32_t x, int32_t y);
 void do_layer_old(BITMAP *bmp, int32_t type, int32_t layer, mapscr* basescr, int32_t x, int32_t y, int32_t tempscreen, bool scrolling=false, bool drawprimitives=false);
 void do_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen_handle, int32_t x, int32_t y, bool drawprimitives=false);
