@@ -731,6 +731,7 @@ bool movingblock::animate(int32_t)
 					// happening as each combo is placed.
 					for(auto lyr = 0; lyr <= maxLayer; ++lyr)
 					{
+						// TODO z3 !!
 						mapscr* tmp = FFCore.tempScreens[lyr];
 						for(int32_t pos=0; pos<176; pos++)
 						{
@@ -827,7 +828,6 @@ bool movingblock::animate(int32_t)
 							trig_is_layer = true;
 							if(!no_trig_replace)
 							{
-								// mapscr* m2 = FFCore.tempScreens[lyr];
 								scr->data[combopos] = scr->undercombo;
 								scr->cset[combopos] = scr->undercset;
 								scr->sflag[combopos] = 0;
@@ -973,6 +973,7 @@ bool movingblock::animate(int32_t)
 								for(auto lyr2 = 0; lyr2 <= maxLayer; ++lyr2)
 								{
 									if(lyr2 == lyr) continue;
+									// TODO z3 !!
 									if(is_push(FFCore.tempScreens[lyr2], pos))
 									{
 										FFCore.tempScreens[lyr2]->sflag[pos] = mfPUSHED;

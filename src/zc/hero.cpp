@@ -25505,8 +25505,6 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			loadscr(wdmap, destscr, up, false);
 			//preloaded freeform combos
 			ffscript_engine(true);
-			putscr(tmpscr, scrollbuf, 0, 0);
-			putscrdoors(tmpscr, scrollbuf, 0, 0);
 			dir=up;
 			x=112;
 			y=160;
@@ -25878,15 +25876,11 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			if((type1==cCAVE)||(type1>=cCAVEB && type1<=cCAVED) || (type2==cCAVE)||(type2>=cCAVEB && type2<=cCAVED))
 			{
 				reset_pal_cycling();
-				putscr(tmpscr, scrollbuf, 0, 0); // TODO z3 ?
-				putscrdoors(tmpscr, scrollbuf, 0, 0);
 				walkup(COOLSCROLL);
 			}
 			else if((type3==cCAVE2)||(type3>=cCAVE2B && type3<=cCAVE2D) || (type2==cCAVE2)||(type2>=cCAVE2B && type2<=cCAVE2D))
 			{
 				reset_pal_cycling();
-				putscr(tmpscr, scrollbuf, 0, 0);
-				putscrdoors(tmpscr, scrollbuf, 0, 0);
 				walkdown2(COOLSCROLL);
 			}
 			else if(COOLSCROLL)
