@@ -11,7 +11,7 @@ zq: large corner option for dungeon carving autocombo mode
 zq: -smart-assign CLI switch to compile + assign
   Example usage:
   
-  ./zquest.exe -smart-assign your_quest.qst
+  ./zeditor.exe -smart-assign your_quest.qst
 
 zq: Item animation previews now preview 'flash'
 zq: add Cambria as tileset option
