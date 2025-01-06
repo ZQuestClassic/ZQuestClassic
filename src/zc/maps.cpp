@@ -3943,14 +3943,14 @@ static void put_walkflags_a5(int32_t x, int32_t y, word cmbdat, int32_t lyr)
 		{
 			if (get_qr(qr_OLD_BRIDGE_COMBOS))
 			{
-				if (m >= 0 && combobuf[MAPCOMBO2(m,tx2,ty2)].type == cBRIDGE && !_walkflag_layer(tx2,ty2,1, &(tmpscr2[m]))) 
+				if (m >= 0 && combobuf[MAPCOMBO2(m, tx2, ty2)].type == cBRIDGE && !_walkflag_layer(tx2, ty2, m)) 
 				{
 					bridgedetected |= (1<<i);
 				}
 			}
 			else
 			{
-				if (m >= 0 && combobuf[MAPCOMBO2(m,tx2,ty2)].type == cBRIDGE && _effectflag_layer(tx2,ty2,1, &(tmpscr2[m]))) 
+				if (m >= 0 && combobuf[MAPCOMBO2(m, tx2, ty2)].type == cBRIDGE && _effectflag_layer(tx2, ty2, m)) 
 				{
 					bridgedetected |= (1<<i);
 				}

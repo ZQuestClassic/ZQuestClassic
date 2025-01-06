@@ -7285,17 +7285,17 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 	{
 		if (get_qr(qr_OLD_BRIDGE_COMBOS))
 		{
-			if (combobuf[MAPCOMBO2(i,dx1,dy1)].type == cBRIDGE && !_walkflag_layer(dx1,dy1,i,1)) {hp_mod[0] = 0; hasKB &= ~(1<<4);}
-			if (combobuf[MAPCOMBO2(i,dx1,dy2)].type == cBRIDGE && !_walkflag_layer(dx1,dy2,i,1)) {hp_mod[1] = 0; hasKB &= ~(1<<5);}
-			if (combobuf[MAPCOMBO2(i,dx2,dy1)].type == cBRIDGE && !_walkflag_layer(dx2,dy1,i,1)) {hp_mod[2] = 0; hasKB &= ~(1<<6);}
-			if (combobuf[MAPCOMBO2(i,dx2,dy2)].type == cBRIDGE && !_walkflag_layer(dx2,dy2,i,1)) {hp_mod[3] = 0; hasKB &= ~(1<<7);}
+			if (combobuf[MAPCOMBO2(i,dx1,dy1)].type == cBRIDGE && !_walkflag_layer(dx1,dy1,i)) {hp_mod[0] = 0; hasKB &= ~(1<<4);}
+			if (combobuf[MAPCOMBO2(i,dx1,dy2)].type == cBRIDGE && !_walkflag_layer(dx1,dy2,i)) {hp_mod[1] = 0; hasKB &= ~(1<<5);}
+			if (combobuf[MAPCOMBO2(i,dx2,dy1)].type == cBRIDGE && !_walkflag_layer(dx2,dy1,i)) {hp_mod[2] = 0; hasKB &= ~(1<<6);}
+			if (combobuf[MAPCOMBO2(i,dx2,dy2)].type == cBRIDGE && !_walkflag_layer(dx2,dy2,i)) {hp_mod[3] = 0; hasKB &= ~(1<<7);}
 		}
 		else
 		{
-			if (combobuf[MAPCOMBO2(i,dx1,dy1)].type == cBRIDGE && _effectflag_layer(dx1,dy1,i,1)) {hp_mod[0] = 0; hasKB &= ~(1<<4);}
-			if (combobuf[MAPCOMBO2(i,dx1,dy2)].type == cBRIDGE && _effectflag_layer(dx1,dy2,i,1)) {hp_mod[1] = 0; hasKB &= ~(1<<5);}
-			if (combobuf[MAPCOMBO2(i,dx2,dy1)].type == cBRIDGE && _effectflag_layer(dx2,dy1,i,1)) {hp_mod[2] = 0; hasKB &= ~(1<<6);}
-			if (combobuf[MAPCOMBO2(i,dx2,dy2)].type == cBRIDGE && _effectflag_layer(dx2,dy2,i,1)) {hp_mod[3] = 0; hasKB &= ~(1<<7);}
+			if (combobuf[MAPCOMBO2(i,dx1,dy1)].type == cBRIDGE && _effectflag_layer(dx1,dy1,i)) {hp_mod[0] = 0; hasKB &= ~(1<<4);}
+			if (combobuf[MAPCOMBO2(i,dx1,dy2)].type == cBRIDGE && _effectflag_layer(dx1,dy2,i)) {hp_mod[1] = 0; hasKB &= ~(1<<5);}
+			if (combobuf[MAPCOMBO2(i,dx2,dy1)].type == cBRIDGE && _effectflag_layer(dx2,dy1,i)) {hp_mod[2] = 0; hasKB &= ~(1<<6);}
+			if (combobuf[MAPCOMBO2(i,dx2,dy2)].type == cBRIDGE && _effectflag_layer(dx2,dy2,i)) {hp_mod[3] = 0; hasKB &= ~(1<<7);}
 		}
 	}
 	
@@ -14245,7 +14245,7 @@ void HeroClass::mod_steps(std::vector<zfix*>& v)
 		{
 			if (get_qr(qr_OLD_BRIDGE_COMBOS))
 			{
-				if (combobuf[MAPCOMBO2(i-1,x+7,y+8)].type == cBRIDGE && !_walkflag_layer(x+7,y+8,1, &(tmpscr2[i])))
+				if (combobuf[MAPCOMBO2(i-1, x+7, y+8)].type == cBRIDGE && !_walkflag_layer(x+7, y+8, i))
 				{
 					slowcombo = false;
 					break;
@@ -14253,7 +14253,7 @@ void HeroClass::mod_steps(std::vector<zfix*>& v)
 			}
 			else
 			{
-				if (combobuf[MAPCOMBO2(i-1,x+7,y+8)].type == cBRIDGE && _effectflag_layer(x+7,y+8,1, &(tmpscr2[i])))
+				if (combobuf[MAPCOMBO2(i-1, x+7, y+8)].type == cBRIDGE && _effectflag_layer(x+7, y+8, i))
 				{
 					slowcombo = false;
 					break;
@@ -21562,13 +21562,13 @@ void HeroClass::oldcheckbosslockblock()
 	{
 		if (get_qr(qr_OLD_BRIDGE_COMBOS))
 		{
-			if (combobuf[MAPCOMBO2(i, bx, by)].type == cBRIDGE && !_walkflag_layer(bx, by, i, 1)) found1 = false;
-			if (combobuf[MAPCOMBO2(i, bx2, by)].type == cBRIDGE && !_walkflag_layer(bx2, by, i, 1)) found2 = false;
+			if (combobuf[MAPCOMBO2(i, bx, by)].type == cBRIDGE && !_walkflag_layer(bx, by, i)) found1 = false;
+			if (combobuf[MAPCOMBO2(i, bx2, by)].type == cBRIDGE && !_walkflag_layer(bx2, by, i)) found2 = false;
 		}
 		else
 		{
-			if (combobuf[MAPCOMBO2(i, bx, by)].type == cBRIDGE && _effectflag_layer(bx, by, i, 1)) found1 = false;
-			if (combobuf[MAPCOMBO2(i, bx2, by)].type == cBRIDGE && _effectflag_layer(bx2, by, i, 1)) found2 = false;
+			if (combobuf[MAPCOMBO2(i, bx, by)].type == cBRIDGE && _effectflag_layer(bx, by, i)) found1 = false;
+			if (combobuf[MAPCOMBO2(i, bx2, by)].type == cBRIDGE && _effectflag_layer(bx2, by, i)) found2 = false;
 		}
 	}
 
@@ -30365,6 +30365,7 @@ bool canget(int32_t id)
     return id>=0 && (game->get_maxlife()>=(itemsbuf[id].pickup_hearts*game->get_hp_per_heart()));
 }
 
+// TODO z3 ! mapscr
 void dospecialmoney(int32_t index)
 {
 	mapscr& scr = cur_screen >= 128 ? special_warp_return_scr : *hero_scr;

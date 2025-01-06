@@ -3847,7 +3847,6 @@ int32_t onSnapshot()
 
 int32_t onSaveMapPic()
 {
-	int32_t mapres2 = 0;
 	char buf[200];
 	int32_t num=0;
     mapscr tmpscr_a;
@@ -3874,9 +3873,6 @@ int32_t onSaveMapPic()
 	while(num<99999 && exists(buf));
 	
 	BITMAP* mappic = NULL;
-	
-	
-	bool done=false, redraw=true;
 	
 	mappic = create_bitmap_ex(8,(256*16)>>mapres,(176*8)>>mapres);
 	
