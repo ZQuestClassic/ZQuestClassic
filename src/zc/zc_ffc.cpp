@@ -38,6 +38,7 @@ void zc_ffc_modify(ffcdata& ffc, int32_t amount)
 		zc_ffc_set(ffc, ffc.data + amount);
 }
 
+// TODO z3 rm tmpscr usages
 void zc_ffc_changer(ffcdata& ffc, ffcdata& other, int32_t i, int32_t j)
 {
 	// TODO: could use `ffc = other;` to replace most of this.

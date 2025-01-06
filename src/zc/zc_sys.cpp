@@ -2397,7 +2397,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 		++strike_hint_timer;
 
 		for_every_visible_rpos_layer0([&](const rpos_handle_t& rpos_handle) {
-			mapscr* scr = tmpscr;
+			mapscr* scr = rpos_handle.scr;
 			auto [x, y] = rpos_handle.xy();
 			y += playing_field_offset;
 
@@ -3765,7 +3765,7 @@ void updatescr(bool allowwavy)
 			blit_msgstr_fg(framebuf,0,0,0,playing_field_offset,256,168);
 	}
 	
-	bool nosubscr = (tmpscr->flags3&fNOSUBSCR && !(tmpscr->flags3&fNOSUBSCROFFSET));
+	bool nosubscr = (hero_scr->flags3&fNOSUBSCR && !(hero_scr->flags3&fNOSUBSCROFFSET));
 	
 	if(nosubscr)
 	{
@@ -3815,7 +3815,7 @@ int32_t onNonGUISnapshot()
 	}
 	while(num<99999 && exists(buf));
 
-	if ((tmpscr->flags3&fNOSUBSCR && !(tmpscr->flags3&fNOSUBSCROFFSET)) && !(key[KEY_ALT]))
+	if ((hero_scr->flags3&fNOSUBSCR && !(hero_scr->flags3&fNOSUBSCROFFSET)) && !(key[KEY_ALT]))
 	{
 		BITMAP *b = create_bitmap_ex(8,256,168);
 		clear_to_color(b,0);
@@ -4772,7 +4772,7 @@ void blackscr(int32_t fcnt,bool showsubscr)
 			put_passive_subscr(framebuf,0,0,showtime,sspUP);
 			if(get_qr(qr_SCRIPTDRAWSINWARPS) || (get_qr(qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN)))
 			{
-				do_script_draws(framebuf, tmpscr, 0, playing_field_offset);
+				do_script_draws(framebuf, origin_scr, 0, playing_field_offset);
 			}
 		}
 		

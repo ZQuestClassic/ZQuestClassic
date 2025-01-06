@@ -7742,7 +7742,7 @@ static void do_refill_waitframe()
 			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[cur_dmap].passive_sub_script, cur_dmap);
 			FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) = false;
 		}	
-		do_script_draws(framebuf, tmpscr, 0, playing_field_offset);
+		do_script_draws(framebuf, origin_scr, 0, playing_field_offset);
 	}
 	advanceframe(true);
 }
@@ -31977,7 +31977,7 @@ void HeroClass::heroDeathAnimation()
 					}
 					BITMAP* tmp = framebuf;
 					framebuf = subscrbmp; //Hack; force draws to subscrbmp
-					do_script_draws(framebuf, tmpscr, 0, playing_field_offset); //Draw the script draws
+					do_script_draws(framebuf, origin_scr, 0, playing_field_offset); //Draw the script draws
 					framebuf = tmp;
 					script_drawing_commands.Clear(); //Don't let these draws repeat during 'draw_screen()'
 				}

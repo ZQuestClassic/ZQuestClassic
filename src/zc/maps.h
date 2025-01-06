@@ -380,7 +380,7 @@ void do_walkflags(mapscr* layer,int32_t x, int32_t y, int32_t tempscreen);
 void do_walkflags(int32_t x, int32_t y);
 void do_effectflags(mapscr* layer,int32_t x, int32_t y, int32_t tempscreen);
 void do_primitives(BITMAP *bmp, int32_t type, int32_t x, int32_t y);
-void do_script_draws(BITMAP *bmp, mapscr *layer, int32_t x, int32_t y, bool hideLayer7 = false);
+void do_script_draws(BITMAP *bmp, mapscr *scr, int32_t x, int32_t y, bool hideLayer7 = false);
 void calc_darkroom_combos(int map, int screen, int offx, int offy);
 void draw_screen(bool showhero=true, bool runGeneric = false);
 void put_door(mapscr* scr, BITMAP *dest, int32_t pos, int32_t side, int32_t type, bool redraw, bool even_walls=false);

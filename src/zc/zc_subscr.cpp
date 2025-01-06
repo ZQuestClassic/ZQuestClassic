@@ -46,7 +46,7 @@ void dosubscr()
 {
 	PALETTE temppal;
 	
-	if(tmpscr->flags3&fNOSUBSCR)
+	if(hero_scr->flags3&fNOSUBSCR)
 		return;
 	
 	if(usebombpal)
@@ -141,7 +141,7 @@ void dosubscr()
 		
 		draw_subscrs(framebuf,0,y,showtime,sspSCROLLING);
 		if(replay_version_check(19))
-			do_script_draws(framebuf, tmpscr, 0, playing_field_offset);
+			do_script_draws(framebuf, origin_scr, 0, playing_field_offset);
 		
 		advanceframe(false);
 		
@@ -452,7 +452,7 @@ void dosubscr()
 		//draw the passive and active subscreen
 		draw_subscrs(framebuf,0,0,showtime,sspDOWN);
 		if(replay_version_check(19))
-			do_script_draws(framebuf, tmpscr, 0, playing_field_offset);
+			do_script_draws(framebuf, origin_scr, 0, playing_field_offset);
 		
 		advanceframe(false);
 		if (replay_version_check(11))
@@ -503,7 +503,7 @@ void dosubscr()
 		
 		draw_subscrs(framebuf,0,y,showtime,sspSCROLLING);
 		if(replay_version_check(19))
-			do_script_draws(framebuf, tmpscr, 0, playing_field_offset);
+			do_script_draws(framebuf, origin_scr, 0, playing_field_offset);
 		advanceframe(false);
 		
 		if(Quit)

@@ -583,7 +583,7 @@ mapscr* get_scr(int screen)
 mapscr* get_scr_no_load(int map, int screen)
 {
 	DCHECK_RANGE_INCLUSIVE(screen, 0, 135);
-	if (screen == cur_screen && map == cur_map) return tmpscr;
+	if (screen == cur_screen && map == cur_map) return origin_scr;
 	if (screen == home_screen && map == cur_map) return &special_warp_return_screen;
 
 	if (map == cur_map)
@@ -1790,10 +1790,10 @@ void update_combo_cycling()
 			if ((cmb.aclk>=cmb.speed) && combocheck(cmb))
 			{
 				bool cycle_under = (cmb.animflags & AF_CYCLEUNDERCOMBO);
-				auto c = cycle_under ? tmpscr->undercombo : cmb.nextcombo;
+				auto c = cycle_under ? scr->undercombo : cmb.nextcombo;
 				zc_ffc_set(ffc, c);
 				if(!(cmb.animflags & AF_CYCLENOCSET))
-					ffc.cset = cycle_under ? tmpscr->undercset : cmb.nextcset;
+					ffc.cset = cycle_under ? scr->undercset : cmb.nextcset;
 
 				if(combobuf[ffc.data].animflags & AF_CYCLE)
 				{
@@ -4394,6 +4394,7 @@ static void set_draw_screen_clip(BITMAP* bmp)
 
 void draw_screen(bool showhero, bool runGeneric)
 {
+	// TODO z3 hero_scr ?
 	mapscr* this_screen = tmpscr;
 	clear_info_bmp();
 	if((GameFlags & (GAMEFLAG_SCRIPTMENU_ACTIVE|GAMEFLAG_F6SCRIPT_ACTIVE))!=0)
@@ -5875,9 +5876,9 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool overlay, bool 
 			ffc_script_indices_to_remove.insert(key.second);
 	}
 
-	// Load the origin screen (top-left in region) into tmpscr
+	// Load the origin screen (top-left in region) into tmpscr.
 	loadscr_old(0, orig_destdmap, cur_screen, ldir, overlay, ffc_script_indices_to_remove);
-	// Store the current tmpscr into special_warp_return_screen, if on a special screen.
+	// If on a special screen, load the screen the player is curretly on (home_screen) into special_warp_return_screen.
 	if (screen >= 0x80)
 		loadscr_old(1, orig_destdmap, home_screen, no_x80_dir ? -1 : ldir, overlay, ffc_script_indices_to_remove);
 
@@ -5971,17 +5972,13 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool overlay, bool 
 	Hero.maybe_begin_advanced_maze();
 }
 
-// Don't use this directly!
+// Don't use this directly! Use `loadscr` instead.
 // Some stuff needs to be refactored before this function can be removed:
-//    - remove tmpscr, tmpscr2, etc. Just store these things in the larger temporary screen vectors.
-//      (this is hard)
-//    - do the "overlay" logic (but just for tmpscr, not every single screen in a region) in
-//      load_a_screen_and_layers
+//    - remove tmpscr, tmpscr2, etc. Just store these in `temporary_screens` (this is a decent amount of work)
+//    - do the "overlay" logic (but just for tmpscr, not every single screen in a region) in load_a_screen_and_layers
 void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool overlay, std::set<int>& ffc_script_indices_to_remove)
 {
 	bool is_setting_special_warp_return_screen = tmp == 1;
-	if (is_setting_special_warp_return_screen)
-		is_setting_special_warp_return_screen=is_setting_special_warp_return_screen;
 	int32_t destlvl = DMaps[destdmap < 0 ? cur_dmap : destdmap].level;
 
 	mapscr previous_scr = tmp == 0 ? *tmpscr : special_warp_return_screen;
