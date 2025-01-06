@@ -1068,7 +1068,7 @@ bool trigger_chest(const rpos_handle_t& rpos_handle)
 	bool itemflag = false;
 	for(int32_t i=0; i<3; i++)
 	{
-		mapscr* layer_scr = get_scr_layer_valid(rpos_handle.screen, i - 1);
+		mapscr* layer_scr = get_scr_layer_valid(rpos_handle.screen, i);
 		if (!layer_scr)
 			continue;
 

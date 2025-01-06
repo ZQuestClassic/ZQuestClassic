@@ -288,7 +288,7 @@ ZC_FORCE_INLINE void for_every_rpos_in_screen(mapscr* scr, T&& fn)
 	rpos_t base_rpos = POS_TO_RPOS(0, get_region_relative_dx(screen), get_region_relative_dy(screen));
 	for (int lyr = 0; lyr <= 6; ++lyr)
 	{
-		rpos_handle.scr = lyr == 0 ? scr : get_scr_layer(map, screen, lyr - 1);
+		rpos_handle.scr = lyr == 0 ? scr : get_scr_layer(map, screen, lyr);
 		rpos_handle.layer = lyr;
 		for (int pos = 0; pos < 176; ++pos)
 		{

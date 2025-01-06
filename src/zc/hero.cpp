@@ -14239,13 +14239,13 @@ void HeroClass::mod_steps(std::vector<zfix*>& v)
 	bool slowcombo = (combo_class_buf[combobuf[MAPCOMBO(x+7,y+8)].type].slow_movement && _effectflag(x+7,y+8,1,-1) && can_combo) ||
 					 (isSideViewHero() && (on_sideview_solid_oldpos(this)||getOnSideviewLadder()) && combo_class_buf[combobuf[MAPCOMBO(x+7,y+8)].type].slow_movement && _effectflag(x+7,y+8,1,-1));
 			 //!DIMITODO: add QR for slow combos under hero
-	if(slowcombo) for (int32_t i = 0; i <= 1; ++i)
+	if(slowcombo) for (int32_t i = 1; i <= 2; ++i)
 	{
 		if (get_scr_layer_valid(hero_screen, i))
 		{
 			if (get_qr(qr_OLD_BRIDGE_COMBOS))
 			{
-				if (combobuf[MAPCOMBO2(i,x+7,y+8)].type == cBRIDGE && !_walkflag_layer(x+7,y+8,1, &(tmpscr2[i])))
+				if (combobuf[MAPCOMBO2(i-1,x+7,y+8)].type == cBRIDGE && !_walkflag_layer(x+7,y+8,1, &(tmpscr2[i])))
 				{
 					slowcombo = false;
 					break;
@@ -14253,7 +14253,7 @@ void HeroClass::mod_steps(std::vector<zfix*>& v)
 			}
 			else
 			{
-				if (combobuf[MAPCOMBO2(i,x+7,y+8)].type == cBRIDGE && _effectflag_layer(x+7,y+8,1, &(tmpscr2[i])))
+				if (combobuf[MAPCOMBO2(i-1,x+7,y+8)].type == cBRIDGE && _effectflag_layer(x+7,y+8,1, &(tmpscr2[i])))
 				{
 					slowcombo = false;
 					break;
@@ -17922,17 +17922,17 @@ bool HeroClass::scr_walkflag(zfix_round zdx,zfix_round zdy,int d2,bool kb, int* 
 				}
 			}
 			
-			for (int32_t i = 0; i <= 1; ++i)
+			for (int32_t i = 1; i <= 2; ++i)
 			{
 				if (get_scr_layer_valid(hero_screen, i))
 				{
 					if (get_qr(qr_OLD_BRIDGE_COMBOS))
 					{
-						if (combobuf[MAPCOMBO2(i,dx,dy)].type == cBRIDGE && !_walkflag_layer(dx,dy)) wtrx = false;
+						if (combobuf[MAPCOMBO2(i-1,dx,dy)].type == cBRIDGE && !_walkflag_layer(dx,dy)) wtrx = false;
 					}
 					else
 					{
-						if (combobuf[MAPCOMBO2(i,dx,dy)].type == cBRIDGE && _effectflag_layer(dx,dy)) wtrx = false;
+						if (combobuf[MAPCOMBO2(i-1,dx,dy)].type == cBRIDGE && _effectflag_layer(dx,dy)) wtrx = false;
 					}
 				}
 			}
@@ -19966,13 +19966,13 @@ void HeroClass::moveOld2(int32_t d2, int32_t forceRate)
     bool slowcombo = (combo_class_buf[combobuf[MAPCOMBO(x+7,y+8)].type].slow_movement && _effectflag(x+7,y+8,1, -1) && ((z==0 && fakez==0) || hero_scr->flags2&fAIRCOMBOS)) ||
                      (isSideViewHero() && (on_sideview_solid_oldpos(this)||getOnSideviewLadder()) && combo_class_buf[combobuf[MAPCOMBO(x+7,y+8)].type].slow_movement && _effectflag(x+7,y+8,1, -1));
 		     //!DIMITODO: add QR for slow combos under hero
-	if(slowcombo) for (int32_t i = 0; i <= 1; ++i)
+	if(slowcombo) for (int32_t i = 1; i <= 2; ++i)
 	{
 		if (get_scr_layer_valid(hero_screen, i))
 		{
 			if (get_qr(qr_OLD_BRIDGE_COMBOS))
 			{
-				if (combobuf[MAPCOMBO2(i,x+7,y+8)].type == cBRIDGE && !_walkflag_layer(x+7,y+8))
+				if (combobuf[MAPCOMBO2(i-1,x+7,y+8)].type == cBRIDGE && !_walkflag_layer(x+7,y+8))
 				{
 					slowcombo = false;
 					break;
@@ -19980,7 +19980,7 @@ void HeroClass::moveOld2(int32_t d2, int32_t forceRate)
 			}
 			else
 			{
-				if (combobuf[MAPCOMBO2(i,x+7,y+8)].type == cBRIDGE && _effectflag_layer(x+7,y+8))
+				if (combobuf[MAPCOMBO2(i-1,x+7,y+8)].type == cBRIDGE && _effectflag_layer(x+7,y+8))
 				{
 					slowcombo = false;
 					break;
@@ -21585,7 +21585,7 @@ void HeroClass::oldcheckbosslockblock()
 			newcombo const& cmb2 = combobuf[cid2];
 			if (i == 0)
 			{
-				if (get_scr_layer_valid(hero_screen, 1))
+				if (get_scr_layer_valid(hero_screen, 2))
 				{
 					if (get_qr(qr_OLD_BRIDGE_COMBOS))
 					{
@@ -23282,7 +23282,7 @@ void HeroClass::handleSpotlights()
 
 			for(int32_t lyr = 6; lyr >= 0; --lyr)
 			{
-				mapscr* layer_scr = get_scr_layer(scr->screen, lyr - 1);
+				mapscr* layer_scr = get_scr_layer(scr->screen, lyr);
 				for(size_t pos = 0; pos < 176; ++pos)
 				{
 					if (pos_has_seen_cmb[pos])
@@ -28391,10 +28391,10 @@ static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector
 		nearby_screen.is_new = use_new_screens;
 
 		nearby_screen.screen_handles[0] = {base_scr, base_scr, screen, 0};
-		for (int i = 1; i < 7; i++)
+		for (int i = 1; i <= 6; i++)
 		{
 			mapscr* scr = use_new_screens ?
-				get_scr_layer(map, screen, i - 1) :
+				get_scr_layer(map, screen, i) :
 				old_temporary_screens[screen*7 + i];
 			nearby_screen.screen_handles[i] = {base_scr, scr, screen, i};
 		}
@@ -32122,8 +32122,8 @@ void HeroClass::heroDeathAnimation()
 						for(int32_t i = 0; i < 96; i++)
 							scr->cset[i] = 3;
 							
-						for(int32_t j=0; j<6; j++)
-							if(scr->layermap[j]>0)
+						for(int32_t j=1; j<=6; j++)
+							if(scr->layermap[j-1]>0)
 							{
 								mapscr* lyr_scr = get_scr_layer(scr->screen, j);
 								for(int32_t i=0; i<96; i++)
@@ -32136,8 +32136,8 @@ void HeroClass::heroDeathAnimation()
 						for(int32_t i = 96; i < 176; i++)
 							scr->cset[i] = 3;
 							
-						for(int32_t j=0; j<6; j++)
-							if(scr->layermap[j]>0)
+						for(int32_t j=1; j<=6; j++)
+							if(scr->layermap[j-1]>0)
 							{
 								mapscr* lyr_scr = get_scr_layer(scr->screen, j);
 								for(int32_t i=96; i<176; i++)
@@ -32152,8 +32152,8 @@ void HeroClass::heroDeathAnimation()
 							scr->cset[i] = 2;
 						}
 						
-						for(int32_t j=0; j<6; j++)
-							if(scr->layermap[j]>0)
+						for(int32_t j=1; j<=6; j++)
+							if(scr->layermap[j-1]>0)
 							{
 								mapscr* lyr_scr = get_scr_layer(scr->screen, j);
 								for(int32_t i=0; i<176; i++)
