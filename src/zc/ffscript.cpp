@@ -3598,13 +3598,13 @@ int32_t get_register(int32_t arg)
 			ret = Hero.inwallm ? 10000 : 0;
 			break;
 		case HEROBUNNY:
-			ret = Hero.BunnyClock()*10000;
+			ret = Hero.getBunnyClock()*10000;
 			break;
 		case LINKPUSH:
 			ret=(int32_t)Hero.getPushing()*10000;
 			break;
 		case LINKSTUN:
-			ret=(int32_t)Hero.StunClock()*10000;
+			ret=(int32_t)Hero.getStunClock()*10000;
 			break;
 		case LINKSCRIPTTILE:
 			ret=script_hero_sprite*10000;
@@ -3694,7 +3694,7 @@ int32_t get_register(int32_t arg)
 		} 
 		
 		case HEROSHIELDJINX:
-			ret = Hero.shieldjinxclk * 10000;
+			ret = Hero.getShieldClk() * 10000;
 			break;
 		
 		case HEROISWARPING:
@@ -11496,7 +11496,7 @@ void set_register(int32_t arg, int32_t value)
 		
 		case HEROSHIELDJINX:
 		{
-			Hero.shieldjinxclk = value / 10000;
+			Hero.setShieldClk(value / 10000);
 			break;
 		}
 		
