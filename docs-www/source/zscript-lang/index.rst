@@ -5,7 +5,25 @@ ZScript Lang
 	:hidden:
 	:maxdepth: 1
 
+	/zscript-lang/identifiers
+
+.. toctree::
+	:hidden:
+	:maxdepth: 1
+
 	/zscript-lang/keywords
+
+.. toctree::
+	:hidden:
+	:maxdepth: 1
+
+	/zscript-lang/literals
+
+.. toctree::
+	:hidden:
+	:maxdepth: 1
+
+	/zscript-lang/control_flow
 
 .. toctree::
 	:hidden:
