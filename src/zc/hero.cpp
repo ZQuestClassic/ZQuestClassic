@@ -22565,7 +22565,7 @@ void HeroClass::checkswordtap()
 		int tap_sfx = -1;
 		auto pos = COMBOPOS(bx,by);
 		bool hollow = false;
-		for(int lyr = 7; lyr >= 0; --lyr)
+		for(int lyr = 6; lyr >= 0; --lyr)
 		{
 			mapscr* m = FFCore.tempScreens[lyr];
 			newcombo const& cmb = combobuf[m->data[pos]];
