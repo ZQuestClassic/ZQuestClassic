@@ -393,8 +393,8 @@ char   cheat_goto_screen_str[3]={0};
 int32_t  visited[6]={0};
 std::map<int, byte> activation_counters;
 std::map<int, byte> activation_counters_ffc;
-mapscr* tmpscr = new mapscr();
-mapscr* origin_scr = tmpscr;
+mapscr* tmpscr;
+mapscr* origin_scr;
 mapscr tmpscr2[6];
 mapscr special_warp_return_scr;
 mapscr special_warp_return_scr_layers[6];
@@ -1100,7 +1100,7 @@ void ALLOFF(bool messagesToo, bool decorationsToo, bool force)
         Hero.setClock(false);
     }
 
-    for_every_base_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
+    if (origin_scr) for_every_base_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
         get_screen_state(scr->screen).loaded_enemies = false;
     });
 
@@ -1618,6 +1618,8 @@ void init_game_vars(bool is_cont_game = false)
 	// same way, even if manually started in the ZC UI.
     frame = 0;
 
+	origin_scr = nullptr;
+	tmpscr = nullptr;
 	hero_scr = nullptr;
 	prev_hero_scr = nullptr;
 	viewport_mode = ViewportMode::CenterAndBound;
@@ -1943,7 +1945,6 @@ int32_t init_game()
 	lastentrance_dmap = cur_dmap;
 	cur_map = DMaps[cur_dmap].map;
 	dlevel = DMaps[cur_dmap].level;
-	mark_visited(cur_screen);
 	
 	game->lvlitems[9] &= ~liBOSS;
 	
@@ -1951,7 +1952,6 @@ int32_t init_game()
 	
 	currcset=DMaps[cur_dmap].color;
 	
-	tmpscr->zero_memory();
 	special_warp_return_scr.zero_memory();
 	clear_temporary_screens();
 	//clear initialise dmap script 
@@ -1982,12 +1982,11 @@ int32_t init_game()
 		ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_ONSAVELOAD, GLOBAL_SCRIPT_ONSAVELOAD); //Do this after global arrays have been loaded
 		FFCore.deallocateAllScriptOwned(ScriptType::Global, GLOBAL_SCRIPT_ONSAVELOAD);
 	}
-	
+
 	loadscr(cur_dmap, cur_screen, -1, false);
-	
-	//preloaded freeform combos
-	//ffscript_engine(true); Can't do this here! Global arrays haven't been allocated yet... ~Joe
-	
+
+	mark_visited(cur_screen);
+
 	Hero.init();
 	if (use_testingst_start
 		&& hero_screen == testingqst_screen
@@ -2343,7 +2342,6 @@ int32_t cont_game()
 	whistleclk=-1;
 	currcset=DMaps[cur_dmap].color;
 	room_is_dark=darkroom=naturaldark=false;
-	tmpscr->zero_memory();
 	special_warp_return_scr.zero_memory();
 	clear_temporary_screens();
 	
@@ -2496,7 +2494,6 @@ void restart_level()
 	ALLOFF();
 	whistleclk=-1;
 	room_is_dark=darkroom=naturaldark=false;
-	tmpscr->zero_memory();
 	special_warp_return_scr.zero_memory();
 	clear_temporary_screens();
 	
@@ -4837,7 +4834,9 @@ reload_for_replay_file:
 			Quit = 0;
 			goto reload_for_replay_file;
 		}
-		
+
+		// This is weird! One thing this does is prevent the "Continue" screen shown in `gameover` from
+		// rendering with the `fNOSUBSCR` flag set.
 		tmpscr->flags3=0;
 		Playing=Paused=false;
 		//Clear active script array ownership

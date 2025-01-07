@@ -80,6 +80,11 @@ void maps_init_game_vars();
 
 #define DRIEDLAKE ((hero_scr->flags7 & fWHISTLEWATER) && (whistleclk>=88))
 
+ZC_FORCE_INLINE bool is_valid_rpos(rpos_t rpos)
+{
+	return (int)rpos >= 0 && rpos <= region_max_rpos;
+}
+
 ZC_FORCE_INLINE int get_region_relative_dx(int screen, int origin_screen)
 {
 	return screen % 16 - origin_screen % 16;
@@ -105,7 +110,8 @@ ZC_FORCE_INLINE int32_t RPOS_TO_POS(rpos_t rpos)
 }
 ZC_FORCE_INLINE rpos_t POS_TO_RPOS(int32_t pos, int32_t scr_dx, int32_t scr_dy)
 {
-	DCHECK(scr_dx >= 0 && scr_dy >= 0);
+	// TODO z3 ! the_deep_1_of_6.zplay loadscr2
+	// DCHECK(scr_dx >= 0 && scr_dy >= 0);
 	DCHECK_RANGE_EXCLUSIVE(pos, 0, 176);
 	return static_cast<rpos_t>((scr_dx + scr_dy * cur_region.screen_width)*176 + pos);
 }
@@ -161,7 +167,6 @@ bool is_in_current_region(int map, int screen);
 bool is_in_current_region(int screen);
 bool is_in_current_region(mapscr* scr);
 bool is_in_scrolling_region(int screen);
-bool is_valid_rpos(rpos_t rpos);
 void calculate_region(int map, int screen, region_t& region, int& region_scr_dx, int& region_scr_dy);
 void load_region(int dmap, int screen);
 // Returns a rpos_handle of the top-left position for every valid
@@ -374,6 +379,7 @@ void bombdoor(int32_t x,int32_t y);
 bool lenscheck(mapscr* scr, int layer);
 void do_scrolling_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen_handle, int32_t x, int32_t y);
 void do_layer_old(BITMAP *bmp, int32_t type, int32_t layer, mapscr* basescr, int32_t x, int32_t y, int32_t tempscreen, bool scrolling=false, bool drawprimitives=false);
+void do_layer_old2(BITMAP *bmp, int32_t type, int32_t layer, mapscr* basescr, mapscr* scr, int32_t x, int32_t y, bool scrolling=false, bool drawprimitives=false);
 void do_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen_handle, int32_t x, int32_t y, bool drawprimitives=false);
 void put_walkflags(BITMAP *dest,int32_t x,int32_t y,int32_t xofs,int32_t yofs, word cmbdat,int32_t lyr);
 void do_walkflags(const std::array<screen_handle_t, 7>& screen_handles ,int32_t x, int32_t y);
@@ -388,10 +394,10 @@ void update_door(mapscr* scr, int32_t side, int32_t door, bool even_walls=false)
 void putdoor(mapscr* scr, BITMAP *dest, int32_t side, int32_t door, bool redraw=true, bool even_walls=false);
 void showbombeddoor(mapscr* scr, BITMAP *dest, int32_t side, int32_t offx, int32_t offy);
 void openshutters(mapscr* scr);
-void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool overlay=false, bool no_x80_dir=false);
+void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool origin_screen_overlay=false, bool no_x80_dir=false);
 void clear_darkroom_bitmaps();
 void loadscr2(int32_t tmp,int32_t screen,int32_t);
-void loadscr_old(int32_t tmp,int32_t destdmap,int32_t screen,int32_t ldir,bool overlay, std::set<int>& ffc_script_indices_to_remove);
+void loadscr_old(int32_t tmp,int32_t destdmap,int32_t screen,int32_t ldir,bool overlay);
 void putscr(mapscr* scr, BITMAP* dest, int32_t x, int32_t y);
 void putscrdoors(mapscr* scr, BITMAP *dest, int32_t x, int32_t y);
 bool _walkflag_new(const mapscr* s0, const mapscr* s1, const mapscr* s2, zfix_round zx, zfix_round zy, zfix const& switchblockstate, bool is_temp_screens);

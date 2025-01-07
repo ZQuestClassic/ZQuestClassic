@@ -377,17 +377,17 @@ int32_t getMap(int32_t ref)
 		case MAPSCR_TEMP0:
 			return cur_map+1;
 		case MAPSCR_TEMP1:
-			return FFCore.tempScreens[0]->layermap[0];
+			return origin_scr->layermap[0];
 		case MAPSCR_TEMP2:
-			return FFCore.tempScreens[0]->layermap[1];
+			return origin_scr->layermap[1];
 		case MAPSCR_TEMP3:
-			return FFCore.tempScreens[0]->layermap[2];
+			return origin_scr->layermap[2];
 		case MAPSCR_TEMP4:
-			return FFCore.tempScreens[0]->layermap[3];
+			return origin_scr->layermap[3];
 		case MAPSCR_TEMP5:
-			return FFCore.tempScreens[0]->layermap[4];
+			return origin_scr->layermap[4];
 		case MAPSCR_TEMP6:
-			return FFCore.tempScreens[0]->layermap[5];
+			return origin_scr->layermap[5];
 		case MAPSCR_SCROLL0:
 			return scrolling_map+1;
 		case MAPSCR_SCROLL1:
@@ -413,17 +413,17 @@ int32_t getScreen(int32_t ref)
 		case MAPSCR_TEMP0:
 			return cur_screen;
 		case MAPSCR_TEMP1:
-			return FFCore.tempScreens[0]->layerscreen[0];
+			return origin_scr->layerscreen[0];
 		case MAPSCR_TEMP2:
-			return FFCore.tempScreens[0]->layerscreen[1];
+			return origin_scr->layerscreen[1];
 		case MAPSCR_TEMP3:
-			return FFCore.tempScreens[0]->layerscreen[2];
+			return origin_scr->layerscreen[2];
 		case MAPSCR_TEMP4:
-			return FFCore.tempScreens[0]->layerscreen[3];
+			return origin_scr->layerscreen[3];
 		case MAPSCR_TEMP5:
-			return FFCore.tempScreens[0]->layerscreen[4];
+			return origin_scr->layerscreen[4];
 		case MAPSCR_TEMP6:
-			return FFCore.tempScreens[0]->layerscreen[5];
+			return origin_scr->layerscreen[5];
 		case MAPSCR_SCROLL0:
 			return scrolling_hero_screen;
 		case MAPSCR_SCROLL1:
@@ -36521,11 +36521,9 @@ void FFScript::init()
 	kb_typing_mode = false;
 	initIncludePaths();
 	//clearRunningItemScripts();
-	tempScreens[0] = tmpscr;
 	ScrollingScreens[0] = &special_warp_return_scr;
 	for(int32_t q = 0; q < 6; ++q)
 	{
-		tempScreens[q+1] = tmpscr2+q;
 		ScrollingScreens[q+1] = special_warp_return_scr_layers+q;
 	}
 	ScrollingScreensAll.clear();

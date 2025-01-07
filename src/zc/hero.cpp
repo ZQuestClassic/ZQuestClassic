@@ -3926,6 +3926,7 @@ void HeroClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
         
     bool ignorescreen=false;
     
+	// TODO z3 ! asan the_deep_2
     if((get_bit(screengrid_layer[layer-1], i) != 0) || (!isCuttableType(type)))
 		return;
     
@@ -25370,6 +25371,8 @@ bool HeroClass::HasHeavyBoots()
 
 bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t warpsfx)
 {
+	if (!scr) scr = hero_scr;
+
 	byte reposition_sword_postwarp = 0;
 	if (index < 0)
 	{
@@ -25397,9 +25400,8 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 	int32_t wrindex = 0;
 	bool wasSideview = isSideViewGravity(t);
 
-	const mapscr* cur_scr = scr ? scr : hero_scr;
 	// Either the current screen, or if in a 0x80 room the screen player came from.
-	const mapscr* base_scr = cur_screen >= 128 ? &special_warp_return_scr : cur_scr;
+	const mapscr* base_scr = cur_screen >= 128 ? &special_warp_return_scr : scr;
 
 	// Drawing commands probably shouldn't carry over...
 	if (!get_qr(qr_SCRIPTDRAWSINWARPS))
@@ -25418,7 +25420,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			wdmap = base_scr->tilewarpdmap[index];
 			wscr = base_scr->tilewarpscr[index];
 			overlay = get_bit(&base_scr->tilewarpoverlayflags,index)?1:0;
-			wrindex=(cur_scr->warpreturnc>>(index*2))&3;
+			wrindex=(scr->warpreturnc>>(index*2))&3;
 			break;
 			
 		case 1:                                                 // side warp
@@ -25426,7 +25428,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			wdmap = base_scr->sidewarpdmap[index];
 			wscr = base_scr->sidewarpscr[index];
 			overlay = get_bit(&base_scr->sidewarpoverlayflags,index)?1:0;
-			wrindex=(cur_scr->warpreturnc>>(8+(index*2)))&3;
+			wrindex=(scr->warpreturnc>>(8+(index*2)))&3;
 			break;
 			
 		case 2:                                                 // whistle warp
@@ -25488,7 +25490,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			kill_sfx();
 
 			int destscr = 0x80;
-			if(cur_scr->room==rWARP)
+			if(scr->room==rWARP)
 			{
 				destscr=0x81;
 				specialcave = STAIRCAVE;
@@ -25505,6 +25507,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 					   (combobuf[MAPCOMBO(x,y-16)].type==cCAVED)||(combobuf[MAPCOMBO(x,y-16)].type==cCAVE2D));
 			blackscr(30,b2?false:true);
 			loadscr(wdmap, destscr, up, false);
+			scr = hero_scr;
 			//preloaded freeform combos
 			ffscript_engine(true);
 			dir=up;
@@ -25558,6 +25561,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 
 			bool no_x80_dir = true; // TODO: is this necessary?
 			loadscr(wdmap, 0x80, down, false, no_x80_dir);
+			scr = hero_scr;
 			if ( dontdraw < 2 ) {  dontdraw=1; }
 			draw_screen(false);
 			fade(0xB,true,true);
@@ -25635,6 +25639,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 		blackscr(30,true);
 		bool no_x80_dir = true;
 		loadscr(wdmap, 0x81, down, false, no_x80_dir);
+		scr = hero_scr;
 		//preloaded freeform combos
 		ffscript_engine(true);
 		if ( dontdraw < 2 ) { dontdraw=1; }
@@ -25742,7 +25747,8 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 		loadlvlpal(DMaps[cur_dmap].color);
 		int destscr = wscr + DMaps[cur_dmap].xoff;
 		loadscr(cur_dmap, destscr, -1, overlay);
-		
+		scr = hero_scr;
+
 		if((scr->flags&fDARK) && !get_qr(qr_NEW_DARKROOM))
 		{
 			if(get_qr(qr_FADE))
@@ -25937,6 +25943,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 		}
 
 		scrollscr(sdir, wscr+DMaps[wdmap].xoff, wdmap);
+		scr = hero_scr;
 
 		reset_hookshot();
 		if(reposition_sword_postwarp)
@@ -26008,6 +26015,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 		scrolling_map = cur_map;
 		cur_map = DMaps[wdmap].map;
 		scrollscr(index, wscr+DMaps[wdmap].xoff, wdmap);
+		scr = hero_scr;
 		reset_hookshot();
 		cur_dmap=wdmap;
 		dlevel=DMaps[cur_dmap].level;
@@ -26084,7 +26092,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 		bool cavewarp = ((type1==cCAVE)||(type1>=cCAVEB && type1<=cCAVED) || (type2==cCAVE)||(type2>=cCAVEB && type2<=cCAVED)
 						 ||(type3==cCAVE2)||(type3>=cCAVE2B && type3<=cCAVE2D) || (type2==cCAVE2)||(type2>=cCAVE2B && type2<=cCAVE2D));
 		
-		bool kill_action = !(hero_scr->flags3&fIWARPFULLSCREEN);
+		bool kill_action = !(scr->flags3&fIWARPFULLSCREEN);
 		if(kill_action)
 		{
 			//ALLOFF kills the action, but we want to preserve Hero's action if he's swimming or diving -DD
@@ -26152,6 +26160,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 		
 		int prevscr = cur_screen;
 		loadscr(cur_dmap, wscr + DMaps[cur_dmap].xoff, -1, overlay);
+		scr = hero_scr;
 		lightingInstant(); // Also sets naturaldark
 
 		// In the case where we did not call ALLOFF, preserve the "enemies have spawned"
@@ -26285,7 +26294,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 			bool cavewarp = ((type1==cCAVE)||(type1>=cCAVEB && type1<=cCAVED) || (type2==cCAVE)||(type2>=cCAVEB && type2<=cCAVED)
 					 ||(type3==cCAVE2)||(type3>=cCAVE2B && type3<=cCAVE2D) || (type2==cCAVE2)||(type2>=cCAVE2B && type2<=cCAVE2D));
 					 
-			if(!(hero_scr->flags3&fIWARPFULLSCREEN))
+			if(!(scr->flags3&fIWARPFULLSCREEN))
 			{
 				//ALLOFF kills the action, but we want to preserve Hero's action if he's swimming or diving -DD
 				bool wasswimming = (action == swimming);
@@ -26350,6 +26359,7 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 				loadlvlpal(DMaps[cur_dmap].color);
 			
 			loadscr(cur_dmap, wscr + DMaps[cur_dmap].xoff, -1, overlay);
+			scr = hero_scr;
 			lightingInstant(); // Also sets naturaldark
 			
 			x = hero_scr->warpreturnx[wrindex];
@@ -28837,9 +28847,11 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 	bool should_delay_taking_old_screens = !crucible_quest_compat;
 	should_delay_taking_old_screens=true; // TODO z3 ! rm old code.
 	if (!should_delay_taking_old_screens)
+	{
 		old_temporary_screens = take_temporary_scrs();
+		FFCore.ScrollingScreensAll = old_temporary_screens;
+	}
 
-	mapscr *oldscr = &special_warp_return_scr;
 	conveyclk = 2;
 	screenscrolling = true;
 	scrolling_dir = (direction) scrolldir;
@@ -29043,12 +29055,17 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 	FFCore.ScrollingScreensAll = old_temporary_screens;
 	cur_map = destmap;
 
-	// expose previous screen to scripting.
+	// expose previous origin screen to scripting.
+	// TODO z3 !! use FFCore.ScrollingScreensAll ??
 	special_warp_return_scr = *tmpscr;
-
-	for(int32_t i = 0; i < 6; i++)
+	mapscr *oldscr = &special_warp_return_scr;
+	for (int i = 1; i <= 6; i++)
 	{
-		special_warp_return_scr_layers[i] = tmpscr2[i];
+		mapscr* scr = get_scr_layer(cur_screen, i);
+		if (scr)
+			special_warp_return_scr_layers[i - 1] = *scr;
+		else
+			special_warp_return_scr_layers[i - 1] = {};
 	}
 
 	loadscr(destdmap, dest_screen, scrolldir, overlay);

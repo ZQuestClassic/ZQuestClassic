@@ -26782,7 +26782,6 @@ void FFScript::init()
 	initIncludePaths();
 	for(int32_t q = 0; q < 7; ++q)
 	{
-		tempScreens[q] = NULL;
 		ScrollingScreens[q] = NULL;
 	}
 }

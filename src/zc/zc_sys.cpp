@@ -3765,7 +3765,7 @@ void updatescr(bool allowwavy)
 			blit_msgstr_fg(framebuf,0,0,0,playing_field_offset,256,168);
 	}
 	
-	bool nosubscr = (hero_scr->flags3&fNOSUBSCR && !(hero_scr->flags3&fNOSUBSCROFFSET));
+	bool nosubscr = GameLoaded && (hero_scr->flags3&fNOSUBSCR && !(hero_scr->flags3&fNOSUBSCROFFSET));
 	
 	if(nosubscr)
 	{

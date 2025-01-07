@@ -216,7 +216,7 @@ static int HandleGameScreenGetter(std::function<int(mapscr*, int)> cb, const cha
 		if (map == cur_map && screen == cur_screen)
 			return cb(origin_scr, pos);
 		else if (layr > -1)
-			return cb(&tmpscr2[layr], pos);
+			return cb(get_scr_layer(cur_screen, layr + 1), pos);
 		else return cb(&TheMaps[index], pos);
 	}
 }
@@ -260,7 +260,7 @@ static auto ResolveGameScreens(const char* context)
 	if (map == cur_map && screen == cur_screen)
 		result.tmp_rpos_handle = {origin_scr, screen, 0, (rpos_t)pos, pos};
 	if (layr > -1)
-		result.tmp_layer_rpos_handle = {&tmpscr2[layr], screen, 0, (rpos_t)pos, pos};
+		result.tmp_layer_rpos_handle = {get_scr_layer(cur_screen, layr + 1), screen, 0, (rpos_t)pos, pos};
 
 	return result;
 }
