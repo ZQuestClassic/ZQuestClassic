@@ -1041,8 +1041,8 @@ savedportal* gamedata::getSavedPortal(int32_t uid)
 
 bool gamedata::should_show_time()
 {
-	// Drawing the time makes manually updating replays much more difficult.
-	if (replay_is_active() && replay_is_debug())
+	// TODO(replays): remove this during next bulk update.
+	if (replay_is_active() && replay_is_debug() && replay_version_check(0, 33))
 		return false;
 
 	return get_timevalid() && get_qr(qr_TIME);
