@@ -131,28 +131,41 @@ void CompileOption::updateDefaults(bool has_qrs)
 	for (int32_t i = 0; i < ID_END; ++i)
 	{
 		auto& entry = entries[i];
-		switch(entry.type)
+		if(is_test())
 		{
-			case OPTTYPE_QR:
-				//'has_qrs' indicates if qrs were loaded; it being false indicates the defaultValues should be untouched.
-				if(has_qrs && entry.defaultqr)
-					entry.defaultValue = get_qr(entry.defaultqr) ? 10000L : 0L;
-				break;
-			
-			case OPTTYPE_CONFIG:
+			// These settings overwrite the defaults when in ci
+			static std::map<string, int> ci_settings = {
+				{ "NO_ERROR_HALT", OPTION_ON },
+				{ "WARN_DEPRECATED", OPTION_WARN }
+			};
+			if(auto it = ci_settings.find(entry.name); it != ci_settings.end())
+				entry.defaultValue = it->second;
+		}
+		else
+		{
+			switch(entry.type)
 			{
-				int32_t val = zscript_get_config_int(entry.name, int32_t(entry.defaultValue/10000L));
-				if(!zc_cfg_defaulted)
-					entry.defaultValue = val * 10000L;
-				break;
-			}
-			
-			case OPTTYPE_CONFIG_FLOAT:
-			{
-				double val = zscript_get_config_double(entry.name, entry.defaultValue/10000.0);
-				if(!zc_cfg_defaulted)
-					entry.defaultValue = val * 10000L;
-				break;
+				case OPTTYPE_QR:
+					//'has_qrs' indicates if qrs were loaded; it being false indicates the defaultValues should be untouched.
+					if(has_qrs && entry.defaultqr)
+						entry.defaultValue = get_qr(entry.defaultqr) ? 10000L : 0L;
+					break;
+				
+				case OPTTYPE_CONFIG:
+				{
+					int32_t val = zscript_get_config_int(entry.name, int32_t(entry.defaultValue/10000L));
+					if(!zc_cfg_defaulted)
+						entry.defaultValue = val * 10000L;
+					break;
+				}
+				
+				case OPTTYPE_CONFIG_FLOAT:
+				{
+					double val = zscript_get_config_double(entry.name, entry.defaultValue/10000.0);
+					if(!zc_cfg_defaulted)
+						entry.defaultValue = val * 10000L;
+					break;
+				}
 			}
 		}
 	}
