@@ -507,7 +507,7 @@ internal int atoi(char32[] str);
 // @zasm
 //   POP D3
 //   ATOL D2 D3
-internal long atol(char32[] arg1);
+internal long atol(char32[] str);
 
 // Returns the number of characters in the string that are taken up by a number
 // (as would be read by [atoi, including negative sign)
@@ -593,7 +593,7 @@ internal int strcat(char32[] dest, char32[] src);
 //   POP D1
 //   POP D0
 //   STRCHR D2
-internal int strchr(char32[] str, int c);
+internal int strchr(char32[] str, char32 c);
 
 // Returns the length in [str] before any character in 'chars' is found.
 //
@@ -628,7 +628,7 @@ internal int strstr(char32[] str, char32[] tofind);
 //   POP D1
 //   POP D0
 //   STRRCHR D2
-internal int strrchr(char32[] str, int c);
+internal int strrchr(char32[] str, char32 c);
 
 // Returns true if the value 'arr' points to a valid array.
 //
@@ -744,7 +744,7 @@ internal constexpr T Min<T>(T val1, T val2);
 // @vargs 1
 // @zasm
 //   CHOOSEVARG
-internal T Choose<T>(T arg1);
+internal T Choose<T>(T val1);
 
 // Increases the size of the array by 1, inserting [val] at the
 // back of the array.
@@ -803,7 +803,7 @@ internal T ArrayPopAt<T>(T[] arr, int index);
 // @zasm
 //   POP D3
 //   RNDR D2 D3
-internal int Rand(int arg1);
+internal int Rand(int max);
 
 // Sets the current random seed to a given value, input from script. (DOES NOT
 // /10000)
@@ -908,56 +908,32 @@ internal int Integer(int n);
 // @zasm
 //   POP D0
 //   SETR D2 SCRIPTRAMD
-internal int GetScriptRAM(int arg1);
+internal int GetScriptRAM(int index);
 
 // @deprecated
 // @zasm
 //   POP D3
 //   POP D0
 //   SETR SCRIPTRAMD D3
-internal void SetScriptRAM(int arg1, int arg2);
+internal void SetScriptRAM(int index, int val);
 
 // @deprecated
 // @zasm
 //   POP D0
 //   SETR D2 GLOBALRAMD
-internal int GetGlobalRAM(int arg1);
+internal int GetGlobalRAM(int index);
 
 // @deprecated
 // @zasm
 //   POP D3
 //   POP D0
 //   SETR GLOBALRAMD D3
-internal void SetGlobalRAM(int arg1, int arg2);
-
-// @deprecated
-// @zasm
-//   SETCOLORB
-//   POPARGS D5 0.0004
-internal void SetColorBuffer(int arg1, int arg2, int arg3, int arg4);
-
-// @deprecated
-// @zasm
-//   SETDEPTHB
-//   POPARGS D5 0.0004
-internal void SetDepthBuffer(int arg1, int arg2, int arg3, int arg4);
-
-// @deprecated
-// @zasm
-//   GETCOLORB
-//   POPARGS D5 0.0004
-internal void GetColorBuffer(int arg1, int arg2, int arg3, int arg4);
-
-// @deprecated
-// @zasm
-//   GETDEPTHB
-//   POPARGS D5 0.0004
-internal void GetDepthBuffer(int arg1, int arg2, int arg3, int arg4);
+internal void SetGlobalRAM(int index, int val);
 
 // @zasm
 //   POP D2
 //   REF_COUNT D2
-internal long RefCount(untyped arg1);
+internal long RefCount(untyped object_ptr);
 
 // @zasm
 //   GC

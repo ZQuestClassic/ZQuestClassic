@@ -66,7 +66,7 @@ class Debug {
 	// @zasm
 	//   POP D2
 	//   TRIGGERSECRETR D2
-	internal void TriggerSecret(int arg1);
+	internal void TriggerSecret(int secret_flag);
 
 	// @deprecated ZASM debugger no longer exists.
 	//

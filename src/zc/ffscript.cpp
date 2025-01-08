@@ -32492,12 +32492,6 @@ int32_t run_script_int(bool is_jitted)
 			case FLOODFILL:
 				break;
 				
-			case SETCOLORB:
-			case SETDEPTHB:
-			case GETCOLORB:
-			case GETDEPTHB:
-				break;
-				
 			case ENQUEUER:
 				do_enqueue(false);
 				break;

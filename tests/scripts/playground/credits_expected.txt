@@ -5,64 +5,6 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-credits.zs Line 68 @ Columns 11-29 - Warning S094: Function 'Game::CreateBitmap(int, int)' is deprecated, and should not be used.
-
-66    {
-67        if ( Game->FFRules[qr_OLDCREATEBITMAP_ARGS] )
-68            return Game->CreateBitmap(h, w);
-                     ^~~~~~~~~~~~~~~~~~
-
-
-INFO: Use `new bitmap(width, height)` instead!
-credits.zs Line 69 @ Columns 15-33 - Warning S094: Function 'Game::CreateBitmap(int, int)' is deprecated, and should not be used.
-
-67    if ( Game->FFRules[qr_OLDCREATEBITMAP_ARGS] )
-68        return Game->CreateBitmap(h, w);
-69    else return Game->CreateBitmap(w, h);
-                  ^~~~~~~~~~~~~~~~~~
-
-
-INFO: Use `new bitmap(width, height)` instead!
-credits.zs Line 52 @ Columns 4-17 - Warning S094: Function 'bitmap::Free()' is deprecated, and should not be used.
-
-50    {
-51        if(_bitmap->isValid())
-52            _bitmap->Free();
-              ^~~~~~~~~~~~~
-
-
-INFO: Free() no longer does anything as of ZC 3.0. Objects are now
-freed automatically.
-credits.zs Line 39 @ Columns 4-17 - Warning S094: Function 'bitmap::Free()' is deprecated, and should not be used.
-
-37    {
-38        if(_bitmap->isValid())
-39            _bitmap->Free();
-              ^~~~~~~~~~~~~
-
-
-INFO: Free() no longer does anything as of ZC 3.0. Objects are now
-freed automatically.
-credits.zs Line 106 @ Columns 3-12 - Warning S094: Function 'bitmap::Free()' is deprecated, and should not be used.
-
-104    _bitmap->Blit(7, tmp, 0, 0, 256, data[DATA_CURRY], 0, 0, 256, data[DATA_CURRY], 0, 0, 0, BITDX_NORMAL, 0, false);
-105    tmp->Write(7, filepath, true);
-106    tmp->Free();
-       ^~~~~~~~~
-
-
-INFO: Free() no longer does anything as of ZC 3.0. Objects are now
-freed automatically.
-credits.zs Line 78 @ Columns 3-16 - Warning S094: Function 'bitmap::Free()' is deprecated, and should not be used.
-
-76    int h = Min(_bitmap->Height, height);
-77    _bitmap->Blit(0, tmp, 0, 0, 256, h, 0, 0, 256, h, 0, 0, 0, BITDX_NORMAL, 0, false);
-78    _bitmap->Free();
-      ^~~~~~~~~~~~~
-
-
-INFO: Free() no longer does anything as of ZC 3.0. Objects are now
-freed automatically.
 Pass 5: Checking code paths
 Pass 6: Generating object code
 Pass 7: Assembling
@@ -73,96 +15,11 @@ stdout:
 
 {
   "success": true,
-  "diagnostics": [
-    {
-      "range": {
-        "start": {
-          "line": 67,
-          "character": 10
-        },
-        "end": {
-          "line": 67,
-          "character": 28
-        }
-      },
-      "severity": 2,
-      "message": "S094: Function 'Game::CreateBitmap(int, int)' is deprecated, and should not be used.\nUse `new bitmap(width, height)` instead!"
-    },
-    {
-      "range": {
-        "start": {
-          "line": 68,
-          "character": 14
-        },
-        "end": {
-          "line": 68,
-          "character": 32
-        }
-      },
-      "severity": 2,
-      "message": "S094: Function 'Game::CreateBitmap(int, int)' is deprecated, and should not be used.\nUse `new bitmap(width, height)` instead!"
-    },
-    {
-      "range": {
-        "start": {
-          "line": 51,
-          "character": 3
-        },
-        "end": {
-          "line": 51,
-          "character": 16
-        }
-      },
-      "severity": 2,
-      "message": "S094: Function 'bitmap::Free()' is deprecated, and should not be used.\nFree() no longer does anything as of ZC 3.0. Objects are now\nfreed automatically."
-    },
-    {
-      "range": {
-        "start": {
-          "line": 38,
-          "character": 3
-        },
-        "end": {
-          "line": 38,
-          "character": 16
-        }
-      },
-      "severity": 2,
-      "message": "S094: Function 'bitmap::Free()' is deprecated, and should not be used.\nFree() no longer does anything as of ZC 3.0. Objects are now\nfreed automatically."
-    },
-    {
-      "range": {
-        "start": {
-          "line": 105,
-          "character": 2
-        },
-        "end": {
-          "line": 105,
-          "character": 11
-        }
-      },
-      "severity": 2,
-      "message": "S094: Function 'bitmap::Free()' is deprecated, and should not be used.\nFree() no longer does anything as of ZC 3.0. Objects are now\nfreed automatically."
-    },
-    {
-      "range": {
-        "start": {
-          "line": 77,
-          "character": 2
-        },
-        "end": {
-          "line": 77,
-          "character": 15
-        }
-      },
-      "severity": 2,
-      "message": "S094: Function 'bitmap::Free()' is deprecated, and should not be used.\nFree() no longer does anything as of ZC 3.0. Objects are now\nfreed automatically."
-    }
-  ],
+  "diagnostics": [],
   "metadata": {
     "currentFileSymbols": 57,
-    "symbols": 93,
-    "identifiers": 307,
+    "symbols": 88,
+    "identifiers": 286,
     "elided": true
   }
 }
@@ -171,7 +28,7 @@ zasm:
 
 PUSHR REFFFC; void run() Body Start
 SETR D4 SP2
-CALLFUNC 0.0541; UsrFunc[void runTestCredits()] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND void run() Body End
+CALLFUNC 0.0506; UsrFunc[void runTestCredits()] Call AND [Opt:NeverRet] AND [Opt:NeverRet] AND void run() Body End
 SETR D4 SP2; Func[void addHeader(char32[])] Body Start
 PUSHR D4
 LOAD D2 0; UsrFunc[void addLine(char32[], int, int, int, int)] Params Start
@@ -330,7 +187,7 @@ POPARGS D5 0.0002
 RETURNFUNC; Func[void addLine(char32[], int)] Body End
 PUSHARGSV 0 0.0002; Func[void resize(int)] Body Start
 SETR D4 SP2
-SETR D2 GD1; if() #442 Test
+SETR D2 GD1; if() #440 Test
 PUSHR D2
 POP REFBITMAP
 SETR D2 BITMAPHEIGHT
@@ -340,12 +197,12 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 215 !=; Test 'if' AND return (Void) AND if() #442 Body
+GOTOCMP 212 !=; Test 'if' AND return (Void) AND if() #440 Body
 PUSHR D4
 PUSHV 256; UsrFunc[bitmap create(int, int)] Params Start
 LOAD D2 0.0002
 PUSHR D2; UsrFunc[bitmap create(int, int)] Params End
-CALLFUNC 0.0243; UsrFunc[bitmap create(int, int)] Call
+CALLFUNC 0.0240; UsrFunc[bitmap create(int, int)] Call
 POP D4
 STORE_OBJECT D2 0.0001
 LOAD D2 0.0001; InlineFunc[void bitmap::Clear(int)] Params Start
@@ -377,9 +234,6 @@ PUSHR D2
 PUSHARGSV 0 0.0006; InlineFunc[void bitmap::Blit(int, untyped, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Params End
 BMPBLIT; InlineFunc[void bitmap::Blit(int, untyped, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Body Start
 POPARGS D5 0.0017; InlineFunc[void bitmap::Blit(int, untyped, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Body End
-SETR D2 GD1; InlineFunc[void bitmap::Free()] Params Start
-SETR REFBITMAP D2; InlineFunc[void bitmap::Free()] Params End
-BITMAPFREE; InlineFunc[void bitmap::Free()] Body
 LOAD D2 0.0001
 SET_OBJECT GD1 D2
 REF_REMOVE 0.0001
@@ -394,7 +248,7 @@ POP D2
 COMPAREV D2 0
 SETCMP D2 I>
 COMPAREV D2 0
-GOTOCMP 241 ==; Test 'while'
+GOTOCMP 238 ==; Test 'while'
 PUSHV 7; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Params Start AND while() #2 Body Start
 PUSHV 0
 PUSHV -56
@@ -408,42 +262,20 @@ PUSHV 128; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, i
 RECTR; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body Start
 POPARGS D5 0.0012; InlineFunc[void screendata::Rectangle(int, int, int, int, int, int, int, int, int, int, bool, int)] Body End
 WAITFRAME; InlineFunc[void Waitframe()] Body AND while() #2 Body End
-GOTO 218; while() #2 End
+GOTO 215; while() #2 End
 POP D5
 RETURNFUNC; Func[void blackDelay(int)] Body End
 SETR D4 SP2; Func[bitmap create(int, int)] Body Start
-SETV D2 652; if() #106 Test
-PUSHR D2
-POP D0
-SETR D2 FFRULE
-COMPAREV D2 0
-GOTOCMP 258 ==; Test 'if'
-LOAD D2 0; InlineFunc[bitmap Game::CreateBitmap(int, int)] Params Start AND return Start AND if() #106 Body Start
-PUSHR D2
-LOAD D2 0.0001
-SETR D1 D2; InlineFunc[bitmap Game::CreateBitmap(int, int)] Params End
-POP D0; InlineFunc[bitmap Game::CreateBitmap(int, int)] Body Start
-SETR D2 CREATEBITMAP; InlineFunc[bitmap Game::CreateBitmap(int, int)] Body End
-GOTO 266; return End
-GOTO 265; if() #106 Body End
-LOAD D2 0.0001; InlineFunc[bitmap Game::CreateBitmap(int, int)] Params Start AND return Start AND if() #106 Else Start
+LOAD D2 0.0001; InlineFunc[bitmap bitmap::bitmap(int, int)] Params Start AND return Start
 PUSHR D2
 LOAD D2 0
-SETR D1 D2; InlineFunc[bitmap Game::CreateBitmap(int, int)] Params End
-POP D0; InlineFunc[bitmap Game::CreateBitmap(int, int)] Body Start
-SETR D2 CREATEBITMAP; InlineFunc[bitmap Game::CreateBitmap(int, int)] Body End
-GOTO 266; return End AND if() #106 Else End
+SETR D1 D2; InlineFunc[bitmap bitmap::bitmap(int, int)] Params End
+POP D0; InlineFunc[bitmap bitmap::bitmap(int, int)] Body Start
+SETR D2 CREATEBITMAP; InlineFunc[bitmap bitmap::bitmap(int, int)] Body End
 REF_AUTORELEASE D2
-POPARGS D5 0.0002
+POPARGS D5 0.0002; return End
 RETURNFUNC; Func[bitmap create(int, int)] Body End
 SETR D4 SP2; Func[void destroy()] Body Start
-SETR D2 GD1; InlineFunc[bool bitmap::isValid()] Params AND if() #438 Test
-ISVALIDBITMAP D2; InlineFunc[bool bitmap::isValid()] Body
-COMPAREV D2 0
-GOTOCMP 276 ==; Test 'if'
-SETR D2 GD1; InlineFunc[void bitmap::Free()] Params Start AND if() #438 Body Start
-SETR REFBITMAP D2; InlineFunc[void bitmap::Free()] Params End
-BITMAPFREE; InlineFunc[void bitmap::Free()] Body AND if() #438 Body End
 SETV D2 0
 SET_OBJECT GD1 D2
 SETV D2 0
@@ -501,35 +333,35 @@ LOAD D2 0.0002
 COMPAREV D2 0
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 336 ==
+GOTOCMP 311 ==
 LOAD D2 0.0002
-GOTO 337
+GOTO 312
 SETV D2 0
 ADDV D2 224
 STORE D2 0.0001
-LOAD D2 0.0001; if() #439 Test
+LOAD D2 0.0001; if() #438 Test
 COMPAREV D2 0
 SETCMP D2 I<=
 COMPAREV D2 0
-GOTOCMP 382 !=; Test 'if' AND return (Void) AND if() #439 Body
+GOTOCMP 357 !=; Test 'if' AND return (Void) AND if() #438 Body
 LOAD D2 0.0002
 COMPAREV D2 0
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 352 ==
+GOTOCMP 327 ==
 LOAD D2 0.0002
 SUBV2 0 D2
-GOTO 353
+GOTO 328
 SETV D2 0
 SUBV D2 56
 STORE D2 0
-LOAD D2 0.0002; if() #440 Test
+LOAD D2 0.0002; if() #439 Test
 COMPAREV D2 0
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 362 ==; Test 'if'
-SETV D2 0; if() #440 Body Start
-STORE D2 0.0002; if() #440 Body End
+GOTOCMP 337 ==; Test 'if'
+SETV D2 0; if() #439 Body Start
+STORE D2 0.0002; if() #439 Body End
 SETR D2 GD1; InlineFunc[void bitmap::Blit(int, untyped, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Params Start
 PUSHR D2
 PUSHV 7
@@ -553,17 +385,10 @@ POPARGS D5 0.0017; InlineFunc[void bitmap::Blit(int, untyped, int, int, int, int
 POPARGS D5 0.0003
 RETURNFUNC; Func[void drawCredits(int)] Body End
 SETR D4 SP2; Func[void init()] Body Start
-SETR D2 GD1; InlineFunc[bool bitmap::isValid()] Params AND if() #441 Test
-ISVALIDBITMAP D2; InlineFunc[bool bitmap::isValid()] Body
-COMPAREV D2 0
-GOTOCMP 392 ==; Test 'if'
-SETR D2 GD1; InlineFunc[void bitmap::Free()] Params Start AND if() #441 Body Start
-SETR REFBITMAP D2; InlineFunc[void bitmap::Free()] Params End
-BITMAPFREE; InlineFunc[void bitmap::Free()] Body AND if() #441 Body End
 PUSHR D4
 PUSHV 256; UsrFunc[bitmap create(int, int)] Params Start
 PUSHV 1024; UsrFunc[bitmap create(int, int)] Params End
-CALLFUNC 0.0243; UsrFunc[bitmap create(int, int)] Call
+CALLFUNC 0.0240; UsrFunc[bitmap create(int, int)] Call
 POP D4
 SET_OBJECT GD1 D2
 SETR D2 GD1; InlineFunc[void bitmap::Clear(int)] Params Start
@@ -617,7 +442,7 @@ PUSHR D2
 POP D0
 READPODARRAYV D2 0
 PUSHR D2; UsrFunc[bitmap create(int, int)] Params End
-CALLFUNC 0.0243; UsrFunc[bitmap create(int, int)] Call
+CALLFUNC 0.0240; UsrFunc[bitmap create(int, int)] Call
 POP D4
 STORE_OBJECT D2 0
 SETR D2 GD1; InlineFunc[void bitmap::Blit(int, untyped, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Params Start
@@ -650,9 +475,6 @@ PUSHR D2
 PUSHV 1; InlineFunc[void bitmap::Write(int, char32[], bool)] Params End
 WRITEBITMAP; InlineFunc[void bitmap::Write(int, char32[], bool)] Body Start
 POPARGS D5 0.0004; InlineFunc[void bitmap::Write(int, char32[], bool)] Body End
-LOAD D2 0; InlineFunc[void bitmap::Free()] Params Start
-SETR REFBITMAP D2; InlineFunc[void bitmap::Free()] Params End
-BITMAPFREE; InlineFunc[void bitmap::Free()] Body
 REF_REMOVE 0
 POPARGS D5 0.0002
 RETURNFUNC; Func[void output(char32[])] Body End
@@ -669,18 +491,18 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 539 ==; for() #149 TestFail?
+GOTOCMP 504 ==; for() #149 TestFail?
 PUSHR D4; for() #149 Body Start
 LOAD D2 0.0001; UsrFunc[void drawCredits(int)] Params Start
 PUSHR D2; UsrFunc[void drawCredits(int)] Params End
-CALLFUNC 0.0315; UsrFunc[void drawCredits(int)] Call
+CALLFUNC 0.0290; UsrFunc[void drawCredits(int)] Call
 POP D4
 STOREV 0 0; for() #150 setup
 LOAD D2 0; for() #150 LoopTest
 COMPAREV D2 18
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 531 ==; for() #150 TestFail?
+GOTOCMP 496 ==; for() #150 TestFail?
 SETV D2 0; for() #150 Body Start
 PUSHR D2
 LOAD D2 0
@@ -698,7 +520,7 @@ SETR BUTTONPRESS D2; for() #150 Body End
 LOAD D2 0; for() #150 LoopIncrement
 ADDV D2 1
 STORE D2 0
-GOTO 508; for() #150 End
+GOTO 473; for() #150 End
 WAITFRAME; InlineFunc[void Waitframe()] Body AND for() #149 Body End
 LOAD D2 0.0001; for() #149 LoopIncrement
 PUSHR D2
@@ -706,13 +528,13 @@ LOAD D2 0.0002
 POP D3
 ADDR D2 D3
 STORE D2 0.0001
-GOTO 491; for() #149 End
+GOTO 456; for() #149 End
 POPARGS D5 0.0003
 RETURNFUNC; Func[void rollCredits(int)] Body End
 PUSHARGSV 0 0.0008; Func[void runTestCredits()] Body Start
 SETR D4 SP2
 PUSHR D4
-CALLFUNC 0.0384; UsrFunc[void init()] Call
+CALLFUNC 0.0359; UsrFunc[void init()] Call
 POP D4
 ALLOCATEMEMV D2 7 0
 STORE D2 0.0007
@@ -783,33 +605,33 @@ WRITEPODSTRING D2 "CreditsBMP.png"
 PUSHR D4
 LOAD D2 0.0001; UsrFunc[void output(char32[])] Params Start
 PUSHR D2; UsrFunc[void output(char32[])] Params End
-CALLFUNC 0.0440; UsrFunc[void output(char32[])] Call
+CALLFUNC 0.0408; UsrFunc[void output(char32[])] Call
 POP D4
 LOAD D3 0.0001
 DEALLOCATEMEMR D3
 PUSHR D4
 PUSHV 30; UsrFunc[void blackDelay(int)] Params
-CALLFUNC 0.0217; UsrFunc[void blackDelay(int)] Call
+CALLFUNC 0.0214; UsrFunc[void blackDelay(int)] Call
 PEEK D4
 PUSHV 0.5000; UsrFunc[void rollCredits(int)] Params
-CALLFUNC 0.0488; UsrFunc[void rollCredits(int)] Call
+CALLFUNC 0.0453; UsrFunc[void rollCredits(int)] Call
 PEEK D4
 PUSHV 30; UsrFunc[void blackDelay(int)] Params
-CALLFUNC 0.0217; UsrFunc[void blackDelay(int)] Call
+CALLFUNC 0.0214; UsrFunc[void blackDelay(int)] Call
 PEEK D4
-CALLFUNC 0.0268; UsrFunc[void destroy()] Call
+CALLFUNC 0.0250; UsrFunc[void destroy()] Call
 POP D4
 STOREV 0 0; for() #151 setup
 LOAD D2 0; for() #151 LoopTest
 COMPAREV D2 10
 SETCMP D2 I<
 COMPAREV D2 0
-GOTOCMP 642 ==; for() #151 TestFail?
+GOTOCMP 607 ==; for() #151 TestFail?
 WAITFRAME; InlineFunc[void Waitframe()] Body AND for() #151 Body
 LOAD D2 0; for() #151 LoopIncrement
 ADDV D2 1
 STORE D2 0
-GOTO 632; for() #151 End
+GOTO 597; for() #151 End
 QUIT; InlineFunc[void Quit()] Body AND [Opt:NeverRet] AND Func[void runTestCredits()] Body End
 
 
