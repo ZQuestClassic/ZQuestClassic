@@ -9,7 +9,7 @@ project = "ZQuest Classic"
 copyright = "2024, ZQuest Classic Foundation"
 author = "ZQuest Classic Developers"
 
-extensions = ['zscript']
+extensions = ['zscript', 'sphinx_design']
 
 templates_path = ["_templates"]
 exclude_patterns = []

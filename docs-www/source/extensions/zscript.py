@@ -5,40 +5,49 @@ from sphinx.locale import _
 from sphinx.util.docutils import SphinxDirective, SphinxTranslator
 from sphinx.util.typing import ExtensionMetadata
 from docutils.parsers.rst.directives import unchanged
-import html
+import urllib
 
 
 class ZScriptNode(nodes.General, nodes.Element):
     url: str = ''
     data: str = ''
     fname: str = ''
-    def __init__(self, url: str = '', data: str = '', fname: str = ''):
+    height: int = 800
+    def __init__(self, url: str = '', data: str = '', fname: str = '', height = 800):
         super().__init__()
         self.url = url
         self.data = data
         self.fname = fname
+        self.height = height
 
 class ZScriptDirective(SphinxDirective):
     has_content: bool = True
     option_spec: dict = {
         "url": unchanged,
         "fname": unchanged,
+        "height": int,
     }
 
     def run(self) -> list[nodes.Node]:
         return [ZScriptNode(
             url=self.options.get('url', '').strip(),
-            data=''.join(self.content),
+            data='\n'.join(self.content),
             fname=self.options.get('fname', '').strip(),
+            height=self.options.get('height', 800),
             )]
 
 
 def visit_logo_node_html(translator: SphinxTranslator, node: ZScriptNode) -> None:
-    html_str = '<iframe width=100%% height=800 src=https://web.zquestclassic.com/zscript/'
+    html_str = f'<iframe width=100%% height={node.height} src=https://web.zquestclassic.com/zscript/'
+    first = False
     if node.url != '':
         html_str += '?url=' + node.url
     elif node.data != '':
-        html_str += '?data=' + html.escape(node.data)
+        html_str += '?data=' + urllib.parse.quote(node.data)
+    else: first = True
+    if node.fname != '':
+        html_str += '?' if first else '&'
+        html_str += 'fname=' + urllib.parse.quote(node.fname)
     html_str += '></iframe>\n'
     translator.body.append(html_str)
 
