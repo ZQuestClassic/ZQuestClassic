@@ -655,7 +655,7 @@ def add_comment(symbol):
     def replace_code_block(match: re.Match):
         code = match.group(1).replace('\n', '\n   ')
         code_blocks.append(code)
-        return '\n.. code-block::\n   $CODE'
+        return '\n.. zscript::\n   $CODE'
 
     def replace_code_block_placeholder(match: re.Match):
         return code_blocks.pop(0)
@@ -924,7 +924,9 @@ def process_lib(name: str, files):
         add('.. only:: html')
         add('')
         url = f'https://raw.githubusercontent.com/ZQuestClassic/ZQuestClassic/refs/heads/{git_ref}/resources/headers/examples/{example}'
-        add(f'   .. zscript:: {url}')
+        add('   .. zscript::')
+        add(f'      :url: {url}')
+        add(f'      :fname: {example}')
         add('')
 
         add('.. only:: not html')
