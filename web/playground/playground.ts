@@ -231,6 +231,8 @@ async function loadFiles() {
   const params = new URLSearchParams(location.search);
   const gist = params.get('gist');
   const url = params.get('url');
+  const data = params.get('data');
+  const fname = params.get('fname') ?? 'main.zs';
 
   if (gist) {
     const gistFiles = await loadFromGist(gist);
@@ -245,13 +247,17 @@ async function loadFiles() {
     }
 
     const files = new Map<string, string>();
-    files.set('main.zs', content);
+    files.set(fname, content);
     contentUrl = url;
+    return files;
+  } else if (data) {
+    const files = new Map<string, string>();
+    files.set(fname, data);
     return files;
   }
 
   const files = new Map<string, string>();
-  files.set('main.zs', defaultContent);
+  files.set(fname, defaultContent);
   return files;
 }
 
