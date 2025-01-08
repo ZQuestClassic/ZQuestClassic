@@ -209,6 +209,7 @@ public:
     sprite *spr(int32_t index);
 	int32_t find(sprite *spr);
     bool swap(int32_t a,int32_t b);
+    // TODO(crash): add [[nodiscard]] to this.
     bool add(sprite *s);
     // removes pointer from list but doesn't delete it
     bool remove(sprite *s);

@@ -2380,6 +2380,7 @@ void HeroClass::draw(BITMAP* dest)
 					}
 					if(!found)
 					{
+						// TODO(crash): check that .add succeeds.
 						Lwpns.add(new weapon((zfix)0,(zfix)0,(zfix)0,wBugNet,0,0,dir,itemid,getUID(),false,false,true));
 						
 						w = (weapon*)Lwpns.spr(Lwpns.Count()-1);
@@ -12533,6 +12534,7 @@ bool HeroClass::startwpn(int32_t itemid)
 					{
 						hookshot_used=true;
 						hs_switcher = sw;
+						// TODO(crash): check that .add succeeds.
 						Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wHSHandle,hookitem,
 											 hookpower*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
 						((weapon*)Lwpns.spr(Lwpns.Count()-1))->family_class = itm.family;
@@ -32512,11 +32514,10 @@ void HeroClass::setDivineProtectionShieldClk(int32_t newclk)
     
     if(decorations.idCount(dDIVINEPROTECTIONSHIELD)==0)
     {
-        decoration *dec;
+        // TODO(crash): check that .add succeeds.
         decorations.add(new dDivineProtectionShield(HeroX(), HeroY(), dDIVINEPROTECTIONSHIELD, 0));
         decorations.spr(decorations.Count()-1)->misc=0;
         decorations.add(new dDivineProtectionShield(HeroX(), HeroY(), dDIVINEPROTECTIONSHIELD, 0));
-        dec=(decoration *)decorations.spr(decorations.Count()-1);
         decorations.spr(decorations.Count()-1)->misc=1;
     }
 }

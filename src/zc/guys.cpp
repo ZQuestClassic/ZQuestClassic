@@ -1872,6 +1872,8 @@ void enemy::FireWeapon()
 		yoff += (hit_height/2)-8;   
 		//Z_scripterrlog("width flag enabled. yoff = %d\n", yoff);
 	}
+
+	// TODO(crash): check that .add succeeds.
 		
 	switch(dmisc1)
 	{
@@ -2377,6 +2379,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 						*power = 0; 
 						gleeok = new eGleeok(x,y,new_id,guysbuf[new_id&0xFFF].misc1);
 						guys.add(gleeok);
+						// TODO(crash): check that .add succeeds.
 						((enemy*)guys.spr(guys.Count()-1))->hclk = delay_timer;
 						//((enemy*)guys.spr(guys.Count()-1))->stunclk = delay_timer;
 						new_id &= 0xFFF;
@@ -2403,9 +2406,6 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 							}
 							
 							c-=guysbuf[new_id].misc4;
-							//gleeok->x = x;
-							//gleeok->y = y;
-							//gleeok = e;
 						}
 						return 1;
 					}
@@ -2854,7 +2854,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 				}
 				
 				
-			
+			// TODO(crash): check that the above .add succeeded.
 			((enemy*)guys.spr(guys.Count()-1))->count_enemy = true;
 			((enemy*)guys.spr(guys.Count()-1))->stunclk = delay_timer;
 			((enemy*)guys.spr(guys.Count()-1))->dir = this->dir;
@@ -16859,6 +16859,7 @@ void ePatra::FirePatraWeapon()
 		//Z_scripterrlog("width flag enabled. yoff = %d\n", yoff);
 	}
 	sfx(wpnsfx(wpn),pan(int32_t(x)));
+	// TODO(crash): check that .add succeeds.
 	switch (dmisc28)
 	{
 		case patrat8SHOT: //Fire Wizzrobe
