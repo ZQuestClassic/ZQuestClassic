@@ -21967,7 +21967,7 @@ void HeroClass::checkchest(int32_t type)
 		if(cmb->type==type && !(cmb->triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx2,by2,1, -1))
 		{
 			found = MAPCOMBO(bx2,by2);
-			for (int32_t i = 0; i <= 6; ++i)
+			for (int32_t i = 0; i < 6; ++i)
 			{
 				if(tmpscr2[i].valid!=0)
 				{
