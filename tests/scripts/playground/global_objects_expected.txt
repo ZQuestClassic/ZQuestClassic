@@ -18,8 +18,8 @@ stdout:
   "diagnostics": [],
   "metadata": {
     "currentFileSymbols": 11,
-    "symbols": 18,
-    "identifiers": 79,
+    "symbols": 17,
+    "identifiers": 78,
     "elided": true
   }
 }
@@ -79,10 +79,10 @@ PUSHR D2
 POP D0
 READPODARRAYV D2 0; InlineFunc[void GlobalObject(untyped)] Params End
 ZCLASS_GLOBALIZE D2; InlineFunc[void GlobalObject(untyped)] Body
-PUSHV 256; InlineFunc[bitmap Game::CreateBitmap(int, int)] Params Start
-SETV D1 256; InlineFunc[bitmap Game::CreateBitmap(int, int)] Params End
-POP D0; InlineFunc[bitmap Game::CreateBitmap(int, int)] Body Start
-SETR D2 CREATEBITMAP; InlineFunc[bitmap Game::CreateBitmap(int, int)] Body End
+PUSHV 256; InlineFunc[bitmap bitmap::bitmap(int, int)] Params Start
+SETV D1 256; InlineFunc[bitmap bitmap::bitmap(int, int)] Params End
+POP D0; InlineFunc[bitmap bitmap::bitmap(int, int)] Body Start
+SETR D2 CREATEBITMAP; InlineFunc[bitmap bitmap::bitmap(int, int)] Body End
 PUSHR D2
 SETR D2 GD1
 SETR D3 D2

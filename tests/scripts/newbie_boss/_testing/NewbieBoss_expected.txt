@@ -597,6 +597,15 @@ NewbieBoss.z Line 3296 @ Columns 3-22 - Warning S108: Arrays should be explicitl
         ^~~~~~~~~~~~~~~~~~~
 
 
+NewbieBoss.z Line 3237 @ Columns 3-18 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+3235    }
+3236    void EZB_CreateDeathExplosion(int x, int y){
+3237        Game->PlaySound(SFX_BOMB);
+            ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
 NewbieBoss.z Line 3080 @ Columns 47-61 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
 
 3078    if(state==0){
@@ -1277,6 +1286,15 @@ NewbieBoss.z Line 3492 @ Columns 7-17 - Warning S108: Arrays should be explicitl
                ^~~~~~~~~~
 
 
+NewbieBoss.z Line 3530 @ Columns 3-18 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+3528    }
+3529    void EZB_SetLaserArray(int arr, int count, int index, int x, int y, int scale, int angle, int chargeTime, int upTime, int damage){
+3530        Game->PlaySound(SFX_EZB_LASERCHARGE);
+            ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
 NewbieBoss.z Line 3531 @ Columns 3-13 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
 
 3529    void EZB_SetLaserArray(int arr, int count, int index, int x, int y, int scale, int angle, int chargeTime, int upTime, int damage){
@@ -1373,6 +1391,15 @@ NewbieBoss.z Line 2776 @ Columns 15-31 - Warning S108: Arrays should be explicit
                     ^~~~~~~~~~~~~~~~
 
 
+NewbieBoss.z Line 2784 @ Columns 3-18 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+2782    h = Clamp(h, 1, 4);
+2783    
+2784    Game->PlaySound(SFX_EZB_TELEPORT);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
 NewbieBoss.z Line 2648 @ Columns 15-31 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
 
 2646        return;
@@ -1469,6 +1496,15 @@ NewbieBoss.z Line 3512 @ Columns 25-39 - Warning S108: Arrays should be explicit
                            ^~~~~~~~~~~~~~
 
 
+NewbieBoss.z Line 3513 @ Columns 7-22 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+3511    ++arr[count*7+i];
+3512    if(arr[count*7+i]>=arr[count*4+i]){
+3513        Game->PlaySound(SFX_EZB_LASER);
+            ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
 NewbieBoss.z Line 3514 @ Columns 7-21 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
 
 3512    if(arr[count*7+i]>=arr[count*4+i]){
@@ -1693,6 +1729,870 @@ NewbieBoss.z Line 3742 @ Columns 5-24 - Warning S108: Arrays should be explicitl
         ^~~~~~~~~~~~~~~~~~~
 
 
+NewbieBoss.z Line 356 @ Columns 5-20 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+354    else
+355        stepAngle = WrapDegrees(Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY())+Rand(-ghost->Homing, ghost->Homing));
+356    Game->PlaySound(SFX_JUMP);
+       ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 388 @ Columns 5-20 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+386    else if(movementStyle==9){ //Rapid hop
+387        stepAngle = WrapDegrees(Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY())+Rand(-ghost->Haltrate, ghost->Haltrate));
+388        Game->PlaySound(SFX_JUMP);
+           ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 688 @ Columns 11-26 - Warning S094: Function 'screendata::NumNPCs()' is deprecated, and should not be used.
+
+686    }
+687    else if(constantAttack==46){ //Summon
+688        if ( Screen->NumNPCs() < EZB_TOTAL_SUMMON_CAP && EZB_NumSummons(summons) < EZB_SUMMON_CAP ) {
+                ^~~~~~~~~~~~~~~
+
+
+INFO: Use [NumNPCs] instead!
+NewbieBoss.z Line 689 @ Columns 7-22 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+687    else if(constantAttack==46){ //Summon
+688        if ( Screen->NumNPCs() < EZB_TOTAL_SUMMON_CAP && EZB_NumSummons(summons) < EZB_SUMMON_CAP ) {
+689            Game->PlaySound(SFX_EZB_SUMMON);
+               ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 737 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+735    k = 2;
+736    Ghost_Data = combo;
+737    Game->PlaySound(SFX_EZB_DASH);
+       ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 880 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+878    EZB_FiringAnim(this, ghost, vars, 0);
+879    angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+880    Game->PlaySound(SFX_EZB_LASERCHARGE);
+       ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 885 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+883        EZB_Waitframe(this, ghost, vars);
+884    }
+885    Game->PlaySound(SFX_EZB_LASER);
+       ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 895 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+893    EZB_FaceLink(this, ghost, vars);
+894    EZB_FiringAnim(this, ghost, vars, 2);
+895    Game->PlaySound(SFX_EZB_LASERCHARGE);
+       ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 900 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+898        EZB_Waitframe(this, ghost, vars);
+899    }
+900    Game->PlaySound(SFX_EZB_LASER);
+       ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 911 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+909    angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+910    k = (w*8+h*8)/2;
+911    Game->PlaySound(SFX_EZB_LASERCHARGE);
+       ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 921 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+919        EZB_Waitframe(this, ghost, vars);
+920    }
+921    Game->PlaySound(SFX_EZB_LASER);
+       ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 937 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+935    k = Choose(-1, 1);
+936    angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY())+45;
+937    Game->PlaySound(SFX_EZB_LASERCHARGE);
+       ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 948 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+946        EZB_Waitframe(this, ghost, vars);
+947    }
+948    Game->PlaySound(SFX_EZB_LASER);
+       ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 982 @ Columns 11-26 - Warning S094: Function 'screendata::NumNPCs()' is deprecated, and should not be used.
+
+980    }
+981    if(attack==19){ //Summon 1 Enemy
+982        if ( Screen->NumNPCs() < EZB_TOTAL_SUMMON_CAP && EZB_NumSummons(summons) < EZB_SUMMON_CAP ) {
+                ^~~~~~~~~~~~~~~
+
+
+INFO: Use [NumNPCs] instead!
+NewbieBoss.z Line 984 @ Columns 7-22 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+982    if ( Screen->NumNPCs() < EZB_TOTAL_SUMMON_CAP && EZB_NumSummons(summons) < EZB_SUMMON_CAP ) {
+983        EZB_FiringAnim(this, ghost, vars, 0);
+984        Game->PlaySound(SFX_EZB_SUMMON);
+           ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 991 @ Columns 11-26 - Warning S094: Function 'screendata::NumNPCs()' is deprecated, and should not be used.
+
+989    }
+990    if(attack==20){ //Summon 2 Enemies
+991        if ( Screen->NumNPCs() < EZB_TOTAL_SUMMON_CAP && EZB_NumSummons(summons) < EZB_SUMMON_CAP ) {
+                ^~~~~~~~~~~~~~~
+
+
+INFO: Use [NumNPCs] instead!
+NewbieBoss.z Line 993 @ Columns 7-22 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+991    if ( Screen->NumNPCs() < EZB_TOTAL_SUMMON_CAP && EZB_NumSummons(summons) < EZB_SUMMON_CAP ) {
+992        EZB_FiringAnim(this, ghost, vars, 0);
+993        Game->PlaySound(SFX_EZB_SUMMON);
+           ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 1002 @ Columns 11-26 - Warning S094: Function 'screendata::NumNPCs()' is deprecated, and should not be used.
+
+1000    }
+1001    if(attack==21){ //Summon 3 Enemies
+1002        if ( Screen->NumNPCs() < EZB_TOTAL_SUMMON_CAP && EZB_NumSummons(summons) < EZB_SUMMON_CAP ) {
+                 ^~~~~~~~~~~~~~~
+
+
+INFO: Use [NumNPCs] instead!
+NewbieBoss.z Line 1004 @ Columns 7-22 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+1002    if ( Screen->NumNPCs() < EZB_TOTAL_SUMMON_CAP && EZB_NumSummons(summons) < EZB_SUMMON_CAP ) {
+1003        EZB_FiringAnim(this, ghost, vars, 0);
+1004        Game->PlaySound(SFX_EZB_SUMMON);
+            ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 1083 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+1081    EZB_FiringAnim(this, ghost, vars, 2);
+1082    k = Rand(8, 152);
+1083    Game->PlaySound(SFX_EZB_LASERCHARGE);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 1089 @ Columns 7-22 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+1087    }
+1088    for(j=0; j<8; ++j){
+1089        Game->PlaySound(SFX_EZB_LASER);
+            ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 1101 @ Columns 10-25 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+1099    if(j<7){ //dont show the last laser
+1100        if(i==0)
+1101            Game->PlaySound(SFX_EZB_LASERCHARGE);
+                ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 1112 @ Columns 7-22 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+1110    k = 0;
+1111    while(true){
+1112        Game->PlaySound(SFX_EZB_LASERCHARGE);
+            ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 1119 @ Columns 7-22 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+1117        EZB_Waitframe(this, ghost, vars);
+1118    }
+1119    Game->PlaySound(SFX_EZB_LASER);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 1149 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+1147    k = 1;
+1148    Ghost_Data = combo;
+1149    Game->PlaySound(SFX_EZB_DASH);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 1163 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+1161    angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+1162    k = 2;
+1163    Game->PlaySound(SFX_EZB_DASH);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 1188 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+1186    angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+1187    k = 2;
+1188    Game->PlaySound(SFX_EZB_DASH);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 1202 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+1200    EZB_FaceLink(this, ghost, vars);
+1201    k = 2;
+1202    Game->PlaySound(SFX_EZB_DASH);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 1222 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+1220    angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+1221    EZB_FaceAngle(this, ghost, vars, angle);
+1222    Game->PlaySound(SFX_JUMP);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 1246 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+1244    angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+1245    EZB_FaceAngle(this, ghost, vars, angle);
+1246    Game->PlaySound(SFX_JUMP);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 1269 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+1267    EZB_FaceAngle(this, ghost, vars, angle);
+1268    
+1269    Game->PlaySound(SFX_JUMP);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 1282 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+1280    angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+1281    
+1282    Game->PlaySound(SFX_JUMP);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 1302 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+1300        EZB_Waitframe(this, ghost, vars);
+1301    }
+1302    Game->PlaySound(SFX_EZB_SHOCKWAVE);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 1315 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+1313    
+1314    Ghost_Data = combo;
+1315    Game->PlaySound(SFX_JUMP);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 1335 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+1333        EZB_Waitframe(this, ghost, vars);
+1334    }
+1335    Game->PlaySound(SFX_FALL);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 1345 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+1343        EZB_Waitframe(this, ghost, vars);
+1344    }
+1345    Game->PlaySound(SFX_EZB_SHAKE);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 1347 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+1345    Game->PlaySound(SFX_EZB_SHAKE);
+1346    Screen->Quake = 20;
+1347    Game->PlaySound(SFX_EZB_SHOCKWAVE);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 1359 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+1357    
+1358    Ghost_Data = combo;
+1359    Game->PlaySound(SFX_JUMP);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 1379 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+1377        EZB_Waitframe(this, ghost, vars);
+1378    }
+1379    Game->PlaySound(SFX_FALL);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 1389 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+1387        EZB_Waitframe(this, ghost, vars);
+1388    }
+1389    Game->PlaySound(SFX_EZB_SHAKE);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 1404 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+1402    
+1403    Ghost_Data = combo;
+1404    Game->PlaySound(SFX_JUMP);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 1424 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+1422        EZB_Waitframe(this, ghost, vars);
+1423    }
+1424    Game->PlaySound(SFX_FALL);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 1434 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+1432        EZB_Waitframe(this, ghost, vars);
+1433    }
+1434    Game->PlaySound(SFX_EZB_SHAKE);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 1437 @ Columns 21-36 - Warning S094: Function 'screendata::NumNPCs()' is deprecated, and should not be used.
+
+1435    Screen->Quake = 20;
+1436    k = Rand(4, 7);
+1437    for(i=0; i<k&&(Screen->NumNPCs() < EZB_TOTAL_SUMMON_CAP && EZB_NumSummons(summons) < EZB_SUMMON_CAP); ++i){
+                       ^~~~~~~~~~~~~~~
+
+
+INFO: Use [NumNPCs] instead!
+NewbieBoss.z Line 1445 @ Columns 7-22 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+1443            j = m-176;
+1444    }
+1445    Game->PlaySound(SFX_FALL);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 1473 @ Columns 7-22 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+1471    k = 3;
+1472    Ghost_Data = combo;
+1473    Game->PlaySound(SFX_EZB_BACKSTEP);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 1490 @ Columns 7-22 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+1488    k = 2;
+1489    Ghost_Data = combo;
+1490    Game->PlaySound(SFX_EZB_DASH);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 1508 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+1506    EZB_FaceLink(this, ghost, vars);
+1507    EZB_FiringAnim(this, ghost, vars, 2);
+1508    Game->PlaySound(SFX_EZB_LASERCHARGE);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 1513 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+1511        EZB_Waitframe(this, ghost, vars);
+1512    }
+1513    Game->PlaySound(SFX_EZB_LASER);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 1535 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+1533    Ghost_Jump = 4;
+1534    Ghost_Data = combo;
+1535    Game->PlaySound(SFX_JUMP);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 1557 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+1555        EZB_Waitframe(this, ghost, vars);
+1556    }
+1557    Game->PlaySound(SFX_FALL);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 1568 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+1566        EZB_Waitframe(this, ghost, vars);
+1567    }
+1568    Game->PlaySound(SFX_EZB_SHAKE);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 1570 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+1568    Game->PlaySound(SFX_EZB_SHAKE);
+1569    Screen->Quake = 4;
+1570    Game->PlaySound(SFX_EZB_SHOCKWAVE);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 1583 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+1581    Ghost_Jump = 4;
+1582    Ghost_Data = combo;
+1583    Game->PlaySound(SFX_JUMP);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 1605 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+1603        EZB_Waitframe(this, ghost, vars);
+1604    }
+1605    Game->PlaySound(SFX_FALL);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 1616 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+1614        EZB_Waitframe(this, ghost, vars);
+1615    }
+1616    Game->PlaySound(SFX_EZB_SHAKE);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 1632 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+1630    Ghost_Jump = 4;
+1631    Ghost_Data = combo;
+1632    Game->PlaySound(SFX_JUMP);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 1654 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+1652        EZB_Waitframe(this, ghost, vars);
+1653    }
+1654    Game->PlaySound(SFX_FALL);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 1665 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+1663        EZB_Waitframe(this, ghost, vars);
+1664    }
+1665    Game->PlaySound(SFX_EZB_SHAKE);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 1668 @ Columns 21-36 - Warning S094: Function 'screendata::NumNPCs()' is deprecated, and should not be used.
+
+1666    Screen->Quake = 4;
+1667    k = Rand(2, 3);
+1668    for(i=0; i<k&&(Screen->NumNPCs() < EZB_TOTAL_SUMMON_CAP && EZB_NumSummons(summons) < EZB_SUMMON_CAP); ++i){
+                       ^~~~~~~~~~~~~~~
+
+
+INFO: Use [NumNPCs] instead!
+NewbieBoss.z Line 1676 @ Columns 7-22 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+1674            j = m-176;
+1675    }
+1676    Game->PlaySound(SFX_FALL);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 1889 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+1887    x = -32+Rand(-32, 32);
+1888    y = -32+Rand(-32, 32);
+1889    Game->PlaySound(SFX_EZB_LASERCHARGE);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 1904 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+1902        EZB_Waitframe(this, ghost, vars);
+1903    }
+1904    Game->PlaySound(SFX_EZB_LASER);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 1961 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+1959        y = Link->Y;
+1960    }
+1961    Game->PlaySound(SFX_EZB_LASERCHARGE);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 1982 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+1980        y = Link->Y;
+1981    }
+1982    Game->PlaySound(SFX_EZB_LASER);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 2043 @ Columns 7-22 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+2041    Ghost_X = x-ghost->TileWidth*8;
+2042    Ghost_Y = y-ghost->TileHeight*8;
+2043    Game->PlaySound(SFX_EZB_DASH);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 2058 @ Columns 7-22 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+2056    if(CenterX(ghost)<0||CenterX(ghost)>255||CenterY(ghost)<0||CenterY(ghost)>175)
+2057        break;
+2058    Game->PlaySound(SFX_EZB_SHAKE);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 2069 @ Columns 7-22 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+2067    angle = Angle(CenterX(ghost), CenterY(ghost), Link->X+8, Link->Y+8);
+2068    if(fireSFX)
+2069        Game->PlaySound(fireSFX);
+            ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 2078 @ Columns 7-22 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+2076    angle = Angle(CenterX(ghost), CenterY(ghost), Link->X+8, Link->Y+8);
+2077    if(fireSFX)
+2078        Game->PlaySound(fireSFX);
+            ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 2089 @ Columns 7-22 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+2087    angle = Angle(CenterX(ghost), CenterY(ghost), Link->X+8, Link->Y+8);
+2088    if(fireSFX)
+2089        Game->PlaySound(fireSFX);
+            ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 2109 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+2107    }
+2108    EZB_FiringAnim(this, ghost, vars, 1);
+2109    Game->PlaySound(SFX_EZB_LIGHTNING);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 2122 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+2120    angle = EZB_DirAngle(Ghost_Dir);
+2121    EZB_FiringAnim(this, ghost, vars, 1);
+2122    Game->PlaySound(SFX_EZB_LIGHTNING);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 2140 @ Columns 8-23 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+2138    
+2139    if(i%10==0){
+2140        Game->PlaySound(SFX_EZB_LIGHTNING);
+            ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 2152 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+2150    angle = EZB_DirAngle(Ghost_Dir);
+2151    
+2152    Game->PlaySound(SFX_EZB_SWORD);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 2170 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+2168    angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+2169    
+2170    Game->PlaySound(SFX_EZB_SWORD);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 2194 @ Columns 7-22 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+2192    m = -1;
+2193    for(j=0; j<3; ++j){
+2194        Game->PlaySound(SFX_EZB_SWORD);
+            ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 2221 @ Columns 7-22 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+2219    
+2220    for(j=0; j<5; ++j){
+2221        Game->PlaySound(SFX_EZB_SWORD);
+            ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 2239 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+2237    angle = EZB_DirAngle(Ghost_Dir);
+2238    
+2239    Game->PlaySound(SFX_EZB_SWORD);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 2252 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+2250        EZB_Waitframe(this, ghost, vars);
+2251    }
+2252    Game->PlaySound(SFX_EZB_SWORDCHARGE);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 2259 @ Columns 8-23 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+2257    for(i=0; i<18*8; ++i){
+2258        if(i%18==0)
+2259            Game->PlaySound(SFX_EZB_SWORDSPIN);
+                ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 2278 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+2276    angle = Angle(CenterX(ghost), CenterY(ghost), CenterLinkX(), CenterLinkY());
+2277    
+2278    Game->PlaySound(SFX_EZB_SWORD);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 2283 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+2281    arr1[2] = arr1[0]-arr1[1]; //Additional reach of sword
+2282    
+2283    Game->PlaySound(SFX_EZB_SWORD);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 2297 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+2295        EZB_Waitframe(this, ghost, vars);
+2296    }
+2297    Game->PlaySound(SFX_EZB_SWORD);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 2316 @ Columns 7-22 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+2314    
+2315    for(j=0; j<10; ++j){
+2316        Game->PlaySound(SFX_EZB_SWORD);
+            ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 2332 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+2330    angle = EZB_DirAngle(Ghost_Dir);
+2331    
+2332    Game->PlaySound(SFX_EZB_SWORD);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 2345 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+2343        EZB_Waitframe(this, ghost, vars);
+2344    }
+2345    Game->PlaySound(SFX_EZB_SWORDCHARGE);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 2352 @ Columns 8-23 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+2350    for(i=0; i<18*6; ++i){
+2351        if(i%18==0)
+2352            Game->PlaySound(SFX_EZB_SWORDSPIN);
+                ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 2367 @ Columns 6-21 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+2365        EZB_Waitframe(this, ghost, vars);
+2366    }
+2367    Game->PlaySound(SFX_EZB_SHAKE);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 2380 @ Columns 8-23 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+2378    for(i=0; i<36; ++i){
+2379        if(i==0)
+2380            Game->PlaySound(SFX_EZB_SWORDSPIN);
+                ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 2405 @ Columns 9-24 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+2403        EZB_Waitframes(this, ghost, vars, 16);
+2404    }
+2405    Game->PlaySound(SFX_EZB_BARRIERSHIFT_ONDEATH);
+        ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 2409 @ Columns 9-24 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+2407    }
+2408    else{
+2409        Game->PlaySound(SFX_EZB_BARRIERSHIFT_ONDEATH);
+            ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 2425 @ Columns 8-23 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+2423        --vars[EZBI_TRANSFORMCOOLDOWN];
+2424    else if(j){
+2425        Game->PlaySound(SFX_EZB_BARRIERSHIFT);
+            ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 2439 @ Columns 8-23 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+2437        --vars[EZBI_TRANSFORMCOOLDOWN];
+2438    else if(j){
+2439        Game->PlaySound(SFX_EZB_BARRIERSHIFT);
+            ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 3863 @ Columns 4-19 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+3861    
+3862    if(fireSFX)
+3863        Game->PlaySound(fireSFX);
+            ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 3880 @ Columns 10-25 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+3878    for(j=0; j<3; ++j){
+3879        if(fireSFX)
+3880            Game->PlaySound(fireSFX);
+                ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+NewbieBoss.z Line 3891 @ Columns 10-25 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+3889    for(j=0; j<4; ++j){
+3890        if(fireSFX)
+3891            Game->PlaySound(fireSFX);
+                ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
 NewbieBoss.z Line 3999 @ Columns 4-20 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
 
 3997    tmpX = x+VectorX(dist, angle)+VectorX(dist2, angle+90)+VectorX(randOff, angle+90+angleSkew);
@@ -2853,6 +3753,20 @@ stdout:
       },
       "severity": 2,
       "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3236,
+          "character": 2
+        },
+        "end": {
+          "line": 3236,
+          "character": 17
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
     },
     {
       "range": {
@@ -4047,6 +4961,20 @@ stdout:
     {
       "range": {
         "start": {
+          "line": 3529,
+          "character": 2
+        },
+        "end": {
+          "line": 3529,
+          "character": 17
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
           "line": 3530,
           "character": 2
         },
@@ -4215,6 +5143,20 @@ stdout:
     {
       "range": {
         "start": {
+          "line": 2783,
+          "character": 2
+        },
+        "end": {
+          "line": 2783,
+          "character": 17
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
           "line": 2647,
           "character": 14
         },
@@ -4379,6 +5321,20 @@ stdout:
       },
       "severity": 2,
       "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3512,
+          "character": 6
+        },
+        "end": {
+          "line": 3512,
+          "character": 21
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
     },
     {
       "range": {
@@ -4771,6 +5727,1350 @@ stdout:
       },
       "severity": 2,
       "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 355,
+          "character": 4
+        },
+        "end": {
+          "line": 355,
+          "character": 19
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 387,
+          "character": 4
+        },
+        "end": {
+          "line": 387,
+          "character": 19
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 687,
+          "character": 10
+        },
+        "end": {
+          "line": 687,
+          "character": 25
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'screendata::NumNPCs()' is deprecated, and should not be used.\nUse [NumNPCs] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 688,
+          "character": 6
+        },
+        "end": {
+          "line": 688,
+          "character": 21
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 736,
+          "character": 5
+        },
+        "end": {
+          "line": 736,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 879,
+          "character": 5
+        },
+        "end": {
+          "line": 879,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 884,
+          "character": 5
+        },
+        "end": {
+          "line": 884,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 894,
+          "character": 5
+        },
+        "end": {
+          "line": 894,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 899,
+          "character": 5
+        },
+        "end": {
+          "line": 899,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 910,
+          "character": 5
+        },
+        "end": {
+          "line": 910,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 920,
+          "character": 5
+        },
+        "end": {
+          "line": 920,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 936,
+          "character": 5
+        },
+        "end": {
+          "line": 936,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 947,
+          "character": 5
+        },
+        "end": {
+          "line": 947,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 981,
+          "character": 10
+        },
+        "end": {
+          "line": 981,
+          "character": 25
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'screendata::NumNPCs()' is deprecated, and should not be used.\nUse [NumNPCs] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 983,
+          "character": 6
+        },
+        "end": {
+          "line": 983,
+          "character": 21
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 990,
+          "character": 10
+        },
+        "end": {
+          "line": 990,
+          "character": 25
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'screendata::NumNPCs()' is deprecated, and should not be used.\nUse [NumNPCs] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 992,
+          "character": 6
+        },
+        "end": {
+          "line": 992,
+          "character": 21
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 1001,
+          "character": 10
+        },
+        "end": {
+          "line": 1001,
+          "character": 25
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'screendata::NumNPCs()' is deprecated, and should not be used.\nUse [NumNPCs] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 1003,
+          "character": 6
+        },
+        "end": {
+          "line": 1003,
+          "character": 21
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 1082,
+          "character": 5
+        },
+        "end": {
+          "line": 1082,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 1088,
+          "character": 6
+        },
+        "end": {
+          "line": 1088,
+          "character": 21
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 1100,
+          "character": 9
+        },
+        "end": {
+          "line": 1100,
+          "character": 24
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 1111,
+          "character": 6
+        },
+        "end": {
+          "line": 1111,
+          "character": 21
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 1118,
+          "character": 6
+        },
+        "end": {
+          "line": 1118,
+          "character": 21
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 1148,
+          "character": 5
+        },
+        "end": {
+          "line": 1148,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 1162,
+          "character": 5
+        },
+        "end": {
+          "line": 1162,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 1187,
+          "character": 5
+        },
+        "end": {
+          "line": 1187,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 1201,
+          "character": 5
+        },
+        "end": {
+          "line": 1201,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 1221,
+          "character": 5
+        },
+        "end": {
+          "line": 1221,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 1245,
+          "character": 5
+        },
+        "end": {
+          "line": 1245,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 1268,
+          "character": 5
+        },
+        "end": {
+          "line": 1268,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 1281,
+          "character": 5
+        },
+        "end": {
+          "line": 1281,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 1301,
+          "character": 5
+        },
+        "end": {
+          "line": 1301,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 1314,
+          "character": 5
+        },
+        "end": {
+          "line": 1314,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 1334,
+          "character": 5
+        },
+        "end": {
+          "line": 1334,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 1344,
+          "character": 5
+        },
+        "end": {
+          "line": 1344,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 1346,
+          "character": 5
+        },
+        "end": {
+          "line": 1346,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 1358,
+          "character": 5
+        },
+        "end": {
+          "line": 1358,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 1378,
+          "character": 5
+        },
+        "end": {
+          "line": 1378,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 1388,
+          "character": 5
+        },
+        "end": {
+          "line": 1388,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 1403,
+          "character": 5
+        },
+        "end": {
+          "line": 1403,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 1423,
+          "character": 5
+        },
+        "end": {
+          "line": 1423,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 1433,
+          "character": 5
+        },
+        "end": {
+          "line": 1433,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 1436,
+          "character": 20
+        },
+        "end": {
+          "line": 1436,
+          "character": 35
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'screendata::NumNPCs()' is deprecated, and should not be used.\nUse [NumNPCs] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 1444,
+          "character": 6
+        },
+        "end": {
+          "line": 1444,
+          "character": 21
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 1472,
+          "character": 6
+        },
+        "end": {
+          "line": 1472,
+          "character": 21
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 1489,
+          "character": 6
+        },
+        "end": {
+          "line": 1489,
+          "character": 21
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 1507,
+          "character": 5
+        },
+        "end": {
+          "line": 1507,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 1512,
+          "character": 5
+        },
+        "end": {
+          "line": 1512,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 1534,
+          "character": 5
+        },
+        "end": {
+          "line": 1534,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 1556,
+          "character": 5
+        },
+        "end": {
+          "line": 1556,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 1567,
+          "character": 5
+        },
+        "end": {
+          "line": 1567,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 1569,
+          "character": 5
+        },
+        "end": {
+          "line": 1569,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 1582,
+          "character": 5
+        },
+        "end": {
+          "line": 1582,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 1604,
+          "character": 5
+        },
+        "end": {
+          "line": 1604,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 1615,
+          "character": 5
+        },
+        "end": {
+          "line": 1615,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 1631,
+          "character": 5
+        },
+        "end": {
+          "line": 1631,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 1653,
+          "character": 5
+        },
+        "end": {
+          "line": 1653,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 1664,
+          "character": 5
+        },
+        "end": {
+          "line": 1664,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 1667,
+          "character": 20
+        },
+        "end": {
+          "line": 1667,
+          "character": 35
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'screendata::NumNPCs()' is deprecated, and should not be used.\nUse [NumNPCs] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 1675,
+          "character": 6
+        },
+        "end": {
+          "line": 1675,
+          "character": 21
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 1888,
+          "character": 5
+        },
+        "end": {
+          "line": 1888,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 1903,
+          "character": 5
+        },
+        "end": {
+          "line": 1903,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 1960,
+          "character": 5
+        },
+        "end": {
+          "line": 1960,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 1981,
+          "character": 5
+        },
+        "end": {
+          "line": 1981,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 2042,
+          "character": 6
+        },
+        "end": {
+          "line": 2042,
+          "character": 21
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 2057,
+          "character": 6
+        },
+        "end": {
+          "line": 2057,
+          "character": 21
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 2068,
+          "character": 6
+        },
+        "end": {
+          "line": 2068,
+          "character": 21
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 2077,
+          "character": 6
+        },
+        "end": {
+          "line": 2077,
+          "character": 21
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 2088,
+          "character": 6
+        },
+        "end": {
+          "line": 2088,
+          "character": 21
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 2108,
+          "character": 5
+        },
+        "end": {
+          "line": 2108,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 2121,
+          "character": 5
+        },
+        "end": {
+          "line": 2121,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 2139,
+          "character": 7
+        },
+        "end": {
+          "line": 2139,
+          "character": 22
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 2151,
+          "character": 5
+        },
+        "end": {
+          "line": 2151,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 2169,
+          "character": 5
+        },
+        "end": {
+          "line": 2169,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 2193,
+          "character": 6
+        },
+        "end": {
+          "line": 2193,
+          "character": 21
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 2220,
+          "character": 6
+        },
+        "end": {
+          "line": 2220,
+          "character": 21
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 2238,
+          "character": 5
+        },
+        "end": {
+          "line": 2238,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 2251,
+          "character": 5
+        },
+        "end": {
+          "line": 2251,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 2258,
+          "character": 7
+        },
+        "end": {
+          "line": 2258,
+          "character": 22
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 2277,
+          "character": 5
+        },
+        "end": {
+          "line": 2277,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 2282,
+          "character": 5
+        },
+        "end": {
+          "line": 2282,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 2296,
+          "character": 5
+        },
+        "end": {
+          "line": 2296,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 2315,
+          "character": 6
+        },
+        "end": {
+          "line": 2315,
+          "character": 21
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 2331,
+          "character": 5
+        },
+        "end": {
+          "line": 2331,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 2344,
+          "character": 5
+        },
+        "end": {
+          "line": 2344,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 2351,
+          "character": 7
+        },
+        "end": {
+          "line": 2351,
+          "character": 22
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 2366,
+          "character": 5
+        },
+        "end": {
+          "line": 2366,
+          "character": 20
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 2379,
+          "character": 7
+        },
+        "end": {
+          "line": 2379,
+          "character": 22
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 2404,
+          "character": 8
+        },
+        "end": {
+          "line": 2404,
+          "character": 23
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 2408,
+          "character": 8
+        },
+        "end": {
+          "line": 2408,
+          "character": 23
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 2424,
+          "character": 7
+        },
+        "end": {
+          "line": 2424,
+          "character": 22
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 2438,
+          "character": 7
+        },
+        "end": {
+          "line": 2438,
+          "character": 22
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3862,
+          "character": 3
+        },
+        "end": {
+          "line": 3862,
+          "character": 18
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3879,
+          "character": 9
+        },
+        "end": {
+          "line": 3879,
+          "character": 24
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 3890,
+          "character": 9
+        },
+        "end": {
+          "line": 3890,
+          "character": 24
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.\nUse [Audio->PlaySound] instead!"
     },
     {
       "range": {

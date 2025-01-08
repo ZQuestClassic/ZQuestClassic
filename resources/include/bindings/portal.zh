@@ -51,5 +51,5 @@ class portal {
 	//   POP D2
 	//   POP REFPORTAL
 	//   PORTALUSESPRITE D2
-	internal void UseSprite(int arg1);
+	internal void UseSprite(int sprite_id);
 }

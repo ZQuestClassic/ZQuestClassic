@@ -559,7 +559,7 @@ generic script garbage_collection
 			internal_bmp_2 = NULL;
 			checkCountWithGC(0);
 
-			internal_bmp_1 = Game->CreateBitmap();
+			internal_bmp_1 = new bitmap();
 			check("RefCount(internal_bmp_1)", RefCount(internal_bmp_1), 2L);
 			yield();
 		}

@@ -151,6 +151,78 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
+00026-deku-leaf/script.zs Line 43 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+41    while(true){
+42        if(Link->Z == 0){
+43            if(!HitGround) Game->PlaySound(SFX_LAND);
+                             ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+00026-deku-leaf/script.zs Line 61 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+59    else if(Link->Action != LA_SCROLLING){
+60        looptimer = (looptimer + 1) % DEKU_LOOP;
+61        if(looptimer == 0) Game->PlaySound(SFX_GLIDE);
+                             ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+00026-deku-leaf/script.zs Line 109 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+107    Link_Z = Link->Z;
+108    Link->Item[I_DEKULEAF_LTM] = true;
+109    Game->PlaySound(SFX_GLIDE);
+       ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+00026-deku-leaf/script.zs Line 131 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+129    gust->Dir = Link->Dir;
+130    //Play the firing sound.
+131    Game->PlaySound(sound);
+       ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+00026-deku-leaf/script.zs Line 157 - Warning S094: Function 'screendata::NumNPCs()' is deprecated, and should not be used.
+
+155    //Otherwise check for collision with npcs.
+156    else if(DEKU_SPIN_NPCS){
+157        for(int i = Screen->NumNPCs(); i > 0; i--){
+                       ^~~~~~~~~~~~~~~
+
+
+INFO: Use [NumNPCs] instead!
+00026-deku-leaf/script.zs Line 169 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+167    Link->HitHeight = 16;
+168    //If spinning something play the sucked in sound
+169    if(spinning) Game->PlaySound(SFX_WIND1);
+                    ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+00026-deku-leaf/script.zs Line 187 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+185    if(spins == DEKU_GROUND_SPINS){
+186        target->Jump = DEKU_SPIN_JUMP;
+187        Game->PlaySound(SFX_WIND2);
+           ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+00026-deku-leaf/script.zs Line 212 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+210    if(spins == DEKU_GROUND_SPINS){
+211        Link->Jump = DEKU_SPIN_JUMP;
+212        Game->PlaySound(SFX_WIND2);
+           ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
 Pass 5: Checking code paths
 Pass 6: Generating object code
 00026-deku-leaf/script.zs Line 60 - Error T019: Attempting to divide by 0.
@@ -184,6 +256,15 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
+00055-enemy-stun-and-death-animations/script.zs Line 15 - Warning S094: Function 'screendata::NumNPCs()' is deprecated, and should not be used.
+
+13    
+14    void deathAnimations(){
+15        for(int i = Screen->NumNPCs(); i > 0; i--){
+                      ^~~~~~~~~~~~~~~
+
+
+INFO: Use [NumNPCs] instead!
 00055-enemy-stun-and-death-animations/script.zs Line 23 - Error S009: Variable FLIP_NO has not been declared.
 
 21    }
@@ -337,6 +418,42 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
+00156-jump-drown-spawn/merge jumppit.z Line 73 - Warning S094: Function 'Game::GetCurDMap()' is deprecated, and should not be used.
+
+71           Link->Dir = dir;
+72    
+73           if(Game->GetCurDMap()!=dmap || Game->GetCurDMapScreen()!=scr){
+                ^~~~~~~~~~~~~~~~
+
+
+INFO: Use [CurDMap] instead!
+00156-jump-drown-spawn/merge jumppit.z Line 73 - Warning S094: Function 'Game::GetCurDMapScreen()' is deprecated, and should not be used.
+
+71           Link->Dir = dir;
+72    
+73           if(Game->GetCurDMap()!=dmap || Game->GetCurDMapScreen()!=scr){
+                                            ^~~~~~~~~~~~~~~~~~~~~~
+
+
+INFO: Use [CurDMapScreen] instead!
+00156-jump-drown-spawn/merge jumppit.z Line 12 - Warning S094: Function 'Game::GetCurDMap()' is deprecated, and should not be used.
+
+10          // Several scripts use these same variables, only need them once.
+11    
+12          int olddmap = Game->GetCurDMap();
+                          ^~~~~~~~~~~~~~~~
+
+
+INFO: Use [CurDMap] instead!
+00156-jump-drown-spawn/merge jumppit.z Line 13 - Warning S094: Function 'Game::GetCurDMapScreen()' is deprecated, and should not be used.
+
+11    
+12          int olddmap = Game->GetCurDMap();
+13          int oldscreen = Game->GetCurDMapScreen();
+                            ^~~~~~~~~~~~~~~~~~~~~~
+
+
+INFO: Use [CurDMapScreen] instead!
 00156-jump-drown-spawn/merge jumppit.z Line 27 - Error T021: Function Update_HoleLava(int, int, int, int, int) has not been declared.
 
 25    
@@ -509,6 +626,24 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
+00188-solid-ffc/script.zs Line 30 - Warning S094: Function 'Game::GetCurScreen()' is deprecated, and should not be used.
+
+28    if(x > 0) x+=Link->X+16;
+29    else if(x < 0) x+=Link->X-1;
+30    if(x<0) return (Game->GetCurScreen()%16==0 && ScreenFlag(SF_MISC, SF_SIDEWARP));
+                      ^~~~~~~~~~~~~~~~~~
+
+
+INFO: Use [CurScreen] instead!
+00188-solid-ffc/script.zs Line 31 - Warning S094: Function 'Game::GetCurScreen()' is deprecated, and should not be used.
+
+29    else if(x < 0) x+=Link->X-1;
+30    if(x<0) return (Game->GetCurScreen()%16==0 && ScreenFlag(SF_MISC, SF_SIDEWARP));
+31    if(x>240) return (Game->GetCurScreen()%16==15 && ScreenFlag(SF_MISC,SF_SIDEWARP));
+                        ^~~~~~~~~~~~~~~~~~
+
+
+INFO: Use [CurScreen] instead!
 00188-solid-ffc/script.zs Line 58 - Error T021: Function Cond(bool, const ComboType, const int) has not been declared.
 
 56    {
@@ -1156,6 +1291,15 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
+00238-splitting-and-tribbling-enemies/script.zs Line 449 - Warning S094: Function 'screendata::NumNPCs()' is deprecated, and should not be used.
+
+447        //Format: base_enemy, replace with, number of replacements
+448    npc n[2]; int a[6]; //a 0 = q, 1 = w, 2 = e; 3 = n->X, 4  = n->Y; 5 = r
+449    for ( a[0] = 1; a[0] <= Screen->NumNPCs(); a[0]++ ) {
+                               ^~~~~~~~~~~~~~~
+
+
+INFO: Use [NumNPCs] instead!
 00238-splitting-and-tribbling-enemies/script.zs Line 458 - Error T027: The left of the -> is not a pointer type (ffc, etc).
 
 456    if ( n[0]->HP < 1 && n[0]->HP > -9999 && n[0]->X != -32768 && n[0]->Y != -32768 ) {
@@ -1172,6 +1316,15 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
+00238-splitting-and-tribbling-enemies/splitter_0.9.0.z Line 449 - Warning S094: Function 'screendata::NumNPCs()' is deprecated, and should not be used.
+
+447        //Format: base_enemy, replace with, number of replacements
+448    npc n[2]; int a[6]; //a 0 = q, 1 = w, 2 = e; 3 = n->X, 4  = n->Y; 5 = r
+449    for ( a[0] = 1; a[0] <= Screen->NumNPCs(); a[0]++ ) {
+                               ^~~~~~~~~~~~~~~
+
+
+INFO: Use [NumNPCs] instead!
 00238-splitting-and-tribbling-enemies/splitter_0.9.0.z Line 458 - Error T027: The left of the -> is not a pointer type (ffc, etc).
 
 456    if ( n[0]->HP < 1 && n[0]->HP > -9999 && n[0]->X != -32768 && n[0]->Y != -32768 ) {
@@ -2056,6 +2209,24 @@ Pass 4: Analyzing Code
                ^~~~~~~
 
 
+00310-newbie-item/script.zs Line 1063 - Warning S094: Function 'screendata::NumEWeapons()' is deprecated, and should not be used.
+
+1061    bool hit;
+1062    //Cycle through all eweapons
+1063    for(int j=Screen->NumEWeapons(); j>=1; j--){
+                  ^~~~~~~~~~~~~~~~~~~
+
+
+INFO: Use [NumEWeapons] instead!
+00310-newbie-item/script.zs Line 1068 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+1066    if(Collision(e, l)){
+1067        if(MooshItem_CanBlockEWeapon(vars, i, e)){
+1068            Game->PlaySound(SFX_MOOSHITEM_BLOCK);
+                ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
 00310-newbie-item/script.zs Line 1079 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
 
 1077    }
@@ -2144,6 +2315,24 @@ Pass 4: Analyzing Code
                ^~~~~~~~~
 
 
+00310-newbie-item/script.zs Line 715 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+713        l->Y-=8;
+714    }
+715    Game->PlaySound(sfx);
+       ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+00310-newbie-item/script.zs Line 1037 - Warning S094: Function 'screendata::NumNPCs()' is deprecated, and should not be used.
+
+1035    int minDist = 1000;
+1036    npc min;
+1037    for(int i=Screen->NumNPCs(); i>=1; i--){
+                  ^~~~~~~~~~~~~~~
+
+
+INFO: Use [NumNPCs] instead!
 00310-newbie-item/script.zs Line 1002 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
 
 1000    }
@@ -2592,6 +2781,15 @@ Pass 4: Analyzing Code
                            ^~~~~~~
 
 
+00310-newbie-item/script.zs Line 1204 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+1202    if(Game->Counter[itemdat->Counter]>mpCost){
+1203        Game->Counter[itemdat->Counter] -= mpCost;
+1204        Game->PlaySound(SFX_MOOSHITEM_HP_COST);
+            ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
 00310-newbie-item/script.zs Line 726 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
 
 724    
@@ -3120,6 +3318,15 @@ Pass 4: Analyzing Code
                                                                                         ^~~~~~~~~
 
 
+00310-newbie-item/script.zs Line 812 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+810    //If a wall was hit, update the angle
+811    if(bounce){
+812        Game->PlaySound(SFX_MOOSHITEM_WALLBOUNCE);
+           ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
 00310-newbie-item/script.zs Line 813 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
 
 811    if(bounce){
@@ -3909,6 +4116,15 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
+00332-lweapons-zh/lw_global.zs Line 19 - Warning S094: Function 'screendata::NumLWeapons()' is deprecated, and should not be used.
+
+17    
+18    void TraceLWeapons(){
+19        for(int i= Screen->NumLWeapons();i>0;i--){
+                     ^~~~~~~~~~~~~~~~~~~
+
+
+INFO: Use [NumLWeapons] instead!
 00332-lweapons-zh/lw_global.zs Line 21 - Error S009: Variable LW_ZH_I_FLAGS has not been declared.
 
 19    for(int i= Screen->NumLWeapons();i>0;i--){
@@ -4205,6 +4421,69 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
+00337-emilymisc-zh/EmilyMisc.zh Line 580 - Warning S094: Function 'Game::GetCurScreen()' is deprecated, and should not be used.
+
+578    bool CanScrollInDir(int dir) //start
+579    {
+580        if(Game->GetCurScreen() == 0x80) return dir == DIR_DOWN;
+              ^~~~~~~~~~~~~~~~~~
+
+
+INFO: Use [CurScreen] instead!
+00337-emilymisc-zh/EmilyMisc.zh Line 585 - Warning S094: Function 'Game::GetCurScreen()' is deprecated, and should not be used.
+
+583    {
+584        case DIR_UP:
+585            return Game->GetCurScreen() > 0x0F;
+                      ^~~~~~~~~~~~~~~~~~
+
+
+INFO: Use [CurScreen] instead!
+00337-emilymisc-zh/EmilyMisc.zh Line 587 - Warning S094: Function 'Game::GetCurScreen()' is deprecated, and should not be used.
+
+585        return Game->GetCurScreen() > 0x0F;
+586    case DIR_DOWN:
+587        return Game->GetCurScreen() < 0x70;
+                  ^~~~~~~~~~~~~~~~~~
+
+
+INFO: Use [CurScreen] instead!
+00337-emilymisc-zh/EmilyMisc.zh Line 589 - Warning S094: Function 'Game::GetCurScreen()' is deprecated, and should not be used.
+
+587        return Game->GetCurScreen() < 0x70;
+588    case DIR_LEFT:
+589        return Game->GetCurScreen() % 0x10;
+                  ^~~~~~~~~~~~~~~~~~
+
+
+INFO: Use [CurScreen] instead!
+00337-emilymisc-zh/EmilyMisc.zh Line 591 - Warning S094: Function 'Game::GetCurScreen()' is deprecated, and should not be used.
+
+589        return Game->GetCurScreen() % 0x10;
+590    case DIR_RIGHT:
+591        return (Game->GetCurScreen() % 0x10) != 0x0F;
+                   ^~~~~~~~~~~~~~~~~~
+
+
+INFO: Use [CurScreen] instead!
+00337-emilymisc-zh/EmilyMisc.zh Line 393 - Warning S094: Function 'Game::GetCurMap()' is deprecated, and should not be used.
+
+391    mapdata CurMapdata() //start
+392    {
+393        return Game->LoadMapData(Game->GetCurMap(), Game->GetCurScreen());
+                                    ^~~~~~~~~~~~~~~
+
+
+INFO: Use [CurMap] instead!
+00337-emilymisc-zh/EmilyMisc.zh Line 393 - Warning S094: Function 'Game::GetCurScreen()' is deprecated, and should not be used.
+
+391    mapdata CurMapdata() //start
+392    {
+393        return Game->LoadMapData(Game->GetCurMap(), Game->GetCurScreen());
+                                                       ^~~~~~~~~~~~~~~~~~
+
+
+INFO: Use [CurScreen] instead!
 00337-emilymisc-zh/EmilyMisc.zh Line 28 - Error T021: Function Debug->NULL() has not been declared.
 
 26    // Invalid script
@@ -4235,6 +4514,78 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
+00284-linkmovement-zh/LinkMovement.zh Line 390 - Warning S094: Function 'Game::GetCurDMap()' is deprecated, and should not be used.
+
+388    LinkMovement[LM_LASTX] = Link->X;
+389    LinkMovement[LM_LASTY] = Link->Y;
+390    LinkMovement[LM_LASTDMAP] = Game->GetCurDMap();
+                                   ^~~~~~~~~~~~~~~~
+
+
+INFO: Use [CurDMap] instead!
+00284-linkmovement-zh/LinkMovement.zh Line 391 - Warning S094: Function 'Game::GetCurDMapScreen()' is deprecated, and should not be used.
+
+389    LinkMovement[LM_LASTY] = Link->Y;
+390    LinkMovement[LM_LASTDMAP] = Game->GetCurDMap();
+391    LinkMovement[LM_LASTDMAPSCREEN] = Game->GetCurDMapScreen();
+                                         ^~~~~~~~~~~~~~~~~~~~~~
+
+
+INFO: Use [CurDMapScreen] instead!
+00284-linkmovement-zh/LinkMovement.zh Line 352 - Warning S094: Function 'Game::GetCurDMap()' is deprecated, and should not be used.
+
+350    if(LinkMovement[LM_UNDOLINKMOVEMENT]){
+351        //Check that we're on the same map and screen. We don't want to reset Link's position to where he was on a different screen.
+352        if(LinkMovement[LM_LASTDMAP]==Game->GetCurDMap()&&LinkMovement[LM_LASTDMAPSCREEN]==Game->GetCurDMapScreen()){
+                                         ^~~~~~~~~~~~~~~~
+
+
+INFO: Use [CurDMap] instead!
+00284-linkmovement-zh/LinkMovement.zh Line 352 - Warning S094: Function 'Game::GetCurDMapScreen()' is deprecated, and should not be used.
+
+350    if(LinkMovement[LM_UNDOLINKMOVEMENT]){
+351        //Check that we're on the same map and screen. We don't want to reset Link's position to where he was on a different screen.
+352        if(LinkMovement[LM_LASTDMAP]==Game->GetCurDMap()&&LinkMovement[LM_LASTDMAPSCREEN]==Game->GetCurDMapScreen()){
+                                                                                              ^~~~~~~~~~~~~~~~~~~~~~
+
+
+INFO: Use [CurDMapScreen] instead!
+00284-linkmovement-zh/LinkMovement.zh Line 366 - Warning S094: Function 'Game::GetCurDMap()' is deprecated, and should not be used.
+
+364    void __LinkMovement_UndoLinkMovementUpdate2(){
+365        //Also keep the DMap and screen tracking up to date
+366        LinkMovement[LM_LASTDMAP] = Game->GetCurDMap();
+                                       ^~~~~~~~~~~~~~~~
+
+
+INFO: Use [CurDMap] instead!
+00284-linkmovement-zh/LinkMovement.zh Line 367 - Warning S094: Function 'Game::GetCurDMapScreen()' is deprecated, and should not be used.
+
+365    //Also keep the DMap and screen tracking up to date
+366    LinkMovement[LM_LASTDMAP] = Game->GetCurDMap();
+367    LinkMovement[LM_LASTDMAPSCREEN] = Game->GetCurDMapScreen();
+                                         ^~~~~~~~~~~~~~~~~~~~~~
+
+
+INFO: Use [CurDMapScreen] instead!
+00352-betterconveyors/BetterConveyors.zs Line 51 - Warning S094: Function 'screendata::NumNPCs()' is deprecated, and should not be used.
+
+49    if(enemy)
+50    {
+51        DEFINE NUMNPC = Screen->NumNPCs();
+                          ^~~~~~~~~~~~~~~
+
+
+INFO: Use [NumNPCs] instead!
+00352-betterconveyors/BetterConveyors.zs Line 94 - Warning S094: Function 'screendata::NumItems()' is deprecated, and should not be used.
+
+92    if(itm)
+93    {
+94        DEFINE NUMITEM = Screen->NumItems();
+                           ^~~~~~~~~~~~~~~~
+
+
+INFO: Use [NumItems] instead!
 Pass 5: Checking code paths
 00352-betterconveyors/BetterConveyors.zs Line 140 - Error S102: Function '_CanWalk' is not void, and must return a value!
 
@@ -4358,6 +4709,24 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
+00284-linkmovement-zh/LinkMovement.zh Line 390 - Warning S094: Function 'Game::GetCurDMap()' is deprecated, and should not be used.
+
+388    LinkMovement[LM_LASTX] = Link->X;
+389    LinkMovement[LM_LASTY] = Link->Y;
+390    LinkMovement[LM_LASTDMAP] = Game->GetCurDMap();
+                                   ^~~~~~~~~~~~~~~~
+
+
+INFO: Use [CurDMap] instead!
+00284-linkmovement-zh/LinkMovement.zh Line 391 - Warning S094: Function 'Game::GetCurDMapScreen()' is deprecated, and should not be used.
+
+389    LinkMovement[LM_LASTY] = Link->Y;
+390    LinkMovement[LM_LASTDMAP] = Game->GetCurDMap();
+391    LinkMovement[LM_LASTDMAPSCREEN] = Game->GetCurDMapScreen();
+                                         ^~~~~~~~~~~~~~~~~~~~~~
+
+
+INFO: Use [CurDMapScreen] instead!
 00374-dodge-roll-action/script.zs Line 97 - Error T021: Function TempLinkState_UnsetCollDetection() has not been declared.
 
 95    //Make Link invincible during iframes
@@ -4436,6 +4805,15 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
+00415-grayswandir-sideview-engine/GSD_sideview/GSD_extras/mooshbumper.z Line 29 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+27    if(Distance(CenterX(this), CenterY(this), CenterLinkX(), CenterLinkY())<this->TileWidth*8+8&&Link->Z==0){
+28        if(this->InitD[7]==0){
+29            Game->PlaySound(SFX_LTTP_BUMPER);
+              ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
 00415-grayswandir-sideview-engine/GSD_sideview/GSD_extras/mooshbumper.z Line 44 - Error S009: Variable LinkX has not been declared.
 
 42    for(int i=0; i<MAX_PUSH&&PushX<=-1; i++){
@@ -4452,6 +4830,15 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
+00419-slab-connection-puzzle/script.zs Line 10 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+ 8    if (Screen->State[ST_SECRET]) break;
+ 9    if (i==176){
+10        Game->PlaySound(SFX_SECRET);
+          ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
 00419-slab-connection-puzzle/script.zs Line 63 - Error S009: Variable FFC_MISC_PUSHBLOCK_IMPULSE has not been declared.
 
 61    ffc f = Screen->LoadFFC(i);
@@ -4499,6 +4886,24 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
+00457-magnets-and-iron-beams-puzzle/script.zs Line 306 - Warning S094: Function 'screendata::LayerMap(int)' is deprecated, and should not be used.
+
+304    }
+305    if (Screen->ComboS[i]>0)comboS=1;
+306    if(Screen->LayerMap(1)>0) comboS |= GetLayerComboS(1, i);
+          ^~~~~~~~~~~~~~~~
+
+
+INFO: Use [LayerMap] instead!
+00457-magnets-and-iron-beams-puzzle/script.zs Line 307 - Warning S094: Function 'screendata::LayerMap(int)' is deprecated, and should not be used.
+
+305    if (Screen->ComboS[i]>0)comboS=1;
+306    if(Screen->LayerMap(1)>0) comboS |= GetLayerComboS(1, i);
+307    if(Screen->LayerMap(2)>0) comboS |= GetLayerComboS(2, i);
+          ^~~~~~~~~~~~~~~~
+
+
+INFO: Use [LayerMap] instead!
 00457-magnets-and-iron-beams-puzzle/script.zs Line 224 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
 
 222    int rcmb = Screen->ComboD[i];
@@ -4531,6 +4936,105 @@ Pass 4: Analyzing Code
        ^~~~~~~~~~
 
 
+00457-magnets-and-iron-beams-puzzle/script.zs Line 329 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+327    if (Screen->State[ST_SECRET]) break;
+328    if (i==33){
+329        Game->PlaySound(SFX_SECRET);
+           ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+tests/scripts/compat/stdExtra.zh Line 569 - Warning S094: Function 'Game::GetCurDMapScreen()' is deprecated, and should not be used.
+
+567    
+568    bool WaitframeCheckScreenChange(){
+569        int old_dmap_screen = Game->GetCurDMapScreen();
+                                 ^~~~~~~~~~~~~~~~~~~~~~
+
+
+INFO: Use [CurDMapScreen] instead!
+tests/scripts/compat/stdExtra.zh Line 570 - Warning S094: Function 'Game::GetCurDMap()' is deprecated, and should not be used.
+
+568    bool WaitframeCheckScreenChange(){
+569        int old_dmap_screen = Game->GetCurDMapScreen();
+570        int old_dmap = Game->GetCurDMap();
+                          ^~~~~~~~~~~~~~~~
+
+
+INFO: Use [CurDMap] instead!
+tests/scripts/compat/stdExtra.zh Line 572 - Warning S094: Function 'Game::GetCurDMap()' is deprecated, and should not be used.
+
+570    int old_dmap = Game->GetCurDMap();
+571    Waitframe();
+572    return (old_dmap!=Game->GetCurDMap() || old_dmap_screen!=Game->GetCurDMapScreen());
+                         ^~~~~~~~~~~~~~~~
+
+
+INFO: Use [CurDMap] instead!
+tests/scripts/compat/stdExtra.zh Line 572 - Warning S094: Function 'Game::GetCurDMapScreen()' is deprecated, and should not be used.
+
+570    int old_dmap = Game->GetCurDMap();
+571    Waitframe();
+572    return (old_dmap!=Game->GetCurDMap() || old_dmap_screen!=Game->GetCurDMapScreen());
+                                                                ^~~~~~~~~~~~~~~~~~~~~~
+
+
+INFO: Use [CurDMapScreen] instead!
+tests/scripts/compat/stdExtra.zh Line 414 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+412    {
+413        if ( sfx )
+414            Game->PlaySound(SFX_PICKUP);
+               ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+00457-magnets-and-iron-beams-puzzle/script.zs Line 58 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+56    if (this->InitD[7]>=0){
+57        if (IBeamCanBePushed(this) && !EnemiesAlive()){
+58            Game->PlaySound(SFX_IRON_BEAM_MOVE);
+              ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+00457-magnets-and-iron-beams-puzzle/script.zs Line 76 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+74    if (IBeamLandOnTrap(this)){
+75        IBeamPushReplaceCombosUnderFFC(this, ucmb, ucset);
+76        Game->PlaySound(SFX_IRON_BEAM_STUCK);
+          ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+00457-magnets-and-iron-beams-puzzle/script.zs Line 86 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+84    if (secrets>0)IronBeamTriggerUpdate(this);
+85    if (this->InitD[6]>0){
+86        Game->PlaySound(SFX_IRON_BEAM_STUCK);
+          ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+00457-magnets-and-iron-beams-puzzle/script.zs Line 108 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+106    if (Link->PressEx1){
+107        if (carrycmb==0 && !ComboFI(cmb, CF_NOBLOCKS)  &&  Screen->ComboT[cmb]==CT_MAGNET_LIFTABLE){
+108            Game->PlaySound(SFX_MAGNET_PICK);
+               ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+00457-magnets-and-iron-beams-puzzle/script.zs Line 115 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+113    }
+114    else if (!ComboFI(cmb, CF_NOBLOCKS) && Screen->ComboT[cmb]!=CT_MAGNET_LIFTABLE && carrycmb>0){
+115        Game->PlaySound(SFX_MAGNET_PLACE);
+           ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
 00457-magnets-and-iron-beams-puzzle/script.zs Line 461 - Error T021: Function SwitchState(ffc, ffc) has not been declared.
 
 459    while(true){
@@ -4594,6 +5098,15 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
+00520-poker-monsters/NofaKind.z Line 133 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+131    if (!card[i]->isValid()){
+132        Trace(i);
+133        Game->PlaySound(3);
+           ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
 00520-poker-monsters/NofaKind.z Line 150 - Error T021: Function IsNoaKind(int[], int, bool, bool, int) has not been declared.
 
 148    if (ready && !check){
@@ -4610,6 +5123,15 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
+00520-poker-monsters/script.zs Line 133 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+131    if (!card[i]->isValid()){
+132        Trace(i);
+133        Game->PlaySound(3);
+           ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
 00520-poker-monsters/script.zs Line 150 - Error T021: Function IsNoaKind(int[], int, bool, bool, int) has not been declared.
 
 148    if (ready && !check){
@@ -4642,6 +5164,36 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
+00533-test-play-init-data-backups/script.zs Line 516 - Warning S094: Function 'file::Free()' is deprecated, and should not be used.
+
+514    f->OpenMode(slotfilename, "rb+");
+515    f->ReadBytes(b);
+516    f->Free();
+       ^~~~~~~
+
+
+INFO: Free() no longer does anything as of ZC 3.0. Objects are now
+freed automatically.
+00533-test-play-init-data-backups/script.zs Line 522 - Warning S094: Function 'file::Free()' is deprecated, and should not be used.
+
+520    f->OpenMode(slotfilename, "wb+");
+521    f->WriteBytes({0});
+522    f->Free();
+       ^~~~~~~
+
+
+INFO: Free() no longer does anything as of ZC 3.0. Objects are now
+freed automatically.
+00533-test-play-init-data-backups/script.zs Line 535 - Warning S094: Function 'file::Free()' is deprecated, and should not be used.
+
+533    f->OpenMode(slotfilename, "wb+");
+534    f->WriteBytes(b);
+535    f->Free();
+       ^~~~~~~
+
+
+INFO: Free() no longer does anything as of ZC 3.0. Objects are now
+freed automatically.
 00533-test-play-init-data-backups/script.zs Line 543 - Warning S108: Arrays should be explicitly typed - change `TestPlayInitData` to `TestPlayInitData[]`
 
 541    for(int i=0; i<10; ++i)
@@ -4658,6 +5210,15 @@ Pass 4: Analyzing Code
                                ^~~~~~~~
 
 
+00533-test-play-init-data-backups/script.zs Line 543 - Warning S094: Function 'Game::GetCurDMap()' is deprecated, and should not be used.
+
+541    for(int i=0; i<10; ++i)
+542    {
+543        if(slots[i]->Valid&&slots[i]->SavedDMap==Game->GetCurDMap())
+                                                    ^~~~~~~~~~~~~~~~
+
+
+INFO: Use [CurDMap] instead!
 00533-test-play-init-data-backups/script.zs Line 402 - Error T021: Function TryFindDMapSlot(TestPlayInitData[], int) has not been declared.
 
 400        Quit();
@@ -4706,6 +5267,291 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
+00547--new-palette-based-day-night-system/DayNightNew.zs Line 640 - Warning S094: Function 'Game::GetCurDMap()' is deprecated, and should not be used.
+
+638    {
+639        if(whichDMap<0)
+640            whichDMap = Game->GetCurDMap();
+                           ^~~~~~~~~~~~~~~~
+
+
+INFO: Use [CurDMap] instead!
+00547--new-palette-based-day-night-system/DayNightNew.zs Line 664 - Warning S094: Function 'Game::GetCurDMap()' is deprecated, and should not be used.
+
+662    {
+663        if(whichDMap<0)
+664            whichDMap = Game->GetCurDMap();
+                           ^~~~~~~~~~~~~~~~
+
+
+INFO: Use [CurDMap] instead!
+00547--new-palette-based-day-night-system/DayNightNew.zs Line 695 - Warning S094: Function 'screendata::GetSideWarpDMap(int)' is deprecated, and should not be used.
+
+693    if(tileOrSideWarp)
+694    {
+695        startingDMap = Screen->GetSideWarpDMap(warpID);
+                          ^~~~~~~~~~~~~~~~~~~~~~~
+
+
+INFO: Use [SideWarpDMap] instead!
+00547--new-palette-based-day-night-system/DayNightNew.zs Line 696 - Warning S094: Function 'screendata::GetSideWarpScreen(int)' is deprecated, and should not be used.
+
+694    {
+695        startingDMap = Screen->GetSideWarpDMap(warpID);
+696        startingScreen = Screen->GetSideWarpScreen(warpID);
+                            ^~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+INFO: Use [SideWarpScreen] instead!
+00547--new-palette-based-day-night-system/DayNightNew.zs Line 700 - Warning S094: Function 'screendata::GetTileWarpDMap(int)' is deprecated, and should not be used.
+
+698    else
+699    {
+700        startingDMap = Screen->GetTileWarpDMap(warpID);
+                          ^~~~~~~~~~~~~~~~~~~~~~~
+
+
+INFO: Use [TileWarpDMap] instead!
+00547--new-palette-based-day-night-system/DayNightNew.zs Line 701 - Warning S094: Function 'screendata::GetTileWarpScreen(int)' is deprecated, and should not be used.
+
+699    {
+700        startingDMap = Screen->GetTileWarpDMap(warpID);
+701        startingScreen = Screen->GetTileWarpScreen(warpID);
+                            ^~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+INFO: Use [TileWarpScreen] instead!
+00547--new-palette-based-day-night-system/DayNightNew.zs Line 738 - Warning S094: Function 'screendata::GetSideWarpType(int)' is deprecated, and should not be used.
+
+736    if(tileOrSideWarp)
+737    {
+738        Screen->SetSideWarp(warpID, newScreen, newDMap, Screen->GetSideWarpType(warpID));
+                                                           ^~~~~~~~~~~~~~~~~~~~~~~
+
+
+INFO: Use [SideWarpType] instead!
+00547--new-palette-based-day-night-system/DayNightNew.zs Line 742 - Warning S094: Function 'screendata::GetTileWarpType(int)' is deprecated, and should not be used.
+
+740    else
+741    {
+742        Screen->SetTileWarp(warpID, newScreen, newDMap, Screen->GetTileWarpType(warpID));
+                                                           ^~~~~~~~~~~~~~~~~~~~~~~
+
+
+INFO: Use [TileWarpType] instead!
+00547--new-palette-based-day-night-system/DayNightNew.zs Line 750 - Warning S094: Function 'screendata::GetSideWarpType(int)' is deprecated, and should not be used.
+
+748    if(tileOrSideWarp)
+749    {
+750        Screen->SetSideWarp(warpID, startingScreen, startingDMap, Screen->GetSideWarpType(warpID));
+                                                                     ^~~~~~~~~~~~~~~~~~~~~~~
+
+
+INFO: Use [SideWarpType] instead!
+00547--new-palette-based-day-night-system/DayNightNew.zs Line 754 - Warning S094: Function 'screendata::GetTileWarpType(int)' is deprecated, and should not be used.
+
+752    else
+753    {
+754        Screen->SetTileWarp(warpID, startingScreen, startingDMap, Screen->GetTileWarpType(warpID));
+                                                                     ^~~~~~~~~~~~~~~~~~~~~~~
+
+
+INFO: Use [TileWarpType] instead!
+00547--new-palette-based-day-night-system/DayNightNew.zs Line 830 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+828        Screen->State[ST_SECRET] = true;
+829    if(sfx>0)
+830        Game->PlaySound(sfx);
+           ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
+00547--new-palette-based-day-night-system/DayNightNew.zs Line 476 - Warning S094: Function 'Graphics::CreatePalData()' is deprecated, and should not be used.
+
+474    void LerpPalette(int whichSlot, int startPal, int endPal, int percentage)
+475    {
+476        paldata pdStart = Graphics->CreatePalData();
+                             ^~~~~~~~~~~~~~~~~~~~~~~
+
+
+INFO: Use `new paldata()` instead!
+00547--new-palette-based-day-night-system/DayNightNew.zs Line 477 - Warning S094: Function 'Graphics::CreatePalData()' is deprecated, and should not be used.
+
+475    {
+476        paldata pdStart = Graphics->CreatePalData();
+477        paldata pdEnd = Graphics->CreatePalData();
+                           ^~~~~~~~~~~~~~~~~~~~~~~
+
+
+INFO: Use `new paldata()` instead!
+00547--new-palette-based-day-night-system/DayNightNew.zs Line 484 - Warning S094: Function 'paldata::Free()' is deprecated, and should not be used.
+
+482    pdStart->WriteLevelPalette(whichSlot);
+483    
+484    pdStart->Free();
+       ^~~~~~~~~~~~~
+
+
+INFO: Free() no longer does anything as of ZC 3.0. Objects are now
+freed automatically.
+00547--new-palette-based-day-night-system/DayNightNew.zs Line 485 - Warning S094: Function 'paldata::Free()' is deprecated, and should not be used.
+
+483    
+484    pdStart->Free();
+485    pdEnd->Free();
+       ^~~~~~~~~~~
+
+
+INFO: Free() no longer does anything as of ZC 3.0. Objects are now
+freed automatically.
+00547--new-palette-based-day-night-system/DayNightNew.zs Line 490 - Warning S094: Function 'Graphics::CreatePalData()' is deprecated, and should not be used.
+
+488    void LerpPaletteClr(int whichSlot, int basePal, rgb clrStart, rgb clrEnd, int percentageStart, int percentageEnd, int percentage)
+489    {
+490        paldata pdStart = Graphics->CreatePalData();
+                             ^~~~~~~~~~~~~~~~~~~~~~~
+
+
+INFO: Use `new paldata()` instead!
+00547--new-palette-based-day-night-system/DayNightNew.zs Line 491 - Warning S094: Function 'Graphics::CreatePalData()' is deprecated, and should not be used.
+
+489    {
+490        paldata pdStart = Graphics->CreatePalData();
+491        paldata pdEnd = Graphics->CreatePalData();
+                           ^~~~~~~~~~~~~~~~~~~~~~~
+
+
+INFO: Use `new paldata()` instead!
+00547--new-palette-based-day-night-system/DayNightNew.zs Line 492 - Warning S094: Function 'Graphics::CreatePalData(rgb)' is deprecated, and should not be used.
+
+490    paldata pdStart = Graphics->CreatePalData();
+491    paldata pdEnd = Graphics->CreatePalData();
+492    paldata pdClrStart = Graphics->CreatePalData(clrStart);
+                            ^~~~~~~~~~~~~~~~~~~~~~~
+
+
+INFO: Use `new paldata(color)` instead!
+00547--new-palette-based-day-night-system/DayNightNew.zs Line 493 - Warning S094: Function 'Graphics::CreatePalData(rgb)' is deprecated, and should not be used.
+
+491    paldata pdEnd = Graphics->CreatePalData();
+492    paldata pdClrStart = Graphics->CreatePalData(clrStart);
+493    paldata pdClrEnd = Graphics->CreatePalData(clrEnd);
+                          ^~~~~~~~~~~~~~~~~~~~~~~
+
+
+INFO: Use `new paldata(color)` instead!
+00547--new-palette-based-day-night-system/DayNightNew.zs Line 527 - Warning S094: Function 'paldata::Free()' is deprecated, and should not be used.
+
+525    pdStart->WriteLevelPalette(whichSlot);
+526    
+527    pdStart->Free();
+       ^~~~~~~~~~~~~
+
+
+INFO: Free() no longer does anything as of ZC 3.0. Objects are now
+freed automatically.
+00547--new-palette-based-day-night-system/DayNightNew.zs Line 528 - Warning S094: Function 'paldata::Free()' is deprecated, and should not be used.
+
+526    
+527    pdStart->Free();
+528    pdEnd->Free();
+       ^~~~~~~~~~~
+
+
+INFO: Free() no longer does anything as of ZC 3.0. Objects are now
+freed automatically.
+00547--new-palette-based-day-night-system/DayNightNew.zs Line 529 - Warning S094: Function 'paldata::Free()' is deprecated, and should not be used.
+
+527    pdStart->Free();
+528    pdEnd->Free();
+529    pdClrStart->Free();
+       ^~~~~~~~~~~~~~~~
+
+
+INFO: Free() no longer does anything as of ZC 3.0. Objects are now
+freed automatically.
+00547--new-palette-based-day-night-system/DayNightNew.zs Line 530 - Warning S094: Function 'paldata::Free()' is deprecated, and should not be used.
+
+528    pdEnd->Free();
+529    pdClrStart->Free();
+530    pdClrEnd->Free();
+       ^~~~~~~~~~~~~~
+
+
+INFO: Free() no longer does anything as of ZC 3.0. Objects are now
+freed automatically.
+00547--new-palette-based-day-night-system/DayNightNew.zs Line 170 - Warning S094: Function 'Game::GetCurDMap()' is deprecated, and should not be used.
+
+168    int tmpDMap;
+169    
+170    if(Game->DMapFlags[Game->GetCurDMap()]&DMF_TIME_CAN_ADVANCE)
+                          ^~~~~~~~~~~~~~~~
+
+
+INFO: Use [CurDMap] instead!
+00547--new-palette-based-day-night-system/DayNightNew.zs Line 170 - Warning S094: Variable 'Game->DMapFlags' is deprecated, and should not be used.
+
+168    int tmpDMap;
+169    
+170    if(Game->DMapFlags[Game->GetCurDMap()]&DMF_TIME_CAN_ADVANCE)
+          ^~~~~~~~~~~~~~~
+
+
+INFO: Use [dmapdata::Flagset] instead!
+00547--new-palette-based-day-night-system/DayNightNew.zs Line 170 - Warning S094: Function 'Game::GetCurDMap()' is deprecated, and should not be used.
+
+168    int tmpDMap;
+169    
+170    if(Game->DMapFlags[Game->GetCurDMap()]&DMF_TIME_CAN_ADVANCE)
+                          ^~~~~~~~~~~~~~~~
+
+
+INFO: Use [CurDMap] instead!
+00547--new-palette-based-day-night-system/DayNightNew.zs Line 211 - Warning S094: Function 'Game::GetCurDMap()' is deprecated, and should not be used.
+
+209    if(PalChangeCooldown<=0)
+210    {
+211        UpdateDMapPalette(Game->GetCurDMap(), PAL_TMPPALETTES);
+                             ^~~~~~~~~~~~~~~~
+
+
+INFO: Use [CurDMap] instead!
+00547--new-palette-based-day-night-system/DayNightNew.zs Line 217 - Warning S094: Function 'screendata::GetSideWarpDMap(int)' is deprecated, and should not be used.
+
+215    for(i=0; i<4; ++i)
+216    {
+217        tmpDMap = Screen->GetSideWarpDMap(i);
+                     ^~~~~~~~~~~~~~~~~~~~~~~
+
+
+INFO: Use [SideWarpDMap] instead!
+00547--new-palette-based-day-night-system/DayNightNew.zs Line 218 - Warning S094: Function 'Game::GetCurDMap()' is deprecated, and should not be used.
+
+216    {
+217        tmpDMap = Screen->GetSideWarpDMap(i);
+218        if(tmpDMap!=Game->GetCurDMap())
+                       ^~~~~~~~~~~~~~~~
+
+
+INFO: Use [CurDMap] instead!
+00547--new-palette-based-day-night-system/DayNightNew.zs Line 220 - Warning S094: Function 'screendata::GetTileWarpDMap(int)' is deprecated, and should not be used.
+
+218    if(tmpDMap!=Game->GetCurDMap())
+219        UpdateDMapPalette(tmpDMap, PAL_TMPPALETTES+5+i);
+220    tmpDMap = Screen->GetTileWarpDMap(i);
+                 ^~~~~~~~~~~~~~~~~~~~~~~
+
+
+INFO: Use [TileWarpDMap] instead!
+00547--new-palette-based-day-night-system/DayNightNew.zs Line 221 - Warning S094: Function 'Game::GetCurDMap()' is deprecated, and should not be used.
+
+219        UpdateDMapPalette(tmpDMap, PAL_TMPPALETTES+5+i);
+220    tmpDMap = Screen->GetTileWarpDMap(i);
+221    if(tmpDMap!=Game->GetCurDMap())
+                   ^~~~~~~~~~~~~~~~
+
+
+INFO: Use [CurDMap] instead!
 00547--new-palette-based-day-night-system/DayNightNew.zs Line 331 - Error T017: Cannot cast from DMapDayNight to int.
 
 329    
@@ -4754,6 +5600,15 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
+00580-mani-s-script-header/script.zs Line 48 - Warning S094: Function 'Game::PlaySound(int)' is deprecated, and should not be used.
+
+46    if(PlayTheSFX){
+47        
+48        Game->PlaySound(23);
+          ^~~~~~~~~~~~~~~
+
+
+INFO: Use [Audio->PlaySound] instead!
 00580-mani-s-script-header/script.zs Line 312 - Error S009: Variable BLNK_SPRITE has not been declared.
 
 310    int Swordtile = Sword->Tile;

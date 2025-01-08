@@ -18,8 +18,8 @@ stdout:
   "diagnostics": [],
   "metadata": {
     "currentFileSymbols": 10,
-    "symbols": 9,
-    "identifiers": 19,
+    "symbols": 10,
+    "identifiers": 20,
     "elided": true
   }
 }
@@ -111,8 +111,8 @@ CALLFUNC 0.0070; ClassFunc[Car Car::Car()] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE_OBJECT D2 0.0002
-LOAD D2 0.0002
-ZCLASS_FREE D2
+SETV D2 0
+STORE_OBJECT D2 0.0002
 WAITFRAME; InlineFunc[void Waitframe()] Body
 PUSHR CLASS_THISKEY
 PUSHR D4

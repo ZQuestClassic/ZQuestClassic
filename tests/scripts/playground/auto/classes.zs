@@ -29,7 +29,7 @@ generic script classes
 		Test::Init();
 
 		Car mycar = new Car();
-		delete mycar;
+		mycar = NULL; //delete mycar; //delete by removing the reference
 		Waitframe();
 
 		Car mycar2 = new Car(2000);

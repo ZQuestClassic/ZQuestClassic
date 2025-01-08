@@ -17,7 +17,7 @@ class ZInfo {
 	//   POP D1
 	//   POP D0
 	//   SETR D2 MODULEGETINT
-	internal int GetInt(char32 arg1, char32 arg2);
+	internal int GetInt(char32[] section, char32[] element);
 
 	// @deprecated no longer supported!
 	// @zasm
@@ -25,7 +25,7 @@ class ZInfo {
 	//   POP D1
 	//   POP D0
 	//   SETR MODULEGETSTR D6
-	internal void GetString(char32 arg1, char32 arg2, char32 arg3);
+	internal void GetString(char32[] buf, char32[] section, char32[] element);
 }
 
 internal const ZInfo Module;

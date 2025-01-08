@@ -4604,7 +4604,7 @@ COMPAREV D2 255
 SETCMP D2 I<=
 COMPAREV D2 0
 GOTOCMP 4604 ==; Test 'if'
-LOAD D2 0.0001; InlineFunc[void screendata::DrawCharacter(int, int, int, int, int, int, int, int, int, int)] Params Start AND if() #230 Body Start
+LOAD D2 0.0001; InlineFunc[void screendata::DrawCharacter(int, int, int, int, int, int, int, int, char32, int)] Params Start AND if() #230 Body Start
 PUSHR D2
 LOAD D2 0.0003
 PUSHR D2
@@ -4625,9 +4625,9 @@ PUSHR D2
 PUSHARGSV -1 0.0003
 LOAD D2 0.0008
 PUSHR D2
-PUSHV 128; InlineFunc[void screendata::DrawCharacter(int, int, int, int, int, int, int, int, int, int)] Params End
-DRAWCHARR; InlineFunc[void screendata::DrawCharacter(int, int, int, int, int, int, int, int, int, int)] Body Start
-POPARGS D5 0.0010; InlineFunc[void screendata::DrawCharacter(int, int, int, int, int, int, int, int, int, int)] Body End
+PUSHV 128; InlineFunc[void screendata::DrawCharacter(int, int, int, int, int, int, int, int, char32, int)] Params End
+DRAWCHARR; InlineFunc[void screendata::DrawCharacter(int, int, int, int, int, int, int, int, char32, int)] Body Start
+POPARGS D5 0.0010; InlineFunc[void screendata::DrawCharacter(int, int, int, int, int, int, int, int, char32, int)] Body End
 GOTO 4665; if() #230 Body End
 LOAD D2 0.0007; if() #573 Test AND if() #230 Else Start
 PUSHR D2
