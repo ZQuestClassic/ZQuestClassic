@@ -10,7 +10,11 @@ python scripts/generate_zscript_api_docs.py
 
 cd "$SCRIPT_DIR"
 echo "Building html docs ..."
-make html
+if command -v make >&2; then
+  make html
+else
+  ./make.bat html
+fi
 
 # old ghost docs
 rm -rf build/html/_static/old/ghost

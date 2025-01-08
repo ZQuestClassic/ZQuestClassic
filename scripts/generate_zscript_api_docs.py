@@ -104,7 +104,7 @@ class Type:
         const_prefix = '|const| ' if self.const else ''
         id = self.name.replace('[]', '')
         if id in ['void', 'int', 'long', 'untyped', 'T', 'T1', 'T2']:
-            return f'{const_prefix}|{id}|\ {self.name.replace(id, "")}'
+            return f'{const_prefix}|{id}|\\ {self.name.replace(id, "")}'
         if id in ['bool', 'char32', 'rgb']:
             return f'{const_prefix}{self.name}'
 
@@ -744,7 +744,7 @@ def handle_function(symbol: Function):
 
     parts = [
         str(symbol.return_type),
-        f'**{symbol.name}**' + '\ ' + str(symbol.parameters),
+        f'**{symbol.name}**' + '\\ ' + str(symbol.parameters),
         reflink(symbol),
     ]
     if symbol.loc:
@@ -791,7 +791,7 @@ def handle_scope(symbol):
             [
                 [
                     str(x.return_type),
-                    (x.link() + '\ ' + str(x.parameters) + deprecated(x)),
+                    (x.link() + '\\ ' + str(x.parameters) + deprecated(x)),
                 ]
                 for x in constructors
             ]
@@ -803,7 +803,7 @@ def handle_scope(symbol):
             [
                 [
                     str(x.return_type),
-                    (x.link() + '\ ' + str(x.parameters) + deprecated(x)),
+                    (x.link() + '\\ ' + str(x.parameters) + deprecated(x)),
                 ]
                 for x in functions
             ]
