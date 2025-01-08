@@ -4,27 +4,43 @@ from sphinx.application import Sphinx
 from sphinx.locale import _
 from sphinx.util.docutils import SphinxDirective, SphinxTranslator
 from sphinx.util.typing import ExtensionMetadata
+from docutils.parsers.rst.directives import unchanged
+import html
 
 
 class ZScriptNode(nodes.General, nodes.Element):
-    pass
-
+    url: str = ''
+    data: str = ''
+    fname: str = ''
+    def __init__(self, url: str = '', data: str = '', fname: str = ''):
+        super().__init__()
+        self.url = url
+        self.data = data
+        self.fname = fname
 
 class ZScriptDirective(SphinxDirective):
-    required_arguments: int = 1
+    has_content: bool = True
+    option_spec: dict = {
+        "url": unchanged,
+        "fname": unchanged,
+    }
 
     def run(self) -> list[nodes.Node]:
-        return [ZScriptNode(path=self.arguments[0])]
+        return [ZScriptNode(
+            url=self.options.get('url', '').strip(),
+            data=''.join(self.content),
+            fname=self.options.get('fname', '').strip(),
+            )]
 
 
 def visit_logo_node_html(translator: SphinxTranslator, node: ZScriptNode) -> None:
-    html = ''
-    html += (
-        '<iframe width=100%% height=800 src=https://web.zquestclassic.com/zscript/?url='
-    )
-    html += node['path']
-    html += '></iframe>\n'
-    translator.body.append(html)
+    html_str = '<iframe width=100%% height=800 src=https://web.zquestclassic.com/zscript/'
+    if node.url != '':
+        html_str += '?url=' + node.url
+    elif node.data != '':
+        html_str += '?data=' + html.escape(node.data)
+    html_str += '></iframe>\n'
+    translator.body.append(html_str)
 
 
 def depart_logo_node_html(translator: SphinxTranslator, node: ZScriptNode) -> None:
