@@ -5,54 +5,12 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-errors_5.zs Line 9 @ Columns 3-22 - Error C036: Variable Game->CurScreen is constant and cannot be changed.
+errors_5.zs Line 8 @ Columns 3-22 - Error C036: Variable Game->CurScreen is constant and cannot be changed.
 
- 7    {
- 8        //Read-only vars should warn
- 9        Game->CurScreen = 2;
-          ^~~~~~~~~~~~~~~~~~~
-
-
-errors_5.zs Line 10 @ Columns 3-20 - Error C036: Variable Game->CurDMap is constant and cannot be changed.
-
- 8    //Read-only vars should warn
- 9    Game->CurScreen = 2;
-10    Game->CurDMap = 5;
-      ^~~~~~~~~~~~~~~~~
-
-
-errors_5.zs Line 11 @ Columns 3-21 - Error C036: Variable Hero->IceCombo is constant and cannot be changed.
-
- 9    Game->CurScreen = 2;
-10    Game->CurDMap = 5;
-11    Hero->IceCombo = 0;
-      ^~~~~~~~~~~~~~~~~~
-
-
-errors_5.zs Line 13 @ Columns 3-9 - Error S095: Function 'Untype(untyped)' is deprecated, and cannot be used due to current compiler settings.
-
-11    Hero->IceCombo = 0;
-12    //Deprecated things error due to #option
-13    Untype(5);
-      ^~~~~~
-
-
-INFO: Use casting `<untyped>(var)` instead!
-errors_5.zs Line 14 @ Columns 3-11 - Error S095: Function 'TraceNPC(untyped)' is deprecated, and cannot be used due to current compiler settings.
-
-12    //Deprecated things error due to #option
-13    Untype(5);
-14    TraceNPC(Screen->LoadNPC(0));
-      ^~~~~~~~
-
-
-INFO: Use Trace instead
-errors_5.zs Line 15 @ Columns 9-28 - Error T029: There is no variable ScriptEntry for the pointer (screendata) on the left side of ->.
-
-13    Untype(5);
-14    TraceNPC(Screen->LoadNPC(0));
-15    Trace(Screen->ScriptEntry);
-            ^~~~~~~~~~~~~~~~~~~
+6    {
+7        //Read-only vars should warn
+8        Game->CurScreen = 2;
+         ^~~~~~~~~~~~~~~~~~~
 
 
 Failure!
@@ -67,92 +25,22 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 8,
+          "line": 7,
           "character": 2
         },
         "end": {
-          "line": 8,
+          "line": 7,
           "character": 21
         }
       },
       "severity": 1,
       "message": "C036: Variable Game->CurScreen is constant and cannot be changed."
-    },
-    {
-      "range": {
-        "start": {
-          "line": 9,
-          "character": 2
-        },
-        "end": {
-          "line": 9,
-          "character": 19
-        }
-      },
-      "severity": 1,
-      "message": "C036: Variable Game->CurDMap is constant and cannot be changed."
-    },
-    {
-      "range": {
-        "start": {
-          "line": 10,
-          "character": 2
-        },
-        "end": {
-          "line": 10,
-          "character": 20
-        }
-      },
-      "severity": 1,
-      "message": "C036: Variable Hero->IceCombo is constant and cannot be changed."
-    },
-    {
-      "range": {
-        "start": {
-          "line": 12,
-          "character": 2
-        },
-        "end": {
-          "line": 12,
-          "character": 8
-        }
-      },
-      "severity": 1,
-      "message": "S095: Function 'Untype(untyped)' is deprecated, and cannot be used due to current compiler settings.\nUse casting `<untyped>(var)` instead!"
-    },
-    {
-      "range": {
-        "start": {
-          "line": 13,
-          "character": 2
-        },
-        "end": {
-          "line": 13,
-          "character": 10
-        }
-      },
-      "severity": 1,
-      "message": "S095: Function 'TraceNPC(untyped)' is deprecated, and cannot be used due to current compiler settings.\nUse Trace instead"
-    },
-    {
-      "range": {
-        "start": {
-          "line": 14,
-          "character": 8
-        },
-        "end": {
-          "line": 14,
-          "character": 27
-        }
-      },
-      "severity": 1,
-      "message": "T029: There is no variable ScriptEntry for the pointer (screendata) on the left side of ->."
     }
   ],
   "metadata": {
     "currentFileSymbols": 2,
-    "symbols": 9,
-    "identifiers": 11,
+    "symbols": 2,
+    "identifiers": 2,
     "elided": true
   }
 }

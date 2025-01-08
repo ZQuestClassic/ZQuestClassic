@@ -5,20 +5,10 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-errors_1.zs Line 3 @ Columns 15-21 - Error S011: Script Global needs a void run() function.
+errors_1.zs Line 1 @ Columns 15-21 - Error S011: Script Global needs a void run() function.
 
-1    #option NO_ERROR_HALT on
-2    
-3    global script Global
+1    global script Global
                    ^~~~~~
-
-
-errors_1.zs Line 8 @ Columns 37-48 - Error S009: Variable number_oops has not been declared.
-
-6    {
-7        int number = 123;
-8        printf("hello world: %d\n", number_oops);
-                                     ^~~~~~~~~~~
 
 
 Failure!
@@ -33,30 +23,16 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 2,
+          "line": 0,
           "character": 14
         },
         "end": {
-          "line": 2,
+          "line": 0,
           "character": 20
         }
       },
       "severity": 1,
       "message": "S011: Script Global needs a void run() function."
-    },
-    {
-      "range": {
-        "start": {
-          "line": 7,
-          "character": 36
-        },
-        "end": {
-          "line": 7,
-          "character": 47
-        }
-      },
-      "severity": 1,
-      "message": "S009: Variable number_oops has not been declared."
     }
   ],
   "metadata": {
