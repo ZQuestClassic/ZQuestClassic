@@ -6807,13 +6807,11 @@ int32_t get_register(int32_t arg)
 			int32_t itemid = (ri->d[rINDEX2]/10000);
 			itemid = vbound(itemid,0,(MAXITEMS-1));
 			
-			//Z_scripterrlog("GetHeroExtend rid->[2] is (%i), trying to use for '%s'\n", ri->d[rEXP1], "ri->d[rEXP1]");
-			//Z_scripterrlog("GetHeroExtend rid->[1] is (%i), trying to use for '%s'\n", state, "state");
-			//Z_scripterrlog("GetHeroExtend rid->[0] is (%i), trying to use for '%s'\n", dir, "dir");
+			// TODO: use has_space()
 			if ( Lwpns.Count() < 256 )
 			{
 				
-				Lwpns.add
+				(void)Lwpns.add
 				(
 					new weapon
 					(
@@ -27654,7 +27652,7 @@ void do_createlweapon(const bool v)
 	
 	if ( Lwpns.has_space() )
 	{
-		Lwpns.add
+		(void)Lwpns.add
 		(
 			new weapon
 			(

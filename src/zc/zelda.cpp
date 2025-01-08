@@ -1251,6 +1251,7 @@ int32_t HeroDir()
 }
 void add_grenade(int32_t wx, int32_t wy, int32_t wz, int32_t size, int32_t parentid)
 {
+    // TODO(crash): check that .add succeeds.
     if(size)
     {
         Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wSBomb,0,16*game->get_hero_dmgmult(),HeroDir(),
@@ -2618,6 +2619,8 @@ void do_magic_casting()
     {
         return;
     }
+
+    // TODO(crash): check that .add succeeds.
     
     switch(itemsbuf[magicitem].family)
     {
@@ -2642,6 +2645,7 @@ void do_magic_casting()
         
         if(magiccastclk==64)
         {
+            // TODO(crash): check that .add succeeds.
             Lwpns.add(new weapon((zfix)HeroX(),(zfix)(-32),(zfix)HeroZ(),wPhantom,pDIVINEFIREROCKETRETURN,0,down, magicitem, Hero.getUID()));
             weapon *w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
 	    w1->fakez = HeroFakeZ();
@@ -2814,6 +2818,7 @@ void do_magic_casting()
         // See also hero.cpp, HeroClass::checkhit().
         if(magiccastclk==0)
         {
+            // TODO(crash): check that .add succeeds.
             Lwpns.add(new weapon(HeroX(),HeroY(),(zfix)0,wPhantom,pDIVINEPROTECTIONROCKET1,0,left, magicitem, Hero.getUID()));
             weapon *w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
             w1->step=4;
