@@ -1,5 +1,3 @@
-#option NO_ERROR_HALT on
-
 void test()
 {
 	int arr[] = {1,2,3};

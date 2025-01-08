@@ -1,4 +1,3 @@
-#option NO_ERROR_HALT on
 #option WARN_DEPRECATED error
 
 global script Active

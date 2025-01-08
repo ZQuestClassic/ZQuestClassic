@@ -1,5 +1,3 @@
-#option NO_ERROR_HALT on
-
 class Car {
 	int a;
 	int a;

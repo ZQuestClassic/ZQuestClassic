@@ -21,12 +21,10 @@
 #   00431-no-cycle-spinning-tiles
 
 import argparse
-import json
 import os
 import re
 import subprocess
 import sys
-import time
 import unittest
 
 from pathlib import Path
@@ -299,6 +297,7 @@ class TestZScriptDatabase(ZCTestCase):
                     '-unlinked',
                     '-delay_cassert',
                 ],
+                env={**os.environ, 'TEST_ZSCRIPT': '1', 'ZC_DISABLE_DEBUG': '1'},
                 cwd=run_target.get_build_folder(),
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,

@@ -1,5 +1,3 @@
-#option NO_ERROR_HALT on
-
 // ok
 int optional_params_1(int a = 0) {
 	return a;

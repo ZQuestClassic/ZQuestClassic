@@ -5,100 +5,44 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-errors_7.zs Line 10 @ Columns 2-13 - Warning S108: Array mismatch for types int and int[]
+errors_7.zs Line 8 @ Columns 2-13 - Warning S108: Array mismatch for types int and int[]
 
- 8    
- 9        // Due to legacy array type conversion, the default here is to warn.
-10        arr2[0] = 5;
-          ^~~~~~~~~~~
+6    
+7        // Due to legacy array type conversion, the default here is to warn.
+8        arr2[0] = 5;
+         ^~~~~~~~~~~
 
 
-errors_7.zs Line 11 @ Columns 2-15 - Warning S108: Array mismatch for types int[][] and int
+errors_7.zs Line 9 @ Columns 2-15 - Warning S108: Array mismatch for types int[][] and int
 
- 9    // Due to legacy array type conversion, the default here is to warn.
-10    arr2[0] = 5;
-11    arr[0] = arr2;
+ 7    // Due to legacy array type conversion, the default here is to warn.
+ 8    arr2[0] = 5;
+ 9    arr[0] = arr2;
       ^~~~~~~~~~~~~
 
 
-errors_7.zs Line 12 @ Columns 2-16 - Warning S108: Array mismatch for types int[][] and int[]
+errors_7.zs Line 10 @ Columns 2-16 - Warning S108: Array mismatch for types int[][] and int[]
 
-10    arr2[0] = 5;
-11    arr[0] = arr2;
-12    arr2[2] = arr2;
+ 8    arr2[0] = 5;
+ 9    arr[0] = arr2;
+10    arr2[2] = arr2;
       ^~~~~~~~~~~~~~
 
 
-errors_7.zs Line 13 @ Columns 8-16 - Warning S108: Array mismatch for types int[][] and int[]
+errors_7.zs Line 11 @ Columns 8-16 - Warning S108: Array mismatch for types int[][] and int[]
 
-11    arr[0] = arr2;
-12    arr2[2] = arr2;
-13    int[] arr3_bad = {arr,arr};
+ 9    arr[0] = arr2;
+10    arr2[2] = arr2;
+11    int[] arr3_bad = {arr,arr};
             ^~~~~~~~
 
 
-errors_7.zs Line 18 @ Columns 3-14 - Error S109: Array mismatch for types int and int[]
+errors_7.zs Line 16 @ Columns 3-14 - Error S109: Array mismatch for types int and int[]
 
-16    
-17            // Error.
-18            arr2[0] = 5;
+14    
+15            // Error.
+16            arr2[0] = 5;
               ^~~~~~~~~~~
-
-
-errors_7.zs Line 19 @ Columns 3-16 - Error S109: Array mismatch for types int[][] and int
-
-17    // Error.
-18    arr2[0] = 5;
-19    arr[0] = arr2;
-      ^~~~~~~~~~~~~
-
-
-errors_7.zs Line 20 @ Columns 3-17 - Error S109: Array mismatch for types int[][] and int[]
-
-18    arr2[0] = 5;
-19    arr[0] = arr2;
-20    arr2[2] = arr2;
-      ^~~~~~~~~~~~~~
-
-
-errors_7.zs Line 21 @ Columns 9-17 - Error S109: Array mismatch for types int[][] and int[]
-
-19    arr[0] = arr2;
-20    arr2[2] = arr2;
-21    int[] arr3_bad = {arr,arr};
-            ^~~~~~~~
-
-
-errors_7.zs Line 34 @ Columns 2-19 - Error T017: Cannot cast from npc[] to int[].
-
-32    
-33        //Errors
-34        arr2[1] = enemies;
-          ^~~~~~~~~~~~~~~~~
-
-
-errors_7.zs Line 35 @ Columns 2-21 - Error T017: Cannot cast from npc to int.
-
-33    //Errors
-34    arr2[1] = enemies;
-35    arr[0] = enemies[0];
-      ^~~~~~~~~~~~~~~~~~~
-
-
-errors_7.zs Line 36 @ Columns 2-25 - Error T017: Cannot cast from npc to int.
-
-34    arr2[1] = enemies;
-35    arr[0] = enemies[0];
-36    arr2[1][0] = enemies[1];
-      ^~~~~~~~~~~~~~~~~~~~~~~
-
-
-errors_7.zs Line 45 @ Columns 12-19 - Error T100: Temporary literals cannot be stored!
-
-43    
-44        //!TODO
-45        arr2[1] = {2,3,4}; //!TODO should be valid, if arrays become gc-managed
-                    ^~~~~~~
 
 
 Failure!
@@ -113,11 +57,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 9,
+          "line": 7,
           "character": 1
         },
         "end": {
-          "line": 9,
+          "line": 7,
           "character": 12
         }
       },
@@ -127,11 +71,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 10,
+          "line": 8,
           "character": 1
         },
         "end": {
-          "line": 10,
+          "line": 8,
           "character": 14
         }
       },
@@ -141,11 +85,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 11,
+          "line": 9,
           "character": 1
         },
         "end": {
-          "line": 11,
+          "line": 9,
           "character": 15
         }
       },
@@ -155,11 +99,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 12,
+          "line": 10,
           "character": 7
         },
         "end": {
-          "line": 12,
+          "line": 10,
           "character": 15
         }
       },
@@ -169,120 +113,22 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 17,
+          "line": 15,
           "character": 2
         },
         "end": {
-          "line": 17,
+          "line": 15,
           "character": 13
         }
       },
       "severity": 1,
       "message": "S109: Array mismatch for types int and int[]"
-    },
-    {
-      "range": {
-        "start": {
-          "line": 18,
-          "character": 2
-        },
-        "end": {
-          "line": 18,
-          "character": 15
-        }
-      },
-      "severity": 1,
-      "message": "S109: Array mismatch for types int[][] and int"
-    },
-    {
-      "range": {
-        "start": {
-          "line": 19,
-          "character": 2
-        },
-        "end": {
-          "line": 19,
-          "character": 16
-        }
-      },
-      "severity": 1,
-      "message": "S109: Array mismatch for types int[][] and int[]"
-    },
-    {
-      "range": {
-        "start": {
-          "line": 20,
-          "character": 8
-        },
-        "end": {
-          "line": 20,
-          "character": 16
-        }
-      },
-      "severity": 1,
-      "message": "S109: Array mismatch for types int[][] and int[]"
-    },
-    {
-      "range": {
-        "start": {
-          "line": 33,
-          "character": 1
-        },
-        "end": {
-          "line": 33,
-          "character": 18
-        }
-      },
-      "severity": 1,
-      "message": "T017: Cannot cast from npc[] to int[]."
-    },
-    {
-      "range": {
-        "start": {
-          "line": 34,
-          "character": 1
-        },
-        "end": {
-          "line": 34,
-          "character": 20
-        }
-      },
-      "severity": 1,
-      "message": "T017: Cannot cast from npc to int."
-    },
-    {
-      "range": {
-        "start": {
-          "line": 35,
-          "character": 1
-        },
-        "end": {
-          "line": 35,
-          "character": 24
-        }
-      },
-      "severity": 1,
-      "message": "T017: Cannot cast from npc to int."
-    },
-    {
-      "range": {
-        "start": {
-          "line": 44,
-          "character": 11
-        },
-        "end": {
-          "line": 44,
-          "character": 18
-        }
-      },
-      "severity": 1,
-      "message": "T100: Temporary literals cannot be stored!"
     }
   ],
   "metadata": {
     "currentFileSymbols": 8,
-    "symbols": 7,
-    "identifiers": 40,
+    "symbols": 5,
+    "identifiers": 13,
     "elided": true
   }
 }
