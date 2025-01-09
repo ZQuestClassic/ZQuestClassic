@@ -1,0 +1,73 @@
+/**
+ * ZScript Syntax Theme for Highlight.js
+ * Author: EmilyV <https://github.com/EmilyV99>
+ */
+
+.hljs,
+.hljs-plain {
+  color: #F0F0F0;
+  background: #1b2028;
+}
+
+.hljs-emphasis {
+  font-style: italic;
+}
+
+.hljs-strong {
+  font-weight: bold;
+}
+
+.hljs-link {
+  text-decoration: underline;
+}
+
+.hljs-comment {
+  color: #666666;
+  font-style: italic;
+  font-weight: bold;
+}
+
+.hljs-params {
+  color: #8585D0;
+}
+
+.hljs-meta,
+.hljs-meta.annotation,
+.hljs-meta .hljs-keyword {
+  color: #8954a5;
+}
+
+.hljs-operator {
+  color: #3fbf49;
+}
+
+.hljs-keyword {
+  color: #ff4b82;
+}
+
+.hljs-keyword.global_ {
+  font-weight: bold;
+}
+
+.hljs-string,
+.hljs-meta .hljs-string {
+  color: #0ab26f;
+}
+
+.hljs-number,
+.hljs-keyword.literal_ {
+	color: #f8fc11;
+}
+
+.hljs-type,
+.hljs-type.enum_,
+.hljs-type.class_,
+.hljs-type.script_ {
+	color: #fc9e11;
+}
+
+.hljs-title,
+.hljs-title.function_,
+.hljs-title.script_ {
+	color: #00ffff;
+}

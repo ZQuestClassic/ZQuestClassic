@@ -6,6 +6,7 @@ from sphinx.util.docutils import SphinxDirective, SphinxTranslator
 from sphinx.util.typing import ExtensionMetadata
 from docutils.parsers.rst.directives import unchanged
 import urllib
+import html
 
 
 class ZScriptNode(nodes.General, nodes.Element):
@@ -38,18 +39,22 @@ class ZScriptDirective(SphinxDirective):
 
 
 def visit_logo_node_html(translator: SphinxTranslator, node: ZScriptNode) -> None:
-    html_str = f'<iframe width=100%% height={node.height} src=https://web.zquestclassic.com/zscript/'
-    first = False
-    if node.url != '':
-        html_str += '?url=' + node.url
-    elif node.data != '':
-        html_str += '?data=' + urllib.parse.quote(node.data)
-    else: first = True
-    if node.fname != '':
-        html_str += '?' if first else '&'
-        html_str += 'fname=' + urllib.parse.quote(node.fname)
-    html_str += '></iframe>\n'
-    translator.body.append(html_str)
+    if node.data:
+        html_str = f'<pre class="hljs"><code class="language-zs">{html.escape(node.data)}</code></pre>'
+        translator.body.append(html_str)
+    else:
+        html_str = f'<iframe width=100%% height={node.height} src=https://web.zquestclassic.com/zscript/'
+        first = False
+        if node.url != '':
+            html_str += '?url=' + node.url
+        elif node.data != '':
+            html_str += '?data=' + urllib.parse.quote(node.data)
+        else: first = True
+        if node.fname != '':
+            html_str += '?' if first else '&'
+            html_str += 'fname=' + urllib.parse.quote(node.fname)
+        html_str += '></iframe>\n'
+        translator.body.append(html_str)
 
 
 def depart_logo_node_html(translator: SphinxTranslator, node: ZScriptNode) -> None:
