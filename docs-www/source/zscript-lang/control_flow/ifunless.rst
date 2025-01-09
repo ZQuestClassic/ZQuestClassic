@@ -13,8 +13,6 @@ By using ``unless(condition)``, the code will run only when the condition evalua
 .. dropdown:: Example
 
 	.. zscript::
-		:fname: example.zs
-		:height: 400
 		
 		void foo()
 		{
@@ -47,8 +45,6 @@ Placing an ``else`` after a conditional statement's body, allows you to run a se
 .. dropdown:: Example
 
 	.. zscript::
-		:fname: example.zs
-		:height: 400
 
 		void foo()
 		{

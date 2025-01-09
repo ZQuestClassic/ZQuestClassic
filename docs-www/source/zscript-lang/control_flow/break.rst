@@ -15,7 +15,6 @@ By using the ``continue`` statement, you can skip ahead to the next iteration of
 .. dropdown:: Example
 
 	.. zscript::
-		:fname: example.zs
 
 		void foo()
 		{
@@ -51,7 +50,6 @@ by specifying a number of loops to go back.
 .. dropdown:: Example
 
 	.. zscript::
-		:fname: example.zs
 
 		global script example
 		{

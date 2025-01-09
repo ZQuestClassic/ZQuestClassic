@@ -28,8 +28,7 @@ Otherwise, you can follow the pattern ``loop(typename varname : range, increment
 .. dropdown:: Example
 
 	.. zscript::
-		:fname: example.zs
-
+		
 		void infinite()
 		{
 			loop() // similar to 'while(true)'

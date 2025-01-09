@@ -12,8 +12,7 @@ except the body code runs multiple times, until the condition fails.
 .. dropdown:: Example
 
 	.. zscript::
-		:fname: example.zs
-
+		
 		void foo()
 		{
 			int x = 3;
@@ -47,7 +46,6 @@ A loop using the ``do`` keyword will run at least one time, even if the conditio
 .. dropdown:: Example
 
 	.. zscript::
-		:fname: example.zs
 
 		void foo()
 		{

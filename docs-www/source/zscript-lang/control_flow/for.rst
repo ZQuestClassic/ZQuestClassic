@@ -16,7 +16,6 @@ The format of these is ``for(declaration; condition; increment)``, followed by t
 .. dropdown:: Example
 
 	.. zscript::
-		:fname: example.zs
 
 		void foo()
 		{
@@ -45,7 +44,6 @@ The type of the variable will be the element type of the array.
 .. dropdown:: Example
 
 	.. zscript::
-		:fname: example.zs
 
 		void foo()
 		{

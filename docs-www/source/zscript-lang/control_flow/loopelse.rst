@@ -9,7 +9,6 @@ The code in the body of the ``else`` will run in the condition that the loop end
 .. dropdown:: Example
 
 	.. zscript::
-		:fname: example.zs
 
 		void foo()
 		{
