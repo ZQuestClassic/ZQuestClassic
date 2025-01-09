@@ -1,8 +1,8 @@
-Value Ranges
-============
+Switch / Case
+=============
 
 .. note::
 	WIP: This page is incomplete, and needs more information.
 
-.. _zslang_ranges:
+.. _stmt_switch:
 

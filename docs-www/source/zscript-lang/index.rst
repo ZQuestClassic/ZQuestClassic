@@ -23,7 +23,7 @@ ZScript Lang
 	:hidden:
 	:maxdepth: 1
 
-	/zscript-lang/control_flow
+	/zscript-lang/control_flow/index
 
 .. toctree::
 	:hidden:
