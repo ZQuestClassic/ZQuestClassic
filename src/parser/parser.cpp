@@ -383,7 +383,8 @@ int32_t main(int32_t argc, char **argv)
 
 	if (ZScript::is_test())
 	{
-		assert(zscript_load_base_config("base_config/zscript_test.cfg"));
+		bool result = zscript_load_base_config("base_config/zscript_test.cfg");
+		assert(result);
 	}
 	else
 	{

@@ -5,6 +5,15 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
+global_objects.zs Line 33 @ Columns 28-46 - Warning S094: Function 'Game::CreateBitmap(int, int)' is deprecated, and should not be used.
+
+31    GlobalObject(globalThing->someCounters[0]);
+32    GlobalObject(globalThing->otherThing->someCounters[0]);
+33    globalThing->a_bitmap = Game->CreateBitmap();
+                              ^~~~~~~~~~~~~~~~~~
+
+
+INFO: Use `new bitmap(width, height)` instead!
 Pass 5: Checking code paths
 Pass 6: Generating object code
 Pass 7: Assembling
@@ -15,7 +24,22 @@ stdout:
 
 {
   "success": true,
-  "diagnostics": [],
+  "diagnostics": [
+    {
+      "range": {
+        "start": {
+          "line": 32,
+          "character": 27
+        },
+        "end": {
+          "line": 32,
+          "character": 45
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::CreateBitmap(int, int)' is deprecated, and should not be used.\nUse `new bitmap(width, height)` instead!"
+    }
+  ],
   "metadata": {
     "currentFileSymbols": 11,
     "symbols": 18,

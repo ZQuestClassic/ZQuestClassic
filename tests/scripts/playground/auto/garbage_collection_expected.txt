@@ -5,8 +5,26 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
+garbage_collection.zs Line 562 @ Columns 21-39 - Warning S094: Function 'Game::CreateBitmap(int, int)' is deprecated, and should not be used.
+
+560                checkCountWithGC(0);
+561    
+562                internal_bmp_1 = Game->CreateBitmap();
+                                    ^~~~~~~~~~~~~~~~~~
+
+
+INFO: Use `new bitmap(width, height)` instead!
 Pass 5: Checking code paths
 Pass 6: Generating object code
+garbage_collection.zs Line 441 @ Columns 4-12 - Warning S094: The operator 'delete' is deprecated, and should not be used.
+
+439    yield();
+440    check("RefCount(a)", RefCount(a), 1L);
+441    delete a;
+       ^~~~~~~~
+
+
+INFO: This operator no longer does anything. Objects are freed automatically when they become unreachable
 Pass 7: Assembling
 Success!
 Compile finished with exit code '0' (success)
@@ -15,7 +33,36 @@ stdout:
 
 {
   "success": true,
-  "diagnostics": [],
+  "diagnostics": [
+    {
+      "range": {
+        "start": {
+          "line": 561,
+          "character": 20
+        },
+        "end": {
+          "line": 561,
+          "character": 38
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::CreateBitmap(int, int)' is deprecated, and should not be used.\nUse `new bitmap(width, height)` instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 440,
+          "character": 3
+        },
+        "end": {
+          "line": 440,
+          "character": 11
+        }
+      },
+      "severity": 2,
+      "message": "S094: The operator 'delete' is deprecated, and should not be used.\nThis operator no longer does anything. Objects are freed automatically when they become unreachable"
+    }
+  ],
   "metadata": {
     "currentFileSymbols": 84,
     "symbols": 60,

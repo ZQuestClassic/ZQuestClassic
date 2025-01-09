@@ -11,6 +11,14 @@ errors_1.zs Line 1 @ Columns 15-21 - Error S011: Script Global needs a void run(
                    ^~~~~~
 
 
+errors_1.zs Line 6 @ Columns 37-48 - Error S009: Variable number_oops has not been declared.
+
+4    {
+5        int number = 123;
+6        printf("hello world: %d\n", number_oops);
+                                     ^~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '11' (compiled with errors)
 
@@ -33,6 +41,20 @@ stdout:
       },
       "severity": 1,
       "message": "S011: Script Global needs a void run() function."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 5,
+          "character": 36
+        },
+        "end": {
+          "line": 5,
+          "character": 47
+        }
+      },
+      "severity": 1,
+      "message": "S009: Variable number_oops has not been declared."
     }
   ],
   "metadata": {

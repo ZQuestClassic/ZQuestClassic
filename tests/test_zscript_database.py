@@ -279,6 +279,7 @@ class TestZScriptDatabase(ZCTestCase):
             imports.append(rel_name)
             lines = [
                 '#option ON_MISSING_RETURN warn',
+                '#option WARN_DEPRECATED off',
                 '',
                 *(f'#includepath "{path}"' for path in include_paths),
                 '',

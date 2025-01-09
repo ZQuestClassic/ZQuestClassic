@@ -7,6 +7,15 @@ Pass 3: Registration
 Pass 4: Analyzing Code
 Pass 5: Checking code paths
 Pass 6: Generating object code
+classes.zs Line 32 @ Columns 3-15 - Warning S094: The operator 'delete' is deprecated, and should not be used.
+
+30    
+31            Car mycar = new Car();
+32            delete mycar;
+              ^~~~~~~~~~~~
+
+
+INFO: This operator no longer does anything. Objects are freed automatically when they become unreachable
 Pass 7: Assembling
 Success!
 Compile finished with exit code '0' (success)
@@ -15,7 +24,22 @@ stdout:
 
 {
   "success": true,
-  "diagnostics": [],
+  "diagnostics": [
+    {
+      "range": {
+        "start": {
+          "line": 31,
+          "character": 2
+        },
+        "end": {
+          "line": 31,
+          "character": 14
+        }
+      },
+      "severity": 2,
+      "message": "S094: The operator 'delete' is deprecated, and should not be used.\nThis operator no longer does anything. Objects are freed automatically when they become unreachable"
+    }
+  ],
   "metadata": {
     "currentFileSymbols": 10,
     "symbols": 9,

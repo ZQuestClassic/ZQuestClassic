@@ -12,6 +12,22 @@ errors_optional.zs Line 12 @ Columns 36-38 - Error S109: Function 'optional_para
                                          ^~
 
 
+errors_optional.zs Line 26 @ Columns 31-48 - Error R075: Global variable initializers can only contain calls to 'constexpr' functions
+
+24    
+25    // not ok, not a compile time value
+26    int optional_params_5(int a = optional_params_1()) {
+                                    ^~~~~~~~~~~~~~~~~
+
+
+errors_optional.zs Line 26 @ Columns 31-50 - Error S109: Function 'optional_params_5' has an optional parameter whose default value is not a constant expression
+
+24    
+25    // not ok, not a compile time value
+26    int optional_params_5(int a = optional_params_1()) {
+                                    ^~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '109' (compiled with errors)
 
@@ -34,6 +50,34 @@ stdout:
       },
       "severity": 1,
       "message": "S109: Function 'optional_params_3' has an optional parameter whose default value is not a constant expression"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 25,
+          "character": 30
+        },
+        "end": {
+          "line": 25,
+          "character": 47
+        }
+      },
+      "severity": 1,
+      "message": "R075: Global variable initializers can only contain calls to 'constexpr' functions"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 25,
+          "character": 30
+        },
+        "end": {
+          "line": 25,
+          "character": 49
+        }
+      },
+      "severity": 1,
+      "message": "S109: Function 'optional_params_5' has an optional parameter whose default value is not a constant expression"
     }
   ],
   "metadata": {

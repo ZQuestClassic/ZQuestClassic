@@ -5,6 +5,132 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
+EmilyMisc.zh Line 589 @ Columns 6-24 - Warning S094: Function 'Game::GetCurScreen()' is deprecated, and should not be used.
+
+587    bool CanScrollInDir(int dir) //start
+588    {
+589        if(Game->GetCurScreen() == 0x80) return dir == DIR_DOWN;
+              ^~~~~~~~~~~~~~~~~~
+
+
+INFO: Use [CurScreen] instead!
+EmilyMisc.zh Line 594 @ Columns 12-30 - Warning S094: Function 'Game::GetCurScreen()' is deprecated, and should not be used.
+
+592    {
+593        case DIR_UP:
+594            return Game->GetCurScreen() > 0x0F;
+                      ^~~~~~~~~~~~~~~~~~
+
+
+INFO: Use [CurScreen] instead!
+EmilyMisc.zh Line 596 @ Columns 12-30 - Warning S094: Function 'Game::GetCurScreen()' is deprecated, and should not be used.
+
+594        return Game->GetCurScreen() > 0x0F;
+595    case DIR_DOWN:
+596        return Game->GetCurScreen() < 0x70;
+                  ^~~~~~~~~~~~~~~~~~
+
+
+INFO: Use [CurScreen] instead!
+EmilyMisc.zh Line 598 @ Columns 12-30 - Warning S094: Function 'Game::GetCurScreen()' is deprecated, and should not be used.
+
+596        return Game->GetCurScreen() < 0x70;
+597    case DIR_LEFT:
+598        return Game->GetCurScreen() % 0x10;
+                  ^~~~~~~~~~~~~~~~~~
+
+
+INFO: Use [CurScreen] instead!
+EmilyMisc.zh Line 600 @ Columns 13-31 - Warning S094: Function 'Game::GetCurScreen()' is deprecated, and should not be used.
+
+598        return Game->GetCurScreen() % 0x10;
+599    case DIR_RIGHT:
+600        return (Game->GetCurScreen() % 0x10) != 0x0F;
+                   ^~~~~~~~~~~~~~~~~~
+
+
+INFO: Use [CurScreen] instead!
+EmilyMisc.zh Line 378 @ Columns 28-43 - Warning S094: Function 'Game::GetCurMap()' is deprecated, and should not be used.
+
+376    mapdata CurMapdata() //start
+377    {
+378        return Game->LoadMapData(Game->GetCurMap(), Game->GetCurScreen());
+                                    ^~~~~~~~~~~~~~~
+
+
+INFO: Use [CurMap] instead!
+EmilyMisc.zh Line 378 @ Columns 47-65 - Warning S094: Function 'Game::GetCurScreen()' is deprecated, and should not be used.
+
+376    mapdata CurMapdata() //start
+377    {
+378        return Game->LoadMapData(Game->GetCurMap(), Game->GetCurScreen());
+                                                       ^~~~~~~~~~~~~~~~~~
+
+
+INFO: Use [CurScreen] instead!
+EmilyMisc.zh Line 1513 @ Columns 15-32 - Warning S094: Function 'Game::GetCurLevel()' is deprecated, and should not be used.
+
+1511    dmapdata dm = Game->LoadDMapData(SCRNSHOT_DMAP);
+1512    int olddm[] = {dm->Map, dm->Level, dm->Offset, dm->Type, dm->Palette};
+1513    dm->Level = Game->GetCurLevel();
+                    ^~~~~~~~~~~~~~~~~
+
+
+INFO: Use [CurLevel] instead!
+EmilyMisc.zh Line 1524 @ Columns 27-41 - Warning S094: Function 'Game::MapCount()' is deprecated, and should not be used.
+
+1522    bitmap b = create(256*16,176*8);
+1523    
+1524    for(int map = 1; map <= Game->MapCount(); ++map)
+                                ^~~~~~~~~~~~~~
+
+
+INFO: Use [MapCount] instead!
+EmilyMisc.zh Line 1580 @ Columns 13-31 - Warning S094: Function 'Game::GetCurScreen()' is deprecated, and should not be used.
+
+1578        Waitframe();
+1579    }
+1580    until(Game->GetCurScreen() == scr || !--timeout);
+              ^~~~~~~~~~~~~~~~~~
+
+
+INFO: Use [CurScreen] instead!
+EmilyMisc.zh Line 1581 @ Columns 10-28 - Warning S094: Function 'Game::GetCurScreen()' is deprecated, and should not be used.
+
+1579    }
+1580    until(Game->GetCurScreen() == scr || !--timeout);
+1581    if(Game->GetCurScreen() != scr) //Warp failed, for some reason?
+           ^~~~~~~~~~~~~~~~~~
+
+
+INFO: Use [CurScreen] instead!
+EmilyMisc.zh Line 1383 @ Columns 15-32 - Warning S094: Function 'Game::GetCurLevel()' is deprecated, and should not be used.
+
+1381    int olddm[] = {dm->Map, dm->Level, dm->Offset, dm->Type, dm->Palette};
+1382    dm->Map = map;
+1383    dm->Level = Game->GetCurLevel();
+                    ^~~~~~~~~~~~~~~~~
+
+
+INFO: Use [CurLevel] instead!
+EmilyMisc.zh Line 1446 @ Columns 12-30 - Warning S094: Function 'Game::GetCurScreen()' is deprecated, and should not be used.
+
+1444        Waitframe();
+1445    }
+1446    until(Game->GetCurScreen() == scr || !--timeout);
+              ^~~~~~~~~~~~~~~~~~
+
+
+INFO: Use [CurScreen] instead!
+EmilyMisc.zh Line 1447 @ Columns 9-27 - Warning S094: Function 'Game::GetCurScreen()' is deprecated, and should not be used.
+
+1445    }
+1446    until(Game->GetCurScreen() == scr || !--timeout);
+1447    if(Game->GetCurScreen() != scr) //Warp failed, for some reason?
+           ^~~~~~~~~~~~~~~~~~
+
+
+INFO: Use [CurScreen] instead!
 Pass 5: Checking code paths
 Pass 6: Generating object code
 Pass 7: Assembling

@@ -13,6 +13,78 @@ errors_4.zs Line 58 @ Columns 4-17 - Error T021: Function ArrayPushBack(char32, 
                   ^~~~~~~~~~~~~
 
 
+errors_4.zs Line 59 @ Columns 4-15 - Error T021: Function ResizeArray(char32, int) has not been declared.
+
+57    
+58                ArrayPushBack(ptr, 1);
+59                ResizeArray(ptr, 1);
+                  ^~~~~~~~~~~
+
+
+errors_4.zs Line 12 @ Columns 10-12 - Error T017: Cannot cast from int to Object.
+
+10    
+11            // Invalid.
+12            Object n1 = ArrayPopBack(numbers);
+                     ^~
+
+
+errors_4.zs Line 13 @ Columns 3-16 - Error T021: Function ArrayPushBack(int[], Object) has not been declared.
+
+11    // Invalid.
+12    Object n1 = ArrayPopBack(numbers);
+13    ArrayPushBack(numbers, obj);
+      ^~~~~~~~~~~~~
+
+
+errors_4.zs Line 14 @ Columns 3-16 - Error T021: Function ArrayPushBack(int[], char32[]) has not been declared.
+
+12    Object n1 = ArrayPopBack(numbers);
+13    ArrayPushBack(numbers, obj);
+14    ArrayPushBack(numbers, "");
+      ^~~~~~~~~~~~~
+
+
+errors_4.zs Line 16 @ Columns 10-18 - Error T017: Cannot cast from int to Object.
+
+14    ArrayPushBack(numbers, "");
+15    ArrayPushBack(numbers, 1L); // TODO: this should be invalid (else: we perform an implicit cast and multiply by 10000...)
+16    Object choice_1 = Choose(1, 2, 3);
+             ^~~~~~~~
+
+
+errors_4.zs Line 17 @ Columns 19-25 - Error T021: Function Choose(int, int, Object) has not been declared.
+
+15    ArrayPushBack(numbers, 1L); // TODO: this should be invalid (else: we perform an implicit cast and multiply by 10000...)
+16    Object choice_1 = Choose(1, 2, 3);
+17    auto choice_2 = Choose(1, 2, obj);
+                      ^~~~~~
+
+
+errors_4.zs Line 18 @ Columns 16-19 - Error T021: Function Max(int, int, Object) has not been declared.
+
+16    Object choice_1 = Choose(1, 2, 3);
+17    auto choice_2 = Choose(1, 2, obj);
+18    auto max_1 = Max(1, 2, obj);
+                   ^~~
+
+
+errors_4.zs Line 19 @ Columns 16-19 - Error T021: Function Max(int, Object) has not been declared.
+
+17    auto choice_2 = Choose(1, 2, obj);
+18    auto max_1 = Max(1, 2, obj);
+19    auto max_2 = Max(1, obj);
+                   ^~~
+
+
+errors_4.zs Line 20 @ Columns 16-19 - Error T021: Function Max(int) has not been declared.
+
+18    auto max_1 = Max(1, 2, obj);
+19    auto max_2 = Max(1, obj);
+20    auto max_3 = Max(1);
+                   ^~~
+
+
 Failure!
 Compile finished with exit code '21' (compiled with errors)
 
@@ -35,12 +107,138 @@ stdout:
       },
       "severity": 1,
       "message": "T021: Function ArrayPushBack(char32, int) has not been declared."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 58,
+          "character": 3
+        },
+        "end": {
+          "line": 58,
+          "character": 14
+        }
+      },
+      "severity": 1,
+      "message": "T021: Function ResizeArray(char32, int) has not been declared."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 11,
+          "character": 9
+        },
+        "end": {
+          "line": 11,
+          "character": 11
+        }
+      },
+      "severity": 1,
+      "message": "T017: Cannot cast from int to Object."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 12,
+          "character": 2
+        },
+        "end": {
+          "line": 12,
+          "character": 15
+        }
+      },
+      "severity": 1,
+      "message": "T021: Function ArrayPushBack(int[], Object) has not been declared."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 13,
+          "character": 2
+        },
+        "end": {
+          "line": 13,
+          "character": 15
+        }
+      },
+      "severity": 1,
+      "message": "T021: Function ArrayPushBack(int[], char32[]) has not been declared."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 15,
+          "character": 9
+        },
+        "end": {
+          "line": 15,
+          "character": 17
+        }
+      },
+      "severity": 1,
+      "message": "T017: Cannot cast from int to Object."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 16,
+          "character": 18
+        },
+        "end": {
+          "line": 16,
+          "character": 24
+        }
+      },
+      "severity": 1,
+      "message": "T021: Function Choose(int, int, Object) has not been declared."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 17,
+          "character": 15
+        },
+        "end": {
+          "line": 17,
+          "character": 18
+        }
+      },
+      "severity": 1,
+      "message": "T021: Function Max(int, int, Object) has not been declared."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 18,
+          "character": 15
+        },
+        "end": {
+          "line": 18,
+          "character": 18
+        }
+      },
+      "severity": 1,
+      "message": "T021: Function Max(int, Object) has not been declared."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 19,
+          "character": 15
+        },
+        "end": {
+          "line": 19,
+          "character": 18
+        }
+      },
+      "severity": 1,
+      "message": "T021: Function Max(int) has not been declared."
     }
   ],
   "metadata": {
     "currentFileSymbols": 18,
-    "symbols": 3,
-    "identifiers": 9,
+    "symbols": 16,
+    "identifiers": 47,
     "elided": true
   }
 }

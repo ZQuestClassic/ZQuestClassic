@@ -13,6 +13,48 @@ errors_5.zs Line 8 @ Columns 3-22 - Error C036: Variable Game->CurScreen is cons
          ^~~~~~~~~~~~~~~~~~~
 
 
+errors_5.zs Line 9 @ Columns 3-20 - Error C036: Variable Game->CurDMap is constant and cannot be changed.
+
+ 7    //Read-only vars should warn
+ 8    Game->CurScreen = 2;
+ 9    Game->CurDMap = 5;
+      ^~~~~~~~~~~~~~~~~
+
+
+errors_5.zs Line 10 @ Columns 3-21 - Error C036: Variable Hero->IceCombo is constant and cannot be changed.
+
+ 8    Game->CurScreen = 2;
+ 9    Game->CurDMap = 5;
+10    Hero->IceCombo = 0;
+      ^~~~~~~~~~~~~~~~~~
+
+
+errors_5.zs Line 12 @ Columns 3-9 - Error S095: Function 'Untype(untyped)' is deprecated, and cannot be used due to current compiler settings.
+
+10    Hero->IceCombo = 0;
+11    //Deprecated things error due to #option
+12    Untype(5);
+      ^~~~~~
+
+
+INFO: Use casting `<untyped>(var)` instead!
+errors_5.zs Line 13 @ Columns 3-11 - Error S095: Function 'TraceNPC(untyped)' is deprecated, and cannot be used due to current compiler settings.
+
+11    //Deprecated things error due to #option
+12    Untype(5);
+13    TraceNPC(Screen->LoadNPC(0));
+      ^~~~~~~~
+
+
+INFO: Use Trace instead
+errors_5.zs Line 14 @ Columns 9-28 - Error T029: There is no variable ScriptEntry for the pointer (screendata) on the left side of ->.
+
+12    Untype(5);
+13    TraceNPC(Screen->LoadNPC(0));
+14    Trace(Screen->ScriptEntry);
+            ^~~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '36' (compiled with errors)
 
@@ -35,12 +77,82 @@ stdout:
       },
       "severity": 1,
       "message": "C036: Variable Game->CurScreen is constant and cannot be changed."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 8,
+          "character": 2
+        },
+        "end": {
+          "line": 8,
+          "character": 19
+        }
+      },
+      "severity": 1,
+      "message": "C036: Variable Game->CurDMap is constant and cannot be changed."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 9,
+          "character": 2
+        },
+        "end": {
+          "line": 9,
+          "character": 20
+        }
+      },
+      "severity": 1,
+      "message": "C036: Variable Hero->IceCombo is constant and cannot be changed."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 11,
+          "character": 2
+        },
+        "end": {
+          "line": 11,
+          "character": 8
+        }
+      },
+      "severity": 1,
+      "message": "S095: Function 'Untype(untyped)' is deprecated, and cannot be used due to current compiler settings.\nUse casting `<untyped>(var)` instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 12,
+          "character": 2
+        },
+        "end": {
+          "line": 12,
+          "character": 10
+        }
+      },
+      "severity": 1,
+      "message": "S095: Function 'TraceNPC(untyped)' is deprecated, and cannot be used due to current compiler settings.\nUse Trace instead"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 13,
+          "character": 8
+        },
+        "end": {
+          "line": 13,
+          "character": 27
+        }
+      },
+      "severity": 1,
+      "message": "T029: There is no variable ScriptEntry for the pointer (screendata) on the left side of ->."
     }
   ],
   "metadata": {
     "currentFileSymbols": 2,
-    "symbols": 2,
-    "identifiers": 2,
+    "symbols": 9,
+    "identifiers": 11,
     "elided": true
   }
 }

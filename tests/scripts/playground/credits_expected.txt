@@ -5,6 +5,64 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
+credits.zs Line 68 @ Columns 11-29 - Warning S094: Function 'Game::CreateBitmap(int, int)' is deprecated, and should not be used.
+
+66    {
+67        if ( Game->FFRules[qr_OLDCREATEBITMAP_ARGS] )
+68            return Game->CreateBitmap(h, w);
+                     ^~~~~~~~~~~~~~~~~~
+
+
+INFO: Use `new bitmap(width, height)` instead!
+credits.zs Line 69 @ Columns 15-33 - Warning S094: Function 'Game::CreateBitmap(int, int)' is deprecated, and should not be used.
+
+67    if ( Game->FFRules[qr_OLDCREATEBITMAP_ARGS] )
+68        return Game->CreateBitmap(h, w);
+69    else return Game->CreateBitmap(w, h);
+                  ^~~~~~~~~~~~~~~~~~
+
+
+INFO: Use `new bitmap(width, height)` instead!
+credits.zs Line 52 @ Columns 4-17 - Warning S094: Function 'bitmap::Free()' is deprecated, and should not be used.
+
+50    {
+51        if(_bitmap->isValid())
+52            _bitmap->Free();
+              ^~~~~~~~~~~~~
+
+
+INFO: Free() no longer does anything as of ZC 3.0. Objects are now
+freed automatically.
+credits.zs Line 39 @ Columns 4-17 - Warning S094: Function 'bitmap::Free()' is deprecated, and should not be used.
+
+37    {
+38        if(_bitmap->isValid())
+39            _bitmap->Free();
+              ^~~~~~~~~~~~~
+
+
+INFO: Free() no longer does anything as of ZC 3.0. Objects are now
+freed automatically.
+credits.zs Line 106 @ Columns 3-12 - Warning S094: Function 'bitmap::Free()' is deprecated, and should not be used.
+
+104    _bitmap->Blit(7, tmp, 0, 0, 256, data[DATA_CURRY], 0, 0, 256, data[DATA_CURRY], 0, 0, 0, BITDX_NORMAL, 0, false);
+105    tmp->Write(7, filepath, true);
+106    tmp->Free();
+       ^~~~~~~~~
+
+
+INFO: Free() no longer does anything as of ZC 3.0. Objects are now
+freed automatically.
+credits.zs Line 78 @ Columns 3-16 - Warning S094: Function 'bitmap::Free()' is deprecated, and should not be used.
+
+76    int h = Min(_bitmap->Height, height);
+77    _bitmap->Blit(0, tmp, 0, 0, 256, h, 0, 0, 256, h, 0, 0, 0, BITDX_NORMAL, 0, false);
+78    _bitmap->Free();
+      ^~~~~~~~~~~~~
+
+
+INFO: Free() no longer does anything as of ZC 3.0. Objects are now
+freed automatically.
 Pass 5: Checking code paths
 Pass 6: Generating object code
 Pass 7: Assembling
@@ -15,7 +73,92 @@ stdout:
 
 {
   "success": true,
-  "diagnostics": [],
+  "diagnostics": [
+    {
+      "range": {
+        "start": {
+          "line": 67,
+          "character": 10
+        },
+        "end": {
+          "line": 67,
+          "character": 28
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::CreateBitmap(int, int)' is deprecated, and should not be used.\nUse `new bitmap(width, height)` instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 68,
+          "character": 14
+        },
+        "end": {
+          "line": 68,
+          "character": 32
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'Game::CreateBitmap(int, int)' is deprecated, and should not be used.\nUse `new bitmap(width, height)` instead!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 51,
+          "character": 3
+        },
+        "end": {
+          "line": 51,
+          "character": 16
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'bitmap::Free()' is deprecated, and should not be used.\nFree() no longer does anything as of ZC 3.0. Objects are now\nfreed automatically."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 38,
+          "character": 3
+        },
+        "end": {
+          "line": 38,
+          "character": 16
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'bitmap::Free()' is deprecated, and should not be used.\nFree() no longer does anything as of ZC 3.0. Objects are now\nfreed automatically."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 105,
+          "character": 2
+        },
+        "end": {
+          "line": 105,
+          "character": 11
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'bitmap::Free()' is deprecated, and should not be used.\nFree() no longer does anything as of ZC 3.0. Objects are now\nfreed automatically."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 77,
+          "character": 2
+        },
+        "end": {
+          "line": 77,
+          "character": 15
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'bitmap::Free()' is deprecated, and should not be used.\nFree() no longer does anything as of ZC 3.0. Objects are now\nfreed automatically."
+    }
+  ],
   "metadata": {
     "currentFileSymbols": 57,
     "symbols": 93,

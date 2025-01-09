@@ -21,6 +21,70 @@ arrays.zs Line 80 @ Columns 3-9 - Error S109: Arrays should be explicitly typed 
               ^~~~~~
 
 
+arrays.zs Line 7 @ Columns 6-10 - Warning S108: Array mismatch for types int[] and int
+
+5    
+6        // Warn
+7        int arr2 = {1};
+             ^~~~
+
+
+arrays.zs Line 8 @ Columns 8-12 - Warning S108: Array mismatch for types int and int[]
+
+6    // Warn
+7    int arr2 = {1};
+8    int[] arr3 = 1;
+           ^~~~
+
+
+arrays.zs Line 13 @ Columns 7-11 - Error S109: Array mismatch for types int[] and int
+
+11            #option LEGACY_ARRAYS off
+12    
+13            int arr2 = {1};
+                  ^~~~
+
+
+arrays.zs Line 14 @ Columns 9-13 - Error S109: Array mismatch for types int and int[]
+
+12    
+13            int arr2 = {1};
+14            int[] arr3 = 1;
+                    ^~~~
+
+
+arrays.zs Line 41 @ Columns 2-26 - Warning S108: Array mismatch for types int[][] and int[]
+
+39    
+40        int[] arr_multi[] = {arr, arr};
+41        arr_multi[2] = arr_multi;
+          ^~~~~~~~~~~~~~~~~~~~~~~~
+
+
+arrays.zs Line 44 @ Columns 9-24 - Error T017: Cannot cast from bitmap[] to bitmap.
+
+42    
+43        // Legacy arrays for reference counted objects is always an error, regardless of LEGACY_ARRAYS.
+44        bitmap bitmaps_bad_arr = {new bitmap()};
+                 ^~~~~~~~~~~~~~~
+
+
+arrays.zs Line 46 @ Columns 2-24 - Error T021: Function fnNewStyleArrayObjects(bitmap) has not been declared.
+
+44    bitmap bitmaps_bad_arr = {new bitmap()};
+45    bitmap[] bitmaps_good_arr = {new bitmap()};
+46    fnNewStyleArrayObjects(bitmaps_bad_arr);
+      ^~~~~~~~~~~~~~~~~~~~~~
+
+
+arrays.zs Line 51 @ Columns 10-28 - Warning S108: Array mismatch for types untyped[] and lweapon
+
+49    
+50        // lweapon is not a reference counted object, so this type mismatch defaults to a warning.
+51        lweapon weapons_legacy_arr = {NULL};
+                  ^~~~~~~~~~~~~~~~~~
+
+
 Failure!
 Compile finished with exit code '109' (compiled with errors)
 
@@ -57,12 +121,124 @@ stdout:
       },
       "severity": 1,
       "message": "S109: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 6,
+          "character": 5
+        },
+        "end": {
+          "line": 6,
+          "character": 9
+        }
+      },
+      "severity": 2,
+      "message": "S108: Array mismatch for types int[] and int"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 7,
+          "character": 7
+        },
+        "end": {
+          "line": 7,
+          "character": 11
+        }
+      },
+      "severity": 2,
+      "message": "S108: Array mismatch for types int and int[]"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 12,
+          "character": 6
+        },
+        "end": {
+          "line": 12,
+          "character": 10
+        }
+      },
+      "severity": 1,
+      "message": "S109: Array mismatch for types int[] and int"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 13,
+          "character": 8
+        },
+        "end": {
+          "line": 13,
+          "character": 12
+        }
+      },
+      "severity": 1,
+      "message": "S109: Array mismatch for types int and int[]"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 40,
+          "character": 1
+        },
+        "end": {
+          "line": 40,
+          "character": 25
+        }
+      },
+      "severity": 2,
+      "message": "S108: Array mismatch for types int[][] and int[]"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 43,
+          "character": 8
+        },
+        "end": {
+          "line": 43,
+          "character": 23
+        }
+      },
+      "severity": 1,
+      "message": "T017: Cannot cast from bitmap[] to bitmap."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 45,
+          "character": 1
+        },
+        "end": {
+          "line": 45,
+          "character": 23
+        }
+      },
+      "severity": 1,
+      "message": "T021: Function fnNewStyleArrayObjects(bitmap) has not been declared."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 50,
+          "character": 9
+        },
+        "end": {
+          "line": 50,
+          "character": 27
+        }
+      },
+      "severity": 2,
+      "message": "S108: Array mismatch for types untyped[] and lweapon"
     }
   ],
   "metadata": {
     "currentFileSymbols": 18,
-    "symbols": 4,
-    "identifiers": 8,
+    "symbols": 21,
+    "identifiers": 45,
     "elided": true
   }
 }
