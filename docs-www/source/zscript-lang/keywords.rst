@@ -311,7 +311,7 @@ While not technically 'keywords', this table shows reserved syntactical symbols/
 	+-----------------+-------------------------------------------------+
 	| ``->``          | Arrow, for member access                        |
 	+-----------------+-------------------------------------------------+
-	| | ``=..=``      | `Range indicators<ranges>`                      |
+	| | ``=..=``      | `Range indicators<zslang_ranges>`               |
 	| | ``=..``       |                                                 |
 	| | ``..=``       |                                                 |
 	| | ``..``        |                                                 |

@@ -37,3 +37,9 @@ ZScript Lang
 
 	/zscript-lang/classes
 
+.. toctree::
+	:hidden:
+	:maxdepth: 1
+
+	/zscript-lang/ranges
+
