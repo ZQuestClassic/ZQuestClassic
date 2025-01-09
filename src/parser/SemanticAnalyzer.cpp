@@ -1063,10 +1063,12 @@ void SemanticAnalyzer::caseClass(ASTClass& host, void* param)
 	
 
 	// Recurse on user_class elements with its scope.
-	scope = &user_class.getScope();
-	auto prev_scope = scope;
-	RecursiveVisitor::caseClass(host,param);
-	scope = prev_scope;
+	{
+		ScopeReverter sr(&scope);
+		scope = &user_class.getScope();
+		RecursiveVisitor::caseClass(host,param);
+	}
+
 	if (breakRecursion(host)) return;
 	//
 	if(!host.constructors.size())
