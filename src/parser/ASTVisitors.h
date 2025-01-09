@@ -390,6 +390,15 @@ namespace ZScript
 		// Set to true if a hard error occurs (Halting)
 		bool failure_halt;
 	};
+
+	struct ScopeReverter
+	{
+		ScopeReverter(Scope** ptr) : ptr(ptr), val(*ptr) {}
+		~ScopeReverter() {*ptr = val;}
+	private:
+		Scope** ptr;
+		Scope* val;
+	};
 }
 
 #endif
