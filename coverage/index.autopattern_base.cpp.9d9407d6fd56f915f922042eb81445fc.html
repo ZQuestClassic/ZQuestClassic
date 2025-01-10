@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2024-10-20 10:36:38</td>
+      <td>2025-01-10 07:34:20</td>
     </tr>
   </table>
 </div>
@@ -42,7 +42,7 @@
     <tr>
       <th scope="row">Lines:</th>
       <td>0</td>
-      <td>260</td>
+      <td>261</td>
       <td class="coverage-none">0.0%</td>
     </tr>
     <tr>
@@ -2638,73 +2638,80 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="p">}</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="k">else</span><span class="w"> </span><span class="k">return</span><span class="p">;</span><span class="w"> </span><span class="c1">// don&#39;t draw on layer 0 when it isn&#39;t what&#39;s selected</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l363" href="#l363">363</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">mapscr_ptr</span><span class="o">-&gt;</span><span class="n">valid</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">mVALID</span><span class="p">))</span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l364" href="#l364">364</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">mapscr_ptr</span><span class="o">-&gt;</span><span class="n">valid</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">mVALID</span><span class="p">))</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l365" href="#l365">365</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">		</span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l365" href="#l365">365</a></td>
+      <td class="lineno"><a id="l366" href="#l366">366</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">			</span><span class="n">mapscr_ptr</span><span class="o">-&gt;</span><span class="n">valid</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="n">mVALID</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l366" href="#l366">366</a></td>
+      <td class="lineno"><a id="l367" href="#l367">367</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">			</span><span class="n">mapscr_ptr</span><span class="o">-&gt;</span><span class="n">color</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Map</span><span class="p">.</span><span class="n">CurrScr</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">color</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l367" href="#l367">367</a></td>
+      <td class="lineno"><a id="l368" href="#l368">368</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">		</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l368" href="#l368">368</a></td>
+      <td class="lineno"><a id="l369" href="#l369">369</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">		</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">cset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mapscr_ptr</span><span class="o">-&gt;</span><span class="n">cset</span><span class="p">[</span><span class="n">pos</span><span class="p">];</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l369" href="#l369">369</a></td>
+      <td class="lineno"><a id="l370" href="#l370">370</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">		</span><span class="n">Map</span><span class="p">.</span><span class="n">DoSetComboCommand</span><span class="p">(</span><span class="n">drawmap</span><span class="p">,</span><span class="w"> </span><span class="n">drawscreen</span><span class="p">,</span><span class="w"> </span><span class="n">pos</span><span class="p">,</span><span class="w"> </span><span class="n">cid</span><span class="p">,</span><span class="w"> </span><span class="n">base</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">CSet</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">cset</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l370" href="#l370">370</a></td>
+      <td class="lineno"><a id="l371" href="#l371">371</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">	</span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l371" href="#l371">371</a></td>
+      <td class="lineno"><a id="l372" href="#l372">372</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l372" href="#l372">372</a></td>
+      <td class="lineno"><a id="l373" href="#l373">373</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>

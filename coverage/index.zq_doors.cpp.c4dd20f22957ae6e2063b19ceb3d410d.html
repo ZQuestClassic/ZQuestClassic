@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2024-10-20 10:36:38</td>
+      <td>2025-01-10 07:34:20</td>
     </tr>
   </table>
 </div>
@@ -42,8 +42,8 @@
     <tr>
       <th scope="row">Lines:</th>
       <td>328</td>
-      <td>1047</td>
-      <td class="coverage-low">31.3%</td>
+      <td>1046</td>
+      <td class="coverage-low">31.4%</td>
     </tr>
     <tr>
       <th scope="row">Functions:</th>
@@ -74,8 +74,8 @@
       <th>Block coverage</th>
     </tr>
     <tr><td><a href="#l717">auto_generate_dcs(int) (line 717)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l1732">center_zq_door_dialogs() (line 1732)</a></td><td>called 6 times, returned 6 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l1616">copydcs() (line 1616)</a></td><td>not called</td><td>0.0%</td></tr>
+    <tr><td><a href="#l1729">center_zq_door_dialogs() (line 1729)</a></td><td>called 6 times, returned 6 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l1613">copydcs() (line 1613)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l49">door_to_index(int) (line 49)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l1477">doorcombosetlist(int, int*) (line 1477)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l1582">doorcombosetlist_del() (line 1582)</a></td><td>not called</td><td>0.0%</td></tr>
@@ -89,14 +89,14 @@
     <tr><td><a href="#l1319">extract_dcs_dlg() (line 1319)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l1235">fill_dcs_dlg() (line 1235)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l235">fix_dcs(int) (line 235)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l1657">fix_door_combo_set(unsigned short&amp;, unsigned char) (line 1657)</a></td><td>not called</td><td>0.0%</td></tr>
+    <tr><td><a href="#l1654">fix_door_combo_set(unsigned short&amp;, unsigned char) (line 1654)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l76">index_to_door(int) (line 76)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l1672">init_doorcombosets() (line 1672)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l1680">onDoorCombos() (line 1680)</a></td><td>not called</td><td>0.0%</td></tr>
+    <tr><td><a href="#l1669">init_doorcombosets() (line 1669)</a></td><td>not called</td><td>0.0%</td></tr>
+    <tr><td><a href="#l1677">onDoorCombos() (line 1677)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l129">onDoors() (line 129)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l1622">pastedcs() (line 1622)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l1634">replacedcs() (line 1634)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l1666">reset_doorcomboset(int) (line 1666)</a></td><td>not called</td><td>0.0%</td></tr>
+    <tr><td><a href="#l1619">pastedcs() (line 1619)</a></td><td>not called</td><td>0.0%</td></tr>
+    <tr><td><a href="#l1631">replacedcs() (line 1631)</a></td><td>not called</td><td>0.0%</td></tr>
+    <tr><td><a href="#l1663">reset_doorcomboset(int) (line 1663)</a></td><td>not called</td><td>0.0%</td></tr>
   </table>
 </details>
 
@@ -9930,7 +9930,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">door_combo_set_name</span><span class="p">[</span><span class="k">sizeof</span><span class="p">(</span><span class="n">DoorComboSets</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">name</span><span class="p">)];</span></td>
+      <td class="src "><span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">door_combo_set_name</span><span class="p">[</span><span class="mi">21</span><span class="p">];</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1404" href="#l1404">1404</a></td>
@@ -9944,7 +9944,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">    </span><span class="n">sprintf</span><span class="p">(</span><span class="n">door_combo_set_name</span><span class="p">,</span><span class="s">&quot;%s&quot;</span><span class="p">,</span><span class="n">working_dcs</span><span class="p">.</span><span class="n">name</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">    </span><span class="n">sprintf</span><span class="p">(</span><span class="n">door_combo_set_name</span><span class="p">,</span><span class="s">&quot;%s&quot;</span><span class="p">,</span><span class="n">DoorComboSetNames</span><span class="p">[</span><span class="n">index</span><span class="p">].</span><span class="n">c_str</span><span class="p">());</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1406" href="#l1406">1406</a></td>
@@ -10266,7 +10266,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">        </span><span class="n">sprintf</span><span class="p">(</span><span class="n">working_dcs</span><span class="p">.</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;%s&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">door_combo_set_name</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">DoorComboSetNames</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">door_combo_set_name</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1452" href="#l1452">1452</a></td>
@@ -10497,7 +10497,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">DoorComboSets</span><span class="p">[</span><span class="n">index</span><span class="p">].</span><span class="n">name</span><span class="p">;</span></td>
+      <td class="src uncoveredLine"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">DoorComboSetNames</span><span class="p">[</span><span class="n">index</span><span class="p">].</span><span class="n">c_str</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1485" href="#l1485">1485</a></td>
@@ -11196,400 +11196,400 @@
       <td class="lineno"><a id="l1584" href="#l1584">1584</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">buf</span><span class="p">[</span><span class="mi">25</span><span class="p">];</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l1585" href="#l1585">1585</a></td>
-      <td class="linebranch">
-      </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">    </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">d</span><span class="o">=</span><span class="n">doorcombosetlist_dlg</span><span class="p">[</span><span class="mi">2</span><span class="p">].</span><span class="n">d1</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1586" href="#l1586">1586</a></td>
+      <td class="lineno"><a id="l1585" href="#l1585">1585</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">    </span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1587" href="#l1587">1587</a></td>
+      <td class="lineno"><a id="l1586" href="#l1586">1586</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">    </span><span class="k">if</span><span class="p">((</span><span class="n">d</span><span class="o">&gt;</span><span class="mi">0</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">door_combo_set_count</span><span class="o">&gt;</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">d</span><span class="o">&lt;</span><span class="n">door_combo_set_count</span><span class="mi">-1</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1588" href="#l1588">1588</a></td>
+      <td class="lineno"><a id="l1587" href="#l1587">1587</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">    </span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
+      <td class="lineno"><a id="l1588" href="#l1588">1588</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">        </span><span class="k">if</span><span class="p">(</span><span class="n">jwin_alert</span><span class="p">(</span><span class="s">&quot;Confirm Delete&quot;</span><span class="p">,</span><span class="s">&quot;Delete this door combo set?&quot;</span><span class="p">,</span><span class="n">DoorComboSetNames</span><span class="p">[</span><span class="n">d</span><span class="p">].</span><span class="n">c_str</span><span class="p">(),</span><span class="nb">NULL</span><span class="p">,</span><span class="s">&quot;Yes&quot;</span><span class="p">,</span><span class="s">&quot;No&quot;</span><span class="p">,</span><span class="sc">&#39;y&#39;</span><span class="p">,</span><span class="mi">27</span><span class="p">,</span><span class="n">get_zc_font</span><span class="p">(</span><span class="n">font_lfont</span><span class="p">))</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span></td>
+    </tr>
+    <tr class="source-line">
       <td class="lineno"><a id="l1589" href="#l1589">1589</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">        </span><span class="n">strncpy</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span><span class="n">DoorComboSets</span><span class="p">[</span><span class="n">d</span><span class="p">].</span><span class="n">name</span><span class="p">,</span><span class="k">sizeof</span><span class="p">(</span><span class="n">DoorComboSets</span><span class="p">[</span><span class="n">d</span><span class="p">].</span><span class="n">name</span><span class="p">));</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l1590" href="#l1590">1590</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">        </span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l1591" href="#l1591">1591</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">        </span><span class="k">if</span><span class="p">(</span><span class="n">jwin_alert</span><span class="p">(</span><span class="s">&quot;Confirm Delete&quot;</span><span class="p">,</span><span class="s">&quot;Delete this door combo set?&quot;</span><span class="p">,</span><span class="n">buf</span><span class="p">,</span><span class="nb">NULL</span><span class="p">,</span><span class="s">&quot;Yes&quot;</span><span class="p">,</span><span class="s">&quot;No&quot;</span><span class="p">,</span><span class="sc">&#39;y&#39;</span><span class="p">,</span><span class="mi">27</span><span class="p">,</span><span class="n">get_zc_font</span><span class="p">(</span><span class="n">font_lfont</span><span class="p">))</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l1592" href="#l1592">1592</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">        </span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1593" href="#l1593">1593</a></td>
+      <td class="lineno"><a id="l1590" href="#l1590">1590</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">            </span><span class="n">saved</span><span class="o">=</span><span class="nb">false</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1594" href="#l1594">1594</a></td>
+      <td class="lineno"><a id="l1591" href="#l1591">1591</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">            </span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1595" href="#l1595">1595</a></td>
+      <td class="lineno"><a id="l1592" href="#l1592">1592</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">            </span><span class="k">for</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">i</span><span class="o">=</span><span class="n">d</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;</span><span class="n">MAXDOORCOMBOSETS</span><span class="mi">-1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1596" href="#l1596">1596</a></td>
+      <td class="lineno"><a id="l1593" href="#l1593">1593</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">            </span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1597" href="#l1597">1597</a></td>
+      <td class="lineno"><a id="l1594" href="#l1594">1594</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">                </span><span class="n">DoorComboSets</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="n">DoorComboSets</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">];</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1598" href="#l1598">1598</a></td>
+      <td class="lineno"><a id="l1595" href="#l1595">1595</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">            </span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1599" href="#l1599">1599</a></td>
+      <td class="lineno"><a id="l1596" href="#l1596">1596</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">            </span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1600" href="#l1600">1600</a></td>
+      <td class="lineno"><a id="l1597" href="#l1597">1597</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">            </span><span class="n">reset_doorcomboset</span><span class="p">(</span><span class="n">MAXDOORCOMBOSETS</span><span class="mi">-1</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1601" href="#l1601">1601</a></td>
+      <td class="lineno"><a id="l1598" href="#l1598">1598</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">            </span><span class="o">--</span><span class="n">door_combo_set_count</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1602" href="#l1602">1602</a></td>
+      <td class="lineno"><a id="l1599" href="#l1599">1599</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">            </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">sc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vbound</span><span class="p">(</span><span class="n">map_count</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">Map</span><span class="p">.</span><span class="n">getMapCount</span><span class="p">())</span><span class="o">*</span><span class="n">MAPSCRS</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1603" href="#l1603">1603</a></td>
+      <td class="lineno"><a id="l1600" href="#l1600">1600</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">            </span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1604" href="#l1604">1604</a></td>
+      <td class="lineno"><a id="l1601" href="#l1601">1601</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">            </span><span class="k">for</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">s</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">s</span><span class="o">&lt;</span><span class="n">sc</span><span class="p">;</span><span class="w"> </span><span class="n">s</span><span class="o">++</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1605" href="#l1605">1605</a></td>
+      <td class="lineno"><a id="l1602" href="#l1602">1602</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">            </span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1606" href="#l1606">1606</a></td>
+      <td class="lineno"><a id="l1603" href="#l1603">1603</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">                </span><span class="n">fix_door_combo_set</span><span class="p">(</span><span class="n">TheMaps</span><span class="p">[</span><span class="n">s</span><span class="p">].</span><span class="n">door_combo_set</span><span class="p">,</span><span class="w"> </span><span class="n">d</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1607" href="#l1607">1607</a></td>
+      <td class="lineno"><a id="l1604" href="#l1604">1604</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">            </span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1608" href="#l1608">1608</a></td>
+      <td class="lineno"><a id="l1605" href="#l1605">1605</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">        </span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1609" href="#l1609">1609</a></td>
+      <td class="lineno"><a id="l1606" href="#l1606">1606</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">        </span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1610" href="#l1610">1610</a></td>
+      <td class="lineno"><a id="l1607" href="#l1607">1607</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">D_CLOSE</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1611" href="#l1611">1611</a></td>
+      <td class="lineno"><a id="l1608" href="#l1608">1608</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">    </span><span class="p">}</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l1609" href="#l1609">1609</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">    </span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l1610" href="#l1610">1610</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">D_O_K</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l1611" href="#l1611">1611</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1612" href="#l1612">1612</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1613" href="#l1613">1613</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">D_O_K</span><span class="p">;</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l1614" href="#l1614">1614</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="p">}</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l1615" href="#l1615">1615</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l1616" href="#l1616">1616</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="kt">int32_t</span><span class="w"> </span><span class="nf">copydcs</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1617" href="#l1617">1617</a></td>
+      <td class="lineno"><a id="l1614" href="#l1614">1614</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1618" href="#l1618">1618</a></td>
+      <td class="lineno"><a id="l1615" href="#l1615">1615</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">    </span><span class="n">doorcombosetlist_dlg</span><span class="p">[</span><span class="mi">5</span><span class="p">].</span><span class="n">d1</span><span class="o">=</span><span class="n">doorcombosetlist_dlg</span><span class="p">[</span><span class="mi">2</span><span class="p">].</span><span class="n">d1</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1619" href="#l1619">1619</a></td>
+      <td class="lineno"><a id="l1616" href="#l1616">1616</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">D_O_K</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1620" href="#l1620">1620</a></td>
+      <td class="lineno"><a id="l1617" href="#l1617">1617</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1621" href="#l1621">1621</a></td>
+      <td class="lineno"><a id="l1618" href="#l1618">1618</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1622" href="#l1622">1622</a></td>
+      <td class="lineno"><a id="l1619" href="#l1619">1619</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="kt">int32_t</span><span class="w"> </span><span class="nf">pastedcs</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1623" href="#l1623">1623</a></td>
+      <td class="lineno"><a id="l1620" href="#l1620">1620</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1624" href="#l1624">1624</a></td>
+      <td class="lineno"><a id="l1621" href="#l1621">1621</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">doorcombosetlist_dlg</span><span class="p">[</span><span class="mi">5</span><span class="p">].</span><span class="n">d1</span><span class="o">==</span><span class="mi">-1</span><span class="p">)</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l1622" href="#l1622">1622</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">    </span><span class="p">{</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l1623" href="#l1623">1623</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">D_O_K</span><span class="p">;</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l1624" href="#l1624">1624</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">    </span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1625" href="#l1625">1625</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="p">{</span></td>
+      <td class="src "><span class="w">    </span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1626" href="#l1626">1626</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">D_O_K</span><span class="p">;</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l1627" href="#l1627">1627</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="p">}</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l1628" href="#l1628">1628</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">    </span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l1629" href="#l1629">1629</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">    </span><span class="n">DoorComboSets</span><span class="p">[</span><span class="n">doorcombosetlist_dlg</span><span class="p">[</span><span class="mi">2</span><span class="p">].</span><span class="n">d1</span><span class="p">]</span><span class="o">=</span><span class="n">DoorComboSets</span><span class="p">[</span><span class="n">doorcombosetlist_dlg</span><span class="p">[</span><span class="mi">5</span><span class="p">].</span><span class="n">d1</span><span class="p">];</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1630" href="#l1630">1630</a></td>
+      <td class="lineno"><a id="l1627" href="#l1627">1627</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">    </span><span class="n">doorcombosetlist_dlg</span><span class="p">[</span><span class="mi">5</span><span class="p">].</span><span class="n">d1</span><span class="o">=</span><span class="mi">-1</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1631" href="#l1631">1631</a></td>
+      <td class="lineno"><a id="l1628" href="#l1628">1628</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">D_CLOSE</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1632" href="#l1632">1632</a></td>
+      <td class="lineno"><a id="l1629" href="#l1629">1629</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1633" href="#l1633">1633</a></td>
+      <td class="lineno"><a id="l1630" href="#l1630">1630</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1634" href="#l1634">1634</a></td>
+      <td class="lineno"><a id="l1631" href="#l1631">1631</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="kt">int32_t</span><span class="w"> </span><span class="nf">replacedcs</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1635" href="#l1635">1635</a></td>
+      <td class="lineno"><a id="l1632" href="#l1632">1632</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1636" href="#l1636">1636</a></td>
+      <td class="lineno"><a id="l1633" href="#l1633">1633</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">doorcombosetlist_dlg</span><span class="p">[</span><span class="mi">5</span><span class="p">].</span><span class="n">d1</span><span class="o">==</span><span class="mi">-1</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1637" href="#l1637">1637</a></td>
+      <td class="lineno"><a id="l1634" href="#l1634">1634</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">    </span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1638" href="#l1638">1638</a></td>
+      <td class="lineno"><a id="l1635" href="#l1635">1635</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">D_O_K</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1639" href="#l1639">1639</a></td>
+      <td class="lineno"><a id="l1636" href="#l1636">1636</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">        </span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1640" href="#l1640">1640</a></td>
+      <td class="lineno"><a id="l1637" href="#l1637">1637</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">    </span><span class="p">}</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l1638" href="#l1638">1638</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">    </span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l1639" href="#l1639">1639</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">    </span><span class="n">DoorComboSets</span><span class="p">[</span><span class="n">doorcombosetlist_dlg</span><span class="p">[</span><span class="mi">2</span><span class="p">].</span><span class="n">d1</span><span class="p">]</span><span class="o">=</span><span class="n">DoorComboSets</span><span class="p">[</span><span class="n">doorcombosetlist_dlg</span><span class="p">[</span><span class="mi">5</span><span class="p">].</span><span class="n">d1</span><span class="p">];</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l1640" href="#l1640">1640</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">    </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">sc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vbound</span><span class="p">(</span><span class="n">map_count</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">Map</span><span class="p">.</span><span class="n">getMapCount</span><span class="p">())</span><span class="o">*</span><span class="n">MAPSCRS</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1641" href="#l1641">1641</a></td>
@@ -11603,675 +11603,654 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">    </span><span class="n">DoorComboSets</span><span class="p">[</span><span class="n">doorcombosetlist_dlg</span><span class="p">[</span><span class="mi">2</span><span class="p">].</span><span class="n">d1</span><span class="p">]</span><span class="o">=</span><span class="n">DoorComboSets</span><span class="p">[</span><span class="n">doorcombosetlist_dlg</span><span class="p">[</span><span class="mi">5</span><span class="p">].</span><span class="n">d1</span><span class="p">];</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l1643" href="#l1643">1643</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">    </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">sc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vbound</span><span class="p">(</span><span class="n">map_count</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">Map</span><span class="p">.</span><span class="n">getMapCount</span><span class="p">())</span><span class="o">*</span><span class="n">MAPSCRS</span><span class="p">;</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l1644" href="#l1644">1644</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">    </span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l1645" href="#l1645">1645</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">s</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">s</span><span class="o">&lt;</span><span class="n">sc</span><span class="p">;</span><span class="w"> </span><span class="n">s</span><span class="o">++</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1646" href="#l1646">1646</a></td>
+      <td class="lineno"><a id="l1643" href="#l1643">1643</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">    </span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1647" href="#l1647">1647</a></td>
+      <td class="lineno"><a id="l1644" href="#l1644">1644</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">        </span><span class="k">if</span><span class="p">(</span><span class="n">TheMaps</span><span class="p">[</span><span class="n">s</span><span class="p">].</span><span class="n">door_combo_set</span><span class="o">==</span><span class="n">doorcombosetlist_dlg</span><span class="p">[</span><span class="mi">5</span><span class="p">].</span><span class="n">d1</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1648" href="#l1648">1648</a></td>
+      <td class="lineno"><a id="l1645" href="#l1645">1645</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">        </span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1649" href="#l1649">1649</a></td>
+      <td class="lineno"><a id="l1646" href="#l1646">1646</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">            </span><span class="n">TheMaps</span><span class="p">[</span><span class="n">s</span><span class="p">].</span><span class="n">door_combo_set</span><span class="o">=</span><span class="n">doorcombosetlist_dlg</span><span class="p">[</span><span class="mi">2</span><span class="p">].</span><span class="n">d1</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1650" href="#l1650">1650</a></td>
+      <td class="lineno"><a id="l1647" href="#l1647">1647</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">        </span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1651" href="#l1651">1651</a></td>
+      <td class="lineno"><a id="l1648" href="#l1648">1648</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">    </span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1652" href="#l1652">1652</a></td>
+      <td class="lineno"><a id="l1649" href="#l1649">1649</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">    </span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1653" href="#l1653">1653</a></td>
+      <td class="lineno"><a id="l1650" href="#l1650">1650</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">    </span><span class="n">doorcombosetlist_dlg</span><span class="p">[</span><span class="mi">5</span><span class="p">].</span><span class="n">d1</span><span class="o">=</span><span class="mi">-1</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1654" href="#l1654">1654</a></td>
+      <td class="lineno"><a id="l1651" href="#l1651">1651</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">D_O_K</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1655" href="#l1655">1655</a></td>
+      <td class="lineno"><a id="l1652" href="#l1652">1652</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1656" href="#l1656">1656</a></td>
+      <td class="lineno"><a id="l1653" href="#l1653">1653</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1657" href="#l1657">1657</a></td>
+      <td class="lineno"><a id="l1654" href="#l1654">1654</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">fix_door_combo_set</span><span class="p">(</span><span class="n">word</span><span class="w"> </span><span class="o">&amp;</span><span class="n">door_combo_set</span><span class="p">,</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="n">index</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1658" href="#l1658">1658</a></td>
+      <td class="lineno"><a id="l1655" href="#l1655">1655</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1659" href="#l1659">1659</a></td>
+      <td class="lineno"><a id="l1656" href="#l1656">1656</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">door_combo_set</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">index</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1660" href="#l1660">1660</a></td>
+      <td class="lineno"><a id="l1657" href="#l1657">1657</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">        </span><span class="n">door_combo_set</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1661" href="#l1661">1661</a></td>
+      <td class="lineno"><a id="l1658" href="#l1658">1658</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">    </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="p">(</span><span class="n">door_combo_set</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">index</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1662" href="#l1662">1662</a></td>
+      <td class="lineno"><a id="l1659" href="#l1659">1659</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">        </span><span class="o">--</span><span class="n">door_combo_set</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1663" href="#l1663">1663</a></td>
+      <td class="lineno"><a id="l1660" href="#l1660">1660</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1664" href="#l1664">1664</a></td>
+      <td class="lineno"><a id="l1661" href="#l1661">1661</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1665" href="#l1665">1665</a></td>
+      <td class="lineno"><a id="l1662" href="#l1662">1662</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1666" href="#l1666">1666</a></td>
+      <td class="lineno"><a id="l1663" href="#l1663">1663</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">reset_doorcomboset</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">index</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1667" href="#l1667">1667</a></td>
+      <td class="lineno"><a id="l1664" href="#l1664">1664</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1668" href="#l1668">1668</a></td>
+      <td class="lineno"><a id="l1665" href="#l1665">1665</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">    </span><span class="n">bound</span><span class="p">(</span><span class="n">index</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">MAXDOORCOMBOSETS</span><span class="mi">-1</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1669" href="#l1669">1669</a></td>
+      <td class="lineno"><a id="l1666" href="#l1666">1666</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">    </span><span class="n">memset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">DoorComboSets</span><span class="p">[</span><span class="n">index</span><span class="p">],</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">DoorComboSet</span><span class="p">));</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1670" href="#l1670">1670</a></td>
+      <td class="lineno"><a id="l1667" href="#l1667">1667</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1671" href="#l1671">1671</a></td>
+      <td class="lineno"><a id="l1668" href="#l1668">1668</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1672" href="#l1672">1672</a></td>
+      <td class="lineno"><a id="l1669" href="#l1669">1669</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">init_doorcombosets</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1673" href="#l1673">1673</a></td>
+      <td class="lineno"><a id="l1670" href="#l1670">1670</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1674" href="#l1674">1674</a></td>
+      <td class="lineno"><a id="l1671" href="#l1671">1671</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;</span><span class="n">MAXDOORCOMBOSETS</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1675" href="#l1675">1675</a></td>
+      <td class="lineno"><a id="l1672" href="#l1672">1672</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">        </span><span class="n">reset_doorcomboset</span><span class="p">(</span><span class="n">i</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1676" href="#l1676">1676</a></td>
+      <td class="lineno"><a id="l1673" href="#l1673">1673</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">        </span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1677" href="#l1677">1677</a></td>
+      <td class="lineno"><a id="l1674" href="#l1674">1674</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">    </span><span class="n">door_combo_set_count</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1678" href="#l1678">1678</a></td>
+      <td class="lineno"><a id="l1675" href="#l1675">1675</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1679" href="#l1679">1679</a></td>
+      <td class="lineno"><a id="l1676" href="#l1676">1676</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1680" href="#l1680">1680</a></td>
+      <td class="lineno"><a id="l1677" href="#l1677">1677</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="kt">int32_t</span><span class="w"> </span><span class="nf">onDoorCombos</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1681" href="#l1681">1681</a></td>
+      <td class="lineno"><a id="l1678" href="#l1678">1678</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1682" href="#l1682">1682</a></td>
+      <td class="lineno"><a id="l1679" href="#l1679">1679</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">    </span><span class="n">go</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1683" href="#l1683">1683</a></td>
+      <td class="lineno"><a id="l1680" href="#l1680">1680</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">    </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">index</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1684" href="#l1684">1684</a></td>
+      <td class="lineno"><a id="l1681" href="#l1681">1681</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">    </span><span class="n">doorcombosetlist_dlg</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">dp2</span><span class="o">=</span><span class="n">get_zc_font</span><span class="p">(</span><span class="n">font_lfont</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1685" href="#l1685">1685</a></td>
+      <td class="lineno"><a id="l1682" href="#l1682">1682</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">    </span><span class="n">doorcombosetlist_dlg</span><span class="p">[</span><span class="mi">2</span><span class="p">].</span><span class="n">dp3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">doorlist_rclick_func</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1686" href="#l1686">1686</a></td>
+      <td class="lineno"><a id="l1683" href="#l1683">1683</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">    </span><span class="n">doorcombosetlist_dlg</span><span class="p">[</span><span class="mi">2</span><span class="p">].</span><span class="n">flags</span><span class="o">|=</span><span class="p">(</span><span class="n">D_USER</span><span class="o">&lt;&lt;</span><span class="mi">1</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1687" href="#l1687">1687</a></td>
+      <td class="lineno"><a id="l1684" href="#l1684">1684</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">    </span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1688" href="#l1688">1688</a></td>
+      <td class="lineno"><a id="l1685" href="#l1685">1685</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">    </span><span class="k">while</span><span class="p">(</span><span class="n">index</span><span class="o">!=</span><span class="mi">-1</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1689" href="#l1689">1689</a></td>
+      <td class="lineno"><a id="l1686" href="#l1686">1686</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">    </span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1690" href="#l1690">1690</a></td>
+      <td class="lineno"><a id="l1687" href="#l1687">1687</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">        </span><span class="kt">bool</span><span class="w"> </span><span class="n">hasroom</span><span class="o">=</span><span class="nb">false</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1691" href="#l1691">1691</a></td>
+      <td class="lineno"><a id="l1688" href="#l1688">1688</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">        </span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1692" href="#l1692">1692</a></td>
+      <td class="lineno"><a id="l1689" href="#l1689">1689</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">        </span><span class="k">if</span><span class="p">(</span><span class="n">door_combo_set_count</span><span class="o">&lt;</span><span class="n">MAXDOORCOMBOSETS</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1693" href="#l1693">1693</a></td>
+      <td class="lineno"><a id="l1690" href="#l1690">1690</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">        </span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1694" href="#l1694">1694</a></td>
+      <td class="lineno"><a id="l1691" href="#l1691">1691</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">            </span><span class="n">hasroom</span><span class="o">=</span><span class="nb">true</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1695" href="#l1695">1695</a></td>
+      <td class="lineno"><a id="l1692" href="#l1692">1692</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">            </span><span class="n">strcpy</span><span class="p">(</span><span class="n">DoorComboSets</span><span class="p">[</span><span class="n">door_combo_set_count</span><span class="o">++</span><span class="p">].</span><span class="n">name</span><span class="p">,</span><span class="s">&quot;&lt;New Door Combo Set&gt;&quot;</span><span class="p">);</span></td>
+      <td class="src uncoveredLine"><span class="w">            </span><span class="n">DoorComboSetNames</span><span class="p">[</span><span class="n">door_combo_set_count</span><span class="o">++</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;&lt;New Door Combo Set&gt;&quot;</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1696" href="#l1696">1696</a></td>
+      <td class="lineno"><a id="l1693" href="#l1693">1693</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">        </span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1697" href="#l1697">1697</a></td>
+      <td class="lineno"><a id="l1694" href="#l1694">1694</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">        </span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1698" href="#l1698">1698</a></td>
+      <td class="lineno"><a id="l1695" href="#l1695">1695</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">        </span><span class="n">large_dialog</span><span class="p">(</span><span class="n">doorcombosetlist_dlg</span><span class="p">,</span><span class="mf">1.5</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1699" href="#l1699">1699</a></td>
+      <td class="lineno"><a id="l1696" href="#l1696">1696</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">            </span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1700" href="#l1700">1700</a></td>
+      <td class="lineno"><a id="l1697" href="#l1697">1697</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">        </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">ret</span><span class="o">=</span><span class="n">do_zqdialog</span><span class="p">(</span><span class="n">doorcombosetlist_dlg</span><span class="p">,</span><span class="mi">2</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1701" href="#l1701">1701</a></td>
+      <td class="lineno"><a id="l1698" href="#l1698">1698</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">        </span><span class="n">index</span><span class="o">=</span><span class="n">doorcombosetlist_dlg</span><span class="p">[</span><span class="mi">2</span><span class="p">].</span><span class="n">d1</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1702" href="#l1702">1702</a></td>
+      <td class="lineno"><a id="l1699" href="#l1699">1699</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">        </span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1703" href="#l1703">1703</a></td>
+      <td class="lineno"><a id="l1700" href="#l1700">1700</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">        </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">doedit</span><span class="o">=</span><span class="nb">false</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1704" href="#l1704">1704</a></td>
+      <td class="lineno"><a id="l1701" href="#l1701">1701</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">        </span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1705" href="#l1705">1705</a></td>
+      <td class="lineno"><a id="l1702" href="#l1702">1702</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">        </span><span class="k">switch</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1706" href="#l1706">1706</a></td>
+      <td class="lineno"><a id="l1703" href="#l1703">1703</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">        </span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1707" href="#l1707">1707</a></td>
+      <td class="lineno"><a id="l1704" href="#l1704">1704</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="mi">2</span><span class="p">:</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1708" href="#l1708">1708</a></td>
+      <td class="lineno"><a id="l1705" href="#l1705">1705</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="mi">3</span><span class="p">:</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1709" href="#l1709">1709</a></td>
+      <td class="lineno"><a id="l1706" href="#l1706">1706</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">            </span><span class="n">doedit</span><span class="o">=</span><span class="nb">true</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1710" href="#l1710">1710</a></td>
+      <td class="lineno"><a id="l1707" href="#l1707">1707</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">            </span><span class="k">break</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1711" href="#l1711">1711</a></td>
+      <td class="lineno"><a id="l1708" href="#l1708">1708</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">            </span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1712" href="#l1712">1712</a></td>
+      <td class="lineno"><a id="l1709" href="#l1709">1709</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="mi">0</span><span class="p">:</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1713" href="#l1713">1713</a></td>
+      <td class="lineno"><a id="l1710" href="#l1710">1710</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="mi">4</span><span class="p">:</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1714" href="#l1714">1714</a></td>
+      <td class="lineno"><a id="l1711" href="#l1711">1711</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">            </span><span class="n">index</span><span class="o">=</span><span class="mi">-1</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1715" href="#l1715">1715</a></td>
+      <td class="lineno"><a id="l1712" href="#l1712">1712</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">            </span><span class="k">break</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1716" href="#l1716">1716</a></td>
+      <td class="lineno"><a id="l1713" href="#l1713">1713</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">        </span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1717" href="#l1717">1717</a></td>
+      <td class="lineno"><a id="l1714" href="#l1714">1714</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">        </span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1718" href="#l1718">1718</a></td>
+      <td class="lineno"><a id="l1715" href="#l1715">1715</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">        </span><span class="k">if</span><span class="p">(</span><span class="n">hasroom</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1719" href="#l1719">1719</a></td>
+      <td class="lineno"><a id="l1716" href="#l1716">1716</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">            </span><span class="n">memset</span><span class="p">(</span><span class="n">DoorComboSets</span><span class="p">[</span><span class="o">--</span><span class="n">door_combo_set_count</span><span class="p">].</span><span class="n">name</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="k">sizeof</span><span class="p">(</span><span class="n">DoorComboSets</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">name</span><span class="p">));</span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">DoorComboSetNames</span><span class="p">[</span><span class="o">--</span><span class="n">door_combo_set_count</span><span class="p">].</span><span class="n">clear</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1720" href="#l1720">1720</a></td>
+      <td class="lineno"><a id="l1717" href="#l1717">1717</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">            </span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1721" href="#l1721">1721</a></td>
+      <td class="lineno"><a id="l1718" href="#l1718">1718</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">        </span><span class="k">if</span><span class="p">(</span><span class="n">doedit</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1722" href="#l1722">1722</a></td>
+      <td class="lineno"><a id="l1719" href="#l1719">1719</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">        </span><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1723" href="#l1723">1723</a></td>
+      <td class="lineno"><a id="l1720" href="#l1720">1720</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">            </span><span class="n">editdoorcomboset</span><span class="p">(</span><span class="n">index</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1724" href="#l1724">1724</a></td>
+      <td class="lineno"><a id="l1721" href="#l1721">1721</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">            </span><span class="n">refresh</span><span class="p">(</span><span class="n">rMENU</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1725" href="#l1725">1725</a></td>
+      <td class="lineno"><a id="l1722" href="#l1722">1722</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">        </span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1726" href="#l1726">1726</a></td>
+      <td class="lineno"><a id="l1723" href="#l1723">1723</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">    </span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1727" href="#l1727">1727</a></td>
+      <td class="lineno"><a id="l1724" href="#l1724">1724</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">    </span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1728" href="#l1728">1728</a></td>
+      <td class="lineno"><a id="l1725" href="#l1725">1725</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">    </span><span class="n">comeback</span><span class="p">();</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1729" href="#l1729">1729</a></td>
+      <td class="lineno"><a id="l1726" href="#l1726">1726</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">D_O_K</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1730" href="#l1730">1730</a></td>
+      <td class="lineno"><a id="l1727" href="#l1727">1727</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1731" href="#l1731">1731</a></td>
+      <td class="lineno"><a id="l1728" href="#l1728">1728</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1732" href="#l1732">1732</a></td>
+      <td class="lineno"><a id="l1729" href="#l1729">1729</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">6</td>
       <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">center_zq_door_dialogs</span><span class="p">()</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1733" href="#l1733">1733</a></td>
+      <td class="lineno"><a id="l1730" href="#l1730">1730</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="p">{</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1734" href="#l1734">1734</a></td>
+      <td class="lineno"><a id="l1731" href="#l1731">1731</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">6</td>
       <td class="src coveredLine"><span class="w">    </span><span class="n">jwin_center_dialog</span><span class="p">(</span><span class="n">door_select_dlg</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1735" href="#l1735">1735</a></td>
+      <td class="lineno"><a id="l1732" href="#l1732">1732</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">6</td>
       <td class="src coveredLine"><span class="w">    </span><span class="n">jwin_center_dialog</span><span class="p">(</span><span class="n">doorcomboset_dlg</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1736" href="#l1736">1736</a></td>
+      <td class="lineno"><a id="l1733" href="#l1733">1733</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">6</td>
       <td class="src coveredLine"><span class="w">    </span><span class="n">jwin_center_dialog</span><span class="p">(</span><span class="n">doorcombosetlist_dlg</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1737" href="#l1737">1737</a></td>
+      <td class="lineno"><a id="l1734" href="#l1734">1734</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">6</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l1738" href="#l1738">1738</a></td>
+      <td class="lineno"><a id="l1735" href="#l1735">1735</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>

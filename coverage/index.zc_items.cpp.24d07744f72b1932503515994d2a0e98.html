@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2024-10-20 10:36:38</td>
+      <td>2025-01-10 07:34:20</td>
     </tr>
   </table>
 </div>
@@ -78,7 +78,7 @@
     <tr><td><a href="#l202">bottle_name[abi:cxx11](unsigned long) (line 202)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l206">bottle_slot_name(unsigned long, std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt; const&amp;) (line 206)</a></td><td>not called</td><td>0.0%</td></tr>
     <tr><td><a href="#l35">can_drop(zfix, zfix) (line 35)</a></td><td>called 948179 times, returned 948179 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l175">item::run_script(int) (line 175)</a></td><td>called 6051094 times, returned 6051094 times</td><td>75.0%</td></tr>
+    <tr><td><a href="#l175">item::run_script(int) (line 175)</a></td><td>called 6055902 times, returned 6055902 times</td><td>75.0%</td></tr>
     <tr><td><a href="#l42">item_fall(zfix&amp;, zfix&amp;, zfix&amp;) (line 42)</a></td><td>called 375881 times, returned 375881 times</td><td>81.0%</td></tr>
     <tr><td><a href="#l64">select_dropitem(int) (line 64)</a></td><td>called 60558 times, returned 60558 times</td><td>96.0%</td></tr>
     <tr><td><a href="#l157">select_dropitem(int, int, int) (line 157)</a></td><td>called 43694 times, returned 43694 times</td><td>73.0%</td></tr>
@@ -1550,7 +1550,7 @@
       <td class="lineno"><a id="l175" href="#l175">175</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">6051094</td>
+      <td class="linecount coveredLine">6055902</td>
       <td class="src coveredLine"><span class="kt">int32_t</span><span class="w"> </span><span class="nf">item::run_script</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">mode</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -1567,13 +1567,13 @@
         <summary class="linebranchSummary">1/4</summary>
         <div class="linebranchContents">
           <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 6051094 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 6055902 times.</div>
           <div class="notTakenBranch">&cross; Branch 2 not taken.</div>
           <div class="notTakenBranch">&cross; Branch 3 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">6051094</td>
+      <td class="linecount partialCoveredLine">6055902</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">switch_hooked</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="n">get_qr</span><span class="p">(</span><span class="n">qr_SWITCHOBJ_RUN_SCRIPT</span><span class="p">))</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">RUNSCRIPT_OK</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -1583,7 +1583,7 @@
         <summary class="linebranchSummary">4/6</summary>
         <div class="linebranchContents">
           <div class="takenBranch">&check; Branch 0 taken 14886 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 6036208 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 6041016 times.</div>
           <div class="takenBranch">&check; Branch 2 taken 14886 times.</div>
           <div class="notTakenBranch">&cross; Branch 3 not taken.</div>
           <div class="notTakenBranch">&cross; Branch 4 not taken.</div>
@@ -1591,14 +1591,14 @@
         </div>
         </details>
       </td>
-      <td class="linecount partialCoveredLine">6051094</td>
+      <td class="linecount partialCoveredLine">6055902</td>
       <td class="src partialCoveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">script</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">FFCore</span><span class="p">.</span><span class="n">getQuestHeaderInfo</span><span class="p">(</span><span class="n">vZelda</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mh">0x255</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">FFCore</span><span class="p">.</span><span class="n">system_suspend</span><span class="p">[</span><span class="n">susptITEMSPRITESCRIPTS</span><span class="p">])</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l179" href="#l179">179</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">6036208</td>
+      <td class="linecount coveredLine">6041016</td>
       <td class="src coveredLine"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="n">RUNSCRIPT_OK</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -1760,7 +1760,7 @@
       <td class="lineno"><a id="l199" href="#l199">199</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">6051094</td>
+      <td class="linecount coveredLine">6055902</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
