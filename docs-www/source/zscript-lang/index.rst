@@ -29,7 +29,19 @@ ZScript Lang
 	:hidden:
 	:maxdepth: 1
 
+	/zscript-lang/comments
+
+.. toctree::
+	:hidden:
+	:maxdepth: 1
+
 	/zscript-lang/options
+
+.. toctree::
+	:hidden:
+	:maxdepth: 1
+
+	/zscript-lang/annotations
 
 .. toctree::
 	:hidden:
@@ -42,6 +54,12 @@ ZScript Lang
 	:maxdepth: 1
 
 	/zscript-lang/classes
+
+.. toctree::
+	:hidden:
+	:maxdepth: 1
+
+	/zscript-lang/enums
 
 .. toctree::
 	:hidden:
