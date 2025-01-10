@@ -111,12 +111,14 @@ html[data-theme="light"] .hljs-type.script_ {
 
 .hljs-title,
 .hljs-title.function_,
-.hljs-title.script_ {
+.hljs-title.script_,
+.hljs-title.namespace_ {
 	color: #00FFFF;
 }
 html[data-theme="light"] .hljs-title,
 html[data-theme="light"] .hljs-title.function_,
-html[data-theme="light"] .hljs-title.script_ {
+html[data-theme="light"] .hljs-title.script_,
+html[data-theme="light"] .hljs-title.namespace_ {
 	color: #05789E;
 }
 

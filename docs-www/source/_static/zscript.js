@@ -703,8 +703,8 @@ export default function(hljs) {
 		{ // ex. 'enum Direction'
 			match: [
 				/\b(?:enum)/,
-				/\s+/,
-				/\w+/
+				SOME_WHITESPACE_RE,
+				IDENTIFIER_LIST_RE
 			],
 			scope: {
 				1: 'keyword',
@@ -716,12 +716,24 @@ export default function(hljs) {
 	const CLASS_DECLARATION = {
 		match: [
 			/\b(?:class)/,
-			/\s+/,
-			/\w+/
+			SOME_WHITESPACE_RE,
+			IDENTIFIER_LIST_RE
 		],
 		scope: {
 			1: 'keyword',
 			3: 'type.class'
+		}
+	};
+	
+	const NAMESPACE_DECLARATION = {
+		match: [
+			/\b(?:namespace)/,
+			SOME_WHITESPACE_RE,
+			IDENTIFIER_LIST_RE
+		],
+		scope: {
+			1: 'keyword',
+			3: 'title.namespace'
 		}
 	};
 	
@@ -745,6 +757,7 @@ export default function(hljs) {
 					match: hljs.UNDERSCORE_IDENT_RE + '::',
 					keywords: ZSCRIPT_KEYWORDS
 				},
+				NAMESPACE_DECLARATION,
 				CLASS_DECLARATION,
 				SCRIPT_DECLARATION
 			],
