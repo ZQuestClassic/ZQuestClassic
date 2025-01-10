@@ -323,7 +323,7 @@ While not technically 'keywords', this table shows reserved syntactical symbols/
 	+-----------------+-------------------------------------------------+
 	| ``->``          | Arrow, for member access                        |
 	+-----------------+-------------------------------------------------+
-	| | ``=..=``      | `Range indicators<zslang_ranges>`               |
+	| | ``=..=``      | :ref:`Range indicators<zslang_ranges>`          |
 	| | ``=..``       |                                                 |
 	| | ``..=``       |                                                 |
 	| | ``..``        |                                                 |

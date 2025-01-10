@@ -8,14 +8,6 @@ function regex_escape(value) {
 	return value.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
 }
 
-function is_identifier(value) {
-	return value.match(/^[a-zA-Z_]\w*$/)
-}
-
-function is_not_identifier(value) {
-	return !is_identifier(value)
-}
-
 /** @type LanguageFn */
 export default function(hljs) {
 	
@@ -162,42 +154,34 @@ export default function(hljs) {
 		'static'
 	];
 	
-	const RESERVED_OPERATORS = [
-		'++', '--', '->',
-		'-', '!', 'not', '~', 'bitnot', 'compl',
+	const STANDARD_OPERATORS = [
 		'^^^',
-		'*', '/', '%',
-		'+',
-		'<<', '>>',
-		'<=', '>=', '<', '>',
+		'...', '=..=', '=..', '..=', '..',
+		'++', '--', '->',
 		
-		'==', 'equals', '!=', '<>', 'not_eq', 'not_equal',
-		'~~', 'appx_eq', 'appx_equal', '^^', 'xor',
+		':=', '+=', '-=', '*=', '/=', '%=', '<<=', '>>=',
+		'&=', '|=', '^=', '~=', '&&=', '||=',
 		
-		'&', 'bitand',
-		'^', 'bitxor',
-		'|', 'bitor',
-		'&&', 'and',
-		'||', 'or',
-		'?',
-		'delete',
+		'<<', '>>', '<=', '>=', '==', '!=',
+		'<>', '~~', '^^', '&&', '||', 
 		
-		'=', ':=', '+=', '-=', '*=', '/=', '%=', '<<=', '>>=',
-		'&=', 'and_eq', 'and_equal',
-		'|=', 'or_eq', 'or_equal',
-		'^=', 'xor_eq', 'xor_equal',
-		'~=', '&&=', '||=',
-		
-		'...', '=..=', '=..', '..=', '..'
+		'-', '!', '~', '*', '/', '%', '+',
+		'<', '>', '&', '^', '|', '?', '='
+	];
+	const KEYWORD_OPERATORS = [
+		'not', 'bitnot', 'compl', 'equals', 'not_eq', 'not_equal',
+		'appx_eq', 'appx_equal', 'xor', 'bitand', 'bitxor',
+		'bitor', 'and', 'or', 'delete', 'and_eq', 'and_equal',
+		'or_eq', 'or_equal', 'xor_eq', 'xor_equal'
 	];
 	
-	const KEYWORD_OPERATORS = {
+	const KEYWORD_OPERATORS_SCOPE = {
 		scope: 'operator',
-		match: '\\b(?:' + RESERVED_OPERATORS.filter(is_identifier).join('|') + ')\\b'
+		match: '\\b(?:' + KEYWORD_OPERATORS.join('|') + ')\\b'
 	};
-	const SYMBOL_OPERATORS = {
+	const SYMBOL_OPERATORS_SCOPE = {
 		scope: 'operator',
-		match: '(?:' + RESERVED_OPERATORS.filter(is_not_identifier).map(regex_escape).join('|') + ')'
+		match: '(?:' + STANDARD_OPERATORS.map(regex_escape).join('|') + ')'
 	};
 	
 	const BINDING_TYPES = [
@@ -459,8 +443,8 @@ export default function(hljs) {
 					}
 				]
 			},
-			KEYWORD_OPERATORS,
-			SYMBOL_OPERATORS,
+			KEYWORD_OPERATORS_SCOPE,
+			SYMBOL_OPERATORS_SCOPE,
 			NUMBERS
 		]
 	};
@@ -495,8 +479,8 @@ export default function(hljs) {
 		HASHMODE,
 		hljs.C_LINE_COMMENT_MODE,
 		hljs.C_BLOCK_COMMENT_MODE,
-		KEYWORD_OPERATORS,
-		SYMBOL_OPERATORS,
+		KEYWORD_OPERATORS_SCOPE,
+		SYMBOL_OPERATORS_SCOPE,
 		NUMBERS,
 		STRINGS
 	];
@@ -542,8 +526,8 @@ export default function(hljs) {
 			hljs.C_LINE_COMMENT_MODE,
 			hljs.C_BLOCK_COMMENT_MODE,
 			STRINGS,
-			KEYWORD_OPERATORS,
-			SYMBOL_OPERATORS,
+			KEYWORD_OPERATORS_SCOPE,
+			SYMBOL_OPERATORS_SCOPE,
 			NUMBERS
 		]
 	};
@@ -557,8 +541,8 @@ export default function(hljs) {
 			hljs.C_LINE_COMMENT_MODE,
 			hljs.C_BLOCK_COMMENT_MODE,
 			STRINGS,
-			KEYWORD_OPERATORS,
-			SYMBOL_OPERATORS,
+			KEYWORD_OPERATORS_SCOPE,
+			SYMBOL_OPERATORS_SCOPE,
 			NUMBERS
 		]
 	};
@@ -600,8 +584,8 @@ export default function(hljs) {
 					hljs.C_LINE_COMMENT_MODE,
 					hljs.C_BLOCK_COMMENT_MODE,
 					STRINGS,
-					KEYWORD_OPERATORS,
-					SYMBOL_OPERATORS,
+					KEYWORD_OPERATORS_SCOPE,
+					SYMBOL_OPERATORS_SCOPE,
 					NUMBERS
 				]
 			}
@@ -625,8 +609,8 @@ export default function(hljs) {
 			hljs.C_LINE_COMMENT_MODE,
 			hljs.C_BLOCK_COMMENT_MODE,
 			STRINGS,
-			KEYWORD_OPERATORS,
-			SYMBOL_OPERATORS,
+			KEYWORD_OPERATORS_SCOPE,
+			SYMBOL_OPERATORS_SCOPE,
 			NUMBERS,
 			PAREN_MATCHER,
 		]
