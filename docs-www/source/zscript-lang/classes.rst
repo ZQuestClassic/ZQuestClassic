@@ -8,9 +8,9 @@ Classes
 
 Class info here
 
-.. _classobj_alloc:
-
 Allocating Objects
 ------------------
+
+.. _classobj_alloc:
 
 Info on new/delete and destructor stuff here

@@ -21,10 +21,19 @@ export default function(hljs) {
 	
 	const regex = hljs.regex;
 	
-	const NAMESPACE_RE = '[a-zA-Z_]\\w*::';
+	const OPT_WHITESPACE_RE = "\\s*";
+	const SOME_WHITESPACE_RE = "\\s+";
+	const IDENTIFIER_LIST_RE = '\\b' + regex.optional(regex.optional(hljs.UNDERSCORE_IDENT_RE) + '::')
+		+ regex.anyNumberOfTimes(hljs.UNDERSCORE_IDENT_RE + '::')
+		+ hljs.UNDERSCORE_IDENT_RE + '\\b';
 	const TEMPLATE_ARGUMENT_RE = '<[^<>]+>';
-	const FUNCTION_TYPE_RE = regex.optional(NAMESPACE_RE)
-		+ '[a-zA-Z_]\\w*' + regex.optional(TEMPLATE_ARGUMENT_RE);
+	
+	const FUNCTION_KEYWORDS = [
+		'static', 'inline', 'constexpr', 'internal'
+	];
+	const FUNCTION_KEYWORDS_RE = '(?:' + FUNCTION_KEYWORDS.join('|') + ')';
+	
+	const TYPE_RE = '(?:const' + SOME_WHITESPACE_RE + ')?' + IDENTIFIER_LIST_RE;
 	
 	const CHARACTER_ESCAPES = '\\\\(x[0-9A-Fa-f]{2}|\\S)';
 	const STRINGS = {
@@ -67,23 +76,15 @@ export default function(hljs) {
 	const NUMBERS = {
 		scope: 'number',
 		variants: [
-			{ begin:
-				INT_LITERAL
+			{
+				match: INT_LITERAL
 			},
-			{ begin:
-				LONG_LITERAL
+			{ 
+				match: LONG_LITERAL
 			}
 		],
 		relevance: 0
 	};
-	
-	const TITLE_MODE = {
-		scope: 'title.function',
-		begin: regex.optional(NAMESPACE_RE) + hljs.UNDERSCORE_IDENT_RE,
-		relevance: 0
-	};
-	
-	const FUNCTION_TITLE = regex.optional(NAMESPACE_RE) + hljs.UNDERSCORE_IDENT_RE + '\\s*\\(';
 	
 	const RESERVED_KEYWORDS = [
 		'always',
@@ -191,12 +192,12 @@ export default function(hljs) {
 	];
 	
 	const KEYWORD_OPERATORS = {
-		'scope': 'operator',
-		'begin': '\\b(?:' + RESERVED_OPERATORS.filter(is_identifier).join('|') + ')\\b'
+		scope: 'operator',
+		match: '\\b(?:' + RESERVED_OPERATORS.filter(is_identifier).join('|') + ')\\b'
 	};
 	const SYMBOL_OPERATORS = {
-		'scope': 'operator',
-		'begin': '(?:' + RESERVED_OPERATORS.filter(is_not_identifier).map(regex_escape).join('|') + ')'
+		scope: 'operator',
+		match: '(?:' + RESERVED_OPERATORS.filter(is_not_identifier).map(regex_escape).join('|') + ')'
 	};
 	
 	const BINDING_TYPES = [
@@ -337,11 +338,6 @@ export default function(hljs) {
 	
 	const EXPECTED_TYPES = RESERVED_TYPES.concat(BINDING_TYPES, STD_TYPES);
 	
-	const ZS_TYPES = {
-		'scope': 'type',
-		'begin': '\b(?:' + EXPECTED_TYPES.join('|') + ')\b'
-	};
-	
 	const FUNCTION_HINTS = [
 		'Quit',
 		'QuitNoKill',
@@ -443,7 +439,7 @@ export default function(hljs) {
 		'GC',
 	];
 	
-	const PREPROCESSOR = {
+	const HASHMODE = {
 		scope: 'meta',
 		begin: /#\s*[a-zA-Z_][a-zA-Z_0-9]*\b/,
 		end: /$/,
@@ -469,12 +465,9 @@ export default function(hljs) {
 		]
 	};
 	
-	const OPT_WHITESPACE = "\\s*";
-	const SOME_WHITESPACE = "\\s+";
-	
 	const ANNOTATION = {
 		scope: 'meta.annotation',
-		begin: '@' + OPT_WHITESPACE + hljs.UNDERSCORE_IDENT_RE + OPT_WHITESPACE + '\\(',
+		begin: '@' + OPT_WHITESPACE_RE + hljs.UNDERSCORE_IDENT_RE + OPT_WHITESPACE_RE + '\\(',
 		end: '\\)',
 		contains: [
 			STRINGS,
@@ -499,8 +492,7 @@ export default function(hljs) {
 	};
 	
 	const EXPRESSION_CONTAINS = [
-		PREPROCESSOR,
-		ZS_TYPES,
+		HASHMODE,
 		hljs.C_LINE_COMMENT_MODE,
 		hljs.C_BLOCK_COMMENT_MODE,
 		KEYWORD_OPERATORS,
@@ -540,82 +532,170 @@ export default function(hljs) {
 		relevance: 0
 	};
 	
-	const FUNCTION_DECLARATION = {
-		scope: 'function',
-		begin: '(' + FUNCTION_TYPE_RE + '\\s+)+' + FUNCTION_TITLE,
-		returnBegin: true,
-		end: /[{;=]/,
-		excludeEnd: true,
+	const PAREN_MATCHER = {
+		begin: /\(/,
+		end: /\)/,
 		keywords: ZSCRIPT_KEYWORDS,
-		illegal: /[^\w\s\*&:<>.]/,
+		relevance: 0,
 		contains: [
-			{
-				scope: 'keyword.runfunc',
-				begin: 'void' + SOME_WHITESPACE + 'run'
-			},
-			{
-				begin: FUNCTION_TITLE,
-				returnBegin: true,
-				contains: [ TITLE_MODE ],
-				relevance: 0
-			},
-			{
-				scope: 'params',
-				begin: /\(/,
-				end: /\)/,
-				excludeBegin: true,
-				excludeEnd: true,
-				keywords: ZSCRIPT_KEYWORDS,
-				relevance: 0,
-				contains: [
-					{
-						scope: 'plain',
-						begin: /,/
-					},
-					hljs.C_LINE_COMMENT_MODE,
-					hljs.C_BLOCK_COMMENT_MODE,
-					STRINGS,
-					ZS_TYPES,
-					KEYWORD_OPERATORS,
-					SYMBOL_OPERATORS,
-					NUMBERS,
-					// Count matching parentheses.
-					{
-						begin: /\(/,
-						end: /\)/,
-						keywords: ZSCRIPT_KEYWORDS,
-						relevance: 0,
-						contains: [
-							'self',
-							hljs.C_LINE_COMMENT_MODE,
-							hljs.C_BLOCK_COMMENT_MODE,
-							STRINGS,
-							ZS_TYPES,
-							KEYWORD_OPERATORS,
-							SYMBOL_OPERATORS,
-							NUMBERS
-						]
-					}
-				]
-			},
-			ZS_TYPES,
+			'self',
 			hljs.C_LINE_COMMENT_MODE,
 			hljs.C_BLOCK_COMMENT_MODE,
-			PREPROCESSOR
+			STRINGS,
+			KEYWORD_OPERATORS,
+			SYMBOL_OPERATORS,
+			NUMBERS
+		]
+	};
+	const BRACE_MATCHER = {
+		begin: /{/,
+		end: /}/,
+		keywords: ZSCRIPT_KEYWORDS,
+		relevance: 0,
+		contains: [
+			'self',
+			hljs.C_LINE_COMMENT_MODE,
+			hljs.C_BLOCK_COMMENT_MODE,
+			STRINGS,
+			KEYWORD_OPERATORS,
+			SYMBOL_OPERATORS,
+			NUMBERS
 		]
 	};
 	
-	const IDENTIFIER_LIST = '\\b' + regex.optional(regex.optional(hljs.UNDERSCORE_IDENT_RE) + '::')
-		+ regex.anyNumberOfTimes(hljs.UNDERSCORE_IDENT_RE + '::')
-		+ hljs.UNDERSCORE_IDENT_RE + '\\b';
+	const FUNC_POSTHEADER = {
+		end: /;/,
+		excludeEnd: true,
+		contains: [
+			{ // Prototype w/ default
+				match: [
+					':',
+					OPT_WHITESPACE_RE,
+					'default',
+					SOME_WHITESPACE_RE
+				],
+				scope: {
+					3: 'keyword'
+				},
+				starts: {
+					end: /;/,
+					excludeEnd: true,
+					contains: [
+						PAREN_MATCHER,
+						BRACE_MATCHER
+					],
+					endsParent: true
+				}
+			},
+			{ // Body
+				begin: /{/,
+				end: /}/,
+				scope: 'function.body',
+				keywords: ZSCRIPT_KEYWORDS,
+				relevance: 0,
+				endsParent: true,
+				contains: [
+					PAREN_MATCHER,
+					BRACE_MATCHER,
+					hljs.C_LINE_COMMENT_MODE,
+					hljs.C_BLOCK_COMMENT_MODE,
+					STRINGS,
+					KEYWORD_OPERATORS,
+					SYMBOL_OPERATORS,
+					NUMBERS
+				]
+			}
+		]
+	};
+	
+	const FUNC_PARAMS = {
+		scope: 'params',
+		begin: /\(/,
+		end: /\)/,
+		excludeBegin: true,
+		excludeEnd: true,
+		keywords: ZSCRIPT_KEYWORDS,
+		relevance: 0,
+		endsParent: true,
+		contains: [
+			{
+				scope: 'plain',
+				match: /,/
+			},
+			hljs.C_LINE_COMMENT_MODE,
+			hljs.C_BLOCK_COMMENT_MODE,
+			STRINGS,
+			KEYWORD_OPERATORS,
+			SYMBOL_OPERATORS,
+			NUMBERS,
+			PAREN_MATCHER,
+		]
+	};
+	const FUNC_TEMPLATING = {
+		scope: 'templating',
+		begin: /</,
+		end: />/,
+		keywords: ZSCRIPT_KEYWORDS,
+		contains: [
+			{
+				scope: 'plain',
+				match: /,/
+			},
+			{
+				scope: 'type.template',
+				match: hljs.UNDERSCORE_IDENT_RE
+			}
+		]
+	};
+	
+	const FUNC_HEADER = {
+		end: hljs.MATCH_NOTHING_RE,
+		keywords: ZSCRIPT_KEYWORDS,
+		contains: [
+			FUNC_TEMPLATING,
+			FUNC_PARAMS,
+			hljs.C_LINE_COMMENT_MODE,
+			hljs.C_BLOCK_COMMENT_MODE
+		],
+		starts: FUNC_POSTHEADER
+	};
+	
+	const RUN_FUNC_DECLARATION = {
+		match: [
+			'(?:' + FUNCTION_KEYWORDS_RE + SOME_WHITESPACE_RE + ')*', // keywords
+			'void' + SOME_WHITESPACE_RE + 'run',
+			'(?=\\s*(?:<[^>]*>)?\\s*\\([^\\)]*\\))'
+		],
+		scope: {
+			2: 'keyword.runfunc'
+		},
+		keywords: ZSCRIPT_KEYWORDS,
+		starts: FUNC_HEADER
+	};
+	
+	const FUNCTION_DECLARATION = {
+		match: [
+			'(?:' + FUNCTION_KEYWORDS_RE + SOME_WHITESPACE_RE + ')*', // keywords
+			TYPE_RE, // return type
+			SOME_WHITESPACE_RE,
+			IDENTIFIER_LIST_RE, // func name
+			'(?=\\s*(?:<[^>]*>)?\\s*\\([^\\)]*\\))'
+		],
+		scope: {
+			2: 'type.return',
+			4: 'title.function',
+		},
+		keywords: ZSCRIPT_KEYWORDS,
+		starts: FUNC_HEADER
+	};
 	
 	const SCRIPT_DECLARATION = {
 		match: [
-			IDENTIFIER_LIST,
+			IDENTIFIER_LIST_RE,
 			/\s+/,
 			/\b(?:script)\b/,
 			/\s+/,
-			IDENTIFIER_LIST
+			IDENTIFIER_LIST_RE
 		],
 		scope: {
 			1: 'type.script',
@@ -629,7 +709,7 @@ export default function(hljs) {
 			match: [
 				/\b(?:enum)/,
 				/\s*=\s*/,
-				IDENTIFIER_LIST
+				IDENTIFIER_LIST_RE
 			],
 			scope: {
 				1: 'keyword',
@@ -671,13 +751,14 @@ export default function(hljs) {
 		illegal: '</',
 		contains: [].concat(
 			EXPRESSION_CONTEXT,
+			RUN_FUNC_DECLARATION,
 			FUNCTION_DECLARATION,
 			EXPRESSION_CONTAINS,
 			[
-				PREPROCESSOR,
+				HASHMODE,
 				ANNOTATION,
 				{
-					begin: hljs.UNDERSCORE_IDENT_RE + '::',
+					match: hljs.UNDERSCORE_IDENT_RE + '::',
 					keywords: ZSCRIPT_KEYWORDS
 				},
 				CLASS_DECLARATION,
@@ -687,3 +768,4 @@ export default function(hljs) {
 		)
 	};
 }
+

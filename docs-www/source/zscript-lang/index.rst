@@ -29,6 +29,12 @@ ZScript Lang
 	:hidden:
 	:maxdepth: 1
 
+	/zscript-lang/options
+
+.. toctree::
+	:hidden:
+	:maxdepth: 1
+
 	/zscript-lang/scripts
 
 .. toctree::
