@@ -94,10 +94,10 @@ void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 
 void SemanticAnalyzer::caseFile(ASTFile& host, void*)
 {
+	ScopeReverter sr(&scope);
 	assert(host.scope); //Scope must be made during registration
 	scope = host.scope;
 	RecursiveVisitor::caseFile(host);
-	scope = scope->getParent();
 }
 
 void SemanticAnalyzer::caseSetOption(ASTSetOption& host, void*)
@@ -153,13 +153,11 @@ void SemanticAnalyzer::caseBlock(ASTBlock& host, void*)
 	{
 		host.setScope(scope->makeChild());
 	}
-	scope = host.getScope();
 
 	// Recurse.
+	ScopeReverter sr(&scope);
+	scope = host.getScope();
 	RecursiveVisitor::caseBlock(host);
-
-	// Restore scope.
-	scope = scope->getParent();
 }
 
 void SemanticAnalyzer::caseStmtIf(ASTStmtIf& host, void*)
@@ -256,68 +254,70 @@ void SemanticAnalyzer::caseRange(ASTRange& host, void*)
 void SemanticAnalyzer::caseStmtFor(ASTStmtFor& host, void*)
 {
 	//Use sub-scope
-	if(!host.getScope())
 	{
-		host.setScope(scope->makeChild());
+		ScopeReverter sr(&scope);
+		if(!host.getScope())
+		{
+			host.setScope(scope->makeChild());
+		}
+		scope = host.getScope();
+		RecursiveVisitor::caseStmtFor(host);
+		if (breakRecursion(host)) return;
 	}
-	scope = host.getScope();
-	RecursiveVisitor::caseStmtFor(host);
-	scope = scope->getParent();
-    if (breakRecursion(host)) return;
 
 	checkCast(*host.test->getReadType(scope, this), DataType::UNTYPED, &host);
 }
 void SemanticAnalyzer::caseStmtForEach(ASTStmtForEach& host, void* param)
 {
 	//Use sub-scope
-	if(!host.getScope())
 	{
-		host.setScope(scope->makeChild());
+		ScopeReverter sr(&scope);
+		if(!host.getScope())
+		{
+			host.setScope(scope->makeChild());
+		}
+		scope = host.getScope();
+		
+		visit(host.arrExpr.get(), param);
+		if (breakRecursion(host)) return;
+		
+		//Get the type of the array expr
+		DataType const& arrtype = *host.arrExpr->getReadType(scope, this);
+		DataTypeArray const* type_as_arr = dynamic_cast<DataTypeArray const*>(&arrtype);
+		checkCast(arrtype, DataType::UNTYPED, &host);
+		if (breakRecursion(host)) return;
+		//Get the base type of this type
+		DataType const& elemtype = type_as_arr ? type_as_arr->getElementType() : getNaiveType(arrtype, scope);
+		
+		//The array iter declaration
+		ASTDataDecl* indxdecl = new ASTDataDecl(host.location);
+		indxdecl->identifier = new ASTString("__LOOP_ITER", host.location);
+		indxdecl->baseType = new ASTDataType(DataType::FLOAT, host.location);
+		host.indxdecl = indxdecl;
+		//The array holder declaration
+		ASTDataDecl* arrdecl = new ASTDataDecl(host.location);
+		arrdecl->identifier = new ASTString("__LOOP_ARR", host.location);
+		arrdecl->setInitializer(host.arrExpr.clone());
+		arrdecl->baseType = new ASTDataType(arrtype, host.location);
+		host.arrdecl = arrdecl;
+		//The data declaration
+		ASTDataDecl* decl = new ASTDataDecl(host.location);
+		decl->identifier = host.identifier;
+		decl->baseType = new ASTDataType(elemtype, host.location);
+		decl->baseType->constant_ = -1; // force to not be constant
+		host.decl = decl;
+		
+		visit(host.indxdecl.get(), param);
+		if (breakRecursion(host)) return;
+		visit(host.arrdecl.get(), param);
+		if (breakRecursion(host)) return;
+		visit(host.decl.get(), param);
+		if (breakRecursion(host)) return;
+		
+		visit(host.body.get(), param);
+		if (breakRecursion(host)) return;
 	}
-	scope = host.getScope();
-	
-	visit(host.arrExpr.get(), param);
-    if (breakRecursion(host)) {scope = scope->getParent(); return;}
-	
-	//Get the type of the array expr
-	DataType const& arrtype = *host.arrExpr->getReadType(scope, this);
-	DataTypeArray const* type_as_arr = dynamic_cast<DataTypeArray const*>(&arrtype);
-	checkCast(arrtype, DataType::UNTYPED, &host);
-    if (breakRecursion(host)) {scope = scope->getParent(); return;}
-	//Get the base type of this type
-	DataType const& elemtype = type_as_arr ? type_as_arr->getElementType() : getNaiveType(arrtype, scope);
-	
-	//The array iter declaration
-	ASTDataDecl* indxdecl = new ASTDataDecl(host.location);
-	indxdecl->identifier = new ASTString("__LOOP_ITER", host.location);
-	indxdecl->baseType = new ASTDataType(DataType::FLOAT, host.location);
-	host.indxdecl = indxdecl;
-	//The array holder declaration
-	ASTDataDecl* arrdecl = new ASTDataDecl(host.location);
-	arrdecl->identifier = new ASTString("__LOOP_ARR", host.location);
-	arrdecl->setInitializer(host.arrExpr.clone());
-	arrdecl->baseType = new ASTDataType(arrtype, host.location);
-	host.arrdecl = arrdecl;
-	//The data declaration
-	ASTDataDecl* decl = new ASTDataDecl(host.location);
-	decl->identifier = host.identifier;
-	decl->baseType = new ASTDataType(elemtype, host.location);
-	decl->baseType->constant_ = -1; // force to not be constant
-	host.decl = decl;
-	
-	visit(host.indxdecl.get(), param);
-    if (breakRecursion(host)) {scope = scope->getParent(); return;}
-	visit(host.arrdecl.get(), param);
-    if (breakRecursion(host)) {scope = scope->getParent(); return;}
-	visit(host.decl.get(), param);
-    if (breakRecursion(host)) {scope = scope->getParent(); return;}
-	
-	visit(host.body.get(), param);
-    if (breakRecursion(host)) {scope = scope->getParent(); return;}
-	
-	scope = scope->getParent();
-    if (breakRecursion(host)) return;
-	
+
 	if(host.hasElse())
 		visit(host.elseBlock.get(), param);
 }
@@ -325,52 +325,52 @@ void SemanticAnalyzer::caseStmtForEach(ASTStmtForEach& host, void* param)
 void SemanticAnalyzer::caseStmtRangeLoop(ASTStmtRangeLoop& host, void* param)
 {
 	//Use sub-scope
-	if(!host.getScope())
 	{
-		host.setScope(scope->makeChild());
+		ScopeReverter sr(&scope);
+		if(!host.getScope())
+		{
+			host.setScope(scope->makeChild());
+		}
+		scope = host.getScope();
+		
+		visit(host.type.get(), param);
+		if (breakRecursion(host)) return;
+		visit(host.range.get(), param);
+		if (breakRecursion(host)) return;
+		visit(host.increment.get(), param);
+		if (breakRecursion(host)) return;
+		
+		//Get the type of the decl
+		DataType const& dataty = host.type->resolve(*scope, this);
+		checkCast(DataType::FLOAT, dataty, &host);
+		if (breakRecursion(host)) return;
+		
+		//The data declaration
+		ASTDataDecl* decl = new ASTDataDecl(host.location);
+		decl->identifier = host.iden.release();
+		decl->baseType = new ASTDataType(dataty, host.location);
+		auto incrval = host.increment->getCompileTimeValue(this, scope);
+		optional<int> declval;
+		if(incrval) //If we know at compile-time what direction we are going, initialize the startval
+		{
+			if(*incrval > 0)
+				declval = host.range->getStartVal(true, this, scope);
+			else if(*incrval < 0)
+				declval = host.range->getEndVal(true, this, scope);
+			else declval = 0;
+		}
+		if(declval)
+			decl->setInitializer(new ASTNumberLiteral(new ASTFloat(zslongToFix(*declval), host.location), host.location));
+		decl->setFlag(ASTDataDecl::FL_FORCE_VAR|ASTDataDecl::FL_SKIP_EMPTY_INIT);
+		host.decl = decl;
+		
+		visit(host.decl.get(), param);
+		if (breakRecursion(host)) return;
+		
+		visit(host.body.get(), param);
+		if (breakRecursion(host)) return;
 	}
-	scope = host.getScope();
-	
-	visit(host.type.get(), param);
-	if (breakRecursion(host)) {scope = scope->getParent(); return;}
-	visit(host.range.get(), param);
-	if (breakRecursion(host)) {scope = scope->getParent(); return;}
-	visit(host.increment.get(), param);
-	if (breakRecursion(host)) {scope = scope->getParent(); return;}
-	
-	//Get the type of the decl
-	DataType const& dataty = host.type->resolve(*scope, this);
-	checkCast(DataType::FLOAT, dataty, &host);
-	if (breakRecursion(host)) {scope = scope->getParent(); return;}
-	
-	//The data declaration
-	ASTDataDecl* decl = new ASTDataDecl(host.location);
-	decl->identifier = host.iden.release();
-	decl->baseType = new ASTDataType(dataty, host.location);
-	auto incrval = host.increment->getCompileTimeValue(this, scope);
-	optional<int> declval;
-	if(incrval) //If we know at compile-time what direction we are going, initialize the startval
-	{
-		if(*incrval > 0)
-			declval = host.range->getStartVal(true, this, scope);
-		else if(*incrval < 0)
-			declval = host.range->getEndVal(true, this, scope);
-		else declval = 0;
-	}
-	if(declval)
-		decl->setInitializer(new ASTNumberLiteral(new ASTFloat(zslongToFix(*declval), host.location), host.location));
-	decl->setFlag(ASTDataDecl::FL_FORCE_VAR|ASTDataDecl::FL_SKIP_EMPTY_INIT);
-	host.decl = decl;
-	
-	visit(host.decl.get(), param);
-	if (breakRecursion(host)) {scope = scope->getParent(); return;}
-	
-	visit(host.body.get(), param);
-	if (breakRecursion(host)) {scope = scope->getParent(); return;}
-	
-	scope = scope->getParent();
-	if (breakRecursion(host)) return;
-	
+
 	if(host.hasElse())
 		visit(host.elseBlock.get(), param);
 }
