@@ -13,11 +13,12 @@ export default function(hljs) {
 	
 	const regex = hljs.regex;
 	
-	const OPT_WHITESPACE_RE = "\\s*";
-	const SOME_WHITESPACE_RE = "\\s+";
-	const IDENTIFIER_LIST_RE = '\\b' + regex.optional(regex.optional(hljs.UNDERSCORE_IDENT_RE) + '::')
-		+ regex.anyNumberOfTimes(hljs.UNDERSCORE_IDENT_RE + '::')
-		+ hljs.UNDERSCORE_IDENT_RE + '\\b';
+	const OPT_WHITESPACE_RE = '\\s*';
+	const SOME_WHITESPACE_RE = '\\s+';
+	const IDENTIFIER_DELIMITER_RE = '(?:\\.|::)'
+	const IDENTIFIER_LIST_RE = '(?:(?:' + hljs.UNDERSCORE_IDENT_RE + ')?' + IDENTIFIER_DELIMITER_RE + ')?'
+		+ '(?:' + hljs.UNDERSCORE_IDENT_RE + IDENTIFIER_DELIMITER_RE + ')*'
+		+ hljs.UNDERSCORE_IDENT_RE;
 	const TEMPLATE_ARGUMENT_RE = '<[^<>]+>';
 	
 	const FUNCTION_KEYWORDS = [
@@ -521,6 +522,21 @@ export default function(hljs) {
 		relevance: 0
 	};
 	
+	const USING_STATEMENT = {
+		match: [
+			'(?:always' + SOME_WHITESPACE_RE + ')?using',
+			SOME_WHITESPACE_RE,
+			'namespace',
+			SOME_WHITESPACE_RE,
+			IDENTIFIER_LIST_RE
+		],
+		scope: {
+			1: 'keyword',
+			3: 'keyword',
+			5: 'title.namespace'
+		}
+	};
+	
 	const PAREN_MATCHER = {
 		begin: /\(/,
 		end: /\)/,
@@ -586,6 +602,7 @@ export default function(hljs) {
 				contains: [
 					PAREN_MATCHER,
 					BRACE_MATCHER,
+					USING_STATEMENT,
 					hljs.C_LINE_COMMENT_MODE,
 					hljs.C_BLOCK_COMMENT_MODE,
 					STRINGS,
@@ -681,9 +698,9 @@ export default function(hljs) {
 	const SCRIPT_DECLARATION = {
 		match: [
 			IDENTIFIER_LIST_RE,
-			/\s+/,
-			/\b(?:script)\b/,
-			/\s+/,
+			SOME_WHITESPACE_RE,
+			'script',
+			SOME_WHITESPACE_RE,
 			IDENTIFIER_LIST_RE
 		],
 		scope: {
@@ -754,18 +771,13 @@ export default function(hljs) {
 			EXPRESSION_CONTEXT,
 			RUN_FUNC_DECLARATION,
 			FUNCTION_DECLARATION,
-			EXPRESSION_CONTAINS,
-			[
-				HASHMODE,
-				ANNOTATION,
-				{
-					match: hljs.UNDERSCORE_IDENT_RE + '::',
-					keywords: ZSCRIPT_KEYWORDS
-				},
-				NAMESPACE_DECLARATION,
-				CLASS_DECLARATION,
-				SCRIPT_DECLARATION
-			],
+			EXPRESSION_CONTAINS, // list
+			HASHMODE,
+			ANNOTATION,
+			USING_STATEMENT,
+			NAMESPACE_DECLARATION,
+			CLASS_DECLARATION,
+			SCRIPT_DECLARATION,
 			ENUM_DECLARATIONS
 		)
 	};
