@@ -67,15 +67,15 @@ html[data-theme="light"] .hljs-operator {
 	color: #48CF4C;
 }
 
-.hljs-keyword {
+.hljs-keyword,
+.hljs-keyword.global_,
+.hljs-keyword.wait_ {
 	color: #FF4B82;
 }
-html[data-theme="light"] .hljs-keyword {
+html[data-theme="light"] .hljs-keyword,
+html[data-theme="light"] .hljs-keyword.global_,
+html[data-theme="light"] .hljs-keyword.wait_ {
 	color: #E73026;
-}
-
-.hljs-keyword.global_ {
-	font-weight: bold;
 }
 
 .hljs-string,

@@ -322,6 +322,10 @@ export default function(hljs) {
 	
 	const EXPECTED_TYPES = RESERVED_TYPES.concat(BINDING_TYPES, STD_TYPES);
 	
+	const WAIT_FUNCTIONS = [
+		'Waitframe', 'Waitframes', 'Waitdraw', 'WaitTo', 'WaitEvent'
+	];
+	
 	const FUNCTION_HINTS = [
 		'Quit',
 		'QuitNoKill',
@@ -472,6 +476,7 @@ export default function(hljs) {
 		type: EXPECTED_TYPES,
 		'keyword.literal': LITERALS,
 		'keyword.global': GLOBAL_POINTERS,
+		'keyword.wait': WAIT_FUNCTIONS,
 		keyword: RESERVED_KEYWORDS
 	};
 	
