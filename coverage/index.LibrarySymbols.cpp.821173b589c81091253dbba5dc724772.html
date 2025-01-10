@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2025-01-10 07:34:20</td>
+      <td>2025-01-10 07:54:00</td>
     </tr>
   </table>
 </div>
@@ -96,7 +96,7 @@
     <tr><td><a href="#l53">getIndexedVariable(int, ZScript::Function*, int) (line 53)</a></td><td>called 224085 times, returned 224085 times</td><td>58.0%</td></tr>
     <tr><td><a href="#l30">getVariable(int, ZScript::Function*, int) (line 30)</a></td><td>called 682969 times, returned 682969 times</td><td>59.0%</td></tr>
     <tr><td><a href="#l83">setBoolVariable(int, ZScript::Function*, int) (line 83)</a></td><td>called 76452 times, returned 76452 times</td><td>58.0%</td></tr>
-    <tr><td><a href="#l351">setConstExprForBinding(ZScript::Function*) (line 351)</a></td><td>called 545459 times, returned 545459 times</td><td>77.0%</td></tr>
+    <tr><td><a href="#l351">setConstExprForBinding(ZScript::Function*) (line 351)</a></td><td>called 542367 times, returned 542367 times</td><td>77.0%</td></tr>
     <tr><td><a href="#l100">setIndexedVariable(int, ZScript::Function*, int) (line 100)</a></td><td>called 224085 times, returned 224085 times</td><td>58.0%</td></tr>
     <tr><td><a href="#l68">setVariable(int, ZScript::Function*, int) (line 68)</a></td><td>called 606517 times, returned 606517 times</td><td>58.0%</td></tr>
   </table>
@@ -3365,7 +3365,7 @@
       <td class="lineno"><a id="l351" href="#l351">351</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">545459</td>
+      <td class="linecount coveredLine">542367</td>
       <td class="src coveredLine"><span class="kt">bool</span><span class="w"> </span><span class="nf">setConstExprForBinding</span><span class="p">(</span><span class="n">Function</span><span class="o">*</span><span class="w"> </span><span class="n">fn</span><span class="p">)</span></td>
     </tr>
     <tr class="source-line">
@@ -3379,7 +3379,7 @@
       <td class="lineno"><a id="l353" href="#l353">353</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">545459</td>
+      <td class="linecount coveredLine">542367</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="n">CONSTEXPR_CBACK_TY</span><span class="o">&gt;</span><span class="w"> </span><span class="o">*</span><span class="n">impl_map</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -3396,11 +3396,11 @@
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
           <div class="takenBranch">&check; Branch 0 taken 455791 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 89668 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 86576 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">545459</td>
+      <td class="linecount coveredLine">542367</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">fn</span><span class="o">-&gt;</span><span class="n">getExternalScope</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">getParent</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">isClass</span><span class="p">())</span></td>
     </tr>
     <tr class="source-line">
@@ -3487,7 +3487,7 @@
       <td class="lineno"><a id="l365" href="#l365">365</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">89668</td>
+      <td class="linecount coveredLine">86576</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">impl_map</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">const_expr_global_impl</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -3508,7 +3508,7 @@
       <td class="lineno"><a id="l368" href="#l368">368</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">156919</td>
+      <td class="linecount coveredLine">153827</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">auto</span><span class="w"> </span><span class="n">it</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">impl_map</span><span class="o">-&gt;</span><span class="n">find</span><span class="p">(</span><span class="n">fn</span><span class="o">-&gt;</span><span class="n">name</span><span class="p">);</span></td>
     </tr>
     <tr class="source-line">
@@ -3518,11 +3518,11 @@
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
           <div class="takenBranch">&check; Branch 0 taken 13914 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 143005 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 139913 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">156919</td>
+      <td class="linecount coveredLine">153827</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">it</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">impl_map</span><span class="o">-&gt;</span><span class="n">end</span><span class="p">())</span></td>
     </tr>
     <tr class="source-line">
@@ -3571,14 +3571,14 @@
       <td class="lineno"><a id="l375" href="#l375">375</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">143005</td>
+      <td class="linecount coveredLine">139913</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l376" href="#l376">376</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">545459</td>
+      <td class="linecount coveredLine">542367</td>
       <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
