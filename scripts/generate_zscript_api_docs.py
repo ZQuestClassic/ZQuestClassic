@@ -24,7 +24,7 @@ zscript_dir = root_dir / 'docs-www/source/zscript'
 sys.path.append(str((root_dir / 'scripts').absolute()))
 import run_target
 
-libraries = ['std', 'ghost', 'tango', 'gui', 'ffcscript', 'EmilyMisc']
+libraries = ['std', 'ghost', 'tango', 'gui', 'EmilyMisc']
 sections = {
     'Globals': [],
     'Classes': [],
@@ -413,7 +413,6 @@ def get_doc_data(script_path) -> list[File]:
                 '#include "ghost.zh"',
                 '#include "tango.zh"',
                 '#include "EmilyMisc.zh"',
-                '#include "ffcscript.zh"',
                 '#include "gui.zh"',
             ]
         )

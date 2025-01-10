@@ -87,9 +87,6 @@ def intuit_imports(database_dir: Path, script_path: Path):
     if re.search(r'tango', code, re.IGNORECASE):
         imports.append('tango.zh')
 
-    if re.search(r'FFCS_', code, re.IGNORECASE):
-        imports.append('ffcscript.zh')
-
     if re.search(r'moveLink|TRH_', code, re.IGNORECASE):
         imports.append('deprecated/theRandomHeader.zh')
 
