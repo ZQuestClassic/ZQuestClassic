@@ -41,10 +41,10 @@ html[data-theme="light"] .hljs-comment {
 	color: #BBBBBB;
 }
 
-.hljs-params {
+.hljs-title.param_ {
 	color: #8585D0;
 }
-html[data-theme="light"] .hljs-params {
+html[data-theme="light"] .hljs-title.param_ {
 	color: #B01FE0;
 }
 

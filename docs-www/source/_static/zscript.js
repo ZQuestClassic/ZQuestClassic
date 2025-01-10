@@ -16,9 +16,10 @@ export default function(hljs) {
 	const OPT_WHITESPACE_RE = '\\s*';
 	const SOME_WHITESPACE_RE = '\\s+';
 	const IDENTIFIER_DELIMITER_RE = '(?:\\.|::)'
-	const IDENTIFIER_LIST_RE = '(?:(?:' + hljs.UNDERSCORE_IDENT_RE + ')?' + IDENTIFIER_DELIMITER_RE + ')?'
-		+ '(?:' + hljs.UNDERSCORE_IDENT_RE + IDENTIFIER_DELIMITER_RE + ')*'
-		+ hljs.UNDERSCORE_IDENT_RE;
+	const IDENTIFIER_RE = hljs.UNDERSCORE_IDENT_RE;
+	const IDENTIFIER_LIST_RE = '(?:(?:' + IDENTIFIER_RE + ')?' + IDENTIFIER_DELIMITER_RE + ')?'
+		+ '(?:' + IDENTIFIER_RE + IDENTIFIER_DELIMITER_RE + ')*'
+		+ IDENTIFIER_RE;
 	const TEMPLATE_ARGUMENT_RE = '<[^<>]+>';
 	
 	const FUNCTION_KEYWORDS = [
@@ -456,7 +457,7 @@ export default function(hljs) {
 	
 	const ANNOTATION = {
 		scope: 'meta.annotation',
-		begin: '@' + OPT_WHITESPACE_RE + hljs.UNDERSCORE_IDENT_RE + OPT_WHITESPACE_RE + '\\(',
+		begin: '@' + OPT_WHITESPACE_RE + IDENTIFIER_RE + OPT_WHITESPACE_RE + '\\(',
 		end: '\\)',
 		contains: [
 			STRINGS,
@@ -482,7 +483,6 @@ export default function(hljs) {
 	};
 	
 	const EXPRESSION_CONTAINS = [
-		HASHMODE,
 		hljs.C_LINE_COMMENT_MODE,
 		hljs.C_BLOCK_COMMENT_MODE,
 		KEYWORD_OPERATORS_SCOPE,
@@ -490,37 +490,6 @@ export default function(hljs) {
 		NUMBERS,
 		STRINGS
 	];
-	
-	const EXPRESSION_CONTEXT = {
-		// This mode covers expression context where we can't expect a function
-		// definition and shouldn't highlight anything that looks like one:
-		// `return some()`, `else if()`, `(x*sum(1, 2))`
-		variants: [
-			{
-				begin: /=(?!\.)/,
-				end: /;/
-			},
-			{
-				begin: /\(/,
-				end: /\)/
-			},
-			{
-				beginKeywords: 'new return else',
-				end: /;/
-			}
-		],
-		keywords: ZSCRIPT_KEYWORDS,
-		contains: EXPRESSION_CONTAINS.concat(
-			[{
-				begin: /\(/,
-				end: /\)/,
-				keywords: ZSCRIPT_KEYWORDS,
-				contains: EXPRESSION_CONTAINS.concat([ 'self' ]),
-				relevance: 0
-			}]
-		),
-		relevance: 0
-	};
 	
 	const USING_STATEMENT = {
 		match: [
@@ -625,8 +594,28 @@ export default function(hljs) {
 		endsParent: true,
 		contains: [
 			{
-				scope: 'plain',
-				match: /,/
+				match: [
+					IDENTIFIER_LIST_RE,
+					SOME_WHITESPACE_RE,
+					IDENTIFIER_RE,
+					regex.optional(SOME_WHITESPACE_RE),
+					'=?',
+					regex.optional(SOME_WHITESPACE_RE)
+				],
+				scope: {
+					1: 'type.param',
+					3: 'title.param',
+					5: 'operator'
+				},
+				keywords: ZSCRIPT_KEYWORDS,
+				starts: { // opt param initializer
+					scope: 'optional_init',
+					end: '(?=,|\\))',
+					contains: [
+						BRACE_MATCHER,
+						PAREN_MATCHER
+					].concat(EXPRESSION_CONTAINS)
+				}
 			},
 			hljs.C_LINE_COMMENT_MODE,
 			hljs.C_BLOCK_COMMENT_MODE,
@@ -644,12 +633,8 @@ export default function(hljs) {
 		keywords: ZSCRIPT_KEYWORDS,
 		contains: [
 			{
-				scope: 'plain',
-				match: /,/
-			},
-			{
 				scope: 'type.template',
-				match: hljs.UNDERSCORE_IDENT_RE
+				match: IDENTIFIER_RE
 			}
 		]
 	};
@@ -768,7 +753,6 @@ export default function(hljs) {
 		keywords: ZSCRIPT_KEYWORDS,
 		illegal: '</',
 		contains: [].concat(
-			EXPRESSION_CONTEXT,
 			RUN_FUNC_DECLARATION,
 			FUNCTION_DECLARATION,
 			EXPRESSION_CONTAINS, // list
