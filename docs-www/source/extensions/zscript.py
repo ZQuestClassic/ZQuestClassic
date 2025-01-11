@@ -41,7 +41,7 @@ class ZScriptDirective(SphinxDirective):
 
 def visit_zscript_node_html(translator: SphinxTranslator, node: ZScriptNode) -> None:
     if node.data:
-        html_str = f'<pre class="hljs"><code class="language-zs">{html.escape(node.data)}</code></pre>'
+        html_str = f'<pre class="hljs language-zs"><code>{html.escape(node.data)}</code></pre>'
         html_str += f'''
         <script>
             {{
