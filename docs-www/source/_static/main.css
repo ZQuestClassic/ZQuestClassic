@@ -57,3 +57,7 @@ div.admonition.admonition-plans>.admonition-title:after {
 	color: var(--pst-color-accent);
 	content: '⏩';
 }
+
+.footnote pre.hljs {
+	margin: 0 20px 20px 20px;
+}
