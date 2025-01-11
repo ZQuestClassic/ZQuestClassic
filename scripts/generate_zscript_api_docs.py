@@ -1005,7 +1005,9 @@ for lib in libraries:
 
 # zscript/index.rst
 rst_title('ZScript')
+add('.. _zsdoc_index:')
 for name, documents in sections.items():
+    add(f'.. _zsdoc_{name.lower()}:')
     if name == 'Globals':
         rst_toc(name, documents[0:2])
         rst_toc(None, documents[2:])

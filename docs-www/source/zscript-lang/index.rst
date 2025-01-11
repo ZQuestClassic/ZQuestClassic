@@ -6,6 +6,7 @@ ZScript Lang
 
 	/zscript-lang/identifiers
 	/zscript-lang/keywords
+	/zscript-lang/types
 	/zscript-lang/literals
 	/zscript-lang/control_flow/index
 	/zscript-lang/comments

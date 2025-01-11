@@ -92,50 +92,8 @@ Misc
 	| | ``try``        |                                                                   |
 	+------------------+-------------------------------------------------------------------+
 
-Types and Modifiers
--------------------
-
-*only contains primitive types*
-
-.. table::
-	:widths: auto
-
-	+---------------+-----------------------------------------------------------------------+
-	| name          | description                                                           |
-	+===============+=======================================================================+
-	| | ``int``     | Numeric types. Despite their names, these are neither integers nor    |
-	| | ``float``   | floating-point numbers, but instead fixed-point numbers ranging       |
-	|               | **-214748.3648** to **214748.3647**.                                  |
-	+---------------+-----------------------------------------------------------------------+
-	| ``long``      | Long integer type. Values range from **-2147483648L** to              |
-	|               | **2147483647L**. :ref:`Special bitwise behavior<operator_blurb>`.     |
-	+---------------+-----------------------------------------------------------------------+
-	| ``auto``      | Type will be automatically determined by the parser.                  |
-	+---------------+-----------------------------------------------------------------------+
-	| ``void``      | Lack of a type; used to indicate a function returns nothing.          |
-	+---------------+-----------------------------------------------------------------------+
-	| ``untyped``   | General type; almost all types implicity cast to **untyped**.         |
-	+---------------+-----------------------------------------------------------------------+
-	| ``bool``      | Boolean type; available values **true**, **false**.                   |
-	+---------------+-----------------------------------------------------------------------+
-	| ``char32``    | Character type. Same boundaries as **int**, mainly exists for         |
-	|               | typecasting. Used by char/string literals.                            |
-	+---------------+-----------------------------------------------------------------------+
-	| ``rgb``       | Color type, used to represent color values.                           |
-	+---------------+-----------------------------------------------------------------------+
-	| ``const``     | Placed before a type to specify that the variable is unchangable.     |
-	+---------------+-----------------------------------------------------------------------+
-
 .. note::
-	``const`` makes a variable 'constant', meaning it cannot be changed. However, some things
-	are an additional level of constant, known as 'compile-time constant'. A constant is only
-	'compile-time constant' if the value it is set to is 'compile-time constant'.
-
-	Generally, things that are compile-time constant include:
-	- number literals
-	- boolean literals
-	- results of basic operators, where they only operate on compile-time constants
-	- calls to ``constexpr`` functions, where the parameters are compile-time constants
+	The names of :ref:`primitive types<types_prim>` are also reserved keywords.
 
 Operators
 ---------
