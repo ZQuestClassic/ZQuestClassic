@@ -7,6 +7,15 @@ Pass 3: Registration
 Pass 4: Analyzing Code
 Pass 5: Checking code paths
 Pass 6: Generating object code
+garbage_collection.zs Line 441 @ Columns 4-12 - Warning S094: The operator 'delete' is deprecated, and should not be used.
+
+439    yield();
+440    check("RefCount(a)", RefCount(a), 1L);
+441    delete a;
+       ^~~~~~~~
+
+
+INFO: This operator no longer does anything. Objects are freed automatically when they become unreachable
 Pass 7: Assembling
 Success!
 Compile finished with exit code '0' (success)
@@ -15,11 +24,26 @@ stdout:
 
 {
   "success": true,
-  "diagnostics": [],
+  "diagnostics": [
+    {
+      "range": {
+        "start": {
+          "line": 440,
+          "character": 3
+        },
+        "end": {
+          "line": 440,
+          "character": 11
+        }
+      },
+      "severity": 2,
+      "message": "S094: The operator 'delete' is deprecated, and should not be used.\nThis operator no longer does anything. Objects are freed automatically when they become unreachable"
+    }
+  ],
   "metadata": {
     "currentFileSymbols": 84,
     "symbols": 60,
-    "identifiers": 629,
+    "identifiers": 628,
     "elided": true
   }
 }
@@ -2482,10 +2506,10 @@ PUSHR D4
 PUSHV 0; UsrFunc[void checkCountWithGC(int)] Params
 CALLFUNC 0.2526; UsrFunc[void checkCountWithGC(int)] Call
 POP D4
-PUSHV 256; InlineFunc[bitmap Game::CreateBitmap(int, int)] Params Start
-SETV D1 256; InlineFunc[bitmap Game::CreateBitmap(int, int)] Params End
-POP D0; InlineFunc[bitmap Game::CreateBitmap(int, int)] Body Start
-SETR D2 CREATEBITMAP; InlineFunc[bitmap Game::CreateBitmap(int, int)] Body End
+PUSHV 256; InlineFunc[bitmap bitmap::bitmap(int, int)] Params Start
+SETV D1 256; InlineFunc[bitmap bitmap::bitmap(int, int)] Params End
+POP D0; InlineFunc[bitmap bitmap::bitmap(int, int)] Body Start
+SETR D2 CREATEBITMAP; InlineFunc[bitmap bitmap::bitmap(int, int)] Body End
 STORE_OBJECT D2 0.0004
 ALLOCATEMEMV D2 25 0
 STORE D2 0

@@ -126,7 +126,7 @@ class Audio {
 	//   POP D2
 	//   POP D3
 	//   PLAYENHMUSICEX D3 D2
-	internal bool PlayOgg(int arg1, int arg2);
+	internal bool PlayOgg(char32[] filename, int track = 0);
 
 	// Returns the current seek position of the currently playing enhanced music
 	// in seconds.

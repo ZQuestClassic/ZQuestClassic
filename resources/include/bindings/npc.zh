@@ -626,12 +626,14 @@ class npc {
 	//   POP D2
 	//   ISVALIDNPC D2
 	internal bool isValid();
-
+	
+	// Creates an explosion particle effect in mode 0, 1, or 2 of the sprite.
+	//
 	// @zasm
 	//   POP D2
 	//   POP REFNPC
 	//   NPCEXPLODER D2
-	internal void Explode(int arg1);
+	internal void Explode(int mode);
 
 	// Returns true if the npc is submerged (ex. underground/underwater)
 	//

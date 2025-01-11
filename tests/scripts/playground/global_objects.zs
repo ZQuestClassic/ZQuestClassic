@@ -30,7 +30,7 @@ ffc script GlobalObject
 			GlobalObject(globalThing->otherThing);
 			GlobalObject(globalThing->someCounters[0]);
 			GlobalObject(globalThing->otherThing->someCounters[0]);
-			globalThing->a_bitmap = Game->CreateBitmap();
+			globalThing->a_bitmap = new bitmap();
 			globalThing->not_globalized = new Counter();
 			globalThing->not_globalized->field = 1337;
 

@@ -385,3 +385,7 @@ enum WarpIndex
 	WARP_C         = 2,
 	WARP_D         = 3
 };
+
+// Opacity options. Use with drawing commands.
+const int OP_TRANS              = 64;
+const int OP_OPAQUE             = 128;

@@ -64,6 +64,8 @@ bool zscript_load_user_config(std::string path)
 
 std::string zscript_get_config_string(std::string key, std::string def_value)
 {
+	zc_cfg_defaulted = false;
+
 	auto it = user_config.find(key);
 	if (it != user_config.end())
 		return it->second;
@@ -71,12 +73,15 @@ std::string zscript_get_config_string(std::string key, std::string def_value)
 	it = base_config.find(key);
 	if (it != base_config.end())
 		return it->second;
-	
+
+	zc_cfg_defaulted = true;
 	return def_value;
 }
 
 int zscript_get_config_int(std::string key, int def_value)
 {
+	zc_cfg_defaulted = false;
+
 	auto it = user_config.find(key);
 	if (it != user_config.end())
 		return std::stoi(it->second);
@@ -84,11 +89,15 @@ int zscript_get_config_int(std::string key, int def_value)
 	it = base_config.find(key);
 	if (it != base_config.end())
 		return std::stoi(it->second);
+
+	zc_cfg_defaulted = true;
 	return def_value;
 }
 
 double zscript_get_config_double(std::string key, double def_value)
 {
+	zc_cfg_defaulted = false;
+
 	auto it = user_config.find(key);
 	if (it != user_config.end())
 		return std::stod(it->second);
@@ -96,6 +105,7 @@ double zscript_get_config_double(std::string key, double def_value)
 	it = base_config.find(key);
 	if (it != base_config.end())
 		return std::stod(it->second);
-	
+
+	zc_cfg_defaulted = true;
 	return def_value;
 }

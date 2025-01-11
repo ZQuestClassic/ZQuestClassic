@@ -77,28 +77,29 @@ void RegistrationVisitor::caseRoot(ASTFile& host, void* param)
 
 void RegistrationVisitor::caseFile(ASTFile& host, void* param)
 {
+	ScopeReverter sr(&scope);
 	if(host.scope)
 		scope = host.scope;
 	else
 		scope = host.scope = scope->makeFileChild(host.asString());
 	block_regvisit_vec(host.options, param);
-	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
+	if (breakRecursion(host, param)) return;
 	block_regvisit_vec(host.use, param);
-	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
+	if (breakRecursion(host, param)) return;
 	block_regvisit_vec(host.dataTypes, param);
-	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
+	if (breakRecursion(host, param)) return;
 	block_regvisit_vec(host.scriptTypes, param);
-	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
+	if (breakRecursion(host, param)) return;
 	block_regvisit_vec(host.imports, param);
-	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
+	if (breakRecursion(host, param)) return;
 	block_regvisit_vec(host.condimports, param);
-	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
+	if (breakRecursion(host, param)) return;
 	block_regvisit_vec(host.variables, param);
-	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
+	if (breakRecursion(host, param)) return;
 	block_regvisit_vec(host.functions, param);
-	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
+	if (breakRecursion(host, param)) return;
 	block_regvisit_vec(host.namespaces, param);
-	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
+	if (breakRecursion(host, param)) return;
 	block_regvisit_vec(host.scripts, param);
 	if (breakRecursion(host, param)) return;
 	block_regvisit_vec(host.classes, param);
@@ -109,7 +110,6 @@ void RegistrationVisitor::caseFile(ASTFile& host, void* param)
 	{
 		doRegister(host);
 	}
-	scope = scope->getParent();
 }
 
 void RegistrationVisitor::caseSetOption(ASTSetOption& host, void* param)
@@ -149,23 +149,24 @@ void RegistrationVisitor::caseScript(ASTScript& host, void* param)
 	
 	Script& script = host.script ? *host.script : *(host.script = program.addScript(host, *scope, this));
 	if (breakRecursion(host)) return;
-	
-	string name = script.getName();
 
 	// Recurse on script elements with its scope.
-	scope = &script.getScope();
-	block_regvisit_vec(host.options, param);
-	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
-	block_regvisit_vec(host.use, param);
-	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
-	block_regvisit_vec(host.types, param);
-	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
-	block_regvisit_vec(host.variables, param);
-	if (breakRecursion(host, param)) {scope = scope->getParent(); return;}
-	block_regvisit_vec(host.functions, param);
-	scope = scope->getParent();
-	if (breakRecursion(host)) return;
-	//
+	{
+		ScopeReverter sr(&scope);
+		scope = &script.getScope();
+
+		block_regvisit_vec(host.options, param);
+		if (breakRecursion(host, param)) return;
+		block_regvisit_vec(host.use, param);
+		if (breakRecursion(host, param)) return;
+		block_regvisit_vec(host.types, param);
+		if (breakRecursion(host, param)) return;
+		block_regvisit_vec(host.variables, param);
+		if (breakRecursion(host, param)) return;
+		block_regvisit_vec(host.functions, param);
+		if (breakRecursion(host)) return;
+	}
+
 	if(!(registered_vec(host.options) && registered_vec(host.use) && registered_vec(host.types)
 		&& registered_vec(host.variables) && registered_vec(host.functions)))
 	{
@@ -185,6 +186,7 @@ void RegistrationVisitor::caseScript(ASTScript& host, void* param)
 		return; //Don't register
 	}
 	doRegister(host);
+	string name = script.getName();
 	if (possibleRuns.size() > 1)
 	{
 		handleError(CompileError::TooManyRun(&host, name, "run"));
@@ -269,31 +271,34 @@ void RegistrationVisitor::caseClass(ASTClass& host, void* param)
 	}
 
 	// Recurse on user_class elements with its scope.
-	auto prev_scope = scope;
-	scope = &user_class.getScope();
+	{
+		ScopeReverter sr(&scope);
+		scope = &user_class.getScope();
 
-	block_regvisit_vec(host.options, param);
-	if (breakRecursion(host, param)) {scope = prev_scope; return;}
-	block_regvisit_vec(host.use, param);
-	if (breakRecursion(host, param)) {scope = prev_scope; return;}
-	block_regvisit_vec(host.types, param);
-	if (breakRecursion(host, param)) {scope = prev_scope; return;}
-	parsing_user_class = puc_vars;
-	block_regvisit_vec(host.variables, param);
-	parsing_user_class = puc_none;
-	if (breakRecursion(host, param)) {scope = prev_scope; return;}
-	parsing_user_class = puc_funcs;
-	block_regvisit_vec(host.functions, param);
-	parsing_user_class = puc_none;
-	if (breakRecursion(host, param)) {scope = prev_scope; return;}
-	parsing_user_class = puc_construct;
-	block_regvisit_vec(host.constructors, param);
-	parsing_user_class = puc_none;
-	if (breakRecursion(host, param)) {scope = prev_scope; return;}
-	parsing_user_class = puc_destruct;
-	visit(host.destructor.get(), param);
-	parsing_user_class = puc_none;
-	scope = prev_scope;
+		block_regvisit_vec(host.options, param);
+		if (breakRecursion(host, param)) return;
+		block_regvisit_vec(host.use, param);
+		if (breakRecursion(host, param)) return;
+		block_regvisit_vec(host.types, param);
+		if (breakRecursion(host, param)) return;
+		parsing_user_class = puc_vars;
+		block_regvisit_vec(host.variables, param);
+		parsing_user_class = puc_none;
+		if (breakRecursion(host, param)) return;
+		parsing_user_class = puc_funcs;
+		block_regvisit_vec(host.functions, param);
+		parsing_user_class = puc_none;
+		if (breakRecursion(host, param)) return;
+		parsing_user_class = puc_construct;
+		block_regvisit_vec(host.constructors, param);
+		parsing_user_class = puc_none;
+		if (breakRecursion(host, param)) return;
+
+		parsing_user_class = puc_destruct;
+		visit(host.destructor.get(), param);
+		parsing_user_class = puc_none;
+	}
+
 	if (breakRecursion(host)) return;
 	//
 	if(!(registered_vec(host.options) && registered_vec(host.use) && registered_vec(host.types)
@@ -448,27 +453,29 @@ void RegistrationVisitor::caseNamespace(ASTNamespace& host, void* param)
 	if (breakRecursion(host)) return;
 
 	// Recurse on script elements with its scope.
-	// Namespaces' parent scope is RootScope*, not FileScope*. Store the FileScope* temporarily.
-	Scope* temp = scope;
-	scope = &namesp.getScope();
-	block_regvisit_vec(host.options, param);
-	if (breakRecursion(host, param)) {scope = temp; return;}
-	block_regvisit_vec(host.dataTypes, param);
-	if (breakRecursion(host, param)) {scope = temp; return;}
-	block_regvisit_vec(host.scriptTypes, param);
-	if (breakRecursion(host, param)) {scope = temp; return;}
-	block_regvisit_vec(host.use, param);
-	if (breakRecursion(host, param)) {scope = temp; return;}
-	block_regvisit_vec(host.variables, param);
-	if (breakRecursion(host, param)) {scope = temp; return;}
-	block_regvisit_vec(host.functions, param);
-	if (breakRecursion(host, param)) {scope = temp; return;}
-	block_regvisit_vec(host.namespaces, param);
-	if (breakRecursion(host, param)) {scope = temp; return;}
-	block_regvisit_vec(host.scripts, param);
-	if (breakRecursion(host, param)) {scope = temp; return;}
-	block_regvisit_vec(host.classes, param);
-	scope = temp;
+	{
+		ScopeReverter sr(&scope);
+		scope = &namesp.getScope();
+
+		block_regvisit_vec(host.options, param);
+		if (breakRecursion(host, param)) return;
+		block_regvisit_vec(host.dataTypes, param);
+		if (breakRecursion(host, param)) return;
+		block_regvisit_vec(host.scriptTypes, param);
+		if (breakRecursion(host, param)) return;
+		block_regvisit_vec(host.use, param);
+		if (breakRecursion(host, param)) return;
+		block_regvisit_vec(host.variables, param);
+		if (breakRecursion(host, param)) return;
+		block_regvisit_vec(host.functions, param);
+		if (breakRecursion(host, param)) return;
+		block_regvisit_vec(host.namespaces, param);
+		if (breakRecursion(host, param)) return;
+		block_regvisit_vec(host.scripts, param);
+		if (breakRecursion(host, param)) return;
+		block_regvisit_vec(host.classes, param);
+	}
+
 	if(registered_vec(host.options) && registered_vec(host.use) && registered_vec(host.dataTypes)
 		&& registered_vec(host.scriptTypes) && registered_vec(host.variables) && registered_vec(host.functions)
 		&& registered_vec(host.namespaces) && registered_vec(host.scripts))
