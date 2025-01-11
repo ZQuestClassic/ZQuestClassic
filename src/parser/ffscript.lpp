@@ -445,46 +445,40 @@ appx_equal	TOKEN( APPXEQUAL );
 }
 
  /* Numbers */
-[0-9]*\.?[0-9]+ 	{
+(?:([0-9]_?)*[0-9]\.|\.)?(?:[0-9]_?)*[0-9] 	{
 	VALUE( NUMBER, ASTFloat(yytext, ASTFloat::TYPE_DECIMAL, yylloc) );
 }
-[0-9]+L 	{
+(?:[0-9]_?)*[0-9]L 	{
 	VALUE( LONGNUMBER, ASTFloat(yytext, ASTFloat::TYPE_L_DECIMAL, yylloc) );
 }
-0x[0-9a-fA-F]+ 		{
+0x(?:[0-9a-fA-F]_?)*[0-9a-fA-F] 		{
 	VALUE( NUMBER, ASTFloat(yytext, ASTFloat::TYPE_HEX, yylloc) );
 }
-0x[0-9a-fA-F]+L 		{
+0x(?:[0-9a-fA-F]_?)*[0-9a-fA-F]L 		{
 	VALUE( LONGNUMBER, ASTFloat(yytext, ASTFloat::TYPE_L_HEX, yylloc) );
 }
-[0-1]+b			{
+(?:[0-1]_?)*[0-1]b			{
 	VALUE( NUMBER, ASTFloat(yytext, ASTFloat::TYPE_BINARY, yylloc) );
 }
-[0-1]+Lb			{
+(?:[0-1]_?)*[0-1](?:Lb|bL)			{
 	VALUE( LONGNUMBER, ASTFloat(yytext, ASTFloat::TYPE_L_BINARY, yylloc) );
 }
-[0-1]+bL			{
-	VALUE( LONGNUMBER, ASTFloat(yytext, ASTFloat::TYPE_L_BINARY, yylloc) );
-}
-0b[0-1]+			{
+0b(?:[0-1]_?)*[0-1]			{
 	VALUE( NUMBER, ASTFloat(yytext, ASTFloat::TYPE_BINARY_2, yylloc) );
 }
-0b[0-1]+L			{
+0b(?:[0-1]_?)*[0-1]L			{
 	VALUE( LONGNUMBER, ASTFloat(yytext, ASTFloat::TYPE_L_BINARY_2, yylloc) );
 }
-[0-7]+o 		{
+(?:[0-7]_?)*[0-7]o 		{
 	VALUE( NUMBER, ASTFloat(yytext, ASTFloat::TYPE_OCTAL, yylloc) );
 }
-[0-7]+oL 		{
+(?:[0-7]_?)*[0-7](?:oL|Lo) 		{
 	VALUE( LONGNUMBER, ASTFloat(yytext, ASTFloat::TYPE_L_OCTAL, yylloc) );
 }
-[0-7]+Lo 		{
-	VALUE( LONGNUMBER, ASTFloat(yytext, ASTFloat::TYPE_L_OCTAL, yylloc) );
-}
-0o[0-7]+ 		{
+0o(?:[0-7]_?)*[0-7] 		{
 	VALUE( NUMBER, ASTFloat(yytext, ASTFloat::TYPE_OCTAL_2, yylloc) );
 }
-0o[0-7]+L 		{
+0o(?:[0-7]_?)*[0-7]L 		{
 	VALUE( LONGNUMBER, ASTFloat(yytext, ASTFloat::TYPE_L_OCTAL_2, yylloc) );
 }
 
