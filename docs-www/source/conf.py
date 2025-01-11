@@ -40,7 +40,7 @@ html_theme_options = {
 html_show_sourcelink = False
 
 rst_prolog = """
-.. |const| replace:: :abbr:`const (This method has no side effects. It doesn't modify any of the instance's member variables.)`
+.. |const| replace:: :abbr:`const (This value cannot be reassigned. If it is an array, it's elements also cannot be reassigned.)`
 .. |varargs| replace:: :abbr:`varargs (This method accepts any number of parameters after the ones described here.)`
 .. |void| replace:: :abbr:`void (No return value.)`
 .. |untyped| replace:: :abbr:`untyped (Could be any type.)`
