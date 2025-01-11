@@ -1,11 +1,1 @@
 {% extends "!layout.html" %}
-{% block extrahead %}
-    <link href="{{ pathto("_static/main.css", True) }}" rel="stylesheet" type="text/css">
-    <link href="{{ pathto("_static/zscript.css", True) }}" rel="stylesheet" type="text/css">
-	<script type="module">
-		import hljs from 'https://unpkg.com/@highlightjs/cdn-assets@11.11.1/es/highlight.js';
-		import zs from '{{ pathto("_static/zscript.js", True) }}'
-		hljs.registerLanguage('zs', zs);
-		hljs.highlightAll();
-	</script>
-{% endblock %}

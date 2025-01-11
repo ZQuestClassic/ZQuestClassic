@@ -9,7 +9,7 @@ function regex_escape(value) {
 }
 
 /** @type LanguageFn */
-export default function(hljs) {
+function zs(hljs) {
 	
 	const regex = hljs.regex;
 	
@@ -767,3 +767,9 @@ export default function(hljs) {
 	};
 }
 
+hljs.registerLanguage('zs', zs);
+
+// docs-www/source/extensions/zscript.py already emits code to run hljs
+// right away (to prevent a short flash of unstylized content) - but just
+// in case, run this too.
+hljs.highlightAll();

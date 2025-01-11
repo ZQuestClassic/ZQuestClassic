@@ -1,12 +1,13 @@
+import html
+import urllib
+
 from docutils import nodes
 from docutils.parsers.rst import Directive
+from docutils.parsers.rst.directives import unchanged
 from sphinx.application import Sphinx
 from sphinx.locale import _
 from sphinx.util.docutils import SphinxDirective, SphinxTranslator
 from sphinx.util.typing import ExtensionMetadata
-from docutils.parsers.rst.directives import unchanged
-import urllib
-import html
 
 
 class ZScriptNode(nodes.General, nodes.Element):
@@ -41,6 +42,14 @@ class ZScriptDirective(SphinxDirective):
 def visit_logo_node_html(translator: SphinxTranslator, node: ZScriptNode) -> None:
     if node.data:
         html_str = f'<pre class="hljs"><code class="language-zs">{html.escape(node.data)}</code></pre>'
+        html_str += f'''
+        <script>
+            {{
+                const el = document.currentScript.previousElementSibling;
+                requestAnimationFrame(() => hljs.highlightElement(el));
+            }}
+        </script>
+        '''
         translator.body.append(html_str)
     else:
         html_str = f'<iframe width=100%% height={node.height} src=https://web.zquestclassic.com/zscript/'

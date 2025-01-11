@@ -3,6 +3,13 @@
 import os
 import sys
 
+from pathlib import Path
+
+import requests
+
+script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
+root_dir = script_dir.parent.parent
+
 sys.path.append(os.path.abspath('extensions'))
 
 project = "ZQuest Classic"
@@ -18,7 +25,13 @@ html_theme = "pydata_sphinx_theme"
 html_static_path = ["_static"]
 html_logo = "_static/ZC_Logo.png"
 html_favicon = "_static/favicon.png"
-html_js_files = ["main.js"]
+html_css_files = ["main.css", "zscript.css"]
+html_js_files = ["main.js", "highlight-11.11.1.min.js", "zscript.js"]
+
+if not (root_dir / 'docs-www/source/_static/highlight-11.11.1.min.js').exists():
+    content = requests.get('https://unpkg.com/@highlightjs/cdn-assets@11.11.1/highlight.min.js').text
+    (root_dir / 'docs-www/source/_static/highlight-11.11.1.min.js').write_text(content)
+
 
 html_theme_options = {
     # Collapse navigation (False makes it tree-like)
