@@ -127,7 +127,11 @@ Header 2
 
 	.. versionchanged:: 3.0
 		Previously, did X
-
+	
+	.. deprecated::
+	
+		Due to X (no specific version)
+	
 	.. deprecated:: 3.0
 	
 		Due to X

@@ -2,7 +2,9 @@ Classes
 =========
 
 .. |GlobalObject| replace:: :ref:`GlobalObject<globals_fun_globalobject>`
+.. |DestroyArray| replace:: :ref:`DestroyArray<globals_fun_destroyarray>`
 .. |OwnObject| replace:: :ref:`OwnObject<classes_sprite_fun_ownobject>`
+.. |OwnArray| replace:: :ref:`OwnArray<classes_sprite_fun_ownarray>`
 
 .. _zslang_classes:
 
@@ -16,7 +18,7 @@ By declaring a ``class``, you declare a template of data to be used repeatedly i
 ``objects``, along with some functions associated with that data.
 
 While the order of the parts within a class mostly doesn't matter to the compiler, you will
-generally see classes organized in the same general order\ [#decl]_\ -
+generally see classes organized in the same general order:\ [#decl]_
 
 1. Data: The variables that make up the class. Can contain arrays, too.
 	- While technically not 'required', a class without data has little purpose.
@@ -94,72 +96,151 @@ member functions:
 - No ``this`` pointer (meaning no access to any data members from the class)
 - Called similarly to :ref:`functions inside namespaces<namespaces>`, except that a ``.`` is used after the class name, rather than the scope-resolution operator ``::``
 
+Effectively, they are functions whose only thing to do with the class, is that they are called using the class's name.
+One possible use of such functions would be to create 'named constructors' for different purposes\ [#static]_\ .
+
+Array Data Members
+------------------
+
+Declaring an array as a data member of an object creates a special type of array. Notably, you cannot
+re-assign a different pointer to such an array, and |OwnArray|/|DestroyArray| have no effect on these
+arrays (The are effectively 'owned' by the object, and are destroyed when the object is destroyed).
+
+Note that this only applies to actual array declarations- declarations of variables with *array types*
+that are not *array declarations* still act as normal.
+
+.. todo::
+
+	Verify that this information is correct. Re-assign compiles, even though old documentation
+	indicated that it should not- and then I got a crash. Bleh.
+
+	.. admonition:: Relevant Old Docs
+		:class: note
+
+		These arrays cannot be destroyed with 'DestroyArray', or owned with 'OwnArray'. They are
+		always in effect "owned" by their object, and will be destroyed by the object's
+		destructor. They will be saved with the object in the save file.
+		
+		That said, they *have* normal array pointers, and as such can be used by basically anything
+		(except the listed exceptions) that uses normal arrays.
+
 Examples
 --------
 
 .. [#decl]
 	*Declaration of a class*
 
-	.. zscript::
-		class Rectangle
-		{
-			int x, y; // The position of the rectangle
-			int w, h; // The width/height of the rectangle
-			int color; // The color of the rectangle
-			int opacity; // OP_OPAQUE or OP_TRANS
-			bool fill;
+	.. dropdown::
+		
+		.. zscript::
+			class Rectangle
+			{
+				int x, y; // The position of the rectangle
+				int w, h; // The width/height of the rectangle
+				int color; // The color of the rectangle
+				int opacity; // OP_OPAQUE or OP_TRANS
+				bool fill;
 
-			// The 'Constructor' of the class - used to create new instances
-			Rect(int X, int Y, int W, int H, int COLOR = 0x01,
-				bool FILL = true, int OPACITY = OP_OPAQUE)
-			{
-				x = X;
-				y = Y;
-				w = W;
-				h = H;
-				color = COLOR;
-				fill = FILL;
-				opacity = OPACITY;
-			}
-			// A member function of the class, used alongside the data
-			void draw(int layer)
-			{
-				Screen->Rectangle(layer, x, y, x+w-1, y+h-1,
-					color, 1, 0, 0, 0, fill, opacity);
-			}
-		};
+				// The 'Constructor' of the class - used to create new instances
+				Rectangle(int X, int Y, int W, int H, int COLOR = 0x01,
+					bool FILL = true, int OPACITY = OP_OPAQUE)
+				{
+					x = X;
+					y = Y;
+					w = W;
+					h = H;
+					color = COLOR;
+					fill = FILL;
+					opacity = OPACITY;
+				}
+				// The 'Destructor' of the class. You can usually leave this out.
+				~Rectangle()
+				{
+					printf("Deleting rectangle %d,%d %d,%d\n", x, y, w, h);
+				}
+				// A member function of the class, used alongside the data
+				void draw(int layer)
+				{
+					Screen->Rectangle(layer, x, y, x+w-1, y+h-1,
+						color, 1, 0, 0, 0, fill, opacity);
+				}
+			};
 
 .. [#new]
 	*Example script making use of the class from above*
 	
-	.. zscript::
-		ffc script screenBorder
-		{
-			void run(int color, int thickness)
+	.. dropdown::
+		
+		.. zscript::
+			ffc script screenBorder
 			{
-				// Declare 4 'Rectangle' objects that form a border around the screen
-				Rectangle rects[4] = {
-					new Rectangle(0, 0,
-						256, thickness, color),
-					new Rectangle(0, 168-thickness,
-						256, thickness, color),
-					new Rectangle(0, thickness,
-						thickness, 168-thickness*2, color),
-					new Rectangle(256-thickness, thickness,
-						thickness, 168-thickness*2, color)
-				};
-				loop()
+				void run(int color, int thickness)
 				{
-					for(r : rects) // loop through each object
-						r->draw(7); // and call its' draw function
-					Waitframe();
+					// Declare 4 'Rectangle' objects that form a border around the screen
+					Rectangle rects[4] = {
+						new Rectangle(0, 0,
+							256, thickness, color),
+						new Rectangle(0, 168-thickness,
+							256, thickness, color),
+						new Rectangle(0, thickness,
+							thickness, 168-thickness*2, color),
+						new Rectangle(256-thickness, thickness,
+							thickness, 168-thickness*2, color)
+					};
+					loop()
+					{
+						for(r : rects) // loop through each object
+							r->draw(7); // and call its' draw function
+						Waitframe();
+					}
 				}
 			}
-		}
 
-.. todo::
+.. [#static]
+	*Example of static functions, being used for 'named constructors'*
 
-	- Example of a destructor doing something useful
-	- Example of accessing data members of a class externally
-	- Example of static functions
-	- Details on object arrays being special
+	.. dropdown::
+		
+		.. zscript::
+			class Rectangle
+			{
+				int x, y; // The position of the rectangle
+				int w, h; // The width/height of the rectangle
+				int color; // The color of the rectangle
+				int opacity; // OP_OPAQUE or OP_TRANS
+				bool fill;
+
+				// Constructors
+				Rectangle()
+				{
+					color = 0x01;
+					opacity = OP_OPAQUE;
+					fill = true;
+					w = 16; h = 16;
+				}
+				Rectangle(int X, int Y)
+				{
+					// calling a constructor at the top of another constructor
+					// allows you to save on duplicated code
+					Rectangle();
+					x = X;
+					y = Y;
+				}
+				// static 'named constructors'
+				static Rectangle square(int x, int y, int sz)
+				{
+					Rectangle r = new Rectangle(x, y);
+					r->w = sz;
+					r->h = sz;
+					return r;
+				}
+				static Rectangle whole_screen(bool subscreen_area)
+				{
+					Rectangle r = new Rectangle();
+					r->w = 256;
+					r->h = subscreen_area ? 232 : 176;
+					// r->x will already be 0
+					r->y = subscreen_area ? -56 : 0;
+					return r;
+				}
+			};
