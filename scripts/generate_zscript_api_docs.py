@@ -683,7 +683,9 @@ def add_comment(symbol):
         else:
             notice = notice.replace('\n', ' ')
         add('')
-        add(f'.. warning:: **Deprecated!** {sanitize(notice)}')
+        add('.. deprecated::')
+        add('')
+        add(indent(sanitize(notice), 3))
         add('')
 
 
