@@ -192,7 +192,7 @@ Most operators are left-associative, except assignment operators and the Ternary
 	| 4        | ``-``            | -\ *expr*                   | Negation. Inverts the sign of the expression.                                 |
 	+----------+------------------+-----------------------------+-------------------------------------------------------------------------------+
 	| 4        | | ``!``          | | !\ *expr*                 | Boolean Not. Returns '**true**' if the expression was '**false**' or          |
-	|          | | ``not``        | | not *expr*                | '**0**', otherwise returns '**false**'                                        |
+	|          | | ``not``        | | not *expr*                | '**0**'/'**NULL**', otherwise returns '**false**'                             |
 	+----------+------------------+-----------------------------+-------------------------------------------------------------------------------+
 	| 4        | | ``~``          | | ~\ *expr*                 | Bitwise Not. Returns the bitwise inverse of the expression (flipping          |
 	|          | | ``bitnot``     | | bitnot *expr*             | every '0' bit to '1', and vice-versa)                                         |
@@ -307,6 +307,7 @@ Most operators are left-associative, except assignment operators and the Ternary
 		1. ``% 0``, after producing the error, will return the value of ``% 1``.
 		2. ``/ 0``, after producing the error, will return either ``214748.3647`` or ``-214748.3647``, matching the sign of the dividend.
 	4. As the ``int`` type is not a real integer, 'Integer Division' does not exist- i.e. ``5 / 2 == 2.5``, instead of ``5 / 2 == 2``.
+	5. Short-circuit for boolean operations is the default, though can be disabled with a :ref:`compiler option<zslang_options>`.
 
 Syntax
 ------
