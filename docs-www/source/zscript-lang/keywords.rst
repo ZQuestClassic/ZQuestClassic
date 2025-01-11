@@ -1,8 +1,9 @@
 Keywords and Operators
 ======================
 
-.. note::
-	WIP: This page is incomplete, and needs more information.
+.. todo::
+
+	|wip|
 
 .. _zslang_keywords:
 
@@ -53,8 +54,6 @@ Misc
 	+------------------+-------------------------------------------------------------------+
 	| ``import``       |                                                                   |
 	+------------------+-------------------------------------------------------------------+
-	| ``const``        |                                                                   |
-	+------------------+-------------------------------------------------------------------+
 	| ``typedef``      |                                                                   |
 	+------------------+-------------------------------------------------------------------+
 	| ``catch``        |                                                                   |
@@ -65,11 +64,12 @@ Misc
 	+------------------+-------------------------------------------------------------------+
 	| ``enum``         | used to declare :ref:`enumerations<enums>`                        |
 	+------------------+-------------------------------------------------------------------+
-	| ``namespace``    |                                                                   |
+	| ``namespace``    | used when declaring :ref:`namespaces<namespaces>`                 |
 	+------------------+-------------------------------------------------------------------+
-	| ``using``        |                                                                   |
+	| ``using``        | used to bring remote symbols into scope via                       |
+	|                  | :ref:`using statements<using>`                                    |
 	+------------------+-------------------------------------------------------------------+
-	| ``always``       |                                                                   |
+	| ``always``       | modifier for :ref:`using statements<using_always>`                |
 	+------------------+-------------------------------------------------------------------+
 	| ``repeat``       |                                                                   |
 	+------------------+-------------------------------------------------------------------+
@@ -92,8 +92,10 @@ Misc
 	| | ``try``        |                                                                   |
 	+------------------+-------------------------------------------------------------------+
 
-Primitive Types
----------------
+Types and Modifiers
+-------------------
+
+*only contains primitive types*
 
 .. table::
 	:widths: auto
@@ -106,7 +108,7 @@ Primitive Types
 	|               | **-214748.3648** to **214748.3647**.                                  |
 	+---------------+-----------------------------------------------------------------------+
 	| ``long``      | Long integer type. Values range from **-2147483648L** to              |
-	|               | **2147483647L**.                                                      |
+	|               | **2147483647L**. :ref:`Special bitwise behavior<operator_blurb>`.     |
 	+---------------+-----------------------------------------------------------------------+
 	| ``auto``      | Type will be automatically determined by the parser.                  |
 	+---------------+-----------------------------------------------------------------------+
@@ -121,6 +123,19 @@ Primitive Types
 	+---------------+-----------------------------------------------------------------------+
 	| ``rgb``       | Color type, used to represent color values.                           |
 	+---------------+-----------------------------------------------------------------------+
+	| ``const``     | Placed before a type to specify that the variable is unchangable.     |
+	+---------------+-----------------------------------------------------------------------+
+
+.. note::
+	``const`` makes a variable 'constant', meaning it cannot be changed. However, some things
+	are an additional level of constant, known as 'compile-time constant'. A constant is only
+	'compile-time constant' if the value it is set to is 'compile-time constant'.
+
+	Generally, things that are compile-time constant include:
+	- number literals
+	- boolean literals
+	- results of basic operators, where they only operate on compile-time constants
+	- calls to ``constexpr`` functions, where the parameters are compile-time constants
 
 Operators
 ---------
@@ -280,6 +295,7 @@ Most operators are left-associative, except assignment operators and the Ternary
 	| 18       | ``||=``          | *var* \|\|= *expr*          | Same as '*var* = *var* \|\| *expr*'                                           |
 	+----------+------------------+-----------------------------+-------------------------------------------------------------------------------+
 
+.. _operator_blurb:
 .. note:: Some operators behavior may not be intuitive. Notable behaviors:
 
 	1. Exponentiation ``^^^``

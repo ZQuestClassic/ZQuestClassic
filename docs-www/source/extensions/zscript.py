@@ -3,7 +3,8 @@ import urllib
 
 from docutils import nodes
 from docutils.parsers.rst import Directive
-from docutils.parsers.rst.directives import unchanged
+from docutils.parsers.rst.directives import unchanged, flag
+from docutils.parsers.rst.directives.admonitions import BaseAdmonition
 from sphinx.application import Sphinx
 from sphinx.locale import _
 from sphinx.util.docutils import SphinxDirective, SphinxTranslator
@@ -38,8 +39,7 @@ class ZScriptDirective(SphinxDirective):
             height=self.options.get('height', 800),
             )]
 
-
-def visit_logo_node_html(translator: SphinxTranslator, node: ZScriptNode) -> None:
+def visit_zscript_node_html(translator: SphinxTranslator, node: ZScriptNode) -> None:
     if node.data:
         html_str = f'<pre class="hljs"><code class="language-zs">{html.escape(node.data)}</code></pre>'
         html_str += f'''
@@ -65,28 +65,69 @@ def visit_logo_node_html(translator: SphinxTranslator, node: ZScriptNode) -> Non
         html_str += '></iframe>\n'
         translator.body.append(html_str)
 
-
-def depart_logo_node_html(translator: SphinxTranslator, node: ZScriptNode) -> None:
-    pass
-
-
-def visit_logo_node_unsuported(translator: SphinxTranslator, node: ZScriptNode) -> None:
+def visit_zscript_node_unsupported(translator: SphinxTranslator, node: ZScriptNode) -> None:
     logger.warning("zscript: unsupported output format (node skipped)")
     raise nodes.SkipNode
 
+class TodoNode(nodes.Admonition, nodes.Element):
+    pass
+
+def visit_todo_node_html(translator: SphinxTranslator, node: TodoNode) -> None:
+    translator.visit_admonition(node)
+def depart_todo_node_html(translator: SphinxTranslator, node: TodoNode) -> None:
+    translator.depart_admonition(node)
+
+class TodoDirective(BaseAdmonition, SphinxDirective):
+    node_class = TodoNode
+    optional_arguments: int = 1
+    final_argument_whitespace: bool = True
+    option_spec: dict = {
+        'nowarn': flag
+    }
+    
+    def run(self) -> list[nodes.Node]:
+        self.options['class'] = ['admonition-todo']
+        
+        (node,) = super().run()
+        title = 'TODO'
+        if len(self.arguments) and len(self.arguments[0]):
+            title += f': {self.arguments[0]}'
+        node.insert(0, nodes.title(text=_(title)))
+        node['docname'] = self.env.docname
+        self.add_name(node)
+        self.set_source_info(node)
+        self.state.document.note_explicit_target(node)
+        
+        if not 'nowarn' in self.options:
+            self.reporter.warning(f'{title}: {"\n".join(self.content)}')
+        return [node]
+
+def depart_ignored(translator: SphinxTranslator, node: nodes.Node) -> None:
+    pass
 
 def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_directive('zscript', ZScriptDirective)
+    app.add_directive('todo', TodoDirective)
 
     app.add_node(
         ZScriptNode,
-        html=(visit_logo_node_html, depart_logo_node_html),
-        epub=(visit_logo_node_unsuported, None),
-        latex=(visit_logo_node_unsuported, None),
-        man=(visit_logo_node_unsuported, None),
-        texinfo=(visit_logo_node_unsuported, None),
-        text=(visit_logo_node_unsuported, None),
-        rinoh=(visit_logo_node_unsuported, None),
+        html=(visit_zscript_node_html, depart_ignored),
+        epub=(visit_zscript_node_unsupported, None),
+        latex=(visit_zscript_node_unsupported, None),
+        man=(visit_zscript_node_unsupported, None),
+        texinfo=(visit_zscript_node_unsupported, None),
+        text=(visit_zscript_node_unsupported, None),
+        rinoh=(visit_zscript_node_unsupported, None),
+    )
+    app.add_node(
+        TodoNode,
+        html=(visit_todo_node_html, depart_todo_node_html),
+        epub=(None, None),
+        latex=(None, None),
+        man=(None, None),
+        texinfo=(None, None),
+        text=(None, None),
+        rinoh=(None, None),
     )
 
     return {

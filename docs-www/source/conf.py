@@ -51,6 +51,8 @@ rst_prolog = """
 .. |T2| replace:: :abbr:`T2 (Generic type, can bound to any type, as long as all generic types match.)`
 .. |T3| replace:: :abbr:`T3 (Generic type, can bound to any type, as long as all generic types match.)`
 
+.. |wip| replace:: WIP: This page is incomplete, and needs more information.
+
 .. role:: del
 """
 

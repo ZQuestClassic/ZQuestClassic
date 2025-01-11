@@ -65,5 +65,11 @@ ZScript Lang
 	:hidden:
 	:maxdepth: 1
 
+	/zscript-lang/namespace
+
+.. toctree::
+	:hidden:
+	:maxdepth: 1
+
 	/zscript-lang/ranges
 

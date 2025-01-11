@@ -1,6 +1,10 @@
 Smart Loops ('loop')
 ====================
 
+.. todo:: @AlwaysRunEndpoint
+
+	Annotation that affects 'loop()' over ranges
+
 'loop' loops
 ------------
 
