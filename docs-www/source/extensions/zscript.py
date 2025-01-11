@@ -69,13 +69,11 @@ def visit_zscript_node_unsupported(translator: SphinxTranslator, node: ZScriptNo
     logger.warning("zscript: unsupported output format (node skipped)")
     raise nodes.SkipNode
 
-class TodoNode(nodes.Admonition, nodes.Element):
+class AdmonitionNode(nodes.Admonition, nodes.Element):
     pass
 
-def visit_todo_node_html(translator: SphinxTranslator, node: TodoNode) -> None:
-    translator.visit_admonition(node)
-def depart_todo_node_html(translator: SphinxTranslator, node: TodoNode) -> None:
-    translator.depart_admonition(node)
+class TodoNode(AdmonitionNode):
+    pass
 
 class TodoDirective(BaseAdmonition, SphinxDirective):
     node_class = TodoNode
@@ -102,12 +100,41 @@ class TodoDirective(BaseAdmonition, SphinxDirective):
             self.reporter.warning(f'{title}: {"\n".join(self.content)}')
         return [node]
 
+class PlansNode(AdmonitionNode):
+    pass
+
+class PlansDirective(BaseAdmonition, SphinxDirective):
+    node_class = PlansNode
+    optional_arguments: int = 1
+    final_argument_whitespace: bool = True
+    
+    def run(self) -> list[nodes.Node]:
+        self.options['class'] = ['admonition-plans']
+        
+        (node,) = super().run()
+        title = 'Not Yet Implemented'
+        if len(self.arguments) and len(self.arguments[0]):
+            title = f': {self.arguments[0]}'
+        node.insert(0, nodes.title(text=_(title)))
+        node['docname'] = self.env.docname
+        self.add_name(node)
+        self.set_source_info(node)
+        self.state.document.note_explicit_target(node)
+        
+        return [node]
+
+def visit_admonition_node_html(translator: SphinxTranslator, node: AdmonitionNode) -> None:
+    translator.visit_admonition(node)
+def depart_admonition_node_html(translator: SphinxTranslator, node: AdmonitionNode) -> None:
+    translator.depart_admonition(node)
+
 def depart_ignored(translator: SphinxTranslator, node: nodes.Node) -> None:
     pass
 
 def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_directive('zscript', ZScriptDirective)
     app.add_directive('todo', TodoDirective)
+    app.add_directive('plans', PlansDirective)
 
     app.add_node(
         ZScriptNode,
@@ -121,7 +148,17 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     )
     app.add_node(
         TodoNode,
-        html=(visit_todo_node_html, depart_todo_node_html),
+        html=(visit_admonition_node_html, depart_admonition_node_html),
+        epub=(None, None),
+        latex=(None, None),
+        man=(None, None),
+        texinfo=(None, None),
+        text=(None, None),
+        rinoh=(None, None),
+    )
+    app.add_node(
+        PlansNode,
+        html=(visit_admonition_node_html, depart_admonition_node_html),
         epub=(None, None),
         latex=(None, None),
         man=(None, None),

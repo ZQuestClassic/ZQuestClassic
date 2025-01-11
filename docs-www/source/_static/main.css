@@ -41,3 +41,19 @@ html {
 a.reference[href^="https://github.com"]:not(.github) {
     font-size: 11px;
 }
+
+.admonition.admonition-plans,
+div.admonition.admonition-plans {
+	border-color: var(--pst-color-accent);
+}
+
+.admonition.admonition-plans>.admonition-title,
+div.admonition.admonition-plans>.admonition-title {
+	background-color: var(--pst-color-accent-bg);
+}
+
+.admonition.admonition-plans>.admonition-title:after,
+div.admonition.admonition-plans>.admonition-title:after {
+	color: var(--pst-color-accent);
+	content: '⏩';
+}

@@ -60,3 +60,16 @@ Placing an ``else`` after a conditional statement's body, allows you to run a se
 
 As you can see in the example, you can use this to chain multiple conditionals together.
 
+Conditional Assignment
+----------------------
+
+.. todo::
+
+	ex. ``if(npc n = findNPC())``
+
+.. plans::
+
+	May be worth expanding this to better C++-like syntax for future versions.
+	
+	- Could be good to allow in while/until loops
+	- Allow '; condition' suffix to use a condition other than '!= 0' (if/unless only, not on loops!)

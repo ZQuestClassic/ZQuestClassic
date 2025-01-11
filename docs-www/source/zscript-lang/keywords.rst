@@ -296,17 +296,17 @@ Most operators are left-associative, except assignment operators and the Ternary
 	+----------+------------------+-----------------------------+-------------------------------------------------------------------------------+
 
 .. _operator_blurb:
-.. note:: Some operators behavior may not be intuitive. Notable behaviors:
+.. caution:: Some operators behavior may not be intuitive. Notable behaviors:
 
 	1. Exponentiation ``^^^``
-		1. If either parameter is type ``long``, a long exponentiation will be performed. Ex. ``2L ^^^ 2L === 4L``.
+		1. If either parameter is type ``long``, a long exponentiation will be performed. Ex. ``2L ^^^ 2L == 4L``.
 		2. Per our definition, ``0^^^0 == 1``. With long type, ``0L ^^^ 0L == 1L``.
 		3. If exponentiation overflows, the minimum representable value (``-214748.3648`` or ``-2147483648L``) will be returned.
 	2. Bitwise operators ``~ << >> & ^ |`` where either parameter is type ``long`` will act on the full 32-bits. Otherwise, they will first truncate the value, and access the remaining ~~18 bits only.
 	3. ``% 0`` and ``/ 0`` will produce a script error.
 		1. ``% 0``, after producing the error, will return the value of ``% 1``.
 		2. ``/ 0``, after producing the error, will return either ``214748.3647`` or ``-214748.3647``, matching the sign of the dividend.
-
+	4. As the ``int`` type is not a real integer, 'Integer Division' does not exist- i.e. ``5 / 2 == 2.5``, instead of ``5 / 2 == 2``.
 
 Syntax
 ------
