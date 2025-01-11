@@ -2,7 +2,7 @@ Object Memory Management
 ========================
 
 .. |GlobalObject| replace:: :ref:`GlobalObject<globals_fun_globalobject>`
-.. |OwnObject| replace:: :ref:`OwnObject<ownobject_disambiguation>`
+.. |OwnObject| replace:: :ref:`OwnObject<classes_sprite_fun_ownobject>`
 
 .. _gc:
 
