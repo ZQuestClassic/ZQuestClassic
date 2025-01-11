@@ -739,7 +739,7 @@ bool movingblock::animate(int32_t)
 							{
 								if (lyr2 == rpos_handle.layer) continue;
 
-								mapscr* lyr2_scr = get_scr_for_rpos_layer(rpos_handle.rpos, lyr2 - 1);
+								mapscr* lyr2_scr = get_scr_for_rpos_layer(rpos_handle.rpos, lyr2);
 								if (is_push(lyr2_scr, rpos_handle.pos))
 								{
 									lyr2_scr->sflag[rpos_handle.pos] = mfPUSHED;
@@ -969,7 +969,7 @@ bool movingblock::animate(int32_t)
 							{
 								if (lyr2 == rpos_handle.layer) continue;
 
-								mapscr* lyr2_scr = get_scr_for_rpos_layer(rpos_handle.rpos, lyr2 - 1);
+								mapscr* lyr2_scr = get_scr_for_rpos_layer(rpos_handle.rpos, lyr2);
 								if (is_push(lyr2_scr, rpos_handle.pos))
 								{
 									lyr2_scr->sflag[rpos_handle.pos] = mfPUSHED;
