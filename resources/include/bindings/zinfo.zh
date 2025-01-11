@@ -3,7 +3,7 @@ class ZInfo {
 	// @delete
 	internal ZInfo();
 
-	// Copies the name of the specified itemclass (use `IC_` constants) into the
+	// Copies the name of the specified itemclass ([ItemClass] (`IC_`)) into the
 	// buffer.
 	//
 	// @zasm
@@ -17,7 +17,7 @@ class ZInfo {
 	//   POP D1
 	//   POP D0
 	//   SETR D2 MODULEGETINT
-	internal int GetInt(char32 arg1, char32 arg2);
+	internal int GetInt(char32[] section, char32[] element);
 
 	// @deprecated no longer supported!
 	// @zasm
@@ -25,8 +25,9 @@ class ZInfo {
 	//   POP D1
 	//   POP D0
 	//   SETR MODULEGETSTR D6
-	internal void GetString(char32 arg1, char32 arg2, char32 arg3);
+	internal void GetString(char32[] buf, char32[] section, char32[] element);
 }
 
+internal const ZInfo ZInfo;
+// @deprecated Use [ZInfo]
 internal const ZInfo Module;
-internal const ZInfo ZInfo; // @deprecated Use Module->

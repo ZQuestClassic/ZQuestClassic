@@ -35,8 +35,6 @@ namespace Credits //start
 	//start Header System functions
 	void init()
 	{
-		if(_bitmap->isValid())
-			_bitmap->Free();
 		_bitmap = create(256, DEFAULT_HEIGHT);
 		_bitmap->Clear(0);
 		data[DATA_CURRY] = 0;
@@ -48,8 +46,6 @@ namespace Credits //start
 	}
 	void destroy() //Call when you are done rolling the credits, to delete them
 	{
-		if(_bitmap->isValid())
-			_bitmap->Free();
 		_bitmap = NULL;
 		data[DATA_CURRY] = 0;
 		data[DATA_SPACING] = DEFAULT_SPACING;
@@ -64,9 +60,7 @@ namespace Credits //start
 	}
 	bitmap create(int w, int h)
 	{
-		if ( Game->FFRules[qr_OLDCREATEBITMAP_ARGS] )
-			return Game->CreateBitmap(h, w);
-		else return Game->CreateBitmap(w, h);
+		return new bitmap(w, h);
 	}
 	void resize(int height)
 	{
@@ -75,7 +69,6 @@ namespace Credits //start
 		tmp->Clear(0);
 		int h = Min(_bitmap->Height, height);
 		_bitmap->Blit(0, tmp, 0, 0, 256, h, 0, 0, 256, h, 0, 0, 0, BITDX_NORMAL, 0, false);
-		_bitmap->Free();
 		_bitmap = tmp;
 	}
 	void setSpacing(int spc)
@@ -103,7 +96,6 @@ namespace Credits //start
 		bitmap tmp = create(256, data[DATA_CURRY]);
 		_bitmap->Blit(7, tmp, 0, 0, 256, data[DATA_CURRY], 0, 0, 256, data[DATA_CURRY], 0, 0, 0, BITDX_NORMAL, 0, false);
 		tmp->Write(7, filepath, true);
-		tmp->Free();
 	}
 	//end
 	//start Credits drawing functions

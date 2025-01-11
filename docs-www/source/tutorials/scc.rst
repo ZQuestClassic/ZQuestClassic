@@ -111,4 +111,5 @@ The following is an example script found in ZC's tests folder, which gives some 
 
 .. only:: html
 
-   .. zscript:: https://raw.githubusercontent.com/ZQuestClassic/ZQuestClassic/refs/heads/main/tests/scripts/playground/auto/scc.zs
+   .. zscript::
+      :url: https://raw.githubusercontent.com/ZQuestClassic/ZQuestClassic/refs/heads/main/tests/scripts/playground/auto/scc.zs

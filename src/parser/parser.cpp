@@ -381,12 +381,21 @@ int32_t main(int32_t argc, char **argv)
 	child_process_handler* cph = (linked ? new child_process_handler() : nullptr);
 	ConsoleWrite = cph;
 
-	if (!zscript_load_base_config("base_config/zscript.cfg"))
+	if (ZScript::is_test())
 	{
-		zconsole_error("%s", "Error: failed to load base config");
-		return 1;
+		bool result = zscript_load_base_config("base_config/zscript_test.cfg");
+		assert(result);
 	}
-	zscript_load_user_config("zscript.cfg");
+	else
+	{
+		if (!zscript_load_base_config("base_config/zscript.cfg"))
+		{
+			zconsole_error("%s", "Error: failed to load base config");
+			return 1;
+		}
+
+		zscript_load_user_config("zscript.cfg");
+	}
 
 	bool has_qrs = false;
 	if(int32_t qr_hex_index = used_switch(argc, argv, "-qr"))
@@ -540,13 +549,15 @@ int32_t main(int32_t argc, char **argv)
 	}
 	if(!zasm_out.empty() && result)
 	{
-		FILE *outfile = fopen(zasm_out.c_str(), zasm_out_append ? "a" : "w");
-		for(auto& p : result->theScripts)
+		if(FILE* outfile = fopen(zasm_out.c_str(), zasm_out_append ? "a" : "w"))
 		{
-			disassembled_script_data const& data = p.second;
-			data.write(outfile,false,true,zasm_commented);
+			for(auto& p : result->theScripts)
+			{
+				disassembled_script_data const& data = p.second;
+				data.write(outfile, false, true, zasm_commented);
+			}
+			fclose(outfile);
 		}
-		fclose(outfile);
 	}
 	
 	if(cph) delete cph;

@@ -824,14 +824,16 @@ static const cache_entry* getSourceCodeCacheEntry(const std::string& fname)
 
 int ZScript::getSourceCodeNumLines(const LocationData& loc)
 {
-	return getSourceCodeCacheEntry(loc.fname)->lines.size() + 1;
+	return getSourceCodeCacheEntry(loc.fname)->lines.size();
 }
 
 std::string ZScript::getSourceCodeSnippet(const LocationData& loc)
 {
 	auto entry = getSourceCodeCacheEntry(loc.fname);
 	uint32_t start = entry->lines[loc.first_line - 1] + loc.first_column - 1;
-	uint32_t end = entry->lines[loc.last_line - 1] + loc.last_column - 1;
+	uint32_t end = loc.last_line - 1 < entry->lines.size() ?
+		entry->lines[loc.last_line - 1] + loc.last_column - 1 :
+		entry->contents.size();
 	return entry->contents.substr(start, end - start);
 }
 
@@ -847,7 +849,7 @@ std::string ZScript::getErrorContext(const LocationData& loc)
 
 	LocationData expanded_loc = loc;
 	expanded_loc.first_line -= num_lines_prev;
-	expanded_loc.last_line = std::min(expanded_loc.last_line + 1, getSourceCodeNumLines(loc));
+	expanded_loc.last_line = std::min(expanded_loc.last_line, getSourceCodeNumLines(loc)) + 1;
 	expanded_loc.first_column = 1;
 	expanded_loc.last_column = 1;
 

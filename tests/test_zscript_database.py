@@ -21,12 +21,10 @@
 #   00431-no-cycle-spinning-tiles
 
 import argparse
-import json
 import os
 import re
 import subprocess
 import sys
-import time
 import unittest
 
 from pathlib import Path
@@ -88,9 +86,6 @@ def intuit_imports(database_dir: Path, script_path: Path):
 
     if re.search(r'tango', code, re.IGNORECASE):
         imports.append('tango.zh')
-
-    if re.search(r'FFCS_', code, re.IGNORECASE):
-        imports.append('ffcscript.zh')
 
     if re.search(r'moveLink|TRH_', code, re.IGNORECASE):
         imports.append('deprecated/theRandomHeader.zh')
@@ -281,6 +276,7 @@ class TestZScriptDatabase(ZCTestCase):
             imports.append(rel_name)
             lines = [
                 '#option ON_MISSING_RETURN warn',
+                '#option WARN_DEPRECATED off',
                 '',
                 *(f'#includepath "{path}"' for path in include_paths),
                 '',
@@ -299,6 +295,7 @@ class TestZScriptDatabase(ZCTestCase):
                     '-unlinked',
                     '-delay_cassert',
                 ],
+                env={**os.environ, 'TEST_ZSCRIPT': '1', 'ZC_DISABLE_DEBUG': '1'},
                 cwd=run_target.get_build_folder(),
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,

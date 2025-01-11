@@ -376,15 +376,24 @@ class hero {
 	// @zasm_var HEROCOYOTETIME
 	internal int CoyoteTime;
 
+	// The [lweapon] currently held by the player. Overwriting this directly will delete any [lweapon] previously held.
+	// If an [lweapon] script lifts itself, this also functions as a [Waitframe].
+	//
 	// @zasm_var HEROLIFTEDWPN
 	internal lweapon LiftedWeapon;
-
+	
+	// The time the current lift operation takes. Starts at the same value as [LiftMaxTimer],
+	// then ticks down each frame the lift continues.
+	//
 	// @zasm_var HEROLIFTTIMER
 	internal int LiftTimer;
 
+	// The total time the current lift operation takes.
 	// @zasm_var HEROLIFTMAXTIMER
 	internal int LiftMaxTimer;
 
+	// The height that the object will be lifted above the player's head.
+	//
 	// @zasm_var HEROLIFTHEIGHT
 	internal int LiftHeight;
 
@@ -397,6 +406,12 @@ class hero {
 	// @zasm_var HEROHAMMERSTATE
 	internal int HammerState;
 
+	// When the engine lifts an object, it will overwrite these flags.
+	// - [LIFTFL_DISABLE_SHIELD] - If true, the shield is disabled when lifting the same way it is when swinging a weapon.
+	// - [LIFTFL_DISABLE_ITEMS] - If true, the player can't use any items unrelated to lifting.
+	//   (Items related to lifting, such as bombs with the liftable flag set or a Lift Glove, will
+	//    throw the held item regardless)
+	//
 	// @zasm_var HEROLIFTFLAGS
 	internal bool LiftFlags[];
 
@@ -648,16 +663,18 @@ class hero {
 	//   LINKWARPEXR D2
 	internal void WarpEx(int[] ptr);
 
+	// Creates an explosion particle effect in mode 0, 1, or 2 of the sprite.
+	//
 	// @zasm
 	//   POP D2
 	//   LINKEXPLODER D2
-	internal void Explode(int arg1);
+	internal void Explode(int mode);
 
 	// @zasm
 	//   POP D2
 	//   POP D3
 	//   PITWARPR D3 D2
-	internal void PitWarp(int arg1, int arg2);
+	internal void PitWarp(int dmap, int screen);
 
 	// Changes the A button item (respectively), in the same manner the
 	// engine subscreen cursor moves. DIR_RIGHT/DIR_LEFT are equivalent to how
@@ -803,14 +820,19 @@ class hero {
 						  bool ignore_sideview = false,
 						  bool corner_shove = true);
 
+	// Returns a pointer to the held [lweapon], and causes the player to let go of it.
+	//
 	// @zasm
 	//   HEROLIFTRELEASE
 	internal lweapon ReleaseLiftWeapon();
-
+	
+	// Causes the player to lift the specified [lweapon] in the same way they lift combos with the Lift Glove.
+	// If an [lweapon] script lifts itself, this also functions as a [Waitframe].
+	//
 	// @zasm
 	//   HEROLIFTGRAB
 	//   POPARGS D5 0.0003
-	internal void LiftWeapon(lweapon arg1, int arg2, int arg3);
+	internal void LiftWeapon(lweapon weapon, int timer, int height);
 
 	// This returns true if the Hero is currently in a flicker frame (either
 	// invisible or color masked).
@@ -828,17 +850,17 @@ class hero {
 	// @zasm
 	//   POP D2
 	//   LINKWARPEXR D2
-	internal void Warp(int arg1);
+	internal void Warp(int warp_id);
 
 	// @zasm
 	//   POP D3
 	//   SETR GAMESETA D3
-	internal void SetItemA(int arg1);
+	internal void SetItemA(int item_id);
 
 	// @zasm
 	//   POP D3
 	//   SETR GAMESETB D3
-	internal void SetItemB(int arg1);
+	internal void SetItemB(int item_id);
 
 	// This allows you to set Link's button items without binary operation with
 	// options for forcing them.
@@ -857,13 +879,13 @@ class hero {
 	//   POP D1
 	//   POP D0
 	//   SETR D2 LINKOTILE
-	internal int GetOriginalTile(int arg1, int arg2);
+	internal int GetOriginalTile(int hero_sprite_id, int dir);
 
 	// @zasm
 	//   POP D1
 	//   POP D0
 	//   SETR D2 LINKOFLIP
-	internal int GetOriginalFlip(int arg1, int arg2);
+	internal int GetOriginalFlip(int hero_sprite_id, int dir);
 }
 
 // 1 is the sprite uid for Hero.

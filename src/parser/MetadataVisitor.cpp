@@ -382,7 +382,7 @@ void MetadataVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 		std::string symbol_id = getSymbolId(user_class->getType());
 		appendIdentifier(symbol_id, user_class->getNode(), getSelectionRange(*host.list->baseType));
 	}
-	else if (host.resolvedType)
+	else if (host.resolvedType && host.list)
 	{
 		auto resolvedType = host.resolvedType;
 		if (host.resolvedType->isArray())

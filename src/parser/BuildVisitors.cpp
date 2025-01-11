@@ -340,7 +340,7 @@ void BuildOpcodes::caseBlock(ASTBlock &host, void *param)
 	OpcodeContext *c = (OpcodeContext *)param;
 
 	int32_t startRefCount = arrayRefs.size();
-	auto orig_scope = scope;
+	ScopeReverter sr(&scope);
 	scope = host.getScope();
 
 	for (auto it = host.statements.begin(); it != host.statements.end(); ++it)
@@ -377,8 +377,6 @@ void BuildOpcodes::caseBlock(ASTBlock &host, void *param)
 		opcodeTargets.back()->insert(opcodeTargets.back()->end() - 1, ops_stack_refs.begin(), ops_stack_refs.end());
 	else
 		addOpcodes(ops_stack_refs);
-
-	scope = orig_scope;
 }
 
 void BuildOpcodes::caseStmtIf(ASTStmtIf &host, void *param)
@@ -395,6 +393,7 @@ void BuildOpcodes::caseStmtIf(ASTStmtIf &host, void *param)
 		{
 			host.setScope(scope->makeChild());
 		}
+		ScopeReverter sr(&scope);
 		scope = host.getScope();
 		int32_t startRefCount = arrayRefs.size();
 		
@@ -412,8 +411,6 @@ void BuildOpcodes::caseStmtIf(ASTStmtIf &host, void *param)
 					arrayRefs.pop_back();
 				
 			} //Either true or false, it's constant, so no checks required.
-
-			scope = scope->getParent();
 			return;
 		}
 		
@@ -448,12 +445,10 @@ void BuildOpcodes::caseStmtIf(ASTStmtIf &host, void *param)
 		
 		while ((int32_t)arrayRefs.size() > startRefCount)
 			arrayRefs.pop_back();
-
-		scope = scope->getParent();
 	}
 	else
 	{
-		auto orig_scope = scope;
+		ScopeReverter sr(&scope);
 
 		if(auto val = host.condition->getCompileTimeValue(this, scope))
 		{
@@ -463,9 +458,9 @@ void BuildOpcodes::caseStmtIf(ASTStmtIf &host, void *param)
 				visit(host.thenStatement.get(), param);
 				commentAt(targ_sz, fmt::format("{}({}) #{} [Opt:AlwaysOn]",ifstr,truestr,ifid));
 			} //Either true or false, it's constant, so no checks required.
-			scope = orig_scope;
 			return;
 		}
+
 		//run the test
 		int32_t startRefCount = arrayRefs.size(); //Store ref count
 		auto targ_sz = commentTarget();
@@ -494,7 +489,6 @@ void BuildOpcodes::caseStmtIf(ASTStmtIf &host, void *param)
 		commentStartEnd(targ_sz, fmt::format("{}() #{} Body",ifstr,ifid));
 		//nop
 		addOpcode(new ONoOp(endif));
-		scope = orig_scope;
 	}
 }
 
@@ -512,6 +506,7 @@ void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
 		{
 			host.setScope(scope->makeChild());
 		}
+		ScopeReverter sr(&scope);
 		scope = host.getScope();
 		int32_t startRefCount = arrayRefs.size();
 		
@@ -528,8 +523,6 @@ void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
 				
 				while ((int32_t)arrayRefs.size() > startRefCount)
 					arrayRefs.pop_back();
-				
-				scope = scope->getParent();
 			}
 			else //False, so go straight to the 'else'
 			{
@@ -538,9 +531,7 @@ void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
 				
 				while ((int32_t)arrayRefs.size() > startRefCount)
 					arrayRefs.pop_back();
-				
-				scope = scope->getParent();
-				//
+
 				auto targ_sz = commentTarget();
 				visit(host.elseStatement.get(), param);
 				commentStartEnd(targ_sz, fmt::format("{}({}={}) #{} Else [Opt:AlwaysOff]",ifstr,declname,falsestr,ifid));
@@ -594,7 +585,7 @@ void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
 	}
 	else
 	{
-		auto orig_scope = scope;
+		ScopeReverter sr(&scope);
 
 		if(auto val = host.condition->getCompileTimeValue(this, scope))
 		{
@@ -610,7 +601,6 @@ void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
 				commentAt(targ_sz, fmt::format("{}({}) #{} [Opt:AlwaysOff]",ifstr,falsestr,ifid));
 			}
 			//Either way, ignore the rest and return.
-			scope = orig_scope;
 			return;
 		}
 		//run the test
@@ -646,7 +636,6 @@ void BuildOpcodes::caseStmtIfElse(ASTStmtIfElse &host, void *param)
 		visit(host.elseStatement.get(), param);
 		commentStartEnd(targ_sz, fmt::format("{}() #{} Else",ifstr,ifid));
 		addOpcode(new ONoOp(endif));
-		scope = orig_scope;
 	}
 }
 
@@ -1065,6 +1054,7 @@ void BuildOpcodes::caseStmtRangeLoop(ASTStmtRangeLoop &host, void *param)
 	{
 		host.setScope(scope->makeChild());
 	}
+	ScopeReverter sr(&scope);
 	scope = host.getScope();
 	
 	uint loopid = host.get_comment_id();

@@ -5,83 +5,83 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-errors_4.zs Line 60 @ Columns 4-17 - Error T021: Function ArrayPushBack(char32, int) has not been declared.
+errors_4.zs Line 58 @ Columns 4-17 - Error T021: Function ArrayPushBack(char32, int) has not been declared.
 
-58                #option LEGACY_ARRAYS off
-59    
-60                ArrayPushBack(ptr, 1);
+56                #option LEGACY_ARRAYS off
+57    
+58                ArrayPushBack(ptr, 1);
                   ^~~~~~~~~~~~~
 
 
-errors_4.zs Line 61 @ Columns 4-15 - Error T021: Function ResizeArray(char32, int) has not been declared.
+errors_4.zs Line 59 @ Columns 4-15 - Error T021: Function ResizeArray(char32, int) has not been declared.
 
-59    
-60                ArrayPushBack(ptr, 1);
-61                ResizeArray(ptr, 1);
+57    
+58                ArrayPushBack(ptr, 1);
+59                ResizeArray(ptr, 1);
                   ^~~~~~~~~~~
 
 
-errors_4.zs Line 14 @ Columns 10-12 - Error T017: Cannot cast from int to Object.
+errors_4.zs Line 12 @ Columns 10-12 - Error T017: Cannot cast from int to Object.
 
-12    
-13            // Invalid.
-14            Object n1 = ArrayPopBack(numbers);
+10    
+11            // Invalid.
+12            Object n1 = ArrayPopBack(numbers);
                      ^~
 
 
-errors_4.zs Line 15 @ Columns 3-16 - Error T021: Function ArrayPushBack(int[], Object) has not been declared.
+errors_4.zs Line 13 @ Columns 3-16 - Error T021: Function ArrayPushBack(int[], Object) has not been declared.
 
-13    // Invalid.
-14    Object n1 = ArrayPopBack(numbers);
-15    ArrayPushBack(numbers, obj);
+11    // Invalid.
+12    Object n1 = ArrayPopBack(numbers);
+13    ArrayPushBack(numbers, obj);
       ^~~~~~~~~~~~~
 
 
-errors_4.zs Line 16 @ Columns 3-16 - Error T021: Function ArrayPushBack(int[], char32[]) has not been declared.
+errors_4.zs Line 14 @ Columns 3-16 - Error T021: Function ArrayPushBack(int[], char32[]) has not been declared.
 
-14    Object n1 = ArrayPopBack(numbers);
-15    ArrayPushBack(numbers, obj);
-16    ArrayPushBack(numbers, "");
+12    Object n1 = ArrayPopBack(numbers);
+13    ArrayPushBack(numbers, obj);
+14    ArrayPushBack(numbers, "");
       ^~~~~~~~~~~~~
 
 
-errors_4.zs Line 18 @ Columns 10-18 - Error T017: Cannot cast from int to Object.
+errors_4.zs Line 16 @ Columns 10-18 - Error T017: Cannot cast from int to Object.
 
-16    ArrayPushBack(numbers, "");
-17    ArrayPushBack(numbers, 1L); // TODO: this should be invalid (else: we perform an implicit cast and multiply by 10000...)
-18    Object choice_1 = Choose(1, 2, 3);
+14    ArrayPushBack(numbers, "");
+15    ArrayPushBack(numbers, 1L); // TODO: this should be invalid (else: we perform an implicit cast and multiply by 10000...)
+16    Object choice_1 = Choose(1, 2, 3);
              ^~~~~~~~
 
 
-errors_4.zs Line 19 @ Columns 19-25 - Error T021: Function Choose(int, int, Object) has not been declared.
+errors_4.zs Line 17 @ Columns 19-25 - Error T021: Function Choose(int, int, Object) has not been declared.
 
-17    ArrayPushBack(numbers, 1L); // TODO: this should be invalid (else: we perform an implicit cast and multiply by 10000...)
-18    Object choice_1 = Choose(1, 2, 3);
-19    auto choice_2 = Choose(1, 2, obj);
+15    ArrayPushBack(numbers, 1L); // TODO: this should be invalid (else: we perform an implicit cast and multiply by 10000...)
+16    Object choice_1 = Choose(1, 2, 3);
+17    auto choice_2 = Choose(1, 2, obj);
                       ^~~~~~
 
 
-errors_4.zs Line 20 @ Columns 16-19 - Error T021: Function Max(int, int, Object) has not been declared.
+errors_4.zs Line 18 @ Columns 16-19 - Error T021: Function Max(int, int, Object) has not been declared.
 
-18    Object choice_1 = Choose(1, 2, 3);
-19    auto choice_2 = Choose(1, 2, obj);
-20    auto max_1 = Max(1, 2, obj);
+16    Object choice_1 = Choose(1, 2, 3);
+17    auto choice_2 = Choose(1, 2, obj);
+18    auto max_1 = Max(1, 2, obj);
                    ^~~
 
 
-errors_4.zs Line 21 @ Columns 16-19 - Error T021: Function Max(int, Object) has not been declared.
+errors_4.zs Line 19 @ Columns 16-19 - Error T021: Function Max(int, Object) has not been declared.
 
-19    auto choice_2 = Choose(1, 2, obj);
-20    auto max_1 = Max(1, 2, obj);
-21    auto max_2 = Max(1, obj);
+17    auto choice_2 = Choose(1, 2, obj);
+18    auto max_1 = Max(1, 2, obj);
+19    auto max_2 = Max(1, obj);
                    ^~~
 
 
-errors_4.zs Line 22 @ Columns 16-19 - Error T021: Function Max(int) has not been declared.
+errors_4.zs Line 20 @ Columns 16-19 - Error T021: Function Max(int) has not been declared.
 
-20    auto max_1 = Max(1, 2, obj);
-21    auto max_2 = Max(1, obj);
-22    auto max_3 = Max(1);
+18    auto max_1 = Max(1, 2, obj);
+19    auto max_2 = Max(1, obj);
+20    auto max_3 = Max(1);
                    ^~~
 
 
@@ -97,11 +97,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 59,
+          "line": 57,
           "character": 3
         },
         "end": {
-          "line": 59,
+          "line": 57,
           "character": 16
         }
       },
@@ -111,11 +111,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 60,
+          "line": 58,
           "character": 3
         },
         "end": {
-          "line": 60,
+          "line": 58,
           "character": 14
         }
       },
@@ -125,11 +125,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 13,
+          "line": 11,
           "character": 9
         },
         "end": {
-          "line": 13,
+          "line": 11,
           "character": 11
         }
       },
@@ -139,11 +139,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 14,
+          "line": 12,
           "character": 2
         },
         "end": {
-          "line": 14,
+          "line": 12,
           "character": 15
         }
       },
@@ -153,11 +153,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 15,
+          "line": 13,
           "character": 2
         },
         "end": {
-          "line": 15,
+          "line": 13,
           "character": 15
         }
       },
@@ -167,11 +167,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 17,
+          "line": 15,
           "character": 9
         },
         "end": {
-          "line": 17,
+          "line": 15,
           "character": 17
         }
       },
@@ -181,11 +181,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 18,
+          "line": 16,
           "character": 18
         },
         "end": {
-          "line": 18,
+          "line": 16,
           "character": 24
         }
       },
@@ -195,11 +195,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 19,
+          "line": 17,
           "character": 15
         },
         "end": {
-          "line": 19,
+          "line": 17,
           "character": 18
         }
       },
@@ -209,11 +209,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 20,
+          "line": 18,
           "character": 15
         },
         "end": {
-          "line": 20,
+          "line": 18,
           "character": 18
         }
       },
@@ -223,11 +223,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 21,
+          "line": 19,
           "character": 15
         },
         "end": {
-          "line": 21,
+          "line": 19,
           "character": 18
         }
       },

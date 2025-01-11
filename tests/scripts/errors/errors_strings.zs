@@ -1,5 +1,3 @@
-#option NO_ERROR_HALT on
-
 void strings() {
 	char32 c1 = 'should have been double quotes'; // char too long
 	char32 c2 = '\c'; // invalid escape

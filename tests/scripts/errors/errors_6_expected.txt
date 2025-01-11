@@ -4,44 +4,12 @@ Compiling 'errors_6.zs'
 Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
-errors_6.zs Line 14 @ Columns 5-6 - Error S008: There is already a variable with name a in this scope.
+errors_6.zs Line 12 @ Columns 5-6 - Error S008: There is already a variable with name a in this scope.
 
-12    
-13    int a = 1;
-14    int a = 1;
+10    
+11    int a = 1;
+12    int a = 1;
           ^
-
-
-errors_6.zs Line 17 @ Columns 6-10 - Error S004: Function blah was already declared with that type signature.
-
-15    
-16    void blah(){}
-17    void blah(){}
-           ^~~~
-
-
-errors_6.zs Line 5 @ Columns 6-7 - Error S008: There is already a variable with name a in this scope.
-
-3    class Car {
-4        int a;
-5        int a;
-             ^
-
-
-errors_6.zs Line 10 @ Columns 7-10 - Error S087: Duplicate class with name Car already exists.
-
- 8        void blah(){}
- 9    }
-10    class Car {
-            ^~~
-
-
-errors_6.zs Line 8 @ Columns 7-11 - Error S004: Function blah was already declared with that type signature.
-
-6    
-7        void blah(){}
-8        void blah(){}
-              ^~~~
 
 
 Failure!
@@ -56,72 +24,16 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 13,
+          "line": 11,
           "character": 4
         },
         "end": {
-          "line": 13,
+          "line": 11,
           "character": 5
         }
       },
       "severity": 1,
       "message": "S008: There is already a variable with name a in this scope."
-    },
-    {
-      "range": {
-        "start": {
-          "line": 16,
-          "character": 5
-        },
-        "end": {
-          "line": 16,
-          "character": 9
-        }
-      },
-      "severity": 1,
-      "message": "S004: Function blah was already declared with that type signature."
-    },
-    {
-      "range": {
-        "start": {
-          "line": 4,
-          "character": 5
-        },
-        "end": {
-          "line": 4,
-          "character": 6
-        }
-      },
-      "severity": 1,
-      "message": "S008: There is already a variable with name a in this scope."
-    },
-    {
-      "range": {
-        "start": {
-          "line": 9,
-          "character": 6
-        },
-        "end": {
-          "line": 9,
-          "character": 9
-        }
-      },
-      "severity": 1,
-      "message": "S087: Duplicate class with name Car already exists."
-    },
-    {
-      "range": {
-        "start": {
-          "line": 7,
-          "character": 6
-        },
-        "end": {
-          "line": 7,
-          "character": 10
-        }
-      },
-      "severity": 1,
-      "message": "S004: Function blah was already declared with that type signature."
     }
   ],
   "metadata": {

@@ -29,7 +29,10 @@ generic script classes
 		Test::Init();
 
 		Car mycar = new Car();
-		delete mycar;
+		{
+			#option WARN_DEPRECATED off
+			delete mycar;
+		}
 		Waitframe();
 
 		Car mycar2 = new Car(2000);

@@ -131,7 +131,7 @@ class Graphics {
 	// @zasm
 	//   CONVERTFROMRGB
 	//   POPARGS D5 0.0003
-	internal void ConvertFromRGB(int arg1, rgb arg2, int arg3);
+	internal void ConvertFromRGB(int[] buf, rgb color, int color_space);
 
 	// @zasm
 	//   CONVERTTORGB

@@ -171,10 +171,9 @@ void RecursiveVisitor::_visit_internals(Function& func)
 	}
 	else
 	{
-		Scope* oldscope = scope;
+		ScopeReverter sr(&scope);
 		scope = func.getInternalScope();
 		analyzeFunctionInternals(func);
-		scope = oldscope;
 	}
 }
 void RecursiveVisitor::visitFunctionInternals(ZScript::Program& program)
@@ -187,28 +186,29 @@ void RecursiveVisitor::visitFunctionInternals(ZScript::Program& program)
 	for (vector<Script*>::iterator it = program.scripts.begin();
 		 it != program.scripts.end(); ++it)
 	{
+		ScopeReverter sr(&scope);
 		Script& script = **it;
 		scope = &script.getScope();
 		functions = scope->getLocalFunctions();
 		for (auto& func : functions)
 			_visit_internals(*func);
-		scope = scope->getParent();
 	}
 	
 	for (vector<Namespace*>::iterator it = program.namespaces.begin();
 		 it != program.namespaces.end(); ++it)
 	{
+		ScopeReverter sr(&scope);
 		Namespace& namesp = **it;
 		scope = &namesp.getScope();
 		functions = scope->getLocalFunctions();
 		for (auto& func : functions)
 			_visit_internals(*func);
-		scope = scope->getParent();
 	}
 	
 	for (vector<UserClass*>::iterator it = program.classes.begin();
 		 it != program.classes.end(); ++it)
 	{
+		ScopeReverter sr(&scope);
 		UserClass& user_class = **it;
 		ClassScope* cscope = &user_class.getScope();
 		scope = cscope;
@@ -236,8 +236,6 @@ void RecursiveVisitor::visitFunctionInternals(ZScript::Program& program)
 		for (auto& func : functions)
 			_visit_internals(*func);
 		parsing_user_class = puc_none;
-		
-		scope = scope->getParent();
 	}
 
 

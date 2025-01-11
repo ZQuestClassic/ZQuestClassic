@@ -25,7 +25,14 @@ string LocationData::asString() const
 {
 	ostringstream out;
 	if (fname != "tmp" && fname != "")
-		out << fname << " ";
+	{
+		// For consistent test results no matter the machine.
+		if (is_test())
+			out << (!fname.empty() ? fs::path(fname).filename().string() : "") << " ";
+		else
+			out << fname << " ";
+
+	}
 	if (first_line == last_line)
 	{
 		out << "Line " << first_line << " @ ";

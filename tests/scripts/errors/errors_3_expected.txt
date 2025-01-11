@@ -5,115 +5,115 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-errors_3.zs Line 13 @ Columns 13-19 - Error T017: Cannot cast from Object to int.
+errors_3.zs Line 11 @ Columns 13-19 - Error T017: Cannot cast from Object to int.
 
-11    
-12            // Invalid.
-13            int number = obj;
+ 9    
+10            // Invalid.
+11            int number = obj;
                   ^~~~~~
 
 
-errors_3.zs Line 14 @ Columns 3-15 - Error T017: Cannot cast from int to Object.
+errors_3.zs Line 12 @ Columns 3-15 - Error T017: Cannot cast from int to Object.
 
-12    // Invalid.
-13    int number = obj;
-14    obj = number;
+10    // Invalid.
+11    int number = obj;
+12    obj = number;
       ^~~~~~~~~~~~
 
 
-errors_3.zs Line 15 @ Columns 7-14 - Error T017: Cannot cast from Object[] to int[].
+errors_3.zs Line 13 @ Columns 7-14 - Error T017: Cannot cast from Object[] to int[].
 
-13    int number = obj;
-14    obj = number;
-15    int numbers[] = {obj};
+11    int number = obj;
+12    obj = number;
+13    int numbers[] = {obj};
           ^~~~~~~
 
 
-errors_3.zs Line 16 @ Columns 10-17 - Error T017: Cannot cast from int[] to Object[].
+errors_3.zs Line 14 @ Columns 10-17 - Error T017: Cannot cast from int[] to Object[].
 
-14    obj = number;
-15    int numbers[] = {obj};
-16    Object objects[] = numbers;
+12    obj = number;
+13    int numbers[] = {obj};
+14    Object objects[] = numbers;
              ^~~~~~~
 
 
-errors_3.zs Line 17 @ Columns 10-18 - Error T017: Cannot cast from Object to Object[].
+errors_3.zs Line 15 @ Columns 10-18 - Error T017: Cannot cast from Object to Object[].
 
-15    int numbers[] = {obj};
-16    Object objects[] = numbers;
-17    Object objects2[] = new Object();
+13    int numbers[] = {obj};
+14    Object objects[] = numbers;
+15    Object objects2[] = new Object();
              ^~~~~~~~
 
 
-errors_3.zs Line 18 @ Columns 7-15 - Error T017: Cannot cast from Object[] to int[].
+errors_3.zs Line 16 @ Columns 7-15 - Error T017: Cannot cast from Object[] to int[].
 
-16    Object objects[] = numbers;
-17    Object objects2[] = new Object();
-18    int numbers2[] = {obj, <untyped>1};
+14    Object objects[] = numbers;
+15    Object objects2[] = new Object();
+16    int numbers2[] = {obj, <untyped>1};
           ^~~~~~~~
 
 
-errors_3.zs Line 37 @ Columns 3-17 - Error C036: Variable enemy3 is constant and cannot be changed.
+errors_3.zs Line 35 @ Columns 3-17 - Error C036: Variable enemy3 is constant and cannot be changed.
 
-35    
-36    // Invalid.
-37    enemy3 = enemy;
+33    
+34    // Invalid.
+35    enemy3 = enemy;
       ^~~~~~~~~~~~~~
 
 
-errors_3.zs Line 38 @ Columns 3-22 - Error T017: Cannot cast from Object[] to int[].
+errors_3.zs Line 36 @ Columns 3-22 - Error T017: Cannot cast from Object[] to int[].
 
-36    // Invalid.
-37    enemy3 = enemy;
-38    numbers3 = objects4;
+34    // Invalid.
+35    enemy3 = enemy;
+36    numbers3 = objects4;
       ^~~~~~~~~~~~~~~~~~~
 
 
-errors_3.zs Line 39 @ Columns 3-21 - Error C036: Variable enemies1[0] is constant and cannot be changed.
+errors_3.zs Line 37 @ Columns 3-21 - Error C036: Variable enemies1[0] is constant and cannot be changed.
 
-37    enemy3 = enemy;
-38    numbers3 = objects4;
-39    enemies1[0] = NULL;
+35    enemy3 = enemy;
+36    numbers3 = objects4;
+37    enemies1[0] = NULL;
       ^~~~~~~~~~~~~~~~~~
 
 
-errors_3.zs Line 40 @ Columns 3-28 - Error C036: Variable enemies3[2] is constant and cannot be changed.
+errors_3.zs Line 38 @ Columns 3-28 - Error C036: Variable enemies3[2] is constant and cannot be changed.
 
-38    numbers3 = objects4;
-39    enemies1[0] = NULL;
-40    enemies3[2] = enemies1[3];
+36    numbers3 = objects4;
+37    enemies1[0] = NULL;
+38    enemies3[2] = enemies1[3];
       ^~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+errors_3.zs Line 39 @ Columns 12-20 - Error S097: 'auto[][]' must have an initializer with type that is at least 2-depth array
+
+37    enemies1[0] = NULL;
+38    enemies3[2] = enemies1[3];
+39    auto[][] enemies4 = enemies1[0];
+               ^~~~~~~~
+
+
+errors_3.zs Line 40 @ Columns 16-24 - Error S097: 'auto[][][][]' must have an initializer with type that is at least 4-depth array
+
+38    enemies3[2] = enemies1[3];
+39    auto[][] enemies4 = enemies1[0];
+40    auto[][][][] enemies5 = enemies1[2];
+                   ^~~~~~~~
 
 
 errors_3.zs Line 41 @ Columns 12-20 - Error S097: 'auto[][]' must have an initializer with type that is at least 2-depth array
 
-39    enemies1[0] = NULL;
-40    enemies3[2] = enemies1[3];
-41    auto[][] enemies4 = enemies1[0];
+39    auto[][] enemies4 = enemies1[0];
+40    auto[][][][] enemies5 = enemies1[2];
+41    auto[][] numbers6 = {1, 2, 3};
                ^~~~~~~~
 
 
-errors_3.zs Line 42 @ Columns 16-24 - Error S097: 'auto[][][][]' must have an initializer with type that is at least 4-depth array
+errors_3.zs Line 42 @ Columns 8-9 - Error S097: 'auto' must have an initializer with valid type to mimic.
 
-40    enemies3[2] = enemies1[3];
-41    auto[][] enemies4 = enemies1[0];
-42    auto[][][][] enemies5 = enemies1[2];
-                   ^~~~~~~~
-
-
-errors_3.zs Line 43 @ Columns 12-20 - Error S097: 'auto[][]' must have an initializer with type that is at least 2-depth array
-
-41    auto[][] enemies4 = enemies1[0];
-42    auto[][][][] enemies5 = enemies1[2];
-43    auto[][] numbers6 = {1, 2, 3};
-               ^~~~~~~~
-
-
-errors_3.zs Line 44 @ Columns 8-9 - Error S097: 'auto' must have an initializer with valid type to mimic.
-
-42    auto[][][][] enemies5 = enemies1[2];
-43    auto[][] numbers6 = {1, 2, 3};
-44    auto x;
+40    auto[][][][] enemies5 = enemies1[2];
+41    auto[][] numbers6 = {1, 2, 3};
+42    auto x;
            ^
 
 
@@ -129,11 +129,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 12,
+          "line": 10,
           "character": 12
         },
         "end": {
-          "line": 12,
+          "line": 10,
           "character": 18
         }
       },
@@ -143,11 +143,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 13,
+          "line": 11,
           "character": 2
         },
         "end": {
-          "line": 13,
+          "line": 11,
           "character": 14
         }
       },
@@ -157,11 +157,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 14,
+          "line": 12,
           "character": 6
         },
         "end": {
-          "line": 14,
+          "line": 12,
           "character": 13
         }
       },
@@ -171,11 +171,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 15,
+          "line": 13,
           "character": 9
         },
         "end": {
-          "line": 15,
+          "line": 13,
           "character": 16
         }
       },
@@ -185,11 +185,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 16,
+          "line": 14,
           "character": 9
         },
         "end": {
-          "line": 16,
+          "line": 14,
           "character": 17
         }
       },
@@ -199,11 +199,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 17,
+          "line": 15,
           "character": 6
         },
         "end": {
-          "line": 17,
+          "line": 15,
           "character": 14
         }
       },
@@ -213,11 +213,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 36,
+          "line": 34,
           "character": 2
         },
         "end": {
-          "line": 36,
+          "line": 34,
           "character": 16
         }
       },
@@ -227,11 +227,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 37,
+          "line": 35,
           "character": 2
         },
         "end": {
-          "line": 37,
+          "line": 35,
           "character": 21
         }
       },
@@ -241,11 +241,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 38,
+          "line": 36,
           "character": 2
         },
         "end": {
-          "line": 38,
+          "line": 36,
           "character": 20
         }
       },
@@ -255,11 +255,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 39,
+          "line": 37,
           "character": 2
         },
         "end": {
-          "line": 39,
+          "line": 37,
           "character": 27
         }
       },
@@ -269,11 +269,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 40,
+          "line": 38,
           "character": 11
         },
         "end": {
-          "line": 40,
+          "line": 38,
           "character": 19
         }
       },
@@ -283,11 +283,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 41,
+          "line": 39,
           "character": 15
         },
         "end": {
-          "line": 41,
+          "line": 39,
           "character": 23
         }
       },
@@ -297,11 +297,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 42,
+          "line": 40,
           "character": 11
         },
         "end": {
-          "line": 42,
+          "line": 40,
           "character": 19
         }
       },
@@ -311,11 +311,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 43,
+          "line": 41,
           "character": 7
         },
         "end": {
-          "line": 43,
+          "line": 41,
           "character": 8
         }
       },

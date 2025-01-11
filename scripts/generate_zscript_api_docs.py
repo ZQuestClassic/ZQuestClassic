@@ -24,7 +24,7 @@ zscript_dir = root_dir / 'docs-www/source/zscript'
 sys.path.append(str((root_dir / 'scripts').absolute()))
 import run_target
 
-libraries = ['std', 'ghost', 'tango', 'gui', 'ffcscript', 'EmilyMisc']
+libraries = ['std', 'ghost', 'tango', 'gui', 'EmilyMisc']
 sections = {
     'Globals': [],
     'Classes': [],
@@ -104,7 +104,7 @@ class Type:
         const_prefix = '|const| ' if self.const else ''
         id = self.name.replace('[]', '')
         if id in ['void', 'int', 'long', 'untyped', 'T', 'T1', 'T2']:
-            return f'{const_prefix}|{id}|\ {self.name.replace(id, "")}'
+            return f'{const_prefix}|{id}|\\ {self.name.replace(id, "")}'
         if id in ['bool', 'char32', 'rgb']:
             return f'{const_prefix}{self.name}'
 
@@ -413,7 +413,6 @@ def get_doc_data(script_path) -> list[File]:
                 '#include "ghost.zh"',
                 '#include "tango.zh"',
                 '#include "EmilyMisc.zh"',
-                '#include "ffcscript.zh"',
                 '#include "gui.zh"',
             ]
         )
@@ -655,7 +654,7 @@ def add_comment(symbol):
     def replace_code_block(match: re.Match):
         code = match.group(1).replace('\n', '\n   ')
         code_blocks.append(code)
-        return '\n.. code-block::\n   $CODE'
+        return '\n.. zscript::\n   $CODE'
 
     def replace_code_block_placeholder(match: re.Match):
         return code_blocks.pop(0)
@@ -744,7 +743,7 @@ def handle_function(symbol: Function):
 
     parts = [
         str(symbol.return_type),
-        f'**{symbol.name}**' + '\ ' + str(symbol.parameters),
+        f'**{symbol.name}**' + '\\ ' + str(symbol.parameters),
         reflink(symbol),
     ]
     if symbol.loc:
@@ -791,7 +790,7 @@ def handle_scope(symbol):
             [
                 [
                     str(x.return_type),
-                    (x.link() + '\ ' + str(x.parameters) + deprecated(x)),
+                    (x.link() + '\\ ' + str(x.parameters) + deprecated(x)),
                 ]
                 for x in constructors
             ]
@@ -803,7 +802,7 @@ def handle_scope(symbol):
             [
                 [
                     str(x.return_type),
-                    (x.link() + '\ ' + str(x.parameters) + deprecated(x)),
+                    (x.link() + '\\ ' + str(x.parameters) + deprecated(x)),
                 ]
                 for x in functions
             ]
@@ -924,7 +923,9 @@ def process_lib(name: str, files):
         add('.. only:: html')
         add('')
         url = f'https://raw.githubusercontent.com/ZQuestClassic/ZQuestClassic/refs/heads/{git_ref}/resources/headers/examples/{example}'
-        add(f'   .. zscript:: {url}')
+        add('   .. zscript::')
+        add(f'      :url: {url}')
+        add(f'      :fname: {example}')
         add('')
 
         add('.. only:: not html')

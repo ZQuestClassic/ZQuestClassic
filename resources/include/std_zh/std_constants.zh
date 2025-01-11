@@ -1261,10 +1261,6 @@ DEFINE PT_TRANSPTEXTURE      = 12; // ""
 DEFINE PT_MASKTRANSTEXTURE   = 13; // translucent and transparent texture mapped polygon using 2d linear interpolation
 DEFINE PT_MASKTRANSPTEXTURE  = 14; // "" 
 
-// Opacity options. Use with drawing commands.
-DEFINE OP_TRANS              = 64;
-DEFINE OP_OPAQUE             = 128;
-
 // Render Targets. Use with Screen->"*RenderTarget" and Screen->"Bitmap" drawing routines.
 DEFINE RT_CURRENT            = -2; // Used by Blit(). mode7(), and RevBlit() for the current RT as dest.
 DEFINE RT_SCREEN             = -1; // draws to screen

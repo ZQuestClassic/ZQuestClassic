@@ -686,21 +686,21 @@ class Game {
 	//   POP D1
 	//   POP D0
 	//   SETR D2 SDDD
-	internal untyped GetScreenD(int screen, int reg);
+	internal untyped GetScreenD(int screen, int register);
 
 	// @zasm
 	//   POP D6
 	//   POP D1
 	//   POP D0
 	//   SETR SDDD D6
-	internal void SetScreenD(int screen, int reg, untyped value);
+	internal void SetScreenD(int screen, int register, untyped value);
 
 	// @zasm
 	//   POP D2
 	//   POP D1
 	//   POP D0
 	//   SETR D2 SDDDD
-	internal untyped GetDMapScreenD(int dmap, int screen, int reg);
+	internal untyped GetDMapScreenD(int dmap, int screen, int register);
 
 	// @zasm
 	//   POP D6
@@ -708,7 +708,7 @@ class Game {
 	//   POP D1
 	//   POP D0
 	//   SETR SDDDD D6
-	internal void SetDMapScreenD(int arg1, int arg2, int arg3, untyped arg4);
+	internal void SetDMapScreenD(int dmap, int screen, int register, untyped value);
 
 	// @zasm
 	//   POP D2
@@ -1106,7 +1106,7 @@ class Game {
 	// @zasm
 	//   POP D2
 	//   WEBSOCKET_LOAD D2
-	internal websocket LoadWebSocket(char32[] arg1);
+	internal websocket LoadWebSocket(char32[] url);
 
 	// Loads a [bottledata] ref for bottledata number [id] to a [bottledata]
 	// typed pointer.
@@ -1266,17 +1266,17 @@ class Game {
 	// @zasm
 	//   SWAPSUBSCREENV 0
 	//   POPARGS D5 0.0002
-	internal int SwapActiveSubscreens(int arg1, int arg2);
+	internal int SwapActiveSubscreens(int sub_id_1, int sub_id_2);
 
 	// @zasm
 	//   SWAPSUBSCREENV 1
 	//   POPARGS D5 0.0002
-	internal int SwapPassiveSubscreens(int arg1, int arg2);
+	internal int SwapPassiveSubscreens(int sub_id_1, int sub_id_2);
 
 	// @zasm
 	//   SWAPSUBSCREENV 2
 	//   POPARGS D5 0.0002
-	internal int SwapOverlaySubscreens(int arg1, int arg2);
+	internal int SwapOverlaySubscreens(int sub_id_1, int sub_id_2);
 
 	// @zasm
 	//   POP D2
@@ -1321,7 +1321,7 @@ class Game {
 	//   POP D2
 	//   POP D3
 	//   PLAYENHMUSICEX D3 D2
-	internal bool PlayOgg(int arg1, int arg2);
+	internal bool PlayOgg(char32[] filename, int track);
 
 	// @deprecated
 	// @zasm
@@ -1332,13 +1332,13 @@ class Game {
 	// @zasm
 	//   POP D2
 	//   SETENHMUSICPOS D2
-	internal void SetOggPos(int arg1);
+	internal void SetOggPos(int pos);
 
 	// @deprecated
 	// @zasm
 	//   POP D2
 	//   SETENHMUSICSPEED D2
-	internal void SetOggSpeed(int arg1);
+	internal void SetOggSpeed(int speed);
 
 	// @deprecated Use 'mapdata->' vars instead!
 	// @zasm
@@ -1534,13 +1534,13 @@ class Game {
 	// @zasm
 	//   POP D2
 	//   GETUNTYPEDSCRIPT D2
-	internal int GetUntypedScript(int arg1);
+	internal int GetUntypedScript(char32[] name);
 
 	// @deprecated
 	// @zasm
 	//   POP D2
 	//   GETSUBSCREENSCRIPT D2
-	internal int GetSubscreenScript(int arg1);
+	internal int GetSubscreenScript(char32[] name);
 
 	// @deprecated Use [dmapdata::GetMusic] instead!
 	// @zasm

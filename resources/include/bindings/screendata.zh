@@ -801,51 +801,51 @@ class screendata {
 	// @zasm
 	//   RECTR
 	//   POPARGS D5 0.0012
-	internal void Rectangle(int arg1, int arg2, int arg3, int arg4, int arg5,
-							int arg6, int arg7 = 1, int arg8 = 0, int arg9 = 0,
-							int arg10 = 0, bool arg11 = true, int arg12 = 128);
+	internal void Rectangle(int layer, int x, int y, int x2, int y2,
+							int color, int scale = 1, int rx = 0, int ry = 0,
+							int rot_degrees = 0, bool fill = true, int opacity = OP_OPAQUE);
 
 	// @zasm
 	//   CIRCLER
 	//   POPARGS D5 0.0011
-	internal void Circle(int arg1, int arg2, int arg3, int arg4, int arg5,
-						 int arg6 = 1, int arg7 = 0, int arg8 = 0, int arg9 = 0,
-						 bool arg10 = true, int arg11 = 128);
+	internal void Circle(int layer, int x, int y, int radius, int color,
+						 int scale = 1, int rx = 0, int ry = 0, int rot_degrees = 0,
+						 bool fill = true, int opacity = OP_OPAQUE);
 
 	// @zasm
 	//   ARCR
 	//   POPARGS D5 0.0014
-	internal void Arc(int arg1, int arg2, int arg3, int arg4, int arg5,
-					  int arg6, int arg7, int arg8 = 1, int arg9 = 0,
-					  int arg10 = 0, int arg11 = 0, bool arg12 = true,
-					  bool arg13 = true, int arg14 = 128);
+	internal void Arc(int layer, int x, int y, int radius, int start_degrees,
+					  int end_degrees, int color, int scale = 1, int rx = 0,
+					  int ry = 0, int rot_degrees = 0, bool closed = true,
+					  bool fill = true, int opacity = OP_OPAQUE);
 
 	// @zasm
 	//   ELLIPSER
 	//   POPARGS D5 0.0012
-	internal void Ellipse(int arg1, int arg2, int arg3, int arg4, int arg5,
-						  int arg6, int arg7 = 1, int arg8 = 0, int arg9 = 0,
-						  int arg10 = 0, bool arg11 = true, int arg12 = 128);
+	internal void Ellipse(int layer, int x, int y, int xradius, int yradius,
+						  int color, int scale = 1, int rx = 0, int ry = 0,
+						  int rot_degrees = 0, bool fill = true, int opacity = OP_OPAQUE);
 
 	// @zasm
 	//   LINER
 	//   POPARGS D5 0.0011
-	internal void Line(int arg1, int arg2, int arg3, int arg4, int arg5,
-					   int arg6, int arg7 = 1, int arg8 = 0, int arg9 = 0,
-					   int arg10 = 0, int arg11 = 128);
+	internal void Line(int layer, int x, int y, int x2, int y2,
+					   int color, int scale = 1, int rx = 0, int ry = 0,
+					   int rot_degrees = 0, int opacity = OP_OPAQUE);
 
 	// @zasm
 	//   SPLINER
 	//   POPARGS D5 0.0011
-	internal void Spline(int arg1, int arg2, int arg3, int arg4, int arg5,
-						 int arg6, int arg7, int arg8, int arg9, int arg10,
-						 int arg11 = 1);
+	internal void Spline(int layer, int x1, int y1, int x2, int y2,
+						 int x3, int y3, int x4, int y4, int color,
+						 int opacity = OP_OPAQUE);
 
 	// @zasm
 	//   PUTPIXELR
 	//   POPARGS D5 0.0008
-	internal void PutPixel(int arg1, int arg2, int arg3, int arg4, int arg5 = 0,
-						   int arg6 = 0, int arg7 = 0, int arg8 = 128);
+	internal void PutPixel(int layer, int x, int y, int color, int rx = 0,
+						   int ry = 0, int rot_degrees = 0, int opacity = OP_OPAQUE);
 
 	// Puts multiple pixels to the screen in one function call.
 	//
@@ -863,7 +863,7 @@ class screendata {
 	// @zasm
 	//   PIXELARRAYR
 	//   POPARGS D5 0.0005
-	internal void PutPixels(int layer, int ptr, int rx, int ry, int rangle);
+	internal void PutPixels(int layer, int ptr, int rx, int ry, int rot_degrees);
 
 	// Similar to FastTile(), but it draws multiple tiles in one call.
 	//
@@ -904,24 +904,24 @@ class screendata {
 	// @zasm
 	//   DRAWCHARR
 	//   POPARGS D5 0.0010
-	internal void DrawCharacter(int arg1, int arg2, int arg3, int arg4,
-								int arg5, int arg6, int arg7, int arg8,
-								int arg9, int arg10 = 128);
+	internal void DrawCharacter(int layer, int x, int y, int font,
+								int color, int bg_color, int width, int height,
+								char32 c, int opacity = OP_OPAQUE);
 
 	// @zasm
 	//   DRAWINTR
 	//   POPARGS D5 0.0011
-	internal void DrawInteger(int arg1, int arg2, int arg3, int arg4, int arg5,
-							  int arg6, int arg7, int arg8, int arg9,
-							  int arg10 = 0, int arg11 = 128);
+	internal void DrawInteger(int layer, int x, int y, int font, int color,
+							  int bg_color, int width, int height, int value,
+							  int num_decimal_places = 0, int opacity = OP_OPAQUE);
 
 	// @zasm
 	//   DRAWTILER
 	//   POPARGS D5 0.0015
-	internal void DrawTile(int arg1, int arg2, int arg3, int arg4, int arg5,
-						   int arg6, int arg7, int arg8 = -1, int arg9 = -1,
-						   int arg10 = 0, int arg11 = 0, int arg12 = 0,
-						   int arg13 = 0, bool arg14 = true, int arg15 = 128);
+	internal void DrawTile(int layer, int x, int y, int tile, int block_w,
+						   int block_h, int cset, int xscale = -1, int yscale = -1,
+						   int rx = 0, int ry = 0, int rot_degrees = 0,
+						   int flip = 0, bool transparency = true, int opacity = OP_OPAQUE);
 
 	// As DrawTile(), but draws with a cloaked effect.
 	//
@@ -934,11 +934,11 @@ class screendata {
 	// @zasm
 	//   DRAWCOMBOR
 	//   POPARGS D5 0.0016
-	internal void DrawCombo(int arg1, int arg2, int arg3, int arg4, int arg5,
-							int arg6, int arg7, int arg8, int arg9 = -1,
-							int arg10 = -1, int arg11 = 0, int arg12 = 0,
-							int arg13 = 0, int arg14 = 0, bool arg15 = true,
-							int arg16 = 128);
+	internal void DrawCombo(int layer, int x, int y, int combo, int w,
+							int h, int cset, int xscale = -1, int yscale = -1,
+							int rx = 0, int ry = 0, int rot_degrees = 0,
+							int frame = 0, int flip = 0, bool transparency = true,
+							int opacity = OP_OPAQUE);
 
 	// As DrawCombo(), but draws with a cloaked effect.
 	//
@@ -951,47 +951,47 @@ class screendata {
 	// @zasm
 	//   QUADR
 	//   POPARGS D5 0.0015
-	internal void Quad(int arg1, int arg2, int arg3, int arg4, int arg5,
-					   int arg6, int arg7, int arg8, int arg9, int arg10,
-					   int arg11, int arg12, int arg13, int arg14, int arg15);
+	internal void Quad(int layer, int x1, int y1, int x2, int y2,
+					   int x3, int y3, int x4, int y4, int w,
+					   int h, int cset, int flip, int texture, int render_mode);
 
 	// @zasm
 	//   TRIANGLER
 	//   POPARGS D5 0.0013
-	internal void Triangle(int arg1, int arg2, int arg3, int arg4, int arg5,
-						   int arg6, int arg7, int arg8, int arg9, int arg10,
-						   int arg11, int arg12, int arg13);
+	internal void Triangle(int layer, int x1, int y1, int x2, int y2,
+						   int x3, int y3, int w, int h, int cset,
+						   int flip, int texture, int render_mode);
 
 	// @zasm
 	//   QUAD3DR
 	//   POPARGS D5 0.0008
-	internal void Quad3D(int arg1, int arg2, int arg3, int arg4, int arg5,
-						 int arg6, int arg7, int arg8);
+	internal void Quad3D(int layer, int[] pos, int[] uv, int[] csets, int[] size,
+						 int flip, int texture, int render_mode);
 
 	// @zasm
 	//   TRIANGLE3DR
 	//   POPARGS D5 0.0008
-	internal void Triangle3D(int arg1, int arg2, int arg3, int arg4, int arg5,
-							 int arg6, int arg7, int arg8);
+	internal void Triangle3D(int layer, int[] pos, int[] uv, int[] csets, int[] size,
+							 int flip, int tile, int polytype);
 
 	// @zasm
 	//   FASTTILER
 	//   POPARGS D5 0.0006
-	internal void FastTile(int arg1, int arg2, int arg3, int arg4, int arg5,
-						   int arg6 = 128);
+	internal void FastTile(int layer, int x, int y, int tile, int cset,
+						   int opacity = OP_OPAQUE);
 
 	// @zasm
 	//   FASTCOMBOR
 	//   POPARGS D5 0.0006
-	internal void FastCombo(int arg1, int arg2, int arg3, int arg4, int arg5,
-							int arg6 = 128);
+	internal void FastCombo(int layer, int x, int y, int combo, int cset,
+							int opacity = OP_OPAQUE);
 
 	// @zasm
 	//   DRAWSTRINGR
 	//   POPARGS D5 0.0009
 	internal void DrawString(int layer, int x, int y, int font, int color,
 							 int background_color, int format, char32[] str,
-							 int opacity = 128);
+							 int opacity = OP_OPAQUE);
 
 	// As DrawString(), but includes a shadow on the text.
 	//
@@ -1007,21 +1007,21 @@ class screendata {
 	// @zasm
 	//   DRAWLAYERR
 	//   POPARGS D5 0.0008
-	internal void DrawLayer(int arg1, int arg2, int arg3, int arg4, int arg5,
-							int arg6, int arg7 = 0, int arg8 = 128);
+	internal void DrawLayer(int layer, int source_map, int source_screen, int source_layer,
+							int x, int y, int rotation = 0, int opacity = OP_OPAQUE);
 
 	// @zasm
 	//   DRAWSCREENR
 	//   POPARGS D5 0.0006
-	internal void DrawScreen(int arg1, int arg2, int arg3, int arg4, int arg5,
-							 int arg6 = 0);
+	internal void DrawScreen(int layer, int map, int screen, int x, int y,
+							 int rotation = 0);
 
 	// @zasm
 	//   BITMAPR
 	//   POPARGS D5 0.0012
-	internal void DrawBitmap(int arg1, int arg2, int arg3, int arg4, int arg5,
-							 int arg6, int arg7, int arg8, int arg9, int arg10,
-							 int arg11, bool arg12);
+	internal void DrawBitmap(int layer, int bitmap_id, int source_x, int source_y, int source_w,
+							 int source_h, int dest_x, int dest_y, int dest_w, int dest_h,
+							 int rotation, bool mask);
 
 	// @zasm
 	//   BITMAPEXR
@@ -1167,7 +1167,7 @@ class screendata {
 	//   POP D1
 	//   POP D0
 	//   ISSOLID D2
-	internal bool isSolid(int arg1, int arg2);
+	internal bool isSolid(int x, int y);
 
 	// As [Screen->isSolid], but instead of returning true if there is
 	// solidity on layers 0, 1, or 2 - returns the solidity only for
@@ -1256,7 +1256,7 @@ class screendata {
 	//   POLYGONR
 	//   POPARGS D5 0.0005
 	internal void Polygon(int layer, int num_points, int vertices, int color,
-						  int opacity = 128);
+						  int opacity = OP_OPAQUE);
 
 	// Draws a frame using a 2x2 block of tiles, where the upper-left corner of
 	// which is the 'tile' value
@@ -1272,7 +1272,7 @@ class screendata {
 	//   POPARGS D5 0.0009
 	internal void DrawFrame(int layer, int x, int y, int tile, int cset,
 							int width, int height, bool overlay = true,
-							int opacity = 128);
+							int opacity = OP_OPAQUE);
 
 	// Returns true if secrets have been triggered on this screen (including
 	// temp).
@@ -1320,23 +1320,33 @@ class screendata {
 	// @zasm
 	//   CREATEPORTAL
 	internal portal CreatePortal();
-
+	
+	// Draws a square light to the engine darkroom bitmap, centered on 'cx,cy'.
+	// Any of the args that defaults to -1, if passed as -1, will use the default
+	// value from `Game->Generic[]` associated.
+	//
 	// @zasm
 	//   DRAWLIGHT_SQUARE
 	//   POPARGS D5 0.0007
-	internal void DrawLightSquare(int arg1, int arg2, int arg3 = -1,
-								  int arg4 = -1, int arg5 = -1, int arg6 = -1,
-								  int arg7 = -1);
+	internal void DrawLightSquare(int cx, int cy, int radius = -1,
+								  int transp_rad = -1, int dith_rad = -1, int dith_type = -1,
+								  int dith_arg = -1);
 
+	// Draws a circular light to the engine darkroom bitmap, centered on 'cx,cy'.
+	// Any of the args that defaults to -1, if passed as -1, will use the default
+	// value from `Game->Generic[]` associated.
+	//
 	// @zasm
 	//   DRAWLIGHT_CIRCLE
 	//   POPARGS D5 0.0007
-	internal void DrawLightCircle(int arg1, int arg2, int arg3 = -1,
-								  int arg4 = -1, int arg5 = -1, int arg6 = -1,
-								  int arg7 = -1);
+	internal void DrawLightCircle(int cx, int cy, int radius = -1,
+								  int transp_rad = -1, int dith_rad = -1, int dith_type = -1,
+								  int dith_arg = -1);
 
 	// Draws a cone of light to the engine darkroom bitmap, emanating in the
 	// 8-dir 'dir' from the point 'cx,cy'.
+	// Any of the args that defaults to -1, if passed as -1, will use the default
+	// value from `Game->Generic[]` associated.
 	//
 	// @zasm
 	//   DRAWLIGHT_CONE
@@ -1369,12 +1379,12 @@ class screendata {
 	// @zasm
 	//   SETSIDEWARP
 	//   POPARGS D5 0.0004
-	internal void SetSideWarp(int side, int screen, int dmap, int type);
+	internal void SetSideWarp(int warp_id, int screen, int dmap, int type);
 
 	// @zasm
 	//   SETTILEWARP
 	//   POPARGS D5 0.0004
-	internal void SetTileWarp(int arg1, int arg2, int arg3, int arg4);
+	internal void SetTileWarp(int warp_id, int screen, int dmap, int type);
 
 	// Create an lweapon with sprites, sounds, and other values set as if it was
 	// generated by a specific item.
@@ -1390,69 +1400,69 @@ class screendata {
 	//   POP D2
 	//   LOADNPCBYSUID D2
 	//   SETR D2 REFNPC
-	internal npc LoadNPCByUID(int arg1);
+	internal npc LoadNPCByUID(int uid);
 
 	// @deprecated
 	// @zasm
 	//   POP D2
 	//   LOADLWEAPONBYSUID D2
 	//   SETR D2 REFLWPN
-	internal lweapon LoadLWeaponByUID(int arg1);
+	internal lweapon LoadLWeaponByUID(int uid);
 
 	// @deprecated
 	// @zasm
 	//   POP D2
 	//   LOADWEAPONCBYSUID D2
 	//   SETR D2 REFEWPN
-	internal eweapon LoadEWeaponByUID(int arg1);
+	internal eweapon LoadEWeaponByUID(int uid);
 
 	// @deprecated Use [LayerMap] instead!
 	// @zasm
 	//   POP D3
 	//   LAYERMAP D2 D3
-	internal int LayerMap(int arg1);
+	internal int LayerMap(int layer);
 
 	// @deprecated Use [LayerScreen] instead!
 	// @zasm
 	//   POP D3
 	//   LAYERSCREEN D2 D3
-	internal int LayerScreen(int arg1);
+	internal int LayerScreen(int layer);
 
 	// @deprecated Use [SideWarpDMap] instead!
 	// @zasm
 	//   POP D2
 	//   GETSIDEWARPDMAP D2
-	internal int GetSideWarpDMap(int arg1);
+	internal int GetSideWarpDMap(int warp_id);
 
 	// @deprecated Use [SideWarpScreen] instead!
 	// @zasm
 	//   POP D2
 	//   GETSIDEWARPSCR D2
-	internal int GetSideWarpScreen(int arg1);
+	internal int GetSideWarpScreen(int warp_id);
 
 	// @deprecated Use [SideWarpType] instead!
 	// @zasm
 	//   POP D2
 	//   GETSIDEWARPTYPE D2
-	internal int GetSideWarpType(int arg1);
+	internal int GetSideWarpType(int warp_id);
 
 	// @deprecated Use [TileWarpDMap] instead!
 	// @zasm
 	//   POP D2
 	//   GETTILEWARPDMAP D2
-	internal int GetTileWarpDMap(int arg1);
+	internal int GetTileWarpDMap(int warp_id);
 
 	// @deprecated Use [TileWarpScreen] instead!
 	// @zasm
 	//   POP D2
 	//   GETTILEWARPSCR D2
-	internal int GetTileWarpScreen(int arg1);
+	internal int GetTileWarpScreen(int warp_id);
 
 	// @deprecated Use [TileWarpType] instead!
 	// @zasm
 	//   POP D2
 	//   GETTILEWARPTYPE D2
-	internal int GetTileWarpType(int arg1);
+	internal int GetTileWarpType(int warp_id);
 }
 
 internal const screendata Screen;

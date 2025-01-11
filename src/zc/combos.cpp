@@ -1752,6 +1752,15 @@ bool trigger_damage_combo(mapscr* scr, int32_t cid, int type, int ptrval, int32_
 	return false;
 }
 
+static void trigger_stepfx_add_weapon_and_load_gfx(sprite_list& list, const newcombo& cmb, weapon* wpn)
+{
+	if (!list.add(wpn))
+		return;
+
+	if (cmb.attribytes[3] > 0)
+		wpn->LOADGFX(cmb.attribytes[3]);
+}
+
 bool trigger_stepfx(const rpos_handle_t& rpos_handle, bool stepped)
 {
 	auto [tx, ty] = rpos_handle.xy();
@@ -1796,13 +1805,7 @@ bool trigger_stepfx(const rpos_handle_t& rpos_handle, bool stepped)
 			case ewFlame2Trail:
 			case ewIce:
 			case ewFireball2:
-			
-				Ewpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,0,damg,wpdir, -1,-1,false)); 
-				if (cmb.attribytes[3] > 0 )
-				{
-					weapon *w = (weapon*)Ewpns.spr(Ewpns.Count()-1); //last created
-					w->LOADGFX(cmb.attribytes[3]);
-				}
+				trigger_stepfx_add_weapon_and_load_gfx(Ewpns, cmb, new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,0,damg,wpdir, -1,-1,false));
 				break;
 			
 			case wBeam:
@@ -1836,12 +1839,7 @@ bool trigger_stepfx(const rpos_handle_t& rpos_handle, bool stepped)
 			case wRefArrow:
 			case wRefFire:
 			case wRefFire2:
-				Lwpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,wlvl,damg,wpdir,parentitem,Hero.getUID(),false,0,1,0)); 
-				if (cmb.attribytes[3] > 0 )
-				{
-					weapon *w = (weapon*)Lwpns.spr(Lwpns.Count()-1); //last created
-					w->LOADGFX(cmb.attribytes[3]);
-				}
+				trigger_stepfx_add_weapon_and_load_gfx(Lwpns, cmb, new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,wlvl,damg,wpdir,parentitem,Hero.getUID(),false,0,1,0));
 				break;
 				
 			case wScript1:
@@ -1871,23 +1869,13 @@ bool trigger_stepfx(const rpos_handle_t& rpos_handle, bool stepped)
 					}
 					else
 					{
-						Lwpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,wlvl,damg,wpdir,parentitem, Hero.getUID(),false,0,1,0));
-						if (cmb.attribytes[3] > 0 )
-						{
-							weapon *w = (weapon*)Lwpns.spr(Lwpns.Count()-1); //last created
-							w->LOADGFX(cmb.attribytes[3]);
-						}
+						trigger_stepfx_add_weapon_and_load_gfx(Lwpns, cmb, new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,wlvl,damg,wpdir,parentitem, Hero.getUID(),false,0,1,0));
 					}
 					break;
 				}
 				else //wscript ewpn
 				{
-					Ewpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,0,damg,wpdir, -1,-1,false)); 
-					if (cmb.attribytes[3] > 0 )
-					{
-						weapon *w = (weapon*)Ewpns.spr(Ewpns.Count()-1); //last created
-						w->LOADGFX(cmb.attribytes[3]);
-					}
+					trigger_stepfx_add_weapon_and_load_gfx(Ewpns, cmb, new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,0,damg,wpdir, -1,-1,false));
 					break;
 				}
 				
@@ -1909,24 +1897,12 @@ bool trigger_stepfx(const rpos_handle_t& rpos_handle, bool stepped)
 				}
 				else
 				{
-					Lwpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,wlvl,damg,wpdir,parentitem, Hero.getUID(),false,0,1,0));
-					if (cmb.attribytes[3] > 0 )
-					{
-						weapon *w = (weapon*)Lwpns.spr(Lwpns.Count()-1); //last created
-						w->LOADGFX(cmb.attribytes[3]);
-					}
+					trigger_stepfx_add_weapon_and_load_gfx(Lwpns, cmb, new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,wlvl,damg,wpdir,parentitem, Hero.getUID(),false,0,1,0));
 				}
 				break;
 			
 			default: //enemy bomb
-				//(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t Dir, int32_t Parentitem, int32_t prntid, bool isDummy, byte script_gen, byte isLW, byte special) : sprite(), parentid(
-				//Ewpns.add(new weapon((zfix)tx+8,(zfix)ty+8,(zfix)0,ewLitBomb,16,0,0, -1,-1,false)); break;
-				Ewpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,ewLitBomb,0,damg,up, -1,-1,false)); 
-				if (cmb.attribytes[3] > 0 )
-				{
-					weapon *w = (weapon*)Ewpns.spr(Ewpns.Count()-1); //last created
-					w->LOADGFX(cmb.attribytes[3]);
-				}
+				trigger_stepfx_add_weapon_and_load_gfx(Ewpns, cmb, new weapon((zfix)tx,(zfix)ty,(zfix)0,ewLitBomb,0,damg,up, -1,-1,false));
 				break;
 			
 			//x,y,z, wpn, 0, dmisc4, dir,-1,getUID(),false);
@@ -1978,13 +1954,7 @@ bool trigger_stepfx_ffc(const ffc_handle_t& ffc_handle, bool stepped)
 			case ewFlame2Trail:
 			case ewIce:
 			case ewFireball2:
-			
-				Ewpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,0,damg,wpdir, -1,-1,false)); 
-				if (cmb.attribytes[3] > 0 )
-				{
-					weapon *w = (weapon*)Ewpns.spr(Ewpns.Count()-1); //last created
-					w->LOADGFX(cmb.attribytes[3]);
-				}
+				trigger_stepfx_add_weapon_and_load_gfx(Ewpns, cmb, new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,0,damg,wpdir, -1,-1,false));
 				break;
 			
 			case wBeam:
@@ -2018,12 +1988,7 @@ bool trigger_stepfx_ffc(const ffc_handle_t& ffc_handle, bool stepped)
 			case wRefArrow:
 			case wRefFire:
 			case wRefFire2:
-				Lwpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,wlvl,damg,wpdir,parentitem,Hero.getUID(),false,0,1,0)); 
-				if (cmb.attribytes[3] > 0 )
-				{
-					weapon *w = (weapon*)Lwpns.spr(Lwpns.Count()-1); //last created
-					w->LOADGFX(cmb.attribytes[3]);
-				}
+				trigger_stepfx_add_weapon_and_load_gfx(Lwpns, cmb, new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,wlvl,damg,wpdir,parentitem,Hero.getUID(),false,0,1,0));
 				break;
 				
 			case wScript1:
@@ -2053,23 +2018,13 @@ bool trigger_stepfx_ffc(const ffc_handle_t& ffc_handle, bool stepped)
 					}
 					else
 					{
-						Lwpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,wlvl,damg,wpdir,parentitem, Hero.getUID(),false,0,1,0));
-						if (cmb.attribytes[3] > 0 )
-						{
-							weapon *w = (weapon*)Lwpns.spr(Lwpns.Count()-1); //last created
-							w->LOADGFX(cmb.attribytes[3]);
-						}
+						trigger_stepfx_add_weapon_and_load_gfx(Lwpns, cmb, new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,wlvl,damg,wpdir,parentitem, Hero.getUID(),false,0,1,0));
 					}
 					break;
 				}
 				else //wscript ewpn
 				{
-					Ewpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,0,damg,wpdir, -1,-1,false)); 
-					if (cmb.attribytes[3] > 0 )
-					{
-						weapon *w = (weapon*)Ewpns.spr(Ewpns.Count()-1); //last created
-						w->LOADGFX(cmb.attribytes[3]);
-					}
+					trigger_stepfx_add_weapon_and_load_gfx(Ewpns, cmb, new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,0,damg,wpdir, -1,-1,false));
 					break;
 				}
 				
@@ -2091,24 +2046,12 @@ bool trigger_stepfx_ffc(const ffc_handle_t& ffc_handle, bool stepped)
 				}
 				else
 				{
-					Lwpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,wlvl,damg,wpdir,parentitem, Hero.getUID(),false,0,1,0));
-					if (cmb.attribytes[3] > 0 )
-					{
-						weapon *w = (weapon*)Lwpns.spr(Lwpns.Count()-1); //last created
-						w->LOADGFX(cmb.attribytes[3]);
-					}
+					trigger_stepfx_add_weapon_and_load_gfx(Lwpns, cmb, new weapon((zfix)tx,(zfix)ty,(zfix)0,wpn,wlvl,damg,wpdir,parentitem, Hero.getUID(),false,0,1,0));
 				}
 				break;
 			
 			default: //enemy bomb
-				//(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t Dir, int32_t Parentitem, int32_t prntid, bool isDummy, byte script_gen, byte isLW, byte special) : sprite(), parentid(
-				//Ewpns.add(new weapon((zfix)tx+8,(zfix)ty+8,(zfix)0,ewLitBomb,16,0,0, -1,-1,false)); break;
-				Ewpns.add(new weapon((zfix)tx,(zfix)ty,(zfix)0,ewLitBomb,0,damg,up, -1,-1,false)); 
-				if (cmb.attribytes[3] > 0 )
-				{
-					weapon *w = (weapon*)Ewpns.spr(Ewpns.Count()-1); //last created
-					w->LOADGFX(cmb.attribytes[3]);
-				}
+				trigger_stepfx_add_weapon_and_load_gfx(Ewpns, cmb, new weapon((zfix)tx,(zfix)ty,(zfix)0,ewLitBomb,0,damg,up, -1,-1,false));
 				break;
 			
 			//x,y,z, wpn, 0, dmisc4, dir,-1,getUID(),false);
@@ -2171,13 +2114,14 @@ static weapon* fire_shooter_wpn(newcombo const& cmb, zfix& wx, zfix& wy, bool an
 		int plvl = pitem > -1 ? itemsbuf[pitem].fam_type : 0;
 		
 		wpn = new weapon((zfix)wx,(zfix)wy,(zfix)0,weapid,plvl,damage,wdir,pitem, Hero.getUID(),false,0,1,0,0,weapspr);
-		Lwpns.add(wpn);
+		if (!Lwpns.add(wpn)) return nullptr;
 	}
 	else
 	{
 		wpn = new weapon((zfix)wx,(zfix)wy,(zfix)0,weapid,0,damage,wdir, -1,-1,false,0,0,0,0,weapspr);
-		Ewpns.add(wpn);
+		if (!Ewpns.add(wpn)) return nullptr;
 	}
+
 	wpn->angular = angular;
 	wpn->angle = radians;
 	if(angular) dir = AngleToDir(radians);

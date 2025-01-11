@@ -21,6 +21,15 @@ BossHealthBar.z Line 234 @ Columns 5-13 - Warning S108: Arrays should be explici
                ^~~~~~~~
 
 
+BossHealthBar.z Line 156 @ Columns 13-28 - Warning S094: Function 'screendata::NumNPCs()' is deprecated, and should not be used.
+
+154    //Returns the nth enemy with a certain ID on the screen
+155    npc HealthBar_GetNPC(int id, int extra){
+156        for(int i=Screen->NumNPCs(); i>=1; i--){
+                     ^~~~~~~~~~~~~~~
+
+
+INFO: Use [NumNPCs] instead!
 BossHealthBar.z Line 405 @ Columns 7-13 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
 
 403    void HealthBar_CapString(int str){
@@ -37,6 +46,15 @@ BossHealthBar.z Line 406 @ Columns 5-13 - Warning S108: Arrays should be explici
                ^~~~~~~~
 
 
+BossHealthBar.z Line 321 @ Columns 13-28 - Warning S094: Function 'screendata::NumNPCs()' is deprecated, and should not be used.
+
+319    int HealthBar_GetHPTotal(int npcid1, int npcid2, int npcid3, int npcid4, int npcid5, int npcid6){
+320        int total;
+321        for(int i=Screen->NumNPCs(); i>=1; i--){
+                     ^~~~~~~~~~~~~~~
+
+
+INFO: Use [NumNPCs] instead!
 BossHealthBar.z Line 699 @ Columns 7-13 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
 
 697    void HealthBar_CapString(int str){
@@ -53,6 +71,15 @@ BossHealthBar.z Line 700 @ Columns 5-13 - Warning S108: Arrays should be explici
                ^~~~~~~~
 
 
+BossHealthBar.z Line 566 @ Columns 13-28 - Warning S094: Function 'screendata::NumNPCs()' is deprecated, and should not be used.
+
+564    //Returns the nth enemy with a certain ID on the screen
+565    npc HealthBar_GetNPC(int id, int extra){
+566        for(int i=Screen->NumNPCs(); i>=1; i--){
+                     ^~~~~~~~~~~~~~~
+
+
+INFO: Use [NumNPCs] instead!
 BossHealthBar.z Line 928 @ Columns 7-13 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
 
 926    void HealthBar_CapString(int str){
@@ -69,6 +96,15 @@ BossHealthBar.z Line 929 @ Columns 5-13 - Warning S108: Arrays should be explici
                ^~~~~~~~
 
 
+BossHealthBar.z Line 788 @ Columns 13-28 - Warning S094: Function 'screendata::NumNPCs()' is deprecated, and should not be used.
+
+786    int HealthBar_GetHPTotal(int npcid1, int npcid2, int npcid3, int npcid4, int npcid5, int npcid6){
+787        int total;
+788        for(int i=Screen->NumNPCs(); i>=1; i--){
+                     ^~~~~~~~~~~~~~~
+
+
+INFO: Use [NumNPCs] instead!
 Pass 5: Checking code paths
 BossHealthBar.z Line 155 @ Columns 6-22 - Warning S101: Function 'HealthBar_GetNPC' is not void, and should return a value!
 
@@ -143,6 +179,20 @@ stdout:
     {
       "range": {
         "start": {
+          "line": 155,
+          "character": 12
+        },
+        "end": {
+          "line": 155,
+          "character": 27
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'screendata::NumNPCs()' is deprecated, and should not be used.\nUse [NumNPCs] instead!"
+    },
+    {
+      "range": {
+        "start": {
           "line": 404,
           "character": 6
         },
@@ -167,6 +217,20 @@ stdout:
       },
       "severity": 2,
       "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 320,
+          "character": 12
+        },
+        "end": {
+          "line": 320,
+          "character": 27
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'screendata::NumNPCs()' is deprecated, and should not be used.\nUse [NumNPCs] instead!"
     },
     {
       "range": {
@@ -199,6 +263,20 @@ stdout:
     {
       "range": {
         "start": {
+          "line": 565,
+          "character": 12
+        },
+        "end": {
+          "line": 565,
+          "character": 27
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'screendata::NumNPCs()' is deprecated, and should not be used.\nUse [NumNPCs] instead!"
+    },
+    {
+      "range": {
+        "start": {
           "line": 927,
           "character": 6
         },
@@ -223,6 +301,20 @@ stdout:
       },
       "severity": 2,
       "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 787,
+          "character": 12
+        },
+        "end": {
+          "line": 787,
+          "character": 27
+        }
+      },
+      "severity": 2,
+      "message": "S094: Function 'screendata::NumNPCs()' is deprecated, and should not be used.\nUse [NumNPCs] instead!"
     },
     {
       "range": {

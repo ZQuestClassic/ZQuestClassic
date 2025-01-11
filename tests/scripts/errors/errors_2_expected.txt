@@ -2,12 +2,10 @@ stderr:
 
 Compiling 'errors_2.zs'
 Pass 1: Parsing
-syntax error, unexpected RBRACE, expecting end of file [errors_2.zs Line 3 Column 25 '}']
+syntax error, unexpected RBRACE, expecting end of file [errors_2.zs Line 1 Column 25 '}']
 
 
-1    #option NO_ERROR_HALT on
-2    
-3    global script Global {}}}}}{{}}
+1    global script Global {}}}}}{{}}
                             ^
 
 
@@ -23,11 +21,11 @@ stdout:
     {
       "range": {
         "start": {
-          "line": 2,
+          "line": 0,
           "character": 23
         },
         "end": {
-          "line": 2,
+          "line": 0,
           "character": 24
         }
       },
