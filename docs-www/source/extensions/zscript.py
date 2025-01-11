@@ -5,6 +5,7 @@ from docutils import nodes
 from docutils.parsers.rst import Directive
 from docutils.parsers.rst.directives import unchanged, flag
 from docutils.parsers.rst.directives.admonitions import BaseAdmonition
+from sphinx import addnodes
 from sphinx.application import Sphinx
 from sphinx.locale import _
 from sphinx.util.docutils import SphinxDirective, SphinxTranslator
@@ -128,6 +129,72 @@ def visit_admonition_node_html(translator: SphinxTranslator, node: AdmonitionNod
 def depart_admonition_node_html(translator: SphinxTranslator, node: AdmonitionNode) -> None:
     translator.depart_admonition(node)
 
+
+class ZSDeprecated(SphinxDirective):
+    """
+    Directive to describe a deprecation in a specific version.
+    Adapted from 'sphinx.domains.changeset's 'VersionChange'
+    """
+
+    has_content = True
+    required_arguments = 0
+    optional_arguments = 1
+    final_argument_whitespace = True
+
+    def run(self) -> list[nodes.Node]:
+        node = addnodes.versionmodified()
+        node.document = self.state.document
+        self.set_source_info(node)
+        node['type'] = 'deprecated'
+        has_version = len(self.arguments) > 0
+        if has_version:
+            node['version'] = self.arguments[0]
+            text = f'Deprecated since version {self.arguments[0]}'
+        else:
+            text = 'Deprecated'
+        if self.content:
+            node += self.parse_content_to_nodes()
+        classes = ['versionmodified', 'deprecated']
+        if len(node) > 0 and isinstance(node[0], nodes.paragraph):
+            # the contents start with a paragraph
+            if node[0].rawsource:
+                # make the first paragraph translatable
+                content = nodes.inline(node[0].rawsource, translatable=True)
+                content.source = node[0].source
+                content.line = node[0].line
+                content += node[0].children
+                node[0].replace_self(
+                    nodes.paragraph('', '', content, translatable=False)
+                )
+
+            para = node[0]
+            para.insert(0, nodes.inline('', '%s: ' % text, classes=classes))
+        elif len(node) > 0:
+            # the contents do not starts with a paragraph
+            para = nodes.paragraph(
+                '',
+                '',
+                nodes.inline('', '%s: ' % text, classes=classes),
+                translatable=False,
+            )
+            node.insert(0, para)
+        else:
+            # the contents are empty
+            para = nodes.paragraph(
+                '',
+                '',
+                nodes.inline('', '%s.' % text, classes=classes),
+                translatable=False,
+            )
+            node.append(para)
+        
+        if has_version:
+            domain = self.env.domains.changeset_domain
+            domain.note_changeset(node)
+
+        return [node]
+
+
 def depart_ignored(translator: SphinxTranslator, node: nodes.Node) -> None:
     pass
 
@@ -135,7 +202,8 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_directive('zscript', ZScriptDirective)
     app.add_directive('todo', TodoDirective)
     app.add_directive('plans', PlansDirective)
-
+    app.add_directive('deprecated', ZSDeprecated, True)
+    
     app.add_node(
         ZScriptNode,
         html=(visit_zscript_node_html, depart_ignored),

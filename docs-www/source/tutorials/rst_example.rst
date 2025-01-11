@@ -129,6 +129,7 @@ Header 2
 		Previously, did X
 
 	.. deprecated:: 3.0
+	
 		Due to X
 
 	.. versionremoved:: 3.0
