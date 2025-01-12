@@ -3897,7 +3897,7 @@ void HeroClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
     }
     //keep things inside the screen boundaries
     bx=vbound(bx, 0, world_w-1);
-    by=vbound(by, 0, world_h);
+    by=vbound(by, 0, world_h-1);
     int32_t fx=vbound(bx, 0, world_w-1);
     int32_t fy=vbound(by, 0, world_h);
     //first things first
@@ -4314,7 +4314,7 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 void HeroClass::check_wpn_triggers(int32_t bx, int32_t by, weapon *w)
 {
 	bx=vbound(bx, 0, world_w-1);
-	by=vbound(by, 0, world_h);
+	by=vbound(by, 0, world_h-1);
 	switch(w->useweapon)
 	{
 		case wArrow:
@@ -4422,7 +4422,7 @@ void HeroClass::check_slash_block_layer2(int32_t bx, int32_t by, weapon *w, int3
     }
     //keep things inside the screen boundaries
     bx=vbound(bx, 0, world_w-1);
-    by=vbound(by, 0, world_h);
+    by=vbound(by, 0, world_h-1);
     int32_t fx=vbound(bx, 0, world_w-1);
     int32_t fy=vbound(by, 0, world_h);
     //first things first
@@ -4559,7 +4559,7 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
 	
     //keep things inside the screen boundaries
     bx=vbound(bx, 0, world_w-1);
-    by=vbound(by, 0, world_h);
+    by=vbound(by, 0, world_h-1);
     int32_t fx=vbound(bx, 0, world_w-1);
     int32_t fy=vbound(by, 0, world_h);
     int32_t cid = MAPCOMBO(bx,by);
@@ -4896,7 +4896,7 @@ void HeroClass::check_wand_block2(int32_t bx, int32_t by, weapon *w)
     
     //keep things inside the screen boundaries
     bx=vbound(bx, 0, world_w-1);
-    by=vbound(by, 0, world_h);
+    by=vbound(by, 0, world_h-1);
     int32_t fx=vbound(bx, 0, world_w-1);
     int32_t fy=vbound(by, 0, world_h);
     int32_t cid = MAPCOMBO(bx,by);
@@ -4968,7 +4968,7 @@ void HeroClass::check_slash_block(weapon *w)
 	al_trace("check_slash_block(weapon *w): by is: %d\n", by);
     //keep things inside the screen boundaries
     bx=vbound(bx, 0, world_w-1);
-    by=vbound(by, 0, world_h);
+    by=vbound(by, 0, world_h-1);
     int32_t fx=vbound(bx, 0, world_w-1);
     int32_t fy=vbound(by, 0, world_h);
     
@@ -5254,7 +5254,7 @@ void HeroClass::check_wand_block(int32_t bx, int32_t by)
 {
     //keep things inside the screen boundaries
     bx=vbound(bx, 0, world_w-1);
-    by=vbound(by, 0, world_h);
+    by=vbound(by, 0, world_h-1);
     int32_t fx=vbound(bx, 0, world_w-1);
     int32_t fy=vbound(by, 0, world_h);
     
@@ -5304,8 +5304,8 @@ void HeroClass::check_pound_block(int bx, int by, weapon* w)
 	}
 	auto* grid = w ? w->wscreengrid : screengrid;
     //keep things inside the screen boundaries
-    bx=vbound(bx, 0, world_w);
-    by=vbound(by, 0, world_h);
+    bx=vbound(bx, 0, world_w-1);
+    by=vbound(by, 0, world_h-1);
     int32_t fx=vbound(bx, 0, world_w);
     int32_t fy=vbound(by, 0, world_h);
     int32_t cid = MAPCOMBO(bx,by);
@@ -5442,7 +5442,7 @@ void HeroClass::check_pound_block_layer(int bx, int by, int lyr, weapon* w)
 	if(lyr < 1 || lyr > 2) return; //sanity
 	//keep things inside the screen boundaries
 	bx=vbound(bx, 0, world_w-1);
-	by=vbound(by, 0, world_h);
+	by=vbound(by, 0, world_h-1);
 	int32_t cid = MAPCOMBOL(lyr,bx,by);
 	newcombo const& scr_cmb = combobuf[cid];
 	auto* grid = w ? w->wscreengrid_layer[lyr-1] : screengrid_layer[lyr-1];
@@ -5550,7 +5550,7 @@ void HeroClass::check_wand_block(weapon *w)
 	
     //keep things inside the screen boundaries
     bx=vbound(bx, 0, world_w-1);
-    by=vbound(by, 0, world_h);
+    by=vbound(by, 0, world_h-1);
     int32_t fx=vbound(bx, 0, world_w-1);
     int32_t fy=vbound(by, 0, world_h);
     int32_t cid = MAPCOMBO(bx,by);
