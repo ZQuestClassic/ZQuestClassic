@@ -281,8 +281,15 @@ std::tuple<const rpos_handle_t*, int> get_current_region_handles()
 
 std::tuple<const rpos_handle_t*, int> get_current_region_handles(mapscr* scr)
 {
+	DCHECK(!current_region_rpos_handles_dirty);
 	if (scr == &special_warp_return_scr || current_region_rpos_handles_dirty)
 		return {nullptr, 0};
+
+	if (cur_screen >= 0x80)
+	{
+		DCHECK(scr == origin_scr);
+		return {nullptr, 0};
+	}
 
 	DCHECK(is_in_current_region(scr));
 	return current_region_rpos_handles_scr[scr->screen];
@@ -5699,7 +5706,6 @@ static void handle_screen_overlay(const std::vector<mapscr*>& screens)
 
 static void load_a_screen_and_layers_init(int dmap, int screen, int ldir, bool screen_overlay, bool ffc_overlay)
 {
-	DCHECK(screen < 0x80);
 	std::vector<mapscr*> screens;
 
 	const mapscr* source = get_canonical_scr(cur_map, screen);
@@ -5783,7 +5789,6 @@ static void load_a_screen_and_layers_init(int dmap, int screen, int ldir, bool s
 
 static void load_a_screen_and_layers_post(int dmap, int screen, int ldir)
 {
-	DCHECK(screen < 0x80);
 	mapscr* base_scr = get_scr(screen);
 	int mi = mapind(cur_map, screen);
 

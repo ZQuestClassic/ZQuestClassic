@@ -261,7 +261,6 @@ template<typename T>
 requires std::is_invocable_v<T, const rpos_handle_t&>
 ZC_FORCE_INLINE void for_every_rpos_in_screen(mapscr* scr, T&& fn)
 {
-	DCHECK(is_in_current_region(scr)); // TODO z3 rm
 	auto [handles, count] = get_current_region_handles(scr);
 
 	if (handles != nullptr)
@@ -304,7 +303,6 @@ template<typename T>
 requires std::is_invocable_v<T, const ffc_handle_t&>
 ZC_FORCE_INLINE void for_every_ffc_in_screen(mapscr* scr, T&& fn)
 {
-	DCHECK(is_in_current_region(scr)); // TODO z3 rm
 	byte screen = scr->screen;
 	int screen_index_offset = get_region_screen_offset(screen);
 	int num_ffc = scr->numFFC();
