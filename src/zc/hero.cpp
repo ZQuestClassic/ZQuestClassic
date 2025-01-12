@@ -28215,17 +28215,14 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			break;
 	}
 	FFCore.clear_combo_scripts();
-	tmpscr[1] = tmpscr[0];
+	// tmpscr[1] = tmpscr[0]; // ?? rm
 	
-	for(int32_t i = 0; i < 6; i++)
-	{
-		tmpscr3[i] = tmpscr2[i];
-	}
+	// for(int32_t i = 0; i < 6; i++)
+	// {
+	// 	tmpscr3[i] = tmpscr2[i];
+	// }
 	
 	conveyclk = 2;
-	
-	mapscr *newscr = &tmpscr[0];
-	mapscr *oldscr = &tmpscr[1];
 	
 	//scroll x, scroll y, old screen x, old screen y, new screen x, new screen y
 	int32_t sx = 0, sy = 0, tx = 0, ty = 0, tx2 = 0, ty2 = 0;
@@ -28379,17 +28376,20 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			markBmap(scrolldir);
 			break;
 	}
-	
-	if(fixed_door)
-	{
-		unsetmapflag(mSECRET);
-		fixed_door = false;
-	}
 
 	playing_field_offset = original_playing_field_offset;
 
 	scrolling_scr = currscr;
-	
+
+	tmpscr[1] = tmpscr[0];
+	for(int32_t i = 0; i < 6; i++)
+	{
+		tmpscr3[i] = tmpscr2[i];
+	}
+
+	mapscr *newscr = &tmpscr[0];
+	mapscr *oldscr = &tmpscr[1];
+
 	switch(scrolldir)
 	{
 	case up:

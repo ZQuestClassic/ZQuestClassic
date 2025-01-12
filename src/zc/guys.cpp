@@ -21703,9 +21703,6 @@ disappear:
 			
 			if(repaircharge)
 			{
-				//       if (get_qr(qr_REPAIRFIX)) {
-				//         fixed_door=true;
-				//       }
 				game->change_drupy(-tmpscr[currscr<128?0:1].catchall);
 				repaircharge = 0;
 			}
