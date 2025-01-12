@@ -17,7 +17,7 @@ Primitive literals hold simple data of :ref:`primitive data types<types_prim>`.
 Boolean
 ^^^^^^^
 
-Booleans only have 2 values, each of which has it's own literal: ``true`` and ``false``.
+Booleans only have 2 values, each of which has it's own literal: `true` and `false`.
 
 Numbers
 ^^^^^^^
@@ -25,36 +25,36 @@ Numbers
 .. table::
 	:widths: grid
 
-	+--------------------------+---------------------+----------------------------------+-------------------------------------------------+
-	| Name                     | Data Type           | Prefix/Suffix                    | Range                                           |
-	+==========================+=====================+==================================+=================================================+
-	| Decimal Number           | ``int``/\ ``float`` |                                  | ``-214748.3648 to 214748.3647``                 |
-	+--------------------------+---------------------+----------------------------------+-------------------------------------------------+
-	| Hexadecimal Number       | ``int``/\ ``float`` | ``0x`` prefix                    | ``-0x346DC to 0x346DC``                         |
-	+--------------------------+---------------------+----------------------------------+-------------------------------------------------+
-	| Binary Number            | ``int``/\ ``float`` | ``0b`` prefix or ``b`` suffix    | ``0b0 to 0b111111111111111111``                 |
-	+--------------------------+---------------------+----------------------------------+-------------------------------------------------+
-	| Octal Number             | ``int``/\ ``float`` | ``0o`` prefix or ``o`` suffix    | ``-0o643334 to 0o643334``                       |
-	+--------------------------+---------------------+----------------------------------+-------------------------------------------------+
-	| Long Decimal Number      | ``long``            | ``L`` suffix                     | ``-2147483648L to 2147483647L``                 |
-	+--------------------------+---------------------+----------------------------------+-------------------------------------------------+
-	| Long Hexadecimal Number  | ``long``            | ``0x`` prefix AND ``L`` suffix   | ``-0x80000000L to 0x7FFFFFFFL``                 |
-	+--------------------------+---------------------+----------------------------------+-------------------------------------------------+
-	| Long Binary Number       | ``long``            | | ``0b`` prefix AND ``L`` suffix | ``0b0L to 0b11111111111111111111111111111111L`` |
-	|                          |                     | | OR ``Lb`` or ``bL`` suffix     |                                                 |
-	+--------------------------+---------------------+----------------------------------+-------------------------------------------------+
-	| Long Octal Number        | ``long``            | | ``0o`` prefix AND ``L`` suffix | ``-0o20000000000L to 0o17777777777L``           |
-	|                          |                     | | OR ``Lo`` or ``oL`` suffix     |                                                 |
-	+--------------------------+---------------------+----------------------------------+-------------------------------------------------+
+	+--------------------------+---------------------+--------------------------------------------+-------------------------------------------------+
+	| Name                     | Data Type           | Prefix/Suffix                              | Range                                           |
+	+==========================+=====================+============================================+=================================================+
+	| Decimal Number           | `int`/\ `float`     |                                            | `-214748.3648` to `214748.3647`                 |
+	+--------------------------+---------------------+--------------------------------------------+-------------------------------------------------+
+	| Hexadecimal Number       | `int`/\ `float`     | :zs_num:`0x` prefix                        | `-0x346DC` to `0x346DC`                         |
+	+--------------------------+---------------------+--------------------------------------------+-------------------------------------------------+
+	| Binary Number            | `int`/\ `float`     | `0b` prefix or :zs_num:`b` suffix          | `0b0` to `0b111111111111111111`                 |
+	+--------------------------+---------------------+--------------------------------------------+-------------------------------------------------+
+	| Octal Number             | `int`/\ `float`     | `0o` prefix or :zs_num:`o` suffix          | `-0o643334` to `0o643334`                       |
+	+--------------------------+---------------------+--------------------------------------------+-------------------------------------------------+
+	| Long Decimal Number      | `long`              | :zs_num:`L` suffix                         | `-2147483648L` to `2147483647L`                 |
+	+--------------------------+---------------------+--------------------------------------------+-------------------------------------------------+
+	| Long Hexadecimal Number  | `long`              | :zs_num:`0x` prefix AND :zs_num:`L` suffix | `-0x80000000L` to `0x7FFFFFFFL`                 |
+	+--------------------------+---------------------+--------------------------------------------+-------------------------------------------------+
+	| Long Binary Number       | `long`              | | :zs_num:`0b` prefix + :zs_num:`L` suffix | `0b0L` to `0b11111111111111111111111111111111L` |
+	|                          |                     | | OR :zs_num:`Lb`/:zs_num:`bL` suffix      |                                                 |
+	+--------------------------+---------------------+--------------------------------------------+-------------------------------------------------+
+	| Long Octal Number        | `long`              | | :zs_num:`0o` prefix + :zs_num:`L` suffix | `-0o20000000000L` to `0o17777777777L`           |
+	|                          |                     | | OR :zs_num:`Lo`/:zs_num:`oL` suffix      |                                                 |
+	+--------------------------+---------------------+--------------------------------------------+-------------------------------------------------+
 
 .. note::
-	If the integer portion of a number is 0, the leading 0 *can* be omitted (ex. ``.9 == 0.9``).
+	If the integer portion of a number is 0, the leading 0 *can* be omitted (ex. `.9 == 0.9`).
 	It can be easier to read if you put the 0 there, though.
 
 Number Spacers
 ++++++++++++++
 
-You may place spacers ``_`` between any 2 digits, which have no effect, but can help
+You may place spacers `_` between any 2 digits, which have no effect, but can help
 make the number more readable. Example:
 
 .. zscript::
@@ -67,10 +67,10 @@ Character Literals
 ^^^^^^^^^^^^^^^^^^
 
 A character literal represents a single character value. It is represented as a single character,
-between two single-quotes (ex. ``'a'``).
+between two single-quotes (ex. `'a'`).
 
 Additionally, :ref:`escape characters<escape_characters>` can be used to insert
-special characters, including ``'`` and ``\``.
+special characters, including `'` and `\\`.
 
 Complex Literals
 ----------------
@@ -82,10 +82,10 @@ String Literals
 ^^^^^^^^^^^^^^^
 
 A string literal represents an array of multiple character values. It is represented
-as multiple characters, between two double-quotes (ex. ``"apple"``).
+as multiple characters, between two double-quotes (ex. `"apple"`).
 
 Additionally, :ref:`escape characters<escape_characters>` can be used to insert
-special characters, including ``"`` and ``\``.
+special characters, including `"` and `\\`.
 
 Also, adjacent strings are automatically merged by the compiler. Ex:
 
@@ -96,8 +96,8 @@ Also, adjacent strings are automatically merged by the compiler. Ex:
 
 .. note::
 	When typing a string as part of an :ref:`#include statement<importing_files>`,
-	escape characters have no effect, and ``\`` characters can be inserted normally.
-	This is due to ``\`` being common in file paths, and all strings worked this way
+	escape characters have no effect, and `\\` characters can be inserted normally.
+	This is due to `\\` being common in file paths, and all strings worked this way
 	in older versions of the program, so import path strings continue to act this way
 	for compatibility purposes.
 
@@ -145,7 +145,7 @@ Many of these originate from C.
 	+----------------+---------------------------------------+
 	| \\v            | Vertical Tab                          |
 	+----------------+---------------------------------------+
-	| \\\\           | Backslash                             |
+	| \\\ \\         | Backslash                             |
 	+----------------+---------------------------------------+
 	| \\'            | Single-quote                          |
 	+----------------+---------------------------------------+

@@ -3,8 +3,8 @@ Loop Else
 
 .. _stmt_loop_else:
 
-An ``else`` can be added after a loop, which has special meaning related to the :ref:`break statement<stmt_break>`.
-The code in the body of the ``else`` will run in the condition that the loop ends WITHOUT a :ref:`break statement<stmt_break>` running.
+An `else` can be added after a loop, which has special meaning related to the :ref:`break statement<stmt_break>`.
+The code in the body of the `else` will run in the condition that the loop ends WITHOUT a :ref:`break statement<stmt_break>` running.
 
 .. zscript::
 

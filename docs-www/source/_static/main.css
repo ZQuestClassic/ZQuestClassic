@@ -95,3 +95,26 @@ div.versionremoved > p {
 span.versionmodified.removed::before {
 	color: var(--pst-color-info);
 }
+
+/* inline code */
+span.inlinezs,
+span.customzs,
+code.literal.inlinezs,
+code.literal.customzs {
+	border: 1px solid var(--pst-color-border);
+	border-radius: .25rem;
+	padding: .1rem .25rem;
+	font-family: var(--pst-font-family-monospace);
+	font-size: .875em;
+	word-wrap: normal;
+}
+
+/* Make sure inline blocks match our hljs... */
+code.literal {
+	color: #F0F0F0;
+	background: #1B2028;
+}
+html[data-theme="light"] code.literal {
+	color: #101010;
+	background: #F8F8F8;
+}

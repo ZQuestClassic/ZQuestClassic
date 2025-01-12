@@ -36,35 +36,37 @@ function zs(hljs) {
 			{
 				begin: '"',
 				end: '"',
-				relevance: 0,
 				illegal: '\\n',
 				contains: [ hljs.BACKSLASH_ESCAPE ]
 			},
 			{
 				begin: '\'(' + CHARACTER_ESCAPES + '|.)',
 				end: '\'',
-				relevance: 0,
 				illegal: '.'
 			}
 		]
 	};
 	
-	const INT_LITERAL = "\\b(?:"
-		+ "0x[0-9a-fA-F]+" // hex-prefixed value
-		+ "|0b[0-1]+" // binary-prefixed value
-		+ "|0o[0-7]+" // octal-prefixed value
-		+ "|[0-1]+b" // binary-suffixed value
-		+ "|[0-7]+o" // octal-suffixed value
-		+ "|[0-9]*\\.?[0-9]+" // Standard fixed point value
+	function spacers(digit_re) {
+		return `(?:(?:${digit_re}_?)*${digit_re})`;
+	}
+	
+	const INT_LITERAL = "(?:-|\\b|(?=\\.))(?:"
+		+ "0x" + spacers("[0-9a-fA-F]") // hex-prefixed value
+		+ "|0b" + spacers("[0-1]") // binary-prefixed value
+		+ "|0o" + spacers("[0-7]") // octal-prefixed value
+		+ "|" + spacers("[0-1]") + "b" // binary-suffixed value
+		+ "|" + spacers("[0-7]") + "o" // octal-suffixed value
+		+ "|(?:" + spacers("[0-9]") + "?\\.)?" + spacers("[0-9]") // Standard fixed point value
 		+ ")\\b";
 	
-	const LONG_LITERAL = "\\b(?:"
-		+ "0x[0-9a-fA-F]+L" // hex-prefixed value
-		+ "|0b[0-1]+L" // binary-prefixed value
-		+ "|0o[0-7]+L" // octal-prefixed value
-		+ "|[0-1]+(?:bL|Lb)" // binary-suffixed value
-		+ "|[0-7]+(?:oL|Lo)" // octal-suffixed value
-		+ "|[0-9]+L" // long-suffixed value
+	const LONG_LITERAL = "(?:-|\\b)(?:"
+		+ "0x" + spacers("[0-9a-fA-F]") + "L" // hex-prefixed value
+		+ "|0b" + spacers("[0-1]") + "L" // binary-prefixed value
+		+ "|0o" + spacers("[0-7]") + "L" // octal-prefixed value
+		+ "|" + spacers("[0-1]") + "(?:bL|Lb)" // binary-suffixed value
+		+ "|" + spacers("[0-7]") + "(?:oL|Lo)" // octal-suffixed value
+		+ "|" + spacers("[0-9]") + "L" // long-suffixed value
 		+ ")\\b";
 	
 	const NUMBERS = {
@@ -76,8 +78,7 @@ function zs(hljs) {
 			{ 
 				match: LONG_LITERAL
 			}
-		],
-		relevance: 0
+		]
 	};
 	
 	const RESERVED_KEYWORDS = [
@@ -114,7 +115,6 @@ function zs(hljs) {
 		'internal',
 		'loop',
 		'namespace',
-		'new',
 		'not',
 		'not_eq',
 		'not_equal',
@@ -124,6 +124,7 @@ function zs(hljs) {
 		'repeat',
 		'return',
 		'script',
+		'static',
 		'switch',
 		'this',
 		'true',
@@ -152,8 +153,7 @@ function zs(hljs) {
 		'untyped',
 		'rgb',
 		'void',
-		'const',
-		'static'
+		'const'
 	];
 	
 	const STANDARD_OPERATORS = [
@@ -174,7 +174,7 @@ function zs(hljs) {
 		'not', 'bitnot', 'compl', 'equals', 'not_eq', 'not_equal',
 		'appx_eq', 'appx_equal', 'xor', 'bitand', 'bitxor',
 		'bitor', 'and', 'or', 'delete', 'and_eq', 'and_equal',
-		'or_eq', 'or_equal', 'xor_eq', 'xor_equal'
+		'or_eq', 'or_equal', 'xor_eq', 'xor_equal', 'new'
 	];
 	
 	const KEYWORD_OPERATORS_SCOPE = {
@@ -272,7 +272,12 @@ function zs(hljs) {
 		'WipeEffect',
 		//
 		'WebsocketState',
-		'WebsocketType'
+		'WebsocketType',
+		// Script types
+		'hero',
+		'generic',
+		'screendata',
+		'global'
 	];
 	
 	const GLOBAL_POINTERS = [
@@ -444,7 +449,6 @@ function zs(hljs) {
 					{
 						begin: '"',
 						end: '"',
-						relevance: 0,
 						illegal: '\\n'
 					}
 				]
@@ -493,7 +497,9 @@ function zs(hljs) {
 	
 	const USING_STATEMENT = {
 		match: [
-			'(?:always' + SOME_WHITESPACE_RE + ')?using',
+			'(?:always(?=' + SOME_WHITESPACE_RE + '))?',
+			OPT_WHITESPACE_RE,
+			'using',
 			SOME_WHITESPACE_RE,
 			'namespace',
 			SOME_WHITESPACE_RE,
@@ -502,15 +508,35 @@ function zs(hljs) {
 		scope: {
 			1: 'keyword',
 			3: 'keyword',
-			5: 'title.namespace'
-		}
+			5: 'keyword',
+			7: 'title.namespace'
+		},
+		keywords: RESERVED_KEYWORDS
+	};
+	
+	const TYPEDEF_STATEMENT = {
+		match: [
+			'(?:script(?=' + SOME_WHITESPACE_RE + '))?',
+			OPT_WHITESPACE_RE,
+			'typedef',
+			SOME_WHITESPACE_RE,
+			TYPE_RE,
+			SOME_WHITESPACE_RE,
+			IDENTIFIER_RE
+		],
+		scope: {
+			1: 'keyword',
+			3: 'keyword',
+			5: 'type',
+			7: 'title.typedef'
+		},
+		keywords: RESERVED_KEYWORDS
 	};
 	
 	const PAREN_MATCHER = {
 		begin: /\(/,
 		end: /\)/,
 		keywords: ZSCRIPT_KEYWORDS,
-		relevance: 0,
 		contains: [
 			'self',
 			hljs.C_LINE_COMMENT_MODE,
@@ -525,7 +551,6 @@ function zs(hljs) {
 		begin: /{/,
 		end: /}/,
 		keywords: ZSCRIPT_KEYWORDS,
-		relevance: 0,
 		contains: [
 			'self',
 			hljs.C_LINE_COMMENT_MODE,
@@ -540,6 +565,7 @@ function zs(hljs) {
 	const FUNC_POSTHEADER = {
 		end: /;/,
 		excludeEnd: true,
+		keywords: RESERVED_KEYWORDS,
 		contains: [
 			{ // Prototype w/ default
 				match: [
@@ -551,6 +577,7 @@ function zs(hljs) {
 				scope: {
 					3: 'keyword'
 				},
+				keywords: RESERVED_KEYWORDS,
 				starts: {
 					end: /;/,
 					excludeEnd: true,
@@ -566,12 +593,12 @@ function zs(hljs) {
 				end: /}/,
 				scope: 'function.body',
 				keywords: ZSCRIPT_KEYWORDS,
-				relevance: 0,
 				endsParent: true,
 				contains: [
 					PAREN_MATCHER,
 					BRACE_MATCHER,
 					USING_STATEMENT,
+					TYPEDEF_STATEMENT,
 					hljs.C_LINE_COMMENT_MODE,
 					hljs.C_BLOCK_COMMENT_MODE,
 					STRINGS,
@@ -590,7 +617,6 @@ function zs(hljs) {
 		excludeBegin: true,
 		excludeEnd: true,
 		keywords: ZSCRIPT_KEYWORDS,
-		relevance: 0,
 		endsParent: true,
 		contains: [
 			{
@@ -751,11 +777,13 @@ function zs(hljs) {
 			'zh'
 		],
 		keywords: ZSCRIPT_KEYWORDS,
-		illegal: '</',
 		contains: [].concat(
+			NUMBERS,
+			STRINGS,
 			HASHMODE,
 			ANNOTATION,
 			USING_STATEMENT,
+			TYPEDEF_STATEMENT,
 			RUN_FUNC_DECLARATION,
 			FUNCTION_DECLARATION,
 			EXPRESSION_CONTAINS, // list
@@ -769,7 +797,20 @@ function zs(hljs) {
 
 hljs.registerLanguage('zs', zs);
 
+hljs.configure({
+	languageDetectRe: /\b(?:inline(?=zs\b)|custom(?=zs\b)|language-)([\w-]+)\b/,
+	ignoreUnescapedHTML: true,
+	languages: ['zs']
+});
+
 // docs-www/source/extensions/zscript.py already emits code to run hljs
 // right away (to prevent a short flash of unstylized content) - but just
 // in case, run this too.
 hljs.highlightAll();
+
+// handle single-quote code
+hljs.configure({
+	cssSelector: 'code.inlinezs'
+});
+hljs.highlightAll();
+

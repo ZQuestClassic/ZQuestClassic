@@ -1,7 +1,7 @@
 Namespaces
 ==========
 
-.. |scoperes| replace:: scope-resolution operator ``::``
+.. |scoperes| replace:: scope-resolution operator `::`
 
 Namespace
 ---------
@@ -177,9 +177,9 @@ Using
 
 .. _using:
 
-With the ``using`` statement, you can tell the compiler that you want it to check a
+With the `using` statement, you can tell the compiler that you want it to check a
 particular namespace for *all* function calls\ [#func_iden]_\ , without the need to
-type out the name. The ``using`` statement can be used anywhere outside of functions,
+type out the name. The `using` statement can be used anywhere outside of functions,
 and at the very top inside functions. They only apply at the scope they are placed,
 and inward from there.
 
@@ -187,7 +187,7 @@ and inward from there.
 .. admonition:: Name Conflicts
 	:class: caution
 
-	In using ``using``, you can reference things in that namespace directly, but you
+	In using `using`, you can reference things in that namespace directly, but you
 	*lose* some of the benefit of namespaces, namely, you are able to have name conflicts
 	again. You may run into compiler errors such as:
 
@@ -198,7 +198,7 @@ and inward from there.
 	Running into these errors can indicate that the compiler could not figure out which
 	function/var/const/type you were intending to use. This is **easy to fix** when you
 	run into it though- you can simply tell it which namespace to use directly, the same
-	way you would without a ``using`` statement, via |scoperes|. This will help the
+	way you would without a `using` statement, via |scoperes|. This will help the
 	compiler figure out which version of the function/var/const/type you meant to
 	reference, and thus compile.
 
@@ -256,7 +256,7 @@ and inward from there.
 
 .. _using_always:
 .. tip::
-	You can also add the keyword ``always`` before a using statement, which tells the compiler
+	You can also add the keyword `always` before a using statement, which tells the compiler
 	that you want it to use that using statement in every single scope of every single file
 	of your entire compile. You likely should not use this unless you have a specific reason to,
 	as it is highly likely to cause :ref:`name conflicts<using_name_conflicts>`.

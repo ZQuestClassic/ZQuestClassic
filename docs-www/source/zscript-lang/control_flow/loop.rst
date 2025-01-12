@@ -10,23 +10,23 @@ Smart Loops ('loop')
 
 .. _stmt_loop:
 
-Smart loops, declared using the ``loop`` keyword, are able to be optimized better by the compiler than
+Smart loops, declared using the `loop` keyword, are able to be optimized better by the compiler than
 normal loops. There are a few different ways to use smart loops.
 
-Firstly, you can simply declare ``loop()``, which results in an infinite loop, similar to ``while(true)``.
+Firstly, you can simply declare `loop()`, which results in an infinite loop, similar to `while(true)`.
 
-Otherwise, you can follow the pattern ``loop(typename varname : range, increment)``.
+Otherwise, you can follow the pattern `loop(typename varname : range, increment)`.
  - 'typename' specifies a type for the loop's variable
- 	- You can omit it, letting it default to ``const int``
+ 	- You can omit it, letting it default to `const int`
  - 'varname' is an identifier declaring the name of the loop's variable
 	- You can omit it to not name the variable
-	- If you do so, you must also omit 'typename' and the ``:``
- - The ``:`` can be replaced with ``in``
+	- If you do so, you must also omit 'typename' and the `:`
+ - The `:` can be replaced with `in`
  - 'range' is a :ref:`value range<zslang_ranges>`
 	- The loop's variable starts at the low end, and increments by the increment value until it would exit the range
  - 'increment' is the increment value of the range
-	- You can omit it, letting it default to ``1``
-	- If you do so, you must also omit the ``,``
+	- You can omit it, letting it default to `1`
+	- If you do so, you must also omit the `,`
 	- If a negative increment is supplied, the loop's variable will start at the high end of the range, and count down.
 
 .. zscript::

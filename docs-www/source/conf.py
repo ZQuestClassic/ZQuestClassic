@@ -52,8 +52,35 @@ rst_prolog = """
 .. |T3| replace:: :abbr:`T3 (Generic type, can bound to any type, as long as all generic types match.)`
 
 .. |wip| replace:: WIP: This page is incomplete, and needs more information.
+.. |stdlib| replace:: :ref:`standard library <lib_std>`
 
 .. role:: del
+
+.. role:: zs(literal)
+    :class: 'inlinezs pre'
+
+.. role:: zs_num(literal)
+    :class: 'customzs pre hljs hljs-number'
+
+.. role:: zs_kw(literal)
+    :class: 'customzs pre hljs hljs-keyword'
+
+.. role:: zs_type(literal)
+    :class: 'customzs pre hljs hljs-type'
+
+.. role:: zs_str(literal)
+    :class: 'customzs pre hljs hljs-string'
+
+.. role:: zs_op(literal)
+    :class: 'customzs pre hljs hljs-operator'
+
+.. role:: zs_meta(literal)
+    :class: 'customzs pre hljs hljs-meta'
+
+.. role:: zs_cmnt(literal)
+    :class: 'customzs pre hljs hljs-comment'
+
+.. default-role:: zs
 """
 
 # pdf

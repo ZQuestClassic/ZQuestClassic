@@ -12,119 +12,100 @@ html[data-theme="light"] .hljs {
 	background: #F8F8F8;
 }
 
-.hljs-plain {
-	color: #F0F0F0;
-}
-html[data-theme="light"] .hljs-plain {
-	color: #101010;
-}
-
-.hljs-emphasis {
-	font-style: italic;
-}
-
-.hljs-strong {
-	font-weight: bold;
-}
-
-.hljs-link {
-	text-decoration: underline;
-}
-
 .hljs-comment {
-	color: #666666;
-	font-style: italic;
-	font-weight: bold;
+	color: #666666 !important;
+	font-style: italic !important;
+	font-weight: bold !important;
 }
 
 html[data-theme="light"] .hljs-comment {
-	color: #BBBBBB;
+	color: #BBBBBB !important;
 }
 
 .hljs-title.param_ {
-	color: #8585D0;
+	color: #8585D0 !important;
 }
 html[data-theme="light"] .hljs-title.param_ {
-	color: #B01FE0;
+	color: #B01FE0 !important;
 }
 
 .hljs-meta,
 .hljs-meta.annotation,
 .hljs-meta .hljs-keyword {
-	color: #8954A5;
+	color: #8954A5 !important;
 }
 
 html[data-theme="light"] .hljs-meta,
 html[data-theme="light"] .hljs-meta.annotation,
 html[data-theme="light"] .hljs-meta .hljs-keyword {
-	color: #DC7E05;
+	color: #DC7E05 !important;
 }
 
 .hljs-operator {
-	color: #3FBF49;
+	color: #3FBF49 !important;
 }
 html[data-theme="light"] .hljs-operator {
-	color: #48CF4C;
+	color: #38AF3C !important;
 }
 
 .hljs-keyword,
 .hljs-keyword.global_,
 .hljs-keyword.wait_ {
-	color: #FF4B82;
+	color: #FF4B82 !important;
 }
 html[data-theme="light"] .hljs-keyword,
 html[data-theme="light"] .hljs-keyword.global_,
 html[data-theme="light"] .hljs-keyword.wait_ {
-	color: #E73026;
+	color: #E73026 !important;
 }
 
 .hljs-string,
 .hljs-meta .hljs-string {
-	color: #0AB26F;
+	color: #0AB26F !important;
 }
 html[data-theme="light"] .hljs-string,
 html[data-theme="light"] .hljs-meta .hljs-string {
-	color: #8585D0;
+	color: #8585D0 !important;
 }
 
 .hljs-number,
 .hljs-keyword.literal_ {
-	color: #F8FC11;
+	color: #F8FC11 !important;
 }
 html[data-theme="light"] .hljs-number,
 html[data-theme="light"] .hljs-keyword.literal_ {
-	color: #0000FF;
+	color: #0000FF !important;
 }
 
 .hljs-type,
 .hljs-type.enum_,
 .hljs-type.class_,
 .hljs-type.script_ {
-	color: #FC9E11;
+	color: #FC9E11 !important;
 }
 html[data-theme="light"] .hljs-type,
 html[data-theme="light"] .hljs-type.enum_,
 html[data-theme="light"] .hljs-type.class_,
 html[data-theme="light"] .hljs-type.script_ {
-	color: #0000FF;
+	color: #0000FF !important;
 }
 
 .hljs-title,
 .hljs-title.function_,
 .hljs-title.script_,
 .hljs-title.namespace_ {
-	color: #00FFFF;
+	color: #00FFFF !important;
 }
 html[data-theme="light"] .hljs-title,
 html[data-theme="light"] .hljs-title.function_,
 html[data-theme="light"] .hljs-title.script_,
 html[data-theme="light"] .hljs-title.namespace_ {
-	color: #05789E;
+	color: #05789E !important;
 }
 
 .hljs-templating {
-	color: #DBF92C;
+	color: #DBF92C !important;
 }
 html[data-theme="light"] .hljs-templating {
-	color: #BBD915;
+	color: #BBD915 !important;
 }

@@ -9,8 +9,8 @@ Loop Flow
 .. _stmt_continue:
 
 When inside a loop, you don't need to strictly just run the code until the condition ends.
-By using the ``break`` statement, you can exit a loop early.
-By using the ``continue`` statement, you can skip ahead to the next iteration of the loop.
+By using the `break` statement, you can exit a loop early.
+By using the `continue` statement, you can skip ahead to the next iteration of the loop.
 
 .. zscript::
 

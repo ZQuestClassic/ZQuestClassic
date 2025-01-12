@@ -6,12 +6,12 @@ Basic For Loops
 
 .. _stmt_for:
 
-A basic ``for`` loop is made of 4 parts; the declaration, the condition, the increment, and the body.
+A basic `for` loop is made of 4 parts; the declaration, the condition, the increment, and the body.
 The condition and the body function much the same as :ref:`while<stmt_while>` loops.
 The declaration allows declaring a new variable, or list of variables.
 The increment allows a statement, or comma-delimited list of statements.
 
-The format of these is ``for(declaration; condition; increment)``, followed by the body.
+The format of these is `for(declaration; condition; increment)`, followed by the body.
 
 .. zscript::
 
@@ -32,11 +32,9 @@ For-Each Loops
 
 .. _stmt_for_each:
 
-Alternatively, a ``for`` loop can be used with an array, to create what is refered to as a ``for-each`` loop.
-This has a different format, ``for(varname : array)`` / ``for(varname in array)``.
+Alternatively, a `for` loop can be used with an array, to create what is refered to as a ``for-each`` loop.
+This has a different format, `for(varname : array)` / `for(varname in array)`.
 The type of the variable will be the element type of the array.
-
-.. dropdown:: Example
 
 .. zscript::
 

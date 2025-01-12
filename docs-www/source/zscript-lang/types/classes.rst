@@ -13,9 +13,9 @@ Classes
 What is a Class
 ---------------
 
-The concept of a ``class`` is taken mostly from C++ here, although notably simplified down.
-By declaring a ``class``, you declare a template of data to be used repeatedly in creating
-``objects``, along with some functions associated with that data.
+The concept of a `class` is taken mostly from C++ here, although notably simplified down.
+By declaring a `class`, you declare a template of data to be used repeatedly in creating
+`objects`, along with some functions associated with that data.
 
 While the order of the parts within a class mostly doesn't matter to the compiler, you will
 generally see classes organized in the same general order:\ [#decl]_
@@ -29,14 +29,14 @@ generally see classes organized in the same general order:\ [#decl]_
 	- The parameters may be whatever you like.
 3. Destructor: A function to destroy the class.
 	- Not required- leaving it out is *better for the compiler* than declaring an empty destructor function.
-	- A destructor is declared as a function named ``~`` followed by the exact same name as the class and no return type.
+	- A destructor is declared as a function named `~` followed by the exact same name as the class and no return type.
 	- The destructor takes no parameters.
 	- The destructor is automatically called when the object is destroyed by the engine.
 		.. versionchanged:: 3.0
-			The destructor can no longer manually be triggered with ``delete``.
+			The destructor can no longer manually be triggered with `delete`.
 			This is no longer necessary due to the :ref:`refcounting + garbage collector<gc>`.
 4. Member Functions: Any other functions you like.
-	- All class functions (without the ``static`` modifier) have a local variable named ``this``, which is a pointer to the object itself.
+	- All class functions (without the `static` modifier) have a local variable named `this`, which is a pointer to the object itself.
 
 .. note::
 	The order the data is declared in is relevant to existing save files, for any objects saved to
@@ -48,14 +48,14 @@ Allocating Objects
 
 .. _classobj_alloc:
 
-To create an instance of an object, you call it's constructor function using the ``new`` keyword\ [#new]_\ .
+To create an instance of an object, you call it's constructor function using the `new` keyword\ [#new]_\ .
 A pointer to the object, whose type is *the class itself*, will be returned.
 
 .. admonition:: Limits
 	:class: note
 
-	A maximum of ``214747`` objects can exist at a time, from all (non-internal) classes combined.
-	If this many objects exist at once, the ``new`` call will fail, returning ``NULL``.
+	A maximum of `214747` objects can exist at a time, from all (non-internal) classes combined.
+	If this many objects exist at once, the `new` call will fail, returning `NULL`.
 
 Object Cleanup
 --------------
@@ -89,12 +89,12 @@ thus they 'keep each other alive' for the reference counting)
 Static Functions
 ----------------
 
-Declaring a function inside a class with the ``static`` modifier makes the function a static part of
+Declaring a function inside a class with the `static` modifier makes the function a static part of
 the class, rather than a part of each object. Static functions have a few differences from normal
 member functions:
 
-- No ``this`` pointer (meaning no access to any data members from the class)
-- Called similarly to :ref:`functions inside namespaces<namespaces>`, except that a ``.`` is used after the class name, rather than the scope-resolution operator ``::``
+- No `this` pointer (meaning no access to any data members from the class)
+- Called similarly to :ref:`functions inside namespaces<namespaces>`, except that a `.` is used after the class name, rather than the scope-resolution operator `::`
 
 Effectively, they are functions whose only thing to do with the class, is that they are called using the class's name.
 One possible use of such functions would be to create 'named constructors' for different purposes\ [#static]_\ .
@@ -112,20 +112,10 @@ They are also saved to the save file with the object, if the object is :ref:`glo
 Note that this only applies to actual array declarations- declarations of variables with *array types*
 that are not *array declarations* still act as normal.
 
-.. todo::
+.. plans::
 
-	Verify that this information is correct. Re-assign compiles, even though old documentation
-	indicated that it should not- and then I got a crash. Bleh.
-
-	.. admonition:: Relevant Old Docs
-		:class: note
-
-		These arrays cannot be destroyed with 'DestroyArray', or owned with 'OwnArray'. They are
-		always in effect "owned" by their object, and will be destroyed by the object's
-		destructor. They will be saved with the object in the save file.
-		
-		That said, they *have* normal array pointers, and as such can be used by basically anything
-		(except the listed exceptions) that uses normal arrays.
+	Currently, attempting to re-assign a pointer to such an array does not give a compiler
+	error- it simply has no effect. This will likely become a compiler error in the future.
 
 Examples
 --------

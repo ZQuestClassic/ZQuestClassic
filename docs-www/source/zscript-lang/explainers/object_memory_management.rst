@@ -7,11 +7,16 @@ Object Memory Management
 .. _gc:
 
 .. versionadded:: 3.0
+	\ 
+
 	Pre-3.0, objects had to be manually deleted, but with ZC 3.0 there is now a garbage
 	collector to automate freeing objects for scripters.
 
-	TL;DR for experienced ZScript users: you don't need to use ``delete`` or ``Free()`` anymore, and
-	you probably never need to use ``->Own`` either. Read on for specifics.
+	TL;DR for experienced ZScript users: you don't need to use `delete` or `Free()` anymore, and
+	you probably never need to use `->Own` either. Read on for specifics.
+
+What's managed
+--------------
 
 The following types are objects that are tracked by the garbage collector:
 
@@ -25,6 +30,9 @@ The following types are objects that are tracked by the garbage collector:
 - :ref:`websocket<classes_websocket>`
 
 Note: there are other object types, but they are never explicitly created or deleted by scripts.
+
+How it's managed
+----------------
 
 The ZScript garbage collector has two ways for knowing when to delete objects:
 
@@ -46,7 +54,7 @@ You shouldn't need this functionality for most usages. One example of it being n
 is if the only place you store an object is an untyped variable, which does not hold a reference.
 
 Variables only retain a reference to an object if typed as an object. For example, using
-``int`` or ``untyped`` to store an object pointer won't count as a reference, so may result in
+`int` or `untyped` to store an object pointer won't count as a reference, so may result in
 premature deletion. If you must store objects like that for some reason, call |OwnObject|
 so its reference count is always greater than zero (as long as that script is alive), or make
 it a global object. Currently objects in a :ref:`stack<classes_stack>` do not count as a reference.

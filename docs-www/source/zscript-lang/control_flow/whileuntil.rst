@@ -34,9 +34,9 @@ except the body code runs multiple times, until the condition fails.
 	y is 5
 	*/
 
-Additionally, ``while`` and ``until`` loops can be started with the ``do`` keyword,
+Additionally, `while` and `until` loops can be started with the `do` keyword,
 with the condition moved to the end, to create a ``do-while`` or ``do-until`` loop.
-A loop using the ``do`` keyword will run at least one time, even if the condition isn't met.
+A loop using the `do` keyword will run at least one time, even if the condition isn't met.
 
 .. zscript::
 

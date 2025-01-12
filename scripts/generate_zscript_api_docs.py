@@ -914,6 +914,7 @@ def process_lib(name: str, files):
     document = f'zscript/libs/{name}/index'
     sections['Libraries'].append(document)
     rst_title(lib)
+    add(f'.. _lib_{name}:')
     rst_toc(None, lib_documents)
 
     example = None
