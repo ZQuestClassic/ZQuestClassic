@@ -1,11 +1,21 @@
 PAGE TITLE
 ==========
 
+..
+	Technically, the symbols are not associated with a specific header-
+	you CAN use any symbol you want from a list, and "Header 1"
+	is just whatever symbol it runs into first for a document.
+	However, keeping these consistent across documents will make
+	editing easier, so try to use these symbols for these header levels.
+
 Header 1
 --------
 
 Header 2
 ^^^^^^^^
+
+Header 3
+++++++++
 
 .. 
 	Lines after a '..' like this are comments.

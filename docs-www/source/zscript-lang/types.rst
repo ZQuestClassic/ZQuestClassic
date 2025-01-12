@@ -52,7 +52,7 @@ Any value that is entirely known and unable to ever change starting at compile-t
 'compile-time constant'. Certain expressions and statements specifically require compile-time constant
 values. But, what things are compile-time constant?
 
-- Any literal value, such as ``5``, ``2.7``, ``true``.
+- Any :ref:`primitive literal<zslang_literals>` value, such as ``5``, ``2.7``, ``true``.
 - Any declared constant with an initializer that is compile-time constant
 - The results of basic operators, where every operand is compile-time constant (ex. ``5 + 2``, ``2 < 6``)
 - The return of a function call to a ``constexpr`` function, where every parameter is compile-time constnat

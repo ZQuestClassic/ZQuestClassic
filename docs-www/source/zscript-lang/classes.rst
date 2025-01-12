@@ -104,7 +104,10 @@ Array Data Members
 
 Declaring an array as a data member of an object creates a special type of array. Notably, you cannot
 re-assign a different pointer to such an array, and |OwnArray|/|DestroyArray| have no effect on these
-arrays (The are effectively 'owned' by the object, and are destroyed when the object is destroyed).
+arrays.
+
+These arrays are effectively 'owned' by the object, and are destroyed when the object is destroyed.
+They are also saved to the save file with the object, if the object is :ref:`global<globals_fun_globalobject>`.
 
 Note that this only applies to actual array declarations- declarations of variables with *array types*
 that are not *array declarations* still act as normal.
