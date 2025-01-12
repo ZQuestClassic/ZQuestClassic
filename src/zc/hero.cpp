@@ -3862,7 +3862,7 @@ void HeroClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
     bx=vbound(bx, 0, 255);
     by=vbound(by, 0, 175);
     int32_t fx=vbound(bx, 0, 255);
-    int32_t fy=vbound(by, 0, 176);
+    int32_t fy=vbound(by, 0, 175);
     //first things first
     if(attack!=wSword)
         return;
@@ -3969,7 +3969,7 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 	bx=vbound(bx, 0, 255);
 	by=vbound(by, 0, 175);
 	int32_t fx=vbound(bx, 0, 255);
-	int32_t fy=vbound(by, 0, 176);
+	int32_t fy=vbound(by, 0, 175);
 	//first things first
 	if(attack!=wSword)
 		return;
@@ -4404,7 +4404,7 @@ void HeroClass::check_slash_block_layer2(int32_t bx, int32_t by, weapon *w, int3
     bx=vbound(bx, 0, 255);
     by=vbound(by, 0, 175);
     int32_t fx=vbound(bx, 0, 255);
-    int32_t fy=vbound(by, 0, 176);
+    int32_t fy=vbound(by, 0, 175);
     //first things first
     if(w->useweapon != wSword)
         return;
@@ -4539,7 +4539,7 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
     bx=vbound(bx, 0, 255);
     by=vbound(by, 0, 175);
     int32_t fx=vbound(bx, 0, 255);
-    int32_t fy=vbound(by, 0, 176);
+    int32_t fy=vbound(by, 0, 175);
     int32_t cid = MAPCOMBO(bx,by);
         
     //find out which combo row/column the coordinates are in
@@ -4894,7 +4894,7 @@ void HeroClass::check_wand_block2(int32_t bx, int32_t by, weapon *w)
     bx=vbound(bx, 0, 255);
     by=vbound(by, 0, 175);
     int32_t fx=vbound(bx, 0, 255);
-    int32_t fy=vbound(by, 0, 176);
+    int32_t fy=vbound(by, 0, 175);
     int32_t cid = MAPCOMBO(bx,by);
    
     //Z_scripterrlog("check_wand_block2 MatchComboTrigger() returned: %d\n", );
@@ -4976,7 +4976,7 @@ void HeroClass::check_slash_block(weapon *w)
     bx=vbound(bx, 0, 255);
     by=vbound(by, 0, 175);
     int32_t fx=vbound(bx, 0, 255);
-    int32_t fy=vbound(by, 0, 176);
+    int32_t fy=vbound(by, 0, 175);
     
     int32_t cid = MAPCOMBO(bx,by);
         
@@ -5270,7 +5270,7 @@ void HeroClass::check_wand_block(int32_t bx, int32_t by)
     bx=vbound(bx, 0, 255);
     by=vbound(by, 0, 175);
     int32_t fx=vbound(bx, 0, 255);
-    int32_t fy=vbound(by, 0, 176);
+    int32_t fy=vbound(by, 0, 175);
     int32_t cid = MAPCOMBO(bx,by);
     
     //first things first
@@ -5333,7 +5333,7 @@ void HeroClass::check_pound_block(int bx, int by, weapon* w)
     bx=vbound(bx, 0, 255);
     by=vbound(by, 0, 175);
     int32_t fx=vbound(bx, 0, 255);
-    int32_t fy=vbound(by, 0, 176);
+    int32_t fy=vbound(by, 0, 175);
     
     //first things first
     if(z>8||fakez>8) return;
@@ -5575,7 +5575,7 @@ void HeroClass::check_wand_block(weapon *w)
     bx=vbound(bx, 0, 255);
     by=vbound(by, 0, 175);
     int32_t fx=vbound(bx, 0, 255);
-    int32_t fy=vbound(by, 0, 176);
+    int32_t fy=vbound(by, 0, 175);
     int32_t cid = MAPCOMBO(bx,by);
     //first things first
     if(z>8||fakez>8) return;
