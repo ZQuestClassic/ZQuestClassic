@@ -2,6 +2,7 @@ Types
 =====
 
 .. _types_prim:
+
 Primitive Types
 ---------------
 
@@ -34,6 +35,7 @@ Primitive Types
 	+---------------+-----------------------------------------------------------------------+
 
 .. _types_const:
+
 'Constant' types
 ----------------
 
@@ -45,6 +47,7 @@ a constant type instead declares a Constant. Important notes about constants:
 - If the entire initializer expression is "compile-time constant", then the value of the constant is also "compile-time constant"
 
 .. _compiletime_const:
+
 Compile-time constants
 ^^^^^^^^^^^^^^^^^^^^^^
 
