@@ -20994,9 +20994,6 @@ disappear:
 			
 			if(repaircharge)
 			{
-				//       if (get_qr(qr_REPAIRFIX)) {
-				//         fixed_door=true;
-				//       }
 				game->change_drupy(-(cur_screen >= 128 ? special_warp_return_scr : *msgscr).catchall);
 				repaircharge = 0;
 			}

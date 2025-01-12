@@ -368,7 +368,7 @@ bool room_is_dark=false, darkroom=false,naturaldark=false,BSZ= false;           
 bool down_control_states[controls::btnLast] = {false};
 bool F12= false,F11= false, F5= false,keyI= false, keyQ= false,
      SystemKeys=true,NESquit= false,volkeys= false,useCD=false,boughtsomething=false,
-     fixed_door=false, hookshot_used=false, hookshot_frozen=false,
+     hookshot_used=false, hookshot_frozen=false,
      pull_hero=false, hs_fix=false, hs_switcher=false,
      cheat_superman=false, gofast=false, checkhero=true, didpit=false, heart_beep=true,
      pausenow=false, castnext=false, add_df1asparkle= false, add_df1bsparkle= false, add_nl1asparkle= false, add_nl1bsparkle= false, add_nl2asparkle= false, add_nl2bsparkle= false,

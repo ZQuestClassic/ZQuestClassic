@@ -28824,14 +28824,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 	FFCore.ScrollingData[SCROLLDATA_OLD_VIEWPORT_Y] = viewport.y;
 
 	FFCore.clear_combo_scripts();
-	
-	// expose previous screen to scripting.
-	special_warp_return_scr = *tmpscr;
-	
-	for(int32_t i = 0; i < 6; i++)
-	{
-		special_warp_return_scr_layers[i] = tmpscr2[i];
-	}
 
 	// Between here and until calling loadscr to get the new region, some scripts can run and modify
 	// the old screens. These modifications will show shortly during the frames rendered before scrolling
@@ -28843,6 +28835,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 
 	std::vector<mapscr*> old_temporary_screens;
 	bool should_delay_taking_old_screens = !crucible_quest_compat;
+	should_delay_taking_old_screens=true; // TODO z3 ! rm old code.
 	if (!should_delay_taking_old_screens)
 		old_temporary_screens = take_temporary_scrs();
 
@@ -29044,17 +29037,19 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 			break;
 	}
 
-	if(fixed_door)
-	{
-		unsetmapflag_home(mSECRET);
-		fixed_door = false;
-	}
-
 	// Remember everything about the current region, because `loadscr` is about to reset this data.
 	if (should_delay_taking_old_screens)
 		old_temporary_screens = take_temporary_scrs();
 	FFCore.ScrollingScreensAll = old_temporary_screens;
 	cur_map = destmap;
+
+	// expose previous screen to scripting.
+	special_warp_return_scr = *tmpscr;
+
+	for(int32_t i = 0; i < 6; i++)
+	{
+		special_warp_return_scr_layers[i] = tmpscr2[i];
+	}
 
 	loadscr(destdmap, dest_screen, scrolldir, overlay);
 	mapscr* newscr = get_scr(destmap, dest_screen);

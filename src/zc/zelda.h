@@ -352,7 +352,7 @@ extern bool drawguys,debug_enabled,watch;
 extern bool down_control_states[controls::btnLast];
 extern bool F12,F11,F5,keyI, keyQ;
 extern bool SystemKeys,NESquit,volkeys,useCD,boughtsomething;
-extern bool fixed_door, darkroom,naturaldark,BSZ;            //,NEWSUBSCR;
+extern bool darkroom,naturaldark,BSZ;
 // True if the current region is 'dark'.
 extern bool room_is_dark;
 extern bool hookshot_used, hookshot_frozen, pull_hero, hs_fix, hs_switcher, cheat_superman, gofast, checkhero;
