@@ -20,14 +20,17 @@ What's managed
 
 The following types are objects that are tracked by the garbage collector:
 
-- :ref:`any custom user class<classes>`
-- :ref:`bitmap<classes_bitmap>`
-- :ref:`directory<classes_directory>`
-- :ref:`file<classes_file>`
-- :ref:`paldata<classes_paldata>`
-- :ref:`randgen<classes_randgen>`
-- :ref:`stack<classes_stack>`
-- :ref:`websocket<classes_websocket>`
+.. hlist::
+	:columns: 4
+
+	- :ref:`any custom user class<classes>`
+	- :ref:`bitmap<classes_bitmap>`
+	- :ref:`directory<classes_directory>`
+	- :ref:`file<classes_file>`
+	- :ref:`paldata<classes_paldata>`
+	- :ref:`randgen<classes_randgen>`
+	- :ref:`stack<classes_stack>`
+	- :ref:`websocket<classes_websocket>`
 
 Note: there are other object types, but they are never explicitly created or deleted by scripts.
 

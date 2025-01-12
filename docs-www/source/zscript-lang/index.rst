@@ -4,6 +4,7 @@ ZScript Lang
 .. toctree::
 	:maxdepth: 1
 
+	Recommended Editor </zscript-lang/vscode>
 	/zscript-lang/identifiers
 	/zscript-lang/keywords
 	/zscript-lang/types/index
