@@ -8,34 +8,10 @@ These are the foundational building blocks of scripting in ZScript, used to buil
 	:maxdepth: 1
 
 	/zscript-lang/control_flow/ifunless
-
-.. toctree::
-	:maxdepth: 1
-
 	/zscript-lang/control_flow/whileuntil
-
-.. toctree::
-	:maxdepth: 1
-
 	/zscript-lang/control_flow/for
-
-.. toctree::
-	:maxdepth: 1
-
 	/zscript-lang/control_flow/loop
-
-.. toctree::
-	:maxdepth: 1
-
 	/zscript-lang/control_flow/loopelse
-
-.. toctree::
-	:maxdepth: 1
-
 	/zscript-lang/control_flow/break
-
-.. toctree::
-	:maxdepth: 1
-
-	/zscript-lang/control_flow/switchcase
+	WIP </zscript-lang/control_flow/switchcase>
 

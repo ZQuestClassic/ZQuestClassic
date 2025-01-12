@@ -42,6 +42,16 @@ a.reference[href^="https://github.com"]:not(.github) {
     font-size: 11px;
 }
 
+/* A bit too much padding for my liking... */
+h1, h2, .h1, .h2  {
+	margin: 1.25rem 0 1.05rem
+}
+
+h3, h4, h5, h6,
+.h3, .h4, .h5, .h6 {
+	margin: 0.75rem 0 1.05rem
+}
+
 /* Customized admonition class */
 .admonition.admonition-plans,
 div.admonition.admonition-plans {
@@ -65,8 +75,9 @@ pre.hljs {
 /* Without this, some elements in footers don't
    actually look like part of the footer. */
 .footnote > pre.hljs,
-.footnote > details.sd-dropdown {
-	margin: 0 0 0 25px;
+.footnote > details.sd-dropdown,
+.footnote > .admonition {
+	margin: 0 0 0 2em;
 }
 
 /* Why does versionremoved look so different by default?

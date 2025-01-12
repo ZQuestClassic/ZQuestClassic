@@ -73,4 +73,4 @@ Custom Types
 
 	/zscript-lang/types/typedef
 	/zscript-lang/types/classes
-	/zscript-lang/types/enums
+	WIP </zscript-lang/types/enums>

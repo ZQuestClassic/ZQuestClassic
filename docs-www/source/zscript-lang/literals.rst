@@ -95,7 +95,7 @@ Also, adjacent strings are automatically merged by the compiler. Ex:
 	// prints 'This is a string split across multiple lines!'
 
 .. note::
-	When typing a string as part of an :ref:`#include statement<importing_files>`,
+	When typing a string as part of an :ref:`#include statement<directive_import>`,
 	escape characters have no effect, and `\\` characters can be inserted normally.
 	This is due to `\\` being common in file paths, and all strings worked this way
 	in older versions of the program, so import path strings continue to act this way

@@ -5,6 +5,9 @@ Keywords and Operators
 
 	|wip|
 
+.. |import directive| replace:: :ref:`file import directive<directive_import>`
+.. |ctc| replace:: :ref:`compile-time constant<compiletime_const>`
+
 .. _zslang_keywords:
 
 ZScript has a number of keywords, reserved for various purposes. Any keywords listed here that would otherwise be valid :ref:`identifiers<zslang_identifiers>`, are **not** usable as identifiers, due to being reserved.
@@ -22,8 +25,6 @@ Misc
 	| | `false`        |                                                                   |
 	+------------------+-------------------------------------------------------------------+
 	| `script`         | used to declare :ref:`scripts<zslang_scripts>`                    |
-	+------------------+-------------------------------------------------------------------+
-	| `class`          | used to declare :ref:`classes<zslang_classes>`                    |
 	+------------------+-------------------------------------------------------------------+
 	| | `if`           | :ref:`Conditional statement<stmt_if>`                             |
 	| | `unless`       |                                                                   |
@@ -52,17 +53,13 @@ Misc
 	+------------------+-------------------------------------------------------------------+
 	| `return`         |                                                                   |
 	+------------------+-------------------------------------------------------------------+
-	| `import`         |                                                                   |
-	+------------------+-------------------------------------------------------------------+
 	| `typedef`        | Used to define :ref:`custom type aliases<zslang_typedef>`         |
 	+------------------+-------------------------------------------------------------------+
-	| `catch`          |                                                                   |
-	+------------------+-------------------------------------------------------------------+
-	| `OPTION_VALUE`   |                                                                   |
-	+------------------+-------------------------------------------------------------------+
-	| `IS_INCLUDED`    |                                                                   |
-	+------------------+-------------------------------------------------------------------+
 	| `enum`           | used to declare :ref:`enumerations<enums>`                        |
+	+------------------+-------------------------------------------------------------------+
+	| `class`          | used to declare :ref:`classes<zslang_classes>`                    |
+	+------------------+-------------------------------------------------------------------+
+	| `static`         | Class member modifier for :ref:`static uses<class_static>`        |
 	+------------------+-------------------------------------------------------------------+
 	| `namespace`      | used when declaring :ref:`namespaces<namespaces>`                 |
 	+------------------+-------------------------------------------------------------------+
@@ -71,17 +68,26 @@ Misc
 	+------------------+-------------------------------------------------------------------+
 	| `always`         | modifier for :ref:`using statements<using_always>`                |
 	+------------------+-------------------------------------------------------------------+
-	| `repeat`         |                                                                   |
+	| `import`         | Variant of the `#include` |import directive|                      |
 	+------------------+-------------------------------------------------------------------+
-	| `inline`         |                                                                   |
+	| `repeat`         | Code repetition :ref:`compiler directive<directive_repeat>`       |
 	+------------------+-------------------------------------------------------------------+
-	| `internal`       |                                                                   |
+	| `CONST_ASSERT`   | Constant compile :ref:`assertion directive<directive_assert>`     |
 	+------------------+-------------------------------------------------------------------+
-	| `static`         |                                                                   |
+	| `OPTION_VALUE`   | Option reading :ref:`compiler directive<directive_optionval>`     |
 	+------------------+-------------------------------------------------------------------+
-	| `constexpr`      |                                                                   |
+	| `IS_INCLUDED`    | Include checking :ref:`compiler directive<directive_isincluded>`  |
 	+------------------+-------------------------------------------------------------------+
-	| `CONST_ASSERT`   |                                                                   |
+	| `catch`          | Error/warning ignoring :ref:`compiler directive<directive_catch>` |
+	+------------------+-------------------------------------------------------------------+
+	| `internal`       | Modifier used for internal engine bindings                        |
+	+------------------+-------------------------------------------------------------------+
+	| `inline`         | Modifier that indicates a function is optimized to be lightweight.|
+	|                  | Only usable by `internal` functions.                              |
+	+------------------+-------------------------------------------------------------------+
+	| `constexpr`      | Modifier used for functions that can return a |ctc| value,        |
+	|                  | if all parameters used to call it are also |ctc|.                 |
+	|                  | Only usable by `internal` functions.                              |
 	+------------------+-------------------------------------------------------------------+
 	| | `asm`          | reserved, no present use                                          |
 	| | `zasm`         |                                                                   |
@@ -295,7 +301,8 @@ While not technically 'keywords', this table shows reserved syntactical symbols/
 	+-----------------+-------------------------------------------------+
 	| `{ }`           | Braces                                          |
 	+-----------------+-------------------------------------------------+
-	| :zs_meta:`#`    | Start of :ref:`hash-command<hash_instructions>` |
+	| :zs_meta:`#`    | Start of many                                   |
+	|                 | :ref:`compiler directive<zslang_directives>`    |
 	+-----------------+-------------------------------------------------+
 	| `->`            | Arrow, for member access                        |
 	+-----------------+-------------------------------------------------+

@@ -12,8 +12,9 @@ ZScript Lang
 	/zscript-lang/control_flow/index
 	/zscript-lang/comments
 	/zscript-lang/options
-	/zscript-lang/annotations
-	/zscript-lang/scripts
+	/zscript-lang/compiler_directives
+	WIP </zscript-lang/annotations>
+	WIP </zscript-lang/scripts>
 	/zscript-lang/namespace
-	/zscript-lang/ranges
+	WIP </zscript-lang/ranges>
 
