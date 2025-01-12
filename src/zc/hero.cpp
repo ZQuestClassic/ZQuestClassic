@@ -28835,23 +28835,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 
 	FFCore.clear_combo_scripts();
 
-	// Between here and until calling loadscr to get the new region, some scripts can run and modify
-	// the old screens. These modifications will show shortly during the frames rendered before scrolling
-	// really begins, but not during the scroll itself - iff `should_delay_taking_old_screens` is false.
-	// It seems better if these changes were to persist.
-	// TODO(replays): this compat code can be removed (ie make should_delay_taking_old_screens true), just
-	// update crucible_quest.zplay to account for the minor gfx change.
-	bool crucible_quest_compat = replay_is_debug() && replay_get_meta_str("qst") == "crucible_quest.qst";
-
-	std::vector<mapscr*> old_temporary_screens;
-	bool should_delay_taking_old_screens = !crucible_quest_compat;
-	should_delay_taking_old_screens=true; // TODO z3 ! rm old code.
-	if (!should_delay_taking_old_screens)
-	{
-		old_temporary_screens = take_temporary_scrs();
-		FFCore.ScrollingScreensAll = old_temporary_screens;
-	}
-
 	conveyclk = 2;
 	screenscrolling = true;
 	scrolling_dir = (direction) scrolldir;
@@ -28867,15 +28850,12 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 
 	// Don't signal to scripts that scrolling has "started" (and thus all the Game->Scrolling variables are valid)
 	// just yet. Store what we calculated and apply them after this next frame.
-	// TODO(replays): update. And probably just move the calculation to after this frame renders (rather than cache).
+	// TODO z3 just move the calculation to after this frame renders (rather than cache).
 	int cached_scrolling[SZ_SCROLLDATA];
-	if (!crucible_quest_compat)
-	{
-		for (int i = 0; i < SZ_SCROLLDATA; i++)
-			cached_scrolling[i] = FFCore.ScrollingData[i];
-		memset(FFCore.ScrollingData, 0, sizeof(int32_t) * SZ_SCROLLDATA);
-		FFCore.ScrollingData[SCROLLDATA_DIR] = -1;
-	}
+	for (int i = 0; i < SZ_SCROLLDATA; i++)
+		cached_scrolling[i] = FFCore.ScrollingData[i];
+	memset(FFCore.ScrollingData, 0, sizeof(int32_t) * SZ_SCROLLDATA);
+	FFCore.ScrollingData[SCROLLDATA_DIR] = -1;
 
 	// Wait one frame. This still uses the old region's coordinates.
 	int32_t lastattackclk = attackclk, lastspins = spins, lastcharging = charging; bool lasttapping = tapping;
@@ -28969,11 +28949,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 		return;
 	}
 
-	if (!crucible_quest_compat)
-	{
-		for (int i = 0; i < SZ_SCROLLDATA; i++)
-			FFCore.ScrollingData[i] = cached_scrolling[i];
-	}
+	for (int i = 0; i < SZ_SCROLLDATA; i++)
+		FFCore.ScrollingData[i] = cached_scrolling[i];
 
 	// cur_dmap won't change until the end of the scroll. Store new dmap in this global variable.
 	scrolling_destdmap = new_dmap;
@@ -29050,8 +29027,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 	}
 
 	// Remember everything about the current region, because `loadscr` is about to reset this data.
-	if (should_delay_taking_old_screens)
-		old_temporary_screens = take_temporary_scrs();
+	std::vector<mapscr*> old_temporary_screens;
+	old_temporary_screens = take_temporary_scrs();
 	FFCore.ScrollingScreensAll = old_temporary_screens;
 	cur_map = destmap;
 
