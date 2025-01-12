@@ -121,15 +121,17 @@ ZC_FORCE_INLINE rpos_t POS_TO_RPOS(int32_t pos, int32_t screen)
 	return POS_TO_RPOS(pos, get_region_relative_dx(screen), get_region_relative_dy(screen));
 }
 
+// Converts world coordinates to a combo pos (0-175). Input must be a valid screen coordinate.
 int32_t COMBOPOS(int32_t x, int32_t y);
+// Bounded - if input is not within the current region, returns -1.
 int32_t COMBOPOS_B(int32_t x, int32_t y);
 int32_t COMBOX(int32_t pos);
 int32_t COMBOY(int32_t pos);
 
-// Input must be a valid world coordinate for the current region.
+// Converts world coordinates to a combo rpos. Input must be a valid world coordinate for the current region.
 rpos_t COMBOPOS_REGION(int32_t x, int32_t y);
-// If input not within the current region, returns rpos_t::None
-rpos_t COMBOPOS_REGION_CHECK_BOUNDS(int32_t x, int32_t y);
+// Bounded - if input is not within the current region, returns -1.
+rpos_t COMBOPOS_REGION_B(int32_t x, int32_t y);
 std::pair<int32_t, int32_t> COMBOXY_REGION(rpos_t rpos);
 int32_t COMBOX_REGION(rpos_t rpos);
 int32_t COMBOY_REGION(rpos_t rpos);

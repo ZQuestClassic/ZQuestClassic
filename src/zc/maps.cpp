@@ -504,7 +504,7 @@ combined_handle_t get_combined_handle_for_world_xy(int x, int y, int layer)
 	if (maybe_ffc_handle)
 		return maybe_ffc_handle.value();
 
-	auto rpos = COMBOPOS_REGION_CHECK_BOUNDS(x, y);
+	auto rpos = COMBOPOS_REGION_B(x, y);
 	if (rpos == rpos_t::None)
 		return rpos_handle_t();
 	return get_rpos_handle(rpos, layer);
@@ -682,15 +682,14 @@ std::pair<int32_t, int32_t> translate_screen_coordinates_to_world(int screen)
 
 int32_t COMBOPOS(int32_t x, int32_t y)
 {
-	// TODO z3 ! see the_deep/the_deep_1_of_6.zplay
-	// DCHECK(x >= 0 && x < 256 && y >= 0 && y < 176);
+	DCHECK(x >= 0 && x < 256 && y >= 0 && y < 176);
 	return (y & 0xF0) + (x >> 4);
 }
 int32_t COMBOPOS_B(int32_t x, int32_t y)
 {
 	if(unsigned(x) >= 256 || unsigned(y) >= 176)
 		return -1;
-	return COMBOPOS(x,y);
+	return (y & 0xF0) + (x >> 4);
 }
 int32_t COMBOX(int32_t pos)
 {
@@ -712,7 +711,7 @@ rpos_t COMBOPOS_REGION(int32_t x, int32_t y)
 	int pos = COMBOPOS(x%256, y%176);
 	return static_cast<rpos_t>((scr_dx + scr_dy * cur_region.screen_width)*176 + pos);
 }
-rpos_t COMBOPOS_REGION_CHECK_BOUNDS(int32_t x, int32_t y)
+rpos_t COMBOPOS_REGION_B(int32_t x, int32_t y)
 {
 	if (x < 0 || y < 0 || x >= world_w || y >= world_h)
 		return rpos_t::None;
@@ -3023,7 +3022,7 @@ bool trigger_secrets_if_flag(int32_t x, int32_t y, int32_t flag, bool setflag)
 	std::vector<rpos_t> rposes_seen;
 	for (auto [x, y] : coords)
 	{
-		rpos_t rpos = COMBOPOS_REGION_CHECK_BOUNDS(x, y);
+		rpos_t rpos = COMBOPOS_REGION_B(x, y);
 		if (rpos == rpos_t::None)
 			continue;
 
@@ -3471,7 +3470,7 @@ void draw_cmb_pos(BITMAP* dest, int32_t x, int32_t y, rpos_t rpos, int32_t cid,
 {
 	if (!screenscrolling)
 	{
-		rpos_t plrpos = COMBOPOS_REGION_CHECK_BOUNDS(Hero.x+8, Hero.y+8);
+		rpos_t plrpos = COMBOPOS_REGION_B(Hero.x+8, Hero.y+8);
 		if (plrpos != rpos_t::None)
 		{
 			bool dosw = false;

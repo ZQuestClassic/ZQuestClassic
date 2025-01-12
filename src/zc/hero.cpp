@@ -478,10 +478,10 @@ void HeroClass::set_respawn_point(bool setwarp)
 			} //End check water
 			
 			rpos_t rposes[] = {
-				COMBOPOS_REGION_CHECK_BOUNDS(x,y+(bigHitbox?0:8)),
-				COMBOPOS_REGION_CHECK_BOUNDS(x,y+15),
-				COMBOPOS_REGION_CHECK_BOUNDS(x+15,y+(bigHitbox?0:8)),
-				COMBOPOS_REGION_CHECK_BOUNDS(x+15,y+15)
+				COMBOPOS_REGION_B(x,y+(bigHitbox?0:8)),
+				COMBOPOS_REGION_B(x,y+15),
+				COMBOPOS_REGION_B(x+15,y+(bigHitbox?0:8)),
+				COMBOPOS_REGION_B(x+15,y+15)
 				};
 			for(auto rpos : rposes)
 			{
@@ -3925,11 +3925,10 @@ void HeroClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
 	int i = rpos_handle.pos;
         
     bool ignorescreen=false;
-    
-	// TODO z3 ! asan the_deep_2
+
     if((get_bit(screengrid_layer[layer-1], i) != 0) || (!isCuttableType(type)))
 		return;
-    
+
     int32_t sworditem = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? itemsbuf[directWpn].fam_type : current_item(itype_sword);
 	
 	if(!isTouchyType(type) && !get_qr(qr_CONT_SWORD_TRIGGERS)) set_bit(screengrid_layer[layer-1],i,1);
@@ -7158,7 +7157,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 	int32_t bestcid=0;
 	rpos_t best_rpos = rpos_t::None;
 	int32_t hp_modtotal=0;
-	rpos_t rposes[] = {COMBOPOS_REGION_CHECK_BOUNDS(dx1,dy1),COMBOPOS_REGION_CHECK_BOUNDS(dx1,dy2),COMBOPOS_REGION_CHECK_BOUNDS(dx2,dy1),COMBOPOS_REGION_CHECK_BOUNDS(dx2,dy2)};
+	rpos_t rposes[] = {COMBOPOS_REGION_B(dx1,dy1),COMBOPOS_REGION_B(dx1,dy2),COMBOPOS_REGION_B(dx2,dy1),COMBOPOS_REGION_B(dx2,dy2)};
 	if (!_effectflag(dx1,dy1,1, layer)) {hp_mod[0] = 0; hasKB &= ~(1<<0);}
 	if (!_effectflag(dx1,dy2,1, layer)) {hp_mod[1] = 0; hasKB &= ~(1<<1);}
 	if (!_effectflag(dx2,dy1,1, layer)) {hp_mod[2] = 0; hasKB &= ~(1<<2);}
@@ -8157,7 +8156,7 @@ heroanimate_skip_liftwpn:;
 			}
 		}
 		
-		auto rpos = COMBOPOS_REGION_CHECK_BOUNDS(x+8,y+(sideview_mode()?16:12));
+		auto rpos = COMBOPOS_REGION_B(x+8,y+(sideview_mode()?16:12));
 		for(int q = 0; q < 7; ++q)
 		{
 			if (rpos == rpos_t::None)
@@ -10684,8 +10683,8 @@ void HeroClass::doMirror(int32_t mirrorid)
 		return;
 	}
 	static const int32_t sens = 4; //sensitivity of 'No Mirror' combos (0 most, 8 least)
-	rpos_t rposes[] = {COMBOPOS_REGION_CHECK_BOUNDS(x+sens,y+sens), COMBOPOS_REGION_CHECK_BOUNDS(x+sens,y+15-sens),
-		COMBOPOS_REGION_CHECK_BOUNDS(x+15-sens,y+sens), COMBOPOS_REGION_CHECK_BOUNDS(x+15-sens,y+15-sens)};
+	rpos_t rposes[] = {COMBOPOS_REGION_B(x+sens,y+sens), COMBOPOS_REGION_B(x+sens,y+15-sens),
+		COMBOPOS_REGION_B(x+15-sens,y+sens), COMBOPOS_REGION_B(x+15-sens,y+15-sens)};
 	for(auto rpos : rposes)
 	{
 		if (rpos == rpos_t::None)
@@ -11111,8 +11110,8 @@ void HeroClass::do_liftglove(int32_t liftid, bool passive)
 				bx2 = x + 17;
 				break;
 		}
-		rpos_t rpos = COMBOPOS_REGION_CHECK_BOUNDS(bx, by);
-		rpos_t rpos2 = COMBOPOS_REGION_CHECK_BOUNDS(bx2, by2);
+		rpos_t rpos = COMBOPOS_REGION_B(bx, by);
+		rpos_t rpos2 = COMBOPOS_REGION_B(bx2, by2);
 		
 		for(auto lyr = 6; lyr >= 0; --lyr)
 		{
@@ -11316,7 +11315,7 @@ void HeroClass::doSwitchHook(byte style)
 		chainlinks.spr(j)->switch_hooked = true;
 	}
 	//}
-	rpos_t plrpos = COMBOPOS_REGION_CHECK_BOUNDS(x+8, y+8);
+	rpos_t plrpos = COMBOPOS_REGION_B(x+8, y+8);
 	if(hooked_comborpos != rpos_t::None && plrpos != rpos_t::None)
 	{
 		int32_t max_layer = get_qr(qr_HOOKSHOTALLLAYER) ? 6 : (get_qr(qr_HOOKSHOTLAYERFIX) ? 2 : 0);
@@ -22087,8 +22086,8 @@ void HeroClass::checkgenpush()
 			break;
 	}
 
-	rpos_t rpos_1 = COMBOPOS_REGION_CHECK_BOUNDS(bx, by);
-	rpos_t rpos_2 = COMBOPOS_REGION_CHECK_BOUNDS(bx2, by2);
+	rpos_t rpos_1 = COMBOPOS_REGION_B(bx, by);
+	rpos_t rpos_2 = COMBOPOS_REGION_B(bx2, by2);
 	checkgenpush(rpos_1);
 	if (rpos_1 != rpos_2) checkgenpush(rpos_2);
 
@@ -23273,7 +23272,7 @@ void HeroClass::handleSpotlights()
 			shieldid = -1;
 		bool refl = shieldid > -1 && (itemsbuf[shieldid].misc2 & sh_lightbeam);
 		bool block = !refl && shieldid > -1 && (itemsbuf[shieldid].misc1 & sh_lightbeam);
-		beam_hero_rpos = COMBOPOS_REGION_CHECK_BOUNDS(x.getInt()+8, y.getInt()+8);
+		beam_hero_rpos = COMBOPOS_REGION_B(x.getInt()+8, y.getInt()+8);
 
 		clear_bitmap(lightbeam_bmp);
 
@@ -23454,8 +23453,8 @@ void HeroClass::handleSpotlights()
 	for_every_ffc([&](const ffc_handle_t& ffc_handle) {
 		ffcdata& ffc = *ffc_handle.ffc;
 		rpos_t rpos = get_qr(qr_BROKEN_LIGHTBEAM_HITBOX)
-			? COMBOPOS_REGION_CHECK_BOUNDS(ffc.x+8, ffc.y+8)
-			: COMBOPOS_REGION_CHECK_BOUNDS(ffc.x+(ffc.hit_width/2), ffc.y+(ffc.hit_height/2));
+			? COMBOPOS_REGION_B(ffc.x+8, ffc.y+8)
+			: COMBOPOS_REGION_B(ffc.x+(ffc.hit_width/2), ffc.y+(ffc.hit_height/2));
 		if (rpos == rpos_t::None)
 			return;
 
@@ -23873,19 +23872,19 @@ static std::array<rpos_t, 4> getRposes(int32_t x1, int32_t y1, int32_t x2, int32
 	std::array<rpos_t, 4> rposes;
 	rpos_t tmp;
 
-	rposes[0] = COMBOPOS_REGION_CHECK_BOUNDS(x1,y1);
+	rposes[0] = COMBOPOS_REGION_B(x1,y1);
 	
-	tmp = COMBOPOS_REGION_CHECK_BOUNDS(x1,y2);
+	tmp = COMBOPOS_REGION_B(x1,y2);
 	if (tmp == rposes[0])
 		rposes[1] = rpos_t::None;
 	else rposes[1] = tmp;
 	
-	tmp = COMBOPOS_REGION_CHECK_BOUNDS(x2,y1);
+	tmp = COMBOPOS_REGION_B(x2,y1);
 	if (tmp == rposes[0] || tmp == rposes[1])
 		rposes[2] = rpos_t::None;
 	else rposes[2] = tmp;
 	
-	tmp = COMBOPOS_REGION_CHECK_BOUNDS(x2,y2);
+	tmp = COMBOPOS_REGION_B(x2,y2);
 	if (tmp == rposes[0] || tmp == rposes[1] || tmp == rposes[2])
 		rposes[3] = rpos_t::None;
 	else rposes[3] = tmp;

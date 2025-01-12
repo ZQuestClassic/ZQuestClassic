@@ -463,7 +463,7 @@ static bool triggerfire(int x, int y, weapon* w, bool setflag, bool any, bool st
 	if(divine)
 		ret = ret||trigger_secrets_if_flag(x,y,mfDIVINEFIRE,setflag);
 
-	std::set<rpos_t> rposes({COMBOPOS_REGION_CHECK_BOUNDS(x,y),COMBOPOS_REGION_CHECK_BOUNDS(x,y+15),COMBOPOS_REGION_CHECK_BOUNDS(x+15,y),COMBOPOS_REGION_CHECK_BOUNDS(x+15,y+15)});
+	std::set<rpos_t> rposes({COMBOPOS_REGION_B(x,y),COMBOPOS_REGION_B(x,y+15),COMBOPOS_REGION_B(x+15,y),COMBOPOS_REGION_B(x+15,y+15)});
 	for(int q = 0; q < 7; ++q)
 	{
 		for (rpos_t rpos : rposes)
@@ -3500,17 +3500,17 @@ std::set<rpos_t> weapon::getBombPositions()
 			int tx = x+(sbomb?sbombxoff:bombxoff)[q];
 			int ty = y-fakez+(sbomb?sbombyoff:bombyoff)[q];
 			
-			CHECKED_INSERT(COMBOPOS_REGION_CHECK_BOUNDS(tx,ty));
-			CHECKED_INSERT(COMBOPOS_REGION_CHECK_BOUNDS(tx+15,ty));
-			CHECKED_INSERT(COMBOPOS_REGION_CHECK_BOUNDS(tx,ty+15));
-			CHECKED_INSERT(COMBOPOS_REGION_CHECK_BOUNDS(tx+15,ty+15));
+			CHECKED_INSERT(COMBOPOS_REGION_B(tx,ty));
+			CHECKED_INSERT(COMBOPOS_REGION_B(tx+15,ty));
+			CHECKED_INSERT(COMBOPOS_REGION_B(tx,ty+15));
+			CHECKED_INSERT(COMBOPOS_REGION_B(tx+15,ty+15));
 		}
 	}
 	else //radius
 	{
 		int rad = itm.misc7;
 		int tx = x, ty = y-fakez;
-		CHECKED_INSERT(COMBOPOS_REGION_CHECK_BOUNDS(tx+8,ty+8)); //always hits at least 1 combo
+		CHECKED_INSERT(COMBOPOS_REGION_B(tx+8,ty+8)); //always hits at least 1 combo
 
 		int cx = tx / 16;
 		int cy = ty / 16;
@@ -8008,7 +8008,7 @@ void weapon::draw(BITMAP *dest)
 void putweapon(BITMAP *dest,int32_t x,int32_t y,int32_t weapon_id, int32_t type, int32_t dir, int32_t &aclk, int32_t &aframe, int32_t parentid)
 {
     weapon temp((zfix)x,(zfix)y,(zfix)0,weapon_id,type,0,dir,-1,parentid,true);
-    temp.ignorecombo=COMBOPOS_REGION(dir==left?x+8:x, dir==up?y+8:y); // Lens hints can sometimes create real weapons without this
+    temp.ignorecombo=COMBOPOS_REGION_B(dir==left?x+8:x, dir==up?y+8:y); // Lens hints can sometimes create real weapons without this
     temp.ignoreHero=true;
     temp.yofs=0;
     temp.clk2=aclk;
