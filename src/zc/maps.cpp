@@ -6089,14 +6089,7 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool origin_screen_
 	if (screen >= 0x80)
 		loadscr_old(1, orig_destdmap, home_screen, no_x80_dir ? -1 : ldir, origin_screen_overlay);
 
-	// TODO z3 ? needed still?
-	// Temp set cur_dmap so that get_scr_layer -> load_a_screen_and_layers will know if this is a region.
-	int o_cur_dmap = cur_dmap;
-	cur_dmap = destdmap;
-
 	update_slope_comboposes();
-	cur_dmap = o_cur_dmap;
-
 	cpos_force_update();
 	trig_trigger_groups();
 
