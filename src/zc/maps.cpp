@@ -1129,21 +1129,18 @@ static void apply_state_changes_to_screen(mapscr& scr, int32_t map, int32_t scre
 	{
 		reveal_hidden_stairs(&scr, screen, false);
 		bool do_layers = false;
-		trigger_secrets_for_screen_internal(-1, &scr, do_layers, false, -3, secrets_do_replay_comment);
+		bool from_active_screen = false;
+		trigger_secrets_for_screen_internal(-1, &scr, do_layers, from_active_screen, -3, secrets_do_replay_comment);
 	}
-	if(flags & mLIGHTBEAM)
+	if (flags & mLIGHTBEAM)
 	{
-		for (int pos = 0; pos < 176; pos++)
-		{
-			newcombo const* cmb = &combobuf[scr.data[pos]];
-			if(cmb->type == cLIGHTTARGET)
+		for_every_rpos_in_screen(&scr, [&](const rpos_handle_t& rpos_handle) {
+			if (rpos_handle.ctype() == cLIGHTTARGET)
 			{
-				if(!(cmb->usrflags&cflag1)) //Unlit version
-				{
-					scr.data[pos] += 1;
-				}
+				if (!(rpos_handle.combo().usrflags&cflag1)) //Unlit version
+					rpos_handle.increment_data();
 			}
-		}
+		});
 	}
 	if(flags&mLOCKBLOCK)              // if special stuff done before
 	{
@@ -1184,8 +1181,8 @@ std::optional<mapscr> load_temp_mapscr_and_apply_secrets(int32_t map, int32_t sc
 	if(m->valid==0) return std::nullopt;
 	
 	int mi = mapind(map, screen);
+
 	int32_t flags = 0;
-	
 	if(secrets)
 	{
 		flags = game->maps[mi];
@@ -2670,8 +2667,9 @@ void trigger_secrets_for_screen(TriggerSource source, int32_t screen, bool high1
 	log_trigger_secret_reason(source);
 	if (single < 0)
 		get_screen_state(screen).triggered_secrets = true;
-	bool do_combo_triggers = true;
-	trigger_secrets_for_screen_internal(screen, NULL, do_combo_triggers, high16only, single);
+	bool do_replay_comment = true;
+	bool from_active_screen = true;
+	trigger_secrets_for_screen_internal(screen, NULL, from_active_screen, high16only, single, do_replay_comment);
 }
 
 void trigger_secrets_for_screen(TriggerSource source, int32_t screen, mapscr *s, bool high16only, int32_t single)
@@ -2679,11 +2677,12 @@ void trigger_secrets_for_screen(TriggerSource source, int32_t screen, mapscr *s,
 	log_trigger_secret_reason(source);
 	if (single < 0)
 		get_screen_state(screen).triggered_secrets = true;
-	bool do_combo_triggers = true;
-	trigger_secrets_for_screen_internal(screen, s, do_combo_triggers, high16only, single);
+	bool do_replay_comment = true;
+	bool from_active_screen = true;
+	trigger_secrets_for_screen_internal(screen, s, from_active_screen, high16only, single, do_replay_comment);
 }
 
-void trigger_secrets_for_screen_internal(int32_t screen, mapscr *scr, bool do_combo_triggers, bool high16only, int32_t single, bool do_replay_comment)
+void trigger_secrets_for_screen_internal(int32_t screen, mapscr *scr, bool from_active_screen, bool high16only, int32_t single, bool do_replay_comment)
 {
 	DCHECK(screen != -1 || scr);
 	if (!scr)
@@ -2699,7 +2698,7 @@ void trigger_secrets_for_screen_internal(int32_t screen, mapscr *scr, bool do_co
 	if (replay_is_active() && do_replay_comment)
 		replay_step_comment(fmt::format("trigger secrets scr={}", screen));
 
-	if (do_combo_triggers)
+	if (from_active_screen)
 	{
 		for_every_combo_in_screen(scr, [&](const auto& handle) {
 			if (handle.combo().triggerflags[2] & combotriggerSECRETSTR)
@@ -2738,9 +2737,14 @@ void trigger_secrets_for_screen_internal(int32_t screen, mapscr *scr, bool do_co
 					// Use misc. secret flag instead if one is present
 					if(msflag!=0)
 						ft=msflag;
-					
-					auto rpos_handle = get_rpos_handle_for_scr(scr, 0, i);
-					screen_combo_modify_preroutine(rpos_handle);
+
+					rpos_handle_t rpos_handle;
+					if (from_active_screen)
+					{
+						rpos_handle = get_rpos_handle_for_scr(scr, 0, i);
+						screen_combo_modify_preroutine(rpos_handle);
+					}
+
 					if(ft==sSECNEXT)
 					{
 						scr->data[i]++;
@@ -2751,13 +2755,15 @@ void trigger_secrets_for_screen_internal(int32_t screen, mapscr *scr, bool do_co
 						scr->cset[i] = scr->secretcset[ft];
 					}
 					newflag = scr->secretflag[ft];
-					screen_combo_modify_postroutine(rpos_handle);
+
+					if (from_active_screen)
+						screen_combo_modify_postroutine(rpos_handle);
 				}
 			}
 			
 			if(newflag >-1) scr->sflag[i] = newflag; //Tiered secret
 			
-			if (do_combo_triggers)
+			if (from_active_screen)
 			{
 				for(int32_t j=1; j<=6; j++)  //Layers
 				{
@@ -2801,7 +2807,7 @@ void trigger_secrets_for_screen_internal(int32_t screen, mapscr *scr, bool do_co
 							int32_t c=layer_scr->data[i];
 							int32_t cs=layer_scr->cset[i];
 							
-							if (combobuf[c].type==cSPINTILE1)  //Surely this means we can have spin tiles on layers 3+? Isn't that bad? ~Joe123
+							if (from_active_screen && combobuf[c].type==cSPINTILE1)  //Surely this means we can have spin tiles on layers 3+? Isn't that bad? ~Joe123
 							{
 								auto [offx, offy] = translate_screen_coordinates_to_world(screen, COMBOX(i), COMBOY(i));
 								addenemy(screen,offx,offy,(cs<<12)+eSPINTILE1,combobuf[c].o_tile+zc_max(1,combobuf[c].frames));
@@ -2877,18 +2883,25 @@ void trigger_secrets_for_screen_internal(int32_t screen, mapscr *scr, bool do_co
 				
 				if((checkflag > 15)&&(checkflag < 32)) //If we've got a 16->32 flag change the combo
 				{
-					auto rpos_handle = get_rpos_handle_for_scr(scr, 0, i);
-					screen_combo_modify_preroutine(rpos_handle);
+					rpos_handle_t rpos_handle;
+					if (from_active_screen)
+					{
+						rpos_handle = get_rpos_handle_for_scr(scr, 0, i);
+						screen_combo_modify_preroutine(rpos_handle);
+					}
+
 					scr->data[i] = scr->secretcombo[checkflag-16+4];
 					scr->cset[i] = scr->secretcset[checkflag-16+4];
 					newflag = scr->secretflag[checkflag-16+4];
-					screen_combo_modify_postroutine(rpos_handle);
+
+					if (from_active_screen)
+						screen_combo_modify_postroutine(rpos_handle);
 				}
 			}
 			
 			if(newflag >-1) scr->sflag[i] = newflag;  //Tiered flag
 			
-			if (do_combo_triggers)
+			if (from_active_screen)
 			{
 				for(int32_t j=1; j<=6; j++)  //Layers
 				{
@@ -2926,7 +2939,10 @@ void trigger_secrets_for_screen_internal(int32_t screen, mapscr *scr, bool do_co
 			//No placed flags yet
 			if((checkflag > 15)&&(checkflag < 32)) //If we find a flag, change the combo
 			{
-				zc_ffc_set(scr->ffcs[i], scr->secretcombo[checkflag - 16 + 4]);
+				if (from_active_screen)
+					zc_ffc_set(scr->ffcs[i], scr->secretcombo[checkflag - 16 + 4]);
+				else
+					scr->ffcs[i].data = scr->secretcombo[checkflag - 16 + 4];
 				scr->ffcs[i].cset = scr->secretcset[checkflag-16+4];
 			}
 		}
@@ -2936,7 +2952,8 @@ endhe:
 
 	if (scr->flags4&fDISABLETIME) //Finish timed warp if 'Secrets Disable Timed Warp'
 	{
-		activated_timed_warp = true;
+		if (from_active_screen)
+			activated_timed_warp = true;
 		scr->timedwarptics = 0;
 	}
 }
@@ -6451,9 +6468,15 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 	}
 }
 
-// Screen is being viewed by the Overworld Map viewer.
-void loadscr2(int32_t tmp,int32_t screen,int32_t)
+// Load screen (and layers). Unlike loadscr, this doesn't load to global temporary_screens,
+// but instead just returns an array of mapscr.
+// Used to draw the map view / saving a map pic.
+std::array<mapscr, 7> loadscr2(int32_t screen)
 {
+	std::array<mapscr, 7> scrs;
+	mapscr* scr = &scrs[0];
+
+	// TODO z3 del?
 	auto oscr = home_screen;
 	home_screen = screen;
 
@@ -6464,27 +6487,21 @@ void loadscr2(int32_t tmp,int32_t screen,int32_t)
 			combobuf[animated_combo_table4[x][0]].aclk=0;
 		}
 	}
-	
-	mapscr& scr = tmp == 0 ? *tmpscr : *special_warp_return_scr;
-	scr = *get_canonical_scr(cur_map, screen);
-	
-	if(tmp==0)
+
+	const mapscr* source = get_canonical_scr(cur_map, screen);
+	if (!source->is_valid())
 	{
-		for(int32_t i=0; i<6; i++)
-		{
-			if(scr.layermap[i]>0)
-			{
-				tmpscr2[i]=TheMaps[(scr.layermap[i]-1)*MAPSCRS+scr.layerscreen[i]];
-				tmpscr2[i].screen = screen;
-				tmpscr2[i].map = cur_map;
-			}
-			else
-			{
-				(tmpscr2+i)->zero_memory();
-				tmpscr2[i].screen = screen;
-				tmpscr2[i].map = cur_map;
-			}
-		}
+		scrs[0].valid = 0;
+		return scrs;
+	}
+
+	*scr = *get_canonical_scr(cur_map, screen);
+	for (int i = 1; i <= 6; i++)
+	{
+		if (scr->layermap[i-1] > 0)
+			scrs[i] = *get_canonical_scr(scr->layermap[i-1] - 1, scr->layerscreen[i-1]);
+		else
+			scrs[i] = {};
 	}
 
 	int mi = mapind(cur_map, screen);
@@ -6493,14 +6510,16 @@ void loadscr2(int32_t tmp,int32_t screen,int32_t)
 	{
 		if(game->maps[mi]&mSECRET)			   // if special stuff done before
 		{
-			reveal_hidden_stairs(&scr, screen, false);
-			trigger_secrets_for_screen_internal(-1, tmp == 0 ? tmpscr2 : special_warp_return_scr, false, false, -1);
+			reveal_hidden_stairs(scr, screen, false);
+			bool from_active_screen = false;
+			bool do_replay_comment = true;
+			trigger_secrets_for_screen_internal(-1, scr, from_active_screen, false, -1, do_replay_comment);
 		}
 		if(game->maps[mi]&mLIGHTBEAM) // if special stuff done before
 		{
 			for (int layer = 0; layer <= 6; layer++)
 			{
-				mapscr* tscr = (tmp==0) ? get_scr_layer(screen, layer) : &special_warp_return_scr[layer];
+				mapscr* tscr = &scrs[layer];
 				for (int pos = 0; pos < 176; pos++)
 				{
 					newcombo const* cmb = &combobuf[tscr->data[pos]];
@@ -6518,58 +6537,50 @@ void loadscr2(int32_t tmp,int32_t screen,int32_t)
 	
 	if(game->maps[mi]&mLOCKBLOCK)			  // if special stuff done before
 	{
-		remove_lockblocks(&scr);
+		remove_lockblocks(scr);
 	}
 	
 	if(game->maps[mi]&mBOSSLOCKBLOCK)		  // if special stuff done before
 	{
-		remove_bosslockblocks(&scr);
+		remove_bosslockblocks(scr);
 	}
 	
 	if(game->maps[mi]&mCHEST)			  // if special stuff done before
 	{
-		remove_chests(&scr);
+		remove_chests(scr);
 	}
 	
 	if(game->maps[mi]&mLOCKEDCHEST)			  // if special stuff done before
 	{
-		remove_lockedchests(&scr);
+		remove_lockedchests(scr);
 	}
 	
 	if(game->maps[mi]&mBOSSCHEST)			  // if special stuff done before
 	{
-		remove_bosschests(&scr);
+		remove_bosschests(scr);
 	}
 	
-	clear_xdoors(&scr);
-	clear_xstatecombos(&scr, screen);
+	clear_xdoors(scr);
+	clear_xstatecombos(scr, screen);
 	
 	// check doors
 	if (isdungeon(screen))
 	{
 		for(int32_t i=0; i<4; i++)
 		{
-			int32_t door=scr.door[i];
+			int32_t door=scr->door[i];
 			bool putit=true;
 			
 			switch(door)
 			{
 			case d1WAYSHUTTER:
 			case dSHUTTER:
-				/*
-						if((ldir^1)==i)
-						{
-						  screen.door[i]=dOPENSHUTTER;
-						  //		  putit=false;
-						}
-				*/
 				break;
 				
 			case dLOCKED:
 				if(game->maps[mi]&(1<<i))
 				{
-					scr.door[i]=dUNLOCKED;
-					//		  putit=false;
+					scr->door[i]=dUNLOCKED;
 				}
 				
 				break;
@@ -6577,8 +6588,7 @@ void loadscr2(int32_t tmp,int32_t screen,int32_t)
 			case dBOSS:
 				if(game->maps[mi]&(1<<i))
 				{
-					scr.door[i]=dOPENBOSS;
-					//		  putit=false;
+					scr->door[i]=dOPENBOSS;
 				}
 				
 				break;
@@ -6586,7 +6596,7 @@ void loadscr2(int32_t tmp,int32_t screen,int32_t)
 			case dBOMB:
 				if(game->maps[mi]&(1<<i))
 				{
-					scr.door[i]=dBOMBED;
+					scr->door[i]=dBOMBED;
 				}
 				
 				break;
@@ -6594,30 +6604,29 @@ void loadscr2(int32_t tmp,int32_t screen,int32_t)
 			
 			if(putit)
 			{
-				putdoor(&scr, scrollbuf, i, scr.door[i], false);
+				putdoor(scr, scrollbuf, i, scr->door[i], false);
 			}
 			
 			if(door==dSHUTTER||door==d1WAYSHUTTER)
 			{
-				scr.door[i]=door;
+				scr->door[i]=door;
 			}
 		}
 	}
 	
 	for(int32_t j=-1; j<6; ++j)  // j == -1 denotes the current screen
 	{
-		if (j < 0 || scr.layermap[j] > 0)
+		if (j < 0 || scr->layermap[j] > 0)
 		{
-			mapscr *layerscreen= (j<0 ? &scr
-								  : &(TheMaps[(scr.layermap[j]-1)*MAPSCRS+scr.layerscreen[j]]));
+			mapscr *layerscreen= (j<0 ? scr
+								  : &(TheMaps[(scr->layermap[j]-1)*MAPSCRS+scr->layerscreen[j]]));
 								  
 			for(int32_t i=0; i<176; ++i)
 			{
 				int32_t c=layerscreen->data[i];
-				int32_t cs=layerscreen->cset[i];
 				
 				// New screen flag: Cycle Combos At Screen Init
-				if((scr.flags3 & fCYCLEONINIT) && (j<0 || get_qr(qr_CMBCYCLELAYERS)))
+				if((scr->flags3 & fCYCLEONINIT) && (j<0 || get_qr(qr_CMBCYCLELAYERS)))
 				{
 					int32_t r = 0;
 					
@@ -6630,7 +6639,6 @@ void loadscr2(int32_t tmp,int32_t screen,int32_t)
 						if(!(combobuf[c].animflags & AF_CYCLENOCSET))
 							layerscreen->cset[i] = cycle_under ? layerscreen->undercset : cmb.nextcset;
 						c = layerscreen->data[i];
-						cs = layerscreen->cset[i];
 					}
 				}
 			}
@@ -6638,6 +6646,8 @@ void loadscr2(int32_t tmp,int32_t screen,int32_t)
 	}
 
 	home_screen = oscr;
+
+	return scrs;
 }
 
 void putscr(mapscr* scr, BITMAP* dest, int32_t x, int32_t y)
@@ -7534,30 +7544,6 @@ bool displayOnMap(int32_t x, int32_t y)
 
 void ViewMap()
 {
-	// This function relies on old code (`loadscr2`) taking over the
-	// tmpscr/tmpscr2/special_warp_return_scr variables to draw the map.
-	// The original values are restored at the end.
-
-	mapscr tmpscr_a[2];
-	mapscr tmpscr_b[6];
-	mapscr tmp_special_warp_return_scr{};
-
-	mapscr* tmpscr_prev = tmpscr;
-	mapscr* hero_scr_prev = hero_scr;
-	// int cur_screen_prev = cur_screen;
-
-	tmpscr = &tmpscr_a[0];
-	origin_scr = tmpscr;
-	hero_scr = tmpscr;
-
-	special_warp_return_scr = &tmp_special_warp_return_scr;
-	
-	for(int32_t i=0; i<6; ++i)
-	{
-		tmpscr_b[i] = tmpscr2[i];
-		tmpscr2[i].zero_memory();
-	}
-	
 	BITMAP* mappic = NULL;
 	static double scales[17] =
 	{
@@ -7596,74 +7582,53 @@ void ViewMap()
 			clear_to_color(screen_bmp, WHITE);
 			if(displayOnMap(x, y))
 			{
-				int32_t s = (y<<4) + x;
-				tmpscr->zero_memory();
-				special_warp_return_scr->zero_memory();
-				// TODO z3 !! is this running stuff it shouldnt? see trigger_secrets_for_screen_internal
-				loadscr2(1,s,-1);
-				*tmpscr = *special_warp_return_scr;
-				if(tmpscr->valid&mVALID)
-				{
-					for(int32_t i=0; i<6; i++)
-					{
-						tmpscr2[i].zero_memory();
-						if(tmpscr->layermap[i]<=0)
-							continue;
-						
-						tmpscr2[i]=TheMaps[(tmpscr->layermap[i]-1)*MAPSCRS+tmpscr->layerscreen[i]];
-					}
+				int screen = map_scr_xy_to_index(x, y);
+				auto scrs = loadscr2(screen);
+				mapscr* scr = &scrs[0];
+				if (!scr->is_valid())
+					continue;
 
-					int xx = 0;
-					int yy = -playing_field_offset;
-					
-					if(XOR(tmpscr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG)) do_layer_old2(screen_bmp, 0, 2, tmpscr, &tmpscr2[2-1], xx, yy);
-					
-					if(XOR(tmpscr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG)) do_layer_old2(screen_bmp, 0, 3, tmpscr, &tmpscr2[3-1], xx, yy);
-					
-					if(lenscheck(tmpscr,0)) putscr(tmpscr, screen_bmp, 0, 0);
-					do_layer_old2(screen_bmp, 0, 1, tmpscr, &tmpscr2[1-1], xx, yy);
-					
-					if(!XOR((tmpscr->flags7&fLAYER2BG), DMaps[cur_dmap].flags&dmfLAYER2BG)) do_layer_old2(screen_bmp, 0, 2, tmpscr, &tmpscr2[2-1], xx, yy);
-					
-					putscrdoors(tmpscr, screen_bmp, 0, 0);
-					if (get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
+				int xx = 0;
+				int yy = -playing_field_offset;
+				
+				if(XOR(scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG)) do_layer_old2(screen_bmp, 0, 2, scr, &scrs[2], xx, yy);
+				
+				if(XOR(scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG)) do_layer_old2(screen_bmp, 0, 3, scr, &scrs[3], xx, yy);
+				
+				if(lenscheck(scr,0)) putscr(scr, screen_bmp, 0, 0);
+				do_layer_old2(screen_bmp, 0, 1, scr, &scrs[1], xx, yy);
+				
+				if(!XOR((scr->flags7&fLAYER2BG), DMaps[cur_dmap].flags&dmfLAYER2BG)) do_layer_old2(screen_bmp, 0, 2, scr, &scrs[2], xx, yy);
+				
+				putscrdoors(scr, screen_bmp, 0, 0);
+				if (get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
+				{
+					do_layer_old2(screen_bmp,-2, 0, scr, scr, xx, yy);
+					if(get_qr(qr_PUSHBLOCK_LAYER_1_2))
 					{
-						do_layer_old2(screen_bmp,-2, 0, tmpscr, tmpscr, xx, yy);
-						if(get_qr(qr_PUSHBLOCK_LAYER_1_2))
-						{
-							do_layer_old2(screen_bmp,-2, 1, tmpscr, &tmpscr2[1-1], xx, yy);
-							do_layer_old2(screen_bmp,-2, 2, tmpscr, &tmpscr2[2-1], xx, yy);
-						}
+						do_layer_old2(screen_bmp,-2, 1, scr, &scrs[1], xx, yy);
+						do_layer_old2(screen_bmp,-2, 2, scr, &scrs[2], xx, yy);
 					}
-					do_layer_old2(screen_bmp,-3, 0, tmpscr, tmpscr, xx, yy, 2); // Freeform com!
-					
-					if(!XOR((tmpscr->flags7&fLAYER3BG), DMaps[cur_dmap].flags&dmfLAYER3BG)) do_layer_old2(screen_bmp, 0, 3, tmpscr, &tmpscr2[3-1], xx, yy);
-					
-					do_layer_old2(screen_bmp, 0, 4, tmpscr, &tmpscr2[4-1], xx, yy);
-					do_layer_old2(screen_bmp,-1, 0, tmpscr, tmpscr, xx, yy);
-					if(get_qr(qr_OVERHEAD_COMBOS_L1_L2))
-					{
-						do_layer_old2(screen_bmp,-1, 1, tmpscr, &tmpscr2[1-1], xx, yy);
-						do_layer_old2(screen_bmp,-1, 2, tmpscr, &tmpscr2[2-1], xx, yy);
-					}
-					do_layer_old2(screen_bmp, 0, 5, tmpscr, &tmpscr2[5-1], xx, yy);
-					do_layer_old2(screen_bmp, 0, 6, tmpscr, &tmpscr2[6-1], xx, yy);
 				}
+				do_layer_old2(screen_bmp,-3, 0, scr, scr, xx, yy, 2); // Freeform com!
+				
+				if(!XOR((scr->flags7&fLAYER3BG), DMaps[cur_dmap].flags&dmfLAYER3BG)) do_layer_old2(screen_bmp, 0, 3, scr, &scrs[3], xx, yy);
+				
+				do_layer_old2(screen_bmp, 0, 4, scr, &scrs[4], xx, yy);
+				do_layer_old2(screen_bmp,-1, 0, scr, scr, xx, yy);
+				if(get_qr(qr_OVERHEAD_COMBOS_L1_L2))
+				{
+					do_layer_old2(screen_bmp,-1, 1, scr, &scrs[1], xx, yy);
+					do_layer_old2(screen_bmp,-1, 2, scr, &scrs[2], xx, yy);
+				}
+				do_layer_old2(screen_bmp, 0, 5, scr, &scrs[5], xx, yy);
+				do_layer_old2(screen_bmp, 0, 6, scr, &scrs[6], xx, yy);
 			}
 			
 			stretch_blit(screen_bmp, mappic, 0, 0, 256, 176, x<<(8-mapres), (y*176)>>mapres, 256>>mapres, 176>>mapres);
 		}
 	}
-	
-	tmpscr = tmpscr_prev;
-	origin_scr = tmpscr_prev;
-	hero_scr = hero_scr_prev;
-	special_warp_return_scr = &special_warp_return_scrs[0];
-	for(int32_t i=0; i<6; ++i)
-	{
-		tmpscr2[i]=tmpscr_b[i];
-	}
-	
+
 	destroy_bitmap(screen_bmp);
 	clear_keybuf();
 	pause_all_sfx();

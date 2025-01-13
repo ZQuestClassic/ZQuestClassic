@@ -110,8 +110,7 @@ ZC_FORCE_INLINE int32_t RPOS_TO_POS(rpos_t rpos)
 }
 ZC_FORCE_INLINE rpos_t POS_TO_RPOS(int32_t pos, int32_t scr_dx, int32_t scr_dy)
 {
-	// TODO z3 ! the_deep_1_of_6.zplay loadscr2
-	// DCHECK(scr_dx >= 0 && scr_dy >= 0);
+	DCHECK(scr_dx >= 0 && scr_dy >= 0 && scr_dx < cur_region.width && scr_dy < cur_region.height);
 	DCHECK_RANGE_EXCLUSIVE(pos, 0, 176);
 	return static_cast<rpos_t>((scr_dx + scr_dy * cur_region.screen_width)*176 + pos);
 }
@@ -365,7 +364,7 @@ enum class TriggerSource {
 };
 void trigger_secrets_for_screen(TriggerSource source, int32_t screen, bool high16only=false, int32_t single=-1);
 void trigger_secrets_for_screen(TriggerSource source, int32_t screen, mapscr *s, bool high16only=false, int32_t single=-1);
-void trigger_secrets_for_screen_internal(int32_t screen, mapscr *scr, bool do_combo_triggers, bool high16only, int32_t single, bool do_replay_comment=true);
+void trigger_secrets_for_screen_internal(int32_t screen, mapscr *scr, bool from_active_screen, bool high16only, int32_t single, bool do_replay_comment);
 
 void update_freeform_combos();
 void update_slopes();
@@ -398,7 +397,7 @@ void showbombeddoor(mapscr* scr, BITMAP *dest, int32_t side, int32_t offx, int32
 void openshutters(mapscr* scr);
 void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool origin_screen_overlay=false, bool no_x80_dir=false);
 void clear_darkroom_bitmaps();
-void loadscr2(int32_t tmp,int32_t screen,int32_t);
+std::array<mapscr, 7> loadscr2(int32_t screen);
 void loadscr_old(int32_t tmp,int32_t destdmap,int32_t screen,int32_t ldir,bool overlay);
 void putscr(mapscr* scr, BITMAP* dest, int32_t x, int32_t y);
 void putscrdoors(mapscr* scr, BITMAP *dest, int32_t x, int32_t y);

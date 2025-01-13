@@ -3849,21 +3849,9 @@ int32_t onSaveMapPic()
 {
 	char buf[200];
 	int32_t num=0;
-    mapscr tmpscr_a{};
-	mapscr tmpscr_c[6];
-	mapscr tmp_special_warp_return_scr{};
 	BITMAP* _screen_draw_buffer = NULL;
 	_screen_draw_buffer = create_bitmap_ex(8,256,224);
 	set_clip_state(_screen_draw_buffer,1);
-	
-	for(int32_t i=0; i<6; ++i)
-	{
-		tmpscr_c[i] = tmpscr2[i];
-		tmpscr2[i].zero_memory();
-	}
-    tmpscr_a = *tmpscr;
-    tmpscr->zero_memory();
-	special_warp_return_scr = &tmp_special_warp_return_scr;
 	
 	do
 	{
@@ -3899,18 +3887,13 @@ int32_t onSaveMapPic()
 			}
 			else
 			{
-				int32_t s = (y<<4) + x;
-				loadscr2(1,s,-1);
-                mapscr* scr = special_warp_return_scr;
-				
-				for(int32_t i=0; i<6; i++)
-				{
-					if(scr->layermap[i]<=0)
-						continue;
-					
-					tmpscr2[i]=TheMaps[(scr->layermap[i]-1)*MAPSCRS+scr->layerscreen[i]];
-				}
-				
+				int screen = map_scr_xy_to_index(x, y);
+				auto scrs = loadscr2(screen);
+				mapscr* scr = &scrs[0];
+				if (!scr->is_valid())
+					continue;
+
+				// TODO z3 !! using wrong screens ....
 				if(XOR(scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG)) do_layer_old(_screen_draw_buffer, 0, 2, scr, 256, -playing_field_offset, 2);
 				
 				if(XOR(scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG)) do_layer_old(_screen_draw_buffer, 0, 3, scr, 256, -playing_field_offset, 2);
@@ -3949,13 +3932,6 @@ int32_t onSaveMapPic()
 			stretch_blit(_screen_draw_buffer, mappic, 256, 0, 256, 176, x<<(8-mapres), (y*176)>>mapres, 256>>mapres, 176>>mapres);
 		}
 	}
-	
-	for(int32_t i=0; i<6; ++i)
-	{
-		tmpscr2[i]=tmpscr_c[i];		
-	}
-    *tmpscr = tmpscr_a;
-    special_warp_return_scr = &special_warp_return_scrs[0];
 
 	save_bitmap(buf,mappic,RAMpal);
 	destroy_bitmap(mappic);
