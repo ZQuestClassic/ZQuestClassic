@@ -2705,15 +2705,8 @@ void trigger_secrets_for_screen(TriggerSource source, int32_t screen, mapscr *s,
 
 void trigger_secrets_for_screen_internal(int32_t screen, mapscr *scr, bool from_active_screen, bool high16only, int32_t single, bool do_replay_comment)
 {
-	DCHECK(screen != -1 || scr);
 	if (!scr)
-	{
 		scr = get_scr(screen);
-		screen = scr->screen;
-		// TODO z3 ...
-	}
-	else if (screen == -1) screen = cur_screen;
-
 	trigger_secrets_for_screen_internal(create_screen_handles(scr), from_active_screen, high16only, single, do_replay_comment);
 }
 
@@ -5814,17 +5807,6 @@ static void load_a_screen_and_layers_init(int dmap, int screen, int ldir, bool s
 		base_scr->ffcs[i].x += offx;
 		base_scr->ffcs[i].y += offy;
 	}
-
-	// TODO z3 ! rm
-	// if (screen == cur_screen)
-	// {
-	// 	for(word i = num_ffcs; i < MAXFFCS; i++)
-	// 	{
-	// 		ffc_id_t ffc_id = get_region_screen_offset(screen)*MAXFFCS + i;
-	// 		FFCore.deallocateAllScriptOwned(ScriptType::FFC, ffc_id, false);
-	// 		FFCore.reset_script_engine_data(ScriptType::FFC, ffc_id);
-	// 	}
-	// }
 }
 
 static void load_a_screen_and_layers_post(int dmap, int screen, int ldir)
@@ -6190,7 +6172,6 @@ void loadscr_old(int32_t destdmap, int32_t screen,int32_t ldir,bool overlay)
 	const mapscr* source = get_canonical_scr(cur_map, screen);
 	*scr = *source;
 
-	// TODO z3 ???
 	for (int i = 1; i <= 6; i++)
 	{
 		if (scr->layermap[i-1] > 0)
@@ -6199,19 +6180,6 @@ void loadscr_old(int32_t destdmap, int32_t screen,int32_t ldir,bool overlay)
 			special_warp_return_scrs[i] = {};
 	}
 
-	// TODO z3 ! what was this doing?
-	// if (!tmp)
-	// {
-	// 	int c = scr->numFFC();
-	// 	for (uint8_t i = 0; i < c; ++i)
-	// 	{
-	// 		scr->ffcs[i].setLoaded(true);
-	// 		scr->ffcs[i].solid_update(false);
-	// 		scr->ffcs[i].registerUID();
-	// 		screen_ffc_modify_postroutine({scr, (uint8_t)screen, i, i, &scr->ffcs[i]});
-	// 	}
-	// }
-	
 	scr->valid |= mVALID; //layer 0 is always valid
 
 	if ( source->script > 0 )
