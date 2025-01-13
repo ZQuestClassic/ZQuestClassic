@@ -3850,8 +3850,7 @@ int32_t onSaveMapPic()
 	char buf[200];
 	int32_t num=0;
 	BITMAP* _screen_draw_buffer = NULL;
-	_screen_draw_buffer = create_bitmap_ex(8,256,224);
-	set_clip_state(_screen_draw_buffer,1);
+	_screen_draw_buffer = create_bitmap_ex(8,256,176);
 	
 	do
 	{
@@ -3859,9 +3858,7 @@ int32_t onSaveMapPic()
 	}
 	while(num<99999 && exists(buf));
 	
-	BITMAP* mappic = NULL;
-	
-	mappic = create_bitmap_ex(8,(256*16)>>mapres,(176*8)>>mapres);
+	BITMAP* mappic = create_bitmap_ex(8,(256*16),(176*8));
 	
 	if(!mappic)
 	{
@@ -3876,7 +3873,6 @@ int32_t onSaveMapPic()
 	viewport.y = 0;
 	
 	// draw the map
-	set_clip_rect(_screen_draw_buffer, 0, 0, _screen_draw_buffer->w, _screen_draw_buffer->h);
 	
 	for(int32_t y=0; y<8; y++)
 	{
@@ -3884,7 +3880,7 @@ int32_t onSaveMapPic()
 		{
 			if(!displayOnMap(x, y))
 			{
-				rectfill(_screen_draw_buffer, 0, 0, 255, 223, WHITE);
+				clear_to_color(_screen_draw_buffer, WHITE);
 			}
 			else
 			{
@@ -3898,7 +3894,7 @@ int32_t onSaveMapPic()
 				int yy = -playing_field_offset;
 
 				if(XOR(scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG)) do_layer_old2(_screen_draw_buffer, 0, 2, scr, &scrs[2], xx, yy, 2);
-				
+
 				if(XOR(scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG)) do_layer_old2(_screen_draw_buffer, 0, 3, scr, &scrs[3], xx, yy, 2);
 				
 				if(lenscheck(scr,0)) putscr(scr, _screen_draw_buffer, xx, yy);
@@ -3930,8 +3926,8 @@ int32_t onSaveMapPic()
 				do_layer_old2(_screen_draw_buffer, 0, 5, scr, &scrs[5], xx, yy, 2);
 				do_layer_old2(_screen_draw_buffer, 0, 6, scr, &scrs[6], xx, yy, 2);
 			}
-			
-			stretch_blit(_screen_draw_buffer, mappic, 256, 0, 256, 176, x<<(8-mapres), (y*176)>>mapres, 256>>mapres, 176>>mapres);
+
+			blit(_screen_draw_buffer, mappic, 0, 0, x*256, y*176, 256, 176);
 		}
 	}
 
