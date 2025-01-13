@@ -6259,7 +6259,7 @@ void loadscr_old(int32_t destdmap, int32_t screen,int32_t ldir,bool overlay)
 	screen_handles_t screen_handles;
 	screen_handles[0] = {scr, scr, screen, 0};
 	for (int i = 1; i <= 6; i++)
-		screen_handles[i] = {scr, tmpscr2[i].is_valid() ? &tmpscr2[i] : nullptr, screen, i};
+		screen_handles[i] = {scr, tmpscr2[i-1].is_valid() ? &tmpscr2[i-1] : nullptr, screen, i};
 
 	if(game->maps[mi]&mLOCKBLOCK)			  // if special stuff done before
 	{
