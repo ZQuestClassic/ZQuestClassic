@@ -3605,7 +3605,7 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen
 	switch(type ? type : layer)
 	{
 		case -2:                                                //push blocks
-			if(scr && scr->valid)
+			if (scr)
 			{
 				for(int32_t i=0; i<176; i++)
 				{
@@ -3622,7 +3622,7 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen
 			return;
 			
 		case -1:                                                //over combo
-			if(scr && scr->valid)
+			if (scr)
 			{
 				for(int32_t i=0; i<176; i++)
 				{
@@ -3641,7 +3641,7 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen
 		case 6:
 			if(TransLayers || base_scr->layeropacity[layer-1]==255)
 			{
-				if(scr && scr->valid)
+				if (scr)
 				{
 					if(base_scr->layeropacity[layer-1]!=255)
 						transp = true;
@@ -3653,7 +3653,7 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen
 		case 2:
 			if(TransLayers || base_scr->layeropacity[layer-1]==255)
 			{
-				if(scr && scr->valid)
+				if (scr)
 				{
 					if(base_scr->layeropacity[layer-1]!=255)
 						transp = true;
@@ -3669,7 +3669,7 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen
 		case 3:
 			if(TransLayers || base_scr->layeropacity[layer-1]==255)
 			{
-				if(scr && scr->valid)
+				if (scr)
 				{
 					if(base_scr->layeropacity[layer-1]!=255)
 						transp = true;
@@ -3736,7 +3736,6 @@ void do_layer_old2(BITMAP *bmp, int32_t type, int32_t layer, mapscr* basescr, ma
 
 void do_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen_handle, int32_t x, int32_t y, bool drawprimitives)
 {
-	// TODO z3 ! check if scr is valid ... early return
     bool showlayer = true;
 	mapscr* base_scr = screen_handle.base_scr;
 	int layer = screen_handle.layer;

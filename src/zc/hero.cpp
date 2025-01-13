@@ -28408,7 +28408,7 @@ static nearby_scrolling_screens_t get_nearby_scrolling_screens(const std::vector
 			mapscr* scr = use_new_screens ?
 				get_scr_layer(map, screen, i) :
 				old_temporary_screens[screen*7 + i];
-			nearby_screen.screen_handles[i] = {base_scr, scr, screen, i};
+			nearby_screen.screen_handles[i] = {base_scr, scr->is_valid() ? scr : nullptr, screen, i};
 		}
 	}
 
