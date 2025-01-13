@@ -2301,6 +2301,7 @@ std::array<screen_handle_t, 7> create_screen_handles_one(mapscr* base_scr)
 
 std::array<screen_handle_t, 7> create_screen_handles(mapscr* base_scr)
 {
+	DCHECK(get_scr(base_scr->screen) == base_scr);
 	std::array<screen_handle_t, 7> screen_handles{};
 	screen_handles[0] = {base_scr, base_scr, base_scr->screen, 0};
 	for (int i = 1; i <= 6; i++)
@@ -2683,31 +2684,19 @@ static void log_trigger_secret_reason(TriggerSource source)
 // single:
 // >-1 : the singular triggering combo
 // -1: triggered by some other cause
+void trigger_secrets_for_screen(TriggerSource source, mapscr* scr, bool high16only, int32_t single)
+{
+	log_trigger_secret_reason(source);
+	if (single < 0)
+		get_screen_state(scr->screen).triggered_secrets = true;
+	bool do_replay_comment = true;
+	bool from_active_screen = true;
+	trigger_secrets_for_screen_internal(create_screen_handles(scr), from_active_screen, high16only, single, do_replay_comment);
+}
+
 void trigger_secrets_for_screen(TriggerSource source, int32_t screen, bool high16only, int32_t single)
 {
-	log_trigger_secret_reason(source);
-	if (single < 0)
-		get_screen_state(screen).triggered_secrets = true;
-	bool do_replay_comment = true;
-	bool from_active_screen = true;
-	trigger_secrets_for_screen_internal(screen, NULL, from_active_screen, high16only, single, do_replay_comment);
-}
-
-void trigger_secrets_for_screen(TriggerSource source, int32_t screen, mapscr *s, bool high16only, int32_t single)
-{
-	log_trigger_secret_reason(source);
-	if (single < 0)
-		get_screen_state(screen).triggered_secrets = true;
-	bool do_replay_comment = true;
-	bool from_active_screen = true;
-	trigger_secrets_for_screen_internal(screen, s, from_active_screen, high16only, single, do_replay_comment);
-}
-
-void trigger_secrets_for_screen_internal(int32_t screen, mapscr *scr, bool from_active_screen, bool high16only, int32_t single, bool do_replay_comment)
-{
-	if (!scr)
-		scr = get_scr(screen);
-	trigger_secrets_for_screen_internal(create_screen_handles(scr), from_active_screen, high16only, single, do_replay_comment);
+	trigger_secrets_for_screen(source, get_scr(screen), high16only, single);
 }
 
 void trigger_secrets_for_screen_internal(const std::array<screen_handle_t, 7>& screen_handles, bool from_active_screen, bool high16only, int32_t single, bool do_replay_comment)
@@ -3097,7 +3086,7 @@ bool trigger_secrets_if_flag(int32_t x, int32_t y, int32_t flag, bool setflag)
 	else
 	{
 		checktrigger = true;
-		trigger_secrets_for_screen(TriggerSource::Singular, screen, single16, RPOS_TO_POS(trigger_rpos));
+		trigger_secrets_for_screen(TriggerSource::Singular, scr, single16, RPOS_TO_POS(trigger_rpos));
 	}
 	
 	sfx(scr->secretsfx);
@@ -3116,7 +3105,7 @@ bool trigger_secrets_if_flag(int32_t x, int32_t y, int32_t flag, bool setflag)
 		// which case only the screen state for mSECRET may be set below.
 		if (!flags_remaining && !get_qr(qr_ALLTRIG_PERMSEC_NO_TEMP))
 		{
-			trigger_secrets_for_screen(TriggerSource::Unspecified, screen, scr->flags6&fTRIGGERF1631, -1);
+			trigger_secrets_for_screen(TriggerSource::Unspecified, scr, scr->flags6&fTRIGGERF1631, -1);
 		}
 	}
 	
@@ -5820,7 +5809,7 @@ static void load_a_screen_and_layers_post(int dmap, int screen, int ldir)
 		if(game->maps[mi] & mSECRET)    // if special stuff done before
 		{
 			reveal_hidden_stairs(base_scr, screen, false);
-			trigger_secrets_for_screen(TriggerSource::SecretsScreenState, screen, base_scr, false);
+			trigger_secrets_for_screen(TriggerSource::SecretsScreenState, base_scr, false);
 		}
 		if(game->maps[mi] & mLIGHTBEAM) // if special stuff done before
 		{
@@ -6245,7 +6234,7 @@ void loadscr_old(int32_t destdmap, int32_t screen,int32_t ldir,bool overlay)
 		if(game->maps[mi]&mSECRET)			   // if special stuff done before
 		{
 			reveal_hidden_stairs(scr, screen, false);
-			trigger_secrets_for_screen(TriggerSource::SecretsScreenState, cur_screen, special_warp_return_scr, false, -1);
+			trigger_secrets_for_screen(TriggerSource::SecretsScreenState, special_warp_return_scr, false, -1);
 		}
 		if(game->maps[mi]&mLIGHTBEAM) // if special stuff done before
 		{

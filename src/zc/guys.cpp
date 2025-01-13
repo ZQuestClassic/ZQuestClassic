@@ -20432,7 +20432,7 @@ bool parsemsgcode()
 		case MSGC_TRIGSECRETS:
 		{
 			bool perm = (bool)grab_next_argument();
-			trigger_secrets_for_screen(TriggerSource::SCC, msgscr->screen, false);
+			trigger_secrets_for_screen(TriggerSource::SCC, msgscr, false);
 			if(perm)
 				setmapflag(msgscr, mSECRET);
 			return true;

@@ -365,9 +365,8 @@ enum class TriggerSource {
 	CheatTemp,
 	CheatPerm,
 };
+void trigger_secrets_for_screen(TriggerSource source, mapscr* scr, bool high16only=false, int32_t single=-1);
 void trigger_secrets_for_screen(TriggerSource source, int32_t screen, bool high16only=false, int32_t single=-1);
-void trigger_secrets_for_screen(TriggerSource source, int32_t screen, mapscr *s, bool high16only=false, int32_t single=-1);
-void trigger_secrets_for_screen_internal(int32_t screen, mapscr *scr, bool from_active_screen, bool high16only, int32_t single, bool do_replay_comment);
 void trigger_secrets_for_screen_internal(const std::array<screen_handle_t, 7>& screen_handles, bool from_active_screen, bool high16only, int32_t single, bool do_replay_comment);
 
 void update_freeform_combos();

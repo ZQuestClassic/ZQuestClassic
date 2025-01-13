@@ -2558,7 +2558,7 @@ void handle_trigger_results(mapscr* scr, newcombo const& cmb, int32_t cx, int32_
 		if(!(special & ctrigSECRETS) && !triggering_generic_secrets)
 		{
 			triggering_generic_secrets = true;
-			trigger_secrets_for_screen(TriggerSource::GenericCombo, screen, false);
+			trigger_secrets_for_screen(TriggerSource::GenericCombo, scr, false);
 			triggering_generic_secrets = false;
 			if(scr->secretsfx)
 				sfx(scr->secretsfx);

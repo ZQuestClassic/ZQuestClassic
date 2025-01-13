@@ -3855,7 +3855,7 @@ bool weapon::animate(int32_t index)
 						if(pickup&ipSECRETS)								// Trigger secrets if this item has the secret pickup
 						{
 							if(scr->flags9&fITEMSECRETPERM) setmapflag(scr, mSECRET);
-							trigger_secrets_for_screen(TriggerSource::ItemsSecret, screen, false);
+							trigger_secrets_for_screen(TriggerSource::ItemsSecret, scr, false);
 						}
 						//!DIMI
 						

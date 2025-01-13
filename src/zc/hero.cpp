@@ -3620,7 +3620,7 @@ bool HeroClass::checkstab()
 						if(pickup&ipSECRETS)								// Trigger secrets if this item has the secret pickup
 						{
 							if (scr->flags9&fITEMSECRETPERM) setmapflag(scr, mSECRET);
-							trigger_secrets_for_screen(TriggerSource::ItemsSecret, screen, false);
+							trigger_secrets_for_screen(TriggerSource::ItemsSecret, scr, false);
 						}
 						//!DIMI
 						
@@ -23783,7 +23783,7 @@ void HeroClass::checkspecial()
 				if (!state.did_enemy_secret && (scr->flags2&fCLEARSECRET))
 				{
 					bool only16_31 = get_qr(qr_ENEMIES_SECRET_ONLY_16_31)?true:false;
-					trigger_secrets_for_screen(TriggerSource::EnemiesScreenFlag, screen, only16_31);
+					trigger_secrets_for_screen(TriggerSource::EnemiesScreenFlag, scr, only16_31);
 					
 					if (scr->flags4&fENEMYSCRTPERM && canPermSecret(cur_dmap, screen))
 					{
@@ -24015,7 +24015,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 							setmapflag(rpos_handle.scr, mSECRET);
 						}
 						sfx(warpsound,pan((int32_t)x));
-						trigger_secrets_for_screen(TriggerSource::Unspecified, rpos_handle.screen, false);
+						trigger_secrets_for_screen(TriggerSource::Unspecified, rpos_handle.base_scr(), false);
 						didstrig = true;
 					}
 				}
@@ -24026,7 +24026,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 						stepsecret = rpos;
 
 						bool high16only = get_qr(qr_STEPTEMP_SECRET_ONLY_16_31)?true:false;
-						trigger_secrets_for_screen(TriggerSource::Unspecified, rpos_handle.screen, high16only);
+						trigger_secrets_for_screen(TriggerSource::Unspecified, rpos_handle.base_scr(), high16only);
 						didstrig = true;
 						sfx(warpsound,pan((int32_t)x));
 					}
@@ -24777,12 +24777,12 @@ void HeroClass::checkspecial2(int32_t *ls)
 			{ 
 				if(!(rpos_handle.scr->flags5&fTEMPSECRETS)) setmapflag(rpos_handle.scr, mSECRET);
 				
-				trigger_secrets_for_screen(TriggerSource::Unspecified, rpos_handle.screen, false);
+				trigger_secrets_for_screen(TriggerSource::Unspecified, rpos_handle.base_scr(), false);
 			}
 			else 
 			{
 				bool only16_31 = get_qr(qr_STEPTEMP_SECRET_ONLY_16_31)?true:false;
-				trigger_secrets_for_screen(TriggerSource::Unspecified, rpos_handle.screen, only16_31);
+				trigger_secrets_for_screen(TriggerSource::Unspecified, rpos_handle.base_scr(), only16_31);
 			}
 		}
 	}
@@ -31214,7 +31214,7 @@ void HeroClass::checkitems(int32_t index)
 		if(pickup&ipSECRETS)                                // Trigger secrets if this item has the secret pickup
 		{
 			if (item_scr->flags9&fITEMSECRETPERM) setmapflag(item_scr, mSECRET);
-			trigger_secrets_for_screen(TriggerSource::ItemsSecret, item_screen, false);
+			trigger_secrets_for_screen(TriggerSource::ItemsSecret, item_scr, false);
 		}
 
 		collectitem_script(id2);
