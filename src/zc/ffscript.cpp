@@ -6399,13 +6399,12 @@ int32_t get_register(int32_t arg)
 		#define GET_COMBO_VAR(member, str) \
 		{ \
 		rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000); \
-		int32_t pos = RPOS_TO_POS(rpos); \
 		if(BC::checkComboRpos(rpos, str) != SH::_NoError) \
 		{ \
 		    ret = -10000; \
 		} \
 		else \
-		    ret = get_scr_for_rpos(rpos)->member[pos]*10000; \
+		    ret = get_scr_for_rpos(rpos)->member[RPOS_TO_POS(rpos)]*10000; \
 		}
 
 		case COMBODD:
@@ -6420,13 +6419,12 @@ int32_t get_register(int32_t arg)
 		#define GET_COMBO_VAR_BUF(member, str) \
 		{ \
 		    rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000); \
-			int32_t pos = RPOS_TO_POS(rpos); \
 		    if(BC::checkComboRpos(rpos, str) != SH::_NoError) \
 		    { \
 			ret = -10000; \
 		    } \
 		    else \
-			ret = combobuf[get_scr_for_rpos(rpos)->data[pos]].member * 10000; \
+			ret = get_rpos_handle(rpos, 0).combo().member * 10000; \
 		}
 			
 		case COMBOTD:
@@ -6438,24 +6436,22 @@ int32_t get_register(int32_t arg)
 		case COMBOSD:
 		{
 			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
-			int32_t pos = RPOS_TO_POS(rpos);
 			
 			if(BC::checkComboRpos(rpos, "Screen->ComboS[]") != SH::_NoError)
 				ret = -10000;
 			else
-				ret = (combobuf[get_scr_for_rpos(rpos)->data[pos]].walk & 0xF) * 10000;
+				ret = (get_rpos_handle(rpos, 0).combo().walk & 0xF) * 10000;
 		}
 		break;
 			
 		case COMBOED:
 		{
 			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
-			int32_t pos = RPOS_TO_POS(rpos);
 			
-			if(BC::checkComboPos(pos, "Screen->ComboE[]") != SH::_NoError)
+			if(BC::checkComboRpos(rpos, "Screen->ComboE[]") != SH::_NoError)
 				ret = -10000;
 			else
-				ret = ((combobuf[get_scr_for_rpos(rpos)->data[pos]].walk & 0xF0)>>4) * 10000;
+				ret = ((get_rpos_handle(rpos, 0).combo().walk & 0xF0)>>4) * 10000;
 		}
 		break;
 
@@ -17095,7 +17091,7 @@ void set_register(int32_t arg, int32_t value)
 		int32_t val = (value/10000); //cset
 		if (!is_valid_rpos(rpos))
 		{
-			Z_scripterrlog("Invalid [pos] %d used to write to Screen->ComboC[]\n", pos);
+			Z_scripterrlog("Invalid pos %d used to write to Screen->ComboC[]\n", pos);
 		}
 		else if ( ((unsigned) val) >= 15 )
 		{
