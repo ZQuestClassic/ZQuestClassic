@@ -2294,6 +2294,8 @@ bool reveal_hidden_stairs(mapscr *s, int32_t screen, bool redraw)
 
 std::array<screen_handle_t, 7> create_screen_handles_one(mapscr* base_scr)
 {
+	DCHECK(get_scr(base_scr->screen) == base_scr);
+	DCHECK(base_scr->is_valid());
 	std::array<screen_handle_t, 7> screen_handles{};
 	screen_handles[0] = {base_scr, base_scr, base_scr->screen, 0};
 	return screen_handles;
@@ -2302,6 +2304,7 @@ std::array<screen_handle_t, 7> create_screen_handles_one(mapscr* base_scr)
 std::array<screen_handle_t, 7> create_screen_handles(mapscr* base_scr)
 {
 	DCHECK(get_scr(base_scr->screen) == base_scr);
+	DCHECK(base_scr->is_valid());
 	std::array<screen_handle_t, 7> screen_handles{};
 	screen_handles[0] = {base_scr, base_scr, base_scr->screen, 0};
 	for (int i = 1; i <= 6; i++)
@@ -2330,7 +2333,7 @@ bool remove_screenstatecombos2(const std::array<screen_handle_t, 7>& screen_hand
 		for(int32_t j=1; j<=6; j++)
 		{
 			mapscr* layer_scr = screen_handles[j].scr;
-			if (!layer_scr || !layer_scr->is_valid()) continue;
+			if (!layer_scr) continue;
 
 			for(int32_t i=0; i<176; i++)
 			{
@@ -2780,7 +2783,7 @@ void trigger_secrets_for_screen_internal(const std::array<screen_handle_t, 7>& s
 			for(int32_t j=1; j<=6; j++)  //Layers
 			{
 				mapscr* layer_scr = screen_handles[j].scr;
-				if (!layer_scr || !layer_scr->is_valid()) continue;
+				if (!layer_scr) continue;
 				
 				if(single>=0 && i!=single) continue; //If it's got a singular flag and i isn't where the flag is
 				
@@ -2915,7 +2918,7 @@ void trigger_secrets_for_screen_internal(const std::array<screen_handle_t, 7>& s
 			for(int32_t j=1; j<=6; j++)  //Layers
 			{
 				mapscr* layer_scr = screen_handles[j].scr;
-				if (!layer_scr || !layer_scr->is_valid()) continue;
+				if (!layer_scr) continue;
 				
 				int32_t newflag2 = -1;
 				
@@ -6267,8 +6270,9 @@ void loadscr_old(int32_t destdmap, int32_t screen,int32_t ldir,bool overlay)
 
 	std::array<screen_handle_t, 7> screen_handles{};
 	screen_handles[0] = {scr, scr, screen, 0};
+
 	for (int i = 1; i <= 6; i++)
-		screen_handles[i] = {scr, &tmpscr2[i], screen, i};
+		screen_handles[i] = {scr, tmpscr2[i].is_valid() ? &tmpscr2[i] : nullptr, screen, i};
 
 	if(game->maps[mi]&mLOCKBLOCK)			  // if special stuff done before
 	{
@@ -6417,7 +6421,7 @@ std::array<mapscr, 7> loadscr2(int32_t screen)
 
 	std::array<screen_handle_t, 7> screen_handles{};
 	for (int i = 0; i < 7; i++)
-		screen_handles[i] = {scr, &scrs[i], screen, i};
+		screen_handles[i] = {scr, scrs[i].is_valid() ? &scrs[i] : nullptr, screen, i};
 
 	int mi = mapind(cur_map, screen);
 	

@@ -1236,11 +1236,11 @@ bool trigger_lockblock(const rpos_handle_t& rpos_handle)
 			if(cmb.usrflags&cflag16)
 			{
 				setxmapflag(screen, 1<<cmb.attribytes[5]);
-				remove_xstatecombos(create_screen_handles(rpos_handle.scr), 1<<cmb.attribytes[5], false);
+				remove_xstatecombos(create_screen_handles(base_scr), 1<<cmb.attribytes[5], false);
 				break;
 			}
 			setmapflag(base_scr, mLOCKBLOCK);
-			remove_lockblocks(create_screen_handles(rpos_handle.scr));
+			remove_lockblocks(create_screen_handles(base_scr));
 			break;
 			
 		case cBOSSLOCKBLOCK:
@@ -1269,11 +1269,11 @@ bool trigger_lockblock(const rpos_handle_t& rpos_handle)
 			if(cmb.usrflags&cflag16)
 			{
 				setxmapflag(screen, 1<<cmb.attribytes[5]);
-				remove_xstatecombos(create_screen_handles(rpos_handle.scr), 1<<cmb.attribytes[5], false);
+				remove_xstatecombos(create_screen_handles(base_scr), 1<<cmb.attribytes[5], false);
 				break;
 			}
 			setmapflag(base_scr, mBOSSLOCKBLOCK);
-			remove_bosslockblocks(create_screen_handles(rpos_handle.scr));
+			remove_bosslockblocks(create_screen_handles(base_scr));
 			break;
 		}
 		default: return false;

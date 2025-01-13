@@ -21469,12 +21469,12 @@ void HeroClass::oldchecklockblock()
 	if(cmb.usrflags&cflag16)
 	{
 		setxmapflag(rpos_handle.screen, 1<<cmb.attribytes[5]);
-		remove_xstatecombos(create_screen_handles(rpos_handle.scr), 1<<cmb.attribytes[5], false);
+		remove_xstatecombos(create_screen_handles(rpos_handle.base_scr()), 1<<cmb.attribytes[5], false);
 	}
 	else
 	{
 		setmapflag(rpos_handle.scr, mLOCKBLOCK);
-		remove_lockblocks(create_screen_handles(rpos_handle.scr));
+		remove_lockblocks(create_screen_handles(rpos_handle.base_scr()));
 	}
 	if ( cmb3.usrflags&cflag3 )
 	{
