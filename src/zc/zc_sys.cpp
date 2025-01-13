@@ -3896,14 +3896,6 @@ int32_t onSaveMapPic()
 				int32_t s = (y<<4) + x;
 				loadscr2(1,s,-1);
 				
-				for(int32_t i=0; i<6; i++)
-				{
-					if(tmpscr[1].layermap[i]<=0)
-						continue;
-					
-					tmpscr2[i]=TheMaps[(tmpscr[1].layermap[i]-1)*MAPSCRS+tmpscr[1].layerscreen[i]];
-				}
-				
 				if(XOR((tmpscr+1)->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(_screen_draw_buffer, 0, 2, tmpscr+1, -256, playing_field_offset, 2);
 				
 				if(XOR((tmpscr+1)->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(_screen_draw_buffer, 0, 3, tmpscr+1, -256, playing_field_offset, 2);
