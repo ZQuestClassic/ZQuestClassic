@@ -2292,27 +2292,29 @@ bool reveal_hidden_stairs(mapscr *s, int32_t screen, bool redraw)
     return false;
 }
 
-std::array<screen_handle_t, 7> create_screen_handles_one(mapscr* base_scr)
+screen_handles_t create_screen_handles_one(mapscr* base_scr)
 {
-	DCHECK(get_scr(base_scr->screen) == base_scr);
 	DCHECK(base_scr->is_valid());
-	std::array<screen_handle_t, 7> screen_handles{};
+
+	screen_handles_t screen_handles{};
 	screen_handles[0] = {base_scr, base_scr, base_scr->screen, 0};
 	return screen_handles;
 }
 
-std::array<screen_handle_t, 7> create_screen_handles(mapscr* base_scr)
+screen_handles_t create_screen_handles(mapscr* base_scr)
 {
 	DCHECK(get_scr(base_scr->screen) == base_scr);
 	DCHECK(base_scr->is_valid());
-	std::array<screen_handle_t, 7> screen_handles{};
-	screen_handles[0] = {base_scr, base_scr, base_scr->screen, 0};
+
+	int screen = base_scr->screen;
+	screen_handles_t screen_handles;
+	screen_handles[0] = {base_scr, base_scr, screen, 0};
 	for (int i = 1; i <= 6; i++)
-		screen_handles[i] = {base_scr, get_scr_layer_valid(base_scr->screen, i), base_scr->screen, 0};
+		screen_handles[i] = {base_scr, get_scr_layer_valid(screen, i), screen, i};
 	return screen_handles;
 }
 
-bool remove_screenstatecombos2(const std::array<screen_handle_t, 7>& screen_handles, bool do_layers, int32_t what1, int32_t what2)
+bool remove_screenstatecombos2(const screen_handles_t& screen_handles, bool do_layers, int32_t what1, int32_t what2)
 {
 	mapscr* scr = screen_handles[0].scr;
 	bool didit=false;
@@ -2368,13 +2370,13 @@ bool remove_screenstatecombos2(const std::array<screen_handle_t, 7>& screen_hand
 	return didit;
 }
 
-bool remove_xstatecombos(const std::array<screen_handle_t, 7>& screen_handles, byte xflag, bool triggers)
+bool remove_xstatecombos(const screen_handles_t& screen_handles, byte xflag, bool triggers)
 {
 	int screen = screen_handles[0].scr->screen;
 	int mi = mapind(cur_map, screen >= 0x80 ? home_screen : screen);
 	return remove_xstatecombos_mi(screen_handles, mi, xflag, triggers);
 }
-bool remove_xstatecombos_mi(const std::array<screen_handle_t, 7>& screen_handles, int32_t mi, byte xflag, bool triggers)
+bool remove_xstatecombos_mi(const screen_handles_t& screen_handles, int32_t mi, byte xflag, bool triggers)
 {
 	bool didit=false;
 	if(!getxmapflag_mi(mi, 1<<xflag)) return false;
@@ -2454,14 +2456,14 @@ bool remove_xstatecombos_mi(const std::array<screen_handle_t, 7>& screen_handles
 	return didit;
 }
 
-void clear_xstatecombos(const std::array<screen_handle_t, 7>& screen_handles, bool triggers)
+void clear_xstatecombos(const screen_handles_t& screen_handles, bool triggers)
 {
 	int screen = screen_handles[0].screen;
 	int mi = mapind(cur_map, screen >= 0x80 ? home_screen : screen);
 	clear_xstatecombos_mi(screen_handles, mi, triggers);
 }
 
-void clear_xstatecombos_mi(const std::array<screen_handle_t, 7>& screen_handles, int32_t mi, bool triggers)
+void clear_xstatecombos_mi(const screen_handles_t& screen_handles, int32_t mi, bool triggers)
 {
 	for (int q = 0; q < 32; ++q)
 	{
@@ -2469,13 +2471,13 @@ void clear_xstatecombos_mi(const std::array<screen_handle_t, 7>& screen_handles,
 	}
 }
 
-bool remove_xdoors(const std::array<screen_handle_t, 7>& screen_handles, uint dir, uint ind, bool triggers)
+bool remove_xdoors(const screen_handles_t& screen_handles, uint dir, uint ind, bool triggers)
 {
 	int screen = screen_handles[0].screen;
 	int mi = mapind(cur_map, screen >= 0x80 ? home_screen : screen);
 	return remove_xdoors_mi(screen_handles, mi, dir, ind, triggers);
 }
-bool remove_xdoors_mi(const std::array<screen_handle_t, 7>& screen_handles, int32_t mi, uint dir, uint ind, bool triggers)
+bool remove_xdoors_mi(const screen_handles_t& screen_handles, int32_t mi, uint dir, uint ind, bool triggers)
 {
 	bool didit=false;
 	if (!getxdoor_mi(mi, dir, ind)) return false;
@@ -2521,14 +2523,14 @@ bool remove_xdoors_mi(const std::array<screen_handle_t, 7>& screen_handles, int3
 	return didit;
 }
 
-void clear_xdoors(const std::array<screen_handle_t, 7>& screen_handles, bool triggers)
+void clear_xdoors(const screen_handles_t& screen_handles, bool triggers)
 {
 	mapscr* scr = screen_handles[0].scr;
 	int mi = mapind(cur_map, scr->screen >= 0x80 ? home_screen : scr->screen);
 	clear_xdoors_mi(screen_handles, mi, triggers);
 }
 
-void clear_xdoors_mi(const std::array<screen_handle_t, 7>& screen_handles, int32_t mi, bool triggers)
+void clear_xdoors_mi(const screen_handles_t& screen_handles, int32_t mi, bool triggers)
 {
 	for (int q = 0; q < 32; ++q)
 	{
@@ -2536,27 +2538,27 @@ void clear_xdoors_mi(const std::array<screen_handle_t, 7>& screen_handles, int32
 	}
 }
 
-bool remove_lockblocks(const std::array<screen_handle_t, 7>& screen_handles)
+bool remove_lockblocks(const screen_handles_t& screen_handles)
 {
     return remove_screenstatecombos2(screen_handles, true, cLOCKBLOCK, cLOCKBLOCK2);
 }
 
-bool remove_bosslockblocks(const std::array<screen_handle_t, 7>& screen_handles)
+bool remove_bosslockblocks(const screen_handles_t& screen_handles)
 {
     return remove_screenstatecombos2(screen_handles, true, cBOSSLOCKBLOCK, cBOSSLOCKBLOCK2);
 }
 
-bool remove_chests(const std::array<screen_handle_t, 7>& screen_handles)
+bool remove_chests(const screen_handles_t& screen_handles)
 {
     return remove_screenstatecombos2(screen_handles, true, cCHEST, cCHEST2);
 }
 
-bool remove_lockedchests(const std::array<screen_handle_t, 7>& screen_handles)
+bool remove_lockedchests(const screen_handles_t& screen_handles)
 {
     return remove_screenstatecombos2(screen_handles, true, cLOCKEDCHEST, cLOCKEDCHEST2);
 }
 
-bool remove_bosschests(const std::array<screen_handle_t, 7>& screen_handles)
+bool remove_bosschests(const screen_handles_t& screen_handles)
 {
     return remove_screenstatecombos2(screen_handles, true, cBOSSCHEST, cBOSSCHEST2);
 }
@@ -2704,7 +2706,7 @@ void trigger_secrets_for_screen(TriggerSource source, int32_t screen, bool high1
 	trigger_secrets_for_screen(source, get_scr(screen), high16only, single);
 }
 
-void trigger_secrets_for_screen_internal(const std::array<screen_handle_t, 7>& screen_handles, bool from_active_screen, bool high16only, int32_t single, bool do_replay_comment)
+void trigger_secrets_for_screen_internal(const screen_handles_t& screen_handles, bool from_active_screen, bool high16only, int32_t single, bool do_replay_comment)
 {
 	mapscr* scr = screen_handles[0].scr;
 	int screen = scr->screen;
@@ -3734,6 +3736,7 @@ void do_layer_old2(BITMAP *bmp, int32_t type, int32_t layer, mapscr* basescr, ma
 
 void do_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen_handle, int32_t x, int32_t y, bool drawprimitives)
 {
+	// TODO z3 ! check if scr is valid ... early return
     bool showlayer = true;
 	mapscr* base_scr = screen_handle.base_scr;
 	int layer = screen_handle.layer;
@@ -4130,7 +4133,7 @@ void draw_ladder_platform_a5(int32_t x, int32_t y, ALLEGRO_COLOR c)
 }
 
 // Walkflags L4 cheat
-void do_walkflags(const std::array<screen_handle_t, 7>& screen_handles, int32_t x, int32_t y)
+void do_walkflags(const screen_handles_t& screen_handles, int32_t x, int32_t y)
 {
 	if (!show_walkflags)
 		return;
@@ -4228,7 +4231,7 @@ struct nearby_screen_t
 	int screen;
 	int offx;
 	int offy;
-	std::array<screen_handle_t, 7> screen_handles;
+	screen_handles_t screen_handles;
 };
 typedef std::vector<nearby_screen_t> nearby_screens_t;
 
@@ -4239,12 +4242,7 @@ static nearby_screens_t get_nearby_screens_non_scrolling_region()
 	mapscr* base_scr = origin_scr;
 	auto& nearby_screen = nearby_screens.emplace_back();
 	nearby_screen.screen = cur_screen;
-	nearby_screen.screen_handles[0] = {base_scr, base_scr, cur_screen, 0};
-	for (int i = 1; i <= 6; i++)
-	{
-		mapscr* scr = get_scr_layer_valid(cur_screen, i);
-		nearby_screen.screen_handles[i] = {base_scr, scr, cur_screen, i};
-	}
+	nearby_screen.screen_handles = create_screen_handles(base_scr);
 
 	return nearby_screens;
 }
@@ -4271,7 +4269,7 @@ static nearby_screens_t get_nearby_screens_scrolling_region()
 			if (!is_in_current_region(screen)) continue;
 
 			mapscr* base_scr = get_scr(screen);
-			if (!(base_scr->valid & mVALID)) continue;
+			if (!base_scr->is_valid()) continue;
 
 			auto [offx, offy] = translate_screen_coordinates_to_world(screen);
 
@@ -4279,12 +4277,7 @@ static nearby_screens_t get_nearby_screens_scrolling_region()
 			nearby_screen.screen = screen;
 			nearby_screen.offx = offx;
 			nearby_screen.offy = offy;
-			nearby_screen.screen_handles[0] = {base_scr, base_scr, screen, 0};
-			for (int i = 1; i <= 6; i++)
-			{
-				mapscr* scr = get_scr_layer_valid(screen, i);
-				nearby_screen.screen_handles[i] = {base_scr, scr, screen, i};
-			}
+			nearby_screen.screen_handles = create_screen_handles(base_scr);
 		}
 	}
 
@@ -4345,7 +4338,7 @@ static nearby_screens_t get_nearby_screens_smooth_maze()
 				if (!is_in_current_region(screen)) continue;
 
 				base_scr = get_scr(screen);
-				if (!(base_scr->valid & mVALID)) continue;
+				if (!base_scr->is_valid()) continue;
 
 				std::tie(offx, offy) = translate_screen_coordinates_to_world(screen);
 			}
@@ -4354,12 +4347,7 @@ static nearby_screens_t get_nearby_screens_smooth_maze()
 			nearby_screen.screen = screen;
 			nearby_screen.offx = offx;
 			nearby_screen.offy = offy;
-			nearby_screen.screen_handles[0] = {base_scr, base_scr, screen, 0};
-			for (int i = 1; i <= 6; i++)
-			{
-				mapscr* scr = get_scr_layer_valid(screen, i);
-				nearby_screen.screen_handles[i] = {base_scr, scr, screen, i};
-			}
+			nearby_screen.screen_handles = create_screen_handles(base_scr);
 		}
 	}
 
@@ -4377,17 +4365,17 @@ static nearby_screens_t get_nearby_screens()
 	return get_nearby_screens_non_scrolling_region();
 }
 
-static void for_every_nearby_screen(const nearby_screens_t& nearby_screens, const std::function <void (std::array<screen_handle_t, 7>, int, int, int)>& fn)
+static void for_every_nearby_screen(const nearby_screens_t& nearby_screens, const std::function <void (screen_handles_t, int, int, int)>& fn)
 {
 	for (auto& nearby_screen : nearby_screens)
 		fn(nearby_screen.screen_handles, nearby_screen.screen, nearby_screen.offx, nearby_screen.offy);
 }
 
-static void for_every_screen_in_region_some_layers(std::vector<int> layers, const std::function <void (std::array<screen_handle_t, 7>, int, int, bool)>& fn)
+static void for_every_screen_in_region_some_layers(std::vector<int> layers, const std::function <void (screen_handles_t, int, int, bool)>& fn)
 {
 	for_every_base_screen_in_region([&](mapscr* base_scr, unsigned int region_scr_x, unsigned int region_scr_y) {
 		int screen = base_scr->screen;
-		std::array<screen_handle_t, 7> screen_handles;
+		screen_handles_t screen_handles;
 		for (int i : layers)
 		{
 			mapscr* scr = get_scr_layer_valid(screen, i);
@@ -4450,7 +4438,7 @@ void draw_screen(bool showhero, bool runGeneric)
 
 	auto nearby_screens = get_nearby_screens();
 
-	for_every_nearby_screen(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy) {
+	for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
 		mapscr* base_scr = screen_handles[0].base_scr;
 		if(XOR(base_scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG))
 		{
@@ -4467,7 +4455,7 @@ void draw_screen(bool showhero, bool runGeneric)
 		}
 	});
 
-	for_every_nearby_screen(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy) {
+	for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
 		mapscr* base_scr = screen_handles[0].base_scr;
 		if (lenscheck(base_scr, 0))
 		{
@@ -4528,7 +4516,7 @@ void draw_screen(bool showhero, bool runGeneric)
 		}
 	}
 	
-	for_every_screen_in_region_some_layers({0, 1, 2}, [&](std::array<screen_handle_t, 7> screen_handles, int offx, int offy, bool in_viewport) {
+	for_every_screen_in_region_some_layers({0, 1, 2}, [&](screen_handles_t screen_handles, int offx, int offy, bool in_viewport) {
 		mapscr* base_scr = screen_handles[0].base_scr;
 		int screen = base_scr->screen;
 
@@ -4587,7 +4575,7 @@ void draw_screen(bool showhero, bool runGeneric)
 
 	if (get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
 	{
-		for_every_nearby_screen(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy) {
+		for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
 			do_layer(scrollbuf, -2, screen_handles[0], offx, offy); // push blocks!
 			if(get_qr(qr_PUSHBLOCK_LAYER_1_2))
 			{
@@ -4602,7 +4590,7 @@ void draw_screen(bool showhero, bool runGeneric)
 	// Show walkflags cheat
 	if (show_walkflags || show_effectflags)
 	{
-		for_every_nearby_screen(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy) {
+		for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
 			do_walkflags(screen_handles, offx, offy);
 			do_effectflags(screen_handles[0].base_scr, offx, offy);
 		});
@@ -4848,7 +4836,7 @@ void draw_screen(bool showhero, bool runGeneric)
 	if (!is_extended_height_mode() && is_in_scrolling_region() && !get_qr(qr_SUBSCREENOVERSPRITES))
 		add_clip_rect(framebuf, 0, playing_field_offset, framebuf->w, framebuf->h);
 
-	for_every_nearby_screen(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy) {
+	for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
 		mapscr* base_scr = screen_handles[0].base_scr;
 
 		if(!XOR(base_scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG))
@@ -4944,7 +4932,7 @@ void draw_screen(bool showhero, bool runGeneric)
 		color_map = &trans_table;
 	}
 
-	for_every_screen_in_region_some_layers({0, 5, 6}, [&](std::array<screen_handle_t, 7> screen_handles, int offx, int offy, bool in_viewport) {
+	for_every_screen_in_region_some_layers({0, 5, 6}, [&](screen_handles_t screen_handles, int offx, int offy, bool in_viewport) {
 		mapscr* base_scr = screen_handles[0].base_scr;
 		int screen = base_scr->screen;
 
@@ -4974,7 +4962,7 @@ void draw_screen(bool showhero, bool runGeneric)
 	bool draw_dark = false;
 	if(get_qr(qr_NEW_DARKROOM) && room_is_dark)
 	{
-		for_every_nearby_screen(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy) {
+		for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
 			mapscr* base_scr = screen_handles[0].scr;
 			if (base_scr->flags&fDARK)
 			{
@@ -4986,7 +4974,7 @@ void draw_screen(bool showhero, bool runGeneric)
 			Hero.calc_darkroom_hero(0, -playing_field_offset);
 		if (draw_dark)
 		{
-			for_every_nearby_screen(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy) {
+			for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
 				mapscr* base_scr = screen_handles[0].scr;
 				bool should_be_dark = (base_scr->flags & fDARK);
 				if (!should_be_dark)
@@ -6268,9 +6256,8 @@ void loadscr_old(int32_t destdmap, int32_t screen,int32_t ldir,bool overlay)
 	toggle_switches(game->lvlswitches[destlvl], true, special_warp_return_scr);
 	toggle_gswitches_load(special_warp_return_scr);
 
-	std::array<screen_handle_t, 7> screen_handles{};
+	screen_handles_t screen_handles;
 	screen_handles[0] = {scr, scr, screen, 0};
-
 	for (int i = 1; i <= 6; i++)
 		screen_handles[i] = {scr, tmpscr2[i].is_valid() ? &tmpscr2[i] : nullptr, screen, i};
 
@@ -6419,7 +6406,7 @@ std::array<mapscr, 7> loadscr2(int32_t screen)
 			scrs[i] = {};
 	}
 
-	std::array<screen_handle_t, 7> screen_handles{};
+	screen_handles_t screen_handles;
 	for (int i = 0; i < 7; i++)
 		screen_handles[i] = {scr, scrs[i].is_valid() ? &scrs[i] : nullptr, screen, i};
 
@@ -6610,7 +6597,7 @@ static void putscrdoors(const nearby_screens_t& nearby_screens, BITMAP *dest, in
 	x -= viewport.x;
 	y -= viewport.y;
 
-	for_every_nearby_screen(nearby_screens, [&](std::array<screen_handle_t, 7> screen_handles, int screen, int offx, int offy) {
+	for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
 		mapscr* scr = screen_handles[0].base_scr;
 		if (scr->valid==0)
 			return;

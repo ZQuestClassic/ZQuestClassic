@@ -13,12 +13,17 @@ class ffcdata;
 
 struct screen_handle_t
 {
+	// The 0th-layer screen associated with this screen.
 	mapscr* base_scr;
+	// Null if scr was not valid.
 	mapscr* scr;
 	int32_t screen;
 	// 0 = base screen, 1 = layer 1, etc. Up to 6.
 	int32_t layer;
 };
+
+// References to a set of 7 screens (one for each layer).
+typedef std::array<screen_handle_t, 7> screen_handles_t;
 
 struct rpos_handle_t
 {
