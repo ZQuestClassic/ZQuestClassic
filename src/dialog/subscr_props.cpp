@@ -441,7 +441,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			case widgBTNCOUNTER:
 			{
 				SW_BtnCounter* w = dynamic_cast<SW_BtnCounter*>(local_subref);
-				col_grid = Column(
+				col_grid = Columns<3>(
 					MISC_COLOR_SEL(w->c_text, "Text Color", 1),
 					MISC_COLOR_SEL(w->c_shadow, "Shadow Color", 2),
 					MISC_COLOR_SEL(w->c_bg, "Background Color", 3),
