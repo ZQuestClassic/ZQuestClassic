@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2025-01-12 05:57:18</td>
+      <td>2025-01-13 08:29:44</td>
     </tr>
   </table>
 </div>
@@ -41,15 +41,15 @@
     </tr>
     <tr>
       <th scope="row">Lines:</th>
-      <td>10</td>
       <td>11</td>
-      <td class="coverage-high">90.9%</td>
+      <td>11</td>
+      <td class="coverage-high">100.0%</td>
     </tr>
     <tr>
       <th scope="row">Functions:</th>
-      <td>5</td>
+      <td>6</td>
       <td>7</td>
-      <td class="coverage-low">71.4%</td>
+      <td class="coverage-medium">85.7%</td>
     </tr>
     <tr>
       <th scope="row">Branches:</th>
@@ -73,13 +73,13 @@
       <th>Call count</th>
       <th>Block coverage</th>
     </tr>
-    <tr><td><a href="#l33">mapscr::is_valid() const (line 33)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l30">mapscr::mapscr() (line 30)</a></td><td>called 1861313 times, returned 1861313 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l33">mapscr::is_valid() const (line 33)</a></td><td>called 45680 times, returned 45680 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l30">mapscr::mapscr() (line 30)</a></td><td>called 1796499 times, returned 1796499 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l30">mapscr::mapscr(mapscr const&amp;) (line 30)</a></td><td>called 256210 times, returned 256210 times</td><td>50.0%</td></tr>
     <tr><td><a href="#l30">mapscr::mapscr(mapscr&amp;&amp;) (line 30)</a></td><td>called 8261 times, returned 8261 times</td><td>100.0%</td></tr>
     <tr><td><a href="#l30">mapscr::operator=(mapscr const&amp;) (line 30)</a></td><td>not called</td><td>0.0%</td></tr>
-    <tr><td><a href="#l30">mapscr::operator=(mapscr&amp;&amp;) (line 30)</a></td><td>called 547655 times, returned 547655 times</td><td>100.0%</td></tr>
-    <tr><td><a href="#l30">mapscr::~mapscr() (line 30)</a></td><td>called 2125784 times, returned 2125784 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l30">mapscr::operator=(mapscr&amp;&amp;) (line 30)</a></td><td>called 482841 times, returned 482841 times</td><td>100.0%</td></tr>
+    <tr><td><a href="#l30">mapscr::~mapscr() (line 30)</a></td><td>called 2060970 times, returned 2060970 times</td><td>100.0%</td></tr>
   </table>
 </details>
 
@@ -301,7 +301,7 @@
       <td class="lineno"><a id="l30" href="#l30">30</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">5840149</td>
+      <td class="linecount coveredLine">5645707</td>
       <td class="src coveredLine"><span class="k">struct</span><span class="w"> </span><span class="nc">mapscr</span></td>
     </tr>
     <tr class="source-line">
@@ -322,8 +322,8 @@
       <td class="lineno"><a id="l33" href="#l33">33</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">is_valid</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">valid</span><span class="o">&amp;</span><span class="n">mVALID</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></td>
+      <td class="linecount coveredLine">45680</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">is_valid</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">valid</span><span class="o">&amp;</span><span class="n">mVALID</span><span class="p">;</span><span class="w"> </span><span class="p">}</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l34" href="#l34">34</a></td>
@@ -343,7 +343,7 @@
       <td class="lineno"><a id="l36" href="#l36">36</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1861313</td>
+      <td class="linecount coveredLine">1796499</td>
       <td class="src coveredLine"><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">guytile</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -476,7 +476,7 @@
       <td class="lineno"><a id="l55" href="#l55">55</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1861313</td>
+      <td class="linecount coveredLine">1796499</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="n">door</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">dNONE</span><span class="p">,</span><span class="n">dNONE</span><span class="p">,</span><span class="n">dNONE</span><span class="p">,</span><span class="n">dNONE</span><span class="p">};</span><span class="w"> </span><span class="c1">//need to add a dmapscreendoor command.</span></td>
     </tr>
     <tr class="source-line">
@@ -518,7 +518,7 @@
       <td class="lineno"><a id="l61" href="#l61">61</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1861313</td>
+      <td class="linecount coveredLine">1796499</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="n">sidewarptype</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">wtSCROLL</span><span class="p">,</span><span class="n">wtSCROLL</span><span class="p">,</span><span class="n">wtSCROLL</span><span class="p">,</span><span class="n">wtSCROLL</span><span class="w"> </span><span class="p">};</span></td>
     </tr>
     <tr class="source-line">
@@ -665,7 +665,7 @@
       <td class="lineno"><a id="l82" href="#l82">82</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1861313</td>
+      <td class="linecount coveredLine">1796499</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="n">csensitive</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -742,7 +742,7 @@
       <td class="lineno"><a id="l93" href="#l93">93</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1861313</td>
+      <td class="linecount coveredLine">1796499</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="n">layeropacity</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">};</span></td>
     </tr>
     <tr class="source-line">
@@ -1008,14 +1008,14 @@
       <td class="lineno"><a id="l131" href="#l131">131</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1861313</td>
+      <td class="linecount coveredLine">1796499</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="n">secretsfx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">27</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l132" href="#l132">132</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1861313</td>
+      <td class="linecount coveredLine">1796499</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">byte</span><span class="w"> </span><span class="n">holdupsfx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">20</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -1029,7 +1029,7 @@
       <td class="lineno"><a id="l134" href="#l134">134</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1861313</td>
+      <td class="linecount coveredLine">1796499</td>
       <td class="src coveredLine"><span class="w">	</span><span class="kt">int16_t</span><span class="w"> </span><span class="n">screen_midi</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
@@ -1148,7 +1148,7 @@
       <td class="lineno"><a id="l151" href="#l151">151</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1861313</td>
+      <td class="linecount coveredLine">1796499</td>
       <td class="src coveredLine"><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="n">ffc_count_dirty</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span></td>
     </tr>
     <tr class="source-line">
