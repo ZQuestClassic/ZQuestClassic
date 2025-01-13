@@ -5908,8 +5908,8 @@ static void load_a_screen_and_layers_post(int dmap, int screen, int ldir)
 		}
 	}
 
-	// TODO z3 ! check first? base_scr->flags3 & fCYCLEONINIT
-	// TODO z3 ! clean this up.
+	if (!(base_scr->flags3 & fCYCLEONINIT))
+		return;
 
 	for (int32_t j=-1; j<6; ++j)  // j == -1 denotes the current screen
 	{
@@ -5922,10 +5922,9 @@ static void load_a_screen_and_layers_post(int dmap, int screen, int ldir)
 			for(int32_t i=0; i<176; ++i)
 			{
 				int32_t c=layerscreen->data[i];
-				int32_t cs=layerscreen->cset[i];
 				
 				// New screen flag: Cycle Combos At Screen Init
-				if(combobuf[c].nextcombo != 0 && (base_scr->flags3 & fCYCLEONINIT) && (j<0 || get_qr(qr_CMBCYCLELAYERS)))
+				if(combobuf[c].nextcombo != 0 && (j<0 || get_qr(qr_CMBCYCLELAYERS)))
 				{
 					int32_t r = 0;
 					
@@ -5938,7 +5937,6 @@ static void load_a_screen_and_layers_post(int dmap, int screen, int ldir)
 						if(!(combobuf[c].animflags & AF_CYCLENOCSET))
 							layerscreen->cset[i] = cycle_under ? layerscreen->undercset : cmb.nextcset;
 						c = layerscreen->data[i];
-						cs = layerscreen->cset[i];
 					}
 				}
 			}
