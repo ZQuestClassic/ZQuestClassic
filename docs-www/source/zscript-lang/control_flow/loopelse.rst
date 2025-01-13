@@ -7,6 +7,7 @@ An `else` can be added after a loop, which has special meaning related to the :r
 The code in the body of the `else` will run in the condition that the loop ends WITHOUT a :ref:`break statement<stmt_break>` running.
 
 .. zscript::
+	:style: body
 
 	for(enemy : Screen->NPCs)
 	{

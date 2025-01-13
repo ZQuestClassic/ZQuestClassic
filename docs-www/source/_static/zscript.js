@@ -8,15 +8,15 @@ function regex_escape(value) {
 	return value.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
 }
 
-/** @type LanguageFn */
-function zs(hljs) {
+function zs_builder(hljs, langtype) {
 	
 	const regex = hljs.regex;
 	
+	const MATCH_NOTHING_RE = /\b\B/;
 	const OPT_WHITESPACE_RE = '\\s*';
 	const SOME_WHITESPACE_RE = '\\s+';
 	const IDENTIFIER_DELIMITER_RE = '(?:\\.|::)'
-	const IDENTIFIER_RE = hljs.UNDERSCORE_IDENT_RE;
+	const IDENTIFIER_RE = '[a-zA-Z_][a-zA-Z0-9_]*';
 	const IDENTIFIER_LIST_RE = '(?:(?:' + IDENTIFIER_RE + ')?' + IDENTIFIER_DELIMITER_RE + ')?'
 		+ '(?:' + IDENTIFIER_RE + IDENTIFIER_DELIMITER_RE + ')*'
 		+ IDENTIFIER_RE;
@@ -28,8 +28,21 @@ function zs(hljs) {
 	const FUNCTION_KEYWORDS_RE = '(?:' + FUNCTION_KEYWORDS.join('|') + ')';
 	
 	const TYPE_RE = '(?:const' + SOME_WHITESPACE_RE + ')?' + IDENTIFIER_LIST_RE;
+	const COMMENT_CONTAINS = [];
+	const COMMENT_LINE = {
+		scope: 'comment',
+		begin: '//',
+		end: '$',
+		contains: COMMENT_CONTAINS
+	};
+	const COMMENT_BLOCK = {
+		scope: 'comment',
+		begin: '/\\*',
+		end: '\\*/',
+		contains: COMMENT_CONTAINS
+	};
 	
-	const CHARACTER_ESCAPES = '\\\\(x[0-9A-Fa-f]{2}|\\S)';
+	const CHARACTER_ESCAPES_RE = '\\\\(x[0-9A-Fa-f]{2}|\\S)';
 	const STRINGS = {
 		scope: 'string',
 		variants: [
@@ -37,10 +50,14 @@ function zs(hljs) {
 				begin: '"',
 				end: '"',
 				illegal: '\\n',
-				contains: [ hljs.BACKSLASH_ESCAPE ]
+				contains: [
+					{
+						match: CHARACTER_ESCAPES_RE
+					}
+				]
 			},
 			{
-				begin: '\'(' + CHARACTER_ESCAPES + '|.)',
+				begin: '\'(' + CHARACTER_ESCAPES_RE + '|.)',
 				end: '\'',
 				illegal: '.'
 			}
@@ -487,8 +504,8 @@ function zs(hljs) {
 	};
 	
 	const EXPRESSION_CONTAINS = [
-		hljs.C_LINE_COMMENT_MODE,
-		hljs.C_BLOCK_COMMENT_MODE,
+		COMMENT_LINE,
+		COMMENT_BLOCK,
 		KEYWORD_OPERATORS_SCOPE,
 		SYMBOL_OPERATORS_SCOPE,
 		NUMBERS,
@@ -539,8 +556,8 @@ function zs(hljs) {
 		keywords: ZSCRIPT_KEYWORDS,
 		contains: [
 			'self',
-			hljs.C_LINE_COMMENT_MODE,
-			hljs.C_BLOCK_COMMENT_MODE,
+			COMMENT_LINE,
+			COMMENT_BLOCK,
 			STRINGS,
 			KEYWORD_OPERATORS_SCOPE,
 			SYMBOL_OPERATORS_SCOPE,
@@ -553,14 +570,27 @@ function zs(hljs) {
 		keywords: ZSCRIPT_KEYWORDS,
 		contains: [
 			'self',
-			hljs.C_LINE_COMMENT_MODE,
-			hljs.C_BLOCK_COMMENT_MODE,
+			COMMENT_LINE,
+			COMMENT_BLOCK,
 			STRINGS,
 			KEYWORD_OPERATORS_SCOPE,
 			SYMBOL_OPERATORS_SCOPE,
 			NUMBERS
 		]
 	};
+	
+	const FUNC_BODY_CONTAINS = [
+		PAREN_MATCHER,
+		BRACE_MATCHER,
+		USING_STATEMENT,
+		TYPEDEF_STATEMENT,
+		COMMENT_LINE,
+		COMMENT_BLOCK,
+		STRINGS,
+		KEYWORD_OPERATORS_SCOPE,
+		SYMBOL_OPERATORS_SCOPE,
+		NUMBERS
+	];
 	
 	const FUNC_POSTHEADER = {
 		end: /;/,
@@ -594,18 +624,7 @@ function zs(hljs) {
 				scope: 'function.body',
 				keywords: ZSCRIPT_KEYWORDS,
 				endsParent: true,
-				contains: [
-					PAREN_MATCHER,
-					BRACE_MATCHER,
-					USING_STATEMENT,
-					TYPEDEF_STATEMENT,
-					hljs.C_LINE_COMMENT_MODE,
-					hljs.C_BLOCK_COMMENT_MODE,
-					STRINGS,
-					KEYWORD_OPERATORS_SCOPE,
-					SYMBOL_OPERATORS_SCOPE,
-					NUMBERS
-				]
+				contains: FUNC_BODY_CONTAINS
 			}
 		]
 	};
@@ -624,9 +643,9 @@ function zs(hljs) {
 					IDENTIFIER_LIST_RE,
 					SOME_WHITESPACE_RE,
 					IDENTIFIER_RE,
-					regex.optional(SOME_WHITESPACE_RE),
+					OPT_WHITESPACE_RE,
 					'=?',
-					regex.optional(SOME_WHITESPACE_RE)
+					OPT_WHITESPACE_RE
 				],
 				scope: {
 					1: 'type.param',
@@ -643,8 +662,8 @@ function zs(hljs) {
 					].concat(EXPRESSION_CONTAINS)
 				}
 			},
-			hljs.C_LINE_COMMENT_MODE,
-			hljs.C_BLOCK_COMMENT_MODE,
+			COMMENT_LINE,
+			COMMENT_BLOCK,
 			STRINGS,
 			KEYWORD_OPERATORS_SCOPE,
 			SYMBOL_OPERATORS_SCOPE,
@@ -666,13 +685,13 @@ function zs(hljs) {
 	};
 	
 	const FUNC_HEADER = {
-		end: hljs.MATCH_NOTHING_RE,
+		end: MATCH_NOTHING_RE,
 		keywords: ZSCRIPT_KEYWORDS,
 		contains: [
 			FUNC_TEMPLATING,
 			FUNC_PARAMS,
-			hljs.C_LINE_COMMENT_MODE,
-			hljs.C_BLOCK_COMMENT_MODE
+			COMMENT_LINE,
+			COMMENT_BLOCK
 		],
 		starts: FUNC_POSTHEADER
 	};
@@ -770,37 +789,59 @@ function zs(hljs) {
 		}
 	};
 	
-	return {
-		name: 'ZScript',
-		aliases: [
-			'zs',
-			'zh'
-		],
-		keywords: ZSCRIPT_KEYWORDS,
-		contains: [].concat(
-			NUMBERS,
-			STRINGS,
-			HASHMODE,
-			ANNOTATION,
-			USING_STATEMENT,
-			TYPEDEF_STATEMENT,
-			RUN_FUNC_DECLARATION,
-			FUNCTION_DECLARATION,
-			EXPRESSION_CONTAINS, // list
-			NAMESPACE_DECLARATION,
-			CLASS_DECLARATION,
-			SCRIPT_DECLARATION,
-			ENUM_DECLARATIONS // list
-		)
-	};
+	if(langtype == 'zs-body')
+		return {
+			name: 'ZScript-body',
+			aliases: [
+				'zs-body',
+				'zh-body'
+			],
+			keywords: ZSCRIPT_KEYWORDS,
+			contains: FUNC_BODY_CONTAINS
+		};
+	else
+		return {
+			name: 'ZScript',
+			aliases: [
+				'zs',
+				'zh'
+			],
+			keywords: ZSCRIPT_KEYWORDS,
+			contains: [].concat(
+				NUMBERS,
+				STRINGS,
+				HASHMODE,
+				ANNOTATION,
+				USING_STATEMENT,
+				TYPEDEF_STATEMENT,
+				RUN_FUNC_DECLARATION,
+				FUNCTION_DECLARATION,
+				EXPRESSION_CONTAINS, // list
+				NAMESPACE_DECLARATION,
+				CLASS_DECLARATION,
+				SCRIPT_DECLARATION,
+				ENUM_DECLARATIONS // list
+			)
+		};
+}
+
+/** @type LanguageFn */
+function zs(hljs) {
+	return zs_builder(hljs, 'zs')
+}
+/** @type LanguageFn */
+function zs_body(hljs) {
+	return zs_builder(hljs, 'zs-body')
 }
 
 hljs.registerLanguage('zs', zs);
+hljs.registerLanguage('zs-body', zs_body);
 
 hljs.configure({
 	languageDetectRe: /\b(?:inline(?=zs\b)|custom(?=zs\b)|language-)([\w-]+)\b/,
 	ignoreUnescapedHTML: true,
-	languages: ['zs']
+	languages: ['zs', 'zs-body'],
+	noHighlightRe: /nohighlight/
 });
 
 // docs-www/source/extensions/zscript.py already emits code to run hljs

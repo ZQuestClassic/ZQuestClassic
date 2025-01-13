@@ -37,6 +37,7 @@ This has a different format, `for(varname : array)` / `for(varname in array)`.
 The type of the variable will be the element type of the array.
 
 .. zscript::
+	:style: body
 
 	int[] some_values = {1,2,7,20,5};
 	for(x : some_values)

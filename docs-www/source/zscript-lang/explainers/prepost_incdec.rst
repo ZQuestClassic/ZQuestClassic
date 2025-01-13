@@ -13,6 +13,7 @@ returned by the operator, `++x` will read the value **AFTER** it goes up by 1, a
 `x++` will read the value **BEFORE** it goes up by 1.
 
 .. zscript::
+	:style: body
 
 	int x = 5;
 	Trace(x++); // prints '5'

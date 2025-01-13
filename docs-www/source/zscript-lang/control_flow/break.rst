@@ -13,6 +13,7 @@ By using the `break` statement, you can exit a loop early.
 By using the `continue` statement, you can skip ahead to the next iteration of the loop.
 
 .. zscript::
+	:style: body
 
 	for(int q = 0; q < 10; ++q)
 	{

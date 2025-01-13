@@ -10,7 +10,8 @@ Conditional loops work similarly to :ref:`conditional statements<stmt_if>`,
 except the body code runs multiple times, until the condition fails.
 
 .. zscript::
-
+	:style: body
+	
 	int x = 3;
 	while(x > 0)
 	{
@@ -39,6 +40,7 @@ with the condition moved to the end, to create a ``do-while`` or ``do-until`` lo
 A loop using the `do` keyword will run at least one time, even if the condition isn't met.
 
 .. zscript::
+	:style: body
 
 	int x = 3;
 	do

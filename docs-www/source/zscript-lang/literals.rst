@@ -58,6 +58,8 @@ You may place spacers `_` between any 2 digits, which have no effect, but can he
 make the number more readable. Example:
 
 .. zscript::
+	:style: body
+	
 	150_000 == 150000
 	150_200_500L == 150200500L
 	0x10_FF == 0x10FF
@@ -90,6 +92,8 @@ special characters, including `"` and `\\`.
 Also, adjacent strings are automatically merged by the compiler. Ex:
 
 .. zscript::
+	:style: body
+	
 	printf("This is a string"
 		" split across multiple lines!\n");
 	// prints 'This is a string split across multiple lines!'

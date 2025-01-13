@@ -11,6 +11,7 @@ By using `if(condition)`, the code will run when the condition evaluates to any 
 By using `unless(condition)`, the code will run only when the condition evaluates to `0` (so, the opposite).
 
 .. zscript::
+	:style: body
 	
 	int x = 3;
 	if(x < 5)
@@ -38,6 +39,7 @@ Conditional Else
 Placing an `else` after a conditional statement's body, allows you to run a second body statement in the **opposite** condition.
 
 .. zscript::
+	:style: body
 
 	int x = 3;
 	if(x > 6)

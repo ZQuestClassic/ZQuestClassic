@@ -3,7 +3,7 @@ import urllib
 
 from docutils import nodes
 from docutils.parsers.rst import Directive
-from docutils.parsers.rst.directives import unchanged, flag
+from docutils.parsers.rst.directives import unchanged, flag, choice
 from docutils.parsers.rst.directives.admonitions import BaseAdmonition
 from sphinx import addnodes
 from sphinx.application import Sphinx
@@ -17,19 +17,25 @@ class ZScriptNode(nodes.General, nodes.Element):
     data: str = ''
     fname: str = ''
     height: int = 800
-    def __init__(self, url: str = '', data: str = '', fname: str = '', height = 800):
+    style: str = 'file'
+    def __init__(self, url: str = '', data: str = '', fname: str = '', height = 800, style = 'file'):
         super().__init__()
         self.url = url
         self.data = data
         self.fname = fname
         self.height = height
+        self.style = style
+
+def code_style_options(arg: str):
+    return choice(arg, ('plain','file','body'))
 
 class ZScriptDirective(SphinxDirective):
     has_content: bool = True
     option_spec: dict = {
-        "url": unchanged,
-        "fname": unchanged,
-        "height": int,
+        'url': unchanged,
+        'fname': unchanged,
+        'height': int,
+        'style': code_style_options,
     }
 
     def run(self) -> list[nodes.Node]:
@@ -38,11 +44,19 @@ class ZScriptDirective(SphinxDirective):
             data='\n'.join(self.content),
             fname=self.options.get('fname', '').strip(),
             height=self.options.get('height', 800),
+            style=self.options.get('style', 'file'),
             )]
 
+
+body_to_cls = {
+    'plain': 'nohighlight',
+    'body': 'language-zs-body',
+    'file': 'language-zs',
+}
 def visit_zscript_node_html(translator: SphinxTranslator, node: ZScriptNode) -> None:
     if node.data:
-        html_str = f'<pre class="hljs language-zs"><code>{html.escape(node.data)}</code></pre>'
+        cls = body_to_cls.get(node.style, 'language-zs')
+        html_str = f'<pre class="hljs {cls}"><code>{html.escape(node.data)}</code></pre>'
         html_str += f'''
         <script>
             {{

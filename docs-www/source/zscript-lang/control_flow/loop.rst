@@ -30,6 +30,7 @@ Otherwise, you can follow the pattern `loop(typename varname : range, increment)
 	- If a negative increment is supplied, the loop's variable will start at the high end of the range, and count down.
 
 .. zscript::
+	:style: body
 
 	void infinite()
 	{
@@ -41,6 +42,7 @@ Otherwise, you can follow the pattern `loop(typename varname : range, increment)
 	}
 
 .. zscript::
+	:style: body
 
 	loop(x : 1=..10, 2) // similar to 'for(int x = 1; x < 10; x += 2)'
 		printf("x is %d\n", x);
