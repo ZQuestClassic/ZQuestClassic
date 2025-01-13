@@ -3715,16 +3715,6 @@ bool lenscheck(mapscr* scr, int layer)
 }
 
 // TODO z3 !
-void do_layer_old(BITMAP *bmp, int32_t type, int32_t layer, mapscr* basescr, int32_t x, int32_t y, int32_t tempscreen, bool scrolling, bool drawprimitives)
-{
-	DCHECK_LAYER_ZERO_INDEX(layer);
-	mapscr* layerscr = get_scr_layer_valid(cur_screen, layer);
-	if (!layerscr)
-		return;
-
-	do_layer(bmp, type, {basescr, layerscr, cur_screen, layer}, x, y, drawprimitives);
-}
-
 void do_layer_old2(BITMAP *bmp, int32_t type, int32_t layer, mapscr* basescr, mapscr* scr, int32_t x, int32_t y, bool scrolling, bool drawprimitives)
 {
 	DCHECK_LAYER_ZERO_INDEX(layer);
