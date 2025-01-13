@@ -21469,12 +21469,12 @@ void HeroClass::oldchecklockblock()
 	if(cmb.usrflags&cflag16)
 	{
 		setxmapflag(rpos_handle.screen, 1<<cmb.attribytes[5]);
-		remove_xstatecombos(rpos_handle.scr, 1<<cmb.attribytes[5], false);
+		remove_xstatecombos(create_screen_handles(rpos_handle.scr), 1<<cmb.attribytes[5], false);
 	}
 	else
 	{
 		setmapflag(rpos_handle.scr, mLOCKBLOCK);
-		remove_lockblocks(rpos_handle.scr);
+		remove_lockblocks(create_screen_handles(rpos_handle.scr));
 	}
 	if ( cmb3.usrflags&cflag3 )
 	{
@@ -21645,12 +21645,12 @@ void HeroClass::oldcheckbosslockblock()
 	if(cmb.usrflags&cflag16)
 	{
 		setxmapflag(cmb_screen_index, 1<<cmb.attribytes[5]);
-		remove_xstatecombos(scr, 1<<cmb.attribytes[5]);
+		remove_xstatecombos(create_screen_handles(scr), 1<<cmb.attribytes[5]);
 	}
 	else
 	{
 		setmapflag(scr, mBOSSLOCKBLOCK);
-		remove_bosslockblocks(scr);
+		remove_bosslockblocks(create_screen_handles(scr));
 	}
 	if ( (combobuf[cid].attribytes[3]) )
 		sfx(combobuf[cid].attribytes[3]);
@@ -23830,23 +23830,25 @@ void HeroClass::checkspecial()
 			stop_sfx(scr->bosssfx);
 		}
 
+		auto screen_handles = create_screen_handles(scr);
+
 		if (getmapflag(screen, mCHEST))              // if special stuff done before
 		{
-			remove_chests(scr);
+			remove_chests(screen_handles);
 		}
 		
 		if(getmapflag(screen, mLOCKEDCHEST))              // if special stuff done before
 		{
-			remove_lockedchests(scr);
+			remove_lockedchests(screen_handles);
 		}
 		
 		if(getmapflag(screen, mBOSSCHEST))              // if special stuff done before
 		{
-			remove_bosschests(scr);
+			remove_bosschests(screen_handles);
 		}
 
-		clear_xdoors(scr, true);
-		clear_xstatecombos(scr, screen, true);
+		clear_xdoors(screen_handles, true);
+		clear_xstatecombos(screen_handles, screen, true);
 
 		if (state.triggered_secrets && state.item_state == ScreenItemState::WhenTriggerSecrets)
 		{

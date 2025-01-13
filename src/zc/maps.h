@@ -329,23 +329,26 @@ bool isSwitchHookable(newcombo const& cmb);
 bool check_hshot(int32_t layer, int32_t x, int32_t y, bool switchhook, rpos_t *out_rpos = nullptr, ffcdata **out_ffc = nullptr);
 bool ishookshottable(int32_t bx, int32_t by);
 bool reveal_hidden_stairs(mapscr *s, int32_t screen, bool redraw);
-bool remove_screenstatecombos2(mapscr *s, bool do_layers, int32_t what1, int32_t what2);
 
-bool remove_xstatecombos(mapscr *s, byte xflag, bool triggers = false);
-bool remove_xstatecombos_mi(mapscr *s, int32_t screen, int32_t mi, byte xflag, bool triggers);
-void clear_xstatecombos(mapscr *s, int32_t screen, bool triggers = false);
-void clear_xstatecombos_mi(mapscr *s, int32_t screen, int32_t mi, bool triggers = false);
+bool remove_xstatecombos(const std::array<screen_handle_t, 7>& screen_handles, byte xflag, bool triggers = false);
+bool remove_xstatecombos_mi(const std::array<screen_handle_t, 7>& screen_handles, int32_t screen, int32_t mi, byte xflag, bool triggers);
+void clear_xstatecombos(const std::array<screen_handle_t, 7>& screen_handles, int32_t screen, bool triggers = false);
+void clear_xstatecombos_mi(const std::array<screen_handle_t, 7>& screen_handles, int32_t screen, int32_t mi, bool triggers = false);
 
-bool remove_xdoors(mapscr *scr, uint dir, uint ind, bool triggers = false);
-bool remove_xdoors_mi(mapscr *scr, int32_t mi, uint dir, uint ind, bool triggers);
-void clear_xdoors(mapscr *scr, bool triggers = false);
-void clear_xdoors_mi(mapscr *scr, int32_t mi, bool triggers = false);
+bool remove_xdoors(const std::array<screen_handle_t, 7>& screen_handles, uint dir, uint ind, bool triggers = false);
+bool remove_xdoors_mi(const std::array<screen_handle_t, 7>& screen_handles, int32_t mi, uint dir, uint ind, bool triggers);
+void clear_xdoors(const std::array<screen_handle_t, 7>& screen_handles, bool triggers = false);
+void clear_xdoors_mi(const std::array<screen_handle_t, 7>& screen_handles, int32_t mi, bool triggers = false);
 
-bool remove_lockblocks(mapscr* s);
-bool remove_bosslockblocks(mapscr* s);
-bool remove_chests(mapscr* s);
-bool remove_lockedchests(mapscr* s);
-bool remove_bosschests(mapscr* s);
+std::array<screen_handle_t, 7> create_screen_handles_one(mapscr* base_scr);
+std::array<screen_handle_t, 7> create_screen_handles(mapscr* base_scr);
+
+bool remove_screenstatecombos2(const std::array<screen_handle_t, 7>& screen_handles, bool do_layers, int32_t what1, int32_t what2);
+bool remove_lockblocks(const std::array<screen_handle_t, 7>& screen_handles);
+bool remove_bosslockblocks(const std::array<screen_handle_t, 7>& screen_handles);
+bool remove_chests(const std::array<screen_handle_t, 7>& screen_handles);
+bool remove_lockedchests(const std::array<screen_handle_t, 7>& screen_handles);
+bool remove_bosschests(const std::array<screen_handle_t, 7>& screen_handles);
 
 void delete_fireball_shooter(const rpos_handle_t& rpos_handle);
 
@@ -365,6 +368,7 @@ enum class TriggerSource {
 void trigger_secrets_for_screen(TriggerSource source, int32_t screen, bool high16only=false, int32_t single=-1);
 void trigger_secrets_for_screen(TriggerSource source, int32_t screen, mapscr *s, bool high16only=false, int32_t single=-1);
 void trigger_secrets_for_screen_internal(int32_t screen, mapscr *scr, bool from_active_screen, bool high16only, int32_t single, bool do_replay_comment);
+void trigger_secrets_for_screen_internal(const std::array<screen_handle_t, 7>& screen_handles, bool from_active_screen, bool high16only, int32_t single, bool do_replay_comment);
 
 void update_freeform_combos();
 void update_slopes();

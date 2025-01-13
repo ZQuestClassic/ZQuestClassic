@@ -1130,7 +1130,7 @@ static void apply_state_changes_to_screen(mapscr& scr, int32_t map, int32_t scre
 		reveal_hidden_stairs(&scr, screen, false);
 		bool do_layers = false;
 		bool from_active_screen = false;
-		trigger_secrets_for_screen_internal(-1, &scr, do_layers, from_active_screen, -3, secrets_do_replay_comment);
+		trigger_secrets_for_screen_internal(create_screen_handles_one(&scr), do_layers, from_active_screen, -3, secrets_do_replay_comment);
 	}
 	if (flags & mLIGHTBEAM)
 	{
@@ -1142,34 +1142,37 @@ static void apply_state_changes_to_screen(mapscr& scr, int32_t map, int32_t scre
 			}
 		});
 	}
+
+	auto screen_handles = create_screen_handles_one(&scr);
+
 	if(flags&mLOCKBLOCK)              // if special stuff done before
 	{
-	    remove_screenstatecombos2(&scr, false, cLOCKBLOCK, cLOCKBLOCK2);
+	    remove_screenstatecombos2(screen_handles, false, cLOCKBLOCK, cLOCKBLOCK2);
 	}
 
 	if(flags&mBOSSLOCKBLOCK)          // if special stuff done before
 	{
-	    remove_screenstatecombos2(&scr, false, cBOSSLOCKBLOCK, cBOSSLOCKBLOCK2);
+	    remove_screenstatecombos2(screen_handles, false, cBOSSLOCKBLOCK, cBOSSLOCKBLOCK2);
 	}
 
 	if(flags&mCHEST)              // if special stuff done before
 	{
-	    remove_screenstatecombos2(&scr, false, cCHEST, cCHEST2);
+	    remove_screenstatecombos2(screen_handles, false, cCHEST, cCHEST2);
 	}
 
 	if(flags&mCHEST)              // if special stuff done before
 	{
-	    remove_screenstatecombos2(&scr, false, cLOCKEDCHEST, cLOCKEDCHEST2);
+	    remove_screenstatecombos2(screen_handles, false, cLOCKEDCHEST, cLOCKEDCHEST2);
 	}
 
 	if(flags&mBOSSCHEST)              // if special stuff done before
 	{
-	    remove_screenstatecombos2(&scr, false, cBOSSCHEST, cBOSSCHEST2);
+	    remove_screenstatecombos2(screen_handles, false, cBOSSCHEST, cBOSSCHEST2);
 	}
 
 	int mi = mapind(map, screen);
-	clear_xdoors_mi(&scr, mi);
-	clear_xstatecombos_mi(&scr, screen, mi);
+	clear_xdoors_mi(screen_handles, mi);
+	clear_xstatecombos_mi(screen_handles, screen, mi);
 }
 
 std::optional<mapscr> load_temp_mapscr_and_apply_secrets(int32_t map, int32_t screen, int32_t layer, bool secrets, bool secrets_do_replay_comment)
@@ -2289,17 +2292,34 @@ bool reveal_hidden_stairs(mapscr *s, int32_t screen, bool redraw)
     return false;
 }
 
-bool remove_screenstatecombos2(mapscr *s, bool do_layers, int32_t what1, int32_t what2)
+std::array<screen_handle_t, 7> create_screen_handles_one(mapscr* base_scr)
 {
+	std::array<screen_handle_t, 7> screen_handles{};
+	screen_handles[0] = {base_scr, base_scr, base_scr->screen, 0};
+	return screen_handles;
+}
+
+std::array<screen_handle_t, 7> create_screen_handles(mapscr* base_scr)
+{
+	std::array<screen_handle_t, 7> screen_handles{};
+	screen_handles[0] = {base_scr, base_scr, base_scr->screen, 0};
+	for (int i = 1; i <= 6; i++)
+		screen_handles[i] = {base_scr, get_scr_layer_valid(base_scr->screen, i), base_scr->screen, 0};
+	return screen_handles;
+}
+
+bool remove_screenstatecombos2(const std::array<screen_handle_t, 7>& screen_handles, bool do_layers, int32_t what1, int32_t what2)
+{
+	mapscr* scr = screen_handles[0].scr;
 	bool didit=false;
 	
 	for(int32_t i=0; i<176; i++)
 	{
-		newcombo const& cmb = combobuf[s->data[i]];
+		newcombo const& cmb = combobuf[scr->data[i]];
 		if(cmb.usrflags&cflag16) continue; //custom state instead of normal state
 		if((cmb.type == what1) || (cmb.type== what2))
 		{
-			s->data[i]++;
+			scr->data[i]++;
 			didit=true;
 		}
 	}
@@ -2308,9 +2328,9 @@ bool remove_screenstatecombos2(mapscr *s, bool do_layers, int32_t what1, int32_t
 	{
 		for(int32_t j=1; j<=6; j++)
 		{
-			mapscr* layer_scr = get_scr_layer_valid(s->screen, j);
-			if (!layer_scr) continue;
-			
+			mapscr* layer_scr = screen_handles[j].scr;
+			if (!layer_scr || !layer_scr->is_valid()) continue;
+
 			for(int32_t i=0; i<176; i++)
 			{
 				newcombo const& cmb = combobuf[layer_scr->data[i]];
@@ -2327,10 +2347,10 @@ bool remove_screenstatecombos2(mapscr *s, bool do_layers, int32_t what1, int32_t
 	// 'do_layers' also means that this is called on an active temp screen, so update its ffcs.
 	if (!get_qr(qr_OLD_FFC_FUNCTIONALITY) && do_layers)
 	{
-		word c = s->numFFC();
+		word c = scr->numFFC();
 		for(word i=0; i<c; i++)
 		{
-			ffcdata* ffc = &s->ffcs[i];
+			ffcdata* ffc = &scr->ffcs[i];
 			newcombo const& cmb = combobuf[ffc->data];
 			if(cmb.usrflags&cflag16) continue; //custom state instead of normal state
 			if((cmb.type== what1) || (cmb.type== what2))
@@ -2344,27 +2364,27 @@ bool remove_screenstatecombos2(mapscr *s, bool do_layers, int32_t what1, int32_t
 	return didit;
 }
 
-bool remove_xstatecombos(mapscr *s, byte xflag, bool triggers)
+bool remove_xstatecombos(const std::array<screen_handle_t, 7>& screen_handles, byte xflag, bool triggers)
 {
-	int mi = mapind(cur_map, s->screen >= 0x80 ? home_screen : s->screen);
-	return remove_xstatecombos_mi(s, s->screen, mi, xflag, triggers);
+	int screen = screen_handles[0].scr->screen;
+	int mi = mapind(cur_map, screen >= 0x80 ? home_screen : screen);
+	return remove_xstatecombos_mi(screen_handles, screen, mi, xflag, triggers);
 }
-bool remove_xstatecombos_mi(mapscr *s, int32_t screen, int32_t mi, byte xflag, bool triggers)
+bool remove_xstatecombos_mi(const std::array<screen_handle_t, 7>& screen_handles, int32_t screen, int32_t mi, byte xflag, bool triggers)
 {
 	bool didit=false;
 	if(!getxmapflag_mi(mi, 1<<xflag)) return false;
 
-	if (screen >= 0x80) s = special_warp_return_scr;
-	screen = screen >= 0x80 ? home_screen : screen;
+	mapscr* s = screen_handles[0].scr;
+	screen = screen >= 0x80 ? home_screen : screen; // TODO z3 !  screen = s->screen
 
 	rpos_handle_t rpos_handle;
 	rpos_handle.screen = screen;
 	rpos_handle.layer = 0;
 	for (int j = 0; j <= 6; j++)
 	{
-		mapscr* scr = s;
-		if (j != 0) scr = get_scr_layer_valid(screen, j);
-		if (!scr) continue;
+		mapscr* scr = screen_handles[0].scr;
+		if (!scr->is_valid()) continue;
 
 		rpos_handle.scr = scr;
 		rpos_handle.layer = j;
@@ -2429,31 +2449,32 @@ bool remove_xstatecombos_mi(mapscr *s, int32_t screen, int32_t mi, byte xflag, b
 	return didit;
 }
 
-void clear_xstatecombos(mapscr *s, int32_t screen, bool triggers)
+void clear_xstatecombos(const std::array<screen_handle_t, 7>& screen_handles, int32_t screen, bool triggers)
 {
 	int mi = mapind(cur_map, screen >= 0x80 ? home_screen : screen);
-	clear_xstatecombos_mi(s, screen, mi, triggers);
+	clear_xstatecombos_mi(screen_handles, screen, mi, triggers);
 }
 
-void clear_xstatecombos_mi(mapscr *s, int32_t screen, int32_t mi, bool triggers)
+void clear_xstatecombos_mi(const std::array<screen_handle_t, 7>& screen_handles, int32_t screen, int32_t mi, bool triggers)
 {
 	for (int q = 0; q < 32; ++q)
 	{
-		remove_xstatecombos_mi(s,screen,mi,q,triggers);
+		remove_xstatecombos_mi(screen_handles, screen, mi, q, triggers);
 	}
 }
 
-bool remove_xdoors(mapscr *scr, uint dir, uint ind, bool triggers)
+bool remove_xdoors(const std::array<screen_handle_t, 7>& screen_handles, uint dir, uint ind, bool triggers)
 {
+	mapscr* scr = screen_handles[0].scr;
 	int mi = mapind(cur_map, scr->screen >= 0x80 ? home_screen : scr->screen);
-	return remove_xdoors_mi(scr, mi, dir, ind, triggers);
+	return remove_xdoors_mi(screen_handles, mi, dir, ind, triggers);
 }
-bool remove_xdoors_mi(mapscr *scr, int32_t mi, uint dir, uint ind, bool triggers)
+bool remove_xdoors_mi(const std::array<screen_handle_t, 7>& screen_handles, int32_t mi, uint dir, uint ind, bool triggers)
 {
 	bool didit=false;
-	if(!getxdoor_mi(mi, dir, ind)) return false;
+	if (!getxdoor_mi(mi, dir, ind)) return false;
 
-	if (scr->screen >= 0x80) scr = special_warp_return_scr;
+	mapscr* scr = screen_handles[0].scr;
 	int screen = scr->screen;
 
 	rpos_handle_t rpos_handle;
@@ -2461,9 +2482,8 @@ bool remove_xdoors_mi(mapscr *scr, int32_t mi, uint dir, uint ind, bool triggers
 	rpos_handle.layer = 0;
 	for (int j = 0; j <= 6; j++)
 	{
-		mapscr* scr_2 = scr;
-		if (j != 0) scr_2 = get_scr_layer_valid(screen, j);
-		if (!scr_2) continue;
+		mapscr* scr_2 = screen_handles[j].scr;
+		if (!scr_2 || !scr_2->is_valid()) continue;
 
 		rpos_handle.scr = scr_2;
 		rpos_handle.screen = screen;
@@ -2495,43 +2515,44 @@ bool remove_xdoors_mi(mapscr *scr, int32_t mi, uint dir, uint ind, bool triggers
 	return didit;
 }
 
-void clear_xdoors(mapscr *scr, bool triggers)
+void clear_xdoors(const std::array<screen_handle_t, 7>& screen_handles, bool triggers)
 {
+	mapscr* scr = screen_handles[0].scr;
 	int mi = mapind(cur_map, scr->screen >= 0x80 ? home_screen : scr->screen);
-	clear_xdoors_mi(scr, mi, triggers);
+	clear_xdoors_mi(screen_handles, mi, triggers);
 }
 
-void clear_xdoors_mi(mapscr *scr, int32_t mi, bool triggers)
+void clear_xdoors_mi(const std::array<screen_handle_t, 7>& screen_handles, int32_t mi, bool triggers)
 {
 	for (int q = 0; q < 32; ++q)
 	{
-		remove_xdoors(scr,mi,q,triggers);
+		remove_xdoors(screen_handles, mi, q, triggers);
 	}
 }
 
-bool remove_lockblocks(mapscr* s)
+bool remove_lockblocks(const std::array<screen_handle_t, 7>& screen_handles)
 {
-    return remove_screenstatecombos2(s, true, cLOCKBLOCK, cLOCKBLOCK2);
+    return remove_screenstatecombos2(screen_handles, true, cLOCKBLOCK, cLOCKBLOCK2);
 }
 
-bool remove_bosslockblocks(mapscr* s)
+bool remove_bosslockblocks(const std::array<screen_handle_t, 7>& screen_handles)
 {
-    return remove_screenstatecombos2(s, true, cBOSSLOCKBLOCK, cBOSSLOCKBLOCK2);
+    return remove_screenstatecombos2(screen_handles, true, cBOSSLOCKBLOCK, cBOSSLOCKBLOCK2);
 }
 
-bool remove_chests(mapscr* s)
+bool remove_chests(const std::array<screen_handle_t, 7>& screen_handles)
 {
-    return remove_screenstatecombos2(s, true, cCHEST, cCHEST2);
+    return remove_screenstatecombos2(screen_handles, true, cCHEST, cCHEST2);
 }
 
-bool remove_lockedchests(mapscr* s)
+bool remove_lockedchests(const std::array<screen_handle_t, 7>& screen_handles)
 {
-    return remove_screenstatecombos2(s, true, cLOCKEDCHEST, cLOCKEDCHEST2);
+    return remove_screenstatecombos2(screen_handles, true, cLOCKEDCHEST, cLOCKEDCHEST2);
 }
 
-bool remove_bosschests(mapscr* s)
+bool remove_bosschests(const std::array<screen_handle_t, 7>& screen_handles)
 {
-    return remove_screenstatecombos2(s, true, cBOSSCHEST, cBOSSCHEST2);
+    return remove_screenstatecombos2(screen_handles, true, cBOSSCHEST, cBOSSCHEST2);
 }
 
 void delete_fireball_shooter(const rpos_handle_t& rpos_handle)
@@ -2693,10 +2714,19 @@ void trigger_secrets_for_screen_internal(int32_t screen, mapscr *scr, bool from_
 	}
 	else if (screen == -1) screen = cur_screen;
 
+	trigger_secrets_for_screen_internal(create_screen_handles(scr), from_active_screen, high16only, single, do_replay_comment);
+}
+
+void trigger_secrets_for_screen_internal(const std::array<screen_handle_t, 7>& screen_handles, bool from_active_screen, bool high16only, int32_t single, bool do_replay_comment)
+{
+	mapscr* scr = screen_handles[0].scr;
+	int screen = scr->screen;
+
 	// TODO(replays): No real reason for "do_replay_comment" to exist - I just did not want to update many replays when fixing
 	// slopes in sideview mode (which required loading nearby screens in loadscr).
+	// TODO(replays): This should just use `screen`.
 	if (replay_is_active() && do_replay_comment)
-		replay_step_comment(fmt::format("trigger secrets scr={}", screen));
+		replay_step_comment(fmt::format("trigger secrets scr={}", from_active_screen && scr != special_warp_return_scr ? screen : cur_screen));
 
 	if (from_active_screen)
 	{
@@ -2763,60 +2793,57 @@ void trigger_secrets_for_screen_internal(int32_t screen, mapscr *scr, bool from_
 			
 			if(newflag >-1) scr->sflag[i] = newflag; //Tiered secret
 			
-			if (from_active_screen)
+			for(int32_t j=1; j<=6; j++)  //Layers
 			{
-				for(int32_t j=1; j<=6; j++)  //Layers
+				mapscr* layer_scr = screen_handles[j].scr;
+				if (!layer_scr || !layer_scr->is_valid()) continue;
+				
+				if(single>=0 && i!=single) continue; //If it's got a singular flag and i isn't where the flag is
+				
+				int32_t newflag2 = -1;
+				
+				// Remember the misc. secret flag; if triggered, use this instead
+				if(layer_scr->sflag[i]>=mfSECRETS01 && layer_scr->sflag[i]<=mfSECRETS16)
+					msflag=sSECRET01+(layer_scr->sflag[i]-mfSECRETS01);
+				else if(combobuf[layer_scr->data[i]].flag>=mfSECRETS01 && combobuf[layer_scr->data[i]].flag<=mfSECRETS16)
+					msflag=sSECRET01+(combobuf[layer_scr->data[i]].flag-mfSECRETS01);
+				else
+					msflag=0;
+					
+				for(int32_t iter=0; iter<2; ++iter)
 				{
-					mapscr* layer_scr = get_scr_layer_valid(screen, j);
-					if (!layer_scr) continue;
-					
-					if(single>=0 && i!=single) continue; //If it's got a singular flag and i isn't where the flag is
-					
-					int32_t newflag2 = -1;
-					
-					// Remember the misc. secret flag; if triggered, use this instead
-					if(layer_scr->sflag[i]>=mfSECRETS01 && layer_scr->sflag[i]<=mfSECRETS16)
-						msflag=sSECRET01+(layer_scr->sflag[i]-mfSECRETS01);
-					else if(combobuf[layer_scr->data[i]].flag>=mfSECRETS01 && combobuf[layer_scr->data[i]].flag<=mfSECRETS16)
-						msflag=sSECRET01+(combobuf[layer_scr->data[i]].flag-mfSECRETS01);
-					else
-						msflag=0;
-						
-					for(int32_t iter=0; iter<2; ++iter)
-					{
-						int32_t checkflag=combobuf[layer_scr->data[i]].flag; //Inherent
-						if(iter==1) checkflag=layer_scr->sflag[i];  //Placed
+					int32_t checkflag=combobuf[layer_scr->data[i]].flag; //Inherent
+					if(iter==1) checkflag=layer_scr->sflag[i];  //Placed
 
-						ft = combo_trigger_flag_to_secret_combo_index(checkflag);
-						if (ft != -1)  //Change the combos for the secret
+					ft = combo_trigger_flag_to_secret_combo_index(checkflag);
+					if (ft != -1)  //Change the combos for the secret
+					{
+						// Use misc. secret flag instead if one is present
+						if(msflag!=0)
+							ft=msflag;
+						
+						if(ft==sSECNEXT)
 						{
-							// Use misc. secret flag instead if one is present
-							if(msflag!=0)
-								ft=msflag;
-							
-							if(ft==sSECNEXT)
-							{
-								layer_scr->data[i]++;
-							}
-							else
-							{
-								layer_scr->data[i] = layer_scr->secretcombo[ft];
-								layer_scr->cset[i] = layer_scr->secretcset[ft];
-							}
-							newflag2 = layer_scr->secretflag[ft];
-							int32_t c=layer_scr->data[i];
-							int32_t cs=layer_scr->cset[i];
-							
-							if (from_active_screen && combobuf[c].type==cSPINTILE1)  //Surely this means we can have spin tiles on layers 3+? Isn't that bad? ~Joe123
-							{
-								auto [offx, offy] = translate_screen_coordinates_to_world(screen, COMBOX(i), COMBOY(i));
-								addenemy(screen,offx,offy,(cs<<12)+eSPINTILE1,combobuf[c].o_tile+zc_max(1,combobuf[c].frames));
-							}
+							layer_scr->data[i]++;
+						}
+						else
+						{
+							layer_scr->data[i] = layer_scr->secretcombo[ft];
+							layer_scr->cset[i] = layer_scr->secretcset[ft];
+						}
+						newflag2 = layer_scr->secretflag[ft];
+						int32_t c=layer_scr->data[i];
+						int32_t cs=layer_scr->cset[i];
+						
+						if (from_active_screen && combobuf[c].type==cSPINTILE1)  //Surely this means we can have spin tiles on layers 3+? Isn't that bad? ~Joe123
+						{
+							auto [offx, offy] = translate_screen_coordinates_to_world(screen, COMBOX(i), COMBOY(i));
+							addenemy(screen,offx,offy,(cs<<12)+eSPINTILE1,combobuf[c].o_tile+zc_max(1,combobuf[c].frames));
 						}
 					}
-					
-					if(newflag2 >-1) layer_scr->sflag[i] = newflag2;  //Tiered secret
 				}
+				
+				if(newflag2 >-1) layer_scr->sflag[i] = newflag2;  //Tiered secret
 			}
 		}
 	}
@@ -2900,32 +2927,29 @@ void trigger_secrets_for_screen_internal(int32_t screen, mapscr *scr, bool from_
 			}
 			
 			if(newflag >-1) scr->sflag[i] = newflag;  //Tiered flag
-			
-			if (from_active_screen)
+
+			for(int32_t j=1; j<=6; j++)  //Layers
 			{
-				for(int32_t j=1; j<=6; j++)  //Layers
+				mapscr* layer_scr = screen_handles[j].scr;
+				if (!layer_scr || !layer_scr->is_valid()) continue;
+				
+				int32_t newflag2 = -1;
+				
+				for(int32_t iter=0; iter<2; ++iter)
 				{
-					mapscr* layer_scr = get_scr_layer_valid(screen, j);
-					if (!layer_scr) continue;
+					int32_t checkflag=combobuf[layer_scr->data[i]].flag; //Inherent
 					
-					int32_t newflag2 = -1;
+					if(iter==1) checkflag=layer_scr->sflag[i];  //Placed
 					
-					for(int32_t iter=0; iter<2; ++iter)
+					if((checkflag > 15)&&(checkflag < 32)) //If we've got a 16->32 flag change the combo
 					{
-						int32_t checkflag=combobuf[layer_scr->data[i]].flag; //Inherent
-						
-						if(iter==1) checkflag=layer_scr->sflag[i];  //Placed
-						
-						if((checkflag > 15)&&(checkflag < 32)) //If we've got a 16->32 flag change the combo
-						{
-							layer_scr->data[i] = layer_scr->secretcombo[checkflag-16+4];
-							layer_scr->cset[i] = layer_scr->secretcset[checkflag-16+4];
-							newflag2 = layer_scr->secretflag[checkflag-16+4];
-						}
+						layer_scr->data[i] = layer_scr->secretcombo[checkflag-16+4];
+						layer_scr->cset[i] = layer_scr->secretcset[checkflag-16+4];
+						newflag2 = layer_scr->secretflag[checkflag-16+4];
 					}
-					
-					if(newflag2 >-1) layer_scr->sflag[i] = newflag2;  //Tiered flag
 				}
+				
+				if(newflag2 >-1) layer_scr->sflag[i] = newflag2;  //Tiered flag
 			}
 		}
 	}
@@ -5843,33 +5867,21 @@ static void load_a_screen_and_layers_post(int dmap, int screen, int ldir)
 	bool should_check_for_state_things = (screen < 0x80);
 	if (should_check_for_state_things)
 	{
+		auto screen_handles = create_screen_handles(base_scr);
+
 		if (game->maps[mi]&mLOCKBLOCK)
-		{
-			remove_lockblocks(base_scr);
-		}
-		
+			remove_lockblocks(screen_handles);
 		if (game->maps[mi]&mBOSSLOCKBLOCK)
-		{
-			remove_bosslockblocks(base_scr);
-		}
-		
+			remove_bosslockblocks(screen_handles);
 		if (game->maps[mi]&mCHEST)
-		{
-			remove_chests(base_scr);
-		}
-		
+			remove_chests(screen_handles);
 		if (game->maps[mi]&mLOCKEDCHEST)
-		{
-			remove_lockedchests(base_scr);
-		}
-		
+			remove_lockedchests(screen_handles);
 		if (game->maps[mi]&mBOSSCHEST)
-		{
-			remove_bosschests(base_scr);
-		}
+			remove_bosschests(screen_handles);
 		
-		clear_xdoors_mi(base_scr, mi, true);
-		clear_xstatecombos_mi(base_scr, screen, mi, true);
+		clear_xdoors_mi(screen_handles, mi, true);
+		clear_xstatecombos_mi(screen_handles, screen, mi, true);
 	}
 
 	// check doors
@@ -6352,34 +6364,39 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 	
 	toggle_switches(game->lvlswitches[destlvl], true, tmp == 0 ? tmpscr : special_warp_return_scr);
 	toggle_gswitches_load(tmp == 0 ? tmpscr : special_warp_return_scr);
-	
+
+	std::array<screen_handle_t, 7> screen_handles{};
+	screen_handles[0] = {scr, scr, screen, 0};
+	for (int i = 1; i <= 6; i++)
+		screen_handles[i] = {scr, &tmpscr2[i], screen, i};
+
 	if(game->maps[mi]&mLOCKBLOCK)			  // if special stuff done before
 	{
-		remove_lockblocks(scr);
+		remove_lockblocks(screen_handles);
 	}
 	
 	if(game->maps[mi]&mBOSSLOCKBLOCK)		  // if special stuff done before
 	{
-		remove_bosslockblocks(scr);
+		remove_bosslockblocks(screen_handles);
 	}
 	
 	if(game->maps[mi]&mCHEST)			  // if special stuff done before
 	{
-		remove_chests(scr);
+		remove_chests(screen_handles);
 	}
 	
 	if(game->maps[mi]&mLOCKEDCHEST)			  // if special stuff done before
 	{
-		remove_lockedchests(scr);
+		remove_lockedchests(screen_handles);
 	}
 	
 	if(game->maps[mi]&mBOSSCHEST)			  // if special stuff done before
 	{
-		remove_bosschests(scr);
+		remove_bosschests(screen_handles);
 	}
 	
-	clear_xdoors(scr, true);
-	clear_xstatecombos(scr, screen, true);
+	clear_xdoors(screen_handles, true);
+	clear_xstatecombos(screen_handles, screen, true);
 
 	// check doors
 	if (isdungeon(destdmap, screen))
@@ -6476,10 +6493,6 @@ std::array<mapscr, 7> loadscr2(int32_t screen)
 	std::array<mapscr, 7> scrs;
 	mapscr* scr = &scrs[0];
 
-	// TODO z3 del?
-	auto oscr = home_screen;
-	home_screen = screen;
-
 	for(word x=0; x<animated_combos; x++)
 	{
 		if(combobuf[animated_combo_table4[x][0]].nextcombo!=0)
@@ -6504,6 +6517,10 @@ std::array<mapscr, 7> loadscr2(int32_t screen)
 			scrs[i] = {};
 	}
 
+	std::array<screen_handle_t, 7> screen_handles{};
+	for (int i = 0; i < 7; i++)
+		screen_handles[i] = {scr, &scrs[i], screen, i};
+
 	int mi = mapind(cur_map, screen);
 	
 	if(canPermSecret(-1,screen))
@@ -6513,7 +6530,7 @@ std::array<mapscr, 7> loadscr2(int32_t screen)
 			reveal_hidden_stairs(scr, screen, false);
 			bool from_active_screen = false;
 			bool do_replay_comment = true;
-			trigger_secrets_for_screen_internal(-1, scr, from_active_screen, false, -1, do_replay_comment);
+			trigger_secrets_for_screen_internal(screen_handles, from_active_screen, false, -1, do_replay_comment);
 		}
 		if(game->maps[mi]&mLIGHTBEAM) // if special stuff done before
 		{
@@ -6534,34 +6551,34 @@ std::array<mapscr, 7> loadscr2(int32_t screen)
 			}
 		}
 	}
-	
+
 	if(game->maps[mi]&mLOCKBLOCK)			  // if special stuff done before
 	{
-		remove_lockblocks(scr);
+		remove_lockblocks(screen_handles);
 	}
 	
 	if(game->maps[mi]&mBOSSLOCKBLOCK)		  // if special stuff done before
 	{
-		remove_bosslockblocks(scr);
+		remove_bosslockblocks(screen_handles);
 	}
 	
 	if(game->maps[mi]&mCHEST)			  // if special stuff done before
 	{
-		remove_chests(scr);
+		remove_chests(screen_handles);
 	}
 	
 	if(game->maps[mi]&mLOCKEDCHEST)			  // if special stuff done before
 	{
-		remove_lockedchests(scr);
+		remove_lockedchests(screen_handles);
 	}
 	
 	if(game->maps[mi]&mBOSSCHEST)			  // if special stuff done before
 	{
-		remove_bosschests(scr);
+		remove_bosschests(screen_handles);
 	}
-	
-	clear_xdoors(scr);
-	clear_xstatecombos(scr, screen);
+
+	clear_xdoors(screen_handles);
+	clear_xstatecombos(screen_handles, screen);
 	
 	// check doors
 	if (isdungeon(screen))
@@ -6644,8 +6661,6 @@ std::array<mapscr, 7> loadscr2(int32_t screen)
 			}
 		}
 	}
-
-	home_screen = oscr;
 
 	return scrs;
 }
