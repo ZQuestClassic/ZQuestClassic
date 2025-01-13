@@ -5642,7 +5642,7 @@ void clear_darkroom_bitmaps()
 }
 
 static mapscr prev_origin_scrs[7];
-static std::set<int> loadscr_ffc_script_indices_to_remove;
+static std::set<int> loadscr_ffc_script_ids_to_remove;
 
 static void handle_screen_overlay(const std::vector<mapscr*>& screens)
 {
@@ -5756,7 +5756,7 @@ static void load_a_screen_and_layers_init(int dmap, int screen, int ldir, bool s
 				ffc.screen_spawned = screen;
 
 				ffc_id_t ffc_id = get_region_screen_offset(screen)*MAXFFCS + i;
-				loadscr_ffc_script_indices_to_remove.erase(ffc_id);
+				loadscr_ffc_script_ids_to_remove.erase(ffc_id);
 				if (previous_scr->ffcs[i].flags&ffc_scriptreset)
 				{
 					FFCore.reset_script_engine_data(ScriptType::FFC, ffc_id);
@@ -5775,15 +5775,15 @@ static void load_a_screen_and_layers_init(int dmap, int screen, int ldir, bool s
 	}
 
 	// TODO z3 ! rm
-	if (screen == cur_screen)
-	{
-		for(word i = num_ffcs; i < MAXFFCS; i++)
-		{
-			ffc_id_t ffc_id = get_region_screen_offset(screen)*MAXFFCS + i;
-			FFCore.deallocateAllScriptOwned(ScriptType::FFC, ffc_id, false);
-			FFCore.reset_script_engine_data(ScriptType::FFC, ffc_id);
-		}
-	}
+	// if (screen == cur_screen)
+	// {
+	// 	for(word i = num_ffcs; i < MAXFFCS; i++)
+	// 	{
+	// 		ffc_id_t ffc_id = get_region_screen_offset(screen)*MAXFFCS + i;
+	// 		FFCore.deallocateAllScriptOwned(ScriptType::FFC, ffc_id, false);
+	// 		FFCore.reset_script_engine_data(ScriptType::FFC, ffc_id);
+	// 	}
+	// }
 }
 
 static void load_a_screen_and_layers_post(int dmap, int screen, int ldir)
@@ -6045,11 +6045,11 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool origin_screen_
 
 	// Based on origin_ffc_overlay, some ffc scripts don't get reset. This set starts with all of
 	// them, but scripts that need their data to persist will be removed.
-	loadscr_ffc_script_indices_to_remove.clear();
+	loadscr_ffc_script_ids_to_remove.clear();
 	for (auto& key : scriptEngineDatas | std::views::keys)
 	{
 		if (key.first == ScriptType::FFC)
-			loadscr_ffc_script_indices_to_remove.insert(key.second);
+			loadscr_ffc_script_ids_to_remove.insert(key.second);
 	}
 
 	load_region(destdmap, screen);
@@ -6097,14 +6097,7 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool origin_screen_
 	cpos_force_update();
 	trig_trigger_groups();
 
-	// TODO z3 ... ?
-	// for_every_ffc([&](const ffc_handle_t& ffc_handle) {
-	// 	loadscr_ffc_script_indices_to_remove.erase(ffc_handle.id);
-	// 	FFCore.reset_script_engine_data(ScriptType::FFC, ffc_handle.id);
-	// 	memset(ffc_handle.ffc->script_misc, 0, 16 * sizeof(int32_t));
-	// });
-
-	for (int index : loadscr_ffc_script_indices_to_remove)
+	for (int index : loadscr_ffc_script_ids_to_remove)
 	{
 		FFCore.deallocateAllScriptOwned(ScriptType::FFC, index, false);
 		FFCore.reset_script_engine_data(ScriptType::FFC, index);
@@ -6248,7 +6241,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 				ffc.screen_spawned = screen;
 
 				ffc_id_t ffc_id = get_region_screen_offset(screen)*MAXFFCS + i;
-				loadscr_ffc_script_indices_to_remove.erase(ffc_id);
+				loadscr_ffc_script_ids_to_remove.erase(ffc_id);
 				if (previous_scr.ffcs[i].flags&ffc_scriptreset)
 				{
 					FFCore.reset_script_engine_data(ScriptType::FFC, ffc_id);
