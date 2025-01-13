@@ -6120,7 +6120,7 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool origin_screen_
 
 	// If on a special screen, load the screen the player is currently on (home_screen) into special_warp_return_scr.
 	if (screen >= 0x80)
-		loadscr_old(1, orig_destdmap, home_screen, no_x80_dir ? -1 : ldir, origin_screen_overlay);
+		loadscr_old(orig_destdmap, home_screen, no_x80_dir ? -1 : ldir, origin_screen_overlay);
 
 	update_slope_comboposes();
 	cpos_force_update();
@@ -6181,35 +6181,38 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool origin_screen_
 }
 
 // Don't use this directly! Use `loadscr` instead.
-// Some stuff needs to be refactored before this function can be removed:
-//    - do the "overlay" logic (but just for tmpscr, not every single screen in a region) in load_a_screen_and_layers
-void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool overlay)
+void loadscr_old(int32_t destdmap, int32_t screen,int32_t ldir,bool overlay)
 {
-	bool is_setting_special_warp_return_screen = tmp == 1;
 	int32_t destlvl = DMaps[destdmap < 0 ? cur_dmap : destdmap].level;
 
-	mapscr previous_scr = tmp == 0 ? *tmpscr : *special_warp_return_scr;
-	mapscr* scr = tmp == 0 ? tmpscr : special_warp_return_scr;
+	mapscr previous_scr = *special_warp_return_scr;
+	mapscr* scr = special_warp_return_scr;
 	const mapscr* source = get_canonical_scr(cur_map, screen);
 	*scr = *source;
-	if (tmp == 0)
-		hero_scr = prev_hero_scr = scr;
-	if (!tmp)
+
+	// TODO z3 ???
+	for (int i = 1; i <= 6; i++)
 	{
-		int c = scr->numFFC();
-		for (uint8_t i = 0; i < c; ++i)
-		{
-			scr->ffcs[i].setLoaded(true);
-			scr->ffcs[i].solid_update(false);
-			scr->ffcs[i].registerUID();
-			screen_ffc_modify_postroutine({scr, (uint8_t)screen, i, i, &scr->ffcs[i]});
-		}
+		if (scr->layermap[i-1] > 0)
+			special_warp_return_scrs[i] = *get_canonical_scr(scr->layermap[i-1] - 1, scr->layerscreen[i-1]);
+		else
+			special_warp_return_scrs[i] = {};
 	}
+
+	// TODO z3 ! what was this doing?
+	// if (!tmp)
+	// {
+	// 	int c = scr->numFFC();
+	// 	for (uint8_t i = 0; i < c; ++i)
+	// 	{
+	// 		scr->ffcs[i].setLoaded(true);
+	// 		scr->ffcs[i].solid_update(false);
+	// 		scr->ffcs[i].registerUID();
+	// 		screen_ffc_modify_postroutine({scr, (uint8_t)screen, i, i, &scr->ffcs[i]});
+	// 	}
+	// }
 	
 	scr->valid |= mVALID; //layer 0 is always valid
-	// memcpy(scr->data, source->data, sizeof(scr->data));
-	// memcpy(scr->sflag, source->sflag, sizeof(scr->sflag));
-	// memcpy(scr->cset, source->cset, sizeof(scr->cset));
 
 	if ( source->script > 0 )
 	{
@@ -6256,72 +6259,6 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 			}
 		}
 	}
-	
-	// Carry over FFCs from previous screen to the next. Only for the ones that have the carry over
-	// flag set, and if the previous screen has FF carryover enabled.
-	if (!is_setting_special_warp_return_screen)
-	{
-		int c = previous_scr.numFFC();
-		for (int i = 0; i < c; i++)
-		{
-			if((previous_scr.ffcs[i].flags&ffc_carryover) && !(previous_scr.flags5&fNOFFCARRYOVER))
-			{
-				auto& ffc = scr->getFFC(i) = previous_scr.ffcs[i];
-				ffc.screen_spawned = screen;
-
-				ffc_id_t ffc_id = get_region_screen_offset(screen)*MAXFFCS + i;
-				loadscr_ffc_script_ids_to_remove.erase(ffc_id);
-				if (previous_scr.ffcs[i].flags&ffc_scriptreset)
-				{
-					FFCore.reset_script_engine_data(ScriptType::FFC, ffc_id);
-				}
-			}
-		}
-
-		for(word i = c; i < MAXFFCS; i++)
-		{
-			ffc_id_t ffc_id = get_region_screen_offset(screen)*MAXFFCS + i;
-			FFCore.deallocateAllScriptOwned(ScriptType::FFC, ffc_id, false);
-			FFCore.reset_script_engine_data(ScriptType::FFC, ffc_id);
-		}
-
-		for(int32_t i=0; i<6; i++)
-		{
-			static mapscr old_scr_layer;
-			if (overlay) old_scr_layer = tmpscr2[i];
-
-			if (scr->layermap[i]>0)
-			{
-				tmpscr2[i]=TheMaps[(scr->layermap[i]-1)*MAPSCRS+scr->layerscreen[i]];
-				tmpscr2[i].map = cur_map;
-				tmpscr2[i].screen = screen;
-				
-				if(overlay)
-				{
-					for(int32_t y=0; y<11; ++y)
-					{
-						for(int32_t x=0; x<16; ++x)
-						{
-							int32_t c=y*16+x;
-							
-							if(tmpscr2[i].data[c]==0)
-							{
-								tmpscr2[i].data[c] = old_scr_layer.data[c];
-								tmpscr2[i].sflag[c] = old_scr_layer.sflag[c];
-								tmpscr2[i].cset[c] = old_scr_layer.cset[c];
-							}
-						}
-					}
-				}
-			}
-			else
-			{
-				(tmpscr2+i)->zero_memory();
-				tmpscr2[i].map = cur_map;
-				tmpscr2[i].screen = screen;
-			}
-		}
-	}
 
 	auto [offx, offy] = translate_screen_coordinates_to_world(screen);
 	int c = scr->numFFC();
@@ -6340,13 +6277,13 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 		if(game->maps[mi]&mSECRET)			   // if special stuff done before
 		{
 			reveal_hidden_stairs(scr, screen, false);
-			trigger_secrets_for_screen(TriggerSource::SecretsScreenState, cur_screen, tmp == 0 ? tmpscr : special_warp_return_scr, false, -1);
+			trigger_secrets_for_screen(TriggerSource::SecretsScreenState, cur_screen, special_warp_return_scr, false, -1);
 		}
 		if(game->maps[mi]&mLIGHTBEAM) // if special stuff done before
 		{
 			for (int layer = 0; layer <= 6; layer++)
 			{
-				mapscr* tscr = (tmp==0) ? get_scr_layer(screen, layer) : &special_warp_return_scrs[layer];
+				mapscr* tscr = &special_warp_return_scrs[layer];
 				for (int pos = 0; pos < 176; pos++)
 				{
 					newcombo const* cmb = &combobuf[tscr->data[pos]];
@@ -6362,8 +6299,8 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 		}
 	}
 	
-	toggle_switches(game->lvlswitches[destlvl], true, tmp == 0 ? tmpscr : special_warp_return_scr);
-	toggle_gswitches_load(tmp == 0 ? tmpscr : special_warp_return_scr);
+	toggle_switches(game->lvlswitches[destlvl], true, special_warp_return_scr);
+	toggle_gswitches_load(special_warp_return_scr);
 
 	std::array<screen_handle_t, 7> screen_handles{};
 	screen_handles[0] = {scr, scr, screen, 0};
@@ -6461,7 +6398,6 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 			for(int32_t i=0; i<176; ++i)
 			{
 				int32_t c=layerscreen->data[i];
-				int32_t cs=layerscreen->cset[i];
 				
 				// New screen flag: Cycle Combos At Screen Init
 				if(combobuf[c].nextcombo != 0 && (scr->flags3 & fCYCLEONINIT) && (j<0 || get_qr(qr_CMBCYCLELAYERS)))
@@ -6477,7 +6413,6 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 						if(!(combobuf[c].animflags & AF_CYCLENOCSET))
 							layerscreen->cset[i] = cycle_under ? layerscreen->undercset : cmb.nextcset;
 						c = layerscreen->data[i];
-						cs = layerscreen->cset[i];
 					}
 				}
 			}

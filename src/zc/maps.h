@@ -402,7 +402,7 @@ void openshutters(mapscr* scr);
 void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool origin_screen_overlay=false, bool no_x80_dir=false);
 void clear_darkroom_bitmaps();
 std::array<mapscr, 7> loadscr2(int32_t screen);
-void loadscr_old(int32_t tmp,int32_t destdmap,int32_t screen,int32_t ldir,bool overlay);
+void loadscr_old(int32_t destdmap, int32_t screen, int32_t ldir, bool overlay);
 void putscr(mapscr* scr, BITMAP* dest, int32_t x, int32_t y);
 void putscrdoors(mapscr* scr, BITMAP *dest, int32_t x, int32_t y);
 bool _walkflag_new(const mapscr* s0, const mapscr* s1, const mapscr* s2, zfix_round zx, zfix_round zy, zfix const& switchblockstate, bool is_temp_screens);
