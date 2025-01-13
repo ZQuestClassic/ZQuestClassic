@@ -282,7 +282,7 @@ std::tuple<const rpos_handle_t*, int> get_current_region_handles()
 std::tuple<const rpos_handle_t*, int> get_current_region_handles(mapscr* scr)
 {
 	DCHECK(!current_region_rpos_handles_dirty);
-	if (scr == &special_warp_return_scr || current_region_rpos_handles_dirty)
+	if (scr == special_warp_return_scr || current_region_rpos_handles_dirty)
 		return {nullptr, 0};
 
 	if (cur_screen >= 0x80)
@@ -578,7 +578,7 @@ mapscr* get_scr_no_load(int map, int screen)
 {
 	DCHECK_RANGE_INCLUSIVE(screen, 0, 135);
 	if (screen == cur_screen && map == cur_map) return origin_scr;
-	if (screen == home_screen && map == cur_map) return &special_warp_return_scr;
+	if (screen == home_screen && map == cur_map) return special_warp_return_scr;
 
 	if (map == cur_map)
 	{
@@ -603,7 +603,7 @@ mapscr* get_scr_layer(int map, int screen, int layer)
 	DCHECK_LAYER_ZERO_INDEX(layer);
 	if (layer == 0) return get_scr(map, screen);
 	if (screen == cur_screen && map == cur_map) return temporary_screens[screen*7 + layer];
-	if (screen == home_screen && map == cur_map) return &special_warp_return_scr_layers[layer - 1];
+	if (screen == home_screen && map == cur_map) return &special_warp_return_scrs[layer];
 
 	if (map == cur_map)
 	{
@@ -1410,7 +1410,7 @@ void eventlog_mapflags()
 // set specific flag
 void setmapflag(mapscr* scr, int32_t flag)
 {
-	if (scr->screen >= 0x80) scr = &special_warp_return_scr;
+	if (scr->screen >= 0x80) scr = special_warp_return_scr;
 	int mi = mapind(cur_map, scr->screen);
 	setmapflag_mi(scr, mi, flag);
 }
@@ -1498,7 +1498,7 @@ void unsetmapflag_home(int32_t flag, bool anyflag)
 
 void unsetmapflag(mapscr* scr, int32_t flag, bool anyflag)
 {
-	if (scr->screen >= 0x80) scr = &special_warp_return_scr;
+	if (scr->screen >= 0x80) scr = special_warp_return_scr;
 	int mi = mapind(cur_map, scr->screen);
 	unsetmapflag_mi(scr, mi, flag, anyflag);
 }
@@ -2357,7 +2357,7 @@ bool remove_xstatecombos_mi(mapscr *s, int32_t screen, int32_t mi, byte xflag, b
 	bool didit=false;
 	if(!getxmapflag_mi(mi, 1<<xflag)) return false;
 
-	if (screen >= 0x80) s = &special_warp_return_scr;
+	if (screen >= 0x80) s = special_warp_return_scr;
 	screen = screen >= 0x80 ? home_screen : screen;
 
 	rpos_handle_t rpos_handle;
@@ -2456,7 +2456,7 @@ bool remove_xdoors_mi(mapscr *scr, int32_t mi, uint dir, uint ind, bool triggers
 	bool didit=false;
 	if(!getxdoor_mi(mi, dir, ind)) return false;
 
-	if (scr->screen >= 0x80) scr = &special_warp_return_scr;
+	if (scr->screen >= 0x80) scr = special_warp_return_scr;
 	int screen = scr->screen;
 
 	rpos_handle_t rpos_handle;
@@ -6166,8 +6166,8 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 	bool is_setting_special_warp_return_screen = tmp == 1;
 	int32_t destlvl = DMaps[destdmap < 0 ? cur_dmap : destdmap].level;
 
-	mapscr previous_scr = tmp == 0 ? *tmpscr : special_warp_return_scr;
-	mapscr* scr = tmp == 0 ? tmpscr : &special_warp_return_scr;
+	mapscr previous_scr = tmp == 0 ? *tmpscr : *special_warp_return_scr;
+	mapscr* scr = tmp == 0 ? tmpscr : special_warp_return_scr;
 	const mapscr* source = get_canonical_scr(cur_map, screen);
 	*scr = *source;
 	if (tmp == 0)
@@ -6318,13 +6318,13 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 		if(game->maps[mi]&mSECRET)			   // if special stuff done before
 		{
 			reveal_hidden_stairs(scr, screen, false);
-			trigger_secrets_for_screen(TriggerSource::SecretsScreenState, cur_screen, tmp == 0 ? tmpscr : &special_warp_return_scr, false, -1);
+			trigger_secrets_for_screen(TriggerSource::SecretsScreenState, cur_screen, tmp == 0 ? tmpscr : special_warp_return_scr, false, -1);
 		}
 		if(game->maps[mi]&mLIGHTBEAM) // if special stuff done before
 		{
 			for (int layer = 0; layer <= 6; layer++)
 			{
-				mapscr* tscr = (tmp==0) ? get_scr_layer(screen, layer) : &special_warp_return_scr_layers[layer - 1]; // TODO z3 ! fixme
+				mapscr* tscr = (tmp==0) ? get_scr_layer(screen, layer) : &special_warp_return_scrs[layer];
 				for (int pos = 0; pos < 176; pos++)
 				{
 					newcombo const* cmb = &combobuf[tscr->data[pos]];
@@ -6340,8 +6340,8 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t screen,int32_t ldir,bool 
 		}
 	}
 	
-	toggle_switches(game->lvlswitches[destlvl], true, tmp == 0 ? tmpscr : &special_warp_return_scr);
-	toggle_gswitches_load(tmp == 0 ? tmpscr : &special_warp_return_scr);
+	toggle_switches(game->lvlswitches[destlvl], true, tmp == 0 ? tmpscr : special_warp_return_scr);
+	toggle_gswitches_load(tmp == 0 ? tmpscr : special_warp_return_scr);
 	
 	if(game->maps[mi]&mLOCKBLOCK)			  // if special stuff done before
 	{
@@ -6472,7 +6472,7 @@ void loadscr2(int32_t tmp,int32_t screen,int32_t)
 		}
 	}
 	
-	mapscr& scr = tmp == 0 ? *tmpscr : special_warp_return_scr;
+	mapscr& scr = tmp == 0 ? *tmpscr : *special_warp_return_scr;
 	scr = *get_canonical_scr(cur_map, screen);
 	
 	if(tmp==0)
@@ -6501,13 +6501,13 @@ void loadscr2(int32_t tmp,int32_t screen,int32_t)
 		if(game->maps[mi]&mSECRET)			   // if special stuff done before
 		{
 			reveal_hidden_stairs(&scr, screen, false);
-			trigger_secrets_for_screen_internal(-1, tmp == 0 ? tmpscr2 : &special_warp_return_scr, false, false, -1);
+			trigger_secrets_for_screen_internal(-1, tmp == 0 ? tmpscr2 : special_warp_return_scr, false, false, -1);
 		}
 		if(game->maps[mi]&mLIGHTBEAM) // if special stuff done before
 		{
 			for (int layer = 0; layer <= 6; layer++)
 			{
-				mapscr* tscr = (tmp==0) ? get_scr_layer(screen, layer) : &special_warp_return_scr_layers[layer - 1]; // TODO z3 ! fixme
+				mapscr* tscr = (tmp==0) ? get_scr_layer(screen, layer) : &special_warp_return_scr[layer];
 				for (int pos = 0; pos < 176; pos++)
 				{
 					newcombo const* cmb = &combobuf[tscr->data[pos]];
@@ -7547,6 +7547,7 @@ void ViewMap()
 
 	mapscr tmpscr_a[2];
 	mapscr tmpscr_b[6];
+	mapscr tmp_special_warp_return_scr{};
 
 	mapscr* tmpscr_prev = tmpscr;
 	mapscr* hero_scr_prev = hero_scr;
@@ -7556,8 +7557,7 @@ void ViewMap()
 	origin_scr = tmpscr;
 	hero_scr = tmpscr;
 
-	tmpscr_a[1] = special_warp_return_scr;
-	special_warp_return_scr.zero_memory();
+	special_warp_return_scr = &tmp_special_warp_return_scr;
 	
 	for(int32_t i=0; i<6; ++i)
 	{
@@ -7605,10 +7605,10 @@ void ViewMap()
 			{
 				int32_t s = (y<<4) + x;
 				tmpscr->zero_memory();
-				special_warp_return_scr.zero_memory();
+				special_warp_return_scr->zero_memory();
 				// TODO z3 !! is this running stuff it shouldnt? see trigger_secrets_for_screen_internal
 				loadscr2(1,s,-1);
-				*tmpscr = special_warp_return_scr;
+				*tmpscr = *special_warp_return_scr;
 				if(tmpscr->valid&mVALID)
 				{
 					for(int32_t i=0; i<6; i++)
@@ -7665,8 +7665,7 @@ void ViewMap()
 	tmpscr = tmpscr_prev;
 	origin_scr = tmpscr_prev;
 	hero_scr = hero_scr_prev;
-	special_warp_return_scr = tmpscr_a[1];
-	// cur_screen = cur_screen_prev;
+	special_warp_return_scr = &special_warp_return_scrs[0];
 	for(int32_t i=0; i<6; ++i)
 	{
 		tmpscr2[i]=tmpscr_b[i];

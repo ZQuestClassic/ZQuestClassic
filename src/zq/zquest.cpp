@@ -26780,10 +26780,6 @@ void FFScript::init()
 	subscreen_scroll_speed = 0; //make a define for a default and read quest override! -Z
 	kb_typing_mode = false;
 	initIncludePaths();
-	for(int32_t q = 0; q < 7; ++q)
-	{
-		ScrollingScreens[q] = NULL;
-	}
 }
 
 void FFScript::updateIncludePaths()

@@ -699,7 +699,6 @@ void shutdown();
 
 
 int32_t max_ff_rules;
-mapscr* ScrollingScreens[7];
 std::vector<mapscr*> ScrollingScreensAll;
 int32_t ScrollingData[SZ_SCROLLDATA];
 std::vector<int32_t> eventData;

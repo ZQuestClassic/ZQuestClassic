@@ -396,8 +396,8 @@ std::map<int, byte> activation_counters_ffc;
 mapscr* tmpscr;
 mapscr* origin_scr;
 mapscr tmpscr2[6];
-mapscr special_warp_return_scr;
-mapscr special_warp_return_scr_layers[6];
+mapscr special_warp_return_scrs[7];
+mapscr* special_warp_return_scr = &special_warp_return_scrs[0];
 mapscr* hero_scr;
 mapscr* prev_hero_scr;
 std::vector<std::shared_ptr<zasm_script>> zasm_scripts;
@@ -1952,7 +1952,7 @@ int32_t init_game()
 	
 	currcset=DMaps[cur_dmap].color;
 	
-	special_warp_return_scr.zero_memory();
+	special_warp_return_scr->zero_memory();
 	clear_temporary_screens();
 	//clear initialise dmap script 
 	FFCore.reset_script_engine_data(ScriptType::DMap);
@@ -2342,7 +2342,7 @@ int32_t cont_game()
 	whistleclk=-1;
 	currcset=DMaps[cur_dmap].color;
 	room_is_dark=darkroom=naturaldark=false;
-	special_warp_return_scr.zero_memory();
+	special_warp_return_scr->zero_memory();
 	clear_temporary_screens();
 	
 	loadscr(cur_dmap, lastentrance, -1, false);
@@ -2494,7 +2494,7 @@ void restart_level()
 	ALLOFF();
 	whistleclk=-1;
 	room_is_dark=darkroom=naturaldark=false;
-	special_warp_return_scr.zero_memory();
+	special_warp_return_scr->zero_memory();
 	clear_temporary_screens();
 	
 	loadscr(cur_dmap, cur_screen, -1, false);
@@ -5178,7 +5178,7 @@ void quit_game()
 
 bool isSideViewGravity(int32_t t)
 {
-	if (t == 1) return (((special_warp_return_scr.flags7 & fSIDEVIEW)!=0) != (DMaps[cur_dmap].sideview));
+	if (t == 1) return (((special_warp_return_scr->flags7 & fSIDEVIEW)!=0) != (DMaps[cur_dmap].sideview));
 	return (((hero_scr->flags7 & fSIDEVIEW)!=0) != (DMaps[cur_dmap].sideview));
 }
 

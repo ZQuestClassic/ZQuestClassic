@@ -388,8 +388,9 @@ extern mapscr tmpscr2[6];
 extern mapscr* origin_scr;
 // This is typically used as the previous screen before doing a warp to a special room,
 // but it is also used (by scripting) to hold the previous screen during scrolling.
-extern mapscr special_warp_return_scr;
-extern mapscr special_warp_return_scr_layers[6];
+extern mapscr special_warp_return_scrs[7];
+// &special_warp_return_scrs[0]
+extern mapscr* special_warp_return_scr;
 extern std::map<int, byte> activation_counters;
 extern std::map<int, byte> activation_counters_ffc;
 extern char   sig_str[44];

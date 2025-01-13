@@ -391,17 +391,17 @@ int32_t getMap(int32_t ref)
 		case MAPSCR_SCROLL0:
 			return scrolling_map+1;
 		case MAPSCR_SCROLL1:
-			return FFCore.ScrollingScreens[0]->layermap[0];
+			return special_warp_return_scr->layermap[0];
 		case MAPSCR_SCROLL2:
-			return FFCore.ScrollingScreens[0]->layermap[1];
+			return special_warp_return_scr->layermap[1];
 		case MAPSCR_SCROLL3:
-			return FFCore.ScrollingScreens[0]->layermap[2];
+			return special_warp_return_scr->layermap[2];
 		case MAPSCR_SCROLL4:
-			return FFCore.ScrollingScreens[0]->layermap[3];
+			return special_warp_return_scr->layermap[3];
 		case MAPSCR_SCROLL5:
-			return FFCore.ScrollingScreens[0]->layermap[4];
+			return special_warp_return_scr->layermap[4];
 		case MAPSCR_SCROLL6:
-			return FFCore.ScrollingScreens[0]->layermap[5];
+			return special_warp_return_scr->layermap[5];
 		default:
 			return (ref / MAPSCRS + 1);
 	}
@@ -427,17 +427,17 @@ int32_t getScreen(int32_t ref)
 		case MAPSCR_SCROLL0:
 			return scrolling_hero_screen;
 		case MAPSCR_SCROLL1:
-			return FFCore.ScrollingScreens[0]->layerscreen[0];
+			return special_warp_return_scr->layerscreen[0];
 		case MAPSCR_SCROLL2:
-			return FFCore.ScrollingScreens[0]->layerscreen[1];
+			return special_warp_return_scr->layerscreen[1];
 		case MAPSCR_SCROLL3:
-			return FFCore.ScrollingScreens[0]->layerscreen[2];
+			return special_warp_return_scr->layerscreen[2];
 		case MAPSCR_SCROLL4:
-			return FFCore.ScrollingScreens[0]->layerscreen[3];
+			return special_warp_return_scr->layerscreen[3];
 		case MAPSCR_SCROLL5:
-			return FFCore.ScrollingScreens[0]->layerscreen[4];
+			return special_warp_return_scr->layerscreen[4];
 		case MAPSCR_SCROLL6:
-			return FFCore.ScrollingScreens[0]->layerscreen[5];
+			return special_warp_return_scr->layerscreen[5];
 		default:
 			return (ref % MAPSCRS);
 	}
@@ -36521,11 +36521,6 @@ void FFScript::init()
 	kb_typing_mode = false;
 	initIncludePaths();
 	//clearRunningItemScripts();
-	ScrollingScreens[0] = &special_warp_return_scr;
-	for(int32_t q = 0; q < 6; ++q)
-	{
-		ScrollingScreens[q+1] = special_warp_return_scr_layers+q;
-	}
 	ScrollingScreensAll.clear();
 	memset(ScrollingData, 0, sizeof(int32_t) * SZ_SCROLLDATA);
 	ScrollingData[SCROLLDATA_DIR] = -1;
