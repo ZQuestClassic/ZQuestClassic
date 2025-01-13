@@ -331,9 +331,9 @@ bool ishookshottable(int32_t bx, int32_t by);
 bool reveal_hidden_stairs(mapscr *s, int32_t screen, bool redraw);
 
 bool remove_xstatecombos(const std::array<screen_handle_t, 7>& screen_handles, byte xflag, bool triggers = false);
-bool remove_xstatecombos_mi(const std::array<screen_handle_t, 7>& screen_handles, int32_t screen, int32_t mi, byte xflag, bool triggers);
-void clear_xstatecombos(const std::array<screen_handle_t, 7>& screen_handles, int32_t screen, bool triggers = false);
-void clear_xstatecombos_mi(const std::array<screen_handle_t, 7>& screen_handles, int32_t screen, int32_t mi, bool triggers = false);
+bool remove_xstatecombos_mi(const std::array<screen_handle_t, 7>& screen_handles, int32_t mi, byte xflag, bool triggers);
+void clear_xstatecombos(const std::array<screen_handle_t, 7>& screen_handles, bool triggers = false);
+void clear_xstatecombos_mi(const std::array<screen_handle_t, 7>& screen_handles, int32_t mi, bool triggers = false);
 
 bool remove_xdoors(const std::array<screen_handle_t, 7>& screen_handles, uint dir, uint ind, bool triggers = false);
 bool remove_xdoors_mi(const std::array<screen_handle_t, 7>& screen_handles, int32_t mi, uint dir, uint ind, bool triggers);

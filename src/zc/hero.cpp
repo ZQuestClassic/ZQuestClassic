@@ -23848,7 +23848,7 @@ void HeroClass::checkspecial()
 		}
 
 		clear_xdoors(screen_handles, true);
-		clear_xstatecombos(screen_handles, screen, true);
+		clear_xstatecombos(screen_handles, true);
 
 		if (state.triggered_secrets && state.item_state == ScreenItemState::WhenTriggerSecrets)
 		{

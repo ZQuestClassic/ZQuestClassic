@@ -1172,7 +1172,7 @@ static void apply_state_changes_to_screen(mapscr& scr, int32_t map, int32_t scre
 
 	int mi = mapind(map, screen);
 	clear_xdoors_mi(screen_handles, mi);
-	clear_xstatecombos_mi(screen_handles, screen, mi);
+	clear_xstatecombos_mi(screen_handles, mi);
 }
 
 std::optional<mapscr> load_temp_mapscr_and_apply_secrets(int32_t map, int32_t screen, int32_t layer, bool secrets, bool secrets_do_replay_comment)
@@ -2369,16 +2369,17 @@ bool remove_xstatecombos(const std::array<screen_handle_t, 7>& screen_handles, b
 {
 	int screen = screen_handles[0].scr->screen;
 	int mi = mapind(cur_map, screen >= 0x80 ? home_screen : screen);
-	return remove_xstatecombos_mi(screen_handles, screen, mi, xflag, triggers);
+	return remove_xstatecombos_mi(screen_handles, mi, xflag, triggers);
 }
-bool remove_xstatecombos_mi(const std::array<screen_handle_t, 7>& screen_handles, int32_t screen, int32_t mi, byte xflag, bool triggers)
+bool remove_xstatecombos_mi(const std::array<screen_handle_t, 7>& screen_handles, int32_t mi, byte xflag, bool triggers)
 {
 	bool didit=false;
 	if(!getxmapflag_mi(mi, 1<<xflag)) return false;
 
 	mapscr* s = screen_handles[0].scr;
-	screen = screen >= 0x80 ? home_screen : screen; // TODO z3 !  screen = s->screen
+	int screen = s->screen;
 
+	// TODO z3 ! for_every_combo
 	rpos_handle_t rpos_handle;
 	rpos_handle.screen = screen;
 	rpos_handle.layer = 0;
@@ -2450,24 +2451,25 @@ bool remove_xstatecombos_mi(const std::array<screen_handle_t, 7>& screen_handles
 	return didit;
 }
 
-void clear_xstatecombos(const std::array<screen_handle_t, 7>& screen_handles, int32_t screen, bool triggers)
+void clear_xstatecombos(const std::array<screen_handle_t, 7>& screen_handles, bool triggers)
 {
+	int screen = screen_handles[0].screen;
 	int mi = mapind(cur_map, screen >= 0x80 ? home_screen : screen);
-	clear_xstatecombos_mi(screen_handles, screen, mi, triggers);
+	clear_xstatecombos_mi(screen_handles, mi, triggers);
 }
 
-void clear_xstatecombos_mi(const std::array<screen_handle_t, 7>& screen_handles, int32_t screen, int32_t mi, bool triggers)
+void clear_xstatecombos_mi(const std::array<screen_handle_t, 7>& screen_handles, int32_t mi, bool triggers)
 {
 	for (int q = 0; q < 32; ++q)
 	{
-		remove_xstatecombos_mi(screen_handles, screen, mi, q, triggers);
+		remove_xstatecombos_mi(screen_handles, mi, q, triggers);
 	}
 }
 
 bool remove_xdoors(const std::array<screen_handle_t, 7>& screen_handles, uint dir, uint ind, bool triggers)
 {
-	mapscr* scr = screen_handles[0].scr;
-	int mi = mapind(cur_map, scr->screen >= 0x80 ? home_screen : scr->screen);
+	int screen = screen_handles[0].screen;
+	int mi = mapind(cur_map, screen >= 0x80 ? home_screen : screen);
 	return remove_xdoors_mi(screen_handles, mi, dir, ind, triggers);
 }
 bool remove_xdoors_mi(const std::array<screen_handle_t, 7>& screen_handles, int32_t mi, uint dir, uint ind, bool triggers)
@@ -5852,7 +5854,7 @@ static void load_a_screen_and_layers_post(int dmap, int screen, int ldir)
 			remove_bosschests(screen_handles);
 		
 		clear_xdoors_mi(screen_handles, mi, true);
-		clear_xstatecombos_mi(screen_handles, screen, mi, true);
+		clear_xstatecombos_mi(screen_handles, mi, true);
 	}
 
 	// check doors
@@ -6288,7 +6290,7 @@ void loadscr_old(int32_t destdmap, int32_t screen,int32_t ldir,bool overlay)
 	}
 	
 	clear_xdoors(screen_handles, true);
-	clear_xstatecombos(screen_handles, screen, true);
+	clear_xstatecombos(screen_handles, true);
 
 	// check doors
 	if (isdungeon(destdmap, screen))
@@ -6468,7 +6470,7 @@ std::array<mapscr, 7> loadscr2(int32_t screen)
 	}
 
 	clear_xdoors(screen_handles);
-	clear_xstatecombos(screen_handles, screen);
+	clear_xstatecombos(screen_handles);
 	
 	// check doors
 	if (isdungeon(screen))
