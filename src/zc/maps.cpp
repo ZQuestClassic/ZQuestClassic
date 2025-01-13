@@ -6234,7 +6234,13 @@ void loadscr_old(int32_t destdmap, int32_t screen,int32_t ldir,bool overlay)
 		if(game->maps[mi]&mSECRET)			   // if special stuff done before
 		{
 			reveal_hidden_stairs(scr, screen, false);
-			trigger_secrets_for_screen(TriggerSource::SecretsScreenState, special_warp_return_scr, false, -1);
+
+			// trigger_secrets_for_screen(TriggerSource::SecretsScreenState, special_warp_return_scr, false, -1);
+			log_trigger_secret_reason(TriggerSource::SecretsScreenState);
+			get_screen_state(special_warp_return_scr->screen).triggered_secrets = true;
+			bool do_replay_comment = true;
+			bool from_active_screen = false;
+			trigger_secrets_for_screen_internal(create_screen_handles(special_warp_return_scr), from_active_screen, false, -1, do_replay_comment);
 		}
 		if(game->maps[mi]&mLIGHTBEAM) // if special stuff done before
 		{
