@@ -27,7 +27,7 @@ function zs_builder(hljs, langtype) {
 	];
 	const FUNCTION_KEYWORDS_RE = '(?:' + FUNCTION_KEYWORDS.join('|') + ')';
 	
-	const TYPE_RE = '(?:const' + SOME_WHITESPACE_RE + ')?' + IDENTIFIER_LIST_RE;
+	const TYPE_RE = '(?:const' + SOME_WHITESPACE_RE + ')?\\b(?!else)' + IDENTIFIER_LIST_RE;
 	const COMMENT_CONTAINS = [];
 	const COMMENT_LINE = {
 		scope: 'comment',

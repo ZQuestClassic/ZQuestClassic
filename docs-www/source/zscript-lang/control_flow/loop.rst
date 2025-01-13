@@ -5,6 +5,8 @@ Smart Loops ('loop')
 
 	Annotation that affects 'loop()' over ranges
 
+.. versionadded:: 3.0
+
 'loop' loops
 ------------
 

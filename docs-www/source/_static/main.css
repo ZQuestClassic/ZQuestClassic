@@ -114,10 +114,11 @@ code.literal.inlinezs,
 code.literal.customzs {
 	border: 1px solid var(--pst-color-border);
 	border-radius: .25rem;
-	padding: .1rem .25rem;
+	padding: 0 .25rem;
 	font-family: var(--pst-font-family-monospace);
 	font-size: .875em;
 	word-wrap: normal;
+	display: inline-block;
 }
 
 /* Make sure inline blocks match our hljs... */

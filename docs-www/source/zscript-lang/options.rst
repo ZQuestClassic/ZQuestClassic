@@ -69,7 +69,7 @@ Standard Options
 	| HEADER_GUARD                       | :zs_kw:`on`      | |onoffew|             | Determines what happens when :ref:`importing<directive_import>` |
 	|                                    |                  |                       | a file that was already imported. If :zs_kw:`on`, prevents the  |
 	|                                    |                  |                       | duplicate import with no error. Can be set to instead prevent it|
-	|                                    |                  |                       | and issue an :zs_kw:`error` or :zs_kw:`warn`ing.                |
+	|                                    |                  |                       | and issue an :zs_kw:`error` or :zs_kw:`warn`\ ing.              |
 	+------------------------------------+------------------+-----------------------+-----------------------------------------------------------------+
 	| NO_ERROR_HALT                      | :zs_kw:`off`     | |onoff|               | If on, the compiler will keep trying as long as it can, even    |
 	|                                    |                  |                       | after it encounters an error. If off, it stops after one error. |
@@ -113,8 +113,8 @@ You almost certainly want to leave these in their default state, unless you know
 	| TRUE_INT_SIZE                      | :zs_kw:`on`      | |onoff|               | Changes the size range of number literals. If off, their range  |
 	|                                    |                  |                       | is `-214747.0000` to `214747.0000`.                             |
 	+------------------------------------+------------------+-----------------------+-----------------------------------------------------------------+
-	| BINARY_32BIT                       | :zs_kw:`off`     | |onoff|               | Makes bitwise operators treat `int`s the same way they do       |
-	|                                    |                  |                       | `long`s. Do not enable this. Just use `long`s instead.          |
+	| BINARY_32BIT                       | :zs_kw:`off`     | |onoff|               | Makes bitwise operators treat `int`\ s the same way they do     |
+	|                                    |                  |                       | `long`\ s. Do not enable this. Just use `long`\ s instead.      |
 	+------------------------------------+------------------+-----------------------+-----------------------------------------------------------------+
 
 .. [#v]
