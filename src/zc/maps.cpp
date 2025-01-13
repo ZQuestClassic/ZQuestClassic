@@ -7472,10 +7472,12 @@ void ViewMap()
 		return;
 	}
 
-	// draw the map
-	BITMAP* screen_bmp = create_bitmap_ex(8, 256, 176);
+	auto prev_viewport = viewport;
 	viewport.x = 0;
 	viewport.y = 0;
+
+	// draw the map
+	BITMAP* screen_bmp = create_bitmap_ex(8, 256, 176);
 	combotile_add_x = 256;
 	combotile_add_y = 0;
 	for(int32_t y=0; y<8; y++)
@@ -7531,6 +7533,10 @@ void ViewMap()
 			stretch_blit(screen_bmp, mappic, 0, 0, 256, 176, x<<(8-mapres), (y*176)>>mapres, 256>>mapres, 176>>mapres);
 		}
 	}
+
+	viewport = prev_viewport;
+	combotile_add_x = 0;
+	combotile_add_y = 0;
 
 	destroy_bitmap(screen_bmp);
 	clear_keybuf();
@@ -7679,11 +7685,9 @@ void ViewMap()
 			
 	}
 	while(!done && !Quit);
-	
+
 	destroy_bitmap(mappic);
-	combotile_add_x = 0;
-	combotile_add_y = 0;
-	
+
 	resume_all_sfx();
 }
 

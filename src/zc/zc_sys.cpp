@@ -3871,6 +3871,7 @@ int32_t onSaveMapPic()
 		return D_O_K;;
 	}
 
+	auto prev_viewport = viewport;
     viewport.x = 0;
 	viewport.y = 0;
 	
@@ -3934,6 +3935,7 @@ int32_t onSaveMapPic()
 		}
 	}
 
+	viewport = prev_viewport;
 	save_bitmap(buf,mappic,RAMpal);
 	destroy_bitmap(mappic);
 	destroy_bitmap(_screen_draw_buffer);
