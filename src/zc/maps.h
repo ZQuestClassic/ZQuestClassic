@@ -382,7 +382,6 @@ std::pair<int32_t, int32_t> nextscr2(int m, int s, int32_t dir);
 void bombdoor(int32_t x,int32_t y);
 bool lenscheck(mapscr* scr, int layer);
 void do_scrolling_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen_handle, int32_t x, int32_t y);
-void do_layer_old2(BITMAP *bmp, int32_t type, int32_t layer, mapscr* basescr, mapscr* scr, int32_t x, int32_t y, bool scrolling=false, bool drawprimitives=false);
 void do_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen_handle, int32_t x, int32_t y, bool drawprimitives=false);
 void put_walkflags(BITMAP *dest,int32_t x,int32_t y,int32_t xofs,int32_t yofs, word cmbdat,int32_t lyr);
 void do_walkflags(const std::array<screen_handle_t, 7>& screen_handles ,int32_t x, int32_t y);

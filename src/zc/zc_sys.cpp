@@ -3859,6 +3859,7 @@ int32_t onSaveMapPic()
 	while(num<99999 && exists(buf));
 	
 	BITMAP* mappic = create_bitmap_ex(8,(256*16),(176*8));
+	clear_to_color(mappic, BLACK);
 	
 	if(!mappic)
 	{
@@ -3878,54 +3879,54 @@ int32_t onSaveMapPic()
 	{
 		for(int32_t x=0; x<16; x++)
 		{
-			if(!displayOnMap(x, y))
+			if (!displayOnMap(x, y))
+				continue;
+
+			int screen = map_scr_xy_to_index(x, y);
+			auto scrs = loadscr2(screen);
+			mapscr* scr = &scrs[0];
+			if (!scr->is_valid())
+				continue;
+
+			screen_handles_t screen_handles;
+			for (int i = 0; i <= 6; i++)
+				screen_handles[i] = {scr, scrs[i].is_valid() ? &scrs[i] : nullptr, screen, i};
+
+			int xx = 0;
+			int yy = -playing_field_offset;
+
+			if(XOR(scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG)) do_layer(_screen_draw_buffer, 0, screen_handles[2], xx, yy);
+
+			if(XOR(scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG)) do_layer(_screen_draw_buffer, 0, screen_handles[3], xx, yy);
+
+			if(lenscheck(scr,0)) putscr(scr, _screen_draw_buffer, 0, 0);
+			do_layer(_screen_draw_buffer, 0, screen_handles[1], xx, yy);
+			
+			if(!XOR(scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG)) do_layer(_screen_draw_buffer, 0, screen_handles[2], xx, yy);
+			
+			putscrdoors(scr, _screen_draw_buffer, xx, yy);
+			if(get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
 			{
-				clear_to_color(_screen_draw_buffer, WHITE);
+				do_layer(_screen_draw_buffer, -2, screen_handles[0], xx, yy);
+				if(get_qr(qr_PUSHBLOCK_LAYER_1_2))
+				{
+					do_layer(_screen_draw_buffer, -2, screen_handles[1], xx, yy);
+					do_layer(_screen_draw_buffer, -2, screen_handles[2], xx, yy);
+				}
 			}
-			else
+			do_layer(_screen_draw_buffer, -3, screen_handles[0], xx, yy); // Freeform combos!
+			
+			if(!XOR(scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG)) do_layer(_screen_draw_buffer, 0, screen_handles[3], xx, yy);
+			
+			do_layer(_screen_draw_buffer, 0, screen_handles[4], xx, yy);
+			do_layer(_screen_draw_buffer, -1, screen_handles[0], xx, yy);
+			if(get_qr(qr_OVERHEAD_COMBOS_L1_L2))
 			{
-				int screen = map_scr_xy_to_index(x, y);
-				auto scrs = loadscr2(screen);
-				mapscr* scr = &scrs[0];
-				if (!scr->is_valid())
-					continue;
-
-				int xx = 0;
-				int yy = -playing_field_offset;
-
-				if(XOR(scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG)) do_layer_old2(_screen_draw_buffer, 0, 2, scr, &scrs[2], xx, yy, 2);
-
-				if(XOR(scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG)) do_layer_old2(_screen_draw_buffer, 0, 3, scr, &scrs[3], xx, yy, 2);
-				
-				if(lenscheck(scr,0)) putscr(scr, _screen_draw_buffer, xx, yy);
-				do_layer_old2(_screen_draw_buffer, 0, 1, scr, &scrs[1], xx, yy, 2);
-				
-				if(!XOR(scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG)) do_layer_old2(_screen_draw_buffer, 0, 2, scr, &scrs[2], xx, yy, 2);
-				
-				putscrdoors(scr, _screen_draw_buffer, xx, yy);
-				if(get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
-				{
-					do_layer_old2(_screen_draw_buffer, -2, 0, scr, &scrs[0], xx, yy, 2);
-					if(get_qr(qr_PUSHBLOCK_LAYER_1_2))
-					{
-						do_layer_old2(_screen_draw_buffer, -2, 1, scr, &scrs[1], xx, yy, 2);
-						do_layer_old2(_screen_draw_buffer, -2, 2, scr, &scrs[2], xx, yy, 2);
-					}
-				}
-				do_layer_old2(_screen_draw_buffer, -3, 0, scr, &scrs[0], xx, yy, 2); // Freeform combos!
-				
-				if(!XOR(scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG)) do_layer_old2(_screen_draw_buffer, 0, 3, scr, &scrs[3], xx, yy, 2);
-				
-				do_layer_old2(_screen_draw_buffer, 0, 4, scr, &scrs[4], xx, yy, 2);
-				do_layer_old2(_screen_draw_buffer, -1, 0, scr, &scrs[0], xx, yy, 2);
-				if(get_qr(qr_OVERHEAD_COMBOS_L1_L2))
-				{
-					do_layer_old2(_screen_draw_buffer, -1, 1, scr, &scrs[1], xx, yy, 2);
-					do_layer_old2(_screen_draw_buffer, -1, 2, scr, &scrs[2], xx, yy, 2);
-				}
-				do_layer_old2(_screen_draw_buffer, 0, 5, scr, &scrs[5], xx, yy, 2);
-				do_layer_old2(_screen_draw_buffer, 0, 6, scr, &scrs[6], xx, yy, 2);
+				do_layer(_screen_draw_buffer, -1, screen_handles[1], xx, yy);
+				do_layer(_screen_draw_buffer, -1, screen_handles[2], xx, yy);
 			}
+			do_layer(_screen_draw_buffer, 0, screen_handles[5], xx, yy);
+			do_layer(_screen_draw_buffer, 0, screen_handles[6], xx, yy);
 
 			blit(_screen_draw_buffer, mappic, 0, 0, x*256, y*176, 256, 176);
 		}

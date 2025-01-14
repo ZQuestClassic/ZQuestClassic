@@ -3714,16 +3714,6 @@ bool lenscheck(mapscr* scr, int layer)
 	return true;
 }
 
-// TODO z3 !
-void do_layer_old2(BITMAP *bmp, int32_t type, int32_t layer, mapscr* basescr, mapscr* scr, int32_t x, int32_t y, bool scrolling, bool drawprimitives)
-{
-	DCHECK_LAYER_ZERO_INDEX(layer);
-	if (!scr->is_valid())
-		return;
-
-	do_layer(bmp, type, {basescr, scr, cur_screen, layer}, x, y, drawprimitives);
-}
-
 void do_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen_handle, int32_t x, int32_t y, bool drawprimitives)
 {
     bool showlayer = true;
@@ -7462,6 +7452,8 @@ void ViewMap()
 		return;
 	}
 
+	clear_to_color(mappic, WHITE);
+
 	auto prev_viewport = viewport;
 	viewport.x = 0;
 	viewport.y = 0;
@@ -7474,51 +7466,54 @@ void ViewMap()
 	{
 		for(int32_t x=0; x<16; x++)
 		{
-			clear_to_color(screen_bmp, WHITE);
-			if(displayOnMap(x, y))
-			{
-				int screen = map_scr_xy_to_index(x, y);
-				auto scrs = loadscr2(screen);
-				mapscr* scr = &scrs[0];
-				if (!scr->is_valid())
-					continue;
+			if (!displayOnMap(x, y))
+				continue;
 
-				int xx = 0;
-				int yy = -playing_field_offset;
-				
-				if(XOR(scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG)) do_layer_old2(screen_bmp, 0, 2, scr, &scrs[2], xx, yy);
-				
-				if(XOR(scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG)) do_layer_old2(screen_bmp, 0, 3, scr, &scrs[3], xx, yy);
-				
-				if(lenscheck(scr,0)) putscr(scr, screen_bmp, 0, 0);
-				do_layer_old2(screen_bmp, 0, 1, scr, &scrs[1], xx, yy);
-				
-				if(!XOR((scr->flags7&fLAYER2BG), DMaps[cur_dmap].flags&dmfLAYER2BG)) do_layer_old2(screen_bmp, 0, 2, scr, &scrs[2], xx, yy);
-				
-				putscrdoors(scr, screen_bmp, 0, 0);
-				if (get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
+			int screen = map_scr_xy_to_index(x, y);
+			auto scrs = loadscr2(screen);
+			mapscr* scr = &scrs[0];
+			if (!scr->is_valid())
+				continue;
+
+			screen_handles_t screen_handles;
+			for (int i = 0; i <= 6; i++)
+				screen_handles[i] = {scr, scrs[i].is_valid() ? &scrs[i] : nullptr, screen, i};
+
+			int xx = 0;
+			int yy = -playing_field_offset;
+			
+			if(XOR(scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG)) do_layer(screen_bmp, 0, screen_handles[2], xx, yy);
+			
+			if(XOR(scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG)) do_layer(screen_bmp, 0, screen_handles[3], xx, yy);
+			
+			if(lenscheck(scr,0)) putscr(scr, screen_bmp, 0, 0);
+			do_layer(screen_bmp, 0, screen_handles[1], xx, yy);
+			
+			if(!XOR((scr->flags7&fLAYER2BG), DMaps[cur_dmap].flags&dmfLAYER2BG)) do_layer(screen_bmp, 0, screen_handles[2], xx, yy);
+			
+			putscrdoors(scr, screen_bmp, xx, yy);
+			if (get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
+			{
+				do_layer(screen_bmp, -2, screen_handles[0], xx, yy);
+				if(get_qr(qr_PUSHBLOCK_LAYER_1_2))
 				{
-					do_layer_old2(screen_bmp,-2, 0, scr, scr, xx, yy);
-					if(get_qr(qr_PUSHBLOCK_LAYER_1_2))
-					{
-						do_layer_old2(screen_bmp,-2, 1, scr, &scrs[1], xx, yy);
-						do_layer_old2(screen_bmp,-2, 2, scr, &scrs[2], xx, yy);
-					}
+					do_layer(screen_bmp,-2, screen_handles[1], xx, yy);
+					do_layer(screen_bmp,-2, screen_handles[2], xx, yy);
 				}
-				do_layer_old2(screen_bmp,-3, 0, scr, scr, xx, yy, 2); // Freeform com!
-				
-				if(!XOR((scr->flags7&fLAYER3BG), DMaps[cur_dmap].flags&dmfLAYER3BG)) do_layer_old2(screen_bmp, 0, 3, scr, &scrs[3], xx, yy);
-				
-				do_layer_old2(screen_bmp, 0, 4, scr, &scrs[4], xx, yy);
-				do_layer_old2(screen_bmp,-1, 0, scr, scr, xx, yy);
-				if(get_qr(qr_OVERHEAD_COMBOS_L1_L2))
-				{
-					do_layer_old2(screen_bmp,-1, 1, scr, &scrs[1], xx, yy);
-					do_layer_old2(screen_bmp,-1, 2, scr, &scrs[2], xx, yy);
-				}
-				do_layer_old2(screen_bmp, 0, 5, scr, &scrs[5], xx, yy);
-				do_layer_old2(screen_bmp, 0, 6, scr, &scrs[6], xx, yy);
 			}
+			do_layer(screen_bmp, -3, screen_handles[0], xx, yy, 2); // Freeform com!
+			
+			if(!XOR((scr->flags7&fLAYER3BG), DMaps[cur_dmap].flags&dmfLAYER3BG)) do_layer(screen_bmp, 0, screen_handles[3], xx, yy);
+
+			do_layer(screen_bmp, 0, screen_handles[4], xx, yy);
+			do_layer(screen_bmp, -1, screen_handles[0], xx, yy);
+			if(get_qr(qr_OVERHEAD_COMBOS_L1_L2))
+			{
+				do_layer(screen_bmp,-1, screen_handles[1], xx, yy);
+				do_layer(screen_bmp,-1, screen_handles[2], xx, yy);
+			}
+			do_layer(screen_bmp, 0, screen_handles[5], xx, yy);
+			do_layer(screen_bmp, 0, screen_handles[6], xx, yy);
 			
 			stretch_blit(screen_bmp, mappic, 0, 0, 256, 176, x<<(8-mapres), (y*176)>>mapres, 256>>mapres, 176>>mapres);
 		}
