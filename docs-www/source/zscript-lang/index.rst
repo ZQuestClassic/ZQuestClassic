@@ -5,7 +5,7 @@ ZScript Lang
 	:maxdepth: 1
 
 	Recommended Editor </zscript-lang/vscode>
-	/zscript-lang/identifiers
+	/zscript-lang/declarations/index
 	/zscript-lang/keywords
 	/zscript-lang/types/index
 	/zscript-lang/literals
@@ -14,7 +14,7 @@ ZScript Lang
 	/zscript-lang/options
 	/zscript-lang/compiler_directives
 	/zscript-lang/annotations
-	WIP </zscript-lang/scripts>
+	WIP: Scripts </zscript-lang/scripts>
 	/zscript-lang/namespace
-	WIP </zscript-lang/ranges>
+	WIP: Ranges </zscript-lang/ranges>
 

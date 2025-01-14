@@ -1,3 +1,7 @@
+.. _zslang_types:
+
+.. _types:
+
 Types
 =====
 
@@ -39,26 +43,10 @@ Primitive Types
 'Constant' types
 ----------------
 
-By adding the `const` modifier to a type, that type becomes "constant". Declaring a Variable with
-a constant type instead declares a Constant. Important notes about constants:
+By adding the `const` modifier to a type, that type becomes "constant". Declaring
+a Variable with a constant type instead declares a Constant.
 
-- A constant must have an initializer; without one, it will compile error.
-- A constant's value cannot be modified after it's initializer.
-- If the entire initializer expression is "compile-time constant", then the value of the constant is also "compile-time constant"
-
-.. _compiletime_const:
-
-Compile-time constants
-^^^^^^^^^^^^^^^^^^^^^^
-
-Any value that is entirely known and unable to ever change starting at compile-time, is known as a
-'compile-time constant'. Certain expressions and statements specifically require compile-time constant
-values. But, what things are compile-time constant?
-
-- Any :ref:`primitive literal<zslang_literals>` value, such as `5`, `2.7`, `true`.
-- Any declared constant with an initializer that is compile-time constant
-- The results of basic operators, where every operand is compile-time constant (ex. `5 + 2`, `2 < 6`)
-- The return of a function call to a `constexpr` function, where every parameter is compile-time constnat
+:ref:`Full section on constants<constants>`.
 
 Other Types
 -----------

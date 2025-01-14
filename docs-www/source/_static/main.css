@@ -131,6 +131,10 @@ html[data-theme="light"] code.literal {
 	background: #F8F8F8;
 }
 
+.bigref {
+	font-size: 1.1em;
+}
+
 .zs_caption {
 	font-size: 80%;
 	font-style: italic;

@@ -13,5 +13,5 @@ These are the foundational building blocks of scripting in ZScript, used to buil
 	/zscript-lang/control_flow/loop
 	/zscript-lang/control_flow/loopelse
 	/zscript-lang/control_flow/break
-	WIP </zscript-lang/control_flow/switchcase>
+	WIP: Switch </zscript-lang/control_flow/switchcase>
 
