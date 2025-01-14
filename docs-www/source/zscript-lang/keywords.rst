@@ -128,7 +128,7 @@ Most operators are left-associative, except assignment operators and the Ternary
 	+==========+==================+=============================+===============================================================================+
 	| 1        | :zs_op:`( )`     | ( *expr* )                  | Grouping - allows specifying precedence of an expression.                     |
 	+----------+------------------+-----------------------------+-------------------------------------------------------------------------------+
-	| 2        | `< >`            | < *type* > *expr*           | Casting - allows changing the type of an expression                           |
+	| 2        | `< >`            | < *type* > *expr*           | :ref:`Casting<typecasting>` - allows changing the type of an expression       |
 	+----------+------------------+-----------------------------+-------------------------------------------------------------------------------+
 	| 3        | `++`             | *var*\+\+                   | | Post-increment. Returns the variable's value, then adds 1 to the variable.  |
 	|          |                  |                             | | Related: :ref:`Pre- vs Post- increment/decrement<prepost_incdec>`           |
@@ -273,6 +273,23 @@ Most operators are left-associative, except assignment operators and the Ternary
 		2. `/ 0`, after producing the error, will return either `214748.3647` or `-214748.3647`, matching the sign of the dividend.
 	4. As the `int` type is not a real integer, 'Integer Division' does not exist- i.e. `5 / 2 == 2.5`, instead of `5 / 2 == 2`.
 	5. Short-circuit for boolean operations is the default, though can be disabled with a :ref:`compiler option<zslang_options>`.
+
+.. _typecasting:
+
+Type Casting
+^^^^^^^^^^^^
+
+The casting operator can be used to forcibly change the type of a value. This can
+be used to pass it to a function it otherwise would not be compatible with,
+to access a member function of it as a pointer to a particular class,
+or cause a function to treat it differently via function overloads.
+
+.. zscript::
+	:style: body
+	
+	int x = 5;
+	Trace(x); // prints '5.0000'
+	Trace(<long>x); // prints '50000', due to long type overload
 
 Syntax
 ------

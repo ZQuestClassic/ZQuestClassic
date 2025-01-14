@@ -589,6 +589,7 @@ function zs_builder(hljs, langtype) {
 		STRINGS,
 		KEYWORD_OPERATORS_SCOPE,
 		SYMBOL_OPERATORS_SCOPE,
+		ANNOTATION,
 		NUMBERS
 	];
 	

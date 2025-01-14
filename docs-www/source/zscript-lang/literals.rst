@@ -1,10 +1,6 @@
 Literals
 ========
 
-.. todo::
-
-	|wip|
-
 .. _zslang_literals:
 
 Literals are a way of directly putting raw data in your code.

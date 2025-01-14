@@ -13,7 +13,7 @@ ZScript Lang
 	/zscript-lang/comments
 	/zscript-lang/options
 	/zscript-lang/compiler_directives
-	WIP </zscript-lang/annotations>
+	/zscript-lang/annotations
 	WIP </zscript-lang/scripts>
 	/zscript-lang/namespace
 	WIP </zscript-lang/ranges>
