@@ -28,6 +28,7 @@ function zs_builder(hljs, langtype) {
 	const FUNCTION_KEYWORDS_RE = '(?:' + FUNCTION_KEYWORDS.join('|') + ')';
 	
 	const TYPE_RE = '(?:const' + SOME_WHITESPACE_RE + ')?\\b(?!else)' + IDENTIFIER_LIST_RE;
+	
 	const COMMENT_CONTAINS = [];
 	const COMMENT_LINE = {
 		scope: 'comment',
@@ -198,7 +199,7 @@ function zs_builder(hljs, langtype) {
 	};
 	const SYMBOL_OPERATORS_SCOPE = {
 		scope: 'operator',
-		match: '(?:' + STANDARD_OPERATORS.map(regex_escape).join('|') + ')'
+		match: '(?!</?error>)(?:' + STANDARD_OPERATORS.map(regex_escape).join('|') + ')'
 	};
 	
 	const BINDING_TYPES = [
@@ -514,7 +515,25 @@ function zs_builder(hljs, langtype) {
 		keywords: ZSCRIPT_KEYWORDS
 	};
 	
+	const EXPR_ERROR_MARKER = {
+		begin: '<error>',
+		end: '</error>',
+		beginScope: 'hidden',
+		endScope: 'hidden',
+		scope: 'error',
+		contains: [
+			'self',
+			COMMENT_LINE,
+			COMMENT_BLOCK,
+			NEW_EXPR,
+			KEYWORD_OPERATORS_SCOPE,
+			SYMBOL_OPERATORS_SCOPE,
+			NUMBERS,
+			STRINGS
+		]
+	};
 	const EXPRESSION_CONTAINS = [
+		EXPR_ERROR_MARKER,
 		COMMENT_LINE,
 		COMMENT_BLOCK,
 		NEW_EXPR,
@@ -581,14 +600,8 @@ function zs_builder(hljs, langtype) {
 		HASHMODE, // #option
 		USING_STATEMENT,
 		TYPEDEF_STATEMENT,
-		COMMENT_LINE,
-		COMMENT_BLOCK,
-		STRINGS,
-		KEYWORD_OPERATORS_SCOPE,
-		SYMBOL_OPERATORS_SCOPE,
 		ANNOTATION,
-		NUMBERS
-	];
+	].concat(EXPRESSION_CONTAINS);
 	
 	const FUNC_POSTHEADER = {
 		end: /;/,
@@ -660,14 +673,8 @@ function zs_builder(hljs, langtype) {
 					].concat(EXPRESSION_CONTAINS)
 				}
 			},
-			COMMENT_LINE,
-			COMMENT_BLOCK,
-			STRINGS,
-			KEYWORD_OPERATORS_SCOPE,
-			SYMBOL_OPERATORS_SCOPE,
-			NUMBERS,
 			PAREN_MATCHER,
-		]
+		].concat(EXPRESSION_CONTAINS)
 	};
 	const FUNC_TEMPLATING = {
 		scope: 'templating',

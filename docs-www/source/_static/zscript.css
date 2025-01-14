@@ -109,3 +109,22 @@ html[data-theme="light"] .hljs-title.namespace_ {
 html[data-theme="light"] .hljs-templating {
 	color: #BBD915 !important;
 }
+
+.hljs-hidden {
+	display: none;
+}
+
+.hljs-error {
+	border-bottom: 2px dotted red;
+	display: inline-block;
+	position: relative;
+}
+.hljs-error::after {
+	content: '';
+	width: 100%;
+	border-bottom: 2px dotted red;
+	position: absolute;
+	left: -2px;
+	display: block;
+	height: 4px;
+}

@@ -59,8 +59,8 @@ Custom Increment
 
 Additionally, you can change how much the enum increments by between each number.
 Firstly, using `enum = long` has the special behavior of incrementing by `1L`
-instead of `1` already. But, additionally, you can use the `@Increment` annotation
-to directly specify an amount to increment by.
+instead of `1` already. But, additionally, you can use the :zs_meta:`@Increment`
+annotation to directly specify an amount to increment by.
 
 .. zscript::
 
@@ -74,7 +74,7 @@ to directly specify an amount to increment by.
 	};
 
 .. versionadded:: 3.0
-	@Increment
+	:zs_meta:`@Increment`
 
 Custom Type Creation
 --------------------
@@ -120,9 +120,9 @@ you can only use values of the type, i.e. the constants declared in the enum.
 .. zscript::
 	:style: body
 
-	give_item(5); // error; cannot cast 'int' to 'ItemID'
+	<error>give_item(5);</error> // error; cannot cast 'int' to 'ItemID'
 	give_item(IT_ARROW_1); // works
-	give_item(14); // error; cannot cast 'int' to 'ItemID'
+	<error>give_item(14);</error> // error; cannot cast 'int' to 'ItemID'
 
 This prevents you (or others using your code) from making a mistake,
 and calling the function with a value it isn't meant to handle. In this
