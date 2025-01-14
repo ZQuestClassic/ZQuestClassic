@@ -340,7 +340,7 @@ extern byte newconveyorclk;
 
 extern bool cheats_execute_goto, cheats_execute_light;
 extern bool Throttlefps, MenuOpen, ClickToFreeze, Paused, Saving, Advance, ShowFPS, Showpal,
-	Playing, FrameSkip, TransLayers, clearConsoleOnLoad, clearConsoleOnReload, disableClickToFreeze,
+	Playing, ViewingMap, FrameSkip, TransLayers, clearConsoleOnLoad, clearConsoleOnReload, disableClickToFreeze,
 	SaveDragResize, DragAspect, SaveWinPos, scaleForceInteger, stretchGame;
 extern int ShowGameTime;
 extern bool SkipTitle;

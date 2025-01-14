@@ -1176,28 +1176,25 @@ static void apply_state_changes_to_screen(mapscr& scr, int32_t map, int32_t scre
 
 std::optional<mapscr> load_temp_mapscr_and_apply_secrets(int32_t map, int32_t screen, int32_t layer, bool secrets, bool secrets_do_replay_comment)
 {
-	if (map < 0 || screen < 0) return std::nullopt;
-		
-	const mapscr *m = get_canonical_scr(map, screen);
-    
-	if(m->valid==0) return std::nullopt;
-	
-	int mi = mapind(map, screen);
+	if (map < 0 || screen < 0)
+		return std::nullopt;
 
-	int32_t flags = 0;
-	if(secrets)
+	const mapscr* source = get_canonical_scr(map, screen);
+	if (!source->is_valid())
+		return std::nullopt;
+
+	if (layer >= 0)
 	{
-		flags = game->maps[mi];
-	}
-	
-	int32_t mapid = (layer < 0 ? -1 : ((m->layermap[layer] - 1) * MAPSCRS + m->layerscreen[layer]));
-	
-	if (layer >= 0 && (mapid < 0 || mapid > MAXMAPS*MAPSCRS)) return std::nullopt;
-	
-	mapscr scr = ((mapid < 0 || mapid > MAXMAPS*MAPSCRS) ? *m : TheMaps[mapid]);
-    
-	if(scr.valid==0) return std::nullopt;
+		if (source->layermap[layer] <= 0)
+			return std::nullopt;
 
+		source = get_canonical_scr(source->layermap[layer] - 1, source->layerscreen[layer]);
+		if (!source->is_valid())
+			return std::nullopt;
+	}
+
+	int flags = secrets ? game->maps[mapind(map, screen)] : 0;
+	mapscr scr = *source;
 	apply_state_changes_to_screen(scr, map, screen, flags, secrets_do_replay_comment);
 
 	return scr;
@@ -1210,6 +1207,8 @@ static int32_t MAPCOMBO3_impl(int32_t map, int32_t screen, int32_t layer, int32_
 	if(pos>175 || pos < 0)
 		return 0;
 
+	// TODO: consider caching this (invalidate on any modification via scripting, or anything
+	// `apply_state_changes_to_screen` checks).
 	if (auto s = load_temp_mapscr_and_apply_secrets(map, screen, layer, secrets))
 		return s->data[pos];
 
@@ -3496,13 +3495,13 @@ void draw_cmb(BITMAP* dest, int32_t x, int32_t y, int32_t cid, int32_t cset,
 void draw_cmb_pos(BITMAP* dest, int32_t x, int32_t y, rpos_t rpos, int32_t cid,
 	int32_t cset, byte layer, bool over, bool transp)
 {
-	if (!screenscrolling)
+	if (rpos != rpos_t::None)
 	{
 		rpos_t plrpos = COMBOPOS_REGION_B(Hero.x+8, Hero.y+8);
 		if (plrpos != rpos_t::None)
 		{
 			bool dosw = false;
-			if(rpos == hooked_comborpos && (hooked_layerbits & (1<<layer)))
+			if (rpos == hooked_comborpos && (hooked_layerbits & (1<<layer)))
 			{
 				if(hooked_undercombos[layer] > -1)
 				{
@@ -3511,13 +3510,13 @@ void draw_cmb_pos(BITMAP* dest, int32_t x, int32_t y, rpos_t rpos, int32_t cid,
 				}
 				dosw = true;
 			}
-			else if(rpos == plrpos && (hooked_layerbits & (1<<(layer+8))))
+			else if (rpos == plrpos && (hooked_layerbits & (1<<(layer+8))))
 			{
 				dosw = true;
 			}
-			if(dosw)
+			if (dosw)
 			{
-				switch(Hero.switchhookstyle)
+				switch (Hero.switchhookstyle)
 				{
 					default: case swPOOF:
 						break; //Nothing special here
@@ -3612,7 +3611,7 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen
 					if(mf==mfPUSHUD || mf==mfPUSH4 || mf==mfPUSHED || ((mf>=mfPUSHLR)&&(mf<=mfPUSHRINS))
 						|| mf2==mfPUSHUD || mf2==mfPUSH4 || mf2==mfPUSHED || ((mf2>=mfPUSHLR)&&(mf2<=mfPUSHRINS)))
 					{
-						auto rpos = screenscrolling ? rpos_t::None : POS_TO_RPOS(i, screen_handle.screen);
+						auto rpos = screenscrolling || ViewingMap ? rpos_t::None : POS_TO_RPOS(i, screen_handle.screen);
 						draw_cmb_pos(bmp, x + COMBOX(i), y + COMBOY(i), rpos, scr->data[i], scr->cset[i], layer, true, false);
 					}
 				}
@@ -3626,7 +3625,7 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen
 				{
 					if(combo_class_buf[combobuf[scr->data[i]].type].overhead)
 					{
-						auto rpos = screenscrolling ? rpos_t::None : POS_TO_RPOS(i, screen_handle.screen);
+						auto rpos = screenscrolling || ViewingMap ? rpos_t::None : POS_TO_RPOS(i, screen_handle.screen);
 						draw_cmb_pos(bmp, x + COMBOX(i), y + COMBOY(i), rpos, scr->data[i], scr->cset[i], layer, true, false);
 					}
 				}
@@ -3689,7 +3688,7 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen
 		for (int cx = start_x; cx < end_x; cx++)
 		{
 			int i = cx + cy*16;
-			auto rpos = screenscrolling ? rpos_t::None : POS_TO_RPOS(i, screen_handle.screen);
+			auto rpos = screenscrolling || ViewingMap ? rpos_t::None : POS_TO_RPOS(i, screen_handle.screen);
 			draw_cmb_pos(bmp, x + COMBOX(i), y + COMBOY(i), rpos, scr->data[i], scr->cset[i], layer, over, transp);
 		}
 	}
@@ -7424,6 +7423,8 @@ bool displayOnMap(int32_t x, int32_t y)
 
 void ViewMap()
 {
+	ViewingMap = true;
+
 	BITMAP* mappic = NULL;
 	static double scales[17] =
 	{
@@ -7478,7 +7479,7 @@ void ViewMap()
 
 			int xx = 0;
 			int yy = -playing_field_offset;
-			
+
 			if(XOR(scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG)) do_layer(screen_bmp, 0, screen_handles[2], xx, yy);
 			
 			if(XOR(scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG)) do_layer(screen_bmp, 0, screen_handles[3], xx, yy);
@@ -7668,8 +7669,8 @@ void ViewMap()
 	}
 	while(!done && !Quit);
 
+	ViewingMap = false;
 	destroy_bitmap(mappic);
-
 	resume_all_sfx();
 }
 
