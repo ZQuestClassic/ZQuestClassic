@@ -3527,7 +3527,7 @@ std::set<rpos_t> weapon::getBombPositions()
 				int x0 = x * 16;
 				int y0 = y * 16;
 				if (distance(tx, ty, x0, y0) <= rad)
-					rposes.insert(COMBOPOS_REGION(x0, y0));
+					CHECKED_INSERT(COMBOPOS_REGION_B(x0, y0));
 			}
 		}
 	}

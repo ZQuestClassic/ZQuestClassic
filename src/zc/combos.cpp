@@ -360,7 +360,7 @@ static void trigger_cswitch_block(const rpos_handle_t& rpos_handle)
 		combobuf[newcid].aclk = 0;
 		combo_caches::drawing.refresh(newcid);
 	}
-	for(auto lyr = 0; lyr < 7; ++lyr)
+	for (int lyr = 0; lyr <= 6; lyr++)
 	{
 		if(lyr == rpos_handle.layer) continue;
 		if(!(cmb.usrflags&(1<<lyr))) continue;
@@ -426,9 +426,10 @@ static void trigger_cswitch_block_ffc(const ffc_handle_t& ffc_handle)
 		combo_caches::drawing.refresh(newcid);
 	}
 
-	rpos_t rpos = COMBOPOS_REGION(ffc->x+8, ffc->y+8);
-	for(auto lyr = 0; lyr < 7; ++lyr)
+	rpos_t rpos = COMBOPOS_REGION_B(ffc->x+8, ffc->y+8);
+	for (int lyr = 0; lyr <= 6; lyr++)
 	{
+		if (rpos == rpos_t::None) break;
 		if(!(cmb.usrflags&(1<<lyr))) continue;
 
 		auto rpos_handle = get_rpos_handle(rpos, lyr + 1);
@@ -1523,17 +1524,17 @@ bool trigger_armos_grave(const rpos_handle_t& rpos_handle, int32_t trigdir)
 				
 				int32_t xpos2 = tx+xpos;
 				int32_t ypos2 = ty+ypos;
-				// for now just coerce a rpos to a pos. these are just for respawn timers, and it seems
-				// like two combos a screen away can share the same cooldown clock for armos/graves.
-				int32_t id3 = (int)COMBOPOS_REGION(xpos2, ypos2) % 176;
-				for (int32_t n = 0; n < armosysz && id3 < 176; n++)
+				for (int32_t n = 0; n < armosysz; n++)
 				{
-					for (int32_t m = 0; m < armosxsz && id3 < 176; m++) 
+					for (int32_t m = 0; m < armosxsz; m++) 
 					{
-						if (id3 + m < 176)
-							activation_counters[(id3+m)]=61;
+						// For now just coerce a rpos to a pos. these are just for respawn timers, and it
+						// seems ok that two combos a screen away can share the same cooldown clock for
+						// armos/graves.
+						rpos_t rpos = COMBOPOS_REGION_B(xpos2 + m*16, ypos2 + n*16);
+						if (rpos != rpos_t::None)
+							activation_counters[(int)rpos % 176] = 61;
 					}
-					id3+=16;
 				}
 				if (guysbuf[id2].family == eeGHOMA) 
 				{
