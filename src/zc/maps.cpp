@@ -2384,7 +2384,6 @@ bool remove_xstatecombos_mi(const screen_handles_t& screen_handles, int32_t mi, 
 	mapscr* s = screen_handles[0].scr;
 	int screen = s->screen;
 
-	// TODO z3 ! for_every_combo
 	rpos_handle_t rpos_handle;
 	rpos_handle.screen = screen;
 	rpos_handle.layer = 0;
