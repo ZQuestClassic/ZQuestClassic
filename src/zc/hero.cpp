@@ -8822,27 +8822,23 @@ heroanimate_skip_liftwpn:;
 									rpos_t targrpos = hooked_comborpos, plrpos = COMBOPOS_REGION_B(x+8,y+8);
 									if (hooked_layerbits && is_valid_rpos(targrpos) && is_valid_rpos(plrpos))
 									{
-										int32_t target_pos = RPOS_TO_POS(targrpos);
-										int32_t player_pos = RPOS_TO_POS(plrpos);
 										int32_t max_layer = get_qr(qr_HOOKSHOTALLLAYER) ? 6 : (get_qr(qr_HOOKSHOTLAYERFIX) ? 2 : 0);
 										for(int q = max_layer; q > -1; --q)
 										{
 											if(!(hooked_layerbits & (1<<q)))
 												continue; //non-switching layer
 											
-											auto target_pos_handle = get_rpos_handle(targrpos, q);
-											auto player_pos_handle = get_rpos_handle(plrpos, q);
-											
-											// TODO z3 refactor to use handles ...
-											mapscr* player_scr = player_pos_handle.scr;
-											mapscr* target_scr = target_pos_handle.scr;
+											auto target_rpos_handle = get_rpos_handle(targrpos, q);
+											auto player_rpos_handle = get_rpos_handle(plrpos, q);
 
-											newcombo const& cmb = combobuf[target_scr->data[target_pos]];
-											int32_t srcfl = target_scr->sflag[target_pos];
-											newcombo const& comb2 = combobuf[player_scr->data[player_pos]];
-											int32_t c = player_scr->data[player_pos],
-													cs = player_scr->cset[player_pos],
-													fl = player_scr->sflag[player_pos];
+											mapscr* target_scr = target_rpos_handle.scr;
+
+											auto& cmb = target_rpos_handle.combo();
+											int32_t srcfl = target_rpos_handle.sflag();
+											auto& cmb2 = player_rpos_handle.combo();
+											int32_t c = player_rpos_handle.data(),
+													cs = player_rpos_handle.cset(),
+													fl = player_rpos_handle.sflag();
 											//{Check push status
 											bool isFakePush = false;
 											if(cmb.type == cSWITCHHOOK)
@@ -8893,7 +8889,7 @@ heroanimate_skip_liftwpn:;
 													}
 													
 													breakable* br = new breakable(x, y, 0_zf,
-														cmb, target_scr->cset[target_pos], it, thedropset, cmb.attribytes[2],
+														cmb, target_rpos_handle.cset(), it, thedropset, cmb.attribytes[2],
 														cmb.attribytes[1] ? -1 : 0, cmb.attribytes[1], switchhookclk);
 													br->switch_hooked = true;
 													decorations.add(br);
@@ -8902,14 +8898,14 @@ heroanimate_skip_liftwpn:;
 													
 													if(cmb.usrflags&cflag6)
 													{
-														target_scr->data[target_pos]++;
+														target_rpos_handle.increment_data();
 													}
 													else
 													{
-														target_scr->data[target_pos] = target_scr->undercombo;
-														target_scr->cset[target_pos] = target_scr->undercset;
+														target_rpos_handle.set_data(target_scr->undercombo);
+														target_rpos_handle.set_cset(target_scr->undercset);
 														if(cmb.usrflags&cflag2)
-															target_scr->sflag[target_pos] = 0;
+															target_rpos_handle.set_sflag(0);
 													}
 												}
 												else if(isPush)
@@ -8920,8 +8916,8 @@ heroanimate_skip_liftwpn:;
 
 													auto [mx, my] = COMBOXY_REGION(plrpos);
 
-													mtemp.set(mx,my,target_scr->data[target_pos],target_scr->cset[target_pos],q,target_scr->sflag[target_pos]);
-													mtemp.dir = getPushDir(target_scr->sflag[target_pos]);
+													mtemp.set(mx,my,target_rpos_handle.data(),target_rpos_handle.cset(),q,target_rpos_handle.sflag());
+													mtemp.dir = getPushDir(target_rpos_handle.sflag());
 													if(mtemp.dir < 0)
 														mtemp.dir = getPushDir(cmb.flag);
 													mtemp.clk = 1;
@@ -8930,47 +8926,48 @@ heroanimate_skip_liftwpn:;
 													mtemp.animate(0);
 													if((mtemp.bhole || mtemp.trigger)
 														&& (fl == mfBLOCKTRIGGER || fl == mfBLOCKHOLE
-															|| comb2.flag == mfBLOCKTRIGGER
-															|| comb2.flag == mfBLOCKHOLE))
+															|| cmb2.flag == mfBLOCKTRIGGER
+															|| cmb2.flag == mfBLOCKHOLE))
 													{
-														target_scr->data[target_pos] = target_scr->undercombo;
-														target_scr->cset[target_pos] = target_scr->undercset;
-														target_scr->sflag[target_pos] = 0;
+														target_rpos_handle.set_data(target_scr->undercombo);
+														target_rpos_handle.set_cset(target_scr->undercset);
+														target_rpos_handle.set_sflag(0);
 													}
 													else
 													{
-														target_scr->data[target_pos] =  c;
-														target_scr->cset[target_pos] =  cs;
+														target_rpos_handle.set_data(c);
+														target_rpos_handle.set_cset(cs);
 														if(cmb.usrflags&cflag2)
-															target_scr->sflag[target_pos] = fl;
+															target_rpos_handle.set_sflag(fl);
 														else
-															target_scr->sflag[target_pos] = 0;
+															target_rpos_handle.set_sflag(0);
 													}
 												}
 												else
 												{
-													player_scr->data[player_pos] = target_scr->data[target_pos];
-													player_scr->cset[player_pos] = target_scr->cset[target_pos];
+													player_rpos_handle.set_data(target_rpos_handle.data());
+													player_rpos_handle.set_cset(target_rpos_handle.cset());
 													if(cmb.usrflags&cflag2)
-														player_scr->sflag[player_pos] = target_scr->sflag[target_pos];
-													target_scr->data[target_pos] =  c;
-													target_scr->cset[target_pos] =  cs;
+														player_rpos_handle.set_sflag(target_rpos_handle.sflag());
+
+													target_rpos_handle.set_data(c);
+													target_rpos_handle.set_cset(cs);
 													if(cmb.usrflags&cflag2)
-														target_scr->sflag[target_pos] = fl;
+														target_rpos_handle.set_sflag(fl);
 												}
 											}
 											else if(isCuttableType(cmb.type)) //Break and drop effects
 											{
-												int32_t breakcs = target_scr->cset[target_pos];
+												int32_t breakcs = target_rpos_handle.cset();
 												if(isCuttableNextType(cmb.type)) //next instead of undercmb
 												{
-													target_scr->data[target_pos]++;
+													target_rpos_handle.increment_data();
 												}
 												else
 												{
-													target_scr->data[target_pos] = target_scr->undercombo;
-													target_scr->cset[target_pos] = target_scr->undercset;
-													target_scr->sflag[target_pos] = 0;
+													target_rpos_handle.set_data(target_scr->undercombo);
+													target_rpos_handle.set_cset(target_scr->undercset);
+													target_rpos_handle.set_sflag(0);
 												}
 												
 												int32_t it = -1;
@@ -9041,31 +9038,31 @@ heroanimate_skip_liftwpn:;
 
 													auto [mx, my] = COMBOXY_REGION(plrpos);
 
-													mtemp.set(mx,my,target_scr->data[target_pos],target_scr->cset[target_pos],q,target_scr->sflag[target_pos]);
-													mtemp.dir = getPushDir(target_scr->sflag[target_pos]);
+													mtemp.set(mx,my,target_rpos_handle.data(),target_rpos_handle.cset(),q,target_rpos_handle.sflag());
+													mtemp.dir = getPushDir(target_rpos_handle.sflag());
 													if(mtemp.dir < 0)
 														mtemp.dir = getPushDir(cmb.flag);
 													mtemp.clk = 1;
 													mtemp.animate(0);
 													if(mtemp.bhole || mtemp.trigger)
 													{
-														target_scr->data[target_pos] = target_scr->undercombo;
-														target_scr->cset[target_pos] = target_scr->undercset;
-														target_scr->sflag[target_pos] = 0;
+														target_rpos_handle.set_data(target_scr->undercombo);
+														target_rpos_handle.set_cset(target_scr->undercset);
+														target_rpos_handle.set_sflag(0);
 													}
 													else
 													{
-														target_scr->data[target_pos] =  c;
-														target_scr->cset[target_pos] =  cs;
-														target_scr->sflag[target_pos] = 0;
+														target_rpos_handle.set_data(c);
+														target_rpos_handle.set_cset(cs);
+														target_rpos_handle.set_sflag(0);
 													}
 												}
 												else
 												{
-													player_scr->data[player_pos] = target_scr->data[target_pos];
-													player_scr->cset[player_pos] = target_scr->cset[target_pos];
-													target_scr->data[target_pos] = c;
-													target_scr->cset[target_pos] = cs;
+													player_rpos_handle.set_data(target_rpos_handle.data());
+													player_rpos_handle.set_cset(target_rpos_handle.cset());
+													target_rpos_handle.set_data(c);
+													target_rpos_handle.set_cset(cs);
 												}
 											}
 										}
