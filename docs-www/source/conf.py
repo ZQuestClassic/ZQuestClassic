@@ -82,6 +82,9 @@ rst_prolog = """
 .. role:: zs_cmnt(literal)
     :class: 'customzs pre hljs hljs-comment'
 
+.. role:: zs_title(literal)
+    :class: 'customzs pre hljs hljs-title'
+
 .. default-role:: zs
 """
 

@@ -62,16 +62,48 @@ Placing an `else` after a conditional statement's body, allows you to run a seco
 
 As you can see in the example, you can use this to chain multiple conditionals together.
 
-Conditional Assignment
-----------------------
+Conditional Declaration
+-----------------------
 
-.. todo::
+An `if` statement can contain a variable declaration. The
+body will execute only if the initializer of the variable
+gives a non-`0`/`NULL` value.
 
-	ex. `if(npc n = findNPC())`
+.. zscript::
+
+	npc find_closest_npc(int max_range);
+	void kill_closest_npc(int max_range)
+	{
+		if(npc n = find_closest_npc(max_range))
+		{
+			n->HP = 0;
+		}
+	}
+
+.. dropdown:: :zs_title:`find_closest_npc`
+	
+	.. zscript::
+
+		npc find_closest_npc(int range)
+		{
+			npc ret;
+			int min = range;
+			for(n : Screen->NPCs)
+			{
+				int dist = Distance(Hero->X, Hero->Y, n->X, n->Y);
+				if(dist <= min)
+				{
+					ret = n;
+					min = dist;
+				}
+			}
+			return ret;
+		}
 
 .. plans::
 
-	May be worth expanding this to better C++-like syntax for future versions.
+	This may be expanded in the future to work more like it does in latest C++.
+	This would likely include:
 	
-	- Could be good to allow in while/until loops
-	- Allow '; condition' suffix to use a condition other than '!= 0' (if/unless only, not on loops!)
+	- `while`/`until` loop support for declarations (`while(npc n = some_func())`)
+	- ``; condition`` suffix to use a condition other than `!= 0`, ex. `if(npc n = find_closest_npc(range); n->HP > 10)` (would NOT apply to `while`/`until`)

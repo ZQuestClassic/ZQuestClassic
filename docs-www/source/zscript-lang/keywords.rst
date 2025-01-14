@@ -1,10 +1,6 @@
 Keywords and Operators
 ======================
 
-.. todo::
-
-	|wip|
-
 .. |import directive| replace:: :ref:`file import directive<directive_import>`
 
 .. _zslang_keywords:
@@ -44,13 +40,15 @@ Misc
 	| | `break`        | :ref:`Loop flow control<stmt_break>`                              |
 	| | `continue`     |                                                                   |
 	+------------------+-------------------------------------------------------------------+
-	| `switch`         |                                                                   |
+	| | `switch`       | :ref:`Switch statements<stmt_switch>`                             |
+	| | `case`         |                                                                   |
 	+------------------+-------------------------------------------------------------------+
-	| `case`           |                                                                   |
+	| `default`        | Used for defaults, both in :ref:`switch statements<stmt_switch>`  |
+	|                  | and in :ref:`function prototypes<func_proto>`                     |
 	+------------------+-------------------------------------------------------------------+
-	| `default`        |                                                                   |
-	+------------------+-------------------------------------------------------------------+
-	| `return`         |                                                                   |
+	| `return`         | Used to return values from :ref:`functions<zslang_function>`.     |
+	|                  | Also used to return early, even in `void` functions which return  |
+	|                  | no value.                                                         |
 	+------------------+-------------------------------------------------------------------+
 	| `typedef`        | Used to define :ref:`custom type aliases<zslang_typedef>`         |
 	+------------------+-------------------------------------------------------------------+

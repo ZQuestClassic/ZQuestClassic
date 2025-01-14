@@ -10,8 +10,8 @@ This section covers various things you may declare, and how to declare them.
 
 	/zscript-lang/declarations/identifiers
 	/zscript-lang/declarations/vars_consts
-	/zscript-lang/declarations/arrays_strings
-	/zscript-lang/declarations/functions
+	WIP: Arrays/Strings </zscript-lang/declarations/arrays_strings>
+	WIP: Functions </zscript-lang/declarations/functions>
 
 .. seealso::
 	

@@ -12,8 +12,9 @@ Importing Files
 ---------------
 
 Using the `import` or `#include` directive, you can include other ZScript
-code files in your project. Normally, only the script buffer of a quest
-is compiled- but each of these statements adds a file to be compiled.
+code files in your project by specifying the path to the file as a
+:ref:`string literal<string_literals>`. Normally, only the script buffer of a
+quest is compiled- but each of these statements adds a file to be compiled.
 
 Generally, including the same file multiple times has no ill effects-
 unless you change the :ref:`HEADER_GUARD option<zslang_options>`.
@@ -26,6 +27,13 @@ unless you change the :ref:`HEADER_GUARD option<zslang_options>`.
 	:classes: zs_caption
 
 Including the |stdlib|.
+
+.. note::
+	When typing the string literal parameter, escape characters have no effect,
+	and `\\` characters can be inserted normally. This is due to `\\` being common
+	in file paths, and all strings worked this way in older versions of the
+	program, so import path strings continue to act this way for compatibility
+	purposes.
 
 Related: :ref:`Include Paths<included_paths>`
 

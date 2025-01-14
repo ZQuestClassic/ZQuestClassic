@@ -50,6 +50,8 @@ Numbers
 Number Spacers
 ++++++++++++++
 
+.. versionadded:: 2.55.9
+
 You may place spacers `_` between any 2 digits, which have no effect, but can help
 make the number more readable. Example:
 
@@ -76,6 +78,8 @@ Complex Literals
 These literals represent more complex data. They may not be considered 'compile-time constant' in
 all circumstances.
 
+.. _string_literals:
+
 String Literals
 ^^^^^^^^^^^^^^^
 
@@ -95,11 +99,9 @@ Also, adjacent strings are automatically merged by the compiler. Ex:
 	// prints 'This is a string split across multiple lines!'
 
 .. note::
-	When typing a string as part of an :ref:`#include statement<directive_import>`,
-	escape characters have no effect, and `\\` characters can be inserted normally.
-	This is due to `\\` being common in file paths, and all strings worked this way
-	in older versions of the program, so import path strings continue to act this way
-	for compatibility purposes.
+	:ref:`'#include' statements<directive_import>` use a special form of
+	string literal with slightly different rules (notably, not using escape
+	characters)
 
 
 Array Literals
