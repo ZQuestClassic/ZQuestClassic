@@ -6,7 +6,6 @@ Keywords and Operators
 	|wip|
 
 .. |import directive| replace:: :ref:`file import directive<directive_import>`
-.. |ctc| replace:: :ref:`compile-time constant<compiletime_const>`
 
 .. _zslang_keywords:
 
@@ -286,7 +285,7 @@ or cause a function to treat it differently via function overloads.
 
 .. zscript::
 	:style: body
-	
+
 	int x = 5;
 	Trace(x); // prints '5.0000'
 	Trace(<long>x); // prints '50000', due to long type overload

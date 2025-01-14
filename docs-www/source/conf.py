@@ -54,6 +54,7 @@ rst_prolog = """
 .. |wip| replace:: WIP: This page is incomplete, and needs more information.
 .. |stdlib| replace:: :ref:`standard library <lib_std>`
 .. |VSCode| replace:: :ref:`VSCode<vscode>`
+.. |ctc| replace:: :ref:`compile-time constant<compiletime_const>`
 
 .. role:: del
 

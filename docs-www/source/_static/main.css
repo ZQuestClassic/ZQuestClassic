@@ -52,6 +52,15 @@ h3, h4, h5, h6,
 	margin: 0.75rem 0 1.05rem
 }
 
+.line-block {
+	margin-top: 0;
+}
+
+/* Needs top margin to match bottom, or looks wrong in some places */
+p {
+	margin-top: 1.15rem;
+}
+
 /* Customized admonition class */
 .admonition.admonition-plans,
 div.admonition.admonition-plans {
@@ -138,4 +147,6 @@ html[data-theme="light"] code.literal {
 .zs_caption {
 	font-size: 80%;
 	font-style: italic;
+	margin-top: 0;
+	margin-bottom: 0;
 }
