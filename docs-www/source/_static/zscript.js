@@ -57,9 +57,7 @@ function zs_builder(hljs, langtype) {
 				]
 			},
 			{
-				begin: '\'(' + CHARACTER_ESCAPES_RE + '|.)',
-				end: '\'',
-				illegal: '.'
+				match: '\'(' + CHARACTER_ESCAPES_RE + '|.)\'',
 			}
 		]
 	};
@@ -503,9 +501,23 @@ function zs_builder(hljs, langtype) {
 		keyword: RESERVED_KEYWORDS
 	};
 	
+	const NEW_EXPR = {
+		match: [
+			'new',
+			SOME_WHITESPACE_RE,
+			IDENTIFIER_LIST_RE
+		],
+		scope: {
+			1: 'keyword',
+			3: 'type.class'
+		},
+		keywords: ZSCRIPT_KEYWORDS
+	};
+	
 	const EXPRESSION_CONTAINS = [
 		COMMENT_LINE,
 		COMMENT_BLOCK,
+		NEW_EXPR,
 		KEYWORD_OPERATORS_SCOPE,
 		SYMBOL_OPERATORS_SCOPE,
 		NUMBERS,
@@ -554,29 +566,13 @@ function zs_builder(hljs, langtype) {
 		begin: /\(/,
 		end: /\)/,
 		keywords: ZSCRIPT_KEYWORDS,
-		contains: [
-			'self',
-			COMMENT_LINE,
-			COMMENT_BLOCK,
-			STRINGS,
-			KEYWORD_OPERATORS_SCOPE,
-			SYMBOL_OPERATORS_SCOPE,
-			NUMBERS
-		]
+		contains: EXPRESSION_CONTAINS.concat('self')
 	};
 	const BRACE_MATCHER = {
 		begin: /{/,
 		end: /}/,
 		keywords: ZSCRIPT_KEYWORDS,
-		contains: [
-			'self',
-			COMMENT_LINE,
-			COMMENT_BLOCK,
-			STRINGS,
-			KEYWORD_OPERATORS_SCOPE,
-			SYMBOL_OPERATORS_SCOPE,
-			NUMBERS
-		]
+		contains: EXPRESSION_CONTAINS.concat('self')
 	};
 	
 	const FUNC_BODY_CONTAINS = [
@@ -775,7 +771,8 @@ function zs_builder(hljs, langtype) {
 		scope: {
 			1: 'keyword',
 			3: 'type.class'
-		}
+		},
+		keywords: ZSCRIPT_KEYWORDS
 	};
 	
 	const NAMESPACE_DECLARATION = {
