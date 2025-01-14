@@ -380,10 +380,8 @@ extern char   cheat_goto_dmap_str[4];
 extern char   cheat_goto_screen_str[3];
 extern int32_t  visited[6];
 extern mapscr scrolling_screen;
-// The currently loaded screen. For regions, this is the top-left screen, AKA the origin screen.
+// The top-left screen of the currently loaded region.
 extern mapscr* origin_scr;
-// The layers of the current origin screen.
-extern mapscr tmpscr2[6];
 // This is typically used as the previous screen before doing a warp to a special room,
 // but it is also used (by scripting) to hold the previous screen during scrolling.
 extern mapscr special_warp_return_scrs[7];

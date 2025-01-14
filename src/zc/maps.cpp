@@ -6234,9 +6234,8 @@ void loadscr_old(int32_t destdmap, int32_t screen,int32_t ldir,bool overlay)
 	toggle_gswitches_load(special_warp_return_scr);
 
 	screen_handles_t screen_handles;
-	screen_handles[0] = {scr, scr, screen, 0};
-	for (int i = 1; i <= 6; i++)
-		screen_handles[i] = {scr, tmpscr2[i-1].is_valid() ? &tmpscr2[i-1] : nullptr, screen, i};
+	for (int i = 0; i <= 6; i++)
+		screen_handles[i] = {scr, special_warp_return_scrs[i].is_valid() ? &special_warp_return_scrs[i] : nullptr, screen, i};
 
 	if(game->maps[mi]&mLOCKBLOCK)			  // if special stuff done before
 	{
@@ -6323,7 +6322,7 @@ void loadscr_old(int32_t destdmap, int32_t screen,int32_t ldir,bool overlay)
 	{
 		if (j<0 || scr->layermap[j] > 0)
 		{
-			mapscr *layerscreen= (j<0 ? scr : tmpscr2[j].valid ? &tmpscr2[j] :
+			mapscr *layerscreen= (j<0 ? scr : special_warp_return_scrs[j+1].valid ? &special_warp_return_scrs[j+1] :
 								  &TheMaps[(scr->layermap[j]-1)*MAPSCRS]+scr->layerscreen[j]);
 								  
 			for(int32_t i=0; i<176; ++i)

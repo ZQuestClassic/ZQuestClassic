@@ -394,7 +394,6 @@ int32_t  visited[6]={0};
 std::map<int, byte> activation_counters;
 std::map<int, byte> activation_counters_ffc;
 mapscr* origin_scr;
-mapscr tmpscr2[6];
 mapscr special_warp_return_scrs[7];
 mapscr* special_warp_return_scr = &special_warp_return_scrs[0];
 mapscr* hero_scr;
