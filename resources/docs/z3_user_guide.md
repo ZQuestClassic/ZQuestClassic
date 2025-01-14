@@ -85,9 +85,9 @@ enum DrawOrigin
 	// Equivalent to [DRAW_ORIGIN_WORLD] when not scrolling.
 	DRAW_ORIGIN_WORLD_SCROLLING_OLD = 5L
 };
-
-TODO ~z3 remove, just link to doc website
 ```
+
+<!-- TODO ~z3 remove above, just link to doc website -->
 
 ### `Viewport`
 
@@ -162,6 +162,8 @@ class Viewport {
 internal const Viewport Viewport;
 ```
 
+<!-- TODO ~z3 remove above, just link to doc website -->
+
 ### `sprite::ScreenIndex`
 
 All sprites (such as `ffc`, `npc`, `lweapon`, etc.) have a `ScreenIndex` variable, which is the screen the sprite was created on. This variable does not update as the sprite moves around a region.
@@ -198,7 +200,33 @@ To access other screens of the current region, use `mapdata`. There is `Game->Lo
 
 `mapdata` only ever refers to a single screen.
 
-(NOT YET IMPLEMENTED): FFCs
+### FFCs
+
+Each individual screen within a region may have up to 128 FFCs. The maximum FFC ID for the currently loaded region is `MAX_FFC`.
+
+```c
+// The FFC's ID. Valid values are between 1 and [MAX_FFC].
+//
+// The general formula for an FFC's ID is the following:
+//
+// >  id = (screen region offset)*128 + (index into screen's ffc array) + 1
+//
+// where "screen region offset" refers to the index of the screen in the
+// current region, like so:
+//
+// ```
+//   0 1 2
+//   3 4 5
+//   6 7 8
+// ```
+//
+// @zasm_var FFCID
+internal const int ID;
+```
+
+<!-- TODO ~z3 remove above, just link to doc website -->
+
+To load the FFC at a specific index for a given screen, use `Screen->LoadFFC(int screen, int index)`.
 
 ### Region-related functions
 
