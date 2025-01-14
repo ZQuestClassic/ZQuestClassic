@@ -199,7 +199,7 @@ function zs_builder(hljs, langtype) {
 	};
 	const SYMBOL_OPERATORS_SCOPE = {
 		scope: 'operator',
-		match: '(?!</?error>)(?:' + STANDARD_OPERATORS.map(regex_escape).join('|') + ')'
+		match: '(?!</?(?:error|warn)>)(?:' + STANDARD_OPERATORS.map(regex_escape).join('|') + ')'
 	};
 	
 	const BINDING_TYPES = [
@@ -520,7 +520,24 @@ function zs_builder(hljs, langtype) {
 		end: '</error>',
 		beginScope: 'hidden',
 		endScope: 'hidden',
-		scope: 'error',
+		scope: 'alert.error',
+		contains: [
+			'self',
+			COMMENT_LINE,
+			COMMENT_BLOCK,
+			NEW_EXPR,
+			KEYWORD_OPERATORS_SCOPE,
+			SYMBOL_OPERATORS_SCOPE,
+			NUMBERS,
+			STRINGS
+		]
+	};
+	const EXPR_WARN_MARKER = {
+		begin: '<warn>',
+		end: '</warn>',
+		beginScope: 'hidden',
+		endScope: 'hidden',
+		scope: 'alert.warn',
 		contains: [
 			'self',
 			COMMENT_LINE,
@@ -534,6 +551,7 @@ function zs_builder(hljs, langtype) {
 	};
 	const EXPRESSION_CONTAINS = [
 		EXPR_ERROR_MARKER,
+		EXPR_WARN_MARKER,
 		COMMENT_LINE,
 		COMMENT_BLOCK,
 		NEW_EXPR,

@@ -114,17 +114,36 @@ html[data-theme="light"] .hljs-templating {
 	display: none;
 }
 
-.hljs-error {
-	border-bottom: 2px dotted red;
+.hljs-alert {
+	border-bottom: 2px dotted;
 	display: inline-block;
 	position: relative;
+	margin-bottom: 2px;
 }
-.hljs-error::after {
+.hljs-alert::after {
 	content: '';
 	width: 100%;
-	border-bottom: 2px dotted red;
+	border-bottom: 2px dotted;
 	position: absolute;
 	left: -2px;
 	display: block;
 	height: 4px;
+}
+
+.hljs-alert.warn_,
+.hljs-alert.warn_::after {
+	border-color: #F2EA0C;
+}
+.hljs-alert.error_,
+.hljs-alert.error_::after {
+	border-color: #FF0000;
+}
+
+html[data-theme="light"] .hljs-alert.warn_,
+html[data-theme="light"] .hljs-alert.warn_::after {
+	border-color: #CBC742;
+}
+html[data-theme="light"] .hljs-alert.error_,
+html[data-theme="light"] .hljs-alert.error_::after {
+	border-color: #FF7777;
 }

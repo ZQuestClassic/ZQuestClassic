@@ -78,38 +78,10 @@ Complex Literals
 These literals represent more complex data. They may not be considered 'compile-time constant' in
 all circumstances.
 
-.. _string_literals:
+String / Array Literals
+^^^^^^^^^^^^^^^^^^^^^^^
 
-String Literals
-^^^^^^^^^^^^^^^
-
-A string literal represents an array of multiple character values. It is represented
-as multiple characters, between two double-quotes (ex. `"apple"`).
-
-Additionally, :ref:`escape characters<escape_characters>` can be used to insert
-special characters, including `"` and `\\`.
-
-Also, adjacent strings are automatically merged by the compiler. Ex:
-
-.. zscript::
-	:style: body
-	
-	printf("This is a string"
-		" split across multiple lines!\n");
-	// prints 'This is a string split across multiple lines!'
-
-.. note::
-	:ref:`'#include' statements<directive_import>` use a special form of
-	string literal with slightly different rules (notably, not using escape
-	characters)
-
-
-Array Literals
-^^^^^^^^^^^^^^
-
-.. todo::
-	
-	Array Literals
+See :ref:`string literals<string_literals>`, :ref:`array literals<array_literals>`
 
 Difference between String/Array 'Literals' and 'Initializers'
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -27,10 +27,10 @@ The format of these is `for(declaration; condition; increment)`, followed by the
 
 Related: :ref:`Loop Else<stmt_loop_else>`, :ref:`Break<stmt_break>`, :ref:`Continue<stmt_continue>`
 
+.. _stmt_for_each:
+
 For-Each Loops
 --------------
-
-.. _stmt_for_each:
 
 Alternatively, a `for` loop can be used with an array, to create what is refered to as a ``for-each`` loop.
 This has a different format, `for(varname : array)` / `for(varname in array)`.
