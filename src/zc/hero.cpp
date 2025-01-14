@@ -20277,16 +20277,17 @@ HeroClass::WalkflagInfo HeroClass::walkflag(zfix fx,zfix fy,int32_t cnt,byte d2)
 HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,byte d2)
 {
     WalkflagInfo ret;
-    
+
+	// TODO z3 ! rm??
 	wx = vbound(wx, -1, world_w);
 	wy = vbound(wy, -1, world_h);
 
-	if (wx < 0 || wx >= world_w || wy < 0 || wy >= world_h)
+	if (!is_in_world_bounds(wx, wy))
 	{
 		ret.setUnwalkable(false);
 		return ret;
 	}
-    
+
     if(toogam)
     {
         ret.setUnwalkable(false);

@@ -705,7 +705,7 @@ rpos_t COMBOPOS_REGION(int32_t x, int32_t y)
 	if (!is_in_scrolling_region())
 		return (rpos_t) COMBOPOS(x, y);
 
-	DCHECK(x >= 0 && x < world_w && y >= 0 && y < world_h);
+	DCHECK(is_in_world_bounds(x, y));
 	int scr_dx = x / (16*16);
 	int scr_dy = y / (11*16);
 	int pos = COMBOPOS(x%256, y%176);
@@ -713,7 +713,7 @@ rpos_t COMBOPOS_REGION(int32_t x, int32_t y)
 }
 rpos_t COMBOPOS_REGION_B(int32_t x, int32_t y)
 {
-	if (x < 0 || y < 0 || x >= world_w || y >= world_h)
+	if (!is_in_world_bounds(x, y))
 		return rpos_t::None;
 
 	int scr_dx = x / (16*16);
@@ -744,7 +744,7 @@ int32_t COMBOY_REGION(rpos_t rpos)
 
 rpos_t COMBOPOS_REGION_INDEX(int32_t x, int32_t y)
 {
-	DCHECK(x >= 0 && x < world_w && y >= 0 && y < world_h);
+	DCHECK(is_in_world_bounds(x, y));
 	if (!is_in_scrolling_region())
 		return (rpos_t)(x + y * 16);
 
@@ -887,16 +887,13 @@ int32_t MAPCOMBOzq(int32_t x,int32_t y)
 int32_t MAPCOMBOL(int32_t layer,int32_t x,int32_t y)
 {
 	DCHECK(layer >= 1 && layer <= 6);
-	if (x < 0 || x >= world_w || y < 0 || y >= world_h || layer <= 0)
-	{
+	if (!is_in_world_bounds(x, y) || layer <= 0)
 		return 0;
-	}
 
 	mapscr* m = get_scr_for_world_xy_layer(x, y, layer);
+	// TODO z3 is_valid()
 	if (!m->valid)
-	{
 		return 0;
-	}
 
 	int pos = COMBOPOS(x%256, y%176);
 	return m->data[pos];
@@ -905,7 +902,7 @@ int32_t MAPCOMBOL(int32_t layer,int32_t x,int32_t y)
 int32_t MAPCSETL(int32_t layer,int32_t x,int32_t y)
 {
 	DCHECK(layer >= 1 && layer <= 6);
-	if (x < 0 || x >= world_w || y < 0 || y >= world_h)
+	if (!is_in_world_bounds(x, y))
 		return 0;
     
 	mapscr* m = get_scr_for_world_xy_layer(x, y, layer);
@@ -918,7 +915,7 @@ int32_t MAPCSETL(int32_t layer,int32_t x,int32_t y)
 int32_t MAPFLAGL(int32_t layer,int32_t x,int32_t y)
 {
 	DCHECK(layer >= 1 && layer <= 6);
-	if (x < 0 || x >= world_w || y < 0 || y >= world_h)
+	if (!is_in_world_bounds(x, y))
 		return 0;
     
 	mapscr* m = get_scr_for_world_xy_layer(x, y, layer);
@@ -931,7 +928,7 @@ int32_t MAPFLAGL(int32_t layer,int32_t x,int32_t y)
 int32_t COMBOTYPEL(int32_t layer,int32_t x,int32_t y)
 {
 	DCHECK(layer >= 1 && layer <= 6);
-	if (x < 0 || x >= world_w || y < 0 || y >= world_h)
+	if (!is_in_world_bounds(x, y))
 		return 0;
 	
 	mapscr* m = get_scr_for_world_xy_layer(x, y, layer);
@@ -944,7 +941,7 @@ int32_t COMBOTYPEL(int32_t layer,int32_t x,int32_t y)
 int32_t MAPCOMBOFLAGL(int32_t layer,int32_t x,int32_t y)
 {
 	DCHECK(layer >= 1 && layer <= 6);
-	if (x < 0 || x >= world_w || y < 0 || y >= world_h)
+	if (!is_in_world_bounds(x, y))
 		return 0;
 	
 	mapscr* m = get_scr_for_world_xy_layer(x, y, layer);
@@ -985,7 +982,7 @@ int32_t MAPFFCOMBO(int32_t x,int32_t y)
 
 int32_t MAPCSET(int32_t x, int32_t y)
 {
-	if (x < 0 || x >= world_w || y < 0 || y >= world_h)
+	if (!is_in_world_bounds(x, y))
 		return 0;
 	mapscr* scr = get_scr_for_world_xy(x, y);
 	int pos = COMBOPOS(x%256, y%176);
@@ -994,7 +991,7 @@ int32_t MAPCSET(int32_t x, int32_t y)
 
 int32_t MAPFLAG(int32_t x, int32_t y)
 {
-	if (x < 0 || x >= world_w || y < 0 || y >= world_h)
+	if (!is_in_world_bounds(x, y))
 		return 0;
 	mapscr* scr = get_scr_for_world_xy(x, y);
 	int pos = COMBOPOS(x%256, y%176);
@@ -1082,7 +1079,7 @@ int32_t FFORCOMBOTYPE_L(int32_t layer, int32_t x, int32_t y)
 
 int32_t MAPCOMBOFLAG(int32_t x,int32_t y)
 {
-	if (x < 0 || x >= world_w || y < 0 || y >= world_h)
+	if (!is_in_world_bounds(x, y))
 		return 0;
 
 	mapscr* scr = get_scr_for_world_xy(x, y);
@@ -1114,7 +1111,7 @@ int32_t MAPCOMBO(const rpos_handle_t& rpos_handle)
 int32_t MAPCOMBO2(int32_t layer, int32_t x, int32_t y)
 {
 	DCHECK_LAYER_NEG1_INDEX(layer);
-	if (x < 0 || y < 0 || x >= world_w || y >= world_h) return 0;
+	if (!is_in_world_bounds(x, y)) return 0;
     if (layer == -1) return MAPCOMBO(x, y);
     
 	auto rpos_handle = get_rpos_handle_for_world_xy(x, y, layer + 1);
@@ -1245,7 +1242,7 @@ int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, rpos_t rpos, bool 
 int32_t MAPCSET2(int32_t layer,int32_t x,int32_t y)
 {
 	DCHECK_LAYER_NEG1_INDEX(layer);
-	if (x < 0 || x >= world_w || y < 0 || y >= world_h)
+	if (!is_in_world_bounds(x, y))
 		return 0;
     if (layer == -1) return MAPCSET(x, y);
 
@@ -1258,7 +1255,7 @@ int32_t MAPCSET2(int32_t layer,int32_t x,int32_t y)
 int32_t MAPFLAG2(int32_t layer,int32_t x,int32_t y)
 {
 	DCHECK_LAYER_NEG1_INDEX(layer);
-	if (!get_qr(qr_BUGGED_LAYERED_FLAGS) && (x < 0 || x >= world_w || y < 0 || y >= world_h))
+	if (!get_qr(qr_BUGGED_LAYERED_FLAGS) && (!is_in_world_bounds(x, y)))
 		return 0;
     if (layer == -1) return MAPFLAG(x, y);
 
@@ -1297,7 +1294,7 @@ int32_t COMBOTYPE2(int32_t layer,int32_t x,int32_t y)
 int32_t MAPCOMBOFLAG2(int32_t layer,int32_t x,int32_t y)
 {
 	DCHECK_LAYER_NEG1_INDEX(layer);
-	if (x < 0 || x >= world_w || y < 0 || y >= world_h)
+	if (!is_in_world_bounds(x, y))
 		return 0;
     if (layer == -1) return MAPCOMBOFLAG(x, y);
 
@@ -2974,8 +2971,7 @@ endhe:
 // Out parameters will be set if the flag is Trigger->Self, which modifies how secrets will be triggered.
 static bool has_flag_trigger(int32_t x, int32_t y, int32_t flag, rpos_t& out_rpos, bool& out_single16)
 {
-	// TODO z3 ! function, inline.
-	if (x < 0 || y < 0 || x >= world_w || y >= world_h) return false;
+	if (!is_in_world_bounds(x, y)) return false;
 
     bool found_cflag = false;
     bool found_nflag = false;
@@ -3415,7 +3411,7 @@ optional<int> nextscr_mi(int mi, int dir)
 
 void bombdoor(int32_t x,int32_t y)
 {
-	if (x < 0 || y < 0 || x >= world_w || y >= world_h)
+	if (!is_in_world_bounds(x, y))
 		return;
 
 	auto rpos_handle = get_rpos_handle_for_world_xy(x, y, 0);

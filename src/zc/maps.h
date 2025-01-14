@@ -85,6 +85,11 @@ ZC_FORCE_INLINE bool is_valid_rpos(rpos_t rpos)
 	return (int)rpos >= 0 && rpos <= region_max_rpos;
 }
 
+ZC_FORCE_INLINE bool is_in_world_bounds(int x, int y)
+{
+	return x >= 0 && y >= 0 && x < world_w && y < world_h;
+}
+
 ZC_FORCE_INLINE int get_region_relative_dx(int screen, int origin_screen)
 {
 	return screen % 16 - origin_screen % 16;
