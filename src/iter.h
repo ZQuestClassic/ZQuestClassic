@@ -255,7 +255,7 @@ ZC_FORCE_INLINE std::optional<ffc_handle_t> find_ffc(T&& fn)
 	return std::nullopt;
 }
 
-// Iterates over every rpos for a specified screen.
+// Iterates over every rpos for a specified screen (including layers).
 // Callback function: void fn(const rpos_handle_t& rpos_handle_t)
 template<typename T>
 requires std::is_invocable_v<T, const rpos_handle_t&>
@@ -294,6 +294,28 @@ ZC_FORCE_INLINE void for_every_rpos_in_screen(mapscr* scr, T&& fn)
 			rpos_handle.rpos = (rpos_t)pos;
 			rpos_handle.pos = pos;
 			fn(rpos_handle);
+		}
+	}
+}
+
+// Iterates over every rpos for a specified screen (but not its layers).
+// Callback function: void fn(const rpos_handle_t& rpos_handle_t)
+template<typename T>
+requires std::is_invocable_v<T, const rpos_handle_t&>
+ZC_FORCE_INLINE void for_every_rpos_in_screen_layer0(mapscr* scr, T&& fn)
+{
+	auto [handles, count] = get_current_region_handles(scr);
+
+	for (int i = 0; i < count; i++)
+	{
+		rpos_handle_t rpos_handle = handles[i];
+		if (rpos_handle.layer != 0) continue;
+
+		for (int j = 0; j < 176; j++)
+		{
+			fn(rpos_handle);
+			rpos_handle.rpos = (rpos_t)((int)rpos_handle.rpos + 1);
+			rpos_handle.pos += 1;
 		}
 	}
 }

@@ -18457,57 +18457,51 @@ void load_default_enemies(mapscr* scr)
 			addenemy(screen, dx + 208, dy + 128, cornerTrapID, -14);
 		}
 	}
-	
-	// TODO z3 ! for_every_rpos ...
-	for(int32_t y0=0; y0<176; y0+=16)
-	{
-		for(int32_t x0=0; x0<256; x0+=16)
+
+	for_every_rpos_in_screen_layer0(scr, [&](const rpos_handle_t& rpos_handle) {
+		int32_t ctype = rpos_handle.ctype();
+		int32_t cflag = rpos_handle.sflag();
+		int32_t cflag_i = rpos_handle.cflag();
+
+		if(ctype==cTRAP_H || cflag==mfTRAP_H || cflag_i==mfTRAP_H)
 		{
-			int32_t x = x0 + dx;
-			int32_t y = y0 + dy;
-			int32_t ctype = combobuf[MAPCOMBO(x,y)].type;
-			int32_t cflag = MAPFLAG(x, y);
-			int32_t cflag_i = MAPCOMBOFLAG(x, y);
-			
-			if(ctype==cTRAP_H || cflag==mfTRAP_H || cflag_i==mfTRAP_H)
+			auto [x, y] = rpos_handle.xy();
+			if(trapLOSHorizontalID>=0)
+				addenemy(screen, x, y, trapLOSHorizontalID, -14);
+		}
+		else if(ctype==cTRAP_V || cflag==mfTRAP_V || cflag_i==mfTRAP_V)
+		{
+			auto [x, y] = rpos_handle.xy();
+			if(trapLOSVerticalID>=0)
+				addenemy(screen, x, y, trapLOSVerticalID, -14);
+		}
+		else if(ctype==cTRAP_4 || cflag==mfTRAP_4 || cflag_i==mfTRAP_4)
+		{
+			auto [x, y] = rpos_handle.xy();
+			if(trapLOS4WayID>=0)
 			{
-				if(trapLOSHorizontalID>=0)
-					addenemy(screen, x, y, trapLOSHorizontalID, -14);
-			}
-			else if(ctype==cTRAP_V || cflag==mfTRAP_V || cflag_i==mfTRAP_V)
-			{
-				if(trapLOSVerticalID>=0)
-					addenemy(screen, x, y, trapLOSVerticalID, -14);
-			}
-			else if(ctype==cTRAP_4 || cflag==mfTRAP_4 || cflag_i==mfTRAP_4)
-			{
-				if(trapLOS4WayID>=0)
-				{
-					if(addenemy(screen, x, y, trapLOS4WayID, -14))
-						guys.spr(guys.Count()-1)->dummy_int[1]=2;
-				}
-			}
-			
-			else if(ctype==cTRAP_LR || cflag==mfTRAP_LR || cflag_i==mfTRAP_LR)
-			{
-				if(trapConstantHorizontalID>=0)
-					addenemy(screen, x, y, trapConstantHorizontalID, -14);
-			}
-			else if(ctype==cTRAP_UD || cflag==mfTRAP_UD || cflag_i==mfTRAP_UD)
-			{
-				if(trapConstantVerticalID>=0)
-					addenemy(screen, x, y, trapConstantVerticalID, -14);
-			}
-			
-			if(ctype==cSPINTILE1)
-			{
-				// Awaken spinning tile
-				rpos_t rpos = COMBOPOS_REGION(x, y);
-				rpos_handle_t rpos_handle = {scr, screen, 0, rpos, RPOS_TO_POS(rpos)};
-				awaken_spinning_tile(rpos_handle);
+				if(addenemy(screen, x, y, trapLOS4WayID, -14))
+					guys.spr(guys.Count()-1)->dummy_int[1]=2;
 			}
 		}
-	}
+		else if(ctype==cTRAP_LR || cflag==mfTRAP_LR || cflag_i==mfTRAP_LR)
+		{
+			auto [x, y] = rpos_handle.xy();
+			if(trapConstantHorizontalID>=0)
+				addenemy(screen, x, y, trapConstantHorizontalID, -14);
+		}
+		else if(ctype==cTRAP_UD || cflag==mfTRAP_UD || cflag_i==mfTRAP_UD)
+		{
+			auto [x, y] = rpos_handle.xy();
+			if(trapConstantVerticalID>=0)
+				addenemy(screen, x, y, trapConstantVerticalID, -14);
+		}
+		
+		if(ctype==cSPINTILE1)
+		{
+			awaken_spinning_tile(rpos_handle);
+		}
+	});
 	
 	if(scr->enemyflags&efTRAP2)
 	{
