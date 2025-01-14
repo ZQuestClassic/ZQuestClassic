@@ -8819,12 +8819,11 @@ heroanimate_skip_liftwpn:;
 								
 								if(hooked_comborpos != rpos_t::None) //Switching combos
 								{
-									rpos_t targrpos = hooked_comborpos, plrpos = COMBOPOS_REGION(x+8,y+8);
-									int32_t target_pos = RPOS_TO_POS(targrpos);
-									int32_t player_pos = RPOS_TO_POS(plrpos);
-
-									if (targrpos <= region_max_rpos && plrpos <= region_max_rpos && hooked_layerbits)
+									rpos_t targrpos = hooked_comborpos, plrpos = COMBOPOS_REGION_B(x+8,y+8);
+									if (hooked_layerbits && is_valid_rpos(targrpos) && is_valid_rpos(plrpos))
 									{
+										int32_t target_pos = RPOS_TO_POS(targrpos);
+										int32_t player_pos = RPOS_TO_POS(plrpos);
 										int32_t max_layer = get_qr(qr_HOOKSHOTALLLAYER) ? 6 : (get_qr(qr_HOOKSHOTLAYERFIX) ? 2 : 0);
 										for(int q = max_layer; q > -1; --q)
 										{
@@ -8834,6 +8833,7 @@ heroanimate_skip_liftwpn:;
 											auto target_pos_handle = get_rpos_handle(targrpos, q);
 											auto player_pos_handle = get_rpos_handle(plrpos, q);
 											
+											// TODO z3 refactor to use handles ...
 											mapscr* player_scr = player_pos_handle.scr;
 											mapscr* target_scr = target_pos_handle.scr;
 
@@ -9363,9 +9363,11 @@ heroanimate_skip_liftwpn:;
 		    ty = y.getInt()+8;//(bigHitbox?8:12);
 		if (unsigned(ty) < world_h && unsigned(tx) < world_w)
 		{
-			rpos_t rpos = COMBOPOS_REGION(tx, ty);
+			rpos_t rpos = COMBOPOS_REGION_B(tx, ty);
 			for(int32_t q = 0; q < 3; ++q)
 			{
+				if (rpos == rpos_t::None) break;
+
 				auto rpos_handle = get_rpos_handle(rpos, q);
 				if (!rpos_handle.scr->is_valid()) continue;
 
@@ -10796,10 +10798,12 @@ void HeroClass::land_on_ground()
 		return;
 	}
 
-	auto rpos = COMBOPOS_REGION(x+8, y+(sideview_mode()?16:12));
+	auto rpos = COMBOPOS_REGION_B(x+8, y+(sideview_mode()?16:12));
 	bool played_land_sfx = false;
 	for (int q = 0; q < 7; ++q)
 	{
+		if (rpos == rpos_t::None) break;
+
 		auto rpos_handle = get_rpos_handle(rpos, q);
 		byte csfx = rpos_handle.combo().sfx_landing;
 		if (csfx)
@@ -14286,9 +14290,10 @@ void HeroClass::mod_steps(std::vector<zfix*>& v)
 	
 	if (can_combo)
 	{
-		rpos_t slow_rpos = COMBOPOS_REGION(x+7, y+8);
+		rpos_t slow_rpos = COMBOPOS_REGION_B(x+7, y+8);
 		for (int q = 6; q >= 0; --q)
 		{
+			if (slow_rpos == rpos_t::None) break;
 			auto& cmb = get_rpos_handle(slow_rpos, q).combo();
 
 			if (cmb.speed_mult != 1 || cmb.speed_div || cmb.speed_add)
@@ -22506,15 +22511,13 @@ void HeroClass::checkswordtap()
 	pushing=-8; //16 frames between taps
 	tapping=true;
 
-	auto rpos_handle = get_rpos_handle_for_world_xy(bx, by, 0);
-
-	if(!isCuttableType(rpos_handle.ctype()))
+	if (!isCuttableType(COMBOTYPE(bx, by)))
 	{
 		int tap_sfx = -1;
 		bool hollow = false;
 		for(int lyr = 6; lyr >= 0; --lyr)
 		{
-			auto rpos_handle_lyr = get_rpos_handle(rpos_handle.rpos, lyr);
+			auto rpos_handle_lyr = get_rpos_handle_for_world_xy(bx, by, lyr);
 			auto& cmb = rpos_handle_lyr.combo();
 			if(cmb.sfx_tap)
 			{

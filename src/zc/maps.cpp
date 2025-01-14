@@ -427,7 +427,8 @@ bool edge_of_region(direction dir)
 	return !is_in_current_region(map_scr_xy_to_index(screen_x, screen_y));
 }
 
-// x, y are world coordinates (aka, in relation to origin screen at the top-left)
+// x, y are world coordinates (aka, in relation to origin screen at the top-left).
+// Coordinates are clamped to the world bounds.
 int get_screen_for_world_xy(int x, int y)
 {
 	if (!is_in_scrolling_region())
@@ -2973,6 +2974,7 @@ endhe:
 // Out parameters will be set if the flag is Trigger->Self, which modifies how secrets will be triggered.
 static bool has_flag_trigger(int32_t x, int32_t y, int32_t flag, rpos_t& out_rpos, bool& out_single16)
 {
+	// TODO z3 ! function, inline.
 	if (x < 0 || y < 0 || x >= world_w || y >= world_h) return false;
 
     bool found_cflag = false;

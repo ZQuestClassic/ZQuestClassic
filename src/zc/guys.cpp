@@ -18458,6 +18458,7 @@ void load_default_enemies(mapscr* scr)
 		}
 	}
 	
+	// TODO z3 ! for_every_rpos ...
 	for(int32_t y0=0; y0<176; y0+=16)
 	{
 		for(int32_t x0=0; x0<256; x0+=16)
