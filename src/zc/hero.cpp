@@ -30362,19 +30362,18 @@ bool canget(int32_t id)
     return id>=0 && (game->get_maxlife()>=(itemsbuf[id].pickup_hearts*game->get_hp_per_heart()));
 }
 
-// TODO z3 ! mapscr
-void dospecialmoney(int32_t index)
+void dospecialmoney(mapscr* scr, int32_t index)
 {
-	mapscr& scr = cur_screen >= 128 ? *special_warp_return_scr : *hero_scr;
+	if (cur_screen >= 128)
+		scr = special_warp_return_scr;
+
     int32_t priceindex = ((item*)items.spr(index))->PriceIndex;
-    
-    switch(scr.room)
+
+    switch (scr->room)
     {
     case rINFO:                                             // pay for info
         if(prices[priceindex]!=100000 ) // 100000 is a placeholder price for free items
         {
-            
-                
             if(!current_item_power(itype_wallet))
 	    {
 		if (game->get_spendable_rupies() < abs(prices[priceindex])) 
@@ -30392,7 +30391,7 @@ void dospecialmoney(int32_t index)
         }
         rectfill(msg_bg_display_buf, 0, 0, msg_bg_display_buf->w, 80, 0);
         rectfill(msg_txt_display_buf, 0, 0, msg_txt_display_buf->w, 80, 0);
-        donewmsg(&scr, QMisc.info[scr.catchall].str[priceindex]);
+        donewmsg(scr, QMisc.info[scr->catchall].str[priceindex]);
         clear_bitmap(pricesdisplaybuf);
         set_clip_state(pricesdisplaybuf, 1);
         items.del(0);
@@ -30412,13 +30411,13 @@ void dospecialmoney(int32_t index)
     {
         ((item*)items.spr(0))->pickup = ipDUMMY;
 
-        prices[0] = scr.catchall;
+        prices[0] = scr->catchall;
         if (!current_item_power(itype_wallet))
             game->change_drupy(prices[0]);
 	//game->set_drupy(game->get_drupy()+price); may be needed everywhere
 
         putprices(false);
-        setmapflag(hero_scr, (cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
+        setmapflag(scr, (cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
         break;
     }
         
@@ -30441,10 +30440,10 @@ void dospecialmoney(int32_t index)
     
     case rBOMBS:
 	{
-        if(game->get_spendable_rupies()<scr.catchall && !current_item_power(itype_wallet))
+        if(game->get_spendable_rupies()<scr->catchall && !current_item_power(itype_wallet))
             return;
             
-		int32_t price = -scr.catchall;
+		int32_t price = -scr->catchall;
 		int32_t wmedal = current_item_id(itype_wealthmedal);
 		if(wmedal >= 0)
 		{
@@ -30458,7 +30457,7 @@ void dospecialmoney(int32_t index)
 		total = vbound(total, 0, game->get_maxcounter(1)); //Never overflow! Overflow here causes subscreen bugs! -Z
 		game->set_drupy(game->get_drupy()-total);
         //game->set_drupy(game->get_drupy()+price);
-        setmapflag(hero_scr, (cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
+        setmapflag(scr, (cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
         game->change_maxbombs(4);
         game->set_bombs(game->get_maxbombs());
         {
@@ -30486,10 +30485,10 @@ void dospecialmoney(int32_t index)
         
     case rARROWS:
 	{
-        if(game->get_spendable_rupies()<scr.catchall && !current_item_power(itype_wallet))
+        if(game->get_spendable_rupies()<scr->catchall && !current_item_power(itype_wallet))
             return;
             
-        int32_t price = -scr.catchall;
+        int32_t price = -scr->catchall;
 		int32_t wmedal = current_item_id(itype_wealthmedal);
 		if(wmedal >= 0)
 		{
@@ -30504,7 +30503,7 @@ void dospecialmoney(int32_t index)
 	game->set_drupy(game->get_drupy()-total);
 
 	//game->set_drupy(game->get_drupy()+price);
-        setmapflag(hero_scr, (cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
+        setmapflag(scr, (cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
         game->change_maxarrows(10);
         game->set_arrows(game->get_maxarrows());
         ((item*)items.spr(index))->pickup=ipDUMMY+ipFADE;
@@ -30519,9 +30518,9 @@ void dospecialmoney(int32_t index)
     case rSWINDLE:
         if(items.spr(index)->id==iRupy)
         {
-            if(game->get_spendable_rupies()<scr.catchall && !current_item_power(itype_wallet))
+            if(game->get_spendable_rupies()<scr->catchall && !current_item_power(itype_wallet))
                 return;
-	    int32_t tmpprice = -scr.catchall;
+	    int32_t tmpprice = -scr->catchall;
 	    int32_t total = game->get_drupy()-tmpprice;
 	    total = vbound(total, 0, game->get_maxcounter(1)); //Never overflow! Overflow here causes subscreen bugs! -Z
 	    game->set_drupy(game->get_drupy()-total);
@@ -30535,7 +30534,7 @@ void dospecialmoney(int32_t index)
             game->set_maxlife(zc_max(game->get_maxlife()-game->get_hp_per_heart(),(game->get_hp_per_heart())));
         }
         
-        setmapflag(hero_scr, (cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
+        setmapflag(scr, (cur_screen < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
         ((item*)items.spr(0))->pickup=ipDUMMY+ipFADE;
         ((item*)items.spr(1))->pickup=ipDUMMY+ipFADE;
         fadeclk=66;
@@ -31062,7 +31061,7 @@ void HeroClass::checkitems(int32_t index)
 		if(pickup&ipDUMMY)                                        // dummy item (usually a rupee)
 		{
 			if(pickup&ipMONEY)
-				dospecialmoney(index);
+				dospecialmoney(item_scr, index);
 				
 			return;
 		}
