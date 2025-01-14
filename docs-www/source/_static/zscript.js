@@ -578,6 +578,7 @@ function zs_builder(hljs, langtype) {
 	const FUNC_BODY_CONTAINS = [
 		PAREN_MATCHER,
 		BRACE_MATCHER,
+		HASHMODE, // #option
 		USING_STATEMENT,
 		TYPEDEF_STATEMENT,
 		COMMENT_LINE,
@@ -592,7 +593,7 @@ function zs_builder(hljs, langtype) {
 	const FUNC_POSTHEADER = {
 		end: /;/,
 		excludeEnd: true,
-		keywords: RESERVED_KEYWORDS,
+		keywords: ZSCRIPT_KEYWORDS,
 		contains: [
 			{ // Prototype w/ default
 				match: [
@@ -693,6 +694,20 @@ function zs_builder(hljs, langtype) {
 		starts: FUNC_POSTHEADER
 	};
 	
+	const FUNC_HEADER_NOPARAMS = {
+		end: MATCH_NOTHING_RE,
+		keywords: ZSCRIPT_KEYWORDS,
+		contains: [
+			{
+				match: '\\(' + SOME_WHITESPACE_RE + '\\)',
+				endsParent: true
+			},
+			COMMENT_LINE,
+			COMMENT_BLOCK
+		],
+		starts: FUNC_POSTHEADER
+	};
+	
 	const RUN_FUNC_DECLARATION = {
 		match: [
 			'(?:' + FUNCTION_KEYWORDS_RE + SOME_WHITESPACE_RE + ')*', // keywords
@@ -720,6 +735,51 @@ function zs_builder(hljs, langtype) {
 		},
 		keywords: ZSCRIPT_KEYWORDS,
 		starts: FUNC_HEADER
+	};
+	
+	const CONSTRUCTOR_FUNC_DECLARATION = {
+		match: [
+			'(?:' + FUNCTION_KEYWORDS_RE + SOME_WHITESPACE_RE + ')*', // keywords
+			IDENTIFIER_RE, // class name
+			'(?=\\s*(?:<[^>]*>)?\\s*\\([^\\)]*\\))'
+		],
+		scope: {
+			2: 'title.function.constructor'
+		},
+		keywords: ZSCRIPT_KEYWORDS,
+		starts: FUNC_HEADER
+	};
+	const DESTRUCTOR_FUNC_DECLARATION = {
+		match: [
+			'(?:' + FUNCTION_KEYWORDS_RE + SOME_WHITESPACE_RE + ')*', // keywords
+			'~' + IDENTIFIER_RE, // ~(class name)
+			'(?=\\s*(?:<[^>]*>)?\\s*\\([^\\)]*\\))'
+		],
+		scope: {
+			2: 'title.function.constructor'
+		},
+		keywords: ZSCRIPT_KEYWORDS,
+		starts: FUNC_HEADER_NOPARAMS
+	};
+	
+	const CLASS_BODY = {
+		end: /[^\s{]/,
+		excludeEnd: true,
+		keywords: ZSCRIPT_KEYWORDS,
+		contains: [
+			{
+				begin: /{/,
+				end: /}/,
+				scope: 'class.body',
+				keywords: ZSCRIPT_KEYWORDS,
+				endsParent: true,
+				contains: FUNC_BODY_CONTAINS.concat(
+					CONSTRUCTOR_FUNC_DECLARATION,
+					DESTRUCTOR_FUNC_DECLARATION,
+					FUNCTION_DECLARATION,
+				)
+			}
+		]
 	};
 	
 	const SCRIPT_DECLARATION = {
@@ -772,7 +832,8 @@ function zs_builder(hljs, langtype) {
 			1: 'keyword',
 			3: 'type.class'
 		},
-		keywords: ZSCRIPT_KEYWORDS
+		keywords: ZSCRIPT_KEYWORDS,
+		starts: CLASS_BODY
 	};
 	
 	const NAMESPACE_DECLARATION = {
