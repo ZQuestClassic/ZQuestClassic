@@ -56,7 +56,7 @@ extern int region_num_rpos;
 		  the player drawn in the center of the screen. When moving close to the region edge,
 		  the viewport bounds to the edges. This behavior is modified by `viewport_mode`, which
 		  can be modified by scripts via `Viewport->`
-		- the top-left screen is loaded as `cur_screen` / `origin_scr` / `tmpscr` (all equivalent)
+		- the top-left screen is loaded as `cur_screen` / `origin_scr`
         - `hero_screen` / `hero_scr` is the screen where the hero currently is, and updates as the
 		  player moves around.
 */

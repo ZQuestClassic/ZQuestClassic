@@ -301,14 +301,14 @@ extern bool usebombpal;
 extern int32_t slot_arg, slot_arg2;
 
 // The top-left screen index of the current region. Also know as the origin screen index.
-// Corresponds to tmpscr and origin_scr.
+// Corresponds to origin_scr.
 extern int32_t cur_screen;
 // Screen the player is currently on. If in a scrolling region, this updates as the player moves around. Otherwise this is equal to cur_screen.
 // Corresponds to hero_scr.
 extern int32_t hero_screen;
-// Screen the player is currently on. If in a scrolling region, this updates as the player moves around. Otherwise this is equal to tmpscr.
+// Screen the player is currently on. If in a scrolling region, this updates as the player moves around. Otherwise this is equal to origin_scr.
 extern mapscr* hero_scr;
-// Screen the player was last on. If in a scrolling region, this updates as the player moves around. Otherwise this is equal to tmpscr.
+// Screen the player was last on. If in a scrolling region, this updates as the player moves around. Otherwise this is equal to origin_scr.
 extern mapscr* prev_hero_scr;
 // If currently on an 0x80+ screen, this is where the player came from. Corresponds to special_warp_return_scr.
 // Otherwise, is equal to cur_screen.
@@ -381,11 +381,9 @@ extern char   cheat_goto_screen_str[3];
 extern int32_t  visited[6];
 extern mapscr scrolling_screen;
 // The currently loaded screen. For regions, this is the top-left screen, AKA the origin screen.
-extern mapscr* tmpscr;
+extern mapscr* origin_scr;
 // The layers of the current origin screen.
 extern mapscr tmpscr2[6];
-// The currently loaded screen. For regions, this is the top-left screen, AKA the origin screen. Alias for tmpscr.
-extern mapscr* origin_scr;
 // This is typically used as the previous screen before doing a warp to a special room,
 // but it is also used (by scripting) to hold the previous screen during scrolling.
 extern mapscr special_warp_return_scrs[7];

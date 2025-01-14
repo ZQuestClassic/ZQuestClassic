@@ -311,7 +311,6 @@ void clear_temporary_screens()
 		}
 	}
 
-	tmpscr = nullptr;
 	origin_scr = nullptr;
 	hero_scr = nullptr;
 }
@@ -5709,7 +5708,7 @@ static void load_a_screen_and_layers_init(int dmap, int screen, int ldir, bool s
 	base_scr->valid |= mVALID; // layer 0 is always valid
 
 	if (screen == cur_screen)
-		origin_scr = tmpscr = base_scr;
+		origin_scr = base_scr;
 	if (screen == hero_screen)
 		hero_scr = prev_hero_scr = base_scr;
 
@@ -5927,7 +5926,7 @@ static void load_a_screen_and_layers_post(int dmap, int screen, int ldir)
 // If scr >= 0x80, `hero_screen` will be saved to `home_screen` and also be loaded into
 // `special_warp_return_scr`.
 //
-// If origin_screen_overlay is true, the old tmpscr combos will be copied to the new tmpscr combos
+// If origin_screen_overlay is true, the old origin_scr combos will be copied to the new origin_scr combos
 // on all layers (but only where the new screen has a 0 combo).
 //
 // TODO: loadscr should set curdmap, but currently callers do that.

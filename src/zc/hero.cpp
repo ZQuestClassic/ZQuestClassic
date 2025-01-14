@@ -28622,7 +28622,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 	bool overlay = false;
 	if(scrolldir >= 0 && scrolldir <= 3)
 	{
-		overlay = get_bit(&(cur_screen >= 128 ? special_warp_return_scr : tmpscr)->sidewarpoverlayflags, scrolldir) ? true : false;
+		overlay = get_bit(&(cur_screen >= 128 ? special_warp_return_scr : origin_scr)->sidewarpoverlayflags, scrolldir) ? true : false;
 	}
 
 	int old_dmap = cur_dmap;
@@ -31195,7 +31195,7 @@ void HeroClass::checkitems(int32_t index)
 			if(get_qr(qr_ITEMPICKUPSETSBELOW))
 			{
 				// Most older quests need one-time-pickups to not remove special items, etc.
-				if(tmpscr->room==rGRUMBLE)
+				if(origin_scr->room==rGRUMBLE)
 				{
 					setmapflag(mSPECIALITEM);
 				}
@@ -32271,7 +32271,9 @@ void HeroClass::heroDeathAnimation()
 
 void HeroClass::ganon_intro()
 {
-	auto [offx, offy] = translate_screen_coordinates_to_world(hero_screen);
+	mapscr* scr = hero_scr;
+	int screen = scr->screen;
+	auto [offx, offy] = translate_screen_coordinates_to_world(screen);
 
     /*
     ************************
@@ -32290,7 +32292,7 @@ void HeroClass::ganon_intro()
     271 GANON out, HERO face up
     */
     loaded_guys=true;
-    loaditem(tmpscr, offx, offy);
+    loaditem(scr, offx, offy);
     
     if(game->lvlitems[dlevel]&liBOSS)
     {
@@ -32331,11 +32333,11 @@ void HeroClass::ganon_intro()
             
             if(current_item(itype_ring))
             {
-                addenemy(cur_screen,offx+160,offy+96,Id,0);
+                addenemy(screen,offx+160,offy+96,Id,0);
             }
             else
             {
-                addenemy(cur_screen,offx+80,offy+32,Id,0);
+                addenemy(screen,offx+80,offy+32,Id,0);
             }
         }
         
@@ -32374,7 +32376,7 @@ void HeroClass::ganon_intro()
     action=none; FFCore.setHeroAction(none);
     dir=up;
 
-    if((!getmapflag(hero_screen, mSPECIALITEM) || (hero_scr->flags9&fBELOWRETURN)) && (tunes[MAXMIDIS-1].data))
+    if((!getmapflag(screen, mSPECIALITEM) || (scr->flags9&fBELOWRETURN)) && (tunes[MAXMIDIS-1].data))
         jukebox(MAXMIDIS-1);
     else
         playLevelMusic();

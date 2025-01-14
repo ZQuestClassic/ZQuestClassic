@@ -393,7 +393,6 @@ char   cheat_goto_screen_str[3]={0};
 int32_t  visited[6]={0};
 std::map<int, byte> activation_counters;
 std::map<int, byte> activation_counters_ffc;
-mapscr* tmpscr;
 mapscr* origin_scr;
 mapscr tmpscr2[6];
 mapscr special_warp_return_scrs[7];
@@ -1619,7 +1618,6 @@ void init_game_vars(bool is_cont_game = false)
     frame = 0;
 
 	origin_scr = nullptr;
-	tmpscr = nullptr;
 	hero_scr = nullptr;
 	prev_hero_scr = nullptr;
 	viewport_mode = ViewportMode::CenterAndBound;
@@ -4837,7 +4835,7 @@ reload_for_replay_file:
 
 		// This is weird! One thing this does is prevent the "Continue" screen shown in `gameover` from
 		// rendering with the `fNOSUBSCR` flag set.
-		tmpscr->flags3=0;
+		origin_scr->flags3 = 0;
 		Playing=Paused=false;
 		//Clear active script array ownership
 		FFCore.deallocateAllScriptOwned(ScriptType::Global, GLOBAL_SCRIPT_GAME);
