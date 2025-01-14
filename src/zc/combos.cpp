@@ -1354,7 +1354,7 @@ bool trigger_armos_grave(const rpos_handle_t& rpos_handle, int32_t trigdir)
 	
 	int pos = rpos_handle.pos;
 	//!TODO Expand 'activation_counters' stuff to account for layers, so that layers >0 can be used
-	if (activation_counters[pos]) return false;
+	if (activation_counters[(int)rpos_handle.rpos]) return false;
 	int32_t gc = 0;
 	for(int32_t i=0; i<guys.Count(); ++i)
 	{
@@ -1400,7 +1400,7 @@ bool trigger_armos_grave(const rpos_handle_t& rpos_handle, int32_t trigdir)
 			
 			if(cmb.usrflags&cflag3) //handle large enemy (EARLY RETURN)
 			{
-				activation_counters[pos] = 61;
+				activation_counters[(int)rpos_handle.rpos] = 61;
 				//! To-do Adjust for larger enemies, but we need it to be directional. 
 				int32_t ypos = 0; int32_t xpos = 0;
 				int32_t chy = 0; int32_t chx = 0;
@@ -1528,12 +1528,9 @@ bool trigger_armos_grave(const rpos_handle_t& rpos_handle, int32_t trigdir)
 				{
 					for (int32_t m = 0; m < armosxsz; m++) 
 					{
-						// For now just coerce a rpos to a pos. these are just for respawn timers, and it
-						// seems ok that two combos a screen away can share the same cooldown clock for
-						// armos/graves.
 						rpos_t rpos = COMBOPOS_REGION_B(xpos2 + m*16, ypos2 + n*16);
 						if (rpos != rpos_t::None)
-							activation_counters[(int)rpos % 176] = 61;
+							activation_counters[(int)rpos] = 61;
 					}
 				}
 				if (guysbuf[id2].family == eeGHOMA) 
@@ -1579,7 +1576,7 @@ bool trigger_armos_grave(const rpos_handle_t& rpos_handle, int32_t trigdir)
 		}
 		default: return false;
 	}
-	activation_counters[pos] = 61;
+	activation_counters[(int)rpos_handle.rpos] = 61;
 	if(addenemy(rpos_handle.screen,tx,ty+3,id2,eclk))
 		((enemy*)guys.spr(guys.Count()-1))->did_armos=false;
 	else return false;

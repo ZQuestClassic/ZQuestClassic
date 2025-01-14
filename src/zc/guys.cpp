@@ -8441,7 +8441,7 @@ bool eGhini::animate(int32_t index)
 				rpos_t rpos = COMBOPOS_REGION_B(x, y);
 				if (rpos != rpos_t::None)
 				{
-					activation_counters[RPOS_TO_POS(rpos)] = 0;
+					activation_counters[(int)rpos] = 0;
 					removearmos(x,y);
 				}
 			}
