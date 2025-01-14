@@ -3869,8 +3869,10 @@ int32_t onSaveMapPic()
 		return D_O_K;;
 	}
 
+	clear_to_color(_screen_draw_buffer, BLACK);
+
 	auto prev_viewport = viewport;
-    viewport.x = 0;
+	viewport.x = 0;
 	viewport.y = 0;
 	
 	// draw the map
