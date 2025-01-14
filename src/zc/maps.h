@@ -110,7 +110,9 @@ ZC_FORCE_INLINE int32_t RPOS_TO_POS(rpos_t rpos)
 }
 ZC_FORCE_INLINE rpos_t POS_TO_RPOS(int32_t pos, int32_t scr_dx, int32_t scr_dy)
 {
-	DCHECK(scr_dx >= 0 && scr_dy >= 0 && scr_dx < cur_region.width && scr_dy < cur_region.height);
+	// Ignore this invariant when drawing the map, for now.
+	// See replay: enigma_of_basilischi_island_basilse_2_of_2.zplay frame 48860 (remove_xstatecombos_mi)
+	DCHECK(ViewingMap || (scr_dx >= 0 && scr_dy >= 0 && scr_dx < cur_region.width && scr_dy < cur_region.height));
 	DCHECK_RANGE_EXCLUSIVE(pos, 0, 176);
 	return static_cast<rpos_t>((scr_dx + scr_dy * cur_region.screen_width)*176 + pos);
 }
