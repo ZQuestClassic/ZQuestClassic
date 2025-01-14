@@ -20278,10 +20278,6 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
 {
     WalkflagInfo ret;
 
-	// TODO z3 ! rm??
-	wx = vbound(wx, -1, world_w);
-	wy = vbound(wy, -1, world_h);
-
 	if (!is_in_world_bounds(wx, wy))
 	{
 		ret.setUnwalkable(false);
