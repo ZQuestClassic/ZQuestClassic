@@ -138,6 +138,8 @@ will access the array *backwards*, ex. `arr[-1]` will access the
 			5.0000
 			*/
 
+.. _strings:
+
 Strings
 -------
 

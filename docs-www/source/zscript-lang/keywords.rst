@@ -46,7 +46,7 @@ Misc
 	| `default`        | Used for defaults, both in :ref:`switch statements<stmt_switch>`  |
 	|                  | and in :ref:`function prototypes<func_proto>`                     |
 	+------------------+-------------------------------------------------------------------+
-	| `return`         | Used to return values from :ref:`functions<zslang_function>`.     |
+	| `return`         | Used to return values from :ref:`functions<zslang_functions>`.    |
 	|                  | Also used to return early, even in `void` functions which return  |
 	|                  | no value.                                                         |
 	+------------------+-------------------------------------------------------------------+
