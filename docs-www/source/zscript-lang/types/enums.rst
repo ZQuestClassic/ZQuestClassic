@@ -52,7 +52,7 @@ the automatic increment will continue from the assigned value.
 		D, // 16
 	};
 
-.. _enum_@increment:
+.. _enum_annotations:
 
 Custom Increment
 ----------------
