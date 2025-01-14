@@ -130,3 +130,8 @@ html[data-theme="light"] code.literal {
 	color: #101010;
 	background: #F8F8F8;
 }
+
+.zs_caption {
+	font-size: 80%;
+	font-style: italic;
+}

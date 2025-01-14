@@ -209,6 +209,36 @@ class ZSDeprecated(SphinxDirective):
         return [node]
 
 
+class StylizeNode(nodes.General, nodes.Element):
+    classes: list[str] = []
+    def __init__(self, classes: list = []):
+        super().__init__()
+        self.classes = classes
+
+def list_options(arg: str):
+    return arg.split()
+class Stylize(SphinxDirective):
+    classes: list[str] = []
+    option_spec: dict = {
+        'classes': list_options
+    }
+    def run(self) -> list[nodes.Node]:
+        return [StylizeNode(
+            classes = self.options.get('classes', [])
+        )]
+def visit_stylize_node_html(translator: SphinxTranslator, node: StylizeNode) -> None:
+    if node.classes == []:
+        raise ValueError('.. style:: cannot exist with no style specified!')
+    html_str = f'''
+    <script>
+        {{
+            const scr = document.currentScript
+            requestAnimationFrame(() => scr.nextElementSibling.classList.add({', '.join(map(lambda s: f"'{s}'", node.classes))}));
+        }}
+    </script>
+    '''
+    translator.body.append(html_str)
+
 def depart_ignored(translator: SphinxTranslator, node: nodes.Node) -> None:
     pass
 
@@ -217,6 +247,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_directive('todo', TodoDirective)
     app.add_directive('plans', PlansDirective)
     app.add_directive('deprecated', ZSDeprecated, True)
+    app.add_directive('style', Stylize)
     
     app.add_node(
         ZScriptNode,
@@ -241,6 +272,16 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_node(
         PlansNode,
         html=(visit_admonition_node_html, depart_admonition_node_html),
+        epub=(None, None),
+        latex=(None, None),
+        man=(None, None),
+        texinfo=(None, None),
+        text=(None, None),
+        rinoh=(None, None),
+    )
+    app.add_node(
+        StylizeNode,
+        html=(visit_stylize_node_html, depart_ignored),
         epub=(None, None),
         latex=(None, None),
         man=(None, None),

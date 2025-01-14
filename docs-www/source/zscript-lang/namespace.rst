@@ -34,7 +34,10 @@ you can simply use an empty name - i.e. begin the name with the |scoperes|.
 
 	.. tab-item:: Ex. 1
 		
-		*You can reference both 'VERSION' variables, by specifying the namespace to access*
+		.. style::
+			:classes: zs_caption
+
+		You can reference both VERSION' variables, by specifying the namespace to access
 		
 		.. zscript::
 
@@ -59,7 +62,10 @@ you can simply use an empty name - i.e. begin the name with the |scoperes|.
 
 	.. tab-item:: Ex. 2
 
-		*Referencing a function will always start by looking in the current namespace*
+		.. style::
+			:classes: zs_caption
+
+		Referencing a function will always start by looking in the current namespace
 
 		.. zscript::
 			
@@ -96,7 +102,10 @@ you can simply use an empty name - i.e. begin the name with the |scoperes|.
 	
 	.. tab-item:: Ex. 3
 
-		*Nesting namespaces inside each other*
+		.. style::
+			:classes: zs_caption
+
+		Nesting namespaces inside each other
 
 		.. zscript::
 			
@@ -206,7 +215,10 @@ and inward from there.
 
 	.. tab-item:: Ex. 1
 		
-		*using 'using' to more easily reference a function*
+		.. style::
+			:classes: zs_caption
+
+		using `using` to more easily reference a function
 		
 		.. zscript::
 
@@ -237,7 +249,10 @@ and inward from there.
 
 	.. tab-item:: Ex. 2
 		
-		*How 'using' can create conflicts, and how to avoid them*
+		.. style::
+			:classes: zs_caption
+
+		How `using` can create conflicts, and how to avoid them
 		
 		.. zscript::
 

@@ -38,6 +38,9 @@ To define constants of a different pre-existing type, you can use syntax like:
 		D, // 3L
 	};
 
+.. style::
+	:classes: zs_caption
+
 These constants will be of type `const long` instead of `const int`.
 
 .. _enum_@increment:
