@@ -6350,9 +6350,9 @@ void loadscr_old(int32_t destdmap, int32_t screen,int32_t ldir,bool overlay)
 	}
 }
 
-// Load screen (and layers). Unlike loadscr, this doesn't load to global temporary_screens,
-// but instead just returns an array of mapscr.
-// Used to draw the map view / saving a map pic.
+// Load screen (and layers). Unlike loadscr, this doesn't load to the global temporary_screens, but
+// instead returns an array of mapscr.
+// Used to draw/save the map.
 std::array<mapscr, 7> loadscr2(int32_t screen)
 {
 	std::array<mapscr, 7> scrs;
