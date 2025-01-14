@@ -164,9 +164,9 @@ internal const Viewport Viewport;
 
 <!-- TODO ~z3 remove above, just link to doc website -->
 
-### `sprite::ScreenIndex`
+### `sprite::SpawnScreen`
 
-All sprites (such as `ffc`, `npc`, `lweapon`, etc.) have a `ScreenIndex` variable, which is the screen the sprite was created on. This variable does not update as the sprite moves around a region.
+All sprites (such as `ffc`, `npc`, `lweapon`, etc.) have a `SpawnScreen` variable, which is the screen the sprite was created on. This variable does not update as the sprite moves around a region.
 
 ### `Game->HeroScreen`
 
