@@ -364,7 +364,7 @@ mapscr* GetScrollingMapscr(int layer, int x, int y)
 
 	int screen = scrolling_region.origin_screen + map_scr_xy_to_index(x / 256, y / 176);
 	mapscr* m = FFCore.ScrollingScreensAll[screen * 7 + layer];
-	if (m->valid == 0)
+	if (!m || !m->is_valid())
 		return nullptr;
 
 	return m;
@@ -1693,7 +1693,7 @@ static rpos_handle_t ResolveMapdataPos(int32_t mapref, int pos, const char* cont
 
 	if (result.scrolling())
 	{
-		if (result.scr->valid == 0)
+		if (!result.scr->is_valid())
 			return rpos_handle_t{};
 
 		return {result.scr, result.screen, result.layer, (rpos_t)pos, pos};

@@ -3206,7 +3206,20 @@ void game_loop()
 		}
 		
 		// Messages also freeze FF combos.
-		// TODO: this could be better handled with screen_combo_modify_postroutine/screen_ffc_modify_postroutine/etc.
+		//
+		// TODO: this is an expensive loop due to touching the memory of every combo position. ~5%
+		// of the game loop for z3.zplay.
+		//
+		// It could be fixed by running some code on every change of a combo data to update the
+		// `freeze` state, instead of doing it all here every frame. Part of the solution is using
+		// these:
+		//
+		//   - screen_combo_modify_postroutine
+		//   - screen_ffc_modify_postroutine
+		//   - screen_combo_modify_post
+		//
+		// ... but that doesn't handle _every_ change to combo data.
+		// (ex: rpos_handle_t::increment_data()), so that needs to be resolved first.
 		bool freezeff = freezemsg;
 		bool freeze = false;
 		for_every_combo([&](const auto& handle) {

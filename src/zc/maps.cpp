@@ -256,7 +256,7 @@ static void prepare_current_region_handles()
 			for (int layer = 0; layer <= 6; layer++)
 			{
 				mapscr* scr = get_scr_layer(screen, layer);
-				if (!scr->valid)
+				if (!scr->is_valid())
 				{
 					if (layer == 0) break;
 					continue;
@@ -2148,12 +2148,12 @@ static bool checkSV(int32_t x, int32_t y, int32_t flag)
 		return true;
 	
 	change_rpos_handle_layer(rpos_handle, 1);
-	if (rpos_handle.scr->valid)
+	if (rpos_handle.scr->is_valid())
 		if (rpos_handle.sflag() == flag || rpos_handle.cflag() == flag)
 			return true;
 	
 	change_rpos_handle_layer(rpos_handle, 2);
-	if (rpos_handle.scr->valid)
+	if (rpos_handle.scr->is_valid())
 		if (rpos_handle.sflag() == flag || rpos_handle.cflag() == flag)
 			return true;
 	
@@ -4124,7 +4124,7 @@ void do_walkflags(const screen_handles_t& screen_handles, int32_t x, int32_t y)
 	{
 		scr = screen_handles[k + 1].scr;
 
-		if (scr->valid)
+		if (scr->is_valid())
 		{
 			for(int32_t i=0; i<176; i++)
 			{
@@ -4174,7 +4174,7 @@ void calc_darkroom_combos(int map, int screen, int offx, int offy)
 	for(int32_t lyr = 0; lyr < 7; ++lyr)
 	{
 		mapscr* scr = get_scr_layer(map, screen, lyr);
-		if (!scr->valid) continue;
+		if (!scr->is_valid()) continue;
 
 		for(int32_t q = 0; q < 176; ++q)
 		{
@@ -6538,7 +6538,7 @@ void putscr(mapscr* scr, BITMAP* dest, int32_t x, int32_t y)
 	x -= viewport.x;
 	y -= viewport.y;
 
-	if(scr->valid==0||!show_layer_0||scr->hidelayers & 1)
+	if (!scr->is_valid()||!show_layer_0||scr->hidelayers & 1)
 	{
 		rectfill(dest,x,y,x+255,y+175,0);
 		return;
@@ -6572,7 +6572,7 @@ static void putscrdoors(const nearby_screens_t& nearby_screens, BITMAP *dest, in
 
 	for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
 		mapscr* scr = screen_handles[0].base_scr;
-		if (scr->valid==0)
+		if (!scr->is_valid())
 			return;
 
 		if(scr->door[0]==dBOMBED)
@@ -6599,7 +6599,7 @@ static void putscrdoors(const nearby_screens_t& nearby_screens, BITMAP *dest, in
 
 void putscrdoors(mapscr* scr, BITMAP *dest, int32_t x, int32_t y)
 {
-	if (scr->valid==0 || !show_layer_0)
+	if (!scr->is_valid() || !show_layer_0)
 		return;
 
 	x -= viewport.x;
@@ -6814,7 +6814,7 @@ bool _walkflag_layer(zfix_round x, zfix_round y, int32_t layer, int32_t cnt)
 {
 	DCHECK_LAYER_NEG1_INDEX(layer);
 	mapscr* m = get_scr_for_world_xy_layer(x, y, layer + 1);
-	if (m->valid == 0) return false;
+	if (!m->is_valid()) return false;
 	return _walkflag_layer(x, y, cnt, m);
 }
 
@@ -6879,7 +6879,7 @@ bool _effectflag_layer(int32_t x, int32_t y, int32_t layer, int32_t cnt, bool no
 {
 	DCHECK_LAYER_NEG1_INDEX(layer);
 	mapscr* m = get_scr_for_world_xy_layer(x, y, layer + 1);
-	if (m->valid == 0) return false;
+	if (!m->is_valid()) return false;
 	return _effectflag_layer(x, y, cnt, m, notLink);
 }
 

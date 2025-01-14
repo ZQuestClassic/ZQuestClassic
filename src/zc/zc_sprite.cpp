@@ -46,7 +46,7 @@ int32_t get_conveyor(int32_t x, int32_t y)
 	else for(int q = maxlayer; q >= 0; --q)
 	{
 		mapscr* layer_scr = get_scr_for_world_xy_layer(x, y, q);
-		if (!layer_scr->valid) continue;
+		if (!layer_scr->is_valid()) continue;
 
 		int cid = layer_scr->data[pos];
 		if(is_conveyor(combobuf[cid].type)

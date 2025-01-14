@@ -2389,7 +2389,7 @@ int32_t zmap::MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, int32_t pos)
 		
 	mapscr const* m = &TheMaps[(map*MAPSCRS)+screen];
     
-	if(m->valid==0) return 0;
+	if (!m->is_valid()) return 0;
 	
 	int32_t mapid = (layer < 0 ? -1 : ((m->layermap[layer] - 1) * MAPSCRS + m->layerscreen[layer]));
 	
@@ -2397,7 +2397,7 @@ int32_t zmap::MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, int32_t pos)
 	
 	mapscr const* scr = ((mapid < 0 || mapid > MAXMAPS*MAPSCRS) ? m : &TheMaps[mapid]);
     
-	if(scr->valid==0) return 0;
+	if (!scr->is_valid()) return 0;
 		
 	return scr->data[pos];						// entire combo code
 }
@@ -2487,7 +2487,7 @@ int32_t zmap::MAPFLAG3(int32_t map, int32_t screen, int32_t layer, int32_t pos)
 		
 	mapscr const* m = &TheMaps[(map*MAPSCRS)+screen];
     
-	if(m->valid==0) return 0;
+	if (!m->is_valid()) return 0;
 	
 	int32_t mapid = (layer < 0 ? -1 : ((m->layermap[layer] - 1) * MAPSCRS + m->layerscreen[layer]));
 	
@@ -2495,7 +2495,7 @@ int32_t zmap::MAPFLAG3(int32_t map, int32_t screen, int32_t layer, int32_t pos)
 	
 	mapscr const* scr = ((mapid < 0 || mapid > MAXMAPS*MAPSCRS) ? m : &TheMaps[mapid]);
     
-	if(scr->valid==0) return 0;
+	if (!scr->is_valid()) return 0;
 		
 	return scr->sflag[pos];						// entire combo code
 }
