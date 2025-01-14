@@ -891,8 +891,7 @@ int32_t MAPCOMBOL(int32_t layer,int32_t x,int32_t y)
 		return 0;
 
 	mapscr* m = get_scr_for_world_xy_layer(x, y, layer);
-	// TODO z3 is_valid()
-	if (!m->valid)
+	if (!m->is_valid())
 		return 0;
 
 	int pos = COMBOPOS(x%256, y%176);
@@ -902,12 +901,13 @@ int32_t MAPCOMBOL(int32_t layer,int32_t x,int32_t y)
 int32_t MAPCSETL(int32_t layer,int32_t x,int32_t y)
 {
 	DCHECK(layer >= 1 && layer <= 6);
-	if (!is_in_world_bounds(x, y))
+	if (!is_in_world_bounds(x, y) || layer <= 0)
 		return 0;
-    
+
 	mapscr* m = get_scr_for_world_xy_layer(x, y, layer);
-    if(!m->valid) return 0;
-    
+    if (!m->is_valid())
+		return 0;
+
     int pos = COMBOPOS(x%256, y%176);
     return m->cset[pos];
 }
@@ -915,12 +915,13 @@ int32_t MAPCSETL(int32_t layer,int32_t x,int32_t y)
 int32_t MAPFLAGL(int32_t layer,int32_t x,int32_t y)
 {
 	DCHECK(layer >= 1 && layer <= 6);
-	if (!is_in_world_bounds(x, y))
+	if (!is_in_world_bounds(x, y) || layer <= 0)
 		return 0;
-    
+
 	mapscr* m = get_scr_for_world_xy_layer(x, y, layer);
-    if(!m->valid) return 0;
-    
+    if (!m->is_valid())
+		return 0;
+
     int pos = COMBOPOS(x%256, y%176);
     return m->sflag[pos];
 }
@@ -928,11 +929,12 @@ int32_t MAPFLAGL(int32_t layer,int32_t x,int32_t y)
 int32_t COMBOTYPEL(int32_t layer,int32_t x,int32_t y)
 {
 	DCHECK(layer >= 1 && layer <= 6);
-	if (!is_in_world_bounds(x, y))
+	if (!is_in_world_bounds(x, y) || layer <= 0)
 		return 0;
-	
+
 	mapscr* m = get_scr_for_world_xy_layer(x, y, layer);
-    if (!layer || m->valid == 0) return 0;
+    if (!m->is_valid())
+		return 0;
 
 	int pos = COMBOPOS(x%256, y%176);
     return combobuf[m->data[pos]].type;
@@ -941,12 +943,13 @@ int32_t COMBOTYPEL(int32_t layer,int32_t x,int32_t y)
 int32_t MAPCOMBOFLAGL(int32_t layer,int32_t x,int32_t y)
 {
 	DCHECK(layer >= 1 && layer <= 6);
-	if (!is_in_world_bounds(x, y))
+	if (!is_in_world_bounds(x, y) || layer <= 0)
 		return 0;
 	
 	mapscr* m = get_scr_for_world_xy_layer(x, y, layer);
-    if (m->valid == 0) return 0;
-	
+    if (!m->is_valid())
+		return 0;
+
     int pos = COMBOPOS(x%256, y%176);
     return combobuf[m->data[pos]].flag;
 }
@@ -974,8 +977,7 @@ bool ffcIsAt(const ffc_handle_t& ffc_handle, int32_t x, int32_t y)
 
 int32_t MAPFFCOMBO(int32_t x,int32_t y)
 {
-	auto ffc_handle = getFFCAt(x,y);
-	if (ffc_handle)
+	if (auto ffc_handle = getFFCAt(x, y))
 		return ffc_handle->data();
     return 0;
 }
@@ -1032,8 +1034,7 @@ int32_t FFCOMBOTYPE(int32_t x,int32_t y)
 
 int32_t FFORCOMBO(int32_t x, int32_t y)
 {
-	auto ffc_handle = getFFCAt(x, y);
-	if (ffc_handle)
+	if (auto ffc_handle = getFFCAt(x, y))
 		return ffc_handle->data();
 	
 	return MAPCOMBO(x,y);
@@ -1065,8 +1066,7 @@ int32_t FFORCOMBOTYPE(int32_t x, int32_t y)
 
 int32_t FFORCOMBO_L(int32_t layer, int32_t x, int32_t y)
 {
-	auto ffc_handle = getFFCAt(x,y);
-	if (ffc_handle)
+	if (auto ffc_handle = getFFCAt(x, y))
 		return ffc_handle->data();
 	
 	return layer ? MAPCOMBOL(layer, x, y) : MAPCOMBO(x,y);
