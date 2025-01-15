@@ -1,10 +1,10 @@
 If / Unless / Else
 ==================
 
+.. _stmt_if:
+
 Conditional Statements
 ----------------------
-
-.. _stmt_if:
 
 A conditional statement allows executing a section of code only when a condition is met.
 By using `if(condition)`, the code will run when the condition evaluates to any value other than `0`.
@@ -31,10 +31,10 @@ The body code is the code that is executed when the condition is met.
 
 To have more than one statement be part of the same condition, you can use block them together using `{}`.
 
+.. _stmt_if_else:
+
 Conditional Else
 ----------------
-
-.. _stmt_if_else:
 
 Placing an `else` after a conditional statement's body, allows you to run a second body statement in the **opposite** condition.
 
@@ -62,6 +62,8 @@ Placing an `else` after a conditional statement's body, allows you to run a seco
 
 As you can see in the example, you can use this to chain multiple conditionals together.
 
+.. _if_cond_decl:
+
 Conditional Declaration
 -----------------------
 
@@ -71,7 +73,6 @@ gives a non-`0`/`NULL` value.
 
 .. zscript::
 
-	npc find_closest_npc(int max_range);
 	void kill_closest_npc(int max_range)
 	{
 		if(npc n = find_closest_npc(max_range))
@@ -82,23 +83,7 @@ gives a non-`0`/`NULL` value.
 
 .. dropdown:: :zs_title:`find_closest_npc`
 	
-	.. zscript::
-
-		npc find_closest_npc(int range)
-		{
-			npc ret;
-			int min = range;
-			for(n : Screen->NPCs)
-			{
-				int dist = Distance(Hero->X, Hero->Y, n->X, n->Y);
-				if(dist <= min)
-				{
-					ret = n;
-					min = dist;
-				}
-			}
-			return ret;
-		}
+	.. include:: /zscript-lang/examples/find_closest_npc.rst
 
 .. plans::
 

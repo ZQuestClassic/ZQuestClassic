@@ -40,6 +40,9 @@ By using the `continue` statement, you can skip ahead to the next iteration of t
 	p is 10
 	*/
 
+Nested Breaking
+---------------
+
 Additionally, if you have nested loops (loops inside of loops), you can target any of the loops you are in,
 by specifying a number of loops to go back.
 
@@ -77,4 +80,8 @@ by specifying a number of loops to go back.
 		}
 	}
 
-
+.. tip::
+	A :ref:`switch statement<stmt_switch>` counts as something you can
+	`break;` out of, but NOT something you can `continue;`! Be careful
+	about this when using these statements, or you may end up going to
+	a different loop than you intended!

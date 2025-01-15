@@ -1,7 +1,7 @@
 .. _zslang_typedef:
 
 Typedef Statements
-==================
+------------------
 
 By using the `typedef` keyword, you can give a custom name to any existing type.
 

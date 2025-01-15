@@ -1,9 +1,9 @@
+.. _zslang_keywords:
+
 Keywords and Operators
 ======================
 
 .. |import directive| replace:: :ref:`file import directive<directive_import>`
-
-.. _zslang_keywords:
 
 ZScript has a number of keywords, reserved for various purposes. Any keywords listed here that would otherwise be valid :ref:`identifiers<zslang_identifiers>`, are **not** usable as identifiers, due to being reserved.
 

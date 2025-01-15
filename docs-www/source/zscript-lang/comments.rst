@@ -1,7 +1,7 @@
-Comments
-========
-
 .. _comments:
+
+Comments
+--------
 
 ZScript supports both styles of commenting from C++. Anything inside
 a comment is mostly ignored by the compiler.

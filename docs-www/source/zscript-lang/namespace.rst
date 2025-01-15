@@ -1,14 +1,11 @@
-Namespaces
-==========
-
-.. |scoperes| replace:: scope-resolution operator `::`
-
-Namespace
----------
-
 .. _zslang_namespaces:
 
 .. _namespaces:
+
+Namespaces
+----------
+
+.. |scoperes| replace:: scope-resolution operator `::`
 
 Basic Use
 ^^^^^^^^^

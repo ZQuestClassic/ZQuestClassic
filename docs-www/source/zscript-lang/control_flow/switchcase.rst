@@ -3,49 +3,90 @@ Switch / Case
 
 .. _stmt_switch:
 
+Switching on Values
+-------------------
+
 Sometimes, you might have logic using :ref:`conditional statements<stmt_if>` that
-ends up looking something like this:
+ends up looking a bit cluttered, like the following first example. But, using a
+`switch` statement, you can make it much cleaner.
 
-.. zscript::
-	:style: body
+.. tab-set::
 
-	if(x == 0)
-		do_thing_a();
-	else if(x > 0 && x < 5)
-		do_thing_b(x);
-	else if(x == 5)
-		do_thing_c();
-	else if(x == 6)
-		do_thing_d();
-	else do_thing_e();
+	.. tab-item:: Cluttered `if`/`else`
+		
+		.. style::
+			:classes: zs_caption
+		
+		This is a little cluttered, and requires reading the `x` variable several times.
 
-This is a little cluttered, and requires reading the `x` variable several times.
-You can instead use a `switch` statement to handle this better:
+		.. zscript::
+			:style: body
 
-.. zscript::
-	:style: body
+			if(x == 0)
+				do_thing_a();
+			else if(x > 0 && x < 5)
+				do_thing_b(x);
+			else if(x == 5)
+				do_thing_c();
+			else if(x == 6)
+				do_thing_d();
+			else do_thing_e();
 
-	switch(x)
-	{
-		case 0:
-			do_thing_a();
-			break;
-		case 0..5: // Value Range
-			do_thing_b(x);
-			break;
-		case 5:
-			do_thing_c();
-			break;
-		case 6:
-			do_thing_d();
-			break;
-		default:
-			do_thing_e();
-			break;
-	}
+	.. tab-item:: Cleaner `switch`
+		
+		.. style::
+			:classes: zs_caption
+		
+		This is cleaner, and only reads the `x` variable once.
 
-This accomplishes the same thing, but only reads the `x` variable once, and can be
-a lot cleaner to read.
+		.. zscript::
+			:style: body
+
+			switch(x)
+			{
+				case 0:
+					do_thing_a();
+					break;
+				case 0..5: // Value Range
+					do_thing_b(x);
+					break;
+				case 5:
+					do_thing_c();
+					break;
+				case 6:
+					do_thing_d();
+					break;
+				default:
+					do_thing_e();
+					break;
+			}
+		
+	.. tab-item:: Ex.: Percent Chance
+		
+		.. style::
+			:classes: zs_caption
+		
+		Picking an outcome based on percentage chances easily
+		using :ref:`value ranges<zslang_ranges>`
+
+		.. zscript::
+			:style: body
+
+			switch(RandGen->Rand(99)) //0-99 inclusive
+			{
+				case 0=..10:
+					//10% chance
+					break;
+				case 10=..30:
+					//20% chance
+					break;
+				case 30=..60:
+					//30% chance
+					break;
+				case 60=..100:
+					//40% chance
+					break;
+			}
 
 In a standard switch statement, each `case :` provided must include either a single
 |ctc| value, which must match exactly, or a :ref:`Value Range<zslang_ranges>`, in
@@ -55,9 +96,12 @@ If more than one `case :` would match, the first one from the top will match, an
 the rest won't be checked. If NO `case` matches, the `default:` block will run (if
 provided).
 
+`break` / ``fallthrough``
+-------------------------
+
 The :ref:`break statements<stmt_break>` are used to end the `switch` at the end of
 each case. If you do not include a `break;` at the end of a case, the code
-will ``fall through`` into the case below it. This can be desirable, but can
+will ``fallthrough`` into the case below it. This can be desirable, but can
 also cause unexpected bugs if you aren't looking out for it, as shown below:
 
 .. zscript::
