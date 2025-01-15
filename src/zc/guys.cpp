@@ -19383,16 +19383,25 @@ void loadenemies()
 	bool beenhere = false;
 	bool reload = true;
 	bool unbeatablereload = true;
-	
-	for (int i = 0; i < 6; i++)
-		if (visited[i] == origin_mi)
-			beenhere = true;
+
+	// visited[vhead] = origin_mi; //If not, it adds it to the array,
+	// vhead = (vhead+1)%6; //which overrides one of the others, and then moves onto the next.
 	
 	for_every_base_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
 		int screen = scr->screen;
 		auto& state = get_screen_state(screen);
 		if (state.loaded_enemies)
 			return;
+
+		// if (screen == cur_screen)
+		// {
+		// 	for (int i = 0; i < 6; i++)
+		// 	if (visited[i] == origin_mi)
+		// 		beenhere = true;
+
+		// 	visited[vhead] = origin_mi; //If not, it adds it to the array,
+		// 	vhead = (vhead+1)%6; //which overrides one of the others, and then moves onto the next.
+		// }
 
 		// TODO z3 configure.
 		if (!viewport.intersects_with(region_scr_x*256, region_scr_y*176, 256, 176))
