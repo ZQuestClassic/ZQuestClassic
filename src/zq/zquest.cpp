@@ -15747,7 +15747,7 @@ int32_t d_warpdestscrsel_proc(int32_t msg,DIALOG *d,int32_t c)
 				auto gr = (yind < 8 ? dm.grid[yind] : 0);
 				for(int xind = (yind == 8 ? 0 : val_offset); xind < scrw; ++xind)
 				{
-					int screen_index = map_scr_xy_to_index(xind, yind);
+					int screen_index = xind+(yind*16);
 					if(screen_index > max)
 						continue;
 					int fr = FR_MENU;

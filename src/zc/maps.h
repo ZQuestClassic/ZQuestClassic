@@ -462,6 +462,7 @@ struct screen_state_t
 	int open_doors;
 };
 
+std::map<int, screen_state_t>& get_screen_states();
 screen_state_t& get_screen_state(int screen);
 void clear_screen_states();
 void screen_item_set_state(int screen, ScreenItemState state);

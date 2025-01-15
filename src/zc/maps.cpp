@@ -5959,10 +5959,9 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool origin_screen_
 		replay_sync_rng();
 	}
 
+	for (auto& state : get_screen_states())
+		state.second.triggered_secrets = false;
 	slopes.clear();
-	if (origin_scr) for_every_base_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
-		get_screen_state(scr->screen).triggered_secrets = false;
-	});
 	Hero.clear_platform_ffc();
 	timeExitAllGenscript(GENSCR_ST_CHANGE_SCREEN);
 	clear_darkroom_bitmaps();
@@ -7856,6 +7855,11 @@ bool is_push(mapscr* m, int32_t pos)
 }
 
 static std::map<int, screen_state_t> screen_states;
+
+std::map<int, screen_state_t>& get_screen_states()
+{
+	return screen_states;
+}
 
 screen_state_t& get_screen_state(int screen)
 {
