@@ -11,7 +11,8 @@ This section covers various things you may declare, and how to declare them.
 	/zscript-lang/declarations/identifiers
 	/zscript-lang/declarations/vars_consts
 	/zscript-lang/declarations/arrays_strings
-	WIP: Functions </zscript-lang/declarations/functions>
+	/zscript-lang/declarations/functions
+	/zscript-lang/declarations/namespace
 
 .. seealso::
 	
