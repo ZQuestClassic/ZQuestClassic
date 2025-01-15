@@ -587,7 +587,7 @@ mapscr* get_scr_no_load(int map, int screen)
 		if (temporary_screens[index])
 			return temporary_screens[index];
 
-		if (cur_screen >= 0x80 && screen == home_screen)
+		if (screen == home_screen)
 			return special_warp_return_scr;
 	}
 
@@ -614,7 +614,7 @@ mapscr* get_scr_layer(int map, int screen, int layer)
 		if (temporary_screens[index])
 			return temporary_screens[index];
 
-		if (cur_screen >= 0x80 && screen == home_screen)
+		if (screen == home_screen)
 			return &special_warp_return_scrs[layer];
 	}
 
