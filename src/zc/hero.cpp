@@ -29031,16 +29031,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 			break;
 	}
 
-	// expose previous origin screen to scripting.
-	for (int i = 0; i <= 6; i++)
-	{
-		mapscr* scr = get_scr_layer(cur_screen, i);
-		if (scr)
-			special_warp_return_scrs[i] = *scr;
-		else
-			special_warp_return_scrs[i] = {};
-	}
-
 	// Remember everything about the current region, because `loadscr` is about to reset this data.
 	std::vector<mapscr*> old_temporary_screens;
 	old_temporary_screens = take_temporary_scrs();

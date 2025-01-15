@@ -577,14 +577,18 @@ mapscr* get_scr(int screen)
 mapscr* get_scr_no_load(int map, int screen)
 {
 	DCHECK_RANGE_INCLUSIVE(screen, 0, 135);
-	if (screen == cur_screen && map == cur_map) return origin_scr;
-	if (screen == home_screen && map == cur_map) return special_warp_return_scr;
 
 	if (map == cur_map)
 	{
+		if (screen == cur_screen)
+			return origin_scr;
+
 		int index = screen*7;
 		if (temporary_screens[index])
 			return temporary_screens[index];
+
+		if (cur_screen >= 0x80 && screen == home_screen)
+			return special_warp_return_scr;
 	}
 
 	if (screenscrolling && map == scrolling_map && !FFCore.ScrollingScreensAll.empty())
@@ -601,15 +605,17 @@ mapscr* get_scr_no_load(int map, int screen)
 mapscr* get_scr_layer(int map, int screen, int layer)
 {
 	DCHECK_LAYER_ZERO_INDEX(layer);
-	if (layer == 0) return get_scr(map, screen);
-	if (screen == cur_screen && map == cur_map) return temporary_screens[screen*7 + layer];
-	if (screen == home_screen && map == cur_map) return &special_warp_return_scrs[layer];
+	if (layer == 0)
+		return get_scr(map, screen);
 
 	if (map == cur_map)
 	{
 		int index = screen*7 + layer;
 		if (temporary_screens[index])
 			return temporary_screens[index];
+
+		if (cur_screen >= 0x80 && screen == home_screen)
+			return &special_warp_return_scrs[layer];
 	}
 
 	if (screenscrolling && map == scrolling_map && !FFCore.ScrollingScreensAll.empty())
