@@ -14,8 +14,7 @@ ends up looking a bit cluttered, like the following first example. But, using a
 
 	.. tab-item:: Cluttered `if`/`else`
 		
-		.. style::
-			:classes: zs_caption
+		.. style:: zs_caption
 		
 		This is a little cluttered, and requires reading the `x` variable several times.
 
@@ -34,8 +33,7 @@ ends up looking a bit cluttered, like the following first example. But, using a
 
 	.. tab-item:: Cleaner `switch`
 		
-		.. style::
-			:classes: zs_caption
+		.. style:: zs_caption
 		
 		This is cleaner, and only reads the `x` variable once.
 
@@ -63,8 +61,7 @@ ends up looking a bit cluttered, like the following first example. But, using a
 		
 	.. tab-item:: Ex.: Percent Chance
 		
-		.. style::
-			:classes: zs_caption
+		.. style:: zs_caption
 		
 		Picking an outcome based on percentage chances easily
 		using :ref:`value ranges<zslang_ranges>`

@@ -140,13 +140,64 @@ html[data-theme="light"] code.literal {
 	background: #F8F8F8;
 }
 
+/* Used for making a normal :ref: the size of a .toctree link */
 .bigref {
 	font-size: 1.1em;
 }
 
+/* A caption, either above or below something */
 .zs_caption {
 	font-size: 80%;
 	font-style: italic;
 	margin-top: 0;
 	margin-bottom: 0;
+}
+
+/* Cards that show off script type information */
+.docutils.container.scrinfo_card {
+	padding: 20px;
+	border: 1px solid var(--pst-color-border);
+	border-radius: 10px;
+	margin: 16px 0;
+	background-color: var(--pst-color-on-background);
+}
+
+.scrinfo_card .scrinfo_title {
+	margin-top: 0;
+	text-align: center;
+	font-size: 175%;
+	display: block;
+}
+.scrinfo_flexbox {
+	display: flex;
+	align-items: stretch;
+}
+.scrinfo_flexbox > * {
+	margin: 0;
+}
+
+.scrinfo_card .scrinfo_dataline {
+	font-weight: bold;
+	font-size: 90%;
+	margin: 0;
+	display: block;
+}
+.scrinfo_card .scrinfo_dataline.hljs {
+	margin-top: 0;
+	margin-bottom: 0;
+}
+.scrinfo_card .scrinfo_dataline ~ .scrinfo_dataline {
+	padding-top: 2px;
+	margin-top: 2px;
+	border-top: 2px dashed var(--pst-color-border);
+}
+.scrinfo_card .scrinfo_databox {
+	width: 35%;
+	padding: 10px;
+	border: 1px solid var(--pst-color-border);
+}
+.scrinfo_card .scrinfo_databox ~ p {
+	width: 65%;
+	padding: 10px;
+	border: 1px solid var(--pst-color-border);
 }

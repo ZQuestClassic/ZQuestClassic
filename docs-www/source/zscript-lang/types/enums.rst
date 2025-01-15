@@ -34,8 +34,7 @@ To define constants of a different pre-existing type, you can use syntax like:
 		D, // 3L
 	};
 
-.. style::
-	:classes: zs_caption
+.. style:: zs_caption
 
 These constants will be of type `const long` instead of `const int`.
 
@@ -59,7 +58,7 @@ Custom Increment
 
 Additionally, you can change how much the enum increments by between each number.
 Firstly, using `enum = long` has the special behavior of incrementing by `1L`
-instead of `1` already. But, additionally, you can use the :zs_meta:`@Increment`
+instead of `1` already. But, additionally, you can use the `@Increment`
 annotation to directly specify an amount to increment by.
 
 .. zscript::
@@ -74,7 +73,7 @@ annotation to directly specify an amount to increment by.
 	};
 
 .. versionadded:: 3.0
-	:zs_meta:`@Increment`
+	`@Increment`
 
 Custom Type Creation
 --------------------

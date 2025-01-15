@@ -31,8 +31,7 @@ you can simply use an empty name - i.e. begin the name with the |scoperes|.
 
 	.. tab-item:: Ex. 1
 		
-		.. style::
-			:classes: zs_caption
+		.. style:: zs_caption
 
 		You can reference both VERSION' variables, by specifying the namespace to access
 		
@@ -59,8 +58,7 @@ you can simply use an empty name - i.e. begin the name with the |scoperes|.
 
 	.. tab-item:: Ex. 2
 
-		.. style::
-			:classes: zs_caption
+		.. style:: zs_caption
 
 		Referencing a function will always start by looking in the current namespace
 
@@ -99,8 +97,7 @@ you can simply use an empty name - i.e. begin the name with the |scoperes|.
 	
 	.. tab-item:: Ex. 3
 
-		.. style::
-			:classes: zs_caption
+		.. style:: zs_caption
 
 		Nesting namespaces inside each other
 
@@ -212,8 +209,7 @@ and inward from there.
 
 	.. tab-item:: Ex. 1
 		
-		.. style::
-			:classes: zs_caption
+		.. style:: zs_caption
 
 		using `using` to more easily reference a function
 		
@@ -246,8 +242,7 @@ and inward from there.
 
 	.. tab-item:: Ex. 2
 		
-		.. style::
-			:classes: zs_caption
+		.. style:: zs_caption
 
 		How `using` can create conflicts, and how to avoid them
 		

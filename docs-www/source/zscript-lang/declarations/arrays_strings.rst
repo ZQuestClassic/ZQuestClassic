@@ -78,8 +78,7 @@ be used as the initializer of an array, storing it for longer-term use.
 	
 	.. tab-item:: 2+D Arrays
 		
-		.. style::
-			:classes: zs_caption
+		.. style:: zs_caption
 
 		While '2D' arrays can be declared by type, you cannot put an array
 		initializer inside an array initializer to initialize multiple levels

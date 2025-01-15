@@ -3,7 +3,7 @@ import urllib
 
 from docutils import nodes
 from docutils.parsers.rst import Directive
-from docutils.parsers.rst.directives import unchanged, flag, choice
+from docutils.parsers.rst.directives import choice, flag, nonnegative_int, unchanged, unchanged_required
 from docutils.parsers.rst.directives.admonitions import BaseAdmonition
 from sphinx import addnodes
 from sphinx.application import Sphinx
@@ -11,6 +11,14 @@ from sphinx.locale import _
 from sphinx.util.docutils import SphinxDirective, SphinxTranslator
 from sphinx.util.typing import ExtensionMetadata
 
+def code_style_options(arg: str):
+    return choice(arg, ('plain','file','body'))
+def list_options(arg: str):
+    return arg.split()
+def nonnegative_int_required(arg: str):
+    if arg is None:
+        raise ValueError('argument required but none supplied')
+    return nonnegative_int(arg)
 
 class ZScriptNode(nodes.General, nodes.Element):
     url: str = ''
@@ -18,16 +26,17 @@ class ZScriptNode(nodes.General, nodes.Element):
     fname: str = ''
     height: int = 800
     style: str = 'file'
-    def __init__(self, url: str = '', data: str = '', fname: str = '', height = 800, style = 'file'):
+    inline: bool = False
+    def __init__(self, url: str = '', data: str = '', fname: str = '',
+        height: int = 800, style: str = 'file', inline: bool = False):
         super().__init__()
         self.url = url
         self.data = data
         self.fname = fname
         self.height = height
         self.style = style
+        self.inline = inline
 
-def code_style_options(arg: str):
-    return choice(arg, ('plain','file','body'))
 
 class ZScriptDirective(SphinxDirective):
     has_content: bool = True
@@ -36,6 +45,7 @@ class ZScriptDirective(SphinxDirective):
         'fname': unchanged,
         'height': int,
         'style': code_style_options,
+        'inline': flag,
     }
 
     def run(self) -> list[nodes.Node]:
@@ -45,6 +55,7 @@ class ZScriptDirective(SphinxDirective):
             fname=self.options.get('fname', '').strip(),
             height=self.options.get('height', 800),
             style=self.options.get('style', 'file'),
+            inline='inline' in self.options,
             )]
 
 
@@ -56,7 +67,11 @@ body_to_cls = {
 def visit_zscript_node_html(translator: SphinxTranslator, node: ZScriptNode) -> None:
     if node.data:
         cls = body_to_cls.get(node.style, 'language-zs')
-        html_str = f'<pre class="hljs {cls}"><code>{html.escape(node.data)}</code></pre>'
+        all_classes = ' '.join(['hljs', cls] + node.get('classes', []))
+        if node.inline:
+            html_str = f'<code class="inlinezs pre literal {all_classes}">{html.escape(node.data)}</code>'
+        else:
+            html_str = f'<pre class="{all_classes}"><code>{html.escape(node.data)}</code></pre>'
         html_str += f'''
         <script>
             {{
@@ -215,17 +230,17 @@ class StylizeNode(nodes.General, nodes.Element):
         super().__init__()
         self.classes = classes
 
-def list_options(arg: str):
-    return arg.split()
 class Stylize(SphinxDirective):
-    classes: list[str] = []
+    optional_arguments: int = 1
+    final_argument_whitespace: bool = True
     option_spec: dict = {
         'classes': list_options
     }
     def run(self) -> list[nodes.Node]:
-        return [StylizeNode(
-            classes = self.options.get('classes', [])
-        )]
+        c = self.options.get('classes', [])
+        if len(self.arguments):
+            c.extend(self.arguments[0].split())
+        return [StylizeNode(classes = c)]
 def visit_stylize_node_html(translator: SphinxTranslator, node: StylizeNode) -> None:
     if node.classes == []:
         raise ValueError('.. style:: cannot exist with no style specified!')
@@ -239,6 +254,54 @@ def visit_stylize_node_html(translator: SphinxTranslator, node: StylizeNode) -> 
     '''
     translator.body.append(html_str)
 
+class ScriptInfo(SphinxDirective):
+    required_arguments: int = 1
+    final_argument_whitespace: bool = True
+    has_content: bool = True
+    option_spec: dict = {
+        'type': unchanged_required,
+        'pointer': unchanged,
+        'initd': nonnegative_int_required,
+        'initd_str': unchanged,
+    }
+    def run(self) -> list[nodes.Node]:
+        ty = self.options['type']
+        pointer = self.options.get("pointer", None)
+        initd = self.options['initd']
+        initd_str = f'Available InitD[]: {initd}' if initd > 0 else 'No InitD[] available'
+        if 'initd_str' in self.options:
+            initd_str += f' {self.options["initd_str"]}'
+        
+        scr_name = ZScriptNode(data=f'{ty} script ScriptName', inline=True)
+        scr_name['classes'].append('scrinfo_dataline')
+        if pointer:
+            ptr_name = nodes.paragraph(text=f'this-> pointer type: ')
+            tynode = ZScriptNode(data=pointer, inline=True)
+            tynode['classes'].append('hljs-type')
+            ptr_name += tynode
+        else:
+            ptr_name = nodes.paragraph(text='no this-> pointer')
+        ptr_name['classes'].append('scrinfo_dataline')
+        initd_name = nodes.paragraph(text=initd_str)
+        initd_name['classes'].append('scrinfo_dataline')
+        cont2 = nodes.container()
+        cont2 += [scr_name, ptr_name, initd_name]
+        cont2['classes'].append('scrinfo_databox')
+        
+        body_text = nodes.paragraph(text='\n'.join(self.content))
+        
+        cont3 = nodes.container();
+        cont3 += [cont2, body_text]
+        cont3['classes'].append('scrinfo_flexbox')
+        
+        cont = nodes.container()
+        title = nodes.paragraph(text=self.arguments[0])
+        title['classes'].append('scrinfo_title')
+        cont += [title, cont3]
+        cont['classes'].append('scrinfo_card')
+        
+        return [cont]
+
 def depart_ignored(translator: SphinxTranslator, node: nodes.Node) -> None:
     pass
 
@@ -248,6 +311,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_directive('plans', PlansDirective)
     app.add_directive('deprecated', ZSDeprecated, True)
     app.add_directive('style', Stylize)
+    app.add_directive('scrinfo', ScriptInfo)
     
     app.add_node(
         ZScriptNode,

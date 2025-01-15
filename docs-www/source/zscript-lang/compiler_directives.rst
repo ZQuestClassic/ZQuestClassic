@@ -23,8 +23,7 @@ unless you change the :ref:`HEADER_GUARD option<zslang_options>`.
 
 	#include "std.zh"
 
-.. style::
-	:classes: zs_caption
+.. style:: zs_caption
 
 Including the |stdlib|.
 
@@ -169,6 +168,17 @@ allowing you to edit and only see actual errors in your script.
 Bypassing Warnings and Errors
 -----------------------------
 
-.. todo::
+Using the `catch` / `#ignore error` / `#ignore warning` directive
+can allow you to suppress a single compile error or warning.
 
-	`catch` / `#ignore error` / `#ignore warning`
+.. zscript::
+	<warn>const int A = 3_000_000;</warn> // Warning C020: Constant 3_000_000 is too long and has been truncated.
+	// The 'C020' part is the warning code- so we can ignore warning 20
+	#ignore warning(20)
+	const int B = 3_000_000; // No warning
+
+.. caution::
+
+	While ignoring warnings should always be safe, ignoring errors may not be,
+	as your script may have failed to compile to the point it is no longer
+	functional- ignoring the error in such a situation is unhelpful.

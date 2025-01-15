@@ -90,7 +90,7 @@ Otherwise, you can follow the pattern `loop(typename varname : range, increment)
 Annotations
 -----------
 
-Smart loops support the :zs_meta:`@AlwaysRunEndpoint` :ref:`annotation<annotations>`.
+Smart loops support the `@AlwaysRunEndpoint` :ref:`annotation<annotations>`.
 This annotation takes a string literal parameter, which must be one of `"int"`,
 `"long"`, or `"float"`- though the long and float options behave identically.
 

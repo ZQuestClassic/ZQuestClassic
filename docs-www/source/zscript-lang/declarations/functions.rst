@@ -100,8 +100,7 @@ parameters may appear after an optional parameter.
 
 	.. tab-item:: Ex. 3
 		
-		.. style::
-			:classes: zs_caption
+		.. style:: zs_caption
 		
 		Can't put a mandatory parameter after an optional parameter!
 

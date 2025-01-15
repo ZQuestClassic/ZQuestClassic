@@ -14,6 +14,6 @@ ZScript Lang
 	/zscript-lang/control_flow/index
 	/zscript-lang/options
 	/zscript-lang/annotations
-	WIP: Scripts </zscript-lang/scripts>
+	/zscript-lang/scripts
 	/zscript-lang/ranges
 

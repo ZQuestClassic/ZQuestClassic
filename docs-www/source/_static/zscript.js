@@ -477,12 +477,15 @@ function zs_builder(hljs, langtype) {
 	
 	const ANNOTATION = {
 		scope: 'meta.annotation',
-		begin: '@' + OPT_WHITESPACE_RE + IDENTIFIER_RE + OPT_WHITESPACE_RE + '\\(',
-		end: '\\)',
-		contains: [
-			STRINGS,
-			NUMBERS
-		]
+		match: '@' + OPT_WHITESPACE_RE + IDENTIFIER_RE + OPT_WHITESPACE_RE,
+		contains: [{
+			begin: '\\(',
+			end: '\\)',
+			contains: [
+				STRINGS,
+				NUMBERS
+			]
+		}]
 	};
 	
 	const LITERALS = [
@@ -745,6 +748,10 @@ function zs_builder(hljs, langtype) {
 		keywords: ZSCRIPT_KEYWORDS,
 		starts: FUNC_HEADER
 	};
+	const VOID_RUN_KW = { // For arbitrary mentions of 'void run'
+		match: 'void run',
+		scope: 'keyword.runfunc'
+	};
 	
 	const FUNCTION_DECLARATION = {
 		match: [
@@ -899,6 +906,7 @@ function zs_builder(hljs, langtype) {
 				USING_STATEMENT,
 				TYPEDEF_STATEMENT,
 				RUN_FUNC_DECLARATION,
+				VOID_RUN_KW,
 				FUNCTION_DECLARATION,
 				EXPRESSION_CONTAINS, // list
 				NAMESPACE_DECLARATION,
