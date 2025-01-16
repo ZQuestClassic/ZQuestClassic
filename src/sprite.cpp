@@ -1136,7 +1136,7 @@ void sprite::draw(BITMAP* dest)
 				blit(dest, temp, sx-16, sy-16, 0, 0, 48, 32);
 
 				static BITMAP *temp2 = create_bitmap_ex(8, 32, 32);
-				static BITMAP* temp3 = create_bitmap_ex(8, 32, 32);
+				static BITMAP* temp3 = create_bitmap_ex(8, 48, 32);
 
 				clear_bitmap(temp3);
 				overtile16(temp3,TILEBOUND(((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW),16,0,cs,((scriptflip > -1) ? scriptflip : flip));
