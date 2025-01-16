@@ -75,8 +75,6 @@ Misc
 	+------------------+-------------------------------------------------------------------+
 	| `IS_INCLUDED`    | Include checking :ref:`compiler directive<directive_isincluded>`  |
 	+------------------+-------------------------------------------------------------------+
-	| `catch`          | Error/warning ignoring :ref:`compiler directive<directive_catch>` |
-	+------------------+-------------------------------------------------------------------+
 	| `internal`       | Modifier used for internal engine bindings                        |
 	+------------------+-------------------------------------------------------------------+
 	| `inline`         | Modifier that indicates a function is optimized to be lightweight.|
@@ -89,6 +87,7 @@ Misc
 	| | `asm`          | reserved, no present use                                          |
 	| | `zasm`         |                                                                   |
 	| | `try`          |                                                                   |
+	| | `catch`        |                                                                   |
 	+------------------+-------------------------------------------------------------------+
 
 .. note::

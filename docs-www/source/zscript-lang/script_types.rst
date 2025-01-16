@@ -276,6 +276,14 @@ Subscreen & DMap Scripts
 	If you trigger a warp during this script to a dmap with a different script,
 	that dmap's script will be immediately loaded instead.
 
+Generic Scripts
+---------------
+
+.. todo::
+
+	list generic script run types
+
+
 .. _frozen_scripts:
 
 'Frozen Mode' scripts

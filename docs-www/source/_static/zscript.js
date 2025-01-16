@@ -455,8 +455,7 @@ function zs_builder(hljs, langtype) {
 		begin: /#\s*[a-zA-Z_][a-zA-Z_0-9]*\b/,
 		end: /$/,
 		keywords: { 'keyword.meta':
-			['option', 'ignore error', 'IGNORE ERROR', 'ignore warning',
-			'IGNORE WARNING', 'define', 'include', 'includepath',
+			['option', 'define', 'include', 'includepath',
 			'includeif', 'inherit', 'on', 'off', 'error', 'warn'] },
 		contains: [
 			{ // String without escape characters

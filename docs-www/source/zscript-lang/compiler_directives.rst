@@ -162,23 +162,3 @@ If you edit with |VSCode|, there is an ``Ignore Const Assert`` setting
 in the extension settings. By toggling this on, the compiler in the
 extension will entirely ignore all `CONST_ASSERT()` based errors,
 allowing you to edit and only see actual errors in your script.
-
-.. _directive_catch:
-
-Bypassing Warnings and Errors
------------------------------
-
-Using the `catch` / `#ignore error` / `#ignore warning` directive
-can allow you to suppress a single compile error or warning.
-
-.. zscript::
-	<warn>const int A = 3_000_000;</warn> // Warning C020: Constant 3_000_000 is too long and has been truncated.
-	// The 'C020' part is the warning code- so we can ignore warning 20
-	#ignore warning(20)
-	const int B = 3_000_000; // No warning
-
-.. caution::
-
-	While ignoring warnings should always be safe, ignoring errors may not be,
-	as your script may have failed to compile to the point it is no longer
-	functional- ignoring the error in such a situation is unhelpful.
