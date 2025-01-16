@@ -39,6 +39,21 @@ the internal function :ref:`Trace<globals_fun_trace>` 3 times, each time
 giving it the return value of a call to the `double` function as it's parameter
 (each time with a different number given to the `double` function).
 
+.. warning::
+
+	Unless a function has a return type of `void`, it **must** return a value.
+	This was not required in previous versions, which lead to whatever random value
+	was leftover in the ``d2`` register being returned instead, causing some
+	script bugs.
+
+	.. zscript::
+
+		int triple(int val)
+		{
+			int newval = val * 3;
+			<error>/* Error S102: Function 'triple' is not void, and must return a value! */</error>
+		}
+
 Remote Declaration
 ------------------
 

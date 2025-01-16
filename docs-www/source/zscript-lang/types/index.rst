@@ -23,7 +23,8 @@ Primitive Types
 	| `long`        | Long integer type. Values range from `-2147483648L` to                |
 	|               | `2147483647L`. :ref:`Special bitwise behavior<operator_blurb>`.       |
 	+---------------+-----------------------------------------------------------------------+
-	| `auto`        | Type will be automatically determined by the parser.                  |
+	| `auto`        | Type will be automatically determined by the parser. Cannot be used   |
+	|               | in a 'group declaration', ex. `<error>auto x = 5, y = 2;</error>`     |
 	+---------------+-----------------------------------------------------------------------+
 	| `void`        | Lack of a type; used to indicate a function returns nothing.          |
 	+---------------+-----------------------------------------------------------------------+
