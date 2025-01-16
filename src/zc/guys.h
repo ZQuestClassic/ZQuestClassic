@@ -16,6 +16,7 @@ extern int32_t itemindex;
 extern int32_t wallm_load_clk;
 extern int32_t sle_x,sle_y,sle_cnt,sle_clk;
 extern int32_t vhead;
+extern bool enemy_spawning_has_checked_been_here;
 
 int32_t random_layer_enemy(int screen);
 int32_t count_layer_enemies(int screen);

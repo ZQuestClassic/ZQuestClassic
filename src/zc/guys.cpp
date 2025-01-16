@@ -18899,6 +18899,31 @@ bool can_side_load(int32_t id)
 	return true;
 }
 
+bool enemy_spawning_has_checked_been_here;
+static bool enemy_spawning_has_been_here;
+
+static bool check_if_recently_visited()
+{
+	if (enemy_spawning_has_checked_been_here)
+		return enemy_spawning_has_been_here;
+
+	int mi = mapind(cur_map, cur_screen);
+
+	enemy_spawning_has_been_here = false;
+	for (int i = 0; i < 6; i++)
+		if (visited[i] == mi)
+			enemy_spawning_has_been_here = true;
+
+	if (!enemy_spawning_has_been_here)
+	{
+		visited[vhead] = mi; //If not, it adds it to the array,
+		vhead = (vhead+1)%6; //which overrides one of the others, and then moves onto the next.
+	}
+
+	enemy_spawning_has_checked_been_here = true;
+	return enemy_spawning_has_been_here;
+}
+
 static std::array<bool, MAPSCRS> script_sle;
 
 static int32_t sle_pattern = 0;
@@ -18925,28 +18950,18 @@ static void side_load_enemies(mapscr* scr)
 		int32_t guycnt = 0;
 		
 		int mi = mapind(cur_map, screen);
-		int origin_mi = mapind(cur_map, cur_screen);
-		bool beenhere=false;
 		bool reload=true;
 		bool unbeatablereload = true;
 		
 		load_default_enemies(scr);
 
-		for (int i = 0; i < 6; i++)
-			if (visited[i] == origin_mi)
-				beenhere = true;
-
-		if (!beenhere)
-		{
-			visited[vhead] = origin_mi;
-			vhead = (vhead+1)%6;
-		}
-		else if (game->guys[mi] == 0)
+		bool beenhere = check_if_recently_visited();
+		if (beenhere && game->guys[mi] == 0)
 		{
 			sle_cnt=0;
 			reload=false;
 		}
-		
+
 		if(reload)
 		{
 			sle_cnt = game->guys[mi];
@@ -19378,30 +19393,11 @@ bool scriptloadenemies(int screen)
 
 void loadenemies()
 {
-	// check if it's been long enough to reload all enemies
-	int16_t origin_mi = mapind(cur_map, cur_screen);
-	bool beenhere = false;
-	bool reload = true;
-	bool unbeatablereload = true;
-
-	// visited[vhead] = origin_mi; //If not, it adds it to the array,
-	// vhead = (vhead+1)%6; //which overrides one of the others, and then moves onto the next.
-	
 	for_every_base_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
 		int screen = scr->screen;
 		auto& state = get_screen_state(screen);
 		if (state.loaded_enemies)
 			return;
-
-		// if (screen == cur_screen)
-		// {
-		// 	for (int i = 0; i < 6; i++)
-		// 	if (visited[i] == origin_mi)
-		// 		beenhere = true;
-
-		// 	visited[vhead] = origin_mi; //If not, it adds it to the array,
-		// 	vhead = (vhead+1)%6; //which overrides one of the others, and then moves onto the next.
-		// }
 
 		// TODO z3 configure.
 		if (!viewport.intersects_with(region_scr_x*256, region_scr_y*176, 256, 176))
@@ -19475,18 +19471,17 @@ void loadenemies()
 
 		int32_t loadcnt = 10;
 		int16_t mi = mapind(cur_map, screen);
-		
-		if (!beenhere) //Okay so this basically checks the last 6 unique screen's you've been in and checks if the current screen is one of them.
-		{
-			visited[vhead] = origin_mi; //If not, it adds it to the array,
-			vhead = (vhead+1)%6; //which overrides one of the others, and then moves onto the next.
-		}
-		else if (game->guys[mi] == 0) //Then, if you have been here, and the number of enemies left on the screen is 0,
+		bool beenhere = check_if_recently_visited();
+
+		//Okay so this basically checks the last 6 unique screen's you've been in and checks if the current screen is one of them.
+		bool reload = true;
+		if (beenhere && game->guys[mi] == 0) //Then, if you have been here, and the number of enemies left on the screen is 0,
 		{
 			loadcnt = 0; //It will tell it not to load any enemies,
 			reload  = false; //both by setting loadcnt to 0 and making the reload if statement not run.
 		}
 
+		bool unbeatablereload = true;
 		if(reload) //This if statement is only false if this screen is one of the last 6 screens you visited and you left 0 enemies alive.
 		{
 			loadcnt = game->guys[mi]; //Otherwise, if this if statement is true, it will try to load the last amount of enemies you left alive.

@@ -6117,6 +6117,7 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool origin_screen_
 		Hero.lift_wpn = nullptr;
 	}
 
+	enemy_spawning_has_checked_been_here = false;
 	markBmap(-1, hero_screen);
 	Hero.maybe_begin_advanced_maze();
 }
