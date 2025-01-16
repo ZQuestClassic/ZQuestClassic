@@ -3836,14 +3836,12 @@ int32_t onSnapshot()
 
 int32_t onSaveMapPic()
 {
-	int32_t mapres2 = 0;
 	char buf[200];
 	int32_t num=0;
 	mapscr tmpscr_b[2];
 	mapscr tmpscr_c[6];
 	BITMAP* _screen_draw_buffer = NULL;
-	_screen_draw_buffer = create_bitmap_ex(8,256,224);
-	set_clip_state(_screen_draw_buffer,1);
+	_screen_draw_buffer = create_bitmap_ex(8,256,176);
 	
 	for(int32_t i=0; i<6; ++i)
 	{
@@ -3870,7 +3868,7 @@ int32_t onSaveMapPic()
 	
 	bool done=false, redraw=true;
 	
-	mappic = create_bitmap_ex(8,(256*16)>>mapres,(176*8)>>mapres);
+	mappic = create_bitmap_ex(8,(256*16),(176*8));
 	
 	if(!mappic)
 	{
@@ -3879,67 +3877,57 @@ int32_t onSaveMapPic()
 		exit_sys_pal();
 		return D_O_K;;
 	}
+
+	clear_to_color(_screen_draw_buffer, BLACK);
 	
 	// draw the map
-	set_clip_rect(_screen_draw_buffer, 0, 0, _screen_draw_buffer->w, _screen_draw_buffer->h);
 	
 	for(int32_t y=0; y<8; y++)
 	{
 		for(int32_t x=0; x<16; x++)
 		{
-			if(!displayOnMap(x, y))
-			{
-				rectfill(_screen_draw_buffer, 0, 0, 255, 223, WHITE);
-			}
-			else
-			{
-				int32_t s = (y<<4) + x;
-				loadscr2(1,s,-1);
-				
-				for(int32_t i=0; i<6; i++)
-				{
-					if(tmpscr[1].layermap[i]<=0)
-						continue;
-					
-					tmpscr2[i]=TheMaps[(tmpscr[1].layermap[i]-1)*MAPSCRS+tmpscr[1].layerscreen[i]];
-				}
-				
-				if(XOR((tmpscr+1)->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(_screen_draw_buffer, 0, 2, tmpscr+1, -256, playing_field_offset, 2);
-				
-				if(XOR((tmpscr+1)->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(_screen_draw_buffer, 0, 3, tmpscr+1, -256, playing_field_offset, 2);
-				
-				if(lenscheck(tmpscr+1,0)) putscr(_screen_draw_buffer,256,0,tmpscr+1);
-				do_layer(_screen_draw_buffer, 0, 1, tmpscr+1, -256, playing_field_offset, 2);
-				
-				if(!XOR((tmpscr+1)->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(_screen_draw_buffer, 0, 2, tmpscr+1, -256, playing_field_offset, 2);
-				
-				putscrdoors(_screen_draw_buffer,256,0,tmpscr+1);
-				if(get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
-				{
-					do_layer(_screen_draw_buffer, -2, 0, tmpscr+1, -256, playing_field_offset, 2);
-					if(get_qr(qr_PUSHBLOCK_LAYER_1_2))
-					{
-						do_layer(_screen_draw_buffer, -2, 1, tmpscr+1, -256, playing_field_offset, 2);
-						do_layer(_screen_draw_buffer, -2, 2, tmpscr+1, -256, playing_field_offset, 2);
-					}
-				}
-				do_layer(_screen_draw_buffer, -3, 0, tmpscr+1, -256, playing_field_offset, 2); // Freeform combos!
-				
-				if(!XOR((tmpscr+1)->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(_screen_draw_buffer, 0, 3, tmpscr+1, -256, playing_field_offset, 2);
-				
-				do_layer(_screen_draw_buffer, 0, 4, tmpscr+1, -256, playing_field_offset, 2);
-				do_layer(_screen_draw_buffer, -1, 0, tmpscr+1, -256, playing_field_offset, 2);
-				if(get_qr(qr_OVERHEAD_COMBOS_L1_L2))
-				{
-					do_layer(_screen_draw_buffer, -1, 1, tmpscr+1, -256, playing_field_offset, 2);
-					do_layer(_screen_draw_buffer, -1, 2, tmpscr+1, -256, playing_field_offset, 2);
-				}
-				do_layer(_screen_draw_buffer, 0, 5, tmpscr+1, -256, playing_field_offset, 2);
-				do_layer(_screen_draw_buffer, 0, 6, tmpscr+1, -256, playing_field_offset, 2);
-				
-			}
+			if (!displayOnMap(x, y))
+				continue;
+
+			int32_t s = (y<<4) + x;
+			loadscr2(1,s,-1);
+			if (!(tmpscr+1)->is_valid())
+				continue;
+
+			if(XOR((tmpscr+1)->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(_screen_draw_buffer, 0, 2, tmpscr+1, 0, playing_field_offset, 2);
 			
-			stretch_blit(_screen_draw_buffer, mappic, 256, 0, 256, 176, x<<(8-mapres), (y*176)>>mapres, 256>>mapres, 176>>mapres);
+			if(XOR((tmpscr+1)->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(_screen_draw_buffer, 0, 3, tmpscr+1, 0, playing_field_offset, 2);
+			
+			if(lenscheck(tmpscr+1,0)) putscr(_screen_draw_buffer,0,0,tmpscr+1);
+			do_layer(_screen_draw_buffer, 0, 1, tmpscr+1, 0, playing_field_offset, 2);
+			
+			if(!XOR((tmpscr+1)->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(_screen_draw_buffer, 0, 2, tmpscr+1, 0, playing_field_offset, 2);
+			
+			putscrdoors(_screen_draw_buffer,0,0,tmpscr+1);
+			if(get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
+			{
+				do_layer(_screen_draw_buffer, -2, 0, tmpscr+1, 0, playing_field_offset, 2);
+				if(get_qr(qr_PUSHBLOCK_LAYER_1_2))
+				{
+					do_layer(_screen_draw_buffer, -2, 1, tmpscr+1, 0, playing_field_offset, 2);
+					do_layer(_screen_draw_buffer, -2, 2, tmpscr+1, 0, playing_field_offset, 2);
+				}
+			}
+			do_layer(_screen_draw_buffer, -3, 0, tmpscr+1, 0, playing_field_offset, 2); // Freeform combos!
+			
+			if(!XOR((tmpscr+1)->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(_screen_draw_buffer, 0, 3, tmpscr+1, 0, playing_field_offset, 2);
+			
+			do_layer(_screen_draw_buffer, 0, 4, tmpscr+1, 0, playing_field_offset, 2);
+			do_layer(_screen_draw_buffer, -1, 0, tmpscr+1, 0, playing_field_offset, 2);
+			if(get_qr(qr_OVERHEAD_COMBOS_L1_L2))
+			{
+				do_layer(_screen_draw_buffer, -1, 1, tmpscr+1, 0, playing_field_offset, 2);
+				do_layer(_screen_draw_buffer, -1, 2, tmpscr+1, 0, playing_field_offset, 2);
+			}
+			do_layer(_screen_draw_buffer, 0, 5, tmpscr+1, 0, playing_field_offset, 2);
+			do_layer(_screen_draw_buffer, 0, 6, tmpscr+1, 0, playing_field_offset, 2);
+
+			blit(_screen_draw_buffer, mappic, 0, 0, x*256, y*176, 256, 176);
 		}
 	}
 	

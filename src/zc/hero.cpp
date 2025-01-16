@@ -3881,9 +3881,9 @@ void HeroClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
     }
     //keep things inside the screen boundaries
     bx=vbound(bx, 0, 255);
-    by=vbound(by, 0, 176);
+    by=vbound(by, 0, 175);
     int32_t fx=vbound(bx, 0, 255);
-    int32_t fy=vbound(by, 0, 176);
+    int32_t fy=vbound(by, 0, 175);
     //first things first
     if(attack!=wSword)
         return;
@@ -3988,9 +3988,9 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 {
 	//keep things inside the screen boundaries
 	bx=vbound(bx, 0, 255);
-	by=vbound(by, 0, 176);
+	by=vbound(by, 0, 175);
 	int32_t fx=vbound(bx, 0, 255);
-	int32_t fy=vbound(by, 0, 176);
+	int32_t fy=vbound(by, 0, 175);
 	//first things first
 	if(attack!=wSword)
 		return;
@@ -4310,7 +4310,7 @@ void HeroClass::check_wpn_triggers(int32_t bx, int32_t by, weapon *w)
 	
 	*/
 	bx=vbound(bx, 0, 255);
-	by=vbound(by, 0, 176);
+	by=vbound(by, 0, 175);
 	int32_t cid = MAPCOMBO(bx,by);
 	switch(w->useweapon)
 	{
@@ -4424,9 +4424,9 @@ void HeroClass::check_slash_block_layer2(int32_t bx, int32_t by, weapon *w, int3
     }
     //keep things inside the screen boundaries
     bx=vbound(bx, 0, 255);
-    by=vbound(by, 0, 176);
+    by=vbound(by, 0, 175);
     int32_t fx=vbound(bx, 0, 255);
-    int32_t fy=vbound(by, 0, 176);
+    int32_t fy=vbound(by, 0, 175);
     //first things first
     if(w->useweapon != wSword)
         return;
@@ -4559,9 +4559,9 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
 	
     //keep things inside the screen boundaries
     bx=vbound(bx, 0, 255);
-    by=vbound(by, 0, 176);
+    by=vbound(by, 0, 175);
     int32_t fx=vbound(bx, 0, 255);
-    int32_t fy=vbound(by, 0, 176);
+    int32_t fy=vbound(by, 0, 175);
     int32_t cid = MAPCOMBO(bx,by);
         
     //find out which combo row/column the coordinates are in
@@ -4915,9 +4915,9 @@ void HeroClass::check_wand_block2(int32_t bx, int32_t by, weapon *w)
 
     //keep things inside the screen boundaries
     bx=vbound(bx, 0, 255);
-    by=vbound(by, 0, 176);
+    by=vbound(by, 0, 175);
     int32_t fx=vbound(bx, 0, 255);
-    int32_t fy=vbound(by, 0, 176);
+    int32_t fy=vbound(by, 0, 175);
     int32_t cid = MAPCOMBO(bx,by);
    
     //Z_scripterrlog("check_wand_block2 MatchComboTrigger() returned: %d\n", );
@@ -4997,9 +4997,9 @@ void HeroClass::check_slash_block(weapon *w)
 	al_trace("check_slash_block(weapon *w): by is: %d\n", by);
     //keep things inside the screen boundaries
     bx=vbound(bx, 0, 255);
-    by=vbound(by, 0, 176);
+    by=vbound(by, 0, 175);
     int32_t fx=vbound(bx, 0, 255);
-    int32_t fy=vbound(by, 0, 176);
+    int32_t fy=vbound(by, 0, 175);
     
     int32_t cid = MAPCOMBO(bx,by);
         
@@ -5292,9 +5292,9 @@ void HeroClass::check_wand_block(int32_t bx, int32_t by)
 {
     //keep things inside the screen boundaries
     bx=vbound(bx, 0, 255);
-    by=vbound(by, 0, 176);
+    by=vbound(by, 0, 175);
     int32_t fx=vbound(bx, 0, 255);
-    int32_t fy=vbound(by, 0, 176);
+    int32_t fy=vbound(by, 0, 175);
     int32_t cid = MAPCOMBO(bx,by);
     
     //first things first
@@ -5355,10 +5355,9 @@ void HeroClass::check_pound_block(int bx, int by, weapon* w)
 	auto* grid = w ? w->wscreengrid : screengrid;
     //keep things inside the screen boundaries
     bx=vbound(bx, 0, 255);
-    by=vbound(by, 0, 176);
+    by=vbound(by, 0, 175);
     int32_t fx=vbound(bx, 0, 255);
-    int32_t fy=vbound(by, 0, 176);
-    int32_t cid = MAPCOMBO(bx,by);
+    int32_t fy=vbound(by, 0, 175);
     
     //first things first
     if(z>8||fakez>8) return;
@@ -5489,7 +5488,7 @@ void HeroClass::check_pound_block_layer(int bx, int by, int lyr, weapon* w)
 	if(lyr < 1 || lyr > 2) return; //sanity
 	//keep things inside the screen boundaries
 	bx=vbound(bx, 0, 255);
-	by=vbound(by, 0, 176);
+	by=vbound(by, 0, 175);
 	int32_t cid = MAPCOMBOL(lyr,bx,by);
 	newcombo const& scr_cmb = combobuf[cid];
 	auto* grid = w ? w->wscreengrid_layer[lyr-1] : screengrid_layer[lyr-1];
@@ -5598,9 +5597,9 @@ void HeroClass::check_wand_block(weapon *w)
 	
     //keep things inside the screen boundaries
     bx=vbound(bx, 0, 255);
-    by=vbound(by, 0, 176);
+    by=vbound(by, 0, 175);
     int32_t fx=vbound(bx, 0, 255);
-    int32_t fy=vbound(by, 0, 176);
+    int32_t fy=vbound(by, 0, 175);
     int32_t cid = MAPCOMBO(bx,by);
     //first things first
     if(z>8||fakez>8) return;
@@ -28316,17 +28315,14 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			break;
 	}
 	FFCore.clear_combo_scripts();
-	tmpscr[1] = tmpscr[0];
+	// tmpscr[1] = tmpscr[0]; // ?? rm
 	
-	for(int32_t i = 0; i < 6; i++)
-	{
-		tmpscr3[i] = tmpscr2[i];
-	}
+	// for(int32_t i = 0; i < 6; i++)
+	// {
+	// 	tmpscr3[i] = tmpscr2[i];
+	// }
 	
 	conveyclk = 2;
-	
-	mapscr *newscr = &tmpscr[0];
-	mapscr *oldscr = &tmpscr[1];
 	
 	//scroll x, scroll y, old screen x, old screen y, new screen x, new screen y
 	int32_t sx = 0, sy = 0, tx = 0, ty = 0, tx2 = 0, ty2 = 0;
@@ -28480,17 +28476,20 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			markBmap(scrolldir);
 			break;
 	}
-	
-	if(fixed_door)
-	{
-		unsetmapflag(mSECRET);
-		fixed_door = false;
-	}
 
 	playing_field_offset = original_playing_field_offset;
 
 	scrolling_scr = currscr;
-	
+
+	tmpscr[1] = tmpscr[0];
+	for(int32_t i = 0; i < 6; i++)
+	{
+		tmpscr3[i] = tmpscr2[i];
+	}
+
+	mapscr *newscr = &tmpscr[0];
+	mapscr *oldscr = &tmpscr[1];
+
 	switch(scrolldir)
 	{
 	case up:

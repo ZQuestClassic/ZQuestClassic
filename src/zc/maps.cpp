@@ -5386,7 +5386,7 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t)
 	
 	tmpscr[tmp] = TheMaps[currmap*MAPSCRS+scr];
 	
-	if(tmp==0)
+	if (tmpscr[tmp].is_valid())
 	{
 		for(int32_t i=0; i<6; i++)
 		{
@@ -6734,15 +6734,6 @@ void ViewMap()
 				tmpscr[0] = tmpscr[1];
 				if(tmpscr[0].valid&mVALID)
 				{
-					for(int32_t i=0; i<6; i++)
-					{
-						tmpscr2[i].zero_memory();
-						if(tmpscr[0].layermap[i]<=0)
-							continue;
-						
-						tmpscr2[i]=TheMaps[(tmpscr[0].layermap[i]-1)*MAPSCRS+tmpscr[0].layerscreen[i]];
-					}
-					
 					if(XOR((tmpscr)->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf, 0, 2, tmpscr, -256, playing_field_offset, 2);
 					
 					if(XOR((tmpscr)->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf, 0, 3, tmpscr, -256, playing_field_offset, 2);
