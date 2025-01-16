@@ -329,6 +329,8 @@ class ScriptInfo(SphinxDirective):
         
         split_at = self.options.get('split_at', 0)
         if split_at > 0:
+            if split_at >= len(body_nodes):
+                self.reporter.error(f':split_at: is too high for the number of nodes in the content! ({split_at} >= {len(body_nodes)})')
             body_column += body_nodes[:split_at]
             body_below = nodes.container()
             body_below += body_nodes[split_at:]
