@@ -254,6 +254,12 @@ def visit_stylize_node_html(translator: SphinxTranslator, node: StylizeNode) -> 
     '''
     translator.body.append(html_str)
 
+class BreakNode(nodes.General, nodes.Element):
+    pass
+
+def visit_break_node_html(translator: SphinxTranslator, node: BreakNode) -> None:
+    translator.body.append('<br />')
+
 class ScriptInfo(SphinxDirective):
     required_arguments: int = 1
     final_argument_whitespace: bool = True
@@ -263,6 +269,7 @@ class ScriptInfo(SphinxDirective):
         'pointer': unchanged,
         'initd': nonnegative_int_required,
         'initd_str': unchanged,
+        'split_at': nonnegative_int,
     }
     def run(self) -> list[nodes.Node]:
         ty = self.options['type']
@@ -272,9 +279,17 @@ class ScriptInfo(SphinxDirective):
         if 'initd_str' in self.options:
             initd_str += f' {self.options["initd_str"]}'
         
+        is_init_script: bool = ty == 'global' and 'Init' in self.arguments[0]
+        
         scr_name = nodes.paragraph()
-        scr_name += ZScriptNode(data=f'{ty} script ScriptName', inline=True)
+        if is_init_script:
+            tystr = 'global script Init'
+        else:
+            tystr = f'{ty} script ScriptName'
+        scr_name += ZScriptNode(data=tystr, inline=True)
         scr_name['classes'].append('scrinfo_dataline')
+        if is_init_script:
+            scr_name += [BreakNode(), ZScriptNode(data='@InitScript()', inline=True)]
         if pointer:
             ptr_name = nodes.paragraph(text=f'this-> pointer type: ')
             tynode = ZScriptNode(data=pointer, inline=True)
@@ -293,11 +308,11 @@ class ScriptInfo(SphinxDirective):
         
         data_column = nodes.container()
         
-        data_column += [scr_name, sep_1, ptr_name, sep_2, initd_name]
+        data = [scr_name, sep_1, ptr_name, sep_2, initd_name]
+        data_column += data
         data_column['classes'].append('scrinfo_databox')
         
         body_column = nodes.container()
-        body_column += self.parse_text_to_nodes('\n'.join(self.content), offset=self.content_offset)
         body_column['classes'].append('scrinfo_bodybox')
         
         main_row = nodes.container();
@@ -309,6 +324,19 @@ class ScriptInfo(SphinxDirective):
         title['classes'].append('scrinfo_title')
         main_cont += [title, main_row]
         main_cont['classes'].append('scrinfo_card')
+        
+        body_nodes = self.parse_text_to_nodes('\n'.join(self.content), offset=self.content_offset)
+        
+        split_at = self.options.get('split_at', 0)
+        if split_at > 0:
+            body_column += body_nodes[:split_at]
+            body_below = nodes.container()
+            body_below += body_nodes[split_at:]
+            body_below['classes'].extend(['scrinfo_bodybox', 'kill_top_border'])
+            body_column['classes'].append('kill_bottom_border')
+            main_cont += [body_below]
+        else:
+            body_column += body_nodes
         
         return [main_cont]
 
@@ -356,6 +384,16 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_node(
         StylizeNode,
         html=(visit_stylize_node_html, depart_ignored),
+        epub=(None, None),
+        latex=(None, None),
+        man=(None, None),
+        texinfo=(None, None),
+        text=(None, None),
+        rinoh=(None, None),
+    )
+    app.add_node(
+        BreakNode,
+        html=(visit_break_node_html, depart_ignored),
         epub=(None, None),
         latex=(None, None),
         man=(None, None),

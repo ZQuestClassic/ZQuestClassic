@@ -56,6 +56,9 @@ rst_prolog = """
 .. |VSCode| replace:: :ref:`VSCode<vscode>`
 .. |ctc| replace:: :ref:`compile-time constant<compiletime_const>`
 
+.. |qrs| replace:: :ref:`Quest Rules<globals_enum_qr>`
+.. |qr| replace:: :ref:`Quest Rule<globals_enum_qr>`
+
 .. role:: del
 
 .. role:: zs(literal)
