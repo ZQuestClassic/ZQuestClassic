@@ -234,6 +234,7 @@ void ASTFloat::execute(ASTVisitor& visitor, void* param)
 pair<string, string> ASTFloat::parseValue(Scope* scope) const
 {
 	string f = value;
+	removechar(f, '_'); // underscores are cosmetic for spacing, trim them first
 	string intpart;
 	string fpart;
 	bool is_long = false;

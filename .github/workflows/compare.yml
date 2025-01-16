@@ -28,7 +28,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.11.4'
+          python-version: '3.12.8'
           cache: pip
       - run: pip install -r requirements.txt
 
