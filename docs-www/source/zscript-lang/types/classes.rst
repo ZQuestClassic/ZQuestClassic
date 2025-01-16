@@ -87,6 +87,7 @@ thus they 'keep each other alive' for the reference counting)
 	Calling |OwnObject| marks the object as no longer "global".
 
 .. _class_static:
+
 Static Functions
 ----------------
 

@@ -272,7 +272,8 @@ class ScriptInfo(SphinxDirective):
         if 'initd_str' in self.options:
             initd_str += f' {self.options["initd_str"]}'
         
-        scr_name = ZScriptNode(data=f'{ty} script ScriptName', inline=True)
+        scr_name = nodes.paragraph()
+        scr_name += ZScriptNode(data=f'{ty} script ScriptName', inline=True)
         scr_name['classes'].append('scrinfo_dataline')
         if pointer:
             ptr_name = nodes.paragraph(text=f'this-> pointer type: ')
@@ -284,23 +285,32 @@ class ScriptInfo(SphinxDirective):
         ptr_name['classes'].append('scrinfo_dataline')
         initd_name = nodes.paragraph(text=initd_str)
         initd_name['classes'].append('scrinfo_dataline')
-        cont2 = nodes.container()
-        cont2 += [scr_name, ptr_name, initd_name]
-        cont2['classes'].append('scrinfo_databox')
         
-        body_text = nodes.paragraph(text='\n'.join(self.content))
+        sep_1 = nodes.paragraph()
+        sep_2 = nodes.paragraph()
+        sep_1['classes'].append('scrinfo_data_separator')
+        sep_2['classes'].append('scrinfo_data_separator')
         
-        cont3 = nodes.container();
-        cont3 += [cont2, body_text]
-        cont3['classes'].append('scrinfo_flexbox')
+        data_column = nodes.container()
         
-        cont = nodes.container()
+        data_column += [scr_name, sep_1, ptr_name, sep_2, initd_name]
+        data_column['classes'].append('scrinfo_databox')
+        
+        body_column = nodes.container()
+        body_column += self.parse_text_to_nodes('\n'.join(self.content), offset=self.content_offset)
+        body_column['classes'].append('scrinfo_bodybox')
+        
+        main_row = nodes.container();
+        main_row += [data_column, body_column]
+        main_row['classes'].append('scrinfo_row')
+        
+        main_cont = nodes.container()
         title = nodes.paragraph(text=self.arguments[0])
         title['classes'].append('scrinfo_title')
-        cont += [title, cont3]
-        cont['classes'].append('scrinfo_card')
+        main_cont += [title, main_row]
+        main_cont['classes'].append('scrinfo_card')
         
-        return [cont]
+        return [main_cont]
 
 def depart_ignored(translator: SphinxTranslator, node: nodes.Node) -> None:
     pass

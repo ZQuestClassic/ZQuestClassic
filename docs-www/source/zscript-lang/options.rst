@@ -29,6 +29,7 @@ at the top of the script that requires the old broken behavior. Then, while
 compiling that script, the compiler will use the old behavior.
 
 .. _option_inherit:
+
 Option Inheritance
 ------------------
 

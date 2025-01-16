@@ -168,11 +168,11 @@ html[data-theme="light"] code.literal {
 	font-size: 175%;
 	display: block;
 }
-.scrinfo_flexbox {
+.scrinfo_row {
 	display: flex;
 	align-items: stretch;
 }
-.scrinfo_flexbox > * {
+.scrinfo_row > * {
 	margin: 0;
 }
 
@@ -186,18 +186,46 @@ html[data-theme="light"] code.literal {
 	margin-top: 0;
 	margin-bottom: 0;
 }
-.scrinfo_card .scrinfo_dataline ~ .scrinfo_dataline {
-	padding-top: 2px;
-	margin-top: 2px;
-	border-top: 2px dashed var(--pst-color-border);
+.scrinfo_card .scrinfo_data_separator {
+	padding: 0;
+	margin: 6px 0;
+	height: 0;
+	position: relative;
 }
+.scrinfo_card .scrinfo_data_separator::before {
+	width: calc(15px + 15px + 100%);
+	height: 0;
+	position: absolute;
+	left: -15px;
+	top: -1px;
+	border-style: dashed;
+	border-color: var(--pst-color-border);
+	border-width: 1px 0;
+	content: '';
+	display: block;
+}
+
 .scrinfo_card .scrinfo_databox {
 	width: 35%;
-	padding: 10px;
+	align-content: space-around;
+	
+	padding: 15px;
 	border: 1px solid var(--pst-color-border);
+	display: flex;
+	flex-flow: column nowrap;
+	justify-content: space-around;
 }
-.scrinfo_card .scrinfo_databox ~ p {
+.scrinfo_card .scrinfo_bodybox {
 	width: 65%;
-	padding: 10px;
+	align-content: center;
+	
+	padding: 15px;
 	border: 1px solid var(--pst-color-border);
+	display: flex;
+	flex-flow: column nowrap;
+	justify-content: center;
+}
+
+.scrinfo_card .scrinfo_bodybox p {
+	margin: 0.5rem 0;
 }

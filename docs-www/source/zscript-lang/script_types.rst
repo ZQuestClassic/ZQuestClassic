@@ -74,8 +74,33 @@ Misc Scripts
 	:pointer: ffc
 	:initd: 8
 
-	Assignable to each of the 128 FFCs available per-screen. Will not run
-	if the FFC's combo is '0'.
+	Runs when the FFC it's attached to via the FFC Editor exists
+	with a combo set other than '0' (after scrolling onto the screen)
+
+	Additionally runs for a single frame during the loading of the screen
+	(before scrolling onto it) if the FFC flag ``Run Script at Screen Init``
+	is checked.
+
+.. scrinfo:: Screen Scripts
+	:type: screendata
+	:pointer: Screen
+	:initd: 8
+
+	Runs starting when the screen it's at is entered (after scrolling
+	onto the screen)
+
+	Additionally runs for a single frame during the loading of the screen
+	(before scrolling onto it) if the flag ``Run On Screen Init`` is checked.
+
+.. scrinfo:: Combo Scripts
+	:type: combodata
+	:pointer: combodata
+	:initd: 8
+
+	Runs when the combo it's attached to via the Combo Editor exists,
+	on any *enabled* layer (after scrolling onto the screen). The layers
+	can be set by enabling the quest rules ``Combos Run Scripts on Layer #``
+	for each layer number.
 
 .. scrinfo:: Subscreen Scripts
 	:type: subscreendata

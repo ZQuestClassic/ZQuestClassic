@@ -1,4 +1,5 @@
 .. _zslang_functions:
+
 Functions
 =========
 
