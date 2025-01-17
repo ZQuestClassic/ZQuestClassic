@@ -357,7 +357,7 @@ DEFINE EXT_NOSHADOW          = 4; // Extended. NPC has no shadow.
 
 //! We need some better names for Extend constants. 
 
-// Level item flags. Used with [Game->LItems[]].
+// Level item flags. Used with [Game->LItems].
 DEFINE LI_TRIFORCE           = 0x01; // The Triforce of this Level has been obtained
 DEFINE LI_MAP                = 0x02; // The Dungeon Map of this Level has been obtained
 DEFINE LI_COMPASS            = 0x04; // The Compass of this Level has been obtained
@@ -1169,7 +1169,7 @@ DEFINE PT_TRANSPTEXTURE      = 12; // ""
 DEFINE PT_MASKTRANSTEXTURE   = 13; // translucent and transparent texture mapped polygon using 2d linear interpolation
 DEFINE PT_MASKTRANSPTEXTURE  = 14; // "" 
 
-// Render Targets. Use with Screen->"*RenderTarget" and Screen->"Bitmap" drawing functions.
+// Render Targets. Used with Screen->"*RenderTarget" and Screen->"Bitmap" drawing functions.
 enum RenderTarget
 {
 	RT_CURRENT                     = -2, // Used with Blit(). mode7(), and RevBlit() for the current RT as dest.
@@ -1369,8 +1369,7 @@ enum ScreenEnemyFlagList2
 	SEFL2_LAST
 };
 
-//Room types (Screen => Room Type)
-//Use with Screen->RoomType
+// Used with [Screen->RoomType], [mapdata::RoomType].
 DEFINE RT_DOORREPAIR         = 5;
 DEFINE RT_FEEDTHEGORIYA      = 7;
 DEFINE RT_GAMBLE             = 4;
@@ -1394,8 +1393,8 @@ DEFINE RT_TAKEONEITEM        = 21;
 DEFINE RT_TENRUPEES          = 13;
 DEFINE RT_ZELDA              = 16;
 
-// DMap Flag constants. Use with Game->DMapFlags.
-// @deprecated
+// Used with [Game->DMapFlags].
+// @deprecated Use [DMapFlag] and [dmapdata::Flagset] instead!
 DEFINE DMF_CAVESNOTCELLARS		= 0x0001; //Use caves instead of item cellars
 DEFINE DMF_3STAIRWARPS		= 0x0002; //Allow 3-stair warps
 DEFINE DMF_WWIND			= 0x0004; //Allow whistle whirlwinds
@@ -1414,10 +1413,10 @@ DEFINE DMF_SCRIPT3 			= 0x2000;
 DEFINE DMF_SCRIPT4 			= 0x4000;
 DEFINE DMF_SCRIPT5 			= 0x8000;
 DEFINE DMF_SIDEVIEW 			= 0x10000;
-DEFINE DMF_LAYER3ISBACKGROUND 	= 0x20000; //Exceeds the bounds of ZScript LONG_MAX. We need dmapdata->Flags[]
+DEFINE DMF_LAYER3ISBACKGROUND 	= 0x20000;
 
-//dmapdata->Flagset[] indices
-enum
+// Used with [dmapdata::Flagset].
+enum DMapFlag
 {
 	DMFS_CAVESNOTCELLARS,     //Use caves instead of item cellars
 	DMFS_3STAIRWARPS,         //Allow 3-stair warps
@@ -1486,7 +1485,7 @@ DEFINE D_OPENSHUTTER         = 12; // A shutter that has been opened
 DEFINE D_1WAYSHUTTER         = 14; // A shutter that locks behind you and never opens
 DEFINE D_NONE                = 16; // No door at all. Hero will not auto-walk.
 
-//Sprite lists. Used with [Screen->ClearSprites()].
+//Sprite lists. Used with [Screen->ClearSprites].
 DEFINE SL_GUYS               = 0; // Enemies
 DEFINE SL_ITEMS              = 1; // Items
 DEFINE SL_EWPNS              = 2; // Enemy weapons
@@ -1739,8 +1738,7 @@ DEFINE AT_RAND8DIR		= 5;
 DEFINE AT_RANDANGULAR	= 6;
 
 
-//Game Over Screen
-//Values : Game->GameOverScreen[20]
+// Used with [Game->GameOverScreen].
 DEFINE GOS_BACKGROUND		= 0;
 DEFINE GOS_TEXT_COLOUR		= 1;
 DEFINE GOS_CURSOR_TILE		= 2;
@@ -1768,19 +1766,18 @@ DEFINE GOS_EXTRA3			= 23;
 
 
 
-//Strings : Game->GameOverStrings[7]
-DEFINE GOS_STR_CONTINUE 	= 0;	// (Continue:Retry:Save) Screen
-DEFINE GOS_STR_SAVE		= 1;	// (Continue:Retry:Save) Screen
-DEFINE GOS_RETRY		= 2;	// (Continue:Retry:Save) Screen
-DEFINE GOS_DONT_SAVE		= 3;	//Savepoint Screen
-DEFINE GOS_SAVEANDQUIT	= 4;	//Save and Quit Screen
-DEFINE GOS_SAVE2		= 5; 	//Savepoint Screen
-DEFINE GOS_QUIT		= 6;	//Save and Quit Screen
-
+// Used with [Game->GameOverStrings].
+DEFINE GOSTR_CONTINUE 	= 0;	// (Continue:Retry:Save) Screen
+DEFINE GOSTR_SAVE		= 1;	// (Continue:Retry:Save) Screen
+DEFINE GOSTR_RETRY		= 2;	// (Continue:Retry:Save) Screen
+DEFINE GOSTR_DONT_SAVE		= 3;	//Savepoint Screen
+DEFINE GOSTR_SAVEANDQUIT	= 4;	//Save and Quit Screen
+DEFINE GOSTR_SAVE2		= 5; 	//Savepoint Screen
+DEFINE GOSTR_QUIT		= 6;	//Save and Quit Screen
 
 // Blit mode flags.
-// Note: Some modes cannot be combined. If a combination is not supported, an error
-//	detailing this will be shown in allegro.log. 
+// Some modes cannot be combined. If a combination is not supported, an error
+// detailing this will be shown in allegro.log. 
 DEFINE BITDX_NORMAL = 0;
 DEFINE BITDX_TRANS = 1; //Translucent
 DEFINE BITDX_PIVOT = 2; //THe sprite will rotate at a specific point, instead of its center.
@@ -1868,7 +1865,7 @@ DEFINE SECCMB_SECRETSNEXT	= 44; //Only ->SecretFlags[] has a value for this inde
 DEFINE SECCMB_MAX            = 45;
 //45 to 127 unused. 
 
-// Used with [Audio->Volume[]].
+// Used with [Audio->Volume].
 DEFINE VOL_MIDI 	= 0;
 DEFINE VOL_DIGI	= 1;
 DEFINE VOL_MUSIC	= 2;
@@ -1956,7 +1953,7 @@ DEFINE WARPEFFECT_WAVE = 2;
 DEFINE WARPEFFECT_INSTANT = 3;
 DEFINE WARPEFFECT_OPENWIPE = 4;
 
-// Warp Flags for [Hero->WarpEx()].
+// Warp Flags for [Hero->WarpEx].
 DEFINE WARP_FLAG_SCRIPTDRAW 		  = 0x001;
 DEFINE WARP_FLAG_PLAYSOUNDS 		  = 0x002;
 DEFINE WARP_FLAG_FORCE_RESET_MUSIC    = 0x004;
@@ -2003,21 +2000,8 @@ enum
     MIDI_LEVEL9 //==0, cannot be played by 'Audio->PlayMIDI'
 };
 
-
-
-enum linkspritetype
-{
-	LSprwalkspr, LSprstabspr, LSprslashspr, LSprfloatspr,
-	LSprswimspr, LSprdivespr, LSprpoundspr, LSprjumpspr,
-	LSprchargespr, LSprcastingspr, LSprholdspr1, LSprholdspr2,
-	LSprholdsprw1, LSprholdsprw2, LSprdrownspr, LSprlast
-};
-
-	
-
-//suspend types
-enum { 
-	//Typical processes that we want to pause, similar to ALLOFF()
+// Engine processes that can be paused. Used with [Game->Suspend].
+enum SuspendType { 
 	
 	// Combo animation
 	susptCOMBOANIM,
@@ -2026,7 +2010,7 @@ enum {
 	susptGUYS, susptLWEAPONS, susptEWEAPONS, susptITEMS, susptLINK, 
 	
 	// FFC (e.g. movement, changers, but not scripts)
-	susptUPDATEFFC, //ffcs
+	susptUPDATEFFC,
 	
 	// Sprite subclasses
 	susptDECORATIONS, susptPARTICLES, //sprite subclasses
@@ -2048,7 +2032,8 @@ enum {
 	// Misc
 	susptLENS, susptHOOKSHOT, susptMOVINGBLOCKS, susptMAGICCAST, susptSCREENDRAW,
 
-	susptLAST };
+	susptLAST,
+};
 
 // Used with [mapdata::NoCarry] and [screendata::NoCarry].
 define NOCARRY_B_SECRET =			0x2000;
@@ -2074,7 +2059,8 @@ define NORESET_B_DOOR_B_DOWN =		0x0002;
 define NORESET_B_DOOR_B_LEFT =		0x0004;
 define NORESET_B_DOOR_B_RIGHT =		0x0008;
 
-enum //Indexes for messagedata->Flags
+// Used with [messagedata::Flags].
+enum MessageFlag
 {
 	MSGFLAG_WRAP,         // If the text wraps around the bounding box
 	MSGFLAG_CONT,         // If the message is the continuation of a previous one
@@ -2083,9 +2069,10 @@ enum //Indexes for messagedata->Flags
 	MSGFLAG_FULLTILE,     // If the background tile should be treated as the UL of a tile block,
 	                      // instead of the UL of a 2x2 adjustable frame
 	MSGFLAG_TRANS_BG,     // If the background should be translucent
-	MSGFLAG_TRANS_FG     // If the text should be translucent
+	MSGFLAG_TRANS_FG,     // If the text should be translucent
 };
 
+// TODO ! delete this, but we need a `bool mapdata::Flagset[]` ...
 //Flags for GetMapscreenFlag, SetMapscreenFlag
 enum mapscreenflags
 {
@@ -2199,7 +2186,7 @@ DEFINE UNBLOCK_SHLD = 0100b; //Bypasses enemy/hero 'shields'
 DEFINE UNBLOCK_REFL = 1000b; //Bypasses hero 'reflect' on shields
 DEFINE UNBLOCK_ALL  = 1111b; //All bits set
 
-enum ditherType
+enum DitherType
 {
 	DITH_CHECKER, DITH_CHECKER_INV,
 	DITH_CRISS_CROSS, DITH_CRISS_CROSS_INV,
@@ -2271,7 +2258,7 @@ enum ItemButton
 	NUM_ITMBTN
 };
 
-enum ComboTrigFlag
+enum ComboTriggerFlag
 {
 	TRIGFLAG_SWORD, //Weapons->LWeapons->Sword - Triggered by Sword LWeapons
 	TRIGFLAG_SWORDBEAM, //Weapons->LWeapons->Sword Beam - Triggered by Sword Beam LWeapons
@@ -2305,7 +2292,6 @@ enum ComboTrigFlag
 	TRIGFLAG_ONLY_GENTRIG, //Other->'Only Gen Triggers' - Don't allow the combo to trigger via it's normal trigger methods (ex: bush via slashing)
 	TRIGFLAG_KILL_WEAPON, //Weapons->Effects->'Kill Triggering Weapon' - If triggered by a weapon, kill the weapon.
 	TRIGFLAG_EW_FIREBALL, //Weapons->EWeapons->Fireball - Triggered by Fireball EWeapons
-	//32
 	TRIGFLAG_HOOKSHOT, //Weapons->LWeapons->Hookshot - Triggered by Hookshot LWeapons
 	TRIGFLAG_SPARKLE, //Weapons->LWeapons->Sparkle - Triggered by Sparkle LWeapons
 	TRIGFLAG_BYRNA, //Weapons->LWeapons->Byrna - Triggered by Byrna LWeapons
@@ -2338,7 +2324,6 @@ enum ComboTrigFlag
 	TRIGFLAG_EW_BRANG, //Weapons->EWeapons->Boomerang - Triggered by Boomerang EWeapons
 	TRIGFLAG_EW_SWORD, //Weapons->EWeapons->Sword - Triggered by Sword EWeapons
 	TRIGFLAG_EW_ROCK, //Weapons->EWeapons->Rock - Triggered by Rock EWeapons
-	//64
 	TRIGFLAG_EW_SCRIPT1, //Weapons->EWeapons->Custom Weapon 1 - Triggered by 'Custom Weapon 01' EWeapons
 	TRIGFLAG_EW_SCRIPT2, //Weapons->EWeapons->Custom Weapon 2 - Triggered by 'Custom Weapon 02' EWeapons
 	TRIGFLAG_EW_SCRIPT3, //Weapons->EWeapons->Custom Weapon 3 - Triggered by 'Custom Weapon 03' EWeapons
@@ -2371,7 +2356,6 @@ enum ComboTrigFlag
 	TRIGFLAG_STRONGFIRE, //Weapons->Other->Strong Fire - Triggered by Strong Fire
 	TRIGFLAG_MAGICFIRE, //Weapons->Other->Magic Fire - Triggered by Magic Fire
 	TRIGFLAG_DIVINEFIRE, //Weapons->Other->Divine Fire - Triggered by Divine Fire
-	//96
 	TRIGFLAG_TRIGLEVELSTATE, //States/Spawning->'LevelState->' - Triggered by Level State
 	TRIGFLAG_LEVELSTATE, //States/Spawning->'->LevelState' - Triggers Level State
 	TRIGFLAG_TRIGGLOBALSTATE, //States/Spawning->'GlobalState->' - Triggered by Global State
@@ -2403,7 +2387,7 @@ enum ComboTrigFlag
 	TRIGFLAG_LITEM_UNSET, //Counters/Items->'->Unset' - Removes the specified LItems. If 'TRIGFLAG_LITEM_SET' is also on, toggles them instead.
 	TRIGFLAG_TINT_CLEAR, //Graphics->'->Clear Tint' - Clears the palette tint.
 	TRIGFLAG_ONLY_GROUNDED_WEAPONS, //Weapons->Other->'Only Grounded Weapons' - weapons with Z > 0 won't trigger the combo
-	
+
 	TRIGFLAG_MAX_IN_USE,
 	TRIGFLAG_MAX = 32*6
 };
@@ -2451,7 +2435,7 @@ DEFINEL L_BLOCKFLAG_SCRIPT8      = 0x00020000L;
 DEFINEL L_BLOCKFLAG_SCRIPT9      = 0x00040000L;
 DEFINEL L_BLOCKFLAG_SCRIPT10     = 0x00080000L;
 
-enum scr_timing
+enum ScriptTiming
 {
 	SCR_TIMING_INIT = -1,
 	SCR_TIMING_START_FRAME, SCR_TIMING_POST_COMBO_ANIM, SCR_TIMING_POST_POLL_INPUT,
@@ -2474,8 +2458,8 @@ enum scr_timing
 	SCR_NUM_TIMINGS
 };
 
-//Generic Script States, for 'ExitState[]'/'ReloadState[]'
-enum
+// Used with [genericdata::ExitState] and [genericdata::ReloadState].
+enum GenericScriptStateIndex
 {
 	GENSCR_ST_RELOAD, //When reloading from save select screen
 	GENSCR_ST_CONTINUE, //When F6->Continue
@@ -2485,8 +2469,8 @@ enum
 	GENSCR_NUMST
 };
 
-//Generic Script events, for 'WaitEvent()'
-enum
+// Used with [WaitEvent].
+enum GenericScriptEvent
 {
 	GENSCR_EVENT_NIL = -1, //N/A (error value)
 	GENSCR_EVENT_INIT, //When loading in from a save/new quest
@@ -2579,12 +2563,12 @@ enum //constants for 'GENEV_HEROHIT_HITTYPE' / 'GENEV_HEROHIT_HITTYPE2'
 	NUM_OBJTYPE
 };
 
-// Used with [Hero->HitBy[]] and [npc::HitBy[]].
+// Used with [Hero->HitBy] and [npc::HitBy].
 DEFINE HIT_BY_NPC                   = 0; //[Hero] only
 DEFINE HIT_BY_EWEAPON               = 1; //[Hero] only
 DEFINE HIT_BY_LWEAPON               = 2;
 DEFINE HIT_BY_FFC                   = 3; //Unimplemented
-DEFINE HIT_BY_NPC_UID               = 4; //[Hero] only. The scripting UID of the enemy, used with [Screen->LoadNPCByUID()].
+DEFINE HIT_BY_NPC_UID               = 4; //[Hero] only. The scripting UID of the enemy, used with [Screen->LoadNPCByUID].
 DEFINE HIT_BY_EWEAPON_UID           = 5; //[Hero] only
 DEFINE HIT_BY_LWEAPON_UID           = 6;
 DEFINE HIT_BY_FFC_UID               = 7; //Unimplemented
@@ -2741,7 +2725,7 @@ enum
 	MRF_REVERT
 };
 
-// Used with [Game->CurrentItemID()].
+// Used with [Game->CurrentItemID].
 DEFINE CIID_FLAG_CHECKCOST     = 0x01; // ignore items whose usecosts are currently not affordable.
 DEFINE CIID_FLAG_CHECKJINX     = 0x02; // ignore items which are currently disabled by jinxes.
 DEFINE CIID_FLAG_CHECKBUNNY    = 0x04; // ignore items which are currently disabled by BunnyClk.

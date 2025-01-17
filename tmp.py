@@ -36,6 +36,7 @@ name_map = {
     'FFCF': 'FFCFlag',
     'FONT': 'FontType',
     'GOS': 'GameOverScreenElementIndex',
+    'GOSTR': 'GameOverStringIndex',
     'HIT': 'HitIndex',
     'I': 'ItemID',
     'IMISC': 'ItemMiscBitflags',
