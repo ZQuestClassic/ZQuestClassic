@@ -248,7 +248,7 @@ class subscreenwidget {
 	// @zasm_var SUBWIDGPRESSINITD
 	internal untyped PressInitD[];
 
-	// Use the [InteractButton] (`INTBTN_`) constants to index this array.
+	// Use [InteractButton] (`INTBTN_`) to index this array.
 	//
 	// The 'true' buttons here, when pressed while this widget is selected, run
 	// the press script.
@@ -256,7 +256,7 @@ class subscreenwidget {
 	// @zasm_var SUBWIDGBTNPRESS
 	internal bool BtnPressScript[];
 
-	// Use the [InteractButton] (`INTBTN_`) constants to index this array.
+	// Use [InteractButton] (`INTBTN_`) to index this array.
 	//
 	// The 'true' buttons here, when pressed while this widget is selected,
 	// change the current page based on [PageMode].

@@ -39,6 +39,10 @@ class screendata {
 	// @zasm_var COMBOTD
 	internal int ComboT[];
 
+	// The solidity bits of each of the [NUM_COMBO_POS] combo positions on the screen.
+	//
+	// Use with [ComboSolidityQuadrant].
+	//
 	// @zasm_var COMBOSD
 	internal int ComboS[];
 

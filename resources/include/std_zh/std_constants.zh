@@ -15,13 +15,10 @@ typedef const int CONFIG;
 typedef const float CONFIGF;
 typedef const long CONFIGL;
 typedef const bool CONFIGB;
-typedef const untyped CONFIGU;
-
-DEFINE ERR_RETURN 			= -1; 
+typedef const untyped CONFIGU; 
 
 DEFINEF PI				= 3.1416;
 DEFINEF PI2				= 6.2832;
-DEFINEF E				= 2.7183;
 
 DEFINEF RADIAN 			= 57.2958; //Multiplication value for converting radians to degrees. 
 DEFINEF DEGREE			= 0.0174; //Multiplication value for converting degrees to radians.
@@ -48,7 +45,7 @@ DEFINE MIN_BYTE              = 0;
 DEFINE MAX_COUNTER 			= WORD_MAX;
 DEFINE MIN_COUNTER 			= WORD_MIN;
 
-DEFINEL MAX_TIME             = 1944000000L; //Max value of 'Game->Time'
+DEFINEL MAX_TIME             = 1944000000L; // Max value of [Game->Time].
 
 DEFINE MIN_LWEAPON 			= 1; //Lowest numbered objects.
 DEFINE MIN_EWEAPON 			= 1;
@@ -141,30 +138,10 @@ DEFINE SCREEN_CENTRE_X 		= 128;
 DEFINE SCREEN_CENTER_Y 		= 88; 
 DEFINE SCREEN_CENTRE_Y 		= 88; 
 
-
 //Defaults from Init Data
 DEFINEF GRAVITY			= 0.16;
 DEFINEF TERMINAL_VELOCITY		= 3.20;
 DEFINE JUMPING_LAYER_THRESHOLD	= 16;
-
-//CSet Initial Colour Swatch positions
-DEFINE CSET_0 	= 0; //Sixteen colours per, starting at `0` each.
-DEFINE CSET_1 	= 16;
-DEFINE CSET_2 	= 32;
-DEFINE CSET_3 	= 48;
-DEFINE CSET_4 	= 64;
-DEFINE CSET_5 	= 80;
-DEFINE CSET_6 	= 96;
-DEFINE CSET_7 	= 112;
-DEFINE CSET_8 	= 128;
-DEFINE CSET_9 	= 144;
-DEFINE CSET_10 	= 160;
-DEFINE CSET_11 	= 176;
-DEFINE CSET_12 	= 192;
-DEFINE CSET_13 	= 208; //Warning: Using CSets 13 through 15 is not officially supported, 
-DEFINE CSET_14 	= 224; //	  and may affect compatibility with future ZC builds.
-DEFINE CSET_15 	= 240;
-
 
 //Sound effect IDs. To be used for PlaySound().
 DEFINE SFX_ARROW       = 1; // Arrow is fired.
@@ -322,7 +299,8 @@ DEFINE SP_WIND 			= 36; //Wind Magic (Enemy)
 //User-Defined Sprites Range 088 to 255
 
 
-//Extra Directions. Used with some stuff?
+// Extra Directions. Used with some stuff?
+// @deprecated Use [Direction] instead!
 DEFINE DIR2_UP                = 8;
 DEFINE DIR2_RIGHTUP           = 9;
 DEFINE DIR2_RIGHT             = 10;
@@ -331,8 +309,6 @@ DEFINE DIR2_DOWN              = 12;
 DEFINE DIR2_LEFTDOWN          = 13;
 DEFINE DIR2_LEFT              = 14;
 DEFINE DIR2_LEFTUP            = 15;
-
-//Repeat in DOWN*/UP* format
 DEFINE DIR2_UPRIGHT           = 9;
 DEFINE DIR2_DOWNRIGHT         = 11;
 DEFINE DIR2_DOWNLEFT          = 13;
@@ -371,18 +347,17 @@ DEFINEF RAD_DIR_RIGHT 	= 0;
 
 
 
-//Sprite extending methods. Use with item->Extend,
-//npc->Extend, eweapon->Extend and lweapon->Extend.
+// Sprite rendering extend modes. Use with [sprite::Extend].
 DEFINE EXT_NONE              = 0; // Not extended
-DEFINE EXT_16X32		= 1; // Object is extended as 16x32; or Link is extended in Sprites->Link to 16x32.
-DEFINE EXT_32X32		= 2; // Object is extended as 32x32; or Link is extended in Sprites->Link to 32x32.
+DEFINE EXT_16X32		= 1; // Sprite is extended as 16x32, or Link is extended in Sprites->Link to 16x32.
+DEFINE EXT_32X32		= 2; // Sprite is extended as 32x32, or Link is extended in Sprites->Link to 32x32.
 DEFINE EXT_NORMAL            = 3; // Extended
 DEFINE EXT_EXTENDED          = 3; // Extended
-DEFINE EXT_NOSHADOW          = 4; // Extended; NPC has no shadow.
+DEFINE EXT_NOSHADOW          = 4; // Extended. NPC has no shadow.
 
 //! We need some better names for Extend constants. 
 
-//Level item flags. Or (|) these together and use with Game->LItems[]
+// Level item flags. Use with [Game->LItems[]].
 DEFINE LI_TRIFORCE           = 0x01; // The Triforce of this Level has been obtained
 DEFINE LI_MAP                = 0x02; // The Dungeon Map of this Level has been obtained
 DEFINE LI_COMPASS            = 0x04; // The Compass of this Level has been obtained
@@ -628,9 +603,8 @@ DEFINE EW_SBOMBBLAST         = 136; // Super bomb explosion
 DEFINE EW_FIRETRAIL          = 139;
 DEFINE EW_FIRE               = 140;
 DEFINE EW_WIND               = 141; // Wind wizzrobe magic
-DEFINE EW_FIRE2		= 142; //! What is 'Fire 2' ?
-// Dummy weapons, for use with scripts.
-DEFINE EW_SCRIPT1            = 31;
+DEFINE EW_FIRE2		= 142;
+DEFINE EW_SCRIPT1            = 31; // Dummy weapon, for use with scripts.
 DEFINE EW_SCRIPT2            = 32;
 DEFINE EW_SCRIPT3            = 33;
 DEFINE EW_SCRIPT4            = 34;
@@ -1170,87 +1144,14 @@ DEFINE MAX_FONT = 100;
 DEFINE MIN_FONT = 0;
 DEFINE NUM_FONTS = MAX_FONT+1;
 
-//Font heights, in pixels, for the above fonts:
-//You should use 'Text->FontHeight(font)' to calculate this, not use constants...
-define FONT_Z1_HEIGHT = 8;
-define FONT_Z3_HEIGHT = 16;
-define FONT_Z3SMALL_HEIGHT = 6;
-define FONT_DEF_HEIGHT = 8;
-define FONT_L_HEIGHT = 13;
-define FONT_L2_HEIGHT = 13;
-define FONT_P_HEIGHT = 8;
-define FONT_MATRIX_HEIGHT = 8;
-define FONT_ZTIME_HEIGHT = 6;
-define FONT_S_HEIGHT = 6;
-define FONT_S2_HEIGHT = 6;
-define FONT_SP_HEIGHT = 6;
-define FONT_SUBSCREEN1_HEIGHT = 8;
-define FONT_SUBSCREEN2_HEIGHT = 8;
-define FONT_SUBSCREEN3_HEIGHT = 8;
-define FONT_SUBSCREEN4_HEIGHT = 8;
-define FONT_GBLA_HEIGHT = 8;
-define FONT_LA_HEIGHT = 8;
-define FONT_GORON_HEIGHT = 15;
-define FONT_ZORAN_HEIGHT = 15;
-define FONT_HYLIAN1_HEIGHT = 15;
-define FONT_HYLIAN2_HEIGHT = 24;
-define FONT_HYLIAN3_HEIGHT = 21;
-define FONT_HYLIAN4_HEIGHT = 18;
-define FONT_GBORACLE_HEIGHT = 15;
-define FONT_GBORACLEP_HEIGHT = 15;
-define FONT_DSPHANTOM_HEIGHT = 15;
-define FONT_DSPHANTOMP_HEIGHT = 15;
-define FONT_ATARI800_HEIGHT = 16;
-define FONT_ACORN_HEIGHT = 8;
-define FONT_ADOS_HEIGHT = 8;
-define FONT_ALLEGRO_HEIGHT = 8;
-define FONT_APPLE2_HEIGHT = 8;
-define FONT_APPLE2_80COL_HEIGHT = 16;
-define FONT_APPLE2GS_HEIGHT = 12;
-define FONT_AQUARIUS_HEIGHT = 8;
-define FONT_ATARI400_HEIGHT = 8;
-define FONT_C64_HEIGHT = 8;
-define FONT_C64_HIRES_HEIGHT = 16;
-define FONT_CGA_HEIGHT = 8;
-define FONT_COCO_HEIGHT = 16;
-define FONT_COCO2_HEIGHT = 16;
-define FONT_COUPE_HEIGHT = 8;
-define FONT_CPC_HEIGHT = 12;
-define FONT_FANTASY_HEIGHT = 18;
-define FONT_FDS_KANA_HEIGHT = 8;
-define FONT_FDSLIKE_HEIGHT = 8;
-define FONT_FDS_ROMAN_HEIGHT = 8;
-define FONT_FF_HEIGHT = 8;
-define FONT_FUTHARK_HEIGHT = 8;
-define FONT_GAIA_HEIGHT = 16;
-define FONT_HIRA_HEIGHT = 8;
-define FONT_JP_HEIGHT = 16;
-define FONT_KONG_HEIGHT = 8;
-define FONT_MANA_HEIGHT = 12;
-define FONT_MARIOLAND_HEIGHT = 8;
-define FONT_MOT_HEIGHT = 12;
-define FONT_MSX0_HEIGHT = 8;
-define FONT_MSX1_HEIGHT = 8;
-define FONT_PET_HEIGHT = 8;
-define FONT_PSTART_HEIGHT = 8;
-define FONT_SATURN_HEIGHT = 16;
-define FONT_SCIFI_HEIGHT = 8;
-define FONT_SHERWOOD_HEIGHT = 16;
-define FONT_SINQL_HEIGHT = 8;
-define FONT_SPECTRUM_HEIGHT = 8;
-define FONT_SPECTRUM_LG_HEIGHT = 16;
-define FONT_TI99_HEIGHT = 8;
-define FONT_TRS_HEIGHT = 16;
-define FONT_Z2_HEIGHT = 8;
-define FONT_LISA_HEIGHT = 8;
-
 // PrintString Text Formats. Use with Screen->DrawString.
 DEFINE TF_NORMAL             = 0; // treats the left-most char as (x)
 DEFINE TF_CENTERED           = 1; // prints the string centered on (x)
 //DEFINE TF_CENTRED           = 1; // in ./locale -- prints the string centered on (x)
 DEFINE TF_RIGHT              = 2; // treats the right-most char as (x)
 
-// Texture mapping rendering modes. Use with Screen->"Psuedo 3D" or "*3D" drawing routines. ie; Polygon, Quad, or Triangle
+// Polygon rendering modes. Use with Screen->"Psuedo 3D" or "*3D" drawing functions. ie; Polygon, Quad, or Triangle
+// For more detail on these polygon rendering modes, see https://github.com/ZQuestClassic/ZQuestClassic/blob/main/third_party/allegro_legacy/docs/src/allegro._tx#L7808
 DEFINE PT_FLAT               = 0; // single color shading
 DEFINE PT_FLATSHADED         = 1; // "" with flat shading (*3D only)
 DEFINE PT_COLSHADED          = 2; // "" with color shading (*3D only)
@@ -1267,7 +1168,7 @@ DEFINE PT_TRANSPTEXTURE      = 12; // ""
 DEFINE PT_MASKTRANSTEXTURE   = 13; // translucent and transparent texture mapped polygon using 2d linear interpolation
 DEFINE PT_MASKTRANSPTEXTURE  = 14; // "" 
 
-// Render Targets. Use with Screen->"*RenderTarget" and Screen->"Bitmap" drawing routines.
+// Render Targets. Use with Screen->"*RenderTarget" and Screen->"Bitmap" drawing functions.
 DEFINE RT_CURRENT            = -2; // Used by Blit(). mode7(), and RevBlit() for the current RT as dest.
 DEFINE RT_SCREEN             = -1; // draws to screen
 DEFINE RT_BITMAP0            = 0; // draws to off-screen bitmap 0
@@ -1277,9 +1178,6 @@ DEFINE RT_BITMAP3            = 3; // draws to off-screen bitmap 3
 DEFINE RT_BITMAP4            = 4; // draws to off-screen bitmap 4
 DEFINE RT_BITMAP5            = 5; // draws to off-screen bitmap 5
 DEFINE RT_BITMAP6            = 6; // draws to off-screen bitmap 6
-
-
-// DMaps, Screens, Rooms
 
 //Screen Flag categories. Flags from each category are ORed together, starting with the first flag
 //See Screen Data dialog for what flags are contained in each category. Use in Screen->Flags
@@ -1425,14 +1323,14 @@ enum
 	SFM_LAST
 };
 
-//Screen Enemy Flag categories, handled in the same way as the SF_ constants.
-//Use in Screen->EFlags
-DEFINE SEF_SPAWN				= 0;
-DEFINE SEF_LIST1				= 1; //left-hand list
-DEFINE SEF_LIST2				= 2; //right-hand list
+// Screen Enemy Flag categories, handled in the same way as the SF_ constants.
+// Use with [Screen->EFlags].
+DEFINE SEF_SPAWN				= 0; // Corresponds to [ScreenEnemyFlagSpawn].
+DEFINE SEF_LIST1				= 1; // Corresponds to [ScreenEnemyFlagList1].
+DEFINE SEF_LIST2				= 2; // Corresponds to [ScreenEnemyFlagList2].
 
-//Screen Enemy Flags: Spawn
-enum
+// See [ScreenEnemyFlagIndex].
+enum ScreenEnemyFlagSpawn
 {
 	SEFSP_ZORA,
 	SEFSP_CORNERTRAP,
@@ -1443,8 +1341,8 @@ enum
 	SEFSP_LAST
 };
 
-//Screen Enemy Flags: List1
-enum
+// See [ScreenEnemyFlagIndex].
+enum ScreenEnemyFlagList1
 {
 	SEFL1_RINGLEADER,
 	SEFL1_CARRYITEM,
@@ -1455,8 +1353,8 @@ enum
 	SEFL1_LAST
 };
 
-//Screen Enemy Flags: List2
-enum
+// See [ScreenEnemyFlagIndex].
+enum ScreenEnemyFlagList2
 {
 	SEFL2_ALWAYSRET,
 	SEFL2_ENEMIES_ITEM,
@@ -1492,25 +1390,8 @@ DEFINE RT_TAKEONEITEM        = 21;
 DEFINE RT_TENRUPEES          = 13;
 DEFINE RT_ZELDA              = 16;
 
-enum roomtypes
-{
-	rtNONE, rtSPECIALITEM, rtPAYINFO, rtSECRETMONEY, rtGAMBLE,
-	rtDOORREPAIR, rtPOTIONORHEART, rtGORIYA, rtLEVEL9, rtPOTION,
-	rtSHOP, rtBOMBS, rtMOYL, rtTENRUPY, rtSTAIRWARP,
-	rtGAN, rtWINGAME,
-	rtITEMPOND, // not implemented
-	rtMAGIC, rtSLASH, 
-	rtARROWS, rtONEITEM, rtLAST
-};
-
-enum catchalltypes
-{
-	caNONE, caITEM, caPRICE, caAMOUNT, caGAMBLE,
-	caSHOPID, caINFOSHOPID, caWARPRING, caPONDID, 
-	caLAST
-};
-
-//DMap Flag constants. Use with Game->DMapFlags.
+// DMap Flag constants. Use with Game->DMapFlags.
+// @deprecated
 DEFINE DMF_CAVESNOTCELLARS		= 0x0001; //Use caves instead of item cellars
 DEFINE DMF_3STAIRWARPS		= 0x0002; //Allow 3-stair warps
 DEFINE DMF_WWIND			= 0x0004; //Allow whistle whirlwinds
@@ -1530,8 +1411,6 @@ DEFINE DMF_SCRIPT4 			= 0x4000;
 DEFINE DMF_SCRIPT5 			= 0x8000;
 DEFINE DMF_SIDEVIEW 			= 0x10000;
 DEFINE DMF_LAYER3ISBACKGROUND 	= 0x20000; //Exceeds the bounds of ZScript LONG_MAX. We need dmapdata->Flags[]
-//DEFINE DMF_LAYER2ISBACKGROUND 	= 0x40000;
-//DEFINE DMF_TRUECELLARENEMIES 	= 0x80000; //(1<<19)
 
 //dmapdata->Flagset[] indices
 enum
@@ -1555,7 +1434,7 @@ enum
 	DMFS_SCRIPT5,             //DMap Script Flag 5
 	DMFS_RESERVED,            //RESERVED DO NOT USE
 	DMFS_LAYER3ISBACKGROUND,  //Layer 3 is Background
-	DMFS_LAYER2ISBACKGROUND,  //Layer 2 is bBackground
+	DMFS_LAYER2ISBACKGROUND,  //Layer 2 is Background
 	DMFS_TRUECELLARENEMIES,   //True Cellar Enemies
 	DMFS_BUNNY,               //Become Bunny with no Pearl
 	DMFS_MIRRORCONTINUE,      //Mirror Continues instead of Warping
@@ -1610,52 +1489,6 @@ DEFINE SL_EWPNS              = 2; // Enemy weapons
 DEFINE SL_LWPNS              = 3; // Link's weapons
 DEFINE SL_DECORATIONS        = 4; // Grass clippings, Hover boots glow, etc.
 DEFINE SL_PARTICLES          = 5; // Farore's Wind particles
-
-enum HeroAction
-{
-	LA_NONE,
-	LA_WALKING,
-	LA_ATTACKING,
-	LA_FROZEN,
-	LA_HOLD1LAND,         // One hand.
-	LA_HOLD2LAND,         // Both hands.
-	LA_RAFTING,
-	LA_GOTHURTLAND,
-	LA_INWIND,
-	LA_SCROLLING,
-	LA_WINNING,
-	LA_SWIMMING,
-	LA_HOPPING,           // Leaving water; read-only.
-	LA_GOTHURTWATER,
-	LA_HOLD1WATER,
-	LA_HOLD2WATER,
-	LA_CASTING,           // Casting a spell; read-only.
-	LA_CAVEWALKUP,
-	LA_CAVEWALKDOWN,
-	LA_DYING,
-	LA_DROWNING,
-	LA_CLIMBING_RES,      // unused, RESERVED
-	LA_CHARGING,          // Charging the sword.
-	LA_SPINNING,          // Spin attack.
-	LA_DIVING, //24
-	//25,26 unused, RESERVED
-	LA_STUNNED = 27,
-	//28 unused, RESERVED
-	LA_FALLING = 29,
-	LA_LAVADROWN,
-	LA_SIDESWIM,
-	LA_SIDESWIMHIT,
-	LA_SIDESWIMATTACKING,
-	LA_HOLD1SIDESWIM,
-	LA_HOLD2SIDESWIM,
-	LA_SIDESWIMCASTING,
-	LA_SIDESWIMFROZEN,
-	LA_SIDEDROWN,
-	LA_SIDESWIMSPINNING,
-	LA_SIDESWIMCHARGING,
-	LA_LIFTING,
-	LA_MAX
-};
 
 //Combo flags. Use with Screen->ComboF[]
 DEFINE CF_NONE               = 0;
@@ -1892,8 +1725,7 @@ DEFINE FFCBF_IGNORECHANGER   	= 0x800;
 DEFINE FFCBF_IMPRECISIONCHANGER    	= 0x1000;
 DEFINE FFCBF_LENSINVIS	   	= 0x2000;
 
-
-//Aim-type constants, for use with AimEWeapon
+// Used by [AimEWeapon].
 DEFINE AT_NONE		= 0;
 DEFINE AT_4DIR		= 1;
 DEFINE AT_8DIR		= 2;
@@ -1944,69 +1776,35 @@ DEFINE GOS_QUIT		= 6;	//Save and Quit Screen
 
 // Constants for DrawBitmapEX Modes
 // These work as FLAGS that you may sum, or stack, to combine effects. 
-
+// Note: Some modes cannot be combined. if a combination is not supported, an error
+//	detailing this will be shown in allegro.log. 
 DEFINE BITDX_NORMAL = 0;
 DEFINE BITDX_TRANS = 1; //Translucent
 DEFINE BITDX_PIVOT = 2; //THe sprite will rotate at a specific point, instead of its center.
 DEFINE BITDX_VFLIP = 4; //Vertical Flip.
 DEFINE BITDX_HFLIP = 8; //Horizontal Flip
-//Note:	Some modes cannot be combined. if a combination is not supported, an error
-//	detailing this will be shown in allegro.log. 
 
-//Effects for Link->WarpEffect
-DEFINE WARPFX_NONE = 0;
-DEFINE WARPFX_INSTANT = 1;
-DEFINE WARPFX_BLACKOUT = 2;
-DEFINE WARPFX_OPEN = 3;
-DEFINE WARPFX_ZAP = 4;
-DEFINE WARPFX_WAVE = 5;
-DEFINE WARPFX_CANCEL = 6;
-DEFINE WARPFX_SCROLL = 7;
+// Use with [Hero->SetItemSlot].
+DEFINE ITM_REQUIRE_NONE = 0b00;
+DEFINE ITM_REQUIRE_INVENTORY = 0b01;
+DEFINE ITM_REQUIRE_A_SLOT_RULE = 0b10;
 
-//Sprites for Link->SetTile(sprite, int, int, int)
-//See Quest->Graphics->Sprites->Link for what these are. 
-DEFINE LSPR_NORMAL = 1;
-DEFINE LSPR_FLOAT = 2;
-DEFINE LSPR_SWIM = 3;
-DEFINE LSPR_DIVE = 4;
-DEFINE LSPR_SPLASH = 5;
-DEFINE LSPR_JUMP = 6;
-DEFINE LSPR_CHARGE = 7;
-DEFINE LSPR_STAB = 8;
-DEFINE LSPR_POUND = 9;
-DEFINE LSPR_CAST = 10;
-DEFINE LSPR_HOLD1LAND = 11;
-DEFINE LSPR_HOLD2LAND = 12;
-DEFINE LSPR_HOLD1WATER = 13;
-DEFINE LSPR_HOLD2WATER = 14;
+// Use with [Hero->SetItemSlot].
+enum ItemSlot { ITM_SLOT_B, ITM_SLOT_A, ITM_SLOT_X, ITM_SLOT_Y };
 
-//Animation Styles in Quest->Graphics->Spries->Link for use with:
-//	Link->Animation
-//	Link->WalkASpeed
-//	Link->SwimASpeed
-DEFINE ANIM_ORIG = 0; //Animation styles nk
-DEFINE ANIM_BS = 1;
-DEFINE ANIM_Z3 = 2;
-DEFINE ANIM_Z3SLOW = 3;
-DEFINE SWIM_SLOW = 0;
-DEFINE SWIM_FAST = 1;
-DEFINE WALK_SLOW = 0; //Need to check what the walk speeds are. 
-DEFINE WALK_FAST = 1;
-DEFINE WALK_NEW = 2;
-
-//Link Tile Offsets
-DEFINE LINKTILE_OFS_NORMAL = -261; //We need to figure out all of these, and determine how they are calculated.
-//Determine the offsetws for each sprite, each anim type, and each extend. 
-//Make a function to set the tiles with these offsets. 
-
-//Constants for SetItemSlot()
-//These stack as flags. 
-DEFINE ITM_REQUIRE_NONE = 0;
-DEFINE ITM_REQUIRE_INVENTORY = 1;
-DEFINE ITM_REQUIRE_A_SLOT_RULE = 2;
-
-//Slots for SetItemSlot
-enum itemslots { ITM_SLOT_B, ITM_SLOT_A, ITM_SLOT_X, ITM_SLOT_Y };
+// TODO ! what?? reword
+// This allows you to set Link's button items without binary operation with
+// options for forcing them.
+//
+// Use the constants `ITM_REQUIRE_` and `ITM_SLOT_` from <std> when passing
+// values into this function.
+//
+// @zasm
+//   POP D6
+//   POP D1
+//   POP D0
+//   SETR SETITEMSLOT D6
+internal void SetItemSlot(int itm_id, int button, int force);
 
 //Input->Mouse[]
 DEFINE MOUSE_X = 0;
@@ -2018,8 +1816,7 @@ DEFINE MOUSE_MIDDLE = 5;
 
 //MapData
 
-//GetSecretCombo()
-
+// Screen->SecretCombo
 DEFINE SECCMB_BCANDLE 	= 0;
 DEFINE SECCMB_ARROW		= 1;	
 DEFINE SECCMB_BOMB		= 2;
@@ -2068,7 +1865,6 @@ DEFINE SECCMB_SECRETSNEXT	= 44; //Only ->SecretFlags[] has a value for this inde
 DEFINE SECCMB_MAX            = 45;
 //45 to 127 unused. 
 
-//Audio->
 //Audio->Volume[]
 DEFINE VOL_MIDI 	= 0;
 DEFINE VOL_DIGI	= 1;
@@ -2090,29 +1886,6 @@ DEFINE CMB_QUADRANT_LEFTUP 	= 0001b;
 DEFINE CMB_QUADRANT_RIGHTUP 	= 0100b;
 DEFINE CMB_QUADRANT_LEFTDOWN = 0010b;
 DEFINE CMB_QUADRANT_RIGHTDOWN = 1000b;
-
-//Input->
-/* Defined earlier.
-DEFINE CB_UP		= 0;
-DEFINE CB_DOWN	= 1;
-DEFINE CB_LEFT	= 2;
-DEFINE CB_RIGHT	= 3;
-DEFINE CB_A		= 4;
-DEFINE CB_B		= 5;
-DEFINE CB_L		= 7;
-DEFINE CB_R		= 8;
-DEFINE CB_START	= 6;
-DEFINE CB_MAP	= 9;
-DEFINE CB_EX1	= 10;
-DEFINE CB_EX2	= 11;
-DEFINE CB_EX3	= 12;
-DEFINE CB_EX4	= 13;
-DEFINE CB_AXIS_UP	= 14;
-DEFINE CB_AXIS_DOWN	= 15;
-DEFINE CB_AXIS_LEFT	= 16;
-DEFINE CB_AXIS_RIGHT	= 17;
-
-*/
 
 DEFINEF DIR16_DEG_INCREMENT = 22.5; //Number of degrees per 1/16 rotation
 
@@ -2154,49 +1927,12 @@ DEFINEF DIR16_RADS_RIGHTUP 	= 5.4978;
 DEFINEF DIR16_RADS_RIGHTUPUP 	= 5.1141;
 
 // DMap Types for use with [dmapdata::Type]
-enum DmapType {
+enum DMapType {
 	DMAP_DUNGEON,
 	DMAP_OVERWORLD,
 	DMAP_CAVE,
 	DMAP_BSOVERWORLD
 };
-
-enum dmapgridpositions
-{ 
-	/*The Grid[index] is the row, with leftmost being 0.
-	/ The grid values are OR'd together, with MSB at left, and LSB at right, so, 
-	/ if the top-rightmost screen is marked visible, then Grid[0] will == 1, 
-	/ if the bottom-leftmost screen is marked visible, then Grid[7] will == 128
-	/ if both the top-leftmost and top-rightmost screens are marked visible, then 
-	/ Grid[0] will == 129
-	*/
-	dmMAPGRID_ROW_0, dmMAPGRID_ROW_1, dmMAPGRID_ROW_2, dmMAPGRID_ROW_3,
-	dmMAPGRID_ROW_4, dmMAPGRID_ROW_5, dmMAPGRID_ROW_6, dmMAPGRID_ROW_7,
-	dmMAPGRID_COL_7 = 1, dmMAPGRID_COL_6, dmMAPGRID_COL_5 = 4, dmMAPGRID_COL_4 = 8,
-	dmMAPGRID_COL_3 = 16, dmMAPGRID_COL_2 = 32, dmMAPGRID_COL_1 = 64, dmMAPGRID_COL_0 = 128
-};
-
-/*Monochrome Tints and modes
-	for use with Graphics->Monochrome(int mode)
-	Add together the MODE and the TINT, e.g.:
-	Graphics->Monochrome(TINT_MODE_DISTRIBUTED+TINT_AMBER); //Set amber, distribuyted
-			
-	Set to TINT_NONE to disable Monochrome:
-	Graphics->Monochrome(TINT_NONE); 
-*/
-
-//Tint Options
-DEFINE TINT_NONE = 0;
-DEFINE TINT_GREY = 1;
-DEFINE TINT_RED = 2;
-DEFINE TINT_GREEN = 3;
-DEFINE TINT_BLUE = 4;
-DEFINE TINT_VIOLET = 5;
-DEFINE TINT_TEAL = 6;
-DEFINE TINT_AMBER = 7;
-DEFINE TINT_CYAN = 8;
-DEFINE TINT_MODE_UNIFORM = 0;
-DEFINE TINT_MODE_DISTRIBUTED = 1000;
 
 //System Real Time Clock (RTC) categories for GetSystemTime(int category)
 DEFINE RTC_YEAR		= 0;
@@ -2217,7 +1953,7 @@ DEFINE WARPEFFECT_WAVE = 2;
 DEFINE WARPEFFECT_INSTANT = 3;
 DEFINE WARPEFFECT_OPENWIPE = 4;
 
-//Warp Flags for Link->WarpEx()
+// Warp Flags for [Hero->WarpEx()].
 DEFINE WARP_FLAG_SCRIPTDRAW 		  = 0x001;
 DEFINE WARP_FLAG_PLAYSOUNDS 		  = 0x002;
 DEFINE WARP_FLAG_FORCE_RESET_MUSIC    = 0x004;
@@ -2245,89 +1981,14 @@ DEFINE WARP_FLAG_CLEARPARTICLES 	= 0x8000;
 //Prevent Stepping forward in dungeon screens (experimental)
 DEFINE WARP_FLAG_NOSTEPFORWARD	= 0x10000;
 
-//Error codes for `#ignore error`
-enum
-{
-	_ERR_CANTOPENSOURCE,
-	_ERR_CANTOPENIMPORT,
-	_ERR_IMPORTRECURSION,
-	_ERR_IMPORTBADSCOPE,
-	_ERR_FUNCTIONREDEF,
-	_ERR_FUNCTIONVOIDPARAM,
-	_ERR_SCRIPTREDEF,
-	_ERR_VOIDVAR,
-	_ERR_VARREDEF,
-	_ERR_VARUNDECLARED,
-	_ERR_FUNCUNDECLARED,
-	_ERR_SCRIPTNORUN,
-	_ERR_SCRIPTRUNNOTVOID,
-	_ERR_SCRIPTNUMNOTINT,
-	_ERR_SCRIPTNUMTOOBIG,
-	_ERR_SCRIPTNUMREDEF,
-	_ERR_IMPLICITCAST,
-	_ERR_ILLEGALCAST,
-	_ERR_VOIDEXPR,
-	_ERR_DIVBYZERO,
-	_ERR_CONSTTRUNC,
-	_ERR_NOFUNCMATCH,
-	_ERR_TOOFUNCMATCH,
-	_ERR_FUNCBADRETURN,
-	_ERR_TOOMANYGLOBAL,
-	_ERR_SHIFTNOTINT,
-	_ERR_REFVAR,
-	_ERR_ARROWNOTPOINTER,
-	_ERR_ARROWNOFUNC,
-	_ERR_ARROWNOVAR,
-	_ERR_TOOMANYRUN,
-	_ERR_INDEXNOTINT,
-	_ERR_SCRIPTBADTYPE,
-	_ERR_BREAKBAD,
-	_ERR_CONTINUEBAD,
-	_ERR_CONSTREDEF,
-	_ERR_LVALCONST,
-	_ERR_BADGLOBALINIT,
-	_ERR_DEPRECATEDGLOBAL,
-	_ERR_VOIDARR,
-	_ERR_REFARR,
-	_ERR_ARRREDEF,
-	_ERR_ARRAYTOOSMALL,
-	_ERR_ARRAYLISTTOOLARGE,
-	_ERR_ARRAYLISTSTRINGTOOLARGE,
-	_ERR_NONINTEGERARRAYSIZE,
-	_ERR_EXPRNOTCONSTANT,
-	_ERR_UNRESOLVEDTYPE,
-	_ERR_CONSTUNINITIALIZED,
-	_ERR_CONSTASSIGN,
-	_ERR_EMPTYARRAYLITERAL,
-	_ERR_DIMENSIONMISMATCH,
-	_ERR_ARRAYLITERALRESIZE,
-	_ERR_MISSINGCOMPILEERROR,
-	_ERR_UNIMPLEMENTEDFEATURE,
-	_ERR_UNKNOWNOPTION,
-	_ERR_NOREADTYPE,
-	_ERR_NOWRITETYPE,
-	_ERR_UNRESOLVEDSCRIPTTYPE,
-	_ERR_REDEFSCRIPTTYPE,
-	_ERR_ARRAYINVALIDSIZE,
-	_ERR_ARRAYDECIMAL,
-	_ERR_CONSTNOTCONSTANT,
-	_ERR_TOOMANYUSING,
-	_ERR_DUPLICATEUSING,
-	_ERR_TOOMANYVAR,
-	_ERR_HEADERGUARDERR,
-	_ERR_HEADERGUARDWARN,
-	_ERR_REDEFDATATYPE,
-	_ERR_CONSTALREADYCONSTANT
-};
-
 //Flags for SaveSRAM() and LoadSRAM()
- DEFINE SRAM_ALL	 	=	0;
- DEFINE SRAM_NPCDATA 	=	0x01;
- DEFINE SRAM_ITEMDATA 	=	0x02;
- DEFINE SRAM_SPRITEDATA 	=	0x04;
- DEFINE SRAM_COMBODATA 	=	0x08;
- DEFINE SRAM_DMAPDATA 	=	0x10;
- DEFINE SRAM_MAPDATA 	=	0x20;
+DEFINE SRAM_ALL	 	=	0;
+DEFINE SRAM_NPCDATA 	=	0x01;
+DEFINE SRAM_ITEMDATA 	=	0x02;
+DEFINE SRAM_SPRITEDATA 	=	0x04;
+DEFINE SRAM_COMBODATA 	=	0x08;
+DEFINE SRAM_DMAPDATA 	=	0x10;
+DEFINE SRAM_MAPDATA 	=	0x20;
 
 //MIDI values, used for 'Screen->MIDI', 'dmapdata->MIDI', 'mapdata->MIDI', 'Audio->PlayMIDI'
 enum
@@ -2386,7 +2047,7 @@ enum {
 
 	susptLAST };
 
-
+// Use with [mapdata::NoCarry] and [screendata::NoCarry].
 define NOCARRY_B_SECRET =			0x2000;
 define NOCARRY_B_ITEM =				0x0010;
 define NOCARRY_B_SPECIALITEM =		0x0020;
@@ -2396,6 +2057,7 @@ define NOCARRY_B_CHEST =			0x0400;
 define NOCARRY_B_LOCKEDCHEST =		0x0800;
 define NOCARRY_B_BOSSCHEST =		0x1000;
 
+// Use with [mapdata::NoReset] and [screendata::NoReset].
 define NORESET_B_SECRET =			0x2000;
 define NORESET_B_ITEM =				0x0010;
 define NORESET_B_SPECIALITEM =		0x0020;
@@ -2742,6 +2404,8 @@ enum ComboTrigFlag
 	TRIGFLAG_MAX = 32*6
 };
 
+// Use with [itemdata::Attributes].
+// @deprecated Use [BlockBitflags] instead!
 DEFINE BLOCKFLAG_ROCK         = 0x00001;
 DEFINE BLOCKFLAG_ARROW        = 0x00002;
 DEFINE BLOCKFLAG_BRANG        = 0x00004;
@@ -2761,6 +2425,7 @@ DEFINE BLOCKFLAG_SCRIPT6      = 0x08000;
 DEFINE BLOCKFLAG_SCRIPT7      = 0x10000;
 //Higher blockflag bits are too high for zscript! Use long access...
 
+// Use with [itemdata::LAttributes].
 DEFINEL L_BLOCKFLAG_ROCK         = 0x00000001L;
 DEFINEL L_BLOCKFLAG_ARROW        = 0x00000002L;
 DEFINEL L_BLOCKFLAG_BRANG        = 0x00000004L;
@@ -2910,31 +2575,24 @@ enum //constants for 'GENEV_HEROHIT_HITTYPE' / 'GENEV_HEROHIT_HITTYPE2'
 	NUM_OBJTYPE
 };
 
-//For Screen->LoadNPC() and etc; the screen index of the thing
-DEFINE HIT_BY_NPC                   = 0; //Hero only
-DEFINE HIT_BY_EWEAPON               = 1; //Hero only
+// Used by [Hero->HitBy[]] and [npc::HitBy[]].
+DEFINE HIT_BY_NPC                   = 0; //[Hero] only
+DEFINE HIT_BY_EWEAPON               = 1; //[Hero] only
 DEFINE HIT_BY_LWEAPON               = 2;
 DEFINE HIT_BY_FFC                   = 3; //Unimplemented
-//For Screen->LoadNPCByUID() and etc; corresponds with the ->UID of the thing. Not to be confused with the internal UID used by the engine.
-DEFINE HIT_BY_NPC_UID               = 4; //Hero only
-DEFINE HIT_BY_EWEAPON_UID           = 5; //Hero only
+DEFINE HIT_BY_NPC_UID               = 4; //[Hero] only. The scripting UID of the enemy, used by [Screen->LoadNPCByUID()].
+DEFINE HIT_BY_EWEAPON_UID           = 5; //[Hero] only
 DEFINE HIT_BY_LWEAPON_UID           = 6;
 DEFINE HIT_BY_FFC_UID               = 7; //Unimplemented
-//Returns the item id of the item that the weapon that hit came from; -1 if the lweapon is script created
-DEFINE HIT_BY_LWEAPON_PARENT_ID     = 8;
-//Returns the item class of the item that the weapon that hit came from (see IC_ constants); -1 if the lweapon is script created
-DEFINE HIT_BY_LWEAPON_PARENT_FAMILY = 9;
-//Returns the enemy class of the enemy that hit the [Hero] (see [NpcType] (`NPCT_`) constants)
-DEFINE HIT_BY_NPC_TYPE              = 10; //Hero only
-//Returns the ID of the weapon that hit (see LW_ and EW_ constants)
-DEFINE HIT_BY_EWEAPON_TYPE          = 11; //Hero only
-DEFINE HIT_BY_LWEAPON_TYPE          = 12;
-//Returns the internal UID used by the engine for the thing. Can case these to their respective types (example: npc n = <npc>(Hero->HitBy[HIT_BY_NPC_PTR]);)
+DEFINE HIT_BY_LWEAPON_PARENT_ID     = 8; //The item id of the item that the weapon that hit came from. -1 if the lweapon is script created
+DEFINE HIT_BY_LWEAPON_PARENT_FAMILY = 9; //The item class of the item that the weapon that hit came from (see IC_ constants). -1 if the lweapon is script created
+DEFINE HIT_BY_NPC_TYPE              = 10; //[Hero] only. The enemy class of the enemy that hit the [Hero] (see [NpcType] (`NPCT_`) constants)
+DEFINE HIT_BY_EWEAPON_TYPE          = 11; // [Hero] only. The ID of the weapon that hit (see LW_ and EW_ constants)
+DEFINE HIT_BY_LWEAPON_TYPE          = 12; //The internal UID used by the engine for the thing. Can case these to their respective types example: `npc n = <npc>(Hero->HitBy[HIT_BY_NPC_PTR])`
 DEFINE HIT_BY_NPC_PTR               = 13;
 DEFINE HIT_BY_EWEAPON_PTR           = 14;
 DEFINE HIT_BY_LWEAPON_PTR           = 15;
-//Returns the ID of the enemy that hit the Hero
-DEFINE HIT_BY_NPC_ID                = 16;
+DEFINE HIT_BY_NPC_ID                = 16; //The ID of the enemy that did the hit.
 
 DEFINE AF_FRESH           = 0x01;
 DEFINE AF_CYCLE           = 0x02;
@@ -3152,8 +2810,9 @@ enum //Transition Flags
 	TRANSFLAG_MAX
 };
 
-DEFINE SUBSEL_FLAG_NO_NONEQUIP = 0x01;
-DEFINE SUBSEL_FLAG_NEED_ITEM = 0x02;
+// Use with [subscreenpage::SelectorMove].
+DEFINE SUBSEL_FLAG_NO_NONEQUIP = 0x01; // Skip widgets that are "Non-equippable".
+DEFINE SUBSEL_FLAG_NEED_ITEM = 0x02; // Skip widgets that currently have no equippable item.
 
 enum SubscreenWidgetType
 {

@@ -1221,60 +1221,6 @@ int FirstComboOf(int t, int layer)
 	return -1;
 }
 
-//G
-
-//Returns the catchall type used by a mapscreen passed as pointer 'm'.
-catchalltypes GetCatchallType(mapdata m)
-{
-	switch(m->RoomType)
-	{
-		//no catchall
-		case rtNONE:
-		case rtPOTIONORHEART:
-		case rtGORIYA:
-		case rtLEVEL9:
-		case rtTENRUPY:
-		case rtGAN:
-		case rtWINGAME:
-		case rtMAGIC:
-		case rtSLASH:
-			return caNONE;
-
-		case rtGAMBLE:
-			return caGAMBLE;
-
-		//item id
-		case rtSPECIALITEM:
-			return caITEM;
-
-		case rtSECRETMONEY:
-			return caAMOUNT;
-
-		//shops
-		case rtPOTION:
-		case rtSHOP:
-		case rtONEITEM:
-			return caSHOPID;
-
-		case rtPAYINFO:
-			return caINFOSHOPID;
-
-		//price
-		case rtARROWS:
-		case rtDOORREPAIR:
-		case rtBOMBS:
-		case rtMOYL: //the non-heart cost
-			return caPRICE;
-
-		case rtSTAIRWARP: return caWARPRING;
-		case rtITEMPOND: return caPONDID;
-
-		default:
-			return caNONE;
-
-	}
-}
-
 //Returns the item ID of the item equipped to the A button
 int GetEquipmentA()
 {
@@ -1303,7 +1249,12 @@ int GetEquipmentY()
 	//return ((Hero->Equipment&0xFF00)>>8);
 }
 
-//Returns true if DMap bitwise flags 'flag' is set on dmap 'dmap'
+// Returns true if DMap bitwise flags 'flag' is set on dmap 'dmap'.
+//
+// Only works with the `DMF_` flags - `DMFS_` is not supported.
+// TODO ! use flag type DMapBitwiseFlag
+//
+// @deprecated Use [dmapdata::Flagset] instead.
 bool GetDMapFlag(int dmap, int flag)
 {
 	dmapdata dm = Game->LoadDMapData(dmap);
@@ -2393,7 +2344,7 @@ float LogToBase(float x, float base)
 }
 
 
-//Returns a random integer between 0 abd 199,999
+//Returns a random integer between 0 and 199,999
 int longrand(int max)
 {
 	int numdigits;

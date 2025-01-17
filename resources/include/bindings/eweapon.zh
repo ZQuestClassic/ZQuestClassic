@@ -274,14 +274,14 @@ class eweapon {
 	internal bool isValid();
 
 	// Loads the graphical information from the [spritedata] indicated by
-	// [spriteid] to the weapon.
+	// [sprite_id] to the weapon.
 	//
 	// @zasm
 	//   POP D2
 	//   POP D3
 	//   SETR REFEWPN D3
 	//   EWPNUSESPRITER D2
-	internal void UseSprite(int spriteid);
+	internal void UseSprite(int sprite_id);
 
 	// Creates an explosion particle effect in mode 0, 1, or 2 of the sprite.
 	//

@@ -1,5 +1,52 @@
 #include "bindings/sprite.zh"
 
+// TODO ! clean up comments
+enum HeroAction
+{
+	LA_NONE,
+	LA_WALKING,
+	LA_ATTACKING,
+	LA_FROZEN,
+	LA_HOLD1LAND,         // One hand.
+	LA_HOLD2LAND,         // Both hands.
+	LA_RAFTING,
+	LA_GOTHURTLAND,
+	LA_INWIND,
+	LA_SCROLLING,
+	LA_WINNING,
+	LA_SWIMMING,
+	LA_HOPPING,           // Leaving water; read-only.
+	LA_GOTHURTWATER,
+	LA_HOLD1WATER,
+	LA_HOLD2WATER,
+	LA_CASTING,           // Casting a spell; read-only.
+	LA_CAVEWALKUP,
+	LA_CAVEWALKDOWN,
+	LA_DYING,
+	LA_DROWNING,
+	LA_CLIMBING_RES,      // unused, RESERVED
+	LA_CHARGING,          // Charging the sword.
+	LA_SPINNING,          // Spin attack.
+	LA_DIVING, //24
+	//25,26 unused, RESERVED
+	LA_STUNNED = 27,
+	//28 unused, RESERVED
+	LA_FALLING = 29,
+	LA_LAVADROWN,
+	LA_SIDESWIM,
+	LA_SIDESWIMHIT,
+	LA_SIDESWIMATTACKING,
+	LA_HOLD1SIDESWIM,
+	LA_HOLD2SIDESWIM,
+	LA_SIDESWIMCASTING,
+	LA_SIDESWIMFROZEN,
+	LA_SIDEDROWN,
+	LA_SIDESWIMSPINNING,
+	LA_SIDESWIMCHARGING,
+	LA_LIFTING,
+	LA_MAX
+};
+
 enum HeroSliding
 {
 	SLD_NONE,
@@ -40,6 +87,8 @@ class hero {
 	// @zasm_var LINKMAXMP
 	internal int MaxMP;
 
+	// Valid values: [HeroAction] (`LA_`).
+	//
 	// @zasm_var LINKACTION
 	internal int Action;
 
@@ -862,6 +911,7 @@ class hero {
 	//   SETR GAMESETB D3
 	internal void SetItemB(int item_id);
 
+	// TODO ! what?? reword. or maybe delete? no users.
 	// This allows you to set Link's button items without binary operation with
 	// options for forcing them.
 	//
@@ -873,7 +923,7 @@ class hero {
 	//   POP D1
 	//   POP D0
 	//   SETR SETITEMSLOT D6
-	internal void SetItemSlot(int itm_id, int button, int force);
+	internal void SetItemSlot(int itm_id, int slot, int force);
 
 	// @zasm
 	//   POP D1
