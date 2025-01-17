@@ -322,6 +322,21 @@ endif()
 get_target_property(ALLEGRO_LINK_LIBRARIES allegro_with_legacy INTERFACE_LINK_LIBRARIES)
 zc_install_targets(${ALLEGRO_LINK_LIBRARIES})
 
+if(DEFINED ENV{CI} OR ZC_OFFICIAL)
+	get_target_property(ALLEGRO_CODEC_SOURCES allegro_acodec SOURCES)
+	message("${ALLEGRO_CODEC_SOURCES}")
+	if(NOT "ogg.c" IN_LIST ALLEGRO_CODEC_SOURCES)
+		message(FATAL_ERROR "Missing support for OGG")
+	endif()
+	if(NOT "mp3.c" IN_LIST ALLEGRO_CODEC_SOURCES)
+		message(FATAL_ERROR "Missing support for MP3")
+	endif()
+	# TODO: why not working for web build in CI?
+	if(NOT EMSCRIPTEN AND NOT "dumb.c" IN_LIST ALLEGRO_CODEC_SOURCES)
+		message(FATAL_ERROR "Missing support for DUMB")
+	endif()
+endif()
+
 #############################################################
 # Header and source file lists
 #############################################################
