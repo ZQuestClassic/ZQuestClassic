@@ -162,7 +162,7 @@ class bitmap {
 	// If [render_source] != `NULL`, then it will use that bitmap as the texture.
 	// Otherwise, if `NULL`, it defaults to using a tile.
 	//
-	// For [polygon_rendering_mode], use [PolygonRenderingMode] to render the
+	// For [polygon_render_mode], use [PolygonRenderMode] to render the
 	// bitmap as a texture.
 	//
 	// For bitmap textures, specify the exact height and width of the texture as
@@ -176,7 +176,7 @@ class bitmap {
 	//   POPARGS D5 0.0017
 	internal void Quad(int layer, int x1, int y1, int x2, int y2, int x3,
 					   int y3, int x4, int y4, int w, int h, int cset, int flip,
-					   int tile, int polygon_rendering_mode,
+					   int tile, int polygon_render_mode,
 					   bitmap render_source = < bitmap > 0);
 
 	// @zasm

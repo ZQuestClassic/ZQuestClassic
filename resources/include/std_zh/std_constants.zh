@@ -143,7 +143,7 @@ DEFINEF GRAVITY			= 0.16;
 DEFINEF TERMINAL_VELOCITY		= 3.20;
 DEFINE JUMPING_LAYER_THRESHOLD	= 16;
 
-//Sound effect IDs. To be used for PlaySound().
+//Sound effect IDs. Used with [Audio->PlaySound].
 DEFINE SFX_ARROW       = 1; // Arrow is fired.
 DEFINE SFX_BEAM        = 2; // Sword beam is fired.
 DEFINE SFX_BOMB        = 3; // Bomb explodes.
@@ -205,7 +205,7 @@ DEFINE SFX_WHISTLE     = 33; // Whistle is played.
 DEFINE SFX_ZELDA       = 34; // Music when ending sequence begins.
 
 
-//Sprite IDs. To be used with UseSprite().
+// Used with [eweapon::UseSprite], [lweapon::UseSprite], and [portal::UseSprite].
 DEFINE SP_ARROW_ENEMY 		= 19;
 DEFINE SP_ARROW1 			= 10; //Wooden Arrow
 DEFINE SP_ARROW2 			= 11; //Silver Arrow
@@ -1696,7 +1696,7 @@ DEFINE CF_NO_ENEMIES_SPAWN   = 163; //No Enemies Spawn
 DEFINE CF_ALL_ENEMIES_SPAWN  = 164; //All Enemies Spawn
 DEFINE CF_SECRETS_NEXT       = 165; //Secrets->Next
 
-//FFC Flags. To be used as indices into ffc->Flags[].
+// Used with [ffc::Flags].
 DEFINE FFCF_OVERLAY          	= 0; // Draw Over (draw between layers 4 and 5)
 DEFINE FFCF_TRANS            	= 1; // Translucent
 DEFINE FFCF_SOLID            	= 2; // Solidity (Partially Implemented)
@@ -1712,7 +1712,7 @@ DEFINE FFCF_IGNORECHANGER     	= 11; // The FFC ignores changers
 DEFINE FFCF_IMPRECISIONCHANGER     	= 12; // The FFC is affected by changers if it is within 1px on both axis, not subpixel alignment.
 DEFINE FFCF_LENSINVIS	     	= 13; // Not visible to the lens of truth
 
-//FFC Bitwise Flags. To be used for bitwise checking of mapdata->FFCFlags[].
+// Used with [mapdata::FFCFlags].
 DEFINE FFCBF_OVERLAY   		= 0x001;
 DEFINE FFCBF_TRANS           	= 0x002;
 DEFINE FFCBF_SOLID           	= 0x004;
@@ -1791,20 +1791,6 @@ DEFINE ITM_REQUIRE_A_SLOT_RULE = 0b10;
 
 // Used with [Hero->SetItemSlot].
 enum ItemSlot { ITM_SLOT_B, ITM_SLOT_A, ITM_SLOT_X, ITM_SLOT_Y };
-
-// TODO ! what?? reword
-// This allows you to set Link's button items without binary operation with
-// options for forcing them.
-//
-// Use the constants `ITM_REQUIRE_` and `ITM_SLOT_` from <std> when passing
-// values into this function.
-//
-// @zasm
-//   POP D6
-//   POP D1
-//   POP D0
-//   SETR SETITEMSLOT D6
-internal void SetItemSlot(int itm_id, int button, int force);
 
 //Input->Mouse[]
 DEFINE MOUSE_X = 0;

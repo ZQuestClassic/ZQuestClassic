@@ -7,11 +7,9 @@ from pathlib import Path
 path = Path('resources/include/std_zh/std_constants.zh')
 
 # TODO ! ctl+f "in std_constants.zh", delete.
-# TODO ! ctl+f "<std>", delete.
 # TODO ! ctl+f "constants", delete.
 # TODO ! ctl+f "using the ", delete.
 # TODO ! ctl+f "TODO: document values", delete.
-# TODO ! ctl+f "To be used", delete.
 
 # TODO !
 #    CMB_QUADRANT - Screen->ComboS[]
@@ -53,7 +51,7 @@ name_map = {
     'NPC': 'EnemyID',
     'NPCMF': 'EnemyMiscBitflags',
     'NPCSF': 'EnemySpawnBitflags',
-    'PT': 'PolygonRenderingMode',  # PolygonRenderMode ?
+    'PT': 'PolygonRenderMode',
     'RT': 'RoomType',
     'RTC': 'RealTimeClockCategory',
     'SECCMB': 'SecretComboIndex',
