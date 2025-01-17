@@ -41,7 +41,7 @@ class screendata {
 
 	// The solidity bits of each of the [NUM_COMBO_POS] combo positions on the screen.
 	//
-	// Use with [ComboSolidityQuadrant].
+	// Used with [ComboSolidityQuadrant].
 	//
 	// @zasm_var COMBOSD
 	internal int ComboS[];
@@ -954,8 +954,8 @@ class screendata {
 	// If these are non-zero, the rotation anchor point will center on these
 	// coordinates.
 	//
-	// You may specify a colour to 'int lit' to use a lit mode. This tints the
-	// entire bitmap using that colour index of the main palette.
+	// You may specify a color to 'int lit' to use a lit mode. This tints the
+	// entire bitmap using that color index of the main palette.
 	//
 	// @zasm
 	//   TILEBLIT
@@ -983,8 +983,8 @@ class screendata {
 	// If these are non-zero, the rotation anchor point will center on these
 	// coordinates.
 	//
-	// You may specify a colour to 'int lit' to use a lit mode. This tints the
-	// entire bitmap using that colour index of the main palette.
+	// You may specify a color to 'int lit' to use a lit mode. This tints the
+	// entire bitmap using that color index of the main palette.
 	//
 	// @zasm
 	//   COMBOBLIT

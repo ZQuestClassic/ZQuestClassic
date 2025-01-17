@@ -9,24 +9,22 @@ path = Path('resources/include/std_zh/std_constants.zh')
 # TODO ! ctl+f "in std_constants.zh", delete.
 # TODO ! ctl+f "<std>", delete.
 # TODO ! ctl+f "constants", delete.
+# TODO ! ctl+f "using the ", delete.
 # TODO ! ctl+f "TODO: document values", delete.
 # TODO ! ctl+f "To be used", delete.
 
-# TODO ! 
+# TODO !
 #    CMB_QUADRANT - Screen->ComboS[]
 
-# TODO ! rm:
-#    ..
-
 name_map = {
-    'AF': 'AnimationFlag',
+    'AF': 'AnimationBitflags',
     'AT': 'AimType',
-    'BITDX': 'BitmapDrawBitflags',
+    'BITDX': 'BlitModeBitflags',
     'BLOCKFLAG': 'BlockBitflagsInt',
-    'CB': 'ControllerButton',
+    'CB': 'ButtonIndex',
     'CF': 'ComboFlag',
     'CHRT': 'DMapChartedBitflags',
-    'CIID': 'CurrentItemIDFlag',
+    'CIID': 'CurrentItemIDBitflags',
     'CMB': 'ComboSolidityBitflags',
     'D': 'DoorType',
     'DIR2': 'Dir2',
@@ -38,6 +36,7 @@ name_map = {
     'FFCF': 'FFCFlag',
     'FONT': 'FontType',
     'GOS': 'GameOverScreenElementIndex',
+    'HIT': 'HitIndex',
     'I': 'ItemID',
     'IMISC': 'ItemMiscBitflags',
     'IP': 'ItemPickupBitflags',
@@ -46,18 +45,21 @@ name_map = {
     'L': 'BlockBitflags',
     'LI': 'LevelItemBitflags',
     'LW': 'LWeaponType',
+    'MB': 'MouseButtonBitflags',
     'MOUSE': 'MouseIndex',
     'NOCARRY': 'NoCarryBitflags',
     'NORESET': 'NoResetBitflags',
     'NPC': 'EnemyID',
     'NPCMF': 'EnemyMiscBitflags',
-    'NPCSF': 'EnemySpawnFlags',
-    'PT': 'PolygonRenderingMode',
-    'RT': 'RenderTarget',
+    'NPCSF': 'EnemySpawnBitflags',
+    'PT': 'PolygonRenderingMode',  # PolygonRenderMode ?
+    'RT': 'RoomType',
     'RTC': 'RealTimeClockCategory',
+    'SECCMB': 'SecretComboIndex',
     'SEF': 'ScreenEnemyFlagIndex',
     'SFX': 'SoundEffect',
     'SL': 'SpriteList',
+    'SP': 'SpriteID',
     'SRAM': 'StoredMemoryBitflags',
     'SUBSEL': 'MoveSubscreenSelectorBitflags',
     'SZFLAG': 'SizeOverrideBitflags',
@@ -66,14 +68,16 @@ name_map = {
     'VOL': 'VolumeIndex',
     'WARP': 'WarpBitflags',
     'WARPEFFECT': 'WarpEffect',
-    'HIT': 'HitIndex',
-
-    # TODO !
-    'INTBTN': '', # ??
-    'MB': 'MouseButtonIndex', # naming ??? drop index?? maybe yes..
-    'SECCMB': 'SecretComboIndex',  # naming ??? drop index?? maybe yes..
-    'SP': 'SpriteID', # SpriteType?
 }
+
+
+def normalize_comment(comment: str):
+    comment = comment.strip()
+    comment = f'{comment[0].upper()}{comment[1:]}'
+    if not comment.endswith('.') and not comment.endswith('!'):
+        comment += '.'
+    return comment
+
 
 current_comment = ''
 enum_top_comment = {}
@@ -105,7 +109,23 @@ for line in path.read_text().splitlines():
         current_comment = ''
         continue
 
-    if prefix in ['NUM', 'MIN', 'MAX', 'TERMINAL', 'SCREEN', 'INIT', 'MISC', 'HP', 'MP', 'SQRT', 'RAD', 'DEG', 'SUBSCREEN', 'DIR16']:
+    if prefix in [
+        'DEG',
+        'DIR16',
+        'HP',
+        'INIT',
+        'MAX',
+        'MIN',
+        'MISC',
+        'MP',
+        'NUM',
+        'RAD',
+        'SCREEN',
+        'SFW',
+        'SQRT',
+        'SUBSCREEN',
+        'TERMINAL',
+    ]:
         current_comment = ''
         continue
 
@@ -122,18 +142,14 @@ for line in path.read_text().splitlines():
     if prefix not in enums:
         enums[prefix] = []
         if current_comment:
-            enum_top_comment[prefix] = current_comment.strip()
-            if not enum_top_comment[prefix].endswith('.'):
-                enum_top_comment[prefix] += '.'
+            enum_top_comment[prefix] = normalize_comment(current_comment)
             current_comment = ''
 
     value = re.search(r'=(.+);', line).group(1).strip()
 
     m = re.search(r';.*//(.+)', line)
     if m:
-        comment = m.group(1).strip()
-        if not comment.endswith('.'):
-            comment += '.'
+        comment = normalize_comment(m.group(1))
     else:
         comment = None
 
@@ -147,9 +163,13 @@ for enum_name, pairs in enums.items():
     top_comment = enum_top_comment.get(enum_name, '')
     name = name_map.get(enum_name, enum_name) or enum_name
 
+    if enum_name not in name_map:
+        print(f'ERROR! missing in name map: {enum_name}')
+        exit(1)
+
     lines = []
     if top_comment:
-        comment_lines = [f'// {l}' for l in top_comment.splitlines()]
+        comment_lines = [f'// {l.strip()}' for l in top_comment.splitlines()]
         lines.extend(comment_lines)
     lines.append(f'enum {name}')
     lines.append('{')
@@ -159,8 +179,8 @@ for enum_name, pairs in enums.items():
     for name, value, comment in pairs:
         lines.append(f'\t{name:30} = {value},')
         if comment:
-            lines[-1] += (max_val_len-len(value))*' ' + f' // {comment}'
-            
+            lines[-1] += (max_val_len - len(value)) * ' ' + f' // {comment}'
+
     lines.append('}')
 
     print('\n'.join(lines))

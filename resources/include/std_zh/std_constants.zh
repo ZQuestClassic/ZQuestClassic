@@ -347,7 +347,7 @@ DEFINEF RAD_DIR_RIGHT 	= 0;
 
 
 
-// Sprite rendering extend modes. Use with [sprite::Extend].
+// Sprite rendering extend modes. Used with [sprite::Extend].
 DEFINE EXT_NONE              = 0; // Not extended
 DEFINE EXT_16X32		= 1; // Sprite is extended as 16x32, or Link is extended in Sprites->Link to 16x32.
 DEFINE EXT_32X32		= 2; // Sprite is extended as 32x32, or Link is extended in Sprites->Link to 32x32.
@@ -357,17 +357,18 @@ DEFINE EXT_NOSHADOW          = 4; // Extended. NPC has no shadow.
 
 //! We need some better names for Extend constants. 
 
-// Level item flags. Use with [Game->LItems[]].
+// Level item flags. Used with [Game->LItems[]].
 DEFINE LI_TRIFORCE           = 0x01; // The Triforce of this Level has been obtained
 DEFINE LI_MAP                = 0x02; // The Dungeon Map of this Level has been obtained
 DEFINE LI_COMPASS            = 0x04; // The Compass of this Level has been obtained
 DEFINE LI_BOSS               = 0x08; // A "Dungeon Boss" enemy has been slain
 DEFINE LI_BOSSKEY            = 0x10; // The Boss Key of this Level has been obtained
 
-//Mouse buttons
-DEFINE MB_LEFTCLICK			= 0x1; //AND (&) these with Link->InputMouseB to get the current button state of the mouse
+// Mouse button bitflags, used with [Link->InputMouseB].
+// @deprecated Use [MouseIndex] and [Input->Mouse] instead!
+DEFINE MB_LEFTCLICK			= 0x1;
 DEFINE MB_RIGHTCLICK			= 0x2;
-DEFINE MB_MIDDLECLICK		= 0x4; //Keep in in mind that not all mice/touchpads have a middle mouse button
+DEFINE MB_MIDDLECLICK		= 0x4;
 
 //Controller buttons
 DEFINE CB_UP         = 0;
@@ -588,7 +589,7 @@ DEFINE LW_REFARROW           = 53;
 DEFINE LW_REFFIRE            = 54;
 DEFINE LW_REFFIRE2            = 55;
 
-//EWeapon types. Use with [Screen->CreateEWeapon] and [Screen->LoadEWeapon].
+//EWeapon types. Used with [Screen->CreateEWeapon] and [Screen->LoadEWeapon].
 DEFINE EW_ARROW              = 130;
 DEFINE EW_BRANG              = 131;
 DEFINE EW_BEAM               = 132; // Sword beam
@@ -615,17 +616,17 @@ DEFINE EW_SCRIPT8            = 38;
 DEFINE EW_SCRIPT9            = 39;
 DEFINE EW_SCRIPT10           = 40;
 
-// Use with [lweapon::DeadState] and [eweapon::DeadState].
+// Used with [lweapon::DeadState] and [eweapon::DeadState].
 enum WeaponDeadState {
 	WDS_NOHIT             = -10, // This value switches collision detection off. Deprecated by [lweapon::CollDetection].
 	WDS_ALIVE             = -1,  // Weapon is currently 'alive'.
 	WDS_DEAD              = 0,   // Use to dispose of most weapons.
-	WDS_BEAMSHARDS        = 23,  // Use with [LW_BEAM] to shatter it into shards.
-	WDS_ARROW             = 4,   // Use with [LW_ARROW] to make them 'wink out' using tile 54.
-	WDS_BOUNCE            = 1    // Use with [LW_BRANG] or [LW_HOOKSHOT] to make it 'bounce off' and begin returning to Link.
+	WDS_BEAMSHARDS        = 23,  // Used with [LW_BEAM] to shatter it into shards.
+	WDS_ARROW             = 4,   // Used with [LW_ARROW] to make them 'wink out' using tile 54.
+	WDS_BOUNCE            = 1    // Used with [LW_BRANG] or [LW_HOOKSHOT] to make it 'bounce off' and begin returning to Link.
 };
 
-//Guy IDs. Use with [Screen->CreateNPC].
+//Guy IDs. Used with [Screen->CreateNPC].
 DEFINE NPC_ABEI              = 1;
 DEFINE NPC_AMA               = 2;
 DEFINE NPC_MERCHANT          = 3;
@@ -1169,15 +1170,18 @@ DEFINE PT_MASKTRANSTEXTURE   = 13; // translucent and transparent texture mapped
 DEFINE PT_MASKTRANSPTEXTURE  = 14; // "" 
 
 // Render Targets. Use with Screen->"*RenderTarget" and Screen->"Bitmap" drawing functions.
-DEFINE RT_CURRENT            = -2; // Used by Blit(). mode7(), and RevBlit() for the current RT as dest.
-DEFINE RT_SCREEN             = -1; // draws to screen
-DEFINE RT_BITMAP0            = 0; // draws to off-screen bitmap 0
-DEFINE RT_BITMAP1            = 1; // draws to off-screen bitmap 1
-DEFINE RT_BITMAP2            = 2; // draws to off-screen bitmap 2
-DEFINE RT_BITMAP3            = 3; // draws to off-screen bitmap 3
-DEFINE RT_BITMAP4            = 4; // draws to off-screen bitmap 4
-DEFINE RT_BITMAP5            = 5; // draws to off-screen bitmap 5
-DEFINE RT_BITMAP6            = 6; // draws to off-screen bitmap 6
+enum RenderTarget
+{
+	RT_CURRENT                     = -2, // Used with Blit(). mode7(), and RevBlit() for the current RT as dest.
+	RT_SCREEN                      = -1, // Draws to screen.
+	RT_BITMAP0                     = 0,  // Draws to off-screen bitmap 0.
+	RT_BITMAP1                     = 1,  // Draws to off-screen bitmap 1.
+	RT_BITMAP2                     = 2,  // Draws to off-screen bitmap 2.
+	RT_BITMAP3                     = 3,  // Draws to off-screen bitmap 3.
+	RT_BITMAP4                     = 4,  // Draws to off-screen bitmap 4.
+	RT_BITMAP5                     = 5,  // Draws to off-screen bitmap 5.
+	RT_BITMAP6                     = 6,  // Draws to off-screen bitmap 6.
+};
 
 //Screen Flag categories. Flags from each category are ORed together, starting with the first flag
 //See Screen Data dialog for what flags are contained in each category. Use in Screen->Flags
@@ -1324,7 +1328,7 @@ enum
 };
 
 // Screen Enemy Flag categories, handled in the same way as the SF_ constants.
-// Use with [Screen->EFlags].
+// Used with [Screen->EFlags].
 DEFINE SEF_SPAWN				= 0; // Corresponds to [ScreenEnemyFlagSpawn].
 DEFINE SEF_LIST1				= 1; // Corresponds to [ScreenEnemyFlagList1].
 DEFINE SEF_LIST2				= 2; // Corresponds to [ScreenEnemyFlagList2].
@@ -1402,8 +1406,8 @@ DEFINE DMF_WWINDRET			= 0x0040; //Whistle whirlwind returns Link to beginning
 DEFINE DMF_ALWAYSINTROMSG		= 0x0080; //Always display intro string
 DEFINE DMF_VIEWMAP       		= 0x0100; //View overworld map by pressing 'Map'
 DEFINE DMF_DMAPMAP         		= 0x0200; //...But only show screens marked in minimap
-DEFINE DMF_MINIMAPCOLORFIX 		= 0x0400; //Use minimap foreground colour 2
-DEFINE DMF_MINIMAPCOLOURFIX 		= 0x0400; //Use minimap foreground colour 2
+DEFINE DMF_MINIMAPCOLORFIX 		= 0x0400; //Use minimap foreground color 2
+DEFINE DMF_MINIMAPCOLOURFIX 		= 0x0400; //Use minimap foreground color 2
 DEFINE DMF_SCRIPT1 			= 0x0800; //DMap Script Flags
 DEFINE DMF_SCRIPT2 			= 0x1000;
 DEFINE DMF_SCRIPT3 			= 0x2000;
@@ -1425,8 +1429,8 @@ enum
 	DMFS_ALWAYSINTROMSG,      //Always display intro string
 	DMFS_VIEWMAP,             //View overworld map by pressing 'Map'
 	DMFS_DMAPMAP,             //...But only show screens marked in minimap
-	DMFS_MINIMAPCOLORFIX,     //Use minimap foreground colour 2
-	DMFS_MINIMAPCOLOURFIX = DMFS_MINIMAPCOLORFIX,    //Use minimap foreground colour 2
+	DMFS_MINIMAPCOLORFIX,     //Use minimap foreground color 2
+	DMFS_MINIMAPCOLOURFIX = DMFS_MINIMAPCOLORFIX,    //Use minimap foreground color 2
 	DMFS_SCRIPT1,             //DMap Script Flag 1
 	DMFS_SCRIPT2,             //DMap Script Flag 2
 	DMFS_SCRIPT3,             //DMap Script Flag 3
@@ -1482,7 +1486,7 @@ DEFINE D_OPENSHUTTER         = 12; // A shutter that has been opened
 DEFINE D_1WAYSHUTTER         = 14; // A shutter that locks behind you and never opens
 DEFINE D_NONE                = 16; // No door at all. Hero will not auto-walk.
 
-//Sprite lists. Use with Screen->ClearSprites()
+//Sprite lists. Used with [Screen->ClearSprites()].
 DEFINE SL_GUYS               = 0; // Enemies
 DEFINE SL_ITEMS              = 1; // Items
 DEFINE SL_EWPNS              = 2; // Enemy weapons
@@ -1725,7 +1729,7 @@ DEFINE FFCBF_IGNORECHANGER   	= 0x800;
 DEFINE FFCBF_IMPRECISIONCHANGER    	= 0x1000;
 DEFINE FFCBF_LENSINVIS	   	= 0x2000;
 
-// Used by [AimEWeapon].
+// Used with [AimEWeapon].
 DEFINE AT_NONE		= 0;
 DEFINE AT_4DIR		= 1;
 DEFINE AT_8DIR		= 2;
@@ -1774,9 +1778,8 @@ DEFINE GOS_SAVE2		= 5; 	//Savepoint Screen
 DEFINE GOS_QUIT		= 6;	//Save and Quit Screen
 
 
-// Constants for DrawBitmapEX Modes
-// These work as FLAGS that you may sum, or stack, to combine effects. 
-// Note: Some modes cannot be combined. if a combination is not supported, an error
+// Blit mode flags.
+// Note: Some modes cannot be combined. If a combination is not supported, an error
 //	detailing this will be shown in allegro.log. 
 DEFINE BITDX_NORMAL = 0;
 DEFINE BITDX_TRANS = 1; //Translucent
@@ -1784,12 +1787,12 @@ DEFINE BITDX_PIVOT = 2; //THe sprite will rotate at a specific point, instead of
 DEFINE BITDX_VFLIP = 4; //Vertical Flip.
 DEFINE BITDX_HFLIP = 8; //Horizontal Flip
 
-// Use with [Hero->SetItemSlot].
+// Used with [Hero->SetItemSlot].
 DEFINE ITM_REQUIRE_NONE = 0b00;
 DEFINE ITM_REQUIRE_INVENTORY = 0b01;
 DEFINE ITM_REQUIRE_A_SLOT_RULE = 0b10;
 
-// Use with [Hero->SetItemSlot].
+// Used with [Hero->SetItemSlot].
 enum ItemSlot { ITM_SLOT_B, ITM_SLOT_A, ITM_SLOT_X, ITM_SLOT_Y };
 
 // TODO ! what?? reword
@@ -1865,7 +1868,7 @@ DEFINE SECCMB_SECRETSNEXT	= 44; //Only ->SecretFlags[] has a value for this inde
 DEFINE SECCMB_MAX            = 45;
 //45 to 127 unused. 
 
-//Audio->Volume[]
+// Used with [Audio->Volume[]].
 DEFINE VOL_MIDI 	= 0;
 DEFINE VOL_DIGI	= 1;
 DEFINE VOL_MUSIC	= 2;
@@ -1934,7 +1937,7 @@ enum DMapType {
 	DMAP_BSOVERWORLD
 };
 
-//System Real Time Clock (RTC) categories for GetSystemTime(int category)
+//System Real Time Clock (RTC) categories for [GetSystemTime].
 DEFINE RTC_YEAR		= 0;
 DEFINE RTC_MONTH	= 1;
 DEFINE RTC_DAYOFMONTH	= 2;
@@ -2047,7 +2050,7 @@ enum {
 
 	susptLAST };
 
-// Use with [mapdata::NoCarry] and [screendata::NoCarry].
+// Used with [mapdata::NoCarry] and [screendata::NoCarry].
 define NOCARRY_B_SECRET =			0x2000;
 define NOCARRY_B_ITEM =				0x0010;
 define NOCARRY_B_SPECIALITEM =		0x0020;
@@ -2057,7 +2060,7 @@ define NOCARRY_B_CHEST =			0x0400;
 define NOCARRY_B_LOCKEDCHEST =		0x0800;
 define NOCARRY_B_BOSSCHEST =		0x1000;
 
-// Use with [mapdata::NoReset] and [screendata::NoReset].
+// Used with [mapdata::NoReset] and [screendata::NoReset].
 define NORESET_B_SECRET =			0x2000;
 define NORESET_B_ITEM =				0x0010;
 define NORESET_B_SPECIALITEM =		0x0020;
@@ -2241,7 +2244,10 @@ enum InteractButton
 	INTBTN_EX1,
 	INTBTN_EX2,
 	INTBTN_EX3,
-	INTBTN_EX4
+	INTBTN_EX4,
+
+	INTBTN_X = INTBTN_EX1,
+	INTBTN_Y = INTBTN_EX2,
 };
 
 DEFINE BIT_INTBTN_A = 1b << INTBTN_A;
@@ -2253,8 +2259,6 @@ DEFINE BIT_INTBTN_EX2 = 1b << INTBTN_EX2;
 DEFINE BIT_INTBTN_EX3 = 1b << INTBTN_EX3;
 DEFINE BIT_INTBTN_EX4 = 1b << INTBTN_EX4;
 
-DEFINE INTBTN_X = INTBTN_EX1;
-DEFINE INTBTN_Y = INTBTN_EX2;
 DEFINE BIT_INTBTN_X = BIT_INTBTN_EX1;
 DEFINE BIT_INTBTN_Y = BIT_INTBTN_EX2;
 
@@ -2404,7 +2408,7 @@ enum ComboTrigFlag
 	TRIGFLAG_MAX = 32*6
 };
 
-// Use with [itemdata::Attributes].
+// Used with [itemdata::Attributes].
 // @deprecated Use [BlockBitflags] instead!
 DEFINE BLOCKFLAG_ROCK         = 0x00001;
 DEFINE BLOCKFLAG_ARROW        = 0x00002;
@@ -2425,7 +2429,7 @@ DEFINE BLOCKFLAG_SCRIPT6      = 0x08000;
 DEFINE BLOCKFLAG_SCRIPT7      = 0x10000;
 //Higher blockflag bits are too high for zscript! Use long access...
 
-// Use with [itemdata::LAttributes].
+// Used with [itemdata::LAttributes].
 DEFINEL L_BLOCKFLAG_ROCK         = 0x00000001L;
 DEFINEL L_BLOCKFLAG_ARROW        = 0x00000002L;
 DEFINEL L_BLOCKFLAG_BRANG        = 0x00000004L;
@@ -2575,12 +2579,12 @@ enum //constants for 'GENEV_HEROHIT_HITTYPE' / 'GENEV_HEROHIT_HITTYPE2'
 	NUM_OBJTYPE
 };
 
-// Used by [Hero->HitBy[]] and [npc::HitBy[]].
+// Used with [Hero->HitBy[]] and [npc::HitBy[]].
 DEFINE HIT_BY_NPC                   = 0; //[Hero] only
 DEFINE HIT_BY_EWEAPON               = 1; //[Hero] only
 DEFINE HIT_BY_LWEAPON               = 2;
 DEFINE HIT_BY_FFC                   = 3; //Unimplemented
-DEFINE HIT_BY_NPC_UID               = 4; //[Hero] only. The scripting UID of the enemy, used by [Screen->LoadNPCByUID()].
+DEFINE HIT_BY_NPC_UID               = 4; //[Hero] only. The scripting UID of the enemy, used with [Screen->LoadNPCByUID()].
 DEFINE HIT_BY_EWEAPON_UID           = 5; //[Hero] only
 DEFINE HIT_BY_LWEAPON_UID           = 6;
 DEFINE HIT_BY_FFC_UID               = 7; //Unimplemented
@@ -2737,9 +2741,10 @@ enum
 	MRF_REVERT
 };
 
-DEFINE CIID_FLAG_CHECKCOST     = 0x01;
-DEFINE CIID_FLAG_CHECKJINX     = 0x02;
-DEFINE CIID_FLAG_CHECKBUNNY    = 0x04;
+// Used with [Game->CurrentItemID()].
+DEFINE CIID_FLAG_CHECKCOST     = 0x01; // ignore items whose usecosts are currently not affordable.
+DEFINE CIID_FLAG_CHECKJINX     = 0x02; // ignore items which are currently disabled by jinxes.
+DEFINE CIID_FLAG_CHECKBUNNY    = 0x04; // ignore items which are currently disabled by BunnyClk.
 
 enum
 {
@@ -2810,7 +2815,7 @@ enum //Transition Flags
 	TRANSFLAG_MAX
 };
 
-// Use with [subscreenpage::SelectorMove].
+// Used with [subscreenpage::SelectorMove].
 DEFINE SUBSEL_FLAG_NO_NONEQUIP = 0x01; // Skip widgets that are "Non-equippable".
 DEFINE SUBSEL_FLAG_NEED_ITEM = 0x02; // Skip widgets that currently have no equippable item.
 
