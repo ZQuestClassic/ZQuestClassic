@@ -192,9 +192,8 @@ void zc_exit(int code)
 	jit_shutdown();
 	quit_game();
 
-	Z_message("ZQuest Classic web site: https://zquestclassic.com\n");
-	Z_message("ZQuest Classic old wiki: https://web.archive.org/web/20210910193102/https://zeldaclassic.com/wiki\n");
-	Z_message("ZQuest Classic new wiki: https://github.com/ZQuestClassic/ZQuestClassic/wiki\n");
+	Z_message("ZQuest Classic website: https://zquestclassic.com\n");
+	Z_message("ZQuest Classic docs: https://docs.zquestclassic.com\n");
 
 	allegro_exit();
 	exit(code);
