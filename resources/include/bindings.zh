@@ -58,6 +58,10 @@
 //
 //   These have no impact on the compiler, and serve only as documentation.
 //
+//   Use @param/@value to denote what type something should be, without making it a breaking
+//   change by changing from int to that type. For new stuff, prefer just using the actual type
+//   rather than using @param/@value. Though @param is still good for explaining something about
+//   a specific parameter.
 //
 // Additionally, text wrapped in square brackets at linkified if they resolve to another symbol.
 // For example: [bitmap], [Screen->ComboC], [bitmap::GetPixel].

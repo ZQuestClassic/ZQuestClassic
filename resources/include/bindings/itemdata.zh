@@ -492,9 +492,10 @@ class itemdata {
 	// @zasm_var IDATAPICKUP
 	internal int Pickup;
 
-	// A bitwise flagset representing all the checkboxes for which sizes to
-	// apply from the itemdata. Use the `SZFLAG_` constants to access.
+	// Bitwise flags representing all the checkboxes for which sizes to
+	// apply from the itemdata.
 	//
+	// @value [SizeOverrideBitflags]
 	// @zasm_var IDATAOVERRIDEFL
 	internal int SizeFlags;
 
@@ -509,8 +510,9 @@ class itemdata {
 	internal int WeaponTileHeight;
 
 	// A bitwise flagset representing all the checkboxes for which sizes to
-	// apply from the itemdata. Use the `SZFLAG_` constants to access.
+	// apply from the itemdata.
 	//
+	// @value [SizeOverrideBitflags]
 	// @zasm_var IDATAOVERRIDEFLWEAP
 	internal int WeaponSizeFlags;
 
@@ -558,12 +560,13 @@ class itemdata {
 	// The sprites used for making the weapon change appearance when lit on
 	// fire.
 	//
+	// @index [ItemBurnIndex]
 	// @zasm_var IDATABURNINGSPR
 	internal int BurnSprites[];
 
-	// The burning light radii from `Graphics->Sprites->Burning`. Use the
-	// `ITM_BURNSPR_` constants.
+	// The burning light radii from `Graphics->Sprites->Burning`.
 	//
+	// @index [ItemBurnIndex]
 	// @zasm_var IDATABURNINGLIGHTRAD
 	internal int BurnLightRadius[];
 

@@ -126,8 +126,9 @@ class screendata {
 	// @zasm_var SCREENEFLAGSD
 	internal int EFlags[];
 
-	// The screen room type.
+	// The special room type.
 	//
+	// @value [RoomType]
 	// @zasm_var ROOMTYPE
 	internal int RoomType;
 
@@ -679,8 +680,9 @@ class screendata {
 	//   SETR D2 REFNPC
 	internal npc LoadNPC(int n);
 
-	// Creates a new sprite object, with the given ID. Use the NPC_ constants.
+	// Creates a new sprite object, with the given ID.
 	//
+	// @param [NPCID] id
 	// @zasm
 	//   POP D2
 	//   CREATENPCR D2

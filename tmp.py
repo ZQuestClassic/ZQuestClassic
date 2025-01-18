@@ -52,7 +52,7 @@ name_map = {
     'MOUSE': 'MouseIndex',
     'NOCARRY': 'NoCarryBitflags',
     'NORESET': 'NoResetBitflags',
-    'NPC': 'EnemyID',
+    'NPC': 'NPCID',
     'NPCMF': 'EnemyMiscBitflags',
     'NPCSF': 'EnemySpawnBitflags',
     'PT': 'PolygonRenderMode',

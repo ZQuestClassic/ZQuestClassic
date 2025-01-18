@@ -619,7 +619,7 @@ enum WeaponDeadState {
 	WDS_BOUNCE            = 1    // Used with [LW_BRANG] or [LW_HOOKSHOT] to make it 'bounce off' and begin returning to Link.
 };
 
-//Guy IDs. Used with [Screen->CreateNPC].
+//Enemy IDs. Used with [Screen->CreateNPC].
 DEFINE NPC_ABEI              = 1;
 DEFINE NPC_AMA               = 2;
 DEFINE NPC_MERCHANT          = 3;
@@ -2534,7 +2534,7 @@ DEFINE HIT_BY_LWEAPON_UID           = 6;
 DEFINE HIT_BY_FFC_UID               = 7; //Unimplemented
 DEFINE HIT_BY_LWEAPON_PARENT_ID     = 8; //The item id of the item that the weapon that hit came from. -1 if the lweapon is script created
 DEFINE HIT_BY_LWEAPON_PARENT_FAMILY = 9; //The item class of the item that the weapon that hit came from (see IC_ constants). -1 if the lweapon is script created
-DEFINE HIT_BY_NPC_TYPE              = 10; //[Hero] only. The enemy class of the enemy that hit the [Hero] (see [NpcType] constants)
+DEFINE HIT_BY_NPC_TYPE              = 10; //[Hero] only. The enemy class of the enemy that hit the [Hero] (see [NPCType] constants)
 DEFINE HIT_BY_EWEAPON_TYPE          = 11; // [Hero] only. The ID of the weapon that hit (see LW_ and EW_ constants)
 DEFINE HIT_BY_LWEAPON_TYPE          = 12; //The internal UID used by the engine for the thing. Can case these to their respective types example: `npc n = <npc>(Hero->HitBy[HIT_BY_NPC_PTR])`
 DEFINE HIT_BY_NPC_PTR               = 13;
@@ -2690,7 +2690,7 @@ DEFINE CIID_FLAG_CHECKCOST     = 0x01; // ignore items whose usecosts are curren
 DEFINE CIID_FLAG_CHECKJINX     = 0x02; // ignore items which are currently disabled by jinxes.
 DEFINE CIID_FLAG_CHECKBUNNY    = 0x04; // ignore items which are currently disabled by BunnyClk.
 
-enum
+enum ItemBurnIndex
 {
 	ITM_BURNSPR_NO_BURN,
 	ITM_BURNSPR_ANY_BURN,

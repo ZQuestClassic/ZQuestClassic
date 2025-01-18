@@ -171,8 +171,9 @@ class hero {
 	// @zasm_var LINKDEFENCE
 	internal int Defense[];
 
-	// Stores the ID/UIDs of objects that hurt the Link this frame.
+	// Stores the ID/UIDs of objects that hurt the Hero this frame.
 	//
+	// @index [HitIndex]
 	// @zasm_var LINKHITBY
 	internal untyped HitBy[];
 
@@ -182,40 +183,40 @@ class hero {
 	// @zasm_var LINKLADDERY
 	internal const int LadderY;
 
-	// This returns how long Link will remain invincible, 0 if not invincible.
+	// This returns how long the Hero will remain invincible, 0 if not invincible.
 	// Can be set.
 	//
 	// @zasm_var LINKINVFRAME
 	internal int InvFrames;
 
-	// If set false, Link will neither flash, nor flicker when invincible.
+	// If set false, the Hero will neither flash, nor flicker when invincible.
 	//
 	// @zasm_var LINKCANFLICKER
 	internal bool InvFlicker;
 
-	// The sound that plays when Link is injured. By default this is `16`, but
+	// The sound that plays when the Hero is injured. By default this is `16`, but
 	// you may change it at any time.
 	//
 	// @zasm_var LINKHURTSFX
 	internal int HurtSound;
 
-	// Contains the item IDs of what is currently equiped to Link's B button.
+	// Contains the item IDs of what is currently equiped to the Hero's B button.
 	//
 	// @zasm_var LINKITEMB
 	internal int ItemB;
 
-	// Contains the item IDs of what is currently equiped to Link's A button.
+	// Contains the item IDs of what is currently equiped to the Hero's A button.
 	//
 	// @zasm_var LINKITEMA
 	internal int ItemA;
 
-	// Contains the item IDs of what is currently equiped to Link's X (Ex1)
+	// Contains the item IDs of what is currently equiped to the Hero's X (Ex1)
 	// button.
 	//
 	// @zasm_var LINKITEMX
 	internal int ItemX;
 
-	// Contains the item IDs of what is currently equiped to Link's Y (Ex2)
+	// Contains the item IDs of what is currently equiped to the Hero's Y (Ex2)
 	// button.
 	//
 	// @zasm_var LINKITEMY
@@ -232,9 +233,9 @@ class hero {
 	// @zasm_var LINKGRABBED
 	internal bool Grabbed;
 
-	// Returns the number of frames for which Link will; remain stunned.
+	// Returns the number of frames for which the Hero will; remain stunned.
 	//
-	// Writing to this causes Link to be stunned for 'n' frames.
+	// Writing to this causes the Hero to be stunned for 'n' frames.
 	//
 	// This decrements once per frame.
 	//
@@ -255,7 +256,7 @@ class hero {
 	// @zasm_var HEROBUNNY
 	internal int BunnyClk;
 
-	// Returns the number of frames that Link has been pushing against a solid
+	// Returns the number of frames that the Hero has been pushing against a solid
 	// object.
 	//
 	// @zasm_var LINKPUSH
@@ -466,7 +467,7 @@ class hero {
 	// @zasm_var HEROSHIELDJINX
 	internal int ShieldJinx;
 
-	// This sets what color Link is drawn when flickering.
+	// This sets what color the Hero is drawn when flickering.
 	//
 	// If -1, will use the default from Init Data.
 	//
@@ -476,7 +477,7 @@ class hero {
 	// @zasm_var HEROFLICKERCOLOR
 	internal int FlickerColor;
 
-	// This sets how many times the transparency effect is applied to Link's
+	// This sets how many times the transparency effect is applied to the Hero's
 	// flicker effect.
 	//
 	// If -1, will use the default from Init Data. If 0, will use a solid color.
@@ -487,7 +488,7 @@ class hero {
 	// @zasm_var HEROFLICKERTRANSP
 	internal int FlickerTransparencyPasses;
 
-	// This returns Link's current displayed cset when taking damage or
+	// This returns the Hero's current displayed cset when taking damage or
 	// invincible. If not in one of these states, will return his normal cset.
 	//
 	// If called before [Waitdraw] / Hero update, results may be off by a
@@ -907,7 +908,7 @@ class hero {
 	internal void SetItemB(int item_id);
 
 	// TODO ! what?? reword. or maybe delete? no users.
-	// This allows you to set Link's button items without binary operation with
+	// This allows you to set the Hero's button items without binary operation with
 	// options for forcing them.
 	//
 	// @param [ItemSlot] slot

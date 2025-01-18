@@ -2301,13 +2301,14 @@ lweapon LoadLWeaponOf(int type)
 
 // Returns the first NPC of the given ID. Use the NPC_ constants.
 // If none exist, it returns an uninitialised pointer.
-npc LoadNPCOf(int type)
+// @param [NPCID] id
+npc LoadNPCOf(int id)
 {
 	npc n;
 	for ( int i = Screen->NumNPCs; i > 0; --i )
 	{
 		n = Screen->LoadNPC(i);
-		if (n->ID == type) return n;
+		if (n->ID == id) return n;
 	}
 	npc n2; //NULL
 	return n2;
@@ -2538,7 +2539,7 @@ int NumLWeaponsOf(int type)
 	return ret;
 }
 
-// Valid values for [type]: [NpcType].
+// Valid values for [type]: [NPCType].
 int NumNPCsOf(int type)
 {
 	int ret = 0;

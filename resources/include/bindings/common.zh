@@ -484,7 +484,7 @@ enum SpriteID
 	SP_SBOMB_EXPLOSION             = 75, // Super Bomb Explosion.
 	SP_FIRE_ENEMY                  = 35, // Fire (Enemy).
 	SP_FIRE2_ENEMY                 = 81, // Fire 2 (Enemy).
-	SP_FIRETRAIL2                  = 82, // Fire Trail 2 (Enemy) [Unused].
+	SP_FIRETRAIL2                  = 82, // Fire Trail 2 (Enemy). Unused.
 	SP_FIRETRAIL                   = 80, // Fire Trail (Enemy).
 	SP_FIREBALL                    = 17, // Fireball (Enemy).
 	SP_FLAME                       = 12, // Candle Fire.
@@ -758,8 +758,8 @@ enum ItemID
 	I_WHISTLE                      = 31,
 };
 
-// Item pickup flags. OR (|) these together to use with item->Pickup
-// Other values are reserved for internal usage, and have no effect.
+// Item pickup bitflags. Used with [item::Pickup].
+// Many values are reserved for internal usage, and have no effect.
 enum ItemPickupBitflags
 {
 	IP_BIGRANGE                    = 0x0001, // INTERNAL Collision rectangle is large.
@@ -853,8 +853,8 @@ enum EWeaponType
 	EW_SCRIPT10                    = 40,
 };
 
-// Guy IDs. Used with [Screen->CreateNPC].
-enum EnemyID
+// Enemy IDs. Used with [Screen->CreateNPC].
+enum NPCID
 {
 	NPC_ABEI                       = 1,
 	NPC_AMA                        = 2,
@@ -1596,7 +1596,7 @@ enum ItemRequireBitflags
 	ITM_REQUIRE_A_SLOT_RULE        = 0b10,
 };
 
-// Input->Mouse[].
+// Used with [Input->Mouse].
 enum MouseIndex
 {
 	MOUSE_X                        = 0,
@@ -1607,7 +1607,7 @@ enum MouseIndex
 	MOUSE_MIDDLE                   = 5,
 };
 
-// Screen->SecretCombo.
+// Used with [Screen->SecretCombo], [Screen->SecretCSet], [Screen->SecretFlags], and [mapdata].
 enum SecretComboIndex
 {
 	SECCMB_BCANDLE                 = 0,
@@ -1856,7 +1856,7 @@ enum HitIndex
 	HIT_BY_FFC_UID                 = 7,  // Unimplemented.
 	HIT_BY_LWEAPON_PARENT_ID       = 8,  // The item id of the item that the weapon that hit came from. -1 if the lweapon is script created.
 	HIT_BY_LWEAPON_PARENT_FAMILY   = 9,  // The item class of the item that the weapon that hit came from (see IC_ constants). -1 if the lweapon is script created.
-	HIT_BY_NPC_TYPE                = 10, // [Hero] only. The enemy class of the enemy that hit the [Hero] (see [NpcType] constants).
+	HIT_BY_NPC_TYPE                = 10, // [Hero] only. The enemy class of the enemy that hit the [Hero] (see [NPCType] constants).
 	HIT_BY_EWEAPON_TYPE            = 11, // [Hero] only. The ID of the weapon that hit (see LW_ and EW_ constants).
 	HIT_BY_LWEAPON_TYPE            = 12, // The internal UID used by the engine for the thing. Can case these to their respective types example: `npc n = <npc>(Hero->HitBy[HIT_BY_NPC_PTR])`.
 	HIT_BY_NPC_PTR                 = 13,

@@ -27,8 +27,9 @@ class mapdata {
 	// @zasm_var MAPDATASTRING
 	internal int String;
 
-	// The screen room type. Use the `RT_` constants for this value.
+	// The special room type.
 	//
+	// @value [RoomType]
 	// @zasm_var MAPDATAROOM
 	internal int RoomType;
 

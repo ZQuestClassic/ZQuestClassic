@@ -86,8 +86,7 @@ class lweapon {
 	// @zasm_var LWPNFLASHCSET
 	internal int FlashCSet;
 
-	// The deadstate of the weapon, denoted by the [WeaponDeadState] constants.
-	//
+	// @value [WeaponDeadState]
 	// @zasm_var LWPNDEAD
 	internal int DeadState;
 
