@@ -684,7 +684,7 @@ class hero {
 	// @zasm_var HEROTOTALDYOFFS
 	internal const int TotalDYOffset;
 
-	// Link->Equipment is now read-write, and needs testing.
+	// Hero->Equipment is now read-write, and needs testing.
 	//
 	// @zasm_var LINKEQUIP
 	internal int Equipment;

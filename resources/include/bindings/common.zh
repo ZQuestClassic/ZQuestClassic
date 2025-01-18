@@ -95,7 +95,7 @@ enum SwitchEffect
 	SW_EFF_RISE
 };
 
-// Used with [Screen->SetSideWarp] and [Link->WarpEx]
+// Used with [Screen->SetSideWarp] and [Hero->WarpEx]
 enum WarpType
 {
 	WT_CAVE,
@@ -589,7 +589,7 @@ enum LevelItemBitflags
 	LI_BOSSKEY                     = 0x10, // The Boss Key of this Level has been obtained.
 };
 
-// Mouse button bitflags, used with [Link->InputMouseB].
+// Mouse button bitflags, used with [Hero->InputMouseB].
 // @deprecated Use [MouseIndex] and [Input->Mouse] instead!
 enum MouseButtonBitflags
 {
@@ -628,7 +628,7 @@ enum ButtonIndex
 	CB_MAX                         = 18,
 };
 
-// Item IDs. Use with CreateItem() and Link->Item[].
+// Item IDs. Use with CreateItem() and Hero->Item[].
 // These are DEFAULT values, and may not be correct for custom quests which
 // have overridden item action data.
 enum ItemID
@@ -1699,7 +1699,7 @@ enum RealTimeClockCategory
 	RTC_LAST                       = 9,
 };
 
-// Warp Effects for Link->WarpEx.
+// Warp Effects for Hero->WarpEx.
 enum WarpEffect
 {
 	WARPEFFECT_NONE                = 0,

@@ -360,7 +360,7 @@ DEFINE LI_COMPASS            = 0x04; // The Compass of this Level has been obtai
 DEFINE LI_BOSS               = 0x08; // A "Dungeon Boss" enemy has been slain
 DEFINE LI_BOSSKEY            = 0x10; // The Boss Key of this Level has been obtained
 
-// Mouse button bitflags, used with [Link->InputMouseB].
+// Mouse button bitflags, used with [Hero->InputMouseB].
 // @deprecated Use [MouseIndex] and [Input->Mouse] instead!
 DEFINE MB_LEFTCLICK			= 0x1;
 DEFINE MB_RIGHTCLICK			= 0x2;
@@ -395,7 +395,7 @@ DEFINE CB_MAX        = 18;
 
 
 
-//Item IDs. Use with CreateItem() and Link->Item[].
+//Item IDs. Use with CreateItem() and Hero->Item[].
 //These are DEFAULT values, and may not be correct for custom quests which
 //have overridden item action data.
 DEFINE I_AMULET1             = 50;
@@ -1908,7 +1908,7 @@ DEFINE RTC_DAYOFYEAR	= 7;
 DEFINE RTC_DAYLIGHTTIME	= 8;
 DEFINE RTC_LAST		= 9;
 
-//Warp Effects for Link->WarpEx
+//Warp Effects for Hero->WarpEx
 DEFINE WARPEFFECT_NONE = 0;
 DEFINE WARPEFFECT_ZAP = 1;
 DEFINE WARPEFFECT_WAVE = 2;
