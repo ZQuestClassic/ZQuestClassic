@@ -502,18 +502,21 @@ END_OF_FUNCTION(fps_callback)
 static RenderTreeItem rti_root("root");
 static LegacyBitmapRTI rti_screen("screen");
 
-static int zc_gui_mouse_x()
+RenderTreeItem& gui_mouse_target()
 {
 	if (rti_dialogs.has_children())
-		return rti_dialogs.get_children().back()->rel_mouse().first;
-	return rti_screen.rel_mouse().first;
+		return *rti_dialogs.get_children().back();
+	return rti_screen;
+}
+
+static int zc_gui_mouse_x()
+{
+	return gui_mouse_target().rel_mouse().first;
 }
 
 static int zc_gui_mouse_y()
 {
-	if (rti_dialogs.has_children())
-		return rti_dialogs.get_children().back()->rel_mouse().second;
-	return rti_screen.rel_mouse().second;
+	return gui_mouse_target().rel_mouse().second;
 }
 
 int window_mouse_x()
