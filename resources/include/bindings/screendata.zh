@@ -54,9 +54,9 @@ class screendata {
 	// @zasm_var SCRDOORD
 	internal int Door[];
 
-	// The 32 screen states used by this screen. Use the [ScreenState] constants to
-	// access.
+	// The 32 screen states used by this screen.
 	//
+	// @index [ScreenState]
 	// @zasm_var SCREENSTATED
 	internal bool State[];
 

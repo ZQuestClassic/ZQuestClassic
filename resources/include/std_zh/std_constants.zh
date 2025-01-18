@@ -394,8 +394,7 @@ DEFINE CB_AXIS_RIGHT = 17;
 DEFINE CB_MAX        = 18;
 
 
-
-//Item IDs. Use with CreateItem() and Hero->Item[].
+//Item IDs. Used with [Screen->CreateItem] and [Hero->Item].
 //These are DEFAULT values, and may not be correct for custom quests which
 //have overridden item action data.
 DEFINE I_AMULET1             = 50;
@@ -2752,7 +2751,7 @@ enum
 	TRANS_PIXEL_ARG_MAX
 };
 
-enum //Transition Flags
+enum TransitionFlagIndex
 {
 	TRANSFLAG_NO_HIDE_SELECTOR,
 	TRANSFLAG_MAX

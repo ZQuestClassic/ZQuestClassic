@@ -462,9 +462,9 @@ class mapdata {
 	// @zasm_var MAPDATACOMBOED
 	internal int ComboE[];
 
-	// The screen states used for this screen. Use the `ST_` constants to access
-	// this.
+	// The screen states used for this screen.
 	//
+	// @index [ScreenState]
 	// @zasm_var MAPDATASCREENSTATED
 	internal bool State[];
 

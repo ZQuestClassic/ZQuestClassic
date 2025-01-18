@@ -628,7 +628,7 @@ enum Button
 	CB_MAX                         = 18,
 };
 
-// Item IDs. Use with CreateItem() and Hero->Item[].
+// Item IDs. Used with [Screen->CreateItem] and [Hero->Item].
 // These are DEFAULT values, and may not be correct for custom quests which
 // have overridden item action data.
 enum ItemID

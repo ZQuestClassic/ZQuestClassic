@@ -190,7 +190,6 @@ DEFINEF RAD_DIR_RIGHT 	= 0;
 
 
 
-
 // Used with [lweapon::DeadState] and [eweapon::DeadState].
 enum WeaponDeadState {
 	WDS_NOHIT             = -10, // This value switches collision detection off. Deprecated by [lweapon::CollDetection].
@@ -888,47 +887,14 @@ enum WeaponMoveFlag
 	WPNMV_NO_REAL_Z
 };
 
-// @deprecated Use [MoveFlag] instead.
-enum NPCMoveFlagIndex
-{
-	NPCMV_OBEYS_GRAVITY,
-	NPCMV_CAN_PITFALL,
-	NPCMV_CAN_PIT_WALK,
-	NPCMV_CAN_WATERDROWN,
-	NPCMV_CAN_WATER_WALK,
-	NPCMV_ONLY_WATER_WALK,
-	NPCMV_ONLY_SHALLOW_WATER_WALK,
-	NPCMV_ONLY_PIT_WALK,
-	NPCMV_NO_FAKE_Z,
-	NPCMV_NO_REAL_Z,
-	NPCMV_USE_FAKE_Z,
-	NPCMV_IGNORE_SOLIDITY,
-	NPCMV_IGNORE_BLOCKFLAGS,
-	NPCMV_IGNORE_SCREENEDGE,
-	NPCMV_USE_SCRIPTED_MOVEMENT_ENGINE,
-	NPCMV_NOT_PUSHABLE_BY_SOLIDS
-};
-
-// TODO ! move to sprite.zh
 enum MoveFlag
 {
 	MV_OBEYS_GRAVITY,
 	MV_CAN_PITFALL,
-	MV_CAN_PIT_WALK,
-	MV_CAN_WATERDROWN,
-	MV_CAN_WATER_WALK,
-	MV_ONLY_WATER_WALK,
-	MV_ONLY_SHALLOW_WATER_WALK,
-	MV_ONLY_PIT_WALK,
-	MV_NO_FAKE_Z,
-	MV_NO_REAL_Z,
-	MV_USE_FAKE_Z,
-	MV_IGNORE_SOLIDITY,
-	MV_IGNORE_BLOCKFLAGS,
-	MV_IGNORE_SCREENEDGE,
-	MV_USE_SCRIPTED_MOVEMENT_ENGINE,
-	MV_NOT_PUSHABLE_BY_SOLIDS,
+	MV_NO_FAKE_Z = 8,
+	MV_NO_REAL_Z
 };
+
 
 // "special" walk flags
 enum NPCWalkType
@@ -1465,7 +1431,7 @@ enum
 	TRANS_PIXEL_ARG_MAX
 };
 
-enum //Transition Flags
+enum TransitionFlagIndex
 {
 	TRANSFLAG_NO_HIDE_SELECTOR,
 	TRANSFLAG_MAX

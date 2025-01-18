@@ -1389,11 +1389,12 @@ itemdata GetItemData(item i)
 	return Game->LoadItemData(i->ID);
 }
 
-//Returns true if an item's Pickup state is set
-//Use the IP_ constants for the 'pickup' argument of this function
-bool GetItemPickup(item i, int pickup)
+// Returns true if an item's Pickup state is set.
+//
+// @param [ItemPickupBitflags] bitflags
+bool GetItemPickup(item i, int bitflags)
 {
-	return (i->Pickup&pickup);
+	return (i->Pickup&bitflags);
 }
 
 //A shorthand way to get a combo on the current layer.
@@ -1477,12 +1478,13 @@ int GetLayerComboT(int layer, int pos)
 	return Game->LoadTempScreen(layer)->ComboT[pos];
 }
 
-//Returns true if Link has the level item 'itm' from level 'level'
-//Overloaded to use the current level if no 'level' arg is entered
-//Use the LI_ constants for the 'itm' argument
-bool GetLevelItem(int level, int itm)
+// Returns true if Link has the level item 'itm' from level 'level'
+// Overloaded to use the current level if no 'level' arg is entered
+//
+// @param [LevelItemBitflags] bitflags
+bool GetLevelItem(int level, int bitflags)
 {
-	return (Game->LItems[level]&itm);
+	return (Game->LItems[level]&bitflags);
 }
 bool GetLevelItem(int itm)
 {
@@ -2271,8 +2273,10 @@ bool LinkCollision(ffc f)
 	return RectCollision(f->X, f->Y, f->X+(f->TileWidth*16)-1, f->Y+(f->TileHeight*16)-1, ax, ay, ax+Hero->HitWidth-1, ay+Hero->HitHeight-1);
 }
 
-// Returns the first EWeapon of the given type. Use the EW_ constants.
+// Returns the first EWeapon of the given type.
 // If none exist, it returns an uninitialised pointer.
+//
+// @param [EWeaponType] type
 eweapon LoadEWeaponOf(int type)
 {
 	eweapon w;
@@ -2301,6 +2305,7 @@ lweapon LoadLWeaponOf(int type)
 
 // Returns the first NPC of the given ID. Use the NPC_ constants.
 // If none exist, it returns an uninitialised pointer.
+//
 // @param [NPCID] id
 npc LoadNPCOf(int id)
 {
@@ -2498,10 +2503,10 @@ int NumEWeaponsOf(int type)
 	}
 	return ret;
 }
-// Use the I_ constants.
+
 // Warning: these iterate over every onscreen item.
-// Iterating over every onscreen lweapon multiple times per frame may
-// cause slowdown in Zelda Classic.
+//
+// @param [ItemID] type
 int NumItemsOf(int type)
 {
 	int ret = 0;
@@ -2522,10 +2527,9 @@ int NumKeys(int level = -1)
 	return Game->LKeys[level]+Game->Counter[CR_KEYS];
 }
 
-// Use the LW_ constants.
 // Warning: these iterate over every onscreen lweapon.
-// Iterating over every onscreen lweapon multiple times per frame may
-// cause slowdown in Zelda Classic.
+//
+// @param [LWeaponType] type
 int NumLWeaponsOf(int type)
 {
 	int ret = 0;
@@ -2539,7 +2543,7 @@ int NumLWeaponsOf(int type)
 	return ret;
 }
 
-// Valid values for [type]: [NPCType].
+// @param [NPCType] type
 int NumNPCsOf(int type)
 {
 	int ret = 0;

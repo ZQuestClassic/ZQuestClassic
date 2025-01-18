@@ -238,8 +238,7 @@ class subscreendata {
 
 	// The flags for the current transition.
 	//
-	// Use the `TRANSFLAG_` constants to access these.
-	//
+	// @index [TransitionFlagIndex]
 	// @zasm_var SUBDATATRANSFLAGS
 	internal bool TransFlags[];
 
