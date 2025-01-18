@@ -808,8 +808,7 @@ enum MessageFlag
 	MSGFLAG_TRANS_FG,     // If the text should be translucent
 };
 
-// TODO ! delete this, but we need a `bool mapdata::Flagset[]` ...
-//Flags for GetMapscreenFlag, SetMapscreenFlag
+// Flags for [GetMapscreenFlag], [SetMapscreenFlag].
 enum mapscreenflags
 {
 	// Room Types

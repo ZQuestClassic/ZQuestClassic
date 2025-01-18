@@ -231,7 +231,7 @@ DEFINE SP_BOMB_EXPLOSION 		= 9; //Normal Bomb Explosion
 DEFINE SP_SBOMB_EXPLOSION 		= 75; //Super Bomb Explosion
 DEFINE SP_FIRE_ENEMY 		= 35; //Fire (Enemy)
 DEFINE SP_FIRE2_ENEMY 		= 81; //Fire 2 (Enemy)
-DEFINE SP_FIRETRAIL2			= 82; //Fire Trail 2 (Enemy) [Unused]
+DEFINE SP_FIRETRAIL2			= 82; //Fire Trail 2 (Enemy). Unused.
 DEFINE SP_FIRETRAIL 			= 80; //Fire Trail (Enemy)
 DEFINE SP_FIREBALL 			= 17; //Fireball (Enemy)
 DEFINE SP_FLAME 			= 12; //Candle Fire
@@ -1769,7 +1769,7 @@ DEFINE ITM_REQUIRE_A_SLOT_RULE = 0b10;
 // Used with [Hero->SetItemSlot].
 enum ItemSlot { ITM_SLOT_B, ITM_SLOT_A, ITM_SLOT_X, ITM_SLOT_Y };
 
-//Input->Mouse[]
+// Used with [Input->Mouse].
 DEFINE MOUSE_X = 0;
 DEFINE MOUSE_Y = 1;
 DEFINE MOUSE_Z = 2;
@@ -1779,7 +1779,7 @@ DEFINE MOUSE_MIDDLE = 5;
 
 //MapData
 
-// Screen->SecretCombo
+// Used with [Screen->SecretCombo], [Screen->SecretCSet], [Screen->SecretFlags], and [mapdata].
 DEFINE SECCMB_BCANDLE 	= 0;
 DEFINE SECCMB_ARROW		= 1;	
 DEFINE SECCMB_BOMB		= 2;
@@ -2033,8 +2033,7 @@ enum MessageFlag
 	MSGFLAG_TRANS_FG,     // If the text should be translucent
 };
 
-// TODO ! delete this, but we need a `bool mapdata::Flagset[]` ...
-//Flags for GetMapscreenFlag, SetMapscreenFlag
+// Flags for [GetMapscreenFlag], [SetMapscreenFlag].
 enum mapscreenflags
 {
 	// Room Types
