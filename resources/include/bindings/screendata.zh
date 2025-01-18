@@ -35,7 +35,6 @@ class screendata {
 	internal int ComboI[];
 
 	// @value [ComboType]
-	//
 	// @zasm_var COMBOTD
 	internal int ComboT[];
 
@@ -189,7 +188,6 @@ class screendata {
 	//
 	// @index [TileWarpIndex]
 	// @value [WarpType]
-	//
 	// @zasm_var SCREENDATATILEWARPTYPE
 	internal int TileWarpType[];
 
@@ -257,7 +255,6 @@ class screendata {
 	// The enemy 'Spawn Pattern'.
 	//
 	// @value [EnemyPattern]
-	//
 	// @zasm_var SCREENDATAPATTERN
 	internal int Pattern;
 
@@ -266,7 +263,6 @@ class screendata {
 	//
 	// @index [SideWarpIndex]
 	// @value [WarpType]
-	//
 	// @zasm_var SCREENDATASIDEWARPTYPE
 	internal int SideWarpType[];
 
@@ -336,17 +332,16 @@ class screendata {
 	// @zasm_var SCREENDATACSENSITIVE
 	internal int CSensitive;
 
-	// The No Reset Flagset. Values are ORd together as follows:
+	// Which parts of the screen state that won't reset on reentry.
 	//
-	// TODO: document values
-	//
+	// @value [NoResetBitflags]
 	// @zasm_var SCREENDATANORESET
 	internal int NoReset;
 
-	// The No Carry Over Flagset. Values are ORd together s follows:
+	// For screen state carryovers, which parts of the screen state that won't carry over to the
+	// target screen.
 	//
-	// TODO: document values
-	//
+	// @value [NoCarryBitflags]
 	// @zasm_var SCREENDATANOCARRY
 	internal int NoCarry;
 
@@ -420,19 +415,19 @@ class screendata {
 
 	// The Combo IDs used by 'Secret Combos' on this screen.
 	//
-	// @index [SecretComboIndex] - `SECCMB_`
+	// @index [SecretComboIndex]
 	// @zasm_var SCREENDATASECRETCOMBO
 	internal int SecretCombo[];
 
 	// The CSets used by 'Secret Combos' on this screen.
 	//
-	// @index [SecretComboIndex] - `SECCMB_`
+	// @index [SecretComboIndex]
 	// @zasm_var SCREENDATASECRETCSET
 	internal int SecretCSet[];
 
 	// The Combo Flags used by 'Secret Combos' on this screen.
 	//
-	// @index [SecretComboIndex] - `SECCMB_`
+	// @index [SecretComboIndex]
 	// @zasm_var SCREENDATASECRETFLAG
 	internal int SecretFlags[];
 

@@ -213,7 +213,6 @@ class lweapon {
 	// A set of weapon flags.
 	//
 	// @index [WeaponFlagIndex]
-	//
 	// @zasm_var LWPNFLAGS
 	internal bool Flags[];
 
@@ -264,8 +263,7 @@ class lweapon {
 
 	// The burning light radii associated with sprites of the weapon.
 	//
-	// @index [WeaponSpriteIndex](`WPN_SPRITE_`).
-	//
+	// @index [WeaponSpriteIndex]
 	// @zasm_var LWPNBURNLIGHTRADIUS
 	internal int BurnLightRadius[];
 

@@ -283,7 +283,6 @@ class npc {
 	// The death effect for the npc.
 	//
 	// @value [NpcFade]
-	//
 	// @zasm_var NPCFADING
 	internal int Fading;
 
@@ -330,14 +329,12 @@ class npc {
 	// The type, or 'enemy class' of the enemy.
 	//
 	// @value [NpcType]
-	//
 	// @zasm_var NPCTYPE
 	internal int Type;
 
 	// The type, or 'enemy class' of the enemy. Same as [Type].
 	//
 	// @value [NpcType]
-	//
 	// @zasm_var NPCTYPE
 	internal int Family;
 
@@ -351,14 +348,12 @@ class npc {
 	internal int OriginalTile;
 
 	// @value [NpcWeapon]
-	//
 	// @zasm_var NPCWEAPON
 	internal int Weapon;
 
 	// The Dropset ID that this enemy will drop from when killed.
 	//
 	// @value [ItemSet]
-	//
 	// @zasm_var NPCITEMSET
 	internal int ItemSet;
 
@@ -370,7 +365,6 @@ class npc {
 	internal int Dropset;
 
 	// @value [BossPal]
-	//
 	// @zasm_var NPCBOSSPAL
 	internal BossPal BossPal;
 
@@ -413,7 +407,6 @@ class npc {
 	//
 	// Valid indices are [NpcDefenseIndex].
 	// @value [NpcDefenseType]
-	//
 	// @zasm_var NPCDEFENSED
 	internal int Defense[];
 

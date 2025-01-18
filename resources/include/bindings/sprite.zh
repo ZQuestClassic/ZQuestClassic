@@ -62,7 +62,6 @@ class sprite {
 	// to determine movement, shield deflection and such.
 	//
 	// @value [Direction]
-	//
 	// @zasm_var SPRITE_DIR
 	internal int Dir;
 
@@ -135,7 +134,6 @@ class sprite {
 	// The drawing mode to use.
 	//
 	// @value [DrawStyle]
-	//
 	// @zasm_var SPRITE_DRAW_STYLE
 	internal int DrawStyle;
 

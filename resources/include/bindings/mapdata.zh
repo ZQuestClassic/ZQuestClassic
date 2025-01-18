@@ -41,7 +41,6 @@ class mapdata {
 	// respectively.
 	//
 	// @value [WarpType]
-	//
 	// @zasm_var MAPDATATILEWARPTYPE
 	internal int TileWarpType[];
 
@@ -132,7 +131,6 @@ class mapdata {
 	// The spawn pattern for the screen enemies.
 	//
 	// @value [EnemyPattern]
-	//
 	// @zasm_var MAPDATAPATTERN
 	internal int Pattern;
 
@@ -140,7 +138,6 @@ class mapdata {
 	// respectively.
 	//
 	// @value [WarpType]
-	//
 	// @zasm_var MAPDATASIDEWARPTYPE
 	internal int SideWarpType[];
 

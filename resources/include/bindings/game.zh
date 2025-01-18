@@ -278,7 +278,7 @@ class Game {
 
 	// The values of all Quest Rules.
 	//
-	// @index [QR] - `qr_`
+	// @index [QR]
 	// @zasm_var FFRULE
 	internal bool FFRules[];
 
@@ -352,25 +352,25 @@ class Game {
 
 	// Values related to gravity.
 	//
-	// @index [GravityIndex] - `GR_`
+	// @index [GravityIndex]
 	// @zasm_var GAMEGRAVITY
 	internal int Gravity[];
 
 	// Values related to scrolling.
 	//
-	// @index [ScrollingIndex] - `SCROLL_`
+	// @index [ScrollingIndex]
 	// @zasm_var GAMESCROLLING
 	internal const int Scrolling[];
 
 	// The `Quest->Graphics->Sprites->Misc Sprites` values.
 	//
-	// @index [MiscSpriteIndex] - `MISCSPR_`
+	// @index [MiscSpriteIndex]
 	// @zasm_var GAMEMISCSPR
 	internal int MiscSprites[];
 
 	// The `Quest->Audio->Misc SFX` values.
 	//
-	// @index [MiscSfx] - `MISCSFX_`
+	// @index [MiscSfx]
 	// @zasm_var GAMEMISCSFX
 	internal int MiscSFX[];
 

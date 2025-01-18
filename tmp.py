@@ -8,8 +8,6 @@ path = Path('resources/include/std_zh/std_constants.zh')
 
 
 # TODO ! ctl+f "constants", delete.
-# TODO ! ctl+f "TODO: document values", delete.
-# TODO ! ctl+f "valid indices/values"
 # TODO ! "@deprecated Use [Max] instead!" - let's do a shorthand, like @deprecated_getter, etc.
 
 # TODO !

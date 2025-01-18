@@ -181,7 +181,7 @@ class eweapon {
 
 	// The weapon's flags.
 	//
-	// @index [WeaponFlagIndex] - `WFLAG_`
+	// @index [WeaponFlagIndex]
 	// @zasm_var EWPNFLAGS
 	internal bool Flags[];
 
@@ -234,7 +234,7 @@ class eweapon {
 
 	// The burning light radii associated with sprites of the weapon.
 	//
-	// @index [WeaponSpriteIndex] - `WPN_SPRITE_`
+	// @index [WeaponSpriteIndex]
 	// @zasm_var EWPNBURNLIGHTRADIUS
 	internal int BurnLightRadius[];
 

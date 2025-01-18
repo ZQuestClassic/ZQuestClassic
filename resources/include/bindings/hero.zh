@@ -88,7 +88,6 @@ class hero {
 	internal int MaxMP;
 
 	// @value [HeroAction]
-	//
 	// @zasm_var LINKACTION
 	internal int Action;
 
@@ -504,7 +503,6 @@ class hero {
 	internal const int FlashingCSet;
 
 	// @value [HeroSliding]
-	//
 	// @zasm_var HEROSLIDING
 	internal const int Sliding;
 
