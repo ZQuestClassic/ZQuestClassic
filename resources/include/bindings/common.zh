@@ -1576,7 +1576,7 @@ enum GameOverStringIndex
 	GOSTR_QUIT                     = 6, // Save and Quit Screen.
 };
 
-// Blit mode flags.
+// Used with the blit drawing functions.
 // Some modes cannot be combined. If a combination is not supported, an error
 // detailing this will be shown in allegro.log.
 enum BlitModeBitflags

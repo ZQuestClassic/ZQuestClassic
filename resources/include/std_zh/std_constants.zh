@@ -1751,7 +1751,7 @@ DEFINE GOSTR_SAVEANDQUIT	= 4;	//Save and Quit Screen
 DEFINE GOSTR_SAVE2		= 5; 	//Savepoint Screen
 DEFINE GOSTR_QUIT		= 6;	//Save and Quit Screen
 
-// Blit mode flags.
+// Used with the blit drawing functions.
 // Some modes cannot be combined. If a combination is not supported, an error
 // detailing this will be shown in allegro.log. 
 DEFINE BITDX_NORMAL = 0;

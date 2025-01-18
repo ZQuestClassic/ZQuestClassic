@@ -11,6 +11,7 @@ out_path = Path('resources/include/std_zh/std_constants2.zh')
 # TODO ! many enums in std_constants.zh need names
 # TODO ! ctl+f "constants", delete/update.
 # TODO ! ctl+f "will be", update.
+# TODO ! ctl+f "flagset", update.
 # TODO ! ex for `Game->GetCurScreen()" - let's do a shorthand, like @deprecated_getter, etc; so only one symbol.
 
 # TODO ! this is illegal rn, assuming "AnimFlags" is changed from int -> AnimationBitflags:
