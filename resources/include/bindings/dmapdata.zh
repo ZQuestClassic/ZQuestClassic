@@ -45,7 +45,7 @@ class dmapdata {
 	// @zasm_var DMAPDATACONTINUE
 	internal int Continue;
 
-	// The type of the dmap, using the [DMapType] (`DMAP_`) constants.
+	// The type of the dmap, using the [DMapType] constants.
 	//
 	// @zasm_var DMAPDATATYPE
 	internal int Type;
@@ -170,7 +170,7 @@ class dmapdata {
 
 	// The flags used by the DMap. These are OR'd together. See [DMapBitwiseFlag].
 	//
-	// @deprecated Use [Flagset] instead!
+	// @future_deprecated Use [Flagset] instead!
 	// @zasm_var DMAPDATAFLAGS
 	internal int Flags;
 

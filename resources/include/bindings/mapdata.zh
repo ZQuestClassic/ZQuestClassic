@@ -162,8 +162,8 @@ class mapdata {
 
 	// The four directions you must go for the maze path.
 	//
-	// Valid indices: [DIR_UP], [DIR_DOWN], [DIR_LEFT], [DIR_RIGHT]
-	//
+	// @length 4
+	// @value [DIR_UP], [DIR_DOWN], [DIR_LEFT], [DIR_RIGHT]
 	// @zasm_var MAPDATAPATH
 	internal int MazePath[];
 
@@ -172,13 +172,12 @@ class mapdata {
 	// @zasm_var MAPDATASIDEWARPSC
 	internal int SideWarpScreen[];
 
-	// Returns the sidewarp ID for a given screen edge, as `SideWarpID[dir]`;
+	// The sidewarp ID for each screen edge.
 	//
-	// Returns [SIDEWARP_NONE] if there is no sidewarp in that direction.
+	// [SIDEWARP_NONE] if there is no sidewarp in that direction.
 	//
-	// Valid indices: [DIR_UP], [DIR_DOWN], [DIR_LEFT], [DIR_RIGHT]
-	// Valid values: [SideWarpIndex] (`SIDEWARP_`)
-	//
+	// @index [DIR_UP], [DIR_DOWN], [DIR_LEFT], [DIR_RIGHT]
+	// @value [SideWarpIndex] (`SIDEWARP_`)
 	// @zasm_var MAPDATASIDEWARPID
 	internal int SideWarpID[];
 

@@ -1225,28 +1225,24 @@ int FirstComboOf(int t, int layer)
 int GetEquipmentA()
 {
 	return Hero->ItemA;
-	//return (Hero->Equipment&0xFF);
 }
 
 //Returns the item ID of the item equipped to the B button
 int GetEquipmentB()
 {
 	return Hero->ItemB;
-	//return ((Hero->Equipment&0xFF00)>>8);
 }
 
 //Returns the item ID of the item equipped to the X button
 int GetEquipmentX()
 {
 	return Hero->ItemX;
-	//return ((Hero->Equipment&0xFF00)>>8);
 }
 
 //Returns the item ID of the item equipped to the Y button
 int GetEquipmentY()
 {
 	return Hero->ItemY;
-	//return ((Hero->Equipment&0xFF00)>>8);
 }
 
 // Returns true if DMap bitwise flags 'flag' is set on dmap 'dmap'.
@@ -1254,11 +1250,18 @@ int GetEquipmentY()
 // Only works with the `DMF_` flags - `DMFS_` is not supported.
 // TODO ! use flag type DMapBitwiseFlag
 //
-// @deprecated Use [dmapdata::Flagset] instead.
+// @deprecated Use [dmapdata::Flagset] instead, with [DMapFlag].
 bool GetDMapFlag(int dmap, int flag)
 {
 	dmapdata dm = Game->LoadDMapData(dmap);
 	return (dm->Flags&flag);
+}
+
+// Returns true if [flag] is set on the given dmap.
+bool GetDMapFlag(int dmap, DMapFlag flag)
+{
+	dmapdata dm = Game->LoadDMapData(dmap);
+	return dm->Flagset[flag];
 }
 
 int GetFirstItemOf(int itemclass)

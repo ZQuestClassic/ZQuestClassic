@@ -420,22 +420,19 @@ class screendata {
 
 	// The Combo IDs used by 'Secret Combos' on this screen.
 	//
-	// See `SECCMB_` in std_constants.zh for more information.
-	//
+	// @index [SecretComboIndex] - `SECCMB_`
 	// @zasm_var SCREENDATASECRETCOMBO
 	internal int SecretCombo[];
 
 	// The CSets used by 'Secret Combos' on this screen.
 	//
-	// See `SECCMB_` in std_constants.zh for more information.
-	//
+	// @index [SecretComboIndex] - `SECCMB_`
 	// @zasm_var SCREENDATASECRETCSET
 	internal int SecretCSet[];
 
 	// The Combo Flags used by 'Secret Combos' on this screen.
 	//
-	// See `SECCMB_` in std_constants.zh for more information.
-	//
+	// @index [SecretComboIndex] - `SECCMB_`
 	// @zasm_var SCREENDATASECRETFLAG
 	internal int SecretFlags[];
 

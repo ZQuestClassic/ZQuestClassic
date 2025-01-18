@@ -79,23 +79,21 @@ class combodata {
 
 	// How to flip (or rotate) the combo.
 	//
-	// Valid values: [TransformationType] (`FLIP_` or `ROT_`).
-	//
+	// @value {@link TransformationType|TransformationType (FLIP_ or ROT_)}
 	// @zasm_var COMBODFLIP
 	internal int Flip;
 
-	// The solidity bitmask of the combo (same as [Screen->ComboS])
+	// The solidity bitmask of the combo (same as [Screen->ComboS]).
 	//
 	// @zasm_var COMBODWALK
 	internal int Walk;
 
-	// The effect bitmask of the combo (same as [Screen->ComboE])
+	// The effect bitmask of the combo (same as [Screen->ComboE]).
 	//
 	// @zasm_var COMBODEFFECT
 	internal int Effect;
 
-	// Valid values: [ComboType] (`CT_`).
-	//
+	// @value [ComboType]
 	// @zasm_var COMBODTYPE
 	internal int Type;
 
