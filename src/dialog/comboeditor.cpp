@@ -2923,7 +2923,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						IBTN("If the counter has the specified amount, consume it."
 							" Negative amount will add to the counter."),
 						TRIGFLAG(53,"Consume amount"),
-						IBTN("The 'Consume Amount' will occur even if the combo does not meet its' trigger conditions."),
+						IBTN("The 'Consume Amount' will occur even if the combo does not meet its' *counter based* trigger conditions."),
 						TRIGFLAG(54,"Consume w/o trig")
 					)
 				)
