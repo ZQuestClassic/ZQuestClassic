@@ -29,20 +29,20 @@ jobs:
   create-tag:
     runs-on: ubuntu-latest
     outputs:
-      release-tag: ${{ steps.make-vars.outputs.release-tag }}
-      release-name: ${{ steps.make-vars.outputs.release-name }}
-      previous-release-tag: ${{ steps.make-vars.outputs.previous-release-tag }}
+      release-tag: 2.55.8
+      release-name: 2.55.8
+      previous-release-tag: 2.55.7
     steps:
       - name: git clone
         uses: actions/checkout@v3
       - run: git fetch --prune --unshallow --tags
-      - id: make-vars
-        run: |
-          python3 .github/workflows/print-release-name-vars.py \
-            --github_org=${{ github.repository_owner }} \
-            --full_release=${{ github.event.inputs.full_release }} \
-            --version_type=${{ github.event.inputs.versiontype }} \
-            --number=${{ inputs.number }}
+      # - id: make-vars
+      #   run: |
+      #     python3 .github/workflows/print-release-name-vars.py \
+      #       --github_org=${{ github.repository_owner }} \
+      #       --full_release=${{ github.event.inputs.full_release }} \
+      #       --version_type=${{ github.event.inputs.versiontype }} \
+      #       --number=${{ inputs.number }}
 
       - name: Setup Sentry CLI
         uses: mathieu-bour/setup-sentry-cli@v1.3.0
@@ -54,7 +54,7 @@ jobs:
           project: zelda-classic
       - run: sentry-cli --version
         if: inputs.sentry
-      - run: sentry-cli --log-level=DEBUG releases new 'zelda-classic@${{ steps.make-vars.outputs.release-tag }}'
+      - run: sentry-cli --log-level=DEBUG releases new 'zelda-classic@2.55.8'
         if: inputs.sentry
 
   build-release:
@@ -62,26 +62,26 @@ jobs:
     strategy:
       matrix:
         include:
-          - runs-on: windows-2022
-            arch: x64
-            compiler: msvc
-            config: RelWithDebInfo
-            sentry: ${{ inputs.sentry }}
-          - runs-on: windows-2022
-            arch: win32
-            compiler: msvc
-            config: RelWithDebInfo
-            sentry: ${{ inputs.sentry }}
+          # - runs-on: windows-2022
+          #   arch: x64
+          #   compiler: msvc
+          #   config: RelWithDebInfo
+          #   sentry: ${{ inputs.sentry }}
+          # - runs-on: windows-2022
+          #   arch: win32
+          #   compiler: msvc
+          #   config: RelWithDebInfo
+          #   sentry: ${{ inputs.sentry }}
           - runs-on: macos-13
             arch: intel
             compiler: clang
             config: RelWithDebInfo
             sentry: ${{ inputs.sentry }}
-          - runs-on: ubuntu-22.04
-            arch: x64
-            compiler: clang
-            config: RelWithDebInfo
-            sentry: ${{ inputs.sentry }}
+          # - runs-on: ubuntu-22.04
+          #   arch: x64
+          #   compiler: clang
+          #   config: RelWithDebInfo
+          #   sentry: ${{ inputs.sentry }}
       fail-fast: false
     uses: ./.github/workflows/build.yml
     with:
@@ -114,20 +114,20 @@ jobs:
         with:
           path: release-packages
 
-      - name: Generate changelog
-        run: python scripts/generate_changelog.py --format markdown --from ${{ needs.create-tag.outputs.previous-release-tag }} --for-nightly=${{ github.event.inputs.full_release != 'true' }} > new_changelog.md
+      # - name: Generate changelog
+      #   run: python scripts/generate_changelog.py --format markdown --from ${{ needs.create-tag.outputs.previous-release-tag }} --for-nightly=${{ github.event.inputs.full_release != 'true' }} > new_changelog.md
 
-      - name: Release
-        uses: softprops/action-gh-release@v1
-        with:
-          name: ${{ needs.create-tag.outputs.release-name }}
-          tag_name: ${{ needs.create-tag.outputs.release-tag }}
-          target_commitish: ${{ github.sha }}
-          files: release-packages/**/*
-          prerelease: ${{ !inputs.full_release }}
-          fail_on_unmatched_files: true
-          generate_release_notes: false
-          body_path: new_changelog.md
+      # - name: Release
+      #   uses: softprops/action-gh-release@v1
+      #   with:
+      #     name: ${{ needs.create-tag.outputs.release-name }}
+      #     tag_name: ${{ needs.create-tag.outputs.release-tag }}
+      #     target_commitish: ${{ github.sha }}
+      #     files: release-packages/**/*
+      #     prerelease: ${{ !inputs.full_release }}
+      #     fail_on_unmatched_files: true
+      #     generate_release_notes: false
+      #     body_path: new_changelog.md
 
       - name: Setup Sentry CLI
         if: inputs.sentry
@@ -143,30 +143,30 @@ jobs:
           sentry-cli --log-level=DEBUG releases set-commits 'zelda-classic@${{ needs.create-tag.outputs.release-tag }}' --auto --ignore-missing
           sentry-cli --log-level=DEBUG releases finalize 'zelda-classic@${{ needs.create-tag.outputs.release-tag }}'
 
-      - uses: actions/github-script@v6
-        with:
-          github-token: ${{ secrets.WEBSITE_REPO_TOKEN }}
-          script: |
-            await github.rest.actions.createWorkflowDispatch({
-              owner: 'ZQuestClassic',
-              repo: 'zquestclassic.com',
-              workflow_id: 'deploy.yml',
-              ref: 'main',
-            })
-            await github.rest.actions.createWorkflowDispatch({
-              owner: 'ZQuestClassic',
-              repo: 'web.zquestclassic.com',
-              workflow_id: 'deploy.yml',
-              ref: 'main',
-            })
+      # - uses: actions/github-script@v6
+      #   with:
+      #     github-token: ${{ secrets.WEBSITE_REPO_TOKEN }}
+      #     script: |
+      #       await github.rest.actions.createWorkflowDispatch({
+      #         owner: 'ZQuestClassic',
+      #         repo: 'zquestclassic.com',
+      #         workflow_id: 'deploy.yml',
+      #         ref: 'main',
+      #       })
+      #       await github.rest.actions.createWorkflowDispatch({
+      #         owner: 'ZQuestClassic',
+      #         repo: 'web.zquestclassic.com',
+      #         workflow_id: 'deploy.yml',
+      #         ref: 'main',
+      #       })
 
-      - name: Setup s3cmd
-        uses: s3-actions/s3cmd@4e3a53c3e9313f573ff3f69aec7a772366f2f8f5
-        with:
-          provider: digitalocean
-          region: nyc3
-          access_key: ${{ secrets.S3_ACCESS_KEY }}
-          secret_key: ${{ secrets.S3_SECRET_KEY }}
+      # - name: Setup s3cmd
+      #   uses: s3-actions/s3cmd@4e3a53c3e9313f573ff3f69aec7a772366f2f8f5
+      #   with:
+      #     provider: digitalocean
+      #     region: nyc3
+      #     access_key: ${{ secrets.S3_ACCESS_KEY }}
+      #     secret_key: ${{ secrets.S3_SECRET_KEY }}
 
-      - name: Upload to s3 bucket
-        run: python scripts/upload_releases_to_s3.py
+      # - name: Upload to s3 bucket
+      #   run: python scripts/upload_releases_to_s3.py
