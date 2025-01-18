@@ -283,6 +283,7 @@ void clear_tooltip();
 
 std::pair<int, int> zc_get_mouse();
 
+RenderTreeItem& gui_mouse_target();
 int window_mouse_x();
 int window_mouse_y();
 

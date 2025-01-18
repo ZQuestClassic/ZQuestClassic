@@ -347,6 +347,32 @@ void GuiMenu::do_draw()
 	draw(screen,state.sel_ind);
 	state.dirty = false;
 }
+MenuRet GuiMenu::pop(uint x, uint y, GuiMenu* parent)
+{
+	if(close_button_quit)
+		return MRET_NIL;
+	MenuRet ret = MRET_NIL;
+	update_hw_screen();
+	
+	quit_all_menu = false;
+	
+	ttip_uninstall_all();
+	
+	popup_zqdialog_start("popup_menu", RTI_TY_POPUP_MENU, x, y, width(), height());
+	zqdialog_set_skiptint(true);
+	
+	position(0, 0);
+	reset_state();
+	state.parent = parent;
+	state.rti = &gui_mouse_target();
+	ret = run_loop();
+	reset_state();
+	clear_keybuf();
+	
+	popup_zqdialog_end();
+	
+	return ret;
+}
 
 void GuiMenu::add(MenuItem const& entry)
 {
@@ -471,6 +497,18 @@ void GuiMenu::position(uint x, uint y)
 	xpos = x;
 	ypos = y;
 }
+int GuiMenu::rel_mouse_x() const
+{
+	if(state.rti)
+		return state.rti->rel_mouse().first;
+	return gui_mouse_x();
+}
+int GuiMenu::rel_mouse_y() const
+{
+	if(state.rti)
+		return state.rti->rel_mouse().second;
+	return gui_mouse_y();
+}
 optional<uint> GuiMenu::press_shortcut(char c)
 {
 	if(!(c&0xFF))
@@ -505,6 +543,25 @@ optional<uint> GuiMenu::press_shortcut_key(char c)
 	return nullopt;
 }
 
+bool GuiMenu::parent_check() const
+{
+	GuiMenu* p = state.parent;
+	while(p)
+	{
+		optional<uint> ind = p->hovered_ind();
+		if(!ind) // recurse parents
+		{
+			p = p->state.parent;
+			continue;
+		}
+		if(ind == p->state.sel_ind)
+			return false; // same menu, no change
+		if(p->entries[*ind].isEmpty())
+			return false; // a '--' separator, don't do anything
+		return true;
+	}
+	return false;
+}
 //Concrete; vertical menu
 
 NewMenu::NewMenu(std::initializer_list<MenuItem>&& entries)
@@ -519,7 +576,7 @@ NewMenu::NewMenu(optional<uint> chop, bool borderless,
 {}
 optional<uint> NewMenu::hovered_ind() const
 {
-	int mx = gui_mouse_x()-xpos, my = gui_mouse_y()-ypos;
+	int mx = rel_mouse_x()-xpos, my = rel_mouse_y()-ypos;
 	if(mx < border || mx >= width()-border)
 		return nullopt;
 	int ty = border;
@@ -545,7 +602,7 @@ optional<uint> NewMenu::hovered_ind() const
 }
 bool NewMenu::has_mouse() const
 {
-	int mx = gui_mouse_x()-xpos, my = gui_mouse_y()-ypos;
+	int mx = rel_mouse_x()-xpos, my = rel_mouse_y()-ypos;
 	if(mx < border || mx >= width()-border
 		|| my < border || my >= height()-border)
 		return false;
@@ -600,8 +657,6 @@ void NewMenu::trigger(uint indx)
 		state.old_mb = 0;
 	}
 	else quit_all_menu = true;
-	while(gui_mouse_b())
-		rest(1);
 }
 optional<uint> NewMenu::get_x(uint indx) const
 {
@@ -624,31 +679,9 @@ optional<uint> NewMenu::get_y(uint indx) const
 }
 MenuRet NewMenu::pop(uint x, uint y, GuiMenu* parent)
 {
-	if(close_button_quit)
-		return MRET_NIL;
-	MenuRet ret = MRET_NIL;
-	update_hw_screen();
 	x = MID(0, x, zq_screen_w-width()-1);
 	y = MID(0, y, zq_screen_h-height()-1);
-	
-	quit_all_menu = false;
-	
-	ttip_uninstall_all();
-	
-	popup_zqdialog_start("popup_menu", RTI_TY_POPUP_MENU, x, y, width(), height());
-	zqdialog_set_skiptint(true);
-	
-	while(gui_mouse_b())
-		rest(1);
-	position(0, 0);
-	ret = run_loop(parent);
-	clear_keybuf();
-	
-	popup_zqdialog_end();
-	
-	while(gui_mouse_b())
-		rest(1);
-	return ret;
+	return GuiMenu::pop(x, y, parent);
 }
 void NewMenu::pop_sub(uint indx, GuiMenu* parent)
 {
@@ -728,10 +761,9 @@ void NewMenu::draw(BITMAP* dest, optional<uint> hl)
 		y += mit.calc_height(MISTYLE_POPUP, drawflags, menu_font);
 	}
 }
-MenuRet NewMenu::run_loop(GuiMenu* parent)
+MenuRet NewMenu::run_loop()
 {
 	optional<uint> msel = hovered_ind();
-	reset_state();
 	if(msel)
 		state.sel_ind = msel;
 	else
@@ -746,20 +778,32 @@ MenuRet NewMenu::run_loop(GuiMenu* parent)
 			return ret;
 		bool earlyret = false;
 		mb = gui_mouse_b();
-		auto mx = gui_mouse_x()-xpos, my = gui_mouse_y()-ypos;
+		auto mx = rel_mouse_x()-xpos, my = rel_mouse_y()-ypos;
 		optional<uint> osel = state.sel_ind;
 		optional<uint> msel2 = hovered_ind();
-		if(mb || msel != msel2)
+		if(msel != msel2)
+		{
 			state.sel_ind = msel = msel2;
+			state.just_mdown = false;
+		}
+		if(mb && state.old_mb == 0)
+			state.just_mdown = true;
+		if(mb && !msel) // check if a parent menu is being hovered!
+		{
+			if(parent_check())
+				earlyret = true;
+		}
 		bool doclick = false;
 		if(state.old_mb)
 		{
 			if(XOR(mb, *state.old_mb))
 			{
-				if(!msel)
-					earlyret = true;
-				if(!mb) //released
+				if(!mb && state.just_mdown) //released
+				{
 					doclick = true;
+					if(!msel)
+						earlyret = true;
+				}
 			}
 		}
 		if(state.old_mb || !mb)
@@ -848,36 +892,37 @@ MenuRet NewMenu::run_loop(GuiMenu* parent)
 		}
 		if(state.sel_ind != osel)
 			state.dirty = true;
-		
-		if(state.dirty)
-			do_draw();
-		
 		if(state.sel_ind && *state.sel_ind >= chop_sz())
 			state.sel_ind.reset();
-		if(!state.sel_ind)
-			doclick = false;
-		
-		if(earlyret)
-			return ret;
-		
-		if(doclick && entries[*state.sel_ind].isDisabled())
+		else if(state.sel_ind && doclick && entries[*state.sel_ind].isDisabled())
 		{
 			doclick = false;
 			state.sel_ind.reset();
 		}
+		
+		if(state.dirty)
+			do_draw();
+		
+		if(earlyret)
+			return ret;
+		
+		if(mb && msel2 && entries[*msel2].isParent())
+			doclick = true; // expand menus on any mousedown
 		if(doclick)
 		{
 			trigger(*state.sel_ind);
 			if(quit_all_menu)
 				return ret;
+			state.old_mb.reset();
 			mb = gui_mouse_b();
+			state.sel_ind = msel = hovered_ind();
 		}
 		update_hw_screen();
 	}
 	while(true);
 	return ret;
 }
-void NewMenu::run(bool allow_focus, GuiMenu* parent)
+void NewMenu::run(bool allow_focus)
 {
 	optional<uint> msel = hovered_ind();
 	auto mb = gui_mouse_b();
@@ -888,8 +933,12 @@ void NewMenu::run(bool allow_focus, GuiMenu* parent)
 	}
 	bool earlyret = false;
 	mb = gui_mouse_b();
-	auto mx = gui_mouse_x()-xpos, my = gui_mouse_y()-ypos;
+	auto mx = rel_mouse_x()-xpos, my = rel_mouse_y()-ypos;
 	optional<uint> osel = state.sel_ind;
+	if(msel != state.sel_ind)
+		state.just_mdown = false;
+	if(mb && state.old_mb == 0)
+		state.just_mdown = true;
 	if(mb || (msel && state.sel_ind != msel))
 	{
 		state.sel_ind = msel;
@@ -900,10 +949,12 @@ void NewMenu::run(bool allow_focus, GuiMenu* parent)
 	{
 		if(XOR(mb, *state.old_mb))
 		{
-			if(!msel)
-				earlyret = true;
-			if(!mb) //released
+			if(!mb && state.just_mdown) //released
+			{
 				doclick = true;
+				if(!msel)
+					earlyret = true;
+			}
 		}
 	}
 	if(state.old_mb || !mb)
@@ -980,12 +1031,17 @@ void NewMenu::run(bool allow_focus, GuiMenu* parent)
 	}
 	if(state.sel_ind != osel)
 		state.dirty = true;
+	if(state.sel_ind && *state.sel_ind >= chop_sz())
+		state.sel_ind.reset();
+	else if(state.sel_ind && doclick && entries[*state.sel_ind].isDisabled())
+	{
+		doclick = false;
+		state.sel_ind.reset();
+	}
 	
 	if(state.dirty)
 		do_draw();
 	
-	if(state.sel_ind && *state.sel_ind >= chop_sz())
-		state.sel_ind.reset();
 	if(!state.sel_ind)
 		doclick = false;
 	
@@ -995,20 +1051,21 @@ void NewMenu::run(bool allow_focus, GuiMenu* parent)
 		return;
 	}
 	
-	if(doclick && entries[*state.sel_ind].isDisabled())
-	{
-		doclick = false;
-		state.sel_ind.reset();
-	}
+	if(mb && msel && entries[*msel].isParent())
+		doclick = true; // expand menus on any mousedown
 	if(doclick)
 	{
+		state.rti = &gui_mouse_target();
 		trigger(*state.sel_ind);
+		state.rti = nullptr;
 		if(quit_all_menu)
 		{
 			reset_state();
 			return;
 		}
+		state.old_mb.reset();
 		mb = gui_mouse_b();
+		state.sel_ind = msel = hovered_ind();
 	}
 	update_hw_screen();
 	return;
@@ -1028,7 +1085,7 @@ TopMenu::TopMenu(optional<uint> chop, bool borderless,
 {}
 optional<uint> TopMenu::hovered_ind() const
 {
-	int mx = gui_mouse_x()-xpos, my = gui_mouse_y()-ypos;
+	int mx = rel_mouse_x()-xpos, my = rel_mouse_y()-ypos;
 	if(my < vborder || my >= height()-vborder)
 		return nullopt;
 	int tx = hborder;
@@ -1051,7 +1108,7 @@ optional<uint> TopMenu::hovered_ind() const
 }
 bool TopMenu::has_mouse() const
 {
-	int mx = gui_mouse_x()-xpos, my = gui_mouse_y()-ypos;
+	int mx = rel_mouse_x()-xpos, my = rel_mouse_y()-ypos;
 	if(mx < (int)hborder || mx >= width()-hborder
 		|| my < vborder || my >= height()-vborder)
 		return false;
@@ -1097,8 +1154,6 @@ void TopMenu::trigger(uint indx)
 		state.old_mb = 0;
 	}
 	else quit_all_menu = true;
-	while(gui_mouse_b())
-		rest(1);
 }
 optional<uint> TopMenu::get_x(uint indx) const
 {
@@ -1115,32 +1170,6 @@ optional<uint> TopMenu::get_y(uint indx) const
 	if(indx >= chop_sz())
 		return nullopt;
 	return vborder;
-}
-MenuRet TopMenu::pop(uint x, uint y, GuiMenu* parent)
-{
-	if(close_button_quit)
-		return MRET_NIL;
-	MenuRet ret = MRET_NIL;
-	update_hw_screen();
-	
-	quit_all_menu = false;
-	
-	ttip_uninstall_all();
-	
-	popup_zqdialog_start("popup_menu", RTI_TY_POPUP_MENU, x, y, width(), height());
-	zqdialog_set_skiptint(true);
-	
-	while(gui_mouse_b())
-		rest(1);
-	position(0, 0);
-	ret = run_loop(parent);
-	clear_keybuf();
-	
-	popup_zqdialog_end();
-	
-	while(gui_mouse_b())
-		rest(1);
-	return ret;
 }
 void TopMenu::pop_sub(uint indx, GuiMenu* parent)
 {
@@ -1210,9 +1239,8 @@ void TopMenu::draw(BITMAP* dest, optional<uint> hl)
 		x += mit.calc_width(MISTYLE_TOP, drawflags, menu_font);
 	}
 }
-MenuRet TopMenu::run_loop(GuiMenu* parent)
+MenuRet TopMenu::run_loop()
 {
-	reset_state();
 	optional<uint> msel = hovered_ind();
 	if(msel)
 		state.sel_ind = msel;
@@ -1228,20 +1256,32 @@ MenuRet TopMenu::run_loop(GuiMenu* parent)
 		bool earlyret = false;
 		rest(1);
 		mb = gui_mouse_b();
-		auto mx = gui_mouse_x()-xpos, my = gui_mouse_y()-ypos;
+		auto mx = rel_mouse_x()-xpos, my = rel_mouse_y()-ypos;
 		optional<uint> osel = state.sel_ind;
 		optional<uint> msel2 = hovered_ind();
-		if(mb || msel != msel2)
+		if(msel != msel2)
+		{
 			state.sel_ind = msel = msel2;
+			state.just_mdown = false;
+		}
+		if(mb && state.old_mb == 0)
+			state.just_mdown = true;
+		if(mb && !msel) // check if a parent menu is being hovered!
+		{
+			if(parent_check())
+				earlyret = true;
+		}
 		bool doclick = false;
 		if(state.old_mb)
 		{
 			if(XOR(mb, *state.old_mb))
 			{
-				if(!msel)
-					earlyret = true;
-				if(!mb) //released
+				if(!mb && state.just_mdown) //released
+				{
 					doclick = true;
+					if(!msel)
+						earlyret = true;
+				}
 			}
 		}
 		if(state.old_mb || !mb)
@@ -1330,29 +1370,33 @@ MenuRet TopMenu::run_loop(GuiMenu* parent)
 		}
 		if(state.sel_ind != osel)
 			state.dirty = true;
+		if(state.sel_ind && *state.sel_ind >= chop_sz())
+			state.sel_ind.reset();
+		else if(state.sel_ind && doclick && entries[*state.sel_ind].isDisabled())
+		{
+			doclick = false;
+			state.sel_ind.reset();
+		}
 		
 		if(state.dirty)
 			do_draw();
 		
-		if(state.sel_ind && *state.sel_ind >= chop_sz())
-			state.sel_ind.reset();
 		if(!state.sel_ind)
 			doclick = false;
 		
 		if(earlyret)
 			return ret;
 		
-		if(doclick && entries[*state.sel_ind].isDisabled())
-		{
-			doclick = false;
-			state.sel_ind.reset();
-		}
+		if(mb && msel2 && entries[*msel2].isParent())
+			doclick = true; // expand menus on any mousedown
 		if(doclick)
 		{
 			trigger(*state.sel_ind);
 			if(quit_all_menu)
 				return ret;
+			state.old_mb.reset();
 			mb = gui_mouse_b();
+			state.sel_ind = msel = hovered_ind();
 		}
 		update_hw_screen();
 	}
@@ -1360,7 +1404,7 @@ MenuRet TopMenu::run_loop(GuiMenu* parent)
 	return ret;
 }
 
-void TopMenu::run(bool allow_focus, GuiMenu* parent)
+void TopMenu::run(bool allow_focus)
 {
 	optional<uint> msel = hovered_ind();
 	auto mb = gui_mouse_b();
@@ -1371,8 +1415,13 @@ void TopMenu::run(bool allow_focus, GuiMenu* parent)
 	}
 	bool earlyret = false;
 	mb = gui_mouse_b();
-	auto mx = gui_mouse_x()-xpos, my = gui_mouse_y()-ypos;
+	auto mx = rel_mouse_x()-xpos, my = rel_mouse_y()-ypos;
 	optional<uint> osel = state.sel_ind;
+	
+	if(msel != state.sel_ind)
+		state.just_mdown = false;
+	if(mb && state.old_mb == 0)
+		state.just_mdown = true;
 	if(mb || (msel && state.sel_ind != msel))
 	{
 		state.sel_ind = msel;
@@ -1383,10 +1432,12 @@ void TopMenu::run(bool allow_focus, GuiMenu* parent)
 	{
 		if(XOR(mb, *state.old_mb))
 		{
-			if(!msel)
-				earlyret = true;
-			if(!mb) //released
+			if(!mb && state.just_mdown) //released
+			{
 				doclick = true;
+				if(!msel)
+					earlyret = true;
+			}
 		}
 	}
 	if(state.old_mb || !mb)
@@ -1458,33 +1509,38 @@ void TopMenu::run(bool allow_focus, GuiMenu* parent)
 	}
 	if(state.sel_ind != osel)
 		state.dirty = true;
+	if(state.sel_ind && *state.sel_ind >= chop_sz())
+		state.sel_ind.reset();
+	else if(state.sel_ind && doclick && entries[*state.sel_ind].isDisabled())
+	{
+		doclick = false;
+		state.sel_ind.reset();
+	}
 	
 	if(state.dirty)
 		do_draw();
 	
-	if(state.sel_ind && *state.sel_ind >= chop_sz())
-		state.sel_ind.reset();
-	if(!state.sel_ind)
-		doclick = false;
 	if(earlyret)
 	{
 		reset_state();
 		return;
 	}
-	if(doclick && entries[*state.sel_ind].isDisabled())
-	{
-		doclick = false;
-		state.sel_ind.reset();
-	}
+	
+	if(mb && msel && entries[*msel].isParent())
+		doclick = true; // expand menus on any mousedown
 	if(doclick)
 	{
+		state.rti = &gui_mouse_target();
 		trigger(*state.sel_ind);
+		state.rti = nullptr;
 		if(quit_all_menu)
 		{
 			reset_state();
 			return;
 		}
+		state.old_mb.reset();
 		mb = gui_mouse_b();
+		state.sel_ind = msel = hovered_ind();
 	}
 	return;
 }
