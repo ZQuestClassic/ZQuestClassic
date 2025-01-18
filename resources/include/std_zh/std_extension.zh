@@ -1482,7 +1482,7 @@ void NoInput()
 //Kills inputs from A, B, L, R, Start, Map, and Ex buttons. 
 void NoInput(bool stick)
 { 
-	int max = ( stick ) ? CB_MAX : 14;
+	int max = ( stick ) ? CB_MAX : CB_STICKUP;
 	for ( int q = CB_UP; q < max; ++q )
 	{
 		Input->Button[q] = false;
@@ -1521,7 +1521,7 @@ void NoPress()
 //Kills presses from A, B, L, R, Start, Map, and Ex buttons. 
 void NoPress(bool stick)
 { 
-	int max = ( stick ) ? CB_MAX : 14;
+	int max = ( stick ) ? CB_MAX : CB_STICKUP;
 	for ( int q = CB_UP; q < max; ++q )
 	{
 		Input->Press[q] = false;

@@ -1,4 +1,4 @@
-#include "std_zh/std_constants.zh"
+#include "std_zh/std_constants2.zh"
 #include "std_zh/script_runners.zh"
 
 //Returns if Link is above an npc.

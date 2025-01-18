@@ -5,8 +5,9 @@ import re
 from pathlib import Path
 
 path = Path('resources/include/std_zh/std_constants.zh')
+out_path = Path('resources/include/std_zh/std_constants2.zh')
 
-
+# TODO ! when done: delete std_constants2.zh, replace std_constants.zh
 # TODO ! ctl+f "constants", delete.
 # TODO ! "@deprecated Use [Max] instead!" - let's do a shorthand, like @deprecated_getter, etc.
 
@@ -77,23 +78,28 @@ def normalize_comment(comment: str):
     return comment
 
 
+content_lines = list(path.read_text().splitlines())
 current_comment = ''
+current_comment_lines = []
 enum_top_comment = {}
 enums = {}
 lines_to_delete = []
 
-for line in path.read_text().splitlines():
+for i, line in enumerate(content_lines):
     if line.startswith('//'):
         current_comment += line[2:] + '\n'
+        current_comment_lines.append(i)
         continue
 
     if not line.lower().startswith('define'):
         current_comment = ''
+        current_comment_lines = []
         continue
 
     result = re.search(r'[a-zA-Z\d]+_[a-zA-Z\d_]+', line)
     if not result:
         current_comment = ''
+        current_comment_lines = []
         continue
 
     name = result.group(0)
@@ -101,10 +107,12 @@ for line in path.read_text().splitlines():
 
     if prefix == 'FONT' and name.endswith('_HEIGHT'):
         current_comment = ''
+        current_comment_lines = []
         continue
 
     if name.endswith('_SIZE'):
         current_comment = ''
+        current_comment_lines = []
         continue
 
     if prefix in [
@@ -130,18 +138,22 @@ for line in path.read_text().splitlines():
     # gonna delete
     if prefix in ['CSET']:
         current_comment = ''
+        current_comment_lines = []
         continue
 
     # confusing... ignore.
     if prefix in ['NPCA', 'BIT']:
         current_comment = ''
+        current_comment_lines = []
         continue
 
     if prefix not in enums:
         enums[prefix] = []
         if current_comment:
             enum_top_comment[prefix] = normalize_comment(current_comment)
+            lines_to_delete.extend(current_comment_lines)
             current_comment = ''
+            current_comment_lines = []
 
     value = re.search(r'=(.+);', line).group(1).strip()
 
@@ -152,8 +164,9 @@ for line in path.read_text().splitlines():
         comment = None
 
     enums[prefix].append((name, value, comment))
-    lines_to_delete.append(line)
+    lines_to_delete.append(i)
 
+enum_lines = []
 for enum_name, pairs in enums.items():
     if len(pairs) == 1:
         continue
@@ -165,24 +178,26 @@ for enum_name, pairs in enums.items():
         print(f'ERROR! missing in name map: {enum_name}')
         exit(1)
 
-    lines = []
     if top_comment:
         comment_lines = [f'// {l.strip()}' for l in top_comment.splitlines()]
-        lines.extend(comment_lines)
-    lines.append(f'enum {name}')
-    lines.append('{')
+        enum_lines.extend(comment_lines)
+    enum_lines.append(f'enum {name}')
+    enum_lines.append('{')
 
     max_val_len = max(len(p[1]) for p in pairs)
 
     for name, value, comment in pairs:
-        lines.append(f'\t{name:30} = {value},')
+        enum_lines.append(f'\t{name:30} = {value},')
         if comment:
-            lines[-1] += (max_val_len - len(value)) * ' ' + f' // {comment}'
+            enum_lines[-1] += (max_val_len - len(value)) * ' ' + f' // {comment}'
 
-    lines.append('}')
+    enum_lines.append('};')
+    enum_lines.append('')
 
-    print('\n'.join(lines))
-    print()
-
-# TODO: delete stuff.
-# lines_to_delete
+out_lines = []
+for i, line in enumerate(content_lines):
+    if i not in lines_to_delete:
+        out_lines.append(line)
+out_lines.append('')
+out_lines.extend(enum_lines)
+out_path.write_text('\n'.join(out_lines))

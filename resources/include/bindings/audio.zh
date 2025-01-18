@@ -5,7 +5,7 @@ class Audio {
 	// @delete
 	internal Audio();
 
-	// The audio panning style. Use the `PAN_` constants for this value.
+	// The audio panning style. Use the `PAN_` constants for this value. TODO ! I don't exist
 	//
 	// @zasm_var AUDIOPAN
 	internal int PanStyle;
