@@ -159,11 +159,16 @@ for i, line in enumerate(content_lines):
 
     value = re.search(r'=(.+);', line).group(1).strip()
 
+    comment = None
     m = re.search(r';.*//(.+)', line)
     if m:
         comment = normalize_comment(m.group(1))
     else:
-        comment = None
+        if current_comment:
+            comment = normalize_comment(current_comment)
+            lines_to_delete.extend(current_comment_lines)
+            current_comment = ''
+            current_comment_lines = []
 
     enums[prefix].append((name, value, comment))
     lines_to_delete.append(i)

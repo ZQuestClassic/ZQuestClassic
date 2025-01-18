@@ -296,8 +296,6 @@ DEFINE SP_WAND 			= 15; //Wand Object
 DEFINE SP_WHIRL		 	= 13; //Whiste Whirlwind
 DEFINE SP_WIND 			= 36; //Wind Magic (Enemy)
 
-//User-Defined Sprites Range 088 to 255
-
 
 // Extra Directions. Used with some stuff?
 // @deprecated Use [Direction] instead!
@@ -314,7 +312,7 @@ DEFINE DIR2_DOWNRIGHT         = 11;
 DEFINE DIR2_DOWNLEFT          = 13;
 DEFINE DIR2_UPLEFT            = 15;
 
-					//Equivalent Degrees and Radians for Cardinal Directions
+//Equivalent Degrees and Radians for Cardinal Directions
 //Degrees
 DEFINE DEG_DIR_RIGHTUP 	= 315;
 DEFINE DEG_DIR_UPRIGHT 	= 315;
@@ -354,8 +352,6 @@ DEFINE EXT_32X32		= 2; // Sprite is extended as 32x32, or Link is extended in Sp
 DEFINE EXT_NORMAL            = 3; // Extended
 DEFINE EXT_EXTENDED          = 3; // Extended
 DEFINE EXT_NOSHADOW          = 4; // Extended. NPC has no shadow.
-
-//! We need some better names for Extend constants. 
 
 // Level item flags. Used with [Game->LItems].
 DEFINE LI_TRIFORCE           = 0x01; // The Triforce of this Level has been obtained
@@ -570,8 +566,7 @@ DEFINE LW_REFROCK            = 18; // Reflected rock
 DEFINE LW_REFBEAM            = 28; // Reflected sword beam
 DEFINE LW_SPARKLE            = 23;
 DEFINE LW_FIRESPARKLE        = 24; // Damages enemies
-// Dummy weapons, for use with scripts.
-DEFINE LW_SCRIPT1            = 31;
+DEFINE LW_SCRIPT1            = 31; // Dummy weapon, for use with scripts.
 DEFINE LW_SCRIPT2            = 32;
 DEFINE LW_SCRIPT3            = 33;
 DEFINE LW_SCRIPT4            = 34;
@@ -581,9 +576,7 @@ DEFINE LW_SCRIPT7            = 37;
 DEFINE LW_SCRIPT8            = 38;
 DEFINE LW_SCRIPT9            = 39;
 DEFINE LW_SCRIPT10           = 40;
-
-// unimplemented
-DEFINE LW_ICE                = 41;
+DEFINE LW_ICE                = 41; // unimplemented
 DEFINE LW_THROWN             = 44;
 DEFINE LW_REFARROW           = 53;
 DEFINE LW_REFFIRE            = 54;
@@ -636,8 +629,6 @@ DEFINE NPC_FAIRY             = 6;
 DEFINE NPC_GORIYA            = 7;
 DEFINE NPC_ZELDA             = 8;
 DEFINE NPC_ABEI2             = 9;
-
-//Default enemy IDs. Use with CreateNPC().
 DEFINE NPC_AQUAMENTUSL       = 93;
 DEFINE NPC_AQUAMENTUSR       = 58;
 DEFINE NPC_ARMOS             = 37;
@@ -783,7 +774,7 @@ DEFINE NPC_ZOLFIRETRIB       = 164;
 DEFINE NPC_ZOLTRIB           = 89;
 DEFINE NPC_ZORA              = 33;
 
-//NPC hit point values. Use with npc->HP to make the enemy die in a special manner.
+// NPC hit point values. Set to [npc::HP] to make the enemy die in a special manner.
 DEFINE HP_SILENT = -1000;  // The enemy will die without their Death Sound playing.
 DEFINE HP_GLEEOKHEAD = 1000; //Floating Gleeok heads have this as their HP value. 
 
@@ -997,10 +988,6 @@ DEFINE NPCMF_ISINVISIBLE 		= 0x0002; //Is Invisible
 DEFINE NPCMF_NEVERRETURNS 		= 0x0004; //Never Returns After Death
 DEFINE NPCMF_NOT_BEATABLE  		= 0x0008; //Doesn't Count as beatable Enemy
 DEFINE NPCMF_SPAWNFLICKER 		= 0x0010; //Unused.
-//! These may be offset here, as MM defines:
-//!	DEFINE NPCMF_SPAWNFLICKER = 0x0010; //Spawn animation = flicker (???) 
-//!	in stdExtra.zh.  If so, the values should be offset to include this, ending at 0x2000. 
-// Fixed
 DEFINE NPCMF_ONLY_LENS 		= 0x0020; //Only Seen By Lens of truth
 DEFINE NPCMF_FLASHING 		= 0x0040; //Is Flashing
 DEFINE NPCMF_FLICKERING 		= 0x0080; //Is Flickering
@@ -1030,8 +1017,9 @@ DEFINE NPCSF_SPAWNANIM		= 0x2000; //Spawn Animation Type
 
 
 
-// Font types. Use with Screen->DrawCharacter *note -some of these fonts may not represent normal ascii characters,
-//and all of these are completely undocumented. Use at your own peril
+// Font types. Use with [Screen->DrawCharacter], [Screen->DrawString], [bitmap::DrawString], etc.
+// Some of these fonts may not represent normal ascii characters, and all of these are
+// completely undocumented. Use at your own peril
 DEFINE FONT_Z1           = 0;
 DEFINE FONT_Z3           = 1;
 DEFINE FONT_Z3SMALL      = 2;
@@ -1060,11 +1048,6 @@ DEFINE FONT_GBORACLE     = 23;
 DEFINE FONT_GBORACLEP    = 24;
 DEFINE FONT_DSPHANTOM    = 25;
 DEFINE FONT_DSPHANTOMP   = 26;
-
-
-//! There are four fonts in the fonts.dat file that are absent here. -Z
-
-//New Fonts for 2.54+
 DEFINE FONT_ATARI800     = 27;
 DEFINE FONT_ACORN        = 28;
 DEFINE FONT_ADOS         = 29;
@@ -1145,10 +1128,9 @@ DEFINE MAX_FONT = 100;
 DEFINE MIN_FONT = 0;
 DEFINE NUM_FONTS = MAX_FONT+1;
 
-// PrintString Text Formats. Use with Screen->DrawString.
+// PrintString Text Formats. Use with [Screen->DrawString].
 DEFINE TF_NORMAL             = 0; // treats the left-most char as (x)
 DEFINE TF_CENTERED           = 1; // prints the string centered on (x)
-//DEFINE TF_CENTRED           = 1; // in ./locale -- prints the string centered on (x)
 DEFINE TF_RIGHT              = 2; // treats the right-most char as (x)
 
 // Polygon rendering modes. Use with Screen->"Psuedo 3D" or "*3D" drawing functions. ie; Polygon, Quad, or Triangle
@@ -1199,8 +1181,6 @@ enum
 	SF_MISC,
 	SF_LAST
 };
-
-//! These DMap Flag values do not return the expected results when compared via TraeS()ing what is anticipated!
 
 //Screen Flag Roomtype
 enum
@@ -1600,9 +1580,6 @@ DEFINE CF_SCRIPT5            = 102;
 DEFINE CF_RAFTBOUNCE         = 103;
 DEFINE CF_PUSHED             = 104;
 
-
-//2.54+ Flags
-
 DEFINE CF_SCRIPT6              = 105;
 DEFINE CF_SCRIPT7              = 106;
 DEFINE CF_SCRIPT8              = 107;
@@ -1849,7 +1826,6 @@ DEFINE SECCMB_HAMMER		= 42;
 DEFINE SECCMB_STRIKE		= 43;
 DEFINE SECCMB_SECRETSNEXT	= 44; //Only ->SecretFlags[] has a value for this index
 DEFINE SECCMB_MAX            = 45;
-//45 to 127 unused. 
 
 // Used with [Audio->Volume].
 DEFINE VOL_MIDI 	= 0;
@@ -1939,7 +1915,7 @@ DEFINE WARPEFFECT_WAVE = 2;
 DEFINE WARPEFFECT_INSTANT = 3;
 DEFINE WARPEFFECT_OPENWIPE = 4;
 
-// Warp Flags for [Hero->WarpEx].
+// Bitflags for [Hero->WarpEx].
 DEFINE WARP_FLAG_SCRIPTDRAW 		  = 0x001;
 DEFINE WARP_FLAG_PLAYSOUNDS 		  = 0x002;
 DEFINE WARP_FLAG_FORCE_RESET_MUSIC    = 0x004;
@@ -1950,7 +1926,6 @@ DEFINE WARP_FLAG_SETCONTINUEDMAP 	  = 0x040;
 DEFINE WARP_FLAG_DONT_RESET_DM_SCRIPT = 0x080;
 DEFINE WARP_FLAG_DONT_CLEAR_SPRITES   = 0x100;
 DEFINE WARP_FLAG_FORCE_CONTINUE_MUSIC = 0x200;
-
 //Old name for compat of old scripts
 DEFINE WARP_FLAG_PLAYMUSIC = WARP_FLAG_FORCE_RESET_MUSIC;
 
@@ -1967,7 +1942,7 @@ DEFINE WARP_FLAG_CLEARPARTICLES 	= 0x8000;
 //Prevent Stepping forward in dungeon screens (experimental)
 DEFINE WARP_FLAG_NOSTEPFORWARD	= 0x10000;
 
-//Flags for SaveSRAM() and LoadSRAM()
+// Bitflags for [SaveSRAM] and [LoadSRAM]
 DEFINE SRAM_ALL	 	=	0;
 DEFINE SRAM_NPCDATA 	=	0x01;
 DEFINE SRAM_ITEMDATA 	=	0x02;
@@ -1976,14 +1951,14 @@ DEFINE SRAM_COMBODATA 	=	0x08;
 DEFINE SRAM_DMAPDATA 	=	0x10;
 DEFINE SRAM_MAPDATA 	=	0x20;
 
-//MIDI values, used for 'Screen->MIDI', 'dmapdata->MIDI', 'mapdata->MIDI', 'Audio->PlayMIDI'
+//MIDI values, used for [Screen->MIDI], [dmapdata::MIDI], [mapdata::MIDI], [Audio->PlayMIDI].
 enum
 {
-    MIDI_USE_DMAP = -4, //ONLY for 'Screen->MIDI' and 'mapdata->MIDI'
+    MIDI_USE_DMAP = -4, // ONLY for [Screen->MIDI] and [mapdata::MIDI].
     MIDI_NONE,
     MIDI_OVERWORLD,
     MIDI_DUNGEON,
-    MIDI_LEVEL9 //==0, cannot be played by 'Audio->PlayMIDI'
+    MIDI_LEVEL9 // Cannot be played by [Audio->PlayMIDI].
 };
 
 // Engine processes that can be paused. Used with [Game->Suspend].
@@ -2726,7 +2701,6 @@ enum
 	ITM_BURNSPR_MAX
 };
 
-//{ This section for engine subscreen stuff
 enum //Subscreen Types
 {
 	SSTYPE_ACTIVE,
@@ -2881,7 +2855,6 @@ enum //Special Subscreen Tile Values
 	SUB_SPTILE_MAGICMETER = -2,
 	SUB_SPTILE_MIN        = -3
 };
-//{ Subscreen type-specific flag constants
 
 enum // Flags for SUBWIDG_FRAME
 {
@@ -3038,6 +3011,3 @@ enum // Flags for SUBWIDG_BTNCOUNTER
 	SUBW_BTNCOUNTER_FLAG_NOCOLLAPSE,
 	SUBW_BTNCOUNTER_NUMFLAGS
 };
-
-//} End section for subscreen type-specific flag constants
-//} End section for engine subscreen stuff

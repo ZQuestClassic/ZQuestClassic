@@ -806,7 +806,7 @@ enum LWeaponType
 	LW_REFBEAM                     = 28, // Reflected sword beam.
 	LW_SPARKLE                     = 23,
 	LW_FIRESPARKLE                 = 24, // Damages enemies.
-	LW_SCRIPT1                     = 31,
+	LW_SCRIPT1                     = 31, // Dummy weapon, for use with scripts.
 	LW_SCRIPT2                     = 32,
 	LW_SCRIPT3                     = 33,
 	LW_SCRIPT4                     = 34,
@@ -816,7 +816,7 @@ enum LWeaponType
 	LW_SCRIPT8                     = 38,
 	LW_SCRIPT9                     = 39,
 	LW_SCRIPT10                    = 40,
-	LW_ICE                         = 41,
+	LW_ICE                         = 41, // Unimplemented.
 	LW_THROWN                      = 44,
 	LW_REFARROW                    = 53,
 	LW_REFFIRE                     = 54,
@@ -1049,8 +1049,9 @@ enum EnemySpawnBitflags
 	NPCSF_SPAWNANIM                = 0x2000, // Spawn Animation Type.
 };
 
-// Font types. Use with Screen->DrawCharacter *note -some of these fonts may not represent normal ascii characters,
-// and all of these are completely undocumented. Use at your own peril.
+// Font types. Use with [Screen->DrawCharacter], [Screen->DrawString], [bitmap::DrawString], etc.
+// Some of these fonts may not represent normal ascii characters, and all of these are
+// completely undocumented. Use at your own peril.
 enum FontType
 {
 	FONT_Z1                        = 0,
@@ -1157,7 +1158,7 @@ enum FontType
 	FONT_SMW                       = 100,
 };
 
-// PrintString Text Formats. Use with Screen->DrawString.
+// PrintString Text Formats. Use with [Screen->DrawString].
 enum TextFormatAlign
 {
 	TF_NORMAL                      = 0, // Treats the left-most char as (x).
@@ -1708,7 +1709,7 @@ enum WarpEffect
 	WARPEFFECT_OPENWIPE            = 4,
 };
 
-// Warp Flags for [Hero->WarpEx].
+// Bitflags for [Hero->WarpEx].
 enum WarpBitflags
 {
 	WARP_FLAG_SCRIPTDRAW           = 0x001,
@@ -1721,8 +1722,8 @@ enum WarpBitflags
 	WARP_FLAG_DONT_RESET_DM_SCRIPT = 0x080,
 	WARP_FLAG_DONT_CLEAR_SPRITES   = 0x100,
 	WARP_FLAG_FORCE_CONTINUE_MUSIC = 0x200,
-	WARP_FLAG_PLAYMUSIC            = WARP_FLAG_FORCE_RESET_MUSIC,
-	WARP_FLAG_DONTCLEARSPRITES     = 0x100,
+	WARP_FLAG_PLAYMUSIC            = WARP_FLAG_FORCE_RESET_MUSIC, // Old name for compat of old scripts.
+	WARP_FLAG_DONTCLEARSPRITES     = 0x100,                       // Manual Sprite Carryover.
 	WARP_FLAG_CLEARITEMS           = 0x200,
 	WARP_FLAG_CLEARGUYS            = 0x400,
 	WARP_FLAG_CLEARLWEAPONS        = 0x800,
@@ -1730,10 +1731,10 @@ enum WarpBitflags
 	WARP_FLAG_CLEARHOOKSHOT        = 0x2000,
 	WARP_FLAG_CLEARDECORATIONS     = 0x4000,
 	WARP_FLAG_CLEARPARTICLES       = 0x8000,
-	WARP_FLAG_NOSTEPFORWARD        = 0x10000,
+	WARP_FLAG_NOSTEPFORWARD        = 0x10000,                     // Prevent Stepping forward in dungeon screens (experimental).
 };
 
-// Flags for SaveSRAM() and LoadSRAM().
+// Bitflags for [SaveSRAM] and [LoadSRAM].
 enum StoredMemoryBitflags
 {
 	SRAM_ALL                       = 0,

@@ -1247,8 +1247,7 @@ int GetEquipmentY()
 
 // Returns true if DMap bitwise flags 'flag' is set on dmap 'dmap'.
 //
-// Only works with the `DMF_` flags - `DMFS_` is not supported.
-// TODO ! use flag type DMapBitwiseFlag
+// Only works with the [DMapBitwiseFlag] flags - [DMapFlag] is not supported.
 //
 // @deprecated Use [dmapdata::Flagset] instead, with [DMapFlag].
 bool GetDMapFlag(int dmap, int flag)

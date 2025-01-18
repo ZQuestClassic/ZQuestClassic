@@ -145,11 +145,9 @@ DEFINEF TERMINAL_VELOCITY		= 3.20;
 
 
 
-//User-Defined Sprites Range 088 to 255
 
 
-
-					//Equivalent Degrees and Radians for Cardinal Directions
+//Equivalent Degrees and Radians for Cardinal Directions
 //Degrees
 DEFINE DEG_DIR_RIGHTUP 	= 315;
 DEFINE DEG_DIR_UPRIGHT 	= 315;
@@ -183,7 +181,6 @@ DEFINEF RAD_DIR_RIGHT 	= 0;
 
 
 
-//! We need some better names for Extend constants. 
 
 
 
@@ -192,10 +189,6 @@ DEFINEF RAD_DIR_RIGHT 	= 0;
 
 
 
-
-// Dummy weapons, for use with scripts.
-
-// unimplemented
 
 
 // Used with [lweapon::DeadState] and [eweapon::DeadState].
@@ -209,9 +202,7 @@ enum WeaponDeadState {
 };
 
 
-//Default enemy IDs. Use with CreateNPC().
-
-//NPC hit point values. Use with npc->HP to make the enemy die in a special manner.
+// NPC hit point values. Set to [npc::HP] to make the enemy die in a special manner.
 DEFINE HP_SILENT = -1000;  // The enemy will die without their Death Sound playing.
 DEFINE HP_GLEEOKHEAD = 1000; //Floating Gleeok heads have this as their HP value. 
 
@@ -419,27 +410,17 @@ DEFINE NPCA_TEKTITE_JUMP_START 	= 0;
 DEFINE NPCA_TEKTITE_JUMP_CONT 	= 1;
 DEFINE NPCA_TEKTITE_JUMP_VELOCITY 	= 2;
 
-//! These may be offset here, as MM defines:
-//!	DEFINE NPCMF_SPAWNFLICKER = 0x0010; //Spawn animation = flicker (???) 
-//!	in stdExtra.zh.  If so, the values should be offset to include this, ending at 0x2000. 
-// Fixed
 
 
 
 
 
-
-
-//! There are four fonts in the fonts.dat file that are absent here. -Z
-
-//New Fonts for 2.54+
 
 
 DEFINE MAX_FONT = 100;
 DEFINE MIN_FONT = 0;
 DEFINE NUM_FONTS = MAX_FONT+1;
 
-//DEFINE TF_CENTRED           = 1; // in ./locale -- prints the string centered on (x)
 
 
 // Render Targets. Used with Screen->"*RenderTarget" and Screen->"Bitmap" drawing functions.
@@ -472,8 +453,6 @@ enum
 	SF_MISC,
 	SF_LAST
 };
-
-//! These DMap Flag values do not return the expected results when compared via TraeS()ing what is anticipated!
 
 //Screen Flag Roomtype
 enum
@@ -693,9 +672,6 @@ enum ScreenState {
 
 
 
-//2.54+ Flags
-
-
 
 
 
@@ -715,7 +691,6 @@ enum ItemSlot { ITM_SLOT_B, ITM_SLOT_A, ITM_SLOT_X, ITM_SLOT_Y };
 
 //MapData
 
-//45 to 127 unused. 
 
 
 
@@ -770,21 +745,17 @@ enum DMapType {
 
 
 
-//Old name for compat of old scripts
-
-//Manual Sprite Carryover
-
-//Prevent Stepping forward in dungeon screens (experimental)
 
 
-//MIDI values, used for 'Screen->MIDI', 'dmapdata->MIDI', 'mapdata->MIDI', 'Audio->PlayMIDI'
+
+//MIDI values, used for [Screen->MIDI], [dmapdata::MIDI], [mapdata::MIDI], [Audio->PlayMIDI].
 enum
 {
-    MIDI_USE_DMAP = -4, //ONLY for 'Screen->MIDI' and 'mapdata->MIDI'
+    MIDI_USE_DMAP = -4, // ONLY for [Screen->MIDI] and [mapdata::MIDI].
     MIDI_NONE,
     MIDI_OVERWORLD,
     MIDI_DUNGEON,
-    MIDI_LEVEL9 //==0, cannot be played by 'Audio->PlayMIDI'
+    MIDI_LEVEL9 // Cannot be played by [Audio->PlayMIDI].
 };
 
 // Engine processes that can be paused. Used with [Game->Suspend].
@@ -1410,7 +1381,6 @@ enum
 	ITM_BURNSPR_MAX
 };
 
-//{ This section for engine subscreen stuff
 enum //Subscreen Types
 {
 	SSTYPE_ACTIVE,
@@ -1562,7 +1532,6 @@ enum //Special Subscreen Tile Values
 	SUB_SPTILE_MAGICMETER = -2,
 	SUB_SPTILE_MIN        = -3
 };
-//{ Subscreen type-specific flag constants
 
 enum // Flags for SUBWIDG_FRAME
 {
@@ -1719,6 +1688,3 @@ enum // Flags for SUBWIDG_BTNCOUNTER
 	SUBW_BTNCOUNTER_FLAG_NOCOLLAPSE,
 	SUBW_BTNCOUNTER_NUMFLAGS
 };
-
-//} End section for subscreen type-specific flag constants
-//} End section for engine subscreen stuff
