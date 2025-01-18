@@ -385,8 +385,7 @@ class Game {
 	// Which mouse cursor should be displayed during gameplay.
 	// [ZCM_BLANK] is the default, and it resets on visiting the title screen.
 	//
-	// Valid values: [MouseCursor] (`ZCM_`).
-	//
+	// @value [MouseCursor]
 	// @zasm_var GAMEMOUSECURSOR
 	internal int MouseCursor;
 

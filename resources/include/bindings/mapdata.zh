@@ -40,7 +40,7 @@ class mapdata {
 	// The Tile Warp type for Tile Warps A, B, C, and D; [0], [1], [2], and [3]
 	// respectively.
 	//
-	// Valid values: [WarpType] (`WT_`).
+	// @value [WarpType]
 	//
 	// @zasm_var MAPDATATILEWARPTYPE
 	internal int TileWarpType[];
@@ -131,7 +131,7 @@ class mapdata {
 
 	// The spawn pattern for the screen enemies.
 	//
-	// Valid values: [EnemyPattern] (`PATTERN_`).
+	// @value [EnemyPattern]
 	//
 	// @zasm_var MAPDATAPATTERN
 	internal int Pattern;
@@ -139,7 +139,7 @@ class mapdata {
 	// The Sidewarp type for Sidewarps A, B, C, and D; [0], [1], [2], and [3]
 	// respectively.
 	//
-	// Valid values: [WarpType] (`WT_`).
+	// @value [WarpType]
 	//
 	// @zasm_var MAPDATASIDEWARPTYPE
 	internal int SideWarpType[];
@@ -177,7 +177,7 @@ class mapdata {
 	// [SIDEWARP_NONE] if there is no sidewarp in that direction.
 	//
 	// @index [DIR_UP], [DIR_DOWN], [DIR_LEFT], [DIR_RIGHT]
-	// @value [SideWarpIndex] (`SIDEWARP_`)
+	// @value [SideWarpIndex]
 	// @zasm_var MAPDATASIDEWARPID
 	internal int SideWarpID[];
 

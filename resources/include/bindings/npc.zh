@@ -282,7 +282,7 @@ class npc {
 
 	// The death effect for the npc.
 	//
-	// Valid values: [NpcFade] (`NPCF_`).
+	// @value [NpcFade]
 	//
 	// @zasm_var NPCFADING
 	internal int Fading;
@@ -329,14 +329,14 @@ class npc {
 
 	// The type, or 'enemy class' of the enemy.
 	//
-	// Valid values: [NpcType] (`NPCT_`).
+	// @value [NpcType]
 	//
 	// @zasm_var NPCTYPE
 	internal int Type;
 
 	// The type, or 'enemy class' of the enemy. Same as [Type].
 	//
-	// Valid values: [NpcType] (`NPCT_`).
+	// @value [NpcType]
 	//
 	// @zasm_var NPCTYPE
 	internal int Family;
@@ -350,14 +350,14 @@ class npc {
 	// @zasm_var NPCOTILE
 	internal int OriginalTile;
 
-	// Valid values: [NpcWeapon] (`WPN_`).
+	// @value [NpcWeapon]
 	//
 	// @zasm_var NPCWEAPON
 	internal int Weapon;
 
 	// The Dropset ID that this enemy will drop from when killed.
 	//
-	// Valid values: [ItemSet] (`IS_`).
+	// @value [ItemSet]
 	//
 	// @zasm_var NPCITEMSET
 	internal int ItemSet;
@@ -369,7 +369,7 @@ class npc {
 	// @zasm_var NPCITEMSET
 	internal int Dropset;
 
-	// Valid values: [BossPal] (`BPAL_`).
+	// @value [BossPal]
 	//
 	// @zasm_var NPCBOSSPAL
 	internal BossPal BossPal;
@@ -411,8 +411,8 @@ class npc {
 
 	// Expanded to a size of 42 to cover new defense categories.
 	//
-	// Valid indices are [NpcDefenseIndex] (`NPCD_`).
-	// Valid values: [NpcDefenseType] (`NPCDT_`).
+	// Valid indices are [NpcDefenseIndex].
+	// @value [NpcDefenseType]
 	//
 	// @zasm_var NPCDEFENSED
 	internal int Defense[];
@@ -494,7 +494,7 @@ class npc {
 
 	// Flags related to the enemy's shield.
 	//
-	// Valid indices are [NpcShieldIndex] (`SHLD_`).
+	// Valid indices are [NpcShieldIndex].
 	//
 	// @zasm_var NPCSHIELD
 	internal bool Shield[];

@@ -186,7 +186,7 @@ class itemdata {
 
 	// The counter to increase when this item is picked up.
 	//
-	// Valid values: [CounterIndex] (`CR_`).
+	// @value [CounterIndex]
 	//
 	// @zasm_var IDATACOUNTER
 	internal int Counter;

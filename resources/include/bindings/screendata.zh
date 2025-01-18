@@ -34,7 +34,7 @@ class screendata {
 	// @zasm_var COMBOID
 	internal int ComboI[];
 
-	// Valid values: [ComboType] (`CT_`).
+	// @value [ComboType]
 	//
 	// @zasm_var COMBOTD
 	internal int ComboT[];
@@ -54,7 +54,7 @@ class screendata {
 	// @zasm_var SCRDOORD
 	internal int Door[];
 
-	// The 32 screen states used by this screen. Use the [ScreenState] (`ST_`) constants to
+	// The 32 screen states used by this screen. Use the [ScreenState] constants to
 	// access.
 	//
 	// @zasm_var SCREENSTATED
@@ -187,8 +187,8 @@ class screendata {
 	// The Tile Warp type for Tile Warps A, B, C, and D; [0], [1], [2], and [3]
 	// respectively.
 	//
-	// Valid indices: [TileWarpIndex] (`TILEWARP_`).
-	// Valid values: [WarpType] (`WT_`).
+	// @index [TileWarpIndex]
+	// @value [WarpType]
 	//
 	// @zasm_var SCREENDATATILEWARPTYPE
 	internal int TileWarpType[];
@@ -256,7 +256,7 @@ class screendata {
 
 	// The enemy 'Spawn Pattern'.
 	//
-	// Valid values: [EnemyPattern] (`PATTERN_`).
+	// @value [EnemyPattern]
 	//
 	// @zasm_var SCREENDATAPATTERN
 	internal int Pattern;
@@ -264,8 +264,8 @@ class screendata {
 	// The Sidewarp type for Sidewarps A, B, C, and D; [0], [1], [2], and [3]
 	// respectively.
 	//
-	// Valid indices: [SideWarpIndex] (`SIDEWARP_`).
-	// Valid values: [WarpType] (`WT_`).
+	// @index [SideWarpIndex]
+	// @value [WarpType]
 	//
 	// @zasm_var SCREENDATASIDEWARPTYPE
 	internal int SideWarpType[];
@@ -301,7 +301,7 @@ class screendata {
 	// Returns [SIDEWARP_NONE] if there is no sidewarp in that direction.
 	//
 	// Valid indices: [DIR_UP], [DIR_DOWN], [DIR_LEFT], [DIR_RIGHT]
-	// Valid values: [SideWarpIndex] (`SIDEWARP_`)
+	// Valid values: [SideWarpIndex]
 	//
 	// @zasm_var SCREENSIDEWARPID
 	internal int SideWarpID[];
@@ -897,7 +897,7 @@ class screendata {
 
 	// As DrawString(), but includes a shadow on the text.
 	//
-	// Valid values for [shadow_type]: [ShadowType] (`SHD_`).
+	// Valid values for [shadow_type]: [ShadowType].
 	//
 	// @zasm
 	//   DRAWSTRINGR2
@@ -1139,7 +1139,7 @@ class screendata {
 
 	// Plays the warping screen 'wipe' effect.
 	//
-	// Valid values for [effect]: [WipeEffect] (`WIPE_`).
+	// Valid values for [effect]: [WipeEffect].
 	//
 	// @zasm
 	//   POP D2
@@ -1148,7 +1148,7 @@ class screendata {
 
 	// Plays the warping screen 'wipe' effect.
 	//
-	// Valid values for [effect]: [WipeEffect] (`WIPE_`).
+	// Valid values for [effect]: [WipeEffect].
 	//
 	// @zasm
 	//   POP D2
@@ -1277,7 +1277,7 @@ class screendata {
 	//   POPARGS D5 0.0002
 	internal void SetExDoor(int dir, int index, bool state);
 
-	// Valid values for [type]: [WarpType] (`WT_`).
+	// Valid values for [type]: [WarpType].
 	//
 	// @zasm
 	//   SETSIDEWARP

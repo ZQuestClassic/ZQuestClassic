@@ -86,7 +86,7 @@ class lweapon {
 	// @zasm_var LWPNFLASHCSET
 	internal int FlashCSet;
 
-	// The deadstate of the weapon, denoted by the [WeaponDeadState] (`WDS_`) constants.
+	// The deadstate of the weapon, denoted by the [WeaponDeadState] constants.
 	//
 	// @zasm_var LWPNDEAD
 	internal int DeadState;
@@ -212,7 +212,7 @@ class lweapon {
 
 	// A set of weapon flags.
 	//
-	// Valid indices: [WeaponFlagIndex] (`WFLAG_`).
+	// @index [WeaponFlagIndex]
 	//
 	// @zasm_var LWPNFLAGS
 	internal bool Flags[];
@@ -264,7 +264,7 @@ class lweapon {
 
 	// The burning light radii associated with sprites of the weapon.
 	//
-	// Valid indices: [WeaponSpriteIndex] (`WPN_SPRITE_`).
+	// @index [WeaponSpriteIndex](`WPN_SPRITE_`).
 	//
 	// @zasm_var LWPNBURNLIGHTRADIUS
 	internal int BurnLightRadius[];

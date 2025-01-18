@@ -45,14 +45,14 @@ class subscreendata {
 	// @zasm_var SUBDATAINITD
 	internal untyped InitD[];
 
-	// Use [InteractButton] (`INTBTN_`) to index this array.
+	// Use [InteractButton] to index this array.
 	//
 	// The 'true' buttons here, when pressed, change pages leftwards.
 	//
 	// @zasm_var SUBDATABTNLEFT
 	internal bool BtnPageLeft[];
 
-	// Use [InteractButton] (`INTBTN_`) to index this array.
+	// Use [InteractButton] to index this array.
 	//
 	// The 'true' buttons here, when pressed, change pages rightwards.
 	//

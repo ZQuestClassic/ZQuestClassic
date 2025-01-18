@@ -87,7 +87,7 @@ class hero {
 	// @zasm_var LINKMAXMP
 	internal int MaxMP;
 
-	// Valid values: [HeroAction] (`LA_`).
+	// @value [HeroAction]
 	//
 	// @zasm_var LINKACTION
 	internal int Action;
@@ -503,7 +503,7 @@ class hero {
 	// @zasm_var HEROFLASHINGCSET
 	internal const int FlashingCSet;
 
-	// Valid values: [HeroSliding] (`SLD_`).
+	// @value [HeroSliding]
 	//
 	// @zasm_var HEROSLIDING
 	internal const int Sliding;
