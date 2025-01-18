@@ -1,3 +1,5 @@
+#include "bindings/common.zh"
+
 // @zasm_ref REFCOMBODATA
 class combodata {
 	// @delete
@@ -134,7 +136,7 @@ class combodata {
 	// `std_constants.zh`.
 	//
 	// @zasm_var COMBODFLAG
-	internal int Flag;
+	internal ComboFlag Flag;
 
 	// The number of extra tiles to move horizontally between each frame.
 	//

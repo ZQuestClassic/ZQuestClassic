@@ -1,5 +1,6 @@
 #include "std_zh/std_constants2.zh"
 
+// TODO ! reword
 // Combo to use for generic script vehicle FFCs. This should be
 // an invisible combo with no type or flag. It cannot be combo 0.
 const int FFCS_INVISIBLE_COMBO = 1;

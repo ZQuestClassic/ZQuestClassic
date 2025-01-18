@@ -198,6 +198,7 @@ out_lines = []
 for i, line in enumerate(content_lines):
     if i not in lines_to_delete:
         out_lines.append(line)
-out_lines.append('')
-out_lines.extend(enum_lines)
 out_path.write_text('\n'.join(out_lines))
+
+# manually add to common.zh, later gotta move to correct spots.
+print('\n'.join(enum_lines))
