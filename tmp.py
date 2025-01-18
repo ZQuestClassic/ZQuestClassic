@@ -8,11 +8,13 @@ path = Path('resources/include/std_zh/std_constants.zh')
 out_path = Path('resources/include/std_zh/std_constants2.zh')
 
 # TODO ! when done: delete std_constants2.zh, replace std_constants.zh
-# TODO ! ctl+f "constants", delete.
-# TODO ! "@deprecated Use [Max] instead!" - let's do a shorthand, like @deprecated_getter, etc.
+# TODO ! ctl+f "constants", delete/update.
+# TODO ! ex for `Game->GetCurScreen()" - let's do a shorthand, like @deprecated_getter, etc; so only one symbol.
 
-# TODO !
-#    CMB_QUADRANT - Screen->ComboS[]
+# TODO ! this is illegal rn, assuming "AnimFlags" is changed from int -> AnimationBitflags:
+    # combodata cd;
+    # cd->AnimFlags = AF_FRESH|AF_CYCLE;
+# Update compiler to allow bitwise amongst enum bitflags.
 
 name_map = {
     'AF': 'AnimationBitflags',

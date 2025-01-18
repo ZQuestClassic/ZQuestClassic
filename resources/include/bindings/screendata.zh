@@ -1,3 +1,5 @@
+import "bindings/common.zh"
+
 enum WipeEffect
 {
 	WIPE_CIRCLE,
@@ -40,8 +42,7 @@ class screendata {
 
 	// The solidity bits of each of the [NUM_COMBO_POS] combo positions on the screen.
 	//
-	// Used with [ComboSolidityQuadrant].
-	//
+	// @value [ComboSolidityBitflags]
 	// @zasm_var COMBOSD
 	internal int ComboS[];
 

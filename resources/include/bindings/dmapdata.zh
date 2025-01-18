@@ -45,8 +45,7 @@ class dmapdata {
 	// @zasm_var DMAPDATACONTINUE
 	internal int Continue;
 
-	// The type of the dmap, using the [DMapType] constants.
-	//
+	// @value [DMapType]
 	// @zasm_var DMAPDATATYPE
 	internal int Type;
 

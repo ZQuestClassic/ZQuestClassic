@@ -87,6 +87,7 @@ class combodata {
 
 	// The solidity bitmask of the combo (same as [Screen->ComboS]).
 	//
+	// @value [ComboSolidityBitflags]
 	// @zasm_var COMBODWALK
 	internal int Walk;
 
@@ -132,8 +133,7 @@ class combodata {
 	// @zasm_var COMBODNEXTC
 	internal int NextCSet;
 
-	// The inherent flag of the combo. Use the `CF_` constants from
-	// `std_constants.zh`.
+	// The inherent flag of the combo.
 	//
 	// @zasm_var COMBODFLAG
 	internal ComboFlag Flag;
@@ -152,6 +152,7 @@ class combodata {
 	// Bitwise access to the combo's animation flags. Use the `AF_` constants to
 	// access.
 	//
+	// @value [AnimationBitflags]
 	// @zasm_var COMBODANIMFLAGS
 	internal int AnimFlags;
 

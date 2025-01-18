@@ -2461,7 +2461,7 @@ void ScreenToLayer(int sourceMap, int sourceScreen, int drawOpacity, int destLay
 }
 
 //Sets the values for combo at position 'pos' to those specified. Pass -1 to leave a value unchanged.
-void SetCombo(int pos, int data, int type, int flag, int inh_flag, int cset, int solid)
+void SetCombo(int pos, int data, int type, int flag, int inh_flag, int cset, ComboSolidityBitflags solid)
 {
 	if ( data >=0 ) Screen->ComboD[pos] = data;
 	if ( type >= 0 ) Screen->ComboT[pos] = type;
@@ -2473,7 +2473,7 @@ void SetCombo(int pos, int data, int type, int flag, int inh_flag, int cset, int
 
 //Sets the values for a combo on layer 'layer', at position 'pos' to the values specified.
 //Pass -1 to any value to leave it unchanged. 
-void SetLayerComboValues(int layer, int pos, int data, int type, int flag, int inh_flag, int cset, int solid)
+void SetLayerComboValues(int layer, int pos, int data, int type, int flag, int inh_flag, int cset, ComboSolidityBitflags solid)
 {
 	if ( data >=0 ) SetLayerComboD(layer,pos,data);
 	if ( type >= 0 ) SetLayerComboT(layer,pos,type);
