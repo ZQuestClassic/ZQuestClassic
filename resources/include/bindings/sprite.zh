@@ -157,8 +157,7 @@ class sprite {
 
 	// How to flip (or rotate) the sprite.
 	//
-	// @value [TransformationType](`FLIP_` or `ROT_`).
-	//
+	// @value {@link TransformationType|TransformationType (FLIP_ or ROT_)}
 	// @zasm_var SPRITE_FLIP
 	internal int Flip;
 

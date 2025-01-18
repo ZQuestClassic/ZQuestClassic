@@ -910,9 +910,8 @@ class hero {
 	// This allows you to set Link's button items without binary operation with
 	// options for forcing them.
 	//
-	// Use the constants `ITM_REQUIRE_` and `ITM_SLOT_` from <std> when passing
-	// values into this function.
-	//
+	// @param [ItemSlot] slot
+	// @param [ItemRequireBitflags] force
 	// @zasm
 	//   POP D6
 	//   POP D1

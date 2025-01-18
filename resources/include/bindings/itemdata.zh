@@ -1,6 +1,6 @@
 script typedef itemdata item;
 
-// Item class ids, used by [itemdata::Family].
+// Item classes, used by [itemdata::Type].
 enum ItemClass {
 	IC_SWORD              = 0,
 	IC_BRANG              = 1,
@@ -146,18 +146,16 @@ class itemdata {
 	// @delete
 	internal itemdata();
 
-	// The type [itemdata] of the item. Uses the `IC_` constants.
-	//
-	// @zasm_var IDATAFAMILY
-	internal int Family;
-
-	// The type [itemdata] of the item. Uses the `IC_` constants.
-	//
+	// @value [ItemClass]
 	// @zasm_var IDATAFAMILY
 	internal int Type;
 
-	// The level of the item.
+	// Exactly the same as [Type] - use that instead.
 	//
+	// @value [ItemClass]
+	// @zasm_var IDATAFAMILY
+	internal int Family;
+
 	// @zasm_var IDATALEVEL
 	internal int Level;
 
@@ -256,9 +254,9 @@ class itemdata {
 	// @zasm_var IDATAPSTRING
 	internal int PickupString;
 
-	// The flags associated with the pickup string, as bitwise flags. Use the
-	// `IPSTR_` constants to access this.
+	// The bitflags associated with the pickup string.
 	//
+	// @value [PickupStringBitflags]
 	// @zasm_var IDATAPFLAGS
 	internal int PickupStringFlags;
 
@@ -292,9 +290,9 @@ class itemdata {
 	// @zasm_var IDATATILE
 	internal int Tile;
 
-	// Misc flags for the item graphics, bitwise flagset. Use the `IMISC_`
-	// constants to access.
+	// Misc bitflags for the item graphics.
 	//
+	// @value [ItemMiscBitflags]
 	// @zasm_var IDATAMISC
 	internal int MiscFlags;
 
@@ -488,9 +486,9 @@ class itemdata {
 	// @zasm_var IDATATILEH
 	internal int TileHeight;
 
-	// The item pickup flags, as a bitwise flagset. Use the `IP_` constants to
-	// access. Take care when using any `INTERNAL` flags.
+	// The item pickup bitflags.
 	//
+	// @value [ItemPickupBitflags]
 	// @zasm_var IDATAPICKUP
 	internal int Pickup;
 

@@ -54,7 +54,7 @@
 //
 //   Mark that the function exits the script.
 //
-// @index, @value, @length
+// @index, @value, @length, @param
 //
 //   These have no impact on the compiler, and serve only as documentation.
 //

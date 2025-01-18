@@ -84,8 +84,7 @@ class eweapon {
 	// @zasm_var EWPNFLASHCSET
 	internal int FlashCSet;
 
-	// The deadstate of the weapon, denoted by the [WeaponDeadState] constants.
-	//
+	// @value [WeaponDeadState]
 	// @zasm_var EWPNDEAD
 	internal int DeadState;
 

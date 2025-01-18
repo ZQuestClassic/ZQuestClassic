@@ -114,8 +114,9 @@ class dmapdata {
 	// @zasm_var DMAPDATADISABLEDITEMS
 	internal bool DisabledItems[];
 
-	// The flags for the dmap. Uses the `DMFS_` constants.
+	// All of the dmap's flags.
 	//
+	// @index [DMapFlag]
 	// @zasm_var DMAPDATAFLAGARR
 	internal int Flagset[];
 

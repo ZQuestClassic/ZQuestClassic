@@ -522,8 +522,8 @@ DEFINE I_WHISPRING1          = 99;
 DEFINE I_WHISPRING2          = 100;
 DEFINE I_WHISTLE             = 31;
 
-//Item pickup flags. OR (|) these together to use with item->Pickup
-//Other values are reserved for internal usage, and have no effect
+//Item pickup bitflags. Used with [item::Pickup].
+//Many values are reserved for internal usage, and have no effect.
 DEFINE IP_BIGRANGE       = 0x0001; //INTERNAL Collision rectangle is large
 DEFINE IP_HOLDUP         = 0x0002; //Link holds it up when collecting it.
 DEFINE IP_ST_ITEM        = 0x0004; //Sets the screen state "Item" when collected.
@@ -2175,7 +2175,7 @@ enum BottleFlag
 	BTF_MAX
 };
 
-enum ComboGenFlag
+enum ComboGeneralFlag
 {
 	GENFLAG_HOOKSHOTTABLE,
 	GENFLAG_SWITCHHOOKABLE,

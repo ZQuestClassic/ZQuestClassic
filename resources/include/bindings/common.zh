@@ -599,7 +599,7 @@ enum MouseButtonBitflags
 };
 
 // Controller buttons.
-enum ButtonIndex
+enum Button
 {
 	CB_UP                          = 0,
 	CB_DOWN                        = 1,
