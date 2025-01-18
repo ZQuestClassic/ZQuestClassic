@@ -299,7 +299,18 @@ struct newcombo
 #define combotriggerLITEM_UNSET         0x10000000
 #define combotriggerTINT_CLEAR          0x20000000
 #define combotriggerONLY_GROUND_WPN     0x40000000
-//#define combotrigger                    0x80000000
+#define combotriggerCOUNTERDISCOUNT     0x80000000
+
+//triggerflags[4]
+// #define combotrigger                    0x00000001
+// #define combotrigger                    0x00000002
+// #define combotrigger                    0x00000004
+// #define combotrigger                    0x00000008
+//triggerflags[5]
+// #define combotrigger                    0x00000001
+// #define combotrigger                    0x00000002
+// #define combotrigger                    0x00000004
+// #define combotrigger                    0x00000008
 
 #define ctrigNONE                       0x00
 #define ctrigIGNORE_SIGN                0x01
