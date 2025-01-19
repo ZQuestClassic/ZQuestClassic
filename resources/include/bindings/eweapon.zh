@@ -142,8 +142,9 @@ class eweapon {
 	// @zasm_var EWPNINITD
 	internal untyped InitD[];
 
-	// A bitwise flagset of unblockable flags, using the `UNBLOCK_` constants.
+	// Unblockable bitflags.
 	//
+	// @value [UnblockableBitflags]
 	// @zasm_var EWPNUNBL
 	internal int Unblockable;
 

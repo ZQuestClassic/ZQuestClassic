@@ -633,10 +633,9 @@ class screendata {
 	//   SETR D2 REFITEM
 	internal itemsprite LoadItem(int n);
 
-	// Creates a new sprite object, with the given ID. Use the `LW_` and `EW_`
-	// constants for `CreateLWeapon()`/`CreateEWeapon()`. Use the item editor
-	// IDs and enemy editor IDs for `CreateItem()`/`CreateNPC()`.
+	// Creates a new item sprite.
 	//
+	// @param [ItemID] id
 	// @zasm
 	//   POP D2
 	//   CREATEITEMR D2
@@ -680,7 +679,7 @@ class screendata {
 	//   SETR D2 REFNPC
 	internal npc LoadNPC(int n);
 
-	// Creates a new sprite object, with the given ID.
+	// Creates a new npc (enemy) sprite, with the given ID.
 	//
 	// @param [NPCID] id
 	// @zasm
@@ -689,9 +688,9 @@ class screendata {
 	//   SETR D2 REFNPC
 	internal npc CreateNPC(int id);
 
-	// Kills all sprite objects of the specified type, using the `SL_`
-	// constants.
+	// Kills all sprite objects of the specified type.
 	//
+	// @param [SpriteList] spritelist
 	// @zasm
 	//   POP D2
 	//   CLEARSPRITESR D2
@@ -1027,8 +1026,9 @@ class screendata {
 	//   SETR D2 REFLWPN
 	internal lweapon LoadLWeapon(int n);
 
-	// Creates a new lweapon object, with the given ID. Use the `LW_` constants.
+	// Creates a new lweapon sprite, with the given ID.
 	//
+	// @param [LWeaponType] id
 	// @zasm
 	//   POP D2
 	//   CREATELWEAPONR D2
@@ -1053,10 +1053,9 @@ class screendata {
 	//   SETR D2 REFEWPN
 	internal eweapon LoadEWeapon(int n);
 
-	// Creates a new sprite object, with the given ID. Use the `LW_` and `EW_`
-	// constants for `CreateLWeapon()`/`CreateEWeapon()`. Use the item editor
-	// IDs and enemy editor IDs for `CreateItem()`/`CreateNPC()`.
+	// Creates a new eweapon sprite, with the given ID.
 	//
+	// @param [EWeaponType] id
 	// @zasm
 	//   POP D2
 	//   CREATEEWEAPONR D2

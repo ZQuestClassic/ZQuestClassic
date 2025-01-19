@@ -229,8 +229,9 @@ class sprite {
 	// @zasm_var SPRITE_FALL_CMB
 	internal int FallCombo;
 
-	// The movement flags of the sprite. See [MoveFlag] constants.
+	// The sprite's movement flags.
 	//
+	// @value [MoveFlag]
 	// @zasm_var SPRITE_MOVE_FLAGS
 	internal bool MoveFlags[];
 
@@ -239,8 +240,9 @@ class sprite {
 	// @zasm_var SPRITE_LIGHT_RADIUS
 	internal int LightRadius;
 
-	// The shape of light emitted by this sprite. Uses the `LIGHT_` constants.
+	// The shape of light emitted by this sprite.
 	//
+	// @value [LightShape]
 	// @zasm_var SPRITE_LIGHT_SHAPE
 	internal int LightShape;
 
@@ -253,6 +255,7 @@ class sprite {
 
 	// The [spritedata] ID to use for the sprite's shadow.
 	//
+	// @value [SpriteID]
 	// @zasm_var SPRITE_SHADOW_SPR
 	internal int ShadowSprite;
 

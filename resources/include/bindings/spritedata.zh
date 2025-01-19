@@ -1,4 +1,4 @@
-// Represents animation sprite data found in the editor at `Quest->Graphics->Sprites->Sprite Data`.
+// Represents animation `spritedata` found in the editor at `Quest->Graphics->Sprites->Sprite Data`.
 // Load with [Game->LoadSpriteData].
 //
 // @zasm_ref REFSPRITEDATA
@@ -6,43 +6,40 @@ class spritedata {
 	// @delete
 	internal spritedata();
 
-	// The sprite ID this spritedata is associated with.
-	//
 	// @zasm_var SPRITEDATAID
 	internal const int ID;
 
-	// The tile of the sprite.
+	// The tile of the `spritedata`.
 	//
 	// @zasm_var SPRITEDATATILE
 	internal int Tile;
 
-	// The cset of the sprite.
+	// The cset of the `spritedata`.
 	//
 	// @zasm_var SPRITEDATACSETS
 	internal int CSet;
 
-	// The flash cset of the sprite.
+	// The flash cset of the `spritedata`.
 	//
 	// @zasm_var SPRITEDATAFLCSET
 	internal int FlashCSet;
 
-	// The frame count of the sprite.
+	// The frame count of the `spritedata`.
 	//
 	// @zasm_var SPRITEDATAFRAMES
 	internal int Frames;
 
-	// The speed of the sprite, in frames per frame
+	// The speed of the `spritedata`, in frames per frame
 	//
 	// @zasm_var SPRITEDATASPEED
 	internal int Speed;
 
-	// The 'Type' field of the sprite.
+	// The 'Type' field of the `spritedata`.
 	//
 	// @zasm_var SPRITEDATATYPE
 	internal int Type;
 
-	// The sprite's flags. Use the `SPRFL_` constants as indexes.
-	//
+	// @value [SpriteDataFlag]
 	// @zasm_var SPRITEDATAFLAGS
 	internal bool Flags[];
 

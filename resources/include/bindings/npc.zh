@@ -89,7 +89,7 @@ enum NPCType
 };
 
 // Used with [npc::Defense].
-enum NpcDefenseIndex
+enum NPCDefenseIndex
 {
 	NPCD_BRANG,
 	NPCD_BOMB,
@@ -130,7 +130,7 @@ enum NpcDefenseIndex
 };
 
 // Used with [npc::Defense].
-enum NpcDefenseType
+enum NPCDefenseType
 {
 	NPCDT_NONE,
 	NPCDT_HALFDAMAGE,
@@ -158,9 +158,9 @@ enum NpcDefenseType
 };
 
 // Enemy projectile weapon selections. Use with npc->Weapon.
-// Note: Don't use these with Screen->CreateEWeapon! Use the `EW_` constants instead.
-// Use WeaponTypeToID to convert this enum to a `EW_` value.
-enum NpcWeapon {
+// Note: Don't use these with Screen->CreateEWeapon! Use [EWeaponType] instead.
+// Use [WeaponTypeToID] to convert this enum to an [EWeaponType].
+enum NPCWeapon {
 	WPN_NONE              = 0,
 	WPN_ENEMYFLAME        = 140,
 	WPN_ENEMYWIND         = 141,
@@ -234,6 +234,13 @@ enum NPCFade
 	NPCF_INVISIBLE,
 	NPCF_FLASH,
 	NPCF_POOF
+};
+
+// "special" walk flags.
+enum NPCWalkType
+{
+	SPW_NONE, SPW_DOOR, SPW_CLIPRIGHT, SPW_FLOATER, SPW_TRAP, SPW_HALFSTEP, 
+	SPW_WATER, SPW_WIZZROBE, SPW_CLIPBOTTOMRIGHT
 };
 
 // @zasm_ref REFNPC
@@ -326,7 +333,7 @@ class npc {
 	// @zasm_var NPCOTILE
 	internal int OriginalTile;
 
-	// @value [NpcWeapon]
+	// @value [NPCWeapon]
 	// @zasm_var NPCWEAPON
 	internal int Weapon;
 
@@ -384,8 +391,8 @@ class npc {
 
 	// Expanded to a size of 42 to cover new defense categories.
 	//
-	// @index [NpcDefenseIndex]
-	// @value [NpcDefenseType]
+	// @index [NPCDefenseIndex]
+	// @value [NPCDefenseType]
 	// @zasm_var NPCDEFENSED
 	internal int Defense[];
 
@@ -1015,10 +1022,11 @@ class npc {
 	//
 	// Returns true if the npc could be placed successfully, false otherwise.
 	//
+	// @param [NPCWalkType] special
 	// @zasm
 	//   NPCCANPLACE
 	//   POPARGS D5 0.0007
-	internal bool CanPlace(int nx, int ny, int special = 0,
+	internal bool CanPlace(int nx, int ny, int special = SPW_NONE,
 						   bool knockback = false, int nw = -1, int nh = -1);
 
 	// This returns true if the npc is currently in a flicker frame (either

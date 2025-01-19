@@ -173,8 +173,9 @@ class lweapon {
 	// @zasm_var LWPNINITD
 	internal untyped InitD[];
 
-	// A bitwise flagset of unblockable flags, using the `UNBLOCK_` constants.
+	// Unblockable bitflags.
 	//
+	// @value [UnblockableBitflags]
 	// @zasm_var LWPNUNBL
 	internal int Unblockable;
 

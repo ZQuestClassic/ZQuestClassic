@@ -539,7 +539,7 @@ DEFINE IP_TRIGGERSECRETS = 0x1000; // Triggers screen secrets when collected
 DEFINE IP_ALWAYSGRAB     = 0x2000; // Item is always able to be picked up (ex. brang/hshot/arrows/melee weapons)
 
 
-//LWeapon types. Use with Screen->CreateLWeapon() and Screen->LoadLWeapon().
+//LWeapon types. Used with [Screen->CreateLWeapon].
 DEFINE LW_SWORD              = 1; // This cannot be created
 DEFINE LW_WAND               = 12; // This cannot be created
 DEFINE LW_CANDLE             = 12; // This cannot be created
@@ -1016,7 +1016,7 @@ DEFINE NPCSF_SPAWNANIM		= 0x2000; //Spawn Animation Type
 
 
 
-// Font types. Use with [Screen->DrawCharacter], [Screen->DrawString], [bitmap::DrawString], etc.
+// Font types. Used with [Screen->DrawCharacter], [Screen->DrawString], [bitmap::DrawString], etc.
 // Some of these fonts may not represent normal ascii characters, and all of these are
 // completely undocumented. Use at your own peril
 DEFINE FONT_Z1           = 0;
@@ -1127,7 +1127,7 @@ DEFINE MAX_FONT = 100;
 DEFINE MIN_FONT = 0;
 DEFINE NUM_FONTS = MAX_FONT+1;
 
-// PrintString Text Formats. Use with [Screen->DrawString].
+// PrintString Text Formats. Used with [Screen->DrawString].
 DEFINE TF_NORMAL             = 0; // treats the left-most char as (x)
 DEFINE TF_CENTERED           = 1; // prints the string centered on (x)
 DEFINE TF_RIGHT              = 2; // treats the right-most char as (x)
@@ -1887,7 +1887,7 @@ DEFINEF DIR16_RADS_RIGHTRIGHTUP = 5.8905;
 DEFINEF DIR16_RADS_RIGHTUP 	= 5.4978;
 DEFINEF DIR16_RADS_RIGHTUPUP 	= 5.1141;
 
-// DMap Types for use with [dmapdata::Type]
+// DMap Types for used with [dmapdata::Type]
 enum DMapType {
 	DMAP_DUNGEON,
 	DMAP_OVERWORLD,
@@ -2125,13 +2125,6 @@ define CHRT_UP =      00000001b;
 define CHRT_DOWN =    00000010b;
 define CHRT_LEFT =    00000100b;
 define CHRT_RIGHT =   00001000b;
-
-// "special" walk flags
-enum NPCWalkType
-{
-	SPW_NONE, SPW_DOOR, SPW_CLIPRIGHT, SPW_FLOATER, SPW_TRAP, SPW_HALFSTEP, 
-	SPW_WATER, SPW_WIZZROBE, SPW_CLIPBOTTOMRIGHT
-};
 
 enum NPCMoveStatus
 {
@@ -2523,18 +2516,18 @@ enum //constants for 'GENEV_HEROHIT_HITTYPE' / 'GENEV_HEROHIT_HITTYPE2'
 };
 
 // Used with [Hero->HitBy] and [npc::HitBy].
-DEFINE HIT_BY_NPC                   = 0; //[Hero] only
-DEFINE HIT_BY_EWEAPON               = 1; //[Hero] only
+DEFINE HIT_BY_NPC                   = 0; //[Hero] only.
+DEFINE HIT_BY_EWEAPON               = 1; //[Hero] only.
 DEFINE HIT_BY_LWEAPON               = 2;
-DEFINE HIT_BY_FFC                   = 3; //Unimplemented
+DEFINE HIT_BY_FFC                   = 3; //Unimplemented.
 DEFINE HIT_BY_NPC_UID               = 4; //[Hero] only. The scripting UID of the enemy, used with [Screen->LoadNPCByUID].
-DEFINE HIT_BY_EWEAPON_UID           = 5; //[Hero] only
+DEFINE HIT_BY_EWEAPON_UID           = 5; //[Hero] only.
 DEFINE HIT_BY_LWEAPON_UID           = 6;
-DEFINE HIT_BY_FFC_UID               = 7; //Unimplemented
-DEFINE HIT_BY_LWEAPON_PARENT_ID     = 8; //The item id of the item that the weapon that hit came from. -1 if the lweapon is script created
-DEFINE HIT_BY_LWEAPON_PARENT_FAMILY = 9; //The item class of the item that the weapon that hit came from (see IC_ constants). -1 if the lweapon is script created
-DEFINE HIT_BY_NPC_TYPE              = 10; //[Hero] only. The enemy class of the enemy that hit the [Hero] (see [NPCType] constants)
-DEFINE HIT_BY_EWEAPON_TYPE          = 11; // [Hero] only. The ID of the weapon that hit (see LW_ and EW_ constants)
+DEFINE HIT_BY_FFC_UID               = 7; //Unimplemented.
+DEFINE HIT_BY_LWEAPON_PARENT_ID     = 8; //The item id of the item that the weapon that hit came from. -1 if the lweapon is script created.
+DEFINE HIT_BY_LWEAPON_PARENT_FAMILY = 9; //The item class of the item that the weapon that hit came from (see [ItemClass]). -1 if the lweapon is script created.
+DEFINE HIT_BY_NPC_TYPE              = 10; //[Hero] only. The enemy class of the enemy that hit the [Hero] (see [NPCType]).
+DEFINE HIT_BY_EWEAPON_TYPE          = 11; // [Hero] only. The ID of the weapon that hit (see [LWeaponType] and [EWeaponType]).
 DEFINE HIT_BY_LWEAPON_TYPE          = 12; //The internal UID used by the engine for the thing. Can case these to their respective types example: `npc n = <npc>(Hero->HitBy[HIT_BY_NPC_PTR])`
 DEFINE HIT_BY_NPC_PTR               = 13;
 DEFINE HIT_BY_EWEAPON_PTR           = 14;
@@ -2572,11 +2565,6 @@ enum
 DEFINE IPSTR_ALWAYS   = 0x01;
 DEFINE IPSTR_ONLYHELD = 0x02;
 
-enum //For 'itemdata->RunScript()'
-{
-	ISCR_KILL, ISCR_RUN, ISCR_PERPETUAL
-};
-
 enum //For 'itemdata->PickupType'
 {
 	IPTYPE_DISABLED,
@@ -2603,7 +2591,7 @@ DEFINE SZFLAG_DRAW_Y_OFFSET  = 0x0100;
 DEFINE SZFLAG_DRAW_Z_OFFSET  = 0x0200;
 DEFINE SZFLAG_ALL            = 0x03FF;
 
-enum //spritedata->Flags[] indexes
+enum SpriteDataFlag
 {
 	SPRFL_AUTOFLASH,
 	SPRFL_2PFLASH,
@@ -2613,7 +2601,8 @@ enum //spritedata->Flags[] indexes
 	NUM_SPRFL
 };
 
-enum //Light shapes for torch combos, lantern itemdata, and GlowShape variables
+// Light shapes for torch combos, lantern itemdata, and GlowShape variables.
+enum LightShape
 {
 	LIGHT_CIRCLE,
 	LIGHT_CONE,

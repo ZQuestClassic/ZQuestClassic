@@ -1,6 +1,6 @@
 script typedef itemdata item;
 
-// Item classes, used by [itemdata::Type].
+// Item classes, used with [itemdata::Type].
 enum ItemClass {
 	IC_SWORD              = 0,
 	IC_BRANG              = 1,
@@ -137,6 +137,13 @@ enum ItemClass {
 	IC_MAXUSABLE               = 280,
 
 	IC_MAX                     = 512 //Last of enum. All itemclassesare < this.
+};
+
+enum ItemScriptRunMode
+{
+	ISCR_KILL,
+	ISCR_RUN,
+	ISCR_PERPETUAL,
 };
 
 // Metadata for a specific item type (not an instance of one). Load with [Game->LoadItemData].
@@ -706,11 +713,12 @@ class itemdata {
 	//   ITEMGETSHOWNNAME D2
 	internal void GetShownName(int buf);
 
-	// Runs or ends the item script, depending on the mode `ISCR_` constants.
+	// Runs or ends the item script, depending on [mode].
 	//
+	// @param [ItemScriptRunMode] mode
 	// @zasm
 	//   POP D2
 	//   POP REFITEMCLASS
 	//   RUNITEMSCRIPT D2
-	internal void RunScript(int mode = 1);
+	internal void RunScript(int mode = ISCR_PERPETUAL);
 }

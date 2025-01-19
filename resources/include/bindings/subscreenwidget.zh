@@ -3,8 +3,9 @@ class subscreenwidget {
 	// @delete
 	internal subscreenwidget();
 
-	// The widget's type, using [SubscreenWidgetType] constants.
+	// The widget's type.
 	//
+	// @value [SubscreenWidgetType]
 	// @zasm_var SUBWIDGTYPE
 	internal const int Type;
 
@@ -43,10 +44,9 @@ class subscreenwidget {
 
 	// The 4 directional positions for the selector.
 	//
-	// Use the 'DIR_' constants to index.
-	//
 	// Only used if the widget is selectable (see [GenFlags]).
 	//
+	// @index [Direction]
 	// @zasm_var SUBWIDGPOSES
 	internal int PosDirs[];
 
@@ -463,21 +463,17 @@ class subscreenwidget {
 
 	// The item button associated with the widget.
 	//
-	// Use the 'ITMBTN_' constants for this value.
-	//
 	// - [SUBWIDG_BTNITM]
 	// - [SUBWIDG_BTNCOUNTER]
 	//
+	// @value [ItemButton]
 	// @zasm_var SUBWIDGTY_BUTTON
 	internal int Button;
 
 	// The counter(s) associated with the widget.
 	//
-	// Use the 'CR_' constants for the values.
-	//
-	// - [SUBWIDG_COUNTER] - 3 values
-	// - [SUBWIDG_MISCGAUGE] - 1 values
-	//
+	// @length [SUBWIDG_COUNTER] - 3 values, [SUBWIDG_MISCGAUGE] - 1 value
+	// @value [CounterIndex]
 	// @zasm_var SUBWIDGTY_COUNTERS
 	internal int Counter[];
 

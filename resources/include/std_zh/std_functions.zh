@@ -2289,8 +2289,10 @@ eweapon LoadEWeaponOf(int type)
 	return w2;
 }
 
-// Returns the first LWeapon of the given type. Use the LW_ constants.
+// Returns the first LWeapon of the given type.
 // If none exist, it returns an uninitialised pointer.
+//
+// @param [LWeaponType] type
 lweapon LoadLWeaponOf(int type)
 {
 	lweapon w;
@@ -2303,7 +2305,7 @@ lweapon LoadLWeaponOf(int type)
 	return w2;
 }
 
-// Returns the first NPC of the given ID. Use the NPC_ constants.
+// Returns the first NPC of the given ID.
 // If none exist, it returns an uninitialised pointer.
 //
 // @param [NPCID] id
@@ -2319,8 +2321,10 @@ npc LoadNPCOf(int id)
 	return n2;
 }
 
-// Returns the first NPC of the given type. Use the NPCT_ constants.
+// Returns the first NPC of the given type.
 // If none exist, it returns an uninitialised pointer.
+//
+// @param [NPCType] type
 npc LoadNPCOfType(int type)
 {
 	npc n;

@@ -22,9 +22,9 @@ class messagedata {
 	// @zasm_var MESSAGEDATACSET
 	internal int CSet;
 
-	// The font to display the message in. Use the `FONT_` constants for this
-	// value.
+	// The font to display the message in.
 	//
+	// @value [Font]
 	// @zasm_var MESSAGEDATAFONT
 	internal int Font;
 

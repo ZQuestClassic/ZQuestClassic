@@ -733,7 +733,7 @@ DEFINEF DIR16_RADS_RIGHTRIGHTUP = 5.8905;
 DEFINEF DIR16_RADS_RIGHTUP 	= 5.4978;
 DEFINEF DIR16_RADS_RIGHTUPUP 	= 5.1141;
 
-// DMap Types for use with [dmapdata::Type]
+// DMap Types for used with [dmapdata::Type]
 enum DMapType {
 	DMAP_DUNGEON,
 	DMAP_OVERWORLD,
@@ -895,13 +895,6 @@ enum MoveFlag
 	MV_NO_REAL_Z
 };
 
-
-// "special" walk flags
-enum NPCWalkType
-{
-	SPW_NONE, SPW_DOOR, SPW_CLIPRIGHT, SPW_FLOATER, SPW_TRAP, SPW_HALFSTEP, 
-	SPW_WATER, SPW_WIZZROBE, SPW_CLIPBOTTOMRIGHT
-};
 
 enum NPCMoveStatus
 {
@@ -1271,11 +1264,6 @@ enum
 };
 
 
-enum //For 'itemdata->RunScript()'
-{
-	ISCR_KILL, ISCR_RUN, ISCR_PERPETUAL
-};
-
 enum //For 'itemdata->PickupType'
 {
 	IPTYPE_DISABLED,
@@ -1287,7 +1275,7 @@ enum //For 'itemdata->PickupType'
 
 
 
-enum //spritedata->Flags[] indexes
+enum SpriteDataFlag
 {
 	SPRFL_AUTOFLASH,
 	SPRFL_2PFLASH,
@@ -1297,7 +1285,8 @@ enum //spritedata->Flags[] indexes
 	NUM_SPRFL
 };
 
-enum //Light shapes for torch combos, lantern itemdata, and GlowShape variables
+// Light shapes for torch combos, lantern itemdata, and GlowShape variables.
+enum LightShape
 {
 	LIGHT_CIRCLE,
 	LIGHT_CONE,
