@@ -2588,6 +2588,8 @@ DEFINE IMISC_TWOHAND = 0x02;
 DEFINE IMISC_HFLIP   = 0x04;
 DEFINE IMISC_VFLIP   = 0x08;
 
+// Used with [itemdata::OverrideFlags], [itemdata::WeaponOverrideFlags].
+// These correspond to the "Enabled" checkboxes in the Graphics->Size tab in the Item and Enemy Editors.
 DEFINE SZFLAG_TILEWIDTH      = 0x0001;
 DEFINE SZFLAG_TILEHEIGHT     = 0x0002;
 DEFINE SZFLAG_HIT_WIDTH      = 0x0004;
@@ -2597,7 +2599,7 @@ DEFINE SZFLAG_HIT_X_OFFSET   = 0x0020;
 DEFINE SZFLAG_HIT_Y_OFFSET   = 0x0040;
 DEFINE SZFLAG_DRAW_X_OFFSET  = 0x0080;
 DEFINE SZFLAG_DRAW_Y_OFFSET  = 0x0100;
-DEFINE SZFLAG_DRAW_Z_OFFSET  = 0x0200;
+DEFINE SZFLAG_DRAW_Z_OFFSET  = 0x0200; // Enemies only.
 DEFINE SZFLAG_ALL            = 0x03FF;
 
 enum SpriteDataFlag
@@ -2617,20 +2619,6 @@ enum LightShape
 	LIGHT_CONE,
 	LIGHT_SQUARE
 };
-
-// TODO ! keep either this or SZFLAG_
-// Override bitflags, compare with itemdata->OverrideFlags, itemdata->WeaponOverrideFlags.
-// These correspond to the "Enabled" checkboxes in the Graphics->Size tab in the Item and Enemy Editors.
-// DEFINE SZOF_TILEWIDTH      = 1;
-// DEFINE SZOF_TILEHEIGHT     = 2;
-// DEFINE SZOF_HITWIDTH       = 4;
-// DEFINE SZOF_HITHEIGHT      = 8;
-// DEFINE SZOF_HITZHEIGHT     = 16;
-// DEFINE SZOF_HITXOFFSET     = 32;
-// DEFINE SZOF_HITYOFFSET     = 64;
-// DEFINE SZOF_DRAWXOFFSET    = 128;
-// DEFINE SZOF_DRAWYOFFSET    = 256;
-// DEFINE SZOF_DRAWZOFFSET    = 512; // Enemies only.
 
 //Special hardcoded draw layers
 //Note: These may draw multiple times, or no times at all, during a frame.

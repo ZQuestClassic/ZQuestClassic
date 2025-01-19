@@ -1887,6 +1887,8 @@ enum ItemMiscBitflags
 	IMISC_VFLIP                    = 0x08,
 };
 
+// Used with [itemdata::OverrideFlags], [itemdata::WeaponOverrideFlags].
+// These correspond to the "Enabled" checkboxes in the Graphics->Size tab in the Item and Enemy Editors.
 enum SizeOverrideBitflags
 {
 	SZFLAG_TILEWIDTH               = 0x0001,
@@ -1898,7 +1900,7 @@ enum SizeOverrideBitflags
 	SZFLAG_HIT_Y_OFFSET            = 0x0040,
 	SZFLAG_DRAW_X_OFFSET           = 0x0080,
 	SZFLAG_DRAW_Y_OFFSET           = 0x0100,
-	SZFLAG_DRAW_Z_OFFSET           = 0x0200,
+	SZFLAG_DRAW_Z_OFFSET           = 0x0200, // Enemies only.
 	SZFLAG_ALL                     = 0x03FF,
 };
 

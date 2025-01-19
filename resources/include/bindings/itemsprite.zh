@@ -132,11 +132,9 @@ class itemsprite {
 	// @zasm_var ITEMSCRIPTUID
 	internal const int UID;
 
-	// A flagset that determines how internal engine sizing of items is applied.
+	// Bitflags that determines how internal engine sizing of items is applied.
 	//
-	// TODO !
-	//
-	// @deprecated
+	// @deprecated Never implemented.
 	// @zasm_var ITEMOVERRIDEFLAGS
 	internal int SizeFlags;
 
