@@ -606,7 +606,7 @@ class itemdata {
 	// are applied to the item, overriding engine defaults.
 	//
 	// @zasm_var IDATAOVERRIDEFL
-	internal int OverrideFlags;
+	internal int OverrideFlags; // TODO ! rm, cuz SizeFlags?
 
 	// TODO !
 	// A flagset that determines which Item Editor `Size` tab attribute values
@@ -614,7 +614,7 @@ class itemdata {
 	// defaults.
 	//
 	// @zasm_var IDATAOVERRIDEFLWEAP
-	internal int WeaponOverrideFlags;
+	internal int WeaponOverrideFlags; // TODO ! rm, cuz WeaponSizeFlags?
 
 	// @deprecated Use [Defense] instead!
 	// @zasm_var IDATAUSEDEF
