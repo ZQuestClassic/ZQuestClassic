@@ -1026,14 +1026,14 @@ class screendata {
 	//   SETR D2 REFLWPN
 	internal lweapon LoadLWeapon(int n);
 
-	// Creates a new lweapon sprite, with the given ID.
+	// Creates a new lweapon sprite, with the given type.
 	//
-	// @param [LWeaponType] id
+	// @param [LWeaponType] type
 	// @zasm
 	//   POP D2
 	//   CREATELWEAPONR D2
 	//   SETR D2 REFLWPN
-	internal lweapon CreateLWeapon(int id);
+	internal lweapon CreateLWeapon(int type);
 
 	// Returns the number of the given object type that are present on the
 	// current screen.
@@ -1053,14 +1053,14 @@ class screendata {
 	//   SETR D2 REFEWPN
 	internal eweapon LoadEWeapon(int n);
 
-	// Creates a new eweapon sprite, with the given ID.
+	// Creates a new eweapon sprite, with the given type.
 	//
-	// @param [EWeaponType] id
+	// @param [EWeaponType] type
 	// @zasm
 	//   POP D2
 	//   CREATEEWEAPONR D2
 	//   SETR D2 REFEWPN
-	internal eweapon CreateEWeapon(int id);
+	internal eweapon CreateEWeapon(int type);
 
 	// @zasm
 	//   POP D1

@@ -550,12 +550,12 @@ class subscreenwidget {
 	// @zasm_var SUBWIDGTY_COLOR_ROOM
 	internal int ColorRoom;
 
-	// The itemclass used by the widget (0 <= ItemClass < IC_MAXUSABLE)
+	// The itemclass used by the widget (0 <= ItemType < IC_MAXUSABLE)
 	//
 	// - [SUBWIDG_ITEMSLOT]
 	//
 	// @zasm_var SUBWIDGTY_ITEMCLASS
-	internal int ItemClass;
+	internal int ItemType;
 
 	// The item ID used by the widget (-1 <= ItemID < NUM_ITEMDATA)
 	//

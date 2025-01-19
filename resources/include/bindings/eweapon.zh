@@ -8,17 +8,17 @@ class eweapon {
 	// @delete
 	internal eweapon();
 
-	// The weapon type of the weapon. Some types have hardcoded behaviors.
-	//
-	// @zasm_var EWPNID
-	internal int ID;
-
-	// The weapon type of the weapon. Some types have hardcoded behaviors. Same as [ID].
+	// The weapon type. Some types have hardcoded behaviors.
 	//
 	// @zasm_var EWPNID
 	internal int Type;
 
-	// The weapon type of the weapon. Some types have hardcoded behaviors. Same as [ID].
+	// Exactly the same as [Type], use that instead.
+	//
+	// @zasm_var EWPNID
+	internal int ID;
+
+	// Exactly the same as [Type], use that instead.
 	//
 	// @zasm_var EWPNID
 	internal int Family;

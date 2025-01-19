@@ -778,7 +778,7 @@ enum ItemPickupBitflags
 	IP_ALWAYSGRAB                  = 0x2000, // Item is always able to be picked up (ex. brang/hshot/arrows/melee weapons).
 };
 
-// LWeapon types. Used with [Screen->CreateLWeapon].
+// Player weapon IDs. Used with [Screen->CreateLWeapon].
 enum LWeaponType
 {
 	LW_SWORD                       = 1,  // This cannot be created.
@@ -823,7 +823,7 @@ enum LWeaponType
 	LW_REFFIRE2                    = 55,
 };
 
-// EWeapon types. Used with [Screen->CreateEWeapon] and [Screen->LoadEWeapon].
+// Enemy weapon types. Used with [Screen->CreateEWeapon] and [Screen->LoadEWeapon].
 enum EWeaponType
 {
 	EW_ARROW                       = 130,
@@ -1855,7 +1855,7 @@ enum HitIndex
 	HIT_BY_LWEAPON_UID             = 6,
 	HIT_BY_FFC_UID                 = 7,  // Unimplemented.
 	HIT_BY_LWEAPON_PARENT_ID       = 8,  // The item id of the item that the weapon that hit came from. -1 if the lweapon is script created.
-	HIT_BY_LWEAPON_PARENT_FAMILY   = 9,  // The item class of the item that the weapon that hit came from (see [ItemClass]). -1 if the lweapon is script created.
+	HIT_BY_LWEAPON_PARENT_FAMILY   = 9,  // The item class of the item that the weapon that hit came from (see [ItemType]). -1 if the lweapon is script created.
 	HIT_BY_NPC_TYPE                = 10, // [Hero] only. The enemy class of the enemy that hit the [Hero] (see [NPCType]).
 	HIT_BY_EWEAPON_TYPE            = 11, // [Hero] only. The ID of the weapon that hit (see [LWeaponType] and [EWeaponType]).
 	HIT_BY_LWEAPON_TYPE            = 12, // The internal UID used by the engine for the thing. Can case these to their respective types example: `npc n = <npc>(Hero->HitBy[HIT_BY_NPC_PTR])`.

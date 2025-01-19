@@ -2112,6 +2112,27 @@ enum WeaponMoveFlag
 	WPNMV_NO_REAL_Z
 };
 
+// @deprecated Use [MoveFlag] instead.
+enum NPCMoveFlagIndex
+{
+	NPCMV_OBEYS_GRAVITY,
+	NPCMV_CAN_PITFALL,
+	NPCMV_CAN_PIT_WALK,
+	NPCMV_CAN_WATERDROWN,
+	NPCMV_CAN_WATER_WALK,
+	NPCMV_ONLY_WATER_WALK,
+	NPCMV_ONLY_SHALLOW_WATER_WALK,
+	NPCMV_ONLY_PIT_WALK,
+	NPCMV_NO_FAKE_Z,
+	NPCMV_NO_REAL_Z,
+	NPCMV_USE_FAKE_Z,
+	NPCMV_IGNORE_SOLIDITY,
+	NPCMV_IGNORE_BLOCKFLAGS,
+	NPCMV_IGNORE_SCREENEDGE,
+	NPCMV_USE_SCRIPTED_MOVEMENT_ENGINE,
+	NPCMV_NOT_PUSHABLE_BY_SOLIDS
+};
+
 enum MoveFlag
 {
 	MV_OBEYS_GRAVITY,
@@ -2525,7 +2546,7 @@ DEFINE HIT_BY_EWEAPON_UID           = 5; //[Hero] only.
 DEFINE HIT_BY_LWEAPON_UID           = 6;
 DEFINE HIT_BY_FFC_UID               = 7; //Unimplemented.
 DEFINE HIT_BY_LWEAPON_PARENT_ID     = 8; //The item id of the item that the weapon that hit came from. -1 if the lweapon is script created.
-DEFINE HIT_BY_LWEAPON_PARENT_FAMILY = 9; //The item class of the item that the weapon that hit came from (see [ItemClass]). -1 if the lweapon is script created.
+DEFINE HIT_BY_LWEAPON_PARENT_FAMILY = 9; //The item class of the item that the weapon that hit came from (see [ItemType]). -1 if the lweapon is script created.
 DEFINE HIT_BY_NPC_TYPE              = 10; //[Hero] only. The enemy class of the enemy that hit the [Hero] (see [NPCType]).
 DEFINE HIT_BY_EWEAPON_TYPE          = 11; // [Hero] only. The ID of the weapon that hit (see [LWeaponType] and [EWeaponType]).
 DEFINE HIT_BY_LWEAPON_TYPE          = 12; //The internal UID used by the engine for the thing. Can case these to their respective types example: `npc n = <npc>(Hero->HitBy[HIT_BY_NPC_PTR])`

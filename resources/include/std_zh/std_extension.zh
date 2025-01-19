@@ -596,18 +596,19 @@ void EToLWeapon(lweapon b, eweapon a) { EWeaponToLWeapon(a,b);}
 void EToLWeapon(eweapon a, lweapon b) { EWeaponToLWeapon(a,b);}
 lweapon EtoLWeapon(eweapon a){return EtoLWeapon(a);}
 
-int EtoLWeaponID(int type)
+// @param [EWeaponType] type
+int EtoLWeaponType(int type)
 {
-	return EWeaponToLWeaponID(type);
+	return EWeaponToLWeaponType(type);
 }
 
 void EWeaponToLWeapon(lweapon b, eweapon a) { EWeaponToLWeapon(a,b);}
 
 //Copy the attributes of a given eweapon to a new lweapon.
-//Returns -1 on error, including if the type (weap->ID) conversion is illegal.
+//Returns -1 on error, including if the type (weap->Type) conversion is illegal.
 lweapon EWeaponToLWeapon(eweapon a)
 {
-	int type = EWeaponToLWeaponID(a->ID);
+	int type = EWeaponToLWeaponType(a->Type);
 	if ( type == -1 ) //invalid
 	{
 		TraceS("Invalid weapon type on attempt to convert EWeapon to LWeapon with EWeaponToLWeapon(). Aborting."); TraceNL(); 
@@ -661,10 +662,10 @@ lweapon EWeaponToLWeapon(eweapon a)
 }
 
 //Copy the attributes of a given eweapon to an lweapon.
-//Returns -1 on error, including if the type (weap->ID) conversion is illegal.
+//Returns -1 on error, including if the type (weap->Type) conversion is illegal.
 void EWeaponToLWeapon(eweapon a, lweapon b)
 {
-	int type = EWeaponToLWeaponID(a->ID);
+	int type = EWeaponToLWeaponType(a->Type);
 	if ( type == -1 ) //invalid
 	{
 		TraceS("Invalid weapon type on attempt to convert EWeapon to LWeapon with EWeaponToLWeapon(). Aborting."); TraceNL(); return;
@@ -718,7 +719,8 @@ void EWeaponToLWeapon(eweapon a, lweapon b)
 
 //Converts the ID (type) of a given weapon to its opposite class. 
 //Returns -1 if the type is illegal.
-int EWeaponToLWeaponID(int type)
+// @param [EWeaponType] type
+int EWeaponToLWeaponType(int type)
 {
 	switch(type)
 	{
@@ -741,7 +743,7 @@ int EWeaponToLWeaponID(int type)
 		case EW_SCRIPT8: return LW_SCRIPT8;
 		case EW_SCRIPT9: return LW_SCRIPT9;
 		case EW_SCRIPT10: return LW_SCRIPT10;
-		default: { printf("Invalid weapon type %d passed to EWeaponToLWeaponID(int) \n", type); return -1; }
+		default: { printf("Invalid weapon type %d passed to EWeaponToLWeaponType(int) \n", type); return -1; }
 	}
 }
 
@@ -1069,17 +1071,19 @@ bool LinkFacing(int combo_pos)
 void LtoEWeapon(eweapon b, lweapon a) { LWeaponToEWeapon(a,b);}
 void LtoEWeapon(lweapon a, eweapon b) { LWeaponToEWeapon(a,b);}
 eweapon LtoEWeapon(lweapon a){return LtoEWeapon(a);}
-int LtoEWeaponID(int type)
+
+// @param [LWeaponType] type
+int LtoEWeaponType(int type)
 {
-	return LWeaponToEWeaponID(type);
+	return LWeaponToEWeaponType(type);
 }
 
 void LWeaponToEWeapon(eweapon b, lweapon a) { LWeaponToEWeapon(a,b);}
 
 //Copy the attributes of a given lweapon to an eweapon.
-//Returns -1 on error, including if the type (weap->ID) conversion is illegal.
+//Returns -1 on error, including if the type (weap->Type) conversion is illegal.
 void LWeaponToEWeapon(lweapon a, eweapon b){
-	int type = LWeaponToEWeaponID(a->ID);
+	int type = LWeaponToEWeaponType(a->Type);
 	if ( type == -1 ) //invalid
 	{
 		TraceS("Invalid weapon type on attempt to convert LWeapon to EWeapon with LWeaponToEWeapon(). Aborting."); TraceNL(); 
@@ -1133,9 +1137,9 @@ void LWeaponToEWeapon(lweapon a, eweapon b){
 
 
 //Copy the attributes of a given lweapon to a new eweapon.
-//Returns -1 on error, including if the type (weap->ID) conversion is illegal.
+//Returns -1 on error, including if the type (weap->Type) conversion is illegal.
 eweapon LWeaponToEWeapon(lweapon a){
-	int type = LWeaponToEWeaponID(a->ID);
+	int type = LWeaponToEWeaponType(a->Type);
 	if ( type == -1 ) //invalid
 	{
 		TraceS("Invalid weapon type on attempt to convert LWeapon to EWeapon with LWeaponToEWeapon(). Aborting."); TraceNL(); 
@@ -1191,7 +1195,8 @@ eweapon LWeaponToEWeapon(lweapon a){
 
 //Converts the ID (type) of a given weapon to its opposite class. 
 //Returns -1 if the type is illegal.
-int LWeaponToEWeaponID(int type)
+// @param [LWeaponType] type
+int LWeaponToEWeaponType(int type)
 {
 	switch(type)
 	{
@@ -1214,11 +1219,9 @@ int LWeaponToEWeaponID(int type)
 		case LW_SCRIPT8: return EW_SCRIPT8;
 		case LW_SCRIPT9: return EW_SCRIPT9;
 		case LW_SCRIPT10: return EW_SCRIPT10;
-		default: { printf("Invalid weapon type %d passed to LWeaponToEWeaponID(int) \n",type); return -1; }
+		default: { printf("Invalid weapon type %d passed to LWeaponToEWeaponType(int) \n",type); return -1; }
 	}
 }
-
-//M
 
 //Match the present Hero->Action to those on array 'list'.
 //Returns true of any of the entries on the list match. 
@@ -1315,7 +1318,7 @@ bool MatchEWeaponType(int[] list, eweapon e)
 	bool match = false;
 	for ( int q = SizeOfArray(list)-1; q >=0 ; --q ) 
 	{
-		if ( e->ID == list[q] ) match = true;
+		if ( e->Type == list[q] ) match = true;
 	}
 	return match;
 }
@@ -1438,7 +1441,7 @@ bool MatchLWeaponType(int[] list, lweapon l)
 	bool match = false;
 	for ( int q = SizeOfArray(list)-1; q >=0 ; --q ) 
 	{
-		if ( l->ID == list[q] ) match = true;
+		if ( l->Type == list[q] ) match = true;
 	}
 	return match;
 }

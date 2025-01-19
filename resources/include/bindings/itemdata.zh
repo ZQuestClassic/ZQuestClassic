@@ -1,7 +1,7 @@
 script typedef itemdata item;
 
-// Item classes, used with [itemdata::Type].
-enum ItemClass {
+// Item types, used with [itemdata::Type].
+enum ItemType {
 	IC_SWORD              = 0,
 	IC_BRANG              = 1,
 	IC_ARROW              = 2,
@@ -153,13 +153,13 @@ class itemdata {
 	// @delete
 	internal itemdata();
 
-	// @value [ItemClass]
+	// @value [ItemType]
 	// @zasm_var IDATAFAMILY
 	internal int Type;
 
 	// Exactly the same as [Type] - use that instead.
 	//
-	// @value [ItemClass]
+	// @value [ItemType]
 	// @zasm_var IDATAFAMILY
 	internal int Family;
 

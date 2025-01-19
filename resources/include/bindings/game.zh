@@ -1139,7 +1139,7 @@ class Game {
 	//
 	// Returns `-1` for 'no item'.
 	//
-	// @param [ItemClass] itemtype
+	// @param [ItemType] itemtype
 	// @param [CurrentItemIDBitflags] bitflags
 	// @zasm
 	//   CURRENTITEMID

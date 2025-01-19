@@ -12,17 +12,12 @@ class itemsprite {
 	// @delete
 	internal itemsprite();
 
-	// Max number of itemsprites currently allowed.
-	//
-	// @zasm_var SPRITEMAXITEM
-	internal int Max;
-
 	// The item ID to give when the item is collected.
 	//
 	// @zasm_var ITEMID
 	internal int ID;
 
-	// @value [ItemClass]
+	// @value [ItemType]
 	// @zasm_var ITEMFAMILY
 	internal int Type;
 
@@ -30,6 +25,11 @@ class itemsprite {
 	//
 	// @zasm_var ITEMFAMILY
 	internal int Family;
+
+	// Max number of itemsprites currently allowed.
+	//
+	// @zasm_var SPRITEMAXITEM
+	internal int Max;
 
 	// The item's level
 	//
