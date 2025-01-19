@@ -30,6 +30,7 @@ struct zinitdata
 
 	byte hp_per_heart, magic_per_block, hero_damage_multiplier, ene_damage_multiplier;
 	byte dither_type, dither_arg, dither_percent, def_lightrad, transdark_percent, darkcol;
+	word light_wave_rate, light_wave_size;
 	
 	int32_t ss_grid_x = 8;
 	int32_t ss_grid_y = 8;

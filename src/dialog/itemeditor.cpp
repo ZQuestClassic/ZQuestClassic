@@ -943,6 +943,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			_SET(misc[0], "Shape", "What shape to use for the light area emitted.\n"
 				"0 = circular, 1 = cone in front, 2 = square");
 			_SET(misc[1], "Range", "The range, in pixels, of the light.");
+			_SET(flag[0], "No Light 'Wave'", "The light cast from this item is not affected by the 'light wave' settings");
 			break;
 		}
 		case itype_bottle:

@@ -20777,6 +20777,13 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 		if(s_version >= 39)
 			if(!p_igetzf(&temp_zinit.air_drag, f))
 				return qe_invalid;
+		if(s_version >= 40)
+		{
+			if(!p_igetw(&temp_zinit.light_wave_rate, f))
+				return qe_invalid;
+			if(!p_igetw(&temp_zinit.light_wave_size, f))
+				return qe_invalid;
+		}
 	}
 	if (should_skip)
 		return 0;
