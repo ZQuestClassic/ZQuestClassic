@@ -17,9 +17,6 @@ out_path = Path('resources/include/std_zh/std_constants2.zh')
     # cd->AnimFlags = AF_FRESH|AF_CYCLE;
 # Update compiler to allow bitwise amongst enum bitflags.
 
-
-# TODO ! naming .... "FlagIndex" -> "Flag"? audit usages.
-
 name_map = {
     'AF': 'AnimationBitflags',
     'AT': 'AimType',

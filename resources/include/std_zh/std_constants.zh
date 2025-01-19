@@ -1164,8 +1164,8 @@ enum RenderTarget
 	RT_BITMAP6                     = 6,  // Draws to off-screen bitmap 6.
 };
 
-//Screen Flag groups, used with [Screen->Flags]. Flags from each group are ORed together, starting with the first flag
-//See Screen Data dialog for what flags are contained in each group.
+// Screen Flag groups, used with [Screen->Flags].
+// See Screen Data dialog for what flags are contained in each group.
 enum ScreenFlagGroup
 {
 	SF_ROOMTYPE, // Corresponds to [ScreenFlagRoomType].
@@ -1174,7 +1174,7 @@ enum ScreenFlagGroup
 	SF_WARP, // Corresponds to [ScreenFlagWarp].
 	SF_ITEMS, // Corresponds to [ScreenFlagItems].
 	SF_COMBOS, // Corresponds to [ScreenFlagCombos].
-	SF_SAVE, // Corresponds to [ScreenFlagCombos].
+	SF_SAVE, // Corresponds to [ScreenFlagSave].
 	SF_FFC, // Corresponds to [ScreenFlagFFC].
 	SF_WHISTLE, // Corresponds to [ScreenFlagWhistle].
 	SF_MISC, // Corresponds to [ScreenFlagMisc].
