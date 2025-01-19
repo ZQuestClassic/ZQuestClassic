@@ -2574,6 +2574,7 @@ enum
 DEFINE IPSTR_ALWAYS   = 0x01;
 DEFINE IPSTR_ONLYHELD = 0x02;
 
+// TODO ! unused? rm.
 enum //For 'itemdata->PickupType'
 {
 	IPTYPE_DISABLED,
@@ -2660,24 +2661,30 @@ enum
 	SPLAYER_LENS_OVER //Lens drawing blackness to cover most of the screen
 };
 
-enum //for Hero->LiftFlags[]
+// Used with [Hero->LiftFlags].
+enum LiftFlag
 {
-	LIFTFL_DISABLE_SHIELD,
+	LIFTFL_DISABLE_SHIELD, // Disable shield when lifting the same way it is when swinging a weapon.
+	// Disable all items unrelated to lifting.
+	// Items related to lifting, such as bombs with the liftable flag set or a Lift Glove, will
+	// throw the held item regardless.
 	LIFTFL_DISABLE_ITEMS,
 	LIFTFL_NO_SWIMMING,
 	LIFTFL_DROP_ON_HIT,
 	LIFTFL_MAX
 };
 
-enum
+// Used with [Audio->MusicRefresh].
+enum MusicRefreshMode
 {
-	MR_SCREEN,
-	MR_DMAP,
-	MR_LEVEL,
-	MR_NEVER
+	MR_SCREEN, // Refresh on every screen transition.
+	MR_DMAP,   // Refresh when the dmap changes.
+	MR_LEVEL,  // Refresh when the level changes.
+	MR_NEVER   // Never refresh on a screen transition.
 };
 
-enum
+// Used with [Audio->MusicRefreshFlags].
+enum MusicRefreshFlag
 {	
 	MRF_NOCUT,
 	MRF_REVERT

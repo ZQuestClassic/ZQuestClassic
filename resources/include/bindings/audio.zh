@@ -19,13 +19,15 @@ class Audio {
 	internal int Volume[];
 
 	// Controls how often the engine refreshes the currently playing music while
-	// warping.
+	// changing screens.
 	//
+	// @value [MusicRefreshMode]
 	// @zasm_var MUSICUPDATECOND
 	internal int MusicRefresh;
 
-	// A set of flags for handling extra effects on MusicRefresh.
+	// Flags for handling extra effects on MusicRefresh.
 	//
+	// @index [MusicRefreshFlag]
 	// @zasm_var MUSICUPDATEFLAGS
 	internal bool MusicRefreshFlags[];
 

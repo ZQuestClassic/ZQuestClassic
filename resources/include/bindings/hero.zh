@@ -453,11 +453,8 @@ class hero {
 	internal int HammerState;
 
 	// When the engine lifts an object, it will overwrite these flags.
-	// - [LIFTFL_DISABLE_SHIELD] - If true, the shield is disabled when lifting the same way it is when swinging a weapon.
-	// - [LIFTFL_DISABLE_ITEMS] - If true, the player can't use any items unrelated to lifting.
-	//   (Items related to lifting, such as bombs with the liftable flag set or a Lift Glove, will
-	//    throw the held item regardless)
 	//
+	// @index [LiftFlag]
 	// @zasm_var HEROLIFTFLAGS
 	internal bool LiftFlags[];
 
