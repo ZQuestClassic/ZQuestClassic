@@ -572,7 +572,7 @@ class screendata {
 	// @zasm_var SCREENDATANEXTSCREEN
 	internal int CarryoverScreen;
 
-	// Stores the information on warp returns, butwise.
+	// Stores the information on warp returns, bitwise.
 	//
 	// Deprecated by [SideWarpReturnSquare[4]] and [TileWarpReturnSquare[4]].
 	//

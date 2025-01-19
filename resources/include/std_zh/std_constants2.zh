@@ -120,7 +120,6 @@ DEFINE NPC_ATTRIBUTES_SIZE		= 32;
 DEFINE ITEM_ATTRIBUTES_SIZE		= 10;
 DEFINE GAMEMISC_SIZE 		= 32;
 DEFINE MAX_DEFENSE 			= 42;
-DEFINE MAX_DEFENCE 			= 42;
 
 DEFINE SCREEN_W 			= 256; // Width of the screen, in pixels.
 DEFINE SCREEN_H 			= 176; // Height of the screen, in pixels.

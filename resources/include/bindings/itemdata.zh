@@ -383,11 +383,6 @@ class itemdata {
 	// @zasm_var IDATAUSEWPN
 	internal int Weapon;
 
-	// The default defense of the weapon.
-	//
-	// @zasm_var IDATAUSEDEF
-	internal int Defense;
-
 	// The 8 InitD values for the weapon script.
 	//
 	// @zasm_var IDATAWPNINITD
@@ -517,7 +512,7 @@ class itemdata {
 	internal int WeaponTileHeight;
 
 	// Bitflags representing all the checkboxes for which sizes to
-	// apply from the itemdata.
+	// apply from the itemdata, for any [lweapon] created by this item.
 	//
 	// @value [SizeOverrideBitflags]
 	// @zasm_var IDATAOVERRIDEFLWEAP
@@ -621,14 +616,18 @@ class itemdata {
 	// @zasm_var IDATAOVERRIDEFLWEAP
 	internal int WeaponOverrideFlags;
 
-	// The default defence resolution (e.g. OHKO) that the weapon uses
+	// @deprecated Use [Defense] instead!
+	// @zasm_var IDATAUSEDEF
+	internal int Defence;
+
+	// The default defense resolution (e.g. OHKO) that the weapon uses
 	// when it strikes an enemy.
 	//
-	// If `> -1`, and the enemy had a defence resolution of `None`, the default
+	// If `> -1`, and the enemy had a defense resolution of `None`, the default
 	// defense resolution is used in place of `None`.
 	//
 	// @zasm_var IDATAUSEDEF
-	internal int Defence;
+	internal int Defense;
 
 	// The distance that the weapon is allowed to travel.
 	//

@@ -570,7 +570,7 @@ class mapdata {
 	// The bits are `DDCCBBAADDCCBBAA`, where the left section is sidewarp
 	// returns, and the right is tilewarp returns.
 	//
-	// @deprecated by SideWarpReturnSquare[4] and TileWarpReturnSquare[4]
+	// @deprecated Use `SideWarpReturnSquare[4]` and `TileWarpReturnSquare[4]`!
 	// @zasm_var MAPDATAWARPRETURNC
 	internal int WarpReturnC;
 
