@@ -334,7 +334,7 @@ class subscreenwidget {
 	// @zasm_var SUBWIDGTY_TILE
 	internal int Tile[];
 
-	// The widget's Font, use the 'FONT_' constants.
+	// The widget's font.
 	//
 	// - [SUBWIDG_TEXT]
 	// - [SUBWIDG_TEXTBOX]
@@ -345,6 +345,7 @@ class subscreenwidget {
 	// - [SUBWIDG_MMAPTITLE]
 	// - [SUBWIDG_SELECTEDTEXT]
 	//
+	// @value [Font]
 	// @zasm_var SUBWIDGTY_FONT
 	internal int Font;
 
