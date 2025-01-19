@@ -28205,8 +28205,13 @@ void HeroClass::calc_darkroom_hero(int32_t x1, int32_t y1, int32_t x2, int32_t y
 	int32_t hy2 = y.getInt() - y2 + 8;
 	
 	itemdata& lamp = itemsbuf[lampid];
-	handle_lighting(hx1,hy1,lamp.misc1,lamp.misc2,dir,darkscr_bmp_curscr);
-	handle_lighting(hx2,hy2,lamp.misc1,lamp.misc2,dir,darkscr_bmp_scrollscr);
+	optional<word> wave_opt;
+	if(lamp.flags & item_flag1)
+		wave_opt = 0; // cancel wave effect
+	handle_lighting(hx1,hy1,lamp.misc1,lamp.misc2,dir,darkscr_bmp_curscr,
+		NULL, -1, -1, -1, -1, wave_opt, wave_opt);
+	handle_lighting(hx2,hy2,lamp.misc1,lamp.misc2,dir,darkscr_bmp_scrollscr,
+		NULL, -1, -1, -1, -1, wave_opt, wave_opt);
 }
 
 void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)

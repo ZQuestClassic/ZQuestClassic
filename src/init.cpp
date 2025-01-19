@@ -1021,6 +1021,8 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool freshquest)
 	game2->set_light_rad(zinit2->def_lightrad);
 	game2->set_transdark_perc(zinit2->transdark_percent);
 	game2->set_darkscr_color(zinit2->darkcol);
+	game2->set_light_wave_rate(zinit2->light_wave_rate);
+	game2->set_light_wave_size(zinit2->light_wave_size);
 	game2->set_watergrav(zinit2->swimgravity);
 	game2->set_sideswim_up(zinit2->heroSideswimUpStep);
 	game2->set_sideswim_side(zinit2->heroSideswimSideStep);
@@ -1109,6 +1111,8 @@ constexpr std::size_t countof(T(&)[N]) { return N; }
 	PROP(jump_hero_layer_threshold) \
 	PROP(last_map) \
 	PROP(last_screen) \
+	PROP(light_wave_rate) \
+	PROP(light_wave_size) \
 	PROP(magic_per_block) \
 	PROP(magicdrainrate) \
 	PROP(msg_more_is_offset) \

@@ -3742,7 +3742,10 @@ void updatescr(bool allowwavy)
 		wavy = 0; // Wavy was set by a DMap flag. Clear it.
 	else if(Playing && !Paused)
 		wavy--; // Wavy was set by a script. Decrement it.
-		
+	
+	if(Playing && !Paused)
+		++light_wave_clk;
+	
 	if(Playing && msgpos && !screenscrolling)
 	{
 		if(!(msg_bg_display_buf->clip))
