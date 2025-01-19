@@ -539,7 +539,7 @@ DEFINE IP_TRIGGERSECRETS = 0x1000; // Triggers screen secrets when collected
 DEFINE IP_ALWAYSGRAB     = 0x2000; // Item is always able to be picked up (ex. brang/hshot/arrows/melee weapons)
 
 
-//LWeapon types. Used with [Screen->CreateLWeapon].
+//Player weapon types. Used with [Screen->CreateLWeapon].
 DEFINE LW_SWORD              = 1; // This cannot be created
 DEFINE LW_WAND               = 12; // This cannot be created
 DEFINE LW_CANDLE             = 12; // This cannot be created
@@ -1127,7 +1127,7 @@ DEFINE MAX_FONT = 100;
 DEFINE MIN_FONT = 0;
 DEFINE NUM_FONTS = MAX_FONT+1;
 
-// PrintString Text Formats. Used with [Screen->DrawString].
+// Text alignment. Used with [Screen->DrawString] and other functions.
 DEFINE TF_NORMAL             = 0; // treats the left-most char as (x)
 DEFINE TF_CENTERED           = 1; // prints the string centered on (x)
 DEFINE TF_RIGHT              = 2; // treats the right-most char as (x)
@@ -1164,8 +1164,8 @@ enum RenderTarget
 	RT_BITMAP6                     = 6,  // Draws to off-screen bitmap 6.
 };
 
-//Screen Flag groups, used with [Screen->Flags].. Flags from each group are ORed together, starting with the first flag
-//See Screen Data dialog for what flags are contained in each category.
+//Screen Flag groups, used with [Screen->Flags]. Flags from each group are ORed together, starting with the first flag
+//See Screen Data dialog for what flags are contained in each group.
 enum ScreenFlagGroup
 {
 	SF_ROOMTYPE, // Corresponds to [ScreenFlagRoomType].
@@ -1173,7 +1173,7 @@ enum ScreenFlagGroup
 	SF_SECRETS, // Corresponds to [ScreenFlagSecrets].
 	SF_WARP, // Corresponds to [ScreenFlagWarp].
 	SF_ITEMS, // Corresponds to [ScreenFlagItems].
-	SF_COMBOS, // Corresponds to [ScreenFlagRoomType].
+	SF_COMBOS, // Corresponds to [ScreenFlagCombos].
 	SF_SAVE, // Corresponds to [ScreenFlagCombos].
 	SF_FFC, // Corresponds to [ScreenFlagFFC].
 	SF_WHISTLE, // Corresponds to [ScreenFlagWhistle].
@@ -1295,9 +1295,7 @@ DEFINE SFW_STAIRS = SFWH_STAIRS; //Whistle->Stairs
 DEFINE SFW_PALCHANGE = SFWH_PALCHANGE; //Whistle->Palette Change
 DEFINE SFW_DRYLAKE = SFWH_DRYLAKE;  //Whistle->Dry lake
 
-// Screen Enemy Flag groups.
-//
-// Used with [Screen->EFlags].
+// Screen enemy flag groups. Used with [Screen->EFlags].
 DEFINE SEF_SPAWN				= 0; // Corresponds to [ScreenEnemyFlagSpawn].
 DEFINE SEF_LIST1				= 1; // Corresponds to [ScreenEnemyFlagList1].
 DEFINE SEF_LIST2				= 2; // Corresponds to [ScreenEnemyFlagList2].
@@ -2103,7 +2101,7 @@ enum WeaponMoveFlag
 };
 
 // @deprecated Use [MoveFlag] instead.
-enum NPCMoveFlagIndex
+enum NPCMoveFlag
 {
 	NPCMV_OBEYS_GRAVITY,
 	NPCMV_CAN_PITFALL,
@@ -2752,7 +2750,7 @@ enum
 	TRANS_PIXEL_ARG_MAX
 };
 
-enum TransitionFlagIndex
+enum TransitionFlag
 {
 	TRANSFLAG_NO_HIDE_SELECTOR,
 	TRANSFLAG_MAX

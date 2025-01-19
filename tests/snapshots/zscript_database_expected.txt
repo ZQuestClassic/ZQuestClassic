@@ -1,4 +1,4 @@
-648 / 794 (81%) passed
+647 / 794 (81%) passed
 
 Failures:
 	00026-deku-leaf/script.zs
@@ -143,6 +143,7 @@ Failures:
 	00536-poker-combos/script.zs
 	00546-oracle-trampoline/script.zs
 	00547--new-palette-based-day-night-system/DayNightNew.zs
+	00562-hot-room-visuals/HotRoomTint.zs
 	00571-gumzol/gumzol.z
 	00571-gumzol/script.zs
 	00580-mani-s-script-header/script.zs
@@ -14925,6 +14926,22 @@ DayNightNew.zs Line 331 - Error T017: Cannot cast from DMapDayNight to int.
 330                // If the DMap has day/night data defined
 331                if(DDN[whichDMap]>NULL)
                       ^~~~~~~~~~~~~~~~~~~
+
+
+Failure!
+Compile finished with exit code '17' (compiled with errors)
+
+=== 00562-hot-room-visuals/HotRoomTint.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+HotRoomTint.zs Line 65 @ Column 12 - Line 66 @ Column 15 - Error T017: Cannot cast from int to const ScreenFlagMisc.
+
+63    : (SF_HOTROOM_CAT==SF_FFC ? SFF_LAST
+64    : (SF_HOTROOM_CAT==SF_WHISTLE ? SFWH_LAST
+65    : (SF_HOTROOM_CAT==SF_MISC ? SFM_LAST
+66    : (-1)))))))))));
 
 
 Failure!

@@ -181,7 +181,7 @@ class eweapon {
 
 	// The weapon's flags.
 	//
-	// @index [WeaponFlagIndex]
+	// @index [WeaponFlag]
 	// @zasm_var EWPNFLAGS
 	internal bool Flags[];
 

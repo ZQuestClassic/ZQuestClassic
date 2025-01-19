@@ -110,7 +110,7 @@ enum WarpType
 	WT_NOWARP
 };
 
-enum WeaponFlagIndex
+enum WeaponFlag
 {
 	WFLAG_PICKUP_ITEMS,
 	WFLAG_BREAKS_ON_LANDING,
@@ -778,7 +778,7 @@ enum ItemPickupBitflags
 	IP_ALWAYSGRAB                  = 0x2000, // Item is always able to be picked up (ex. brang/hshot/arrows/melee weapons).
 };
 
-// Player weapon IDs. Used with [Screen->CreateLWeapon].
+// Player weapon types. Used with [Screen->CreateLWeapon].
 enum LWeaponType
 {
 	LW_SWORD                       = 1,  // This cannot be created.
@@ -823,7 +823,7 @@ enum LWeaponType
 	LW_REFFIRE2                    = 55,
 };
 
-// Enemy weapon types. Used with [Screen->CreateEWeapon] and [Screen->LoadEWeapon].
+// EWeapon types. Used with [Screen->CreateEWeapon] and [Screen->LoadEWeapon].
 enum EWeaponType
 {
 	EW_ARROW                       = 130,
@@ -1158,7 +1158,7 @@ enum FontType
 	FONT_SMW                       = 100,
 };
 
-// Text alignment. Used with [Screen->DrawString].
+// Text alignment. Used with [Screen->DrawString] and other functions.
 enum TextAlignment
 {
 	TF_NORMAL                      = 0, // Treats the left-most char as (x).
@@ -1187,8 +1187,7 @@ enum PolygonRenderMode
 	PT_MASKTRANSPTEXTURE           = 14, // "".
 };
 
-// Screen Enemy Flag groups, handled in the same way as the SF_ constants.
-// Used with [Screen->EFlags] and [mapdata::EFlags].
+// Screen enemy flag groups. Used with [Screen->EFlags].
 enum ScreenEnemyFlagGroup
 {
 	SEF_SPAWN                      = 0, // Corresponds to [ScreenEnemyFlagSpawn].

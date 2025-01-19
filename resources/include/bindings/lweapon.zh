@@ -212,7 +212,7 @@ class lweapon {
 
 	// A set of weapon flags.
 	//
-	// @index [WeaponFlagIndex]
+	// @index [WeaponFlag]
 	// @zasm_var LWPNFLAGS
 	internal bool Flags[];
 
