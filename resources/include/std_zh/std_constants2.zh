@@ -1273,6 +1273,7 @@ enum
 };
 
 
+// TODO ! unused? rm.
 enum //For 'itemdata->PickupType'
 {
 	IPTYPE_DISABLED,
@@ -1302,18 +1303,19 @@ enum LightShape
 	LIGHT_SQUARE
 };
 
-// TODO !
-//Override Flag constants, compare with itemdata->OverrideFlags, itemdata->WeaponOverrideFlags and npcdata->OverrideFlags. These correspond to the "Enabled" checkboxes in the Graphics->Size tab in the Item and Enemy Editors. Add or OR (|) these together 
-const int SZOF_TILEWIDTH      = 1;     //0000000001b, 0x001
-const int SZOF_TILEHEIGHT     = 2;     //0000000010b, 0x002
-const int SZOF_HITWIDTH       = 4;     //0000000100b, 0x004
-const int SZOF_HITHEIGHT      = 8;     //0000001000b, 0x008
-const int SZOF_HITZHEIGHT     = 16;     //0000010000b, 0x010
-const int SZOF_HITXOFFSET     = 32;     //0000100000b, 0x020
-const int SZOF_HITYOFFSET     = 64;     //0001000000b, 0x040
-const int SZOF_DRAWXOFFSET    = 128;     //0010000000b, 0x080
-const int SZOF_DRAWYOFFSET    = 256;     //0100000000b, 0x100
-const int SZOF_DRAWZOFFSET    = 512;     //1000000000b, 0x200, Enemies only.
+// TODO ! keep either this or SZFLAG_
+// Override bitflags, compare with itemdata->OverrideFlags, itemdata->WeaponOverrideFlags.
+// These correspond to the "Enabled" checkboxes in the Graphics->Size tab in the Item and Enemy Editors.
+// DEFINE SZOF_TILEWIDTH      = 1;
+// DEFINE SZOF_TILEHEIGHT     = 2;
+// DEFINE SZOF_HITWIDTH       = 4;
+// DEFINE SZOF_HITHEIGHT      = 8;
+// DEFINE SZOF_HITZHEIGHT     = 16;
+// DEFINE SZOF_HITXOFFSET     = 32;
+// DEFINE SZOF_HITYOFFSET     = 64;
+// DEFINE SZOF_DRAWXOFFSET    = 128;
+// DEFINE SZOF_DRAWYOFFSET    = 256;
+// DEFINE SZOF_DRAWZOFFSET    = 512; // Enemies only.
 
 //Special hardcoded draw layers
 //Note: These may draw multiple times, or no times at all, during a frame.
@@ -1344,24 +1346,30 @@ enum
 	SPLAYER_LENS_OVER //Lens drawing blackness to cover most of the screen
 };
 
-enum //for Hero->LiftFlags[]
+// Used with [Hero->LiftFlags].
+enum LiftFlag
 {
-	LIFTFL_DISABLE_SHIELD,
+	LIFTFL_DISABLE_SHIELD, // Disable shield when lifting the same way it is when swinging a weapon.
+	// Disable all items unrelated to lifting.
+	// Items related to lifting, such as bombs with the liftable flag set or a Lift Glove, will
+	// throw the held item regardless.
 	LIFTFL_DISABLE_ITEMS,
 	LIFTFL_NO_SWIMMING,
 	LIFTFL_DROP_ON_HIT,
 	LIFTFL_MAX
 };
 
-enum
+// Used with [Audio->MusicRefresh].
+enum MusicRefreshMode
 {
-	MR_SCREEN,
-	MR_DMAP,
-	MR_LEVEL,
-	MR_NEVER
+	MR_SCREEN, // Refresh on every screen transition.
+	MR_DMAP,   // Refresh when the dmap changes.
+	MR_LEVEL,  // Refresh when the level changes.
+	MR_NEVER   // Never refresh on a screen transition.
 };
 
-enum
+// Used with [Audio->MusicRefreshFlags].
+enum MusicRefreshFlag
 {	
 	MRF_NOCUT,
 	MRF_REVERT
