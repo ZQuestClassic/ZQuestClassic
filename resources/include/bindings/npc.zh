@@ -1014,15 +1014,9 @@ class npc {
 	//
 	// 'bool knockback' here affects this for the placement checks.
 	//
-	// Use the 'SPW_' constants to provide a special value;
-	//
-	// i.e. 'SPW_FLOATER' for flying enemies.
-	//
-	// Use 'SPW_NONE' if you don't know what to use.
-	//
 	// Returns true if the npc could be placed successfully, false otherwise.
 	//
-	// @param [NPCWalkType] special
+	// @param [NPCWalkType] special - for example, [SPW_FLOATER] for flying enemies
 	// @zasm
 	//   NPCCANPLACE
 	//   POPARGS D5 0.0007

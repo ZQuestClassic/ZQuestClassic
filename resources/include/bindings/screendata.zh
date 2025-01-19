@@ -1213,9 +1213,7 @@ class screendata {
 	//   LOADPORTAL D2
 	internal portal LoadPortal(int n);
 
-	// Creates a new sprite object, with the given ID. Use the `LW_` and `EW_`
-	// constants for `CreateLWeapon()`/`CreateEWeapon()`. Use the item editor
-	// IDs and enemy editor IDs for `CreateItem()`/`CreateNPC()`.
+	// Creates a new portal object.
 	//
 	// @zasm
 	//   CREATEPORTAL
