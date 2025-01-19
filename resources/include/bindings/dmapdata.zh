@@ -74,8 +74,9 @@ class dmapdata {
 	// @zasm_var DMAPDATASUBSCRO
 	internal int OverlaySubscreen;
 
-	// Bitwise values representing the state of the map grid. Make use of the
-	// functions in `std_zh/dmapgrid.zh` to access these values.
+	// Bitwise values representing the state of the map grid.
+	//
+	// See [SetVisibleOnDungeonMap], [VisibleOnDungeonMap].
 	//
 	// @zasm_var DMAPDATAGRID
 	internal int Grid[];
@@ -168,7 +169,7 @@ class dmapdata {
 	// @zasm_var DMAPDATAMIRRDMAP
 	internal int MirrorDMap;
 
-	// The flags used by the DMap. These are OR'd together. See [DMapBitwiseFlag].
+	// The flags used by the DMap. These are OR'd together. See [DMapBitflags].
 	//
 	// @future_deprecated Use [Flagset] instead!
 	// @zasm_var DMAPDATAFLAGS

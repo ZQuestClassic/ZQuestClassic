@@ -10,6 +10,7 @@ out_path = Path('resources/include/std_zh/std_constants2.zh')
 # TODO ! when done: delete std_constants2.zh, replace std_constants.zh
 # TODO ! many enums in std_constants.zh need names
 # TODO ! ctl+f "constants", delete/update.
+# TODO ! ctl+f "butwise", delete/update.
 
 name_map = {
     'AF': 'AnimationBitflags',

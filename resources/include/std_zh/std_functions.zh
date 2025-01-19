@@ -1233,10 +1233,11 @@ int GetEquipmentY()
 	return Hero->ItemY;
 }
 
-// Returns true if DMap bitwise flags 'flag' is set on dmap 'dmap'.
+// Returns true if DMap bitflags 'flag' is set on dmap 'dmap'.
 //
-// Only works with the [DMapBitwiseFlag] flags - [DMapFlag] is not supported.
+// Only works with the [DMapBitflags] flags - [DMapFlag] is not supported.
 //
+// @param [DMapBitflags] flag
 // @deprecated Use [dmapdata::Flagset] instead, with [DMapFlag].
 bool GetDMapFlag(int dmap, int flag)
 {
@@ -2863,7 +2864,11 @@ int ScreenItem()
 	return -1;
 }
 
-//Sets certain DMap bitwise flags to 'state'
+// Sets the DMap bitflag to 'state'.
+//
+// Only works with the [DMapBitflags] flags - [DMapFlag] is not supported.
+//
+// @param [DMapBitflags] flag
 void SetDMapFlag(int dmap, int flag, bool state)
 {
 	dmapdata dm = Game->LoadDMapData(dmap);

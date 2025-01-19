@@ -574,11 +574,9 @@ class mapdata {
 	// @zasm_var MAPDATAWARPRETURNC
 	internal int WarpReturnC;
 
-	// A flagset for enemies on the screen (E.Flags).
+	// Bitflags for enemies on the screen (E.Flags).
 	//
-	// TODO !
-	//
-	// @deprecated
+	// @deprecated Use [EFlags] instead!
 	// @zasm_var MAPDATAENEMYFLAGS
 	internal int EnemyFlags;
 
