@@ -134,7 +134,7 @@ class itemsprite {
 
 	// A flagset that determines how internal engine sizing of items is applied.
 	//
-	// Values are ORd together, as follows:
+	// TODO !
 	//
 	// @deprecated
 	// @zasm_var ITEMOVERRIDEFLAGS

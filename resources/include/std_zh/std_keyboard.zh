@@ -479,20 +479,21 @@ enum KeyCode
 	KEY_MAX          = 127,
 };
 
-//Key Modifier Constants -- DO NOT MODIFY!
-
-const int KB_SHIFT_FLAG 	= 0x0001;
-const int KB_CTRL_FLAG 		= 0x0002;
-const int KB_ALT_FLAG 		= 0x0004;
-const int KB_LWIN_FLAG 		= 0x0008;
-const int KB_RWIN_FLAG 		= 0x0010;
-const int KB_MENU_FLAG  	= 0x0020;
-const int KB_COMMAND_FLAG  	= 0x0040;
-const int KB_SCROLOCK_FLAG  	= 0x0100;
-const int KB_NUMLOCK_FLAG 	= 0x0200;
-const int KB_CAPSLOCK_FLAG 	= 0x0400;
-const int KB_INALTSEQ_FLAG 	= 0x0800;
-const int KB_ACCENT1_FLAG 	= 0x1000; 
-const int KB_ACCENT2_FLAG 	= 0x2000; 
-const int KB_ACCENT3_FLAG 	= 0x4000; 
-const int KB_ACCENT4_FLAG 	= 0x8000; 
+enum KeyModifierBitflags
+{
+	KB_SHIFT_FLAG      = 0x0001,
+	KB_CTRL_FLAG       = 0x0002,
+	KB_ALT_FLAG        = 0x0004,
+	KB_LWIN_FLAG       = 0x0008,
+	KB_RWIN_FLAG       = 0x0010,
+	KB_MENU_FLAG       = 0x0020,
+	KB_COMMAND_FLAG    = 0x0040,
+	KB_SCROLOCK_FLAG   = 0x0100,
+	KB_NUMLOCK_FLAG    = 0x0200,
+	KB_CAPSLOCK_FLAG   = 0x0400,
+	KB_INALTSEQ_FLAG   = 0x0800,
+	KB_ACCENT1_FLAG    = 0x1000,
+	KB_ACCENT2_FLAG    = 0x2000,
+	KB_ACCENT3_FLAG    = 0x4000,
+	KB_ACCENT4_FLAG    = 0x8000,
+};

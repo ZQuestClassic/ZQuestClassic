@@ -39,8 +39,9 @@ class Input {
 	// @zasm_var KEYBINDINGS
 	internal int KeyBindings[];
 
-	// Returns the modifier keys as a bitwise flagset.
+	// The state of the modifier keys.
 	//
+	// @value [KeyModifierBitflags]
 	// @zasm_var KEYMODIFIERS
 	internal int ModifierKeys;
 

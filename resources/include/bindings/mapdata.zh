@@ -572,9 +572,7 @@ class mapdata {
 
 	// A flagset for enemies on the screen (E.Flags).
 	//
-	// Valid values (ORd) together, are:
-	//
-	// TODO: write the values here
+	// TODO !
 	//
 	// @deprecated
 	// @zasm_var MAPDATAENEMYFLAGS

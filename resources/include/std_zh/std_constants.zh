@@ -2630,6 +2630,7 @@ enum LightShape
 	LIGHT_SQUARE
 };
 
+// TODO !
 //Override Flag constants, compare with itemdata->OverrideFlags, itemdata->WeaponOverrideFlags and npcdata->OverrideFlags. These correspond to the "Enabled" checkboxes in the Graphics->Size tab in the Item and Enemy Editors. Add or OR (|) these together 
 const int SZOF_TILEWIDTH      = 1;     //0000000001b, 0x001
 const int SZOF_TILEHEIGHT     = 2;     //0000000010b, 0x002

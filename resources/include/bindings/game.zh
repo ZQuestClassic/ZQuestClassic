@@ -214,8 +214,9 @@ class Game {
 	// @zasm_var GAMEGENERICD
 	internal untyped Generic[];
 
-	// Contains a bitwise flagset of the "Level Items".
+	// Contains a bitflags of the "Level Items".
 	//
+	// @value [LevelItemBitflags]
 	// @zasm_var GAMELITEMSD
 	internal int LItems[];
 
@@ -1259,7 +1260,7 @@ class Game {
 	//   POP D1
 	//   POP D2
 	//   GETSCREENFLAGS D2
-	internal int GetScreenFlags(int map, int screen, int flagset);
+	internal int GetScreenFlags(int map, int screen, int bitflags);
 
 	// @deprecated Use 'mapdata->' vars instead!
 	// @zasm
