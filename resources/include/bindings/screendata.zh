@@ -596,9 +596,7 @@ class screendata {
 
 	// A flagset for enemies on the screen (E.Flags).
 	//
-	// TODO !
-	//
-	// @deprecated
+	// @deprecated Use [EFlags] instead!
 	// @zasm_var SCREENDATAENEMYFLAGS
 	internal int EnemyFlags;
 
