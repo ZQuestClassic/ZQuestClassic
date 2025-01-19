@@ -68,7 +68,7 @@ name_map = {
     'SRAM': 'StoredMemoryBitflags',
     'SUBSEL': 'MoveSubscreenSelectorBitflags',
     'SZFLAG': 'SizeOverrideBitflags',
-    'TF': 'TextFormatAlign',
+    'TF': 'TextAlignment',
     'UNBLOCK': 'UnblockableBitflags',
     'VOL': 'VolumeIndex',
     'WARP': 'WarpBitflags',

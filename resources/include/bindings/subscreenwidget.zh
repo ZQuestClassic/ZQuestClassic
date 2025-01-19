@@ -348,7 +348,7 @@ class subscreenwidget {
 	// @zasm_var SUBWIDGTY_FONT
 	internal int Font;
 
-	// The widget's Alignment, use the 'TF_' constants.
+	// The widget's text alignment.
 	//
 	// - [SUBWIDG_TEXT]
 	// - [SUBWIDG_TEXTBOX]
@@ -358,6 +358,7 @@ class subscreenwidget {
 	// - [SUBWIDG_MMAPTITLE]
 	// - [SUBWIDG_SELECTEDTEXT]
 	//
+	// @value [TextAlignment]
 	// @zasm_var SUBWIDGTY_ALIGN
 	internal int Align;
 

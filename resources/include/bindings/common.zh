@@ -1158,8 +1158,8 @@ enum FontType
 	FONT_SMW                       = 100,
 };
 
-// PrintString Text Formats. Used with [Screen->DrawString].
-enum TextFormatAlign
+// Text alignment. Used with [Screen->DrawString].
+enum TextAlignment
 {
 	TF_NORMAL                      = 0, // Treats the left-most char as (x).
 	TF_CENTERED                    = 1, // Prints the string centered on (x).
