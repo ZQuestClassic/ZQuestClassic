@@ -1164,25 +1164,24 @@ enum RenderTarget
 	RT_BITMAP6                     = 6,  // Draws to off-screen bitmap 6.
 };
 
-//Screen Flag categories. Flags from each category are ORed together, starting with the first flag
-//See Screen Data dialog for what flags are contained in each category. Use in Screen->Flags
-enum
+//Screen Flag groups, used with [Screen->Flags].. Flags from each group are ORed together, starting with the first flag
+//See Screen Data dialog for what flags are contained in each category.
+enum ScreenFlagGroup
 {
-	SF_ROOMTYPE,
-	SF_VIEW,
-	SF_SECRETS,
-	SF_WARP,
-	SF_ITEMS,
-	SF_COMBOS,
-	SF_SAVE,
-	SF_FFC,
-	SF_WHISTLE,
-	SF_MISC,
-	SF_LAST
+	SF_ROOMTYPE, // Corresponds to [ScreenFlagRoomType].
+	SF_VIEW, // Corresponds to [ScreenFlagView].
+	SF_SECRETS, // Corresponds to [ScreenFlagSecrets].
+	SF_WARP, // Corresponds to [ScreenFlagWarp].
+	SF_ITEMS, // Corresponds to [ScreenFlagItems].
+	SF_COMBOS, // Corresponds to [ScreenFlagRoomType].
+	SF_SAVE, // Corresponds to [ScreenFlagCombos].
+	SF_FFC, // Corresponds to [ScreenFlagFFC].
+	SF_WHISTLE, // Corresponds to [ScreenFlagWhistle].
+	SF_MISC, // Corresponds to [ScreenFlagMisc].
+	SF_LAST,
 };
 
-//Screen Flag Roomtype
-enum
+enum ScreenFlagRoomType
 {
 	SFR_INTERIOR,
 	SFR_DUNGEON,
@@ -1191,8 +1190,7 @@ enum
 	SFR_LAST
 };
 
-//Screen Flag View
-enum
+enum ScreenFlagView
 {
 	SFV_INVISLINK,
 	SFV_NOLINKMARKER,
@@ -1207,8 +1205,7 @@ enum
 	SFV_LAST
 };
 
-//Screen Flag Secrets
-enum
+enum ScreenFlagSecrets
 {
 	SFS_BLOCKSHUT, //Block->Shutters
 	SFS_TEMPSECRETS, //Secrets are temporary.
@@ -1218,8 +1215,7 @@ enum
 	SFS_LAST
 };
 
-//Screen Flag Warp
-enum
+enum ScreenFlagWarp
 {
 	SFW_AUTODIRECT, //Auto Warps are Direct
 	SFW_SENDSIRECT, //Sensitive Warps are direct.
@@ -1231,9 +1227,7 @@ enum
 	SFW_LAST
 };
 
-
-//Screen Flag Items
-enum 
+enum ScreenFlagItems
 {
 	SFI_HOLDUP, //Hold up item.
 	SFI_FALLS, //Falls from ceiling
@@ -1246,8 +1240,7 @@ enum
 	SFI_LAST
 };
 
-//Screen Flag Combos
-enum
+enum ScreenFlagCombos
 {
 	SFC_MIDAIR, //Combos affect midair Link
 	SFC_CYCLEINIT, //Cycle combos on screen init.
@@ -1257,8 +1250,7 @@ enum
 	SFC_LAST
 };
 
-//Screen Flag Save
-enum
+enum ScreenFlagSave
 {
 	SFSV_SAVECONTHERE, //Save Point->ontinue here.
 	SFSV_SAVEONENTRY, //Save game on entry.
@@ -1268,8 +1260,7 @@ enum
 	SFSV_LAST
 };
 
-//Screen Flags FFC
-enum
+enum ScreenFlagFFC
 {
 	SFF_WRAP,   //Freeform Combos Wrap Around
 	SFF_NOCARRYOVER, //No FFC carry over. 
@@ -1277,8 +1268,20 @@ enum
 	SFF_LAST
 };
 
-//Screen Flags Whistle
-enum
+enum ScreenFlagMisc
+{
+	SFM_ALLOW_LADDER,   //Toggle 'Allow Ladder'
+	SFM_NO_DIVING,      //Toggle 'No Diving' 
+	SFM_SCRIPT1,         //General use 1 (Scripts)
+	SFM_SCRIPT2,         //General use 2 (Scripts)
+	SFM_SCRIPT3,        //General use 3 (Scripts)
+	SFM_SCRIPT4,        //General use 4 (Scripts)
+	SFM_SCRIPT5,        //General use 5 (Scripts)
+
+	SFM_LAST
+};
+
+enum ScreenFlagWhistle
 {
 	SFWH_STAIRS = 0, //Whistle->Stairs
 	SFWH_PALCHANGE, //Whistle->Palette Change
@@ -1292,27 +1295,14 @@ DEFINE SFW_STAIRS = SFWH_STAIRS; //Whistle->Stairs
 DEFINE SFW_PALCHANGE = SFWH_PALCHANGE; //Whistle->Palette Change
 DEFINE SFW_DRYLAKE = SFWH_DRYLAKE;  //Whistle->Dry lake
 
-//Misc. Screen flags. Bitshift 1 by the constant and OR to use.
-enum
-{
-	SFM_ALLOW_LADDER,   //Toggle 'Allow Ladder'
-	SFM_NO_DIVING,      //Toggle 'No Diving' 
-	SFM_SCRIPT1,         //General use 1 (Scripts)
-	SFM_SCRIPT2,         //General use 2 (Scripts)
-	SFM_SCRIPT3,        //General use 3 (Scripts)
-	SFM_SCRIPT4,        //General use 4 (Scripts)
-	SFM_SCRIPT5,        //General use 5 (Scripts)
-
-	SFM_LAST
-};
-
-// Screen Enemy Flag categories, handled in the same way as the SF_ constants.
+// Screen Enemy Flag groups.
+//
 // Used with [Screen->EFlags].
 DEFINE SEF_SPAWN				= 0; // Corresponds to [ScreenEnemyFlagSpawn].
 DEFINE SEF_LIST1				= 1; // Corresponds to [ScreenEnemyFlagList1].
 DEFINE SEF_LIST2				= 2; // Corresponds to [ScreenEnemyFlagList2].
 
-// See [ScreenEnemyFlagIndex].
+// See [ScreenEnemyFlagGroup].
 enum ScreenEnemyFlagSpawn
 {
 	SEFSP_ZORA,
@@ -1324,7 +1314,7 @@ enum ScreenEnemyFlagSpawn
 	SEFSP_LAST
 };
 
-// See [ScreenEnemyFlagIndex].
+// See [ScreenEnemyFlagGroup].
 enum ScreenEnemyFlagList1
 {
 	SEFL1_RINGLEADER,
@@ -1336,7 +1326,7 @@ enum ScreenEnemyFlagList1
 	SEFL1_LAST
 };
 
-// See [ScreenEnemyFlagIndex].
+// See [ScreenEnemyFlagGroup].
 enum ScreenEnemyFlagList2
 {
 	SEFL2_ALWAYSRET,

@@ -61,7 +61,7 @@ name_map = {
     'RT': 'RoomType',
     'RTC': 'RealTimeClockCategory',
     'SECCMB': 'SecretComboIndex',
-    'SEF': 'ScreenEnemyFlagIndex',
+    'SEF': 'ScreenEnemyFlagGroup',
     'SFX': 'SoundEffect',
     'SL': 'SpriteList',
     'SP': 'SpriteID',

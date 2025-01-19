@@ -120,9 +120,17 @@ class screendata {
 	// @zasm_var EWPNCOUNT
 	internal const int NumEWeapons;
 
+	// Multiple bitflags, split into groups.
+	//
+	// @index [ScreenFlagGroup]
+	// @value Varies based on [ScreenFlagGroup]
 	// @zasm_var SCREENFLAGSD
 	internal int Flags[];
 
+	// Multiple bitflags related to screen enemies, split into groups.
+	//
+	// @index [ScreenEnemyFlagGroup]
+	// @value Varies based on [ScreenEnemyFlagGroup]
 	// @zasm_var SCREENEFLAGSD
 	internal int EFlags[];
 
@@ -430,6 +438,7 @@ class screendata {
 	// The Combo Flags used by 'Secret Combos' on this screen.
 	//
 	// @index [SecretComboIndex]
+	// @value [ComboFlag]
 	// @zasm_var SCREENDATASECRETFLAG
 	internal int SecretFlags[];
 

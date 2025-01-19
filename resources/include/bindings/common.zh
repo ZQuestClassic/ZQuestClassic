@@ -1187,9 +1187,9 @@ enum PolygonRenderMode
 	PT_MASKTRANSPTEXTURE           = 14, // "".
 };
 
-// Screen Enemy Flag categories, handled in the same way as the SF_ constants.
-// Used with [Screen->EFlags].
-enum ScreenEnemyFlagIndex
+// Screen Enemy Flag groups, handled in the same way as the SF_ constants.
+// Used with [Screen->EFlags] and [mapdata::EFlags].
+enum ScreenEnemyFlagGroup
 {
 	SEF_SPAWN                      = 0, // Corresponds to [ScreenEnemyFlagSpawn].
 	SEF_LIST1                      = 1, // Corresponds to [ScreenEnemyFlagList1].
