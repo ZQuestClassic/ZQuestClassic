@@ -85,7 +85,7 @@ bool PressLeftWin()  { return (Input->ModifierKeys&KB_LWIN_FLAG); }
 bool PressApple() { return (Input->ModifierKeys&KB_COMMAND_FLAG); }
 bool PressCommand()  { return (Input->ModifierKeys&KB_COMMAND_FLAG); }
 bool InAltSequence()  { return (Input->ModifierKeys&KB_INALTSEQ_FLAG); }
-bool AccentShift(int n)  { return (Input->ModifierKeys&(KB_INALTSEQ_FLAG+((n-1)*0x1000))); }
+bool AccentShift(int n)  { return (Input->ModifierKeys&(KB_INALTSEQ_FLAG + <KeyModifierBitflags>((n-1)*0x1000)  )); }
 bool PressAltGR() { return Input->Key[KEY_ALTGR]; }
 
 //Is this Linux only?

@@ -2612,7 +2612,7 @@ enum SpriteDataFlag
 	NUM_SPRFL
 };
 
-// Light shapes for torch combos, lantern itemdata, and GlowShape variables.
+// Used with [sprite::LightShape], torch combos/itemdata.
 enum LightShape
 {
 	LIGHT_CIRCLE,
