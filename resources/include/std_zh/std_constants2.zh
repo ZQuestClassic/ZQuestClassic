@@ -1272,19 +1272,6 @@ enum
 	CSPACE_NUMCSPACE
 };
 
-
-// TODO ! unused? rm.
-enum //For 'itemdata->PickupType'
-{
-	IPTYPE_DISABLED,
-	IPTYPE_SET,
-	IPTYPE_ADD,
-	IPTYPE_SUB,
-	IPTYPE_LIMIT
-};
-
-
-
 enum SpriteDataFlag
 {
 	SPRFL_AUTOFLASH,

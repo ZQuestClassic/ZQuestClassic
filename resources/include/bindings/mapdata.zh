@@ -565,7 +565,7 @@ class mapdata {
 	// @zasm_var MAPDATASCREENFLAGSD
 	internal const int SFlags[];
 
-	// Stores the information on warp returns, butwise.
+	// Stores the information on warp returns, bitwise.
 	//
 	// The bits are `DDCCBBAADDCCBBAA`, where the left section is sidewarp
 	// returns, and the right is tilewarp returns.
