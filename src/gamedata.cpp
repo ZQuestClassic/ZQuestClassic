@@ -774,6 +774,23 @@ void gamedata::set_darkscr_color(byte val)
 	set_generic(val, genDARK_COL);
 }
 
+word gamedata::get_light_wave_rate()
+{
+	return get_generic(genLIGHT_WAVE_RATE);
+}
+void gamedata::set_light_wave_rate(word val)
+{
+	set_generic(val, genLIGHT_WAVE_RATE);
+}
+word gamedata::get_light_wave_size()
+{
+	return get_generic(genLIGHT_WAVE_SIZE);
+}
+void gamedata::set_light_wave_size(word val)
+{
+	set_generic(val, genLIGHT_WAVE_SIZE);
+}
+
 int32_t gamedata::get_watergrav()
 {
 	return get_generic(genWATER_GRAV);

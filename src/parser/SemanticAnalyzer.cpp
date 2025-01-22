@@ -607,6 +607,16 @@ void SemanticAnalyzer::caseDataEnum(ASTDataEnum& host, void* param)
 
 	//Handle initializer assignment
 	zfix value = 0;
+	auto bitmode = host.getBitMode();
+	switch(bitmode)
+	{
+		case ASTDataEnum::BIT_INT:
+			value = 1;
+			break;
+		case ASTDataEnum::BIT_LONG:
+			value = 0.0001_zf;
+			break;
+	}
 	bool is_first = true;
 	std::vector<ASTDataDecl*> decls = host.getDeclarations();
 	for(vector<ASTDataDecl*>::iterator it = decls.begin();
@@ -620,6 +630,8 @@ void SemanticAnalyzer::caseDataEnum(ASTDataEnum& host, void* param)
 			{
 				if(host.increment_val)
 					value += *host.increment_val;
+				else if(bitmode)
+					value *= 2;
 				else if(baseType->isLong())
 					value += 0.0001_zf;
 				else value += 1;
@@ -633,7 +645,11 @@ void SemanticAnalyzer::caseDataEnum(ASTDataEnum& host, void* param)
 		if(init) //Set spot for next auto-fill, enforce const-ness
 		{
 			if(std::optional<int32_t> v = init->getCompileTimeValue(this, scope))
+			{
 				value = zslongToFix(*v);
+				// Should we WARN here if 'bitmode' is on? This could break the doubling increment....
+				// Could maybe warn only if not assigned to an exact power of 2 (based on mode)?
+			}
 			else
 			{
 				handleError(CompileError::ExprNotConstant(declaration));
@@ -2130,9 +2146,7 @@ void SemanticAnalyzer::analyzeBinaryExpr(
 		if (breakRecursion(host)) return;
 	}
 
-	if ((leftIsBitflags || rightIsBitflags) &&
-		// TODO: would be nice to just do `leftTypeActual == rightTypeActual` but that's not true always. ex: using <cast> syntax.
-		static_cast<const DataTypeCustom*>(leftTypeActual)->getCustomId() != static_cast<const DataTypeCustom*>(rightTypeActual)->getCustomId())
+	if ((leftIsBitflags || rightIsBitflags) && *leftTypeActual->getMutType() != *rightTypeActual->getMutType())
 	{
 		handleError(CompileError::Error(&host, fmt::format("Binary operations on bitflags must be on the same type. Instead, got: {}, {}",
 			leftTypeActual->getMutType()->getName(), 

@@ -121,6 +121,132 @@ stdout:
         ]
       },
       {
+        "name": "FilterBitflags",
+        "kind": 10,
+        "range": {
+          "start": {
+            "line": 53,
+            "character": 0
+          },
+          "end": {
+            "line": 56,
+            "character": 1
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 53,
+            "character": 5
+          },
+          "end": {
+            "line": 53,
+            "character": 19
+          }
+        },
+        "children": [
+          {
+            "name": "F_SHINY",
+            "kind": 22,
+            "range": {
+              "start": {
+                "line": 55,
+                "character": 4
+              },
+              "end": {
+                "line": 55,
+                "character": 11
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 55,
+                "character": 4
+              },
+              "end": {
+                "line": 55,
+                "character": 11
+              }
+            },
+            "children": []
+          },
+          {
+            "name": "F_UGLY",
+            "kind": 22,
+            "range": {
+              "start": {
+                "line": 55,
+                "character": 13
+              },
+              "end": {
+                "line": 55,
+                "character": 19
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 55,
+                "character": 13
+              },
+              "end": {
+                "line": 55,
+                "character": 19
+              }
+            },
+            "children": []
+          },
+          {
+            "name": "F_SMALL",
+            "kind": 22,
+            "range": {
+              "start": {
+                "line": 55,
+                "character": 21
+              },
+              "end": {
+                "line": 55,
+                "character": 28
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 55,
+                "character": 21
+              },
+              "end": {
+                "line": 55,
+                "character": 28
+              }
+            },
+            "children": []
+          },
+          {
+            "name": "F_FAST",
+            "kind": 22,
+            "range": {
+              "start": {
+                "line": 55,
+                "character": 30
+              },
+              "end": {
+                "line": 55,
+                "character": 36
+              }
+            },
+            "selectionRange": {
+              "start": {
+                "line": 55,
+                "character": 30
+              },
+              "end": {
+                "line": 55,
+                "character": 36
+              }
+            },
+            "children": []
+          }
+        ]
+      },
+      {
         "name": "postfix",
         "kind": 13,
         "range": {
@@ -246,25 +372,50 @@ stdout:
         "children": []
       },
       {
+        "name": "do_filter",
+        "kind": 12,
+        "range": {
+          "start": {
+            "line": 59,
+            "character": 5
+          },
+          "end": {
+            "line": 59,
+            "character": 32
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 59,
+            "character": 5
+          },
+          "end": {
+            "line": 59,
+            "character": 14
+          }
+        },
+        "children": []
+      },
+      {
         "name": "T",
         "kind": 12,
         "range": {
           "start": {
-            "line": 92,
+            "line": 105,
             "character": 5
           },
           "end": {
-            "line": 92,
+            "line": 105,
             "character": 8
           }
         },
         "selectionRange": {
           "start": {
-            "line": 92,
+            "line": 105,
             "character": 5
           },
           "end": {
-            "line": 92,
+            "line": 105,
             "character": 6
           }
         },
@@ -275,21 +426,21 @@ stdout:
         "kind": 12,
         "range": {
           "start": {
-            "line": 96,
+            "line": 109,
             "character": 5
           },
           "end": {
-            "line": 96,
+            "line": 109,
             "character": 9
           }
         },
         "selectionRange": {
           "start": {
-            "line": 96,
+            "line": 109,
             "character": 5
           },
           "end": {
-            "line": 96,
+            "line": 109,
             "character": 7
           }
         },
@@ -299,21 +450,21 @@ stdout:
             "kind": 13,
             "range": {
               "start": {
-                "line": 98,
+                "line": 111,
                 "character": 6
               },
               "end": {
-                "line": 98,
+                "line": 111,
                 "character": 21
               }
             },
             "selectionRange": {
               "start": {
-                "line": 98,
+                "line": 111,
                 "character": 6
               },
               "end": {
-                "line": 98,
+                "line": 111,
                 "character": 7
               }
             },
@@ -326,21 +477,21 @@ stdout:
         "kind": 3,
         "range": {
           "start": {
-            "line": 83,
+            "line": 96,
             "character": 0
           },
           "end": {
-            "line": 90,
+            "line": 103,
             "character": 1
           }
         },
         "selectionRange": {
           "start": {
-            "line": 83,
+            "line": 96,
             "character": 10
           },
           "end": {
-            "line": 83,
+            "line": 96,
             "character": 15
           }
         },
@@ -350,21 +501,21 @@ stdout:
             "kind": 13,
             "range": {
               "start": {
-                "line": 89,
+                "line": 102,
                 "character": 8
               },
               "end": {
-                "line": 89,
+                "line": 102,
                 "character": 11
               }
             },
             "selectionRange": {
               "start": {
-                "line": 89,
+                "line": 102,
                 "character": 8
               },
               "end": {
-                "line": 89,
+                "line": 102,
                 "character": 11
               }
             },
@@ -375,21 +526,21 @@ stdout:
             "kind": 12,
             "range": {
               "start": {
-                "line": 85,
+                "line": 98,
                 "character": 9
               },
               "end": {
-                "line": 85,
+                "line": 98,
                 "character": 18
               }
             },
             "selectionRange": {
               "start": {
-                "line": 85,
+                "line": 98,
                 "character": 9
               },
               "end": {
-                "line": 85,
+                "line": 98,
                 "character": 11
               }
             },
@@ -402,21 +553,21 @@ stdout:
         "kind": 2,
         "range": {
           "start": {
-            "line": 53,
+            "line": 65,
             "character": 0
           },
           "end": {
-            "line": 80,
+            "line": 93,
             "character": 1
           }
         },
         "selectionRange": {
           "start": {
-            "line": 53,
+            "line": 65,
             "character": 11
           },
           "end": {
-            "line": 53,
+            "line": 65,
             "character": 19
           }
         },
@@ -426,21 +577,21 @@ stdout:
             "kind": 12,
             "range": {
               "start": {
-                "line": 55,
+                "line": 67,
                 "character": 9
               },
               "end": {
-                "line": 55,
+                "line": 67,
                 "character": 71
               }
             },
             "selectionRange": {
               "start": {
-                "line": 55,
+                "line": 67,
                 "character": 9
               },
               "end": {
-                "line": 55,
+                "line": 67,
                 "character": 12
               }
             },
@@ -450,21 +601,21 @@ stdout:
                 "kind": 13,
                 "range": {
                   "start": {
-                    "line": 60,
+                    "line": 73,
                     "character": 13
                   },
                   "end": {
-                    "line": 60,
+                    "line": 73,
                     "character": 27
                   }
                 },
                 "selectionRange": {
                   "start": {
-                    "line": 60,
+                    "line": 73,
                     "character": 13
                   },
                   "end": {
-                    "line": 60,
+                    "line": 73,
                     "character": 14
                   }
                 },
@@ -475,21 +626,21 @@ stdout:
                 "kind": 13,
                 "range": {
                   "start": {
-                    "line": 62,
+                    "line": 75,
                     "character": 13
                   },
                   "end": {
-                    "line": 62,
+                    "line": 75,
                     "character": 36
                   }
                 },
                 "selectionRange": {
                   "start": {
-                    "line": 62,
+                    "line": 75,
                     "character": 13
                   },
                   "end": {
-                    "line": 62,
+                    "line": 75,
                     "character": 14
                   }
                 },
@@ -500,21 +651,21 @@ stdout:
                 "kind": 13,
                 "range": {
                   "start": {
-                    "line": 63,
+                    "line": 76,
                     "character": 12
                   },
                   "end": {
-                    "line": 63,
+                    "line": 76,
                     "character": 27
                   }
                 },
                 "selectionRange": {
                   "start": {
-                    "line": 63,
+                    "line": 76,
                     "character": 12
                   },
                   "end": {
-                    "line": 63,
+                    "line": 76,
                     "character": 14
                   }
                 },
@@ -525,21 +676,21 @@ stdout:
                 "kind": 13,
                 "range": {
                   "start": {
-                    "line": 65,
+                    "line": 78,
                     "character": 12
                   },
                   "end": {
-                    "line": 65,
+                    "line": 78,
                     "character": 24
                   }
                 },
                 "selectionRange": {
                   "start": {
-                    "line": 65,
+                    "line": 78,
                     "character": 12
                   },
                   "end": {
-                    "line": 65,
+                    "line": 78,
                     "character": 13
                   }
                 },
@@ -550,21 +701,21 @@ stdout:
                 "kind": 13,
                 "range": {
                   "start": {
-                    "line": 68,
+                    "line": 81,
                     "character": 12
                   },
                   "end": {
-                    "line": 68,
+                    "line": 81,
                     "character": 29
                   }
                 },
                 "selectionRange": {
                   "start": {
-                    "line": 68,
+                    "line": 81,
                     "character": 12
                   },
                   "end": {
-                    "line": 68,
+                    "line": 81,
                     "character": 15
                   }
                 },
@@ -575,21 +726,21 @@ stdout:
                 "kind": 13,
                 "range": {
                   "start": {
-                    "line": 69,
+                    "line": 82,
                     "character": 8
                   },
                   "end": {
-                    "line": 72,
+                    "line": 85,
                     "character": 9
                   }
                 },
                 "selectionRange": {
                   "start": {
-                    "line": 69,
+                    "line": 82,
                     "character": 8
                   },
                   "end": {
-                    "line": 72,
+                    "line": 85,
                     "character": 9
                   }
                 },
@@ -600,21 +751,21 @@ stdout:
                 "kind": 13,
                 "range": {
                   "start": {
-                    "line": 69,
+                    "line": 82,
                     "character": 8
                   },
                   "end": {
-                    "line": 72,
+                    "line": 85,
                     "character": 9
                   }
                 },
                 "selectionRange": {
                   "start": {
-                    "line": 69,
+                    "line": 82,
                     "character": 8
                   },
                   "end": {
-                    "line": 72,
+                    "line": 85,
                     "character": 9
                   }
                 },
@@ -625,21 +776,21 @@ stdout:
                 "kind": 13,
                 "range": {
                   "start": {
-                    "line": 69,
+                    "line": 82,
                     "character": 8
                   },
                   "end": {
-                    "line": 72,
+                    "line": 85,
                     "character": 9
                   }
                 },
                 "selectionRange": {
                   "start": {
-                    "line": 69,
+                    "line": 82,
                     "character": 13
                   },
                   "end": {
-                    "line": 69,
+                    "line": 82,
                     "character": 14
                   }
                 },
@@ -650,21 +801,21 @@ stdout:
                 "kind": 13,
                 "range": {
                   "start": {
-                    "line": 73,
+                    "line": 86,
                     "character": 12
                   },
                   "end": {
-                    "line": 73,
+                    "line": 86,
                     "character": 24
                   }
                 },
                 "selectionRange": {
                   "start": {
-                    "line": 73,
+                    "line": 86,
                     "character": 16
                   },
                   "end": {
-                    "line": 73,
+                    "line": 86,
                     "character": 20
                   }
                 },
@@ -675,21 +826,21 @@ stdout:
                 "kind": 13,
                 "range": {
                   "start": {
-                    "line": 77,
+                    "line": 90,
                     "character": 14
                   },
                   "end": {
-                    "line": 77,
+                    "line": 90,
                     "character": 23
                   }
                 },
                 "selectionRange": {
                   "start": {
-                    "line": 77,
+                    "line": 90,
                     "character": 14
                   },
                   "end": {
-                    "line": 77,
+                    "line": 90,
                     "character": 15
                   }
                 },
@@ -868,6 +1019,21 @@ stdout:
         },
         "doc": "how fancy something looks"
       },
+      "const FilterBitflags": {
+        "loc": {
+          "range": {
+            "start": {
+              "line": 53,
+              "character": 5
+            },
+            "end": {
+              "line": 53,
+              "character": 19
+            }
+          },
+          "uri": "URI"
+        }
+      },
       "metadata.zs-postfix": {
         "loc": {
           "range": {
@@ -884,15 +1050,46 @@ stdout:
         },
         "doc": "THIS COMMENT USED #1"
       },
+      "Trace": {
+        "loc": {
+          "range": {
+            "start": {
+              "line": 74,
+              "character": 14
+            },
+            "end": {
+              "line": 74,
+              "character": 19
+            }
+          },
+          "uri": "URI"
+        },
+        "doc": "Prints the passed value to the output console. Includes a newline character\nafter the value.\n\n**@deprecated_alias** TraceLWeapon\nTraceEWeapon\nTraceNPC\nTraceFFC\nTraceItem\nTraceItemData"
+      },
+      "do_filter-f": {
+        "loc": {
+          "range": {
+            "start": {
+              "line": 59,
+              "character": 30
+            },
+            "end": {
+              "line": 59,
+              "character": 31
+            }
+          },
+          "uri": "URI"
+        }
+      },
       "T": {
         "loc": {
           "range": {
             "start": {
-              "line": 92,
+              "line": 105,
               "character": 5
             },
             "end": {
-              "line": 92,
+              "line": 105,
               "character": 6
             }
           },
@@ -903,11 +1100,11 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 98,
+              "line": 111,
               "character": 1
             },
             "end": {
-              "line": 98,
+              "line": 111,
               "character": 21
             }
           },
@@ -966,17 +1163,48 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 85,
+              "line": 98,
               "character": 9
             },
             "end": {
-              "line": 85,
+              "line": 98,
               "character": 11
             }
           },
           "uri": "URI"
         },
-        "doc": "A lovely function. See [`utils::fn()`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A85%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A85%2C%22character%22%3A11%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A16%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A16%2C%22character%22%3A5%7D%7D%7D) or [`fn()`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A85%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A85%2C%22character%22%3A11%7D%7D%7D) or [`Car`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A21%2C%22character%22%3A6%7D%2C%22end%22%3A%7B%22line%22%3A21%2C%22character%22%3A9%7D%7D%7D)"
+        "doc": "A lovely function. See [`utils::fn()`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A98%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A98%2C%22character%22%3A11%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A16%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A16%2C%22character%22%3A5%7D%7D%7D) or [`fn()`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A98%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A98%2C%22character%22%3A11%7D%7D%7D) or [`Car`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A21%2C%22character%22%3A6%7D%2C%22end%22%3A%7B%22line%22%3A21%2C%22character%22%3A9%7D%7D%7D)"
+      },
+      "do_filter": {
+        "loc": {
+          "range": {
+            "start": {
+              "line": 59,
+              "character": 5
+            },
+            "end": {
+              "line": 59,
+              "character": 14
+            }
+          },
+          "uri": "URI"
+        },
+        "doc": "filters with [`FilterBitflags (F_)`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A53%2C%22character%22%3A5%7D%2C%22end%22%3A%7B%22line%22%3A53%2C%22character%22%3A19%7D%7D%7D)."
+      },
+      "metadata.zs-F_SHINY": {
+        "loc": {
+          "range": {
+            "start": {
+              "line": 53,
+              "character": 5
+            },
+            "end": {
+              "line": 53,
+              "character": 19
+            }
+          },
+          "uri": "URI"
+        }
       },
       "Car": {
         "loc": {
@@ -1030,11 +1258,11 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 60,
+              "line": 73,
               "character": 8
             },
             "end": {
-              "line": 60,
+              "line": 73,
               "character": 27
             }
           },
@@ -1046,11 +1274,11 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 55,
+              "line": 67,
               "character": 17
             },
             "end": {
-              "line": 55,
+              "line": 67,
               "character": 23
             }
           },
@@ -1061,17 +1289,17 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 89,
+              "line": 102,
               "character": 8
             },
             "end": {
-              "line": 89,
+              "line": 102,
               "character": 11
             }
           },
           "uri": "URI"
         },
-        "doc": "hmmmmmm See [`utils::fn()`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A85%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A85%2C%22character%22%3A11%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A16%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A16%2C%22character%22%3A5%7D%7D%7D) or [`fn()`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A85%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A85%2C%22character%22%3A11%7D%7D%7D)"
+        "doc": "hmmmmmm See [`utils::fn()`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A98%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A98%2C%22character%22%3A11%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A16%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A16%2C%22character%22%3A5%7D%7D%7D) or [`fn()`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A98%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A98%2C%22character%22%3A11%7D%7D%7D)"
       },
       "metadata.zs-y": {
         "loc": {
@@ -1203,11 +1431,11 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 65,
+              "line": 78,
               "character": 8
             },
             "end": {
-              "line": 65,
+              "line": 78,
               "character": 24
             }
           },
@@ -1219,11 +1447,11 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 68,
+              "line": 81,
               "character": 8
             },
             "end": {
-              "line": 68,
+              "line": 81,
               "character": 29
             }
           },
@@ -1231,31 +1459,15 @@ stdout:
         },
         "doc": "an array"
       },
-      "Trace": {
-        "loc": {
-          "range": {
-            "start": {
-              "line": 74,
-              "character": 14
-            },
-            "end": {
-              "line": 74,
-              "character": 19
-            }
-          },
-          "uri": "URI"
-        },
-        "doc": "Prints the passed value to the output console. Includes a newline character\nafter the value.\n\n**@deprecated_alias** TraceLWeapon\nTraceEWeapon\nTraceNPC\nTraceFFC\nTraceItem\nTraceItemData"
-      },
       "v": {
         "loc": {
           "range": {
             "start": {
-              "line": 69,
+              "line": 82,
               "character": 13
             },
             "end": {
-              "line": 69,
+              "line": 82,
               "character": 14
             }
           },
@@ -1266,11 +1478,11 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 73,
+              "line": 86,
               "character": 16
             },
             "end": {
-              "line": 73,
+              "line": 86,
               "character": 20
             }
           },
@@ -1337,6 +1549,14 @@ stdout:
       },
       {
         "loc": {
+          "line": 53,
+          "character": 5,
+          "length": 14
+        },
+        "symbol": "const FilterBitflags"
+      },
+      {
+        "loc": {
           "line": 3,
           "character": 15,
           "length": 7
@@ -1345,7 +1565,23 @@ stdout:
       },
       {
         "loc": {
-          "line": 98,
+          "line": 61,
+          "character": 4,
+          "length": 5
+        },
+        "symbol": "Trace"
+      },
+      {
+        "loc": {
+          "line": 61,
+          "character": 10,
+          "length": 1
+        },
+        "symbol": "do_filter-f"
+      },
+      {
+        "loc": {
+          "line": 111,
           "character": 18,
           "length": 1
         },
@@ -1353,7 +1589,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 99,
+          "line": 112,
           "character": 8,
           "length": 1
         },
@@ -1361,7 +1597,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 56,
+          "line": 68,
           "character": 8,
           "length": 6
         },
@@ -1369,7 +1605,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 56,
+          "line": 68,
           "character": 26,
           "length": 7
         },
@@ -1377,7 +1613,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 56,
+          "line": 68,
           "character": 36,
           "length": 8
         },
@@ -1385,7 +1621,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 56,
+          "line": 68,
           "character": 50,
           "length": 1
         },
@@ -1393,7 +1629,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 57,
+          "line": 69,
           "character": 15,
           "length": 2
         },
@@ -1401,7 +1637,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 57,
+          "line": 69,
           "character": 18,
           "length": 7
         },
@@ -1409,7 +1645,23 @@ stdout:
       },
       {
         "loc": {
-          "line": 60,
+          "line": 70,
+          "character": 8,
+          "length": 9
+        },
+        "symbol": "do_filter"
+      },
+      {
+        "loc": {
+          "line": 70,
+          "character": 18,
+          "length": 7
+        },
+        "symbol": "metadata.zs-F_SHINY"
+      },
+      {
+        "loc": {
+          "line": 73,
           "character": 8,
           "length": 4
         },
@@ -1417,7 +1669,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 60,
+          "line": 73,
           "character": 21,
           "length": 3
         },
@@ -1425,7 +1677,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 61,
+          "line": 74,
           "character": 8,
           "length": 6
         },
@@ -1433,7 +1685,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 61,
+          "line": 74,
           "character": 32,
           "length": 5
         },
@@ -1441,7 +1693,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 61,
+          "line": 74,
           "character": 29,
           "length": 1
         },
@@ -1449,7 +1701,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 61,
+          "line": 74,
           "character": 39,
           "length": 6
         },
@@ -1457,7 +1709,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 61,
+          "line": 74,
           "character": 54,
           "length": 3
         },
@@ -1465,7 +1717,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 61,
+          "line": 74,
           "character": 60,
           "length": 1
         },
@@ -1473,7 +1725,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 61,
+          "line": 74,
           "character": 64,
           "length": 1
         },
@@ -1481,7 +1733,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 61,
+          "line": 74,
           "character": 68,
           "length": 4
         },
@@ -1489,7 +1741,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 61,
+          "line": 74,
           "character": 75,
           "length": 5
         },
@@ -1497,7 +1749,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 61,
+          "line": 74,
           "character": 83,
           "length": 3
         },
@@ -1505,7 +1757,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 62,
+          "line": 75,
           "character": 8,
           "length": 4
         },
@@ -1513,7 +1765,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 62,
+          "line": 75,
           "character": 21,
           "length": 13
         },
@@ -1521,7 +1773,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 63,
+          "line": 76,
           "character": 8,
           "length": 3
         },
@@ -1529,7 +1781,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 63,
+          "line": 76,
           "character": 21,
           "length": 3
         },
@@ -1537,7 +1789,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 65,
+          "line": 78,
           "character": 19,
           "length": 5
         },
@@ -1545,7 +1797,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 65,
+          "line": 78,
           "character": 16,
           "length": 1
         },
@@ -1553,7 +1805,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 66,
+          "line": 79,
           "character": 8,
           "length": 7
         },
@@ -1561,7 +1813,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 66,
+          "line": 79,
           "character": 16,
           "length": 1
         },
@@ -1569,7 +1821,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 69,
+          "line": 82,
           "character": 17,
           "length": 3
         },
@@ -1577,7 +1829,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 71,
+          "line": 84,
           "character": 12,
           "length": 5
         },
@@ -1585,7 +1837,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 71,
+          "line": 84,
           "character": 18,
           "length": 1
         },
@@ -1593,7 +1845,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 69,
+          "line": 82,
           "character": 17,
           "length": 3
         },
@@ -1601,7 +1853,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 73,
+          "line": 86,
           "character": 16,
           "length": 4
         },
@@ -1609,7 +1861,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 75,
+          "line": 88,
           "character": 12,
           "length": 5
         },
@@ -1617,7 +1869,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 75,
+          "line": 88,
           "character": 18,
           "length": 4
         },
@@ -1625,7 +1877,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 77,
+          "line": 90,
           "character": 8,
           "length": 5
         },
@@ -1633,7 +1885,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 77,
+          "line": 90,
           "character": 18,
           "length": 5
         },
@@ -1641,7 +1893,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 78,
+          "line": 91,
           "character": 8,
           "length": 5
         },
@@ -1649,7 +1901,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 78,
+          "line": 91,
           "character": 14,
           "length": 1
         },
@@ -1720,10 +1972,14 @@ PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0.0010
 DEALLOCATEMEMR D3
+PUSHR D4
+PUSHV 1; UsrFunc[void do_filter(FilterBitflags)] Params
+CALLFUNC 0.0114; UsrFunc[void do_filter(FilterBitflags)] Call
+POP D4
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 2; ClassFunc[Car Car::Car(int)] Params
-CALLFUNC 0.0110; ClassFunc[Car Car::Car(int)] Constructor Call
+CALLFUNC 0.0119; ClassFunc[Car Car::Car(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE_OBJECT D2 0.0009
@@ -1759,7 +2015,7 @@ STORE_OBJECT D2 0.0007
 PUSHR CLASS_THISKEY
 PUSHR D4
 PUSHV 2; ClassFunc[Car Car::Car(int)] Params
-CALLFUNC 0.0110; ClassFunc[Car Car::Car(int)] Constructor Call
+CALLFUNC 0.0119; ClassFunc[Car Car::Car(int)] Constructor Call
 POP D4
 POP CLASS_THISKEY
 STORE_OBJECT D2 0.0006
@@ -1781,14 +2037,14 @@ LOAD D0 0.0001; for(each) #1 EndArrayCheck
 ARRAYSIZE D0
 LOAD D3 0.0002
 COMPARER D3 D2
-GOTOCMP 97 >=; for(each) #1 to Else
+GOTOCMP 101 >=; for(each) #1 to Else
 READPODARRAYR D2 D3; for(each) #1 Next Index
 STORE D2 0
 ADDV D3 1
 STORE D3 0.0002
 LOAD D2 0; InlineFunc[void Trace(untyped)] Params AND for(each) #1 Body Start
 TRACER D2; InlineFunc[void Trace(untyped)] Body AND for(each) #1 Body End
-GOTO 85; for(each) #1 End
+GOTO 89; for(each) #1 End
 STOREV 1 0.0002; if(ahhh=true) #1 [Opt:AlwaysOn]
 LOAD D2 0.0002; InlineFunc[void Trace(untyped)] Params
 TRACER D2; InlineFunc[void Trace(untyped)] Body
@@ -1802,6 +2058,11 @@ REF_REMOVE 0.0006
 REF_REMOVE 0.0007
 POPARGS D5 0.0017
 QUIT; void run(int, int, int, int, int) Body End
+SETR D4 SP2; Func[void do_filter(FilterBitflags)] Body Start
+LOAD D2 0; InlineFunc[void Trace(untyped)] Params
+TRACER D2; InlineFunc[void Trace(untyped)] Body
+POP D5
+RETURNFUNC; Func[void do_filter(FilterBitflags)] Body End
 SETV D2 0; Func[Car Car::Car(int)] Body Start
 SETR CLASS_THISKEY2 CLASS_THISKEY
 ZCLASS_CONSTRUCT CLASS_THISKEY {0.0001}

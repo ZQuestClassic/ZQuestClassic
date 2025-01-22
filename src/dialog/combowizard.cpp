@@ -3459,8 +3459,8 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 									lbls[0] = Label(text = "Amount:"),
 									tfs[3] = TextField(
 										fitParent = true, minwidth = 8_em,
-										type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
-										low = 1, high = 65535, val = amount,
+										type = GUI::TextField::type::FIXED_DECIMAL,
+										low = 10000, high = 655350000, val = amount,
 										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											amount = val;
@@ -3930,8 +3930,8 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 									lbls[0] = Label(text = "Amount:"),
 									tfs[3] = TextField(
 										fitParent = true, minwidth = 8_em,
-										type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
-										low = 1, high = 65535, val = amount,
+										type = GUI::TextField::type::FIXED_DECIMAL,
+										low = 10000, high = 655350000, val = amount,
 										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											amount = val;

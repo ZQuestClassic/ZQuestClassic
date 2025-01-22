@@ -580,6 +580,7 @@ enum ExtendMode
 };
 
 // Level item flags. Used with [Game->LItems].
+@Bitflags("int")
 enum LevelItemBitflags
 {
 	LI_TRIFORCE                    = 0x01, // The Triforce of this Level has been obtained.
@@ -591,6 +592,7 @@ enum LevelItemBitflags
 
 // Mouse button bitflags, used with [Hero->InputMouseB].
 // @deprecated Use [MouseIndex] and [Input->Mouse] instead!
+@Bitflags("int")
 enum MouseButtonBitflags
 {
 	MB_LEFTCLICK                   = 0x1,
@@ -760,6 +762,7 @@ enum ItemID
 
 // Item pickup bitflags. Used with [item::Pickup].
 // Many values are reserved for internal usage, and have no effect.
+@Bitflags("int")
 enum ItemPickupBitflags
 {
 	IP_BIGRANGE                    = 0x0001, // INTERNAL Collision rectangle is large.
@@ -1012,6 +1015,7 @@ enum NPCID
 };
 
 // NPC Misc. Flags.
+@Bitflags("int")
 enum EnemyMiscBitflags
 {
 	NPCMF_0POWERWEAPS              = 0x0001, // Damaged by 0-Power Weapons.
@@ -1031,6 +1035,7 @@ enum EnemyMiscBitflags
 };
 
 // NPC Spawn Flags.
+@Bitflags("int")
 enum EnemySpawnBitflags
 {
 	NPCSF_ZORA                     = 0x0001, // Spawned by Zora Screen Flag.
@@ -1224,6 +1229,7 @@ enum RoomType
 
 // Used with [Game->DMapFlags].
 // @deprecated Use [DMapFlag] and [dmapdata::Flagset] instead!
+@Bitflags("int")
 enum DMapBitflags
 {
 	DMF_CAVESNOTCELLARS            = 0x0001,  // Use caves instead of item cellars.
@@ -1504,6 +1510,7 @@ enum FFCFlag
 };
 
 // Used with [mapdata::FFCFlags].
+@Bitflags("int")
 enum FFCBitflags
 {
 	FFCBF_OVERLAY                  = 0x001,
@@ -1578,6 +1585,7 @@ enum GameOverStringIndex
 // Used with the blit drawing functions.
 // Some modes cannot be combined. If a combination is not supported, an error
 // detailing this will be shown in allegro.log.
+@Bitflags("int")
 enum BlitModeBitflags
 {
 	BITDX_NORMAL                   = 0,
@@ -1588,6 +1596,7 @@ enum BlitModeBitflags
 };
 
 // Used with [Hero->SetItemSlot].
+@Bitflags("int")
 enum ItemRequireBitflags
 {
 	ITM_REQUIRE_NONE               = 0b00,
@@ -1667,6 +1676,7 @@ enum VolumeIndex
 };
 
 // Combo Quadrants used for Combo Solidity and CSet2vMasks.
+@Bitflags("int")
 enum ComboSolidityBitflags
 {
 	CMB_QUADRANT_UL                = 0001b,
@@ -1709,6 +1719,7 @@ enum WarpEffect
 };
 
 // Bitflags for [Hero->WarpEx].
+@Bitflags("int")
 enum WarpBitflags
 {
 	WARP_FLAG_SCRIPTDRAW           = 0x001,
@@ -1734,6 +1745,7 @@ enum WarpBitflags
 };
 
 // Bitflags for [SaveSRAM] and [LoadSRAM].
+@Bitflags("int")
 enum StoredMemoryBitflags
 {
 	SRAM_ALL                       = 0,
@@ -1746,6 +1758,7 @@ enum StoredMemoryBitflags
 };
 
 // Used with [mapdata::NoCarry] and [screendata::NoCarry].
+@Bitflags("int")
 enum NoCarryBitflags
 {
 	NOCARRY_B_SECRET               = 0x2000,
@@ -1759,6 +1772,7 @@ enum NoCarryBitflags
 };
 
 // Used with [mapdata::NoReset] and [screendata::NoReset].
+@Bitflags("int")
 enum NoResetBitflags
 {
 	NORESET_B_SECRET               = 0x2000,
@@ -1775,6 +1789,7 @@ enum NoResetBitflags
 	NORESET_B_DOOR_B_RIGHT         = 0x0008,
 };
 
+@Bitflags("int")
 enum DMapChartedBitflags
 {
 	CHRT_VISITED                   = 10000000b,
@@ -1784,6 +1799,7 @@ enum DMapChartedBitflags
 	CHRT_RIGHT                     = 00001000b,
 };
 
+@Bitflags("int")
 enum UnblockableBitflags
 {
 	UNBLOCK_NONE                   = 0000b, // Not unblockable.
@@ -1818,6 +1834,7 @@ enum BlockBitflagsInt
 };
 
 // Used with [itemdata::LAttributes].
+@Bitflags("long")
 enum BlockBitflags
 {
 	L_BLOCKFLAG_ROCK               = 0x00000001L,
@@ -1864,6 +1881,7 @@ enum HitIndex
 	HIT_BY_NPC_ID                  = 16, // The ID of the enemy that did the hit.
 };
 
+@Bitflags("int")
 enum AnimationBitflags
 {
 	AF_FRESH                       = 0x01,
@@ -1873,12 +1891,14 @@ enum AnimationBitflags
 	AF_CYCLEUNDERCOMBO             = 0x10,
 };
 
+@Bitflags("int")
 enum PickupStringBitflags
 {
 	IPSTR_ALWAYS                   = 0x01,
 	IPSTR_ONLYHELD                 = 0x02,
 };
 
+@Bitflags("int")
 enum ItemMiscBitflags
 {
 	IMISC_FLASH                    = 0x01,
@@ -1889,6 +1909,7 @@ enum ItemMiscBitflags
 
 // Used with [itemdata::OverrideFlags], [itemdata::WeaponOverrideFlags].
 // These correspond to the "Enabled" checkboxes in the Graphics->Size tab in the Item and Enemy Editors.
+@Bitflags("int")
 enum SizeOverrideBitflags
 {
 	SZFLAG_TILEWIDTH               = 0x0001,
@@ -1905,6 +1926,7 @@ enum SizeOverrideBitflags
 };
 
 // Used with [Game->CurrentItemID].
+@Bitflags("int")
 enum CurrentItemIDBitflags
 {
 	CIID_FLAG_CHECKCOST            = 0x01, // Ignore items whose usecosts are currently not affordable.
@@ -1913,6 +1935,7 @@ enum CurrentItemIDBitflags
 };
 
 // Used with [subscreenpage::SelectorMove].
+@Bitflags("int")
 enum MoveSubscreenSelectorBitflags
 {
 	SUBSEL_FLAG_NO_NONEQUIP        = 0x01, // Skip widgets that are "Non-equippable".

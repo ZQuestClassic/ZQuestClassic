@@ -5,196 +5,92 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-enum.zs Line 61 @ Columns 2-20 - Error T017: Cannot cast from const HitIndex to AnimationBitflags.
-
-59    f1 = ~f1|f1&AF_FRESH;
-60    // Error.
-61    f1 = HIT_BY_NPC_ID;
-      ^~~~~~~~~~~~~~~~~~
-
-
-enum.zs Line 63 @ Columns 7-31 - Error S109: Binary operations on bitflags must be on the same type. Instead, got: AnimationBitflags, HitIndex
-
-61    f1 = HIT_BY_NPC_ID;
-62    // Error.
-63    f1 = AF_FRESH | HIT_BY_NPC_ID;
-           ^~~~~~~~~~~~~~~~~~~~~~~~
-
-
-enum.zs Line 65 @ Columns 7-31 - Error S109: Binary operations on bitflags must be on the same type. Instead, got: AnimationBitflags, HitIndex
-
-63    f1 = AF_FRESH | HIT_BY_NPC_ID;
-64    // Error.
-65    f1 = AF_FRESH + HIT_BY_NPC_ID;
-           ^~~~~~~~~~~~~~~~~~~~~~~~
-
-
-enum.zs Line 67 @ Columns 8-21 - Error S109: Binary operations on bitflags must be on the same type. Instead, got: AnimationBitflags, HitIndex
-
-65    f1 = AF_FRESH + HIT_BY_NPC_ID;
-66    // Error.
-67    f1 += HIT_BY_NPC_ID;
-            ^~~~~~~~~~~~~
-
-
-enum.zs Line 72 @ Columns 2-20 - Error T017: Cannot cast from const HitIndex to AnimationBitflags.
-
-70    f2 |= AF_FRESH;
-71    // Error.
-72    f2 = HIT_BY_NPC_ID;
-      ^~~~~~~~~~~~~~~~~~
-
-
-enum.zs Line 77 @ Columns 7-36 - Error S109: Binary operations on bitflags must be on the same type. Instead, got: AnimationBitflags, BlockBitflags
-
-75    f3 = AF_CYCLE | <AnimationBitflags>(1);
-76    // Error.
-77    f3 = AF_CYCLE | <BlockBitflags>(1);
-           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-enum.zs Line 81 @ Columns 2-18 - Error T017: Cannot cast from bitmap to int.
-
-79    auto x = A::A | A::B;
-80    // Error: Cannot cast from bitmap to int. Just showing that above resolved to int, not the enum.
-81    x = new bitmap();
-      ^~~~~~~~~~~~~~~~
-
-
-enum.zs Line 85 @ Columns 2-7 - Error T017: Cannot cast from bitmap to int.
-
-83    bitmap b;
-84    // Error.
-85    b | b;
-      ^~~~~
-
-
-Failure!
-Compile finished with exit code '17' (compiled with errors)
+Pass 5: Checking code paths
+Pass 6: Generating object code
+Pass 7: Assembling
+Success!
+Compile finished with exit code '0' (success)
 
 stdout:
 
 {
-  "success": false,
-  "code": 17,
-  "diagnostics": [
-    {
-      "range": {
-        "start": {
-          "line": 60,
-          "character": 1
-        },
-        "end": {
-          "line": 60,
-          "character": 19
-        }
-      },
-      "severity": 1,
-      "message": "T017: Cannot cast from const HitIndex to AnimationBitflags."
-    },
-    {
-      "range": {
-        "start": {
-          "line": 62,
-          "character": 6
-        },
-        "end": {
-          "line": 62,
-          "character": 30
-        }
-      },
-      "severity": 1,
-      "message": "S109: Binary operations on bitflags must be on the same type. Instead, got: AnimationBitflags, HitIndex"
-    },
-    {
-      "range": {
-        "start": {
-          "line": 64,
-          "character": 6
-        },
-        "end": {
-          "line": 64,
-          "character": 30
-        }
-      },
-      "severity": 1,
-      "message": "S109: Binary operations on bitflags must be on the same type. Instead, got: AnimationBitflags, HitIndex"
-    },
-    {
-      "range": {
-        "start": {
-          "line": 66,
-          "character": 7
-        },
-        "end": {
-          "line": 66,
-          "character": 20
-        }
-      },
-      "severity": 1,
-      "message": "S109: Binary operations on bitflags must be on the same type. Instead, got: AnimationBitflags, HitIndex"
-    },
-    {
-      "range": {
-        "start": {
-          "line": 71,
-          "character": 1
-        },
-        "end": {
-          "line": 71,
-          "character": 19
-        }
-      },
-      "severity": 1,
-      "message": "T017: Cannot cast from const HitIndex to AnimationBitflags."
-    },
-    {
-      "range": {
-        "start": {
-          "line": 76,
-          "character": 6
-        },
-        "end": {
-          "line": 76,
-          "character": 35
-        }
-      },
-      "severity": 1,
-      "message": "S109: Binary operations on bitflags must be on the same type. Instead, got: AnimationBitflags, BlockBitflags"
-    },
-    {
-      "range": {
-        "start": {
-          "line": 80,
-          "character": 1
-        },
-        "end": {
-          "line": 80,
-          "character": 17
-        }
-      },
-      "severity": 1,
-      "message": "T017: Cannot cast from bitmap to int."
-    },
-    {
-      "range": {
-        "start": {
-          "line": 84,
-          "character": 1
-        },
-        "end": {
-          "line": 84,
-          "character": 6
-        }
-      },
-      "severity": 1,
-      "message": "T017: Cannot cast from bitmap to int."
-    }
-  ],
+  "success": true,
+  "diagnostics": [],
   "metadata": {
-    "currentFileSymbols": 42,
-    "symbols": 35,
-    "identifiers": 75,
+    "currentFileSymbols": 37,
+    "symbols": 29,
+    "identifiers": 29,
     "elided": true
   }
 }
+
+zasm:
+
+PUSHARGSV 0 0.0008; void run() Body Start
+SETR D4 SP2
+ALLOCATEMEMV D2 6 0
+STORE D2 0.0006
+WRITEPODSTRING D2 "%aad\n"
+ALLOCATEMEMV D2 5 0
+STORE D2 0
+SETR D0 D2
+PUSHR D0
+ALLOCATEMEMV D2 5 0
+STORE D2 0.0005
+WRITEPODARRAY D2 {0,1,2,3,4}
+LOAD D2 0.0005
+POP D0
+WRITEPODARRAYVR 0 D2
+PUSHR D0
+ALLOCATEMEMV D2 5 0
+STORE D2 0.0004
+WRITEPODARRAY D2 {0,2,4,6,8}
+LOAD D2 0.0004
+POP D0
+WRITEPODARRAYVR 1 D2
+PUSHR D0
+ALLOCATEMEMV D2 5 0
+STORE D2 0.0003
+WRITEPODARRAY D2 {0,0.0001,0.0002,0.0003,0.0004}
+LOAD D2 0.0003
+POP D0
+WRITEPODARRAYVR 2 D2
+PUSHR D0
+ALLOCATEMEMV D2 5 0
+STORE D2 0.0002
+WRITEPODARRAY D2 {0,0.5,1,1.5,2}
+LOAD D2 0.0002
+POP D0
+WRITEPODARRAYVR 3 D2
+PUSHR D0
+ALLOCATEMEMV D2 5 0
+STORE D2 0.0001
+WRITEPODARRAY D2 {1,2,4,8,16}
+LOAD D2 0.0001
+POP D0
+WRITEPODARRAYVR 4 D2
+LOAD D2 0.0006; InlineFunc[void printf(char32[])] Params Start
+PUSHR D2
+LOAD D2 0
+PUSHVARGR D2; InlineFunc[void printf(char32[])] Params End
+PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
+POP D5; InlineFunc[void printf(char32[])] Body End
+LOAD D3 0.0006
+DEALLOCATEMEMR D3
+LOAD D3 0.0005
+DEALLOCATEMEMR D3
+LOAD D3 0.0004
+DEALLOCATEMEMR D3
+LOAD D3 0.0003
+DEALLOCATEMEMR D3
+LOAD D3 0.0002
+DEALLOCATEMEMR D3
+LOAD D3 0.0001
+DEALLOCATEMEMR D3
+LOAD D3 0
+DEALLOCATEMEMR D3
+POPARGS D5 0.0008
+QUIT; void run() Body End
+
+
+QUIT; void run() Body

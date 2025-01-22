@@ -184,6 +184,11 @@ for enum_name, pairs in enums.items():
     if top_comment:
         comment_lines = [f'// {l.strip()}' for l in top_comment.splitlines()]
         enum_lines.extend(comment_lines)
+    if name.endswith('Bitflags'):
+        num_type = 'int'
+        if any(x for x in pairs if x[1].endswith('L')):
+            num_type = 'long'
+        enum_lines.append(f'@Bitflags("{num_type}")')
     enum_lines.append(f'enum {name}')
     enum_lines.append('{')
 
