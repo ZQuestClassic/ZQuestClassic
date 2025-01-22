@@ -1,11 +1,11 @@
 stderr:
 
-Compiling 'errors_enum.zs'
+Compiling 'errors_enum_1.zs'
 Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-errors_enum.zs Line 27 @ Columns 2-20 - Error T017: Cannot cast from const HitIndex to AnimationBitflags.
+errors_enum_1.zs Line 27 @ Columns 2-20 - Error T017: Cannot cast from const HitIndex to AnimationBitflags.
 
 25    f1 = ~f1|f1&AF_FRESH;
 26    // Error.
@@ -13,7 +13,7 @@ errors_enum.zs Line 27 @ Columns 2-20 - Error T017: Cannot cast from const HitIn
       ^~~~~~~~~~~~~~~~~~
 
 
-errors_enum.zs Line 29 @ Columns 2-26 - Error T017: Cannot cast from int to AnimationBitflags.
+errors_enum_1.zs Line 29 @ Columns 2-26 - Error T017: Cannot cast from int to AnimationBitflags.
 
 27    f1 = HIT_BY_NPC_ID;
 28    // Error.
@@ -21,7 +21,7 @@ errors_enum.zs Line 29 @ Columns 2-26 - Error T017: Cannot cast from int to Anim
       ^~~~~~~~~~~~~~~~~~~~~~~~
 
 
-errors_enum.zs Line 31 @ Columns 7-31 - Error S109: Binary operations on bitflags must be on the same type. Instead, got: AnimationBitflags, HitIndex
+errors_enum_1.zs Line 31 @ Columns 7-31 - Error S109: Binary operations on bitflags must be on the same type. Instead, got: AnimationBitflags, HitIndex
 
 29    f1 = AF_FRESH * AF_CYCLE;
 30    // Error.
@@ -29,7 +29,7 @@ errors_enum.zs Line 31 @ Columns 7-31 - Error S109: Binary operations on bitflag
            ^~~~~~~~~~~~~~~~~~~~~~~~
 
 
-errors_enum.zs Line 33 @ Columns 7-31 - Error S109: Binary operations on bitflags must be on the same type. Instead, got: AnimationBitflags, HitIndex
+errors_enum_1.zs Line 33 @ Columns 7-31 - Error S109: Binary operations on bitflags must be on the same type. Instead, got: AnimationBitflags, HitIndex
 
 31    f1 = AF_FRESH | HIT_BY_NPC_ID;
 32    // Error.
@@ -37,7 +37,7 @@ errors_enum.zs Line 33 @ Columns 7-31 - Error S109: Binary operations on bitflag
            ^~~~~~~~~~~~~~~~~~~~~~~~
 
 
-errors_enum.zs Line 35 @ Columns 8-21 - Error S109: Binary operations on bitflags must be on the same type. Instead, got: AnimationBitflags, HitIndex
+errors_enum_1.zs Line 35 @ Columns 8-21 - Error S109: Binary operations on bitflags must be on the same type. Instead, got: AnimationBitflags, HitIndex
 
 33    f1 = AF_FRESH + HIT_BY_NPC_ID;
 34    // Error.
@@ -45,7 +45,7 @@ errors_enum.zs Line 35 @ Columns 8-21 - Error S109: Binary operations on bitflag
             ^~~~~~~~~~~~~
 
 
-errors_enum.zs Line 40 @ Columns 2-20 - Error T017: Cannot cast from const HitIndex to AnimationBitflags.
+errors_enum_1.zs Line 40 @ Columns 2-20 - Error T017: Cannot cast from const HitIndex to AnimationBitflags.
 
 38    f2 |= AF_FRESH;
 39    // Error.
@@ -53,7 +53,7 @@ errors_enum.zs Line 40 @ Columns 2-20 - Error T017: Cannot cast from const HitIn
       ^~~~~~~~~~~~~~~~~~
 
 
-errors_enum.zs Line 45 @ Columns 18-38 - Error T047: Type SomeBitflags has not been declared.
+errors_enum_1.zs Line 45 @ Columns 18-38 - Error T047: Type SomeBitflags has not been declared.
 
 43    f3 = AF_CYCLE | <AnimationBitflags>(1);
 44    // Error.
@@ -61,7 +61,7 @@ errors_enum.zs Line 45 @ Columns 18-38 - Error T047: Type SomeBitflags has not b
                       ^~~~~~~~~~~~~~~~~~~~
 
 
-errors_enum.zs Line 49 @ Columns 2-18 - Error T017: Cannot cast from bitmap to int.
+errors_enum_1.zs Line 49 @ Columns 2-18 - Error T017: Cannot cast from bitmap to int.
 
 47    auto x = HIT_BY_NPC_ID | HIT_BY_NPC_ID;
 48    // Error: Cannot cast from bitmap to int. Just showing that above resolved to int, not the enum.
@@ -69,7 +69,7 @@ errors_enum.zs Line 49 @ Columns 2-18 - Error T017: Cannot cast from bitmap to i
       ^~~~~~~~~~~~~~~~
 
 
-errors_enum.zs Line 53 @ Columns 2-7 - Error T017: Cannot cast from bitmap to int.
+errors_enum_1.zs Line 53 @ Columns 2-7 - Error T017: Cannot cast from bitmap to int.
 
 51    bitmap b;
 52    // Error.

@@ -458,10 +458,26 @@ DataTypeArray const* DataTypeArray::create_owning(DataType* elementType)
 ////////////////////////////////////////////////////////////////
 // DataTypeCustom
 
+bool DataTypeCustom::isEnum() const
+{
+	if (dynamic_cast<ASTCustomDataTypeDef*>(source))
+		return true;
+
+	return false;
+}
+
 bool DataTypeCustom::isBitflagsEnum() const
 {
 	if (auto enum_node = dynamic_cast<ASTCustomDataTypeDef*>(source))
 		return enum_node->definition->getBitMode() != ASTDataEnum::BIT_NONE;
+
+	return false;
+}
+
+bool DataTypeCustom::isLong() const
+{
+	if (auto enum_node = dynamic_cast<ASTCustomDataTypeDef*>(source))
+		return enum_node->definition->getBitMode() == ASTDataEnum::BIT_LONG;
 
 	return false;
 }

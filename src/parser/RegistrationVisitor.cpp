@@ -4,13 +4,16 @@
  * Author: Emily
  */
 
+#include "parser/AST.h"
 #include "parser/ASTVisitors.h"
 #include "parser/LibrarySymbols.h"
 #include "parser/Types.h"
 #include "parser/ZScript.h"
 #include "parserDefs.h"
 #include "RegistrationVisitor.h"
+#include <bit>
 #include <cassert>
+#include <cstdint>
 #include <sstream>
 #include "Scope.h"
 #include "CompileError.h"
@@ -690,8 +693,6 @@ void RegistrationVisitor::caseDataEnum(ASTDataEnum& host, void* param)
 			if(std::optional<int32_t> v = init->getCompileTimeValue(this, scope))
 			{
 				value = zslongToFix(*v);
-				// Should we WARN here if 'bitmode' is on? This could break the doubling increment....
-				// Could maybe warn only if not assigned to an exact power of 2 (based on mode)?
 			}
 			else return;
 		}
@@ -702,7 +703,22 @@ void RegistrationVisitor::caseDataEnum(ASTDataEnum& host, void* param)
 				if(host.increment_val)
 					value += *host.increment_val;
 				else if(bitmode)
-					value *= 2;
+				{
+					if (value == 0)
+						value = bitmode == ASTDataEnum::BIT_INT ? 1_zf : 0.0001_zf;
+					else
+						value *= 2;
+					uint32_t value_to_check = bitmode == ASTDataEnum::BIT_INT ? value.getInt() : value.getZLong();
+					if (!std::has_single_bit(value_to_check))
+					{
+						handleError(CompileError::Error(declaration,
+							fmt::format("Auto-assigned values for bitflags members must be a power-of-two, but got: {}\n{}",
+							value,
+							"Either change the previous member to be a power-of-two, or explicitly initialize this member.")));
+						doRegister(host);
+						return;
+					}
+				}
 				else if(baseType->isLong())
 					value += 0.0001_zf;
 				else value += 1;
