@@ -1,5 +1,203 @@
 #include "bindings/sprite.zh"
 
+// Enemy IDs. Used with [Screen->CreateNPC].
+enum NPCID
+{
+	NPC_ABEI                       = 1,
+	NPC_AMA                        = 2,
+	NPC_MERCHANT                   = 3,
+	NPC_MOBLIN                     = 4,
+	NPC_FIRE                       = 5,
+	NPC_FAIRY                      = 6,
+	NPC_GORIYA                     = 7,
+	NPC_ZELDA                      = 8,
+	NPC_ABEI2                      = 9,
+	NPC_AQUAMENTUSL                = 93,
+	NPC_AQUAMENTUSR                = 58,
+	NPC_ARMOS                      = 37,
+	NPC_BAT                        = 106,
+	NPC_BOMBCHU                    = 160,
+	NPC_BOULDER                    = 135,
+	NPC_BUBBLEITEMP                = 118, // Permanently jinxes.
+	NPC_BUBBLEITEMR                = 119, // Restores item usage.
+	NPC_BUBBLEITEMT                = 117,
+	NPC_BUBBLESWORDP               = 81,  // Permanently jinxes.
+	NPC_BUBBLESWORDR               = 82,  // Restores sword usage.
+	NPC_BUBBLESWORDT               = 51,
+	NPC_CEILINGMASTER              = 101, // This enemy isn't implemented.
+	NPC_DARKNUT1                   = 49,
+	NPC_DARKNUT2                   = 50,
+	NPC_DARKNUT3                   = 92,  // Splits when killed.
+	NPC_DARKNUT4                   = 172, // This enemy isn't implemented.
+	NPC_DARKNUT5                   = 87,  // Sword beams.
+	NPC_DIGDOGGER1                 = 66,  // Splits into 1.
+	NPC_DIGDOGGER3                 = 67,  // Splits into 3.
+	NPC_DIGKID1                    = 68,  // Spawned by NPC_DIGDOGGER1.
+	NPC_DIGKID2                    = 69,  // Spawned by NPC_DIGDOGGER3.
+	NPC_DIGKID3                    = 70,  // Spawned by NPC_DIGDOGGER3.
+	NPC_DIGKID4                    = 71,  // Spawned by NPC_DIGDOGGER3.
+	NPC_DODONGO                    = 60,  // Uses one tile when walking vertically.
+	NPC_DODONGOBS                  = 114, // Uses two tiles when walking vertically.
+	NPC_DODONGOFIRE                = 115, // This enemy isn't implemented.
+	NPC_ENEMYFIRE                  = 85,  // The Fire enemy in Princess Zelda's screen.
+	NPC_FLOORMASTER                = 102, // This enemy isn't implemented.
+	NPC_GANON                      = 78,
+	NPC_GEL                        = 42,
+	NPC_GELFIRE                    = 161,
+	NPC_GELFIRETRIB                = 163,
+	NPC_GELTRIB                    = 88,
+	NPC_GHINI1                     = 35,
+	NPC_GHINI2                     = 36,
+	NPC_GHINIMGC                   = 173, // This enemy isn't implemented.
+	NPC_GIBDO                      = 54,
+	NPC_GLEEOK1                    = 62,
+	NPC_GLEEOK1FIRE                = 109,
+	NPC_GLEEOK2                    = 63,
+	NPC_GLEEOK2FIRE                = 110,
+	NPC_GLEEOK3                    = 64,
+	NPC_GLEEOK3FIRE                = 111,
+	NPC_GLEEOK4                    = 65,
+	NPC_GLEEOK4FIRE                = 112,
+	NPC_GOHMA1                     = 72,
+	NPC_GOHMA2                     = 73,
+	NPC_GOHMA3                     = 121,
+	NPC_GOHMAFIRE                  = 122,
+	NPC_GORIYA1                    = 45,
+	NPC_GORIYA2                    = 46,
+	NPC_GORIYA3                    = 136,
+	NPC_GRAPBUGHP                  = 174, // This enemy isn't implemented.
+	NPC_GRAPBUGMP                  = 175, // This enemy isn't implemented.
+	NPC_ITEMFAIRY                  = 84,
+	NPC_KEESE1                     = 38,
+	NPC_KEESE2                     = 39,
+	NPC_KEESE3                     = 40,
+	NPC_KEESETRIB                  = 90,
+	NPC_LANMOLA1                   = 74,
+	NPC_LANMOLA2                   = 75,
+	NPC_LEEVER1                    = 26,
+	NPC_LEEVER2                    = 27,
+	NPC_LEEVER3                    = 137,
+	NPC_LIKELIKE                   = 53,
+	NPC_LYNEL1                     = 30,
+	NPC_LYNEL2                     = 31,
+	NPC_LYNEL3                     = 168,
+	NPC_MANHANDLA                  = 61,
+	NPC_MANHANDLA2                 = 94,
+	NPC_MOBLIN1                    = 28,
+	NPC_MOBLIN2                    = 29,
+	NPC_MOLDORM                    = 59,
+	NPC_OCTOROCK1F                 = 22,
+	NPC_OCTOROCK1S                 = 20,
+	NPC_OCTOROCK2F                 = 23,
+	NPC_OCTOROCK2S                 = 21,
+	NPC_OCTOROCKBOMBF              = 141,
+	NPC_OCTOROCKBOMBS              = 140,
+	NPC_OCTOROCKFIREF              = 139,
+	NPC_OCTOROCKFIRES              = 138,
+	NPC_OCTOROCKMGC                = 86,
+	NPC_PATRA1                     = 76,
+	NPC_PATRA2                     = 104,
+	NPC_PATRA3                     = 105,
+	NPC_PATRABS                    = 103,
+	NPC_PATRAOVAL                  = 77,
+	NPC_PEAHAT                     = 32,
+	NPC_PEAHATFIRE                 = 169, // This enemy isn't implemented.
+	NPC_POLSVOICE                  = 55,
+	NPC_POLSVOICEBS                = 171, // This enemy isn't implemented.
+	NPC_POLSVOICEMGC               = 170,
+	NPC_ROCK                       = 34,
+	NPC_ROPE1                      = 44,
+	NPC_ROPE2                      = 80,
+	NPC_SHOOTFBALL                 = 83,
+	NPC_SHOOTFLAME                 = 158,
+	NPC_SHOOTFLAME2                = 159,
+	NPC_SHOOTMAGIC                 = 154,
+	NPC_SHOOTROCK                  = 155,
+	NPC_SHOOTSPEAR                 = 156,
+	NPC_SHOOTSWORD                 = 157,
+	NPC_SPINTILE                   = 166,
+	NPC_SPINTILERND                = 167, // Random spin tile.
+	NPC_STALFOS1                   = 41,
+	NPC_STALFOS2                   = 79,
+	NPC_STALFOS3                   = 120,
+	NPC_TEKTITE1                   = 24,
+	NPC_TEKTITE2                   = 25,
+	NPC_TEKTITE3                   = 165, // This enemy isn't implemented.
+	NPC_TRAP                       = 47,
+	NPC_TRAP8WAY                   = 142, // This enemy isn't implemented.
+	NPC_TRAPBACKSLASHC             = 146, // This enemy isn't implemented.
+	NPC_TRAPBACKSLASHLOS           = 147, // This enemy isn't implemented.
+	NPC_TRAPCCLOCKWISEC            = 150, // This enemy isn't implemented.
+	NPC_TRAPCCLOCKWISELOS          = 151, // This enemy isn't implemented.
+	NPC_TRAPCLOCKWISEC             = 148, // This enemy isn't implemented.
+	NPC_TRAPCLOCKWISELOS           = 149, // This enemy isn't implemented.
+	NPC_TRAPDIAG                   = 143, // This enemy isn't implemented.
+	NPC_TRAPHORIZC                 = 97,
+	NPC_TRAPHORIZLOS               = 95,
+	NPC_TRAPSLASHC                 = 144, // This enemy isn't implemented.
+	NPC_TRAPSLASHLOS               = 145,
+	NPC_TRAPVERTC                  = 98,
+	NPC_TRAPVERTLOS                = 96,
+	NPC_TRIGGER                    = 116,
+	NPC_VIRE                       = 52,
+	NPC_VIRETRIB                   = 91,
+	NPC_WALLMASTER                 = 48,
+	NPC_WIZZROBE1                  = 56,  // Teleports.
+	NPC_WIZZROBE2                  = 57,  // Phases through blocks.
+	NPC_WIZZROBEBAT                = 107,
+	NPC_WIZZROBEBAT2               = 108, // This enemy isn't implemented.
+	NPC_WIZZROBEFIRE               = 99,
+	NPC_WIZZROBEICE                = 153, // This enemy isn't implemented.
+	NPC_WIZZROBEMIRR               = 113,
+	NPC_WIZZROBESUMM               = 152,
+	NPC_WIZZROBEWIND               = 100,
+	NPC_ZOL                        = 43,
+	NPC_ZOLFIRE                    = 162,
+	NPC_ZOLFIRETRIB                = 164,
+	NPC_ZOLTRIB                    = 89,
+	NPC_ZORA                       = 33,
+};
+
+// TODO ! naming?
+@Bitflags("int")
+enum EnemyMiscBitflags
+{
+	NPCMF_0POWERWEAPS              = 0x0001, // Damaged by 0-Power Weapons.
+	NPCMF_ISINVISIBLE              = 0x0002, // Is Invisible.
+	NPCMF_NEVERRETURNS             = 0x0004, // Never Returns After Death.
+	NPCMF_NOT_BEATABLE             = 0x0008, // Doesn't Count as beatable Enemy.
+	NPCMF_SPAWNFLICKER             = 0x0010, // Unused.
+	NPCMF_ONLY_LENS                = 0x0020, // Only Seen By Lens of truth.
+	NPCMF_FLASHING                 = 0x0040, // Is Flashing.
+	NPCMF_FLICKERING               = 0x0080, // Is Flickering.
+	NPCMF_TRANSLUCENT              = 0x0100, // Is translucent.
+	NPCMF_SHIELDED_FRONT           = 0x0200, // Shielded on Front.
+	NPCMF_SHIELDED_LEFT            = 0x0400, // Shielded on Left.
+	NPCMF_SHIELDED_RIGHT           = 0x0800, // Shielded on Right.
+	NPCMF_SHIELDED_BACK            = 0x1000, // Shielded on Back.
+	NPCMF_HAMMERBREAKS             = 0x2000, // Hammer Can break Shield.
+};
+
+// NPC Spawn Flags.
+@Bitflags("int")
+enum EnemySpawnBitflags
+{
+	NPCSF_ZORA                     = 0x0001, // Spawned by Zora Screen Flag.
+	NPCSF_FALLINGROCK              = 0x0002, // Spawned by Falling Rocks Screen Flag.
+	NPCSF_CORNERTRAP               = 0x0004, // Spawned by Corner Traps Screen Flag.
+	NPCSF_HORIZTRAP                = 0x0008, // Spawned by Horiz Trap Combo Type or Flag.
+	NPCSF_VERTTRAP                 = 0x0010, // Spawned by Vert Trap Combo Type or Flag.
+	NPCSF_4WAYTRAP                 = 0x0020, // Spawned by 4-Way Trap Combo Type or Flag.
+	NPCSF_LRTRAP                   = 0x0040, // Spawned by LR Trap Combo Type or Flag.
+	NPCSF_UPTRAP                   = 0x0080, // Spawned by UD Trap Combo Type or Flag.
+	NPCSF_MIDTRAP                  = 0x0100, // Spawned by Middle Traps Screen Flag.
+	NPCSF_STATUEFIRE               = 0x0200, // Spawned by Statue Fire Screen Flag.
+	NPCSF_ARMOS                    = 0x0400, // Spawned by Armos Combo Type.
+	NPCSF_GRAVE                    = 0x0800, // Spawned by Grave Combo Type.
+	NPCSF_GANONROOM                = 0x1000, // Spawned by Ganon Room Type.
+	NPCSF_SPAWNANIM                = 0x2000, // Spawn Animation Type.
+};
+
 enum NPCType
 {
 	NPCT_GUY,
@@ -160,7 +358,8 @@ enum NPCDefenseType
 // Enemy projectile weapon selections. Use with npc->Weapon.
 // Note: Don't use these with Screen->CreateEWeapon! Use [EWeaponType] instead.
 // Use [WeaponTypeToID] to convert this enum to an [EWeaponType].
-enum NPCWeapon {
+enum NPCWeapon
+{
 	WPN_NONE              = 0,
 	WPN_ENEMYFLAME        = 140,
 	WPN_ENEMYWIND         = 141,
@@ -182,7 +381,8 @@ enum NPCWeapon {
 };
 
 // Default item drop sets.
-enum ItemSet {
+enum ItemSet
+{
 	IS_NONE,
 	IS_DEFAULT,
 	IS_BOMBS,
@@ -241,6 +441,11 @@ enum NPCWalkType
 {
 	SPW_NONE, SPW_DOOR, SPW_CLIPRIGHT, SPW_FLOATER, SPW_TRAP, SPW_HALFSTEP, 
 	SPW_WATER, SPW_WIZZROBE, SPW_CLIPBOTTOMRIGHT
+};
+
+enum NPCMoveStatus
+{
+	NPCMS_PAUSED, NPCMS_SPEEDUP, NPCMS_NORMAL, NPCMS_SLOWDOWN
 };
 
 // @zasm_ref REFNPC
@@ -308,8 +513,7 @@ class npc {
 
 	// The movement status of an npc, usually flying.
 	//
-	// See enum NPCMoveStatus in <std.zh>.
-	//
+	// @value [NPCMoveStatus]
 	// @zasm_var NPCMOVESTATUS
 	internal int MoveStatus;
 

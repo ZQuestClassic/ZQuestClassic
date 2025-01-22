@@ -564,10 +564,10 @@ MSGSTRR D3; InlineFunc[void screendata::Message(int)] Body
 SETR D2 SHOWNMSG; while() #3 Test
 COMPAREV D2 0
 GOTOCMP 481 ==; Test 'while'
-PUSHV 36; InlineFunc[void WaitTo(int, bool)] Params Start AND while() #3 Body Start
-SETV D3 0; InlineFunc[void WaitTo(int, bool)] Params End
-POP D2; InlineFunc[void WaitTo(int, bool)] Body Start
-WAITTO D2 D3; InlineFunc[void WaitTo(int, bool)] Body End
+PUSHV 36; InlineFunc[void WaitTo(ScriptTiming, bool)] Params Start AND while() #3 Body Start
+SETV D3 0; InlineFunc[void WaitTo(ScriptTiming, bool)] Params End
+POP D2; InlineFunc[void WaitTo(ScriptTiming, bool)] Body Start
+WAITTO D2 D3; InlineFunc[void WaitTo(ScriptTiming, bool)] Body End
 SETV D2 1
 PUSHR D2
 SETV D2 4

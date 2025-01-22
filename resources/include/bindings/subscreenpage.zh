@@ -1,3 +1,11 @@
+// Used with [subscreenpage::SelectorMove].
+@Bitflags("int")
+enum MoveSubscreenSelectorBitflags
+{
+	SUBSEL_FLAG_NO_NONEQUIP        = 0x01, // Skip widgets that are "Non-equippable".
+	SUBSEL_FLAG_NEED_ITEM          = 0x02, // Skip widgets that currently have no equippable item.
+};
+
 // @zasm_ref REFSUBSCREENPAGE
 class subscreenpage {
 	// @delete

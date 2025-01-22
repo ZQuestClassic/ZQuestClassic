@@ -10,6 +10,222 @@ enum WipeEffect
 	WIPE_MAX
 };
 
+// Screen enemy flag groups. Used with [Screen->EFlags].
+enum ScreenEnemyFlagGroup
+{
+	SEF_SPAWN                      = 0, // Corresponds to [ScreenEnemyFlagSpawn].
+	SEF_LIST1                      = 1, // Corresponds to [ScreenEnemyFlagList1].
+	SEF_LIST2                      = 2, // Corresponds to [ScreenEnemyFlagList2].
+};
+
+// Polygon rendering modes. Use with Screen->"Psuedo 3D" or "*3D" drawing functions. ie; Polygon, Quad, or Triangle
+// For more detail on these polygon rendering modes, see https://github.com/ZQuestClassic/ZQuestClassic/blob/main/third_party/allegro_legacy/docs/src/allegro._tx#L7808.
+enum PolygonRenderMode
+{
+	PT_FLAT                        = 0,  // Single color shading.
+	PT_FLATSHADED                  = 1,  // "" with flat shading (*3D only).
+	PT_COLSHADED                   = 2,  // "" with color shading (*3D only).
+	PT_TEXTURE                     = 3,  // Texture mapped polygon using 2d linear interpolation.
+	PT_PTEXTURE                    = 4,  // "".
+	PT_MASKTEXTURE                 = 5,  // Transparent texture mapped polygon using 2d linear interpolation.
+	PT_MASKPTEXTURE                = 6,  // "".
+	PT_LITTEXTURE                  = 7,  // "" with lighting (*3D only).
+	PT_LITPTEXTURE                 = 8,  // "" (*3D only).
+	PT_MASKLITTEXTURE              = 9,  // "" with transparency.
+	PT_MASKLITPTEXTURE             = 10, // "".
+	PT_TRANSTEXTURE                = 11, // Translucent texture mapped polygon using 2d linear interpolation.
+	PT_TRANSPTEXTURE               = 12, // "".
+	PT_MASKTRANSTEXTURE            = 13, // Translucent and transparent texture mapped polygon using 2d linear interpolation.
+	PT_MASKTRANSPTEXTURE           = 14, // "".
+};
+
+// Sprite lists. Used with [Screen->ClearSprites].
+enum SpriteList
+{
+	SL_GUYS                        = 0, // Enemies.
+	SL_ITEMS                       = 1, // Items.
+	SL_EWPNS                       = 2, // Enemy weapons.
+	SL_LWPNS                       = 3, // Link's weapons.
+	SL_DECORATIONS                 = 4, // Grass clippings, Hover boots glow, etc.
+	SL_PARTICLES                   = 5, // Farore's Wind particles.
+};
+
+// Screen Flag groups, used with [Screen->Flags].
+// See Screen Data dialog for what flags are contained in each group.
+enum ScreenFlagGroup
+{
+	SF_ROOMTYPE, // Corresponds to [ScreenFlagRoomType].
+	SF_VIEW, // Corresponds to [ScreenFlagView].
+	SF_SECRETS, // Corresponds to [ScreenFlagSecrets].
+	SF_WARP, // Corresponds to [ScreenFlagWarp].
+	SF_ITEMS, // Corresponds to [ScreenFlagItems].
+	SF_COMBOS, // Corresponds to [ScreenFlagCombos].
+	SF_SAVE, // Corresponds to [ScreenFlagSave].
+	SF_FFC, // Corresponds to [ScreenFlagFFC].
+	SF_WHISTLE, // Corresponds to [ScreenFlagWhistle].
+	SF_MISC, // Corresponds to [ScreenFlagMisc].
+	SF_LAST,
+};
+
+enum ScreenFlagRoomType
+{
+	SFR_INTERIOR,
+	SFR_DUNGEON,
+	SFR_SIDEVIEW,
+	
+	SFR_LAST
+};
+
+enum ScreenFlagView
+{
+	SFV_INVISLINK,
+	SFV_NOLINKMARKER,
+	SFV_NOSUBSCREEN,
+	SFV_NOOFFSET,  //'...but don't offset'
+	SFV_LAYER2BG,  //Layer 2 is Background
+	SFV_LAYER3BG,
+	SFV_DARKROOM, 
+	SFV_DARK_DITHER, 
+	SFV_DARK_TRANS, 
+	
+	SFV_LAST
+};
+
+enum ScreenFlagSecrets
+{
+	SFS_BLOCKSHUT, //Block->Shutters
+	SFS_TEMPSECRETS, //Secrets are temporary.
+	SFS_TRIGPERM,  //All Triggers->Perm Secret
+	SFS_ALLTRIGFLAGS,  //All triggers->16-31
+	
+	SFS_LAST
+};
+
+enum ScreenFlagWarp
+{
+	SFW_AUTODIRECT, //Auto Warps are Direct
+	SFW_SENDSIRECT, //Sensitive Warps are direct.
+	SFW_MAZEPATHS,  //Use maze Path
+	SFW_MAZEOVERRIDE,  //maze Overrides Sidewarps
+	SFW_SPRITECARRY, //Sprites carry over. 
+	SFW_DISABLE_MIRROR, //Disable Magic Mirror
+	
+	SFW_LAST
+};
+
+enum ScreenFlagItems
+{
+	SFI_HOLDUP, //Hold up item.
+	SFI_FALLS, //Falls from ceiling
+	SFI_SECRETSITEM,  //Secret reveals item
+	SFI_ITEMSECRET,  //Item triggers secrets
+	SFI_ITEMSECRETPERM, //Item triggering secrets is permanent
+	SFI_ITEMRETURNS, //Regular item always returns
+	SFI_SPECIALITEMRETURNS, //Special item always returns
+	
+	SFI_LAST
+};
+
+enum ScreenFlagCombos
+{
+	SFC_MIDAIR, //Combos affect midair Link
+	SFC_CYCLEINIT, //Cycle combos on screen init.
+	SFC_IGNOREBOOTS,  //Damage combos ignore boots. 
+	SFC_TOGGLERINGS,  //Toggle 'Rings Affect Combos'
+	
+	SFC_LAST
+};
+
+enum ScreenFlagSave
+{
+	SFSV_SAVECONTHERE, //Save Point->ontinue here.
+	SFSV_SAVEONENTRY, //Save game on entry.
+	SFSV_CONTHERE,  //Comtinue here.
+	SFSV_NOCONTINUEWARP,  //No continue Here after warp. 
+	
+	SFSV_LAST
+};
+
+enum ScreenFlagFFC
+{
+	SFF_WRAP,   //Freeform Combos Wrap Around
+	SFF_NOCARRYOVER, //No FFC carry over. 
+	
+	SFF_LAST
+};
+
+enum ScreenFlagMisc
+{
+	SFM_ALLOW_LADDER,   //Toggle 'Allow Ladder'
+	SFM_NO_DIVING,      //Toggle 'No Diving' 
+	SFM_SCRIPT1,         //General use 1 (Scripts)
+	SFM_SCRIPT2,         //General use 2 (Scripts)
+	SFM_SCRIPT3,        //General use 3 (Scripts)
+	SFM_SCRIPT4,        //General use 4 (Scripts)
+	SFM_SCRIPT5,        //General use 5 (Scripts)
+
+	SFM_LAST
+};
+
+enum ScreenFlagWhistle
+{
+	SFWH_STAIRS = 0, //Whistle->Stairs
+	SFWH_PALCHANGE, //Whistle->Palette Change
+	SFWH_DRYLAKE,  //Whistle->Dry lake
+	
+	SFWH_LAST
+};
+
+// See [ScreenEnemyFlagGroup].
+enum ScreenEnemyFlagSpawn
+{
+	SEFSP_ZORA,
+	SEFSP_CORNERTRAP,
+	SEFSP_MIDDLETRAP,
+	SEFSP_ROCK,
+	SEFSP_SHOOTER,
+	
+	SEFSP_LAST
+};
+
+// See [ScreenEnemyFlagGroup].
+enum ScreenEnemyFlagList1
+{
+	SEFL1_RINGLEADER,
+	SEFL1_CARRYITEM,
+	SEFL1_INVIS,
+	SEFL1_BOSS,
+	SEFL1_TRAPS_IGNORE_SOLID,
+	
+	SEFL1_LAST
+};
+
+// See [ScreenEnemyFlagGroup].
+enum ScreenEnemyFlagList2
+{
+	SEFL2_ALWAYSRET,
+	SEFL2_ENEMIES_ITEM,
+	SEFL2_ENEMEIS_SECRET,
+	SEFL2_ENEMIES_SECRET_PERM,
+	SEFL2_CHAIN_ENEMIES_TRIGGERS,
+	
+	SEFL2_LAST
+};
+
+// Render Targets. Used with Screen->"*RenderTarget" and Screen->"Bitmap" drawing functions.
+enum RenderTarget
+{
+	RT_CURRENT                     = -2, // Used with Blit(). mode7(), and RevBlit() for the current RT as dest.
+	RT_SCREEN                      = -1, // Draws to screen.
+	RT_BITMAP0                     = 0,  // Draws to off-screen bitmap 0.
+	RT_BITMAP1                     = 1,  // Draws to off-screen bitmap 1.
+	RT_BITMAP2                     = 2,  // Draws to off-screen bitmap 2.
+	RT_BITMAP3                     = 3,  // Draws to off-screen bitmap 3.
+	RT_BITMAP4                     = 4,  // Draws to off-screen bitmap 4.
+	RT_BITMAP5                     = 5,  // Draws to off-screen bitmap 5.
+	RT_BITMAP6                     = 6,  // Draws to off-screen bitmap 6.
+};
+
 // Contains functions and variables related to the current map screen,
 // including functions for drawing and creating/loading objects belonging
 // to the screen.
@@ -51,6 +267,8 @@ class screendata {
 	// @zasm_var COMBOED
 	internal int ComboE[];
 
+	// @index [DoorIndex]
+	// @value [DoorType]
 	// @zasm_var SCRDOORD
 	internal int Door[];
 
@@ -93,6 +311,7 @@ class screendata {
 	// bitmap drawing. 2.55's [bitmap] effectively obsolete the render target
 	// system, and should be used instead of this.
 	//
+	// @value [RenderTarget]
 	// @zasm_var GETRENDERTARGET
 	internal const int GetRenderTarget;
 
@@ -1000,6 +1219,7 @@ class screendata {
 	// bitmap drawing. 2.55's [bitmap] effectively obsolete the render target
 	// system, and should be used instead of this.
 	//
+	// @param [RenderTarget] rt
 	// @zasm
 	//   SETRENDERTARGET
 	//   POP D3

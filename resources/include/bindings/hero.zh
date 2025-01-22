@@ -54,6 +54,60 @@ enum HeroSliding
 	SLD_MAX
 };
 
+// Used with [Hero->SetItemSlot].
+enum ItemSlot
+{
+	ITM_SLOT_B,
+	ITM_SLOT_A,
+	ITM_SLOT_X,
+	ITM_SLOT_Y,
+};
+
+// Used with [Hero->SetItemSlot].
+@Bitflags("int")
+enum ItemRequireBitflags
+{
+	ITM_REQUIRE_NONE               = 0b00,
+	ITM_REQUIRE_INVENTORY          = 0b01,
+	ITM_REQUIRE_A_SLOT_RULE        = 0b10,
+};
+
+// Warp Effects for [Hero->WarpEx].
+enum WarpEffect
+{
+	WARPEFFECT_NONE                = 0,
+	WARPEFFECT_ZAP                 = 1,
+	WARPEFFECT_WAVE                = 2,
+	WARPEFFECT_INSTANT             = 3,
+	WARPEFFECT_OPENWIPE            = 4,
+};
+
+// Bitflags for [Hero->WarpEx].
+@Bitflags("int")
+enum WarpBitflags
+{
+	WARP_FLAG_SCRIPTDRAW           = 0x001,
+	WARP_FLAG_PLAYSOUNDS           = 0x002,
+	WARP_FLAG_FORCE_RESET_MUSIC    = 0x004,
+	WARP_FLAG_SETENTRANCESCREEN    = 0x008,
+	WARP_FLAG_SETENTRANCEDMAP      = 0x010,
+	WARP_FLAG_SETCONTINUESCREEN    = 0x020,
+	WARP_FLAG_SETCONTINUEDMAP      = 0x040,
+	WARP_FLAG_DONT_RESET_DM_SCRIPT = 0x080,
+	WARP_FLAG_DONT_CLEAR_SPRITES   = 0x100,
+	WARP_FLAG_FORCE_CONTINUE_MUSIC = 0x200,
+	WARP_FLAG_PLAYMUSIC            = WARP_FLAG_FORCE_RESET_MUSIC, // Old name for compat of old scripts.
+	WARP_FLAG_DONTCLEARSPRITES     = 0x100,                       // Manual Sprite Carryover.
+	WARP_FLAG_CLEARITEMS           = 0x200,
+	WARP_FLAG_CLEARGUYS            = 0x400,
+	WARP_FLAG_CLEARLWEAPONS        = 0x800,
+	WARP_FLAG_CLEAREWEAPONS        = 0x1000,
+	WARP_FLAG_CLEARHOOKSHOT        = 0x2000,
+	WARP_FLAG_CLEARDECORATIONS     = 0x4000,
+	WARP_FLAG_CLEARPARTICLES       = 0x8000,
+	WARP_FLAG_NOSTEPFORWARD        = 0x10000,                     // Prevent Stepping forward in dungeon screens (experimental).
+};
+
 // Contains functions and variables related to the playable hero character.
 //
 // Access with `Hero->`.

@@ -1,4 +1,15 @@
-// Represents a generic script. Load with `Game->LoadGenericData`.
+// Used with [genericdata::ExitState] and [genericdata::ReloadState].
+enum GenericScriptStateIndex
+{
+	GENSCR_ST_RELOAD, //When reloading from save select screen
+	GENSCR_ST_CONTINUE, //When F6->Continue
+	GENSCR_ST_CHANGE_SCREEN, //When screen changes
+	GENSCR_ST_CHANGE_DMAP, //When dmap changes
+	GENSCR_ST_CHANGE_LEVEL, //When level changes
+	GENSCR_NUMST
+};
+
+// Represents a generic script. Load with [Game->LoadGenericData].
 //
 // @zasm_ref REFGENERICDATA
 class genericdata {

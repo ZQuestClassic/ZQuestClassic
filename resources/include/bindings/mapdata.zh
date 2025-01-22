@@ -1,3 +1,181 @@
+// Used with [Screen->RoomType], [mapdata::RoomType].
+enum RoomType
+{
+	RT_DOORREPAIR                  = 5,
+	RT_FEEDTHEGORIYA               = 7,
+	RT_GAMBLE                      = 4,
+	RT_GANON                       = 15,
+	RT_ITEMPOND                    = 17, // Doesn't work.
+	RT_LEARNSLASH                  = 19,
+	RT_LEVEL9ENTRANCE              = 8,
+	RT_MAGICUPGRADE                = 18,
+	RT_MONEYORLIFE                 = 12,
+	RT_MOREARROWS                  = 20,
+	RT_MOREBOMBS                   = 11,
+	RT_NONE                        = 0,
+	RT_PAYFORINFO                  = 2,
+	RT_POTIONORHEART               = 6,
+	RT_POTIONSHOP                  = 9,
+	RT_SECRETMONEY                 = 3,
+	RT_SHOP                        = 10,
+	RT_SPECIALITEM                 = 1,
+	RT_STAIRWARP                   = 14,
+	RT_TAKEONEITEM                 = 21,
+	RT_TENRUPEES                   = 13,
+	RT_ZELDA                       = 16,
+};
+
+// Used with [mapdata::Door] and [Screen->Door].
+enum DoorIndex
+{
+	DOOR_UP                        = 0,
+	DOOR_DOWN                      = 1,
+	DOOR_LEFT                      = 2,
+	DOOR_RIGHT                     = 3,
+};
+
+// Used with [mapdata::Door] and [Screen->Door].
+enum DoorType
+{
+	D_WALL                         = 0,
+	D_OPEN                         = 1,
+	D_LOCKED                       = 2,
+	D_UNLOCKED                     = 3,  // A locked door that has been opened.
+	D_SHUTTER                      = 4,  // Defeat enemies to unlock this door.
+	D_BOMB                         = 6,  // A door that changes when bombed.
+	D_BOMBED                       = 7,  // A door that has been bombed.
+	D_WALKTHRU                     = 8,  // Push against the wall to pass through.
+	D_BOSSLOCKED                   = 10,
+	D_BOSSUNLOCKED                 = 11, // A boss door that has been opened.
+	D_OPENSHUTTER                  = 12, // A shutter that has been opened.
+	D_1WAYSHUTTER                  = 14, // A shutter that locks behind you and never opens.
+	D_NONE                         = 16, // No door at all. Hero will not auto-walk.
+};
+
+// Used with [mapdata::FFCFlags].
+@Bitflags("int")
+enum FFCBitflags
+{
+	FFCBF_OVERLAY                  = 0x001,
+	FFCBF_TRANS                    = 0x002,
+	FFCBF_SOLID                    = 0x004,
+	FFCBF_CARRYOVER                = 0x008,
+	FFCBF_STATIONARY               = 0x010,
+	FFCBF_CHANGER                  = 0x020,
+	FFCBF_PRELOAD                  = 0x040,
+	FFCBF_LENSVIS                  = 0x080,
+	FFCBF_RESET                    = 0x100,
+	FFCBF_ETHEREAL                 = 0x200,
+	FFCBF_IGNOREHOLDUP             = 0x400,
+	FFCBF_IGNORECHANGER            = 0x800,
+	FFCBF_IMPRECISIONCHANGER       = 0x1000,
+	FFCBF_LENSINVIS                = 0x2000,
+};
+
+// Used with [Screen->SecretCombo], [Screen->SecretCSet], [Screen->SecretFlags], and [mapdata].
+enum SecretComboIndex
+{
+	SECCMB_BCANDLE                 = 0,
+	SECCMB_ARROW                   = 1,
+	SECCMB_BOMB                    = 2,
+	SECCMB_STAIRS                  = 3,
+	SECCMB_SECRET01                = 4,
+	SECCMB_SECRET02                = 5,
+	SECCMB_SECRET03                = 6,
+	SECCMB_SECRET04                = 7,
+	SECCMB_SECRET05                = 8,
+	SECCMB_SECRET06                = 9,
+	SECCMB_SECRET07                = 10,
+	SECCMB_SECRET08                = 11,
+	SECCMB_SECRET09                = 12,
+	SECCMB_SECRET10                = 13,
+	SECCMB_SECRET11                = 14,
+	SECCMB_SECRET12                = 15,
+	SECCMB_SECRET13                = 16,
+	SECCMB_SECRET14                = 17,
+	SECCMB_SECRET15                = 18,
+	SECCMB_SECRET16                = 19,
+	SECCMB_RCANDLE                 = 20,
+	SECCMB_WANDFIRE                = 21,
+	SECCMB_DINSFIRE                = 22,
+	SECCMB_SARROW                  = 23,
+	SECCMB_GARROW                  = 24,
+	SECCMB_SBOMB                   = 25,
+	SECCMB_BRANG                   = 26,
+	SECCMB_MBRANG                  = 27,
+	SECCMB_FBRANG                  = 28,
+	SECCMB_WANDMAGIC               = 29,
+	SECCMB_REFMAGIC                = 30,
+	SECCMB_REFFIREBALL             = 31,
+	SECCMB_SWORD                   = 32,
+	SECCMB_WSWORD                  = 33,
+	SECCMB_MSWORD                  = 34,
+	SECCMB_XSWORD                  = 35,
+	SECCMB_SWORDBEAM               = 36,
+	SECCMB_WSWORDBEAM              = 37,
+	SECCMB_MSWORDBEAM              = 38,
+	SECCMB_XSWORDBEAM              = 39,
+	SECCMB_HOOKSHOT                = 40,
+	SECCMB_WAND                    = 41,
+	SECCMB_HAMMER                  = 42,
+	SECCMB_STRIKE                  = 43,
+	SECCMB_SECRETSNEXT             = 44, // Only ->SecretFlags[] has a value for this index.
+	SECCMB_MAX                     = 45,
+};
+
+// Used with [mapdata::NoCarry] and [screendata::NoCarry].
+@Bitflags("int")
+enum NoCarryBitflags
+{
+	NOCARRY_B_SECRET               = 0x2000,
+	NOCARRY_B_ITEM                 = 0x0010,
+	NOCARRY_B_SPECIALITEM          = 0x0020,
+	NOCARRY_B_LOCKBLOCK            = 0x0100,
+	NOCARRY_B_BOSSLOCKBLOCK        = 0x0200,
+	NOCARRY_B_CHEST                = 0x0400,
+	NOCARRY_B_LOCKEDCHEST          = 0x0800,
+	NOCARRY_B_BOSSCHEST            = 0x1000,
+};
+
+// Used with [mapdata::NoReset] and [screendata::NoReset].
+@Bitflags("int")
+enum NoResetBitflags
+{
+	NORESET_B_SECRET               = 0x2000,
+	NORESET_B_ITEM                 = 0x0010,
+	NORESET_B_SPECIALITEM          = 0x0020,
+	NORESET_B_LOCKBLOCK            = 0x0100,
+	NORESET_B_BOSSLOCKBLOCK        = 0x0200,
+	NORESET_B_CHEST                = 0x0400,
+	NORESET_B_LOCKEDCHEST          = 0x0800,
+	NORESET_B_BOSSCHEST            = 0x1000,
+	NORESET_B_DOOR_B_UP            = 0x0001,
+	NORESET_B_DOOR_B_DOWN          = 0x0002,
+	NORESET_B_DOOR_B_LEFT          = 0x0004,
+	NORESET_B_DOOR_B_RIGHT         = 0x0008,
+};
+
+//Screen states. Use these with [Screen->State], etc.
+enum ScreenState
+{
+	ST_DOORUP             = 0, // The locked/bomb door has been permanently unlocked/bombed
+	ST_DOORDOWN           = 1, // The locked/bomb door has been permanently unlocked/bombed
+	ST_DOORLEFT           = 2, // The locked/bomb door has been permanently unlocked/bombed
+	ST_DOORRIGHT          = 3, // The locked/bomb door has been permanently unlocked/bombed
+	ST_ITEM               = 4, // If set, the item is gone
+	ST_SPECIALITEM        = 5, // If set, the Cave/Item Cellar/Dive For Item/Armos item is gone
+	ST_ENEMYNORETURN      = 6, // If set, enemies won't return
+	ST_TEMPNORETURN       = 7, // If set, enemies won't return. This is automatically unset when you leave the DMap
+	ST_LOCKBLOCK          = 8, // The lock block on the screen has been triggered
+	ST_BOSSLOCKBLOCK      = 9, // The boss lock block on the screen has been triggered
+	ST_CHEST              = 10, // The unlocked chest on this screen has been opened
+	ST_LOCKEDCHEST        = 11, // The locked chest on this screen has been opened
+	ST_BOSSCHEST          = 12, // The boss chest on this screen has been opened
+	ST_SECRET             = 13, // Screen Secrets have been made permanent
+	ST_VISITED            = 14, // If set, this screen will appear on the Overworld Map
+	ST_LIGHTBEAM          = 15  // If set, the light triggers on the screen have been triggered
+};
+
 // Represents a single map screen.
 //
 // Depending on how the `mapdata` was loaded, it may represent:
@@ -104,8 +282,8 @@ class mapdata {
 
 	// The 4 door states of the screen.
 	//
-	// Valid indices: [DIR_UP], [DIR_DOWN], [DIR_LEFT], [DIR_RIGHT]
-	//
+	// @index [DoorIndex]
+	// @value [DoorType]
 	// @zasm_var MAPDATADOOR
 	internal int Door[];
 

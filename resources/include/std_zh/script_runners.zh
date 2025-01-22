@@ -1,4 +1,4 @@
-#include "std_zh/std_constants2.zh"
+#include "std_zh/std_constants.zh"
 
 // Combo to use for FFC scripts started by [RunFFCScript]. This should be
 // an invisible combo with no type or flag. It cannot be combo 0.

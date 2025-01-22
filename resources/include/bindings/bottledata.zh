@@ -1,3 +1,13 @@
+enum BottleFlag
+{
+	BTF_REVIVE,
+	BTF_USEWHENFULL,
+	BTF_CURESWORDJINX,
+	BTF_CUREITEMJINX,
+	BTF_CURESHIELDJINX,
+	BTF_MAX
+};
+
 // @zasm_ref REFBOTTLETYPE
 class bottledata {
 	// @delete

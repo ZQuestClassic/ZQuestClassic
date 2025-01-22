@@ -1,3 +1,12 @@
+enum SubscreenItemButton
+{
+	ITMBTN_A,
+	ITMBTN_B,
+	ITMBTN_X,
+	ITMBTN_Y,
+	NUM_ITMBTN
+};
+
 // @zasm_ref REFSUBSCREENWIDG
 class subscreenwidget {
 	// @delete
@@ -468,7 +477,7 @@ class subscreenwidget {
 	// - [SUBWIDG_BTNITM]
 	// - [SUBWIDG_BTNCOUNTER]
 	//
-	// @value [ItemButton]
+	// @value [SubscreenItemButton]
 	// @zasm_var SUBWIDGTY_BUTTON
 	internal int Button;
 

@@ -1,5 +1,135 @@
 script typedef itemdata item;
 
+// Item IDs. Used with [Screen->CreateItem] and [Hero->Item].
+// These are DEFAULT values, and may not be correct for custom quests which
+// have overridden item action data.
+enum ItemID
+{
+	I_AMULET1                      = 50,
+	I_AMULET2                      = 63,
+	I_ARROW1                       = 13,
+	I_ARROW2                       = 14,
+	I_ARROW3                       = 57,
+	I_ARROWAMMO1                   = 70,
+	I_ARROWAMMO10                  = 72,
+	I_ARROWAMMO30                  = 73,
+	I_ARROWAMMO5                   = 71,
+	I_BAIT                         = 16,
+	I_BOMB                         = 3,
+	I_BOMBAMMO1                    = 77,
+	I_BOMBAMMO30                   = 80,
+	I_BOMBAMMO4                    = 78,
+	I_BOMBAMMO8                    = 79,
+	I_BOMBBAG1                     = 81,
+	I_BOMBBAG2                     = 82,
+	I_BOMBBAG3                     = 83,
+	I_BOMBBAG4                     = 106,
+	I_BOOK                         = 32,
+	I_BOOTS                        = 55,
+	I_BOSSKEY                      = 67,
+	I_BOW1                         = 15,
+	I_BOW2                         = 68,
+	I_BRACELET1                    = 107,
+	I_BRACELET2                    = 19,
+	I_BRACELET3                    = 56,
+	I_BRANG1                       = 23,
+	I_BRANG2                       = 24,
+	I_BRANG3                       = 35,
+	I_CANDLE1                      = 10,
+	I_CANDLE2                      = 11,
+	I_CBYRNA                       = 88,
+	I_CHARGERING1                  = 101,
+	I_CHARGERING2                  = 102,
+	I_CLOCK                        = 4,
+	I_COMPASS                      = 22,
+	I_CROSSSCROLL                  = 95,
+	I_DINSFIRE                     = 64,
+	I_DUST_PILE                    = 43,
+	I_FAIRY                        = 34,
+	I_FAIRYSTILL                   = 69,
+	I_FARORESWIND                  = 65,
+	I_FLIPPERS                     = 51,
+	I_HAMMER                       = 54,
+	I_HCPIECE                      = 49,
+	I_HEART                        = 2,
+	I_HEARTCONTAINER               = 28,
+	I_HEARTRING1                   = 112,
+	I_HEARTRING2                   = 113,
+	I_HEARTRING3                   = 114,
+	I_HOOKSHOT1                    = 52,
+	I_HOOKSHOT2                    = 89,
+	I_HOVERBOOTS                   = 92,
+	I_KEY                          = 9,
+	I_KILLALL                      = 62,
+	I_LADDER1                      = 27,
+	I_LADDER2                      = 108,
+	I_LENS                         = 53,
+	I_LETTER                       = 12,
+	I_LETTERUSED                   = 90,
+	I_LEVELKEY                     = 84,
+	I_MAGICCONTAINER               = 58,
+	I_MAGICJAR1                    = 59,
+	I_MAGICJAR2                    = 60,
+	I_MAGICKEY                     = 33,
+	I_MAGICRING1                   = 115,
+	I_MAGICRING2                   = 116,
+	I_MAGICRING3                   = 117,
+	I_MAGICRING4                   = 118,
+	I_MAP                          = 21,
+	I_MISC1                        = 46,
+	I_MISC2                        = 47,
+	I_NAYRUSLOVE                   = 66,
+	I_PERILRING                    = 121,
+	I_PERILSCROLL                  = 103,
+	I_POTION1                      = 29,
+	I_POTION2                      = 30,
+	I_QUAKESCROLL1                 = 96,
+	I_QUAKESCROLL2                 = 97,
+	I_QUIVER1                      = 74,
+	I_QUIVER2                      = 75,
+	I_QUIVER3                      = 76,
+	I_QUIVER4                      = 105,
+	I_RAFT                         = 26,
+	I_RING1                        = 17,
+	I_RING2                        = 18,
+	I_RING3                        = 61,
+	I_ROCSFEATHER                  = 91,
+	I_RUPEE1                       = 0,
+	I_RUPEE10                      = 86,
+	I_RUPEE100                     = 87,
+	I_RUPEE20                      = 38,
+	I_RUPEE200                     = 40,
+	I_RUPEE5                       = 1,
+	I_RUPEE50                      = 39,
+	I_SBOMB                        = 48,
+	I_SELECTA                      = 45,
+	I_SELECTB                      = 85,
+	I_SHIELD1                      = 93,
+	I_SHIELD2                      = 8,
+	I_SHIELD3                      = 37,
+	I_SPINSCROLL1                  = 94,
+	I_SPINSCROLL2                  = 98,
+	I_STOMPBOOTS                   = 120,
+	I_STONEAGONY                   = 119,
+	I_SWORD1                       = 5,
+	I_SWORD2                       = 6,
+	I_SWORD3                       = 7,
+	I_SWORD4                       = 36,
+	I_TRIFORCE                     = 20,
+	I_TRIFORCEBIG                  = 44,
+	I_WALLET500                    = 41,
+	I_WALLET999                    = 42,
+	I_WALLETA                      = 104,
+	I_WAND                         = 25,
+	I_WEALTHMEDAL                  = 109,
+	I_WEALTHMEDAL2                 = 110,
+	I_WEALTHMEDAL3                 = 111,
+	I_WHIMSICALRING                = 122,
+	I_WHISPRING1                   = 99,
+	I_WHISPRING2                   = 100,
+	I_WHISTLE                      = 31,
+};
+
 // Item types, used with [itemdata::Type].
 enum ItemType {
 	IC_SWORD              = 0,
@@ -137,6 +267,113 @@ enum ItemType {
 	IC_MAXUSABLE               = 280,
 
 	IC_MAX                     = 512 //Last of enum. All itemclassesare < this.
+};
+
+// Item pickup bitflags. Used with [item::Pickup].
+// Many values are reserved for internal usage, and have no effect.
+@Bitflags("int")
+enum ItemPickupBitflags
+{
+	IP_BIGRANGE                    = 0x0001, // INTERNAL Collision rectangle is large.
+	IP_HOLDUP                      = 0x0002, // Link holds it up when collecting it.
+	IP_ST_ITEM                     = 0x0004, // Sets the screen state "Item" when collected.
+	IP_DUMMY                       = 0x0008, // A 'dummy' item, such as rupee markers in shops. Can't be collected and ignores gravity.
+	IP_CHECK                       = 0x0010, // INTERNAL Check restrictions (money in a shop, etc.).
+	IP_MONEY                       = 0x0020, // INTERNAL This item causes money loss (bomb upgrade, swindle room, etc.).
+	IP_FADE                        = 0x0040, // INTERNAL Blinks if fadeclk>0.
+	IP_ENEMYCARRIED                = 0x0080, // The item-carrying NPC carries it. If no NPC has an item, the most recently created NPC carries it.
+	IP_TIMEOUT                     = 0x0100, // Disappears after 512 frames. Can be collected by melee weapons if the related quest rule is not set.
+	IP_BIGTRIFORCE                 = 0x0200, // INTERNAL Large collision rectangle (used for large triforce).
+	IP_NODRAW                      = 0x0400, // INTERNAL Don't draw this (for underwater items).
+	IP_ST_SPECIALITEM              = 0x0800, // Sets the screen state "Special Item" when collected.
+	IP_TRIGGERSECRETS              = 0x1000, // Triggers screen secrets when collected.
+	IP_ALWAYSGRAB                  = 0x2000, // Item is always able to be picked up (ex. brang/hshot/arrows/melee weapons).
+};
+
+// Used with [itemdata::Attributes].
+// @deprecated Use [BlockBitflags] instead!
+enum BlockBitflagsInt
+{
+	BLOCKFLAG_ROCK                 = 0x00001,
+	BLOCKFLAG_ARROW                = 0x00002,
+	BLOCKFLAG_BRANG                = 0x00004,
+	BLOCKFLAG_FIREBALL             = 0x00008,
+	BLOCKFLAG_SWORD                = 0x00010,
+	BLOCKFLAG_MAGIC                = 0x00020,
+	BLOCKFLAG_FLAME                = 0x00040,
+	BLOCKFLAG_SCRIPT               = 0x00080, // Blocks or reflects ALL script weapons.
+	BLOCKFLAG_FIREBALL2            = 0x00100,
+	BLOCKFLAG_LIGHTBEAM            = 0x00200,
+	BLOCKFLAG_SCRIPT1              = 0x00400,
+	BLOCKFLAG_SCRIPT2              = 0x00800,
+	BLOCKFLAG_SCRIPT3              = 0x01000,
+	BLOCKFLAG_SCRIPT4              = 0x02000,
+	BLOCKFLAG_SCRIPT5              = 0x04000,
+	BLOCKFLAG_SCRIPT6              = 0x08000,
+	BLOCKFLAG_SCRIPT7              = 0x10000,
+};
+
+// Used with [itemdata::LAttributes].
+@Bitflags("long")
+enum BlockBitflags
+{
+	L_BLOCKFLAG_ROCK               = 0x00000001L,
+	L_BLOCKFLAG_ARROW              = 0x00000002L,
+	L_BLOCKFLAG_BRANG              = 0x00000004L,
+	L_BLOCKFLAG_FIREBALL           = 0x00000008L,
+	L_BLOCKFLAG_SWORD              = 0x00000010L,
+	L_BLOCKFLAG_MAGIC              = 0x00000020L,
+	L_BLOCKFLAG_FLAME              = 0x00000040L,
+	L_BLOCKFLAG_SCRIPT             = 0x00000080L, // Blocks or reflects ALL script weapons.
+	L_BLOCKFLAG_FIREBALL2          = 0x00000100L,
+	L_BLOCKFLAG_LIGHTBEAM          = 0x00000200L,
+	L_BLOCKFLAG_SCRIPT1            = 0x00000400L,
+	L_BLOCKFLAG_SCRIPT2            = 0x00000800L,
+	L_BLOCKFLAG_SCRIPT3            = 0x00001000L,
+	L_BLOCKFLAG_SCRIPT4            = 0x00002000L,
+	L_BLOCKFLAG_SCRIPT5            = 0x00004000L,
+	L_BLOCKFLAG_SCRIPT6            = 0x00008000L,
+	L_BLOCKFLAG_SCRIPT7            = 0x00010000L,
+	L_BLOCKFLAG_SCRIPT8            = 0x00020000L,
+	L_BLOCKFLAG_SCRIPT9            = 0x00040000L,
+	L_BLOCKFLAG_SCRIPT10           = 0x00080000L,
+};
+
+@Bitflags("int")
+enum ItemMiscBitflags
+{
+	IMISC_FLASH                    = 0x01,
+	IMISC_TWOHAND                  = 0x02,
+	IMISC_HFLIP                    = 0x04,
+	IMISC_VFLIP                    = 0x08,
+};
+
+// Used with [itemdata::OverrideFlags], [itemdata::WeaponOverrideFlags].
+// These correspond to the "Enabled" checkboxes in the Graphics->Size tab in the Item and Enemy Editors.
+@Bitflags("int")
+enum SizeOverrideBitflags
+{
+	SZFLAG_TILEWIDTH               = 0x0001,
+	SZFLAG_TILEHEIGHT              = 0x0002,
+	SZFLAG_HIT_WIDTH               = 0x0004,
+	SZFLAG_HIT_HEIGHT              = 0x0008,
+	SZFLAG_HIT_Z_HEIGHT            = 0x0010,
+	SZFLAG_HIT_X_OFFSET            = 0x0020,
+	SZFLAG_HIT_Y_OFFSET            = 0x0040,
+	SZFLAG_DRAW_X_OFFSET           = 0x0080,
+	SZFLAG_DRAW_Y_OFFSET           = 0x0100,
+	SZFLAG_DRAW_Z_OFFSET           = 0x0200, // Enemies only.
+	SZFLAG_ALL                     = 0x03FF,
+};
+
+enum ItemBurnIndex
+{
+	ITM_BURNSPR_NO_BURN,
+	ITM_BURNSPR_ANY_BURN,
+	ITM_BURNSPR_STRONG_BURN,
+	ITM_BURNSPR_MAGIC_BURN,
+	ITM_BURNSPR_DIVINE_BURN,
+	ITM_BURNSPR_MAX
 };
 
 enum ItemScriptRunMode

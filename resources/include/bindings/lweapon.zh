@@ -1,5 +1,50 @@
 #include "bindings/sprite.zh"
 
+// Player weapon types. Used with [Screen->CreateLWeapon].
+enum LWeaponType
+{
+	LW_SWORD                       = 1,  // This cannot be created.
+	LW_WAND                        = 12, // This cannot be created.
+	LW_CANDLE                      = 12, // This cannot be created.
+	LW_HAMMER                      = 19, // This cannot be created.
+	LW_HOOKSHOT                    = 20, // This cannot be created.
+	LW_CANEOFBYRNA                 = 27, // This cannot be created.
+	LW_BUGNET                      = 52, // This cannot be created.
+	LW_ARROW                       = 8,
+	LW_BEAM                        = 2,  // Sword beam.
+	LW_BRANG                       = 3,
+	LW_BOMB                        = 6,
+	LW_BOMBBLAST                   = 4,  // Bomb explosion.
+	LW_SBOMB                       = 7,
+	LW_SBOMBBLAST                  = 5,  // Super Bomb explosion.
+	LW_FIRE                        = 9,
+	LW_WHISTLE                     = 10, // Whistle music - kills Digdogger.
+	LW_BAIT                        = 11,
+	LW_MAGIC                       = 13, // Wand magic.
+	LW_WIND                        = 15, // Whistle whirlwind.
+	LW_REFMAGIC                    = 16, // Reflected wand magic.
+	LW_REFFIREBALL                 = 17, // Reflected fireball.
+	LW_REFROCK                     = 18, // Reflected rock.
+	LW_REFBEAM                     = 28, // Reflected sword beam.
+	LW_SPARKLE                     = 23,
+	LW_FIRESPARKLE                 = 24, // Damages enemies.
+	LW_SCRIPT1                     = 31, // Dummy weapon, for use with scripts.
+	LW_SCRIPT2                     = 32,
+	LW_SCRIPT3                     = 33,
+	LW_SCRIPT4                     = 34,
+	LW_SCRIPT5                     = 35,
+	LW_SCRIPT6                     = 36,
+	LW_SCRIPT7                     = 37,
+	LW_SCRIPT8                     = 38,
+	LW_SCRIPT9                     = 39,
+	LW_SCRIPT10                    = 40,
+	LW_ICE                         = 41, // Unimplemented.
+	LW_THROWN                      = 44,
+	LW_REFARROW                    = 53,
+	LW_REFFIRE                     = 54,
+	LW_REFFIRE2                    = 55,
+};
+
 // Weapons active on the screen from the hero. See [Screen->LoadLWeapon] and [Screen->CreateLWeapon].
 //
 // @zasm_ref REFLWPN

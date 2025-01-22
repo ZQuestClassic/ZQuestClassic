@@ -1,5 +1,35 @@
 #include "bindings/sprite.zh"
 
+// EWeapon types. Used with [Screen->CreateEWeapon] and [Screen->LoadEWeapon].
+enum EWeaponType
+{
+	EW_ARROW                       = 130,
+	EW_BRANG                       = 131,
+	EW_BEAM                        = 132, // Sword beam.
+	EW_ROCK                        = 133,
+	EW_MAGIC                       = 134,
+	EW_FIREBALL                    = 129,
+	EW_FIREBALL2                   = 145, // Arcing boss fireball.
+	EW_BOMB                        = 137, // Projectile bomb.
+	EW_BOMBBLAST                   = 135, // Bomb explosion.
+	EW_SBOMB                       = 138, // Projectile super bomb.
+	EW_SBOMBBLAST                  = 136, // Super bomb explosion.
+	EW_FIRETRAIL                   = 139,
+	EW_FIRE                        = 140,
+	EW_WIND                        = 141, // Wind wizzrobe magic.
+	EW_FIRE2                       = 142,
+	EW_SCRIPT1                     = 31,  // Dummy weapon, for use with scripts.
+	EW_SCRIPT2                     = 32,
+	EW_SCRIPT3                     = 33,
+	EW_SCRIPT4                     = 34,
+	EW_SCRIPT5                     = 35,
+	EW_SCRIPT6                     = 36,
+	EW_SCRIPT7                     = 37,
+	EW_SCRIPT8                     = 38,
+	EW_SCRIPT9                     = 39,
+	EW_SCRIPT10                    = 40,
+};
+
 // Weapons active on the screen from enemies. See [Screen->LoadEWeapon] and [Screen->CreateEWeapon].
 //
 // @zasm_ref REFEWPN

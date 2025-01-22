@@ -1,3 +1,13 @@
+enum SpriteDataFlag
+{
+	SPRFL_AUTOFLASH,
+	SPRFL_2PFLASH,
+	SPRFL_HFLIP,
+	SPRFL_VFLIP,
+	SPRFL_BEHIND,
+	NUM_SPRFL
+};
+
 // Represents animation `spritedata` found in the editor at `Quest->Graphics->Sprites->Sprite Data`.
 // Load with [Game->LoadSpriteData].
 //
