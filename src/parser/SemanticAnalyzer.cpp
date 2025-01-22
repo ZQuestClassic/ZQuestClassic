@@ -2146,9 +2146,7 @@ void SemanticAnalyzer::analyzeBinaryExpr(
 		if (breakRecursion(host)) return;
 	}
 
-	if ((leftIsBitflags || rightIsBitflags) &&
-		// TODO: would be nice to just do `leftTypeActual == rightTypeActual` but that's not true always. ex: using <cast> syntax.
-		static_cast<const DataTypeCustom*>(leftTypeActual)->getCustomId() != static_cast<const DataTypeCustom*>(rightTypeActual)->getCustomId())
+	if ((leftIsBitflags || rightIsBitflags) && *leftTypeActual->getMutType() != *rightTypeActual->getMutType())
 	{
 		handleError(CompileError::Error(&host, fmt::format("Binary operations on bitflags must be on the same type. Instead, got: {}, {}",
 			leftTypeActual->getMutType()->getName(), 

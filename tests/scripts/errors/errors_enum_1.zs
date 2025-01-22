@@ -8,6 +8,12 @@ enum AnimationBitflags
 	AF_CYCLEUNDERCOMBO,
 };
 
+@Bitflags("int")
+enum OtherBitflags
+{
+	F_A, F_B
+};
+
 enum HitIndex
 {
 	HIT_BY_NPC_ID,
@@ -39,10 +45,12 @@ void test()
 	// Error.
 	f2 = HIT_BY_NPC_ID;
 
-	AnimationBitflags f3 = AF_CYCLE | <AnimationBitflags>AF_FRESH;
+	AnimationBitflags f3 = AF_CYCLE | <AnimationBitflags>AF_FRESH | <const AnimationBitflags>AF_FRESH;
 	f3 = AF_CYCLE | <AnimationBitflags>(1);
 	// Error.
-	f3 = AF_CYCLE | <E::SomeBitflags>(1);
+	f3 = AF_CYCLE | <OtherBitflags>(1);
+	// Error.
+	f3 = AF_CYCLE | <const OtherBitflags>(1);
 
 	auto x = HIT_BY_NPC_ID | HIT_BY_NPC_ID;
 	// Error: Cannot cast from bitmap to int. Just showing that above resolved to int, not the enum.
