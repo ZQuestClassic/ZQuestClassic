@@ -1,0 +1,222 @@
+stderr:
+
+Compiling 'errors_enum.zs'
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+errors_enum.zs Line 27 @ Columns 2-20 - Error T017: Cannot cast from const HitIndex to AnimationBitflags.
+
+25    f1 = ~f1|f1&AF_FRESH;
+26    // Error.
+27    f1 = HIT_BY_NPC_ID;
+      ^~~~~~~~~~~~~~~~~~
+
+
+errors_enum.zs Line 29 @ Columns 2-26 - Error T017: Cannot cast from int to AnimationBitflags.
+
+27    f1 = HIT_BY_NPC_ID;
+28    // Error.
+29    f1 = AF_FRESH * AF_CYCLE;
+      ^~~~~~~~~~~~~~~~~~~~~~~~
+
+
+errors_enum.zs Line 31 @ Columns 7-31 - Error S109: Binary operations on bitflags must be on the same type. Instead, got: AnimationBitflags, HitIndex
+
+29    f1 = AF_FRESH * AF_CYCLE;
+30    // Error.
+31    f1 = AF_FRESH | HIT_BY_NPC_ID;
+           ^~~~~~~~~~~~~~~~~~~~~~~~
+
+
+errors_enum.zs Line 33 @ Columns 7-31 - Error S109: Binary operations on bitflags must be on the same type. Instead, got: AnimationBitflags, HitIndex
+
+31    f1 = AF_FRESH | HIT_BY_NPC_ID;
+32    // Error.
+33    f1 = AF_FRESH + HIT_BY_NPC_ID;
+           ^~~~~~~~~~~~~~~~~~~~~~~~
+
+
+errors_enum.zs Line 35 @ Columns 8-21 - Error S109: Binary operations on bitflags must be on the same type. Instead, got: AnimationBitflags, HitIndex
+
+33    f1 = AF_FRESH + HIT_BY_NPC_ID;
+34    // Error.
+35    f1 += HIT_BY_NPC_ID;
+            ^~~~~~~~~~~~~
+
+
+errors_enum.zs Line 40 @ Columns 2-20 - Error T017: Cannot cast from const HitIndex to AnimationBitflags.
+
+38    f2 |= AF_FRESH;
+39    // Error.
+40    f2 = HIT_BY_NPC_ID;
+      ^~~~~~~~~~~~~~~~~~
+
+
+errors_enum.zs Line 45 @ Columns 18-38 - Error T047: Type SomeBitflags has not been declared.
+
+43    f3 = AF_CYCLE | <AnimationBitflags>(1);
+44    // Error.
+45    f3 = AF_CYCLE | <E::SomeBitflags>(1);
+                      ^~~~~~~~~~~~~~~~~~~~
+
+
+errors_enum.zs Line 49 @ Columns 2-18 - Error T017: Cannot cast from bitmap to int.
+
+47    auto x = HIT_BY_NPC_ID | HIT_BY_NPC_ID;
+48    // Error: Cannot cast from bitmap to int. Just showing that above resolved to int, not the enum.
+49    x = new bitmap();
+      ^~~~~~~~~~~~~~~~
+
+
+errors_enum.zs Line 53 @ Columns 2-7 - Error T017: Cannot cast from bitmap to int.
+
+51    bitmap b;
+52    // Error.
+53    b | b;
+      ^~~~~
+
+
+Failure!
+Compile finished with exit code '17' (compiled with errors)
+
+stdout:
+
+{
+  "success": false,
+  "code": 17,
+  "diagnostics": [
+    {
+      "range": {
+        "start": {
+          "line": 26,
+          "character": 1
+        },
+        "end": {
+          "line": 26,
+          "character": 19
+        }
+      },
+      "severity": 1,
+      "message": "T017: Cannot cast from const HitIndex to AnimationBitflags."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 28,
+          "character": 1
+        },
+        "end": {
+          "line": 28,
+          "character": 25
+        }
+      },
+      "severity": 1,
+      "message": "T017: Cannot cast from int to AnimationBitflags."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 30,
+          "character": 6
+        },
+        "end": {
+          "line": 30,
+          "character": 30
+        }
+      },
+      "severity": 1,
+      "message": "S109: Binary operations on bitflags must be on the same type. Instead, got: AnimationBitflags, HitIndex"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 32,
+          "character": 6
+        },
+        "end": {
+          "line": 32,
+          "character": 30
+        }
+      },
+      "severity": 1,
+      "message": "S109: Binary operations on bitflags must be on the same type. Instead, got: AnimationBitflags, HitIndex"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 34,
+          "character": 7
+        },
+        "end": {
+          "line": 34,
+          "character": 20
+        }
+      },
+      "severity": 1,
+      "message": "S109: Binary operations on bitflags must be on the same type. Instead, got: AnimationBitflags, HitIndex"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 39,
+          "character": 1
+        },
+        "end": {
+          "line": 39,
+          "character": 19
+        }
+      },
+      "severity": 1,
+      "message": "T017: Cannot cast from const HitIndex to AnimationBitflags."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 44,
+          "character": 17
+        },
+        "end": {
+          "line": 44,
+          "character": 37
+        }
+      },
+      "severity": 1,
+      "message": "T047: Type SomeBitflags has not been declared."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 48,
+          "character": 1
+        },
+        "end": {
+          "line": 48,
+          "character": 17
+        }
+      },
+      "severity": 1,
+      "message": "T017: Cannot cast from bitmap to int."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 52,
+          "character": 1
+        },
+        "end": {
+          "line": 52,
+          "character": 6
+        }
+      },
+      "severity": 1,
+      "message": "T017: Cannot cast from bitmap to int."
+    }
+  ],
+  "metadata": {
+    "currentFileSymbols": 14,
+    "symbols": 13,
+    "identifiers": 62,
+    "elided": true
+  }
+}

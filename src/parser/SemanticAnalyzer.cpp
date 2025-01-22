@@ -2110,14 +2110,50 @@ void SemanticAnalyzer::analyzeBinaryExpr(
 		ASTBinaryExpr& host, DataType const& leftType,
 		DataType const& rightType)
 {
+	if (!host.supportsBitflags())
+	{
+		visit(host.left.get());
+		if (breakRecursion(host)) return;
+		checkCast(*host.left->getReadType(scope, this), leftType, &host);
+		if (breakRecursion(host)) return;
+
+		visit(host.right.get());
+		if (breakRecursion(host)) return;
+		checkCast(*host.right->getReadType(scope, this), rightType, &host);
+		
+		return;
+	}
+
 	visit(host.left.get());
 	if (breakRecursion(host)) return;
-	checkCast(*host.left->getReadType(scope, this), leftType, &host);
-	if (breakRecursion(host)) return;
+
+	auto leftTypeActual = host.left->getReadType(scope, this);
+	bool leftIsBitflags = leftTypeActual->isBitflagsEnum();
+	if (!leftIsBitflags)
+	{
+		checkCast(*leftTypeActual, leftType, &host);
+		if (breakRecursion(host)) return;
+	}
 
 	visit(host.right.get());
 	if (breakRecursion(host)) return;
-	checkCast(*host.right->getReadType(scope, this), rightType, &host);
-	if (breakRecursion(host)) return;
+
+	auto rightTypeActual = host.right->getReadType(scope, this);
+	bool rightIsBitflags = leftTypeActual->isBitflagsEnum();
+	if (!rightIsBitflags)
+	{
+		checkCast(*rightTypeActual, rightType, &host);
+		if (breakRecursion(host)) return;
+	}
+
+	if ((leftIsBitflags || rightIsBitflags) &&
+		// TODO: would be nice to just do `leftTypeActual == rightTypeActual` but that's not true always. ex: using <cast> syntax.
+		static_cast<const DataTypeCustom*>(leftTypeActual)->getCustomId() != static_cast<const DataTypeCustom*>(rightTypeActual)->getCustomId())
+	{
+		handleError(CompileError::Error(&host, fmt::format("Binary operations on bitflags must be on the same type. Instead, got: {}, {}",
+			leftTypeActual->getMutType()->getName(), 
+			rightTypeActual->getMutType()->getName())));
+		return;
+	}
 }
 

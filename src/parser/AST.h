@@ -1050,7 +1050,7 @@ namespace ZScript
 		bool readonly;
 		bool internal;
 
-	private:
+	protected:
 		// The list of individual data declarations.
 		owning_vector<ASTDataDecl> declarations_;
 	};
@@ -1557,7 +1557,8 @@ namespace ZScript
 				CompileErrorHandler* errorHandler, Scope* scope);
 		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler)
 		{
-			if(operand->isLong(scope, errorHandler))
+			auto type = operand->getReadType(scope, errorHandler);
+			if (type->isLong())
 				return &DataType::LONG;
 			return &DataType::FLOAT;
 		}
@@ -1597,7 +1598,10 @@ namespace ZScript
 				CompileErrorHandler* errorHandler, Scope* scope);
 		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler)
 		{
-			if(operand->isLong(scope, errorHandler))
+			auto type = operand->getReadType(scope, errorHandler);
+			if (type->isBitflagsEnum())
+				return type;
+			if (type->isLong())
 				return &DataType::LONG;
 			return &DataType::FLOAT;
 		}
@@ -1673,11 +1677,21 @@ namespace ZScript
 		ASTBinaryExpr(ASTExpr* left = NULL,
 		              ASTExpr* right = NULL,
 		              LocationData const& location = LOC_NONE);
+		virtual bool supportsBitflags() {return false;}
 		virtual ASTBinaryExpr* clone() const = 0;
 
 		bool isConstant() const;
 		bool isLiteral() const {return left && left->isLiteral() && right && right->isLiteral();}
 		virtual bool isTempVal() const {return (left && left->isTempVal()) || (right && right->isTempVal());}
+
+		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler)
+		{
+			auto leftType = left->getReadType(scope, errorHandler);
+			auto rightType = right->getReadType(scope, errorHandler);
+			if (leftType->isBitflagsEnum() || rightType->isBitflagsEnum())
+				return leftType;
+			return NULL;
+		}
 
 		owning_ptr<ASTExpr> left;
 		owning_ptr<ASTExpr> right;
@@ -1862,11 +1876,16 @@ namespace ZScript
 		ASTAddExpr(ASTExpr* left = NULL,
 		           ASTExpr* right = NULL,
 		           LocationData const& location = LOC_NONE);
+		virtual bool supportsBitflags() {return true;}
 		virtual ASTAddExpr* clone() const = 0;
 
 		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler)
 		{
-			if(left->isLong(scope, errorHandler) || right->isLong(scope, errorHandler))
+			auto leftType = left->getReadType(scope, errorHandler);
+			auto rightType = right->getReadType(scope, errorHandler);
+			if (leftType->isBitflagsEnum() || rightType->isBitflagsEnum())
+				return leftType;
+			if (leftType->isLong() || rightType->isLong())
 				return &DataType::LONG;
 			return &DataType::FLOAT;
 		}
@@ -1985,7 +2004,11 @@ namespace ZScript
 
 		virtual DataType const* getReadType(Scope* scope, CompileErrorHandler* errorHandler)
 		{
-			if(left->isLong(scope, errorHandler) || right->isLong(scope, errorHandler))
+			auto leftType = left->getReadType(scope, errorHandler);
+			auto rightType = right->getReadType(scope, errorHandler);
+			if (leftType->isBitflagsEnum() || rightType->isBitflagsEnum())
+				return leftType;
+			if (leftType->isLong() || rightType->isLong())
 				return &DataType::LONG;
 			return &DataType::FLOAT;
 		}
@@ -1997,6 +2020,7 @@ namespace ZScript
 	public:
 		ASTExprBitAnd(ASTExpr* left = NULL, ASTExpr* right = NULL,
 		              LocationData const& location = LOC_NONE);
+		virtual bool supportsBitflags() {return true;}
 		ASTExprBitAnd* clone() const {return new ASTExprBitAnd(*this);}
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
@@ -2011,6 +2035,7 @@ namespace ZScript
 		ASTExprBitOr(ASTExpr* left = NULL, ASTExpr* right = NULL,
 		             LocationData const& location = LOC_NONE);
 		ASTExprBitOr* clone() const {return new ASTExprBitOr(*this);}
+		virtual bool supportsBitflags() {return true;}
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
@@ -2024,6 +2049,7 @@ namespace ZScript
 		ASTExprBitXor(ASTExpr* left = NULL, ASTExpr* right = NULL,
 		              LocationData const& location = LOC_NONE);
 		ASTExprBitXor* clone() const {return new ASTExprBitXor(*this);}
+		virtual bool supportsBitflags() {return true;}
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
