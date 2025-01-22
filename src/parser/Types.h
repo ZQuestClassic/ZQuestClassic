@@ -240,6 +240,8 @@ namespace ZScript
 		virtual bool isVoid() const {return false;}
 		virtual bool isAuto() const {return false;}
 		virtual bool isCustom() const {return false;}
+		virtual bool isEnum() const {return false;}
+		virtual bool isBitflagsEnum() const {return false;}
 		virtual bool isUsrClass() const {return false;}
 		virtual bool isLong() const {return false;}
 		virtual bool isTemplate() const {return false;}
@@ -421,6 +423,9 @@ namespace ZScript
 		
 		virtual bool isConstant() const {return false;}
 		virtual bool isCustom() const {return true;}
+		virtual bool isEnum() const;
+		virtual bool isBitflagsEnum() const;
+		virtual bool isLong() const;
 		virtual bool isUsrClass() const {return user_class != nullptr;}
 		virtual bool canBeGlobal() const {return true;}
 		virtual bool canHoldObject() const;

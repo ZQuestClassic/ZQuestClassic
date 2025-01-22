@@ -1566,7 +1566,7 @@ void ASTDataTypeDef::execute(ASTVisitor& visitor, void* param)
 	visitor.caseDataTypeDef(*this, param);
 }
 
-//ASTCustomDataTypeDef
+//ASTCustomDataTypeDef - aka enums.
 
 ASTCustomDataTypeDef::ASTCustomDataTypeDef(
 		ASTDataType* type, ASTString* identifier, ASTDataEnum* defn,

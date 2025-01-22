@@ -1,0 +1,244 @@
+stderr:
+
+Compiling 'errors_enum_1.zs'
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+errors_enum_1.zs Line 33 @ Columns 2-20 - Error T017: Cannot cast from const HitIndex to AnimationBitflags.
+
+31    f1 = ~f1|f1&AF_FRESH;
+32    // Error.
+33    f1 = HIT_BY_NPC_ID;
+      ^~~~~~~~~~~~~~~~~~
+
+
+errors_enum_1.zs Line 35 @ Columns 2-26 - Error T017: Cannot cast from int to AnimationBitflags.
+
+33    f1 = HIT_BY_NPC_ID;
+34    // Error.
+35    f1 = AF_FRESH * AF_CYCLE;
+      ^~~~~~~~~~~~~~~~~~~~~~~~
+
+
+errors_enum_1.zs Line 37 @ Columns 7-31 - Error S109: Binary operations on bitflags must be on the same type. Instead, got: AnimationBitflags, HitIndex
+
+35    f1 = AF_FRESH * AF_CYCLE;
+36    // Error.
+37    f1 = AF_FRESH | HIT_BY_NPC_ID;
+           ^~~~~~~~~~~~~~~~~~~~~~~~
+
+
+errors_enum_1.zs Line 39 @ Columns 7-31 - Error S109: Binary operations on bitflags must be on the same type. Instead, got: AnimationBitflags, HitIndex
+
+37    f1 = AF_FRESH | HIT_BY_NPC_ID;
+38    // Error.
+39    f1 = AF_FRESH + HIT_BY_NPC_ID;
+           ^~~~~~~~~~~~~~~~~~~~~~~~
+
+
+errors_enum_1.zs Line 41 @ Columns 8-21 - Error S109: Binary operations on bitflags must be on the same type. Instead, got: AnimationBitflags, HitIndex
+
+39    f1 = AF_FRESH + HIT_BY_NPC_ID;
+40    // Error.
+41    f1 += HIT_BY_NPC_ID;
+            ^~~~~~~~~~~~~
+
+
+errors_enum_1.zs Line 46 @ Columns 2-20 - Error T017: Cannot cast from const HitIndex to AnimationBitflags.
+
+44    f2 |= AF_FRESH;
+45    // Error.
+46    f2 = HIT_BY_NPC_ID;
+      ^~~~~~~~~~~~~~~~~~
+
+
+errors_enum_1.zs Line 51 @ Columns 7-36 - Error S109: Binary operations on bitflags must be on the same type. Instead, got: AnimationBitflags, OtherBitflags
+
+49    f3 = AF_CYCLE | <AnimationBitflags>(1);
+50    // Error.
+51    f3 = AF_CYCLE | <OtherBitflags>(1);
+           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+errors_enum_1.zs Line 53 @ Columns 7-42 - Error S109: Binary operations on bitflags must be on the same type. Instead, got: AnimationBitflags, OtherBitflags
+
+51    f3 = AF_CYCLE | <OtherBitflags>(1);
+52    // Error.
+53    f3 = AF_CYCLE | <const OtherBitflags>(1);
+           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+errors_enum_1.zs Line 57 @ Columns 2-18 - Error T017: Cannot cast from bitmap to int.
+
+55    auto x = HIT_BY_NPC_ID | HIT_BY_NPC_ID;
+56    // Error: Cannot cast from bitmap to int. Just showing that above resolved to int, not the enum.
+57    x = new bitmap();
+      ^~~~~~~~~~~~~~~~
+
+
+errors_enum_1.zs Line 61 @ Columns 2-7 - Error T017: Cannot cast from bitmap to int.
+
+59    bitmap b;
+60    // Error.
+61    b | b;
+      ^~~~~
+
+
+Failure!
+Compile finished with exit code '17' (compiled with errors)
+
+stdout:
+
+{
+  "success": false,
+  "code": 17,
+  "diagnostics": [
+    {
+      "range": {
+        "start": {
+          "line": 32,
+          "character": 1
+        },
+        "end": {
+          "line": 32,
+          "character": 19
+        }
+      },
+      "severity": 1,
+      "message": "T017: Cannot cast from const HitIndex to AnimationBitflags."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 34,
+          "character": 1
+        },
+        "end": {
+          "line": 34,
+          "character": 25
+        }
+      },
+      "severity": 1,
+      "message": "T017: Cannot cast from int to AnimationBitflags."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 36,
+          "character": 6
+        },
+        "end": {
+          "line": 36,
+          "character": 30
+        }
+      },
+      "severity": 1,
+      "message": "S109: Binary operations on bitflags must be on the same type. Instead, got: AnimationBitflags, HitIndex"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 38,
+          "character": 6
+        },
+        "end": {
+          "line": 38,
+          "character": 30
+        }
+      },
+      "severity": 1,
+      "message": "S109: Binary operations on bitflags must be on the same type. Instead, got: AnimationBitflags, HitIndex"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 40,
+          "character": 7
+        },
+        "end": {
+          "line": 40,
+          "character": 20
+        }
+      },
+      "severity": 1,
+      "message": "S109: Binary operations on bitflags must be on the same type. Instead, got: AnimationBitflags, HitIndex"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 45,
+          "character": 1
+        },
+        "end": {
+          "line": 45,
+          "character": 19
+        }
+      },
+      "severity": 1,
+      "message": "T017: Cannot cast from const HitIndex to AnimationBitflags."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 50,
+          "character": 6
+        },
+        "end": {
+          "line": 50,
+          "character": 35
+        }
+      },
+      "severity": 1,
+      "message": "S109: Binary operations on bitflags must be on the same type. Instead, got: AnimationBitflags, OtherBitflags"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 52,
+          "character": 6
+        },
+        "end": {
+          "line": 52,
+          "character": 41
+        }
+      },
+      "severity": 1,
+      "message": "S109: Binary operations on bitflags must be on the same type. Instead, got: AnimationBitflags, OtherBitflags"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 56,
+          "character": 1
+        },
+        "end": {
+          "line": 56,
+          "character": 17
+        }
+      },
+      "severity": 1,
+      "message": "T017: Cannot cast from bitmap to int."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 60,
+          "character": 1
+        },
+        "end": {
+          "line": 60,
+          "character": 6
+        }
+      },
+      "severity": 1,
+      "message": "T017: Cannot cast from bitmap to int."
+    }
+  ],
+  "metadata": {
+    "currentFileSymbols": 17,
+    "symbols": 14,
+    "identifiers": 66,
+    "elided": true
+  }
+}
