@@ -932,17 +932,8 @@ hljs.configure({
 	languageDetectRe: /\b(?:inline(?=zs\b)|custom(?=zs\b)|language-)([\w-]+)\b/,
 	ignoreUnescapedHTML: true,
 	languages: ['zs', 'zs-body'],
-	noHighlightRe: /nohighlight/
-});
-
-// docs-www/source/extensions/zscript.py already emits code to run hljs
-// right away (to prevent a short flash of unstylized content) - but just
-// in case, run this too.
-hljs.highlightAll();
-
-// handle single-quote code
-hljs.configure({
+	noHighlightRe: /nohighlight/,
 	cssSelector: 'code.inlinezs'
 });
-hljs.highlightAll();
 
+hljs.highlightAll();

@@ -6,8 +6,8 @@ Comments
 Anything inside a comment is ignored by the compiler. There are two styles
 of comment in ZScript:
 
-* Line comments - Every on a line after `//`
-* Block comments - Every between `/*` and :zs_cmnt:`*/`, including across multiple lines
+* Line comments - Everything on a line after `//`
+* Block comments - Everything between `/*` and :zs_cmnt:`*/`, including across multiple lines
 
 For example:
 
