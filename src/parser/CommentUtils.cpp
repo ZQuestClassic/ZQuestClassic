@@ -92,7 +92,8 @@ std::vector<ParseCommentResult> parseForSymbolLinks(std::string comment, const A
 			if((*it)[2].matched)
 				link_text = (*it)[2].str();
 		}
-		matches.emplace_back(symbol_name, (int)pos, (int)len, link_text, nullptr);
+		ParseCommentResult match{symbol_name, (int)pos, (int)len, link_text, nullptr};
+		matches.emplace_back(match);
 		it++;
 	}
 
