@@ -76,7 +76,7 @@ Standard Options
 	|                                    |                  |                       | after it encounters an error. If off, it stops after one error. |
 	+------------------------------------+------------------+-----------------------+-----------------------------------------------------------------+
 	| APPROX_EQUAL_MARGIN                | `0.0100`         | numbers in `float`    | The `~~` (approximately equal) operator will return `true` if   |
-	|                                    |                  | range                 | the difference between it's operands is `<=` this value.        |
+	|                                    |                  | range                 | the difference between its operands is `<=` this value.         |
 	+------------------------------------+------------------+-----------------------+-----------------------------------------------------------------+
 	| STRING_SWITCH_CASE_INSENSITIVE     | :zs_kw:`off`     | |onoff|               | If enabled, :ref:`switch statements using strings<switch_strs>` |
 	|                                    |                  |                       | will match the strings case-insensitively.                      |

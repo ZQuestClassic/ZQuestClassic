@@ -7,7 +7,7 @@ Variables
 ---------
 
 To declare a ``variable``, you first specify what :ref:`type<types>`
-it will be, then an identifier for it's name, then optionally
+it will be, then an identifier for its name, then optionally
 an initializer to give it a starting value. Finally, you can
 list multiple variables in a single declaration as a
 comma-delimited list.
@@ -36,7 +36,7 @@ Declaring a ``constant`` is extremely similar to declaring a
 'type' being `const`. Important notes about constants:
 
 - A constant must have an initializer; without one, it will compile error.
-- A constant's value cannot be modified after it's initializer.
+- A constant's value cannot be modified after its initializer.
 - If the entire initializer expression is "compile-time constant", then the value of the constant is also "compile-time constant"
 
 .. _compiletime_const:

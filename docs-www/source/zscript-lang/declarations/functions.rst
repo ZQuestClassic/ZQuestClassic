@@ -36,7 +36,7 @@ using values set in the editor for the `parameter` values.
 In the above example, the `double` function is defined, taking a single `int`
 parameter, and returning an `int` value. The `global script Active` then calls
 the internal function :ref:`Trace<globals_fun_trace>` 3 times, each time
-giving it the return value of a call to the `double` function as it's parameter
+giving it the return value of a call to the `double` function as its parameter
 (each time with a different number given to the `double` function).
 
 .. warning::
@@ -60,7 +60,7 @@ Remote Declaration
 You can declare functions in *remote* scopes by using an "identifier list"
 instead of a single "identifier"- both of the following examples are identical.
 
-.. grid:: 2 2 2 2
+.. grid:: 1 1 2 2
 
 	.. grid-item::
 
@@ -89,7 +89,7 @@ Optional Parameters
 -------------------
 
 You can give function parameters a |ctc| initializer, to make them 'optional'.
-If a function is called without some of it's optional parameters, they will
+If a function is called without some of its optional parameters, they will
 automatically use the default value provided instead. No non-optional
 parameters may appear after an optional parameter.
 
@@ -276,7 +276,7 @@ You could also use these the other way- have some function prototype declared
 that is part of your script, meant for sharing with others for use in their
 various quests- and then each of them can define a body for the function
 if they so desire, specifically tailored to their individual quest.
-(Tango.zh did something similar to this with it's 'screen freeze' functions,
+(Tango.zh did something similar to this with its 'screen freeze' functions,
 although it required you edit the actual tango file to edit the function,
 as that was written before prototype functions were implemented)
 

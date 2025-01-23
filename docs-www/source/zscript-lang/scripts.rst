@@ -3,15 +3,14 @@ Scripts
 
 .. _zslang_scripts:
 
-What is a 'script'?
--------------------
+What is a script?
+-----------------
 
-Scripts are the foundation of ZScript. You cannot do anything in ZScript, without
-having a script. Every script will have a `void run()` function, which has a set
-maximum number of allowed parameters based on the script's type, that acts
-as the 'entry point' of the code. Each script type runs it's scripts based on
-different things occurring in the engine- for example, an `npc script` runs
-when an `npc` (an enemy) is alive.
+Scripts are the foundation of ZScript. You cannot do anything in ZScript without
+scripts. Every script has a `void run()` function, the entry point for the script.
+
+Each script type runs its scripts based on different things occurring in the engine -
+for example, an `npc script` runs when an `npc` (an enemy) is alive.
 
 .. style:: h2
 

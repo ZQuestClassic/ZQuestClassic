@@ -3,14 +3,13 @@
 Comments
 --------
 
-ZScript supports both styles of commenting from C++. Anything inside
-a comment is mostly ignored by the compiler.
+Anything inside a comment is ignored by the compiler. There are two styles
+of comment in ZScript:
 
-Anywhere (outside of other comments) that `//` appears, everything
-on the rest of that line is considered a "line comment".
+* Line comments - Every on a line after `//`
+* Block comments - Every between `/*` and :zs_cmnt:`*/`, including across multiple lines
 
-Anywhere (outside of other comments) that `/*` appears, a "block comment"
-starts, continuing until the next :zs_cmnt:`*/` is encountered.
+For example:
 
 .. zscript::
 
@@ -25,9 +24,9 @@ starts, continuing until the next :zs_cmnt:`*/` is encountered.
 Documentation Comments
 ----------------------
 
-Placing a comment next to certain symbols acts as 'documentation'
-for the comment. This text can be displayed when hovering over
-matching symbols in |VSCode|.
+Comments next to most symbols (anything with an identifier) act as documentation
+for that symbol. The text within such comments are displayed to users of the
+|VSCode| extension.
 
 These documentation comments are also used to generate web documentation,
 such as the documentation available :ref:`on this page<zsdoc_index>`.
@@ -37,8 +36,10 @@ though a comment at the end of the same line as it also works most of the time.
 
 .. zscript::
 
-	/* Represents a basic rectangle, and can be
-	   used to draw it to the screen */
+	/*
+		Represents a basic rectangle, and can be
+		used to draw it to the screen.
+	*/
 	class Rectangle
 	{
 		int x, y;

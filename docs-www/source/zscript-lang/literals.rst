@@ -13,7 +13,7 @@ Primitive literals hold simple data of :ref:`primitive data types<types_prim>`.
 Boolean
 ^^^^^^^
 
-Booleans only have 2 values, each of which has it's own literal: `true` and `false`.
+Booleans only have 2 values, each of which has its own literal: `true` and `false`.
 
 Numbers
 ^^^^^^^

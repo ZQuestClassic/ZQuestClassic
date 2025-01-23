@@ -1,7 +1,7 @@
 Arrays / Strings
 ================
 
-Arrays are a type of variable that stores multiple values.
+Arrays store multiple values in one variable.
 
 Declaring Arrays
 ----------------
@@ -9,7 +9,7 @@ Declaring Arrays
 To declare a new array, you declare it as you would a variable, with `[]` included
 after the variable name. You can either specify the size of the array as a |ctc|
 inside the `[]`, or you can allow it to automatically determine the size based
-on it's initializer. You can also specify the `[]` as part of the variable type,
+on its initializer. You can also specify the `[]` as part of the variable type,
 although if you do this, you cannot specify a size between them.
 
 The ``type`` of the array will be an *array type*- unique from the normal type.
@@ -168,7 +168,7 @@ Also, adjacent strings are automatically merged by the compiler. Ex:
 	// prints 'This is a string split across multiple lines!'
 
 A string literal creates what is known as a ``temporary value``, which cannot be
-stored in a variable- it's primary purpose is to pass directly into functions.
+stored in a variable- its primary purpose is to pass directly into functions.
 However, a string literal can also be used as the initializer for a `char32` array,
 which does store it for longer-term use.
 

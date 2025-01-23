@@ -3,7 +3,7 @@
 For Loops
 ---------
 
-A basic `for` loop is made of 4 parts; the declaration, the condition, the increment, and the body.
+A basic `for` loop is made of 4 parts: the declaration, the condition, the increment, and the body.
 The condition and the body function much the same as :ref:`while<stmt_while>` loops.
 The declaration allows declaring a new variable, or list of variables.
 The increment allows a statement, or comma-delimited list of statements.

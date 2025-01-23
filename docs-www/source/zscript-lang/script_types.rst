@@ -153,9 +153,9 @@ Itemdata Scripts
 	:initd: 8
 	:initd_str: (Shared with the item's Pickup and Sprite scripts)
 
-	Runs when the item it's attached to via the Item Editor is used by the
+	Runs when the item its attached to via the Item Editor is used by the
 	Hero. It continues to run until it exits, and the item cannot be used
-	again while it's script still runs.
+	again while its script still runs.
 
 	Incompatible with Itemdata Passive Scripts.
 

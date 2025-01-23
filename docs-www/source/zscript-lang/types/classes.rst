@@ -48,7 +48,7 @@ Allocating Objects
 
 .. _classobj_alloc:
 
-To create an instance of an object, you call it's constructor function using the `new` keyword\ [#new]_\ .
+To create an instance of an object, you call its constructor function using the `new` keyword\ [#new]_\ .
 A pointer to the object, whose type is *the class itself*, will be returned.
 
 .. admonition:: Limits

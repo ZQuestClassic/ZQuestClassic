@@ -2,7 +2,7 @@ Object Memory Management
 ========================
 
 .. |GlobalObject| replace:: :ref:`GlobalObject<globals_fun_globalobject>`
-.. |OwnObject| replace:: :ref:`OwnObject<classes_sprite_fun_ownobject>`
+.. |OwnObject| replace:: :ref:`OwnObject<globals_fun_ownobject>`
 
 .. _gc:
 
@@ -34,8 +34,8 @@ The following types are objects that are tracked by the garbage collector:
 
 Note: there are other object types, but they are never explicitly created or deleted by scripts.
 
-How it's managed
-----------------
+How it works
+------------
 
 The ZScript garbage collector has two ways for knowing when to delete objects:
 

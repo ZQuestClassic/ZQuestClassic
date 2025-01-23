@@ -133,7 +133,7 @@ such as setting up an error in a script you intend others to use, which
 triggers if they have something set up incorrectly.
 
 This is done using the `CONST_ASSERT()` directive, which as the name might
-imply, relies on |ctc|\ s. It requires a |ctc| boolean expression as it's
+imply, relies on |ctc|\ s. It requires a |ctc| boolean expression as its
 first parameter. It can optionally take a string literal as a second
 parameter, which will be output as part of the error message.
 

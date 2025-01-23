@@ -24,6 +24,6 @@ returned by the operator, `++x` will read the value **AFTER** it goes up by 1, a
 
 .. note::
 	One of the most common places you'll see these operators,
-	is in the `increment` segment of a :ref:`for loop<stmt_for>`.
-	When it is used in such a place, the operator's "return value" is generally completely ignored.
-	As the return value is the only difference, it does not truly matter which you use in such a case.
+	is in the `increment` part of a :ref:`for loop<stmt_for>`.
+	When it is there, generally the operator's "return value" is ignored, so
+	it does not matter which you use.

@@ -10,12 +10,13 @@ Namespaces
 Basic Use
 ^^^^^^^^^
 
-Namespaces can be used to separate symbols into named groups. This is useful, for example,
+Namespaces are used to separate symbols into separate scopes, allowing the same identifier to be used
+in multiple contexts without a naming conflict. This is useful, for example,
 to ensure that a function in one script can co-exist with another script that has a function
 with the same name and type signature.
 
-When calling a function\ [#func_iden]_\ , it will search for a matching function signature starting
-in whatever namespace you are currently in. Then, if it doesn't find it, it looks at the next
+When calling a function\ [#func_iden]_\ , the compiler searches for a matching function signature starting
+in the current namespace. If it doesn't find any, it looks at the next
 namespace up (either another one you've declared, as you can declare namespaces inside
 namespaces, or the 'global namespace', i.e. everything that isn't inside a namespace).
 
@@ -24,8 +25,7 @@ divided by the |scoperes|. It will still search in the same pattern, starting fr
 current namespace and moving up- but instead of looking for the function name, it looks
 for the whole *path* that you specified exactly.
 
-To specify that you want to specifically use the version of something that is NOT in a namespace,
-you can simply use an empty name - i.e. begin the name with the |scoperes|.
+To specify a symbol that is NOT in a namespace, you can simply use an empty name - i.e. begin the name with the |scoperes|.
 
 .. tab-set::
 
@@ -129,7 +129,7 @@ Across Files
 Unlike things like functions, variables, classes, etc., you can declare a namespace
 with an already-existing name. The scopes of these namespaces will be *merged* with
 each other. A key example of this would be a script header file, which might put ALL
-of it's code in a namespace- but might have more than one file. The same namespace can
+of its code in a namespace- but might have more than one file. The same namespace can
 simply be declared in each file, and it all functions as "one namespace".
 
 Nested Declaration
@@ -140,7 +140,7 @@ but can instead contain an entire identifier list including |scoperes|.
 This can be used to declare multiple namespaces at once, and can be particularly useful
 for merging something with a namespace in another file.
 
-.. grid:: 2 2 2 2
+.. grid:: 1 1 2 2
 
 	.. grid-item::
 
