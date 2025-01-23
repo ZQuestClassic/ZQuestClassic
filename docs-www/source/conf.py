@@ -19,7 +19,7 @@ author = "ZQuest Classic Developers"
 extensions = ['zscript', 'sphinx_design']
 
 templates_path = ["_templates"]
-exclude_patterns = []
+exclude_patterns = ['tutorials/rst_example.rst']
 
 html_theme = "pydata_sphinx_theme"
 html_static_path = ["_static"]
