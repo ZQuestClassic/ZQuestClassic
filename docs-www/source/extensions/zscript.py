@@ -3,13 +3,20 @@ import urllib
 
 from docutils import nodes
 from docutils.parsers.rst import Directive
-from docutils.parsers.rst.directives import choice, flag, nonnegative_int, unchanged, unchanged_required
+from docutils.parsers.rst.directives import (
+    choice,
+    flag,
+    nonnegative_int,
+    unchanged,
+    unchanged_required,
+)
 from docutils.parsers.rst.directives.admonitions import BaseAdmonition
 from sphinx import addnodes
 from sphinx.application import Sphinx
 from sphinx.locale import _
 from sphinx.util.docutils import SphinxDirective, SphinxTranslator
 from sphinx.util.typing import ExtensionMetadata
+
 
 def code_style_options(arg: str):
     return choice(arg, ('plain','file','body'))
@@ -126,8 +133,9 @@ class TodoDirective(BaseAdmonition, SphinxDirective):
         self.set_source_info(node)
         self.state.document.note_explicit_target(node)
         
-        if not 'nowarn' in self.options:
-            self.reporter.warning(f'{title}: {"\n".join(self.content)}')
+        if 'nowarn' not in self.options:
+            content = '\n'.join(self.content)
+            self.reporter.warning(f'{title}: {content}')
         return [node]
 
 class PlansNode(AdmonitionNode):
