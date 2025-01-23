@@ -140,3 +140,37 @@ unfamiliar with, as you may run into issues with the function not handling
 	:style: body
 
 	give_item(<ItemID>91); // works!
+
+
+Enum bitflags
+-------------
+
+The `@Bitflags` annotation turns an enum into a bitflags enum, which has two consequences:
+
+1. Auto-incrementing values starting at 1 and doubling the previous for
+   each new enum member
+2. For type safety, bitwise operations on enum bitflags are only allowed
+   with the same type
+
+For example:
+
+.. zscript::
+	@Bitflags("int") // "long" is also supported
+	enum SomeBitflags
+	{
+		Fast,   // 1
+		Big,    // 2
+		Loud,   // 4
+	};
+
+	@Bitflags("int")
+	enum OtherBitflags
+	{
+		Combo,  // 1
+		Enemy,  // 2
+		Weapon, // 4
+	};
+
+	auto x = Fast | Big; // inferred type is SomeBitflags
+	if (<error>x & Enemy</error>) // Errors, scripter accidentally used the wrong enum.
+		// ...
