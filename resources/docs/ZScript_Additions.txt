@@ -1,3 +1,13 @@
+NOTE: this document is deprecated. The newest ZScript docs can be found here: https://docs.zquestclassic.com/zscript/
+
+
+
+
+
+
+
+
+
  /@@@@@@@@  /@@@@@@                      /@@             /@@
 |_____ @@  /@@__  @@                    |__/            | @@
      /@@/ | @@  \__/  /@@@@@@@  /@@@@@@  /@@  /@@@@@@  /@@@@@@
