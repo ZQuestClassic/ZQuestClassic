@@ -1019,14 +1019,14 @@ rst_title('ZScript')
 
 rst_toc('Language', [
     'zscript/lang/introduction',
-    'zscript/lang/scripts',
     'zscript/lang/comments',
-    'zscript/lang/keywords',
     'zscript/lang/literals',
+    'zscript/lang/keywords',
     'zscript/lang/declarations/index',
     'zscript/lang/types/index',
     'zscript/lang/control_flow/index',
     'zscript/lang/ranges',
+    'zscript/lang/scripts',
     'zscript/lang/annotations',
     'zscript/lang/options',
     'zscript/lang/compiler_directives',
