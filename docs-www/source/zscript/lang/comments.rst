@@ -37,8 +37,8 @@ though a comment at the end of the same line as it also works most of the time.
 .. zscript::
 
 	/*
-		Represents a basic rectangle, and can be
-		used to draw it to the screen.
+	   Represents a basic rectangle, and can be
+	   used to draw it to the screen.
 	*/
 	class Rectangle
 	{
