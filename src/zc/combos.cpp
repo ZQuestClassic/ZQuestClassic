@@ -2494,6 +2494,26 @@ void do_weapon_fx(weapon* w, newcombo const& cmb)
 		w->misc_wflags |= WFLAG_BURN_DIVINEFIRE;
 }
 
+int32_t get_cmb_trigctrcost(newcombo const& cmb)
+{
+	int32_t ctrcost = cmb.trigctramnt;
+	if(cmb.triggerflags[3] & combotriggerCOUNTERDISCOUNT)
+	{
+		auto wmedal_id = current_item_id(itype_wealthmedal);
+		if(wmedal_id > -1)
+		{
+			itemdata const& wmedal = itemsbuf[wmedal_id];
+			if(wmedal.flags & item_flag1)
+				ctrcost = (ctrcost * wmedal.misc1) / 100;
+			else
+				ctrcost += wmedal.misc1; // will be negative for discount
+			if(cmb.trigctramnt > 0 && ctrcost < 0)
+				ctrcost = 1; // matching the behavior on room types
+		}
+	}
+	return ctrcost;
+}
+
 bool handle_trigger_conditionals(newcombo const& cmb, int32_t cx, int32_t cy, bool& hasitem)
 {
 	if(cmb.triggeritem) //Item requirement
@@ -2536,21 +2556,22 @@ bool handle_trigger_conditionals(newcombo const& cmb, int32_t cx, int32_t cy, bo
 		if((cmb.trig_levelitems & game->lvlitems[dmap_level]) == cmb.trig_levelitems)
 			return false;
 	
-	if(!!(cmb.triggerflags[1] & combotriggerCTRNONLYTRIG) && (cmb.triggerflags[1] & combotriggerCOUNTEREAT))
+	auto ctrcost = get_cmb_trigctrcost(cmb);
+	if((cmb.triggerflags[1] & combotriggerCTRNONLYTRIG) && (cmb.triggerflags[1] & combotriggerCOUNTEREAT))
 	{
-		if(game->get_counter(cmb.trigctr) >= cmb.trigctramnt)
+		if(game->get_counter(cmb.trigctr) >= ctrcost)
 		{
-			game->change_counter(-cmb.trigctramnt, cmb.trigctr);
+			game->change_counter(-ctrcost, cmb.trigctr);
 		}
 	}
 	if(cmb.triggerflags[1] & combotriggerCOUNTERGE)
 	{
-		if(game->get_counter(cmb.trigctr) < cmb.trigctramnt)
+		if(game->get_counter(cmb.trigctr) < ctrcost)
 			return false;
 	}
 	if(cmb.triggerflags[1] & combotriggerCOUNTERLT)
 	{
-		if(game->get_counter(cmb.trigctr) >= cmb.trigctramnt)
+		if(game->get_counter(cmb.trigctr) >= ctrcost)
 			return false;
 	}
 	return true;
@@ -2632,9 +2653,10 @@ void handle_trigger_results(newcombo const& cmb, int32_t cx, int32_t cy, bool& h
 	}
 	if(!(cmb.triggerflags[1] & combotriggerCTRNONLYTRIG) && (cmb.triggerflags[1] & combotriggerCOUNTEREAT))
 	{
-		if(game->get_counter(cmb.trigctr) >= cmb.trigctramnt)
+		auto ctrcost = get_cmb_trigctrcost(cmb);
+		if(game->get_counter(cmb.trigctr) >= ctrcost)
 		{
-			game->change_counter(-cmb.trigctramnt, cmb.trigctr);
+			game->change_counter(-ctrcost, cmb.trigctr);
 		}
 	}
 	bool trigexstate = true;

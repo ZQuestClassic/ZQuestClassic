@@ -607,6 +607,16 @@ void SemanticAnalyzer::caseDataEnum(ASTDataEnum& host, void* param)
 
 	//Handle initializer assignment
 	zfix value = 0;
+	auto bitmode = host.getBitMode();
+	switch(bitmode)
+	{
+		case ASTDataEnum::BIT_INT:
+			value = 1;
+			break;
+		case ASTDataEnum::BIT_LONG:
+			value = 0.0001_zf;
+			break;
+	}
 	bool is_first = true;
 	std::vector<ASTDataDecl*> decls = host.getDeclarations();
 	for(vector<ASTDataDecl*>::iterator it = decls.begin();
@@ -620,6 +630,8 @@ void SemanticAnalyzer::caseDataEnum(ASTDataEnum& host, void* param)
 			{
 				if(host.increment_val)
 					value += *host.increment_val;
+				else if(bitmode)
+					value *= 2;
 				else if(baseType->isLong())
 					value += 0.0001_zf;
 				else value += 1;
@@ -633,7 +645,11 @@ void SemanticAnalyzer::caseDataEnum(ASTDataEnum& host, void* param)
 		if(init) //Set spot for next auto-fill, enforce const-ness
 		{
 			if(std::optional<int32_t> v = init->getCompileTimeValue(this, scope))
+			{
 				value = zslongToFix(*v);
+				// Should we WARN here if 'bitmode' is on? This could break the doubling increment....
+				// Could maybe warn only if not assigned to an exact power of 2 (based on mode)?
+			}
 			else
 			{
 				handleError(CompileError::ExprNotConstant(declaration));
@@ -2094,14 +2110,48 @@ void SemanticAnalyzer::analyzeBinaryExpr(
 		ASTBinaryExpr& host, DataType const& leftType,
 		DataType const& rightType)
 {
+	if (!host.supportsBitflags())
+	{
+		visit(host.left.get());
+		if (breakRecursion(host)) return;
+		checkCast(*host.left->getReadType(scope, this), leftType, &host);
+		if (breakRecursion(host)) return;
+
+		visit(host.right.get());
+		if (breakRecursion(host)) return;
+		checkCast(*host.right->getReadType(scope, this), rightType, &host);
+		
+		return;
+	}
+
 	visit(host.left.get());
 	if (breakRecursion(host)) return;
-	checkCast(*host.left->getReadType(scope, this), leftType, &host);
-	if (breakRecursion(host)) return;
+
+	auto leftTypeActual = host.left->getReadType(scope, this);
+	bool leftIsBitflags = leftTypeActual->isBitflagsEnum();
+	if (!leftIsBitflags)
+	{
+		checkCast(*leftTypeActual, leftType, &host);
+		if (breakRecursion(host)) return;
+	}
 
 	visit(host.right.get());
 	if (breakRecursion(host)) return;
-	checkCast(*host.right->getReadType(scope, this), rightType, &host);
-	if (breakRecursion(host)) return;
+
+	auto rightTypeActual = host.right->getReadType(scope, this);
+	bool rightIsBitflags = leftTypeActual->isBitflagsEnum();
+	if (!rightIsBitflags)
+	{
+		checkCast(*rightTypeActual, rightType, &host);
+		if (breakRecursion(host)) return;
+	}
+
+	if ((leftIsBitflags || rightIsBitflags) && *leftTypeActual->getMutType() != *rightTypeActual->getMutType())
+	{
+		handleError(CompileError::Error(&host, fmt::format("Binary operations on bitflags must be on the same type. Instead, got: {}, {}",
+			leftTypeActual->getMutType()->getName(), 
+			rightTypeActual->getMutType()->getName())));
+		return;
+	}
 }
 
