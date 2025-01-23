@@ -57,9 +57,8 @@ it is recommended to use Visual Studio Code with the
 To set this up:
 
 1. Install `VS Code <https://code.visualstudio.com/>`_
-2. Open VS Code and find the Extensions tab on the left
-3. Install the `zquest-lsp` extension
-4. Open the extension's settings (click the cog > "Settings") and set the "Installation Folder" option to be the same folder
+2. Open VS Code and find the Extensions tab on the left, search and install the `zquest-lsp` extension (or find the install button on the `extension page <https://marketplace.visualstudio.com/items?itemName=cjamcl.zquest-lsp>`_)
+3. Open the extension's settings (click the cog > "Settings") and set the "Installation Folder" option to be the same folder
    where ZC is installed
 
 Now ZScript files (`.zh`, `.zs`, or `.z`) will have syntax highlighting, error reporting, and various other productivity
