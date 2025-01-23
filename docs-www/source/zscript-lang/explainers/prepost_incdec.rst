@@ -27,12 +27,3 @@ returned by the operator, `++x` will read the value **AFTER** it goes up by 1, a
 	is in the `increment` segment of a :ref:`for loop<stmt_for>`.
 	When it is used in such a place, the operator's "return value" is generally completely ignored.
 	As the return value is the only difference, it does not truly matter which you use in such a case.
-
-	.. admonition:: Nerd Info
-		:class: tip
-
-		Technically, from a compiler perspective, `++x` is faster by a miniscule margin-
-		but you don't need to worry about that! The compiler has your back, and anywhere where
-		the "return value" of the post-increment or post-decrement operator is ignored,
-		it's smart enough to optimize the difference away for you.
-
