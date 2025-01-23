@@ -1,5 +1,8 @@
+Introduction
+============
+
 Visual Studio Code
-==================
+------------------
 
 .. _vscode:
 

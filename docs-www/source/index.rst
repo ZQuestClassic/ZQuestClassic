@@ -35,10 +35,3 @@ ZQuest Classic is a free, open source engine for making games similar to the ori
    :caption: ZScript reference
 
    /zscript/index
-
-.. toctree::
-   :hidden:
-   :maxdepth: 1
-   :caption: ZScript Language reference
-
-   /zscript-lang/index

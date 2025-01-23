@@ -17,7 +17,7 @@ for example, an `npc script` runs when an `npc` (an enemy) is alive.
 .. toctree::
 	:maxdepth: 1
 
-	/zscript-lang/script_types
+	/zscript/lang/script_types
 
 Annotations
 -----------

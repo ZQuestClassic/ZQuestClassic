@@ -13,7 +13,7 @@ root_dir = script_dir.parent.parent
 sys.path.append(os.path.abspath('extensions'))
 
 project = "ZQuest Classic"
-copyright = "2024, ZQuest Classic Foundation"
+copyright = "2024–2025, ZQuest Classic Foundation"
 author = "ZQuest Classic Developers"
 
 extensions = ['zscript', 'sphinx_design']

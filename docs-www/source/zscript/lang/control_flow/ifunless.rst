@@ -83,7 +83,7 @@ gives a non-`0`/`NULL` value.
 
 .. dropdown:: :zs_title:`find_closest_npc`
 	
-	.. include:: /zscript-lang/examples/find_closest_npc.rst
+	.. include:: /zscript/lang/examples/find_closest_npc.rst
 
 .. plans::
 

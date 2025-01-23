@@ -60,6 +60,6 @@ Custom Types
 .. toctree::
 	:maxdepth: 1
 
-	/zscript-lang/types/typedef
-	/zscript-lang/types/classes
-	/zscript-lang/types/enums
+	/zscript/lang/types/typedef
+	/zscript/lang/types/classes
+	/zscript/lang/types/enums

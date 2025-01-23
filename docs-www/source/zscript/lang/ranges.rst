@@ -2,7 +2,7 @@
 .. _zslang_ranges:
 
 Ranges
-------
+======
 
 For any two values, a `range` between them can be defined in several ways:
 

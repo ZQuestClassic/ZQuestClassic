@@ -112,7 +112,7 @@ Most operators are left-associative, except assignment operators and the Ternary
 	:maxdepth: 1
 	:hidden:
 
-	/zscript-lang/explainers/prepost_incdec
+	/zscript/lang/explainers/prepost_incdec
 
 .. |APPROX_EQUAL_MARGIN| replace:: :abbr:`APPROX_EQUAL_MARGIN (default 0.0100)`
 

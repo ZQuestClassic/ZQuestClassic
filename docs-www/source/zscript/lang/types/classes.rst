@@ -64,7 +64,7 @@ Object Cleanup
 	:hidden:
 	:maxdepth: 1
 
-	/zscript-lang/explainers/object_memory_management
+	/zscript/lang/explainers/object_memory_management
 
 :ref:`Full Explainer<gc>`
 

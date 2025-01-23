@@ -960,9 +960,9 @@ def write(name: str):
     lines = []
 
 
-if zscript_dir.exists():
-    shutil.rmtree(zscript_dir)
-zscript_dir.mkdir(parents=True)
+for folder in ['classes', 'globals', 'libs']:
+    if (zscript_dir/folder).exists():
+        shutil.rmtree(zscript_dir/folder)
 
 # handle bindings
 classes = []
@@ -1016,6 +1016,22 @@ for lib in libraries:
 
 # zscript/index.rst
 rst_title('ZScript')
+
+rst_toc('Language', [
+    'zscript/lang/introduction',
+    'zscript/lang/scripts',
+    'zscript/lang/comments',
+    'zscript/lang/keywords',
+    'zscript/lang/literals',
+    'zscript/lang/declarations/index',
+    'zscript/lang/types/index',
+    'zscript/lang/control_flow/index',
+    'zscript/lang/ranges',
+    'zscript/lang/annotations',
+    'zscript/lang/options',
+    'zscript/lang/compiler_directives',
+])
+
 add('.. _zsdoc_index:')
 for name, documents in sections.items():
     add(f'.. _zsdoc_{name.lower()}:')

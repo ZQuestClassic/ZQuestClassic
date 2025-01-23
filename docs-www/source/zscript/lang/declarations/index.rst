@@ -8,11 +8,11 @@ This section covers various things you may declare, and how to declare them.
 .. toctree::
 	:maxdepth: 1
 
-	/zscript-lang/declarations/identifiers
-	/zscript-lang/declarations/vars_consts
-	/zscript-lang/declarations/arrays_strings
-	/zscript-lang/declarations/functions
-	/zscript-lang/declarations/namespace
+	/zscript/lang/declarations/identifiers
+	/zscript/lang/declarations/vars_consts
+	/zscript/lang/declarations/arrays_strings
+	/zscript/lang/declarations/functions
+	/zscript/lang/declarations/namespace
 
 .. seealso::
 	

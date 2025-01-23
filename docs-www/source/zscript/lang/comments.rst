@@ -1,7 +1,7 @@
 .. _comments:
 
 Comments
---------
+========
 
 Anything inside a comment is ignored by the compiler. There are two styles
 of comment in ZScript:

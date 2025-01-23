@@ -112,7 +112,7 @@ parameters may appear after an optional parameter.
 
 	.. tab-item:: Ex. 2
 
-		.. include:: /zscript-lang/examples/find_closest_npc.rst
+		.. include:: /zscript/lang/examples/find_closest_npc.rst
 
 	.. tab-item:: Ex. 3
 		
