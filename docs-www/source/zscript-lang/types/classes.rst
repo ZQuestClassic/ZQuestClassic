@@ -3,8 +3,8 @@ Classes
 
 .. |GlobalObject| replace:: :ref:`GlobalObject<globals_fun_globalobject>`
 .. |DestroyArray| replace:: :ref:`DestroyArray<globals_fun_destroyarray>`
-.. |OwnObject| replace:: :ref:`OwnObject<classes_sprite_fun_ownobject>`
-.. |OwnArray| replace:: :ref:`OwnArray<classes_sprite_fun_ownarray>`
+.. |OwnObject| replace:: :ref:`OwnObject<globals_fun_ownobject>`
+.. |OwnArray| replace:: :ref:`OwnArray<globals_fun_ownarray>`
 
 .. _zslang_classes:
 
