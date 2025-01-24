@@ -25,4 +25,5 @@ ZScript
 .. toctree::
    :maxdepth: 1
 
+   Learn ZScript</zscript/lang/introduction>
    /tutorials/websockets

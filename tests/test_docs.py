@@ -28,16 +28,22 @@ class TestDocs(unittest.TestCase):
 
         if docs_generated_html_path.exists():
             shutil.rmtree(docs_generated_html_path)
-        if zscript_generated_sources_path.exists():
-            shutil.rmtree(zscript_generated_sources_path)
 
         # Ensure there are no issues building the docs site, and no Sphinx warnings.
-        subprocess.check_call(['bash', root_dir / 'docs-www/update.sh'], shell=is_windows)
+        subprocess.check_call(
+            ['bash', root_dir / 'docs-www/update.sh'], shell=is_windows
+        )
 
-        # Very basic check that files were generated as expected.
+        # Very basic checks that files were generated as expected.
 
-        n = len(list(zscript_generated_sources_path.rglob('*.rst')))
-        self.assertGreater(n, 100)
+        n = len(list((zscript_generated_sources_path / 'classes').rglob('*.rst')))
+        self.assertGreater(n, 20)
+
+        n = len(list((zscript_generated_sources_path / 'globals').rglob('*.rst')))
+        self.assertGreater(n, 10)
+
+        n = len(list((zscript_generated_sources_path / 'libs').rglob('*.rst')))
+        self.assertGreater(n, 60)
 
         n = len(list(docs_generated_html_path.rglob('*.html')))
         self.assertGreater(n, 100)
