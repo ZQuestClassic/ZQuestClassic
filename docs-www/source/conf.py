@@ -1,5 +1,6 @@
 # TODO: apply for algolia license https://github.com/godotengine/godot-docs/issues/4461
 
+import datetime
 import os
 import sys
 
@@ -13,7 +14,7 @@ root_dir = script_dir.parent.parent
 sys.path.append(os.path.abspath('extensions'))
 
 project = "ZQuest Classic"
-copyright = "2024–2025, ZQuest Classic Foundation"
+copyright = f"{datetime.datetime.now().year}, ZQuest Classic Foundation"
 author = "ZQuest Classic Developers"
 
 extensions = ['zscript', 'sphinx_design']
