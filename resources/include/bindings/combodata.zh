@@ -304,8 +304,9 @@ class combodata {
 
 	// The inherent flag of the combo.
 	//
+	// @value [ComboFlag]
 	// @zasm_var COMBODFLAG
-	internal ComboFlag Flag;
+	internal int Flag;
 
 	// The number of extra tiles to move horizontally between each frame.
 	//

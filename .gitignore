@@ -148,5 +148,9 @@ web/playground/zscript.mjs
 
 api_server/secrets.sh
 
-docs-www/source/zscript
+docs-www/source/zscript/globals
+docs-www/source/zscript/classes
+docs-www/source/zscript/libs
+docs-www/source/zscript/index.rst
+docs-www/source/_static/highlight-11.11.1.min.js
 .sentry-native

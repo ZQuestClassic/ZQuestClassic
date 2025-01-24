@@ -1115,11 +1115,11 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 773,
+              "line": 777,
               "character": 14
             },
             "end": {
-              "line": 773,
+              "line": 777,
               "character": 20
             }
           },
@@ -1415,17 +1415,17 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 763,
+              "line": 767,
               "character": 23
             },
             "end": {
-              "line": 763,
+              "line": 767,
               "character": 34
             }
           },
           "uri": "URI"
         },
-        "doc": "Returns the [`degrees`](command:zscript.openLink?%7B%22file%22%3A%22global.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A763%2C%22character%22%3A39%7D%2C%22end%22%3A%7B%22line%22%3A763%2C%22character%22%3A46%7D%7D%7D) value, wrapped between [-180,180)\n\n**@alias** WrapDeg"
+        "doc": "Returns the [`degrees`](command:zscript.openLink?%7B%22file%22%3A%22global.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A767%2C%22character%22%3A39%7D%2C%22end%22%3A%7B%22line%22%3A767%2C%22character%22%3A46%7D%7D%7D) value, wrapped between [-180,180)\n\n**@alias** WrapDeg"
       },
       "e": {
         "loc": {
