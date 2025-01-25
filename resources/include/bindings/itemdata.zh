@@ -372,6 +372,10 @@ class itemdata {
 	// @delete
 	internal itemdata();
 
+	// @value [ItemID]
+	// @zasm_var IDATAID
+	internal const int ID;
+
 	// @value [ItemType]
 	// @zasm_var IDATAFAMILY
 	internal int Type;
@@ -386,8 +390,8 @@ class itemdata {
 	internal int Level;
 
 	// The amount of the [Counter] to increase when this item is picked up.
-	// Range `-9999 to 16383`.
 	//
+	// @value `-9999 to 16383`
 	// @zasm_var IDATAAMOUNT
 	internal int Amount;
 
@@ -428,11 +432,6 @@ class itemdata {
 	//
 	// @zasm_var IDATAUSESOUND2
 	internal int UseSound2;
-
-	// the item ID this itemdata is associated with.
-	//
-	// @zasm_var IDATAID
-	internal const int ID;
 
 	// The item power. Usage depends on itemclass.
 	//

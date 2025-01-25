@@ -81,8 +81,7 @@ class messagedata {
 	// @zasm_var MESSAGEDATAHSPACE
 	internal int HSpace;
 
-	// A set of flags for the messagedata.
-	//
+	// @index [MessageFlag]
 	// @zasm_var MESSAGEDATAFLAGSARR
 	internal bool Flags[];
 

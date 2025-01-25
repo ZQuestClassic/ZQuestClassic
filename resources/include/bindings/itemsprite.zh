@@ -12,8 +12,7 @@ class itemsprite {
 	// @delete
 	internal itemsprite();
 
-	// The item ID to give when the item is collected.
-	//
+	// @value [ItemID]
 	// @zasm_var ITEMID
 	internal int ID;
 

@@ -3,14 +3,14 @@ class ZInfo {
 	// @delete
 	internal ZInfo();
 
-	// Copies the name of the specified itemclass ([ItemType]) into the
-	// buffer.
+	// Copies the name of the specified item class into the buffer.
 	//
+	// @param [ItemType] itemclass_id
 	// @zasm
 	//   POP D2
 	//   POP D3
 	//   MODULEGETIC D3 D2
-	internal void GetItemType(char32 buffer, int itemclass_id);
+	internal void GetItemType(char32[] buffer, int itemclass_id);
 
 	// @deprecated no longer supported!
 	// @zasm

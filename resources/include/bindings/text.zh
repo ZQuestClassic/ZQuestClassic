@@ -8,6 +8,7 @@ class Text {
 	// Returns the width of the string [s] in the given [font], as
 	// [Screen->DrawString] would draw it.
 	//
+	// @param [FontType] font
 	// @zasm
 	//   POP D2
 	//   POP D3
@@ -17,6 +18,7 @@ class Text {
 	// Returns the width of the character [c], in the given font,
 	// as [Screen->DrawString] would draw it.
 	//
+	// @param [FontType] font
 	// @zasm
 	//   POP D2
 	//   POP D3
@@ -25,6 +27,7 @@ class Text {
 
 	// Returns the height of the string [s] in [font], in pixels.
 	//
+	// @param [FontType] font
 	// @zasm
 	//   POP D2
 	//   POP D5
@@ -33,6 +36,7 @@ class Text {
 
 	// Returns the height of the character [c] in [font], in pixels.
 	//
+	// @param [FontType] font
 	// @zasm
 	//   POP D2
 	//   POP D5
@@ -41,6 +45,7 @@ class Text {
 
 	// Returns the height of [font], in pixels.
 	//
+	// @param [FontType] font
 	// @zasm
 	//   POP D2
 	//   FONTHEIGHTR D2
