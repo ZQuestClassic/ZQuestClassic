@@ -591,6 +591,21 @@ int32_t get_progressive_item(int32_t itmid, bool lastOwned)
 	return data.ret_id;
 }
 
+int32_t get_progressive_item(int32_t itmid, bool lastOwned)
+{
+	if(unsigned(itmid) >= MAXITEMS)
+		return -1; // skip everything
+	std::set<int32_t> visited;
+	prog_item_data data(visited);
+	_get_progressive_item(itmid, data);
+	if(data.errored)
+	{
+		Z_error("Failed to parse progressive item '%d'; infinite loop!\n", itmid);
+		return -1;
+	}
+	if(lastOwned) return data.last_id;
+	return data.ret_id;
+}
 void putitem2(BITMAP *dest,int32_t x,int32_t y,int32_t item_id, int32_t &aclk, int32_t &aframe, int32_t flash)
 {
 	item temp((zfix)x,(zfix)y,(zfix)0,item_id,0,0,true);
