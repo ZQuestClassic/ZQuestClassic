@@ -272,7 +272,7 @@ class bitmap {
 	internal void DrawScreen(int layer, int map, int source_screen, int x,
 							 int y, int rotation = 0);
 
-	// BLITS THE BITMAP ON POINTER 'b' TO A TARGET BITMAP. TODO ! WHY ARE WE YELLING
+	// BLITS THE BITMAP ON POINTER 'b' TO A TARGET BITMAP.
 	//
 	// Like [Screen->DrawBitmapEx], except that it draws FROM an initialised bitmap
 	// pointer, TO a target bitmap, which may be a user-created bitmap, or it may be the
@@ -293,14 +293,8 @@ class bitmap {
 	// Flip const int BITDX_VFLIP = 0x08; //Vertical Flip.
 	// ```
 	//
-	// You can also set a pivot point for the rotation, using `int cx` and `int cy`
-	//
-	// If these are non-zero, the rotation anchor point will center on these
-	// coordinates.
-	//
-	// You may specify a color to `int lit` to use a lit mode. This tints the
-	// entire bitmap using that color index of the main palette.
-	// TODO ! "bitmap target" ?
+	// @param cx, cy - if non-zero, the pivot point to center the rotation around.
+	// @param lit - if non-zero, the color to use a lit mode. This tints the entire bitmap using that color index of the main palette.
 	//
 	// @zasm
 	//   BMPBLIT
@@ -334,14 +328,8 @@ class bitmap {
 	// Flip const int BITDX_VFLIP = 0x08; //Vertical Flip.
 	// ```
 	//
-	// You can also set a pivot point for the rotation, using 'int cx' and 'int
-	// cy'
-	//
-	// If these are non-zero, the rotation anchor point will center on these
-	// coordinates.
-	//
-	// You may specify a color to 'int lit' to use a lit mode. This tints the
-	// entire bitmap using that color index of the main palette.
+	// @param cx, cy - if non-zero, the pivot point to center the rotation around.
+	// @param lit - if non-zero, the color to use a lit mode. This tints the entire bitmap using that color index of the main palette.
 	//
 	// @alias RevBlit
 	// @zasm
@@ -365,14 +353,8 @@ class bitmap {
 	// Flip const int BITDX_VFLIP = 0x08; //Vertical Flip.
 	// ```
 	//
-	// You can also set a pivot point for the rotation, using 'int cx' and 'int
-	// cy'
-	//
-	// If these are non-zero, the rotation anchor point will center on these
-	// coordinates.
-	//
-	// You may specify a color to 'int lit' to use a lit mode. This tints the
-	// entire bitmap using that color index of the main palette.
+	// @param cx, cy - if non-zero, the pivot point to center the rotation around.
+	// @param lit - if non-zero, the color to use a lit mode. This tints the entire bitmap using that color index of the main palette.
 	//
 	// @zasm
 	//   BMPTILEBLIT
@@ -394,14 +376,8 @@ class bitmap {
 	// Flip const int BITDX_VFLIP = 0x08; //Vertical Flip.
 	// ```
 	//
-	// You can also set a pivot point for the rotation, using 'int cx' and 'int
-	// cy'
-	//
-	// If these are non-zero, the rotation anchor point will center on these
-	// coordinates.
-	//
-	// You may specify a color to 'int lit' to use a lit mode. This tints the
-	// entire bitmap using that color index of the main palette.
+	// @param cx, cy - if non-zero, the pivot point to center the rotation around.
+	// @param lit - if non-zero, the color to use a lit mode. This tints the entire bitmap using that color index of the main palette.
 	//
 	// @zasm
 	//   BMPCOMBOBLIT

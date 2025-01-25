@@ -853,8 +853,8 @@ enum PickupStringBitflags
 	IPSTR_ONLYHELD                 = 0x02,
 };
 
-// TODO !
-enum //Combodata LiftFlags[]
+// Used with [combodata::LiftFlags].
+enum ComboLiftFlag
 {
 	LF_LIFTABLE,
 	LF_DROPSET,
@@ -938,4 +938,22 @@ enum SpecialDrawLayer
 	SPLAYER_LENS_UNDER_1, //Lens drawing secrets/revealing things
 	SPLAYER_LENS_UNDER_2, //Lens drawing secrets/revealing things
 	SPLAYER_LENS_OVER //Lens drawing blackness to cover most of the screen
+};
+
+// Used with [itemdata::SizeFlags], [itemdata::WeaponSizeFlags], [npcdata::SizeFlags].
+// These correspond to the "Enabled" checkboxes in the Graphics->Size tab in the Item and Enemy Editors.
+@Bitflags("int")
+enum SizeOverrideBitflags
+{
+	SZFLAG_TILEWIDTH               = 0x0001,
+	SZFLAG_TILEHEIGHT              = 0x0002,
+	SZFLAG_HIT_WIDTH               = 0x0004,
+	SZFLAG_HIT_HEIGHT              = 0x0008,
+	SZFLAG_HIT_Z_HEIGHT            = 0x0010,
+	SZFLAG_HIT_X_OFFSET            = 0x0020,
+	SZFLAG_HIT_Y_OFFSET            = 0x0040,
+	SZFLAG_DRAW_X_OFFSET           = 0x0080,
+	SZFLAG_DRAW_Y_OFFSET           = 0x0100,
+	SZFLAG_DRAW_Z_OFFSET           = 0x0200, // Enemies only.
+	SZFLAG_ALL                     = 0x03FF,
 };

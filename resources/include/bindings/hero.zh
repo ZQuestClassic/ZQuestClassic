@@ -958,9 +958,7 @@ class hero {
 	//   SETR GAMESETB D3
 	internal void SetItemB(int item_id);
 
-	// TODO ! what?? reword. or maybe delete? no users.
-	// This allows you to set the Hero's button items without binary operation with
-	// options for forcing them.
+	// Set the Hero's button items, with options for forcing them.
 	//
 	// @param [ItemSlot] slot
 	// @param [ItemRequireBitflags] force

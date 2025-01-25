@@ -633,6 +633,7 @@ class combodata {
 
 	// The combo lift flags.
 	//
+	// @index [ComboLiftFlag]
 	// @zasm_var COMBODLIFTFLAGS
 	internal bool LiftFlags[];
 

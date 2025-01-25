@@ -155,70 +155,70 @@ class npcdata {
 
 	// The horizontal draw offset of the enemy.
 	//
-	// Note: SizeFlag[??] must be enabled for this to function.
+	// Note: [SizeFlags] must be enabled for this to function.
 	//
 	// @zasm_var NPCDATAXOFS
 	internal int DrawXOffset;
 
 	// The vertical draw offset of the enemy.
 	//
-	// Note: SizeFlag[??] must be enabled for this to function.
+	// Note: [SizeFlags] must be enabled for this to function.
 	//
 	// @zasm_var NPCDATAYOFS
 	internal int DrawYOffset;
 
 	// The depth draw offset of the enemy.
 	//
-	// Note: SizeFlag[??] must be enabled for this to function.
+	// Note: [SizeFlags] must be enabled for this to function.
 	//
 	// @zasm_var NPCDATAZOFS
 	internal int DrawZOffset;
 
 	// The horizontal hitbox offset of the enemy.
 	//
-	// Note: SizeFlag[??] must be enabled for this to function.
+	// Note: [SizeFlags] must be enabled for this to function.
 	//
 	// @zasm_var NPCDATAHXOFS
 	internal int HitXOffset;
 
 	// The vertical hitbox offset of the enemy.
 	//
-	// Note: SizeFlag[??] must be enabled for this to function.
+	// Note: [SizeFlags] must be enabled for this to function.
 	//
 	// @zasm_var NPCDATAHYOFS
 	internal int HitYOffset;
 
 	// The hitbox width (X component), in pixels, for the enemy.
 	//
-	// Note: SizeFlag[??] must be enabled for this to function.
+	// Note: [SizeFlags] must be enabled for this to function.
 	//
 	// @zasm_var NPCDATAHITWIDTH
 	internal int HitWidth;
 
 	// The hitbox height (Y component), in pixels, for the enemy.
 	//
-	// Note: SizeFlag[??] must be enabled for this to function.
+	// Note: [SizeFlags] must be enabled for this to function.
 	//
 	// @zasm_var NPCDATAHITHEIGHT
 	internal int HitHeight;
 
 	// The hitbox height (Z component), in pixels, for the enemy.
 	//
-	// Note: SizeFlag[??] must be enabled for this to function.
+	// Note: [SizeFlags] must be enabled for this to function.
 	//
 	// @zasm_var NPCDATAHITZ
 	internal int HitZHeight;
 
 	// The drawn width (X component) of the enemy in increments of one tile.
 	//
-	// Note: SizeFlag[??] must be enabled for this to function.
+	// Note: [SizeFlags] must be enabled for this to function.
 	//
 	// @zasm_var NPCDATATILEWIDTH
 	internal int TileWidth;
 
 	// The drawn height (Y component) of the enemy in increments of one tile.
 	//
-	// Note: SizeFlag[??] must be enabled for this to function.
+	// Note: [SizeFlags] must be enabled for this to function.
 	//
 	// @zasm_var NPCDATATILEHEIGHT
 	internal int TileHeight;
@@ -229,7 +229,7 @@ class npcdata {
 	internal int WeaponSprite;
 
 	// The sfx used when the enemy fires its weapon.
-	// If WeaponSFX <= 0 no sound will be played.
+	// If 0 or less, no sound will be played.
 	//
 	// @zasm_var NPCDATAFIRESFX
 	internal int WeaponSFX;
@@ -242,8 +242,9 @@ class npcdata {
 	// A set of flags that determine if the values for the Enemy Editor 'Size'
 	// tab are rendered by the engine.
 	//
+	// @value [SizeOverrideBitflags]
 	// @zasm_var NPCDATASIZEFLAG
-	internal bool SizeFlag[];
+	internal bool SizeFlags;
 
 	// The 'Misc. Attributes' of the enemy; now 32 of these; and
 	// datatype-insensitive.
@@ -253,9 +254,7 @@ class npcdata {
 
 	// The shield status of the enemy.
 	//
-	// Valid indices: [DIR_UP] (front), [DIR_DOWN] (back), [DIR_LEFT], [DIR_RIGHT],
-	//                `4` (Shield can be broken).
-	//
+	// @index [DIR_UP] (front), [DIR_DOWN] (back), [DIR_LEFT], [DIR_RIGHT], `4` (Shield can be broken).
 	// @zasm_var NPCDATASHIELD
 	internal bool Shield[];
 
