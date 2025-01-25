@@ -65,8 +65,8 @@ std::vector<ParseCommentResult> parseForSymbolLinks(std::string comment, const A
 	static std::string p_shorthand = fmt::format("\\[{}(?:\\|([^\\]]+))?\\]", p_ident);
 	static std::string p_regex = fmt::format("{}|{}", p_link, p_shorthand);
 	// Supports:
-	// @link {symbol}
-	// @link {symbol|text}
+	// {@link symbol}
+	// {@link symbol|text}
 	// [symbol]
 	// [symbol|text]
 	// 'symbol' is either an internal symbol, or an external docs target starting with '#'
@@ -111,6 +111,7 @@ std::vector<ParseCommentResult> parseForSymbolLinks(std::string comment, const A
 		ASTExprIdentifier ident;
 		bool is_array = false;
 		bool is_fn = false;
+		std::optional<std::string> enum_prefix;
 		auto fn = lookupGetter(*scope, symbol_name);
 		if (!fn)
 			fn = lookupSetter(*scope, symbol_name);
@@ -176,8 +177,12 @@ std::vector<ParseCommentResult> parseForSymbolLinks(std::string comment, const A
 		{
 			if (auto type = lookupDataType(*scope, ident, nullptr))
 			{
-				if (auto custom_type = dynamic_cast<const DataTypeCustom*>(type); custom_type)
+				if (auto custom_type = dynamic_cast<const DataTypeCustom*>(type))
+				{
 					symbol_node = custom_type->getSource();
+					if (auto custom_type_node = dynamic_cast<const ASTCustomDataTypeDef*>(symbol_node))
+						enum_prefix = custom_type_node->definition->getDocumentationPrefix();
+				}
 			}
 		}
 		// Resolve class fields, like [itemdata::Counter]
@@ -229,6 +234,8 @@ std::vector<ParseCommentResult> parseForSymbolLinks(std::string comment, const A
 				link_text += "[]";
 			else if (is_fn)
 				link_text += "()";
+			else if (enum_prefix)
+				link_text += fmt::format(" ({})", *enum_prefix);
 		}
 
 		if (!symbol_node)

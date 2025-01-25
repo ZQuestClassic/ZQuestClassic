@@ -1,3 +1,5 @@
+import "bindings/directory.zh"
+
 // Contains functions related to accessing the filesystem.
 //
 // All paths are made relative to a quest-specific directory,

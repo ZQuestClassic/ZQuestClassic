@@ -26,8 +26,6 @@ constexpr uint64_t LLF(int n)
 // Since they are all unscoped, follow a naming convention where each value is prepended by
 // its enum name to avoid collisions.
 
-// TODO: combine guy_flags and guy_flags_2 (be sure to handle npcdata scripting).
-
 enum guy_flags : uint64_t
 {
 	guy_bhit                = LLF(0), // Boomerangs will stun.

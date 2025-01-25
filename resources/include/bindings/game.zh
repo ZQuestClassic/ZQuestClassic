@@ -1,6 +1,23 @@
+import "bindings/bitmap.zh"
+import "bindings/bottledata.zh"
+import "bindings/bottleshopdata.zh"
+import "bindings/combodata.zh"
+import "bindings/dmapdata.zh"
+import "bindings/dropsetdata.zh"
+import "bindings/genericdata.zh"
+import "bindings/itemdata.zh"
+import "bindings/mapdata.zh"
+import "bindings/messagedata.zh"
+import "bindings/npcdata.zh"
 import "bindings/qrs.zh"
+import "bindings/randgen.zh"
+import "bindings/shopdata.zh"
+import "bindings/spritedata.zh"
+import "bindings/stack.zh"
+import "bindings/subscreendata.zh"
+import "bindings/websocket.zh"
 
-// Use as index for [Game->Gravity].
+// Used with [Game->Gravity].
 enum GravityIndex
 {
 	GR_STRENGTH,
@@ -9,7 +26,7 @@ enum GravityIndex
 	GR_AIRDRAG
 };
 
-// Use as index for [Game->Scrolling].
+// Used with [Game->Scrolling].
 enum ScrollingIndex
 {
 	SCROLL_DIR,
@@ -19,7 +36,7 @@ enum ScrollingIndex
 	SCROLL_OY
 };
 
-// Use as index for [Game->MiscSprites].
+// Used with [Game->MiscSprites].
 enum MiscSpriteIndex
 {
 	MISCSPR_FALL,
@@ -29,7 +46,7 @@ enum MiscSpriteIndex
 	MISCSPR_MAX
 };
 
-// Use as index for [Game->MiscSFX].
+// Used with [Game->MiscSFX].
 enum MiscSfx
 {
 	MISCSFX_BUSH,
@@ -48,7 +65,7 @@ enum MiscSfx
 	MISCSFX_MAX
 };
 
-// Use as index for [Game->Generic].
+// Used with [Game->Generic].
 enum GenericIndex
 {
 	GEN_HEARTPIECES        = 0, // Heart Pieces currently possessed
@@ -94,6 +111,176 @@ enum MouseCursor
 	ZCM_NORMAL,
 	ZCM_MAX
 };
+
+// Level item flags. Used with [Game->LItems].
+@Bitflags("int")
+enum LevelItemBitflags
+{
+	LI_TRIFORCE                    = 0x01, // The Triforce of this Level has been obtained.
+	LI_MAP                         = 0x02, // The Dungeon Map of this Level has been obtained.
+	LI_COMPASS                     = 0x04, // The Compass of this Level has been obtained.
+	LI_BOSS                        = 0x08, // A "Dungeon Boss" enemy has been slain.
+	LI_BOSSKEY                     = 0x10, // The Boss Key of this Level has been obtained.
+};
+
+// Used with [Game->GameOverScreen].
+enum GameOverScreenElementIndex
+{
+	GOS_BACKGROUND                 = 0,
+	GOS_TEXT_COLOUR                = 1,
+	GOS_CURSOR_TILE                = 2,
+	GOS_CURSOR_CSET                = 3,
+	GOS_CURSOR_SOUND               = 4,
+	GOS_TEXT_CONTINUE_COLOUR       = 5,
+	GOS_TEXT_SAVE_COLOUR           = 6,
+	GOS_TEXT_RETRY_COLOUR          = 7,
+	GOS_TEXT_CONTINUE_FLASH        = 8,
+	GOS_TEXT_SAVE_FLASH            = 9,
+	GOS_TEXT_RETRY_FLASH           = 10,
+	GOS_MIDI                       = 11,
+	GOS_CUR_FLIP                   = 12,
+	GOS_TEXT_DONTSAVE_COLOUR       = 13,
+	GOS_TEXT_SAVEQUIT_COLOUR       = 14,
+	GOS_TEXT_SAVE2_COLOUR          = 15,
+	GOS_TEXT_QUIT_COLOUR           = 16,
+	GOS_TEXT_DONTSAVE_FLASH        = 17,
+	GOS_TEXT_SAVEQUIT_FLASH        = 18,
+	GOS_TEXT_SAVE2_FLASH           = 19,
+	GOS_TEXT_QUIT_FLASH            = 20,
+	GOS_EXTRA1                     = 21,
+	GOS_EXTRA2                     = 22,
+	GOS_EXTRA3                     = 23,
+};
+
+// Used with [Game->GameOverStrings].
+enum GameOverStringIndex
+{
+	GOSTR_CONTINUE                 = 0, // (Continue:Retry:Save) Screen.
+	GOSTR_SAVE                     = 1, // (Continue:Retry:Save) Screen.
+	GOSTR_RETRY                    = 2, // (Continue:Retry:Save) Screen.
+	GOSTR_DONT_SAVE                = 3, // Savepoint Screen.
+	GOSTR_SAVEANDQUIT              = 4, // Save and Quit Screen.
+	GOSTR_SAVE2                    = 5, // Savepoint Screen.
+	GOSTR_QUIT                     = 6, // Save and Quit Screen.
+};
+
+// Used with [Game->CurrentItemID].
+@Bitflags("int")
+enum CurrentItemIDBitflags
+{
+	CIID_FLAG_CHECKCOST            = 0x01, // Ignore items whose usecosts are currently not affordable.
+	CIID_FLAG_CHECKJINX            = 0x02, // Ignore items which are currently disabled by jinxes.
+	CIID_FLAG_CHECKBUNNY           = 0x04, // Ignore items which are currently disabled by BunnyClk.
+};
+
+// Engine processes that can be paused. Used with [Game->Suspend].
+enum SuspendType
+{
+	// Combo animation
+	susptCOMBOANIM,
+
+	// Main Sprite animation by type
+	susptGUYS, susptLWEAPONS, susptEWEAPONS, susptITEMS, susptLINK, 
+
+	// FFC (e.g. movement, changers, but not scripts)
+	susptUPDATEFFC,
+
+	// Sprite subclasses
+	susptDECORATIONS, susptPARTICLES, //sprite subclasses
+
+	// Palette events
+	susptPALCYCLE, susptLAKES, //lake dries up
+
+	// game system events
+	susptCOLLISIONS, susptCONTROLSTATE, susptONEFRAMECONDS, susptSCRIPDRAWCLEAR, susptQUAKE,
+
+	// Script Types
+	susptGLOBALGAME, susptNPCSCRIPTS, susptLWEAPONSCRIPTS, susptEWEAPONSCRIPTS, susptITEMSPRITESCRIPTS,
+
+	susptFFCSCRIPTS, susptLINKACTIVE, susptITEMSCRIPTENGINE, susptDMAPSCRIPT, susptSCREENSCRIPTS,
+	susptSUBSCREENSCRIPTS, susptCOMBOSCRIPTS,
+
+	// Moving items
+	susptCONVEYORSITEMS = 60, susptDRAGGINGITEM, susptROAMINGITEM,
+	// Misc
+	susptLENS, susptHOOKSHOT, susptMOVINGBLOCKS, susptMAGICCAST, susptSCREENDRAW,
+
+	susptLAST,
+};
+
+enum //Game->EventData[] indexes for 'GENSCR_EVENT_HERO_HIT_1' and 'GENSCR_EVENT_HERO_HIT_2'
+{
+	GENEV_HEROHIT_DAMAGE, //Damage to be taken
+	GENEV_HEROHIT_HITDIR, //Dir to be knocked in
+	GENEV_HEROHIT_NULLIFY, //Bool: to nullify the hit, or not
+	GENEV_HEROHIT_NAYRUON, //Bool: if nayru's love will nullify the damage, or not
+	GENEV_HEROHIT_IFRAMES, //Number of IFrames to have after hit, if not nullified
+	GENEV_HEROHIT_HITTYPE, //What type of object is hitting the hero ('OBJTYPE_')
+	GENEV_HEROHIT_HITOBJ, //The pointer to that object
+	GENEV_HEROHIT_HITTYPE2, //A second type of object (sometimes 'OBJTYPE_NONE')
+	GENEV_HEROHIT_HITOBJ2 //The pointer to the second object
+};
+enum //Game->EventData[] indexes for 'GENSCR_EVENT_COLLECT_ITEM'
+{
+	GENEV_ITEMCOL_ID, //Item ID to be gained
+	GENEV_ITEMCOL_PICKUP, //Pickup flags for the item pickup
+	GENEV_ITEMCOL_PSTR, //Pickup string to be displayed
+	GENEV_ITEMCOL_PSTRFLAGS, //Pickup string flags
+	GENEV_ITEMCOL_NULLIFY, //Bool: to nullify the item pickup, or not
+	GENEV_ITEMCOL_ITEMPTR, //'itemsprite' object pointer
+	GENEV_ITEMCOL_TYPE, //Type of hit; see GENEVT_ICTYPE_
+	GENEV_ITEMCOL_WPNPTR //'lweapon' object pointer, or 'NULL' if no weapon is available
+};
+enum //Game->EventData[] indexes for 'GENSCR_EVENT_ENEMY_DROP_ITEM_1'
+{
+	GENEV_EDI1_NPC, //the npc pointer
+	GENEV_EDI1_ITEMID, //the chosen item ID
+	GENEV_EDI1_DROPSET //the dropset the ID was chosen from
+	//If the ITEMID is set to `-2`, the dropset will be rolled automatically.
+	//ITEMID of -1 means no item will be dropped.
+};
+enum //Game->EventData[] indexes for 'GENSCR_EVENT_ENEMY_DROP_ITEM_2'
+{
+	GENEV_EDI2_NPC, //the npc pointer
+	GENEV_EDI2_ITM //the itemsprite pointer
+};
+enum //Game->EventData[] indexes for 'GENSCR_EVENT_ENEMY_DEATH'
+{
+	GENEV_EDEATH_DYING, //Bool: if the enemy is dying, or not (set false to cancel death)
+	GENEV_EDEATH_NPC //the npc pointer
+};
+enum //Game->EventData[] indexes for 'GENSCR_EVENT_ENEMY_HIT1' and 'GENSCR_EVENT_ENEMY_HIT2'
+{
+	GENEV_EHIT_POWER, //damage amount
+	GENEV_EHIT_DEFENSETYPE, //defense type
+	GENEV_EHIT_UNBLOCKABLE, //unblockable flagset
+	GENEV_EHIT_WEAPONID, //weapon ID
+	GENEV_EHIT_NULLIFY, //Bool: if true the hit will not connect
+	GENEV_EHIT_NPCPTR, //npc pointer
+	GENEV_EHIT_LWPNPTR //lweapon pointer
+};
+enum //Game->EventData[] indexes for 'GENSCR_EVENT_PLAYER_FALL' and 'GENSCR_EVENT_PLAYER_DROWN'
+{
+	GENEV_PLAYER_FALLDROWN_COMBO //The combo ID the [Hero] is falling/drowning into.
+};
+
+enum //constants for 'GENEV_ITEMCOL_TYPE'
+{
+	GENEVT_ICTYPE_COLLECT, //Hero collected the item
+	GENEVT_ICTYPE_MELEE, //Melee weapon collected the item
+	GENEVT_ICTYPE_MELEE_EW, //Melee weapon collected the item
+	GENEVT_ICTYPE_RANGED_DRAG //Ranged weapon collected, and will drag //Only 'NULLIFY' can be edited here
+};
+enum //constants for 'GENEV_HEROHIT_HITTYPE' / 'GENEV_HEROHIT_HITTYPE2'
+{
+	OBJTYPE_NONE = -1,
+	OBJTYPE_NPC, OBJTYPE_LWPN, OBJTYPE_EWPN, OBJTYPE_ITSPR, OBJTYPE_COMBODATA,
+	OBJTYPE_COMBOPOS, OBJTYPE_FFC,
+	NUM_OBJTYPE
+};
+
+// Max value of [Game->Time].
+const int MAX_TIME = 1944000000L;
 
 // Contains general internal functions and variables.
 //
@@ -189,37 +376,34 @@ class Game {
 
 	// The value of each of the game's counters.
 	//
-	// Valid indices: [CounterIndex] (`CR_`).
-	// Valid values: `0 to 65535`.
-	//
+	// @index [CounterIndex]
+	// @value `0–65535`
 	// @zasm_var GAMECOUNTERD
 	internal int Counter[];
 
 	// The max value of each of the game's counters.
 	//
-	// Valid indices: [CounterIndex] (`CR_`).
-	// Valid values: `0 to 65535`.
-	//
+	// @index [CounterIndex]
+	// @value `0–65535`
 	// @zasm_var GAMEMCOUNTERD
 	internal int MCounter[];
 
 	// The value of each of the game's drain counters.
 	//
-	// Valid indices: [CounterIndex] (`CR_`).
-	// Valid values: `-32768 to 32767`.
-	//
+	// @index [CounterIndex]
+	// @value `-32768–32767`
 	// @zasm_var GAMEDCOUNTERD
 	internal int DCounter[];
 
 	// Generic values related to the game.
 	//
-	// Valid indices: [GenericIndex] (`GEN_`).
-	//
+	// @index [GenericIndex]
 	// @zasm_var GAMEGENERICD
 	internal untyped Generic[];
 
-	// Contains a bitwise flagset of the "Level Items".
+	// Contains a bitflags of the "Level Items".
 	//
+	// @value [LevelItemBitflags]
 	// @zasm_var GAMELITEMSD
 	internal int LItems[];
 
@@ -282,8 +466,7 @@ class Game {
 
 	// The values of all Quest Rules.
 	//
-	// Valid indices: [QR] (`qr_`).
-	//
+	// @index [QR]
 	// @zasm_var FFRULE
 	internal bool FFRules[];
 
@@ -357,35 +540,31 @@ class Game {
 
 	// Values related to gravity.
 	//
-	// Valid indices: [GravityIndex] (`GR_`).
-	//
+	// @index [GravityIndex]
 	// @zasm_var GAMEGRAVITY
 	internal int Gravity[];
 
-	// values related to scrolling.
+	// Values related to scrolling.
 	//
-	// Valid indices: [ScrollingIndex] (`SCROLL_`).
-	//
+	// @index [ScrollingIndex]
 	// @zasm_var GAMESCROLLING
 	internal const int Scrolling[];
 
 	// The `Quest->Graphics->Sprites->Misc Sprites` values.
 	//
-	// Valid indices: [MiscSpriteIndex] (`MISCSPR_`).
-	//
+	// @index [MiscSpriteIndex]
 	// @zasm_var GAMEMISCSPR
 	internal int MiscSprites[];
 
 	// The `Quest->Audio->Misc SFX` values.
 	//
-	// Valid indices: [MiscSfx] (`MISCSFX_`).
-	//
+	// @index [MiscSfx]
 	// @zasm_var GAMEMISCSFX
 	internal int MiscSFX[];
 
 	// A variably-sized array containing information about the current event.
 	// This should be accessed from [genericdata] after returning from
-	// [WaitEvent]. Depending on what event WaitEvent() returns, a different set
+	// [WaitEvent]. Depending on what event `WaitEvent()` returns, a different set
 	// of constants should be used to access this array.
 	//
 	// @zasm_var GAMEEVENTDATA
@@ -394,8 +573,7 @@ class Game {
 	// Which mouse cursor should be displayed during gameplay.
 	// [ZCM_BLANK] is the default, and it resets on visiting the title screen.
 	//
-	// Valid values: [MouseCursor] (`ZCM_`).
-	//
+	// @value [MouseCursor]
 	// @zasm_var GAMEMOUSECURSOR
 	internal int MouseCursor;
 
@@ -882,6 +1060,7 @@ class Game {
 	// Loads an Enemy Editor table data ref for NPC [id], to a [npcdata]
 	// pointer.
 	//
+	// @param [NPCID] id
 	// @zasm
 	//   POP D2
 	//   LOADNPCDATAR D2
@@ -966,6 +1145,7 @@ class Game {
 	// Loads an Weapon Sprite Editor table data ref for sprite 'id', to a
 	// 'spritedata' typed pointer.
 	//
+	// @param [SpriteID] id
 	// @zasm
 	//   POP D2
 	//   LOADSPRITEDATAR D2
@@ -1143,27 +1323,17 @@ class Game {
 	// Returns the current item of the selected [itemtype]. This generally
 	// returns the highest owned of an itemclass, with some exceptions.
 	//
-	// If [Game->OverrideItems[itemtype]] is set to an override value, that
-	// value will be returned.
-	//
-	// Use the `IC_` constants for itemtype, and the `CIID_FLAG_` constants
-	// bitwise-or'd for [flags].
-	//
-	// With `CIID_FLAG_CHECKCOST`, it will ignore items whose usecosts are
-	// currently not affordable.
-	//
-	// With `CIID_FLAG_CHECKJINX`, it will ignore items which are currently
-	// disabled by jinxes.
-	//
-	// With `CIID_FLAG_CHECKBUNNY`, it will ignore items which are currently
-	// disabled by BunnyClk.
+	// If the item is set to an override value via [Game->OverrideItems], that
+	// value is returned.
 	//
 	// Returns `-1` for 'no item'.
 	//
+	// @param [ItemType] itemtype
+	// @param [CurrentItemIDBitflags] bitflags
 	// @zasm
 	//   CURRENTITEMID
 	//   POPARGS D5 0.0002
-	internal int CurrentItemID(int itemtype, int flags = 1L);
+	internal int CurrentItemID(int itemtype, int bitflags = 1L);
 
 	// Loads the [subscreendata] pointer for the specified
 	// active/passive/overlay subscreen.
@@ -1278,7 +1448,7 @@ class Game {
 	//   POP D1
 	//   POP D2
 	//   GETSCREENFLAGS D2
-	internal int GetScreenFlags(int map, int screen, int flagset);
+	internal int GetScreenFlags(int map, int screen, int bitflags);
 
 	// @deprecated Use 'mapdata->' vars instead!
 	// @zasm

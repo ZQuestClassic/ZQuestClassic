@@ -103,7 +103,6 @@ public:
 	byte stickclk;
 	int32_t parent_script_UID;
    
-	int32_t dialogue_str; //WIll be set in spawn flags. 
 	int32_t editorflags; //Enemy editor flags 1 to 16
 	
 	bool immortal;

@@ -1,3 +1,16 @@
+import "bindings/paldata.zh"
+
+enum ColorSpace
+{
+	CSPACE_RGB,
+	CSPACE_CMYK, 
+	CSPACE_HSV, CSPACE_HSV_CW, CSPACE_HSV_CCW, 
+	CSPACE_HSL, CSPACE_HSL_CW, CSPACE_HSL_CCW, 
+	CSPACE_LAB, 
+	CSPACE_LCH, CSPACE_LCH_CW, CSPACE_LCH_CCW,
+	CSPACE_NUMCSPACE
+};
+
 // Contains functions related to drawing and visual effects.
 //
 // Access with `Graphics->`.
@@ -110,7 +123,7 @@ class Graphics {
 	// @zasm
 	//   MIXCLR
 	//   POPARGS D5 0.0004
-	internal rgb MixColor(rgb start, rgb end, int percent, int color_space = 0);
+	internal rgb MixColor(rgb start, rgb end, int percent, ColorSpace color_space = CSPACE_RGB);
 
 	// Takes a long hexcode (0xRRGGBBL), with each rgb section 0 <= n <= 255.
 	//

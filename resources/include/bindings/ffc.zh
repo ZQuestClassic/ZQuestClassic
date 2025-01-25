@@ -1,4 +1,23 @@
-#include "bindings/sprite.zh"
+import "bindings/sprite.zh"
+
+// Used with [ffc::Flags].
+enum FFCFlag
+{
+	FFCF_OVERLAY                   = 0,  // Draw Over (draw between layers 4 and 5).
+	FFCF_TRANS                     = 1,  // Translucent.
+	FFCF_SOLID                     = 2,  // Solidity (Partially Implemented).
+	FFCF_CARRYOVER                 = 3,  // Carry Over.
+	FFCF_STATIONARY                = 4,  // Stationary.
+	FFCF_CHANGER                   = 5,  // Is A Changer.
+	FFCF_PRELOAD                   = 6,  // Run Script On Screen Init.
+	FFCF_LENSVIS                   = 7,  // Only Visible to Lens of Truth.
+	FFCF_RESET                     = 8,  // Script Resets When Carried Over.
+	FFCF_ETHEREAL                  = 9,  // The FFC's Combo Type is ignored.
+	FFCF_IGNOREHOLDUP              = 10, // The FFC is updated while Link is holding up an item.
+	FFCF_IGNORECHANGER             = 11, // The FFC ignores changers.
+	FFCF_IMPRECISIONCHANGER        = 12, // The FFC is affected by changers if it is within 1px on both axis, not subpixel alignment.
+	FFCF_LENSINVIS                 = 13, // Not visible to the lens of truth.
+};
 
 // "Freeform combo" represent combos that may move freely around the
 // screen, not tied to the grid.
