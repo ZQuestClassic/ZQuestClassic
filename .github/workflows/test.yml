@@ -121,10 +121,6 @@ jobs:
       - run: sudo apt-get update && sudo apt-get install libopengl0 libglu1 lldb libdumb1
         if: ${{ contains(inputs.runs-on, 'ubuntu') }}
 
-      - name: update_auto_script_tests.py
-        if: inputs.config != 'Coverage'
-        run: bash .github/workflows/run_python.sh tests/update_auto_script_tests.py
-
       # Note: Uses JIT by default, except for win32.
       - name: Run replay tests
         run: >
@@ -152,6 +148,10 @@ jobs:
           --filter keys.zplay
           --no-jit
           --no-headless
+
+      - name: update_auto_script_tests.py
+        if: inputs.config != 'Coverage'
+        run: bash .github/workflows/run_python.sh tests/update_auto_script_tests.py
 
       - if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow }}
         name: Updater cache
