@@ -1,11 +1,223 @@
-// Metadata for a specific enemy type (not an instance of one). Load with [Game->LoadNPCData].
+enum NPCType
+{
+	NPCT_GUY,
+	NPCT_WALK,
+
+	NPCT_TEKTITE = 3,
+	NPCT_LEEVER,
+	NPCT_PEAHAT,
+	NPCT_ZORA,
+	NPCT_ROCK,
+	NPCT_GHINI,
+	NPCT_ARMOS,
+	NPCT_KEESE,
+
+	NPCT_TRAP = 15,
+	NPCT_WALLMASTER = 16,
+
+	NPCT_WIZZROBE = 21,
+	NPCT_AQUAMENTUS,
+	NPCT_MOLDORM,
+	NPCT_DODONGO,
+	NPCT_MANHANDLA,
+	NPCT_GLEEOK,
+	NPCT_DIGDOGGER,
+	NPCT_GOHMA,
+	NPCT_LANMOLA,
+	NPCT_PATRA,
+	NPCT_GANON,
+	NPCT_PROJECTILE,
+
+	NPCT_SPINTILE = 37,
+	NPCT_NONE,
+	NPCT_FAIRY,
+	NPCT_OTHERFLOAT,
+	NPCT_OTHER,
+
+	NPCT_CUSTOM_01 = 43,
+	NPCT_SCRIPT_01 = 43,
+	NPCT_CUSTOM_02 = 44,
+	NPCT_SCRIPT_02 = 44,
+	NPCT_CUSTOM_03 = 45,
+	NPCT_SCRIPT_03 = 45,
+	NPCT_CUSTOM_04 = 46,
+	NPCT_SCRIPT_04 = 46,
+	NPCT_CUSTOM_05 = 47,
+	NPCT_SCRIPT_05 = 47,
+	NPCT_CUSTOM_06 = 48,
+	NPCT_SCRIPT_06 = 48,
+	NPCT_CUSTOM_07 = 49,
+	NPCT_SCRIPT_07 = 49,
+	NPCT_CUSTOM_08 = 50,
+	NPCT_SCRIPT_08 = 50,
+	NPCT_CUSTOM_09 = 51,
+	NPCT_SCRIPT_09 = 51,
+	NPCT_CUSTOM_10 = 52,
+	NPCT_SCRIPT_10 = 52,
+	NPCT_CUSTOM_11 = 53,
+	NPCT_SCRIPT_11 = 53,
+	NPCT_CUSTOM_12 = 54,
+	NPCT_SCRIPT_12 = 54,
+	NPCT_CUSTOM_13 = 55,
+	NPCT_SCRIPT_13 = 55,
+	NPCT_CUSTOM_14 = 56,
+	NPCT_SCRIPT_14 = 56,
+	NPCT_CUSTOM_15 = 57,
+	NPCT_SCRIPT_15 = 57,
+	NPCT_CUSTOM_16 = 58,
+	NPCT_SCRIPT_16 = 58,
+	NPCT_CUSTOM_17 = 59,
+	NPCT_SCRIPT_17 = 59,
+	NPCT_CUSTOM_18 = 60,
+	NPCT_SCRIPT_18 = 60,
+	NPCT_CUSTOM_19 = 61,
+	NPCT_SCRIPT_19 = 61,
+	NPCT_CUSTOM_20 = 62,
+	NPCT_SCRIPT_20 = 62,
+	NPCT_FRIENDLY_01 = 63,
+	NPCT_FRIENDLY_02 = 64,
+	NPCT_FRIENDLY_03 = 65,
+	NPCT_FRIENDLY_04 = 66,
+	NPCT_FRIENDLY_05 = 67,
+	NPCT_FRIENDLY_06 = 68,
+	NPCT_FRIENDLY_07 = 69,
+	NPCT_FRIENDLY_08 = 70,
+	NPCT_FRIENDLY_09 = 71,
+	NPCT_FRIENDLY_10 = 72
+};
+
+// Used with [npc::Defense].
+enum NPCDefenseIndex
+{
+	NPCD_BRANG,
+	NPCD_BOMB,
+	NPCD_SBOMB,
+	NPCD_ARROW,
+	NPCD_FIRE,
+	NPCD_WAND,
+	NPCD_MAGIC,
+	NPCD_HOOKSHOT,
+	NPCD_HAMMER,
+	NPCD_SWORD,
+	NPCD_BEAM,
+	NPCD_REFBEAM,
+	NPCD_REFMAGIC,
+	NPCD_REFFIREBALL,
+	NPCD_REFROCK,
+	NPCD_STOMP,
+	NPCD_BYRNA,
+	NPCD_SCRIPT,
+
+	NPCD_SCRIPT1 = 20,
+	NPCD_SCRIPT2,
+	NPCD_SCRIPT3,
+	NPCD_SCRIPT4,
+	NPCD_SCRIPT5,
+	NPCD_SCRIPT6,
+	NPCD_SCRIPT7,
+	NPCD_SCRIPT8,
+	NPCD_SCRIPT9,
+	NPCD_SCRIPT10,
+
+	NPCD_WHISTLE = 35,
+	NPCD_SWITCHHOOK,
+	NPCD_THROWN,
+	NPCD_REFARROW,
+	NPCD_REFFIRE,
+	NPCD_REFFIRE2
+};
+
+// Used with [npc::Defense].
+enum NPCDefenseType
+{
+	NPCDT_NONE,
+	NPCDT_HALFDAMAGE,
+	NPCDT_QUARTERDAMAGE,
+	NPCDT_STUN,
+	NPCDT_STUNORBLOCK,
+	NPCDT_STUNORIGNORE,
+	NPCDT_BLOCK1,
+	NPCDT_BLOCK2,
+	NPCDT_BLOCK4,
+	NPCDT_BLOCK6,
+	NPCDT_BLOCK8,
+	NPCDT_BLOCK,
+	NPCDT_IGNORE1,
+	NPCDT_IGNORE,
+	NPCDT_ONEHITKILL,
+	NPCDT_BLOCK10,
+	NPCDT_2XDAMAGE,
+	NPCDT_3XDAMAGE,
+	NPCDT_4XDAMAGE,
+	NPCDT_HEAL,
+	NPCDT_TRIGGERSECRETS,
+
+	NPCDT_SWITCH = 50
+};
+
+// Enemy projectile weapon selections. Use with npc->Weapon.
+// Note: Don't use these with Screen->CreateEWeapon! Use [EWeaponType] instead.
+// Use [WeaponTypeToID] to convert this enum to an [EWeaponType].
+enum NPCWeapon
+{
+	WPN_NONE              = 0,
+	WPN_ENEMYFLAME        = 140,
+	WPN_ENEMYWIND         = 141,
+	WPN_ENEMYFIREBALL     = 129,
+	WPN_ENEMYARROW        = 130,
+	WPN_ENEMYBRANG        = 131,
+	WPN_ENEMYSWORD        = 132,
+	WPN_ENEMYROCK         = 133,
+	WPN_ENEMYMAGIC        = 134,
+	WPN_ENEMYBOMB         = 135,
+	WPN_ENEMYSBOMB        = 136,
+	WPN_ENEMYLITBOMB      = 137,
+	WPN_ENEMYLITSBOMB     = 138,
+	WPN_ENEMYFIRETRAIL    = 139,
+	WPN_ENEMYFLAME2       = 142,
+	WPN_ENEMYFLAME2TRAIL  = 143, // Not implemented
+	WPN_ENEMYICE          = 144, // Not implemented
+	WPN_ENEMYFIREBALL2    = 145  // A fireball that doesn't fly toward Link
+};
+
+enum NPCShieldIndex
+{
+	SHLD_FRONT,
+	SHLD_BACK,
+	SHLD_LEFT,
+	SHLD_RIGHT,
+	SHLD_CAN_BREAK
+};
+
+enum NPCFade
+{
+	NPCF_NONE,
+	NPCF_FLICKER,
+	NPCF_INVISIBLE,
+	NPCF_FLASH,
+	NPCF_POOF
+};
+
+// Metadata for a specific npc type (not an instance of one). Load with [Game->LoadNPCData].
 //
 // @zasm_ref REFNPCCLASS
 class npcdata {
 	// @delete
 	internal npcdata();
 
-	// The base tile used by the enemy.
+	// The type, or 'npc class' of the npc.
+	//
+	// @value [NPCType]
+	// @zasm_var NPCDATAFAMILY
+	internal int Type;
+
+	// Exactly the same as [Type], use that instead.
+	//
+	// @value [NPCType]
+	// @zasm_var NPCDATAFAMILY
+	internal int Family;
+
+	// The base tile used by the npc.
 	//
 	// @zasm_var NPCDATATILE
 	internal int Tile;
@@ -15,101 +227,97 @@ class npcdata {
 	// @zasm_var NPCDATAFLAG
 	internal bool Flags[];
 
-	// The 'width' (W) of base tile used by the enemy.
+	// The 'width' (W) of base tile used by the npc.
 	//
 	// @zasm_var NPCDATAWIDTH
 	internal int Width;
 
-	// The 'height' (H) of base tile used by the enemy.
+	// The 'height' (H) of base tile used by the npc.
 	//
 	// @zasm_var NPCDATAHEIGHT
 	internal int Height;
 
-	// The base 'special' tile used by the enemy.
+	// The base 'special' tile used by the npc.
 	//
 	// @zasm_var NPCDATASTILE
 	internal int STile;
 
-	// The 'width' (W) of base 'special' tile used by the enemy.
+	// The 'width' (W) of base 'special' tile used by the npc.
 	//
 	// @zasm_var NPCDATASWIDTH
 	internal int SWidth;
 
-	// The 'height' (H) of base 'special' tile used by the enemy.
+	// The 'height' (H) of base 'special' tile used by the npc.
 	//
 	// @zasm_var NPCDATASHEIGHT
 	internal int SHeight;
 
-	// The base EXPANDED ('New') tile used by the enemy.
+	// The base EXPANDED ('New') tile used by the npc.
 	//
 	// @zasm_var NPCDATAETILE
 	internal int ExTile;
 
-	// The 'width' (W) of base EXPANDED ('New') tile used by the enemy.
+	// The 'width' (W) of base EXPANDED ('New') tile used by the npc.
 	//
 	// @zasm_var NPCDATAEWIDTH
 	internal int ExWidth;
 
-	// The 'height' (H) of base EXPANDED ('New') tile used by the enemy.
+	// The 'height' (H) of base EXPANDED ('New') tile used by the npc.
 	//
 	// @zasm_var NPCDATAEHEIGHT
 	internal int ExHeight;
 
-	// The enemy's base hit points.
+	// The npc's base hit points.
 	//
 	// @zasm_var NPCDATAHP
 	internal int HP;
 
-	// The Family (Enemy Class) of the npc.
-	//
-	// @zasm_var NPCDATAFAMILY
-	internal int Family;
-
 	// @zasm_var NPCDATACSET
 	internal int CSet;
 
-	// The 'O.Anim' used by the enemy.
+	// The 'O.Anim' used by the npc.
 	//
 	// @zasm_var NPCDATAANIM
 	internal int Anim;
 
-	// The 'E.Anim' used by the enemy.
+	// The 'E.Anim' used by the npc.
 	//
 	// @zasm_var NPCDATAEANIM
 	internal int ExAnim;
 
-	// The 'O.Anim' animation framerate used by the enemy.
+	// The 'O.Anim' animation framerate used by the npc.
 	//
 	// @zasm_var NPCDATAFRAMERATE
 	internal int Framerate;
 
-	// The 'E.Anim' animation framerate used by the enemy.
+	// The 'E.Anim' animation framerate used by the npc.
 	//
 	// @zasm_var NPCDATAEFRAMERATE
 	internal int ExFramerate;
 
-	// The amount of contact damage that the enemy causes when it collides with
+	// The amount of contact damage that the npc causes when it collides with
 	// Link.
 	//
 	// @zasm_var NPCDATATOUCHDAMAGE
 	internal int TouchDamage;
 
-	// The power of the weapons fired by the enemy.
+	// The power of the weapons fired by the npc.
 	//
 	// @zasm_var NPCDATAWEAPONDAMAGE
 	internal int WeaponDamage;
 
-	// The weapon type used by the enemy.
+	// The weapon type used by the npc.
 	//
+	// @value [NPCWeapon]
 	// @zasm_var NPCDATAWEAPON
 	internal int Weapon;
 
-	// The 'random rate' of the enemy.
+	// The 'random rate' of the npc.
 	//
 	// @zasm_var NPCDATARANDOM
 	internal int Random;
 
-	// The 'turn frequency' used by the enemy during its movement phase.
+	// The 'turn frequency' used by the npc during its movement phase.
 	//
 	// @zasm_var NPCDATAHALT
 	internal int Haltrate;
@@ -119,123 +327,125 @@ class npcdata {
 	// @zasm_var NPCDATASTEP
 	internal int Step;
 
-	// The homing factor of the enemy. Greater values home more keenly on Link.
+	// The homing factor of the npc. Greater values home more keenly on Link.
 	//
 	// @zasm_var NPCDATAHOMING
 	internal int Homing;
 
-	// The 'hunger' value of the enemy.
+	// The 'hunger' value of the npc.
 	//
-	// Higher values make it more likely that the enemy is attracted to Bait.
+	// Higher values make it more likely that the npc is attracted to Bait.
 	//
 	// Valid only for [NPCT_WALK] enemies.
 	//
 	// @zasm_var NPCDATAHUNGER
 	internal int Hunger;
 
-	// The dropset used by the enemy.
+	// The dropset used by the npc.
 	//
 	// @zasm_var NPCDATADROPSET
 	internal int Dropset;
 
-	// The Ambient sound that the enemy emits.
+	// The Ambient sound that the npc emits.
 	//
 	// @zasm_var NPCDATABGSFX
 	internal int BGSFX;
 
-	// The sound that is played when the enemy dies.
+	// The sound that is played when the npc dies.
 	//
 	// @zasm_var NPCDATADEATHSFX
 	internal int DeathSFX;
 
-	// The sound that is played when the enemy is hit by an lweapon.
+	// The sound that is played when the npc is hit by an lweapon.
 	//
 	// @zasm_var NPCDATAHITSFX
 	internal int HitSFX;
 
-	// The horizontal draw offset of the enemy.
+	// The horizontal draw offset of the npc.
 	//
 	// Note: [SizeFlags] must be enabled for this to function.
 	//
 	// @zasm_var NPCDATAXOFS
 	internal int DrawXOffset;
 
-	// The vertical draw offset of the enemy.
+	// The vertical draw offset of the npc.
 	//
 	// Note: [SizeFlags] must be enabled for this to function.
 	//
 	// @zasm_var NPCDATAYOFS
 	internal int DrawYOffset;
 
-	// The depth draw offset of the enemy.
+	// The depth draw offset of the npc.
 	//
 	// Note: [SizeFlags] must be enabled for this to function.
 	//
 	// @zasm_var NPCDATAZOFS
 	internal int DrawZOffset;
 
-	// The horizontal hitbox offset of the enemy.
+	// The horizontal hitbox offset of the npc.
 	//
 	// Note: [SizeFlags] must be enabled for this to function.
 	//
 	// @zasm_var NPCDATAHXOFS
 	internal int HitXOffset;
 
-	// The vertical hitbox offset of the enemy.
+	// The vertical hitbox offset of the npc.
 	//
 	// Note: [SizeFlags] must be enabled for this to function.
 	//
 	// @zasm_var NPCDATAHYOFS
 	internal int HitYOffset;
 
-	// The hitbox width (X component), in pixels, for the enemy.
+	// The hitbox width (X component), in pixels, for the npc.
 	//
 	// Note: [SizeFlags] must be enabled for this to function.
 	//
 	// @zasm_var NPCDATAHITWIDTH
 	internal int HitWidth;
 
-	// The hitbox height (Y component), in pixels, for the enemy.
+	// The hitbox height (Y component), in pixels, for the npc.
 	//
 	// Note: [SizeFlags] must be enabled for this to function.
 	//
 	// @zasm_var NPCDATAHITHEIGHT
 	internal int HitHeight;
 
-	// The hitbox height (Z component), in pixels, for the enemy.
+	// The hitbox height (Z component), in pixels, for the npc.
 	//
 	// Note: [SizeFlags] must be enabled for this to function.
 	//
 	// @zasm_var NPCDATAHITZ
 	internal int HitZHeight;
 
-	// The drawn width (X component) of the enemy in increments of one tile.
+	// The drawn width (X component) of the npc in increments of one tile.
 	//
 	// Note: [SizeFlags] must be enabled for this to function.
 	//
 	// @zasm_var NPCDATATILEWIDTH
 	internal int TileWidth;
 
-	// The drawn height (Y component) of the enemy in increments of one tile.
+	// The drawn height (Y component) of the npc in increments of one tile.
 	//
 	// Note: [SizeFlags] must be enabled for this to function.
 	//
 	// @zasm_var NPCDATATILEHEIGHT
 	internal int TileHeight;
 
-	// The sprite used to draw the enemy weapon.
+	// The sprite used to draw the npc weapon.
 	//
 	// @zasm_var NPCDATAWPNSPRITE
 	internal int WeaponSprite;
 
-	// The sfx used when the enemy fires its weapon.
+	// The sfx used when the npc fires its weapon.
 	// If 0 or less, no sound will be played.
 	//
 	// @zasm_var NPCDATAFIRESFX
 	internal int WeaponSFX;
 
-	// The defense categories for the enemy.
+	// The defense categories for the npc.
 	//
+	// @index [NPCDefenseIndex]
+	// @value [NPCDefenseType]
 	// @zasm_var NPCDATADEFENSE
 	internal int Defense[];
 
@@ -246,13 +456,13 @@ class npcdata {
 	// @zasm_var NPCDATASIZEFLAG
 	internal bool SizeFlags;
 
-	// The 'Misc. Attributes' of the enemy; now 32 of these; and
+	// The 'Misc. Attributes' of the npc; now 32 of these; and
 	// datatype-insensitive.
 	//
 	// @zasm_var NPCDATAATTRIBUTE
 	internal int Attributes[];
 
-	// The shield status of the enemy.
+	// The shield status of the npc.
 	//
 	// @index [DIR_UP] (front), [DIR_DOWN] (back), [DIR_LEFT], [DIR_RIGHT], `4` (Shield can be broken).
 	// @zasm_var NPCDATASHIELD
@@ -261,54 +471,54 @@ class npcdata {
 	// @zasm_var NPCDATABEHAVIOUR
 	internal bool BFlags[];
 
-	// The base tile used to draw the enemy, when the enemy is frozen solid.
+	// The base tile used to draw the npc, when the npc is frozen solid.
 	// //Not yet implemented in-engine.
 	//
 	// @zasm_var NPCDATAFROZENTILE
 	internal int FrozenTile;
 
-	// The CSet value used to render the enemy, when the enemy is frozen solid.
+	// The CSet value used to render the npc, when the npc is frozen solid.
 	// //Not yet implemented in-engine.
 	//
 	// @zasm_var NPCDATAFROZENCSET
 	internal int FrozenCSet;
 
-	// The npc action script used by this enemy.
+	// The npc action script used by this npc.
 	//
 	// @zasm_var NPCDATASCRIPT
 	internal int Script;
 
-	// The eight InitD args used by the npc action script for this enemy.
+	// The eight InitD args used by the npc action script for this npc.
 	//
 	// @zasm_var NPCDATAINITD
 	internal int InitD[];
 
-	// The weapon action script assigned to this enemy.
+	// The weapon action script assigned to this npc.
 	//
 	// @zasm_var NPCDATAWEAPONSCRIPT
 	internal int WeaponScript;
 
-	// The eight InitD args assigned to the weapon script used by this enemy.
+	// The eight InitD args assigned to the weapon script used by this npc.
 	//
 	// @zasm_var NPCDATAWEAPONINITD
 	internal int WeaponInitD[];
 
-	// The shadow sprite used by the enemy, 0-255
+	// The shadow sprite used by the npc, 0-255
 	//
 	// @zasm_var NPCDSHADOWSPR
 	internal int ShadowSprite;
 
-	// The spawn sprite used by the enemy, 0-255
+	// The spawn sprite used by the npc, 0-255
 	//
 	// @zasm_var NPCDSPAWNSPR
 	internal int SpawnSprite;
 
-	// The death sprite used by the enemy, 0-255
+	// The death sprite used by the npc, 0-255
 	//
 	// @zasm_var NPCDDEATHSPR
 	internal int DeathSprite;
 
-	// Puts the text of the Enemy Name field into string 'ptr'.
+	// Puts the text of the npc name into string 'ptr'.
 	//
 	// @zasm
 	//   POP D2

@@ -158,9 +158,8 @@ enum NPCID
 	NPC_ZORA                       = 33,
 };
 
-// TODO ! naming?
 @Bitflags("int")
-enum EnemyMiscBitflags
+enum NPCMiscBitflags
 {
 	NPCMF_0POWERWEAPS              = 0x0001, // Damaged by 0-Power Weapons.
 	NPCMF_ISINVISIBLE              = 0x0002, // Is Invisible.
@@ -176,208 +175,6 @@ enum EnemyMiscBitflags
 	NPCMF_SHIELDED_RIGHT           = 0x0800, // Shielded on Right.
 	NPCMF_SHIELDED_BACK            = 0x1000, // Shielded on Back.
 	NPCMF_HAMMERBREAKS             = 0x2000, // Hammer Can break Shield.
-};
-
-// NPC Spawn Flags.
-@Bitflags("int")
-enum EnemySpawnBitflags
-{
-	NPCSF_ZORA                     = 0x0001, // Spawned by Zora Screen Flag.
-	NPCSF_FALLINGROCK              = 0x0002, // Spawned by Falling Rocks Screen Flag.
-	NPCSF_CORNERTRAP               = 0x0004, // Spawned by Corner Traps Screen Flag.
-	NPCSF_HORIZTRAP                = 0x0008, // Spawned by Horiz Trap Combo Type or Flag.
-	NPCSF_VERTTRAP                 = 0x0010, // Spawned by Vert Trap Combo Type or Flag.
-	NPCSF_4WAYTRAP                 = 0x0020, // Spawned by 4-Way Trap Combo Type or Flag.
-	NPCSF_LRTRAP                   = 0x0040, // Spawned by LR Trap Combo Type or Flag.
-	NPCSF_UPTRAP                   = 0x0080, // Spawned by UD Trap Combo Type or Flag.
-	NPCSF_MIDTRAP                  = 0x0100, // Spawned by Middle Traps Screen Flag.
-	NPCSF_STATUEFIRE               = 0x0200, // Spawned by Statue Fire Screen Flag.
-	NPCSF_ARMOS                    = 0x0400, // Spawned by Armos Combo Type.
-	NPCSF_GRAVE                    = 0x0800, // Spawned by Grave Combo Type.
-	NPCSF_GANONROOM                = 0x1000, // Spawned by Ganon Room Type.
-	NPCSF_SPAWNANIM                = 0x2000, // Spawn Animation Type.
-};
-
-enum NPCType
-{
-	NPCT_GUY,
-	NPCT_WALK,
-
-	NPCT_TEKTITE = 3,
-	NPCT_LEEVER,
-	NPCT_PEAHAT,
-	NPCT_ZORA,
-	NPCT_ROCK,
-	NPCT_GHINI,
-	NPCT_ARMOS,
-	NPCT_KEESE,
-
-	NPCT_TRAP = 15,
-	NPCT_WALLMASTER = 16,
-
-	NPCT_WIZZROBE = 21,
-	NPCT_AQUAMENTUS,
-	NPCT_MOLDORM,
-	NPCT_DODONGO,
-	NPCT_MANHANDLA,
-	NPCT_GLEEOK,
-	NPCT_DIGDOGGER,
-	NPCT_GOHMA,
-	NPCT_LANMOLA,
-	NPCT_PATRA,
-	NPCT_GANON,
-	NPCT_PROJECTILE,
-
-	NPCT_SPINTILE = 37,
-	NPCT_NONE,
-	NPCT_FAIRY,
-	NPCT_OTHERFLOAT,
-	NPCT_OTHER,
-
-	NPCT_CUSTOM_01 = 43,
-	NPCT_SCRIPT_01 = 43,
-	NPCT_CUSTOM_02 = 44,
-	NPCT_SCRIPT_02 = 44,
-	NPCT_CUSTOM_03 = 45,
-	NPCT_SCRIPT_03 = 45,
-	NPCT_CUSTOM_04 = 46,
-	NPCT_SCRIPT_04 = 46,
-	NPCT_CUSTOM_05 = 47,
-	NPCT_SCRIPT_05 = 47,
-	NPCT_CUSTOM_06 = 48,
-	NPCT_SCRIPT_06 = 48,
-	NPCT_CUSTOM_07 = 49,
-	NPCT_SCRIPT_07 = 49,
-	NPCT_CUSTOM_08 = 50,
-	NPCT_SCRIPT_08 = 50,
-	NPCT_CUSTOM_09 = 51,
-	NPCT_SCRIPT_09 = 51,
-	NPCT_CUSTOM_10 = 52,
-	NPCT_SCRIPT_10 = 52,
-	NPCT_CUSTOM_11 = 53,
-	NPCT_SCRIPT_11 = 53,
-	NPCT_CUSTOM_12 = 54,
-	NPCT_SCRIPT_12 = 54,
-	NPCT_CUSTOM_13 = 55,
-	NPCT_SCRIPT_13 = 55,
-	NPCT_CUSTOM_14 = 56,
-	NPCT_SCRIPT_14 = 56,
-	NPCT_CUSTOM_15 = 57,
-	NPCT_SCRIPT_15 = 57,
-	NPCT_CUSTOM_16 = 58,
-	NPCT_SCRIPT_16 = 58,
-	NPCT_CUSTOM_17 = 59,
-	NPCT_SCRIPT_17 = 59,
-	NPCT_CUSTOM_18 = 60,
-	NPCT_SCRIPT_18 = 60,
-	NPCT_CUSTOM_19 = 61,
-	NPCT_SCRIPT_19 = 61,
-	NPCT_CUSTOM_20 = 62,
-	NPCT_SCRIPT_20 = 62,
-	NPCT_FRIENDLY_01 = 63,
-	NPCT_FRIENDLY_02 = 64,
-	NPCT_FRIENDLY_03 = 65,
-	NPCT_FRIENDLY_04 = 66,
-	NPCT_FRIENDLY_05 = 67,
-	NPCT_FRIENDLY_06 = 68,
-	NPCT_FRIENDLY_07 = 69,
-	NPCT_FRIENDLY_08 = 70,
-	NPCT_FRIENDLY_09 = 71,
-	NPCT_FRIENDLY_10 = 72
-};
-
-// Used with [npc::Defense].
-enum NPCDefenseIndex
-{
-	NPCD_BRANG,
-	NPCD_BOMB,
-	NPCD_SBOMB,
-	NPCD_ARROW,
-	NPCD_FIRE,
-	NPCD_WAND,
-	NPCD_MAGIC,
-	NPCD_HOOKSHOT,
-	NPCD_HAMMER,
-	NPCD_SWORD,
-	NPCD_BEAM,
-	NPCD_REFBEAM,
-	NPCD_REFMAGIC,
-	NPCD_REFFIREBALL,
-	NPCD_REFROCK,
-	NPCD_STOMP,
-	NPCD_BYRNA,
-	NPCD_SCRIPT,
-
-	NPCD_SCRIPT1 = 20,
-	NPCD_SCRIPT2,
-	NPCD_SCRIPT3,
-	NPCD_SCRIPT4,
-	NPCD_SCRIPT5,
-	NPCD_SCRIPT6,
-	NPCD_SCRIPT7,
-	NPCD_SCRIPT8,
-	NPCD_SCRIPT9,
-	NPCD_SCRIPT10,
-
-	NPCD_WHISTLE = 35,
-	NPCD_SWITCHHOOK,
-	NPCD_THROWN,
-	NPCD_REFARROW,
-	NPCD_REFFIRE,
-	NPCD_REFFIRE2
-};
-
-// Used with [npc::Defense].
-enum NPCDefenseType
-{
-	NPCDT_NONE,
-	NPCDT_HALFDAMAGE,
-	NPCDT_QUARTERDAMAGE,
-	NPCDT_STUN,
-	NPCDT_STUNORBLOCK,
-	NPCDT_STUNORIGNORE,
-	NPCDT_BLOCK1,
-	NPCDT_BLOCK2,
-	NPCDT_BLOCK4,
-	NPCDT_BLOCK6,
-	NPCDT_BLOCK8,
-	NPCDT_BLOCK,
-	NPCDT_IGNORE1,
-	NPCDT_IGNORE,
-	NPCDT_ONEHITKILL,
-	NPCDT_BLOCK10,
-	NPCDT_2XDAMAGE,
-	NPCDT_3XDAMAGE,
-	NPCDT_4XDAMAGE,
-	NPCDT_HEAL,
-	NPCDT_TRIGGERSECRETS,
-
-	NPCDT_SWITCH = 50
-};
-
-// Enemy projectile weapon selections. Use with npc->Weapon.
-// Note: Don't use these with Screen->CreateEWeapon! Use [EWeaponType] instead.
-// Use [WeaponTypeToID] to convert this enum to an [EWeaponType].
-enum NPCWeapon
-{
-	WPN_NONE              = 0,
-	WPN_ENEMYFLAME        = 140,
-	WPN_ENEMYWIND         = 141,
-	WPN_ENEMYFIREBALL     = 129,
-	WPN_ENEMYARROW        = 130,
-	WPN_ENEMYBRANG        = 131,
-	WPN_ENEMYSWORD        = 132,
-	WPN_ENEMYROCK         = 133,
-	WPN_ENEMYMAGIC        = 134,
-	WPN_ENEMYBOMB         = 135,
-	WPN_ENEMYSBOMB        = 136,
-	WPN_ENEMYLITBOMB      = 137,
-	WPN_ENEMYLITSBOMB     = 138,
-	WPN_ENEMYFIRETRAIL    = 139,
-	WPN_ENEMYFLAME2       = 142,
-	WPN_ENEMYFLAME2TRAIL  = 143, // Not implemented
-	WPN_ENEMYICE          = 144, // Not implemented
-	WPN_ENEMYFIREBALL2    = 145  // A fireball that doesn't fly toward Link
 };
 
 // Default item drop sets.
@@ -416,24 +213,6 @@ enum BossPal
 	BPAL_ICON4, // Used for Quest Icon 4.
 	BPAL_GLEEOKF,
 	BPAL_FROZEN // Unused
-};
-
-enum NPCShieldIndex
-{
-	SHLD_FRONT,
-	SHLD_BACK,
-	SHLD_LEFT,
-	SHLD_RIGHT,
-	SHLD_CAN_BREAK
-};
-
-enum NPCFade
-{
-	NPCF_NONE,
-	NPCF_FLICKER,
-	NPCF_INVISIBLE,
-	NPCF_FLASH,
-	NPCF_POOF
 };
 
 // "special" walk flags.
@@ -537,6 +316,8 @@ class npc {
 	// @zasm_var NPCOTILE
 	internal int OriginalTile;
 
+	// The weapon type used by the npc.
+	//
 	// @value [NPCWeapon]
 	// @zasm_var NPCWEAPON
 	internal int Weapon;
@@ -556,7 +337,7 @@ class npc {
 
 	// @value [BossPal]
 	// @zasm_var NPCBOSSPAL
-	internal BossPal BossPal;
+	internal int BossPal;
 
 	// @zasm_var NPCBGSFX
 	internal int SFX;
@@ -576,6 +357,7 @@ class npc {
 	// @zasm_var NPCDD
 	internal untyped Attributes[];
 
+	// @value [NPCMiscBitflags]
 	// @zasm_var NPCMFLAGS
 	internal int MiscFlags;
 
@@ -593,7 +375,7 @@ class npc {
 	// @zasm_var NPCISCORE
 	internal bool Core;
 
-	// Expanded to a size of 42 to cover new defense categories.
+	// The defense categories for the npc.
 	//
 	// @index [NPCDefenseIndex]
 	// @value [NPCDefenseType]
@@ -676,7 +458,7 @@ class npc {
 	// @zasm_var NPCHASITEM
 	internal bool HasItem;
 
-	// Flags related to the npc's shield.
+	// The shield status of the npc.
 	//
 	// @index [NPCShieldIndex]
 	// @zasm_var NPCSHIELD
