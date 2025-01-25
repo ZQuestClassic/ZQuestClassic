@@ -1250,9 +1250,9 @@ class screendata {
 	//   SETR D2 LWPNCOUNT
 	internal int NumLWeapons();
 
-	// Where `1 <= n <= [NumItems]`, returns a pointer to the nth object on the
-	// screen.
+	// Returns a pointer to the nth [lweapon] on the screen.
 	//
+	// @param [int] n - Between 1 and [NumLWeapons] (inclusive).
 	// @zasm
 	//   POP D2
 	//   SUBV D2 1
@@ -1277,9 +1277,9 @@ class screendata {
 	//   SETR D2 EWPNCOUNT
 	internal int NumEWeapons();
 
-	// Where `1 <= n <= [NumItems]`, returns a pointer to the nth object on the
-	// screen.
+	// Returns a pointer to the nth [eweapon] on the screen.
 	//
+	// @param [int] n - Between 1 and [NumEWeapons] (inclusive).
 	// @zasm
 	//   POP D2
 	//   SUBV D2 1
@@ -1439,9 +1439,9 @@ class screendata {
 	//   SETR D2 PORTALCOUNT
 	internal int NumPortals();
 
-	// Where `1 <= n <= [NumItems]`, returns a pointer to the nth object on the
-	// screen.
+	// Returns a pointer to the nth [portal] on the screen.
 	//
+	// @param [int] n - Between 1 and [NumPortals] (inclusive).
 	// @zasm
 	//   POP D2
 	//   LOADPORTAL D2

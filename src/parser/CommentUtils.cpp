@@ -53,12 +53,8 @@ static ASTExprIdentifier parseExprIdentifier(const std::string& str)
 	return ident;
 }
 
-std::vector<ParseCommentResult> parseForSymbolLinks(std::string comment, const AST* node, bool check_params)
+static void parseForSymbolLinks(Scope* scope, const AST* node, bool check_params, std::vector<ParseCommentResult>& matches, std::string& comment, int start_index, int end_index)
 {
-	Scope* scope = scope = node->getScope();
-	if (!scope)
-		return {};
-
 	// identifier, followed by an optional and non-captured "[]" or "()"
 	static std::string p_ident = "(#?[a-zA-Z_][->:a-zA-Z0-9_]*)(?:\\[\\]|\\(\\))?";
 	static std::string p_link = fmt::format("\\{{@link {}(?:\\|([^}}]+))?\\}}", p_ident);
@@ -71,13 +67,12 @@ std::vector<ParseCommentResult> parseForSymbolLinks(std::string comment, const A
 	// [symbol|text]
 	// 'symbol' is either an internal symbol, or an external docs target starting with '#'
 	static const std::regex r(p_regex);
-	std::sregex_iterator it(comment.begin(), comment.end(), r);
+	std::sregex_iterator it(comment.begin() + start_index, comment.begin() + end_index, r);
 	std::sregex_iterator end;
 
-	std::vector<ParseCommentResult> matches;
 	while (it != end)
 	{
-		auto pos = (*it).position(0);
+		auto pos = (*it).position(0) + start_index;
 		auto len = (*it).length(0);
 		std::string symbol_name, link_text;
 		if ((*it)[3].matched)
@@ -241,6 +236,37 @@ std::vector<ParseCommentResult> parseForSymbolLinks(std::string comment, const A
 		if (!symbol_node)
 			logDebugMessage(fmt::format("could not resolve symbol \"{}\"", symbol_name).c_str());
 	}
+}
+
+std::vector<ParseCommentResult> parseForSymbolLinks(std::string comment, const AST* node, bool check_params)
+{
+	Scope* scope = scope = node->getScope();
+	if (!scope)
+		return {};
+
+	std::vector<ParseCommentResult> matches;
+
+	// Text within back ticks should not be parsed.
+	bool in_backticks = false;
+	int start_section = 0;
+	for (int i = 0; i < comment.size(); i++)
+	{
+		if (comment[i] == '`')
+		{
+			in_backticks = !in_backticks;
+			if (in_backticks)
+			{
+				parseForSymbolLinks(scope, node, check_params, matches, comment, start_section, i);
+			}
+			else
+			{
+				start_section = i + 1;
+			}
+		}
+	}
+
+	if (!in_backticks)
+		parseForSymbolLinks(scope, node, check_params, matches, comment, start_section, comment.size());
 
 	return matches;
 }
