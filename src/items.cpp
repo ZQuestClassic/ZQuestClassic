@@ -169,7 +169,7 @@ bool item::animate(int32_t)
 	itemdata const* itm = &itemsbuf[id];
 	if(itm->family == itype_progressive_itm)
 	{
-		int32_t id2 = get_progressive_item(*itm);
+		int32_t id2 = get_progressive_item(id);
 		if(unsigned(id2) >= MAXITEMS)
 			id2 = -1;
 		if(id2 != linked_parent) //Update item
@@ -501,19 +501,44 @@ void item::load_gfx(itemdata const& itm)
 	else tile = o_tile;
 }
 
-int32_t get_progressive_item(itemdata const& itm, bool lastOwned)
+struct prog_item_data
+{
+	std::set<int32_t>* visited;
+	int32_t last_id = -1;
+	int32_t ret_id = -1;
+	bool errored = false;
+	
+	prog_item_data(std::set<int32_t>& s) : visited(&s) {}
+	
+	prog_item_data make_child()
+	{
+		return prog_item_data(*visited);
+	}
+};
+static void _get_progressive_item(int32_t itmid, prog_item_data& data)
 {
 #ifdef IS_EDITOR
-	return -1;
+	return;
 #else
+	if(unsigned(itmid) >= MAXITEMS)
+	{
+		assert(false); // This should have been validated before the call
+		return;
+	}
+	if(data.visited->contains(itmid))
+	{
+		data.errored = true;
+		return;
+	}
+	data.visited->insert(itmid);
+	itemdata const& itm = itemsbuf[itmid];
 	int32_t arr[] = {itm.misc1, itm.misc2, itm.misc3, itm.misc4, itm.misc5,
 		itm.misc6, itm.misc7, itm.misc8, itm.misc9, itm.misc10};
-	int32_t lastid = -1;
 	for(auto id : arr)
 	{
 		if(unsigned(id) >= MAXITEMS)
 			continue;
-		lastid = id;
+		data.last_id = id;
 		
 		//Skip items that are owned as 'Equipment Item's
 		if(game->get_item(id))
@@ -532,12 +557,47 @@ int32_t get_progressive_item(itemdata const& itm, bool lastOwned)
 				if(game->get_maxcounter(hcitem.count) >= hcitem.max)
 					continue;
 		}
+		else if(targItem.family == itype_progressive_itm)
+		{
+			prog_item_data subdata = data.make_child();
+			_get_progressive_item(id, subdata);
+			
+			if(subdata.errored)
+			{
+				data.errored = true;
+				return;
+			}
+			
+			data.last_id = subdata.last_id;
+			if(subdata.ret_id > -1)
+			{
+				data.ret_id = subdata.ret_id;
+				return;
+			}
+			else continue;
+		}
 		
-		if(lastOwned) return lastid;
-		return id;
+		data.ret_id = id;
+		return;
 	}
-	return lastid;
+	return;
 #endif
+}
+
+int32_t get_progressive_item(int32_t itmid, bool lastOwned)
+{
+	if(unsigned(itmid) >= MAXITEMS)
+		return -1; // skip everything
+	std::set<int32_t> visited;
+	prog_item_data data(visited);
+	_get_progressive_item(itmid, data);
+	if(data.errored)
+	{
+		Z_error("Failed to parse progressive item '%d'; infinite loop!\n", itmid);
+		return -1;
+	}
+	if(lastOwned) return data.last_id;
+	return data.ret_id;
 }
 
 int32_t item::getScriptUID()
