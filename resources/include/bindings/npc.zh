@@ -1,4 +1,4 @@
-#include "bindings/sprite.zh"
+import "bindings/sprite.zh"
 
 // Enemy IDs. Used with [Screen->CreateNPC].
 enum NPCID

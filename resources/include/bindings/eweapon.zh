@@ -1,4 +1,4 @@
-#include "bindings/sprite.zh"
+import "bindings/sprite.zh"
 
 // EWeapon types. Used with [Screen->CreateEWeapon] and [Screen->LoadEWeapon].
 enum EWeaponType

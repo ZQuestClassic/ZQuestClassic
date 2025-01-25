@@ -1,4 +1,4 @@
-#include "bindings/sprite.zh"
+import "bindings/sprite.zh" 
 
 enum HeroAction
 {

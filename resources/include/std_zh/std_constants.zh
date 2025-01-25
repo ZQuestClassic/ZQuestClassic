@@ -45,8 +45,6 @@ DEFINE MIN_BYTE              = 0;
 DEFINE MAX_COUNTER 			= WORD_MAX;
 DEFINE MIN_COUNTER 			= WORD_MIN;
 
-DEFINEL MAX_TIME             = 1944000000L; // Max value of [Game->Time].
-
 DEFINE MIN_LWEAPON 			= 1; //Lowest numbered objects.
 DEFINE MIN_EWEAPON 			= 1;
 DEFINE MIN_NPC			= 1;
