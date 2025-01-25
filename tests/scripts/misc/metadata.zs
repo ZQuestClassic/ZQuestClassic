@@ -57,11 +57,19 @@ enum FilterBitflags
 };
 
 // filters with [FilterBitflags].
-void do_filter(FilterBitflags f)
+FilterBitflags do_filter(FilterBitflags f)
 {
     Trace(f);
+    return f;
 }
 
+Car make_car()
+{
+    Car c;
+    return c;
+}
+
+// TODO: script decl node doesnt capture comments
 // a ffc script called Metadata
 ffc script Metadata {
     // run me
@@ -81,7 +89,6 @@ ffc script Metadata {
         // an array
         int arr[] = {1, 2, 3};
         for (v : arr) {
-            // TODO: make symbol lookup find `v`
             Trace(v);
         }
         if (int ahhh = 1)

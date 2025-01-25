@@ -296,6 +296,11 @@ static std::string getSymbolId(const Function* fn)
 	return fmt::format("fn.{}", fn->id);
 }
 
+static std::string getSymbolId(const Script* script)
+{
+	return fmt::format("script.{}", script->getName());
+}
+
 MetadataVisitor::MetadataVisitor(Program& program, std::string root_file_name)
 	: RecursiveVisitor(program), root_file_name(root_file_name), is_enabled(false)
 {
@@ -357,6 +362,9 @@ void MetadataVisitor::caseNamespace(ASTNamespace& host, void* param)
 
 void MetadataVisitor::caseScript(ASTScript& host, void* param)
 {
+	std::string symbol_id = getSymbolId(host.script);
+	appendIdentifier(symbol_id, &host, getSelectionRange(*host.identifier));
+
 	auto prev_active = active;
 	appendDocSymbol(SymbolKind::Module, host);
 	RecursiveVisitor::caseScript(host, param);
@@ -365,6 +373,12 @@ void MetadataVisitor::caseScript(ASTScript& host, void* param)
 
 void MetadataVisitor::caseClass(ASTClass& host, void* param)
 {
+	if (host.user_class)
+	{
+		std::string symbol_id = getSymbolId(host.user_class->getType());
+		appendIdentifier(symbol_id, &host, getSelectionRange(*host.identifier));
+	}
+
 	auto prev_active = active;
 	appendDocSymbol(SymbolKind::Class, host);
 	RecursiveVisitor::caseClass(host, param);
@@ -394,6 +408,12 @@ void MetadataVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 		}
 	}
 
+	if (host.manager)
+	{
+		std::string symbol_id = getSymbolId(host.manager);
+		appendIdentifier(symbol_id, &host, getSelectionRange(*host.identifier));
+	}
+
 	auto prev_active = active;
 	appendDocSymbol(SymbolKind::Variable, host);
 	RecursiveVisitor::caseDataDecl(host, param);
@@ -416,6 +436,12 @@ void MetadataVisitor::caseDataEnum(ASTDataEnum& host, void* param)
 	appendDocSymbol(SymbolKind::Enum, host);
 	for (auto* decl : host.getDeclarations())
 	{
+		if (decl->manager)
+		{
+			std::string symbol_id = getSymbolId(decl->manager);
+			appendIdentifier(symbol_id, decl, getSelectionRange(*decl->identifier));
+		}
+
 		auto prev_active = active;
 		appendDocSymbol(SymbolKind::EnumMember, *decl);
 		active = prev_active;
@@ -427,12 +453,30 @@ void MetadataVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 {
 	if (host.prototype)
 		return;
+
+	if (host.func)
+	{
+		std::string symbol_id = getSymbolId(host.func);
+		appendIdentifier(symbol_id, &host, getSelectionRange(*host.identifier));
+	}
+
 	if (host.func && host.func->isTemplateSkip())
 	{
 		for(auto& applied : host.func->get_applied_funcs())
 			visit(applied->getNode(), param);
 		return;
 	}
+
+	if (host.returnType->type)
+	{
+		auto type = host.returnType.get()->type.get();
+		if (auto custom_type = dynamic_cast<const DataTypeCustom*>(type); custom_type)
+		{
+			std::string symbol_id = getSymbolId(custom_type);
+			appendIdentifier(symbol_id, custom_type->getSource(), getSelectionRange(*host.returnType));
+		}
+	}
+
 	auto prev_active = active;
 	auto kind = host.getFlag(FUNCFLAG_CONSTRUCTOR) ? SymbolKind::Constructor : SymbolKind::Function;
 	appendDocSymbol(kind, host);
