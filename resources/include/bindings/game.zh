@@ -291,27 +291,31 @@ class Game {
 
 	// Returns the screen the [Hero] is currently on.
 	//
+	// @deprecated_getter GetCurScreen
 	// @zasm_var CURSCR
 	internal const int CurScreen;
 
-	// Returns the screen the [Hero] is currently on, offset by the current dmap
-	// offset.
+	// The screen the [Hero] is currently on, offset by the current dmap offset.
 	//
+	// @deprecated_getter GetCurDMapScreen
 	// @zasm_var CURDSCR
 	internal const int CurDMapScreen;
 
-	// Returns the map the [Hero] is currently on.
+	// The map the [Hero] is currently on.
 	//
+	// @deprecated_getter GetCurMap
 	// @zasm_var CURMAP
 	internal const int CurMap;
 
-	// Returns the dmap the [Hero] is currently on.
+	// The dmap the [Hero] is currently on.
 	//
+	// @deprecated_getter GetCurDMap
 	// @zasm_var CURDMAP
 	internal const int CurDMap;
 
-	// Returns the level the [Hero] is currently on.
+	// The level the [Hero] is currently on.
 	//
+	// @deprecated_getter GetCurLevel
 	// @zasm_var CURLEVEL
 	internal const int CurLevel;
 
@@ -762,42 +766,6 @@ class Game {
 	//   POP D2
 	//   SETR SPRITEMAXITEM D2
 	internal void MaxItemsprites(int value);
-
-	// Returns the screen the [Hero] is currently on.
-	//
-	// @deprecated Use [CurScreen] instead!
-	// @zasm
-	//   SETR D2 CURSCR
-	internal int GetCurScreen();
-
-	// Returns the screen the [Hero] is currently on, offset by the current dmap
-	// offset.
-	//
-	// @deprecated Use [CurDMapScreen] instead!
-	// @zasm
-	//   SETR D2 CURDSCR
-	internal int GetCurDMapScreen();
-
-	// Returns the map the [Hero] is currently on.
-	//
-	// @deprecated Use [CurMap] instead!
-	// @zasm
-	//   SETR D2 CURMAP
-	internal int GetCurMap();
-
-	// Returns the dmap the [Hero] is currently on.
-	//
-	// @deprecated Use [CurDMap] instead!
-	// @zasm
-	//   SETR D2 CURDMAP
-	internal int GetCurDMap();
-
-	// Returns the level the [Hero] is currently on.
-	//
-	// @deprecated Use [CurLevel] instead!
-	// @zasm
-	//   SETR D2 CURLEVEL
-	internal int GetCurLevel();
 
 	// @zasm
 	//   POP D1

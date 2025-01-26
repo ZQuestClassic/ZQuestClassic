@@ -512,14 +512,34 @@ void MetadataVisitor::caseExprCall(ASTExprCall& host, void* param)
 		return;
 	}
 
+	std::string symbol_id;
+	AST* symbol_node;
+	if (host.binding->aliased_func)
+	{
+		symbol_id = getSymbolId(host.binding);
+		symbol_node = host.binding->aliased_func->getNode();
+	}
+	else if (host.binding->data_decl_source_node)
+	{
+		symbol_id = getSymbolId(host.binding->data_decl_source_node->manager);
+		symbol_node = host.binding->data_decl_source_node;
+	}
+	else
+	{
+		symbol_id = getSymbolId(host.binding);
+		symbol_node = host.binding->getNode();
+	}
+
 	// TODO: create identifiers for namespace components
 	if (auto expr_ident = dynamic_cast<ASTExprIdentifier*>(host.left.get()))
 	{
-		AST* symbol_node = host.binding->aliased_func ? host.binding->aliased_func->getNode() : host.binding->getNode();
-		appendIdentifier(getSymbolId(host.binding), symbol_node, expr_ident->componentNodes.back()->location);
+		appendIdentifier(symbol_id, symbol_node, expr_ident->componentNodes.back()->location);
 	}
 	else if (auto expr_ident = dynamic_cast<ASTExprArrow*>(host.left.get()))
-		appendIdentifier(getSymbolId(host.binding), host.binding->getNode(), expr_ident->right->location);
+	{
+		appendIdentifier(symbol_id, symbol_node, expr_ident->right->location);
+	}
+
 	RecursiveVisitor::caseExprCall(host, param);
 }
 

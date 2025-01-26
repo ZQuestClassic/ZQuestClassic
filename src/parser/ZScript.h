@@ -450,6 +450,7 @@ namespace ZScript
 		ASTFuncDecl* node;
 		Datum* thisVar;
 		Function* aliased_func; //the function this is an alias for, if any
+		ASTDataDecl* data_decl_source_node; // Only if this Function was created via @deprecated_getter
 
 		// Get the opcodes.
 		std::vector<std::shared_ptr<Opcode>> const& getCode() const

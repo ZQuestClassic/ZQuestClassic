@@ -555,7 +555,7 @@ Function::Function(DataType const* returnType, string const& name,
 				   int32_t flags, int32_t internal_flags, bool prototype, optional<int32_t> defaultReturn)
 	: returnType(returnType), name(name), hasPrefixType(false), isFromTypeTemplate(false),
 	  extra_vargs(0), paramTypes(paramTypes), paramNames(paramNames), opt_vals(), id(id),
-	  node(NULL), internalScope(NULL), externalScope(NULL), thisVar(NULL),
+	  node(NULL), data_decl_source_node(NULL), internalScope(NULL), externalScope(NULL), thisVar(NULL),
 	  internal_flags(internal_flags), prototype(prototype),
 	  defaultReturn(defaultReturn), label(std::nullopt), flags(flags),
 	  aliased_func(nullptr), paramDatum(), templ_bound_ts()

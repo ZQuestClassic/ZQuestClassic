@@ -1891,7 +1891,7 @@ MapGlobal.z Line 44 - Error T021: Function Map(int, int, int, int, bool, bool, b
       ^~~
 
 
-MapGlobal.z Line 52 - Error T021: Function DoorsList(int, int, int) has not been declared.
+MapGlobal.z Line 52 - Error T021: Function DoorsList(const int, const int, const int) has not been declared.
 
 50    {
 51        if(Screen->State[ST_VISITED]==false){ Screen->State[ST_VISITED]=true;  //Set visited state and door configuration on every screen entered
@@ -12063,7 +12063,7 @@ EmilyMisc.zh Line 580 - Warning S094: Function 'Game::GetCurScreen()' is depreca
               ^~~~~~~~~~~~~~~~~~
 
 
-INFO: Use [CurScreen] instead!
+INFO: Use CurScreen instead!
 EmilyMisc.zh Line 585 - Warning S094: Function 'Game::GetCurScreen()' is deprecated, and should not be used.
 
 583    {
@@ -12072,7 +12072,7 @@ EmilyMisc.zh Line 585 - Warning S094: Function 'Game::GetCurScreen()' is depreca
                       ^~~~~~~~~~~~~~~~~~
 
 
-INFO: Use [CurScreen] instead!
+INFO: Use CurScreen instead!
 EmilyMisc.zh Line 587 - Warning S094: Function 'Game::GetCurScreen()' is deprecated, and should not be used.
 
 585        return Game->GetCurScreen() > 0x0F;
@@ -12081,7 +12081,7 @@ EmilyMisc.zh Line 587 - Warning S094: Function 'Game::GetCurScreen()' is depreca
                   ^~~~~~~~~~~~~~~~~~
 
 
-INFO: Use [CurScreen] instead!
+INFO: Use CurScreen instead!
 EmilyMisc.zh Line 589 - Warning S094: Function 'Game::GetCurScreen()' is deprecated, and should not be used.
 
 587        return Game->GetCurScreen() < 0x70;
@@ -12090,7 +12090,7 @@ EmilyMisc.zh Line 589 - Warning S094: Function 'Game::GetCurScreen()' is depreca
                   ^~~~~~~~~~~~~~~~~~
 
 
-INFO: Use [CurScreen] instead!
+INFO: Use CurScreen instead!
 EmilyMisc.zh Line 591 - Warning S094: Function 'Game::GetCurScreen()' is deprecated, and should not be used.
 
 589        return Game->GetCurScreen() % 0x10;
@@ -12099,7 +12099,7 @@ EmilyMisc.zh Line 591 - Warning S094: Function 'Game::GetCurScreen()' is depreca
                    ^~~~~~~~~~~~~~~~~~
 
 
-INFO: Use [CurScreen] instead!
+INFO: Use CurScreen instead!
 EmilyMisc.zh Line 393 - Warning S094: Function 'Game::GetCurMap()' is deprecated, and should not be used.
 
 391    mapdata CurMapdata() //start
@@ -12108,7 +12108,7 @@ EmilyMisc.zh Line 393 - Warning S094: Function 'Game::GetCurMap()' is deprecated
                                     ^~~~~~~~~~~~~~~
 
 
-INFO: Use [CurMap] instead!
+INFO: Use CurMap instead!
 EmilyMisc.zh Line 393 - Warning S094: Function 'Game::GetCurScreen()' is deprecated, and should not be used.
 
 391    mapdata CurMapdata() //start
@@ -12117,7 +12117,7 @@ EmilyMisc.zh Line 393 - Warning S094: Function 'Game::GetCurScreen()' is depreca
                                                        ^~~~~~~~~~~~~~~~~~
 
 
-INFO: Use [CurScreen] instead!
+INFO: Use CurScreen instead!
 EmilyMisc.zh Line 28 - Error T021: Function Debug->NULL() has not been declared.
 
 26    // Invalid script
@@ -14229,7 +14229,7 @@ script.zs Line 543 - Warning S094: Function 'Game::GetCurDMap()' is deprecated, 
                                                     ^~~~~~~~~~~~~~~~
 
 
-INFO: Use [CurDMap] instead!
+INFO: Use CurDMap instead!
 script.zs Line 402 - Error T021: Function TryFindDMapSlot(TestPlayInitData[], int) has not been declared.
 
 400        Quit();
@@ -14392,7 +14392,7 @@ script.zs Line 77 - Warning S094: Function 'Game::GetCurDMap()' is deprecated, a
                   ^~~~~~~~~~~~~~~~
 
 
-INFO: Use [CurDMap] instead!
+INFO: Use CurDMap instead!
 script.zs Line 78 - Warning S094: Function 'Game::GetCurScreen()' is deprecated, and should not be used.
 
 76    
@@ -14401,7 +14401,7 @@ script.zs Line 78 - Warning S094: Function 'Game::GetCurScreen()' is deprecated,
                     ^~~~~~~~~~~~~~~~~~
 
 
-INFO: Use [CurScreen] instead!
+INFO: Use CurScreen instead!
 script.zs Line 198 - Warning S094: Function 'file::Free()' is deprecated, and should not be used.
 
 196        SavedScreen = ints[1];
@@ -14518,7 +14518,7 @@ DayNightNew.zs Line 640 - Warning S094: Function 'Game::GetCurDMap()' is depreca
                            ^~~~~~~~~~~~~~~~
 
 
-INFO: Use [CurDMap] instead!
+INFO: Use CurDMap instead!
 DayNightNew.zs Line 664 - Warning S094: Function 'Game::GetCurDMap()' is deprecated, and should not be used.
 
 662    {
@@ -14527,7 +14527,7 @@ DayNightNew.zs Line 664 - Warning S094: Function 'Game::GetCurDMap()' is depreca
                            ^~~~~~~~~~~~~~~~
 
 
-INFO: Use [CurDMap] instead!
+INFO: Use CurDMap instead!
 DayNightNew.zs Line 695 - Warning S094: Function 'screendata::GetSideWarpDMap(int)' is deprecated, and should not be used.
 
 693    if(tileOrSideWarp)
@@ -14731,7 +14731,7 @@ DayNightNew.zs Line 170 - Warning S094: Function 'Game::GetCurDMap()' is depreca
                           ^~~~~~~~~~~~~~~~
 
 
-INFO: Use [CurDMap] instead!
+INFO: Use CurDMap instead!
 DayNightNew.zs Line 170 - Warning S094: Variable 'Game->DMapFlags' is deprecated, and should not be used.
 
 168    int tmpDMap;
@@ -14749,7 +14749,7 @@ DayNightNew.zs Line 170 - Warning S094: Function 'Game::GetCurDMap()' is depreca
                           ^~~~~~~~~~~~~~~~
 
 
-INFO: Use [CurDMap] instead!
+INFO: Use CurDMap instead!
 DayNightNew.zs Line 211 - Warning S094: Function 'Game::GetCurDMap()' is deprecated, and should not be used.
 
 209    if(PalChangeCooldown<=0)
@@ -14758,7 +14758,7 @@ DayNightNew.zs Line 211 - Warning S094: Function 'Game::GetCurDMap()' is depreca
                              ^~~~~~~~~~~~~~~~
 
 
-INFO: Use [CurDMap] instead!
+INFO: Use CurDMap instead!
 DayNightNew.zs Line 217 - Warning S094: Function 'screendata::GetSideWarpDMap(int)' is deprecated, and should not be used.
 
 215    for(i=0; i<4; ++i)
@@ -14776,7 +14776,7 @@ DayNightNew.zs Line 218 - Warning S094: Function 'Game::GetCurDMap()' is depreca
                        ^~~~~~~~~~~~~~~~
 
 
-INFO: Use [CurDMap] instead!
+INFO: Use CurDMap instead!
 DayNightNew.zs Line 220 - Warning S094: Function 'screendata::GetTileWarpDMap(int)' is deprecated, and should not be used.
 
 218    if(tmpDMap!=Game->GetCurDMap())
@@ -14794,7 +14794,7 @@ DayNightNew.zs Line 221 - Warning S094: Function 'Game::GetCurDMap()' is depreca
                    ^~~~~~~~~~~~~~~~
 
 
-INFO: Use [CurDMap] instead!
+INFO: Use CurDMap instead!
 DayNightNew.zs Line 331 - Error T017: Cannot cast from DMapDayNight to int.
 
 329    
@@ -15115,7 +15115,7 @@ TempNoReturnItem.zs Line 56 - Warning S094: Function 'Game::GetCurScreen()' is d
              ^~~~~~~~~~~~~~~~~~
 
 
-INFO: Use [CurScreen] instead!
+INFO: Use CurScreen instead!
 TempNoReturnItem.zs Line 60 - Error T017: Cannot cast from int to const ItemPickupBitflags.
 
 58    itemsprite drop = CreateItemAt(ItemID, this->X, this->Y);
@@ -15132,7 +15132,7 @@ TempNoReturnItem.zs Line 105 - Warning S094: Function 'Game::GetCurScreen()' is 
                                    ^~~~~~~~~~~~~~~~~~
 
 
-INFO: Use [CurScreen] instead!
+INFO: Use CurScreen instead!
 TempNoReturnItem.zs Line 105 - Warning S094: Function 'Game::GetCurMap()' is deprecated, and should not be used.
 
 103    long ReturnValue(int pos)
@@ -15141,7 +15141,7 @@ TempNoReturnItem.zs Line 105 - Warning S094: Function 'Game::GetCurMap()' is dep
                                                          ^~~~~~~~~~~~~~~
 
 
-INFO: Use [CurMap] instead!
+INFO: Use CurMap instead!
 Failure!
 Compile finished with exit code '17' (compiled with errors)
 
