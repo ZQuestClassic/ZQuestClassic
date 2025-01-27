@@ -2540,6 +2540,25 @@ int32_t do_msgheight(int32_t msg, char const* str);
 int32_t do_msgwidth(int32_t msg, char const* str);
 //
 
+template <typename T, size_t N>
+static int read_array(const T(&arr)[N], int index, const char* context)
+{
+	if (BC::checkBounds(index, 0, N - 1, context) != SH::_NoError)
+		return -1;
+
+	return arr[index];
+}
+
+template <typename T, size_t N>
+static bool write_array(T(&arr)[N], int index, T value, const char* context)
+{
+	if (BC::checkBounds(index, 0, N - 1, context) != SH::_NoError)
+		return false;
+
+	arr[index] = value;
+	return true;
+}
+
 int32_t earlyretval = -1;
 int32_t get_register(int32_t arg)
 {
@@ -3472,24 +3491,20 @@ int32_t get_register(int32_t arg)
 		break;
 
 		case RAWKEY:
-		{	//Game->KeyPressed[], read-only
-			//if ( !keypressed() ) break; //Don;t return values set by setting Hero->Input/Press
-			//hmm...no, this won;t return properly for modifier keys. 
-			int32_t keyid = ri->d[rINDEX]/10000;
-			//key = vbound(key,0,n);
-			bool pressed = key_current_frame[keyid] != 0;
+		{
+			bool pressed = read_array(key_current_frame, ri->d[rINDEX]/10000, "Input->KeyRaw") != 0;
 			ret = pressed?10000:0;
 		}
 		break;
 		
 		case KEYINPUT:
 		{
-			ret = KeyInput[ri->d[rINDEX]/10000] ? 10000 : 0;
+			ret = read_array(KeyInput, ri->d[rINDEX]/10000, "Input->Key") * 10000;
 			break;
 		}
 		case KEYPRESS:
 		{
-			ret = KeyPress[ri->d[rINDEX]/10000] ? 10000 : 0;
+			ret = read_array(KeyPress, ri->d[rINDEX]/10000, "Input->KeyPress") * 10000;
 			break;
 		}
 		
@@ -3536,16 +3551,14 @@ int32_t get_register(int32_t arg)
 		case DISABLEKEY:
 		{
 			//Input->DisableKey(int32_t key)
-			int32_t keyid = ri->d[rINDEX]/10000;
-			ret = disabledKeys[keyid]?10000:0;
+			ret = read_array(disabledKeys, ri->d[rINDEX]/10000, "Input->DisableKey") * 10000;
 			break;
 		}
 		
 		case DISABLEBUTTON:
 		{
 			//Input->DisableButton(int32_t cb)
-			int32_t cbid = ri->d[rINDEX]/10000;
-			ret = disable_control[cbid]?10000:0;
+			ret = read_array(disable_control, ri->d[rINDEX]/10000, "Input->DisableButton") * 10000;
 			break;
 		}
 
@@ -6648,31 +6661,16 @@ int32_t get_register(int32_t arg)
 			break;
 			
 		case SCRDOORD:
-			ret=tmpscr->door[ri->d[rINDEX]/10000]*10000;
+			ret = read_array(tmpscr->door, ri->d[rINDEX]/10000, "Screen->Door") * 10000;
 			break;
-		
+
 		case SCREENSCRIPT:
 			ret=tmpscr->script*10000;
 			break;
 		
 		case SCREENINITD:
-			ret = tmpscr->screeninitd[ri->d[rINDEX]/10000];
+			ret = read_array(tmpscr->screeninitd, ri->d[rINDEX]/10000, "Screen->InitD");
 			break;
-		
-		case MAPDATAINITDARRAY:
-		{
-			if ( ri->mapsref == MAX_SIGNED_32 ) 
-			{ 
-				Z_scripterrlog("Script attempted to use a mapdata->InitD[%d] on a pointer that is uninitialised\n",ri->d[rINDEX]/10000); 
-				break; 
-			} 
-			else 
-			{ 
-				mapscr *m = GetMapscr(ri->mapsref); 
-				ret = m->screeninitd[ri->d[rINDEX]/10000];
-			} 
-			break;
-		}
 		
 		case MAPDATALAYERINVIS: 	
 		{
@@ -7329,6 +7327,11 @@ int32_t get_register(int32_t arg)
 			break;
 		}
 
+		case MAPDATAINITDARRAY:
+		{
+			GET_MAPDATA_BYTE_INDEX(screeninitd, "InitD", 7);
+			break;
+		}
 
 		case MAPDATAVALID:		GET_MAPDATA_VAR_BYTE(valid, "Valid"); break;		//b
 		case MAPDATAGUY: 		GET_MAPDATA_VAR_BYTE(guy, "Guy"); break;		//b
@@ -7374,7 +7377,6 @@ int32_t get_register(int32_t arg)
 		case MAPDATAWARPARRIVALY: 	GET_MAPDATA_VAR_BYTE(warparrivaly, "WarpArrivalY"); break;	//b
 		case MAPDATAPATH: 		GET_MAPDATA_BYTE_INDEX(path, "MazePath", 3); break;	//b, 4 of these
 		case MAPDATASIDEWARPSC: 	GET_MAPDATA_BYTE_INDEX(sidewarpscr, "SideWarpScreen", 3); break;	//b, 4 of these
-		case MAPDATAINITD:	 	GET_MAPDATA_VAR_INDEX32(screeninitd, "InitD", 8); break;	//w, 4 of these
 		case MAPDATASIDEWARPDMAP: 	GET_MAPDATA_VAR_INDEX32(sidewarpdmap, "SideWarpDMap", 3); break;	//w, 4 of these
 		case MAPDATASIDEWARPINDEX: 	GET_MAPDATA_VAR_BYTE(sidewarpindex, "SideWarpIndex"); break;	//b
 		case MAPDATAUNDERCOMBO: 	GET_MAPDATA_VAR_INT32(undercombo, "UnderCombo"); break;	//w
@@ -10618,8 +10620,8 @@ int32_t get_register(int32_t arg)
 			ret = ArrayH::getElement(ri->d[rINDEX] / 10000, 0);
 			break;
 			
-		case GDD://Doesn't work like this =(
-			ret = game->global_d[ri->d[rINDEX] / 10000];
+		case GDD: // Unused, remove?
+			ret = read_array(game->global_d, ri->d[rINDEX] / 10000, "GDD");
 			break;
 			
 		///----------------------------------------------------------------------------------------------------//
@@ -14474,18 +14476,15 @@ void set_register(int32_t arg, int32_t value)
 
 		case RAWKEY:
 		{
-			//if ( !keypressed() ) break; //Don;t return values set by setting Hero->Input/Press
-			//hmm...no, this won;t return properly for modifier keys. 
 			int32_t keyid = ri->d[rINDEX]/10000;
-			//key = vbound(key,0,n);
-			_key[keyid]=key[keyid]=key_current_frame[keyid]=(value?true:false); //It isn't possible to set keys true, because polling occurs before they are set?
-			//but they *can* be set false; ??? -Z
+			if (write_array(key_current_frame, keyid, (bool)value, "Input->KeyRaw"))
+				key[keyid] = _key[keyid] = (bool)value;
 		}
 		break;
 		
 		case KEYINPUT:
 		{
-			KeyInput[ri->d[rINDEX]/10000] = (value/10000)!=0;
+			write_array(KeyInput, ri->d[rINDEX]/10000, (value/10000)!=0, "Input->Key");
 			switch(ri->d[rINDEX]/10000)
 			{
 				case KEY_F6: onTryQuit(); break;
@@ -14496,7 +14495,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case KEYPRESS:
 		{
-			KeyPress[ri->d[rINDEX]/10000] = (value/10000)!=0;
+			write_array(KeyPress, ri->d[rINDEX]/10000, (value/10000)!=0, "Input->KeyPress");
 			break;
 		}
 		
@@ -14545,9 +14544,16 @@ void set_register(int32_t arg, int32_t value)
 		{
 			//Input->DisableKey(int32_t key, bool disable)
 			int32_t keyid = ri->d[rINDEX]/10000;
-			if(!zc_disablekey(keyid, value))
+			switch (keyid)
 			{
-				//Z_scripterrlog("The key %d passed to Input->DisableKey[] is system-reserved, and cannot be disabled\n",keyid);
+				case KEY_F7:
+				case KEY_F8:
+				case KEY_F9:
+					Z_scripterrlog("The key %d passed to Input->DisableKey[] is system-reserved, and cannot be disabled\n", keyid);
+					break;
+
+				default:
+					write_array(disabledKeys, keyid, (bool)value, "Input->DisableKey");
 			}
 			break;
 		}
@@ -14555,8 +14561,7 @@ void set_register(int32_t arg, int32_t value)
 		case DISABLEBUTTON:
 		{
 			//Input->DisableButton(int32_t cb, bool disable)
-			int32_t cbid = ri->d[rINDEX]/10000;
-			disable_control[cbid] = value?true:false;
+			write_array(disable_control, ri->d[rINDEX]/10000, (bool)value, "Input->DisableButton");
 			break;
 		}
 		
@@ -17551,8 +17556,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		
 		case GDD:
-			al_trace("GDD");
-			game->global_d[ri->d[rINDEX]/10000]=value;
+			write_array(game->global_d, ri->d[rINDEX] / 10000, value, "GDD");
 			break;
 			
 		case SDDD:
@@ -17564,7 +17568,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case SCREENINITD:
-			tmpscr->screeninitd[ri->d[rINDEX]/10000] = value;
+			write_array(tmpscr->screeninitd, ri->d[rINDEX]/10000, value, "Screen->InitD");
 			break;
 		
 		case SCREENSCRIPT:
@@ -17581,14 +17585,14 @@ void set_register(int32_t arg, int32_t value)
 			break;
 		}
 		
-		case MAPDATAINITD:
-			tmpscr->screeninitd[ri->d[rINDEX]/10000]=value;
-			break;
-		
 		case SCRDOORD:
-			tmpscr->door[ri->d[rINDEX]/10000]=value/10000;
-			putdoor(scrollbuf,0,ri->d[rINDEX]/10000,value/10000,true,true);
+		{
+			int index = ri->d[rINDEX]/10000;
+			byte val = value/10000;
+			if (write_array(tmpscr->door, index, val, "Screen->Door"))
+				putdoor(scrollbuf,0,index,val,true,true);
 			break;
+		}
 			
 		case LIT:
 			set_lights(value);
@@ -18063,15 +18067,7 @@ void set_register(int32_t arg, int32_t value)
 		case MAPDATASIDEWARPSC: 	SET_MAPDATA_BYTE_INDEX(sidewarpscr, "SideWarpScreen", 3); break;	//b, 4 of these
 		case MAPDATAINITDARRAY:	 	
 		{
-			
-			if (mapscr *m = GetMapscr(ri->mapsref)) 
-			{ 
-				m->screeninitd[ri->d[rINDEX]/10000] = value;
-			} 
-			else 
-			{ 
-				Z_scripterrlog("Script attempted to use a mapdata->InitD[%d] on a pointer that is uninitialised\n",ri->d[rINDEX]/10000); 
-			} 
+			SET_MAPDATA_BYTE_INDEX(screeninitd, "InitD", 7);
 			break;
 		}
 

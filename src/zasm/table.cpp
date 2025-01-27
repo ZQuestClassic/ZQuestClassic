@@ -3342,7 +3342,6 @@ std::initializer_list<int> get_register_dependencies(int reg)
 		case MAPDATAFFYDELTA:
 		case MAPDATAFFYDELTA2:
 		case MAPDATAFLAGS:
-		case MAPDATAINITD:
 		case MAPDATAINITDARRAY:
 		case MAPDATALAYERINVIS:
 		case MAPDATALAYERMAP:

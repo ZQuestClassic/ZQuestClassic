@@ -9252,21 +9252,6 @@ void update_keys()
 	}
 }
 
-bool zc_disablekey(int32_t k, bool val)
-{
-	switch(k)
-	{
-		case KEY_F7:
-		case KEY_F8:
-		case KEY_F9:
-			return false;
-			
-		default:
-			disabledKeys[k] = val;
-			return true;
-	}
-}
-
 void zc_putpixel(int32_t layer, int32_t x, int32_t y, int32_t cset, int32_t color, int32_t timer)
 {
 	timer=timer;
