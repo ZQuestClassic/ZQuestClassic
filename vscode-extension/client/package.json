@@ -8,10 +8,11 @@
 		"vscode": "^1.75.0"
 	},
 	"dependencies": {
-		"vscode-languageclient": "^8.1.0"
+		"glob": "^11.0.0",
+		"vscode-languageclient": "^9.0.1"
 	},
 	"devDependencies": {
-		"@types/vscode": "^1.75.1",
+		"@types/vscode": "^1.96.0",
 		"@vscode/test-electron": "^2.2.3"
 	}
 }

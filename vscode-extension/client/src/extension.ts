@@ -26,7 +26,7 @@ export function activate(context: ExtensionContext) {
 					'-style=file',
 				];
 				const parentDir = path.dirname(document.uri.fsPath);
-				const output = await new Promise<string>(async (resolve, reject) => {
+				const output = await new Promise<string>((resolve, reject) => {
 					const cp = childProcess.execFile('clang-format', args, {cwd: parentDir}, (err, stdout, stderr) => {
 						if (err)
 							return reject(err);
@@ -46,6 +46,13 @@ export function activate(context: ExtensionContext) {
 			}
         }
     });
+
+	// vscode.languages.registerReferenceProvider('zscript', {
+	// 	provideReferences(document, position, context, token) {
+	// 		console.log({token});
+	// 		return null;
+	// 	},
+	// });
 
 	// The server is implemented in node
 	const serverModule = context.asAbsolutePath(
@@ -67,8 +74,7 @@ export function activate(context: ExtensionContext) {
 		// Register the server for plain text documents
 		documentSelector: [{ scheme: 'file', pattern: '**/*.{zs,zh,z}' }],
 		synchronize: {
-			// Notify the server about file changes to '.clientrc files contained in the workspace
-			fileEvents: vscode.workspace.createFileSystemWatcher('**/.clientrc')
+			fileEvents: vscode.workspace.createFileSystemWatcher('**/*.{zs,zh,z}')
 		},
 		markdown: {
 			isTrusted: true,

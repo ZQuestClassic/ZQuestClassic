@@ -18,17 +18,28 @@
 	},
 	"main": "./client/out/extension",
 	"contributes": {
-		"languages": [{
-			"id": "zscript",
-			"aliases": ["ZScript", "ZQuest Classic Scripting Language"],
-			"extensions": [".zs", ".zh", ".z"],
-			"configuration": "./language-configuration.json"
-		}],
-		"grammars": [{
-			"language": "zscript",
-			"scopeName": "source.zscript",
-			"path": "./syntaxes/zscript.tmLanguage.json"
-		}],
+		"languages": [
+			{
+				"id": "zscript",
+				"aliases": [
+					"ZScript",
+					"ZQuest Classic Scripting Language"
+				],
+				"extensions": [
+					".zs",
+					".zh",
+					".z"
+				],
+				"configuration": "./language-configuration.json"
+			}
+		],
+		"grammars": [
+			{
+				"language": "zscript",
+				"scopeName": "source.zscript",
+				"path": "./syntaxes/zscript.tmLanguage.json"
+			}
+		],
 		"configuration": {
 			"type": "object",
 			"title": "ZScript extension",
@@ -54,13 +65,17 @@
 				"zscript.defaultIncludePaths": {
 					"scope": "window",
 					"type": "array",
-					"default": ["include"],
+					"default": [
+						"include"
+					],
 					"description": "Global include paths, to be added to compile attempts."
 				},
 				"zscript.defaultIncludeFiles": {
 					"scope": "window",
 					"type": "array",
-					"default": ["include/std.zh"],
+					"default": [
+						"include/std.zh"
+					],
 					"description": "Global includes, to be added to compile attempts."
 				},
 				"zscript.trace.server": {
@@ -86,12 +101,13 @@
 		"test": "sh ./scripts/e2e.sh"
 	},
 	"devDependencies": {
+		"@types/glob": "^8.1.0",
 		"@types/mocha": "^9.1.0",
-		"@types/node": "^16.18.34",
+		"@types/node": "^20",
 		"@typescript-eslint/eslint-plugin": "^5.54.0",
 		"@typescript-eslint/parser": "^5.54.0",
 		"eslint": "^8.35.0",
 		"mocha": "^9.2.1",
-		"typescript": "^5.1.3"
+		"typescript": "^5.7.3"
 	}
 }
