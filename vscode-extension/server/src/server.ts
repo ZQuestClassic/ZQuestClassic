@@ -159,7 +159,9 @@ let globalSettings: Settings = defaultSettings;
 // Cache the settings of all open documents
 const documentSettings: Map<string, Thenable<Settings>> = new Map();
 
-connection.onDidChangeConfiguration(change => {
+connection.onDidChangeConfiguration(async (change) => {
+	docMetadataMap.clear();
+
 	if (hasConfigurationCapability) {
 		// Reset all cached document settings
 		documentSettings.clear();
@@ -170,7 +172,9 @@ connection.onDidChangeConfiguration(change => {
 	}
 
 	// Revalidate all open text documents
-	documents.all().forEach(document => processScript(document.uri, document.getText()));
+	for (const doc of documents.all()) {
+		await processScript(doc.uri, doc.getText());
+	}
 });
 
 connection.onDidChangeWatchedFiles(e => {
@@ -239,7 +243,8 @@ function parseOutput(settings: Settings, stdout: string, stderr: string): { diag
 		return result;
 	}
 
-	// For older releases, diagnostics and metadata must be parsed from stdout.
+	// For older releases, diagnostics and metadata must be manually parsed from stdout.
+	// JSON output was not added until 3.0.0-prerelease.61+2024-08-05.
 
 	const [compilerOutput, metadataStr] = stdout.split('=== METADATA', 2);
 	if (settings.printCompilerOutput) {
@@ -264,7 +269,7 @@ function parseOutput(settings: Settings, stdout: string, stderr: string): { diag
 				}
 				else if (fileMatches(fname, tmpScript)) {
 					lineNum = Number(m[3]) - 1;
-					colNum = Number(m[4]);
+					colNum = Number(m[4]) - 2;
 				}
 				else {
 					lineNum = 0;
@@ -278,8 +283,8 @@ function parseOutput(settings: Settings, stdout: string, stderr: string): { diag
 			const diagnostic: Diagnostic = {
 				severity: DiagnosticSeverity.Error,
 				range: {
-					start: { line: lineNum, character: 0 },
-					end: { line: lineNum, character: colNum },
+					start: { line: lineNum, character: colNum },
+					end: { line: lineNum, character: colNum + 1 },
 				},
 				message,
 				source: 'zscript',
@@ -400,7 +405,28 @@ async function processScript(uri: string, content: string): Promise<void> {
 					end: { line: 0, character: 0 },
 				},
 				message: 'Must set zscript.installationFolder setting',
-				source: 'extension'
+				source: 'zscript'
+			}]
+		});
+		return;
+	}
+
+	let zscriptFolder = settings.installationFolder;
+	if (zscriptFolder.endsWith('.app')) {
+		zscriptFolder += '/Contents/Resources';
+	}
+
+	const exe = os.platform() === 'win32' ? './zscript.exe' : './zscript';
+	if (!fs.existsSync(`${zscriptFolder}/${exe}`)) {
+		connection.sendDiagnostics({
+			uri, diagnostics: [{
+				severity: DiagnosticSeverity.Error,
+				range: {
+					start: { line: 0, character: 0 },
+					end: { line: 0, character: 0 },
+				},
+				message: 'Did not find zscript compiler - check setting zscript.installationFolder',
+				source: 'zscript'
 			}]
 		});
 		return;
@@ -423,7 +449,6 @@ async function processScript(uri: string, content: string): Promise<void> {
 	let success = false;
 	fs.writeFileSync(tmpInput, includeText);
 	fs.writeFileSync(tmpScript, content);
-	const exe = os.platform() === 'win32' ? './zscript.exe' : './zscript';
 	if (settings.printCompilerOutput) {
 		console.log(`Attempting to compile buffer:\n-----\n${includeText}\n-----`);
 	}
@@ -447,7 +472,7 @@ async function processScript(uri: string, content: string): Promise<void> {
 		if (settings.ignoreConstAssert)
 			args.push('-ignore_cassert');
 		const cp = await execFile(exe, args, {
-			cwd: settings.installationFolder,
+			cwd: zscriptFolder,
 			maxBuffer: 20_000_000,
 		});
 		success = true;
@@ -536,7 +561,7 @@ function resolvePosition(uri: string, pos: Position) {
 		return null;
 	}
 
-	return {metadata, identifier};
+	return { metadata, identifier };
 }
 
 connection.onHover((p: HoverParams): Hover | null => {
@@ -544,7 +569,7 @@ connection.onHover((p: HoverParams): Hover | null => {
 	if (!result)
 		return null;
 
-	const {metadata, identifier} = result;
+	const { metadata, identifier } = result;
 	const value = metadata.symbols[identifier.symbol].doc;
 	if (!value)
 		return null;
@@ -563,7 +588,7 @@ connection.onDefinition((p: DefinitionParams) => {
 	if (!result)
 		return null;
 
-	const {metadata, identifier} = result;
+	const { metadata, identifier } = result;
 	const symbol = metadata.symbols[identifier.symbol];
 	if (cleanupFile2(symbol.loc.uri) === tmpScript || symbol.loc.uri === 'file://' + tmpScript)
 		symbol.loc.uri = p.textDocument.uri;
@@ -575,7 +600,7 @@ connection.onReferences((p) => {
 	if (!result)
 		return null;
 
-	const {identifier} = result;
+	const { identifier } = result;
 	const locations: Location[] = [];
 	for (const [uri, metadata] of docMetadataMap) {
 		// TODO: currently, symbol ids are not the same across multiple compilations, so can

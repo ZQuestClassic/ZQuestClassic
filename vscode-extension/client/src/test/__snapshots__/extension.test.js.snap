@@ -1,0 +1,2247 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ZScript extension Document symbol outline 3-no-json 1`] = `
+[
+  {
+    "children": 0,
+    "kind": 12,
+    "name": "postfix",
+    "range": [
+      {
+        "character": 4,
+        "line": 2,
+      },
+      {
+        "character": 15,
+        "line": 2,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 4,
+        "line": 2,
+      },
+      {
+        "character": 11,
+        "line": 2,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 12,
+    "name": "postfix2",
+    "range": [
+      {
+        "character": 4,
+        "line": 3,
+      },
+      {
+        "character": 22,
+        "line": 3,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 4,
+        "line": 3,
+      },
+      {
+        "character": 12,
+        "line": 3,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 12,
+    "name": "x",
+    "range": [
+      {
+        "character": 4,
+        "line": 16,
+      },
+      {
+        "character": 9,
+        "line": 16,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 4,
+        "line": 16,
+      },
+      {
+        "character": 5,
+        "line": 16,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 12,
+    "name": "y",
+    "range": [
+      {
+        "character": 4,
+        "line": 18,
+      },
+      {
+        "character": 5,
+        "line": 18,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 4,
+        "line": 18,
+      },
+      {
+        "character": 5,
+        "line": 18,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 12,
+    "name": "z",
+    "range": [
+      {
+        "character": 7,
+        "line": 18,
+      },
+      {
+        "character": 12,
+        "line": 18,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 7,
+        "line": 18,
+      },
+      {
+        "character": 8,
+        "line": 18,
+      },
+    ],
+  },
+  {
+    "children": 4,
+    "kind": 4,
+    "name": "Car",
+    "range": [
+      {
+        "character": 0,
+        "line": 21,
+      },
+      {
+        "character": 1,
+        "line": 38,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 6,
+        "line": 21,
+      },
+      {
+        "character": 9,
+        "line": 21,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 12,
+    "name": "speed",
+    "range": [
+      {
+        "character": 8,
+        "line": 23,
+      },
+      {
+        "character": 13,
+        "line": 23,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 8,
+        "line": 23,
+      },
+      {
+        "character": 13,
+        "line": 23,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 11,
+    "name": "vroom",
+    "range": [
+      {
+        "character": 9,
+        "line": 31,
+      },
+      {
+        "character": 16,
+        "line": 31,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 9,
+        "line": 31,
+      },
+      {
+        "character": 14,
+        "line": 31,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 11,
+    "name": "vroom2",
+    "range": [
+      {
+        "character": 9,
+        "line": 35,
+      },
+      {
+        "character": 17,
+        "line": 35,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 9,
+        "line": 35,
+      },
+      {
+        "character": 15,
+        "line": 35,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 8,
+    "name": "Car",
+    "range": [
+      {
+        "character": 4,
+        "line": 26,
+      },
+      {
+        "character": 18,
+        "line": 26,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 4,
+        "line": 26,
+      },
+      {
+        "character": 7,
+        "line": 26,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 4,
+    "name": "IhaveAdefCtor",
+    "range": [
+      {
+        "character": 0,
+        "line": 40,
+      },
+      {
+        "character": 1,
+        "line": 41,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 6,
+        "line": 40,
+      },
+      {
+        "character": 19,
+        "line": 40,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 12,
+    "name": "Fancy",
+    "range": [
+      {
+        "character": 4,
+        "line": 46,
+      },
+      {
+        "character": 9,
+        "line": 46,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 4,
+        "line": 46,
+      },
+      {
+        "character": 9,
+        "line": 46,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 12,
+    "name": "Dull",
+    "range": [
+      {
+        "character": 4,
+        "line": 48,
+      },
+      {
+        "character": 8,
+        "line": 48,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 4,
+        "line": 48,
+      },
+      {
+        "character": 8,
+        "line": 48,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 12,
+    "name": "Mid",
+    "range": [
+      {
+        "character": 4,
+        "line": 49,
+      },
+      {
+        "character": 7,
+        "line": 49,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 4,
+        "line": 49,
+      },
+      {
+        "character": 7,
+        "line": 49,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 12,
+    "name": "F_SHINY",
+    "range": [
+      {
+        "character": 4,
+        "line": 55,
+      },
+      {
+        "character": 11,
+        "line": 55,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 4,
+        "line": 55,
+      },
+      {
+        "character": 11,
+        "line": 55,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 12,
+    "name": "F_UGLY",
+    "range": [
+      {
+        "character": 13,
+        "line": 55,
+      },
+      {
+        "character": 19,
+        "line": 55,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 13,
+        "line": 55,
+      },
+      {
+        "character": 19,
+        "line": 55,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 12,
+    "name": "F_SMALL",
+    "range": [
+      {
+        "character": 21,
+        "line": 55,
+      },
+      {
+        "character": 28,
+        "line": 55,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 21,
+        "line": 55,
+      },
+      {
+        "character": 28,
+        "line": 55,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 12,
+    "name": "F_FAST",
+    "range": [
+      {
+        "character": 30,
+        "line": 55,
+      },
+      {
+        "character": 36,
+        "line": 55,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 30,
+        "line": 55,
+      },
+      {
+        "character": 36,
+        "line": 55,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 11,
+    "name": "do_filter",
+    "range": [
+      {
+        "character": 15,
+        "line": 59,
+      },
+      {
+        "character": 42,
+        "line": 59,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 15,
+        "line": 59,
+      },
+      {
+        "character": 24,
+        "line": 59,
+      },
+    ],
+  },
+  {
+    "children": 1,
+    "kind": 11,
+    "name": "make_car",
+    "range": [
+      {
+        "character": 4,
+        "line": 65,
+      },
+      {
+        "character": 14,
+        "line": 65,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 4,
+        "line": 65,
+      },
+      {
+        "character": 12,
+        "line": 65,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 12,
+    "name": "c",
+    "range": [
+      {
+        "character": 8,
+        "line": 67,
+      },
+      {
+        "character": 9,
+        "line": 67,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 8,
+        "line": 67,
+      },
+      {
+        "character": 9,
+        "line": 67,
+      },
+    ],
+  },
+  {
+    "children": 1,
+    "kind": 1,
+    "name": "Metadata",
+    "range": [
+      {
+        "character": 0,
+        "line": 73,
+      },
+      {
+        "character": 1,
+        "line": 100,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 11,
+        "line": 73,
+      },
+      {
+        "character": 19,
+        "line": 73,
+      },
+    ],
+  },
+  {
+    "children": 10,
+    "kind": 11,
+    "name": "run",
+    "range": [
+      {
+        "character": 9,
+        "line": 75,
+      },
+      {
+        "character": 71,
+        "line": 75,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 9,
+        "line": 75,
+      },
+      {
+        "character": 12,
+        "line": 75,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 12,
+    "name": "c",
+    "range": [
+      {
+        "character": 13,
+        "line": 81,
+      },
+      {
+        "character": 27,
+        "line": 81,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 13,
+        "line": 81,
+      },
+      {
+        "character": 14,
+        "line": 81,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 12,
+    "name": "d",
+    "range": [
+      {
+        "character": 13,
+        "line": 83,
+      },
+      {
+        "character": 36,
+        "line": 83,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 13,
+        "line": 83,
+      },
+      {
+        "character": 14,
+        "line": 83,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 12,
+    "name": "c2",
+    "range": [
+      {
+        "character": 12,
+        "line": 84,
+      },
+      {
+        "character": 27,
+        "line": 84,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 12,
+        "line": 84,
+      },
+      {
+        "character": 14,
+        "line": 84,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 12,
+    "name": "e",
+    "range": [
+      {
+        "character": 12,
+        "line": 86,
+      },
+      {
+        "character": 24,
+        "line": 86,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 12,
+        "line": 86,
+      },
+      {
+        "character": 13,
+        "line": 86,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 12,
+    "name": "arr",
+    "range": [
+      {
+        "character": 12,
+        "line": 89,
+      },
+      {
+        "character": 29,
+        "line": 89,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 12,
+        "line": 89,
+      },
+      {
+        "character": 15,
+        "line": 89,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 12,
+    "name": "__LOOP_ITER",
+    "range": [
+      {
+        "character": 8,
+        "line": 90,
+      },
+      {
+        "character": 9,
+        "line": 92,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 8,
+        "line": 90,
+      },
+      {
+        "character": 9,
+        "line": 92,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 12,
+    "name": "__LOOP_ARR",
+    "range": [
+      {
+        "character": 8,
+        "line": 90,
+      },
+      {
+        "character": 9,
+        "line": 92,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 8,
+        "line": 90,
+      },
+      {
+        "character": 9,
+        "line": 92,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 12,
+    "name": "v",
+    "range": [
+      {
+        "character": 8,
+        "line": 90,
+      },
+      {
+        "character": 9,
+        "line": 92,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 13,
+        "line": 90,
+      },
+      {
+        "character": 14,
+        "line": 90,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 12,
+    "name": "ahhh",
+    "range": [
+      {
+        "character": 12,
+        "line": 93,
+      },
+      {
+        "character": 24,
+        "line": 93,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 16,
+        "line": 93,
+      },
+      {
+        "character": 20,
+        "line": 93,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 12,
+    "name": "b",
+    "range": [
+      {
+        "character": 14,
+        "line": 97,
+      },
+      {
+        "character": 23,
+        "line": 97,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 14,
+        "line": 97,
+      },
+      {
+        "character": 15,
+        "line": 97,
+      },
+    ],
+  },
+  {
+    "children": 2,
+    "kind": 2,
+    "name": "utils",
+    "range": [
+      {
+        "character": 0,
+        "line": 103,
+      },
+      {
+        "character": 1,
+        "line": 110,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 10,
+        "line": 103,
+      },
+      {
+        "character": 15,
+        "line": 103,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 12,
+    "name": "hmm",
+    "range": [
+      {
+        "character": 8,
+        "line": 109,
+      },
+      {
+        "character": 11,
+        "line": 109,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 8,
+        "line": 109,
+      },
+      {
+        "character": 11,
+        "line": 109,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 11,
+    "name": "fn",
+    "range": [
+      {
+        "character": 9,
+        "line": 105,
+      },
+      {
+        "character": 18,
+        "line": 105,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 9,
+        "line": 105,
+      },
+      {
+        "character": 11,
+        "line": 105,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 11,
+    "name": "T",
+    "range": [
+      {
+        "character": 5,
+        "line": 112,
+      },
+      {
+        "character": 8,
+        "line": 112,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 5,
+        "line": 112,
+      },
+      {
+        "character": 6,
+        "line": 112,
+      },
+    ],
+  },
+  {
+    "children": 1,
+    "kind": 11,
+    "name": "T2",
+    "range": [
+      {
+        "character": 5,
+        "line": 116,
+      },
+      {
+        "character": 9,
+        "line": 116,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 5,
+        "line": 116,
+      },
+      {
+        "character": 7,
+        "line": 116,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 12,
+    "name": "b",
+    "range": [
+      {
+        "character": 6,
+        "line": 118,
+      },
+      {
+        "character": 21,
+        "line": 118,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 6,
+        "line": 118,
+      },
+      {
+        "character": 7,
+        "line": 118,
+      },
+    ],
+  },
+]
+`;
+
+exports[`ZScript extension Document symbol outline latest 1`] = `
+[
+  {
+    "children": 0,
+    "kind": 12,
+    "name": "postfix",
+    "range": [
+      {
+        "character": 4,
+        "line": 2,
+      },
+      {
+        "character": 15,
+        "line": 2,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 4,
+        "line": 2,
+      },
+      {
+        "character": 11,
+        "line": 2,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 12,
+    "name": "postfix2",
+    "range": [
+      {
+        "character": 4,
+        "line": 3,
+      },
+      {
+        "character": 22,
+        "line": 3,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 4,
+        "line": 3,
+      },
+      {
+        "character": 12,
+        "line": 3,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 12,
+    "name": "x",
+    "range": [
+      {
+        "character": 4,
+        "line": 16,
+      },
+      {
+        "character": 9,
+        "line": 16,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 4,
+        "line": 16,
+      },
+      {
+        "character": 5,
+        "line": 16,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 12,
+    "name": "y",
+    "range": [
+      {
+        "character": 4,
+        "line": 18,
+      },
+      {
+        "character": 5,
+        "line": 18,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 4,
+        "line": 18,
+      },
+      {
+        "character": 5,
+        "line": 18,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 12,
+    "name": "z",
+    "range": [
+      {
+        "character": 7,
+        "line": 18,
+      },
+      {
+        "character": 12,
+        "line": 18,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 7,
+        "line": 18,
+      },
+      {
+        "character": 8,
+        "line": 18,
+      },
+    ],
+  },
+  {
+    "children": 4,
+    "kind": 4,
+    "name": "Car",
+    "range": [
+      {
+        "character": 6,
+        "line": 21,
+      },
+      {
+        "character": 9,
+        "line": 21,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 6,
+        "line": 21,
+      },
+      {
+        "character": 9,
+        "line": 21,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 12,
+    "name": "speed",
+    "range": [
+      {
+        "character": 8,
+        "line": 23,
+      },
+      {
+        "character": 13,
+        "line": 23,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 8,
+        "line": 23,
+      },
+      {
+        "character": 13,
+        "line": 23,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 11,
+    "name": "vroom",
+    "range": [
+      {
+        "character": 9,
+        "line": 31,
+      },
+      {
+        "character": 16,
+        "line": 31,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 9,
+        "line": 31,
+      },
+      {
+        "character": 14,
+        "line": 31,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 11,
+    "name": "vroom2",
+    "range": [
+      {
+        "character": 9,
+        "line": 35,
+      },
+      {
+        "character": 17,
+        "line": 35,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 9,
+        "line": 35,
+      },
+      {
+        "character": 15,
+        "line": 35,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 8,
+    "name": "Car",
+    "range": [
+      {
+        "character": 4,
+        "line": 26,
+      },
+      {
+        "character": 18,
+        "line": 26,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 4,
+        "line": 26,
+      },
+      {
+        "character": 7,
+        "line": 26,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 4,
+    "name": "IhaveAdefCtor",
+    "range": [
+      {
+        "character": 6,
+        "line": 40,
+      },
+      {
+        "character": 19,
+        "line": 40,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 6,
+        "line": 40,
+      },
+      {
+        "character": 19,
+        "line": 40,
+      },
+    ],
+  },
+  {
+    "children": 3,
+    "kind": 9,
+    "name": "Brand",
+    "range": [
+      {
+        "character": 0,
+        "line": 44,
+      },
+      {
+        "character": 1,
+        "line": 50,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 5,
+        "line": 44,
+      },
+      {
+        "character": 10,
+        "line": 44,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 21,
+    "name": "Fancy",
+    "range": [
+      {
+        "character": 4,
+        "line": 46,
+      },
+      {
+        "character": 9,
+        "line": 46,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 4,
+        "line": 46,
+      },
+      {
+        "character": 9,
+        "line": 46,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 21,
+    "name": "Dull",
+    "range": [
+      {
+        "character": 4,
+        "line": 48,
+      },
+      {
+        "character": 8,
+        "line": 48,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 4,
+        "line": 48,
+      },
+      {
+        "character": 8,
+        "line": 48,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 21,
+    "name": "Mid",
+    "range": [
+      {
+        "character": 4,
+        "line": 49,
+      },
+      {
+        "character": 7,
+        "line": 49,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 4,
+        "line": 49,
+      },
+      {
+        "character": 7,
+        "line": 49,
+      },
+    ],
+  },
+  {
+    "children": 4,
+    "kind": 9,
+    "name": "FilterBitflags",
+    "range": [
+      {
+        "character": 0,
+        "line": 53,
+      },
+      {
+        "character": 1,
+        "line": 56,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 5,
+        "line": 53,
+      },
+      {
+        "character": 19,
+        "line": 53,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 21,
+    "name": "F_SHINY",
+    "range": [
+      {
+        "character": 4,
+        "line": 55,
+      },
+      {
+        "character": 11,
+        "line": 55,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 4,
+        "line": 55,
+      },
+      {
+        "character": 11,
+        "line": 55,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 21,
+    "name": "F_UGLY",
+    "range": [
+      {
+        "character": 13,
+        "line": 55,
+      },
+      {
+        "character": 19,
+        "line": 55,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 13,
+        "line": 55,
+      },
+      {
+        "character": 19,
+        "line": 55,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 21,
+    "name": "F_SMALL",
+    "range": [
+      {
+        "character": 21,
+        "line": 55,
+      },
+      {
+        "character": 28,
+        "line": 55,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 21,
+        "line": 55,
+      },
+      {
+        "character": 28,
+        "line": 55,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 21,
+    "name": "F_FAST",
+    "range": [
+      {
+        "character": 30,
+        "line": 55,
+      },
+      {
+        "character": 36,
+        "line": 55,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 30,
+        "line": 55,
+      },
+      {
+        "character": 36,
+        "line": 55,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 11,
+    "name": "do_filter",
+    "range": [
+      {
+        "character": 15,
+        "line": 59,
+      },
+      {
+        "character": 42,
+        "line": 59,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 15,
+        "line": 59,
+      },
+      {
+        "character": 24,
+        "line": 59,
+      },
+    ],
+  },
+  {
+    "children": 1,
+    "kind": 11,
+    "name": "make_car",
+    "range": [
+      {
+        "character": 4,
+        "line": 65,
+      },
+      {
+        "character": 14,
+        "line": 65,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 4,
+        "line": 65,
+      },
+      {
+        "character": 12,
+        "line": 65,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 12,
+    "name": "c",
+    "range": [
+      {
+        "character": 8,
+        "line": 67,
+      },
+      {
+        "character": 9,
+        "line": 67,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 8,
+        "line": 67,
+      },
+      {
+        "character": 9,
+        "line": 67,
+      },
+    ],
+  },
+  {
+    "children": 1,
+    "kind": 1,
+    "name": "Metadata",
+    "range": [
+      {
+        "character": 0,
+        "line": 73,
+      },
+      {
+        "character": 1,
+        "line": 100,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 11,
+        "line": 73,
+      },
+      {
+        "character": 19,
+        "line": 73,
+      },
+    ],
+  },
+  {
+    "children": 10,
+    "kind": 11,
+    "name": "run",
+    "range": [
+      {
+        "character": 9,
+        "line": 75,
+      },
+      {
+        "character": 71,
+        "line": 75,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 9,
+        "line": 75,
+      },
+      {
+        "character": 12,
+        "line": 75,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 12,
+    "name": "c",
+    "range": [
+      {
+        "character": 13,
+        "line": 81,
+      },
+      {
+        "character": 27,
+        "line": 81,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 13,
+        "line": 81,
+      },
+      {
+        "character": 14,
+        "line": 81,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 12,
+    "name": "d",
+    "range": [
+      {
+        "character": 13,
+        "line": 83,
+      },
+      {
+        "character": 36,
+        "line": 83,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 13,
+        "line": 83,
+      },
+      {
+        "character": 14,
+        "line": 83,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 12,
+    "name": "c2",
+    "range": [
+      {
+        "character": 12,
+        "line": 84,
+      },
+      {
+        "character": 27,
+        "line": 84,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 12,
+        "line": 84,
+      },
+      {
+        "character": 14,
+        "line": 84,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 12,
+    "name": "e",
+    "range": [
+      {
+        "character": 12,
+        "line": 86,
+      },
+      {
+        "character": 24,
+        "line": 86,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 12,
+        "line": 86,
+      },
+      {
+        "character": 13,
+        "line": 86,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 12,
+    "name": "arr",
+    "range": [
+      {
+        "character": 12,
+        "line": 89,
+      },
+      {
+        "character": 29,
+        "line": 89,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 12,
+        "line": 89,
+      },
+      {
+        "character": 15,
+        "line": 89,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 12,
+    "name": "__LOOP_ITER",
+    "range": [
+      {
+        "character": 8,
+        "line": 90,
+      },
+      {
+        "character": 9,
+        "line": 92,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 8,
+        "line": 90,
+      },
+      {
+        "character": 9,
+        "line": 92,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 12,
+    "name": "__LOOP_ARR",
+    "range": [
+      {
+        "character": 8,
+        "line": 90,
+      },
+      {
+        "character": 9,
+        "line": 92,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 8,
+        "line": 90,
+      },
+      {
+        "character": 9,
+        "line": 92,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 12,
+    "name": "v",
+    "range": [
+      {
+        "character": 8,
+        "line": 90,
+      },
+      {
+        "character": 9,
+        "line": 92,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 13,
+        "line": 90,
+      },
+      {
+        "character": 14,
+        "line": 90,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 12,
+    "name": "ahhh",
+    "range": [
+      {
+        "character": 12,
+        "line": 93,
+      },
+      {
+        "character": 24,
+        "line": 93,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 16,
+        "line": 93,
+      },
+      {
+        "character": 20,
+        "line": 93,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 12,
+    "name": "b",
+    "range": [
+      {
+        "character": 14,
+        "line": 97,
+      },
+      {
+        "character": 23,
+        "line": 97,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 14,
+        "line": 97,
+      },
+      {
+        "character": 15,
+        "line": 97,
+      },
+    ],
+  },
+  {
+    "children": 2,
+    "kind": 2,
+    "name": "utils",
+    "range": [
+      {
+        "character": 0,
+        "line": 103,
+      },
+      {
+        "character": 1,
+        "line": 110,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 10,
+        "line": 103,
+      },
+      {
+        "character": 15,
+        "line": 103,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 12,
+    "name": "hmm",
+    "range": [
+      {
+        "character": 8,
+        "line": 109,
+      },
+      {
+        "character": 11,
+        "line": 109,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 8,
+        "line": 109,
+      },
+      {
+        "character": 11,
+        "line": 109,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 11,
+    "name": "fn",
+    "range": [
+      {
+        "character": 9,
+        "line": 105,
+      },
+      {
+        "character": 18,
+        "line": 105,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 9,
+        "line": 105,
+      },
+      {
+        "character": 11,
+        "line": 105,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 11,
+    "name": "T",
+    "range": [
+      {
+        "character": 5,
+        "line": 112,
+      },
+      {
+        "character": 8,
+        "line": 112,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 5,
+        "line": 112,
+      },
+      {
+        "character": 6,
+        "line": 112,
+      },
+    ],
+  },
+  {
+    "children": 1,
+    "kind": 11,
+    "name": "T2",
+    "range": [
+      {
+        "character": 5,
+        "line": 116,
+      },
+      {
+        "character": 9,
+        "line": 116,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 5,
+        "line": 116,
+      },
+      {
+        "character": 7,
+        "line": 116,
+      },
+    ],
+  },
+  {
+    "children": 0,
+    "kind": 12,
+    "name": "b",
+    "range": [
+      {
+        "character": 6,
+        "line": 118,
+      },
+      {
+        "character": 21,
+        "line": 118,
+      },
+    ],
+    "selectionRange": [
+      {
+        "character": 6,
+        "line": 118,
+      },
+      {
+        "character": 7,
+        "line": 118,
+      },
+    ],
+  },
+]
+`;
+
+exports[`ZScript extension Hover tooltips 3-no-json 1`] = `
+[
+  {
+    "contents": [
+      "How fast it goes. See [\`the vroom method()\`](command:zscript.openLink?%7B%22file%22%3A%22symbols.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A31%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A31%2C%22character%22%3A14%7D%7D%7D) or [\`speed\`](command:zscript.openLink?%7B%22file%22%3A%22symbols.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A23%2C%22character%22%3A8%7D%2C%22end%22%3A%7B%22line%22%3A23%2C%22character%22%3A13%7D%7D%7D) or [\`x\`](command:zscript.openLink?%7B%22file%22%3A%22symbols.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A16%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A16%2C%22character%22%3A5%7D%7D%7D) or [\`Waitframe()\`](command:zscript.openLink?%7B%22file%22%3A%22global.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A27%2C%22character%22%3A14%7D%2C%22end%22%3A%7B%22line%22%3A27%2C%22character%22%3A23%7D%7D%7D) or [\`bitmap\`](command:zscript.openLink?%7B%22file%22%3A%22bitmap.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A1%2C%22character%22%3A6%7D%2C%22end%22%3A%7B%22line%22%3A1%2C%22character%22%3A12%7D%7D%7D) or \`bitmap::Width\`",
+    ],
+    "range": [
+      {
+        "character": 14,
+        "line": 27,
+      },
+      {
+        "character": 19,
+        "line": 27,
+      },
+    ],
+  },
+  {
+    "contents": [
+      "THIS COMMENT USED #1",
+    ],
+    "range": [
+      {
+        "character": 15,
+        "line": 3,
+      },
+      {
+        "character": 22,
+        "line": 3,
+      },
+    ],
+  },
+  {
+    "contents": [
+      "Go fast",
+    ],
+    "range": [
+      {
+        "character": 8,
+        "line": 36,
+      },
+      {
+        "character": 13,
+        "line": 36,
+      },
+    ],
+  },
+  {
+    "contents": [
+      "Prints the passed value to the output console. Includes a newline character
+after the value.
+
+**@deprecated_alias** TraceLWeapon
+TraceEWeapon
+TraceNPC
+TraceFFC
+TraceItem
+TraceItemData",
+    ],
+    "range": [
+      {
+        "character": 4,
+        "line": 61,
+      },
+      {
+        "character": 9,
+        "line": 61,
+      },
+    ],
+  },
+  {
+    "contents": [
+      "hmmmmmm See [\`utils::fn()\`](command:zscript.openLink?%7B%22file%22%3A%22symbols.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A105%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A105%2C%22character%22%3A11%7D%7D%7D) or [\`x\`](command:zscript.openLink?%7B%22file%22%3A%22symbols.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A16%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A16%2C%22character%22%3A5%7D%7D%7D) or [\`fn()\`](command:zscript.openLink?%7B%22file%22%3A%22symbols.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A105%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A105%2C%22character%22%3A11%7D%7D%7D)",
+    ],
+    "range": [
+      {
+        "character": 54,
+        "line": 82,
+      },
+      {
+        "character": 57,
+        "line": 82,
+      },
+    ],
+  },
+  {
+    "contents": [
+      "top class",
+    ],
+    "range": [
+      {
+        "character": 75,
+        "line": 82,
+      },
+      {
+        "character": 80,
+        "line": 82,
+      },
+    ],
+  },
+]
+`;
+
+exports[`ZScript extension Hover tooltips latest 1`] = `
+[
+  {
+    "contents": [
+      "How fast it goes. See [\`the vroom method\`](command:zscript.openLink?%7B%22file%22%3A%22symbols.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A31%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A31%2C%22character%22%3A14%7D%7D%7D) or [\`speed\`](command:zscript.openLink?%7B%22file%22%3A%22symbols.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A23%2C%22character%22%3A8%7D%2C%22end%22%3A%7B%22line%22%3A23%2C%22character%22%3A13%7D%7D%7D) or [\`x\`](command:zscript.openLink?%7B%22file%22%3A%22symbols.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A16%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A16%2C%22character%22%3A5%7D%7D%7D) or [\`Waitframe()\`](command:zscript.openLink?%7B%22file%22%3A%22global.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A101%2C%22character%22%3A14%7D%2C%22end%22%3A%7B%22line%22%3A101%2C%22character%22%3A23%7D%7D%7D) or [\`bitmap\`](command:zscript.openLink?%7B%22file%22%3A%22bitmap.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A5%2C%22character%22%3A6%7D%2C%22end%22%3A%7B%22line%22%3A5%2C%22character%22%3A12%7D%7D%7D) or [\`bitmap::Width\`](command:zscript.openLink?%7B%22file%22%3A%22bitmap.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A15%2C%22character%22%3A20%7D%2C%22end%22%3A%7B%22line%22%3A15%2C%22character%22%3A25%7D%7D%7D)",
+    ],
+    "range": [
+      {
+        "character": 14,
+        "line": 27,
+      },
+      {
+        "character": 19,
+        "line": 27,
+      },
+    ],
+  },
+  {
+    "contents": [
+      "THIS COMMENT USED #1",
+    ],
+    "range": [
+      {
+        "character": 15,
+        "line": 3,
+      },
+      {
+        "character": 22,
+        "line": 3,
+      },
+    ],
+  },
+  {
+    "contents": [
+      "Go fast",
+    ],
+    "range": [
+      {
+        "character": 8,
+        "line": 36,
+      },
+      {
+        "character": 13,
+        "line": 36,
+      },
+    ],
+  },
+  {
+    "contents": [
+      "Prints the passed value to the output console. Includes a newline character
+after the value.
+
+**@deprecated_alias** TraceLWeapon
+TraceEWeapon
+TraceNPC
+TraceFFC
+TraceItem
+TraceItemData",
+    ],
+    "range": [
+      {
+        "character": 4,
+        "line": 61,
+      },
+      {
+        "character": 9,
+        "line": 61,
+      },
+    ],
+  },
+  {
+    "contents": [
+      "A car, duh",
+    ],
+    "range": [
+      {
+        "character": 4,
+        "line": 67,
+      },
+      {
+        "character": 7,
+        "line": 67,
+      },
+    ],
+  },
+  {
+    "contents": [
+      "hmmmmmm See [\`utils::fn()\`](command:zscript.openLink?%7B%22file%22%3A%22symbols.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A105%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A105%2C%22character%22%3A11%7D%7D%7D) or [\`x\`](command:zscript.openLink?%7B%22file%22%3A%22symbols.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A16%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A16%2C%22character%22%3A5%7D%7D%7D) or [\`fn()\`](command:zscript.openLink?%7B%22file%22%3A%22symbols.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A105%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A105%2C%22character%22%3A11%7D%7D%7D)",
+    ],
+    "range": [
+      {
+        "character": 54,
+        "line": 82,
+      },
+      {
+        "character": 57,
+        "line": 82,
+      },
+    ],
+  },
+  {
+    "contents": [
+      "top class",
+    ],
+    "range": [
+      {
+        "character": 75,
+        "line": 82,
+      },
+      {
+        "character": 80,
+        "line": 82,
+      },
+    ],
+  },
+  {
+    "contents": [
+      "how fancy something looks",
+    ],
+    "range": [
+      {
+        "character": 8,
+        "line": 97,
+      },
+      {
+        "character": 13,
+        "line": 97,
+      },
+    ],
+  },
+]
+`;

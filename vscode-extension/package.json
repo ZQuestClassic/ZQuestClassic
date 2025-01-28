@@ -48,7 +48,7 @@
 					"scope": "window",
 					"type": "string",
 					"default": "",
-					"description": "ZQuest Classic folder"
+					"description": "ZQuest Classic folder - where `zscript.exe` or `zscript` resides. On Mac, you can use the path to the .app bundle instead"
 				},
 				"zscript.printCompilerOutput": {
 					"scope": "window",
@@ -101,13 +101,15 @@
 		"test": "sh ./scripts/e2e.sh"
 	},
 	"devDependencies": {
+		"@eslint/js": "^9.13.0",
+		"@stylistic/eslint-plugin": "^2.9.0",
 		"@types/glob": "^8.1.0",
-		"@types/mocha": "^9.1.0",
+		"@types/mocha": "^10.0.6",
 		"@types/node": "^20",
-		"@typescript-eslint/eslint-plugin": "^5.54.0",
-		"@typescript-eslint/parser": "^5.54.0",
-		"eslint": "^8.35.0",
-		"mocha": "^9.2.1",
-		"typescript": "^5.7.3"
+		"eslint": "^9.13.0",
+		"mocha": "^10.3.0",
+		"mocha-expect-snapshot": "^7.1.0",
+		"typescript": "^5.7.3",
+		"typescript-eslint": "^8.22.0"
 	}
 }

@@ -85,6 +85,12 @@ jobs:
       - if: ${{ contains(inputs.runs-on, 'ubuntu') }}
         run: sudo pip install -r requirements.txt
 
+      - if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow }}
+        name: Install Node.js 20.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20.x
+
       - uses: actions/download-artifact@v4
         with:
           name: ${{ needs.build.outputs.artifact-name }}
@@ -159,6 +165,13 @@ jobs:
         with:
           path: ${{ github.workspace }}/.tmp/test_updater/cache
           key: updater-cache-${{ inputs.runs-on }}-${{ runner.arch }}
+
+      - if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow && !contains(inputs.runs-on, 'ubuntu') }}
+        name: Archives cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/.tmp/archives
+          key: archives-cache-${{ inputs.runs-on }}-${{ runner.arch }}
 
       - if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow }}
         name: Run Python tests
