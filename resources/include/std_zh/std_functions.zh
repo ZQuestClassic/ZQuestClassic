@@ -762,8 +762,6 @@ float CrossProduct( float x1, float y1, float x2, float y2 )
 	return (x1 * y2 - y1 * x2);
 }
 
-//D
-
 //Add to a drain counter without rollover.
 void DCounterAdd(int counter, int amount)
 {
@@ -1109,8 +1107,6 @@ eweapon Duplicate(eweapon a)
 	return b;
 }
 
-//E
-
 //Returns if there are enemy NPCs alive on the current screen.
 bool EnemiesAlive()
 {
@@ -1134,8 +1130,6 @@ bool EnemiesAlive()
 	}
 	return alive;
 }
-
-//F
 
 //Returns if Link is facing an ffc.
 bool Facing(ffc f)
@@ -1859,8 +1853,6 @@ int GridY(int y)
 	return (y >> 4) << 4;
 }
 
-//H
-
 //Returns if Link has the map for a given level.
 int HasBossKey(int level = -1)
 {
@@ -2008,9 +2000,6 @@ int HitboxTop(ffc a)
 	return a->Y;
 }
 
-
-//I
-
 //Returns if a layer is set as a background layer for the
 //current screen.
 bool IsBackgroundLayer(int layer)
@@ -2144,12 +2133,6 @@ bool IsWater(int position)
 	if ((combo>=CT_SWIMWARPB && combo<=CT_DIVEWARPD)) return true;
 	return false;
 }
-
-//J
-
-//K
-
-//L
 
 //Function to get a distance that would otherwise be too large and overflow Distance().
 //Get the distance between two points, divided up by divisor. This avoids causing problems
@@ -2413,8 +2396,6 @@ float Midpoint(float p1, float p2)
 	return Lerp(p1, p2, 0.5);
 }
 
-//N
-
 //Creates an lweapon at 'distx,disty' away from where Link is facing
 lweapon NextToLink(int id, int distx, int disty)
 {
@@ -2584,12 +2565,6 @@ int OppositeDir(int dir)
 	return ( (dir < 4) ? dir^1b : dir^11b );
 }
 
-//P
-
-//Q
-
-//R
-
 //The above, but in radians.
 float RadianAngle(int x1, int y1, int x2, int y2)
 {
@@ -2739,8 +2714,6 @@ float RotatePointY(float x, float y, float centerX, float centerY, float degrees
 		return (Sin(degrees) * dx) - (Cos(degrees) * dy) + centerY;
 	}
 }
-
-//S
 
 //scales X to centerX by a given scale
 float ScalePointX(float x, float centerX, float scale)
@@ -3492,8 +3465,6 @@ void SwapTileRow(int first, int second, int length)
 	for(int i=0;i<length;++i) SwapTile(first+i,second+i);
 }
 
-//T
-
 // Returns an angle pointing (t)percentage more accurate to the target than the specified radian_angle.
 float TurnTowards( int X, int Y, int targetX, int targetY, float radian_angle, float t = 1.0 )
 {
@@ -3506,8 +3477,6 @@ float TurnTowards( int X, int Y, int targetX, int targetY, float radian_angle, f
 	return WrapAngle(radian_angle + d * t);
 }
 
-//U
-
 //Returns true if Hero is using item 'id'
 bool UsingItem(int id)
 {
@@ -3516,8 +3485,6 @@ bool UsingItem(int id)
 		|| (GetEquipmentX() == id && Hero->InputEx1)
 		|| (GetEquipmentY() == id && Hero->InputEx2);
 }
-
-//V
 
 float vbound(int x, int high, int low)
 {

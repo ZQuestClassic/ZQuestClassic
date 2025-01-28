@@ -800,11 +800,10 @@ class screendata {
 
 	// Stores the information on warp returns, bitwise.
 	//
-	// Deprecated by [SideWarpReturnSquare[4]] and [TileWarpReturnSquare[4]].
-	//
 	// The bits are DDCCBBAADDCCBBAA, where the left section is sidewarp
 	// returns, and the right is tilewarp returns.
 	//
+	// @deprecated Use `SideWarpReturnSquare[4]` and `TileWarpReturnSquare[4]` instead!
 	// @zasm_var SCREENDATAWARPRETURNC
 	internal int WarpReturnC;
 
@@ -812,7 +811,7 @@ class screendata {
 	//
 	// When the [Hero] takes the item on a screen, this is set to 0.
 	//
-	// @deprecated Check '->Item > -1' instead!
+	// @deprecated Check `->Item > -1` instead!
 	// @zasm_var SCREENDATAHASITEM
 	internal int HasItem;
 
