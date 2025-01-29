@@ -508,7 +508,7 @@ void ending()
 								  "%-8s -%3d", game->get_name(), game->get_deaths());
 				else if(y==timeYPos)
 				{
-					if(game->get_timevalid() && !game->did_cheat())
+					if(game->get_timevalid())
 						textout_centre_ex(scrollbuf, get_zc_font(font_zfont), time_str_med(game->get_time()), 128, 224, blue, 0);
 				}
 			}
