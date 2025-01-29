@@ -233,7 +233,7 @@ bool weapon::no_triggers() const
 	return false;
 }
 
-bool MatchComboTrigger(weapon *w, int32_t comboid)
+static bool MatchComboTrigger(weapon *w, int32_t comboid)
 {
 	if(screenIsScrolling()) return false;
 	if(w->no_triggers()) return false;
