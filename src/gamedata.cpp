@@ -1045,5 +1045,5 @@ bool gamedata::should_show_time()
 	if (replay_is_active() && replay_is_debug())
 		return false;
 
-	return get_timevalid() && !did_cheat() && get_qr(qr_TIME);
+	return get_timevalid() && get_qr(qr_TIME);
 }
