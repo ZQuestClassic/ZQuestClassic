@@ -15,9 +15,11 @@ export async function run(): Promise<void> {
 	mocha.timeout(100000);
 
 	// @ts-expect-error
-	mochaExpect.setSnapshotResolver({resolveSnapshotPath(name: string) {
-		return `${__dirname}/../../src/test/__snapshots__/${path.basename(name)}.snap`;
-	}});
+	mochaExpect.setSnapshotResolver({
+		resolveSnapshotPath(name: string) {
+			return `${__dirname}/../../src/test/__snapshots__/${path.basename(name)}.snap`;
+		}
+	});
 
 	const testsRoot = __dirname;
 

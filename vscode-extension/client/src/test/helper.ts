@@ -7,7 +7,7 @@ export async function activate(version: string, uri: vscode.Uri) {
 	await setVersion(version);
 	const doc = await vscode.workspace.openTextDocument(uri);
 	const editor = await vscode.window.showTextDocument(doc);
-	await sleep(3000); // Wait for server activation
+	await sleep(2000); // Wait for server activation
 	return { doc, editor };
 }
 
@@ -27,7 +27,6 @@ async function setVersion(version: string) {
 
 	const config = vscode.workspace.getConfiguration('zscript');
 	await config.update('installationFolder', zcPath, vscode.ConfigurationTarget.Global);
-	await sleep(1000);
 }
 
 async function sleep(ms: number) {
@@ -47,21 +46,12 @@ export async function setTestContent(uri: vscode.Uri, content: string): Promise<
 		doc.positionAt(doc.getText().length)
 	);
 	await editor.edit(eb => eb.replace(all, content));
-	await sleep(1000);
 }
 
 export async function executeDocumentSymbolProvider(uri: vscode.Uri): Promise<vscode.DocumentSymbol[]> {
-	// TODO: fix so that `onDocumentSymbol` runs processScript if needed (or waits for ongoing processing).
-	const doc = await vscode.workspace.openTextDocument(uri);
-	await setTestContent(uri, doc.getText());
-
-	while (true) {
-		const symbols = await vscode.commands.executeCommand('vscode.executeDocumentSymbolProvider', uri) as any;
-		if (symbols && symbols.length) return symbols;
-		await sleep(1000);
-	}
+	return vscode.commands.executeCommand('vscode.executeDocumentSymbolProvider', uri);
 }
 
 export async function executeHoverProvider(uri: vscode.Uri, pos: vscode.Position): Promise<vscode.Hover[]> {
-	return await vscode.commands.executeCommand('vscode.executeHoverProvider', uri, pos);
+	return vscode.commands.executeCommand('vscode.executeHoverProvider', uri, pos);
 }

@@ -55,7 +55,13 @@ interface DocumentMetaData {
 		symbol: number,
 	}>;
 }
-const docMetadataMap = new Map<string, DocumentMetaData>();
+
+interface JobResult {
+	diagnostics: Diagnostic[];
+	metadata?: DocumentMetaData;
+}
+
+const docJobResults = new Map<string, JobResult>();
 
 let hasConfigurationCapability = false;
 let hasWorkspaceFolderCapability = false;
@@ -63,8 +69,9 @@ let hasDiagnosticRelatedInformationCapability = false;
 
 let workspaceFolders: WorkspaceFolder[] | null | undefined;
 
+// TODO: not yet used.
 async function initWorkspace() {
-	docMetadataMap.clear();
+	docJobResults.clear();
 
 	const uris: URI[] = [];
 	for (const workspaceFolder of workspaceFolders || []) {
@@ -77,7 +84,7 @@ async function initWorkspace() {
 
 
 	for (const uri of uris) {
-		await processScript(uri.toString(), fs.readFileSync(uri.fsPath, 'utf8'));
+		// await processScript(uri.toString(), fs.readFileSync(uri.fsPath, 'utf8'));
 	}
 }
 
@@ -160,7 +167,8 @@ let globalSettings: Settings = defaultSettings;
 const documentSettings: Map<string, Thenable<Settings>> = new Map();
 
 connection.onDidChangeConfiguration(async (change) => {
-	docMetadataMap.clear();
+	[...activeJobs.keys()].forEach(abandonJob);
+	docJobResults.clear();
 
 	if (hasConfigurationCapability) {
 		// Reset all cached document settings
@@ -172,9 +180,8 @@ connection.onDidChangeConfiguration(async (change) => {
 	}
 
 	// Revalidate all open text documents
-	for (const doc of documents.all()) {
-		await processScript(doc.uri, doc.getText());
-	}
+	const jobs = documents.all().map(doc => createJob(doc));
+	await Promise.all(jobs.map(job => job.wait()));
 });
 
 connection.onDidChangeWatchedFiles(e => {
@@ -197,20 +204,26 @@ function getDocumentSettings(uri: string): Thenable<Settings> {
 	return result;
 }
 
-documents.onDidOpen(e => {
-	processScript(e.document.uri, e.document.getText());
-});
-
 // Only keep settings for open documents
 documents.onDidClose(e => {
 	documentSettings.delete(e.document.uri);
-	docMetadataMap.delete(e.document.uri);
+	docJobResults.delete(e.document.uri);
+	abandonJob(e.document);
 });
 
 // The content of a text document has changed. This event is emitted
 // when the text document first opened or when its content has changed.
+// TODO: this fires (then closes instantly) when doing ctrl+hover on a symbol.
+//       Need to wait for next version of LSP server to fix: https://github.com/microsoft/vscode-languageserver-node/issues/848#issuecomment-2503444503
 documents.onDidChangeContent(e => {
-	processScript(e.document.uri, e.document.getText());
+	docJobResults.delete(e.document.uri);
+
+	const job = activeJobs.get(e.document);
+	if (job) {
+		job.restart();
+	} else if (!pendingJobs.has(e.document)) {
+		createJob(e.document);
+	}
 });
 
 // TODO: this should not be necessary. Get path in better OS-agnostic way.
@@ -234,12 +247,12 @@ function fileMatches(f1: string, f2: string) {
 	return cleanupFile(f1) == cleanupFile(f2);
 }
 
-function parseOutput(settings: Settings, stdout: string, stderr: string): { diagnostics: Diagnostic[], metadata?: DocumentMetaData } {
+function parseOutput(settings: Settings, stdout: string, stderr: string): JobResult {
 	if (stdout.startsWith('{')) {
 		if (settings.printCompilerOutput) {
 			console.log(stderr);
 		}
-		const result = JSON.parse(stdout) as { diagnostics: Diagnostic[], metadata?: DocumentMetaData };
+		const result = JSON.parse(stdout) as JobResult;
 		return result;
 	}
 
@@ -379,10 +392,12 @@ function parseOutput(settings: Settings, stdout: string, stderr: string): { diag
 	}
 
 	let metadata;
-	try {
-		metadata = JSON.parse(metadataStr);
-	} catch (e: any) {
-		connection.console.error(e.toString());
+	if (metadataStr) {
+		try {
+			metadata = JSON.parse(metadataStr);
+		} catch (e: any) {
+			connection.console.error(e.toString());
+		}
 	}
 
 	return { diagnostics, metadata };
@@ -392,7 +407,7 @@ const globalTmpDir = os.tmpdir();
 const tmpInput = cleanupFile(`${globalTmpDir}/tmp2.zs`);
 const tmpScript = cleanupFile(`${globalTmpDir}/tmp.zs`);
 
-async function processScript(uri: string, content: string): Promise<void> {
+async function processScript(uri: string, content: string, signal: AbortSignal): Promise<JobResult | null> {
 	const settings = await getDocumentSettings(uri);
 	let includeText = "#option NO_ERROR_HALT on\n#option HEADER_GUARD on\n";
 
@@ -408,7 +423,7 @@ async function processScript(uri: string, content: string): Promise<void> {
 				source: 'zscript'
 			}]
 		});
-		return;
+		return null;
 	}
 
 	let zscriptFolder = settings.installationFolder;
@@ -429,7 +444,7 @@ async function processScript(uri: string, content: string): Promise<void> {
 				source: 'zscript'
 			}]
 		});
-		return;
+		return null;
 	}
 
 	if (settings.defaultIncludePaths) {
@@ -474,11 +489,15 @@ async function processScript(uri: string, content: string): Promise<void> {
 		const cp = await execFile(exe, args, {
 			cwd: zscriptFolder,
 			maxBuffer: 20_000_000,
+			signal,
 		});
 		success = true;
 		stdout = cp.stdout;
 		stderr = cp.stderr;
 	} catch (e: any) {
+		if (signal.aborted) {
+			return null;
+		}
 		if (e.code === undefined) throw e;
 		stdout = e.stdout || e.toString();
 	}
@@ -500,10 +519,115 @@ async function processScript(uri: string, content: string): Promise<void> {
 
 	// Send the computed diagnostics to VSCode.
 	connection.sendDiagnostics({ uri: uri, diagnostics });
+	return { diagnostics, metadata };
+}
 
-	if (!metadata) return;
+type ProcessScriptJob = ReturnType<typeof createJob>;
 
-	docMetadataMap.set(uri, metadata);
+const MAX_JOBS = 5;
+const activeJobs = new Map<TextDocument, ProcessScriptJob>();
+const pendingJobs = new Map<TextDocument, ProcessScriptJob>();
+
+function createJob(doc: TextDocument) {
+	let resolve: (result: JobResult | null) => void, reject: (reason: Error) => void;
+	const promise = new Promise<JobResult | null>((resolve_, reject_) => {
+		resolve = resolve_;
+		reject = reject_;
+	});
+
+	const controller = new AbortController();
+	let restarting = false;
+	let cancelled = false;
+	let result: JobResult | null = null;
+	const job = {
+		doc,
+		start() {
+			console.log(`start ${doc.uri}`);
+			processScript(doc.uri, doc.getText(), controller.signal)
+				.then(r => {
+					if (r) {
+						result = r;
+						docJobResults.set(doc.uri, result);
+					}
+				})
+				.finally(() => {
+					if (cancelled) {
+						return;
+					}
+
+					if (restarting) {
+						restarting = false;
+						job.start();
+						return;
+					}
+
+					console.log(`done ${doc.uri}`);
+					activeJobs.delete(doc);
+					startNextJobs();
+					resolve(result);
+				});
+		},
+		restart() {
+			console.log(`restart ${doc.uri}`);
+			restarting = true;
+			controller.abort();
+		},
+		cancel() {
+			console.log(`cancel ${doc.uri}`);
+			cancelled = true;
+			controller.abort();
+			activeJobs.delete(doc);
+			startNextJobs();
+			resolve(null);
+		},
+		wait() {
+			return promise;
+		},
+	};
+
+	if (activeJobs.size < MAX_JOBS) {
+		activeJobs.set(doc, job);
+		job.start();
+	} else {
+		console.log(`queued ${doc.uri}`);
+		pendingJobs.set(doc, job);
+	}
+
+	return job;
+}
+
+function abandonJob(doc: TextDocument) {
+	pendingJobs.delete(doc);
+
+	const job = activeJobs.get(doc);
+	if (job) {
+		activeJobs.delete(doc);
+		job.cancel();
+	}
+}
+
+function startNextJobs() {
+	while (activeJobs.size < MAX_JOBS && pendingJobs.size) {
+		const [nextJobDoc, nextJob] = [...pendingJobs.entries()][0];
+		pendingJobs.delete(nextJobDoc);
+		activeJobs.set(nextJobDoc, nextJob);
+		nextJob.start();
+	}
+}
+
+async function getOrWaitForScriptMetadata(doc: TextDocument): Promise<DocumentMetaData | null> {
+	let result = docJobResults.get(doc.uri) ?? null;
+	if (result) {
+		return result.metadata ?? null;
+	}
+
+	let job = activeJobs.get(doc) ?? pendingJobs.get(doc);
+	if (!job) {
+		job = createJob(doc);
+	}
+	result = await job.wait();
+
+	return result?.metadata ?? null;
 }
 
 connection.onDidChangeWatchedFiles(_change => {
@@ -548,8 +672,12 @@ connection.onCompletionResolve(
 	}
 );
 
-function resolvePosition(uri: string, pos: Position) {
-	const metadata = docMetadataMap.get(uri);
+async function resolvePosition(doc: TextDocument, pos: Position) {
+	const result = docJobResults.get(doc.uri);
+	if (!result)
+		return null;
+
+	const { metadata } = result;
 	if (!metadata)
 		return null;
 
@@ -564,8 +692,21 @@ function resolvePosition(uri: string, pos: Position) {
 	return { metadata, identifier };
 }
 
-connection.onHover((p: HoverParams): Hover | null => {
-	const result = resolvePosition(p.textDocument.uri, p.position);
+connection.onDocumentSymbol(async (p: DocumentSymbolParams) => {
+	const doc = documents.get(p.textDocument.uri);
+	if (!doc)
+		return null;
+
+	const metadata = await getOrWaitForScriptMetadata(doc);
+	return metadata?.currentFileSymbols;
+});
+
+connection.onHover(async (p: HoverParams): Promise<Hover | null> => {
+	const doc = documents.get(p.textDocument.uri);
+	if (!doc)
+		return null;
+
+	const result = await resolvePosition(doc, p.position);
 	if (!result)
 		return null;
 
@@ -579,12 +720,12 @@ connection.onHover((p: HoverParams): Hover | null => {
 	};
 });
 
-connection.onDocumentSymbol((p: DocumentSymbolParams) => {
-	return docMetadataMap.get(p.textDocument.uri)?.currentFileSymbols;
-});
+connection.onDefinition(async (p: DefinitionParams) => {
+	const doc = documents.get(p.textDocument.uri);
+	if (!doc)
+		return null;
 
-connection.onDefinition((p: DefinitionParams) => {
-	const result = resolvePosition(p.textDocument.uri, p.position);
+	const result = await resolvePosition(doc, p.position);
 	if (!result)
 		return null;
 
@@ -595,14 +736,23 @@ connection.onDefinition((p: DefinitionParams) => {
 	return symbol.loc;
 });
 
-connection.onReferences((p) => {
-	const result = resolvePosition(p.textDocument.uri, p.position);
+connection.onReferences(async (p) => {
+	const doc = documents.get(p.textDocument.uri);
+	if (!doc)
+		return null;
+
+	const result = await resolvePosition(doc, p.position);
 	if (!result)
 		return null;
 
 	const { identifier } = result;
 	const locations: Location[] = [];
-	for (const [uri, metadata] of docMetadataMap) {
+	for (const [uri, result] of docJobResults) {
+		const metadata = result.metadata;
+		if (!metadata) {
+			continue;
+		}
+
 		// TODO: currently, symbol ids are not the same across multiple compilations, so can
 		// only find references within the same document.
 		// Idea for how to fix:

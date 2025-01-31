@@ -66,7 +66,7 @@ export function activate(context: ExtensionContext) {
 		debug: {
 			module: serverModule,
 			transport: TransportKind.ipc,
-		}
+		},
 	};
 
 	// Options to control the language client

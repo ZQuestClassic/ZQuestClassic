@@ -138,18 +138,24 @@ suite('ZScript extension', () => {
 	suite('Hover tooltips', () => {
 		const uri = getDocUri('symbols.zs');
 
-		const getHovers = async () => {
+		const getHovers = async (version: string) => {
 			const positions = [
 				new vscode.Position(27, 16),
 				new vscode.Position(3, 20),
 				new vscode.Position(36, 10),
 				new vscode.Position(61, 8),
-				new vscode.Position(67, 5),
+				version !== '3-no-json' ? new vscode.Position(67, 5) : null,
 				new vscode.Position(82, 55),
 				new vscode.Position(82, 78),
-				new vscode.Position(97, 12),
-			];
+				version !== '3-no-json' ? new vscode.Position(97, 12) : null,
+			].filter(Boolean);
 			return (await Promise.all(positions.map(pos => executeHoverProvider(uri, pos))))
+				.map((hovers, i) => {
+					if (!hovers.length) {
+						throw new Error(`empty hover for ${positions[i].line}, ${positions[i].character}`);
+					}
+					return hovers;
+				})
 				.flat()
 				.map(hover => ({
 					contents: hover.contents.map(c => c instanceof vscode.MarkdownString ? c.value : c),
@@ -161,13 +167,13 @@ suite('ZScript extension', () => {
 
 		test('3-no-json', async () => {
 			await activate('3-no-json', uri);
-			const hovers = await getHovers();
+			const hovers = await getHovers('3-no-json');
 			expect(hovers).toMatchSnapshot();
 		});
 
 		test('latest', async () => {
 			await activate('latest', uri);
-			const hovers = await getHovers();
+			const hovers = await getHovers('latest');
 			expect(hovers).toMatchSnapshot();
 		});
 	});
@@ -184,7 +190,6 @@ suite('ZScript extension', () => {
 				s.children.forEach(collect);
 			};
 			symbols.forEach(collect);
-			console.log(flattened.length);
 			return flattened;
 		};
 

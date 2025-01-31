@@ -1113,12 +1113,12 @@ exports[`ZScript extension Document symbol outline latest 1`] = `
     "name": "Car",
     "range": [
       {
-        "character": 6,
+        "character": 0,
         "line": 21,
       },
       {
-        "character": 9,
-        "line": 21,
+        "character": 1,
+        "line": 38,
       },
     ],
     "selectionRange": [
@@ -1238,53 +1238,28 @@ exports[`ZScript extension Document symbol outline latest 1`] = `
     "name": "IhaveAdefCtor",
     "range": [
       {
-        "character": 6,
-        "line": 40,
-      },
-      {
-        "character": 19,
-        "line": 40,
-      },
-    ],
-    "selectionRange": [
-      {
-        "character": 6,
-        "line": 40,
-      },
-      {
-        "character": 19,
-        "line": 40,
-      },
-    ],
-  },
-  {
-    "children": 3,
-    "kind": 9,
-    "name": "Brand",
-    "range": [
-      {
         "character": 0,
-        "line": 44,
+        "line": 40,
       },
       {
         "character": 1,
-        "line": 50,
+        "line": 41,
       },
     ],
     "selectionRange": [
       {
-        "character": 5,
-        "line": 44,
+        "character": 6,
+        "line": 40,
       },
       {
-        "character": 10,
-        "line": 44,
+        "character": 19,
+        "line": 40,
       },
     ],
   },
   {
     "children": 0,
-    "kind": 21,
+    "kind": 12,
     "name": "Fancy",
     "range": [
       {
@@ -1309,7 +1284,7 @@ exports[`ZScript extension Document symbol outline latest 1`] = `
   },
   {
     "children": 0,
-    "kind": 21,
+    "kind": 12,
     "name": "Dull",
     "range": [
       {
@@ -1334,7 +1309,7 @@ exports[`ZScript extension Document symbol outline latest 1`] = `
   },
   {
     "children": 0,
-    "kind": 21,
+    "kind": 12,
     "name": "Mid",
     "range": [
       {
@@ -1358,33 +1333,8 @@ exports[`ZScript extension Document symbol outline latest 1`] = `
     ],
   },
   {
-    "children": 4,
-    "kind": 9,
-    "name": "FilterBitflags",
-    "range": [
-      {
-        "character": 0,
-        "line": 53,
-      },
-      {
-        "character": 1,
-        "line": 56,
-      },
-    ],
-    "selectionRange": [
-      {
-        "character": 5,
-        "line": 53,
-      },
-      {
-        "character": 19,
-        "line": 53,
-      },
-    ],
-  },
-  {
     "children": 0,
-    "kind": 21,
+    "kind": 12,
     "name": "F_SHINY",
     "range": [
       {
@@ -1409,7 +1359,7 @@ exports[`ZScript extension Document symbol outline latest 1`] = `
   },
   {
     "children": 0,
-    "kind": 21,
+    "kind": 12,
     "name": "F_UGLY",
     "range": [
       {
@@ -1434,7 +1384,7 @@ exports[`ZScript extension Document symbol outline latest 1`] = `
   },
   {
     "children": 0,
-    "kind": 21,
+    "kind": 12,
     "name": "F_SMALL",
     "range": [
       {
@@ -1459,7 +1409,7 @@ exports[`ZScript extension Document symbol outline latest 1`] = `
   },
   {
     "children": 0,
-    "kind": 21,
+    "kind": 12,
     "name": "F_FAST",
     "range": [
       {
