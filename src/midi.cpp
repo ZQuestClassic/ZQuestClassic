@@ -217,7 +217,7 @@ void get_midi_info(MIDI *midi, midi_info *mi)
     if(midi==NULL)
         goto done;
         
-    for(int32_t i=0; midi->track[i].len>0; i++)
+    for(int32_t i = 0; i < MIDI_TRACKS && midi->track[i].len > 0; i++)
     {
         byte *data = midi->track[i].data;
         
@@ -322,7 +322,7 @@ void get_midi_text(MIDI *midi, midi_info *mi, char *text)
     
     text[0] = 0;
     
-    for(int32_t i=0; midi->track[i].len>0; i++)
+    for(int32_t i = 0; i < MIDI_TRACKS && midi->track[i].len > 0; i++)
     {
         byte *data = midi->track[i].data;
         
