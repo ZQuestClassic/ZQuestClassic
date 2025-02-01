@@ -665,8 +665,16 @@ def _run_replay_test(
             result.exit_code = exit_code
             if exit_code != 0 and exit_code != ASSERT_FAILED_EXIT_CODE:
                 result.exceptions.append(
-                    f'replay failed with unexpected code {exit_code}'
+                    f'failed w/ exit code {exit_code}'
                 )
+
+                stderr_path = output_dir / 'stderr.txt'
+                if stderr_path.exists():
+                    lines = stderr_path.read_text().splitlines()
+                    assert_line = next((l for l in lines if l.startswith('CHECK failed at')), None)
+                    if assert_line:
+                        result.exceptions.append(assert_line)
+
             # .zplay files are updated in-place, but lets also copy over to the test output folder.
             # This makes it easy to upload an archive of updated replays in CI.
             if ctx.mode == 'update' and watcher.result.get('changed'):

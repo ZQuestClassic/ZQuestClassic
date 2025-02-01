@@ -14,7 +14,11 @@
 #endif
 
 #ifndef CHECK
-# define CHECK(expr) if (!likely(expr)) { printf("%s:%d %s: %s\n", __FILE__, __LINE__, __func__, "check '" #expr "' failed"); abort(); }
+# define CHECK(expr) if (!likely(expr)) {\
+	al_trace("CHECK failed at %s:%d %s: %s\n", __FILE__, __LINE__, __func__, "'" #expr "'");\
+	fprintf(stderr, "CHECK failed at %s:%d %s: %s\n", __FILE__, __LINE__, __func__, "'" #expr "'");\
+	abort();\
+}
 #endif
 
 #ifdef DCHECK_IS_ON

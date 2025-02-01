@@ -477,6 +477,13 @@ else()
 	set_source_files_properties(src/base/zc_math.cpp PROPERTIES COMPILE_FLAGS -O3)
 endif()
 
+# Make __FILE__ relative to the source directory.
+if(MSVC)
+	add_compile_options(/d1trimfile:"$(SolutionDir)")
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+	add_compile_options(-fmacro-prefix-map=${CMAKE_CURRENT_SOURCE_DIR}=.)
+endif()
+
 #############################################################
 # Allegro Graphics Addons
 #############################################################

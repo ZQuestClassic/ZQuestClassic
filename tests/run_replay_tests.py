@@ -961,7 +961,15 @@ for result in test_results.runs[-1]:
         print(f'failure: {result.name}')
 
         if result.exceptions:
-            print(f'  EXCEPTION: {" | ".join(result.exceptions)}')
+            title = 'EXCEPTIONS'
+            length = len(title) * 2
+            print()
+            print('=' * length)
+            print(title.center(length, '='))
+            print('=' * length)
+            print()
+            for exception in result.exceptions:
+                print(exception)
 
         def print_nicely(title: str, path: Path):
             if not path.exists():
