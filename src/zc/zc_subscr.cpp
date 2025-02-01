@@ -590,7 +590,9 @@ void put_passive_subscr(BITMAP *dest,int32_t x,int32_t y,bool showtime,int32_t p
 	}
 
 	// Since regions were added, all passive subscreens get a black background underneath (unless
-	// using an extended height viewport).
+	// using an extended height viewport). Previously, custom but blank subscreens could be used to
+	// allow scripts to draw to the entire screen (ex: yuurand), but post-z3 such use cases should
+	// enable the "no subscreen" screen flag.
 	if (QHeader.is_z3 && playing_field_offset)
 		rectfill(subscr, 0, 0, subscr->w, playing_field_offset - 1, 0);
 

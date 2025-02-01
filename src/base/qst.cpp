@@ -3494,7 +3494,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 	}
 	// TODO ~z3 bump compat rule
 	// if (compatrule_version < 74)
-	// 	set_qr(qr_SCRIPTS_SCROLLING_BROKEN_HERO_POSITION, 1);
+	// 	set_qr(qr_BROKEN_SCRIPTS_SCROLLING_HERO_POSITION, 1);
 
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)

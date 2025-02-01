@@ -19452,7 +19452,7 @@ void loadenemies()
 		if (scr->pattern == pNOSPAWN)
 			return;
 
-		// TODO z3 configure.
+		// TODO: configure when screen enemies spawn.
 		if (!viewport.intersects_with(region_scr_x*256, region_scr_y*176, 256, 176))
 			return;
 
