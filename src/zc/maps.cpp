@@ -5840,7 +5840,7 @@ static void load_a_screen_and_layers_post(int dmap, int screen, int ldir)
 			{
 			case d1WAYSHUTTER:
 			case dSHUTTER:
-				if((ldir^1)==i)
+				if ((ldir^1)==i && screen == hero_screen)
 				{
 					base_scr->door[i]=dOPENSHUTTER;
 				}
@@ -6052,12 +6052,19 @@ void loadscr(int32_t destdmap, int32_t screen, int32_t ldir, bool origin_screen_
 
 	prepare_current_region_handles();
 
-	for (int screen = 0; screen < 128; screen++)
+	if (is_in_scrolling_region())
 	{
-		if (is_in_current_region(screen))
+		for (int screen = 0; screen < 128; screen++)
 		{
-			load_a_screen_and_layers_post(destdmap, screen, ldir);
+			if (is_in_current_region(screen))
+			{
+				load_a_screen_and_layers_post(destdmap, screen, ldir);
+			}
 		}
+	}
+	else
+	{
+		load_a_screen_and_layers_post(destdmap, screen, ldir);
 	}
 
 	// If on a special screen, load the screen the player is currently on (home_screen) into special_warp_return_scr.
@@ -6280,7 +6287,7 @@ void loadscr_old(int32_t destdmap, int32_t screen,int32_t ldir,bool overlay)
 			{
 			case d1WAYSHUTTER:
 			case dSHUTTER:
-				if((ldir^1)==i)
+				if ((ldir^1)==i && screen == home_screen)
 				{
 					scr->door[i]=dOPENSHUTTER;
 				}
