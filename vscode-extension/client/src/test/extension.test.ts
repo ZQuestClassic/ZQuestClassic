@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import * as assert from 'assert';
-import { getDocUri, activate, setTestContent, executeDocumentSymbolProvider, executeHoverProvider } from './helper.js';
+import { getDocUri, activate, setTestContent, executeDocumentSymbolProvider, executeHoverProvider, sleep } from './helper.js';
 import { before } from 'mocha';
 import { jestExpect as expect } from 'mocha-expect-snapshot';
 
@@ -11,6 +11,8 @@ function range(sLine: number, sChar: number, eLine: number, eChar: number) {
 }
 
 async function testDiagnostics(uri: vscode.Uri, expectedDiagnostics: vscode.Diagnostic[]) {
+	// Diagnostics are a push-model, so lets give the server a moment to process the script.
+	await sleep(2000);
 	const actualDiagnostics = vscode.languages.getDiagnostics(uri)
 		.map(({ message, range, severity }) => ({ message, range, severity }));
 	for (const diag of actualDiagnostics) {
