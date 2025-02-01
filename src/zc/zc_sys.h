@@ -69,7 +69,6 @@ bool zc_read_system_key(int32_t k);
 bool is_system_key(int32_t k);
 void update_system_keys();
 void update_keys();
-bool zc_disablekey(int32_t k, bool val);
 void eat_buttons();
 
 #define ZC_CONTROL_STATES 18

@@ -18,8 +18,8 @@ stdout:
   "diagnostics": [],
   "metadata": {
     "currentFileSymbols": 3,
-    "symbols": 2,
-    "identifiers": 2,
+    "symbols": 4,
+    "identifiers": 5,
     "elided": true
   }
 }

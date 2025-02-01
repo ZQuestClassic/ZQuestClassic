@@ -839,7 +839,9 @@ enum HitIndex
 	HIT_BY_LWEAPON_PARENT_FAMILY   = 9,  // The item class of the item that the weapon that hit came from (see [ItemType]). -1 if the lweapon is script created.
 	HIT_BY_NPC_TYPE                = 10, // [Hero] only. The enemy class of the enemy that hit the [Hero] (see [NPCType]).
 	HIT_BY_EWEAPON_TYPE            = 11, // [Hero] only. The ID of the weapon that hit (see [LWeaponType] and [EWeaponType]).
-	HIT_BY_LWEAPON_TYPE            = 12, // The internal UID used by the engine for the thing. Can case these to their respective types example: `npc n = <npc>(Hero->HitBy[HIT_BY_NPC_PTR])`.
+	// The internal UID used by the engine for the thing.
+	// Can cast these to their respective types. For example: `npc n = <npc>(Hero->HitBy[HIT_BY_NPC_PTR])`
+	HIT_BY_LWEAPON_TYPE            = 12,
 	HIT_BY_NPC_PTR                 = 13,
 	HIT_BY_EWEAPON_PTR             = 14,
 	HIT_BY_LWEAPON_PTR             = 15,

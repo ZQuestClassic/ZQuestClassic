@@ -1,0 +1,3 @@
+void fn() {
+	NoAction();
+}

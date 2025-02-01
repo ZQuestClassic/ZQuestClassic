@@ -17,7 +17,7 @@
 #include "zc/weapons.h"
 //#include "save_gif.h"
 #include "sprite.h"
-#include "zc/zc_custom.h"
+#include "hero_tiles.h"
 #include "subscr.h"
 #include "base/zfix.h"
 #include <vector>

@@ -13,6 +13,8 @@
 import argparse
 import json
 import os
+import platform
+import subprocess
 import sys
 import unittest
 
@@ -39,6 +41,29 @@ import run_target
 class TestZScript(ZCTestCase):
     def setUp(self):
         self.maxDiff = None
+
+    def test_zscript_vscode_extension(self):
+        if 'emscripten' in str(run_target.get_build_folder()):
+            return
+
+        exe_name = 'npm.cmd' if platform.system() == 'Windows' else 'npm'
+        subprocess.check_call(
+            [exe_name, 'install'],
+            cwd=root_dir / 'vscode-extension',
+        )
+        subprocess.check_call(
+            [exe_name, 'run', 'compile'],
+            cwd=root_dir / 'vscode-extension',
+        )
+        subprocess.check_call(
+            [exe_name, 'run', 'test'],
+            cwd=root_dir / 'vscode-extension',
+            env={
+                **os.environ,
+                'ZC_DISABLE_DEBUG': '1',
+                'BUILD_FOLDER': str(run_target.get_build_folder()),
+            },
+        )
 
     def compile_script(self, script_path):
         # Change include paths to use resources/ directly, instead of possibly-stale stuff inside a build folder.

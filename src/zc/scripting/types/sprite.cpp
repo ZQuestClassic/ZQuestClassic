@@ -6,7 +6,7 @@
 #include "zasm/defines.h"
 #include "zc/ffscript.h"
 #include "zc/guys.h"
-#include "zc/zc_custom.h"
+#include "hero_tiles.h"
 
 #include <cstdint>
 #include <optional>

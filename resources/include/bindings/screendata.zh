@@ -879,11 +879,10 @@ class screendata {
 
 	// Stores the information on warp returns, bitwise.
 	//
-	// Deprecated by [SideWarpReturnSquare[4]] and [TileWarpReturnSquare[4]].
-	//
 	// The bits are DDCCBBAADDCCBBAA, where the left section is sidewarp
 	// returns, and the right is tilewarp returns.
 	//
+	// @deprecated Use `SideWarpReturnSquare[4]` and `TileWarpReturnSquare[4]` instead!
 	// @zasm_var SCREENDATAWARPRETURNC
 	internal int WarpReturnC;
 
@@ -891,7 +890,7 @@ class screendata {
 	//
 	// When the [Hero] takes the item on a screen, this is set to 0.
 	//
-	// @deprecated Check '->Item > -1' instead!
+	// @deprecated Check `->Item > -1` instead!
 	// @zasm_var SCREENDATAHASITEM
 	internal int HasItem;
 
@@ -1347,9 +1346,9 @@ class screendata {
 	//   SETR D2 LWPNCOUNT
 	internal int NumLWeapons();
 
-	// Where `1 <= n <= [NumItems]`, returns a pointer to the nth object on the
-	// screen.
+	// Returns a pointer to the nth [lweapon] on the screen.
 	//
+	// @param [int] n - Between 1 and [NumLWeapons] (inclusive).
 	// @zasm
 	//   POP D2
 	//   SUBV D2 1
@@ -1374,9 +1373,9 @@ class screendata {
 	//   SETR D2 EWPNCOUNT
 	internal int NumEWeapons();
 
-	// Where `1 <= n <= [NumItems]`, returns a pointer to the nth object on the
-	// screen.
+	// Returns a pointer to the nth [eweapon] on the screen.
 	//
+	// @param [int] n - Between 1 and [NumEWeapons] (inclusive).
 	// @zasm
 	//   POP D2
 	//   SUBV D2 1
@@ -1535,9 +1534,9 @@ class screendata {
 	//   SETR D2 PORTALCOUNT
 	internal int NumPortals();
 
-	// Where `1 <= n <= [NumItems]`, returns a pointer to the nth object on the
-	// screen.
+	// Returns a pointer to the nth [portal] on the screen.
 	//
+	// @param [int] n - Between 1 and [NumPortals] (inclusive).
 	// @zasm
 	//   POP D2
 	//   LOADPORTAL D2

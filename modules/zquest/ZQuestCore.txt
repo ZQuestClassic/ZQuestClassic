@@ -13,7 +13,7 @@ src/sprite.cpp
 src/solidobject.cpp
 src/subscr.cpp
 src/new_subscr.cpp
-src/zc/zc_custom.cpp
+src/hero_tiles.cpp
 src/init.cpp
 src/zinfo.cpp
 src/zconfig.cpp

@@ -294,6 +294,27 @@ void RegistrationVisitor::initInternalVar(ASTDataDeclList* var)
 				getVariable(refvar, fn, fn_value);
 		}
 
+		// Add deprecated getters.
+		if (parsed_comment.contains("deprecated_getter"))
+		{
+			if (is_arr || is_internal_arr)
+			{
+				handleError(CompileError::BadInternal(decl, "@deprecated_getter cannot be used on arrays"));
+				continue;
+			}
+
+			std::string getter_name = parsed_comment["deprecated_getter"];
+			std::vector<const DataType*> params;
+			if (refvar != NUL)
+				params.push_back(user_class->getType());
+			Function* fn = scope->addFunction(var_type, getter_name, params, {}, FUNCFLAG_DEPRECATED|FUNCFLAG_INTERNAL);
+			fn->setExternalScope(scope->makeChild());
+			fn->data_decl_source_node = decl;
+			fn->setInfo(fmt::format("Use {} instead!", decl->getName()));
+
+			getVariable(refvar, fn, fn_value);
+		}
+
 		if (is_internal_arr || is_constant_zero)
 			continue;
 

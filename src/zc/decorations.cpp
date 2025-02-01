@@ -1,7 +1,7 @@
 #include "base/qrs.h"
 #include "sprite.h"
 #include "zc/decorations.h"
-#include "zc/zc_custom.h"
+#include "hero_tiles.h"
 #include "zc/zelda.h"
 #include "zc/maps.h"
 #include "base/zsys.h"

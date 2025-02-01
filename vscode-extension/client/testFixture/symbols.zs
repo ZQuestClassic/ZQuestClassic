@@ -50,7 +50,7 @@ enum Brand {
     Mid // meh
 };
 
-@Bitflags("int")
+// @Bitflags("int")
 enum FilterBitflags
 {
     F_SHINY, F_UGLY, F_SMALL, F_FAST
