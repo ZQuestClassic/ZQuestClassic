@@ -24,7 +24,7 @@
 #include "gui/jwin.h"
 #include <base/new_menu.h>
 #include "base/jwinfsel.h"
-#include "zc/zc_custom.h"
+#include "hero_tiles.h"
 #include "zq/questReport.h"
 #include "dialog/info.h"
 #include "dialog/scaletile.h"

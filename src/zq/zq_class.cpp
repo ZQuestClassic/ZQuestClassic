@@ -30,7 +30,7 @@
 #include "items.h"
 #include "zc/zc_sys.h"
 #include "md5.h"
-#include "zc/zc_custom.h"
+#include "hero_tiles.h"
 #include "subscr.h"
 #include "zq/zq_strings.h"
 #include "zq/zq_subscr.h"

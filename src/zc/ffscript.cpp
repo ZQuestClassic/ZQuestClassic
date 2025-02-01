@@ -72,7 +72,7 @@
 #include "base/zdefs.h"
 #include "zc/rendertarget.h"
 
-#include "zc/zc_custom.h"
+#include "hero_tiles.h"
 #include "base/qst.h"
 
 using namespace util;

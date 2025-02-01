@@ -8,7 +8,7 @@
 #include "base/packfile.h"
 #include "base/gui.h"
 #include "base/qst.h"
-#include "zc/zc_custom.h"
+#include "hero_tiles.h"
 #include "zq/zq_custom.h"
 #include "tiles.h"
 #include "zq/zq_tiles.h"

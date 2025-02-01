@@ -1,5 +1,4 @@
-#include "zc/zc_custom.h"
-#include "zc/zelda.h"
+#include "hero_tiles.h"
 #include "base/zdefs.h"
 
 extern wpndata    *wpnsbuf;

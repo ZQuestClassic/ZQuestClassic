@@ -13,7 +13,7 @@
 #include "zc/zc_subscr.h"
 #include "zc/decorations.h"
 #include "gamedata.h"
-#include "zc/zc_custom.h"
+#include "hero_tiles.h"
 #include "zc/title.h"
 #include "zc/ffscript.h"
 #include "drawing.h"
