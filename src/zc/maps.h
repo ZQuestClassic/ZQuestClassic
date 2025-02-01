@@ -214,7 +214,7 @@ bool is_in_scrolling_region();
 bool is_extended_height_mode();
 mapscr* get_scr(int map, int screen);
 mapscr* get_scr(int screen);
-mapscr* get_scr_no_load(int map, int screen);
+mapscr* get_scr_maybe(int map, int screen);
 mapscr* get_scr_layer(int map, int screen, int layer);
 mapscr* get_scr_layer(int screen, int layer);
 mapscr* get_scr_layer_valid(int screen, int layer);

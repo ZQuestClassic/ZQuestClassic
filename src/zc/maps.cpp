@@ -563,9 +563,10 @@ mapscr* get_scr_for_region_index_offset(int offset)
 	return get_scr(screen);
 }
 
+// The screen at (map, screen) must exist.
 mapscr* get_scr(int map, int screen)
 {
-	mapscr* scr = get_scr_no_load(map, screen);
+	mapscr* scr = get_scr_maybe(map, screen);
 	CHECK(scr);
 	return scr;
 }
@@ -575,7 +576,8 @@ mapscr* get_scr(int screen)
 	return get_scr(cur_map, screen);
 }
 
-mapscr* get_scr_no_load(int map, int screen)
+// Returns null if active screen does not exist.
+mapscr* get_scr_maybe(int map, int screen)
 {
 	DCHECK_RANGE_INCLUSIVE(screen, 0, 135);
 
