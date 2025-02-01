@@ -2833,7 +2833,7 @@ enum ASM_DEFINE
 #define RESRVD_VAR_Z3_03        0x14D4
 #define RESRVD_VAR_Z3_04        0x14D5
 #define RESRVD_VAR_Z3_05        0x14D6
-#define RESRVD_VAR_Z3_06        0x14D7
+#define MAX_FFC_ID              0x14D7
 #define RESRVD_VAR_Z3_07        0x14D8
 #define REGION_WIDTH            0x14D9
 #define REGION_HEIGHT           0x14DA

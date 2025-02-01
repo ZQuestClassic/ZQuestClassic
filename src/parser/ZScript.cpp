@@ -6,7 +6,6 @@
 #include "DataStructs.h"
 #include "Types.h"
 #include "Scope.h"
-#include "zc/ffscript.h"
 
 
 using namespace ZScript;
@@ -385,6 +384,24 @@ std::optional<int32_t> Variable::getCompileTimeValue(bool getinitvalue) const
 		return std::nullopt;
 	}
 	return std::nullopt;
+}
+
+// ZScript::InternalVariable
+
+InternalVariable* InternalVariable::create(
+		Scope& scope, ASTDataDecl& node, DataType const& type,
+		CompileErrorHandler* errorHandler)
+{
+	InternalVariable* variable = new InternalVariable(scope, node, type);
+	if (variable->tryAddToScope(errorHandler)) return variable;
+	delete variable;
+	return NULL;
+}
+
+InternalVariable::InternalVariable(Scope& scope, ASTDataDecl& node, DataType const& type)
+	: Datum(scope, type), readfn(nullptr), writefn(nullptr), node(node)
+{
+	node.manager = this;
 }
 
 // ZScript::UserClassVar
@@ -800,6 +817,7 @@ static const cache_entry* getSourceCodeCacheEntry(const std::string& fname)
 		entry->lines.push_back(count);
 		count += line.size() + 1;
 	}
+	entry->lines.push_back(count);
 
 	return entry;
 }

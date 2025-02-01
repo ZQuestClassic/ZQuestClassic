@@ -6,6 +6,7 @@
 
 #include "parser/AST.h"
 #include "parser/ASTVisitors.h"
+#include "parser/ByteCode.h"
 #include "parser/LibrarySymbols.h"
 #include "parser/Types.h"
 #include "parser/ZScript.h"
@@ -203,6 +204,148 @@ void RegistrationVisitor::caseScript(ASTScript& host, void* param)
 	script.setRun(possibleRuns[0]);
 }
 
+void RegistrationVisitor::initInternalVar(ASTDataDeclList* var)
+{
+	auto parsed_comment = var->getParsedDocComment();
+
+	int refvar = NUL;
+	UserClass* user_class = nullptr;
+	if (scope->isClass())
+	{
+		user_class = &scope->getClass()->user_class;
+		refvar = user_class->internalRefVar;
+	}
+
+	for (auto decl : var->getDeclarations())
+	{
+		if (parsed_comment.contains("zasm_var") && parsed_comment.contains("zasm_internal_array"))
+		{
+			handleError(CompileError::BadInternal(decl, "Only one of @zasm_var, @zasm_internal_array is allowed"));
+			continue;
+		}
+
+		// Internal variables in classes must have a zasm_var/zasm_internal_array. Currently, global internal variables
+		// may not have one, in which case it defaults to a constant zero.
+		if (user_class && !parsed_comment.contains("zasm_var") && !parsed_comment.contains("zasm_internal_array"))
+		{
+			handleError(CompileError::BadInternal(decl, "Expected one of @zasm_var, @zasm_internal_array"));
+			continue;
+		}
+
+		bool is_constant_zero = false;
+		int fn_value;
+		if (parsed_comment.contains("zasm_var"))
+		{
+			if (auto sv = get_script_variable(parsed_comment["zasm_var"]))
+			{
+				fn_value = *sv;
+			}
+			else
+			{
+				handleError(CompileError::BadInternal(decl, fmt::format("Invalid ZASM register: {}", parsed_comment["zasm_var"])));
+				continue;
+			}
+		}
+		else if (parsed_comment.contains("zasm_internal_array"))
+		{
+			try {
+				fn_value = std::stoi(parsed_comment["zasm_internal_array"]);
+			} catch (std::exception ex) {
+				handleError(CompileError::BadInternal(decl, fmt::format("Invalid internal array: {} (must be an integer)", parsed_comment["zasm_internal_array"])));
+				continue;
+			}
+
+			fn_value = (INTARR_OFFS + fn_value) * 10000;
+		}
+		else
+		{
+			is_constant_zero = true;
+			fn_value = 0;
+		}
+
+		auto& ty = decl->manager->type;
+		bool is_internal_arr = parsed_comment.contains("zasm_internal_array");
+		bool is_arr = ty.isArray();
+		auto var_type = is_internal_arr ? &ty : ty.baseType(*scope, nullptr);
+		bool deprecated = parsed_comment.contains("deprecated");
+
+		// Add a getter.
+		{
+			std::vector<const DataType*> params;
+			if (user_class)
+				params.push_back(user_class->getType());
+			if (is_arr && !is_internal_arr)
+				params.push_back(&DataType::FLOAT);
+
+			Function* fn = scope->addGetter(var_type, decl->getName(), params, {}, 0);
+			if (deprecated)
+			{
+				fn->setFlag(FUNCFLAG_DEPRECATED);
+				fn->setInfo(parsed_comment["deprecated"]);
+			}
+			if (is_internal_arr)
+				fn->setFlag(FUNCFLAG_INTARRAY);
+
+			if (is_internal_arr || is_constant_zero)
+				getConstant(refvar, fn, fn_value);
+			else if (is_arr)
+				getIndexedVariable(refvar, fn, fn_value);
+			else
+				getVariable(refvar, fn, fn_value);
+		}
+
+		// Add deprecated getters.
+		if (parsed_comment.contains("deprecated_getter"))
+		{
+			if (is_arr || is_internal_arr)
+			{
+				handleError(CompileError::BadInternal(decl, "@deprecated_getter cannot be used on arrays"));
+				continue;
+			}
+
+			std::string getter_name = parsed_comment["deprecated_getter"];
+			std::vector<const DataType*> params;
+			if (refvar != NUL)
+				params.push_back(user_class->getType());
+			Function* fn = scope->addFunction(var_type, getter_name, params, {}, FUNCFLAG_DEPRECATED|FUNCFLAG_INTERNAL);
+			fn->setExternalScope(scope->makeChild());
+			fn->data_decl_source_node = decl;
+			fn->setInfo(fmt::format("Use {} instead!", decl->getName()));
+
+			getVariable(refvar, fn, fn_value);
+		}
+
+		if (is_internal_arr || is_constant_zero)
+			continue;
+
+		// Add a setter.
+		{
+			std::vector<const DataType*> params;
+			if (user_class)
+				params.push_back(user_class->getType());
+			if (is_arr)
+				params.push_back(&DataType::FLOAT);
+			params.push_back(var_type);
+
+			Function* fn = scope->addSetter(&DataType::ZVOID, decl->getName(), params, {}, 0);
+			if (deprecated)
+			{
+				fn->setFlag(FUNCFLAG_DEPRECATED);
+				fn->setInfo(parsed_comment["deprecated"]);
+			}
+			if (var->readonly)
+				fn->setFlag(FUNCFLAG_READ_ONLY);
+
+			if (is_arr)
+				setIndexedVariable(refvar, fn, fn_value);
+			else if (params.size() > 1 && params[1] == &DataType::BOOL)
+				setBoolVariable(refvar, fn, fn_value);
+			else
+				setVariable(refvar, fn, fn_value);
+		}
+	}
+}
+
 void RegistrationVisitor::caseClass(ASTClass& host, void* param)
 {
 	auto parsed_comment = host.getParsedDocComment();
@@ -223,10 +366,28 @@ void RegistrationVisitor::caseClass(ASTClass& host, void* param)
 		}
 	}
 
-	UserClass& user_class = host.user_class ? *host.user_class : *(host.user_class = program.addClass(host, parent_class ? parent_class->getScope() : *scope, this));
-	// UserClass& user_class = host.user_class ? *host.user_class : *(host.user_class = program.addClass(host, *scope, this));
+	if (!host.user_class)
+	{
+		host.user_class = program.addClass(host, parent_class ? parent_class->getScope() : *scope, this);
+		if (!host.user_class)
+		{
+			doRegister(host);
+			return;
+		}
+	}
+
+	UserClass& user_class = *host.user_class;
+
 	if (parsed_comment.contains("zasm_ref"))
-		user_class.internalRefVar = parsed_comment["zasm_ref"];
+	{
+		user_class.internalRefVarString = parsed_comment["zasm_ref"];
+		user_class.internalRefVar = user_class.internalRefVarString.empty() ? NUL : StringToVar(user_class.internalRefVarString);
+	}
+	else
+	{
+		user_class.internalRefVar = NUL;
+	}
+
 	if (parent_class)
 		user_class.setParentClass(parent_class);
 	if (breakRecursion(host))
@@ -311,134 +472,13 @@ void RegistrationVisitor::caseClass(ASTClass& host, void* param)
 		return;
 	}
 
-	auto scope = &user_class.getScope();
-
-	// 5 is NUL
-	int refvar = user_class.internalRefVar.empty() ? 5 : StringToVar(user_class.internalRefVar);
+	ScopeReverter sr(&scope);
+	scope = &user_class.getScope();
 
 	for (auto var : host.variables)
 	{
-		if (!var->internal)
-			continue;
-
-		for (auto decl : var->getDeclarations())
-		{
-			auto parsed_comment = var->getParsedDocComment();
-
-			if (parsed_comment.contains("zasm_var") && parsed_comment.contains("zasm_internal_array"))
-			{
-				handleError(CompileError::BadInternal(decl, "Only one of @zasm_var or @zasm_internal_array is allowed"));
-				continue;
-			}
-
-			if (!parsed_comment.contains("zasm_var") && !parsed_comment.contains("zasm_internal_array"))
-			{
-				handleError(CompileError::BadInternal(decl, "Expected one of @zasm_var or @zasm_internal_array"));
-				continue;
-			}
-
-			int fn_value;
-			if (parsed_comment.contains("zasm_var"))
-			{
-				if (auto sv = get_script_variable(parsed_comment["zasm_var"]))
-				{
-					fn_value = *sv;
-				}
-				else
-				{
-					handleError(CompileError::BadInternal(decl, fmt::format("Invalid ZASM register: {}", parsed_comment["zasm_var"])));
-					continue;
-				}
-			}
-			else
-			{
-				try {
-					fn_value = std::stoi(parsed_comment["zasm_internal_array"]);
-				} catch (std::exception ex) {
-					handleError(CompileError::BadInternal(decl, fmt::format("Invalid internal array: {} (must be an integer)", parsed_comment["zasm_internal_array"])));
-					continue;
-				}
-
-				fn_value = (INTARR_OFFS + fn_value) * 10000;
-			}
-
-			auto& ty = decl->manager->type;
-			bool is_internal_arr = parsed_comment.contains("zasm_internal_array");
-			bool is_arr = ty.isArray();
-			auto var_type = is_internal_arr ? &ty : ty.baseType(*scope, nullptr);
-			bool deprecated = parsed_comment.contains("deprecated");
-
-			// Add a getter.
-			{
-				std::vector<const DataType*> params = {user_class.getType()};
-				if (is_arr && !is_internal_arr)
-					params.push_back(&DataType::FLOAT);
-
-				Function* fn = scope->addGetter(var_type, decl->getName(), params, {}, 0);
-				if (deprecated)
-				{
-					fn->setFlag(FUNCFLAG_DEPRECATED);
-					fn->setInfo(parsed_comment["deprecated"]);
-				}
-				if (is_internal_arr)
-					fn->setFlag(FUNCFLAG_INTARRAY);
-
-				if (is_internal_arr)
-					getConstant(refvar, fn, fn_value);
-				else if (is_arr)
-					getIndexedVariable(refvar, fn, fn_value);
-				else
-					getVariable(refvar, fn, fn_value);
-			}
-
-			// Add deprecated getters.
-			if (parsed_comment.contains("deprecated_getter"))
-			{
-				if (is_arr || is_internal_arr)
-				{
-					handleError(CompileError::BadInternal(decl, "@deprecated_getter cannot be used on arrays"));
-					continue;
-				}
-
-				std::string getter_name = parsed_comment["deprecated_getter"];
-				std::vector<const DataType*> params;
-				if (!user_class.internalRefVar.empty())
-					params.push_back(user_class.getType());
-				Function* fn = scope->addFunction(var_type, getter_name, params, {}, FUNCFLAG_DEPRECATED|FUNCFLAG_INTERNAL);
-				fn->setExternalScope(scope->makeChild());
-				fn->data_decl_source_node = decl;
-				fn->setInfo(fmt::format("Use {} instead!", decl->getName()));
-
-				getVariable(refvar, fn, fn_value);
-			}
-
-			if (is_internal_arr)
-				continue;
-
-			// Add a setter.
-			{
-				std::vector<const DataType*> params = {user_class.getType()};
-				if (is_arr)
-					params.push_back(&DataType::FLOAT);
-				params.push_back(var_type);
-
-				Function* fn = scope->addSetter(&DataType::ZVOID, decl->getName(), params, {}, 0);
-				if (deprecated)
-				{
-					fn->setFlag(FUNCFLAG_DEPRECATED);
-					fn->setInfo(parsed_comment["deprecated"]);
-				}
-				if (var->readonly)
-					fn->setFlag(FUNCFLAG_READ_ONLY);
-
-				if (is_arr)
-					setIndexedVariable(refvar, fn, fn_value);
-				else if (params.size() > 1 && params[1] == &DataType::BOOL)
-					setBoolVariable(refvar, fn, fn_value);
-				else
-					setVariable(refvar, fn, fn_value);
-			}
-		}
+		if (var->internal)
+			initInternalVar(var);
 	}
 
 	for (auto fn_decl : host.functions)
@@ -447,7 +487,7 @@ void RegistrationVisitor::caseClass(ASTClass& host, void* param)
 			continue;
 
 		scope->initFunctionBinding(fn_decl->func, this);
-		if (user_class.internalRefVar.empty())
+		if (user_class.internalRefVarString.empty())
 			fn_decl->func->setIntFlag(IFUNCFLAG_SKIPPOINTER);
 	}
 
@@ -869,8 +909,10 @@ void RegistrationVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 
 			if (host.list->internal)
 			{
-				// Every variable in bindings files should be read-only, so this is fine.
-				Constant::create(*scope, host, *type, 0, this);
+				auto ivar = InternalVariable::create(*scope, host, *type, this);
+				initInternalVar(host.list);
+				ivar->readfn = scope->getLocalGetter(host.getName());
+				ivar->writefn = scope->getLocalSetter(host.getName());
 				return;
 			}
 

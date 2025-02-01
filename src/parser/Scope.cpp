@@ -109,7 +109,7 @@ void Scope::initFunctionBinding(Function* fn, CompileErrorHandler* handler)
 	}
 
 	int stack_change = fn->numParams();
-	if (fn->getClass() && !fn->getClass()->internalRefVar.empty() && !fn->getFlag(FUNCFLAG_CONSTRUCTOR) && !fn->getFlag(FUNCFLAG_DESTRUCTOR))
+	if (fn->getClass() && !fn->getClass()->internalRefVarString.empty() && !fn->getFlag(FUNCFLAG_CONSTRUCTOR) && !fn->getFlag(FUNCFLAG_DESTRUCTOR))
 		stack_change += 1;
 
 	std::vector<std::shared_ptr<Opcode>> code;

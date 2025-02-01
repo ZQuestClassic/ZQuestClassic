@@ -19,6 +19,13 @@ enum FFCFlag
 	FFCF_LENSINVIS                 = 13, // Not visible to the lens of truth.
 };
 
+const int MIN_FFC = 1;
+
+// The highest FFC ID possible for the current [Region].
+//
+// @zasm_var MAX_FFC_ID
+internal const int MAX_FFC;
+
 // "Freeform combo" represent combos that may move freely around the
 // screen, not tied to the grid.
 //
@@ -29,6 +36,11 @@ enum FFCFlag
 class ffc {
 	// @delete
 	internal ffc();
+
+	// The FFC's ID. Valid values are between 1 and [MAX_FFC].
+	//
+	// @zasm_var FFCID
+	internal const int ID;
 
 	// The combo used by the FFC for its visuals and type.
 	//
@@ -91,11 +103,6 @@ class ffc {
 	//
 	// @zasm_var FFINITDD
 	internal untyped InitD[];
-
-	// the screen index of the FFC.
-	//
-	// @zasm_var FFCID
-	internal const int ID;
 
 	// @zasm_var FFCLASTCHANGERX
 	internal int LastChangerX;
