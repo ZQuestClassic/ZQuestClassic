@@ -88,29 +88,26 @@ void ffcdata::updateSolid()
 void ffcdata::solid_update(bool push)
 {
 #ifdef IS_PLAYER
-	zfix dx = (x - old_x);
-	zfix dy = (y - old_y);
-	if((flags&ffc_platform) && Hero.on_ffc_platform(*this,true))
+	if (push) // if 'push' is false, do NOT move the Hero or anything else
 	{
-		if(push)
-			Hero.movexy(dx,dy,false,false,false);
-		else
+		zfix dx = (x - old_x);
+		zfix dy = (y - old_y);
+		if ((flags & ffc_platform) && Hero.on_ffc_platform(*this, true))
 		{
-			Hero.setXfix(Hero.getX()+dx);
-			Hero.setYfix(Hero.getY()+dy);
+			Hero.movexy(dx, dy, false, false, false);
 		}
-	}
-	else if(hooked && push)
-	{
-		if (Lwpns.idFirst(wHookshot) > -1)
+		else if (hooked)
 		{
-			if (dx) 
-				Hero.setXfix(Hero.getX() + dx);
-			if (dy)
-				Hero.setYfix(Hero.getY() + dy);
+			if (Lwpns.idFirst(wHookshot) > -1)
+			{
+				if (dx)
+					Hero.setXfix(Hero.getX() + dx);
+				if (dy)
+					Hero.setYfix(Hero.getY() + dy);
+			}
+			else
+				hooked = false;
 		}
-		else
-			hooked = false;
 	}
 #endif
 	solid_object::solid_update(push);

@@ -1,3 +1,5 @@
+import "bindings/portal.zh"
+
 // @zasm_ref REFSAVPORTAL
 class savedportal {
 	// @delete

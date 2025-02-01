@@ -50,12 +50,25 @@ enum Brand {
     Mid // meh
 };
 
+@Bitflags("int")
+enum FilterBitflags
+{
+    F_SHINY, F_UGLY, F_SMALL, F_FAST
+};
+
+// filters with [FilterBitflags].
+void do_filter(FilterBitflags f)
+{
+    Trace(f);
+}
+
 // a ffc script called Metadata
 ffc script Metadata {
     // run me
     void run(int radius, int speed, int angle, int radius2, int angle2) {
         printf("%d %d\n", postfix + postfix2, 1 + x + 2);
         utils::fn(postfix);
+        do_filter(F_SHINY);
         // i am a car
         // {@link lololol|i dont exist}
         auto c = new Car(2);

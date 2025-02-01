@@ -270,6 +270,12 @@ struct gamedata
 	byte get_darkscr_color();
 	void set_darkscr_color(byte val);
 	
+	word get_light_wave_rate();
+	void set_light_wave_rate(word val);
+	
+	word get_light_wave_size();
+	void set_light_wave_size(word val);
+	
 	int32_t get_watergrav();
 	void set_watergrav(int32_t val);
 	

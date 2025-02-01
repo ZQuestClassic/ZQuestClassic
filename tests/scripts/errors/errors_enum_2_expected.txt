@@ -1,0 +1,69 @@
+stderr:
+
+Compiling 'errors_enum_2.zs'
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+errors_enum_2.zs Line 14 @ Columns 2-4 - Error S109: Auto-assigned values for bitflags members must be a power-of-two, but got: 10.0000
+Either change the previous member to be a power-of-two, or explicitly initialize this member.
+
+12    F8 = F1|F2,
+13    // Error.
+14    F9,
+      ^~
+
+
+errors_enum_2.zs Line 31 @ Columns 2-5 - Error S109: Auto-assigned values for bitflags members must be a power-of-two, but got: 0.0010
+Either change the previous member to be a power-of-two, or explicitly initialize this member.
+
+29    LF8 = LF1|LF2,
+30    // Error.
+31    LF9,
+      ^~~
+
+
+Failure!
+Compile finished with exit code '109' (compiled with errors)
+
+stdout:
+
+{
+  "success": false,
+  "code": 109,
+  "diagnostics": [
+    {
+      "range": {
+        "start": {
+          "line": 13,
+          "character": 1
+        },
+        "end": {
+          "line": 13,
+          "character": 3
+        }
+      },
+      "severity": 1,
+      "message": "S109: Auto-assigned values for bitflags members must be a power-of-two, but got: 10.0000\nEither change the previous member to be a power-of-two, or explicitly initialize this member."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 30,
+          "character": 1
+        },
+        "end": {
+          "line": 30,
+          "character": 4
+        }
+      },
+      "severity": 1,
+      "message": "S109: Auto-assigned values for bitflags members must be a power-of-two, but got: 0.0010\nEither change the previous member to be a power-of-two, or explicitly initialize this member."
+    }
+  ],
+  "metadata": {
+    "currentFileSymbols": 24,
+    "symbols": 2,
+    "identifiers": 2,
+    "elided": true
+  }
+}

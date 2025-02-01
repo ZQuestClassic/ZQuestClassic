@@ -1,3 +1,77 @@
+// DMap Types for used with [dmapdata::Type]
+enum DMapType
+{
+	DMAP_DUNGEON,
+	DMAP_OVERWORLD,
+	DMAP_CAVE,
+	DMAP_BSOVERWORLD
+};
+
+// Used with [dmapdata::Flagset].
+enum DMapFlag
+{
+	DMFS_CAVESNOTCELLARS,     //Use caves instead of item cellars
+	DMFS_3STAIRWARPS,         //Allow 3-stair warps
+	DMFS_WWIND,               //Allow whistle whirlwinds
+	DMFS_GUYCAVES,            //Special rooms and guys are in caves only
+	DMFS_NOCOMPASS,           //Don't display compass marker in minimap
+	DMFS_WAVY,                //Underwater wave effect
+	DMFS_WWINDRET,            //Whistle whirlwind returns Link to beginning
+	DMFS_ALWAYSINTROMSG,      //Always display intro string
+	DMFS_VIEWMAP,             //View overworld map by pressing 'Map'
+	DMFS_DMAPMAP,             //...But only show screens marked in minimap
+	DMFS_MINIMAPCOLORFIX,     //Use minimap foreground color 2
+	DMFS_MINIMAPCOLOURFIX = DMFS_MINIMAPCOLORFIX,    //Use minimap foreground color 2
+	DMFS_SCRIPT1,             //DMap Script Flag 1
+	DMFS_SCRIPT2,             //DMap Script Flag 2
+	DMFS_SCRIPT3,             //DMap Script Flag 3
+	DMFS_SCRIPT4,             //DMap Script Flag 4
+	DMFS_SCRIPT5,             //DMap Script Flag 5
+	DMFS_RESERVED,            //RESERVED DO NOT USE
+	DMFS_LAYER3ISBACKGROUND,  //Layer 3 is Background
+	DMFS_LAYER2ISBACKGROUND,  //Layer 2 is Background
+	DMFS_TRUECELLARENEMIES,   //True Cellar Enemies
+	DMFS_BUNNY,               //Become Bunny with no Pearl
+	DMFS_MIRRORCONTINUE,      //Mirror Continues instead of Warping
+	DMFS_MAX
+};
+
+// Used with [Game->DMapFlags] and [dmapdata::Flags].
+// @deprecated Use [DMapFlag] and [dmapdata::Flagset] instead!
+@Bitflags("int")
+enum DMapBitflags
+{
+	DMF_CAVESNOTCELLARS            = 0x0001,  // Use caves instead of item cellars.
+	DMF_3STAIRWARPS                = 0x0002,  // Allow 3-stair warps.
+	DMF_WWIND                      = 0x0004,  // Allow whistle whirlwinds.
+	DMF_GUYCAVES                   = 0x0008,  // Special rooms and guys are in caves only.
+	DMF_NOCOMPASS                  = 0x0010,  // Don't display compass marker in minimap.
+	DMF_WAVY                       = 0x0020,  // Underwater wave effect.
+	DMF_WWINDRET                   = 0x0040,  // Whistle whirlwind returns Link to beginning.
+	DMF_ALWAYSINTROMSG             = 0x0080,  // Always display intro string.
+	DMF_VIEWMAP                    = 0x0100,  // View overworld map by pressing 'Map'.
+	DMF_DMAPMAP                    = 0x0200,  // ...But only show screens marked in minimap.
+	DMF_MINIMAPCOLORFIX            = 0x0400,  // Use minimap foreground color 2.
+	DMF_MINIMAPCOLOURFIX           = 0x0400,  // Use minimap foreground color 2.
+	DMF_SCRIPT1                    = 0x0800,  // DMap Script Flags.
+	DMF_SCRIPT2                    = 0x1000,
+	DMF_SCRIPT3                    = 0x2000,
+	DMF_SCRIPT4                    = 0x4000,
+	DMF_SCRIPT5                    = 0x8000,
+	DMF_SIDEVIEW                   = 0x10000,
+	DMF_LAYER3ISBACKGROUND         = 0x20000,
+};
+
+@Bitflags("int")
+enum DMapChartedBitflags
+{
+	CHRT_VISITED                   = 10000000b,
+	CHRT_UP                        = 00000001b,
+	CHRT_DOWN                      = 00000010b,
+	CHRT_LEFT                      = 00000100b,
+	CHRT_RIGHT                     = 00001000b,
+};
+
 // Load with [Game->LoadDMapData].
 //
 // @zasm_ref REFDMAPDATA
@@ -45,8 +119,7 @@ class dmapdata {
 	// @zasm_var DMAPDATACONTINUE
 	internal int Continue;
 
-	// The type of the dmap, using the [DmapType] (`DMAP_`) constants.
-	//
+	// @value [DMapType]
 	// @zasm_var DMAPDATATYPE
 	internal int Type;
 
@@ -75,8 +148,9 @@ class dmapdata {
 	// @zasm_var DMAPDATASUBSCRO
 	internal int OverlaySubscreen;
 
-	// Bitwise values representing the state of the map grid. Make use of the
-	// functions in `std_zh/dmapgrid.zh` to access these values.
+	// Bitwise values representing the state of the map grid.
+	//
+	// See [SetVisibleOnDungeonMap], [VisibleOnDungeonMap].
 	//
 	// @zasm_var DMAPDATAGRID
 	internal int Grid[];
@@ -115,8 +189,9 @@ class dmapdata {
 	// @zasm_var DMAPDATADISABLEDITEMS
 	internal bool DisabledItems[];
 
-	// The flags for the dmap. Uses the `DMFS_` constants.
+	// All of the dmap's flags.
 	//
+	// @index [DMapFlag]
 	// @zasm_var DMAPDATAFLAGARR
 	internal int Flagset[];
 
@@ -154,6 +229,7 @@ class dmapdata {
 	internal untyped MapInitD[];
 
 	// Stores the large map exploration data for each screen on the dmap.
+	//
 	// <todo>Test if works on overworld dmaps.</todo>
 	//
 	// @zasm_var DMAPDATACHARTED
@@ -167,25 +243,10 @@ class dmapdata {
 	// @zasm_var DMAPDATAMIRRDMAP
 	internal int MirrorDMap;
 
-	// The flags used by the DMap. These are OR'd together.
+	// The flags used by the DMap. These are OR'd together. See [DMapBitflags].
 	//
-	// - CAVES               0x0001
-	// - 3STAIR              0x0002
-	// - WHIRLWIND           0x0004
-	// - GUYCAVES            0x0008
-	// - NOCOMPASS           0x0010
-	// - WAVY                0x0020
-	// - WHIRLWINDRET        0x0040
-	// - ALWAYSMSG           0x0080
-	// - VIEWMAP             0x0100
-	// - DMAPMAP             0x0200
-	// - MINIMAPCOLORFIX     0x0400
-	// - SCRIPT1             0x0800
-	// - SCRIPT2             0x1000
-	// - SCRIPT3             0x2000
-	// - SCRIPT4             0x4000
-	// - SCRIPT5             0x8000
-	//
+	// @future_deprecated Use [Flagset] instead!
+	// @value [DMapBitflags]
 	// @zasm_var DMAPDATAFLAGS
 	internal int Flags;
 

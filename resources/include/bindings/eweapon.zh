@@ -1,4 +1,34 @@
-#include "bindings/sprite.zh"
+import "bindings/sprite.zh"
+
+// EWeapon types. Used with [Screen->CreateEWeapon] and [Screen->LoadEWeapon].
+enum EWeaponType
+{
+	EW_ARROW                       = 130,
+	EW_BRANG                       = 131,
+	EW_BEAM                        = 132, // Sword beam.
+	EW_ROCK                        = 133,
+	EW_MAGIC                       = 134,
+	EW_FIREBALL                    = 129,
+	EW_FIREBALL2                   = 145, // Arcing boss fireball.
+	EW_BOMB                        = 137, // Projectile bomb.
+	EW_BOMBBLAST                   = 135, // Bomb explosion.
+	EW_SBOMB                       = 138, // Projectile super bomb.
+	EW_SBOMBBLAST                  = 136, // Super bomb explosion.
+	EW_FIRETRAIL                   = 139,
+	EW_FIRE                        = 140,
+	EW_WIND                        = 141, // Wind wizzrobe magic.
+	EW_FIRE2                       = 142,
+	EW_SCRIPT1                     = 31,  // Dummy weapon, for use with scripts.
+	EW_SCRIPT2                     = 32,
+	EW_SCRIPT3                     = 33,
+	EW_SCRIPT4                     = 34,
+	EW_SCRIPT5                     = 35,
+	EW_SCRIPT6                     = 36,
+	EW_SCRIPT7                     = 37,
+	EW_SCRIPT8                     = 38,
+	EW_SCRIPT9                     = 39,
+	EW_SCRIPT10                    = 40,
+};
 
 // Weapons active on the screen from enemies. See [Screen->LoadEWeapon] and [Screen->CreateEWeapon].
 //
@@ -8,17 +38,17 @@ class eweapon {
 	// @delete
 	internal eweapon();
 
-	// The weapon type of the weapon. Some types have hardcoded behaviors.
-	//
-	// @zasm_var EWPNID
-	internal int ID;
-
-	// The weapon type of the weapon. Some types have hardcoded behaviors. Same as [ID].
+	// The weapon type. Some types have hardcoded behaviors.
 	//
 	// @zasm_var EWPNID
 	internal int Type;
 
-	// The weapon type of the weapon. Some types have hardcoded behaviors. Same as [ID].
+	// Exactly the same as [Type], use that instead.
+	//
+	// @zasm_var EWPNID
+	internal int ID;
+
+	// Exactly the same as [Type], use that instead.
 	//
 	// @zasm_var EWPNID
 	internal int Family;
@@ -84,8 +114,7 @@ class eweapon {
 	// @zasm_var EWPNFLASHCSET
 	internal int FlashCSet;
 
-	// The deadstate of the weapon, denoted by the [WeaponDeadState] (`WDS_`) constants.
-	//
+	// @value [WeaponDeadState]
 	// @zasm_var EWPNDEAD
 	internal int DeadState;
 
@@ -143,8 +172,9 @@ class eweapon {
 	// @zasm_var EWPNINITD
 	internal untyped InitD[];
 
-	// A bitwise flagset of unblockable flags, using the `UNBLOCK_` constants.
+	// Unblockable bitflags.
 	//
+	// @value [UnblockableBitflags]
 	// @zasm_var EWPNUNBL
 	internal int Unblockable;
 
@@ -179,10 +209,9 @@ class eweapon {
 	// @zasm_var EWPNAUTOROTATE
 	internal bool AutoRotate;
 
-	// A set of weapon flags.
+	// The weapon's flags.
 	//
-	// Valid indices: [WeaponFlagIndex] (`WFLAG_`).
-	//
+	// @index [WeaponFlag]
 	// @zasm_var EWPNFLAGS
 	internal bool Flags[];
 
@@ -235,8 +264,7 @@ class eweapon {
 
 	// The burning light radii associated with sprites of the weapon.
 	//
-	// Valid indices: [WeaponSpriteIndex] (`WPN_SPRITE_`).
-	//
+	// @index [WeaponSpriteIndex]
 	// @zasm_var EWPNBURNLIGHTRADIUS
 	internal int BurnLightRadius[];
 
@@ -274,14 +302,14 @@ class eweapon {
 	internal bool isValid();
 
 	// Loads the graphical information from the [spritedata] indicated by
-	// [spriteid] to the weapon.
+	// [sprite_id] to the weapon.
 	//
 	// @zasm
 	//   POP D2
 	//   POP D3
 	//   SETR REFEWPN D3
 	//   EWPNUSESPRITER D2
-	internal void UseSprite(int spriteid);
+	internal void UseSprite(int sprite_id);
 
 	// Creates an explosion particle effect in mode 0, 1, or 2 of the sprite.
 	//

@@ -22,6 +22,8 @@ Editor
 ZScript
 -------
 
+Start learning ZScript :doc:`here </zscript/lang/introduction>`.
+
 .. toctree::
    :maxdepth: 1
 

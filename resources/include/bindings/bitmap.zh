@@ -1,3 +1,5 @@
+import "bindings/common.zh"
+
 // A 2D canvas of pixels for drawing to.
 //
 // @zasm_ref REFBITMAP
@@ -159,31 +161,24 @@ class bitmap {
 	// Identical to [Screen->Quad], but it draws to a target bitmap, and you can
 	// specify a bitmap as your texture.
 	//
-	// Pass the bitmap pointer that you want to use to 'bitmap render_source'.
+	// If [render_source] != `NULL`, then it will use that bitmap as the texture.
+	// Otherwise, if `NULL`, it defaults to using a tile.
 	//
-	// If you do not wish to use a bitmap as a texture, pass NULL to the arg
-	// 'bitmap render_source'.
-	//
-	// Use PT_TEXTURE or a similar polytype, to render your bitmap as a texture.
+	// For [polygon_render_mode], use [PolygonRenderMode] to render the
+	// bitmap as a texture.
 	//
 	// For bitmap textures, specify the exact height and width of the texture as
-	// args 'w' and 'h'.
+	// args [w] and [h].
 	//
-	// If rendering a bitmap as a texture, the 'h' and 'w' args need not be a
+	// If not rendering a bitmap as a texture, the 'h' and 'w' args must be a
 	// power of 2.
-	//
-	// If `bitmap render_source` != NULL, then it will use this as the texture,
-	// instead of a tile or combo.
-	//
-	// If the pointer supplied to render_source is invalid (contains no data),
-	// then this function will default to using a tile.
 	//
 	// @zasm
 	//   BMPQUADR
 	//   POPARGS D5 0.0017
 	internal void Quad(int layer, int x1, int y1, int x2, int y2, int x3,
 					   int y3, int x4, int y4, int w, int h, int cset, int flip,
-					   int texture, int render_mode,
+					   int tile, int polygon_render_mode,
 					   bitmap render_source = < bitmap > 0);
 
 	// @zasm
@@ -300,13 +295,8 @@ class bitmap {
 	// Flip const int BITDX_VFLIP = 0x08; //Vertical Flip.
 	// ```
 	//
-	// You can also set a pivot point for the rotation, using `int cx` and `int cy`
-	//
-	// If these are non-zero, the rotation anchor point will center on these
-	// coordinates.
-	//
-	// You may specify a colour to `int lit` to use a lit mode. This tints the
-	// entire bitmap using that colour index of the main palette.
+	// @param cx, cy - if non-zero, the pivot point to center the rotation around.
+	// @param lit - if non-zero, the color to use a lit mode. This tints the entire bitmap using that color index of the main palette.
 	//
 	// @zasm
 	//   BMPBLIT
@@ -340,14 +330,8 @@ class bitmap {
 	// Flip const int BITDX_VFLIP = 0x08; //Vertical Flip.
 	// ```
 	//
-	// You can also set a pivot point for the rotation, using 'int cx' and 'int
-	// cy'
-	//
-	// If these are non-zero, the rotation anchor point will center on these
-	// coordinates.
-	//
-	// You may specify a colour to 'int lit' to use a lit mode. This tints the
-	// entire bitmap using that colour index of the main palette.
+	// @param cx, cy - if non-zero, the pivot point to center the rotation around.
+	// @param lit - if non-zero, the color to use a lit mode. This tints the entire bitmap using that color index of the main palette.
 	//
 	// @alias RevBlit
 	// @zasm
@@ -371,14 +355,8 @@ class bitmap {
 	// Flip const int BITDX_VFLIP = 0x08; //Vertical Flip.
 	// ```
 	//
-	// You can also set a pivot point for the rotation, using 'int cx' and 'int
-	// cy'
-	//
-	// If these are non-zero, the rotation anchor point will center on these
-	// coordinates.
-	//
-	// You may specify a colour to 'int lit' to use a lit mode. This tints the
-	// entire bitmap using that colour index of the main palette.
+	// @param cx, cy - if non-zero, the pivot point to center the rotation around.
+	// @param lit - if non-zero, the color to use a lit mode. This tints the entire bitmap using that color index of the main palette.
 	//
 	// @zasm
 	//   BMPTILEBLIT
@@ -400,14 +378,8 @@ class bitmap {
 	// Flip const int BITDX_VFLIP = 0x08; //Vertical Flip.
 	// ```
 	//
-	// You can also set a pivot point for the rotation, using 'int cx' and 'int
-	// cy'
-	//
-	// If these are non-zero, the rotation anchor point will center on these
-	// coordinates.
-	//
-	// You may specify a colour to 'int lit' to use a lit mode. This tints the
-	// entire bitmap using that colour index of the main palette.
+	// @param cx, cy - if non-zero, the pivot point to center the rotation around.
+	// @param lit - if non-zero, the color to use a lit mode. This tints the entire bitmap using that color index of the main palette.
 	//
 	// @zasm
 	//   BMPCOMBOBLIT
@@ -472,7 +444,7 @@ class bitmap {
 	// @zasm
 	//   BMPPOLYGONR
 	//   POPARGS D5 0.0006
-	internal void Polygon(int layer, int num_points, int[] vertices, int colour,
+	internal void Polygon(int layer, int num_points, int[] vertices, int color,
 						  int opacity = OP_OPAQUE);
 
 	// Clears the bitmap to the specified color on the specified layer timing.

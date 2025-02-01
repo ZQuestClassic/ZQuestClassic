@@ -571,6 +571,8 @@ def rst_h2(text: str):
 def reflink(symbol, label='🔗') -> str:
     return f':ref:`{label}<{symbol.loc.ref}>`'
 
+def doclink(target, label='🔗') -> str:
+    return f':ref:`{label}<{target}>`'
 
 def add(text: str):
     lines.append(text)
@@ -639,6 +641,14 @@ def add_comment(symbol):
             )
 
         return reflink(matched_symbol, label)
+    
+    def replace_docs_link(match: re.Match):
+        if '|' in match.group(1):
+            docs_key, label = match.group(1).split('|')
+        else:
+            docs_key = match.group(1)
+            label = docs_key
+        return doclink(docs_key, label)
 
     monos = []
 
@@ -666,11 +676,19 @@ def add_comment(symbol):
         text = re.sub(r'\$CODE', replace_code_block_placeholder, text)
         text = re.sub(r'\$MONO', replace_monos_placeholder, text)
         text = re.sub(r'\[@(.+?)@\]', replace_symbol_link, text)
+        text = re.sub(r'\[#(.+?)#\]', replace_docs_link, text)
         return text
 
     if symbol.comment and symbol.comment.text:
         add('')
         add('.. rst-class:: classref-comment')
+        add('')
+        for tag, value in symbol.comment.tags.items():
+            if tag in ['value', 'index', 'param', 'length']:
+                for line in value.splitlines():
+                    add(indent(sanitize(f'`{tag}` ' + line), 3))
+                    add('')
+                    add('')
         add('')
         add(indent(sanitize(symbol.comment.text), 3))
         add('')
@@ -682,7 +700,9 @@ def add_comment(symbol):
         else:
             notice = notice.replace('\n', ' ')
         add('')
-        add(f'.. warning:: **Deprecated!** {sanitize(notice)}')
+        add('.. deprecated::')
+        add('')
+        add(indent(sanitize(notice), 3))
         add('')
 
 
@@ -901,6 +921,7 @@ def process_lib(name: str, files):
     document = f'zscript/libs/{name}/index'
     sections['Libraries'].append(document)
     rst_title(lib)
+    add(f'.. _lib_{name}:')
     rst_toc(None, lib_documents)
 
     example = None
@@ -946,9 +967,9 @@ def write(name: str):
     lines = []
 
 
-if zscript_dir.exists():
-    shutil.rmtree(zscript_dir)
-zscript_dir.mkdir(parents=True)
+for folder in ['classes', 'globals', 'libs']:
+    if (zscript_dir/folder).exists():
+        shutil.rmtree(zscript_dir/folder)
 
 # handle bindings
 classes = []
@@ -1002,7 +1023,25 @@ for lib in libraries:
 
 # zscript/index.rst
 rst_title('ZScript')
+
+rst_toc('Language', [
+    'zscript/lang/introduction',
+    'zscript/lang/comments',
+    'zscript/lang/literals',
+    'zscript/lang/keywords',
+    'zscript/lang/declarations/index',
+    'zscript/lang/types/index',
+    'zscript/lang/control_flow/index',
+    'zscript/lang/ranges',
+    'zscript/lang/scripts',
+    'zscript/lang/annotations',
+    'zscript/lang/options',
+    'zscript/lang/compiler_directives',
+])
+
+add('.. _zsdoc_index:')
 for name, documents in sections.items():
+    add(f'.. _zsdoc_{name.lower()}:')
     if name == 'Globals':
         rst_toc(name, documents[0:2])
         rst_toc(None, documents[2:])

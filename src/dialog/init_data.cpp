@@ -634,7 +634,9 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 								VAL_FIELD(byte,"Light Dither Percentage:",0,255,dither_percent,false), INFOBTN("This percentage of each light in dark rooms is added as 'dithered'" + QRHINT({qr_NEW_DARKROOM})),
 								VAL_FIELD(byte,"Light Radius:",0,255,def_lightrad,false), INFOBTN("Default light radius, ex. for fire weapons. QR determines if enemy fire is lit." + QRHINT({qr_NEW_DARKROOM, qr_EW_FIRE_EMITS_LIGHT})),
 								VAL_FIELD(byte,"Light Transp. Percentage:",0,255,transdark_percent,false), INFOBTN("This percentage of each light in dark rooms is added as 'transparent'" + QRHINT({qr_NEW_DARKROOM})),
-								COLOR_FIELD("Darkness Color:", darkcol,false), INFOBTN("The color of darkness" + QRHINT({qr_NEW_DARKROOM}))
+								COLOR_FIELD("Darkness Color:", darkcol,false), INFOBTN("The color of darkness" + QRHINT({qr_NEW_DARKROOM})),
+								VAL_FIELD(word,"Light Wave Rate:",0,65535,light_wave_rate,false), INFOBTN("The rate at which the light radius 'waves' in and out, in frames." + QRHINT({qr_NEW_DARKROOM})),
+								VAL_FIELD(word,"Light Wave Size:",0,65535,light_wave_size,false), INFOBTN("The max size of the light radius 'waves'." + QRHINT({qr_NEW_DARKROOM}))
 							)
 						)
 					)),

@@ -28,26 +28,25 @@ bool use_linear_bitmaps()
 	return value;
 }
 
-static int zc_gui_mouse_x()
+RenderTreeItem& gui_mouse_target()
 {
 	if (rti_dialogs.has_children())
-		return rti_dialogs.get_children().back()->rel_mouse().first;
+		return *rti_dialogs.get_children().back();
 	if (rti_dialogs.visible || rti_gui.visible)
-		return rti_gui.rel_mouse().first;
+		return rti_gui;
 	if (rti_menu.visible)
-		return rti_menu.rel_mouse().first;
-	return rti_game.rel_mouse().first;
+		return rti_menu;
+	return rti_game;
+}
+
+static int zc_gui_mouse_x()
+{
+	return gui_mouse_target().rel_mouse().first;
 }
 
 static int zc_gui_mouse_y()
 {
-	if (rti_dialogs.has_children())
-		return rti_dialogs.get_children().back()->rel_mouse().second;
-	if (rti_dialogs.visible || rti_gui.visible)
-		return rti_gui.rel_mouse().second;
-	if (rti_menu.visible)
-		return rti_menu.rel_mouse().second;
-	return rti_game.rel_mouse().second;
+	return gui_mouse_target().rel_mouse().second;
 }
 
 int window_mouse_x()
@@ -348,8 +347,8 @@ void render_zc()
 	}
 
 	ALLEGRO_BITMAP* bitmap = al_get_backbuffer(all_get_display());
-	render_text_lines(bitmap, a5font, lines_left, TextJustify::left, TextAlign::bottom, font_scale);
-	render_text_lines(bitmap, a5font, lines_right, TextJustify::right, TextAlign::bottom, font_scale);
+	render_text_lines(bitmap, a5font, lines_left, TextJustify::left, TextAlignment::bottom, font_scale);
+	render_text_lines(bitmap, a5font, lines_right, TextJustify::right, TextAlignment::bottom, font_scale);
 
 	if (render_get_debug())
 		render_tree_draw_debug(&rti_root);

@@ -1,4 +1,4 @@
-650 / 794 (81%) passed
+648 / 794 (81%) passed
 
 Failures:
 	00026-deku-leaf/script.zs
@@ -142,9 +142,11 @@ Failures:
 	00536-poker-combos/pokercombos.z
 	00536-poker-combos/script.zs
 	00547--new-palette-based-day-night-system/DayNightNew.zs
+	00562-hot-room-visuals/HotRoomTint.zs
 	00571-gumzol/gumzol.z
 	00571-gumzol/script.zs
 	00580-mani-s-script-header/script.zs
+	00589-temporary-no-return-item-drops/TempNoReturnItem.zs
 
 === 00026-deku-leaf/script.zs
 Pass 1: Parsing
@@ -14804,6 +14806,22 @@ DayNightNew.zs Line 331 - Error T017: Cannot cast from DMapDayNight to int.
 Failure!
 Compile finished with exit code '17' (compiled with errors)
 
+=== 00562-hot-room-visuals/HotRoomTint.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+HotRoomTint.zs Line 65 @ Column 12 - Line 66 @ Column 15 - Error T017: Cannot cast from int to const ScreenFlagMisc.
+
+63    : (SF_HOTROOM_CAT==SF_FFC ? SFF_LAST
+64    : (SF_HOTROOM_CAT==SF_WHISTLE ? SFWH_LAST
+65    : (SF_HOTROOM_CAT==SF_MISC ? SFM_LAST
+66    : (-1)))))))))));
+
+
+Failure!
+Compile finished with exit code '17' (compiled with errors)
+
 === 00571-gumzol/gumzol.z
 Pass 1: Parsing
 Pass 2: Preprocessing
@@ -15083,4 +15101,47 @@ script.zs Line 746 - Warning S094: Function 'Game::PlaySound(int)' is deprecated
 INFO: Use [Audio->PlaySound] instead!
 Failure!
 Compile finished with exit code '9' (compiled with errors)
+
+=== 00589-temporary-no-return-item-drops/TempNoReturnItem.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+TempNoReturnItem.zs Line 56 - Warning S094: Function 'Game::GetCurScreen()' is deprecated, and should not be used.
+
+54    */
+55    genericdata gd = Game->LoadGenericData(Game->GetGenericScript("TempNoReturnItemGeneric"));
+56    unless(Game->GetCurScreen() < 0x80 && gd->Running && !FindValue(gd, ReturnValue(this->Pos)))
+             ^~~~~~~~~~~~~~~~~~
+
+
+INFO: Use [CurScreen] instead!
+TempNoReturnItem.zs Line 60 - Error T017: Cannot cast from int to const ItemPickupBitflags.
+
+58    itemsprite drop = CreateItemAt(ItemID, this->X, this->Y);
+59    drop->Misc[ITEMSPR_MISC_TEMPNORETURN_ID] = ReturnValue(this->Pos);
+60    drop->Pickup |= (Mode == 0 ? IP_TIMEOUT : (Mode == 1 ? IP_ALWAYSGRAB : 0));
+                                                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+TempNoReturnItem.zs Line 105 - Warning S094: Function 'Game::GetCurScreen()' is deprecated, and should not be used.
+
+103    long ReturnValue(int pos)
+104    {
+105        return ReturnValue(pos, Game->GetCurScreen(), Game->GetCurMap());
+                                   ^~~~~~~~~~~~~~~~~~
+
+
+INFO: Use [CurScreen] instead!
+TempNoReturnItem.zs Line 105 - Warning S094: Function 'Game::GetCurMap()' is deprecated, and should not be used.
+
+103    long ReturnValue(int pos)
+104    {
+105        return ReturnValue(pos, Game->GetCurScreen(), Game->GetCurMap());
+                                                         ^~~~~~~~~~~~~~~
+
+
+INFO: Use [CurMap] instead!
+Failure!
+Compile finished with exit code '17' (compiled with errors)
 

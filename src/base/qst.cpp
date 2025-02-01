@@ -20800,9 +20800,29 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 		if(s_version >= 39)
 			if(!p_igetzf(&temp_zinit.air_drag, f))
 				return qe_invalid;
-		if(s_version >= 40)
+		
+		// TODO ~z3 rm
+		if (Header->is_z3 && s_version == 40)
+		{
 			if(!p_getc(&temp_zinit.region_mapping, f))
 				return qe_invalid;
+		}
+		else
+		{
+			if(s_version >= 40)
+			{
+				if(!p_igetw(&temp_zinit.light_wave_rate, f))
+					return qe_invalid;
+				if(!p_igetw(&temp_zinit.light_wave_size, f))
+					return qe_invalid;
+			}
+
+			if(s_version >= 41)
+			{
+				if(!p_getc(&temp_zinit.region_mapping, f))
+					return qe_invalid;
+			}
+		}
 	}
 	if (should_skip)
 		return 0;

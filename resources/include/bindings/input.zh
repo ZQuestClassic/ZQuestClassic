@@ -1,3 +1,54 @@
+// Controller buttons.
+enum Button
+{
+	CB_UP                          = 0,
+	CB_DOWN                        = 1,
+	CB_LEFT                        = 2,
+	CB_RIGHT                       = 3,
+	CB_A                           = 4,
+	CB_B                           = 5,
+	CB_START                       = 6,
+	CB_L                           = 7,
+	CB_R                           = 8,
+	CB_MAP                         = 9,
+	CB_EX1                         = 10,
+	CB_X                           = 10,
+	CB_EX2                         = 11,
+	CB_Y                           = 11,
+	CB_EX3                         = 12,
+	CB_EX4                         = 13,
+	CB_STICKUP                     = 14,
+	CB_STICKDOWN                   = 15,
+	CB_STICKLEFT                   = 16,
+	CB_STICKRIGHT                  = 17,
+	CB_AXIS_UP                     = 14,
+	CB_AXIS_DOWN                   = 15,
+	CB_AXIS_LEFT                   = 16,
+	CB_AXIS_RIGHT                  = 17,
+	CB_MAX                         = 18,
+};
+
+// Mouse button bitflags, used with [Hero->InputMouseB].
+// @deprecated Use [MouseIndex] and [Input->Mouse] instead!
+@Bitflags("int")
+enum MouseButtonBitflags
+{
+	MB_LEFTCLICK                   = 0x1,
+	MB_RIGHTCLICK                  = 0x2,
+	MB_MIDDLECLICK                 = 0x4,
+};
+
+// Used with [Input->Mouse].
+enum MouseIndex
+{
+	MOUSE_X                        = 0,
+	MOUSE_Y                        = 1,
+	MOUSE_Z                        = 2,
+	MOUSE_LEFT                     = 3,
+	MOUSE_RIGHT                    = 4,
+	MOUSE_MIDDLE                   = 5,
+};
+
 // Contains variables related to button, mouse, and keyboard input.
 //
 // Access with `Input->`.
@@ -5,59 +56,63 @@ class Input {
 	// @delete
 	internal Input();
 
-	// Whether the given button (`CB_` constants) is down (or 'pressed').
+	// Whether the given button is down (or 'pressed').
 	//
+	// @index [Button]
 	// @zasm_var BUTTONPRESS
 	internal bool Press[];
 
-	// Whether the given button (`CB_` constants) is down (or 'pressed').
+	// Whether the given button is down (or 'pressed').
 	//
+	// @index [Button]
 	// @zasm_var BUTTONINPUT
 	internal bool Button[];
 
-	// Returns true if the respective key was just pressed this frame (similar
-	// to [Press], but for keys instead of buttons).
+	// Returns true if the respective key was just pressed this frame.
 	//
+	// @index [KeyCode]
 	// @zasm_var KEYPRESS
 	internal bool KeyPress[];
 
-	// Returns true if the respective key is down this frame (similar to
-	// [Button], but for keys instead of buttons).
+	// Returns true if the respective key is down this frame.
 	//
+	// @index [KeyCode]
 	// @zasm_var KEYINPUT
 	internal bool Key[];
 
 	// @zasm_var MOUSEARR
 	internal untyped Mouse[];
 
-	// For each index (using `CB_` constants to access), the keyboard key
-	// (`KEY_` constants) that is bound to that button.
+	// For each button, the keyboard key that is bound to that button.
 	//
+	// @index [Button]
+	// @value [KeyCode]
 	// @zasm_var KEYBINDINGS
 	internal int KeyBindings[];
 
-	// Returns the modifier keys as a bitwise flagset.
+	// The state of the modifier keys.
 	//
+	// @value [KeyModifierBitflags]
 	// @zasm_var KEYMODIFIERS
 	internal int ModifierKeys;
 
-	// Whether a given keyboard key (`KEY_` constants) is disabled from having
+	// Whether a given keyboard key is disabled from having
 	// any in-engine effect.
 	//
+	// @index [KeyCode]
 	// @zasm_var DISABLEKEY
 	internal bool DisableKey[];
 
-	// Whether a given button (`CB_` constants) is disabled from having any
-	// in-engine effect.
+	// Whether a given button is disabled from having any in-engine effect.
 	//
+	// @index [Button]
 	// @zasm_var DISABLEBUTTON
 	internal bool DisableButton[];
 
-	// Similar to Press, except that it only returns presses from a joystick
+	// Similar to [Press], except that it only returns presses from a joystick
 	// device, not a keyboard.
 	//
-	// Use the `CB_` constants to access this array.
-	//
+	// @index [Button]
 	// @zasm_var JOYPADPRESS
 	internal const bool Joypad[];
 

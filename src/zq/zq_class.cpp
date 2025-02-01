@@ -13482,8 +13482,12 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *)
 			new_return(71);
 		if (!p_iputzf(zinit.air_drag, f))
 			new_return(72);
-		if (!p_putc(zinit.region_mapping, f))
+		if (!p_iputw(zinit.light_wave_rate, f))
 			new_return(73);
+		if (!p_iputw(zinit.light_wave_size, f))
+			new_return(74);
+		if (!p_putc(zinit.region_mapping, f))
+			new_return(75);
 		
 		if(writecycle==0)
 		{

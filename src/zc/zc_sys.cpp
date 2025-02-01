@@ -193,9 +193,8 @@ void zc_exit(int code)
 	jit_shutdown();
 	quit_game();
 
-	Z_message("ZQuest Classic web site: https://zquestclassic.com\n");
-	Z_message("ZQuest Classic old wiki: https://web.archive.org/web/20210910193102/https://zeldaclassic.com/wiki\n");
-	Z_message("ZQuest Classic new wiki: https://github.com/ZQuestClassic/ZQuestClassic/wiki\n");
+	Z_message("ZQuest Classic website: https://zquestclassic.com\n");
+	Z_message("ZQuest Classic docs: https://docs.zquestclassic.com\n");
 
 	allegro_exit();
 	exit(code);
@@ -3754,7 +3753,10 @@ void updatescr(bool allowwavy)
 		wavy = 0; // Wavy was set by a DMap flag. Clear it.
 	else if(Playing && !Paused)
 		wavy--; // Wavy was set by a script. Decrement it.
-		
+	
+	if(Playing && !Paused)
+		++light_wave_clk;
+	
 	if(Playing && msgpos && !screenscrolling)
 	{
 		if(!(msg_bg_display_buf->clip))

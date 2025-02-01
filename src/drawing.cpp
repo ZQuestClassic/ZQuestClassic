@@ -15,10 +15,14 @@ extern BITMAP *darkscr_bmp, *darkscr_bmp_trans;
 
 #include "base/initdata.h"
 #include "gamedata.h"
+extern dword light_wave_clk;
 #define DITH_PERC (game ? game->get_dither_perc() : zinit.dither_percent)
 #define TRANS_PERC (game ? game->get_transdark_perc() : zinit.transdark_percent)
 #define DITH_TYPE (game ? game->get_dither_type() : zinit.dither_type)
 #define DITH_ARG (game ? game->get_dither_arg() : zinit.dither_arg)
+#define LIGHT_WAVE_RATE (game ? game->get_light_wave_rate() : zinit.light_wave_rate)
+#define LIGHT_WAVE_SIZE (game ? game->get_light_wave_size() : zinit.light_wave_size)
+#define LIGHT_WAVE_CLK light_wave_clk
 //end IS_PLAYER
 #elif defined(IS_EDITOR)
 
@@ -28,16 +32,40 @@ extern BITMAP *darkscr_bmp, *darkscr_bmp_trans;
 #define TRANS_PERC (game ? game->get_transdark_perc() : zinit.transdark_percent)
 #define DITH_TYPE (game ? game->get_dither_type() : zinit.dither_type)
 #define DITH_ARG (game ? game->get_dither_arg() : zinit.dither_arg)
+#define LIGHT_WAVE_RATE (game ? game->get_light_wave_rate() : zinit.light_wave_rate)
+#define LIGHT_WAVE_SIZE (game ? game->get_light_wave_size() : zinit.light_wave_size)
+#define LIGHT_WAVE_CLK 0
 #else
 #define DITH_PERC 0
 #define TRANS_PERC 0
 #define DITH_TYPE 0
 #define DITH_ARG 0
+#define LIGHT_WAVE_RATE 0
+#define LIGHT_WAVE_SIZE 0
+#define LIGHT_WAVE_CLK 0
 #endif
 
 extern COLOR_MAP trans_table2;
 
-void doDarkroomCircle(int32_t cx, int32_t cy, byte glowRad,BITMAP* dest, BITMAP* transdest, int dith_perc, int trans_perc, int dith_type, int dith_arg)
+static word calc_wave_rad(word rad, word rate, word size)
+{
+	// non-positive rate and 0 size mean no change
+	auto clk = LIGHT_WAVE_CLK;
+	if(rate <= 0 || !size || !clk)
+		return rad;
+	clk %= rate*2; // fit within one period of the wave
+	
+	// clk is now in the range 0=..rate*2
+	// convert to floating point, and convert to range 0=..2pi
+	double factor = (clk / double(rate*2)) * 2 * PI;
+	// now add the size, scaled by the sin wave
+	int offset = zc::math::Round(size * zc::math::Sin(factor));
+	return (word)vbound(rad + offset, 0, 65535);
+}
+
+void doDarkroomCircle(int32_t cx, int32_t cy, word glowRad,BITMAP* dest, BITMAP* transdest,
+	int dith_perc, int trans_perc, int dith_type, int dith_arg,
+	optional<word> wave_rate, optional<word> wave_size)
 {
 	if(!glowRad) return;
 
@@ -53,6 +81,9 @@ void doDarkroomCircle(int32_t cx, int32_t cy, byte glowRad,BITMAP* dest, BITMAP*
 	if(trans_perc < 0) trans_perc = TRANS_PERC;
 	if(dith_type < 0) dith_type = DITH_TYPE;
 	if(dith_arg < 0) dith_arg = DITH_ARG;
+	if(!wave_rate) wave_rate = LIGHT_WAVE_RATE;
+	if(!wave_size) wave_size = LIGHT_WAVE_SIZE;
+	glowRad = calc_wave_rad(glowRad, *wave_rate, *wave_size);
 	
 	int32_t ditherRad = glowRad + (int32_t)(glowRad * (dith_perc/(double)100.0));
 	int32_t transRad = glowRad + (int32_t)(glowRad * (trans_perc/(double)100.0));
@@ -77,7 +108,9 @@ void doDarkroomCircle(int32_t cx, int32_t cy, byte glowRad,BITMAP* dest, BITMAP*
 	}
 }
 
-void doDarkroomCone(int32_t sx, int32_t sy, byte glowRad, int32_t dir, BITMAP* dest, BITMAP* transdest, int dith_perc, int trans_perc, int dith_type, int dith_arg)
+void doDarkroomCone(int32_t sx, int32_t sy, word glowRad, int32_t dir, BITMAP* dest, BITMAP* transdest,
+	int dith_perc, int trans_perc, int dith_type, int dith_arg,
+	optional<word> wave_rate, optional<word> wave_size)
 {
 	if(!glowRad) return;
 
@@ -92,6 +125,9 @@ void doDarkroomCone(int32_t sx, int32_t sy, byte glowRad, int32_t dir, BITMAP* d
 	if(trans_perc < 0) trans_perc = TRANS_PERC;
 	if(dith_type < 0) dith_type = DITH_TYPE;
 	if(dith_arg < 0) dith_arg = DITH_ARG;
+	if(!wave_rate) wave_rate = LIGHT_WAVE_RATE;
+	if(!wave_size) wave_size = LIGHT_WAVE_SIZE;
+	glowRad = calc_wave_rad(glowRad, *wave_rate, *wave_size);
 	
 	int32_t ditherDiff = (int32_t)(glowRad * (dith_perc/(double)100.0));
 	int32_t transDiff = (int32_t)(glowRad * (trans_perc/(double)100.0));
@@ -135,7 +171,9 @@ void doDarkroomCone(int32_t sx, int32_t sy, byte glowRad, int32_t dir, BITMAP* d
 	}
 }
 
-void doDarkroomSquare(int32_t cx, int32_t cy, byte glowRad, BITMAP* dest, BITMAP* transdest, int dith_perc, int trans_perc, int dith_type, int dith_arg)
+void doDarkroomSquare(int32_t cx, int32_t cy, word glowRad, BITMAP* dest, BITMAP* transdest,
+	int dith_perc, int trans_perc, int dith_type, int dith_arg,
+	optional<word> wave_rate, optional<word> wave_size)
 {
 	if(!glowRad) return;
 
@@ -152,6 +190,9 @@ void doDarkroomSquare(int32_t cx, int32_t cy, byte glowRad, BITMAP* dest, BITMAP
 	if(trans_perc < 0) trans_perc = TRANS_PERC;
 	if(dith_type < 0) dith_type = DITH_TYPE;
 	if(dith_arg < 0) dith_arg = DITH_ARG;
+	if(!wave_rate) wave_rate = LIGHT_WAVE_RATE;
+	if(!wave_size) wave_size = LIGHT_WAVE_SIZE;
+	glowRad = calc_wave_rad(glowRad, *wave_rate, *wave_size);
 	
 	int32_t ditherRad = glowRad + (int32_t)(glowRad * (dith_perc/(double)100.0));
 	int32_t transRad = glowRad + (int32_t)(glowRad * (trans_perc/(double)100.0));
@@ -176,20 +217,25 @@ void doDarkroomSquare(int32_t cx, int32_t cy, byte glowRad, BITMAP* dest, BITMAP
 	}
 }
 
-void handle_lighting(int cx, int cy, byte shape, byte rad, byte dir, BITMAP* dest, BITMAP* transdest)
+void handle_lighting(int cx, int cy, byte shape, word rad, byte dir, BITMAP* dest, BITMAP* transdest,
+	int dith_perc, int trans_perc, int dith_type, int dith_arg,
+	optional<word> wave_rate, optional<word> wave_size)
 {
 	if(!rad) return;
 	dir = NORMAL_DIR(dir);
 	switch(shape)
 	{
 		case 0:
-			doDarkroomCircle(cx,cy,rad,dest,transdest);
+			doDarkroomCircle(cx,cy,rad,dest,transdest, dith_perc, trans_perc,
+				dith_type, dith_arg, wave_rate, wave_size);
 			break;
 		case 1:
-			doDarkroomCone(cx,cy,rad,dir,dest,transdest);
+			doDarkroomCone(cx,cy,rad,dir,dest,transdest, dith_perc, trans_perc,
+				dith_type, dith_arg, wave_rate, wave_size);
 			break;
 		case 2:
-			doDarkroomSquare(cx,cy,rad,dest,transdest);
+			doDarkroomSquare(cx,cy,rad,dest,transdest, dith_perc, trans_perc,
+				dith_type, dith_arg, wave_rate, wave_size);
 			break;
 	}
 }

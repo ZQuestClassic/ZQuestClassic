@@ -722,10 +722,10 @@ GOTO 288; for() #112 End
 POPARGS D5 0.0003
 RETURNFUNC; Func[void fillScreen(mapdata)] Body End
 SETR D4 SP2; Func[void press(int)] Body Start
-PUSHV 5; InlineFunc[void WaitTo(int, bool)] Params Start
-SETV D3 0; InlineFunc[void WaitTo(int, bool)] Params End
-POP D2; InlineFunc[void WaitTo(int, bool)] Body Start
-WAITTO D2 D3; InlineFunc[void WaitTo(int, bool)] Body End
+PUSHV 5; InlineFunc[void WaitTo(ScriptTiming, bool)] Params Start
+SETV D3 0; InlineFunc[void WaitTo(ScriptTiming, bool)] Params End
+POP D2; InlineFunc[void WaitTo(ScriptTiming, bool)] Body Start
+WAITTO D2 D3; InlineFunc[void WaitTo(ScriptTiming, bool)] Body End
 SETV D2 1
 PUSHR D2
 LOAD D2 0

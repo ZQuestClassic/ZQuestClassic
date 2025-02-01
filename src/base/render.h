@@ -217,12 +217,12 @@ enum class TextJustify {
 	left,
 	right,
 };
-enum class TextAlign {
+enum class TextAlignment {
 	top,
 	bottom,
 };
 void render_text(ALLEGRO_BITMAP* bitmap, ALLEGRO_FONT* font, std::string text, int x, int y, int scale, ALLEGRO_COLOR color = al_map_rgb_f(1,1,1), ALLEGRO_COLOR bgcolor = al_map_rgba_f(0, 0, 0, 0));
-void render_text_lines(ALLEGRO_BITMAP* bitmap, ALLEGRO_FONT* font, std::vector<std::string> lines, TextJustify justify, TextAlign align, int scale);
+void render_text_lines(ALLEGRO_BITMAP* bitmap, ALLEGRO_FONT* font, std::vector<std::string> lines, TextJustify justify, TextAlignment align, int scale);
 
 namespace MouseSprite
 {
@@ -283,6 +283,7 @@ void clear_tooltip();
 
 std::pair<int, int> zc_get_mouse();
 
+RenderTreeItem& gui_mouse_target();
 int window_mouse_x();
 int window_mouse_y();
 

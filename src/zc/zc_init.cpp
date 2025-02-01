@@ -81,6 +81,8 @@ zinitdata *copyIntoZinit(gamedata *gdata)
 	zinit2->def_lightrad = gdata->get_light_rad();
 	zinit2->transdark_percent = gdata->get_transdark_perc();
 	zinit2->darkcol = gdata->get_darkscr_color();
+	zinit2->light_wave_rate = gdata->get_light_wave_rate();
+	zinit2->light_wave_size = gdata->get_light_wave_size();
 	zinit2->swimgravity = gdata->get_watergrav();
 	zinit2->heroSideswimUpStep = gdata->get_sideswim_up();
 	zinit2->heroSideswimSideStep = gdata->get_sideswim_side();

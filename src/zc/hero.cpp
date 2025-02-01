@@ -6245,7 +6245,7 @@ bool HeroClass::try_lwpn_hit(weapon* w)
 	//if ( itemsbuf[parentitem].misc1 > 0 ) //damages Hero by this amount. 
 	if((!(itemid==-1&&get_qr(qr_FIREPROOFHERO)||((itemid>-1&&itemsbuf[itemid].family==itype_candle||itemsbuf[itemid].family==itype_book)&&(itemsbuf[itemid].flags & item_flag3)))) && scriptcoldet && !fallclk && (!superman || !get_qr(qr_FIREPROOFHERO2)))
 	{
-		if(w->id==wFire && (superman ? (diagonalMovement?w->hit(x+4,y+4-fakez,z,7,7,1):w->hit(x+7,y+7-fakez,z,2,2,1)) : w->hit(this))&&
+		if(w->id==wFire && (superman ? ((diagonalMovement||NO_GRIDLOCK)?w->hit(x+4,y+4-fakez,z,7,7,1):w->hit(x+7,y+7-fakez,z,2,2,1)) : w->hit(this))&&
 					(itemid < 0 || itemsbuf[itemid].family!=itype_divinefire))
 		{
 			std::vector<int32_t> &ev = FFCore.eventData;
@@ -6650,7 +6650,7 @@ void HeroClass::checkhit()
 		//if ( itemsbuf[parentitem].misc1 > 0 ) //damages Hero by this amount. 
 		if((!(itemid==-1&&get_qr(qr_FIREPROOFHERO)||((itemid>-1&&itemsbuf[itemid].family==itype_candle||itemsbuf[itemid].family==itype_book)&&(itemsbuf[itemid].flags & item_flag3)))) && scriptcoldet && !fallclk && (!superman || !get_qr(qr_FIREPROOFHERO2)))
 		{
-			if(s->id==wFire && (superman ? (diagonalMovement?s->hit(x+4,y+4-fakez,z,7,7,1):s->hit(x+7,y+7-fakez,z,2,2,1)) : s->hit(this))&&
+			if(s->id==wFire && (superman ? ((diagonalMovement||NO_GRIDLOCK)?s->hit(x+4,y+4-fakez,z,7,7,1):s->hit(x+7,y+7-fakez,z,2,2,1)) : s->hit(this))&&
 						(itemid < 0 || itemsbuf[itemid].family!=itype_divinefire))
 			{
 				std::vector<int32_t> &ev = FFCore.eventData;
@@ -6892,7 +6892,7 @@ void HeroClass::checkhit()
 	int32_t hit2 = -1;
 	do
 	{
-		hit2 = diagonalMovement ? GuyHitFrom(hit2+1,x+4,y+4-fakez,z,8,8,hzsz)
+		hit2 = (diagonalMovement||NO_GRIDLOCK) ? GuyHitFrom(hit2+1,x+4,y+4-fakez,z,8,8,hzsz)
 			: GuyHitFrom(hit2+1,x+7,y+7-fakez,z,2,2,hzsz);
 		
 		if(hit2!=-1)
@@ -9936,7 +9936,7 @@ heroanimate_skip_liftwpn:;
 	
 	
 	// check for ladder removal
-	if(diagonalMovement)
+	if(diagonalMovement||NO_GRIDLOCK)
 	{
 		if(ladderx+laddery)
 		{
@@ -13735,7 +13735,7 @@ int32_t HeroClass::check_pitslide(bool ignore_hover)
 	//Update std.zh with relevant new stuff
 	if(can_pitfall(ignore_hover))
 	{
-		bool can_diag = (diagonalMovement || get_qr(qr_DISABLE_4WAY_GRIDLOCK));
+		bool can_diag = (diagonalMovement || NO_GRIDLOCK);
 		int32_t ispitul = getpitfall(x,y+(bigHitbox?0:8));
 		int32_t ispitbl = getpitfall(x,y+15);
 		int32_t ispitur = getpitfall(x+15,y+(bigHitbox?0:8));
@@ -22374,7 +22374,7 @@ void HeroClass::checklocked()
 	int y = this->y - offy;
 
 	optional<int> openDir;
-	if ( diagonalMovement || get_qr(qr_DISABLE_4WAY_GRIDLOCK)) 
+	if ( diagonalMovement || NO_GRIDLOCK) 
 	{
 		if(y <= 32 && x >= 112 && x <= 128 && Y_DIR(dir) == up)
 			openDir = up;
@@ -28246,9 +28246,12 @@ void HeroClass::calc_darkroom_hero(int32_t x1, int32_t y1)
 
 	int32_t hx = x.getInt() - x1 + 8;
 	int32_t hy = y.getInt() - y1 + 8;
-	
+
 	itemdata& lamp = itemsbuf[lampid];
-	handle_lighting(hx, hy, lamp.misc1, lamp.misc2, dir, darkscr_bmp);
+	optional<word> wave_opt;
+	if(lamp.flags & item_flag1)
+		wave_opt = 0; // cancel wave effect
+	handle_lighting(hx, hy, lamp.misc1, lamp.misc2, dir, darkscr_bmp, NULL, -1, -1, -1, -1, wave_opt, wave_opt);
 }
 
 struct nearby_scrolling_screen_t
@@ -30951,7 +30954,7 @@ void HeroClass::checkitems(int32_t index)
 				checkitems(ind);
 			}
 		}
-		if(diagonalMovement)
+		if(diagonalMovement || NO_GRIDLOCK)
 		{
 			index=items.hit(x,y+(bigHitbox?0:8)-fakez,z,6,6,1);
 		}

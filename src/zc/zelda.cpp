@@ -315,6 +315,7 @@ int32_t fullscreen = 0;
 byte zc_vsync=0;
 byte use_win32_proc=1, console_enabled = 0;
 int32_t home_screen,frame=0,cur_map=0,dlevel,scrolling_hero_screen=0,scrolling_map=0,scrolling_dmap=0,scrolling_destdmap=-1;
+dword light_wave_clk = 0;
 bool scrolling_using_new_region_coords;
 int32_t hero_screen=0;
 int32_t cur_screen=0;
@@ -1657,6 +1658,7 @@ void init_game_vars(bool is_cont_game = false)
 	Bwpn=Awpn=Xwpn=Ywpn=-1;
 	FFCore.kb_typing_mode = false;
 	activated_timed_warp=false;
+	light_wave_clk = 0;
 	clockclk=0;
 	fadeclk=-1;
 	whistleclk=-1;
