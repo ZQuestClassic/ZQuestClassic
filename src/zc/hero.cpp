@@ -28851,7 +28851,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 	// Don't signal to scripts that scrolling has "started" (and thus all the Game->Scrolling variables are valid)
 	// just yet. Store what we calculated and apply them after this next frame.
 	// TODO(replays): update. And probably just move the calculation to after this frame renders (rather than cache).
-	// TODO z3
 	bool crucible_quest_compat = replay_is_debug() && replay_get_meta_str("qst") == "crucible_quest.qst";
 	int cached_scrolling[SZ_SCROLLDATA];
 	if (!crucible_quest_compat)
@@ -28863,7 +28862,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 	}
 
 	// Wait one frame. This still uses the old region's coordinates.
-	int32_t lastattackclk = attackclk, lastspins = spins, lastcharging = charging; bool lasttapping = tapping;
+	int32_t lastattackclk = attackclk, lastspins = spins, lastcharging = charging;
+	bool lasttapping = tapping;
 	actiontype lastaction = action;
 	{
 		ALLOFF(false, false);

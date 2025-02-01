@@ -19398,10 +19398,6 @@ void loadenemies()
 		if (state.loaded_enemies)
 			return;
 
-		// TODO z3 configure.
-		if (!viewport.intersects_with(region_scr_x*256, region_scr_y*176, 256, 176))
-			return;
-
 		// dungeon basements
 		static byte dngn_enemy_x[4] = {32,96,144,208};
 		if (cur_screen>=128)
@@ -19454,6 +19450,10 @@ void loadenemies()
 		}
 
 		if (scr->pattern == pNOSPAWN)
+			return;
+
+		// TODO z3 configure.
+		if (!viewport.intersects_with(region_scr_x*256, region_scr_y*176, 256, 176))
 			return;
 
 		if (scr->pattern==pSIDES || scr->pattern==pSIDESR)

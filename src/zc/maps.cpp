@@ -45,7 +45,6 @@ extern HeroClass Hero;
 // TODO z3 ! checklist do all before starting beta
 // screen secrets:
 //    - trigger all secrets in region
-//    - multiple triggers across many screens in a region (multi-block puzzle)
 //    - perm secrets
 
 // All the temporary screens (and their layers) for the currently loaded map.
