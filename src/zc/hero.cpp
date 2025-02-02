@@ -29045,9 +29045,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 	mapscr* newscr = get_scr(destmap, dest_screen);
 
 	// For the duration of the scrolling, the old region coordinate system is used for all drawing
-	// operations (internally - scripts see the new region coordinate system). This means that the
-	// new screens are drawn with offsets relative to the old coordinate system. These offsets are
-	// determined in get_nearby_scrolling_screens.
+	// operations. This means that the new screens are drawn with offsets relative to the old
+	// coordinate system. These offsets are determined in get_nearby_scrolling_screens.
 	auto nearby_screens = get_nearby_scrolling_screens(old_temporary_screens, old_viewport, new_viewport);
 
 	// Start scrolling with the previous pfo, and adjust during scrolling if necessary.
@@ -29224,9 +29223,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 	viewport = initial_viewport;
 	if (is_unsmooth_vertical_scrolling) viewport.y += 3;
 
-	auto script_hero_x = x;
-	auto script_hero_y = y;
-
 	// FFCs coordinates are world positions, and so don't need an offset like when drawing a
 	// specific screen's combos in do_scrolling_layer. But since their coordinates are in the new
 	// region's coordinate system, an offset of the difference between the two coordinate systems is
@@ -29263,8 +29259,15 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 	});
 
 	cur_dmap = new_dmap;
-	for(word i = 0; (scroll_counter >= 0 && delay != 0) || align_counter || pfo_counter; i++, scroll_counter--) //Go!
+	for (int i = 0; (scroll_counter >= 0 && delay != 0) || align_counter || pfo_counter; i++, scroll_counter--)
 	{
+		// Scripts see the hero position as if relative to the scrolling viewport. This is a weird
+		// quirk that should probably be placed behind a compat QR.
+		zfix prev_x, prev_y;
+		#define SAVE_HERO_POS {prev_x = x; prev_y = y;}
+		#define USE_COMPAT_HERO_POS {x -= viewport.x; y -= viewport.y;}
+		#define RESTORE_HERO_POS {x = prev_x; y = prev_y;}
+
 		if (replay_version_check(0, 3))
 		{
 			replay_poll();
@@ -29275,23 +29278,16 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 			// Just for compat with pre-z3 replays that quit during a scroll.
 			if (replay_is_recording())
 			{
-				x = script_hero_x;
-				y = script_hero_y;
+				USE_COMPAT_HERO_POS;
 			}
 			screenscrolling = false;
 			return;
 		}
 
-		{
-			// TODO z3 ! should we just modify things to draw in "new" coordinate system?
-			auto prev_x = x;
-			auto prev_y = y;
-			x = script_hero_x;
-			y = script_hero_y;
-			ZScriptVersion::RunScrollingScript(scrolldir, scroll_counter, sx, sy, end_frames, false);
-			x = prev_x;
-			y = prev_y;
-		}
+		SAVE_HERO_POS;
+		USE_COMPAT_HERO_POS;
+		ZScriptVersion::RunScrollingScript(scrolldir, scroll_counter, sx, sy, end_frames, false);
+		RESTORE_HERO_POS;
 
 		if(no_move > 0)
 			no_move--;
@@ -29379,22 +29375,18 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 			{
 			case up:
 				sy -= step;
-				script_hero_y += step;
 				break;
 				
 			case down:
 				sy += step;
-				script_hero_y -= step;
 				break;
 				
 			case left:
 				sx -= step;
-				script_hero_x += step;
 				break;
 				
 			case right:
 				sx += step;
-				script_hero_x -= step;
 				break;
 			}
 
@@ -29403,12 +29395,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 				viewport.x = initial_viewport.x + step * move_counter * dx;
 				viewport.y = initial_viewport.y + step * move_counter * dy + playing_field_offset - old_original_playing_field_offset;
 			}
-			
-			//bound Hero when me move him off the screen in the last couple of frames of scrolling
-			if(script_hero_y > old_viewport.bottom() - 16) script_hero_y = old_viewport.bottom() - 16;
-			if(script_hero_y < 0)   script_hero_y = 0;
-			if(script_hero_x > old_viewport.right() - 16) script_hero_x = old_viewport.right() - 16;
-			if(script_hero_x < 0)   script_hero_x = 0;
 
 			// This is the only thing that moves the hero.
 			if (!sideview_scrolling_slope)
@@ -29454,16 +29440,11 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 		FFCore.ScrollingData[SCROLLDATA_ORX] = -viewport.x;
 		FFCore.ScrollingData[SCROLLDATA_ORY] = -viewport.y;
 
-		{
-			auto prev_x = x;
-			auto prev_y = y;
-			x = script_hero_x;
-			y = script_hero_y;
-			ZScriptVersion::RunScrollingScript(scrolldir, scroll_counter, sx, sy, end_frames, true); //Waitdraw
-			FFCore.runGenericPassiveEngine(SCR_TIMING_PRE_DRAW);
-			x = prev_x;
-			y = prev_y;
-		}
+		SAVE_HERO_POS;
+		USE_COMPAT_HERO_POS;
+		ZScriptVersion::RunScrollingScript(scrolldir, scroll_counter, sx, sy, end_frames, true); //Waitdraw
+		FFCore.runGenericPassiveEngine(SCR_TIMING_PRE_DRAW);
+		RESTORE_HERO_POS;
 
 		clear_bitmap(framebuf);
 		clear_info_bmp();
@@ -29637,22 +29618,14 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 			scrollscr_handle_dark(newscr, oldscr, nearby_screens);
 		}
 
-		auto prev_x = x;
-		auto prev_y = y;
-		x = script_hero_x;
-		y = script_hero_y;
-
+		SAVE_HERO_POS;
+		USE_COMPAT_HERO_POS;
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DRAW);
-		//end drawing
 		FFCore.runGenericPassiveEngine(SCR_TIMING_END_FRAME);
 
-		{
-			x = prev_x;
-			y = prev_y;
-			advanceframe(true/*,true,false*/);
-			x = script_hero_x;
-			y = script_hero_y;
-		}
+		RESTORE_HERO_POS;
+		advanceframe(true/*,true,false*/);
+		USE_COMPAT_HERO_POS;
 
 		if (scroll_counter > 0 || get_qr(qr_FIXSCRIPTSDURINGSCROLLING))
 			script_drawing_commands.Clear();
@@ -29662,8 +29635,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 		FFCore.runF6Engine();
 		action=lastaction; FFCore.setHeroAction(lastaction);
 
-		x = prev_x;
-		y = prev_y;
+		RESTORE_HERO_POS;
 	}
 	cur_dmap = old_dmap;
 

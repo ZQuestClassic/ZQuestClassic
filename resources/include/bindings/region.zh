@@ -4,11 +4,13 @@
 // always equal to the current region's origin screen.
 //
 // A region with just a single screen is technically still a region, but is referred to
-// as a "non-scrolling region". Regions larger than one screen are "scrolling regions".
+// as a "non-scrolling region". A region larger than one screen is a "scrolling region".
 //
 // The visible porition of the region currently visible is defined by the [Viewport].
 //
 // Access with `Region->`.
+//
+// @tutorial /tutorials/z3_user_guide
 class Region {
 	// @delete
 	internal Region();
