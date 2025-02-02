@@ -167,6 +167,7 @@ jobs:
 
           with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
             print('{0}={1}'.format('platform', release_platform), file=f)
+      # TODO ~z3 revert
       - name: Configure build
         run: >
           cmake -S . -B build -G 'Ninja Multi-Config'
