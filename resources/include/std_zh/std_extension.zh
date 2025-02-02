@@ -434,11 +434,11 @@ void DirRev(npc l)
 	}
 }
 	
-//Returns a multiplication factor for ->Step based on direction.
+// Returns a multiplication factor for ->Step based on direction.
 // Specifically, return the x component of a line with a length of 1 extending
 // in the given direction from origin.
-//Step = step * DirX(dir);
-//Valid only if dir is 0 to 7.
+// `Step = step * DirX(dir);`
+// Valid only if dir is 0 to 7.
 
 int DirX(int dir) 
 {
@@ -449,9 +449,9 @@ int DirX(int dir)
 	return 0;
 }
 
-//Returns a multiplication factor for ->Step based on direction.
-//Step = step * DirY(dir);
-//Valid only if dir is 0 to 7.
+// Returns a multiplication factor for ->Step based on direction.
+// `Step = step * DirY(dir);`
+// Valid only if dir is 0 to 7.
 // Specifically, return the y component of a line with a length of 1 extending
 // in the given direction from origin.
 int DirY(int dir) 

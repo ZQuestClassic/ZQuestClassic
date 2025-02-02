@@ -54,6 +54,7 @@ namespace util
 	void upperstr(std::string& str);
 	void lowerstr(std::string& str);
 	void trimstr(std::string& str);
+	void trimstr_trailing(std::string& str);
 	void sanitize(std::string& str);
 	void sanitize_spaces_ok(std::string& str);
 	size_t split(const std::string &txt, std::vector<std::string> &strs, char ch);

@@ -275,7 +275,7 @@ enum RenderTarget
 	RT_BITMAP6                     = 6,  // Draws to off-screen bitmap 6.
 };
 
-// Contains functions and variables related to the currently loaded [mapdata] screen,
+// Contains functionality related to the currently loaded [mapdata] screen,
 // including functions for drawing and creating/loading objects belonging to the
 // screen.
 //
@@ -289,9 +289,9 @@ enum RenderTarget
 //
 // For accessing specific screens, see [mapdata].
 //
-// See z3_user_guide.md for more. TODO z3 !
-//
 // Access with `Screen->`.
+//
+// @tutorial /tutorials/z3_user_guide
 class screendata {
 	// @delete
 	internal screendata();
@@ -302,8 +302,11 @@ class screendata {
 	// In a non-scrolling [Region], this is equal to [Game->CurScreen].
 	//
 	// In a scrolling [Region], the default is equal to [Game->CurScreen] (the top-left screen).
-	// However, script types that relate to a specific screen will use that screen instead.
-	// Those include: screendata, ffc, npc, eweapon, lweapon, itemsprite, combo.
+	// However, many script types use a more relevant screen instead. For example:
+	//
+	// - screendata scripts use the screen they are assigned to
+	// - ffc, npc, eweapon, lweapon, itemsprite, combo - all use the screen they were spawned on ([sprite::SpawnScreen])
+	// - player - uses [Game->HeroScreen], which updates as the player moves around
 	//
 	// @zasm_var SCREEN_INDEX
 	internal const int Index;

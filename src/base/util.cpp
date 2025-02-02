@@ -39,6 +39,11 @@ namespace util
 		str.erase(str.find_last_not_of("\t\n\v\f\r ") + 1);
 	}
 
+	void trimstr_trailing(string& str)
+	{
+		str.erase(str.find_last_not_of("\t\n\v\f\r ") + 1);
+	}
+
 	void sanitize(string& str)
 	{
 		trimstr(str);

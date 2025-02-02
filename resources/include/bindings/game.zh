@@ -326,9 +326,9 @@ class Game {
 	// @delete
 	internal Game();
 
-	// The top-left screen of the current [Region] that the player is in.
+	// The origin screen (top-left) of the current [Region] that the player is in.
 	//
-	// When scrolling, this is the new screen.
+	// During a scrolling screen transition, this is the new screen.
 	//
 	// @deprecated_getter GetCurScreen
 	// @zasm_var CURSCR
@@ -337,7 +337,7 @@ class Game {
 	// The screen that the [Hero] is in. In a scrolling region, this updates as the player
 	// moves around according to their coordinates.
 	//
-	// When scrolling, this is the new screen.
+	// During a scrolling screen transition, this is the new screen.
 	//
 	// @zasm_var HERO_SCREEN
 	internal const int HeroScreen;

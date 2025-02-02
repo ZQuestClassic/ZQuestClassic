@@ -87,7 +87,6 @@ enum DrawOrigin
 };
 ```
 
-<!-- TODO ~z3 remove above, just link to doc website -->
 
 ### `Viewport`
 
@@ -162,7 +161,6 @@ class Viewport {
 internal const Viewport Viewport;
 ```
 
-<!-- TODO ~z3 remove above, just link to doc website -->
 
 ### `sprite::SpawnScreen`
 
@@ -187,7 +185,7 @@ By default, the `Screen->` methods operate on the origin screen. Some script typ
 * `Screen->LoadFFC(id)` can return any FFC within the current region. `id` can be `1-MAX_FFC`
 * For everything else on `Screen->`, it accesses just a single screen
 
-Before regions, to iterate every combo on a screen you loop between 0 and 176. With regions, the upper value is instead `NUM_COMBO_POS` - when not in a region, this value is 176. To make scripts compatible with regions, replace 176 with `NUM_COMBO_POS`.
+Before regions, to iterate every combo on a screen you loop between 0 and 176 (exclusive). With regions, the upper value is instead `NUM_COMBO_POS` - when not in a region, this value is 176. To make scripts compatible with regions, replace 176 with `NUM_COMBO_POS`.
 
 To get the correct value of `pos` for a given `x` and `y` coordinate, you can still use `ComboAt(x, y)`. This will use the current region to determine the combo position.
 
@@ -224,7 +222,6 @@ Each individual screen within a region may have up to 128 FFCs. The maximum FFC 
 internal const int ID;
 ```
 
-<!-- TODO ~z3 remove above, just link to doc website -->
 
 To load the FFC at a specific index for a given screen, use `Screen->LoadFFC(int screen, int index)`.
 
@@ -244,9 +241,4 @@ bool RegionIncludesScreen(int scr);
 
 ______
 
-scratch notes
-
-- Item pickup behavior. Triggers secret of the screen the item was created on. If item move about, its associated screen is unchanged. Same for all sprites
-
-Commit message: TODO
-
+TODO ~z3 delete document, link to doc site

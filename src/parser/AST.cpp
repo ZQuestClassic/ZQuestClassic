@@ -70,10 +70,18 @@ std::map<std::string, std::string> AST::getParsedDocComment() const
 	util::split(doc_comment, lines, '\n');
 	for (auto& line : lines)
 	{
-		util::trimstr(line);
-
-		if (line.starts_with("@"))
+		bool starts_with_at = false;
+		for (char& c : line)
 		{
+			if (c == ' ' || c == '\t') continue;
+			if (c == '@') starts_with_at = true;
+			break;
+		}
+
+		if (starts_with_at)
+		{
+			util::trimstr(line);
+
 			size_t index = line.find_first_of(' ');
 			if (index == -1)
 			{
@@ -84,8 +92,19 @@ std::map<std::string, std::string> AST::getParsedDocComment() const
 			{
 				current_key = line.substr(1, index - 1);
 				line = line.substr(index + 1);
-				util::trimstr(line);
 			}
+		}
+		else
+		{
+			// TODO: need better comment parsing. Lists don't work well when items take multiple
+			// lines (ex: mapdata.zh), due to how trimming is done here. But trimming as the
+			// commented out code does creates issues in the doc site generator. Need more though
+			// out approach for parsing structured comments.
+			// if (current_key.empty())
+			// 	util::trimstr_trailing(line);
+			// else
+			// 	util::trimstr(line);
+			util::trimstr(line);
 		}
 
 		bool has_key = result.contains(current_key);
