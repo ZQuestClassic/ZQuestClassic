@@ -1,3 +1,5 @@
+import "bindings/common.zh"
+
 // Sprite rendering extend modes. Used with [sprite::Extend].
 enum ExtendMode
 {
@@ -176,7 +178,7 @@ class sprite {
 
 	// How to flip (or rotate) the sprite.
 	//
-	// @value {@link TransformationType|TransformationType (FLIP_ or ROT_)}
+	// @value [TransformationType|TransformationType (FLIP_ or ROT_)]
 	// @zasm_var SPRITE_FLIP
 	internal int Flip;
 

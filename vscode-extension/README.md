@@ -36,12 +36,11 @@ int counter4;
 
 Comments are rendered as markdown.
 
-Comments may contain inline links to other symbols with the [`@link`](https://jsdoc.app/tags-inline-link) tag:
+Comments may contain inline links to other symbols with `[symbol]` or `[symbol|text]`:
 
 ```c++
-// Better than {@link counter2} ... {@link counter2|that counter is lame}
+// Better than [counter2] ... [counter2|that] counter is lame.
 int counter1;
-// You can also use a shorthand for links like this: [counter1]
 int counter2;
 ```
 
