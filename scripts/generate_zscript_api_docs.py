@@ -729,7 +729,15 @@ def add_comment(symbol):
         add('.. rst-class:: classref-comment')
         add('')
         for tag, value in symbol.comment.tags:
-            if tag in ['value', 'index', 'param', 'length']:
+            if tag in [
+                'alias',
+                'deprecated_alias',
+                'deprecated_getter',
+                'index',
+                'length',
+                'param',
+                'value',
+            ]:
                 add(format_comment(f'`{tag}` ' + value))
                 add('')
                 add('')

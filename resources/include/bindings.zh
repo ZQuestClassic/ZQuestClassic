@@ -54,6 +54,12 @@
 //
 //   Mark that the function exits the script.
 //
+// @alias, @deprecated_alias, @deprecated_getter
+//
+//   Define aliases.
+//
+//   @deprecated_getter is only for variables, and defines a function getter.
+//
 // @index, @value, @length, @param
 //
 //   These have no impact on the compiler, and serve only as documentation.
