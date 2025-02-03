@@ -198,9 +198,13 @@ static std::string getComment(const AST* node)
 		if (k == "internal_array")
 			continue;
 
-		s << "\n\n**@" << k << "**";
-		if (!v.empty())
-			s <<  " " << v;
+		std::vector<std::string> records = util::split(v, "\x1f");
+		for (auto& record : records)
+		{
+			s << "\n\n**@" << k << "**";
+			if (!record.empty())
+				s <<  " " << record;
+		}
 	}
 
 	std::string comment = s.str();

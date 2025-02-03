@@ -91,7 +91,16 @@ class Location:
 @dataclass
 class Comment:
     text: str
-    tags: dict[str, str]
+    tags: list[tuple[str, str]]
+
+    def has_tag(self, name: str) -> bool:
+        return self.get_tag_single(name) != None
+
+    def get_tag_single(self, name: str) -> Optional[str]:
+        return next((t[1] for t in self.tags if t[0] == name), None)
+
+    def get_tag_many(self, name: str) -> list[str]:
+        return [t[1] for t in self.tags if t[0] == name]
 
 
 @dataclass
@@ -131,7 +140,7 @@ class Variable:
         return reflink(self, self.name)
 
     def deprecated(self) -> bool:
-        return self.comment and bool(self.comment.tags.get('deprecated'))
+        return self.comment and self.comment.has_tag('deprecated')
 
 
 @dataclass
@@ -189,7 +198,7 @@ class Function:
         return reflink(self, self.name)
 
     def deprecated(self) -> bool:
-        return self.comment and bool(self.comment.tags.get('deprecated'))
+        return self.comment and self.comment.has_tag('deprecated')
 
 
 @dataclass
@@ -255,7 +264,35 @@ def parse_doc_type(type_str: str) -> Type:
 def parse_doc_comment(x) -> Optional[Comment]:
     if x.get('comment'):
         text = x['comment']['text']
-        tags = x['comment']['tags']
+        tags = []
+        for k, v in x['comment']['tags'].items():
+            if v == True:
+                tags.append((k, True))
+                continue
+
+            records = v.split('\x1f')
+            for record in records:
+                tags.append((k, record))
+
+            SINGLE_VALUE_TAGS = [
+                'delete',
+                'deprecated_getter',
+                'deprecated',
+                'exit',
+                'extends',
+                'index',
+                'length',
+                'reassign_ptr',
+                'value',
+                'vargs',
+                'zasm_internal_array',
+                'zasm_ref',
+                'zasm_var',
+            ]
+            if len(records) > 1 and k in SINGLE_VALUE_TAGS:
+                raise Exception(
+                    f'tag cannot have multiple values: {x}\n\nTag: {v}\n\nComment: {text}'
+                )
         return Comment(text=text, tags=tags)
 
     return None
@@ -691,18 +728,17 @@ def add_comment(symbol):
         add('')
         add('.. rst-class:: classref-comment')
         add('')
-        for tag, value in symbol.comment.tags.items():
+        for tag, value in symbol.comment.tags:
             if tag in ['value', 'index', 'param', 'length']:
-                for line in value.splitlines():
-                    add(format_comment(f'`{tag}` ' + line))
-                    add('')
-                    add('')
+                add(format_comment(f'`{tag}` ' + value))
+                add('')
+                add('')
         add('')
         add(format_comment(symbol.comment.text))
         add('')
 
-    if symbol.comment and symbol.comment.tags.get('deprecated'):
-        notice = symbol.comment.tags['deprecated']
+    if symbol.comment and symbol.comment.has_tag('deprecated'):
+        notice = symbol.comment.get_tag_single('deprecated')
         if notice == True:
             notice = ''
         else:
@@ -888,14 +924,12 @@ def process_bindings_class(file: File, symbol: Class):
 
     add_comment(symbol)
 
-    if symbol.comment and symbol.comment.tags.get('tutorial'):
-        tutorial = symbol.comment.tags.get('tutorial')
-
+    if symbol.comment and symbol.comment.has_tag('tutorial'):
         rst_h2('Tutorials')
-        label = tutorial.replace('tutorials/', '').capitalize()
-        # ref = tutorial.replace('/', '_')
-        add(f'* :doc:`{tutorial}`')
-        add('')
+        for tutorial in symbol.comment.get_tag_many('tutorial'):
+            label = tutorial.replace('tutorials/', '').capitalize()
+            add(f'* :doc:`{tutorial}`')
+            add('')
 
     handle_scope(
         Scope(

@@ -2117,11 +2117,16 @@ after the value.
 
 
 **@deprecated_alias** TraceLWeapon
-TraceEWeapon
-TraceNPC
-TraceFFC
-TraceItem
-TraceItemData",
+
+**@deprecated_alias** TraceEWeapon
+
+**@deprecated_alias** TraceNPC
+
+**@deprecated_alias** TraceFFC
+
+**@deprecated_alias** TraceItem
+
+**@deprecated_alias** TraceItemData",
     ],
     "range": [
       {

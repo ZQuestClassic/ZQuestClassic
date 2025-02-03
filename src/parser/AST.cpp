@@ -59,6 +59,10 @@ AST::AST(LocationData const& location)
 	: location(location), errorDisabled(false), disabled_(false), isRegistered(false), isReachable(true)
 {}
 
+// Parses into a map keyed by annotations (ex: @alias).
+// Duplicate annotations have their values separated by a record separator (\x1f).
+// The empty string contains all the non-annotation text. It is lightly post-processed to
+// be better formatted.
 std::map<std::string, std::string> AST::getParsedDocComment() const
 {
 	std::map<std::string, std::string> result;
@@ -110,7 +114,7 @@ std::map<std::string, std::string> AST::getParsedDocComment() const
 			continue;
 
 		if (has_key)
-			result[current_key] += "\n" + line;
+			result[current_key] += (starts_with_at && current_key != "zasm" ? "\x1f" : "\n") + line;
 		else
 			result[current_key] = line;
 	}

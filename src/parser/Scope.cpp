@@ -58,7 +58,7 @@ void Scope::initFunctionBinding(Function* fn, CompileErrorHandler* handler)
 	if (parsed_comment.contains("alias"))
 	{
 		std::vector<std::string> aliases;
-		util::split(parsed_comment["alias"], aliases, '\n');
+		util::split(parsed_comment["alias"], aliases, '\x1f');
 		for (auto& alias : aliases)
 		{
 			auto alias_fn = new Function();
@@ -71,7 +71,7 @@ void Scope::initFunctionBinding(Function* fn, CompileErrorHandler* handler)
 	if (parsed_comment.contains("deprecated_alias"))
 	{
 		std::vector<std::string> aliases;
-		util::split(parsed_comment["deprecated_alias"], aliases, '\n');
+		util::split(parsed_comment["deprecated_alias"], aliases, '\x1f');
 		for (auto& alias : aliases)
 		{
 			auto alias_fn = new Function();
