@@ -661,7 +661,7 @@ def add_comment(symbol):
         return '$MONO'
 
     def replace_monos_placeholder(match: re.Match):
-        return f'``{monos.pop(0)}``'
+        return f'\\ ``{monos.pop(0)}``'
 
     code_blocks = []
 
