@@ -2115,6 +2115,7 @@ exports[`ZScript extension Hover tooltips latest 1`] = `
       "Prints the passed value to the output console. Includes a newline character
 after the value.
 
+
 **@deprecated_alias** TraceLWeapon
 TraceEWeapon
 TraceNPC

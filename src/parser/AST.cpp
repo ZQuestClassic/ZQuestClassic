@@ -65,15 +65,25 @@ std::map<std::string, std::string> AST::getParsedDocComment() const
 	if (doc_comment.empty())
 		return result;
 
+	std::vector<std::string> comment_lines;
+
 	std::string current_key;
 	std::vector<std::string> lines;
 	util::split(doc_comment, lines, '\n');
 	for (auto& line : lines)
 	{
-		util::trimstr(line);
-
-		if (line.starts_with("@"))
+		bool starts_with_at = false;
+		for (char& c : line)
 		{
+			if (c == ' ' || c == '\t') continue;
+			if (c == '@') starts_with_at = true;
+			break;
+		}
+
+		if (starts_with_at)
+		{
+			util::trimstr(line);
+
 			size_t index = line.find_first_of(' ');
 			if (index == -1)
 			{
@@ -84,12 +94,19 @@ std::map<std::string, std::string> AST::getParsedDocComment() const
 			{
 				current_key = line.substr(1, index - 1);
 				line = line.substr(index + 1);
-				util::trimstr(line);
 			}
 		}
 
+		if (current_key.empty())
+		{
+			comment_lines.push_back(line);
+			continue;
+		}
+
+		util::trimstr(line);
+
 		bool has_key = result.contains(current_key);
-		if (!current_key.empty() && line.empty() && has_key)
+		if (line.empty() && has_key)
 			continue;
 
 		if (has_key)
@@ -98,8 +115,37 @@ std::map<std::string, std::string> AST::getParsedDocComment() const
 			result[current_key] = line;
 	}
 
-	if (result.contains(""))
-		util::trimstr(result[""]);
+	if (!comment_lines.empty())
+	{
+		bool in_list = false;
+		for (auto& line : comment_lines)
+		{
+			util::trimstr(line);
+
+			if (in_list)
+			{
+				if (line.empty())
+				{
+					in_list = false;
+					continue;
+				}
+				if (line[0] == '-') continue;
+				line = "  " + line;
+			}
+			else
+			{
+				if (line.empty()) continue;
+				if (line[0] == '-')
+				{
+					in_list = true;
+					line = "\n" + line; // Helps rst generation.
+					continue;
+				}
+			}
+		}
+
+		result[""] = fmt::format("{}", fmt::join(comment_lines, "\n"));
+	}
 
 	return result;
 }

@@ -30,7 +30,9 @@ sections = {
     'Classes': [],
     'Libraries': [],
 }
-git_ref = subprocess.check_output(['git', 'rev-parse', 'HEAD'], encoding='utf-8').strip()
+git_ref = subprocess.check_output(
+    ['git', 'rev-parse', 'HEAD'], encoding='utf-8'
+).strip()
 
 
 def indent(text: str, amount: int, ch=' ') -> str:
@@ -571,8 +573,10 @@ def rst_h2(text: str):
 def reflink(symbol, label='🔗') -> str:
     return f':ref:`{label}<{symbol.loc.ref}>`'
 
+
 def doclink(target, label='🔗') -> str:
     return f':ref:`{label}<{target}>`'
+
 
 def add(text: str):
     lines.append(text)
@@ -641,7 +645,7 @@ def add_comment(symbol):
             )
 
         return reflink(matched_symbol, label)
-    
+
     def replace_docs_link(match: re.Match):
         if '|' in match.group(1):
             docs_key, label = match.group(1).split('|')
@@ -677,7 +681,11 @@ def add_comment(symbol):
         text = re.sub(r'\$MONO', replace_monos_placeholder, text)
         text = re.sub(r'\[@(.+?)@\]', replace_symbol_link, text)
         text = re.sub(r'\[#(.+?)#\]', replace_docs_link, text)
+        text = re.sub(r'^# (.+)', r':comment_header:`\1`', text, flags=re.MULTILINE)
         return text
+
+    def format_comment(text: str) -> str:
+        return indent(sanitize(text), 3)
 
     if symbol.comment and symbol.comment.text:
         add('')
@@ -686,11 +694,11 @@ def add_comment(symbol):
         for tag, value in symbol.comment.tags.items():
             if tag in ['value', 'index', 'param', 'length']:
                 for line in value.splitlines():
-                    add(indent(sanitize(f'`{tag}` ' + line), 3))
+                    add(format_comment(f'`{tag}` ' + line))
                     add('')
                     add('')
         add('')
-        add(indent(sanitize(symbol.comment.text), 3))
+        add(format_comment(symbol.comment.text))
         add('')
 
     if symbol.comment and symbol.comment.tags.get('deprecated'):
@@ -702,7 +710,7 @@ def add_comment(symbol):
         add('')
         add('.. deprecated::')
         add('')
-        add(indent(sanitize(notice), 3))
+        add(format_comment(notice))
         add('')
 
 
@@ -968,8 +976,8 @@ def write(name: str):
 
 
 for folder in ['classes', 'globals', 'libs']:
-    if (zscript_dir/folder).exists():
-        shutil.rmtree(zscript_dir/folder)
+    if (zscript_dir / folder).exists():
+        shutil.rmtree(zscript_dir / folder)
 
 # handle bindings
 classes = []
@@ -1024,20 +1032,23 @@ for lib in libraries:
 # zscript/index.rst
 rst_title('ZScript')
 
-rst_toc('Language', [
-    'zscript/lang/introduction',
-    'zscript/lang/comments',
-    'zscript/lang/literals',
-    'zscript/lang/keywords',
-    'zscript/lang/declarations/index',
-    'zscript/lang/types/index',
-    'zscript/lang/control_flow/index',
-    'zscript/lang/ranges',
-    'zscript/lang/scripts',
-    'zscript/lang/annotations',
-    'zscript/lang/options',
-    'zscript/lang/compiler_directives',
-])
+rst_toc(
+    'Language',
+    [
+        'zscript/lang/introduction',
+        'zscript/lang/comments',
+        'zscript/lang/literals',
+        'zscript/lang/keywords',
+        'zscript/lang/declarations/index',
+        'zscript/lang/types/index',
+        'zscript/lang/control_flow/index',
+        'zscript/lang/ranges',
+        'zscript/lang/scripts',
+        'zscript/lang/annotations',
+        'zscript/lang/options',
+        'zscript/lang/compiler_directives',
+    ],
+)
 
 add('.. _zsdoc_index:')
 for name, documents in sections.items():

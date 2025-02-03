@@ -178,10 +178,45 @@ enum ScreenState
 
 // Represents a single map screen.
 //
-// Depending on how the `mapdata` was loaded, it may represent:
-// - a temporary copy of the current screen ([Game->LoadTempScreen])
-// - a temporary copy of a scrolling screen ([Game->LoadScrollingScreen])
-// - the canonical copy of a screen ([Game->LoadMapData])
+// Depending on how the `mapdata` was loaded, it may represent different things.
+//
+// # Temporary screens
+//
+// A single temporary screen, aka a live reference to a currently loaded screen.
+//
+// Modifications to temporary screens are lost when a new region is loaded.
+//
+// Load via:
+//
+//   - [Game->LoadTempScreen] - the one that takes a screen and a layer parameter.
+//     Loads from the current region.
+//   - [Game->LoadTempScreenForComboPos] Loads from the current region.
+//   - [Game->LoadScrollingScreen] - the one that takes a screen and a layer parameter.
+//     Loads from the previous region, valid during scrolling only.
+//
+// # Temporary screens (whole-region)
+//
+// When representing every temporary screen in an active [Region], the combo array variables
+// can access every position in a region, but variables representing values from a
+// singular screen only read from the top-left screen (the origin screen) of the [Region].
+// This is exactly like how [Screen] works.
+//
+// Load via:
+//
+//   - [Game->LoadTempScreen] - the one that takes just a layer
+//   - [Game->LoadScrollingScreen] - the one that takes just a layer
+//
+// # Canonical screens
+//
+// The "official" copy of the mapdata. Temporary screens are copied from canonical screens
+// when the player loads into a new region.
+//
+// Modifications to canonical screens will not update any associated temporary screens
+// (until the next time the player loads that screen).
+//
+// Load via:
+//
+//  - [Game->LoadMapData]
 //
 // @zasm_ref REFMAPDATA
 class mapdata {

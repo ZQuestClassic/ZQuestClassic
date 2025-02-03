@@ -23,21 +23,21 @@ stdout:
         "kind": 10,
         "range": {
           "start": {
-            "line": 44,
+            "line": 45,
             "character": 0
           },
           "end": {
-            "line": 50,
+            "line": 51,
             "character": 1
           }
         },
         "selectionRange": {
           "start": {
-            "line": 44,
+            "line": 45,
             "character": 5
           },
           "end": {
-            "line": 44,
+            "line": 45,
             "character": 10
           }
         },
@@ -47,21 +47,21 @@ stdout:
             "kind": 22,
             "range": {
               "start": {
-                "line": 46,
+                "line": 47,
                 "character": 4
               },
               "end": {
-                "line": 46,
+                "line": 47,
                 "character": 9
               }
             },
             "selectionRange": {
               "start": {
-                "line": 46,
+                "line": 47,
                 "character": 4
               },
               "end": {
-                "line": 46,
+                "line": 47,
                 "character": 9
               }
             },
@@ -72,21 +72,21 @@ stdout:
             "kind": 22,
             "range": {
               "start": {
-                "line": 48,
+                "line": 49,
                 "character": 4
               },
               "end": {
-                "line": 48,
+                "line": 49,
                 "character": 8
               }
             },
             "selectionRange": {
               "start": {
-                "line": 48,
+                "line": 49,
                 "character": 4
               },
               "end": {
-                "line": 48,
+                "line": 49,
                 "character": 8
               }
             },
@@ -97,21 +97,21 @@ stdout:
             "kind": 22,
             "range": {
               "start": {
-                "line": 49,
+                "line": 50,
                 "character": 4
               },
               "end": {
-                "line": 49,
+                "line": 50,
                 "character": 7
               }
             },
             "selectionRange": {
               "start": {
-                "line": 49,
+                "line": 50,
                 "character": 4
               },
               "end": {
-                "line": 49,
+                "line": 50,
                 "character": 7
               }
             },
@@ -124,21 +124,21 @@ stdout:
         "kind": 10,
         "range": {
           "start": {
-            "line": 53,
+            "line": 54,
             "character": 0
           },
           "end": {
-            "line": 56,
+            "line": 57,
             "character": 1
           }
         },
         "selectionRange": {
           "start": {
-            "line": 53,
+            "line": 54,
             "character": 5
           },
           "end": {
-            "line": 53,
+            "line": 54,
             "character": 19
           }
         },
@@ -148,21 +148,21 @@ stdout:
             "kind": 22,
             "range": {
               "start": {
-                "line": 55,
+                "line": 56,
                 "character": 4
               },
               "end": {
-                "line": 55,
+                "line": 56,
                 "character": 11
               }
             },
             "selectionRange": {
               "start": {
-                "line": 55,
+                "line": 56,
                 "character": 4
               },
               "end": {
-                "line": 55,
+                "line": 56,
                 "character": 11
               }
             },
@@ -173,21 +173,21 @@ stdout:
             "kind": 22,
             "range": {
               "start": {
-                "line": 55,
+                "line": 56,
                 "character": 13
               },
               "end": {
-                "line": 55,
+                "line": 56,
                 "character": 19
               }
             },
             "selectionRange": {
               "start": {
-                "line": 55,
+                "line": 56,
                 "character": 13
               },
               "end": {
-                "line": 55,
+                "line": 56,
                 "character": 19
               }
             },
@@ -198,21 +198,21 @@ stdout:
             "kind": 22,
             "range": {
               "start": {
-                "line": 55,
+                "line": 56,
                 "character": 21
               },
               "end": {
-                "line": 55,
+                "line": 56,
                 "character": 28
               }
             },
             "selectionRange": {
               "start": {
-                "line": 55,
+                "line": 56,
                 "character": 21
               },
               "end": {
-                "line": 55,
+                "line": 56,
                 "character": 28
               }
             },
@@ -223,21 +223,21 @@ stdout:
             "kind": 22,
             "range": {
               "start": {
-                "line": 55,
+                "line": 56,
                 "character": 30
               },
               "end": {
-                "line": 55,
+                "line": 56,
                 "character": 36
               }
             },
             "selectionRange": {
               "start": {
-                "line": 55,
+                "line": 56,
                 "character": 30
               },
               "end": {
-                "line": 55,
+                "line": 56,
                 "character": 36
               }
             },
@@ -300,21 +300,21 @@ stdout:
         "kind": 13,
         "range": {
           "start": {
-            "line": 16,
+            "line": 17,
             "character": 4
           },
           "end": {
-            "line": 16,
+            "line": 17,
             "character": 9
           }
         },
         "selectionRange": {
           "start": {
-            "line": 16,
+            "line": 17,
             "character": 4
           },
           "end": {
-            "line": 16,
+            "line": 17,
             "character": 5
           }
         },
@@ -325,21 +325,21 @@ stdout:
         "kind": 13,
         "range": {
           "start": {
-            "line": 18,
+            "line": 19,
             "character": 4
           },
           "end": {
-            "line": 18,
+            "line": 19,
             "character": 5
           }
         },
         "selectionRange": {
           "start": {
-            "line": 18,
+            "line": 19,
             "character": 4
           },
           "end": {
-            "line": 18,
+            "line": 19,
             "character": 5
           }
         },
@@ -350,21 +350,21 @@ stdout:
         "kind": 13,
         "range": {
           "start": {
-            "line": 18,
+            "line": 19,
             "character": 7
           },
           "end": {
-            "line": 18,
+            "line": 19,
             "character": 12
           }
         },
         "selectionRange": {
           "start": {
-            "line": 18,
+            "line": 19,
             "character": 7
           },
           "end": {
-            "line": 18,
+            "line": 19,
             "character": 8
           }
         },
@@ -375,21 +375,21 @@ stdout:
         "kind": 12,
         "range": {
           "start": {
-            "line": 59,
+            "line": 60,
             "character": 15
           },
           "end": {
-            "line": 59,
+            "line": 60,
             "character": 42
           }
         },
         "selectionRange": {
           "start": {
-            "line": 59,
+            "line": 60,
             "character": 15
           },
           "end": {
-            "line": 59,
+            "line": 60,
             "character": 24
           }
         },
@@ -400,21 +400,21 @@ stdout:
         "kind": 12,
         "range": {
           "start": {
-            "line": 65,
+            "line": 66,
             "character": 4
           },
           "end": {
-            "line": 65,
+            "line": 66,
             "character": 14
           }
         },
         "selectionRange": {
           "start": {
-            "line": 65,
+            "line": 66,
             "character": 4
           },
           "end": {
-            "line": 65,
+            "line": 66,
             "character": 12
           }
         },
@@ -424,21 +424,21 @@ stdout:
             "kind": 13,
             "range": {
               "start": {
-                "line": 67,
+                "line": 68,
                 "character": 8
               },
               "end": {
-                "line": 67,
+                "line": 68,
                 "character": 9
               }
             },
             "selectionRange": {
               "start": {
-                "line": 67,
+                "line": 68,
                 "character": 8
               },
               "end": {
-                "line": 67,
+                "line": 68,
                 "character": 9
               }
             },
@@ -451,21 +451,21 @@ stdout:
         "kind": 12,
         "range": {
           "start": {
-            "line": 112,
+            "line": 113,
             "character": 5
           },
           "end": {
-            "line": 112,
+            "line": 113,
             "character": 8
           }
         },
         "selectionRange": {
           "start": {
-            "line": 112,
+            "line": 113,
             "character": 5
           },
           "end": {
-            "line": 112,
+            "line": 113,
             "character": 6
           }
         },
@@ -476,21 +476,21 @@ stdout:
         "kind": 12,
         "range": {
           "start": {
-            "line": 116,
+            "line": 117,
             "character": 5
           },
           "end": {
-            "line": 116,
+            "line": 117,
             "character": 9
           }
         },
         "selectionRange": {
           "start": {
-            "line": 116,
+            "line": 117,
             "character": 5
           },
           "end": {
-            "line": 116,
+            "line": 117,
             "character": 7
           }
         },
@@ -500,21 +500,21 @@ stdout:
             "kind": 13,
             "range": {
               "start": {
-                "line": 118,
+                "line": 119,
                 "character": 6
               },
               "end": {
-                "line": 118,
+                "line": 119,
                 "character": 21
               }
             },
             "selectionRange": {
               "start": {
-                "line": 118,
+                "line": 119,
                 "character": 6
               },
               "end": {
-                "line": 118,
+                "line": 119,
                 "character": 7
               }
             },
@@ -527,21 +527,21 @@ stdout:
         "kind": 3,
         "range": {
           "start": {
-            "line": 103,
+            "line": 104,
             "character": 0
           },
           "end": {
-            "line": 110,
+            "line": 111,
             "character": 1
           }
         },
         "selectionRange": {
           "start": {
-            "line": 103,
+            "line": 104,
             "character": 10
           },
           "end": {
-            "line": 103,
+            "line": 104,
             "character": 15
           }
         },
@@ -551,21 +551,21 @@ stdout:
             "kind": 13,
             "range": {
               "start": {
-                "line": 109,
+                "line": 110,
                 "character": 8
               },
               "end": {
-                "line": 109,
+                "line": 110,
                 "character": 11
               }
             },
             "selectionRange": {
               "start": {
-                "line": 109,
+                "line": 110,
                 "character": 8
               },
               "end": {
-                "line": 109,
+                "line": 110,
                 "character": 11
               }
             },
@@ -576,21 +576,21 @@ stdout:
             "kind": 12,
             "range": {
               "start": {
-                "line": 105,
+                "line": 106,
                 "character": 9
               },
               "end": {
-                "line": 105,
+                "line": 106,
                 "character": 18
               }
             },
             "selectionRange": {
               "start": {
-                "line": 105,
+                "line": 106,
                 "character": 9
               },
               "end": {
-                "line": 105,
+                "line": 106,
                 "character": 11
               }
             },
@@ -603,21 +603,21 @@ stdout:
         "kind": 2,
         "range": {
           "start": {
-            "line": 73,
+            "line": 74,
             "character": 0
           },
           "end": {
-            "line": 100,
+            "line": 101,
             "character": 1
           }
         },
         "selectionRange": {
           "start": {
-            "line": 73,
+            "line": 74,
             "character": 11
           },
           "end": {
-            "line": 73,
+            "line": 74,
             "character": 19
           }
         },
@@ -627,21 +627,21 @@ stdout:
             "kind": 12,
             "range": {
               "start": {
-                "line": 75,
+                "line": 76,
                 "character": 9
               },
               "end": {
-                "line": 75,
+                "line": 76,
                 "character": 71
               }
             },
             "selectionRange": {
               "start": {
-                "line": 75,
+                "line": 76,
                 "character": 9
               },
               "end": {
-                "line": 75,
+                "line": 76,
                 "character": 12
               }
             },
@@ -651,21 +651,21 @@ stdout:
                 "kind": 13,
                 "range": {
                   "start": {
-                    "line": 81,
+                    "line": 82,
                     "character": 13
                   },
                   "end": {
-                    "line": 81,
+                    "line": 82,
                     "character": 27
                   }
                 },
                 "selectionRange": {
                   "start": {
-                    "line": 81,
+                    "line": 82,
                     "character": 13
                   },
                   "end": {
-                    "line": 81,
+                    "line": 82,
                     "character": 14
                   }
                 },
@@ -676,21 +676,21 @@ stdout:
                 "kind": 13,
                 "range": {
                   "start": {
-                    "line": 83,
+                    "line": 84,
                     "character": 13
                   },
                   "end": {
-                    "line": 83,
+                    "line": 84,
                     "character": 36
                   }
                 },
                 "selectionRange": {
                   "start": {
-                    "line": 83,
+                    "line": 84,
                     "character": 13
                   },
                   "end": {
-                    "line": 83,
+                    "line": 84,
                     "character": 14
                   }
                 },
@@ -701,21 +701,21 @@ stdout:
                 "kind": 13,
                 "range": {
                   "start": {
-                    "line": 84,
+                    "line": 85,
                     "character": 12
                   },
                   "end": {
-                    "line": 84,
+                    "line": 85,
                     "character": 27
                   }
                 },
                 "selectionRange": {
                   "start": {
-                    "line": 84,
+                    "line": 85,
                     "character": 12
                   },
                   "end": {
-                    "line": 84,
+                    "line": 85,
                     "character": 14
                   }
                 },
@@ -726,21 +726,21 @@ stdout:
                 "kind": 13,
                 "range": {
                   "start": {
-                    "line": 86,
+                    "line": 87,
                     "character": 12
                   },
                   "end": {
-                    "line": 86,
+                    "line": 87,
                     "character": 24
                   }
                 },
                 "selectionRange": {
                   "start": {
-                    "line": 86,
+                    "line": 87,
                     "character": 12
                   },
                   "end": {
-                    "line": 86,
+                    "line": 87,
                     "character": 13
                   }
                 },
@@ -751,21 +751,21 @@ stdout:
                 "kind": 13,
                 "range": {
                   "start": {
-                    "line": 89,
+                    "line": 90,
                     "character": 12
                   },
                   "end": {
-                    "line": 89,
+                    "line": 90,
                     "character": 29
                   }
                 },
                 "selectionRange": {
                   "start": {
-                    "line": 89,
+                    "line": 90,
                     "character": 12
                   },
                   "end": {
-                    "line": 89,
+                    "line": 90,
                     "character": 15
                   }
                 },
@@ -776,21 +776,21 @@ stdout:
                 "kind": 13,
                 "range": {
                   "start": {
-                    "line": 90,
+                    "line": 91,
                     "character": 8
                   },
                   "end": {
-                    "line": 92,
+                    "line": 93,
                     "character": 9
                   }
                 },
                 "selectionRange": {
                   "start": {
-                    "line": 90,
+                    "line": 91,
                     "character": 8
                   },
                   "end": {
-                    "line": 92,
+                    "line": 93,
                     "character": 9
                   }
                 },
@@ -801,21 +801,21 @@ stdout:
                 "kind": 13,
                 "range": {
                   "start": {
-                    "line": 90,
+                    "line": 91,
                     "character": 8
                   },
                   "end": {
-                    "line": 92,
+                    "line": 93,
                     "character": 9
                   }
                 },
                 "selectionRange": {
                   "start": {
-                    "line": 90,
+                    "line": 91,
                     "character": 8
                   },
                   "end": {
-                    "line": 92,
+                    "line": 93,
                     "character": 9
                   }
                 },
@@ -826,21 +826,21 @@ stdout:
                 "kind": 13,
                 "range": {
                   "start": {
-                    "line": 90,
+                    "line": 91,
                     "character": 8
                   },
                   "end": {
-                    "line": 92,
+                    "line": 93,
                     "character": 9
                   }
                 },
                 "selectionRange": {
                   "start": {
-                    "line": 90,
+                    "line": 91,
                     "character": 13
                   },
                   "end": {
-                    "line": 90,
+                    "line": 91,
                     "character": 14
                   }
                 },
@@ -851,21 +851,21 @@ stdout:
                 "kind": 13,
                 "range": {
                   "start": {
-                    "line": 93,
+                    "line": 94,
                     "character": 12
                   },
                   "end": {
-                    "line": 93,
+                    "line": 94,
                     "character": 24
                   }
                 },
                 "selectionRange": {
                   "start": {
-                    "line": 93,
+                    "line": 94,
                     "character": 16
                   },
                   "end": {
-                    "line": 93,
+                    "line": 94,
                     "character": 20
                   }
                 },
@@ -876,21 +876,21 @@ stdout:
                 "kind": 13,
                 "range": {
                   "start": {
-                    "line": 97,
+                    "line": 98,
                     "character": 14
                   },
                   "end": {
-                    "line": 97,
+                    "line": 98,
                     "character": 23
                   }
                 },
                 "selectionRange": {
                   "start": {
-                    "line": 97,
+                    "line": 98,
                     "character": 14
                   },
                   "end": {
-                    "line": 97,
+                    "line": 98,
                     "character": 15
                   }
                 },
@@ -905,21 +905,21 @@ stdout:
         "kind": 5,
         "range": {
           "start": {
-            "line": 21,
+            "line": 22,
             "character": 6
           },
           "end": {
-            "line": 21,
+            "line": 22,
             "character": 9
           }
         },
         "selectionRange": {
           "start": {
-            "line": 21,
+            "line": 22,
             "character": 6
           },
           "end": {
-            "line": 21,
+            "line": 22,
             "character": 9
           }
         },
@@ -929,21 +929,21 @@ stdout:
             "kind": 13,
             "range": {
               "start": {
-                "line": 23,
+                "line": 24,
                 "character": 8
               },
               "end": {
-                "line": 23,
+                "line": 24,
                 "character": 13
               }
             },
             "selectionRange": {
               "start": {
-                "line": 23,
+                "line": 24,
                 "character": 8
               },
               "end": {
-                "line": 23,
+                "line": 24,
                 "character": 13
               }
             },
@@ -954,21 +954,21 @@ stdout:
             "kind": 12,
             "range": {
               "start": {
-                "line": 31,
+                "line": 32,
                 "character": 9
               },
               "end": {
-                "line": 31,
+                "line": 32,
                 "character": 16
               }
             },
             "selectionRange": {
               "start": {
-                "line": 31,
+                "line": 32,
                 "character": 9
               },
               "end": {
-                "line": 31,
+                "line": 32,
                 "character": 14
               }
             },
@@ -979,21 +979,21 @@ stdout:
             "kind": 12,
             "range": {
               "start": {
-                "line": 35,
+                "line": 36,
                 "character": 9
               },
               "end": {
-                "line": 35,
+                "line": 36,
                 "character": 17
               }
             },
             "selectionRange": {
               "start": {
-                "line": 35,
+                "line": 36,
                 "character": 9
               },
               "end": {
-                "line": 35,
+                "line": 36,
                 "character": 15
               }
             },
@@ -1004,21 +1004,21 @@ stdout:
             "kind": 9,
             "range": {
               "start": {
-                "line": 26,
+                "line": 27,
                 "character": 4
               },
               "end": {
-                "line": 26,
+                "line": 27,
                 "character": 18
               }
             },
             "selectionRange": {
               "start": {
-                "line": 26,
+                "line": 27,
                 "character": 4
               },
               "end": {
-                "line": 26,
+                "line": 27,
                 "character": 7
               }
             },
@@ -1031,21 +1031,21 @@ stdout:
         "kind": 5,
         "range": {
           "start": {
-            "line": 40,
+            "line": 41,
             "character": 6
           },
           "end": {
-            "line": 40,
+            "line": 41,
             "character": 19
           }
         },
         "selectionRange": {
           "start": {
-            "line": 40,
+            "line": 41,
             "character": 6
           },
           "end": {
-            "line": 40,
+            "line": 41,
             "character": 19
           }
         },
@@ -1057,11 +1057,11 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 44,
+              "line": 45,
               "character": 5
             },
             "end": {
-              "line": 44,
+              "line": 45,
               "character": 10
             }
           },
@@ -1073,11 +1073,11 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 46,
+              "line": 47,
               "character": 4
             },
             "end": {
-              "line": 46,
+              "line": 47,
               "character": 9
             }
           },
@@ -1089,11 +1089,11 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 48,
+              "line": 49,
               "character": 4
             },
             "end": {
-              "line": 48,
+              "line": 49,
               "character": 8
             }
           },
@@ -1105,11 +1105,11 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 49,
+              "line": 50,
               "character": 4
             },
             "end": {
-              "line": 49,
+              "line": 50,
               "character": 7
             }
           },
@@ -1121,11 +1121,11 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 53,
+              "line": 54,
               "character": 5
             },
             "end": {
-              "line": 53,
+              "line": 54,
               "character": 19
             }
           },
@@ -1136,11 +1136,11 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 53,
+              "line": 54,
               "character": 5
             },
             "end": {
-              "line": 53,
+              "line": 54,
               "character": 19
             }
           },
@@ -1151,11 +1151,11 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 53,
+              "line": 54,
               "character": 5
             },
             "end": {
-              "line": 53,
+              "line": 54,
               "character": 19
             }
           },
@@ -1166,11 +1166,11 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 53,
+              "line": 54,
               "character": 5
             },
             "end": {
-              "line": 53,
+              "line": 54,
               "character": 19
             }
           },
@@ -1181,11 +1181,11 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 53,
+              "line": 54,
               "character": 5
             },
             "end": {
-              "line": 53,
+              "line": 54,
               "character": 19
             }
           },
@@ -1228,27 +1228,27 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 16,
+              "line": 17,
               "character": 0
             },
             "end": {
-              "line": 16,
+              "line": 17,
               "character": 9
             }
           },
           "uri": "URI"
         },
-        "doc": "x marks the spot\nstill line one still line one still line one still line one still line one\n\nline two\nline two still\n\nline three\n\n- list item 1\n- list item 2\n- list item 3"
+        "doc": "x marks the spot\nstill line one still line one still line one still line one still line one\n\nline two\nline two still\n\nline three\n\n\n- list item 1\n  still list item 1\n- list item 2\n- list item 3"
       },
       "metadata.zs-y": {
         "loc": {
           "range": {
             "start": {
-              "line": 18,
+              "line": 19,
               "character": 0
             },
             "end": {
-              "line": 18,
+              "line": 19,
               "character": 12
             }
           },
@@ -1260,11 +1260,11 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 18,
+              "line": 19,
               "character": 0
             },
             "end": {
-              "line": 18,
+              "line": 19,
               "character": 12
             }
           },
@@ -1276,27 +1276,27 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 59,
+              "line": 60,
               "character": 15
             },
             "end": {
-              "line": 59,
+              "line": 60,
               "character": 24
             }
           },
           "uri": "URI"
         },
-        "doc": "filters with [`FilterBitflags (F_)`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A53%2C%22character%22%3A5%7D%2C%22end%22%3A%7B%22line%22%3A53%2C%22character%22%3A19%7D%7D%7D)."
+        "doc": "filters with [`FilterBitflags (F_)`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A54%2C%22character%22%3A5%7D%2C%22end%22%3A%7B%22line%22%3A54%2C%22character%22%3A19%7D%7D%7D)."
       },
       "FilterBitflags": {
         "loc": {
           "range": {
             "start": {
-              "line": 53,
+              "line": 54,
               "character": 5
             },
             "end": {
-              "line": 53,
+              "line": 54,
               "character": 19
             }
           },
@@ -1317,17 +1317,17 @@ stdout:
           },
           "uri": "URI"
         },
-        "doc": "Prints the passed value to the output console. Includes a newline character\nafter the value.\n\n**@deprecated_alias** TraceLWeapon\nTraceEWeapon\nTraceNPC\nTraceFFC\nTraceItem\nTraceItemData"
+        "doc": "Prints the passed value to the output console. Includes a newline character\nafter the value.\n\n\n**@deprecated_alias** TraceLWeapon\nTraceEWeapon\nTraceNPC\nTraceFFC\nTraceItem\nTraceItemData"
       },
       "do_filter-f": {
         "loc": {
           "range": {
             "start": {
-              "line": 59,
+              "line": 60,
               "character": 40
             },
             "end": {
-              "line": 59,
+              "line": 60,
               "character": 41
             }
           },
@@ -1338,11 +1338,11 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 65,
+              "line": 66,
               "character": 4
             },
             "end": {
-              "line": 65,
+              "line": 66,
               "character": 12
             }
           },
@@ -1353,11 +1353,11 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 21,
+              "line": 22,
               "character": 6
             },
             "end": {
-              "line": 21,
+              "line": 22,
               "character": 9
             }
           },
@@ -1369,11 +1369,11 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 67,
+              "line": 68,
               "character": 4
             },
             "end": {
-              "line": 67,
+              "line": 68,
               "character": 9
             }
           },
@@ -1384,11 +1384,11 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 112,
+              "line": 113,
               "character": 5
             },
             "end": {
-              "line": 112,
+              "line": 113,
               "character": 6
             }
           },
@@ -1399,11 +1399,11 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 116,
+              "line": 117,
               "character": 5
             },
             "end": {
-              "line": 116,
+              "line": 117,
               "character": 7
             }
           },
@@ -1414,11 +1414,11 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 118,
+              "line": 119,
               "character": 1
             },
             "end": {
-              "line": 118,
+              "line": 119,
               "character": 21
             }
           },
@@ -1429,43 +1429,43 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 109,
+              "line": 110,
               "character": 8
             },
             "end": {
-              "line": 109,
+              "line": 110,
               "character": 11
             }
           },
           "uri": "URI"
         },
-        "doc": "hmmmmmm See [`utils::fn()`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A105%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A105%2C%22character%22%3A11%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A16%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A16%2C%22character%22%3A5%7D%7D%7D) or [`fn()`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A105%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A105%2C%22character%22%3A11%7D%7D%7D)"
+        "doc": "hmmmmmm See [`utils::fn()`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A106%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A106%2C%22character%22%3A11%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A17%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A17%2C%22character%22%3A5%7D%7D%7D) or [`fn()`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A106%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A106%2C%22character%22%3A11%7D%7D%7D)"
       },
       "fn": {
         "loc": {
           "range": {
             "start": {
-              "line": 105,
+              "line": 106,
               "character": 9
             },
             "end": {
-              "line": 105,
+              "line": 106,
               "character": 11
             }
           },
           "uri": "URI"
         },
-        "doc": "A lovely function. See [`utils::fn()`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A105%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A105%2C%22character%22%3A11%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A16%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A16%2C%22character%22%3A5%7D%7D%7D) or [`fn()`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A105%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A105%2C%22character%22%3A11%7D%7D%7D) or [`Car`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A21%2C%22character%22%3A6%7D%2C%22end%22%3A%7B%22line%22%3A21%2C%22character%22%3A9%7D%7D%7D)"
+        "doc": "A lovely function. See [`utils::fn()`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A106%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A106%2C%22character%22%3A11%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A17%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A17%2C%22character%22%3A5%7D%7D%7D) or [`fn()`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A106%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A106%2C%22character%22%3A11%7D%7D%7D) or [`Car`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A22%2C%22character%22%3A6%7D%2C%22end%22%3A%7B%22line%22%3A22%2C%22character%22%3A9%7D%7D%7D)"
       },
       "script.Metadata": {
         "loc": {
           "range": {
             "start": {
-              "line": 73,
+              "line": 74,
               "character": 11
             },
             "end": {
-              "line": 73,
+              "line": 74,
               "character": 19
             }
           },
@@ -1476,11 +1476,11 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 75,
+              "line": 76,
               "character": 9
             },
             "end": {
-              "line": 75,
+              "line": 76,
               "character": 12
             }
           },
@@ -1508,11 +1508,11 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 26,
+              "line": 27,
               "character": 4
             },
             "end": {
-              "line": 26,
+              "line": 27,
               "character": 7
             }
           },
@@ -1524,27 +1524,27 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 23,
+              "line": 24,
               "character": 4
             },
             "end": {
-              "line": 23,
+              "line": 24,
               "character": 13
             }
           },
           "uri": "URI"
         },
-        "doc": "How fast it goes. See [`the vroom method`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A31%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A31%2C%22character%22%3A14%7D%7D%7D) or [`speed`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A23%2C%22character%22%3A8%7D%2C%22end%22%3A%7B%22line%22%3A23%2C%22character%22%3A13%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A16%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A16%2C%22character%22%3A5%7D%7D%7D) or [`Waitframe()`](command:zscript.openLink?%7B%22file%22%3A%22global.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A103%2C%22character%22%3A14%7D%2C%22end%22%3A%7B%22line%22%3A103%2C%22character%22%3A23%7D%7D%7D) or [`bitmap`](command:zscript.openLink?%7B%22file%22%3A%22bitmap.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A5%2C%22character%22%3A6%7D%2C%22end%22%3A%7B%22line%22%3A5%2C%22character%22%3A12%7D%7D%7D) or [`bitmap::Width`](command:zscript.openLink?%7B%22file%22%3A%22bitmap.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A15%2C%22character%22%3A20%7D%2C%22end%22%3A%7B%22line%22%3A15%2C%22character%22%3A25%7D%7D%7D)"
+        "doc": "How fast it goes. See [`the vroom method`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A32%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A32%2C%22character%22%3A14%7D%7D%7D) or [`speed`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A24%2C%22character%22%3A8%7D%2C%22end%22%3A%7B%22line%22%3A24%2C%22character%22%3A13%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A17%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A17%2C%22character%22%3A5%7D%7D%7D) or [`Waitframe()`](command:zscript.openLink?%7B%22file%22%3A%22global.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A103%2C%22character%22%3A14%7D%2C%22end%22%3A%7B%22line%22%3A103%2C%22character%22%3A23%7D%7D%7D) or [`bitmap`](command:zscript.openLink?%7B%22file%22%3A%22bitmap.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A5%2C%22character%22%3A6%7D%2C%22end%22%3A%7B%22line%22%3A5%2C%22character%22%3A12%7D%7D%7D) or [`bitmap::Width`](command:zscript.openLink?%7B%22file%22%3A%22bitmap.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A15%2C%22character%22%3A20%7D%2C%22end%22%3A%7B%22line%22%3A15%2C%22character%22%3A25%7D%7D%7D)"
       },
       "run-radius": {
         "loc": {
           "range": {
             "start": {
-              "line": 75,
+              "line": 76,
               "character": 17
             },
             "end": {
-              "line": 75,
+              "line": 76,
               "character": 23
             }
           },
@@ -1555,11 +1555,11 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 40,
+              "line": 41,
               "character": 6
             },
             "end": {
-              "line": 40,
+              "line": 41,
               "character": 19
             }
           },
@@ -1570,11 +1570,11 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 83,
+              "line": 84,
               "character": 8
             },
             "end": {
-              "line": 83,
+              "line": 84,
               "character": 36
             }
           },
@@ -1585,11 +1585,11 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 40,
+              "line": 41,
               "character": 6
             },
             "end": {
-              "line": 40,
+              "line": 41,
               "character": 19
             }
           },
@@ -1600,11 +1600,11 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 84,
+              "line": 85,
               "character": 8
             },
             "end": {
-              "line": 84,
+              "line": 85,
               "character": 27
             }
           },
@@ -1615,17 +1615,17 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 86,
+              "line": 87,
               "character": 8
             },
             "end": {
-              "line": 86,
+              "line": 87,
               "character": 24
             }
           },
           "uri": "URI"
         },
-        "doc": "equal to [`c->speed`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A23%2C%22character%22%3A8%7D%2C%22end%22%3A%7B%22line%22%3A23%2C%22character%22%3A13%7D%7D%7D)"
+        "doc": "equal to [`c->speed`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A24%2C%22character%22%3A8%7D%2C%22end%22%3A%7B%22line%22%3A24%2C%22character%22%3A13%7D%7D%7D)"
       },
       "WrapDeg": {
         "loc": {
@@ -1641,17 +1641,17 @@ stdout:
           },
           "uri": "URI"
         },
-        "doc": "Returns the [`degrees`](command:zscript.openLink?%7B%22file%22%3A%22global.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A769%2C%22character%22%3A39%7D%2C%22end%22%3A%7B%22line%22%3A769%2C%22character%22%3A46%7D%7D%7D) value, wrapped between [-180,180)\n\n**@alias** WrapDeg"
+        "doc": "Returns the [`degrees`](command:zscript.openLink?%7B%22file%22%3A%22global.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A769%2C%22character%22%3A39%7D%2C%22end%22%3A%7B%22line%22%3A769%2C%22character%22%3A46%7D%7D%7D) value, wrapped between [-180,180)\n\n\n**@alias** WrapDeg"
       },
       "arr": {
         "loc": {
           "range": {
             "start": {
-              "line": 89,
+              "line": 90,
               "character": 8
             },
             "end": {
-              "line": 89,
+              "line": 90,
               "character": 29
             }
           },
@@ -1663,11 +1663,11 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 90,
+              "line": 91,
               "character": 13
             },
             "end": {
-              "line": 90,
+              "line": 91,
               "character": 14
             }
           },
@@ -1678,11 +1678,11 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 90,
+              "line": 91,
               "character": 8
             },
             "end": {
-              "line": 92,
+              "line": 93,
               "character": 9
             }
           },
@@ -1693,11 +1693,11 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 90,
+              "line": 91,
               "character": 8
             },
             "end": {
-              "line": 92,
+              "line": 93,
               "character": 9
             }
           },
@@ -1708,11 +1708,11 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 93,
+              "line": 94,
               "character": 16
             },
             "end": {
-              "line": 93,
+              "line": 94,
               "character": 20
             }
           },
@@ -1723,11 +1723,11 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 44,
+              "line": 45,
               "character": 5
             },
             "end": {
-              "line": 44,
+              "line": 45,
               "character": 10
             }
           },
@@ -1739,27 +1739,27 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 23,
+              "line": 24,
               "character": 4
             },
             "end": {
-              "line": 23,
+              "line": 24,
               "character": 13
             }
           },
           "uri": "URI"
         },
-        "doc": "How fast it goes. See [`the vroom method`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A31%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A31%2C%22character%22%3A14%7D%7D%7D) or [`speed`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A23%2C%22character%22%3A8%7D%2C%22end%22%3A%7B%22line%22%3A23%2C%22character%22%3A13%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A16%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A16%2C%22character%22%3A5%7D%7D%7D) or [`Waitframe()`](command:zscript.openLink?%7B%22file%22%3A%22global.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A103%2C%22character%22%3A14%7D%2C%22end%22%3A%7B%22line%22%3A103%2C%22character%22%3A23%7D%7D%7D) or [`bitmap`](command:zscript.openLink?%7B%22file%22%3A%22bitmap.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A5%2C%22character%22%3A6%7D%2C%22end%22%3A%7B%22line%22%3A5%2C%22character%22%3A12%7D%7D%7D) or [`bitmap::Width`](command:zscript.openLink?%7B%22file%22%3A%22bitmap.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A15%2C%22character%22%3A20%7D%2C%22end%22%3A%7B%22line%22%3A15%2C%22character%22%3A25%7D%7D%7D)"
+        "doc": "How fast it goes. See [`the vroom method`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A32%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A32%2C%22character%22%3A14%7D%7D%7D) or [`speed`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A24%2C%22character%22%3A8%7D%2C%22end%22%3A%7B%22line%22%3A24%2C%22character%22%3A13%7D%7D%7D) or [`x`](command:zscript.openLink?%7B%22file%22%3A%22metadata.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A17%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A17%2C%22character%22%3A5%7D%7D%7D) or [`Waitframe()`](command:zscript.openLink?%7B%22file%22%3A%22global.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A103%2C%22character%22%3A14%7D%2C%22end%22%3A%7B%22line%22%3A103%2C%22character%22%3A23%7D%7D%7D) or [`bitmap`](command:zscript.openLink?%7B%22file%22%3A%22bitmap.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A5%2C%22character%22%3A6%7D%2C%22end%22%3A%7B%22line%22%3A5%2C%22character%22%3A12%7D%7D%7D) or [`bitmap::Width`](command:zscript.openLink?%7B%22file%22%3A%22bitmap.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A15%2C%22character%22%3A20%7D%2C%22end%22%3A%7B%22line%22%3A15%2C%22character%22%3A25%7D%7D%7D)"
       },
       "vroom": {
         "loc": {
           "range": {
             "start": {
-              "line": 31,
+              "line": 32,
               "character": 9
             },
             "end": {
-              "line": 31,
+              "line": 32,
               "character": 14
             }
           },
@@ -1771,11 +1771,11 @@ stdout:
         "loc": {
           "range": {
             "start": {
-              "line": 35,
+              "line": 36,
               "character": 9
             },
             "end": {
-              "line": 35,
+              "line": 36,
               "character": 15
             }
           },
@@ -1786,7 +1786,7 @@ stdout:
     "identifiers": [
       {
         "loc": {
-          "line": 44,
+          "line": 45,
           "character": 5,
           "length": 5
         },
@@ -1794,7 +1794,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 46,
+          "line": 47,
           "character": 4,
           "length": 5
         },
@@ -1802,7 +1802,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 48,
+          "line": 49,
           "character": 4,
           "length": 4
         },
@@ -1810,7 +1810,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 49,
+          "line": 50,
           "character": 4,
           "length": 3
         },
@@ -1818,7 +1818,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 53,
+          "line": 54,
           "character": 5,
           "length": 14
         },
@@ -1826,7 +1826,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 55,
+          "line": 56,
           "character": 4,
           "length": 7
         },
@@ -1834,7 +1834,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 55,
+          "line": 56,
           "character": 13,
           "length": 6
         },
@@ -1842,7 +1842,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 55,
+          "line": 56,
           "character": 21,
           "length": 7
         },
@@ -1850,7 +1850,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 55,
+          "line": 56,
           "character": 30,
           "length": 6
         },
@@ -1882,7 +1882,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 16,
+          "line": 17,
           "character": 4,
           "length": 1
         },
@@ -1890,7 +1890,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 18,
+          "line": 19,
           "character": 4,
           "length": 1
         },
@@ -1898,7 +1898,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 18,
+          "line": 19,
           "character": 7,
           "length": 1
         },
@@ -1906,7 +1906,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 59,
+          "line": 60,
           "character": 15,
           "length": 9
         },
@@ -1914,7 +1914,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 59,
+          "line": 60,
           "character": 0,
           "length": 14
         },
@@ -1922,7 +1922,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 61,
+          "line": 62,
           "character": 4,
           "length": 5
         },
@@ -1930,7 +1930,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 61,
+          "line": 62,
           "character": 10,
           "length": 1
         },
@@ -1938,7 +1938,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 62,
+          "line": 63,
           "character": 11,
           "length": 1
         },
@@ -1946,7 +1946,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 65,
+          "line": 66,
           "character": 4,
           "length": 8
         },
@@ -1954,7 +1954,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 65,
+          "line": 66,
           "character": 0,
           "length": 3
         },
@@ -1962,7 +1962,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 67,
+          "line": 68,
           "character": 4,
           "length": 3
         },
@@ -1970,7 +1970,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 67,
+          "line": 68,
           "character": 8,
           "length": 1
         },
@@ -1978,7 +1978,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 68,
+          "line": 69,
           "character": 11,
           "length": 1
         },
@@ -1986,7 +1986,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 112,
+          "line": 113,
           "character": 5,
           "length": 1
         },
@@ -1994,7 +1994,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 116,
+          "line": 117,
           "character": 5,
           "length": 2
         },
@@ -2002,7 +2002,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 118,
+          "line": 119,
           "character": 6,
           "length": 1
         },
@@ -2010,7 +2010,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 118,
+          "line": 119,
           "character": 18,
           "length": 1
         },
@@ -2018,7 +2018,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 119,
+          "line": 120,
           "character": 8,
           "length": 1
         },
@@ -2026,7 +2026,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 109,
+          "line": 110,
           "character": 8,
           "length": 3
         },
@@ -2034,7 +2034,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 105,
+          "line": 106,
           "character": 9,
           "length": 2
         },
@@ -2042,7 +2042,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 73,
+          "line": 74,
           "character": 11,
           "length": 8
         },
@@ -2050,7 +2050,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 75,
+          "line": 76,
           "character": 9,
           "length": 3
         },
@@ -2058,7 +2058,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 76,
+          "line": 77,
           "character": 8,
           "length": 6
         },
@@ -2066,7 +2066,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 76,
+          "line": 77,
           "character": 26,
           "length": 7
         },
@@ -2074,7 +2074,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 76,
+          "line": 77,
           "character": 36,
           "length": 8
         },
@@ -2082,7 +2082,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 76,
+          "line": 77,
           "character": 50,
           "length": 1
         },
@@ -2090,7 +2090,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 77,
+          "line": 78,
           "character": 15,
           "length": 2
         },
@@ -2098,7 +2098,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 77,
+          "line": 78,
           "character": 18,
           "length": 7
         },
@@ -2106,7 +2106,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 78,
+          "line": 79,
           "character": 8,
           "length": 9
         },
@@ -2114,7 +2114,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 78,
+          "line": 79,
           "character": 18,
           "length": 7
         },
@@ -2122,7 +2122,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 81,
+          "line": 82,
           "character": 8,
           "length": 4
         },
@@ -2130,7 +2130,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 81,
+          "line": 82,
           "character": 13,
           "length": 1
         },
@@ -2138,7 +2138,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 81,
+          "line": 82,
           "character": 21,
           "length": 3
         },
@@ -2146,7 +2146,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 82,
+          "line": 83,
           "character": 8,
           "length": 6
         },
@@ -2154,7 +2154,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 82,
+          "line": 83,
           "character": 32,
           "length": 5
         },
@@ -2162,7 +2162,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 82,
+          "line": 83,
           "character": 29,
           "length": 1
         },
@@ -2170,7 +2170,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 82,
+          "line": 83,
           "character": 39,
           "length": 6
         },
@@ -2178,7 +2178,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 82,
+          "line": 83,
           "character": 54,
           "length": 3
         },
@@ -2186,7 +2186,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 82,
+          "line": 83,
           "character": 60,
           "length": 1
         },
@@ -2194,7 +2194,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 82,
+          "line": 83,
           "character": 64,
           "length": 1
         },
@@ -2202,7 +2202,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 82,
+          "line": 83,
           "character": 68,
           "length": 4
         },
@@ -2210,7 +2210,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 82,
+          "line": 83,
           "character": 75,
           "length": 5
         },
@@ -2218,7 +2218,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 82,
+          "line": 83,
           "character": 83,
           "length": 3
         },
@@ -2226,7 +2226,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 83,
+          "line": 84,
           "character": 8,
           "length": 4
         },
@@ -2234,7 +2234,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 83,
+          "line": 84,
           "character": 13,
           "length": 1
         },
@@ -2242,7 +2242,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 83,
+          "line": 84,
           "character": 21,
           "length": 13
         },
@@ -2250,7 +2250,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 84,
+          "line": 85,
           "character": 8,
           "length": 3
         },
@@ -2258,7 +2258,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 84,
+          "line": 85,
           "character": 12,
           "length": 2
         },
@@ -2266,7 +2266,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 84,
+          "line": 85,
           "character": 21,
           "length": 3
         },
@@ -2274,7 +2274,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 86,
+          "line": 87,
           "character": 12,
           "length": 1
         },
@@ -2282,7 +2282,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 86,
+          "line": 87,
           "character": 19,
           "length": 5
         },
@@ -2290,7 +2290,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 86,
+          "line": 87,
           "character": 16,
           "length": 1
         },
@@ -2298,7 +2298,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 87,
+          "line": 88,
           "character": 8,
           "length": 7
         },
@@ -2306,7 +2306,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 87,
+          "line": 88,
           "character": 16,
           "length": 1
         },
@@ -2314,7 +2314,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 89,
+          "line": 90,
           "character": 12,
           "length": 3
         },
@@ -2322,7 +2322,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 90,
+          "line": 91,
           "character": 17,
           "length": 3
         },
@@ -2330,7 +2330,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 91,
+          "line": 92,
           "character": 12,
           "length": 5
         },
@@ -2338,7 +2338,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 91,
+          "line": 92,
           "character": 18,
           "length": 1
         },
@@ -2346,7 +2346,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 90,
+          "line": 91,
           "character": 8,
           "length": 1
         },
@@ -2354,7 +2354,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 90,
+          "line": 91,
           "character": 8,
           "length": 1
         },
@@ -2362,7 +2362,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 90,
+          "line": 91,
           "character": 17,
           "length": 3
         },
@@ -2370,7 +2370,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 90,
+          "line": 91,
           "character": 13,
           "length": 1
         },
@@ -2378,7 +2378,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 93,
+          "line": 94,
           "character": 16,
           "length": 4
         },
@@ -2386,7 +2386,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 93,
+          "line": 94,
           "character": 16,
           "length": 4
         },
@@ -2394,7 +2394,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 95,
+          "line": 96,
           "character": 12,
           "length": 5
         },
@@ -2402,7 +2402,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 95,
+          "line": 96,
           "character": 18,
           "length": 4
         },
@@ -2410,7 +2410,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 97,
+          "line": 98,
           "character": 8,
           "length": 5
         },
@@ -2418,7 +2418,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 97,
+          "line": 98,
           "character": 14,
           "length": 1
         },
@@ -2426,7 +2426,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 97,
+          "line": 98,
           "character": 18,
           "length": 5
         },
@@ -2434,7 +2434,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 98,
+          "line": 99,
           "character": 8,
           "length": 5
         },
@@ -2442,7 +2442,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 98,
+          "line": 99,
           "character": 14,
           "length": 1
         },
@@ -2450,7 +2450,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 21,
+          "line": 22,
           "character": 6,
           "length": 3
         },
@@ -2458,7 +2458,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 23,
+          "line": 24,
           "character": 8,
           "length": 5
         },
@@ -2466,7 +2466,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 31,
+          "line": 32,
           "character": 9,
           "length": 5
         },
@@ -2474,7 +2474,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 32,
+          "line": 33,
           "character": 8,
           "length": 5
         },
@@ -2482,7 +2482,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 35,
+          "line": 36,
           "character": 9,
           "length": 6
         },
@@ -2490,7 +2490,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 36,
+          "line": 37,
           "character": 8,
           "length": 5
         },
@@ -2498,7 +2498,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 26,
+          "line": 27,
           "character": 4,
           "length": 3
         },
@@ -2506,7 +2506,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 26,
+          "line": 27,
           "character": 4,
           "length": 14
         },
@@ -2514,7 +2514,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 27,
+          "line": 28,
           "character": 14,
           "length": 5
         },
@@ -2522,7 +2522,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 27,
+          "line": 28,
           "character": 22,
           "length": 5
         },
@@ -2530,7 +2530,7 @@ stdout:
       },
       {
         "loc": {
-          "line": 40,
+          "line": 41,
           "character": 6,
           "length": 13
         },
