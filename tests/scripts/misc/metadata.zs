@@ -11,6 +11,7 @@ int postfix2 = postfix; // THIS COMMENT USED #2
  * line three
  *
  * - list item 1
+ *   still list item 1
  * - list item 2
  * - list item 3
 */
@@ -20,7 +21,7 @@ int y, z = 2;
 
 // A car, duh
 class Car {
-    /** How fast it goes. See {@link vroom|the vroom method} or {@link speed} or [x] or [Waitframe] or [bitmap] or [bitmap::Width] */
+    /** How fast it goes. See [vroom|the vroom method] or [speed] or [x] or [Waitframe] or [bitmap] or [bitmap::Width] */
     int speed;
 
     // a ctor with 1 param
@@ -78,7 +79,7 @@ ffc script Metadata {
         utils::fn(postfix);
         do_filter(F_SHINY);
         // i am a car
-        // {@link lololol|i dont exist}
+        // [lololol|i dont exist]
         auto c = new Car(2);
         printf("%d %d %d\n", c->speed, radius, utils::hmm + y + z + Dull + Fancy + Mid);
         auto d = new IhaveAdefCtor();
@@ -102,12 +103,12 @@ ffc script Metadata {
 
 // a namespace for cool things
 namespace utils {
-    /** A lovely function. See {@link utils::fn} or {@link x} or {@link fn} or {@link Car} */
+    /** A lovely function. See [utils::fn] or [x] or [fn] or [Car] */
     void fn(int a) {
 
     }
 
-    int hmm; // hmmmmmm See {@link utils::fn} or {@link x} or {@link fn}
+    int hmm; // hmmmmmm See [utils::fn] or [x] or [fn]
 }
 
 bool T() {

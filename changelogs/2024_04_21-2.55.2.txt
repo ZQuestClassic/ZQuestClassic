@@ -18,7 +18,6 @@ zc: hardcode 120 for zscript alpha register
   This fixes some quests that only look at the alpha version and,
   seeing it was now 0 presented an error message to the user.
 
-zc: 'delete' within a destructor being buggy
 zc: 'Spotlight' combos on changer/ethereal ffcs still shooting light
 zc: fix buggy color flickering on big player sprites
 zc: some variables being improperly reset on 'Continue'
@@ -36,6 +35,7 @@ std_zh: 'TRIGFLAG_' constants were off-by-one at a certain point in the list
 zscript: some array-related functions breaking for arrays >65535 in size
 zscript: class variables not shadowing global vars properly
 zscript: some wrong error messages related to mapdata FFC access
+zscript: 'delete' within a destructor being buggy
 zscript: disallow casting custom objects to unrelated types
   A bug in type conversion allowed this code to compile:
   

@@ -255,3 +255,8 @@ html[data-theme="light"] code.literal {
 .kill_top_border {
 	border-top-width: 0 !important;
 }
+
+.comment-header {
+	text-decoration: underline;
+	font-size: var(--pst-font-size-h3);
+}

@@ -91,4 +91,3 @@ add newbie_boss.zplay and recompile test
 # Misc.
 
 launcher: remove tounge-in-cheek tooltip from Fullscreen checkbox
-

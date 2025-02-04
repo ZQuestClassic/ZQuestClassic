@@ -250,7 +250,7 @@ class combodata {
 
 	// How to flip (or rotate) the combo.
 	//
-	// @value {@link TransformationType|TransformationType (FLIP_ or ROT_)}
+	// @value [TransformationType|TransformationType (FLIP_ or ROT_)]
 	// @zasm_var COMBODFLIP
 	internal int Flip;
 

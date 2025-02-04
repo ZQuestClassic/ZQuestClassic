@@ -296,7 +296,8 @@ class bitmap {
 	// ```
 	//
 	// @param cx, cy - if non-zero, the pivot point to center the rotation around.
-	// @param lit - if non-zero, the color to use a lit mode. This tints the entire bitmap using that color index of the main palette.
+	// @param lit - if non-zero, the color to use a lit mode. This tints the entire
+	//              bitmap using that color index of the main palette.
 	//
 	// @zasm
 	//   BMPBLIT
@@ -331,7 +332,8 @@ class bitmap {
 	// ```
 	//
 	// @param cx, cy - if non-zero, the pivot point to center the rotation around.
-	// @param lit - if non-zero, the color to use a lit mode. This tints the entire bitmap using that color index of the main palette.
+	// @param lit - if non-zero, the color to use a lit mode. This tints the entire
+	//              bitmap using that color index of the main palette.
 	//
 	// @alias RevBlit
 	// @zasm
@@ -356,7 +358,8 @@ class bitmap {
 	// ```
 	//
 	// @param cx, cy - if non-zero, the pivot point to center the rotation around.
-	// @param lit - if non-zero, the color to use a lit mode. This tints the entire bitmap using that color index of the main palette.
+	// @param lit - if non-zero, the color to use a lit mode. This tints the entire
+	//              bitmap using that color index of the main palette.
 	//
 	// @zasm
 	//   BMPTILEBLIT
@@ -379,7 +382,8 @@ class bitmap {
 	// ```
 	//
 	// @param cx, cy - if non-zero, the pivot point to center the rotation around.
-	// @param lit - if non-zero, the color to use a lit mode. This tints the entire bitmap using that color index of the main palette.
+	// @param lit - if non-zero, the color to use a lit mode. This tints the entire
+	//              bitmap using that color index of the main palette.
 	//
 	// @zasm
 	//   BMPCOMBOBLIT

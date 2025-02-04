@@ -30,7 +30,9 @@ sections = {
     'Classes': [],
     'Libraries': [],
 }
-git_ref = subprocess.check_output(['git', 'rev-parse', 'HEAD'], encoding='utf-8').strip()
+git_ref = subprocess.check_output(
+    ['git', 'rev-parse', 'HEAD'], encoding='utf-8'
+).strip()
 
 
 def indent(text: str, amount: int, ch=' ') -> str:
@@ -89,7 +91,16 @@ class Location:
 @dataclass
 class Comment:
     text: str
-    tags: dict[str, str]
+    tags: list[tuple[str, str]]
+
+    def has_tag(self, name: str) -> bool:
+        return self.get_tag_single(name) != None
+
+    def get_tag_single(self, name: str) -> Optional[str]:
+        return next((t[1] for t in self.tags if t[0] == name), None)
+
+    def get_tag_many(self, name: str) -> list[str]:
+        return [t[1] for t in self.tags if t[0] == name]
 
 
 @dataclass
@@ -129,7 +140,7 @@ class Variable:
         return reflink(self, self.name)
 
     def deprecated(self) -> bool:
-        return self.comment and bool(self.comment.tags.get('deprecated'))
+        return self.comment and self.comment.has_tag('deprecated')
 
 
 @dataclass
@@ -187,7 +198,7 @@ class Function:
         return reflink(self, self.name)
 
     def deprecated(self) -> bool:
-        return self.comment and bool(self.comment.tags.get('deprecated'))
+        return self.comment and self.comment.has_tag('deprecated')
 
 
 @dataclass
@@ -253,7 +264,35 @@ def parse_doc_type(type_str: str) -> Type:
 def parse_doc_comment(x) -> Optional[Comment]:
     if x.get('comment'):
         text = x['comment']['text']
-        tags = x['comment']['tags']
+        tags = []
+        for k, v in x['comment']['tags'].items():
+            if v == True:
+                tags.append((k, True))
+                continue
+
+            records = v.split('\x1f')
+            for record in records:
+                tags.append((k, record))
+
+            SINGLE_VALUE_TAGS = [
+                'delete',
+                'deprecated_getter',
+                'deprecated',
+                'exit',
+                'extends',
+                'index',
+                'length',
+                'reassign_ptr',
+                'value',
+                'vargs',
+                'zasm_internal_array',
+                'zasm_ref',
+                'zasm_var',
+            ]
+            if len(records) > 1 and k in SINGLE_VALUE_TAGS:
+                raise Exception(
+                    f'tag cannot have multiple values: {x}\n\nTag: {v}\n\nComment: {text}'
+                )
         return Comment(text=text, tags=tags)
 
     return None
@@ -571,8 +610,10 @@ def rst_h2(text: str):
 def reflink(symbol, label='🔗') -> str:
     return f':ref:`{label}<{symbol.loc.ref}>`'
 
+
 def doclink(target, label='🔗') -> str:
     return f':ref:`{label}<{target}>`'
+
 
 def add(text: str):
     lines.append(text)
@@ -641,7 +682,7 @@ def add_comment(symbol):
             )
 
         return reflink(matched_symbol, label)
-    
+
     def replace_docs_link(match: re.Match):
         if '|' in match.group(1):
             docs_key, label = match.group(1).split('|')
@@ -657,7 +698,7 @@ def add_comment(symbol):
         return '$MONO'
 
     def replace_monos_placeholder(match: re.Match):
-        return f'``{monos.pop(0)}``'
+        return f'\\ ``{monos.pop(0)}``'
 
     code_blocks = []
 
@@ -677,24 +718,35 @@ def add_comment(symbol):
         text = re.sub(r'\$MONO', replace_monos_placeholder, text)
         text = re.sub(r'\[@(.+?)@\]', replace_symbol_link, text)
         text = re.sub(r'\[#(.+?)#\]', replace_docs_link, text)
+        text = re.sub(r'^# (.+)', r':comment_header:`\1`', text, flags=re.MULTILINE)
         return text
+
+    def format_comment(text: str) -> str:
+        return indent(sanitize(text), 3)
 
     if symbol.comment and symbol.comment.text:
         add('')
         add('.. rst-class:: classref-comment')
         add('')
-        for tag, value in symbol.comment.tags.items():
-            if tag in ['value', 'index', 'param', 'length']:
-                for line in value.splitlines():
-                    add(indent(sanitize(f'`{tag}` ' + line), 3))
-                    add('')
-                    add('')
+        for tag, value in symbol.comment.tags:
+            if tag in [
+                'alias',
+                'deprecated_alias',
+                'deprecated_getter',
+                'index',
+                'length',
+                'param',
+                'value',
+            ]:
+                add(format_comment(f'`{tag}` ' + value))
+                add('')
+                add('')
         add('')
-        add(indent(sanitize(symbol.comment.text), 3))
+        add(format_comment(symbol.comment.text))
         add('')
 
-    if symbol.comment and symbol.comment.tags.get('deprecated'):
-        notice = symbol.comment.tags['deprecated']
+    if symbol.comment and symbol.comment.has_tag('deprecated'):
+        notice = symbol.comment.get_tag_single('deprecated')
         if notice == True:
             notice = ''
         else:
@@ -702,7 +754,7 @@ def add_comment(symbol):
         add('')
         add('.. deprecated::')
         add('')
-        add(indent(sanitize(notice), 3))
+        add(format_comment(notice))
         add('')
 
 
@@ -880,14 +932,12 @@ def process_bindings_class(file: File, symbol: Class):
 
     add_comment(symbol)
 
-    if symbol.comment and symbol.comment.tags.get('tutorial'):
-        tutorial = symbol.comment.tags.get('tutorial')
-
+    if symbol.comment and symbol.comment.has_tag('tutorial'):
         rst_h2('Tutorials')
-        label = tutorial.replace('tutorials/', '').capitalize()
-        # ref = tutorial.replace('/', '_')
-        add(f'* :doc:`{tutorial}`')
-        add('')
+        for tutorial in symbol.comment.get_tag_many('tutorial'):
+            label = tutorial.replace('tutorials/', '').capitalize()
+            add(f'* :doc:`{tutorial}`')
+            add('')
 
     handle_scope(
         Scope(
@@ -968,8 +1018,8 @@ def write(name: str):
 
 
 for folder in ['classes', 'globals', 'libs']:
-    if (zscript_dir/folder).exists():
-        shutil.rmtree(zscript_dir/folder)
+    if (zscript_dir / folder).exists():
+        shutil.rmtree(zscript_dir / folder)
 
 # handle bindings
 classes = []
@@ -1024,20 +1074,23 @@ for lib in libraries:
 # zscript/index.rst
 rst_title('ZScript')
 
-rst_toc('Language', [
-    'zscript/lang/introduction',
-    'zscript/lang/comments',
-    'zscript/lang/literals',
-    'zscript/lang/keywords',
-    'zscript/lang/declarations/index',
-    'zscript/lang/types/index',
-    'zscript/lang/control_flow/index',
-    'zscript/lang/ranges',
-    'zscript/lang/scripts',
-    'zscript/lang/annotations',
-    'zscript/lang/options',
-    'zscript/lang/compiler_directives',
-])
+rst_toc(
+    'Language',
+    [
+        'zscript/lang/introduction',
+        'zscript/lang/comments',
+        'zscript/lang/literals',
+        'zscript/lang/keywords',
+        'zscript/lang/declarations/index',
+        'zscript/lang/types/index',
+        'zscript/lang/control_flow/index',
+        'zscript/lang/ranges',
+        'zscript/lang/scripts',
+        'zscript/lang/annotations',
+        'zscript/lang/options',
+        'zscript/lang/compiler_directives',
+    ],
+)
 
 add('.. _zsdoc_index:')
 for name, documents in sections.items():

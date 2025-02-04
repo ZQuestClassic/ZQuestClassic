@@ -57,12 +57,8 @@ static void parseForSymbolLinks(Scope* scope, const AST* node, bool check_params
 {
 	// identifier, followed by an optional and non-captured "[]" or "()"
 	static std::string p_ident = "(#?[a-zA-Z_][->:a-zA-Z0-9_]*)(?:\\[\\]|\\(\\))?";
-	static std::string p_link = fmt::format("\\{{@link {}(?:\\|([^}}]+))?\\}}", p_ident);
-	static std::string p_shorthand = fmt::format("\\[{}(?:\\|([^\\]]+))?\\]", p_ident);
-	static std::string p_regex = fmt::format("{}|{}", p_link, p_shorthand);
+	static std::string p_regex = fmt::format("\\[{}(?:\\|([^\\]]+))?\\]", p_ident);
 	// Supports:
-	// {@link symbol}
-	// {@link symbol|text}
 	// [symbol]
 	// [symbol|text]
 	// 'symbol' is either an internal symbol, or an external docs target starting with '#'

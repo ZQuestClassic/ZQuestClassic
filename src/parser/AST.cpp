@@ -59,11 +59,17 @@ AST::AST(LocationData const& location)
 	: location(location), errorDisabled(false), disabled_(false), isRegistered(false), isReachable(true)
 {}
 
+// Parses into a map keyed by annotations (ex: @alias).
+// Duplicate annotations have their values separated by a record separator (\x1f).
+// The empty string contains all the non-annotation text. It is lightly post-processed to
+// be better formatted.
 std::map<std::string, std::string> AST::getParsedDocComment() const
 {
 	std::map<std::string, std::string> result;
 	if (doc_comment.empty())
 		return result;
+
+	std::vector<std::string> comment_lines;
 
 	std::string current_key;
 	std::vector<std::string> lines;
@@ -107,18 +113,55 @@ std::map<std::string, std::string> AST::getParsedDocComment() const
 			util::trimstr(line);
 		}
 
+		if (current_key.empty())
+		{
+			comment_lines.push_back(line);
+			continue;
+		}
+
+		util::trimstr(line);
+
 		bool has_key = result.contains(current_key);
-		if (!current_key.empty() && line.empty() && has_key)
+		if (line.empty() && has_key)
 			continue;
 
 		if (has_key)
-			result[current_key] += "\n" + line;
+			result[current_key] += (starts_with_at && current_key != "zasm" ? "\x1f" : "\n") + line;
 		else
 			result[current_key] = line;
 	}
 
-	if (result.contains(""))
-		util::trimstr(result[""]);
+	if (!comment_lines.empty())
+	{
+		bool in_list = false;
+		for (auto& line : comment_lines)
+		{
+			util::trimstr(line);
+
+			if (in_list)
+			{
+				if (line.empty())
+				{
+					in_list = false;
+					continue;
+				}
+				if (line[0] == '-') continue;
+				line = "  " + line;
+			}
+			else
+			{
+				if (line.empty()) continue;
+				if (line[0] == '-')
+				{
+					in_list = true;
+					line = "\n" + line; // Helps rst generation.
+					continue;
+				}
+			}
+		}
+
+		result[""] = fmt::format("{}", fmt::join(comment_lines, "\n"));
+	}
 
 	return result;
 }

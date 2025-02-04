@@ -1964,7 +1964,7 @@ exports[`ZScript extension Hover tooltips 3-no-json 1`] = `
 [
   {
     "contents": [
-      "How fast it goes. See [\`the vroom method()\`](command:zscript.openLink?%7B%22file%22%3A%22symbols.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A31%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A31%2C%22character%22%3A14%7D%7D%7D) or [\`speed\`](command:zscript.openLink?%7B%22file%22%3A%22symbols.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A23%2C%22character%22%3A8%7D%2C%22end%22%3A%7B%22line%22%3A23%2C%22character%22%3A13%7D%7D%7D) or [\`x\`](command:zscript.openLink?%7B%22file%22%3A%22symbols.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A16%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A16%2C%22character%22%3A5%7D%7D%7D) or [\`Waitframe()\`](command:zscript.openLink?%7B%22file%22%3A%22global.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A27%2C%22character%22%3A14%7D%2C%22end%22%3A%7B%22line%22%3A27%2C%22character%22%3A23%7D%7D%7D) or [\`bitmap\`](command:zscript.openLink?%7B%22file%22%3A%22bitmap.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A1%2C%22character%22%3A6%7D%2C%22end%22%3A%7B%22line%22%3A1%2C%22character%22%3A12%7D%7D%7D) or \`bitmap::Width\`",
+      "How fast it goes. See [vroom|the vroom method] or [\`speed\`](command:zscript.openLink?%7B%22file%22%3A%22symbols.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A23%2C%22character%22%3A8%7D%2C%22end%22%3A%7B%22line%22%3A23%2C%22character%22%3A13%7D%7D%7D) or [\`x\`](command:zscript.openLink?%7B%22file%22%3A%22symbols.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A16%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A16%2C%22character%22%3A5%7D%7D%7D) or [\`Waitframe()\`](command:zscript.openLink?%7B%22file%22%3A%22global.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A27%2C%22character%22%3A14%7D%2C%22end%22%3A%7B%22line%22%3A27%2C%22character%22%3A23%7D%7D%7D) or [\`bitmap\`](command:zscript.openLink?%7B%22file%22%3A%22bitmap.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A1%2C%22character%22%3A6%7D%2C%22end%22%3A%7B%22line%22%3A1%2C%22character%22%3A12%7D%7D%7D) or \`bitmap::Width\`",
     ],
     "range": [
       {
@@ -2067,7 +2067,7 @@ exports[`ZScript extension Hover tooltips latest 1`] = `
 [
   {
     "contents": [
-      "How fast it goes. See [\`the vroom method\`](command:zscript.openLink?%7B%22file%22%3A%22symbols.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A31%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A31%2C%22character%22%3A14%7D%7D%7D) or [\`speed\`](command:zscript.openLink?%7B%22file%22%3A%22symbols.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A23%2C%22character%22%3A8%7D%2C%22end%22%3A%7B%22line%22%3A23%2C%22character%22%3A13%7D%7D%7D) or [\`x\`](command:zscript.openLink?%7B%22file%22%3A%22symbols.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A16%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A16%2C%22character%22%3A5%7D%7D%7D) or [\`Waitframe()\`](command:zscript.openLink?%7B%22file%22%3A%22global.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A101%2C%22character%22%3A14%7D%2C%22end%22%3A%7B%22line%22%3A101%2C%22character%22%3A23%7D%7D%7D) or [\`bitmap\`](command:zscript.openLink?%7B%22file%22%3A%22bitmap.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A5%2C%22character%22%3A6%7D%2C%22end%22%3A%7B%22line%22%3A5%2C%22character%22%3A12%7D%7D%7D) or [\`bitmap::Width\`](command:zscript.openLink?%7B%22file%22%3A%22bitmap.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A15%2C%22character%22%3A20%7D%2C%22end%22%3A%7B%22line%22%3A15%2C%22character%22%3A25%7D%7D%7D)",
+      "How fast it goes. See [\`the vroom method\`](command:zscript.openLink?%7B%22file%22%3A%22symbols.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A31%2C%22character%22%3A9%7D%2C%22end%22%3A%7B%22line%22%3A31%2C%22character%22%3A14%7D%7D%7D) or [\`speed\`](command:zscript.openLink?%7B%22file%22%3A%22symbols.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A23%2C%22character%22%3A8%7D%2C%22end%22%3A%7B%22line%22%3A23%2C%22character%22%3A13%7D%7D%7D) or [\`x\`](command:zscript.openLink?%7B%22file%22%3A%22symbols.zs%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A16%2C%22character%22%3A4%7D%2C%22end%22%3A%7B%22line%22%3A16%2C%22character%22%3A5%7D%7D%7D) or [\`Waitframe()\`](command:zscript.openLink?%7B%22file%22%3A%22global.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A103%2C%22character%22%3A14%7D%2C%22end%22%3A%7B%22line%22%3A103%2C%22character%22%3A23%7D%7D%7D) or [\`bitmap\`](command:zscript.openLink?%7B%22file%22%3A%22bitmap.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A5%2C%22character%22%3A6%7D%2C%22end%22%3A%7B%22line%22%3A5%2C%22character%22%3A12%7D%7D%7D) or [\`bitmap::Width\`](command:zscript.openLink?%7B%22file%22%3A%22bitmap.zh%22%2C%22position%22%3A%7B%22start%22%3A%7B%22line%22%3A15%2C%22character%22%3A20%7D%2C%22end%22%3A%7B%22line%22%3A15%2C%22character%22%3A25%7D%7D%7D)",
     ],
     "range": [
       {
@@ -2115,12 +2115,18 @@ exports[`ZScript extension Hover tooltips latest 1`] = `
       "Prints the passed value to the output console. Includes a newline character
 after the value.
 
+
 **@deprecated_alias** TraceLWeapon
-TraceEWeapon
-TraceNPC
-TraceFFC
-TraceItem
-TraceItemData",
+
+**@deprecated_alias** TraceEWeapon
+
+**@deprecated_alias** TraceNPC
+
+**@deprecated_alias** TraceFFC
+
+**@deprecated_alias** TraceItem
+
+**@deprecated_alias** TraceItemData",
     ],
     "range": [
       {

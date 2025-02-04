@@ -64,4 +64,3 @@ zscript: use faster register allocation in jit
 # Tests
 
 add eiyuu.zplay
-

@@ -1,3 +1,5 @@
+import "bindings/genericdata.zh"
+
 // System Real Time Clock (RTC) categories for [GetSystemTime].
 enum RealTimeClockCategory
 {
@@ -120,7 +122,7 @@ internal void Waitframes(int count);
 //   WAITDRAW
 internal void Waitdraw();
 
-// Can only be used in a passively-running {@link genericdata|Generic Script}.
+// Can only be used in a passively-running [genericdata|Generic Script].
 //
 // @zasm
 //   POP D3
@@ -128,7 +130,7 @@ internal void Waitdraw();
 //   WAITTO D2 D3
 internal void WaitTo(ScriptTiming timing, bool at_least = false);
 
-// Can only be used in a passively-running {@link genericdata|Generic Script}.
+// Can only be used in a passively-running [genericdata|Generic Script].
 //
 // @zasm
 //   WAITEVENT
