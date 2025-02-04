@@ -154,8 +154,6 @@ zscript: docs for light-related new drawing functions, LIGHT_SQUARE constant
 remove alogg, use a5 audio streams for ogg
   Also refactors zcmusic to use `ALSTREAMFILE` for any a5 audio stream.
   Currently, mp3 and ogg use this.
-  
-  Co-authored-by: Moosh64 <44924261+Moosh64@users.noreply.github.com>
 
 fix compiling zcbase for msvc debug
 upgrade to latest allegro
