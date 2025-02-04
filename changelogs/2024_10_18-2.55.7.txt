@@ -53,7 +53,6 @@ zc: handle screen transitions on slopes in sideview mode
   avoid starting upwards-stairs on the edge of a screen, as the player
   still does not traverse up it when entering from the other side.
 
-zq: reenable floating selection for dense forest
 zq: lifted duplicate combo and combo 0 restrictions from autocombo types that did not need them.
 zq: reset animation in item dialog on selection change
 zq: set track to 0 when updating dmap music
