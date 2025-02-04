@@ -1,5 +1,5 @@
 #include "edit_region.h"
-#include "base/process_management.h"
+#include "base/util.h"
 #include "dialog/info.h"
 #include "zq/zquest.h"
 #include <gui/builder.h>
@@ -208,7 +208,7 @@ std::shared_ptr<GUI::Widget> EditRegionDialog::view()
 						refreshRegionGrid();
 					})
 			),
-			Frame(title = "Edit Region IDs:",
+			Frame(title = "Select Region ID:",
 				Row(
 					BTN_REGIONIDX(0, "0 (no scrolling)"),
 					BTN_REGIONIDX(1, "1"),
@@ -226,7 +226,7 @@ std::shared_ptr<GUI::Widget> EditRegionDialog::view()
 				Button(text = "Z3 User Guide",
 					onPressFunc = [&]()
 					{
-						launch_file("docs/z3_user_guide.md");
+						util::open_web_link("https://docs.zquestclassic.com/tutorials/z3_user_guide");
 					}
 				)
 			),

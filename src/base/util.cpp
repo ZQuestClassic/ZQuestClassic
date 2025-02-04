@@ -1,4 +1,5 @@
 #include "base/util.h"
+#include "base/process_management.h"
 #include <cstdlib>
 #include <fstream>
 #include <sstream>
@@ -991,6 +992,18 @@ namespace util
 		auto m = std::mismatch(b.begin(), b.end(), 
 							s.begin(), s.end());
 		return m.first == b.end();
+	}
+
+	void open_web_link(std::string url)
+	{
+#ifdef _WIN32
+		std::string cmd = "start " + url;
+		system(cmd.c_str());
+#elif defined(__APPLE__)
+		launch_process("open", {url});
+#else
+		launch_process("xdg-open", {url});
+#endif
 	}
 
 	uint8_t nibble(uint8_t byte, bool high)
