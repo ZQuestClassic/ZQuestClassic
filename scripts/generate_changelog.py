@@ -207,7 +207,7 @@ def split_text_into_logical_markdown_chunks(text: str) -> List[str]:
     git commit messages, without inheriting random line breaks.
 
     Helps with generating pretty markdown on GitHub.
-    You should test change to this by previewing in a "releases" page markdown preview. Other
+    You should test changes to this by previewing in a "releases" page markdown preview. Other
     places on GitHub (like gists) render slightly differently!
     """
     lines = []
@@ -252,7 +252,12 @@ def split_text_into_logical_markdown_chunks(text: str) -> List[str]:
             inside_code_block = True
             continue
 
-        if line.strip().startswith('-') or line.strip().startswith('*'):
+        line_stripped = line.strip()
+        if (
+            line_stripped.startswith('-')
+            or line_stripped.startswith('*')
+            or re.match(r'^\d+\.', line_stripped)
+        ):
             current_list_element += line + '\n'
             inside_list_element = True
             continue
