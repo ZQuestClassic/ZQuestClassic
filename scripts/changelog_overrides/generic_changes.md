@@ -38,3 +38,10 @@ subject 0bb0da1de912c8f3ee4660d21bd87980509711ca fix(zscript): 'delete' within a
 subject d9d3ac8e44e73d1d73e43a1bc5af5eeb7edc5952 feat: option to disable transparent darkrooms stacking multiple transparent layers
 
 drop 2de329034de6b8ce9b6a17f7fb9d865eb1fd7b9a fix(zq): reenable floating selection for dense forest
+
+reword e44ca29bd95b112a51288490ac79745bee5f2d80 feat(zq): -smart-assign CLI switch to compile + assign
+Example usage: ./zeditor.exe -smart-assign your_quest.qst
+=end
+reword 88d94ba3c1917b36a3801e2d93a00f5f80554ec4 feat(zq): -smart-assign CLI switch to compile + assign
+Example usage: ./zeditor.exe -smart-assign your_quest.qst
+=end

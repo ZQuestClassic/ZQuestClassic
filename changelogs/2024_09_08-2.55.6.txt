@@ -91,4 +91,3 @@ upgrade to latest GME
 reduce amount of copying in readmaps
   This makes loading yuurand.qst 21% faster (2445ms -> 1927ms)
 
-

@@ -10,6 +10,7 @@ from typing import Dict, List
 from git_hooks.common import valid_scopes, valid_types
 
 release_oneliners = {
+    '2.55.0': 'The one that is official.',
     '2.55-alpha-120': 'The one with crumbling floors, moving platforms, and ExDoors.',
     '2.55-alpha-119': 'The one with subscreen scripts and an autocombo drawing mode.',
     '2.55-alpha-118': 'The one with the bug fixes.',
@@ -341,6 +342,10 @@ def stringify_changelog(
             lines.append(f'{oneliner}\n')
         if is_release:
             lines.append(f'https://zquestclassic.com/releases/{to_sha}\n')
+            if to_sha == '2.55.0':
+                lines.append(
+                    'View a summary of what\'s new in 2.55: https://zquestclassic.com/docs/2.55/\n'
+                )
 
         for type, commits in commits_by_type.items():
             if type == 'CustomSection':
@@ -375,6 +380,8 @@ def stringify_changelog(
                         lines.append('    ' + squashed.subject)
             lines.append('')
 
+    if lines[-1] != '':
+        lines.append('')
     return '\n'.join(lines)
 
 
@@ -494,34 +501,53 @@ for path in (script_dir / 'changelog_overrides').rglob('*.md'):
         parse_override_file(path)
 
 if args.generate_all:
-    tags = (
-        subprocess.check_output(
-            'git tag --list "2.55-alpha-11?" "2.55-alpha-12?" "3*"',
-            shell=True,
-            encoding='utf-8',
-        )
-        .strip()
-        .splitlines()
-    )
-    for i, tag in enumerate(tags):
-        if tag in [
-            '2.55-alpha-113',
-            '2.55-alpha-112',
-            '2.55-alpha-111',
-            '2.55-alpha-110',
-        ]:
-            continue
-        # This one was manually created.
-        if tag == '2.55-alpha-114':
-            continue
 
-        changelog = generate_changelog(tags[i - 1], tag)
+    def get_tags(branch, tag_filter):
+        return (
+            subprocess.check_output(
+                f'git tag --list --sort=committerdate --merged {branch} {tag_filter}',
+                shell=True,
+                encoding='utf-8',
+            )
+            .strip()
+            .splitlines()
+        )
+
+    def process_tag(tag: str, prev_tag: str):
+        print(f'{prev_tag} .. {tag}')
+        changelog = generate_changelog(prev_tag, tag)
         date = subprocess.check_output(
             f'git show --no-patch --format=%ci {tag}', shell=True, encoding='utf-8'
         ).split(' ')[0]
         date = date.replace('-', '_')
-
         (root_dir / 'changelogs' / f'{date}-{tag}.txt').write_text(changelog)
+
+    def process_tags(tags: list[str]):
+        for i, tag in enumerate(tags):
+            if i == 0:
+                continue
+
+            if tag in [
+                '2.55-alpha-113',
+                '2.55-alpha-112',
+                '2.55-alpha-111',
+                '2.55-alpha-110',
+            ]:
+                continue
+
+            # This one was manually created.
+            if tag == '2.55-alpha-114':
+                continue
+
+            process_tag(tag, tags[i - 1])
+
+    tags_255 = get_tags('main', '"2.55-alpha-11?" "2.55-alpha-12?"') + get_tags(
+        'releases/2.55', '"2.55.*"'
+    )
+    process_tags(tags_255)
+
+    # Not needed yet.
+    # tags_3 = get_tags('main', '"3.*"')
 
     exit(0)
 

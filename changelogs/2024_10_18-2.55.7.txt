@@ -95,4 +95,3 @@ zscript: always show script context when logging errors
   show what script caused an error. However, this context is always useful
   for debugging and so should always be displayed.
 
-
