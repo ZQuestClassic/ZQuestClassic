@@ -4,11 +4,11 @@ ffc script TriggerOnCursor
 {
 	void run(int combo, int screen_index)
 	{
-		Trace(Region->Width);
-		Trace(Region->Height);
-		Trace(Region->ScreenWidth);
-		Trace(Region->ScreenHeight);
-		Trace(Region->NumCombos);
+		printf("Region->Width: %d\n", Region->Width);
+		printf("Region->Height: %d\n", Region->Height);
+		printf("Region->ScreenWidth: %d\n", Region->ScreenWidth);
+		printf("Region->ScreenHeight: %d\n", Region->ScreenHeight);
+		printf("Region->NumCombos: %d\n", Region->NumCombos);
 
 		while (true)
 		{

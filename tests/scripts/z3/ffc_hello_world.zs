@@ -9,6 +9,7 @@ ffc script HelloWorld
     {
         printf("FFC script started, ID: %d x: %d y: %d\n", this->ID, this->X, this->Y);
         printf("num: %d\n", num);
+        printf("Screen->Index: %d\n", Screen->Index);
 
         int i = 0;
         while(true)
