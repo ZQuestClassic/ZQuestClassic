@@ -779,8 +779,10 @@ internal constexpr int WrapDegrees(int degrees);
 //   POP D5
 internal void printf(char32[] format);
 
-// Acts exactly as output console, it is instead placed in the [dest] buffer. If
+// Acts exactly as [printf], but places the result in the [dest] buffer. If
 // the [dest] buffer is too small, it will be resized to fit the contents.
+//
+// Returns the number of characters used.
 //
 // @vargs 0
 // @zasm
@@ -788,17 +790,14 @@ internal void printf(char32[] format);
 //   POPARGS D5 0.0002
 internal int sprintf(char32[] dest, char32[] format);
 
-// Prints the specified format_string to the output console, using the given
-// args to fill in parts of the string that are specially marked. Does not
-// include a newline character after the string.
+// Same as [printf], but with the format parameters as an array.
 //
 // @zasm
 //   PRINTFA
 //   POPARGS D5 0.0002
 internal void printfa<T>(char32[] format, T[] args);
 
-// Acts exactly as output console, it is instead placed in the [dest] buffer. If
-// the [dest] buffer is too small, it will be resized to fit the contents.
+// Same as [sprintf], but with the format parameters as an array.
 //
 // @zasm
 //   SPRINTFA
