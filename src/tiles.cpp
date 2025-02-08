@@ -1600,6 +1600,10 @@ int32_t combo_tile(const newcombo &c, int32_t x, int32_t y)
 
     x += combotile_add_x;
     y += combotile_add_y;
+#ifdef IS_PLAYER
+	x += viewport.x;
+	y += viewport.y;
+#endif
 
     switch(combo_class_buf[c.type].directional_change_type)
     {

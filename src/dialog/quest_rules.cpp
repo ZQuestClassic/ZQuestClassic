@@ -961,6 +961,9 @@ static GUI::ListData compatRulesList
 	{ "Broken Sideview Sprite Jump", qr_BROKEN_SIDEVIEW_SPRITE_JUMP,
 		"If enabled, certain sprites (enemy, weapon, and item) will stick to the ground in sideview"
 		" and cannot be made to jump off via script. " },
+	{ "Broken Hero Position Exposed To Scripts When Scrolling", qr_BROKEN_SCRIPTS_SCROLLING_HERO_POSITION,
+			"If disabled, the hero position will be accurately updated and clamped to the visible viewport during"
+			" each frame of a scroll. Otherwise, it will be off by a few pixels, especially towards the end of a scroll."}
 };
 
 static GUI::ListData enemiesRulesList

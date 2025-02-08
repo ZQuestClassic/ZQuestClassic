@@ -37,6 +37,9 @@ int shutterCheck[2];
 int shutterDelay = SHUTTER_DELAY_TIME;
 
 void shutterControl() {
+	// For the recompile test (test_compile_and_quick_assign), test that this compat QR being
+	// off doesn't break this script. For the original qst file, this QR is true.
+	Game->FFRules[qr_BROKEN_SCRIPTS_SCROLLING_HERO_POSITION] = false;
 
 	if(changeScreen()) {
 		// The screen has been changed in the last frame. Time to initialize new shutters!

@@ -3275,11 +3275,69 @@ enum //Indexes for Game->Gravity[]
 
 enum //Indexes for Game->Scrolling[]
 {
+	// The scrolling [Direction]. -1 if not scrolling.
 	SCROLL_DIR,
-	SCROLL_NX,
-	SCROLL_NY,
-	SCROLL_OX,
-	SCROLL_OY
+	// The offset for the new screen, relative to the current viewport. 
+	SCROLL_NX, SCROLL_NY,
+	// The offset for the old screen, relative to the current viewport.
+	SCROLL_OX, SCROLL_OY,
+	// The offset for the new region's origin screen, relative to the current viewport. 
+	SCROLL_NRX, SCROLL_NRY,
+	// The offset for the old region's origin screen, relative to the current viewport. 
+	SCROLL_ORX, SCROLL_ORY,
+	// The delta between the new and old regions.
+	SCROLL_NEW_REGION_DELTA_X, SCROLL_NEW_REGION_DELTA_Y,
+	// The top-left coordinate of the destination screen, in the new region coordinate system.
+	SCROLL_NEW_SCREEN_X, SCROLL_NEW_SCREEN_Y,
+	// The top-left coordinate of the old screen, in the old region coordinate system.
+	SCROLL_OLD_SCREEN_X, SCROLL_OLD_SCREEN_Y,
+	// The final hero position, in the new region.
+	SCROLL_NEW_HERO_X, SCROLL_NEW_HERO_Y,
+	// The initial hero position at the start of scrolling, in the old region coordinate system.
+	SCROLL_OLD_HERO_X, SCROLL_OLD_HERO_Y,
+	// The number of screens in the new region (width and height).
+	SCROLL_NEW_REGION_SCREEN_WIDTH, SCROLL_NEW_REGION_SCREEN_HEIGHT,
+	// The number of screens in the old region (width and height).
+	SCROLL_OLD_REGION_SCREEN_WIDTH, SCROLL_OLD_REGION_SCREEN_HEIGHT,
+	// The final viewport size.
+	SCROLL_NEW_VIEWPORT_WIDTH, SCROLL_NEW_VIEWPORT_HEIGHT,
+	// The initial viewport size.
+	SCROLL_OLD_VIEWPORT_WIDTH, SCROLL_OLD_VIEWPORT_HEIGHT,
+	// The final viewport position, in the new region coorindate system.
+	SCROLL_NEW_VIEWPORT_X, SCROLL_NEW_VIEWPORT_Y,
+	// The initial viewport position, in the old region coorindate system.
+	SCROLL_OLD_VIEWPORT_X, SCROLL_OLD_VIEWPORT_Y
+};
+
+// Determines how to interpret coordinates given to [Screen] draw functions.
+enum DrawOrigin
+{
+	// Equal to [DRAW_ORIGIN_REGION], unless in a scrolling region (or scrolling to/from one), in which
+	// case this is equal to [DRAW_ORIGIN_PLAYING_FIELD].
+	DRAW_ORIGIN_DEFAULT = 0L,
+	// The origin `(0, 0)` is the top-left pixel of the playing field (where screen combos are drawn).
+	// Normally, this is just below the passive subscreen. But in extended height mode,
+	// this is the top-left pixel of the screen and so is equivalent to [DRAW_ORIGIN_SCREEN].
+	//
+	// Use this to draw overlay effects across the playing field.
+	DRAW_ORIGIN_PLAYING_FIELD = 1L,
+	// The origin `(0, 0)` is the top-left pixel of the screen.
+	// Use this to draw overlay effects across the entire screen.
+	DRAW_ORIGIN_SCREEN = 2L,
+	// The origin `(0, 0)` is the top-left pixel of the current region. Use this to draw with a
+	// sprite's coordinates.
+	//
+	// When scrolling, this is treated as [DRAW_ORIGIN_REGION_SCROLLING_NEW] for new screens and
+	// [DRAW_ORIGIN_REGION_SCROLLING_OLD] for old screens.
+	DRAW_ORIGIN_REGION = 3L,
+	// The origin `(0, 0)` is the top-left pixel of the new region being scrolled to.
+	//
+	// Equivalent to [DRAW_ORIGIN_REGION] when not scrolling.
+	DRAW_ORIGIN_REGION_SCROLLING_NEW = 4L,
+	// The origin `(0, 0)` is the top-left pixel of the old region being scrolled away from.
+	//
+	// Equivalent to [DRAW_ORIGIN_REGION] when not scrolling.
+	DRAW_ORIGIN_REGION_SCROLLING_OLD = 5L
 };
 
 enum //Indexes for messagedata->Flags

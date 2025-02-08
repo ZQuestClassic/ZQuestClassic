@@ -1766,7 +1766,9 @@
 #define VIEWPORT_WIDTH          1655
 #define VIEWPORT_HEIGHT         1656
 
-#define LAST_BYTECODE           1657
+#define SCREEN_DRAW_ORIGIN      1657
+
+#define LAST_BYTECODE           1658
 
 //} END OF BYTECODE
 

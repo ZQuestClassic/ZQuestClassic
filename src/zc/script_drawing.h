@@ -2,6 +2,7 @@
 #ifndef _zc_script_drawing_h
 #define _zc_script_drawing_h
 
+#include "base/zdefs.h"
 #include <vector>
 #include <string>
 #include <set>
@@ -276,6 +277,10 @@ public:
 protected:
     int32_t data[ SCRIPT_DRAWING_COMMAND_VARIABLES ];
     void* ptr; //will be changed later
+
+public:
+	DrawOrigin draw_origin;
+	int32_t draw_origin_target;
 };
 
 

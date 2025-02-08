@@ -9567,7 +9567,11 @@ int32_t get_register(const int32_t arg)
 		case SCREEN_INDEX:
 			ret = currscr*10000;
 			break;
-		
+
+		case SCREEN_DRAW_ORIGIN:
+			ret = (int)ri->screen_draw_origin;
+			break;
+
 		//Creates an lweapon using an iemdata struct values to generate its properties.
 		//Useful in conjunction with the new weapon editor. 
 		case CREATELWPNDX:
@@ -22642,6 +22646,12 @@ void set_register(int32_t arg, int32_t value)
 			tmpscr->undercset=value/10000;
 			break;
 		
+		case SCREEN_DRAW_ORIGIN:
+			if (BC::checkBounds(value, (int)DrawOrigin::First, (int)DrawOrigin::Last, "Screen-DrawOrigin") != SH::_NoError)
+				return;
+
+			ri->screen_draw_origin = (DrawOrigin)value;
+			break;
 		
 		case DEBUGGDR:
 		{
@@ -33192,7 +33202,32 @@ void do_drawing_command(const int32_t script_command)
 	}
 	
 	script_drawing_commands[j][0] = script_command;
-	script_drawing_commands[j][18] = zscriptDrawingRenderTarget->GetCurrentRenderTarget(); // no fixed bs.
+	script_drawing_commands[j][18] = zscriptDrawingRenderTarget->GetCurrentRenderTarget();
+
+	DrawOrigin draw_origin = ri->screen_draw_origin;
+	if (draw_origin == DrawOrigin::Default)
+	{
+		// bool in_scrolling_region = is_in_scrolling_region() || (screenscrolling && scrolling_region.screen_count > 1);
+		bool in_scrolling_region = false;
+		draw_origin = in_scrolling_region ? DrawOrigin::Region : DrawOrigin::PlayingField;
+	}
+	if (draw_origin == DrawOrigin::Region)
+	{
+		if (scrolling_using_new_region_coords)
+			draw_origin = DrawOrigin::RegionScrollingNew;
+	}
+	else if (draw_origin == DrawOrigin::RegionScrollingOld)
+	{
+		draw_origin = DrawOrigin::Region;
+	}
+	else if (draw_origin == DrawOrigin::RegionScrollingNew)
+	{
+		if (!screenscrolling)
+			draw_origin = DrawOrigin::Region;
+	}
+
+	script_drawing_commands[j].draw_origin = draw_origin;
+	script_drawing_commands[j].draw_origin_target = ri->screen_draw_origin_target;
 	
 	switch(script_command)
 	{
@@ -46353,6 +46388,7 @@ script_variable ZASMVars[]=
 	{ "CURSCR",            CURSCR,               0,             0 },
 	{ "HERO_SCREEN",       HERO_SCREEN,          0,             0 },
 	{ "SCREEN_INDEX",      SCREEN_INDEX,         0,             0 },
+	{ "SCREEN_DRAW_ORIGIN",SCREEN_DRAW_ORIGIN,         0,             0 },
 	{ "CURDSCR",           CURDSCR,              0,             0 },
 	{ "CURDMAP",           CURDMAP,              0,             0 },
 	{ "COMBODD",           COMBODD,              0,             0 },

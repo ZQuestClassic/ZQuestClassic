@@ -3447,9 +3447,10 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 	// we check the header version.
 
 	// Older than 2.55.9?
-	if (tempheader.compareVer(2, 55, 9) < 0)
+	if (tempheader.compareVer(2, 55, 9) < 0 && strcmp(tempheader.author, "zcdev") != 0)
 	{
 		set_qr(qr_NEWDARK_TRANS_STACKING,1);
+		set_qr(qr_BROKEN_SCRIPTS_SCROLLING_HERO_POSITION, 1);
 	}
 	
 	memcpy(Header, &tempheader, sizeof(tempheader));
