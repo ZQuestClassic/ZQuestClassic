@@ -9520,6 +9520,10 @@ int32_t get_register(const int32_t arg)
 		case UNDERCSET:
 			ret = tmpscr->undercset*10000;
 			break;
+
+		case SCREEN_INDEX:
+			ret = currscr*10000;
+			break;
 		
 		//Creates an lweapon using an iemdata struct values to generate its properties.
 		//Useful in conjunction with the new weapon editor. 
@@ -46288,6 +46292,7 @@ script_variable ZASMVars[]=
 	{ "CURMAP",            CURMAP,               0,             0 },
 	{ "CURSCR",            CURSCR,               0,             0 },
 	{ "HERO_SCREEN",       HERO_SCREEN,          0,             0 },
+	{ "SCREEN_INDEX",      SCREEN_INDEX,         0,             0 },
 	{ "CURDSCR",           CURDSCR,              0,             0 },
 	{ "CURDMAP",           CURDMAP,              0,             0 },
 	{ "COMBODD",           COMBODD,              0,             0 },

@@ -332,9 +332,10 @@ string ZScript::VarToString(int32_t ID)
 		case REGION_NUM_COMBOS:
 			return "REGION_NUM_COMBOS";
 		
-		
 		case HERO_SCREEN:
 			return "HERO_SCREEN";
+		case SCREEN_INDEX:
+			return "SCREEN_INDEX";
 		
 		case REFMAPDATA: return "REFMAPDATA";
 		case REFSCREENDATA: return "REFSCREENDATA";

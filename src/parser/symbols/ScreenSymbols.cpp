@@ -27,6 +27,7 @@ static AccessorTable ScreenTable[] =
 	{ "setState[]",                 0,          ZTID_VOID,   SCREENSTATED,                      0,  { ZTID_SCREEN, ZTID_FLOAT, ZTID_BOOL },{} },
 	{ "getExState[]",               0,          ZTID_BOOL,   SCREENEXSTATED,                    0,  { ZTID_SCREEN, ZTID_FLOAT },{} },
 	{ "setExState[]",               0,          ZTID_VOID,   SCREENEXSTATED,                    0,  { ZTID_SCREEN, ZTID_FLOAT, ZTID_BOOL },{} },
+	{ "getIndex",                   0,          ZTID_FLOAT,  SCREEN_INDEX,                      0,  { ZTID_SCREEN },{} },
 	{ "getLit",                     0,          ZTID_BOOL,   LIT,                               0,  { ZTID_SCREEN },{} },
 	{ "setLit",                     0,          ZTID_VOID,   LIT,                               0,  { ZTID_SCREEN, ZTID_BOOL },{} },
 	{ "getWavy",                    0,         ZTID_FLOAT,   WAVY,                              0,  { ZTID_SCREEN },{} },
