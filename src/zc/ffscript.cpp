@@ -5949,7 +5949,11 @@ int32_t get_register(int32_t arg)
 		case CURSCR:
 			ret=currscr*10000;
 			break;
-			
+
+		case HERO_SCREEN:
+			ret=currscr*10000;
+			break;
+
 		case ALLOCATEBITMAPR:
 			ret=FFCore.get_free_bitmap();
 			break;

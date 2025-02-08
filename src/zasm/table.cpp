@@ -1330,6 +1330,7 @@ static constexpr script_variable variable_list[]=
 	{ "GAMEGUYCOUNTD", GAMEGUYCOUNTD, 0},
 	{ "CURMAP", CURMAP, 0},
 	{ "CURSCR", CURSCR, 0},
+	{ "HERO_SCREEN", HERO_SCREEN, 0},
 	{ "CURDSCR", CURDSCR, 0},
 	{ "CURDMAP", CURDMAP, 0},
 	{ "COMBODD", COMBODD, 0},

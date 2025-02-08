@@ -295,6 +295,14 @@ class Game {
 	// @zasm_var CURSCR
 	internal const int CurScreen;
 
+	// The screen that the [Hero] is in. In a scrolling region, this updates as the player
+	// moves around according to their coordinates. Otherwise, this is equivalent to [CurScreen].
+	//
+	// During a scrolling screen transition, this is the new screen.
+	//
+	// @zasm_var HERO_SCREEN
+	internal const int HeroScreen;
+
 	// The screen the [Hero] is currently on, offset by the current dmap offset.
 	//
 	// @deprecated_getter GetCurDMapScreen
