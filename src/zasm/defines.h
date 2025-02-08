@@ -2828,19 +2828,17 @@ enum ASM_DEFINE
 #define SPRITEDATAFLAGS         0x14CF
 #define SPRITEDATAID            0x14D0
 #define CLASS_THISKEY2          0x14D1
-#define RESRVD_VAR_Z3_01        0x14D2
-#define RESRVD_VAR_Z3_02        0x14D3
-#define RESRVD_VAR_Z3_03        0x14D4
-#define RESRVD_VAR_Z3_04        0x14D5
-#define RESRVD_VAR_Z3_05        0x14D6
+// #define VIEWPORT_MODE           0x14D2
+#define VIEWPORT_X              0x14D3
+#define VIEWPORT_Y              0x14D4
+#define VIEWPORT_WIDTH          0x14D5
+#define VIEWPORT_HEIGHT         0x14D6
 #define MAX_FFC_ID              0x14D7
 #define RESRVD_VAR_Z3_07        0x14D8
 #define REGION_WIDTH            0x14D9
 #define REGION_HEIGHT           0x14DA
 #define REGION_SCREEN_WIDTH     0x14DB
 #define REGION_SCREEN_HEIGHT    0x14DC
-#define RESRVD_VAR_Z3_12        0x14DD
-#define REGION_UNUSED           0x14DE
 #define SPRITE_SPAWN_SCREEN     0x14DD
 #define REGION_NUM_COMBOS       0x14DF
 #define REGION_ID               0x14E0

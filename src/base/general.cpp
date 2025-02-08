@@ -123,3 +123,42 @@ direction GET_DIR(zfix const& dx, zfix const& dy)
 	return XY_DIR(GET_XDIR(dx), GET_YDIR(dy));
 }
 
+bool viewport_t::intersects_with(int x, int y, int w, int h) const
+{
+	int l = x;
+	int r = x + w;
+	int t = y;
+	int b = y + h;
+	return left() <= r && right() > l && top() <= b && bottom() > t;
+}
+
+bool viewport_t::contains_point(int x0, int y0) const
+{
+	return left() <= x0 && right() > x0 && top() <= y0 && bottom() > y0;
+}
+
+bool viewport_t::contains_or_on(const viewport_t& other) const
+{
+	// The `=` equality portions of all these conditions makes this more than just a "contains" check.
+	return other.right() <= right() && other.left() >= left() && other.top() >= top() && other.bottom() <= bottom();
+}
+
+int32_t viewport_t::left() const
+{
+	return x;
+}
+
+int32_t viewport_t::right() const
+{
+	return x + w;
+}
+
+int32_t viewport_t::top() const
+{
+	return y;
+}
+
+int32_t viewport_t::bottom() const
+{
+	return y + h;
+}

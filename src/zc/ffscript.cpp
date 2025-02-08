@@ -6271,6 +6271,33 @@ int32_t get_register(int32_t arg)
 			ret = currscr;
 		}
 		break;
+
+		///----------------------------------------------------------------------------------------------------//
+		//Viewport
+
+		case VIEWPORT_X:
+		{
+			ret = viewport.x * 10000;
+		}
+		break;
+
+		case VIEWPORT_Y:
+		{
+			ret = viewport.y * 10000;
+		}
+		break;
+
+		case VIEWPORT_WIDTH:
+		{
+			ret = 256 * 10000;
+		}
+		break;
+
+		case VIEWPORT_HEIGHT:
+		{
+			ret = 176 * 10000;
+		}
+		break;
 		
 		///----------------------------------------------------------------------------------------------------//
 		//Screen Information

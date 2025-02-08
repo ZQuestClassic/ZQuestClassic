@@ -34,6 +34,7 @@ using std::set;
 #include <fmt/format.h>
 #include "zc/render.h"
 
+viewport_t viewport;
 
 #define EPSILON 0.01 // Define your own tolerance
 #define FLOAT_EQ(x,v) (((v - EPSILON) < x) && (x <( v + EPSILON)))
@@ -52,6 +53,25 @@ float log2(float n)
     return log(n) / log(2.f);
 }
 #endif
+
+
+void calculate_viewport(viewport_t& viewport, int dmap, int screen, int world_w, int world_h, int x, int y)
+{
+	// Note: this is only really implemented in z3/3.0
+	viewport.w = 256;
+	viewport.h = 176;
+	viewport.x = 0;
+	viewport.y = 0;
+}
+
+void update_viewport()
+{
+	extern HeroClass Hero;
+	sprite* spr = &Hero;
+	int x = spr->x + spr->txsz*16/2;
+	int y = spr->y + spr->tysz*16/2;
+	calculate_viewport(viewport, currdmap, currscr, 256, 176, x, y);
+}
 
 int32_t COMBOPOS(int32_t x, int32_t y)
 {

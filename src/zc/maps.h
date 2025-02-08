@@ -15,6 +15,9 @@ bool ffcIsAt(int32_t index, int32_t x, int32_t y);
 extern bool triggered_screen_secrets;
 extern int32_t view_map_show_mode;
 
+void calculate_viewport(viewport_t& viewport, int dmap, int screen, int world_w, int world_h, int x, int y);
+void update_viewport();
+
 void debugging_box(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
 void clear_dmap(word i);
 void clear_dmaps();

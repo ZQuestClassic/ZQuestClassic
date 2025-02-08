@@ -361,6 +361,22 @@ direction GET_YDIR(zfix const& sign);
 direction GET_DIR(zfix const& dx, zfix const& dy);
 #define NORMAL_DIR(dir)    ((dir >= 0 && dir < 16) ? normalDir[dir] : dir_invalid)
 
+struct viewport_t
+{
+	int32_t x;
+	int32_t y;
+	int32_t w;
+	int32_t h;
+
+	bool intersects_with(int x, int y, int w, int h) const;
+	bool contains_point(int x, int y) const;
+	bool contains_or_on(const viewport_t& other) const;
+	int32_t left() const;
+	int32_t right() const;
+	int32_t top() const;
+	int32_t bottom() const;
+};
+
 
 
 struct CheckListInfo

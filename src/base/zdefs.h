@@ -2321,6 +2321,8 @@ std::string generate_zq_about();
 void enter_sys_pal();
 void exit_sys_pal();
 
+extern viewport_t viewport;
+
 enum {nswapDEC, nswapHEX, nswapLDEC, nswapLHEX, nswapBOOL, nswapMAX};
 
 

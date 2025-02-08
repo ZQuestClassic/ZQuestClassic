@@ -3366,6 +3366,10 @@ void game_loop()
 					else Hero.post_animate();
 					if(GameFlags & GAMEFLAG_RESET_GAME_LOOP) break; //break the for()
 				}
+
+				if (!screenscrolling)
+					update_viewport();
+
 				if(GameFlags & GAMEFLAG_RESET_GAME_LOOP) continue; //continue the game_loop while(true)
 			}
 			FFCore.runGenericPassiveEngine(SCR_TIMING_POST_PLAYER_ANIMATE);

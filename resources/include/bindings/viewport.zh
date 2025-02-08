@@ -1,0 +1,47 @@
+import "bindings/sprite.zh"
+
+// Note: this feature is not yet released. See the #z3 channel: https://discord.com/channels/876899628556091432/1120883971950125147
+//
+// Defines the visible portion of the current [Region] - aka, what the player currently sees.
+class Viewport {
+	// @delete
+	internal Viewport();
+
+	// This is updated every frame by the engine.
+	//
+	// @zasm_var VIEWPORT_X
+	internal const int X;
+
+	// This is updated every frame by the engine.
+	//
+	// @zasm_var VIEWPORT_Y
+	internal const int Y;
+
+	// @zasm_var VIEWPORT_WIDTH
+	internal const int Width;
+
+	// @zasm_var VIEWPORT_HEIGHT
+	internal const int Height;
+
+	// Returns true if the given sprite is visible within the viewport.
+	//
+	// Note: this function ignores the fact that the bottom 8 pixels are never visible.
+	bool Contains(sprite s)
+	{
+		int t = s->Y;
+		int b = s->Y + s->TileHeight*16;
+		int l = s->X;
+		int r = s->X + s->TileWidth*16;
+		return this->X <= r && this->X + this->Width > l && this->Y <= b && this->Y + this->Height > t;
+	}
+
+	// Returns true if the given point is visible within the viewport.
+	//
+	// Note: this function ignores the fact that the bottom 8 pixels are never visible.
+	bool Contains(int x, int y)
+	{
+		return x >= this->X && x < this->X + this->Width && y >= this->Y && y < this->Y + this->Height;
+	}
+}
+
+internal const Viewport Viewport;
