@@ -240,16 +240,32 @@ async function loadFiles() {
     return null;
   } else if (url) {
     const response = await fetch(url);
-    const content = await response.text();
-    if (!response.ok) {
-      logger.error(`error loading content: ${content}`);
-      return null;
-    }
 
-    const files = new Map<string, string>();
-    files.set(fname, content);
-    contentUrl = url;
-    return files;
+    if (url.endsWith('.json')) {
+      const manifest = await response.json();
+      const entries = [...Object.entries(manifest.files as Record<string, string>)];
+      const resolvedEntries = await Promise.all(entries.map(async entry => ({
+        content: await (await fetch(entry[0])).text(),
+        path: entry[1],
+      })));
+
+      const files = new Map<string, string>();
+      for (const {content, path} of resolvedEntries) {
+        files.set(path, content);
+      }
+      return files;
+    } else {
+      const content = await response.text();
+      if (!response.ok) {
+        logger.error(`error loading content: ${content}`);
+        return null;
+      }
+
+      const files = new Map<string, string>();
+      files.set(fname, content);
+      contentUrl = url;
+      return files;
+    }
   } else if (data) {
     const files = new Map<string, string>();
     files.set(fname, data);

@@ -41,6 +41,7 @@ async function setup() {
         self.postMessage({ id, result });
       }
     } catch (err: any) {
+      console.error(err);
       self.postMessage({ id, error: err.toString() });
     }
   };
