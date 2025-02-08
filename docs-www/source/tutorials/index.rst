@@ -3,6 +3,14 @@ Tutorials
 
 More tutorials coming, soon\* :)
 
+General
+-------
+
+.. toctree::
+   :maxdepth: 1
+
+   /tutorials/z3_user_guide
+
 Editor
 ------
 
