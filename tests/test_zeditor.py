@@ -171,6 +171,7 @@ class TestZEditor(unittest.TestCase):
             str(root_dir / 'tests/scripts/playground'),
             str(root_dir / 'tests/scripts/alucard/100_rooms_of_wisdom'),
             str(root_dir / 'tests/scripts/alucard/combo_rotator'),
+            str(root_dir / 'tests/scripts/freeform_shutters'),
             str(root_dir / 'tests/scripts/newbie_boss'),
             str(root_dir / 'tests/scripts/compat'),
         ]
