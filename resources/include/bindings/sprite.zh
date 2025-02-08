@@ -25,6 +25,13 @@ class sprite {
 	// @delete
 	internal sprite();
 
+	// The screen index this sprite was created on. Does not update as the sprite moves around a region.
+	//
+	// [Hero]: Actually does update as the player moves around. Equivalent to [Game->HeroScreen].
+	//
+	// @zasm_var SPRITE_SPAWN_SCREEN
+	internal const int SpawnScreen;
+
 	// @zasm_var SPRITE_X
 	internal int X;
 

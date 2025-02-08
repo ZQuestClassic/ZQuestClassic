@@ -57,6 +57,15 @@ std::optional<int32_t> sprite_get_register(int32_t reg)
 {
 	switch (reg)
 	{
+		case SPRITE_SPAWN_SCREEN:
+		{
+			if (is_player())
+				return currscr * 10000;
+
+			if (get_sprite(ri->spriteref, "SpawnScreen"))
+				return currscr * 10000;
+			return 0;
+		}
 		case SPRITE_X:
 		{
 			if (auto s = get_sprite(ri->spriteref, "X"))

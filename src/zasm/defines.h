@@ -2841,6 +2841,7 @@ enum ASM_DEFINE
 #define REGION_SCREEN_HEIGHT    0x14DC
 #define RESRVD_VAR_Z3_12        0x14DD
 #define REGION_UNUSED           0x14DE
+#define SPRITE_SPAWN_SCREEN     0x14DD
 #define REGION_NUM_COMBOS       0x14DF
 #define REGION_ID               0x14E0
 #define REGION_ORIGIN_SCREEN    0x14E1
