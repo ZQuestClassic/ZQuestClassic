@@ -22,6 +22,8 @@ static AccessorTable gameTable[] =
 	{ "_getGetCurLevel",            0,         ZTID_FLOAT,   CURLEVEL,            FL_DEPR,  { ZTID_GAME },{},0,"Use '->CurLevel' instead!" },
 	{ "getCurScreen",               0,         ZTID_FLOAT,   CURSCR,                    0,  { ZTID_GAME },{} },
 	{ "setCurScreen",               0,          ZTID_VOID,   CURSCR,            FL_RDONLY,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "getHeroScreen",              0,         ZTID_FLOAT,   HERO_SCREEN,               0,  { ZTID_GAME },{} },
+	{ "setHeroScreen",              0,          ZTID_VOID,   HERO_SCREEN,       FL_RDONLY,  { ZTID_GAME, ZTID_FLOAT },{} },
 	{ "getCurDMapScreen",           0,         ZTID_FLOAT,   CURDSCR,                   0,  { ZTID_GAME },{} },
 	{ "setCurDMapScreen",           0,          ZTID_VOID,   CURDSCR,           FL_RDONLY,  { ZTID_GAME, ZTID_FLOAT },{} },
 	{ "getCurDMScreen",             0,         ZTID_FLOAT,   CURDSCR,                   0,  { ZTID_GAME },{} },

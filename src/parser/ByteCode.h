@@ -1756,7 +1756,9 @@
 #define SUBWIDGTY_COLOR_SHD2     1648
 #define SUBWIDGTY_COLOR_BG2      1649
 
-#define LAST_BYTECODE           1650
+#define HERO_SCREEN              1650
+
+#define LAST_BYTECODE           1651
 
 //} END OF BYTECODE
 

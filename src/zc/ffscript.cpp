@@ -8290,7 +8290,11 @@ int32_t get_register(const int32_t arg)
 		case CURSCR:
 			ret=currscr*10000;
 			break;
-			
+
+		case HERO_SCREEN:
+			ret=currscr*10000;
+			break;
+
 		case ALLOCATEBITMAPR:
 			ret=FFCore.do_allocate_bitmap();
 			break;
@@ -46283,6 +46287,7 @@ script_variable ZASMVars[]=
 	{ "GAMEGUYCOUNTD",     GAMEGUYCOUNTD,        0,             0 },
 	{ "CURMAP",            CURMAP,               0,             0 },
 	{ "CURSCR",            CURSCR,               0,             0 },
+	{ "HERO_SCREEN",       HERO_SCREEN,          0,             0 },
 	{ "CURDSCR",           CURDSCR,              0,             0 },
 	{ "CURDMAP",           CURDMAP,              0,             0 },
 	{ "COMBODD",           COMBODD,              0,             0 },
