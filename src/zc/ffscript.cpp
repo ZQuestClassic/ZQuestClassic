@@ -6831,6 +6831,10 @@ int32_t get_register(int32_t arg)
 		case UNDERCSET:
 			ret = tmpscr->undercset*10000;
 			break;
+
+		case SCREEN_INDEX:
+			ret = currscr*10000;
+			break;
 		
 		//Creates an lweapon using an iemdata struct values to generate its properties.
 		//Useful in conjunction with the new weapon editor. 

@@ -2840,6 +2840,7 @@ enum ASM_DEFINE
 #define REGION_SCREEN_WIDTH     0x14DB
 #define REGION_SCREEN_HEIGHT    0x14DC
 #define SPRITE_SPAWN_SCREEN     0x14DD
+#define SCREEN_INDEX            0x14DE
 #define REGION_NUM_COMBOS       0x14DF
 #define REGION_ID               0x14E0
 #define REGION_ORIGIN_SCREEN    0x14E1
