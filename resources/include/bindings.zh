@@ -60,7 +60,7 @@
 //
 //   @deprecated_getter is only for variables, and defines a function getter.
 //
-// @index, @value, @length, @param
+// @index, @value, @length, @param, @version
 //
 //   These have no impact on the compiler, and serve only as documentation.
 //

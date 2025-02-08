@@ -291,8 +291,7 @@ class screendata {
 	// - ffc, npc, eweapon, lweapon, itemsprite, combo - all use the screen they were spawned on ([sprite::SpawnScreen])
 	// - player - uses [Game->HeroScreen], which updates as the player moves around
 	//
-	// Note: in 2.55, this is equivalent to [Game->CurScreen].
-	//
+	// @version 2.55.9 - equivalent to [Game->CurScreen]
 	// @zasm_var SCREEN_INDEX
 	internal const int Index;
 
@@ -990,6 +989,7 @@ class screendata {
 	//
 	// Defaults to [DRAW_ORIGIN_DEFAULT].
 	//
+	// @version 2.55.9
 	// @zasm_var SCREEN_DRAW_ORIGIN
 	internal DrawOrigin DrawOrigin;
 
@@ -998,6 +998,7 @@ class screendata {
 	//
 	// Each script has its own copy of this variable.
 	//
+	// @version 3.0
 	// @zasm_var SCREEN_DRAW_ORIGIN_TARGET
 	internal sprite DrawOriginTarget;
 

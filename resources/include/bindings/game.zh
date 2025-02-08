@@ -327,6 +327,7 @@ class Game {
 	//
 	// During a scrolling screen transition, this is the new screen.
 	//
+	// @version 2.55.9
 	// @zasm_var HERO_SCREEN
 	internal const int HeroScreen;
 

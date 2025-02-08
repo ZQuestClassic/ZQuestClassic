@@ -1,5 +1,3 @@
-// Note: this feature is not yet released. See the #z3 channel: https://discord.com/channels/876899628556091432/1120883971950125147
-//
 // A region is a set of map screens that the player can freely move within.
 //
 // The top-left screen of a region is called the "origin screen". [Game->CurScreen] is
@@ -11,6 +9,9 @@
 // The visible porition of the region currently visible is defined by the [Viewport].
 //
 // Access with `Region->`.
+//
+// @version 2.55.9 - Added for compatability. Variables never vary (besides [Region->OriginScreenIndex])
+// @version 3.0 - Fully implemented
 class Region {
 	// @delete
 	internal Region();
