@@ -117,3 +117,12 @@ void mapscr::ffcCountMarkDirty()
 {
 	ffc_count_dirty = true;
 }
+
+int screen_index_direction(int screen, direction dir)
+{
+	if (dir == left)  screen--;
+	if (dir == right) screen++;
+	if (dir == up)    screen -= 16;
+	if (dir == down)  screen += 16;
+	return screen;
+}

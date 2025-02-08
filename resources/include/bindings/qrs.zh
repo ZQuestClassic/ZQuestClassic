@@ -396,6 +396,9 @@ enum QR
 	qr_BROKEN_LIGHTBEAM_HITBOX,	// Compatibility (>>>) Broken light beam hitbox
 	qr_BROKEN_SWORD_SPIN_TRIGGERS,	// Compatibility (>>>) Broken Sword Triggers (spin-related)
 
+	qr_SCRIPTS_6_BIT_COLOR = 60*8, // Scripts use 6-bit color (0-63) instead of 8-bit (0-255)
+	qr_BROKEN_SCRIPTS_SCROLLING_HERO_POSITION, // Fix Hero Position Exposed To Scripts When Scrolling
+
 	qr_OLD_SCRIPT_VOLUME = 70 * 8,	// Compatibility (>>>) Old (Buggy) ZScript Volume Access
 	qr_OLD_DMAP_INTRO_STRINGS,	// Compatibility (>>>) Old DMap Titles and Intros
 	qr_SCRIPTDRAWSFROZENMSG,	// ZScript (>>>) Scripts Draw During Frozen Messages

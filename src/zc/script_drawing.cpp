@@ -11818,37 +11818,74 @@ void do_primitives(BITMAP *targetBitmap, int32_t type, mapscr* theScreen, int32_
 	const int32_t numDrawCommandsToProcess = script_drawing_commands.Count();
 	FFCore.numscriptdraws = numDrawCommandsToProcess;
 	
-	for(int32_t i(0); i < numDrawCommandsToProcess; ++i)
+	for (int i = 0; i < numDrawCommandsToProcess; i++)
 	{
+		auto& command = script_drawing_commands[i];
 		int32_t *sdci = &script_drawing_commands[i][0];
-		
-		if(sdci[1] != type_mul_10000)
+
+		if (sdci[1] != type_mul_10000)
 			continue;
+
+		DrawOrigin draw_origin = command.draw_origin;
 
 		// get the correct render target, if set.
 		BITMAP *bmp = zscriptDrawingRenderTarget->GetTargetBitmap(sdci[DRAWCMD_CURRENT_TARGET]);
-		int32_t xoffset;
-		int32_t yoffset;
 		// TODO: the way this is used is unusual. bitmaps can be of any size, yet this clips based on a fixed size.
 		// Should just remove all clipping at this layer, the underlying draw functions clip anyway.
 		bool isTargetOffScreenBmp;
 
 		if(!bmp)
 		{
-			// draw to screen with subscreen offset
-			xoffset = xoff;
-			yoffset = yoff;
 			bmp = targetBitmap;
 			isTargetOffScreenBmp = false;
 		}
 		else
 		{
-			//not drawing to screen, so no subscreen offset
-			xoffset = 0;
-			yoffset = 0;
+			draw_origin = DrawOrigin::Screen;
 			isTargetOffScreenBmp = true;
 		}
-		
+
+		int32_t xoffset;
+		int32_t yoffset;
+		if (draw_origin == DrawOrigin::Region)
+		{
+			xoffset = xoff - viewport.x;
+			yoffset = yoff - viewport.y;
+		}
+		else if (draw_origin == DrawOrigin::RegionScrollingNew)
+		{
+			xoffset = xoff + FFCore.ScrollingData[SCROLLDATA_NRX];
+			yoffset = yoff + FFCore.ScrollingData[SCROLLDATA_NRY];
+		}
+		else if (draw_origin == DrawOrigin::PlayingField)
+		{
+			xoffset = xoff;
+			yoffset = yoff;
+		}
+		else if (draw_origin == DrawOrigin::Screen)
+		{
+			xoffset = 0;
+			yoffset = 0;
+		}
+		else if (draw_origin == DrawOrigin::Sprite)
+		{
+			sprite* spr = sprite::getByUID(command.draw_origin_target);
+			if (!spr)
+			{
+				Z_scripterrlog("Warning: Ignoring draw command using DRAW_ORIGIN_SPRITE with non-existent sprite uid: %d.\n", command.draw_origin_target);
+				continue;
+			}
+
+			xoffset = xoff - viewport.x + spr->x.getInt();
+			yoffset = yoff - viewport.y + spr->y.getInt();
+		}
+		else
+		{
+			// Unexpected.
+			xoffset = 0;
+			yoffset = 0;
+		}
+
 		switch(sdci[0])
 		{
 			case RECTR:

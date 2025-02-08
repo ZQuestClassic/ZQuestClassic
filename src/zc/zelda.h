@@ -299,6 +299,7 @@ extern bool usebombpal;
 extern int32_t slot_arg, slot_arg2;
 
 extern int32_t homescr,currscr,frame,currmap,dlevel,warpscr,worldscr,scrolling_scr,scrolling_map;
+extern bool scrolling_using_new_region_coords;
 extern dword light_wave_clk;
 extern int32_t newscr_clk,opendoors,currdmap,fadeclk,listpos;
 extern int32_t lastentrance,lastentrance_dmap, prices[3],loadside, Bwpn, Awpn, Xwpn, Ywpn;

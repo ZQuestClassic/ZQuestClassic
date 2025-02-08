@@ -303,5 +303,7 @@ extern std::vector<mapscr> TheMaps;
 extern std::vector<word>   map_autolayers;
 extern word map_count;
 
+int screen_index_direction(int screen, direction dir);
+
 #endif
 

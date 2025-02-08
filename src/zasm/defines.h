@@ -3143,7 +3143,11 @@ enum ASM_DEFINE
 // block reserved, start
 #define ZASM_VAR_RESERVED_Z3_FIRST   0x15ED
 #define ZASM_VAR_RESERVED_Z3_LAST    0x15FE
+
+// #define VIEWPORT_TARGET           0x15ED
+#define SCREEN_DRAW_ORIGIN        0x15EE
 #define HERO_SCREEN               0x15EF
+#define SCREEN_DRAW_ORIGIN_TARGET 0x15F0
 // block reserved, end
 
 #define NUMVARIABLES            0x15FF

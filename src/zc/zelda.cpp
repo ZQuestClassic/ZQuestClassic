@@ -316,6 +316,7 @@ byte zc_vsync=0;
 byte use_win32_proc=1, console_enabled = 0;
 int32_t homescr,currscr,frame=0,currmap=0,dlevel,warpscr,worldscr,scrolling_scr=0,scrolling_map=0;
 dword light_wave_clk = 0;
+bool scrolling_using_new_region_coords;
 int32_t newscr_clk=0,opendoors=0,currdmap=0,fadeclk=-1,listpos=0;
 int32_t lastentrance=0,lastentrance_dmap=0,prices[3]= {0},loadside = 0, Bwpn = -1, Awpn = -1, Xwpn = -1, Ywpn = -1;
 int32_t digi_volume = 0,midi_volume = 0,sfx_volume = 0,emusic_volume = 0,currmidi = -1,hasitem = 0,whistleclk = 0,pan_style = 0;
@@ -1605,6 +1606,8 @@ void init_game_vars(bool is_cont_game = false)
 	frame = 0;
 	light_wave_clk = 0;
 
+	screenscrolling = false;
+	scrolling_using_new_region_coords = false;
 	new_sub_indexes[sstACTIVE] = -1;
 	loadside = 0;
 	view_map_show_mode = 3;

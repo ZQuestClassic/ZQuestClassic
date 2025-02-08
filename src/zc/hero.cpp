@@ -28033,8 +28033,11 @@ void HeroClass::run_scrolling_script_int(bool waitdraw)
 			FFCore.itemScriptEngine();
 	}
 }
-//Bit of a messy kludge to give the correct Hero->X/Hero->Y in the script
-void HeroClass::run_scrolling_script(int32_t scrolldir, int32_t cx, int32_t sx, int32_t sy, bool end_frames, bool waitdraw)
+
+static zfix new_hero_x, new_hero_y;
+static int new_region_offset_x, new_region_offset_y;
+
+void HeroClass::run_scrolling_script_old(int32_t scrolldir, int32_t cx, int32_t sx, int32_t sy, bool end_frames, bool waitdraw)
 {
 	// For rafting (and possibly other esoteric things)
 	// Hero's action should remain unchanged while scrolling,
@@ -28049,41 +28052,129 @@ void HeroClass::run_scrolling_script(int32_t scrolldir, int32_t cx, int32_t sx, 
 	{
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_FFCS-1);
 	}
+
+	// Also, hero coordinates should remain unchanged.
+	// For compat, this is happening after the generic scripts above...
 	zfix storex = x, storey = y;
+
 	switch(scrolldir)
 	{
 	case up:
-		if(y < 160) y = 176;
-		else if(cx > 0 && !end_frames) y = sy + 156;
-		else y = 160;
-		
+		if(y < 176 - 16) y = 176;
+		else if(cx > 0 && !end_frames) y = sy + 176 - 20;
+		else y = 176 - 16;
+
+		x = new_hero_x;
 		break;
 		
 	case down:
 		if(y > 0) y = -16;
 		else if(cx > 0 && !end_frames) y = sy - 172;
 		else y = 0;
-		
+
+		x = new_hero_x;
 		break;
 		
 	case left:
-		if(x < 240) x = 256;
-		else if(cx > 0) x = sx + 236;
-		else x = 240;
-		
+		if(x < 256 - 16) x = 256;
+		else if(cx > 0) x = sx + 256 - 20;
+		else x = 256 - 16;
+
+		y = new_hero_y;
 		break;
 		
 	case right:
 		if(x > 0) x = -16;
 		else if(cx > 0)	x = sx - 252;
 		else x = 0;
-		
+
+		y = new_hero_y;
 		break;
 	}
+
+	viewport.x -= new_region_offset_x;
+	viewport.y -= new_region_offset_y;
+
 	run_scrolling_script_int(waitdraw);
+
+	viewport.x += new_region_offset_x;
+	viewport.y += new_region_offset_y;
+
+	x = storex, y = storey;
+	action=lastaction; FFCore.setHeroAction(lastaction);
+}
+
+//Bit of a messy kludge to give the correct Hero->X/Hero->Y in the script
+void HeroClass::run_scrolling_script(int32_t scrolldir, int32_t cx, int32_t sx, int32_t sy, bool end_frames, bool waitdraw)
+{
+	if (get_qr(qr_BROKEN_SCRIPTS_SCROLLING_HERO_POSITION))
+	{
+		// Old code has an off-by-one error, and doesn't clamp the hero position to the viewport.
+		//
+		// Although this is behind a compat qr, most test replays wouldn't fail. The ones that do are:
+		//
+		// 	nargads: different sfx plays during last frames of scrolling, sometimes
+		// 	crucible: fog is slightly different on last frames of scrolling
+		// 	yuurand: breaks. blocks are not removed when returning to a screen during scroll
+		run_scrolling_script_old(scrolldir, cx, sx, sy, end_frames, waitdraw);
+		return;
+	}
+
+	// For rafting (and possibly other esoteric things)
+	// Hero's action should remain unchanged while scrolling,
+	// but for the sake of scripts, here's an eye-watering kludge.
+	actiontype lastaction = action;
+	action=scrolling; FFCore.setHeroAction(scrolling);
+
+	// Also, hero coordinates should remain unchanged.
+	zfix storex = x, storey = y;
+
+	if(waitdraw)
+	{
+		FFCore.runGenericPassiveEngine(SCR_TIMING_WAITDRAW);
+	}
+	else
+	{
+		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_FFCS-1);
+	}
+
+	switch(scrolldir)
+	{
+	case up:
+		x = new_hero_x;
+		y = 176;
+		break;
+		
+	case down:
+		x = new_hero_x;
+		y = -16;
+		break;
+		
+	case left:
+		x = 256;
+		y = new_hero_y;
+		break;
+		
+	case right:
+		x = -16;
+		y = new_hero_y;
+		break;
+	}
+
+	viewport.x -= new_region_offset_x;
+	viewport.y -= new_region_offset_y;
+
+	if (scrolldir == left || scrolldir == right)
+		x.doClamp(viewport.left(), viewport.right() - 16);
+	if (scrolldir == up || scrolldir == down)
+		y.doClamp(viewport.top(), viewport.bottom() - 16);
+
+	run_scrolling_script_int(waitdraw);
+
+	viewport.x += new_region_offset_x;
+	viewport.y += new_region_offset_y;
 	
 	x = storex, y = storey;
-	
 	action=lastaction; FFCore.setHeroAction(lastaction);
 }
 
@@ -28293,6 +28384,64 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	
 	if(maze_enabled_sizewarp(scrolldir))  // dowarp() was called
 		return;
+
+	int dest_screen = destscr;
+	if (dest_screen == -1)
+	{
+		dest_screen = currscr;
+		if (checkmaze(tmpscr, false) && !edge_of_dmap(scrolldir)) {
+			dest_screen = screen_index_direction(dest_screen, (direction)scrolldir);
+		}
+	}
+
+	viewport_t old_viewport = viewport;
+
+	auto calc_new_viewport_and_pos = [&](){
+		// These mark the top-left coordinate of the new region, in the old region's world coordinates.
+		new_region_offset_x = ((dest_screen % 16) - (currscr % 16)) * 256;
+		new_region_offset_y = ((dest_screen / 16) - (currscr / 16)) * 176;
+
+		new_hero_x = 0;
+		new_hero_y = 0;
+		switch (scrolldir)
+		{
+			case up:
+			{
+				new_hero_x.val = x.val;
+				new_hero_y = 176 - 16;
+			}
+			break;
+
+			case down:
+			{
+				new_hero_x.val = x.val;
+				new_hero_y = 0;
+			}
+			break;
+
+			case left:
+			{
+				new_hero_x = 256 - 16;
+				new_hero_y.val = y.val;
+			}
+			break;
+
+			case right:
+			{
+				new_hero_x = 0;
+				new_hero_y.val = y.val;
+			}
+			break;
+
+			// Should never happen ...
+			default:
+			{
+				abort();
+			}
+		}
+	};
+	calc_new_viewport_and_pos();
+
 	bool isForceFaceUp = getOnSideviewLadder() && canSideviewLadder() &&
 		!(jumping<0 || fall!=0 || fakefall!=0) && get_qr(qr_SIDEVIEWLADDER_FACEUP);
 	bool room_was_dark = room_is_dark;
@@ -28300,6 +28449,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	kill_enemy_sfx();
 	stop_sfx(QMisc.miscsfx[sfxLOWHEART]);
 	screenscrolling = true;
+	memset(FFCore.ScrollingData, 0, sizeof(int32_t) * SZ_SCROLLDATA);
 	FFCore.ScrollingData[SCROLLDATA_DIR] = scrolldir;
 	switch(scrolldir)
 	{
@@ -28328,13 +28478,109 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			FFCore.ScrollingData[SCROLLDATA_OY] = 0;
 			break;
 	}
+
+	viewport.x = 0;
+	viewport.y = 0;
+
+	new_hero_x = 0;
+	new_hero_y = 0;
+	switch (scrolldir)
+	{
+		case up:
+		{
+			new_hero_x.val = x.val;
+			new_hero_y = 176 - 16;
+		}
+		break;
+
+		case down:
+		{
+			new_hero_x.val = x.val;
+			new_hero_y = 0;
+		}
+		break;
+
+		case left:
+		{
+			new_hero_x = 256 - 16;
+			new_hero_y.val = y.val;
+		}
+		break;
+
+		case right:
+		{
+			new_hero_x = 0;
+			new_hero_y.val = y.val;
+		}
+		break;
+
+		// Should never happen ...
+		default:
+		{
+			abort();
+		}
+	}
+
+	FFCore.ScrollingData[SCROLLDATA_NEW_REGION_DELTA_X] = new_region_offset_x;
+	FFCore.ScrollingData[SCROLLDATA_NEW_REGION_DELTA_Y] = new_region_offset_y;
+	FFCore.ScrollingData[SCROLLDATA_NRX] = new_region_offset_x - viewport.x;
+	FFCore.ScrollingData[SCROLLDATA_NRY] = new_region_offset_y - viewport.y;
+	FFCore.ScrollingData[SCROLLDATA_ORX] = -viewport.x;
+	FFCore.ScrollingData[SCROLLDATA_ORY] = -viewport.y;
+
+	// Get the screen coords of the top-left of the screen we are scrolling away from.
+	int old_sx = 0;
+	int old_sy = 0;
+	FFCore.ScrollingData[SCROLLDATA_OX] = old_sx - viewport.x;
+	FFCore.ScrollingData[SCROLLDATA_OY] = old_sy - viewport.y;
+
+	FFCore.ScrollingData[SCROLLDATA_NEW_SCREEN_X] = 0;
+	FFCore.ScrollingData[SCROLLDATA_NEW_SCREEN_Y] = 0;
+
+	FFCore.ScrollingData[SCROLLDATA_OLD_SCREEN_X] = old_sx;
+	FFCore.ScrollingData[SCROLLDATA_OLD_SCREEN_Y] = old_sy;
+
+	FFCore.ScrollingData[SCROLLDATA_NEW_HERO_X] = new_hero_x.getInt();
+	FFCore.ScrollingData[SCROLLDATA_NEW_HERO_Y] = new_hero_y.getInt();
+
+	FFCore.ScrollingData[SCROLLDATA_OLD_HERO_X] = x.getInt();
+	FFCore.ScrollingData[SCROLLDATA_OLD_HERO_Y] = y.getInt();
+
+	FFCore.ScrollingData[SCROLLDATA_NEW_REGION_SCREEN_WIDTH] = 1;
+	FFCore.ScrollingData[SCROLLDATA_NEW_REGION_SCREEN_HEIGHT] = 1;
+
+	FFCore.ScrollingData[SCROLLDATA_OLD_REGION_SCREEN_WIDTH] = 1;
+	FFCore.ScrollingData[SCROLLDATA_OLD_REGION_SCREEN_HEIGHT] = 1;
+
+	FFCore.ScrollingData[SCROLLDATA_NEW_VIEWPORT_WIDTH] = 256;
+	FFCore.ScrollingData[SCROLLDATA_NEW_VIEWPORT_HEIGHT] = 176;
+
+	FFCore.ScrollingData[SCROLLDATA_OLD_VIEWPORT_WIDTH] = 256;
+	FFCore.ScrollingData[SCROLLDATA_OLD_VIEWPORT_HEIGHT] = 176;
+
+	FFCore.ScrollingData[SCROLLDATA_NEW_VIEWPORT_X] = 0;
+	FFCore.ScrollingData[SCROLLDATA_NEW_VIEWPORT_Y] = 0;
+
+	FFCore.ScrollingData[SCROLLDATA_OLD_VIEWPORT_X] = viewport.x;
+	FFCore.ScrollingData[SCROLLDATA_OLD_VIEWPORT_Y] = viewport.y;
+
 	FFCore.clear_combo_scripts();
-	// tmpscr[1] = tmpscr[0]; // ?? rm
-	
-	// for(int32_t i = 0; i < 6; i++)
-	// {
-	// 	tmpscr3[i] = tmpscr2[i];
-	// }
+
+	auto hero_x_before_scripts = x;
+	auto hero_y_before_scripts = y;
+
+	// Don't signal to scripts that scrolling has "started" (and thus all the Game->Scrolling variables are valid)
+	// just yet. Store what we calculated and apply them after this next frame.
+	// TODO(replays): update. And probably just move the calculation to after this frame renders (rather than cache).
+	bool crucible_quest_compat = replay_is_debug() && replay_get_meta_str("qst") == "crucible_quest.qst";
+	int cached_scrolling[SZ_SCROLLDATA];
+	if (!crucible_quest_compat)
+	{
+		for (int i = 0; i < SZ_SCROLLDATA; i++)
+			cached_scrolling[i] = FFCore.ScrollingData[i];
+		memset(FFCore.ScrollingData, 0, sizeof(int32_t) * SZ_SCROLLDATA);
+		FFCore.ScrollingData[SCROLLDATA_DIR] = -1;
+	}
 	
 	conveyclk = 2;
 	
@@ -28438,7 +28684,20 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		screenscrolling = false;
 		return;
 	}
-	
+
+	if (!crucible_quest_compat)
+	{
+		for (int i = 0; i < SZ_SCROLLDATA; i++)
+			FFCore.ScrollingData[i] = cached_scrolling[i];
+	}
+
+	// This adjusts how drawing commands are interpreted in `do_drawing_command`.
+	// Currently, since only one set of screen scripts/item scripts/etc. can run at a time during
+	// scrolling (either the old screens, which was above and this next "waiting" phase, or the new
+	// screens, which comes after this next part) - a boolean is enough to capture this. If this
+	// changes, we need to vary this behavior based on "is this from the new or old set of screens?"
+	scrolling_using_new_region_coords = true;
+
 	++cx;
 	while(cx < 32)
 	{
@@ -28581,6 +28840,16 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	break;
 	}
 
+	// We must recalculate the new hero position, if a script run above just change the
+	// hero position.
+	if (hero_x_before_scripts != x || hero_y_before_scripts != y)
+	{
+		calc_new_viewport_and_pos();
+
+		FFCore.ScrollingData[SCROLLDATA_NEW_HERO_X] = new_hero_x.getInt();
+		FFCore.ScrollingData[SCROLLDATA_NEW_HERO_Y] = new_hero_y.getInt();
+	}
+
 	// change Hero's state if entering water
 	int32_t ahead = lookahead(scrolldir);
 	int32_t aheadflag = lookaheadflag(scrolldir);
@@ -28692,23 +28961,39 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		
 	cx *= delay; //so we can have drawing re-done every frame,
 	//previously it was for(0 to delay) advanceframes at end of loop
-	int32_t no_move = 0;
+	int no_move = 0;
+	int move_counter = 0;
+
+	viewport_t initial_viewport = old_viewport;
+	viewport = initial_viewport;
 
 	currdmap = newdmap;
 	for(word i = 0; cx >= 0 && delay != 0; i++, cx--) //Go!
 	{
+		// Scripts see the hero position as if relative to the scrolling viewport. This is a weird
+		// quirk that should probably be placed behind a compat QR.
+		zfix prev_x, prev_y;
+		#define SAVE_HERO_POS {prev_x = x; prev_y = y;}
+		#define USE_COMPAT_HERO_POS {x -= viewport.x; y -= viewport.y;}
+		#define RESTORE_HERO_POS {x = prev_x; y = prev_y;}
+
 		if (replay_version_check(0, 3))
 		{
 			replay_poll();
 		}
 		if(Quit)
 		{
+			// TODO(replays): Just for compat with pre-z3 replays that quit during a scroll.
+			if (replay_is_recording())
+				USE_COMPAT_HERO_POS;
 			screenscrolling = false;
 			return;
 		}
 		
-		
+		SAVE_HERO_POS;
+		USE_COMPAT_HERO_POS;
 		ZScriptVersion::RunScrollingScript(scrolldir, cx, sx, sy, end_frames, false);
+		RESTORE_HERO_POS;
 		
 		if(no_move > 0)
 			no_move--;
@@ -28747,45 +29032,58 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			{
 			case up:
 				sy -= step;
-				y += step;
 				break;
 				
 			case down:
 				sy += step;
-				y -= step;
 				break;
 				
 			case left:
 				sx -= step;
-				x += step;
 				break;
 				
 			case right:
 				sx += step;
-				x -= step;
 				break;
 			}
-			
-			//bound Hero when me move him off the screen in the last couple of frames of scrolling
+
+			move_counter++;
+			{
+				int dx = 0;
+				int  dy = 0;
+				if (scrolldir == up)    dy = -1;
+				if (scrolldir == down)  dy = 1;
+				if (scrolldir == left)  dx = -1;
+				if (scrolldir == right) dx = 1;
+
+				viewport.x = initial_viewport.x + step * move_counter * dx;
+				viewport.y = initial_viewport.y + step * move_counter * dy;
+			}
+
+			// This is the only thing that moves the hero.
 			if (!sideview_scrolling_slope)
 			{
-				if(y > 160) y = 160;
-				
-				if(y < 0)   y = 0;
-				
-				if(x > 240) x = 240;
-				
-				if(x < 0)   x = 0;
+				if (scrolldir == left || scrolldir == right)
+				{
+					x.doClamp(viewport.x, viewport.right() - 16);
+				}
+				else
+				{
+					y.doClamp(viewport.y, viewport.bottom() - 16);
+				}
 			}
 			
 			if(ladderx > 0 || laddery > 0)
 			{
+				SAVE_HERO_POS;
+				USE_COMPAT_HERO_POS;
 				// If the ladder moves on both axes, the player can
 				// gradually shift it by going back and forth
 				if(scrolldir==up || scrolldir==down)
 					laddery = y.getInt();
 				else
 					ladderx = x.getInt();
+				RESTORE_HERO_POS;
 			}
 		}
 		
@@ -28829,11 +29127,18 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			ty2 -= 176;
 			break;
 		}
-		
+
+		FFCore.ScrollingData[SCROLLDATA_NRX] = new_region_offset_x - viewport.x;
+		FFCore.ScrollingData[SCROLLDATA_NRY] = new_region_offset_y - viewport.y;
+		FFCore.ScrollingData[SCROLLDATA_ORX] = -viewport.x;
+		FFCore.ScrollingData[SCROLLDATA_ORY] = -viewport.y;
+
 		//FFScript.OnWaitdraw()
+		SAVE_HERO_POS;
+		USE_COMPAT_HERO_POS;
 		ZScriptVersion::RunScrollingScript(scrolldir, cx, sx, sy, end_frames, true); //Waitdraw
-		
 		FFCore.runGenericPassiveEngine(SCR_TIMING_PRE_DRAW);
+		RESTORE_HERO_POS;
 		clear_bitmap(scrollbuf);
 		clear_bitmap(framebuf);
 		clear_info_bmp();
@@ -28962,6 +29267,9 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		putscrdoors(framebuf, 0-tx,  0-ty+playing_field_offset, newscr);
 		herostep();
 		if(isForceFaceUp) dir = up;
+
+		SAVE_HERO_POS;
+		USE_COMPAT_HERO_POS;
 		
 		if((z > 0 || fakez > 0) && (!get_qr(qr_SHADOWSFLICKER) || frame&1))
 		{
@@ -28986,7 +29294,10 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			decorations.draw2(framebuf, true);
 			draw(framebuf); //Hero
 			decorations.draw(framebuf,  true);
+
 		}
+
+		RESTORE_HERO_POS;
 		
 		if(!(XOR(oldscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG))) do_layer(framebuf, 0, 3, oldscr, tx2, ty2, 3);
 		
@@ -29014,7 +29325,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		do_layer(framebuf, -4, 0, newscr, tx, ty, 2, true); //overhead FFCs
 		do_layer(framebuf, 0, 6, newscr, tx, ty, 2, false, true); //layer 6
 		
-		
 		if(msg_bg_display_buf->clip == 0)
 		{
 			blit_msgstr_bg(framebuf, tx2, ty2, 0, playing_field_offset, 256, 168);
@@ -29032,7 +29342,10 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		{
 			clear_darkroom_bitmaps();
 			calc_darkroom_combos(true);
+			SAVE_HERO_POS;
+			USE_COMPAT_HERO_POS;
 			calc_darkroom_hero(FFCore.ScrollingData[SCROLLDATA_NX], FFCore.ScrollingData[SCROLLDATA_NY],FFCore.ScrollingData[SCROLLDATA_OX], FFCore.ScrollingData[SCROLLDATA_OY]);
+			RESTORE_HERO_POS;
 		}
 		
 		if(get_qr(qr_NEW_DARKROOM) && get_qr(qr_NEWDARK_L6))
@@ -29117,11 +29430,15 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			}
 			set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
 		}
+
+		SAVE_HERO_POS;
+		USE_COMPAT_HERO_POS;
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DRAW);
-		
-		//end drawing
 		FFCore.runGenericPassiveEngine(SCR_TIMING_END_FRAME);
+
+		RESTORE_HERO_POS;
 		advanceframe(true/*,true,false*/);
+		USE_COMPAT_HERO_POS;
 		
 		//Don't clear the last frame, unless 'fixed'
 		if(cx > 0 || get_qr(qr_FIXSCRIPTSDURINGSCROLLING))
@@ -29131,51 +29448,21 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		action=scrolling; FFCore.setHeroAction(scrolling);
 		FFCore.runF6Engine();
 		action=lastaction; FFCore.setHeroAction(lastaction);
+
+		RESTORE_HERO_POS;
 	} //end main scrolling loop
 	currdmap = olddmap;
 
-	// Might not be needed, but just in case.
-	if (sideview_scrolling_slope)
-	{
-		if(y > 160) y = 160;
-		
-		if(y < 0)   y = 0;
-		
-		if(x > 240) x = 240;
-		
-		if(x < 0)   x = 0;
-	}
-	
+	x = new_hero_x;
+	y = new_hero_y;
+
 	clear_bitmap(msg_txt_display_buf);
 	set_clip_state(msg_txt_display_buf, 1);
 	clear_bitmap(msg_bg_display_buf);
 	set_clip_state(msg_bg_display_buf, 1);
 	clear_bitmap(msg_portrait_display_buf);
 	set_clip_state(msg_portrait_display_buf, 1);
-	
-	//Move hero to the other side of the screen if scrolling's not turned on
-	if(get_qr(qr_NOSCROLL))
-	{
-		switch(scrolldir)
-		{
-		case up:
-			y = 160;
-			break;
-			
-		case down:
-			y = 0;
-			break;
-			
-		case left:
-			x = 240;
-			break;
-			
-		case right:
-			x = 0;
-			break;
-		}
-	}
-	
+
 	if((z > 0 || fakez > 0) && isSideViewHero())
 	{
 		y -= z;
@@ -29193,11 +29480,9 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	warpy   = -1;
 	
 	screenscrolling = false;
+	scrolling_using_new_region_coords = false;
+	memset(FFCore.ScrollingData, 0, sizeof(int32_t) * SZ_SCROLLDATA);
 	FFCore.ScrollingData[SCROLLDATA_DIR] = -1;
-	FFCore.ScrollingData[SCROLLDATA_NX] = 0;
-	FFCore.ScrollingData[SCROLLDATA_NY] = 0;
-	FFCore.ScrollingData[SCROLLDATA_OX] = 0;
-	FFCore.ScrollingData[SCROLLDATA_OY] = 0;
 	
 	if(destdmap != -1)
 	{

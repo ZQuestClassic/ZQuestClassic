@@ -8275,7 +8275,7 @@ void sfx(int32_t index,int32_t pan,bool loop, bool restart, int32_t vol, int32_t
 
 	if (restart && replay_is_debug())
 	{
-		// TODO: get rid of this bandaid next time replays are mass-updated.
+		// TODO(replays): get rid of this bandaid next time replays are mass-updated.
 		const char* sfx_name = sfx_string[index];
 		if (strcmp(sfx_name, "Hero is hit") == 0)
 			sfx_name = "Player is hit";
