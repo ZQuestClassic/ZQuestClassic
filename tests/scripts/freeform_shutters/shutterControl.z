@@ -1,0 +1,531 @@
+// https://www.purezc.net/index.php?page=scripts&id=61
+
+import "std.zh"
+
+// After regaining control of Link upon entering a new screen, the number of frames to wait before opening shutters.
+const int SHUTTER_DELAY_TIME = 15;
+
+// The screen and map number of the previous frame.
+int prevScreen;
+int prevDMap;
+
+// Holds shutter combo locations
+int shutterPos[176];
+
+// True if there are enemies still on the screen
+bool enemiesLeft = true;
+
+// True if enemy, secret, perm secret, and flag shutters are closed, respectively.
+bool shuttersEnemyClosed = true;
+bool shuttersSecretClosed = true;
+bool shuttersPermSecretClosed = true;
+bool shuttersFlagClosed = true;
+
+// If set to true by another script, flag shutters will open.
+bool shutterFlag = false;
+
+// True while Link is automatically moving out of the way for a shutter to close.
+bool shutterRunning = false;
+
+// Records combos on screen 81 for safe keeping so that other combos can be placed and tested there.
+int shutterTempCombo[4];
+
+// Array used to count the number of shutters to close after Link steps off of them.
+int shutterCheck[2];
+
+// Counter for closing shutters after Link regains control.
+int shutterDelay = SHUTTER_DELAY_TIME;
+
+void shutterControl() {
+
+	if(changeScreen()) {
+		// The screen has been changed in the last frame. Time to initialize new shutters!
+
+		// Reset the script flag for flag shutters
+		shutterFlag = false;
+
+		// Start by saying all shutters are open so that we can close only the ones necessary.
+		// This means we'll only have to spend time checking shutter conditions for shutter types that actually exist.
+		shuttersEnemyClosed = false;
+		shuttersSecretClosed = false;
+		shuttersPermSecretClosed = false;
+		shuttersFlagClosed = false;
+
+		// The number of shutter combos on the screen.
+		int numDoors = 0;
+
+		// The following loop determines the number of shutter combos on the screen. Suppose there are k.
+		// It then sets the first k values of ShutterPos[] to the combo locations of those doors, and sets value k+1 to -1.
+		// It also determines which types of shutters are in use.
+
+		for(int i=0; i<176; i++) {
+			// Looping through all combos on the screen...
+
+			shutterPos[numDoors] = -1;
+
+			if(Screen->ComboT[i] == CT_SCRIPT1 && Screen->ComboF[i] != 100 && 
+			(Screen->ComboI[i] != 100 || Screen->ComboF[i] == 98 || Screen->ComboF[i] == 99 || Screen->ComboF[i] == 101)) {
+				// The combo is a shutter type AND the combo flag is not a one-way shutter AND
+				// either the inherent flag is not a one-way shutter or the combo flag is one one of the other types of shutters.
+
+				shutterPos[numDoors] = i;
+				numDoors++;
+				if(Screen->ComboF[i] == 98) {
+					shuttersSecretClosed = true;
+				}
+				else if(Screen->ComboF[i] == 99) {
+					shuttersPermSecretClosed = true;
+				}
+				else if(Screen->ComboF[i] == 101) {
+					shuttersFlagClosed = true;
+				}
+				else if(Screen->ComboI[i] == 98) {
+					shuttersSecretClosed = true;
+				}
+				else if(Screen->ComboI[i] == 99) {
+					shuttersPermSecretClosed = true;
+				}
+				else if(Screen->ComboI[i] == 101) {
+					shuttersFlagClosed = true;
+				}
+				else {
+					shuttersEnemyClosed = true;
+				}
+			}
+		}
+
+		// Screen has changed, so reset the shutter delay counter.
+		shutterDelay = SHUTTER_DELAY_TIME;
+
+		if(Screen->ComboT[ComboAt(Link->X, Link->Y)] == CT_SCRIPT1 || 
+		Screen->ComboT[ComboAt(Link->X+15, Link->Y)] == CT_SCRIPT1 || 
+		Screen->ComboT[ComboAt(Link->X, Link->Y+15)] == CT_SCRIPT1 || 
+		Screen->ComboT[ComboAt(Link->X+15, Link->Y+15)] == CT_SCRIPT1) {
+			// If Link is standing on a shutter combo...
+
+			// Link is on a shutter on the first frame of a new screen, so the automatic walking begins...
+			shutterRunning = true;
+
+			// Determine which edge Link is on, and make him face the direction he's about to walk.
+			// So if he's on the left side of the screen, for instance, make him face right.
+			int dir = -1;
+			if(Link->Y >= 175) {
+				dir = DIR_UP;
+			}
+			else if(Link->Y <= -1) {
+				dir = DIR_DOWN;
+			}
+			else if(Link->X >= 255) {
+				dir = DIR_LEFT;
+			}
+			else if(Link->X <= -1) {
+				dir = DIR_RIGHT;
+			}
+
+			Link->Dir = dir;
+
+			// Link will be taking up at most two rows of combos (if moving horizontally) or two columns of combos (if moving vertically).
+			// shutterCheck[0] and shutterCheck[1] will count the number of shutter combos his top and bottom (or left and right) halves
+			// will touch as he automatically walks away from the shutter combos. Here we initialize the values to 0.
+			shutterCheck[0] = 0;
+			shutterCheck[1] = 0;
+
+			// Now we actually find those values:
+			if(dir == DIR_UP) {
+				int y=10;
+				while(Screen->ComboT[ComboAt(Link->X, 16*y)] == CT_SCRIPT1) {
+					Screen->ComboD[ComboAt(Link->X, 16*y)]++;
+					y--;
+					shutterCheck[0]++;
+				}
+				if(Link->X % 16 != 0) {
+					y=10;
+					while(Screen->ComboT[ComboAt(Link->X+15, 16*y)] == CT_SCRIPT1) {
+						Screen->ComboD[ComboAt(Link->X+15, 16*y)]++;
+						y--;
+						shutterCheck[1]++;
+					}
+				}
+			}
+
+			else if(dir == DIR_DOWN) {
+				int y=0;
+				while(Screen->ComboT[ComboAt(Link->X, 16*y)] == CT_SCRIPT1) {
+					Screen->ComboD[ComboAt(Link->X, 16*y)]++;
+					y++;
+					shutterCheck[0]++;
+				}
+				if(Link->X % 16 != 0) {
+					y=0;
+					while(Screen->ComboT[ComboAt(Link->X+15, 16*y)] == CT_SCRIPT1) {
+						Screen->ComboD[ComboAt(Link->X+15, 16*y)]++;
+						y++;
+						shutterCheck[1]++;
+					}
+				}
+			}
+
+			else if(dir == DIR_LEFT) {
+				int x=15;
+				while(Screen->ComboT[ComboAt(16*x, Link->Y)] == CT_SCRIPT1) {
+					Screen->ComboD[ComboAt(16*x, Link->Y)]++;
+					x--;
+					shutterCheck[0]++;
+				}
+				if(Link->Y % 16 != 0) {
+					x=15;
+					while(Screen->ComboT[ComboAt(16*x, Link->Y+15)] == CT_SCRIPT1) {
+						Screen->ComboD[ComboAt(16*x, Link->Y+15)]++;
+						x--;
+						shutterCheck[1]++;
+					}
+				}
+			}
+
+			else if(dir == DIR_RIGHT) {
+				int x=0;
+				while(Screen->ComboT[ComboAt(16*x, Link->Y)] == CT_SCRIPT1) {
+					Screen->ComboD[ComboAt(16*x, Link->Y)]++;
+					x++;
+					shutterCheck[0]++;
+				}
+				if(Link->Y % 16 != 0) {
+					x=0;
+					while(Screen->ComboT[ComboAt(16*x, Link->Y+15)] == CT_SCRIPT1) {
+						Screen->ComboD[ComboAt(16*x, Link->Y+15)]++;
+						x++;
+						shutterCheck[1]++;
+					}
+				}
+			}
+
+			// If the four corners of Link are standing on combos with combo data a, b, c, and d, then we'll use screen 81 on map 1
+			// to place combos a-1, b-1, c-1, and d-1. Then, we can check if those combos are shutter type. These variables hold
+			// the original data for the combos on this screen so we can replace them when we're done.
+			shutterTempCombo[0] = Game->GetComboData(1, 0x81, 0);
+			shutterTempCombo[1] = Game->GetComboData(1, 0x81, 1);
+			shutterTempCombo[2] = Game->GetComboData(1, 0x81, 2);
+			shutterTempCombo[3] = Game->GetComboData(1, 0x81, 3);
+		}
+    }
+	// End change Screen!
+
+	else if(shutterRunning == true) {
+		// We're in the animation mode. Link is auto-walking.
+
+		// If the four corners of Link are standing on combos with combo data a, b, c, and d, then we'll use screen 81 on map 1
+		// to place combos a-1, b-1, c-1, and d-1.
+		Game->SetComboData(1, 0x81, 0, Screen->ComboD[ComboAt(Link->X, Link->Y)]-1);
+		Game->SetComboData(1, 0x81, 1, Screen->ComboD[ComboAt(Link->X+15, Link->Y)]-1);
+		Game->SetComboData(1, 0x81, 2, Screen->ComboD[ComboAt(Link->X, Link->Y+15)]-1);
+		Game->SetComboData(1, 0x81, 3, Screen->ComboD[ComboAt(Link->X+15, Link->Y+15)]-1);
+
+		// Now we record the types of the combos we just placed.
+		int shutterComboType[4];
+		shutterComboType[0] = Game->GetComboType(1, 0x81, 0);
+		shutterComboType[1] = Game->GetComboType(1, 0x81, 1);
+		shutterComboType[2] = Game->GetComboType(1, 0x81, 2);
+		shutterComboType[3] = Game->GetComboType(1, 0x81, 3);
+
+		// Get Link's direction which, due to the actions on the change screen frame, should be the direction he's auto-walking.
+		int dir = Link->Dir;
+
+		if((shutterComboType[0] == CT_SCRIPT1) || (shutterComboType[1] == CT_SCRIPT1) || 
+		(shutterComboType[2] == CT_SCRIPT1) || (shutterComboType[3] == CT_SCRIPT1)) {
+			// If the combo Link is walking on WAS a shutter type...
+			
+			// Disable movement and A+B buttons...
+			noMoveAction();
+
+			// ...and auto-walk in the correct direction
+			if(dir == DIR_UP) {
+				Link->InputUp = true;
+			}
+			else if(dir == DIR_DOWN) {
+				Link->InputDown = true;
+			}
+			else if(dir == DIR_LEFT) {
+				Link->InputLeft = true;
+			}
+			else if(dir == DIR_RIGHT) {
+				Link->InputRight = true;
+			}
+		}
+
+		else {
+			// Link is off the shutter combos and can stop auto-walking! Hooray!
+
+			// Animation is complete, so turn off the shutterRunning flag so we don't enter this if statement again.
+			shutterRunning = false;
+
+			// We screwed up screen 81 on map 1 earlier, so let's restore the combos we changed.
+			Game->SetComboData(1, 0x81, 0, shutterTempCombo[0]);
+			Game->SetComboData(1, 0x81, 1, shutterTempCombo[1]);
+			Game->SetComboData(1, 0x81, 2, shutterTempCombo[2]);
+			Game->SetComboData(1, 0x81, 3, shutterTempCombo[3]);
+
+			// Now we loop through the combos Link walked over during his journey and subtract one from the combo data
+			// So that the shutters are closed. First left half, then right half (or top then bottom)
+			for(int i=0; i<shutterCheck[0]; i++) {
+				if(dir == DIR_UP) {
+					Screen->ComboD[ComboAt(Link->X, 16*(10-i))]--;
+				}
+				else if(dir == DIR_DOWN) {
+					Screen->ComboD[ComboAt(Link->X, 16*i)]--;
+				}
+				else if(dir == DIR_LEFT) {
+					Screen->ComboD[ComboAt(16*(15-i), Link->Y)]--;
+				}
+				else if(dir == DIR_RIGHT) {
+					Screen->ComboD[ComboAt(16*i, Link->Y)]--;
+				}
+			}
+
+			for(int i=0; i<shutterCheck[1]; i++) {
+				if(dir == DIR_UP) {
+					Screen->ComboD[ComboAt(Link->X+15, 16*(10-i))]--;
+				}
+				else if(dir == DIR_DOWN) {
+					Screen->ComboD[ComboAt(Link->X+15, 16*i)]--;
+				}
+				else if(dir == DIR_LEFT) {
+					Screen->ComboD[ComboAt(16*(15-i), Link->Y+15)]--;
+				}
+				else if(dir == DIR_RIGHT) {
+					Screen->ComboD[ComboAt(16*i, Link->Y+15)]--;
+				}
+			}
+
+			// Shutters have closed. Let's make it official by playing the shutter sfx!
+			Game->PlaySound(SFX_SHUTTER);
+		}
+	}
+	// End shutter running. Link's auto-walk animation is over!
+
+	// If Link auto-walked, he'll enter this if statement on the frame after completing it. Otherwise, he'll enter this
+	// if statement as soon as the screen finishes scrolling. Either way, this is a countdown to when we can start opening shutters.
+	else if(shutterDelay > 0 && Link->Action != LA_SCROLLING) {
+		shutterDelay--;
+	}
+
+	else if(Link->Action != LA_SCROLLING) {
+		// We didn't just change screens, we're not in an auto-walk animation, and the shutter-opening countdown timer has finished!
+		// Time to check if we can actually open the shutters!
+
+		// If there are "enemy shutters" on the screen that are closed, check if we can open them.
+		if(shuttersEnemyClosed) {
+			openShuttersEnemyCheck();
+		}
+
+		// If there are "secret shutters" on the screen that are closed, check if we can open them.
+		if(shuttersSecretClosed) {
+			openShuttersSecretCheck();
+		}
+
+		// If there are "permanent secret shutters" on the screen that are closed, check if we can open them.
+		if(shuttersPermSecretClosed) {
+			openShuttersPermSecretCheck();
+		}
+
+		// If there are "script flag shutters" on the screen that are closed, check if we can open them.
+		if(shuttersFlagClosed) {
+			openShuttersFlagCheck();
+		}
+	}
+}
+// End the shutter control script!
+
+// This function returns true if the current screen is different from the screen in the previous frame.
+bool changeScreen() {
+	if((Game->GetCurScreen() != prevScreen) || (Game->GetCurDMap() != prevDMap)) {
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+// This function checks if all the enemies on the screen are dead, and if so, opens "enemy shutters."
+void openShuttersEnemyCheck() {
+	npc en;
+	bool enemiesLeft = false;
+
+	// Loop through all NPCs on screen. If any of them have ID >=20, they are real enemies, so set enemiesLeft to true and break the loop.
+	for(int i=1; i<=Screen->NumNPCs(); i++) {
+		en = Screen->LoadNPC(i);
+		if(!GetNPCMiscFlag(en,8) && en->ID != NPC_ITEMFAIRY) {
+			enemiesLeft = true;
+			break;
+		}
+	}
+
+	if(enemiesLeft == false) {
+		// If you got through the loop without seeing any enemies...
+
+		// Open the "enemy shutters."
+		openShuttersEnemy();
+
+		// Set this to false so that we don't bother checking this condition anymore.
+		shuttersEnemyClosed = false;
+	}
+}
+
+// This function opens all "enemy shutters."
+void openShuttersEnemy() {
+	int i=0;
+
+	// Loop through all (non one-way) shutter combos on the screen...
+	while(shutterPos[i] >= 0) {
+
+		// If there are no shutter flags on the combo, it's an "enemy shutter," so open it by incrementing the combo data.
+		if(Screen->ComboF[shutterPos[i]] != 98 && Screen->ComboI[shutterPos[i]] != 98 && 
+		Screen->ComboF[shutterPos[i]] != 99 && Screen->ComboI[shutterPos[i]] != 99 &&
+		Screen->ComboF[shutterPos[i]] != 101 && Screen->ComboI[shutterPos[i]] != 101) {
+			Screen->ComboD[shutterPos[i]] = Screen->ComboD[shutterPos[i]]+1;
+		}
+
+		i++;
+	}
+
+	// If there was at least one "enemy shutter," then we closed it, so let's make it official with an SFX!
+	if(i > 0) {
+		Game->PlaySound(SFX_SHUTTER);
+	}
+}
+
+// This function checks if temporary secrets have been activated, and if so, opens "secret shutters."
+void openShuttersSecretCheck() {
+
+	if(GetLayerComboF(1,0) < 16 || GetLayerComboF(1,0) > 31) {
+		// If the combo in the top-left corner of layer 1 either doesn't have a flag or has a non-secret flag (not flags 16-31)...
+
+		// Open the "secret shutters."
+		openShuttersSecret();
+
+		// Set this to false so that we don't bother checking this condition anymore.
+		shuttersSecretClosed = false;
+	}
+}
+
+// This function opens all "secret shutters."
+void openShuttersSecret() {
+	int i=0;
+
+	// Loop through all (non one-way) shutter combos on the screen...
+	while(shutterPos[i] >= 0) {
+
+		// If either:
+		//   The combo flag on the shutter is a "secret shutter" flag OR
+		//   The inherent flag is a "secret shutter" flag and the combo flag on the shutter is not another type of shutter flag...
+		// It's a "secret shutter," so open it by incrementing the combo data.
+		if(Screen->ComboF[shutterPos[i]] == 98 || 
+		(Screen->ComboI[shutterPos[i]] == 98 && Screen->ComboF[shutterPos[i]] != 99 && Screen->ComboF[shutterPos[i]] != 101)) {
+			Screen->ComboD[shutterPos[i]] = Screen->ComboD[shutterPos[i]]+1;
+		}
+
+		i++;
+	}
+
+	// If there was at least one "secret shutter," then we closed it, so let's make it official with an SFX!
+	if(i > 0) {
+		Game->PlaySound(SFX_SHUTTER);
+	}
+}
+
+// This function checks if the screen secrets flag has been activated, and if so, opens "permanent secret shutters."
+void openShuttersPermSecretCheck() {
+	if(Screen->State[ST_SECRET] == true) {
+		// If the secret state has been set to true...
+
+		// Open the "permanent secret shutters."
+		openShuttersPermSecret();
+
+		// Set this to false so that we don't bother checking this condition anymore.
+		shuttersPermSecretClosed = false;
+	}
+}
+
+// This function opens all "permanent secret shutters."
+void openShuttersPermSecret() {
+	int i=0;
+
+	// Loop through all (non one-way) shutter combos on the screen...
+	while(shutterPos[i] >= 0) {
+
+		// If either:
+		//   The combo flag on the shutter is a "permanent secret shutter" flag OR
+		//   The inherent flag is a "permanent secret shutter" flag and the combo flag on the shutter is not another type of shutter flag...
+		// It's a "permanent secret shutter," so open it by incrementing the combo data.
+		if(Screen->ComboF[shutterPos[i]] == 99 || 
+		(Screen->ComboI[shutterPos[i]] == 99 && Screen->ComboF[shutterPos[i]] != 98 && Screen->ComboF[shutterPos[i]] != 101)) {
+			Screen->ComboD[shutterPos[i]] = Screen->ComboD[shutterPos[i]]+1;
+		}
+
+		i++;
+	}
+
+	// If there was at least one "permanent secret shutter," then we closed it, so let's make it official with an SFX!
+	if(i > 0) {
+		Game->PlaySound(SFX_SHUTTER);
+	}
+}
+
+// This function checks if the script flag has been activated by another script, and if so, opens "flag shutters."
+void openShuttersFlagCheck() {
+	if(shutterFlag) {
+		// If the shutter flag has been set to true by another script...
+
+		// Open the "flag shutters."
+		openShuttersFlag();
+
+		// Set this to false so that we don't bother checking this condition anymore.
+		shuttersFlagClosed = false;
+	}
+}
+
+// This function opens all "flag shutters."
+void openShuttersFlag() {
+	int i=0;
+
+	// Loop through all (non one-way) shutter combos on the screen...
+	while(shutterPos[i] >= 0) {
+
+		// If either:
+		//   The combo flag on the shutter is a "flag shutter" flag OR
+		//   The inherent flag is a "flag shutter" flag and the combo flag on the shutter is not another type of shutter flag...
+		// It's a "flag shutter," so open it by incrementing the combo data.
+		if(Screen->ComboF[shutterPos[i]] == 101 || 
+		(Screen->ComboI[shutterPos[i]] == 101 && Screen->ComboF[shutterPos[i]] != 98 && Screen->ComboF[shutterPos[i]] != 99)) {
+			Screen->ComboD[shutterPos[i]] = Screen->ComboD[shutterPos[i]]+1;
+		}
+
+		i++;
+	}
+	
+	// If there was at least one "flag shutter," then we closed it, so let's make it official with an SFX!
+	if(i > 0) {
+		Game->PlaySound(SFX_SHUTTER);
+	}
+}
+
+// This function updates the prevScreen and prevDMap to reflect the current screen and dmap.
+void updatePrev() {
+	prevScreen = Game->GetCurScreen();
+	prevDMap = Game->GetCurDMap();
+}
+
+// This function kills movement inputs plus A+B inputs.
+void noMoveAction() {
+	Link->InputUp = false;
+	Link->InputDown = false;
+	Link->InputLeft = false;
+	Link->InputRight = false;
+	Link->InputA = false;
+	Link->InputB = false;
+	Link->PressUp = false;
+	Link->PressDown = false;
+	Link->PressLeft = false;
+	Link->PressRight = false;
+	Link->PressA = false;
+	Link->PressB = false;
+}
