@@ -74,6 +74,10 @@ const ZScriptWorker = {
     });
   },
 
+  setIncludepaths(includepaths: string): Promise<void> {
+    return ZScriptWorker.sendCommand('includepaths', { includepaths });
+  },
+
   writeFile(path: string, code: string): Promise<void> {
     return ZScriptWorker.sendCommand('write', { path, code });
   },
@@ -167,8 +171,7 @@ function findElement(selector: string) {
   return el as HTMLElement;
 }
 
-async function onContentUpdated(model: monaco.editor.ITextModel) {
-  await ZScriptWorker.writeFile(model.uri.path, model.getValue());
+async function recompileModel(model: monaco.editor.ITextModel) {
   const result = await ZScriptWorker.compile(model.uri.path);
   const state = getState(model);
   state.metadata = result.metadata;
@@ -185,6 +188,11 @@ async function onContentUpdated(model: monaco.editor.ITextModel) {
     };
   });
   monaco.editor.setModelMarkers(model, '', markers);
+}
+
+async function onContentUpdated(model: monaco.editor.ITextModel) {
+  await ZScriptWorker.writeFile(model.uri.path, model.getValue());
+  await recompileModel(model);
 }
 
 async function loadFromGist(gist: string) {
@@ -558,15 +566,28 @@ export async function main() {
   });
 
   if (files) {
+    const includePathsSet = new Set<string>(['include', 'headers', 'scripts']);
+    for (const path of files.keys()) {
+      const parts = path.split('/');
+      for (let i = 0; i < parts.length; i++) {
+        const dir = parts.slice(0, i).join('/');
+        if (dir) {
+          includePathsSet.add(dir);
+        }
+      }
+    }
+    await ZScriptWorker.setIncludepaths([...includePathsSet].join(';'));
+
     const models = [...files.entries()].map(([name, content]) => {
       return createModel(content, monaco.Uri.file(name));
     });
     for (const model of models) {
       getState(model).readOnly = false;
       createTab(model);
+      await ZScriptWorker.writeFile(model.uri.path, model.getValue());
     }
     openModel(models[0]);
-    await onContentUpdated(models[0]);
+    await recompileModel(models[0]);
   }
 }
 

@@ -27,8 +27,13 @@ async function setup() {
       if (type === 'init') {
         Module = await createModule();
         self.postMessage({ id });
+      } else if (type === 'includepaths') {
+        const { includepaths } = data;
+        Module.FS.writeFile('includepaths.txt', includepaths);
+        self.postMessage({ id });
       } else if (type === 'write') {
         const { path, code } = data;
+        Module.FS.mkdirTree(path.split('/').slice(0, -1).join('/'));
         Module.FS.writeFile(path, code);
         self.postMessage({ id });
       } else if (type === 'read') {
