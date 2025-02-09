@@ -415,6 +415,38 @@ async function getQstMetadata(qstPath: string) {
   return data;
 }
 
+async function getLastLoginDate(page: puppeteer.Page, id: number) {
+  let lastLogin;
+  await page.goto(`https://www.purezc.net/forums/index.php?showuser=${id}`);
+  let lastLoginRaw = await page.evaluate(() => {
+    const el = document.querySelector('#user_info_cell .desc');
+    if (!el?.textContent) throw new Error();
+    if (!el.textContent?.includes('Last Active ')) throw new Error();
+    return el.textContent.replace('Last Active ', '');
+  });
+
+  if (lastLoginRaw.includes('Private')) {
+    await page.click('#tab_link_forums\\:posts a');
+    try {
+      await page.waitForSelector('.posted_info');
+    } catch (err) {
+      console.error(err);
+      return;
+    }
+    lastLoginRaw = await page.evaluate(() => {
+      const el = document.querySelector('.posted_info');
+      if (!el?.textContent) throw new Error();
+      return el.textContent.split('-')[0].trim();
+    });
+  }
+
+  if (lastLoginRaw.includes('Today') || lastLoginRaw.includes('Yesterday')) lastLogin = new Date();
+  else if (lastLoginRaw.match(/(minute|hour)s? ago/)) lastLogin = new Date();
+  else if (!lastLoginRaw.includes('Private')) lastLogin = new Date(lastLoginRaw);
+
+  return lastLogin;
+}
+
 async function processPurezcId(page: puppeteer.Page, type: EntryType, index: number) {
   if (type === 'quests') {
     if ([81, 178, 400, 401].includes(index)) {
@@ -1114,6 +1146,8 @@ A: No.
     }
 
     for (const quest of questsMap.values()) {
+      if (quest.authors.some(a => a.name === 'Mani Kanina')) quest.approval = 'disallowed';
+
       if (quest.approval !== 'pending') continue;
 
       let mostRecentAuthor = null;
@@ -1136,7 +1170,7 @@ A: No.
       }
 
       const lastLogin = mostRecentAuthor?.id ? authorsMap.get(mostRecentAuthor.id)?.lastLogin as Date : null;
-      const hasActiveAuthor = lastLogin && lastLogin >= new Date('2023-01-01');
+      const hasActiveAuthor = lastLogin && lastLogin >= new Date('2024-02-09');
       if (!hasActiveAuthor) {
         quest.approval = 'auto';
         console.log(quest.id, quest.name, mostRecentAuthor, lastLogin);
@@ -1186,27 +1220,17 @@ A: No.
   }
 
   if (isLoggedIn) {
+    const seenAuthors = new Set();
     for (const quest of questsMap.values()) {
       for (const author of quest.authors) {
-        if (!author.id || authorsMap.has(author.id)) continue;
-  
-        let lastLogin;
-        const id = author.id;
-        await page.goto(`https://www.purezc.net/forums/index.php?showuser=${id}`);
-        const lastLoginRaw = await page.evaluate(() => {
-          const el = document.querySelector('#user_info_cell .desc');
-          if (!el?.textContent) throw new Error();
-          if (!el.textContent?.includes('Last Active ')) throw new Error();
-          return el.textContent.replace('Last Active ', '');
-        });
-        if (lastLoginRaw.includes('Today') || lastLoginRaw.includes('Yesterday')) lastLogin = new Date();
-        else if (lastLoginRaw.match(/(minute|hour)s? ago/)) lastLogin = new Date();
-        else if (!lastLoginRaw.includes('Private')) lastLogin = new Date(lastLoginRaw);
+        if (!author.id || seenAuthors.has(author.id)) continue;
+        seenAuthors.add(author.id);
 
-        console.log(id, {id, name: author.name, lastLogin});
-        authorsMap.set(id, {id, name: author.name, lastLogin});
-        saveAuthors();
+        const lastLogin = await getLastLoginDate(page, author.id);
+        authorsMap.set(author.id, {id: author.id, name: author.name, lastLogin});
       }
+
+      saveAuthors();
     }
 
     for (const quest of questsMap.values()) {
