@@ -567,12 +567,13 @@ END_OF_MAIN()
 
 extern "C" int compile_script(const char* script_path)
 {
+	bool has_qrs = false;
+	ZScript::ScriptParser::initialize(has_qrs);
 	updateIncludePaths();
+	ZScript::CompileOption::OPT_NO_ERROR_HALT.setDefault(ZScript::OPTION_ON);
+
 	bool metadata = true;
 	bool docs = false;
-	bool has_qrs = false;
-	ZScript::CompileOption::OPT_NO_ERROR_HALT.setDefault(ZScript::OPTION_ON);
-	ZScript::ScriptParser::initialize(has_qrs);
 	unique_ptr<ZScript::ScriptsData> result(compile(script_path, metadata, docs));
 	int32_t code = (result && result->success ? 0 : (zscript_failcode ? zscript_failcode : -1));
 
