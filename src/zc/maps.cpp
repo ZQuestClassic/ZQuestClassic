@@ -708,7 +708,7 @@ void eventlog_mapflags()
 			{
 				if(comma)
 					oss << ", ";
-				oss << fl;
+				oss << int(fl);
 				comma = true;
 			}
 		}
@@ -726,7 +726,7 @@ void eventlog_mapflags()
 				oss << "[" << dirstr[q];
 				for(int fl = 0; fl < 8; ++fl)
 					if(v & (1<<fl))
-						oss << " " << fl;
+						oss << " " << int(fl);
 				oss << "]";
 				comma = true;
 			}
