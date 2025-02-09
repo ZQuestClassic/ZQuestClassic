@@ -64,6 +64,7 @@ jobs:
       config: ${{ matrix.config }}
       extra-args: ${{ matrix.extra-args }} --prune_test_results
       from-ci-workflow: true
+    secrets: inherit
 
   web:
     needs: warm-lfs-cache
