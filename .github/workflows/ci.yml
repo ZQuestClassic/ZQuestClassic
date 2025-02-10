@@ -64,7 +64,8 @@ jobs:
       config: ${{ matrix.config }}
       extra-args: ${{ matrix.extra-args }} --prune_test_results
       from-ci-workflow: true
-    secrets: inherit
+    secrets:
+      GH_PAT_ZSCRIPT_DATABASE: ${{ secrets.GH_PAT_ZSCRIPT_DATABASE }}
 
   web:
     needs: warm-lfs-cache

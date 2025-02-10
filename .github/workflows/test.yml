@@ -39,6 +39,9 @@ on:
         type: string
       from-ci-workflow:
         type: boolean
+    secrets:
+      GH_PAT_ZSCRIPT_DATABASE:
+        required: true
 
 env:
   PYTHONUNBUFFERED: '1'
