@@ -9,6 +9,7 @@ syntax error, unexpected RBRACE, expecting end of file [errors_2.zs Line 1 Colum
                             ^
 
 
+ - Error P000: Can't parse the main buffer! Aborting.
 Failure!
 Compile finished with exit code '-1' (compiled with warnings)
 

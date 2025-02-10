@@ -486,6 +486,9 @@ async function processScript(uri: string, content: string, signal: AbortSignal):
 		];
 		if (settings.ignoreConstAssert)
 			args.push('-ignore_cassert');
+		if (settings.printCompilerOutput) {
+			console.log([exe, ...args].join(' '));
+		}
 		const cp = await execFile(exe, args, {
 			cwd: zscriptFolder,
 			maxBuffer: 20_000_000,

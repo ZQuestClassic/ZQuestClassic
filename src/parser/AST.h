@@ -939,7 +939,7 @@ namespace ZScript
 		const ASTString* getImportString() const {return import_str_.get();}
 		ASTFile* getTree() {return tree_.get();}
 		ASTFile const* getTree() const {return tree_.get();}
-		void giveTree(ASTFile* tree) {tree_ = tree;}
+		void giveTree(std::shared_ptr<ASTFile> tree) {tree_ = tree;}
 		bool isInclude() const {return include_;}
 		bool wasChecked() const {return checked;}
 		void check() {checked = true;}
@@ -950,7 +950,7 @@ namespace ZScript
 		bool checked;
 		bool validated;
 		bool include_;
-		owning_ptr<ASTFile> tree_;
+		std::shared_ptr<ASTFile> tree_;
 		owning_ptr<ASTString> import_str_;
 	};
 	

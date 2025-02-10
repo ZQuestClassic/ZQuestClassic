@@ -564,7 +564,7 @@ void RecursiveVisitor::caseImportCondDecl(ASTImportCondDecl& host, void* param)
 	{
 		if(!host.preprocessed)
 		{
-			ScriptParser::preprocess_one(*host.import, ScriptParser::recursionLimit);
+			ScriptParser::legacy_preprocess_one(*host.import, ScriptParser::recursionLimit);
 			host.preprocessed = true;
 		}
 		visit(*host.import, param);

@@ -1,5 +1,6 @@
 // TODO: do not link allegro w/ zscript compiler.
 
+#include <filesystem>
 #include <iostream>
 #include <string>
 #include <thread>
@@ -367,7 +368,7 @@ int32_t main(int32_t argc, char **argv)
 		for(int q = index+1; q < argc; ++q)
 		{
 			if(argv[q][0] == '-') break;
-			force_ignores.push_back(std::filesystem::path(argv[q]).lexically_normal());
+			force_ignores.push_back((std::filesystem::current_path() / std::filesystem::path(argv[q])).lexically_normal());
 		}
 	}
 	
@@ -475,7 +476,7 @@ int32_t main(int32_t argc, char **argv)
 	bool parse_only = used_switch(argc, argv, "-parse-only") > 0;
 	if (parse_only)
 	{
-		unique_ptr<ZScript::ASTFile> root(ZScript::parseFile(script_path));
+		auto root(ZScript::parseFile(script_path));
 		if (zscript_error_out)
 			exit(1);
 		if (!root.get())
