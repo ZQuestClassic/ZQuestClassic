@@ -409,7 +409,7 @@ const tmpScript = cleanupFile(`${globalTmpDir}/tmp.zs`);
 
 async function processScript(uri: string, content: string, signal: AbortSignal): Promise<JobResult | null> {
 	const settings = await getDocumentSettings(uri);
-	let includeText = "#option NO_ERROR_HALT on\n#option HEADER_GUARD on\n";
+	let includeText = "#option NO_ERROR_HALT on\n";
 
 	if (!settings.installationFolder) {
 		connection.sendDiagnostics({

@@ -2208,38 +2208,19 @@ std::optional<Function*> RootScope::getDescFuncBySig(FunctionSignature& sig)
 	return find<Function*>(descFunctionsBySignature_, sig);
 }
 
-bool RootScope::checkImport(ASTImportDecl* node, int32_t headerGuard, CompileErrorHandler* errorHandler)
+// Guard against duplicate imports.
+bool RootScope::checkImport(ASTImportDecl* node, CompileErrorHandler* errorHandler)
 {
 	if(node->wasChecked()) return true;
 	node->check();
-	if(headerGuard == OPT_OFF) return true; //Don't check anything, behave as usual.
 	string fname = node->getFilename();
 	//lowerstr(fname);
-	if(ASTImportDecl* first = find<ASTImportDecl*>(importsByName_, fname).value_or(std::add_pointer<ASTImportDecl>::type()))
+	if (find<ASTImportDecl*>(importsByName_, fname).value_or(std::add_pointer<ASTImportDecl>::type()))
 	{
-		node->disable(); //Disable node.
-		switch(headerGuard)
-		{
-			case OPT_ERROR:
-			{
-				errorHandler->handleError(CompileError::HeaderGuardErr(node, node->getFilename()));
-				return false; //Error, halt.
-			}
-
-			case OPT_WARN:
-			{
-				errorHandler->handleError(CompileError::HeaderGuardWarn(node, node->getFilename(), "Skipping"));
-				return false; //Warn, and do not allow import
-			}
-
-			default: //OPT_ON, or any invalid value, if the user sets it as such.
-			{
-				return false; //No message, guard against the duplicate import.
-			}
-
-		}
+		node->disable();
+		return false;
 	}
-	//zconsole_db("Import '%s' checked and registered successfully", fname.c_str());
+
 	importsByName_[fname] = node;
 	return true; //Allow import
 }

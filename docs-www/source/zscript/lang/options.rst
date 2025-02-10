@@ -67,11 +67,6 @@ Standard Options
 	| NO_LOGGING                         | :zs_kw:`off`     | |onoff|               | All functions that would log to the console are compiled away,  |
 	|                                    |                  |                       | producing no code or output.                                    |
 	+------------------------------------+------------------+-----------------------+-----------------------------------------------------------------+
-	| HEADER_GUARD                       | :zs_kw:`on`      | |onoffew|             | Determines what happens when :ref:`importing<directive_import>` |
-	|                                    |                  |                       | a file that was already imported. If :zs_kw:`on`, prevents the  |
-	|                                    |                  |                       | duplicate import with no error. Can be set to instead prevent it|
-	|                                    |                  |                       | and issue an :zs_kw:`error` or :zs_kw:`warn`\ ing.              |
-	+------------------------------------+------------------+-----------------------+-----------------------------------------------------------------+
 	| NO_ERROR_HALT                      | :zs_kw:`off`     | |onoff|               | If on, the compiler will keep trying as long as it can, even    |
 	|                                    |                  |                       | after it encounters an error. If off, it stops after one error. |
 	+------------------------------------+------------------+-----------------------+-----------------------------------------------------------------+
