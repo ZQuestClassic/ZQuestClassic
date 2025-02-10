@@ -55,8 +55,8 @@ jobs:
             extra-args: --filter playground --frame=keys.zplay=20
       fail-fast: false
     # See https://github.com/community/community/discussions/40777
-    # uses: ./.github/workflows/test.yml
-    uses: ZQuestClassic/ZQuestClassic/.github/workflows/test.yml@main
+    uses: ./.github/workflows/test.yml
+    # uses: ZQuestClassic/ZQuestClassic/.github/workflows/test.yml@main
     with:
       runs-on: ${{ matrix.runs-on }}
       arch: ${{ matrix.arch }}
