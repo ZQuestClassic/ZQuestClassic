@@ -326,7 +326,7 @@ void MetadataVisitor::visit(AST& node, void* param)
 void MetadataVisitor::caseFile(ASTFile& host, void* param)
 {
 	auto name = getName(host);
-	if (name != root_file_name && name != metadata_tmp_path)
+	if (name != "<root>" && name != root_file_name && name != metadata_tmp_path)
 		return;
 
 	is_enabled = name == metadata_tmp_path || metadata_tmp_path.empty();

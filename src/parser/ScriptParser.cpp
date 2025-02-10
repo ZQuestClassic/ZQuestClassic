@@ -1,5 +1,7 @@
+#include "parser/AST.h"
 #include "parser/DocVisitor.h"
 #include "parser/MetadataVisitor.h"
+#include "parser/owning_vector.h"
 #include "zsyssimple.h"
 #include "ByteCode.h"
 #include "CompileError.h"
@@ -21,6 +23,7 @@
 #include "ReturnVisitor.h"
 #include "ZScript.h"
 #include <fmt/format.h>
+#include <tuple>
 
 #ifdef HAS_SENTRY
 #define SENTRY_BUILD_STATIC 1
@@ -106,27 +109,17 @@ static unique_ptr<ScriptsData> _compile_helper(string const& filename, bool incl
 		zconsole_info("%s", "Pass 1: Parsing");
 		zconsole_idle();
 
-		unique_ptr<ASTFile> root(parseFile(filename));
-		if(zscript_error_out) return result;
-		if (!root.get())
-		{
-			log_error(CompileError::CantOpenSource(NULL));
-			return result;
-		}
+		bool shouldImportBindings = true;
+		extern std::string metadata_orig_path;
+		extern std::string metadata_tmp_path;
+		if (metadata_orig_path.find("bindings") != std::string::npos)
+			shouldImportBindings = false;
+
+		shared_ptr<ASTFile> root(ScriptParser::parse_from_root(filename, metadata_orig_path, metadata_tmp_path, shouldImportBindings));
+		if (zscript_error_out || !root) return result;
 
 		zconsole_info("%s", "Pass 2: Preprocessing");
 		zconsole_idle();
-
-		bool shouldImportBindings = true;
-		extern std::string metadata_orig_path;
-		if (metadata_orig_path.find("bindings") != std::string::npos)
-			shouldImportBindings = false;
-		if (shouldImportBindings)
-			root->imports.insert(root->imports.begin(), new ASTImportDecl(new ASTString("bindings.zh")));
-
-		if (!ScriptParser::preprocess(root.get(), ScriptParser::recursionLimit))
-			return result;
-		if(zscript_error_out) return result;
 
 		SimpleCompileErrorHandler handler(result.get());
 		Program program(*root, &handler);
@@ -372,33 +365,131 @@ bool ScriptParser::valid_include(ASTImportDecl& decl, string& ret_fname)
 	std::filesystem::path relpath = std::filesystem::path(filename).lexically_normal();
 	std::filesystem::path abspath = derelativize_path(filename);
 	FILE* f = fopen(abspath.string().c_str(), "r");
-	if(f)
+	if (!f)
+		return false;
+
+	fclose(f);
+	decl.setFilename(abspath.string());
+	ret_fname = abspath.string();
+
+	if (std::find(force_ignores.begin(), force_ignores.end(), abspath) != force_ignores.end())
 	{
-		fclose(f);
-		if(std::find(force_ignores.begin(), force_ignores.end(), abspath) != force_ignores.end())
-		{
-			decl.disable();
-			return true;
-		}
-	}
-	f = fopen(filename.c_str(), "r");
-	if(f)
-	{
-		fclose(f);
-		if(std::find(force_ignores.begin(), force_ignores.end(), relpath) != force_ignores.end())
-		{
-			decl.disable();
-			return true;
-		}
-		//zconsole_db("Importing filename '%s' successfully", filename.c_str());
-		decl.setFilename(filename);
-		decl.validate();
+		decl.disable();
 		return true;
 	}
-	else return false;
+
+	decl.validate();
+	return true;
 }
 
-bool ScriptParser::preprocess_one(ASTImportDecl& importDecl, int32_t reclimit)
+std::shared_ptr<ASTFile> ScriptParser::parse_from_root(std::string entry_filename, std::string metadata_orig_path, std::string metadata_tmp_path, bool import_bindings)
+{
+	std::map<std::string, std::shared_ptr<ASTFile>> parsed_files_cache;
+
+	auto root_loc = LOC_NONE;
+	root_loc.fname = "<root>";
+	auto root_file = std::make_shared<ASTFile>(root_loc);
+
+	// First parse the entry file. Do this now so we can early exit upon failure without parsing everything else.
+	auto entry_file = parseFile(entry_filename);
+	if (!entry_file)
+	{
+		log_error(CompileError::CantOpenSource(NULL));
+		return nullptr;
+	}
+	parsed_files_cache[entry_filename] = entry_file;
+
+	if (import_bindings)
+		root_file->imports.insert(root_file->imports.begin(), new ASTImportDecl(new ASTString("bindings.zh")));
+	root_file->imports.push_back(new ASTImportDecl(new ASTString(entry_filename)));
+
+	// We're going to process the import graph via depth-first search, but iteratively. In order to process imports
+	// in the order files are imported in source, a stack of iterators is used. This is equivalent to using recursion.
+	// See https://en.m.wikipedia.org/wiki/Depth-first_search#Pseudocode for more.
+	//
+	// Expected parse order:
+	// 1. The entry file (but just that, no children; for early exit on failure)
+	// 2. The binding files (and all children, pre-order traversal)
+	// 3. The entry file's children, pre-order traversal
+	//
+	// pre-order traversal - fancy way to say: when an import is processed parse it, then parse all its children before
+	// processing the next import. See https://skilled.dev/course/tree-traversal-in-order-pre-order-post-order
+	std::vector<std::tuple<ASTFile*, owning_vector<ASTImportDecl>::iterator>> stack;
+
+	// Initialize the stack.
+	stack.push_back({entry_file.get(), entry_file->imports.begin()});
+	stack.push_back({root_file.get(), root_file->imports.begin()});
+
+	bool success = true;
+	while (!stack.empty())
+	{
+		auto& [file, importIt] = stack.back();
+
+		if (importIt == file->imports.begin())
+		{
+			// Add include paths (ignoring duplicates).
+			for (auto it : file->inclpaths)
+			{
+				std::string path = cleanInclude(it->path);
+
+				bool dupe = false;
+				for (auto it2 : includePaths)
+				{
+					if (!strcmp(it2.c_str(), path.c_str()))
+					{
+						dupe = true;
+						break;
+					}
+				}
+
+				if (!dupe)
+					includePaths.push_back(path);
+			}
+		}
+
+		if (importIt == file->imports.end())
+		{
+			stack.pop_back();
+			continue;
+		}
+
+		auto importDecl = *(importIt++);
+		if (importDecl->isDisabled())
+			continue;
+
+		std::string filename;
+		if (!valid_include(*importDecl, filename))
+		{
+			log_error(CompileError::CantOpenImport(importDecl, filename));
+			success = false;
+			continue;
+		}
+
+		std::shared_ptr<ASTFile> imported_file;
+		if (!parsed_files_cache.contains(filename))
+		{
+			imported_file = parseFile(filename);
+			if (!imported_file)
+			{
+				importDecl->disable();
+				success = false;
+				log_error(CompileError::CantParseImport(importDecl, filename));
+				continue;
+			}
+
+			parsed_files_cache[filename] = imported_file;
+			stack.push_back({imported_file.get(), imported_file->imports.begin()});
+			if (!metadata_orig_path.empty() && !metadata_tmp_path.empty() && filename == metadata_tmp_path)
+				parsed_files_cache[metadata_orig_path] = imported_file;
+		}
+
+		importDecl->giveTree(parsed_files_cache[filename]);
+	}
+
+	return success ? root_file : nullptr;
+}
+
+bool ScriptParser::legacy_preprocess_one(ASTImportDecl& importDecl, int32_t reclimit)
 {
 	string filename;
 	if(!valid_include(importDecl, filename))
@@ -408,7 +499,7 @@ bool ScriptParser::preprocess_one(ASTImportDecl& importDecl, int32_t reclimit)
 	}
 	if(importDecl.isDisabled()) return true;
 
-	unique_ptr<ASTFile> imported(parseFile(filename));
+	auto imported(parseFile(filename));
 	if (!imported.get())
 	{
 		log_error(CompileError::CantParseImport(&importDecl, filename));
@@ -416,16 +507,18 @@ bool ScriptParser::preprocess_one(ASTImportDecl& importDecl, int32_t reclimit)
 	}
 
 	// Save the AST in the import declaration.
-	importDecl.giveTree(imported.release());
+	importDecl.giveTree(imported);
 
 	// Recurse on imports.
-	if (!preprocess(importDecl.getTree(), reclimit - 1))
+	if (!legacy_preprocess(importDecl.getTree(), reclimit - 1))
 		return false;
 
 	return true;
 }
 
-bool ScriptParser::preprocess(ASTFile* root, int32_t reclimit)
+// Don't use this. Only used for conditional imports.
+// TODO: refactor caseImportCondDecl to use parse_from_root (and keep the cache around).
+bool ScriptParser::legacy_preprocess(ASTFile* root, int32_t reclimit)
 {
 	assert(root);
 	
@@ -457,7 +550,7 @@ bool ScriptParser::preprocess(ASTFile* root, int32_t reclimit)
 	for (auto it = root->imports.begin();
 	     it != root->imports.end(); ++it)
 	{
-		if(!preprocess_one(**it, reclimit)) ret = false;
+		if(!legacy_preprocess_one(**it, reclimit)) ret = false;
 	}
 
 	return ret;

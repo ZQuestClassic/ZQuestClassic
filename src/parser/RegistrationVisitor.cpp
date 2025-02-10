@@ -67,9 +67,24 @@ void RegistrationVisitor::caseDefault(AST& host, void* param)
 //Handle the root file specially!
 void RegistrationVisitor::caseRoot(ASTFile& host, void* param)
 {
+	// Visit every node until there nothing new is registered, or until we've tried for too long.
+	//
+	// Multiple passes are necessary to support recursive declarations like this:
+	//
+	//   const int A = B;
+	//   const int B = 5;
+	//   const int C = B;
+	//
+	// The first pass would error when visiting A, but in the next pass it would pass.
+	// RegistrationVisitor::visit handles checking if a node should be looked at again.
+	// Nodes that registered successfully call `doRegister()`.
+	//
+	// Errors that are potentially resolvable if a binding is defined later, will never error in this handler.
+	// Instead, SemanticAnalyser will raise an error.
 	int32_t recursionLimit = REGISTRATION_REC_LIMIT;
 	while(--recursionLimit)
 	{
+		// printf("GO!\n");
 		caseFile(host, param);
 		if(registered(host)) return;
 		if(!hasChanged) return; //Nothing new was registered on this pass. Only errors remain.
@@ -568,7 +583,7 @@ void RegistrationVisitor::caseImportCondDecl(ASTImportCondDecl& host, void* para
 	{
 		if(!host.preprocessed)
 		{
-			ScriptParser::preprocess_one(*host.import, ScriptParser::recursionLimit);
+			ScriptParser::legacy_preprocess_one(*host.import, ScriptParser::recursionLimit);
 			host.preprocessed = true;
 		}
 		visit(*host.import, param);

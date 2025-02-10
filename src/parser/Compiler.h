@@ -234,8 +234,9 @@ namespace ZScript
 		{
 			return gid++;
 		}
-		static bool preprocess_one(ASTImportDecl& decl, int32_t reclevel);
-		static bool preprocess(ASTFile* root, int32_t reclevel);
+		static bool legacy_preprocess_one(ASTImportDecl& decl, int32_t reclevel);
+		static bool legacy_preprocess(ASTFile* root, int32_t reclevel);
+		static std::shared_ptr<ASTFile> parse_from_root(std::string entry_filename, std::string metadata_orig_path, std::string metadata_tmp_path, bool import_bindings);
 		static unique_ptr<IntermediateData> generateOCode(FunctionData& fdata);
 		static void assemble(IntermediateData* id);
 		static void initialize(bool has_qrs);
