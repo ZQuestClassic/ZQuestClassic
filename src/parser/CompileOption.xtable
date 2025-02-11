@@ -4,6 +4,7 @@ X(	NO_LOGGING,                                      qr_PARSER_NO_LOGGING,       
 X(	TRUNCATE_DIVISION_BY_LITERAL_BUG,               qr_PARSER_250DIVISION,            OPTTYPE_QR,                OPTION_OFF)
 X(	SHORT_CIRCUIT,                                qr_PARSER_SHORT_CIRCUIT,            OPTTYPE_QR,                 OPTION_ON)
 X(	BOOL_TRUE_RETURN_DECIMAL,                 qr_PARSER_BOOL_TRUE_DECIMAL,            OPTTYPE_QR,                OPTION_OFF)
+// This no longer does anything. Only here to not break scripts w/ unknown option error.
 X(	HEADER_GUARD,                                                       0,        OPTTYPE_CONFIG,                 OPTION_ON)
 X(	NO_ERROR_HALT,                                                      0,        OPTTYPE_CONFIG,                OPTION_OFF)
 X(	TRUE_INT_SIZE,                                qr_PARSER_TRUE_INT_SIZE,            OPTTYPE_QR,                 OPTION_ON)

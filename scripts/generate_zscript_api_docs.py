@@ -737,6 +737,7 @@ def add_comment(symbol):
                 'length',
                 'param',
                 'value',
+                'version',
             ]:
                 add(format_comment(f'`{tag}` ' + value))
                 add('')

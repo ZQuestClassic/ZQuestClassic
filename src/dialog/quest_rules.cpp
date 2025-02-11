@@ -972,9 +972,9 @@ static GUI::ListData compatRulesList
 	{ "'Burning' triggers don't count as 'weapon triggers'", qr_FIRE_LEVEL_TRIGGERS_ARENT_WEAPONS,
 		"If enabled, weapons triggering the 'Burning' trigger causes will not count as 'weapon triggers' for"
 		" purposes of other trigger flags such as 'Kill Triggering Weapon' and 'Weapon Separate Triggers'" },
-	{ "Fix Hero Position Exposed To Scripts When Scrolling", qr_BROKEN_SCRIPTS_SCROLLING_HERO_POSITION,
-		"If enabled, the hero position will be accurately updated and clamped to the visible viewport during"
-		" each frame of a scroll. Otherwise, it will be off by a few pixels towards the end of a scroll."},
+	{ "Broken Hero Position Exposed To Scripts When Scrolling", qr_BROKEN_SCRIPTS_SCROLLING_HERO_POSITION,
+		"If disabled, the hero position will be accurately updated and clamped to the visible viewport during"
+		" each frame of a scroll. Otherwise, it will be off by a few pixels, especially towards the end of a scroll."},
 };
 
 static GUI::ListData enemiesRulesList

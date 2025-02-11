@@ -40,6 +40,7 @@ using std::set;
 #include "iter.h"
 #include <ranges>
 
+// TODO z3 ! rm?
 extern HeroClass Hero;
 
 // TODO z3 ! checklist do all before starting beta
@@ -1384,7 +1385,7 @@ void eventlog_mapflags()
 			{
 				if(comma)
 					oss << ", ";
-				oss << fl;
+				oss << int(fl);
 				comma = true;
 			}
 		}
@@ -1402,7 +1403,7 @@ void eventlog_mapflags()
 				oss << "[" << dirstr[q];
 				for(int fl = 0; fl < 8; ++fl)
 					if(v & (1<<fl))
-						oss << " " << fl;
+						oss << " " << int(fl);
 				oss << "]";
 				comma = true;
 			}

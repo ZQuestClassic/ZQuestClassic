@@ -11798,8 +11798,8 @@ void do_primitives(BITMAP *targetBitmap, int32_t type, int32_t xoff, int32_t yof
 
 	const int32_t type_mul_10000 = type * 10000;
 	const int32_t numDrawCommandsToProcess = script_drawing_commands.Count();
-	FFCore.numscriptdraws =numDrawCommandsToProcess;
-
+	FFCore.numscriptdraws = numDrawCommandsToProcess;
+	
 	for (int i = 0; i < numDrawCommandsToProcess; i++)
 	{
 		auto& command = script_drawing_commands[i];
@@ -11829,12 +11829,12 @@ void do_primitives(BITMAP *targetBitmap, int32_t type, int32_t xoff, int32_t yof
 
 		int32_t xoffset;
 		int32_t yoffset;
-		if (draw_origin == DrawOrigin::World)
+		if (draw_origin == DrawOrigin::Region)
 		{
 			xoffset = xoff - viewport.x;
 			yoffset = yoff - viewport.y;
 		}
-		else if (draw_origin == DrawOrigin::WorldScrollingNew)
+		else if (draw_origin == DrawOrigin::RegionScrollingNew)
 		{
 			xoffset = xoff + FFCore.ScrollingData[SCROLLDATA_NRX];
 			yoffset = yoff + FFCore.ScrollingData[SCROLLDATA_NRY];

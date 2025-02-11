@@ -105,7 +105,7 @@ dmapdata script ScrollingDebug
 		drawSquare(PINK, 5, 5);
 
 		// Draw blue square over a combo near the top-left corner of the region.
-		Screen->DrawOrigin = DRAW_ORIGIN_WORLD;
+		Screen->DrawOrigin = DRAW_ORIGIN_REGION;
 		drawSquare(BLUE, 5*16, 5*16);
 
 		// Draw an orange line across the top part of the region.
@@ -130,7 +130,7 @@ dmapdata script ScrollingDebug
 				-1, -1, 0, 0, 0, 0, 0, true, OP_OPAQUE);
 
 			// Draw in the middle of the old screen.
-			Screen->DrawOrigin = DRAW_ORIGIN_WORLD_SCROLLING_OLD;
+			Screen->DrawOrigin = DRAW_ORIGIN_REGION_SCROLLING_OLD;
 			x = 256/2 + Game->Scrolling[SCROLL_OLD_SCREEN_X];
 			y = 176/2 + Game->Scrolling[SCROLL_OLD_SCREEN_Y];
 			Screen->DrawCombo(3, x, y,
@@ -142,7 +142,7 @@ dmapdata script ScrollingDebug
 
 			// Draw in the middle of the new screen.
 			// Either DrawOrigin works here.
-			Screen->DrawOrigin = (Game->Time % 3L) == 0 ? DRAW_ORIGIN_WORLD : DRAW_ORIGIN_WORLD_SCROLLING_NEW;
+			Screen->DrawOrigin = (Game->Time % 3L) == 0 ? DRAW_ORIGIN_REGION : DRAW_ORIGIN_REGION_SCROLLING_NEW;
 			x = 256/2 + Game->Scrolling[SCROLL_NEW_SCREEN_X];
 			y = 176/2 + Game->Scrolling[SCROLL_NEW_SCREEN_Y];
 			Screen->DrawCombo(3, x, y,
@@ -168,7 +168,7 @@ dmapdata script ScrollingDebug
 		else
 		{
 			Waitdraw(); // During scrolling, the viewport animates, requiring this Waitdraw().
-			Screen->DrawOrigin = DRAW_ORIGIN_WORLD;
+			Screen->DrawOrigin = DRAW_ORIGIN_REGION;
 			x = Viewport->X;
 			y = Viewport->Y;
 			w = Viewport->Width - 1;

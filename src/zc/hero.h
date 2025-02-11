@@ -429,8 +429,8 @@ public:
 	int32_t get_scroll_step(int32_t scrolldir);
 	int32_t get_scroll_delay(int32_t scrolldir);
 	void run_scrolling_script_int(bool waitdraw);
-	void run_scrolling_script(int32_t scrolldir, int32_t cx, int32_t sx, int32_t sy, bool end_frames, bool waitdraw);
 	void run_scrolling_script_old(int32_t scrolldir, int32_t cx, int32_t sx, int32_t sy, bool end_frames, bool waitdraw);
+	void run_scrolling_script(int32_t scrolldir, int32_t cx, int32_t sx, int32_t sy, bool end_frames, bool waitdraw);
 	void calc_darkroom_hero(int32_t x1, int32_t y1);
 	void scrollscr(int32_t dir,int32_t destscr = -1, int32_t destdmap = -1);
 	int32_t defend(weapon *w);

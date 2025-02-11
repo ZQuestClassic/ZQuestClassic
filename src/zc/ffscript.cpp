@@ -27899,21 +27899,21 @@ void do_drawing_command(const int32_t script_command)
 	if (draw_origin == DrawOrigin::Default)
 	{
 		bool in_scrolling_region = is_in_scrolling_region() || (screenscrolling && scrolling_region.screen_count > 1);
-		draw_origin = in_scrolling_region ? DrawOrigin::World : DrawOrigin::PlayingField;
+		draw_origin = in_scrolling_region ? DrawOrigin::Region : DrawOrigin::PlayingField;
 	}
-	if (draw_origin == DrawOrigin::World)
+	if (draw_origin == DrawOrigin::Region)
 	{
 		if (scrolling_using_new_region_coords)
-			draw_origin = DrawOrigin::WorldScrollingNew;
+			draw_origin = DrawOrigin::RegionScrollingNew;
 	}
-	else if (draw_origin == DrawOrigin::WorldScrollingOld)
+	else if (draw_origin == DrawOrigin::RegionScrollingOld)
 	{
-		draw_origin = DrawOrigin::World; // TODO z3 ! rm?
+		draw_origin = DrawOrigin::Region;
 	}
-	else if (draw_origin == DrawOrigin::WorldScrollingNew)
+	else if (draw_origin == DrawOrigin::RegionScrollingNew)
 	{
 		if (!screenscrolling)
-			draw_origin = DrawOrigin::World;
+			draw_origin = DrawOrigin::Region;
 	}
 
 	script_drawing_commands[j].draw_origin = draw_origin;

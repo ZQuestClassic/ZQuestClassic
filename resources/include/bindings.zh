@@ -60,7 +60,7 @@
 //
 //   @deprecated_getter is only for variables, and defines a function getter.
 //
-// @index, @value, @length, @param
+// @index, @value, @length, @param, @version
 //
 //   These have no impact on the compiler, and serve only as documentation.
 //
@@ -114,6 +114,7 @@ import "bindings/subscreendata.zh"
 import "bindings/subscreenpage.zh"
 import "bindings/subscreenwidget.zh"
 import "bindings/text.zh"
+import "bindings/viewport.zh"
 import "bindings/websocket.zh"
 import "bindings/viewport.zh"
 import "bindings/zinfo.zh"

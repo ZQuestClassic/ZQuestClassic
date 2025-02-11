@@ -39,6 +39,9 @@ on:
         type: string
       from-ci-workflow:
         type: boolean
+    secrets:
+      GH_PAT_ZSCRIPT_DATABASE:
+        required: true
 
 env:
   PYTHONUNBUFFERED: '1'
@@ -84,6 +87,7 @@ jobs:
         run: pip install -r requirements.txt
       - if: ${{ contains(inputs.runs-on, 'ubuntu') }}
         run: sudo pip install -r requirements.txt
+      - run: mkdir -p .tmp
 
       - if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow }}
         name: Install Node.js 20.x
@@ -172,6 +176,16 @@ jobs:
         with:
           path: ${{ github.workspace }}/.tmp/archives
           key: archives-cache-${{ inputs.runs-on }}-${{ runner.arch }}
+
+      - if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow }}
+        name: Checkout zscript database
+        uses: actions/checkout@v4
+        with:
+          # Note: this token expires annually.
+          token: ${{ secrets.GH_PAT_ZSCRIPT_DATABASE }}
+          repository: ZQuestClassic/zscript-database
+          ref: 68f3d886d7fd929038deb729f38c440ed0250fc0
+          path: ${{ github.workspace }}/.tmp/zscript-database
 
       - if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow }}
         name: Run Python tests

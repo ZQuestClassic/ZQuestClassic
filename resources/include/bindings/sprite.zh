@@ -20,6 +20,8 @@ enum MoveFlag
 };
 
 // Base class for (most) script-exposed engine sprites.
+//
+// @version 3.0 - In older versions, most of these are implemented as separate variables on many other classes
 // @zasm_ref REFSPRITE
 class sprite {
 	// @delete
@@ -29,6 +31,7 @@ class sprite {
 	//
 	// [Hero]: Actually does update as the player moves around. Equivalent to [Game->HeroScreen].
 	//
+	// @version 3.0
 	// @zasm_var SPRITE_SPAWN_SCREEN
 	internal const int SpawnScreen;
 

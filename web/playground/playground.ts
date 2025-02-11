@@ -74,6 +74,10 @@ const ZScriptWorker = {
     });
   },
 
+  setIncludepaths(includepaths: string): Promise<void> {
+    return ZScriptWorker.sendCommand('includepaths', { includepaths });
+  },
+
   writeFile(path: string, code: string): Promise<void> {
     return ZScriptWorker.sendCommand('write', { path, code });
   },
@@ -167,8 +171,7 @@ function findElement(selector: string) {
   return el as HTMLElement;
 }
 
-async function onContentUpdated(model: monaco.editor.ITextModel) {
-  await ZScriptWorker.writeFile(model.uri.path, model.getValue());
+async function recompileModel(model: monaco.editor.ITextModel) {
   const result = await ZScriptWorker.compile(model.uri.path);
   const state = getState(model);
   state.metadata = result.metadata;
@@ -185,6 +188,11 @@ async function onContentUpdated(model: monaco.editor.ITextModel) {
     };
   });
   monaco.editor.setModelMarkers(model, '', markers);
+}
+
+async function onContentUpdated(model: monaco.editor.ITextModel) {
+  await ZScriptWorker.writeFile(model.uri.path, model.getValue());
+  await recompileModel(model);
 }
 
 async function loadFromGist(gist: string) {
@@ -240,16 +248,32 @@ async function loadFiles() {
     return null;
   } else if (url) {
     const response = await fetch(url);
-    const content = await response.text();
-    if (!response.ok) {
-      logger.error(`error loading content: ${content}`);
-      return null;
-    }
 
-    const files = new Map<string, string>();
-    files.set(fname, content);
-    contentUrl = url;
-    return files;
+    if (url.endsWith('.json')) {
+      const manifest = await response.json();
+      const entries = [...Object.entries(manifest.files as Record<string, string>)];
+      const resolvedEntries = await Promise.all(entries.map(async entry => ({
+        content: await (await fetch(entry[0])).text(),
+        path: entry[1],
+      })));
+
+      const files = new Map<string, string>();
+      for (const {content, path} of resolvedEntries) {
+        files.set(path, content);
+      }
+      return files;
+    } else {
+      const content = await response.text();
+      if (!response.ok) {
+        logger.error(`error loading content: ${content}`);
+        return null;
+      }
+
+      const files = new Map<string, string>();
+      files.set(fname, content);
+      contentUrl = url;
+      return files;
+    }
   } else if (data) {
     const files = new Map<string, string>();
     files.set(fname, data);
@@ -542,15 +566,28 @@ export async function main() {
   });
 
   if (files) {
+    const includePathsSet = new Set<string>(['include', 'headers', 'scripts']);
+    for (const path of files.keys()) {
+      const parts = path.split('/');
+      for (let i = 0; i < parts.length; i++) {
+        const dir = parts.slice(0, i).join('/');
+        if (dir) {
+          includePathsSet.add(dir);
+        }
+      }
+    }
+    await ZScriptWorker.setIncludepaths([...includePathsSet].join(';'));
+
     const models = [...files.entries()].map(([name, content]) => {
       return createModel(content, monaco.Uri.file(name));
     });
     for (const model of models) {
       getState(model).readOnly = false;
       createTab(model);
+      await ZScriptWorker.writeFile(model.uri.path, model.getValue());
     }
     openModel(models[0]);
-    await onContentUpdated(models[0]);
+    await recompileModel(models[0]);
   }
 }
 

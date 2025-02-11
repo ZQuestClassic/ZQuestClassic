@@ -25,7 +25,7 @@ enum WipeEffect
 // Determines how to interpret coordinates given to [Screen] draw functions.
 enum DrawOrigin
 {
-	// Equal to [DRAW_ORIGIN_WORLD], unless in a scrolling region (or scrolling to/from one), in which
+	// Equal to [DRAW_ORIGIN_REGION], unless in a scrolling region (or scrolling to/from one), in which
 	// case this is equal to [DRAW_ORIGIN_PLAYING_FIELD].
 	DRAW_ORIGIN_DEFAULT = 0L,
 	// The origin `(0, 0)` is the top-left pixel of the playing field (where screen combos are drawn).
@@ -40,21 +40,23 @@ enum DrawOrigin
 	// The origin `(0, 0)` is the top-left pixel of the current region. Use this to draw with a
 	// sprite's coordinates.
 	//
-	// When scrolling, this is treated as [DRAW_ORIGIN_WORLD_SCROLLING_NEW] for new screens and
-	// [DRAW_ORIGIN_WORLD_SCROLLING_OLD] for old screens.
-	DRAW_ORIGIN_WORLD = 3L,
+	// When scrolling, this is treated as [DRAW_ORIGIN_REGION_SCROLLING_NEW] for new screens and
+	// [DRAW_ORIGIN_REGION_SCROLLING_OLD] for old screens.
+	DRAW_ORIGIN_REGION = 3L,
 	// The origin `(0, 0)` is the top-left pixel of the new region being scrolled to.
 	//
-	// Equivalent to [DRAW_ORIGIN_WORLD] when not scrolling.
-	DRAW_ORIGIN_WORLD_SCROLLING_NEW = 4L,
+	// Equivalent to [DRAW_ORIGIN_REGION] when not scrolling.
+	DRAW_ORIGIN_REGION_SCROLLING_NEW = 4L,
 	// The origin `(0, 0)` is the top-left pixel of the old region being scrolled away from.
 	//
-	// Equivalent to [DRAW_ORIGIN_WORLD] when not scrolling.
-	DRAW_ORIGIN_WORLD_SCROLLING_OLD = 5L,
+	// Equivalent to [DRAW_ORIGIN_REGION] when not scrolling.
+	DRAW_ORIGIN_REGION_SCROLLING_OLD = 5L,
 	// The origin `(0, 0)` is the top-left pixel of the sprite [Screen->DrawOriginTarget].
 	//
 	// If the sprite no longer exists at time of drawing, then the draw command will be ignored.
-	DRAW_ORIGIN_SPRITE = 6L
+	//
+	// @version 3.0
+	DRAW_ORIGIN_SPRITE = 6L,
 };
 
 // Screen enemy flag groups. Used with [Screen->EFlags].
@@ -308,6 +310,7 @@ class screendata {
 	// - ffc, npc, eweapon, lweapon, itemsprite, combo - all use the screen they were spawned on ([sprite::SpawnScreen])
 	// - player - uses [Game->HeroScreen], which updates as the player moves around
 	//
+	// @version 2.55.9 - equivalent to [Game->CurScreen]
 	// @zasm_var SCREEN_INDEX
 	internal const int Index;
 
@@ -1018,6 +1021,7 @@ class screendata {
 	//
 	// Defaults to [DRAW_ORIGIN_DEFAULT].
 	//
+	// @version 2.55.9
 	// @zasm_var SCREEN_DRAW_ORIGIN
 	internal DrawOrigin DrawOrigin;
 
@@ -1026,6 +1030,7 @@ class screendata {
 	//
 	// Each script has its own copy of this variable.
 	//
+	// @version 3.0
 	// @zasm_var SCREEN_DRAW_ORIGIN_TARGET
 	internal sprite DrawOriginTarget;
 

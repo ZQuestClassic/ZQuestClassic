@@ -1241,10 +1241,11 @@ size_and_pos prev_til_1(648,31,96,96);
 size_and_pos prev_til_2(752,31,96,96);
 size_and_pos prev_til_3(648,135,96,96);
 size_and_pos prev_til_4(752,135,96,96);
+size_and_pos ref_til(14,189,96,96);
 size_and_pos status_info(648,308-(4*8),1,4,1,8);
 size_and_pos hover_info(742,338-(3*8),1,3,1,8);
-size_and_pos color_info(4,189,1,1,116,8);
-size_and_pos color_info_btn(24,189,96,21);
+size_and_pos color_info(4,294,1,1,116,8);
+size_and_pos color_info_btn(24,294,96,21);
 size_and_pos tool_btns(22,29,2,4,39,39);
 size_and_pos x_btn(890,5,15,13);
 size_and_pos info_btn(872,5,15,13);
@@ -1262,6 +1263,7 @@ int32_t old_tool = -1;
 int32_t tool_cur = -1;
 int32_t select_mode = 0;
 int32_t drawing=0;
+int32_t reftile = 0;
 
 bool qgrid_tool(int tool)
 {
@@ -1323,7 +1325,7 @@ void update_tool_cursor()
 	}
 }
 
-void draw_edit_scr(int32_t tile,int32_t flip,int32_t cs,byte *oldtile, bool create_tbar)
+void draw_edit_scr(int32_t tile,int32_t flip,int32_t cs,byte *oldtile,bool create_tbar)
 {
 	PALETTE tpal;
 	static BITMAP *tbar = create_bitmap_ex(8,zq_screen_w-6, 18);
@@ -1375,14 +1377,25 @@ void draw_edit_scr(int32_t tile,int32_t flip,int32_t cs,byte *oldtile, bool crea
 	overtile16(preview_bmp,tile,0,0,cs,flip);
 	masked_stretch_blit(preview_bmp, screen2, 0, 0, 16, 16, prev_til_4.x, prev_til_4.y, prev_til_4.w, prev_til_4.h);
 	
+	if(reftile > 0)
+	{
+		clear_to_color(preview_bmp, 0);
+		jwin_draw_win(screen2, ref_til.x-2,ref_til.y-2, ref_til.w+4, ref_til.h+4, FR_DEEP);
+		overtile16(preview_bmp,reftile,0,0,cs,flip);
+		masked_stretch_blit(preview_bmp, screen2, 0, 0, 16, 16, ref_til.x, ref_til.y, ref_til.w, ref_til.h);
+	}
+	
 	//Color info
 	{
-		auto fh = color_info.yscale = text_height(font);
-		int y = color_info.y;
-		int rx = color_info.x+color_info.xscale;
 		color_info.h = 1;
 		if(showcolortip)
 		{
+			auto fh = color_info.yscale = text_height(font);
+			int ty = color_info.y;
+			if(reftile <= 0)
+				ty -= ref_til.h + 8;
+			int y = ty;
+			int rx = color_info.x+color_info.xscale;
 			gui_textout_ln(screen2,font,(unsigned char*)"Colors:",
 				rx,y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],2);
 			auto str = get_tile_colornames(tile,cs);
@@ -1433,11 +1446,14 @@ void draw_edit_scr(int32_t tile,int32_t flip,int32_t cs,byte *oldtile, bool crea
 					rx,y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],2);
 				++color_info.h;
 			}
-			jwin_draw_frame(screen2,color_info.x-2,color_info.y-2,(color_info.w*color_info.xscale)+4,(color_info.h*color_info.yscale)+4,FR_DEEP);
+			jwin_draw_frame(screen2,color_info.x-2,ty-2,(color_info.w*color_info.xscale)+4,(color_info.h*color_info.yscale)+4,FR_DEEP);
 		}
 		else
 		{
-			draw_text_button(screen2,color_info_btn.x,color_info_btn.y,color_info_btn.w,color_info_btn.h,
+			int ty = color_info_btn.y;
+			if(reftile <= 0)
+				ty -= ref_til.h + 8;
+			draw_text_button(screen2,color_info_btn.x,ty,color_info_btn.w,color_info_btn.h,
 				"Show Colors",vc(1),vc(14),0,true);
 		}
 	}
@@ -2909,14 +2925,21 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 			
 			if(showcolortip)
 			{
+				auto oy = color_info.y;
+				if(reftile <= 0)
+					color_info.y -= ref_til.h + 8;
 				if(color_info.rect(temp_mouse_x,temp_mouse_y))
 				{
 					showcolortip = 0;
 					zc_set_config("ZQ_GUI","tile_edit_colornames",0);
 				}
+				color_info.y = oy;
 			}
 			else
 			{
+				auto oy = color_info_btn.y;
+				if(reftile <= 0)
+					color_info_btn.y -= ref_til.h + 8;
 				if(color_info_btn.rect(temp_mouse_x,temp_mouse_y))
 				{
 					if(do_text_button(color_info_btn.x,color_info_btn.y,color_info_btn.w,color_info_btn.h,"Show Colors"))
@@ -2926,6 +2949,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 						redraw=true;
 					}
 				}
+				color_info_btn.y = oy;
 			}
 			
 			if(hlcbox.rect(temp_mouse_x,temp_mouse_y))
@@ -8985,6 +9009,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 	int32_t first=(tile/TILES_PER_PAGE)*TILES_PER_PAGE; //first tile on the current page
 	int32_t copy=-1;
 	int32_t tile2=tile,copycnt=0;
+	reftile = 0;
 	int32_t tile_clicked=-1;
 	bool rect_sel=true;
 	bound(first,0,(TILES_PER_PAGE*TILE_PAGES)-1);
@@ -10266,6 +10291,10 @@ REDRAW:
 				{ "Clear", [&]()
 					{
 						delete_tiles(tile, tile2, rect_sel);
+					} },
+				{ "Set as Reference", [&]()
+					{
+						reftile = tile;
 					} },
 				{},
 				{ "Edit", [&]()

@@ -2866,31 +2866,6 @@ Order and Priority: It first checks an absolute path, then relative to the ZQ bi
 	then include paths. 
 	
 The new directive, #include, checks include paths first, then absolute, then relative to the ZQ binaries. 
-	
-
-///////////////////
-// Header Guards //
-///////////////////
-
-The default behaviour for importing duplicate headers / files is now to issue a warning, and ignore the
-duplicate import directive. 
-
-You can toggle this behaviour as follows:
-	#option HEADER_GUARD warn
-		Enables protection, and issues warnings on duplication.
-		This is the default.
-	#option HEADER_GUARD on
-		Enables protection, but issues no warnings.
-	#option HEADER_GUARD error
-		Halts on finding a duplication.
-	#option HEADER_GUARD off
-		Halts, and does not give data, as 2.50.
-		
-If this option is set to anything other than 'off', then the compiler will detail the location of the
-original import, and the location of the duplicate, per instance of duplication. 
-
-This option is set in the config files, and not per-quest.
-	
 
 ///////////////////////////
 // Compiler Option Flags //
@@ -2933,14 +2908,6 @@ To use these, call the #option directive, followed by the flag macro, and (on | 
 		Valid values: 'on', 'off', 'inherit', 'default'
 		If on, the boolean value 'true' will be represented as '0.0001' instead of '1'.
 			This may be necessary for compatibility with some scripts.
-			
-	HEADER_GUARD
-		Warn by default.
-		Valid values: 'on', 'off', 'error', 'warn', 'inherit', 'default'
-		If on, duplicate import statements will be totally ignored.
-		If off, duplicate imports will be processed, as in 2.50.x
-		If error, duplicate imports will throw a compiler error.
-		If warn, duplicate imports will be ignored, though will throw a compiler warning.
 		
 	NO_ERROR_HALT
 		Off by default.

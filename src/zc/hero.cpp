@@ -27993,6 +27993,7 @@ void HeroClass::run_scrolling_script_old(int32_t scrolldir, int32_t cx, int32_t 
 	}
 
 	// Also, hero coordinates should remain unchanged.
+	// For compat, this is happening after the generic scripts above...
 	zfix storex = x, storey = y;
 
 	switch(scrolldir)
@@ -28047,6 +28048,12 @@ void HeroClass::run_scrolling_script(int32_t scrolldir, int32_t cx, int32_t sx, 
 	if (get_qr(qr_BROKEN_SCRIPTS_SCROLLING_HERO_POSITION))
 	{
 		// Old code has an off-by-one error, and doesn't clamp the hero position to the viewport.
+		//
+		// Although this is behind a compat qr, most test replays wouldn't fail. The ones that do are:
+		//
+		// 	nargads: different sfx plays during last frames of scrolling, sometimes
+		// 	crucible: fog is slightly different on last frames of scrolling
+		// 	yuurand: breaks. blocks are not removed when returning to a screen during scroll
 		run_scrolling_script_old(scrolldir, cx, sx, sy, end_frames, waitdraw);
 		return;
 	}
@@ -28056,6 +28063,10 @@ void HeroClass::run_scrolling_script(int32_t scrolldir, int32_t cx, int32_t sx, 
 	// but for the sake of scripts, here's an eye-watering kludge.
 	actiontype lastaction = action;
 	action=scrolling; FFCore.setHeroAction(scrolling);
+
+	// Also, hero coordinates should remain unchanged.
+	zfix storex = x, storey = y;
+
 	if(waitdraw)
 	{
 		FFCore.runGenericPassiveEngine(SCR_TIMING_WAITDRAW);
@@ -28065,12 +28076,6 @@ void HeroClass::run_scrolling_script(int32_t scrolldir, int32_t cx, int32_t sx, 
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_FFCS-1);
 	}
 
-	// Also, hero coordinates should remain unchanged.
-	zfix storex = x, storey = y;
-
-	// During scrolling, `ZScriptVersion::RunScrollingScript` (which calls this function) runs even
-	// during the "waiting" phase of the scroll. Adjusting the hero position during this time is
-	// unexpected and results in visual bugs.
 	switch(scrolldir)
 	{
 	case up:
@@ -29074,6 +29079,16 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 	int sy = viewport.y + (scrolldir == up ? viewport.h : 0);
 	if (is_unsmooth_vertical_scrolling) sy += 3;
 
+	// We must recalculate the new hero position, if a script run above just change the
+	// hero position.
+	if (hero_x_before_scripts != x || hero_y_before_scripts != y)
+	{
+		calc_new_viewport_and_pos();
+
+		FFCore.ScrollingData[SCROLLDATA_NEW_HERO_X] = new_hero_x.getInt();
+		FFCore.ScrollingData[SCROLLDATA_NEW_HERO_Y] = new_hero_y.getInt();
+	}
+
 	// change Hero's state if entering water
 	int32_t ahead = lookahead(scrolldir, new_hero_x, new_hero_y + 8);
 	auto [lookaheadx, lookaheady] = lookahead_coords(scrolldir, new_hero_x + 8, new_hero_y + (bigHitbox?8:12));
@@ -29413,12 +29428,15 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 
 			if(ladderx > 0 || laddery > 0)
 			{
+				SAVE_HERO_POS;
+				USE_COMPAT_HERO_POS;
 				// If the ladder moves on both axes, the player can
 				// gradually shift it by going back and forth
 				if(scrolldir==up || scrolldir==down)
 					laddery = y.getInt();
 				else
 					ladderx = x.getInt();
+				RESTORE_HERO_POS;
 			}
 		}
 
@@ -29540,6 +29558,10 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 
 		if (!align_counter || scroll_counter) herostep();
 
+		// TODO z3 ! ?
+		// SAVE_HERO_POS;
+		// USE_COMPAT_HERO_POS;
+
 		{
 			auto prev_y = y;
 			auto prev_yofs = yofs;
@@ -29575,6 +29597,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 			y = prev_y;
 			yofs = prev_yofs;
 		}
+
+		RESTORE_HERO_POS;
 		
 		for_every_nearby_screen_during_scroll(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy, bool is_new_screen) {
 			bool is_destination = screen == dest_screen;
@@ -29615,6 +29639,9 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 		
 		if (draw_dark && get_qr(qr_NEW_DARKROOM) && !get_qr(qr_NEWDARK_L6))
 		{
+			// TODO z3 !?
+			// SAVE_HERO_POS;
+			// USE_COMPAT_HERO_POS;
 			scrollscr_handle_dark(newscr, oldscr, nearby_screens);
 		}
 
@@ -29627,6 +29654,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 		advanceframe(true/*,true,false*/);
 		USE_COMPAT_HERO_POS;
 
+		//Don't clear the last frame, unless 'fixed'
 		if (scroll_counter > 0 || get_qr(qr_FIXSCRIPTSDURINGSCROLLING))
 			script_drawing_commands.Clear();
 		FFCore.runGenericPassiveEngine(SCR_TIMING_START_FRAME);
@@ -29638,19 +29666,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 		RESTORE_HERO_POS;
 	}
 	cur_dmap = old_dmap;
-
-	// Might not be needed, but just in case.
-	if (sideview_scrolling_slope)
-	{
-		if (scrolling_dir == left || scrolling_dir == right)
-		{
-			x.doClamp(viewport.x, viewport.right() - 16);
-		}
-		else
-		{
-			y.doClamp(viewport.y, viewport.bottom() - 16);
-		}
-	}
 
 	// TODO(replays): Prior to z3 refactor, old scrolling code didn't clear the darkroom bitmaps at end of scroll,
 	// so the first frame drawn had some lighting from previous screen... 

@@ -521,7 +521,7 @@ namespace ZScript
 		virtual void removeFunction(Function* func);
 		std::optional<Function*> getDescFuncBySig(FunctionSignature& sig);
 		
-		bool checkImport(ASTImportDecl* node, int32_t headerGuard, CompileErrorHandler* errorHandler);
+		bool checkImport(ASTImportDecl* node, CompileErrorHandler* errorHandler);
 		bool isImported(std::string const& path);
 	private:
 		mutable std::optional<int32_t> stackSize_;

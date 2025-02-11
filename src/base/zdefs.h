@@ -168,7 +168,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_SFX              8
 #define V_FAVORITES        4
 
-#define V_COMPATRULE       73
+#define V_COMPATRULE       74
 #define V_ZINFO            4
 
 //= V_SHOPS is under V_MISC
@@ -1391,7 +1391,7 @@ struct guydata
 // For discussion: https://discord.com/channels/876899628556091432/1120883971950125147/1319734005871939615
 enum class DrawOrigin
 {
-	// Equal to `World`, unless in a scrolling region (or scrolling to/from one), in which
+	// Equal to `Region`, unless in a scrolling region (or scrolling to/from one), in which
 	// case this is equal to `PlayingField`.
 	Default,
 	// The origin `(0, 0)` is the top-left pixel of the playing field (where screen combos are drawn).
@@ -1407,13 +1407,13 @@ enum class DrawOrigin
 	// The origin `(0, 0)` is the top-left pixel of the current region. Use this to draw with a
 	// sprite's coordinates.
 	//
-	// When scrolling, this is treated as `WorldScrollingNew` for new screens and `WorldScrollingOld`
+	// When scrolling, this is treated as `RegionScrollingNew` for new screens and `RegionScrollingOld`
 	// for old screens.
-	World,
+	Region,
 	// The origin `(0, 0)` is the top-left pixel of the new region being scrolled to.
-	WorldScrollingNew,
+	RegionScrollingNew,
 	// The origin `(0, 0)` is the top-left pixel of the old region being scrolled away from.
-	WorldScrollingOld,
+	RegionScrollingOld,
 	// The origin `(0, 0)` is the top-left pixel of the sprite `Screen->DrawOriginTarget`.
 	Sprite,
 

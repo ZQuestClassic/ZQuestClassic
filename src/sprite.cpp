@@ -30,6 +30,7 @@ extern bool show_hitboxes;
 extern void debugging_box(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
 #include "zc/ffscript.h"
 
+// TODO z3 ! rm?
 #ifndef IS_PLAYER
 viewport_t viewport;
 #endif
