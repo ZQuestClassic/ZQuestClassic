@@ -403,6 +403,32 @@ function parseOutput(settings: Settings, stdout: string, stderr: string): JobRes
 	return { diagnostics, metadata };
 }
 
+const pathInZCRepoCache = new Map<string, string | null>();
+function checkIfInZCRepo(file: string): string | null {
+	if (process.env.TEST_ZSCRIPT) return null;
+
+	let result = pathInZCRepoCache.get(file);
+	if (result !== undefined) return result;
+
+	result = null;
+
+	const parts = file.split(path.sep);
+	for (let i = parts.length - 1; i >= 0; i--) {
+		const dir = parts.slice(0, i).join(path.sep);
+		try {
+			if (!fs.existsSync(`${dir}/.git`)) continue;
+		} catch {
+			break;
+		}
+
+		if (fs.existsSync(`${dir}/resources/include/std.zh`)) result = path.join(dir, 'resources');
+		break;
+	}
+
+	pathInZCRepoCache.set(file, result);
+	return result;
+}
+
 const globalTmpDir = os.tmpdir();
 const tmpInput = cleanupFile(`${globalTmpDir}/tmp2.zs`);
 const tmpScript = cleanupFile(`${globalTmpDir}/tmp.zs`);
@@ -489,10 +515,15 @@ async function processScript(uri: string, content: string, signal: AbortSignal):
 		if (settings.printCompilerOutput) {
 			console.log([exe, ...args].join(' '));
 		}
-		const cp = await execFile(exe, args, {
-			cwd: zscriptFolder,
+
+		// If in a checkout of the ZC repo, use the resources folder as cwd.
+		const cwd = checkIfInZCRepo(originPath) ?? zscriptFolder;
+
+		const cp = await execFile(`${zscriptFolder}/${exe}`, args, {
+			cwd,
 			maxBuffer: 20_000_000,
 			signal,
+			env: { ...process.env, ZC_DISABLE_OSX_CHDIR: '1' },
 		});
 		success = true;
 		stdout = cp.stdout;
