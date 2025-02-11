@@ -184,7 +184,7 @@ jobs:
           # Note: this token expires annually.
           token: ${{ secrets.GH_PAT_ZSCRIPT_DATABASE }}
           repository: ZQuestClassic/zscript-database
-          ref: 5e34762ec467a5a500a4dc2c6655af762e1aab7e
+          ref: 68f3d886d7fd929038deb729f38c440ed0250fc0
           path: ${{ github.workspace }}/.tmp/zscript-database
 
       - if: ${{ matrix.shard_index == 1 && inputs.from-ci-workflow }}

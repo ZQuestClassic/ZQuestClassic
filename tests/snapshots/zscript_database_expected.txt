@@ -1,4 +1,4 @@
-648 / 794 (81%) passed
+624 / 769 (81%) passed
 
 Failures:
 	00026-deku-leaf/script.zs
@@ -59,7 +59,6 @@ Failures:
 	00235-stdweapons-zh/stdWeapons/subweapons3.z
 	00235-stdweapons-zh/stdWeapons/update.zh
 	00236-empty-bottles/script.zs
-	00238-splitting-and-tribbling-enemies/script.zs
 	00238-splitting-and-tribbling-enemies/splitter_0.9.0.z
 	00238-splitting-and-tribbling-enemies/splitter_v0.6.2.z
 	00245-ffcscript-zh/ffcscript.zh
@@ -93,12 +92,11 @@ Failures:
 	00254-zelda-style-chest-minigame/ChestGame/FFC_ChestGame_v0.4.4.zs
 	00255-swindle-haggle/script.zs
 	00266-advanced-gameboy-style-shields/script.zs
-	00282-oracle-minecarts/script.zs
+	00282--old-oracle-minecarts/script.zs
 	00296-moosh-npc-dialogue-branch-add-on/DialogueBranch.zs
 	00310-newbie-item/script.zs
 	00313-la-hatrobe/Hatrobe.z
 	00330-dungeon-outside-inside/Dungeon Inside-Outside Script.z
-	00330-dungeon-outside-inside/script.zs
 	00332-lweapons-zh/lw_common.zs
 	00332-lweapons-zh/lw_deprecated.zs
 	00332-lweapons-zh/lw_global.zs
@@ -125,28 +123,29 @@ Failures:
 	00374-dodge-roll-action/script.zs
 	00381-better-ladder/script.zs
 	00415-grayswandir-sideview-engine/GSD_sideview/GSD/GSD_sideview_anim.z
-	00415-grayswandir-sideview-engine/GSD_sideview/GSD_extras/GSD_firebar.z
 	00415-grayswandir-sideview-engine/GSD_sideview/GSD_extras/GSD_jumping_fireball.z
 	00415-grayswandir-sideview-engine/GSD_sideview/GSD_extras/mooshbumper.z
+	00415-grayswandir-sideview-engine/GSD_sideview/GSD_extras/piranha.z
+	00415-grayswandir-sideview-engine/GSD_sideview/GSD_extras/warppipe.z
 	00419-slab-connection-puzzle/script.zs
 	00431-no-cycle-spinning-tiles/script.zs
 	00457-magnets-and-iron-beams-puzzle/magnetswitch.z
 	00457-magnets-and-iron-beams-puzzle/script.zs
 	00479-mouse-header-for-debugging/tbt_mouse/tbt_mouse_global.zh
-	00499-npcanim-zh/NPCAnim.zh
 	00500--monarch-ascendant/MonarchAscendant.zs
 	00520-poker-monsters/NofaKind.z
-	00520-poker-monsters/script.zs
+	00523-geldarm-z-geldarm/z2geldarm.z
 	00532-status-effects/statusEffects.zs
 	00533-test-play-init-data-backups/script.zs
 	00536-poker-combos/pokercombos.z
 	00536-poker-combos/script.zs
 	00547--new-palette-based-day-night-system/DayNightNew.zs
-	00562-hot-room-visuals/HotRoomTint.zs
 	00571-gumzol/gumzol.z
 	00571-gumzol/script.zs
 	00580-mani-s-script-header/script.zs
 	00589-temporary-no-return-item-drops/TempNoReturnItem.zs
+	00601-chain-chomp/ChainChomp.zs
+	00602--oracle-minecarts/gbminecart255.zs
 
 === 00026-deku-leaf/script.zs
 Pass 1: Parsing
@@ -4079,222 +4078,6 @@ script.zs Line 33 - Error S008: There is already a variable with name IC_BOTTLE 
 Failure!
 Compile finished with exit code '8' (compiled with errors)
 
-=== 00238-splitting-and-tribbling-enemies/script.zs
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-script.zs Line 458 - Error T027: The left of the -> is not a pointer type (ffc, etc).
-
-456    if ( n[0]->HP < 1 && n[0]->HP > -9999 && n[0]->X != -32768 && n[0]->Y != -32768 ) {
-457        
-458        a[3] = n->X; //Store its position, so that we know where to spawn its splits.
-                  ^~~~
-
-
-script.zs Line 459 - Error T027: The left of the -> is not a pointer type (ffc, etc).
-
-457    
-458    a[3] = n->X; //Store its position, so that we know where to spawn its splits.
-459    a[4] = n->Y;
-              ^~~~
-
-
-script.zs Line 611 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-
-609    for ( a[1] = 0; a[1] < SizeOfArray(list); a[1]+=3 ) {
-610        //Parse the list looking for base enemies.
-611        if ( n[0]->ID  == list[a[1]] ) {
-                             ^~~~~~~~~~
-
-
-script.zs Line 614 - Error T027: The left of the -> is not a pointer type (ffc, etc).
-
-612    if ( n[0]->HP < 1 && n[0]->HP > -9999 && n[0]->X != -32768 && n[0]->Y != -32768 ) {
-613        
-614        a[3] = n->X; //Store its position, so that we know where to spawn its splits.
-                  ^~~~
-
-
-script.zs Line 615 - Error T027: The left of the -> is not a pointer type (ffc, etc).
-
-613    
-614    a[3] = n->X; //Store its position, so that we know where to spawn its splits.
-615    a[4] = n->Y;
-              ^~~~
-
-
-script.zs Line 623 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-
-621        Remove(n[0]);
-622    
-623        for ( a[2] = 0; a[2] < list[a[0]+2]; a[2]++ ) {
-                                  ^~~~~~~~~~~~
-
-
-script.zs Line 625 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-
-623    for ( a[2] = 0; a[2] < list[a[0]+2]; a[2]++ ) {
-624        //Read how many enemies to make, and make one per iteration.
-625        n[1] = CreateNPCAt( list[a[0]+1], 
-                               ^~~~~~~~~~~~
-
-
-script.zs Line 510 - Error T027: The left of the -> is not a pointer type (ffc, etc).
-
-508    if ( n[0]->Defense[ LWeaponToNPCD(l->ID) ] < 3 ) { 
-509        //Can be damaged by the weapon
-510        a[3] = n->X; //Store its position, so that we know where to spawn its splits.
-                  ^~~~
-
-
-script.zs Line 511 - Error T027: The left of the -> is not a pointer type (ffc, etc).
-
-509    //Can be damaged by the weapon
-510    a[3] = n->X; //Store its position, so that we know where to spawn its splits.
-511    a[4] = n->Y;
-              ^~~~
-
-
-script.zs Line 654 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-
-652    for ( a[1] = 0; a[1] < SizeOfArray(list); a[1]+=3 ) {
-653        //Parse the list looking for base enemies.
-654        if ( n[0]->ID  == list[a[1]] && ( !DYING_ENEMY_NO_SPLIT || ( DYING_ENEMY_NO_SPLIT && n[0]->HP > 0 ) ) ) {
-                             ^~~~~~~~~~
-
-
-script.zs Line 665 - Error T027: The left of the -> is not a pointer type (ffc, etc).
-
-663    if ( n[0]->Defense[ LWeaponToNPCD(l->ID) ] < 3 ) { 
-664        //Can be damaged by the weapon
-665        a[3] = n->X; //Store its position, so that we know where to spawn its splits.
-                  ^~~~
-
-
-script.zs Line 666 - Error T027: The left of the -> is not a pointer type (ffc, etc).
-
-664    //Can be damaged by the weapon
-665    a[3] = n->X; //Store its position, so that we know where to spawn its splits.
-666    a[4] = n->Y;
-              ^~~~
-
-
-script.zs Line 675 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-
-673        //Remove(n[0]);
-674        
-675    for ( a[2] = 0; a[2] < list[a[0]+2]; a[2]++ ) {
-                              ^~~~~~~~~~~~
-
-
-script.zs Line 677 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-
-675    for ( a[2] = 0; a[2] < list[a[0]+2]; a[2]++ ) {
-676        //Read how many enemies to make, and make one per iterations
-677        n[1] = CreateNPCAt( list[a[0]+1], 
-                               ^~~~~~~~~~~~
-
-
-script.zs Line 396 - Error T027: The left of the -> is not a pointer type (ffc, etc).
-
-394    if ( n[0]->ID  == list[a[1]] ) {
-395        if ( n[0]->HP < 1 && n[0]->HP > -9999 && n[0]->X != -32768 && n[0]->Y != -32768 ) {
-396            a[3] = n->X; //Store its position, so that we know where to spawn its splits.
-                      ^~~~
-
-
-script.zs Line 397 - Error T027: The left of the -> is not a pointer type (ffc, etc).
-
-395    if ( n[0]->HP < 1 && n[0]->HP > -9999 && n[0]->X != -32768 && n[0]->Y != -32768 ) {
-396        a[3] = n->X; //Store its position, so that we know where to spawn its splits.
-397        a[4] = n->Y;
-                  ^~~~
-
-
-script.zs Line 423 - Error T027: The left of the -> is not a pointer type (ffc, etc).
-
-421    if ( n[0]->Misc[NPCM_TRIBBLEUP_TO] > 0 && n[0]->Misc[NPCM_TRIBBLE_TIMER] == 0 ) {
-422        //Cause it to tribble upward.
-423        a[3] = n->X; //Store its position, so that we know where to spawn its splits.
-                  ^~~~
-
-
-script.zs Line 424 - Error T027: The left of the -> is not a pointer type (ffc, etc).
-
-422    //Cause it to tribble upward.
-423    a[3] = n->X; //Store its position, so that we know where to spawn its splits.
-424    a[4] = n->Y;
-              ^~~~
-
-
-script.zs Line 552 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-
-550    for ( a[1] = 0; a[1] < SizeOfArray(list); a[1]+=4 ) {
-551        //Parse the list looking for base enemies.
-552        if ( n[0]->ID  == list[a[1]] ) {
-                             ^~~~~~~~~~
-
-
-script.zs Line 554 - Error T027: The left of the -> is not a pointer type (ffc, etc).
-
-552    if ( n[0]->ID  == list[a[1]] ) {
-553        if ( n[0]->HP < 1 && n[0]->HP > -9999 && n[0]->X != -32768 && n[0]->Y != -32768 ) {
-554            a[3] = n->X; //Store its position, so that we know where to spawn its splits.
-                      ^~~~
-
-
-script.zs Line 555 - Error T027: The left of the -> is not a pointer type (ffc, etc).
-
-553    if ( n[0]->HP < 1 && n[0]->HP > -9999 && n[0]->X != -32768 && n[0]->Y != -32768 ) {
-554        a[3] = n->X; //Store its position, so that we know where to spawn its splits.
-555        a[4] = n->Y;
-                  ^~~~
-
-
-script.zs Line 564 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-
-562    
-563        //Read how many enemies to make, and make one per iteration.
-564        for ( a[5] = 0; a[5] < list[a[0]]+2; a[5]++ ) {
-                                  ^~~~~~~~~~
-
-
-script.zs Line 565 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-
-563    //Read how many enemies to make, and make one per iteration.
-564    for ( a[5] = 0; a[5] < list[a[0]]+2; a[5]++ ) {
-565        n[1] = CreateNPCAt( list[a[0]+1], 
-                               ^~~~~~~~~~~~
-
-
-script.zs Line 568 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-
-566        Clamp(a[3]+Rand( (waver * -1), waver), 0, MAX_SPAWN_NPX_X),
-567        Clamp(a[4]+Rand( (waver * -1), waver), 0, MAX_SPAWN_NPC_Y) ); //Reuse our pointer, instead of wasting one.
-568    n[1]->Misc[NPCM_TRIBBLEUP_TO] = list[a[0]+3]; //Store the ID of the enemy to trible it up to.
-                                       ^~~~~~~~~~~~
-
-
-script.zs Line 581 - Error T027: The left of the -> is not a pointer type (ffc, etc).
-
-579    if ( n[0]->Misc[NPCM_TRIBBLEUP_TO] > 0 && n[0]->Misc[NPCM_TRIBBLE_TIMER] == 0 ) {
-580        //Cause it to tribble upward.
-581        a[3] = n->X; //Store its position, so that we know where to spawn its splits.
-                  ^~~~
-
-
-script.zs Line 582 - Error T027: The left of the -> is not a pointer type (ffc, etc).
-
-580    //Cause it to tribble upward.
-581    a[3] = n->X; //Store its position, so that we know where to spawn its splits.
-582    a[4] = n->Y;
-              ^~~~
-
-
-Failure!
-Compile finished with exit code '27' (compiled with errors)
-
 === 00238-splitting-and-tribbling-enemies/splitter_0.9.0.z
 Pass 1: Parsing
 Pass 2: Preprocessing
@@ -7969,7 +7752,7 @@ script.zs Line 891 - Error S004: Function reverseDir was already declared with t
 Failure!
 Compile finished with exit code '4' (compiled with errors)
 
-=== 00282-oracle-minecarts/script.zs
+=== 00282--old-oracle-minecarts/script.zs
 Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
@@ -10840,37 +10623,6 @@ Dungeon Inside-Outside Script.z Line 36 - Error S006: Duplicate script with name
 Failure!
 Compile finished with exit code '6' (compiled with errors)
 
-=== 00330-dungeon-outside-inside/script.zs
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-script.zs Line 33 - Error S006: Duplicate script with name DungeonOutside already exists.
-
-31    
-32    
-33    ffc script DungeonOutside{
-                 ^~~~~~~~~~~~~~
-
-
-script.zs Line 33 - Error S006: Duplicate script with name DungeonOutside already exists.
-
-31    
-32    
-33    ffc script DungeonOutside{
-                 ^~~~~~~~~~~~~~
-
-
-script.zs Line 33 - Error S006: Duplicate script with name DungeonOutside already exists.
-
-31    
-32    
-33    ffc script DungeonOutside{
-                 ^~~~~~~~~~~~~~
-
-
-Failure!
-Compile finished with exit code '6' (compiled with errors)
-
 === 00332-lweapons-zh/lw_common.zs
 Pass 1: Parsing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
@@ -12535,123 +12287,123 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-GSD_sideview_anim.z Line 67 - Error S009: Variable LinkX has not been declared.
+GSD_sideview_anim.z Line 66 - Error S009: Variable LinkX has not been declared.
 
-65    void CreateLinkWaterSplashAnim(){
-66        bool burn = false;
-67        lweapon l = CreateLWeaponAt(LW_SPARKLE, LinkX, LinkY);
+64    void CreateLinkWaterSplashAnim(){
+65        bool burn = false;
+66        lweapon l = CreateLWeaponAt(LW_SPARKLE, LinkX, LinkY);
                                                   ^~~~~
 
 
-GSD_sideview_anim.z Line 68 - Error S009: Variable CF_LAVA has not been declared.
+GSD_sideview_anim.z Line 67 - Error S009: Variable CF_LAVA has not been declared.
 
-66    bool burn = false;
-67    lweapon l = CreateLWeaponAt(LW_SPARKLE, LinkX, LinkY);
-68    if (AffectedByFlag(CF_LAVA)){
+65    bool burn = false;
+66    lweapon l = CreateLWeaponAt(LW_SPARKLE, LinkX, LinkY);
+67    if (AffectedByFlag(CF_LAVA)){
                          ^~~~~~~
+
+
+GSD_sideview_anim.z Line 82 - Error S009: Variable l has not been declared.
+
+80        l->UseSprite(SPR_SIDEVIEW_SPLASH);
+81    }
+82    if (burn)l->ASpeed*=2;
+               ^
 
 
 GSD_sideview_anim.z Line 83 - Error S009: Variable l has not been declared.
 
-81        l->UseSprite(SPR_SIDEVIEW_SPLASH);
-82    }
-83    if (burn)l->ASpeed*=2;
-               ^
-
-
-GSD_sideview_anim.z Line 84 - Error S009: Variable l has not been declared.
-
-82    }
-83    if (burn)l->ASpeed*=2;
-84    l->DeadState = Max(l->ASpeed*l->NumFrames-1, 1);
+81    }
+82    if (burn)l->ASpeed*=2;
+83    l->DeadState = Max(l->ASpeed*l->NumFrames-1, 1);
       ^
 
 
-GSD_sideview_anim.z Line 86 - Error S009: Variable l has not been declared.
+GSD_sideview_anim.z Line 85 - Error S009: Variable l has not been declared.
 
-84    l->DeadState = Max(l->ASpeed*l->NumFrames-1, 1);
-85    if (burn){
-86        l->DeadState*=2;
+83    l->DeadState = Max(l->ASpeed*l->NumFrames-1, 1);
+84    if (burn){
+85        l->DeadState*=2;
           ^
 
 
-GSD_sideview_anim.z Line 89 - Error S009: Variable LinkX has not been declared.
+GSD_sideview_anim.z Line 88 - Error S009: Variable LinkX has not been declared.
 
-87        return;
-88    }
-89    int cmb = ComboAt(LinkX+8, LinkY);
+86        return;
+87    }
+88    int cmb = ComboAt(LinkX+8, LinkY);
                         ^~~~~
+
+
+GSD_sideview_anim.z Line 89 - Error S009: Variable cmb has not been declared.
+
+87    }
+88    int cmb = ComboAt(LinkX+8, LinkY);
+89    if (Screen->ComboT[cmb]==CT_SIDEVIEW_WATER) l->Flip = 2;
+                         ^~~
 
 
 GSD_sideview_anim.z Line 90 - Error S009: Variable cmb has not been declared.
 
-88    }
-89    int cmb = ComboAt(LinkX+8, LinkY);
-90    if (Screen->ComboT[cmb]==CT_SIDEVIEW_WATER) l->Flip = 2;
-                         ^~~
+88    int cmb = ComboAt(LinkX+8, LinkY);
+89    if (Screen->ComboT[cmb]==CT_SIDEVIEW_WATER) l->Flip = 2;
+90    cmb = ComboAt(LinkX, LinkY+8);
+      ^~~
 
 
 GSD_sideview_anim.z Line 91 - Error S009: Variable cmb has not been declared.
 
-89    int cmb = ComboAt(LinkX+8, LinkY);
-90    if (Screen->ComboT[cmb]==CT_SIDEVIEW_WATER) l->Flip = 2;
-91    cmb = ComboAt(LinkX, LinkY+8);
-      ^~~
+89    if (Screen->ComboT[cmb]==CT_SIDEVIEW_WATER) l->Flip = 2;
+90    cmb = ComboAt(LinkX, LinkY+8);
+91    if (Screen->ComboT[cmb]==CT_SIDEVIEW_WATER)l->Flip =4;
+                         ^~~
 
 
 GSD_sideview_anim.z Line 92 - Error S009: Variable cmb has not been declared.
 
-90    if (Screen->ComboT[cmb]==CT_SIDEVIEW_WATER) l->Flip = 2;
-91    cmb = ComboAt(LinkX, LinkY+8);
-92    if (Screen->ComboT[cmb]==CT_SIDEVIEW_WATER)l->Flip =4;
-                         ^~~
+90    cmb = ComboAt(LinkX, LinkY+8);
+91    if (Screen->ComboT[cmb]==CT_SIDEVIEW_WATER)l->Flip =4;
+92    cmb = ComboAt(LinkX+15, LinkY+8);
+      ^~~
 
 
 GSD_sideview_anim.z Line 93 - Error S009: Variable cmb has not been declared.
 
-91    cmb = ComboAt(LinkX, LinkY+8);
-92    if (Screen->ComboT[cmb]==CT_SIDEVIEW_WATER)l->Flip =4;
-93    cmb = ComboAt(LinkX+15, LinkY+8);
-      ^~~
-
-
-GSD_sideview_anim.z Line 94 - Error S009: Variable cmb has not been declared.
-
-92    if (Screen->ComboT[cmb]==CT_SIDEVIEW_WATER)l->Flip =4;
-93    cmb = ComboAt(LinkX+15, LinkY+8);
-94    if (Screen->ComboT[cmb]==CT_SIDEVIEW_WATER) l->Flip = 7;
+91    if (Screen->ComboT[cmb]==CT_SIDEVIEW_WATER)l->Flip =4;
+92    cmb = ComboAt(LinkX+15, LinkY+8);
+93    if (Screen->ComboT[cmb]==CT_SIDEVIEW_WATER) l->Flip = 7;
                          ^~~
 
 
-GSD_sideview_anim.z Line 99 - Error S009: Variable LinkX has not been declared.
+GSD_sideview_anim.z Line 98 - Error S009: Variable LinkX has not been declared.
 
- 97    //Creates anumation of Link getting crushed.
- 98    void LinkCrushAnim(int dir){
- 99        lweapon l = CreateLWeaponAt(LW_SPARKLE, LinkX, LinkY);
-                                                   ^~~~~
+96    //Creates anumation of Link getting crushed.
+97    void LinkCrushAnim(int dir){
+98        lweapon l = CreateLWeaponAt(LW_SPARKLE, LinkX, LinkY);
+                                                  ^~~~~
+
+
+GSD_sideview_anim.z Line 99 - Error S009: Variable l has not been declared.
+
+ 97    void LinkCrushAnim(int dir){
+ 98        lweapon l = CreateLWeaponAt(LW_SPARKLE, LinkX, LinkY);
+ 99        l->UseSprite(SPR_LINKCRUSH);
+           ^
 
 
 GSD_sideview_anim.z Line 100 - Error S009: Variable l has not been declared.
 
- 98    void LinkCrushAnim(int dir){
- 99        lweapon l = CreateLWeaponAt(LW_SPARKLE, LinkX, LinkY);
-100        l->UseSprite(SPR_LINKCRUSH);
-           ^
-
-
-GSD_sideview_anim.z Line 101 - Error S009: Variable l has not been declared.
-
- 99    lweapon l = CreateLWeaponAt(LW_SPARKLE, LinkX, LinkY);
-100    l->UseSprite(SPR_LINKCRUSH);
-101    l->DeadState = Max(l->ASpeed*l->NumFrames-1, 1);
+ 98    lweapon l = CreateLWeaponAt(LW_SPARKLE, LinkX, LinkY);
+ 99    l->UseSprite(SPR_LINKCRUSH);
+100    l->DeadState = Max(l->ASpeed*l->NumFrames-1, 1);
        ^
 
 
-GSD_sideview_anim.z Line 102 - Error S009: Variable EXTENDED_CRUSH_ANIM has not been declared.
+GSD_sideview_anim.z Line 101 - Error S009: Variable EXTENDED_CRUSH_ANIM has not been declared.
 
-100    l->UseSprite(SPR_LINKCRUSH);
-101    l->DeadState = Max(l->ASpeed*l->NumFrames-1, 1);
-102    if (EXTENDED_CRUSH_ANIM>0){
+ 99    l->UseSprite(SPR_LINKCRUSH);
+100    l->DeadState = Max(l->ASpeed*l->NumFrames-1, 1);
+101    if (EXTENDED_CRUSH_ANIM>0){
            ^~~~~~~~~~~~~~~~~~~
 
 
@@ -12663,40 +12415,24 @@ GSD_sideview_anim.z Line 3 - Error S009: Variable LinkMode has not been declared
               ^~~~~~~~
 
 
-GSD_sideview_anim.z Line 37 - Error S009: Variable LinkMode has not been declared.
+GSD_sideview_anim.z Line 36 - Error S009: Variable LinkMode has not been declared.
 
-35    }    
-36    else Link->DrawXOffset=0;
-37    if ((LinkMode == LINK_MODE_WATER)&&(SPR_AIRBUBBLE>0)){
+34    }    
+35    else Link->DrawXOffset=0;
+36    if ((LinkMode == LINK_MODE_WATER)&&(SPR_AIRBUBBLE>0)){
            ^~~~~~~~
 
 
-GSD_sideview_anim.z Line 56 - Error S009: Variable CT_SIDEVIEW_WATER has not been declared.
+GSD_sideview_anim.z Line 55 - Error S009: Variable CT_SIDEVIEW_WATER has not been declared.
 
-54    for (int y=0; y<2; y++){
-55        int cmb = ComboAt(collptsx[x], collptsy[y]);
-56        if (Screen->ComboT[cmb]!= CT_SIDEVIEW_WATER){
+53    for (int y=0; y<2; y++){
+54        int cmb = ComboAt(collptsx[x], collptsy[y]);
+55        if (Screen->ComboT[cmb]!= CT_SIDEVIEW_WATER){
                                     ^~~~~~~~~~~~~~~~~
 
 
 Failure!
 Compile finished with exit code '9' (compiled with errors)
-
-=== 00415-grayswandir-sideview-engine/GSD_sideview/GSD_extras/GSD_firebar.z
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-GSD_firebar.z Line 18 - Error T027: The left of the -> is not a pointer type (ffc, etc).
-
-16    for (int i=0; i<numballs; i++){
-17        if (innerenemyID>0)ball[i] = Screen->CreateNPC(innerenemyID);
-18        if (ball[i]->Damage==0) ball->CollDetection=false;
-                                  ^~~~~~~~~~~~~~~~~~~
-
-
-Failure!
-Compile finished with exit code '27' (compiled with errors)
 
 === 00415-grayswandir-sideview-engine/GSD_sideview/GSD_extras/GSD_jumping_fireball.z
 Pass 1: Parsing
@@ -12767,36 +12503,76 @@ mooshbumper.z Line 71 - Error S009: Variable LinkMode has not been declared.
               ^~~~~~~~
 
 
-mooshbumper.z Line 73 - Error S009: Variable HasJumped has not been declared.
-
-71    if (LinkMode==LINK_MODE_CUSTOM)LinkVy = LTTP_BUMPER_FORCE*Sin(BounceAngle);
-72    if (Link->InputEx1){
-73        HasJumped = true;
-          ^~~~~~~~~
-
-
 mooshbumper.z Line 74 - Error S009: Variable LinkVy has not been declared.
 
 72    if (Link->InputEx1){
-73        HasJumped = true;
+73        
 74        LinkVy -=1.5;
           ^~~~~~
 
 
-mooshbumper.z Line 86 - Error S009: Variable LinkY has not been declared.
+mooshbumper.z Line 76 - Error S009: Variable HasJumped has not been declared.
 
-84    for(int i=0; i<MAX_PUSH&&PushY>=1; i++){
-85        if(CanWalk(Link->X, Link->Y, DIR_DOWN, 1, false)){
-86            LinkY++;
+74        LinkVy -=1.5;
+75    }
+76    HasJumped = false;
+      ^~~~~~~~~
+
+
+mooshbumper.z Line 87 - Error S009: Variable LinkY has not been declared.
+
+85    for(int i=0; i<MAX_PUSH&&PushY>=1; i++){
+86        if(CanWalk(Link->X, Link->Y, DIR_DOWN, 1, false)){
+87            LinkY++;
               ^~~~~
 
 
-mooshbumper.z Line 87 - Error S009: Variable LinkMode has not been declared.
+mooshbumper.z Line 88 - Error S009: Variable LinkMode has not been declared.
 
-85    if(CanWalk(Link->X, Link->Y, DIR_DOWN, 1, false)){
-86        LinkY++;
-87        if (LinkMode==LINK_MODE_CUSTOM)LinkVy = LTTP_BUMPER_FORCE*Sin(BounceAngle);
+86    if(CanWalk(Link->X, Link->Y, DIR_DOWN, 1, false)){
+87        LinkY++;
+88        if (LinkMode==LINK_MODE_CUSTOM)LinkVy = LTTP_BUMPER_FORCE*Sin(BounceAngle);
               ^~~~~~~~
+
+
+Failure!
+Compile finished with exit code '9' (compiled with errors)
+
+=== 00415-grayswandir-sideview-engine/GSD_sideview/GSD_extras/piranha.z
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+piranha.z Line 60 - Error S009: Variable LinkX has not been declared.
+
+58    if (haltcounter<=0){
+59        int prox = 0;
+60        if (dir < 2) prox = Abs (LinkX - Ghost_X);
+                                   ^~~~~
+
+
+Failure!
+Compile finished with exit code '9' (compiled with errors)
+
+=== 00415-grayswandir-sideview-engine/GSD_sideview/GSD_extras/warppipe.z
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+warppipe.z Line 165 - Error S009: Variable LinkX has not been declared.
+
+163    int y1 = CenterY(f) - pipesens;
+164    int y2 = CenterY(f) + pipesens;
+165    return RectCollision (x1,y1,x2,y2, LinkX, LinkY, LinkX+15, LinkY+15);
+                                          ^~~~~
+
+
+warppipe.z Line 22 - Error S009: Variable LinkX has not been declared.
+
+20    }
+21    if (PipeCollision(this, 2)){
+22        if (!CanWalk(LinkX, LinkY, dir, 1, true)){
+                       ^~~~~
 
 
 Failure!
@@ -12853,44 +12629,44 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-script.zs Line 224 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+script.zs Line 447 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
 
-222    int rcmb = Screen->ComboD[i];
-223    int rcset = Screen->ComboC[i];
-224    Screen->ComboD[i] = ucmb[arr];
-                           ^~~~~~~~~
-
-
-script.zs Line 225 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-
-223    int rcset = Screen->ComboC[i];
-224    Screen->ComboD[i] = ucmb[arr];
-225    Screen->ComboC[i] = ucset[arr];
-                           ^~~~~~~~~~
+445            int rcset = Screen->ComboC[i];
+446    
+447            Screen->ComboD[i] = ucmb[arr];
+                                   ^~~~~~~~~
 
 
-script.zs Line 226 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+script.zs Line 449 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
 
-224    Screen->ComboD[i] = ucmb[arr];
-225    Screen->ComboC[i] = ucset[arr];
-226    ucmb[arr] = rcmb;
-       ^~~~~~~~~
-
-
-script.zs Line 227 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
-
-225    Screen->ComboC[i] = ucset[arr];
-226    ucmb[arr] = rcmb;
-227    ucset[arr]=rcset;
-       ^~~~~~~~~~
+447            Screen->ComboD[i] = ucmb[arr];
+448    
+449            Screen->ComboC[i] = ucset[arr];
+                                   ^~~~~~~~~~
 
 
-script.zs Line 461 - Error T021: Function SwitchState(ffc, ffc) has not been declared.
+script.zs Line 451 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
 
-459    while(true){
-460        ffc n = Screen->LoadFFC(ffcid);
-461        if (SwitchState(n, this) && !MagnetActive()){
-               ^~~~~~~~~~~
+449            Screen->ComboC[i] = ucset[arr];
+450    
+451            ucmb[arr] = rcmb;
+               ^~~~~~~~~
+
+
+script.zs Line 453 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+451            ucmb[arr] = rcmb;
+452    
+453            ucset[arr]=rcset;
+               ^~~~~~~~~~
+
+
+script.zs Line 949 - Error T021: Function SwitchState(ffc, ffc) has not been declared.
+
+947                ffc n = Screen->LoadFFC(ffcid);
+948    
+949                if (SwitchState(n, this) && !MagnetActive()){
+                       ^~~~~~~~~~~
 
 
 Failure!
@@ -12911,20 +12687,6 @@ tbt_mouse_global.zh Line 10 - Error S009: Variable MOUSE_LAYER has not been decl
 
 Failure!
 Compile finished with exit code '9' (compiled with errors)
-
-=== 00499-npcanim-zh/NPCAnim.zh
-Pass 1: Parsing
-syntax error, unexpected LOOP, expecting EMPTYBRACKETS or IDENTIFIER [00499-npcanim-zh/NPCAnim.zh Line 272 Column 14 'loop']
-NPCAnim.zh Line 8 - Error P001: Included file '00499-npcanim-zh/NPCAnim.zh' encountered an error.
-
-6    #include "std.zh"
-7    #include "ghost.zh"
-8    #include "00499-npcanim-zh/NPCAnim.zh"
-     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-Failure!
-Compile finished with exit code '-1' (compiled with warnings)
 
 === 00500--monarch-ascendant/MonarchAscendant.zs
 Pass 1: Parsing
@@ -13382,45 +13144,21 @@ NofaKind.z Line 160 - Error T021: Function GetBestSequence(int[]) has not been d
 Failure!
 Compile finished with exit code '21' (compiled with errors)
 
-=== 00520-poker-monsters/script.zs
+=== 00523-geldarm-z-geldarm/z2geldarm.z
 Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-script.zs Line 150 - Error T021: Function IsNoaKind(int[], int, bool, bool, int) has not been declared.
+z2geldarm.z Line 58 - Error S009: Variable GELDARM_FLASH_CSET has not been declared.
 
-148    if (ready && !check){
-149        if (combination==0){
-150            fit = IsNoaKind(poker, miscval1, ex, side, miscval2);
-                     ^~~~~~~~~
-
-
-script.zs Line 153 - Error T021: Function GetNumSets(int[], int, int) has not been declared.
-
-151    }
-152    if (combination==1){
-153        if (!side)fit = GetNumSets(poker, miscval1, Cond(ex, miscval1, 10))== miscval2;
-                           ^~~~~~~~~~
-
-
-script.zs Line 157 - Error T021: Function IsMultiFullHouse(int[], int, int, bool) has not been declared.
-
-155    }
-156    if (combination==2){
-157        fit = IsMultiFullHouse(poker, miscval1, miscval2,ex);
-                 ^~~~~~~~~~~~~~~~
-
-
-script.zs Line 160 - Error T021: Function GetBestSequence(int[]) has not been declared.
-
-158    }
-159    if (combination==3){
-160        if (ex) fit = GetBestSequence(poker)==miscval1;
-                         ^~~~~~~~~~~~~~~
+56    
+57    while(true){
+58        if (Z2GELDARM_FLASH_CSET>0 &&(flickercnt%4)>1)drawcset = GELDARM_FLASH_CSET;
+                                                                   ^~~~~~~~~~~~~~~~~~
 
 
 Failure!
-Compile finished with exit code '21' (compiled with errors)
+Compile finished with exit code '9' (compiled with errors)
 
 === 00532-status-effects/statusEffects.zs
 Pass 1: Parsing
@@ -13730,35 +13468,35 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-pokercombos.z Line 116 - Error T021: Function IsNoaKind(int[], int, bool, bool, int) has not been declared.
+pokercombos.z Line 117 - Error T021: Function IsNoaKind(int[], int, bool, bool, int) has not been declared.
 
-114    if (ready){
-115        if (combination==0){
-116            fit = IsNoaKind(poker, miscval1, ex, side, miscval2);
+115    if (ready){
+116        if (combination==0){
+117            fit = IsNoaKind(poker, miscval1, ex, side, miscval2);
                      ^~~~~~~~~
 
 
-pokercombos.z Line 119 - Error T021: Function GetNumSets(int[], int, int) has not been declared.
+pokercombos.z Line 120 - Error T021: Function GetNumSets(int[], int, int) has not been declared.
 
-117    }
-118    if (combination==1){
-119        if (!side)fit = GetNumSets(poker, miscval1, Cond(ex, miscval1, 10))== miscval2;
+118    }
+119    if (combination==1){
+120        if (!side)fit = GetNumSets(poker, miscval1, Cond(ex, miscval1, 10))== miscval2;
                            ^~~~~~~~~~
 
 
-pokercombos.z Line 123 - Error T021: Function IsMultiFullHouse(int[], int, int, bool) has not been declared.
+pokercombos.z Line 124 - Error T021: Function IsMultiFullHouse(int[], int, int, bool) has not been declared.
 
-121    }
-122    if (combination==2){
-123        fit = IsMultiFullHouse(poker, miscval1, miscval2,ex);
+122    }
+123    if (combination==2){
+124        fit = IsMultiFullHouse(poker, miscval1, miscval2,ex);
                  ^~~~~~~~~~~~~~~~
 
 
-pokercombos.z Line 126 - Error T021: Function GetBestSequence(int[]) has not been declared.
+pokercombos.z Line 127 - Error T021: Function GetBestSequence(int[]) has not been declared.
 
-124    }
-125    if (combination==3){
-126        if (ex) fit = GetBestSequence(poker)==miscval1;
+125    }
+126    if (combination==3){
+127        if (ex) fit = GetBestSequence(poker)==miscval1;
                          ^~~~~~~~~~~~~~~
 
 
@@ -13770,35 +13508,35 @@ Pass 1: Parsing
 Pass 2: Preprocessing
 Pass 3: Registration
 Pass 4: Analyzing Code
-script.zs Line 231 - Error T021: Function IsNoaKind(int[], int, bool, bool, int) has not been declared.
+script.zs Line 233 - Error T021: Function IsNoaKind(int[], int, bool, bool, int) has not been declared.
 
-229                    if (combination==0){
-230    
-231                        fit = IsNoaKind(poker, miscval1, ex, side, miscval2);
+231                    if (combination==0){
+232    
+233                        fit = IsNoaKind(poker, miscval1, ex, side, miscval2);
                                  ^~~~~~~~~
 
 
-script.zs Line 237 - Error T021: Function GetNumSets(int[], int, int) has not been declared.
+script.zs Line 239 - Error T021: Function GetNumSets(int[], int, int) has not been declared.
 
-235                    if (combination==1){
-236    
-237                        if (!side)fit = GetNumSets(poker, miscval1, Cond(ex, miscval1, 10))== miscval2;
+237                    if (combination==1){
+238    
+239                        if (!side)fit = GetNumSets(poker, miscval1, Cond(ex, miscval1, 10))== miscval2;
                                            ^~~~~~~~~~
 
 
-script.zs Line 245 - Error T021: Function IsMultiFullHouse(int[], int, int, bool) has not been declared.
+script.zs Line 247 - Error T021: Function IsMultiFullHouse(int[], int, int, bool) has not been declared.
 
-243                    if (combination==2){
-244    
-245                        fit = IsMultiFullHouse(poker, miscval1, miscval2,ex);
+245                    if (combination==2){
+246    
+247                        fit = IsMultiFullHouse(poker, miscval1, miscval2,ex);
                                  ^~~~~~~~~~~~~~~~
 
 
-script.zs Line 251 - Error T021: Function GetBestSequence(int[]) has not been declared.
+script.zs Line 253 - Error T021: Function GetBestSequence(int[]) has not been declared.
 
-249                    if (combination==3){
-250    
-251                        if (ex) fit = GetBestSequence(poker)==miscval1;
+251                    if (combination==3){
+252    
+253                        if (ex) fit = GetBestSequence(poker)==miscval1;
                                          ^~~~~~~~~~~~~~~
 
 
@@ -14101,22 +13839,6 @@ DayNightNew.zs Line 331 - Error T017: Cannot cast from DMapDayNight to int.
 330                // If the DMap has day/night data defined
 331                if(DDN[whichDMap]>NULL)
                       ^~~~~~~~~~~~~~~~~~~
-
-
-Failure!
-Compile finished with exit code '17' (compiled with errors)
-
-=== 00562-hot-room-visuals/HotRoomTint.zs
-Pass 1: Parsing
-Pass 2: Preprocessing
-Pass 3: Registration
-Pass 4: Analyzing Code
-HotRoomTint.zs Line 65 @ Column 12 - Line 66 @ Column 15 - Error T017: Cannot cast from int to const ScreenFlagMisc.
-
-63    : (SF_HOTROOM_CAT==SF_FFC ? SFF_LAST
-64    : (SF_HOTROOM_CAT==SF_WHISTLE ? SFWH_LAST
-65    : (SF_HOTROOM_CAT==SF_MISC ? SFM_LAST
-66    : (-1)))))))))));
 
 
 Failure!
@@ -14444,4 +14166,335 @@ TempNoReturnItem.zs Line 105 - Warning S094: Function 'Game::GetCurMap()' is dep
 INFO: Use CurMap instead!
 Failure!
 Compile finished with exit code '17' (compiled with errors)
+
+=== 00601-chain-chomp/ChainChomp.zs
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+ChainChomp.zs Line 6 - Error P073: 'using' found no matches for the namespace NPCAnim.
+
+4    @InitDHelp0("How many chain links the chomp has. This determines its leash distance.")
+5    npc script Chainchomp{
+6        using namespace NPCAnim;
+         ^~~~~~~~~~~~~~~~~~~~~~~
+
+
+ChainChomp.zs Line 122 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+120    for(int i=0; i<frames; ++i)
+121    {
+122        int chainX = vars[0];
+                        ^~~~~~~
+
+
+ChainChomp.zs Line 123 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+121    {
+122        int chainX = vars[0];
+123        int chainY = vars[1];
+                        ^~~~~~~
+
+
+ChainChomp.zs Line 124 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+122    int chainX = vars[0];
+123    int chainY = vars[1];
+124    chainX[0] = this->X;
+       ^~~~~~~~~
+
+
+ChainChomp.zs Line 125 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+123    int chainY = vars[1];
+124    chainX[0] = this->X;
+125    chainY[0] = this->Y-this->Z;
+       ^~~~~~~~~
+
+
+ChainChomp.zs Line 127 - Error T021: Function Waitframe(npc) has not been declared.
+
+125    chainY[0] = this->Y-this->Z;
+126    UpdateChain(this, vars);
+127    Waitframe(this);
+       ^~~~~~~~~
+
+
+ChainChomp.zs Line 88 - Error T047: Type AnimHandler has not been declared.
+
+86    }
+87    void UpdateChain(npc this, int vars){
+88        AnimHandler aptr = GetAnimHandler(this);
+          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+ChainChomp.zs Line 89 - Error S009: Variable aptr has not been declared.
+
+87    void UpdateChain(npc this, int vars){
+88        AnimHandler aptr = GetAnimHandler(this);
+89        int til = aptr->OriginalTile + 8;
+                    ^~~~
+
+
+ChainChomp.zs Line 92 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+90    
+91    int Combo = this->Attributes[10];
+92    int chainX = vars[0];
+                   ^~~~~~~
+
+
+ChainChomp.zs Line 93 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+91    int Combo = this->Attributes[10];
+92    int chainX = vars[0];
+93    int chainY = vars[1];
+                   ^~~~~~~
+
+
+ChainChomp.zs Line 94 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+92    int chainX = vars[0];
+93    int chainY = vars[1];
+94    int numLinks = vars[2];
+                     ^~~~~~~
+
+
+ChainChomp.zs Line 101 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+ 99    vX[i] = 0;
+100    vY[i] = 0;
+101    float d1 = Distance(chainX[i], chainY[i], chainX[i+1], chainY[i+1]);
+                           ^~~~~~~~~
+
+
+ChainChomp.zs Line 101 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+ 99    vX[i] = 0;
+100    vY[i] = 0;
+101    float d1 = Distance(chainX[i], chainY[i], chainX[i+1], chainY[i+1]);
+                                      ^~~~~~~~~
+
+
+ChainChomp.zs Line 101 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+ 99    vX[i] = 0;
+100    vY[i] = 0;
+101    float d1 = Distance(chainX[i], chainY[i], chainX[i+1], chainY[i+1]);
+                                                 ^~~~~~~~~~~
+
+
+ChainChomp.zs Line 101 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+ 99    vX[i] = 0;
+100    vY[i] = 0;
+101    float d1 = Distance(chainX[i], chainY[i], chainX[i+1], chainY[i+1]);
+                                                              ^~~~~~~~~~~
+
+
+ChainChomp.zs Line 102 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+100    vY[i] = 0;
+101    float d1 = Distance(chainX[i], chainY[i], chainX[i+1], chainY[i+1]);
+102    float a1 = Angle(chainX[i], chainY[i], chainX[i+1], chainY[i+1]);
+                        ^~~~~~~~~
+
+
+ChainChomp.zs Line 102 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+100    vY[i] = 0;
+101    float d1 = Distance(chainX[i], chainY[i], chainX[i+1], chainY[i+1]);
+102    float a1 = Angle(chainX[i], chainY[i], chainX[i+1], chainY[i+1]);
+                                   ^~~~~~~~~
+
+
+ChainChomp.zs Line 102 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+100    vY[i] = 0;
+101    float d1 = Distance(chainX[i], chainY[i], chainX[i+1], chainY[i+1]);
+102    float a1 = Angle(chainX[i], chainY[i], chainX[i+1], chainY[i+1]);
+                                              ^~~~~~~~~~~
+
+
+ChainChomp.zs Line 102 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+100    vY[i] = 0;
+101    float d1 = Distance(chainX[i], chainY[i], chainX[i+1], chainY[i+1]);
+102    float a1 = Angle(chainX[i], chainY[i], chainX[i+1], chainY[i+1]);
+                                                           ^~~~~~~~~~~
+
+
+ChainChomp.zs Line 103 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+101    float d1 = Distance(chainX[i], chainY[i], chainX[i+1], chainY[i+1]);
+102    float a1 = Angle(chainX[i], chainY[i], chainX[i+1], chainY[i+1]);
+103    float d2 = Distance(chainX[i], chainY[i], chainX[i-1], chainY[i-1]);
+                           ^~~~~~~~~
+
+
+ChainChomp.zs Line 103 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+101    float d1 = Distance(chainX[i], chainY[i], chainX[i+1], chainY[i+1]);
+102    float a1 = Angle(chainX[i], chainY[i], chainX[i+1], chainY[i+1]);
+103    float d2 = Distance(chainX[i], chainY[i], chainX[i-1], chainY[i-1]);
+                                      ^~~~~~~~~
+
+
+ChainChomp.zs Line 103 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+101    float d1 = Distance(chainX[i], chainY[i], chainX[i+1], chainY[i+1]);
+102    float a1 = Angle(chainX[i], chainY[i], chainX[i+1], chainY[i+1]);
+103    float d2 = Distance(chainX[i], chainY[i], chainX[i-1], chainY[i-1]);
+                                                 ^~~~~~~~~~~
+
+
+ChainChomp.zs Line 103 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+101    float d1 = Distance(chainX[i], chainY[i], chainX[i+1], chainY[i+1]);
+102    float a1 = Angle(chainX[i], chainY[i], chainX[i+1], chainY[i+1]);
+103    float d2 = Distance(chainX[i], chainY[i], chainX[i-1], chainY[i-1]);
+                                                              ^~~~~~~~~~~
+
+
+ChainChomp.zs Line 104 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+102    float a1 = Angle(chainX[i], chainY[i], chainX[i+1], chainY[i+1]);
+103    float d2 = Distance(chainX[i], chainY[i], chainX[i-1], chainY[i-1]);
+104    float a2 = Angle(chainX[i], chainY[i], chainX[i-1], chainY[i-1]);
+                        ^~~~~~~~~
+
+
+ChainChomp.zs Line 104 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+102    float a1 = Angle(chainX[i], chainY[i], chainX[i+1], chainY[i+1]);
+103    float d2 = Distance(chainX[i], chainY[i], chainX[i-1], chainY[i-1]);
+104    float a2 = Angle(chainX[i], chainY[i], chainX[i-1], chainY[i-1]);
+                                   ^~~~~~~~~
+
+
+ChainChomp.zs Line 104 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+102    float a1 = Angle(chainX[i], chainY[i], chainX[i+1], chainY[i+1]);
+103    float d2 = Distance(chainX[i], chainY[i], chainX[i-1], chainY[i-1]);
+104    float a2 = Angle(chainX[i], chainY[i], chainX[i-1], chainY[i-1]);
+                                              ^~~~~~~~~~~
+
+
+ChainChomp.zs Line 104 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+102    float a1 = Angle(chainX[i], chainY[i], chainX[i+1], chainY[i+1]);
+103    float d2 = Distance(chainX[i], chainY[i], chainX[i-1], chainY[i-1]);
+104    float a2 = Angle(chainX[i], chainY[i], chainX[i-1], chainY[i-1]);
+                                                           ^~~~~~~~~~~
+
+
+ChainChomp.zs Line 112 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+110    
+111    for(int i=1; i<numLinks; i++){
+112        chainX[i] += vX[i];
+           ^~~~~~~~~
+
+
+ChainChomp.zs Line 112 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+110    
+111    for(int i=1; i<numLinks; i++){
+112        chainX[i] += vX[i];
+           ^~~~~~~~~
+
+
+ChainChomp.zs Line 113 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+111    for(int i=1; i<numLinks; i++){
+112        chainX[i] += vX[i];
+113        chainY[i] += vY[i];
+           ^~~~~~~~~
+
+
+ChainChomp.zs Line 113 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+111    for(int i=1; i<numLinks; i++){
+112        chainX[i] += vX[i];
+113        chainY[i] += vY[i];
+           ^~~~~~~~~
+
+
+ChainChomp.zs Line 115 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+113    chainY[i] += vY[i];
+114    if(Link->HP>0)
+115        Screen->FastTile(SPLAYER_EWEAP_BEHIND_DRAW, chainX[i], chainY[i], til, this->CSet, OP_OPAQUE);
+                                                       ^~~~~~~~~
+
+
+ChainChomp.zs Line 115 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+113    chainY[i] += vY[i];
+114    if(Link->HP>0)
+115        Screen->FastTile(SPLAYER_EWEAP_BEHIND_DRAW, chainX[i], chainY[i], til, this->CSet, OP_OPAQUE);
+                                                                  ^~~~~~~~~
+
+
+ChainChomp.zs Line 115 - Error S009: Variable til has not been declared.
+
+113    chainY[i] += vY[i];
+114    if(Link->HP>0)
+115        Screen->FastTile(SPLAYER_EWEAP_BEHIND_DRAW, chainX[i], chainY[i], til, this->CSet, OP_OPAQUE);
+                                                                             ^~~
+
+
+ChainChomp.zs Line 14 - Error T021: Function Waitspawn(npc) has not been declared.
+
+12    int maxDist = (numLinks-1) * 8;
+13    
+14    Waitspawn(this);
+      ^~~~~~~~~
+
+
+ChainChomp.zs Line 16 - Error T047: Type AnimHandler has not been declared.
+
+14    Waitspawn(this);
+15    
+16    AnimHandler aptr = new AnimHandler(this);
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+ChainChomp.zs Line 17 - Error S009: Variable aptr has not been declared.
+
+15    
+16    AnimHandler aptr = new AnimHandler(this);
+17    aptr->AddAnim(0, 0, 1, 1, ADF_8WAY);
+      ^~~~
+
+
+ChainChomp.zs Line 28 - Warning S108: Array mismatch for types int[] and int
+
+26    }
+27    
+28    int vars[16] = {chainX, chainY, numLinks};
+                     ^~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+ChainChomp.zs Line 28 - Warning S108: Array mismatch for types int[] and int
+
+26    }
+27    
+28    int vars[16] = {chainX, chainY, numLinks};
+                     ^~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Failure!
+Compile finished with exit code '73' (compiled with errors)
+
+=== 00602--oracle-minecarts/gbminecart255.zs
+Pass 1: Parsing
+gbminecart255.zs Line 1 - Error P083: Could not find included file 'TempLinkState255.zh'. Please check your include paths!
+
+1    #include "TempLinkState255.zh"
+     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Failure!
+Compile finished with exit code '-1' (compiled with warnings)
 
