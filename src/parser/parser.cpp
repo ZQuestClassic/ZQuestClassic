@@ -533,19 +533,11 @@ int32_t main(int32_t argc, char **argv)
 		}
 		else zconsole_info("Compile finished with exit code '0' (success)");
 
-		if (result)
+		if (result && do_json_output)
 		{
-			if (do_json_output)
-			{
-				json data;
-				fill_result(data, res, result.get());
-				std::cout << data.dump(2);
-			}
-			else if (!result->metadata.empty())
-			{
-				// TODO: remove once extension uses `-json`.
-				printf("=== METADATA\n%s\n", result->metadata.dump(2).c_str());
-			}
+			json data;
+			fill_result(data, res, result.get());
+			std::cout << data.dump(2);
 		}
 	}
 	if(!zasm_out.empty() && result)
