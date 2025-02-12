@@ -1,5 +1,3 @@
-import "bindings/common.zh"
-
 // Sprite rendering extend modes. Used with [sprite::Extend].
 enum ExtendMode
 {

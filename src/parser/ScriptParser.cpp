@@ -109,13 +109,9 @@ static unique_ptr<ScriptsData> _compile_helper(string const& filename, bool incl
 		zconsole_info("%s", "Pass 1: Parsing");
 		zconsole_idle();
 
-		bool shouldImportBindings = true;
 		extern std::string metadata_orig_path;
 		extern std::string metadata_tmp_path;
-		if (metadata_orig_path.find("bindings") != std::string::npos)
-			shouldImportBindings = false;
-
-		shared_ptr<ASTFile> root(ScriptParser::parse_from_root(filename, metadata_orig_path, metadata_tmp_path, shouldImportBindings));
+		shared_ptr<ASTFile> root(ScriptParser::parse_from_root(filename, metadata_orig_path, metadata_tmp_path));
 		if (zscript_error_out || !root) return result;
 
 		zconsole_info("%s", "Pass 2: Preprocessing");
@@ -382,7 +378,7 @@ bool ScriptParser::valid_include(ASTImportDecl& decl, string& ret_fname)
 	return true;
 }
 
-std::shared_ptr<ASTFile> ScriptParser::parse_from_root(std::string entry_filename, std::string metadata_orig_path, std::string metadata_tmp_path, bool import_bindings)
+std::shared_ptr<ASTFile> ScriptParser::parse_from_root(std::string entry_filename, std::string metadata_orig_path, std::string metadata_tmp_path)
 {
 	std::map<std::string, std::shared_ptr<ASTFile>> parsed_files_cache;
 
@@ -399,8 +395,7 @@ std::shared_ptr<ASTFile> ScriptParser::parse_from_root(std::string entry_filenam
 	}
 	parsed_files_cache[entry_filename] = entry_file;
 
-	if (import_bindings)
-		root_file->imports.insert(root_file->imports.begin(), new ASTImportDecl(new ASTString("bindings.zh")));
+	root_file->imports.insert(root_file->imports.begin(), new ASTImportDecl(new ASTString("bindings.zh")));
 	root_file->imports.push_back(new ASTImportDecl(new ASTString(entry_filename)));
 
 	// We're going to process the import graph via depth-first search, but iteratively. In order to process imports

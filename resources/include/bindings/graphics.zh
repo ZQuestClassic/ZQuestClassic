@@ -1,5 +1,3 @@
-import "bindings/paldata.zh"
-
 enum ColorSpace
 {
 	CSPACE_RGB,

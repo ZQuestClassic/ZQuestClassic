@@ -1,5 +1,3 @@
-import "bindings/sprite.zh"
-
 // Used with [ffc::Flags].
 enum FFCFlag
 {

@@ -1,5 +1,3 @@
-import "bindings/sprite.zh"
-
 // Player weapon types. Used with [Screen->CreateLWeapon].
 enum LWeaponType
 {

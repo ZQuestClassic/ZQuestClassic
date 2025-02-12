@@ -1,5 +1,3 @@
-import "bindings/sprite.zh"
-
 // Defines the visible portion of the current [Region] - aka, what the player currently sees.
 //
 // @version 2.55.9 - Basic, read-only access

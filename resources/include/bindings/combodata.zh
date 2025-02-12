@@ -1,5 +1,3 @@
-import "bindings/common.zh"
-
 // Combo Quadrants used for Combo Solidity and CSet2vMasks.
 @Bitflags("int")
 enum ComboSolidityBitflags
