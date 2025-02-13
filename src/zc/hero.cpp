@@ -29428,15 +29428,12 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 
 			if(ladderx > 0 || laddery > 0)
 			{
-				SAVE_HERO_POS;
-				USE_COMPAT_HERO_POS;
 				// If the ladder moves on both axes, the player can
 				// gradually shift it by going back and forth
 				if(scrolldir==up || scrolldir==down)
 					laddery = y.getInt();
 				else
 					ladderx = x.getInt();
-				RESTORE_HERO_POS;
 			}
 		}
 
