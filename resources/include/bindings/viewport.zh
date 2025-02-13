@@ -1,5 +1,3 @@
-import "bindings/sprite.zh"
-
 enum ViewportMode
 {
 	// Position the viewport such that the [Viewport::Target] is in the middle of it (but bounded by the edges of the current region).

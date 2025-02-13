@@ -1,12 +1,3 @@
-import "bindings/common.zh"
-
-import "bindings/eweapon.zh"
-import "bindings/ffc.zh"
-// import "bindings/itemsprite.zh" TODO: why is this not working?
-import "bindings/lweapon.zh"
-import "bindings/npc.zh"
-import "bindings/portal.zh"
-
 // 176 per screen in the current region. Same as [Region->NumCombos].
 //
 // @zasm_var REGION_NUM_COMBOS

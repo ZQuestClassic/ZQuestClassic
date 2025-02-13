@@ -1,5 +1,3 @@
-import "bindings/genericdata.zh"
-
 // System Real Time Clock (RTC) categories for [GetSystemTime].
 enum RealTimeClockCategory
 {

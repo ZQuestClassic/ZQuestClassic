@@ -1,22 +1,3 @@
-import "bindings/bitmap.zh"
-import "bindings/bottledata.zh"
-import "bindings/bottleshopdata.zh"
-import "bindings/combodata.zh"
-import "bindings/dmapdata.zh"
-import "bindings/dropsetdata.zh"
-import "bindings/genericdata.zh"
-import "bindings/itemdata.zh"
-import "bindings/mapdata.zh"
-import "bindings/messagedata.zh"
-import "bindings/npcdata.zh"
-import "bindings/qrs.zh"
-import "bindings/randgen.zh"
-import "bindings/shopdata.zh"
-import "bindings/spritedata.zh"
-import "bindings/stack.zh"
-import "bindings/subscreendata.zh"
-import "bindings/websocket.zh"
-
 // Used with [Game->Gravity].
 enum GravityIndex
 {

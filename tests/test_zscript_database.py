@@ -101,7 +101,7 @@ def intuit_imports(database_dir: Path, script_path: Path):
         ]
         if not any(e in script_path.as_posix() for e in except_for):
             imports.append(
-                database_dir / '00414-matrix-password-puzzle-up-and-down/matrix40.z'
+                database_dir / '00414-matrix-password-puzzle-up-and-down/matrix50.z'
             )
 
     if re.search(r'LinkMovement', code, re.IGNORECASE):

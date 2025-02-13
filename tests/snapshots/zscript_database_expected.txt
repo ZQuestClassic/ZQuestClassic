@@ -1,4 +1,4 @@
-621 / 769 (80%) passed
+624 / 769 (81%) passed
 
 Failures:
 	00026-deku-leaf/script.zs
@@ -131,8 +131,6 @@ Failures:
 	00431-no-cycle-spinning-tiles/script.zs
 	00457-magnets-and-iron-beams-puzzle/magnetswitch.z
 	00457-magnets-and-iron-beams-puzzle/script.zs
-	00458-matrix-sequence-password/matrixsequence.z
-	00458-matrix-sequence-password/script.zs
 	00479-mouse-header-for-debugging/tbt_mouse/tbt_mouse_global.zh
 	00500--monarch-ascendant/MonarchAscendant.zs
 	00520-poker-monsters/NofaKind.z
@@ -142,7 +140,6 @@ Failures:
 	00536-poker-combos/pokercombos.z
 	00536-poker-combos/script.zs
 	00547--new-palette-based-day-night-system/DayNightNew.zs
-	00550-morse-code-player/morse.z
 	00571-gumzol/gumzol.z
 	00571-gumzol/script.zs
 	00580-mani-s-script-header/script.zs
@@ -4046,21 +4043,21 @@ Compile finished with exit code '-1' (compiled with warnings)
 === 00235-stdweapons-zh/stdWeapons/update.zh
 Pass 1: Parsing
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
-update.zh Line 14 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
-
-12    #include "00235-stdweapons-zh/stdWeapons.zh"
-13    #include "00415-grayswandir-sideview-engine/GSD_sideview/GSD_sideview.z"
-14    #include "00235-stdweapons-zh/stdWeapons/update.zh"
-      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
 
 84    import "stdWeapons/stdWeaponsParticles.zh"
 85    import "stdWeapons/stdWeaponsMelee.zh"
 86    import "stdWeapons/update.zh"
       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
+update.zh Line 14 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+
+12    #include "00235-stdweapons-zh/stdWeapons.zh"
+13    #include "00415-grayswandir-sideview-engine/GSD_sideview/GSD_sideview.z"
+14    #include "00235-stdweapons-zh/stdWeapons/update.zh"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 Failure!
@@ -10792,15 +10789,6 @@ Compile finished with exit code '-1' (compiled with warnings)
 
 === 00332-lweapons-zh/lw_life.zs
 Pass 1: Parsing
-syntax error, unexpected NEW, expecting SEMICOLON [00332-lweapons-zh/lw_life.zs Line 135 Column 24 'new']
-lw_life.zs Line 9 - Error P001: Included file '00332-lweapons-zh/lw_life.zs' encountered an error.
-
- 7    #include "std.zh"
- 8    #include "00235-stdweapons-zh/stdWeapons.zh"
- 9    #include "00332-lweapons-zh/lw_life.zs"
-      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
 syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
 stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
 
@@ -10808,6 +10796,15 @@ stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapon
 85    import "stdWeapons/stdWeaponsMelee.zh"
 86    import "stdWeapons/update.zh"
       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+syntax error, unexpected NEW, expecting SEMICOLON [00332-lweapons-zh/lw_life.zs Line 135 Column 24 'new']
+lw_life.zs Line 9 - Error P001: Included file '00332-lweapons-zh/lw_life.zs' encountered an error.
+
+ 7    #include "std.zh"
+ 8    #include "00235-stdweapons-zh/stdWeapons.zh"
+ 9    #include "00332-lweapons-zh/lw_life.zs"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 Failure!
@@ -10965,6 +10962,15 @@ Compile finished with exit code '-1' (compiled with warnings)
 
 === 00332-lweapons-zh/lweapons.zh
 Pass 1: Parsing
+syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
+stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
+
+84    import "stdWeapons/stdWeaponsParticles.zh"
+85    import "stdWeapons/stdWeaponsMelee.zh"
+86    import "stdWeapons/update.zh"
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 lweapons.zh Line 7 - Error P083: Could not find included file 'headers/stdExtra.zh'. Please check your include paths!
 
 5    
@@ -11083,15 +11089,6 @@ lweapons.zh Line 24 - Error P083: Could not find included file 'LW_ZH/lw_somaria
 23    import "LW_ZH/lw_hookshots.zs"
 24    import "LW_ZH/lw_somaria.zs"
       ^~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-syntax error, unexpected STATIC, expecting EMPTYBRACKETS or IDENTIFIER [00235-stdweapons-zh/stdWeapons/update.zh Line 207 Column 13 'static']
-stdWeapons.zh Line 86 - Error P001: Included file '00235-stdweapons-zh/stdWeapons/update.zh' encountered an error.
-
-84    import "stdWeapons/stdWeaponsParticles.zh"
-85    import "stdWeapons/stdWeaponsMelee.zh"
-86    import "stdWeapons/update.zh"
-      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 Failure!
@@ -12675,32 +12672,6 @@ script.zs Line 949 - Error T021: Function SwitchState(ffc, ffc) has not been dec
 Failure!
 Compile finished with exit code '21' (compiled with errors)
 
-=== 00458-matrix-sequence-password/matrixsequence.z
-Pass 1: Parsing
-matrixsequence.z Line 7 - Error P083: Could not find included file '00414-matrix-password-puzzle-up-and-down/matrix40.z'. Please check your include paths!
-
-5    
-6    #include "std.zh"
-7    #include "00414-matrix-password-puzzle-up-and-down/matrix40.z"
-     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-Failure!
-Compile finished with exit code '-1' (compiled with warnings)
-
-=== 00458-matrix-sequence-password/script.zs
-Pass 1: Parsing
-script.zs Line 7 - Error P083: Could not find included file '00414-matrix-password-puzzle-up-and-down/matrix40.z'. Please check your include paths!
-
-5    
-6    #include "std.zh"
-7    #include "00414-matrix-password-puzzle-up-and-down/matrix40.z"
-     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-Failure!
-Compile finished with exit code '-1' (compiled with warnings)
-
 === 00479-mouse-header-for-debugging/tbt_mouse/tbt_mouse_global.zh
 Pass 1: Parsing
 Pass 2: Preprocessing
@@ -13872,19 +13843,6 @@ DayNightNew.zs Line 331 - Error T017: Cannot cast from DMapDayNight to int.
 
 Failure!
 Compile finished with exit code '17' (compiled with errors)
-
-=== 00550-morse-code-player/morse.z
-Pass 1: Parsing
-morse.z Line 7 - Error P083: Could not find included file '00414-matrix-password-puzzle-up-and-down/matrix40.z'. Please check your include paths!
-
-5    
-6    #include "std.zh"
-7    #include "00414-matrix-password-puzzle-up-and-down/matrix40.z"
-     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-Failure!
-Compile finished with exit code '-1' (compiled with warnings)
 
 === 00571-gumzol/gumzol.z
 Pass 1: Parsing

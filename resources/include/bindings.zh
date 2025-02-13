@@ -69,7 +69,7 @@
 //   rather than using @param/@value. Though @param is still good for explaining something about
 //   a specific parameter.
 //
-// Additionally, text wrapped in square brackets at linkified if they resolve to another symbol.
+// Additionally, text wrapped in square brackets is linkified if they resolve to another symbol.
 // For example: [bitmap], [Screen->ComboC], [bitmap::GetPixel].
 
 import "bindings/common.zh"
@@ -103,6 +103,7 @@ import "bindings/npc.zh"
 import "bindings/npcdata.zh"
 import "bindings/paldata.zh"
 import "bindings/portal.zh"
+import "bindings/qrs.zh"
 import "bindings/randgen.zh"
 import "bindings/region.zh"
 import "bindings/savedportal.zh"
