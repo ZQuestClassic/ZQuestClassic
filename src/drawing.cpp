@@ -178,13 +178,13 @@ void doDarkroomSquare(int32_t cx, int32_t cy, word glowRad, BITMAP* dest, BITMAP
 	if(!glowRad) return;
 
 
-	#ifdef IS_PLAYER
+#ifdef IS_PLAYER
 	cx -= viewport.x;
 	cy -= viewport.y;
 	//Default bitmap handling
 	if(!dest) dest = darkscr_bmp;
 	if(dest == darkscr_bmp) transdest = darkscr_bmp_trans;
-	#endif
+#endif
 
 	if(dith_perc < 0) dith_perc = DITH_PERC;
 	if(trans_perc < 0) trans_perc = TRANS_PERC;

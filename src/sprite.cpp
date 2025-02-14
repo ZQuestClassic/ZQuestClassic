@@ -8,6 +8,7 @@
 #include "zc/maps.h"
 #include "zc/replay.h"
 #include "zc/guys.h"
+#include "zc/ffscript.h"
 #include "base/zc_math.h"
 #include <fmt/format.h>
 #include "base/misctypes.h"
@@ -18,9 +19,11 @@
 #include "zc/decorations.h"
 #include "items.h"
 #include "zc/render.h"
+
 extern HeroClass Hero;
 extern sprite_list decorations;
 #endif
+
 extern particle_list particles;
 
 extern bool get_debug();
@@ -28,12 +31,6 @@ extern bool halt;
 extern bool show_sprites;
 extern bool show_hitboxes;
 extern void debugging_box(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
-#include "zc/ffscript.h"
-
-// TODO z3 ! rm?
-#ifndef IS_PLAYER
-viewport_t viewport;
-#endif
 
 static std::map<int32_t, sprite*> all_sprites;
 byte sprite_flicker_color = 0;
@@ -1063,8 +1060,10 @@ void sprite::draw(BITMAP* dest)
 	int32_t sy = real_y(y+yofs) - syz;
 	sy -= fake_z(fakez);
 
+#ifdef IS_PLAYER
 	sx -= viewport.x;
 	sy -= viewport.y;
+#endif
 
 #ifndef IS_EDITOR
 	// TODO get actual size
@@ -1549,8 +1548,10 @@ void sprite::drawzcboss(BITMAP* dest)
 	int32_t sy = real_y(y+yofs) - syz;
 	sy -= fake_z(fakez);
 
+#ifdef IS_PLAYER
 	sx -= viewport.x;
 	sy -= viewport.y;
+#endif
 
 	if(id<0)
 		return;
@@ -1923,9 +1924,11 @@ void sprite::draw8(BITMAP* dest)
 	int32_t sy = real_y(y+yofs) - syz;
 	sy -= fake_z(fakez);
 
+#ifdef IS_PLAYER
 	sx -= viewport.x;
 	sy -= viewport.y;
-    
+#endif
+
     if(id<0)
         return;
         
@@ -1955,8 +1958,10 @@ void sprite::drawcloaked(BITMAP* dest)
 	int32_t sy = real_y(y+yofs) - syz;
 	sy -= fake_z(fakez);
 
+#ifdef IS_PLAYER
 	sx -= viewport.x;
 	sy -= viewport.y;
+#endif
     
     if(id<0)
         return;
@@ -2016,8 +2021,13 @@ void sprite::drawshadow(BITMAP* dest,bool translucent)
 		return;
 	}
 	
-	int32_t sx = real_x(x+xofs+shadowxofs)+(txsz-1)*8 - viewport.x;
-	int32_t sy = real_y(y+yofs+shadowyofs)+(tysz-1)*16 - viewport.y;
+	int32_t sx = real_x(x+xofs+shadowxofs)+(txsz-1)*8;
+	int32_t sy = real_y(y+yofs+shadowyofs)+(tysz-1)*16;
+#ifdef IS_PLAYER
+	sx -= viewport.x;
+	sy -= viewport.y;
+#endif
+
 	//int32_t sy1 = sx-56; //subscreen offset
 	//if ( ispitfall(x+xofs, y+yofs+16) || ispitfall(x+xofs+8, y+yofs+16) || ispitfall(x+xofs+15, y+yofs+16)  ) return;
 	//sWTF, why is this offset by half the screen. Can't do this right now. Sanity. -Z
@@ -2324,12 +2334,14 @@ void sprite_list::animate()
 {
 	active_iterator = 0;
 
+#ifdef IS_PLAYER
 	viewport_t freeze_rect = viewport;
 	int tile_buffer = 3;
 	freeze_rect.w += 16 * tile_buffer * 2;
 	freeze_rect.h += 16 * tile_buffer * 2;
 	freeze_rect.x -= 16 * tile_buffer;
 	freeze_rect.y -= 16 * tile_buffer;
+#endif
 
 	while(active_iterator<count)
 	{
@@ -2339,7 +2351,7 @@ void sprite_list::animate()
 		if (spr->canfreeze)
 		{
 			freeze_sprite = freeze_guys;
-#ifndef IS_EDITOR
+#ifdef IS_PLAYER
 			// TODO: maybe someday make this "freeze" rect size configurable:
 			//       `->ViewportFreezeBuffer` pixels (set to -1 to disable; enemies/eweapons default to 48px)
 			if (is_in_scrolling_region())
@@ -2796,7 +2808,13 @@ void movingblock::draw(BITMAP *dest)
 	}
     else if(clk)
     {
-        overcombo(dest,real_x(x+xofs)-viewport.x,real_y(y+yofs)-viewport.y,bcombo ,cs);
+		int32_t sx = real_x(x+xofs);
+		int32_t sy = real_x(y+yofs);
+#ifdef IS_PLAYER
+		sx -= viewport.x;
+		sy -= viewport.y;
+#endif
+        overcombo(dest, sx, sy, bcombo, cs);
     }
 }
 

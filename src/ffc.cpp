@@ -58,9 +58,14 @@ void ffcdata::draw_ffc(BITMAP* dest, int32_t xofs, int32_t yofs, bool overlay)
 	
 	if(!(flags&ffc_overlay) == !overlay) //force cast both of these to boolean. They're both not, so same as if they weren't not.
 	{
+#ifdef IS_PLAYER
 		int32_t tx = x + xofs - viewport.x;
 		int32_t ty = y + yofs - viewport.y;
-		
+#else
+		int32_t tx = x + xofs;
+		int32_t ty = y + yofs;
+#endif
+
 		if(flags&ffc_trans)
 		{
 			overcomboblocktranslucent(dest, tx, ty, data, cset, txsz, tysz,128);
