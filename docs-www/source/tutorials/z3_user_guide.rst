@@ -1,7 +1,7 @@
 Z3 User Guide
 =============
 
-This is written for experienced users of ZC, and describes the major changes related to the new `z3` region scrolling feature.
+This is written for experienced users of ZC, and describes the major changes related to the new "z3" scrolling regions feature.
 
 "z3" refers to the third Zelda, A Link To The Past, which unlike the original Zelda features playing areas larger than a single screen. To accomplish the same in ZQuest Classic, one had to rewrite the entire game engine and every feature you wanted to use in ZScript, an incredibly daunting task. Now, ZQuest Classic supports z3-style screens via a new features: regions.
 
