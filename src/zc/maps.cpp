@@ -40,13 +40,7 @@ using std::set;
 #include "iter.h"
 #include <ranges>
 
-// TODO z3 ! rm?
 extern HeroClass Hero;
-
-// TODO z3 ! checklist do all before starting beta
-// screen secrets:
-//    - trigger all secrets in region
-//    - perm secrets
 
 // All the temporary screens (and their layers) for the currently loaded map.
 static mapscr* temporary_screens[136*7];

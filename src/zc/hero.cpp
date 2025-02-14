@@ -29555,10 +29555,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 
 		if (!align_counter || scroll_counter) herostep();
 
-		// TODO z3 ! ?
-		// SAVE_HERO_POS;
-		// USE_COMPAT_HERO_POS;
-
 		{
 			auto prev_y = y;
 			auto prev_yofs = yofs;
@@ -29636,9 +29632,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 		
 		if (draw_dark && get_qr(qr_NEW_DARKROOM) && !get_qr(qr_NEWDARK_L6))
 		{
-			// TODO z3 !?
-			// SAVE_HERO_POS;
-			// USE_COMPAT_HERO_POS;
 			scrollscr_handle_dark(newscr, oldscr, nearby_screens);
 		}
 
