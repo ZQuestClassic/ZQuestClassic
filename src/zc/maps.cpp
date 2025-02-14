@@ -1473,10 +1473,6 @@ void setmapflag_mi(mapscr* scr, int32_t mi, int32_t flag)
                 if (replay_is_active())
                     replay_step_comment(fmt::format("map {} scr {} flag {} carry", nmap, nscr, state_string));
                 game->maps[((nmap-1)<<7)+nscr] |= flag;
-                if (flag == mSECRET && is_in_current_region(nmap - 1, nscr))
-                {
-                    trigger_secrets_for_screen(TriggerSource::SecretsScreenState, nscr);
-                }
             }
             
             cmap=nmap;
@@ -1484,7 +1480,7 @@ void setmapflag_mi(mapscr* scr, int32_t mi, int32_t flag)
             nmap=TheMaps[((cmap-1)*MAPSCRS)+cscr].nextmap;
             nscr=TheMaps[((cmap-1)*MAPSCRS)+cscr].nextscr;
             
-            for(std::vector<int32_t>::iterator it = done.begin(); it != done.end(); it++)
+            for(auto it = done.begin(); it != done.end(); it++)
             {
                 if(*it == ((nmap-1)<<7)+nscr)
                     looped = true;
@@ -2700,9 +2696,44 @@ void trigger_secrets_for_screen(TriggerSource source, mapscr* scr, bool high16on
 	log_trigger_secret_reason(source);
 	if (single < 0)
 		get_screen_state(scr->screen).triggered_secrets = true;
+
 	bool do_replay_comment = true;
 	bool from_active_screen = true;
 	trigger_secrets_for_screen_internal(create_screen_handles(scr), from_active_screen, high16only, single, do_replay_comment);
+
+	// Respect secret state carryovers for active screens.
+	if (single >= 0) return;
+	int flag = mSECRET;
+	int cmap = scr->map;
+	int cscr = scr->screen;
+	int nmap=TheMaps[((cmap)*MAPSCRS)+cscr].nextmap;
+	int nscr=TheMaps[((cmap)*MAPSCRS)+cscr].nextscr;
+
+	std::vector<int32_t> done;
+	bool looped = (nmap==cmap+1 && nscr==cscr);
+
+	while((nmap!=0) && !looped && !(nscr>=128))
+	{
+		if (nmap - 1 == cur_map && is_in_current_region(nscr) && (scr->nocarry&flag)!=flag && !get_screen_state(nscr).triggered_secrets)
+		{
+			log_trigger_secret_reason(TriggerSource::SecretsScreenState);
+			trigger_secrets_for_screen_internal(create_screen_handles(get_scr(nscr)), from_active_screen, high16only, single, do_replay_comment);
+			get_screen_state(nscr).triggered_secrets = true;
+		}
+		
+		cmap=nmap;
+		cscr=nscr;
+		nmap=TheMaps[((cmap-1)*MAPSCRS)+cscr].nextmap;
+		nscr=TheMaps[((cmap-1)*MAPSCRS)+cscr].nextscr;
+		
+		for(auto it = done.begin(); it != done.end(); it++)
+		{
+			if(*it == ((nmap-1)<<7)+nscr)
+				looped = true;
+		}
+		
+		done.push_back(((nmap-1)<<7)+nscr);
+	}
 }
 
 void trigger_secrets_for_screen(TriggerSource source, int32_t screen, bool high16only, int32_t single)
@@ -6216,7 +6247,6 @@ void loadscr_old(int32_t destdmap, int32_t screen,int32_t ldir,bool overlay)
 		{
 			reveal_hidden_stairs(scr, screen, false);
 
-			// trigger_secrets_for_screen(TriggerSource::SecretsScreenState, special_warp_return_scr, false, -1);
 			log_trigger_secret_reason(TriggerSource::SecretsScreenState);
 			get_screen_state(special_warp_return_scr->screen).triggered_secrets = true;
 			bool do_replay_comment = true;
