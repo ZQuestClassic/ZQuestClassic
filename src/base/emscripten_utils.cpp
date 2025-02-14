@@ -124,6 +124,12 @@ bool em_is_mobile() {
   });
 }
 
+void em_open_link(std::string url) {
+  EM_ASM({
+    window.open(UTF8ToString($0), '_blank');
+  }, url.c_str());
+}
+
 void em_open_test_mode(const char* qstpath, int dmap, int screen, int retsquare) {
 	EM_ASM({
     ZC.openTestMode(UTF8ToString($0), $1, $2, $3);

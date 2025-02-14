@@ -10,6 +10,10 @@
 #include <regex>
 #include <system_error>
 
+#ifdef __EMSCRIPTEN__
+#include "base/emscripten_utils.h"
+#endif
+
 using namespace std;
 namespace fs = std::filesystem;
 
@@ -996,7 +1000,9 @@ namespace util
 
 	void open_web_link(std::string url)
 	{
-#ifdef _WIN32
+#ifdef __EMSCRIPTEN__
+		em_open_link(url);
+#elif defined(_WIN32)
 		std::string cmd = "start " + url;
 		system(cmd.c_str());
 #elif defined(__APPLE__)
