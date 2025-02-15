@@ -29363,12 +29363,9 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t dest_screen, int32_t destdm
 			pfo_counter = MAX(0, pfo_counter - 4);
 			playing_field_offset = new_playing_field_offset - pfo_counter * dpfo;
 			viewport.h = 232 - playing_field_offset;
-			if (pfo_mode == 0)
-			{
-				viewport.y = initial_viewport.y + step * move_counter * dy + (playing_field_offset - old_original_playing_field_offset);
-				if (pfo_counter)
-					scroll_counter++;
-			}
+			viewport.y = initial_viewport.y + step * move_counter * dy + (playing_field_offset - old_original_playing_field_offset);
+			if (pfo_mode == 0 && pfo_counter)
+				scroll_counter++;
 		}
 
 		if (lift_wpn)
