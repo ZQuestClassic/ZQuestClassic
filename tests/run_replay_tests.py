@@ -705,6 +705,7 @@ def is_known_failure_test(run: RunResult):
     if run.success:
         return False
 
+    # Example:
     if run.name == 'triggers.zplay' and run.unexpected_gfx_segments == [[11154, 11217]]:
         print('!!! filtering out known replay test failure !!!')
         print('dithered lighting is off-by-some only during scrolling')
