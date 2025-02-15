@@ -28519,8 +28519,6 @@ static void scrollscr_handle_dark(mapscr* newscr, mapscr* oldscr, const nearby_s
 		}
 	});
 
-	dither_offx = -new_region_offset_x;
-	dither_offy = -new_region_offset_y;
 	Hero.calc_darkroom_hero(0, -playing_field_offset);
 	dither_offx = 0;
 	dither_offy = 0;
