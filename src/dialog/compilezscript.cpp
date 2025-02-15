@@ -123,9 +123,9 @@ bool do_compile_and_slots(int assign_mode, bool delay)
 	fwrite(zScript.c_str(), sizeof(char), zScript.size(), tempfile);
 	fclose(tempfile);
 
-	std::optional<script_data> old_init_script;
+	script_data* old_init_script = nullptr;
 	if (globalscripts[0])
-		old_init_script = *globalscripts[0];
+		old_init_script = globalscripts[0];
 
 	map<string, ZScript::ScriptTypeID> stypes;
 	map<string, disassembled_script_data> scripts;
