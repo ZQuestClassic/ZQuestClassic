@@ -100,18 +100,6 @@ std::map<std::string, std::string> AST::getParsedDocComment() const
 				line = line.substr(index + 1);
 			}
 		}
-		else
-		{
-			// TODO: need better comment parsing. Lists don't work well when items take multiple
-			// lines (ex: mapdata.zh), due to how trimming is done here. But trimming as the
-			// commented out code does creates issues in the doc site generator. Need more though
-			// out approach for parsing structured comments.
-			// if (current_key.empty())
-			// 	util::trimstr_trailing(line);
-			// else
-			// 	util::trimstr(line);
-			util::trimstr(line);
-		}
 
 		if (current_key.empty())
 		{

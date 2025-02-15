@@ -1066,7 +1066,7 @@ void sprite::draw(BITMAP* dest)
 #endif
 
 #ifndef IS_EDITOR
-	// TODO get actual size
+	// TODO z3 get actual size
 	int width = 64;
 	int height = 64;
 	if (sx + width < 0 || height + 64 < 0 || sx - width >= world_w || height - 64 >= world_h) return;

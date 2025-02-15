@@ -39,7 +39,7 @@ enum ffc_flags : uint32_t
 
 // A unique identifier for an ffc in the current region.
 // Equal to: (region screen index offset) * 128 + (index in mapscr ffcs)
-// For non-regions, or for the top-left screen in a region, this is equal to the index.
+// For non-scrolling regions, or for the top-left screen in a region, this is equal to the index.
 typedef uint16_t ffc_id_t;
 
 class ffcdata : public sprite
