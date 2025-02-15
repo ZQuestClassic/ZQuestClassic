@@ -22,6 +22,47 @@ bool stayLit = false;
 bool usingdrypal = false; //using dried up lake colors
 RGB olddrypal; //palette to restore when lake rehydrates
 
+void refresh_rgb_tables()
+{
+	// Creating rgb_table and trans_table is pretty expensive, so try not to redo the same work
+	// within a short period of time by using a cache.
+	typedef std::array<uint32_t, PAL_SIZE> pal_table_cache_key;
+	struct pal_table_cache_entry {
+		RGB_MAP rgb_table;
+		COLOR_MAP trans_table;
+	};
+	static std::map<pal_table_cache_key, pal_table_cache_entry> pal_table_cache;
+
+	static constexpr int pal_table_cache_max_memory_mb = 10;
+	static constexpr int pal_table_cache_max_size = pal_table_cache_max_memory_mb / ((double)sizeof(pal_table_cache_entry) / 1024 / 1024);
+	if (pal_table_cache.size() > pal_table_cache_max_size)
+		pal_table_cache.clear();
+
+	pal_table_cache_key key;
+	for (int i = 0; i < PAL_SIZE; i++)
+		key[i] = RAMpal[i].r + (RAMpal[i].g << 8) + (RAMpal[i].b << 16);
+	auto cache_it = pal_table_cache.find(key);
+	if (cache_it == pal_table_cache.end())
+	{
+		create_rgb_table(&rgb_table, RAMpal, NULL);
+		create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128);
+		pal_table_cache[key] = {rgb_table, trans_table};
+		trans_table2 = trans_table;
+	}
+	else
+	{
+		rgb_table = cache_it->second.rgb_table;
+		trans_table = cache_it->second.trans_table;
+		trans_table2 = cache_it->second.trans_table;
+	}
+
+	for (int i = 0; i < PAL_SIZE; i++)
+	{
+		trans_table2.data[0][i] = i;
+		trans_table2.data[i][i] = i;
+	}
+}
+
 void copy_pal(RGB *src,RGB *dest)
 {
     for(int32_t i=0; i<256; i++)
@@ -109,17 +150,9 @@ void loadlvlpal(int32_t level)
 		RAMpal[CSET(6)+2] = NESpal(0x37);
 		tempgreypal[CSET(6)+2] = NESpal(0x37);
 	}
-		
-	create_rgb_table(&rgb_table, RAMpal, NULL);
-	create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128);
-	memcpy(&trans_table2, &trans_table, sizeof(COLOR_MAP));
-	
-	for(int32_t q=0; q<PAL_SIZE; q++)
-	{
-		trans_table2.data[0][q] = q;
-		trans_table2.data[q][q] = q;
-	}
-	
+
+	refresh_rgb_tables();
+
 	if(isUserTinted()){
 		restoreTint();
 	}
@@ -461,17 +494,9 @@ void lightingInstant()
 		
 		if(!get_qr(qr_NOLEVEL3FIX) && level==3)
 			RAMpal[CSET(6)+2] = NESpal(0x37);
-			
-		create_rgb_table(&rgb_table, RAMpal, NULL);
-		create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128);
-		memcpy(&trans_table2, &trans_table, sizeof(COLOR_MAP));
-		
-		for(int32_t q=0; q<PAL_SIZE; q++)
-		{
-			trans_table2.data[0][q] = q;
-			trans_table2.data[q][q] = q;
-		}
-		
+
+		refresh_rgb_tables();
+
 		darkroom = newstate;
 	}
 	
