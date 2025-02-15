@@ -1061,15 +1061,11 @@ void sprite::draw(BITMAP* dest)
 	sy -= fake_z(fakez);
 
 #ifdef IS_PLAYER
-	sx -= viewport.x;
-	sy -= viewport.y;
-#endif
-
-#ifndef IS_EDITOR
-	// TODO z3 get actual size
-	int width = 64;
-	int height = 64;
-	if (sx + width < 0 || height + 64 < 0 || sx - width >= world_w || height - 64 >= world_h) return;
+	if (dest == framebuf || dest == scrollbuf)
+	{
+		sx -= viewport.x;
+		sy -= viewport.y;
+	}
 #endif
     
 	if(id<0)
@@ -1549,8 +1545,11 @@ void sprite::drawzcboss(BITMAP* dest)
 	sy -= fake_z(fakez);
 
 #ifdef IS_PLAYER
-	sx -= viewport.x;
-	sy -= viewport.y;
+	if (dest == framebuf || dest == scrollbuf)
+	{
+		sx -= viewport.x;
+		sy -= viewport.y;
+	}
 #endif
 
 	if(id<0)
@@ -1925,8 +1924,11 @@ void sprite::draw8(BITMAP* dest)
 	sy -= fake_z(fakez);
 
 #ifdef IS_PLAYER
-	sx -= viewport.x;
-	sy -= viewport.y;
+	if (dest == framebuf || dest == scrollbuf)
+	{
+		sx -= viewport.x;
+		sy -= viewport.y;
+	}
 #endif
 
     if(id<0)
@@ -1959,8 +1961,11 @@ void sprite::drawcloaked(BITMAP* dest)
 	sy -= fake_z(fakez);
 
 #ifdef IS_PLAYER
-	sx -= viewport.x;
-	sy -= viewport.y;
+	if (dest == framebuf || dest == scrollbuf)
+	{
+		sx -= viewport.x;
+		sy -= viewport.y;
+	}
 #endif
     
     if(id<0)

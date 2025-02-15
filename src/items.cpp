@@ -618,8 +618,14 @@ void dummyitem_animate(item* dummy, int32_t clk)
 void putitem3(BITMAP *dest,int32_t x,int32_t y,int32_t item_id, int32_t clk)
 {
 #ifdef IS_PLAYER
-	x += viewport.x;
-	y += viewport.y;
+	// When drawing to the framebuf, sprite::draw translates from world coordinates to
+	// screen coordinates. However, putitem3 expects just screen coordinates. So convert
+	// to world coordinates.
+	if (dest == framebuf || dest == scrollbuf)
+	{
+		x += viewport.x;
+		y += viewport.y;
+	}
 #endif
 
 	item temp((zfix)x,(zfix)y,(zfix)0,item_id,0,0,true);
