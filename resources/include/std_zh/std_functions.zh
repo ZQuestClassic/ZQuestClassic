@@ -555,79 +555,6 @@ int ComboY(int pos)
 	}
 }
 
-// Given a screen index, returns the screen offset in the X direction in the current region.
-// Example: If the region origin is screen 5, `RegionRelativeScreenX(8) == 3`
-int RegionRelativeScreenX(int screen)
-{
-	if (Region->ID)
-	{
-		int origin_screen_index = Region->OriginScreenIndex * 10000;
-		return screen%16 - origin_screen_index%16;
-	}
-	else
-	{
-		return 0;
-	}
-}
-
-// Given a screen index, returns the screen offset in the Y direction in the current region.
-int RegionRelativeScreenY(int screen)
-{
-	if (Region->ID)
-	{
-		int origin_screen_index = Region->OriginScreenIndex * 10000;
-		return Floor(screen/16) - Floor(origin_screen_index/16);
-	}
-	else
-	{
-		return 0;
-	}
-}
-
-// Given a screen index, returns the world offset in the x direction for the current region.
-int RegionWorldOffsetX(int screen)
-{
-	if (Region->ID)
-	{
-		return RegionRelativeScreenX(screen) * 256;
-	}
-	else
-	{
-		return 0;
-	}
-}
-
-// Given a screen index, returns the world offset in the y direction for the current region.
-int RegionWorldOffsetY(int screen)
-{
-	if (Region->ID)
-	{
-		return RegionRelativeScreenY(screen) * 176;
-	}
-	else
-	{
-		return 0;
-	}
-}
-
-// Returns true if the given screen index is inside the current region.
-// When not in a region, only returns true if screen is equal to Game->CurScreen.
-bool RegionIncludesScreen(int screen)
-{
-	if (Region->ID)
-	{
-		int dx = RegionRelativeScreenX(screen);
-		if (dx < 0 || dx > Region->ScreenWidth) return false;
-
-		int dy = RegionRelativeScreenY(screen);
-		if (dy < 0 || dy > Region->ScreenHeight) return false;
-
-		return true;
-	}
-
-	return screen == Game->CurScreen;
-}
-
 // Returns a if cond is true, else b. Overloaded.
 // @deprecated Consider using a ternary expression instead: `cond ? a : b`
 T Cond<T>(bool cond, T a, T b)
@@ -4041,21 +3968,4 @@ void ClearFFC(int ffc_id)
 	f->EffectHeight = 0;
 	f->Link = 0;
 	for ( int q = 0; q < 16; ++q ) f->Misc[q] = 0;
-}
-
-void ClearRegion(int map)
-{
-	SetRegion(map, 0, 16, 8, 0);
-}
-
-void SetRegion(int map, int origin_screen, int width, int height, int region_id)
-{
-	for (int x = 0; x < width; x++)
-	{
-		for (int y = 0; y < height; y++)
-		{
-			int screen = origin_screen + x + y*16;
-			Game->LoadMapData(map, screen)->RegionID = region_id;
-		}
-	}
 }

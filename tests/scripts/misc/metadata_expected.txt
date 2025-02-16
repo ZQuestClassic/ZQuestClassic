@@ -2642,7 +2642,7 @@ STORE D3 0.0002
 LOAD D2 0; InlineFunc[void Trace(untyped)] Params AND for(each) #1 Body Start
 TRACER D2; InlineFunc[void Trace(untyped)] Body AND for(each) #1 Body End
 GOTO 89; for(each) #1 End
-STOREV 1 0.0002; if(ahhh=true) #1 [Opt:AlwaysOn]
+STOREV 1 0.0002; if(ahhh=true) #8 [Opt:AlwaysOn]
 LOAD D2 0.0002; InlineFunc[void Trace(untyped)] Params
 TRACER D2; InlineFunc[void Trace(untyped)] Body
 STOREV 0 0.0002

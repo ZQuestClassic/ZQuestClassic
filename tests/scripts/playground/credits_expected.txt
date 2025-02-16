@@ -85,7 +85,7 @@ FONTHEIGHTR D2; InlineFunc[int Text::FontHeight(int)] Body
 STORE D2 0.0001
 SETR D2 GD1
 STORE_OBJECT D2 0
-SETR D2 GD2; if() #418 Test
+SETR D2 GD2; if() #422 Test
 PUSHR D2
 POP D0
 READPODARRAYV D2 0
@@ -107,7 +107,7 @@ COMPARER D3 D2
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 93 ==; Test 'if'
-PUSHR D4; if() #418 Body Start
+PUSHR D4; if() #422 Body Start
 LOAD D2 0; UsrFunc[void resize(int)] Params Start
 PUSHR D2
 POP REFBITMAP
@@ -117,7 +117,7 @@ PUSHR D2; UsrFunc[void resize(int)] Params End
 CALLFUNC 0.0160; UsrFunc[void resize(int)] Call
 POP D4
 SETR D2 GD1
-STORE_OBJECT D2 0; if() #418 Body End
+STORE_OBJECT D2 0; if() #422 Body End
 LOAD D2 0; InlineFunc[void bitmap::DrawString(int, int, int, int, int, int, int, char32[], int)] Params Start
 PUSHR D2
 PUSHV 0
@@ -187,7 +187,7 @@ POPARGS D5 0.0002
 RETURNFUNC; Func[void addLine(char32[], int)] Body End
 PUSHARGSV 0 0.0002; Func[void resize(int)] Body Start
 SETR D4 SP2
-SETR D2 GD1; if() #422 Test
+SETR D2 GD1; if() #426 Test
 PUSHR D2
 POP REFBITMAP
 SETR D2 BITMAPHEIGHT
@@ -197,7 +197,7 @@ POP D3
 COMPARER D3 D2
 SETCMP D2 I==
 COMPAREV D2 0
-GOTOCMP 212 !=; Test 'if' AND return (Void) AND if() #422 Body
+GOTOCMP 212 !=; Test 'if' AND return (Void) AND if() #426 Body
 PUSHR D4
 PUSHV 256; UsrFunc[bitmap create(int, int)] Params Start
 LOAD D2 0.0002
@@ -339,11 +339,11 @@ GOTO 312
 SETV D2 0
 ADDV D2 224
 STORE D2 0.0001
-LOAD D2 0.0001; if() #420 Test
+LOAD D2 0.0001; if() #424 Test
 COMPAREV D2 0
 SETCMP D2 I<=
 COMPAREV D2 0
-GOTOCMP 357 !=; Test 'if' AND return (Void) AND if() #420 Body
+GOTOCMP 357 !=; Test 'if' AND return (Void) AND if() #424 Body
 LOAD D2 0.0002
 COMPAREV D2 0
 SETCMP D2 I<
@@ -355,13 +355,13 @@ GOTO 328
 SETV D2 0
 SUBV D2 56
 STORE D2 0
-LOAD D2 0.0002; if() #421 Test
+LOAD D2 0.0002; if() #425 Test
 COMPAREV D2 0
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 337 ==; Test 'if'
-SETV D2 0; if() #421 Body Start
-STORE D2 0.0002; if() #421 Body End
+SETV D2 0; if() #425 Body Start
+STORE D2 0.0002; if() #425 Body End
 SETR D2 GD1; InlineFunc[void bitmap::Blit(int, untyped, int, int, int, int, int, int, int, int, int, int, int, int, int, bool)] Params Start
 PUSHR D2
 PUSHV 7

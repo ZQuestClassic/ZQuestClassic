@@ -81,7 +81,12 @@ The :ref:`Viewport<globals_viewport>` global defines the visible portion of the 
 Region
 ^^^^^^
 
-The :ref:`Region<globals_region>` global defines the currently active region. See the documentation for more details.
+The :ref:`Region<globals_region>` global defines the currently active region and some helper functions. See the documentation for more details.
+
+There's also some functions for configuring region ids:
+
+* :ref:`void ClearRegion(int map)<globals_fun_clearregion>`
+* :ref:`void SetRegion(int map, int origin_screen, int width, int height, int region_id)<globals_fun_setregion>`
 
 sprite SpawnScreen
 ^^^^^^^^^^^^^^^^^^^
@@ -134,14 +139,3 @@ Each individual screen within a region may have up to 128 FFCs. The number used 
 To load the FFC with the specified ID, use `Screen->LoadFFC(int ffc_id)`.
 
 To load the FFC at a specific index for a given screen, use `Screen->LoadFFC(int screen, int index)`.
-
-Region-related functions
-^^^^^^^^^^^^^^^^^^^^^^^^
-
-New functions in `std` (see :doc:`/zscript/libs/std/std_functions` for details):
-
-* :ref:`int RegionRelativeScreenX(int scr)<libs_std_fun_regionrelativescreenx>`
-* :ref:`int RegionRelativeScreenY(int scr)<libs_std_fun_regionrelativescreeny>`
-* :ref:`int RegionWorldOffsetX(int scr)<libs_std_fun_regionworldoffsetx>`
-* :ref:`int RegionWorldOffsetY(int scr)<libs_std_fun_regionworldoffsety>`
-* :ref:`bool RegionIncludesScreen(int scr)<libs_std_fun_regionincludesscreen>`

@@ -34,21 +34,21 @@ PUSHR D4
 PUSHR REFFFC; void run(int, int, int, int, int) Body Start
 PUSHARGSV 0 0.0002
 SETR D4 SP2
-LOAD D2 0.0004; if() #1 Test
+LOAD D2 0.0004; if() #8 Test
 COMPAREV D2 0
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 16 ==; Test 'if'
-LOAD D2 0.0007; if() #1 Body Start
-STORE D2 0.0004; if() #1 Body End
-LOAD D2 0.0005; if() #2 Test
+LOAD D2 0.0007; if() #8 Body Start
+STORE D2 0.0004; if() #8 Body End
+LOAD D2 0.0005; if() #9 Test
 COMPAREV D2 0
 SETCMP D2 I<
 COMPAREV D2 0
 GOTOCMP 24 ==; Test 'if'
-SETV D3 360; InlineFunc[int Rand(int)] Params AND if() #2 Body Start
+SETV D3 360; InlineFunc[int Rand(int)] Params AND if() #9 Body Start
 RNDR D2 D3; InlineFunc[int Rand(int)] Body
-STORE D2 0.0005; if() #2 Body End
+STORE D2 0.0005; if() #9 Body End
 LOAD D2 0.0002
 PUSHR D2
 POP REFSPRITE
@@ -74,14 +74,14 @@ LOAD D2 0.0005; if() #1 Body Start
 ADDV D2 360
 STORE D2 0.0005
 GOTO 57; if() #1 Body End
-LOAD D2 0.0005; if() #3 Test AND if() #1 Else Start
+LOAD D2 0.0005; if() #10 Test AND if() #1 Else Start
 COMPAREV D2 360
 SETCMP D2 I>
 COMPAREV D2 0
 GOTOCMP 57 ==; Test 'if'
-LOAD D2 0.0005; if() #3 Body Start
+LOAD D2 0.0005; if() #10 Body Start
 SUBV D2 360
-STORE D2 0.0005; if() #3 Body End
+STORE D2 0.0005; if() #10 Body End
 LOAD D2 0.0003; if() #1 Else End AND if() #2 Test
 COMPAREV D2 0
 SETCMP D2 I==

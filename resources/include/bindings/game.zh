@@ -584,16 +584,16 @@ class Game {
 	// Drawing during scrolling requires taking into account that the viewport and coordinate
 	// systems are shifting. To anchor draw calls to a particular point, such as the screen
 	// being scrolled to, the old way looks like this:
-	//
+	//```
 	//    Screen->DrawTile(x + Game->Scrolling[SCROLL_NX], y + Game->Scrolling[SCROLL_NY], ...)
-	//
+	//```
 	// The above draws a tile at (`x, y`) relative to the new screen.
 	//
 	// This is deprecated by [Screen->DrawOrigin]. The new way to do the same is:
-	//
+	//```
 	//    Screen->DrawOrigin = DRAW_ORIGIN_WORLD; // This is the default in a scrolling region.
 	//    Screen->DrawTile(x, y, ...)
-	//
+	//```
 	// @index [ScrollingIndex]
 	// @zasm_var GAMESCROLLING
 	internal const int Scrolling[];

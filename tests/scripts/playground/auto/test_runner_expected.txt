@@ -46,12 +46,12 @@ DEALLOCATEMEMR D3
 LOAD D2 0.0003; InlineFunc[int Game::GetGenericScript(char32[])] Params
 GETGENERICSCRIPT D2; InlineFunc[int Game::GetGenericScript(char32[])] Body
 STORE D2 0.0001
-LOAD D2 0.0001; if() #2 Test
+LOAD D2 0.0001; if() #9 Test
 COMPAREV D2 -1
 SETCMP D2 I==
 COMPAREV D2 0
 GOTOCMP 36 ==; Test 'if'
-ALLOCATEMEMV D2 53 0; if() #2 Body Start
+ALLOCATEMEMV D2 53 0; if() #9 Body Start
 STORE D2 0
 WRITEPODSTRING D2 "[Test] failed to start - could not find test script\n"
 LOAD D2 0; InlineFunc[void printf(char32[])] Params Start
@@ -60,7 +60,7 @@ PRINTFVARG; InlineFunc[void printf(char32[])] Body Start
 POP D5; InlineFunc[void printf(char32[])] Body End
 LOAD D3 0
 DEALLOCATEMEMR D3
-GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #2 Body End
+GAMEEXIT; InlineFunc[void Game::Exit()] Body AND if() #9 Body End
 LOAD D2 0.0001; InlineFunc[genericdata Game::LoadGenericData(int)] Params
 LOADGENERICDATA D2; InlineFunc[genericdata Game::LoadGenericData(int)] Body Start
 SETR D2 REFGENERICDATA; InlineFunc[genericdata Game::LoadGenericData(int)] Body End
