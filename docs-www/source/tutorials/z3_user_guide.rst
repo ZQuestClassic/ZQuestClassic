@@ -1,7 +1,7 @@
 Z3 User Guide
 =============
 
-This is written for experienced users of ZC, and describes the major changes related to the new `z3` region scrolling feature.
+This is written for experienced users of ZC, and describes the major changes related to the new "z3" scrolling regions feature.
 
 "z3" refers to the third Zelda, A Link To The Past, which unlike the original Zelda features playing areas larger than a single screen. To accomplish the same in ZQuest Classic, one had to rewrite the entire game engine and every feature you wanted to use in ZScript, an incredibly daunting task. Now, ZQuest Classic supports z3-style screens via a new features: regions.
 
@@ -38,6 +38,16 @@ Note: all this is ignoring the fact that the bottom 8 pixels has always and cont
 When in a scrolling region, enemies and their weapons are paused if they are outside the current viewport, with some buffer (48px). However, weapon/npc scripts still run.
 
 Player weapons are considered "out of bounds" when they leave the viewport. Most player weapons are deleted when they go out of bounds (unless `CollDetection` is false), such as arrows. But some weapon types have special behavior: for example, boomerangs just begin returning to the hero.
+
+Mazes
+-----
+
+A minor addition, but mazes have some new configuration options to provide more flexibility, especially useful within regions.
+
+- ``Can Get Lost In Maze`` - Going any direction other than the exit gets the hero "lost" - in this state, leaving in the direction of the exit does not leave the maze, but does get the hero "unlost" (so using the exit direction once more will actually leave the maze)
+- ``Loopy Maze`` - Instead of scrolling, taking any non-exit direction in a maze will insta-warp the player to the opposite side (not reloading the screen at all), with an optional wipe effect (see Maze Path dialog)
+
+Mazes work on any screen of a region.
 
 ZScript
 -------

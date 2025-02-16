@@ -1,4 +1,5 @@
 # TODO: apply for algolia license https://github.com/godotengine/godot-docs/issues/4461
+# TODO: perhaps styling should be done during generation, not client side. https://stackoverflow.com/questions/62084358/how-to-customize-the-code-block-language-of-sphinx
 
 import datetime
 import os
