@@ -39,6 +39,16 @@ When in a scrolling region, enemies and their weapons are paused if they are out
 
 Player weapons are considered "out of bounds" when they leave the viewport. Most player weapons are deleted when they go out of bounds (unless `CollDetection` is false), such as arrows. But some weapon types have special behavior: for example, boomerangs just begin returning to the hero.
 
+Mazes
+-----
+
+A minor addition, but mazes have some new configuration options to provide more flexibility, especially useful within regions.
+
+- ``Can Get Lost In Maze`` - Going any direction other than the exit gets the hero "lost" - in this state, leaving in the direction of the exit does not leave the maze, but does get the hero "unlost" (so using the exit direction once more will actually leave the maze)
+- ``Loopy Maze`` - Instead of scrolling, taking any non-exit direction in a maze will insta-warp the player to the opposite side (not reloading the screen at all), with an optional wipe effect (see Maze Path dialog)
+
+Mazes work on any screen of a region.
+
 ZScript
 -------
 
