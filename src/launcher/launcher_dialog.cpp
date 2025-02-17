@@ -1,5 +1,6 @@
 #include "allegro5/allegro_native_dialog.h"
 #include "base/files.h"
+#include "base/util.h"
 #include "base/version.h"
 #include "base/zc_alleg.h"
 #include "launcher/launcher_dialog.h"
@@ -851,15 +852,7 @@ bool LauncherDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			break;
 		case message::SUPPORT:
 		{
-			std::string url = "https://zquestclassic.com/support-zc";
-#ifdef _WIN32
-			std::string cmd = "start " + url;
-			system(cmd.c_str());
-#elif defined(__APPLE__)
-			launch_process("open", {url});
-#else
-			launch_process("xdg-open", {url});
-#endif
+			util::open_web_link("https://zquestclassic.com/support-zc/");
 			break;
 		}
 		case message::ZU:

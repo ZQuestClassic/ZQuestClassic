@@ -142,7 +142,7 @@ void putendmsg(const char *s,int32_t x,int32_t y,int32_t speed,void(proc)())
 
 void brick(int32_t x,int32_t y)
 {
-	blit(scrollbuf,scrollbuf,256,0,x,y,8,8);
+	blit(scrollbuf_old,scrollbuf_old,256,0,x,y,8,8);
 }
 
 void endingpal()
@@ -250,7 +250,7 @@ void ending()
 			draw_screen_clip_rect_x2-=8;
 		}
 		adv:
-		draw_screen(tmpscr);
+		draw_screen();
 		advanceframe(true,true,false);
 		
 		if(Quit) return;
@@ -258,7 +258,7 @@ void ending()
 	
 	clear_bitmap(msg_txt_display_buf);
 	clear_bitmap(msg_bg_display_buf);
-	draw_screen(tmpscr);
+	draw_screen();
 	advanceframe(true);
 	
 	const EndingTextLine* endText;
@@ -331,7 +331,7 @@ void ending()
 		
 		if(f==733)
 		{
-			blit(framebuf,scrollbuf,0,playing_field_offset!=0?168:0,0,0,256,passive_subscreen_height);
+			blit(framebuf,scrollbuf_old,0,playing_field_offset!=0?168:0,0,0,256,passive_subscreen_height);
 			
 			for(int32_t y=0; y<224; y++)
 			{
@@ -415,11 +415,11 @@ void ending()
 		}
 	}
 	
-	clear_bitmap(scrollbuf);
-	blit(framebuf,scrollbuf,0,0,0,0,256,224);
+	clear_bitmap(scrollbuf_old);
+	blit(framebuf,scrollbuf_old,0,0,0,0,256,224);
 	endingpal();
 	// draw the brick
-	puttile16(scrollbuf,3,256,0,csBOSS,0);
+	puttile16(scrollbuf_old,3,256,0,csBOSS,0);
 	
 	if(game->get_quest()>1)
 	{
@@ -479,7 +479,7 @@ void ending()
 			{
 				if(y==credits[creditsLine].yPos)
 				{
-					textout_ex(scrollbuf,
+					textout_ex(scrollbuf_old,
 					           get_zc_font(font_zfont),
 					           credits[creditsLine].text,
 					           credits[creditsLine].xPos,
@@ -494,7 +494,7 @@ void ending()
 				if(endTextLine<numEndTextLines &&
 				   y==endText[endTextLine].yPos)
 				{
-					textout_ex(scrollbuf,
+					textout_ex(scrollbuf_old,
 					           get_zc_font(font_zfont),
 					           endText[endTextLine].text,
 					           endText[endTextLine].xPos,
@@ -504,12 +504,12 @@ void ending()
 					endTextLine++;
 				}
 				else if(y==deathsYPos)
-					textprintf_ex(scrollbuf, get_zc_font(font_zfont), 72, 224, red, 0,
+					textprintf_ex(scrollbuf_old, get_zc_font(font_zfont), 72, 224, red, 0,
 								  "%-8s -%3d", game->get_name(), game->get_deaths());
 				else if(y==timeYPos)
 				{
 					if(game->get_timevalid())
-						textout_centre_ex(scrollbuf, get_zc_font(font_zfont), time_str_med(game->get_time()), 128, 224, blue, 0);
+						textout_centre_ex(scrollbuf_old, get_zc_font(font_zfont), time_str_med(game->get_time()), 128, 224, blue, 0);
 				}
 			}
 		}
@@ -523,10 +523,10 @@ void ending()
 		
 		if(f&1)
 		{
-			blit(scrollbuf,scrollbuf,0,1,0,0,256,232);
+			blit(scrollbuf_old,scrollbuf_old,0,1,0,0,256,232);
 		}
 		
-		blit(scrollbuf,framebuf,0,0,0,0,256,224);
+		blit(scrollbuf_old,framebuf,0,0,0,0,256,224);
 		advanceframe(true);
 		
 		if(Quit)
@@ -665,7 +665,7 @@ void ending_scripted()
 			draw_screen_clip_rect_x2-=8;
 		}
         
-		draw_screen(tmpscr);
+		draw_screen();
 		advanceframe(true);
         
 		if(Quit) return;
@@ -673,14 +673,14 @@ void ending_scripted()
     
 	clear_bitmap(msg_txt_display_buf);
 	clear_bitmap(msg_bg_display_buf);
-	draw_screen(tmpscr);
+	draw_screen();
 	advanceframe(true);
     
 	draw_screen_clip_rect_x1=0;
 	draw_screen_clip_rect_x2=255;
     
-	clear_bitmap(scrollbuf);
-	blit(framebuf,scrollbuf,0,0,0,0,256,224);
+	clear_bitmap(scrollbuf_old);
+	blit(framebuf,scrollbuf_old,0,0,0,0,256,224);
 	endingpal();
     
         inc_quest();

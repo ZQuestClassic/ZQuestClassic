@@ -1,7 +1,9 @@
 #ifndef ZC_FFC_H_
 #define ZC_FFC_H_
 
-#include "ffc.h"
+#include "base/ints.h"
+
+class ffcdata;
 
 void zc_ffc_set(ffcdata& ffc, word data);
 void zc_ffc_update(ffcdata& ffc, word data);

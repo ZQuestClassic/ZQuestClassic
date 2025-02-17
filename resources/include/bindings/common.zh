@@ -913,9 +913,9 @@ enum InteractButton
 	INTBTN_Y = INTBTN_EX2,
 };
 
-//Special hardcoded draw layers
-//Note: These may draw multiple times, or no times at all, during a frame.
-//      Timing may vary from frame to frame, and based on QRs or other settings.
+// Special hardcoded draw layers.
+// These may draw multiple times, or no times at all, during a frame.
+// Timing may vary from frame to frame, and based on QRs or other settings.
 enum SpecialDrawLayer
 {
 	SPLAYER_PLAYER_DRAW = -200000,  //The [Hero], when this occurs changes based on various conditions.

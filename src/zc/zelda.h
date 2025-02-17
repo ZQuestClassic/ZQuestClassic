@@ -18,6 +18,7 @@
 #include "base/util.h"
 #include "base/fonts.h"
 #include "zc/replay.h"
+#include <map>
 
 class sprite;
 struct itemdata;
@@ -80,7 +81,6 @@ void addLwpnEx(int32_t x,int32_t y,int32_t z,int32_t id,int32_t type,int32_t pow
 bool is_hitflickerframe_hero();
 bool is_hitflickerframe();
 void ALLOFF(bool messagesToo = true, bool decorationsToo = true, bool force = false);
-void centerHero();
 zfix  HeroX();
 zfix  HeroY();
 zfix  HeroZ();
@@ -92,6 +92,8 @@ int32_t  HeroSwordClk();
 int32_t  HeroItemClk();
 int32_t  HeroShieldClk();
 int32_t  HeroAction();
+bool  HeroInOutgoingWhistleWarp();
+bool  HeroInWhistleWarp();
 int32_t  HeroCharged();
 bool HeroIsJinxed();
 byte HeroGetDontDraw();
@@ -123,7 +125,7 @@ void do_dcounters();
 void game_loop();
 
 void clearmsgnext(int32_t str);
-void donewmsg(int32_t str);
+void donewmsg(mapscr* scr, int32_t str);
 void msg_bg(MsgStr const& msg);
 void msg_prt();
 void blit_msgstr_bg(BITMAP* dest, int32_t x, int32_t y, int32_t dx, int32_t dy, int32_t w, int32_t h);
@@ -217,13 +219,12 @@ extern signed char pause_in_background_menu_init;
 
 extern RGB_MAP rgb_table;
 extern COLOR_MAP trans_table, trans_table2;
-extern BITMAP   *framebuf, *menu_bmp, *gui_bmp, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2,
+extern BITMAP   *framebuf, *menu_bmp, *gui_bmp, *scrollbuf, *scrollbuf_old, *tmp_bmp, *tmp_scr, *screen2,
                 *msg_txt_bmp_buf, *msg_portrait_display_buf, *msg_txt_display_buf, *msg_bg_display_buf, *msg_bg_bmp_buf,
 				*msg_menu_bmp_buf, *msg_portrait_bmp_buf, *pricesdisplaybuf, *tb_page[3],
 				*temp_buf2, *prim_bmp,
 				*script_menu_buf, *f6_menu_buf;
-extern BITMAP   *darkscr_bmp_curscr, *darkscr_bmp_scrollscr,
-                *darkscr_bmp_curscr_trans, *darkscr_bmp_scrollscr_trans;
+extern BITMAP   *darkscr_bmp, *darkscr_bmp_trans;
 extern BITMAP *lightbeam_bmp;
 extern bool lightbeam_present;
 #define NUM_ZCMOUSE 1
@@ -272,6 +273,7 @@ extern word     msgclk, msgstr, enqueued_str, msgpos, msgptr, msg_count, msgcolo
        msg_ypos,
        cursor_x,
        cursor_y;
+extern mapscr* msgscr;
 extern int16_t msg_margins[4];
 extern int32_t prt_tile;
 extern byte msgstr_layer;
@@ -298,12 +300,28 @@ extern bool usebombpal;
 
 extern int32_t slot_arg, slot_arg2;
 
-extern int32_t homescr,currscr,frame,currmap,dlevel,warpscr,worldscr,scrolling_scr,scrolling_map;
+// The top-left screen index of the current region. Also know as the origin screen index.
+// Corresponds to origin_scr.
+extern int32_t cur_screen;
+// Screen the player is currently on. If in a scrolling region, this updates as the player moves around. Otherwise this is equal to cur_screen.
+// Corresponds to hero_scr.
+extern int32_t hero_screen;
+// Screen the player is currently on. If in a scrolling region, this updates as the player moves around. Otherwise this is equal to origin_scr.
+extern mapscr* hero_scr;
+// Screen the player was last on. If in a scrolling region, this updates as the player moves around. Otherwise this is equal to origin_scr.
+extern mapscr* prev_hero_scr;
+// If currently on an 0x80+ screen, this is where the player came from. Corresponds to special_warp_return_scr.
+// Otherwise, is equal to cur_screen.
+extern int32_t home_screen;
+extern int32_t frame,cur_map,dlevel,scrolling_hero_screen,scrolling_map,scrolling_dmap,scrolling_destdmap;
 extern bool scrolling_using_new_region_coords;
+extern direction scrolling_dir;
+// See dowarp.
+extern int32_t currscr_for_passive_subscr;
 extern dword light_wave_clk;
-extern int32_t newscr_clk,opendoors,currdmap,fadeclk,listpos;
+extern int32_t newscr_clk,cur_dmap,fadeclk,listpos;
 extern int32_t lastentrance,lastentrance_dmap, prices[3],loadside, Bwpn, Awpn, Xwpn, Ywpn;
-extern int32_t digi_volume,midi_volume,sfx_volume,emusic_volume,currmidi,hasitem,whistleclk,pan_style;
+extern int32_t digi_volume,midi_volume,sfx_volume,emusic_volume,currmidi,whistleclk,pan_style;
 extern bool analog_movement;
 extern int32_t joystick_index,Akey,Bkey,Skey,Lkey,Rkey,Pkey,Exkey1,Exkey2,Exkey3,Exkey4,Abtn,Bbtn,Sbtn,Mbtn,Lbtn,Rbtn,Pbtn,Exbtn1,Exbtn2,Exbtn3,Exbtn4,Quit;
 extern uint32_t GameFlags;
@@ -312,7 +330,10 @@ extern int32_t js_stick_1_y_stick, js_stick_1_y_axis, js_stick_1_y_offset;
 extern int32_t js_stick_2_x_stick, js_stick_2_x_axis, js_stick_2_x_offset;
 extern int32_t js_stick_2_y_stick, js_stick_2_y_axis, js_stick_2_y_offset;
 extern int32_t DUkey, DDkey, DLkey, DRkey, DUbtn, DDbtn, DLbtn, DRbtn, ss_after, ss_speed, ss_density, ss_enable;
-extern int32_t hs_startx, hs_starty, hs_xdist, hs_ydist, clockclk, clock_zoras[eMAXGUYS];
+extern int32_t hs_startx, hs_starty, hs_xdist, hs_ydist, clockclk;
+// Stores zoras that are "killed" during clocks, so they can be restored after.
+// (screen, id)
+extern std::vector<std::pair<int32_t, int32_t>> clock_zoras;
 extern int32_t swordhearts[4], currcset, currspal6, currspal14, gfc, gfc2, pitx, pity, refill_what, refill_why;
 extern int32_t heart_beep_timer, new_enemy_tile_start, nets, magicitem, div_prot_item;
 extern int32_t magiccastclk, castx, casty, quakeclk, wavy, df_x, df_y, nl1_x, nl1_y, nl2_x, nl2_y, magicdrainclk, conveyclk;
@@ -320,7 +341,7 @@ extern byte newconveyorclk;
 
 extern bool cheats_execute_goto, cheats_execute_light;
 extern bool Throttlefps, MenuOpen, ClickToFreeze, Paused, Saving, Advance, ShowFPS, Showpal,
-	Playing, FrameSkip, TransLayers, clearConsoleOnLoad, clearConsoleOnReload, disableClickToFreeze,
+	Playing, ViewingMap, FrameSkip, TransLayers, clearConsoleOnLoad, clearConsoleOnReload, disableClickToFreeze,
 	SaveDragResize, DragAspect, SaveWinPos, scaleForceInteger, stretchGame;
 extern int ShowGameTime;
 extern bool SkipTitle;
@@ -328,16 +349,19 @@ extern int32_t Maxfps;
 extern bool GameLoaded;
 extern int32_t LastWidth, LastHeight;
 extern bool refreshpal,blockpath,__debug,loaded_guys,freeze_guys;
-extern bool loaded_enemies,drawguys,debug_enabled,watch;
+extern bool drawguys,debug_enabled,watch;
 extern bool down_control_states[controls::btnLast];
 extern bool F12,F11,F5,keyI, keyQ;
 extern bool SystemKeys,NESquit,volkeys,useCD,boughtsomething;
-extern bool room_is_dark, darkroom,naturaldark,BSZ;
+extern bool darkroom,naturaldark,BSZ;
+// True if the current region is 'dark'.
+extern bool room_is_dark;
 extern bool hookshot_used, hookshot_frozen, pull_hero, hs_fix, hs_switcher, cheat_superman, gofast, checkhero;
 extern bool ewind_restart, didpit, heart_beep, pausenow, castnext;
 extern bool add_df1asparkle, add_df1bsparkle, add_nl1asparkle, add_nl1bsparkle, add_nl2asparkle, add_nl2bsparkle;
 extern bool is_on_conveyor, activated_timed_warp;
-extern int32_t hooked_combopos, switchhook_cost_item;
+extern rpos_t hooked_comborpos;
+extern int32_t switchhook_cost_item;
 extern int32_t is_conveyor_stunned;
 extern uint16_t hooked_layerbits;
 extern int32_t hooked_undercombos[14];
@@ -355,12 +379,17 @@ extern bool show_layer_0, show_layer_1, show_layer_2, show_layer_3, show_layer_4
 extern int32_t    cheat_goto_dmap, cheat_goto_screen;
 extern char   cheat_goto_dmap_str[4];
 extern char   cheat_goto_screen_str[3];
-extern int16_t  visited[6];
-extern byte   guygrid[176];
-extern byte   guygridffc[MAXFFCS];
-extern mapscr tmpscr[2];
-extern mapscr tmpscr2[6];
-extern mapscr tmpscr3[6];
+extern int32_t  visited[6];
+extern mapscr scrolling_screen;
+// The top-left screen of the currently loaded region.
+extern mapscr* origin_scr;
+// This is typically used as the previous screen before doing a warp to a special room,
+// but it is also used (by scripting) to hold the previous screen during scrolling.
+extern mapscr special_warp_return_scrs[7];
+// &special_warp_return_scrs[0]
+extern mapscr* special_warp_return_scr;
+extern std::map<int, byte> activation_counters;
+extern std::map<int, byte> activation_counters_ffc;
 extern char   sig_str[44];
 extern script_data *ffscripts[NUMSCRIPTFFC];
 extern script_data *itemscripts[NUMSCRIPTITEM];

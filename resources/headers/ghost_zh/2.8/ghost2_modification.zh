@@ -118,8 +118,8 @@ void Ghost_SwapNPC(npc oldGhost, npc newGhost, bool copyHP)
 
     // Move the old ghost out of the way
     oldGhost->CollDetection=false;
-    oldGhost->X=256;
-    oldGhost->Y=176;
+    oldGhost->X=Region->Width;
+    oldGhost->Y=Region->Height;
 }
 
 
@@ -127,7 +127,7 @@ void Ghost_ReplaceNPC(npc oldGhost, npc newGhost, bool copyHP)
 {
     Ghost_SwapNPC(oldGhost, newGhost, copyHP);
 
-    oldGhost->X=384;
+    oldGhost->X=Region->Width + 128;
     oldGhost->HP=-1000;
 }
 

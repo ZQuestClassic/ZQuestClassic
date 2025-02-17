@@ -11,6 +11,14 @@ enum
 	INIT_FL_CANSLASH,
 	INIT_FL_MAX
 };
+enum
+{
+	// Mark all screens as visited when loading a region.
+	REGION_MAPPING_FULL,
+	// Mark only screens as visited when the player steps into it (see update_heroscr).
+	REGION_MAPPING_PHYSICAL,
+	REGION_MAPPING_MAX
+};
 struct zinitdata
 {
 	byte items[MAXITEMS/8];
@@ -66,6 +74,8 @@ struct zinitdata
 	
 	zfix shove_offset = 6.5_zf;
 	zfix air_drag = 0.0100_zf;
+	
+	byte region_mapping;
 	
 	bitstring gen_doscript;
 	bounded_map<word,word> gen_exitState {NUMSCRIPTSGENERIC};

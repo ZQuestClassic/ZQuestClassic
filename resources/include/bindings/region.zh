@@ -1,17 +1,42 @@
+// Clears all regions for a given map.
+void ClearRegion(int map)
+{
+	SetRegion(map, 0, 16, 8, 0);
+}
+
+// Sets a rectangular area to the given region id.
+//
+// This modifies the canonical screens, and as such will not take effect until
+// the next screen load, and will persist after the next game load.
+void SetRegion(int map, int origin_screen, int width, int height, int region_id)
+{
+	for (int x = 0; x < width; x++)
+	{
+		for (int y = 0; y < height; y++)
+		{
+			int screen = origin_screen + x + y*16;
+			Game->LoadMapData(map, screen)->RegionID = region_id;
+		}
+	}
+}
+
 // A region is a set of map screens that the player can freely move within.
 //
 // The top-left screen of a region is called the "origin screen". [Game->CurScreen] is
 // always equal to the current region's origin screen.
 //
 // A region with just a single screen is technically still a region, but is referred to
-// as a "non-scrolling region". Regions larger than one screen are "scrolling regions".
+// as a "non-scrolling region". A region larger than one screen is a "scrolling region".
 //
 // The visible porition of the region currently visible is defined by the [Viewport].
+//
+// To configure the actual region layout, see [ClearRegion] and [SetRegion].
 //
 // Access with `Region->`.
 //
 // @version 2.55.9 - Added for compatability. Variables never vary (besides [Region->OriginScreenIndex])
 // @version 3.0 - Fully implemented
+// @tutorial /tutorials/z3_user_guide
 class Region {
 	// @delete
 	internal Region();
@@ -50,6 +75,72 @@ class Region {
 	//
 	// @zasm_var REGION_ORIGIN_SCREEN
 	internal const long OriginScreenIndex;
+
+	// Returns true if the given screen index is inside the current region.
+	// When not in a region, only returns true if screen is equal to [Game->CurScreen].
+	bool IncludesScreen(int screen)
+	{
+		if (this->ID)
+		{
+			int dx = RelativeScreenX(screen);
+			if (dx < 0 || dx > this->ScreenWidth) return false;
+
+			int dy = RelativeScreenY(screen);
+			if (dy < 0 || dy > this->ScreenHeight) return false;
+
+			return true;
+		}
+
+		return screen == Game->CurScreen;
+	}
+
+	// Given a screen index, returns the screen offset in the X direction in the current region.
+	// Returns 0 if a screen is not in the current region.
+	//
+	// Example: If the current region is 4x4 and the origin is screen 5, `RelativeScreenX(8) == 3`.
+	int RelativeScreenX(int screen)
+	{
+		if (this->ID)
+		{
+			int origin_screen_index = this->OriginScreenIndex * 10000;
+			return screen%16 - origin_screen_index%16;
+		}
+
+		return 0;
+	}
+
+	// Given a screen index, returns the screen offset in the Y direction in the current region.
+	// Returns 0 if a screen is not in the current region.
+	//
+	// Example: If the current region is 4x4 and the origin is screen 5, `RelativeScreenY(8) == 3`.
+	int RelativeScreenY(int screen)
+	{
+		if (this->ID)
+		{
+			int origin_screen_index = this->OriginScreenIndex * 10000;
+			return Floor(screen/16) - Floor(origin_screen_index/16);
+		}
+
+		return 0;
+	}
+
+	// Given a screen index, returns the world offset in the x direction for the current region.
+	int WorldOffsetX(int screen)
+	{
+		if (this->ID)
+			return RelativeScreenX(screen) * 256;
+
+		return 0;
+	}
+
+	// Given a screen index, returns the world offset in the y direction for the current region.
+	int WorldOffsetY(int screen)
+	{
+		if (Region->ID)
+			return RelativeScreenY(screen) * 176;
+
+		return 0;
+	}
 }
 
 // The region the [Hero] is currently in.

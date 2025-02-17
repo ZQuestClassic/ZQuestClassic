@@ -1,3 +1,5 @@
+#include "std.zh"
+
 int FindSpawnPoint(bool landOK, bool wallsOK, bool waterOK, bool pitsOK)
 {
     int tileRatings[176];
@@ -10,7 +12,9 @@ int FindSpawnPoint(bool landOK, bool wallsOK, bool waterOK, bool pitsOK)
     int choice;
     int tries;
     npc otherNPC;
-    
+
+    ResizeArray(tileRatings, NUM_COMBO_POS);
+
     // First, rate each tile for suitability. Lower is better,
     // but negative means it's strictly off-limits.
     
@@ -32,7 +36,7 @@ int FindSpawnPoint(bool landOK, bool wallsOK, bool waterOK, bool pitsOK)
     }
     
     // Mark prohibited tiles
-    for(int i=0; i<176; i++)
+    for(int i=0; i<NUM_COMBO_POS; i++)
     {
         // Screen edges in NES dungeon
         if((Screen->Flags[SF_ROOMTYPE]&010b)!=0 && (i<32 || i>143 || i%16<2 || i%16>13))
@@ -93,7 +97,7 @@ int FindSpawnPoint(bool landOK, bool wallsOK, bool waterOK, bool pitsOK)
     // Find the best rating and count the number of tiles with that rating
     bestRating=10000;
     bestCount=0;
-    for(int i=0; i<176; i++)
+    for(int i=0; i<NUM_COMBO_POS; i++)
     {
         if(tileRatings[i]<0)
             continue;
@@ -135,6 +139,8 @@ int FindSpawnPoint(int type, int flag)
     int choice;
     int tries;
     npc otherNPC;
+
+    ResizeArray(tileRatings, NUM_COMBO_POS);
     
     // Too close to other enemies
     for(int i=Screen->NumNPCs; i>0; i--)
@@ -154,7 +160,7 @@ int FindSpawnPoint(int type, int flag)
     }
     
     // Mark prohibited tiles
-    for(int i=0; i<176; i++)
+    for(int i=0; i<NUM_COMBO_POS; i++)
     {
         // Wrong combo type
         if(type>=0)
@@ -178,7 +184,7 @@ int FindSpawnPoint(int type, int flag)
     // Find the best rating and count the tiles
     bestRating=10000;
     bestCount=0;
-    for(int i=0; i<176; i++)
+    for(int i=0; i<NUM_COMBO_POS; i++)
     {
         if(tileRatings[i]<0)
             continue;
@@ -222,7 +228,7 @@ int FindUnusedFFC()
 {
     ffc f;
     
-    for(int i=1; i<33; ++i)
+    for(int i=MIN_FFC; i<=MAX_FFC; ++i)
     {
         f=Screen->LoadFFC(i);
         
@@ -247,7 +253,7 @@ int FindUnusedFFC(int startingFrom)
 {
     ffc f;
     
-    for(int i=Max(startingFrom+1, AUTOGHOST_MIN_FFC); i<=(Min(AUTOGHOST_MAX_FFC,32)); ++i)
+    for(int i=Max(startingFrom+1, MIN_FFC); i<=MAX_FFC; ++i)
     {
         f=Screen->LoadFFC(i);
         
@@ -622,7 +628,7 @@ void __DeathAnimSFX(int id, int x)
 {
     npc deathSFXNPC=Screen->CreateNPC(id);
     deathSFXNPC->X=x; // For panning
-    deathSFXNPC->Y=176;
+    deathSFXNPC->Y=Region->Height;
     deathSFXNPC->ItemSet=IS_NONE;
     deathSFXNPC->HP=0;
     deathSFXNPC->Misc[__GHI_NPC_DATA]=0x10000;

@@ -1,6 +1,7 @@
 #include "allegro/gui.h"
 #include "base/files.h"
-#define MIDI_TRACK_BUFFER_SIZE 50
+#include "base/mapscr.h"
+#include "dialog/edit_region.h"
 
 #include <memory>
 #include <stdio.h>
@@ -55,9 +56,6 @@
 #include "dialog/alertfunc.h"
 #include "zq/gui/edit_autocombo.h"
 
-particle_list particles;
-void setZScriptVersion(int32_t) { } //bleh...
-
 #include <al5_img.h>
 #include <loadpng.h>
 #include <fmt/format.h>
@@ -98,6 +96,7 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "base/qst.h"
 #include "base/zsys.h"
 #include "base/zapp.h"
+#include "base/process_management.h"
 #include "play_midi.h"
 #include "sound/zcmusic.h"
 
@@ -125,10 +124,6 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "zq/zq_files.h"
 #include "music_playback.h"
 
-extern CConsoleLoggerEx parser_console;
-
-namespace fs = std::filesystem;
-
 //Windows mmemory tools
 #ifdef _WIN32
 #include <windows.h>
@@ -141,7 +136,12 @@ namespace fs = std::filesystem;
 #include <emscripten/emscripten.h>
 #endif
 
-//SDL_Surface *sdl_screen;
+#define MIDI_TRACK_BUFFER_SIZE 50
+particle_list particles;
+void setZScriptVersion(int32_t) { } //bleh...
+extern CConsoleLoggerEx parser_console;
+
+namespace fs = std::filesystem;
 
 #if defined(ALLEGRO_WINDOWS)
 static const char *data_path_name   = "win_data_path";
@@ -226,7 +226,6 @@ ComboPosition mouse_combo_pos;
 int32_t original_playing_field_offset=0;
 int32_t playing_field_offset=original_playing_field_offset;
 int32_t passive_subscreen_height=56;
-int32_t passive_subscreen_offset=0;
 
 bool disable_saving=false, OverwriteProtection;
 bool halt=false;
@@ -427,7 +426,6 @@ int32_t mouse_scroll_h;
 int32_t mapscreen_x, mapscreen_y, showedges, showallpanels;
 // The scale of the entire mapscreen area. This varies based on compact/extended mode.
 static int mapscreen_screenunit_scale;
-// Would love to have no limit, but our screen bitmap has too low a resolution at the moment.
 // The scale of an individual screen being drawn. This is `mapscreen_screenunit_scale / Map.getViewSize()`.
 static double mapscreen_single_scale;
 // 4 is roughly the largest value where things render okay. Beyond that, our low bitmap resolution results in tons
@@ -656,7 +654,7 @@ extern int CheckerCol1, CheckerCol2;
 int32_t alignment_arrow_timer=0;
 int32_t  Flip=0,Combo=0,CSet=2,current_combolist=0,current_comboalist=0,current_cpoollist=0,current_cautolist=0,current_mappage=0;
 int32_t  Flags=0,Flag=0,menutype=(m_block);
-int MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, ShowScreenGrid = 0, GridColor = 15, ShowCurScreenOutline = 1,
+int MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, ShowScreenGrid = 0, ShowRegionGrid = 0, GridColor = 15, ShowCurScreenOutline = 1,
 	CmbCursorCol = 15, TilePgCursorCol = 15, CmbPgCursorCol = 15, TTipHLCol = 13,
 	TileProtection = 0, ComboProtection = 0, NoScreenPreview = 0, MMapCursorStyle = 0,
 	LayerDitherBG = -1, LayerDitherSz = 2, RulesetDialog = 0,
@@ -1301,6 +1299,7 @@ static NewMenu quest_menu
 	{ "&Hero", onCustomHero },
 	{ "&Strings", onStrings },
 	{ "&DMaps", onDmaps },
+	{ "&Regions", onRegions },
 	{ "I&nit Data", onInit },
 	{ "Misc D&ata ", &misc_menu },
 	{ "&ZInfo", onZInfo },
@@ -1480,6 +1479,7 @@ enum
 	MENUID_VIEW_SCRIPTNAMES,
 	MENUID_VIEW_GRID,
 	MENUID_VIEW_SCREENGRID,
+	MENUID_VIEW_REGIONGRID,
 	MENUID_VIEW_CURSCROUTLINE,
 	MENUID_VIEW_DARKNESS,
 	MENUID_VIEW_L2BG,
@@ -1502,6 +1502,7 @@ NewMenu view_menu
 	{ "Show Script &Names", onToggleShowScripts, MENUID_VIEW_SCRIPTNAMES },
 	{ "Show &Grid", onGridToggle, MENUID_VIEW_GRID },
 	{ "Show Screen G&rid", onToggleScreenGrid, MENUID_VIEW_SCREENGRID },
+	{ "Show Region Grid", onToggleRegionGrid, MENUID_VIEW_REGIONGRID },
 	{ "Show Current Screen Outline", onToggleCurrentScreenOutline, MENUID_VIEW_CURSCROUTLINE },
 	{ "Show &Darkness", onShowDarkness, MENUID_VIEW_DARKNESS },
 	{ "Layer 2 is Background", onLayer2BG, MENUID_VIEW_L2BG },
@@ -1727,6 +1728,13 @@ int32_t onToggleScreenGrid()
 {
 	ShowScreenGrid=!ShowScreenGrid;
 	zc_set_config("zquest","show_screen_grid",ShowScreenGrid);
+	return D_O_K;
+}
+
+int32_t onToggleRegionGrid()
+{
+	ShowRegionGrid=!ShowRegionGrid;
+	zc_set_config("zquest","show_region_grid",ShowRegionGrid);
 	return D_O_K;
 }
 
@@ -2996,7 +3004,6 @@ static ListData autosave_list(autosavelist, &font);
 static ListData autosave_list2(autosavelist2, &font);
 static ListData color_list(colorlist, &font);
 static ListData snapshotformat_list(snapshotformatlist, &font);
-void init_ffpos();
 
 const char *dm_names[dm_max]=
 {
@@ -3102,9 +3109,6 @@ int32_t onCopy()
     if(prv_mode)
     {
         Map.set_prvcmb(Map.get_prvcmb()==0?1:0);
-        
-        init_ffpos();
-        
         return D_O_K;
     }
     
@@ -4601,13 +4605,13 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
 	{
 		int sw = rti_map_view.width / 16;
 		int sh = rti_map_view.height / 8;
-		int scr = Map.getCurrScr();
-		if (scr >= 0x00 && scr <= 0x7F)
+		int screen = Map.getCurrScr();
+		if (screen >= 0x00 && screen <= 0x7F)
 		{
 			int dw = al_get_display_width(all_get_display()) / get_root_rti()->get_transform().xscale;
 			int dh = al_get_display_height(all_get_display()) / get_root_rti()->get_transform().yscale;
-			mapx = (-(scr % 16) * sw - sw/2 + dw/2);
-			mapy = (-(scr / 16) * sh - sh/2 + dh/2);
+			mapx = (-(screen % 16) * sw - sw/2 + dw/2);
+			mapy = (-(screen / 16) * sh - sh/2 + dh/2);
 		}
 	}
 
@@ -5927,6 +5931,12 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				}
 			}
 
+			int startxint = mapscreen_x+(showedges?int(16*mapscreen_single_scale):0);
+			int startyint = mapscreen_y+(showedges?int(16*mapscreen_single_scale):0);
+			int endxint = startx + 256*mapscreen_screenunit_scale - 1;
+			int endyint = starty + 176*mapscreen_screenunit_scale - 1;
+			set_clip_rect(menu1,startxint,startyint,endxint,endyint);
+
 			if(ShowGrid)
 			{
 				int w = num_combos_width;
@@ -5977,6 +5987,28 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				}
 			}
 
+			// Draw a rect around regions.
+			if (ShowRegionGrid && Map.getViewSize() > 1)
+			{
+				for (const auto& region_description : Map.get_region_descriptions())
+				{
+					int sx = region_description.screen % 16;
+					int sy = region_description.screen / 16;
+					int sw = region_description.w;
+					int sh = region_description.h;
+
+					int mw = 256 * mapscreen_single_scale;
+					int mh = 176 * mapscreen_single_scale;
+					int mx = sx - (Map.getViewScr() % 16);
+					int my = sy - (Map.getViewScr() / 16);
+					int x0 = mapscreen_x + (showedges ? (16 * mapscreen_single_scale) : 0) + mx * mw;
+					int y0 = mapscreen_y + (showedges ? (16 * mapscreen_single_scale) : 0) + my * mh;
+					rect(menu1, x0+2, y0+2, x0 + mw*sw - 2, y0 + mh*sh - 2, vc(1));
+					rect(menu1, x0+1, y0+1, x0 + mw*sw - 1, y0 + mh*sh - 1, vc(15));
+					rect(menu1, x0, y0, x0 + mw*sw, y0 + mh*sh, vc(1));
+				}
+			}
+
 			// Draw a black-yellow-black rect around the currently selected screen.
 			if (ShowCurScreenOutline && Map.getViewSize() > 1)
 			{
@@ -5986,11 +6018,13 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				int my = (Map.getCurrScr() / 16) - (Map.getViewScr() / 16);
 				int x0 = mapscreen_x + (showedges ? (16 * mapscreen_single_scale) : 0) + mx * mw;
 				int y0 = mapscreen_y + (showedges ? (16 * mapscreen_single_scale) : 0) + my * mh;
-				dotted_rect(menu1, x0+1, y0+1, x0 + mw - 1, y0 + mh - 1, vc(1), vc(0));
-				rect(menu1, x0, y0, x0 + mw, y0 + mh, vc(14));
-				dotted_rect(menu1, x0-1, y0-1, x0 + mw + 1, y0 + mh + 1, vc(1), vc(0));
+				dotted_rect(menu1, x0+2, y0+2, x0 + mw - 2, y0 + mh - 2, vc(1), vc(0));
+				rect(menu1, x0+1, y0+1, x0 + mw - 1, y0 + mh - 1, vc(14));
+				dotted_rect(menu1, x0, y0, x0 + mw, y0 + mh, vc(1), vc(0));
 			}
-			
+
+			clear_clip_rect(menu1);
+
 			// Map tabs
 			font = get_custom_font(CFONT_GUI);
 			
@@ -7612,7 +7646,7 @@ byte relational_source_grid[256]=
 static void draw_autocombo(ComboPosition combo_pos, bool rclick, bool pressframe = false)
 {
 	combo_auto &ca = combo_autos[combo_auto_pos];
-	int scr = Map.getScreenForPosition(combo_pos);
+	int screen = Map.getScreenForPosition(combo_pos);
 	int pos = combo_pos.truncate();
 
 	if (ca.valid())
@@ -7621,117 +7655,117 @@ static void draw_autocombo(ComboPosition combo_pos, bool rclick, bool pressframe
 		{
 			case AUTOCOMBO_BASIC:
 			{
-				AutoPattern::autopattern_basic ap(ca.getType(), CurrentLayer, scr, pos, &ca);
+				AutoPattern::autopattern_basic ap(ca.getType(), CurrentLayer, screen, pos, &ca);
 				if (rclick)
-					ap.erase(scr, pos);
+					ap.erase(screen, pos);
 				else
-					ap.execute(scr, pos);
+					ap.execute(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_Z1:
 			{
-				AutoPattern::autopattern_flatmtn ap(ca.getType(), CurrentLayer, scr, pos, &ca);
+				AutoPattern::autopattern_flatmtn ap(ca.getType(), CurrentLayer, screen, pos, &ca);
 				if (rclick)
-					ap.erase(scr, pos);
+					ap.erase(screen, pos);
 				else
-					ap.execute(scr, pos);
+					ap.execute(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_FENCE:
 			{
-				AutoPattern::autopattern_fence ap(ca.getType(), CurrentLayer, scr, pos, &ca);
+				AutoPattern::autopattern_fence ap(ca.getType(), CurrentLayer, screen, pos, &ca);
 				if (rclick)
-					ap.erase(scr, pos);
+					ap.erase(screen, pos);
 				else
-					ap.execute(scr, pos);
+					ap.execute(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_Z4:
 			{
-				AutoPattern::autopattern_cakemtn ap(ca.getType(), CurrentLayer, scr, pos, &ca, cauto_height);
+				AutoPattern::autopattern_cakemtn ap(ca.getType(), CurrentLayer, screen, pos, &ca, cauto_height);
 				if (rclick)
-					ap.erase(scr, pos);
+					ap.erase(screen, pos);
 				else
-					ap.execute(scr, pos);
+					ap.execute(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_RELATIONAL:
 			{
-				AutoPattern::autopattern_relational ap(ca.getType(), CurrentLayer, scr, pos, &ca);
+				AutoPattern::autopattern_relational ap(ca.getType(), CurrentLayer, screen, pos, &ca);
 				if (rclick)
-					ap.erase(scr, pos);
+					ap.erase(screen, pos);
 				else
-					ap.execute(scr, pos);
+					ap.execute(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_DGNCARVE:
 			{
-				AutoPattern::autopattern_dungeoncarve ap(ca.getType(), CurrentLayer, scr, pos, &ca);
+				AutoPattern::autopattern_dungeoncarve ap(ca.getType(), CurrentLayer, screen, pos, &ca);
 				if (rclick)
-					ap.erase(scr, pos);
+					ap.erase(screen, pos);
 				else
-					ap.execute(scr, pos);
+					ap.execute(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_DOR:
 			{
-				AutoPattern::autopattern_dormtn ap(ca.getType(), CurrentLayer, scr, pos, &ca, cauto_height);
+				AutoPattern::autopattern_dormtn ap(ca.getType(), CurrentLayer, screen, pos, &ca, cauto_height);
 				if (rclick)
-					ap.erase(scr, pos);
+					ap.erase(screen, pos);
 				else
-					ap.execute(scr, pos);
+					ap.execute(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_TILING:
 			{
 				if (pressframe && (key[KEY_LSHIFT] || key[KEY_RSHIFT]))
 				{
-					int32_t x = (scr % 16) * 16 + (pos % 16);
-					int32_t y = (scr / 16) * 11 + (pos / 16);
+					int32_t x = (screen % 16) * 16 + (pos % 16);
+					int32_t y = (screen / 16) * 11 + (pos / 16);
 					byte w = (ca.getArg() & 0xF) + 1;
 					byte h = ((ca.getArg() >> 4) & 0xF) + 1;
 					ca.setOffsets(x % w, y % h);
 				}
-				AutoPattern::autopattern_tiling ap(ca.getType(), CurrentLayer, scr, pos, &ca);
+				AutoPattern::autopattern_tiling ap(ca.getType(), CurrentLayer, screen, pos, &ca);
 				if (rclick)
-					ap.erase(scr, pos);
+					ap.erase(screen, pos);
 				else
-					ap.execute(scr, pos);
+					ap.execute(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_REPLACE:
 			{
-				AutoPattern::autopattern_replace ap(ca.getType(), CurrentLayer, scr, pos, &ca);
+				AutoPattern::autopattern_replace ap(ca.getType(), CurrentLayer, screen, pos, &ca);
 				if (rclick)
-					ap.erase(scr, pos);
+					ap.erase(screen, pos);
 				else
-					ap.execute(scr, pos);
+					ap.execute(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_DENSEFOREST:
 			{
 				if (pressframe && (key[KEY_LSHIFT] || key[KEY_RSHIFT]))
 				{
-					int32_t x = (scr % 16) * 16 + (pos % 16);
-					int32_t y = (scr / 16) * 11 + (pos / 16);
+					int32_t x = (screen % 16) * 16 + (pos % 16);
+					int32_t y = (screen / 16) * 11 + (pos / 16);
 					ca.setOffsets(x % 2, y % 2);
 				}
-				AutoPattern::autopattern_denseforest ap(ca.getType(), CurrentLayer, scr, pos, &ca);
+				AutoPattern::autopattern_denseforest ap(ca.getType(), CurrentLayer, screen, pos, &ca);
 				if (rclick)
-					ap.erase(scr, pos);
+					ap.erase(screen, pos);
 				else
-					ap.execute(scr, pos);
+					ap.execute(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_EXTEND:
 			{
 				if (CHECK_CTRL_CMD)
 					break;
-				AutoPattern::autopattern_extend ap(ca.getType(), CurrentLayer, scr, pos, &ca);
+				AutoPattern::autopattern_extend ap(ca.getType(), CurrentLayer, screen, pos, &ca);
 				if (rclick)
-					ap.erase(scr, pos);
+					ap.erase(screen, pos);
 				else
-					ap.execute(scr, pos);
+					ap.execute(screen, pos);
 				break;
 			}
 		}
@@ -7748,7 +7782,7 @@ static void draw_autocombo(ComboPosition combo_pos, bool rclick, bool pressframe
 static void draw_autocombo_command(ComboPosition combo_pos, int32_t cmd = 0, int32_t arg = 0)
 {
 	combo_auto ca = combo_autos[combo_auto_pos];
-	int scr = Map.getScreenForPosition(combo_pos);
+	int screen = Map.getScreenForPosition(combo_pos);
 	int pos = combo_pos.truncate();
 
 	if (ca.valid())
@@ -7757,20 +7791,20 @@ static void draw_autocombo_command(ComboPosition combo_pos, int32_t cmd = 0, int
 		{
 			case AUTOCOMBO_FENCE:
 			{
-				AutoPattern::autopattern_fence ap(ca.getType(), CurrentLayer, scr, pos, &ca);
-				ap.flip_all_connected(scr, pos, 2048);
+				AutoPattern::autopattern_fence ap(ca.getType(), CurrentLayer, screen, pos, &ca);
+				ap.flip_all_connected(screen, pos, 2048);
 				break;
 			}
 			case AUTOCOMBO_Z4:
 			{
-				AutoPattern::autopattern_cakemtn ap(ca.getType(), CurrentLayer, scr, pos, &ca, cauto_height);
+				AutoPattern::autopattern_cakemtn ap(ca.getType(), CurrentLayer, screen, pos, &ca, cauto_height);
 				switch (cmd)
 				{
 					case 0: // Flip
-						ap.flip_all_connected(scr, pos, 2048);
+						ap.flip_all_connected(screen, pos, 2048);
 						break;
 					case 1: // Grow
-						ap.resize_connected(scr, pos, 2048, vbound(arg, 1, 9));
+						ap.resize_connected(screen, pos, 2048, vbound(arg, 1, 9));
 						break;
 				}
 			}
@@ -7781,7 +7815,7 @@ static void draw_autocombo_command(ComboPosition combo_pos, int32_t cmd = 0, int
 static int32_t get_autocombo_floating_cid(ComboPosition combo_pos, bool clicked)
 {
 	combo_auto& ca = combo_autos[combo_auto_pos];
-	int scr = Map.getScreenForPosition(combo_pos);
+	int screen = Map.getScreenForPosition(combo_pos);
 	int pos = combo_pos.truncate();
 	int cid = 0;
 
@@ -7791,45 +7825,45 @@ static int32_t get_autocombo_floating_cid(ComboPosition combo_pos, bool clicked)
 		{
 			case AUTOCOMBO_BASIC:
 			{
-				AutoPattern::autopattern_basic ap(ca.getType(), CurrentLayer, scr, pos, &ca);
-				cid = ap.get_floating_cid(scr, pos);
+				AutoPattern::autopattern_basic ap(ca.getType(), CurrentLayer, screen, pos, &ca);
+				cid = ap.get_floating_cid(screen, pos);
 				break;
 			}
 
 			case AUTOCOMBO_Z1:
 			{
-				AutoPattern::autopattern_flatmtn ap(ca.getType(), CurrentLayer, scr, pos, &ca);
-				cid = ap.get_floating_cid(scr, pos);
+				AutoPattern::autopattern_flatmtn ap(ca.getType(), CurrentLayer, screen, pos, &ca);
+				cid = ap.get_floating_cid(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_FENCE:
 			{
-				AutoPattern::autopattern_fence ap(ca.getType(), CurrentLayer, scr, pos, &ca);
-				cid = ap.get_floating_cid(scr, pos);
+				AutoPattern::autopattern_fence ap(ca.getType(), CurrentLayer, screen, pos, &ca);
+				cid = ap.get_floating_cid(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_Z4:
 			{
-				AutoPattern::autopattern_cakemtn ap(ca.getType(), CurrentLayer, scr, pos, &ca, cauto_height);
-				cid = ap.get_floating_cid(scr, pos);
+				AutoPattern::autopattern_cakemtn ap(ca.getType(), CurrentLayer, screen, pos, &ca, cauto_height);
+				cid = ap.get_floating_cid(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_RELATIONAL:
 			{
-				AutoPattern::autopattern_relational ap(ca.getType(), CurrentLayer, scr, pos, &ca);
-				cid = ap.get_floating_cid(scr, pos);
+				AutoPattern::autopattern_relational ap(ca.getType(), CurrentLayer, screen, pos, &ca);
+				cid = ap.get_floating_cid(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_DGNCARVE:
 			{
-				AutoPattern::autopattern_dungeoncarve ap(ca.getType(), CurrentLayer, scr, pos, &ca);
-				cid = ap.get_floating_cid(scr, pos);
+				AutoPattern::autopattern_dungeoncarve ap(ca.getType(), CurrentLayer, screen, pos, &ca);
+				cid = ap.get_floating_cid(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_DOR:
 			{
-				AutoPattern::autopattern_dormtn ap(ca.getType(), CurrentLayer, scr, pos, &ca, cauto_height);
-				cid = ap.get_floating_cid(scr, pos);
+				AutoPattern::autopattern_dormtn ap(ca.getType(), CurrentLayer, screen, pos, &ca, cauto_height);
+				cid = ap.get_floating_cid(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_TILING:
@@ -7837,33 +7871,33 @@ static int32_t get_autocombo_floating_cid(ComboPosition combo_pos, bool clicked)
 				std::pair<byte, byte> offs = ca.getOffsets();
 				if (!clicked && (key[KEY_LSHIFT] || key[KEY_RSHIFT]))
 				{
-					int32_t x = (scr % 16) * 16 + (pos % 16);
-					int32_t y = (scr / 16) * 11 + (pos / 16);
+					int32_t x = (screen % 16) * 16 + (pos % 16);
+					int32_t y = (screen / 16) * 11 + (pos / 16);
 					byte w = (ca.getArg() & 0xF) + 1;
 					byte h = ((ca.getArg() >> 4) & 0xF) + 1;
 					offs.first = (x % w);
 					offs.second = (y % h);
 				}
-				AutoPattern::autopattern_tiling ap(ca.getType(), CurrentLayer, scr, pos, &ca);
-				cid = ap.get_floating_cid(scr, pos);
+				AutoPattern::autopattern_tiling ap(ca.getType(), CurrentLayer, screen, pos, &ca);
+				cid = ap.get_floating_cid(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_REPLACE:
 			{
-				AutoPattern::autopattern_replace ap(ca.getType(), CurrentLayer, scr, pos, &ca);
-				cid = ap.get_floating_cid(scr, pos);
+				AutoPattern::autopattern_replace ap(ca.getType(), CurrentLayer, screen, pos, &ca);
+				cid = ap.get_floating_cid(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_DENSEFOREST:
 			{
-				AutoPattern::autopattern_denseforest ap(ca.getType(), CurrentLayer, scr, pos, &ca);
-				cid = ap.get_floating_cid(scr, pos);
+				AutoPattern::autopattern_denseforest ap(ca.getType(), CurrentLayer, screen, pos, &ca);
+				cid = ap.get_floating_cid(screen, pos);
 				break;
 			}
 			case AUTOCOMBO_EXTEND:
 			{
-				AutoPattern::autopattern_extend ap(ca.getType(), CurrentLayer, scr, pos, &ca);
-				cid = ap.get_floating_cid(scr, pos);
+				AutoPattern::autopattern_extend ap(ca.getType(), CurrentLayer, screen, pos, &ca);
+				cid = ap.get_floating_cid(screen, pos);
 				break;
 			}
 		}
@@ -13986,11 +14020,12 @@ void drawxmap(ALLEGRO_BITMAP* dest, int32_t themap, int32_t xoff, bool large, in
 		{
 			if (x + xoff < 0 || x + xoff > 15)
 				continue;
-			mapscr* scr = &TheMaps[themap * MAPSCRS + y * 16 + x + (large ? xoff : 0)];
+
+			const mapscr* scr = get_canonical_scr(themap, y * 16 + x + (large ? xoff : 0));
 			if (!(scr->valid & mVALID))
 				continue;
-			al_draw_filled_rectangle(dx + (x * col_width), dy + (y * l), dx + (x * col_width + col_width), dy + ((y * l) + l), real_lc1(scr->color));
 
+			al_draw_filled_rectangle(dx + (x * col_width), dy + (y * l), dx + (x * col_width + col_width), dy + ((y * l) + l), real_lc1(scr->color));
 			al_draw_filled_rectangle(dx + (x * col_width + dot_offset), dy + (y * l + 3), dx + (x * col_width + dot_offset + dot_width), dy + (y * l + l - 3), real_lc2(scr->color));
 		}
 	}
@@ -14009,8 +14044,6 @@ const char *dmapscriptdroplist(int32_t index, int32_t *list_size)
     return bidmaps[index].first.c_str();
 }
 
-
-//droplist like the dialog proc, naming scheme for this stuff is awful...
 static ListData dmapscript_list(dmapscriptdroplist, &a4fonts[font_pfont]);
 
 //int32_t selectdmapxy[6] = {90,142,164,150,164,160};
@@ -15423,6 +15456,31 @@ int32_t onDmaps()
     return D_O_K;
 }
 
+int32_t onRegions()
+{
+	bool valid = false;
+	for (int i = 0; i < MAPSCRS; i++)
+	{
+		if (Map.Scr(i)->is_valid())
+		{
+			valid = true;
+			break;
+		}
+	}
+
+	if (valid)
+	{
+    	call_edit_region_dialog(Map.getCurrMap());
+		Map.regions_mark_dirty();
+	}
+	else
+	{
+		InfoDialog("Invalid maps", "There must be at least one valid screen in a map to configure regions").show();
+	}
+
+    return D_O_K;
+}
+
 int32_t onMidis()
 {
     stopMusic();
@@ -15689,11 +15747,11 @@ int32_t d_warpdestscrsel_proc(int32_t msg,DIALOG *d,int32_t c)
 				auto gr = (yind < 8 ? dm.grid[yind] : 0);
 				for(int xind = (yind == 8 ? 0 : val_offset); xind < scrw; ++xind)
 				{
-					int scr = xind+(yind*16);
-					if(scr > max)
+					int screen_index = xind+(yind*16);
+					if(screen_index > max)
 						continue;
 					int fr = FR_MENU;
-					if(scr == d->d1)
+					if(screen_index == d->d1)
 						fr = FR_GREEN;
 					else if(!is_overworld && xind < 8 && (gr&(1<<(8-xind-1))))
 						fr = FR_MENU_INV;
@@ -16379,23 +16437,43 @@ const char *dirlist(int32_t index, int32_t *list_size)
 
 static ListData path_dlg_list(dirlist, &font);
 
+static const char *wipestr[] = {"None", "Circle", "Oval", "Triangle", "SMAS", "Fade Black"};
+// enum {bosCIRCLE=0, bosOVAL, bosTRIANGLE, bosSMAS, bosFADEBLACK, bosMAX};
+const char *wipelist(int32_t index, int32_t *list_size)
+{
+    if(index>=0)
+    {
+        if(index>5)
+            index=5;
+
+        return wipestr[index];
+    }
+    
+    *list_size=6;
+    return NULL;
+}
+
+static ListData wipe_effect_dlg_list(wipelist, &font);
+
 static DIALOG path_dlg[] =
 {
     /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
-    { jwin_win_proc,      80,   57,   161,  164,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Maze Path", NULL, NULL },
+    { jwin_win_proc,      80,   57,   161,  182,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Maze Path", NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
     { jwin_text_proc,       94,   106,   192,  8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "1st", NULL, NULL },
     { jwin_text_proc,       94,   124,  192,  8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "2nd", NULL, NULL },
     { jwin_text_proc,       94,   142,  192,  8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "3rd", NULL, NULL },
     { jwin_text_proc,       94,   160,  192,  8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "4th", NULL, NULL },
     { jwin_text_proc,       94,   178,  192,  8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Exit", NULL, NULL },
+	{ jwin_text_proc,       94,   196,  192,  8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Wipe effect", NULL, NULL },
     { jwin_droplist_proc,   140,  102,   80+1,   16,   jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG],  0,       0,          0,             0, (void *) &path_dlg_list, NULL, NULL },
     { jwin_droplist_proc,   140,  120,   80+1,   16,   jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG],  0,       0,          0,             0, (void *) &path_dlg_list, NULL, NULL },
     { jwin_droplist_proc,   140,  138,  80+1,   16,   jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG],  0,       0,          0,             0, (void *) &path_dlg_list, NULL, NULL },
     { jwin_droplist_proc,   140,  156,  80+1,   16,   jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG],  0,       0,          0,             0, (void *) &path_dlg_list, NULL, NULL },
     { jwin_droplist_proc,   140,  174,  80+1,   16,   jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG],  0,       0,          0,             0, (void *) &path_dlg_list, NULL, NULL },
-    { jwin_button_proc,     90,   194,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-    { jwin_button_proc,     170,  194,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+	{ jwin_droplist_proc,   140,  192,  80+1,   16,   jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG],  0,       0,          0,             0, (void *) &wipe_effect_dlg_list, NULL, NULL },
+    { jwin_button_proc,     90,   212,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+    { jwin_button_proc,     170,  212,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
     { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F1,   0, (void *) onHelp, NULL, NULL },
     { jwin_text_proc,       87,   82,   192,  8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "A Lost Woods-style maze screen", NULL, NULL },
     { jwin_text_proc,       87,   92,   192,  8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "with a normal and secret exit.", NULL, NULL },
@@ -16408,9 +16486,10 @@ int32_t onPath()
     path_dlg[0].dp2=get_zc_font(font_lfont);
     
     for(int32_t i=0; i<4; i++)
-        path_dlg[i+7].d1 = Map.CurrScr()->path[i];
+        path_dlg[i+8].d1 = Map.CurrScr()->path[i];
         
-    path_dlg[11].d1 = Map.CurrScr()->exitdir;
+    path_dlg[12].d1 = Map.CurrScr()->exitdir;
+	path_dlg[13].d1 = Map.CurrScr()->maze_transition_wipe;
     
     large_dialog(path_dlg);
         
@@ -16418,11 +16497,13 @@ int32_t onPath()
     
     do
     {
-        ret=do_zqdialog(path_dlg,7);
-        
-        if(ret==12) for(int32_t i=0; i<4; i++)
+        ret=do_zqdialog(path_dlg,8);
+
+        if(ret==14)
+        {
+            for(int32_t i=0; i<4; i++)
             {
-                if(path_dlg[i+7].d1 == path_dlg[11].d1)
+                if(path_dlg[i+8].d1 == path_dlg[12].d1)
                 {
                     if(jwin_alert("Exit Problem","One of the path's directions is","also the normal Exit direction! Continue?",NULL,"Yes","No",'y','n',get_zc_font(font_lfont))==2)
                         ret = -1;
@@ -16430,17 +16511,19 @@ int32_t onPath()
                     break;
                 }
             }
+        }
     }
     while(ret == -1);
     
-    if(ret==12)
+    if(ret==14)
     {
         saved=false;
         
         for(int32_t i=0; i<4; i++)
-            Map.CurrScr()->path[i] = path_dlg[i+7].d1;
+            Map.CurrScr()->path[i] = path_dlg[i+8].d1;
             
-        Map.CurrScr()->exitdir = path_dlg[11].d1;
+        Map.CurrScr()->exitdir = path_dlg[12].d1;
+		Map.CurrScr()->maze_transition_wipe = path_dlg[13].d1;
         
         if(!(Map.CurrScr()->flags&fMAZE))
             if(jwin_alert("Screen Flag","Turn on the 'Use Maze Path' Screen Flag?","(Go to 'Screen Data' to turn it off.)",NULL,"Yes","No",'y','n',get_zc_font(font_lfont))==1)
@@ -23597,6 +23680,11 @@ int32_t get_homescr()
     return DMaps[zinit.start_dmap].cont;
 }
 
+int get_screen_for_world_xy(int x, int y)
+{
+	return -1;
+}
+
 int current_item(int item_type, bool checkmagic, bool jinx_check, bool check_bunny)
 {
     //TODO remove as special case?? -DD
@@ -23810,6 +23898,30 @@ static void allocate_crap()
 		delete subscreenscripts[i];
 		subscreenscripts[i] = new script_data(ScriptType::EngineSubscreen, i);
 	}
+}
+
+static void handle_sentry_tags()
+{
+	static bool sentry_first_time = true;
+
+	static MapCursor sentry_last_map_cursor;
+	if (Map.getCursor() != sentry_last_map_cursor || sentry_first_time)
+	{
+		sentry_last_map_cursor = Map.getCursor();
+		zapp_reporting_set_tag("cursor.map", sentry_last_map_cursor.map);
+		zapp_reporting_set_tag("cursor.screen", sentry_last_map_cursor.screen);
+		zapp_reporting_set_tag("cursor.viewscr", sentry_last_map_cursor.viewscr);
+		zapp_reporting_set_tag("cursor.size", sentry_last_map_cursor.size);
+	}
+
+	static bool sentry_last_is_compact;
+	if (is_compact != sentry_last_is_compact || sentry_first_time)
+	{
+		sentry_last_is_compact = is_compact;
+		zapp_reporting_set_tag("compact", sentry_last_is_compact);
+	}
+
+	sentry_first_time = false;
 }
 
 // Removes the top layer encoding from a quest file. See open_quest_file.
@@ -24174,6 +24286,7 @@ int32_t main(int32_t argc,char **argv)
 	ShowGrid					   = zc_get_config("zquest","show_grid",0);
 	ShowCurScreenOutline			= zc_get_config("zquest","show_current_screen_outline",1);
 	ShowScreenGrid				   = zc_get_config("zquest","show_screen_grid",0);
+	ShowRegionGrid				   = zc_get_config("zquest","show_region_grid",1);
 	GridColor					  = zc_get_config("zquest","grid_color",15);
 	CmbCursorCol					  = zc_get_config("zquest","combo_cursor_color",15);
 	TilePgCursorCol					  = zc_get_config("zquest","tpage_cursor_color",15);
@@ -24692,14 +24805,14 @@ int32_t main(int32_t argc,char **argv)
 	brush_menu.select_uid(MENUID_BRUSH_COMBOBRUSH, ComboBrush);
 	brush_menu.select_uid(MENUID_BRUSH_FLOATBRUSH, FloatBrush);
 	
-	init_ffpos();
-	
 	call_foo_dlg();
 
 	application_has_loaded = true;
 
 	while(!exiting_program)
 	{
+		handle_sentry_tags();
+
 #ifdef _WIN32
 		if(zqUseWin32Proc != FALSE)
 			win32data.Update(Frameskip); //experimental win32 fixes
@@ -24751,6 +24864,7 @@ int32_t main(int32_t argc,char **argv)
 		view_menu.select_uid(MENUID_VIEW_SCRIPTNAMES, ShowFFScripts);
 		view_menu.select_uid(MENUID_VIEW_GRID, ShowGrid);
 		view_menu.select_uid(MENUID_VIEW_SCREENGRID, ShowScreenGrid);
+		view_menu.select_uid(MENUID_VIEW_REGIONGRID, ShowRegionGrid);
 		view_menu.select_uid(MENUID_VIEW_CURSCROUTLINE, ShowCurScreenOutline);
 		view_menu.select_uid(MENUID_VIEW_DARKNESS, get_qr(qr_NEW_DARKROOM) && (Flags&cNEWDARK));
 		view_menu.select_uid(MENUID_VIEW_L2BG, ViewLayer2BG);
@@ -26666,11 +26780,6 @@ void FFScript::init()
 	subscreen_scroll_speed = 0; //make a define for a default and read quest override! -Z
 	kb_typing_mode = false;
 	initIncludePaths();
-	for(int32_t q = 0; q < 7; ++q)
-	{
-		tempScreens[q] = NULL;
-		ScrollingScreens[q] = NULL;
-	}
 }
 
 void FFScript::updateIncludePaths()
@@ -26934,6 +27043,10 @@ void paymagiccost(int32_t itemid, bool ignoreTimer, bool onlyTimer)
 {
 	return;
 }
+bool is_in_scrolling_region()
+{
+	return false;
+}
 
 void enter_sys_pal(){}
 void exit_sys_pal(){}
@@ -26944,7 +27057,7 @@ bool replay_is_replaying() {return false;}
 bool replay_version_check(int min, int max) {return false;}
 bool replay_is_debug() {return false;}
 int32_t item::run_script(int32_t mode){return 0;};
-ffcdata* slopes_getFFC(int index)
+ffcdata* slopes_getFFC(int id)
 {
 	return nullptr;
 }

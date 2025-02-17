@@ -477,6 +477,13 @@ else()
 	set_source_files_properties(src/base/zc_math.cpp PROPERTIES COMPILE_FLAGS -O3)
 endif()
 
+# Make __FILE__ relative to the source directory.
+if(MSVC)
+	add_compile_options(/d1trimfile:"$(SolutionDir)")
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+	add_compile_options(-fmacro-prefix-map=${CMAKE_CURRENT_SOURCE_DIR}=.)
+endif()
+
 #############################################################
 # Allegro Graphics Addons
 #############################################################
@@ -540,6 +547,7 @@ set(zcbase_sources
 	src/base/fonts.cpp
 	src/base/general.cpp
 	src/base/gui.cpp
+	src/base/handles.cpp
 	src/base/hotkey.cpp
 	src/base/initdata.cpp
 	src/base/jwinfsel.cpp
@@ -566,7 +574,7 @@ set(zcbase_sources
 	src/base/zsys.cpp
 )
 if (EMSCRIPTEN)
-    list(APPEND zcbase_sources src/base/emscripten_utils.cpp)
+	list(APPEND zcbase_sources src/base/emscripten_utils.cpp)
 endif()
 add_library(zcbase STATIC ${zcbase_sources})
 target_link_libraries(zcbase PUBLIC allegro_with_legacy fmt)
@@ -1022,6 +1030,12 @@ set(zc_msvc_errors
 	# /we5038
 	# /we4265
 )
+
+foreach(target IN LISTS zc_targets)
+	target_compile_definitions(${target} PRIVATE ZC_APP_NAME="${target}")
+	target_compile_definitions(${target} PRIVATE "$<$<CONFIG:DEBUG>:DCHECK_IS_ON>")
+	target_compile_definitions(${target} PRIVATE "$<$<CONFIG:ASAN>:DCHECK_IS_ON>")
+endforeach()
 
 if(WANT_SENTRY)
 	set(SENTRY_VERSION 0.6.6)

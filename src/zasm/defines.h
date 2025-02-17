@@ -1718,8 +1718,6 @@ enum ASM_DEFINE
 
 //! ItemData Misc# and Wpn#
 
-//here are all the new datatypes. I'm not adding more!!! -Z
-//(I may add fonts types, one day. -Z)
 #define REFMAPDATA 0x10BA
 #define REFSCREENDATA 0x10BB
 #define REFCOMBODATA 0x10BC
@@ -2828,13 +2826,13 @@ enum ASM_DEFINE
 #define SPRITEDATAFLAGS         0x14CF
 #define SPRITEDATAID            0x14D0
 #define CLASS_THISKEY2          0x14D1
-// #define VIEWPORT_MODE           0x14D2
+#define VIEWPORT_MODE           0x14D2
 #define VIEWPORT_X              0x14D3
 #define VIEWPORT_Y              0x14D4
 #define VIEWPORT_WIDTH          0x14D5
 #define VIEWPORT_HEIGHT         0x14D6
 #define MAX_FFC_ID              0x14D7
-#define RESRVD_VAR_Z3_07        0x14D8
+#define MAPDATAREGIONID         0x14D8
 #define REGION_WIDTH            0x14D9
 #define REGION_HEIGHT           0x14DA
 #define REGION_SCREEN_WIDTH     0x14DB
@@ -3140,17 +3138,12 @@ enum ASM_DEFINE
 #define SUBWIDGTY_COLOR_SHD2    0x15EB
 #define SUBWIDGTY_COLOR_BG2     0x15EC
 
-// block reserved, start
-#define ZASM_VAR_RESERVED_Z3_FIRST   0x15ED
-#define ZASM_VAR_RESERVED_Z3_LAST    0x15FE
-
-// #define VIEWPORT_TARGET           0x15ED
+#define VIEWPORT_TARGET           0x15ED
 #define SCREEN_DRAW_ORIGIN        0x15EE
 #define HERO_SCREEN               0x15EF
 #define SCREEN_DRAW_ORIGIN_TARGET 0x15F0
-// block reserved, end
 
-#define NUMVARIABLES            0x15FF
+#define NUMVARIABLES            0x15F1
 
 //} End variables
 

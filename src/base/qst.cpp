@@ -4439,7 +4439,11 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 		sprintf(DMaps[start_dmap+i].intro,"                                                                        ");
 		DMaps[start_dmap+i].type |= dmCAVE;
 	}
-	
+
+	if (!should_skip && s_version == 21)
+		Regions = {};
+
+	Header->is_z3 = false;
 	if(!Header || Header->zelda_version > 0x192)
 	{
 		//section version info
@@ -4447,6 +4451,7 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 		{
 			return qe_invalid;
 		}
+		Header->is_z3 = s_version >= 22;
 		
 		FFCore.quest_format[vDMaps] = s_version;
 		
@@ -4972,11 +4977,6 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 			tempDMap.mirrorDMap = -1;
 		}
 
-		if (s_version >= 17)
-		{
-			// Reserved for z3.
-		}
-
 		// Enhanced music loop points
 		if (s_version >= 18)
 		{
@@ -5017,15 +5017,15 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 		else
 			tempDMap.intro_string_id = 0;
 
-		// Reserved for z3.
-		if(s_version >= 21)
+		if(s_version == 21)
 		{
+			static regions_data tmp_rd;
+			regions_data& rd = should_skip ? tmp_rd : Regions[tempDMap.map];
 			for(int32_t j=0; j<8; j++)
-			{
-				for(int32_t k=0; k<8; k++)
-				{
-					char c;
-					if(!p_getc(&c,f))
+            {
+                for(int32_t k=0; k<8; k++)
+                {
+					if(!p_getc(&rd.region_ids[j][k],f))
 					{
 						return qe_invalid;
 					}
@@ -5358,6 +5358,8 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 	{
 		memset(&temp_misc.info, 0, sizeof(infotype)*256);
 	}
+
+	memset(&temp_misc.warp, 0, sizeof(temp_misc.warp));
 	
 	if(Header->zelda_version > 0x192)
 	{
@@ -15534,12 +15536,6 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	
 	for(int32_t k=0; k<10; k++)
 	{
-		/*
-			if (!temp_mapscr->enemy[k])
-			{
-			  continue;
-			}
-		*/
 		if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<10)))
 		{
 			if(!p_getc(&tempbyte,f))
@@ -15581,7 +15577,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 		//don't read in any invalid data
 		if ( ((unsigned)temp_mapscr->enemy[k]) > MAXGUYS )
 		{
-			al_trace("Tried to read an invalid enemy ID (%d) for tmpscr->enemy[%d]. This has been cleared to 0.\n", temp_mapscr->enemy[k], k);
+			al_trace("Tried to read an invalid enemy ID (%d) for enemy[%d]. This has been cleared to 0.\n", temp_mapscr->enemy[k], k);
 			temp_mapscr->enemy[k] = 0;
 		}
 	}
@@ -16569,7 +16565,6 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	{
 	temp_mapscr->preloadscript = 0;    
 	}
-	//all builds with version > 20 need this. -Z
 	
 	if ( version >= 22 && Header->zelda_version > 0x253 ) //26th June, 2019; Layer Visibility
 	{
@@ -16621,7 +16616,7 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 		if(!(temp_mapscr->valid & mVALID))
 		{
 			int map = scrind/MAPSCRS;
-			int scr = scrind%MAPSCRS;
+			int screen = scrind%MAPSCRS;
 			if(version > 25 && scrind > -1 && (map*6+5) < map_autolayers.size())
 			{
 				//Empty screen, apply autolayers
@@ -16630,7 +16625,7 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 					auto layermap = map_autolayers[map*6+q];
 					temp_mapscr->layermap[q] = layermap;
 					if(layermap)
-						temp_mapscr->layerscreen[q] = scr;
+						temp_mapscr->layerscreen[q] = screen;
 				}
 			}
 			return 0;
@@ -16771,6 +16766,11 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 			}
 			if(!p_getc(&(temp_mapscr->exitdir),f))
 				return qe_invalid;
+			if (version >= 32)
+			{
+				if (!p_getc(&temp_mapscr->maze_transition_wipe, f))
+					return qe_invalid;
+			}
 		}
 		if(scr_has_flags & SCRHAS_D_S_U)
 		{
@@ -17039,7 +17039,7 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 int32_t readmaps(PACKFILE *f, zquestheader *Header)
 {
 	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_maps);
-	int32_t scr=0;
+	int32_t screen=0;
 	
 	word version=0;
 	dword dummy;
@@ -17104,6 +17104,8 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header)
 		old_combo_pages.resize(_mapsSize);
 		map_autolayers.clear();
 		map_autolayers.resize(temp_map_count*6);
+		if(version >= 31)
+			Regions = {};
 	}
 	
 	for(int32_t i=0; i<temp_map_count && i<MAXMAPS; i++)
@@ -17114,22 +17116,43 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header)
 			if(!p_getc(&valid,f))
 				return qe_invalid;
 		}
-		if(valid && version > 25)
+		if(valid)
 		{
-			for(int q = 0; q < 6; ++q)
+			if (version > 25)
 			{
-				if(!p_igetw(&map_autolayers[i*6+q],f))
-					return qe_invalid;
+				for(int q = 0; q < 6; ++q)
+				{
+					if(!p_igetw(&map_autolayers[i*6+q],f))
+						return qe_invalid;
+				}
+			}
+
+			if (version >= 31)
+			{
+				static regions_data tmp_rd;
+				regions_data& rd = should_skip ? tmp_rd : Regions[i];
+				for(int32_t j=0; j<8; j++)
+				{
+					for(int32_t k=0; k<8; k++)
+					{
+						if(!p_getc(&rd.region_ids[j][k],f))
+						{
+							return qe_invalid;
+						}
+					}
+				}
 			}
 		}
 		for(int32_t j=0; j<screens_to_read; j++)
 		{
-			scr=i*MAPSCRS+j;
-			mapscr* screen = should_skip ? &temp_mapscr : &TheMaps[scr];
+			screen=i*MAPSCRS+j;
+			mapscr* scr = should_skip ? &temp_mapscr : &TheMaps[screen];
+			scr->map = i;
+			scr->screen = j;
 			if(valid)
-				readmapscreen(f, Header, screen, version, scr);
+				readmapscreen(f, Header, scr, version, screen);
 			else if (!should_skip)
-				clear_screen(screen);
+				clear_screen(scr);
 		}
 
 		if (should_skip)
@@ -17147,12 +17170,12 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header)
 			
 			for(int32_t j=133; j<MAPSCRS; j++)
 			{
-				scr=i*MAPSCRS+j;
+				screen=i*MAPSCRS+j;
 				
-				TheMaps[scr].zero_memory();
-				TheMaps[scr].valid = mVERSION;
-				TheMaps[scr].screen_midi = -1;
-				TheMaps[scr].csensitive = 1;
+				TheMaps[screen].zero_memory();
+				TheMaps[screen].valid = mVERSION;
+				TheMaps[screen].screen_midi = -1;
+				TheMaps[screen].csensitive = 1;
 			}
 		}
 		
@@ -17160,20 +17183,19 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header)
 		{
 			for(int32_t j=0; j<MAPSCRS; j++)
 			{
-				scr=i*MAPSCRS+j;
-				TheMaps[scr].door_combo_set=MakeDoors(i, j);
+				screen=i*MAPSCRS+j;
+				TheMaps[screen].door_combo_set=MakeDoors(i, j);
 				
 				for(int32_t k=0; k<128; k++)
 				{
-					TheMaps[scr].secretcset[k]=tcmbcset2(i, TheMaps[scr].secretcombo[k]);
-					TheMaps[scr].secretflag[k]=tcmbflag2(i, TheMaps[scr].secretcombo[k]);
-					TheMaps[scr].secretcombo[k]=tcmbdat2(i, j, TheMaps[scr].secretcombo[k]);
+					TheMaps[screen].secretcset[k]=tcmbcset2(i, TheMaps[screen].secretcombo[k]);
+					TheMaps[screen].secretflag[k]=tcmbflag2(i, TheMaps[screen].secretcombo[k]);
+					TheMaps[screen].secretcombo[k]=tcmbdat2(i, j, TheMaps[screen].secretcombo[k]);
 				}
 			}
 		}
 	}
 	map_count = temp_map_count;
-	clear_screen(&temp_mapscr);
 	return 0;
 }
 
@@ -17204,8 +17226,7 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 
 	if (!should_skip)
 	{
-		reset_combo_animations();
-		reset_combo_animations2();
+		reset_all_combo_animations();
 		init_combo_classes();
 	}
 
@@ -18057,8 +18078,7 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 	
 	if (!should_skip)
 	{
-		reset_combo_animations();
-		reset_combo_animations2();
+		reset_all_combo_animations();
 		init_combo_classes();
 
 		for(int32_t q = start_combo; q < start_combo+max_combos; ++q)
@@ -20779,12 +20799,30 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 		if(s_version >= 39)
 			if(!p_igetzf(&temp_zinit.air_drag, f))
 				return qe_invalid;
-		if(s_version >= 40)
+		
+		// TODO: this first branch can likely be removed, as it only fixes an issues
+		// that existed for a handful of temporary z3 builds (and active users of that
+		// fork would have been updating often, beyond s_version 40).
+		if (Header->is_z3 && s_version == 40)
 		{
-			if(!p_igetw(&temp_zinit.light_wave_rate, f))
+			if(!p_getc(&temp_zinit.region_mapping, f))
 				return qe_invalid;
-			if(!p_igetw(&temp_zinit.light_wave_size, f))
-				return qe_invalid;
+		}
+		else
+		{
+			if(s_version >= 40)
+			{
+				if(!p_igetw(&temp_zinit.light_wave_rate, f))
+					return qe_invalid;
+				if(!p_igetw(&temp_zinit.light_wave_size, f))
+					return qe_invalid;
+			}
+
+			if(s_version >= 41)
+			{
+				if(!p_getc(&temp_zinit.region_mapping, f))
+					return qe_invalid;
+			}
 		}
 	}
 	if (should_skip)
@@ -21306,7 +21344,9 @@ static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Mi
     {
         memcpy(old_midi_flags, midi_flags, MIDIFLAGS_SIZE);
     }
-    
+
+	if (!get_bit(skip_flags, skip_maps))
+		Regions = {};
     
 	if(do_clear_scripts)
 	{

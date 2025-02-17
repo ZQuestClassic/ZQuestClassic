@@ -43,6 +43,7 @@
 #include "zinfo.h"
 #include "zq/render_minimap.h"
 #include "base/mapscr.h"
+#include "iter.h"
 #include <fmt/format.h>
 #include <filesystem>
 
@@ -62,8 +63,6 @@ extern bool NoHighlightLayer0;
 
 using std::string;
 using std::pair;
-#define EPSILON 0.01 // Define your own tolerance
-#define FLOAT_EQ(x,v) (((v - EPSILON) < x) && (x <( v + EPSILON)))
 
 #define COLOR_SOLID  vc(4)
 #define COLOR_SLOPE  vc(13)
@@ -77,20 +76,6 @@ extern string zScript;
 
 zmap Map;
 int32_t prv_mode=0;
-int16_t ffposx[MAXFFCS];
-int16_t ffposy[MAXFFCS];
-int32_t ffprvx[MAXFFCS];
-int32_t ffprvy[MAXFFCS];
-void init_ffpos()
-{
-    for (word q = 0; q < MAXFFCS; ++q)
-    {
-        ffposx[q] = -1000;
-        ffposy[q] = -1000;
-        ffprvx[q] = -10000000;
-        ffprvy[q] = -10000000;
-    }
-}
 
 bool save_warn=true;
 
@@ -461,6 +446,7 @@ void zmap::setCursor(MapCursor new_cursor)
 	
 	reset_combo_animations2();
 	mmap_mark_dirty();
+	regions_mark_dirty();
 	refresh(rALL);
 }
 
@@ -557,9 +543,46 @@ int32_t  zmap::getCurrMap()
 {
     return cursor.map;
 }
+void zmap::regions_mark_dirty()
+{
+	regions_dirty = true;
+}
+void zmap::regions_refresh()
+{
+	if (!regions_dirty)
+		return;
+
+	regions_dirty = false;
+	region_descriptions.clear();
+
+	current_map_region_ids = Regions[cursor.map].get_all_region_ids();
+	if (!get_all_region_descriptions(region_descriptions, current_map_region_ids))
+		region_descriptions.clear();
+}
+const std::vector<region_description>& zmap::get_region_descriptions()
+{
+	regions_refresh();
+	return region_descriptions;
+}
+bool zmap::is_region(int screen)
+{
+	if (screen < 0 || screen >= 128)
+		return false;
+
+	regions_refresh();
+	return current_map_region_ids[screen];
+}
 bool zmap::isDark(int scr)
 {
     return (screens[scr].flags&fDARK)!=0;
+}
+bool zmap::isValid(int32_t scr)
+{
+    return (screens[scr].valid&mVALID)!=0;
+}
+bool zmap::isValid(int32_t map, int32_t scr)
+{
+    return (AbsoluteScr(map, scr)->valid&mVALID)!=0;
 }
 
 void zmap::setCurrMap(int32_t index)
@@ -582,6 +605,7 @@ void zmap::setCurrMap(int32_t index)
 	
 	reset_combo_animations2();
 	mmap_mark_dirty();
+	regions_mark_dirty();
 }
 
 int32_t  zmap::getCurrScr()
@@ -610,6 +634,7 @@ void zmap::setCurrScr(int32_t scr)
     reset_combo_animations2();
     setlayertarget();
     mmap_mark_dirty();
+	regions_mark_dirty();
 }
 
 int32_t zmap::getViewScr()
@@ -879,6 +904,7 @@ int32_t zmap::load(const char *path)
 	
 	setCurrScr(0);
 	mmap_mark_dirty();
+	regions_mark_dirty();
 	return 0;
 	
 file_error:
@@ -1526,22 +1552,8 @@ void put_combo(BITMAP *dest,int32_t x,int32_t y,word cmbdat,int32_t cset,int32_t
 	
 	putcombo(dest,x,y,cmbdat,cset);
 	
-	/* moved to put_walkflags
-	  for(int32_t i=0; i<4; i++) {
-	
-	  int32_t tx=((i&2)<<2)+x;
-	  int32_t ty=((i&1)<<3)+y;
-	  if((flags&cWALK) && (c.walk&(1<<i)))
-	  rectfill(dest,tx,ty,tx+7,ty+7,COLOR_SOLID);
-	  }
-	  */
-	
-	//  if((flags&cFLAGS)&&(cmbdat&0xF800))
 	if((flags&cFLAGS)&&(sflag||combobuf[cmbdat].flag))
 	{
-		//    rectfill(dest,x,y,x+15,y+15,vc(cmbdat>>10+1));
-		//    text_mode(-1);
-		//    textprintf_ex(dest,get_zc_font(font_sfont),x+1,y+1,(sflag)==0x7800?vc(0):vc(15),-1,"%d",sflag);
 		if(sflag)
 		{
 			rectfill(dest,x,y,x+15,y+15,vc(sflag&15));
@@ -1782,7 +1794,7 @@ void zmap::over_door(BITMAP *dest,int32_t pos,int32_t side,int32_t xofs,int32_t 
     }
 }
 
-bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
+bool zmap::misaligned(int32_t map, int32_t screen, int32_t i, int32_t dir)
 {
 	word cmbcheck1, cmbcheck2;
 	newcombo combocheck1, combocheck2;
@@ -1802,24 +1814,24 @@ bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 				return false;
 			}
 			
-			if(scr<16)											//top row of screens
+			if(screen<16)											//top row of screens
 			{
 				return false;
 				
 			}
 			
 			//check main screen
-			cmbcheck1 = vbound(AbsoluteScr(map, scr)->data[i], 0, MAXCOMBOS-1);
-			cmbcheck2 = vbound(AbsoluteScr(map, scr-16)->data[i+160], 0, MAXCOMBOS-1);
+			cmbcheck1 = vbound(AbsoluteScr(map, screen)->data[i], 0, MAXCOMBOS-1);
+			cmbcheck2 = vbound(AbsoluteScr(map, screen-16)->data[i+160], 0, MAXCOMBOS-1);
 			if (combobuf[cmbcheck1].type != cBRIDGE || !get_qr(qr_OLD_BRIDGE_COMBOS)) combocheck1.walk|=combobuf[cmbcheck1].walk;
 			if (combobuf[cmbcheck2].type != cBRIDGE || !get_qr(qr_OLD_BRIDGE_COMBOS)) combocheck2.walk|=combobuf[cmbcheck2].walk;
 			
 			//check layer 1
-			layermap=AbsoluteScr(map, scr)->layermap[0]-1;
+			layermap=AbsoluteScr(map, screen)->layermap[0]-1;
 			
 			if(layermap>-1 && layermap<map_count)
 			{
-				layerscreen=AbsoluteScr(map, scr)->layerscreen[0];
+				layerscreen=AbsoluteScr(map, screen)->layerscreen[0];
 				cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
 				if (combobuf[cmbcheck1].type == cBRIDGE) 
 				{
@@ -1834,11 +1846,11 @@ bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 				else combocheck1.walk|=combobuf[cmbcheck1].walk;
 			}
 			
-			layermap=AbsoluteScr(map, scr-16)->layermap[0]-1;
+			layermap=AbsoluteScr(map, screen-16)->layermap[0]-1;
 			
 			if(layermap>-1 && layermap<map_count)
 			{
-				layerscreen=AbsoluteScr(map, scr-16)->layerscreen[0];
+				layerscreen=AbsoluteScr(map, screen-16)->layerscreen[0];
 				cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i+160];
 				if (combobuf[cmbcheck2].type == cBRIDGE)
 				{
@@ -1854,11 +1866,11 @@ bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 			}
 			
 			//check layer 2
-			layermap=AbsoluteScr(map, scr)->layermap[1]-1;
+			layermap=AbsoluteScr(map, screen)->layermap[1]-1;
 			
 			if(layermap>-1 && layermap<map_count)
 			{
-				layerscreen=AbsoluteScr(map, scr)->layerscreen[1];
+				layerscreen=AbsoluteScr(map, screen)->layerscreen[1];
 				
 				cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
 				if (combobuf[cmbcheck2].type == cBRIDGE)
@@ -1874,11 +1886,11 @@ bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 				else combocheck1.walk|=combobuf[cmbcheck1].walk;
 			}
 			
-			layermap=AbsoluteScr(map, scr-16)->layermap[1]-1;
+			layermap=AbsoluteScr(map, screen-16)->layermap[1]-1;
 			
 			if(layermap>-1 && layermap<map_count)
 			{
-				layerscreen=AbsoluteScr(map, scr-16)->layerscreen[1];
+				layerscreen=AbsoluteScr(map, screen-16)->layerscreen[1];
 				cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i+160];
 				if (combobuf[cmbcheck2].type == cBRIDGE)
 				{
@@ -1907,24 +1919,24 @@ bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 				return false;
 			}
 			
-			if(scr>111)										   //bottom row of screens
+			if(screen>111)										   //bottom row of screens
 			{
 				return false;
 			}
 			
 			//check main screen
-			cmbcheck1 = vbound(AbsoluteScr(map, scr)->data[i], 0, MAXCOMBOS-1);
-			cmbcheck2 = vbound(AbsoluteScr(map, scr+16)->data[i-160], 0, MAXCOMBOS-1);
+			cmbcheck1 = vbound(AbsoluteScr(map, screen)->data[i], 0, MAXCOMBOS-1);
+			cmbcheck2 = vbound(AbsoluteScr(map, screen+16)->data[i-160], 0, MAXCOMBOS-1);
 			if (combobuf[cmbcheck1].type != cBRIDGE || !get_qr(qr_OLD_BRIDGE_COMBOS)) combocheck1.walk|=combobuf[cmbcheck1].walk;
 			if (combobuf[cmbcheck2].type != cBRIDGE || !get_qr(qr_OLD_BRIDGE_COMBOS)) combocheck2.walk|=combobuf[cmbcheck2].walk;
 			
 			
 			//check layer 1
-			layermap=AbsoluteScr(map, scr)->layermap[0]-1;
+			layermap=AbsoluteScr(map, screen)->layermap[0]-1;
 			
 			if(layermap>-1 && layermap<map_count)
 			{
-				layerscreen=AbsoluteScr(map, scr)->layerscreen[0];
+				layerscreen=AbsoluteScr(map, screen)->layerscreen[0];
 				cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
 				if (combobuf[cmbcheck1].type == cBRIDGE) 
 				{
@@ -1939,11 +1951,11 @@ bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 				else combocheck1.walk|=combobuf[cmbcheck1].walk;
 			}
 			
-			layermap=AbsoluteScr(map, scr+16)->layermap[0]-1;
+			layermap=AbsoluteScr(map, screen+16)->layermap[0]-1;
 			
 			if(layermap>-1 && layermap<map_count)
 			{
-				layerscreen=AbsoluteScr(map, scr+16)->layerscreen[0];
+				layerscreen=AbsoluteScr(map, screen+16)->layerscreen[0];
 				cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i-160];
 				if (combobuf[cmbcheck2].type == cBRIDGE)
 				{
@@ -1959,11 +1971,11 @@ bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 			}
 			
 			//check layer 2
-			layermap=AbsoluteScr(map, scr)->layermap[1]-1;
+			layermap=AbsoluteScr(map, screen)->layermap[1]-1;
 			
 			if(layermap>-1 && layermap<map_count)
 			{
-				layerscreen=AbsoluteScr(map, scr)->layerscreen[1];
+				layerscreen=AbsoluteScr(map, screen)->layerscreen[1];
 				cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
 				if (combobuf[cmbcheck1].type == cBRIDGE) 
 				{
@@ -1978,11 +1990,11 @@ bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 				else combocheck1.walk|=combobuf[cmbcheck1].walk;
 			}
 			
-			layermap=AbsoluteScr(map, scr+16)->layermap[1]-1;
+			layermap=AbsoluteScr(map, screen+16)->layermap[1]-1;
 			
 			if(layermap>-1 && layermap<map_count)
 			{
-				layerscreen=AbsoluteScr(map, scr+16)->layerscreen[1];
+				layerscreen=AbsoluteScr(map, screen+16)->layerscreen[1];
 				cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i-160];
 				if (combobuf[cmbcheck2].type == cBRIDGE)
 				{
@@ -2011,23 +2023,23 @@ bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 				return false;
 			}
 			
-			if((scr&0xF)==0)									  //left column of screens
+			if((screen&0xF)==0)									  //left column of screens
 			{
 				return false;
 			}
 			
 			//check main screen
-			cmbcheck1 = AbsoluteScr(map, scr)->data[i];
-			cmbcheck2 = AbsoluteScr(map, scr-1)->data[i+15];
+			cmbcheck1 = AbsoluteScr(map, screen)->data[i];
+			cmbcheck2 = AbsoluteScr(map, screen-1)->data[i+15];
 			if (combobuf[cmbcheck1].type != cBRIDGE || !get_qr(qr_OLD_BRIDGE_COMBOS)) combocheck1.walk|=combobuf[cmbcheck1].walk;
 			if (combobuf[cmbcheck2].type != cBRIDGE || !get_qr(qr_OLD_BRIDGE_COMBOS)) combocheck2.walk|=combobuf[cmbcheck2].walk;
 			
 			//check layer 1
-			layermap=AbsoluteScr(map, scr)->layermap[0]-1;
+			layermap=AbsoluteScr(map, screen)->layermap[0]-1;
 			
 			if(layermap>-1 && layermap<map_count)
 			{
-				layerscreen=AbsoluteScr(map, scr)->layerscreen[0];
+				layerscreen=AbsoluteScr(map, screen)->layerscreen[0];
 				cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
 				if (combobuf[cmbcheck1].type == cBRIDGE) 
 				{
@@ -2042,11 +2054,11 @@ bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 				else combocheck1.walk|=combobuf[cmbcheck1].walk;
 			}
 			
-			layermap=AbsoluteScr(map, scr-1)->layermap[0]-1;
+			layermap=AbsoluteScr(map, screen-1)->layermap[0]-1;
 			
 			if(layermap>-1 && layermap<map_count)
 			{
-				layerscreen=AbsoluteScr(map, scr-1)->layerscreen[0];
+				layerscreen=AbsoluteScr(map, screen-1)->layerscreen[0];
 				cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i+15];
 				if (combobuf[cmbcheck2].type == cBRIDGE)
 				{
@@ -2062,11 +2074,11 @@ bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 			}
 			
 			//check layer 2
-			layermap=AbsoluteScr(map, scr)->layermap[1]-1;
+			layermap=AbsoluteScr(map, screen)->layermap[1]-1;
 			
 			if(layermap>-1 && layermap<map_count)
 			{
-				layerscreen=AbsoluteScr(map, scr)->layerscreen[1];
+				layerscreen=AbsoluteScr(map, screen)->layerscreen[1];
 				cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
 				if (combobuf[cmbcheck1].type == cBRIDGE) 
 				{
@@ -2081,11 +2093,11 @@ bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 				else combocheck1.walk|=combobuf[cmbcheck1].walk;
 			}
 			
-			layermap=AbsoluteScr(map, scr-1)->layermap[1]-1;
+			layermap=AbsoluteScr(map, screen-1)->layermap[1]-1;
 			
 			if(layermap>-1 && layermap<map_count)
 			{
-				layerscreen=AbsoluteScr(map, scr-1)->layerscreen[1];
+				layerscreen=AbsoluteScr(map, screen-1)->layerscreen[1];
 				cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i+15];
 				if (combobuf[cmbcheck2].type == cBRIDGE)
 				{
@@ -2114,23 +2126,23 @@ bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 				return false;
 			}
 			
-			if((scr&0xF)==15)									 //right column of screens
+			if((screen&0xF)==15)									 //right column of screens
 			{
 				return false;
 			}
 			
 			//check main screen
-			cmbcheck1 = AbsoluteScr(map, scr)->data[i];
-			cmbcheck2 = AbsoluteScr(map, scr+1)->data[i-15];
+			cmbcheck1 = AbsoluteScr(map, screen)->data[i];
+			cmbcheck2 = AbsoluteScr(map, screen+1)->data[i-15];
 			if (combobuf[cmbcheck1].type != cBRIDGE || !get_qr(qr_OLD_BRIDGE_COMBOS)) combocheck1.walk|=combobuf[cmbcheck1].walk;
 			if (combobuf[cmbcheck2].type != cBRIDGE || !get_qr(qr_OLD_BRIDGE_COMBOS)) combocheck2.walk|=combobuf[cmbcheck2].walk;
 			
 			//check layer 1
-			layermap=AbsoluteScr(map, scr)->layermap[0]-1;
+			layermap=AbsoluteScr(map, screen)->layermap[0]-1;
 			
 			if(layermap>-1 && layermap<map_count)
 			{
-				layerscreen=AbsoluteScr(map, scr)->layerscreen[0];
+				layerscreen=AbsoluteScr(map, screen)->layerscreen[0];
 				cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
 				if (combobuf[cmbcheck1].type == cBRIDGE) 
 				{
@@ -2145,11 +2157,11 @@ bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 				else combocheck1.walk|=combobuf[cmbcheck1].walk;
 			}
 			
-			layermap=AbsoluteScr(map, scr+1)->layermap[0]-1;
+			layermap=AbsoluteScr(map, screen+1)->layermap[0]-1;
 			
 			if(layermap>-1 && layermap<map_count)
 			{
-				layerscreen=AbsoluteScr(map, scr+1)->layerscreen[0];
+				layerscreen=AbsoluteScr(map, screen+1)->layerscreen[0];
 				cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i-15];
 				if (combobuf[cmbcheck2].type == cBRIDGE)
 				{
@@ -2165,11 +2177,11 @@ bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 			}
 			
 			//check layer 2
-			layermap=AbsoluteScr(map, scr)->layermap[1]-1;
+			layermap=AbsoluteScr(map, screen)->layermap[1]-1;
 			
 			if(layermap>-1 && layermap<map_count)
 			{
-				layerscreen=AbsoluteScr(map, scr)->layerscreen[1];
+				layerscreen=AbsoluteScr(map, screen)->layerscreen[1];
 				cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
 				if (combobuf[cmbcheck1].type == cBRIDGE) 
 				{
@@ -2184,11 +2196,11 @@ bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 				else combocheck1.walk|=combobuf[cmbcheck1].walk;
 			}
 			
-			layermap=AbsoluteScr(map, scr+1)->layermap[1]-1;
+			layermap=AbsoluteScr(map, screen+1)->layermap[1]-1;
 			
 			if(layermap>-1 && layermap<map_count)
 			{
-				layerscreen=AbsoluteScr(map, scr+1)->layerscreen[1];
+				layerscreen=AbsoluteScr(map, screen+1)->layerscreen[1];
 				
 				cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i-15];
 				if (combobuf[cmbcheck2].type == cBRIDGE)
@@ -2377,7 +2389,7 @@ int32_t zmap::MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, int32_t pos)
 		
 	mapscr const* m = &TheMaps[(map*MAPSCRS)+screen];
     
-	if(m->valid==0) return 0;
+	if (!m->is_valid()) return 0;
 	
 	int32_t mapid = (layer < 0 ? -1 : ((m->layermap[layer] - 1) * MAPSCRS + m->layerscreen[layer]));
 	
@@ -2385,7 +2397,7 @@ int32_t zmap::MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, int32_t pos)
 	
 	mapscr const* scr = ((mapid < 0 || mapid > MAXMAPS*MAPSCRS) ? m : &TheMaps[mapid]);
     
-	if(scr->valid==0) return 0;
+	if (!scr->is_valid()) return 0;
 		
 	return scr->data[pos];						// entire combo code
 }
@@ -2424,12 +2436,12 @@ int32_t zmap::MAPCOMBO2(int32_t lyr,int32_t x,int32_t y, int32_t map, int32_t sc
     else
         layer = AbsoluteScr(layermap,screen1->layerscreen[lyr]);
         
-    int32_t combo = COMBOPOS(x,y);
+    int32_t pos = COMBOPOS(x,y);
     
-    if(combo>175 || combo < 0)
+    if(pos>175 || pos < 0)
         return 0;
         
-    return layer->data[combo];
+    return layer->data[pos];
 }
 
 int32_t zmap::MAPCOMBO(int32_t x,int32_t y, int32_t map, int32_t scr) //map=-1,scr=-1
@@ -2475,7 +2487,7 @@ int32_t zmap::MAPFLAG3(int32_t map, int32_t screen, int32_t layer, int32_t pos)
 		
 	mapscr const* m = &TheMaps[(map*MAPSCRS)+screen];
     
-	if(m->valid==0) return 0;
+	if (!m->is_valid()) return 0;
 	
 	int32_t mapid = (layer < 0 ? -1 : ((m->layermap[layer] - 1) * MAPSCRS + m->layerscreen[layer]));
 	
@@ -2483,7 +2495,7 @@ int32_t zmap::MAPFLAG3(int32_t map, int32_t screen, int32_t layer, int32_t pos)
 	
 	mapscr const* scr = ((mapid < 0 || mapid > MAXMAPS*MAPSCRS) ? m : &TheMaps[mapid]);
     
-	if(scr->valid==0) return 0;
+	if (!scr->is_valid()) return 0;
 		
 	return scr->sflag[pos];						// entire combo code
 }
@@ -2670,7 +2682,7 @@ static mapscr* _zmap_get_lyr_checked(int lyr, mapscr* basescr)
 	}
 	return nullptr;
 }
-void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32_t scr,int32_t hl_layer)
+void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32_t screen,int32_t hl_layer)
 {
 	#define HL_LAYER(lyr) (!(NoHighlightLayer0 && hl_layer == 0) && hl_layer > -1 && hl_layer != lyr)
 	int32_t antiflags=(flags&~cFLAGS)&~cWALK;
@@ -2678,8 +2690,8 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 	if(map<0)
 		map=cursor.map;
 		
-	if(scr<0)
-		scr=cursor.screen;
+	if(screen<0)
+		screen=cursor.screen;
 		
 	mapscr *basescr;
 	mapscr* layers[7] = {nullptr};
@@ -2691,7 +2703,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 	}
 	else
 	{
-		basescr=AbsoluteScr(map,scr);
+		basescr=AbsoluteScr(map,screen);
 	}
 	layers[0] = _zmap_get_lyr_checked(0,basescr);
 	for(int lyr = 1; lyr < 7; ++lyr)
@@ -2713,7 +2725,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 		
 		if(ShowMisalignments)
 		{
-			check_alignments(dest,x,y,scr);
+			check_alignments(dest,x,y,screen);
 		}
 		
 		return;
@@ -2799,14 +2811,14 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 	switch(basescr->door[up])
 	{
 	case dBOMB:
-		over_door(dest,39,up,x,y,false, scr);
+		over_door(dest,39,up,x,y,false, screen);
 		[[fallthrough]];
 	case dOPEN:
 	case dLOCKED:
 	case d1WAYSHUTTER:
 	case dSHUTTER:
 	case dBOSS:
-		put_door(dest,7,up,doortype[up],x,y,false,scr);
+		put_door(dest,7,up,doortype[up],x,y,false,screen);
 		break;
 		
 	case dWALK:
@@ -2830,14 +2842,14 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 	switch(basescr->door[down])
 	{
 	case dBOMB:
-		over_door(dest,135,down,x,y,false,scr);
+		over_door(dest,135,down,x,y,false,screen);
 		[[fallthrough]];
 	case dOPEN:
 	case dLOCKED:
 	case d1WAYSHUTTER:
 	case dSHUTTER:
 	case dBOSS:
-		put_door(dest,151,down,doortype[down],x,y,false,scr);
+		put_door(dest,151,down,doortype[down],x,y,false,screen);
 		break;
 		
 	case dWALK:
@@ -2860,14 +2872,14 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 	switch(basescr->door[left])
 	{
 	case dBOMB:
-		over_door(dest,66,left,x,y,false,scr);
+		over_door(dest,66,left,x,y,false,screen);
 		[[fallthrough]];
 	case dOPEN:
 	case dLOCKED:
 	case d1WAYSHUTTER:
 	case dSHUTTER:
 	case dBOSS:
-		put_door(dest,64,left,doortype[left],x,y,false,scr);
+		put_door(dest,64,left,doortype[left],x,y,false,screen);
 		break;
 		
 	case dWALK:
@@ -2891,14 +2903,14 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 	{
 	
 	case dBOMB:
-		over_door(dest,77,right,x,y,false,scr);
+		over_door(dest,77,right,x,y,false,screen);
 		[[fallthrough]];
 	case dOPEN:
 	case dLOCKED:
 	case d1WAYSHUTTER:
 	case dSHUTTER:
 	case dBOSS:
-		put_door(dest,78,right,doortype[right],x,y,false,scr);
+		put_door(dest,78,right,doortype[right],x,y,false,screen);
 		break;
 		
 	case dWALK:
@@ -3058,7 +3070,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 	
 	if(ShowMisalignments)
 	{
-		check_alignments(dest,x,y,scr);
+		check_alignments(dest,x,y,screen);
 	}
 }
 
@@ -4165,21 +4177,22 @@ void zmap::DoPutDoorCommand(int side, int door, bool force)
 	if(!already_list)
 		FinishListCommand();
 }
-void zmap::putdoor(int32_t scr,int32_t side,int32_t door)
+void zmap::putdoor(int32_t screen,int32_t side,int32_t door)
 {
-	if(screens[scr].door[side] == door)
+	if(screens[screen].door[side] == door)
 		return;
-	screens[scr].door[side] = door;
+
+	screens[screen].door[side] = door;
 	if(door != dNONE)
 	{
 		word data[176] = {0};
 		byte cset[176] = {0};
-		fetch_door(side, door, screens[scr].door_combo_set, data, cset);
+		fetch_door(side, door, screens[screen].door_combo_set, data, cset);
 		for(int q = 0; q < 176; ++q)
 			if(data[q])
 			{
-				screens[scr].data[q] = data[q];
-				screens[scr].cset[q] = cset[q];
+				screens[screen].data[q] = data[q];
+				screens[screen].cset[q] = cset[q];
 			}
 	}
 }
@@ -5297,10 +5310,10 @@ void zmap::update_freeform_combos()
                 {
                     if(prvscr.ffcs[j].flags&ffc_changer && prvscr.ffcs[j].data != 0)
                     {
-                        if((((prvscr.ffcs[j].x.getInt())!=ffposx[i])||((prvscr.ffcs[j].y.getInt())!=ffposy[i]))&&(prvscr.ffcs[i].link==0))
+                        if((((prvscr.ffcs[j].x.getInt())!=prvscr.ffcs[i].changer_x)||((prvscr.ffcs[j].y.getInt())!=prvscr.ffcs[i].changer_y))&&(prvscr.ffcs[i].link==0))
                         {
-                            if((isonline(prvscr.ffcs[i].x.getZLong(),prvscr.ffcs[i].y.getZLong(),ffprvx[i],ffprvy[i],prvscr.ffcs[j].x.getZLong(),prvscr.ffcs[j].y.getZLong())||
-                                    ((prvscr.ffcs[i].x.getZLong()==prvscr.ffcs[j].x.getZLong())&&(prvscr.ffcs[i].y.getZLong()==prvscr.ffcs[j].y.getZLong())))&&(ffprvx[i]>-10000000&&ffprvy[i]>-10000000))
+                            if((isonline(prvscr.ffcs[i].x.getZLong(),prvscr.ffcs[i].y.getZLong(),prvscr.ffcs[i].prev_changer_x,prvscr.ffcs[i].prev_changer_y,prvscr.ffcs[j].x.getZLong(),prvscr.ffcs[j].y.getZLong())||
+                                    ((prvscr.ffcs[i].x.getZLong()==prvscr.ffcs[j].x.getZLong())&&(prvscr.ffcs[i].y.getZLong()==prvscr.ffcs[j].y.getZLong())))&&(prvscr.ffcs[i].prev_changer_x>-10000000&&prvscr.ffcs[i].prev_changer_y>-10000000))
                             {
                                 //prvscr.ffcs[i].data=prvscr.ffcs[j].data;
                                 //prvscr.ffcs[i].cset=prvscr.ffcs[j].cset;
@@ -5336,8 +5349,8 @@ void zmap::update_freeform_combos()
                                 else prvscr.ffcs[i].flags=prvscr.ffcs[j].flags;
                                 
                                 prvscr.ffcs[i].flags&=~ffc_changer;
-                                ffposx[i]=(prvscr.ffcs[j].x.getInt());
-                                ffposy[i]=(prvscr.ffcs[j].y.getInt());
+                                prvscr.ffcs[i].changer_x=(prvscr.ffcs[j].x.getInt());
+                                prvscr.ffcs[i].changer_y=(prvscr.ffcs[j].y.getInt());
                                 
                                 if(combobuf[prvscr.ffcs[j].data].flag>15 && combobuf[prvscr.ffcs[j].data].flag<32)
                                 {
@@ -5375,15 +5388,15 @@ void zmap::update_freeform_combos()
             {
                 if(prvscr.ffcs[i].link&&(prvscr.ffcs[i].link-1)!=i)
                 {
-                    ffprvx[i] = prvscr.ffcs[i].x.getZLong();
-                    ffprvy[i] = prvscr.ffcs[i].y.getZLong();
+                    prvscr.ffcs[i].prev_changer_x = prvscr.ffcs[i].x.getZLong();
+                    prvscr.ffcs[i].prev_changer_y = prvscr.ffcs[i].y.getZLong();
                     prvscr.ffcs[i].x+=prvscr.ffcs[prvscr.ffcs[i].link-1].vx;
                     prvscr.ffcs[i].y+=prvscr.ffcs[prvscr.ffcs[i].link-1].vy;
                 }
                 else
                 {
-                    ffprvx[i] = prvscr.ffcs[i].x.getZLong();
-                    ffprvy[i] = prvscr.ffcs[i].y.getZLong();
+                    prvscr.ffcs[i].prev_changer_x = prvscr.ffcs[i].x.getZLong();
+                    prvscr.ffcs[i].prev_changer_y = prvscr.ffcs[i].y.getZLong();
                     prvscr.ffcs[i].x+=prvscr.ffcs[i].vx;
                     prvscr.ffcs[i].y+=prvscr.ffcs[i].vy;
                     prvscr.ffcs[i].vx+=prvscr.ffcs[i].ax;
@@ -5412,7 +5425,7 @@ void zmap::update_freeform_combos()
                 if(prvscr.flags6&fWRAPAROUNDFF)
                 {
                     prvscr.ffcs[i].x = (288+(prvscr.ffcs[i].x+32));
-                    ffprvy[i] = prvscr.ffcs[i].y.getZLong();
+                    prvscr.ffcs[i].prev_changer_y = prvscr.ffcs[i].y.getZLong();
                 }
                 else
                 {
@@ -5426,7 +5439,7 @@ void zmap::update_freeform_combos()
                 if(prvscr.flags6&fWRAPAROUNDFF)
                 {
                     prvscr.ffcs[i].y = 208+(prvscr.ffcs[i].y+32);
-                    ffprvx[i] = prvscr.ffcs[i].x.getZLong();
+                    prvscr.ffcs[i].prev_changer_x = prvscr.ffcs[i].x.getZLong();
                 }
                 else
                 {
@@ -5440,7 +5453,7 @@ void zmap::update_freeform_combos()
                 if(prvscr.flags6&fWRAPAROUNDFF)
                 {
                     prvscr.ffcs[i].x = prvscr.ffcs[i].x-288-32;
-                    ffprvy[i] = prvscr.ffcs[i].y.getZLong();
+                    prvscr.ffcs[i].prev_changer_y = prvscr.ffcs[i].y.getZLong();
                 }
                 else
                 {
@@ -5454,7 +5467,7 @@ void zmap::update_freeform_combos()
                 if(prvscr.flags6&fWRAPAROUNDFF)
                 {
                     prvscr.ffcs[i].y = prvscr.ffcs[i].y-208-32;
-                    ffprvy[i] = prvscr.ffcs[i].x.getZLong();
+                    prvscr.ffcs[i].prev_changer_y = prvscr.ffcs[i].x.getZLong();
                 }
                 else
                 {
@@ -5568,12 +5581,6 @@ void zmap::prv_dowarp(int32_t type, int32_t index)
     {
         prv_time=get_prvscr()->timedwarptics;
     }
-    
-    //also reset FFC information (so that changers will work correctly) -DD
-    memset(ffposx,0xFF,sizeof(int16_t)*32);
-    memset(ffposy,0xFF,sizeof(int16_t)*32);
-    memset(ffprvx,0xFF,sizeof(float)*32);
-    memset(ffprvy,0xFF,sizeof(float)*32);
 }
 
 void zmap::dowarp2(int32_t ring,int32_t index)
@@ -6321,7 +6328,7 @@ bool load_subscreen(const char *path, ZCSubscreen& loadto)
 bool setMapCount2(int32_t c)
 {
     int32_t oldmapcount=map_count;
-    int32_t currmap=Map.getCurrMap();
+    int32_t cur_map=Map.getCurrMap();
     
     bound(c,1,MAXMAPS);
     map_count=c;
@@ -6338,7 +6345,7 @@ bool setMapCount2(int32_t c)
         return false;
     }
     
-    bound(currmap,0,c-1);
+    bound(cur_map,0,c-1);
     if(map_count>oldmapcount)
     {
         for(int32_t mc=oldmapcount; mc<map_count; mc++)
@@ -6350,11 +6357,11 @@ bool setMapCount2(int32_t c)
                 Map.clearscr(ms);
             }
         }
-        Map.setCurrMap(currmap);
+        Map.setCurrMap(cur_map);
     }
     else
     {
-        Map.setCurrMap(currmap);
+        Map.setCurrMap(cur_map);
         if(!layers_valid(Map.CurrScr()))
             fix_layers(Map.CurrScr(), false);
             
@@ -7749,18 +7756,6 @@ int32_t writedmaps(PACKFILE *f, word version, word build, word start_dmap, word 
 				new_return(46);
 			if (!p_iputl(DMaps[i].intro_string_id, f))
 				new_return(47);
-
-			// Reserved for z3.
-			for(int32_t j=0; j<8; j++)
-			{
-				for(int32_t k=0; k<8; k++)
-				{
-					if(!p_putc(0,f))
-					{
-						new_return(48);
-					}
-				}
-			}
 		}
         
         if(writecycle==0)
@@ -8997,6 +8992,8 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 	
 	if(screen.exitdir)
 		scr_has_flags |= SCRHAS_MAZE;
+	else if(screen.maze_transition_wipe)
+		scr_has_flags |= SCRHAS_MAZE;
 	else for(auto q = 0; q < 4; ++q)
 	{
 		if(screen.path[q])
@@ -9211,6 +9208,8 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 				return qe_invalid;
 		}
 		if(!p_putc(screen.exitdir,f))
+			return qe_invalid;
+		if(!p_putc(screen.maze_transition_wipe,f))
 			return qe_invalid;
 	}
 	if(scr_has_flags & SCRHAS_D_S_U)
@@ -9478,7 +9477,7 @@ int32_t writemaps(PACKFILE *f, zquestheader *)
 				if((i*MAPSCRS+j)>=int32_t(TheMaps.size()))
 					break;
 				mapscr& screen=TheMaps.at(i*MAPSCRS+j);
-				if(screen.valid & mVALID)
+				if (screen.is_valid())
 				{
 					valid = 1;
 					break;
@@ -9496,6 +9495,17 @@ int32_t writemaps(PACKFILE *f, zquestheader *)
 					size_t ind = i*6+q;
 					if(!p_iputw(map_autolayers[ind],f))
 						new_return(7);
+				}
+
+				for(int32_t j=0; j<8; j++)
+				{
+				    for(int32_t k=0; k<8; k++)
+				    {
+				        if(!p_putc(Regions[i].region_ids[j][k],f))
+				        {
+				            new_return(8);
+				        }
+				    }
 				}
 			}
 			
@@ -13476,6 +13486,8 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *)
 			new_return(73);
 		if (!p_iputw(zinit.light_wave_size, f))
 			new_return(74);
+		if (!p_putc(zinit.region_mapping, f))
+			new_return(75);
 		
 		if(writecycle==0)
 		{
@@ -14139,8 +14151,6 @@ void zmap::prv_secrets(bool high16only)
     
     for(int32_t i=0; i<176; i++)
     {
-        bool putit;
-        
         if(!high16only)
         {
             for(int32_t j=-1; j<6; j++)
@@ -14149,8 +14159,6 @@ void zmap::prv_secrets(bool high16only)
                 
                 for(int32_t iter=0; iter<2; ++iter)
                 {
-                    putit=true;
-                    
                     if(!t[j].valid)
                         continue;
                         
@@ -14160,123 +14168,9 @@ void zmap::prv_secrets(bool high16only)
                     {
                         checkflag=t[j].sflag[i];
                     }
-                    
-                    switch(checkflag)
-                    {
-                    case mfANYFIRE:
-                        ft=sBCANDLE;
-                        break;
-                        
-                    case mfSTRONGFIRE:
-                        ft=sRCANDLE;
-                        break;
-                        
-                    case mfMAGICFIRE:
-                        ft=sWANDFIRE;
-                        break;
-                        
-                    case mfDIVINEFIRE:
-                        ft=sDIVINEFIRE;
-                        break;
-                        
-                    case mfARROW:
-                        ft=sARROW;
-                        break;
-                        
-                    case mfSARROW:
-                        ft=sSARROW;
-                        break;
-                        
-                    case mfGARROW:
-                        ft=sGARROW;
-                        break;
-                        
-                    case mfSBOMB:
-                        ft=sSBOMB;
-                        break;
-                        
-                    case mfBOMB:
-                        ft=sBOMB;
-                        break;
-                        
-                    case mfBRANG:
-                        ft=sBRANG;
-                        break;
-                        
-                    case mfMBRANG:
-                        ft=sMBRANG;
-                        break;
-                        
-                    case mfFBRANG:
-                        ft=sFBRANG;
-                        break;
-                        
-                    case mfWANDMAGIC:
-                        ft=sWANDMAGIC;
-                        break;
-                        
-                    case mfREFMAGIC:
-                        ft=sREFMAGIC;
-                        break;
-                        
-                    case mfREFFIREBALL:
-                        ft=sREFFIREBALL;
-                        break;
-                        
-                    case mfSWORD:
-                        ft=sSWORD;
-                        break;
-                        
-                    case mfWSWORD:
-                        ft=sWSWORD;
-                        break;
-                        
-                    case mfMSWORD:
-                        ft=sMSWORD;
-                        break;
-                        
-                    case mfXSWORD:
-                        ft=sXSWORD;
-                        break;
-                        
-                    case mfSWORDBEAM:
-                        ft=sSWORDBEAM;
-                        break;
-                        
-                    case mfWSWORDBEAM:
-                        ft=sWSWORDBEAM;
-                        break;
-                        
-                    case mfMSWORDBEAM:
-                        ft=sMSWORDBEAM;
-                        break;
-                        
-                    case mfXSWORDBEAM:
-                        ft=sXSWORDBEAM;
-                        break;
-                        
-                    case mfHOOKSHOT:
-                        ft=sHOOKSHOT;
-                        break;
-                        
-                    case mfWAND:
-                        ft=sWAND;
-                        break;
-                        
-                    case mfHAMMER:
-                        ft=sHAMMER;
-                        break;
-                        
-                    case mfSTRIKE:
-                        ft=sSTRIKE;
-                        break;
-                        
-                    default:
-                        putit = false;
-                        break;
-                    }
-                    
-                    if(putit)
+
+					ft = combo_trigger_flag_to_secret_combo_index(checkflag);
+                    if (ft != -1)
                     {
                         if(j==-1)
                         {
@@ -14355,136 +14249,19 @@ void zmap::prv_secrets(bool high16only)
 	word num_ffcs = s->numFFC();
     for(word i=0; i<num_ffcs; ++i)
     {
-        bool putit;
-        
         if(!high16only)
         {
             for(int32_t iter=0; iter<1; ++iter)
             {
-                putit=true;
                 int32_t checkflag=combobuf[s->ffcs[i].data].flag;
                 
                 if(iter==1)
                 {
                     checkflag=s->sflag[i];
                 }
-                
-                switch(checkflag)
-                {
-                case mfANYFIRE:
-                    ft=sBCANDLE;
-                    break;
-                    
-                case mfSTRONGFIRE:
-                    ft=sRCANDLE;
-                    break;
-                    
-                case mfMAGICFIRE:
-                    ft=sWANDFIRE;
-                    break;
-                    
-                case mfDIVINEFIRE:
-                    ft=sDIVINEFIRE;
-                    break;
-                    
-                case mfARROW:
-                    ft=sARROW;
-                    break;
-                    
-                case mfSARROW:
-                    ft=sSARROW;
-                    break;
-                    
-                case mfGARROW:
-                    ft=sGARROW;
-                    break;
-                    
-                case mfSBOMB:
-                    ft=sSBOMB;
-                    break;
-                    
-                case mfBOMB:
-                    ft=sBOMB;
-                    break;
-                    
-                case mfBRANG:
-                    ft=sBRANG;
-                    break;
-                    
-                case mfMBRANG:
-                    ft=sMBRANG;
-                    break;
-                    
-                case mfFBRANG:
-                    ft=sFBRANG;
-                    break;
-                    
-                case mfWANDMAGIC:
-                    ft=sWANDMAGIC;
-                    break;
-                    
-                case mfREFMAGIC:
-                    ft=sREFMAGIC;
-                    break;
-                    
-                case mfREFFIREBALL:
-                    ft=sREFFIREBALL;
-                    break;
-                    
-                case mfSWORD:
-                    ft=sSWORD;
-                    break;
-                    
-                case mfWSWORD:
-                    ft=sWSWORD;
-                    break;
-                    
-                case mfMSWORD:
-                    ft=sMSWORD;
-                    break;
-                    
-                case mfXSWORD:
-                    ft=sXSWORD;
-                    break;
-                    
-                case mfSWORDBEAM:
-                    ft=sSWORDBEAM;
-                    break;
-                    
-                case mfWSWORDBEAM:
-                    ft=sWSWORDBEAM;
-                    break;
-                    
-                case mfMSWORDBEAM:
-                    ft=sMSWORDBEAM;
-                    break;
-                    
-                case mfXSWORDBEAM:
-                    ft=sXSWORDBEAM;
-                    break;
-                    
-                case mfHOOKSHOT:
-                    ft=sHOOKSHOT;
-                    break;
-                    
-                case mfWAND:
-                    ft=sWAND;
-                    break;
-                    
-                case mfHAMMER:
-                    ft=sHAMMER;
-                    break;
-                    
-                case mfSTRIKE:
-                    ft=sSTRIKE;
-                    break;
-                    
-                default:
-                    putit = false;
-                    break;
-                }
-                
-                if(putit)
+
+				ft = combo_trigger_flag_to_secret_combo_index(checkflag);
+                if (ft != -1)
                 {
                     s->ffcs[i].data = s->secretcombo[ft];
                     s->ffcs[i].cset = s->secretcset[ft];

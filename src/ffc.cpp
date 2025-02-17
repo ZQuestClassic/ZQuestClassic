@@ -10,10 +10,11 @@
 extern sprite_list Lwpns;
 
 #ifdef IS_PLAYER
-#include "zc/combos.h"
 #include "zc/maps.h"
 #include "zc/hero.h"
+#include "zc/combos.h"
 #include "base/mapscr.h"
+#include "iter.h"
 
 extern int16_t lensclk;
 extern HeroClass Hero;
@@ -31,7 +32,6 @@ void ffcdata::draw(BITMAP* dest)
 
 void ffcdata::draw_ffc(BITMAP* dest, int32_t xofs, int32_t yofs, bool overlay)
 {
-	if (!data) return;
 	if (flags&ffc_changer) return;
 	#ifdef IS_PLAYER
 	if ((flags&ffc_lensinvis) && lensclk) return; //If lens is active and ffc is invis to lens, don't draw
@@ -58,9 +58,14 @@ void ffcdata::draw_ffc(BITMAP* dest, int32_t xofs, int32_t yofs, bool overlay)
 	
 	if(!(flags&ffc_overlay) == !overlay) //force cast both of these to boolean. They're both not, so same as if they weren't not.
 	{
+#ifdef IS_PLAYER
+		int32_t tx = x + xofs - viewport.x;
+		int32_t ty = y + yofs - viewport.y;
+#else
 		int32_t tx = x + xofs;
 		int32_t ty = y + yofs;
-		
+#endif
+
 		if(flags&ffc_trans)
 		{
 			overcomboblocktranslucent(dest, tx, ty, data, cset, txsz, tysz,128);
@@ -135,21 +140,19 @@ void ffcdata::doContactDamage(int32_t hdir)
 		int ffnum = -1;
 		if(loaded)
 		{
-			int c = tmpscr->numFFC();
-			for (word i = 0; i < c; i++)
+			auto ffc_handle = find_ffc([&](const ffc_handle_t& ffc_handle) {
+				return this == ffc_handle.ffc;
+			});
+			if (ffc_handle)
 			{
-				if (this == &tmpscr->ffcs[i])
-				{
-					ffnum = i;
-					break;
-				}
+				ffnum = ffc_handle->id;
 			}
 		}
 		if(ffnum > -1)
 		{
-			trigger_damage_combo(data, ZSD_FFC, ffnum, hdir, true);
+			trigger_damage_combo(get_scr(screen_spawned), data, ZSD_FFC, ffnum, hdir, true);
 		}
-		else trigger_damage_combo(data, ZSD_NONE, 0, hdir, true);
+		else trigger_damage_combo(get_scr(screen_spawned), data, ZSD_NONE, 0, hdir, true);
 	}
 #endif
 }

@@ -148,6 +148,7 @@ extern PALETTE RAMpal;
 extern midi_info Midi_Info;
 extern bool zq_showpal;
 extern bool zoomed_minimap;
+extern int32_t scrolling_destdmap, cur_dmap;
 
 
 extern int32_t alignment_arrow_timer;
@@ -610,6 +611,7 @@ int32_t onToggleGrid(bool color);
 int32_t onToggleGrid();
 int32_t onToggleShowScripts();
 int32_t onToggleScreenGrid();
+int32_t onToggleRegionGrid();
 int32_t onToggleCurrentScreenOutline();
 int32_t onToggleShowSquares();
 int32_t onToggleShowFFCs();

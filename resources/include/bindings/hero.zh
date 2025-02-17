@@ -742,9 +742,9 @@ class hero {
 	// Warps link to the given screen in the given DMap, just like if he'd
 	// triggered an 'Insta-Warp'-type warp.
 	//
-	// Uses warp return square A, unless compat rule `Old 'Hero->Warp' Return Square`
-	// is on, in which case it uses the warp return square of the
-	// current screen's Sidewarp A.
+	// Uses warp return square A of the screen the player is currently on,
+	// unless compat rule `Old 'Hero->Warp' Return Square` is on, in which case
+	// it uses the warp return square of the current screen's Sidewarp A.
 	//
 	// @zasm
 	//   POP D2

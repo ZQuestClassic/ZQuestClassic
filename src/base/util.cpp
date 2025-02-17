@@ -1,4 +1,5 @@
 #include "base/util.h"
+#include "base/process_management.h"
 #include <cstdlib>
 #include <fstream>
 #include <sstream>
@@ -8,6 +9,10 @@
 #include <sys/stat.h>
 #include <regex>
 #include <system_error>
+
+#ifdef __EMSCRIPTEN__
+#include "base/emscripten_utils.h"
+#endif
 
 using namespace std;
 namespace fs = std::filesystem;
@@ -36,6 +41,11 @@ namespace util
 	void trimstr(string& str)
 	{
 		str.erase(0, str.find_first_not_of("\t\n\v\f\r "));
+		str.erase(str.find_last_not_of("\t\n\v\f\r ") + 1);
+	}
+
+	void trimstr_trailing(string& str)
+	{
 		str.erase(str.find_last_not_of("\t\n\v\f\r ") + 1);
 	}
 
@@ -986,6 +996,42 @@ namespace util
 		auto m = std::mismatch(b.begin(), b.end(), 
 							s.begin(), s.end());
 		return m.first == b.end();
+	}
+
+	void open_web_link(std::string url)
+	{
+#ifdef __EMSCRIPTEN__
+		em_open_link(url);
+#elif defined(_WIN32)
+		std::string cmd = "start " + url;
+		system(cmd.c_str());
+#elif defined(__APPLE__)
+		launch_process("open", {url});
+#else
+		launch_process("xdg-open", {url});
+#endif
+	}
+
+	uint8_t nibble(uint8_t byte, bool high)
+	{
+		if (high) return byte >> 4 & 0xF;
+		else      return byte & 0xF;
+	}
+
+	uint8_t nibble_set_lower_byte(uint8_t orig, uint8_t nibble)
+	{
+		uint8_t res = orig;
+		res &= 0xF0; // Clear out the lower nibble
+		res |= (nibble & 0x0F); // OR in the desired mask
+		return res;
+	}
+
+	uint8_t nibble_set_upper_byte(uint8_t orig, uint8_t nibble)
+	{
+		uint8_t res = orig;
+		res &= 0x0F; // Clear out the upper nibble
+		res |= ((nibble << 4) & 0xF0); // OR in the desired mask
+		return res;
 	}
 }
 

@@ -1,13 +1,11 @@
 #include "zc/replay.h"
 #include "base/version.h"
 #include "base/zapp.h"
-#include "zc/ffscript.h"
 #include "zc/zc_sys.h"
 #include "base/zc_alleg.h"
 #include "base/util.h"
 #include "zc/zelda.h"
 #include <array>
-#include <exception>
 #include <string>
 #include <vector>
 #include <map>
@@ -17,7 +15,6 @@
 #include <ctime>
 #include <filesystem>
 #include <chrono>
-#include <system_error>
 #include <fmt/format.h>
 
 #define XXH_STATIC_LINKING_ONLY
@@ -1841,9 +1838,9 @@ void replay_step_comment(std::string comment)
     }
 }
 
-void replay_step_comment_loadscr(int screen_index)
+void replay_step_comment_loadscr(int screen)
 {
-	replay_step_comment(fmt::format("scr={}", screen_index));
+	replay_step_comment(fmt::format("scr={}", screen));
 	loadscr_count += 1;
 }
 

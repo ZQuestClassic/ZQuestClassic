@@ -1,4 +1,6 @@
 #include "base/dmap.h"
+#include "base/handles.h"
+#include "base/mapscr.h"
 #include "base/misctypes.h"
 #include "base/msgstr.h"
 #include "base/qrs.h"
@@ -9,6 +11,7 @@
 #include "zc/ffscript.h"
 #include "zc/guys.h"
 #include "zc/hero.h"
+#include "zc/maps.h"
 #include "zc/zelda.h"
 
 #include <optional>
@@ -21,12 +24,12 @@ extern int32_t sarg3;
 
 namespace {
 
-// If scr is currently being used as a layer, return that layer no.
-int32_t whichlayer(int32_t scr)
+// If `index` is currently being used as a layer for the origin screen, return that layer index.
+int whichlayer(int map, int screen)
 {
 	for (int32_t i = 0; i < 6; i++)
 	{
-		if (scr == (tmpscr->layermap[i] - 1) * MAPSCRS + tmpscr->layerscreen[i])
+		if (map == origin_scr->layermap[i] - 1 && screen == origin_scr->layerscreen[i])
 			return i;
 	}
 
@@ -182,6 +185,86 @@ void do_setdmapintro(const bool v)
 
 } // end namespace
 
+// This is for the deprecated Game->GetComboData functions (and friends).
+static int HandleGameScreenGetter(std::function<int(mapscr*, int)> cb, const char* context)
+{
+	int32_t pos = (ri->d[rINDEX])/10000;
+	int32_t screen = (ri->d[rEXP1]/10000);
+	int32_t map = (ri->d[rINDEX2]/10000)-1;
+	int32_t index = zc_max(map_screen_index(map, screen), 0);
+	int32_t layr = whichlayer(map, screen);
+
+	if (pos < 0 || pos >= 176) 
+	{
+		Z_scripterrlog("Invalid combo position (%d) passed to %s", pos, context);
+		return -10000;
+	}
+	else if (screen >= MAPSCRS)
+	{
+		Z_scripterrlog("Invalid Screen (%d) passed to %s", screen, context);
+		return -10000;
+	}
+	else if (map >= map_count) 
+	{
+		Z_scripterrlog("Invalid Map (%d) passed to %s", map, context);
+		return -10000;
+	}
+	else if (map < 0) return 0; // No layer present. [2025 note: weird...]
+	else
+	{
+		// Since this is deprecated, we only support looking at the temporary for the origin screen.
+		if (map == cur_map && screen == cur_screen)
+			return cb(origin_scr, pos);
+		else if (layr > -1)
+			return cb(get_scr_layer(cur_screen, layr + 1), pos);
+		else return cb(&TheMaps[index], pos);
+	}
+}
+
+// This is for the deprecated SetComboData functions (and friends).
+static auto ResolveGameScreens(const char* context)
+{
+	struct result_t
+	{
+		rpos_handle_t canonical_rpos_handle;
+		rpos_handle_t tmp_rpos_handle;
+		rpos_handle_t tmp_layer_rpos_handle;
+	};
+	result_t result{};
+
+	int32_t pos = (ri->d[rINDEX])/10000;
+	int32_t screen = (ri->d[rEXP1]/10000);
+	int32_t map = (ri->d[rINDEX2]/10000)-1;
+	int32_t index = zc_max(map_screen_index(map, screen), 0);
+	int32_t layr = whichlayer(map, screen);
+
+	if (pos < 0 || pos >= 176) 
+	{
+		Z_scripterrlog("Invalid combo position (%d) passed to %s", pos, context);
+		return result;
+	}
+	if (screen >= MAPSCRS) 
+	{
+		Z_scripterrlog("Invalid Screen (%d) passed to %s", screen, context);
+		return result;
+	}
+	if (unsigned(map) >= map_count) 
+	{
+		Z_scripterrlog("Invalid Map (%d) passed to %s", map, context);
+		return result;
+	}
+
+	result.canonical_rpos_handle = {&TheMaps[index], screen, 0, (rpos_t)pos, pos};
+
+	// Since this is deprecated, we only support looking at the temporary for the origin screen.
+	if (map == cur_map && screen == cur_screen)
+		result.tmp_rpos_handle = {origin_scr, screen, 0, (rpos_t)pos, pos};
+	if (layr > -1)
+		result.tmp_layer_rpos_handle = {get_scr_layer(cur_screen, layr + 1), screen, 0, (rpos_t)pos, pos};
+
+	return result;
+}
+
 std::optional<int32_t> game_get_register(int32_t reg)
 {
 	int32_t ret = 0;
@@ -260,7 +343,7 @@ std::optional<int32_t> game_get_register(int32_t reg)
 			
 		case GAMEGUYCOUNT:
 		{
-			int32_t mi = (currmap*MAPSCRSNORMAL)+(ri->d[rINDEX]/10000);
+			int mi = mapind(cur_map, ri->d[rINDEX]/10000);
 			ret=game->guys[mi]*10000;
 		}
 		break;
@@ -488,15 +571,15 @@ std::optional<int32_t> game_get_register(int32_t reg)
 		}
 			
 		case CURMAP:
-			ret=(1+currmap)*10000;
+			ret=(1+cur_map)*10000;
 			break;
 			
 		case CURSCR:
-			ret=currscr*10000;
+			ret=cur_screen*10000;
 			break;
 
 		case HERO_SCREEN:
-			ret=currscr*10000;
+			ret=hero_screen*10000;
 			break;
 
 		case ALLOCATEBITMAPR:
@@ -510,7 +593,7 @@ std::optional<int32_t> game_get_register(int32_t reg)
 		case CURDSCR:
 		{
 			int32_t di = (get_currscr()-DMaps[get_currdmap()].xoff);
-			ret=(DMaps[get_currdmap()].type==dmOVERW ? currscr : di)*10000;
+			ret=(DMaps[get_currdmap()].type==dmOVERW ? cur_screen : di)*10000;
 		}
 		break;
 		
@@ -522,7 +605,7 @@ std::optional<int32_t> game_get_register(int32_t reg)
 			break;
 		
 		case CURDMAP:
-			ret=currdmap*10000;
+			ret=cur_dmap*10000;
 			break;
 			
 		case CURLEVEL:
@@ -539,257 +622,37 @@ std::optional<int32_t> game_get_register(int32_t reg)
 
 		case COMBODDM:
 		{
-			int32_t pos = (ri->d[rINDEX])/10000;
-			int32_t sc = (ri->d[rEXP1]/10000);
-			int32_t m = (ri->d[rINDEX2]/10000)-1;
-			int32_t scr = zc_max(m*MAPSCRS+sc,0);
-			int32_t layr = whichlayer(scr);
-			
-			if(pos < 0 || pos >= 176) 
-			{
-				Z_scripterrlog("Invalid combo position (%d) passed to GetComboData", pos);
-				ret = -10000;
-			}
-			else if(scr < 0) 
-			{
-				Z_scripterrlog("Invalid Screen ID (%d) passed to GetComboData", scr);
-				ret = -10000;
-			}
-			else if(sc >= MAPSCRS) 
-			{
-				Z_scripterrlog("Invalid Screen ID (%d) passed to GetComboData", sc);
-				ret = -10000;
-			}
-			else if(m >= map_count) 
-			{
-				Z_scripterrlog("Invalid Map ID (%d) passed to GetComboData", m);
-				ret = -10000;
-			}
-			else if(m < 0) ret = 0; //No layer present
-					
-			//if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
-			else
-			{
-				if(scr==(currmap*MAPSCRS+currscr))
-					ret=tmpscr->data[pos]*10000;
-				else if(layr>-1)
-					ret=tmpscr2[layr].data[pos]*10000;
-				else ret=TheMaps[scr].data[pos]*10000;
-			}
-			
+			ret = HandleGameScreenGetter([](mapscr* scr, int pos) { return scr->data[pos] * 10000; }, "Game->GetComboData");
 		}
 		break;
 		
 		case COMBOCDM:
 		{
-			int32_t pos = (ri->d[rINDEX])/10000;
-			int32_t sc = (ri->d[rEXP1]/10000);
-			int32_t m = (ri->d[rINDEX2]/10000)-1;
-			int32_t scr = zc_max(m*MAPSCRS+sc,0);
-			int32_t layr = whichlayer(scr);
-			
-			if(pos < 0 || pos >= 176) 
-			{
-				Z_scripterrlog("Invalid combo position (%d) passed to GetComboCSet", pos);
-				ret = -10000;
-			}
-			else if(scr < 0) 
-			{
-				Z_scripterrlog("Invalid Screen ID (%d) passed to GetComboCSet", scr);
-				ret = -10000;
-			}
-			else if(sc >= MAPSCRS) 
-			{
-				Z_scripterrlog("Invalid Screen ID (%d) passed to GetComboCSet", sc);
-				ret = -10000;
-			}
-			else if(m >= map_count) 
-			{
-				Z_scripterrlog("Invalid Map ID (%d) passed to GetComboCSet", m);
-				ret = -10000;
-			}
-			else if(m < 0) ret = 0; //No layer present
-			
-			//if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
-			else
-			{
-				if(scr==(currmap*MAPSCRS+currscr))
-					ret=tmpscr->cset[pos]*10000;
-				else if(layr>-1)
-					ret=tmpscr2[layr].cset[pos]*10000;
-				else ret=TheMaps[scr].cset[pos]*10000;
-			}
-			
+			ret = HandleGameScreenGetter([](mapscr* scr, int pos) { return scr->cset[pos] * 10000; }, "Game->GetComboCSet");
 		}
 		break;
 		
 		case COMBOFDM:
 		{
-			int32_t pos = (ri->d[rINDEX])/10000;
-			int32_t sc = (ri->d[rEXP1]/10000);
-			int32_t m = (ri->d[rINDEX2]/10000)-1;
-			int32_t scr = zc_max(m*MAPSCRS+sc,0);
-			int32_t layr = whichlayer(scr);
-			
-			if(pos < 0 || pos >= 176) 
-			{
-				Z_scripterrlog("Invalid combo position (%d) passed to GetComboFlag", pos);
-				ret = -10000;
-			}
-			else if(scr < 0) 
-			{
-				Z_scripterrlog("Invalid Screen ID (%d) passed to GetComboFlag", scr);
-				ret = -10000;
-			}
-			else if(sc >= MAPSCRS) 
-			{
-				Z_scripterrlog("Invalid Screen ID (%d) passed to GetComboFlag", sc);
-				ret = -10000;
-			}
-			else if(m >= map_count) 
-			{
-				Z_scripterrlog("Invalid Map ID (%d) passed to GetComboFlag", m);
-				ret = -10000;
-			}
-			else if(m < 0) ret = 0; //No layer present
-			//if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
-			else
-			{
-				if(scr==(currmap*MAPSCRS+currscr))
-					ret=tmpscr->sflag[pos]*10000;
-				else if(layr>-1)
-					ret=tmpscr2[layr].sflag[pos]*10000;
-				else ret=TheMaps[scr].sflag[pos]*10000;
-			}
-			
+			ret = HandleGameScreenGetter([](mapscr* scr, int pos) { return scr->sflag[pos] * 10000; }, "Game->GetComboFlag");
 		}
 		break;
 		
 		case COMBOTDM:
 		{
-			int32_t pos = (ri->d[rINDEX])/10000;
-			int32_t sc = (ri->d[rEXP1]/10000);
-			int32_t m = (ri->d[rINDEX2]/10000)-1;
-			int32_t scr = zc_max(m*MAPSCRS+sc,0);
-			int32_t layr = whichlayer(scr);
-			
-			if(pos < 0 || pos >= 176) 
-			{
-				Z_scripterrlog("Invalid combo position (%d) passed to GetComboType", pos);
-				ret = -10000;
-			}
-			else if(scr < 0) 
-			{
-				Z_scripterrlog("Invalid Screen ID (%d) passed to GetComboType", scr);
-				ret = -10000;
-			}
-			else if(sc >= MAPSCRS) 
-			{
-				Z_scripterrlog("Invalid Screen ID (%d) passed to GetComboType", sc);
-				ret = -10000;
-			}
-			else if(m >= map_count) 
-			{
-				Z_scripterrlog("Invalid Map ID (%d) passed to GetComboType", m);
-				ret = -10000;
-			}
-			else if(m < 0) ret = 0; //No layer present
-			
-			//if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
-			else
-			{
-				if(scr==(currmap*MAPSCRS+currscr))
-					ret=combobuf[tmpscr->data[pos]].type*10000;
-				else if(layr>-1)
-					ret=combobuf[tmpscr2[layr].data[pos]].type*10000;
-				else ret=combobuf[
-								 TheMaps[scr].data[pos]].type*10000;
-			}
+			ret = HandleGameScreenGetter([](mapscr* scr, int pos) { return combobuf[scr->data[pos]].type * 10000; }, "Game->GetComboType");
 		}
 		break;
 		
 		case COMBOIDM:
 		{
-			int32_t pos = (ri->d[rINDEX])/10000;
-			int32_t sc = (ri->d[rEXP1]/10000);
-			int32_t m = (ri->d[rINDEX2]/10000)-1;
-			int32_t scr = zc_max(m*MAPSCRS+sc,0);
-			int32_t layr = whichlayer(scr);
-			
-			if(pos < 0 || pos >= 176) 
-			{
-				Z_scripterrlog("Invalid combo position (%d) passed to GetComboInherentFlag", pos);
-				ret = -10000;
-			}
-			else if(scr < 0) 
-			{
-				Z_scripterrlog("Invalid Screen ID (%d) passed to GetComboInherentFlag", scr);
-				ret = -10000;
-			}
-			else if(sc >= MAPSCRS) 
-			{
-				Z_scripterrlog("Invalid Screen ID (%d) passed to GetComboInherentFlag", sc);
-				ret = -10000;
-			}
-			else if(m >= map_count) 
-			{
-				Z_scripterrlog("Invalid Map ID (%d) passed to GetComboInherentFlag", m);
-				ret = -10000;
-			}
-			else if(m < 0) ret = 0; //No layer present
-			
-			//if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
-			else
-					{
-				if(scr==(currmap*MAPSCRS+currscr))
-					ret=combobuf[tmpscr->data[pos]].flag*10000;
-				else if(layr>-1)
-					ret=combobuf[tmpscr2[layr].data[pos]].flag*10000;
-				else ret=combobuf[TheMaps[scr].data[pos]].flag*10000;
-			}
+			ret = HandleGameScreenGetter([](mapscr* scr, int pos) { return combobuf[scr->data[pos]].flag * 10000; }, "Game->GetComboInherentFlag");
 		}
 		break;
 		
 		case COMBOSDM:
 		{
-			int32_t pos = (ri->d[rINDEX])/10000;
-			int32_t sc = (ri->d[rEXP1]/10000);
-			int32_t m = (ri->d[rINDEX2]/10000)-1;
-			int32_t scr = zc_max(m*MAPSCRS+sc,0);
-			int32_t layr = whichlayer(scr);
-			
-			if(pos < 0 || pos >= 176) 
-			{
-				Z_scripterrlog("Invalid combo position (%d) passed to GetComboSolid", pos);
-				ret = -10000;
-			}
-			else if(scr < 0) 
-			{
-				Z_scripterrlog("Invalid Screen ID (%d) passed to GetComboSolid", scr);
-				ret = -10000;
-			}
-			else if(sc >= MAPSCRS) 
-			{
-				Z_scripterrlog("Invalid Screen ID (%d) passed to GetComboSolid", sc);
-				ret = -10000;
-			}
-			else if(m >= map_count) 
-			{
-				Z_scripterrlog("Invalid Map ID (%d) passed to GetComboSolid", m);
-				ret = -10000;
-			}
-			else if(m < 0) ret = 0; //No layer present
-			
-			//if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
-			else
-			{
-				if(scr==(currmap*MAPSCRS+currscr))
-					ret=(combobuf[tmpscr->data[pos]].walk&15)*10000;
-				else if(layr>-1)
-					ret=(combobuf[tmpscr2[layr].data[pos]].walk&15)*10000;
-				else ret=(combobuf[TheMaps[scr].data[pos]].walk&15)*10000;
-			}
-		
+			ret = HandleGameScreenGetter([](mapscr* scr, int pos) { return (combobuf[scr->data[pos]].walk&15) * 10000; }, "Game->GetComboSolid");
 		}
 		break;
 
@@ -925,8 +788,8 @@ bool game_set_register(int32_t reg, int32_t value)
 			
 		case GAMEGUYCOUNT:
 		{
-			int32_t mi2 = (currmap*MAPSCRSNORMAL)+(ri->d[rINDEX]/10000);
-			game->guys[mi2]=value/10000;
+			int mi = mapind(cur_map, ri->d[rINDEX]/10000);
+			game->guys[mi]=value/10000;
 		}
 		break;
 		
@@ -1141,143 +1004,51 @@ bool game_set_register(int32_t reg, int32_t value)
 
 		case COMBODDM:
 		{
-			int32_t pos = (ri->d[rINDEX])/10000;
-			int32_t sc = (ri->d[rEXP1]/10000);
-			int32_t m = (ri->d[rINDEX2]/10000)-1;
-			int32_t scr = zc_max(m*MAPSCRS+sc,0);
-			int32_t layr = whichlayer(scr);
-			
-			//if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)) break;
-	    
-			if(pos < 0 || pos >= 176) 
+			value = vbound(value/10000,0,MAXCOMBOS);
+			auto result = ResolveGameScreens("Game->SetComboData");
+			if (result.canonical_rpos_handle)
+				result.canonical_rpos_handle.set_data(value);
+			if (result.tmp_rpos_handle)
 			{
-				Z_scripterrlog("Invalid combo position (%d) passed to SetComboData", pos);
-				break;
-			}
-			if(scr < 0) 
-			{
-				Z_scripterrlog("Invalid Screen ID (%d) passed to SetComboData", scr);
-				break;
-			}
-			if(sc >= MAPSCRS) 
-			{
-				Z_scripterrlog("Invalid Screen ID (%d) passed to SetComboData", sc);
-				break;
-			}
-			if(unsigned(m) >= map_count) 
-			{
-				Z_scripterrlog("Invalid Map ID (%d) passed to SetComboData", m);
-				break;
-			}
-			int32_t combo = vbound(value/10000,0,MAXCOMBOS);
-			if(scr==(currmap*MAPSCRS+currscr))
-			{
-				screen_combo_modify_preroutine(tmpscr,pos);
-			}
-				
-			TheMaps[scr].data[pos]=combo;
-			
-			if(scr==(currmap*MAPSCRS+currscr))
-			{
-				tmpscr->data[pos] = combo;
-				screen_combo_modify_postroutine(tmpscr,pos);
+				screen_combo_modify_preroutine(result.tmp_rpos_handle);
+				result.tmp_rpos_handle.set_data(value);
+				screen_combo_modify_postroutine(result.tmp_rpos_handle);
 				//Start the script for the new combo
-				int index = get_combopos_ref(pos, 0);
-				FFCore.reset_script_engine_data(ScriptType::Combo, index);
+				FFCore.reset_script_engine_data(ScriptType::Combo, get_combopos_ref(result.tmp_rpos_handle));
 				//Not ure if combodata arrays clean themselves up, or leak. -Z
 				//Not sure if this could result in stack corruption. 
 			}
-			
-			if(layr>-1)
-			{
-				tmpscr2[layr].data[pos]=combo;
-				int index = get_combopos_ref(pos, layr + 1);
-				FFCore.reset_script_engine_data(ScriptType::Combo, index);
-			}
+			// TODO: shouldn't this be running screen_combo_modify_preroutine/screen_combo_modify_postroutine?
+			if (result.tmp_layer_rpos_handle)
+				result.tmp_layer_rpos_handle.set_data(value);
 		}
 		break;
 		
 		case COMBOCDM:
 		{
-			int32_t pos = (ri->d[rINDEX])/10000;
-			int32_t sc = (ri->d[rEXP1]/10000);
-			int32_t m = (ri->d[rINDEX2]/10000)-1;
-			int32_t scr = zc_max(m*MAPSCRS+sc,0);
-			
-			//if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)) break;
-        
-			if(pos < 0 || pos >= 176) 
-			{
-				Z_scripterrlog("Invalid combo position (%d) passed to SetComboCSet", pos);
-				break;
-			}
-			if(scr < 0) 
-			{
-				Z_scripterrlog("Invalid Screen ID (%d) passed to SetComboCSet", scr);
-				break;
-			}
-			if(sc >= MAPSCRS) 
-			{
-				Z_scripterrlog("Invalid Screen ID (%d) passed to SetComboCSet", sc);
-				break;
-			}
-			if(unsigned(m) >= map_count) 
-			{
-				Z_scripterrlog("Invalid Map ID (%d) passed to SetComboCSet", m);
-				break;
-			}
-			
-			TheMaps[scr].cset[pos]=(value/10000)&15;
-			
-			if(scr==(currmap*MAPSCRS+currscr))
-				tmpscr->cset[pos] = value/10000;
-				
-			int32_t layr = whichlayer(scr);
-			
-			if(layr>-1)
-				tmpscr2[layr].cset[pos]=(value/10000)&15;
+			value = (value/10000)&15;
+			auto result = ResolveGameScreens("Game->SetComboCSet");
+			if (result.canonical_rpos_handle)
+				result.canonical_rpos_handle.set_cset(value);
+			// NOTE: should probably run screen_combo_modify_preroutine/screen_combo_modify_postroutine like other cset setters,
+			// but i think it doesn't matter yet b/c those things don't ever look at cset.
+			if (result.tmp_rpos_handle)
+				result.tmp_rpos_handle.set_cset(value);
+			if (result.tmp_layer_rpos_handle)
+				result.tmp_layer_rpos_handle.set_cset(value);
 		}
 		break;
 		
 		case COMBOFDM:
 		{
-			int32_t pos = (ri->d[rINDEX])/10000;
-			int32_t sc = (ri->d[rEXP1]/10000);
-			int32_t m = (ri->d[rINDEX2]/10000)-1;
-			int32_t scr = zc_max(m*MAPSCRS+sc,0);
-			
-			//if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)) break;
-        
-			if(pos < 0 || pos >= 176) 
-			{
-				Z_scripterrlog("Invalid combo position (%d) passed to SetComboFlag", pos);
-				break;
-			}
-			if(scr < 0) 
-			{
-				Z_scripterrlog("Invalid Screen ID (%d) passed to SetComboFlag", scr);
-				break;
-			}
-			if(sc >= MAPSCRS) 
-			{
-				Z_scripterrlog("Invalid Screen ID (%d) passed to SetComboFlag", sc);
-				break;
-			}
-			if(unsigned(m) >= map_count) 
-			{
-				Z_scripterrlog("Invalid Map ID (%d) passed to SetComboFlag", m);
-				break;
-			}
-			
-			TheMaps[scr].sflag[pos]=value/10000;
-			
-			if(scr==(currmap*MAPSCRS+currscr))
-				tmpscr->sflag[pos] = value/10000;
-				
-			int32_t layr = whichlayer(scr);
-			
-			if(layr>-1)
-				tmpscr2[layr].sflag[pos]=value/10000;
+			value = value / 10000;
+			auto result = ResolveGameScreens("Game->SetComboFlag");
+			if (result.canonical_rpos_handle)
+				result.canonical_rpos_handle.set_sflag(value);
+			if (result.tmp_rpos_handle)
+				result.tmp_rpos_handle.set_sflag(value);
+			if (result.tmp_layer_rpos_handle)
+				result.tmp_layer_rpos_handle.set_sflag(value);
 		}
 		break;
 		
@@ -1286,16 +1057,16 @@ bool game_set_register(int32_t reg, int32_t value)
 			int32_t pos = (ri->d[rINDEX])/10000;
 			int32_t sc = (ri->d[rEXP1]/10000);
 			int32_t m = (ri->d[rINDEX2]/10000)-1;
-			int32_t scr = zc_max(m*MAPSCRS+sc,0);
+			int32_t screen = zc_max(m*MAPSCRS+sc,0);
 						    
 			if(pos < 0 || pos >= 176) 
 			{
 				Z_scripterrlog("Invalid combo position (%d) passed to SetComboType", pos);
 				break;
 			}
-			if(scr < 0) 
+			if(screen < 0) 
 			{
-				Z_scripterrlog("Invalid Screen ID (%d) passed to SetComboType", scr);
+				Z_scripterrlog("Invalid Screen ID (%d) passed to SetComboType", screen);
 				break;
 			}
 			if(sc >= MAPSCRS) 
@@ -1309,7 +1080,7 @@ bool game_set_register(int32_t reg, int32_t value)
 				break;
 			}
 				
-			int32_t cdata = TheMaps[scr].data[pos];
+			int32_t cdata = TheMaps[screen].data[pos];
 			screen_combo_modify_pre(cdata);
 			combobuf[cdata].type=value/10000;
 			screen_combo_modify_post(cdata);
@@ -1321,16 +1092,16 @@ bool game_set_register(int32_t reg, int32_t value)
 			int32_t pos = (ri->d[rINDEX])/10000;
 			int32_t sc = (ri->d[rEXP1]/10000);
 			int32_t m = (ri->d[rINDEX2]/10000)-1;
-			int32_t scr = zc_max(m*MAPSCRS+sc,0);
+			int32_t screen = zc_max(m*MAPSCRS+sc,0);
 						    
 			if(pos < 0 || pos >= 176) 
 			{
 				Z_scripterrlog("Invalid combo position (%d) passed to GetComboInherentFlag", pos);
 				break;
 			}
-			if(scr < 0) 
+			if(screen < 0) 
 			{
-				Z_scripterrlog("Invalid Screen ID (%d) passed to GetComboInherentFlag", scr);
+				Z_scripterrlog("Invalid Screen ID (%d) passed to GetComboInherentFlag", screen);
 				break;
 			}
 			if(sc >= MAPSCRS) 
@@ -1344,7 +1115,7 @@ bool game_set_register(int32_t reg, int32_t value)
 				break;
 			}
 				
-			combobuf[TheMaps[scr].data[pos]].flag=value/10000;
+			combobuf[TheMaps[screen].data[pos]].flag=value/10000;
 		}
 		break;
 		
@@ -1352,9 +1123,9 @@ bool game_set_register(int32_t reg, int32_t value)
 		{
 			//This is how it was in 2.50.1-2
 			int32_t pos = (ri->d[rINDEX])/10000;
-			int32_t scr = (ri->d[rINDEX2]/10000)*MAPSCRS+(ri->d[rEXP1]/10000);
+			int32_t screen = (ri->d[rINDEX2]/10000)*MAPSCRS+(ri->d[rEXP1]/10000);
 			//This (below) us the precise code from 2.50.1 (?)
-			//int32_t scr = zc_max((ri->d[rINDEX2]/10000)*MAPSCRS+(ri->d[rEXP1]/10000),0); //Not below 0. 
+			//int32_t screen = zc_max((ri->d[rINDEX2]/10000)*MAPSCRS+(ri->d[rEXP1]/10000),0); //Not below 0. 
 
 			//if(pos < 0 || pos >= 176 || scr < 0) break;
 			if(pos < 0 || pos >= 176) 
@@ -1362,13 +1133,13 @@ bool game_set_register(int32_t reg, int32_t value)
 				Z_scripterrlog("Invalid combo position (%d) passed to GetSolid", pos);
 				break;
 			}
-			if(scr < 0) 
+			if(screen < 0) 
 			{
-				Z_scripterrlog("Invalid MapScreen ID (%d) passed to GetSolid", scr);
+				Z_scripterrlog("Invalid MapScreen ID (%d) passed to GetSolid", screen);
 				break;
 			}
-			combobuf[TheMaps[scr].data[pos]].walk &= ~0x0F;
-			combobuf[TheMaps[scr].data[pos]].walk |= (value/10000)&15;	    
+			combobuf[TheMaps[screen].data[pos]].walk &= ~0x0F;
+			combobuf[TheMaps[screen].data[pos]].walk |= (value/10000)&15;	    
 		}
 		break;
 
@@ -1400,7 +1171,7 @@ bool game_set_register(int32_t reg, int32_t value)
 			if(BC::checkDMapID(ID, "Game->DMapPalette") == SH::_NoError) 
 				DMaps[ID].color = pal;
 
-			if(ID == currdmap)
+			if(ID == cur_dmap)
 			{
 				loadlvlpal(DMaps[ID].color);
 				currcset = DMaps[ID].color;
@@ -1443,11 +1214,16 @@ bool game_set_register(int32_t reg, int32_t value)
 
 		case SCREENSTATEDD:
 		{
-			int32_t mi2 = ri->d[rINDEX]/10000;
-			mi2 -= 8*(mi2/MAPSCRS);
+			int32_t mi = ri->d[rINDEX]/10000;
+			mi -= 8*(mi/MAPSCRS);
 			
-			if(BC::checkMapID(mi2>>7, "Game->SetScreenState") == SH::_NoError)
-				(value)?setmapflag(mi2, 1<<(ri->d[rINDEX2]/10000)) : unsetmapflag(mi2, 1 << (ri->d[rINDEX2] / 10000), true);
+			if(BC::checkMapID(mi>>7, "Game->SetScreenState") == SH::_NoError)
+			{
+				if (value)
+					setmapflag_mi(mi, 1<<(ri->d[rINDEX2]/10000));
+				else
+					unsetmapflag_mi(mi, 1 << (ri->d[rINDEX2] / 10000), true);
+			}
 		}
 		break;
 

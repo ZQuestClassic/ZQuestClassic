@@ -65,6 +65,7 @@
 #include "zc/render.h"
 #include "zinfo.h"
 #include "music_playback.h"
+#include "iter.h"
 
 #ifdef HAS_UUID
 #include <uuid.h>
@@ -114,8 +115,6 @@ static zc_randgen drunk_rng;
 #include "zconsole.h"
 #include "base/win32.h"
 
-#define LOGGAMELOOP 0
-
 #ifdef _MSC_VER
 #include <crtdbg.h>
 #define stricmp _stricmp
@@ -161,7 +160,6 @@ int32_t zq_screen_w = 0, zq_screen_h = 0;
 int32_t passive_subscreen_height=56;
 int32_t original_playing_field_offset=56;
 int32_t playing_field_offset=original_playing_field_offset;
-int32_t passive_subscreen_offset=0;
 extern int32_t directItemA;
 extern int32_t directItemB;
 extern int32_t directItemY;
@@ -245,7 +243,7 @@ int32_t curr_tb_page=0;
 RGB_MAP rgb_table;
 COLOR_MAP trans_table, trans_table2;
 
-BITMAP     *framebuf, *menu_bmp, *gui_bmp, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2,
+BITMAP     *framebuf, *menu_bmp, *gui_bmp, *scrollbuf, *scrollbuf_old, *tmp_bmp, *tmp_scr, *screen2,
            *msg_portrait_display_buf, *msg_txt_display_buf, *msg_bg_display_buf,
 		   *pricesdisplaybuf, *tb_page[3], *prim_bmp,
 		   *script_menu_buf, *f6_menu_buf;
@@ -279,14 +277,15 @@ word     msgclk = 0, msgstr = 0, enqueued_str = 0,
          msg_xpos=0,
          msg_ypos=0,
          msgorig=0;
+mapscr* msgscr;
 int16_t msg_margins[4] = {0};
 byte msgstr_layer = 6;
 int32_t prt_tile=0;
 byte prt_cset=0, prt_x=0, prt_y=0, prt_tw=0, prt_th=0, msg_shdtype=0, msg_shdcol=0;
 bool msg_onscreen = false, msg_active = false, msgspace = false;
 BITMAP   *msg_txt_bmp_buf = NULL, *msg_bg_bmp_buf = NULL, *msg_portrait_bmp_buf = NULL, *msg_menu_bmp_buf = NULL;
-BITMAP   *darkscr_bmp_curscr = NULL, *darkscr_bmp_scrollscr = NULL,
-         *darkscr_bmp_curscr_trans = NULL, *darkscr_bmp_scrollscr_trans = NULL;
+BITMAP   *darkscr_bmp = NULL,
+         *darkscr_bmp_trans = NULL;
 BITMAP *lightbeam_bmp = NULL;
 bool lightbeam_present;
 FONT	 *msgfont;
@@ -294,9 +293,10 @@ word     door_combo_set_count;
 word     introclk  = 0, intropos = 0, dmapmsgclk = 0, linkedmsgclk = 0;
 int16_t    lensclk = 0;
 int32_t     lensid = 0; // Lens's item id. -1 if lens is off.
+// Temporary storage for "has hero interacted with this position recently". Used for slash triggering, wands, hammer pounds, etc.
+// No need to have a copy per screen in regions, since hero cannot touch tiles with the same index at the same time.
 byte screengrid[22]={0};
 byte screengrid_layer[2][22]={0};
-byte ffcgrid[MAXFFCS/8]={0};
 bool halt=false;
 bool screenscrolling=false;
 PALETTE tempbombpal;
@@ -314,12 +314,16 @@ int32_t gui_colorset=99;
 int32_t fullscreen = 0;
 byte zc_vsync=0;
 byte use_win32_proc=1, console_enabled = 0;
-int32_t homescr,currscr,frame=0,currmap=0,dlevel,warpscr,worldscr,scrolling_scr=0,scrolling_map=0;
+int32_t home_screen,frame=0,cur_map=0,dlevel,scrolling_hero_screen=0,scrolling_map=0,scrolling_dmap=0,scrolling_destdmap=-1;
 dword light_wave_clk = 0;
 bool scrolling_using_new_region_coords;
-int32_t newscr_clk=0,opendoors=0,currdmap=0,fadeclk=-1,listpos=0;
+int32_t hero_screen=0;
+int32_t cur_screen=0;
+int32_t currscr_for_passive_subscr;
+direction scrolling_dir;
+int32_t newscr_clk=0,cur_dmap=0,fadeclk=-1,listpos=0;
 int32_t lastentrance=0,lastentrance_dmap=0,prices[3]= {0},loadside = 0, Bwpn = -1, Awpn = -1, Xwpn = -1, Ywpn = -1;
-int32_t digi_volume = 0,midi_volume = 0,sfx_volume = 0,emusic_volume = 0,currmidi = -1,hasitem = 0,whistleclk = 0,pan_style = 0;
+int32_t digi_volume = 0,midi_volume = 0,sfx_volume = 0,emusic_volume = 0,currmidi = -1,whistleclk = 0,pan_style = 0;
 bool analog_movement=true;
 int32_t joystick_index=0,Akey = 0,Bkey = 0,Skey = 0,Lkey = 0,Rkey = 0,Pkey = 0,Exkey1 = 0,Exkey2 = 0,Exkey3 = 0,Exkey4 = 0,Abtn = 0,Bbtn = 0,Sbtn = 0,Mbtn = 0,Lbtn = 0,Rbtn = 0,Pbtn = 0,Exbtn1 = 0,Exbtn2 = 0,Exbtn3 = 0,Exbtn4 = 0,Quit=0;
 uint32_t GameFlags=0;
@@ -328,7 +332,8 @@ int32_t js_stick_1_y_stick = 0, js_stick_1_y_axis = 0, js_stick_1_y_offset = 0;
 int32_t js_stick_2_x_stick = 0, js_stick_2_x_axis = 0, js_stick_2_x_offset = 0;
 int32_t js_stick_2_y_stick = 0, js_stick_2_y_axis = 0, js_stick_2_y_offset = 0;
 int32_t DUkey = 0, DDkey = 0, DLkey = 0, DRkey = 0, DUbtn = 0, DDbtn = 0, DLbtn = 0, DRbtn = 0, ss_after = 0, ss_speed = 0, ss_density = 0, ss_enable = 0;
-int32_t hs_startx = 0, hs_starty = 0, hs_xdist = 0, hs_ydist = 0, clockclk = 0, clock_zoras[eMAXGUYS]={0};
+int32_t hs_startx = 0, hs_starty = 0, hs_xdist = 0, hs_ydist = 0, clockclk = 0;
+std::vector<std::pair<int32_t, int32_t>> clock_zoras;
 int32_t cheat_goto_dmap=0, cheat_goto_screen=0, currcset = 0, currspal6 = -1, currspal14 = -1;
 int32_t gfc = 0, gfc2 = 0, pitx = 0, pity = 0, refill_what = 0, refill_why = 0, heart_beep_timer=0, new_enemy_tile_start=1580;
 int32_t nets=1580, magicitem=-1,div_prot_item=-1, magiccastclk = 0, quakeclk=0, wavy=0, castx = 0, casty = 0, df_x = 0, df_y = 0, nl1_x = 0, nl1_y = 0, nl2_x = 0, nl2_y = 0;
@@ -354,11 +359,11 @@ bool SkipTitle = false;
 int32_t Maxfps = 0;
 double aspect_ratio = 0.75;
 int window_min_width = 320, window_min_height = 240;
-bool Playing, FrameSkip=false, TransLayers = true,clearConsoleOnLoad = true,clearConsoleOnReload = true;
+bool Playing, ViewingMap, FrameSkip=false, TransLayers = true,clearConsoleOnLoad = true,clearConsoleOnReload = true;
 bool GameLoaded = false;
 bool __debug=false,debug_enabled = false;
 bool refreshpal,blockpath = false,loaded_guys= false,freeze_guys= false,
-     loaded_enemies= false,drawguys= false,watch= false;
+    drawguys= false,watch= false;
 bool room_is_dark=false, darkroom=false,naturaldark=false,BSZ= false;                         //,NEWSUBSCR;
 
 bool down_control_states[controls::btnLast] = {false};
@@ -369,7 +374,8 @@ bool F12= false,F11= false, F5= false,keyI= false, keyQ= false,
      cheat_superman=false, gofast=false, checkhero=true, didpit=false, heart_beep=true,
      pausenow=false, castnext=false, add_df1asparkle= false, add_df1bsparkle= false, add_nl1asparkle= false, add_nl1bsparkle= false, add_nl2asparkle= false, add_nl2bsparkle= false,
      is_on_conveyor= false, activated_timed_warp=false;
-int32_t hooked_combopos = -1, switchhook_cost_item = -1;
+rpos_t hooked_comborpos = rpos_t::None;
+int32_t switchhook_cost_item = -1;
 int32_t is_conveyor_stunned = 0;
 uint16_t hooked_layerbits = 0;
 int32_t hooked_undercombos[14] = {0};
@@ -385,12 +391,14 @@ char   zeldadat_sig[52]={0};
 char   fontsdat_sig[52]={0};
 char   cheat_goto_dmap_str[4]={0};
 char   cheat_goto_screen_str[3]={0};
-int16_t  visited[6]={0};
-byte   guygrid[176]={0};
-byte   guygridffc[MAXFFCS]={0};
-mapscr tmpscr[2];
-mapscr tmpscr2[6];
-mapscr tmpscr3[6];
+int32_t  visited[6]={0};
+std::map<int, byte> activation_counters;
+std::map<int, byte> activation_counters_ffc;
+mapscr* origin_scr;
+mapscr special_warp_return_scrs[7];
+mapscr* special_warp_return_scr = &special_warp_return_scrs[0];
+mapscr* hero_scr;
+mapscr* prev_hero_scr;
 std::vector<std::shared_ptr<zasm_script>> zasm_scripts;
 script_data *ffscripts[NUMSCRIPTFFC];
 script_data *itemscripts[NUMSCRIPTITEM];
@@ -812,7 +820,7 @@ void clearmsgnext(int32_t str)
 }
 
 void clr_msg_data();
-void donewmsg(int32_t str)
+void donewmsg(mapscr* scr, int32_t str)
 {
 	if(msg_onscreen || msg_active)
 		dismissmsg();
@@ -822,6 +830,7 @@ void donewmsg(int32_t str)
     msg_active = true;
     // Don't set msg_onscreen - not onscreen just yet
     msgstr = str;
+	msgscr = scr;
     msgorig = msgstr;
     msgfont = setmsgfont();
     msgcolour=QMisc.colors.msgtext;
@@ -891,19 +900,19 @@ void dismissmsg()
 
 void dointro()
 {
-    if(game->visited[currdmap]!=1 || (DMaps[currdmap].flags&dmfALWAYSMSG)!=0)
+    if(game->visited[cur_dmap]!=1 || (DMaps[cur_dmap].flags&dmfALWAYSMSG)!=0)
     {
 		if(get_qr(qr_OLD_DMAP_INTRO_STRINGS))
 		{
 			dmapmsgclk = 0;
-			game->visited[currdmap] = 1;
+			game->visited[cur_dmap] = 1;
 			introclk = intropos = 0;
 		}
 		else
 		{
-			if(DMaps[currdmap].intro_string_id)
-				donewmsg(DMaps[currdmap].intro_string_id);
-			game->visited[currdmap] = 1;
+			if(DMaps[cur_dmap].intro_string_id)
+				donewmsg(hero_scr, DMaps[cur_dmap].intro_string_id);
+			game->visited[cur_dmap] = 1;
 		}
     }
     else
@@ -1043,7 +1052,7 @@ void ALLOFF(bool messagesToo, bool decorationsToo, bool force)
     
     if(items.idCount(iPile))
     {
-        loadlvlpal(DMaps[currdmap].color);
+        loadlvlpal(DMaps[cur_dmap].color);
     }
     
     items.clear(force);
@@ -1076,7 +1085,6 @@ void ALLOFF(bool messagesToo, bool decorationsToo, bool force)
     add_nl1bsparkle=false;
     add_nl2asparkle=false;
     add_nl2bsparkle=false;
-    //  for(int32_t i=0; i<1; i++)
     mblock2.clk=0;
     dismissmsg();
     fadeclk=-1;
@@ -1090,18 +1098,18 @@ void ALLOFF(bool messagesToo, bool decorationsToo, bool force)
     {
         Hero.setClock(false);
     }
-    
-    //  if(watch)
-    //    Hero.setClock(false);
-    watch=freeze_guys=loaded_guys=loaded_enemies=blockpath=false;
+
+    if (origin_scr) for_every_base_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
+        get_screen_state(scr->screen).loaded_enemies = false;
+    });
+
+    watch=freeze_guys=loaded_guys=blockpath=false;
+    maze_state = {};
     stop_sfx(WAV_BRANG);
     
-    for(int32_t i=0; i<176; i++)
-        guygrid[i]=0;
+	activation_counters.clear();
+	activation_counters_ffc.clear();
 
-    for(int32_t i=0; i<MAXFFCS; i++)
-        guygridffc[i]=0;
-        
     sle_clk=0;
 	mblock2.clear();
     fairy_cnt=0;
@@ -1112,11 +1120,6 @@ void ALLOFF(bool messagesToo, bool decorationsToo, bool force)
         refreshpal=true;
         usebombpal=false;
     }
-}
-void centerHero()
-{
-    Hero.setX(120);
-    Hero.setY(80);
 }
 zfix  HeroX()
 {
@@ -1141,6 +1144,14 @@ int32_t  HeroHClk()
 int32_t  HeroAction()
 {
     return Hero.getAction();
+}
+bool  HeroInOutgoingWhistleWarp()
+{
+	return Hero.getAction() == inwind && Hero.whirlwind == 0;
+}
+bool  HeroInWhistleWarp()
+{
+	return Hero.getAction() == inwind;
 }
 int32_t  HeroCharged()
 {
@@ -1186,6 +1197,7 @@ int32_t  HeroLStep()
 {
     return Hero.getLStep();
 }
+
 void HeroCheckItems(int32_t index)
 {
     Hero.checkitems(index);
@@ -1570,7 +1582,7 @@ void init_dmap()
     for(int32_t i=0; i<MAXITEMS; i++)
     {
         game->items_off[i] &= (~1); // disable last bit - this one is set by dmap
-        game->items_off[i] |= DMaps[currdmap].disableditems[i]; // and reset if required
+        game->items_off[i] |= DMaps[cur_dmap].disableditems[i]; // and reset if required
     }
     
     flushItemCache();
@@ -1603,16 +1615,19 @@ void init_game_vars(bool is_cont_game = false)
 	// Various things use the frame counter to do random stuff (ex: runDrunkRNG).
 	// We only bother setting it to 0 here so that recordings will play back the
 	// same way, even if manually started in the ZC UI.
-	frame = 0;
-	light_wave_clk = 0;
+    frame = 0;
 
+	origin_scr = nullptr;
+	hero_scr = nullptr;
+	prev_hero_scr = nullptr;
+	viewport_mode = ViewportMode::CenterAndBound;
 	screenscrolling = false;
 	scrolling_using_new_region_coords = false;
 	new_sub_indexes[sstACTIVE] = -1;
 	loadside = 0;
 	view_map_show_mode = 3;
 	for ( int32_t q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
-	draw_screen_clip_rect_x1=0; //Prevent the ending sequence from carrying over through 'Reset System' -Z
+	draw_screen_clip_rect_x1=0;
 	draw_screen_clip_rect_x2=255;
 	draw_screen_clip_rect_y1=0;
 	draw_screen_clip_rect_y2=223;	
@@ -1622,6 +1637,7 @@ void init_game_vars(bool is_cont_game = false)
 	Hero.reset_ladder();
 	linkedmsgclk=0;
 	mblock2.clear();
+	clear_screen_states();
 	add_asparkle=0;
 	add_bsparkle=0;
 	add_df1asparkle=false;
@@ -1638,10 +1654,11 @@ void init_game_vars(bool is_cont_game = false)
 	script_hero_flip = -1; 
 	script_hero_cset = -1;
 	room_is_dark=darkroom=naturaldark=false;
-	sle_x=sle_y=newscr_clk=opendoors=0;
+	sle_x=sle_y=newscr_clk=0;
 	Bwpn=Awpn=Xwpn=Ywpn=-1;
 	FFCore.kb_typing_mode = false;
 	activated_timed_warp=false;
+	light_wave_clk = 0;
 	clockclk=0;
 	fadeclk=-1;
 	whistleclk=-1;
@@ -1652,6 +1669,8 @@ void init_game_vars(bool is_cont_game = false)
 	show_subscreen_items=true;
 	show_subscreen_numbers=true;
 	show_subscreen_life=true;
+	msgscr=nullptr;
+	maps_init_game_vars();
 	for(int32_t x = 0; x < MAXITEMS; x++)
 	{
 		lens_hint_item[x][0]=0;
@@ -1795,6 +1814,7 @@ int32_t init_game()
 	if (zasm_optimize_enabled() && (get_flag_bool("-test-bisect").has_value() || is_ci()))
 		zasm_optimize();
 
+	combo_caches::refresh();
 	FFCore.init();
 	FFCore.user_bitmaps_init();
 	FFCore.user_files_init();
@@ -1900,46 +1920,40 @@ int32_t init_game()
 	
 	timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
 	timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
-	previous_DMap = currdmap = warpscr = worldscr=game->get_continue_dmap();
+	previous_DMap = cur_dmap = game->get_continue_dmap();
 	init_dmap();
 	
 	if(game->get_continue_scrn() >= 0x80)
 	{
-		//if ((DMaps[currdmap].type&dmfTYPE)==dmOVERW || QHeader.zelda_version <= 0x190)
-		if((DMaps[currdmap].type&dmfTYPE)==dmOVERW)
+		if((DMaps[cur_dmap].type&dmfTYPE)==dmOVERW)
 		{
-			homescr = currscr = DMaps[currdmap].cont;
+			home_screen = cur_screen = hero_screen = DMaps[cur_dmap].cont;
 		}
 		else
 		{
-			homescr = currscr = DMaps[currdmap].cont + DMaps[currdmap].xoff;
+			home_screen = cur_screen = hero_screen = DMaps[cur_dmap].cont + DMaps[cur_dmap].xoff;
 		}
 	}
 	else
 	{
-		homescr = currscr = game->get_continue_scrn();
+		home_screen = cur_screen = hero_screen = game->get_continue_scrn();
 	}
 	
-	lastentrance = currscr;
+	lastentrance = cur_screen;
 	game->set_continue_scrn(lastentrance);
-	lastentrance_dmap = currdmap;
-	currmap = DMaps[currdmap].map;
-	dlevel = DMaps[currdmap].level;
-	
-	if(currscr < 0x80 && (DMaps[currdmap].flags&dmfVIEWMAP))
-	{
-		game->maps[(currmap*MAPSCRSNORMAL)+currscr] |= mVISITED;			  // mark as visited
-	}
+	lastentrance_dmap = cur_dmap;
+	cur_map = DMaps[cur_dmap].map;
+	dlevel = DMaps[cur_dmap].level;
 	
 	game->lvlitems[9] &= ~liBOSS;
 	
 	ALLOFF(true,true,true);
 	
-	currcset=DMaps[currdmap].color;
+	currcset=DMaps[cur_dmap].color;
 	
-	tmpscr[0].zero_memory();
-	tmpscr[1].zero_memory();
-	//clear initialise dmap script
+	special_warp_return_scr->zero_memory();
+	clear_temporary_screens();
+	//clear initialise dmap script 
 	FFCore.reset_script_engine_data(ScriptType::DMap);
 	//Script-related nonsense
 	script_drawing_commands.Clear();
@@ -1967,24 +1981,20 @@ int32_t init_game()
 		ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_ONSAVELOAD, GLOBAL_SCRIPT_ONSAVELOAD); //Do this after global arrays have been loaded
 		FFCore.deallocateAllScriptOwned(ScriptType::Global, GLOBAL_SCRIPT_ONSAVELOAD);
 	}
-	//loadscr(0,currscr,up);
-	loadscr(0,currdmap,currscr,-1,false);
-	
-	putscr(scrollbuf,0,0,&tmpscr[0]);
-	putscrdoors(scrollbuf,0,0,&tmpscr[0]);
-	
-	//preloaded freeform combos
-	//ffscript_engine(true); Can't do this here! Global arrays haven't been allocated yet... ~Joe
-	
+
+	loadscr(cur_dmap, cur_screen, -1, false);
+
+	mark_visited(cur_screen);
+
 	Hero.init();
 	if (use_testingst_start
-		&& currscr == testingqst_screen
-		&& currdmap == testingqst_dmap)
+		&& hero_screen == testingqst_screen
+		&& cur_dmap == testingqst_dmap)
 	{
-		if (tmpscr->warpreturnx[testingqst_retsqr] != 0 || tmpscr->warpreturny[testingqst_retsqr] != 0)
+		if (hero_scr->warpreturnx[testingqst_retsqr] != 0 || hero_scr->warpreturny[testingqst_retsqr] != 0)
 		{
-			Hero.setX(tmpscr->warpreturnx[testingqst_retsqr]);
-			Hero.setY(tmpscr->warpreturny[testingqst_retsqr]);
+			Hero.setX(hero_scr->warpreturnx[testingqst_retsqr]);
+			Hero.setY(hero_scr->warpreturny[testingqst_retsqr]);
 		}
 		else
 		{
@@ -1992,7 +2002,11 @@ int32_t init_game()
 			Hero.setY(16 * 5);
 		}
 	}
-	if(DMaps[currdmap].flags&dmfBUNNYIFNOPEARL)
+
+	Hero.x += region_scr_dx*256;
+	Hero.y += region_scr_dy*176;
+
+	if(DMaps[cur_dmap].flags&dmfBUNNYIFNOPEARL)
 	{
 		int32_t itemid = current_item_id(itype_pearl);
 		if(itemid < 0)
@@ -2029,7 +2043,7 @@ int32_t init_game()
 
 	loadfullpal();
 	ringcolor(false);
-	loadlvlpal(DMaps[currdmap].color);
+	loadlvlpal(DMaps[cur_dmap].color);
 	lighting(false,true);
 	
 	if(firstplay)
@@ -2217,21 +2231,21 @@ int32_t init_game()
 	initZScriptGlobalScript(GLOBAL_SCRIPT_GAME); // before 'openscreen' incase FFCore.warpScriptCheck()
 	openscreen();
 	dointro();
-	if(!(tmpscr->room==rGANON && !get_qr(qr_GANON_CANT_SPAWN_ON_CONTINUE)))
+	if(!(hero_scr->room==rGANON && !get_qr(qr_GANON_CANT_SPAWN_ON_CONTINUE)))
 	{
 		loadguys();
 	}
 
 	newscr_clk = frame;
 	
-	if(isdungeon() && currdmap>0) // currdmap>0 is weird, but at least one quest (Mario's Insane Rampage) depends on it
+	if(isdungeon() && cur_dmap>0) // cur_dmap>0 is weird, but at least one quest (Mario's Insane Rampage) depends on it
 	{
 		Hero.stepforward(get_qr(qr_LTTPWALK) ? 11: 12, false);
 	}
 	
 	if(!Quit)
 	{
-		if(tmpscr->room==rGANON && !get_qr(qr_GANON_CANT_SPAWN_ON_CONTINUE))
+		if(hero_scr->room==rGANON && !get_qr(qr_GANON_CANT_SPAWN_ON_CONTINUE))
 		{
 			Hero.ganon_intro();
 		}
@@ -2286,18 +2300,10 @@ int32_t cont_game()
 	add_nl1bsparkle=false;
 	add_nl2asparkle=false;
 	add_nl2bsparkle=false;
-	/*
-	  if(DMaps[currdmap].cont >= 0x80)
-	  {
-	  homescr = currscr = DMaps[0].cont;
-	  currdmap = warpscr = worldscr=0;
-	  currmap = DMaps[0].map;
-	  dlevel = DMaps[0].level;
-	  }
-	  */
+
 	bool changedlevel = false;
 	bool changeddmap = false;
-	if(currdmap != lastentrance_dmap)
+	if(cur_dmap != lastentrance_dmap)
 	{
 		timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
 		changeddmap = true;
@@ -2308,7 +2314,7 @@ int32_t cont_game()
 		changedlevel = true;
 	}
 	dlevel = DMaps[lastentrance_dmap].level;
-	currdmap = lastentrance_dmap;
+	cur_dmap = lastentrance_dmap;
 	if(changeddmap)
 	{
 		throwGenScriptEvent(GENSCR_EVENT_CHANGE_DMAP);
@@ -2317,8 +2323,8 @@ int32_t cont_game()
 	{
 		throwGenScriptEvent(GENSCR_EVENT_CHANGE_LEVEL);
 	}
-	homescr = currscr = lastentrance;
-	currmap = DMaps[currdmap].map;
+
+	cur_map = DMaps[cur_dmap].map;
 	init_dmap();
 	
 	for(int32_t i=0; i<6; i++)
@@ -2333,16 +2339,12 @@ int32_t cont_game()
 	
 	ALLOFF();
 	whistleclk=-1;
-	currcset=DMaps[currdmap].color;
+	currcset=DMaps[cur_dmap].color;
 	room_is_dark=darkroom=naturaldark=false;
-	tmpscr[0].zero_memory();
-	tmpscr[1].zero_memory();
+	special_warp_return_scr->zero_memory();
+	clear_temporary_screens();
 	
-//loadscr(0,currscr,up);
-	loadscr(0,currdmap,currscr,-1,false);
-	
-	putscr(scrollbuf,0,0,&tmpscr[0]);
-	putscrdoors(scrollbuf,0,0,&tmpscr[0]);
+	loadscr(cur_dmap, lastentrance, -1, false);
 	script_drawing_commands.Clear();
 	
 	//preloaded freeform combos
@@ -2350,17 +2352,21 @@ int32_t cont_game()
 	
 	loadfullpal();
 	ringcolor(false);
-	loadlvlpal(DMaps[currdmap].color);
+	loadlvlpal(DMaps[cur_dmap].color);
 	lighting(false,true);
 	Hero.init();
 	if (use_testingst_start
-		&& currscr == testingqst_screen
-		&& currdmap == testingqst_dmap)
+		&& hero_screen == testingqst_screen
+		&& cur_dmap == testingqst_dmap)
 	{
-		Hero.setX(tmpscr->warpreturnx[testingqst_retsqr]);
-		Hero.setY(tmpscr->warpreturny[testingqst_retsqr]);
+		Hero.setX(hero_scr->warpreturnx[testingqst_retsqr]);
+		Hero.setY(hero_scr->warpreturny[testingqst_retsqr]);
 	}
-	if(DMaps[currdmap].flags&dmfBUNNYIFNOPEARL)
+
+	Hero.x += region_scr_dx*256;
+	Hero.y += region_scr_dy*176;
+
+	if(DMaps[cur_dmap].flags&dmfBUNNYIFNOPEARL)
 	{
 		int32_t itemid = current_item_id(itype_pearl);
 		if(itemid < 0)
@@ -2410,7 +2416,7 @@ int32_t cont_game()
 	show_subscreen_numbers=true;
 	show_subscreen_life=true;
 	dointro();
-	if(!(tmpscr->room==rGANON && !get_qr(qr_GANON_CANT_SPAWN_ON_CONTINUE)))
+	if(!(hero_scr->room==rGANON && !get_qr(qr_GANON_CANT_SPAWN_ON_CONTINUE)))
 	{
 		loadguys();
 	}
@@ -2419,14 +2425,14 @@ int32_t cont_game()
 	if(!Quit)
 	{
 		//play_DmapMusic();
-		if(!(tmpscr->room==rGANON && !get_qr(qr_GANON_CANT_SPAWN_ON_CONTINUE))) playLevelMusic();
+		if(!(hero_scr->room==rGANON && !get_qr(qr_GANON_CANT_SPAWN_ON_CONTINUE))) playLevelMusic();
 		
 		if(isdungeon())
 			Hero.stepforward(get_qr(qr_LTTPWALK)?11:12, false);
 			
 		newscr_clk=frame;
 		activated_timed_warp=false;
-		if(tmpscr->room==rGANON && !get_qr(qr_GANON_CANT_SPAWN_ON_CONTINUE))
+		if(hero_scr->room==rGANON && !get_qr(qr_GANON_CANT_SPAWN_ON_CONTINUE))
 		{
 			Hero.ganon_intro();
 		}
@@ -2443,7 +2449,7 @@ void restart_level()
 	{
 		bool changedlevel = false;
 		bool changeddmap = false;
-		if(currdmap != lastentrance_dmap)
+		if(cur_dmap != lastentrance_dmap)
 		{
 			timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
 			changeddmap = true;
@@ -2454,7 +2460,7 @@ void restart_level()
 			changedlevel = true;
 		}
 		dlevel = DMaps[lastentrance_dmap].level;
-		currdmap = lastentrance_dmap;
+		cur_dmap = lastentrance_dmap;
 		if(changeddmap)
 		{
 			throwGenScriptEvent(GENSCR_EVENT_CHANGE_DMAP);
@@ -2463,23 +2469,23 @@ void restart_level()
 		{
 			throwGenScriptEvent(GENSCR_EVENT_CHANGE_LEVEL);
 		}
-		homescr = currscr = lastentrance;
+		home_screen = cur_screen = hero_screen = lastentrance;
 		init_dmap();
 	}
 	else
 	{
-		if((DMaps[currdmap].type&dmfTYPE)==dmOVERW)
+		if((DMaps[cur_dmap].type&dmfTYPE)==dmOVERW)
 		{
-			homescr = currscr = DMaps[currdmap].cont;
+			home_screen = cur_screen = hero_screen = DMaps[cur_dmap].cont;
 		}
 		else
 		{
-			homescr = currscr = DMaps[currdmap].cont + DMaps[currdmap].xoff;
+			home_screen = cur_screen = hero_screen = DMaps[cur_dmap].cont + DMaps[cur_dmap].xoff;
 		}
 	}
 	
-	currmap = DMaps[currdmap].map;
-	dlevel = DMaps[currdmap].level;
+	cur_map = DMaps[cur_dmap].map;
+	dlevel = DMaps[cur_dmap].level;
 	
 	for(int32_t i=0; i<6; i++)
 		visited[i]=-1;
@@ -2487,21 +2493,19 @@ void restart_level()
 	ALLOFF();
 	whistleclk=-1;
 	room_is_dark=darkroom=naturaldark=false;
-	tmpscr[0].zero_memory();
-	tmpscr[1].zero_memory();
+	special_warp_return_scr->zero_memory();
+	clear_temporary_screens();
 	
-	loadscr(0,currdmap,currscr,-1,false);
-	putscr(scrollbuf,0,0,&tmpscr[0]);
-	putscrdoors(scrollbuf,0,0,&tmpscr[0]);
+	loadscr(cur_dmap, cur_screen, -1, false);
 	//preloaded freeform combos
 	ffscript_engine(true);
 	
 	loadfullpal();
 	ringcolor(false);
-	loadlvlpal(DMaps[currdmap].color);
+	loadlvlpal(DMaps[cur_dmap].color);
 	lighting(false,true);
 	Hero.init();
-	if(DMaps[currdmap].flags&dmfBUNNYIFNOPEARL)
+	if(DMaps[cur_dmap].flags&dmfBUNNYIFNOPEARL)
 	{
 		int32_t itemid = current_item_id(itype_pearl);
 		if(itemid < 0)
@@ -2510,14 +2514,14 @@ void restart_level()
 		}
 	}
 	
-	currcset=DMaps[currdmap].color;
+	currcset=DMaps[cur_dmap].color;
 	openscreen();
 	map_bkgsfx(true);
 	Hero.set_respawn_point();
 	Hero.trySideviewLadder();
 	show_subscreen_numbers=true;
 	show_subscreen_life=true;
-	if(!(tmpscr->room==rGANON && !get_qr(qr_GANON_CANT_SPAWN_ON_CONTINUE)))
+	if(!(hero_scr->room==rGANON && !get_qr(qr_GANON_CANT_SPAWN_ON_CONTINUE)))
 	{
 		loadguys();
 	}
@@ -2525,14 +2529,14 @@ void restart_level()
 	if(!Quit)
 	{
 		//play_DmapMusic();
-		if(!(tmpscr->room==rGANON && !get_qr(qr_GANON_CANT_SPAWN_ON_CONTINUE))) playLevelMusic();
+		if(!(hero_scr->room==rGANON && !get_qr(qr_GANON_CANT_SPAWN_ON_CONTINUE))) playLevelMusic();
 		
 		if(isdungeon())
 			Hero.stepforward(get_qr(qr_LTTPWALK)?11:12, false);
 			
 		newscr_clk=frame;
 		activated_timed_warp=false;
-		if(tmpscr->room==rGANON && !get_qr(qr_GANON_CANT_SPAWN_ON_CONTINUE))
+		if(hero_scr->room==rGANON && !get_qr(qr_GANON_CANT_SPAWN_ON_CONTINUE))
 		{
 			Hero.ganon_intro();
 		}
@@ -2545,7 +2549,7 @@ void putintro()
 	if (!get_qr(qr_OLD_DMAP_INTRO_STRINGS))
 		return;
 
-    if(!stricmp("                                                                        ", DMaps[currdmap].intro))
+    if(!stricmp("                                                                        ", DMaps[cur_dmap].intro))
     {
         introclk=intropos=72;
         return;
@@ -2557,7 +2561,7 @@ void putintro()
         for(; intropos<72; ++intropos)
         {
             textprintf_ex(msg_txt_display_buf,get_zc_font(font_zfont),((intropos%24)<<3)+32,((intropos/24)<<3)+40,QMisc.colors.msgtext,-1,
-                          "%c",DMaps[currdmap].intro[intropos]);
+                          "%c",DMaps[cur_dmap].intro[intropos]);
         }
     }
     
@@ -2576,7 +2580,7 @@ void putintro()
     
     if(intropos == 0)
     {
-        while(DMaps[currdmap].intro[intropos]==' ')
+        while(DMaps[cur_dmap].intro[intropos]==' ')
             ++intropos;
     }
     
@@ -2587,12 +2591,12 @@ void putintro()
     //rather than add yet another global variable
     set_clip_state(msg_txt_display_buf, 0);
     textprintf_ex(msg_txt_display_buf,get_zc_font(font_zfont),((intropos%24)<<3)+32,((intropos/24)<<3)+40,QMisc.colors.msgtext,-1,
-                  "%c",DMaps[currdmap].intro[intropos]);
+                  "%c",DMaps[cur_dmap].intro[intropos]);
                   
     ++intropos;
     
-    if(DMaps[currdmap].intro[intropos]==' ' && DMaps[currdmap].intro[intropos+1]==' ')
-        while(DMaps[currdmap].intro[intropos]==' ')
+    if(DMaps[cur_dmap].intro[intropos]==' ' && DMaps[cur_dmap].intro[intropos+1]==' ')
+        while(DMaps[cur_dmap].intro[intropos]==' ')
             ++intropos;
 }
 
@@ -2600,16 +2604,15 @@ void show_ffscript_names()
 {
 	int32_t ypos = 8;
 	
-	word c = tmpscr->numFFC();
-	for(word i=0; i< c; i++)
-	{
-		if(ypos > 224) break;
-		if(tmpscr->ffcs[i].script)
+	for_every_ffc([&](const ffc_handle_t& ffc_handle) {
+		if(ypos > 224) return;
+
+		if (ffc_handle.ffc->script)
 		{
-			textout_shadowed_ex(framebuf,font, ffcmap[tmpscr->ffcs[i].script-1].scriptname.c_str(),2,ypos,WHITE,BLACK,-1);
+			textout_shadowed_ex(framebuf,font, ffcmap[ffc_handle.ffc->script-1].scriptname.c_str(),2,ypos,WHITE,BLACK,-1);
 			ypos+=12;
 		}
-	}
+	});
 }
 
 void do_magic_casting()
@@ -2618,7 +2621,6 @@ void do_magic_casting()
     static byte herotilebuf[256];
     int32_t ltile=0;
     int32_t lflip=0;
-    bool shieldModify=true;
     
     if(magicitem==-1)
     {
@@ -3158,7 +3160,6 @@ void update_msgstr()
 
 extern bool do_end_str;
 #define F7 46+7
-//bool zasmstacktrace = false;
 void game_loop()
 {
 	while(true)
@@ -3179,12 +3180,10 @@ void game_loop()
 			}
 			midi_suspended = midissuspNONE;
 		}
-		
-		//  walkflagx=0; walkflagy=0;
+
 		runDrunkRNG();
 		clear_darkroom_bitmaps();
 		Hero.check_platform_ffc();
-		
 		
 		// Three kinds of freezes: freeze, freezemsg, freezeff
 		
@@ -3202,52 +3201,53 @@ void game_loop()
 		
 		if(fadeclk>=0 && !freezemsg)
 		{
-			if(fadeclk==0 && currscr<128)
+			if(fadeclk==0 && cur_screen<128)
 				blockpath=false;
 				
 			--fadeclk;
 		}
 		
 		// Messages also freeze FF combos.
+		//
+		// TODO: this is an expensive loop due to touching the memory of every combo position. ~5%
+		// of the game loop for z3.zplay.
+		//
+		// It could be fixed by running some code on every change of a combo data to update the
+		// `freeze` state, instead of doing it all here every frame. Part of the solution is using
+		// these:
+		//
+		//   - screen_combo_modify_postroutine
+		//   - screen_ffc_modify_postroutine
+		//   - screen_combo_modify_post
+		//
+		// ... but that doesn't handle _every_ change to combo data.
+		// (ex: rpos_handle_t::increment_data()), so that needs to be resolved first.
 		bool freezeff = freezemsg;
-		
 		bool freeze = false;
-		
-		word c = tmpscr->numFFC();
-		for(word i=0; i<c; i++)
-		{
-			if(combobuf[tmpscr->ffcs[i].data].type==cSCREENFREEZE) freeze=true;
-			
-			if(combobuf[tmpscr->ffcs[i].data].type==cSCREENFREEZEFF) freezeff=true;
-		}
-		
-		for(int32_t i=0; i<176; i++)
-		{
-			if(combobuf[tmpscr->data[i]].type == cSCREENFREEZE) freeze=true;
-			
-			if(combobuf[tmpscr->data[i]].type == cSCREENFREEZEFF) freezeff=true;
-		}
-		
+		for_every_combo([&](const auto& handle) {
+			if (handle.ctype() == cSCREENFREEZE)
+				freeze = true;
+			if (handle.ctype() == cSCREENFREEZEFF)
+				freezeff = true;
+		}, true);
+
 		if(!freeze_guys && !freeze && !freezemsg && !FFCore.system_suspend[susptGUYS])
 		{
-			for(int32_t i=0; i<176; i++)
+			for (auto q : activation_counters)
 			{
-				if(guygrid[i]>0)
+				if (q.second > 0)
 				{
-					--guygrid[i];
+					q.second -= 1;
 				}
 			}
-			for(int32_t i=0; i<MAXFFCS; i++)
+			for (auto q : activation_counters_ffc)
 			{
-				if(guygridffc[i]>0)
+				if (q.second > 0)
 				{
-					--guygridffc[i];
+					q.second -= 1;
 				}
 			}
 		}
-		#if LOGGAMELOOP > 0
-		al_trace("game_loop is calling: %s\n", "animate_combos()\n");
-		#endif
 		if ( !FFCore.system_suspend[susptCOMBOANIM] )
 		{
 			animate_combos();
@@ -3255,9 +3255,6 @@ void game_loop()
 		}
 		run_gswitch_timers();
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_COMBO_ANIM);
-		#if LOGGAMELOOP > 0
-		al_trace("game_loop is calling: %s\n", "load_control_state()\n");
-		#endif
 		if ( !FFCore.system_suspend[susptCONTROLSTATE] ) load_control_state();
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_POLL_INPUT);
 
@@ -3281,12 +3278,12 @@ void game_loop()
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_PLAYER_ACTIVE);
 		if(!FFCore.system_suspend[susptDMAPSCRIPT] && !freezemsg && FFCore.doscript(ScriptType::DMap) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
 		{
-			ZScriptVersion::RunScript(ScriptType::DMap, DMaps[currdmap].script,currdmap);
+			ZScriptVersion::RunScript(ScriptType::DMap, DMaps[cur_dmap].script,cur_dmap);
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_ACTIVE);
 		if(!FFCore.system_suspend[susptDMAPSCRIPT] && !freezemsg && FFCore.doscript(ScriptType::ScriptedPassiveSubscreen) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
 		{
-			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[currdmap].passive_sub_script,currdmap);
+			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[cur_dmap].passive_sub_script,cur_dmap);
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_PASSIVESUBSCREEN);
 		if ( !FFCore.system_suspend[susptCOMBOSCRIPTS] && !freezemsg && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
@@ -3298,51 +3295,24 @@ void game_loop()
 		
 		if(!freeze && !freezemsg)
 		{
-			#if LOGGAMELOOP > 0
-			al_trace("game_loop is calling: %s\n", "mblock2.animate()\n");
-			#endif
 			if ( !FFCore.system_suspend[susptMOVINGBLOCKS] )  mblock2.animate(0);
 			FFCore.runGenericPassiveEngine(SCR_TIMING_POST_PUSHBLOCK);
-			#if LOGGAMELOOP > 0
-			al_trace("game_loop is calling: %s\n", "items.animate()\n");
-			#endif
 			if ( !FFCore.system_suspend[susptITEMSPRITESCRIPTS] )  FFCore.itemSpriteScriptEngine();
 			FFCore.runGenericPassiveEngine(SCR_TIMING_POST_ITEMSPRITE_SCRIPT);
 			if ( !FFCore.system_suspend[susptITEMS] ) items.animate();
 		
 			//Can't be called in items.animate(), as ZQuest also uses this function.
-			#if LOGGAMELOOP > 0
-			al_trace("game_loop is calling: %s\n", "items.check_conveyor()\n");
-			#endif
 			if ( !FFCore.system_suspend[susptCONVEYORSITEMS] ) items.check_conveyor();
 			FFCore.runGenericPassiveEngine(SCR_TIMING_POST_ITEMSPRITE_ANIMATE);
-			#if LOGGAMELOOP > 0
-			al_trace("game_loop is calling: %s\n", "guys.animate()\n");
-			#endif
 			if ( !FFCore.system_suspend[susptGUYS] ) guys.animate();
 			FFCore.runGenericPassiveEngine(SCR_TIMING_POST_NPC_ANIMATE);
-			#if LOGGAMELOOP > 0
-			al_trace("game_loop is calling: %s\n", "roaming_item()\n");
-			#endif
 			if ( !FFCore.system_suspend[susptROAMINGITEM] ) roaming_item();
-			#if LOGGAMELOOP > 0
-			al_trace("game_loop is calling: %s\n", "dragging_item()\n");
-			#endif
 			if ( !FFCore.system_suspend[susptDRAGGINGITEM] ) dragging_item();
-			#if LOGGAMELOOP > 0
-			al_trace("game_loop is calling: %s\n", "Ewpns.animate()\n");
-			#endif
 			if ( !FFCore.system_suspend[susptEWEAPONS] ) Ewpns.animate();
 			FFCore.runGenericPassiveEngine(SCR_TIMING_POST_EWPN_ANIMATE);
 			if ( !FFCore.system_suspend[susptEWEAPONSCRIPTS] ) FFCore.eweaponScriptEngine();
 			FFCore.runGenericPassiveEngine(SCR_TIMING_POST_EWPN_SCRIPT);
-			#if LOGGAMELOOP > 0
-			al_trace("game_loop is setting: %s\n", "checkhero=true()\n");
-			#endif
 			
-			#if LOGGAMELOOP > 0
-			al_trace("game_loop is calling: %s\n", "clear_script_one_frame_conditions()\n");
-			#endif
 			
 			if ( !FFCore.system_suspend[susptONEFRAMECONDS] )  clear_script_one_frame_conditions(); //clears npc->HitBy[] for this frame: the timing on this may need adjustment. 
 			
@@ -3353,9 +3323,6 @@ void game_loop()
 			{
 				for(int32_t i = 0; i < (gofast ? 8 : 1); i++)
 				{
-					#if LOGGAMELOOP > 0
-					al_trace("game_loop is at: %s\n", "if(Hero.animate(0)\n");
-					#endif
 					if(Hero.animate(0))
 					{
 						if(!Quit)
@@ -3370,7 +3337,7 @@ void game_loop()
 					if(GameFlags & GAMEFLAG_RESET_GAME_LOOP) break; //break the for()
 				}
 
-				if (!screenscrolling)
+				if (!screenscrolling && !HeroInWhistleWarp())
 					update_viewport();
 
 				if(GameFlags & GAMEFLAG_RESET_GAME_LOOP) continue; //continue the game_loop while(true)
@@ -3381,37 +3348,19 @@ void game_loop()
 			FFCore.runGenericPassiveEngine(SCR_TIMING_POST_NEW_ITEMDATA_SCRIPT);
 			
 			//FFCore.itemScriptEngine(); //run before lweapon scripts
-			#if LOGGAMELOOP > 0
-			al_trace("game_loop is calling: %s\n", "do_magic_casting()\n");
-			#endif
 			Hero.cleanupByrna(); //Prevent sfx glitches with Cane of Byrna if it fails to initialise; ported from 2.53. -Z
 			if ( !FFCore.system_suspend[susptMAGICCAST] ) do_magic_casting();
 			FFCore.runGenericPassiveEngine(SCR_TIMING_POST_CASTING);
-			#if LOGGAMELOOP > 0
-			al_trace("game_loop is calling: %s\n", "Lwpns.animate()\n");
-			#endif
 			//perhaps add sprite.waitdraw, and call sprite script here too?
 			//FFCore.lweaponScriptEngine();
 			if ( !FFCore.system_suspend[susptLWEAPONS] ) Lwpns.animate();
 			FFCore.runGenericPassiveEngine(SCR_TIMING_POST_LWPN_ANIMATE);
 			
 			//FFCore.lweaponScriptEngine();
-			#if LOGGAMELOOP > 0
-			al_trace("game_loop is calling: %s\n", "FFCore.itemScriptEngine())\n");
-			#endif
 			
-			#if LOGGAMELOOP > 0
-			al_trace("game_loop is calling: %s\n", "decorations.animate()\n");
-			#endif
 			if ( !FFCore.system_suspend[susptDECORATIONS] ) decorations.animate();
-			#if LOGGAMELOOP > 0
-			al_trace("game_loop is calling: %s\n", "particles.animate()\n");
-			#endif
 			if ( !FFCore.system_suspend[susptPARTICLES] ) particles.animate();
 			FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DECOPARTICLE_ANIMATE);
-			#if LOGGAMELOOP > 0
-			al_trace("game_loop is calling: %s\n", "update_hookshot()\n");
-			#endif
 			if ( !FFCore.system_suspend[susptHOOKSHOT] ) update_hookshot();
 			
 			if(conveyclk<=0)
@@ -3420,17 +3369,8 @@ void game_loop()
 			}
 			
 			--conveyclk;
-			#if LOGGAMELOOP > 0
-			al_trace("game_loop is calling: %s\n", "check_collisions()\n");
-			#endif
 			if ( !FFCore.system_suspend[susptCOLLISIONS] ) check_collisions();
-			#if LOGGAMELOOP > 0
-			al_trace("game_loop is calling: %s\n", "dryuplake()\n");
-			#endif
 			if ( !FFCore.system_suspend[susptLAKES] ) dryuplake();
-			#if LOGGAMELOOP > 0
-			al_trace("game_loop is calling: %s\n", "cycle_palette()\n");
-			#endif
 			if ( !FFCore.system_suspend[susptPALCYCLE] ) cycle_palette();
 			FFCore.runGenericPassiveEngine(SCR_TIMING_POST_COLLISIONS_PALETTECYCLE);
 		}
@@ -3462,37 +3402,39 @@ void game_loop()
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_PLAYER_WAITDRAW);
 		if ( !FFCore.system_suspend[susptDMAPSCRIPT] && FFCore.waitdraw(ScriptType::DMap) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-			ZScriptVersion::RunScript(ScriptType::DMap, DMaps[currdmap].script,currdmap);
+			ZScriptVersion::RunScript(ScriptType::DMap, DMaps[cur_dmap].script,cur_dmap);
 			FFCore.waitdraw(ScriptType::DMap) = false;
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_ACTIVE_WAITDRAW);
 		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[currdmap].passive_sub_script,currdmap);
+			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[cur_dmap].passive_sub_script,cur_dmap);
 			FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) = false;
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_PASSIVESUBSCREEN_WAITDRAW);
 		
-		
-		if ( !FFCore.system_suspend[susptSCREENSCRIPTS] && tmpscr->script != 0 && FFCore.doscript(ScriptType::Screen, currscr) && FFCore.waitdraw(ScriptType::Screen, currscr) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if (FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && !FFCore.system_suspend[susptSCREENSCRIPTS])
 		{
-			ZScriptVersion::RunScript(ScriptType::Screen, tmpscr->script, currscr);
-			FFCore.waitdraw(ScriptType::Screen, currscr) = 0;	    
+			for_every_base_screen_in_region([&](mapscr* scr, unsigned int region_scr_x, unsigned int region_scr_y) {
+				if (scr->script != 0 && FFCore.doscript(ScriptType::Screen, scr->screen) && FFCore.waitdraw(ScriptType::Screen, scr->screen))
+				{
+					ZScriptVersion::RunScript(ScriptType::Screen, scr->script, scr->screen);  
+					FFCore.waitdraw(ScriptType::Screen, scr->screen) = 0;
+				}
+			});
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_SCREEN_WAITDRAW);
 		
-		c = tmpscr->numFFC();
-		for ( word q = 0; q < c; ++q )
-		{
-			if (FFCore.waitdraw(ScriptType::FFC, q))
+		for_every_ffc([&](const ffc_handle_t& ffc_handle) {
+			if (FFCore.waitdraw(ScriptType::FFC, ffc_handle.id))
 			{
-				if(tmpscr->ffcs[q].script != 0 && !FFCore.system_suspend[susptFFCSCRIPTS] )
+				if (ffc_handle.ffc->script != 0 && !FFCore.system_suspend[susptFFCSCRIPTS] )
 				{
-					ZScriptVersion::RunScript(ScriptType::FFC, tmpscr->ffcs[q].script, q);
-					FFCore.waitdraw(ScriptType::FFC, q) = false;
+					ZScriptVersion::RunScript(ScriptType::FFC, ffc_handle.ffc->script, ffc_handle.id);
+					FFCore.waitdraw(ScriptType::FFC, ffc_handle.id) = false;
 				}
 			}
-		}
+		});
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_FFC_WAITDRAW);
 		
 		if ( !FFCore.system_suspend[susptCOMBOSCRIPTS] && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
@@ -3517,35 +3459,23 @@ void game_loop()
 		
 		
 		
+
 		
-		
-		#if LOGGAMELOOP > 0
-		al_trace("game_loop is calling: %s\n", "draw_screen()\n");
-		#endif
-		if ( !FFCore.system_suspend[susptSCREENDRAW] ) draw_screen(tmpscr,true,true);
+		if ( !FFCore.system_suspend[susptSCREENDRAW] ) draw_screen(true,true);
 		else FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DRAW);
 		
 		//clear Hero's last hits 
 		//for ( int32_t q = 0; q < 4; q++ ) Hero.sethitHeroUID(q, 0); //Clearing these here makes checking them fail both before and after waitdraw. 
-		#if LOGGAMELOOP > 0
-		al_trace("game_loop is at: %s\n", "if(linkedmsgclk)\n");
-		#endif
 		if(linkedmsgclk==1 && !do_end_str)
 		{
-		#if LOGGAMELOOP > 0
-		al_trace("game_loop is calling: %s\n", "if(wpnsbuf[iwMore].tile!=0)\n");
-		#endif
 			if(wpnsbuf[iwMore].tile!=0)
 			{
-				putweapon(framebuf,zinit.msg_more_x, message_more_y(), wPhantom, 4, up, lens_hint_weapon[wPhantom][0], lens_hint_weapon[wPhantom][1],-1);
+				putweapon(framebuf,zinit.msg_more_x + viewport.x, message_more_y() + viewport.y, wPhantom, 4, up, lens_hint_weapon[wPhantom][0], lens_hint_weapon[wPhantom][1],-1);
 			}
 		}
 		
 		if(!freeze)
 		{
-		#if LOGGAMELOOP > 0
-		al_trace("game_loop is calling: %s\n", "putintro()\n");
-		#endif
 			putintro();
 		}
 		
@@ -3584,14 +3514,8 @@ void game_loop()
 				update_msgstr();
 				if(GameFlags & GAMEFLAG_RESET_GAME_LOOP) continue; //continue the game_loop while(true)
 			}
-			#if LOGGAMELOOP > 0
-		al_trace("game_loop is calling: %s\n", "do_dcounters()\n");
-		#endif
 			do_dcounters();
 			
-		#if LOGGAMELOOP > 0
-		al_trace("game_loop is calling: %s\n", "if(!freezemsg && current_item(itype_heartring))\n");
-		#endif
 			if(!freezemsg && current_item(itype_heartring))
 			{
 				int32_t itemid = current_item_id(itype_heartring);
@@ -3600,9 +3524,6 @@ void game_loop()
 				if(fskip == 0 || frame % fskip == 0)
 					game->set_life(zc_min(game->get_life() + itemsbuf[itemid].misc1, game->get_maxlife()));
 			}
-			#if LOGGAMELOOP > 0
-		al_trace("game_loop is calling: %s\n", "if(!freezemsg && current_item(itype_magicring))\n");
-		#endif
 			if(!freezemsg && current_item(itype_magicring))
 			{
 				int32_t itemid = current_item_id(itype_magicring);
@@ -3613,9 +3534,6 @@ void game_loop()
 					game->set_magic(zc_min(game->get_magic() + itemsbuf[itemid].misc1, game->get_maxmagic()));
 				}
 			}
-			#if LOGGAMELOOP > 0
-		al_trace("game_loop is calling: %s\n", "if(!freezemsg && current_item(itype_wallet))\n");
-		#endif
 			if(!freezemsg && current_item(itype_wallet))
 			{
 				int32_t itemid = current_item_id(itype_wallet);
@@ -3626,9 +3544,6 @@ void game_loop()
 					game->set_rupies(zc_min(game->get_rupies() + itemsbuf[itemid].misc1, game->get_maxcounter(1)));
 				}
 			}
-			#if LOGGAMELOOP > 0
-		al_trace("game_loop is calling: %s\n", "if(!freezemsg && current_item(itype_bombbag))\n");
-		#endif
 			if(!freezemsg && current_item(itype_bombbag))
 			{
 				int32_t itemid = current_item_id(itype_bombbag);
@@ -3655,9 +3570,6 @@ void game_loop()
 					}
 				}
 			}
-			#if LOGGAMELOOP > 0
-		al_trace("game_loop is calling: %s\n", "if(!freezemsg && current_item(itype_quiver))\n");
-		#endif
 			if(!freezemsg && current_item(itype_quiver) && game->get_arrows() != game->get_maxarrows())
 			{
 				int32_t itemid = current_item_id(itype_quiver);
@@ -3668,32 +3580,29 @@ void game_loop()
 					game->set_arrows(zc_min(game->get_arrows() + itemsbuf[itemid].misc1, game->get_maxarrows()));
 				}
 			}
-			#if LOGGAMELOOP > 0
-		al_trace("game_loop is calling: %s\n", "if(lensclk)\n");
-		#endif
-			if(lensclk && !FFCore.system_suspend[susptLENS])
+
+			// In extended height mode, the lens effect has to be done before drawing the subscreen.
+			if(!is_extended_height_mode() && lensclk && !FFCore.system_suspend[susptLENS])
 			{
 				draw_lens_over();
 				--lensclk;
 			}
-			#if LOGGAMELOOP > 0
-		al_trace("game_loop is calling: %s\n", "if(quakeclk)\n");
-		#endif
+
+			// By default, this is 56 pixels tall. In extended height mode it is 0. Scripts might set their own viewport
+			// height, so this math also supports that.
+			playing_field_offset = std::max(0, 232 - viewport.h);
+
 			// Earthquake!
 			if(quakeclk>0 && !FFCore.system_suspend[susptQUAKE] )
 			{
-				playing_field_offset=56+((int32_t)(zc::math::Sin((double)(--quakeclk*2-frame))*4));
-			}
-			else
-			{
-				playing_field_offset=56;
+				playing_field_offset += (int32_t)(zc::math::Sin((double)(--quakeclk*2-frame)) * 4);
 			}
 			
-		if ( previous_DMap != currdmap )
+		if ( previous_DMap != cur_dmap )
 		{
 			FFCore.initZScriptDMapScripts();
 			FFCore.initZScriptScriptedActiveSubscreen();
-			previous_DMap = currdmap;
+			previous_DMap = cur_dmap;
 		}
 			// Other effects in zc_sys.cpp
 		}
@@ -3718,7 +3627,7 @@ void runDrunkRNG(){
 
 int32_t get_currdmap()
 {
-    return currdmap;
+	return cur_dmap;
 }
 
 int32_t get_dlevel()
@@ -3728,17 +3637,17 @@ int32_t get_dlevel()
 
 int32_t get_currscr()
 {
-    return currscr;
+    return cur_screen;
 }
 
 int32_t get_currmap()
 {
-    return currmap;
+    return cur_map;
 }
 
 int32_t get_homescr()
 {
-    return homescr;
+    return home_screen;
 }
 
 int32_t get_bmaps(int32_t si)
@@ -3748,7 +3657,7 @@ int32_t get_bmaps(int32_t si)
 
 bool no_subscreen()
 {
-    return (tmpscr->flags3&fNOSUBSCR)!=0;
+    return (hero_scr->flags3&fNOSUBSCR)!=0;
 }
 
 bool isUserTinted()
@@ -4351,7 +4260,9 @@ int main(int argc, char **argv)
 	set_color_depth(8);
 	framebuf  = create_bitmap_ex(8,256,224);
 	menu_bmp  = create_bitmap_ex(8,640,480);
-	scrollbuf = create_bitmap_ex(8,512,406);
+	// TODO: old scrolling code is silly and needs a big scrollbuf bitmap.
+	scrollbuf_old = create_bitmap_ex(8,512,406);
+	scrollbuf = create_bitmap_ex(8,256,176+56);
 	screen2   = create_bitmap_ex(8,320,240);
 	tmp_scr   = create_bitmap_ex(8,320,240);
 	tmp_bmp   = create_bitmap_ex(8,32,32);
@@ -4366,10 +4277,8 @@ int main(int argc, char **argv)
 	pricesdisplaybuf = create_bitmap_ex(8,256, 176);
 	script_menu_buf = create_bitmap_ex(8,256,224);
 	f6_menu_buf = create_bitmap_ex(8,256,224);
-	darkscr_bmp_curscr = create_bitmap_ex(8, 256, 176);
-	darkscr_bmp_curscr_trans = create_bitmap_ex(8, 256, 176);
-	darkscr_bmp_scrollscr = create_bitmap_ex(8, 256, 176);
-	darkscr_bmp_scrollscr_trans = create_bitmap_ex(8, 256, 176);
+	darkscr_bmp = create_bitmap_ex(8, 256, 224);
+	darkscr_bmp_trans = create_bitmap_ex(8, 256, 224);
 	lightbeam_bmp = create_bitmap_ex(8, 256, 176);
 	
 	if(!framebuf || !scrollbuf || !tmp_bmp || !tmp_scr
@@ -4630,7 +4539,7 @@ int main(int argc, char **argv)
 		bool error = false;
 		testingqst_name = argv[test_arg+1];
 		int32_t dm = atoi(argv[test_arg+2]);
-		int32_t scr = atoi(argv[test_arg+3]);
+		int32_t screen = atoi(argv[test_arg+3]);
 		int32_t retsqr = (test_arg+4 >= argc) ? 0 : atoi(argv[test_arg+4]);
 		if(!fileexists(testingqst_name.c_str()))
 		{
@@ -4642,20 +4551,20 @@ int main(int argc, char **argv)
 			Z_error_fatal( "-test invalid parameter: 'test_dmap' was '%d'."
 				" Must be '0 <= test_dmap < %d'\n", dm, MAXDMAPS);
 		}
-		if(unsigned(scr) >= 0x80)
+		if(unsigned(screen) >= 0x80)
 		{
 			Z_error_fatal( "-test invalid parameter: 'test_screen' was '%d'."
-				" Must be '0 <= test_screen < 128'\n", scr);
+				" Must be '0 <= test_screen < 128'\n", screen);
 		}
 		if(unsigned(retsqr) > 3) retsqr = 0;
 		
 		if(error)
 		{
-			Z_error_fatal("Failed '-test \"%s\" %d %d'\n", testingqst_name.c_str(), dm, scr);
+			Z_error_fatal("Failed '-test \"%s\" %d %d'\n", testingqst_name.c_str(), dm, screen);
 		}
 		use_testingst_start = true;
 		testingqst_dmap = (uint16_t)dm;
-		testingqst_screen = (uint8_t)scr;
+		testingqst_screen = (uint8_t)screen;
 		testingqst_retsqr = (uint8_t)retsqr;
 	}
 
@@ -4867,8 +4776,6 @@ reload_for_replay_file:
 			printf("Replay is active\n");
 	}
 	
-	init_ffpos();
-	
 	while(Quit!=qEXIT)
 	{
 		// this is here to continually fix the keyboard repeat
@@ -4931,11 +4838,6 @@ reload_for_replay_file:
 			game_loop();
 			advanceframe(true);
 			FFCore.runF6Engine();
-		
-			//clear Hero's last hits 
-			//for ( int32_t q = 0; q < 4; q++ ) Hero.sethitHeroUID(q, 0);
-			//clearing this here makes it impossible 
-			//to read before or after waitdraw in scripts. 
 		}
 		clear_info_bmp();
 
@@ -4944,8 +4846,10 @@ reload_for_replay_file:
 			Quit = 0;
 			goto reload_for_replay_file;
 		}
-		
-		tmpscr->flags3=0;
+
+		// This is weird! One thing this does is prevent the "Continue" screen shown in `gameover` from
+		// rendering with the `fNOSUBSCR` flag set.
+		origin_scr->flags3 = 0;
 		Playing=Paused=false;
 		//Clear active script array ownership
 		FFCore.deallocateAllScriptOwned(ScriptType::Global, GLOBAL_SCRIPT_GAME);
@@ -5169,10 +5073,8 @@ void quit_game()
 	destroy_bitmap(zcmouse[0]);
 	destroy_bitmap(script_menu_buf);
 	destroy_bitmap(f6_menu_buf);
-	destroy_bitmap(darkscr_bmp_curscr);
-	destroy_bitmap(darkscr_bmp_curscr_trans);
-	destroy_bitmap(darkscr_bmp_scrollscr);
-	destroy_bitmap(darkscr_bmp_scrollscr_trans);
+	destroy_bitmap(darkscr_bmp);
+	destroy_bitmap(darkscr_bmp_trans);
 	destroy_bitmap(lightbeam_bmp);
 		
 	al_trace("SFX... \n");
@@ -5288,7 +5190,8 @@ void quit_game()
 
 bool isSideViewGravity(int32_t t)
 {
-	return (((tmpscr[t].flags7 & fSIDEVIEW)!=0) != (DMaps[currdmap].sideview));
+	if (t == 1) return (((special_warp_return_scr->flags7 & fSIDEVIEW)!=0) != (DMaps[cur_dmap].sideview));
+	return (((hero_scr->flags7 & fSIDEVIEW)!=0) != (DMaps[cur_dmap].sideview));
 }
 
 bool isSideViewHero(int32_t t)
@@ -5307,7 +5210,7 @@ extern "C" void get_shareable_url()
 {
 	EM_ASM({
 		ZC.setShareableUrl({test: UTF8ToString($0), dmap: $1, screen: $2});
-	}, qstpath, currdmap, currscr);
+	}, qstpath, cur_dmap, cur_screen);
 }
 #endif
 
@@ -5445,7 +5348,7 @@ string get_box_cfg_hdr(int num)
 	return "misc";
 }
 
-ffcdata* slopes_getFFC(int index)
+ffcdata* slopes_getFFC(int id)
 {
-	return &tmpscr->ffcs[index];
+	return &get_scr_for_region_index_offset(id / MAXFFCS)->getFFC(id % MAXFFCS);
 }

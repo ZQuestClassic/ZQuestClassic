@@ -59,6 +59,27 @@ zfix vbound(zfix val, zfix low, zfix high)
 	if(val > high) return high;
 	return val;
 }
+zfix vbound(zfix val, int low, zfix high)
+{
+	if(low > high) zc_swap(low,high);
+	if(val < low) return low;
+	if(val > high) return high;
+	return val;
+}
+zfix vbound(zfix val, zfix low, int high)
+{
+	if(low > high) zc_swap(low,high);
+	if(val < low) return low;
+	if(val > high) return high;
+	return val;
+}
+zfix vbound(zfix val, int low, int high)
+{
+	if(low > high) zc_swap(low,high);
+	if(val < low) return low;
+	if(val > high) return high;
+	return val;
+}
 
 int wrap(int x,int low,int high)
 {
@@ -121,6 +142,16 @@ direction GET_YDIR(zfix const& sign)
 direction GET_DIR(zfix const& dx, zfix const& dy)
 {
 	return XY_DIR(GET_XDIR(dx), GET_YDIR(dy));
+}
+
+direction XY_DELTA_TO_DIR(int32_t dx, int32_t dy)
+{
+	if (dx == 0 && dy == 0) return dir_invalid;
+	if (dx == 1 && dy == 0) return right;
+	if (dx == -1 && dy == 0) return left;
+	if (dx == 0 && dy == 1) return down;
+	if (dx == 0 && dy == -1) return up;
+	return dir_invalid;
 }
 
 bool viewport_t::intersects_with(int x, int y, int w, int h) const

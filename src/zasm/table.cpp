@@ -19,6 +19,7 @@ static script_command null_command = {"0xFFFF", (ASM_DEFINE)0xFFFF, 0, {ARGTY::U
 
 static constexpr script_command command_list[]=
 {
+	// Order doesn't matter - sort_script_commands will sort at compile time.
 	//name command args arg1 arg2 more
 	{ "SETV", SETV, 2, { REG_W, NUM }, 0, 0 },
 	{ "SETR", SETR, 2, { REG_W, REG_R }, 0, 0 },
@@ -1168,6 +1169,7 @@ static constexpr script_command command_list[]=
 
 static constexpr script_variable variable_list[]=
 {
+	// Order doesn't matter.
 	//name id maxcount
 	{ "D", D(0), INITIAL_D},
 	{ "DATA", DATA, 0},
@@ -2636,14 +2638,14 @@ static constexpr script_variable variable_list[]=
 	{ "SPRITEDATAFLAGS", SPRITEDATAFLAGS, 0},
 	{ "SPRITEDATAID", SPRITEDATAID, 0},
 	{ "CLASS_THISKEY2", CLASS_THISKEY2, 0},
-	// { "VIEWPORT_MODE", VIEWPORT_MODE, 0},
+	{ "VIEWPORT_MODE", VIEWPORT_MODE, 0},
 	{ "VIEWPORT_X", VIEWPORT_X, 0},
 	{ "VIEWPORT_Y", VIEWPORT_Y, 0},
 	{ "VIEWPORT_WIDTH", VIEWPORT_WIDTH, 0},
 	{ "VIEWPORT_HEIGHT", VIEWPORT_HEIGHT, 0},
-	// { "VIEWPORT_TARGET", VIEWPORT_TARGET, 0},
+	{ "VIEWPORT_TARGET", VIEWPORT_TARGET, 0},
 	{ "MAX_FFC_ID", MAX_FFC_ID, 0},
-	// { "RESRVD_VAR_Z3_02", RESRVD_VAR_Z3_02, 0},
+	{ "MAPDATAREGIONID", MAPDATAREGIONID, 0},
 	{ "REGION_WIDTH", REGION_WIDTH, 0},
 	{ "REGION_HEIGHT", REGION_HEIGHT, 0},
 	{ "REGION_SCREEN_WIDTH", REGION_SCREEN_WIDTH, 0},
@@ -2655,7 +2657,6 @@ static constexpr script_variable variable_list[]=
 	{ "REGION_NUM_COMBOS", REGION_NUM_COMBOS, 0},
 	{ "REGION_ID", REGION_ID, 0},
 	{ "REGION_ORIGIN_SCREEN", REGION_ORIGIN_SCREEN, 0},
-	// { "RESRVD_VAR_Z3_12", RESRVD_VAR_Z3_12, 0},
 
 	{ "LWPNLIFTLEVEL", LWPNLIFTLEVEL, 0},
 	{ "LWPNLIFTTIME", LWPNLIFTTIME, 0},

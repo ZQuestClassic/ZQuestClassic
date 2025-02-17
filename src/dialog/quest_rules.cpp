@@ -1686,7 +1686,10 @@ GUI::ListData drawingRulesList
 
 GUI::ListData bugfixRulesList
 {
-	{ "Fix Scripts Running During Scrolling", qr_FIXSCRIPTSDURINGSCROLLING },
+	{ "Fix Scripts Running During Scrolling", qr_FIXSCRIPTSDURINGSCROLLING,
+		"If disabled, the waiting phase of scrolling transitions (1-32 frames) will not"
+		" run all scripts, and will not clear draw commands during each frame of scrolling."
+		" It also will not run prewaitdraw scripts at the end of scrolling (for when dmap did not change)."},
 	{ "GetPixel returns color / 10000", qr_BROKEN_GETPIXEL_VALUE },
 	{ "Always Deallocate Arrays", qr_ALWAYS_DEALLOCATE_ARRAYS },
 	{ "Don't Deallocate Init/SaveLoad Local Arrays", qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS },

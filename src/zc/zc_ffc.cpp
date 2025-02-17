@@ -10,12 +10,18 @@ void zc_ffc_set(ffcdata& ffc, word data)
 {
 	ffc.data = data;
 
-	for (word i = 0; i < MAXFFCS; i++)
+	mapscr* scr = get_scr_maybe(cur_map, ffc.screen_spawned);
+	if (!scr) return;
+
+	uint8_t screen_index_offset = get_region_screen_offset(ffc.screen_spawned);
+	int c = scr->ffcs.size();
+	for (uint8_t i = 0; i < c; i++)
 	{
-		if (&ffc == &tmpscr->ffcs[i])
+		if (&ffc == &scr->ffcs[i])
 		{
-			screen_ffc_modify_postroutine(i);
-			break;
+			uint16_t id = screen_index_offset * MAXFFCS + i;
+			screen_ffc_modify_postroutine({scr, ffc.screen_spawned, id, i, &ffc});
+			return;
 		}
 	}
 }
@@ -68,22 +74,21 @@ void zc_ffc_changer(ffcdata& ffc, ffcdata& other, int32_t i, int32_t j)
 	ffc.flags&=~ffc_changer;
 	
 	if(combobuf[other.data].flag>15 && combobuf[other.data].flag<32)
-		zc_ffc_set(other, tmpscr->secretcombo[combobuf[other.data].flag-16+4]);
+		zc_ffc_set(other, get_scr(other.screen_spawned)->secretcombo[combobuf[other.data].flag-16+4]);
 	
 	if(i > -1 && j > -1)
 	{
-		ffposx[i]=(other.x.getInt());
-		ffposy[i]=(other.y.getInt());
+		ffc.changer_x = other.x.getInt();
+		ffc.changer_y = other.y.getInt();
 		if((other.flags&ffc_swapnext)||(other.flags&ffc_swapprev))
 		{
 			int32_t k=0;
-			
 			if(other.flags&ffc_swapnext)
 				k=j<(MAXFFCS-1)?j+1:0;
-				
 			if(other.flags&ffc_swapprev)
 				k=j>0?j-1:(MAXFFCS-1);
-			ffcdata& ffck = tmpscr->ffcs[k];
+
+			ffcdata& ffck = get_scr(other.screen_spawned)->ffcs[k];
 			auto w = ffck.data;
 			zc_ffc_set(ffck, other.data);
 			zc_ffc_set(other, w);

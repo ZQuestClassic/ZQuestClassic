@@ -188,9 +188,9 @@ bool CanWalk(int x, int y, int dir, int step, bool full_tile)
 	switch(DirNormal(dir))
 	{
 		case DIR_UP: return !(y-step<0||Screen->isSolid(x,y+c-step)||Screen->isSolid(x+8,y+c-step)||Screen->isSolid(xx,y+c-step));
-		case DIR_DOWN: return !(yy+step>=176||Screen->isSolid(x,yy+step)||Screen->isSolid(x+8,yy+step)||Screen->isSolid(xx,yy+step));
+		case DIR_DOWN: return !(yy+step>=Region->Height||Screen->isSolid(x,yy+step)||Screen->isSolid(x+8,yy+step)||Screen->isSolid(xx,yy+step));
 		case DIR_LEFT: return !(x-step<0||Screen->isSolid(x-step,y+c)||Screen->isSolid(x-step,y+c+7)||Screen->isSolid(x-step,yy));
-		case DIR_RIGHT: return !(xx+step>=256||Screen->isSolid(xx+step,y+c)||Screen->isSolid(xx+step,y+c+7)||Screen->isSolid(xx+step,yy));
+		case DIR_RIGHT: return !(xx+step>=Region->Width||Screen->isSolid(xx+step,y+c)||Screen->isSolid(xx+step,y+c+7)||Screen->isSolid(xx+step,yy));
 		default: { printf("Invalid direction %d passed to CanWalk(x,y,dir,step,bool) \n",dir); return false; } //invalid direction
 	}
 }
@@ -519,121 +519,40 @@ bool ComboFI(int loc, int flag)
 // Note: all of the `Region->ID` checks in these various functions are minor performance improvements. The functions
 // likely work even without that.
 
-//Return the coordinates of a combo on the screen
-int ComboX(int rpos)
-{
-	// Don't actually need this yet.
-	// if (Region->ID)
-	// {
-	// 	int scr_index = Floor(rpos / 176);
-	// 	int scr_width = Region->ScreenWidth;
-	// 	int scr_dx = scr_index % scr_width;
-	// 	int scr_dy = Floor(scr_index / scr_width);
-	// 	int pos = rpos % 176;
-	// 	return scr_dx*16*16 + pos%16*16;
-	// }
-	// else
-	{
-		return rpos%16*16;
-	}
-}
-int ComboY(int rpos)
-{
-	// Don't actually need this yet.
-	// if (Region->ID)
-	// {
-	// 	int scr_index = Floor(rpos / 176);
-	// 	int scr_width = Region->ScreenWidth;
-	// 	int scr_dx = scr_index % scr_width;
-	// 	int scr_dy = Floor(scr_index / scr_width);
-	// 	int pos = rpos % 176;
-	// 	return scr_dy*11*16 + (pos&0xF0);
-	// }
-	// else
-	{
-		return rpos&0xF0;
-	}
-}
-
-// Given a screen index, returns the screen offset in the X direction in the current region.
-// Example: If the region origin is screen 5, `RegionRelativeScreenX(8) == 3`
-int RegionRelativeScreenX(int scr)
+// Returns the x-coordinate from a combo position (the inverse of [ComboAt]).
+int ComboX(int pos)
 {
 	if (Region->ID)
 	{
-		int origin_screen_index = Region->OriginScreenIndex * 10000;
-		return scr%16 - origin_screen_index%16;
+		int scr_index = Floor(pos / 176);
+		int scr_width = Region->ScreenWidth;
+		int scr_dx = scr_index % scr_width;
+		int scr_dy = Floor(scr_index / scr_width);
+		int pos = pos % 176;
+		return scr_dx*16*16 + pos%16*16;
 	}
 	else
 	{
-		return 0;
+		return pos%16*16;
 	}
 }
 
-// Given a screen index, returns the screen offset in the Y direction in the current region.
-int RegionRelativeScreenY(int scr)
+// Returns the y-coordinate from a combo position (the inverse of [ComboAt]).
+int ComboY(int pos)
 {
 	if (Region->ID)
 	{
-		int origin_screen_index = Region->OriginScreenIndex * 10000;
-		return Floor(scr/16) - Floor(origin_screen_index/16);
+		int scr_index = Floor(pos / 176);
+		int scr_width = Region->ScreenWidth;
+		int scr_dx = scr_index % scr_width;
+		int scr_dy = Floor(scr_index / scr_width);
+		int pos = pos % 176;
+		return scr_dy*11*16 + (pos&0xF0);
 	}
 	else
 	{
-		return 0;
+		return pos&0xF0;
 	}
-}
-
-// Given a screen index, returns the world offset in the x direction for the current region.
-int RegionWorldOffsetX(int scr)
-{
-	if (Region->ID)
-	{
-		return RegionRelativeScreenX(scr) * 256;
-	}
-	else
-	{
-		return 0;
-	}
-}
-
-// Given a screen index, returns the world offset in the y direction for the current region.
-int RegionWorldOffsetY(int scr)
-{
-	if (Region->ID)
-	{
-		return RegionRelativeScreenY(scr) * 176;
-	}
-	else
-	{
-		return 0;
-	}
-}
-
-// Returns true if the given screen index is inside the current region.
-// When not in a region, only returns true if scr is equal to Game->CurScreen.
-bool RegionIncludesScreen(int scr)
-{
-	if (Region->ID)
-	{
-		int dx = RegionRelativeScreenX(scr);
-		if (dx < 0 || dx > Region->ScreenWidth) return false;
-
-		int dy = RegionRelativeScreenY(scr);
-		if (dy < 0 || dy > Region->ScreenHeight) return false;
-
-		return true;
-	}
-
-	return scr == Game->CurScreen;
-}
-
-// Returns the FFC ID of the screen `scr`, which must be within the current Region.
-// `index` is the screen-specific index of the FFC (what you would see in the editor on that screen).
-int RegionGetFFCId(int scr, int index)
-{
-	int offset = 128 * (RegionRelativeScreenX(scr) + RegionRelativeScreenY(scr)*Region->ScreenWidth);
-	return offset + index;
 }
 
 // Returns a if cond is true, else b. Overloaded.
@@ -1141,12 +1060,13 @@ bool Facing(ffc f)
 	return false;
 }
 
-//Returns the number of an FFC, and -1 for a non-valid FFC (which should never happen)
+// Returns the ID of an FFC, and -1 for a non-valid FFC (which should never happen)
+//
+// @deprecated Use [ffc::ID] instead.
 int FFCNum(ffc f)
 {
-	for(int i=1; i<=128; ++i)
-		if(f == Screen->LoadFFC(i))
-			return i;
+	if (f->ID >= MIN_FFC && f->ID <= MAX_FFC)
+		return f->ID;
 	return -1;
 }
 
@@ -1154,52 +1074,48 @@ int FFCNum(ffc f)
 //Checks inherent flags too!
 int FirstComboFlagOf(int t, int layer)
 {
-	if(layer < 0 || layer > 6)
+	if (layer < 0 || layer > 6)
 		return -1;
+
 	mapdata m = Game->LoadTempScreen(layer);
-	for (int i = 0; i < 176; ++i)
+	for (int i = 0; i < NUM_COMBO_POS; ++i)
 	{
 		if(m->ComboF[i] == t || m->ComboI[i] == t)
 			return i;
 	}
+
 	return -1;
 }
 
 //Returns the position of the first instance of the given combo, or -1.
 int FirstComboTypeOf(int t, int layer)
 {
-	for (int i = 0; i < 176; ++i)
+	if (layer < 0 || layer > 6)
+		return -1;
+
+	mapdata screen = Game->LoadTempScreen(layer);
+	for (int i = 0; i < NUM_COMBO_POS; ++i)
 	{
-		unless (layer) //layer 0
-		{
-			if (Screen->ComboT[i] == t)
-				return i;
-		}
-		else
-		{
-			if (GetLayerComboT(layer,i) == t)
-				return i;
-		}
+		if (screen->ComboT[i] == t)
+			return i;
 	}
+
 	return -1;
 }
 
 //Returns the position of the first instance of the given combo, or -1.
 int FirstComboOf(int t, int layer)
 {
-	for (int i = 0; i < 176; ++i)
+	if (layer < 0 || layer > 6)
+		return -1;
+
+	mapdata screen = Game->LoadTempScreen(layer);
+	for (int i = 0; i < NUM_COMBO_POS; ++i)
 	{
-		unless (layer) //layer 0
-		{
-			if (Screen->ComboD[i] == t)
-				return i;
-		}
-		else
-		{
-			if (GetLayerComboD(layer,i) == t)
-				return i;
-		}
+		if (screen->ComboD[i] == t)
+			return i;
 	}
+
 	return -1;
 }
 
@@ -2150,12 +2066,14 @@ int LastComboFlagOf(int t, int layer)
 {
 	if(layer < 0 || layer > 6)
 		return -1;
+
 	mapdata m = Game->LoadTempScreen(layer);
-	for (int i = 175; i >= 0; --i)
+	for (int i = NUM_COMBO_POS - 1; i >= 0; --i)
 	{
 		if(m->ComboF[i] == t || m->ComboI[i] == t)
 			return i;
 	}
+
 	return -1;
 }
 
@@ -2165,12 +2083,14 @@ int LastComboTypeOf(int t, int layer)
 {
 	if(layer < 0 || layer > 6)
 		return -1;
+
 	mapdata m = Game->LoadTempScreen(layer);
-	for (int i = 175; i >= 0; --i)
+	for (int i = NUM_COMBO_POS - 1; i >= 0; --i)
 	{
 		if(m->ComboT[i] == t)
 			return i;
 	}
+
 	return -1;
 }
 
@@ -2179,12 +2099,14 @@ int LastComboOf(int t, int layer)
 {
 	if(layer < 0 || layer > 6)
 		return -1;
+
 	mapdata m = Game->LoadTempScreen(layer);
-	for (int i = 175; i >= 0; --i)
+	for (int i = NUM_COMBO_POS - 1; i >= 0; --i)
 	{
 		if(m->ComboD[i] == t)
 			return i;
 	}
+
 	return -1;
 }
 
@@ -3990,25 +3912,33 @@ void SetLevelSwitchState(int level, int switchNum, bool state)
     else Game->LevelStates[level] ~= (1Lb<<switchNum);
 }
 
-//Returns the Nth combo index of a combo based on a central point, and a direction.
-//For example, combo 22 + COMBO_UPRIGHT returns `7`, 
+//Returns the Nth combo pos of a combo based on a central point, and a direction.
+//For example, combo 22 + DIR_UPRIGHT returns `7`, 
 //as combo 7 is to the upper-right of combo 22.
 //Returns -1 on error. 
 int AdjacentCombo(int cmb, int dir)
 {
-	if (dir < 0 || dir > 15) return -1;
+	if (dir < 0 || dir > 15)
+		return -1;
+
 	dir = DirNormal(dir);
-	int combooffsets[12]={-0x10, 0x10, -1, 1, -0x11, -0x0F, 0x0F, 0x11, 0, 0, 0, 0};
-	if ( cmb % 16 == 0 ) combooffsets[8] = -1;//if it's the left edge
-	if ( (cmb % 16) == 15 ) combooffsets[9] = -1; //if it's the right edge
-	if ( cmb < 0x10 ) combooffsets[10] = -1; //if it's the top row
-	if ( cmb > 0x9F ) combooffsets[11] = -1; //if it's on the bottom row
-	if ( combooffsets[8]==-1 && ( dir == DIR_LEFT || dir == DIR_LEFTUP || dir == DIR_LEFTDOWN ) ) return -1; //if the left columb
-	if ( combooffsets[9]==-1 && ( dir == DIR_RIGHT || dir == DIR_RIGHTUP || dir == DIR_RIGHTDOWN ) ) return -1; //if the right column
-	if ( combooffsets[10]==-1 && ( dir == DIR_UP || dir == DIR_RIGHTUP || dir == DIR_LEFTUP ) ) return -1; //if the top row
-	if ( combooffsets[11]==-1 && ( dir == DIR_DOWN || dir == DIR_RIGHTDOWN || dir == DIR_LEFTDOWN ) ) return -1; //if the bottom row
-	if ( cmb >= 0 && cmb < 176 ) return cmb + combooffsets[dir];
-	else return -1;
+
+	int x = ComboX(cmb) / 16;
+	int y = ComboY(cmb) / 16;
+
+	if (dir == DIR_UP || dir == DIR_LEFTUP || dir == DIR_RIGHTUP)
+		y -= 1;
+	if (dir == DIR_DOWN || dir == DIR_LEFTDOWN || dir == DIR_RIGHTDOWN)
+		y += 1;
+	if (dir == DIR_LEFT || dir == DIR_LEFTUP || dir == DIR_LEFTDOWN)
+		x -= 1;
+	if (dir == DIR_RIGHT || dir == DIR_RIGHTUP || dir == DIR_RIGHTDOWN)
+		x += 1;
+	
+	if (x < 0 || y < 0 || x >= Region->ScreenWidth*16 || y >= Region->ScreenHeight*11)
+		return -1;
+
+	return ComboAt(x * 16, y * 16);
 }
 
 //Fairly select between true or false.

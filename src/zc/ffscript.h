@@ -1,6 +1,7 @@
 #ifndef FFSCRIPT_H_
 #define FFSCRIPT_H_
 
+#include "base/general.h"
 #include "base/mapscr.h"
 #include "base/zdefs.h"
 #include "base/initdata.h"
@@ -698,8 +699,7 @@ void shutdown();
 
 
 int32_t max_ff_rules;
-mapscr* tempScreens[7];
-mapscr* ScrollingScreens[7];
+std::vector<mapscr*> ScrollingScreensAll;
 int32_t ScrollingData[SZ_SCROLLDATA];
 std::vector<int32_t> eventData;
 
@@ -862,7 +862,7 @@ int32_t getQuestHeaderInfo(int32_t type)
 //{int32_t type, int32_t dmap, int32_t screen, int32_t x, int32_t y, int32_t effect, int32_t sound, int32_t flags, int32_t dir}
 void queueWarp(int32_t wtype, int32_t tdm, int32_t tscr, int32_t wx, int32_t wy,
 	int32_t weff, int32_t wsfx, int32_t wflag, int32_t wdir);
-bool warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int32_t warpDestX, int32_t warpDestY, int32_t warpEffect, int32_t warpSound, int32_t warpFlags, int32_t heroFacesDir);
+bool warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32_t warpDestX, int32_t warpDestY, int32_t warpEffect, int32_t warpSound, int32_t warpFlags, int32_t heroFacesDir);
 
 void user_files_init();
 void user_dirs_init();
@@ -1039,8 +1039,7 @@ bool& waitdraw(ScriptType type, int index = 0);
 
 //Combo Scripts
 void clear_combo_scripts();
-void clear_combo_script(int32_t lyr, int32_t pos);
-void ClearComboScripts();
+void clear_combo_script(const rpos_handle_t& rpos_handle);
 int32_t getComboDataLayer(int32_t c, ScriptType scripttype);
 int32_t getCombodataPos(int32_t c, ScriptType scripttype);
 int32_t getCombodataY(int32_t c, ScriptType scripttype);
@@ -1449,7 +1448,6 @@ static void setHeroBigHitbox(bool v);
 	static void do_loadmapdata_scrollscr2(const bool v);
 	static int32_t loadMapData();
 	static void do_loadspritedata(const bool v);
-	static void do_loadscreendata(const bool v);
 	static void do_loadbitmapid(const bool v);
 	static void do_loadshopdata(const bool v);
 	static void do_loadinfoshopdata(const bool v);
@@ -1562,8 +1560,9 @@ bool command_could_return_not_ok(int command);
 // command, given its register output is not needed.
 bool command_is_pure(int command);
 
-int32_t get_combopos_ref(int32_t pos, int32_t layer);
-int32_t combopos_ref_to_pos(int32_t combopos_ref);
+int32_t get_combopos_ref(const rpos_handle_t& rpos_handle);
+int32_t get_combopos_ref(rpos_t rpos, int32_t layer);
+rpos_t combopos_ref_to_rpos(int32_t combopos_ref);
 int32_t combopos_ref_to_layer(int32_t combopos_ref);
 
 bool is_valid_array(int32_t ptr);
@@ -1748,7 +1747,12 @@ public:
 	{
 		return checkBoundsPos(pos, 0, 175, str);
 	}
-	
+
+	static INLINE int32_t checkComboRpos(const rpos_t rpos, const char * const str)
+	{
+		return checkBoundsRpos(rpos, (rpos_t)0, region_max_rpos, str);
+	}
+
 	static INLINE int32_t checkTile(const int32_t pos, const char * const str)
 	{
 		return checkBounds(pos, 0, NEWMAXTILES-1, str);
@@ -1779,9 +1783,14 @@ public:
 		return checkBounds(layer, 0, 6, str);
 	}
 	
-	static INLINE int32_t checkFFC(const int32_t ffc, const char * const str)
+	static INLINE int32_t checkFFC(ffc_id_t id, const char * const str)
 	{
-		return checkBounds(ffc, 0, MAXFFCS-1, str);
+		return checkBounds(id, 0, MAX_FFCID, str);
+	}
+
+	static INLINE int32_t checkMapdataFFC(int index, const char * const str)
+	{
+		return checkBoundsOneIndexed(index, 0, MAXFFCS-1, str);
 	}
 	
 	static INLINE int32_t checkGuyIndex(const int32_t index, const char * const str)
@@ -1851,6 +1860,17 @@ public:
         
 		return _NoError;
 	}
+
+	static INLINE int32_t checkBoundsRpos(const rpos_t n, const rpos_t boundlow, const rpos_t boundup, const char * const funcvar)
+	{
+		if(n < boundlow || n > boundup)
+		{
+			Z_scripterrlog("Invalid position [%i] used to read to '%s'\n", n, funcvar);
+			return _OutOfBounds;
+		}
+        
+		return _NoError;
+	}
 	
 	static INLINE int32_t checkBoundsOneIndexed(const int32_t n, const int32_t boundlow, const int32_t boundup, const char * const funcvar)
 	{
@@ -1905,7 +1925,7 @@ extern int32_t flagval;
 void clear_ornextflag();
 void ornextflag(bool flag);
 
-int32_t get_mi(int32_t ref = MAPSCR_TEMP0);
-int32_t get_total_mi(int32_t ref = MAPSCR_TEMP0);
+int32_t get_mi();
+int32_t get_total_mi();
 
 #endif

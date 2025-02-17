@@ -1,0 +1,90 @@
+stderr:
+
+Compiling 'ffc_hello_world.zs'
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+ffc_hello_world.zs Line 30 @ Columns 59-76 - Error S009: Variable DRAW_ORIGIN_WORLD has not been declared.
+
+28    // DRAW_ORIGIN_WORLD is the default in a scrolling region.
+29    // But swap between so we can visually confirm that.
+30    Screen->DrawOrigin = (Game->Time & 2L) == 0 ? DRAW_ORIGIN_WORLD : DRAW_ORIGIN_DEFAULT;
+                                                    ^~~~~~~~~~~~~~~~~
+
+
+ffc_hello_world.zs Line 44 @ Columns 30-47 - Error S009: Variable DRAW_ORIGIN_WORLD has not been declared.
+
+42    void run()
+43    {
+44        Screen->DrawOrigin = DRAW_ORIGIN_WORLD;
+                               ^~~~~~~~~~~~~~~~~
+
+
+ffc_hello_world.zs Line 74 @ Columns 30-47 - Error S009: Variable DRAW_ORIGIN_WORLD has not been declared.
+
+72    void run()
+73    {
+74        Screen->DrawOrigin = DRAW_ORIGIN_WORLD;
+                               ^~~~~~~~~~~~~~~~~
+
+
+Failure!
+Compile finished with exit code '9' (compiled with errors)
+
+stdout:
+
+{
+  "success": false,
+  "code": 9,
+  "diagnostics": [
+    {
+      "range": {
+        "start": {
+          "line": 29,
+          "character": 58
+        },
+        "end": {
+          "line": 29,
+          "character": 75
+        }
+      },
+      "severity": 1,
+      "message": "S009: Variable DRAW_ORIGIN_WORLD has not been declared."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 43,
+          "character": 29
+        },
+        "end": {
+          "line": 43,
+          "character": 46
+        }
+      },
+      "severity": 1,
+      "message": "S009: Variable DRAW_ORIGIN_WORLD has not been declared."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 73,
+          "character": 29
+        },
+        "end": {
+          "line": 73,
+          "character": 46
+        }
+      },
+      "severity": 1,
+      "message": "S009: Variable DRAW_ORIGIN_WORLD has not been declared."
+    }
+  ],
+  "metadata": {
+    "currentFileSymbols": 23,
+    "symbols": 32,
+    "identifiers": 102,
+    "elided": true
+  }
+}

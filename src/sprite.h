@@ -49,7 +49,7 @@ public:
 	void reassignUid(int32_t new_uid);
     
    
-    
+    uint8_t screen_spawned;
     zfix z,fall,fakefall,fakez;
     int32_t tile,shadowtile,cs,flip,c_clk,clk,misc;
     int16_t flickercolor;
@@ -71,7 +71,10 @@ public:
     int32_t id;
     zfix slopeid;
     byte onplatid = 0;
-    bool angular,canfreeze;
+    bool angular;
+    // True if sprite is an enemy or an enemy weapon. Only used to freeze these sprites when `freeze_guys`
+    // is true (which is when the player is holding up an item); or when they are out of the viewport.
+    bool canfreeze;
     double angle; // TODO: bad for replays
     int32_t lasthit, lasthitclk;
     int32_t dummy_int[10];
@@ -215,19 +218,21 @@ public:
     bool del(int32_t j, bool force = false, bool may_defer = true);
     void draw(BITMAP* dest,bool lowfirst);
     void drawshadow(BITMAP* dest,bool translucent, bool lowfirst);
+	void draw_smooth_maze(BITMAP* dest);
+	void drawshadow_smooth_maze(BITMAP* dest, bool translucent);
     void draw2(BITMAP* dest,bool lowfirst);
     void drawcloaked2(BITMAP* dest,bool lowfirst);
     void animate();
 	void solid_push(solid_object* pusher);
     void check_conveyor();
 	void run_script(int32_t mode);
-    int32_t Count();
+    int32_t Count() const;
 	bool has_space(int32_t space = 1);
     int32_t hit(sprite *s);
     int32_t hit(int32_t x,int32_t y,int32_t z,int32_t xsize, int32_t ysize, int32_t zsize);
     int32_t hit(int32_t x,int32_t y,int32_t xsize, int32_t ysize);
     // returns the number of sprites with matching id
-    int32_t idCount(int32_t id, int32_t mask);
+    int32_t idCount(int32_t id, int32_t mask, int32_t screen);
     // returns index of first sprite with matching id, -1 if none found
     int32_t idFirst(int32_t id, int32_t mask);
     // returns index of nth sprite with matching id, -1 if none found
@@ -236,6 +241,8 @@ public:
     int32_t idLast(int32_t id, int32_t mask);
     // returns the number of sprites with matching id
     int32_t idCount(int32_t id);
+	// returns the number of sprites with matching id, for given screen
+    int32_t idCount(int32_t id, int32_t screen);
 	// returns the number of sprites matching any id in the set
 	int32_t idCount(std::set<int32_t> const& ids);
     // returns index of first sprite with matching id, -1 if none found

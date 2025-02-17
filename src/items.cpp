@@ -70,7 +70,7 @@ bool item::animate(int32_t)
 			return false;
 		}
 #ifndef IS_EDITOR
-		if(isSideViewGravity())
+		if(isSideViewGravity() && !subscreenItem)
 		{
 			if((
 					(((fall<0 && !get_qr(qr_BROKEN_SIDEVIEW_SPRITE_JUMP)) || can_drop(x,y)) && !(pickup & ipDUMMY) && !(pickup & ipCHECK))
@@ -155,11 +155,13 @@ bool item::animate(int32_t)
 #endif
 	}
 	
+#ifndef IS_EDITOR
 	// Maybe it fell off the bottom in sideview, or was moved by a script.
-	if(y>352 || y<-176 || x<-256 || x > 512)
+	if(y>world_h+176 || y<-176 || x<-256 || x > world_w+256)
 	{
 		return true;
 	}
+#endif
 	
 	if((++clk)>=0x8000)
 	{
@@ -297,6 +299,7 @@ item::item(zfix X,zfix Y,zfix Z,int32_t i,int32_t p,int32_t c, bool isDummy) : s
 {
 	x=X;
 	y=Y;
+	screen_spawned=get_screen_for_world_xy(x.getInt(), y.getInt());
 	z=Z;
 	id=i;
 	pickup=p;
@@ -614,6 +617,17 @@ void dummyitem_animate(item* dummy, int32_t clk)
 }
 void putitem3(BITMAP *dest,int32_t x,int32_t y,int32_t item_id, int32_t clk)
 {
+#ifdef IS_PLAYER
+	// When drawing to the framebuf, sprite::draw translates from world coordinates to
+	// screen coordinates. However, putitem3 expects just screen coordinates. So convert
+	// to world coordinates.
+	if (dest == framebuf || dest == scrollbuf)
+	{
+		x += viewport.x;
+		y += viewport.y;
+	}
+#endif
+
 	item temp((zfix)x,(zfix)y,(zfix)0,item_id,0,0,true);
 	temp.xofs=temp.yofs=0;
 	temp.hide_hitbox = true;

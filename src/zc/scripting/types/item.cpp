@@ -1035,10 +1035,10 @@ bool item_set_register(int32_t reg, int32_t value)
 				//}
 				
 				// If making it a carried item,
-				// alter hasitem and set an itemguy.
+				// alter item state and set an itemguy.
 				if((s->pickup & ipENEMY) < (newpickup & ipENEMY))
 				{
-					hasitem |= 2;
+					screen_item_set_state(s->screen_spawned, ScreenItemState::CarriedByEnemy);
 					bool hasitemguy = false;
 					
 					for(int32_t i=0; i<guys.Count(); i++)
@@ -1100,9 +1100,9 @@ bool item_set_register(int32_t reg, int32_t value)
 						}
 					}
 					
-					if(more_carried_items()<=1)  // 1 includes this own item.
+					if(more_carried_items(s->screen_spawned)<=1)  // 1 includes this own item.
 					{
-						hasitem &= ~2;
+						screen_item_set_state(s->screen_spawned, ScreenItemState::None);
 					}
 				}
 				

@@ -261,6 +261,10 @@ class zmap
     // A screen which uses the current screen as a layer
     int32_t layer_target_map, layer_target_scr, layer_target_multiple;
 
+	bool regions_dirty = true;
+	region_ids_t current_map_region_ids;
+	std::vector<region_description> region_descriptions;
+
 public:
 
     zmap();
@@ -293,7 +297,7 @@ public:
     void DoPutDoorCommand(int side, int door, bool force = false);
     void DoSetDoorCommand(int scr, int side, int door);
     void DoSetDCSCommand(int dcs);
-    void DoPasteScreenCommand(PasteCommandType type, int scr = -1);
+    void DoPasteScreenCommand(PasteCommandType type, int screen = -1);
     void DoClearScreenCommand(int scr);
     void DoTemplateCommand(int floorcombo, int floorcset, int scr);
 
@@ -331,18 +335,18 @@ public:
     int32_t  save(const char *path);
     int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, int32_t x,int32_t y);
     int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, int32_t pos);
-    int32_t MAPCOMBO2(int32_t lyr,int32_t x,int32_t y, int32_t map = -1, int32_t scr = -1);
-    int32_t MAPCOMBO(int32_t x,int32_t y, int32_t map = -1, int32_t scr = -1);
+    int32_t MAPCOMBO2(int32_t lyr,int32_t x,int32_t y, int32_t map = -1, int32_t screen = -1);
+    int32_t MAPCOMBO(int32_t x,int32_t y, int32_t map = -1, int32_t screen = -1);
     int32_t MAPFLAG3(int32_t map, int32_t screen, int32_t layer, int32_t x,int32_t y);
     int32_t MAPFLAG3(int32_t map, int32_t screen, int32_t layer, int32_t pos);
-    int32_t MAPFLAG2(int32_t lyr,int32_t x,int32_t y, int32_t map = -1, int32_t scr = -1);
-    int32_t MAPFLAG(int32_t x,int32_t y, int32_t map = -1, int32_t scr = -1);
+    int32_t MAPFLAG2(int32_t lyr,int32_t x,int32_t y, int32_t map = -1, int32_t screen = -1);
+    int32_t MAPFLAG(int32_t x,int32_t y, int32_t map = -1, int32_t screen = -1);
     void put_walkflags_layered(BITMAP *dest,int32_t x,int32_t y,int32_t pos,int32_t layer);
     void put_walkflags_layered_external(BITMAP *dest,int32_t x,int32_t y,int32_t pos,int32_t layer, int32_t map, int32_t screen);
-    bool misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir);
+    bool misaligned(int32_t map, int32_t screen, int32_t i, int32_t dir);
     void check_alignments(BITMAP* dest,int32_t x,int32_t y,int32_t scr=-1);
 	void draw_darkness(BITMAP* dest, BITMAP* transdest);
-    void draw(BITMAP *dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32_t scr,int32_t hl_layer);
+    void draw(BITMAP *dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32_t screen,int32_t hl_layer);
     void drawrow(BITMAP *dest,int32_t x,int32_t y,int32_t flags,int32_t c,int32_t map,int32_t scr);
     void drawcolumn(BITMAP *dest,int32_t x,int32_t y,int32_t flags,int32_t c,int32_t map,int32_t scr);
     void drawblock(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,int32_t map,int32_t scr);
@@ -367,7 +371,13 @@ public:
     mapscr *AbsoluteScr(int32_t map, int32_t screen);
 	mapscr *AbsoluteScrMakeValid(int32_t map, int32_t scr);
     int32_t  getCurrMap();
+	void regions_mark_dirty();
+	void regions_refresh();
+	const std::vector<region_description>& get_region_descriptions();
+	bool is_region(int screen);
     bool isDark(int scr);
+	bool isValid(int32_t scr);
+	bool isValid(int32_t map, int32_t scr);
     void setCurrMap(int32_t index);
     int32_t  getCurrScr();
     void setCurrScr(int32_t scr);
@@ -388,7 +398,7 @@ public:
     void over_door(BITMAP *dest,int32_t pos,int32_t side,int32_t xofs,int32_t yofs,bool ignorepos, int32_t scr);
     void TemplateAll();
     void Template(int32_t floorcombo, int32_t floorcset, int32_t scr);
-    void putdoor(int32_t scr,int32_t side,int32_t door);
+    void putdoor(int32_t screen,int32_t side,int32_t door);
     
 	void goto_dmapscr(int dmap, int scr);
 	void goto_mapscr(int map, int scr);

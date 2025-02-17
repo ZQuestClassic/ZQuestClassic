@@ -5,6 +5,7 @@
 #define UTIL_H_
 
 #include "base/zdefs.h"
+#include <cstdint>
 #include <sstream>
 #include <string>
 #include <sys/types.h>
@@ -53,6 +54,7 @@ namespace util
 	void upperstr(std::string& str);
 	void lowerstr(std::string& str);
 	void trimstr(std::string& str);
+	void trimstr_trailing(std::string& str);
 	void sanitize(std::string& str);
 	void sanitize_spaces_ok(std::string& str);
 	size_t split(const std::string &txt, std::vector<std::string> &strs, char ch);
@@ -100,12 +102,17 @@ namespace util
 	std::filesystem::path create_new_file_path(std::filesystem::path dir, std::string filename_prefix, std::string ext, bool force_suffix = false);
 	std::string create_temp_file_path(std::string final_destination);
 	bool is_subpath_of(const fs::path& base, const fs::path& sub);
+	void open_web_link(std::string url);
 
 	template <typename T, std::size_t R, std::size_t C>
 	inline void copy_2d_array(T source[R][C] , T dest[R][C])
 	{
 		std::copy(&source[0][0], &source[0][0] + (R*C)/sizeof(source[0][0]), &dest[0][0]);
 	}
+
+	uint8_t nibble(uint8_t byte, bool high);
+	uint8_t nibble_set_lower_byte(uint8_t orig, uint8_t nibble);
+	uint8_t nibble_set_upper_byte(uint8_t orig, uint8_t nibble);
 }
 
 std::string dayextension(int32_t dy);

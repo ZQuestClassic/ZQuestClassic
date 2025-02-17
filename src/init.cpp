@@ -1014,6 +1014,7 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool freshquest)
 	game2->set_hp_per_heart(zinit2->hp_per_heart);
 	game2->set_mp_per_block(zinit2->magic_per_block);
 	game2->set_hero_dmgmult(zinit2->hero_damage_multiplier);
+	game2->set_regionmapping(zinit2->region_mapping);
 	game2->set_ene_dmgmult(zinit2->ene_damage_multiplier);
 	game2->set_dither_type(zinit2->dither_type);
 	game2->set_dither_arg(zinit2->dither_arg);
@@ -1119,6 +1120,7 @@ constexpr std::size_t countof(T(&)[N]) { return N; }
 	PROP(msg_more_x) \
 	PROP(msg_more_y) \
 	PROP(msg_speed) \
+	PROP(region_mapping) \
 	ZFIXPROP(shove_offset) \
 	PROP(ss_bbox_1_color) \
 	PROP(ss_bbox_2_color) \

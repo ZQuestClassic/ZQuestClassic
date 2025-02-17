@@ -93,6 +93,7 @@ zinitdata *copyIntoZinit(gamedata *gdata)
 	zinit2->spriteflickerspeed = gdata->get_spriteflickerspeed();
 	zinit2->spriteflickercolor = gdata->get_spriteflickercolor();
 	zinit2->spriteflickertransp = gdata->get_spriteflickertransp();
+	zinit2->region_mapping = gdata->get_regionmapping();
 	
 	for(int32_t q = 0; q < MAX_COUNTERS; ++q)
 	{

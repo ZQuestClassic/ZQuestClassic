@@ -6,7 +6,7 @@
 #include "sprite.h"
 #include "zc/maps.h"
 
-std::map<int32_t, slope_object> slopes;
+std::map<slope_id_t, slope_object> slopes;
 
 slope_info::slope_info(newcombo const& cmb, zfix const& xoffs, zfix const& yoffs)
 	: cmb(&cmb)
@@ -85,7 +85,7 @@ void draw_slopes_a5(int32_t x, int32_t y, ALLEGRO_COLOR col)
 		p.second.get_info().draw_a5(x,y,col);
 }
 
-ffcdata* slopes_getFFC(int index);
+ffcdata* slopes_getFFC(int id);
 
 slope_info slope_object::get_info() const
 {
@@ -125,7 +125,7 @@ void slope_object::updateslope()
 	oy2 = inf.y2;
 }
 
-slope_object::slope_object(word* cid, ffcdata* ffc, int32_t ffc_id, int xoffs_, int yoffs_)
+slope_object::slope_object(word* cid, ffcdata* ffc, int ffc_id, int xoffs_, int yoffs_)
 	: cmbid(cid), ffc_id(ffc_id)
 {
 	if(ffc)

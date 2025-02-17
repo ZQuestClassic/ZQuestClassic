@@ -63,6 +63,12 @@ void InitDataDialog::setOfs(size_t ofs)
 	}
 }
 
+static const GUI::ListData list_region_mapping
+{
+	{ "Full", REGION_MAPPING_FULL },
+	{ "Physical", REGION_MAPPING_PHYSICAL },
+};
+
 //{ Macros
 #define SBOMB_RATIO (local_zinit.bomb_ratio > 0 ? (local_zinit.mcounter[crBOMBS] / local_zinit.bomb_ratio) : local_zinit.mcounter[crSBOMBS])
 
@@ -631,6 +637,23 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 								COLOR_FIELD("Darkness Color:", darkcol,false), INFOBTN("The color of darkness" + QRHINT({qr_NEW_DARKROOM})),
 								VAL_FIELD(word,"Light Wave Rate:",0,65535,light_wave_rate,false), INFOBTN("The rate at which the light radius 'waves' in and out, in frames." + QRHINT({qr_NEW_DARKROOM})),
 								VAL_FIELD(word,"Light Wave Size:",0,65535,light_wave_size,false), INFOBTN("The max size of the light radius 'waves'." + QRHINT({qr_NEW_DARKROOM}))
+							)
+						)
+					)),
+					TabRef(name = "Regions", Row(
+						Column(vAlign = 0.0,
+							Rows<3>(
+								Label(text = "Region Mapping:"),
+								DropDownList(data = list_region_mapping,
+									selectedValue = local_zinit.region_mapping,
+									onSelectFunc = [&](int32_t val)
+									{
+										local_zinit.region_mapping = val;
+									}
+								),
+								INFOBTN("In what way screens should be marked as visited."
+									"\nFull: Every screen in a region is mapped upon entry"
+									"\nPhysical: Only screens the Hero steps into are mapped")
 							)
 						)
 					))

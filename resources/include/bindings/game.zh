@@ -89,7 +89,7 @@ enum GenericIndex
 	GEN_MP_PER_BLOCK       = 8, //How much MP makes a 'block'
 	GEN_HERO_DMG_MULT      = 9, //Damage multiplier for damage by Link
 	GEN_ENEM_DMG_MULT      = 10, //Damage multiplier for damage by enemies
-	GEN_DITHER_TYPE        = 11, //Type of dithering used with dark rooms
+	GEN_DITHER_TYPE        = 11, //Type of dithering used with dark rooms ([ditherType] (`DITH_`) constants)
 	GEN_DITHER_ARG         = 12, //Dithering argument used with dark rooms
 	GEN_DITHER_PERCENT     = 13, //Percent of light circles taken up by dithering
 	GEN_DEFAULT_LIGHT_RAD  = 14, //Default light radius initialized to enemies
@@ -108,7 +108,17 @@ enum GenericIndex
 	GEN_FLICKER_FRAMES     = 24, //How many frames Link / enemies flicker for with the flicker damage effect
 	GEN_FLICKER_COLOR      = 25, //Color used for the flicker effect
 	GEN_FLICKER_TRANSP     = 26, //Number of transparency passes for the flicker effect
-	GEN_MAX                = 27
+	GEN_LIGHT_WAVE_RATE    = 27,
+	GEN_LIGHT_WAVE_SIZE    = 28,
+	GEN_REGION_MAPPING     = 29, //Which [RegionMapping] (method of mapping) is used for regions
+	GEN_MAX                = 30
+};
+
+enum RegionMapping
+{
+	REGION_MAPPING_PHYSICAL,
+	REGION_MAPPING_FULL,
+	REGION_MAPPING_MAX
 };
 
 // Values for [Game->MouseCursor].
@@ -297,7 +307,9 @@ class Game {
 	// @delete
 	internal Game();
 
-	// Returns the screen the [Hero] is currently on.
+	// The origin screen (top-left) of the current [Region] that the player is in.
+	//
+	// During a scrolling screen transition, this is the new screen.
 	//
 	// @deprecated_getter GetCurScreen
 	// @zasm_var CURSCR
@@ -336,19 +348,19 @@ class Game {
 	// @zasm_var CURLEVEL
 	internal const int CurLevel;
 
-	// The number of times the [Hero] has died.
+	// The number of times the player has died.
 	//
 	// @zasm_var GAMEDEATHS
 	internal int NumDeaths;
 
-	// The current activated cheat level. (range 0-4)
+	// The current activated cheat level (range 0-4).
 	//
 	// @zasm_var GAMECHEAT
 	internal int Cheat;
 
-	// The highest cheat level that is enabled for the [Hero]. The [Hero] can
+	// The highest cheat level that is enabled for the player. The player can
 	// change their cheat level in the cheat menu to any value <= this value
-	// (range 0-4). Updates when the [Hero] enters a cheat code.
+	// (range 0-4). Updates when the player enters a cheat code.
 	//
 	// @zasm_var GAMEMAXCHEAT
 	internal int MaxCheat;
@@ -357,12 +369,6 @@ class Game {
 	//
 	// @zasm_var ACTIVESSSPEED
 	internal long SubscreenSpeed;
-
-	// The number of frames passed on the save file.
-	// `include/time.zh` has several functions that help manage this value.
-	//
-	// @zasm_var GAMETIME
-	internal long Time;
 
 	// Returns true if the current save file was loaded, false if it was a
 	// freshly created save.
@@ -375,22 +381,29 @@ class Game {
 	// @zasm_var TYPINGMODE
 	internal bool TypingMode;
 
-	// If 'false', `Game->Time` does not contain accurate time information.
+	// If [Game->Time] contains accurate time information.
 	//
 	// @zasm_var GAMETIMEVALID
 	internal bool TimeValid;
+
+	// The number of frames passed on the save file.
+	//
+	// `include/deprecated/time.zh` has several functions that help manage this value.
+	//
+	// @zasm_var GAMETIME
+	internal long Time;
 
 	// The count of enemies remaining alive for each screen on the current map.
 	//
 	// @zasm_var GAMEGUYCOUNT
 	internal int GuyCount[];
 
-	// The continue point the [Hero] will be reset to when continuing.
+	// The continue point the player will be reset to when continuing.
 	//
 	// @zasm_var GAMECONTSCR
 	internal int ContinueScreen;
 
-	// The continue point the [Hero] will be reset to when continuing.
+	// The continue point the player will be reset to when continuing.
 	//
 	// @zasm_var GAMECONTDMAP
 	internal int ContinueDMap;
@@ -565,8 +578,22 @@ class Game {
 	// @zasm_var GAMEGRAVITY
 	internal int Gravity[];
 
-	// Values related to scrolling.
+	// An array of values related to scrolling. See [ScrollingIndex] for specifics. If not
+	// scrolling, all values are 0 unless otherwise stated.
 	//
+	// Drawing during scrolling requires taking into account that the viewport and coordinate
+	// systems are shifting. To anchor draw calls to a particular point, such as the screen
+	// being scrolled to, the old way looks like this:
+	//```
+	//    Screen->DrawTile(x + Game->Scrolling[SCROLL_NX], y + Game->Scrolling[SCROLL_NY], ...)
+	//```
+	// The above draws a tile at (`x, y`) relative to the new screen.
+	//
+	// This is deprecated by [Screen->DrawOrigin]. The new way to do the same is:
+	//```
+	//    Screen->DrawOrigin = DRAW_ORIGIN_WORLD; // This is the default in a scrolling region.
+	//    Screen->DrawTile(x, y, ...)
+	//```
 	// @index [ScrollingIndex]
 	// @zasm_var GAMESCROLLING
 	internal const int Scrolling[];
@@ -1061,7 +1088,7 @@ class Game {
 	//   SETR D2 REFCOMBODATA
 	internal combodata LoadComboData(int id);
 
-	// Loads the mapdata pointer for the screen at `(map,screen)`. Edits to
+	// Loads a canonical [mapdata] pointer for the screen at `(map,screen)`. Edits to
 	// these pointers do not persist through quest exit. Edits to these pointers
 	// will NOT affect the "current screen", even if the current map/screen is
 	// supplied; see [LoadTempScreen] below for that.
@@ -1072,13 +1099,16 @@ class Game {
 	//   SETR D2 LOADMAPDATA
 	internal mapdata LoadMapData(int map, int screen);
 
-	// Loads the temp mapdata pointer for the specified layer.
+	// Loads the temp [mapdata] pointer for the specified layer.
+	//
 	// `LoadTempScreen(0)` gives a pointer that works mostly the same as
 	// `Screen->`, while passing 1 through 6 will give equal access to the other
 	// layers of the screen. Modifications to these pointers are reset when the
 	// screen changes.
 	//
-	// This is the same as `Game->LoadTempScreen(layer, Game->CurScreen)`.
+	// The entire [Region] at the specificed layer may be accessed by the combo array
+	// variables of this [mapdata], but other variables read from just the top-left origin
+	// screen.
 	//
 	// @zasm
 	//   POP D2
@@ -1109,6 +1139,10 @@ class Game {
 	// Loads the temp mapdata pointer for the specified layer's *scrolling screen*. This is only
 	// used during scrolling, for drawing the screen you just came from during the scrolling
 	// animation.
+	//
+	// The entire scrolling [Region] at the specificed layer may be accessed by the combo array
+	// variables of this [mapdata], but other variables read from just the top-left origin
+	// screen.
 	//
 	// @zasm
 	//   POP D2
@@ -1461,108 +1495,161 @@ class Game {
 	//   SETCMP SCREENSTATEDD !=
 	internal void SetScreenState(int map, int screen, int flag, bool value);
 
+	// Reads the canonical screen. If the screen is currently active (including as a layer), the temporary screen is read instead.
+	//
+	// Note: since Regions came after this was deprecated, only the top-left screen may be considered "active" for purposes of this function.
+	//       Referencing any other screen in the current region will access the canonical screen instead.
+	//
 	// @deprecated Use [mapdata::ComboD]' instead!
 	// @zasm
 	//   POP D0
 	//   POP D2
 	//   POP D1
 	//   SETR D2 COMBODDM
-	internal int GetComboData(int map, int screen, int position);
+	internal int GetComboData(int map, int screen, int pos);
 
-	// @deprecated Use [mapdata::ComboD]'  instead!
+	// Updates the canonical screen. If the screen is currently active, the temporary screen is also updated.
+	//
+	// Note: since Regions came after this was deprecated, only the top-left screen may be considered "active" for purposes of this function.
+	//       Referencing any other screen in the current region will access the canonical screen instead.
+	//
+	// @deprecated Use [mapdata::ComboD] instead!
 	// @zasm
 	//   POP D3
 	//   POP D0
 	//   POP D2
 	//   POP D1
 	//   SETR COMBODDM D3
-	internal void SetComboData(int map, int screen, int position, int value);
+	internal void SetComboData(int map, int screen, int pos, int value);
 
-	// @deprecated Use [mapdata::ComboC]'  instead!
+	// Reads the canonical screen. If the screen is currently active (including as a layer), the temporary screen is read instead.
+	//
+	// Note: since Regions came after this was deprecated, only the top-left screen may be considered "active" for purposes of this function.
+	//       Referencing any other screen in the current region will access the canonical screen instead.
+	//
+	// @deprecated Use [mapdata::ComboC] instead!
 	// @zasm
 	//   POP D0
 	//   POP D2
 	//   POP D1
 	//   SETR D2 COMBOCDM
-	internal int GetComboCSet(int map, int screen, int position);
+	internal int GetComboCSet(int map, int screen, int pos);
 
-	// @deprecated Use [mapdata::ComboC]'  instead!
+	// Updates the canonical screen. If the screen is currently active, the temporary screen is also updated.
+	//
+	// Note: since Regions came after this was deprecated, only the top-left screen may be considered "active" for purposes of this function.
+	//       Referencing any other screen in the current region will access the canonical screen instead.
+	//
+	// @deprecated Use [mapdata::ComboC] instead!
 	// @zasm
 	//   POP D3
 	//   POP D0
 	//   POP D2
 	//   POP D1
 	//   SETR COMBOCDM D3
-	internal void SetComboCSet(int map, int screen, int position, int value);
+	internal void SetComboCSet(int map, int screen, int pos, int value);
 
-	// @deprecated Use [mapdata::ComboF]'  instead!
+	// Reads the canonical screen. If the screen is currently active (including as a layer), the temporary screen is read instead.
+	//
+	// Note: since Regions came after this was deprecated, only the top-left screen may be considered "active" for purposes of this function.
+	//       Referencing any other screen in the current region will access the canonical screen instead.
+	//
+	// @deprecated Use [mapdata::ComboF] instead!
 	// @zasm
 	//   POP D0
 	//   POP D2
 	//   POP D1
 	//   SETR D2 COMBOFDM
-	internal int GetComboFlag(int map, int screen, int position);
+	internal int GetComboFlag(int map, int screen, int pos);
 
-	// @deprecated Use [mapdata::ComboF]'  instead!
+	// Updates the canonical screen. If the screen is currently active, the temporary screen is also updated.
+	//
+	// Note: since Regions came after this was deprecated, only the top-left screen may be considered "active" for purposes of this function.
+	//       Referencing any other screen in the current region will access the canonical screen instead.
+	//
+	// @deprecated Use [mapdata::ComboF] instead!
 	// @zasm
 	//   POP D3
 	//   POP D0
 	//   POP D2
 	//   POP D1
 	//   SETR COMBOFDM D3
-	internal void SetComboFlag(int map, int screen, int position, int value);
+	internal void SetComboFlag(int map, int screen, int pos, int value);
 
-	// @deprecated Use [mapdata::ComboT]'  instead!
+	// Reads the canonical screen. If the screen is currently active (including as a layer), the temporary screen is read instead.
+	//
+	// Note: since Regions came after this was deprecated, only the top-left screen may be considered "active" for purposes of this function.
+	//       Referencing any other screen in the current region will access the canonical screen instead.
+	//
+	// @deprecated Use [mapdata::ComboT] instead!
 	// @zasm
 	//   POP D0
 	//   POP D2
 	//   POP D1
 	//   SETR D2 COMBOTDM
-	internal int GetComboType(int map, int screen, int position);
+	internal int GetComboType(int map, int screen, int pos);
 
-	// @deprecated Use [mapdata::ComboT]'  instead!
+	// Updates the combo type at the position in the canonical screen.
+	//
+	// Note: since Regions came after this was deprecated, only the top-left screen may be considered "active" for purposes of this function.
+	//       Referencing any other screen in the current region will access the canonical screen instead.
+	//
+	// @deprecated Use [mapdata::ComboT] instead!
 	// @zasm
 	//   POP D3
 	//   POP D0
 	//   POP D2
 	//   POP D1
 	//   SETR COMBOTDM D3
-	internal void SetComboType(int map, int screen, int position, int value);
+	internal void SetComboType(int map, int screen, int pos, int value);
 
-	// @deprecated Use [mapdata::ComboI]'  instead!
+	// Reads the canonical screen. If the screen is currently active (including as a layer), the temporary screen is read instead.
+	//
+	// Note: since Regions came after this was deprecated, only the top-left screen may be considered "active" for purposes of this function.
+	//       Referencing any other screen in the current region will access the canonical screen instead.
+	//
+	// @deprecated Use [mapdata::ComboI] instead!
 	// @zasm
 	//   POP D0
 	//   POP D2
 	//   POP D1
 	//   SETR D2 COMBOIDM
-	internal int GetComboInherentFlag(int map, int screen, int position);
+	internal int GetComboInherentFlag(int map, int screen, int pos);
 
-	// @deprecated Use [mapdata::ComboI]'  instead!
+	// Updates the combo inherent flag at the position in the canonical screen.
+	//
+	// @deprecated Use [mapdata::ComboI] instead!
 	// @zasm
 	//   POP D3
 	//   POP D0
 	//   POP D2
 	//   POP D1
 	//   SETR COMBOIDM D3
-	internal void SetComboInherentFlag(int map, int screen, int position,
-									   int value);
+	internal void SetComboInherentFlag(int map, int screen, int pos, int value);
 
-	// @deprecated Use [mapdata::ComboS]'  instead!
+	// Reads the canonical screen. If the screen is currently active (including as a layer), the temporary screen is read instead.
+	//
+	// Note: since Regions came after this was deprecated, only the top-left screen may be considered "active" for purposes of this function.
+	//       Referencing any other screen in the current region will access the canonical screen instead.
+	//
+	// @deprecated Use [mapdata::ComboS] instead!
 	// @zasm
 	//   POP D0
 	//   POP D2
 	//   POP D1
 	//   SETR D2 COMBOSDM
-	internal int GetComboSolid(int map, int screen, int position);
+	internal int GetComboSolid(int map, int screen, int pos);
 
-	// @deprecated Use [mapdata::ComboS]'  instead!
+	// Updates the combo solidity at the position in the canonical screen.
+	//
+	// @deprecated Use [mapdata::ComboS] instead!
 	// @zasm
 	//   POP D3
 	//   POP D0
 	//   POP D2
 	//   POP D1
 	//   SETR COMBOSDM D3
-	internal void SetComboSolid(int map, int screen, int position, int value);
+	internal void SetComboSolid(int map, int screen, int pos, int value);
 
 	// @deprecated
 	// @zasm

@@ -68,6 +68,7 @@ class TestZScript(ZCTestCase):
     def compile_script(self, script_path):
         # Change include paths to use resources/ directly, instead of possibly-stale stuff inside a build folder.
         include_paths = [
+            str(test_scripts_dir),
             str(root_dir / 'resources/include'),
             str(root_dir / 'resources/headers'),
             str(test_scripts_dir / 'playground'),
@@ -140,7 +141,7 @@ class TestZScript(ZCTestCase):
         script_paths = list(test_scripts_dir.rglob('*.zs'))
         script_paths += list((test_scripts_dir / 'newbie_boss').rglob('*.z'))
         for script_path in script_paths:
-            if script_path.name in ['auto.zs', 'playground.zs']:
+            if script_path.name in ['auto.zs', 'playground.zs', 'z3.zs']:
                 continue
 
             with self.subTest(msg=f'compile {script_path.name}'):

@@ -305,6 +305,9 @@ struct gamedata
 
 	byte get_spriteflickertransp();
 	void set_spriteflickertransp(byte val);
+	
+	byte get_regionmapping();
+	void set_regionmapping(byte val);
 
 	byte get_continue_scrn() const;
 	void set_continue_scrn(byte s);

@@ -218,17 +218,26 @@ enum ScreenState
 //
 //  - [Game->LoadMapData]
 //
+// @tutorial /tutorials/z3_user_guide
 // @zasm_ref REFMAPDATA
 class mapdata {
 	// @delete
 	internal mapdata();
 
-	// Returns true if the screen is 'valid'. Screens that appear with the
-	// default blue background in ZQuest are 'invalid'. Modifying a combo on a
-	// screen makes it become 'valid'. If a layer is 'invalid', it will not be
-	// drawn.
+	// True if the screen is valid. Screens that appear with the default blue background
+	// in the editor are invalid. Modifying a combo on a screen turns it valid.
+	//
+	// If a layer is invalid, it will not be drawn.
+	//
 	// @zasm_var MAPDATAVALID
 	internal int Valid;
+
+	// The screen's [Region] ID.
+	//
+	// May only be written to for canonical mapdata ([Game->LoadMapData]).
+	//
+	// @zasm_var MAPDATAREGIONID
+	internal int RegionID;
 
 	// The screen guy.
 	//
@@ -462,8 +471,8 @@ class mapdata {
 	// @zasm_var MAPDATALAYERINVIS
 	internal bool LayerInvisible[];
 
-	// If false, the given layer of script draws will be disabled on this
-	// screen.
+	// If false, the given layer of script draws will be disabled. Only applies
+	// if this screen is the origin screen of the current [Region].
 	//
 	// @zasm_var MAPDATASCRIPTDRAWS
 	internal bool ScriptDraws[];
@@ -501,6 +510,9 @@ class mapdata {
 	// The Data (combo ID) variable for each of the ffcs on the screen.
 	//
 	// See [ffc::Data] for more details.
+	//
+	// If this `mapdata` was loaded via [Game->LoadTempScreen] and layer 0,
+	// this array and the other FFC arrays reference the live FFCs.
 	//
 	// @zasm_var MAPDATAFFDATA
 	internal int FFCData[];
@@ -651,35 +663,49 @@ class mapdata {
 
 	// The Combo ID placed at each position on the screen.
 	//
+	// If this is a temporary screen loading with `Game->LoadTempScreen(layer)`, then this allows access to every combo in the current region.
+	//
 	// @zasm_var MAPDATACOMBODD
 	internal int ComboD[];
 
 	// The CSet of the combo placed at each position on the screen.
+	//
+	// If this is a temporary screen loading with `Game->LoadTempScreen(layer)`, then this allows access to every combo in the current region.
 	//
 	// @zasm_var MAPDATACOMBOCD
 	internal int ComboC[];
 
 	// The mapflag placed at each position on the screen.
 	//
+	// If this is a temporary screen loading with `Game->LoadTempScreen(layer)`, then this allows access to every combo in the current region.
+	//
 	// @zasm_var MAPDATACOMBOFD
 	internal int ComboF[];
 
 	// The inherent flag of the combo placed at each position on the screen.
+	//
+	// If this is a temporary screen loading with `Game->LoadTempScreen(layer)`, then this allows access to every combo in the current region.
 	//
 	// @zasm_var MAPDATACOMBOID
 	internal int ComboI[];
 
 	// The combo type of the combo placed at each position on the screen.
 	//
+	// If this is a temporary screen loading with `Game->LoadTempScreen(layer)`, then this allows access to every combo in the current region.
+	//
 	// @zasm_var MAPDATACOMBOTD
 	internal int ComboT[];
 
 	// The solidity map of the combo placed at each position on the screen.
 	//
+	// If this is a temporary screen loading with `Game->LoadTempScreen(layer)`, then this allows access to every combo in the current region.
+	//
 	// @zasm_var MAPDATACOMBOSD
 	internal int ComboS[];
 
 	// The effect map of the combo placed at each position on the screen.
+	//
+	// If this is a temporary screen loading with `Game->LoadTempScreen(layer)`, then this allows access to every combo in the current region.
 	//
 	// @zasm_var MAPDATACOMBOED
 	internal int ComboE[];
@@ -715,7 +741,7 @@ class mapdata {
 	// @zasm_var MAPDATALENSHIDES
 	internal bool LensHides[];
 
-	// Read-write, the size of the `Data[]` array.
+	// Read-write, the size of the [Data] array.
 	//
 	// @zasm_var MAPDATASCRDATASIZE
 	internal int DataSize;
@@ -766,11 +792,9 @@ class mapdata {
 	// @zasm_var MAPDATAMISCD
 	internal untyped D[];
 
-	// If not zero, then the item for this screen will be shown.
+	// If not zero, then the item for this screen is shown.
 	//
-	// When Link takes the item on a screen, this is set to 0.
-	//
-	// @deprecated Check '->Item > -1' instead!
+	// @deprecated Use `Item > -1` instead!
 	// @zasm_var MAPDATAHASITEM
 	internal int HasItem;
 

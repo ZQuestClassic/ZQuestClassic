@@ -16,15 +16,31 @@ static constexpr inline T sign(T a)
     return T(a < 0 ? -1: 1);
 }
 template <class T>
+static inline T sign2(T a)
+{
+	if (a == 0) return 0;
+    return T(a < 0 ? -1: 1);
+}
+template <class T>
 static constexpr inline void zc_swap(T &a,T &b)
 {
     T c = a;
     a = b;
     b = c;
 }
+template <class T1, class T2>
+static constexpr inline void zc_swap(T1 &a,T2 &b)
+{
+    T2 c = a;
+    a = b;
+    b = c;
+}
 int vbound(int val, int low, int high);
 double vbound(double val, double low, double high);
 zfix vbound(zfix val, zfix low, zfix high);
+zfix vbound(zfix val, int low, zfix high);
+zfix vbound(zfix val, zfix low, int high);
+zfix vbound(zfix val, int low, int high);
 
 #define zc_max(a,b) (((a) < (b)) ? (b) : (a))
 #define zc_min(a,b) (((a) < (b)) ? (a) : (b))
@@ -110,6 +126,7 @@ int wrap(int x,int low,int high);
 #define WAV_COUNT                  256
 
 #define MAXFFCS                    128
+#define MAX_FFCID                  (region_scr_count * MAXFFCS - 1)
 #define MAXSCREENS                 128
 #define MAXCUSTOMMIDIS192b177      32   // uses bit string for midi flags, so 32 bytes
 #define MAXCUSTOMMIDIS             252  // uses bit string for midi flags, so 32 bytes
@@ -313,7 +330,7 @@ enum generic_ind //game->generic[]
 	genDITH_TYPE, genDITH_ARG, genDITH_PERC, genLIGHT_RAD,genTDARK_PERC,genDARK_COL,
 	genWATER_GRAV, genSIDESWIM_UP, genSIDESWIM_SIDE, genSIDESWIM_DOWN, genSIDESWIM_JUMP,
 	genBUNNY_LTM, genSWITCHSTYLE, genSPRITEFLICKERSPEED, genSPRITEFLICKERCOLOR,
-	genSPRITEFLICKERTRANSP, genLIGHT_WAVE_RATE, genLIGHT_WAVE_SIZE, genLAST,
+	genSPRITEFLICKERTRANSP, genLIGHT_WAVE_RATE, genLIGHT_WAVE_SIZE, genREGIONMAPPING, genLAST,
 	genMAX = 256
 };
 
@@ -359,6 +376,7 @@ direction XY_DIR(int32_t xdir, int32_t ydir);
 direction GET_XDIR(zfix const& sign);
 direction GET_YDIR(zfix const& sign);
 direction GET_DIR(zfix const& dx, zfix const& dy);
+direction XY_DELTA_TO_DIR(int32_t dx, int32_t dy);
 #define NORMAL_DIR(dir)    ((dir >= 0 && dir < 16) ? normalDir[dir] : dir_invalid)
 
 struct viewport_t
@@ -377,7 +395,15 @@ struct viewport_t
 	int32_t bottom() const;
 };
 
+enum class ViewportMode
+{
+	CenterAndBound = 0,
+	Center = 1,
+	Script = 2,
 
+	First = CenterAndBound,
+	Last = Script,
+};
 
 struct CheckListInfo
 {

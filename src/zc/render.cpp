@@ -4,6 +4,7 @@
 #include "zc/maps.h"
 #include "sprite.h"
 #include "zc/guys.h"
+#include "iter.h"
 #include "base/qst.h"
 #include "base/gui.h"
 #include "base/zapp.h"
@@ -339,11 +340,10 @@ void render_zc()
 		lines_right.push_back("SAVING ...");
 	if (show_ff_scripts)
 	{
-		for (int i = 0; i < tmpscr->numFFC(); i++)
-		{
-			if (tmpscr->ffcs[i].script)
-				lines_right.push_back(ffcmap[tmpscr->ffcs[i].script-1].scriptname);
-		}
+		for_every_ffc([&](const ffc_handle_t& ffc_handle) {
+			if (ffc_handle.ffc->script)
+				lines_right.push_back(ffcmap[ffc_handle.ffc->script-1].scriptname);
+		});
 	}
 
 	ALLEGRO_BITMAP* bitmap = al_get_backbuffer(all_get_display());

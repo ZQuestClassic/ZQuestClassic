@@ -295,19 +295,24 @@ def _download(revision: Revision, channel: str):
     if dest.exists() and list(dest.glob('*')):
         return dest
 
-    commitish = revision.tag
+    tag = revision.tag
+    if '.z3' in revision.tag:
+        prefix = f'https://github.com/connorjclark/ZeldaClassic/releases/download/{tag}/{tag}-'
+    else:
+        prefix = f'{bucket_url}/{tag}/'
+
     if channel == 'windows':
         urls = [
-            f'{bucket_url}/{commitish}/windows-x64.zip',
-            f'{bucket_url}/{commitish}/windows-x86.zip',
+            f'{prefix}windows-x64.zip',
+            f'{prefix}windows-x86.zip',
         ]
     elif channel == 'mac':
         urls = [
-            f'{bucket_url}/{commitish}/mac.dmg',
+            f'{prefix}mac.dmg',
         ]
     elif channel == 'linux':
         urls = [
-            f'{bucket_url}/{commitish}/linux.tar.gz',
+            f'{prefix}linux.tar.gz',
         ]
     else:
         raise Exception(f'unexpected channel: {channel}')
@@ -357,7 +362,7 @@ def _download(revision: Revision, channel: str):
         zip.extractall(dest)
         zip.close()
 
-    print(f'finished downloading {commitish}', file=os.sys.stderr)
+    print(f'finished downloading {tag}', file=os.sys.stderr)
     return dest
 
 

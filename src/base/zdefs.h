@@ -27,6 +27,8 @@
 #endif
 
 #include <cstdio>
+#include <stddef.h>
+#include <stdint.h>
 #include <math.h>
 #include <cstring>
 #include <set>
@@ -43,6 +45,7 @@
 #include "base/render.h"
 #include "fontsdat.h"
 #include "zconfig.h"
+#include "base/check.h"
 #include "flags.h"
 
 struct mapscr;
@@ -50,6 +53,9 @@ class solid_object;
 class ffcdata;
 struct cpos_info;
 
+enum class rpos_t : int32_t {
+	None = -1,
+};
 
 // These version fields are deprecated, and no longer update. Replaced by base/version.h
 #define ZELDA_VERSION       0x0255                         //version of the program
@@ -141,15 +147,15 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_TILES            3 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
 #define V_COMBOS          50
 #define V_CSETS            6 //palette data
-#define V_MAPS            30
-#define V_DMAPS           21
+#define V_MAPS            32
+#define V_DMAPS           22
 #define V_DOORS            1
 #define V_ITEMS           59
 #define V_WEAPONS          8
 #define V_COLORS           4 //Misc Colours
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
-#define V_INITDATA        40
+#define V_INITDATA        41
 #define V_GUYS            53
 #define V_MIDIS            4
 #define V_CHEATS           1
@@ -223,7 +229,6 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_ZITEM -1
 #define V_ZWPNSPR -1
 
-
 void zprint(const char * const format,...);
 void zprint2(const char * const format,...);
 
@@ -231,7 +236,6 @@ extern int32_t curr_tb_page;
 extern int32_t original_playing_field_offset;
 extern int32_t playing_field_offset;
 extern int32_t passive_subscreen_height;
-extern int32_t passive_subscreen_offset;
 
 extern int32_t CSET_SIZE;
 extern int32_t CSET_SHFT;
@@ -270,6 +274,9 @@ if(close_button_quit) \
 #define WRAP_CS2(cs,cs2) (get_qr(qr_OLDCS2)?((cs+cs2+16)%16):((cs+cs2+14)%14))
 
 #define XOR(a,b) (!(a) != !(b))
+#define CLEAR_LOW_BITS(x, b) ((x) & ~((1<<(b)) - 1))
+#define TRUNCATE_TILE(x) CLEAR_LOW_BITS(x, 4)
+#define TRUNCATE_HALF_TILE(x) CLEAR_LOW_BITS(x, 3)
 
 // quest stuff
 #define ZQ_TILES        0
@@ -313,12 +320,6 @@ enum { warpfxNONE, warpfxBLACKOUT, warpfxWIPE, warpfxSCROLL, warpfxZAP, warpfxZA
 	
 //wipe types - mosaic should be one of them. 
 enum { wipeNONE, wipeCOOL, wipeBLACK, wipeBSZELDA, wipeTRIANGLE, wipeCIRCLE, wipeALLSTARS, wipeLAST };
-
-enum
-{
-    wtCAVE, wtPASS, wtEXIT, wtSCROLL, wtIWARP, wtIWARPBLK, wtIWARPOPEN,
-    wtIWARPZAP, wtIWARPWAVE, wtNOWARP, wtWHISTLE, wtMAX
-};
 
 enum
 {
@@ -1431,7 +1432,7 @@ public:
 	dword wait_index; // nth WaitX instruction (0 being pc 0) last execution stopped at. for jit only
 	uint32_t retsp; //stack pointer for the return stack
 	
-	dword ffcref;
+	uint32_t ffcref;
 	int32_t idata;
 	dword itemref, guyref, lwpn, ewpn;
 	dword screenref, npcdataref, bitmapref, spriteref, spritedataref, dmapsref, zmsgref, shopsref, untypedref;
@@ -1872,6 +1873,8 @@ enum
     sMSWORDBEAM, sXSWORDBEAM, sHOOKSHOT, sWAND, sHAMMER, sSTRIKE, sSECNEXT
 };
 
+int combo_trigger_flag_to_secret_combo_index(int flag);
+
 struct comboclass
 {
     char  name[64];                       //  name
@@ -1961,7 +1964,7 @@ struct zquestheader
 {
     char  id_str[31];
     int16_t zelda_version; // Deprecated
-    char zelda_version_string[40];
+    char zelda_version_string[45];
     word  internal;
     byte  quest_number;
     byte  old_rules[2];
@@ -2026,6 +2029,7 @@ struct zquestheader
     //made in module_name
     
 	bool external_zinfo;
+	bool is_z3;
 	
 	
 	bool is_legacy() const;

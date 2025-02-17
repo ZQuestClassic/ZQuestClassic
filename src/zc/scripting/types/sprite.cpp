@@ -34,14 +34,14 @@ static sprite* get_sprite(int uid, const char* context)
 {
 	if (!uid)
 	{
-		Z_scripterrlog("The pointer is NULL or uninitialised (reading 'sprite->%s').\n", context);
+		Z_scripterrlog("The pointer is NULL or uninitialised (sprite->%s).\n", context);
 		return nullptr;
 	}
 
 	sprite* s = sprite::getByUID(uid);
 	if (!s)
 	{
-		Z_scripterrlog("Invalid pointer for UID %ld (reading 'sprite->%s').\n", uid, context);
+		Z_scripterrlog("Invalid pointer for UID %ld (sprite->%s).\n", uid, context);
 		return nullptr;
 	}
 
@@ -60,11 +60,11 @@ std::optional<int32_t> sprite_get_register(int32_t reg)
 		case SPRITE_SPAWN_SCREEN:
 		{
 			if (is_player())
-				return currscr * 10000;
+				return cur_screen * 10000;
 
-			if (get_sprite(ri->spriteref, "SpawnScreen"))
-				return currscr * 10000;
-			return 0;
+			if (auto s = get_sprite(ri->spriteref, "SpawnScreen"))
+				return s->screen_spawned * 10000;
+			break;
 		}
 		case SPRITE_X:
 		{

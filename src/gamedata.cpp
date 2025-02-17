@@ -880,6 +880,15 @@ void gamedata::set_spriteflickertransp(byte val)
 	set_generic(val, genSPRITEFLICKERTRANSP);
 }
 
+byte gamedata::get_regionmapping()
+{
+	return get_generic(genREGIONMAPPING);
+}
+void gamedata::set_regionmapping(byte val)
+{
+	set_generic(val, genREGIONMAPPING);
+}
+
 void gamedata::set_item(int32_t id, bool value)
 {
     set_item_no_flush(id, value);
@@ -958,7 +967,7 @@ portal* loadportal(savedportal& p)
 {
 	portal* retp = nullptr;
 #ifndef IS_EDITOR
-	if(currdmap == p.srcdmap && currscr == p.srcscr)
+	if(cur_dmap == p.srcdmap && cur_screen == p.srcscr)
 	{
 		retp = new portal(p.destdmap, p.destscr+DMaps[p.destdmap].xoff,
 			p.warpfx, p.sfx, p.spr);

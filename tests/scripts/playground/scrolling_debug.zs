@@ -62,8 +62,8 @@ dmapdata script ScrollingDebug
 		if (Game->Scrolling[SCROLL_DIR] != -1)
 		{
 			// Draw over where the hero is.
-			x = engineRound(Hero->X) + Game->Scrolling[SCROLL_NX];
-			y = engineRound(Hero->Y) + Game->Scrolling[SCROLL_NY];
+			x = engineRound(Hero->X) + Game->Scrolling[SCROLL_NRX];
+			y = engineRound(Hero->Y) + Game->Scrolling[SCROLL_NRY];
 			Screen->DrawCombo(3, x, y,
 				20,
 				1,
@@ -167,7 +167,6 @@ dmapdata script ScrollingDebug
 		}
 		else
 		{
-			int x,y,w,h;
 			Waitdraw(); // During scrolling, the viewport animates, requiring this Waitdraw().
 			Screen->DrawOrigin = DRAW_ORIGIN_REGION;
 			x = Viewport->X;

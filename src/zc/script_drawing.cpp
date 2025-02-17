@@ -7,6 +7,7 @@
 
 #include "base/qrs.h"
 #include "base/dmap.h"
+#include "base/zdefs.h"
 #include "base/zc_alleg.h"
 #include "zc/script_drawing.h"
 #include "zc/rendertarget.h"
@@ -1010,14 +1011,9 @@ void do_putpixelsr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32
     
     if(v.empty())
         return;
-        //Z_scripterrlog("PutPixels reached line %d\n", 983);
     
     int32_t* pos = &v[0];
     int32_t sz = v.size();
-    //Z_scripterrlog("Vector size is: %d\n", sz);
-    //for ( int32_t m = 0; m < 256; ++m ) Z_scripterrlog("Vector contents at pos[%d]: %d\n", m, pos[m]);
-  
-    //FFCore.getValues(sdci[2]/10000, points, sz);
     
     
 	int32_t x1 = 0;
@@ -1025,12 +1021,8 @@ void do_putpixelsr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32
     
     for ( int32_t q = 0; q < sz; q+=4 )
     {
-	    //Z_scripterrlog("Vector q: %d\n", q);
-	    //if ( q > sz-1 ) break;
 	    x1 = v.at(q); //pos[q];
 	    y1 = v.at(q+1); //pos[q+1];
-	    //Z_scripterrlog("x1 is: %d\n", x1);
-	    //Z_scripterrlog("y1 is: %d\n", 1);
 	    if(sdci[5]!=0) //rotation
 	    {
 		int32_t xy[2];
@@ -1045,15 +1037,9 @@ void do_putpixelsr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32
 		x1=xy[0];
 		y1=xy[1];
 	    }
-	    //Z_scripterrlog("PutPixels()%s value is %d\n","x",x1);
-	    //Z_scripterrlog("PutPixels()%s value is %d\n","y",y1);
-	    //Z_scripterrlog("PutPixels()%s value is %d\n","colour",points[q+2]);
 	    if ( v.at(q+3) /*pos[q+3]*/ < 128 ) drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
 	    else drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 	    putpixel(bmp, x1+xoffset, y1+yoffset, v.at(q+2) /*pos[q+2]*/);
-	    //if ( points[q+3] < 128 ) 
-		
-	    //else drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
     }
     drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
 }
@@ -1293,7 +1279,7 @@ void do_drawcombor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
     int32_t x1=sdci[2]/10000;
     int32_t y1=sdci[3]/10000;
     
-    const newcombo & c = combobuf[cmb];
+    auto& c = GET_DRAWING_COMBO(cmb);
     int32_t tiletodraw = combo_tile(c, x1, y1);
     int32_t flip = ((sdci[14]/10000) & 3) ^ c.flip;
     int32_t skiprows=c.skipanimy;
@@ -1448,7 +1434,7 @@ void do_drawcombocloakedr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
 	int32_t x1=sdci[2]/10000;
 	int32_t y1=sdci[3]/10000;
 	
-	const newcombo & c = combobuf[cmb];
+	auto& c = GET_DRAWING_COMBO(cmb);
 	int32_t tiletodraw = combo_tile(c, x1, y1);
 	int32_t flip = ((sdci[7]/10000) & 3) ^ c.flip;
 	int32_t skiprows=c.skipanimy;
@@ -1462,11 +1448,13 @@ void do_fasttiler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
     /* layer, x, y, tile, color opacity */
     
     int32_t opacity = sdci[6]/10000;
+	int x = xoffset+(sdci[2]/10000);
+	int y = yoffset+(sdci[3]/10000);
     
     if(opacity < 128)
-        overtiletranslucent16(bmp, sdci[4]/10000, xoffset+(sdci[2]/10000), yoffset+(sdci[3]/10000), sdci[5]/10000, 0, opacity);
+        overtiletranslucent16(bmp, sdci[4]/10000, x, y, sdci[5]/10000, 0, opacity);
     else
-        overtile16(bmp, sdci[4]/10000, xoffset+(sdci[2]/10000), yoffset+(sdci[3]/10000), sdci[5]/10000, 0);
+        overtile16(bmp, sdci[4]/10000, x, y, sdci[5]/10000, 0);
 }
 
 void do_fasttilesr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32_t yoffset)
@@ -1519,15 +1507,17 @@ void do_fastcombor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 		Z_scripterrlog("FastCombo() cannot draw combo '%d', as it is out of bounds.\n", cmb);
 		return;
 	}
+
+	int x = xoffset+x1;
+	int y = yoffset+y1;
 	
 	if(opacity < 128)
 	{
-		overcomboblocktranslucent(bmp, xoffset+x1, yoffset+y1, cmb, sdci[5]/10000, 1, 1, 128);
-
+		overcomboblocktranslucent(bmp, x, y, cmb, sdci[5]/10000, 1, 1, 128);
 	}
 	else
 	{
-		overcomboblock(bmp, xoffset+x1, yoffset+y1, cmb, sdci[5]/10000, 1, 1);
+		overcomboblock(bmp, x, y, cmb, sdci[5]/10000, 1, 1);
 	}
 }
 
@@ -2199,7 +2189,7 @@ void do_drawquadr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
     
     if ( tile < 0 )        // COMBO
     {
-        const newcombo & c = combobuf[ vbound(abs(tile), 0, 0xffff) ];
+        auto& c = GET_DRAWING_COMBO(vbound(abs(tile), 0, 0xffff));
         const int32_t tiletodraw = combo_tile(c, x1, y1);
         flip = flip ^ c.flip;
         
@@ -2288,7 +2278,7 @@ void do_drawtriangler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
     }
     else        // COMBO
     {
-        const newcombo & c = combobuf[ vbound(abs(tile), 0, 0xffff) ];
+        auto& c = GET_DRAWING_COMBO(vbound(abs(tile), 0, 0xffff));
         const int32_t tiletodraw = combo_tile(c, x1, y1);
         flip = flip ^ c.flip;
         
@@ -3750,7 +3740,7 @@ void do_drawquad3dr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int3
     }
     else        // COMBO
     {
-        const newcombo & c = combobuf[ vbound(abs(tile), 0, 0xffff) ];
+        auto& c = GET_DRAWING_COMBO(vbound(abs(tile), 0, 0xffff));
         const int32_t tiletodraw = combo_tile(c, 0, 0);
         flip = flip ^ c.flip;
         
@@ -3833,7 +3823,7 @@ void do_drawtriangle3dr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, 
     }
     else        // COMBO
     {
-        const newcombo & c = combobuf[ vbound(abs(tile), 0, 0xffff) ];
+        auto& c = GET_DRAWING_COMBO(vbound(abs(tile), 0, 0xffff));
         const int32_t tiletodraw = combo_tile(c, 0, 0);
         flip = flip ^ c.flip;
         
@@ -4742,7 +4732,7 @@ void bmp_do_drawcombor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoff
     int32_t x1=sdci[2]/10000;
     int32_t y1=sdci[3]/10000;
     
-    const newcombo & c = combobuf[cmb];
+    auto& c = GET_DRAWING_COMBO(cmb);
     int32_t tiletodraw = combo_tile(c, x1, y1);
     int32_t flip = ((sdci[14]/10000) & 3) ^ c.flip;
     int32_t skiprows=c.skipanimy;
@@ -4912,7 +4902,7 @@ void bmp_do_drawcombocloakedr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32
 	int32_t x1=sdci[2]/10000;
 	int32_t y1=sdci[3]/10000;
 	
-	const newcombo & c = combobuf[cmb];
+	auto& c = GET_DRAWING_COMBO(cmb);
 	int32_t tiletodraw = combo_tile(c, x1, y1);
 	int32_t flip = ((sdci[7]/10000) & 3) ^ c.flip;
 	int32_t skiprows=c.skipanimy;
@@ -4936,11 +4926,14 @@ void bmp_do_fasttiler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
 	if ( refbmp == NULL ) return;
     
     if ( (sdci[DRAWCMD_BMP_TARGET]-10) != -2 && (sdci[DRAWCMD_BMP_TARGET]-10) != -1 ) yoffset = 0; //Don't crop. 
+
+	int x = xoffset+(sdci[2]/10000);
+	int y = yoffset+(sdci[3]/10000);
     
     if(opacity < 128)
-        overtiletranslucent16(refbmp, sdci[4]/10000, xoffset+(sdci[2]/10000), yoffset+(sdci[3]/10000), sdci[5]/10000, 0, opacity);
+        overtiletranslucent16(refbmp, sdci[4]/10000, x, y, sdci[5]/10000, 0, opacity);
     else
-        overtile16(refbmp, sdci[4]/10000, xoffset+(sdci[2]/10000), yoffset+(sdci[3]/10000), sdci[5]/10000, 0);
+        overtile16(refbmp, sdci[4]/10000, x, y, sdci[5]/10000, 0);
 }
 
 void do_bmpwritetile(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
@@ -5111,25 +5104,18 @@ void bmp_do_fastcombor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoff
 	}
     
     if ( (sdci[DRAWCMD_BMP_TARGET]-10) != -2 && (sdci[DRAWCMD_BMP_TARGET]-10) != -1 ) yoffset = 0; //Don't crop. 
-    
-    //if( index >= MAXCOMBOS ) return; //bleh.
-	/*
-    const newcombo & c = combobuf[index];
-    
-    if(opacity < 128)
-        overtiletranslucent16(refbmp, combo_tile(c, x1, y1), xoffset+x1, yoffset+y1, sdci[5]/10000, (int32_t)c.flip, opacity);
-    else
-        overtile16(refbmp, combo_tile(c, x1, y1), xoffset+x1, yoffset+y1, sdci[5]/10000, (int32_t)c.flip);
-	*/
+
+	int x = xoffset+x1;
+	int y = yoffset+y1;
 	
 	if(opacity < 128)
 	{
-		overcomboblocktranslucent(refbmp, xoffset+x1, yoffset+y1, cmb, sdci[5]/10000, 1, 1, 128);
+		overcomboblocktranslucent(refbmp, x, y, cmb, sdci[5]/10000, 1, 1, 128);
 
 	}
 	else
 	{
-		overcomboblock(refbmp, xoffset+x1, yoffset+y1, cmb, sdci[5]/10000, 1, 1);
+		overcomboblock(refbmp, x, y, cmb, sdci[5]/10000, 1, 1);
 	}
 }
 
@@ -5994,7 +5980,7 @@ void bmp_do_drawquadr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
 	    
 		if ( tile < 0 )        // COMBO
 		{
-			const newcombo & c = combobuf[ vbound(abs(tile), 0, 0xffff) ];
+			auto& c = GET_DRAWING_COMBO(vbound(abs(tile), 0, 0xffff));
 			const int32_t tiletodraw = combo_tile(c, x1, y1);
 			flip = flip ^ c.flip;
 		
@@ -6165,7 +6151,7 @@ void bmp_do_drawtriangler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t y
     }
     else        // COMBO
     {
-        const newcombo & c = combobuf[ vbound(abs(tile), 0, 0xffff) ];
+        auto& c = GET_DRAWING_COMBO(vbound(abs(tile), 0, 0xffff));
         const int32_t tiletodraw = combo_tile(c, x1, y1);
         flip = flip ^ c.flip;
         
@@ -10365,7 +10351,7 @@ void do_comboblit(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset, 
 		Z_scripterrlog("ComboBlit tried to draw invalid combo id '%d'\n", cid);
 		return;
 	}
-	sdci[2] = combobuf[cid].tile * 10000;
+	sdci[2] = GET_DRAWING_COMBO(cid).tile * 10000;
 	do_tileblit(bmp, sdci, xoffset, yoffset, is_bmp, "ComboBlit()");
 }
 
@@ -10456,7 +10442,7 @@ void bmp_do_drawquad3dr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, 
 		}
 		else		// COMBO
 		{
-		const newcombo & c = combobuf[ vbound(abs(tile), 0, 0xffff) ];
+		auto& c = GET_DRAWING_COMBO(vbound(abs(tile), 0, 0xffff));
 		const int32_t tiletodraw = combo_tile(c, 0, 0);
 		flip = flip ^ c.flip;
 		
@@ -10590,7 +10576,7 @@ void bmp_do_drawtriangle3dr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffs
 		}
 		else		// COMBO
 		{
-		const newcombo & c = combobuf[ vbound(abs(tile), 0, 0xffff) ];
+		auto& c = GET_DRAWING_COMBO(vbound(abs(tile), 0, 0xffff));
 		const int32_t tiletodraw = combo_tile(c, 0, 0);
 		flip = flip ^ c.flip;
 		
@@ -10630,10 +10616,10 @@ bool is_layer_transparent(const mapscr& m, int32_t layer)
 	return m.layeropacity[layer] == 128;
 }
 
-mapscr *getmapscreen(int32_t map_index, int32_t screen_index, int32_t layer)   //returns NULL for invalid or non-existent layer
+mapscr *getmapscreen(int32_t map_index, int32_t screen, int32_t layer)   //returns NULL for invalid or non-existent layer
 {
-	mapscr *base_screen;
-	int32_t index = map_index*MAPSCRS+screen_index;
+	mapscr *base_scr;
+	int32_t index = map_index*MAPSCRS+screen;
 	
 	if((uint32_t)layer > 6 || (uint32_t)index >= TheMaps.size())
 		return NULL;
@@ -10642,12 +10628,12 @@ mapscr *getmapscreen(int32_t map_index, int32_t screen_index, int32_t layer)   /
 	{
 		layer = layer - 1;
 		
-		base_screen=&(TheMaps[index]);
+		base_scr=&(TheMaps[index]);
 		
-		if(base_screen->layermap[layer]==0)
+		if(base_scr->layermap[layer]==0)
 			return NULL;
 			
-		index=(base_screen->layermap[layer]-1)*MAPSCRS+base_screen->layerscreen[layer];
+		index=(base_scr->layermap[layer]-1)*MAPSCRS+base_scr->layerscreen[layer];
 		
 		if((uint32_t)index >= TheMaps.size())   // Might as well make sure
 			return NULL;
@@ -10706,15 +10692,14 @@ void do_bmpdrawscreen_solidmaskr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, in
 	if ( (sdci[DRAWCMD_BMP_TARGET]-10) != -2 && (sdci[DRAWCMD_BMP_TARGET]-10) != -1 ) yoffset = 0; //Don't crop. 
 	
 	int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
-	int32_t scrn = sdci[3]/10000;
+	int32_t screen = sdci[3]/10000;
 	int32_t x = sdci[4]/10000;
 	int32_t y = sdci[5]/10000;
 	int32_t x1 = x + xoffset;
 	int32_t y1 = y + yoffset;
 	int32_t rotation = sdci[6]/10000;
-	
-	const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
-	
+	uint32_t index = (uint32_t)map_screen_index(map, screen);
+
 	if(index >= TheMaps.size())
 	{
 		al_trace("DrawScreen: invalid map or screen index. \n");
@@ -10807,14 +10792,14 @@ void do_bmpdrawscreen_solidr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_
 	if ( (sdci[DRAWCMD_BMP_TARGET]-10) != -2 && (sdci[DRAWCMD_BMP_TARGET]-10) != -1 ) yoffset = 0; //Don't crop. 
 	
 	int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
-	int32_t scrn = sdci[3]/10000;
+	int32_t screen = sdci[3]/10000;
 	int32_t x = sdci[4]/10000;
 	int32_t y = sdci[5]/10000;
 	int32_t x1 = x + xoffset;
 	int32_t y1 = y + yoffset;
 	int32_t rotation = sdci[6]/10000;
 	
-	const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
+	uint32_t index = (uint32_t)map_screen_index(map, screen);
 	
 	if(index >= TheMaps.size())
 	{
@@ -10886,14 +10871,14 @@ void do_bmpdrawscreen_cflagr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_
 	if ( (sdci[DRAWCMD_BMP_TARGET]-10) != -2 && (sdci[DRAWCMD_BMP_TARGET]-10) != -1 ) yoffset = 0; //Don't crop. 
 	
 	int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
-	int32_t scrn = sdci[3]/10000;
+	int32_t screen = sdci[3]/10000;
 	int32_t x = sdci[4]/10000;
 	int32_t y = sdci[5]/10000;
 	int32_t x1 = x + xoffset;
 	int32_t y1 = y + yoffset;
 	int32_t rotation = sdci[6]/10000;
 	
-	const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
+	uint32_t index = (uint32_t)map_screen_index(map, screen);
 	
 	if(index >= TheMaps.size())
 	{
@@ -10968,14 +10953,14 @@ void do_bmpdrawscreen_ctyper(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_
 	if ( (sdci[DRAWCMD_BMP_TARGET]-10) != -2 && (sdci[DRAWCMD_BMP_TARGET]-10) != -1 ) yoffset = 0; //Don't crop. 
 	
 	int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
-	int32_t scrn = sdci[3]/10000;
+	int32_t screen = sdci[3]/10000;
 	int32_t x = sdci[4]/10000;
 	int32_t y = sdci[5]/10000;
 	int32_t x1 = x + xoffset;
 	int32_t y1 = y + yoffset;
 	int32_t rotation = sdci[6]/10000;
 	
-	const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
+	uint32_t index = (uint32_t)map_screen_index(map, screen);
 	
 	if(index >= TheMaps.size())
 	{
@@ -11051,14 +11036,14 @@ void do_bmpdrawscreen_ciflagr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32
 	if ( (sdci[DRAWCMD_BMP_TARGET]-10) != -2 && (sdci[DRAWCMD_BMP_TARGET]-10) != -1 ) yoffset = 0; //Don't crop. 
 	
 	int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
-	int32_t scrn = sdci[3]/10000;
+	int32_t screen = sdci[3]/10000;
 	int32_t x = sdci[4]/10000;
 	int32_t y = sdci[5]/10000;
 	int32_t x1 = x + xoffset;
 	int32_t y1 = y + yoffset;
 	int32_t rotation = sdci[6]/10000;
 	
-	const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
+	uint32_t index = (uint32_t)map_screen_index(map, screen);
 	
 	if(index >= TheMaps.size())
 	{
@@ -11113,7 +11098,7 @@ void do_drawlayerr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset,
     //sdci[8]=opacity
     
     int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
-    int32_t scrn = sdci[3]/10000;
+    int32_t screen = sdci[3]/10000;
     int32_t sourceLayer = vbound(sdci[4]/10000, 0, 6);
     int32_t x = sdci[5]/10000;
     int32_t y = sdci[6]/10000;
@@ -11122,8 +11107,8 @@ void do_drawlayerr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset,
     int32_t rotation = sdci[7]/10000;
     int32_t opacity = sdci[8]/10000;
     
-    const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
-    const mapscr* m = getmapscreen(map, scrn, sourceLayer);
+    uint32_t index = (uint32_t)map_screen_index(map, screen);
+    const mapscr* m = getmapscreen(map, screen, sourceLayer);
     
     if(!m) //no need to log it.
         return;
@@ -11162,9 +11147,6 @@ void do_drawlayerr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset,
             
             if(x2 > -16 && x2 < maxX && y2 > -16 && y2 < maxY)   //in clipping rect
             {
-                const newcombo & c = combobuf[ l.data[i] ];
-                const int32_t tile = combo_tile(c, x2, y2);
-                
                 if(opacity < 128)
 		{	
 		    overcomboblocktranslucent(b, x2, y2, l.data[i], l.cset[i], 1, 1, 128);
@@ -11197,14 +11179,14 @@ void do_drawscreenr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset
     //sdci[6]=rotation
     
     int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
-    int32_t scrn = sdci[3]/10000;
+    int32_t screen = sdci[3]/10000;
     int32_t x = sdci[4]/10000;
     int32_t y = sdci[5]/10000;
     int32_t x1 = x + xoffset;
     int32_t y1 = y + yoffset;
     int32_t rotation = sdci[6]/10000;
     
-    const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
+    uint32_t index = (uint32_t)map_screen_index(map, screen);
     
     if(index >= TheMaps.size())
     {
@@ -11263,7 +11245,7 @@ void do_bmpdrawlayerr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
 	if ( refbmp == NULL ) return;
     
     int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
-    int32_t scrn = sdci[3]/10000;
+    int32_t screen = sdci[3]/10000;
     int32_t sourceLayer = vbound(sdci[4]/10000, 0, 6);
     int32_t x = sdci[5]/10000;
     int32_t y = sdci[6]/10000;
@@ -11271,8 +11253,8 @@ void do_bmpdrawlayerr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
 
 	byte noclip = 0;//(sdci[8]!=0);
     int32_t opacity = sdci[8]/10000;
-    const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
-    const mapscr* m = getmapscreen(map, scrn, sourceLayer);
+    uint32_t index = (uint32_t)map_screen_index(map, screen);
+    const mapscr* m = getmapscreen(map, screen, sourceLayer);
     
     if(!m) //no need to log it.
         return;
@@ -11312,9 +11294,9 @@ void do_bmpdrawlayerr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
             
             //if(noclip&&(x2 > -16 && x2 < maxX && y2 > -16 && y2 < maxY))   //in clipping rect
             {
-                const newcombo & c = combobuf[ l.data[i] ];
+                auto& c = GET_DRAWING_COMBO(l.data[i]);
                 const int32_t tile = combo_tile(c, x2, y2);
-                
+
                 if(opacity < 128)
                     overtiletranslucent16(refbmp, tile, x2, y2, l.cset[i], c.flip, opacity);
                 else
@@ -11346,14 +11328,14 @@ void do_bmpdrawscreenr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoff
     if ( (sdci[DRAWCMD_BMP_TARGET]-10) != -2 && (sdci[DRAWCMD_BMP_TARGET]-10) != -1 ) yoffset = 0; //Don't crop. 
 	
     int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
-    int32_t scrn = sdci[3]/10000;
+    int32_t screen = sdci[3]/10000;
     int32_t x = sdci[4]/10000;
     int32_t y = sdci[5]/10000;
     int32_t x1 = x + xoffset;
     int32_t y1 = y + yoffset;
     int32_t rotation = sdci[6]/10000;
     
-    const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
+    uint32_t index = (uint32_t)map_screen_index(map, screen);
     
     if(index >= TheMaps.size())
     {
@@ -11408,7 +11390,7 @@ void do_bmpdrawlayersolidmaskr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int3
 	//sdci[9] == opacity
     
     int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
-    int32_t scrn = sdci[3]/10000;
+    int32_t screen = sdci[3]/10000;
     int32_t sourceLayer = vbound(sdci[4]/10000, 0, 6);
     int32_t x = sdci[5]/10000;
     int32_t y = sdci[6]/10000;
@@ -11418,8 +11400,8 @@ void do_bmpdrawlayersolidmaskr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int3
     byte noclip = (sdci[8]!=0);
     int32_t opacity = sdci[9]/10000;
     
-    const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
-    const mapscr* m = getmapscreen(map, scrn, sourceLayer);
+    uint32_t index = (uint32_t)map_screen_index(map, screen);
+    const mapscr* m = getmapscreen(map, screen, sourceLayer);
     
     if(!m) //no need to log it.
         return;
@@ -11503,7 +11485,7 @@ void do_bmpdrawlayersolidityr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32
 	
     
     int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
-    int32_t scrn = sdci[3]/10000;
+    int32_t screen = sdci[3]/10000;
     int32_t sourceLayer = vbound(sdci[4]/10000, 0, 6);
     int32_t x = sdci[5]/10000;
     int32_t y = sdci[6]/10000;
@@ -11513,8 +11495,8 @@ void do_bmpdrawlayersolidityr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32
 	byte noclip = (sdci[8]!=0);
     int32_t opacity = sdci[9]/10000;
     
-    const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
-    const mapscr* m = getmapscreen(map, scrn, sourceLayer);
+    uint32_t index = (uint32_t)map_screen_index(map, screen);
+    const mapscr* m = getmapscreen(map, screen, sourceLayer);
     
     if(!m) //no need to log it.
         return;
@@ -11578,7 +11560,7 @@ void do_bmpdrawlayercflagr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t 
 	
     
     int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
-    int32_t scrn = sdci[3]/10000;
+    int32_t screen = sdci[3]/10000;
     int32_t sourceLayer = vbound(sdci[4]/10000, 0, 6);
     int32_t x = sdci[5]/10000;
     int32_t y = sdci[6]/10000;
@@ -11589,8 +11571,8 @@ void do_bmpdrawlayercflagr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t 
 	byte noclip = (sdci[8]!=0);
     int32_t opacity = sdci[9]/10000;
     
-    const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
-    const mapscr* m = getmapscreen(map, scrn, sourceLayer);
+    uint32_t index = (uint32_t)map_screen_index(map, screen);
+    const mapscr* m = getmapscreen(map, screen, sourceLayer);
     
     if(!m) //no need to log it.
         return;
@@ -11653,7 +11635,7 @@ void do_bmpdrawlayerctyper(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t 
     //sdci[9]=opacity
     
     int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
-    int32_t scrn = sdci[3]/10000;
+    int32_t screen = sdci[3]/10000;
     int32_t sourceLayer = vbound(sdci[4]/10000, 0, 6);
     int32_t x = sdci[5]/10000;
     int32_t y = sdci[6]/10000;
@@ -11663,8 +11645,8 @@ void do_bmpdrawlayerctyper(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t 
 
     byte noclip = (sdci[8]!=0);
     int32_t opacity = sdci[9]/10000;
-    const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
-    const mapscr* m = getmapscreen(map, scrn, sourceLayer);
+    uint32_t index = (uint32_t)map_screen_index(map, screen);
+    const mapscr* m = getmapscreen(map, screen, sourceLayer);
     
     if(!m) //no need to log it.
         return;
@@ -11727,7 +11709,7 @@ void do_bmpdrawlayerciflagr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t
     //sdci[9]=opacity
     
     int32_t map = (sdci[2]/10000)-1; //zscript map indices start at 1.
-    int32_t scrn = sdci[3]/10000;
+    int32_t screen = sdci[3]/10000;
     int32_t sourceLayer = vbound(sdci[4]/10000, 0, 6);
     int32_t x = sdci[5]/10000;
     int32_t y = sdci[6]/10000;
@@ -11737,8 +11719,8 @@ void do_bmpdrawlayerciflagr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t
     byte noclip = (sdci[8]!=0);
     int32_t opacity = sdci[9]/10000;
     
-    const uint32_t index = (uint32_t)(map * MAPSCRS + scrn);
-    const mapscr* m = getmapscreen(map, scrn, sourceLayer);
+    uint32_t index = (uint32_t)map_screen_index(map, screen);
+    const mapscr* m = getmapscreen(map, screen, sourceLayer);
     
     if(!m) //no need to log it.
         return;
@@ -11794,16 +11776,16 @@ void do_bmpdrawlayerciflagr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t
 // do primitives
 ////////////////////////////////////////////////////////
 
-void do_primitives(BITMAP *targetBitmap, int32_t type, mapscr* theScreen, int32_t xoff, int32_t yoff)
+// Draw commands can vary in terms of the origin/coordinate system to draw as. This
+// is controlled via `DrawOrigin`. Previous to `DrawOrigin`, this always drew
+// relative to the playing field (except for offscreen bitmaps).
+void do_primitives(BITMAP *targetBitmap, int32_t type, int32_t xoff, int32_t yoff)
 {
 	color_map = &trans_table2;
 	
-	//was this next variable ever used? -- DN
-	//bool drawsubscr=false;
-	
 	if(type > 7)
 		return;
-	if(type >= 0 && theScreen->hidescriptlayers & (1<<type))
+	if(type >= 0 && origin_scr->hidescriptlayers & (1<<type))
 		return; //Script draws hidden for this layer
 	if(!script_drawing_commands.is_dirty(type))
 		return; //No draws to this layer
@@ -11937,28 +11919,24 @@ void do_primitives(BITMAP *targetBitmap, int32_t type, mapscr* theScreen, int32_
 			break;
 			case PIXELARRAYR:
 			{
-			 //Z_scripterrlog("Reached case PIXELARRAYR\n");
 				do_putpixelsr(bmp, i, sdci, xoffset, yoffset);
 			}
 			break;
 			
 			case TILEARRAYR:
 			{
-			 //Z_scripterrlog("Reached case PIXELARRAYR\n");
 				do_fasttilesr(bmp, i, sdci, xoffset, yoffset);
 			}
 			break;
 			
 			case LINESARRAY:
 			{
-			 //Z_scripterrlog("Reached case PIXELARRAYR\n");
 				do_linesr(bmp, i, sdci, xoffset, yoffset);
 			}
 			break;
 			
 			case COMBOARRAYR:
 			{
-			 //Z_scripterrlog("Reached case PIXELARRAYR\n");
 				do_fastcombosr(bmp, i, sdci, xoffset, yoffset);
 			}
 			break;
@@ -12176,16 +12154,16 @@ void CScriptDrawingCommands::push_commands(CScriptDrawingCommands* other, bool d
 	if(del) delete other;
 }
 
-void do_script_draws(BITMAP *targetBitmap, mapscr* theScreen, int32_t xoff, int32_t yoff, bool hideLayer7)
+void do_script_draws(BITMAP *targetBitmap, mapscr* scr, int32_t xoff, int32_t yoff, bool hideLayer7)
 {
-	if(XOR(theScreen->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(targetBitmap, 2, theScreen, xoff, yoff);
-	if(XOR(theScreen->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(targetBitmap, 3, theScreen, xoff, yoff);
-	do_primitives(targetBitmap, 0, theScreen, xoff, yoff);
-	do_primitives(targetBitmap, 1, theScreen, xoff, yoff);
-	if(!XOR(theScreen->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(targetBitmap, 2, theScreen, xoff, yoff);
-	if(!XOR(theScreen->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(targetBitmap, 3, theScreen, xoff, yoff);
-	do_primitives(targetBitmap, 4, theScreen, xoff, yoff);
-	do_primitives(targetBitmap, 5, theScreen, xoff, yoff);
-	do_primitives(targetBitmap, 6, theScreen, xoff, yoff);
-	if(!hideLayer7) do_primitives(targetBitmap, 7, theScreen, xoff, yoff);
+	if(XOR(scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG)) do_primitives(targetBitmap, 2, xoff, yoff);
+	if(XOR(scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG)) do_primitives(targetBitmap, 3, xoff, yoff);
+	do_primitives(targetBitmap, 0, xoff, yoff);
+	do_primitives(targetBitmap, 1, xoff, yoff);
+	if(!XOR(scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG)) do_primitives(targetBitmap, 2, xoff, yoff);
+	if(!XOR(scr->flags7&fLAYER3BG, DMaps[cur_dmap].flags&dmfLAYER3BG)) do_primitives(targetBitmap, 3, xoff, yoff);
+	do_primitives(targetBitmap, 4, xoff, yoff);
+	do_primitives(targetBitmap, 5, xoff, yoff);
+	do_primitives(targetBitmap, 6, xoff, yoff);
+	if(!hideLayer7) do_primitives(targetBitmap, 7, xoff, yoff);
 }

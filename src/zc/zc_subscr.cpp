@@ -2,6 +2,8 @@
 
 #include "base/qrs.h"
 #include "base/dmap.h"
+#include "base/util.h"
+#include "zc/maps.h"
 #include "zc/zelda.h"
 #include "subscr.h"
 #include "zc/zc_subscr.h"
@@ -44,7 +46,7 @@ void dosubscr()
 {
 	PALETTE temppal;
 	
-	if(tmpscr->flags3&fNOSUBSCR)
+	if(hero_scr->flags3&fNOSUBSCR)
 		return;
 	
 	if(usebombpal)
@@ -74,8 +76,11 @@ void dosubscr()
 	set_clip_rect(scrollbuf, 0, 0, scrollbuf->w, scrollbuf->h);
 	set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
 
+	int h = is_extended_height_mode() ? 240 : 176;
+	BITMAP* subscr_scrolling_bitmap = create_bitmap(256, h);
+
 	// Copy the complete frame.
-	blit(framebuf,scrollbuf,0,playing_field_offset,0,0,256,176);
+	blit(framebuf,subscr_scrolling_bitmap,0,playing_field_offset,0,0,256,h);
 	
 	bool use_a = get_qr(qr_SELECTAWPN), use_x = get_qr(qr_SET_XBUTTON_ITEMS),
 		 use_y = get_qr(qr_SET_YBUTTON_ITEMS);
@@ -98,7 +103,8 @@ void dosubscr()
 			pg.cursor_pos = game->ywpn>>8;
 		else pg.cursor_pos = 0;
 	}
-	
+
+	int offy = is_extended_height_mode() ? 0 : passive_subscreen_height;
 	FFCore.initZScriptSubscreenScript();
 	subscrpg_clear_animation();
 	subscreen_open = true;
@@ -109,7 +115,7 @@ void dosubscr()
 			load_control_state();
 			script_drawing_commands.Clear();
 		}
-		active_sub_yoff = y-playing_field_offset;
+		// active_sub_yoff = y-playing_field_offset;
 		if(new_subscreen_active->script && FFCore.doscript(ScriptType::EngineSubscreen,0))
 			ZScriptVersion::RunScript(ScriptType::EngineSubscreen, new_subscreen_active->script, 0);
 		do_dcounters();
@@ -126,16 +132,16 @@ void dosubscr()
 		// Otherwise the playing field scrolls down past the bottom of the screen.
 		if(COOLSCROLL)
 		{
-			blit(scrollbuf,framebuf,0,0,0,passive_subscreen_height,256,176);
+			blit(subscr_scrolling_bitmap,framebuf,0,0,0,offy,256,h);
 		}
 		else
 		{
-			blit(scrollbuf,framebuf,0,0,0,y+168+passive_subscreen_height,256,-y);
+			blit(subscr_scrolling_bitmap,framebuf,0,0,0,y+168+offy,256,-y);
 		}
 		
 		draw_subscrs(framebuf,0,y,showtime,sspSCROLLING);
 		if(replay_version_check(19))
-			do_script_draws(framebuf, tmpscr, 0, playing_field_offset);
+			do_script_draws(framebuf, origin_scr, 0, playing_field_offset);
 		
 		advanceframe(false);
 		
@@ -440,13 +446,13 @@ void dosubscr()
 		rectfill(framebuf, 0, 0, 255, 223, 0);
 		
 		if(compat && COOLSCROLL) //copy the playing field back onto the screen
-			blit(scrollbuf,framebuf,0,0,0,passive_subscreen_height,256,176);
+			blit(subscr_scrolling_bitmap,framebuf,0,0,0,offy,256,h);
 		//else nothing to do; the playing field has scrolled off the screen
 		
 		//draw the passive and active subscreen
 		draw_subscrs(framebuf,0,0,showtime,sspDOWN);
 		if(replay_version_check(19))
-			do_script_draws(framebuf, tmpscr, 0, playing_field_offset);
+			do_script_draws(framebuf, origin_scr, 0, playing_field_offset);
 		
 		advanceframe(false);
 		if (replay_version_check(11))
@@ -488,16 +494,16 @@ void dosubscr()
 		
 		if(COOLSCROLL)
 		{
-			blit(scrollbuf,framebuf,0,0,0,passive_subscreen_height,256,176);
+			blit(subscr_scrolling_bitmap,framebuf,0,0,0,offy,256,h);
 		}
 		else
 		{
-			blit(scrollbuf,framebuf,0,0,0,y+168+passive_subscreen_height,256,-y);
+			blit(subscr_scrolling_bitmap,framebuf,0,0,0,y+168+offy,256,-y);
 		}
 		
 		draw_subscrs(framebuf,0,y,showtime,sspSCROLLING);
 		if(replay_version_check(19))
-			do_script_draws(framebuf, tmpscr, 0, playing_field_offset);
+			do_script_draws(framebuf, origin_scr, 0, playing_field_offset);
 		advanceframe(false);
 		
 		if(Quit)
@@ -529,7 +535,6 @@ void markBmap(int32_t dir, int32_t sc)
     int32_t di = (get_currdmap() << 7) + (sc & 0x7F); //+ ((sc&0xF)-(DMaps[get_currdmap()].type==dmOVERW ? 0 : DMaps[get_currdmap()].xoff));
     int32_t code = 0;
     
-    
     switch((DMaps[get_currdmap()].type&dmfTYPE))
     {
     case dmDNGN:
@@ -543,7 +548,7 @@ void markBmap(int32_t dir, int32_t sc)
 			for(int32_t i=3; i>=0; i--)
 			{
 				code <<= 1;
-				code += tmpscr->door[i]&1; //Mark directions only for sides that have the door state set
+				code += origin_scr->door[i]&1; //Mark directions only for sides that have the door state set
 			}
 			
 			// mark the map
@@ -566,10 +571,9 @@ void markBmap(int32_t dir, int32_t sc)
         break;
     }
 }
-
-void markBmap(int32_t dir)
+void markBmap()
 {
-    markBmap(dir, get_currscr());
+	markBmap(-1, hero_screen);
 }
 
 void put_passive_subscr(BITMAP *dest,int32_t x,int32_t y,bool showtime,int32_t pos2)
@@ -577,14 +581,28 @@ void put_passive_subscr(BITMAP *dest,int32_t x,int32_t y,bool showtime,int32_t p
 	++subscr_item_clk;
 	animate_subscr_buttonitems();
 	BITMAP *subscr = create_sub_bitmap(dest,x,y,256,passive_subscreen_height);
-	
+
 	if(no_subscreen())
 	{
 		clear_to_color(subscr,0);
 		destroy_bitmap(subscr);
 		return;
 	}
-	
+
+	// Since regions were added, all passive subscreens get a black background underneath (unless
+	// using an extended height viewport). Previously, custom but blank subscreens could be used to
+	// allow scripts to draw to the entire screen (ex: yuurand), but post-z3 such use cases should
+	// enable the "no subscreen" screen flag.
+	if (QHeader.is_z3 && playing_field_offset)
+		rectfill(subscr, 0, 0, subscr->w, playing_field_offset - 1, 0);
+
+	int32_t prev_currscr;
+	if (currscr_for_passive_subscr != -1)
+	{
+		prev_currscr = cur_screen;
+		cur_screen = currscr_for_passive_subscr;
+	}
+
 	show_custom_subscreen(subscr, new_subscreen_passive, 0, 0, showtime, pos2);
 	destroy_bitmap(subscr);
 	if(new_subscreen_overlay)
@@ -593,4 +611,7 @@ void put_passive_subscr(BITMAP *dest,int32_t x,int32_t y,bool showtime,int32_t p
 		show_custom_subscreen(subscr, new_subscreen_overlay, 0, 0, showtime, pos2);
 		destroy_bitmap(subscr);
 	}
+
+	if (currscr_for_passive_subscr != -1)
+		cur_screen = prev_currscr;
 }

@@ -3,39 +3,19 @@
 //As AdjacentCombo, but 'dist' squares away in a given direction. 
 int AdjacentCombo(int cmb, int dir, int dist)
 {
-	if (dir < 0 || dir > 15) return -1;
+	if (dir < 0 || dir > 15)
+		return -1;
+
 	dir = DirNormal(dir);
-	int combooffsets[12]={-0x10, 0x10, -1, 1, -0x11, -0x0F, 0x0F, 0x11};
-	if ( cmb % 16 == 0 ) combooffsets[8] = -1;//if it's the left edge
-	if ( (cmb % 16) == 15 ) combooffsets[9] = -1; //if it's the right edge
-	if ( cmb < 0x10 ) combooffsets[10] = -1; //if it's the top row
-	if ( cmb > 0x9F ) combooffsets[11] = -1; //if it's on the bottom row
-	if ( combooffsets[8] && ( dir == DIR_LEFT || dir == DIR_LEFTUP || dir == DIR_LEFTDOWN || dir == DIR_LEFTUP ) ) return -1; //if the left columb
-	if ( combooffsets[9] && ( dir == DIR_RIGHT || dir == DIR_RIGHTUP || dir == DIR_RIGHTDOWN ) ) return -1; //if the right column
-	if ( combooffsets[10] && ( dir == DIR_UP || dir == DIR_RIGHTUP || dir == DIR_LEFTUP || dir == DIR_LEFTUP ) ) return -1; //if the top row
-	if ( combooffsets[11] && ( dir == DIR_DOWN || dir == DIR_RIGHTDOWN || dir == DIR_LEFTDOWN ) ) return -1; //if the bottom row
-	else if ( cmb >= 0 && cmb < 176 ) 
-	    {
-		int cmbs[2];//needs a for loop to ensure that t returns the most valid combo
-	    
-		for ( cmbs[1] = 0; cmbs[1] < dist; cmbs[1]++ ) 
-		{
-			cmbs[0] = cmb;
-			cmb += (combooffsets[dir]);
-			if ( cmb < 0 || cmb > 175 ) return -1;
-			if ( cmb % 16 == 0 ) combooffsets[8] = -1;//if it's the left edge
-			if ( (cmb % 16) == 15 ) combooffsets[9] = -1;  //if it's the right edge
-			if ( cmb < 0x10 ) combooffsets[10] = -1; //if it's the top row
-			if ( cmb > 0x9F ) combooffsets[11] = -1; //if it's on the bottom row
-			if ( combooffsets[8] && ( dir == DIR_LEFT || dir == DIR_LEFTUP || dir == DIR_LEFTDOWN || dir == DIR_LEFTUP ) ) return -1; //if the left columb
-			if ( combooffsets[9] && ( dir == DIR_RIGHT || dir == DIR_RIGHTUP || dir == DIR_RIGHTDOWN ) ) return -1; //if the right column
-			if ( combooffsets[10] && ( dir == DIR_UP || dir == DIR_RIGHTUP || dir == DIR_LEFTUP || dir == DIR_LEFTUP ) ) return -1; //if the top row
-			if ( combooffsets[11] && ( dir == DIR_DOWN || dir == DIR_RIGHTDOWN || dir == DIR_LEFTDOWN ) ) return -1; //if the bottom row
-			
-		}
-		return cmb;
+
+	for (int i = 0; i < dist; i++)
+	{
+		cmb = AdjacentCombo(cmb, dir);
+		if (cmb == -1)
+			break;
 	}
-	else return -1;
+
+	return cmb;
 } 
 
 //Convert boolean variable 'input' to floating point, or int.
@@ -454,11 +434,11 @@ void DirRev(npc l)
 	}
 }
 	
-//Returns a multiplication factor for ->Step based on direction.
+// Returns a multiplication factor for ->Step based on direction.
 // Specifically, return the x component of a line with a length of 1 extending
 // in the given direction from origin.
-//Step = step * DirX(dir);
-//Valid only if dir is 0 to 7.
+// `Step = step * DirX(dir);`
+// Valid only if dir is 0 to 7.
 
 int DirX(int dir) 
 {
@@ -469,9 +449,9 @@ int DirX(int dir)
 	return 0;
 }
 
-//Returns a multiplication factor for ->Step based on direction.
-//Step = step * DirY(dir);
-//Valid only if dir is 0 to 7.
+// Returns a multiplication factor for ->Step based on direction.
+// `Step = step * DirY(dir);`
+// Valid only if dir is 0 to 7.
 // Specifically, return the y component of a line with a length of 1 extending
 // in the given direction from origin.
 int DirY(int dir) 

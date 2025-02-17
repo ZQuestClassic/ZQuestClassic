@@ -1,3 +1,4 @@
+#include "base/util.h"
 #include "base/zdefs.h"
 #include "base/zsys.h"
 #include "base/qrs.h"
@@ -7,6 +8,7 @@
 #include "zc/maps.h"
 #include "zc/replay.h"
 #include "zc/guys.h"
+#include "zc/ffscript.h"
 #include "base/zc_math.h"
 #include <fmt/format.h>
 #include "base/misctypes.h"
@@ -17,9 +19,11 @@
 #include "zc/decorations.h"
 #include "items.h"
 #include "zc/render.h"
+
 extern HeroClass Hero;
 extern sprite_list decorations;
 #endif
+
 extern particle_list particles;
 
 extern bool get_debug();
@@ -27,7 +31,6 @@ extern bool halt;
 extern bool show_sprites;
 extern bool show_hitboxes;
 extern void debugging_box(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
-#include "zc/ffscript.h"
 
 static std::map<int32_t, sprite*> all_sprites;
 byte sprite_flicker_color = 0;
@@ -50,6 +53,7 @@ fixed rad_to_fixed(T d)
 sprite::sprite(): solid_object()
 {
     uid = 0;
+	screen_spawned = -1;
 	isspawning = false;
     x=y=z=tile=shadowtile=cs=flip=c_clk=clk=xofs=yofs=shadowxofs=shadowyofs=zofs=fall=fakefall=fakez=0;
     slopeid = 0;
@@ -156,7 +160,7 @@ sprite::sprite(sprite const & other):
 	ignore_delete(other.ignore_delete)
 {
     uid = 0;
-	all_sprites[uid] = this;
+	screen_spawned = other.screen_spawned;
 	isspawning = other.isspawning;
     
     for(int32_t i=0; i<10; ++i)
@@ -185,7 +189,7 @@ sprite::sprite(zfix X,zfix Y,int32_t T,int32_t CS,int32_t F,int32_t Clk,int32_t 
 	x = X;
 	y = Y;
     uid = 0;
-	all_sprites[uid] = this;
+	screen_spawned = get_screen_for_world_xy(x.getInt(), y.getInt());
     isspawning = false;
     slopeid = 0;
     onplatid = 0;
@@ -1048,9 +1052,21 @@ void sprite::draw(BITMAP* dest)
 		return; //don't run the rest, use the old code
 	}
 	int32_t sx = real_x(x+xofs);
-	int32_t sy = real_y(y+yofs)-real_z(z+zofs);
+	// Pain. https://discord.com/channels/876899628556091432/1193381178716196864
+	// syz was simply inlined on the declaration of sy, but somehow MSVC RelWithDebInfo win32 breaks this so badly that
+	// the hero y position is always negative, making the hero invisible. The compiler doesn't do the bad thing when an
+	// intermediate variable is introduced.
+	int32_t syz = real_z(z+zofs);
+	int32_t sy = real_y(y+yofs) - syz;
 	sy -= fake_z(fakez);
-	
+
+#ifdef IS_PLAYER
+	if (dest == framebuf || dest == scrollbuf)
+	{
+		sx -= viewport.x;
+		sy -= viewport.y;
+	}
+#endif
     
 	if(id<0)
 	{
@@ -1116,7 +1132,7 @@ void sprite::draw(BITMAP* dest)
 				blit(dest, temp, sx-16, sy-16, 0, 0, 48, 32);
 
 				static BITMAP *temp2 = create_bitmap_ex(8, 32, 32);
-				static BITMAP* temp3 = create_bitmap_ex(8, 32, 32);
+				static BITMAP* temp3 = create_bitmap_ex(8, 48, 32);
 
 				clear_bitmap(temp3);
 				overtile16(temp3,TILEBOUND(((scripttile > -1) ? scripttile : tile)-TILES_PER_ROW),16,0,cs,((scriptflip > -1) ? scriptflip : flip));
@@ -1130,7 +1146,7 @@ void sprite::draw(BITMAP* dest)
 				if (sprite_flicker_color)
 					SPRITE_MONOCOLOR(temp3);
 
-				masked_blit(temp3, temp, 0, 0, 0, 0, 32, 32);
+				masked_blit(temp3, temp, 0, 0, 0, 0, 48, 32);
 
 				if ( rotation )
 				{
@@ -1386,7 +1402,7 @@ void sprite::draw(BITMAP* dest)
 					}
 					else doSpriteDraw(drawstyle, dest, sprBMP, sx, sy);
 				}
-				if ( sprBMP ) destroy_bitmap(sprBMP);
+				destroy_bitmap(sprBMP);
 				break;
 			}
 			break; //Aye, we break switch(e) here.
@@ -1487,7 +1503,7 @@ void sprite::draw(BITMAP* dest)
 			w.draw(dest);
 		}
 	}
-    
+
 	if(show_hitboxes)
 		draw_hitbox();
 	
@@ -1502,20 +1518,23 @@ void sprite::draw_hitbox()
 	if(hide_hitbox) return;
 #ifdef IS_PLAYER
 	start_info_bmp();
-	al_draw_rectangle(x+hxofs,y+playing_field_offset+hyofs-(z+zofs)-fakez,x+hxofs+hit_width,(y+playing_field_offset+hyofs+hit_height-(z+zofs)-fakez),hitboxColor(info_opacity),1);
+	int x0 = x + hxofs - viewport.x;
+	int y0 = y + playing_field_offset + hyofs - (z + zofs) - fakez - viewport.y;
+	al_draw_rectangle(x0, y0, x0 + hit_width, y0 + hit_height, hitboxColor(info_opacity), 1);
 	end_info_bmp();
 #endif
 }
 
 
 //Z1 bosses draw tiles from guys.cpp, direct to the 'dest'
+// ...but this also draws the hero if qr_OLDSPRITEDRAWS is enabled
 void sprite::drawzcboss(BITMAP* dest)
 {
 	if(!show_sprites)
 	{
 		return;
 	}
-    
+
 	int32_t sx = real_x(x+xofs);
 	// Pain. https://discord.com/channels/876899628556091432/1193381178716196864
 	// syz was simply inlined on the declaration of sy, but somehow MSVC RelWithDebInfo win32 breaks this so badly that
@@ -1524,7 +1543,15 @@ void sprite::drawzcboss(BITMAP* dest)
 	int32_t syz = real_z(z+zofs);
 	int32_t sy = real_y(y+yofs) - syz;
 	sy -= fake_z(fakez);
-    
+
+#ifdef IS_PLAYER
+	if (dest == framebuf || dest == scrollbuf)
+	{
+		sx -= viewport.x;
+		sy -= viewport.y;
+	}
+#endif
+
 	if(id<0)
 		return;
         
@@ -1888,9 +1915,22 @@ void sprite::drawzcboss(BITMAP* dest)
 void sprite::draw8(BITMAP* dest)
 {
     int32_t sx = real_x(x+xofs);
-    int32_t sy = real_y(y+yofs)-real_z(z+zofs);
+	// Pain. https://discord.com/channels/876899628556091432/1193381178716196864
+	// syz was simply inlined on the declaration of sy, but somehow MSVC RelWithDebInfo win32 breaks this so badly that
+	// the hero y position is always negative, making the hero invisible. The compiler doesn't do the bad thing when an
+	// intermediate variable is introduced.
+	int32_t syz = real_z(z+zofs);
+	int32_t sy = real_y(y+yofs) - syz;
 	sy -= fake_z(fakez);
-    
+
+#ifdef IS_PLAYER
+	if (dest == framebuf || dest == scrollbuf)
+	{
+		sx -= viewport.x;
+		sy -= viewport.y;
+	}
+#endif
+
     if(id<0)
         return;
         
@@ -1912,8 +1952,21 @@ void sprite::draw8(BITMAP* dest)
 void sprite::drawcloaked(BITMAP* dest)
 {
     int32_t sx = real_x(x+xofs);
-    int32_t sy = real_y(y+yofs)-real_z(z+zofs);
-    sy -= fake_z(fakez);
+	// Pain. https://discord.com/channels/876899628556091432/1193381178716196864
+	// syz was simply inlined on the declaration of sy, but somehow MSVC RelWithDebInfo win32 breaks this so badly that
+	// the hero y position is always negative, making the hero invisible. The compiler doesn't do the bad thing when an
+	// intermediate variable is introduced.
+	int32_t syz = real_z(z+zofs);
+	int32_t sy = real_y(y+yofs) - syz;
+	sy -= fake_z(fakez);
+
+#ifdef IS_PLAYER
+	if (dest == framebuf || dest == scrollbuf)
+	{
+		sx -= viewport.x;
+		sy -= viewport.y;
+	}
+#endif
     
     if(id<0)
         return;
@@ -1975,6 +2028,11 @@ void sprite::drawshadow(BITMAP* dest,bool translucent)
 	
 	int32_t sx = real_x(x+xofs+shadowxofs)+(txsz-1)*8;
 	int32_t sy = real_y(y+yofs+shadowyofs)+(tysz-1)*16;
+#ifdef IS_PLAYER
+	sx -= viewport.x;
+	sy -= viewport.y;
+#endif
+
 	//int32_t sy1 = sx-56; //subscreen offset
 	//if ( ispitfall(x+xofs, y+yofs+16) || ispitfall(x+xofs+8, y+yofs+16) || ispitfall(x+xofs+15, y+yofs+16)  ) return;
 	//sWTF, why is this offset by half the screen. Can't do this right now. Sanity. -Z
@@ -2199,6 +2257,23 @@ void sprite_list::draw(BITMAP* dest,bool lowfirst)
 		}
 }
 
+void sprite_list::draw_smooth_maze(BITMAP* dest)
+{
+#ifdef IS_PLAYER
+	int maze_screen = maze_state.scr->screen;
+	auto [sx, sy] = translate_screen_coordinates_to_world(maze_screen);
+
+	for (int32_t i=0; i<count; i++)
+	{
+		if (sprites[i]->screen_spawned != maze_state.scr->screen)
+			set_clip_rect(dest, sx - viewport.x, sy - viewport.y, sx + 256 - viewport.x, sy + 176 - viewport.y);
+		sprites[i]->draw(dest);
+	}
+
+	clear_clip_rect(dest);
+#endif
+}
+
 void sprite_list::drawshadow(BITMAP* dest,bool translucent, bool lowfirst)
 {
 	if(lowfirst)
@@ -2211,6 +2286,23 @@ void sprite_list::drawshadow(BITMAP* dest,bool translucent, bool lowfirst)
 		{
 			sprites[i]->drawshadow(dest,translucent);
 		}
+}
+
+void sprite_list::drawshadow_smooth_maze(BITMAP* dest, bool translucent)
+{
+#ifdef IS_PLAYER
+	int maze_screen = maze_state.scr->screen;
+	auto [sx, sy] = translate_screen_coordinates_to_world(maze_screen);
+
+	for (int32_t i=0; i<count; i++)
+	{
+		if (sprites[i]->screen_spawned != maze_state.scr->screen)
+			set_clip_rect(dest, sx - viewport.x, sy - viewport.y, sx + 256 - viewport.x, sy + 176 - viewport.y);
+		sprites[i]->drawshadow(dest, translucent);
+	}
+
+	clear_clip_rect(dest);
+#endif
 }
 
 void sprite_list::draw2(BITMAP* dest,bool lowfirst)
@@ -2246,36 +2338,48 @@ extern char *guy_string[];
 void sprite_list::animate()
 {
 	active_iterator = 0;
-	
+
+#ifdef IS_PLAYER
+	viewport_t freeze_rect = viewport;
+	int tile_buffer = 3;
+	freeze_rect.w += 16 * tile_buffer * 2;
+	freeze_rect.h += 16 * tile_buffer * 2;
+	freeze_rect.x -= 16 * tile_buffer;
+	freeze_rect.y -= 16 * tile_buffer;
+#endif
+
 	while(active_iterator<count)
 	{
-		// TODO: add a higher debug mode for this. For now, just comment out as-needed for debugging.
-		// if (replay_is_active() && replay_is_debug() && dynamic_cast<enemy*>(sprites[active_iterator]) != nullptr)
-		// {
-		// 	enemy* as_enemy = dynamic_cast<enemy*>(sprites[active_iterator]);
-		// 	replay_step_comment(fmt::format("enemy {} id: {} x: {} y: {} clk: {} {} {}",
-		// 		guy_string[as_enemy->id&0xFFF], as_enemy->id, as_enemy->x.getInt(), as_enemy->y.getInt(),
-		// 		as_enemy->clk, as_enemy->clk2, as_enemy->clk3)
-		// 	);
-		// }
+		sprite* spr = sprites[active_iterator];
 
-		if(!(freeze_guys && sprites[active_iterator]->canfreeze))
+		bool freeze_sprite = false;
+		if (spr->canfreeze)
 		{
-			setCurObject(sprites[active_iterator]);
+			freeze_sprite = freeze_guys;
+#ifdef IS_PLAYER
+			// TODO: maybe someday make this "freeze" rect size configurable:
+			//       `->ViewportFreezeBuffer` pixels (set to -1 to disable; enemies/eweapons default to 48px)
+			if (is_in_scrolling_region())
+				freeze_sprite |= !freeze_rect.intersects_with(spr->x.getInt(), spr->y.getInt(), spr->txsz*16, spr->tysz*16);
+#endif
+		}
+
+		if (!freeze_sprite)
+		{
+			setCurObject(spr);
 			auto tmp_iter = active_iterator;
-			sprite* cur_sprite = sprites[active_iterator];
-			if (cur_sprite->animate(active_iterator) || delete_active_iterator)
+			if (spr->animate(active_iterator) || delete_active_iterator)
 			{
 #ifdef IS_PLAYER
-				if (replay_is_active() && dynamic_cast<enemy*>(cur_sprite) != nullptr)
+				if (replay_is_active() && dynamic_cast<enemy*>(spr) != nullptr)
 				{
-					enemy* as_enemy = dynamic_cast<enemy*>(cur_sprite);
+					enemy* as_enemy = dynamic_cast<enemy*>(spr);
 					replay_step_comment(fmt::format("enemy died {}", guy_string[as_enemy->id&0xFFF]));
 				}
 #endif
 				if (delete_active_iterator)
 				{
-					delete cur_sprite;
+					delete spr;
 					delete_active_iterator = false;
 				}
 				else
@@ -2285,7 +2389,7 @@ void sprite_list::animate()
 			}
 			else if(tmp_iter == active_iterator)
 			{
-				sprites[active_iterator]->post_animate();
+				spr->post_animate();
 			}
 			setCurObject(NULL);
 		}
@@ -2307,13 +2411,18 @@ void sprite_list::run_script(int32_t mode)
 	
 	while(active_iterator<count)
 	{
-		sprite* cur_sprite = sprites[active_iterator];
-		if(!(freeze_guys && cur_sprite->canfreeze))
+		sprite* spr = sprites[active_iterator];
+
+		bool freeze_sprite = false;
+		if (spr->canfreeze)
+			freeze_sprite = freeze_guys;
+
+		if (!freeze_sprite)
 		{
-			cur_sprite->run_script(mode);
+			spr->run_script(mode);
 			if (delete_active_iterator)
 			{
-				delete cur_sprite;
+				delete spr;
 				delete_active_iterator = false;
 			}
 		}
@@ -2334,7 +2443,7 @@ void sprite_list::check_conveyor()
     }
 }
 
-int32_t sprite_list::Count()
+int32_t sprite_list::Count() const
 {
     return count;
 }
@@ -2371,13 +2480,13 @@ int32_t sprite_list::hit(int32_t x,int32_t y,int32_t xsize, int32_t ysize)
 }
 
 // returns the number of sprites with matching id
-int32_t sprite_list::idCount(int32_t id, int32_t mask)
+int32_t sprite_list::idCount(int32_t id, int32_t mask, int32_t screen)
 {
     int32_t c=0;
     
     for(int32_t i=0; i<count; i++)
     {
-        if(((sprites[i]->id)&mask) == (id&mask))
+        if ((screen == -1 || sprites[i]->screen_spawned == screen) && ((sprites[i]->id)&mask) == (id&mask))
         {
             ++c;
         }
@@ -2445,7 +2554,13 @@ int32_t sprite_list::idLast(int32_t id, int32_t mask)
 // returns the number of sprites with matching id
 int32_t sprite_list::idCount(int32_t id)
 {
-    return idCount(id,0xFFFF);
+    return idCount(id,0xFFFF,-1);
+}
+
+// returns the number of sprites with matching id, for given screen
+int32_t sprite_list::idCount(int32_t id, int32_t screen)
+{
+    return idCount(id,0xFFFF,screen);
 }
 
 // returns index of first sprite with matching id, -1 if none found
@@ -2698,8 +2813,13 @@ void movingblock::draw(BITMAP *dest)
 	}
     else if(clk)
     {
-        //    sprite::draw(dest);
-        overcombo(dest,real_x(x+xofs),real_y(y+yofs),bcombo ,cs);
+		int32_t sx = real_x(x+xofs);
+		int32_t sy = real_x(y+yofs);
+#ifdef IS_PLAYER
+		sx -= viewport.x;
+		sy -= viewport.y;
+#endif
+        overcombo(dest, sx, sy, bcombo, cs);
     }
 }
 

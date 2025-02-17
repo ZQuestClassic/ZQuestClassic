@@ -698,6 +698,19 @@ def prompt_to_create_compare_report():
     start_webserver()
 
 
+def is_known_failure_test(run: RunResult):
+    if run.success:
+        return False
+
+    # Example:
+    # if run.name == 'triggers.zplay' and run.unexpected_gfx_segments == [[11154, 11217]]:
+    #     print('!!! filtering out known replay test failure !!!')
+    #     print('dithered lighting is off-by-some only during scrolling')
+    #     return True
+
+    return False
+
+
 if test_results_dir.exists() and next(
     test_results_dir.rglob('test_results.json'), None
 ):
@@ -851,6 +864,9 @@ class ProgressDisplay:
 
 
 def should_consider_failure(run: RunResult):
+    if is_known_failure_test(run):
+        return False
+
     if not run.success:
         return True
 
@@ -943,7 +959,15 @@ for result in test_results.runs[-1]:
         print(f'failure: {result.name}')
 
         if result.exceptions:
-            print(f'  EXCEPTION: {" | ".join(result.exceptions)}')
+            title = 'EXCEPTIONS'
+            length = len(title) * 2
+            print()
+            print('=' * length)
+            print(title.center(length, '='))
+            print('=' * length)
+            print()
+            for exception in result.exceptions:
+                print(exception)
 
         def print_nicely(title: str, path: Path):
             if not path.exists():

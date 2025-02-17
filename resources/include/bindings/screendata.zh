@@ -1,3 +1,8 @@
+// 176 per screen in the current region. Same as [Region->NumCombos].
+//
+// @zasm_var REGION_NUM_COMBOS
+internal const int NUM_COMBO_POS;
+
 enum WipeEffect
 {
 	WIPE_CIRCLE,
@@ -144,6 +149,8 @@ enum ScreenFlagWarp
 	SFW_MAZEOVERRIDE,  //maze Overrides Sidewarps
 	SFW_SPRITECARRY, //Sprites carry over. 
 	SFW_DISABLE_MIRROR, //Disable Magic Mirror
+	SFW_MAZE_CAN_GET_LOST, //Maze Can Get Lost
+	SFW_MAZE_LOOPY, //Maze Loopy
 	
 	SFW_LAST
 };
@@ -261,11 +268,23 @@ enum RenderTarget
 	RT_BITMAP6                     = 6,  // Draws to off-screen bitmap 6.
 };
 
-// Contains functions and variables related to the current map screen,
-// including functions for drawing and creating/loading objects belonging
-// to the screen.
+// Contains functionality related to the currently loaded [mapdata] screen,
+// including functions for drawing and creating/loading objects belonging to the
+// screen.
+//
+// Many variables in `Screen` refer to a single [mapdata] screen (such as [Screen->UnderCombo]).
+// For a scrolling [Region] with multiple screens, which screen these variables refer to
+// depends on the context of the running script. See [Screen->Index] for more.
+//
+// The combo array variables (such as [Screen->ComboD]) may access any combo position
+// in the current region. Use [ComboAt] to translate `(x, y)` world coordinates to a
+// combo position. The size of these arrays is [NUM_COMBO_POS].
+//
+// For accessing specific screens, see [mapdata].
 //
 // Access with `Screen->`.
+//
+// @tutorial /tutorials/z3_user_guide
 class screendata {
 	// @delete
 	internal screendata();
@@ -291,29 +310,39 @@ class screendata {
 	// @zasm_var SDD
 	internal untyped D[];
 
+	// The combo ID of each of the [NUM_COMBO_POS] combo positions on the screen.
+	//
 	// @zasm_var COMBODD
 	internal int ComboD[];
 
+	// The CSet of each of the [NUM_COMBO_POS] combo positions on the screen.
+	//
 	// @zasm_var COMBOCD
 	internal int ComboC[];
 
+	// The placed (map) flag of each of the [NUM_COMBO_POS] combo positions on the screen.
+	//
 	// @zasm_var COMBOFD
 	internal int ComboF[];
 
+	// The inherent flag of each of the [NUM_COMBO_POS] combo positions on the screen.
+	//
 	// @zasm_var COMBOID
 	internal int ComboI[];
 
+	// The combo type of each of the [NUM_COMBO_POS] combo positions on the screen.
+	//
 	// @value [ComboType]
 	// @zasm_var COMBOTD
 	internal int ComboT[];
 
-	// The solidity bits of each of the [NUM_COMBO_POS] combo positions on the screen.
+	// The solidity bitflags of each of the [NUM_COMBO_POS] combo positions on the screen.
 	//
 	// @value [ComboSolidityBitflags]
 	// @zasm_var COMBOSD
 	internal int ComboS[];
 
-	// The effect area bits of each of the 176 combos used on the screen.
+	// The effect area bitflags of each of the [NUM_COMBO_POS] combo positions on the screen.
 	//
 	// @zasm_var COMBOED
 	internal int ComboE[];
@@ -334,7 +363,7 @@ class screendata {
 	// @zasm_var SCREENEXSTATED
 	internal bool ExState[];
 
-	// Whether or not the screen is 'lit'. Applies to Classic Darkrooms.
+	// Whether or not the current [Region] is 'lit'. Applies to Classic Darkrooms.
 	//
 	// @zasm_var LIT
 	internal bool Lit;
@@ -631,6 +660,8 @@ class screendata {
 	// Index [0] does nothing, and trying to access it will report an error to
 	// the log.
 	//
+	// This only refers to the screen denoted by [Index].
+	//
 	// @zasm_var SCREENDATALAYERMAP
 	internal int LayerMap[];
 
@@ -639,6 +670,8 @@ class screendata {
 	//
 	// Index [0] does nothing, and trying to access it will report an error to
 	// the log.
+	//
+	// This only refers to the screen denoted by [Index].
 	//
 	// @zasm_var SCREENDATALAYERSCREEN
 	internal int LayerScreen[];
@@ -748,8 +781,7 @@ class screendata {
 	// @zasm_var SCREENINITD
 	internal untyped InitD[];
 
-	// Returns true if secrets have been triggered on this screen (including
-	// temp).
+	// Returns true if secrets have been triggered on this screen (including temp).
 	//
 	// @zasm_var SCREENSECRETSTRIGGERED
 	internal const bool SecretsTriggered;
@@ -1365,10 +1397,9 @@ class screendata {
 	//   ISSOLID D2
 	internal bool isSolid(int x, int y);
 
-	// As 'Screen->isSolid()', but instead of returning true if there is
-	// solidity on layers 0, 1, or 2,
-	//
-	// returns the solidity only for the specified layer.
+	// As [Screen->isSolid], but instead of returning true if there is
+	// solidity on layers 0, 1, or 2 - returns the solidity only for
+	// the specified layer.
 	//
 	// @zasm
 	//   POP D2
@@ -1479,7 +1510,7 @@ class screendata {
 	//   SETR D2 SCREENSECRETSTRIGGERED
 	internal bool SecretsTriggered();
 
-	// Immediately attempts to spawn the [Enemy], using the [Pattern].
+	// Immediately attempts to spawn all the screen enemies ([Enemy]), using the [Pattern].
 	//
 	// @zasm
 	//   SCREENDOSPAWN

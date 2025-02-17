@@ -37,19 +37,10 @@ enum ffc_flags : uint32_t
 };
 } // ends namespace
 
-//x = ffx
-//y = ffy
-//vx = ffxdelta
-//vy = ffydelta
-//ax = ffxdelta2
-//ay = ffydelta2
-//flags  = ffflags
-//data = ffdata
-//delay = ffdelay
-//cset = ffcset
-//link = fflink
-//script = ffscript
-//ffwidth, ffheight?
+// A unique identifier for an ffc in the current region.
+// Equal to: (region screen index offset) * 128 + (index in mapscr ffcs)
+// For non-scrolling regions, or for the top-left screen in a region, this is equal to the index.
+typedef uint16_t ffc_id_t;
 
 class ffcdata : public sprite
 {
@@ -58,11 +49,16 @@ public:
 	zfix ax, ay;
 	ffc_flags flags;
 	word delay;
-	byte cset, link;
+	byte cset;
+	ffc_id_t link;
 	word script;
 	int32_t initd[INITIAL_D];
 	bool hooked;
+	bool recently_hit;
+	int32_t changer_x = -1000, changer_y = -1000;
+	int32_t prev_changer_x = -10000000, prev_changer_y = -10000000;
 	cpos_info info;
+	bool script_wait_draw;
 	word data;
 	
 	ffcdata() = default;
