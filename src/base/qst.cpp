@@ -20800,7 +20800,9 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 			if(!p_igetzf(&temp_zinit.air_drag, f))
 				return qe_invalid;
 		
-		// TODO ~z3 rm
+		// TODO: this first branch can likely be removed, as it only fixes an issues
+		// that existed for a handful of temporary z3 builds (and active users of that
+		// fork would have been updating often, beyond s_version 40).
 		if (Header->is_z3 && s_version == 40)
 		{
 			if(!p_getc(&temp_zinit.region_mapping, f))
@@ -22121,7 +22123,6 @@ static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Mi
     if(!get_bit(skip_flags, skip_header))
     {
         memcpy(Header, &tempheader, sizeof(tempheader));
-		set_qr(qr_BROKEN_SCRIPTS_SCROLLING_HERO_POSITION, !Header->is_z3); // TODO ~z3 rm
     }
     if(!get_bit(skip_flags, skip_zinfo))
     {

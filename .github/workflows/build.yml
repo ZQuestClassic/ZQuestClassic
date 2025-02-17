@@ -167,7 +167,6 @@ jobs:
 
           with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
             print('{0}={1}'.format('platform', release_platform), file=f)
-      # TODO ~z3 revert
       - name: Configure build
         run: >
           cmake -S . -B build -G 'Ninja Multi-Config'
@@ -175,7 +174,7 @@ jobs:
           -DZC_OFFICIAL="${{ inputs.official }}"
           -DZC_VERSION="${{ inputs.release-version }}"
           -DRELEASE_PLATFORM="${{ steps.set-platform.outputs.platform }}"
-          -DRELEASE_CHANNEL="z3"
+          -DRELEASE_CHANNEL="3"
           -DREPO="${{ github.repository }}"
           -DWANT_SENTRY="${{ inputs.sentry }}"
           -DWANT_DEBUG_FILES="${{ inputs.config == 'RelWithDebInfo' }}"

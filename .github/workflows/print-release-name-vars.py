@@ -1,8 +1,8 @@
 import argparse
-import os
-import re
 import subprocess
 import time
+import os
+import re
 
 
 def set_action_output(output_name, value):
@@ -46,10 +46,10 @@ if True:
         previous_release_version = subprocess.check_output(
             f'git describe --tags --abbrev=0 --match "*.*.*" --match "2.55-alpha-1??"', shell=True, encoding='utf-8')
     major, minor, patch = (3, 0, 0)
-    version_meta = [date, 'z3'] # TODO ~z3 revert
+    version_meta = [date]
     release_version = f'{major}.{minor}.{patch}-prerelease.{n}'
     release_version += '+' + '.'.join(version_meta)
-    release_name = f'3.0 Prerelease {n} {date} (z3)' # TODO ~z3 revert
+    release_name = f'3.0 Prerelease {n} {date}'
 
     set_action_output('release-version', release_version)
     set_action_output('release-name', release_name)

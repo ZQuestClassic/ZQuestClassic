@@ -3,10 +3,8 @@
 # test_results.json files to run just failures from run_replay_tests.py.
 
 import argparse
-import itertools as it
 import json
 import os
-import subprocess
 
 from argparse import ArgumentTypeError
 from pathlib import Path
@@ -15,7 +13,7 @@ from typing import List
 
 import intervaltree
 
-from github import Github, GithubException, PaginatedList, Workflow, WorkflowRun
+from github import Github, GithubException, PaginatedList, WorkflowRun
 from replays import ReplayTestResults
 from workflow_job import WorkflowJob
 
@@ -61,52 +59,19 @@ def find_baseline(gh: Github, repo_str: str):
 
         return False
 
-    def is_ancestor(sha: str):
-        print(f'checking if {sha} is ancestor...')
-        ret = subprocess.call(
-            [
-                'git',
-                'merge-base',
-                '--is-ancestor',
-                sha,
-                'HEAD',
-            ]
-        )
-        return ret
-
-    # TODO ~z3 revert file
-    def look_for_workflow(workflow: Workflow.Workflow, branch: str):
-        # Only consider 30 most recent runs.
-        main_runs = it.islice(workflow.get_runs(branch=branch), 300)
-        most_recent_ok = next(
-            (
-                r
-                for r in main_runs
-                if is_passing_workflow_run(r) and is_ancestor(r.head_sha)
-            ),
-            None,
-        )
-        return most_recent_ok.head_sha
-
     repo = gh.get_repo(repo_str)
     ci_workflow = repo.get_workflow('ci.yml')
-
-    # First check workflows for current branch, if any. Then consider main branch.
-    current_branch = subprocess.check_output(
-        'git branch --show-current', shell=True, encoding='utf-8'
-    ).strip()
-    sha = None
-    if current_branch != 'main':
-        sha = look_for_workflow(ci_workflow, current_branch)
-    if not sha:
-        sha = look_for_workflow(ci_workflow, 'main')
-
-    if not sha:
+    main_runs = ci_workflow.get_runs(branch='main')
+    most_recent_ok = next(
+        (r for r in main_runs if is_passing_workflow_run(r)),
+        None,
+    )
+    if not most_recent_ok:
         raise Exception(
             'could not find recent successful workflow run to use as baseline'
         )
 
-    return create_compare_git_ref(gh, repo_str, sha)
+    return create_compare_git_ref(gh, repo_str, most_recent_ok.head_sha)
 
 
 def create_compare_git_ref(gh: Github, repo_str: str, sha: str):
