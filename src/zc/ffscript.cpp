@@ -25306,18 +25306,16 @@ void do_isvalidnpc()
 void do_isvalidlwpn()
 {
 	int32_t WID = get_register(sarg1);
-	//int32_t ct = Lwpns.Count();
 	
-	//for ( int32_t j = Lwpns.Count()-1; j >= 0; --j )
 	for(int32_t j = 0; j < Lwpns.Count(); j++)
-	//for(int32_t j = 0; j < ct; j++)
 		if(Lwpns.spr(j)->getUID() == WID)
 		{
 			set_register(sarg1, 10000);
 			return;
 		}
-		
 	set_register(sarg1, 0);
+	if(Hero.lift_wpn && Hero.lift_wpn->getUID() == WID)
+		set_register(sarg1, 10000);
 }
 
 void do_isvalidewpn()
