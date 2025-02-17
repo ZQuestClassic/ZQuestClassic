@@ -6,8 +6,10 @@
 #include <fmt/format.h>
 #include <base/qrs.h>
 
-// This is a snapshot of all the compat QRs as of Nov 30, 2024.
+// This is a snapshot of all the compat QRs as of Feb 17, 2025.
 static std::vector<int> old_qrs = {
+	// qr_OLD_STRING_EDITOR_MARGINS, // TODO QRHINT doesnt know about needing to do what onStrFix does
+	// qr_STRING_FRAME_OLD_WIDTH_HEIGHT, // TODO QRHINT doesnt know about needing to do what onStrFix does
 	qr_0AFRAME_ITEMS_IGNORE_AFRAME_CHANGES,
 	qr_192b163_WARP,
 	qr_210_WARPRETURN,
@@ -34,8 +36,11 @@ static std::vector<int> old_qrs = {
 	qr_BROKEN_LIGHTBEAM_HITBOX,
 	qr_BROKEN_MOVING_BOMBS,
 	qr_BROKEN_OVERWORLD_MINIMAP,
+	qr_BROKEN_PUSHBLOCK_FLAG_CLONING,
+	qr_BROKEN_PUSHBLOCK_TOP_HALF_SOLIDS,
 	qr_BROKEN_RAFT_SCROLL,
 	qr_BROKEN_RING_POWER,
+	qr_BROKEN_SCRIPTS_SCROLLING_HERO_POSITION,
 	qr_BROKEN_SIDEVIEW_SPRITE_JUMP,
 	qr_BROKEN_SWORD_SPIN_TRIGGERS,
 	qr_BROKEN_Z3_ANIMATION,
@@ -56,6 +61,7 @@ static std::vector<int> old_qrs = {
 	qr_ENEMY_BROKEN_TOP_HALF_SOLIDITY,
 	qr_FAIRY_FLAG_COMPAT,
 	qr_FFCPRELOAD_BUGGED_LOAD,
+	qr_FIRE_LEVEL_TRIGGERS_ARENT_WEAPONS,
 	qr_FLUCTUATING_ENEMY_JUMP,
 	qr_GANON_CANT_SPAWN_ON_CONTINUE,
 	qr_GANONINTRO,
@@ -95,6 +101,7 @@ static std::vector<int> old_qrs = {
 	qr_OLD_ITEMDATA_SCRIPT_TIMING,
 	qr_OLD_KEESE_Z_AXIS,
 	qr_OLD_LADDER_ITEM_SIDEVIEW,
+	qr_OLD_LANDING_SFX,
 	qr_OLD_LENS_LAYEREFFECT,
 	qr_OLD_LOCKBLOCK_COLLISION,
 	qr_OLD_POTION_OR_HC,
@@ -105,8 +112,6 @@ static std::vector<int> old_qrs = {
 	qr_OLD_SIDEVIEW_CEILING_COLLISON,
 	qr_OLD_SIDEVIEW_LANDING_CODE,
 	qr_OLD_SLASHNEXT_SECRETS,
-	// TODO QRHINT doesnt know about needing to do what onStrFix does
-	// qr_OLD_STRING_EDITOR_MARGINS,
 	qr_OLD_TILE_INITIALIZATION,
 	qr_OLD_WIZZROBE_SUBMERGING,
 	qr_OLDCS2,
@@ -128,8 +133,6 @@ static std::vector<int> old_qrs = {
 	qr_SPOTLIGHT_IGNR_SOLIDOBJ,
 	qr_SPRITE_JUMP_IS_TRUNCATED,
 	qr_STEPTEMP_SECRET_ONLY_16_31,
-	// TODO QRHINT doesnt know about needing to do what onStrFix does
-	// qr_STRING_FRAME_OLD_WIDTH_HEIGHT,
 	qr_SUBSCR_BACKWARDS_ID_ORDER,
 	qr_SUBSCR_OLD_SELECTOR,
 	qr_TRIGGERSREPEAT,
@@ -139,8 +142,8 @@ static std::vector<int> old_qrs = {
 	qr_WRONG_BRANG_TRAIL_DIR,
 };
 
-// To reduce the amount of old features that need to be upgraded for region support, we draw a line in the sand and require
-// that all these compat rules must be disabled for regions to be enabled.
+// To reduce the amount of old features that need to be upgraded for region support, we suggest
+// disabling these QRs.
 static std::vector<int> get_problematic_qrs()
 {
 	std::vector<int> result;
