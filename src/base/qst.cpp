@@ -5055,12 +5055,10 @@ int32_t readmisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 	//these are here to bypass compiler warnings about unused arguments
 	Header=Header;
 	
-	miscQdata temp_misc;
+	miscQdata temp_misc = *Misc;
 	word s_version=0, s_cversion=0;
 	int32_t tempsize=0;
 	word dummyw;
-	
-	memcpy(&temp_misc,Misc,sizeof(temp_misc));
 	
 	//section version info
 	if(!p_igetw(&s_version,f))
@@ -5268,19 +5266,17 @@ int32_t readmisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 		}
 	}
 	
-	memcpy(Misc, &temp_misc, sizeof(temp_misc));
+	*Misc = temp_misc;
 	
 	return 0;
 }
 
 int32_t readgameicons(PACKFILE *f, zquestheader *, miscQdata *Misc)
 {
-    miscQdata temp_misc;
+    miscQdata temp_misc = *Misc;
     word s_version=0, s_cversion=0;
     byte icons;
     int32_t tempsize=0;
-    
-    memcpy(&temp_misc,Misc,sizeof(temp_misc));
     
     //section version info
     if(!p_igetw(&s_version,f))
@@ -5328,7 +5324,7 @@ int32_t readgameicons(PACKFILE *f, zquestheader *, miscQdata *Misc)
 	    }
     }
 
-	memcpy(Misc, &temp_misc, sizeof(temp_misc));
+	*Misc = temp_misc;
     
     return 0;
 }
@@ -5342,12 +5338,10 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 	word shops=16, infos=16, warprings=8, palcycles=256, windwarps=9, triforces=8, icons=4;
 	word ponds=16, pondsize=72, expansionsize=98*2;
 	byte tempbyte, padding;
-	miscQdata temp_misc;
+	miscQdata temp_misc = *Misc;
 	word s_version=0, s_cversion=0;
 	word swaptmp;
 	int32_t tempsize=0;
-	
-	memcpy(&temp_misc,Misc,sizeof(temp_misc));
 	
 	for(int32_t i=0; i<maxshops; ++i)
 	{
@@ -5357,6 +5351,12 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 	for(int32_t i=0; i<maxinfos; ++i)
 	{
 		memset(&temp_misc.info, 0, sizeof(infotype)*256);
+	}
+	
+	for(int q = 0; q < NUM_STATUSES; ++q)
+	{
+		temp_misc.status_names[q].clear();
+		temp_misc.status_effects[q].clear();
 	}
 	
 	if(Header->zelda_version > 0x192)
@@ -5941,7 +5941,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 	if((Header->zelda_version < 0x192)||
 			((Header->zelda_version == 0x192)&&(Header->build<30)))
 	{
-		memcpy(Misc, &temp_misc, sizeof(temp_misc));
+		*Misc = temp_misc;
 		
 		return 0;
 	}
@@ -6145,8 +6145,34 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 		temp_misc.miscsfx[sfxTAP_HOLLOW] = WAV_ZN1TAP2;
 	}
 	
+	if(s_version < 17)
+	{
+		temp_misc.status_names[STATUS_JINX_MELEE] = "Melee Jinx";
+		temp_misc.status_effects[STATUS_JINX_MELEE].jinx_melee = true;
+		temp_misc.status_names[STATUS_JINX_ITEM] = "Item Jinx";
+		temp_misc.status_effects[STATUS_JINX_ITEM].jinx_item = true;
+		temp_misc.status_names[STATUS_JINX_SHIELD] = "Shield Jinx";
+		temp_misc.status_effects[STATUS_JINX_SHIELD].jinx_shield = true;
+		temp_misc.status_names[STATUS_STUN] = "Stun";
+		temp_misc.status_effects[STATUS_STUN].stun = true;
+		temp_misc.status_names[STATUS_BUNNY] = "Bunny";
+		temp_misc.status_effects[STATUS_BUNNY].bunny = true;
+		for(int q = NUM_ENGINE_STATUSES; q < NUM_STATUSES; ++q)
+			temp_misc.status_names[q] = fmt::format("zz{:03}", q);
+	}
+	else
+	{
+		for(int q = 0; q < NUM_STATUSES; ++q)
+		{
+			if(!p_getcstr(&temp_misc.status_names[q], f))
+				return qe_invalid;
+			if(auto ret = temp_misc.status_effects[q].read(f,s_version))
+				return ret;
+		}
+	}
+	
 	if (!should_skip)
-		memcpy(Misc, &temp_misc, sizeof(temp_misc));
+		*Misc = temp_misc;
 	
 	return 0;
 }
@@ -18367,8 +18393,7 @@ int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, wo
 	max_csets=max_csets;
 	word s_version=0;
 	
-	miscQdata temp_misc;
-	memcpy(&temp_misc, Misc, sizeof(temp_misc));
+	miscQdata temp_misc = *Misc;
 	
 	byte temp_colordata[48];
 	char temp_palname[PALNAMESIZE+1];
@@ -18661,7 +18686,7 @@ int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, wo
 			}
 		}
 		
-		memcpy(Misc, &temp_misc, sizeof(temp_misc));
+		*Misc = temp_misc;
 	}
 	
 	return 0;
