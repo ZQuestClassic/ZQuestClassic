@@ -694,8 +694,7 @@ def prompt_to_create_compare_report():
 
     test_runs.extend(collect_many_test_results_from_dir(test_results_dir))
 
-    roundtrip_files = list(test_results_dir.rglob('*.roundtrip'))
-    create_compare_report(test_runs, roundtrip_files)
+    create_compare_report(test_runs)
     start_webserver()
 
 

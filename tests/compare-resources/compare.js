@@ -1,7 +1,6 @@
 const tracksEl = find('.snapshot-tracks');
 const frameViewEl = find('.frame-view');
 const titleEl = find('.replay-title');
-const roundtripFilesEl = find('.roundtrip-files');
 
 /**
  * @typedef ReplayTestResults
@@ -138,14 +137,6 @@ function init() {
     for (const testResults of testRuns) {
         // We only have a single set of runs for each test replay.
         testResults.runs = testResults.runs[0];
-    }
-
-    if (__ROUNDTRIPS__) {
-        const el = document.createElement('a');
-        el.textContent = 'roundtrip files';
-        el.href = 'roundtrips/index.html';
-        el.target = '_blank';
-        roundtripFilesEl.append(el);
     }
 
     function onToggleUnexpectedFilter() {

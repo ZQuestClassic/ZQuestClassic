@@ -4,7 +4,6 @@
 
 import argparse
 import hashlib
-import html
 import io
 import json
 import os
@@ -144,27 +143,11 @@ def collect_many_test_results_from_ci(
 
 
 def create_compare_report(
-    test_runs: List[ReplayTestResults],
-    roundtrip_files: List[Path] = [],
-    out_dir: Path = default_out_dir,
+    test_runs: List[ReplayTestResults], out_dir: Path = default_out_dir
 ):
     if out_dir.exists():
         shutil.rmtree(out_dir)
     out_dir.mkdir(parents=True)
-
-    if roundtrip_files:
-        roundtrip_dir = out_dir / 'roundtrips'
-        roundtrip_dir.mkdir(parents=True)
-        for file in roundtrip_files:
-            shutil.copyfile(file, roundtrip_dir / file.name)
-            (roundtrip_dir / f'{file.name}.html').write_text(
-                f'<head><meta charset="utf-8"><pre>{html.escape(file.read_text())}'
-            )
-
-        index_content = ''
-        for file in roundtrip_files:
-            index_content += f'<a href="{file.name}.html">{file.name}</a><br>\n'
-        (roundtrip_dir / 'index.html').write_text(index_content)
 
     def count_images():
         hashes = set()
@@ -292,9 +275,7 @@ def create_compare_report(
                     shutil.copy2(snapshot['path'].absolute(), dest)
                 snapshot['path'] = str(dest.relative_to(out_dir))
 
-    index_content = Path(f'{script_dir}/compare-resources/compare.html').read_text(
-        'utf-8'
-    )
+    html = Path(f'{script_dir}/compare-resources/compare.html').read_text('utf-8')
     css = Path(f'{script_dir}/compare-resources/compare.css').read_text('utf-8')
     js = Path(f'{script_dir}/compare-resources/compare.js').read_text('utf-8')
     deps = Path(f'{script_dir}/compare-resources/pixelmatch.js').read_text('utf-8')
@@ -309,13 +290,7 @@ def create_compare_report(
 
     test_runs_as_json = ',\n'.join(test_run.to_json(indent=0) for test_run in test_runs)
     test_runs_as_json = '[\n' + test_runs_as_json + '\n]'
-    js = '\n'.join(
-        [
-            f'const __TEST_RUNS__ = {test_runs_as_json};',
-            f'const __ROUNDTRIPS__ = {"true" if roundtrip_files else "false"};',
-            js,
-        ]
-    )
+    js = f'const __TEST_RUNS__ = {test_runs_as_json}\n  {js}'
 
     if did_prune:
         run_ids = list(dict.fromkeys(t.workflow_run_id for t in test_runs))
@@ -324,7 +299,7 @@ def create_compare_report(
         msg = f'The full report was too large to upload, so it has been reduced. To see the full report run this command locally:\\n\\t{cmd}'
         js += f'\nconsole.log("{msg}")'
 
-    result = index_content.replace('// JAVASCRIPT', js)
+    result = html.replace('// JAVASCRIPT', js)
     result = result.replace('// DEPS', deps)
     result = result.replace('/* CSS */', css)
     out_path = Path(f'{out_dir}/index.html')
@@ -383,20 +358,17 @@ if __name__ == '__main__':
     # first should always be baseline. For now, assume it is the workflow option.
 
     all_test_runs = []
-    roundtrip_files = []
     if args.workflow_run:
         print(f'collecting test runs from CI of {args.repo}')
         gh = Github(args.token)
         for run_id in args.workflow_run:
             print(f'=== collecting test runs from workflow run {run_id}')
-            workflow_dir = get_gha_artifacts_with_retry(gh, repo, workflow_run_id)
-            test_runs = collect_many_test_results_from_dir(workflow_dir)
+            test_runs = collect_many_test_results_from_ci(gh, args.repo, run_id)
 
             print('found:')
             for test_results in test_runs:
                 print(f' - {test_results.label}')
             all_test_runs.extend(test_runs)
-            roundtrip_files.extend(list(workflow_dir.rglob('*.roundtrip')))
     if args.local:
         for directory in args.local:
             print(f'=== collecting test runs from {directory}')
@@ -406,8 +378,7 @@ if __name__ == '__main__':
             for test_results in test_runs:
                 print(f' - {test_results.label}')
             all_test_runs.extend(test_runs)
-            roundtrip_files.extend(list(directory.rglob('*.roundtrip')))
 
-    create_compare_report(all_test_runs, roundtrip_files, args.dest)
+    create_compare_report(all_test_runs, args.dest)
     if not is_ci and args.start_server:
         start_webserver()
