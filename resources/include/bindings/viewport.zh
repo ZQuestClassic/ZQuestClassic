@@ -10,6 +10,8 @@ enum ViewportMode
 
 // Defines the visible portion of the current [Region] - aka, what the player currently sees.
 //
+// For an example usage, see: https://github.com/ZQuestClassic/ZQuestClassic/blob/main/tests/scripts/playground/auto/viewport.zs
+//
 // @version 2.55.9 - Basic, read-only access
 // @version 3.0 - Full access via [Viewport->Mode]
 class Viewport {
