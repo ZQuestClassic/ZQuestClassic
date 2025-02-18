@@ -737,9 +737,19 @@ def add_comment(symbol):
                 'length',
                 'param',
                 'value',
-                'version',
             ]:
                 add(format_comment(f'`{tag}` ' + value))
+                add('')
+                add('')
+            elif tag in [
+                'versionadded',
+                'versionchanged',
+                'versionremoved',
+            ]:
+                data = value.split(' ', 1)
+                add(format_comment(f'.. {tag}:: {data[0].strip()}'))
+                if len(data) > 1:
+                    add(format_comment(indent(f'{data[1].strip()}',3)))
                 add('')
                 add('')
         add('')
