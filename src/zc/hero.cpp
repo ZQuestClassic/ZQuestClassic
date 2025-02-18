@@ -30665,7 +30665,7 @@ void getitem(int32_t id, bool nosound, bool doRunPassive)
 		
 		case itype_progressive_itm:
 		{
-			int32_t newid = get_progressive_item(idat);
+			int32_t newid = get_progressive_item(id);
 			if(newid > -1)
 				getitem(newid, nosound, true);
 		}
@@ -30825,7 +30825,7 @@ void takeitem(int32_t id)
 		
 		case itype_progressive_itm:
 		{
-			int32_t newid = get_progressive_item(idat, true);
+			int32_t newid = get_progressive_item(id, true);
 			if(newid > -1)
 				takeitem(newid);
 		}
@@ -30949,7 +30949,7 @@ void HeroClass::checkitems(int32_t index)
 	
 	if(itemsbuf[id2].family == itype_progressive_itm)
 	{
-		int32_t newid = get_progressive_item(itemsbuf[id2]);
+		int32_t newid = get_progressive_item(id2);
 		if(newid > -1)
 		{
 			id2 = newid;
