@@ -12,8 +12,8 @@ enum ViewportMode
 //
 // For an example usage, see: https://github.com/ZQuestClassic/ZQuestClassic/blob/main/tests/scripts/playground/auto/viewport.zs
 //
-// @version 2.55.9 - Basic, read-only access
-// @version 3.0 - Full access via [Viewport->Mode]
+// @versionadded 2.55.9 Basic, read-only access
+// @versionchanged 3.0 Full access via [Viewport->Mode]
 class Viewport {
 	// @delete
 	internal Viewport();
@@ -51,7 +51,7 @@ class Viewport {
 	//
 	// Note: this function ignores the fact that the bottom 8 pixels are never visible.
 	//
-	// @version 3.0
+	// @versionadded 3.0
 	bool Contains(sprite s)
 	{
 		int t = s->Y;
