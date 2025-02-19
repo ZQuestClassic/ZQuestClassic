@@ -30851,20 +30851,27 @@ int32_t run_script_int(bool is_jitted)
 
 			case LOAD_FFC:
 			{
-				assert(ZScriptVersion::ffcRefIsSpriteId());
+				if (!ZScriptVersion::ffcRefIsSpriteId())
+				{
+					set_register(sarg1, get_register(sarg1) - 10000);
+					break;
+				}
 
 				int ffc_id = get_register(sarg1) / 10000 - 1;
 				if (auto ffc = ResolveFFCWithID(ffc_id, "Screen->LoadFFC"))
 					set_register(sarg1, ffc->getUID());
 				else
 					set_register(sarg1, 0);
-
 				break;
 			}
 
 			case LOAD_FFC_2:
 			{
-				assert(ZScriptVersion::ffcRefIsSpriteId());
+				if (!ZScriptVersion::ffcRefIsSpriteId())
+				{
+					set_register(sarg1, get_register(sarg2) - 10000);
+					break;
+				}
 
 				int screen = get_register(sarg1) / 10000;
 				int index = get_register(sarg2) / 10000;
