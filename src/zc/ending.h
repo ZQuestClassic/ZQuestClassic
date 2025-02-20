@@ -3,7 +3,6 @@
 
 #include <cstdint>
 
-void inc_quest();
 void noproc();
 void put_triforce();
 void putendmsg(const char *s,int32_t x,int32_t y,int32_t speed,void(proc)());

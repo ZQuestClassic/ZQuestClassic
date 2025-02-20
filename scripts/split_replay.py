@@ -8,13 +8,13 @@
 # If splitting a replay test, be sure to delete the original and the qst file (which was copied into the output folder).
 
 import argparse
-from dataclasses import dataclass, field
 import os
 import shutil
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import List, Optional
-import run_target
 
+import run_target
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir / '..'
@@ -101,7 +101,7 @@ def split_replay(replay_path: Path, output_folder: Path, skip_save_file_generati
 		print(f'expected {num_saves} save files, but got {len(save_files)}')
 
 	output_folder.mkdir(exist_ok=True)
-	# qst file may not be relative to the replay file (ex: quests/Z1 Recreations/classic_1st.qst)
+	# qst file may not be relative to the replay file
 	if qst_path.exists():
 		shutil.copy(qst_path, output_folder)
 	most_recent_key_step = None

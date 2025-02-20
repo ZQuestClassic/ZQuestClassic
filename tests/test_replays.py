@@ -7,7 +7,6 @@ import subprocess
 import sys
 import time
 import unittest
-
 from pathlib import Path
 
 from common import ReplayTestResults
@@ -42,6 +41,7 @@ def get_frame_from_snapshot_index(path: str) -> int:
 
 
 def create_test_replay(contents):
+    contents = contents.replace('classic_1st.qst', str(root_dir / 'tests/replays/classic_1st.qst'))
     if tmp_dir.exists():
         shutil.rmtree(tmp_dir)
     tmp_dir.mkdir(parents=True)
@@ -278,7 +278,7 @@ class TestReplays(unittest.TestCase):
             '-record', replay_path,
             '-replay-debug',
             '-frame', '100',
-            '-test', 'quests/Z1 Recreations/classic_1st.qst', '0', '119',
+            '-test', root_dir / 'tests/replays/classic_1st.qst', '0', '119',
         ])
         run_target.check_run('zplayer', [
             '-headless',

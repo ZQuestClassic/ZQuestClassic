@@ -564,22 +564,6 @@ void ending()
 	
 	credits_skip:
 	
-	if(game->get_quest()>0 && game->get_quest()<=9)
-	{
-		inc_quest();
-		removeItemsOfFamily(game, itemsbuf, itype_ring);
-		int32_t maxring = getHighestLevelOfFamily(&zinit,itemsbuf,itype_ring);
-		
-		if(maxring != -1)
-		{
-			getitem(maxring,true);
-		}
-		
-		ringcolor(false);
-	}
-	
-	
-	
 	zc_stop_midi();
 	if (get_qr(qr_OLD_SCRIPT_VOLUME))
 	{
@@ -681,7 +665,6 @@ void ending_scripted()
 	blit(framebuf,scrollbuf,0,0,0,0,256,224);
 	endingpal();
     
-        inc_quest();
         removeItemsOfFamily(game, itemsbuf, itype_ring);
         int32_t maxring = getHighestLevelOfFamily(&zinit,itemsbuf,itype_ring);
         
@@ -741,56 +724,4 @@ void ending_scripted()
 	game->set_hasplayed(false);
 	saves_write();
 	if (replay_get_mode() == ReplayMode::Record) replay_save();
-}
-
-void inc_quest()
-{
-	char name[9];
-	strcpy(name,game->get_name());
-	// Go to quest 3 if you got some heart containers,
-	// or quest 4 if you got them all.
-	int32_t quest = game->get_quest(); //Don't leave uninitialised. 
-	
-	int32_t deaths = game->get_deaths();
-	
-	if ( moduledata.old_quest_serial_flow || game->get_quest() >= 5 )
-	{
-		if(game->get_quest()==2 && game->get_maxlife()>=game->get_hp_per_heart()*16)
-			quest = zc_min(4,moduledata.max_quest_files);// 4;
-		else
-			quest = zc_min(game->get_quest()+1,moduledata.max_quest_files);
-		
-		if(game->get_quest()==3 && game->get_maxlife()>=game->get_hp_per_heart()*16)
-			quest = zc_min(4,moduledata.max_quest_files);// 4;
-		
-		
-
-		// If you beat the 3rd quest without dying skip over the easier 4th and play the 5th quest.
-		if(game->get_quest()==3 && deaths == 0)
-			quest = zc_min(5,moduledata.max_quest_files);// 4;
-		
-		// //I can't find a better solution. If we reach five with wacky progression, just move on. -Z
-		if(game->get_quest()==5 && deaths > 0)
-			quest = zc_min(game->get_quest()+1,moduledata.max_quest_files);// 4;
-	}
-	else
-	{
-		quest = zc_min(game->get_quest()+1,moduledata.max_quest_files);
-	}
-
-	game->Clear();
-	
-	game->set_name(name);
-	game->set_quest(quest);
-	game->header.qstpath.clear();
-	game->set_deaths(deaths);
-	game->set_maxlife(3*game->get_hp_per_heart());
-	game->set_life(3*game->get_hp_per_heart());
-	game->set_maxbombs(8);
-	game->set_hasplayed(false);
-	//now bound to modules
-	game->set_continue_dmap(moduledata.startingdmap[quest-1]);
-	game->set_continue_scrn(moduledata.startingscreen[quest-1]);
-	resetItems(game,&zinit,true);
-	load_quest(game);
 }

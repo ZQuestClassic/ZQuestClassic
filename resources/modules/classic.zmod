@@ -19,54 +19,6 @@ version_day = 8
 version_hour = 12
 version_minute = 51
 
-[QUESTS]
-quest_flow = 0
-num_quest_files = 4
-first_qst = Z1 Recreations/classic_1st.qst
-second_qst = Z1 Recreations/classic_2nd.qst
-third_qst = Z1 Recreations/classic_4th.qst
-fourth_qst = Z1 Recreations/classic_5th.qst
-fifth_qst = -
-sixth_qst = -
-seventh_qst = -
-eighth_qst = -
-ninth_qst = -
-tenth_qst = -
-
-first_startdmap = 0
-second_startdmap = 0
-third_startdmap = 0
-fourth_startdmap = 0
-fifth_startdmap = 
-sixth_startdmap = 
-seventh_startdmap = 
-eighth_startdmap = 
-ninth_startdmap = 
-tenth_startdmap = 
-
-first_startscreen = 119
-second_startscreen = 119
-third_startscreen = 119
-fourth_startscreen = 119
-fifth_startscreen = 
-sixth_startscreen = 
-seventh_startscreen = 
-eighth_startscreen = 
-ninth_startscreen = 
-tenth_startscreen = 
-
-[NAMEENTRY]
-first_qst_skip = 
-second_qst_skip = ZELDA
-third_qst_skip = GANON
-fourth_qst_skip = JEAN
-fifth_qst_skip = -
-sixth_qst_skip = -
-seventh_qst_skip = -
-eighth_qst_skip = -
-ninth_qst_skip = -
-tenth_qst_skip = -
-
 //Name Entry Graphics
 sels_tile_frame = 237
 sels_tile_questicon_1A = 0

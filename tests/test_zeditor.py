@@ -4,14 +4,15 @@
 #
 #   python tests/test_zeditor.py
 
-import sys
-import os
 import json
-import subprocess
-import unittest
-import shutil
+import os
 import platform
+import shutil
+import subprocess
+import sys
+import unittest
 from pathlib import Path
+
 from common import ReplayTestResults
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
@@ -21,6 +22,7 @@ tmp_dir.mkdir(exist_ok=True, parents=True)
 
 sys.path.append(str((root_dir / 'scripts').absolute()))
 import run_target
+
 
 class TestZEditor(unittest.TestCase):
     def setUp(self):
@@ -104,7 +106,7 @@ class TestZEditor(unittest.TestCase):
             return
 
         test_cases = [
-            ('classic_1st.zplay', 'quests/Z1 Recreations/classic_1st.qst'),
+            ('classic_1st.zplay', 'classic_1st.qst'),
             # TODO: fails
             # ('freedom_in_chains.zplay', 'freedom_in_chains.qst'),
             ('ss_jenny.zplay', 'ss_jenny.qst'),
@@ -217,7 +219,7 @@ class TestZEditor(unittest.TestCase):
         args = [
             '-headless',
             '-export-strings',
-            'quests/Z1 Recreations/classic_1st.qst',
+            root_dir / 'tests/replays/classic_1st.qst',
             tsv_path,
         ]
         run_target.check_run('zeditor', args)
@@ -229,9 +231,14 @@ class TestZEditor(unittest.TestCase):
         if 'emscripten' in str(run_target.get_build_folder()) or platform.system() != 'Windows':
             raise unittest.SkipTest('unsupported platform')
 
-        run_target.check_run('zeditor', [
-            '-package', 'quests/Z1 Recreations/classic_1st.qst', 'package-test',
-        ])
+        run_target.check_run(
+            'zeditor',
+            [
+                '-package',
+                root_dir / 'tests/replays/classic_1st.qst',
+                'package-test',
+            ],
+        )
 
         package_dir = run_target.get_build_folder() / 'packages/package-test'
         args_path: Path = package_dir / 'data/zc_args.txt'
