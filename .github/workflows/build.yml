@@ -92,7 +92,7 @@ jobs:
 
       - if: ${{ contains(inputs.runs-on, 'windows') }}
         name: Install Dependencies
-        uses: crazy-max/ghaction-chocolatey@0e015857dd851f84fcb7fb53380eb5c4c8202333
+        uses: crazy-max/ghaction-chocolatey@2ae99523e93879734d432250f87e2c45c379cd60
         with:
           args: install .github/dependencies.config -y
       - name: Install LLVM and Clang
