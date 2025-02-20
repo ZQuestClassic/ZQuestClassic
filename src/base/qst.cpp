@@ -1104,7 +1104,7 @@ static bool init_section(zquestheader *Header, int32_t section_id, miscQdata *Mi
 
 bool init_tiles_for_190(bool validate, zquestheader *Header)
 {
-    return init_section(Header, ID_TILES, NULL, NULL, validate, "modules/classic/classic_1st.qst");
+    return init_section(Header, ID_TILES, NULL, NULL, validate, "assets/190_tiles.qst");
 }
 
 bool init_tiles(bool validate, zquestheader *Header)
