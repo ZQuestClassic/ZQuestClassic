@@ -60,18 +60,8 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr);
 struct zcmodule
 {
 	char module_name[2048]; //filepath for current zcmodule file
-	char quests[10][255]; //first five quests, filenames
-	char skipnames[10][255]; //name entry passwords
 	char datafiles[4][255]; //qst.dat, fonts.dat, sfx.dat, zelda.dat
 
-	byte old_quest_serial_flow; //Do we go from 3rd to 5th,
-	//and from 5th to 4th, or just 1->2->3->4->5
-	//If this is 0, we do quests in strict order.
-	//if it is 1, then we use the old hardcoded quest flow.
-	
-	byte max_quest_files;
-	word startingdmap[10];
-	word startingscreen[10];
 	int32_t title_track, tf_track, gameover_track, ending_track, dungeon_track, overworld_track, lastlevel_track;
 	
 	char roomtype_names[rMAX][255];

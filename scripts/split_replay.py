@@ -120,7 +120,7 @@ def split_replay(
         print(f'expected {num_saves} save files, but got {len(save_files)}')
 
     output_folder.mkdir(exist_ok=True)
-    # qst file may not be relative to the replay file (ex: quests/Z1 Recreations/classic_1st.qst)
+    # qst file may not be relative to the replay file
     if qst_path.exists():
         shutil.copy(qst_path, output_folder)
     most_recent_key_step = None

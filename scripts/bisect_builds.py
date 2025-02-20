@@ -4,7 +4,7 @@
 #
 # You can automate running a command on each bisect script, like this:
 #   -c '%zq'
-#   -c '%zc -test "quests/Z1 Recreations/classic_1st.qst" 0 119'
+#   -c '%zc -test "/absolute/path/to/quest.qst" 0 119'
 #
 # Use the '--local_builds' flag to build additional commits locally. This will take much longer, so
 # run without first to get a more narrow range.

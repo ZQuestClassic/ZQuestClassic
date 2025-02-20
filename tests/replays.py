@@ -236,7 +236,7 @@ def estimate_fps(replay: Replay):
     # NOTE: this are w/o any concurrency, so real numbers in CI today are expected to be lower. Maybe just remove this?
     fps = 1500
     estimated_fps_overrides = {
-        'quests/Z1 Recreations/classic_1st.qst': 3000,
+        'classic_1st.qst': 3000,
         'demosp253.qst': 1600,
         'dreamy_cambria.qst': 1100,
         'first_quest_layered.qst': 2500,

@@ -118,7 +118,7 @@ class TestZEditor(unittest.TestCase):
             return
 
         test_cases = [
-            ('classic_1st.zplay', 'quests/Z1 Recreations/classic_1st.qst'),
+            ('classic_1st.zplay', 'classic_1st.qst'),
             # TODO: fails
             # ('freedom_in_chains.zplay', 'freedom_in_chains.qst'),
             ('ss_jenny.zplay', 'ss_jenny.qst'),
@@ -251,7 +251,7 @@ class TestZEditor(unittest.TestCase):
         args = [
             '-headless',
             '-export-strings',
-            'quests/Z1 Recreations/classic_1st.qst',
+            root_dir / 'tests/replays/classic_1st.qst',
             tsv_path,
         ]
         run_target.check_run('zeditor', args)
@@ -273,7 +273,7 @@ class TestZEditor(unittest.TestCase):
             'zeditor',
             [
                 '-package',
-                'quests/Z1 Recreations/classic_1st.qst',
+                root_dir / 'tests/replays/classic_1st.qst',
                 'package-test',
             ],
         )

@@ -24006,7 +24006,8 @@ int32_t exittimer = 10000, exittimer2 = 100;
 
 static bool partial_load_test(const char* test_dir)
 {
-	int ret = load_quest("quests/Z1 Recreations/classic_1st.qst", false);
+	auto classic_path = fs::path(test_dir) / "replays/classic_1st.qst";
+	int ret = load_quest(classic_path.string().c_str(), false);
 	if (ret)
 	{
 		printf("failed to load classic_1st.qst: ret == %d\n", ret);

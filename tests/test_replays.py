@@ -26,6 +26,7 @@ def get_frame_from_snapshot_index(path: str) -> int:
 
 
 def create_test_replay(contents):
+    contents = contents.replace('classic_1st.qst', str(root_dir / 'tests/replays/classic_1st.qst'))
     if tmp_dir.exists():
         shutil.rmtree(tmp_dir)
     tmp_dir.mkdir(parents=True)
@@ -314,7 +315,7 @@ class TestReplays(unittest.TestCase):
                 '-frame',
                 '100',
                 '-test',
-                'quests/Z1 Recreations/classic_1st.qst',
+                root_dir / 'tests/replays/classic_1st.qst',
                 '0',
                 '119',
             ],

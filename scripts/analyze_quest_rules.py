@@ -192,10 +192,7 @@ if quest_database:
 
 
 if args.analyze_replay_tests:
-    qsts = [
-        root_dir / 'resources/quests/Z1 Recreations/classic_1st.qst',
-        *(root_dir / 'tests/replays').rglob('*.qst'),
-    ]
+    qsts = list((root_dir / 'tests/replays').rglob('*.qst'))
     counts = count_quest_rules(qsts)
 
     initial_covered_qrs = set(qr for qr, count in counts.items() if count > 0)

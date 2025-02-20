@@ -35,11 +35,7 @@ const char * select_screen_tile_cset_cats[sels_tile_LAST] =
 bool ZModule::init(bool d) //bool default
 {
 	memset(moduledata.module_name, 0, sizeof(moduledata.module_name));
-	memset(moduledata.quests, 0, sizeof(moduledata.quests));
-	memset(moduledata.skipnames, 0, sizeof(moduledata.skipnames));
 	memset(moduledata.datafiles, 0, sizeof(moduledata.datafiles));	
-	memset(moduledata.startingdmap, 0, sizeof(moduledata.startingdmap));
-	memset(moduledata.startingscreen, 0, sizeof(moduledata.startingscreen));	
 	memset(moduledata.roomtype_names, 0, sizeof(moduledata.roomtype_names));
 	memset(moduledata.delete_quest_data_on_wingame, 0, sizeof(moduledata.delete_quest_data_on_wingame));
 	memset(moduledata.base_NSF_file, 0, sizeof(moduledata.base_NSF_file));
@@ -47,8 +43,6 @@ bool ZModule::init(bool d) //bool default
 	memset(moduledata.copyright_string_vars, 0, sizeof(moduledata.copyright_string_vars));
 	memset(moduledata.select_screen_tiles, 0, sizeof(moduledata.select_screen_tiles));
 	memset(moduledata.select_screen_tile_csets, 0, sizeof(moduledata.select_screen_tile_csets));
-	moduledata.old_quest_serial_flow = 0;
-	moduledata.max_quest_files = 0;
 	moduledata.animate_NES_title = 0;
 	moduledata.title_track = moduledata.tf_track = moduledata.gameover_track = moduledata.ending_track = moduledata.dungeon_track = moduledata.overworld_track = moduledata.lastlevel_track = 0;
 	moduledata.refresh_title_screen = 0;
@@ -113,75 +107,7 @@ bool ZModule::init(bool d) //bool default
 		moduledata.modyear = zc_get_config_basic("METADATA","version_year",0);
 		moduledata.modhour = zc_get_config_basic("METADATA","version_hour",0);
 		moduledata.modminute = zc_get_config_basic("METADATA","version_minute",0); 
-		
-		//quests
-		
-		moduledata.old_quest_serial_flow = zc_get_config_basic("QUESTS","quest_flow",1);
-		moduledata.max_quest_files = vbound(zc_get_config_basic("QUESTS","num_quest_files",0),0,10);
-		strcpy(moduledata.quests[0],zc_get_config_basic("QUESTS","first_qst","-"));
-		strcpy(moduledata.quests[1],zc_get_config_basic("QUESTS","second_qst","-"));
-		strcpy(moduledata.quests[2],zc_get_config_basic("QUESTS","third_qst","-"));
-		strcpy(moduledata.quests[3],zc_get_config_basic("QUESTS","fourth_qst","-"));
-		strcpy(moduledata.quests[4],zc_get_config_basic("QUESTS","fifth_qst","-"));
-		strcpy(moduledata.quests[5],zc_get_config_basic("QUESTS","sixth_qst","-"));
-		strcpy(moduledata.quests[6],zc_get_config_basic("QUESTS","seventh_qst","-"));
-		strcpy(moduledata.quests[7],zc_get_config_basic("QUESTS","eighth_qst","-"));
-		strcpy(moduledata.quests[8],zc_get_config_basic("QUESTS","ninth_qst","-"));
-		strcpy(moduledata.quests[9],zc_get_config_basic("QUESTS","tenth_qst","-"));
 
-#ifdef __EMSCRIPTEN__
-		strcpy(moduledata.quests[0],"purezc/773/1st-mirrored-vertical-and-horizontal.qst");
-		strcpy(moduledata.quests[1],"purezc/773/1st-mirrored-vertical-and-horizontal.qst");
-#endif
-
-		for ( auto q = 0; q < 10; q++ )
-		{
-			if ( moduledata.quests[q][0] == '-' )
-				strcpy(moduledata.quests[q],"");
-		}
-		
-		//quest skip names
-		moduledata.skipnames[0][0] = 0;
-		strcpy(moduledata.skipnames[1],zc_get_config_basic("NAMEENTRY","second_qst_skip","-"));
-		strcpy(moduledata.skipnames[2],zc_get_config_basic("NAMEENTRY","third_qst_skip","-"));
-		strcpy(moduledata.skipnames[3],zc_get_config_basic("NAMEENTRY","fourth_qst_skip","-"));
-		strcpy(moduledata.skipnames[4],zc_get_config_basic("NAMEENTRY","fifth_qst_skip","-"));
-		strcpy(moduledata.skipnames[5],zc_get_config_basic("NAMEENTRY","sixth_qst_skip","-"));
-		strcpy(moduledata.skipnames[6],zc_get_config_basic("NAMEENTRY","seventh_qst_skip","-"));
-		strcpy(moduledata.skipnames[7],zc_get_config_basic("NAMEENTRY","eighth_qst_skip","-"));
-		strcpy(moduledata.skipnames[8],zc_get_config_basic("NAMEENTRY","ninth_qst_skip","-"));
-		strcpy(moduledata.skipnames[9],zc_get_config_basic("NAMEENTRY","tenth_qst_skip","-"));
-		for ( auto q = 0; q < 10; q++ )
-		{
-			if ( moduledata.skipnames[q][0] == '-' )
-				strcpy(moduledata.skipnames[q],"");
-		}
-		
-		//Quest starting screens and DMaps
-	
-		//dmaps
-		moduledata.startingdmap[0] = zc_get_config_basic("QUESTS","first_startdmap",0);
-		moduledata.startingdmap[1] = zc_get_config_basic("QUESTS","second_startdmap",0);
-		moduledata.startingdmap[2] = zc_get_config_basic("QUESTS","third_startdmap",0);
-		moduledata.startingdmap[3] = zc_get_config_basic("QUESTS","fourth_startdmap",0);
-		moduledata.startingdmap[4] = zc_get_config_basic("QUESTS","fifth_startdmap",0);
-		moduledata.startingdmap[5] = zc_get_config_basic("QUESTS","sixth_startdmap",0);
-		moduledata.startingdmap[6] = zc_get_config_basic("QUESTS","seventh_startdmap",0);
-		moduledata.startingdmap[7] = zc_get_config_basic("QUESTS","eighth_startdmap",0);
-		moduledata.startingdmap[8] = zc_get_config_basic("QUESTS","ninth_startdmap",0);
-		moduledata.startingdmap[9] = zc_get_config_basic("QUESTS","tenth_startdmap",0);
-		//screens
-		moduledata.startingscreen[0] = zc_get_config_basic("QUESTS","first_startscreen",0x77);
-		moduledata.startingscreen[1] = zc_get_config_basic("QUESTS","second_startscreen",0x77);
-		moduledata.startingscreen[2] = zc_get_config_basic("QUESTS","third_startscreen",0x77);
-		moduledata.startingscreen[3] = zc_get_config_basic("QUESTS","fourth_startscreen",0x77);
-		moduledata.startingscreen[4] = zc_get_config_basic("QUESTS","fifth_startscreen",0x77);
-		moduledata.startingscreen[5] = zc_get_config_basic("QUESTS","sixth_startscreen",0x77);
-		moduledata.startingscreen[6] = zc_get_config_basic("QUESTS","seventh_startscreen",0x77);
-		moduledata.startingscreen[7] = zc_get_config_basic("QUESTS","eighth_startscreen",0x77);
-		moduledata.startingscreen[8] = zc_get_config_basic("QUESTS","ninth_startscreen",0x77);
-		moduledata.startingscreen[9] = zc_get_config_basic("QUESTS","tenth_startscreen",0x77);
-	
 		//name entry icons, tiles, and csets
 		for ( int32_t q = 0; q < sels_tile_LAST; q++ ) 
 		{

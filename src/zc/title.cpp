@@ -809,21 +809,7 @@ static bool register_name()
 	
 	if(done)
 	{
-		int32_t quest=0;
-		char buf[9];
-		strcpy(buf,name);
-		strupr(buf);
-		
-		for ( byte q = 1; q < moduledata.max_quest_files; q++)
-		{
-			if(!stricmp(buf,moduledata.skipnames[q]))
-			{
-				zprint2("Quest %d '%s'\n",q+1,moduledata.skipnames[q]);
-				quest=q+1;
-				break;
-			}
-		}
-		new_game->set_quest(quest);
+		new_game->set_quest(0);
 		new_game->set_timevalid(1);
 		game->header.qstpath.clear();
 

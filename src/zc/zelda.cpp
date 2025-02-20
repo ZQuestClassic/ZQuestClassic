@@ -1389,23 +1389,13 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 
 	if (!qst_num)
 	{
-		qst_num = g->header.qstpath.ends_with("classic_1st.qst") ? 1 : 0xFF;
+		qst_num = 0xFF;
 		g->set_quest(qst_num);
 	}
 
 	if (g->header.qstpath.empty() && qst_num)
 	{
-		char* cwd = al_get_current_directory();
-		fs::path path;
-		if      (qst_num == 1) path = fs::path(cwd) / "quests/Z1 Recreations/classic_1st.qst";
-		else if (qst_num == 2) path = fs::path(cwd) / "quests/Z1 Recreations/classic_2nd.qst";
-		else if (qst_num == 3) path = fs::path(cwd) / "quests/Old Contest Winners/classic_3rd.qst";
-		else if (qst_num == 4) path = fs::path(cwd) / "quests/Z1 Recreations/classic_4th.qst";
-		else if (qst_num == 5) path = fs::path(cwd) / "quests/Old Contest Winners/classic_5th.qst";
-		else return qe_no_qst;
-		al_free(cwd);
-		sprintf(qstpath, "%s", path.string().c_str());
-		g->header.qstpath = qstpath;
+		return qe_no_qst;
 	}
 
 	if (!g->header.qstpath.empty())

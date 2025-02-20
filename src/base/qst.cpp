@@ -1890,8 +1890,6 @@ void print_quest_metadata(zquestheader const& tempheader, char const* path, byte
 {
 	zprint2("\n");
 	zprint2("[QUEST METADATA]\n");
-	if(qst_num < moduledata.max_quest_files)
-		zprint2("Loading module quest %d\n", qst_num+1);
 	if(path)
 		zprint2("Path: %s\n", path);
 	zprint2("ZC Version: %s\n", tempheader.getVerStr());
