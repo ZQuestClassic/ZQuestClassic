@@ -1707,7 +1707,13 @@ void HeroClass::init()
     if(y==0)   dir=down;
     
     if(y==world_h-16) dir=up;
-    
+
+	if (hero_scr)
+	{
+		x += region_scr_dx*256;
+		y += region_scr_dy*176;
+	}
+
     lstep=0;
     skipstep=0;
     autostep=false;

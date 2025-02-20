@@ -2001,10 +2001,10 @@ int32_t init_game()
 			Hero.setX(16 * 8);
 			Hero.setY(16 * 5);
 		}
-	}
 
-	Hero.x += region_scr_dx*256;
-	Hero.y += region_scr_dy*176;
+		Hero.x += region_scr_dx*256;
+		Hero.y += region_scr_dy*176;
+	}
 
 	if(DMaps[cur_dmap].flags&dmfBUNNYIFNOPEARL)
 	{
@@ -2361,10 +2361,9 @@ int32_t cont_game()
 	{
 		Hero.setX(hero_scr->warpreturnx[testingqst_retsqr]);
 		Hero.setY(hero_scr->warpreturny[testingqst_retsqr]);
+		Hero.x += region_scr_dx*256;
+		Hero.y += region_scr_dy*176;
 	}
-
-	Hero.x += region_scr_dx*256;
-	Hero.y += region_scr_dy*176;
 
 	if(DMaps[cur_dmap].flags&dmfBUNNYIFNOPEARL)
 	{
