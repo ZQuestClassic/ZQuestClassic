@@ -2004,6 +2004,7 @@ int32_t init_game()
 
 		Hero.x += region_scr_dx*256;
 		Hero.y += region_scr_dy*176;
+		update_viewport();
 	}
 
 	if(DMaps[cur_dmap].flags&dmfBUNNYIFNOPEARL)
@@ -2363,6 +2364,7 @@ int32_t cont_game()
 		Hero.setY(hero_scr->warpreturny[testingqst_retsqr]);
 		Hero.x += region_scr_dx*256;
 		Hero.y += region_scr_dy*176;
+		update_viewport();
 	}
 
 	if(DMaps[cur_dmap].flags&dmfBUNNYIFNOPEARL)

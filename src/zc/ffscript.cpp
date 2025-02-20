@@ -29100,6 +29100,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmap, int32_t screen, int32
 
 			Hero.x += region_scr_dx * 256;
 			Hero.y += region_scr_dy * 176;
+			update_viewport();
 			
 			if(dlevel)
 			{
