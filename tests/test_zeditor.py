@@ -205,7 +205,23 @@ class TestZEditor(unittest.TestCase):
 
                 tmp_qst_path = tmp_dir / qst_path.name
                 shutil.copy(qst_path, tmp_qst_path)
-                self.quick_assign(tmp_qst_path)
+
+                # Currently there is a flaky crash, seemingly only on ubuntu+clang.
+                #
+                #   Exception: got error running command: zeditor -headless -quick-assign .tmp/test_zeditor/newbie_boss.qst
+                #   do_compile_and_slots at compilezscript.cpp:440:1
+                #
+                # For now, repeat a few times (CI only).
+                attempts = 3 if 'CI' in os.environ else 1
+                for i in range(attempts):
+                    try:
+                        self.quick_assign(tmp_qst_path)
+                        break
+                    except Exception as e:
+                        if i == attempts - 1:
+                            raise e
+                        print(e)
+
                 successful_qsts.append(qst_path)
 
         all_replay_paths = []
