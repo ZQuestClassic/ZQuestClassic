@@ -6962,13 +6962,10 @@ int32_t writeheader(PACKFILE *f, zquestheader *Header)
 		{
 			new_return(33);
 		}
-		
-		
-		
-		char tempsig[256];
+
+		// This is no longer set to anything.
+		const char* tempsig[256];
 		memset(tempsig, 0, 256);
-		strcpy(tempsig, DEV_SIGNOFF);
-		
 		if(!pfwrite(&tempsig,256,f))
 		{
 			new_return(34);

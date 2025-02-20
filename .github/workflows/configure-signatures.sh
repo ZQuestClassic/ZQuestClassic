@@ -2,8 +2,7 @@
 
 set -euxo pipefail
 
-echo '#define DEV_SIGNOFF "Build_Script"' > src/metadata/sigs/devsig.h.sig
-echo '#define __TIMEZONE__ "UTC"' >> src/metadata/sigs/devsig.h.sig
+echo '#define __TIMEZONE__ "UTC"' > src/metadata/sigs/devsig.h.sig
 echo '' >> src/metadata/sigs/devsig.h.sig
 
 echo '' > src/metadata/sigs/compilersig.h.sig

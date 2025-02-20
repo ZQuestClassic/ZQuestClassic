@@ -605,7 +605,6 @@ string get_dbreport_string()
 		(char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
 	
 	oss << "\n" << buf
-		<< "\nDev Signoff: " << DEV_SIGNOFF
 		<< "\nQR:" << get_qr_hexstr(quest_rules, true, false)
 		<< "\n```";
 	return oss.str();
@@ -728,8 +727,6 @@ string generate_zq_about()
 	sprintf(buf1,"Version: %s", getVersionString());
 	oss << buf1 << '\n';
 	sprintf(buf1,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(), (char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
-	oss << buf1 << '\n';
-	sprintf(buf1, "Built By: %s", DEV_SIGNOFF);
 	oss << buf1 << '\n';
 	
 	return oss.str();
