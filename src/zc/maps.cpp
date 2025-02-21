@@ -4379,25 +4379,6 @@ static void for_every_nearby_screen(const nearby_screens_t& nearby_screens, cons
 		fn(nearby_screen.screen_handles, nearby_screen.screen, nearby_screen.offx, nearby_screen.offy);
 }
 
-static void for_every_screen_in_region_some_layers(std::vector<int> layers, const std::function <void (screen_handles_t, int, int, bool)>& fn)
-{
-	for_every_base_screen_in_region([&](mapscr* base_scr, unsigned int region_scr_x, unsigned int region_scr_y) {
-		int screen = base_scr->screen;
-		screen_handles_t screen_handles;
-		for (int i : layers)
-		{
-			mapscr* scr = get_scr_layer_valid(screen, i);
-			screen_handles[i] = {base_scr, scr, screen, i};
-		}
-
-		int offx = region_scr_x * 256;
-		int offy = region_scr_y * 176;
-		bool in_viewport = viewport.intersects_with(offx, offy, offx + 256, offy + 176);
-
-		fn(screen_handles, offx, offy, in_viewport);
-	});
-}
-
 void draw_msgstr(byte layer)
 {
 	if(layer != msgstr_layer) return;
@@ -4523,30 +4504,29 @@ void draw_screen(bool showhero, bool runGeneric)
 			}
 		}
 	}
-	
-	for_every_screen_in_region_some_layers({0, 1, 2}, [&](screen_handles_t screen_handles, int offx, int offy, bool in_viewport) {
+
+	for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
+		do_layer(scrollbuf, 0, screen_handles[1], offx, offy, true); // LAYER 1
+	});
+
+	particles.draw(framebuf, true, 0);
+	draw_msgstr(1);
+
+	for_every_base_screen_in_region([&](mapscr* base_scr, unsigned int region_scr_x, unsigned int region_scr_y) {
+		screen_handle_t handle = {base_scr, base_scr, base_scr->screen, 0};
+		do_layer(scrollbuf, -3, handle, 0, 0); // freeform combos!
+	});
+
+	for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
 		mapscr* base_scr = screen_handles[0].base_scr;
-		int screen = base_scr->screen;
-
-		if (in_viewport)
+		if(!XOR(base_scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG))
 		{
-			do_layer(scrollbuf, 0, screen_handles[1], offx, offy, true); // LAYER 1
-			if (screen == cur_screen) particles.draw(framebuf, true, 0);
-			if (screen == cur_screen) draw_msgstr(1);
-		}
-		
-		do_layer(scrollbuf, -3, screen_handles[0], 0, 0); // freeform combos!
-
-		if (in_viewport)
-		{
-			if(!XOR(base_scr->flags7&fLAYER2BG, DMaps[cur_dmap].flags&dmfLAYER2BG))
-			{
-				do_layer(scrollbuf, 0, screen_handles[2], offx, offy, true); // LAYER 2
-				if (screen == cur_screen) particles.draw(framebuf, true, 1);
-				if (screen == cur_screen) draw_msgstr(2);
-			}
+			do_layer(scrollbuf, 0, screen_handles[2], offx, offy, true); // LAYER 2
 		}
 	});
+
+	particles.draw(framebuf, true, 1);
+	draw_msgstr(2);
 
 	do_primitives(framebuf, SPLAYER_FFC_DRAW, 0, playing_field_offset);
 
@@ -4940,32 +4920,26 @@ void draw_screen(bool showhero, bool runGeneric)
 		color_map = &trans_table;
 	}
 
-	for_every_screen_in_region_some_layers({0, 5, 6}, [&](screen_handles_t screen_handles, int offx, int offy, bool in_viewport) {
-		mapscr* base_scr = screen_handles[0].base_scr;
-		int screen = base_scr->screen;
-
-		if (in_viewport)
-		{
-			do_layer(framebuf, 0, screen_handles[5], offx, offy, true);
-			if (screen == cur_screen) particles.draw(framebuf, true, 4);
-			if (screen == cur_screen) draw_msgstr(5);
-		}
-
-		// overhead freeform combos!
-		do_layer(framebuf, -4, screen_handles[0], 0, 0);
-
-		if (in_viewport)
-		{
-			if (screen == cur_screen)
-			{
-				do_primitives(framebuf, SPLAYER_OVERHEAD_FFC, offx, offy + playing_field_offset);
-			}
-			// ---
-			do_layer(framebuf, 0, screen_handles[6], offx, offy, true);
-			if (screen == cur_screen) particles.draw(framebuf, true, 5);
-		}
+	for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
+		do_layer(framebuf, 0, screen_handles[5], offx, offy, true);
 	});
-	
+
+	particles.draw(framebuf, true, 4);
+	draw_msgstr(5);
+
+	for_every_base_screen_in_region([&](mapscr* base_scr, unsigned int region_scr_x, unsigned int region_scr_y) {
+		screen_handle_t handle = {base_scr, base_scr, base_scr->screen, 0};
+		do_layer(framebuf, -4, handle, 0, 0); // overhead freeform combos!
+	});
+
+	do_primitives(framebuf, SPLAYER_OVERHEAD_FFC, 0, playing_field_offset);
+
+	for_every_nearby_screen(nearby_screens, [&](screen_handles_t screen_handles, int screen, int offx, int offy) {
+		do_layer(framebuf, 0, screen_handles[6], offx, offy, true);
+	});
+
+	particles.draw(framebuf, true, 5);
+
 	// Handle low drawn darkness
 	bool draw_dark = false;
 	if(get_qr(qr_NEW_DARKROOM) && room_is_dark)
