@@ -20,7 +20,6 @@
 #include "zscriptversion.h"
 
 extern sprite_list items, decorations;
-extern HeroClass Hero;
 
 // CUTSCENE STUFF
 

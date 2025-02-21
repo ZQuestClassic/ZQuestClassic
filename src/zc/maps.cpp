@@ -40,8 +40,6 @@ using std::set;
 #include "iter.h"
 #include <ranges>
 
-extern HeroClass Hero;
-
 // All the temporary screens (and their layers) for the currently loaded map.
 static mapscr* temporary_screens[136*7];
 // Set by load_region.

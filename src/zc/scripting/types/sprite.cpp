@@ -12,7 +12,6 @@
 #include <optional>
 
 extern refInfo *ri;
-extern HeroClass Hero;
 
 static bool is_player()
 {

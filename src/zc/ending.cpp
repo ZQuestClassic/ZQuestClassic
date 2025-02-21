@@ -26,7 +26,6 @@
 extern ZModule zcm; //modules
 extern zcmodule moduledata;
 
-extern HeroClass   Hero;
 extern sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations;
 
 namespace

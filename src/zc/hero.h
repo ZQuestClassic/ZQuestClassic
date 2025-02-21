@@ -685,4 +685,7 @@ void getitem(int32_t id, bool nosound=false, bool doRunPassive=false);
 void takeitem(int32_t id);
 void red_shift();
 void slide_in_color(int32_t color);
+
+extern HeroClass Hero;
+
 #endif

@@ -9,7 +9,6 @@
 
 #ifdef IS_PLAYER
 extern sprite_list guys;
-extern HeroClass Hero;
 #endif
 
 static solid_object* curobject = NULL;

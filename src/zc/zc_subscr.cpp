@@ -16,7 +16,6 @@
 #include "base/misctypes.h"
 #include "zscriptversion.h"
 
-extern HeroClass Hero;
 extern int32_t directItemA;
 extern int32_t directItemB;
 extern int32_t directItemY;

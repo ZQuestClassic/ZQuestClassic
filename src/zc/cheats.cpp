@@ -11,8 +11,6 @@
 #include <algorithm>
 #include <fmt/format.h>
 
-extern HeroClass Hero;
-
 int32_t cheatkeys[Cheat::Last][2];
 
 static std::queue<std::tuple<Cheat, int, int, std::string>> cheats;

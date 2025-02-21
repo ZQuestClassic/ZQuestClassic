@@ -1010,7 +1010,6 @@ particle_list particles;
 
 #include "hero_tiles.h"
 #include "zc/hero.h"
-HeroClass   Hero;
 
 #include "zc/maps.h"
 #include "subscr.h"

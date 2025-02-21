@@ -19,8 +19,6 @@
 #include "zc/maps.h"
 #include "zc/replay.h"
 #include "zc/guys.h"
-
-extern HeroClass Hero;
 #endif
 
 #ifdef IS_PLAYER

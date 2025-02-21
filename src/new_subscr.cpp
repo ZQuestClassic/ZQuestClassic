@@ -2914,7 +2914,6 @@ void SW_MMap::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) c
 	}
 
 #ifdef IS_PLAYER
-	extern HeroClass Hero;
 	if (get_currscr() == 0x81 && Hero.specialcave == PASSAGEWAY)
 		showplr = false;
 #endif

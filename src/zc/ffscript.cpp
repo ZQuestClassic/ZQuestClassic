@@ -630,7 +630,6 @@ extern int32_t directItemY;
 using std::string;
 
 extern particle_list particles;
-extern HeroClass Hero;
 extern char *guy_string[];
 extern int32_t skipcont;
 

@@ -19,7 +19,6 @@ bool show_subscreen_items=true;
 bool show_subscreen_life=true;
 
 extern sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations;
-extern HeroClass   Hero;
 
 int get_sub_dmap();
 

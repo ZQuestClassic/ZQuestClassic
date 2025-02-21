@@ -37,7 +37,6 @@
 #include "music_playback.h"
 #include "iter.h"
 
-extern HeroClass Hero;
 extern ZModule zcm;
 extern zcmodule moduledata;
 extern refInfo playerScriptData;
@@ -33221,3 +33220,5 @@ bool HeroClass::is_unpushable() const
 {
 	return toogam;
 }
+
+HeroClass Hero;

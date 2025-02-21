@@ -17,7 +17,6 @@ extern sprite_list Lwpns;
 #include "iter.h"
 
 extern int16_t lensclk;
-extern HeroClass Hero;
 #endif
 
 void ffcdata::clear()

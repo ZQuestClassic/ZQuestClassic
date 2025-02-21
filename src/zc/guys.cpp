@@ -34,7 +34,6 @@
 extern particle_list particles;
 
 extern ZModule zcm;
-extern HeroClass   Hero;
 extern sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations;
 
 int32_t repaircharge=0;

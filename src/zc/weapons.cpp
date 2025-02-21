@@ -27,7 +27,6 @@
 #include "zc/render.h"
 #endif
 
-extern HeroClass Hero;
 extern int32_t directWpn;
 extern ZModule zcm;
 extern enemy Enemy;

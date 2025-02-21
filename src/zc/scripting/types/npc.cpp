@@ -9,7 +9,6 @@
 #include <optional>
 
 extern refInfo *ri;
-extern HeroClass Hero;
 extern int32_t sarg1;
 extern int32_t sarg2;
 extern int32_t sarg3;

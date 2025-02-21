@@ -12,8 +12,6 @@
 #include "subscr.h"
 #include "base/misctypes.h"
 
-extern HeroClass Hero;
-
 int32_t CSET_SIZE = 16;                                         // this is only changed to 4 in the NES title screen
 int32_t CSET_SHFT = 4;                                          // log2 of CSET_SIZE
 
