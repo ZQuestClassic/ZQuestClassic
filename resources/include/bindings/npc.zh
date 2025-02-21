@@ -506,16 +506,6 @@ class npc {
 	// @zasm_var NPCKNOCKBACKSPEED
 	internal int SlideSpeed;
 
-	// The radius of light this object emits in a dark room
-	//
-	// @zasm_var NPCGLOWRAD
-	internal int LightRadius;
-
-	// The shape of light this object emits in a dark room.
-	//
-	// @zasm_var NPCGLOWSHP
-	internal int LightShape;
-
 	// The spawn sprite used by the npc, 0-255
 	//
 	// @zasm_var NPCSPAWNSPR
