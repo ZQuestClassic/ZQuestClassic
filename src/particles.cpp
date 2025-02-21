@@ -329,3 +329,5 @@ particle * particle_list::getByUID(int32_t uid)
 		
 	return NULL;
 }
+
+particle_list particles;

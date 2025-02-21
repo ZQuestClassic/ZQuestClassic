@@ -82,5 +82,6 @@ public:
 	int32_t Count();
 };
 
+extern particle_list particles;
 
 #endif

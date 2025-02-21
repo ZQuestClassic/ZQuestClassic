@@ -50,7 +50,6 @@ extern ZModule zcm;
 extern zcmodule moduledata;
 extern uint8_t __isZQuest;
 extern sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations;
-extern particle_list particles;
 extern void setZScriptVersion(int32_t s_version);
 
 static bool read_ext_zinfo = false, read_zinfo = false;

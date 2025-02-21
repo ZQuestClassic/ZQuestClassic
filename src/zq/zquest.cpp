@@ -137,7 +137,6 @@
 #endif
 
 #define MIDI_TRACK_BUFFER_SIZE 50
-particle_list particles;
 void setZScriptVersion(int32_t) { } //bleh...
 extern CConsoleLoggerEx parser_console;
 

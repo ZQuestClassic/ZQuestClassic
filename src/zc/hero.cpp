@@ -78,8 +78,6 @@ extern int32_t script_hero_cset;
 
 void playLevelMusic();
 
-extern particle_list particles;
-
 byte lsteps[8] = { 1, 1, 2, 1, 1, 2, 1, 1 };
 
 #define CANFORCEFACEUP	(get_qr(qr_SIDEVIEWLADDER_FACEUP)!=0 && dir!=up && (action==walking || action==none))

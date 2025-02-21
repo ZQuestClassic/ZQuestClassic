@@ -31,8 +31,6 @@
 #include "zc/combos.h"
 #include "iter.h"
 
-extern particle_list particles;
-
 extern ZModule zcm;
 extern sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations;
 

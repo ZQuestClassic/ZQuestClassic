@@ -25,8 +25,6 @@
 #include "zq/zquest.h"
 #endif
 
-extern particle_list particles;
-
 static std::map<int32_t, sprite*> all_sprites;
 byte sprite_flicker_color = 0;
 byte sprite_flicker_transp_passes = 0;
