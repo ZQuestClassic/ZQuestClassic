@@ -6996,8 +6996,9 @@ int32_t writeheader(PACKFILE *f, zquestheader *Header)
         {
             new_return(37);
         }
-		
-		if(!p_putc(V_ZC_COMPILERSIG,f))
+
+		// V_ZC_COMPILERSIG - a deprecated version field.
+		if(!p_putc(1,f))
 		{
 			new_return(38);
 		}

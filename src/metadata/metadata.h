@@ -1,11 +1,7 @@
-#include "metadata/sigs/devsig.h.sig"
-#include "metadata/sigs/compilersig.h.sig"
-#include "metadata/versionsig.h"
-
-#define COMPANY_NAME "Armageddon Games"
-
-#define ZQ_EDITOR_NAME "ZQuest Classic Editor"
-#define ZQ_EDITOR_COPYRIGHT "Copyright (C) 2021"
-
-#define ZC_PLAYER_NAME "ZQuest Classic Player"
-#define ZC_PLAYER_COPYRIGHT "Copyright (C) 2021"
+#define __TIMEZONE__ "UTC"
+#define COMPILER_V_FIRST 0
+#define COMPILER_V_SECOND 0
+#define COMPILER_V_THIRD 0
+#define COMPILER_V_FOURTH 0
+#define COMPILER_NAME "Unknown"
+#define COMPILER_VERSION "Unknown"

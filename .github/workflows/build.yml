@@ -146,7 +146,7 @@ jobs:
         run: |
           echo "CC=gcc" >> "$GITHUB_ENV"
           echo "CXX=g++" >> "$GITHUB_ENV"
-      - run: bash .github/workflows/configure-signatures.sh ${{ inputs.compiler }}
+      - run: bash .github/workflows/configure-signatures.sh ${{ inputs.compiler }} ${{ inputs.release-version || '3.0.0' }}
       - name: Set release platform
         id: set-platform
         shell: python

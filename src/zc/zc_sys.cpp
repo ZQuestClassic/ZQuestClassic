@@ -6270,7 +6270,7 @@ int32_t onAbout()
 {
 	char buf1[80]={0};
 	std::ostringstream oss;
-	sprintf(buf1,ZC_PLAYER_NAME);
+	sprintf(buf1,"ZQuest Classic Player");
 	oss << buf1 << '\n';
 	sprintf(buf1,"Version: %s", getVersionString());
 	oss << buf1 << '\n';

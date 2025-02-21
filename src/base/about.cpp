@@ -1,5 +1,4 @@
 #include "base/about.h"
-#include "metadata/versionsig.h"
 
 char const* getReleasePlatform()
 {

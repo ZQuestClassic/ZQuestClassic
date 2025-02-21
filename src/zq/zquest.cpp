@@ -24137,7 +24137,7 @@ int32_t main(int32_t argc,char **argv)
 		do_copy_qst_command(input_filename, output_filename);
 	}
 
-	Z_title("%s, %s",ZQ_EDITOR_NAME, getVersionString());
+	Z_title("ZQuest Classic Editor, %s", getVersionString());
 
 	if(!get_qst_buffers())
 	{

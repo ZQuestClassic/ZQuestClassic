@@ -1,1 +1,0 @@
-Copy compilersig.h.sig and devsig.h.sig into this path.

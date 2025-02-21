@@ -25,9 +25,6 @@
 
 
 #include "fmt/core.h"
-#include "metadata/sigs/devsig.h.sig"
-#include "metadata/sigs/compilersig.h.sig"
-#include "metadata/versionsig.h"
 #include "base/zc_alleg.h"
 #include "base/zdefs.h"
 #include "base/colors.h"

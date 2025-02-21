@@ -598,7 +598,7 @@ string get_dbreport_string()
 	char buf[256];
 	
 	oss << "```\n"
-		<< ZQ_EDITOR_NAME
+		<< "ZQuest Classic Editor"
 		<< "\nVersion: " << getVersionString();
 		
 	sprintf(buf,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(),
@@ -722,8 +722,7 @@ string generate_zq_about()
 {
 	char buf1[256];
 	std::ostringstream oss;
-	sprintf(buf1,ZQ_EDITOR_NAME);
-	oss << buf1 << '\n';
+	oss << "ZQuest Classic Editor" << '\n';
 	sprintf(buf1,"Version: %s", getVersionString());
 	oss << buf1 << '\n';
 	sprintf(buf1,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(), (char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
@@ -943,9 +942,9 @@ int32_t zquestheader::compareVer() const
 		return 1;
 	if(version_patch < version.patch)
 		return -1;
-	if(new_version_id_fourth > V_ZC_FOURTH)
+	if(new_version_id_fourth > 0)
 		return 1;
-	if(new_version_id_fourth < V_ZC_FOURTH)
+	if(new_version_id_fourth < 0)
 		return -1;
 	return 0;
 }
