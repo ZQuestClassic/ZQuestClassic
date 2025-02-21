@@ -559,10 +559,6 @@ struct user_paldata : public user_abstract_obj
 	void mix(user_paldata *pal_start, user_paldata *pal_end, double percent, int32_t color_space = CSPACE_RGB, int32_t start_color = 0, int32_t end_color = 240);
 };
 
-//Module System.
-//Putting this here for now.
-#include "base/module.h"
-
 int32_t run_script_int(bool is_jitted);
 
 void clearConsole();

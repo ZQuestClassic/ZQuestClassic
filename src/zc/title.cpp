@@ -46,7 +46,6 @@
 
 extern int32_t loadlast;
 extern int32_t skipcont;
-extern zcmodule moduledata;
 
 static void select_mode()
 {
@@ -175,6 +174,9 @@ static void selectscreen()
 static byte left_arrow_str[] = {132,0};
 static byte right_arrow_str[] = {133,0};
 
+static int sels_herotile = 237;
+static int sels_hero_cset = 0;
+
 static void list_save(gamedata_header* header, int32_t save_num, int32_t ypos)
 {
 	bool r = refreshpal;
@@ -189,108 +191,6 @@ static void list_save(gamedata_header* header, int32_t save_num, int32_t ypos)
 	
 	if(quest)
 		textprintf_ex(framebuf,get_zc_font(font_zfont),72,ypos+24,1,0,"%5d",header->deaths);
-		
-	if ( moduledata.select_screen_tiles[draw_hero_first]) 
-		overtile16(framebuf,moduledata.select_screen_tiles[sels_herotile],48,ypos+17,((unsigned)moduledata.select_screen_tile_csets[sels_hero_cset] < 15 ) ? moduledata.select_screen_tile_csets[sels_hero_cset] : (save_num%3)+10,0); 
-
-	if(quest==1)
-	{
-		//hardcoded quest icons -- move to module
-		//overtile16(framebuf,41,56,ypos+14,9,0);             //put sword on second quests
-		if ( moduledata.select_screen_tiles[sels_tile_questicon_1A] > 0 )
-		overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_1A],moduledata.select_screen_tiles[sels_tile_questicon_1A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_1A_cset],0);   
-		if ( moduledata.select_screen_tiles[sels_tile_questicon_1B] > 0 )
-		overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_1B],moduledata.select_screen_tiles[sels_tile_questicon_1B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_1B_cset],0);   
-	}
-	if(quest==2)
-	{
-		//hardcoded quest icons -- move to module
-		//overtile16(framebuf,41,56,ypos+14,9,0);             //put sword on second quests
-		if ( moduledata.select_screen_tiles[sels_tile_questicon_2A] > 0 )
-		overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_2A],moduledata.select_screen_tiles[sels_tile_questicon_2A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_2A_cset],0);   
-		if ( moduledata.select_screen_tiles[sels_tile_questicon_2B] > 0 )
-		overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_2B],moduledata.select_screen_tiles[sels_tile_questicon_2B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_2B_cset],0);   
-	}
-		
-		
-	if(quest==3)
-	{
-		//overtile16(framebuf,41,56,ypos+14,9,0);             //put sword on second quests
-		//overtile16(framebuf,41,41,ypos+14,9,0);             //put sword on third quests
-	
-		if ( moduledata.select_screen_tiles[sels_tile_questicon_3A] > 0 )
-		overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_3A],moduledata.select_screen_tiles[sels_tile_questicon_3A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_3A_cset],0);   
-		if ( moduledata.select_screen_tiles[sels_tile_questicon_3B] > 0 )
-		overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_3B],moduledata.select_screen_tiles[sels_tile_questicon_3B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_3B_cset],0);   
-	}
-	
-	if(quest==4)
-	{
-		//overtile16(framebuf,176,52,ypos+14,0,1);             //dust pile
-		//overtile16(framebuf,175,52,ypos+14,9,0);             //triforce
-		if ( moduledata.select_screen_tiles[sels_tile_questicon_4A] > 0 )
-		overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_4A],moduledata.select_screen_tiles[sels_tile_questicon_4A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_4A_cset],0);   
-		if ( moduledata.select_screen_tiles[sels_tile_questicon_4B] > 0 )
-		overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_4B],moduledata.select_screen_tiles[sels_tile_questicon_4B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_4B_cset],0);   
-	}
-
-	if(quest==5)
-	{
-		//overtile16(framebuf,176,52,ypos+14,0,1);             //dust pile
-		//overtile16(framebuf,175,52,ypos+14,9,0);             //triforce
-		if ( moduledata.select_screen_tiles[sels_tile_questicon_5A] > 0 )
-		overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_5A],moduledata.select_screen_tiles[sels_tile_questicon_5A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_5A_cset],0);   
-		if ( moduledata.select_screen_tiles[sels_tile_questicon_5B] > 0 )
-		overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_5B],moduledata.select_screen_tiles[sels_tile_questicon_5B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_5B_cset],0);   
-	}
-	
-	if(quest==6)
-	{
-		//overtile16(framebuf,176,52,ypos+14,0,1);             //dust pile
-		//overtile16(framebuf,175,52,ypos+14,9,0);             //triforce
-		if ( moduledata.select_screen_tiles[sels_tile_questicon_6A] > 0 )
-		overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_6A],moduledata.select_screen_tiles[sels_tile_questicon_6A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_6A_cset],0);   
-		if ( moduledata.select_screen_tiles[sels_tile_questicon_6B] > 0 )
-		overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_6B],moduledata.select_screen_tiles[sels_tile_questicon_6B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_6B_cset],0);   
-	}
-
-	if(quest==7)
-	{
-		//overtile16(framebuf,176,52,ypos+14,0,1);             //dust pile
-		//overtile16(framebuf,175,52,ypos+14,9,0);             //triforce
-		if ( moduledata.select_screen_tiles[sels_tile_questicon_7A] > 0 )
-		overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_7A],moduledata.select_screen_tiles[sels_tile_questicon_7A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_7A_cset],0);   
-		if ( moduledata.select_screen_tiles[sels_tile_questicon_7B] > 0 )
-		overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_7B],moduledata.select_screen_tiles[sels_tile_questicon_7B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_7B_cset],0);   
-	}
-	if(quest==8)
-	{
-		//overtile16(framebuf,176,52,ypos+14,0,1);             //dust pile
-		//overtile16(framebuf,175,52,ypos+14,9,0);             //triforce
-		if ( moduledata.select_screen_tiles[sels_tile_questicon_8A] > 0 )
-		overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_8A],moduledata.select_screen_tiles[sels_tile_questicon_8A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_8A_cset],0);   
-		if ( moduledata.select_screen_tiles[sels_tile_questicon_8B] > 0 )
-		overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_8B],moduledata.select_screen_tiles[sels_tile_questicon_8B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_8B_cset],0);   
-	}
-	
-	if(quest==9)
-	{
-		//overtile16(framebuf,176,52,ypos+14,0,1);             //dust pile
-		//overtile16(framebuf,175,52,ypos+14,9,0);             //triforce
-		if ( moduledata.select_screen_tiles[sels_tile_questicon_9A] > 0 )
-		overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_9A],moduledata.select_screen_tiles[sels_tile_questicon_9A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_9A_cset],0);   
-		if ( moduledata.select_screen_tiles[sels_tile_questicon_9B] > 0 )
-		overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_9B],moduledata.select_screen_tiles[sels_tile_questicon_9B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_9B_cset],0);   
-	}
-	if(quest==10)
-	{
-		//overtile16(framebuf,176,52,ypos+14,0,1);             //dust pile
-		//overtile16(framebuf,175,52,ypos+14,9,0);             //triforce
-		if ( moduledata.select_screen_tiles[sels_tile_questicon_10A] > 0 )
-		overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_10A],moduledata.select_screen_tiles[sels_tile_questicon_10A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_10A_cset],0);   
-		if ( moduledata.select_screen_tiles[sels_tile_questicon_10B] > 0 )
-		overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_10B],moduledata.select_screen_tiles[sels_tile_questicon_10B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_10B_cset],0);   
-	}
 
 	textprintf_ex(framebuf,get_zc_font(font_zfont),72,ypos+16,1,0,"%s",header->name.c_str());
 
@@ -310,16 +210,15 @@ static void list_save(gamedata_header* header, int32_t save_num, int32_t ypos)
 	byte holdformat=newtilebuf[0].format;
 	newtilebuf[0].format=tf4Bit;
 	newtilebuf[0].data = temp_bytes;
-	overtile16(framebuf,(moduledata.select_screen_tiles[sels_herotile] > 1 && quest > 0 && quest < 255 ) ? moduledata.select_screen_tiles[sels_herotile] : 0,48,ypos+17,
-	((unsigned)moduledata.select_screen_tile_csets[sels_hero_cset] < 15 && quest > 0 && quest < 255 ) ? (unsigned)moduledata.select_screen_tile_csets[sels_hero_cset] < 15 :
+	overtile16(framebuf,(sels_herotile > 1 && quest > 0 && quest < 255 ) ? sels_herotile : 0,48,ypos+17,
+	((unsigned)sels_hero_cset < 15 && quest > 0 && quest < 255 ) ? (unsigned)sels_hero_cset < 15 :
 	(save_num%3)+10,0);               //hero
 	newtilebuf[0].format=holdformat;
 	newtilebuf[0].data = hold;
 	
 	hold = colordata;
 	colordata = header->pal;
-	//if ( moduledata.select_screen_tile_csets[change_cset_on_quest_3] ) loadpalset((save_num%3)+10,0); //quest number changes the palette -- move to module
-	loadpalset((save_num%3)+10,0); //quest number changes the palette -- move to module?
+	loadpalset((save_num%3)+10,0);
 	colordata = hold;
 	
 	textout_ex(framebuf,get_zc_font(font_zfont),"-",136,ypos+16,1,0);
@@ -406,11 +305,6 @@ static bool register_name()
 {
 	int s = saves_count();
 
-	if ( moduledata.refresh_title_screen ) //refresh
-	{
-		selectscreen();
-		moduledata.refresh_title_screen = 0;
-	}
 	int32_t NameEntryMode2=NameEntryMode;
 
 	gamedata* new_game = new gamedata();
@@ -1230,11 +1124,6 @@ static void select_game(bool skip = false)
 		}
 		disabledKeys[KEY_ESC] = mode != 0;
 
-		if ( moduledata.refresh_title_screen ) //refresh
-		{
-			selectscreen();
-			moduledata.refresh_title_screen = 0;
-		}
 		sfxdat=1;
 		blit(scrollbuf,framebuf,0,0,0,0,256,224);
 		list_saves();

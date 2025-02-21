@@ -14,7 +14,6 @@
 #include "base/combo.h"
 
 extern bool saved;
-extern zcmodule moduledata;
 extern comboclass *combo_class_buf;
 extern itemdata *itemsbuf;
 extern int32_t CSet;

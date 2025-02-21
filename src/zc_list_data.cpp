@@ -10,7 +10,6 @@
 #include "base/autocombo.h"
 #include <fmt/format.h>
 
-extern zcmodule moduledata;
 extern char *weapon_string[];
 extern char *sfx_string[];
 extern char *item_string[];

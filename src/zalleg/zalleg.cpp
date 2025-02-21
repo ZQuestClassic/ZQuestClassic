@@ -1,7 +1,6 @@
 #include "zalleg/zalleg.h"
 #include "base/files.h"
 #include "base/fonts.h"
-#include "base/module.h"
 #include "base/render.h"
 #include "base/version.h"
 #include "base/zapp.h"
@@ -18,8 +17,6 @@
 #endif
 
 DATAFILE *fontsdata, *sfxdata;
-ZModule zcm;
-zcmodule moduledata;
 
 void zalleg_setup_allegro(App id, int argc, char **argv)
 {
@@ -140,11 +137,6 @@ void zalleg_setup_allegro(App id, int argc, char **argv)
 		{
 			Z_message("OK\n");
 		}
-	}
-
-	if (!zcm.init(true))
-	{
-		Z_error_fatal("ZC Player I/O Error: No module definitions found. Please check your settings in %s.cfg.\n", "zc");
 	}
 
 	render_set_debug(zc_get_config("graphics","render_debug",0));

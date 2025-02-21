@@ -16,7 +16,6 @@ using std::vector;
 
 extern bool saved;
 extern itemdata *itemsbuf;
-extern zcmodule moduledata;
 extern char *item_string[];
 extern script_data *genericscripts[NUMSCRIPTSGENERIC];
 

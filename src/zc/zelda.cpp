@@ -84,8 +84,6 @@ extern bool epilepsyFlashReduction;
 	char* ptname = NULL;
 	std::ostringstream lxconsole_oss;
 #endif
-extern ZModule zcm; //modules
-extern zcmodule moduledata;
 extern char runningItemScripts[256];
 extern char modulepath[2048];
 

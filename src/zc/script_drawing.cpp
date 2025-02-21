@@ -21,7 +21,6 @@
 #include "base/mapscr.h"
 #include "base/misctypes.h"
 using namespace util;
-extern ZModule zcm;
 extern refInfo *ri;
 extern script_bitmaps scb;
 #include <stdio.h>

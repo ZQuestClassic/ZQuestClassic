@@ -115,7 +115,6 @@
 #include "zq/questReport.h"
 #include "zq/ffasmexport.h"
 #include <fstream>
-#include "base/module.h"
 #include "drawing.h"
 #include "zconsole/ConsoleLogger.h"
 #include "colorname.h"
@@ -26231,9 +26230,6 @@ int32_t save_config_file()
     chop_path(midipath2);
     chop_path(imagepath2);
     chop_path(tmusicpath2);
-    
-	zc_set_config("ZCMODULE","current_module",moduledata.module_name);
-	//
 	write_includepaths();
 	
     zc_set_config("zquest",data_path_name,datapath2);
@@ -26905,9 +26901,6 @@ int32_t FFScript::getTime(int32_t type)
 }
 
 extern const char *itemclass_help_string_defaults[itype_max];
-//ZModule Functions
-
-
 
 /* end */
 

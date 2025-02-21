@@ -46,8 +46,6 @@
 #include "base/misctypes.h"
 #include "base/initdata.h"
 
-extern ZModule zcm;
-extern zcmodule moduledata;
 extern uint8_t __isZQuest;
 extern sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations;
 extern void setZScriptVersion(int32_t s_version);

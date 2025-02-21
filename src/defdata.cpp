@@ -1,7 +1,6 @@
 #include "defdata.h"
 #include "sfx.h"
 #include "zinfo.h"
-extern zcmodule moduledata;
 
 //modules need to set the names here
 comboclass default_combo_classes[cMAX+1] =

@@ -23,9 +23,6 @@
 #include "music_playback.h"
 #include "zscriptversion.h"
 
-extern ZModule zcm; //modules
-extern zcmodule moduledata;
-
 extern sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations;
 
 namespace
@@ -354,7 +351,7 @@ void ending()
 		if(f==861)
 		{
 			blit(scrollbuf,framebuf,0,0,0,playing_field_offset!=0?168:0,256,passive_subscreen_height);
-			try_zcmusic("zelda.nsf", qstpath, moduledata.ending_track, ZC_MIDI_ENDING, get_emusic_volume());
+			try_zcmusic("zelda.nsf", qstpath, 1, ZC_MIDI_ENDING, get_emusic_volume());
 			
 			for(int32_t y=0; y<224; y++)
 			{

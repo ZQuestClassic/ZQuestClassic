@@ -55,8 +55,6 @@ namespace fs = std::filesystem;
 
 using namespace util;
 
-extern ZModule zcm;
-extern zcmodule moduledata;
 extern uint8_t ViewLayer3BG, ViewLayer2BG;
 extern int32_t LayerDitherBG, LayerDitherSz;
 extern bool NoHighlightLayer0;
@@ -7063,11 +7061,10 @@ int32_t writeheader(PACKFILE *f, zquestheader *Header)
 		{
 			new_return(43);
 		}
-		
+
+		// Modules were removed (replaced by zinfo).
 		char tempmodulename[1024];
 		memset(tempmodulename, 0, 1024);
-		strcpy(tempmodulename, moduledata.module_name);
-		
 		if(!pfwrite(&tempmodulename,1024,f))
         {
             new_return(44);

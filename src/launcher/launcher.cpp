@@ -1,7 +1,6 @@
 #include "zalleg/zalleg.h"
 #include "base/zdefs.h"
 #include "launcher/launcher.h"
-#include "base/module.h"
 #include "base/fonts.h"
 #include "base/render.h"
 #include "dialog/alert.h"

@@ -28,7 +28,6 @@
 #endif
 
 extern int32_t directWpn;
-extern ZModule zcm;
 extern enemy Enemy;
 extern bool show_hitboxes;
 

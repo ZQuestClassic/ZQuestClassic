@@ -49,7 +49,6 @@
 #include "zc/script_drawing.h"
 #include "base/util.h"
 #include "zc/ending.h"
-#include "base/module.h"
 #include "zc/combos.h"
 #include "drawing.h"
 #include "base/colors.h"
@@ -116,8 +115,6 @@ int32_t jitted_uncompiled_command_count;
 
 CScriptDrawingCommands scriptdraws;
 FFScript FFCore;
-extern ZModule zcm;
-extern zcmodule moduledata;
 
 static std::string parse_user_path(const std::string& user_path, std::string& error, bool is_file);
 
@@ -10586,36 +10583,6 @@ int32_t get_register(int32_t arg)
 				ret = st->full() ? 10000L : 0L;
 			}
 			else ret = -10000L;
-			break;
-		}
-		
-		///----------------------------------------------------------------------------------------------------//
-		//Module->
-		
-		case MODULEGETINT:
-		{
-			int32_t section_pointer = ((ri->d[rINDEX])/10000);
-			int32_t element_pointer = ((ri->d[rINDEX2])/10000);
-			string sectionid;
-			string elementid;
-		
-			ArrayH::getString(section_pointer, sectionid);
-			ArrayH::getString(element_pointer, elementid);
-			
-			///set config file
-			if(!fileexists((char*)moduledata.module_name))
-			{
-				Z_scripterrlog("I/O Error: No module definitions found when using Module->GetInt()\n");
-				ret = -10000;
-			}	
-			else
-			{
-				zc_push_config();
-				zc_config_file(moduledata.module_name);
-				ret = zc_get_config_basic(sectionid.c_str(), elementid.c_str(), 0)*10000;
-				//return config file to zc.cfg
-				zc_pop_config();
-			}
 			break;
 		}
 		
@@ -21194,43 +21161,6 @@ void set_register(int32_t arg, int32_t value)
 			break;
 		
 		case MAXDRAWS: break;
-	
-	///----------------------------------------------------------------------------------------------------//
-	//Module->
-	case MODULEGETSTR:
-	{
-		int32_t buf_pointer = ((ri->d[rINDEX])/10000);
-		int32_t section_pointer = ((ri->d[rINDEX2])/10000);
-		int32_t element_pointer = (value/10000);
-		
-		string sectionid;
-		string elementid;
-		
-		ArrayH::getString(section_pointer, sectionid);
-		ArrayH::getString(element_pointer, elementid);
-		
-		char buffer[256] = {0};
-		
-		
-		if(!fileexists((char*)moduledata.module_name))
-		{
-			Z_scripterrlog("I/O Error: No module definitions found when using Module->GetString()\n");
-		}	
-		else
-		{
-			zc_push_config();
-			//set config file
-			zc_config_file(moduledata.module_name);
-			strcpy(buffer,zc_get_config_basic(sectionid.c_str(), elementid.c_str(), ""));
-			buffer[255] = '\0';
-			if(ArrayH::setArray(buf_pointer, buffer) == SH::_Overflow)
-				Z_scripterrlog("Dest string supplied to 'Module->GetString()' is not large enough\n");
-			//return config file to zc.cfg
-			zc_pop_config();
-		}
-	
-		break;
-	}
 
 	///----------------------------------------------------------------------------------------------------//
 	//Misc./Internal

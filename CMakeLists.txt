@@ -553,7 +553,6 @@ set(zcbase_sources
 	src/base/jwinfsel.cpp
 	src/base/mapscr.cpp
 	src/base/misctypes.cpp
-	src/base/module.cpp
 	src/base/msgstr.cpp
 	src/base/new_menu.cpp
 	src/base/packfile.cpp

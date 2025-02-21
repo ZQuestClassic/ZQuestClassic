@@ -31,7 +31,6 @@
 #include "zc/combos.h"
 #include "iter.h"
 
-extern ZModule zcm;
 extern sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations;
 
 int32_t repaircharge=0;

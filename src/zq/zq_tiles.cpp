@@ -39,7 +39,6 @@
 #include "zq/moveinfo.h"
 using std::set;
 
-extern zcmodule moduledata;
 
 #ifdef _MSC_VER
 #define stricmp _stricmp

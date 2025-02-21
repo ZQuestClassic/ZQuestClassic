@@ -37,9 +37,6 @@ extern int32_t sstype_drop_proc(int32_t msg,DIALOG *d,int32_t c);
 
 extern int32_t biw_cnt;
 
-extern ZModule zcm;
-extern zcmodule moduledata;
-
 
 #ifdef _MSC_VER
 #define stricmp _stricmp

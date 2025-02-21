@@ -37,8 +37,6 @@
 #include "music_playback.h"
 #include "iter.h"
 
-extern ZModule zcm;
-extern zcmodule moduledata;
 extern refInfo playerScriptData;
 #include "zscriptversion.h"
 #include "particles.h"
@@ -26644,12 +26642,21 @@ bool HeroClass::dowarp(const mapscr* scr, int32_t type, int32_t index, int32_t w
 	
 	update_subscreens();
 	verifyBothWeapons();
-	
+
+	static const char roomtype_names[rMAX][255] =
+	{
+		"(None)","Special Item","Pay for Info","Secret Money","Gamble",
+		"Door Repair","Red Potion or Heart Container","Feed the Goriya","Level 9 Entrance",
+		"Potion Shop","Shop","More Bombs","Leave Money or Life","10 Rupees",
+		"3-Stair Warp","Ganon","Zelda", "-<item pond>", "1/2 Magic Upgrade", "Learn Slash",
+		"More Arrows","Take One Item","Bottle Shop"
+	};
+
 	if(wtype==wtCAVE)
 	{
 		if(DMaps[cur_dmap].flags&dmfGUYCAVES)
 			Z_eventlog("Entered %s containing %s.\n",DMaps[cur_dmap].flags&dmfCAVES ? "Cave" : "Item Cellar",
-					   (char *)moduledata.roomtype_names[special_warp_return_scr->room]);
+					   (char *)roomtype_names[special_warp_return_scr->room]);
 		else
 			Z_eventlog("Entered %s.",DMaps[cur_dmap].flags&dmfCAVES ? "Cave" : "Item Cellar");
 	}
@@ -31633,7 +31640,7 @@ void HeroClass::getTriforce(int32_t id2)
 		if(itemsbuf[id2].misc1)
 			jukebox(itemsbuf[id2].misc1+ZC_MIDI_COUNT-1);
 		else
-			try_zcmusic("zelda.nsf",qstpath,moduledata.tf_track,ZC_MIDI_TRIFORCE,get_emusic_volume());
+			try_zcmusic("zelda.nsf",qstpath,5,ZC_MIDI_TRIFORCE,get_emusic_volume());
 	}
 	if(itemsbuf[id2].flags & item_gamedata)
 	{

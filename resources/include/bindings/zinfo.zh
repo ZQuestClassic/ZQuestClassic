@@ -11,21 +11,6 @@ class ZInfo {
 	//   POP D3
 	//   MODULEGETIC D3 D2
 	internal void GetItemType(char32[] buffer, int itemclass_id);
-
-	// @deprecated no longer supported!
-	// @zasm
-	//   POP D1
-	//   POP D0
-	//   SETR D2 MODULEGETINT
-	internal int GetInt(char32[] section, char32[] element);
-
-	// @deprecated no longer supported!
-	// @zasm
-	//   POP D6
-	//   POP D1
-	//   POP D0
-	//   SETR MODULEGETSTR D6
-	internal void GetString(char32[] buf, char32[] section, char32[] element);
 }
 
 internal const ZInfo ZInfo;

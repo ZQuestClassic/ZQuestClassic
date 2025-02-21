@@ -83,7 +83,6 @@ static int32_t d_joylist_proc(int32_t msg,DIALOG *d,int32_t c);
 
 extern byte monochrome_console;
 
-extern zcmodule moduledata;
 extern sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations;
 extern int32_t loadlast;
 extern char *sfx_string[WAV_COUNT];
@@ -106,7 +105,6 @@ int32_t getnumber(const char *prompt,int32_t initialval);
 extern bool kb_typing_mode; //script only, for disbaling key presses affecting Hero, etc. 
 extern int32_t cheat_modifier_keys[4]; //two options each, default either control and either shift
 
-static  const char *qst_module_name = "current_module";
 #ifdef ALLEGRO_LINUX
 static  const char *samplepath = "samplesoundset/patches.dat";
 #endif
@@ -368,7 +366,6 @@ static bool loaded_game_configs;
 void load_game_configs()
 {
 	loaded_game_configs = true;
-	strcpy(moduledata.module_name,zc_get_config("ZCMODULE",qst_module_name,"modules/classic.zmod"));
 	joystick_index = zc_get_config(ctrl_sect,"joystick_index",0);
 	js_stick_1_x_stick = zc_get_config(ctrl_sect,"js_stick_1_x_stick",0);
 	js_stick_1_x_axis = zc_get_config(ctrl_sect,"js_stick_1_x_axis",0);
@@ -593,8 +590,6 @@ void save_game_configs()
 	if (!loaded_game_configs) return;
 
 	packfile_password("");
-	
-	zc_set_config("ZCMODULE",qst_module_name,moduledata.module_name);
 	
 	if (all_get_display() && !all_get_fullscreen_flag()&& SaveWinPos)
 	{

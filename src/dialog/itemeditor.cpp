@@ -14,7 +14,6 @@ extern zquestheader header;
 extern bool saved;
 extern char *item_string[];
 extern itemdata *itemsbuf;
-extern zcmodule moduledata;
 static bool _reset_default, _reload_editor;
 static itemdata static_ref;
 static std::string reset_name;

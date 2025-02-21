@@ -10,10 +10,6 @@
 
 char *item_string[MAXITEMS];
 
-#ifndef IS_EDITOR
-	extern ZModule zcm;
-#endif
-
 int32_t fairy_cnt=0;
 
 item::~item()

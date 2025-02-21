@@ -13,7 +13,6 @@
 #include "defdata.h"
 
 extern bool saved;
-extern zcmodule moduledata;
 extern guydata* guysbuf;
 extern itemdata* itemsbuf;
 extern int32_t CSet;

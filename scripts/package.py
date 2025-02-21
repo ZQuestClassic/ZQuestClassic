@@ -301,7 +301,6 @@ def do_web_packaging():
             'base_config/zquest.cfg',
             'base_config/zscript.cfg',
             'Classic.nsf',
-            'modules/classic.zmod',
             'modules/classic/classic_fonts.dat',
             'modules/classic/default.qst',
             'modules/classic/title_gfx.dat',

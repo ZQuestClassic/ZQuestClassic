@@ -18,7 +18,6 @@
 #include "zinfo.h"
 #include <fmt/format.h>
 
-extern zcmodule moduledata;
 
 
 #ifdef _MSC_VER
