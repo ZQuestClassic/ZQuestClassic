@@ -4822,11 +4822,6 @@ int WarpReturnX[4];
 	
 int WarpReturnY[4];
  * The Y-component for each of the four 2.50+ (blue) warp return squares.
-	
-int WarpReturnC;
- * Stores the information on warp returns, butwise.
- * Deprecated by SideWarpReturnSquare[4] and TileWarpReturnSquare[4].
- * The bits are DDCCBBAADDCCBBAA, where the left section is sidewarp returns, and the right is tilewarp returns.
 
 int StairsX;
  * The X component for where a Stairs secret appears on the screen.
@@ -7200,11 +7195,6 @@ int WarpReturnX[4];
 int WarpReturnY[4];
  * The Y-component for each of the four 2.50+ (blue) warp return squares.
 	
-int WarpReturnC;
- * Stores the information on warp returns, butwise.
- * Deprecated by SideWarpReturnSquare[4] and TileWarpReturnSquare[4].
- * The bits are DDCCBBAADDCCBBAA, where the left section is sidewarp returns, and the right is tilewarp returns.
-
 int StairsX;
  * The X component for where a Stairs secret appears on the screen.
 	

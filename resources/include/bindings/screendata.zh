@@ -874,15 +874,6 @@ class screendata {
 	// @zasm_var SCREENDATANEXTSCREEN
 	internal int CarryoverScreen;
 
-	// Stores the information on warp returns, bitwise.
-	//
-	// The bits are DDCCBBAADDCCBBAA, where the left section is sidewarp
-	// returns, and the right is tilewarp returns.
-	//
-	// @deprecated Use `SideWarpReturnSquare[4]` and `TileWarpReturnSquare[4]` instead!
-	// @zasm_var SCREENDATAWARPRETURNC
-	internal int WarpReturnC;
-
 	// If not zero, then the item for this screen will be shown.
 	//
 	// When the [Hero] takes the item on a screen, this is set to 0.

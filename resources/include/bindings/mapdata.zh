@@ -802,15 +802,6 @@ class mapdata {
 	// @zasm_var MAPDATASCREENFLAGSD
 	internal const int SFlags[];
 
-	// Stores the information on warp returns, bitwise.
-	//
-	// The bits are `DDCCBBAADDCCBBAA`, where the left section is sidewarp
-	// returns, and the right is tilewarp returns.
-	//
-	// @deprecated Use `SideWarpReturnSquare[4]` and `TileWarpReturnSquare[4]`!
-	// @zasm_var MAPDATAWARPRETURNC
-	internal int WarpReturnC;
-
 	// Bitflags for enemies on the screen (E.Flags).
 	//
 	// @deprecated Use [EFlags] instead!
