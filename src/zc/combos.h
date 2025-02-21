@@ -103,7 +103,8 @@ struct combo_cache
 
 	void refresh(int cid)
 	{
-		minis[cid] = combobuf[cid];
+		if (minis.size() > cid)
+			minis[cid] = combobuf[cid];
 	}
 };
 
