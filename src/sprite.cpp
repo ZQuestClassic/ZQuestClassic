@@ -5,10 +5,7 @@
 #include "sprite.h"
 #include "tiles.h"
 #include "particles.h"
-#include "zc/maps.h"
-#include "zc/replay.h"
-#include "zc/guys.h"
-#include "zc/ffscript.h"
+#include "zc/ffscript.h" // TODO: move me.
 #include "base/zc_math.h"
 #include <fmt/format.h>
 #include "base/misctypes.h"
@@ -19,18 +16,18 @@
 #include "zc/decorations.h"
 #include "items.h"
 #include "zc/render.h"
+#include "zc/maps.h"
+#include "zc/replay.h"
+#include "zc/guys.h"
 
 extern HeroClass Hero;
-extern sprite_list decorations;
+#endif
+
+#ifdef IS_PLAYER
+#include "zq/zquest.h"
 #endif
 
 extern particle_list particles;
-
-extern bool get_debug();
-extern bool halt;
-extern bool show_sprites;
-extern bool show_hitboxes;
-extern void debugging_box(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
 
 static std::map<int32_t, sprite*> all_sprites;
 byte sprite_flicker_color = 0;
@@ -611,101 +608,24 @@ int32_t sprite::check_pits() //Returns combo ID of pit fallen into; 0 for not fa
 	return 0;
 }
 
-int32_t sprite::get_water()  //Returns combo ID of water that sprite WOULD fall into; no side-effects
-{
-	int32_t ispitul = iswaterexzq(MAPCOMBOzq(x,y), get_currmap(), get_currscr(), -1, x, y, false, false, true);
-	int32_t ispitbl = iswaterexzq(MAPCOMBOzq(x,y+15), get_currmap(), get_currscr(), -1, x, y+15, false, false, true);
-	int32_t ispitur = iswaterexzq(MAPCOMBOzq(x+15,y), get_currmap(), get_currscr(), -1, x+15, y, false, false, true);
-	int32_t ispitbr = iswaterexzq(MAPCOMBOzq(x+15,y+15), get_currmap(), get_currscr(), -1, x+15, y+15, false, false, true);
-	int32_t ispitul_50 = iswaterexzq(MAPCOMBOzq(x+8,y+8), get_currmap(), get_currscr(), -1, x+8, y+8, false, false, true);
-	int32_t ispitbl_50 = iswaterexzq(MAPCOMBOzq(x+8,y+7), get_currmap(), get_currscr(), -1, x+8, y+7, false, false, true);
-	int32_t ispitur_50 = iswaterexzq(MAPCOMBOzq(x+7,y+8), get_currmap(), get_currscr(), -1, x+7, y+8, false, false, true);
-	int32_t ispitbr_50 = iswaterexzq(MAPCOMBOzq(x+7,y+7), get_currmap(), get_currscr(), -1, x+7, y+7, false, false, true);
-	switch((ispitul?1:0) + (ispitur?1:0) + (ispitbl?1:0) + (ispitbr?1:0))
-	{
-		case 4:
-		{
-			return ispitul_50 ? ispitul_50 : ispitul;
-		}
-		case 3:
-		{
-			if(ispitul && ispitur && ispitbl) //UL_3
-			{
-				return ispitul_50;
-			}
-			else if(ispitul && ispitur && ispitbr) //UR_3
-			{
-				return ispitur_50;
-			}
-			else if(ispitul && ispitbl && ispitbr) //BL_3
-			{
-				return ispitbl_50;
-			}
-			else if(ispitbl && ispitur && ispitbr) //BR_3
-			{
-				return ispitbr_50;
-			}
-			break;
-		}
-		case 2:
-		{
-			if(ispitul && ispitur) //Up
-			{
-				return ispitul_50 ? ispitul_50 : ispitur_50;
-			}
-			if(ispitbl && ispitbr) //Down
-			{
-				return ispitbl_50 ? ispitbl_50 : ispitbr_50;
-			}
-			if(ispitul && ispitbl) //Left
-			{
-				return ispitul_50 ? ispitul_50 : ispitbl_50;
-			}
-			if(ispitur && ispitbr) //Right
-			{
-				return ispitur_50 ? ispitur_50 : ispitbr_50;
-			}
-			break;
-		}
-		case 1:
-		{
-			if(ispitul) //UL_1
-			{
-				return ispitul_50;
-			}
-			if(ispitur) //UR_1
-			{
-				return ispitur_50;
-			}
-			if(ispitbl) //BL_1
-			{
-				return ispitbl_50;
-			}
-			if(ispitbr) //BR_1
-			{
-				return ispitbr_50;
-			}
-			break;
-		}
-	}
-	return 0;
-}
-
 int32_t sprite::check_water() //Returns combo ID of water fallen into; 0 for not fallen.
 {
+#ifndef IS_PLAYER
+	return 0;
+#else
 	int32_t safe_cnt = 0;
 	bool has_fallen = false;
 	int32_t ispitul, ispitbl, ispitur, ispitbr, ispitul_50, ispitbl_50, ispitur_50, ispitbr_50;
 	while(++safe_cnt < 16) //Prevent softlocks
 	{
-		ispitul = iswaterexzq(MAPCOMBOzq(x,y), get_currmap(), get_currscr(), -1, x, y, false, false, true);
-		ispitbl = iswaterexzq(MAPCOMBOzq(x,y+15), get_currmap(), get_currscr(), -1, x, y+15, false, false, true);
-		ispitur = iswaterexzq(MAPCOMBOzq(x+15,y), get_currmap(), get_currscr(), -1, x+15, y, false, false, true);
-		ispitbr = iswaterexzq(MAPCOMBOzq(x+15,y+15), get_currmap(), get_currscr(), -1, x+15, y+15, false, false, true);
-		ispitul_50 = iswaterexzq(MAPCOMBOzq(x+8,y+8), get_currmap(), get_currscr(), -1, x+8, y+8, false, false, true);
-		ispitbl_50 = iswaterexzq(MAPCOMBOzq(x+8,y+7), get_currmap(), get_currscr(), -1, x+8, y+7, false, false, true);
-		ispitur_50 = iswaterexzq(MAPCOMBOzq(x+7,y+8), get_currmap(), get_currscr(), -1, x+7, y+8, false, false, true);
-		ispitbr_50 = iswaterexzq(MAPCOMBOzq(x+7,y+7), get_currmap(), get_currscr(), -1, x+7, y+7, false, false, true);
+		ispitul = iswaterexzq(MAPCOMBO(x,y), get_currmap(), get_currscr(), -1, x, y, false, false, true);
+		ispitbl = iswaterexzq(MAPCOMBO(x,y+15), get_currmap(), get_currscr(), -1, x, y+15, false, false, true);
+		ispitur = iswaterexzq(MAPCOMBO(x+15,y), get_currmap(), get_currscr(), -1, x+15, y, false, false, true);
+		ispitbr = iswaterexzq(MAPCOMBO(x+15,y+15), get_currmap(), get_currscr(), -1, x+15, y+15, false, false, true);
+		ispitul_50 = iswaterexzq(MAPCOMBO(x+8,y+8), get_currmap(), get_currscr(), -1, x+8, y+8, false, false, true);
+		ispitbl_50 = iswaterexzq(MAPCOMBO(x+8,y+7), get_currmap(), get_currscr(), -1, x+8, y+7, false, false, true);
+		ispitur_50 = iswaterexzq(MAPCOMBO(x+7,y+8), get_currmap(), get_currscr(), -1, x+7, y+8, false, false, true);
+		ispitbr_50 = iswaterexzq(MAPCOMBO(x+7,y+7), get_currmap(), get_currscr(), -1, x+7, y+7, false, false, true);
 		int32_t dir = -1;
 		switch((ispitul?1:0) + (ispitur?1:0) + (ispitbl?1:0) + (ispitbr?1:0))
 		{
@@ -865,6 +785,7 @@ int32_t sprite::check_water() //Returns combo ID of water fallen into; 0 for not
 		fallclk = old_drown; //sanity check
 	}
 	return 0;
+#endif
 }
 
 bool sprite::hit()

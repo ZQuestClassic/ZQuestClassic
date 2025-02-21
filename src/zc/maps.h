@@ -236,7 +236,6 @@ int32_t isdungeon(int32_t dmap, int32_t screen);
 bool canPermSecret(int32_t dmap, int32_t screen);
 int32_t MAPCOMBO(int32_t x, int32_t y);
 int32_t MAPCOMBO(const rpos_handle_t& rpos_handle);
-int32_t MAPCOMBOzq(int32_t x,int32_t y);
 int32_t MAPFFCOMBO(int32_t x,int32_t y);
 int32_t MAPCSET(int32_t x,int32_t y);
 int32_t MAPFLAG(int32_t x,int32_t y);

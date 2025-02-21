@@ -881,11 +881,6 @@ int32_t MAPCOMBO(int32_t x, int32_t y)
 	return scr->data[pos];
 }
 
-int32_t MAPCOMBOzq(int32_t x,int32_t y)
-{
-	return MAPCOMBO(x,y);
-}
-
 //specific layers 1 to 6
 int32_t MAPCOMBOL(int32_t layer,int32_t x,int32_t y)
 {
