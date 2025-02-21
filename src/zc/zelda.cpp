@@ -144,7 +144,6 @@ int32_t lens_hint_item[MAXITEMS][2]= {{0,0},{0,0}};                            /
 int32_t lens_hint_weapon[MAXWPNS][5] = {{0,0},{0,0}};                           //aclk, aframe, dir, x, y
 int32_t cheat_modifier_keys[4]; //two options each, default either control and either shift
 int32_t strike_hint_counter=0;
-uint8_t __isZQuest = 0; //shared functions can use this. -
 int32_t strike_hint_timer=0;
 int32_t strike_hint = 0;
 int32_t slot_arg = 0, slot_arg2 = 0;

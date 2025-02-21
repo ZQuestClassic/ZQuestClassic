@@ -192,7 +192,6 @@ extern byte monochrome_console;
 extern CConsoleLoggerEx zscript_coloured_console;
 
 uint8_t console_is_open = 0;
-uint8_t __isZQuest = 1; //Shared functionscan reference this. -Z
 bool is_zq_replay_test = false;
 
 #include "base/util.h"

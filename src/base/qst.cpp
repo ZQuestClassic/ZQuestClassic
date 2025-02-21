@@ -43,7 +43,6 @@
 #include "base/misctypes.h"
 #include "base/initdata.h"
 
-extern uint8_t __isZQuest;
 extern sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations;
 extern void setZScriptVersion(int32_t s_version);
 
@@ -2638,7 +2637,7 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, byte printmetadata)
 		}
 	}
 
-	if(printmetadata || __isZQuest)
+	if(printmetadata)
 	{
 		print_quest_metadata(tempheader, loading_qst_name, loading_qst_num);
 	}
