@@ -211,6 +211,32 @@ void mapscr::zero_memory()
 	*this = mapscr();
 }
 
+void mapscr::shinkToFitFFCs()
+{
+	int lastffc = -1;
+	for (int w = ffcs.size() - 1; w >= 0; --w)
+	{
+		if (ffcs[w].data)
+		{
+			lastffc = w;
+			break;
+		}
+	}
+
+	num_ffcs = lastffc + 1;
+	if (num_ffcs == ffcs.size())
+		return;
+
+	ffcs.resize(num_ffcs);
+	ffcs.shrink_to_fit();
+	for (int i = 0; i < ffcs.size(); i++)
+	{
+		ffcs[i].screen_spawned = screen;
+		ffcs[i].index = i;
+		ffcs[i].setLoaded(true);
+	}
+}
+
 void mapscr::resizeFFC(size_t size)
 {
 	if (size > 0)
