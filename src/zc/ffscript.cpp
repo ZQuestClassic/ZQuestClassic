@@ -18589,7 +18589,7 @@ void set_register(int32_t arg, int32_t value)
 				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
 				break;
 			}
-			itemsbuf[ri->idata].tile=vbound(value/10000, 0, 65519);
+			itemsbuf[ri->idata].tile=vbound(value/10000, 0, NEWMAXTILES-1);
 			break;
 		//flash
 		case IDATAMISC:
