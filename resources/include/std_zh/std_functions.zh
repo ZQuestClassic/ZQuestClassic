@@ -121,13 +121,14 @@ float Angle(int x1, int y1, int x2, int y2)
 
 // Converts a counterclockwise degree angle (from -180 to 180) into one of the four
 // standard directions (DIR_UP, DIR_DOWN, DIR_LEFT, DIR_RIGHT) used by ZC.
-int AngleDir4(float angle)
+int AngleDir4(float degrees)
 {
-	if (angle <= 135 && angle > 45)
+	degrees = WrapDegrees(degrees);
+	if (degrees <= 135 && degrees > 45)
 		return DIR_DOWN;
-	else if (angle <= 45 && angle > -45)
+	else if (degrees <= 45 && degrees > -45)
 		return DIR_RIGHT;
-	else if (angle <= -45 && angle > -135)
+	else if (degrees <= -45 && degrees > -135)
 		return DIR_UP;
 	else
 		return DIR_LEFT;
@@ -135,21 +136,22 @@ int AngleDir4(float angle)
 
 // Converts a counterclockwise degree angle (from -180 to 180) into one of the eight
 // standard directions (DIR_UP etc.) used by ZC.
-int AngleDir8(float angle)
+int AngleDir8(float degrees)
 {
-	if (angle <= 157.5 && angle > 112.5)
+	degrees = WrapDegrees(degrees);
+	if (degrees <= 157.5 && degrees > 112.5)
 		return DIR_LEFTDOWN;
-	else if (angle <= 112.5 && angle > 67.5)
+	else if (degrees <= 112.5 && degrees > 67.5)
 		return DIR_DOWN;
-	else if (angle <= 67.5 && angle > 22.5)
+	else if (degrees <= 67.5 && degrees > 22.5)
 		return DIR_RIGHTDOWN;
-	else if (angle <= 22.5 && angle > -22.5)
+	else if (degrees <= 22.5 && degrees > -22.5)
 		return DIR_RIGHT;
-	else if (angle <= -22.5 && angle > -67.5)
+	else if (degrees <= -22.5 && degrees > -67.5)
 		return DIR_RIGHTUP;
-	else if (angle <= -67.5 && angle > -112.5)
+	else if (degrees <= -67.5 && degrees > -112.5)
 		return DIR_UP;
-	else if (angle <= -112.5 && angle > -157.5)
+	else if (degrees <= -112.5 && degrees > -157.5)
 		return DIR_LEFTUP;
 	else
 		return DIR_LEFT;
