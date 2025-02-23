@@ -2041,6 +2041,7 @@ struct zquestheader
 	char const* getVerCmpStr() const;
 	int32_t compareDate() const;
 	int32_t compareVer() const;
+	int32_t compareVer(int major, int minor, int patch) const;
 };
 
 #define MFORMAT_MIDI 0

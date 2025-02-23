@@ -2910,7 +2910,7 @@ static constexpr script_variable variable_list[]=
 	{ "COMBODTRIGPUSHTIME", COMBODTRIGPUSHTIME, 0 },
 	{ "COMBODTRIGSHIELDJINX", COMBODTRIGSHIELDJINX, 0 },
 
-
+	{ "IDATAFLASHCSET", IDATAFLASHCSET, 0 },
 };
 
 // Don't rely on `command_list` to be indexed by command.

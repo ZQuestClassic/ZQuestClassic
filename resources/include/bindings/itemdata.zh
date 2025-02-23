@@ -521,12 +521,17 @@ class itemdata {
 	// @zasm_var IDATAMISC
 	internal int MiscFlags;
 
-	// The CSet the item sprite uses
+	// The CSet the item sprite uses.
 	//
 	// @zasm_var IDATACSET
 	internal int CSet;
 
-	// The number of frames in the animation
+	// The Flash CSet the item sprite uses.
+	//
+	// @zasm_var IDATAFLASHCSET
+	internal int FlashCSet;
+
+	// The number of frames in the animation.
 	//
 	// @zasm_var IDATAFRAMES
 	internal int AFrames;

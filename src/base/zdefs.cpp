@@ -949,6 +949,23 @@ int32_t zquestheader::compareVer() const
 	return 0;
 }
 
+int32_t zquestheader::compareVer(int major, int minor, int patch) const
+{
+	if(version_major > major)
+		return 1;
+	if(version_major < major)
+		return -1;
+	if(version_minor > minor)
+		return 1;
+	if(version_minor < minor)
+		return -1;
+	if(version_patch > patch)
+		return 1;
+	if(version_patch < patch)
+		return -1;
+	return 0;
+}
+
 //double ddir=atan2(double(fakey-(Hero.y)),double(Hero.x-fakex));
 double WrapAngle( double radians ) 
 {
