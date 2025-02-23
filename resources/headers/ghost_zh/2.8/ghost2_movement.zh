@@ -118,7 +118,7 @@ void Ghost_MoveXY(float xStep, float yStep, int imprecision)
     {
         // Use 8 directions if 8-way flag is set
         if(Ghost_FlagIsSet(GHF_8WAY))
-            Ghost_Dir=AngleDir8(WrapAngle(ArcTan(xStep, yStep))*57.2958);
+            Ghost_Dir=AngleDir8(WrapRadians(ArcTan(xStep, yStep))*57.2958);
         
         // Otherwise, 4 directions
         else

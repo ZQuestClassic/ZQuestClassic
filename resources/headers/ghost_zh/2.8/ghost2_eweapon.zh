@@ -348,7 +348,7 @@ void SetEWeaponDeathEffect(eweapon wpn, eweapon prototype, int numShots, int spr
 {
     // Combining four variables into two... Ugly, but doable
     wpn->Misc[__EWI_ON_DEATH]=prototype->Misc[__EWI_ID]+(numShots%1000)/10000;
-    wpn->Misc[__EWI_ON_DEATH_ARG]=spreadType*100+(WrapAngle(angle)+6.2832);
+    wpn->Misc[__EWI_ON_DEATH_ARG]=spreadType*100+(WrapRadians(angle)+6.2832);
     wpn->Misc[__EWI_FLAGS]|=__EWFI_IS_GHZH_EWPN;
 }
 

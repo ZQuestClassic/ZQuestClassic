@@ -559,7 +559,7 @@ void __Ghost_WaitframePart1(ffc this, npc ghost, bool useNPCDir)
 
         // Use 8 directions if 8-way flag is set
         if(Ghost_FlagIsSet(GHF_8WAY))
-            Ghost_Dir=AngleDir8(WrapAngle(ArcTan(xStep, yStep))*57.2958);
+            Ghost_Dir=AngleDir8(WrapRadians(ArcTan(xStep, yStep))*57.2958);
 
 
         // Otherwise, 4 directions

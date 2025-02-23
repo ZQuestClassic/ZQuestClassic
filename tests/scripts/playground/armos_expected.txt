@@ -3537,13 +3537,13 @@ POP D4
 COMPAREV D2 0
 GOTOCMP 3525 ==; Test 'if'
 PUSHR D4; if() #151 Body Start
-LOAD D2 0.0006; InlineFunc[int ArcTan(int, int)] Params Start AND InlineFunc[int WrapAngle(int)] Params Start AND UsrFunc[int AngleDir8(int)] Params Start
+LOAD D2 0.0006; InlineFunc[int ArcTan(int, int)] Params Start AND InlineFunc[int WrapRadians(int)] Params Start AND UsrFunc[int AngleDir8(int)] Params Start
 PUSHR D2
 LOAD D2 0.0005
 SETR D1 D2; InlineFunc[int ArcTan(int, int)] Params End
 POP D0; InlineFunc[int ArcTan(int, int)] Body Start
-ARCTANR D2; InlineFunc[int ArcTan(int, int)] Body End AND InlineFunc[int WrapAngle(int)] Params End
-WRAPRADIANS D2; InlineFunc[int WrapAngle(int)] Body
+ARCTANR D2; InlineFunc[int ArcTan(int, int)] Body End AND InlineFunc[int WrapRadians(int)] Params End
+WRAPRADIANS D2; InlineFunc[int WrapRadians(int)] Body
 MULTV D2 57.2958
 PUSHR D2; UsrFunc[int AngleDir8(int)] Params End
 CALLFUNC 0.0103; UsrFunc[int AngleDir8(int)] Call
@@ -4666,13 +4666,13 @@ POP D4
 COMPAREV D2 0
 GOTOCMP 4654 ==; Test 'if'
 PUSHR D4; if() #342 Body Start
-LOAD D2 0.0001; InlineFunc[int ArcTan(int, int)] Params Start AND InlineFunc[int WrapAngle(int)] Params Start AND UsrFunc[int AngleDir8(int)] Params Start
+LOAD D2 0.0001; InlineFunc[int ArcTan(int, int)] Params Start AND InlineFunc[int WrapRadians(int)] Params Start AND UsrFunc[int AngleDir8(int)] Params Start
 PUSHR D2
 LOAD D2 0
 SETR D1 D2; InlineFunc[int ArcTan(int, int)] Params End
 POP D0; InlineFunc[int ArcTan(int, int)] Body Start
-ARCTANR D2; InlineFunc[int ArcTan(int, int)] Body End AND InlineFunc[int WrapAngle(int)] Params End
-WRAPRADIANS D2; InlineFunc[int WrapAngle(int)] Body
+ARCTANR D2; InlineFunc[int ArcTan(int, int)] Body End AND InlineFunc[int WrapRadians(int)] Params End
+WRAPRADIANS D2; InlineFunc[int WrapRadians(int)] Body
 MULTV D2 57.2958
 PUSHR D2; UsrFunc[int AngleDir8(int)] Params End
 CALLFUNC 0.0103; UsrFunc[int AngleDir8(int)] Call

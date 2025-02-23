@@ -752,7 +752,7 @@ internal constexpr int RadtoDeg(int radians);
 
 // Returns the [radians] value, wrapped between [-PI,PI)
 //
-// @alias WrapAngle
+// @deprecated_alias WrapAngle
 // @alias WrapRad
 // @zasm
 //   POP D2

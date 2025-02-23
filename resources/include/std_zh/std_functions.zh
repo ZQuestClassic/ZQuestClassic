@@ -3393,12 +3393,12 @@ void SwapTileRow(int first, int second, int length)
 float TurnTowards( int X, int Y, int targetX, int targetY, float radian_angle, float t = 1.0 )
 {
 	float a = ArcTan( targetX - X, targetY - Y );
-	float d = WrapAngle(a - radian_angle);
+	float d = WrapRadians(a - radian_angle);
 	if ( d > PI )
 		d =-( PI2 - d );
 	else if ( d < -PI )
 		d = PI2 + d;
-	return WrapAngle(radian_angle + d * t);
+	return WrapRadians(radian_angle + d * t);
 }
 
 //Returns true if Hero is using item 'id'
