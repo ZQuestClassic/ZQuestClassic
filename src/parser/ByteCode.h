@@ -1759,7 +1759,9 @@
 #define HERO_SCREEN              1650
 #define SCREEN_INDEX             1651
 
-#define LAST_BYTECODE           1652
+#define IDATAFLASHCSET           1652
+
+#define LAST_BYTECODE           1653
 
 //} END OF BYTECODE
 

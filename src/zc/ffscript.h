@@ -5028,7 +5028,9 @@ enum ASM_DEFINE
 
 #define HERO_SCREEN             0x15EF
 
-#define NUMVARIABLES            0x15F0
+#define IDATAFLASHCSET          0x15F1
+
+#define NUMVARIABLES            0x15F2
 
 //} End variables
 

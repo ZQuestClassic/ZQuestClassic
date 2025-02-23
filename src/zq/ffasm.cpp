@@ -1614,6 +1614,7 @@ script_variable variable_list[]=
 	{ "IDATATILE",         IDATATILE,            0,             0 },
 	{ "IDATAMISC",         IDATAMISC,            0,             0 },
 	{ "IDATACSET",         IDATACSET,            0,             0 },
+	{ "IDATAFLASHCSET",    IDATAFLASHCSET,            0,             0 },
 	{ "IDATAFRAMES",         IDATAFRAMES,            0,             0 },
 	{ "IDATAASPEED",         IDATAASPEED,            0,             0 },
 	{ "IDATADELAY",         IDATADELAY,            0,             0 },

@@ -5506,7 +5506,23 @@ int32_t get_register(const int32_t arg)
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[ri->idata].csets)*10000;
+
+			ret = (itemsbuf[ri->idata].csets&15)*10000;
+
+			// If we find quests that broke, use this code.
+			// if (QHeader.compareVer(2, 55, 9) >= 0)
+			// 	ret = (itemsbuf[ri->idata].csets&15)*10000;
+			// else
+			// 	ret = itemsbuf[ri->idata].csets*10000;
+			break;
+		case IDATAFLASHCSET:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
+			ret=(itemsbuf[ri->idata].csets>>4)*10000;
 			break;
 		//->A.Frames
 		case IDATAFRAMES:
@@ -18615,7 +18631,24 @@ void set_register(int32_t arg, int32_t value)
 				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
 				break;
 			}
-			itemsbuf[ri->idata].csets=vbound(value/10000,0,13);
+
+			itemsbuf[ri->idata].csets = (itemsbuf[ri->idata].csets & 0xF0) | vbound(value/10000,0,15);
+
+			// If we find quests that broke, use this code.
+			// if (QHeader.compareVer(2, 55, 9) >= 0)
+			// 	itemsbuf[ri->idata].csets = (itemsbuf[ri->idata].csets & 0xF0) | vbound(value/10000,0,15);
+			// else
+			// 	itemsbuf[ri->idata].csets = vbound(value/10000,0,13);
+			break;
+		
+		case IDATAFLASHCSET:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
+
+			itemsbuf[ri->idata].csets = (itemsbuf[ri->idata].csets & 0xF) | (vbound(value/10000,0,15)<<4);
 			break;
 		/*
 		case IDATAFRAME:
@@ -46539,6 +46572,7 @@ script_variable ZASMVars[]=
 	{ "IDATATILE",         IDATATILE,            0,             0 },
 	{ "IDATAMISC",         IDATAMISC,            0,             0 },
 	{ "IDATACSET",         IDATACSET,            0,             0 },
+	{ "IDATAFLASHCSET",         IDATAFLASHCSET,            0,             0 },
 	{ "IDATAFRAMES",         IDATAFRAMES,            0,             0 },
 	{ "IDATAASPEED",         IDATAASPEED,            0,             0 },
 	{ "IDATADELAY",         IDATADELAY,            0,             0 },

@@ -1316,6 +1316,7 @@ string ZScript::VarToString(int32_t ID)
 		case IDATATILE: return "IDATATILE";
 		case IDATAMISC: return "IDATAMISC";    
 		case IDATACSET: return "IDATACSET";
+		case IDATAFLASHCSET: return "IDATAFLASHCSET";
 		case IDATAFRAMES: return "IDATAFRAMES";
 		case IDATAASPEED: return "IDATAASPEED";
 		case IDATADELAY: return "IDATADELAY"; 

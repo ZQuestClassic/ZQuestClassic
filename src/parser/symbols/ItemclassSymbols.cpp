@@ -1,3 +1,5 @@
+// aka "itemdata"
+
 #include "SymbolDefs.h"
 
 ItemclassSymbols ItemclassSymbols::singleton = ItemclassSymbols();
@@ -72,6 +74,8 @@ static AccessorTable itemclassTable[] =
 	{ "setMiscFlags",               0,          ZTID_VOID,   IDATAMISC,                 0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
 	{ "getCSet",                    0,         ZTID_FLOAT,   IDATACSET,                 0,  { ZTID_ITEMCLASS },{} },
 	{ "setCSet",                    0,          ZTID_VOID,   IDATACSET,                 0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
+	{ "getFlashCSet",               0,         ZTID_FLOAT,   IDATAFLASHCSET,            0,  { ZTID_ITEMCLASS },{} },
+	{ "setFlashCSet",               0,          ZTID_VOID,   IDATAFLASHCSET,            0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
 	{ "getAFrames",                 0,         ZTID_FLOAT,   IDATAFRAMES,               0,  { ZTID_ITEMCLASS },{} },
 	{ "setAFrames",                 0,          ZTID_VOID,   IDATAFRAMES,               0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
 	{ "getASpeed",                  0,         ZTID_FLOAT,   IDATAASPEED,               0,  { ZTID_ITEMCLASS },{} },
