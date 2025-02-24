@@ -2251,23 +2251,44 @@ static void optimize_inline_functions(OptContext& ctx)
 		int stack_to_external_value[8];
 		for (int i = 0; i < 8; i++) stack_to_external_value[i] = -1;
 
+		int stack_to_external_value_reg_type[8];
+		for (int i = 0; i < 8; i++) stack_to_external_value_reg_type[i] = -1;
+
 		ASSERT(one_of(C(i - 1).command, PUSHR, PUSHV, PUSHARGSR, PUSHARGSV, NOP));
 		stack_to_external_value[0] = C(i - 1).arg1;
+		stack_to_external_value_reg_type[0] = one_of(C(i - 1).command, PUSHR, PUSHARGSR) ? 1 : 0;
 
 		std::vector<ffscript> inlined_zasm;
 		ffscript inline_instr = data.inline_instr;
-		for_every_command_arg(inline_instr, [&](bool read, bool write, int& reg, int argn){
-			if (read || write)
+
+		if (inline_instr.command == LOAD)
+		{
+			ASSERT(stack_to_external_value[inline_instr.arg2] != -1);
+			if (stack_to_external_value_reg_type[inline_instr.arg2] == 0)
 			{
-				if (data.internal_reg_to_type[reg] == 0)
-					reg = stack_to_external_value[data.internal_reg_to_value[reg]];
-				else if (read)
-				{
-					inlined_zasm.emplace_back(SETR, reg, data.internal_reg_to_value[reg]);
-				}
+				inlined_zasm.emplace_back(SETV, inline_instr.arg1, stack_to_external_value[inline_instr.arg2]);
 			}
-		});
-		inlined_zasm.push_back(inline_instr);
+			else
+			{
+				if (stack_to_external_value[inline_instr.arg2] != inline_instr.arg1)
+					inlined_zasm.emplace_back(SETR, inline_instr.arg1, stack_to_external_value[inline_instr.arg2]);
+			}
+		}
+		else
+		{
+			for_every_command_arg(inline_instr, [&](bool read, bool write, int& reg, int argn){
+				if (read || write)
+				{
+					if (data.internal_reg_to_type[reg] == 0)
+						reg = stack_to_external_value[data.internal_reg_to_value[reg]];
+					else if (read)
+					{
+						inlined_zasm.emplace_back(SETR, reg, data.internal_reg_to_value[reg]);
+					}
+				}
+			});
+			inlined_zasm.push_back(inline_instr);
+		}
 
 		pc_t store_stack_pc = store_stack_pcs.back();
 		bool must_keep_store_stack = false;
