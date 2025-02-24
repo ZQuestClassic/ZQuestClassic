@@ -4,6 +4,8 @@ Pass 2: Preprocessing
 Pass 3: Registration
 ZQ_BUFFER Line 14 @ Columns 36-38 - Error S110: Function 'optional_params_3' has an optional parameter whose default value is not a constant expression
 ZQ_BUFFER Line 28 @ Columns 31-50 - Error R075: Global variable initializers cannot contain function calls
+ZQ_BUFFER Line 33 @ Columns 37-40 - Error T019: Attempting to divide by 0.
 ZQ_BUFFER Line 28 @ Columns 31-50 - Error R075: Global variable initializers cannot contain function calls
+ZQ_BUFFER Line 33 @ Columns 37-40 - Error T019: Attempting to divide by 0.
 Failure!
 Compile finished with exit code '110' (compiled with errors)
