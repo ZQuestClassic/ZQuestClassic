@@ -173,6 +173,8 @@ namespace ZScript
 		virtual bool remove(ZScript::Datum&) = 0;
 
 		void initFunctionBinding(Function* fn, CompileErrorHandler* handler);
+	
+	Scope* lexical_options_scope;
 
 	protected:
 		TypeStore& typeStore_;
@@ -592,6 +594,7 @@ namespace ZScript
 		virtual bool isGlobal() const {return true;}
 		virtual bool isNamespace() const {return true;};
 		Namespace* namesp;
+		Scope* current_lexical_scope;
 	};
 
 	class InlineScope : public BasicScope

@@ -1,0 +1,151 @@
+stderr:
+
+Compiling 'namespace_options.zs'
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+namespace_options.zs Line 18 @ Columns 3-9 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+16    {
+17        #option LEGACY_ARRAYS default
+18        arr[0] = 0;
+          ^~~~~~
+
+
+namespace_options.zs Line 37 @ Columns 4-10 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+35    {
+36        #option LEGACY_ARRAYS default
+37        arr[0] = 0;
+          ^~~~~~
+
+
+namespace_options_import.zs Line 13 @ Columns 3-9 - Warning S108: Arrays should be explicitly typed - change `int` to `int[]`
+
+11    void fn4(int arr) {
+12        // Should warn.
+13        arr[0] = 0;
+          ^~~~~~
+
+
+Pass 5: Checking code paths
+namespace_options.zs Line 9 @ Columns 7-9 - Warning S101: Function 'fn' is not void, and should return a value!
+
+ 7    
+ 8    // Above option makes this non-returning non-void function warn rather than error.
+ 9    float fn(){}
+            ^~
+
+
+namespace_options_import.zs Line 9 @ Columns 8-10 - Error S102: Function 'fn' is not void, and must return a value!
+
+ 7    
+ 8        // Should error.
+ 9        float fn(){}
+                ^~
+
+
+namespace_options.zs Line 29 @ Columns 8-11 - Warning S101: Function 'fn2' is not void, and should return a value!
+
+27    // the current file scope; or that the same logical namespace's file scope
+28    // (from the import) is being used instead.
+29    float fn2(){}
+            ^~~
+
+
+namespace_options.zs Line 52 @ Columns 8-11 - Error S102: Function 'fn6' is not void, and must return a value!
+
+50    
+51        // Should error.    
+52        float fn6(){}
+                ^~~
+
+
+Failure!
+Compile finished with exit code '102' (compiled with errors)
+
+stdout:
+
+{
+  "success": false,
+  "code": 102,
+  "diagnostics": [
+    {
+      "range": {
+        "start": {
+          "line": 17,
+          "character": 2
+        },
+        "end": {
+          "line": 17,
+          "character": 8
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 36,
+          "character": 3
+        },
+        "end": {
+          "line": 36,
+          "character": 9
+        }
+      },
+      "severity": 2,
+      "message": "S108: Arrays should be explicitly typed - change `int` to `int[]`"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 8,
+          "character": 6
+        },
+        "end": {
+          "line": 8,
+          "character": 8
+        }
+      },
+      "severity": 2,
+      "message": "S101: Function 'fn' is not void, and should return a value!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 28,
+          "character": 7
+        },
+        "end": {
+          "line": 28,
+          "character": 10
+        }
+      },
+      "severity": 2,
+      "message": "S101: Function 'fn2' is not void, and should return a value!"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 51,
+          "character": 7
+        },
+        "end": {
+          "line": 51,
+          "character": 10
+        }
+      },
+      "severity": 1,
+      "message": "S102: Function 'fn6' is not void, and must return a value!"
+    }
+  ],
+  "metadata": {
+    "currentFileSymbols": 8,
+    "symbols": 10,
+    "identifiers": 12,
+    "elided": true
+  }
+}
