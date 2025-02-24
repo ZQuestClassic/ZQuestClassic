@@ -20,12 +20,36 @@ errors_optional.zs Line 26 @ Columns 31-48 - Error R075: Global variable initial
                                     ^~~~~~~~~~~~~~~~~
 
 
+errors_optional.zs Line 31 @ Columns 37-40 - Error T019: Attempting to divide by 0.
+
+29    
+30    // not ok
+31    int optional_params_6(int a = <int>(3/0)) {
+                                          ^~~
+
+
 errors_optional.zs Line 26 @ Columns 31-50 - Error S109: Function 'optional_params_5' has an optional parameter whose default value is not a constant expression
 
 24    
 25    // not ok, not a compile time value
 26    int optional_params_5(int a = optional_params_1()) {
                                     ^~~~~~~~~~~~~~~~~~~
+
+
+errors_optional.zs Line 31 @ Columns 37-40 - Error T019: Attempting to divide by 0.
+
+29    
+30    // not ok
+31    int optional_params_6(int a = <int>(3/0)) {
+                                          ^~~
+
+
+errors_optional.zs Line 31 @ Columns 37-40 - Error T019: Attempting to divide by 0.
+
+29    
+30    // not ok
+31    int optional_params_6(int a = <int>(3/0)) {
+                                          ^~~
 
 
 Failure!
@@ -68,6 +92,20 @@ stdout:
     {
       "range": {
         "start": {
+          "line": 30,
+          "character": 36
+        },
+        "end": {
+          "line": 30,
+          "character": 39
+        }
+      },
+      "severity": 1,
+      "message": "T019: Attempting to divide by 0."
+    },
+    {
+      "range": {
+        "start": {
           "line": 25,
           "character": 30
         },
@@ -78,10 +116,38 @@ stdout:
       },
       "severity": 1,
       "message": "S109: Function 'optional_params_5' has an optional parameter whose default value is not a constant expression"
+    },
+    {
+      "range": {
+        "start": {
+          "line": 30,
+          "character": 36
+        },
+        "end": {
+          "line": 30,
+          "character": 39
+        }
+      },
+      "severity": 1,
+      "message": "T019: Attempting to divide by 0."
+    },
+    {
+      "range": {
+        "start": {
+          "line": 30,
+          "character": 36
+        },
+        "end": {
+          "line": 30,
+          "character": 39
+        }
+      },
+      "severity": 1,
+      "message": "T019: Attempting to divide by 0."
     }
   ],
   "metadata": {
-    "currentFileSymbols": 6,
+    "currentFileSymbols": 7,
     "symbols": 3,
     "identifiers": 3,
     "elided": true
