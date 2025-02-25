@@ -2017,13 +2017,10 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 				addOpcode(new OPushRegister(new VarArgument(EXP1)));
 			}
 		}
-		
-		bool vargs = func.getFlag(FUNCFLAG_VARARGS);
+
 		int v = num_used_params-num_actual_params;
-		
-		size_t vargcount = 0;
-		size_t used_opt_params = 0;
-		(v>0 ? vargcount : used_opt_params) = abs(v);
+
+		size_t vargcount = v;
 		//push the parameters, in forward order
 		size_t param_indx = 0;
 		for (; param_indx < host.parameters.size()-vargcount; ++param_indx)
@@ -2060,16 +2057,6 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 					VISIT_USEVAL(arg, INITCTX);
 					push_param(true);
 				}
-			}
-		}
-		else if(used_opt_params)
-		{
-			auto opt_param_count = func.opt_vals.size();
-			auto skipped_optional_params = opt_param_count - used_opt_params;
-			//push any optional parameter values
-			for(auto q = skipped_optional_params; q < opt_param_count; ++q)
-			{
-				addOpcode(new OPushImmediate(new LiteralArgument(func.opt_vals[q])));
 			}
 		}
 
@@ -2149,10 +2136,8 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		bool vargs = func.getFlag(FUNCFLAG_VARARGS);
 		auto num_used_params = host.parameters.size();
 		auto num_actual_params = func.paramTypes.size() - (vargs ? 1 : 0);
-		size_t vargcount = 0;
-		size_t used_opt_params = 0;
 		int v = num_used_params-num_actual_params;
-		(v>0 ? vargcount : used_opt_params) = abs(v);
+		size_t vargcount = v > 0 ? v : 0;
 		size_t pushcount = 0;
 		if(vargs)
 		{
@@ -2216,18 +2201,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			commentBack("Peek the Vargs array pointer");
 			addOpcode(new OPushRegister(new VarArgument(EXP1)));
 		}
-		else if(used_opt_params)
-		{
-			//push any optional parameter values
-			auto num_actual_params = func.paramTypes.size();
-			auto used_opt_params = num_actual_params - host.parameters.size();
-			auto opt_param_count = func.opt_vals.size();
-			auto skipped_optional_params = opt_param_count - used_opt_params;
-			for(auto q = skipped_optional_params; q < opt_param_count; ++q)
-			{
-				addOpcode(new OPushImmediate(new LiteralArgument(func.opt_vals[q])));
-			}
-		}
+
 		if (host.left->isTypeArrow())
 		{
 			//load the value of the left-hand of the arrow into EXP1
@@ -2278,15 +2252,15 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		bool vargs = func.getFlag(FUNCFLAG_VARARGS);
 		bool user_vargs = vargs && !func.isInternal();
 		auto num_used_params = host.parameters.size();
-		auto num_actual_params = func.paramTypes.size() - (user_vargs ? 1 : 0);
+		auto num_actual_params = host.parameters.size() - (user_vargs ? 1 : 0);
 		if(host.left->isTypeArrow())
 			--num_actual_params; //Don't count the arrow param!
 		size_t vargcount = 0;
 		size_t used_opt_params = 0;
 		int v = num_used_params-num_actual_params;
 		(v>0 ? vargcount : used_opt_params) = abs(v);
-		size_t pushcount = 0;
-		
+		size_t pushcount = num_used_params;
+
 		if(user_vargs)
 		{
 			//push the vargs, in forward order
@@ -2332,7 +2306,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		for (; param_indx < num_used_params-vargcount; ++param_indx)
 		{
 			auto& arg = host.parameters.at(param_indx);
-			bool unused = !func.isInternal() && !func.getFlag(FUNCFLAG_INTERNAL) && func.paramDatum[param_indx]->is_erased();
+			bool unused = !func.isInternal() && !func.getFlag(FUNCFLAG_INTERNAL) && func.paramDatum.size() > param_indx && func.paramDatum[param_indx]->is_erased();
 			//Compile-time constants can be optimized slightly...
 			if(auto val = arg->getCompileTimeValue(this, scope))
 			{
@@ -2349,7 +2323,8 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 				push_param();
 			}
 		}
-		pushcount += (num_used_params-vargcount);
+		
+		// pushcount += (num_used_params-vargcount);
 		if(vargs && (vargcount || user_vargs))
 		{
 			if(user_vargs)
@@ -2377,16 +2352,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 				}
 			}
 		}
-		else if(used_opt_params)
-		{
-			//push any optional parameter values
-			auto opt_param_count = func.opt_vals.size();
-			auto skipped_optional_params = opt_param_count - used_opt_params;
-			for(auto q = skipped_optional_params; q < opt_param_count; ++q)
-			{
-				addOpcode(new OPushImmediate(new LiteralArgument(func.opt_vals[q])));
-			}
-		}
+
 		commentStartEnd(targ_sz, fmt::format("{}{} Params",comment_pref,func_comment));
 		//goto
 		addOpcode(new OCallFunc(new LabelArgument(funclabel, true)));

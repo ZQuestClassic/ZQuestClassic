@@ -463,7 +463,7 @@ namespace ZScript
 		std::vector<Datum*> paramDatum;
 		std::vector<DataType const*> templ_bound_ts;
 		
-		std::vector<int32_t> opt_vals;
+		int32_t numOptionalParams;
 		int32_t id;
 
 		ASTFuncDecl* node;

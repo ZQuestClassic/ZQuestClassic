@@ -1009,9 +1009,8 @@ namespace ZScript
 		owning_ptr<ASTDataType> returnType;
 		owning_vector<ASTDataDecl> parameters;
 		owning_vector<ASTDataDecl> param_template;
-		owning_vector<ASTExprConst> optparams;
+		owning_vector<ASTExpr> optparams;
 		owning_vector<ASTString> templates;
-		std::vector<int32_t> optvals;
 		owning_ptr<ASTBlock> block;
 		std::vector<std::shared_ptr<DataTypeTemplate>> template_types;
 		std::string invalidMsg;
@@ -1884,9 +1883,11 @@ namespace ZScript
 		{
 			auto leftType = left->getReadType(scope, errorHandler);
 			auto rightType = right->getReadType(scope, errorHandler);
-			if (leftType->isBitflagsEnum() || rightType->isBitflagsEnum())
+			if (!leftType)
+				left->getReadType(scope, errorHandler);
+			if ((leftType && leftType->isBitflagsEnum()) || rightType->isBitflagsEnum())
 				return leftType;
-			if (leftType->isLong() || rightType->isLong())
+			if ((leftType && leftType->isLong()) || rightType->isLong())
 				return &DataType::LONG;
 			return &DataType::FLOAT;
 		}

@@ -864,20 +864,20 @@ Function_Parameters_Element :
 	;
 
 Function_OptParams_List :
-	Function_Parameters_Element ASSIGN Expression_Constant COMMA Function_OptParams_List {
+	Function_Parameters_Element ASSIGN Expression COMMA Function_OptParams_List {
 			ASTFuncDecl* func = (ASTFuncDecl*)$5;
 			ASTDataDecl* param = (ASTDataDecl*)$1;
-			ASTExprConst* cval = (ASTExprConst*)$3;
+			ASTExpr* val = (ASTExpr*)$3;
 			push_front(func->parameters, param);
-			push_front(func->optparams, cval);
+			push_front(func->optparams, val);
 			func->location = @$;
 			$$ = func;}
-	| Function_Parameters_Element ASSIGN Expression_Constant {
+	| Function_Parameters_Element ASSIGN Expression {
 			ASTDataDecl* param = (ASTDataDecl*)$1;
-			ASTExprConst* cval = (ASTExprConst*)$3;
+			ASTExpr* val = (ASTExpr*)$3;
 			ASTFuncDecl* func = new ASTFuncDecl(@$);
 			push_front(func->parameters, param);
-			push_front(func->optparams, cval);
+			push_front(func->optparams, val);
 			$$ = func;}
 	;
 

@@ -1118,18 +1118,9 @@ void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 	for(auto it = host.optparams.begin(); it != host.optparams.end() && parcnt < paramTypes.size(); ++it, ++parcnt)
 	{
 		DataType const* getType = (*it)->getReadType(scope, this);
-		if(!getType) return;
-		checkCast(*getType, *paramTypes[parcnt], &host);
+		if(getType)
+			checkCast(*getType, *paramTypes[parcnt], *it);
 		if(breakRecursion(host)) return;
-		std::optional<int32_t> optVal = (*it)->getCompileTimeValue(this, scope);
-		if (!optVal)
-		{
-			handleError(CompileError::Error(*it, fmt::format("Function '{}' has an optional parameter whose default value is not a constant expression", host.getName())));
-			doRegister(host);
-			return;
-		}
-
-		host.optvals.push_back(*optVal);
 	}
 	if(breakRecursion(host)) return;
 	
@@ -1533,9 +1524,7 @@ void RegistrationVisitor::caseExprCall(ASTExprCall& host, void* param)
 	deprecWarn(host.binding, &host, "Function", host.binding->getUnaliasedSignature().asString());
 	if(host.binding->getFlag(FUNCFLAG_READ_ONLY))
 		handleError(CompileError::ReadOnly(&host, host.binding->getUnaliasedSignature().asString()));
-	
-	if(!host.binding->get_constexpr())
-		handleError(CompileError::GlobalVarFuncCall(&host));
+
 	doRegister(host);
 }
 

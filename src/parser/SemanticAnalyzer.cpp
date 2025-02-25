@@ -981,11 +981,8 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void* param)
 	{
 		DataType const* getType = (*it)->getReadType(scope, this);
 		if(getType)
-			checkCast(*getType, *paramTypes[parcnt], &host);
+			checkCast(*getType, *paramTypes[parcnt], *it);
 		if(breakRecursion(host)) return;
-		std::optional<int32_t> optVal = (*it)->getCompileTimeValue(this, scope);
-		assert(optVal);
-		host.optvals.push_back(*optVal);
 	}
 	if(breakRecursion(host)) return;
 
@@ -1763,6 +1760,25 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 	deprecWarn(host.binding, &host, "Function", host.binding->getUnaliasedSignature().asString());
 	if(host.binding->getFlag(FUNCFLAG_READ_ONLY))
 		handleError(CompileError::ReadOnly(&host, host.binding->getUnaliasedSignature().asString()));
+
+	auto parcnt = host.binding->paramTypes.size() - host.binding->numOptionalParams;
+	auto& optparams = host.binding->node->optparams;
+
+	for (int i = host.parameters.size(); i < host.binding->paramTypes.size(); i++)
+	{
+		auto* p = optparams[i - parcnt];
+		DataType const* getType = p->getReadType(scope, this);
+		if(getType)
+			checkCast(*getType, *host.binding->paramTypes[parcnt], &host);
+		if(breakRecursion(host)) return;
+
+		auto* new_node = p->clone();
+		if (auto p = dynamic_cast<ASTExprCall*>(new_node))
+			p->binding = nullptr;
+		host.parameters.push_back(new_node);
+		visit(new_node, param);
+		if(breakRecursion(host)) return;
+	}
 }
 
 void SemanticAnalyzer::caseExprNegate(ASTExprNegate& host, void*)

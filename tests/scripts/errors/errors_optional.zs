@@ -8,21 +8,17 @@ int optional_params_2(int a = 0, int b = 1 + 1) {
 	return a;
 }
 
-// not ok, strings currently aren't considered compile time values (but probably should be)
+// ok
 int optional_params_3(char32[] a = "") {
 	return a;
 }
 
-// this should be not ok, b/c it is not a compile time value
-// But there is no error right now...
-// `DataType const* getType = (*it)->getReadType(scope, this);` in `RegistrationVisitor::caseFuncDecl` is somehow returning NULL
-// for this
-// compiled function doesn't work at all.
+// ok
 int optional_params_4(int a = Player->X) {
 	return a;
 }
 
-// not ok, not a compile time value
+// ok
 int optional_params_5(int a = optional_params_1()) {
 	return a;
 }

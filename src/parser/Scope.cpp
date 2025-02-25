@@ -925,7 +925,7 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 		
 		auto targetSize = parameterTypes.size();
 		auto maxSize = function->paramTypes.size() - (user_vargs ? 1 : 0);
-		auto minSize = maxSize - function->opt_vals.size();
+		auto minSize = maxSize - function->numOptionalParams;
 		// Match against parameter count, including optional params.
 		if (minSize > targetSize || (!vargs && maxSize < targetSize))
 		{
@@ -1667,10 +1667,7 @@ Function* BasicScope::addFunction(
 	fun->setInternalScope(subscope->makeFunctionChild(*fun));
 	if(node)
 	{
-		for(auto it = node->optvals.begin(); it != node->optvals.end(); ++it)
-		{
-			fun->opt_vals.push_back(*it);
-		}
+		fun->numOptionalParams = node->optparams.size();
 	}
 	if (flags&FUNCFLAG_INTERNAL)
 		initFunctionBinding(fun, handler);
@@ -2451,10 +2448,7 @@ Function* ClassScope::addFunction(
 	fun->setInternalScope(subscope->makeFunctionChild(*fun));
 	if(node)
 	{
-		for(auto it = node->optvals.begin(); it != node->optvals.end(); ++it)
-		{
-			fun->opt_vals.push_back(*it);
-		}
+		fun->numOptionalParams = node->optparams.size();
 	}
 	if (flags&FUNCFLAG_INTERNAL)
 	{

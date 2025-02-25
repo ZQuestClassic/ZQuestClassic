@@ -240,10 +240,10 @@ void DocVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 		};
 		(*symbol)["parameters"].push_back(std::move(j_param));
 	}
-	for (int i = 0; i < host.optvals.size(); i++)
+	for (int i = 0; i < host.optparams.size(); i++)
 	{
 		std::string snippet = getSourceCodeSnippet(host.optparams[i]->location);
-		(*symbol)["parameters"][host.parameters.size() - host.optvals.size() + i]["default"] = (*symbol)["value"] = snippet;
+		(*symbol)["parameters"][host.parameters.size() - host.optparams.size() + i]["default"] = (*symbol)["value"] = snippet;
 	}
 	if (host.getFlag(FUNCFLAG_VARARGS))
 		(*symbol)["varargs"] = host.func->extra_vargs;
