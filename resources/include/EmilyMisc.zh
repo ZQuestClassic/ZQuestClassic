@@ -1354,7 +1354,7 @@ namespace Emily
 	
 	void colorscr_txt(int color, int txtcolor, int font, char32 buf, bool hidesubscr) //start
 	{
-		Screen->Rectangle(7, 0, hidesubscr ? -56 : 0, 256, 168, color, 1, 0, 0, 0, true, OP_OPAQUE);
+		Screen->Rectangle(7, 0, hidesubscr ? -56 : 0, 256, 176, color, 1, 0, 0, 0, true, OP_OPAQUE);
 		DrawStrings(7, 128, ((224-Text->FontHeight(font))/2)-56, font, txtcolor, color, TF_CENTERED, buf, OP_OPAQUE, 2, 256);
 	} //end
 	

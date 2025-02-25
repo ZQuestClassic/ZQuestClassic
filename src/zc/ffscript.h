@@ -74,6 +74,8 @@ void doWarpEffect(int32_t warpEffect, bool out);
 #define svDMAPS 	0x10
 #define svMAPSCR 	0x20
 
+void apply_qr_rule(int qr_id);
+
 enum herospritetype
 {
 	LSprwalkspr, LSprstabspr, LSprslashspr, LSprfloatspr,

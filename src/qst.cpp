@@ -35,6 +35,8 @@
 #include "zc/zc_custom.h"
 #include "sfx.h"
 #include "md5.h"
+#include "zc/replay.h"
+#include "zc/zelda.h"
 #include "zinfo.h"
 #include "zc/ffscript.h"
 #include "particles.h"
@@ -3451,6 +3453,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 	{
 		set_qr(qr_NEWDARK_TRANS_STACKING,1);
 		set_qr(qr_BROKEN_SCRIPTS_SCROLLING_HERO_POSITION, 1);
+		// Note: in 3.0, this is only sometimes enabled for quests prior to 2.55.9.
+		set_qr(qr_HIDE_BOTTOM_8_PIXELS, 1);
 	}
 	
 	memcpy(Header, &tempheader, sizeof(tempheader));

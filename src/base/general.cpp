@@ -143,6 +143,11 @@ bool viewport_t::contains_or_on(const viewport_t& other) const
 	return other.right() <= right() && other.left() >= left() && other.top() >= top() && other.bottom() <= bottom();
 }
 
+int32_t viewport_t::visible_height(bool show_bottom_8px) const
+{
+	return h - (show_bottom_8px ? 0 : 8);
+}
+
 int32_t viewport_t::left() const
 {
 	return x;

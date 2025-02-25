@@ -3971,17 +3971,17 @@ void draw_msgstr(byte layer)
 
 	if(!(msg_bg_display_buf->clip))
 	{
-		blit_msgstr_bg(framebuf,0,0,0,playing_field_offset,256,168);
+		blit_msgstr_bg(framebuf,0,0,0,playing_field_offset,256,176);
 	}
 	
 	if(!(msg_portrait_display_buf->clip))
 	{
-		blit_msgstr_prt(framebuf,0,0,0,playing_field_offset,256,168);
+		blit_msgstr_prt(framebuf,0,0,0,playing_field_offset,256,176);
 	}
 	
 	if(!(msg_txt_display_buf->clip))
 	{
-		blit_msgstr_fg(framebuf,0,0,0,playing_field_offset,256,168);
+		blit_msgstr_fg(framebuf,0,0,0,playing_field_offset,256,176);
 	}
 }
 
@@ -4167,7 +4167,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	//2. Blit those layers onto framebuf
 	
 	set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
-	blit(scrollbuf, framebuf, 0, 0, 0, 0, 256, 224);
+	blit(scrollbuf, framebuf, 0, 0, 0, 0, 256, 232);
 
 	//6b. Draw the subscreen, without clipping
 	if(!get_qr(qr_SUBSCREENOVERSPRITES))
@@ -4178,11 +4178,11 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	}
 	
 	//3. Draw some sprites onto framebuf
-	set_clip_rect(framebuf,0,0,256,224);
+	set_clip_rect(framebuf,0,0,256,232);
 	
 	if(!(pricesdisplaybuf->clip))
 	{
-		masked_blit(pricesdisplaybuf,framebuf,0,0,0,playing_field_offset,256,168);
+		masked_blit(pricesdisplaybuf,framebuf,0,0,0,playing_field_offset,256,176);
 	}
 	
 	if(showhero && ((Hero.getAction()!=climbcovertop)&&(Hero.getAction()!=climbcoverbottom)))
@@ -4469,7 +4469,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	if(get_qr(qr_NEW_DARKROOM) && get_qr(qr_NEWDARK_L6) && (this_screen->flags&fDARK))
 	{
 		do_primitives(framebuf, SPLAYER_DARKROOM_UNDER, this_screen, 0, playing_field_offset);
-		set_clip_rect(framebuf, 0, playing_field_offset, 256, 168+playing_field_offset);
+		set_clip_rect(framebuf, 0, playing_field_offset, 256, 176+playing_field_offset);
 		if(this_screen->flags9 & fDARK_DITHER) //dither the entire bitmap
 		{
 			ditherblit(darkscr_bmp_curscr,darkscr_bmp_curscr,0,game->get_dither_type(),game->get_dither_arg());
@@ -4485,7 +4485,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		}
 		else
 		{
-			masked_blit(darkscr_bmp_curscr, framebuf, 0, 0, 0, playing_field_offset, 256, 168);
+			masked_blit(darkscr_bmp_curscr, framebuf, 0, 0, 0, playing_field_offset, 256, 176);
 			draw_trans_sprite(framebuf, darkscr_bmp_curscr_trans, 0, playing_field_offset);
 		}
 		color_map = &trans_table;
@@ -4497,7 +4497,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	
 	//12. Draw some text on framebuf
 	
-	set_clip_rect(framebuf,0,0,256,224);
+	set_clip_rect(framebuf,0,0,256,232);
 	
 	draw_msgstr(6);
 	
@@ -4514,7 +4514,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	if(get_qr(qr_NEW_DARKROOM) && !get_qr(qr_NEWDARK_L6) && (this_screen->flags&fDARK))
 	{
 		do_primitives(framebuf, SPLAYER_DARKROOM_UNDER, this_screen, 0, playing_field_offset);
-		set_clip_rect(framebuf, 0, playing_field_offset, 256, 168+playing_field_offset);
+		set_clip_rect(framebuf, 0, playing_field_offset, 256, 176+playing_field_offset);
 		if(this_screen->flags9 & fDARK_DITHER) //dither the entire bitmap
 		{
 			ditherblit(darkscr_bmp_curscr,darkscr_bmp_curscr,0,game->get_dither_type(),game->get_dither_arg());
@@ -4530,7 +4530,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		}
 		else
 		{
-			masked_blit(darkscr_bmp_curscr, framebuf, 0, 0, 0, playing_field_offset, 256, 168);
+			masked_blit(darkscr_bmp_curscr, framebuf, 0, 0, 0, playing_field_offset, 256, 176);
 			draw_trans_sprite(framebuf, darkscr_bmp_curscr_trans, 0, playing_field_offset);
 		}
 		color_map = &trans_table;
@@ -6936,7 +6936,7 @@ void ViewMap()
 		
 		if(!redraw)
 		{
-			blit(scrollbuf,framebuf,256,0,0,0,256,224);
+			blit(scrollbuf,framebuf,256,0,0,0,256,232);
 		}
 		else
 		{
@@ -6945,7 +6945,7 @@ void ViewMap()
 						 int32_t(256+(int64_t(px)-mappic->w)*scale)/2,int32_t(224+(int64_t(py)-mappic->h)*scale)/2,
 						 int32_t(mappic->w*scale),int32_t(mappic->h*scale));
 						 
-			blit(framebuf,scrollbuf,0,0,256,0,256,224);
+			blit(framebuf,scrollbuf,0,0,256,0,256,232);
 			redraw=false;
 		}
 		

@@ -3192,6 +3192,37 @@ void item_flag(int32_t flag, bool val)
 	SETFLAG(itemsbuf[ri->idata].flags, flag, val);
 }
 
+
+void apply_qr_rule(int qr_id)
+{
+	bool value = get_qr(qr_id);
+	switch (qr_id)
+	{
+		case qr_LTTPWALK:
+			Hero.setDiagMove(value?1:0);
+			break;
+		case qr_LTTPCOLLISION:
+			Hero.setBigHitbox(value?1:0);
+			break;
+		case qr_ZS_NO_NEG_ARRAY:
+			can_neg_array = !value;
+			break;
+		case qr_HIDE_BOTTOM_8_PIXELS:
+		{
+			updateShowBottomPixels();
+			break;
+		}
+	}
+}
+
+static void apply_qr_rules()
+{
+	// apply_qr_rule(qr_HIDE_BOTTOM_8_PIXELS);
+	apply_qr_rule(qr_LTTPCOLLISION);
+	apply_qr_rule(qr_LTTPWALK);
+	apply_qr_rule(qr_ZS_NO_NEG_ARRAY);
+}
+
 //Forward decl
 int32_t do_msgheight(int32_t msg, char const* str);
 int32_t do_msgwidth(int32_t msg, char const* str);

@@ -23,11 +23,11 @@ int32_t dith_prev_proc(int32_t msg, DIALOG* d, int32_t)
 				case BLACK: col = 0xE0; break;
 				case WHITE: col = 0xEF; break;
 			}
-			BITMAP* tmpbmp = create_bitmap_ex(8,256,168);
+			BITMAP* tmpbmp = create_bitmap_ex(8,256,176);
 			clear_bitmap(tmpbmp);
 			ditherrectfill(tmpbmp, 0, 0, 255, 167,
 				col, prev.dtype, prev.darg, 0, 0);
-			masked_stretch_blit(tmpbmp, screen, 0, 0, 256, 168, tx, ty, tw, th);
+			masked_stretch_blit(tmpbmp, screen, 0, 0, 256, 176, tx, ty, tw, th);
 			destroy_bitmap(tmpbmp);
 			break;
 		}

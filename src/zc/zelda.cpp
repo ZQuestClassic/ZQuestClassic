@@ -158,6 +158,7 @@ int32_t passive_subscreen_height=56;
 int32_t original_playing_field_offset=56;
 int32_t playing_field_offset=original_playing_field_offset;
 int32_t passive_subscreen_offset=0;
+bool show_bottom_8px;
 extern int32_t directItemA;
 extern int32_t directItemB;
 extern int32_t directItemY;
@@ -182,7 +183,7 @@ void playLevelMusic();
 int32_t draw_screen_clip_rect_x1=0;
 int32_t draw_screen_clip_rect_x2=255;
 int32_t draw_screen_clip_rect_y1=0;
-int32_t draw_screen_clip_rect_y2=223;
+int32_t draw_screen_clip_rect_y2=231;
 
 extern int32_t script_hero_sprite;
 extern int32_t script_hero_cset;
@@ -378,7 +379,7 @@ solid_object* switching_object = NULL;
 byte COOLSCROLL = 0;
 
 int32_t  add_asparkle=0, add_bsparkle=0;
-int32_t SnapshotFormat, NameEntryMode=0;
+int32_t SnapshotFormat, NameEntryMode, ShowBottomPixels;
 byte SnapshotScale;
 
 char   zeldadat_sig[52]={0};
@@ -1617,7 +1618,7 @@ void init_game_vars(bool is_cont_game = false)
 	draw_screen_clip_rect_x1=0; //Prevent the ending sequence from carrying over through 'Reset System' -Z
 	draw_screen_clip_rect_x2=255;
 	draw_screen_clip_rect_y1=0;
-	draw_screen_clip_rect_y2=223;	
+	draw_screen_clip_rect_y2=231;	
 	didpit=false;
 	Hero.unfreeze();
 	Hero.reset_hookshot();
@@ -1668,6 +1669,7 @@ void init_game_vars(bool is_cont_game = false)
 	{
 		visited[i]=-1;
 	}
+	update_viewport();
 }
 
 int32_t init_game()
@@ -1794,6 +1796,25 @@ int32_t init_game()
 
 		delete[] buffer;
 	}
+
+	if (replay_version_check(0, 39))
+		set_qr(qr_HIDE_BOTTOM_8_PIXELS, 1);
+	updateShowBottomPixels();
+
+	// Apply the user's preference for this QR, but only if not replaying.
+	if (!replay_is_replaying())
+	{
+		int qr = qr_HIDE_BOTTOM_8_PIXELS;
+		bool value = false;
+		if (ShowBottomPixels == 1)
+			value = false;
+		else if (ShowBottomPixels == 2)
+			value = true;
+		enqueue_qr_change(qr, value);
+	}
+
+	// Apply the first frame's QR changes.
+	process_enqueued_qr_changes();
 
 	FFCore.init();
 	FFCore.user_bitmaps_init();
@@ -4393,7 +4414,12 @@ int main(int argc, char **argv)
 	
 	// allocate bitmap buffers
 	set_color_depth(8);
+
+	// Note: These will be recreated in apply_qr_rule.
 	framebuf  = create_bitmap_ex(8,256,224);
+	script_menu_buf = create_bitmap_ex(8,256,224);
+	f6_menu_buf = create_bitmap_ex(8,256,224);
+
 	menu_bmp  = create_bitmap_ex(8,640,480);
 	scrollbuf = create_bitmap_ex(8,512,406);
 	screen2   = create_bitmap_ex(8,320,240);
@@ -4408,8 +4434,6 @@ int main(int argc, char **argv)
 	msg_portrait_bmp_buf = create_bitmap_ex(8, 256, 256);
 	msg_portrait_display_buf = create_bitmap_ex(8, 256, 256);
 	pricesdisplaybuf = create_bitmap_ex(8,256, 176);
-	script_menu_buf = create_bitmap_ex(8,256,224);
-	f6_menu_buf = create_bitmap_ex(8,256,224);
 	darkscr_bmp_curscr = create_bitmap_ex(8, 256, 176);
 	darkscr_bmp_curscr_trans = create_bitmap_ex(8, 256, 176);
 	darkscr_bmp_scrollscr = create_bitmap_ex(8, 256, 176);

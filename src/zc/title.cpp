@@ -1428,6 +1428,8 @@ void titlescreen(int32_t lsave)
 		return;
 	}
 
+	updateShowBottomPixels();
+
 	if (saves_current_selection() != -1)
 	{
 		last_slot_pos = saves_current_selection() % 3;

@@ -7,7 +7,7 @@ void GUIRoot_Create()
     GUI_Data[WIDGET_X]=0;
     GUI_Data[WIDGET_Y]=-56;
     GUI_Data[WIDGET_WIDTH]=256;
-    GUI_Data[WIDGET_HEIGHT]=168+56;
+    GUI_Data[WIDGET_HEIGHT]=176+56;
     GUI_Data[WIDGET_PARENT]=-1;
     GUI_Data[WIDGET_FIRST_CHILD]=-1;
     GUI_Data[WIDGET_NEXT_CHILD]=-1;
